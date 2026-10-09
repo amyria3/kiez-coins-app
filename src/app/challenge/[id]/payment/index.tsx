@@ -1,0 +1,61 @@
+import { StyleSheet, Text, View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+
+import { AuthorRow } from '../../../../components/AuthorRow';
+import { Button } from '../../../../components/Button';
+import { Notice } from '../../../../components/Content';
+import { SubScreen } from '../../../../components/Screen';
+import { formatDayMonth, formatEuro } from '../../../../data/format';
+import { useChallenge, useStore } from '../../../../data/store';
+import { color, space, text } from '../../../../theme/tokens';
+
+/** Route `challenge/[id]/payment` (Push). Figma: `challenge/payment`, Empfang der Bounty bestätigen. */
+export default function PaymentScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  const { dispatch } = useStore();
+  const { challenge, author } = useChallenge(id);
+
+  if (!challenge || !author || !challenge.bountyAmount) return null;
+
+  const received = () => {
+    dispatch({ type: 'confirmReceived', id: challenge.id });
+    router.replace(`/challenge/${challenge.id}/payment/success`);
+  };
+
+  const day = challenge.paidMarkedAt ? `am ${formatDayMonth(challenge.paidMarkedAt)} ` : '';
+
+  return (
+    <SubScreen
+      title="Bounty"
+      navigation="back"
+      onLeadingPress={() => router.back()}
+      actions={
+        <>
+          <Button label="Ja, erhalten" onPress={received} />
+          <Button
+            label="Nein, nicht erhalten"
+            variant="secondary"
+            onPress={() => router.push(`/user/${author.id}/report?challengeId=${challenge.id}&reason=not_paid`)}
+          />
+        </>
+      }
+    >
+      <AuthorRow user={author} location={challenge.location} />
+      <View style={styles.block}>
+        <Text style={styles.title}>Ist die Bounty angekommen?</Text>
+        <Text style={styles.secondary}>
+          {author.firstName} hat {day}die {formatEuro(challenge.bountyAmount)} als bezahlt markiert. Schau auf Dein Konto
+          oder in PayPal.
+        </Text>
+      </View>
+      <Notice message="Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach noch fehlt." />
+    </SubScreen>
+  );
+}
+
+const styles = StyleSheet.create({
+  block: { gap: space[8] },
+  title: { ...text.title, color: color.text.primary },
+  secondary: { ...text.body, color: color.text.secondary },
+});

@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Kiez Coins",
+    "slug": "kiez-coins-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#1F2123",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-image",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Kiez Coins braucht Zugriff auf Deine Fotos, damit Du ein Foto zur Challenge hinzuf\u00fcgen kannst.",
+          "cameraPermission": "Kiez Coins braucht die Kamera, damit Du ein Foto zur Challenge aufnehmen kannst."
+        }
+      ]
+    ],
+    "scheme": "kiezcoins",
+    "backgroundColor": "#1F2123"
+  }
+}
