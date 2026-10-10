@@ -77,14 +77,18 @@ export const stroke = {
 export const font = {
   light: 'Inter_300Light',
   regular: 'Inter_400Regular',
+  medium: 'Inter_500Medium',
   semiBold: 'Inter_600SemiBold',
 } as const;
 
 // Text Styles
 export const text = {
   title: { fontFamily: font.regular, fontSize: 18, lineHeight: 24 },
-  body: { fontFamily: font.regular, fontSize: 14, lineHeight: 18 },
+  body: { fontFamily: font.light, fontSize: 14, lineHeight: 18 },
   caption: { fontFamily: font.regular, fontSize: 11, lineHeight: 16 },
   labelXs: { fontFamily: font.light, fontSize: 9, lineHeight: 11 },
-  button: { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20 },
+  /** `text/button/dark-on-light`: dunkle Schrift auf heller Fläche (Primary) */
+  buttonDarkOnLight: { fontFamily: font.medium, fontSize: 16, lineHeight: 20 },
+  /** `text/button/light-on-dark`: helle Schrift auf dunkler Fläche (Secondary) */
+  buttonLightOnDark: { fontFamily: font.regular, fontSize: 16, lineHeight: 20 },
 } satisfies Record<string, TextStyle>;

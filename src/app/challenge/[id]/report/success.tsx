@@ -1,7 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { StatusBadge } from '../../../../components/Badges';
-import { Button } from '../../../../components/Button';
 import { ResultScreen } from '../../../../components/Screen';
 import { formatEuro } from '../../../../data/format';
 import { useChallenge } from '../../../../data/store';
@@ -12,10 +11,10 @@ export default function ReportSuccess() {
   const router = useRouter();
   const { challenge, author } = useChallenge(id);
   const name = author?.firstName ?? '';
-  const payout = challenge?.report?.shareIban ? 'Deine IBAN' : 'Deine Zahlungsdaten';
+  const data = challenge?.payoutShare?.method === 'paypal' ? 'Dein PayPal' : 'Deine IBAN';
 
   const message = challenge?.bountyAmount
-    ? `Ich sag Dir Bescheid, sobald ${name} bestätigt hat. Dann sieht ${name} ${payout} und zahlt Dir die ${formatEuro(challenge.bountyAmount)} direkt.`
+    ? `Ich sag Dir Bescheid, sobald ${name} bestätigt hat. Dann sieht ${name} ${data} und zahlt Dir die ${formatEuro(challenge.bountyAmount)} direkt.`
     : `Ich sag Dir Bescheid, sobald ${name} bestätigt hat.`;
 
   return (
@@ -23,7 +22,7 @@ export default function ReportSuccess() {
       badge={<StatusBadge status="reported" />}
       title="Gemeldet!"
       message={message}
-      actions={<Button label="Zurück zum Feed" onPress={() => router.dismissTo('/feed')} />}
+      onFeedPress={() => router.dismissTo('/feed')}
     />
   );
 }

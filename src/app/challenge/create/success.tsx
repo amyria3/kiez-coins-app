@@ -15,18 +15,15 @@ export default function CreateSuccess() {
       badge={<StatusBadge status="open" />}
       title="Deine Challenge ist online"
       message="Wir zeigen sie den Nachbar:innen in Deinem Kiez."
+      onFeedPress={() => router.dismissTo('/feed')}
       actions={
-        <>
-          <Button label="Zum Feed" onPress={() => router.dismissTo('/feed')} />
-          <Button
-            label="Challenge ansehen"
-            variant="secondary"
-            onPress={() => {
-              router.dismissTo('/feed');
-              router.push(`/challenge/${id}`);
-            }}
-          />
-        </>
+        <Button
+          label="Challenge ansehen"
+          onPress={() => {
+            router.dismissTo('/feed');
+            router.push(`/challenge/${id}`);
+          }}
+        />
       }
     />
   );

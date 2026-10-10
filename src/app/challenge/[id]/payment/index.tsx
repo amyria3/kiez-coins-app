@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AuthorRow } from '../../../../components/AuthorRow';
+import { StatusBadge } from '../../../../components/Badges';
 import { Button } from '../../../../components/Button';
 import { Notice } from '../../../../components/Content';
 import { SubScreen } from '../../../../components/Screen';
@@ -41,7 +42,7 @@ export default function PaymentScreen() {
         </>
       }
     >
-      <AuthorRow user={author} location={challenge.location} />
+      <AuthorRow user={author} location={challenge.location} trailing={<StatusBadge status={challenge.status} />} />
       <View style={styles.block}>
         <Text style={styles.title}>Ist die Bounty angekommen?</Text>
         <Text style={styles.secondary}>

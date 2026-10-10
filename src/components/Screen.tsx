@@ -46,23 +46,31 @@ type ResultScreenProps = {
   badge?: ReactNode;
   title: string;
   message: string;
-  actions: ReactNode;
+  /** Kopfzeile „Zum Feed“ (Figma NavigationBar Variant=Feed). Fehlt sie, gibt es keine Kopfzeile. */
+  onFeedPress?: () => void;
+  /** Weitere Inhalte unter dem Text, z. B. Zahlungsdaten */
+  children?: ReactNode;
+  actions?: ReactNode;
 };
 
-/** Erfolgs-Screens (`…/success`): Kater, Status, Titel und Text mittig, Buttons unten. */
-export function ResultScreen({ mood = 'default', badge, title, message, actions }: ResultScreenProps) {
+/** Abschluss-Screens (`…/success`): Kater, Status, Titel und Text mittig, Buttons unten. */
+export function ResultScreen({ mood = 'default', badge, title, message, onFeedPress, children, actions }: ResultScreenProps) {
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <ScrollView style={styles.flex} contentContainerStyle={styles.resultContent}>
-        <Cat mood={mood} height={86} />
-        {badge}
-        <Text style={styles.resultTitle} accessibilityRole="header">
-          {title}
-        </Text>
-        <Text style={styles.resultMessage}>{message}</Text>
+      {onFeedPress ? <NavigationBar variant="feed" onLeadingPress={onFeedPress} /> : null}
+      <ScrollView style={styles.flex} contentContainerStyle={[styles.resultContent, children ? styles.resultTop : null]}>
+        <View style={styles.resultHead}>
+          <Cat mood={mood} height={86} />
+          {badge}
+          <Text style={styles.resultTitle} accessibilityRole="header">
+            {title}
+          </Text>
+          <Text style={styles.resultMessage}>{message}</Text>
+        </View>
+        {children ? <View style={styles.resultChildren}>{children}</View> : null}
       </ScrollView>
-      <ActionBar>{actions}</ActionBar>
+      {actions ? <ActionBar>{actions}</ActionBar> : <View style={{ height: insets.bottom }} />}
     </View>
   );
 }
@@ -84,6 +92,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: space[24],
     gap: space[16],
   },
+  resultTop: { justifyContent: 'flex-start', paddingTop: space[8], alignItems: 'stretch' },
+  resultHead: { alignItems: 'center', gap: space[16] },
+  resultChildren: { gap: space[12], alignSelf: 'stretch' },
   resultTitle: { ...text.title, color: color.text.primary, textAlign: 'center' },
   resultMessage: { ...text.body, color: color.text.secondary, textAlign: 'center' },
 });

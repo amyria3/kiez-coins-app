@@ -1,19 +1,20 @@
 import { useRouter } from 'expo-router';
 
 import { StatusBadge } from '../../../../components/Badges';
-import { Button } from '../../../../components/Button';
 import { ResultScreen } from '../../../../components/Screen';
+import { anrede } from '../../../../data/format';
+import { useStore } from '../../../../data/store';
 
-/** Route `challenge/[id]/payment/success`. Figma: `challenge/payment/success`. */
+/** Route `challenge/[id]/payment/success`. Figma: `challenge/payment/success`. Status paid. */
 export default function PaymentSuccess() {
   const router = useRouter();
+  const { profile } = useStore();
   return (
     <ResultScreen
-      mood="high"
       badge={<StatusBadge status="paid" />}
       title="Super, alles erledigt!"
-      message="Die Bounty ist angekommen. Danke, dass Du Deinen Kiez schöner machst."
-      actions={<Button label="Zum Feed" onPress={() => router.dismissTo('/feed')} />}
+      message={`Die Bounty ist angekommen. Danke, ${anrede(profile)}!`}
+      onFeedPress={() => router.dismissTo('/feed')}
     />
   );
 }

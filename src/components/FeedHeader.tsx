@@ -5,27 +5,30 @@ import type { Challenge } from '../data/types';
 import { color, radius, size, space, stroke, text } from '../theme/tokens';
 import { Cat, Wordmark } from './icons/Brand';
 import { IconButton } from './IconButton';
+import { SkeletonTopItem } from './Skeleton';
 
 type AppHeaderProps = {
+  onMenuPress: () => void;
   onCreatePress: () => void;
   /** Langes Drücken aufs Logo öffnet das Demo-Menü (nur für Tests mit Beispieldaten). */
   onLogoLongPress?: () => void;
 };
 
-/** Figma „AppHeader“: Logo links, Kamera rechts (öffnet „Challenge erstellen“). */
-export function AppHeader({ onCreatePress, onLogoLongPress }: AppHeaderProps) {
+/** Figma „AppHeader“: Burger-Menü links (Konto), Logo mit Kater in der Mitte, Kamera rechts. */
+export function AppHeader({ onMenuPress, onCreatePress, onLogoLongPress }: AppHeaderProps) {
   return (
     <View style={styles.header}>
+      <IconButton icon="burger" accessibilityLabel="Dein Konto" onPress={onMenuPress} />
       <Pressable
         onLongPress={onLogoLongPress}
         accessibilityRole="header"
         accessibilityLabel="Kiez Coins"
         style={styles.logo}
       >
-        <Cat height={36} />
         <Wordmark />
+        <Cat height={36} />
       </Pressable>
-      <IconButton icon="camera" accessibilityLabel="Foto aufnehmen" onPress={onCreatePress} />
+      <IconButton icon="camera" accessibilityLabel="Challenge erstellen" onPress={onCreatePress} />
     </View>
   );
 }
@@ -37,6 +40,16 @@ type TopChallengeBarProps = {
 
 /** Figma „TopChallengeBar“: horizontale Liste aus „TopChallengeItem“. */
 export function TopChallengeBar({ items, onItemPress }: TopChallengeBarProps) {
+  if (items.length === 0) {
+    // Ladezustand (Figma FeedScreen State=Loading)
+    return (
+      <View style={[styles.topBar, styles.row]}>
+        {[0, 1, 2].map((i) => (
+          <SkeletonTopItem key={i} />
+        ))}
+      </View>
+    );
+  }
   return (
     <FlatList
       horizontal
@@ -100,13 +113,13 @@ export function TabsNavigation({ selectedKey, onChange }: { selectedKey: FeedTab
 }
 
 const styles = StyleSheet.create({
+  row: { flexDirection: 'row' },
   noGrow: { flexGrow: 0, flexShrink: 0 },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingLeft: space[12],
-    paddingRight: space[4],
+    paddingHorizontal: space[4],
     paddingVertical: space[8],
   },
   logo: { flexDirection: 'row', alignItems: 'center', gap: space[6] },

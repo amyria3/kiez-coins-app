@@ -5,7 +5,7 @@ import { color, space, text } from '../theme/tokens';
 import { Button } from './Button';
 import { Cat } from './icons/Brand';
 
-const messages: Record<Exclude<FeedState, 'filled'>, { title: string; body: string; action: string }> = {
+const messages: Record<Exclude<FeedState, 'filled' | 'loading'>, { title: string; body: string; action: string }> = {
   empty: {
     title: 'Noch keine Challenges in Deiner Nähe',
     body: 'Starte die erste Challenge für Deinen Kiez. Der Kater freut sich schon.',
@@ -24,7 +24,7 @@ const messages: Record<Exclude<FeedState, 'filled'>, { title: string; body: stri
 };
 
 /** Figma „FeedStateMessage“ (Empty, Error, Offline) */
-export function FeedStateMessage({ variant, onAction }: { variant: Exclude<FeedState, 'filled'>; onAction: () => void }) {
+export function FeedStateMessage({ variant, onAction }: { variant: Exclude<FeedState, 'filled' | 'loading'>; onAction: () => void }) {
   const m = messages[variant];
   return (
     <View style={styles.container}>

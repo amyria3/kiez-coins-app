@@ -1,7 +1,7 @@
 import { createContext, useContext, useMemo, useReducer, type ReactNode } from 'react';
 
-import { sampleChallenges, sampleUsers } from './sample';
-import type { Challenge, ChallengeReport, FeedState, Payout, User } from './types';
+import { sampleChallenges, sampleProfile, sampleUsers } from './sample';
+import type { Challenge, ChallengeReport, Comment, FeedState, Payout, PayoutShare, Profile, User } from './types';
 
 // Lokaler Zustand mit Beispieldaten. Wird später durch Supabase-Abfragen ersetzt;
 // die Aktionen entsprechen den Statuswechseln aus den Figma-Annotationen.
@@ -12,13 +12,23 @@ type State = {
   /** Wer gerade die App benutzt. Im Demo-Menü umschaltbar. */
   currentUserId: string;
   feedState: FeedState;
+  profile: Profile;
 };
 
 type Action =
   | { type: 'accept'; id: string }
   | { type: 'giveBack'; id: string }
   | { type: 'report'; id: string; report: ChallengeReport }
+  | { type: 'nameOperation'; id: string; name?: string }
+  | { type: 'addComment'; id: string; body: string }
+  | { type: 'sharePayout'; id: string; share: PayoutShare }
+  | { type: 'revokeShare'; id: string }
   | { type: 'confirm'; id: string }
+  | { type: 'undoConfirm'; id: string }
+  | { type: 'unmarkPaid'; id: string }
+  | { type: 'updateProfile'; patch: Partial<Profile> }
+  | { type: 'signOut' }
+  | { type: 'deleteAccount' }
   | { type: 'reject'; id: string; reason: string }
   | { type: 'markPaid'; id: string }
   | { type: 'confirmReceived'; id: string }
@@ -38,9 +48,45 @@ function updateChallenge(state: State, id: string, patch: (c: Challenge) => Part
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'accept':
-      return updateChallenge(state, action.id, () => ({ status: 'accepted', assigneeId: state.currentUserId }));
+      return updateChallenge(state, action.id, () => ({
+        status: 'accepted',
+        assigneeId: state.currentUserId,
+        acceptedAt: new Date().toISOString(),
+      }));
     case 'giveBack':
-      return updateChallenge(state, action.id, () => ({ status: 'open', assigneeId: undefined, report: undefined }));
+      return updateChallenge(state, action.id, () => ({
+        status: 'open',
+        assigneeId: undefined,
+        acceptedAt: undefined,
+        operationName: undefined,
+        report: undefined,
+        payoutShare: undefined,
+      }));
+    case 'nameOperation':
+      return updateChallenge(state, action.id, () => ({ operationName: action.name?.trim() ?? '' }));
+    case 'addComment': {
+      const comment: Comment = {
+        id: `comment-${Date.now()}`,
+        authorId: state.currentUserId,
+        body: action.body,
+        createdAt: new Date().toISOString(),
+      };
+      return updateChallenge(state, action.id, (c) => ({ comments: [...c.comments, comment] }));
+    }
+    case 'sharePayout':
+      return updateChallenge(state, action.id, () => ({ payoutShare: action.share }));
+    case 'revokeShare':
+      return updateChallenge(state, action.id, () => ({ payoutShare: undefined }));
+    case 'undoConfirm':
+      return updateChallenge(state, action.id, () => ({ status: 'reported' }));
+    case 'unmarkPaid':
+      return updateChallenge(state, action.id, () => ({ status: 'payment_open', paidMarkedAt: undefined }));
+    case 'updateProfile':
+      return { ...state, profile: { ...state.profile, ...action.patch } };
+    case 'signOut':
+      return { ...state, profile: { ...state.profile, onboarded: false } };
+    case 'deleteAccount':
+      return { ...state, profile: sampleProfile };
     case 'report':
       return updateChallenge(state, action.id, () => ({ status: 'reported', report: action.report }));
     case 'confirm':
@@ -72,6 +118,7 @@ const initialState: State = {
   challenges: sampleChallenges,
   currentUserId: 'gardeners',
   feedState: 'filled',
+  profile: sampleProfile,
 };
 
 type Store = State & { dispatch: (action: Action) => void };

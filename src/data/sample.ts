@@ -1,4 +1,4 @@
-import type { Challenge, User } from './types';
+import type { Challenge, Comment, Profile, User } from './types';
 
 // Beispieldaten aus den Figma-Screens. Fotos: assets/sample (aus Figma exportiert).
 
@@ -20,12 +20,19 @@ export const sampleUsers: User[] = [
     id: 'peter',
     name: 'Peter J.',
     firstName: 'Peter',
+    location: 'Radebergerstr. 12, 04188 Leipzig',
     avatar: images.avatarPeter,
+  },
+  {
+    id: 'lena',
+    name: 'Lena K.',
+    firstName: 'Lena',
   },
   {
     id: 'gardeners',
     name: 'Nachbarschaftsgärtner*innen',
     firstName: 'Nachbarschaftsgärtner*innen',
+    location: 'Tempelhofer Feld',
     group: true,
     payout: {
       accountHolder: 'Nachbarschaftsgärtner*innen e. V.',
@@ -36,6 +43,31 @@ export const sampleUsers: User[] = [
   },
 ];
 
+const gardenersPayout = sampleUsers.find((u) => u.id === 'gardeners')!.payout!;
+
+const gardenComments: Comment[] = [
+  {
+    id: 'c1',
+    authorId: 'lena',
+    body: 'Gibt es vor Ort Handschuhe oder soll ich eigene mitbringen?',
+    createdAt: inPast(2 * HOUR),
+  },
+  {
+    id: 'c2',
+    authorId: 'peter',
+    body: 'Handschuhe und Schaufeln sind da. Bring gern Wasser mit!',
+    createdAt: inPast(1 * HOUR),
+  },
+];
+
+/** Profil aus dem Onboarding in Figma. Bis das Onboarding durchlaufen ist, ist `onboarded` false. */
+export const sampleProfile: Profile = {
+  email: '',
+  handle: '',
+  push: true,
+  onboarded: false,
+};
+
 export const sampleChallenges: Challenge[] = [
   {
     id: 'garten-kuf',
@@ -44,12 +76,14 @@ export const sampleChallenges: Challenge[] = [
     text: 'KulturHaus KUF freut sich über Hilfe bei der Sanierung des Nachbarschaftsgartens. Gebraucht werden Schaufeln, Handschuhe und ein paar helfende Hände am Samstag ab 10 Uhr. Wasser und Kaffee gibt es vor Ort.',
     authorId: 'peter',
     location: 'Radebergerstr. 12, 04188 Leipzig',
+    kiez: 'Schönefeld, Leipzig',
     bountyAmount: 15,
     status: 'open',
     image: images.garden,
     likedByMe: false,
     deadline: inFuture(5 * DAY + 12 * HOUR),
     createdAt: inPast(2 * HOUR),
+    comments: gardenComments,
   },
   {
     id: 'tempelhofer-feld',
@@ -60,6 +94,8 @@ export const sampleChallenges: Challenge[] = [
       'Hilfe! Auf dem Tempelhofer Feld hat sich nach den letzten paar Festivals einiges an Müll angesammelt. Wir möchten am Sonntag gemeinsam aufräumen. Greifzangen und Säcke sind da.',
     authorId: 'gardeners',
     location: 'Tempelhofer Feld',
+    kiez: 'Tempelhof, Berlin',
+    comments: [],
     status: 'confirmed',
     imageAfter: images.cleanupAfter,
     imageBefore: images.cleanupBefore,
@@ -77,12 +113,14 @@ export const sampleChallenges: Challenge[] = [
     text: 'Das Igelhaus im Hinterhof ist beim letzten Sturm umgekippt. Wer hilft, es wieder aufzubauen und mit Laub zu füllen?',
     authorId: 'peter',
     location: 'Radebergerstr. 12, 04188 Leipzig',
+    kiez: 'Schönefeld, Leipzig',
     bountyAmount: 5,
     status: 'open',
     image: images.garden,
     likedByMe: false,
     deadline: inFuture(2 * DAY + 4 * HOUR),
     createdAt: inPast(5 * HOUR),
+    comments: [],
   },
   {
     id: 'gruenstreifen-malibu',
@@ -92,18 +130,20 @@ export const sampleChallenges: Challenge[] = [
     authorId: 'peter',
     assigneeId: 'gardeners',
     location: 'Radebergerstr. 12, 04188 Leipzig',
+    kiez: 'Schönefeld, Leipzig',
     bountyAmount: 15,
     status: 'reported',
     image: images.cleanupBefore,
     likedByMe: false,
     deadline: inFuture(3 * DAY),
     createdAt: inPast(2 * DAY),
+    acceptedAt: inPast(1 * DAY),
     report: {
       photo: images.cleanupAfter,
       note: 'Beete sind frei, Werkzeug liegt wieder im Schuppen.',
-      shareIban: true,
-      sharePaypal: false,
     },
+    payoutShare: { method: 'iban', payout: gardenersPayout },
+    comments: [],
   },
   {
     id: 'sommerfest',
@@ -113,17 +153,17 @@ export const sampleChallenges: Challenge[] = [
     authorId: 'peter',
     assigneeId: 'gardeners',
     location: 'Radebergerstr. 12, 04188 Leipzig',
+    kiez: 'Schönefeld, Leipzig',
     bountyAmount: 15,
     status: 'paid_marked',
     image: images.cleanupAfter,
     likedByMe: false,
     deadline: inPast(2 * DAY),
     createdAt: inPast(9 * DAY),
-    report: {
-      photo: images.cleanupAfter,
-      shareIban: true,
-      sharePaypal: false,
-    },
+    acceptedAt: inPast(7 * DAY),
+    report: { photo: images.cleanupAfter },
+    payoutShare: { method: 'iban', payout: gardenersPayout },
+    comments: [],
     paidMarkedAt: inPast(1 * DAY),
   },
 ];
