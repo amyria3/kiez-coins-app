@@ -55,3 +55,66 @@ export function maskIban(input: string): string {
 export function nameInText(user: { firstName: string; name: string; group?: boolean }): string {
   return user.group ? `die ${user.name}` : user.firstName;
 }
+
+/** „Noch 5 Tage 12 Std.“ (kurze Form unter dem Kater nach dem Annehmen) */
+export function formatRemainingShort(deadlineIso: string, now = Date.now()): string {
+  const ms = Math.max(0, new Date(deadlineIso).getTime() - now);
+  const days = Math.floor(ms / 86_400_000);
+  const hours = Math.floor((ms % 86_400_000) / 3_600_000);
+  const dayText = days === 1 ? '1 Tag' : `${days} Tage`;
+  if (days === 0) return `Noch ${hours} Std.`;
+  if (hours === 0) return `Noch ${dayText}`;
+  return `Noch ${dayText} ${hours} Std.`;
+}
+
+const MONTHS_SHORT = ['Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni', 'Juli', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dez.'];
+const MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+/** „9. Okt.“ */
+export function formatDayMonthShort(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getDate()}. ${MONTHS_SHORT[d.getMonth()]}`;
+}
+
+/** „10. Januar 2027“ */
+export function formatDateLong(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getDate()}. ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+/** „vor 2 Std.“, „gerade eben“ */
+export function formatRelative(iso: string, now = Date.now()): string {
+  const minutes = Math.floor((now - new Date(iso).getTime()) / 60_000);
+  if (minutes < 1) return 'gerade eben';
+  if (minutes < 60) return `vor ${minutes} Min.`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `vor ${hours} Std.`;
+  const days = Math.floor(hours / 24);
+  return days === 1 ? 'vor 1 Tag' : `vor ${days} Tagen`;
+}
+
+/** „DE12 •••• 4821“ (kurze Form in Auswahllisten) */
+export function maskIbanShort(input: string): string {
+  const iban = input.replace(/\s+/g, '');
+  return `${iban.slice(0, 4)} •••• ${iban.slice(-4)}`;
+}
+
+/** PayPal: E-Mail-Adresse oder paypal.me-Link */
+export function isValidPaypal(input: string): boolean {
+  const value = input.trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || /^(https?:\/\/)?(www\.)?paypal\.me\/[\w.-]+\/?$/i.test(value);
+}
+
+export const addressForms = [
+  { key: 'pirat_colon', label: 'Pirat:in' },
+  { key: 'pirat_star', label: 'Pirat*in' },
+  { key: 'pirat', label: 'Pirat' },
+  { key: 'piratin', label: 'Piratin' },
+  { key: 'the_pirat', label: 'The Pirat' },
+] as const;
+
+/** Platzhalter `{anrede}` in Kater-Texten. Ohne Auswahl („Ist mir egal“) gilt „Pirat*in“. */
+export function anrede(profile: { addressForm?: string; addressCustom?: string }): string {
+  if (profile.addressForm === 'custom' && profile.addressCustom?.trim()) return profile.addressCustom.trim();
+  return addressForms.find((f) => f.key === profile.addressForm)?.label ?? 'Pirat*in';
+}

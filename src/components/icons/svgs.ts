@@ -12,6 +12,8 @@ export type IconName =
   | 'clock'
   | 'info'
   | 'chevron-left'
+  | 'chevron-right'
+  | 'burger'
   | 'close'
   | 'check'
   | 'plus'
@@ -75,6 +77,18 @@ export const iconSvgs: Record<IconName, { width: number; height: number; svg: Sv
     height: 24,
     svg: (c) =>
       `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="${CIRCLE_PATH}" fill="${c}"/></svg>`,
+  },
+  'chevron-right': {
+    width: 24,
+    height: 24,
+    svg: (c) =>
+      `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 5L16 12L9 19" stroke="${c}" stroke-width="2"/></svg>`,
+  },
+  burger: {
+    width: 31,
+    height: 35,
+    svg: (c) =>
+      `<svg width="31" height="35" viewBox="0 0 31 35" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.65 22.73C6.64 22.53 10.23 22.14 11.64 22.32C14.29 22.67 22.67 22.14 25.84 22.74C28.28 23.20 28.51 25.12 26.87 25.77C25.24 26.42 19.54 26.58 16.02 26.64C12.54 26.69 7.44 26.61 5.76 26.10C4.08 25.60 5.79 24.15 5.94 23.59C6.02 23.29 6.66 22.95 6.65 22.73ZM6.06 15.77C6.06 15.57 9.65 15.18 11.05 15.36C13.70 15.71 22.08 15.18 25.25 15.78C27.69 16.24 27.92 18.16 26.29 18.81C24.65 19.46 18.96 19.62 15.44 19.68C11.96 19.73 6.85 19.65 5.17 19.14C3.49 18.63 5.21 17.19 5.36 16.63C5.44 16.33 6.07 15.99 6.06 15.77ZM9.20 8.94C9.20 8.75 11.94 8.63 13.13 8.59C15.78 8.94 20.72 8.24 23.89 8.84C26.33 9.30 26.56 11.22 24.92 11.87C23.29 12.52 17.59 12.68 14.07 12.74C10.59 12.79 7.45 12.74 5.77 12.23C4.09 11.73 5.81 10.28 5.95 9.72C6.03 9.42 7.91 9.22 9.20 8.94Z" fill="${c}"/></svg>`,
   },
   'chevron-left': {
     width: 24,

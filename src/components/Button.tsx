@@ -2,9 +2,10 @@ import { Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from 'rea
 
 import { color, radius, space, stroke, text } from '../theme/tokens';
 
-// Figma „Button“ (Primary, Secondary). `signal` und `danger` sind Überschreibungen
-// aus dem Screen „challenge/review/reject“ („Aufgabe zurück schicken“, „Missbrauch melden“).
-export type ButtonVariant = 'primary' | 'secondary' | 'signal' | 'danger';
+// Figma „Button“ (Primary, Secondary). Die übrigen Varianten sind Überschreibungen in Screens:
+// `signal` („Aufgabe zurück schicken“, „Muss ich noch machen“), `signalOutline` („Rückgängig machen“),
+// `danger` („Missbrauch melden“).
+export type ButtonVariant = 'primary' | 'secondary' | 'signal' | 'signalOutline' | 'danger';
 
 type ButtonProps = {
   label: string;
@@ -24,18 +25,22 @@ export function Button({ label, onPress, variant = 'primary', disabled, style }:
       onPress={onPress}
       style={({ pressed }) => [styles.base, v.container, pressed && styles.pressed, disabled && styles.disabled, style]}
     >
-      <Text style={[text.button, { color: v.label }]}>{label}</Text>
+      <Text style={[v.filled ? text.buttonDarkOnLight : text.buttonLightOnDark, { color: v.label }]}>{label}</Text>
     </Pressable>
   );
 }
 
-const variants: Record<ButtonVariant, { container: ViewStyle; label: string }> = {
-  primary: { container: { backgroundColor: color.accent.primary }, label: color.bg.screen },
+const variants: Record<ButtonVariant, { container: ViewStyle; label: string; filled?: boolean }> = {
+  primary: { container: { backgroundColor: color.accent.primary }, label: color.bg.screen, filled: true },
   secondary: {
     container: { borderWidth: stroke.thin, borderColor: color.text.secondary },
     label: color.text.primary,
   },
-  signal: { container: { backgroundColor: color.accent.signal }, label: color.bg.screen },
+  signal: { container: { backgroundColor: color.accent.signal }, label: color.bg.screen, filled: true },
+  signalOutline: {
+    container: { borderWidth: stroke.thin, borderColor: color.accent.signal },
+    label: color.accent.signal,
+  },
   danger: { container: { borderWidth: stroke.thin, borderColor: color.accent.error }, label: color.accent.error },
 };
 

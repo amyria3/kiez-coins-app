@@ -1,6 +1,5 @@
 import { useRouter } from 'expo-router';
 
-import { Button } from '../../../../components/Button';
 import { ResultScreen } from '../../../../components/Screen';
 
 /** Route `user/[id]/report/success`. Figma: `user/report/success`. */
@@ -9,8 +8,8 @@ export default function UserReportSuccess() {
   return (
     <ResultScreen
       title="Danke, ich kümmere mich"
-      message="Die Moderation prüft Deine Meldung und meldet sich bei Dir. Wer eine Bounty nicht zahlt, darf keine Bounties mehr anbieten."
-      actions={<Button label="Zum Feed" onPress={() => router.dismissTo('/feed')} />}
+      message="Die Moderation prüft Deine Meldung und meldet sich bei Dir. Wer öfter mit falschen Versprechen lockt, darf keine Bounties mehr anbieten."
+      onFeedPress={() => router.dismissTo('/feed')}
     />
   );
 }

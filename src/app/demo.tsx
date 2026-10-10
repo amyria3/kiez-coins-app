@@ -14,6 +14,7 @@ import { color, text } from '../theme/tokens';
 
 const feedStates: { key: FeedState; label: string }[] = [
   { key: 'filled', label: 'Gefüllt' },
+  { key: 'loading', label: 'Lädt' },
   { key: 'empty', label: 'Leer' },
   { key: 'error', label: 'Fehler' },
   { key: 'offline', label: 'Offline' },
@@ -42,7 +43,7 @@ export default function DemoMenu() {
     <SubScreen title="Demo" subtitle="Nur mit Beispieldaten" navigation="close" onLeadingPress={() => router.back()}>
       <Notice message="Dieses Menü gibt es nur im Prototyp. Es ersetzt Benachrichtigungen und das Anmelden als andere Person." />
       <FieldGroup label="Du bist">
-        {users.map((u) => (
+        {users.filter((u) => u.id !== 'lena').map((u) => (
           <RadioOption
             key={u.id}
             label={u.name}
@@ -64,6 +65,14 @@ export default function DemoMenu() {
       </FieldGroup>
       <FieldGroup label="Weitere Screens">
         <View style={styles.list}>
+          <Button
+            variant="secondary"
+            label="Onboarding ansehen"
+            onPress={() => {
+              router.back();
+              router.replace('/onboarding/welcome');
+            }}
+          />
           <Button variant="secondary" label="Zahlungsdaten" onPress={() => open('/settings/payout')} />
           <Button variant="secondary" label="Person melden" onPress={() => open('/user/peter/report')} />
         </View>

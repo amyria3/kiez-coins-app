@@ -1,0 +1,47 @@
+import { useState } from 'react';
+import { useRouter } from 'expo-router';
+
+import { Button } from '../../components/Button';
+import { KaterBubble } from '../../components/Content';
+import { SwitchRow } from '../../components/Form';
+import { SubScreen } from '../../components/Screen';
+import { useStore } from '../../data/store';
+
+/**
+ * Route `onboarding/push`. Figma: `onboarding/push`. Optional.
+ * Später: Systemdialog von expo-notifications erst nach „Erlauben“.
+ */
+export default function Push() {
+  const router = useRouter();
+  const { dispatch } = useStore();
+  const [push, setPush] = useState(true);
+
+  const finish = (allow: boolean) => {
+    dispatch({ type: 'updateProfile', patch: { push: allow && push, onboarded: true } });
+    router.dismissAll();
+    router.replace('/feed');
+  };
+
+  return (
+    <SubScreen
+      title="Nachrichten"
+      subtitle="Schritt 6 von 6"
+      navigation="back"
+      onLeadingPress={() => router.back()}
+      actions={
+        <>
+          <Button label="Erlauben" onPress={() => finish(true)} />
+          <Button label="Lieber nicht" variant="secondary" onPress={() => finish(false)} />
+        </>
+      }
+    >
+      <KaterBubble>Stay in touch.</KaterBubble>
+      <SwitchRow
+        label="Push-Nachrichten"
+        description="Ich möchte bei Kommentaren, Antworten und Bestätigungen benachrichtigt werden. Ich kann diese Einstellungen jederzeit ändern."
+        value={push}
+        onValueChange={setPush}
+      />
+    </SubScreen>
+  );
+}

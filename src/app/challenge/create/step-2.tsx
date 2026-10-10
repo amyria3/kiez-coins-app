@@ -56,6 +56,7 @@ export default function CreateStep2() {
         status: 'open',
         image: draft.photo,
         likedByMe: false,
+        comments: [],
         createdAt: now.toISOString(),
         deadline: new Date(now.getTime() + draft.durationDays * 24 * 60 * 60 * 1000).toISOString(),
       },

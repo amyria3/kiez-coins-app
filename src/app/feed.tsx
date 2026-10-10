@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChallengePost } from '../components/ChallengePost';
 import { AppHeader, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
 import { FeedStateMessage } from '../components/FeedStateMessage';
+import { SkeletonPost } from '../components/Skeleton';
 import { topChallengeIds } from '../data/sample';
 import { useStore } from '../data/store';
 import type { Challenge } from '../data/types';
@@ -19,7 +20,7 @@ function matchesTab(challenge: Challenge, tab: FeedTab) {
   return true;
 }
 
-/** Route `feed` – Figma „FeedScreen“ (Filled, Empty, Error, Offline). */
+/** Route `feed` – Figma „FeedScreen“ (Filled, Loading, Empty, Error, Offline). */
 export default function FeedScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -42,14 +43,25 @@ export default function FeedScreen() {
     setTimeout(() => setRefreshing(false), 600);
   };
 
-  const showState = feedState !== 'filled' ? feedState : posts.length === 0 ? 'empty' : null;
+  const loading = feedState === 'loading';
+  const showState =
+    feedState === 'filled' || feedState === 'loading' ? (posts.length === 0 ? 'empty' : null) : feedState;
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <AppHeader onCreatePress={createChallenge} onLogoLongPress={() => router.push('/demo')} />
-      <TopChallengeBar items={topChallenges} onItemPress={openChallenge} />
+      <AppHeader
+        onMenuPress={() => router.push('/account')}
+        onCreatePress={createChallenge}
+        onLogoLongPress={() => router.push('/demo')}
+      />
       <TabsNavigation selectedKey={tab} onChange={setTab} />
-      {showState ? (
+      <TopChallengeBar items={loading ? [] : topChallenges} onItemPress={openChallenge} />
+      {loading ? (
+        <View style={styles.list}>
+          <SkeletonPost />
+          <SkeletonPost />
+        </View>
+      ) : showState ? (
         <FeedStateMessage
           variant={showState}
           onAction={() =>
