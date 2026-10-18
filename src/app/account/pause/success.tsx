@@ -3,12 +3,14 @@ import { useRouter } from 'expo-router';
 import { Button } from '../../../components/Button';
 import { ResultScreen } from '../../../components/Screen';
 import { formatDateLong } from '../../../data/format';
+import { useAuth } from '../../../data/auth';
 import { useStore } from '../../../data/store';
 
 /** Route `account/pause/success`. Figma: `account/pause/success`. */
 export default function PauseSuccess() {
   const router = useRouter();
-  const { profile, dispatch } = useStore();
+  const { profile } = useStore();
+  const { signOut } = useAuth();
   const until = profile.pausedUntil ? formatDateLong(profile.pausedUntil) : '';
   return (
     <ResultScreen
@@ -17,8 +19,8 @@ export default function PauseSuccess() {
       actions={
         <Button
           label="Zum Start"
-          onPress={() => {
-            dispatch({ type: 'signOut' });
+          onPress={async () => {
+            await signOut();
             router.dismissAll();
             router.replace('/onboarding/welcome');
           }}
