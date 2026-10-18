@@ -8,6 +8,7 @@ import { SwitchRow, TextField } from '../../components/Form';
 import { EditableRow, NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { addressForms, anrede } from '../../data/format';
+import { useAuth } from '../../data/auth';
 import { useCurrentUser, useStore } from '../../data/store';
 import { space } from '../../theme/tokens';
 
@@ -16,6 +17,7 @@ export default function Account() {
   const router = useRouter();
   const { profile, dispatch } = useStore();
   const me = useCurrentUser();
+  const { signOut } = useAuth();
   const [support, setSupport] = useState('');
 
   const payoutValue = me.payout?.iban ? 'IBAN hinterlegt' : me.payout?.paypal ? 'PayPal hinterlegt' : 'Nicht hinterlegt';
@@ -28,8 +30,8 @@ export default function Account() {
     });
   };
 
-  const toStart = () => {
-    dispatch({ type: 'signOut' });
+  const toStart = async () => {
+    await signOut();
     router.dismissAll();
     router.replace('/onboarding/welcome');
   };

@@ -7,6 +7,7 @@ import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
 import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
 import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
 
+import { AuthProvider, useAuth } from '../data/auth';
 import { StoreProvider } from '../data/store';
 import { color } from '../theme/tokens';
 
@@ -25,6 +26,20 @@ export default function RootLayout() {
 
   return (
     <StoreProvider>
+      <AuthProvider>
+        <RootStack />
+      </AuthProvider>
+    </StoreProvider>
+  );
+}
+
+function RootStack() {
+  const { loading } = useAuth();
+  // Erst rendern, wenn die gespeicherte Sitzung gelesen ist, sonst springt der Start kurz ins Onboarding.
+  if (loading) return null;
+
+  return (
+    <>
       <StatusBar style="light" />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
         <Stack.Screen name="challenge/create" options={{ presentation: 'modal' }} />
@@ -42,6 +57,6 @@ export default function RootLayout() {
         <Stack.Screen name="account/pause/success" options={{ gestureEnabled: false }} />
         <Stack.Screen name="account/delete/success" options={{ gestureEnabled: false }} />
       </Stack>
-    </StoreProvider>
+    </>
   );
 }

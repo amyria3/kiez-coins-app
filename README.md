@@ -2,7 +2,7 @@
 
 App für Nachbarschafts-Challenges: Jemand stellt eine Aufgabe in den Kiez (zum Beispiel „Garten aufräumen“), andere erledigen sie, und wer mag, zahlt dafür eine kleine Bounty (5 bis 50 €) direkt an die Helfenden.
 
-Dieser Stand ist ein **klickbarer Prototyp mit Beispieldaten**. Anmeldung, Standort und Push-Nachrichten sind nur gespielt. Es gibt keinen Server (Supabase kommt später) und keine echten Zahlungen.
+Dieser Stand ist ein **klickbarer Prototyp mit Beispieldaten**. Die **Anmeldung ist echt**: Sie läuft über Supabase mit einem Code per E-Mail. Challenges, Feed und Konto-Inhalte sind noch Beispieldaten, Standort und Push-Nachrichten nur gespielt. Es gibt keine echten Zahlungen.
 
 ## App auf dem Handy ansehen (Expo Go)
 
@@ -35,7 +35,7 @@ Ohne Handy geht es auch im Browser: `npx expo start --web`.
 
 ## Was Du ausprobieren kannst
 
-- **Onboarding:** Die App startet mit „Anheuern“. Jeder 6-stellige Code funktioniert. „Ich hab schon ein Konto“ springt direkt in den Feed.
+- **Onboarding:** Die App startet mit „Anheuern“. Du bekommst einen echten Code an Deine E-Mail-Adresse. Nach dem Onboarding bleibst Du angemeldet, auch nach dem Neustart. „Ich hab schon ein Konto“ meldet ein bestehendes Konto an und springt direkt in den Feed.
 - **Feed:** Challenges in der Nähe, Wave Challenges und erledigte Challenges.
 - **Challenge erfüllen:** Challenge öffnen → „Challenge annehmen“ → Operation taufen (freiwillig), Fragen in den Kommentaren stellen → „Erledigt melden“ mit Foto → Zahlungsdaten für die Bounty freigeben.
 - **Challenge erstellen:** Kamera-Symbol oben rechts im Feed.
@@ -65,6 +65,14 @@ Das Menü gibt es nur im Prototyp, nicht in der späteren App.
 
 Für Entwickler:innen: `npm run typecheck` prüft die Typen.
 
+## Anmeldung (Supabase)
+
+- Projekt „Kiez Coins Data“. URL und Publishable Key stehen in `src/lib/supabase.ts`. Sie sind öffentlich und dürfen in die App. Für ein anderes Projekt setzt Du `EXPO_PUBLIC_SUPABASE_URL` und `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in einer Datei `.env.local`.
+- Anmeldung ohne Passwort: `signInWithOtp` schickt den Code, `verifyOtp` prüft ihn (`src/data/auth.tsx`). Die Sitzung liegt im Gerät (AsyncStorage).
+- Deckname, Ansprache, Kiez, Push und „Onboarding fertig“ liegen vorerst in den `user_metadata` des Kontos, bis es eine Tabelle `profiles` gibt.
+- **Einmalig in Supabase nötig:** Unter *Authentication › Emails › Templates* müssen die Vorlagen „Confirm signup“ und „Magic Link“ den Code `{{ .Token }}` enthalten. Die Standardvorlagen schicken nur einen Link.
+- Der eingebaute Mailversand von Supabase schafft nur wenige Mails pro Stunde. Für mehr Tester*innen braucht es einen eigenen SMTP-Dienst.
+
 ## Figma abgleichen
 
 Grundlage ist die Figma-Datei „Kiez Coins“. Ändert sich dort etwas, wird es hier von Hand nachgezogen:
@@ -78,5 +86,5 @@ Bewusste Abweichungen von Figma:
 - Die bewegten Farbverläufe (Shader) an Kater-Augen und Coins sind hier feste Verläufe.
 - Statt der Handschrift „BROWN NOW TWO“ wird Inter verwendet, bis die Lizenz für Apps geklärt ist.
 - Die Beispiel-IBAN ist eine gültige Test-IBAN, weil die App IBANs prüft.
-- Standort, Push-Nachrichten und der E-Mail-Code sind nur gespielt.
+- Standort und Push-Nachrichten sind nur gespielt. „Konto löschen“ meldet nur ab, das Konto bei Supabase bleibt noch bestehen.
 - Solibeitrag und Sperr-Regel sind noch nicht eingebaut.
