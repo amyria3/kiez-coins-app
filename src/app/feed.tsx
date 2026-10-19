@@ -7,8 +7,8 @@ import { ChallengePost } from '../components/ChallengePost';
 import { AppHeader, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
 import { FeedStateMessage } from '../components/FeedStateMessage';
 import { SkeletonPost } from '../components/Skeleton';
-import { topChallengeIds } from '../data/sample';
-import { useStore } from '../data/store';
+import { useRequireKiez } from '../data/kiez';
+import { topChallenges as pickTopChallenges, useStore } from '../data/store';
 import type { Challenge } from '../data/types';
 import { color, space } from '../theme/tokens';
 
@@ -24,23 +24,29 @@ function matchesTab(challenge: Challenge, tab: FeedTab) {
 export default function FeedScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { challenges, users, feedState, dispatch } = useStore();
+  const { challenges, users, feedState, mode, currentUserId, dispatch, load } = useStore();
+  const requireKiez = useRequireKiez();
   const [tab, setTab] = useState<FeedTab>('nearby');
   const [refreshing, setRefreshing] = useState(false);
 
   const posts = useMemo(() => challenges.filter((c) => matchesTab(c, tab)), [challenges, tab]);
   const topChallenges = useMemo(
-    () => topChallengeIds.map((id) => challenges.find((c) => c.id === id)).filter((c): c is Challenge => !!c),
-    [challenges],
+    () => pickTopChallenges({ mode, challenges, currentUserId }),
+    [mode, challenges, currentUserId],
   );
 
   const openChallenge = useCallback((id: string) => router.push(`/challenge/${id}`), [router]);
-  const createChallenge = () => router.push('/challenge/create/step-1');
+  const createChallenge = () => requireKiez() && router.push('/challenge/create/step-1');
 
-  const onRefresh = () => {
-    // Beispieldaten: nur kurz den Ladezustand zeigen
+  const reload = async () => {
+    if (mode === 'live' && currentUserId) await load(currentUserId);
+  };
+
+  const onRefresh = async () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 600);
+    if (mode === 'live') await reload();
+    else await new Promise((resolve) => setTimeout(resolve, 600)); // Beispieldaten: nur kurz den Ladezustand zeigen
+    setRefreshing(false);
   };
 
   const loading = feedState === 'loading';
@@ -55,7 +61,7 @@ export default function FeedScreen() {
         onLogoLongPress={() => router.push('/demo')}
       />
       <TabsNavigation selectedKey={tab} onChange={setTab} />
-      <TopChallengeBar items={loading ? [] : topChallenges} onItemPress={openChallenge} />
+      <TopChallengeBar items={loading ? [] : topChallenges} loading={loading} onItemPress={openChallenge} />
       {loading ? (
         <View style={styles.list}>
           <SkeletonPost />
@@ -65,7 +71,11 @@ export default function FeedScreen() {
         <FeedStateMessage
           variant={showState}
           onAction={() =>
-            showState === 'empty' ? createChallenge() : dispatch({ type: 'setFeedState', feedState: 'filled' })
+            showState === 'empty'
+              ? createChallenge()
+              : mode === 'live'
+                ? (dispatch({ type: 'setFeedState', feedState: 'loading' }), reload())
+                : dispatch({ type: 'setFeedState', feedState: 'filled' })
           }
         />
       ) : (

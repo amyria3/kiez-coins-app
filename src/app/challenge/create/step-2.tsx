@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { Alert, StyleSheet, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
@@ -23,7 +23,8 @@ const MAX_BOUNTY = 50;
 /** Route `challenge/create/step-2`. Figma: `challenge/create/step-2`. Bounty 5–50 €, optional. */
 export default function CreateStep2() {
   const router = useRouter();
-  const { currentUserId, dispatch } = useStore();
+  const { canOfferBounties, createChallenge } = useStore();
+  const [busy, setBusy] = useState(false);
   const [draft, setDraft] = useDraft();
   const [custom, setCustom] = useState(draft.bountyAmount !== undefined && !presets.includes(draft.bountyAmount));
   const [customText, setCustomText] = useState(custom && draft.bountyAmount ? String(draft.bountyAmount) : '');
@@ -37,31 +38,33 @@ export default function CreateStep2() {
         ? 'Mindestens 5 € möglich.'
         : undefined;
   const bountyAmount = custom ? (customText && !customError ? Math.round(customAmount) : undefined) : draft.bountyAmount;
-  const canPublish = draft.location.trim().length > 0 && !(custom && (customError || !customText));
+  const canPublish = draft.location.trim().length > 0 && !(custom && (customError || !customText)) && !busy;
 
-  const publish = () => {
+  const publish = async () => {
     if (!canPublish || !draft.photo) return;
-    const id = `challenge-${Date.now()}`;
-    const now = new Date();
-    dispatch({
-      type: 'create',
-      challenge: {
-        id,
-        type: 'individual',
+    if (bountyAmount && !canOfferBounties) {
+      Alert.alert(
+        'Keine Bounty möglich',
+        'Nach einer Meldung wegen einer nicht gezahlten Bounty kannst Du keine Bounties mehr anbieten. Challenges ohne Bounty gehen weiterhin.',
+      );
+      return;
+    }
+    setBusy(true);
+    try {
+      const id = await createChallenge({
         title: draft.title.trim(),
         text: draft.text.trim(),
-        authorId: currentUserId,
         location: draft.location.trim(),
         bountyAmount,
-        status: 'open',
-        image: draft.photo,
-        likedByMe: false,
-        comments: [],
-        createdAt: now.toISOString(),
-        deadline: new Date(now.getTime() + draft.durationDays * 24 * 60 * 60 * 1000).toISOString(),
-      },
-    });
-    router.replace({ pathname: '/challenge/create/success', params: { id } });
+        photo: draft.photo,
+        deadline: new Date(Date.now() + draft.durationDays * 24 * 60 * 60 * 1000).toISOString(),
+      });
+      router.replace({ pathname: '/challenge/create/success', params: { id } });
+    } catch (error) {
+      Alert.alert('Nicht veröffentlicht', (error as Error).message);
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -70,7 +73,7 @@ export default function CreateStep2() {
       subtitle="Schritt 2 von 2"
       navigation="back"
       onLeadingPress={() => router.back()}
-      actions={<Button label="Challenge veröffentlichen" onPress={publish} disabled={!canPublish} />}
+      actions={<Button label={busy ? 'Wird veröffentlicht …' : 'Challenge veröffentlichen'} onPress={publish} disabled={!canPublish} />}
     >
       <TextField
         label="Ort"

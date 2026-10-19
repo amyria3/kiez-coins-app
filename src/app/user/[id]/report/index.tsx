@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AuthorRow } from '../../../../components/AuthorRow';
@@ -8,6 +8,7 @@ import { Notice } from '../../../../components/Content';
 import { RadioOption, TextField } from '../../../../components/Form';
 import { SubScreen } from '../../../../components/Screen';
 import { nameInText } from '../../../../data/format';
+import { errorText, reportUser } from '../../../../data/remote';
 import { useChallenge, useStore } from '../../../../data/store';
 import type { UserReportReason } from '../../../../data/types';
 import { color, space, text } from '../../../../theme/tokens';
@@ -21,12 +22,13 @@ const reasons: { key: UserReportReason; label: string }[] = [
 
 /**
  * Route `user/[id]/report` (Modal). Figma: `user/report`, Flow „Bounty auf Vertrauen“.
- * Die Sperrregel ist noch offen: Die Meldung wird im MVP-Prototyp nur angenommen, nicht ausgewertet.
+ * Die Meldung landet in der Tabelle `user_reports`. Auswerten und Sperren macht die Moderation.
  */
 export default function UserReportScreen() {
   const params = useLocalSearchParams<{ id: string; challengeId?: string; reason?: UserReportReason }>();
   const router = useRouter();
-  const { users } = useStore();
+  const { users, mode } = useStore();
+  const [sending, setSending] = useState(false);
   const user = users.find((u) => u.id === params.id);
   const { challenge } = useChallenge(params.challengeId);
   const [reason, setReason] = useState<UserReportReason | undefined>(params.reason);
@@ -36,6 +38,22 @@ export default function UserReportScreen() {
   const needsText = reason === 'other' && !description.trim();
   const name = nameInText(user);
 
+  const send = async () => {
+    if (!reason) return;
+    if (mode === 'live') {
+      setSending(true);
+      try {
+        await reportUser({ reportedId: user.id, challengeId: challenge?.id, reason, description });
+      } catch (error) {
+        Alert.alert('Meldung nicht gesendet', errorText(error));
+        return;
+      } finally {
+        setSending(false);
+      }
+    }
+    router.replace(`/user/${user.id}/report/success`);
+  };
+
   return (
     <SubScreen
       title="Person melden"
@@ -44,8 +62,8 @@ export default function UserReportScreen() {
       actions={
         <Button
           label="Meldung senden"
-          disabled={!reason || needsText}
-          onPress={() => router.replace(`/user/${user.id}/report/success`)}
+          disabled={!reason || needsText || sending}
+          onPress={send}
         />
       }
     >

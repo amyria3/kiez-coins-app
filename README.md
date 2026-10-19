@@ -2,7 +2,7 @@
 
 App für Nachbarschafts-Challenges: Jemand stellt eine Aufgabe in den Kiez (zum Beispiel „Garten aufräumen“), andere erledigen sie, und wer mag, zahlt dafür eine kleine Bounty (5 bis 50 €) direkt an die Helfenden.
 
-Dieser Stand ist ein **klickbarer Prototyp mit Beispieldaten**. Die **Anmeldung ist echt**: Sie läuft über Supabase mit einem Code per E-Mail. Challenges, Feed und Konto-Inhalte sind noch Beispieldaten, Standort und Push-Nachrichten nur gespielt. Es gibt keine echten Zahlungen.
+Anmeldung und Daten laufen über **Supabase**: Du meldest Dich mit einem Code per E-Mail an, und Challenges, Kommentare, Zahlungsfreigaben und Profile sind echt und auf allen Geräten gleich. Standort und Push-Nachrichten sind noch gespielt, Geld fließt nie über die App. Beispieldaten gibt es weiter über das Demo-Menü.
 
 ## App auf dem Handy ansehen (Expo Go)
 
@@ -36,17 +36,18 @@ Ohne Handy geht es auch im Browser: `npx expo start --web`.
 ## Was Du ausprobieren kannst
 
 - **Onboarding:** Die App startet mit „Anheuern“. Du bekommst einen echten Code an Deine E-Mail-Adresse. Nach dem Onboarding bleibst Du angemeldet, auch nach dem Neustart. „Ich hab schon ein Konto“ meldet ein bestehendes Konto an und springt direkt in den Feed.
-- **Feed:** Challenges in der Nähe, Wave Challenges und erledigte Challenges.
+- **Feed:** Challenges in der Nähe, Wave Challenges und erledigte Challenges. Am Anfang ist er leer, bis jemand die erste Challenge erstellt. Nach unten ziehen lädt neu.
 - **Challenge erfüllen:** Challenge öffnen → „Challenge annehmen“ → Operation taufen (freiwillig), Fragen in den Kommentaren stellen → „Erledigt melden“ mit Foto → Zahlungsdaten für die Bounty freigeben.
 - **Challenge erstellen:** Kamera-Symbol oben rechts im Feed.
-- **Erledigung bestätigen** und **Bounty auf Vertrauen:** Über das Demo-Menü (siehe unten) als Peter prüfen und bestätigen. Danach siehst Du sofort die Zahlungsdaten und markierst als bezahlt. Als Nachbarschaftsgärtner*innen bestätigst Du den Empfang oder meldest Peter.
+- **Erledigung bestätigen** und **Bounty auf Vertrauen:** Dafür braucht es zwei Konten, zum Beispiel Deins auf dem Handy und ein zweites im Browser mit einer anderen E-Mail-Adresse. Konto A erstellt eine Challenge mit Bounty, Konto B nimmt sie an und meldet sie erledigt, A bestätigt und sieht dann die Zahlungsdaten, B bestätigt den Empfang. Ohne zweites Konto geht es mit Beispieldaten über das Demo-Menü.
 - **Konto und Einstellungen:** Menü-Symbol oben links im Feed. Deckname und Ansprache ändern, Zahlungsdaten und Freigaben verwalten, Konto pausieren oder löschen.
 
 ### Demo-Menü
 
 **Logo „Kiez Coins“ im Feed lange gedrückt halten.** Dort kannst Du:
 
-- wechseln, wer Du bist (Peter J. oder die Nachbarschaftsgärtner*innen),
+- zwischen echten Daten und Beispieldaten wechseln (Beispieldaten bleiben auf dem Gerät),
+- mit Beispieldaten wechseln, wer Du bist (Peter J. oder die Nachbarschaftsgärtner*innen),
 - Aufgaben öffnen, für die es später eine Benachrichtigung gäbe,
 - die Zustände des Feeds ansehen (lädt, leer, Fehler, offline),
 - das Onboarding noch einmal ansehen.
@@ -69,7 +70,27 @@ Für Entwickler:innen: `npm run typecheck` prüft die Typen.
 
 - Projekt „Kiez Coins Data“. URL und Publishable Key stehen in `src/lib/supabase.ts`. Sie sind öffentlich und dürfen in die App. Für ein anderes Projekt setzt Du `EXPO_PUBLIC_SUPABASE_URL` und `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in einer Datei `.env.local`.
 - Anmeldung ohne Passwort: `signInWithOtp` schickt den Code, `verifyOtp` prüft ihn (`src/data/auth.tsx`). Die Sitzung liegt im Gerät (AsyncStorage).
-- Deckname, Ansprache, Kiez, Push und „Onboarding fertig“ liegen vorerst in den `user_metadata` des Kontos, bis es eine Tabelle `profiles` gibt.
+- Profil und Daten liegen in Tabellen (siehe unten).
+
+## Datenbank (Supabase)
+
+Das Schema steht in `supabase/migrations` und ist im Projekt „Kiez Coins Data“ eingespielt.
+
+| Tabelle | Inhalt | Wer sieht es |
+| --- | --- | --- |
+| `profiles` | Deckname (einmalig), Kiez, Bild, Sperren | alle Angemeldeten; ändern nur Deckname, Kiez, Bild am eigenen Profil |
+| `profile_settings` | Ansprache, Push, Pause, Kodex-Zustimmung, Onboarding fertig | nur man selbst |
+| `payout_details` | gespeicherte IBAN/PayPal im Konto | nur man selbst |
+| `challenges` | Challenges mit Status, Fotos, Meldung | alle Angemeldeten |
+| `operation_names` | privater Operationsname | nur die annehmende Person |
+| `comments`, `likes` | öffentliche Fragen, eigene Likes | Kommentare alle, Likes nur man selbst |
+| `payout_shares` | Freigabe der Zahlungsdaten für eine Challenge | annehmende Person; Ersteller:in erst nach der Bestätigung |
+| `user_reports`, `support_requests` | Meldungen und Support-Anfragen | nur die eigenen; ausgewertet im Supabase-Dashboard |
+
+- **Statuswechsel** (annehmen, erledigt melden, bestätigen, ablehnen, bezahlt markieren, Erhalt bestätigen, abgeben) gehen nur über Datenbankfunktionen, die Rolle und Status prüfen. Direkt ändern kann die App eine Challenge nicht.
+- Ohne Kiez, mit Pause oder Sperre kann man nur lesen. Bounties anbieten geht nicht mehr, wenn `profiles.can_offer_bounties` auf `false` steht (setzt die Moderation).
+- **Fotos** liegen im öffentlichen Storage-Bucket `photos`, jede Person lädt nur in ihren eigenen Ordner hoch.
+- **Test:** `supabase/tests/challenge_flow.sql` im SQL-Editor ausführen. Er spielt eine Bounty-Challenge einmal durch und rollt am Ende alles zurück.
 - **Einmalig in Supabase nötig:** Unter *Authentication › Emails › Templates* müssen die Vorlagen „Confirm signup“ und „Magic Link“ den Code `{{ .Token }}` enthalten. Die Standardvorlagen schicken nur einen Link.
 - Der eingebaute Mailversand von Supabase schafft nur wenige Mails pro Stunde. Für mehr Tester*innen braucht es einen eigenen SMTP-Dienst.
 
@@ -86,5 +107,5 @@ Bewusste Abweichungen von Figma:
 - Die bewegten Farbverläufe (Shader) an Kater-Augen und Coins sind hier feste Verläufe.
 - Statt der Handschrift „BROWN NOW TWO“ wird Inter verwendet, bis die Lizenz für Apps geklärt ist.
 - Die Beispiel-IBAN ist eine gültige Test-IBAN, weil die App IBANs prüft.
-- Standort und Push-Nachrichten sind nur gespielt. „Konto löschen“ meldet nur ab, das Konto bei Supabase bleibt noch bestehen.
-- Solibeitrag und Sperr-Regel sind noch nicht eingebaut.
+- Standort und Push-Nachrichten sind nur gespielt.
+- Solibeitrag gibt es im MVP nicht. Die Sperr-Regel ist in der Datenbank vorbereitet, gesetzt wird sie von Hand.
