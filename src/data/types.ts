@@ -95,6 +95,7 @@ export type Challenge = {
   payoutShare?: PayoutShare;
   comments: Comment[];
   rejectionReason?: string;
+  confirmedAt?: string;
   paidMarkedAt?: string;
 };
 

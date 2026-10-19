@@ -8,6 +8,7 @@ import { AppHeader, TabsNavigation, TopChallengeBar, type FeedTab } from '../com
 import { FeedStateMessage } from '../components/FeedStateMessage';
 import { SkeletonPost } from '../components/Skeleton';
 import { useRequireKiez } from '../data/kiez';
+import { reiseEntries } from '../data/reise';
 import { topChallenges as pickTopChallenges, useStore } from '../data/store';
 import type { Challenge } from '../data/types';
 import { color, space } from '../theme/tokens';
@@ -35,6 +36,11 @@ export default function FeedScreen() {
     [mode, challenges, currentUserId],
   );
 
+  const hasTasks = useMemo(
+    () => reiseEntries(challenges, currentUserId).some((e) => e.needsAction),
+    [challenges, currentUserId],
+  );
+
   const openChallenge = useCallback((id: string) => router.push(`/challenge/${id}`), [router]);
   const createChallenge = () => requireKiez() && router.push('/challenge/create/step-1');
 
@@ -58,7 +64,9 @@ export default function FeedScreen() {
       <AppHeader
         onMenuPress={() => router.push('/account')}
         onCreatePress={createChallenge}
+        onLogoPress={() => router.push('/reise')}
         onLogoLongPress={() => router.push('/demo')}
+        hasTasks={hasTasks}
       />
       <TabsNavigation selectedKey={tab} onChange={setTab} />
       <TopChallengeBar items={loading ? [] : topChallenges} loading={loading} onItemPress={openChallenge} />

@@ -40,6 +40,7 @@ Ohne Handy geht es auch im Browser: `npx expo start --web`.
 - **Challenge erfüllen:** Challenge öffnen → „Challenge annehmen“ → Operation taufen (freiwillig), Fragen in den Kommentaren stellen → „Erledigt melden“ mit Foto → Zahlungsdaten für die Bounty freigeben.
 - **Challenge erstellen:** Kamera-Symbol oben rechts im Feed.
 - **Erledigung bestätigen** und **Bounty auf Vertrauen:** Dafür braucht es zwei Konten, zum Beispiel Deins auf dem Handy und ein zweites im Browser mit einer anderen E-Mail-Adresse. Konto A erstellt eine Challenge mit Bounty, Konto B nimmt sie an und meldet sie erledigt, A bestätigt und sieht dann die Zahlungsdaten, B bestätigt den Empfang. Ohne zweites Konto geht es mit Beispieldaten über das Demo-Menü.
+- **Deine Reise:** Tipp auf Logo und Kater oben im Feed (oder „Deine Reise“ im Konto). Alle Challenges, die Du erstellt oder angenommen hast, als Kacheln mit Etikett. Ein oranger Punkt zeigt, wo Du dran bist; derselbe Punkt sitzt dann auch am Kater im Feed. Der Kater oben zeigt eine Stimmung, die zum Geschehen passt.
 - **Konto und Einstellungen:** Menü-Symbol oben links im Feed. Deckname und Ansprache ändern, Zahlungsdaten und Freigaben verwalten, Konto pausieren oder löschen.
 
 ### Demo-Menü
