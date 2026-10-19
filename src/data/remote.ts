@@ -63,6 +63,7 @@ type ChallengeRow = {
   report_photo_path: string | null;
   report_note: string | null;
   rejection_reason: string | null;
+  confirmed_at: string | null;
   paid_marked_at: string | null;
   comments: CommentRow[];
 };
@@ -142,6 +143,7 @@ function toChallenge(
       .sort((a, b) => a.created_at.localeCompare(b.created_at))
       .map((c) => ({ id: c.id, authorId: c.author_id, body: c.body, createdAt: c.created_at })),
     rejectionReason: row.rejection_reason ?? undefined,
+    confirmedAt: row.confirmed_at ?? undefined,
     paidMarkedAt: row.paid_marked_at ?? undefined,
   };
 }

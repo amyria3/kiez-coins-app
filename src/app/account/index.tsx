@@ -69,6 +69,7 @@ export default function Account() {
   return (
     <SubScreen title="Dein Konto" navigation="back" onLeadingPress={() => router.back()}>
       <KaterBubble>Ahoi, {anrede(profile)}! Hier trimmst Du Dein Schiff. Tipp einfach auf das, was Du ändern willst.</KaterBubble>
+      <NavRow label="Deine Reise" value="Deine Challenges" onPress={() => router.push('/reise')} />
       <FieldGroup label="Profil">
         <EditableRow
           label="Deckname"
