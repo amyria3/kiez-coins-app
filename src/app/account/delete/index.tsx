@@ -8,21 +8,34 @@ import { TextField } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
 import { anrede } from '../../../data/format';
 import { hasOpenWork } from '../../../data/openWork';
+import { deleteMyAccount, errorText } from '../../../data/remote';
 import { useStore } from '../../../data/store';
 
 /**
- * Route `account/delete`. Figma: `account/delete`. Löscht später Profil, Challenges, Kommentare
- * und Zahlungsdaten (Apple-Pflicht, DSGVO). Im Prototyp wird nur das Profil zurückgesetzt.
+ * Route `account/delete`. Figma: `account/delete`. Löscht Profil, Challenges, Kommentare
+ * und Zahlungsdaten (Apple-Pflicht, DSGVO) über die Datenbankfunktion `delete_my_account`.
  */
 export default function DeleteAccount() {
   const router = useRouter();
-  const { profile, challenges, currentUserId } = useStore();
+  const { profile, challenges, currentUserId, mode } = useStore();
   const [confirm, setConfirm] = useState('');
+  const [busy, setBusy] = useState(false);
 
-  const remove = () => {
+  const remove = async () => {
     if (hasOpenWork(challenges, currentUserId)) {
       Alert.alert('Noch nicht möglich', 'Offene Bounties musst Du vorher klären.');
       return;
+    }
+    if (mode === 'live') {
+      setBusy(true);
+      try {
+        await deleteMyAccount();
+      } catch (error) {
+        Alert.alert('Konto nicht gelöscht', errorText(error));
+        return;
+      } finally {
+        setBusy(false);
+      }
     }
     router.replace('/account/delete/success');
   };
@@ -34,7 +47,7 @@ export default function DeleteAccount() {
       onLeadingPress={() => router.back()}
       actions={
         <>
-          <Button label="Konto endgültig löschen" onPress={remove} disabled={confirm.trim() !== 'LÖSCHEN'} />
+          <Button label="Konto endgültig löschen" onPress={remove} disabled={confirm.trim() !== 'LÖSCHEN' || busy} />
           <Button label="Abbrechen" variant="secondary" onPress={() => router.back()} />
         </>
       }

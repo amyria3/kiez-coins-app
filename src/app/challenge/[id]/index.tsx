@@ -11,6 +11,7 @@ import { InfoRow, KaterBubble, Notice, OperationTag } from '../../../components/
 import { TextField } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
 import { formatDayMonthShort, formatEuro, formatRemaining, formatRemainingShort } from '../../../data/format';
+import { useRequireKiez } from '../../../data/kiez';
 import { useChallenge, useStore } from '../../../data/store';
 import { color, radius, space, text } from '../../../theme/tokens';
 
@@ -27,6 +28,7 @@ export default function ChallengeDetail() {
   const router = useRouter();
   const { currentUserId, users, dispatch } = useStore();
   const { challenge, author } = useChallenge(id);
+  const requireKiez = useRequireKiez();
   const [operationName, setOperationName] = useState(() => (id ? suggestName(id) : ''));
 
   if (!challenge || !author) {
@@ -51,7 +53,7 @@ export default function ChallengeDetail() {
 
   let actions: React.ReactNode = null;
   if (challenge.status === 'open' && !isAuthor) {
-    actions = <Button label="Challenge annehmen" onPress={() => dispatch({ type: 'accept', id: challenge.id })} />;
+    actions = <Button label="Challenge annehmen" onPress={() => requireKiez() && dispatch({ type: 'accept', id: challenge.id })} />;
   } else if (acceptedByMe) {
     actions = (
       <>

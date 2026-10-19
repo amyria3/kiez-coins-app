@@ -35,11 +35,14 @@ export function AppHeader({ onMenuPress, onCreatePress, onLogoLongPress }: AppHe
 
 type TopChallengeBarProps = {
   items: Challenge[];
+  /** Während des Ladens Platzhalter zeigen; ohne Einträge danach gar nichts. */
+  loading?: boolean;
   onItemPress: (id: string) => void;
 };
 
 /** Figma „TopChallengeBar“: horizontale Liste aus „TopChallengeItem“. */
-export function TopChallengeBar({ items, onItemPress }: TopChallengeBarProps) {
+export function TopChallengeBar({ items, loading, onItemPress }: TopChallengeBarProps) {
+  if (items.length === 0 && !loading) return null;
   if (items.length === 0) {
     // Ladezustand (Figma FeedScreen State=Loading)
     return (

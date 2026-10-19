@@ -6,6 +6,8 @@ import { Button } from '../../components/Button';
 import { KaterBubble } from '../../components/Content';
 import { Chip, ChipGroup, TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
+import { useAuth } from '../../data/auth';
+import { saveHandle } from '../../data/remote';
 import { useStore } from '../../data/store';
 import { color, text } from '../../theme/tokens';
 
@@ -15,10 +17,23 @@ const suggestions = ['Käpt’n Kompost', 'Rostige Rosi'];
 /** Route `onboarding/deckname`. Figma: `onboarding/deckname`. Deckname ist öffentlich und einmalig. */
 export default function Deckname() {
   const router = useRouter();
-  const { profile, dispatch } = useStore();
+  const { profile, mode, dispatch } = useStore();
+  const userId = useAuth().session?.user.id;
   const [handle, setHandle] = useState(profile.handle || suggestions[0]);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string>();
 
-  const next = () => {
+  const next = async () => {
+    // Deckname gleich speichern, damit „gibt es schon“ hier auffällt und nicht erst später.
+    if (mode === 'live' && userId) {
+      setBusy(true);
+      const failure = await saveHandle(userId, handle);
+      setBusy(false);
+      if (failure) {
+        setError(failure);
+        return;
+      }
+    }
     dispatch({ type: 'updateProfile', patch: { handle: handle.trim() } });
     router.push('/onboarding/ansprache');
   };
@@ -29,14 +44,18 @@ export default function Deckname() {
       subtitle="Schritt 2 von 6"
       navigation="back"
       onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/onboarding/welcome'))}
-      actions={<Button label="Weiter" onPress={next} disabled={!handle.trim()} />}
+      actions={<Button label="Weiter" onPress={next} disabled={!handle.trim() || busy} />}
     >
       <KaterBubble>Dein Rufname</KaterBubble>
       <TextField
         label="Deckname"
         helperText="Öffentlich sichtbar. Jeden Decknamen gibt es nur einmal."
+        error={error}
         value={handle}
-        onChangeText={setHandle}
+        onChangeText={(value) => {
+          setHandle(value);
+          setError(undefined);
+        }}
         maxLength={30}
         autoCorrect={false}
       />

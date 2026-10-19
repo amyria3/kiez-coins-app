@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
 import { InfoRow, KaterBubble, Notice } from '../../components/Content';
@@ -14,18 +14,21 @@ const FOUND_KIEZ = 'Schönefeld, Leipzig';
 /** Route `onboarding/kiez`. Figma: `onboarding/kiez` (Schalter an und aus). Gespeichert wird nur der Kiez. */
 export default function Kiez() {
   const router = useRouter();
+  /** `from=app`: aus der App heraus aufgerufen (Kiez fehlt), danach zurück statt weiter im Onboarding */
+  const { from } = useLocalSearchParams<{ from?: string }>();
   const { profile, dispatch } = useStore();
   const [atHome, setAtHome] = useState(true);
 
   const next = (kiez?: string) => {
     dispatch({ type: 'updateProfile', patch: { kiez } });
-    router.push('/onboarding/kodex');
+    if (from) router.back();
+    else router.push('/onboarding/kodex');
   };
 
   return (
     <SubScreen
       title="Dein Kiez"
-      subtitle="Schritt 4 von 6"
+      subtitle={from ? undefined : 'Schritt 4 von 6'}
       navigation="back"
       onLeadingPress={() => router.back()}
       actions={

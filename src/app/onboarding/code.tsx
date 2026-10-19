@@ -6,8 +6,9 @@ import { Button } from '../../components/Button';
 import { KaterBubble } from '../../components/Content';
 import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
-import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../data/auth';
+import { loadOwnProfile } from '../../data/remote';
+import { supabase } from '../../lib/supabase';
 import { useStore } from '../../data/store';
 
 /** Supabase verschickt je nach Projekteinstellung 6 bis 8 Ziffern (Standard: 6). */
@@ -37,10 +38,11 @@ export default function Code() {
       setError(failure);
       return;
     }
-    // Profil direkt aus der frischen Sitzung lesen, nicht aus dem Store (der wird gerade erst befüllt).
+    // Profil direkt aus der Datenbank lesen, nicht aus dem Store (der wird gerade erst befüllt).
     const { data } = await supabase.auth.getUser();
+    const stored = data.user ? await loadOwnProfile(data.user.id).catch(() => null) : null;
     setBusy(false);
-    if (data.user?.user_metadata?.onboarded) {
+    if (stored?.onboarded) {
       router.dismissAll();
       router.replace('/feed');
       return;
