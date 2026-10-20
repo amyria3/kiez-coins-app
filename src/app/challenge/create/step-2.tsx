@@ -8,7 +8,7 @@ import { Chip, ChipGroup, TextField } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
 import { useStore } from '../../../data/store';
 import { color, text } from '../../../theme/tokens';
-import { useDraft } from './_layout';
+import { useDraft, useSaveDraft } from './_layout';
 
 const presets = [5, 15, 50];
 const durations = [
@@ -23,9 +23,10 @@ const MAX_BOUNTY = 50;
 /** Route `challenge/create/step-2`. Figma: `challenge/create/step-2`. Bounty 5–50 €, optional. */
 export default function CreateStep2() {
   const router = useRouter();
-  const { canOfferBounties, createChallenge } = useStore();
+  const { canOfferBounties, createChallenge, publishDraft } = useStore();
   const [busy, setBusy] = useState(false);
   const [draft, setDraft] = useDraft();
+  const { save, busy: saving } = useSaveDraft();
   const [custom, setCustom] = useState(draft.bountyAmount !== undefined && !presets.includes(draft.bountyAmount));
   const [customText, setCustomText] = useState(custom && draft.bountyAmount ? String(draft.bountyAmount) : '');
 
@@ -51,14 +52,28 @@ export default function CreateStep2() {
     }
     setBusy(true);
     try {
-      const id = await createChallenge({
-        title: draft.title.trim(),
-        text: draft.text.trim(),
-        location: draft.location.trim(),
-        bountyAmount,
-        photo: draft.photo,
-        deadline: new Date(Date.now() + draft.durationDays * 24 * 60 * 60 * 1000).toISOString(),
-      });
+      const deadline = new Date(Date.now() + draft.durationDays * 24 * 60 * 60 * 1000).toISOString();
+      const id = draft.id
+        ? await publishDraft(
+            draft.id,
+            {
+              title: draft.title,
+              text: draft.text,
+              location: draft.location,
+              bountyAmount,
+              photo: draft.imagePath ? undefined : draft.photo,
+              imagePath: draft.imagePath,
+            },
+            deadline,
+          )
+        : await createChallenge({
+            title: draft.title.trim(),
+            text: draft.text.trim(),
+            location: draft.location.trim(),
+            bountyAmount,
+            photo: draft.photo,
+            deadline,
+          });
       router.replace({ pathname: '/challenge/create/success', params: { id } });
     } catch (error) {
       Alert.alert('Nicht veröffentlicht', (error as Error).message);
@@ -73,7 +88,17 @@ export default function CreateStep2() {
       subtitle="Schritt 2 von 2"
       navigation="back"
       onLeadingPress={() => router.back()}
-      actions={<Button label={busy ? 'Wird veröffentlicht …' : 'Challenge veröffentlichen'} onPress={publish} disabled={!canPublish} />}
+      actions={
+        <>
+          <Button label={busy ? 'Wird veröffentlicht …' : 'Challenge veröffentlichen'} onPress={publish} disabled={!canPublish || saving} />
+          <Button
+            label={saving ? 'Wird gespeichert …' : 'Als Entwurf speichern'}
+            variant="ghost"
+            onPress={save}
+            disabled={saving || busy}
+          />
+        </>
+      }
     >
       <TextField
         label="Ort"

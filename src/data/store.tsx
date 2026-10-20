@@ -51,7 +51,8 @@ type Action =
   | { type: 'challengeLoaded'; id: string; challenge: Challenge | null; users: User[] }
   | { type: 'useSampleData' }
   | { type: 'edit'; id: string; edit: remote.ChallengeEdit }
-  | { type: 'close'; id: string };
+  | { type: 'close'; id: string }
+  | { type: 'deleteDraft'; id: string };
 
 function updateChallenge(state: State, id: string, patch: (c: Challenge) => Partial<Challenge>): State {
   return {
@@ -75,6 +76,8 @@ function reducer(state: State, action: Action): State {
     case 'edit':
       return updateChallenge(state, action.id, () => ({ ...action.edit }));
     case 'close':
+      return updateChallenge(state, action.id, () => ({ status: 'closed', closedAt: new Date().toISOString() }));
+    case 'deleteDraft':
       return { ...state, challenges: state.challenges.filter((c) => c.id !== action.id) };
     case 'accept':
       return updateChallenge(state, action.id, () => ({
@@ -182,6 +185,9 @@ async function persist(action: Action, before: State): Promise<string | null> {
       return action.id;
     case 'close':
       await remote.closeChallenge(action.id);
+      return action.id;
+    case 'deleteDraft':
+      await remote.deleteDraft(action.id);
       return null;
     case 'accept':
       await remote.challengeActions.accept(action.id);
@@ -243,6 +249,10 @@ type Store = State & {
   load: (userId: string) => Promise<void>;
   /** Neue Challenge anlegen. Gibt die ID zurück oder wirft mit einer lesbaren Meldung. */
   createChallenge: (draft: remote.NewChallenge) => Promise<string>;
+  /** Entwurf anlegen (ohne id) oder aktualisieren. Gibt den Entwurf zurück oder wirft mit einer lesbaren Meldung. */
+  saveDraft: (id: string | undefined, draft: remote.DraftInput) => Promise<Challenge>;
+  /** Entwurf speichern und veröffentlichen. Wirft mit einer lesbaren Meldung. */
+  publishDraft: (id: string, draft: remote.DraftInput, deadline: string) => Promise<string>;
 };
 
 const StoreContext = createContext<Store | null>(null);
@@ -315,7 +325,77 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const value = useMemo(() => ({ ...state, dispatch, load, createChallenge }), [state, dispatch, load, createChallenge]);
+  const saveDraft = useCallback(async (id: string | undefined, draft: remote.DraftInput) => {
+    const s = stateRef.current;
+    if (s.mode === 'demo') {
+      const existing = s.challenges.find((c) => c.id === id);
+      const challenge: Challenge = {
+        id: id ?? `draft-${Date.now()}`,
+        type: 'individual',
+        title: draft.title.trim(),
+        text: draft.text.trim(),
+        authorId: s.currentUserId,
+        location: draft.location.trim(),
+        bountyAmount: draft.bountyAmount,
+        status: 'draft',
+        image: draft.photo ?? existing?.image,
+        likedByMe: false,
+        comments: [],
+        createdAt: existing?.createdAt ?? new Date().toISOString(),
+        deadline: '',
+      };
+      localDispatch(existing ? { type: 'challengeLoaded', id: challenge.id, challenge, users: [] } : { type: 'create', challenge });
+      return challenge;
+    }
+    try {
+      const challenge = await remote.saveDraft(s.currentUserId, id, draft);
+      localDispatch(id ? { type: 'challengeLoaded', id, challenge, users: [] } : { type: 'create', challenge });
+      return challenge;
+    } catch (error) {
+      throw new Error(remote.errorText(error));
+    }
+  }, []);
+
+  const publishDraft = useCallback(
+    async (id: string, draft: remote.DraftInput, deadline: string) => {
+      await saveDraft(id, draft);
+      const s = stateRef.current;
+      if (s.mode === 'demo') {
+        const existing = s.challenges.find((c) => c.id === id);
+        const challenge: Challenge = {
+          id,
+          type: 'individual',
+          title: draft.title.trim(),
+          text: draft.text.trim(),
+          authorId: s.currentUserId,
+          location: draft.location.trim(),
+          bountyAmount: draft.bountyAmount,
+          status: 'open',
+          image: draft.photo ?? existing?.image,
+          likedByMe: false,
+          comments: [],
+          createdAt: new Date().toISOString(),
+          deadline,
+        };
+        localDispatch({ type: 'challengeLoaded', id, challenge, users: [] });
+        return id;
+      }
+      try {
+        await remote.publishDraft(id, deadline);
+        const { challenge, users } = await remote.loadChallenge(id, s.currentUserId);
+        localDispatch({ type: 'challengeLoaded', id, challenge, users });
+        return id;
+      } catch (error) {
+        throw new Error(remote.errorText(error));
+      }
+    },
+    [saveDraft],
+  );
+
+  const value = useMemo(
+    () => ({ ...state, dispatch, load, createChallenge, saveDraft, publishDraft }),
+    [state, dispatch, load, createChallenge, saveDraft, publishDraft],
+  );
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
 
