@@ -14,7 +14,7 @@ export default function Account() {
   const router = useRouter();
   const { profile } = useStore();
   const me = useCurrentUser();
-  const { signOut } = useAuth();
+  const { signOut, hasPassword } = useAuth();
 
   const payoutValue = me.payout?.iban ? 'IBAN hinterlegt' : me.payout?.paypal ? 'PayPal hinterlegt' : 'Nicht hinterlegt';
 
@@ -48,6 +48,11 @@ export default function Account() {
       </FieldGroup>
       <FieldGroup label="Konto">
         <View style={styles.list}>
+          <NavRow
+            label="Zugangsdaten"
+            value={hasPassword ? 'E-Mail und Passwort' : 'Passwort fehlt noch'}
+            onPress={() => router.push('/account/credentials')}
+          />
           <NavRow label="Abmelden" onPress={toStart} />
           <NavRow label="Konto 3 Monate pausieren" onPress={() => router.push('/account/pause')} />
           <NavRow label="Konto löschen" tone="danger" onPress={() => router.push('/account/delete')} />
