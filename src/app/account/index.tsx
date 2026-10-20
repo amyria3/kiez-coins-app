@@ -12,7 +12,7 @@ import { space } from '../../theme/tokens';
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
 export default function Account() {
   const router = useRouter();
-  const { profile } = useStore();
+  const { profile, groups } = useStore();
   const me = useCurrentUser();
   const { signOut, hasPassword } = useAuth();
 
@@ -35,6 +35,11 @@ export default function Account() {
       />
       <NavRow label="Deine Reise" value="Verlauf und Aufgaben" onPress={() => router.push('/reise')} />
       <NavRow label="Deine Challenges" value="Entwürfe, offen, geschlossen" onPress={() => router.push('/manage')} />
+      <NavRow
+        label="Deine Gruppen"
+        value={groups.length === 0 ? 'Gründen oder beitreten' : groups.length === 1 ? '1 Gruppe' : `${groups.length} Gruppen`}
+        onPress={() => router.push('/gruppen')}
+      />
       <FieldGroup label="Einstellungen">
         <View style={styles.list}>
           <NavRow
