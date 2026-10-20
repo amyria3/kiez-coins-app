@@ -93,6 +93,16 @@ export function formatRelative(iso: string, now = Date.now()): string {
   return days === 1 ? 'vor 1 Tag' : `vor ${days} Tagen`;
 }
 
+/** Dauer seit einem Zeitpunkt: „5 Min.“, „3 Std.“, „1 Tag“, „4 Tage“ */
+export function formatDurationSince(iso: string, now = Date.now()): string {
+  const minutes = Math.max(1, Math.floor((now - new Date(iso).getTime()) / 60_000));
+  if (minutes < 60) return `${minutes} Min.`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} Std.`;
+  const days = Math.floor(hours / 24);
+  return days === 1 ? '1 Tag' : `${days} Tage`;
+}
+
 /** „DE12 •••• 4821“ (kurze Form in Auswahllisten) */
 export function maskIbanShort(input: string): string {
   const iban = input.replace(/\s+/g, '');

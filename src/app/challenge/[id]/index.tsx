@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Pressable, Share, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -14,6 +14,7 @@ import { TextField } from '../../../components/Form';
 import { HeroScreen, SubScreen } from '../../../components/Screen';
 import { formatBountyShort, formatDayMonthShort, formatEuro, formatRelative, formatRemainingShort } from '../../../data/format';
 import { useRequireKiez } from '../../../data/kiez';
+import { recordView } from '../../../data/remote';
 import { useChallenge, useStore } from '../../../data/store';
 import { color, font, radius, size, space, stroke, text } from '../../../theme/tokens';
 
@@ -35,6 +36,13 @@ export default function ChallengeDetail() {
   const requireKiez = useRequireKiez();
   const [menuOpen, setMenuOpen] = useState(false);
   const [operationName, setOperationName] = useState(() => (id ? suggestName(id) : ''));
+  const authorId = challenge?.authorId;
+
+  // Aufruf zählen: einmal pro Person, nicht bei eigenen Challenges
+  useEffect(() => {
+    if (mode !== 'live' || !id || !authorId || authorId === currentUserId) return;
+    recordView(id).catch(() => undefined);
+  }, [mode, id, authorId, currentUserId]);
 
   if (!challenge || !author) {
     return (

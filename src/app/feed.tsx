@@ -1,5 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import {
+  Animated,
+  Easing,
+  FlatList,
+  PanResponder,
+  RefreshControl,
+  StyleSheet,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -46,15 +56,33 @@ export default function FeedScreen() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [storiesHeight, setStoriesHeight] = useState(0);
 
-  const collapse = () => {
-    if (collapsed) return;
-    setCollapsed(true);
+  const animateHeader = (toValue: 0 | 1) =>
     Animated.timing(progress, {
-      toValue: 1,
+      toValue,
       duration: 380,
       easing: Easing.bezier(0.2, 0, 0, 1),
       useNativeDriver: false,
     }).start();
+
+  const collapse = () => {
+    if (collapsed) return;
+    setCollapsed(true);
+    animateHeader(1);
+  };
+
+  // Ganz oben angekommen (oder dort nach unten gezogen): Logo und Begrüßung kommen zurück.
+  const expand = () => {
+    if (!collapsed) return;
+    setCollapsed(false);
+    animateHeader(0);
+  };
+
+  const lastY = useRef(0);
+  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const y = e.nativeEvent.contentOffset.y;
+    if (y > 8 && y > lastY.current) collapse();
+    else if ((y <= 0 && lastY.current > 0) || y < -32) expand();
+    lastY.current = y;
   };
 
   // Eigene Position nur, wenn der Standort schon freigegeben ist. Bleibt auf dem Gerät.
@@ -114,8 +142,31 @@ export default function FeedScreen() {
   const selectTab = (key: FeedTab) => {
     setTab(key);
     collapse();
+    lastY.current = 0;
     listRef.current?.scrollToOffset({ offset: 0, animated: false });
   };
+
+  // Wischen nach links oder rechts wechselt den Reiter. Nur über der Liste, damit die Stories frei scrollen.
+  const swipeX = useRef(new Animated.Value(0)).current;
+  const tabRef = useRef(tab);
+  tabRef.current = tab;
+  const selectTabRef = useRef(selectTab);
+  selectTabRef.current = selectTab;
+  const swipe = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponderCapture: (_, g) => Math.abs(g.dx) > 16 && Math.abs(g.dx) > Math.abs(g.dy) * 2,
+        onPanResponderMove: (_, g) => swipeX.setValue(g.dx * 0.25),
+        onPanResponderRelease: (_, g) => {
+          const index = TAB_ORDER.indexOf(tabRef.current);
+          const next = g.dx < -SWIPE_DISTANCE || g.vx < -0.5 ? index + 1 : g.dx > SWIPE_DISTANCE || g.vx > 0.5 ? index - 1 : index;
+          if (next !== index && next >= 0 && next < TAB_ORDER.length) selectTabRef.current(TAB_ORDER[next]);
+          Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, bounciness: 4 }).start();
+        },
+        onPanResponderTerminate: () => Animated.spring(swipeX, { toValue: 0, useNativeDriver: false }).start(),
+      }),
+    [swipeX],
+  );
 
   const typeOfTab = tab === 'wave' ? 'wave' : null;
   const planned = typeOfTab && !isTypeActive(typeOfTab) ? challengeTypes[typeOfTab] : null;
@@ -208,17 +259,20 @@ export default function FeedScreen() {
           <TopChallengeBar items={topChallenges} onItemPress={openChallenge} />
         </View>
       </Animated.View>
+      <Animated.View style={[styles.flex, { transform: [{ translateX: swipeX }] }]} {...swipe.panHandlers}>
       <FlatList
         ref={listRef}
         data={items}
         keyExtractor={(item) => (item.kind === 'post' ? item.challenge.id : item.kind)}
         renderItem={renderItem}
-        onScrollBeginDrag={collapse}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
         contentContainerStyle={[styles.list, styles.listTop, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={color.text.secondary} />
         }
       />
+      </Animated.View>
       <CameraButton onPress={createChallenge} />
       <TabBar
         active="feed"
@@ -235,6 +289,11 @@ export default function FeedScreen() {
 /** Breite der Kamera oben rechts (TabBar.tsx, CameraButton) */
 const CAMERA_WIDTH = 52;
 
+/** Reihenfolge der Reiter für das Wischen */
+const TAB_ORDER: FeedTab[] = ['nearby', 'wave', 'completed'];
+/** Mindestweg in Punkten, ab dem ein Wischen den Reiter wechselt */
+const SWIPE_DISTANCE = 64;
+
 type FeedItem =
   | { kind: 'planned' }
   | { kind: 'loading' }
@@ -243,6 +302,7 @@ type FeedItem =
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
+  flex: { flex: 1 },
   clip: { overflow: 'hidden' },
   list: { gap: space[12] },
   listTop: { paddingTop: space[8] },
