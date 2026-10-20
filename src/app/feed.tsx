@@ -1,5 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import {
+  Animated,
+  Easing,
+  FlatList,
+  PanResponder,
+  RefreshControl,
+  StyleSheet,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -15,7 +25,7 @@ import { coordsIfAllowed, distanceMeters, formatDistance, type Coords } from '..
 import { reiseEntries } from '../data/reise';
 import { topChallenges as pickTopChallenges, useStore } from '../data/store';
 import type { Challenge } from '../data/types';
-import { color, space } from '../theme/tokens';
+import { color, motion, space } from '../theme/tokens';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
@@ -46,15 +56,33 @@ export default function FeedScreen() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [storiesHeight, setStoriesHeight] = useState(0);
 
+  const animateHeader = (toValue: 0 | 1) =>
+    Animated.timing(progress, {
+      toValue,
+      duration: motion.barrier.duration,
+      easing: Easing.bezier(...motion.barrier.bezier),
+      useNativeDriver: false,
+    }).start();
+
   const collapse = () => {
     if (collapsed) return;
     setCollapsed(true);
-    Animated.timing(progress, {
-      toValue: 1,
-      duration: 380,
-      easing: Easing.bezier(0.2, 0, 0, 1),
-      useNativeDriver: false,
-    }).start();
+    animateHeader(1);
+  };
+
+  // Ganz oben angekommen (oder dort nach unten gezogen): Logo und Begrüßung kommen zurück.
+  const expand = () => {
+    if (!collapsed) return;
+    setCollapsed(false);
+    animateHeader(0);
+  };
+
+  const lastY = useRef(0);
+  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const y = e.nativeEvent.contentOffset.y;
+    if (y > 8 && y > lastY.current) collapse();
+    else if ((y <= 0 && lastY.current > 0) || y < -32) expand();
+    lastY.current = y;
   };
 
   // Eigene Position nur, wenn der Standort schon freigegeben ist. Bleibt auf dem Gerät.
@@ -114,8 +142,36 @@ export default function FeedScreen() {
   const selectTab = (key: FeedTab) => {
     setTab(key);
     collapse();
+    lastY.current = 0;
     listRef.current?.scrollToOffset({ offset: 0, animated: false });
   };
+
+  // Wischen nach links oder rechts wechselt den Reiter. Nur über der Liste, damit die Stories frei scrollen.
+  const swipeX = useRef(new Animated.Value(0)).current;
+  const tabRef = useRef(tab);
+  tabRef.current = tab;
+  const selectTabRef = useRef(selectTab);
+  selectTabRef.current = selectTab;
+  const swipe = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponderCapture: (_, g) => Math.abs(g.dx) > 16 && Math.abs(g.dx) > Math.abs(g.dy) * 2,
+        onPanResponderMove: (_, g) => swipeX.setValue(g.dx * 0.25),
+        onPanResponderRelease: (_, g) => {
+          const index = TAB_ORDER.indexOf(tabRef.current);
+          const next = g.dx < -SWIPE_DISTANCE || g.vx < -0.5 ? index + 1 : g.dx > SWIPE_DISTANCE || g.vx > 0.5 ? index - 1 : index;
+          if (next !== index && next >= 0 && next < TAB_ORDER.length) {
+            selectTabRef.current(TAB_ORDER[next]);
+            // Neuer Reiter schwingt von der Seite herein, aus der gewischt wurde
+            swipeX.setValue(next > index ? 56 : -56);
+          }
+          Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, ...motion.barrierSpring }).start();
+        },
+        onPanResponderTerminate: () =>
+          Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, ...motion.barrierSpring }).start(),
+      }),
+    [swipeX],
+  );
 
   const typeOfTab = tab === 'wave' ? 'wave' : null;
   const planned = typeOfTab && !isTypeActive(typeOfTab) ? challengeTypes[typeOfTab] : null;
@@ -174,8 +230,9 @@ export default function FeedScreen() {
   // Kopf: Höhe und Deckkraft gehen auf 0. Segmente: rechts Platz für die Kamera, sobald der Kopf weg ist.
   const headerStyle = headerHeight
     ? {
-        height: progress.interpolate({ inputRange: [0, 1], outputRange: [headerHeight, 0] }),
-        opacity: progress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0, 0] }),
+        // Nachschwingen über 1 hinaus: Höhe bleibt bei 0, nur die Verschiebung schwingt mit
+        height: progress.interpolate({ inputRange: [0, 1], outputRange: [headerHeight, 0], extrapolateRight: 'clamp' }),
+        opacity: progress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0, 0], extrapolate: 'clamp' }),
         transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) }],
       }
     : null;
@@ -184,8 +241,10 @@ export default function FeedScreen() {
     outputRange: [space[16], space[16] + CAMERA_WIDTH + space[8]],
   });
   const storiesStyle = {
-    height: showStories ? progress.interpolate({ inputRange: [0, 1], outputRange: [0, storiesHeight] }) : 0,
-    opacity: progress.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, 0, 1] }),
+    height: showStories
+      ? progress.interpolate({ inputRange: [0, 1], outputRange: [0, storiesHeight], extrapolateLeft: 'clamp' })
+      : 0,
+    opacity: progress.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, 0, 1], extrapolate: 'clamp' }),
   };
 
   return (
@@ -208,17 +267,20 @@ export default function FeedScreen() {
           <TopChallengeBar items={topChallenges} onItemPress={openChallenge} />
         </View>
       </Animated.View>
+      <Animated.View style={[styles.flex, { transform: [{ translateX: swipeX }] }]} {...swipe.panHandlers}>
       <FlatList
         ref={listRef}
         data={items}
         keyExtractor={(item) => (item.kind === 'post' ? item.challenge.id : item.kind)}
         renderItem={renderItem}
-        onScrollBeginDrag={collapse}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
         contentContainerStyle={[styles.list, styles.listTop, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={color.text.secondary} />
         }
       />
+      </Animated.View>
       <CameraButton onPress={createChallenge} />
       <TabBar
         active="feed"
@@ -235,6 +297,11 @@ export default function FeedScreen() {
 /** Breite der Kamera oben rechts (TabBar.tsx, CameraButton) */
 const CAMERA_WIDTH = 52;
 
+/** Reihenfolge der Reiter für das Wischen */
+const TAB_ORDER: FeedTab[] = ['nearby', 'wave', 'completed'];
+/** Mindestweg in Punkten, ab dem ein Wischen den Reiter wechselt */
+const SWIPE_DISTANCE = 64;
+
 type FeedItem =
   | { kind: 'planned' }
   | { kind: 'loading' }
@@ -243,6 +310,7 @@ type FeedItem =
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
+  flex: { flex: 1 },
   clip: { overflow: 'hidden' },
   list: { gap: space[12] },
   listTop: { paddingTop: space[8] },

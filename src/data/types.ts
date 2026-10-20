@@ -106,6 +106,8 @@ export type Challenge = {
   report?: ChallengeReport;
   payoutShare?: PayoutShare;
   comments: Comment[];
+  /** Aufrufe durch andere, nur bei eigenen Challenges und nur mit Migration `challenge_views` */
+  views?: number;
   rejectionReason?: string;
   confirmedAt?: string;
   paidMarkedAt?: string;

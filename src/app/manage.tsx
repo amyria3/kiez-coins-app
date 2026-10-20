@@ -1,66 +1,69 @@
-import { useMemo } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import {
+  Alert,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
 import { Image } from 'expo-image';
-import { useRouter, type Href } from 'expo-router';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { StatusBadge } from '../components/Badges';
+import { ActionBar } from '../components/ActionBar';
+import { BountyBadge, StatusBadge } from '../components/Badges';
 import { Button } from '../components/Button';
-import { Icon } from '../components/icons/Icon';
-import { SubScreen } from '../components/Screen';
-import { formatRelative, formatRemainingShort } from '../data/format';
+import { KaterCard } from '../components/Content';
+import { Icon, type IconName } from '../components/icons/Icon';
+import { NavigationBar } from '../components/NavigationBar';
+import { formatDayMonthShort, formatDurationSince, formatRemainingShort, nameInText } from '../data/format';
 import { useRequireKiez } from '../data/kiez';
 import { useStore } from '../data/store';
-import type { Challenge } from '../data/types';
-import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
+import type { Challenge, User } from '../data/types';
+import { color, radius, size, space, stroke, text } from '../theme/tokens';
 
-const RUNNING = new Set(['accepted', 'reported', 'payment_open', 'paid_marked']);
-const DONE = new Set(['confirmed', 'paid', 'closed']);
+/** Reihenfolge: zuerst, was noch änderbar ist, dann was läuft, dann Entwürfe, dann Erledigtes */
+const ORDER: Record<string, number> = {
+  open: 0,
+  accepted: 1,
+  reported: 1,
+  payment_open: 1,
+  paid_marked: 1,
+  rejected: 1,
+  draft: 2,
+  confirmed: 3,
+  paid: 3,
+  closed: 3,
+};
 
-type Section = { key: string; title: string; hint: string; items: Challenge[] };
+const deletable = (c: Challenge) => c.status === 'draft' || (c.status === 'open' && !c.assigneeId);
 
 /**
  * Route `manage` („Deine Challenges“). Erreichbar über „Verwalten“ an eigenen Posts im Feed und im Detail.
- * Entwürfe fertig machen oder löschen, offene Challenges bearbeiten oder schließen, den Rest ansehen.
+ * Jede eigene Challenge ist eine Karte fast in Bildschirmhöhe. Mehrere Karten wechselt man durch Wischen nach oben oder unten.
  */
 export default function ManageChallenges() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const requireKiez = useRequireKiez();
-  const { challenges, currentUserId, dispatch } = useStore();
+  const { challenges, users, currentUserId, dispatch } = useStore();
+  const [pageHeight, setPageHeight] = useState(0);
+  const [index, setIndex] = useState(0);
 
-  const sections = useMemo<Section[]>(() => {
-    const mine = challenges
-      .filter((c) => c.authorId === currentUserId)
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    return [
-      {
-        key: 'draft',
-        title: 'Entwürfe',
-        hint: 'Nur für Dich sichtbar.',
-        items: mine.filter((c) => c.status === 'draft'),
-      },
-      {
-        key: 'open',
-        title: 'Offen',
-        hint: 'Bearbeiten und Schließen geht, bis jemand annimmt.',
-        items: mine.filter((c) => c.status === 'open'),
-      },
-      { key: 'running', title: 'Läuft', hint: 'Jemand packt gerade an.', items: mine.filter((c) => RUNNING.has(c.status)) },
-      {
-        key: 'done',
-        title: 'Erledigt und geschlossen',
-        hint: 'Bleibt in der Timeline sichtbar.',
-        items: mine.filter((c) => DONE.has(c.status)),
-      },
-    ].filter((s) => s.items.length > 0);
-  }, [challenges, currentUserId]);
+  const mine = useMemo(
+    () =>
+      challenges
+        .filter((c) => c.authorId === currentUserId)
+        .sort((a, b) => (ORDER[a.status] ?? 9) - (ORDER[b.status] ?? 9) || b.createdAt.localeCompare(a.createdAt)),
+    [challenges, currentUserId],
+  );
 
   const create = () => requireKiez() && router.push('/challenge/create/step-1');
-
-  const deleteDraft = (c: Challenge) =>
-    Alert.alert('Entwurf löschen?', 'Das lässt sich nicht rückgängig machen.', [
-      { text: 'Abbrechen', style: 'cancel' },
-      { text: 'Löschen', style: 'destructive', onPress: () => dispatch({ type: 'deleteDraft', id: c.id }) },
-    ]);
+  const openDraft = (c: Challenge) =>
+    requireKiez() && router.push({ pathname: '/challenge/create/step-1', params: { draftId: c.id } });
 
   const close = (c: Challenge) =>
     Alert.alert(
@@ -72,127 +75,259 @@ export default function ManageChallenges() {
       ],
     );
 
-  const openDraft = (c: Challenge) =>
-    requireKiez() && router.push({ pathname: '/challenge/create/step-1', params: { draftId: c.id } });
+  const remove = (c: Challenge) => {
+    if (!deletable(c)) {
+      const running = !!c.assigneeId;
+      Alert.alert(
+        'Löschen geht nicht mehr',
+        running
+          ? 'Jemand hat die Challenge schon angenommen. Damit niemand umsonst loszieht, lässt sie sich nicht mehr löschen. Der Kundenservice hilft Dir weiter.'
+          : 'Erledigte und geschlossene Challenges bleiben in der Timeline sichtbar. Der Kundenservice hilft Dir weiter.',
+        [
+          { text: 'OK', style: 'cancel' },
+          {
+            text: 'Kundenservice',
+            onPress: () =>
+              router.push({
+                pathname: '/account/support',
+                params: { text: `Ich möchte meine Challenge „${c.title || 'Ohne Titel'}“ löschen. Grund: ` },
+              }),
+          },
+        ],
+      );
+      return;
+    }
+    const isDraft = c.status === 'draft';
+    Alert.alert(
+      isDraft ? 'Entwurf löschen?' : 'Challenge löschen?',
+      isDraft
+        ? 'Das lässt sich nicht rückgängig machen.'
+        : 'Die Challenge verschwindet samt Kommentaren aus dem Feed. Das lässt sich nicht rückgängig machen.',
+      [
+        { text: 'Abbrechen', style: 'cancel' },
+        {
+          text: 'Löschen',
+          style: 'destructive',
+          onPress: () => dispatch({ type: isDraft ? 'deleteDraft' : 'delete', id: c.id }),
+        },
+      ],
+    );
+  };
+
+  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (!pageHeight) return;
+    const next = Math.round(e.nativeEvent.contentOffset.y / pageHeight);
+    if (next !== index) setIndex(next);
+  };
+
+  const current = Math.min(index, Math.max(mine.length - 1, 0));
 
   return (
-    <SubScreen
-      title="Deine Challenges"
-      navigation="back"
-      onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))}
-      actions={<Button label="Neue Challenge" onPress={create} />}
-    >
-      {sections.length === 0 ? (
-        <Text style={styles.hint}>Du hast noch keine Challenge erstellt. Fang mit einem Foto an.</Text>
-      ) : null}
-      {sections.map((section) => (
-        <View key={section.key} style={styles.section}>
-          <View style={styles.sectionHead}>
-            <Text style={styles.sectionTitle} accessibilityRole="header">
-              {section.title}
-            </Text>
-            <Text style={styles.hint}>{section.hint}</Text>
+    <View style={[styles.screen, { paddingTop: insets.top }]}>
+      <NavigationBar
+        title="Deine Challenges"
+        subtitle={mine.length > 1 ? `${current + 1} von ${mine.length}` : undefined}
+        variant="back"
+        onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))}
+      />
+      <View style={styles.flex} onLayout={(e) => setPageHeight(e.nativeEvent.layout.height)}>
+        {mine.length === 0 ? (
+          <View style={styles.empty}>
+            <KaterCard>Du hast noch keine Challenge erstellt. Fang mit einem Foto an.</KaterCard>
           </View>
-          {section.items.map((c) => {
-            const isDraft = c.status === 'draft';
-            const href: Href = `/challenge/${c.id}`;
-            const meta = isDraft
-              ? `Gespeichert ${formatRelative(c.createdAt)}`
-              : c.status === 'open'
-                ? formatRemainingShort(c.deadline)
-                : formatRelative(c.closedAt ?? c.createdAt);
-            return (
-              <View key={c.id} style={styles.card}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`${c.title || 'Ohne Titel'} öffnen`}
-                  onPress={() => (isDraft ? openDraft(c) : router.push(href))}
-                  style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-                >
-                  {c.image ? (
-                    <Image source={c.image} style={styles.thumb} contentFit="cover" />
-                  ) : (
-                    <View style={[styles.thumb, styles.thumbEmpty]}>
-                      <Icon name="camera" size={size.icon} color={color.text.secondary} />
-                    </View>
-                  )}
-                  <View style={styles.flex}>
-                    <Text style={styles.title} numberOfLines={2}>
-                      {c.title || 'Ohne Titel'}
-                    </Text>
-                    <View style={styles.metaRow}>
-                      <StatusBadge status={c.status} />
-                      <Text style={styles.meta} numberOfLines={1}>
-                        {meta}
-                      </Text>
-                    </View>
-                  </View>
-                  <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
-                </Pressable>
-                {isDraft || (c.status === 'open' && !c.assigneeId) ? (
-                  <View style={styles.pills}>
-                    {isDraft ? (
-                      <>
-                        <Pill label="Weiter bearbeiten" onPress={() => openDraft(c)} />
-                        <Pill label="Löschen" onPress={() => deleteDraft(c)} />
-                      </>
-                    ) : (
-                      <>
-                        <Pill label="Bearbeiten" onPress={() => router.push(`/challenge/${c.id}/edit`)} />
-                        <Pill label="Schließen" onPress={() => close(c)} />
-                      </>
-                    )}
-                  </View>
-                ) : null}
+        ) : pageHeight > 0 ? (
+          <FlatList
+            data={mine}
+            keyExtractor={(c) => c.id}
+            pagingEnabled
+            snapToInterval={pageHeight}
+            decelerationRate="fast"
+            showsVerticalScrollIndicator={false}
+            onScroll={onScroll}
+            scrollEventThrottle={32}
+            getItemLayout={(_, i) => ({ length: pageHeight, offset: pageHeight * i, index: i })}
+            renderItem={({ item }) => (
+              <View style={[styles.page, { height: pageHeight }]}>
+                <ChallengeCard
+                  challenge={item}
+                  assignee={users.find((u) => u.id === item.assigneeId)}
+                  onOpen={() => (item.status === 'draft' ? openDraft(item) : router.push(`/challenge/${item.id}`))}
+                  onEdit={() => (item.status === 'draft' ? openDraft(item) : router.push(`/challenge/${item.id}/edit`))}
+                  onClose={() => close(item)}
+                  onDelete={() => remove(item)}
+                  hasNext={mine.length > 1 && item.id !== mine[mine.length - 1].id}
+                />
               </View>
-            );
-          })}
-        </View>
-      ))}
-    </SubScreen>
+            )}
+          />
+        ) : null}
+      </View>
+      <ActionBar>
+        <Button label="Neue Challenge" onPress={create} />
+      </ActionBar>
+    </View>
   );
 }
 
-function Pill({ label, onPress }: { label: string; onPress: () => void }) {
+type CardProps = {
+  challenge: Challenge;
+  assignee?: User;
+  onOpen: () => void;
+  onEdit: () => void;
+  onClose: () => void;
+  onDelete: () => void;
+  hasNext: boolean;
+};
+
+function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onDelete, hasNext }: CardProps) {
+  const isDraft = c.status === 'draft';
+  const isOpen = c.status === 'open' && !c.assigneeId;
+  const canDelete = deletable(c);
+
+  const state = isDraft
+    ? { value: 'Entwurf', hint: 'Nur für Dich sichtbar' }
+    : isOpen
+      ? { value: 'Offen', hint: formatRemainingShort(c.deadline) }
+      : c.assigneeId
+        ? {
+            value: 'Angenommen',
+            hint: [assignee ? `von ${nameInText(assignee)}` : null, c.acceptedAt ? `am ${formatDayMonthShort(c.acceptedAt)}` : null]
+              .filter(Boolean)
+              .join(' '),
+          }
+        : c.status === 'closed'
+          ? { value: 'Geschlossen', hint: c.closedAt ? `am ${formatDayMonthShort(c.closedAt)}` : '' }
+          : { value: 'Erledigt', hint: c.confirmedAt ? `am ${formatDayMonthShort(c.confirmedAt)}` : '' };
+  const photo = c.image ?? c.imageAfter ?? c.imageBefore;
+
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.pill, pressed && styles.pressed]}>
-      <Text style={styles.pillText}>{label}</Text>
-    </Pressable>
+    <View style={styles.card}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${c.title || 'Ohne Titel'} öffnen`}
+        onPress={onOpen}
+        style={({ pressed }) => [styles.head, pressed && styles.pressed]}
+      >
+        {photo ? (
+          <Image source={photo} style={styles.thumb} contentFit="cover" />
+        ) : (
+          <View style={[styles.thumb, styles.thumbEmpty]}>
+            <Icon name="camera" size={size.icon} color={color.text.secondary} />
+          </View>
+        )}
+        <View style={styles.flex}>
+          <Text style={styles.title} numberOfLines={2}>
+            {c.title || 'Ohne Titel'}
+          </Text>
+          <View style={styles.badges}>
+            <StatusBadge status={c.status} />
+            {c.bountyAmount ? <BountyBadge amount={c.bountyAmount} /> : null}
+          </View>
+        </View>
+        <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
+      </Pressable>
+
+      {c.text ? (
+        <Text style={styles.body} numberOfLines={3}>
+          {c.text}
+        </Text>
+      ) : null}
+
+      <View style={styles.grid}>
+        <Metric icon="eye" label="Aufrufe" value={c.views === undefined ? '–' : String(c.views)} />
+        <Metric icon="comment" label="Kommentare" value={String(c.comments.length)} />
+        <Metric
+          icon="clock"
+          label="Online"
+          value={isDraft ? '–' : formatDurationSince(c.createdAt)}
+          hint={isDraft ? 'Noch nicht veröffentlicht' : 'seit Veröffentlichung'}
+        />
+        <Metric icon={isOpen || isDraft ? 'flag' : 'check'} label="Status" value={state.value} hint={state.hint} />
+      </View>
+
+      <View style={styles.flex} />
+
+      <View style={styles.actions}>
+        {isDraft ? (
+          <Button label="Weiter bearbeiten" onPress={onEdit} />
+        ) : isOpen ? (
+          <View style={styles.row}>
+            <Button label="Bearbeiten" variant="secondary" onPress={onEdit} style={styles.flex} />
+            <Button label="Schließen" variant="secondary" onPress={onClose} style={styles.flex} />
+          </View>
+        ) : (
+          <Button label="Ansehen" variant="secondary" onPress={onOpen} />
+        )}
+        {/* Ausgegraut, bleibt aber tippbar: Die Meldung erklärt, warum Löschen nicht geht. */}
+        <Button
+          label="Löschen"
+          variant="danger"
+          onPress={onDelete}
+          style={canDelete ? undefined : styles.muted}
+        />
+      </View>
+      {hasNext ? <Text style={styles.next}>Nach oben wischen für die nächste</Text> : null}
+    </View>
+  );
+}
+
+function Metric({ icon, label, value, hint }: { icon: IconName; label: string; value: string; hint?: string }) {
+  return (
+    <View style={styles.metric} accessible accessibilityLabel={`${label}: ${value}${hint ? `, ${hint}` : ''}`}>
+      <View style={styles.metricLabel}>
+        <Icon name={icon} size={14} color={color.text.secondary} />
+        <Text style={styles.caption}>{label}</Text>
+      </View>
+      <Text style={styles.metricValue} numberOfLines={1}>
+        {value}
+      </Text>
+      {hint ? (
+        <Text style={styles.caption} numberOfLines={1}>
+          {hint}
+        </Text>
+      ) : null}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  section: { gap: space[12] },
-  sectionHead: { gap: space[2] },
-  sectionTitle: { ...text.title, color: color.text.primary },
-  hint: { ...text.caption, color: color.text.secondary },
+  screen: { flex: 1, backgroundColor: color.bg.screen },
+  flex: { flex: 1 },
+  empty: { padding: space[16] },
+  page: { paddingHorizontal: space[16], paddingTop: space[8], paddingBottom: space[12] },
   card: {
-    gap: space[12],
-    padding: space[12],
-    borderRadius: radius.lg,
+    flex: 1,
+    gap: space[16],
+    padding: space[16],
+    borderRadius: radius.card,
     backgroundColor: color.bg.surface,
   },
-  row: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
+  head: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   pressed: { opacity: 0.7 },
-  thumb: { width: 56, height: 56, borderRadius: radius.md },
+  thumb: { width: 72, height: 72, borderRadius: radius.xl },
   thumbEmpty: {
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: stroke.thin,
     borderColor: color.line.hairline,
   },
-  flex: { flex: 1, gap: space[6] },
-  title: { fontFamily: font.medium, fontSize: 15, lineHeight: 20, color: color.text.primary },
-  metaRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
-  meta: { ...text.caption, color: color.text.secondary, flex: 1 },
-  pills: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
-  pill: {
-    minHeight: 40,
-    paddingHorizontal: space[16],
-    borderRadius: radius.full,
-    borderWidth: stroke.thin,
-    borderColor: color.line.hairline,
-    justifyContent: 'center',
+  title: { ...text.cardTitle, color: color.text.primary },
+  badges: { flexDirection: 'row', alignItems: 'center', gap: space[8], marginTop: space[8] },
+  body: { ...text.body, color: color.text.secondary },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
+  metric: {
+    flexBasis: '47%',
+    flexGrow: 1,
+    gap: space[4],
+    padding: space[12],
+    borderRadius: radius.xl,
+    backgroundColor: color.bg.screen,
   },
-  pillText: { fontFamily: font.medium, fontSize: 14, lineHeight: 18, color: color.text.primary },
+  metricLabel: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
+  metricValue: { ...text.metric, color: color.text.primary },
+  caption: { ...text.caption, color: color.text.secondary },
+  actions: { gap: space[8] },
+  row: { flexDirection: 'row', gap: space[8] },
+  muted: { opacity: 0.35 },
+  next: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
 });
