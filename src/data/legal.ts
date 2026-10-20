@@ -16,18 +16,19 @@ export const OPERATOR = {
   street: '',
   city: '',
   /** Postfach für Impressum, Datenschutz und Meldungen, zum Beispiel kontakt@kiezcoins.de */
-  email: '',
+  email: 'kiezkoins@protonmail.com',
   /** Zweiter schneller Kontaktweg nach § 5 DDG: Telefon oder Kontaktformular. */
   phone: '',
   /** Zuständige Datenschutz-Aufsichtsbehörde im Bundesland der Anbieterin. */
-  authority: '',
+  authority: 'Die Sächsische Datenschutz- und Transparenzbeauftragte, Devrientstraße 5, 01067 Dresden',
 };
 
 const open = (value: string, what: string) => (value.trim() ? value.trim() : `[offen: ${what}]`);
 
 const name = OPERATOR.name;
-const street = open(OPERATOR.street, 'Straße und Hausnummer');
-const city = open(OPERATOR.city, 'PLZ und Ort');
+/** Ohne eingetragene Anschrift nennt der Text sie auf Anfrage (Schutz der Wohnadresse, bis eine c/o-Adresse steht). */
+const hasAddress = Boolean(OPERATOR.street.trim() && OPERATOR.city.trim());
+const onRequest = 'Die ladungsfähige Anschrift teilen wir bei berechtigtem Interesse auf Anfrage per E-Mail mit.';
 const email = open(OPERATOR.email, 'E-Mail-Adresse');
 const phone = open(OPERATOR.phone, 'Telefonnummer');
 const authority = open(OPERATOR.authority, 'Aufsichtsbehörde, in Berlin: Berliner Beauftragte für Datenschutz und Informationsfreiheit');
@@ -44,15 +45,15 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
     sections: [
       {
         heading: 'Angaben nach § 5 DDG',
-        paragraphs: [`${name}\n${street}\n${city}\nDeutschland`],
+        paragraphs: hasAddress ? [`${name}\n${OPERATOR.street.trim()}\n${OPERATOR.city.trim()}\nDeutschland`] : [name, onRequest],
       },
       {
         heading: 'Kontakt',
-        paragraphs: [`E-Mail: ${email}\nTelefon: ${phone}`],
+        paragraphs: [OPERATOR.phone.trim() ? `E-Mail: ${email}\nTelefon: ${phone}` : `E-Mail: ${email}\nIn der App: „Dein Konto“ › Support`],
       },
       {
         heading: 'Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV',
-        paragraphs: [`${name}, Anschrift wie oben`],
+        paragraphs: [hasAddress ? `${name}, Anschrift wie oben` : name],
       },
       {
         heading: 'Kontaktstelle nach dem Digital Services Act',
@@ -73,7 +74,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
     sections: [
       {
         heading: 'Verantwortlich ist die Anbieterin',
-        paragraphs: [`${name}, ${street}, ${city}, E-Mail: ${email}`],
+        paragraphs: [hasAddress ? `${name}, ${OPERATOR.street.trim()}, ${OPERATOR.city.trim()}, E-Mail: ${email}` : `${name}, E-Mail: ${email}. Anschrift im Impressum.`],
       },
       {
         heading: 'Dein Konto',
@@ -95,7 +96,8 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         heading: 'Dein Standort bleibt auf Deinem Gerät',
         paragraphs: [
           'Gibst Du den Standort frei, ermittelt Dein Handy daraus Ortsteil, Postleitzahl und Straße. Dafür nutzt es den Ortsdienst des Betriebssystems (Apple bei iPhone, Google bei Android). Kiez Coins speichert Deinen genauen Standort nicht. Gespeichert wird nur der Kiez als Text und bei Challenges der gerundete Punkt. Entfernungen im Feed berechnet Dein Handy selbst.',
-          'Die Freigabe ist freiwillig und lässt sich jederzeit in den Einstellungen Deines Handys zurücknehmen. Ohne Freigabe trägst Du Deinen Kiez von Hand ein.',
+          'In der Web-App fragt Dein Browser Kiez und Straße bei OpenStreetMap ab (Dienst Nominatim der OpenStreetMap Foundation, Vereinigtes Königreich). Er schickt dafür nur den auf etwa 100 Meter gerundeten Punkt, technisch bedingt auch Deine IP-Adresse. Grundlage ist Deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO) und der Angemessenheitsbeschluss der EU für das Vereinigte Königreich.',
+          'Die Freigabe ist freiwillig und lässt sich jederzeit in den Einstellungen Deines Handys oder Browsers zurücknehmen. Ohne Freigabe trägst Du Deinen Kiez von Hand ein.',
         ],
       },
       {
@@ -117,7 +119,8 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         paragraphs: [
           'Supabase Inc. hostet Datenbank, Anmeldung und Fotos. Die Server stehen in der EU (Paris, Frankreich). Für mögliche Zugriffe aus den USA gelten EU-Standardvertragsklauseln.',
           'Brevo (Sendinblue SAS, Paris, Frankreich) verschickt die E-Mails mit Anmeldecodes. Brevo erhält dafür Deine E-Mail-Adresse und den Code.',
-          'Mit beiden Diensten besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO.',
+          'Vercel Inc. (USA) liefert die Download-Seite und die Web-App aus und verarbeitet dafür Deine IP-Adresse. Grundlage sind das EU-US Data Privacy Framework und EU-Standardvertragsklauseln.',
+          'Mit diesen Diensten besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO.',
         ],
       },
       {

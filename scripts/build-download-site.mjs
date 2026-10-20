@@ -1,8 +1,10 @@
 // Baut die Download-Seite in den Ordner `website/`: Startseite mit Passwort-Formular plus
 // Impressum, Datenschutz und Nutzungsbedingungen aus `src/data/legal.ts` (dieselben Texte wie in der App).
-// Aufruf: node scripts/build-download-site.mjs
-// Den Ordner `website/` lädt Daria danach beim Webhoster hoch (siehe Übergabe/2026-10-21_download-seite.md).
-import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+// Aufruf: `npm run build:website` baut zuerst die Web-App nach `website/app/` und danach diese Seiten.
+// Nur die Seiten ohne Web-App: node scripts/build-download-site.mjs
+// Den Ordner `website/` lädt Daria danach beim Webhoster hoch (siehe Übergabe/2026-10-21_download-seite.md
+// und Übergabe/2026-10-21_web-app.md).
+import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -41,7 +43,7 @@ a { color:var(--text); }
 .card { background:var(--surface); border-radius:20px; padding:20px; margin:24px 0; }
 label { display:block; font-size:14px; color:var(--muted); margin-bottom:6px; }
 input { width:100%; font:inherit; color:var(--text); background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:12px 14px; }
-button { width:100%; margin-top:12px; font:500 16px/1 Inter, system-ui, sans-serif; color:var(--bg); background:var(--accent); border:0; border-radius:999px; padding:16px; cursor:pointer; }
+button, .button { display:block; text-align:center; text-decoration:none; box-sizing:border-box; width:100%; margin-top:12px; font:500 16px/1 Inter, system-ui, sans-serif; color:var(--bg); background:var(--accent); border:0; border-radius:999px; padding:16px; cursor:pointer; }
 .error { color:var(--error); font-size:14px; margin:8px 0 0; }
 .steps { padding-left:20px; color:var(--muted); margin:0; }
 .steps li { margin-bottom:6px; }
@@ -76,10 +78,25 @@ ${footer}
 </html>
 `;
 
+// iPhone: TestFlight, sobald es einen Link gibt. Bis dahin die Web-App unter /app/.
 const ios = config.testflightUrl
-  ? `<p>Auf dem iPhone läuft Kiez Coins über TestFlight, Apples App für Testversionen.</p>
+  ? `<h2>iPhone</h2>
+  <p>Auf dem iPhone läuft Kiez Coins über TestFlight, Apples App für Testversionen.</p>
   <p><a href="${esc(config.testflightUrl)}">Kiez Coins in TestFlight öffnen</a></p>`
-  : `<p>Die iPhone-Version ist in Vorbereitung. Sie kommt über TestFlight, Apples App für Testversionen.</p>`;
+  : `<div class="card" id="iphone">
+  <h2 style="margin-top:0">iPhone</h2>
+  <p>Auf dem iPhone läuft Kiez Coins als Web-App in Safari. Auf dem Home-Bildschirm startet sie wie eine App.</p>
+  <a class="button" href="app/">Kiez Coins öffnen</a>
+</div>
+
+<h2>So legst Du die App auf den Home-Bildschirm</h2>
+<ol class="steps">
+  <li>Diese Seite in <strong>Safari</strong> öffnen und „Kiez Coins öffnen“ tippen.</li>
+  <li>Unten in der Leiste auf das Teilen-Symbol tippen (Quadrat mit Pfeil nach oben).</li>
+  <li>„Zum Home-Bildschirm“ wählen und „Hinzufügen“ tippen.</li>
+  <li>Kiez Coins ab jetzt über das neue Symbol auf dem Home-Bildschirm starten. Dort meldest Du Dich einmal an.</li>
+</ol>
+<p>Kamera, Fotos und Standort fragt Safari beim ersten Mal ab. Push-Benachrichtigungen gibt es in der Web-App nicht. Updates kommen automatisch beim nächsten Start.</p>`;
 
 const index = page(
   'Kiez Coins – Testversion',
@@ -105,7 +122,6 @@ const index = page(
   <li>Für ein Update lädst Du die neue Datei hier herunter und installierst sie genauso. Deine Daten bleiben erhalten.</li>
 </ol>
 
-<h2>iPhone</h2>
 ${ios}
 
 <script>
@@ -127,8 +143,23 @@ const legal = (id) => {
 
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, 'index.html'), index);
+// Eigene 404-Seite für unbekannte Adressen.
+writeFileSync(
+  join(out, '404.html'),
+  page('Nicht gefunden – Kiez Coins', `<h1>Seite nicht gefunden</h1>\n<p><a href="/">Zur Startseite</a></p>`),
+);
+// Web-App: Vercel leitet unbekannte Adressen unter /app/ auf die App-Startseite um (vercel.json unten).
+// Eine Kopie der App-Startseite sorgt dafür, dass Neuladen auf einer Unterseite (/app/challenge/…) die App öffnet.
+const app = join(out, 'app');
+if (existsSync(join(app, 'index.html'))) copyFileSync(join(app, 'index.html'), join(app, '404.html'));
+else console.warn('Achtung: website/app/ fehlt. Die Web-App fürs iPhone baut `npm run build:website`.');
 for (const id of legalDocIds) writeFileSync(join(out, `${fileOf[id]}.html`), legal(id));
 copyFileSync(join(root, 'assets/favicon.png'), join(out, 'favicon.png'));
+// Hosting bei Vercel: Unterseiten der Web-App öffnen die App, Rechtstexte auch ohne .html
+writeFileSync(
+  join(out, 'vercel.json'),
+  JSON.stringify({ cleanUrls: true, rewrites: [{ source: '/app/:path*', destination: '/app/index.html' }] }, null, 2) + '\n',
+);
 // Logo: die bunten Coins aus der App (src/components/icons/brandSvgs.ts)
 const coins = readFileSync(join(root, 'src/components/icons/brandSvgs.ts'), 'utf8').match(/coinsSvg = `([^`]+)`/);
 writeFileSync(join(out, 'logo.svg'), coins[1]);
