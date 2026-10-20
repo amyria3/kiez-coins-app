@@ -190,9 +190,9 @@ export default function FeedScreen() {
           if (next !== index && next >= 0 && next < TAB_ORDER.length) {
             selectTabRef.current(TAB_ORDER[next]);
             // Neuer Reiter schwingt von der Seite herein, aus der gewischt wurde
-            swipeX.setValue(next > index ? 56 : -56);
+            swipeX.setValue(next > index ? motion.tabSwitch.offset : -motion.tabSwitch.offset);
           }
-          Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, ...motion.barrierSpring }).start();
+          Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, ...motion.tabSwitch.spring }).start();
         },
         onPanResponderTerminate: () =>
           Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, ...motion.barrierSpring }).start(),
@@ -206,8 +206,8 @@ export default function FeedScreen() {
     const to = TAB_ORDER.indexOf(key);
     selectTab(key);
     if (to === from) return;
-    swipeX.setValue(to > from ? 56 : -56);
-    Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, ...motion.barrierSpring }).start();
+    swipeX.setValue(to > from ? motion.tabSwitch.offset : -motion.tabSwitch.offset);
+    Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, ...motion.tabSwitch.spring }).start();
   };
 
   const typeOfTab = tab === 'wave' ? 'wave' : null;
