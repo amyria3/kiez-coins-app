@@ -72,6 +72,8 @@ export type Comment = {
 };
 
 export type Challenge = {
+  /** Grober Punkt (rund 100 m), wenn beim Erstellen der Standort freigegeben war */
+  coords?: { latitude: number; longitude: number };
   id: string;
   type: ChallengeType;
   title: string;

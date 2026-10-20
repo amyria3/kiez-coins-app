@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 import { formatRemainingShort } from '../data/format';
 import type { Challenge, User } from '../data/types';
 import { color, radius, size, space, stroke, text } from '../theme/tokens';
-import { Avatar } from './AuthorRow';
+import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BountyBadge } from './Badges';
 import { IconButton } from './IconButton';
 
@@ -14,6 +14,8 @@ const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 type ChallengePostProps = {
   challenge: Challenge;
   author: User;
+  /** Entfernung, z. B. „300 m“, wenn Standort und Challenge-Punkt bekannt sind */
+  distance?: string;
   onPress: () => void;
   onLike: () => void;
   /** Nur bei eigenen Challenges: führt zu „Deine Challenges“ */
@@ -24,15 +26,21 @@ type ChallengePostProps = {
  * Figma „ChallengePost“ (Type=Individual|Wave, Completed?), Upgrade „Nachtschicht“:
  * Foto als Karte, Bounty oben rechts, Titel und Autor auf einer Glasleiste unten im Foto.
  */
-export const ChallengePost = memo(function ChallengePost({ challenge, author, onPress, onLike, onManage }: ChallengePostProps) {
+export const ChallengePost = memo(function ChallengePost({
+  challenge,
+  author,
+  distance,
+  onPress,
+  onLike,
+  onManage,
+}: ChallengePostProps) {
   const isWave = challenge.type === 'wave';
   const completed = COMPLETED.has(challenge.status);
   const closed = challenge.status === 'closed';
   const image = isWave && completed && challenge.imageAfter ? challenge.imageAfter : challenge.image;
   const state = closed ? 'geschlossen' : completed ? 'erledigt' : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
-  const meta = [author.name, state]
-    .filter(Boolean)
-    .join(' · ');
+  const hideName = useHideName(author);
+  const meta = [distance, state].filter(Boolean).join(' · ');
   const commentCount = challenge.comments.length;
 
   return (
@@ -66,7 +74,8 @@ export const ChallengePost = memo(function ChallengePost({ challenge, author, on
           <View style={styles.metaRow}>
             <Avatar user={author} diameter={20} />
             <Text style={styles.meta} numberOfLines={1}>
-              {meta}
+              <Text style={hideName ? hiddenText : undefined}>{author.name}</Text>
+              {meta ? ` · ${meta}` : null}
             </Text>
           </View>
         </View>
