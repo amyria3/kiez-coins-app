@@ -19,8 +19,6 @@ Jede Sitzung, die am Code arbeitet und keinen Zugriff auf Documentation hat (zum
 
 Diese `README.md` bleibt immer liegen.
 
-## Liegt gerade hier (20.10.2026)
+## Liegt gerade hier
 
-- `HANDOVER.md`: Übergabe der Code-Sitzungen (Stand, offene Punkte).
-- `konzept-gruppen.md`: Konzept „Gruppen“ mit Edensteinen. Achtung: Die ältere Zeile zu Gruppen in `ENTSCHEIDUNGEN.md` (Beitritt ab 13, Preise) widerspricht dem Konzept zum Teil. Daria entscheidet.
-- `README-Inhalte.md`: Funktionen, Aufbau, Anmeldung, Datenbank und Figma-Abgleich aus dem alten README.
+Nichts (Stand 20.10.2026).
