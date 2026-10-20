@@ -17,13 +17,14 @@ const MAX_DIGITS = 8;
 
 /**
  * Route `onboarding/code`. Figma: `onboarding/code`. Prüft den E-Mail-Code bei Supabase Auth.
+ * `signup=1`: Der Code bestätigt die Adresse eines neuen Passwort-Kontos (Vorlage „Confirm sign up“).
  * Danach: bekanntes Konto mit fertigem Onboarding direkt in den Feed, sonst weiter zum Deckname.
  */
 export default function Code() {
   const router = useRouter();
-  const { existing } = useLocalSearchParams<{ existing?: string }>();
+  const { existing, signup } = useLocalSearchParams<{ existing?: string; signup?: string }>();
   const { profile } = useStore();
-  const { sendCode, verifyCode } = useAuth();
+  const { sendCode, verifyCode, resendSignupCode } = useAuth();
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
@@ -32,7 +33,7 @@ export default function Code() {
   const confirm = async () => {
     setBusy(true);
     setError(undefined);
-    const failure = await verifyCode(profile.email, digits);
+    const failure = await verifyCode(profile.email, digits, !!signup);
     if (failure) {
       setBusy(false);
       setError(failure);
@@ -51,7 +52,7 @@ export default function Code() {
   };
 
   const resend = async () => {
-    const failure = await sendCode(profile.email, !existing);
+    const failure = signup ? await resendSignupCode(profile.email) : await sendCode(profile.email, !existing);
     if (failure) setError(failure);
     else Alert.alert('Code neu gesendet', `Schau in Dein Postfach: ${profile.email}`);
   };
