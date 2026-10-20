@@ -77,16 +77,13 @@ export default function ChallengeDetail() {
   const closeChallenge = () =>
     Alert.alert(
       'Challenge schließen?',
-      'Hat sich das erledigt? Die Challenge verschwindet aus dem Feed. Das lässt sich nicht rückgängig machen.',
+      'Hat sich das erledigt? Die Challenge bleibt im Feed sichtbar, lässt sich aber nicht mehr annehmen oder kommentieren. Das lässt sich nicht rückgängig machen.',
       [
         { text: 'Abbrechen', style: 'cancel' },
         {
           text: 'Schließen',
           style: 'destructive',
-          onPress: () => {
-            dispatch({ type: 'close', id: challenge.id });
-            router.back();
-          },
+          onPress: () => dispatch({ type: 'close', id: challenge.id }),
         },
       ],
     );
@@ -115,21 +112,33 @@ export default function ChallengeDetail() {
           <Text style={styles.metricValue}>{formatRemainingShort(challenge.deadline).replace('Noch ', '')}</Text>
         </View>
       </View>
-      {canManage ? (
+      {isAuthor ? (
         <View style={styles.manage}>
+          {canManage ? (
+            <>
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => router.push(`/challenge/${challenge.id}/edit`)}
+                style={({ pressed }) => [styles.pill, pressed && styles.pressed]}
+              >
+                <Text style={styles.pillText}>Bearbeiten</Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                onPress={closeChallenge}
+                style={({ pressed }) => [styles.pill, pressed && styles.pressed]}
+              >
+                <Text style={styles.pillText}>Schließen</Text>
+              </Pressable>
+            </>
+          ) : null}
           <Pressable
             accessibilityRole="button"
-            onPress={() => router.push(`/challenge/${challenge.id}/edit`)}
+            accessibilityLabel="Deine Challenges verwalten"
+            onPress={() => router.push('/manage')}
             style={({ pressed }) => [styles.pill, pressed && styles.pressed]}
           >
-            <Text style={styles.pillText}>Bearbeiten</Text>
-          </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            onPress={closeChallenge}
-            style={({ pressed }) => [styles.pill, pressed && styles.pressed]}
-          >
-            <Text style={styles.pillText}>Schließen</Text>
+            <Text style={styles.pillText}>Alle verwalten</Text>
           </Pressable>
         </View>
       ) : null}
@@ -189,13 +198,18 @@ export default function ChallengeDetail() {
           }
         />
       ) : null}
-      {acceptedByMe ? (
+      {challenge.status !== 'draft' ? (
         <CommentSection
           comments={challenge.comments}
           users={users}
           currentUserId={currentUserId}
-          composerPlaceholder={`Frag ${author.firstName} …`}
-          onSend={(body) => dispatch({ type: 'addComment', id: challenge.id, body })}
+          composerPlaceholder={isAuthor ? 'Antworte oder ergänze etwas …' : `Frag ${author.firstName} …`}
+          onSend={
+            challenge.status === 'closed'
+              ? undefined
+              : (body) => requireKiez() && dispatch({ type: 'addComment', id: challenge.id, body })
+          }
+          closedHint="Die Challenge ist geschlossen. Neue Kommentare sind nicht mehr möglich."
           onReport={(comment) =>
             router.push({ pathname: '/user/[id]/report', params: { id: comment.authorId, challengeId: challenge.id } })
           }
@@ -237,7 +251,7 @@ const styles = StyleSheet.create({
   metricLabel: { ...text.caption, color: color.text.secondary },
   metricBounty: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
   metricValue: { ...text.metric, fontSize: 20, lineHeight: 24, color: color.text.primary },
-  manage: { flexDirection: 'row', gap: space[8] },
+  manage: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
   pill: {
     minHeight: 44,
     paddingHorizontal: space[16],

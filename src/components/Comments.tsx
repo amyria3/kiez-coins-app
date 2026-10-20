@@ -58,12 +58,23 @@ type CommentSectionProps = {
   composerPlaceholder: string;
   /** Eigene Kommentare bekommen keinen Melden-Button */
   currentUserId: string;
-  onSend: (body: string) => void;
+  /** Ohne onSend kein Eingabefeld, z. B. bei geschlossenen Challenges */
+  onSend?: (body: string) => void;
+  /** Hinweis statt Eingabefeld */
+  closedHint?: string;
   onReport: (comment: CommentData) => void;
 };
 
 /** Figma „CommentSection“: Fragen zur Challenge, öffentlich. Es gibt keinen privaten Chat. */
-export function CommentSection({ comments, users, composerPlaceholder, currentUserId, onSend, onReport }: CommentSectionProps) {
+export function CommentSection({
+  comments,
+  users,
+  composerPlaceholder,
+  currentUserId,
+  onSend,
+  closedHint,
+  onReport,
+}: CommentSectionProps) {
   return (
     <View style={styles.section}>
       <Text style={styles.title} accessibilityRole="header">
@@ -81,7 +92,11 @@ export function CommentSection({ comments, users, composerPlaceholder, currentUs
           />
         ) : null;
       })}
-      <CommentComposer placeholder={composerPlaceholder} onSend={onSend} />
+      {onSend ? (
+        <CommentComposer placeholder={composerPlaceholder} onSend={onSend} />
+      ) : closedHint ? (
+        <Text style={styles.time}>{closedHint}</Text>
+      ) : null}
     </View>
   );
 }

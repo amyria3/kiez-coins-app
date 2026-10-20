@@ -4,11 +4,14 @@ import type { ImageSourcePropType } from 'react-native';
 // Gespeichert in Supabase (supabase/migrations), Umwandlung in src/data/remote.ts.
 
 /**
- * Ablauf Challenge: open → accepted → reported → confirmed (ohne Bounty) bzw. payment_open (mit Bounty).
+ * Ablauf Challenge: draft → open → accepted → reported → confirmed (ohne Bounty) bzw. payment_open (mit Bounty).
+ * Entwurf (draft) sieht nur die Ersteller:in. Eine offene Challenge ohne Annehmende lässt sich schließen (closed),
+ * sie bleibt dann in der Timeline sichtbar.
  * Ablehnen setzt `reported` zurück auf `accepted`.
  * Ablauf Bounty: payment_open → paid_marked → paid.
  */
 export type ChallengeStatus =
+  | 'draft'
   | 'open'
   | 'accepted'
   | 'reported'
@@ -16,7 +19,8 @@ export type ChallengeStatus =
   | 'rejected'
   | 'payment_open'
   | 'paid_marked'
-  | 'paid';
+  | 'paid'
+  | 'closed';
 
 export type ChallengeType = 'individual' | 'wave';
 
@@ -83,11 +87,15 @@ export type Challenge = {
   bountyAmount?: number;
   status: ChallengeStatus;
   image?: ImageSource;
+  /** Pfad des Fotos im Storage, nur für eigene Entwürfe (Foto bleibt beim Speichern erhalten) */
+  imagePath?: string;
   imageBefore?: ImageSource;
   imageAfter?: ImageSource;
   likedByMe: boolean;
+  /** Bei Entwürfen leer: Die Frist entsteht erst beim Veröffentlichen. */
   deadline: string;
   createdAt: string;
+  closedAt?: string;
   acceptedAt?: string;
   /** Figma `acceptance.operation_name`: privat, nur für die annehmende Person. Leer = bewusst ohne Taufe */
   operationName?: string;
