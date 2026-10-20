@@ -2,7 +2,7 @@
 
 App für Nachbarschafts-Challenges: Jemand stellt eine Aufgabe in den Kiez (zum Beispiel „Garten aufräumen“), andere erledigen sie, und wer mag, zahlt dafür eine kleine Bounty (5 bis 50 €) direkt an die Helfenden.
 
-Anmeldung und Daten laufen über **Supabase**: Du meldest Dich mit einem Code per E-Mail an, und Challenges, Kommentare, Zahlungsfreigaben und Profile sind echt und auf allen Geräten gleich. Standort und Push-Nachrichten sind noch gespielt, Geld fließt nie über die App. Beispieldaten gibt es weiter über das Demo-Menü.
+Anmeldung und Daten laufen über **Supabase**: Du meldest Dich vorerst mit E-Mail und Passwort an, und Challenges, Kommentare, Zahlungsfreigaben und Profile sind echt und auf allen Geräten gleich. Standort und Push-Nachrichten sind noch gespielt, Geld fließt nie über die App. Beispieldaten gibt es weiter über das Demo-Menü.
 
 ## App auf dem Handy ansehen (Expo Go)
 
@@ -35,7 +35,7 @@ Ohne Handy geht es auch im Browser: `npx expo start --web`.
 
 ## Was Du ausprobieren kannst
 
-- **Onboarding:** Die App startet mit „Anheuern“. Du bekommst einen echten Code an Deine E-Mail-Adresse. Nach dem Onboarding bleibst Du angemeldet, auch nach dem Neustart. „Ich hab schon ein Konto“ meldet ein bestehendes Konto an und springt direkt in den Feed.
+- **Onboarding:** Die App startet mit „Anheuern“. Du legst ein Konto mit E-Mail und Passwort an. Nach dem Onboarding bleibst Du angemeldet, auch nach dem Neustart. „Ich hab schon ein Konto“ meldet ein bestehendes Konto an und springt direkt in den Feed.
 - **Feed:** Challenges in der Nähe, Wave Challenges und erledigte Challenges. Am Anfang ist er leer, bis jemand die erste Challenge erstellt. Nach unten ziehen lädt neu.
 - **Challenge erfüllen:** Challenge öffnen → „Challenge annehmen“ → Operation taufen (freiwillig), Fragen in den Kommentaren stellen → „Erledigt melden“ mit Foto → Zahlungsdaten für die Bounty freigeben.
 - **Challenge erstellen:** Kamera-Symbol oben rechts im Feed.
@@ -70,7 +70,7 @@ Für Entwickler:innen: `npm run typecheck` prüft die Typen.
 ## Anmeldung (Supabase)
 
 - Projekt „Kiez Coins Data“. URL und Publishable Key stehen in `src/lib/supabase.ts`. Sie sind öffentlich und dürfen in die App. Für ein anderes Projekt setzt Du `EXPO_PUBLIC_SUPABASE_URL` und `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in einer Datei `.env.local`.
-- Anmeldung ohne Passwort: `signInWithOtp` schickt den Code, `verifyOtp` prüft ihn (`src/data/auth.tsx`). Die Sitzung liegt im Gerät (AsyncStorage).
+- Anmeldung vorerst mit Passwort: `signUp` bzw. `signInWithPassword` (`src/data/auth.tsx`). Der Code-Login (`signInWithOtp`/`verifyOtp`, Screen `onboarding/code`) bleibt im Code und kommt zurück, sobald es eine eigene Domain mit Mailversand gibt. Die Sitzung liegt im Gerät (AsyncStorage).
 - Profil und Daten liegen in Tabellen (siehe unten).
 
 ## Datenbank (Supabase)
@@ -92,7 +92,8 @@ Das Schema steht in `supabase/migrations` und ist im Projekt „Kiez Coins Data�
 - Ohne Kiez, mit Pause oder Sperre kann man nur lesen. Bounties anbieten geht nicht mehr, wenn `profiles.can_offer_bounties` auf `false` steht (setzt die Moderation).
 - **Fotos** liegen im öffentlichen Storage-Bucket `photos`, jede Person lädt nur in ihren eigenen Ordner hoch.
 - **Test:** `supabase/tests/challenge_flow.sql` im SQL-Editor ausführen. Er spielt eine Bounty-Challenge einmal durch und rollt am Ende alles zurück.
-- **Einmalig in Supabase nötig:** Unter *Authentication › Emails › Templates* müssen die Vorlagen „Confirm signup“ und „Magic Link“ den Code `{{ .Token }}` enthalten. Die Standardvorlagen schicken nur einen Link.
+- **Einmalig in Supabase nötig:** Unter *Authentication › Sign In / Providers › Email* den Schalter „Confirm email“ ausschalten. Sonst verlangt Supabase eine Bestätigungsmail, und die kommt ohne eigenen Mailserver nicht an.
+- **Später, mit eigener Domain:** SMTP einrichten (z. B. Proton-SMTP-Übermittlung), die Vorlagen „Confirm signup“ und „Magic Link“ mit `{{ .Token }}` versehen und wieder auf den Code-Login umstellen.
 - Der eingebaute Mailversand von Supabase schafft nur wenige Mails pro Stunde. Für mehr Tester*innen braucht es einen eigenen SMTP-Dienst.
 
 ## Figma abgleichen
