@@ -10,23 +10,31 @@ import { SkeletonTopItem } from './Skeleton';
 type AppHeaderProps = {
   onMenuPress: () => void;
   onCreatePress: () => void;
+  /** Tipp auf Logo und Kater öffnet „Deine Reise“. */
+  onLogoPress?: () => void;
   /** Langes Drücken aufs Logo öffnet das Demo-Menü (nur für Tests mit Beispieldaten). */
   onLogoLongPress?: () => void;
+  /** Punkt am Kater: Bei einer Deiner Challenges bist Du dran. */
+  hasTasks?: boolean;
 };
 
 /** Figma „AppHeader“: Burger-Menü links (Konto), Logo mit Kater in der Mitte, Kamera rechts. */
-export function AppHeader({ onMenuPress, onCreatePress, onLogoLongPress }: AppHeaderProps) {
+export function AppHeader({ onMenuPress, onCreatePress, onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) {
   return (
     <View style={styles.header}>
       <IconButton icon="burger" accessibilityLabel="Dein Konto" onPress={onMenuPress} />
       <Pressable
+        onPress={onLogoPress}
         onLongPress={onLogoLongPress}
-        accessibilityRole="header"
-        accessibilityLabel="Kiez Coins"
+        accessibilityRole="button"
+        accessibilityLabel={hasTasks ? 'Deine Reise, Du bist dran' : 'Deine Reise'}
         style={styles.logo}
       >
         <Wordmark />
-        <Cat height={36} />
+        <View>
+          <Cat height={36} />
+          {hasTasks ? <View style={styles.taskDot} /> : null}
+        </View>
       </Pressable>
       <IconButton icon="camera" accessibilityLabel="Challenge erstellen" onPress={onCreatePress} />
     </View>
@@ -35,11 +43,14 @@ export function AppHeader({ onMenuPress, onCreatePress, onLogoLongPress }: AppHe
 
 type TopChallengeBarProps = {
   items: Challenge[];
+  /** Während des Ladens Platzhalter zeigen; ohne Einträge danach gar nichts. */
+  loading?: boolean;
   onItemPress: (id: string) => void;
 };
 
 /** Figma „TopChallengeBar“: horizontale Liste aus „TopChallengeItem“. */
-export function TopChallengeBar({ items, onItemPress }: TopChallengeBarProps) {
+export function TopChallengeBar({ items, loading, onItemPress }: TopChallengeBarProps) {
+  if (items.length === 0 && !loading) return null;
   if (items.length === 0) {
     // Ladezustand (Figma FeedScreen State=Loading)
     return (
@@ -123,6 +134,17 @@ const styles = StyleSheet.create({
     paddingVertical: space[8],
   },
   logo: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
+  taskDot: {
+    position: 'absolute',
+    top: 0,
+    right: -2,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: color.accent.signal,
+    borderWidth: stroke.thin,
+    borderColor: color.bg.screen,
+  },
   topBar: { paddingHorizontal: space[12], paddingVertical: space[6], gap: space[12] },
   topItem: { width: size.thumbnail, alignItems: 'center', gap: space[4] },
   thumbnail: {

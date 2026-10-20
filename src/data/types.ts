@@ -1,7 +1,7 @@
 import type { ImageSourcePropType } from 'react-native';
 
 // Datenmodell laut Figma-Komponentenbeschreibungen (ChallengePost, StatusBadge, Flow „Bounty auf Vertrauen“).
-// Supabase kommt später; die Feldnamen sind so gewählt, dass sie sich 1:1 als Tabellenspalten eignen.
+// Gespeichert in Supabase (supabase/migrations), Umwandlung in src/data/remote.ts.
 
 /**
  * Ablauf Challenge: open → accepted → reported → confirmed (ohne Bounty) bzw. payment_open (mit Bounty).
@@ -95,6 +95,7 @@ export type Challenge = {
   payoutShare?: PayoutShare;
   comments: Comment[];
   rejectionReason?: string;
+  confirmedAt?: string;
   paidMarkedAt?: string;
 };
 
@@ -117,4 +118,8 @@ export type Profile = {
   push: boolean;
   onboarded: boolean;
   pausedUntil?: string;
+  /** Kodex im Onboarding: Zeitpunkte der Zustimmung */
+  ageConfirmedAt?: string;
+  termsAcceptedAt?: string;
+  privacyAcceptedAt?: string;
 };
