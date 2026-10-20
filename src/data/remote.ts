@@ -67,6 +67,7 @@ type ChallengeRow = {
   deadline: string | null;
   created_at: string;
   closed_at: string | null;
+  deleted_at?: string | null;
   accepted_at: string | null;
   report_photo_path: string | null;
   report_note: string | null;
@@ -150,6 +151,7 @@ function toChallenge(
     deadline: row.deadline ?? '',
     createdAt: row.created_at,
     closedAt: row.closed_at ?? undefined,
+    deletedAt: row.deleted_at ?? undefined,
     acceptedAt: row.accepted_at ?? undefined,
     operationName: extra.operationName,
     report: row.report_photo_path
@@ -576,14 +578,12 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
 export const publishDraft = (id: string, deadline: string) =>
   rpc('publish_challenge', { p_challenge_id: id, p_deadline: deadline });
 
-/** Entwurf oder offene Challenge löschen. Nach dem Annehmen lehnt die Datenbank ab. */
-export async function deleteChallenge(id: string) {
-  const res = check(
-    await supabase.from('challenges').delete().eq('id', id).in('status', ['draft', 'open']).select('id'),
-  );
-  // Keine Zeile gelöscht: angenommen oder Migration 20261020000600 fehlt noch
-  if (!res.data?.length) throw new Error('Die Challenge ließ sich nicht löschen. Schließ sie oder schreib dem Kundenservice.');
-}
+/** Offene Challenge löschen (status deleted). Nach dem Annehmen lehnt die Datenbank ab. */
+export const deleteChallenge = (id: string) => rpc('delete_challenge', { p_challenge_id: id });
+
+/** Gelöschte Challenge wieder veröffentlichen. `deadline` nur, wenn die alte Frist abgelaufen ist. */
+export const restoreChallenge = (id: string, deadline?: string) =>
+  rpc('restore_challenge', { p_challenge_id: id, p_deadline: deadline ?? null });
 
 /**
  * Aufrufe eigener Challenges (RLS liefert nur die eigenen).

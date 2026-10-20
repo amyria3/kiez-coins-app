@@ -20,7 +20,8 @@ export type ChallengeStatus =
   | 'payment_open'
   | 'paid_marked'
   | 'paid'
-  | 'closed';
+  | 'closed'
+  | 'deleted';
 
 export type ChallengeType = 'individual' | 'wave';
 
@@ -108,6 +109,8 @@ export type Challenge = {
   deadline: string;
   createdAt: string;
   closedAt?: string;
+  /** Gelöscht (status deleted): nur die Ersteller:in sieht sie noch und kann sie wieder veröffentlichen. */
+  deletedAt?: string;
   acceptedAt?: string;
   /** Figma `acceptance.operation_name`: privat, nur für die annehmende Person. Leer = bewusst ohne Taufe */
   operationName?: string;

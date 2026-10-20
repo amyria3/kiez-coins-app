@@ -38,7 +38,7 @@ function target(c: Challenge, role: ReiseEntry['role']): { href: Href; needsActi
 export function reiseEntries(challenges: Challenge[], userId: string): ReiseEntry[] {
   const entries: ReiseEntry[] = [];
   for (const c of challenges) {
-    if (c.status === 'draft') continue; // Entwürfe stehen in „Deine Challenges“
+    if (c.status === 'draft' || c.status === 'deleted') continue; // stehen in „Deine Challenges“
     const role = c.authorId === userId ? 'author' : c.assigneeId === userId ? 'assignee' : null;
     if (!role) continue;
     const { href, needsAction } = target(c, role);
