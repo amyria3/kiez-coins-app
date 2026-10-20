@@ -104,7 +104,7 @@ Das Schema steht in `supabase/migrations` und ist im Projekt „Kiez Coins Data�
 
 ## Doku
 
-Konzept, Entscheidungen und Stand der App liegen in den Projektdateien unter `kiez-coins/` (Übersicht: `README.md`, Entscheidungen: `ENTSCHEIDUNGEN.md`, Stand: `app/Stand_App.md`).
+Konzept, Entscheidungen, Stand der App und die Übersicht über die Datenbank liegen im privaten Repo [amyria3/Documentation](https://github.com/amyria3/Documentation) (Einstieg: `README.md`, Entscheidungen: `kiez-coins/ENTSCHEIDUNGEN.md`, Stand: `kiez-coins/app/Stand_App.md`, Datenbank: `kiez-coins/DATENBANK.md`).
 
 ## Figma abgleichen
 
