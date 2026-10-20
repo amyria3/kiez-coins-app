@@ -33,6 +33,10 @@ Klappt die Verbindung nicht (zum Beispiel im Firmen- oder Uni-WLAN), starte stat
 
 Ohne Handy geht es auch im Browser: `npx expo start --web`.
 
+## Testversion verteilen
+
+Die Download-Seite mit Passwort liegt in `website/` und entsteht mit `node scripts/build-download-site.mjs`. Ablauf und Einrichtung: [`Übergabe/2026-10-21_download-seite.md`](Übergabe/2026-10-21_download-seite.md).
+
 ## Übergabe
 
 Neue Doku aus Arbeiten am Code kommt in den Ordner [`Übergabe/`](Übergabe/README.md), nicht in dieses README. Von dort wird sie ins Repo Documentation übernommen.
