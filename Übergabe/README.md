@@ -21,4 +21,4 @@ Diese `README.md` bleibt immer liegen.
 
 ## Liegt gerade hier
 
-Nichts (Stand 20.10.2026).
+- `2026-10-20_standort.md`: Standort-Erkennung, Kiez-Pflicht, offene Migration, Abwägung Standort bei Interaktion, später „nur verifizierte“ (Stand 20.10.2026).
