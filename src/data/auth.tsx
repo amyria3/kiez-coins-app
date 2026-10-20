@@ -6,9 +6,9 @@ import { loadOwnProfile, saveOwnProfile } from './remote';
 import { useStore } from './store';
 import type { Profile } from './types';
 
-// Anmeldung vorerst mit E-Mail und Passwort (Supabase Auth, „Confirm email“ aus), weil ohne eigene
-// Domain kein Mailversand möglich ist. Der Code-Login (sendCode/verifyCode, onboarding/code) bleibt
-// für später erhalten, siehe kiez-coins/konto/MVP_Konto.md.
+// Anmeldung mit Code per Mail (sendCode/verifyCode) oder mit Passwort. Die Mails verschickt Supabase
+// über Brevo (eigenes SMTP, Absender noreply@kiezcoins.de). Mit „Confirm email“ an bestätigt ein neues
+// Passwort-Konto seine Adresse über denselben Code-Screen.
 // Nach dem Anmelden lädt die App Profil und Einstellungen aus den Tabellen `profiles` und
 // `profile_settings` sowie alle Daten für den Feed. Änderungen am Profil werden zurückgeschrieben.
 
@@ -18,16 +18,23 @@ type Auth = {
   loading: boolean;
   /** Schickt einen Code an die Adresse. `createUser: false` für „Ich hab schon ein Konto“. */
   sendCode: (email: string, createUser: boolean) => Promise<string | null>;
-  /** Prüft den Code. Gibt eine Fehlermeldung zurück oder null. */
-  verifyCode: (email: string, code: string) => Promise<string | null>;
-  /** Neues Konto mit Passwort anlegen. Gibt eine Fehlermeldung zurück oder null. */
+  /** Prüft den Code. `signup: true` für die Bestätigung eines neuen Passwort-Kontos. Gibt eine Fehlermeldung zurück oder null. */
+  verifyCode: (email: string, code: string, signup?: boolean) => Promise<string | null>;
+  /**
+   * Neues Konto mit Passwort anlegen. Gibt eine Fehlermeldung zurück, null bei fertiger Anmeldung
+   * oder 'confirm', wenn die Adresse noch den Code aus der Bestätigungsmail braucht.
+   */
   signUpWithPassword: (email: string, password: string) => Promise<string | null>;
+  /** Bestätigungsmail für ein neues Passwort-Konto erneut schicken. */
+  resendSignupCode: (email: string) => Promise<string | null>;
   /** Mit Passwort anmelden. Gibt eine Fehlermeldung zurück oder null. */
   signInWithPassword: (email: string, password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
 };
 
 const SKIP_ONCE = 'skip-once';
+/** Rückgabe von signUpWithPassword: Konto angelegt, Adresse noch per Code bestätigen. */
+export const CONFIRM = 'confirm';
 
 const AuthContext = createContext<Auth | null>(null);
 
@@ -53,7 +60,7 @@ export function authErrorText(error: AuthError): string {
     case 'weak_password':
       return 'Das Passwort ist zu schwach. Nimm mindestens 8 Zeichen.';
     case 'email_not_confirmed':
-      return 'Diese Adresse ist noch nicht bestätigt. Schreib uns, dann schalten wir Dich frei.';
+      return 'Diese Adresse ist noch nicht bestätigt. Melde Dich einmal mit Code an, dann klappt auch das Passwort.';
     case 'user_banned':
       return 'Dieses Konto ist gesperrt. Schreib uns, wenn Du Einspruch einlegen willst.';
   }
@@ -134,16 +141,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: createUser } });
         return error ? authErrorText(error) : null;
       },
-      verifyCode: async (email, code) => {
-        const { error } = await supabase.auth.verifyOtp({ email, token: code, type: 'email' });
+      verifyCode: async (email, code, signup) => {
+        const { error } = await supabase.auth.verifyOtp({ email, token: code, type: signup ? 'signup' : 'email' });
         return error ? authErrorText(error) : null;
       },
       signUpWithPassword: async (email, password) => {
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) return authErrorText(error);
-        // Ohne Sitzung verlangt Supabase noch eine Bestätigungsmail („Confirm email“ ist an).
-        if (!data.session) return 'Konto angelegt, aber noch nicht freigeschaltet. Schreib uns bitte.';
+        // Ohne Sitzung verlangt Supabase noch den Code aus der Bestätigungsmail („Confirm email“ ist an).
+        if (!data.session) return CONFIRM;
         return null;
+      },
+      resendSignupCode: async (email) => {
+        const { error } = await supabase.auth.resend({ type: 'signup', email });
+        return error ? authErrorText(error) : null;
       },
       signInWithPassword: async (email, password) => {
         const { error } = await supabase.auth.signInWithPassword({ email, password });

@@ -21,4 +21,4 @@ Diese `README.md` bleibt immer liegen.
 
 ## Liegt gerade hier
 
-Nichts (Stand 20.10.2026).
+- `2026-10-20_anmeldung-code-und-passwort.md` (Stand 20.10.2026)

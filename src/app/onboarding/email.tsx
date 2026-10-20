@@ -5,7 +5,7 @@ import { Button } from '../../components/Button';
 import { KaterBubble } from '../../components/Content';
 import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
-import { useAuth } from '../../data/auth';
+import { CONFIRM, useAuth } from '../../data/auth';
 import { loadOwnProfile } from '../../data/remote';
 import { useStore } from '../../data/store';
 import { supabase } from '../../lib/supabase';
@@ -15,33 +15,63 @@ const MIN_PASSWORD = 8;
 
 /**
  * Route `onboarding/email`. Figma: `onboarding/email`.
- * Vorerst Anmeldung mit E-Mail und Passwort, weil es noch keinen Mailversand gibt.
- * Der Code-Login (`onboarding/code`) kommt zurück, sobald eine eigene Domain eingerichtet ist.
+ * Zwei Wege: Code per Mail (Standard) oder Passwort. Der Code-Weg schickt einen Code und geht weiter
+ * zu `onboarding/code`. Der Passwort-Weg meldet direkt an. Ist „Confirm email“ in Supabase an, legt er
+ * das Konto an und geht zur Bestätigung ebenfalls zu `onboarding/code`.
  * Danach: bekanntes Konto mit fertigem Onboarding direkt in den Feed, sonst weiter zum Deckname.
  */
 export default function Email() {
   const router = useRouter();
   const { existing } = useLocalSearchParams<{ existing?: string }>();
   const { profile, dispatch } = useStore();
-  const { signUpWithPassword, signInWithPassword } = useAuth();
+  const { sendCode, signUpWithPassword, signInWithPassword } = useAuth();
+  const [mode, setMode] = useState<'code' | 'password'>('code');
   const [email, setEmail] = useState(profile.email);
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
 
-  const valid = isEmail(email) && password.length >= (existing ? 1 : MIN_PASSWORD);
+  const withPassword = mode === 'password';
+  const valid = isEmail(email) && (!withPassword || password.length >= (existing ? 1 : MIN_PASSWORD));
+
+  const toCode = (signup: boolean) =>
+    router.push({
+      pathname: '/onboarding/code',
+      params: { ...(existing ? { existing: '1' } : {}), ...(signup ? { signup: '1' } : {}) },
+    });
 
   const submit = async () => {
     const address = email.trim().toLowerCase();
     setBusy(true);
     setError(undefined);
+
+    if (!withPassword) {
+      // „Anheuern“ darf ein Konto anlegen, „Ich hab schon ein Konto“ nicht.
+      const failure = await sendCode(address, !existing);
+      setBusy(false);
+      if (failure) {
+        setError(failure);
+        return;
+      }
+      dispatch({ type: 'updateProfile', patch: { email: address } });
+      toCode(false);
+      return;
+    }
+
     // „Ich hab schon ein Konto“ meldet nur an, „Anheuern“ legt ein neues Konto an.
-    const failure = existing
+    const result = existing
       ? await signInWithPassword(address, password)
       : await signUpWithPassword(address, password);
-    if (failure) {
+    if (result === CONFIRM) {
+      // Konto steht, die Adresse wartet auf den Code aus der Bestätigungsmail.
       setBusy(false);
-      setError(failure);
+      dispatch({ type: 'updateProfile', patch: { email: address } });
+      toCode(true);
+      return;
+    }
+    if (result) {
+      setBusy(false);
+      setError(result);
       return;
     }
     dispatch({ type: 'updateProfile', patch: { email: address } });
@@ -57,7 +87,25 @@ export default function Email() {
     router.push('/onboarding/deckname');
   };
 
-  const label = existing ? (busy ? 'Wird geprüft …' : 'Anmelden') : busy ? 'Wird angelegt …' : 'Konto anlegen';
+  const label = !withPassword
+    ? busy
+      ? 'Wird gesendet …'
+      : 'Code schicken'
+    : existing
+      ? busy
+        ? 'Wird geprüft …'
+        : 'Anmelden'
+      : busy
+        ? 'Wird angelegt …'
+        : 'Konto anlegen';
+
+  const bubble = !withPassword
+    ? existing
+      ? 'Willkommen zurück an Bord! Deine Flaschenpost-Adresse, bitte. Ich schick Dir einen Code.'
+      : 'Erst mal Deine Flaschenpost-Adresse. Ich schick Dir einen Code.'
+    : existing
+      ? 'Willkommen zurück an Bord! Deine Flaschenpost-Adresse und Dein Passwort, bitte.'
+      : 'Erst mal Deine Flaschenpost-Adresse und ein Passwort, das nur Du kennst.';
 
   return (
     <SubScreen
@@ -65,15 +113,25 @@ export default function Email() {
       subtitle="Schritt 1 von 6"
       navigation="back"
       onLeadingPress={() => router.back()}
-      actions={<Button label={label} onPress={submit} disabled={!valid || busy} />}
+      actions={
+        <>
+          <Button label={label} onPress={submit} disabled={!valid || busy} />
+          <Button
+            label={withPassword ? 'Lieber mit Code' : 'Lieber mit Passwort'}
+            variant="ghost"
+            onPress={() => {
+              setMode(withPassword ? 'code' : 'password');
+              setError(undefined);
+            }}
+            disabled={busy}
+          />
+        </>
+      }
     >
-      <KaterBubble>
-        {existing
-          ? 'Willkommen zurück an Bord! Deine Flaschenpost-Adresse und Dein Passwort, bitte.'
-          : 'Erst mal Deine Flaschenpost-Adresse und ein Passwort, das nur Du kennst.'}
-      </KaterBubble>
+      <KaterBubble>{bubble}</KaterBubble>
       <TextField
         label="E-Mail"
+        error={withPassword ? undefined : error}
         value={email}
         onChangeText={(v) => {
           setEmail(v);
@@ -85,23 +143,26 @@ export default function Email() {
         autoComplete="email"
         textContentType="emailAddress"
         autoFocus
+        onSubmitEditing={() => !withPassword && valid && !busy && submit()}
       />
-      <TextField
-        label="Passwort"
-        helperText={existing ? undefined : `Mindestens ${MIN_PASSWORD} Zeichen.`}
-        error={error}
-        value={password}
-        onChangeText={(v) => {
-          setPassword(v);
-          setError(undefined);
-        }}
-        secureTextEntry
-        autoCapitalize="none"
-        autoCorrect={false}
-        autoComplete={existing ? 'current-password' : 'new-password'}
-        textContentType={existing ? 'password' : 'newPassword'}
-        onSubmitEditing={() => valid && !busy && submit()}
-      />
+      {withPassword && (
+        <TextField
+          label="Passwort"
+          helperText={existing ? undefined : `Mindestens ${MIN_PASSWORD} Zeichen.`}
+          error={error}
+          value={password}
+          onChangeText={(v) => {
+            setPassword(v);
+            setError(undefined);
+          }}
+          secureTextEntry
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoComplete={existing ? 'current-password' : 'new-password'}
+          textContentType={existing ? 'password' : 'newPassword'}
+          onSubmitEditing={() => valid && !busy && submit()}
+        />
+      )}
     </SubScreen>
   );
 }
