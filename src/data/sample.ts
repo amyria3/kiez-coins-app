@@ -1,4 +1,4 @@
-import type { Challenge, Comment, Profile, User } from './types';
+import type { Challenge, Comment, Group, Profile, User } from './types';
 
 // Beispieldaten aus den Figma-Screens. Fotos: assets/sample (aus Figma exportiert).
 
@@ -172,6 +172,75 @@ export const sampleChallenges: Challenge[] = [
     payoutShare: { method: 'iban', payout: gardenersPayout },
     comments: [],
     paidMarkedAt: inPast(1 * DAY),
+  },
+  // Gruppenaufgaben der Beispielgruppe „Hof Kastanienallee“
+  {
+    id: 'gruppe-muell',
+    type: 'individual',
+    groupId: 'hof-kastanienallee',
+    edensteine: 3,
+    title: 'Mülltonnen rausstellen',
+    text: 'Dienstag früh kommt die Abfuhr. Wer stellt die Tonnen am Montagabend raus?',
+    authorId: 'peter',
+    location: '',
+    status: 'open',
+    likedByMe: false,
+    comments: [],
+    createdAt: inPast(5 * HOUR),
+    deadline: inFuture(1 * DAY),
+  },
+  {
+    id: 'gruppe-hof',
+    type: 'individual',
+    groupId: 'hof-kastanienallee',
+    edensteine: 5,
+    title: 'Hof fegen',
+    text: 'Laub vom Hof und vor den Fahrradständern fegen.',
+    authorId: 'gardeners',
+    assigneeId: 'lena',
+    location: '',
+    status: 'confirmed',
+    image: images.cleanupAfter,
+    likedByMe: false,
+    comments: [],
+    createdAt: inPast(4 * DAY),
+    deadline: inPast(1 * DAY),
+    acceptedAt: inPast(3 * DAY),
+    confirmedAt: inPast(2 * DAY),
+  },
+  {
+    id: 'gruppe-pflanzen',
+    type: 'individual',
+    groupId: 'hof-kastanienallee',
+    edensteine: 2,
+    title: 'Pflanzen im Treppenhaus gießen',
+    text: 'Einmal pro Woche, die Kanne steht unter der Treppe.',
+    authorId: 'peter',
+    assigneeId: 'gardeners',
+    location: '',
+    status: 'confirmed',
+    image: images.garden,
+    likedByMe: false,
+    comments: [],
+    createdAt: inPast(6 * DAY),
+    deadline: inPast(2 * DAY),
+    acceptedAt: inPast(5 * DAY),
+    confirmedAt: inPast(3 * DAY),
+  },
+];
+
+export const sampleGroups: Group[] = [
+  {
+    id: 'hof-kastanienallee',
+    name: 'Hof Kastanienallee',
+    founderId: 'gardeners',
+    inviteCode: 'K7M2QX',
+    createdAt: inPast(10 * DAY),
+    members: [
+      { userId: 'gardeners', role: 'founder', joinedAt: inPast(10 * DAY) },
+      { userId: 'peter', role: 'member', joinedAt: inPast(9 * DAY) },
+      { userId: 'lena', role: 'member', joinedAt: inPast(8 * DAY) },
+    ],
   },
 ];
 

@@ -4,9 +4,10 @@ import { Image } from 'expo-image';
 
 import { formatRemainingShort } from '../data/format';
 import type { Challenge, User } from '../data/types';
-import { color, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BountyBadge } from './Badges';
+import { EdensteinIcon } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 
@@ -50,12 +51,18 @@ export const ChallengePost = memo(function ChallengePost({
         onPress={onPress}
         accessibilityRole="button"
         accessibilityLabel={`${challenge.title} öffnen`}
-        style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+        style={({ pressed }) => [styles.card, !image && styles.cardNoPhoto, pressed && styles.pressed]}
       >
         {image ? <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
         {!isWave && challenge.bountyAmount ? (
           <View style={styles.bounty}>
             <BountyBadge amount={challenge.bountyAmount} />
+          </View>
+        ) : null}
+        {challenge.edensteine ? (
+          <View style={[styles.bounty, styles.eden]} accessible accessibilityLabel={`${challenge.edensteine} Edensteine`}>
+            <EdensteinIcon height={16} />
+            <Text style={styles.edenText}>{challenge.edensteine}</Text>
           </View>
         ) : null}
         {closed ? (
@@ -165,6 +172,10 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     padding: space[8],
   },
+  // Gruppenaufgabe ohne Foto: nur Glasleiste mit Titel
+  cardNoPhoto: { height: 150 },
+  eden: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
+  edenText: { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.confirmation },
   pressed: { opacity: 0.9 },
   bounty: {
     position: 'absolute',

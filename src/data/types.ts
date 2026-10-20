@@ -96,6 +96,9 @@ export type Challenge = {
   image?: ImageSource;
   /** Pfad des Fotos im Storage, nur für eigene Entwürfe (Foto bleibt beim Speichern erhalten) */
   imagePath?: string;
+  /** Nur Gruppenaufgaben: Gruppe und Edensteine (1 bis 10) statt Bounty */
+  groupId?: string;
+  edensteine?: number;
   /** Bis zu 2 weitere Fotos (Migration 20261020000700) */
   extraImages?: ExtraPhoto[];
   imageBefore?: ImageSource;
@@ -116,6 +119,19 @@ export type Challenge = {
   rejectionReason?: string;
   confirmedAt?: string;
   paidMarkedAt?: string;
+};
+
+export type GroupMember = { userId: string; role: 'founder' | 'member'; joinedAt: string };
+
+/** Gruppe mit 2 bis 13 Mitgliedern, eigene Aufgaben mit Edensteinen (Migration 20261021000100) */
+export type Group = {
+  id: string;
+  name: string;
+  founderId: string;
+  /** 6 Zeichen, z. B. „K7M2QX“ */
+  inviteCode: string;
+  members: GroupMember[];
+  createdAt: string;
 };
 
 export type FeedState = 'filled' | 'loading' | 'empty' | 'error' | 'offline';
