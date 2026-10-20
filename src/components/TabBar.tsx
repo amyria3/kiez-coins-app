@@ -21,7 +21,7 @@ type TabBarProps = {
 
 /**
  * Schwebende Tab-Leiste (Upgrade „Nachtschicht“): Stecknadel = Feed, Kater = Deine Reise,
- * Burger = Menü (Konto). Die aktive Seite liegt auf einer hellen Pille.
+ * Burger = Menü (Konto). Die aktive Seite liegt auf einer dezenten, halbtransparenten Pille.
  * Challenge erstellen sitzt als CameraButton oben rechts.
  */
 export function TabBar({ active, onFeedPress, onReisePress, onReiseLongPress, onMenuPress, hasTasks }: TabBarProps) {
@@ -36,7 +36,7 @@ export function TabBar({ active, onFeedPress, onReisePress, onReiseLongPress, on
           onPress={onFeedPress}
           style={({ pressed }) => [styles.item, active === 'feed' && styles.itemActive, pressed && styles.pressed]}
         >
-          <Icon name="map-pin" size={size.icon} color={active === 'feed' ? color.bg.screen : color.text.secondary} />
+          <Icon name="map-pin" size={size.icon} color={active === 'feed' ? color.text.primary : color.text.secondary} />
         </Pressable>
         <Pressable
           accessibilityRole="tab"
@@ -101,7 +101,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  itemActive: { backgroundColor: color.text.primary },
+  // Aktive Seite: dezente helle Fläche, damit der Kater nicht auf Weiß liegt
+  itemActive: { backgroundColor: 'rgba(240, 240, 240, 0.14)' },
   camera: {
     position: 'absolute',
     right: space[16],
