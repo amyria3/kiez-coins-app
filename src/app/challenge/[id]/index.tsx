@@ -16,6 +16,7 @@ import { formatBountyShort, formatDayMonthShort, formatEuro, formatRelative, for
 import { useRequireKiez } from '../../../data/kiez';
 import { recordView } from '../../../data/remote';
 import { useChallenge, useStore } from '../../../data/store';
+import type { ChallengeStatus } from '../../../data/types';
 import { color, font, radius, size, space, stroke, text } from '../../../theme/tokens';
 
 // Vorschläge des Katers für den Operationsnamen (später aus einer Wortliste)
@@ -26,6 +27,9 @@ const suggestName = (id: string) => operationNames[[...id].reduce((sum, ch) => s
  * Route `challenge/[id]` (Push). Figma: `challenge/detail` (Status open),
  * `challenge/detail--accepted` und `--accepted--named` (nur für die Person, die angenommen hat).
  */
+/** Status, in denen die Challenge noch läuft */
+const RUNNING = new Set<ChallengeStatus>(['open', 'accepted', 'reported', 'rejected']);
+
 export default function ChallengeDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -141,14 +145,15 @@ export default function ChallengeDetail() {
     ]);
   };
 
-  // Geschlossen oder gelöscht: Die Frist spielt keine Rolle mehr.
-  const showDeadline = challenge.status !== 'closed' && challenge.status !== 'deleted';
+  // Zeitangaben nur, solange die Challenge läuft
+  const running = RUNNING.has(challenge.status);
+  const showDeadline = running;
   const summary = (
     <>
       <View style={styles.statusWrap}>
         <View style={styles.statusRow}>
           <StatusBadge status={challenge.status} />
-          <Text style={[styles.caption, styles.flex]}>{formatRelative(challenge.createdAt)}</Text>
+          <Text style={[styles.caption, styles.flex]}>{running ? formatRelative(challenge.createdAt) : ''}</Text>
           {isAuthor ? (
             <IconButton
               icon="settings"

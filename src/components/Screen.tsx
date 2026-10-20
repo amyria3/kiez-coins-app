@@ -14,6 +14,7 @@ import {
   View,
   type ImageSourcePropType,
 } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -129,14 +130,11 @@ export function HeroScreen({
   const [page, setPage] = useState(0);
   // Eingeklappt: Das Foto bekommt den Platz, das Blatt zeigt nur noch die Zusammenfassung.
   const [collapsed, setCollapsed] = useState(false);
-  // Eingeklappt füllt das Foto genau den Platz über dem Blatt, damit unten keine Lücke bleibt.
+  // Eingeklappt füllt das Foto den ganzen Bildschirm. Das Blatt liegt als Glas unten darüber.
   const [viewportHeight, setViewportHeight] = useState(0);
   const [headHeight, setHeadHeight] = useState(0);
-  const heroHeight = collapsed
-    ? viewportHeight && headHeight
-      ? Math.max(HERO_HEIGHT + insets.top, viewportHeight - (headHeight + SHEET_CHROME) + space[32])
-      : Math.round(height * 0.62)
-    : HERO_HEIGHT + insets.top;
+  const heroHeight = collapsed ? viewportHeight || height : HERO_HEIGHT + insets.top;
+  const glassOffset = collapsed && headHeight ? { marginTop: -(headHeight + SHEET_PADDING) } : undefined;
   const collapsedRef = useRef(collapsed);
   collapsedRef.current = collapsed;
   const setCollapsedAnimated = (next: boolean) => {
@@ -229,7 +227,10 @@ export function HeroScreen({
             )}
             {imageOverlay ? <View style={styles.heroOverlay}>{imageOverlay}</View> : null}
           </Pressable>
-          <View style={styles.sheet}>
+          <View style={[styles.sheet, collapsed && styles.sheetGlass, glassOffset]}>
+            {collapsed ? (
+              <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} />
+            ) : null}
             <View style={styles.sheetHead} onLayout={(e) => setHeadHeight(e.nativeEvent.layout.height)}>
             <Pressable
               onPress={toggle}
@@ -241,15 +242,17 @@ export function HeroScreen({
             >
               <View style={styles.grabber} />
             </Pressable>
-            {summary}
+            {/* Eingeklappt klappt Tippen auf die Zusammenfassung die Details auf */}
+            <Pressable
+              onPress={toggle}
+              disabled={!collapsed}
+              accessibilityLabel={collapsed ? 'Details ausklappen' : undefined}
+              style={styles.sheetHead}
+            >
+              {summary}
+            </Pressable>
             </View>
-            {collapsed ? (
-              <Pressable onPress={toggle} accessibilityRole="button" style={styles.more}>
-                <Text style={styles.moreText}>Details zeigen</Text>
-              </Pressable>
-            ) : (
-              children
-            )}
+            {collapsed ? null : children}
           </View>
           </Animated.View>
         </ScrollView>
@@ -278,8 +281,8 @@ export function HeroScreen({
 }
 
 const HERO_HEIGHT = 340;
-/** Höhe des eingeklappten Blatts ohne Kopf: Abstand, „Details zeigen“, Innenabstand oben und unten */
-const SHEET_CHROME = space[12] + size.touchTarget + space[8] + space[16];
+/** Innenabstand des Blatts oben und unten */
+const SHEET_PADDING = space[8] + space[16];
 /** Mindestweg in Punkten, ab dem ein Wischen die Details auf- oder zuklappt */
 const SWIPE = 48;
 
@@ -327,6 +330,8 @@ const styles = StyleSheet.create({
     gap: space[12],
   },
   sheetHead: { gap: space[12] },
+  // Eingeklappt: durchscheinend wie Glas, das Foto liegt darunter
+  sheetGlass: { backgroundColor: 'rgba(31,33,35,0.45)', overflow: 'hidden' },
   grabberArea: { alignSelf: 'center', paddingHorizontal: space[24], paddingVertical: space[6] },
   grabber: { width: 40, height: 5, borderRadius: 3, backgroundColor: color.line.hairline },
   more: { alignSelf: 'flex-start', minHeight: size.touchTarget, justifyContent: 'center' },
