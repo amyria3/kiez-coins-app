@@ -7,7 +7,11 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "de.kiezcoins.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -16,7 +20,9 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "de.kiezcoins.app",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -29,7 +35,8 @@
         "expo-image-picker",
         {
           "photosPermission": "Kiez Coins braucht Zugriff auf Deine Fotos, damit Du ein Foto zur Challenge hinzufügen kannst.",
-          "cameraPermission": "Kiez Coins braucht die Kamera, damit Du ein Foto zur Challenge aufnehmen kannst."
+          "cameraPermission": "Kiez Coins braucht die Kamera, damit Du ein Foto zur Challenge aufnehmen kannst.",
+          "microphonePermission": false
         }
       ],
       [
@@ -37,9 +44,26 @@
         {
           "locationWhenInUsePermission": "Kiez Coins nutzt Deinen Standort, um Deinen Kiez zu finden, einen Ort für Deine Challenge vorzuschlagen und Entfernungen im Feed zu zeigen. Dein genauer Standort verlässt Dein Handy nicht."
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "buildArchs": [
+              "arm64-v8a"
+            ]
+          }
+        }
       ]
     ],
     "scheme": "kiezcoins",
-    "backgroundColor": "#1F2123"
+    "backgroundColor": "#1F2123",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e35cf809-b06f-4797-9ef0-d906e655123e"
+      }
+    },
+    "owner": "kiezcoins"
   }
 }

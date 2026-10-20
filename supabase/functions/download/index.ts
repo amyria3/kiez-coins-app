@@ -1,0 +1,64 @@
+// Download der Test-App hinter einem Passwort.
+// Die Download-Seite schickt das Formular per POST hierher. Stimmt das Passwort, leitet die Funktion
+// auf einen 10 Minuten gültigen Link zur APK im privaten Bucket `downloads` weiter, sonst zurück zur Seite.
+//
+// Secrets (Supabase › Edge Functions › Secrets):
+//   DOWNLOAD_PASSWORD  Passwort für die Download-Seite (Pflicht)
+//   DOWNLOAD_PAGE      Adresse der Download-Seite, z. B. https://kiezcoins.de/ (für den Rückweg bei falschem Passwort)
+//   APK_PATH           optional, Datei im Bucket `downloads`, Standard: kiez-coins.apk
+// SUPABASE_URL und SUPABASE_SERVICE_ROLE_KEY stellt Supabase selbst bereit.
+import { createClient } from 'npm:@supabase/supabase-js@2';
+
+const BUCKET = 'downloads';
+const LINK_SECONDS = 600;
+
+const encoder = new TextEncoder();
+
+async function sha256(value: string): Promise<Uint8Array> {
+  return new Uint8Array(await crypto.subtle.digest('SHA-256', encoder.encode(value)));
+}
+
+/** Vergleich in konstanter Zeit, damit die Antwortzeit nichts über das Passwort verrät. */
+async function samePassword(given: string, expected: string): Promise<boolean> {
+  const [a, b] = await Promise.all([sha256(given), sha256(expected)]);
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
+  return diff === 0;
+}
+
+function redirect(location: string): Response {
+  return new Response(null, { status: 303, headers: { Location: location, 'Cache-Control': 'no-store' } });
+}
+
+Deno.serve(async (req) => {
+  const page = Deno.env.get('DOWNLOAD_PAGE') ?? 'https://kiezcoins.de/';
+  const back = (reason: string) => redirect(`${page}${page.includes('?') ? '&' : '?'}fehler=${reason}#download`);
+
+  if (req.method !== 'POST') return redirect(page);
+
+  const expected = Deno.env.get('DOWNLOAD_PASSWORD');
+  if (!expected) return back('technik');
+
+  let given = '';
+  try {
+    const form = await req.formData();
+    given = String(form.get('passwort') ?? '');
+  } catch {
+    return back('passwort');
+  }
+
+  if (!(await samePassword(given, expected))) {
+    // Bremst Durchprobieren aus.
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    return back('passwort');
+  }
+
+  const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+  const path = Deno.env.get('APK_PATH') ?? 'kiez-coins.apk';
+  const { data, error } = await supabase.storage
+    .from(BUCKET)
+    .createSignedUrl(path, LINK_SECONDS, { download: 'kiez-coins.apk' });
+  if (error || !data?.signedUrl) return back('datei');
+
+  return redirect(data.signedUrl);
+});
