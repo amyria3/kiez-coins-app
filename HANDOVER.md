@@ -7,7 +7,7 @@ Für die nächste Claude-Sitzung (auch auf Darias Mac). Daria schreibt Deutsch u
 - Repo `amyria3/kiez-coins-app`, Branch `main`. Auf dem Mac: `~/kiez-coins-app`.
 - Expo SDK 57, Expo Router (`src/app`), Supabase-Client in `src/lib/supabase.ts`.
 - Supabase-Projekt „Kiez Coins Data“ (Ref `aqxzxpxrshizlaqyjplw`, Free-Plan). Migrationen in `supabase/migrations`, eingespielt bis `20261020000200` (`20261020000300_comment_replies` steht noch aus). Test: `supabase/tests/challenge_flow.sql` (rollt zurück).
-- Konzept und Briefing: `/mnt/project-files/kiez-coins/` (nur in Cloud-Sitzungen erreichbar).
+- Konzept, Entscheidungen und Stand der App: privates Repo [amyria3/Documentation](https://github.com/amyria3/Documentation).
 - Expo-Konto: Benutzer `kiezcoins`. Das Repo ist noch **nicht** mit EAS verknüpft (keine `projectId`, keine `eas.json`). Der Slug `kiez-coins-app` ist im Konto wohl schon vergeben, also mit `npx eas-cli@latest init` das vorhandene Projekt verknüpfen.
 
 ## Was heute passiert ist
@@ -16,7 +16,7 @@ Für die nächste Claude-Sitzung (auch auf Darias Mac). Daria schreibt Deutsch u
 - Code-Mails gehen nicht: Ohne eigenen SMTP schickt Supabase nur an Team-Mitglieder, Vorlagen lassen sich nicht bearbeiten.
 - Deshalb **PR #4: Anmeldung vorerst mit E-Mail und Passwort** (gemergt). In Supabase ist „Confirm email“ **aus**. Code-Login (`sendCode`/`verifyCode`, `onboarding/code.tsx`) bleibt im Code für später.
 - Auf dem Mac: `git pull` und `npm install` erledigt, git sauber. `@expo/ngrok` liegt nur in `node_modules` (`--no-save`).
-- `npx expo start --tunnel --port 8082` scheitert: Metro startet, dann bricht ngrok ab mit `TypeError: Cannot read properties of undefined (reading 'body')`. Ursache unklar (ngrok-Störung, siehe status.ngrok.com, oder ngrok-Version). Nächster Schritt: Version von `@expo/ngrok` prüfen, ohne `CI=1` starten, Fehler genauer lesen. Daria hat den Tunnel erlaubt; die Auto-Modus-Prüfung auf dem Mac hatte ihn vorher als „External Ingress Tunnel“ blockiert.
+- Tunnel: `npx expo start --tunnel --port 8082` lief am 20.10. zeitweise nicht (ngrok brach mit `TypeError … reading 'body'` ab), später wieder ohne Änderung am Setup. Wohl eine ngrok-Störung. Daria hat den Tunnel erlaubt.
 - `@expo/ngrok` global installieren geht nicht (`/opt/homebrew/…` braucht Admin-Rechte). Ein späteres `npm install` kann das `--no-save`-Paket wieder entfernen.
 - Port 8081 gehört zu Darias Blog-Server (`/Users/arkadieff/CODE/bl`), nicht anfassen. Kiez Coins auf Port 8082 starten.
 
