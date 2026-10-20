@@ -108,21 +108,20 @@ export type FeedTab = 'nearby' | 'wave' | 'completed';
 const tabs: { key: FeedTab; label: string; planned?: boolean }[] = [
   { key: 'nearby', label: 'In der Nähe' },
   { key: 'wave', label: challengeTypes.wave.label, planned: !isTypeActive('wave') },
-  { key: 'completed', label: 'Erledigt' },
+  { key: 'completed', label: 'Pleasure' },
 ];
 
 type TabsNavigationProps = {
   selectedKey: FeedTab;
   onChange: (key: FeedTab) => void;
-  /** Tipp auf einen geplanten Reiter: Hinweis zeigen, Auswahl bleibt. */
-  onPlannedPress?: (key: FeedTab) => void;
 };
 
 /**
  * Figma „TabsNavigation“, Upgrade „Nachtschicht“: Segmente auf einer Pille; die Auswahl filtert den Feed.
- * Abgeschaltete Challenge-Typen (data/features.ts) sind gedimmt und tragen „bald“.
+ * Abgeschaltete Challenge-Typen (data/features.ts) tragen „bald“, lassen sich aber öffnen:
+ * Der Feed zeigt dann einen Hinweis und vorhandene Challenges dieses Typs.
  */
-export function TabsNavigation({ selectedKey, onChange, onPlannedPress }: TabsNavigationProps) {
+export function TabsNavigation({ selectedKey, onChange }: TabsNavigationProps) {
   return (
     <View style={styles.segments} accessibilityRole="tablist">
       {tabs.map((tab) => {
@@ -132,12 +131,12 @@ export function TabsNavigation({ selectedKey, onChange, onPlannedPress }: TabsNa
             key={tab.key}
             accessibilityRole="tab"
             accessibilityLabel={tab.planned ? `${tab.label}, geplant` : tab.label}
-            accessibilityState={{ selected, disabled: tab.planned }}
-            onPress={() => (tab.planned ? onPlannedPress?.(tab.key) : onChange(tab.key))}
+            accessibilityState={{ selected }}
+            onPress={() => onChange(tab.key)}
             style={[styles.segment, selected && styles.segmentSelected]}
           >
             <View style={styles.segmentInner}>
-              <Text style={[styles.segmentText, selected && styles.segmentTextSelected, tab.planned && styles.planned]}>
+              <Text style={[styles.segmentText, selected && styles.segmentTextSelected, tab.planned && !selected && styles.planned]}>
                 {tab.label}
               </Text>
               {tab.planned ? <Text style={styles.soon}>bald</Text> : null}
@@ -149,18 +148,16 @@ export function TabsNavigation({ selectedKey, onChange, onPlannedPress }: TabsNa
   );
 }
 
-/** Hinweis unter den Segmenten: Der Reiter ist geplant. */
-export function PlannedHint({ message, onClose }: { message: string; onClose: () => void }) {
+/** Inhalt eines geplanten Reiters: Kater mit Hinweis, dass das Feature später kommt. */
+export function PlannedHint({ title, message }: { title: string; message: string }) {
   return (
-    <Pressable
-      onPress={onClose}
-      accessibilityRole="button"
-      accessibilityLabel={`${message} Hinweis schließen`}
-      style={styles.hint}
-    >
-      <Cat height={30} />
-      <Text style={styles.hintText}>{message}</Text>
-    </Pressable>
+    <View style={styles.hint}>
+      <Cat height={48} />
+      <View style={styles.hintTexts}>
+        <Text style={styles.hintTitle}>{title}</Text>
+        <Text style={styles.hintText}>{message}</Text>
+      </View>
+    </View>
   );
 }
 
@@ -190,7 +187,7 @@ const styles = StyleSheet.create({
   greeting: { paddingHorizontal: space[20], paddingTop: space[16], paddingBottom: space[12], gap: space[4] },
   greetingTitle: { ...text.display, color: color.text.primary },
   greetingSub: { fontFamily: font.light, fontSize: 15, lineHeight: 20, color: color.text.secondary },
-  topBar: { paddingHorizontal: space[16], paddingBottom: space[16], gap: space[12] },
+  topBar: { paddingHorizontal: space[16], paddingTop: space[4], paddingBottom: space[4], gap: space[12] },
   topItem: { width: size.thumbnail, alignItems: 'center', gap: space[4] },
   thumbnail: {
     width: size.thumbnail,
@@ -202,8 +199,7 @@ const styles = StyleSheet.create({
   topTitle: { ...text.labelXs, color: color.accent.signal, textAlign: 'center', alignSelf: 'stretch' },
   segments: {
     flexDirection: 'row',
-    marginHorizontal: space[16],
-    marginBottom: space[12],
+    width: '100%',
     padding: space[4],
     borderRadius: radius.full,
     backgroundColor: color.bg.surface,
@@ -228,13 +224,13 @@ const styles = StyleSheet.create({
   hint: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: space[12],
+    gap: space[16],
     marginHorizontal: space[16],
-    marginBottom: space[12],
-    paddingVertical: space[12],
-    paddingHorizontal: space[16],
-    borderRadius: radius.xl,
+    padding: space[20],
+    borderRadius: radius.card,
     backgroundColor: color.bg.surface,
   },
-  hintText: { flex: 1, fontFamily: font.light, fontSize: 14, lineHeight: 20, color: color.text.primary },
+  hintTexts: { flex: 1, gap: space[4] },
+  hintTitle: { ...text.cardTitle, color: color.text.primary },
+  hintText: { fontFamily: font.light, fontSize: 14, lineHeight: 20, color: color.text.secondary },
 });
