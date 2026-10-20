@@ -159,7 +159,7 @@ copyFileSync(join(root, 'assets/favicon.png'), join(out, 'favicon.png'));
 // Hosting bei Vercel: Unterseiten der Web-App öffnen die App, Rechtstexte auch ohne .html
 writeFileSync(
   join(out, 'vercel.json'),
-  JSON.stringify({ cleanUrls: true, rewrites: [{ source: '/app/:path*', destination: '/app/index.html' }] }, null, 2) + '\n',
+  JSON.stringify({ cleanUrls: true, rewrites: [{ source: '/app/(.*)', destination: '/app/index.html' }] }, null, 2) + '\n',
 );
 // Logo: die bunten Coins aus der App (src/components/icons/brandSvgs.ts)
 const coins = readFileSync(join(root, 'src/components/icons/brandSvgs.ts'), 'utf8').match(/coinsSvg = `([^`]+)`/);
