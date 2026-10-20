@@ -20,6 +20,15 @@ Für die nächste Claude-Sitzung (auch auf Darias Mac). Daria schreibt Deutsch u
 - `@expo/ngrok` global installieren geht nicht (`/opt/homebrew/…` braucht Admin-Rechte). Ein späteres `npm install` kann das `--no-save`-Paket wieder entfernen.
 - Port 8081 gehört zu Darias Blog-Server (`/Users/arkadieff/CODE/bl`), nicht anfassen. Kiez Coins auf Port 8082 starten.
 
+## Challenges verwalten (PR #7)
+
+- Migrationen `20261020000100_edit_open_challenge` und `20261020000200_drafts_close_comments` sind in Supabase eingespielt (20.10.2026).
+- Neue Status `draft` (nur für die Ersteller:in sichtbar) und `closed` (bleibt in der Timeline). Löschen nur noch für Entwürfe.
+- Kommentare für alle aktiven Personen unter veröffentlichten, nicht geschlossenen Challenges.
+- Ansicht „Deine Challenges“ (`/manage`): „Verwalten“ am eigenen Post im Feed, „Alle verwalten“ im Detail, Konto.
+- Test: `supabase/tests/drafts_close_comments.sql`.
+- Supabase-MCP: `drop policy` und `delete` lösen eine Rückfrage aus, die in Thread-Sitzungen nach 60 s abbricht. Policies deshalb mit `alter policy` ändern.
+
 ## Nächster Schritt mit Daria
 
 1. Am Mac: `cd ~/kiez-coins-app && npx expo start --port 8082`, Handy im selben WLAN, QR-Code scannen.

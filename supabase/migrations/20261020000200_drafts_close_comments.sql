@@ -40,13 +40,11 @@ create index challenges_author_status_idx on public.challenges (author_id, statu
 -- ---------------------------------------------------------------------------
 
 -- Entwürfe sieht nur die Ersteller:in.
-drop policy "Challenges lesen" on public.challenges;
-create policy "Challenges lesen" on public.challenges for select to authenticated
+alter policy "Challenges lesen" on public.challenges
   using (status <> 'draft' or author_id = (select auth.uid()));
 
 -- Anlegen: veröffentlicht (open) wie bisher oder als Entwurf.
-drop policy "Challenge erstellen" on public.challenges;
-create policy "Challenge erstellen" on public.challenges for insert to authenticated
+alter policy "Challenge erstellen" on public.challenges
   with check (
     author_id = (select auth.uid())
     and type = 'individual'
@@ -82,13 +80,12 @@ create policy "Eigenen Entwurf bearbeiten" on public.challenges for update to au
   );
 
 -- Löschen nur noch für Entwürfe. Veröffentlichte Challenges werden geschlossen.
-drop policy "Offene eigene Challenge löschen" on public.challenges;
-create policy "Eigenen Entwurf löschen" on public.challenges for delete to authenticated
+alter policy "Offene eigene Challenge löschen" on public.challenges rename to "Eigenen Entwurf löschen";
+alter policy "Eigenen Entwurf löschen" on public.challenges
   using (author_id = (select auth.uid()) and status = 'draft');
 
 -- Kommentare: nur unter veröffentlichten Challenges, die nicht geschlossen sind.
-drop policy "Kommentar schreiben" on public.comments;
-create policy "Kommentar schreiben" on public.comments for insert to authenticated
+alter policy "Kommentar schreiben" on public.comments
   with check (
     author_id = (select auth.uid())
     and (select public.is_active_member())
@@ -99,8 +96,7 @@ create policy "Kommentar schreiben" on public.comments for insert to authenticat
   );
 
 -- Likes: keine Entwürfe.
-drop policy "Liken" on public.likes;
-create policy "Liken" on public.likes for insert to authenticated
+alter policy "Liken" on public.likes
   with check (
     user_id = (select auth.uid())
     and exists (select 1 from public.challenges c where c.id = challenge_id and c.status <> 'draft')
