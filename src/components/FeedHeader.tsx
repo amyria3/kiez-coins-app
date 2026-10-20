@@ -1,14 +1,13 @@
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 
+import { challengeTypes, isTypeActive } from '../data/features';
 import type { Challenge } from '../data/types';
 import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
 import { Cat, Wordmark } from './icons/Brand';
-import { IconButton } from './IconButton';
 import { SkeletonTopItem } from './Skeleton';
 
 type AppHeaderProps = {
-  onMenuPress: () => void;
   /** Tipp auf Logo und Kater öffnet „Deine Reise“. */
   onLogoPress?: () => void;
   /** Langes Drücken aufs Logo öffnet das Demo-Menü (nur für Tests mit Beispieldaten). */
@@ -18,19 +17,13 @@ type AppHeaderProps = {
 };
 
 /**
- * Figma „AppHeader“, Upgrade „Nachtschicht“: Burger-Menü links (Konto) auf runder Fläche, Logo mit Kater
- * in der Mitte. Die Kamera sitzt jetzt in der Tab-Leiste, rechts bleibt ein Platzhalter für die Mitte.
+ * Figma „AppHeader“, Upgrade „Nachtschicht“: Logo mit Kater in der Mitte. Das Menü liegt in der Tab-Leiste,
+ * die Kamera schwebt oben rechts (CameraButton). Der Kopf scrollt mit dem Feed weg.
  */
-export function AppHeader({ onMenuPress, onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) {
+export function AppHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) {
   return (
     <View style={styles.header}>
-      <IconButton
-        icon="burger"
-        iconSize={size.icon}
-        accessibilityLabel="Dein Konto"
-        onPress={onMenuPress}
-        style={styles.round}
-      />
+      <View style={styles.spacer} />
       <Pressable
         onPress={onLogoPress}
         onLongPress={onLogoLongPress}
@@ -112,14 +105,24 @@ export function TopChallengeBar({ items, loading, onItemPress }: TopChallengeBar
 
 export type FeedTab = 'nearby' | 'wave' | 'completed';
 
-const tabs: { key: FeedTab; label: string }[] = [
+const tabs: { key: FeedTab; label: string; planned?: boolean }[] = [
   { key: 'nearby', label: 'In der Nähe' },
-  { key: 'wave', label: 'Wave' },
+  { key: 'wave', label: challengeTypes.wave.label, planned: !isTypeActive('wave') },
   { key: 'completed', label: 'Erledigt' },
 ];
 
-/** Figma „TabsNavigation“, Upgrade „Nachtschicht“: Segmente auf einer Pille; die Auswahl filtert den Feed. */
-export function TabsNavigation({ selectedKey, onChange }: { selectedKey: FeedTab; onChange: (key: FeedTab) => void }) {
+type TabsNavigationProps = {
+  selectedKey: FeedTab;
+  onChange: (key: FeedTab) => void;
+  /** Tipp auf einen geplanten Reiter: Hinweis zeigen, Auswahl bleibt. */
+  onPlannedPress?: (key: FeedTab) => void;
+};
+
+/**
+ * Figma „TabsNavigation“, Upgrade „Nachtschicht“: Segmente auf einer Pille; die Auswahl filtert den Feed.
+ * Abgeschaltete Challenge-Typen (data/features.ts) sind gedimmt und tragen „bald“.
+ */
+export function TabsNavigation({ selectedKey, onChange, onPlannedPress }: TabsNavigationProps) {
   return (
     <View style={styles.segments} accessibilityRole="tablist">
       {tabs.map((tab) => {
@@ -128,15 +131,36 @@ export function TabsNavigation({ selectedKey, onChange }: { selectedKey: FeedTab
           <Pressable
             key={tab.key}
             accessibilityRole="tab"
-            accessibilityState={{ selected }}
-            onPress={() => onChange(tab.key)}
+            accessibilityLabel={tab.planned ? `${tab.label}, geplant` : tab.label}
+            accessibilityState={{ selected, disabled: tab.planned }}
+            onPress={() => (tab.planned ? onPlannedPress?.(tab.key) : onChange(tab.key))}
             style={[styles.segment, selected && styles.segmentSelected]}
           >
-            <Text style={[styles.segmentText, selected && styles.segmentTextSelected]}>{tab.label}</Text>
+            <View style={styles.segmentInner}>
+              <Text style={[styles.segmentText, selected && styles.segmentTextSelected, tab.planned && styles.planned]}>
+                {tab.label}
+              </Text>
+              {tab.planned ? <Text style={styles.soon}>bald</Text> : null}
+            </View>
           </Pressable>
         );
       })}
     </View>
+  );
+}
+
+/** Hinweis unter den Segmenten: Der Reiter ist geplant. */
+export function PlannedHint({ message, onClose }: { message: string; onClose: () => void }) {
+  return (
+    <Pressable
+      onPress={onClose}
+      accessibilityRole="button"
+      accessibilityLabel={`${message} Hinweis schließen`}
+      style={styles.hint}
+    >
+      <Cat height={30} />
+      <Text style={styles.hintText}>{message}</Text>
+    </Pressable>
   );
 }
 
@@ -150,7 +174,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: space[16],
     paddingVertical: space[8],
   },
-  round: { width: size.touchTarget, height: size.touchTarget, borderRadius: radius.full, backgroundColor: color.bg.surface },
   spacer: { width: size.touchTarget, height: size.touchTarget },
   logo: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
   taskDot: {
@@ -180,7 +203,7 @@ const styles = StyleSheet.create({
   segments: {
     flexDirection: 'row',
     marginHorizontal: space[16],
-    marginBottom: space[16],
+    marginBottom: space[12],
     padding: space[4],
     borderRadius: radius.full,
     backgroundColor: color.bg.surface,
@@ -189,4 +212,29 @@ const styles = StyleSheet.create({
   segmentSelected: { backgroundColor: color.text.primary },
   segmentText: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.secondary },
   segmentTextSelected: { fontFamily: font.medium, color: color.bg.screen },
+  segmentInner: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  planned: { opacity: 0.6 },
+  soon: {
+    fontFamily: font.medium,
+    fontSize: 10,
+    lineHeight: 14,
+    color: color.accent.signal,
+    borderWidth: stroke.thin,
+    borderColor: color.accent.signal,
+    borderRadius: radius.full,
+    paddingHorizontal: space[6],
+    overflow: 'hidden',
+  },
+  hint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[12],
+    marginHorizontal: space[16],
+    marginBottom: space[12],
+    paddingVertical: space[12],
+    paddingHorizontal: space[16],
+    borderRadius: radius.xl,
+    backgroundColor: color.bg.surface,
+  },
+  hintText: { flex: 1, fontFamily: font.light, fontSize: 14, lineHeight: 20, color: color.text.primary },
 });

@@ -11,16 +11,18 @@ type TabBarProps = {
   active: TabKey;
   onFeedPress: () => void;
   onReisePress: () => void;
-  onCreatePress: () => void;
+  /** Menü: Dein Konto und Einstellungen */
+  onMenuPress: () => void;
   /** Punkt am Kater: Bei einer Deiner Challenges bist Du dran. */
   hasTasks?: boolean;
 };
 
 /**
  * Schwebende Tab-Leiste (Upgrade „Nachtschicht“): Stecknadel = Feed, Kater = Deine Reise,
- * Kamera = Challenge erstellen. Die aktive Seite liegt auf einer hellen Pille.
+ * Burger = Menü (Konto). Die aktive Seite liegt auf einer hellen Pille.
+ * Challenge erstellen sitzt als CameraButton oben rechts.
  */
-export function TabBar({ active, onFeedPress, onReisePress, onCreatePress, hasTasks }: TabBarProps) {
+export function TabBar({ active, onFeedPress, onReisePress, onMenuPress, hasTasks }: TabBarProps) {
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.wrap, { bottom: Math.max(insets.bottom, space[16]) }]} pointerEvents="box-none">
@@ -48,14 +50,30 @@ export function TabBar({ active, onFeedPress, onReisePress, onCreatePress, hasTa
         </Pressable>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Challenge erstellen"
-          onPress={onCreatePress}
-          style={({ pressed }) => [styles.item, styles.create, pressed && styles.pressed]}
+          accessibilityLabel="Menü"
+          onPress={onMenuPress}
+          style={({ pressed }) => [styles.item, pressed && styles.pressed]}
         >
-          <Icon name="camera" size={size.icon} color={color.bg.screen} />
+          <Icon name="burger" size={size.icon} color={color.text.secondary} />
         </Pressable>
       </View>
     </View>
+  );
+}
+
+/** Kamera oben rechts: bleibt beim Scrollen stehen und erstellt eine Challenge. */
+export function CameraButton({ onPress }: { onPress: () => void }) {
+  const insets = useSafeAreaInsets();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Challenge erstellen"
+      onPress={onPress}
+      hitSlop={4}
+      style={({ pressed }) => [styles.camera, { top: insets.top + space[8] }, pressed && styles.pressed]}
+    >
+      <Icon name="camera" size={size.icon} color={color.bg.screen} />
+    </Pressable>
   );
 }
 
@@ -81,7 +99,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   itemActive: { backgroundColor: color.text.primary },
-  create: { width: 64, backgroundColor: color.accent.primary },
+  camera: {
+    position: 'absolute',
+    right: space[16],
+    width: 52,
+    height: size.touchTarget,
+    borderRadius: radius.full,
+    backgroundColor: color.accent.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   pressed: { opacity: 0.7 },
   dot: {
     position: 'absolute',
