@@ -113,7 +113,7 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 
 ## 9. `supabase/migrations/20261021000400_purge_deleted_challenge.sql`
 
-**Wozu:** „Endgültig löschen“ bei gelöschten Challenges in „Deine Challenges“. Die Datei liegt auf `main`, sobald Daria den Branch `claude/endgueltig` freigibt.
+**Wozu:** „Endgültig löschen“ bei gelöschten Challenges in „Deine Challenges“.
 
 **Ändert:** Die Regel „Eigenen Entwurf löschen“ erlaubt jetzt Entwürfe und gelöschte Challenges. Kommentare, Likes und Aufrufe verschwinden mit.
 
