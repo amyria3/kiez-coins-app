@@ -50,6 +50,7 @@ function RootStack() {
       <StatusBar style="light" />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
         <Stack.Screen name="challenge/create" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="challenge/[id]/edit" options={{ presentation: 'modal' }} />
         <Stack.Screen name="challenge/[id]/report/index" options={{ presentation: 'modal' }} />
         <Stack.Screen name="challenge/[id]/report/payout" options={{ presentation: 'modal', gestureEnabled: false }} />
         <Stack.Screen name="challenge/[id]/review/reject" options={{ presentation: 'modal' }} />

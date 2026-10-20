@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Share, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, Share, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AuthorRow } from '../../../components/AuthorRow';
@@ -70,8 +70,28 @@ export default function ChallengeDetail() {
   }
 
   const amount = challenge.bountyAmount ? formatEuro(challenge.bountyAmount) : '';
+  // Eigene Challenge, die noch niemand angenommen hat: bearbeiten oder schließen
+  const canManage = isAuthor && challenge.status === 'open' && !challenge.assigneeId;
+  const description = (challenge.type === 'wave' ? challenge.challengeText : challenge.text)?.trim();
 
-  const content = (
+  const closeChallenge = () =>
+    Alert.alert(
+      'Challenge schließen?',
+      'Hat sich das erledigt? Die Challenge verschwindet aus dem Feed. Das lässt sich nicht rückgängig machen.',
+      [
+        { text: 'Abbrechen', style: 'cancel' },
+        {
+          text: 'Schließen',
+          style: 'destructive',
+          onPress: () => {
+            dispatch({ type: 'close', id: challenge.id });
+            router.back();
+          },
+        },
+      ],
+    );
+
+  const summary = (
     <>
       <View style={styles.statusRow}>
         <StatusBadge status={challenge.status} />
@@ -95,6 +115,29 @@ export default function ChallengeDetail() {
           <Text style={styles.metricValue}>{formatRemainingShort(challenge.deadline).replace('Noch ', '')}</Text>
         </View>
       </View>
+      {canManage ? (
+        <View style={styles.manage}>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push(`/challenge/${challenge.id}/edit`)}
+            style={({ pressed }) => [styles.pill, pressed && styles.pressed]}
+          >
+            <Text style={styles.pillText}>Bearbeiten</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            onPress={closeChallenge}
+            style={({ pressed }) => [styles.pill, pressed && styles.pressed]}
+          >
+            <Text style={styles.pillText}>Schließen</Text>
+          </Pressable>
+        </View>
+      ) : null}
+    </>
+  );
+
+  const details = (
+    <>
       {acceptedByMe ? (
         <>
           <KaterBubble>
@@ -130,7 +173,7 @@ export default function ChallengeDetail() {
           ) : null}
         </>
       ) : null}
-      <Text style={styles.description}>{challenge.type === 'wave' ? challenge.challengeText : challenge.text}</Text>
+      {description ? <Text style={styles.description}>{description}</Text> : null}
       <View style={styles.authorBlock}>
         <AuthorRow
           user={author}
@@ -164,7 +207,8 @@ export default function ChallengeDetail() {
   if (!image) {
     return (
       <SubScreen title="Challenge" navigation="back" onLeadingPress={() => router.back()} actions={actions}>
-        {content}
+        {summary}
+        {details}
       </SubScreen>
     );
   }
@@ -177,8 +221,9 @@ export default function ChallengeDetail() {
       onSharePress={() => Share.share({ message: `${challenge.title} – Kiez Coins` })}
       imageOverlay={acceptedByMe && challenge.operationName ? <OperationTag name={challenge.operationName} /> : undefined}
       actions={actions}
+      summary={summary}
     >
-      {content}
+      {details}
     </HeroScreen>
   );
 }
@@ -188,10 +233,22 @@ const styles = StyleSheet.create({
   caption: { ...text.caption, fontSize: 13, color: color.text.secondary },
   headline: { ...text.headline, color: color.text.primary },
   metrics: { flexDirection: 'row', gap: space[8] },
-  metric: { flex: 1, gap: space[6], padding: space[12], borderRadius: radius.lg, backgroundColor: color.bg.surface },
+  metric: { flex: 1, gap: space[4], paddingVertical: space[8], paddingHorizontal: space[12], borderRadius: radius.lg, backgroundColor: color.bg.surface },
   metricLabel: { ...text.caption, color: color.text.secondary },
   metricBounty: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
-  metricValue: { ...text.metric, color: color.text.primary },
+  metricValue: { ...text.metric, fontSize: 20, lineHeight: 24, color: color.text.primary },
+  manage: { flexDirection: 'row', gap: space[8] },
+  pill: {
+    minHeight: 44,
+    paddingHorizontal: space[16],
+    borderRadius: radius.full,
+    borderWidth: stroke.thin,
+    borderColor: color.line.hairline,
+    backgroundColor: color.bg.surface,
+    justifyContent: 'center',
+  },
+  pillText: { fontFamily: font.medium, fontSize: 14, lineHeight: 18, color: color.text.primary },
+  pressed: { opacity: 0.7 },
   signal: { color: color.accent.signal },
   description: { fontFamily: font.light, fontSize: 15, lineHeight: 22, color: color.text.secondary },
   authorBlock: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
