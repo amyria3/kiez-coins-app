@@ -6,10 +6,11 @@ import type { User } from '../data/types';
 import { color, font, radius, size, space, text } from '../theme/tokens';
 import { Icon } from './icons/Icon';
 
-/** Figma „Avatar“: 36×36, ohne Bild Initialen auf color/accent/primary. */
-export function Avatar({ user }: { user: User }) {
+/** Figma „Avatar“: 36×36 (oder `diameter`), ohne Bild Initialen auf color/accent/primary. */
+export function Avatar({ user, diameter }: { user: User; diameter?: number }) {
+  const sizeStyle = diameter ? { width: diameter, height: diameter } : null;
   if (user.avatar) {
-    return <Image source={user.avatar} style={styles.avatar} accessibilityIgnoresInvertColors />;
+    return <Image source={user.avatar} style={[styles.avatar, sizeStyle]} accessibilityIgnoresInvertColors />;
   }
   const initials = user.name
     .split(/[\s*]+/)
@@ -18,8 +19,8 @@ export function Avatar({ user }: { user: User }) {
     .map((part) => part[0]?.toUpperCase())
     .join('');
   return (
-    <View style={[styles.avatar, styles.fallback]}>
-      <Text style={styles.initials}>{initials}</Text>
+    <View style={[styles.avatar, styles.fallback, sizeStyle]}>
+      <Text style={[styles.initials, diameter ? { fontSize: Math.round(diameter * 0.4) } : null]}>{initials}</Text>
     </View>
   );
 }

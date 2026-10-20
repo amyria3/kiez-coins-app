@@ -1,15 +1,14 @@
-import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 
 import type { Challenge } from '../data/types';
-import { color, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
 import { Cat, Wordmark } from './icons/Brand';
 import { IconButton } from './IconButton';
 import { SkeletonTopItem } from './Skeleton';
 
 type AppHeaderProps = {
   onMenuPress: () => void;
-  onCreatePress: () => void;
   /** Tipp auf Logo und Kater öffnet „Deine Reise“. */
   onLogoPress?: () => void;
   /** Langes Drücken aufs Logo öffnet das Demo-Menü (nur für Tests mit Beispieldaten). */
@@ -18,11 +17,20 @@ type AppHeaderProps = {
   hasTasks?: boolean;
 };
 
-/** Figma „AppHeader“: Burger-Menü links (Konto), Logo mit Kater in der Mitte, Kamera rechts. */
-export function AppHeader({ onMenuPress, onCreatePress, onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) {
+/**
+ * Figma „AppHeader“, Upgrade „Nachtschicht“: Burger-Menü links (Konto) auf runder Fläche, Logo mit Kater
+ * in der Mitte. Die Kamera sitzt jetzt in der Tab-Leiste, rechts bleibt ein Platzhalter für die Mitte.
+ */
+export function AppHeader({ onMenuPress, onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) {
   return (
     <View style={styles.header}>
-      <IconButton icon="burger" accessibilityLabel="Dein Konto" onPress={onMenuPress} />
+      <IconButton
+        icon="burger"
+        iconSize={size.icon}
+        accessibilityLabel="Dein Konto"
+        onPress={onMenuPress}
+        style={styles.round}
+      />
       <Pressable
         onPress={onLogoPress}
         onLongPress={onLogoLongPress}
@@ -32,11 +40,26 @@ export function AppHeader({ onMenuPress, onCreatePress, onLogoPress, onLogoLongP
       >
         <Wordmark />
         <View>
-          <Cat height={36} />
+          <Cat height={30} />
           {hasTasks ? <View style={styles.taskDot} /> : null}
         </View>
       </Pressable>
-      <IconButton icon="camera" accessibilityLabel="Challenge erstellen" onPress={onCreatePress} />
+      <View style={styles.spacer} />
+    </View>
+  );
+}
+
+/** Begrüßung über dem Feed: Tageszeit, Ansprache, Kiez und Anzahl offener Challenges. */
+export function FeedGreeting({ name, kiez, count }: { name: string; kiez?: string; count: number }) {
+  const hour = new Date().getHours();
+  const greeting = hour < 11 ? 'Guten Morgen' : hour < 18 ? 'Hallo' : 'Guten Abend';
+  const countText = count === 1 ? '1 Challenge in Deiner Nähe' : `${count} Challenges in Deiner Nähe`;
+  return (
+    <View style={styles.greeting}>
+      <Text style={styles.greetingTitle} accessibilityRole="header">
+        {greeting}, {name}
+      </Text>
+      <Text style={styles.greetingSub}>{kiez ? `${kiez} · ${countText}` : countText}</Text>
     </View>
   );
 }
@@ -90,21 +113,15 @@ export function TopChallengeBar({ items, loading, onItemPress }: TopChallengeBar
 export type FeedTab = 'nearby' | 'wave' | 'completed';
 
 const tabs: { key: FeedTab; label: string }[] = [
-  { key: 'nearby', label: 'Challenges in Deiner Nähe' },
-  { key: 'wave', label: 'Wave Challenges' },
-  { key: 'completed', label: 'Completed Challenges' },
+  { key: 'nearby', label: 'In der Nähe' },
+  { key: 'wave', label: 'Wave' },
+  { key: 'completed', label: 'Erledigt' },
 ];
 
-/** Figma „TabsNavigation“ aus „TabItem“; die Auswahl filtert den Feed. */
+/** Figma „TabsNavigation“, Upgrade „Nachtschicht“: Segmente auf einer Pille; die Auswahl filtert den Feed. */
 export function TabsNavigation({ selectedKey, onChange }: { selectedKey: FeedTab; onChange: (key: FeedTab) => void }) {
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      style={styles.noGrow}
-      contentContainerStyle={styles.tabs}
-      accessibilityRole="tablist"
-    >
+    <View style={styles.segments} accessibilityRole="tablist">
       {tabs.map((tab) => {
         const selected = tab.key === selectedKey;
         return (
@@ -113,13 +130,13 @@ export function TabsNavigation({ selectedKey, onChange }: { selectedKey: FeedTab
             accessibilityRole="tab"
             accessibilityState={{ selected }}
             onPress={() => onChange(tab.key)}
-            style={styles.tab}
+            style={[styles.segment, selected && styles.segmentSelected]}
           >
-            <Text style={[text.body, { color: selected ? color.accent.primary : color.text.secondary }]}>{tab.label}</Text>
+            <Text style={[styles.segmentText, selected && styles.segmentTextSelected]}>{tab.label}</Text>
           </Pressable>
         );
       })}
-    </ScrollView>
+    </View>
   );
 }
 
@@ -130,22 +147,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: space[4],
+    paddingHorizontal: space[16],
     paddingVertical: space[8],
   },
+  round: { width: size.touchTarget, height: size.touchTarget, borderRadius: radius.full, backgroundColor: color.bg.surface },
+  spacer: { width: size.touchTarget, height: size.touchTarget },
   logo: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
   taskDot: {
     position: 'absolute',
     top: 0,
     right: -2,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: color.accent.signal,
     borderWidth: stroke.thin,
     borderColor: color.bg.screen,
   },
-  topBar: { paddingHorizontal: space[12], paddingVertical: space[6], gap: space[12] },
+  greeting: { paddingHorizontal: space[20], paddingTop: space[16], paddingBottom: space[12], gap: space[4] },
+  greetingTitle: { ...text.display, color: color.text.primary },
+  greetingSub: { fontFamily: font.light, fontSize: 15, lineHeight: 20, color: color.text.secondary },
+  topBar: { paddingHorizontal: space[16], paddingBottom: space[16], gap: space[12] },
   topItem: { width: size.thumbnail, alignItems: 'center', gap: space[4] },
   thumbnail: {
     width: size.thumbnail,
@@ -155,6 +177,16 @@ const styles = StyleSheet.create({
     borderColor: color.accent.signal,
   },
   topTitle: { ...text.labelXs, color: color.accent.signal, textAlign: 'center', alignSelf: 'stretch' },
-  tabs: { paddingHorizontal: space[4] },
-  tab: { minHeight: 44, justifyContent: 'center', paddingHorizontal: space[8], paddingVertical: space[12] },
+  segments: {
+    flexDirection: 'row',
+    marginHorizontal: space[16],
+    marginBottom: space[16],
+    padding: space[4],
+    borderRadius: radius.full,
+    backgroundColor: color.bg.surface,
+  },
+  segment: { flex: 1, minHeight: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
+  segmentSelected: { backgroundColor: color.text.primary },
+  segmentText: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.secondary },
+  segmentTextSelected: { fontFamily: font.medium, color: color.bg.screen },
 });

@@ -6,6 +6,7 @@ import { Inter_300Light } from '@expo-google-fonts/inter/300Light';
 import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
 import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
 import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
+import { InterTight_600SemiBold } from '@expo-google-fonts/inter-tight/600SemiBold';
 
 import { AuthProvider, useAuth } from '../data/auth';
 import { StoreProvider } from '../data/store';
@@ -16,7 +17,13 @@ SplashScreen.preventAutoHideAsync();
 // Navigation laut Figma-Annotationen: Push = Stack, Modal = von unten.
 // Kopfzeilen kommen aus der Komponente NavigationBar, daher headerShown: false.
 export default function RootLayout() {
-  const [fontsLoaded, fontError] = useFonts({ Inter_300Light, Inter_400Regular, Inter_500Medium, Inter_600SemiBold });
+  const [fontsLoaded, fontError] = useFonts({
+    Inter_300Light,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    InterTight_600SemiBold,
+  });
 
   useEffect(() => {
     if (fontsLoaded || fontError) SplashScreen.hideAsync();

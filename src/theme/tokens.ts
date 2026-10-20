@@ -22,6 +22,12 @@ export const color = {
   bg: {
     screen: palette.black,
     surface: palette.graphite,
+    /** Halbtransparente Fläche über Fotos (Bounty-Chip, Info-Leiste, Tab-Leiste) */
+    glass: 'rgba(31, 33, 35, 0.82)',
+  },
+  /** Haarlinie auf dunklem Grund */
+  line: {
+    hairline: 'rgba(240, 240, 240, 0.12)',
   },
   text: {
     primary: palette.white,
@@ -56,6 +62,9 @@ export const radius = {
   sm: 5,
   md: 12,
   lg: 18,
+  xl: 20,
+  card: 28,
+  sheet: 32,
   full: 999,
 } as const;
 
@@ -64,6 +73,8 @@ export const size = {
   touchTarget: 44,
   avatar: 36,
   thumbnail: 60,
+  /** Icons in Aktions- und Tab-Leisten (Figma-Icons verkleinert) */
+  icon: 18,
 } as const;
 
 // Stroke
@@ -79,10 +90,20 @@ export const font = {
   regular: 'Inter_400Regular',
   medium: 'Inter_500Medium',
   semiBold: 'Inter_600SemiBold',
+  /** Inter Tight für große Überschriften und Zahlen */
+  display: 'InterTight_600SemiBold',
 } as const;
 
 // Text Styles
 export const text = {
+  /** Große Überschrift, z. B. Begrüßung im Feed, „Deine Reise“ */
+  display: { fontFamily: font.display, fontSize: 30, lineHeight: 34, letterSpacing: -0.6 },
+  /** Titel im Challenge-Detail */
+  headline: { fontFamily: font.display, fontSize: 26, lineHeight: 30, letterSpacing: -0.5 },
+  /** Titel auf Karten */
+  cardTitle: { fontFamily: font.display, fontSize: 19, lineHeight: 23, letterSpacing: -0.2 },
+  /** Kennzahlen (Bounty, Frist, Bilanz) */
+  metric: { fontFamily: font.display, fontSize: 22, lineHeight: 26 },
   title: { fontFamily: font.regular, fontSize: 18, lineHeight: 24 },
   body: { fontFamily: font.light, fontSize: 14, lineHeight: 18 },
   caption: { fontFamily: font.regular, fontSize: 11, lineHeight: 16 },
