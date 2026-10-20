@@ -16,7 +16,7 @@ Für die nächste Claude-Sitzung (auch auf Darias Mac). Daria schreibt Deutsch u
 - Code-Mails gehen nicht: Ohne eigenen SMTP schickt Supabase nur an Team-Mitglieder, Vorlagen lassen sich nicht bearbeiten.
 - Deshalb **PR #4: Anmeldung vorerst mit E-Mail und Passwort** (gemergt). In Supabase ist „Confirm email“ **aus**. Code-Login (`sendCode`/`verifyCode`, `onboarding/code.tsx`) bleibt im Code für später.
 - Auf dem Mac: `git pull` und `npm install` erledigt, git sauber. `@expo/ngrok` liegt nur in `node_modules` (`--no-save`).
-- `npx expo start --tunnel --port 8082` scheitert: Metro startet, dann bricht ngrok ab mit `TypeError: Cannot read properties of undefined (reading 'body')`. Ursache unklar (ngrok-Störung, siehe status.ngrok.com, oder ngrok-Version). Nächster Schritt: Version von `@expo/ngrok` prüfen, ohne `CI=1` starten, Fehler genauer lesen. Daria hat den Tunnel erlaubt; die Auto-Modus-Prüfung auf dem Mac hatte ihn vorher als „External Ingress Tunnel“ blockiert.
+- Tunnel für Tests außer Haus: `CI=1 npx expo start --tunnel --port 8082` läuft (2026-10-20, 15:15). Vorher brach ngrok zweimal mit `TypeError: Cannot read properties of undefined (reading 'body')` ab, ohne Änderung am Setup; vermutlich eine ngrok-Störung. Tritt der Fehler wieder auf: status.ngrok.com prüfen. Im CI-Modus gibt es kein Hot Reload. Daria hat den Tunnel erlaubt; die Auto-Modus-Prüfung auf dem Mac kann ihn trotzdem als „External Ingress Tunnel“ blockieren.
 - `@expo/ngrok` global installieren geht nicht (`/opt/homebrew/…` braucht Admin-Rechte). Ein späteres `npm install` kann das `--no-save`-Paket wieder entfernen.
 - Port 8081 gehört zu Darias Blog-Server (`/Users/arkadieff/CODE/bl`), nicht anfassen. Kiez Coins auf Port 8082 starten.
 
