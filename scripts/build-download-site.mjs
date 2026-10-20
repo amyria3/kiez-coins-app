@@ -1,22 +1,31 @@
 // Baut die Download-Seite in den Ordner `website/`: Startseite mit Passwort-Formular plus
-// Impressum, Datenschutz und Nutzungsbedingungen aus `src/legal/texts.json` (dieselben Texte wie in der App).
+// Impressum, Datenschutz und Nutzungsbedingungen aus `src/data/legal.ts` (dieselben Texte wie in der App).
 // Aufruf: `npm run build:website` baut zuerst die Web-App nach `website/app/` und danach diese Seiten.
 // Nur die Seiten ohne Web-App: node scripts/build-download-site.mjs
 // Den Ordner `website/` lädt Daria danach beim Webhoster hoch (siehe Übergabe/2026-10-21_download-seite.md
 // und Übergabe/2026-10-21_web-app.md).
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const out = join(root, 'website');
-const texts = JSON.parse(readFileSync(join(root, 'src/legal/texts.json'), 'utf8'));
+// legal.ts mit TypeScript nach JS übersetzen und laden
+const ts = (await import('typescript')).default;
+const legalJs = ts.transpileModule(readFileSync(join(root, 'src/data/legal.ts'), 'utf8'), {
+  compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+}).outputText;
+const tmp = join(root, 'scripts/.legal.tmp.mjs');
+writeFileSync(tmp, legalJs);
+const { LEGAL_STAND, legalDocIds, legalDocs } = await import(tmp);
+rmSync(tmp);
+// Dateinamen der Seiten
+const fileOf = { impressum: 'impressum', datenschutz: 'datenschutz', bedingungen: 'nutzungsbedingungen' };
 const config = JSON.parse(readFileSync(join(root, 'scripts/download-site.config.json'), 'utf8'));
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const fill = (s) => s.replace(/\{(\w+)\}/g, (m, k) => texts.operator[k] ?? m);
 
-const open = JSON.stringify(texts).match(/\[offen:[^\]]*\]/g);
+const open = JSON.stringify(legalDocs).match(/\[offen:[^\]]*\]/g);
 if (open) console.warn(`Achtung, noch offen: ${[...new Set(open)].join(', ')}`);
 
 const css = `
@@ -122,12 +131,14 @@ ${ios}
 </script>`,
 );
 
-const legal = (key) => {
-  const doc = texts.documents[key];
+const paragraphs = (ps) => ps.map((p) => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('\n');
+const legal = (id) => {
+  const doc = legalDocs[id];
+  const intro = doc.intro ? paragraphs([doc.intro]) : '';
   const sections = doc.sections
-    .map((s) => `<h2>${esc(s.heading)}</h2>\n${s.paragraphs.map((p) => `<p>${esc(fill(p))}</p>`).join('\n')}`)
+    .map((s) => `${s.heading ? `<h2>${esc(s.heading)}</h2>\n` : ''}${paragraphs(s.paragraphs)}`)
     .join('\n');
-  return page(`${doc.title} – Kiez Coins`, `<h1>${esc(doc.title)}</h1>\n<p class="updated">Stand: ${esc(doc.updated)}</p>\n${sections}`);
+  return page(`${doc.title} – Kiez Coins`, `<h1>${esc(doc.title)}</h1>\n<p class="updated">Stand: ${esc(LEGAL_STAND)}</p>\n${intro}\n${sections}`);
 };
 
 mkdirSync(out, { recursive: true });
@@ -142,7 +153,7 @@ writeFileSync(
 const app = join(out, 'app');
 if (existsSync(join(app, 'index.html'))) copyFileSync(join(app, 'index.html'), join(app, '404.html'));
 else console.warn('Achtung: website/app/ fehlt. Die Web-App fürs iPhone baut `npm run build:website`.');
-for (const key of Object.keys(texts.documents)) writeFileSync(join(out, `${key}.html`), legal(key));
+for (const id of legalDocIds) writeFileSync(join(out, `${fileOf[id]}.html`), legal(id));
 copyFileSync(join(root, 'assets/favicon.png'), join(out, 'favicon.png'));
 // Logo: die bunten Coins aus der App (src/components/icons/brandSvgs.ts)
 const coins = readFileSync(join(root, 'src/components/icons/brandSvgs.ts'), 'utf8').match(/coinsSvg = `([^`]+)`/);

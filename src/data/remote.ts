@@ -682,6 +682,27 @@ export async function sendSupportRequest(body: string) {
   check(await supabase.from('support_requests').insert({ body: body.trim() }));
 }
 
+/**
+ * Löscht alle Fotos im eigenen Ordner. Storage-Dateien hängen nicht an den Fremdschlüsseln,
+ * deshalb räumt die App sie vor `delete_my_account` selbst ab (braucht Migration `own_photos_select`).
+ */
+async function deleteOwnPhotos() {
+  const { data } = await supabase.auth.getUser();
+  const userId = data.user?.id;
+  if (!userId) return;
+  const bucket = supabase.storage.from(PHOTO_BUCKET);
+  for (;;) {
+    const { data: files, error } = await bucket.list(userId, { limit: 100 });
+    if (error) throw error;
+    if (!files?.length) return;
+    const { data: removed, error: removeError } = await bucket.remove(files.map((file) => `${userId}/${file.name}`));
+    if (removeError) throw removeError;
+    // Ohne Leserecht meldet Storage keinen Fehler, löscht aber nichts. Dann nicht endlos weiterversuchen.
+    if (!removed?.length) return;
+  }
+}
+
 export async function deleteMyAccount() {
+  await deleteOwnPhotos();
   check(await supabase.rpc('delete_my_account'));
 }

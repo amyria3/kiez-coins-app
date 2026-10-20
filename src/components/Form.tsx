@@ -90,19 +90,22 @@ export function SwitchRow({
   description?: string;
   value: boolean;
   onValueChange: (value: boolean) => void;
-  /** Macht die Beschreibung zum Link, z. B. „AGB lesen“ */
+  /** Macht die Beschreibung zum Link, zum Beispiel „Datenschutz lesen“. */
   onDescriptionPress?: () => void;
 }) {
   return (
     <View style={styles.switchRow}>
       <View style={styles.texts}>
         <Text style={[text.body, { color: color.text.primary }]}>{label}</Text>
-        {description && onDescriptionPress ? (
-          <Pressable accessibilityRole="link" hitSlop={8} onPress={onDescriptionPress} style={{ alignSelf: 'flex-start' }}>
-            <Text style={[text.caption, { color: color.text.secondary, textDecorationLine: 'underline' }]}>{description}</Text>
-          </Pressable>
-        ) : description ? (
-          <Text style={[text.caption, { color: color.text.secondary }]}>{description}</Text>
+        {description ? (
+          <Text
+            style={[text.caption, { color: color.text.secondary }, onDescriptionPress && styles.link]}
+            onPress={onDescriptionPress}
+            accessibilityRole={onDescriptionPress ? 'link' : undefined}
+            suppressHighlighting
+          >
+            {description}
+          </Text>
         ) : null}
       </View>
       <NativeSwitch
@@ -260,6 +263,7 @@ export function PhotoPicker({ photo, hint, onChange }: PhotoPickerProps) {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
+  link: { textDecorationLine: 'underline', color: color.text.primary },
   field: { gap: space[6] },
   fieldLabel: { ...text.caption, color: color.text.secondary },
   input: {

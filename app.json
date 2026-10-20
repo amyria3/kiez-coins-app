@@ -36,7 +36,8 @@
         "expo-image-picker",
         {
           "photosPermission": "Kiez Coins braucht Zugriff auf Deine Fotos, damit Du ein Foto zur Challenge hinzufügen kannst.",
-          "cameraPermission": "Kiez Coins braucht die Kamera, damit Du ein Foto zur Challenge aufnehmen kannst."
+          "cameraPermission": "Kiez Coins braucht die Kamera, damit Du ein Foto zur Challenge aufnehmen kannst.",
+          "microphonePermission": false
         }
       ],
       [
@@ -57,6 +58,13 @@
       ]
     ],
     "scheme": "kiezcoins",
-    "backgroundColor": "#1F2123"
+    "backgroundColor": "#1F2123",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e35cf809-b06f-4797-9ef0-d906e655123e"
+      }
+    },
+    "owner": "kiezcoins"
   }
 }

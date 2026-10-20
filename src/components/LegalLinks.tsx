@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { color, space, text } from '../theme/tokens';
 
 const LINKS = [
-  { doc: 'nutzungsbedingungen', label: 'Nutzungsbedingungen' },
+  { doc: 'bedingungen', label: 'Nutzungsbedingungen' },
   { doc: 'datenschutz', label: 'Datenschutz' },
   { doc: 'impressum', label: 'Impressum' },
 ] as const;
