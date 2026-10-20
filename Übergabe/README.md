@@ -1,0 +1,26 @@
+# Übergabe
+
+Briefkasten für Doku, die beim Arbeiten am Code entsteht. Die Doku selbst liegt nur im privaten Repo [amyria3/Documentation](https://github.com/amyria3/Documentation).
+
+## Wer hier etwas ablegt
+
+Jede Sitzung, die am Code arbeitet und keinen Zugriff auf Documentation hat (zum Beispiel ein anderer Account):
+
+- Eine Datei pro Thema, Name mit Datum vorn, zum Beispiel `2026-10-21_push-nachrichten.md`.
+- Oben in der Datei: Datum, was sich geändert hat, und wohin es in Documentation gehört (zum Beispiel `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Challenges“).
+- Keine Geheimnisse (Passwörter, Tokens, Service-Role-Keys, IBANs). Dieses Repo ist öffentlich.
+
+## Wer die Doku pflegt
+
+**Vor jeder Änderung an Documentation** hier nachsehen, ob neue Dateien liegen. Wenn ja:
+
+1. Inhalt an die richtige Stelle in Documentation übernehmen (nach dessen `AGENTS.md`).
+2. Die übernommene Datei hier löschen, im selben Arbeitsgang.
+
+Diese `README.md` bleibt immer liegen.
+
+## Liegt gerade hier (20.10.2026)
+
+- `HANDOVER.md`: Übergabe der Code-Sitzungen (Stand, offene Punkte).
+- `konzept-gruppen.md`: Konzept „Gruppen“ mit Edensteinen. Achtung: Die ältere Zeile zu Gruppen in `ENTSCHEIDUNGEN.md` (Beitritt ab 13, Preise) widerspricht dem Konzept zum Teil. Daria entscheidet.
+- `README-Inhalte.md`: Funktionen, Aufbau, Anmeldung, Datenbank und Figma-Abgleich aus dem alten README.
