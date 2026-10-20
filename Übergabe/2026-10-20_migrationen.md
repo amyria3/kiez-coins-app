@@ -10,9 +10,9 @@
 
 1. Öffne das Supabase-Projekt `aqxzxpxrshizlaqyjplw` und dort den SQL-Editor.
 2. Kopiere den Inhalt der ersten Datei unten in eine neue Abfrage und klicke auf „Run“.
-3. Wiederhole das mit der zweiten Datei. Die Reihenfolge stimmt mit den Dateinamen überein.
+3. Wiederhole das mit den übrigen Dateien. Die Reihenfolge stimmt mit den Dateinamen überein.
 4. Prüfe unter „Table Editor“, dass die neuen Spalten da sind.
-5. Trag in Documentation ein, dass beide Migrationen laufen, und lösch diese Datei.
+5. Trag in Documentation ein, dass die Migrationen laufen, und lösch diese Datei.
 
 Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“ ab und ändert nichts.
 
@@ -39,3 +39,18 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 **Danach prüfen:** Neue Challenge mit freigegebenem Standort erstellen. Im Table Editor stehen bei ihr Werte mit 3 Nachkommastellen in `lat` und `lng`. Im Feed steht am Beitrag die Entfernung.
 
 **Bis sie läuft:** Die App speichert Challenges ohne Punkt. Es gibt keinen Fehler.
+
+## 3. `supabase/migrations/20261020000500_challenge_views.sql`
+
+**Wozu:** Aufrufe in „Deine Challenges“. Die Datei liegt auf `main`, sobald Daria den Branch `claude/manage-karten` freigibt.
+
+**Ändert:**
+- Neue Tabelle `challenge_views` (`challenge_id`, `user_id`, `created_at`), pro Person und Challenge höchstens ein Eintrag.
+- RLS: Zählen darf jede angemeldete Person, außer bei eigenen Challenges. Lesen darf nur, wer die Challenge erstellt hat.
+- Kein Update und kein Löschen für Nutzerinnen.
+
+**Danach prüfen:** Mit einem zweiten Konto eine Challenge öffnen. In „Deine Challenges“ des ersten Kontos steht bei „Aufrufe“ 1.
+
+**Bis sie läuft:** Die Karte zeigt bei „Aufrufe“ einen Strich. Es gibt keinen Fehler.
+
+**Löschen offener Challenges** braucht keine Migration. Die Regel „Offene eigene Challenge löschen“ steht schon in `20261019000200_rls.sql`.
