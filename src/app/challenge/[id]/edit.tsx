@@ -22,14 +22,13 @@ const durations = [
  * Route `challenge/[id]/edit` (Modal). Eigene Challenge bearbeiten, solange niemand sie angenommen hat:
  * Titel, Text, Ort, Bounty und Frist. Die Frist bleibt, bis eine neue gewählt wird.
  * Gruppenaufgaben: ohne Ort und Bounty, die Edensteine bleiben.
- * „Nicht veröffentlichen, Entwurf“ nimmt die Challenge aus dem Feed: neuer Entwurf mit den Änderungen, dann wird die
- * veröffentlichte gelöscht (ohne Datenbankänderung möglich). Kommentare gehen dabei verloren.
+ * „Nicht veröffentlichen, Entwurf“ speichert die Änderungen und nimmt die Challenge aus dem Feed (status deleted).
+ * „Wieder veröffentlichen“ in „Deine Challenges“ holt sie samt Kommentaren zurück.
  */
 export default function EditChallenge() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { currentUserId, canOfferBounties, dispatch, saveDraft } = useStore();
-  const [busy, setBusy] = useState(false);
+  const { currentUserId, canOfferBounties, dispatch } = useStore();
   const { challenge } = useChallenge(id);
 
   const [title, setTitle] = useState(challenge?.title ?? '');
@@ -55,43 +54,35 @@ export default function EditChallenge() {
   const isGroup = !!challenge.groupId;
   const canSave = title.trim().length > 0 && title.trim().length <= 60 && (isGroup || location.trim().length > 0);
 
-  const toDraft = () => {
-    const comments = challenge.comments.length;
+  // Nicht veröffentlichen: Änderungen speichern und die Challenge aus dem Feed nehmen (status deleted).
+  // In „Deine Challenges“ holt „Wieder veröffentlichen“ sie zurück, samt Kommentaren.
+  const editOf = () => ({
+    title: title.trim(),
+    text: body.trim(),
+    location: location.trim(),
+    bountyAmount: bounty,
+    deadline: durationDays
+      ? new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000).toISOString()
+      : challenge.deadline,
+  });
+
+  const toDraft = () =>
     Alert.alert(
       'Nicht veröffentlichen?',
-      `Die Challenge verschwindet aus dem Feed und liegt mit Deinen Änderungen unter Entwürfe in „Deine Challenges“.${
-        comments ? ` ${comments === 1 ? 'Der Kommentar geht' : `Die ${comments} Kommentare gehen`} dabei verloren.` : ''
-      }`,
+      'Die Challenge verschwindet mit Deinen Änderungen aus dem Feed. In „Deine Challenges“ kannst Du sie wieder veröffentlichen.',
       [
         { text: 'Abbrechen', style: 'cancel' },
         {
-          text: 'Entwurf',
-          onPress: async () => {
-            setBusy(true);
-            try {
-              await saveDraft(undefined, {
-                title: title.trim(),
-                text: body.trim(),
-                location: location.trim(),
-                bountyAmount: bounty,
-                photo: challenge.image,
-                imagePath: challenge.imagePath,
-                extras: challenge.extraImages,
-                coords: challenge.coords,
-              });
-              dispatch({ type: 'delete', id: challenge.id });
-              router.dismissTo('/feed');
-              router.push('/manage');
-            } catch (error) {
-              Alert.alert('Entwurf nicht gespeichert', (error as Error).message);
-            } finally {
-              setBusy(false);
-            }
+          text: 'Nicht veröffentlichen',
+          onPress: () => {
+            if (canSave) dispatch({ type: 'edit', id: challenge.id, edit: editOf() });
+            dispatch({ type: 'delete', id: challenge.id });
+            router.dismissTo('/feed');
+            router.push('/manage');
           },
         },
       ],
     );
-  };
 
   const save = () => {
     if (!canSave) return;
@@ -99,19 +90,7 @@ export default function EditChallenge() {
       Alert.alert('Keine Bounty möglich', 'Du kannst gerade keine Bounties anbieten oder erhöhen.');
       return;
     }
-    dispatch({
-      type: 'edit',
-      id: challenge.id,
-      edit: {
-        title: title.trim(),
-        text: body.trim(),
-        location: location.trim(),
-        bountyAmount: bounty,
-        deadline: durationDays
-          ? new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000).toISOString()
-          : challenge.deadline,
-      },
-    });
+    dispatch({ type: 'edit', id: challenge.id, edit: editOf() });
     router.back();
   };
 
@@ -122,15 +101,8 @@ export default function EditChallenge() {
       onLeadingPress={() => router.back()}
       actions={
         <>
-          <Button label="Speichern" onPress={save} disabled={!canSave || busy} />
-          {isGroup ? null : (
-            <Button
-              label={busy ? 'Wird gespeichert …' : 'Nicht veröffentlichen, Entwurf'}
-              variant="ghost"
-              onPress={toDraft}
-              disabled={busy || !title.trim()}
-            />
-          )}
+          <Button label="Speichern" onPress={save} disabled={!canSave} />
+          <Button label="Nicht veröffentlichen, Entwurf" variant="ghost" onPress={toDraft} />
         </>
       }
     >
