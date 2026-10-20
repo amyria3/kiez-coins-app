@@ -1,6 +1,6 @@
 # Migrationen für Supabase vom 20.10.2026
 
-**Status:** Daria hat die Migrationen 1 bis 7 am 20. und 21.10.2026 im SQL-Editor ausgeführt. Offen sind Migration 8, sobald der Code auf `main` liegt, und der Eintrag in Documentation.
+**Status:** Daria hat die Migrationen 1 bis 7 am 20. und 21.10.2026 im SQL-Editor ausgeführt. Offen sind Migration 8 und 9 und der Eintrag in Documentation.
 
 - **Datum:** 20.10.2026
 - **Gehört nach:** Datenbank-Doku in Documentation (Liste der Migrationen, Tabellen `comments` und `challenges`).
@@ -105,8 +105,18 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 
 ## 8. `supabase/migrations/20261021000300_delete_closed_challenge.sql`
 
-**Wozu:** Auch geschlossene Challenges lassen sich löschen, solange niemand sie angenommen hat. Die Datei liegt auf `main`, sobald Daria den Branch `claude/fehlertext` freigibt.
+**Wozu:** Auch geschlossene Challenges lassen sich löschen, solange niemand sie angenommen hat.
 
 **Ändert:** `delete_challenge` neu (`create or replace`): Status `open` oder `closed`, ohne Annehmende. Keine neue Tabelle, keine neue Regel.
 
 **Danach prüfen:** Eine geschlossene Challenge in „Deine Challenges“ löschen. Sie landet unter „Gelöscht“.
+
+## 9. `supabase/migrations/20261021000400_purge_deleted_challenge.sql`
+
+**Wozu:** „Endgültig löschen“ bei gelöschten Challenges in „Deine Challenges“. Die Datei liegt auf `main`, sobald Daria den Branch `claude/endgueltig` freigibt.
+
+**Ändert:** Die Regel „Eigenen Entwurf löschen“ erlaubt jetzt Entwürfe und gelöschte Challenges. Kommentare, Likes und Aufrufe verschwinden mit.
+
+**Danach prüfen:** Eine gelöschte Challenge aufklappen und „Endgültig löschen“ tippen. Sie verschwindet aus der Liste.
+
+**Offen:** Das Foto bleibt im Storage liegen.
