@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBadge } from '../components/Badges';
 import { Cat } from '../components/icons/Brand';
 import { Icon } from '../components/icons/Icon';
-import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
+import { CameraButton, TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { anrede, formatBountyShort, formatRelative } from '../data/format';
 import { useRequireKiez } from '../data/kiez';
 import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
@@ -120,8 +120,9 @@ export default function Reise() {
         hasTasks={tasks.length > 0}
         onFeedPress={toFeed}
         onReisePress={() => {}}
-        onCreatePress={() => requireKiez() && router.push('/challenge/create/step-1')}
+        onMenuPress={() => router.push('/account')}
       />
+      <CameraButton onPress={() => requireKiez() && router.push('/challenge/create/step-1')} />
     </View>
   );
 }
