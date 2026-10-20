@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
 import { TextField } from '../../../components/Form';
@@ -9,12 +9,16 @@ import { useAuth } from '../../../data/auth';
 import { errorText, sendSupportRequest } from '../../../data/remote';
 import { useStore } from '../../../data/store';
 
-/** Route `account/support` (Push aus „Dein Konto“): Support-Anfrage schreiben. */
+/**
+ * Route `account/support` (Push aus „Dein Konto“): Support-Anfrage schreiben.
+ * `text` füllt das Feld vor, zum Beispiel aus „Deine Challenges“, wenn Löschen nicht mehr geht.
+ */
 export default function Support() {
   const router = useRouter();
+  const { text: preset } = useLocalSearchParams<{ text?: string }>();
   const { mode } = useStore();
   const { session } = useAuth();
-  const [support, setSupport] = useState('');
+  const [support, setSupport] = useState(preset ?? '');
   const [sending, setSending] = useState(false);
   const live = mode === 'live' && !!session;
 

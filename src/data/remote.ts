@@ -189,12 +189,13 @@ export type LiveData = { users: User[]; challenges: Challenge[]; canOfferBountie
 
 /** Lädt Feed, eigene Likes, Operationsnamen, Freigaben und alle beteiligten Profile. */
 export async function loadLiveData(userId: string): Promise<LiveData> {
-  const [challengesRes, likesRes, namesRes, sharesRes, payoutRes] = await Promise.all([
+  const [challengesRes, likesRes, namesRes, sharesRes, payoutRes, views] = await Promise.all([
     supabase.from('challenges').select(CHALLENGE_COLUMNS).order('created_at', { ascending: false }).limit(200),
     supabase.from('likes').select('challenge_id').eq('user_id', userId),
     supabase.from('operation_names').select('challenge_id, name').eq('user_id', userId),
     supabase.from('payout_shares').select('challenge_id, method, account_holder, iban, paypal'),
     supabase.from('payout_details').select('account_holder, iban, paypal').eq('user_id', userId).maybeSingle(),
+    loadViewCounts(),
   ]);
   for (const res of [challengesRes, likesRes, namesRes, sharesRes, payoutRes]) check(res);
 
@@ -224,9 +225,10 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
 
   return {
     users,
-    challenges: rows.map((r) =>
-      toChallenge(r, { liked: liked.has(r.id), operationName: names.get(r.id), share: shares.get(r.id) }),
-    ),
+    challenges: rows.map((r) => ({
+      ...toChallenge(r, { liked: liked.has(r.id), operationName: names.get(r.id), share: shares.get(r.id) }),
+      ...(r.author_id === userId && views ? { views: views.get(r.id) ?? 0 } : {}),
+    })),
     canOfferBounties: me?.can_offer_bounties ?? true,
   };
 }
@@ -476,6 +478,31 @@ export const publishDraft = (id: string, deadline: string) =>
   rpc('publish_challenge', { p_challenge_id: id, p_deadline: deadline });
 
 /** Entwurf löschen. Veröffentlichte Challenges lassen sich nur schließen. */
+/** Entwurf oder offene Challenge löschen. Nach dem Annehmen lehnt die Datenbank ab. */
+export async function deleteChallenge(id: string) {
+  const res = check(
+    await supabase.from('challenges').delete().eq('id', id).in('status', ['draft', 'open']).select('id'),
+  );
+  if (!res.data?.length) throw new Error('Die Challenge lässt sich nicht mehr löschen, da sie schon angenommen ist.');
+}
+
+/**
+ * Aufrufe eigener Challenges (RLS liefert nur die eigenen).
+ * `null`, solange die Migration `challenge_views` fehlt. Die App blendet die Zahl dann aus.
+ */
+async function loadViewCounts(): Promise<Map<string, number> | null> {
+  const { data, error } = await supabase.from('challenge_views').select('challenge_id').limit(10000);
+  if (error) return null;
+  const counts = new Map<string, number>();
+  for (const row of data ?? []) counts.set(row.challenge_id, (counts.get(row.challenge_id) ?? 0) + 1);
+  return counts;
+}
+
+/** Aufruf zählen. Fehler (doppelt, eigene Challenge, Migration fehlt) ignoriert die App. */
+export async function recordView(challengeId: string) {
+  await supabase.from('challenge_views').upsert({ challenge_id: challengeId }, { ignoreDuplicates: true });
+}
+
 export async function deleteDraft(id: string) {
   check(await supabase.from('challenges').delete().eq('id', id).eq('status', 'draft'));
 }
