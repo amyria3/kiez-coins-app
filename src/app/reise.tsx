@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { StatusBadge } from '../components/Badges';
+import { KaterCard } from '../components/Content';
 import { Cat } from '../components/icons/Brand';
 import { Icon } from '../components/icons/Icon';
 import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
@@ -48,12 +49,7 @@ export default function Reise() {
           Deine Reise
         </Text>
 
-        <View style={styles.kater}>
-          <Cat mood={catVariant(mood)} height={56} />
-          <View style={styles.bubble}>
-            <Text style={styles.bubbleText}>{reiseMoodText(mood, anrede(profile))}</Text>
-          </View>
-        </View>
+        <KaterCard mood={catVariant(mood)}>{reiseMoodText(mood, anrede(profile))}</KaterCard>
 
         {tasks.map((entry) => (
           <Pressable
@@ -151,18 +147,6 @@ const styles = StyleSheet.create({
   flex: { flex: 1, gap: space[2] },
   pressed: { opacity: 0.8 },
   title: { ...text.display, color: color.text.primary },
-  kater: { flexDirection: 'row', alignItems: 'flex-end', gap: space[12] },
-  bubble: {
-    flex: 1,
-    backgroundColor: color.bg.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
-    borderBottomRightRadius: radius.xl,
-    borderBottomLeftRadius: space[6],
-    paddingVertical: space[12],
-    paddingHorizontal: space[16],
-  },
-  bubbleText: { fontFamily: font.light, fontSize: 15, lineHeight: 21, color: color.text.primary },
   task: {
     flexDirection: 'row',
     alignItems: 'center',
