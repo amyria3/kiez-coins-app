@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
-import { PhotoPicker, TextField } from '../../../components/Form';
+import { ExtraPhotos, PhotoPicker, TextField } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
 import { hasContent, useDraft, useSaveDraft } from './_layout';
 
@@ -58,6 +58,13 @@ export default function CreateStep1() {
         hint={showErrors && missingPhoto ? 'Bitte füge ein Foto hinzu.' : 'Zeig, wo geholfen werden soll.'}
         onChange={(photo) => setDraft((d) => ({ ...d, photo, imagePath: undefined }))}
       />
+      {draft.photo ? (
+        <ExtraPhotos
+          photos={draft.extras.map((e) => e.photo)}
+          onAdd={(photo) => setDraft((d) => ({ ...d, extras: [...d.extras, { photo }].slice(0, 2) }))}
+          onRemove={(index) => setDraft((d) => ({ ...d, extras: d.extras.filter((_, i) => i !== index) }))}
+        />
+      ) : null}
       <TextField
         label="Titel"
         helperText="Max. 60 Zeichen"

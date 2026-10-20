@@ -26,6 +26,9 @@ export type ChallengeType = 'individual' | 'wave';
 
 export type ImageSource = ImageSourcePropType;
 
+/** Weiteres Foto einer Challenge. `path` ist gesetzt, sobald es in Supabase liegt. */
+export type ExtraPhoto = { photo: ImageSource; path?: string };
+
 export type Payout = {
   accountHolder: string;
   iban: string;
@@ -93,6 +96,8 @@ export type Challenge = {
   image?: ImageSource;
   /** Pfad des Fotos im Storage, nur für eigene Entwürfe (Foto bleibt beim Speichern erhalten) */
   imagePath?: string;
+  /** Bis zu 2 weitere Fotos (Migration 20261020000700) */
+  extraImages?: ExtraPhoto[];
   imageBefore?: ImageSource;
   imageAfter?: ImageSource;
   likedByMe: boolean;
