@@ -604,6 +604,12 @@ export async function recordView(challengeId: string) {
   await supabase.from('challenge_views').upsert({ challenge_id: challengeId }, { ignoreDuplicates: true });
 }
 
+/** Gelöschte Challenge endgültig löschen (Migration 20261021000400). */
+export async function purgeChallenge(id: string) {
+  const res = check(await supabase.from('challenges').delete().eq('id', id).eq('status', 'deleted').select('id'));
+  if (!res.data?.length) throw new Error('Endgültig löschen ging nicht. Läuft schon Migration 20261021000400?');
+}
+
 export async function deleteDraft(id: string) {
   check(await supabase.from('challenges').delete().eq('id', id).eq('status', 'draft'));
 }

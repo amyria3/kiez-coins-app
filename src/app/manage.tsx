@@ -133,6 +133,16 @@ export default function ManageChallenges() {
     );
   };
 
+  const purge = (c: Challenge) =>
+    Alert.alert(
+      'Endgültig löschen?',
+      'Die Challenge verschwindet samt Kommentaren für immer. Das lässt sich nicht rückgängig machen.',
+      [
+        { text: 'Abbrechen', style: 'cancel' },
+        { text: 'Endgültig löschen', style: 'destructive', onPress: () => dispatch({ type: 'purge', id: c.id }) },
+      ],
+    );
+
   const restore = (c: Challenge) => {
     if (!requireKiez()) return;
     const expired = new Date(c.deadline).getTime() <= Date.now();
@@ -192,6 +202,7 @@ export default function ManageChallenges() {
                       challenges={page.challenges}
                       onOpen={(c) => router.push(`/challenge/${c.id}`)}
                       onRestore={restore}
+                      onPurge={purge}
                     />
                   </View>
                 );
@@ -328,10 +339,12 @@ function DeletedCard({
   challenges,
   onOpen,
   onRestore,
+  onPurge,
 }: {
   challenges: Challenge[];
   onOpen: (c: Challenge) => void;
   onRestore: (c: Challenge) => void;
+  onPurge: (c: Challenge) => void;
 }) {
   const [expanded, setExpanded] = useState<string>();
 
@@ -393,6 +406,7 @@ function DeletedCard({
                   </Text>
                   <Button label="Wieder veröffentlichen" onPress={() => onRestore(c)} />
                   <Button label="Ansehen" variant="secondary" onPress={() => onOpen(c)} />
+                  <Button label="Endgültig löschen" variant="danger" onPress={() => onPurge(c)} />
                 </View>
               ) : null}
             </View>

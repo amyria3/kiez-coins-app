@@ -1,9 +1,10 @@
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 
 import { challengeTypes, isTypeActive } from '../data/features';
 import type { Challenge } from '../data/types';
-import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, motion, radius, size, space, stroke, text } from '../theme/tokens';
 import { KaterCard } from './Content';
 import { Cat, Wordmark } from './icons/Brand';
 import { SkeletonTopItem } from './Skeleton';
@@ -123,8 +124,35 @@ type TabsNavigationProps = {
  * Der Feed zeigt dann einen Hinweis und vorhandene Challenges dieses Typs.
  */
 export function TabsNavigation({ selectedKey, onChange }: TabsNavigationProps) {
+  // Helle Pille gleitet zum gewählten Reiter (Bewegung „Schranke“, etwas langsamer)
+  const [layouts, setLayouts] = useState<Partial<Record<FeedTab, { x: number; width: number }>>>({});
+  const pillX = useRef(new Animated.Value(0)).current;
+  const pillW = useRef(new Animated.Value(0)).current;
+  const placed = useRef(false);
+  const target = layouts[selectedKey];
+  useEffect(() => {
+    if (!target) return;
+    if (!placed.current) {
+      pillX.setValue(target.x);
+      pillW.setValue(target.width);
+      placed.current = true;
+      return;
+    }
+    const timing = (value: Animated.Value, toValue: number) =>
+      Animated.timing(value, {
+        toValue,
+        duration: motion.tabSwitch.duration,
+        easing: Easing.bezier(...motion.barrier.bezier),
+        useNativeDriver: false,
+      });
+    Animated.parallel([timing(pillX, target.x), timing(pillW, target.width)]).start();
+  }, [target?.x, target?.width, pillX, pillW]);
+
   return (
     <View style={styles.segments} accessibilityRole="tablist">
+      {target ? (
+        <Animated.View pointerEvents="none" style={[styles.pill, { left: pillX, width: pillW }]} />
+      ) : null}
       {tabs.map((tab) => {
         const selected = tab.key === selectedKey;
         return (
@@ -134,12 +162,25 @@ export function TabsNavigation({ selectedKey, onChange }: TabsNavigationProps) {
             accessibilityLabel={tab.planned ? `${tab.label}, kommt später` : tab.label}
             accessibilityState={{ selected }}
             onPress={() => onChange(tab.key)}
-            style={[styles.segment, selected && styles.segmentSelected]}
+            onLayout={(e) => {
+              const { x, width } = e.nativeEvent.layout;
+              setLayouts((l) => (l[tab.key]?.x === x && l[tab.key]?.width === width ? l : { ...l, [tab.key]: { x, width } }));
+            }}
+            style={[styles.segment, !target && selected && styles.segmentSelected]}
           >
             <View style={styles.segmentInner}>
-              <Text numberOfLines={1} style={[styles.segmentText, selected && styles.segmentTextSelected, tab.planned && !selected && styles.planned]}>
+              <Animated.Text
+                numberOfLines={1}
+                style={[
+                  styles.segmentText,
+                  selected && styles.segmentTextSelected,
+                  tab.planned && !selected && styles.planned,
+                  // Schrift wird dunkel, während die Pille darübergleitet
+                  layouts[tab.key] ? { color: labelColor(pillX, layouts[tab.key]!) } : null,
+                ]}
+              >
                 {tab.label}
-              </Text>
+              </Animated.Text>
             </View>
           </Pressable>
         );
@@ -147,6 +188,14 @@ export function TabsNavigation({ selectedKey, onChange }: TabsNavigationProps) {
     </View>
   );
 }
+
+/** Farbe eines Reiters je nach Lage der Pille: dunkel darunter, grau daneben. */
+const labelColor = (pillX: Animated.Value, l: { x: number; width: number }) =>
+  pillX.interpolate({
+    inputRange: [l.x - l.width * 0.6, l.x, l.x + l.width * 0.6],
+    outputRange: [color.text.secondary, color.bg.screen, color.text.secondary],
+    extrapolate: 'clamp',
+  });
 
 /** Inhalt eines geplanten Reiters: Kater mit Hinweis, dass das Feature später kommt. */
 export function PlannedHint({ title, message }: { title: string; message: string }) {
@@ -200,6 +249,13 @@ const styles = StyleSheet.create({
     padding: space[4],
     borderRadius: radius.full,
     backgroundColor: color.bg.surface,
+  },
+  pill: {
+    position: 'absolute',
+    top: space[4],
+    bottom: space[4],
+    borderRadius: radius.full,
+    backgroundColor: color.text.primary,
   },
   // Breite nach Inhalt, damit vier Reiter neben die Kamera passen
   segment: { flexGrow: 1, flexShrink: 1, paddingHorizontal: space[8], minHeight: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
