@@ -3,6 +3,7 @@ import type {
   Challenge,
   ChallengeStatus,
   ExtraPhoto,
+  Group,
   ImageSource,
   Payout,
   PayoutMethod,
@@ -58,6 +59,8 @@ type ChallengeRow = {
   bounty_amount: number | null;
   status: ChallengeStatus;
   image_path: string | null;
+  group_id?: string | null;
+  edensteine?: number | null;
   extra_image_paths?: string[] | null;
   image_before_path: string | null;
   image_after_path: string | null;
@@ -135,6 +138,8 @@ function toChallenge(
     status: row.status,
     image: photoUrl(row.image_path),
     imagePath: row.image_path ?? undefined,
+    groupId: row.group_id ?? undefined,
+    edensteine: row.edensteine ?? undefined,
     extraImages: (row.extra_image_paths ?? []).flatMap((path) => {
       const photo = photoUrl(path);
       return photo ? [{ photo, path }] : [];
@@ -191,17 +196,43 @@ function check<T extends { error: unknown }>(result: T): T {
 // comments(*): reply_to_id kommt mit, sobald die Migration eingespielt ist
 const CHALLENGE_COLUMNS = '*, comments(*)';
 
-export type LiveData = { users: User[]; challenges: Challenge[]; canOfferBounties: boolean };
+export type LiveData = { users: User[]; challenges: Challenge[]; canOfferBounties: boolean; groups: Group[] };
+
+type GroupRow = {
+  id: string;
+  name: string;
+  founder_id: string;
+  invite_code: string;
+  created_at: string;
+  group_members: { user_id: string; role: 'founder' | 'member'; joined_at: string }[];
+};
+
+/** Eigene Gruppen samt Mitgliedern. Leer, solange die Migration `groups` fehlt. */
+async function loadGroups(): Promise<Group[]> {
+  const { data, error } = await supabase.from('groups').select('*, group_members(*)').order('created_at');
+  if (error) return [];
+  return ((data ?? []) as GroupRow[]).map((g) => ({
+    id: g.id,
+    name: g.name,
+    founderId: g.founder_id,
+    inviteCode: g.invite_code,
+    createdAt: g.created_at,
+    members: g.group_members
+      .map((m) => ({ userId: m.user_id, role: m.role, joinedAt: m.joined_at }))
+      .sort((a, b) => a.joinedAt.localeCompare(b.joinedAt)),
+  }));
+}
 
 /** Lädt Feed, eigene Likes, Operationsnamen, Freigaben und alle beteiligten Profile. */
 export async function loadLiveData(userId: string): Promise<LiveData> {
-  const [challengesRes, likesRes, namesRes, sharesRes, payoutRes, views] = await Promise.all([
+  const [challengesRes, likesRes, namesRes, sharesRes, payoutRes, views, groups] = await Promise.all([
     supabase.from('challenges').select(CHALLENGE_COLUMNS).order('created_at', { ascending: false }).limit(200),
     supabase.from('likes').select('challenge_id').eq('user_id', userId),
     supabase.from('operation_names').select('challenge_id, name').eq('user_id', userId),
     supabase.from('payout_shares').select('challenge_id, method, account_holder, iban, paypal'),
     supabase.from('payout_details').select('account_holder, iban, paypal').eq('user_id', userId).maybeSingle(),
     loadViewCounts(),
+    loadGroups(),
   ]);
   for (const res of [challengesRes, likesRes, namesRes, sharesRes, payoutRes]) check(res);
 
@@ -216,6 +247,7 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
     if (r.assignee_id) ids.add(r.assignee_id);
     for (const c of r.comments ?? []) ids.add(c.author_id);
   }
+  for (const g of groups) for (const m of g.members) ids.add(m.userId);
   const profilesRes = check(
     await supabase
       .from('profiles')
@@ -236,6 +268,7 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
       ...(r.author_id === userId && views ? { views: views.get(r.id) ?? 0 } : {}),
     })),
     canOfferBounties: me?.can_offer_bounties ?? true,
+    groups,
   };
 }
 
@@ -428,6 +461,48 @@ export async function createChallenge(userId: string, draft: NewChallenge): Prom
 const rpc = async (fn: string, args: Record<string, unknown>) => {
   check(await supabase.rpc(fn, args));
 };
+
+/** Gruppen (Migration 20261021000100). Gründen und Beitreten geben die id der Gruppe zurück. */
+export const groupActions = {
+  create: async (name: string) => check(await supabase.rpc('create_group', { p_name: name })).data as string,
+  join: async (code: string) => check(await supabase.rpc('join_group', { p_code: code })).data as string,
+  leave: (groupId: string) => rpc('leave_group', { p_group_id: groupId }),
+  removeMember: (groupId: string, userId: string) =>
+    rpc('remove_group_member', { p_group_id: groupId, p_user_id: userId }),
+  transferFounder: (groupId: string, userId: string) =>
+    rpc('transfer_group_founder', { p_group_id: groupId, p_user_id: userId }),
+};
+
+export type NewGroupTask = {
+  groupId: string;
+  title: string;
+  text: string;
+  edensteine: number;
+  deadline: string;
+  photo?: ImageSource;
+};
+
+/** Gruppenaufgabe direkt veröffentlichen (ohne Entwurf, ohne Ort). */
+export async function createGroupTask(userId: string, task: NewGroupTask): Promise<Challenge> {
+  const imagePath = task.photo ? await uploadPhoto(userId, task.photo) : null;
+  const { data } = check(
+    await supabase
+      .from('challenges')
+      .insert({
+        author_id: userId,
+        group_id: task.groupId,
+        edensteine: task.edensteine,
+        title: task.title.trim(),
+        body: task.text.trim(),
+        location: '',
+        deadline: task.deadline,
+        image_path: imagePath,
+      })
+      .select(CHALLENGE_COLUMNS)
+      .single(),
+  );
+  return toChallenge(data as unknown as ChallengeRow, { liked: false });
+}
 
 export const challengeActions = {
   accept: (id: string) => rpc('accept_challenge', { p_challenge_id: id }),

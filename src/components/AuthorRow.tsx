@@ -12,8 +12,10 @@ import { Icon } from './icons/Icon';
  * Beispieldaten und das eigene Profil sind immer sichtbar.
  */
 export function useHideName(user: Pick<User, 'id'>): boolean {
-  const { mode, profile, currentUserId } = useStore();
-  return mode === 'live' && !profile.kiez && user.id !== currentUserId;
+  const { mode, profile, currentUserId, groups } = useStore();
+  if (mode !== 'live' || profile.kiez || user.id === currentUserId) return false;
+  // Mitglieder gemeinsamer Gruppen kennt man, auch ohne Kiez
+  return !groups.some((g) => g.members.some((m) => m.userId === user.id));
 }
 
 /** Verdeckter Text: nur ein unscharfer Schatten der Buchstaben bleibt sichtbar. */

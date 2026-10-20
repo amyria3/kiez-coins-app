@@ -4,9 +4,11 @@ import { Image } from 'expo-image';
 
 import { formatRemainingShort } from '../data/format';
 import type { Challenge, User } from '../data/types';
-import { color, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BountyBadge } from './Badges';
+import { EdensteinIcon } from './icons/Brand';
+import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
@@ -49,12 +51,18 @@ export const ChallengePost = memo(function ChallengePost({
         onPress={onPress}
         accessibilityRole="button"
         accessibilityLabel={`${challenge.title} öffnen`}
-        style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+        style={({ pressed }) => [styles.card, !image && styles.cardNoPhoto, pressed && styles.pressed]}
       >
         {image ? <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
         {!isWave && challenge.bountyAmount ? (
           <View style={styles.bounty}>
             <BountyBadge amount={challenge.bountyAmount} />
+          </View>
+        ) : null}
+        {challenge.edensteine ? (
+          <View style={[styles.bounty, styles.eden]} accessible accessibilityLabel={`${challenge.edensteine} Edensteine`}>
+            <EdensteinIcon height={16} />
+            <Text style={styles.edenText}>{challenge.edensteine}</Text>
           </View>
         ) : null}
         {closed ? (
@@ -90,7 +98,17 @@ export const ChallengePost = memo(function ChallengePost({
             onPress={onLike}
           />
           <IconButton icon="gift" iconSize={size.icon} accessibilityLabel="Geschenk senden" onPress={comingSoon} />
-          <IconButton icon="comment" iconSize={size.icon} accessibilityLabel="Kommentieren" onPress={onPress} />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={commentCount ? `Kommentieren, ${commentCount} Kommentare` : 'Kommentieren'}
+            onPress={onPress}
+            style={({ pressed }) => [styles.commentAction, pressed && styles.pressed]}
+          >
+            <View style={styles.commentIcon}>
+              <Icon name="comment" size={size.icon} color={color.text.primary} />
+            </View>
+            {commentCount > 0 ? <Text style={styles.count}>{commentCount}</Text> : null}
+          </Pressable>
           <IconButton
             icon="send"
             iconSize={size.icon}
@@ -99,9 +117,6 @@ export const ChallengePost = memo(function ChallengePost({
           />
         </View>
         <View style={styles.actionsRight}>
-          {commentCount > 0 ? (
-            <Text style={styles.count}>{commentCount === 1 ? '1 Kommentar' : `${commentCount} Kommentare`}</Text>
-          ) : null}
           {onManage ? (
             <Pressable
               accessibilityRole="button"
@@ -157,6 +172,10 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     padding: space[8],
   },
+  // Gruppenaufgabe ohne Foto: nur Glasleiste mit Titel
+  cardNoPhoto: { height: 150 },
+  eden: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
+  edenText: { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.confirmation },
   pressed: { opacity: 0.9 },
   bounty: {
     position: 'absolute',
@@ -184,7 +203,10 @@ const styles = StyleSheet.create({
   waveText: { ...text.caption, color: color.accent.affection },
   closedTag: { borderColor: color.line.hairline },
   closedText: { ...text.caption, color: color.text.primary },
-  actionsRight: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
+  // Verwalten bleibt immer ganz sichtbar rechts
+  actionsRight: { flexDirection: 'row', alignItems: 'center', gap: space[8], flexShrink: 0, marginLeft: space[8] },
+  commentAction: { flexDirection: 'row', alignItems: 'center', paddingRight: space[8] },
+  commentIcon: { width: size.touchTarget, height: size.touchTarget, alignItems: 'center', justifyContent: 'center' },
   manage: {
     minHeight: 32,
     justifyContent: 'center',
@@ -207,8 +229,8 @@ const styles = StyleSheet.create({
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   meta: { ...text.caption, fontSize: 13, color: color.text.secondary, flex: 1 },
   actions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: space[4] },
-  actionsLeft: { flexDirection: 'row' },
-  count: { ...text.caption, fontSize: 13, color: color.text.secondary, paddingRight: space[4] },
+  actionsLeft: { flexDirection: 'row', alignItems: 'center', flexShrink: 1 },
+  count: { ...text.caption, fontSize: 13, color: color.text.secondary, marginLeft: -space[8] },
   textBlock: { paddingHorizontal: space[4], paddingBottom: space[8] },
   body: { ...text.body, color: color.text.secondary },
 });
