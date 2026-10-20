@@ -385,6 +385,33 @@ export const challengeActions = {
   confirmReceived: (id: string) => rpc('confirm_bounty_received', { p_challenge_id: id }),
 };
 
+export type ChallengeEdit = {
+  title: string;
+  text: string;
+  location: string;
+  bountyAmount?: number;
+  deadline: string;
+};
+
+/** Eigene offene Challenge bearbeiten (Migration 20261020000100_edit_open_challenge.sql). */
+export const editChallenge = (id: string, edit: ChallengeEdit) =>
+  rpc('edit_open_challenge', {
+    p_challenge_id: id,
+    p_title: edit.title,
+    p_body: edit.text,
+    p_location: edit.location,
+    p_bounty_amount: edit.bountyAmount ?? null,
+    p_deadline: edit.deadline,
+  });
+
+/** Eigene offene Challenge schließen: Sie wird gelöscht (Policy „Offene eigene Challenge löschen“). */
+export async function closeChallenge(id: string) {
+  const { data } = check(
+    await supabase.from('challenges').delete().eq('id', id).eq('status', 'open').select('id'),
+  );
+  if (!data || data.length === 0) throw new Error('Die Challenge wurde schon angenommen und lässt sich nicht mehr schließen.');
+}
+
 export async function nameOperation(userId: string, challengeId: string, name: string) {
   // Erst löschen, dann neu anlegen: Ändern ist nur für den Namen erlaubt, nicht für die Challenge.
   check(await supabase.from('operation_names').delete().eq('challenge_id', challengeId).eq('user_id', userId));
