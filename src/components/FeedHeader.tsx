@@ -23,7 +23,6 @@ type AppHeaderProps = {
 export function AppHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) {
   return (
     <View style={styles.header}>
-      <View style={styles.spacer} />
       <Pressable
         onPress={onLogoPress}
         onLongPress={onLogoLongPress}
@@ -163,6 +162,7 @@ export function PlannedHint({ title, message }: { title: string; message: string
 const styles = StyleSheet.create({
   row: { flexDirection: 'row' },
   noGrow: { flexGrow: 0, flexShrink: 0 },
+  // Logo links; rechts sitzt die schwebende Kamera
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     borderWidth: stroke.thin,
     borderColor: color.bg.screen,
   },
-  greeting: { paddingHorizontal: space[20], paddingTop: space[16], paddingBottom: space[12], gap: space[4] },
+  greeting: { paddingHorizontal: space[16], paddingTop: space[12], paddingBottom: space[8], gap: space[4] },
   greetingTitle: { ...text.display, color: color.text.primary },
   greetingSub: { fontFamily: font.light, fontSize: 15, lineHeight: 20, color: color.text.secondary },
   topBar: { paddingHorizontal: space[16], paddingTop: space[4], paddingBottom: space[4], gap: space[12] },

@@ -1,14 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import {
-  FlatList,
-  LayoutAnimation,
-  RefreshControl,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
-} from 'react-native';
+import { Animated, Easing, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -44,12 +35,26 @@ export default function FeedScreen() {
   const requireKiez = useRequireKiez();
   const [tab, setTab] = useState<FeedTab>('nearby');
   const [refreshing, setRefreshing] = useState(false);
-  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const listRef = useRef<FlatList<FeedItem>>(null);
-  const headerHeight = useRef(0);
-  // Logo und Begrüßung gibt es nur bis zur ersten Interaktion; danach bleibt die Ziel-Ansicht
-  // mit Segmenten oben.
-  const [headerGone, setHeaderGone] = useState(false);
+
+  // Logo und Begrüßung gibt es nur bis zur ersten Interaktion (Reiter antippen oder scrollen).
+  // Danach gleiten sie in einer Bewegung weg, die Segmente rücken nach oben neben die Kamera,
+  // und die Stories erscheinen darunter. Das ist die Ziel-Ansicht.
+  const progress = useRef(new Animated.Value(0)).current;
+  const [collapsed, setCollapsed] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const [storiesHeight, setStoriesHeight] = useState(0);
+
+  const collapse = () => {
+    if (collapsed) return;
+    setCollapsed(true);
+    Animated.timing(progress, {
+      toValue: 1,
+      duration: 380,
+      easing: Easing.bezier(0.2, 0, 0, 1),
+      useNativeDriver: false,
+    }).start();
+  };
 
   const posts = useMemo(() => challenges.filter((c) => matchesTab(c, tab)), [challenges, tab]);
   const topChallenges = useMemo(
@@ -78,41 +83,24 @@ export default function FeedScreen() {
   };
 
   const loading = feedState === 'loading';
-  const openCount = useMemo(
-    () => challenges.filter((c) => c.status === 'open').length,
-    [challenges],
-  );
+  const openCount = useMemo(() => challenges.filter((c) => c.status === 'open').length, [challenges]);
   const kiezName = profile.kiez?.split(',')[0];
   const showState =
     feedState === 'filled' || feedState === 'loading' ? (posts.length === 0 ? 'empty' : null) : feedState;
 
-  const removeHeader = (scrollTo: number) => {
-    if (headerGone) return;
-    setHeaderGone(true);
-    requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: Math.max(0, scrollTo), animated: false }));
-  };
-
-  // Ist der Kopf weggescrollt, fällt er ganz weg; die Liste bleibt an derselben Stelle stehen.
-  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const y = e.nativeEvent.contentOffset.y;
-    if (!headerGone && headerHeight.current > 0 && y >= headerHeight.current) removeHeader(y - headerHeight.current);
-  };
-
-  // Ein Reiter blendet den Kopf aus, der neue Inhalt beginnt direkt unter den Segmenten.
   const selectTab = (key: FeedTab) => {
     setTab(key);
-    if (!headerGone) {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-      setHeaderGone(true);
-    }
-    requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: 0, animated: true }));
+    collapse();
+    listRef.current?.scrollToOffset({ offset: 0, animated: false });
   };
 
   const typeOfTab = tab === 'wave' ? 'wave' : null;
   const planned = typeOfTab && !isTypeActive(typeOfTab) ? challengeTypes[typeOfTab] : null;
+  // Stories erst in der Ziel-Ansicht und nur, wenn es welche gibt.
+  // Echte Stories gibt es noch nicht; bis dahin füllen die Top-Challenges die Leiste.
+  const showStories = collapsed && tab !== 'completed' && !planned && !loading && topChallenges.length > 0;
 
-  const items: FeedItem[] = [{ kind: 'tabs' }];
-  if (tab !== 'completed' && !planned && (loading || topChallenges.length > 0)) items.push({ kind: 'stories' });
+  const items: FeedItem[] = [];
   if (planned) items.push({ kind: 'planned' });
   if (loading) items.push({ kind: 'loading' });
   else if (showState && !(planned && showState === 'empty')) items.push({ kind: 'state' });
@@ -120,14 +108,6 @@ export default function FeedScreen() {
 
   const renderItem = ({ item }: { item: FeedItem }) => {
     switch (item.kind) {
-      case 'tabs':
-        return (
-          <View style={[styles.tabsRow, { width: windowWidth }]}>
-            <TabsNavigation selectedKey={tab} onChange={selectTab} />
-          </View>
-        );
-      case 'stories':
-        return <TopChallengeBar items={loading ? [] : topChallenges} loading={loading} onItemPress={openChallenge} />;
       case 'planned':
         return planned ? <PlannedHint title={planned.plannedTitle} message={planned.plannedHint} /> : null;
       case 'loading':
@@ -166,34 +146,50 @@ export default function FeedScreen() {
     }
   };
 
+  // Kopf: Höhe und Deckkraft gehen auf 0. Segmente: rechts Platz für die Kamera, sobald der Kopf weg ist.
+  const headerStyle = headerHeight
+    ? {
+        height: progress.interpolate({ inputRange: [0, 1], outputRange: [headerHeight, 0] }),
+        opacity: progress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0, 0] }),
+        transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) }],
+      }
+    : null;
+  const tabsPaddingRight = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [space[16], space[16] + CAMERA_WIDTH + space[8]],
+  });
+  const storiesStyle = {
+    height: showStories ? progress.interpolate({ inputRange: [0, 1], outputRange: [0, storiesHeight] }) : 0,
+    opacity: progress.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, 0, 1] }),
+  };
+
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
+      <Animated.View style={[styles.clip, headerStyle]}>
+        <View onLayout={(e) => !headerHeight && setHeaderHeight(e.nativeEvent.layout.height)}>
+          <AppHeader
+            onLogoPress={() => router.push('/reise')}
+            onLogoLongPress={() => router.push('/demo')}
+            hasTasks={hasTasks}
+          />
+          <FeedGreeting name={anrede(profile)} kiez={kiezName} count={openCount} />
+        </View>
+      </Animated.View>
+      <Animated.View style={[styles.tabsRow, { paddingRight: tabsPaddingRight }]}>
+        <TabsNavigation selectedKey={tab} onChange={selectTab} />
+      </Animated.View>
+      <Animated.View style={[styles.clip, storiesStyle]}>
+        <View onLayout={(e) => setStoriesHeight(e.nativeEvent.layout.height)}>
+          <TopChallengeBar items={topChallenges} onItemPress={openChallenge} />
+        </View>
+      </Animated.View>
       <FlatList
         ref={listRef}
         data={items}
         keyExtractor={(item) => (item.kind === 'post' ? item.challenge.id : item.kind)}
         renderItem={renderItem}
-        // Die Segmente bleiben oben kleben: Kind 1 hinter dem Kopf, Kind 0, sobald der Kopf weg ist.
-        stickyHeaderIndices={[headerGone ? 0 : 1]}
-        onScroll={onScroll}
-        scrollEventThrottle={16}
-        ListHeaderComponent={
-          headerGone ? null : (
-            <View onLayout={(e) => (headerHeight.current = e.nativeEvent.layout.height)}>
-              <AppHeader
-                onLogoPress={() => router.push('/reise')}
-                onLogoLongPress={() => router.push('/demo')}
-                hasTasks={hasTasks}
-              />
-              <FeedGreeting name={anrede(profile)} kiez={kiezName} count={openCount} />
-            </View>
-          )
-        }
-        contentContainerStyle={[
-          styles.list,
-          // Genug Höhe, damit der Kopf auch bei kurzen Listen wegscrollen kann
-          { minHeight: headerGone ? 0 : windowHeight + headerHeight.current, paddingBottom: insets.bottom + TAB_BAR_SPACE },
-        ]}
+        onScrollBeginDrag={collapse}
+        contentContainerStyle={[styles.list, styles.listTop, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={color.text.secondary} />
         }
@@ -211,9 +207,10 @@ export default function FeedScreen() {
   );
 }
 
+/** Breite der Kamera oben rechts (TabBar.tsx, CameraButton) */
+const CAMERA_WIDTH = 52;
+
 type FeedItem =
-  | { kind: 'tabs' }
-  | { kind: 'stories' }
   | { kind: 'planned' }
   | { kind: 'loading' }
   | { kind: 'state' }
@@ -221,14 +218,13 @@ type FeedItem =
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
+  clip: { overflow: 'hidden' },
   list: { gap: space[12] },
-  // Rechts Platz für die Kamera, die oben rechts schwebt
+  listTop: { paddingTop: space[8] },
   tabsRow: {
-    alignSelf: 'stretch',
     backgroundColor: color.bg.screen,
     paddingTop: space[8],
     paddingBottom: space[8],
     paddingLeft: space[16],
-    paddingRight: space[16] + 52 + space[8],
   },
 });
