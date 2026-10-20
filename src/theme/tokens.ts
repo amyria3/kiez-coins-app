@@ -120,4 +120,6 @@ export const motion = {
   barrier: { duration: 560, bezier: [0.55, -0.3, 0.3, 1.3] as const },
   /** Feder für Dinge, die man mit dem Finger zieht und loslässt */
   barrierSpring: { friction: 5, tension: 70 },
+  /** Reiterwechsel: etwas langsamer und schwerer, damit er sich greifbar anfühlt */
+  tabSwitch: { duration: 620, offset: 72, spring: { friction: 6, tension: 38 } },
 } as const;
