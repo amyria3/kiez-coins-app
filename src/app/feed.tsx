@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,6 +11,7 @@ import { CameraButton, TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { useRequireKiez } from '../data/kiez';
 import { challengeTypes, isTypeActive } from '../data/features';
 import { anrede } from '../data/format';
+import { coordsIfAllowed, distanceMeters, formatDistance, type Coords } from '../data/location';
 import { reiseEntries } from '../data/reise';
 import { topChallenges as pickTopChallenges, useStore } from '../data/store';
 import type { Challenge } from '../data/types';
@@ -56,7 +57,29 @@ export default function FeedScreen() {
     }).start();
   };
 
-  const posts = useMemo(() => challenges.filter((c) => matchesTab(c, tab)), [challenges, tab]);
+  // Eigene Position nur, wenn der Standort schon freigegeben ist. Bleibt auf dem Gerät.
+  const [here, setHere] = useState<Coords | null>(null);
+  useEffect(() => {
+    let active = true;
+    coordsIfAllowed().then((c) => active && setHere(c));
+    return () => {
+      active = false;
+    };
+  }, []);
+  const distanceTo = useCallback(
+    (c: Challenge) => (here && c.coords ? distanceMeters(here, c.coords) : undefined),
+    [here],
+  );
+
+  // „In der Nähe“: die nächsten zuerst, Challenges ohne Punkt danach in der bisherigen Reihenfolge.
+  const posts = useMemo(() => {
+    const list = challenges.filter((c) => matchesTab(c, tab));
+    if (tab !== 'nearby' || !here) return list;
+    return list
+      .map((c, i) => ({ c, i, d: distanceTo(c) }))
+      .sort((a, b) => (a.d ?? Infinity) - (b.d ?? Infinity) || a.i - b.i)
+      .map((x) => x.c);
+  }, [challenges, tab, here, distanceTo]);
   const topChallenges = useMemo(
     () => pickTopChallenges({ mode, challenges, currentUserId }),
     [mode, challenges, currentUserId],
@@ -133,10 +156,12 @@ export default function FeedScreen() {
       case 'post': {
         const author = users.find((u) => u.id === item.challenge.authorId);
         if (!author) return null;
+        const meters = distanceTo(item.challenge);
         return (
           <ChallengePost
             challenge={item.challenge}
             author={author}
+            distance={meters === undefined ? undefined : formatDistance(meters)}
             onPress={() => openChallenge(item.challenge.id)}
             onLike={() => dispatch({ type: 'toggleLike', id: item.challenge.id })}
             onManage={item.challenge.authorId === currentUserId ? openManage : undefined}

@@ -63,6 +63,7 @@ export default function CreateStep2() {
               bountyAmount,
               photo: draft.imagePath ? undefined : draft.photo,
               imagePath: draft.imagePath,
+              coords: draft.coords,
             },
             deadline,
           )
@@ -73,6 +74,7 @@ export default function CreateStep2() {
             bountyAmount,
             photo: draft.photo,
             deadline,
+            coords: draft.coords,
           });
       router.replace({ pathname: '/challenge/create/success', params: { id } });
     } catch (error) {
@@ -102,7 +104,7 @@ export default function CreateStep2() {
     >
       <TextField
         label="Ort"
-        helperText="Vorschlag aus Deinem Standort. Du kannst ihn ändern."
+        helperText="Vorschlag aus Deinem Standort, ohne Hausnummer. Du kannst ihn ändern."
         value={draft.location}
         onChangeText={(location) => setDraft((d) => ({ ...d, location }))}
       />

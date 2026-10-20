@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { formatRelative } from '../data/format';
 import type { Comment as CommentData, User } from '../data/types';
 import { color, font, radius, size, space, text } from '../theme/tokens';
-import { Avatar } from './AuthorRow';
+import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { IconButton } from './IconButton';
 
 type CommentProps = {
@@ -19,12 +19,13 @@ type CommentProps = {
 
 /** Figma „Comment“: öffentlicher Kommentar. Die Fahne meldet den Kommentar. */
 export function Comment({ comment, author, onReport, onReply, isReply }: CommentProps) {
+  const hidden = useHideName(author);
   return (
     <View style={[styles.comment, isReply && styles.reply]}>
       <Avatar user={author} diameter={isReply ? 28 : undefined} />
       <View style={styles.body}>
         <View style={styles.header}>
-          <Text style={styles.name}>{author.name}</Text>
+          <Text style={[styles.name, hidden && hiddenText]}>{author.name}</Text>
           <Text style={styles.time}>{formatRelative(comment.createdAt)}</Text>
         </View>
         <Text style={styles.text}>{comment.body}</Text>
