@@ -6,7 +6,9 @@ import { loadOwnProfile, saveOwnProfile } from './remote';
 import { useStore } from './store';
 import type { Profile } from './types';
 
-// Anmeldung per E-Mail-Code (Supabase Auth, ohne Passwort), siehe kiez-coins/konto/MVP_Konto.md.
+// Anmeldung vorerst mit E-Mail und Passwort (Supabase Auth, „Confirm email“ aus), weil ohne eigene
+// Domain kein Mailversand möglich ist. Der Code-Login (sendCode/verifyCode, onboarding/code) bleibt
+// für später erhalten, siehe kiez-coins/konto/MVP_Konto.md.
 // Nach dem Anmelden lädt die App Profil und Einstellungen aus den Tabellen `profiles` und
 // `profile_settings` sowie alle Daten für den Feed. Änderungen am Profil werden zurückgeschrieben.
 
@@ -18,6 +20,10 @@ type Auth = {
   sendCode: (email: string, createUser: boolean) => Promise<string | null>;
   /** Prüft den Code. Gibt eine Fehlermeldung zurück oder null. */
   verifyCode: (email: string, code: string) => Promise<string | null>;
+  /** Neues Konto mit Passwort anlegen. Gibt eine Fehlermeldung zurück oder null. */
+  signUpWithPassword: (email: string, password: string) => Promise<string | null>;
+  /** Mit Passwort anmelden. Gibt eine Fehlermeldung zurück oder null. */
+  signInWithPassword: (email: string, password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
 };
 
@@ -39,6 +45,15 @@ export function authErrorText(error: AuthError): string {
       return 'Zu viele Codes auf einmal. Warte kurz und versuch es dann noch mal.';
     case 'email_address_invalid':
       return 'Diese E-Mail-Adresse klappt nicht. Prüf sie bitte noch mal.';
+    case 'invalid_credentials':
+      return 'E-Mail oder Passwort stimmen nicht.';
+    case 'user_already_exists':
+    case 'email_exists':
+      return 'Zu dieser Adresse gibt es schon ein Konto. Tipp auf „Ich hab schon ein Konto“.';
+    case 'weak_password':
+      return 'Das Passwort ist zu schwach. Nimm mindestens 8 Zeichen.';
+    case 'email_not_confirmed':
+      return 'Diese Adresse ist noch nicht bestätigt. Schreib uns, dann schalten wir Dich frei.';
     case 'user_banned':
       return 'Dieses Konto ist gesperrt. Schreib uns, wenn Du Einspruch einlegen willst.';
   }
@@ -121,6 +136,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       verifyCode: async (email, code) => {
         const { error } = await supabase.auth.verifyOtp({ email, token: code, type: 'email' });
+        return error ? authErrorText(error) : null;
+      },
+      signUpWithPassword: async (email, password) => {
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        if (error) return authErrorText(error);
+        // Ohne Sitzung verlangt Supabase noch eine Bestätigungsmail („Confirm email“ ist an).
+        if (!data.session) return 'Konto angelegt, aber noch nicht freigeschaltet. Schreib uns bitte.';
+        return null;
+      },
+      signInWithPassword: async (email, password) => {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         return error ? authErrorText(error) : null;
       },
       signOut: async () => {
