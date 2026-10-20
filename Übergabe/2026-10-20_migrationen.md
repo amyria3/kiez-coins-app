@@ -1,6 +1,6 @@
 # Migrationen für Supabase vom 20.10.2026
 
-**Status:** Daria hat die Migrationen 1 und 2 am 20.10.2026 im SQL-Editor ausgeführt. Offen sind die Migrationen 3 bis 5 und der Eintrag in Documentation.
+**Status:** Daria hat die Migrationen 1 bis 5 am 20. und 21.10.2026 im SQL-Editor ausgeführt. Offen sind Migration 6 (Gruppen), sobald der Code auf `main` liegt, und der Eintrag in Documentation.
 
 - **Datum:** 20.10.2026
 - **Gehört nach:** Datenbank-Doku in Documentation (Liste der Migrationen, Tabellen `comments` und `challenges`).
@@ -72,3 +72,18 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 **Danach prüfen:** Challenge mit 3 Fotos erstellen. Im Detail lässt sich das Foto seitlich wischen, Punkte zeigen die Anzahl.
 
 **Bis sie läuft:** Die App speichert nur das Hauptfoto. Es gibt keinen Fehler.
+
+## 6. `supabase/migrations/20261021000100_groups.sql`
+
+**Wozu:** Gruppen mit Edensteinen. Die Datei liegt auf `main`, sobald Daria den Branch `claude/gruppen` freigibt. Umsetzung: `Übergabe/2026-10-21_gruppen.md`.
+
+**Ändert:**
+- Neue Tabellen `groups` und `group_members` mit RLS: Lesen nur als Mitglied, Schreiben nur über Funktionen.
+- `challenges.group_id` und `challenges.edensteine` (1 bis 10, nur bei Gruppenaufgaben, dann ohne Bounty). Gruppenaufgaben brauchen keinen Ort.
+- Regeln: Gruppenaufgaben und ihre Kommentare sehen nur Mitglieder. Kiez-Challenges entstehen weiter nur ohne Gruppe.
+- Funktionen `create_group`, `join_group`, `leave_group`, `remove_group_member`, `transfer_group_founder`.
+- `accept_challenge` neu: Gruppenaufgaben nehmen Mitglieder ohne Kiez an.
+
+**Danach prüfen:** In der App unter „Gruppen“ eine Gruppe gründen. Mit einem zweiten Konto über den Code beitreten. Die Gruppenseite zeigt dann 2 Mitglieder.
+
+**Bis sie läuft:** Der Reiter „Gruppen“ zeigt nur „Gruppe gründen“ und „Mit Code beitreten“. Beides meldet einen Fehler.
