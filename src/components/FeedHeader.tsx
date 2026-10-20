@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { challengeTypes, isTypeActive } from '../data/features';
 import type { Challenge } from '../data/types';
 import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
+import { KaterCard } from './Content';
 import { Cat, Wordmark } from './icons/Brand';
 import { SkeletonTopItem } from './Skeleton';
 
@@ -150,11 +151,7 @@ export function TabsNavigation({ selectedKey, onChange }: TabsNavigationProps) {
 export function PlannedHint({ title, message }: { title: string; message: string }) {
   return (
     <View style={styles.hint}>
-      <Cat height={48} />
-      <View style={styles.hintTexts}>
-        <Text style={styles.hintTitle}>{title}</Text>
-        <Text style={styles.hintText}>{message}</Text>
-      </View>
+      <KaterCard title={title}>{message}</KaterCard>
     </View>
   );
 }
@@ -209,16 +206,5 @@ const styles = StyleSheet.create({
   segmentTextSelected: { fontFamily: font.medium, color: color.bg.screen },
   segmentInner: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   planned: { opacity: 0.6 },
-  hint: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space[16],
-    marginHorizontal: space[16],
-    padding: space[20],
-    borderRadius: radius.card,
-    backgroundColor: color.bg.surface,
-  },
-  hintTexts: { flex: 1, gap: space[4] },
-  hintTitle: { ...text.cardTitle, color: color.text.primary },
-  hintText: { fontFamily: font.light, fontSize: 14, lineHeight: 20, color: color.text.secondary },
+  hint: { paddingHorizontal: space[16] },
 });

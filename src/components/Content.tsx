@@ -47,16 +47,20 @@ export function KaterBubble({ children }: { children: ReactNode }) {
 }
 
 /**
- * Upgrade „Nachtschicht“ (Probe): Der Kater sitzt oben links auf einer stark gerundeten Karte und
- * schaut über ihren Rand; der Text steht in der Karte. Erst in „Deine Reise“, später ggf. statt KaterBubble.
+ * Sprechblase nach Duolingo-Vorbild: Blase links mit Rahmen und Spitze nach rechts,
+ * der Kater rechts daneben auf einer runden Kachel. Optional mit fetter Überschrift.
  */
-export function KaterCard({ children, mood = 'default' }: { children: ReactNode; mood?: CatMood }) {
+export function KaterCard({ children, title, mood = 'default' }: { children: ReactNode; title?: string; mood?: CatMood }) {
   return (
-    <View style={styles.katerCard}>
-      <View style={styles.katerCardCat} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+    <View style={styles.speech}>
+      <View style={styles.speechBubble}>
+        {title ? <Text style={styles.speechTitle}>{title}</Text> : null}
+        <Text style={styles.speechText}>{children}</Text>
+        <View style={styles.speechTail} />
+      </View>
+      <View style={styles.speechCat} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
         <Cat mood={mood} height={52} />
       </View>
-      <Text style={styles.katerCardText}>{children}</Text>
     </View>
   );
 }
@@ -116,17 +120,39 @@ const styles = StyleSheet.create({
     backgroundColor: color.accent.signal,
   },
   tagText: { fontFamily: font.semiBold, fontSize: 11, lineHeight: 16, color: color.bg.screen },
-  katerCard: {
-    marginTop: 30,
-    paddingTop: 30,
-    paddingBottom: space[16],
-    paddingHorizontal: space[20],
-    borderRadius: radius.card,
+  speech: { flexDirection: 'row', alignItems: 'center', gap: space[16] },
+  speechBubble: {
+    flex: 1,
+    gap: space[4],
+    paddingVertical: space[12],
+    paddingHorizontal: space[16],
+    borderRadius: radius.xl,
     backgroundColor: color.bg.surface,
   },
-  // Der Kater ragt zur Hälfte über den oberen Rand
-  katerCardCat: { position: 'absolute', top: -30, left: space[16] },
-  katerCardText: { fontFamily: font.light, fontSize: 15, lineHeight: 21, color: color.text.primary },
+  // Spitze rechts zur Katze: gedrehtes Quadrat in der Farbe der Blase
+  speechTail: {
+    position: 'absolute',
+    right: -7,
+    top: '50%',
+    marginTop: -8,
+    width: 16,
+    height: 16,
+    borderRadius: 3,
+    backgroundColor: color.bg.surface,
+    transform: [{ rotate: '45deg' }],
+  },
+  speechTitle: { ...text.cardTitle, fontSize: 17, lineHeight: 22, color: color.text.primary },
+  speechText: { fontFamily: font.light, fontSize: 15, lineHeight: 21, color: color.text.primary },
+  speechCat: {
+    width: 76,
+    height: 76,
+    borderRadius: radius.xl,
+    borderWidth: 2,
+    borderColor: color.line.hairline,
+    backgroundColor: color.bg.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   group: { gap: space[8] },
   groupLabel: { ...text.caption, color: color.text.secondary },
 });
