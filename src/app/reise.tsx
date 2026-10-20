@@ -1,97 +1,193 @@
 import { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { SpeechBubble } from '../components/Content';
+import { StatusBadge } from '../components/Badges';
 import { Cat } from '../components/icons/Brand';
-import { SubScreen } from '../components/Screen';
-import { anrede } from '../data/format';
+import { Icon } from '../components/icons/Icon';
+import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
+import { anrede, formatBountyShort, formatRelative } from '../data/format';
+import { useRequireKiez } from '../data/kiez';
 import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
 import { useStore } from '../data/store';
-import { color, radius, space, stroke, text } from '../theme/tokens';
+import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
+
+/** Was in der Karte „Du bist dran“ als Aufgabe steht. */
+function taskLabel({ challenge, role }: ReiseEntry): string {
+  if (role === 'author' && challenge.status === 'reported') return 'Erledigung prüfen';
+  if (role === 'author' && challenge.status === 'payment_open') return 'Bounty bezahlen';
+  if (role === 'assignee' && challenge.status === 'paid_marked') return 'Bounty bestätigen';
+  return 'Erledigt melden';
+}
 
 /**
- * Route `reise` (Push, Tipp auf den Kater im Feed oder „Deine Reise“ im Konto).
- * „Deine Reise“: Status-Katze oben, darunter alle eigenen Challenges als quadratische Kacheln
- * mit Bild und Etikett. Ein Punkt zeigt, wo Du dran bist. Keine Reiter.
+ * Route `reise` (Tab „Deine Reise“ in der Tab-Leiste, Tipp auf den Kater im Feed oder „Deine Reise“ im Konto).
+ * Upgrade „Nachtschicht“: Kater mit Sprechblase, Aufgaben „Du bist dran“, Bilanz und Verlauf als Liste.
  */
 export default function Reise() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const requireKiez = useRequireKiez();
   const { challenges, currentUserId, profile } = useStore();
   const entries = useMemo(() => reiseEntries(challenges, currentUserId), [challenges, currentUserId]);
   const mood = reiseMood(entries);
+  const tasks = entries.filter((e) => e.needsAction);
+  const history = entries.filter((e) => !e.needsAction);
+  const created = entries.filter((e) => e.role === 'author').length;
+  const accepted = entries.filter((e) => e.role === 'assignee').length;
+  const earned = entries
+    .filter((e) => e.role === 'assignee' && e.challenge.status === 'paid')
+    .reduce((sum, e) => sum + (e.challenge.bountyAmount ?? 0), 0);
+
+  const toFeed = () => (router.canGoBack() ? router.back() : router.replace('/feed'));
 
   return (
-    <SubScreen title="Deine Reise" navigation="back" onLeadingPress={() => router.back()}>
-      <View style={styles.kater}>
-        <Cat mood={catVariant(mood)} height={64} />
-        <SpeechBubble style={styles.flex}>{reiseMoodText(mood, anrede(profile))}</SpeechBubble>
-      </View>
-      <View style={styles.grid}>
-        {entries.map((entry) => (
-          <ReiseCard key={entry.challenge.id} entry={entry} onPress={() => router.push(entry.href)} />
+    <View style={[styles.screen, { paddingTop: insets.top }]}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}>
+        <Text style={styles.title} accessibilityRole="header">
+          Deine Reise
+        </Text>
+
+        <View style={styles.kater}>
+          <Cat mood={catVariant(mood)} height={56} />
+          <View style={styles.bubble}>
+            <Text style={styles.bubbleText}>{reiseMoodText(mood, anrede(profile))}</Text>
+          </View>
+        </View>
+
+        {tasks.map((entry) => (
+          <Pressable
+            key={entry.challenge.id}
+            accessibilityRole="button"
+            accessibilityLabel={`Du bist dran: ${taskLabel(entry)}, ${entry.label}`}
+            onPress={() => router.push(entry.href)}
+            style={({ pressed }) => [styles.task, pressed && styles.pressed]}
+          >
+            <Thumb entry={entry} size={64} />
+            <View style={styles.flex}>
+              <Text style={styles.taskKicker}>Du bist dran</Text>
+              <Text style={styles.taskTitle} numberOfLines={1}>
+                {taskLabel(entry)}
+              </Text>
+              <Text style={styles.sub} numberOfLines={1}>
+                {entry.label}
+              </Text>
+            </View>
+            <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
+          </Pressable>
         ))}
-      </View>
-    </SubScreen>
+
+        {entries.length > 0 ? (
+          <View style={styles.stats}>
+            <Stat value={String(created)} label="erstellt" />
+            <Stat value={String(accepted)} label="angenommen" />
+            <Stat value={formatBountyShort(earned)} label="verdient" signal />
+          </View>
+        ) : null}
+
+        {history.length > 0 ? (
+          <View style={styles.historyBlock}>
+            <Text style={styles.sectionLabel}>Verlauf</Text>
+            <View style={styles.list}>
+              {history.map((entry, i) => (
+                <Pressable
+                  key={entry.challenge.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={entry.label}
+                  onPress={() => router.push(entry.href)}
+                  style={({ pressed }) => [styles.row, i > 0 && styles.rowDivider, pressed && styles.pressed]}
+                >
+                  <Thumb entry={entry} size={44} />
+                  <View style={styles.flex}>
+                    <Text style={styles.rowTitle} numberOfLines={1}>
+                      {entry.label}
+                    </Text>
+                    <Text style={styles.sub} numberOfLines={1}>
+                      {entry.role === 'author' ? 'Erstellt' : 'Angenommen'} · {formatRelative(entry.lastActivity)}
+                    </Text>
+                  </View>
+                  <StatusBadge status={entry.challenge.status} />
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        ) : null}
+      </ScrollView>
+      <TabBar
+        active="reise"
+        hasTasks={tasks.length > 0}
+        onFeedPress={toFeed}
+        onReisePress={() => {}}
+        onCreatePress={() => requireKiez() && router.push('/challenge/create/step-1')}
+      />
+    </View>
   );
 }
 
-function ReiseCard({ entry, onPress }: { entry: ReiseEntry; onPress: () => void }) {
-  const { challenge, label, needsAction } = entry;
+function Thumb({ entry, size: side }: { entry: ReiseEntry; size: number }) {
+  const { challenge } = entry;
   const image = challenge.image ?? challenge.imageAfter ?? challenge.report?.photo;
+  const box = { width: side, height: side, borderRadius: side >= 60 ? radius.lg : radius.md };
+  if (image) return <Image source={image} style={box} contentFit="cover" />;
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={needsAction ? `${label}, Du bist dran` : label}
-      onPress={onPress}
-      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
-    >
-      {image ? <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
-      <View style={styles.label}>
-        <Text style={styles.labelText} numberOfLines={2}>
-          {label}
-        </Text>
-      </View>
-      {needsAction ? <View style={styles.dot} /> : null}
-    </Pressable>
+    <View style={[box, styles.thumbFallback]}>
+      <Cat height={side * 0.55} />
+    </View>
+  );
+}
+
+function Stat({ value, label, signal }: { value: string; label: string; signal?: boolean }) {
+  return (
+    <View style={styles.stat}>
+      <Text style={[styles.statValue, signal && styles.signal]}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  kater: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: space[12] },
-  card: {
-    width: '48%',
-    aspectRatio: 1,
-    borderRadius: radius.md,
-    overflow: 'hidden',
-    backgroundColor: color.bg.surface,
-    justifyContent: 'flex-end',
-    padding: space[8],
-  },
+  screen: { flex: 1, backgroundColor: color.bg.screen },
+  content: { paddingTop: space[24], paddingHorizontal: space[20], gap: space[16] },
+  flex: { flex: 1, gap: space[2] },
   pressed: { opacity: 0.8 },
-  // Etikett wie ein Schildchen unten links (Vorbild „el hombre“)
-  label: {
-    alignSelf: 'flex-start',
-    maxWidth: '100%',
-    backgroundColor: color.accent.primary,
-    borderRadius: radius.sm,
-    paddingHorizontal: space[8],
-    paddingVertical: space[4],
-    transform: [{ rotate: '-2deg' }],
+  title: { ...text.display, color: color.text.primary },
+  kater: { flexDirection: 'row', alignItems: 'flex-end', gap: space[12] },
+  bubble: {
+    flex: 1,
+    backgroundColor: color.bg.surface,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    borderBottomRightRadius: radius.xl,
+    borderBottomLeftRadius: space[6],
+    paddingVertical: space[12],
+    paddingHorizontal: space[16],
   },
-  labelText: { ...text.labelXs, color: color.text.primary },
-  dot: {
-    position: 'absolute',
-    top: space[8],
-    right: space[8],
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: color.accent.signal,
+  bubbleText: { fontFamily: font.light, fontSize: 15, lineHeight: 21, color: color.text.primary },
+  task: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[12],
+    padding: space[12],
+    borderRadius: radius.xl + 4,
+    backgroundColor: color.bg.surface,
     borderWidth: stroke.thin,
-    borderColor: color.bg.screen,
+    borderColor: color.accent.signal,
   },
+  taskKicker: { ...text.caption, fontFamily: font.medium, color: color.accent.signal },
+  taskTitle: { ...text.cardTitle, fontSize: 17, lineHeight: 21, color: color.text.primary },
+  sub: { ...text.caption, fontSize: 12, color: color.text.secondary },
+  stats: { flexDirection: 'row', gap: space[8] },
+  stat: { flex: 1, gap: space[4], padding: space[12], borderRadius: radius.lg, backgroundColor: color.bg.surface },
+  statValue: { ...text.metric, fontSize: 24, lineHeight: 28, color: color.text.primary },
+  statLabel: { ...text.caption, color: color.text.secondary },
+  signal: { color: color.accent.signal },
+  historyBlock: { gap: space[8] },
+  sectionLabel: { ...text.caption, letterSpacing: 1, textTransform: 'uppercase', color: color.text.secondary },
+  list: { borderRadius: radius.xl + 2, backgroundColor: color.bg.surface, overflow: 'hidden' },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12], paddingHorizontal: space[12] },
+  rowDivider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
+  rowTitle: { fontFamily: font.regular, fontSize: 15, lineHeight: 20, color: color.text.primary },
+  thumbFallback: { backgroundColor: color.bg.screen, alignItems: 'center', justifyContent: 'center' },
 });

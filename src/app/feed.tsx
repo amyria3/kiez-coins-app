@@ -4,10 +4,12 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ChallengePost } from '../components/ChallengePost';
-import { AppHeader, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
+import { AppHeader, FeedGreeting, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
 import { FeedStateMessage } from '../components/FeedStateMessage';
 import { SkeletonPost } from '../components/Skeleton';
+import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { useRequireKiez } from '../data/kiez';
+import { anrede } from '../data/format';
 import { reiseEntries } from '../data/reise';
 import { topChallenges as pickTopChallenges, useStore } from '../data/store';
 import type { Challenge } from '../data/types';
@@ -25,7 +27,7 @@ function matchesTab(challenge: Challenge, tab: FeedTab) {
 export default function FeedScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { challenges, users, feedState, mode, currentUserId, dispatch, load } = useStore();
+  const { challenges, users, feedState, mode, currentUserId, profile, dispatch, load } = useStore();
   const requireKiez = useRequireKiez();
   const [tab, setTab] = useState<FeedTab>('nearby');
   const [refreshing, setRefreshing] = useState(false);
@@ -56,6 +58,8 @@ export default function FeedScreen() {
   };
 
   const loading = feedState === 'loading';
+  const openCount = useMemo(() => challenges.filter((c) => c.status === 'open').length, [challenges]);
+  const kiezName = profile.kiez?.split(',')[0];
   const showState =
     feedState === 'filled' || feedState === 'loading' ? (posts.length === 0 ? 'empty' : null) : feedState;
 
@@ -63,13 +67,13 @@ export default function FeedScreen() {
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <AppHeader
         onMenuPress={() => router.push('/account')}
-        onCreatePress={createChallenge}
         onLogoPress={() => router.push('/reise')}
         onLogoLongPress={() => router.push('/demo')}
         hasTasks={hasTasks}
       />
-      <TabsNavigation selectedKey={tab} onChange={setTab} />
+      <FeedGreeting name={anrede(profile)} kiez={kiezName} count={openCount} />
       <TopChallengeBar items={loading ? [] : topChallenges} loading={loading} onItemPress={openChallenge} />
+      <TabsNavigation selectedKey={tab} onChange={setTab} />
       {loading ? (
         <View style={styles.list}>
           <SkeletonPost />
@@ -90,7 +94,7 @@ export default function FeedScreen() {
         <FlatList
           data={posts}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={[styles.list, { paddingBottom: insets.bottom }]}
+          contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={color.text.secondary} />
           }
@@ -108,11 +112,18 @@ export default function FeedScreen() {
           }}
         />
       )}
+      <TabBar
+        active="feed"
+        hasTasks={hasTasks}
+        onFeedPress={() => setTab('nearby')}
+        onReisePress={() => router.push('/reise')}
+        onCreatePress={createChallenge}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
-  list: { gap: space[12] },
+  list: { gap: space[24] },
 });
