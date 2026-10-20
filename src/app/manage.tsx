@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   FlatList,
+  LayoutAnimation,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -143,11 +144,37 @@ export default function ManageChallenges() {
       ],
     );
 
+  // Nach „Wieder veröffentlichen“: Zeile klappt weg, die Liste scrollt zur Karte, die kurz aufleuchtet.
+  const listRef = useRef<FlatList<Page>>(null);
+  const scrollTo = useRef<string>(undefined);
+  const [highlight, setHighlight] = useState<string>();
+  const publishAgain = (id: string, deadline?: string) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
+    scrollTo.current = id;
+    dispatch({ type: 'restore', id, deadline });
+  };
+  useEffect(() => {
+    const id = scrollTo.current;
+    if (!id) return;
+    const target = pages.findIndex((p) => p.kind === 'challenge' && p.challenge.id === id);
+    if (target < 0) return;
+    scrollTo.current = undefined;
+    const scroll = setTimeout(() => {
+      listRef.current?.scrollToIndex({ index: target, animated: true });
+      setHighlight(id);
+    }, 250);
+    const fade = setTimeout(() => setHighlight(undefined), 2000);
+    return () => {
+      clearTimeout(scroll);
+      clearTimeout(fade);
+    };
+  }, [pages]);
+
   const restore = (c: Challenge) => {
     if (!requireKiez()) return;
     const expired = new Date(c.deadline).getTime() <= Date.now();
     if (!expired) {
-      dispatch({ type: 'restore', id: c.id });
+      publishAgain(c.id);
       return;
     }
     const deadline = renewedDeadline(c);
@@ -156,7 +183,7 @@ export default function ManageChallenges() {
       `Die Frist war abgelaufen. Sie läuft jetzt neu bis ${formatDayMonthShort(deadline)}. Ändern kannst Du sie danach unter „Bearbeiten“.`,
       [
         { text: 'Abbrechen', style: 'cancel' },
-        { text: 'Veröffentlichen', onPress: () => dispatch({ type: 'restore', id: c.id, deadline }) },
+        { text: 'Veröffentlichen', onPress: () => publishAgain(c.id, deadline) },
       ],
     );
   };
@@ -184,6 +211,7 @@ export default function ManageChallenges() {
           </View>
         ) : pageHeight > 0 ? (
           <FlatList
+            ref={listRef}
             data={pages}
             keyExtractor={(p) => (p.kind === 'deleted' ? 'deleted' : p.challenge.id)}
             pagingEnabled
@@ -218,6 +246,7 @@ export default function ManageChallenges() {
                     onClose={() => close(item)}
                     onDelete={() => remove(item)}
                     hasNext={hasNext}
+                    highlighted={highlight === item.id}
                   />
                 </View>
               );
@@ -240,9 +269,11 @@ type CardProps = {
   onClose: () => void;
   onDelete: () => void;
   hasNext: boolean;
+  /** Kurz hervorgehoben, z. B. direkt nach dem Wiederveröffentlichen */
+  highlighted?: boolean;
 };
 
-function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onDelete, hasNext }: CardProps) {
+function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onDelete, hasNext, highlighted }: CardProps) {
   const isDraft = c.status === 'draft';
   const isOpen = c.status === 'open' && !c.assigneeId;
   const canDelete = deletable(c);
@@ -264,7 +295,8 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onDele
   const photo = c.image ?? c.imageAfter ?? c.imageBefore;
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, highlighted && styles.cardHighlight]}>
+      {highlighted ? <Text style={styles.highlightText}>Wieder veröffentlicht</Text> : null}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`${c.title || 'Ohne Titel'} öffnen`}
@@ -314,10 +346,10 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onDele
         {isDraft ? (
           <Button label="Weiter bearbeiten" onPress={onEdit} />
         ) : isOpen ? (
-          <View style={styles.row}>
-            <Button label="Bearbeiten" variant="secondary" onPress={onEdit} style={styles.flex} />
-            <Button label="Schließen" variant="secondary" onPress={onClose} style={styles.flex} />
-          </View>
+          <>
+            <Button label="Bearbeiten" variant="secondary" onPress={onEdit} />
+            <Button label="Schließen" variant="secondary" onPress={onClose} />
+          </>
         ) : (
           <Button label="Ansehen" variant="secondary" onPress={onOpen} />
         )}
@@ -476,6 +508,8 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: space[8] },
   muted: { opacity: 0.35 },
   next: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
+  cardHighlight: { borderWidth: stroke.ring, borderColor: color.accent.primary },
+  highlightText: { ...text.caption, color: color.accent.primary },
   deletedList: { gap: space[8] },
   deletedItem: {
     gap: space[12],
