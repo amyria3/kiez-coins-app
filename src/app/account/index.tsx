@@ -1,43 +1,20 @@
-import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Button } from '../../components/Button';
 import { FieldGroup, KaterBubble } from '../../components/Content';
-import { SwitchRow, TextField } from '../../components/Form';
 import { NavRow, ProfileCard } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { anrede } from '../../data/format';
 import { useAuth } from '../../data/auth';
-import { sendSupportRequest, errorText } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
 import { space } from '../../theme/tokens';
 
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
 export default function Account() {
   const router = useRouter();
-  const { profile, mode, dispatch } = useStore();
+  const { profile } = useStore();
   const me = useCurrentUser();
-  const { signOut, session } = useAuth();
-  const [support, setSupport] = useState('');
-  const [sending, setSending] = useState(false);
-  const live = mode === 'live' && !!session;
-
-  const sendSupport = async () => {
-    if (live) {
-      setSending(true);
-      try {
-        await sendSupportRequest(support);
-      } catch (error) {
-        Alert.alert('Nicht gesendet', errorText(error));
-        return;
-      } finally {
-        setSending(false);
-      }
-    }
-    setSupport('');
-    router.push('/account/support/success');
-  };
+  const { signOut } = useAuth();
 
   const payoutValue = me.payout?.iban ? 'IBAN hinterlegt' : me.payout?.paypal ? 'PayPal hinterlegt' : 'Nicht hinterlegt';
 
@@ -58,32 +35,16 @@ export default function Account() {
       />
       <NavRow label="Deine Reise" value="Verlauf und Aufgaben" onPress={() => router.push('/reise')} />
       <NavRow label="Deine Challenges" value="Entwürfe, offen, geschlossen" onPress={() => router.push('/manage')} />
-      <FieldGroup label="Benachrichtigungen">
-        <SwitchRow
-          label="Push-Nachrichten"
-          description="Kommentare, Antworten und Bestätigungen"
-          value={profile.push}
-          onValueChange={(push) => dispatch({ type: 'updateProfile', patch: { push } })}
-        />
-      </FieldGroup>
-      <FieldGroup label="Zahlungen">
-        <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/settings/payout')} />
-      </FieldGroup>
-      <FieldGroup label="Hilfe">
-        <TextField
-          label="Support-Anfrage"
-          helperText="Schreib uns, was nicht klappt. Wir antworten per E-Mail."
-          value={support}
-          onChangeText={setSupport}
-          multiline
-          maxLength={1000}
-        />
-        <Button
-          label="Anfrage senden"
-          variant="secondary"
-          disabled={!support.trim() || sending}
-          onPress={sendSupport}
-        />
+      <FieldGroup label="Einstellungen">
+        <View style={styles.list}>
+          <NavRow
+            label="Benachrichtigungen"
+            value={profile.push ? 'Push an' : 'Push aus'}
+            onPress={() => router.push('/settings/notifications')}
+          />
+          <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/settings/payout')} />
+          <NavRow label="Support" value="Frage oder Problem" onPress={() => router.push('/account/support')} />
+        </View>
       </FieldGroup>
       <FieldGroup label="Konto">
         <View style={styles.list}>
