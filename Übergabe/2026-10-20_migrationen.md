@@ -1,6 +1,6 @@
 # Migrationen für Supabase vom 20.10.2026
 
-**Status:** Daria hat die Migrationen 1 bis 7 am 20. und 21.10.2026 im SQL-Editor ausgeführt. Offen ist nur noch der Eintrag in Documentation.
+**Status:** Daria hat die Migrationen 1 bis 7 am 20. und 21.10.2026 im SQL-Editor ausgeführt. Offen sind Migration 8, sobald der Code auf `main` liegt, und der Eintrag in Documentation.
 
 - **Datum:** 20.10.2026
 - **Gehört nach:** Datenbank-Doku in Documentation (Liste der Migrationen, Tabellen `comments` und `challenges`).
@@ -102,3 +102,11 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 **Danach prüfen:** In „Deine Challenges“ eine offene Challenge löschen. Sie verschwindet aus dem Feed und steht zugeklappt auf der letzten Seite. Aufklappen, „Wieder veröffentlichen“, sie steht wieder im Feed.
 
 **Bis sie läuft:** Löschen und Wieder veröffentlichen melden einen Fehler.
+
+## 8. `supabase/migrations/20261021000300_delete_closed_challenge.sql`
+
+**Wozu:** Auch geschlossene Challenges lassen sich löschen, solange niemand sie angenommen hat. Die Datei liegt auf `main`, sobald Daria den Branch `claude/fehlertext` freigibt.
+
+**Ändert:** `delete_challenge` neu (`create or replace`): Status `open` oder `closed`, ohne Annehmende. Keine neue Tabelle, keine neue Regel.
+
+**Danach prüfen:** Eine geschlossene Challenge in „Deine Challenges“ löschen. Sie landet unter „Gelöscht“.
