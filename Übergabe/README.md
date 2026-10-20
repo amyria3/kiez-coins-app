@@ -21,4 +21,5 @@ Diese `README.md` bleibt immer liegen.
 
 ## Liegt gerade hier
 
+- `2026-10-20_migrationen.md`: Anleitung für die zwei offenen Migrationen (Antworten auf Kommentare, Punkt an Challenges).
 - `2026-10-20_standort.md`: Standort-Erkennung, Kiez-Pflicht, offene Migration, Abwägung Standort bei Interaktion, später „nur verifizierte“ (Stand 20.10.2026).
