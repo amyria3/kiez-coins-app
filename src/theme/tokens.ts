@@ -113,3 +113,11 @@ export const text = {
   /** `text/button/light-on-dark`: helle Schrift auf dunkler Fläche (Secondary) */
   buttonLightOnDark: { fontFamily: font.regular, fontSize: 16, lineHeight: 20 },
 } satisfies Record<string, TextStyle>;
+
+// Bewegung „Schranke“: holt am Anfang langsam und leicht federnd aus, kippt dann zügig und schwingt kurz nach.
+// Wie eine locker baumelnde Schranke. Werte unter 0 und über 1 sind gewollt (Ausholen und Nachschwingen).
+export const motion = {
+  barrier: { duration: 560, bezier: [0.55, -0.3, 0.3, 1.3] as const },
+  /** Feder für Dinge, die man mit dem Finger zieht und loslässt */
+  barrierSpring: { friction: 5, tension: 70 },
+} as const;

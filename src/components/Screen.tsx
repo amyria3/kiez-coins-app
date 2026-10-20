@@ -15,7 +15,7 @@ import {
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { color, radius, size, space, text } from '../theme/tokens';
+import { color, motion, radius, size, space, text } from '../theme/tokens';
 import { ActionBar } from './ActionBar';
 import { Cat, type CatMood } from './icons/Brand';
 import { IconButton } from './IconButton';
@@ -124,7 +124,11 @@ export function HeroScreen({
   const [collapsed, setCollapsed] = useState(false);
   const heroHeight = collapsed ? Math.round(height * 0.62) : HERO_HEIGHT + insets.top;
   const toggle = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    // Bewegung „Schranke“ (tokens.ts, motion): federnd statt linear
+    LayoutAnimation.configureNext({
+      duration: motion.barrier.duration,
+      update: { type: LayoutAnimation.Types.spring, springDamping: 0.55 },
+    });
     setCollapsed((c) => !c);
   };
   return (

@@ -25,7 +25,7 @@ import { coordsIfAllowed, distanceMeters, formatDistance, type Coords } from '..
 import { reiseEntries } from '../data/reise';
 import { topChallenges as pickTopChallenges, useStore } from '../data/store';
 import type { Challenge } from '../data/types';
-import { color, space } from '../theme/tokens';
+import { color, motion, space } from '../theme/tokens';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
@@ -59,8 +59,8 @@ export default function FeedScreen() {
   const animateHeader = (toValue: 0 | 1) =>
     Animated.timing(progress, {
       toValue,
-      duration: 380,
-      easing: Easing.bezier(0.2, 0, 0, 1),
+      duration: motion.barrier.duration,
+      easing: Easing.bezier(...motion.barrier.bezier),
       useNativeDriver: false,
     }).start();
 
@@ -160,10 +160,15 @@ export default function FeedScreen() {
         onPanResponderRelease: (_, g) => {
           const index = TAB_ORDER.indexOf(tabRef.current);
           const next = g.dx < -SWIPE_DISTANCE || g.vx < -0.5 ? index + 1 : g.dx > SWIPE_DISTANCE || g.vx > 0.5 ? index - 1 : index;
-          if (next !== index && next >= 0 && next < TAB_ORDER.length) selectTabRef.current(TAB_ORDER[next]);
-          Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, bounciness: 4 }).start();
+          if (next !== index && next >= 0 && next < TAB_ORDER.length) {
+            selectTabRef.current(TAB_ORDER[next]);
+            // Neuer Reiter schwingt von der Seite herein, aus der gewischt wurde
+            swipeX.setValue(next > index ? 56 : -56);
+          }
+          Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, ...motion.barrierSpring }).start();
         },
-        onPanResponderTerminate: () => Animated.spring(swipeX, { toValue: 0, useNativeDriver: false }).start(),
+        onPanResponderTerminate: () =>
+          Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, ...motion.barrierSpring }).start(),
       }),
     [swipeX],
   );
@@ -225,8 +230,9 @@ export default function FeedScreen() {
   // Kopf: Höhe und Deckkraft gehen auf 0. Segmente: rechts Platz für die Kamera, sobald der Kopf weg ist.
   const headerStyle = headerHeight
     ? {
-        height: progress.interpolate({ inputRange: [0, 1], outputRange: [headerHeight, 0] }),
-        opacity: progress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0, 0] }),
+        // Nachschwingen über 1 hinaus: Höhe bleibt bei 0, nur die Verschiebung schwingt mit
+        height: progress.interpolate({ inputRange: [0, 1], outputRange: [headerHeight, 0], extrapolateRight: 'clamp' }),
+        opacity: progress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0, 0], extrapolate: 'clamp' }),
         transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) }],
       }
     : null;
@@ -235,8 +241,10 @@ export default function FeedScreen() {
     outputRange: [space[16], space[16] + CAMERA_WIDTH + space[8]],
   });
   const storiesStyle = {
-    height: showStories ? progress.interpolate({ inputRange: [0, 1], outputRange: [0, storiesHeight] }) : 0,
-    opacity: progress.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, 0, 1] }),
+    height: showStories
+      ? progress.interpolate({ inputRange: [0, 1], outputRange: [0, storiesHeight], extrapolateLeft: 'clamp' })
+      : 0,
+    opacity: progress.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, 0, 1], extrapolate: 'clamp' }),
   };
 
   return (
