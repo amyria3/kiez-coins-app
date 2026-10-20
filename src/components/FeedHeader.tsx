@@ -103,12 +103,13 @@ export function TopChallengeBar({ items, loading, onItemPress }: TopChallengeBar
   );
 }
 
-export type FeedTab = 'nearby' | 'wave' | 'completed';
+export type FeedTab = 'nearby' | 'wave' | 'completed' | 'groups';
 
 const tabs: { key: FeedTab; label: string; planned?: boolean }[] = [
   { key: 'nearby', label: 'In der Nähe' },
   { key: 'wave', label: challengeTypes.wave.label, planned: !isTypeActive('wave') },
   { key: 'completed', label: 'Pleasure' },
+  { key: 'groups', label: 'Gruppen' },
 ];
 
 type TabsNavigationProps = {
@@ -136,7 +137,7 @@ export function TabsNavigation({ selectedKey, onChange }: TabsNavigationProps) {
             style={[styles.segment, selected && styles.segmentSelected]}
           >
             <View style={styles.segmentInner}>
-              <Text style={[styles.segmentText, selected && styles.segmentTextSelected, tab.planned && !selected && styles.planned]}>
+              <Text numberOfLines={1} style={[styles.segmentText, selected && styles.segmentTextSelected, tab.planned && !selected && styles.planned]}>
                 {tab.label}
               </Text>
             </View>
@@ -200,7 +201,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     backgroundColor: color.bg.surface,
   },
-  segment: { flex: 1, minHeight: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
+  // Breite nach Inhalt, damit vier Reiter neben die Kamera passen
+  segment: { flexGrow: 1, flexShrink: 1, paddingHorizontal: space[8], minHeight: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
   segmentSelected: { backgroundColor: color.text.primary },
   segmentText: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.secondary },
   segmentTextSelected: { fontFamily: font.medium, color: color.bg.screen },

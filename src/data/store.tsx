@@ -2,8 +2,8 @@ import { createContext, useCallback, useContext, useMemo, useReducer, useRef, ty
 import { Alert } from 'react-native';
 
 import * as remote from './remote';
-import { sampleChallenges, sampleProfile, sampleUsers, topChallengeIds } from './sample';
-import type { Challenge, ChallengeReport, Comment, FeedState, Payout, PayoutShare, Profile, User } from './types';
+import { sampleChallenges, sampleGroups, sampleProfile, sampleUsers, topChallengeIds } from './sample';
+import type { Challenge, ChallengeReport, Comment, FeedState, Group, Payout, PayoutShare, Profile, User } from './types';
 
 // Zustand der App. Zwei Betriebsarten:
 // * live: Daten aus Supabase. Jede Aktion ändert sofort den lokalen Stand (damit die App flüssig bleibt)
@@ -23,6 +23,8 @@ type State = {
   profile: Profile;
   /** false nach einer bestätigten Meldung „Bounty nicht gezahlt“ */
   canOfferBounties: boolean;
+  /** Eigene Gruppen samt Mitgliedern */
+  groups: Group[];
 };
 
 type Action =
@@ -53,7 +55,8 @@ type Action =
   | { type: 'edit'; id: string; edit: remote.ChallengeEdit }
   | { type: 'close'; id: string }
   | { type: 'deleteDraft'; id: string }
-  | { type: 'delete'; id: string };
+  | { type: 'delete'; id: string }
+  | { type: 'setGroups'; groups: Group[] };
 
 function updateChallenge(state: State, id: string, patch: (c: Challenge) => Partial<Challenge>): State {
   return {
@@ -70,6 +73,7 @@ const emptyLive = (profile: Profile): State => ({
   feedState: 'loading',
   profile,
   canOfferBounties: true,
+  groups: [],
 });
 
 function reducer(state: State, action: Action): State {
@@ -148,6 +152,8 @@ function reducer(state: State, action: Action): State {
       return { ...state, currentUserId: action.userId };
     case 'setFeedState':
       return { ...state, feedState: action.feedState };
+    case 'setGroups':
+      return { ...state, groups: action.groups };
     case 'loaded':
       return {
         ...state,
@@ -156,6 +162,7 @@ function reducer(state: State, action: Action): State {
         challenges: action.data.challenges,
         currentUserId: action.userId,
         canOfferBounties: action.data.canOfferBounties,
+        groups: action.data.groups,
         feedState: 'filled',
       };
     case 'challengeLoaded': {
@@ -175,6 +182,7 @@ function reducer(state: State, action: Action): State {
         currentUserId: 'gardeners',
         feedState: 'filled',
         canOfferBounties: true,
+        groups: sampleGroups,
       };
   }
 }
@@ -259,7 +267,22 @@ type Store = State & {
   saveDraft: (id: string | undefined, draft: remote.DraftInput) => Promise<Challenge>;
   /** Entwurf speichern und veröffentlichen. Wirft mit einer lesbaren Meldung. */
   publishDraft: (id: string, draft: remote.DraftInput, deadline: string) => Promise<string>;
+  /** Gruppen: gründen, beitreten, verlassen, Mitglied entfernen, Rolle übertragen, Aufgabe erstellen. Werfen lesbar. */
+  groupApi: GroupApi;
 };
+
+type GroupApi = {
+  create: (name: string) => Promise<string>;
+  join: (code: string) => Promise<string>;
+  leave: (groupId: string) => Promise<void>;
+  removeMember: (groupId: string, userId: string) => Promise<void>;
+  transferFounder: (groupId: string, userId: string) => Promise<void>;
+  createTask: (task: remote.NewGroupTask) => Promise<string>;
+};
+
+/** Beispielcode für Demo-Gruppen */
+const demoCode = () =>
+  Array.from({ length: 6 }, () => 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 31)]).join('');
 
 const StoreContext = createContext<Store | null>(null);
 
@@ -404,9 +427,101 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [saveDraft],
   );
 
+  const groupApi = useMemo<GroupApi>(() => {
+    // Live: Funktion in Supabase, danach alles neu laden. Demo: nur lokal.
+    const live = async <T,>(run: () => Promise<T>): Promise<T> => {
+      try {
+        const result = await run();
+        await load(stateRef.current.currentUserId);
+        return result;
+      } catch (error) {
+        throw new Error(remote.errorText(error));
+      }
+    };
+    const setGroups = (change: (groups: Group[]) => Group[]) =>
+      localDispatch({ type: 'setGroups', groups: change(stateRef.current.groups) });
+    const isDemo = () => stateRef.current.mode === 'demo';
+    const me = () => stateRef.current.currentUserId;
+    return {
+      create: async (name) => {
+        if (!isDemo()) return live(() => remote.groupActions.create(name));
+        const group: Group = {
+          id: `group-${Date.now()}`,
+          name: name.trim(),
+          founderId: me(),
+          inviteCode: demoCode(),
+          createdAt: new Date().toISOString(),
+          members: [{ userId: me(), role: 'founder', joinedAt: new Date().toISOString() }],
+        };
+        setGroups((groups) => [...groups, group]);
+        return group.id;
+      },
+      join: async (code) => {
+        if (!isDemo()) return live(() => remote.groupActions.join(code));
+        const group = stateRef.current.groups.find((g) => g.inviteCode === code.trim().toUpperCase());
+        if (!group) throw new Error('Diesen Code gibt es nicht. Prüf ihn noch einmal.');
+        return group.id;
+      },
+      leave: async (groupId) => {
+        if (!isDemo()) return live(() => remote.groupActions.leave(groupId));
+        setGroups((groups) => groups.filter((g) => g.id !== groupId));
+      },
+      removeMember: async (groupId, userId) => {
+        if (!isDemo()) return live(() => remote.groupActions.removeMember(groupId, userId));
+        setGroups((groups) =>
+          groups.map((g) => (g.id === groupId ? { ...g, members: g.members.filter((m) => m.userId !== userId) } : g)),
+        );
+      },
+      transferFounder: async (groupId, userId) => {
+        if (!isDemo()) return live(() => remote.groupActions.transferFounder(groupId, userId));
+        setGroups((groups) =>
+          groups.map((g) =>
+            g.id === groupId
+              ? {
+                  ...g,
+                  founderId: userId,
+                  members: g.members.map((m) => ({ ...m, role: m.userId === userId ? 'founder' : 'member' })),
+                }
+              : g,
+          ),
+        );
+      },
+      createTask: async (task) => {
+        const s = stateRef.current;
+        if (!isDemo()) {
+          try {
+            const challenge = await remote.createGroupTask(s.currentUserId, task);
+            localDispatch({ type: 'create', challenge });
+            return challenge.id;
+          } catch (error) {
+            throw new Error(remote.errorText(error));
+          }
+        }
+        const challenge: Challenge = {
+          id: `task-${Date.now()}`,
+          type: 'individual',
+          groupId: task.groupId,
+          edensteine: task.edensteine,
+          title: task.title.trim(),
+          text: task.text.trim(),
+          authorId: s.currentUserId,
+          location: '',
+          status: 'open',
+          image: task.photo,
+          likedByMe: false,
+          comments: [],
+          createdAt: new Date().toISOString(),
+          deadline: task.deadline,
+        };
+        localDispatch({ type: 'create', challenge });
+        return challenge.id;
+      },
+    };
+  }, [load]);
+
   const value = useMemo(
-    () => ({ ...state, dispatch, load, createChallenge, saveDraft, publishDraft }),
-    [state, dispatch, load, createChallenge, saveDraft, publishDraft],
+    () => ({ ...state, dispatch, load, createChallenge, saveDraft, publishDraft, groupApi }),
+    [state, dispatch, load, createChallenge, saveDraft, publishDraft, groupApi],
   );
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
@@ -450,7 +565,7 @@ export function topChallenges(state: Pick<State, 'mode' | 'challenges' | 'curren
   );
   const now = Date.now();
   const open = challenges
-    .filter((c) => c.status === 'open' && Date.parse(c.deadline) > now && !mine.includes(c))
+    .filter((c) => !c.groupId && c.status === 'open' && Date.parse(c.deadline) > now && !mine.includes(c))
     .sort((a, b) => a.deadline.localeCompare(b.deadline));
   return [...mine, ...open].filter((c) => !COMPLETED.has(c.status)).slice(0, max);
 }

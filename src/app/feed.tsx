@@ -10,12 +10,13 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ChallengePost } from '../components/ChallengePost';
 import { AppHeader, FeedGreeting, PlannedHint, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
 import { FeedStateMessage } from '../components/FeedStateMessage';
+import { GroupBar, GroupsEmpty } from '../components/GroupBar';
 import { SkeletonPost } from '../components/Skeleton';
 import { CameraButton, TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { useRequireKiez } from '../data/kiez';
@@ -30,9 +31,12 @@ import { color, motion, space } from '../theme/tokens';
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
 // Abgeschaltete Typen bleiben sichtbar, wenn es sie in der Datenbank gibt.
-function matchesTab(challenge: Challenge, tab: FeedTab) {
+function matchesTab(challenge: Challenge, tab: FeedTab, groupId?: string) {
   // Entwürfe stehen nur in „Deine Challenges“. Geschlossene bleiben in der Timeline.
   if (challenge.status === 'draft') return false;
+  // Gruppenaufgaben nur im Reiter „Gruppen“, dort nur die der gewählten Gruppe
+  if (tab === 'groups') return !!groupId && challenge.groupId === groupId;
+  if (challenge.groupId) return false;
   if (tab === 'wave') return challenge.type === 'wave';
   if (tab === 'completed') return COMPLETED.has(challenge.status);
   return true;
@@ -42,9 +46,18 @@ function matchesTab(challenge: Challenge, tab: FeedTab) {
 export default function FeedScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { challenges, users, feedState, mode, currentUserId, profile, dispatch, load } = useStore();
+  const { challenges, users, feedState, mode, currentUserId, profile, dispatch, load, groups } = useStore();
   const requireKiez = useRequireKiez();
-  const [tab, setTab] = useState<FeedTab>('nearby');
+  // `gruppe`: aus der Gruppenseite („Aufgaben ansehen“) direkt in den Reiter „Gruppen“
+  const { gruppe } = useLocalSearchParams<{ gruppe?: string }>();
+  const [tab, setTab] = useState<FeedTab>(gruppe ? 'groups' : 'nearby');
+  const [groupChoice, setGroupChoice] = useState<string | undefined>(gruppe);
+  const groupId = groups.find((g) => g.id === groupChoice)?.id ?? groups[0]?.id;
+  useEffect(() => {
+    if (!gruppe) return;
+    setTab('groups');
+    setGroupChoice(gruppe);
+  }, [gruppe]);
   const [refreshing, setRefreshing] = useState(false);
   const listRef = useRef<FlatList<FeedItem>>(null);
 
@@ -111,13 +124,13 @@ export default function FeedScreen() {
 
   // „In der Nähe“: die nächsten zuerst, Challenges ohne Punkt danach in der bisherigen Reihenfolge.
   const posts = useMemo(() => {
-    const list = challenges.filter((c) => matchesTab(c, tab));
+    const list = challenges.filter((c) => matchesTab(c, tab, groupId));
     if (tab !== 'nearby' || !here) return list;
     return list
       .map((c, i) => ({ c, i, d: distanceTo(c) }))
       .sort((a, b) => (a.d ?? Infinity) - (b.d ?? Infinity) || a.i - b.i)
       .map((x) => x.c);
-  }, [challenges, tab, here, distanceTo]);
+  }, [challenges, tab, here, distanceTo, groupId]);
   const topChallenges = useMemo(
     () => pickTopChallenges({ mode, challenges, currentUserId }),
     [mode, challenges, currentUserId],
@@ -130,7 +143,11 @@ export default function FeedScreen() {
 
   const openChallenge = useCallback((id: string) => router.push(`/challenge/${id}`), [router]);
   const openManage = useCallback(() => router.push('/manage'), [router]);
-  const createChallenge = () => requireKiez() && router.push('/challenge/create/step-1');
+  const createChallenge = () => {
+    // Im Reiter „Gruppen“ erstellt die Kamera eine Aufgabe für die gewählte Gruppe (ohne Kiez)
+    if (tab === 'groups') return router.push(groupId ? `/gruppen/${groupId}/aufgabe` : '/gruppen');
+    return requireKiez() && router.push('/challenge/create/step-1');
+  };
 
   const reload = async () => {
     if (mode === 'live' && currentUserId) await load(currentUserId);
@@ -144,7 +161,7 @@ export default function FeedScreen() {
   };
 
   const loading = feedState === 'loading';
-  const openCount = useMemo(() => challenges.filter((c) => c.status === 'open').length, [challenges]);
+  const openCount = useMemo(() => challenges.filter((c) => !c.groupId && c.status === 'open').length, [challenges]);
   const kiezName = profile.kiez?.split(',')[0];
   const showState =
     feedState === 'filled' || feedState === 'loading' ? (posts.length === 0 ? 'empty' : null) : feedState;
@@ -187,16 +204,43 @@ export default function FeedScreen() {
   const planned = typeOfTab && !isTypeActive(typeOfTab) ? challengeTypes[typeOfTab] : null;
   // Stories erst in der Ziel-Ansicht und nur, wenn es welche gibt.
   // Echte Stories gibt es noch nicht; bis dahin füllen die Top-Challenges die Leiste.
-  const showStories = collapsed && tab !== 'completed' && !planned && !loading && topChallenges.length > 0;
+  const showStories =
+    collapsed && tab !== 'completed' && tab !== 'groups' && !planned && !loading && topChallenges.length > 0;
 
   const items: FeedItem[] = [];
   if (planned) items.push({ kind: 'planned' });
-  if (loading) items.push({ kind: 'loading' });
+  if (tab === 'groups' && !loading) {
+    if (groups.length === 0) items.push({ kind: 'groupsEmpty' });
+    else {
+      items.push({ kind: 'groupBar' });
+      if (posts.length === 0) items.push({ kind: 'groupNoTasks' });
+      else posts.forEach((challenge) => items.push({ kind: 'post', challenge }));
+    }
+  } else if (loading) items.push({ kind: 'loading' });
   else if (showState && !(planned && showState === 'empty')) items.push({ kind: 'state' });
   else posts.forEach((challenge) => items.push({ kind: 'post', challenge }));
 
   const renderItem = ({ item }: { item: FeedItem }) => {
     switch (item.kind) {
+      case 'groupsEmpty':
+        return <GroupsEmpty onCreate={() => router.push('/gruppen/neu')} onJoin={() => router.push('/gruppen/beitreten')} />;
+      case 'groupBar':
+        return (
+          <GroupBar
+            groups={groups}
+            selectedId={groupId}
+            onSelect={setGroupChoice}
+            onOpen={(id) => router.push(`/gruppen/${id}`)}
+            onAll={() => router.push('/gruppen')}
+          />
+        );
+      case 'groupNoTasks':
+        return (
+          <GroupsEmpty
+            title="Noch keine Aufgaben"
+            message="Tipp oben rechts auf die Kamera und stell die erste Aufgabe für Eure Gruppe ein."
+          />
+        );
       case 'planned':
         return planned ? <PlannedHint title={planned.plannedTitle} message={planned.plannedHint} /> : null;
       case 'loading':
@@ -310,12 +354,15 @@ export default function FeedScreen() {
 const CAMERA_WIDTH = 52;
 
 /** Reihenfolge der Reiter für das Wischen */
-const TAB_ORDER: FeedTab[] = ['nearby', 'wave', 'completed'];
+const TAB_ORDER: FeedTab[] = ['nearby', 'wave', 'completed', 'groups'];
 /** Mindestweg in Punkten, ab dem ein Wischen den Reiter wechselt */
 const SWIPE_DISTANCE = 64;
 
 type FeedItem =
   | { kind: 'planned' }
+  | { kind: 'groupsEmpty' }
+  | { kind: 'groupBar' }
+  | { kind: 'groupNoTasks' }
   | { kind: 'loading' }
   | { kind: 'state' }
   | { kind: 'post'; challenge: Challenge };

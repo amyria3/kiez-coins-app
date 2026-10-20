@@ -102,6 +102,8 @@ type CommentSectionProps = {
   onSend?: (body: string, replyToId?: string) => void;
   /** Hinweis statt Eingabefeld */
   closedHint?: string;
+  /** Wer mitlesen kann, z. B. bei Gruppenaufgaben nur die Gruppe */
+  audience?: string;
   onReport: (comment: CommentData) => void;
 };
 
@@ -113,6 +115,7 @@ export function CommentSection({
   currentUserId,
   onSend,
   closedHint,
+  audience,
   onReport,
 }: CommentSectionProps) {
   const [replyTo, setReplyTo] = useState<CommentData | null>(null);
@@ -143,7 +146,7 @@ export function CommentSection({
       <Text style={styles.title} accessibilityRole="header">
         Fragen und Kommentare
       </Text>
-      <Text style={styles.time}>Öffentlich, alle in der Nachbarschaft können mitlesen.</Text>
+      <Text style={styles.time}>{audience ?? 'Öffentlich, alle in der Nachbarschaft können mitlesen.'}</Text>
       {roots.map((root) => (
         <View key={root.id} style={styles.thread}>
           {renderComment(root, false, root.id)}

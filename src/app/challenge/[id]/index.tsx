@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AuthorRow } from '../../../components/AuthorRow';
 import { StatusBadge } from '../../../components/Badges';
-import { CoinsIcon } from '../../../components/icons/Brand';
+import { CoinsIcon, EdensteinIcon } from '../../../components/icons/Brand';
 import { Icon } from '../../../components/icons/Icon';
 import { IconButton } from '../../../components/IconButton';
 import { Button } from '../../../components/Button';
@@ -30,10 +30,13 @@ export default function ChallengeDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { currentUserId, users, dispatch, mode, profile } = useStore();
-  // Schreiben nur mit Kiez (grobe Verortung); Beispieldaten immer
-  const canWrite = mode === 'demo' || !!profile.kiez;
+
   const { challenge, author } = useChallenge(id);
-  const requireKiez = useRequireKiez();
+  // Schreiben nur mit Kiez (grobe Verortung); Beispieldaten und Gruppenaufgaben immer
+  const canWrite = mode === 'demo' || !!profile.kiez || !!challenge?.groupId;
+  // Gruppenaufgaben brauchen keinen Kiez
+  const needKiez = () => !!challenge?.groupId || requireKiezRaw();
+  const requireKiezRaw = useRequireKiez();
   const [menuOpen, setMenuOpen] = useState(false);
   const [operationName, setOperationName] = useState(() => (id ? suggestName(id) : ''));
   const authorId = challenge?.authorId;
@@ -66,7 +69,7 @@ export default function ChallengeDetail() {
 
   let actions: React.ReactNode = null;
   if (challenge.status === 'open' && !isAuthor) {
-    actions = <Button label="Challenge annehmen" onPress={() => requireKiez() && dispatch({ type: 'accept', id: challenge.id })} />;
+    actions = <Button label={challenge.groupId ? 'Aufgabe annehmen' : 'Challenge annehmen'} onPress={() => needKiez() && dispatch({ type: 'accept', id: challenge.id })} />;
   } else if (acceptedByMe) {
     actions = (
       <>
@@ -153,6 +156,13 @@ export default function ChallengeDetail() {
         {challenge.title}
       </Text>
       <View style={styles.metrics}>
+        {challenge.edensteine ? (
+          <View style={styles.metric}>
+            <EdensteinIcon height={16} />
+            <Text style={styles.metricLabel}>Edensteine</Text>
+            <Text style={[styles.metricValue, styles.eden]}>{challenge.edensteine}</Text>
+          </View>
+        ) : null}
         {challenge.bountyAmount ? (
           <View style={styles.metric}>
             <CoinsIcon height={18} />
@@ -233,8 +243,9 @@ export default function ChallengeDetail() {
           onSend={
             challenge.status === 'closed' || !canWrite
               ? undefined
-              : (body, replyToId) => requireKiez() && dispatch({ type: 'addComment', id: challenge.id, body, replyToId })
+              : (body, replyToId) => needKiez() && dispatch({ type: 'addComment', id: challenge.id, body, replyToId })
           }
+          audience={challenge.groupId ? 'Nur Eure Gruppe kann mitlesen.' : undefined}
           closedHint={
             challenge.status === 'closed'
               ? 'Die Challenge ist geschlossen. Neue Kommentare sind nicht mehr möglich.'
@@ -250,7 +261,12 @@ export default function ChallengeDetail() {
 
   if (!image) {
     return (
-      <SubScreen title="Challenge" navigation="back" onLeadingPress={() => router.back()} actions={actions}>
+      <SubScreen
+        title={challenge.groupId ? 'Gruppenaufgabe' : 'Challenge'}
+        navigation="back"
+        onLeadingPress={() => router.back()}
+        actions={actions}
+      >
         {summary}
         {details}
       </SubScreen>
@@ -328,6 +344,7 @@ const styles = StyleSheet.create({
   metricValue: { ...text.metric, fontSize: 17, lineHeight: 22, color: color.text.primary },
   pressed: { opacity: 0.7 },
   signal: { color: color.accent.signal },
+  eden: { color: color.accent.confirmation },
   description: { fontFamily: font.light, fontSize: 15, lineHeight: 22, color: color.text.secondary },
   authorBlock: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   secondary: { ...text.body, color: color.text.secondary },
