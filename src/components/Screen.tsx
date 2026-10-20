@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react';
-import { useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
+  Animated,
   KeyboardAvoidingView,
   LayoutAnimation,
+  PanResponder,
   Platform,
   Pressable,
   ScrollView,
@@ -128,19 +130,61 @@ export function HeroScreen({
   // Eingeklappt: Das Foto bekommt den Platz, das Blatt zeigt nur noch die Zusammenfassung.
   const [collapsed, setCollapsed] = useState(false);
   const heroHeight = collapsed ? Math.round(height * 0.62) : HERO_HEIGHT + insets.top;
-  const toggle = () => {
+  const collapsedRef = useRef(collapsed);
+  collapsedRef.current = collapsed;
+  const setCollapsedAnimated = (next: boolean) => {
+    if (next === collapsedRef.current) return;
     // Bewegung „Schranke“ (tokens.ts, motion): federnd statt linear
     LayoutAnimation.configureNext({
       duration: motion.barrier.duration,
       update: { type: LayoutAnimation.Types.spring, springDamping: 0.55 },
     });
-    setCollapsed((c) => !c);
+    setCollapsed(next);
   };
+  const toggle = () => setCollapsedAnimated(!collapsedRef.current);
+  const setRef = useRef(setCollapsedAnimated);
+  setRef.current = setCollapsedAnimated;
+
+  // Wischen: oben angekommen nach unten ziehen klappt die Details zu, nach oben ziehen klappt sie auf.
+  // Das Blatt folgt dabei leicht dem Finger und federt zurück.
+  const scrollY = useRef(0);
+  const drag = useRef(new Animated.Value(0)).current;
+  const pan = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponderCapture: (_, g) => {
+          if (Math.abs(g.dy) < 14 || Math.abs(g.dy) < Math.abs(g.dx) * 2) return false;
+          return collapsedRef.current ? g.dy < 0 : g.dy > 0 && scrollY.current <= 0;
+        },
+        onPanResponderMove: (_, g) => drag.setValue(g.dy * 0.35),
+        onPanResponderRelease: (_, g) => {
+          if (g.dy > SWIPE || g.vy > 0.6) setRef.current(true);
+          else if (g.dy < -SWIPE || g.vy < -0.6) setRef.current(false);
+          Animated.spring(drag, { toValue: 0, useNativeDriver: true, ...motion.barrierSpring }).start();
+        },
+        onPanResponderTerminate: () =>
+          Animated.spring(drag, { toValue: 0, useNativeDriver: true, ...motion.barrierSpring }).start(),
+      }),
+    [drag],
+  );
   return (
     <View style={styles.screen}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView style={styles.flex} keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive">
-          <View style={[styles.hero, { height: heroHeight }]}>
+        <ScrollView
+          style={styles.flex}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          scrollEventThrottle={16}
+          onScroll={(e) => (scrollY.current = e.nativeEvent.contentOffset.y)}
+        >
+          <Animated.View {...pan.panHandlers} style={{ transform: [{ translateY: drag }] }}>
+          {/* Tippen aufs Foto klappt die Details zu oder auf */}
+          <Pressable
+            onPress={toggle}
+            accessibilityRole="button"
+            accessibilityLabel={collapsed ? 'Details ausklappen' : 'Foto groß ansehen'}
+            style={[styles.hero, { height: heroHeight }]}
+          >
             {images.length > 1 ? (
               <>
                 <ScrollView
@@ -176,7 +220,7 @@ export function HeroScreen({
               />
             )}
             {imageOverlay ? <View style={styles.heroOverlay}>{imageOverlay}</View> : null}
-          </View>
+          </Pressable>
           <View style={styles.sheet}>
             <Pressable
               onPress={toggle}
@@ -197,6 +241,7 @@ export function HeroScreen({
               children
             )}
           </View>
+          </Animated.View>
         </ScrollView>
         {actions ? <ActionBar>{actions}</ActionBar> : <View style={{ height: insets.bottom }} />}
       </KeyboardAvoidingView>
@@ -223,6 +268,8 @@ export function HeroScreen({
 }
 
 const HERO_HEIGHT = 340;
+/** Mindestweg in Punkten, ab dem ein Wischen die Details auf- oder zuklappt */
+const SWIPE = 48;
 
 const styles = StyleSheet.create({
   dots: {
