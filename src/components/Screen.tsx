@@ -1,10 +1,12 @@
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { color, space, text } from '../theme/tokens';
+import { color, radius, size, space, text } from '../theme/tokens';
 import { ActionBar } from './ActionBar';
 import { Cat, type CatMood } from './icons/Brand';
+import { IconButton } from './IconButton';
 import { NavigationBar } from './NavigationBar';
 
 type SubScreenProps = {
@@ -75,6 +77,65 @@ export function ResultScreen({ mood = 'default', badge, title, message, onFeedPr
   );
 }
 
+type HeroScreenProps = {
+  image: ImageSourcePropType;
+  imageLabel?: string;
+  onBackPress: () => void;
+  onSharePress?: () => void;
+  /** Buttons für die ActionBar */
+  actions?: ReactNode;
+  /** Kleines Element über dem Foto unten links, z. B. das Etikett der Operation */
+  imageOverlay?: ReactNode;
+  children: ReactNode;
+};
+
+/**
+ * Upgrade „Nachtschicht“: Detailseite mit Foto über die volle Breite, runden Knöpfen darauf und einem Blatt,
+ * das über das Foto geschoben ist. Darunter wie SubScreen die ActionBar.
+ */
+export function HeroScreen({ image, imageLabel, onBackPress, onSharePress, actions, imageOverlay, children }: HeroScreenProps) {
+  const insets = useSafeAreaInsets();
+  return (
+    <View style={styles.screen}>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView style={styles.flex} keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive">
+          <View style={[styles.hero, { height: HERO_HEIGHT + insets.top }]}>
+            <Image
+              source={image}
+              style={StyleSheet.absoluteFill}
+              contentFit="cover"
+              accessibilityLabel={imageLabel}
+            />
+            {imageOverlay ? <View style={styles.heroOverlay}>{imageOverlay}</View> : null}
+          </View>
+          <View style={styles.sheet}>{children}</View>
+        </ScrollView>
+        {actions ? <ActionBar>{actions}</ActionBar> : <View style={{ height: insets.bottom }} />}
+      </KeyboardAvoidingView>
+      <View style={[styles.heroButtons, { top: insets.top + space[8] }]} pointerEvents="box-none">
+        <IconButton
+          icon="chevron-left"
+          iconSize={size.icon}
+          accessibilityLabel="Zurück"
+          onPress={onBackPress}
+          style={styles.heroButton}
+        />
+        {onSharePress ? (
+          <IconButton
+            icon="send"
+            iconSize={size.icon}
+            accessibilityLabel="Teilen"
+            onPress={onSharePress}
+            style={styles.heroButton}
+          />
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+const HERO_HEIGHT = 340;
+
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   flex: { flex: 1 },
@@ -97,4 +158,24 @@ const styles = StyleSheet.create({
   resultChildren: { gap: space[12], alignSelf: 'stretch' },
   resultTitle: { ...text.title, color: color.text.primary, textAlign: 'center' },
   resultMessage: { ...text.body, color: color.text.secondary, textAlign: 'center' },
+  hero: { backgroundColor: color.bg.surface },
+  heroOverlay: { position: 'absolute', left: space[16], bottom: space[48] },
+  sheet: {
+    marginTop: -space[32],
+    borderTopLeftRadius: radius.sheet,
+    borderTopRightRadius: radius.sheet,
+    backgroundColor: color.bg.screen,
+    paddingTop: space[24],
+    paddingHorizontal: space[20],
+    paddingBottom: space[24],
+    gap: space[16],
+  },
+  heroButtons: {
+    position: 'absolute',
+    left: space[16],
+    right: space[16],
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  heroButton: { borderRadius: radius.full, backgroundColor: color.bg.glass },
 });

@@ -1,19 +1,19 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
-import { Image } from 'expo-image';
+import { Alert, Share, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AuthorRow } from '../../../components/AuthorRow';
-import { BountyBadge, StatusBadge } from '../../../components/Badges';
+import { StatusBadge } from '../../../components/Badges';
+import { CoinsIcon } from '../../../components/icons/Brand';
 import { Button } from '../../../components/Button';
 import { CommentSection } from '../../../components/Comments';
 import { InfoRow, KaterBubble, Notice, OperationTag } from '../../../components/Content';
 import { TextField } from '../../../components/Form';
-import { SubScreen } from '../../../components/Screen';
-import { formatDayMonthShort, formatEuro, formatRemaining, formatRemainingShort } from '../../../data/format';
+import { HeroScreen, SubScreen } from '../../../components/Screen';
+import { formatBountyShort, formatDayMonthShort, formatEuro, formatRelative, formatRemainingShort } from '../../../data/format';
 import { useRequireKiez } from '../../../data/kiez';
 import { useChallenge, useStore } from '../../../data/store';
-import { color, radius, space, text } from '../../../theme/tokens';
+import { color, font, radius, space, stroke, text } from '../../../theme/tokens';
 
 // Vorschläge des Katers für den Operationsnamen (später aus einer Wortliste)
 const operationNames = ['Operation Gießkanne', 'Operation Igelglück', 'Operation Besenstiel', 'Operation Sonnenschirm'];
@@ -71,13 +71,30 @@ export default function ChallengeDetail() {
 
   const amount = challenge.bountyAmount ? formatEuro(challenge.bountyAmount) : '';
 
-  return (
-    <SubScreen title="Challenge" navigation="back" onLeadingPress={() => router.back()} actions={actions}>
-      <AuthorRow
-        user={author}
-        location={acceptedByMe ? (challenge.kiez ?? challenge.location) : challenge.location}
-        trailing={<StatusBadge status={challenge.status} />}
-      />
+  const content = (
+    <>
+      <View style={styles.statusRow}>
+        <StatusBadge status={challenge.status} />
+        <Text style={styles.caption}>{formatRelative(challenge.createdAt)}</Text>
+      </View>
+      <Text style={styles.headline} accessibilityRole="header">
+        {challenge.title}
+      </Text>
+      <View style={styles.metrics}>
+        {challenge.bountyAmount ? (
+          <View style={styles.metric}>
+            <Text style={styles.metricLabel}>Bounty</Text>
+            <View style={styles.metricBounty}>
+              <CoinsIcon height={18} />
+              <Text style={[styles.metricValue, styles.signal]}>{formatBountyShort(challenge.bountyAmount)}</Text>
+            </View>
+          </View>
+        ) : null}
+        <View style={styles.metric}>
+          <Text style={styles.metricLabel}>Frist</Text>
+          <Text style={styles.metricValue}>{formatRemainingShort(challenge.deadline).replace('Noch ', '')}</Text>
+        </View>
+      </View>
       {acceptedByMe ? (
         <>
           <KaterBubble>
@@ -85,12 +102,10 @@ export default function ChallengeDetail() {
               ? `Danke, dass Du anpackst! Mach am Ende ein Foto vom Ergebnis, dann kann ${author.firstName} bestätigen.`
               : 'Danke, dass Du anpackst! Taufen wir das Baby, Baby? Ich hätte da einen Namen für Deine Operation.'}
           </KaterBubble>
-          <View style={styles.meta}>
-            <InfoRow icon="clock" value={formatRemainingShort(challenge.deadline)} />
-            {challenge.acceptedAt ? (
-              <InfoRow icon="check" value={`Von Dir angenommen am ${formatDayMonthShort(challenge.acceptedAt)}`} />
-            ) : null}
-          </View>
+          <InfoRow icon="map-pin" value={challenge.location} />
+          {challenge.acceptedAt ? (
+            <InfoRow icon="check" value={`Von Dir angenommen am ${formatDayMonthShort(challenge.acceptedAt)}`} />
+          ) : null}
           {challenge.rejectionReason ? (
             <Notice
               variant="warning"
@@ -115,27 +130,12 @@ export default function ChallengeDetail() {
           ) : null}
         </>
       ) : null}
-      {image ? (
-        <View>
-          <Image source={image} style={styles.image} contentFit="cover" />
-          {acceptedByMe && challenge.operationName ? <OperationTag name={challenge.operationName} /> : null}
-        </View>
-      ) : null}
-      <View style={styles.textBlock}>
-        <Text style={styles.title}>{challenge.title}</Text>
-        <Text style={styles.secondary}>{challenge.type === 'wave' ? challenge.challengeText : challenge.text}</Text>
-      </View>
-      <View style={styles.meta}>
-        {challenge.bountyAmount ? (
-          <View style={styles.bountyRow}>
-            <BountyBadge amount={challenge.bountyAmount} />
-            <Text style={styles.body}>
-              {acceptedByMe ? `zahlt ${author.firstName} direkt an Dich` : 'Bounty für die Erledigung'}
-            </Text>
-          </View>
-        ) : null}
-        {!acceptedByMe ? <InfoRow icon="clock" value={formatRemaining(challenge.deadline)} /> : null}
-        <InfoRow icon="map-pin" value={challenge.location} />
+      <Text style={styles.description}>{challenge.type === 'wave' ? challenge.challengeText : challenge.text}</Text>
+      <View style={styles.authorBlock}>
+        <AuthorRow
+          user={author}
+          location={acceptedByMe ? (challenge.kiez ?? challenge.location) : challenge.location}
+        />
       </View>
       {challenge.bountyAmount && !isAuthor ? (
         <Notice
@@ -158,17 +158,43 @@ export default function ChallengeDetail() {
           }
         />
       ) : null}
-    </SubScreen>
+    </>
+  );
+
+  if (!image) {
+    return (
+      <SubScreen title="Challenge" navigation="back" onLeadingPress={() => router.back()} actions={actions}>
+        {content}
+      </SubScreen>
+    );
+  }
+
+  return (
+    <HeroScreen
+      image={image}
+      imageLabel={challenge.title}
+      onBackPress={() => router.back()}
+      onSharePress={() => Share.share({ message: `${challenge.title} – Kiez Coins` })}
+      imageOverlay={acceptedByMe && challenge.operationName ? <OperationTag name={challenge.operationName} /> : undefined}
+      actions={actions}
+    >
+      {content}
+    </HeroScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  image: { width: '100%', height: 300, borderRadius: radius.md },
-  textBlock: { gap: space[8] },
-  title: { ...text.title, color: color.text.primary },
-  body: { ...text.body, color: color.text.primary, flex: 1 },
+  statusRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
+  caption: { ...text.caption, fontSize: 13, color: color.text.secondary },
+  headline: { ...text.headline, color: color.text.primary },
+  metrics: { flexDirection: 'row', gap: space[8] },
+  metric: { flex: 1, gap: space[6], padding: space[12], borderRadius: radius.lg, backgroundColor: color.bg.surface },
+  metricLabel: { ...text.caption, color: color.text.secondary },
+  metricBounty: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
+  metricValue: { ...text.metric, color: color.text.primary },
+  signal: { color: color.accent.signal },
+  description: { fontFamily: font.light, fontSize: 15, lineHeight: 22, color: color.text.secondary },
+  authorBlock: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   secondary: { ...text.body, color: color.text.secondary },
-  meta: { gap: space[8] },
   naming: { gap: space[12] },
-  bountyRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
 });

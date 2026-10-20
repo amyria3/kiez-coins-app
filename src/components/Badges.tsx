@@ -33,7 +33,7 @@ export function StatusBadge({ status }: { status: ChallengeStatus }) {
 export function BountyBadge({ amount }: { amount: number }) {
   return (
     <View style={styles.bounty} accessible accessibilityLabel={`Bounty ${amount} Euro`}>
-      <CoinsIcon />
+      <CoinsIcon height={18} />
       <Text style={styles.bountyText}>{formatBountyShort(amount)}</Text>
     </View>
   );
@@ -48,5 +48,5 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   bounty: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
-  bountyText: { fontFamily: font.regular, fontSize: 20, lineHeight: 23, color: color.accent.signal },
+  bountyText: { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.signal },
 });
