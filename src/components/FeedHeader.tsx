@@ -118,7 +118,7 @@ type TabsNavigationProps = {
 
 /**
  * Figma „TabsNavigation“, Upgrade „Nachtschicht“: Segmente auf einer Pille; die Auswahl filtert den Feed.
- * Abgeschaltete Challenge-Typen (data/features.ts) tragen „bald“, lassen sich aber öffnen:
+ * Abgeschaltete Challenge-Typen (data/features.ts) sind gedimmt, lassen sich aber öffnen:
  * Der Feed zeigt dann einen Hinweis und vorhandene Challenges dieses Typs.
  */
 export function TabsNavigation({ selectedKey, onChange }: TabsNavigationProps) {
@@ -130,7 +130,7 @@ export function TabsNavigation({ selectedKey, onChange }: TabsNavigationProps) {
           <Pressable
             key={tab.key}
             accessibilityRole="tab"
-            accessibilityLabel={tab.planned ? `${tab.label}, geplant` : tab.label}
+            accessibilityLabel={tab.planned ? `${tab.label}, kommt später` : tab.label}
             accessibilityState={{ selected }}
             onPress={() => onChange(tab.key)}
             style={[styles.segment, selected && styles.segmentSelected]}
@@ -139,7 +139,6 @@ export function TabsNavigation({ selectedKey, onChange }: TabsNavigationProps) {
               <Text style={[styles.segmentText, selected && styles.segmentTextSelected, tab.planned && !selected && styles.planned]}>
                 {tab.label}
               </Text>
-              {tab.planned ? <Text style={styles.soon}>bald</Text> : null}
             </View>
           </Pressable>
         );
@@ -210,17 +209,6 @@ const styles = StyleSheet.create({
   segmentTextSelected: { fontFamily: font.medium, color: color.bg.screen },
   segmentInner: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   planned: { opacity: 0.6 },
-  soon: {
-    fontFamily: font.medium,
-    fontSize: 10,
-    lineHeight: 14,
-    color: color.accent.signal,
-    borderWidth: stroke.thin,
-    borderColor: color.accent.signal,
-    borderRadius: radius.full,
-    paddingHorizontal: space[6],
-    overflow: 'hidden',
-  },
   hint: {
     flexDirection: 'row',
     alignItems: 'center',

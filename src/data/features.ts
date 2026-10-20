@@ -1,8 +1,8 @@
 import type { ChallengeType } from './types';
 
 /**
- * Challenge-Typen an- und abschalten. Ein abgeschalteter Typ lässt sich nicht erstellen; sein Reiter trägt
- * „bald“ und zeigt den Hinweis aus `plannedTitle`/`plannedHint`. Vorhandene Challenges dieses Typs aus der
+ * Challenge-Typen an- und abschalten. Ein abgeschalteter Typ lässt sich nicht erstellen; sein Reiter ist
+ * gedimmt und zeigt den Hinweis aus `plannedTitle`/`plannedHint`. Vorhandene Challenges dieses Typs aus der
  * Datenbank bleiben sichtbar.
  */
 export const challengeTypes: Record<

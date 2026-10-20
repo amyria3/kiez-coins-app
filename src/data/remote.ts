@@ -40,7 +40,7 @@ type SettingsRow = {
   privacy_accepted_at: string | null;
 };
 
-type CommentRow = { id: string; author_id: string; body: string; created_at: string };
+type CommentRow = { id: string; author_id: string; body: string; created_at: string; reply_to_id?: string | null };
 
 type ChallengeRow = {
   id: string;
@@ -144,7 +144,13 @@ function toChallenge(
     payoutShare: toShare(extra.share),
     comments: [...(row.comments ?? [])]
       .sort((a, b) => a.created_at.localeCompare(b.created_at))
-      .map((c) => ({ id: c.id, authorId: c.author_id, body: c.body, createdAt: c.created_at })),
+      .map((c) => ({
+        id: c.id,
+        authorId: c.author_id,
+        body: c.body,
+        createdAt: c.created_at,
+        replyToId: c.reply_to_id ?? undefined,
+      })),
     rejectionReason: row.rejection_reason ?? undefined,
     confirmedAt: row.confirmed_at ?? undefined,
     paidMarkedAt: row.paid_marked_at ?? undefined,
@@ -173,7 +179,8 @@ function check<T extends { error: unknown }>(result: T): T {
 // Laden
 // ---------------------------------------------------------------------------
 
-const CHALLENGE_COLUMNS = '*, comments(id, author_id, body, created_at)';
+// comments(*): reply_to_id kommt mit, sobald die Migration eingespielt ist
+const CHALLENGE_COLUMNS = '*, comments(*)';
 
 export type LiveData = { users: User[]; challenges: Challenge[]; canOfferBounties: boolean };
 
@@ -452,8 +459,12 @@ export async function nameOperation(userId: string, challengeId: string, name: s
   check(await supabase.from('operation_names').insert({ challenge_id: challengeId, user_id: userId, name }));
 }
 
-export async function addComment(challengeId: string, body: string) {
-  check(await supabase.from('comments').insert({ challenge_id: challengeId, body }));
+export async function addComment(challengeId: string, body: string, replyToId?: string) {
+  check(
+    await supabase
+      .from('comments')
+      .insert(replyToId ? { challenge_id: challengeId, body, reply_to_id: replyToId } : { challenge_id: challengeId, body }),
+  );
 }
 
 export async function setLike(challengeId: string, userId: string, liked: boolean) {

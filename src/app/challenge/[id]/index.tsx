@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AuthorRow } from '../../../components/AuthorRow';
 import { StatusBadge } from '../../../components/Badges';
 import { CoinsIcon } from '../../../components/icons/Brand';
+import { Icon } from '../../../components/icons/Icon';
 import { Button } from '../../../components/Button';
 import { CommentSection } from '../../../components/Comments';
 import { InfoRow, KaterBubble, Notice, OperationTag } from '../../../components/Content';
@@ -13,7 +14,7 @@ import { HeroScreen, SubScreen } from '../../../components/Screen';
 import { formatBountyShort, formatDayMonthShort, formatEuro, formatRelative, formatRemainingShort } from '../../../data/format';
 import { useRequireKiez } from '../../../data/kiez';
 import { useChallenge, useStore } from '../../../data/store';
-import { color, font, radius, space, stroke, text } from '../../../theme/tokens';
+import { color, font, radius, size, space, stroke, text } from '../../../theme/tokens';
 
 // Vorschläge des Katers für den Operationsnamen (später aus einer Wortliste)
 const operationNames = ['Operation Gießkanne', 'Operation Igelglück', 'Operation Besenstiel', 'Operation Sonnenschirm'];
@@ -100,16 +101,17 @@ export default function ChallengeDetail() {
       <View style={styles.metrics}>
         {challenge.bountyAmount ? (
           <View style={styles.metric}>
+            <CoinsIcon height={18} />
             <Text style={styles.metricLabel}>Bounty</Text>
-            <View style={styles.metricBounty}>
-              <CoinsIcon height={18} />
-              <Text style={[styles.metricValue, styles.signal]}>{formatBountyShort(challenge.bountyAmount)}</Text>
-            </View>
+            <Text style={[styles.metricValue, styles.signal]}>{formatBountyShort(challenge.bountyAmount)}</Text>
           </View>
         ) : null}
         <View style={styles.metric}>
+          <Icon name="clock" size={size.icon} color={color.text.secondary} />
           <Text style={styles.metricLabel}>Frist</Text>
-          <Text style={styles.metricValue}>{formatRemainingShort(challenge.deadline).replace('Noch ', '')}</Text>
+          <Text style={styles.metricValue} numberOfLines={1}>
+            {formatRemainingShort(challenge.deadline).replace('Noch ', '')}
+          </Text>
         </View>
       </View>
       {isAuthor ? (
@@ -207,7 +209,7 @@ export default function ChallengeDetail() {
           onSend={
             challenge.status === 'closed'
               ? undefined
-              : (body) => requireKiez() && dispatch({ type: 'addComment', id: challenge.id, body })
+              : (body, replyToId) => requireKiez() && dispatch({ type: 'addComment', id: challenge.id, body, replyToId })
           }
           closedHint="Die Challenge ist geschlossen. Neue Kommentare sind nicht mehr möglich."
           onReport={(comment) =>
@@ -246,11 +248,19 @@ const styles = StyleSheet.create({
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   caption: { ...text.caption, fontSize: 13, color: color.text.secondary },
   headline: { ...text.headline, color: color.text.primary },
-  metrics: { flexDirection: 'row', gap: space[8] },
-  metric: { flex: 1, gap: space[4], paddingVertical: space[8], paddingHorizontal: space[12], borderRadius: radius.lg, backgroundColor: color.bg.surface },
-  metricLabel: { ...text.caption, color: color.text.secondary },
-  metricBounty: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
-  metricValue: { ...text.metric, fontSize: 20, lineHeight: 24, color: color.text.primary },
+  metrics: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
+  // Icon, Bezeichnung und Wert in einer Zeile
+  metric: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[8],
+    minHeight: size.touchTarget,
+    paddingHorizontal: space[12],
+    borderRadius: radius.lg,
+    backgroundColor: color.bg.surface,
+  },
+  metricLabel: { ...text.caption, fontSize: 13, color: color.text.secondary },
+  metricValue: { ...text.metric, fontSize: 17, lineHeight: 22, color: color.text.primary },
   manage: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
   pill: {
     minHeight: 44,
