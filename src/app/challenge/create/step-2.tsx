@@ -8,6 +8,7 @@ import { Chip, ChipGroup, TextField } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
 import { useStore } from '../../../data/store';
 import { color, text } from '../../../theme/tokens';
+import { findPlace, roundCoords } from '../../../data/location';
 import { useDraft, useSaveDraft } from './_layout';
 
 const presets = [5, 15, 50];
@@ -25,6 +26,19 @@ export default function CreateStep2() {
   const router = useRouter();
   const { canOfferBounties, createChallenge, publishDraft } = useStore();
   const [busy, setBusy] = useState(false);
+  const [locating, setLocating] = useState(false);
+
+  const useLocation = async () => {
+    setLocating(true);
+    try {
+      const place = await findPlace();
+      setDraft((d) => ({ ...d, location: place.street ?? place.kiez, coords: roundCoords(place.coords) }));
+    } catch {
+      Alert.alert('Standort nicht gefunden', 'Gib den Ort von Hand ein oder erlaube den Standort in den Einstellungen.');
+    } finally {
+      setLocating(false);
+    }
+  };
   const [draft, setDraft] = useDraft();
   const { save, busy: saving } = useSaveDraft();
   const [custom, setCustom] = useState(draft.bountyAmount !== undefined && !presets.includes(draft.bountyAmount));
@@ -64,6 +78,7 @@ export default function CreateStep2() {
               photo: draft.imagePath ? undefined : draft.photo,
               imagePath: draft.imagePath,
               coords: draft.coords,
+              extras: draft.extras,
             },
             deadline,
           )
@@ -75,6 +90,7 @@ export default function CreateStep2() {
             photo: draft.photo,
             deadline,
             coords: draft.coords,
+            extras: draft.extras,
           });
       router.replace({ pathname: '/challenge/create/success', params: { id } });
     } catch (error) {
@@ -108,6 +124,13 @@ export default function CreateStep2() {
         value={draft.location}
         onChangeText={(location) => setDraft((d) => ({ ...d, location }))}
       />
+      <Button
+        label={locating ? 'Suche Standort …' : 'Aktuellen Standort verwenden'}
+        variant="secondary"
+        onPress={useLocation}
+        disabled={locating}
+      />
+      <Notice message="Wähle einen öffentlich bekannten Ort, etwa einen Platz, eine Straßenecke oder einen Laden. Keine Wohnadresse. Sei sorgsam mit der Sicherheit anderer Menschen." />
       <FieldGroup label="Bounty (optional)">
         <ChipGroup>
           <Chip

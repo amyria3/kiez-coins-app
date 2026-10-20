@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase';
 import type {
   Challenge,
   ChallengeStatus,
+  ExtraPhoto,
   ImageSource,
   Payout,
   PayoutMethod,
@@ -57,6 +58,7 @@ type ChallengeRow = {
   bounty_amount: number | null;
   status: ChallengeStatus;
   image_path: string | null;
+  extra_image_paths?: string[] | null;
   image_before_path: string | null;
   image_after_path: string | null;
   deadline: string | null;
@@ -133,6 +135,10 @@ function toChallenge(
     status: row.status,
     image: photoUrl(row.image_path),
     imagePath: row.image_path ?? undefined,
+    extraImages: (row.extra_image_paths ?? []).flatMap((path) => {
+      const photo = photoUrl(path);
+      return photo ? [{ photo, path }] : [];
+    }),
     imageBefore: photoUrl(row.image_before_path),
     imageAfter: photoUrl(row.image_after_path),
     likedByMe: extra.liked,
@@ -362,19 +368,34 @@ export type NewChallenge = {
   bountyAmount?: number;
   deadline: string;
   photo: ImageSource;
+  extras?: ExtraPhoto[];
 };
 
 /** Spalten lat/lng (Migration 20261020000400). Ohne Punkt bleiben sie weg, damit es auch ohne Migration läuft. */
 const coordFields = (coords?: { latitude: number; longitude: number }) =>
   coords ? { lat: coords.latitude, lng: coords.longitude } : {};
 
-/** Fehlen die Spalten noch (Migration nicht eingespielt), noch einmal ohne Punkt speichern. */
+/** Weitere Fotos hochladen, soweit sie noch keinen Pfad haben. Gibt alle Pfade zurück. */
+async function uploadExtras(userId: string, extras?: ExtraPhoto[]): Promise<string[] | undefined> {
+  if (!extras) return undefined;
+  const paths: string[] = [];
+  for (const extra of extras.slice(0, 2)) paths.push(extra.path ?? (await uploadPhoto(userId, extra.photo)));
+  return paths;
+}
+
+/** Neue, optionale Spalten: Punkt (Migration 20261020000400) und weitere Fotos (20261020000700). */
+const optionalFields = (coords?: { latitude: number; longitude: number }, extraPaths?: string[]) => ({
+  ...coordFields(coords),
+  ...(extraPaths ? { extra_image_paths: extraPaths } : {}),
+});
+
+/** Fehlen neue Spalten noch (Migration nicht eingespielt), noch einmal ohne sie speichern. */
 async function retryWithoutCoords<T>(run: (withCoords: boolean) => Promise<T>): Promise<T> {
   try {
     return await run(true);
   } catch (error) {
     const e = error as { code?: string; message?: string };
-    if (e?.code === 'PGRST204' || /\b(lat|lng)\b/.test(e?.message ?? '')) return run(false);
+    if (e?.code === 'PGRST204' || /\b(lat|lng|extra_image_paths)\b/.test(e?.message ?? '')) return run(false);
     throw error;
   }
 }
@@ -382,6 +403,7 @@ async function retryWithoutCoords<T>(run: (withCoords: boolean) => Promise<T>): 
 /** Neue Challenge anlegen. Gibt die gespeicherte Challenge zurück. */
 export async function createChallenge(userId: string, draft: NewChallenge): Promise<Challenge> {
   const imagePath = await uploadPhoto(userId, draft.photo);
+  const extraPaths = await uploadExtras(userId, draft.extras);
   const { data } = await retryWithoutCoords(async (withCoords) =>
     check(
       await supabase
@@ -392,7 +414,7 @@ export async function createChallenge(userId: string, draft: NewChallenge): Prom
           body: draft.text,
           location: draft.location,
           bounty_amount: draft.bountyAmount ?? null,
-          ...(withCoords ? coordFields(draft.coords) : {}),
+          ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}),
           deadline: draft.deadline,
           image_path: imagePath,
         })
@@ -451,11 +473,13 @@ export type DraftInput = {
   /** Neues Foto vom Gerät. Ohne neues Foto bleibt `imagePath`. */
   photo?: ImageSource;
   imagePath?: string;
+  extras?: ExtraPhoto[];
 };
 
 /** Entwurf anlegen (ohne id) oder aktualisieren. Lädt ein neues Foto hoch. Gibt den gespeicherten Entwurf zurück. */
 export async function saveDraft(userId: string, id: string | undefined, draft: DraftInput): Promise<Challenge> {
   const imagePath = draft.imagePath ?? (draft.photo ? await uploadPhoto(userId, draft.photo) : null);
+  const extraPaths = await uploadExtras(userId, draft.extras);
   const fields = {
     title: draft.title.trim(),
     body: draft.text.trim(),
@@ -464,7 +488,7 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
     image_path: imagePath,
   };
   const { data } = await retryWithoutCoords(async (withCoords) => {
-    const all = { ...fields, ...(withCoords ? coordFields(draft.coords) : {}) };
+    const all = { ...fields, ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}) };
     const query = id
       ? supabase.from('challenges').update(all).eq('id', id).eq('status', 'draft')
       : supabase.from('challenges').insert({ ...all, author_id: userId, status: 'draft' });
@@ -477,13 +501,13 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
 export const publishDraft = (id: string, deadline: string) =>
   rpc('publish_challenge', { p_challenge_id: id, p_deadline: deadline });
 
-/** Entwurf löschen. Veröffentlichte Challenges lassen sich nur schließen. */
 /** Entwurf oder offene Challenge löschen. Nach dem Annehmen lehnt die Datenbank ab. */
 export async function deleteChallenge(id: string) {
   const res = check(
     await supabase.from('challenges').delete().eq('id', id).in('status', ['draft', 'open']).select('id'),
   );
-  if (!res.data?.length) throw new Error('Die Challenge lässt sich nicht mehr löschen, da sie schon angenommen ist.');
+  // Keine Zeile gelöscht: angenommen oder Migration 20261020000600 fehlt noch
+  if (!res.data?.length) throw new Error('Die Challenge ließ sich nicht löschen. Schließ sie oder schreib dem Kundenservice.');
 }
 
 /**
