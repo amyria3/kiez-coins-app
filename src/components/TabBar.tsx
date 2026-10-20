@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: space[16],
     width: 52,
-    height: size.touchTarget,
+    height: 48,
     borderRadius: radius.full,
     backgroundColor: color.accent.primary,
     alignItems: 'center',

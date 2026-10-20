@@ -1,19 +1,25 @@
 import type { ChallengeType } from './types';
 
 /**
- * Challenge-Typen an- und abschalten. Ein abgeschalteter Typ verschwindet aus dem Feed und den
- * Top-Challenges; sein Reiter bleibt sichtbar, ist gedimmt und zeigt einen Hinweis, dass er geplant ist.
+ * Challenge-Typen an- und abschalten. Ein abgeschalteter Typ lässt sich nicht erstellen; sein Reiter trägt
+ * „bald“ und zeigt den Hinweis aus `plannedTitle`/`plannedHint`. Vorhandene Challenges dieses Typs aus der
+ * Datenbank bleiben sichtbar.
  */
-export const challengeTypes: Record<ChallengeType, { active: boolean; label: string; plannedHint: string }> = {
+export const challengeTypes: Record<
+  ChallengeType,
+  { active: boolean; label: string; plannedTitle: string; plannedHint: string }
+> = {
   individual: {
     active: true,
     label: 'Challenge',
+    plannedTitle: '',
     plannedHint: '',
   },
   wave: {
     active: false,
     label: 'Wave',
-    plannedHint: 'Wave Challenges sind in Planung: Gruppen und Vereine rufen bald den ganzen Kiez zu gemeinsamen Aktionen auf.',
+    plannedTitle: 'Wave Challenges kommen später',
+    plannedHint: 'Gruppen und Vereine rufen damit bald den ganzen Kiez zu gemeinsamen Aktionen auf.',
   },
 };
 
