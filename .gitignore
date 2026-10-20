@@ -43,3 +43,4 @@ yarn-error.*
 # Web-App, gebaut mit npm run build:website
 website/app/
 website/.vercel
+website/.env*
