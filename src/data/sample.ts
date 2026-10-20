@@ -95,6 +95,7 @@ export const sampleChallenges: Challenge[] = [
     challengeText:
       'Hilfe! Auf dem Tempelhofer Feld hat sich nach den letzten paar Festivals einiges an Müll angesammelt. Wir möchten am Sonntag gemeinsam aufräumen. Greifzangen und Säcke sind da.',
     authorId: 'gardeners',
+    views: 48,
     location: 'Tempelhofer Feld',
     coords: { latitude: 52.473, longitude: 13.402 },
     kiez: 'Tempelhof, Berlin',

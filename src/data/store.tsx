@@ -52,7 +52,8 @@ type Action =
   | { type: 'useSampleData' }
   | { type: 'edit'; id: string; edit: remote.ChallengeEdit }
   | { type: 'close'; id: string }
-  | { type: 'deleteDraft'; id: string };
+  | { type: 'deleteDraft'; id: string }
+  | { type: 'delete'; id: string };
 
 function updateChallenge(state: State, id: string, patch: (c: Challenge) => Partial<Challenge>): State {
   return {
@@ -78,6 +79,7 @@ function reducer(state: State, action: Action): State {
     case 'close':
       return updateChallenge(state, action.id, () => ({ status: 'closed', closedAt: new Date().toISOString() }));
     case 'deleteDraft':
+    case 'delete':
       return { ...state, challenges: state.challenges.filter((c) => c.id !== action.id) };
     case 'accept':
       return updateChallenge(state, action.id, () => ({
@@ -189,6 +191,9 @@ async function persist(action: Action, before: State): Promise<string | null> {
       return action.id;
     case 'deleteDraft':
       await remote.deleteDraft(action.id);
+      return null;
+    case 'delete':
+      await remote.deleteChallenge(action.id);
       return null;
     case 'accept':
       await remote.challengeActions.accept(action.id);
