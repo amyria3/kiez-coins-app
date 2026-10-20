@@ -52,7 +52,7 @@ Daria hat aus drei Richtungen (Kiez-Quest, Nachtschicht, Kiez-Aushang) „Nachts
 ## Bis zum Launch
 
 **Technik (Claude):**
-- Feature „Gruppen“ mit Edensteinen umsetzen, Konzept in `docs/konzept-gruppen.md`. Einladung per Link erst mit eigener Domain.
+- Feature „Gruppen“ mit Edensteinen umsetzen, Konzept in `Übergabe/konzept-gruppen.md`. Einladung per Link erst mit eigener Domain.
 - App-IDs (`ios.bundleIdentifier`, `android.package`), Icon, Splash, `eas init`, `eas.json`, erster Build.
 - Push-Nachrichten echt machen (braucht Development Build statt Expo Go).
 - Standort für Kiez echt machen (bisher gespielt).
@@ -73,6 +73,6 @@ Reihenfolge-Vorschlag: zuerst EAS und App-IDs (Store-Weg dauert am längsten), p
 
 ## Regeln
 
-- Nichts committen oder pushen ohne Darias OK.
+- Nichts committen oder pushen ohne Darias OK. Ausnahme: Doku (Übergaben, Konzepte) legt Claude im Ordner `Übergabe/` ab und pusht sie direkt auf `main`.
 - Pakete mit `npx expo install` hinzufügen (siehe `AGENTS.md`).
 - Vor dem Abschluss Lint und Typecheck (`npx tsc --noEmit`).
