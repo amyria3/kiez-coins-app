@@ -1,6 +1,6 @@
 # Migrationen für Supabase vom 20.10.2026
 
-**Status:** Daria hat die Migrationen 1 bis 5 am 20. und 21.10.2026 im SQL-Editor ausgeführt. Offen sind Migration 6 (Gruppen), sobald der Code auf `main` liegt, und der Eintrag in Documentation.
+**Status:** Daria hat die Migrationen 1 bis 5 am 20. und 21.10.2026 im SQL-Editor ausgeführt. Offen sind Migration 6 (Gruppen) und danach 7 (Löschen und wieder veröffentlichen) sowie der Eintrag in Documentation.
 
 - **Datum:** 20.10.2026
 - **Gehört nach:** Datenbank-Doku in Documentation (Liste der Migrationen, Tabellen `comments` und `challenges`).
@@ -87,3 +87,18 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 **Danach prüfen:** In der App unter „Gruppen“ eine Gruppe gründen. Mit einem zweiten Konto über den Code beitreten. Die Gruppenseite zeigt dann 2 Mitglieder.
 
 **Bis sie läuft:** Der Reiter „Gruppen“ zeigt nur „Gruppe gründen“ und „Mit Code beitreten“. Beides meldet einen Fehler.
+
+## 7. `supabase/migrations/20261021000200_soft_delete_challenge.sql`
+
+**Wozu:** Offene Challenges löschen und wieder veröffentlichen. Läuft nach Nummer 6.
+
+**Ändert:**
+- Neuer Status `deleted` und Spalte `challenges.deleted_at`.
+- Gelöschte Challenges sieht nur die Ersteller:in. Kommentare und Likes sind dort gesperrt.
+- Funktion `delete_challenge`: offene Challenge ohne Annehmende auf `deleted` setzen.
+- Funktion `restore_challenge`: zurück auf `open`, optional mit neuer Frist.
+- Endgültig löschen nur noch Entwürfe. Nummer 4 ist damit überholt.
+
+**Danach prüfen:** In „Deine Challenges“ eine offene Challenge löschen. Sie verschwindet aus dem Feed und steht zugeklappt auf der letzten Seite. Aufklappen, „Wieder veröffentlichen“, sie steht wieder im Feed.
+
+**Bis sie läuft:** Löschen und Wieder veröffentlichen melden einen Fehler.

@@ -32,8 +32,8 @@ const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
 // Abgeschaltete Typen bleiben sichtbar, wenn es sie in der Datenbank gibt.
 function matchesTab(challenge: Challenge, tab: FeedTab, groupId?: string) {
-  // Entwürfe stehen nur in „Deine Challenges“. Geschlossene bleiben in der Timeline.
-  if (challenge.status === 'draft') return false;
+  // Entwürfe und gelöschte stehen nur in „Deine Challenges“. Geschlossene bleiben in der Timeline.
+  if (challenge.status === 'draft' || challenge.status === 'deleted') return false;
   // Gruppenaufgaben nur im Reiter „Gruppen“, dort nur die der gewählten Gruppe
   if (tab === 'groups') return !!groupId && challenge.groupId === groupId;
   if (challenge.groupId) return false;
@@ -200,6 +200,16 @@ export default function FeedScreen() {
     [swipeX],
   );
 
+  // Tippen auf einen Reiter: dieselbe Bewegung wie beim Wischen, aus der Richtung des Reiters.
+  const switchTab = (key: FeedTab) => {
+    const from = TAB_ORDER.indexOf(tab);
+    const to = TAB_ORDER.indexOf(key);
+    selectTab(key);
+    if (to === from) return;
+    swipeX.setValue(to > from ? 56 : -56);
+    Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, ...motion.barrierSpring }).start();
+  };
+
   const typeOfTab = tab === 'wave' ? 'wave' : null;
   const planned = typeOfTab && !isTypeActive(typeOfTab) ? challengeTypes[typeOfTab] : null;
   // Stories erst in der Ziel-Ansicht und nur, wenn es welche gibt.
@@ -314,7 +324,7 @@ export default function FeedScreen() {
         </View>
       </Animated.View>
       <Animated.View style={[styles.tabsRow, { paddingRight: tabsPaddingRight }]}>
-        <TabsNavigation selectedKey={tab} onChange={selectTab} />
+        <TabsNavigation selectedKey={tab} onChange={switchTab} />
       </Animated.View>
       <Animated.View style={[styles.clip, storiesStyle]}>
         <View onLayout={(e) => setStoriesHeight(e.nativeEvent.layout.height)}>
@@ -341,7 +351,7 @@ export default function FeedScreen() {
       <TabBar
         active="feed"
         hasTasks={hasTasks}
-        onFeedPress={() => selectTab('nearby')}
+        onFeedPress={() => switchTab('nearby')}
         onReisePress={() => router.push('/reise')}
         onReiseLongPress={() => router.push('/demo')}
         onMenuPress={() => router.push('/account')}

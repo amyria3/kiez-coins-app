@@ -3,6 +3,7 @@ import {
   Alert,
   FlatList,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -39,6 +40,17 @@ const ORDER: Record<string, number> = {
   closed: 3,
 };
 
+const DAY = 24 * 60 * 60 * 1000;
+
+/** Neue Frist beim Wiederveröffentlichen: so lang wie ursprünglich, mindestens ein Tag. */
+const renewedDeadline = (c: Challenge) => {
+  const original = new Date(c.deadline).getTime() - new Date(c.createdAt).getTime();
+  return new Date(Date.now() + Math.max(original, DAY)).toISOString();
+};
+
+/** Eine Seite pro Challenge, gelöschte zusammen auf der letzten Seite. */
+type Page = { kind: 'challenge'; challenge: Challenge } | { kind: 'deleted'; challenges: Challenge[] };
+
 const deletable = (c: Challenge) => c.status === 'draft' || (c.status === 'open' && !c.assigneeId);
 
 /**
@@ -53,13 +65,18 @@ export default function ManageChallenges() {
   const [pageHeight, setPageHeight] = useState(0);
   const [index, setIndex] = useState(0);
 
-  const mine = useMemo(
-    () =>
-      challenges
-        .filter((c) => c.authorId === currentUserId)
-        .sort((a, b) => (ORDER[a.status] ?? 9) - (ORDER[b.status] ?? 9) || b.createdAt.localeCompare(a.createdAt)),
-    [challenges, currentUserId],
-  );
+  const pages = useMemo<Page[]>(() => {
+    const own = challenges.filter((c) => c.authorId === currentUserId);
+    const active = own
+      .filter((c) => c.status !== 'deleted')
+      .sort((a, b) => (ORDER[a.status] ?? 9) - (ORDER[b.status] ?? 9) || b.createdAt.localeCompare(a.createdAt));
+    const deleted = own
+      .filter((c) => c.status === 'deleted')
+      .sort((a, b) => (b.deletedAt ?? '').localeCompare(a.deletedAt ?? ''));
+    const list: Page[] = active.map((challenge) => ({ kind: 'challenge', challenge }));
+    if (deleted.length) list.push({ kind: 'deleted', challenges: deleted });
+    return list;
+  }, [challenges, currentUserId]);
 
   const create = () => requireKiez() && router.push('/challenge/create/step-1');
   const openDraft = (c: Challenge) =>
@@ -102,7 +119,7 @@ export default function ManageChallenges() {
       isDraft ? 'Entwurf löschen?' : 'Challenge löschen?',
       isDraft
         ? 'Das lässt sich nicht rückgängig machen.'
-        : 'Die Challenge verschwindet samt Kommentaren aus dem Feed. Das lässt sich nicht rückgängig machen.',
+        : 'Die Challenge verschwindet aus dem Feed. Unten in „Deine Challenges“ kannst Du sie wieder veröffentlichen.',
       [
         { text: 'Abbrechen', style: 'cancel' },
         {
@@ -114,31 +131,49 @@ export default function ManageChallenges() {
     );
   };
 
+  const restore = (c: Challenge) => {
+    if (!requireKiez()) return;
+    const expired = new Date(c.deadline).getTime() <= Date.now();
+    if (!expired) {
+      dispatch({ type: 'restore', id: c.id });
+      return;
+    }
+    const deadline = renewedDeadline(c);
+    Alert.alert(
+      'Wieder veröffentlichen?',
+      `Die Frist war abgelaufen. Sie läuft jetzt neu bis ${formatDayMonthShort(deadline)}. Ändern kannst Du sie danach unter „Bearbeiten“.`,
+      [
+        { text: 'Abbrechen', style: 'cancel' },
+        { text: 'Veröffentlichen', onPress: () => dispatch({ type: 'restore', id: c.id, deadline }) },
+      ],
+    );
+  };
+
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (!pageHeight) return;
     const next = Math.round(e.nativeEvent.contentOffset.y / pageHeight);
     if (next !== index) setIndex(next);
   };
 
-  const current = Math.min(index, Math.max(mine.length - 1, 0));
+  const current = Math.min(index, Math.max(pages.length - 1, 0));
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <NavigationBar
         title="Deine Challenges"
-        subtitle={mine.length > 1 ? `${current + 1} von ${mine.length}` : undefined}
+        subtitle={pages.length > 1 ? `${current + 1} von ${pages.length}` : undefined}
         variant="back"
         onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))}
       />
       <View style={styles.flex} onLayout={(e) => setPageHeight(e.nativeEvent.layout.height)}>
-        {mine.length === 0 ? (
+        {pages.length === 0 ? (
           <View style={styles.empty}>
             <KaterCard>Du hast noch keine Challenge erstellt. Fang mit einem Foto an.</KaterCard>
           </View>
         ) : pageHeight > 0 ? (
           <FlatList
-            data={mine}
-            keyExtractor={(c) => c.id}
+            data={pages}
+            keyExtractor={(p) => (p.kind === 'deleted' ? 'deleted' : p.challenge.id)}
             pagingEnabled
             snapToInterval={pageHeight}
             decelerationRate="fast"
@@ -146,19 +181,34 @@ export default function ManageChallenges() {
             onScroll={onScroll}
             scrollEventThrottle={32}
             getItemLayout={(_, i) => ({ length: pageHeight, offset: pageHeight * i, index: i })}
-            renderItem={({ item }) => (
-              <View style={[styles.page, { height: pageHeight }]}>
-                <ChallengeCard
-                  challenge={item}
-                  assignee={users.find((u) => u.id === item.assigneeId)}
-                  onOpen={() => (item.status === 'draft' ? openDraft(item) : router.push(`/challenge/${item.id}`))}
-                  onEdit={() => (item.status === 'draft' ? openDraft(item) : router.push(`/challenge/${item.id}/edit`))}
-                  onClose={() => close(item)}
-                  onDelete={() => remove(item)}
-                  hasNext={mine.length > 1 && item.id !== mine[mine.length - 1].id}
-                />
-              </View>
-            )}
+            renderItem={({ item: page, index: i }) => {
+              const hasNext = i < pages.length - 1;
+              if (page.kind === 'deleted') {
+                return (
+                  <View style={[styles.page, { height: pageHeight }]}>
+                    <DeletedCard
+                      challenges={page.challenges}
+                      onOpen={(c) => router.push(`/challenge/${c.id}`)}
+                      onRestore={restore}
+                    />
+                  </View>
+                );
+              }
+              const item = page.challenge;
+              return (
+                <View style={[styles.page, { height: pageHeight }]}>
+                  <ChallengeCard
+                    challenge={item}
+                    assignee={users.find((u) => u.id === item.assigneeId)}
+                    onOpen={() => (item.status === 'draft' ? openDraft(item) : router.push(`/challenge/${item.id}`))}
+                    onEdit={() => (item.status === 'draft' ? openDraft(item) : router.push(`/challenge/${item.id}/edit`))}
+                    onClose={() => close(item)}
+                    onDelete={() => remove(item)}
+                    hasNext={hasNext}
+                  />
+                </View>
+              );
+            }}
           />
         ) : null}
       </View>
@@ -271,6 +321,86 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onDele
   );
 }
 
+/** Letzte Seite: gelöschte Challenges, zugeklappt. Aufgeklappt mit „Wieder veröffentlichen“. */
+function DeletedCard({
+  challenges,
+  onOpen,
+  onRestore,
+}: {
+  challenges: Challenge[];
+  onOpen: (c: Challenge) => void;
+  onRestore: (c: Challenge) => void;
+}) {
+  const [expanded, setExpanded] = useState<string>();
+
+  return (
+    <View style={styles.card}>
+      <View style={styles.badges}>
+        <StatusBadge status="deleted" />
+        <Text style={styles.caption}>
+          {challenges.length === 1 ? '1 Challenge' : `${challenges.length} Challenges`}, nur für Dich sichtbar
+        </Text>
+      </View>
+      <ScrollView contentContainerStyle={styles.deletedList} showsVerticalScrollIndicator={false}>
+        {challenges.map((c) => {
+          const open = expanded === c.id;
+          const photo = c.image ?? c.imageAfter ?? c.imageBefore;
+          return (
+            <View key={c.id} style={styles.deletedItem}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ expanded: open }}
+                accessibilityLabel={`${c.title || 'Ohne Titel'}, gelöscht. ${open ? 'Zuklappen' : 'Aufklappen'}`}
+                onPress={() => setExpanded(open ? undefined : c.id)}
+                style={({ pressed }) => [styles.head, pressed && styles.pressed]}
+              >
+                {photo ? (
+                  <Image source={photo} style={[styles.thumbSmall, styles.dimmed]} contentFit="cover" />
+                ) : (
+                  <View style={[styles.thumbSmall, styles.thumbEmpty]}>
+                    <Icon name="camera" size={size.icon} color={color.text.secondary} />
+                  </View>
+                )}
+                <View style={styles.flex}>
+                  <Text style={styles.deletedTitle} numberOfLines={1}>
+                    {c.title || 'Ohne Titel'}
+                  </Text>
+                  <Text style={styles.caption}>
+                    Gelöscht{c.deletedAt ? ` am ${formatDayMonthShort(c.deletedAt)}` : ''}
+                  </Text>
+                </View>
+                <View style={open ? styles.chevronUp : styles.chevronDown}>
+                  <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
+                </View>
+              </Pressable>
+              {open ? (
+                <View style={styles.deletedBody}>
+                  {c.text ? (
+                    <Text style={styles.body} numberOfLines={3}>
+                      {c.text}
+                    </Text>
+                  ) : null}
+                  <Text style={styles.caption}>
+                    {[
+                      c.views === undefined ? null : `${c.views} Aufrufe`,
+                      `${c.comments.length} Kommentare`,
+                      c.bountyAmount ? 'mit Bounty' : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </Text>
+                  <Button label="Wieder veröffentlichen" onPress={() => onRestore(c)} />
+                  <Button label="Ansehen" variant="secondary" onPress={() => onOpen(c)} />
+                </View>
+              ) : null}
+            </View>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
+}
+
 function Metric({ icon, label, value, hint }: { icon: IconName; label: string; value: string; hint?: string }) {
   return (
     <View style={styles.metric} accessible accessibilityLabel={`${label}: ${value}${hint ? `, ${hint}` : ''}`}>
@@ -330,4 +460,17 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: space[8] },
   muted: { opacity: 0.35 },
   next: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
+  deletedList: { gap: space[8] },
+  deletedItem: {
+    gap: space[12],
+    padding: space[12],
+    borderRadius: radius.xl,
+    backgroundColor: color.bg.screen,
+  },
+  deletedTitle: { ...text.body, color: color.text.primary },
+  deletedBody: { gap: space[12] },
+  thumbSmall: { width: 48, height: 48, borderRadius: radius.xl },
+  dimmed: { opacity: 0.5 },
+  chevronDown: { transform: [{ rotate: '90deg' }] },
+  chevronUp: { transform: [{ rotate: '-90deg' }] },
 });

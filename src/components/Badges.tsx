@@ -16,6 +16,7 @@ const statusStyles: Record<ChallengeStatus, { label: string; tint: string }> = {
   paid_marked: { label: 'Als bezahlt markiert', tint: color.accent.primary },
   paid: { label: 'Bezahlt', tint: color.accent.affection },
   closed: { label: 'Geschlossen', tint: color.text.secondary },
+  deleted: { label: 'Gelöscht', tint: color.accent.signal },
 };
 
 /** Figma „StatusBadge“ */

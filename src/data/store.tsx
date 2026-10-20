@@ -56,6 +56,7 @@ type Action =
   | { type: 'close'; id: string }
   | { type: 'deleteDraft'; id: string }
   | { type: 'delete'; id: string }
+  | { type: 'restore'; id: string; deadline?: string }
   | { type: 'setGroups'; groups: Group[] };
 
 function updateChallenge(state: State, id: string, patch: (c: Challenge) => Partial<Challenge>): State {
@@ -83,8 +84,15 @@ function reducer(state: State, action: Action): State {
     case 'close':
       return updateChallenge(state, action.id, () => ({ status: 'closed', closedAt: new Date().toISOString() }));
     case 'deleteDraft':
-    case 'delete':
       return { ...state, challenges: state.challenges.filter((c) => c.id !== action.id) };
+    case 'delete':
+      return updateChallenge(state, action.id, () => ({ status: 'deleted', deletedAt: new Date().toISOString() }));
+    case 'restore':
+      return updateChallenge(state, action.id, (c) => ({
+        status: 'open',
+        deletedAt: undefined,
+        deadline: action.deadline ?? c.deadline,
+      }));
     case 'accept':
       return updateChallenge(state, action.id, () => ({
         status: 'accepted',
@@ -202,7 +210,10 @@ async function persist(action: Action, before: State): Promise<string | null> {
       return null;
     case 'delete':
       await remote.deleteChallenge(action.id);
-      return null;
+      return action.id;
+    case 'restore':
+      await remote.restoreChallenge(action.id, action.deadline);
+      return action.id;
     case 'accept':
       await remote.challengeActions.accept(action.id);
       return action.id;

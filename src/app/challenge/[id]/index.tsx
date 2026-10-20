@@ -241,7 +241,7 @@ export default function ChallengeDetail() {
           currentUserId={currentUserId}
           composerPlaceholder={isAuthor ? 'Antworte oder ergänze etwas …' : `Frag ${author.firstName} …`}
           onSend={
-            challenge.status === 'closed' || !canWrite
+            challenge.status === 'closed' || challenge.status === 'deleted' || !canWrite
               ? undefined
               : (body, replyToId) => needKiez() && dispatch({ type: 'addComment', id: challenge.id, body, replyToId })
           }
@@ -249,7 +249,9 @@ export default function ChallengeDetail() {
           closedHint={
             challenge.status === 'closed'
               ? 'Die Challenge ist geschlossen. Neue Kommentare sind nicht mehr möglich.'
-              : 'Leg in Deinem Konto Deinen Kiez fest, dann kannst Du mitschreiben.'
+              : challenge.status === 'deleted'
+                ? 'Die Challenge ist gelöscht und nur für Dich sichtbar. Neue Kommentare sind nicht möglich.'
+                : 'Leg in Deinem Konto Deinen Kiez fest, dann kannst Du mitschreiben.'
           }
           onReport={(comment) =>
             router.push({ pathname: '/user/[id]/report', params: { id: comment.authorId, challengeId: challenge.id } })
