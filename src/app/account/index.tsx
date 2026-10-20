@@ -5,11 +5,11 @@ import { useRouter } from 'expo-router';
 import { Button } from '../../components/Button';
 import { FieldGroup, KaterBubble } from '../../components/Content';
 import { SwitchRow, TextField } from '../../components/Form';
-import { EditableRow, NavRow } from '../../components/Rows';
+import { NavRow, ProfileCard } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
-import { addressForms, anrede } from '../../data/format';
+import { anrede } from '../../data/format';
 import { useAuth } from '../../data/auth';
-import { saveHandle, sendSupportRequest, errorText } from '../../data/remote';
+import { sendSupportRequest, errorText } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
 import { space } from '../../theme/tokens';
 
@@ -22,17 +22,6 @@ export default function Account() {
   const [support, setSupport] = useState('');
   const [sending, setSending] = useState(false);
   const live = mode === 'live' && !!session;
-
-  const saveDeckname = async (handle: string) => {
-    if (live) {
-      const failure = await saveHandle(session.user.id, handle);
-      if (failure) {
-        Alert.alert('Deckname nicht geändert', failure);
-        return;
-      }
-    }
-    dispatch({ type: 'updateProfile', patch: { handle: handle.trim() } });
-  };
 
   const sendSupport = async () => {
     if (live) {
@@ -52,14 +41,6 @@ export default function Account() {
 
   const payoutValue = me.payout?.iban ? 'IBAN hinterlegt' : me.payout?.paypal ? 'PayPal hinterlegt' : 'Nicht hinterlegt';
 
-  const saveAnrede = (value: string) => {
-    const preset = addressForms.find((f) => f.label === value);
-    dispatch({
-      type: 'updateProfile',
-      patch: preset ? { addressForm: preset.key, addressCustom: undefined } : { addressForm: 'custom', addressCustom: value },
-    });
-  };
-
   const toStart = async () => {
     await signOut();
     router.dismissAll();
@@ -69,22 +50,14 @@ export default function Account() {
   return (
     <SubScreen title="Dein Konto" navigation="back" onLeadingPress={() => router.back()}>
       <KaterBubble>Ahoi, {anrede(profile)}! Hier trimmst Du Dein Schiff. Tipp einfach auf das, was Du ändern willst.</KaterBubble>
+      <ProfileCard
+        user={me}
+        name={profile.handle || me.name}
+        details={[anrede(profile), profile.kiez ?? 'Kiez noch nicht festgelegt']}
+        onPress={() => router.push('/account/profile')}
+      />
       <NavRow label="Deine Reise" value="Verlauf und Aufgaben" onPress={() => router.push('/reise')} />
       <NavRow label="Deine Challenges" value="Entwürfe, offen, geschlossen" onPress={() => router.push('/manage')} />
-      <FieldGroup label="Profil">
-        <EditableRow
-          label="Deckname"
-          value={profile.handle || me.name}
-          maxLength={30}
-          onSave={saveDeckname}
-        />
-        <EditableRow label="Ansprache" value={anrede(profile)} maxLength={30} onSave={saveAnrede} />
-        <NavRow
-          label="Kiez"
-          value={profile.kiez ?? 'Noch nicht festgelegt'}
-          onPress={() => router.push({ pathname: '/onboarding/kiez', params: { from: 'app' } })}
-        />
-      </FieldGroup>
       <FieldGroup label="Benachrichtigungen">
         <SwitchRow
           label="Push-Nachrichten"

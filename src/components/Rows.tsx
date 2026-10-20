@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { color, radius, space, stroke, text } from '../theme/tokens';
+import type { User } from '../data/types';
+import { color, radius, size, space, stroke, text } from '../theme/tokens';
+import { Avatar } from './AuthorRow';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 
@@ -90,7 +92,39 @@ export function NavRow({ label, value, tone = 'default', onPress }: NavRowProps)
     >
       <Text style={[styles.value, styles.flex, tone === 'danger' && { color: color.accent.signal }]}>{label}</Text>
       {value ? <Text style={styles.label}>{value}</Text> : null}
-      <Icon name="chevron-right" />
+      <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
+    </Pressable>
+  );
+}
+
+type ProfileCardProps = {
+  user: User;
+  name: string;
+  details: string[];
+  onPress: () => void;
+};
+
+/** Große Karte im Stil der NavRow: Profilbild, Deckname und persönliche Angaben, führt zum Bearbeiten. */
+export function ProfileCard({ user, name, details, onPress }: ProfileCardProps) {
+  return (
+    <Pressable
+      style={({ pressed }) => [styles.row, styles.profileCard, pressed && styles.pressed]}
+      accessibilityRole="button"
+      accessibilityLabel={`Persönliche Angaben: ${name}, ${details.join(', ')}. Ändern`}
+      onPress={onPress}
+    >
+      <Avatar user={{ ...user, name }} diameter={56} />
+      <View style={styles.texts}>
+        <Text style={styles.profileName} numberOfLines={1}>
+          {name}
+        </Text>
+        {details.map((line) => (
+          <Text key={line} style={styles.label} numberOfLines={1}>
+            {line}
+          </Text>
+        ))}
+      </View>
+      <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
     </Pressable>
   );
 }
@@ -106,6 +140,8 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
   },
   navRow: { minHeight: 48 },
+  profileCard: { padding: space[16], gap: space[16], borderRadius: radius.lg },
+  profileName: { ...text.cardTitle, color: color.text.primary },
   editing: { borderWidth: stroke.thin, borderColor: color.accent.primary, paddingVertical: space[4], paddingRight: space[4] },
   pressed: { opacity: 0.8 },
   texts: { flex: 1, gap: space[2] },
