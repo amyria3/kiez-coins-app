@@ -36,16 +36,20 @@ Ohne Handy geht es auch im Browser: `npx expo start --web`.
 ## Was Du ausprobieren kannst
 
 - **Onboarding:** Die App startet mit „Anheuern“. Du legst ein Konto mit E-Mail und Passwort an. Nach dem Onboarding bleibst Du angemeldet, auch nach dem Neustart. „Ich hab schon ein Konto“ meldet ein bestehendes Konto an und springt direkt in den Feed.
-- **Feed:** Challenges in der Nähe, Wave Challenges und erledigte Challenges. Am Anfang ist er leer, bis jemand die erste Challenge erstellt. Nach unten ziehen lädt neu.
+- **Feed:** Segmente „In der Nähe“, „Wave“ und „Pleasure“ (erledigte Challenges, ohne Story-Kreise). Logo und Begrüßung stehen nur bis zur ersten Interaktion oben; nach einem Tipp auf ein Segment oder dem Wegscrollen bleibt die Ziel-Ansicht mit den Segmenten oben. Jede Challenge ist eine Fotokarte mit Bounty oben rechts. Am Anfang ist der Feed leer, bis jemand die erste Challenge erstellt. Nach unten ziehen lädt neu.
+- **Wave (geplant):** Der Reiter ist gedimmt und zeigt beim Öffnen den Hinweis „Wave Challenges kommen später“, darunter vorhandene Wave-Challenges aus der Datenbank. An- und abschalten in `src/data/features.ts` (`active`).
+- **Tab-Leiste unten:** Stecknadel = Feed, Kater = Deine Reise (oranger Punkt: Du bist dran), Burger = Dein Konto.
 - **Challenge erfüllen:** Challenge öffnen → „Challenge annehmen“ → Operation taufen (freiwillig), Fragen in den Kommentaren stellen → „Erledigt melden“ mit Foto → Zahlungsdaten für die Bounty freigeben.
-- **Challenge erstellen:** Kamera-Symbol oben rechts im Feed.
+- **Challenge erstellen:** Kamera oben rechts im Feed. Sie bleibt beim Scrollen stehen.
+- **Challenge-Detail:** Foto oben, darunter ein Blatt mit Status, Titel, Bounty und Frist. Der Griff oben im Blatt klappt die Details ein. Bei eigenen Challenges öffnet das Zahnrad rechts neben dem Status Bearbeiten, Schließen und Alle verwalten.
+- **Kommentare:** öffentlich unter jeder veröffentlichten Challenge. „Antworten“ unter einem Kommentar antwortet gezielt darauf; Antworten stehen eingerückt darunter.
 - **Erledigung bestätigen** und **Bounty auf Vertrauen:** Dafür braucht es zwei Konten, zum Beispiel Deins auf dem Handy und ein zweites im Browser mit einer anderen E-Mail-Adresse. Konto A erstellt eine Challenge mit Bounty, Konto B nimmt sie an und meldet sie erledigt, A bestätigt und sieht dann die Zahlungsdaten, B bestätigt den Empfang. Ohne zweites Konto geht es mit Beispieldaten über das Demo-Menü.
-- **Deine Reise:** Tipp auf Logo und Kater oben im Feed (oder „Deine Reise“ im Konto). Alle Challenges, die Du erstellt oder angenommen hast, als Kacheln mit Etikett. Ein oranger Punkt zeigt, wo Du dran bist; derselbe Punkt sitzt dann auch am Kater im Feed. Der Kater oben zeigt eine Stimmung, die zum Geschehen passt.
-- **Konto und Einstellungen:** Menü-Symbol oben links im Feed. Deckname und Ansprache ändern, Zahlungsdaten und Freigaben verwalten, Konto pausieren oder löschen.
+- **Deine Reise:** Kater in der Tab-Leiste (oder „Deine Reise“ im Konto). Oben der Kater mit einer Stimmung, die zum Geschehen passt, darunter Karten „Du bist dran“, die Bilanz (erstellt, angenommen, verdient) und der Verlauf.
+- **Dein Konto:** Burger in der Tab-Leiste. Große Profilkarte → „Persönliche Angaben“ (Deckname, Ansprache, Kiez). Unter „Einstellungen“ Benachrichtigungen, Zahlungsdaten und Support als eigene Seiten. Darunter Abmelden, Pausieren, Löschen.
 
 ### Demo-Menü
 
-**Logo „Kiez Coins“ im Feed lange gedrückt halten.** Dort kannst Du:
+**Logo „Kiez Coins“ im Feed oder den Kater in der Tab-Leiste lange gedrückt halten.** Dort kannst Du:
 
 - zwischen echten Daten und Beispieldaten wechseln (Beispieldaten bleiben auf dem Gerät),
 - mit Beispieldaten wechseln, wer Du bist (Peter J. oder die Nachbarschaftsgärtner*innen),
@@ -88,7 +92,8 @@ Das Schema steht in `supabase/migrations` und ist im Projekt „Kiez Coins Data�
 | `payout_shares` | Freigabe der Zahlungsdaten für eine Challenge | annehmende Person; Ersteller:in erst nach der Bestätigung |
 | `user_reports`, `support_requests` | Meldungen und Support-Anfragen | nur die eigenen; ausgewertet im Supabase-Dashboard |
 
-- **Statuswechsel** (annehmen, erledigt melden, bestätigen, ablehnen, bezahlt markieren, Erhalt bestätigen, abgeben) gehen nur über Datenbankfunktionen, die Rolle und Status prüfen. Direkt ändern kann die App eine Challenge nicht.
+- **Statuswechsel** (annehmen, erledigt melden, bestätigen, ablehnen, bezahlt markieren, Erhalt bestätigen, abgeben) und das **Bearbeiten** einer offenen eigenen Challenge (`edit_open_challenge`) gehen nur über Datenbankfunktionen, die Rolle und Status prüfen. Direkt ändern kann die App eine Challenge nicht.
+- **Antworten auf Kommentare:** Spalte `comments.reply_to_id` (Migration `20261020000300_comment_replies.sql`). Ein zusammengesetzter Fremdschlüssel sorgt dafür, dass eine Antwort zur selben Challenge gehört.
 - Ohne Kiez, mit Pause oder Sperre kann man nur lesen. Bounties anbieten geht nicht mehr, wenn `profiles.can_offer_bounties` auf `false` steht (setzt die Moderation).
 - **Fotos** liegen im öffentlichen Storage-Bucket `photos`, jede Person lädt nur in ihren eigenen Ordner hoch.
 - **Test:** `supabase/tests/challenge_flow.sql` im SQL-Editor ausführen. Er spielt eine Bounty-Challenge einmal durch und rollt am Ende alles zurück.
@@ -100,8 +105,8 @@ Das Schema steht in `supabase/migrations` und ist im Projekt „Kiez Coins Data�
 
 Grundlage ist die Figma-Datei „Kiez Coins“. Ändert sich dort etwas, wird es hier von Hand nachgezogen:
 
-- **Farben, Abstände, Schriften:** `src/theme/tokens.ts` (Namen wie die Figma-Variablen, `color/bg/screen` → `color.bg.screen`).
-- **Icons und Kater:** `src/components/icons/` (aus Figma als SVG exportiert).
+- **Farben, Abstände, Schriften:** `src/theme/tokens.ts` (Namen wie die Figma-Variablen, `color/bg/screen` → `color.bg.screen`). Neu mit dem Upgrade „Nachtschicht“: `color.bg.glass`, `color.line.hairline`, Radien `xl`, `card`, `sheet`, `size.icon` (18 pt für Icons in Leisten), Schrift Inter Tight (`font.display`) mit den Text Styles `display`, `headline`, `cardTitle`, `metric`. Diese Werte fehlen noch in Figma.
+- **Icons und Kater:** `src/components/icons/` (aus Figma als SVG exportiert). Das Zahnrad `settings` ist noch kein Figma-Icon.
 - **Texte:** stehen direkt in den Screens unter `src/app`.
 
 Bewusste Abweichungen von Figma:

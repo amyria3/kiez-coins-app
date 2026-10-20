@@ -6,7 +6,7 @@ Für die nächste Claude-Sitzung (auch auf Darias Mac). Daria schreibt Deutsch u
 
 - Repo `amyria3/kiez-coins-app`, Branch `main`. Auf dem Mac: `~/kiez-coins-app`.
 - Expo SDK 57, Expo Router (`src/app`), Supabase-Client in `src/lib/supabase.ts`.
-- Supabase-Projekt „Kiez Coins Data“ (Ref `aqxzxpxrshizlaqyjplw`, Free-Plan). Migrationen in `supabase/migrations`, alle eingespielt. Test: `supabase/tests/challenge_flow.sql` (rollt zurück).
+- Supabase-Projekt „Kiez Coins Data“ (Ref `aqxzxpxrshizlaqyjplw`, Free-Plan). Migrationen in `supabase/migrations`, eingespielt bis `20261020000200` (`20261020000300_comment_replies` steht noch aus). Test: `supabase/tests/challenge_flow.sql` (rollt zurück).
 - Konzept und Briefing: `/mnt/project-files/kiez-coins/` (nur in Cloud-Sitzungen erreichbar).
 - Expo-Konto: Benutzer `kiezcoins`. Das Repo ist noch **nicht** mit EAS verknüpft (keine `projectId`, keine `eas.json`). Der Slug `kiez-coins-app` ist im Konto wohl schon vergeben, also mit `npx eas-cli@latest init` das vorhandene Projekt verknüpfen.
 
@@ -28,6 +28,19 @@ Für die nächste Claude-Sitzung (auch auf Darias Mac). Daria schreibt Deutsch u
 - Ansicht „Deine Challenges“ (`/manage`): „Verwalten“ am eigenen Post im Feed, „Alle verwalten“ im Detail, Konto.
 - Test: `supabase/tests/drafts_close_comments.sql`.
 - Supabase-MCP: `drop policy` und `delete` lösen eine Rückfrage aus, die in Thread-Sitzungen nach 60 s abbricht. Policies deshalb mit `alter policy` ändern.
+
+## Optisches Upgrade „Nachtschicht“ und Feed (20.10.2026)
+
+Daria hat aus drei Richtungen (Kiez-Quest, Nachtschicht, Kiez-Aushang) „Nachtschicht“ gewählt: dunkler Stil, Fotokarten mit Glasleiste, Inter Tight für Überschriften und Zahlen, Figma-Icons auf 18 pt. Entwürfe als Design-Canvas „Kiez Coins – Upgrade“ in claude.ai (öffnet sich auf Darias iPhone nicht, dort als Bilder geschickt).
+
+- **Feed:** Logo und Begrüßung nur bis zur ersten Interaktion (`headerGone` in `src/app/feed.tsx`), Segmente kleben oben (`stickyHeaderIndices`), Story-Kreise unter den Segmenten, nicht in „Pleasure“ (früher „Erledigt“). Kamera schwebt oben rechts (`CameraButton`), Menü in der Tab-Leiste (`TabBar`: Stecknadel, Kater, Burger).
+- **Challenge-Typen:** `src/data/features.ts`. Wave ist aus: Reiter gedimmt, zeigt `PlannedHint`, vorhandene Wave-Challenges bleiben sichtbar.
+- **Detail:** `HeroScreen` in `src/components/Screen.tsx` mit einklappbarem Blatt. Eigentümer-Aktionen im Zahnrad-Menü. Bounty und Frist in einer Zeile.
+- **Kommentare:** Antworten eine Ebene tief (`reply_to_id`), UI in `src/components/Comments.tsx`. Kommentare werden mit `comments(*)` geladen, damit die App vor und nach der Migration läuft.
+- **Konto:** Profilkarte → `account/profile`; Benachrichtigungen (`settings/notifications`), Zahlungsdaten und Support (`account/support`) als eigene Seiten.
+- **Offen:** Migration `20261020000300_comment_replies.sql` ist **noch nicht** in Supabase eingespielt. Bis dahin scheitern nur Antworten, normale Kommentare gehen.
+- **Offen:** Figma an den Stand der App anpassen. Der Figma-Connector war abgelaufen („neu verbinden“).
+- Web-Vorschau zum Prüfen: `CI=1 EXPO_OFFLINE=1 npx expo start --web --port 8090`, Beispieldaten über das Demo-Menü. Metro lädt Änderungen in der Cloud-Sitzung nicht immer nach; dann den Server neu starten.
 
 ## Nächster Schritt mit Daria
 
