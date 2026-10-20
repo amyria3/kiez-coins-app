@@ -40,7 +40,7 @@ iOS installiert Apps nur aus dem App Store, über TestFlight oder auf registrier
 
 ## Rechtstexte
 
-- Impressum, Datenschutzerklärung und Nutzungsbedingungen stehen in `src/legal/texts.json`. App und Seite lesen dieselbe Datei.
+- Impressum, Datenschutzerklärung und Nutzungsbedingungen stehen in `src/data/legal.ts`. App und Seite lesen dieselbe Datei.
 - In der App: Links auf `onboarding/welcome` und `onboarding/email`, lesbar verlinkt im Kodex, Abschnitt „Rechtliches“ unter „Dein Konto“. Route `rechtliches/[doc]`.
 - „AGB“ heißt jetzt „Nutzungsbedingungen“.
 - Seite neu bauen nach jeder Textänderung: `node scripts/build-download-site.mjs`, danach `website/` neu hochladen.
@@ -54,6 +54,6 @@ iOS installiert Apps nur aus dem App Store, über TestFlight oder auf registrier
 
 ## Offene Punkte
 
-- [offen: Anschrift für Impressum und Datenschutz] in `src/legal/texts.json`, Felder `street` und `city`. Ohne ladungsfähige Anschrift ist das Impressum unvollständig.
+- [offen: Anschrift für Impressum und Datenschutz] in `src/data/legal.ts`, `OPERATOR`, Felder `street` und `city`. Ohne ladungsfähige Anschrift ist das Impressum unvollständig.
 - Das App-Icon (`assets/icon.png`) ist noch das Expo-Platzhaltericon. Es erscheint auf dem Handy nach der Installation.
 - Auftragsverarbeitungsverträge: Supabase (Dashboard › Organization › Legal Documents) und Brevo (Konto › Sicherheit) abschließen.

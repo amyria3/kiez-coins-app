@@ -4,7 +4,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ActionBar } from '../../components/ActionBar';
 import { Button } from '../../components/Button';
-import { LegalLinks } from '../../components/LegalLinks';
 import { Cat } from '../../components/icons/Brand';
 import { color, font, space, stroke, text } from '../../theme/tokens';
 
@@ -26,7 +25,20 @@ export default function Welcome() {
           Ich bin der alte Kater vom Kiez. Die Segel hab ich eingeholt, aber für eine neue Crew würde ich alles tun.
           Alles. Hilf Deinen Nachbar*innen mit kleinen Challenges.
         </Text>
-        <LegalLinks />
+        <Text style={styles.legal}>
+          Testversion ·{' '}
+          <Text style={styles.link} accessibilityRole="link" onPress={() => router.push('/rechtliches/impressum')}>
+            Impressum
+          </Text>{' '}
+          ·{' '}
+          <Text style={styles.link} accessibilityRole="link" onPress={() => router.push('/rechtliches/datenschutz')}>
+            Datenschutz
+          </Text>{' '}
+          ·{' '}
+          <Text style={styles.link} accessibilityRole="link" onPress={() => router.push('/rechtliches/bedingungen')}>
+            Bedingungen
+          </Text>
+        </Text>
       </ScrollView>
       <ActionBar>
         <Button label="Anheuern" onPress={() => router.push('/onboarding/email')} />
@@ -56,4 +68,6 @@ const styles = StyleSheet.create({
   headline: { ...text.display, fontSize: 44, lineHeight: 46, letterSpacing: -1.2, color: color.text.primary },
   headlineMuted: { color: color.text.secondary },
   body: { fontFamily: font.light, fontSize: 16, lineHeight: 23, color: color.text.secondary },
+  legal: { ...text.caption, color: color.text.secondary },
+  link: { textDecorationLine: 'underline' },
 });

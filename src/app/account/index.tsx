@@ -7,7 +7,6 @@ import { SubScreen } from '../../components/Screen';
 import { anrede } from '../../data/format';
 import { useAuth } from '../../data/auth';
 import { useCurrentUser, useStore } from '../../data/store';
-import { legalDoc, legalDocKeys } from '../../legal';
 import { space } from '../../theme/tokens';
 
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
@@ -66,13 +65,9 @@ export default function Account() {
       </FieldGroup>
       <FieldGroup label="Rechtliches">
         <View style={styles.list}>
-          {legalDocKeys.map((doc) => (
-            <NavRow
-              key={doc}
-              label={legalDoc(doc).title}
-              onPress={() => router.push({ pathname: '/rechtliches/[doc]', params: { doc } })}
-            />
-          ))}
+          <NavRow label="Impressum" onPress={() => router.push('/rechtliches/impressum')} />
+          <NavRow label="Datenschutz" onPress={() => router.push('/rechtliches/datenschutz')} />
+          <NavRow label="Nutzungsbedingungen" value="Testphase" onPress={() => router.push('/rechtliches/bedingungen')} />
         </View>
       </FieldGroup>
     </SubScreen>
