@@ -1,5 +1,14 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, useWindowDimensions, View } from 'react-native';
+import {
+  FlatList,
+  LayoutAnimation,
+  RefreshControl,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -38,6 +47,9 @@ export default function FeedScreen() {
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const listRef = useRef<FlatList<FeedItem>>(null);
   const headerHeight = useRef(0);
+  // Logo und Begrüßung gibt es nur bis zur ersten Interaktion; danach bleibt die Ziel-Ansicht
+  // mit Segmenten oben.
+  const [headerGone, setHeaderGone] = useState(false);
 
   const posts = useMemo(() => challenges.filter((c) => matchesTab(c, tab)), [challenges, tab]);
   const topChallenges = useMemo(
@@ -74,13 +86,26 @@ export default function FeedScreen() {
   const showState =
     feedState === 'filled' || feedState === 'loading' ? (posts.length === 0 ? 'empty' : null) : feedState;
 
-  // Antippen eines Reiters schiebt Logo und Begrüßung nach oben weg; die Segmente bleiben oben stehen,
-  // der neue Inhalt beginnt direkt darunter.
+  const removeHeader = (scrollTo: number) => {
+    if (headerGone) return;
+    setHeaderGone(true);
+    requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: Math.max(0, scrollTo), animated: false }));
+  };
+
+  // Ist der Kopf weggescrollt, fällt er ganz weg; die Liste bleibt an derselben Stelle stehen.
+  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const y = e.nativeEvent.contentOffset.y;
+    if (!headerGone && headerHeight.current > 0 && y >= headerHeight.current) removeHeader(y - headerHeight.current);
+  };
+
+  // Ein Reiter blendet den Kopf aus, der neue Inhalt beginnt direkt unter den Segmenten.
   const selectTab = (key: FeedTab) => {
     setTab(key);
-    const target = headerHeight.current;
-    // Erst nach dem neuen Inhalt scrollen, sonst setzt der Wechsel die Position zurück
-    requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: target, animated: true }));
+    if (!headerGone) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setHeaderGone(true);
+    }
+    requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: 0, animated: true }));
   };
 
   const typeOfTab = tab === 'wave' ? 'wave' : null;
@@ -148,22 +173,26 @@ export default function FeedScreen() {
         data={items}
         keyExtractor={(item) => (item.kind === 'post' ? item.challenge.id : item.kind)}
         renderItem={renderItem}
-        // Kind 0 ist der Kopf (Logo, Begrüßung), Kind 1 die Segmente: Sie bleiben oben kleben.
-        stickyHeaderIndices={[1]}
+        // Die Segmente bleiben oben kleben: Kind 1 hinter dem Kopf, Kind 0, sobald der Kopf weg ist.
+        stickyHeaderIndices={[headerGone ? 0 : 1]}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
         ListHeaderComponent={
-          <View onLayout={(e) => (headerHeight.current = e.nativeEvent.layout.height)}>
-            <AppHeader
-              onLogoPress={() => router.push('/reise')}
-              onLogoLongPress={() => router.push('/demo')}
-              hasTasks={hasTasks}
-            />
-            <FeedGreeting name={anrede(profile)} kiez={kiezName} count={openCount} />
-          </View>
+          headerGone ? null : (
+            <View onLayout={(e) => (headerHeight.current = e.nativeEvent.layout.height)}>
+              <AppHeader
+                onLogoPress={() => router.push('/reise')}
+                onLogoLongPress={() => router.push('/demo')}
+                hasTasks={hasTasks}
+              />
+              <FeedGreeting name={anrede(profile)} kiez={kiezName} count={openCount} />
+            </View>
+          )
         }
         contentContainerStyle={[
           styles.list,
           // Genug Höhe, damit der Kopf auch bei kurzen Listen wegscrollen kann
-          { minHeight: windowHeight + headerHeight.current, paddingBottom: insets.bottom + TAB_BAR_SPACE },
+          { minHeight: headerGone ? 0 : windowHeight + headerHeight.current, paddingBottom: insets.bottom + TAB_BAR_SPACE },
         ]}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={color.text.secondary} />
@@ -175,6 +204,7 @@ export default function FeedScreen() {
         hasTasks={hasTasks}
         onFeedPress={() => selectTab('nearby')}
         onReisePress={() => router.push('/reise')}
+        onReiseLongPress={() => router.push('/demo')}
         onMenuPress={() => router.push('/account')}
       />
     </View>
@@ -191,7 +221,7 @@ type FeedItem =
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
-  list: { gap: space[16] },
+  list: { gap: space[12] },
   // Rechts Platz für die Kamera, die oben rechts schwebt
   tabsRow: {
     alignSelf: 'stretch',

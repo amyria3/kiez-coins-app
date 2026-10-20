@@ -67,6 +67,8 @@ export type Comment = {
   authorId: string;
   body: string;
   createdAt: string;
+  /** Antwort auf diesen Kommentar (eine Ebene) */
+  replyToId?: string;
 };
 
 export type Challenge = {

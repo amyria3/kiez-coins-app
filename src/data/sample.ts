@@ -55,6 +55,7 @@ const gardenComments: Comment[] = [
   {
     id: 'c2',
     authorId: 'peter',
+    replyToId: 'c1',
     body: 'Handschuhe und Schaufeln sind da. Bring gern Wasser mit!',
     createdAt: inPast(1 * HOUR),
   },
