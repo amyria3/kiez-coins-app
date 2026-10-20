@@ -5,10 +5,12 @@ import { Button } from '../../components/Button';
 import { KaterBubble } from '../../components/Content';
 import { SwitchRow } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
+import { useStore } from '../../data/store';
 
-/** Route `onboarding/kodex`. Figma: `onboarding/kodex`. Speichert später die drei Zeitstempel. */
+/** Route `onboarding/kodex`. Figma: `onboarding/kodex`. Speichert die drei Zeitstempel der Zustimmung. */
 export default function Kodex() {
   const router = useRouter();
+  const { dispatch } = useStore();
   const [age, setAge] = useState(false);
   const [terms, setTerms] = useState(false);
   const [privacy, setPrivacy] = useState(false);
@@ -23,7 +25,14 @@ export default function Kodex() {
         <Button
           label="Zustimmen und weiter"
           disabled={!(age && terms && privacy)}
-          onPress={() => router.push('/onboarding/push')}
+          onPress={() => {
+            const now = new Date().toISOString();
+            dispatch({
+              type: 'updateProfile',
+              patch: { ageConfirmedAt: now, termsAcceptedAt: now, privacyAcceptedAt: now },
+            });
+            router.push('/onboarding/push');
+          }}
         />
       }
     >

@@ -5,12 +5,13 @@ import { Button } from '../components/Button';
 import { FieldGroup, Notice } from '../components/Content';
 import { Chip, ChipGroup, RadioOption } from '../components/Form';
 import { SubScreen } from '../components/Screen';
+import { useAuth } from '../data/auth';
 import { useStore } from '../data/store';
 import type { FeedState } from '../data/types';
 import { color, text } from '../theme/tokens';
 
-// prototyp-only: Nicht Teil des Figma-Designs. Ersetzt Push-Benachrichtigungen und Rollenwechsel,
-// solange es nur Beispieldaten gibt. Öffnen: Logo im Feed lange drücken.
+// prototyp-only: Nicht Teil des Figma-Designs. Ersetzt Push-Benachrichtigungen und zeigt auf Wunsch
+// Beispieldaten (nur auf diesem Gerät), mit Rollenwechsel. Öffnen: Logo im Feed lange drücken.
 
 const feedStates: { key: FeedState; label: string }[] = [
   { key: 'filled', label: 'Gefüllt' },
@@ -22,7 +23,9 @@ const feedStates: { key: FeedState; label: string }[] = [
 
 export default function DemoMenu() {
   const router = useRouter();
-  const { users, challenges, currentUserId, feedState, dispatch } = useStore();
+  const { users, challenges, currentUserId, feedState, mode, dispatch, load } = useStore();
+  const { session } = useAuth();
+  const demo = mode === 'demo';
 
   const tasks: { label: string; href: Href }[] = [];
   for (const c of challenges) {
@@ -40,18 +43,41 @@ export default function DemoMenu() {
   };
 
   return (
-    <SubScreen title="Demo" subtitle="Nur mit Beispieldaten" navigation="close" onLeadingPress={() => router.back()}>
-      <Notice message="Dieses Menü gibt es nur im Prototyp. Es ersetzt Benachrichtigungen und das Anmelden als andere Person." />
-      <FieldGroup label="Du bist">
-        {users.filter((u) => u.id !== 'lena').map((u) => (
-          <RadioOption
-            key={u.id}
-            label={u.name}
-            selected={u.id === currentUserId}
-            onPress={() => dispatch({ type: 'setCurrentUser', userId: u.id })}
-          />
-        ))}
+    <SubScreen
+      title="Demo"
+      subtitle={demo ? 'Beispieldaten' : 'Echte Daten'}
+      navigation="close"
+      onLeadingPress={() => router.back()}
+    >
+      <Notice message="Dieses Menü gibt es nur im Prototyp. Es ersetzt Benachrichtigungen und zeigt auf Wunsch Beispieldaten." />
+      <FieldGroup label="Daten">
+        <RadioOption
+          label="Echte Daten (Supabase)"
+          selected={!demo}
+          onPress={() => {
+            if (!demo || !session) return;
+            dispatch({ type: 'setFeedState', feedState: 'loading' });
+            load(session.user.id);
+          }}
+        />
+        <RadioOption
+          label="Beispieldaten, nur auf diesem Gerät"
+          selected={demo}
+          onPress={() => dispatch({ type: 'useSampleData' })}
+        />
       </FieldGroup>
+      {demo ? (
+        <FieldGroup label="Du bist">
+          {users.filter((u) => u.id !== 'lena').map((u) => (
+            <RadioOption
+              key={u.id}
+              label={u.name}
+              selected={u.id === currentUserId}
+              onPress={() => dispatch({ type: 'setCurrentUser', userId: u.id })}
+            />
+          ))}
+        </FieldGroup>
+      ) : null}
       <FieldGroup label="Benachrichtigungen">
         {tasks.length === 0 ? (
           <Text style={styles.empty}>Gerade nichts zu tun.</Text>
@@ -73,8 +99,11 @@ export default function DemoMenu() {
               router.replace('/onboarding/welcome');
             }}
           />
+          <Button variant="secondary" label="Deine Reise" onPress={() => open('/reise')} />
           <Button variant="secondary" label="Zahlungsdaten" onPress={() => open('/settings/payout')} />
-          <Button variant="secondary" label="Person melden" onPress={() => open('/user/peter/report')} />
+          {demo ? (
+            <Button variant="secondary" label="Person melden" onPress={() => open('/user/peter/report')} />
+          ) : null}
         </View>
       </FieldGroup>
       <FieldGroup label="Zustand des Feeds">

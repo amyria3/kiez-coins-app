@@ -2,23 +2,13 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 import type { AuthError, Session } from '@supabase/supabase-js';
 
 import { supabase } from '../lib/supabase';
+import { loadOwnProfile, saveOwnProfile } from './remote';
 import { useStore } from './store';
 import type { Profile } from './types';
 
 // Anmeldung per E-Mail-Code (Supabase Auth, ohne Passwort), siehe kiez-coins/konto/MVP_Konto.md.
-// Solange es noch keine Tabelle `profiles` gibt, liegen Deckname, Ansprache, Kiez, Push und
-// „Onboarding fertig“ in den user_metadata des Supabase-Kontos. So kennt die App sie nach dem
-// Neustart oder auf einem zweiten Gerät wieder.
-
-/** Felder aus Profile, die im Konto gespeichert werden. */
-const syncedKeys = ['handle', 'addressForm', 'addressCustom', 'kiez', 'push', 'onboarded', 'pausedUntil'] as const;
-type SyncedProfile = Pick<Profile, (typeof syncedKeys)[number]>;
-
-function pickSynced(profile: Profile): SyncedProfile {
-  const out: Record<string, unknown> = {};
-  for (const key of syncedKeys) if (profile[key] !== undefined) out[key] = profile[key];
-  return out as SyncedProfile;
-}
+// Nach dem Anmelden lädt die App Profil und Einstellungen aus den Tabellen `profiles` und
+// `profile_settings` sowie alle Daten für den Feed. Änderungen am Profil werden zurückgeschrieben.
 
 type Auth = {
   session: Session | null;
@@ -30,6 +20,8 @@ type Auth = {
   verifyCode: (email: string, code: string) => Promise<string | null>;
   signOut: () => Promise<void>;
 };
+
+const SKIP_ONCE = 'skip-once';
 
 const AuthContext = createContext<Auth | null>(null);
 
@@ -57,32 +49,41 @@ export function authErrorText(error: AuthError): string {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { profile, dispatch } = useStore();
+  const { profile, dispatch, load } = useStore();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   /** Zuletzt mit Supabase abgeglichener Stand, damit nicht jede Änderung doppelt geschrieben wird. */
   const lastSynced = useRef<string>('');
+  /** Erst schreiben, wenn das Profil aus der Datenbank gelesen ist, sonst überschreibt der leere Startstand es. */
+  const profileLoaded = useRef(false);
 
   useEffect(() => {
-    const apply = (next: Session | null) => {
+    const apply = async (next: Session | null) => {
       setSession(next);
-      if (next) {
-        const meta = (next.user.user_metadata ?? {}) as Partial<SyncedProfile>;
-        const fromAccount: Partial<Profile> = { email: next.user.email ?? '' };
-        for (const key of syncedKeys) if (meta[key] !== undefined) (fromAccount as Record<string, unknown>)[key] = meta[key];
-        lastSynced.current = JSON.stringify(pickSynced({ ...profile, ...fromAccount }));
-        dispatch({ type: 'updateProfile', patch: fromAccount });
+      profileLoaded.current = false;
+      if (!next) return;
+      const userId = next.user.id;
+      try {
+        const fromDb = await loadOwnProfile(userId);
+        const patch: Partial<Profile> = { email: next.user.email ?? '', ...fromDb };
+        dispatch({ type: 'updateProfile', patch });
+        lastSynced.current = SKIP_ONCE;
+      } catch {
+        // Ohne Verbindung bleibt der lokale Stand; der Feed zeigt dann „offline“.
       }
+      profileLoaded.current = true;
+      await load(userId);
     };
 
-    supabase.auth.getSession().then(({ data }) => {
-      apply(data.session);
+    supabase.auth.getSession().then(async ({ data }) => {
+      await apply(data.session);
       setLoading(false);
     });
 
     const { data } = supabase.auth.onAuthStateChange((event, next) => {
-      // Nur bei echten Wechseln das Profil neu laden, nicht bei jedem Token-Refresh.
-      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') apply(next);
+      // Nur bei echten Wechseln neu laden, nicht bei jedem Token-Refresh.
+      // Supabase empfiehlt, im Callback nichts abzuwarten, daher setTimeout.
+      if (event === 'SIGNED_IN') setTimeout(() => apply(next), 0);
       else setSession(next);
       if (event === 'SIGNED_OUT') dispatch({ type: 'signOut' });
     });
@@ -90,16 +91,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Profiländerungen (Onboarding fertig, Deckname, Ansprache, Push, Pause) ins Konto schreiben.
-  // Erst nach dem Onboarding, damit halbfertige Angaben nicht gespeichert werden.
+  // Profiländerungen (Deckname, Ansprache, Kiez, Kodex, Push, Pause, Onboarding fertig) speichern.
   useEffect(() => {
-    if (!session || !profile.onboarded) return;
-    const next = JSON.stringify(pickSynced(profile));
+    if (!session || !profileLoaded.current) return;
+    const { email: _email, ...rest } = profile;
+    const next = JSON.stringify(rest);
+    if (lastSynced.current === SKIP_ONCE) {
+      // Gerade aus der Datenbank gelesen, nichts zu speichern.
+      lastSynced.current = next;
+      return;
+    }
     if (next === lastSynced.current) return;
     const timer = setTimeout(() => {
       lastSynced.current = next;
-      supabase.auth.updateUser({ data: pickSynced(profile) }).then(({ error }) => {
-        if (error) lastSynced.current = ''; // beim nächsten Mal erneut versuchen
+      saveOwnProfile(session.user.id, profile).catch(() => {
+        lastSynced.current = ''; // beim nächsten Mal erneut versuchen
       });
     }, 500);
     return () => clearTimeout(timer);
@@ -118,7 +124,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return error ? authErrorText(error) : null;
       },
       signOut: async () => {
-        await supabase.auth.signOut();
+        // Nur dieses Gerät abmelden. Klappt auch, wenn das Konto gerade gelöscht wurde.
+        await supabase.auth.signOut({ scope: 'local' });
         dispatch({ type: 'signOut' });
       },
     }),
