@@ -12,7 +12,7 @@ import { deleteMyAccount, errorText } from '../../../data/remote';
 import { useStore } from '../../../data/store';
 
 /**
- * Route `account/delete`. Figma: `account/delete`. Löscht Profil, Challenges, Kommentare
+ * Route `account/delete`. Figma: `account/delete`. Löscht Fotos, Profil, Challenges, Kommentare
  * und Zahlungsdaten (Apple-Pflicht, DSGVO) über die Datenbankfunktion `delete_my_account`.
  */
 export default function DeleteAccount() {
@@ -55,7 +55,7 @@ export default function DeleteAccount() {
       <KaterBubble>Du willst von Bord? Schade, {anrede(profile)}. Bevor Du gehst:</KaterBubble>
       <Notice
         variant="warning"
-        message="Dein Profil, Deine Challenges, Kommentare und Zahlungsdaten werden gelöscht. Das lässt sich nicht rückgängig machen."
+        message="Dein Profil, Deine Fotos, Challenges, Kommentare und Zahlungsdaten werden gelöscht. Das lässt sich nicht rückgängig machen."
       />
       <Notice message="Offene Bounties musst Du vorher klären. Wenn Du nur eine Pause brauchst, kannst Du Dein Konto auch 3 Monate pausieren." />
       <TextField
