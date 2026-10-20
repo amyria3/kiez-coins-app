@@ -155,7 +155,8 @@ type PhotoPickerProps = {
 };
 
 /** Figma „PhotoPicker“ (Empty, Filled). Öffnet Kamera oder Mediathek (expo-image-picker). */
-export function PhotoPicker({ photo, hint, onChange }: PhotoPickerProps) {
+/** Kamera oder Mediathek öffnen und das gewählte Foto zurückgeben. */
+function choosePhoto(onPicked: (photo: ImageSource) => void) {
   async function pick(source: 'camera' | 'library') {
     const permission =
       source === 'camera'
@@ -166,20 +167,66 @@ export function PhotoPicker({ photo, hint, onChange }: PhotoPickerProps) {
     const result =
       source === 'camera' ? await ImagePicker.launchCameraAsync(options) : await ImagePicker.launchImageLibraryAsync(options);
     const asset = result.canceled ? undefined : result.assets[0];
-    if (asset) onChange({ uri: asset.uri });
+    if (asset) onPicked({ uri: asset.uri });
   }
+  if (Platform.OS === 'web') {
+    pick('library');
+    return;
+  }
+  Alert.alert('Foto hinzufügen', undefined, [
+    { text: 'Foto aufnehmen', onPress: () => pick('camera') },
+    { text: 'Foto auswählen', onPress: () => pick('library') },
+    { text: 'Abbrechen', style: 'cancel' },
+  ]);
+}
 
-  function choose() {
-    if (Platform.OS === 'web') {
-      pick('library');
-      return;
-    }
-    Alert.alert('Foto hinzufügen', undefined, [
-      { text: 'Foto aufnehmen', onPress: () => pick('camera') },
-      { text: 'Foto auswählen', onPress: () => pick('library') },
-      { text: 'Abbrechen', style: 'cancel' },
-    ]);
-  }
+/** Weitere Fotos als kleine Kacheln: antippen entfernt, „+“ fügt hinzu (bis `max`). */
+export function ExtraPhotos({
+  photos,
+  max = 2,
+  onAdd,
+  onRemove,
+}: {
+  photos: ImageSource[];
+  max?: number;
+  onAdd: (photo: ImageSource) => void;
+  onRemove: (index: number) => void;
+}) {
+  return (
+    <View style={styles.field}>
+      <Text style={styles.fieldLabel}>Weitere Fotos (optional, bis zu {max})</Text>
+      <View style={styles.extraRow}>
+        {photos.map((photo, i) => (
+          <Pressable
+            key={i}
+            accessibilityRole="button"
+            accessibilityLabel={`Foto ${i + 2} entfernen`}
+            onPress={() => onRemove(i)}
+            style={styles.extraTile}
+          >
+            <Image source={photo} style={StyleSheet.absoluteFill} contentFit="cover" />
+            <View style={styles.extraRemove}>
+              <Icon name="close" size={12} color={color.text.primary} />
+            </View>
+          </Pressable>
+        ))}
+        {photos.length < max ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Weiteres Foto hinzufügen"
+            onPress={() => choosePhoto(onAdd)}
+            style={[styles.extraTile, styles.extraAdd]}
+          >
+            <Icon name="plus" size={18} color={color.text.secondary} />
+          </Pressable>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+export function PhotoPicker({ photo, hint, onChange }: PhotoPickerProps) {
+  const choose = () => choosePhoto(onChange);
 
   return (
     <Pressable
@@ -216,6 +263,26 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
   },
   inputMultiline: { minHeight: 88, textAlignVertical: 'top' },
+  extraRow: { flexDirection: 'row', gap: space[8] },
+  extraTile: { width: 88, height: 88, borderRadius: radius.md, overflow: 'hidden' },
+  extraAdd: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: stroke.thin,
+    borderStyle: 'dashed',
+    borderColor: color.text.secondary,
+  },
+  extraRemove: {
+    position: 'absolute',
+    top: space[4],
+    right: space[4],
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(31,33,35,0.75)',
+  },
   helper: { ...text.caption, color: color.text.secondary },
   helperError: { color: color.accent.error },
   chipGroup: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },

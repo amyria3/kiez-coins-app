@@ -91,6 +91,8 @@ export function ResultScreen({ mood = 'default', badge, title, message, onFeedPr
 
 type HeroScreenProps = {
   image: ImageSourcePropType;
+  /** Weitere Fotos: Mit mehr als einem Foto lässt sich das Foto seitlich wischen. */
+  moreImages?: ImageSourcePropType[];
   imageLabel?: string;
   onBackPress: () => void;
   onSharePress?: () => void;
@@ -110,6 +112,7 @@ type HeroScreenProps = {
  */
 export function HeroScreen({
   image,
+  moreImages,
   imageLabel,
   onBackPress,
   onSharePress,
@@ -119,7 +122,9 @@ export function HeroScreen({
   children,
 }: HeroScreenProps) {
   const insets = useSafeAreaInsets();
-  const { height } = useWindowDimensions();
+  const { height, width } = useWindowDimensions();
+  const images = [image, ...(moreImages ?? [])];
+  const [page, setPage] = useState(0);
   // Eingeklappt: Das Foto bekommt den Platz, das Blatt zeigt nur noch die Zusammenfassung.
   const [collapsed, setCollapsed] = useState(false);
   const heroHeight = collapsed ? Math.round(height * 0.62) : HERO_HEIGHT + insets.top;
@@ -136,12 +141,40 @@ export function HeroScreen({
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView style={styles.flex} keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive">
           <View style={[styles.hero, { height: heroHeight }]}>
-            <Image
-              source={image}
-              style={StyleSheet.absoluteFill}
-              contentFit="cover"
-              accessibilityLabel={imageLabel}
-            />
+            {images.length > 1 ? (
+              <>
+                <ScrollView
+                  horizontal
+                  pagingEnabled
+                  showsHorizontalScrollIndicator={false}
+                  style={StyleSheet.absoluteFill}
+                  scrollEventThrottle={32}
+                  onScroll={(e) => setPage(Math.round(e.nativeEvent.contentOffset.x / width))}
+                >
+                  {images.map((source, i) => (
+                    <Image
+                      key={i}
+                      source={source}
+                      style={{ width, height: heroHeight }}
+                      contentFit="cover"
+                      accessibilityLabel={`${imageLabel ?? 'Foto'}, ${i + 1} von ${images.length}`}
+                    />
+                  ))}
+                </ScrollView>
+                <View style={styles.dots} pointerEvents="none">
+                  {images.map((_, i) => (
+                    <View key={i} style={[styles.dot, i === page && styles.dotActive]} />
+                  ))}
+                </View>
+              </>
+            ) : (
+              <Image
+                source={image}
+                style={StyleSheet.absoluteFill}
+                contentFit="cover"
+                accessibilityLabel={imageLabel}
+              />
+            )}
             {imageOverlay ? <View style={styles.heroOverlay}>{imageOverlay}</View> : null}
           </View>
           <View style={styles.sheet}>
@@ -192,6 +225,15 @@ export function HeroScreen({
 const HERO_HEIGHT = 340;
 
 const styles = StyleSheet.create({
+  dots: {
+    position: 'absolute',
+    bottom: space[48],
+    alignSelf: 'center',
+    flexDirection: 'row',
+    gap: space[6],
+  },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: 'rgba(240,240,240,0.45)' },
+  dotActive: { backgroundColor: color.text.primary, width: 16 },
   screen: { flex: 1, backgroundColor: color.bg.screen },
   flex: { flex: 1 },
   content: {
