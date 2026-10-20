@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { FlatList, RefreshControl, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -18,8 +18,8 @@ import { color, space } from '../theme/tokens';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
+// Abgeschaltete Typen bleiben sichtbar, wenn es sie in der Datenbank gibt.
 function matchesTab(challenge: Challenge, tab: FeedTab) {
-  if (!isTypeActive(challenge.type)) return false;
   if (tab === 'wave') return challenge.type === 'wave';
   if (tab === 'completed') return COMPLETED.has(challenge.status);
   return true;
@@ -33,11 +33,13 @@ export default function FeedScreen() {
   const requireKiez = useRequireKiez();
   const [tab, setTab] = useState<FeedTab>('nearby');
   const [refreshing, setRefreshing] = useState(false);
-  const [plannedTab, setPlannedTab] = useState<FeedTab | null>(null);
+  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+  const listRef = useRef<FlatList<FeedItem>>(null);
+  const headerHeight = useRef(0);
 
   const posts = useMemo(() => challenges.filter((c) => matchesTab(c, tab)), [challenges, tab]);
   const topChallenges = useMemo(
-    () => pickTopChallenges({ mode, challenges, currentUserId }).filter((c) => isTypeActive(c.type)),
+    () => pickTopChallenges({ mode, challenges, currentUserId }),
     [mode, challenges, currentUserId],
   );
 
@@ -62,86 +64,112 @@ export default function FeedScreen() {
 
   const loading = feedState === 'loading';
   const openCount = useMemo(
-    () => challenges.filter((c) => c.status === 'open' && isTypeActive(c.type)).length,
+    () => challenges.filter((c) => c.status === 'open').length,
     [challenges],
   );
   const kiezName = profile.kiez?.split(',')[0];
   const showState =
     feedState === 'filled' || feedState === 'loading' ? (posts.length === 0 ? 'empty' : null) : feedState;
 
-  const header = (
-    <View>
-      <AppHeader
-        onLogoPress={() => router.push('/reise')}
-        onLogoLongPress={() => router.push('/demo')}
-        hasTasks={hasTasks}
-      />
-      <FeedGreeting name={anrede(profile)} kiez={kiezName} count={openCount} />
-      <TabsNavigation
-        selectedKey={tab}
-        onChange={(key) => (setTab(key), setPlannedTab(null))}
-        onPlannedPress={(key) => setPlannedTab((current) => (current === key ? null : key))}
-      />
-      {plannedTab === 'wave' ? (
-        <PlannedHint message={challengeTypes.wave.plannedHint} onClose={() => setPlannedTab(null)} />
-      ) : null}
-      <TopChallengeBar items={loading ? [] : topChallenges} loading={loading} onItemPress={openChallenge} />
-    </View>
-  );
+  // Antippen eines Reiters schiebt Logo und Begrüßung nach oben weg; die Segmente bleiben oben stehen,
+  // der neue Inhalt beginnt direkt darunter.
+  const selectTab = (key: FeedTab) => {
+    setTab(key);
+    const target = headerHeight.current;
+    // Erst nach dem neuen Inhalt scrollen, sonst setzt der Wechsel die Position zurück
+    requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: target, animated: true }));
+  };
 
-  const empty = loading ? (
-    <View style={styles.list}>
-      <SkeletonPost />
-      <SkeletonPost />
-    </View>
-  ) : showState ? (
-    <FeedStateMessage
-      variant={showState}
-      onAction={() =>
-        showState === 'empty'
-          ? createChallenge()
-          : mode === 'live'
-            ? (dispatch({ type: 'setFeedState', feedState: 'loading' }), reload())
-            : dispatch({ type: 'setFeedState', feedState: 'filled' })
+  const typeOfTab = tab === 'wave' ? 'wave' : null;
+  const planned = typeOfTab && !isTypeActive(typeOfTab) ? challengeTypes[typeOfTab] : null;
+
+  const items: FeedItem[] = [{ kind: 'tabs' }];
+  if (tab !== 'completed' && !planned && (loading || topChallenges.length > 0)) items.push({ kind: 'stories' });
+  if (planned) items.push({ kind: 'planned' });
+  if (loading) items.push({ kind: 'loading' });
+  else if (showState && !(planned && showState === 'empty')) items.push({ kind: 'state' });
+  else posts.forEach((challenge) => items.push({ kind: 'post', challenge }));
+
+  const renderItem = ({ item }: { item: FeedItem }) => {
+    switch (item.kind) {
+      case 'tabs':
+        return (
+          <View style={[styles.tabsRow, { width: windowWidth }]}>
+            <TabsNavigation selectedKey={tab} onChange={selectTab} />
+          </View>
+        );
+      case 'stories':
+        return <TopChallengeBar items={loading ? [] : topChallenges} loading={loading} onItemPress={openChallenge} />;
+      case 'planned':
+        return planned ? <PlannedHint title={planned.plannedTitle} message={planned.plannedHint} /> : null;
+      case 'loading':
+        return (
+          <View style={styles.list}>
+            <SkeletonPost />
+            <SkeletonPost />
+          </View>
+        );
+      case 'state':
+        return showState ? (
+          <FeedStateMessage
+            variant={showState}
+            onAction={() =>
+              showState === 'empty'
+                ? createChallenge()
+                : mode === 'live'
+                  ? (dispatch({ type: 'setFeedState', feedState: 'loading' }), reload())
+                  : dispatch({ type: 'setFeedState', feedState: 'filled' })
+            }
+          />
+        ) : null;
+      case 'post': {
+        const author = users.find((u) => u.id === item.challenge.authorId);
+        if (!author) return null;
+        return (
+          <ChallengePost
+            challenge={item.challenge}
+            author={author}
+            onPress={() => openChallenge(item.challenge.id)}
+            onLike={() => dispatch({ type: 'toggleLike', id: item.challenge.id })}
+          />
+        );
       }
-    />
-  ) : null;
+    }
+  };
 
   return (
-    <View style={styles.screen}>
-      {/* Kopf, Begrüßung, Segmente und Top-Challenges scrollen mit dem Feed weg. */}
+    <View style={[styles.screen, { paddingTop: insets.top }]}>
       <FlatList
-        data={loading || showState ? [] : posts}
-        keyExtractor={(item) => item.id}
-        ListHeaderComponent={header}
-        ListEmptyComponent={empty}
+        ref={listRef}
+        data={items}
+        keyExtractor={(item) => (item.kind === 'post' ? item.challenge.id : item.kind)}
+        renderItem={renderItem}
+        // Kind 0 ist der Kopf (Logo, Begrüßung), Kind 1 die Segmente: Sie bleiben oben kleben.
+        stickyHeaderIndices={[1]}
+        ListHeaderComponent={
+          <View onLayout={(e) => (headerHeight.current = e.nativeEvent.layout.height)}>
+            <AppHeader
+              onLogoPress={() => router.push('/reise')}
+              onLogoLongPress={() => router.push('/demo')}
+              hasTasks={hasTasks}
+            />
+            <FeedGreeting name={anrede(profile)} kiez={kiezName} count={openCount} />
+          </View>
+        }
         contentContainerStyle={[
           styles.list,
-          { paddingTop: insets.top, paddingBottom: insets.bottom + TAB_BAR_SPACE },
+          // Genug Höhe, damit der Kopf auch bei kurzen Listen wegscrollen kann
+          { minHeight: windowHeight + headerHeight.current, paddingBottom: insets.bottom + TAB_BAR_SPACE },
         ]}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={color.text.secondary} />
         }
-        renderItem={({ item }) => {
-          const author = users.find((u) => u.id === item.authorId);
-          if (!author) return null;
-          return (
-            <ChallengePost
-              challenge={item}
-              author={author}
-              onPress={() => openChallenge(item.id)}
-              onLike={() => dispatch({ type: 'toggleLike', id: item.id })}
-            />
-          );
-        }}
       />
-      {/* Unter der Statusleiste nichts durchscheinen lassen */}
-      <View style={[styles.statusBar, { height: insets.top }]} />
       <CameraButton onPress={createChallenge} />
       <TabBar
         active="feed"
         hasTasks={hasTasks}
-        onFeedPress={() => setTab('nearby')}
+        onFeedPress={() => selectTab('nearby')}
         onReisePress={() => router.push('/reise')}
         onMenuPress={() => router.push('/account')}
       />
@@ -149,8 +177,24 @@ export default function FeedScreen() {
   );
 }
 
+type FeedItem =
+  | { kind: 'tabs' }
+  | { kind: 'stories' }
+  | { kind: 'planned' }
+  | { kind: 'loading' }
+  | { kind: 'state' }
+  | { kind: 'post'; challenge: Challenge };
+
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
-  list: { gap: space[24] },
-  statusBar: { position: 'absolute', top: 0, left: 0, right: 0, backgroundColor: color.bg.screen },
+  list: { gap: space[16] },
+  // Rechts Platz für die Kamera, die oben rechts schwebt
+  tabsRow: {
+    alignSelf: 'stretch',
+    backgroundColor: color.bg.screen,
+    paddingTop: space[8],
+    paddingBottom: space[8],
+    paddingLeft: space[16],
+    paddingRight: space[16] + 52 + space[8],
+  },
 });
