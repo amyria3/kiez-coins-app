@@ -21,7 +21,7 @@ Diese `README.md` bleibt immer liegen.
 
 ## Liegt gerade hier
 
-- `2026-10-20_migrationen.md`: Anleitung für die Migrationen (1 bis 5 ausgeführt, 6 Gruppen offen).
+- `2026-10-20_migrationen.md`: Anleitung für die Migrationen (alle 6 ausgeführt, Eintrag in Documentation offen).
 - `2026-10-21_gruppen.md`: Gruppen mit Edensteinen umgesetzt, offene Punkte.
 - `2026-10-20_standort.md`: Standort-Erkennung, Kiez-Pflicht, offene Migration, Abwägung Standort bei Interaktion, später „nur verifizierte“ (Stand 20.10.2026).
 - `2026-10-20_code-login.md`: Anmeldung per Passwort oder E-Mail-Code, Zugangsdaten ändern, Mailversand über Brevo und kiezcoins.de (Stand 20.10.2026).
