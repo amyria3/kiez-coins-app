@@ -1,6 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
-import { StatusBadge } from '../../../components/Badges';
 import { Button } from '../../../components/Button';
 import { ResultScreen } from '../../../components/Screen';
 
@@ -12,7 +11,6 @@ export default function CreateSuccess() {
   return (
     <ResultScreen
       mood="high"
-      badge={<StatusBadge status="open" />}
       title="Deine Challenge ist online"
       message="Wir zeigen sie den Nachbar:innen in Deinem Kiez."
       onFeedPress={() => router.dismissTo('/feed')}

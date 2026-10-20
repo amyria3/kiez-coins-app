@@ -260,6 +260,7 @@ export default function ChallengeDetail() {
   return (
     <HeroScreen
       image={image}
+      moreImages={challenge.extraImages?.map((e) => e.photo)}
       imageLabel={challenge.title}
       onBackPress={() => router.back()}
       onSharePress={() => Share.share({ message: `${challenge.title} – Kiez Coins` })}

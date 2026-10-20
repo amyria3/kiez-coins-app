@@ -4,7 +4,7 @@ import { Stack, useGlobalSearchParams, useRouter } from 'expo-router';
 
 import { findPlace, roundCoords, type Coords } from '../../../data/location';
 import { useStore } from '../../../data/store';
-import type { Challenge, ImageSource } from '../../../data/types';
+import type { Challenge, ExtraPhoto, ImageSource } from '../../../data/types';
 import { color } from '../../../theme/tokens';
 
 // Entwurf einer neuen Challenge über beide Schritte hinweg.
@@ -15,6 +15,8 @@ export type Draft = {
   photo?: ImageSource;
   /** Pfad des schon hochgeladenen Fotos. Wird beim Ändern des Fotos geleert. */
   imagePath?: string;
+  /** Bis zu 2 weitere Fotos */
+  extras: ExtraPhoto[];
   title: string;
   text: string;
   location: string;
@@ -24,13 +26,14 @@ export type Draft = {
   coords?: Coords;
 };
 
-const emptyDraft = (kiez?: string): Draft => ({ title: '', text: '', location: kiez ?? '', durationDays: 7 });
+const emptyDraft = (kiez?: string): Draft => ({ title: '', text: '', location: kiez ?? '', durationDays: 7, extras: [] });
 
 function fromChallenge(c: Challenge): Draft {
   return {
     id: c.id,
     photo: c.image,
     imagePath: c.imagePath,
+    extras: c.extraImages ?? [],
     title: c.title,
     text: c.text,
     location: c.location,
@@ -41,7 +44,7 @@ function fromChallenge(c: Challenge): Draft {
 }
 
 /** Hat die Person schon etwas eingegeben? Dann lohnt sich ein Entwurf. */
-export const hasContent = (d: Draft) => !!d.photo || !!d.title.trim() || !!d.text.trim();
+export const hasContent = (d: Draft) => !!d.photo || d.extras.length > 0 || !!d.title.trim() || !!d.text.trim();
 
 /** Speichert den Entwurf und schließt den Flow. */
 export function useSaveDraft() {
@@ -60,8 +63,9 @@ export function useSaveDraft() {
         photo: draft.imagePath ? undefined : draft.photo,
         imagePath: draft.imagePath,
         coords: draft.coords,
+        extras: draft.extras,
       });
-      setDraft((d) => ({ ...d, id: saved.id, imagePath: saved.imagePath }));
+      setDraft((d) => ({ ...d, id: saved.id, imagePath: saved.imagePath, extras: saved.extraImages?.length ? saved.extraImages : d.extras }));
       router.dismissTo('/feed');
       router.push('/manage');
     } catch (error) {

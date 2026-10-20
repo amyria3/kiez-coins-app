@@ -1,6 +1,6 @@
 # Migrationen für Supabase vom 20.10.2026
 
-**Status:** Daria hat die Migrationen 1 und 2 am 20.10.2026 im SQL-Editor ausgeführt. Offen sind Migration 3 und der Eintrag in Documentation.
+**Status:** Daria hat die Migrationen 1 und 2 am 20.10.2026 im SQL-Editor ausgeführt. Offen sind die Migrationen 3 bis 5 und der Eintrag in Documentation.
 
 - **Datum:** 20.10.2026
 - **Gehört nach:** Datenbank-Doku in Documentation (Liste der Migrationen, Tabellen `comments` und `challenges`).
@@ -42,7 +42,7 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 
 ## 3. `supabase/migrations/20261020000500_challenge_views.sql`
 
-**Wozu:** Aufrufe in „Deine Challenges“. Die Datei liegt auf `main`, sobald Daria den Branch `claude/manage-karten` freigibt.
+**Wozu:** Aufrufe in „Deine Challenges“.
 
 **Ändert:**
 - Neue Tabelle `challenge_views` (`challenge_id`, `user_id`, `created_at`), pro Person und Challenge höchstens ein Eintrag.
@@ -53,4 +53,22 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 
 **Bis sie läuft:** Die Karte zeigt bei „Aufrufe“ einen Strich. Es gibt keinen Fehler.
 
-**Löschen offener Challenges** braucht keine Migration. Die Regel „Offene eigene Challenge löschen“ steht schon in `20261019000200_rls.sql`.
+## 4. `supabase/migrations/20261020000600_delete_open_challenge.sql`
+
+**Wozu:** Offene Challenges löschen. Seit `20261020000200` durften nur Entwürfe gelöscht werden. Deshalb hat „Löschen“ bisher nicht geklappt.
+
+**Ändert:** Die Regel heißt jetzt „Eigene Challenge löschen“ und erlaubt Entwürfe und offene Challenges, solange niemand angenommen hat.
+
+**Danach prüfen:** In „Deine Challenges“ eine offene Challenge löschen. Sie verschwindet aus dem Feed.
+
+**Offen:** Das Foto bleibt im Storage liegen. Aufräumen kommt später (Storage-Regel oder Funktion).
+
+## 5. `supabase/migrations/20261020000700_challenge_extra_images.sql`
+
+**Wozu:** Bis zu 2 weitere Fotos pro Challenge.
+
+**Ändert:** `challenges.extra_image_paths text[]` (Standard leer, höchstens 2 Einträge) und Update-Recht darauf für Entwürfe.
+
+**Danach prüfen:** Challenge mit 3 Fotos erstellen. Im Detail lässt sich das Foto seitlich wischen, Punkte zeigen die Anzahl.
+
+**Bis sie läuft:** Die App speichert nur das Hauptfoto. Es gibt keinen Fehler.

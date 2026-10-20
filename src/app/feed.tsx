@@ -66,6 +66,8 @@ export default function FeedScreen() {
 
   const collapse = () => {
     if (collapsed) return;
+    collapsedAt.current = Date.now();
+    maxY.current = 0;
     setCollapsed(true);
     animateHeader(1);
   };
@@ -77,11 +79,19 @@ export default function FeedScreen() {
     animateHeader(0);
   };
 
+  // Ausblenden: nach unten scrollen. Einblenden nur durch echtes Zurückscrollen nach oben
+  // (vorher mehr als 120 Punkte weit unten) oder Herunterziehen ganz oben.
+  // Das Zurückfedern einer kurzen Liste auf 0 blendet den Kopf nicht wieder ein.
   const lastY = useRef(0);
+  const maxY = useRef(0);
+  const collapsedAt = useRef(0);
+  const dragging = useRef(false);
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const y = e.nativeEvent.contentOffset.y;
+    maxY.current = Math.max(maxY.current, y);
+    const settled = Date.now() - collapsedAt.current > motion.barrier.duration + 200;
     if (y > 8 && y > lastY.current) collapse();
-    else if ((y <= 0 && lastY.current > 0) || y < -32) expand();
+    else if (settled && ((y <= 0 && maxY.current > 120) || (dragging.current && y < -48))) expand();
     lastY.current = y;
   };
 
@@ -274,6 +284,8 @@ export default function FeedScreen() {
         keyExtractor={(item) => (item.kind === 'post' ? item.challenge.id : item.kind)}
         renderItem={renderItem}
         onScroll={onScroll}
+        onScrollBeginDrag={() => (dragging.current = true)}
+        onScrollEndDrag={() => (dragging.current = false)}
         scrollEventThrottle={16}
         contentContainerStyle={[styles.list, styles.listTop, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
         refreshControl={
