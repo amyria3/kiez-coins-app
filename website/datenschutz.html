@@ -21,7 +21,7 @@ a { color:var(--text); }
 .card { background:var(--surface); border-radius:20px; padding:20px; margin:24px 0; }
 label { display:block; font-size:14px; color:var(--muted); margin-bottom:6px; }
 input { width:100%; font:inherit; color:var(--text); background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:12px 14px; }
-button { width:100%; margin-top:12px; font:500 16px/1 Inter, system-ui, sans-serif; color:var(--bg); background:var(--accent); border:0; border-radius:999px; padding:16px; cursor:pointer; }
+button, .button { display:block; text-align:center; text-decoration:none; box-sizing:border-box; width:100%; margin-top:12px; font:500 16px/1 Inter, system-ui, sans-serif; color:var(--bg); background:var(--accent); border:0; border-radius:999px; padding:16px; cursor:pointer; }
 .error { color:var(--error); font-size:14px; margin:8px 0 0; }
 .steps { padding-left:20px; color:var(--muted); margin:0; }
 .steps li { margin-bottom:6px; }
@@ -41,13 +41,13 @@ footer a { color:var(--muted); }
 <h2>Diese Daten verarbeiten wir</h2>
 <p>• Konto: E-Mail-Adresse, Passwort (nur verschlüsselt gespeichert), Deckname, Ansprache, Kiez, Profilbild, Zeitpunkt Deiner Zustimmung zu Kodex und Datenschutz.</p>
 <p>• Inhalte: Challenges mit Titel, Text, Ort, Frist, Bounty und Fotos, Kommentare, Likes, Aufrufe, Operationsnamen, Gruppen.</p>
-<p>• Standort: Die App bestimmt Deinen Standort nur auf Deinem Handy, um Deinen Kiez zu finden und Entfernungen zu zeigen. Bei einer Challenge speichern wir den Punkt auf etwa 100 Meter gerundet.</p>
+<p>• Standort: Die App bestimmt Deinen Standort nur auf Deinem Handy, um Deinen Kiez zu finden und Entfernungen zu zeigen. Bei einer Challenge speichern wir den Punkt auf etwa 100 Meter gerundet. In der Web-App fragt Dein Browser Kiez und Straße bei OpenStreetMap ab und schickt dafür nur den auf etwa 100 Meter gerundeten Punkt.</p>
 <p>• Zahlungsdaten: IBAN, Kontoinhaber:in und PayPal-Adresse, freiwillig. Andere sehen sie nur, wenn Du sie für eine bestimmte Challenge freigibst.</p>
 <p>• Meldungen und Support: Inhalt Deiner Meldung oder Anfrage.</p>
 <p>• Technik: Bei jeder Anfrage verarbeiten unsere Server Deine IP-Adresse und Zeitpunkt, um die Verbindung herzustellen und Missbrauch abzuwehren.</p>
 <h2>Rechtsgrundlagen</h2>
 <p>Konto, Inhalte, Zahlungsdaten, Meldungen und Support: Vertrag über die Nutzung der App (Art. 6 Abs. 1 lit. b DSGVO).</p>
-<p>Standort und Push-Benachrichtigungen: Deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Du widerrufst sie jederzeit in den Einstellungen Deines Handys.</p>
+<p>Standort und Push-Benachrichtigungen: Deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Du widerrufst sie jederzeit in den Einstellungen Deines Handys oder Browsers.</p>
 <p>Technische Daten und Schutz vor Missbrauch: berechtigtes Interesse an einem sicheren Betrieb (Art. 6 Abs. 1 lit. f DSGVO).</p>
 <h2>Wer die Daten sieht</h2>
 <p>Challenges, Fotos, Kommentare, Deckname und Kiez sehen andere angemeldete Mitglieder. Inhalte geschlossener Gruppen sehen nur deren Mitglieder. Fotos liegen unter einer schwer erratbaren Adresse und sind über diese Adresse ohne Anmeldung abrufbar.</p>
@@ -55,7 +55,8 @@ footer a { color:var(--muted); }
 <h2>Dienstleister</h2>
 <p>• Supabase Inc. (USA) betreibt Datenbank, Anmeldung und Dateispeicher. Die Daten liegen in einem Rechenzentrum in Paris (EU). Grundlage: Auftragsverarbeitungsvertrag und EU-Standardvertragsklauseln.</p>
 <p>• Brevo (Sendinblue SAS, Paris) verschickt Anmeldecodes per E-Mail. Grundlage: Auftragsverarbeitungsvertrag.</p>
-<p>• Cloudflare Inc. (USA) liefert die Download-Seite aus. Grundlage: EU-US Data Privacy Framework und EU-Standardvertragsklauseln.</p>
+<p>• Cloudflare Inc. (USA) liefert die Download-Seite und die Web-App aus. Grundlage: EU-US Data Privacy Framework und EU-Standardvertragsklauseln.</p>
+<p>• OpenStreetMap Foundation (Vereinigtes Königreich) beantwortet in der Web-App die Frage, welcher Kiez und welche Straße zu Deinem Standort gehören (Dienst Nominatim). Sie erhält dafür den auf etwa 100 Meter gerundeten Punkt und Deine IP-Adresse. Grundlage: Deine Einwilligung und der Angemessenheitsbeschluss der EU für das Vereinigte Königreich.</p>
 <h2>Speicherdauer</h2>
 <p>Wir speichern Deine Daten, solange Dein Konto besteht. Löschst Du Dein Konto unter „Dein Konto“ › „Konto löschen“, löschen wir Profil, Challenges, Kommentare und Zahlungsdaten sofort. Technische Protokolle löschen unsere Dienstleister nach spätestens 90 Tagen.</p>
 <h2>Deine Rechte</h2>
