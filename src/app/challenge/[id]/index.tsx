@@ -141,6 +141,8 @@ export default function ChallengeDetail() {
     ]);
   };
 
+  // Geschlossen oder gelöscht: Die Frist spielt keine Rolle mehr.
+  const showDeadline = challenge.status !== 'closed' && challenge.status !== 'deleted';
   const summary = (
     <>
       <View style={styles.statusWrap}>
@@ -200,6 +202,7 @@ export default function ChallengeDetail() {
       <Text style={styles.headline} accessibilityRole="header">
         {challenge.title}
       </Text>
+      {challenge.edensteine || challenge.bountyAmount || showDeadline ? (
       <View style={styles.metrics}>
         {challenge.edensteine ? (
           <View style={styles.metric}>
@@ -215,14 +218,17 @@ export default function ChallengeDetail() {
             <Text style={[styles.metricValue, styles.signal]}>{formatBountyShort(challenge.bountyAmount)}</Text>
           </View>
         ) : null}
-        <View style={styles.metric}>
-          <Icon name="clock" size={size.icon} color={color.text.secondary} />
-          <Text style={styles.metricLabel}>Frist</Text>
-          <Text style={styles.metricValue} numberOfLines={1}>
-            {formatRemainingShort(challenge.deadline).replace('Noch ', '')}
-          </Text>
-        </View>
+        {showDeadline ? (
+          <View style={styles.metric}>
+            <Icon name="clock" size={size.icon} color={color.text.secondary} />
+            <Text style={styles.metricLabel}>Frist</Text>
+            <Text style={styles.metricValue} numberOfLines={1}>
+              {formatRemainingShort(challenge.deadline).replace('Noch ', '')}
+            </Text>
+          </View>
+        ) : null}
       </View>
+      ) : null}
     </>
   );
 
