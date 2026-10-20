@@ -55,6 +55,7 @@ type Action =
   | { type: 'edit'; id: string; edit: remote.ChallengeEdit }
   | { type: 'close'; id: string }
   | { type: 'deleteDraft'; id: string }
+  | { type: 'purge'; id: string }
   | { type: 'delete'; id: string }
   | { type: 'restore'; id: string; deadline?: string }
   | { type: 'setGroups'; groups: Group[] };
@@ -84,6 +85,7 @@ function reducer(state: State, action: Action): State {
     case 'close':
       return updateChallenge(state, action.id, () => ({ status: 'closed', closedAt: new Date().toISOString() }));
     case 'deleteDraft':
+    case 'purge':
       return { ...state, challenges: state.challenges.filter((c) => c.id !== action.id) };
     case 'delete':
       return updateChallenge(state, action.id, () => ({ status: 'deleted', deletedAt: new Date().toISOString() }));
@@ -205,6 +207,9 @@ async function persist(action: Action, before: State): Promise<string | null> {
     case 'close':
       await remote.closeChallenge(action.id);
       return action.id;
+    case 'purge':
+      await remote.purgeChallenge(action.id);
+      return null;
     case 'deleteDraft':
       await remote.deleteDraft(action.id);
       return null;
