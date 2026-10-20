@@ -104,6 +104,41 @@ export default function ChallengeDetail() {
       ],
     );
 
+  // Löschen: nur solange niemand angenommen hat. Sonst Hinweis mit Weg zum Kundenservice (wie in „Deine Challenges“).
+  const deleteChallenge = () => {
+    if (!canManage) {
+      Alert.alert(
+        'Löschen geht nicht mehr',
+        challenge.assigneeId
+          ? 'Jemand hat die Challenge schon angenommen. Damit niemand umsonst loszieht, lässt sie sich nicht mehr löschen. Der Kundenservice hilft Dir weiter.'
+          : 'Erledigte und geschlossene Challenges bleiben in der Timeline sichtbar. Der Kundenservice hilft Dir weiter.',
+        [
+          { text: 'OK', style: 'cancel' },
+          {
+            text: 'Kundenservice',
+            onPress: () =>
+              router.push({
+                pathname: '/account/support',
+                params: { text: `Ich möchte meine Challenge „${challenge.title}“ löschen. Grund: ` },
+              }),
+          },
+        ],
+      );
+      return;
+    }
+    Alert.alert('Challenge löschen?', 'Sie verschwindet samt Kommentaren aus dem Feed. Das lässt sich nicht rückgängig machen.', [
+      { text: 'Abbrechen', style: 'cancel' },
+      {
+        text: 'Löschen',
+        style: 'destructive',
+        onPress: () => {
+          router.back();
+          dispatch({ type: 'delete', id: challenge.id });
+        },
+      },
+    ]);
+  };
+
   const summary = (
     <>
       <View style={styles.statusWrap}>
@@ -141,6 +176,14 @@ export default function ChallengeDetail() {
                 />
               </>
             ) : null}
+            <MenuItem
+              label="Löschen"
+              tone={canManage ? 'error' : 'muted'}
+              onPress={() => {
+                setMenuOpen(false);
+                deleteChallenge();
+              }}
+            />
             <MenuItem
               label="Alle verwalten"
               last
@@ -292,14 +335,34 @@ export default function ChallengeDetail() {
 }
 
 /** Eintrag im Zahnrad-Menü der eigenen Challenge */
-function MenuItem({ label, onPress, tone, last }: { label: string; onPress: () => void; tone?: 'signal'; last?: boolean }) {
+function MenuItem({
+  label,
+  onPress,
+  tone,
+  last,
+}: {
+  label: string;
+  onPress: () => void;
+  /** muted: ausgegraut, aber tippbar (die Meldung erklärt, warum es nicht geht) */
+  tone?: 'signal' | 'error' | 'muted';
+  last?: boolean;
+}) {
   return (
     <Pressable
       accessibilityRole="menuitem"
       onPress={onPress}
       style={({ pressed }) => [styles.menuItem, !last && styles.menuDivider, pressed && styles.pressed]}
     >
-      <Text style={[styles.menuText, tone === 'signal' && styles.signal]}>{label}</Text>
+      <Text
+        style={[
+          styles.menuText,
+          tone === 'signal' && styles.signal,
+          tone === 'error' && styles.error,
+          tone === 'muted' && styles.muted,
+        ]}
+      >
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -347,6 +410,8 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.7 },
   signal: { color: color.accent.signal },
   eden: { color: color.accent.confirmation },
+  error: { color: color.accent.error },
+  muted: { color: color.text.secondary, opacity: 0.6 },
   description: { fontFamily: font.light, fontSize: 15, lineHeight: 22, color: color.text.secondary },
   authorBlock: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   secondary: { ...text.body, color: color.text.secondary },

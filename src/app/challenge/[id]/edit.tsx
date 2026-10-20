@@ -21,11 +21,15 @@ const durations = [
 /**
  * Route `challenge/[id]/edit` (Modal). Eigene Challenge bearbeiten, solange niemand sie angenommen hat:
  * Titel, Text, Ort, Bounty und Frist. Die Frist bleibt, bis eine neue gewählt wird.
+ * Gruppenaufgaben: ohne Ort und Bounty, die Edensteine bleiben.
+ * „Nicht veröffentlichen, Entwurf“ nimmt die Challenge aus dem Feed: neuer Entwurf mit den Änderungen, dann wird die
+ * veröffentlichte gelöscht (ohne Datenbankänderung möglich). Kommentare gehen dabei verloren.
  */
 export default function EditChallenge() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { currentUserId, canOfferBounties, dispatch } = useStore();
+  const { currentUserId, canOfferBounties, dispatch, saveDraft } = useStore();
+  const [busy, setBusy] = useState(false);
   const { challenge } = useChallenge(id);
 
   const [title, setTitle] = useState(challenge?.title ?? '');
@@ -39,7 +43,7 @@ export default function EditChallenge() {
 
   if (!challenge || !editable) {
     return (
-      <SubScreen title="Challenge bearbeiten" navigation="close" onLeadingPress={() => router.back()}>
+      <SubScreen title="Bearbeiten" navigation="close" onLeadingPress={() => router.back()}>
         <Text style={styles.secondary}>
           Diese Challenge lässt sich nicht mehr bearbeiten, da sie schon angenommen wurde.
         </Text>
@@ -48,7 +52,46 @@ export default function EditChallenge() {
   }
 
   const bountyOptions = bounty && !presets.includes(bounty) ? [...presets, bounty].sort((a, b) => a - b) : presets;
-  const canSave = title.trim().length > 0 && title.trim().length <= 60 && location.trim().length > 0;
+  const isGroup = !!challenge.groupId;
+  const canSave = title.trim().length > 0 && title.trim().length <= 60 && (isGroup || location.trim().length > 0);
+
+  const toDraft = () => {
+    const comments = challenge.comments.length;
+    Alert.alert(
+      'Nicht veröffentlichen?',
+      `Die Challenge verschwindet aus dem Feed und liegt mit Deinen Änderungen unter Entwürfe in „Deine Challenges“.${
+        comments ? ` ${comments === 1 ? 'Der Kommentar geht' : `Die ${comments} Kommentare gehen`} dabei verloren.` : ''
+      }`,
+      [
+        { text: 'Abbrechen', style: 'cancel' },
+        {
+          text: 'Entwurf',
+          onPress: async () => {
+            setBusy(true);
+            try {
+              await saveDraft(undefined, {
+                title: title.trim(),
+                text: body.trim(),
+                location: location.trim(),
+                bountyAmount: bounty,
+                photo: challenge.image,
+                imagePath: challenge.imagePath,
+                extras: challenge.extraImages,
+                coords: challenge.coords,
+              });
+              dispatch({ type: 'delete', id: challenge.id });
+              router.dismissTo('/feed');
+              router.push('/manage');
+            } catch (error) {
+              Alert.alert('Entwurf nicht gespeichert', (error as Error).message);
+            } finally {
+              setBusy(false);
+            }
+          },
+        },
+      ],
+    );
+  };
 
   const save = () => {
     if (!canSave) return;
@@ -74,22 +117,38 @@ export default function EditChallenge() {
 
   return (
     <SubScreen
-      title="Challenge bearbeiten"
+      title={isGroup ? 'Aufgabe bearbeiten' : 'Challenge bearbeiten'}
       navigation="close"
       onLeadingPress={() => router.back()}
-      actions={<Button label="Speichern" onPress={save} disabled={!canSave} />}
+      actions={
+        <>
+          <Button label="Speichern" onPress={save} disabled={!canSave || busy} />
+          {isGroup ? null : (
+            <Button
+              label={busy ? 'Wird gespeichert …' : 'Nicht veröffentlichen, Entwurf'}
+              variant="ghost"
+              onPress={toDraft}
+              disabled={busy || !title.trim()}
+            />
+          )}
+        </>
+      }
     >
       <TextField label="Titel" value={title} onChangeText={setTitle} maxLength={60} />
       <TextField label="Beschreibung" value={body} onChangeText={setBody} maxLength={500} multiline />
-      <TextField label="Ort" value={location} onChangeText={setLocation} maxLength={120} />
-      <FieldGroup label="Bounty">
-        <ChipGroup>
-          <Chip label="Keine" selected={bounty === undefined} onPress={() => setBounty(undefined)} />
-          {bountyOptions.map((amount) => (
-            <Chip key={amount} label={`${amount} €`} selected={bounty === amount} onPress={() => setBounty(amount)} />
-          ))}
-        </ChipGroup>
-      </FieldGroup>
+      {isGroup ? null : (
+        <>
+          <TextField label="Ort" value={location} onChangeText={setLocation} maxLength={120} />
+          <FieldGroup label="Bounty">
+            <ChipGroup>
+              <Chip label="Keine" selected={bounty === undefined} onPress={() => setBounty(undefined)} />
+              {bountyOptions.map((amount) => (
+                <Chip key={amount} label={`${amount} €`} selected={bounty === amount} onPress={() => setBounty(amount)} />
+              ))}
+            </ChipGroup>
+          </FieldGroup>
+        </>
+      )}
       <FieldGroup label="Frist">
         <ChipGroup>
           <Chip label="Unverändert" selected={durationDays === null} onPress={() => setDurationDays(null)} />
