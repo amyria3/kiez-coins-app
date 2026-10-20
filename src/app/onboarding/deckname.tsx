@@ -28,7 +28,7 @@ export default function Deckname() {
       title="Deckname"
       subtitle="Schritt 2 von 6"
       navigation="back"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/onboarding/welcome'))}
       actions={<Button label="Weiter" onPress={next} disabled={!handle.trim()} />}
     >
       <KaterBubble>Dein Rufname</KaterBubble>

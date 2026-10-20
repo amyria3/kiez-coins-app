@@ -3,12 +3,14 @@ import { useRouter } from 'expo-router';
 import { Button } from '../../../components/Button';
 import { ResultScreen } from '../../../components/Screen';
 import { anrede } from '../../../data/format';
+import { useAuth } from '../../../data/auth';
 import { useStore } from '../../../data/store';
 
 /** Route `account/delete/success`. Figma: `account/delete/success`. */
 export default function DeleteSuccess() {
   const router = useRouter();
   const { profile, dispatch } = useStore();
+  const { signOut } = useAuth();
   return (
     <ResultScreen
       title="Konto gelöscht"
@@ -16,8 +18,9 @@ export default function DeleteSuccess() {
       actions={
         <Button
           label="Zum Start"
-          onPress={() => {
+          onPress={async () => {
             dispatch({ type: 'deleteAccount' });
+            await signOut();
             router.dismissAll();
             router.replace('/onboarding/welcome');
           }}
