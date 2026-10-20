@@ -5,6 +5,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AuthorRow } from '../../../components/AuthorRow';
 import { StatusBadge } from '../../../components/Badges';
 import { CoinsIcon } from '../../../components/icons/Brand';
+import { Icon } from '../../../components/icons/Icon';
+import { IconButton } from '../../../components/IconButton';
 import { Button } from '../../../components/Button';
 import { CommentSection } from '../../../components/Comments';
 import { InfoRow, KaterBubble, Notice, OperationTag } from '../../../components/Content';
@@ -13,7 +15,7 @@ import { HeroScreen, SubScreen } from '../../../components/Screen';
 import { formatBountyShort, formatDayMonthShort, formatEuro, formatRelative, formatRemainingShort } from '../../../data/format';
 import { useRequireKiez } from '../../../data/kiez';
 import { useChallenge, useStore } from '../../../data/store';
-import { color, font, radius, space, stroke, text } from '../../../theme/tokens';
+import { color, font, radius, size, space, stroke, text } from '../../../theme/tokens';
 
 // Vorschläge des Katers für den Operationsnamen (später aus einer Wortliste)
 const operationNames = ['Operation Gießkanne', 'Operation Igelglück', 'Operation Besenstiel', 'Operation Sonnenschirm'];
@@ -29,6 +31,7 @@ export default function ChallengeDetail() {
   const { currentUserId, users, dispatch } = useStore();
   const { challenge, author } = useChallenge(id);
   const requireKiez = useRequireKiez();
+  const [menuOpen, setMenuOpen] = useState(false);
   const [operationName, setOperationName] = useState(() => (id ? suggestName(id) : ''));
 
   if (!challenge || !author) {
@@ -90,9 +93,51 @@ export default function ChallengeDetail() {
 
   const summary = (
     <>
-      <View style={styles.statusRow}>
-        <StatusBadge status={challenge.status} />
-        <Text style={styles.caption}>{formatRelative(challenge.createdAt)}</Text>
+      <View style={styles.statusWrap}>
+        <View style={styles.statusRow}>
+          <StatusBadge status={challenge.status} />
+          <Text style={[styles.caption, styles.flex]}>{formatRelative(challenge.createdAt)}</Text>
+          {isAuthor ? (
+            <IconButton
+              icon="settings"
+              iconSize={size.icon}
+              accessibilityLabel="Challenge verwalten"
+              onPress={() => setMenuOpen((open) => !open)}
+              style={[styles.gear, menuOpen && styles.gearOpen]}
+            />
+          ) : null}
+        </View>
+        {isAuthor && menuOpen ? (
+          <View style={styles.menu} accessibilityRole="menu">
+            {canManage ? (
+              <>
+                <MenuItem
+                  label="Bearbeiten"
+                  onPress={() => {
+                    setMenuOpen(false);
+                    router.push(`/challenge/${challenge.id}/edit`);
+                  }}
+                />
+                <MenuItem
+                  label="Schließen"
+                  tone="signal"
+                  onPress={() => {
+                    setMenuOpen(false);
+                    closeChallenge();
+                  }}
+                />
+              </>
+            ) : null}
+            <MenuItem
+              label="Alle verwalten"
+              last
+              onPress={() => {
+                setMenuOpen(false);
+                router.push('/manage');
+              }}
+            />
+          </View>
+        ) : null}
       </View>
       <Text style={styles.headline} accessibilityRole="header">
         {challenge.title}
@@ -100,48 +145,19 @@ export default function ChallengeDetail() {
       <View style={styles.metrics}>
         {challenge.bountyAmount ? (
           <View style={styles.metric}>
+            <CoinsIcon height={18} />
             <Text style={styles.metricLabel}>Bounty</Text>
-            <View style={styles.metricBounty}>
-              <CoinsIcon height={18} />
-              <Text style={[styles.metricValue, styles.signal]}>{formatBountyShort(challenge.bountyAmount)}</Text>
-            </View>
+            <Text style={[styles.metricValue, styles.signal]}>{formatBountyShort(challenge.bountyAmount)}</Text>
           </View>
         ) : null}
         <View style={styles.metric}>
+          <Icon name="clock" size={size.icon} color={color.text.secondary} />
           <Text style={styles.metricLabel}>Frist</Text>
-          <Text style={styles.metricValue}>{formatRemainingShort(challenge.deadline).replace('Noch ', '')}</Text>
+          <Text style={styles.metricValue} numberOfLines={1}>
+            {formatRemainingShort(challenge.deadline).replace('Noch ', '')}
+          </Text>
         </View>
       </View>
-      {isAuthor ? (
-        <View style={styles.manage}>
-          {canManage ? (
-            <>
-              <Pressable
-                accessibilityRole="button"
-                onPress={() => router.push(`/challenge/${challenge.id}/edit`)}
-                style={({ pressed }) => [styles.pill, pressed && styles.pressed]}
-              >
-                <Text style={styles.pillText}>Bearbeiten</Text>
-              </Pressable>
-              <Pressable
-                accessibilityRole="button"
-                onPress={closeChallenge}
-                style={({ pressed }) => [styles.pill, pressed && styles.pressed]}
-              >
-                <Text style={styles.pillText}>Schließen</Text>
-              </Pressable>
-            </>
-          ) : null}
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Deine Challenges verwalten"
-            onPress={() => router.push('/manage')}
-            style={({ pressed }) => [styles.pill, pressed && styles.pressed]}
-          >
-            <Text style={styles.pillText}>Alle verwalten</Text>
-          </Pressable>
-        </View>
-      ) : null}
     </>
   );
 
@@ -207,7 +223,7 @@ export default function ChallengeDetail() {
           onSend={
             challenge.status === 'closed'
               ? undefined
-              : (body) => requireKiez() && dispatch({ type: 'addComment', id: challenge.id, body })
+              : (body, replyToId) => requireKiez() && dispatch({ type: 'addComment', id: challenge.id, body, replyToId })
           }
           closedHint="Die Challenge ist geschlossen. Neue Kommentare sind nicht mehr möglich."
           onReport={(comment) =>
@@ -242,26 +258,59 @@ export default function ChallengeDetail() {
   );
 }
 
+/** Eintrag im Zahnrad-Menü der eigenen Challenge */
+function MenuItem({ label, onPress, tone, last }: { label: string; onPress: () => void; tone?: 'signal'; last?: boolean }) {
+  return (
+    <Pressable
+      accessibilityRole="menuitem"
+      onPress={onPress}
+      style={({ pressed }) => [styles.menuItem, !last && styles.menuDivider, pressed && styles.pressed]}
+    >
+      <Text style={[styles.menuText, tone === 'signal' && styles.signal]}>{label}</Text>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
+  statusWrap: { zIndex: 10 },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
+  flex: { flex: 1 },
+  gear: { borderRadius: radius.full, backgroundColor: color.bg.surface, marginRight: -space[4] },
+  gearOpen: { backgroundColor: color.line.hairline },
+  menu: {
+    position: 'absolute',
+    top: size.touchTarget + space[6],
+    right: 0,
+    minWidth: 200,
+    borderRadius: radius.lg,
+    backgroundColor: color.bg.surface,
+    borderWidth: stroke.ultraThin,
+    borderColor: color.line.hairline,
+    overflow: 'hidden',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+  },
+  menuItem: { minHeight: size.touchTarget, justifyContent: 'center', paddingHorizontal: space[16] },
+  menuDivider: { borderBottomWidth: stroke.ultraThin, borderBottomColor: color.line.hairline },
+  menuText: { fontFamily: font.regular, fontSize: 15, lineHeight: 20, color: color.text.primary },
   caption: { ...text.caption, fontSize: 13, color: color.text.secondary },
   headline: { ...text.headline, color: color.text.primary },
-  metrics: { flexDirection: 'row', gap: space[8] },
-  metric: { flex: 1, gap: space[4], paddingVertical: space[8], paddingHorizontal: space[12], borderRadius: radius.lg, backgroundColor: color.bg.surface },
-  metricLabel: { ...text.caption, color: color.text.secondary },
-  metricBounty: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
-  metricValue: { ...text.metric, fontSize: 20, lineHeight: 24, color: color.text.primary },
-  manage: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
-  pill: {
-    minHeight: 44,
-    paddingHorizontal: space[16],
-    borderRadius: radius.full,
-    borderWidth: stroke.thin,
-    borderColor: color.line.hairline,
+  metrics: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
+  // Icon, Bezeichnung und Wert in einer Zeile
+  metric: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[8],
+    minHeight: size.touchTarget,
+    paddingHorizontal: space[12],
+    borderRadius: radius.lg,
     backgroundColor: color.bg.surface,
-    justifyContent: 'center',
   },
-  pillText: { fontFamily: font.medium, fontSize: 14, lineHeight: 18, color: color.text.primary },
+  metricLabel: { ...text.caption, fontSize: 13, color: color.text.secondary },
+  metricValue: { ...text.metric, fontSize: 17, lineHeight: 22, color: color.text.primary },
   pressed: { opacity: 0.7 },
   signal: { color: color.accent.signal },
   description: { fontFamily: font.light, fontSize: 15, lineHeight: 22, color: color.text.secondary },

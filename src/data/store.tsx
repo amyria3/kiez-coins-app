@@ -30,7 +30,7 @@ type Action =
   | { type: 'giveBack'; id: string }
   | { type: 'report'; id: string; report: ChallengeReport }
   | { type: 'nameOperation'; id: string; name?: string }
-  | { type: 'addComment'; id: string; body: string }
+  | { type: 'addComment'; id: string; body: string; replyToId?: string }
   | { type: 'sharePayout'; id: string; share: PayoutShare }
   | { type: 'revokeShare'; id: string }
   | { type: 'confirm'; id: string }
@@ -102,6 +102,7 @@ function reducer(state: State, action: Action): State {
         authorId: state.currentUserId,
         body: action.body,
         createdAt: new Date().toISOString(),
+        replyToId: action.replyToId,
       };
       return updateChallenge(state, action.id, (c) => ({ comments: [...c.comments, comment] }));
     }
@@ -204,7 +205,7 @@ async function persist(action: Action, before: State): Promise<string | null> {
       await remote.nameOperation(userId, action.id, action.name?.trim() ?? '');
       return action.id;
     case 'addComment':
-      await remote.addComment(action.id, action.body);
+      await remote.addComment(action.id, action.body, action.replyToId);
       return action.id;
     case 'sharePayout':
       await remote.sharePayout(action.id, action.share);
