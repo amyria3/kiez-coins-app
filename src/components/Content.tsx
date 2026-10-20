@@ -38,12 +38,8 @@ export function SpeechBubble({ children, style }: { children: ReactNode; style?:
 
 /** Figma „KaterBubble“ (Emotion=Happy): Kater mit Sprechblase. */
 export function KaterBubble({ children }: { children: ReactNode }) {
-  return (
-    <View style={styles.kater}>
-      <Cat />
-      <SpeechBubble style={styles.flex}>{children}</SpeechBubble>
-    </View>
-  );
+  // Seit dem Upgrade „Nachtschicht“ überall die Sprechblase nach Duolingo-Vorbild
+  return <KaterCard>{children}</KaterCard>;
 }
 
 /**
