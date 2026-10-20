@@ -139,7 +139,39 @@ export type Group = {
 
 export type FeedState = 'filled' | 'loading' | 'empty' | 'error' | 'offline';
 
-export type UserReportReason = 'not_paid' | 'abusive' | 'spam' | 'other';
+/** `abusive` stammt aus der Zeit vor den Community-Regeln und erscheint nur noch in der Moderation. */
+export type UserReportReason =
+  | 'not_paid'
+  | 'abusive'
+  | 'discrimination'
+  | 'harassment'
+  | 'violence'
+  | 'spam'
+  | 'other';
+
+/** Gründe für „Challenge melden“ (Migration 20261021000700). */
+export type ChallengeReportReason =
+  | 'discrimination'
+  | 'harassment'
+  | 'violence'
+  | 'dangerous'
+  | 'illegal'
+  | 'spam'
+  | 'other';
+
+/** Meldung in der Moderationsliste: Person oder Challenge. */
+export type ModerationReport = {
+  kind: 'user' | 'challenge';
+  id: string;
+  reporterId: string;
+  /** Gemeldete Person; bei Challenges die Ersteller:in */
+  reportedId?: string;
+  challengeId?: string;
+  reason: string;
+  description?: string;
+  status: 'new' | 'confirmed' | 'dismissed';
+  createdAt: string;
+};
 
 /** Figma `profile.address_form`: Ansprache, privat, nur für Kater-Texte */
 export type AddressForm = 'pirat_colon' | 'pirat_star' | 'pirat' | 'piratin' | 'the_pirat' | 'custom';

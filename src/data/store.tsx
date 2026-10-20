@@ -25,6 +25,8 @@ type State = {
   canOfferBounties: boolean;
   /** Eigene Gruppen samt Mitgliedern */
   groups: Group[];
+  /** Von Dir blockierte Personen: ihre Challenges und Kommentare sind ausgeblendet */
+  blockedIds: string[];
 };
 
 type Action =
@@ -58,7 +60,8 @@ type Action =
   | { type: 'purge'; id: string }
   | { type: 'delete'; id: string }
   | { type: 'restore'; id: string; deadline?: string }
-  | { type: 'setGroups'; groups: Group[] };
+  | { type: 'setGroups'; groups: Group[] }
+  | { type: 'block'; userId: string };
 
 function updateChallenge(state: State, id: string, patch: (c: Challenge) => Partial<Challenge>): State {
   return {
@@ -76,6 +79,7 @@ const emptyLive = (profile: Profile): State => ({
   profile,
   canOfferBounties: true,
   groups: [],
+  blockedIds: [],
 });
 
 function reducer(state: State, action: Action): State {
@@ -164,6 +168,14 @@ function reducer(state: State, action: Action): State {
       return { ...state, feedState: action.feedState };
     case 'setGroups':
       return { ...state, groups: action.groups };
+    case 'block':
+      return {
+        ...state,
+        blockedIds: [...state.blockedIds.filter((id) => id !== action.userId), action.userId],
+        challenges: state.challenges
+          .filter((c) => c.authorId !== action.userId)
+          .map((c) => ({ ...c, comments: c.comments.filter((m) => m.authorId !== action.userId) })),
+      };
     case 'loaded':
       return {
         ...state,
@@ -173,6 +185,7 @@ function reducer(state: State, action: Action): State {
         currentUserId: action.userId,
         canOfferBounties: action.data.canOfferBounties,
         groups: action.data.groups,
+        blockedIds: action.data.blockedIds,
         feedState: 'filled',
       };
     case 'challengeLoaded': {
@@ -193,6 +206,7 @@ function reducer(state: State, action: Action): State {
         feedState: 'filled',
         canOfferBounties: true,
         groups: sampleGroups,
+        blockedIds: [],
       };
   }
 }
@@ -268,6 +282,9 @@ async function persist(action: Action, before: State): Promise<string | null> {
     case 'savePayout':
       await remote.savePayout(userId, action.payout);
       return null;
+    case 'block':
+      await remote.blockUser(action.userId);
+      return null;
     default:
       return null;
   }
@@ -285,6 +302,8 @@ type Store = State & {
   publishDraft: (id: string, draft: remote.DraftInput, deadline: string) => Promise<string>;
   /** Gruppen: gründen, beitreten, verlassen, Mitglied entfernen, Rolle übertragen, Aufgabe erstellen. Werfen lesbar. */
   groupApi: GroupApi;
+  /** Blockierung aufheben. Live: lädt danach alles neu, damit die Inhalte der Person zurückkommen. */
+  unblock: (userId: string) => Promise<void>;
 };
 
 type GroupApi = {
@@ -535,9 +554,28 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     };
   }, [load]);
 
+  const unblock = useCallback(
+    async (userId: string) => {
+      const s = stateRef.current;
+      if (s.mode === 'demo') {
+        // Demo: die Beispieldaten kommen zurück
+        localDispatch({ type: 'useSampleData' });
+        localDispatch({ type: 'setCurrentUser', userId: s.currentUserId });
+        return;
+      }
+      try {
+        await remote.unblockUser(userId);
+      } catch (error) {
+        throw new Error(remote.errorText(error));
+      }
+      await load(s.currentUserId);
+    },
+    [load],
+  );
+
   const value = useMemo(
-    () => ({ ...state, dispatch, load, createChallenge, saveDraft, publishDraft, groupApi }),
-    [state, dispatch, load, createChallenge, saveDraft, publishDraft, groupApi],
+    () => ({ ...state, dispatch, load, createChallenge, saveDraft, publishDraft, groupApi, unblock }),
+    [state, dispatch, load, createChallenge, saveDraft, publishDraft, groupApi, unblock],
   );
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }

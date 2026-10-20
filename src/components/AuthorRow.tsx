@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 
 import { useStore } from '../data/store';
@@ -58,13 +58,21 @@ type AuthorRowProps = {
   user: User;
   location?: string;
   trailing?: ReactNode;
+  /** Öffnet das Profil der Person (`user/[id]`) */
+  onPress?: () => void;
 };
 
 /** Figma „AuthorRow“: Profilbild, Name und Ort, rechts optional Badge. */
-export function AuthorRow({ user, location, trailing }: AuthorRowProps) {
+export function AuthorRow({ user, location, trailing, onPress }: AuthorRowProps) {
   const hidden = useHideName(user);
+  const Row = onPress ? Pressable : View;
   return (
-    <View style={styles.row}>
+    <Row
+      style={styles.row}
+      {...(onPress
+        ? { onPress, accessibilityRole: 'button' as const, accessibilityHint: 'Profil öffnen' }
+        : {})}
+    >
       <Avatar user={user} />
       <View style={styles.info}>
         <Text
@@ -84,7 +92,7 @@ export function AuthorRow({ user, location, trailing }: AuthorRowProps) {
         ) : null}
       </View>
       {trailing}
-    </View>
+    </Row>
   );
 }
 
