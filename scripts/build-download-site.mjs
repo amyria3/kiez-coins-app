@@ -1,5 +1,5 @@
 // Baut die Download-Seite in den Ordner `website/`: Startseite mit Passwort-Formular plus
-// Impressum, Datenschutz und Nutzungsbedingungen aus `src/data/legal.ts` (dieselben Texte wie in der App).
+// Impressum, Datenschutz, Nutzungsbedingungen und Community-Regeln aus `src/data/legal.ts` (dieselben Texte wie in der App).
 // Aufruf: node scripts/build-download-site.mjs
 // Den Ordner `website/` lädt Daria danach beim Webhoster hoch (siehe Übergabe/2026-10-21_download-seite.md).
 import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -18,7 +18,7 @@ writeFileSync(tmp, legalJs);
 const { LEGAL_STAND, legalDocIds, legalDocs } = await import(tmp);
 rmSync(tmp);
 // Dateinamen der Seiten
-const fileOf = { impressum: 'impressum', datenschutz: 'datenschutz', bedingungen: 'nutzungsbedingungen' };
+const fileOf = { impressum: 'impressum', datenschutz: 'datenschutz', bedingungen: 'nutzungsbedingungen', regeln: 'community-regeln' };
 const config = JSON.parse(readFileSync(join(root, 'scripts/download-site.config.json'), 'utf8'));
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -55,6 +55,7 @@ const footer = `<footer>
   <a href="impressum.html">Impressum</a>
   <a href="datenschutz.html">Datenschutz</a>
   <a href="nutzungsbedingungen.html">Nutzungsbedingungen</a>
+  <a href="community-regeln.html">Community-Regeln</a>
 </footer>`;
 
 const page = (title, body) => `<!doctype html>

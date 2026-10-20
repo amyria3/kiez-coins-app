@@ -14,15 +14,18 @@ import type { UserReportReason } from '../../../../data/types';
 import { color, space, text } from '../../../../theme/tokens';
 
 const reasons: { key: UserReportReason; label: string }[] = [
+  { key: 'discrimination', label: 'Sexismus, Rassismus, Antisemitismus oder andere Diskriminierung' },
+  { key: 'harassment', label: 'Belästigung, Beleidigung oder Bedrohung' },
+  { key: 'violence', label: 'Gewalt oder Aufruf zu Gewalt' },
   { key: 'not_paid', label: 'Bounty wurde nicht gezahlt' },
-  { key: 'abusive', label: 'Unfreundliches oder bedrohliches Verhalten' },
   { key: 'spam', label: 'Spam oder Fake-Profil' },
   { key: 'other', label: 'Etwas anderes' },
 ];
 
 /**
  * Route `user/[id]/report` (Modal). Figma: `user/report`, Flow „Bounty auf Vertrauen“.
- * Die Meldung landet in der Tabelle `user_reports`. Auswerten und Sperren macht die Moderation.
+ * Die Meldung landet in der Tabelle `user_reports`. Auswerten und Sperren macht die Moderation (`moderation`).
+ * Gründe nach den Community-Regeln (`rechtliches/regeln`), Migration 20261021000700.
  */
 export default function UserReportScreen() {
   const params = useLocalSearchParams<{ id: string; challengeId?: string; reason?: UserReportReason }>();
@@ -70,6 +73,9 @@ export default function UserReportScreen() {
       <AuthorRow user={user} location={challenge?.location ?? ''} />
       <View style={styles.group}>
         <Text style={styles.title}>Was ist passiert?</Text>
+        <Text style={styles.hint} onPress={() => router.push('/rechtliches/regeln')}>
+          Community-Regeln lesen
+        </Text>
         {reasons.map((r) => (
           <RadioOption key={r.key} label={r.label} selected={reason === r.key} onPress={() => setReason(r.key)} />
         ))}
@@ -84,8 +90,9 @@ export default function UserReportScreen() {
       />
       <Notice
         variant="warning"
-        message={`Die Moderation sieht Deine Meldung und die Challenge. ${name.charAt(0).toUpperCase() + name.slice(1)} ${user.group ? 'erfahren' : 'erfährt'} nicht, wer gemeldet hat. Falsche Meldungen können zur Sperre führen.`}
+        message={`Die Moderation sieht Deine Meldung${challenge ? ' und die Challenge' : ''}. ${name.charAt(0).toUpperCase() + name.slice(1)} ${user.group ? 'erfahren' : 'erfährt'} nicht, wer gemeldet hat. Falsche Meldungen können zur Sperre führen.`}
       />
+      <Notice message="Bist Du in Gefahr? Ruf die Polizei unter 110." />
     </SubScreen>
   );
 }
@@ -93,4 +100,5 @@ export default function UserReportScreen() {
 const styles = StyleSheet.create({
   group: { gap: space[8] },
   title: { ...text.title, color: color.text.primary },
+  hint: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },
 });

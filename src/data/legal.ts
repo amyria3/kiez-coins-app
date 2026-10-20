@@ -1,12 +1,12 @@
 /**
- * Rechtstexte für den Testbetrieb: Impressum, Datenschutzerklärung, Nutzungsbedingungen.
+ * Rechtstexte für den Testbetrieb: Impressum, Datenschutzerklärung, Nutzungsbedingungen, Community-Regeln.
  * Angezeigt unter `rechtliches/[doc]`, verlinkt in `onboarding/welcome`, `onboarding/kodex` und `account`.
  *
  * Offene Angaben stehen als „[offen: …]“ im Text, bis Daria sie in `OPERATOR` einträgt.
  * Ändern sich Inhalte, bekommt `LEGAL_STAND` ein neues Datum.
  */
 
-/** Stand aller drei Texte (TT.MM.JJJJ). */
+/** Stand aller Texte (TT.MM.JJJJ). */
 export const LEGAL_STAND = '21.10.2026';
 
 /** Angaben zur Anbieterin. Leere Felder erscheinen in der App als „[offen: …]“. */
@@ -34,9 +34,9 @@ const authority = open(OPERATOR.authority, 'Aufsichtsbehörde, in Berlin: Berlin
 
 export type LegalSection = { heading?: string; paragraphs: string[] };
 export type LegalDoc = { title: string; intro?: string; sections: LegalSection[] };
-export type LegalDocId = 'impressum' | 'datenschutz' | 'bedingungen';
+export type LegalDocId = 'impressum' | 'datenschutz' | 'bedingungen' | 'regeln';
 
-export const legalDocIds: LegalDocId[] = ['impressum', 'datenschutz', 'bedingungen'];
+export const legalDocIds: LegalDocId[] = ['regeln', 'bedingungen', 'datenschutz', 'impressum'];
 
 export const legalDocs: Record<LegalDocId, LegalDoc> = {
   impressum: {
@@ -57,7 +57,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'Kontaktstelle nach dem Digital Services Act',
         paragraphs: [
-          `Behörden, die EU-Kommission und Nutzerinnen und Nutzer erreichen uns unter ${email}, auf Deutsch oder Englisch. Rechtswidrige Inhalte meldest Du direkt in der App über „Person melden“ oder per E-Mail.`,
+          `Behörden, die EU-Kommission und Nutzerinnen und Nutzer erreichen uns unter ${email}, auf Deutsch oder Englisch. Rechtswidrige Inhalte meldest Du direkt in der App über die Fahne an Challenges und Kommentaren, über „Person melden“ im Profil oder per E-Mail.`,
         ],
       },
       {
@@ -108,7 +108,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'Meldungen, Support und Sicherheit',
         paragraphs: [
-          'Meldest Du eine Person oder schreibst Du dem Support, speichern wir Deine Nachricht, um sie zu bearbeiten. Zum Schutz vor Missbrauch speichert unser Hosting-Dienst technische Protokolle mit IP-Adresse und Zeitpunkt für kurze Zeit.',
+          'Meldest Du eine Person oder Challenge oder schreibst Du dem Support, speichern wir Deine Nachricht, um sie zu bearbeiten. Die gemeldete Person erfährt nicht, wer gemeldet hat. Blockierst Du eine Person, speichern wir, wen Du blockiert hast. Zollst Du Lob, speichern wir, wen Du gelobt hast. Andere sehen nur die Anzahl, nicht wer gelobt hat. Zum Schutz vor Missbrauch speichert unser Hosting-Dienst technische Protokolle mit IP-Adresse und Zeitpunkt für kurze Zeit.',
           'Rechtsgrundlage ist unser berechtigtes Interesse an einem sicheren, fairen Betrieb (Art. 6 Abs. 1 lit. f DSGVO) und die Bearbeitung von Meldungen nach dem Digital Services Act (Art. 6 Abs. 1 lit. c DSGVO).',
         ],
       },
@@ -123,7 +123,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'So lange bleiben Deine Daten',
         paragraphs: [
-          'Deine Daten bleiben, bis Du Dein Konto löschst. „Konto löschen“ entfernt Konto, Profil, Fotos, Challenges, Kommentare, Zahlungsdaten, Meldungen und Support-Anfragen sofort. Reste in Sicherungskopien verschwinden, wenn Supabase diese turnusmäßig überschreibt.',
+          'Deine Daten bleiben, bis Du Dein Konto löschst. „Konto löschen“ entfernt Konto, Profil, Fotos, Challenges, Kommentare, Zahlungsdaten, Meldungen, Blockierungen, Lob und Support-Anfragen sofort. Reste in Sicherungskopien verschwinden, wenn Supabase diese turnusmäßig überschreibt.',
           'Am Ende der Testphase können wir alle Daten löschen. Darüber informieren wir Dich vorher per E-Mail.',
         ],
       },
@@ -160,7 +160,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: '3. So gehen wir miteinander um',
         paragraphs: [
-          'Du stellst nur Challenges, Fotos und Kommentare ein, die Du einstellen darfst. Verboten sind rechtswidrige, beleidigende, diskriminierende oder gefährliche Inhalte, Werbung, Spam und Fotos von Menschen ohne deren Einverständnis.',
+          'Es gelten die Community-Regeln. Du stellst nur Challenges, Fotos und Kommentare ein, die Du einstellen darfst. Verboten sind rechtswidrige, beleidigende, diskriminierende oder gefährliche Inhalte, Werbung, Spam und Fotos von Menschen ohne deren Einverständnis.',
           'Challenges beschreiben kleine, sichere Hilfen in der Nachbarschaft. Aufgaben, die eine Erlaubnis, eine Ausbildung oder besondere Gefahr voraussetzen (zum Beispiel Arbeiten an Strom, Gas oder auf Dächern), gehören nicht in die App.',
           'Für das Anzeigen in der App räumst Du uns ein einfaches, kostenloses Recht an Deinen Inhalten ein. Es endet, wenn Du den Inhalt oder Dein Konto löschst.',
         ],
@@ -175,7 +175,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: '5. Melden und Moderation',
         paragraphs: [
-          'Über „Person melden“ oder per E-Mail meldest Du Verstöße und rechtswidrige Inhalte. Wir prüfen jede Meldung und entfernen Inhalte, die gegen diese Bedingungen oder geltendes Recht verstoßen. Bei Verstößen können wir ein Konto sperren oder das Anbieten von Bounties beschränken. Wir begründen solche Entscheidungen per E-Mail. Du kannst ihnen per E-Mail widersprechen.',
+          'Über die Fahne an Challenges und Kommentaren, über „Person melden“ oder per E-Mail meldest Du Verstöße und rechtswidrige Inhalte. Wir prüfen jede Meldung und entfernen Inhalte, die gegen diese Bedingungen oder geltendes Recht verstoßen. Bei Verstößen können wir ein Konto sperren oder das Anbieten von Bounties beschränken. Wir begründen solche Entscheidungen per E-Mail. Du kannst ihnen per E-Mail widersprechen.',
         ],
       },
       {
@@ -194,6 +194,73 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         heading: '8. Änderungen und Recht',
         paragraphs: [
           'Ändern sich diese Bedingungen, informieren wir Dich in der App oder per E-Mail. Es gilt deutsches Recht. Zwingende Verbraucherschutzvorschriften Deines Wohnsitzlandes bleiben unberührt.',
+        ],
+      },
+    ],
+  },
+
+  regeln: {
+    title: 'Community-Regeln',
+    intro:
+      'Kiez Coins lebt davon, dass sich Nachbarinnen und Nachbarn vertrauen. Diese Regeln gelten für Challenges, Fotos, Kommentare, Profile und jeden Kontakt, der über die App entsteht.',
+    sections: [
+      {
+        heading: 'Respekt gilt für alle',
+        paragraphs: [
+          'Wir begegnen allen Menschen mit Respekt, unabhängig von Herkunft, Hautfarbe, Religion, Geschlecht, sexueller Orientierung, geschlechtlicher Identität, Behinderung, Alter und sozialer Lage.',
+        ],
+      },
+      {
+        heading: 'Diskriminierung hat hier keinen Platz',
+        paragraphs: [
+          'Verboten sind Sexismus, Rassismus, Antisemitismus, Muslimfeindlichkeit, Antiziganismus, Queer- und Transfeindlichkeit, Behindertenfeindlichkeit und jede andere Abwertung von Menschen als Gruppe.',
+          'Das gilt für Worte, Bilder, Symbole, Codes und „Witze“. Verfassungsfeindliche Kennzeichen, Volksverhetzung und das Leugnen oder Verharmlosen des Holocaust zeigen wir an.',
+        ],
+      },
+      {
+        heading: 'Belästigung und Bedrohung sind verboten',
+        paragraphs: [
+          'Verboten sind Beleidigungen, Bedrohungen, Einschüchterung, sexuelle Belästigung, Stalking und Bloßstellen.',
+          'Private Daten anderer (Adresse, Telefonnummer, Fotos) veröffentlichst Du nur mit deren Einverständnis. Ein Nein beendet den Kontakt.',
+        ],
+      },
+      {
+        heading: 'Gewalt bleibt draußen',
+        paragraphs: [
+          'Verboten sind Gewalt, Drohungen mit Gewalt, Aufrufe dazu und ihre Verherrlichung. Challenges dürfen niemanden gefährden, auch Dich selbst nicht.',
+          'Aufgaben mit Waffen, Drogen, Feuer oder besonderer Gefahr gehören nicht in die App.',
+        ],
+      },
+      {
+        heading: 'Ehrlichkeit trägt die Bounties',
+        paragraphs: [
+          'Ein Profil gehört zu einem echten Menschen oder einer echten Gruppe. Zugesagte Bounties zahlst Du, erledigte Aufgaben meldest Du wahrheitsgemäß. Fake-Profile, Täuschung, Werbung und Spam sind verboten.',
+        ],
+      },
+      {
+        heading: 'Fotos zeigen Orte und Ergebnisse',
+        paragraphs: [
+          'Erkennbare Menschen fotografierst Du nur mit deren Einverständnis. Fotos mit erkennbaren Kindern, Nacktheit oder Gewalt sind verboten.',
+        ],
+      },
+      {
+        heading: 'So meldest Du einen Verstoß',
+        paragraphs: [
+          'Tipp auf die Fahne an einer Challenge oder einem Kommentar oder auf „Person melden“ im Profil. Die gemeldete Person erfährt nicht, wer gemeldet hat. Falsche Meldungen mit Absicht sind selbst ein Verstoß.',
+          `Bei akuter Gefahr rufst Du die Polizei unter 110 oder den Rettungsdienst unter 112. Für alles andere erreichst Du uns unter ${email}.`,
+        ],
+      },
+      {
+        heading: 'Blockieren schützt Dich sofort',
+        paragraphs: [
+          'Im Profil einer Person tippst Du auf „Person blockieren“. Du siehst ihre Challenges und Kommentare dann nicht mehr. Sie kann Deine Challenges weder annehmen noch kommentieren und erfährt nichts davon. Unter „Dein Konto“ hebst Du die Blockierung jederzeit auf.',
+        ],
+      },
+      {
+        heading: 'So reagiert die Moderation',
+        paragraphs: [
+          'Wir prüfen jede Meldung zeitnah. Bei Verstößen entfernen wir Inhalte, verwarnen, beschränken Bounties oder sperren das Konto, bei schweren Verstößen sofort und dauerhaft. Straftaten zeigen wir an.',
+          'Unsere Entscheidung begründen wir per E-Mail. Du kannst ihr per E-Mail widersprechen, wir prüfen den Fall dann erneut.',
         ],
       },
     ],
