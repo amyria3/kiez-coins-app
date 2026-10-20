@@ -1,7 +1,8 @@
-import { createContext, useCallback, useContext, useState, type Dispatch, type SetStateAction } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { Alert } from 'react-native';
 import { Stack, useGlobalSearchParams, useRouter } from 'expo-router';
 
+import { findPlace, roundCoords, type Coords } from '../../../data/location';
 import { useStore } from '../../../data/store';
 import type { Challenge, ImageSource } from '../../../data/types';
 import { color } from '../../../theme/tokens';
@@ -19,9 +20,11 @@ export type Draft = {
   location: string;
   bountyAmount?: number;
   durationDays: number;
+  /** Auf rund 100 m gerundeter Punkt für Entfernungen im Feed */
+  coords?: Coords;
 };
 
-const emptyDraft: Draft = { title: '', text: '', location: 'Helmholtzplatz, 10437 Berlin', durationDays: 7 };
+const emptyDraft = (kiez?: string): Draft => ({ title: '', text: '', location: kiez ?? '', durationDays: 7 });
 
 function fromChallenge(c: Challenge): Draft {
   return {
@@ -30,9 +33,10 @@ function fromChallenge(c: Challenge): Draft {
     imagePath: c.imagePath,
     title: c.title,
     text: c.text,
-    location: c.location || emptyDraft.location,
+    location: c.location,
     bountyAmount: c.bountyAmount,
-    durationDays: emptyDraft.durationDays,
+    durationDays: 7,
+    coords: c.coords,
   };
 }
 
@@ -55,6 +59,7 @@ export function useSaveDraft() {
         bountyAmount: draft.bountyAmount,
         photo: draft.imagePath ? undefined : draft.photo,
         imagePath: draft.imagePath,
+        coords: draft.coords,
       });
       setDraft((d) => ({ ...d, id: saved.id, imagePath: saved.imagePath }));
       router.dismissTo('/feed');
@@ -81,11 +86,32 @@ export const unstable_settings = { initialRouteName: 'step-1' };
 /** Flow „Challenge erstellen“: als Modal geöffnet, darin Schritte als Push. */
 export default function CreateLayout() {
   const { draftId } = useGlobalSearchParams<{ draftId?: string }>();
-  const { challenges } = useStore();
+  const { challenges, profile } = useStore();
   const draft = useState<Draft>(() => {
     const saved = draftId ? challenges.find((c) => c.id === draftId && c.status === 'draft') : undefined;
-    return saved ? fromChallenge(saved) : emptyDraft;
+    return saved ? fromChallenge(saved) : emptyDraft(profile.kiez);
   });
+  const [, setDraft] = draft;
+  // Neue Challenge: Ort aus dem Standort vorschlagen. Ohne Freigabe bleibt der Kiez stehen.
+  useEffect(() => {
+    if (draftId) return;
+    let active = true;
+    findPlace()
+      .then((place) => {
+        if (!active) return;
+        setDraft((d) => ({
+          ...d,
+          coords: roundCoords(place.coords),
+          // Nur ersetzen, solange die Person den Ort nicht selbst geändert hat
+          location: d.location === (profile.kiez ?? '') ? (place.street ?? place.kiez) : d.location,
+        }));
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <DraftContext.Provider value={draft}>
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>

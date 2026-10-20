@@ -28,8 +28,14 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Kiez Coins braucht Zugriff auf Deine Fotos, damit Du ein Foto zur Challenge hinzuf\u00fcgen kannst.",
+          "photosPermission": "Kiez Coins braucht Zugriff auf Deine Fotos, damit Du ein Foto zur Challenge hinzufügen kannst.",
           "cameraPermission": "Kiez Coins braucht die Kamera, damit Du ein Foto zur Challenge aufnehmen kannst."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Kiez Coins nutzt Deinen Standort, um Deinen Kiez zu finden, einen Ort für Deine Challenge vorzuschlagen und Entfernungen im Feed zu zeigen. Dein genauer Standort verlässt Dein Handy nicht."
         }
       ]
     ],
