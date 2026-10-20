@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ActionBar } from '../../components/ActionBar';
 import { Button } from '../../components/Button';
+import { LegalLinks } from '../../components/LegalLinks';
 import { Cat } from '../../components/icons/Brand';
 import { color, font, space, stroke, text } from '../../theme/tokens';
 
@@ -25,6 +26,7 @@ export default function Welcome() {
           Ich bin der alte Kater vom Kiez. Die Segel hab ich eingeholt, aber für eine neue Crew würde ich alles tun.
           Alles. Hilf Deinen Nachbar*innen mit kleinen Challenges.
         </Text>
+        <LegalLinks />
       </ScrollView>
       <ActionBar>
         <Button label="Anheuern" onPress={() => router.push('/onboarding/email')} />

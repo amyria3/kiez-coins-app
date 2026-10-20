@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Button } from '../../components/Button';
 import { KaterBubble } from '../../components/Content';
 import { TextField } from '../../components/Form';
+import { LegalLinks } from '../../components/LegalLinks';
 import { SubScreen } from '../../components/Screen';
 import { useAuth } from '../../data/auth';
 import { loadOwnProfile } from '../../data/remote';
@@ -138,6 +139,7 @@ export default function Email() {
         textContentType={existing ? 'password' : 'newPassword'}
         onSubmitEditing={() => valid && !busy && submit()}
       />
+      <LegalLinks />
     </SubScreen>
   );
 }
