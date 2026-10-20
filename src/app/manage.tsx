@@ -51,7 +51,9 @@ const renewedDeadline = (c: Challenge) => {
 /** Eine Seite pro Challenge, gelöschte zusammen auf der letzten Seite. */
 type Page = { kind: 'challenge'; challenge: Challenge } | { kind: 'deleted'; challenges: Challenge[] };
 
-const deletable = (c: Challenge) => c.status === 'draft' || (c.status === 'open' && !c.assigneeId);
+// Löschen bis jemand annimmt: Entwürfe, offene und geschlossene (Migration 20261021000300)
+const deletable = (c: Challenge) =>
+  c.status === 'draft' || ((c.status === 'open' || c.status === 'closed') && !c.assigneeId);
 
 /**
  * Route `manage` („Deine Challenges“). Erreichbar über „Verwalten“ an eigenen Posts im Feed und im Detail.
@@ -99,7 +101,7 @@ export default function ManageChallenges() {
         'Löschen geht nicht mehr',
         running
           ? 'Jemand hat die Challenge schon angenommen. Damit niemand umsonst loszieht, lässt sie sich nicht mehr löschen. Der Kundenservice hilft Dir weiter.'
-          : 'Erledigte und geschlossene Challenges bleiben in der Timeline sichtbar. Der Kundenservice hilft Dir weiter.',
+          : 'Erledigte Challenges bleiben in der Timeline sichtbar. Der Kundenservice hilft Dir weiter.',
         [
           { text: 'OK', style: 'cancel' },
           {
