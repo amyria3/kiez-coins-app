@@ -143,18 +143,23 @@ const legal = (id) => {
 
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, 'index.html'), index);
-// Eigene 404-Seite. Ohne sie liefert Cloudflare Pages bei unbekannten Adressen die Startseite aus.
+// Eigene 404-Seite für unbekannte Adressen.
 writeFileSync(
   join(out, '404.html'),
   page('Nicht gefunden – Kiez Coins', `<h1>Seite nicht gefunden</h1>\n<p><a href="/">Zur Startseite</a></p>`),
 );
-// Web-App: Cloudflare Pages liefert bei unbekannten Adressen unter /app/ die nächstgelegene 404.html aus.
+// Web-App: Vercel leitet unbekannte Adressen unter /app/ auf die App-Startseite um (vercel.json unten).
 // Eine Kopie der App-Startseite sorgt dafür, dass Neuladen auf einer Unterseite (/app/challenge/…) die App öffnet.
 const app = join(out, 'app');
 if (existsSync(join(app, 'index.html'))) copyFileSync(join(app, 'index.html'), join(app, '404.html'));
 else console.warn('Achtung: website/app/ fehlt. Die Web-App fürs iPhone baut `npm run build:website`.');
 for (const id of legalDocIds) writeFileSync(join(out, `${fileOf[id]}.html`), legal(id));
 copyFileSync(join(root, 'assets/favicon.png'), join(out, 'favicon.png'));
+// Hosting bei Vercel: Unterseiten der Web-App öffnen die App, Rechtstexte auch ohne .html
+writeFileSync(
+  join(out, 'vercel.json'),
+  JSON.stringify({ cleanUrls: true, rewrites: [{ source: '/app/:path*', destination: '/app/index.html' }] }, null, 2) + '\n',
+);
 // Logo: die bunten Coins aus der App (src/components/icons/brandSvgs.ts)
 const coins = readFileSync(join(root, 'src/components/icons/brandSvgs.ts'), 'utf8').match(/coinsSvg = `([^`]+)`/);
 writeFileSync(join(out, 'logo.svg'), coins[1]);
