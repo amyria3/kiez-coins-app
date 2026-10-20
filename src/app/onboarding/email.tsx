@@ -15,32 +15,34 @@ const MIN_PASSWORD = 8;
 
 /**
  * Route `onboarding/email`. Figma: `onboarding/email`.
- * Vorerst Anmeldung mit E-Mail und Passwort, weil es noch keinen Mailversand gibt.
- * Der Code-Login (`onboarding/code`) kommt zurück, sobald eine eigene Domain eingerichtet ist.
+ * Zwei Wege: mit Passwort anmelden oder ohne Passwort einen Code per Mail anfordern. Der Code dient
+ * auch als Rückweg bei vergessenem Passwort; ein neues Passwort legt die Nutzerin danach unter `account/password` fest
+ * (Versand über Brevo als registration.noreply@kiezcoins.de, geprüft in `onboarding/code`).
  * Danach: bekanntes Konto mit fertigem Onboarding direkt in den Feed, sonst weiter zum Deckname.
  */
 export default function Email() {
   const router = useRouter();
   const { existing } = useLocalSearchParams<{ existing?: string }>();
   const { profile, dispatch } = useStore();
-  const { signUpWithPassword, signInWithPassword } = useAuth();
+  const { signUpWithPassword, signInWithPassword, sendCode } = useAuth();
   const [email, setEmail] = useState(profile.email);
   const [password, setPassword] = useState('');
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<'password' | 'code'>();
   const [error, setError] = useState<string>();
 
-  const valid = isEmail(email) && password.length >= (existing ? 1 : MIN_PASSWORD);
+  const emailValid = isEmail(email);
+  const valid = emailValid && password.length >= (existing ? 1 : MIN_PASSWORD);
 
   const submit = async () => {
     const address = email.trim().toLowerCase();
-    setBusy(true);
+    setBusy('password');
     setError(undefined);
     // „Ich hab schon ein Konto“ meldet nur an, „Anheuern“ legt ein neues Konto an.
     const failure = existing
       ? await signInWithPassword(address, password)
       : await signUpWithPassword(address, password);
     if (failure) {
-      setBusy(false);
+      setBusy(undefined);
       setError(failure);
       return;
     }
@@ -48,7 +50,7 @@ export default function Email() {
     // Profil direkt aus der Datenbank lesen, nicht aus dem Store (der wird gerade erst befüllt).
     const { data } = await supabase.auth.getUser();
     const stored = data.user ? await loadOwnProfile(data.user.id).catch(() => null) : null;
-    setBusy(false);
+    setBusy(undefined);
     if (stored?.onboarded) {
       router.dismissAll();
       router.replace('/feed');
@@ -57,7 +59,29 @@ export default function Email() {
     router.push('/onboarding/deckname');
   };
 
-  const label = existing ? (busy ? 'Wird geprüft …' : 'Anmelden') : busy ? 'Wird angelegt …' : 'Konto anlegen';
+  const requestCode = async () => {
+    const address = email.trim().toLowerCase();
+    setBusy('code');
+    setError(undefined);
+    const failure = await sendCode(address, !existing);
+    setBusy(undefined);
+    if (failure) {
+      setError(failure);
+      return;
+    }
+    // Der Code-Bildschirm liest die Adresse aus dem Store.
+    dispatch({ type: 'updateProfile', patch: { email: address } });
+    router.push(existing ? { pathname: '/onboarding/code', params: { existing: '1' } } : '/onboarding/code');
+  };
+
+  const label =
+    busy === 'password'
+      ? existing
+        ? 'Wird geprüft …'
+        : 'Wird angelegt …'
+      : existing
+        ? 'Anmelden'
+        : 'Konto anlegen';
 
   return (
     <SubScreen
@@ -65,12 +89,24 @@ export default function Email() {
       subtitle="Schritt 1 von 6"
       navigation="back"
       onLeadingPress={() => router.back()}
-      actions={<Button label={label} onPress={submit} disabled={!valid || busy} />}
+      actions={
+        <>
+          <Button label={label} onPress={submit} disabled={!valid || !!busy} />
+          <Button
+            label={
+              busy === 'code' ? 'Wird gesendet …' : existing ? 'Passwort vergessen? Code per Mail' : 'Ohne Passwort: Code per Mail'
+            }
+            variant="secondary"
+            onPress={requestCode}
+            disabled={!emailValid || !!busy}
+          />
+        </>
+      }
     >
       <KaterBubble>
         {existing
-          ? 'Willkommen zurück an Bord! Deine Flaschenpost-Adresse und Dein Passwort, bitte.'
-          : 'Erst mal Deine Flaschenpost-Adresse und ein Passwort, das nur Du kennst.'}
+          ? 'Willkommen zurück an Bord! Deine Flaschenpost-Adresse und Dein Passwort, bitte. Passwort vergessen? Dann schick ich Dir einen Code.'
+          : 'Erst mal Deine Flaschenpost-Adresse und ein Passwort, das nur Du kennst. Ohne Passwort schick ich Dir einen Code.'}
       </KaterBubble>
       <TextField
         label="E-Mail"

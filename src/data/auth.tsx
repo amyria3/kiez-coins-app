@@ -6,9 +6,10 @@ import { loadOwnProfile, saveOwnProfile } from './remote';
 import { useStore } from './store';
 import type { Profile } from './types';
 
-// Anmeldung vorerst mit E-Mail und Passwort (Supabase Auth, „Confirm email“ aus), weil ohne eigene
-// Domain kein Mailversand möglich ist. Der Code-Login (sendCode/verifyCode, onboarding/code) bleibt
-// für später erhalten, siehe kiez-coins/konto/MVP_Konto.md.
+// Anmeldung per E-Mail-Code (sendCode/verifyCode, onboarding/email → onboarding/code). Supabase Auth
+// verschickt die Codes über Brevo als registration.noreply@kiezcoins.de. Alternativ meldet sich die
+// Nutzerin mit Passwort an. Das Passwort legt sie unter `account/password` fest oder ändert es dort;
+// bei vergessenem Passwort meldet sie sich per Code an und legt dort ein neues fest.
 // Nach dem Anmelden lädt die App Profil und Einstellungen aus den Tabellen `profiles` und
 // `profile_settings` sowie alle Daten für den Feed. Änderungen am Profil werden zurückgeschrieben.
 
@@ -24,6 +25,14 @@ type Auth = {
   signUpWithPassword: (email: string, password: string) => Promise<string | null>;
   /** Mit Passwort anmelden. Gibt eine Fehlermeldung zurück oder null. */
   signInWithPassword: (email: string, password: string) => Promise<string | null>;
+  /** true, wenn das Konto ein Passwort hat (Merker `has_password` in den Nutzer-Metadaten). */
+  hasPassword: boolean;
+  /** Passwort für das angemeldete Konto festlegen oder ändern. Gibt eine Fehlermeldung zurück oder null. */
+  setPassword: (password: string) => Promise<string | null>;
+  /** Schickt einen Code an die neue Adresse. Gibt eine Fehlermeldung zurück oder null. */
+  requestEmailChange: (email: string) => Promise<string | null>;
+  /** Prüft den Code der neuen Adresse und schließt den Wechsel ab. */
+  confirmEmailChange: (email: string, code: string) => Promise<string | null>;
   signOut: () => Promise<void>;
 };
 
@@ -50,6 +59,10 @@ export function authErrorText(error: AuthError): string {
     case 'user_already_exists':
     case 'email_exists':
       return 'Zu dieser Adresse gibt es schon ein Konto. Tipp auf „Ich hab schon ein Konto“.';
+    case 'same_password':
+      return 'Das ist schon Dein Passwort. Nimm ein anderes.';
+    case 'reauthentication_needed':
+      return 'Melde Dich bitte neu an und versuch es dann noch mal.';
     case 'weak_password':
       return 'Das Passwort ist zu schwach. Nimm mindestens 8 Zeichen.';
     case 'email_not_confirmed':
@@ -139,15 +152,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return error ? authErrorText(error) : null;
       },
       signUpWithPassword: async (email, password) => {
-        const { data, error } = await supabase.auth.signUp({ email, password });
+        const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { has_password: true } } });
         if (error) return authErrorText(error);
         // Ohne Sitzung verlangt Supabase noch eine Bestätigungsmail („Confirm email“ ist an).
         if (!data.session) return 'Konto angelegt, aber noch nicht freigeschaltet. Schreib uns bitte.';
         return null;
       },
       signInWithPassword: async (email, password) => {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) return authErrorText(error);
+        // Ältere Passwort-Konten haben den Merker noch nicht.
+        if (!data.user.user_metadata?.has_password) {
+          await supabase.auth.updateUser({ data: { has_password: true } });
+        }
+        return null;
+      },
+      hasPassword: !!session?.user.user_metadata?.has_password,
+      setPassword: async (password) => {
+        const { error } = await supabase.auth.updateUser({ password, data: { has_password: true } });
         return error ? authErrorText(error) : null;
+      },
+      requestEmailChange: async (email) => {
+        const { error } = await supabase.auth.updateUser({ email });
+        return error ? authErrorText(error) : null;
+      },
+      confirmEmailChange: async (email, code) => {
+        const { error } = await supabase.auth.verifyOtp({ email, token: code, type: 'email_change' });
+        if (error) return authErrorText(error);
+        dispatch({ type: 'updateProfile', patch: { email } });
+        return null;
       },
       signOut: async () => {
         // Nur dieses Gerät abmelden. Klappt auch, wenn das Konto gerade gelöscht wurde.
