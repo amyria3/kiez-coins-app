@@ -4,31 +4,33 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ActionBar } from '../../components/ActionBar';
 import { Button } from '../../components/Button';
-import { SpeechBubble } from '../../components/Content';
 import { Cat } from '../../components/icons/Brand';
-import { color, space, text } from '../../theme/tokens';
+import { color, font, space, stroke, text } from '../../theme/tokens';
 
-/** Route `onboarding/welcome`. Figma: `onboarding/welcome`. */
+/** Route `onboarding/welcome`. Figma: `onboarding/welcome`, Upgrade „Nachtschicht“. */
 export default function Welcome() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Cat mood="high" height={140} />
-        <SpeechBubble style={styles.bubble}>
-          Ahoi! Ich bin der alte Kater vom Kiez. Die Segel hab ich eingeholt, aber für eine neue Crew würde ich alles
-          tun.{'\n'}Alles.
-        </SpeechBubble>
+        <View style={styles.tile}>
+          <Cat mood="high" height={120} />
+        </View>
+        <Text style={styles.headline} accessibilityRole="header">
+          Ahoi.{'\n'}
+          <Text style={styles.headlineMuted}>Der Kiez sucht eine neue Crew.</Text>
+        </Text>
         <Text style={styles.body}>
-          Hilf Deinen Nachbar*innen mit kleinen Challenges und werde Teil der Crew in Deinem Kiez.
+          Ich bin der alte Kater vom Kiez. Die Segel hab ich eingeholt, aber für eine neue Crew würde ich alles tun.
+          Alles. Hilf Deinen Nachbar*innen mit kleinen Challenges.
         </Text>
       </ScrollView>
       <ActionBar>
         <Button label="Anheuern" onPress={() => router.push('/onboarding/email')} />
         <Button
           label="Ich hab schon ein Konto"
-          variant="secondary"
+          variant="ghost"
           onPress={() => router.push({ pathname: '/onboarding/email', params: { existing: '1' } })}
         />
       </ActionBar>
@@ -38,7 +40,18 @@ export default function Welcome() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
-  content: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: space[16], gap: space[16] },
-  bubble: { alignSelf: 'stretch' },
-  body: { ...text.body, color: color.text.secondary, textAlign: 'center' },
+  content: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: space[20], paddingVertical: space[24], gap: space[24] },
+  tile: {
+    width: 180,
+    height: 180,
+    borderRadius: 48,
+    backgroundColor: color.bg.surface,
+    borderWidth: stroke.ultraThin,
+    borderColor: color.line.hairline,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headline: { ...text.display, fontSize: 44, lineHeight: 46, letterSpacing: -1.2, color: color.text.primary },
+  headlineMuted: { color: color.text.secondary },
+  body: { fontFamily: font.light, fontSize: 16, lineHeight: 23, color: color.text.secondary },
 });

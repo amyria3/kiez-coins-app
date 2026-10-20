@@ -5,7 +5,7 @@ import { color, radius, space, stroke, text } from '../theme/tokens';
 // Figma „Button“ (Primary, Secondary). Die übrigen Varianten sind Überschreibungen in Screens:
 // `signal` („Aufgabe zurück schicken“, „Muss ich noch machen“), `signalOutline` („Rückgängig machen“),
 // `danger` („Missbrauch melden“).
-export type ButtonVariant = 'primary' | 'secondary' | 'signal' | 'signalOutline' | 'danger';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'signal' | 'signalOutline' | 'danger';
 
 type ButtonProps = {
   label: string;
@@ -36,6 +36,8 @@ const variants: Record<ButtonVariant, { container: ViewStyle; label: string; fil
     container: { borderWidth: stroke.thin, borderColor: color.text.secondary },
     label: color.text.primary,
   },
+  // Upgrade „Nachtschicht“: Text ohne Rahmen, für die zweite Wahl unter einem Primary
+  ghost: { container: {}, label: color.text.primary },
   signal: { container: { backgroundColor: color.accent.signal }, label: color.bg.screen, filled: true },
   signalOutline: {
     container: { borderWidth: stroke.thin, borderColor: color.accent.signal },
@@ -46,7 +48,7 @@ const variants: Record<ButtonVariant, { container: ViewStyle; label: string; fil
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 44,
+    minHeight: 52,
     paddingHorizontal: space[24],
     paddingVertical: space[12],
     borderRadius: radius.full,
