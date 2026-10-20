@@ -1,6 +1,6 @@
 # Migrationen für Supabase vom 20.10.2026
 
-**Status:** Daria hat die Migrationen 1 bis 5 am 20. und 21.10.2026 im SQL-Editor ausgeführt. Offen sind Migration 6 (Gruppen) und danach 7 (Löschen und wieder veröffentlichen) sowie der Eintrag in Documentation.
+**Status:** Daria hat alle 6 Migrationen am 20. und 21.10.2026 im SQL-Editor ausgeführt. Offen ist nur der Eintrag in Documentation.
 
 - **Datum:** 20.10.2026
 - **Gehört nach:** Datenbank-Doku in Documentation (Liste der Migrationen, Tabellen `comments` und `challenges`).
@@ -75,7 +75,7 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 
 ## 6. `supabase/migrations/20261021000100_groups.sql`
 
-**Wozu:** Gruppen mit Edensteinen. Die Datei liegt auf `main`, sobald Daria den Branch `claude/gruppen` freigibt. Umsetzung: `Übergabe/2026-10-21_gruppen.md`.
+**Wozu:** Gruppen mit Edensteinen. Umsetzung: `Übergabe/2026-10-21_gruppen.md`.
 
 **Ändert:**
 - Neue Tabellen `groups` und `group_members` mit RLS: Lesen nur als Mitglied, Schreiben nur über Funktionen.
