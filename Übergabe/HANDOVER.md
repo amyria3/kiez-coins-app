@@ -52,7 +52,7 @@ Daria hat aus drei Richtungen (Kiez-Quest, Nachtschicht, Kiez-Aushang) „Nachts
 ## Bis zum Launch
 
 **Technik (Claude):**
-- Feature „Gruppen“ mit Edensteinen umsetzen, Konzept in `docs/konzept-gruppen.md`. Einladung per Link erst mit eigener Domain.
+- Feature „Gruppen“ mit Edensteinen umsetzen, Konzept in `Übergabe/konzept-gruppen.md`. Einladung per Link erst mit eigener Domain.
 - App-IDs (`ios.bundleIdentifier`, `android.package`), Icon, Splash, `eas init`, `eas.json`, erster Build.
 - Push-Nachrichten echt machen (braucht Development Build statt Expo Go).
 - Standort für Kiez echt machen (bisher gespielt).

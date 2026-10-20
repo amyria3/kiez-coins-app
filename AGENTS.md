@@ -42,6 +42,7 @@ Docs: https://docs.expo.dev/eas/index.md
 
 ## Documentation
 
-- Concept, decisions, app status and the database overview live in the private repo [amyria3/Documentation](https://github.com/amyria3/Documentation). Read its `AGENTS.md` before changing anything there.
-- Each piece of information lives in exactly one place. Link to it instead of copying it.
-- When you add a migration or a database function in `supabase/migrations`, update `kiez-coins/DATENBANK.md` in Documentation in the same piece of work. Its daily check (`scripts/check.py`) fails otherwise.
+- All docs (concept, decisions, app status, structure, database) live only in the private repo [amyria3/Documentation](https://github.com/amyria3/Documentation). Do not add docs to this repo, except to `Übergabe/`.
+- No access to Documentation? Put new doc content into `Übergabe/` as described in `Übergabe/README.md`.
+- Before you change anything in Documentation, check `Übergabe/` here for new files, move their content into Documentation and delete them here in the same piece of work.
+- When you add a migration or a database function in `supabase/migrations`, update the database doc in Documentation (or leave a note in `Übergabe/`). Its daily check fails otherwise.
