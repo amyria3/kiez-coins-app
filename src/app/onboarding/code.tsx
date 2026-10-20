@@ -76,7 +76,7 @@ export default function Code() {
       <KaterBubble>Der Code ist unterwegs! Schau in Dein Postfach, zur Not auch im Spam-Netz.</KaterBubble>
       <TextField
         label="Code aus der E-Mail"
-        helperText={`Gesendet an ${profile.email}. Gilt 10 Minuten.`}
+        helperText={`Gesendet an ${profile.email}. Gilt 20 Minuten.`}
         error={error}
         value={digits.length === 6 ? `${digits.slice(0, 3)} ${digits.slice(3)}` : digits}
         onChangeText={(v) => {
