@@ -11,6 +11,8 @@ type TabBarProps = {
   active: TabKey;
   onFeedPress: () => void;
   onReisePress: () => void;
+  /** Langes Drücken auf den Kater öffnet das Demo-Menü (nur Prototyp) */
+  onReiseLongPress?: () => void;
   /** Menü: Dein Konto und Einstellungen */
   onMenuPress: () => void;
   /** Punkt am Kater: Bei einer Deiner Challenges bist Du dran. */
@@ -22,7 +24,7 @@ type TabBarProps = {
  * Burger = Menü (Konto). Die aktive Seite liegt auf einer hellen Pille.
  * Challenge erstellen sitzt als CameraButton oben rechts.
  */
-export function TabBar({ active, onFeedPress, onReisePress, onMenuPress, hasTasks }: TabBarProps) {
+export function TabBar({ active, onFeedPress, onReisePress, onReiseLongPress, onMenuPress, hasTasks }: TabBarProps) {
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.wrap, { bottom: Math.max(insets.bottom, space[16]) }]} pointerEvents="box-none">
@@ -41,6 +43,7 @@ export function TabBar({ active, onFeedPress, onReisePress, onMenuPress, hasTask
           accessibilityLabel={hasTasks ? 'Deine Reise, Du bist dran' : 'Deine Reise'}
           accessibilityState={{ selected: active === 'reise' }}
           onPress={onReisePress}
+          onLongPress={onReiseLongPress}
           style={({ pressed }) => [styles.item, active === 'reise' && styles.itemActive, pressed && styles.pressed]}
         >
           <View>
