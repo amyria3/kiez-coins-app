@@ -49,7 +49,9 @@ type Action =
   | { type: 'setFeedState'; feedState: FeedState }
   | { type: 'loaded'; userId: string; data: remote.LiveData }
   | { type: 'challengeLoaded'; id: string; challenge: Challenge | null; users: User[] }
-  | { type: 'useSampleData' };
+  | { type: 'useSampleData' }
+  | { type: 'edit'; id: string; edit: remote.ChallengeEdit }
+  | { type: 'close'; id: string };
 
 function updateChallenge(state: State, id: string, patch: (c: Challenge) => Partial<Challenge>): State {
   return {
@@ -70,6 +72,10 @@ const emptyLive = (profile: Profile): State => ({
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
+    case 'edit':
+      return updateChallenge(state, action.id, () => ({ ...action.edit }));
+    case 'close':
+      return { ...state, challenges: state.challenges.filter((c) => c.id !== action.id) };
     case 'accept':
       return updateChallenge(state, action.id, () => ({
         status: 'accepted',
@@ -171,6 +177,12 @@ function reducer(state: State, action: Action): State {
 async function persist(action: Action, before: State): Promise<string | null> {
   const userId = before.currentUserId;
   switch (action.type) {
+    case 'edit':
+      await remote.editChallenge(action.id, action.edit);
+      return action.id;
+    case 'close':
+      await remote.closeChallenge(action.id);
+      return null;
     case 'accept':
       await remote.challengeActions.accept(action.id);
       return action.id;
