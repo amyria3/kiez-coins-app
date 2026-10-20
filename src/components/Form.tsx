@@ -84,17 +84,26 @@ export function SwitchRow({
   description,
   value,
   onValueChange,
+  onDescriptionPress,
 }: {
   label: string;
   description?: string;
   value: boolean;
   onValueChange: (value: boolean) => void;
+  /** Macht die Beschreibung zum Link, z. B. „AGB lesen“ */
+  onDescriptionPress?: () => void;
 }) {
   return (
     <View style={styles.switchRow}>
       <View style={styles.texts}>
         <Text style={[text.body, { color: color.text.primary }]}>{label}</Text>
-        {description ? <Text style={[text.caption, { color: color.text.secondary }]}>{description}</Text> : null}
+        {description && onDescriptionPress ? (
+          <Pressable accessibilityRole="link" hitSlop={8} onPress={onDescriptionPress} style={{ alignSelf: 'flex-start' }}>
+            <Text style={[text.caption, { color: color.text.secondary, textDecorationLine: 'underline' }]}>{description}</Text>
+          </Pressable>
+        ) : description ? (
+          <Text style={[text.caption, { color: color.text.secondary }]}>{description}</Text>
+        ) : null}
       </View>
       <NativeSwitch
         accessibilityLabel={label}

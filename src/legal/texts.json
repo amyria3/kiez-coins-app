@@ -1,0 +1,168 @@
+{
+  "operator": {
+    "name": "Maria Arkadieff",
+    "street": "[offen: Straße und Hausnummer]",
+    "city": "[offen: PLZ und Ort]",
+    "email": "arkadieff@etik.com"
+  },
+  "documents": {
+    "impressum": {
+      "title": "Impressum",
+      "updated": "21.10.2026",
+      "sections": [
+        {
+          "heading": "Angaben gemäß § 5 DDG",
+          "paragraphs": ["{name}", "{street}", "{city}"]
+        },
+        {
+          "heading": "Kontakt",
+          "paragraphs": ["E-Mail: {email}"]
+        },
+        {
+          "heading": "Verantwortlich für den Inhalt",
+          "paragraphs": ["{name}, Anschrift wie oben."]
+        },
+        {
+          "heading": "Testphase",
+          "paragraphs": [
+            "Kiez Coins ist eine Testversion. Die App ist kostenlos und steht einem kleinen Kreis von Testerinnen und Testern zur Verfügung."
+          ]
+        },
+        {
+          "heading": "Inhalte von Nutzerinnen und Nutzern",
+          "paragraphs": [
+            "Challenges, Fotos und Kommentare stammen von den Menschen, die sie einstellen. Rechtswidrige Inhalte entfernen wir, sobald wir davon erfahren. Hinweise bitte über „Person melden“ in der App oder per E-Mail."
+          ]
+        }
+      ]
+    },
+    "datenschutz": {
+      "title": "Datenschutzerklärung",
+      "updated": "21.10.2026",
+      "sections": [
+        {
+          "heading": "Verantwortlich",
+          "paragraphs": ["{name}, {street}, {city}, E-Mail: {email}"]
+        },
+        {
+          "heading": "Kurz gesagt",
+          "paragraphs": [
+            "Kiez Coins speichert nur, was die App zum Funktionieren braucht. Wir verkaufen keine Daten, zeigen keine Werbung und nutzen kein Tracking."
+          ]
+        },
+        {
+          "heading": "Diese Daten verarbeiten wir",
+          "paragraphs": [
+            "• Konto: E-Mail-Adresse, Passwort (nur verschlüsselt gespeichert), Deckname, Ansprache, Kiez, Profilbild, Zeitpunkt Deiner Zustimmung zu Kodex und Datenschutz.",
+            "• Inhalte: Challenges mit Titel, Text, Ort, Frist, Bounty und Fotos, Kommentare, Likes, Aufrufe, Operationsnamen, Gruppen.",
+            "• Standort: Die App bestimmt Deinen Standort nur auf Deinem Handy, um Deinen Kiez zu finden und Entfernungen zu zeigen. Bei einer Challenge speichern wir den Punkt auf etwa 100 Meter gerundet.",
+            "• Zahlungsdaten: IBAN, Kontoinhaber:in und PayPal-Adresse, freiwillig. Andere sehen sie nur, wenn Du sie für eine bestimmte Challenge freigibst.",
+            "• Meldungen und Support: Inhalt Deiner Meldung oder Anfrage.",
+            "• Technik: Bei jeder Anfrage verarbeiten unsere Server Deine IP-Adresse und Zeitpunkt, um die Verbindung herzustellen und Missbrauch abzuwehren."
+          ]
+        },
+        {
+          "heading": "Rechtsgrundlagen",
+          "paragraphs": [
+            "Konto, Inhalte, Zahlungsdaten, Meldungen und Support: Vertrag über die Nutzung der App (Art. 6 Abs. 1 lit. b DSGVO).",
+            "Standort und Push-Benachrichtigungen: Deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Du widerrufst sie jederzeit in den Einstellungen Deines Handys.",
+            "Technische Daten und Schutz vor Missbrauch: berechtigtes Interesse an einem sicheren Betrieb (Art. 6 Abs. 1 lit. f DSGVO)."
+          ]
+        },
+        {
+          "heading": "Wer die Daten sieht",
+          "paragraphs": [
+            "Challenges, Fotos, Kommentare, Deckname und Kiez sehen andere angemeldete Mitglieder. Inhalte geschlossener Gruppen sehen nur deren Mitglieder. Fotos liegen unter einer schwer erratbaren Adresse und sind über diese Adresse ohne Anmeldung abrufbar.",
+            "Deine E-Mail-Adresse sieht niemand außer uns."
+          ]
+        },
+        {
+          "heading": "Dienstleister",
+          "paragraphs": [
+            "• Supabase Inc. (USA) betreibt Datenbank, Anmeldung und Dateispeicher. Die Daten liegen in einem Rechenzentrum in Paris (EU). Grundlage: Auftragsverarbeitungsvertrag und EU-Standardvertragsklauseln.",
+            "• Brevo (Sendinblue SAS, Paris) verschickt Anmeldecodes per E-Mail. Grundlage: Auftragsverarbeitungsvertrag.",
+            "• Cloudflare Inc. (USA) liefert die Download-Seite aus. Grundlage: EU-US Data Privacy Framework und EU-Standardvertragsklauseln."
+          ]
+        },
+        {
+          "heading": "Speicherdauer",
+          "paragraphs": [
+            "Wir speichern Deine Daten, solange Dein Konto besteht. Löschst Du Dein Konto unter „Dein Konto“ › „Konto löschen“, löschen wir Profil, Challenges, Kommentare und Zahlungsdaten sofort. Technische Protokolle löschen unsere Dienstleister nach spätestens 90 Tagen."
+          ]
+        },
+        {
+          "heading": "Deine Rechte",
+          "paragraphs": [
+            "Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch (Art. 15 bis 21 DSGVO). Eine Einwilligung widerrufst Du jederzeit mit Wirkung für die Zukunft. Schreib uns dafür an {email}.",
+            "Du hast außerdem das Recht, Dich bei einer Datenschutz-Aufsichtsbehörde zu beschweren."
+          ]
+        },
+        {
+          "heading": "Download-Seite",
+          "paragraphs": [
+            "Die Download-Seite setzt keine Cookies. Beim Aufruf verarbeitet der Webhoster Deine IP-Adresse, um die Seite auszuliefern. Das Passwort prüft unser Server bei Supabase und speichert es nicht."
+          ]
+        }
+      ]
+    },
+    "nutzungsbedingungen": {
+      "title": "Nutzungsbedingungen",
+      "updated": "21.10.2026",
+      "sections": [
+        {
+          "heading": "Kiez Coins ist eine Testversion",
+          "paragraphs": [
+            "Die App ist kostenlos. Funktionen ändern sich, Daten aus der Testphase können verloren gehen, und die App kann zeitweise ausfallen."
+          ]
+        },
+        {
+          "heading": "Mitmachen ab 18",
+          "paragraphs": [
+            "Ein Konto bekommt, wer mindestens 18 Jahre alt ist. Jede Person hat ein Konto. Deine Zugangsdaten gibst Du nicht weiter."
+          ]
+        },
+        {
+          "heading": "Der Kodex",
+          "paragraphs": [
+            "• Challenges sind legal, ungefährlich und freundlich.",
+            "• Keine Beleidigungen, keine Belästigung, keine Diskriminierung, keine Werbung.",
+            "• Fotos zeigen keine erkennbaren Menschen ohne deren Einverständnis.",
+            "• Du stellst nur Inhalte ein, an denen Du die Rechte hast.",
+            "• Erledigt heißt erledigt: Melde nur, was Du wirklich getan hast."
+          ]
+        },
+        {
+          "heading": "Bounties laufen direkt zwischen Euch",
+          "paragraphs": [
+            "Kiez Coins bewegt kein Geld. Wer eine Bounty anbietet, zahlt sie nach der bestätigten Erledigung direkt an die helfende Person, per Überweisung oder PayPal. Kiez Coins ist an dieser Vereinbarung nicht beteiligt. Wer eine bestätigte Bounty nicht zahlt, darf keine Bounties mehr anbieten.",
+            "Wer regelmäßig Bounties erhält, kümmert sich selbst um Steuern und Abgaben."
+          ]
+        },
+        {
+          "heading": "Melden und Sperren",
+          "paragraphs": [
+            "Verstöße meldest Du über „Person melden“ oder per E-Mail. Wir prüfen Meldungen, entfernen Inhalte und sperren Konten, die gegen den Kodex verstoßen."
+          ]
+        },
+        {
+          "heading": "Haftung",
+          "paragraphs": [
+            "Wir haften unbeschränkt bei Vorsatz und grober Fahrlässigkeit sowie bei Verletzung von Leben, Körper und Gesundheit. Im Übrigen haften wir als kostenloses Testangebot nur nach den gesetzlichen Regeln für Schenkungen. Für Challenges, Inhalte und Zahlungen zwischen Mitgliedern sind die beteiligten Personen verantwortlich."
+          ]
+        },
+        {
+          "heading": "Ende der Nutzung",
+          "paragraphs": [
+            "Du löschst Dein Konto jederzeit in der App. Wir beenden die Testphase oder einzelne Konten mit einer Frist von zwei Wochen, bei Verstößen gegen den Kodex sofort."
+          ]
+        },
+        {
+          "heading": "Änderungen",
+          "paragraphs": [
+            "Ändern sich diese Bedingungen, sagen wir Dir in der App Bescheid. Es gilt deutsches Recht."
+          ]
+        }
+      ]
+    }
+  }
+}

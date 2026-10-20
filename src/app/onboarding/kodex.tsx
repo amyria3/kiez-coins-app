@@ -14,6 +14,8 @@ export default function Kodex() {
   const [age, setAge] = useState(false);
   const [terms, setTerms] = useState(false);
   const [privacy, setPrivacy] = useState(false);
+  const open = (doc: 'nutzungsbedingungen' | 'datenschutz') =>
+    router.push({ pathname: '/rechtliches/[doc]', params: { doc } });
 
   return (
     <SubScreen
@@ -38,12 +40,19 @@ export default function Kodex() {
     >
       <KaterBubble>Noch das Kleingedruckte. Auch Piraten haben einen Kodex.</KaterBubble>
       <SwitchRow label="Ich bin mindestens 18 Jahre alt" description="Pflicht für Kiez Coins." value={age} onValueChange={setAge} />
-      <SwitchRow label="Ich akzeptiere die AGB" description="AGB lesen" value={terms} onValueChange={setTerms} />
+      <SwitchRow
+        label="Ich akzeptiere die Nutzungsbedingungen"
+        description="Nutzungsbedingungen lesen"
+        value={terms}
+        onValueChange={setTerms}
+        onDescriptionPress={() => open('nutzungsbedingungen')}
+      />
       <SwitchRow
         label="Ich habe die Datenschutzerklärung gelesen"
         description="Datenschutz lesen"
         value={privacy}
         onValueChange={setPrivacy}
+        onDescriptionPress={() => open('datenschutz')}
       />
     </SubScreen>
   );

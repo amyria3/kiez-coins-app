@@ -7,6 +7,7 @@ import { SubScreen } from '../../components/Screen';
 import { anrede } from '../../data/format';
 import { useAuth } from '../../data/auth';
 import { useCurrentUser, useStore } from '../../data/store';
+import { legalDoc, legalDocKeys } from '../../legal';
 import { space } from '../../theme/tokens';
 
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
@@ -61,6 +62,17 @@ export default function Account() {
           <NavRow label="Abmelden" onPress={toStart} />
           <NavRow label="Konto 3 Monate pausieren" onPress={() => router.push('/account/pause')} />
           <NavRow label="Konto löschen" tone="danger" onPress={() => router.push('/account/delete')} />
+        </View>
+      </FieldGroup>
+      <FieldGroup label="Rechtliches">
+        <View style={styles.list}>
+          {legalDocKeys.map((doc) => (
+            <NavRow
+              key={doc}
+              label={legalDoc(doc).title}
+              onPress={() => router.push({ pathname: '/rechtliches/[doc]', params: { doc } })}
+            />
+          ))}
         </View>
       </FieldGroup>
     </SubScreen>
