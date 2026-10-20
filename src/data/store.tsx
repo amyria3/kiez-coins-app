@@ -84,7 +84,7 @@ function reducer(state: State, action: Action): State {
     case 'updateProfile':
       return { ...state, profile: { ...state.profile, ...action.patch } };
     case 'signOut':
-      return { ...state, profile: { ...state.profile, onboarded: false } };
+      return { ...state, profile: sampleProfile };
     case 'deleteAccount':
       return { ...state, profile: sampleProfile };
     case 'report':
