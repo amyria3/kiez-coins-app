@@ -129,7 +129,14 @@ export function HeroScreen({
   const [page, setPage] = useState(0);
   // Eingeklappt: Das Foto bekommt den Platz, das Blatt zeigt nur noch die Zusammenfassung.
   const [collapsed, setCollapsed] = useState(false);
-  const heroHeight = collapsed ? Math.round(height * 0.62) : HERO_HEIGHT + insets.top;
+  // Eingeklappt füllt das Foto genau den Platz über dem Blatt, damit unten keine Lücke bleibt.
+  const [viewportHeight, setViewportHeight] = useState(0);
+  const [headHeight, setHeadHeight] = useState(0);
+  const heroHeight = collapsed
+    ? viewportHeight && headHeight
+      ? Math.max(HERO_HEIGHT + insets.top, viewportHeight - (headHeight + SHEET_CHROME) + space[32])
+      : Math.round(height * 0.62)
+    : HERO_HEIGHT + insets.top;
   const collapsedRef = useRef(collapsed);
   collapsedRef.current = collapsed;
   const setCollapsedAnimated = (next: boolean) => {
@@ -176,6 +183,7 @@ export function HeroScreen({
           keyboardDismissMode="interactive"
           scrollEventThrottle={16}
           onScroll={(e) => (scrollY.current = e.nativeEvent.contentOffset.y)}
+          onLayout={(e) => setViewportHeight(e.nativeEvent.layout.height)}
         >
           <Animated.View {...pan.panHandlers} style={{ transform: [{ translateY: drag }] }}>
           {/* Tippen aufs Foto klappt die Details zu oder auf */}
@@ -222,6 +230,7 @@ export function HeroScreen({
             {imageOverlay ? <View style={styles.heroOverlay}>{imageOverlay}</View> : null}
           </Pressable>
           <View style={styles.sheet}>
+            <View style={styles.sheetHead} onLayout={(e) => setHeadHeight(e.nativeEvent.layout.height)}>
             <Pressable
               onPress={toggle}
               accessibilityRole="button"
@@ -233,6 +242,7 @@ export function HeroScreen({
               <View style={styles.grabber} />
             </Pressable>
             {summary}
+            </View>
             {collapsed ? (
               <Pressable onPress={toggle} accessibilityRole="button" style={styles.more}>
                 <Text style={styles.moreText}>Details zeigen</Text>
@@ -268,6 +278,8 @@ export function HeroScreen({
 }
 
 const HERO_HEIGHT = 340;
+/** Höhe des eingeklappten Blatts ohne Kopf: Abstand, „Details zeigen“, Innenabstand oben und unten */
+const SHEET_CHROME = space[12] + size.touchTarget + space[8] + space[16];
 /** Mindestweg in Punkten, ab dem ein Wischen die Details auf- oder zuklappt */
 const SWIPE = 48;
 
@@ -314,6 +326,7 @@ const styles = StyleSheet.create({
     paddingBottom: space[16],
     gap: space[12],
   },
+  sheetHead: { gap: space[12] },
   grabberArea: { alignSelf: 'center', paddingHorizontal: space[24], paddingVertical: space[6] },
   grabber: { width: 40, height: 5, borderRadius: 3, backgroundColor: color.line.hairline },
   more: { alignSelf: 'flex-start', minHeight: size.touchTarget, justifyContent: 'center' },
