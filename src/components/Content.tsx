@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { color, font, radius, space, text } from '../theme/tokens';
-import { Cat } from './icons/Brand';
+import { Cat, type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
 
 /** Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. */
@@ -42,6 +42,21 @@ export function KaterBubble({ children }: { children: ReactNode }) {
     <View style={styles.kater}>
       <Cat />
       <SpeechBubble style={styles.flex}>{children}</SpeechBubble>
+    </View>
+  );
+}
+
+/**
+ * Upgrade „Nachtschicht“ (Probe): Der Kater sitzt oben links auf einer stark gerundeten Karte und
+ * schaut über ihren Rand; der Text steht in der Karte. Erst in „Deine Reise“, später ggf. statt KaterBubble.
+ */
+export function KaterCard({ children, mood = 'default' }: { children: ReactNode; mood?: CatMood }) {
+  return (
+    <View style={styles.katerCard}>
+      <View style={styles.katerCardCat} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+        <Cat mood={mood} height={52} />
+      </View>
+      <Text style={styles.katerCardText}>{children}</Text>
     </View>
   );
 }
@@ -101,6 +116,17 @@ const styles = StyleSheet.create({
     backgroundColor: color.accent.signal,
   },
   tagText: { fontFamily: font.semiBold, fontSize: 11, lineHeight: 16, color: color.bg.screen },
+  katerCard: {
+    marginTop: 30,
+    paddingTop: 30,
+    paddingBottom: space[16],
+    paddingHorizontal: space[20],
+    borderRadius: radius.card,
+    backgroundColor: color.bg.surface,
+  },
+  // Der Kater ragt zur Hälfte über den oberen Rand
+  katerCardCat: { position: 'absolute', top: -30, left: space[16] },
+  katerCardText: { fontFamily: font.light, fontSize: 15, lineHeight: 21, color: color.text.primary },
   group: { gap: space[8] },
   groupLabel: { ...text.caption, color: color.text.secondary },
 });
