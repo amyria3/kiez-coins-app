@@ -1,6 +1,6 @@
 # Migrationen für Supabase vom 20.10.2026
 
-**Status:** Daria hat alle 6 Migrationen am 20. und 21.10.2026 im SQL-Editor ausgeführt. Offen ist nur der Eintrag in Documentation.
+**Status:** Daria hat die Migrationen 1 bis 7 am 20. und 21.10.2026 im SQL-Editor ausgeführt. Offen ist nur noch der Eintrag in Documentation.
 
 - **Datum:** 20.10.2026
 - **Gehört nach:** Datenbank-Doku in Documentation (Liste der Migrationen, Tabellen `comments` und `challenges`).
