@@ -73,6 +73,6 @@ Reihenfolge-Vorschlag: zuerst EAS und App-IDs (Store-Weg dauert am längsten), p
 
 ## Regeln
 
-- Nichts committen oder pushen ohne Darias OK.
+- Nichts committen oder pushen ohne Darias OK. Ausnahme: Doku (Übergaben, Konzepte) legt Claude im Ordner `Übergabe/` ab und pusht sie direkt auf `main`.
 - Pakete mit `npx expo install` hinzufügen (siehe `AGENTS.md`).
 - Vor dem Abschluss Lint und Typecheck (`npx tsc --noEmit`).
