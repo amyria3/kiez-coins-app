@@ -36,6 +36,8 @@ Liegt die Seite unter einer anderen Adresse als `https://kiezcoins.de/`, das Sec
 
 ## iPhone
 
+Bis zum TestFlight-Link nutzen iPhone-Testerinnen die Web-App unter `kiezcoins.de/app/` (siehe `2026-10-21_web-app.md`). Die Download-Seite verlinkt sie. Für TestFlight später:
+
 iOS installiert Apps nur aus dem App Store, über TestFlight oder auf registrierten Geräten. Der Weg: Apple Developer Program (99 € im Jahr), `npx eas-cli@latest build -p ios --profile production`, `npx eas-cli@latest submit -p ios`, in App Store Connect eine externe Testgruppe mit öffentlichem Link anlegen. Apple prüft die erste Testversion (Beta-Review, meist 1 bis 2 Tage). Den Link trägt Daria in `scripts/download-site.config.json` bei `testflightUrl` ein und baut die Seite neu.
 
 ## Rechtstexte

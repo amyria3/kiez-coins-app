@@ -55,7 +55,7 @@
           "paragraphs": [
             "• Konto: E-Mail-Adresse, Passwort (nur verschlüsselt gespeichert), Deckname, Ansprache, Kiez, Profilbild, Zeitpunkt Deiner Zustimmung zu Kodex und Datenschutz.",
             "• Inhalte: Challenges mit Titel, Text, Ort, Frist, Bounty und Fotos, Kommentare, Likes, Aufrufe, Operationsnamen, Gruppen.",
-            "• Standort: Die App bestimmt Deinen Standort nur auf Deinem Handy, um Deinen Kiez zu finden und Entfernungen zu zeigen. Bei einer Challenge speichern wir den Punkt auf etwa 100 Meter gerundet.",
+            "• Standort: Die App bestimmt Deinen Standort nur auf Deinem Handy, um Deinen Kiez zu finden und Entfernungen zu zeigen. Bei einer Challenge speichern wir den Punkt auf etwa 100 Meter gerundet. In der Web-App fragt Dein Browser Kiez und Straße bei OpenStreetMap ab und schickt dafür nur den auf etwa 100 Meter gerundeten Punkt.",
             "• Zahlungsdaten: IBAN, Kontoinhaber:in und PayPal-Adresse, freiwillig. Andere sehen sie nur, wenn Du sie für eine bestimmte Challenge freigibst.",
             "• Meldungen und Support: Inhalt Deiner Meldung oder Anfrage.",
             "• Technik: Bei jeder Anfrage verarbeiten unsere Server Deine IP-Adresse und Zeitpunkt, um die Verbindung herzustellen und Missbrauch abzuwehren."
@@ -65,7 +65,7 @@
           "heading": "Rechtsgrundlagen",
           "paragraphs": [
             "Konto, Inhalte, Zahlungsdaten, Meldungen und Support: Vertrag über die Nutzung der App (Art. 6 Abs. 1 lit. b DSGVO).",
-            "Standort und Push-Benachrichtigungen: Deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Du widerrufst sie jederzeit in den Einstellungen Deines Handys.",
+            "Standort und Push-Benachrichtigungen: Deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Du widerrufst sie jederzeit in den Einstellungen Deines Handys oder Browsers.",
             "Technische Daten und Schutz vor Missbrauch: berechtigtes Interesse an einem sicheren Betrieb (Art. 6 Abs. 1 lit. f DSGVO)."
           ]
         },
@@ -81,7 +81,8 @@
           "paragraphs": [
             "• Supabase Inc. (USA) betreibt Datenbank, Anmeldung und Dateispeicher. Die Daten liegen in einem Rechenzentrum in Paris (EU). Grundlage: Auftragsverarbeitungsvertrag und EU-Standardvertragsklauseln.",
             "• Brevo (Sendinblue SAS, Paris) verschickt Anmeldecodes per E-Mail. Grundlage: Auftragsverarbeitungsvertrag.",
-            "• Cloudflare Inc. (USA) liefert die Download-Seite aus. Grundlage: EU-US Data Privacy Framework und EU-Standardvertragsklauseln."
+            "• Cloudflare Inc. (USA) liefert die Download-Seite und die Web-App aus. Grundlage: EU-US Data Privacy Framework und EU-Standardvertragsklauseln.",
+            "• OpenStreetMap Foundation (Vereinigtes Königreich) beantwortet in der Web-App die Frage, welcher Kiez und welche Straße zu Deinem Standort gehören (Dienst Nominatim). Sie erhält dafür den auf etwa 100 Meter gerundeten Punkt und Deine IP-Adresse. Grundlage: Deine Einwilligung und der Angemessenheitsbeschluss der EU für das Vereinigte Königreich."
           ]
         },
         {
