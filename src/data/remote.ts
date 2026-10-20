@@ -52,6 +52,8 @@ type ChallengeRow = {
   assignee_id: string | null;
   location: string;
   kiez: string | null;
+  lat?: number | null;
+  lng?: number | null;
   bounty_amount: number | null;
   status: ChallengeStatus;
   image_path: string | null;
@@ -125,6 +127,7 @@ function toChallenge(
     authorId: row.author_id,
     assigneeId: row.assignee_id ?? undefined,
     location: row.location,
+    coords: row.lat != null && row.lng != null ? { latitude: row.lat, longitude: row.lng } : undefined,
     kiez: row.kiez ?? undefined,
     bountyAmount: row.bounty_amount ?? undefined,
     status: row.status,
@@ -352,28 +355,48 @@ export type NewChallenge = {
   title: string;
   text: string;
   location: string;
+  /** Gerundeter Punkt (location.ts, roundCoords) */
+  coords?: { latitude: number; longitude: number };
   bountyAmount?: number;
   deadline: string;
   photo: ImageSource;
 };
 
+/** Spalten lat/lng (Migration 20261020000400). Ohne Punkt bleiben sie weg, damit es auch ohne Migration läuft. */
+const coordFields = (coords?: { latitude: number; longitude: number }) =>
+  coords ? { lat: coords.latitude, lng: coords.longitude } : {};
+
+/** Fehlen die Spalten noch (Migration nicht eingespielt), noch einmal ohne Punkt speichern. */
+async function retryWithoutCoords<T>(run: (withCoords: boolean) => Promise<T>): Promise<T> {
+  try {
+    return await run(true);
+  } catch (error) {
+    const e = error as { code?: string; message?: string };
+    if (e?.code === 'PGRST204' || /\b(lat|lng)\b/.test(e?.message ?? '')) return run(false);
+    throw error;
+  }
+}
+
 /** Neue Challenge anlegen. Gibt die gespeicherte Challenge zurück. */
 export async function createChallenge(userId: string, draft: NewChallenge): Promise<Challenge> {
   const imagePath = await uploadPhoto(userId, draft.photo);
-  const { data } = check(
-    await supabase
-      .from('challenges')
-      .insert({
-        author_id: userId,
-        title: draft.title,
-        body: draft.text,
-        location: draft.location,
-        bounty_amount: draft.bountyAmount ?? null,
-        deadline: draft.deadline,
-        image_path: imagePath,
-      })
-      .select(CHALLENGE_COLUMNS)
-      .single(),
+  const { data } = await retryWithoutCoords(async (withCoords) =>
+    check(
+      await supabase
+        .from('challenges')
+        .insert({
+          author_id: userId,
+          title: draft.title,
+          body: draft.text,
+          location: draft.location,
+          bounty_amount: draft.bountyAmount ?? null,
+          ...(withCoords ? coordFields(draft.coords) : {}),
+          deadline: draft.deadline,
+          image_path: imagePath,
+        })
+        .select(CHALLENGE_COLUMNS)
+        .single(),
+    ),
   );
   return toChallenge(data as unknown as ChallengeRow, { liked: false });
 }
@@ -422,6 +445,7 @@ export type DraftInput = {
   text: string;
   location: string;
   bountyAmount?: number;
+  coords?: { latitude: number; longitude: number };
   /** Neues Foto vom Gerät. Ohne neues Foto bleibt `imagePath`. */
   photo?: ImageSource;
   imagePath?: string;
@@ -437,10 +461,13 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
     bounty_amount: draft.bountyAmount ?? null,
     image_path: imagePath,
   };
-  const query = id
-    ? supabase.from('challenges').update(fields).eq('id', id).eq('status', 'draft')
-    : supabase.from('challenges').insert({ ...fields, author_id: userId, status: 'draft' });
-  const { data } = check(await query.select(CHALLENGE_COLUMNS).single());
+  const { data } = await retryWithoutCoords(async (withCoords) => {
+    const all = { ...fields, ...(withCoords ? coordFields(draft.coords) : {}) };
+    const query = id
+      ? supabase.from('challenges').update(all).eq('id', id).eq('status', 'draft')
+      : supabase.from('challenges').insert({ ...all, author_id: userId, status: 'draft' });
+    return check(await query.select(CHALLENGE_COLUMNS).single());
+  });
   return toChallenge(data as unknown as ChallengeRow, { liked: false });
 }
 

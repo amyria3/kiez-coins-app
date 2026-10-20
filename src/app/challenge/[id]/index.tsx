@@ -28,7 +28,9 @@ const suggestName = (id: string) => operationNames[[...id].reduce((sum, ch) => s
 export default function ChallengeDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { currentUserId, users, dispatch } = useStore();
+  const { currentUserId, users, dispatch, mode, profile } = useStore();
+  // Schreiben nur mit Kiez (grobe Verortung); Beispieldaten immer
+  const canWrite = mode === 'demo' || !!profile.kiez;
   const { challenge, author } = useChallenge(id);
   const requireKiez = useRequireKiez();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -221,11 +223,15 @@ export default function ChallengeDetail() {
           currentUserId={currentUserId}
           composerPlaceholder={isAuthor ? 'Antworte oder ergänze etwas …' : `Frag ${author.firstName} …`}
           onSend={
-            challenge.status === 'closed'
+            challenge.status === 'closed' || !canWrite
               ? undefined
               : (body, replyToId) => requireKiez() && dispatch({ type: 'addComment', id: challenge.id, body, replyToId })
           }
-          closedHint="Die Challenge ist geschlossen. Neue Kommentare sind nicht mehr möglich."
+          closedHint={
+            challenge.status === 'closed'
+              ? 'Die Challenge ist geschlossen. Neue Kommentare sind nicht mehr möglich.'
+              : 'Leg in Deinem Konto Deinen Kiez fest, dann kannst Du mitschreiben.'
+          }
           onReport={(comment) =>
             router.push({ pathname: '/user/[id]/report', params: { id: comment.authorId, challengeId: challenge.id } })
           }

@@ -2,16 +2,43 @@ import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 
+import { useStore } from '../data/store';
 import type { User } from '../data/types';
 import { color, font, radius, size, space, text } from '../theme/tokens';
 import { Icon } from './icons/Icon';
 
+/**
+ * Ohne Kiez (keine grobe Verortung) bleiben Namen und Profilbilder anderer Personen verdeckt.
+ * Beispieldaten und das eigene Profil sind immer sichtbar.
+ */
+export function useHideName(user: Pick<User, 'id'>): boolean {
+  const { mode, profile, currentUserId } = useStore();
+  return mode === 'live' && !profile.kiez && user.id !== currentUserId;
+}
+
+/** Verdeckter Text: nur ein unscharfer Schatten der Buchstaben bleibt sichtbar. */
+export const hiddenText = {
+  color: 'transparent',
+  textShadowColor: 'rgba(240, 240, 240, 0.85)',
+  textShadowOffset: { width: 0, height: 0 },
+  textShadowRadius: 10,
+} as const;
+
 /** Figma „Avatar“: 36×36 (oder `diameter`), ohne Bild Initialen auf color/accent/primary. */
 export function Avatar({ user, diameter }: { user: User; diameter?: number }) {
+  const hidden = useHideName(user);
   const sizeStyle = diameter ? { width: diameter, height: diameter } : null;
   if (user.avatar) {
-    return <Image source={user.avatar} style={[styles.avatar, sizeStyle]} accessibilityIgnoresInvertColors />;
+    return (
+      <Image
+        source={user.avatar}
+        style={[styles.avatar, sizeStyle]}
+        blurRadius={hidden ? 12 : 0}
+        accessibilityIgnoresInvertColors
+      />
+    );
   }
+  if (hidden) return <View style={[styles.avatar, styles.fallback, sizeStyle]} />;
   const initials = user.name
     .split(/[\s*]+/)
     .filter(Boolean)
@@ -33,11 +60,16 @@ type AuthorRowProps = {
 
 /** Figma „AuthorRow“: Profilbild, Name und Ort, rechts optional Badge. */
 export function AuthorRow({ user, location, trailing }: AuthorRowProps) {
+  const hidden = useHideName(user);
   return (
     <View style={styles.row}>
       <Avatar user={user} />
       <View style={styles.info}>
-        <Text style={styles.name} numberOfLines={1}>
+        <Text
+          style={[styles.name, hidden && hiddenText]}
+          numberOfLines={1}
+          accessibilityLabel={hidden ? 'Name verdeckt, solange Dein Kiez fehlt' : undefined}
+        >
           {user.name}
         </Text>
         {location ? (
