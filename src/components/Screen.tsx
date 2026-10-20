@@ -1,5 +1,17 @@
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native';
+import { useState } from 'react';
+import {
+  KeyboardAvoidingView,
+  LayoutAnimation,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+  type ImageSourcePropType,
+} from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -86,6 +98,9 @@ type HeroScreenProps = {
   actions?: ReactNode;
   /** Kleines Element über dem Foto unten links, z. B. das Etikett der Operation */
   imageOverlay?: ReactNode;
+  /** Immer sichtbar: Status, Titel, Kennzahlen */
+  summary: ReactNode;
+  /** Details, die sich einklappen lassen */
   children: ReactNode;
 };
 
@@ -93,13 +108,30 @@ type HeroScreenProps = {
  * Upgrade „Nachtschicht“: Detailseite mit Foto über die volle Breite, runden Knöpfen darauf und einem Blatt,
  * das über das Foto geschoben ist. Darunter wie SubScreen die ActionBar.
  */
-export function HeroScreen({ image, imageLabel, onBackPress, onSharePress, actions, imageOverlay, children }: HeroScreenProps) {
+export function HeroScreen({
+  image,
+  imageLabel,
+  onBackPress,
+  onSharePress,
+  actions,
+  imageOverlay,
+  summary,
+  children,
+}: HeroScreenProps) {
   const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
+  // Eingeklappt: Das Foto bekommt den Platz, das Blatt zeigt nur noch die Zusammenfassung.
+  const [collapsed, setCollapsed] = useState(false);
+  const heroHeight = collapsed ? Math.round(height * 0.62) : HERO_HEIGHT + insets.top;
+  const toggle = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setCollapsed((c) => !c);
+  };
   return (
     <View style={styles.screen}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView style={styles.flex} keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive">
-          <View style={[styles.hero, { height: HERO_HEIGHT + insets.top }]}>
+          <View style={[styles.hero, { height: heroHeight }]}>
             <Image
               source={image}
               style={StyleSheet.absoluteFill}
@@ -108,7 +140,26 @@ export function HeroScreen({ image, imageLabel, onBackPress, onSharePress, actio
             />
             {imageOverlay ? <View style={styles.heroOverlay}>{imageOverlay}</View> : null}
           </View>
-          <View style={styles.sheet}>{children}</View>
+          <View style={styles.sheet}>
+            <Pressable
+              onPress={toggle}
+              accessibilityRole="button"
+              accessibilityLabel={collapsed ? 'Details ausklappen' : 'Details einklappen'}
+              accessibilityState={{ expanded: !collapsed }}
+              hitSlop={{ top: 12, bottom: 4 }}
+              style={styles.grabberArea}
+            >
+              <View style={styles.grabber} />
+            </Pressable>
+            {summary}
+            {collapsed ? (
+              <Pressable onPress={toggle} accessibilityRole="button" style={styles.more}>
+                <Text style={styles.moreText}>Details zeigen</Text>
+              </Pressable>
+            ) : (
+              children
+            )}
+          </View>
         </ScrollView>
         {actions ? <ActionBar>{actions}</ActionBar> : <View style={{ height: insets.bottom }} />}
       </KeyboardAvoidingView>
@@ -165,11 +216,15 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: radius.sheet,
     borderTopRightRadius: radius.sheet,
     backgroundColor: color.bg.screen,
-    paddingTop: space[24],
+    paddingTop: space[8],
     paddingHorizontal: space[20],
-    paddingBottom: space[24],
-    gap: space[16],
+    paddingBottom: space[16],
+    gap: space[12],
   },
+  grabberArea: { alignSelf: 'center', paddingHorizontal: space[24], paddingVertical: space[6] },
+  grabber: { width: 40, height: 5, borderRadius: 3, backgroundColor: color.line.hairline },
+  more: { alignSelf: 'flex-start', minHeight: size.touchTarget, justifyContent: 'center' },
+  moreText: { ...text.body, color: color.accent.primary },
   heroButtons: {
     position: 'absolute',
     left: space[16],
