@@ -63,6 +63,13 @@ export default function Account() {
           <NavRow label="Konto löschen" tone="danger" onPress={() => router.push('/account/delete')} />
         </View>
       </FieldGroup>
+      <FieldGroup label="Rechtliches">
+        <View style={styles.list}>
+          <NavRow label="Impressum" onPress={() => router.push('/rechtliches/impressum')} />
+          <NavRow label="Datenschutz" onPress={() => router.push('/rechtliches/datenschutz')} />
+          <NavRow label="Nutzungsbedingungen" value="Testphase" onPress={() => router.push('/rechtliches/bedingungen')} />
+        </View>
+      </FieldGroup>
     </SubScreen>
   );
 }
