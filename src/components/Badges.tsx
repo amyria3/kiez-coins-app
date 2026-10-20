@@ -6,6 +6,7 @@ import { color, font, radius, space, stroke, text } from '../theme/tokens';
 import { CoinsIcon } from './icons/Brand';
 
 const statusStyles: Record<ChallengeStatus, { label: string; tint: string }> = {
+  draft: { label: 'Entwurf', tint: color.text.secondary },
   open: { label: 'Offen', tint: color.text.secondary },
   accepted: { label: 'Angenommen', tint: color.accent.primary },
   reported: { label: 'Erledigt gemeldet', tint: color.accent.signal },
@@ -14,6 +15,7 @@ const statusStyles: Record<ChallengeStatus, { label: string; tint: string }> = {
   payment_open: { label: 'Zahlung offen', tint: color.accent.signal },
   paid_marked: { label: 'Als bezahlt markiert', tint: color.accent.primary },
   paid: { label: 'Bezahlt', tint: color.accent.affection },
+  closed: { label: 'Geschlossen', tint: color.text.secondary },
 };
 
 /** Figma „StatusBadge“ */

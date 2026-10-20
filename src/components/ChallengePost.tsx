@@ -16,17 +16,21 @@ type ChallengePostProps = {
   author: User;
   onPress: () => void;
   onLike: () => void;
+  /** Nur bei eigenen Challenges: führt zu „Deine Challenges“ */
+  onManage?: () => void;
 };
 
 /**
  * Figma „ChallengePost“ (Type=Individual|Wave, Completed?), Upgrade „Nachtschicht“:
  * Foto als Karte, Bounty oben rechts, Titel und Autor auf einer Glasleiste unten im Foto.
  */
-export const ChallengePost = memo(function ChallengePost({ challenge, author, onPress, onLike }: ChallengePostProps) {
+export const ChallengePost = memo(function ChallengePost({ challenge, author, onPress, onLike, onManage }: ChallengePostProps) {
   const isWave = challenge.type === 'wave';
   const completed = COMPLETED.has(challenge.status);
+  const closed = challenge.status === 'closed';
   const image = isWave && completed && challenge.imageAfter ? challenge.imageAfter : challenge.image;
-  const meta = [author.name, completed ? 'erledigt' : formatRemainingShort(challenge.deadline).replace('Noch', 'noch')]
+  const state = closed ? 'geschlossen' : completed ? 'erledigt' : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
+  const meta = [author.name, state]
     .filter(Boolean)
     .join(' · ');
   const commentCount = challenge.comments.length;
@@ -43,6 +47,11 @@ export const ChallengePost = memo(function ChallengePost({ challenge, author, on
         {!isWave && challenge.bountyAmount ? (
           <View style={styles.bounty}>
             <BountyBadge amount={challenge.bountyAmount} />
+          </View>
+        ) : null}
+        {closed ? (
+          <View style={[styles.waveTag, styles.closedTag]}>
+            <Text style={styles.closedText}>Geschlossen</Text>
           </View>
         ) : null}
         {isWave ? (
@@ -80,9 +89,21 @@ export const ChallengePost = memo(function ChallengePost({ challenge, author, on
             onPress={() => Share.share({ message: `${challenge.title} – Kiez Coins` })}
           />
         </View>
-        {commentCount > 0 ? (
-          <Text style={styles.count}>{commentCount === 1 ? '1 Kommentar' : `${commentCount} Kommentare`}</Text>
-        ) : null}
+        <View style={styles.actionsRight}>
+          {commentCount > 0 ? (
+            <Text style={styles.count}>{commentCount === 1 ? '1 Kommentar' : `${commentCount} Kommentare`}</Text>
+          ) : null}
+          {onManage ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Deine Challenges verwalten"
+              onPress={onManage}
+              style={({ pressed }) => [styles.manage, pressed && styles.pressed]}
+            >
+              <Text style={styles.manageText}>Verwalten</Text>
+            </Pressable>
+          ) : null}
+        </View>
       </View>
       {challenge.text ? (
         <Pressable onPress={onPress} style={styles.textBlock}>
@@ -152,6 +173,18 @@ const styles = StyleSheet.create({
     borderColor: color.accent.affection,
   },
   waveText: { ...text.caption, color: color.accent.affection },
+  closedTag: { borderColor: color.line.hairline },
+  closedText: { ...text.caption, color: color.text.primary },
+  actionsRight: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
+  manage: {
+    minHeight: 32,
+    justifyContent: 'center',
+    paddingHorizontal: space[12],
+    borderRadius: radius.full,
+    borderWidth: stroke.thin,
+    borderColor: color.line.hairline,
+  },
+  manageText: { ...text.caption, color: color.text.primary },
   info: {
     gap: space[6],
     paddingVertical: space[12],
