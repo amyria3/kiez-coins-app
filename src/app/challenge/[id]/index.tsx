@@ -88,6 +88,8 @@ export default function ChallengeDetail() {
   const amount = challenge.bountyAmount ? formatEuro(challenge.bountyAmount) : '';
   // Eigene Challenge, die noch niemand angenommen hat: bearbeiten oder schließen
   const canManage = isAuthor && challenge.status === 'open' && !challenge.assigneeId;
+  // Löschen bis jemand annimmt, auch geschlossene (Migration 20261021000300)
+  const canDelete = isAuthor && (challenge.status === 'open' || challenge.status === 'closed') && !challenge.assigneeId;
   const description = (challenge.type === 'wave' ? challenge.challengeText : challenge.text)?.trim();
 
   const closeChallenge = () =>
@@ -106,12 +108,12 @@ export default function ChallengeDetail() {
 
   // Löschen: nur solange niemand angenommen hat. Sonst Hinweis mit Weg zum Kundenservice (wie in „Deine Challenges“).
   const deleteChallenge = () => {
-    if (!canManage) {
+    if (!canDelete) {
       Alert.alert(
         'Löschen geht nicht mehr',
         challenge.assigneeId
           ? 'Jemand hat die Challenge schon angenommen. Damit niemand umsonst loszieht, lässt sie sich nicht mehr löschen. Der Kundenservice hilft Dir weiter.'
-          : 'Erledigte und geschlossene Challenges bleiben in der Timeline sichtbar. Der Kundenservice hilft Dir weiter.',
+          : 'Erledigte Challenges bleiben in der Timeline sichtbar. Der Kundenservice hilft Dir weiter.',
         [
           { text: 'OK', style: 'cancel' },
           {
@@ -126,7 +128,7 @@ export default function ChallengeDetail() {
       );
       return;
     }
-    Alert.alert('Challenge löschen?', 'Sie verschwindet samt Kommentaren aus dem Feed. Das lässt sich nicht rückgängig machen.', [
+    Alert.alert('Challenge löschen?', 'Sie verschwindet aus dem Feed. In „Deine Challenges“ kannst Du sie wieder veröffentlichen.', [
       { text: 'Abbrechen', style: 'cancel' },
       {
         text: 'Löschen',
@@ -178,7 +180,7 @@ export default function ChallengeDetail() {
             ) : null}
             <MenuItem
               label="Löschen"
-              tone={canManage ? 'error' : 'muted'}
+              tone={canDelete ? 'error' : 'muted'}
               onPress={() => {
                 setMenuOpen(false);
                 deleteChallenge();
