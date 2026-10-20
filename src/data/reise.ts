@@ -19,7 +19,7 @@ export type ReiseEntry = {
 };
 
 function lastActivity(c: Challenge): string {
-  return [c.createdAt, c.acceptedAt, c.report ? c.acceptedAt : undefined, c.confirmedAt, c.paidMarkedAt]
+  return [c.createdAt, c.acceptedAt, c.report ? c.acceptedAt : undefined, c.confirmedAt, c.paidMarkedAt, c.closedAt]
     .filter((d): d is string => !!d)
     .sort()
     .at(-1)!;
@@ -38,6 +38,7 @@ function target(c: Challenge, role: ReiseEntry['role']): { href: Href; needsActi
 export function reiseEntries(challenges: Challenge[], userId: string): ReiseEntry[] {
   const entries: ReiseEntry[] = [];
   for (const c of challenges) {
+    if (c.status === 'draft') continue; // Entwürfe stehen in „Deine Challenges“
     const role = c.authorId === userId ? 'author' : c.assigneeId === userId ? 'assignee' : null;
     if (!role) continue;
     const { href, needsAction } = target(c, role);

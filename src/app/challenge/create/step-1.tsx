@@ -1,16 +1,18 @@
 import { useState } from 'react';
+import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
 import { PhotoPicker, TextField } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
-import { useDraft } from './_layout';
+import { hasContent, useDraft, useSaveDraft } from './_layout';
 
 /** Route `challenge/create/step-1`. Figma: `challenge/create/step-1`. */
 export default function CreateStep1() {
   const router = useRouter();
   const [draft, setDraft] = useDraft();
   const [showErrors, setShowErrors] = useState(false);
+  const { save, busy } = useSaveDraft();
 
   const missingPhoto = !draft.photo;
   const missingTitle = !draft.title.trim();
@@ -23,18 +25,38 @@ export default function CreateStep1() {
     router.push('/challenge/create/step-2');
   };
 
+  // Schließen mit Eingaben: als Entwurf behalten oder verwerfen
+  const close = () => {
+    if (!hasContent(draft)) return router.back();
+    Alert.alert('Als Entwurf speichern?', 'Du kannst die Challenge später in „Deine Challenges“ fertig machen.', [
+      { text: 'Abbrechen', style: 'cancel' },
+      { text: 'Verwerfen', style: 'destructive', onPress: () => router.back() },
+      { text: 'Speichern', onPress: save },
+    ]);
+  };
+
   return (
     <SubScreen
-      title="Challenge erstellen"
+      title={draft.id ? 'Entwurf bearbeiten' : 'Challenge erstellen'}
       subtitle="Schritt 1 von 2"
       navigation="close"
-      onLeadingPress={() => router.dismissTo('/feed')}
-      actions={<Button label="Weiter" onPress={next} />}
+      onLeadingPress={close}
+      actions={
+        <>
+          <Button label="Weiter" onPress={next} />
+          <Button
+            label={busy ? 'Wird gespeichert …' : 'Als Entwurf speichern'}
+            variant="ghost"
+            onPress={save}
+            disabled={busy || !hasContent(draft)}
+          />
+        </>
+      }
     >
       <PhotoPicker
         photo={draft.photo}
         hint={showErrors && missingPhoto ? 'Bitte füge ein Foto hinzu.' : 'Zeig, wo geholfen werden soll.'}
-        onChange={(photo) => setDraft((d) => ({ ...d, photo }))}
+        onChange={(photo) => setDraft((d) => ({ ...d, photo, imagePath: undefined }))}
       />
       <TextField
         label="Titel"

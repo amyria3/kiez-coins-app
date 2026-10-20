@@ -57,8 +57,9 @@ type ChallengeRow = {
   image_path: string | null;
   image_before_path: string | null;
   image_after_path: string | null;
-  deadline: string;
+  deadline: string | null;
   created_at: string;
+  closed_at: string | null;
   accepted_at: string | null;
   report_photo_path: string | null;
   report_note: string | null;
@@ -128,11 +129,13 @@ function toChallenge(
     bountyAmount: row.bounty_amount ?? undefined,
     status: row.status,
     image: photoUrl(row.image_path),
+    imagePath: row.image_path ?? undefined,
     imageBefore: photoUrl(row.image_before_path),
     imageAfter: photoUrl(row.image_after_path),
     likedByMe: extra.liked,
-    deadline: row.deadline,
+    deadline: row.deadline ?? '',
     createdAt: row.created_at,
+    closedAt: row.closed_at ?? undefined,
     acceptedAt: row.accepted_at ?? undefined,
     operationName: extra.operationName,
     report: row.report_photo_path
@@ -404,12 +407,43 @@ export const editChallenge = (id: string, edit: ChallengeEdit) =>
     p_deadline: edit.deadline,
   });
 
-/** Eigene offene Challenge schließen: Sie wird gelöscht (Policy „Offene eigene Challenge löschen“). */
-export async function closeChallenge(id: string) {
-  const { data } = check(
-    await supabase.from('challenges').delete().eq('id', id).eq('status', 'open').select('id'),
-  );
-  if (!data || data.length === 0) throw new Error('Die Challenge wurde schon angenommen und lässt sich nicht mehr schließen.');
+/** Eigene offene Challenge schließen. Sie bleibt in der Timeline sichtbar (Migration 20261020000200). */
+export const closeChallenge = (id: string) => rpc('close_challenge', { p_challenge_id: id });
+
+export type DraftInput = {
+  title: string;
+  text: string;
+  location: string;
+  bountyAmount?: number;
+  /** Neues Foto vom Gerät. Ohne neues Foto bleibt `imagePath`. */
+  photo?: ImageSource;
+  imagePath?: string;
+};
+
+/** Entwurf anlegen (ohne id) oder aktualisieren. Lädt ein neues Foto hoch. Gibt den gespeicherten Entwurf zurück. */
+export async function saveDraft(userId: string, id: string | undefined, draft: DraftInput): Promise<Challenge> {
+  const imagePath = draft.imagePath ?? (draft.photo ? await uploadPhoto(userId, draft.photo) : null);
+  const fields = {
+    title: draft.title.trim(),
+    body: draft.text.trim(),
+    location: draft.location.trim(),
+    bounty_amount: draft.bountyAmount ?? null,
+    image_path: imagePath,
+  };
+  const query = id
+    ? supabase.from('challenges').update(fields).eq('id', id).eq('status', 'draft')
+    : supabase.from('challenges').insert({ ...fields, author_id: userId, status: 'draft' });
+  const { data } = check(await query.select(CHALLENGE_COLUMNS).single());
+  return toChallenge(data as unknown as ChallengeRow, { liked: false });
+}
+
+/** Entwurf veröffentlichen. Die Datenbank prüft Titel, Ort, Foto, Frist und Bounty. */
+export const publishDraft = (id: string, deadline: string) =>
+  rpc('publish_challenge', { p_challenge_id: id, p_deadline: deadline });
+
+/** Entwurf löschen. Veröffentlichte Challenges lassen sich nur schließen. */
+export async function deleteDraft(id: string) {
+  check(await supabase.from('challenges').delete().eq('id', id).eq('status', 'draft'));
 }
 
 export async function nameOperation(userId: string, challengeId: string, name: string) {

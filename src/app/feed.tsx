@@ -20,6 +20,8 @@ const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
 // Abgeschaltete Typen bleiben sichtbar, wenn es sie in der Datenbank gibt.
 function matchesTab(challenge: Challenge, tab: FeedTab) {
+  // Entwürfe stehen nur in „Deine Challenges“. Geschlossene bleiben in der Timeline.
+  if (challenge.status === 'draft') return false;
   if (tab === 'wave') return challenge.type === 'wave';
   if (tab === 'completed') return COMPLETED.has(challenge.status);
   return true;
@@ -49,6 +51,7 @@ export default function FeedScreen() {
   );
 
   const openChallenge = useCallback((id: string) => router.push(`/challenge/${id}`), [router]);
+  const openManage = useCallback(() => router.push('/manage'), [router]);
   const createChallenge = () => requireKiez() && router.push('/challenge/create/step-1');
 
   const reload = async () => {
@@ -131,6 +134,7 @@ export default function FeedScreen() {
             author={author}
             onPress={() => openChallenge(item.challenge.id)}
             onLike={() => dispatch({ type: 'toggleLike', id: item.challenge.id })}
+            onManage={item.challenge.authorId === currentUserId ? openManage : undefined}
           />
         );
       }
