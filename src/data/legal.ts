@@ -216,8 +216,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'Diskriminierung hat hier keinen Platz',
         paragraphs: [
-          'Verboten sind Sexismus, Rassismus, Antisemitismus, Muslimfeindlichkeit, Antiziganismus, Queer- und Transfeindlichkeit, Behindertenfeindlichkeit und jede andere Abwertung von Menschen als Gruppe.',
-          'Das gilt für Worte, Bilder, Symbole, Codes und „Witze“. Verfassungsfeindliche Kennzeichen, Volksverhetzung und das Leugnen oder Verharmlosen des Holocaust zeigen wir an.',
+          'Diskriminierung ist in Worten, Bildern, Symbolen, Codes und „Witzen“ verboten. Verfassungsfeindliche Kennzeichen, Volksverhetzung und das Leugnen oder Verharmlosen des Holocaust zeigen wir an.',
         ],
       },
       {
