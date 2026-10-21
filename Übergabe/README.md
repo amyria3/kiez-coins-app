@@ -28,4 +28,5 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-21_rechtliches.md`: Impressum, Datenschutz, Testbedingungen, Fotos beim Konto-Löschen, Migration 10, offene Angaben (Stand 21.10.2026).
 - `2026-10-21_web-app.md`: Web-App fürs iPhone unter kiezcoins.de/app, Unterschiede im Browser, Schritte für Daria (Stand 21.10.2026).
 - `2026-10-21_moderation.md`: Blockieren, Melden, Profil, Lob, Moderation, Community-Regeln, Migration `20261021000700_moderation` offen (Stand 21.10.2026).
+- `2026-10-21_texte-cms.md`: Texte-CMS für Buttons und Kater (Tabelle app_texts), Bedienung für Daria (Stand 21.10.2026).
 - `2026-10-21_todos-app.md`: Offene To-dos aus Darias App-Test zu Challenges, Design, Animationen, Nutzer*innen und Verlauf, noch nicht umgesetzt (Stand 21.10.2026).

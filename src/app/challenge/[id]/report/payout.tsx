@@ -11,6 +11,7 @@ import { formatEuro, isValidIban, isValidPaypal, maskIbanShort } from '../../../
 import { useChallenge, useCurrentUser, useStore } from '../../../../data/store';
 import type { PayoutMethod } from '../../../../data/types';
 import { color, space, text } from '../../../../theme/tokens';
+import { t } from '../../../../data/texts';
 
 /**
  * Route `challenge/[id]/report/payout` (Modal, direkt nach „Erledigung senden“, nur mit Bounty).
@@ -61,8 +62,8 @@ export default function PayoutShareScreen() {
       actions={<Button label={`Für ${name} freigeben`} onPress={share} disabled={!canShare} />}
     >
       <KaterBubble>
-        Gemeldet! Wohin soll {name} Dir die {amount} schicken?
-        {saved ? '' : ' Gib mindestens Deine IBAN oder PayPal an.'}
+        {t('Gemeldet! Wohin soll {name} Dir die {betrag} schicken?', { name, betrag: amount })}
+        {saved ? '' : ` ${t('Gib mindestens Deine IBAN oder PayPal an.')}`}
       </KaterBubble>
       <View style={styles.group}>
         <Text style={styles.label}>Zahlt Dir die Bounty</Text>

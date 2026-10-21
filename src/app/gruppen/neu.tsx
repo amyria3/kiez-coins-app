@@ -8,6 +8,7 @@ import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { MAX_MEMBERS } from '../../data/groups';
 import { useStore } from '../../data/store';
+import { t } from '../../data/texts';
 
 /** Route `gruppen/neu`: Gruppe gründen. Danach geht es direkt zur Gruppe mit dem Einladungscode. */
 export default function NewGroup() {
@@ -46,7 +47,10 @@ export default function NewGroup() {
         autoFocus
       />
       <Notice
-        message={`Nach dem Gründen bekommst Du einen Code mit 6 Zeichen. Den teilst Du mit bis zu ${MAX_MEMBERS - 1} Leuten. Einen Kiez braucht es dafür nicht.`}
+        message={t(
+          'Nach dem Gründen bekommst Du einen Code mit 6 Zeichen. Den teilst Du mit bis zu {anzahl} Leuten. Einen Kiez braucht es dafür nicht.',
+          { anzahl: MAX_MEMBERS - 1 },
+        )}
       />
     </SubScreen>
   );

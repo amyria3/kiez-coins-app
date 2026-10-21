@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { color, font, radius, space, text } from '../theme/tokens';
+import { useTexts } from '../data/texts';
 import { Cat, type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
 
@@ -47,6 +48,11 @@ export function KaterBubble({ children }: { children: ReactNode }) {
  * der Kater rechts daneben auf einer runden Kachel. Optional mit fetter Überschrift.
  */
 export function KaterCard({ children, title, mood = 'default' }: { children: ReactNode; title?: string; mood?: CatMood }) {
+  // Texte aus dem CMS (Tabelle app_texts). Nur reiner Text lässt sich ersetzen; Texte mit Namen
+  // setzen die Screens selbst über t() mit Platzhaltern zusammen.
+  const tx = useTexts();
+  if (typeof children === 'string') children = tx(children);
+  if (title) title = tx(title);
   return (
     <View style={styles.speech}>
       <View style={styles.speechBubble}>

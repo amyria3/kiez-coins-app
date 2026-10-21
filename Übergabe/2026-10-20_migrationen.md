@@ -130,3 +130,13 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 - Neue Funktion `ensure_own_profile`. Die App ruft sie nach dem Anmelden auf, wenn kein Profil da ist.
 
 **Danach prüfen:** In der App abmelden und neu anmelden, Deckname und Kiez festlegen. Im Table Editor steht dann eine Zeile in `profiles` mit Deckname und Kiez.
+
+## 11. `supabase/migrations/20261021000900_app_texts.sql`
+
+**Wozu:** Texte-CMS für Buttons und Kater, siehe `2026-10-21_texte-cms.md`.
+
+**Ändert:** Neue Tabelle `app_texts` mit 138 Texten aus dem Code, Lesen für alle, Schreiben nur im Dashboard.
+
+**Danach prüfen:** In `app_texts` bei „Anheuern“ das Feld `text` ändern. Die App zeigt den neuen Text auf dem Startbildschirm, sobald sie wieder nach vorn kommt.
+
+**Bis sie läuft:** Die App zeigt die Texte aus dem Code. Es gibt keinen Fehler.

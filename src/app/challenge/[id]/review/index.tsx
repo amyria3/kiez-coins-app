@@ -11,6 +11,7 @@ import { formatEuro, nameInText } from '../../../../data/format';
 import { useChallenge, useStore } from '../../../../data/store';
 import type { ImageSource } from '../../../../data/types';
 import { color, radius, space, text } from '../../../../theme/tokens';
+import { t } from '../../../../data/texts';
 
 /** Route `challenge/[id]/review` (Push). Figma: `challenge/review`, Flow „Erledigung bestätigen“. Nur für die Ersteller:in. */
 export default function ReviewScreen() {
@@ -55,8 +56,11 @@ export default function ReviewScreen() {
       ) : null}
       {challenge.bountyAmount ? (
         <KaterBubble>
-          Sieht gut aus? Wenn Du bestätigst, zahlst Du die {formatEuro(challenge.bountyAmount)} direkt an{' '}
-          {nameInText(assignee)}. {assignee.group ? 'Ihre' : 'Die'} Zahlungsdaten siehst Du danach.
+          {t('Sieht gut aus? Wenn Du bestätigst, zahlst Du die {betrag} direkt an {name}. {deren} Zahlungsdaten siehst Du danach.', {
+            betrag: formatEuro(challenge.bountyAmount),
+            name: nameInText(assignee),
+            deren: assignee.group ? 'Ihre' : 'Die',
+          })}
         </KaterBubble>
       ) : null}
     </SubScreen>

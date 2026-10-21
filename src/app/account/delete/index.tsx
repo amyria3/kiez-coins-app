@@ -10,6 +10,7 @@ import { anrede } from '../../../data/format';
 import { hasOpenWork } from '../../../data/openWork';
 import { deleteMyAccount, errorText } from '../../../data/remote';
 import { useStore } from '../../../data/store';
+import { t } from '../../../data/texts';
 
 /**
  * Route `account/delete`. Figma: `account/delete`. Löscht Fotos, Profil, Challenges, Kommentare
@@ -52,7 +53,7 @@ export default function DeleteAccount() {
         </>
       }
     >
-      <KaterBubble>Du willst von Bord? Schade, {anrede(profile)}. Bevor Du gehst:</KaterBubble>
+      <KaterBubble>{t('Du willst von Bord? Schade, {anrede}. Bevor Du gehst:', { anrede: anrede(profile) })}</KaterBubble>
       <Notice
         variant="warning"
         message="Dein Profil, Deine Fotos, Challenges, Kommentare und Zahlungsdaten werden gelöscht. Das lässt sich nicht rückgängig machen."

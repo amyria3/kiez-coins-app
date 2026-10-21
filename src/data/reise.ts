@@ -2,6 +2,7 @@ import type { Href } from 'expo-router';
 
 import type { CatMood } from '../components/icons/Brand';
 import type { Challenge } from './types';
+import { t } from './texts';
 
 // „YourPleasure“ (früher „Deine Reise“ und „Deine Spur im Kiez“): alle Challenges, die Du erstellt oder angenommen hast,
 // als Karten. Regeln aus kiez-coins/konto/MVP_Konto.md.
@@ -90,19 +91,19 @@ export function reiseMood(entries: ReiseEntry[], now = Date.now()): ReiseMood {
 export function reiseMoodText(mood: ReiseMood, anrede: string): string {
   switch (mood) {
     case 'Greedy':
-      return `Goldalarm, ${anrede}! Bei einer Deiner Challenges bist Du dran.`;
+      return t('Goldalarm, {anrede}! Bei einer Deiner Challenges bist Du dran.', { anrede });
     case 'Worried':
-      return 'Oha. Eine Erledigung kam zurück. Schau mal, was noch fehlt.';
+      return t('Oha. Eine Erledigung kam zurück. Schau mal, was noch fehlt.');
     case 'Proud':
-      return 'Eine Deiner Challenges ist geschafft. Ich bin stolz auf diesen Kiez!';
+      return t('Eine Deiner Challenges ist geschafft. Ich bin stolz auf diesen Kiez!');
     case 'InLove':
-      return `Du hast angepackt, ${anrede}. Ich schnurre.`;
+      return t('Du hast angepackt, {anrede}. Ich schnurre.', { anrede });
     case 'Curious':
-      return 'Ich bin gespannt, was als Nächstes kommt.';
+      return t('Ich bin gespannt, was als Nächstes kommt.');
     case 'Welcome':
-      return `Willkommen bei YourPleasure, ${anrede}! Erstell eine Challenge oder nimm eine an.`;
+      return t('Willkommen bei YourPleasure, {anrede}! Erstell eine Challenge oder nimm eine an.', { anrede });
     case 'Lazy':
-      return 'Ganz schön ruhig hier. Ich leg mich so lange in die Sonne.';
+      return t('Ganz schön ruhig hier. Ich leg mich so lange in die Sonne.');
   }
 }
 
