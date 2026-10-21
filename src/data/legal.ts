@@ -74,7 +74,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
     sections: [
       {
         heading: 'Verantwortlich ist die Anbieterin',
-        paragraphs: [hasAddress ? `${name}, ${OPERATOR.street.trim()}, ${OPERATOR.city.trim()}, E-Mail: ${email}` : `${name}, E-Mail: ${email}. Anschrift im Impressum.`],
+        paragraphs: [hasAddress ? `${name}, ${OPERATOR.street.trim()}, ${OPERATOR.city.trim()}, E-Mail: ${email}` : `${name}, E-Mail: ${email}`],
       },
       {
         heading: 'Dein Konto',
@@ -151,7 +151,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: '1. Anbieterin und Testbetrieb',
         paragraphs: [
-          `Kiez Coins betreibt ${name} (Anschrift im Impressum). Die App ist eine Testversion und kostenlos. Funktionen können sich ändern, ausfallen oder wegfallen. Am Ende der Testphase können wir Daten zurücksetzen und kündigen das vorher per E-Mail an.`,
+          `Kiez Coins betreibt ${name}${hasAddress ? ' (Anschrift im Impressum)' : `, erreichbar unter ${email}`}. Die App ist eine Testversion und kostenlos. Funktionen können sich ändern, ausfallen oder wegfallen. Am Ende der Testphase können wir Daten zurücksetzen und kündigen das vorher per E-Mail an.`,
         ],
       },
       {
