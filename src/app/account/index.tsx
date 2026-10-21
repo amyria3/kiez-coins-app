@@ -78,6 +78,7 @@ export default function Account() {
             onPress={() => router.push('/account/blocked')}
           />
           {moderator ? <NavRow label="Moderation" value="Meldungen prüfen" onPress={() => router.push('/moderation')} /> : null}
+          {moderator ? <NavRow label="Texte" value="Buttons, Kater, Rechtstexte" onPress={() => router.push('/texte')} /> : null}
         </View>
       </FieldGroup>
       <FieldGroup label="Konto">

@@ -164,3 +164,11 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 **Ändert:** Trägt in `app_texts` alle Überschriften und Absätze von Impressum, Datenschutz, Nutzungsbedingungen und Community-Regeln ein, dazu „Stand 21.10.2026“ und neue Button-Texte. Schon geänderte Fassungen bleiben.
 
 **Voraussetzung:** Nr. 11 (`app_texts`) ist gelaufen.
+
+## 15. `supabase/migrations/20261021001300_app_texts_edit.sql`
+
+**Wozu:** Texte-Editor in der App (Dein Konto › Texte).
+
+**Ändert:** Moderatorinnen (Tabelle `moderators`) dürfen in `app_texts` die Spalte `text` ändern.
+
+**Voraussetzung:** Nr. 7 (`moderation`, Tabelle `moderators`) und Nr. 11 (`app_texts`). Daria steht in `moderators`.
