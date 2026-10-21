@@ -133,6 +133,8 @@ export default function CreateLayout() {
     <DraftContext.Provider value={draft}>
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
         <Stack.Screen name="success" options={{ gestureEnabled: false }} />
+        {/* Kein Zurückwischen: seitlich ziehen gehört in der Vorschau den Fotos. Zurück über „Bearbeiten“. */}
+        <Stack.Screen name="preview" options={{ gestureEnabled: false }} />
       </Stack>
     </DraftContext.Provider>
   );
