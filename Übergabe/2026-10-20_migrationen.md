@@ -140,3 +140,19 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 **Danach prüfen:** In `app_texts` bei „Anheuern“ das Feld `text` ändern. Die App zeigt den neuen Text auf dem Startbildschirm, sobald sie wieder nach vorn kommt.
 
 **Bis sie läuft:** Die App zeigt die Texte aus dem Code. Es gibt keinen Fehler.
+
+## 12. `supabase/migrations/20261021001000_download_settings.sql`
+
+**Wozu:** Die Download-Seite funktioniert ohne Secret in den Edge Functions (Branch `claude/download-ohne-secret`, am 21.10.2026 nach main übernommen, Nummer von 0700 auf 1000 geändert).
+
+**Ändert:** Neue Tabelle `download_settings` mit einer Zeile: `password_sha256` (Passwort als SHA-256-Hash, hex) und `apk_url` (Ausweichweg, solange keine APK im Bucket liegt). Nur die Edge Function liest sie.
+
+**Danach:** Passwort-Hash per SQL eintragen. Der Wert gehört nicht ins Repo.
+
+## 13. `supabase/migrations/20261021001100_download_settings_page.sql`
+
+**Wozu:** Rückweg bei falschem Passwort, solange kiezcoins.de noch nicht auf Vercel zeigt.
+
+**Ändert:** Spalte `download_page` in `download_settings`.
+
+**Reihenfolge:** Erst 12, dann 13. Die Secrets `DOWNLOAD_PASSWORD` und `DOWNLOAD_PAGE` gehen weiter vor und sind ohne die Tabelle ebenfalls ausreichend.

@@ -8,7 +8,7 @@
 ## So funktioniert der Schutz
 
 - Die Seite `website/index.html` ist eine statische Seite mit Passwortfeld. Sie schickt das Formular an die Edge Function `download` bei Supabase.
-- Die Funktion prüft das Passwort auf dem Server (Secret `DOWNLOAD_PASSWORD`). Stimmt es, leitet sie auf einen 10 Minuten gültigen Link zur APK weiter. Sonst zurück zur Seite mit Fehlermeldung.
+- Die Funktion prüft das Passwort auf dem Server (Secret `DOWNLOAD_PASSWORD`, ohne Secret der Hash in der Tabelle `download_settings`, siehe `2026-10-20_migrationen.md` Nr. 12 und 13). Stimmt es, leitet sie auf einen 10 Minuten gültigen Link zur APK weiter. Sonst zurück zur Seite mit Fehlermeldung.
 - Die APK liegt im privaten Bucket `downloads`. Ohne Passwort kommt niemand an die Datei. Das Passwort steht nirgends im Code.
 - Wer das Passwort kennt, kann den 10-Minuten-Link weitergeben. Für eine Testgruppe reicht das.
 
