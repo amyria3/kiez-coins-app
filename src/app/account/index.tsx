@@ -12,6 +12,7 @@ import { useAuth } from '../../data/auth';
 import { isModerator } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
 import { color, size, space } from '../../theme/tokens';
+import { t } from '../../data/texts';
 
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
 export default function Account() {
@@ -35,7 +36,9 @@ export default function Account() {
 
   return (
     <SubScreen title="Dein Konto" navigation="back" onLeadingPress={() => router.back()}>
-      <KaterBubble>Ahoi, {anrede(profile)}! Hier trimmst Du Dein Schiff. Tipp einfach auf das, was Du ändern willst.</KaterBubble>
+      <KaterBubble>
+        {t('Ahoi, {anrede}! Hier trimmst Du Dein Schiff. Tipp einfach auf das, was Du ändern willst.', { anrede: anrede(profile) })}
+      </KaterBubble>
       <ProfileCard
         user={me}
         name={profile.handle || me.name}

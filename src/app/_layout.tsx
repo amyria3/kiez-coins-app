@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { AppState } from 'react-native';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -11,6 +12,7 @@ import { InterTight_600SemiBold } from '@expo-google-fonts/inter-tight/600SemiBo
 import { WebAlertHost } from '../components/WebAlert';
 import { AuthProvider, useAuth } from '../data/auth';
 import { StoreProvider } from '../data/store';
+import { loadTexts } from '../data/texts';
 import { color } from '../theme/tokens';
 
 SplashScreen.preventAutoHideAsync();
@@ -25,6 +27,13 @@ export default function RootLayout() {
     Inter_600SemiBold,
     InterTight_600SemiBold,
   });
+
+  // Texte aus dem CMS (Tabelle app_texts): beim Start und jedes Mal, wenn die App wieder nach vorn kommt
+  useEffect(() => {
+    loadTexts();
+    const sub = AppState.addEventListener('change', (state) => state === 'active' && loadTexts());
+    return () => sub.remove();
+  }, []);
 
   useEffect(() => {
     if (fontsLoaded || fontError) SplashScreen.hideAsync();

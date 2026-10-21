@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from 'react-native';
 
 import { color, radius, space, stroke, text } from '../theme/tokens';
+import { useTexts } from '../data/texts';
 import { Glass, glassControls } from './Glass';
 
 // Figma „Button“ (Primary, Secondary). Die übrigen Varianten sind Überschreibungen in Screens:
@@ -16,8 +17,10 @@ type ButtonProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-export function Button({ label, onPress, variant = 'primary', disabled, style }: ButtonProps) {
+export function Button({ label: original, onPress, variant = 'primary', disabled, style }: ButtonProps) {
   const v = variants[variant];
+  // Beschriftung aus dem CMS (Tabelle app_texts), sonst wie im Code
+  const label = useTexts()(original);
   // Versuch: Buttons aus Liquid Glass (iOS 26). Gefüllte Varianten bekommen ihre Farbe als Tönung.
   if (glassControls && variant !== 'ghost') {
     const g = glassVariants[variant];

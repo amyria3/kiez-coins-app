@@ -10,6 +10,7 @@ import { anrede } from '../../data/format';
 import { findPlace, LocationDenied, postalCodeOf } from '../../data/location';
 import { useStore } from '../../data/store';
 import { color, text } from '../../theme/tokens';
+import { t } from '../../data/texts';
 
 type Step = 'start' | 'searching' | 'found' | 'manual';
 
@@ -85,8 +86,10 @@ export default function Kiez() {
     >
       <KaterBubble>
         {step === 'found'
-          ? `Ahoi, ${anrede(profile)}! Ist das Dein Heimathafen?`
-          : `Ahoi, ${anrede(profile)}! Wo liegt Dein Heimathafen? Am besten fragst Du, wenn Du zu Hause bist.`}
+          ? t('Ahoi, {anrede}! Ist das Dein Heimathafen?', { anrede: anrede(profile) })
+          : t('Ahoi, {anrede}! Wo liegt Dein Heimathafen? Am besten fragst Du, wenn Du zu Hause bist.', {
+              anrede: anrede(profile),
+            })}
       </KaterBubble>
       {from && profile.kiez ? <InfoRow icon="map-pin" value={`Bisher: ${profile.kiez}`} /> : null}
       {step === 'found' ? <InfoRow icon="map-pin" value={found} /> : null}

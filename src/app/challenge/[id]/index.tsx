@@ -19,6 +19,7 @@ import { recordView } from '../../../data/remote';
 import { useChallenge, useStore } from '../../../data/store';
 import type { ChallengeStatus } from '../../../data/types';
 import { color, font, radius, size, space, stroke, text } from '../../../theme/tokens';
+import { t } from '../../../data/texts';
 
 // Vorschläge des Katers für den Operationsnamen (später aus einer Wortliste)
 const operationNames = ['Operation Gießkanne', 'Operation Igelglück', 'Operation Besenstiel', 'Operation Sonnenschirm'];
@@ -255,7 +256,9 @@ export default function ChallengeDetail() {
         <>
           <KaterBubble>
             {named
-              ? `Danke, dass Du anpackst! Mach am Ende ein Foto vom Ergebnis, dann kann ${author.firstName} bestätigen.`
+              ? t('Danke, dass Du anpackst! Mach am Ende ein Foto vom Ergebnis, dann kann {name} bestätigen.', {
+                  name: author.firstName,
+                })
               : 'Danke, dass Du anpackst! Taufen wir das Baby, Baby? Ich hätte da einen Namen für Deine Operation.'}
           </KaterBubble>
           <InfoRow icon="map-pin" value={challenge.location} />
