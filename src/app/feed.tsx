@@ -18,6 +18,7 @@ import { AppHeader, FeedGreeting, PlannedHint, TabsNavigation, TopChallengeBar, 
 import { FeedStateMessage } from '../components/FeedStateMessage';
 import { GroupBar, GroupsEmpty } from '../components/GroupBar';
 import { GearsLoader } from '../components/GearsLoader';
+import { SurveyOverlay, useSurveyPrompt } from '../components/SurveyOverlay';
 import { CameraButton, TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { useRequireKiez } from '../data/kiez';
 import { challengeTypes, isTypeActive } from '../data/features';
@@ -48,6 +49,7 @@ export default function FeedScreen() {
   const insets = useSafeAreaInsets();
   const { challenges, users, feedState, mode, currentUserId, profile, dispatch, load, groups } = useStore();
   const requireKiez = useRequireKiez();
+  const [surveyVisible, closeSurvey] = useSurveyPrompt();
   // `gruppe`: aus der Gruppenseite („Aufgaben ansehen“) direkt in den Reiter „Gruppen“
   const { gruppe } = useLocalSearchParams<{ gruppe?: string }>();
   const [tab, setTab] = useState<FeedTab>(gruppe ? 'groups' : 'nearby');
@@ -356,6 +358,7 @@ export default function FeedScreen() {
         onReiseLongPress={() => router.push('/demo')}
         onMenuPress={() => router.push('/account')}
       />
+      <SurveyOverlay visible={surveyVisible} onClose={closeSurvey} />
     </View>
   );
 }

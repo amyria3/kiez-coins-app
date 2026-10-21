@@ -7,6 +7,7 @@ import { CrownIcon } from '../../components/icons/Brand';
 import { Icon } from '../../components/icons/Icon';
 import { NavCard, NavRow, ProfileCard } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
+import { SurveyOverlay } from '../../components/SurveyOverlay';
 import { anrede } from '../../data/format';
 import { useAuth } from '../../data/auth';
 import { isModerator } from '../../data/remote';
@@ -22,6 +23,7 @@ export default function Account() {
   const { signOut, hasPassword } = useAuth();
   // „Moderation“ nur für Personen in der Tabelle `moderators`
   const [moderator, setModerator] = useState(false);
+  const [survey, setSurvey] = useState(false);
   const languageName = getLanguageChoice() === 'auto' ? t('Wie das Handy') : languages.find((l) => l.code === getLanguage())?.name;
   useEffect(() => {
     if (mode === 'live') isModerator().then(setModerator);
@@ -73,6 +75,7 @@ export default function Account() {
             onPress={() => router.push('/settings/notifications')}
           />
           <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/settings/payout')} />
+          <NavRow label="Umfrage" value="5 Fragen zur App" onPress={() => setSurvey(true)} />
           <NavRow label="Support" value="Frage oder Problem" onPress={() => router.push('/account/support')} />
           <NavRow
             label="Blockierte Personen"
@@ -80,6 +83,7 @@ export default function Account() {
             onPress={() => router.push('/account/blocked')}
           />
           {moderator ? <NavRow label="Moderation" value="Meldungen prüfen" onPress={() => router.push('/moderation')} /> : null}
+          {moderator ? <NavRow label="Umfrage-Ergebnis" value="Antworten zählen" onPress={() => router.push('/account/umfrage/ergebnis')} /> : null}
           {moderator ? <NavRow label="Texte" value="Buttons, Kater, Rechtstexte" onPress={() => router.push('/texte')} /> : null}
         </View>
       </FieldGroup>
@@ -103,6 +107,7 @@ export default function Account() {
           <NavRow label="Community-Regeln" onPress={() => router.push('/rechtliches/regeln')} />
         </View>
       </FieldGroup>
+      <SurveyOverlay visible={survey} onClose={() => setSurvey(false)} />
     </SubScreen>
   );
 }

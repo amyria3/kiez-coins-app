@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import type { SurveyAnswer, SurveyResults } from './survey';
 import { t } from './texts';
 import type {
   Challenge,
@@ -903,4 +904,33 @@ async function deleteOwnPhotos() {
 export async function deleteMyAccount() {
   await deleteOwnPhotos();
   check(await supabase.rpc('delete_my_account'));
+}
+
+// ---------------------------------------------------------------------------
+// UX/UI-Umfrage (Migration 20261021001500_survey)
+// ---------------------------------------------------------------------------
+
+/** Eigene Antwort, falls schon abgegeben. */
+export async function loadMySurveyAnswer(): Promise<SurveyAnswer | null> {
+  const { data } = check(
+    await supabase.from('survey_answers').select('opinion, usability, design, support, recommend').maybeSingle(),
+  );
+  return (data as SurveyAnswer | null) ?? null;
+}
+
+/** Antwort speichern. Eine Antwort pro Person; erneutes Absenden ändert sie. */
+export async function saveSurveyAnswer(answer: SurveyAnswer) {
+  const { data } = await supabase.auth.getUser();
+  if (!data.user) throw new Error('not signed in');
+  check(
+    await supabase
+      .from('survey_answers')
+      .upsert({ user_id: data.user.id, ...answer, updated_at: new Date().toISOString() }),
+  );
+}
+
+/** Auswertung für die Moderation. */
+export async function loadSurveyResults(): Promise<SurveyResults> {
+  const { data } = check(await supabase.rpc('survey_results'));
+  return data as SurveyResults;
 }
