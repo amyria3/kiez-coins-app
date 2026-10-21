@@ -5,6 +5,7 @@ import { color, space, text } from '../theme/tokens';
 
 const LINKS = [
   { doc: 'bedingungen', label: 'Nutzungsbedingungen' },
+  { doc: 'regeln', label: 'Community-Regeln' },
   { doc: 'datenschutz', label: 'Datenschutz' },
   { doc: 'impressum', label: 'Impressum' },
 ] as const;

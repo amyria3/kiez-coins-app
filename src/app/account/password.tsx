@@ -61,8 +61,8 @@ export default function Password() {
         secureTextEntry
         autoCapitalize="none"
         autoCorrect={false}
-        autoComplete="new-password"
-        textContentType="newPassword"
+        autoComplete="current-password"
+        textContentType="password"
         autoFocus
       />
       <TextField
@@ -76,8 +76,8 @@ export default function Password() {
         secureTextEntry
         autoCapitalize="none"
         autoCorrect={false}
-        autoComplete="new-password"
-        textContentType="newPassword"
+        autoComplete="current-password"
+        textContentType="password"
         onSubmitEditing={() => valid && !saving && save()}
       />
     </SubScreen>

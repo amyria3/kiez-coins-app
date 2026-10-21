@@ -6,7 +6,6 @@ import { Button } from '../../../components/Button';
 import { FieldGroup, Notice } from '../../../components/Content';
 import { Chip, ChipGroup, TextField } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
-import { useStore } from '../../../data/store';
 import { color, text } from '../../../theme/tokens';
 import { findPlace, roundCoords } from '../../../data/location';
 import { useDraft, useSaveDraft } from './_layout';
@@ -21,11 +20,9 @@ const durations = [
 const MIN_BOUNTY = 5;
 const MAX_BOUNTY = 50;
 
-/** Route `challenge/create/step-2`. Figma: `challenge/create/step-2`. Bounty 5–50 €, optional. */
+/** Route `challenge/create/step-2`. Figma: `challenge/create/step-2`. Bounty 5–50 €, optional. Weiter zur Vorschau. */
 export default function CreateStep2() {
   const router = useRouter();
-  const { canOfferBounties, createChallenge, publishDraft } = useStore();
-  const [busy, setBusy] = useState(false);
   const [locating, setLocating] = useState(false);
 
   const useLocation = async () => {
@@ -53,51 +50,13 @@ export default function CreateStep2() {
         ? 'Mindestens 5 € möglich.'
         : undefined;
   const bountyAmount = custom ? (customText && !customError ? Math.round(customAmount) : undefined) : draft.bountyAmount;
-  const canPublish = draft.location.trim().length > 0 && !(custom && (customError || !customText)) && !busy;
+  const canPublish = draft.location.trim().length > 0 && !(custom && (customError || !customText));
 
-  const publish = async () => {
+  // Veröffentlicht wird erst in der Vorschau.
+  const preview = () => {
     if (!canPublish || !draft.photo) return;
-    if (bountyAmount && !canOfferBounties) {
-      Alert.alert(
-        'Keine Bounty möglich',
-        'Nach einer Meldung wegen einer nicht gezahlten Bounty kannst Du keine Bounties mehr anbieten. Challenges ohne Bounty gehen weiterhin.',
-      );
-      return;
-    }
-    setBusy(true);
-    try {
-      const deadline = new Date(Date.now() + draft.durationDays * 24 * 60 * 60 * 1000).toISOString();
-      const id = draft.id
-        ? await publishDraft(
-            draft.id,
-            {
-              title: draft.title,
-              text: draft.text,
-              location: draft.location,
-              bountyAmount,
-              photo: draft.imagePath ? undefined : draft.photo,
-              imagePath: draft.imagePath,
-              coords: draft.coords,
-              extras: draft.extras,
-            },
-            deadline,
-          )
-        : await createChallenge({
-            title: draft.title.trim(),
-            text: draft.text.trim(),
-            location: draft.location.trim(),
-            bountyAmount,
-            photo: draft.photo,
-            deadline,
-            coords: draft.coords,
-            extras: draft.extras,
-          });
-      router.replace({ pathname: '/challenge/create/success', params: { id } });
-    } catch (error) {
-      Alert.alert('Nicht veröffentlicht', (error as Error).message);
-    } finally {
-      setBusy(false);
-    }
+    setDraft((d) => ({ ...d, bountyAmount }));
+    router.push('/challenge/create/preview');
   };
 
   return (
@@ -108,12 +67,12 @@ export default function CreateStep2() {
       onLeadingPress={() => router.back()}
       actions={
         <>
-          <Button label={busy ? 'Wird veröffentlicht …' : 'Challenge veröffentlichen'} onPress={publish} disabled={!canPublish || saving} />
+          <Button label="Vorschau" onPress={preview} disabled={!canPublish || saving} />
           <Button
             label={saving ? 'Wird gespeichert …' : 'Als Entwurf speichern'}
             variant="ghost"
             onPress={save}
-            disabled={saving || busy}
+            disabled={saving}
           />
         </>
       }
