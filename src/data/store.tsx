@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 
 import * as remote from './remote';
 import { sampleChallenges, sampleGroups, sampleProfile, sampleUsers, topChallengeIds } from './sample';
-import type { Challenge, ChallengeReport, Comment, FeedState, Group, Payout, PayoutShare, Profile, User } from './types';
+import type { Challenge, ChallengeReport, ImageSource, Comment, FeedState, Group, Payout, PayoutShare, Profile, User } from './types';
 
 // Zustand der App. Zwei Betriebsarten:
 // * live: Daten aus Supabase. Jede Aktion ändert sofort den lokalen Stand (damit die App flüssig bleibt)
@@ -41,6 +41,8 @@ type Action =
   | { type: 'undoConfirm'; id: string }
   | { type: 'unmarkPaid'; id: string }
   | { type: 'updateProfile'; patch: Partial<Profile> }
+  /** Profilbild der angemeldeten Person (gespeichert hat es schon account/profile) */
+  | { type: 'setAvatar'; avatar?: ImageSource }
   | { type: 'signOut' }
   | { type: 'deleteAccount' }
   | { type: 'reject'; id: string; reason: string }
@@ -164,6 +166,11 @@ function reducer(state: State, action: Action): State {
       };
     case 'setCurrentUser':
       return { ...state, currentUserId: action.userId };
+    case 'setAvatar':
+      return {
+        ...state,
+        users: state.users.map((u) => (u.id === state.currentUserId ? { ...u, avatar: action.avatar } : u)),
+      };
     case 'setFeedState':
       return { ...state, feedState: action.feedState };
     case 'setGroups':

@@ -266,28 +266,39 @@ type PhotoPickerProps = {
 };
 
 /** Figma „PhotoPicker“ (Empty, Filled). Öffnet Kamera oder Mediathek (expo-image-picker). */
-/** Kamera oder Mediathek öffnen und das gewählte Foto zurückgeben. */
-function choosePhoto(onPicked: (photo: ImageSource) => void) {
+/**
+ * Kamera oder Mediathek öffnen und das gewählte Foto zurückgeben.
+ * `square`: Zuschnitt auf ein Quadrat (Profilbild). `onRemove`: zusätzlich „Foto entfernen“ anbieten.
+ */
+export function choosePhoto(
+  onPicked: (photo: ImageSource) => void,
+  { square, onRemove, title = 'Foto hinzufügen' }: { square?: boolean; onRemove?: () => void; title?: string } = {},
+) {
   async function pick(source: 'camera' | 'library') {
     const permission =
       source === 'camera'
         ? await ImagePicker.requestCameraPermissionsAsync()
         : await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) return;
-    const options: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.8 };
+    const options: ImagePicker.ImagePickerOptions = {
+      mediaTypes: ['images'],
+      quality: 0.8,
+      ...(square ? { allowsEditing: true, aspect: [1, 1] as [number, number] } : null),
+    };
     const result =
       source === 'camera' ? await ImagePicker.launchCameraAsync(options) : await ImagePicker.launchImageLibraryAsync(options);
     const asset = result.canceled ? undefined : result.assets[0];
     if (asset) onPicked({ uri: asset.uri });
   }
-  if (Platform.OS === 'web') {
+  if (Platform.OS === 'web' && !onRemove) {
     pick('library');
     return;
   }
-  Alert.alert('Foto hinzufügen', undefined, [
-    { text: 'Foto aufnehmen', onPress: () => pick('camera') },
+  Alert.alert(title, undefined, [
+    ...(Platform.OS === 'web' ? [] : [{ text: 'Foto aufnehmen', onPress: () => pick('camera') }]),
     { text: 'Foto auswählen', onPress: () => pick('library') },
-    { text: 'Abbrechen', style: 'cancel' },
+    ...(onRemove ? [{ text: 'Foto entfernen', style: 'destructive' as const, onPress: onRemove }] : []),
+    { text: 'Abbrechen', style: 'cancel' as const },
   ]);
 }
 
