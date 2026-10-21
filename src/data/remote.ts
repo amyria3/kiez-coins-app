@@ -428,6 +428,20 @@ export async function uploadPhoto(userId: string, photo: ImageSource): Promise<s
   return path;
 }
 
+/**
+ * Profilbild setzen oder mit `null` entfernen. Lädt das Foto in den eigenen Ordner, trägt den Pfad
+ * in `profiles.avatar_path` ein und löscht das alte Bild. Gibt die neue Bildquelle zurück.
+ */
+export async function saveAvatar(userId: string, photo: ImageSource | null): Promise<ImageSource | undefined> {
+  const { data: before } = await supabase.from('profiles').select('avatar_path').eq('id', userId).maybeSingle();
+  const path = photo ? await uploadPhoto(userId, photo) : null;
+  check(await supabase.from('profiles').update({ avatar_path: path }).eq('id', userId));
+  const old = before?.avatar_path;
+  // Altes Bild weg, Fehler dabei sind egal
+  if (old && old !== path) await supabase.storage.from(PHOTO_BUCKET).remove([old]).catch(() => undefined);
+  return photoUrl(path);
+}
+
 export type NewChallenge = {
   title: string;
   text: string;
