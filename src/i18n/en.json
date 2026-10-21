@@ -387,7 +387,6 @@
   "Tipp ein Mitglied an, um es zu entfernen oder ihm die Gründerrolle zu geben.": "Tap a member to remove them or give them the founder role.",
   "Leute einladen": "Invite people",
   "Einladungscode": "Invite code",
-  "Code teilen": "Share code",
   "Die Gruppe ist voll. Mehr als {MAX_MEMBERS} Mitglieder geht nicht.": "The group is full. More than {MAX_MEMBERS} members isn’t possible.",
   "Gruppe auflösen": "Dissolve group",
   "Gruppe verlassen": "Leave group",
@@ -396,7 +395,6 @@
   "Trete bei …": "Joining …",
   "Beitreten": "Join",
   "Der Code hat 6 Zeichen.": "The code has 6 characters.",
-  "6 Zeichen, die Du von der Gruppe bekommen hast.": "6 characters you got from the group.",
   "Gruppen voll": "Groups full",
   "Du bist schon in {MAX_GROUPS} Gruppen. Verlass eine, dann kannst Du einer neuen beitreten oder eine gründen.": "You’re already in {MAX_GROUPS} groups. Leave one, then you can join a new one or found one.",
   "Gruppe gründen": "Found group",
@@ -755,7 +753,6 @@
   "Pirat": "Pirate",
   "Piratin": "Piratess",
   "The Pirat": "The Pirate",
-  "Komm in unsere Gruppe „{name}“ bei Kiez Coins: In der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und {code} eingeben.": "Join our group “{name}” on Kiez Coins: in the app, under “Groups”, tap “Join with code” and enter {code}.",
   "Wo ist Dein Heimathafen?": "Where’s your home port?",
   "Challenges erstellen und annehmen kannst Du, sobald Dein Kiez feststeht.": "You can create and accept challenges once your neighbourhood is set.",
   "Kiez festlegen": "Set neighbourhood",
@@ -908,5 +905,12 @@
   "Kann es mir vorstellen": "I can imagine it",
   "Nein, weil ich grundsätzlich keine Apps empfehle": "No, I never recommend apps",
   "Ich kenne keine potentiell interessierte Person": "I don’t know anyone who might be interested",
-  "Nein, finde die App nicht gut": "No, I don’t like the app"
+  "Nein, finde die App nicht gut": "No, I don’t like the app",
+  "Einladungslink": "Invite link",
+  "Einladung teilen": "Share invite",
+  "In der Zwischenablage steht kein Einladungscode.": "There’s no invite code on the clipboard.",
+  "6 Zeichen. Du kannst auch den ganzen Link oder die Nachricht einfügen.": "6 characters. You can also paste the whole link or message.",
+  "Aus Zwischenablage einfügen": "Paste from clipboard",
+  "Komm in unsere Gruppe „{name}“ bei Kiez Coins. Mit diesem Link trittst Du bei:": "Join our group “{name}” on Kiez Coins. Use this link to join:",
+  "Oder in der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und diesen Code eingeben:": "Or in the app, under “Groups”, tap “Join with code” and enter this code:"
 }
