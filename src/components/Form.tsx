@@ -18,7 +18,7 @@ import * as ImagePicker from 'expo-image-picker';
 import type { ImageSource } from '../data/types';
 import { color, radius, space, stroke, text } from '../theme/tokens';
 import { Glass, glassControls } from './Glass';
-import { nudgeStyles, type Nudge } from './Nudge';
+import { nudgeStyles, useNextField, type Nudge } from './Nudge';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 
@@ -29,20 +29,50 @@ type TextFieldProps = Omit<TextInputProps, 'style'> & {
   error?: string;
   /** Ziel für einen deaktivierten Button: hervorgehoben mit Hinweis, sobald etwas fehlt (Nudge.tsx) */
   nudge?: Nudge;
+  /** Pflichtfeld: Stern in der Signalfarbe hinter der Bezeichnung */
+  required?: boolean;
 };
 
 /** Figma „TextField“ (Default, Focused, Error) */
-export function TextField({ label, helperText, error, multiline, onFocus, onBlur, nudge, onChangeText, ...inputProps }: TextFieldProps) {
+export function TextField({
+  label,
+  helperText,
+  error,
+  multiline,
+  onFocus,
+  onBlur,
+  nudge,
+  onChangeText,
+  onSubmitEditing,
+  required,
+  ...inputProps
+}: TextFieldProps) {
   const [focused, setFocused] = useState(false);
+  const inputRef = useRef<TextInput>(null);
+  const ownViewRef = useRef<View>(null);
+  const viewRef = nudge?.ref ?? ownViewRef;
+  // Enter springt ins nächste Feld, sofern das Feld selbst nichts abschickt
+  const goNext = useNextField(inputRef, viewRef);
+  const advances = !multiline && !onSubmitEditing && !!goNext;
   const hinted = !error && !!nudge?.hint;
   const borderColor = error ? color.accent.error : focused || hinted ? color.accent.primary : color.text.secondary;
   const helper = error ?? nudge?.hint ?? helperText;
   return (
-    <View style={styles.field} ref={nudge?.ref}>
-      <Text style={styles.fieldLabel}>{label}</Text>
+    <View style={styles.field} ref={viewRef}>
+      <Text style={styles.fieldLabel}>
+        {label}
+        {required ? <RequiredMark /> : null}
+      </Text>
       <TextInput
+        ref={inputRef}
+        returnKeyType={advances ? 'next' : undefined}
+        submitBehavior={advances ? 'submit' : undefined}
         {...inputProps}
-        accessibilityLabel={label}
+        onSubmitEditing={(e) => {
+          if (onSubmitEditing) onSubmitEditing(e);
+          else if (advances) goNext?.();
+        }}
+        accessibilityLabel={required ? `${label}, Pflichtfeld` : label}
         accessibilityHint={helper}
         multiline={multiline}
         placeholderTextColor={color.text.secondary}
@@ -90,6 +120,15 @@ export function ChipGroup({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** Kennzeichnung für Pflichtangaben: Stern in color/accent/primary */
+export function RequiredMark() {
+  return (
+    <Text style={styles.required} accessibilityLabel="Pflichtfeld">
+      {' *'}
+    </Text>
+  );
+}
+
 /** Figma „SwitchRow“ mit dem System-Switch (Figma „Switch“ entspricht dem Plattformmuster). */
 export function SwitchRow({
   label,
@@ -97,6 +136,7 @@ export function SwitchRow({
   value,
   onValueChange,
   onDescriptionPress,
+  required,
 }: {
   label: string;
   description?: string;
@@ -104,11 +144,16 @@ export function SwitchRow({
   onValueChange: (value: boolean) => void;
   /** Macht die Beschreibung zum Link, zum Beispiel „Datenschutz lesen“. */
   onDescriptionPress?: () => void;
+  /** Pflichtangabe: Stern hinter der Bezeichnung */
+  required?: boolean;
 }) {
   return (
     <View style={styles.switchRow}>
       <View style={styles.texts}>
-        <Text style={[text.body, { color: color.text.primary }]}>{label}</Text>
+        <Text style={[text.body, { color: color.text.primary }]}>
+          {label}
+          {required ? <RequiredMark /> : null}
+        </Text>
         {description ? (
           <Text
             style={[text.caption, { color: color.text.secondary }, onDescriptionPress && styles.link]}
@@ -320,6 +365,7 @@ const styles = StyleSheet.create({
   link: { textDecorationLine: 'underline', color: color.text.primary },
   field: { gap: space[6] },
   fieldLabel: { ...text.caption, color: color.text.secondary },
+  required: { color: color.accent.primary },
   input: {
     ...text.body,
     color: color.text.primary,

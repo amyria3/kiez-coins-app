@@ -85,7 +85,7 @@ export default function CreateStep2() {
       }
     >
       <TextField
-        label="Ort"
+        label="Ort" required
         nudge={locationField}
         helperText="Vorschlag aus Deinem Standort, ohne Hausnummer. Du kannst ihn ändern."
         value={draft.location}

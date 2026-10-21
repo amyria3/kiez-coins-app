@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { color, radius, space, stroke, text } from '../theme/tokens';
 
@@ -44,8 +44,61 @@ export function useNudgeScroll(scrollRef: RefObject<ScrollView | null>) {
   return useMemo(() => ({ scrollToView, onScroll }), [scrollToView, onScroll]);
 }
 
+/**
+ * Textfelder eines Screens. Enter in einem einzeiligen Feld springt ins nächste Feld darunter und scrollt es
+ * ins Bild (Daria, 21.10.2026). Die Reihenfolge ergibt sich aus der Lage auf dem Bildschirm.
+ */
+type FieldEntry = { input: RefObject<TextInput | null>; view: RefObject<View | null> };
+type FieldRegistry = { add: (f: FieldEntry) => () => void; next: (from: FieldEntry) => boolean };
+const FieldContext = createContext<FieldRegistry | null>(null);
+
+function useFieldRegistry(scroll: ScrollTarget): FieldRegistry {
+  const fields = useRef<FieldEntry[]>([]);
+  return useMemo(
+    () => ({
+      add: (f) => {
+        fields.current.push(f);
+        return () => {
+          fields.current = fields.current.filter((x) => x !== f);
+        };
+      },
+      // Nächstes Feld unterhalb suchen, fokussieren und hinscrollen. false: es gibt keins.
+      next: (from) => {
+        const list = fields.current.filter((f) => f.view.current && f.input.current);
+        if (list.length < 2 || !from.view.current) return false;
+        const measure = (f: FieldEntry) =>
+          new Promise<number>((resolve) => f.view.current!.measureInWindow((_x, y) => resolve(y)));
+        Promise.all(list.map(measure)).then((ys) => {
+          const own = ys[list.indexOf(from)];
+          const below = list
+            .map((f, i) => ({ f, y: ys[i] }))
+            .filter((e) => e.f !== from && e.y > own + 1)
+            .sort((a, b) => a.y - b.y)[0];
+          if (!below) {
+            from.input.current?.blur();
+            return;
+          }
+          below.f.input.current?.focus();
+          scroll.scrollToView(below.f.view.current);
+        });
+        return true;
+      },
+    }),
+    [scroll],
+  );
+}
+
+/** Für TextField: meldet das Feld an und liefert „weiter zum nächsten Feld“. */
+export function useNextField(input: RefObject<TextInput | null>, view: RefObject<View | null>) {
+  const registry = useContext(FieldContext);
+  const entry = useRef<FieldEntry>({ input, view }).current;
+  useEffect(() => registry?.add(entry), [registry, entry]);
+  return registry ? () => registry.next(entry) : undefined;
+}
+
 /** Meldet die Scrollfläche eines Screens an, solange er offen ist. */
 export function NudgeScrollProvider({ value, children }: { value: ScrollTarget; children: ReactNode }) {
+  const registry = useFieldRegistry(value);
   useEffect(() => {
     scrollTargets.push(value);
     return () => {
@@ -53,7 +106,7 @@ export function NudgeScrollProvider({ value, children }: { value: ScrollTarget; 
       if (i >= 0) scrollTargets.splice(i, 1);
     };
   }, [value]);
-  return <>{children}</>;
+  return <FieldContext.Provider value={registry}>{children}</FieldContext.Provider>;
 }
 
 export type Nudge = {

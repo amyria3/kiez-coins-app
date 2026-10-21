@@ -49,7 +49,7 @@ export default function PayoutSettings() {
     >
       <Notice message="Kiez Coins bewegt kein Geld. Deine Daten sieht nur, wem Du sie für eine Challenge freigibst." />
       <TextField
-        label="Kontoinhaber:in"
+        label="Kontoinhaber:in" required
         helperText="So wie bei Deiner Bank hinterlegt."
         error={showErrors ? holderError : undefined}
         value={accountHolder}
@@ -57,7 +57,7 @@ export default function PayoutSettings() {
         autoComplete="name"
       />
       <TextField
-        label="IBAN"
+        label="IBAN" required
         helperText="Wird geprüft, bevor Du speicherst."
         error={showErrors ? ibanError : undefined}
         value={iban}

@@ -169,11 +169,11 @@ export default function EditChallenge() {
         )
       }
     >
-      <TextField label="Titel" nudge={titleField} value={title} onChangeText={setTitle} maxLength={60} />
+      <TextField label="Titel" required nudge={titleField} value={title} onChangeText={setTitle} maxLength={60} />
       <TextField label="Beschreibung" value={body} onChangeText={setBody} maxLength={500} multiline />
       {isGroup ? null : (
         <>
-          <TextField label="Ort" nudge={locationField} value={location} onChangeText={setLocation} maxLength={120} />
+          <TextField label="Ort" required nudge={locationField} value={location} onChangeText={setLocation} maxLength={120} />
           <FieldGroup label="Bounty">
             <ChipGroup>
               <Chip label="Keine" selected={bounty === undefined} onPress={() => setBounty(undefined)} />

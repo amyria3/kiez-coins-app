@@ -37,7 +37,7 @@ export default function JoinGroup() {
       actions={<Button label={busy ? 'Trete bei …' : 'Beitreten'} onPress={join} disabled={busy || clean.length !== 6} whyDisabled={() => !busy && codeField.nudge('Der Code hat 6 Zeichen.')} />}
     >
       <TextField
-        label="Einladungscode"
+        label="Einladungscode" required
         nudge={codeField}
         helperText="6 Zeichen, die Du von der Gruppe bekommen hast."
         value={code}

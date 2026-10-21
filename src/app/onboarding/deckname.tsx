@@ -50,7 +50,7 @@ export default function Deckname() {
     >
       <KaterBubble>Dein Rufname</KaterBubble>
       <TextField
-        label="Deckname"
+        label="Deckname" required
         nudge={handleField}
         helperText="Öffentlich sichtbar. Jeden Decknamen gibt es nur einmal."
         error={error}

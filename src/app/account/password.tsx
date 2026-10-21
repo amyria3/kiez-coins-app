@@ -63,7 +63,7 @@ export default function Password() {
           : 'Leg ein Passwort fest, das nur Du kennst. Den Code per Mail kannst Du weiter nutzen.'}
       </KaterBubble>
       <TextField
-        label="Neues Passwort"
+        label="Neues Passwort" required
         nudge={pwField}
         helperText={`Mindestens ${MIN_PASSWORD} Zeichen.`}
         value={password}
@@ -79,7 +79,7 @@ export default function Password() {
         autoFocus
       />
       <TextField
-        label="Passwort wiederholen"
+        label="Passwort wiederholen" required
         nudge={repeatField}
         error={error ?? (mismatch ? 'Die Passwörter stimmen nicht überein.' : undefined)}
         value={repeat}

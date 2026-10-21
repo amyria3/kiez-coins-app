@@ -68,7 +68,7 @@ export default function CreateStep1() {
         />
       ) : null}
       <TextField
-        label="Titel"
+        label="Titel" required
         helperText="Max. 60 Zeichen"
         error={showErrors && missingTitle ? 'Bitte gib einen Titel ein.' : undefined}
         value={draft.title}
