@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { User } from '../data/types';
@@ -129,7 +129,53 @@ export function ProfileCard({ user, name, details, onPress }: ProfileCardProps) 
   );
 }
 
+/**
+ * Große Karte in der Größe der ProfileCard, z. B. für YourPleasure, Deine Challenges und Deine Gruppen.
+ * Links ein runder Kreis mit Icon oder Zeichnung, daneben Titel und eine Zeile Beschreibung.
+ */
+export function NavCard({
+  title,
+  description,
+  leading,
+  onPress,
+}: {
+  title: string;
+  description?: string;
+  leading: ReactNode;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      style={({ pressed }) => [styles.row, styles.profileCard, pressed && styles.pressed]}
+      accessibilityRole="button"
+      accessibilityLabel={description ? `${title}, ${description}` : title}
+      onPress={onPress}
+    >
+      <View style={styles.cardLeading}>{leading}</View>
+      <View style={styles.texts}>
+        <Text style={styles.profileName} numberOfLines={1}>
+          {title}
+        </Text>
+        {description ? (
+          <Text style={styles.label} numberOfLines={2}>
+            {description}
+          </Text>
+        ) : null}
+      </View>
+      <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
+  cardLeading: {
+    width: 56,
+    height: 56,
+    borderRadius: radius.full,
+    backgroundColor: color.bg.screen,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
