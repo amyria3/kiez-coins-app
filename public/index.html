@@ -58,6 +58,22 @@
         display: flex;
         height: 100%;
         flex: 1;
+        /* Breitere Fenster zeigen die App mittig wie auf einem Telefon (WEB_MAX_WIDTH in src/theme/layout.ts) */
+        width: 100%;
+        max-width: 480px;
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
+      }
+      /* Seitenränder neben der App im Desktop-Browser */
+      @media (min-width: 481px) {
+        body {
+          background-color: #17181a;
+        }
+        #root {
+          background-color: #1f2123;
+          box-shadow: 0 0 0 1px rgba(240, 240, 240, 0.08);
+        }
       }
     </style>
   </head>
