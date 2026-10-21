@@ -1,4 +1,4 @@
-// Baut die Download-Seite in den Ordner `website/`: Startseite mit Passwort-Formular plus
+// Baut die Download-Seite in den Ordner `website/`: Startseite mit Formular für den Einladungscode plus
 // Impressum, Datenschutz, Nutzungsbedingungen und Community-Regeln aus `src/data/legal.ts` (dieselben Texte wie in der App).
 // Aufruf: `npm run build:website` baut zuerst die Web-App nach `website/app/` und danach diese Seiten.
 // Nur die Seiten ohne Web-App: node scripts/build-download-site.mjs
@@ -213,18 +213,19 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
 <section class="download" id="download" aria-labelledby="download-titel">
   <div class="wrap">
     <h2 id="download-titel">So installierst Du die Testversion.</h2>
-    <p>Kiez Coins ist in der Testphase. Android lädt die App mit Passwort, das iPhone nutzt die Web-App.</p>
+    <p>Kiez Coins ist in der Testphase. Android lädt die App mit Einladungscode, das iPhone nutzt die Web-App.</p>
     <div class="karten">
       <div class="card" id="android">
         <h3>Android</h3>
         <form method="post" action="${esc(config.functionUrl)}">
-          <label for="passwort">Passwort</label>
-          <input id="passwort" name="passwort" type="password" autocomplete="current-password" required>
+          <label for="passwort">Einladungscode</label>
+          <input id="passwort" name="passwort" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required>
           <p class="error" id="fehler" hidden></p>
           <button type="submit">App herunterladen</button>
         </form>
+        <a class="button button-zweit" href="app/">Direkt im Browser anmelden und ausprobieren</a>
         <ol class="steps">
-          <li>Passwort eingeben und „App herunterladen“ tippen.</li>
+          <li>Einladungscode eingeben und „App herunterladen“ tippen.</li>
           <li>Die Datei <em>kiez-coins.apk</em> öffnen, wenn der Download fertig ist.</li>
           <li>Android fragt, ob Dein Browser Apps installieren darf. Erlauben und „Installieren“ tippen.</li>
           <li>Für ein Update lädst Du die neue Datei hier herunter und installierst sie genauso. Deine Daten bleiben erhalten.</li>
@@ -246,7 +247,7 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
 <script>
   // Fehler vom Download zeigen
   var f = new URLSearchParams(location.search).get('fehler');
-  var t = { passwort: 'Das Passwort stimmt nicht.', datei: 'Die App-Datei fehlt gerade. Versuch es später noch mal.', technik: 'Der Download ist gerade nicht eingerichtet.' }[f];
+  var t = { passwort: 'Der Einladungscode stimmt nicht.', datei: 'Die App-Datei fehlt gerade. Versuch es später noch mal.', technik: 'Der Download ist gerade nicht eingerichtet.' }[f];
   if (t) { var e = document.getElementById('fehler'); e.textContent = t; e.hidden = false; document.getElementById('download').scrollIntoView(); }
   // Sprechblasen erscheinen, sobald die Leute im Bild sind. Tipp auf eine Figur lässt sie wackeln.
   var leute = document.querySelector('.leute');
