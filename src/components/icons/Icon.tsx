@@ -12,8 +12,8 @@ type IconProps = {
 };
 
 /** Alle Icons etwas größer als angegeben (Daria, 21.10.2026), die Kamera nur leicht */
-export const ICON_SCALE = 1.3;
-const CAMERA_SCALE = 1.1;
+export const ICON_SCALE = 1.5;
+const CAMERA_SCALE = 1.2;
 
 export const Icon = memo(function Icon({ name, color = themeColor.text.primary, size }: IconProps) {
   const icon = iconSvgs[name];

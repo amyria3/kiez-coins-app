@@ -133,7 +133,8 @@ export function HeroScreen({
   // Eingeklappt füllt das Foto den ganzen Bildschirm. Das Blatt liegt als Glas unten darüber.
   const [viewportHeight, setViewportHeight] = useState(0);
   const [headHeight, setHeadHeight] = useState(0);
-  const heroHeight = collapsed ? viewportHeight || height : HERO_HEIGHT + insets.top;
+  // Ausgeklappt: Foto füllt gut die Hälfte des Bildschirms, das Blatt beginnt darunter (Daria, 21.10.2026)
+  const heroHeight = collapsed ? viewportHeight || height : Math.max(HERO_HEIGHT + insets.top, Math.round(height * HERO_SHARE));
   const glassOffset = collapsed && headHeight ? { marginTop: -(headHeight + SHEET_PADDING) } : undefined;
   const collapsedRef = useRef(collapsed);
   collapsedRef.current = collapsed;
@@ -281,6 +282,8 @@ export function HeroScreen({
 }
 
 const HERO_HEIGHT = 340;
+/** Anteil der Bildschirmhöhe, den das Foto ausgeklappt mindestens einnimmt */
+const HERO_SHARE = 0.6;
 /** Innenabstand des Blatts oben und unten */
 const SHEET_PADDING = space[8] + space[16];
 /** Mindestweg in Punkten, ab dem ein Wischen die Details auf- oder zuklappt */
