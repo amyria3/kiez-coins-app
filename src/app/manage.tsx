@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
   Alert,
+  Animated,
   FlatList,
   Pressable,
   ScrollView,
@@ -18,13 +19,14 @@ import { ActionBar } from '../components/ActionBar';
 import { BountyBadge, StatusBadge } from '../components/Badges';
 import { Button } from '../components/Button';
 import { KaterCard } from '../components/Content';
-import { SwitchRow } from '../components/Form';
+import { Segments } from '../components/FeedHeader';
 import { Icon } from '../components/icons/Icon';
 import { NavigationBar } from '../components/NavigationBar';
 import { formatDayMonthShort, formatDurationSince, formatRemainingShort, nameInText } from '../data/format';
 import { useRequireKiez } from '../data/kiez';
 import { useStore } from '../data/store';
 import type { Challenge, User } from '../data/types';
+import { useAppDimensions } from '../theme/layout';
 import { color, radius, size, space, stroke, text } from '../theme/tokens';
 
 /** Reihenfolge: zuerst, was noch änderbar ist, dann was läuft, dann Entwürfe, dann Erledigtes */
@@ -59,17 +61,43 @@ export default function ManageChallenges() {
   const requireKiez = useRequireKiez();
   const { challenges, users, currentUserId, dispatch } = useStore();
   const [pageHeight, setPageHeight] = useState(0);
-  const [index, setIndex] = useState(0);
-  // Archiv: geschlossene und gelöschte Challenges
+  // Aktuelle Seite je Reiter, für „2 von 5“
+  const [index, setIndex] = useState({ active: 0, archive: 0 });
+  // Archiv: geschlossene und gelöschte Challenges. Wischen nach links oder Tippen auf den Reiter wechselt.
   const [archive, setArchive] = useState(false);
+  const archiveRef = useRef(false);
+  const { width } = useAppDimensions();
+  const pager = useRef<ScrollView>(null);
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const progress = useMemo(
+    () => scrollX.interpolate({ inputRange: [0, Math.max(width, 1)], outputRange: [0, 1], extrapolate: 'clamp' }),
+    [scrollX, width],
+  );
+  const onPagerScroll = useMemo(
+    () =>
+      Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
+        useNativeDriver: false,
+        listener: (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+          // Ab der Hälfte gilt der andere Reiter: Pille, Seitenzahl und Button wechseln mit
+          const next = e.nativeEvent.contentOffset.x > width / 2;
+          if (next !== archiveRef.current) {
+            archiveRef.current = next;
+            setArchive(next);
+          }
+        },
+      }),
+    [scrollX, width],
+  );
+  const showTab = (key: 'active' | 'archive') =>
+    pager.current?.scrollTo({ x: key === 'archive' ? width : 0, animated: true });
 
-  const pages = useMemo<Page[]>(() => {
+  const { activePages, archivePages } = useMemo(() => {
     const own = challenges.filter((c) => c.authorId === currentUserId);
     const inArchive = (c: Challenge) => c.status === 'closed' || c.status === 'deleted';
     const active = own
       .filter((c) => !inArchive(c))
       .sort((a, b) => (ORDER[a.status] ?? 9) - (ORDER[b.status] ?? 9) || b.createdAt.localeCompare(a.createdAt));
-    if (!archive) return active.map((challenge) => ({ kind: 'challenge', challenge }));
+    const activePages: Page[] = active.map((challenge) => ({ kind: 'challenge', challenge }));
     const closed = own
       .filter((c) => c.status === 'closed')
       .sort((a, b) => (b.closedAt ?? '').localeCompare(a.closedAt ?? ''));
@@ -78,8 +106,8 @@ export default function ManageChallenges() {
       .sort((a, b) => (b.deletedAt ?? '').localeCompare(a.deletedAt ?? ''));
     const list: Page[] = closed.map((challenge) => ({ kind: 'challenge', challenge }));
     if (deleted.length) list.push({ kind: 'deleted', challenges: deleted });
-    return list;
-  }, [challenges, currentUserId, archive]);
+    return { activePages, archivePages: list };
+  }, [challenges, currentUserId]);
 
   const create = () => requireKiez() && router.push('/challenge/create/step-1');
   const openDraft = (c: Challenge) =>
@@ -127,7 +155,7 @@ export default function ManageChallenges() {
       isDraft ? 'Entwurf löschen?' : 'Challenge löschen?',
       isDraft
         ? 'Das lässt sich nicht rückgängig machen.'
-        : 'Die Challenge verschwindet aus dem Feed. Unter „Gelöschte und geschlossene“ kannst Du sie bearbeiten und wieder veröffentlichen.',
+        : 'Die Challenge verschwindet aus dem Feed. Unter „Geschlossen und gelöscht“ kannst Du sie bearbeiten und wieder veröffentlichen.',
       [
         { text: 'Abbrechen', style: 'cancel' },
         {
@@ -149,44 +177,24 @@ export default function ManageChallenges() {
       ],
     );
 
-  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (!pageHeight) return;
-    const next = Math.round(e.nativeEvent.contentOffset.y / pageHeight);
-    if (next !== index) setIndex(next);
-  };
-
-  const current = Math.min(index, Math.max(pages.length - 1, 0));
-
-  return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <NavigationBar
-        title="Deine Challenges"
-        subtitle={pages.length > 1 ? `${current + 1} von ${pages.length}` : undefined}
-        variant="back"
-        onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))}
-      />
-      <View style={styles.switch}>
-        <SwitchRow
-          label="Gelöschte und geschlossene"
-          value={archive}
-          onValueChange={(value) => {
-            setIndex(0);
-            setArchive(value);
-          }}
-        />
-      </View>
-      <View style={styles.flex} onLayout={(e) => setPageHeight(e.nativeEvent.layout.height)}>
+  const renderList = (pages: Page[], tab: 'active' | 'archive') => {
+    const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (!pageHeight) return;
+      const next = Math.round(e.nativeEvent.contentOffset.y / pageHeight);
+      if (next !== index[tab]) setIndex((all) => ({ ...all, [tab]: next }));
+    };
+    return (
+      <View style={{ width, height: pageHeight }}>
         {pages.length === 0 ? (
           <View style={styles.empty}>
             <KaterCard>
-              {archive
+              {tab === 'archive'
                 ? 'Hier liegen später Deine geschlossenen und gelöschten Challenges.'
                 : 'Du hast noch keine laufende Challenge. Fang mit einem Foto an.'}
             </KaterCard>
           </View>
-        ) : pageHeight > 0 ? (
+        ) : (
           <FlatList
-            key={archive ? 'archive' : 'active'}
             data={pages}
             keyExtractor={(p) => (p.kind === 'deleted' ? 'deleted' : p.challenge.id)}
             pagingEnabled
@@ -227,6 +235,47 @@ export default function ManageChallenges() {
               );
             }}
           />
+        )}
+      </View>
+    );
+  };
+
+  const pages = archive ? archivePages : activePages;
+  const current = Math.min(index[archive ? 'archive' : 'active'], Math.max(pages.length - 1, 0));
+
+  return (
+    <View style={[styles.screen, { paddingTop: insets.top }]}>
+      <NavigationBar
+        title="Deine Challenges"
+        subtitle={pages.length > 1 ? `${current + 1} von ${pages.length}` : undefined}
+        variant="back"
+        onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))}
+      />
+      <View style={styles.switch}>
+        <Segments
+          tabs={[
+            { key: 'active', label: 'Aktuell' },
+            { key: 'archive', label: 'Geschlossen und gelöscht' },
+          ]}
+          selectedKey={archive ? 'archive' : 'active'}
+          onChange={showTab}
+          progress={progress}
+        />
+      </View>
+      <View style={styles.flex} onLayout={(e) => setPageHeight(e.nativeEvent.layout.height)}>
+        {pageHeight > 0 ? (
+          <Animated.ScrollView
+            ref={pager}
+            horizontal
+            pagingEnabled
+            bounces={false}
+            showsHorizontalScrollIndicator={false}
+            onScroll={onPagerScroll}
+            scrollEventThrottle={16}
+          >
+            {renderList(activePages, 'active')}
+            {renderList(archivePages, 'archive')}
+          </Animated.ScrollView>
         ) : null}
       </View>
       {archive ? (
@@ -456,7 +505,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   flex: { flex: 1 },
   empty: { padding: space[16] },
-  switch: { paddingHorizontal: space[16] },
+  switch: { paddingHorizontal: space[16], paddingBottom: space[8] },
   page: { paddingHorizontal: space[16], paddingTop: space[8], paddingBottom: space[12] },
   card: {
     flex: 1,

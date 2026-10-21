@@ -124,14 +124,40 @@ type TabsNavigationProps = {
  * Der Feed zeigt dann einen Hinweis und vorhandene Challenges dieses Typs.
  */
 export function TabsNavigation({ selectedKey, onChange }: TabsNavigationProps) {
+  return <Segments tabs={tabs} selectedKey={selectedKey} onChange={onChange} />;
+}
+
+type SegmentsProps<K extends string> = {
+  tabs: { key: K; label: string; planned?: boolean }[];
+  selectedKey: K;
+  onChange: (key: K) => void;
+  /**
+   * Lage beim Wischen zwischen den Seiten, 0 = erster Reiter, 1 = zweiter usw.
+   * Damit folgt die Pille dem Finger. Ohne: Die Pille gleitet nach dem Tippen zum Reiter.
+   */
+  progress?: Animated.Value | Animated.AnimatedInterpolation<number>;
+};
+
+/** Segmente mit gleitender Pille, z. B. Feed-Reiter oder „Aktuell / Archiv“ in „Deine Challenges“. */
+export function Segments<K extends string>({ tabs, selectedKey, onChange, progress }: SegmentsProps<K>) {
   // Helle Pille gleitet zum gewählten Reiter (Bewegung „Schranke“, etwas langsamer)
-  const [layouts, setLayouts] = useState<Partial<Record<FeedTab, { x: number; width: number }>>>({});
+  const [layouts, setLayouts] = useState<Partial<Record<K, { x: number; width: number }>>>({});
   const pillX = useRef(new Animated.Value(0)).current;
   const pillW = useRef(new Animated.Value(0)).current;
   const placed = useRef(false);
   const target = layouts[selectedKey];
+  const all = tabs.map((t) => layouts[t.key]);
+  const measured = all.every(Boolean) ? (all as { x: number; width: number }[]) : undefined;
+  // Mit `progress`: Lage und Breite der Pille direkt aus der Wischbewegung
+  const follow =
+    progress && measured && measured.length > 1
+      ? {
+          left: progress.interpolate({ inputRange: measured.map((_, i) => i), outputRange: measured.map((l) => l.x), extrapolate: 'clamp' }),
+          width: progress.interpolate({ inputRange: measured.map((_, i) => i), outputRange: measured.map((l) => l.width), extrapolate: 'clamp' }),
+        }
+      : undefined;
   useEffect(() => {
-    if (!target) return;
+    if (!target || follow) return;
     if (!placed.current) {
       pillX.setValue(target.x);
       pillW.setValue(target.width);
@@ -146,12 +172,13 @@ export function TabsNavigation({ selectedKey, onChange }: TabsNavigationProps) {
         useNativeDriver: false,
       });
     Animated.parallel([timing(pillX, target.x), timing(pillW, target.width)]).start();
-  }, [target?.x, target?.width, pillX, pillW]);
+  }, [target?.x, target?.width, pillX, pillW, follow]);
+  const left = follow?.left ?? pillX;
 
   return (
     <View style={styles.segments} accessibilityRole="tablist">
       {target ? (
-        <Animated.View pointerEvents="none" style={[styles.pill, { left: pillX, width: pillW }]} />
+        <Animated.View pointerEvents="none" style={[styles.pill, { left, width: follow?.width ?? pillW }]} />
       ) : null}
       {tabs.map((tab) => {
         const selected = tab.key === selectedKey;
@@ -176,7 +203,7 @@ export function TabsNavigation({ selectedKey, onChange }: TabsNavigationProps) {
                   selected && styles.segmentTextSelected,
                   tab.planned && !selected && styles.planned,
                   // Schrift wird dunkel, während die Pille darübergleitet
-                  layouts[tab.key] ? { color: labelColor(pillX, layouts[tab.key]!) } : null,
+                  layouts[tab.key] ? { color: labelColor(left, layouts[tab.key]!) } : null,
                 ]}
               >
                 {tab.label}
@@ -190,7 +217,7 @@ export function TabsNavigation({ selectedKey, onChange }: TabsNavigationProps) {
 }
 
 /** Farbe eines Reiters je nach Lage der Pille: dunkel darunter, grau daneben. */
-const labelColor = (pillX: Animated.Value, l: { x: number; width: number }) =>
+const labelColor = (pillX: Animated.Value | Animated.AnimatedInterpolation<number>, l: { x: number; width: number }) =>
   pillX.interpolate({
     inputRange: [l.x - l.width * 0.6, l.x, l.x + l.width * 0.6],
     outputRange: [color.text.secondary, color.bg.screen, color.text.secondary],
