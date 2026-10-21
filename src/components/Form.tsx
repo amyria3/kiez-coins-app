@@ -225,6 +225,23 @@ export function RadioOption({ label, selected, onPress }: { label: string; selec
   );
 }
 
+/** Wie `RadioOption`, für Mehrfachauswahl: eckiges Kästchen mit Haken. */
+export function CheckOption({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  return (
+    <Pressable
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: selected }}
+      onPress={onPress}
+      style={[styles.radioOption, selected && styles.radioOptionSelected]}
+    >
+      <View style={[styles.checkbox, selected && styles.checkboxSelected]}>
+        {selected ? <Icon name="check" size={14} color={color.bg.screen} /> : null}
+      </View>
+      <Text style={[text.body, styles.flex, { color: color.text.primary }]}>{label}</Text>
+    </Pressable>
+  );
+}
+
 /** Figma „CopyField“: Wert mit Kopieren-Button. */
 export function CopyField({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false);
@@ -441,6 +458,16 @@ const styles = StyleSheet.create({
   },
   radioSelected: { borderColor: color.accent.primary },
   dot: { width: 10, height: 10, borderRadius: radius.full, backgroundColor: color.accent.primary },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: radius.sm,
+    borderWidth: 2,
+    borderColor: color.text.secondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxSelected: { borderColor: color.accent.primary, backgroundColor: color.accent.primary },
   copyField: {
     flexDirection: 'row',
     alignItems: 'center',
