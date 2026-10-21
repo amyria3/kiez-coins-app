@@ -163,7 +163,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: '3. So gehen wir miteinander um',
         paragraphs: [
-          'Es gelten die Community-Regeln. Du stellst nur Challenges, Fotos und Kommentare ein, die Du einstellen darfst. Verboten sind rechtswidrige, beleidigende, diskriminierende oder gefährliche Inhalte, Werbung, Spam und Fotos von Menschen ohne deren Einverständnis.',
+          'Es gelten die Community-Regeln. Du stellst nur Challenges, Fotos und Kommentare ein, die Du einstellen darfst. Verboten sind rechtswidrige, beleidigende, diskriminierende oder gefährliche Inhalte, Werbung, Spam und Fotos von Menschen ohne deren explizites Einverständnis.',
           'Challenges beschreiben kleine, sichere Hilfen in der Nachbarschaft. Aufgaben, die eine Erlaubnis, eine Ausbildung oder besondere Gefahr voraussetzen (zum Beispiel Arbeiten an Strom, Gas oder auf Dächern), gehören nicht in die App.',
           'Für das Anzeigen in der App räumst Du uns ein einfaches, kostenloses Recht an Deinen Inhalten ein. Es endet, wenn Du den Inhalt oder Dein Konto löschst.',
         ],
@@ -223,7 +223,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         heading: 'Belästigung und Bedrohung sind verboten',
         paragraphs: [
           'Verboten sind Beleidigungen, Bedrohungen, Einschüchterung, sexuelle Belästigung, Stalking und Bloßstellen.',
-          'Private Daten anderer (Adresse, Telefonnummer, Fotos) veröffentlichst Du nur mit deren Einverständnis. Ein Nein beendet den Kontakt.',
+          'Private Daten anderer (Adresse, Telefonnummer, Fotos) veröffentlichst Du nur mit deren explizitem Einverständnis. Ein Nein beendet den Kontakt.',
         ],
       },
       {
@@ -242,7 +242,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'Fotos zeigen Orte und Ergebnisse',
         paragraphs: [
-          'Erkennbare Menschen fotografierst Du nur mit deren Einverständnis. Fotos mit erkennbaren Kindern, Nacktheit oder Gewalt sind verboten.',
+          'Erkennbare Menschen fotografierst Du nur mit deren explizitem Einverständnis. Fotos mit erkennbaren Kindern, Nacktheit oder Gewalt sind verboten.',
         ],
       },
       {
