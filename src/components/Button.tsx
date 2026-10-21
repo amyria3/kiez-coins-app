@@ -1,8 +1,9 @@
-import { Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { color, radius, space, stroke, text } from '../theme/tokens';
 import { useTexts } from '../data/texts';
 import { Glass, glassControls } from './Glass';
+import { GearsLoader, SMALL_GEARS } from './GearsLoader';
 
 // Figma „Button“ (Primary, Secondary). Die übrigen Varianten sind Überschreibungen in Screens:
 // `signal` („Aufgabe zurück schicken“, „Muss ich noch machen“), `signalOutline` („Rückgängig machen“),
@@ -19,13 +20,15 @@ type ButtonProps = {
    * oder erklärt per Meldung, warum es gerade nicht geht. Ohne diese Funktion passiert nichts.
    */
   whyDisabled?: () => void;
+  /** Läuft gerade: kleine Zahnräder vor der Beschriftung, Tippen ohne Wirkung */
+  busy?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
-export function Button({ label: original, onPress: press, variant = 'primary', disabled: off, whyDisabled, style }: ButtonProps) {
+export function Button({ label: original, onPress: press, variant = 'primary', disabled: off, whyDisabled, busy, style }: ButtonProps) {
   // Mit Erklärung bleibt der Button tippbar, sieht aber deaktiviert aus
   const explains = !!off && !!whyDisabled;
-  const disabled = off && !explains;
+  const disabled = (off && !explains) || !!busy;
   const onPress = explains ? whyDisabled : press;
   const v = variants[variant];
   // Beschriftung aus dem CMS (Tabelle app_texts), sonst wie im Code
@@ -55,12 +58,15 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ disabled: off }}
+      accessibilityState={{ disabled: off, busy }}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [styles.base, v.container, pressed && styles.pressed, off && styles.disabled, style]}
+      style={({ pressed }) => [styles.base, v.container, pressed && styles.pressed, off && !busy && styles.disabled, style]}
     >
-      <Text style={[v.filled ? text.buttonDarkOnLight : text.buttonLightOnDark, { color: v.label }]}>{label}</Text>
+      <View style={styles.row}>
+        {busy ? <GearsLoader size={34} tint={v.label} only={SMALL_GEARS} /> : null}
+        <Text style={[v.filled ? text.buttonDarkOnLight : text.buttonLightOnDark, { color: v.label }]}>{label}</Text>
+      </View>
     </Pressable>
   );
 }
@@ -108,6 +114,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   pressed: { opacity: 0.8 },
   disabled: { opacity: 0.5 },
 });
