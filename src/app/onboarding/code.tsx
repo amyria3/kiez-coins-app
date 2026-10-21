@@ -12,6 +12,7 @@ import { supabase } from '../../lib/supabase';
 import { useStore } from '../../data/store';
 import { useNudge } from '../../components/Nudge';
 import { t } from '../../data/texts';
+import { homeAfterOnboarding } from '../../data/pendingInvite';
 
 /** Supabase verschickt je nach Projekteinstellung 6 bis 8 Ziffern (Standard: 6). */
 const MIN_DIGITS = 6;
@@ -46,8 +47,9 @@ export default function Code() {
     const stored = data.user ? await loadOwnProfile(data.user.id).catch(() => null) : null;
     setBusy(false);
     if (stored?.onboarded) {
+      const target = await homeAfterOnboarding();
       router.dismissAll();
-      router.replace('/feed');
+      router.replace(target);
       return;
     }
     router.push('/onboarding/deckname');

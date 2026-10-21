@@ -8,7 +8,7 @@ import { FieldGroup, KaterCard } from '../../../components/Content';
 import { CopyField } from '../../../components/Form';
 import { EdensteinPile } from '../../../components/icons/Brand';
 import { SubScreen } from '../../../components/Screen';
-import { inviteMessage, leaderboard, MAX_MEMBERS } from '../../../data/groups';
+import { inviteLink, inviteMessage, leaderboard, MAX_MEMBERS } from '../../../data/groups';
 import { useStore } from '../../../data/store';
 import type { User } from '../../../data/types';
 import { color, radius, space, text } from '../../../theme/tokens';
@@ -148,7 +148,8 @@ export default function GroupDetail() {
       {group.members.length < MAX_MEMBERS ? (
         <FieldGroup label="Leute einladen">
           <CopyField label="Einladungscode" value={group.inviteCode} />
-          <Button label="Code teilen" variant="secondary" onPress={() => Share.share({ message: inviteMessage(group) })} />
+          <CopyField label="Einladungslink" value={inviteLink(group.inviteCode)} />
+          <Button label="Einladung teilen" variant="secondary" onPress={() => Share.share({ message: inviteMessage(group) })} />
         </FieldGroup>
       ) : (
         <Text style={styles.meta}>{t('Die Gruppe ist voll. Mehr als {MAX_MEMBERS} Mitglieder geht nicht.', { MAX_MEMBERS })}</Text>
