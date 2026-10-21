@@ -13,7 +13,7 @@ import type { IconName } from './icons/Icon';
 export const liquidGlass = Platform.OS === 'ios' && isGlassEffectAPIAvailable() && isLiquidGlassAvailable();
 
 /** Versuch (Daria, 21.10.2026): Buttons und Schalter aus Glas. `false` stellt alles auf die flache Gestaltung zurück. */
-export const GLASS_CONTROLS = true;
+export const GLASS_CONTROLS = false;
 /** Buttons und Schalter aus Glas, sofern das Gerät Liquid Glass kann */
 export const glassControls = GLASS_CONTROLS && liquidGlass;
 
