@@ -2,23 +2,32 @@
 // Impressum, Datenschutz, Nutzungsbedingungen und Community-Regeln aus `src/data/legal.ts` (dieselben Texte wie in der App).
 // Aufruf: `npm run build:website` baut zuerst die Web-App nach `website/app/` und danach diese Seiten.
 // Nur die Seiten ohne Web-App: node scripts/build-download-site.mjs
+// Die Startseite zeigt einen klickbaren Prototyp der App (scripts/site/prototyp.js) und Illustrationen
+// (scripts/site/kunst.mjs). Icons, Kater und Coins kommen aus denselben SVGs wie die App.
 // Den Ordner `website/` lädt Daria danach beim Webhoster hoch (siehe Übergabe/2026-10-21_download-seite.md
 // und Übergabe/2026-10-21_web-app.md).
-import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const out = join(root, 'website');
-// legal.ts mit TypeScript nach JS übersetzen und laden
+// TypeScript-Dateien ohne Importe (legal.ts, Icons) nach JS übersetzen und laden
 const ts = (await import('typescript')).default;
-const legalJs = ts.transpileModule(readFileSync(join(root, 'src/data/legal.ts'), 'utf8'), {
-  compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
-}).outputText;
-const tmp = join(root, 'scripts/.legal.tmp.mjs');
-writeFileSync(tmp, legalJs);
-const { LEGAL_STAND, legalDocIds, legalDocs } = await import(tmp);
-rmSync(tmp);
+async function loadTs(rel) {
+  const js = ts.transpileModule(readFileSync(join(root, rel), 'utf8'), {
+    compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+  }).outputText;
+  const tmp = join(root, `scripts/.${rel.replace(/\W+/g, '-')}.tmp.mjs`);
+  writeFileSync(tmp, js);
+  try {
+    return await import(tmp);
+  } finally {
+    rmSync(tmp);
+  }
+}
+const { LEGAL_STAND, legalDocIds, legalDocs } = await loadTs('src/data/legal.ts');
 // Dateinamen der Seiten
 const fileOf = { impressum: 'impressum', datenschutz: 'datenschutz', bedingungen: 'nutzungsbedingungen', regeln: 'community-regeln' };
 const config = JSON.parse(readFileSync(join(root, 'scripts/download-site.config.json'), 'utf8'));
@@ -79,58 +88,181 @@ ${footer}
 </html>
 `;
 
-// iPhone: TestFlight, sobald es einen Link gibt. Bis dahin die Web-App unter /app/.
+// ---------- Startseite mit Prototyp ----------
+const { iconSvgs } = await loadTs('src/components/icons/svgs.ts');
+const brand = await loadTs('src/components/icons/brandSvgs.ts');
+const { crownSvg } = await loadTs('src/components/icons/crownSvg.ts');
+const { diamondSvgs } = await loadTs('src/components/icons/diamondSvgs.ts');
+const { figuren, kartenbilder, filterDefs } = await import('./site/kunst.mjs');
+const C = { text: '#F0F0F0', muted: '#A0A0A0', purple: '#7E94FF', pink: '#FFB2E5', green: '#93F4A7', dark: '#1F2123' };
+const icon = (name, c) => ({ w: iconSvgs[name].width, h: iconSvgs[name].height, svg: iconSvgs[name].svg(c) });
+const kcSvg = {
+  heart: icon('heart', C.muted),
+  heartOn: icon('heart', C.pink),
+  gift: icon('gift', C.muted),
+  comment: icon('comment', C.muted),
+  send: icon('send', C.muted),
+  camera: icon('camera', C.text),
+  pin: icon('map-pin', C.text),
+  burger: icon('burger', C.muted),
+  close: icon('close', C.text),
+  check: icon('check', C.dark),
+  checkGreen: icon('check', C.green),
+  wordmark: { w: 132, h: 25, svg: brand.wordmarkSvg(C.purple) },
+  cat: { w: 35, h: 41, svg: brand.catSvg('default', C.purple, C.text) },
+  catHigh: { w: 35, h: 41, svg: brand.catSvg('high', C.purple, C.text) },
+  coins: { w: 30, h: 35, svg: brand.coinsSvg },
+  crown: { w: crownSvg.width, h: crownSvg.height, svg: crownSvg.svg(C.text) },
+  diamond: { w: diamondSvgs[1].width, h: diamondSvgs[1].height, svg: diamondSvgs[1].svg(C.text) },
+};
+const sized = (d, h) => d.svg.replace(/width="[^"]*" height="[^"]*"/, `width="${Math.round((d.w / d.h) * h)}" height="${h}" aria-hidden="true"`);
+// Dateien mit Prüfsumme im Namen-Parameter, damit Browser nach einem Update die neue Fassung laden
+const version = (text) => createHash('sha1').update(text).digest('hex').slice(0, 8);
+const siteDir = join(root, 'scripts/site');
+// Fotos für die Karten (Quellen und Lizenz: scripts/site/fotos/QUELLEN.md). Fehlt ein Foto, zeigt der Prototyp die Zeichnung.
+const fotoDir = join(siteDir, 'fotos');
+const fotos = existsSync(fotoDir) ? readdirSync(fotoDir).filter((f) => f.endsWith('.jpg')).map((f) => f.slice(0, -4)) : [];
+const datenJs = `window.KC = ${JSON.stringify({ svg: kcSvg, art: kartenbilder, fotos })};\n`;
+const appJs = readFileSync(join(siteDir, 'prototyp.js'), 'utf8');
+const seiteCss = readFileSync(join(siteDir, 'seite.css'), 'utf8');
+
 const ios = config.testflightUrl
-  ? `<h2>iPhone</h2>
+  ? `<div class="card" id="iphone">
+  <h3>iPhone</h3>
   <p>Auf dem iPhone läuft Kiez Coins über TestFlight, Apples App für Testversionen.</p>
-  <p><a href="${esc(config.testflightUrl)}">Kiez Coins in TestFlight öffnen</a></p>`
+  <a class="button" href="${esc(config.testflightUrl)}">Kiez Coins in TestFlight öffnen</a>
+</div>`
   : `<div class="card" id="iphone">
-  <h2 style="margin-top:0">iPhone</h2>
+  <h3>iPhone</h3>
   <p>Auf dem iPhone läuft Kiez Coins als Web-App in Safari. Auf dem Home-Bildschirm startet sie wie eine App.</p>
   <a class="button" href="app/">Kiez Coins öffnen</a>
+  <ol class="steps">
+    <li>Diese Seite in <strong>Safari</strong> öffnen und „Kiez Coins öffnen“ tippen.</li>
+    <li>Unten in der Leiste auf das Teilen-Symbol tippen (Quadrat mit Pfeil nach oben).</li>
+    <li>„Zum Home-Bildschirm“ wählen und „Hinzufügen“ tippen.</li>
+    <li>Kiez Coins ab jetzt über das neue Symbol starten und einmal anmelden.</li>
+  </ol>
+  <p class="klein">Kamera, Fotos und Standort fragt Safari beim ersten Mal ab. Push-Benachrichtigungen gibt es in der Web-App nicht. Updates kommen automatisch beim nächsten Start.</p>
+</div>`;
+
+const leute = [
+  { figur: figuren.muetze, text: 'Besser als Instagram' },
+  { figur: figuren.locken, text: 'Wie GitHub für den Alltag' },
+  { figur: figuren.nachbarin, text: 'Schon praktisch' },
+];
+
+const index = `<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1F2123">
+<title>Kiez Coins – Kleine Challenges für Deinen Kiez</title>
+<meta name="description" content="Du stellst eine Aufgabe mit Foto und Bounty ein. Jemand aus der Nachbarschaft nimmt sie an und erledigt sie.">
+<link rel="icon" href="favicon.png">
+<link rel="preload" href="fonts/InterTight_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="seite.css?v=${version(seiteCss)}">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+${filterDefs}
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="./" aria-label="Kiez Coins, Startseite">${sized(kcSvg.coins, 30)}${sized(kcSvg.wordmark, 18)}</a>
+  <a class="top-link" href="#download">Testversion laden</a>
+</header>
+
+<main>
+<section class="hero" id="prototyp-bereich">
+  <div class="hero-text">
+    <h1>Kleine Challenges für Deinen Kiez.</h1>
+    <p class="lede">Du stellst eine Aufgabe mit Foto und Bounty ein. Jemand aus der Nachbarschaft nimmt sie an und erledigt sie.</p>
+  </div>
+  <div class="steuerung">
+  <div class="rolle" id="rolle" role="radiogroup" aria-label="So spielst Du den Prototyp">
+    <span class="szenario-mark" aria-hidden="true"></span>
+    <button type="button" role="radio" aria-checked="true" data-rolle="public" aria-controls="prototyp">Öffentlich</button>
+    <button type="button" role="radio" aria-checked="false" data-rolle="family" aria-controls="prototyp">Familie</button>
+  </div>
+  <div class="szenarien" id="szenarien" aria-label="Prototyp steuern">
+    <span class="szenario-mark" aria-hidden="true"></span>
+    <button type="button" data-szenario="finden" aria-pressed="true" aria-controls="prototyp"><b>Challenge finden</b><i>Finden</i><span>Tipp auf eine Karte und nimm sie an.</span></button>
+    <button type="button" data-szenario="stellen" aria-pressed="false" aria-controls="prototyp"><b>Challenge stellen</b><i>Stellen</i><span>Foto, Titel, Bounty. Fertig.</span></button>
+    <button type="button" data-szenario="gruppe" aria-pressed="false" aria-controls="prototyp"><b>Gruppe</b><i>Gruppe</i><span>Aufgaben im Hof, belohnt mit Edensteinen.</span></button>
+  </div>
+  </div>
+  <p class="hinweis">Das Telefon ist klickbar. Alle Daten darin sind Beispiele.</p>
+  <div class="phone" id="prototyp" role="region" aria-label="Klickbarer Prototyp der App Kiez Coins">
+    <div class="p-screen"></div>
+  </div>
+</section>
+</main>
 </div>
 
-<h2>So legst Du die App auf den Home-Bildschirm</h2>
-<ol class="steps">
-  <li>Diese Seite in <strong>Safari</strong> öffnen und „Kiez Coins öffnen“ tippen.</li>
-  <li>Unten in der Leiste auf das Teilen-Symbol tippen (Quadrat mit Pfeil nach oben).</li>
-  <li>„Zum Home-Bildschirm“ wählen und „Hinzufügen“ tippen.</li>
-  <li>Kiez Coins ab jetzt über das neue Symbol auf dem Home-Bildschirm starten. Dort meldest Du Dich einmal an.</li>
-</ol>
-<p>Kamera, Fotos und Standort fragt Safari beim ersten Mal ab. Push-Benachrichtigungen gibt es in der Web-App nicht. Updates kommen automatisch beim nächsten Start.</p>`;
+<section class="leute" aria-labelledby="leute-titel">
+  <div class="wrap">
+    <h2 id="leute-titel">Kiez Coins passt zwischen Briefkasten und Fahrradkeller.</h2>
+    <p>Kleine Aufgaben, die sonst liegen bleiben, findet jemand aus der Nachbarschaft.</p>
+    <div class="szene">
+${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p>${l.figur}</div>`).join('\n')}
+    </div>
+  </div>
+</section>
 
-const index = page(
-  'Kiez Coins – Testversion',
-  `<div class="logo"><img src="logo.svg" alt=""></div>
-<h1>Kiez Coins</h1>
-<p>Nachbarschaft organized. Kleine Challenges für Deinen Kiez. Das hier ist die Testversion.</p>
+<section class="download" id="download" aria-labelledby="download-titel">
+  <div class="wrap">
+    <h2 id="download-titel">So installierst Du die Testversion.</h2>
+    <p>Kiez Coins ist in der Testphase. Android lädt die App mit Passwort, das iPhone nutzt die Web-App.</p>
+    <div class="karten">
+      <div class="card" id="android">
+        <h3>Android</h3>
+        <form method="post" action="${esc(config.functionUrl)}">
+          <label for="passwort">Passwort</label>
+          <input id="passwort" name="passwort" type="password" autocomplete="current-password" required>
+          <p class="error" id="fehler" hidden></p>
+          <button type="submit">App herunterladen</button>
+        </form>
+        <ol class="steps">
+          <li>Passwort eingeben und „App herunterladen“ tippen.</li>
+          <li>Die Datei <em>kiez-coins.apk</em> öffnen, wenn der Download fertig ist.</li>
+          <li>Android fragt, ob Dein Browser Apps installieren darf. Erlauben und „Installieren“ tippen.</li>
+          <li>Für ein Update lädst Du die neue Datei hier herunter und installierst sie genauso. Deine Daten bleiben erhalten.</li>
+        </ol>
+      </div>
+      ${ios}
+    </div>
+    <footer>
+      <a href="impressum.html">Impressum</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <a href="nutzungsbedingungen.html">Nutzungsbedingungen</a>
+      <a href="community-regeln.html">Community-Regeln</a>
+    </footer>
+  </div>
+</section>
 
-<div class="card" id="download">
-  <h2 style="margin-top:0">Android</h2>
-  <form method="post" action="${esc(config.functionUrl)}">
-    <label for="passwort">Passwort</label>
-    <input id="passwort" name="passwort" type="password" autocomplete="current-password" required>
-    <p class="error" id="fehler" hidden></p>
-    <button type="submit">App herunterladen</button>
-  </form>
-</div>
-
-<h2>So installierst Du die App auf Android</h2>
-<ol class="steps">
-  <li>Passwort eingeben und „App herunterladen“ tippen.</li>
-  <li>Die Datei <em>kiez-coins.apk</em> öffnen, wenn der Download fertig ist.</li>
-  <li>Android fragt, ob Dein Browser Apps installieren darf. Erlauben und „Installieren“ tippen.</li>
-  <li>Für ein Update lädst Du die neue Datei hier herunter und installierst sie genauso. Deine Daten bleiben erhalten.</li>
-</ol>
-
-${ios}
-
+<script src="prototyp/daten.js?v=${version(datenJs)}"></script>
+<script src="prototyp/app.js?v=${version(appJs)}"></script>
 <script>
+  // Fehler vom Download zeigen
   var f = new URLSearchParams(location.search).get('fehler');
   var t = { passwort: 'Das Passwort stimmt nicht.', datei: 'Die App-Datei fehlt gerade. Versuch es später noch mal.', technik: 'Der Download ist gerade nicht eingerichtet.' }[f];
-  if (t) { var e = document.getElementById('fehler'); e.textContent = t; e.hidden = false; }
-</script>`,
-);
+  if (t) { var e = document.getElementById('fehler'); e.textContent = t; e.hidden = false; document.getElementById('download').scrollIntoView(); }
+  // Sprechblasen erscheinen, sobald die Leute im Bild sind. Tipp auf eine Figur lässt sie wackeln.
+  var leute = document.querySelector('.leute');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { leute.classList.add('is-seen'); io.disconnect(); } }, { threshold: 0.35 });
+    io.observe(leute);
+  } else leute.classList.add('is-seen');
+  leute.addEventListener('click', function (e) {
+    var fig = e.target.closest('.figur');
+    if (!fig) return;
+    fig.classList.remove('is-wave'); void fig.getBoundingClientRect(); fig.classList.add('is-wave');
+  });
+</script>
+</body>
+</html>
+`;
 
 // data-t: Originaltext als Schlüssel für das Texte-CMS. Das Skript am Seitenende holt Darias Fassungen aus `app_texts`.
 const tag = (name, s, attrs = '') => `<${name}${attrs} data-t="${esc(s)}">${esc(s).replace(/\n/g, '<br>')}</${name}>`;
@@ -179,6 +311,21 @@ if (existsSync(join(app, 'index.html'))) copyFileSync(join(app, 'index.html'), j
 else console.warn('Achtung: website/app/ fehlt. Die Web-App fürs iPhone baut `npm run build:website`.');
 for (const id of legalDocIds) writeFileSync(join(out, `${fileOf[id]}.html`), legal(id));
 copyFileSync(join(root, 'assets/favicon.png'), join(out, 'favicon.png'));
+// Startseite: Stil, Prototyp, Beispielfoto und Schriften (lokal, ohne Google-Server)
+writeFileSync(join(out, 'seite.css'), seiteCss);
+mkdirSync(join(out, 'prototyp'), { recursive: true });
+writeFileSync(join(out, 'prototyp/daten.js'), datenJs);
+writeFileSync(join(out, 'prototyp/app.js'), appJs);
+mkdirSync(join(out, 'prototyp/fotos'), { recursive: true });
+for (const f of fotos) copyFileSync(join(fotoDir, `${f}.jpg`), join(out, `prototyp/fotos/${f}.jpg`));
+mkdirSync(join(out, 'fonts'), { recursive: true });
+for (const [pkg, file] of [
+  ['inter/300Light', 'Inter_300Light'],
+  ['inter/400Regular', 'Inter_400Regular'],
+  ['inter/500Medium', 'Inter_500Medium'],
+  ['inter-tight/600SemiBold', 'InterTight_600SemiBold'],
+])
+  copyFileSync(join(root, `node_modules/@expo-google-fonts/${pkg}/${file}.ttf`), join(out, `fonts/${file}.ttf`));
 // Hosting bei Vercel: Unterseiten der Web-App öffnen die App, Rechtstexte auch ohne .html
 writeFileSync(
   join(out, 'vercel.json'),

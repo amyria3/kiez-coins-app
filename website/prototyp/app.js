@@ -1,0 +1,811 @@
+// Klickbarer Prototyp der App auf kiezcoins.de. Läuft ohne Server und ohne Konto, alle Daten sind Beispiele.
+// Zwei Rollen: „Öffentlich“ (Nachbarschaft, Bounty in Euro) und „Familie“ (Gruppe, Belohnung in Edensteinen).
+// Icons, Kater, Kartenbilder und die Liste der Fotos kommen aus `prototyp/daten.js` (erzeugt von
+// scripts/build-download-site.mjs aus denselben SVGs wie die App). Bewegung „Schranke“ wie in src/theme/tokens.ts.
+(function () {
+  'use strict';
+  var KC = window.KC;
+  var root = document.getElementById('prototyp');
+  if (!KC || !root) return;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- Hilfen ----------
+  function svg(name, h) {
+    var d = KC.svg[name];
+    var w = Math.round((d.w / d.h) * h * 10) / 10;
+    return d.svg.replace(/width="[^"]*" height="[^"]*"/, 'width="' + w + '" height="' + h + '" aria-hidden="true" focusable="false"');
+  }
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function $(sel, el) {
+    return (el || root).querySelector(sel);
+  }
+  function $$(sel, el) {
+    return Array.prototype.slice.call((el || root).querySelectorAll(sel));
+  }
+  function find(list, id) {
+    return list.filter(function (x) { return x.id === id; })[0];
+  }
+
+  // ---------- Beispieldaten je Rolle ----------
+  var MODES = {
+    public: {
+      unit: 'euro',
+      place: 'Connewitz',
+      countText: function (n) { return n === 1 ? '1 Challenge in Deiner Nähe' : n + ' Challenges in Deiner Nähe'; },
+      tabs: { nearby: 'In der Nähe', pleasure: 'Pleasure', groups: 'Gruppen' },
+      noun: 'Challenge',
+      people: {
+        lena: { name: 'Lena K.', short: 'Lena', color: '#FFB2E5' },
+        garten: { name: 'Nachbarschaftsgarten', short: 'Garten', color: '#93F4A7' },
+        peter: { name: 'Peter J.', short: 'Peter', color: '#FFAD7E' },
+        mo: { name: 'Mo S.', short: 'Mo', color: '#FFC500' },
+        du: { name: 'Du', short: 'Du', color: '#7E94FF' },
+      },
+      challenges: [
+        {
+          id: 'igel',
+          title: 'Igelhaus im Hinterhof wieder aufbauen',
+          text: 'Das Igelhaus ist beim letzten Sturm umgekippt. Wer hilft, es wieder aufzustellen und mit Laub zu füllen? Handschuhe liegen im Fahrradkeller.',
+          author: 'lena', reward: 5, dist: '120 m', left: 'noch 5 Tage', img: 'igel', comments: 4, likes: 12,
+        },
+        {
+          id: 'garten',
+          title: 'Hochbeete für den Winter vorbereiten',
+          text: 'Samstag ab 10 Uhr: Beete abernten, Kompost verteilen, Laub als Decke drauf. Kaffee und Kuchen gibt es vor Ort.',
+          author: 'garten', reward: 15, dist: '300 m', left: 'noch 2 Tage', img: 'garten', comments: 2, likes: 31,
+        },
+        {
+          id: 'fahrrad',
+          title: 'Platten am Kinderrad flicken',
+          text: 'Der Hinterreifen am Rad meiner Tochter ist platt. Flickzeug und Pumpe habe ich da, mir fehlt nur die Geduld.',
+          author: 'mo', reward: 8, dist: '450 m', left: 'noch 3 Tage', img: 'fahrrad', comments: 1, likes: 6,
+        },
+        {
+          id: 'muell',
+          title: 'Müll am Auwald-Weg sammeln',
+          text: 'Nach dem Wochenende liegen Flaschen und Verpackungen am Weg. Säcke und Greifzangen stelle ich bereit.',
+          author: 'peter', reward: 10, dist: '650 m', left: 'noch 1 Tag', img: 'muell', comments: 3, likes: 18,
+        },
+      ],
+      group: {
+        name: 'Hof Kastanienallee',
+        sub: '4 Mitglieder · Edensteine',
+        members: [
+          { id: 'lena', score: 12 },
+          { id: 'du', score: 9 },
+          { id: 'peter', score: 7 },
+          { id: 'mo', score: 4 },
+        ],
+        tasks: [
+          { id: 'hof', title: 'Hof fegen', by: 'lena', eden: 5 },
+          { id: 'pflanzen', title: 'Pflanzen im Treppenhaus gießen', by: 'peter', eden: 3 },
+          { id: 'tonnen', title: 'Mülltonnen rausstellen', by: 'mo', eden: 2 },
+        ],
+      },
+      create: {
+        heading: 'Neue Challenge',
+        suggestions: ['Tonnen rausstellen', 'Igelhaus aufbauen', 'Fahrradkeller aufräumen'],
+        rewards: [5, 10, 15, 20],
+        reward: 10,
+        photo: 'tonnen',
+        published: 'Deine Challenge ist online. Die Nachbarschaft sieht sie jetzt.',
+      },
+      scenarios: {
+        finden: ['Challenge finden', 'Tipp auf eine Karte und nimm sie an.', 'Finden'],
+        stellen: ['Challenge stellen', 'Foto, Titel, Bounty. Fertig.', 'Stellen'],
+        gruppe: ['Gruppe', 'Aufgaben im Hof, belohnt mit Edensteinen.', 'Gruppe'],
+      },
+    },
+    family: {
+      unit: 'eden',
+      place: 'Familie Berger',
+      countText: function (n) { return n === 1 ? '1 offene Aufgabe' : n + ' offene Aufgaben'; },
+      tabs: { nearby: 'Aufgaben', pleasure: 'Pleasure', groups: 'Rangliste' },
+      noun: 'Aufgabe',
+      people: {
+        mama: { name: 'Mama', short: 'Mama', color: '#FFB2E5' },
+        papa: { name: 'Papa', short: 'Papa', color: '#FFAD7E' },
+        oma: { name: 'Oma Gisela', short: 'Oma', color: '#93F4A7' },
+        jonas: { name: 'Jonas', short: 'Jonas', color: '#FFC500' },
+        du: { name: 'Du', short: 'Du', color: '#7E94FF' },
+      },
+      challenges: [
+        {
+          id: 'spuel',
+          title: 'Spülmaschine ausräumen',
+          text: 'Sie läuft gerade noch. Wenn sie piept: Teller in den Schrank, Besteck in die Schublade, Töpfe unter die Spüle.',
+          author: 'mama', reward: 2, dist: 'Küche', left: 'heute', img: 'spuel', comments: 1, likes: 2,
+        },
+        {
+          id: 'einkauf',
+          title: 'Für Oma einkaufen',
+          text: 'Milch, Brot, Äpfel und Kaffee. Die Liste hängt am Kühlschrank, das Geld liegt in der Dose im Flur.',
+          author: 'oma', reward: 4, dist: 'Edeka', left: 'morgen', img: 'einkauf', comments: 2, likes: 3,
+        },
+        {
+          id: 'hund',
+          title: 'Mit Bruno Gassi gehen',
+          text: 'Eine große Runde durch den Park. Leine und Tüten hängen an der Garderobe.',
+          author: 'jonas', reward: 3, dist: 'Park', left: 'heute Abend', img: 'hund', comments: 0, likes: 1,
+        },
+        {
+          id: 'rasen',
+          title: 'Rasen mähen',
+          text: 'Vor dem Grillen am Samstag. Der Mäher steht im Schuppen, der Akku ist geladen.',
+          author: 'papa', reward: 5, dist: 'Garten', left: 'bis Samstag', img: 'rasen', comments: 0, likes: 2,
+        },
+      ],
+      group: {
+        name: 'Familie Berger',
+        sub: '5 Mitglieder · Edensteine',
+        members: [
+          { id: 'mama', score: 18 },
+          { id: 'jonas', score: 14 },
+          { id: 'du', score: 12 },
+          { id: 'papa', score: 9 },
+          { id: 'oma', score: 6 },
+        ],
+        tasks: [
+          { id: 'waesche', title: 'Wäsche aufhängen', by: 'mama', eden: 3 },
+          { id: 'papier', title: 'Altpapier rausbringen', by: 'papa', eden: 2 },
+          { id: 'blumen', title: 'Bei Oma die Blumen gießen', by: 'oma', eden: 1 },
+        ],
+      },
+      create: {
+        heading: 'Neue Aufgabe',
+        suggestions: ['Wäsche aufhängen', 'Altglas wegbringen', 'Katzenklo sauber machen'],
+        rewards: [1, 3, 5, 10],
+        reward: 3,
+        photo: 'waesche',
+        published: 'Deine Aufgabe ist da. Die Familie sieht sie jetzt.',
+      },
+      scenarios: {
+        finden: ['Aufgabe übernehmen', 'Mama, Papa oder Oma brauchen Hilfe.', 'Übernehmen'],
+        stellen: ['Aufgabe stellen', 'Foto, Titel, Edensteine. Fertig.', 'Stellen'],
+        gruppe: ['Rangliste', 'Wer sammelt die meisten Edensteine?', 'Rangliste'],
+      },
+    },
+  };
+
+  var M, people, challenges, group, state;
+  function clone(o) {
+    return JSON.parse(JSON.stringify(o));
+  }
+  function load(mode) {
+    M = MODES[mode];
+    people = M.people;
+    challenges = clone(M.challenges);
+    group = clone(M.group);
+    state = {
+      mode: mode,
+      tab: 'nearby',
+      detail: null,
+      create: false,
+      liked: {},
+      status: {}, // id → accepted | reported | confirmed
+      earned: 0,
+      draft: newDraft(),
+      created: 0,
+      hinted: false,
+    };
+  }
+  function newDraft() {
+    return { photo: false, title: '', reward: M.create.reward, deadline: '3 Tage' };
+  }
+
+  // Belohnung: Euro mit Coins, Edensteine mit Diamant
+  function rewardBadge(n, h) {
+    return M.unit === 'euro'
+      ? svg('coins', h || 20) + '<b>' + n + ',-</b>'
+      : svg('diamond', (h || 20) - 2) + '<b class="p-eden">' + n + '</b>';
+  }
+  function rewardText(n) {
+    return M.unit === 'euro' ? n + ' Euro' : n === 1 ? '1 Edenstein' : n + ' Edensteine';
+  }
+
+  // ---------- Aufbau ----------
+  var hour = new Date().getHours();
+  var greeting = hour < 11 ? 'Guten Morgen' : hour < 18 ? 'Hallo' : 'Guten Abend';
+  var clock = new Date().toTimeString().slice(0, 5);
+
+  var screen = $('.p-screen');
+  screen.innerHTML =
+    '<div class="p-status" aria-hidden="true"><span>' + clock + '</span><span class="p-island"></span><span class="p-battery"></span></div>' +
+    '<div class="p-scroll">' +
+    '  <div class="p-head"><span class="p-wordmark">' + svg('wordmark', 17) + '</span><span class="p-cat">' + svg('cat', 22) + '</span></div>' +
+    '  <div class="p-greet"><h3>' + greeting + ', Mira</h3><p><span class="p-place"></span> · <span class="p-count"></span></p></div>' +
+    '  <div class="p-seg" role="tablist" aria-label="Feed">' +
+    '    <span class="p-seg-pill" aria-hidden="true"></span>' +
+    '    <button role="tab" data-tab="nearby"></button>' +
+    '    <button role="tab" data-tab="pleasure"></button>' +
+    '    <button role="tab" data-tab="groups"></button>' +
+    '  </div>' +
+    '  <div class="p-content"></div>' +
+    '</div>' +
+    '<button class="p-camera" type="button" aria-label="Neu stellen">' + svg('camera', 15) + '</button>' +
+    '<nav class="p-tabbar" aria-label="App-Leiste">' +
+    '  <button type="button" data-bar="feed" aria-label="Feed">' + svg('pin', 18) + '</button>' +
+    '  <button type="button" data-bar="pleasure" aria-label="Your Pleasure">' + svg('crown', 22) + '</button>' +
+    '  <button type="button" data-bar="menu" aria-label="Menü">' + svg('burger', 16) + '</button>' +
+    '</nav>' +
+    '<div class="p-scrim" hidden></div>' +
+    '<section class="p-sheet" role="dialog" aria-modal="true" aria-label="Details" aria-hidden="true" tabindex="-1"></section>' +
+    '<section class="p-create" role="dialog" aria-modal="true" aria-label="Neu stellen" aria-hidden="true" tabindex="-1"></section>' +
+    '<div class="p-nudge" aria-live="polite"><span class="p-nudge-cat"></span><p></p></div>' +
+    '<div class="p-burst" aria-hidden="true"></div>';
+
+  var scroll = $('.p-scroll');
+  var content = $('.p-content');
+  var sheet = $('.p-sheet');
+  var create = $('.p-create');
+  var scrim = $('.p-scrim');
+  var seg = $('.p-seg');
+
+  // ---------- Bilder: Foto, wenn vorhanden, sonst Zeichnung ----------
+  function image(key) {
+    if (KC.fotos && KC.fotos.indexOf(key) >= 0) return '<img src="prototyp/fotos/' + key + '.jpg" alt="" decoding="async">';
+    return KC.art[key] || '';
+  }
+  function avatar(id, size) {
+    var p = people[id];
+    return '<span class="p-avatar" style="--c:' + p.color + ';--s:' + (size || 18) + 'px" aria-hidden="true">' + p.short.charAt(0) + '</span>';
+  }
+  function statusChip(id) {
+    var s = state.status[id];
+    if (!s) return '';
+    var t = { accepted: 'Angenommen', reported: 'Erledigt gemeldet', confirmed: 'Bestätigt' }[s];
+    return '<span class="p-chip p-chip-' + s + '">' + t + '</span>';
+  }
+
+  // ---------- Feed ----------
+  function card(c, isNew) {
+    var liked = !!state.liked[c.id];
+    return (
+      '<article class="p-post' + (isNew ? ' p-new' : '') + '" data-id="' + c.id + '">' +
+      '<button type="button" class="p-card' + (c.img ? '' : ' p-card-text') + '" data-open="' + c.id + '" aria-label="' + esc(c.title) + ' öffnen">' +
+      (c.img ? '<span class="p-img">' + image(c.img) + '</span>' : '') +
+      '<span class="p-bounty">' + rewardBadge(c.reward) + '</span>' +
+      statusChip(c.id) +
+      '<span class="p-info"><strong>' + esc(c.title) + '</strong><span class="p-meta">' + avatar(c.author) +
+      esc(people[c.author].name) + ' · ' + esc(c.dist) + ' · ' + esc(c.left) + '</span></span>' +
+      '</button>' +
+      '<div class="p-actions">' +
+      '<button type="button" class="p-like' + (liked ? ' is-on' : '') + '" data-like="' + c.id + '" aria-pressed="' + liked + '" aria-label="Gefällt mir">' +
+      '<span class="p-heart">' + svg(liked ? 'heartOn' : 'heart', 17) + '</span><span>' + (c.likes + (liked ? 1 : 0)) + '</span></button>' +
+      '<button type="button" data-soon="Geschenke" aria-label="Geschenk senden">' + svg('gift', 17) + '</button>' +
+      '<button type="button" data-open="' + c.id + '" aria-label="Kommentare">' + svg('comment', 17) + '<span>' + c.comments + '</span></button>' +
+      '<button type="button" data-soon="Teilen" aria-label="Teilen">' + svg('send', 17) + '</button>' +
+      (c.author === 'du' ? '<button type="button" class="p-manage" data-soon="Verwalten">Verwalten</button>' : '') +
+      '</div>' +
+      '</article>'
+    );
+  }
+
+  function renderNearby(newId) {
+    var hint = !state.hinted ? ' p-hint' : '';
+    content.innerHTML =
+      '<div class="p-list' + hint + '">' + challenges.map(function (c) { return card(c, c.id === newId); }).join('') + '</div>';
+  }
+
+  function renderPleasure() {
+    var done = challenges.filter(function (c) { return state.status[c.id]; });
+    var mine = challenges.filter(function (c) { return c.author === 'du'; });
+    var rows = done
+      .map(function (c) {
+        return '<li><button type="button" data-open="' + c.id + '"><span class="p-thumb">' + (c.img ? image(c.img) : '') + '</span><span><strong>' +
+          esc(c.title) + '</strong>' + statusChip(c.id) + '</span><b>' + rewardBadge(c.reward, 16) + '</b></button></li>';
+      })
+      .join('');
+    var earned = M.unit === 'euro' ? state.earned + ',-' : String(state.earned);
+    content.innerHTML =
+      '<div class="p-pleasure">' +
+      '<div class="p-metrics"><div><b>' + done.length + '</b><span>angenommen</span></div><div><b>' + earned +
+      '</b><span>' + (M.unit === 'euro' ? 'verdient' : 'Edensteine') + '</span></div><div><b>' + mine.length + '</b><span>gestellt</span></div></div>' +
+      (rows
+        ? '<ul class="p-rows">' + rows + '</ul>'
+        : '<p class="p-empty">Nimm eine ' + M.noun + ' an. Hier siehst Du, was Du erledigst und ' + (M.unit === 'euro' ? 'verdienst' : 'sammelst') + '.</p>' +
+          '<button type="button" class="p-btn p-btn-secondary" data-tab-go="nearby">' + M.tabs.nearby + '</button>') +
+      '</div>';
+  }
+
+  function memberRows() {
+    var sorted = group.members.slice().sort(function (a, b) { return b.score - a.score; });
+    return sorted
+      .map(function (m, i) {
+        return '<li data-member="' + m.id + '"' + (m.id === 'du' ? ' class="is-me"' : '') + '>' + avatar(m.id, 26) +
+          '<span>' + people[m.id].short + (i === 0 ? ' <span class="p-crown">' + svg('crown', 14) + '</span>' : '') + '</span>' +
+          '<b>' + svg('diamond', 15) + '<span class="p-score">' + m.score + '</span></b></li>';
+      })
+      .join('');
+  }
+
+  function renderGroups() {
+    content.innerHTML =
+      '<div class="p-group">' +
+      '<div class="p-group-head"><strong>' + group.name + '</strong><span>' + group.sub + '</span></div>' +
+      '<ol class="p-board">' + memberRows() + '</ol>' +
+      '<h4>Schnell erledigt</h4>' +
+      group.tasks
+        .map(function (t) {
+          return '<div class="p-task' + (t.done ? ' is-done' : '') + '" data-task="' + t.id + '"><div><strong>' + esc(t.title) + '</strong><span>' +
+            avatar(t.by) + people[t.by].short + ' · ' + svg('diamond', 13) + ' ' + rewardText(t.eden) + '</span></div>' +
+            (t.done
+              ? '<span class="p-done">' + svg('checkGreen', 12) + ' Erledigt</span>'
+              : '<button type="button" class="p-btn p-btn-small" data-task-do="' + t.id + '">Erledigt</button>') +
+            '</div>';
+        })
+        .join('') +
+      '</div>';
+  }
+
+  function placePill(animate) {
+    var btn = $('[data-tab="' + state.tab + '"]', seg);
+    var pill = $('.p-seg-pill', seg);
+    if (!animate) pill.style.transition = 'none';
+    pill.style.transform = 'translateX(' + btn.offsetLeft + 'px)';
+    pill.style.width = btn.offsetWidth + 'px';
+    if (!animate) { pill.offsetWidth; pill.style.transition = ''; }
+  }
+
+  function render(opts) {
+    opts = opts || {};
+    $$('[data-tab]', seg).forEach(function (b) {
+      b.textContent = M.tabs[b.dataset.tab];
+      b.setAttribute('aria-selected', String(b.dataset.tab === state.tab));
+    });
+    $$('[data-bar]').forEach(function (b) {
+      var on = (b.dataset.bar === 'feed' && state.tab !== 'pleasure') || (b.dataset.bar === 'pleasure' && state.tab === 'pleasure');
+      b.classList.toggle('is-on', on);
+    });
+    placePill(opts.animate);
+    var open = challenges.filter(function (c) { return !state.status[c.id] || state.status[c.id] === 'accepted'; }).length;
+    $('.p-place').textContent = M.place;
+    $('.p-count').textContent = M.countText(open);
+    if (state.tab === 'nearby') renderNearby(opts.newId);
+    else if (state.tab === 'pleasure') renderPleasure();
+    else renderGroups();
+    if (opts.animate && !reduce) {
+      content.classList.remove('p-swap');
+      content.offsetWidth;
+      content.classList.add('p-swap');
+    }
+    syncScenario();
+  }
+
+  function setTab(tab) {
+    if (tab === state.tab) return;
+    state.tab = tab;
+    render({ animate: true });
+    scroll.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  }
+
+  // ---------- Kater-Hinweis ----------
+  var nudge = $('.p-nudge');
+  var nudgeTimer;
+  function say(text, mood) {
+    $('.p-nudge-cat', nudge).innerHTML = svg(mood === 'high' ? 'catHigh' : 'cat', 30);
+    $('p', nudge).textContent = text;
+    // Über einem offenen Sheet sitzt der Kater oben, damit er keine Knöpfe verdeckt
+    nudge.classList.toggle('is-top', !!(state.detail || state.create));
+    nudge.classList.remove('is-on');
+    nudge.offsetWidth;
+    nudge.classList.add('is-on');
+    clearTimeout(nudgeTimer);
+    nudgeTimer = setTimeout(function () { nudge.classList.remove('is-on'); }, 3400);
+  }
+  function hush() {
+    clearTimeout(nudgeTimer);
+    nudge.classList.remove('is-on');
+  }
+
+  // ---------- Coins- oder Edenstein-Regen ----------
+  function burst(fromEl) {
+    if (reduce) return;
+    var box = screen.getBoundingClientRect();
+    var r = fromEl.getBoundingClientRect();
+    var layer = $('.p-burst');
+    var x0 = r.left + r.width / 2 - box.left;
+    var y0 = r.top + r.height / 2 - box.top;
+    var icon = M.unit === 'euro' ? 'coins' : 'diamond';
+    for (var i = 0; i < 14; i++) {
+      var s = document.createElement('span');
+      s.innerHTML = svg(icon, 14 + Math.random() * 10);
+      var a = -Math.PI / 2 + (Math.random() - 0.5) * 2.2;
+      var d = 70 + Math.random() * 90;
+      s.style.left = x0 + 'px';
+      s.style.top = y0 + 'px';
+      s.style.setProperty('--x', Math.cos(a) * d + 'px');
+      s.style.setProperty('--y', Math.sin(a) * d + 'px');
+      s.style.setProperty('--r', (Math.random() - 0.5) * 120 + 'deg');
+      s.style.animationDelay = Math.random() * 90 + 'ms';
+      layer.appendChild(s);
+      setTimeout(s.remove.bind(s), 1300);
+    }
+  }
+
+  // ---------- Detail (Sheet) ----------
+  var lastFocus;
+  function openDetail(id) {
+    if (!find(challenges, id)) return;
+    state.detail = id;
+    state.hinted = true;
+    $$('.p-hint').forEach(function (el) { el.classList.remove('p-hint'); });
+    renderDetail();
+    lastFocus = document.activeElement;
+    showLayer(sheet);
+  }
+
+  function renderDetail() {
+    var c = find(challenges, state.detail);
+    var s = state.status[c.id];
+    var who = people[c.author].short;
+    var action;
+    if (c.author === 'du') action = '<button type="button" class="p-btn p-btn-secondary" data-soon="Teilen">' + M.noun + ' teilen</button>';
+    else if (!s) action = '<button type="button" class="p-btn" data-step="accept">' + M.noun + ' annehmen</button>';
+    else if (s === 'accepted') action = '<button type="button" class="p-btn" data-step="report">Erledigt melden</button>';
+    else if (s === 'reported') action = '<button type="button" class="p-btn p-btn-wait" disabled>' + who + ' prüft …</button>';
+    else action = '<button type="button" class="p-btn p-btn-ok" disabled>' + svg('check', 12) + ' ' + rewardText(c.reward) + ' von ' + who + '</button>';
+    sheet.innerHTML =
+      '<div class="p-grab" aria-hidden="true"></div>' +
+      '<button type="button" class="p-close" data-close aria-label="Schließen">' + svg('close', 12) + '</button>' +
+      (c.img ? '<div class="p-hero">' + image(c.img) + '</div>' : '') +
+      '<div class="p-sheet-body">' +
+      statusChip(c.id) +
+      '<h3>' + esc(c.title) + '</h3>' +
+      '<p class="p-author">' + avatar(c.author, 22) + esc(people[c.author].name) + '</p>' +
+      (c.text ? '<p class="p-text">' + esc(c.text) + '</p>' : '') +
+      '<div class="p-metrics p-metrics-row"><div><b class="p-bounty-big">' + rewardBadge(c.reward, 18) + '</b><span>' +
+      (M.unit === 'euro' ? 'Bounty' : 'Edensteine') + '</span></div>' +
+      '<div><b>' + esc(c.left.replace('noch ', '')) + '</b><span>Frist</span></div><div><b>' + esc(c.dist) + '</b><span>' +
+      (M.unit === 'euro' ? 'Weg' : 'Wo') + '</span></div></div>' +
+      action +
+      '</div>';
+  }
+
+  function step(kind) {
+    var c = find(challenges, state.detail);
+    var who = people[c.author].short;
+    var mode = state.mode;
+    if (kind === 'accept') {
+      state.status[c.id] = 'accepted';
+      renderDetail();
+      say(who + ' weiß Bescheid. Melde Dich, wenn es erledigt ist.');
+    } else if (kind === 'report') {
+      state.status[c.id] = 'reported';
+      renderDetail();
+      say('Foto ist dabei. ' + who + ' prüft jetzt.');
+      setTimeout(function () {
+        if (state.mode !== mode || state.status[c.id] !== 'reported') return;
+        state.status[c.id] = 'confirmed';
+        state.earned += c.reward;
+        var me = find(group.members, 'du');
+        if (M.unit === 'eden' && me) me.score += c.reward;
+        if (state.detail === c.id) {
+          renderDetail();
+          burst($('.p-btn', sheet) || sheet);
+        }
+        say(who + ' hat bestätigt. ' + rewardText(c.reward) + (M.unit === 'euro' ? ' gehen an Dich.' : ' für Dich.'), 'high');
+        render();
+      }, 1700);
+    }
+    render();
+  }
+
+  // ---------- Neu stellen ----------
+  function renderCreate() {
+    var d = state.draft;
+    var unit = M.unit === 'euro' ? ' €' : '';
+    create.innerHTML =
+      '<div class="p-create-head"><button type="button" class="p-close p-close-inline" data-close aria-label="Abbrechen">' + svg('close', 12) +
+      '</button><strong>' + M.create.heading + '</strong><span></span></div>' +
+      '<div class="p-create-body">' +
+      '<button type="button" class="p-photo' + (d.photo ? ' has-photo' : '') + '" data-photo>' +
+      (d.photo ? '<span class="p-img">' + image(M.create.photo) + '</span><span class="p-photo-label">Foto ändern</span>' : svg('camera', 22) + '<span>Foto hinzufügen</span>') +
+      '</button>' +
+      '<label class="p-field"><span>Titel</span><input type="text" maxlength="48" placeholder="Was soll passieren?" value="' + esc(d.title) + '" data-title></label>' +
+      '<div class="p-sugg">' + M.create.suggestions.map(function (s) { return '<button type="button" class="p-pill" data-sugg="' + esc(s) + '">' + esc(s) + '</button>'; }).join('') + '</div>' +
+      '<div class="p-field"><span>' + (M.unit === 'euro' ? 'Bounty' : 'Edensteine') + '</span><div class="p-choice" role="radiogroup" aria-label="Belohnung">' +
+      M.create.rewards.map(function (n) { return '<button type="button" role="radio" aria-checked="' + (d.reward === n) + '" data-reward="' + n + '">' + n + unit + '</button>'; }).join('') +
+      '</div></div>' +
+      '<div class="p-field"><span>Frist</span><div class="p-choice" role="radiogroup" aria-label="Frist">' +
+      ['Heute', '3 Tage', '1 Woche'].map(function (n) { return '<button type="button" role="radio" aria-checked="' + (d.deadline === n) + '" data-deadline="' + n + '">' + n + '</button>'; }).join('') +
+      '</div></div>' +
+      '<button type="button" class="p-btn" data-publish' + (d.title.trim() ? '' : ' disabled') + '>Veröffentlichen</button>' +
+      '</div>';
+  }
+
+  function openCreate() {
+    state.create = true;
+    renderCreate();
+    lastFocus = document.activeElement;
+    showLayer(create);
+    syncScenario();
+  }
+
+  function publish() {
+    var d = state.draft;
+    state.created += 1;
+    var id = 'neu' + state.created;
+    challenges.unshift({
+      id: id,
+      title: d.title.trim(),
+      text: '',
+      author: 'du',
+      reward: d.reward,
+      dist: M.unit === 'euro' ? 'hier' : 'zu Hause',
+      left: d.deadline === 'Heute' ? 'heute' : 'noch ' + d.deadline,
+      img: d.photo ? M.create.photo : null,
+      comments: 0,
+      likes: 0,
+    });
+    state.draft = newDraft();
+    hideLayer(create);
+    state.create = false;
+    state.tab = 'nearby';
+    state.hinted = true;
+    render({ newId: id });
+    scroll.scrollTo({ top: 0 });
+    say(M.create.published, 'high');
+  }
+
+  // ---------- Ebenen ----------
+  function showLayer(el) {
+    el.setAttribute('aria-hidden', 'false');
+    el.classList.add('is-open');
+    el.style.transform = '';
+    el.scrollTop = 0;
+    scrim.hidden = false;
+    scrim.offsetWidth;
+    scrim.classList.add('is-on');
+    setTimeout(function () { el.focus({ preventScroll: true }); }, 30);
+  }
+  function hideLayer(el) {
+    el.setAttribute('aria-hidden', 'true');
+    el.classList.remove('is-open');
+    el.style.transform = '';
+    if (!$('.p-sheet.is-open, .p-create.is-open')) {
+      scrim.classList.remove('is-on');
+      setTimeout(function () { if (!scrim.classList.contains('is-on')) scrim.hidden = true; }, 400);
+    }
+  }
+  function closeAll(restore) {
+    if (state.detail) { hideLayer(sheet); state.detail = null; }
+    if (state.create) { hideLayer(create); state.create = false; }
+    syncScenario();
+    if (restore && lastFocus && root.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
+  }
+
+  // Sheet zum Schließen nach unten ziehen
+  (function drag(el) {
+    var startY = null;
+    var dy = 0;
+    el.addEventListener('pointerdown', function (e) {
+      if (!el.classList.contains('is-open')) return;
+      if (e.target.closest('button, input') || el.scrollTop > 0) return;
+      startY = e.clientY;
+      dy = 0;
+      el.setPointerCapture(e.pointerId);
+      el.classList.add('is-drag');
+    });
+    el.addEventListener('pointermove', function (e) {
+      if (startY === null) return;
+      dy = Math.max(0, e.clientY - startY);
+      el.style.transform = 'translateY(' + dy + 'px)';
+    });
+    function end() {
+      if (startY === null) return;
+      startY = null;
+      el.classList.remove('is-drag');
+      if (dy > 90) closeAll(true);
+      else el.style.transform = '';
+    }
+    el.addEventListener('pointerup', end);
+    el.addEventListener('pointercancel', end);
+  })(sheet);
+
+  // ---------- Gruppe: Aufgabe erledigen, Rangliste neu ordnen ----------
+  function doTask(id) {
+    var t = find(group.tasks, id);
+    if (!t || t.done) return;
+    var board = $('.p-board');
+    var before = {};
+    $$('li', board).forEach(function (li) { before[li.dataset.member] = li.getBoundingClientRect().top; });
+    var rankBefore = group.members.slice().sort(function (a, b) { return b.score - a.score; });
+    t.done = true;
+    var me = find(group.members, 'du');
+    var from = me.score;
+    me.score += t.eden;
+    renderGroups();
+    var nb = $('.p-board');
+    // FLIP: alte Lage zuerst, dann mit „Schranke“ an den neuen Platz
+    $$('li', nb).forEach(function (li) {
+      var dy = before[li.dataset.member] - li.getBoundingClientRect().top;
+      if (!dy || reduce) return;
+      li.style.transition = 'none';
+      li.style.transform = 'translateY(' + dy + 'px)';
+      li.offsetWidth;
+      li.style.transition = '';
+      li.style.transform = '';
+    });
+    var scoreEl = $('[data-member="du"] .p-score', nb);
+    if (!reduce) {
+      var n = from;
+      scoreEl.textContent = n;
+      var iv = setInterval(function () {
+        n += 1;
+        scoreEl.textContent = n;
+        if (n >= me.score) clearInterval(iv);
+      }, 90);
+    }
+    var rankAfter = group.members.slice().sort(function (a, b) { return b.score - a.score; });
+    var posBefore = rankBefore.indexOf(me);
+    var posAfter = rankAfter.indexOf(me);
+    var text = rewardText(t.eden) + ' für Dich.';
+    var mood = 'default';
+    if (posAfter === 0 && posBefore !== 0) { text = rewardText(t.eden) + '. Du führst!'; mood = 'high'; }
+    else if (posAfter < posBefore) { text = rewardText(t.eden) + '. Du überholst ' + people[rankBefore[posAfter].id].short + '.'; mood = 'high'; }
+    say(text, mood);
+  }
+
+  // ---------- Ereignisse ----------
+  root.addEventListener('click', function (e) {
+    var t = e.target.closest('button');
+    if (!t || !root.contains(t)) return;
+    var d = t.dataset;
+    if (d.tab) return setTab(d.tab);
+    if (d.tabGo) return setTab(d.tabGo);
+    if (d.bar) {
+      if (d.bar === 'menu') return say('Konto und Einstellungen gibt es in der App.');
+      closeAll();
+      return setTab(d.bar === 'pleasure' ? 'pleasure' : 'nearby');
+    }
+    if (d.open) return openDetail(d.open);
+    if (d.like) {
+      state.liked[d.like] = !state.liked[d.like];
+      var c = find(challenges, d.like);
+      var on = state.liked[d.like];
+      t.classList.toggle('is-on', on);
+      t.setAttribute('aria-pressed', String(on));
+      t.innerHTML = '<span class="p-heart">' + svg(on ? 'heartOn' : 'heart', 17) + '</span><span>' + (c.likes + (on ? 1 : 0)) + '</span>';
+      return;
+    }
+    if (d.soon) return say(d.soon + ' gibt es in der App.');
+    if ('close' in d) return closeAll(true);
+    if (d.step) return step(d.step);
+    if (t.classList.contains('p-camera')) return openCreate();
+    if ('photo' in d) {
+      state.draft.photo = !state.draft.photo;
+      renderCreate();
+      $('[data-photo]', create).focus();
+      return;
+    }
+    if (d.sugg) {
+      state.draft.title = d.sugg;
+      renderCreate();
+      $('[data-publish]', create).focus();
+      return;
+    }
+    if (d.reward) { state.draft.reward = +d.reward; renderCreate(); $('[data-reward="' + d.reward + '"]', create).focus(); return; }
+    if (d.deadline) { state.draft.deadline = d.deadline; renderCreate(); $('[data-deadline="' + d.deadline + '"]', create).focus(); return; }
+    if ('publish' in d) return publish();
+    if (d.taskDo) return doTask(d.taskDo);
+  });
+  create.addEventListener('input', function (e) {
+    if (!e.target.matches('[data-title]')) return;
+    state.draft.title = e.target.value;
+    $('[data-publish]', create).disabled = !e.target.value.trim();
+  });
+  scrim.addEventListener('click', function () { closeAll(true); });
+  root.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && (state.detail || state.create)) { e.stopPropagation(); closeAll(true); }
+  });
+
+  // ---------- Rolle und Szenarien neben dem Telefon ----------
+  var picker = document.getElementById('szenarien');
+  var roles = document.getElementById('rolle');
+  function current() {
+    if (state.create) return 'stellen';
+    if (state.tab === 'groups') return 'gruppe';
+    return 'finden';
+  }
+  function moveMark(container, active) {
+    var mark = container && container.querySelector('.szenario-mark');
+    if (!mark || !active) return;
+    mark.style.transform = 'translate(' + active.offsetLeft + 'px,' + active.offsetTop + 'px)';
+    mark.style.width = active.offsetWidth + 'px';
+    mark.style.height = active.offsetHeight + 'px';
+  }
+  function labelScenarios() {
+    if (!picker) return;
+    $$('[data-szenario]', picker).forEach(function (b) {
+      var l = M.scenarios[b.dataset.szenario];
+      b.querySelector('b').textContent = l[0];
+      b.querySelector('span').textContent = l[1];
+      b.querySelector('i').textContent = l[2];
+    });
+  }
+  function syncScenario() {
+    if (picker) {
+      var cur = current();
+      var active;
+      $$('[data-szenario]', picker).forEach(function (b) {
+        var on = b.dataset.szenario === cur;
+        b.setAttribute('aria-pressed', String(on));
+        if (on) active = b;
+      });
+      moveMark(picker, active);
+    }
+    if (roles) {
+      var r;
+      $$('[data-rolle]', roles).forEach(function (b) {
+        var on = b.dataset.rolle === state.mode;
+        b.setAttribute('aria-checked', String(on));
+        if (on) r = b;
+      });
+      moveMark(roles, r);
+    }
+  }
+  function go(name) {
+    closeAll();
+    if (name === 'stellen') {
+      if (state.tab === 'groups') { state.tab = 'nearby'; render(); }
+      return openCreate();
+    }
+    var tab = name === 'gruppe' ? 'groups' : 'nearby';
+    if (tab !== state.tab) setTab(tab);
+    else scroll.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    syncScenario();
+    if (name === 'finden' && !state.detail) {
+      var first = $('.p-list .p-post');
+      if (first && !reduce) {
+        first.classList.remove('p-pulse');
+        first.offsetWidth;
+        first.classList.add('p-pulse');
+      }
+    }
+  }
+  function switchMode(mode) {
+    if (mode === state.mode) return;
+    closeAll();
+    hush();
+    load(mode);
+    labelScenarios();
+    scroll.scrollTo({ top: 0 });
+    render({ animate: true });
+    if (!reduce) {
+      screen.classList.remove('p-flip');
+      screen.offsetWidth;
+      screen.classList.add('p-flip');
+    }
+    say(mode === 'family' ? 'Du bist jetzt in der Familie Berger.' : 'Du bist jetzt in Connewitz unterwegs.');
+  }
+  if (picker) {
+    picker.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-szenario]');
+      if (b) go(b.dataset.szenario);
+    });
+  }
+  if (roles) {
+    roles.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-rolle]');
+      if (b) switchMode(b.dataset.rolle);
+    });
+    // Pfeiltasten wechseln wie bei Radio-Knöpfen
+    roles.addEventListener('keydown', function (e) {
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].indexOf(e.key) < 0) return;
+      e.preventDefault();
+      var next = state.mode === 'public' ? 'family' : 'public';
+      switchMode(next);
+      $('[data-rolle="' + next + '"]', roles).focus();
+    });
+  }
+  window.addEventListener('resize', function () { placePill(false); syncScenario(); });
+
+  load('public');
+  labelScenarios();
+  render();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { placePill(false); syncScenario(); });
+  root.classList.add('is-ready');
+})();
