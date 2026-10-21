@@ -75,7 +75,7 @@ export default function CreateStep2() {
               saving ? undefined : !draft.location.trim() ? locationField.nudge('Wo soll es stattfinden?') : amountField.nudge('Gib einen gültigen Betrag ein.')
             }
           />
-          <Button
+          <Button busy={saving}
             label={saving ? 'Wird gespeichert …' : 'Als Entwurf speichern'}
             variant="ghost"
             onPress={save}
@@ -91,7 +91,7 @@ export default function CreateStep2() {
         value={draft.location}
         onChangeText={(location) => setDraft((d) => ({ ...d, location }))}
       />
-      <Button
+      <Button busy={locating}
         label={locating ? 'Suche Standort …' : 'Aktuellen Standort verwenden'}
         variant="secondary"
         onPress={useLocation}

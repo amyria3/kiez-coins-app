@@ -71,7 +71,7 @@ export default function Kiez() {
       </>
     ) : (
       <>
-        <Button
+        <Button busy={step === 'searching'}
           label={step === 'searching' ? 'Suche Deinen Kiez …' : 'Standort verwenden'}
           onPress={locate}
           disabled={step === 'searching'}

@@ -66,7 +66,7 @@ export default function UserReportScreen() {
       navigation="close"
       onLeadingPress={() => router.back()}
       actions={
-        <Button
+        <Button busy={sending}
           label="Meldung senden"
           disabled={!reason || needsText || sending}
           whyDisabled={() => (sending ? undefined : !reason ? reasonField.nudge('Wähl einen Grund.') : textField.nudge('Beschreib kurz, was passiert ist.'))}

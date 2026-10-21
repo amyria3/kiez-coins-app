@@ -34,7 +34,7 @@ export default function JoinGroup() {
       title="Gruppe beitreten"
       navigation="back"
       onLeadingPress={() => router.back()}
-      actions={<Button label={busy ? 'Trete bei …' : 'Beitreten'} onPress={join} disabled={busy || clean.length !== 6} whyDisabled={() => !busy && codeField.nudge('Der Code hat 6 Zeichen.')} />}
+      actions={<Button busy={busy} label={busy ? 'Trete bei …' : 'Beitreten'} onPress={join} disabled={busy || clean.length !== 6} whyDisabled={() => !busy && codeField.nudge('Der Code hat 6 Zeichen.')} />}
     >
       <TextField
         label="Einladungscode" required

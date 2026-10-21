@@ -61,7 +61,7 @@ export default function ChallengeFlagScreen() {
       title="Challenge melden"
       navigation="close"
       onLeadingPress={() => router.back()}
-      actions={<Button label="Meldung senden" disabled={!reason || needsText || sending}
+      actions={<Button busy={sending} label="Meldung senden" disabled={!reason || needsText || sending}
           whyDisabled={() => (sending ? undefined : !reason ? reasonField.nudge('Wähl einen Grund.') : textField.nudge('Beschreib kurz, was passiert ist.'))} onPress={send} />}
     >
       <Text style={styles.challenge} numberOfLines={2}>

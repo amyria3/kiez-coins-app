@@ -37,7 +37,7 @@ export default function NewGroup() {
       navigation="back"
       onLeadingPress={() => router.back()}
       actions={
-        <Button label={busy ? 'Wird gegründet …' : 'Gruppe gründen'} onPress={create} disabled={busy || !name.trim()} whyDisabled={() => !busy && nameField.nudge('Gib Eurer Gruppe einen Namen.')} />
+        <Button busy={busy} label={busy ? 'Wird gegründet …' : 'Gruppe gründen'} onPress={create} disabled={busy || !name.trim()} whyDisabled={() => !busy && nameField.nudge('Gib Eurer Gruppe einen Namen.')} />
       }
     >
       <TextField

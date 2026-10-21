@@ -66,7 +66,7 @@ export default function Code() {
       onLeadingPress={() => router.back()}
       actions={
         <>
-          <Button
+          <Button busy={busy}
             label={busy ? 'Wird geprüft …' : 'Bestätigen'}
             onPress={confirm}
             disabled={digits.length < MIN_DIGITS || busy}

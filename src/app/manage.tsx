@@ -19,7 +19,7 @@ import { BountyBadge, StatusBadge } from '../components/Badges';
 import { Button } from '../components/Button';
 import { KaterCard } from '../components/Content';
 import { SwitchRow } from '../components/Form';
-import { Icon, type IconName } from '../components/icons/Icon';
+import { Icon } from '../components/icons/Icon';
 import { NavigationBar } from '../components/NavigationBar';
 import { formatDayMonthShort, formatDurationSince, formatRemainingShort, nameInText } from '../data/format';
 import { useRequireKiez } from '../data/kiez';
@@ -307,15 +307,16 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
       ) : null}
 
       <View style={styles.grid}>
-        <Metric icon="eye" label="Aufrufe" value={c.views === undefined ? '–' : String(c.views)} />
-        <Metric icon="comment" label="Kommentare" value={String(c.comments.length)} />
         <Metric
-          icon="clock"
-          label="Online"
-          value={isDraft ? '–' : formatDurationSince(c.createdAt)}
-          hint={isDraft ? 'Noch nicht veröffentlicht' : 'seit Veröffentlichung'}
+          value={c.views === undefined ? '–' : String(c.views)}
+          hint={c.views === 1 ? 'Ansicht' : 'Ansichten'}
         />
-        <Metric icon={isOpen || isDraft ? 'flag' : 'check'} label="Status" value={state.value} hint={state.hint} />
+        <Metric value={String(c.comments.length)} hint={c.comments.length === 1 ? 'Kommentar' : 'Kommentare'} />
+        <Metric
+          value={isDraft ? '–' : formatDurationSince(c.createdAt)}
+          hint={isDraft ? 'Noch nicht veröffentlicht' : 'online seit Veröffentlichung'}
+        />
+        <Metric value={state.value} hint={state.hint} />
       </View>
 
       <View style={styles.flex} />
@@ -415,7 +416,7 @@ function DeletedCard({
                   ) : null}
                   <Text style={styles.caption}>
                     {[
-                      c.views === undefined ? null : `${c.views} Aufrufe`,
+                      c.views === undefined ? null : `${c.views} ${c.views === 1 ? 'Ansicht' : 'Ansichten'}`,
                       `${c.comments.length} Kommentare`,
                       c.bountyAmount ? 'mit Bounty' : null,
                     ]
@@ -435,13 +436,10 @@ function DeletedCard({
   );
 }
 
-function Metric({ icon, label, value, hint }: { icon: IconName; label: string; value: string; hint?: string }) {
+/** Kachel ohne Icon: Wert groß, darunter in Worten, was er zählt („1“ / „Kommentar“) */
+function Metric({ value, hint }: { value: string; hint?: string }) {
   return (
-    <View style={styles.metric} accessible accessibilityLabel={`${label}: ${value}${hint ? `, ${hint}` : ''}`}>
-      <View style={styles.metricLabel}>
-        <Icon name={icon} size={14} color={color.text.secondary} />
-        <Text style={styles.caption}>{label}</Text>
-      </View>
+    <View style={styles.metric} accessible accessibilityLabel={`${value}${hint ? ` ${hint}` : ''}`}>
       <Text style={styles.metricValue} numberOfLines={1}>
         {value}
       </Text>
@@ -488,7 +486,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     backgroundColor: color.bg.screen,
   },
-  metricLabel: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
   metricValue: { ...text.metric, color: color.text.primary },
   caption: { ...text.caption, color: color.text.secondary },
   actions: { gap: space[8] },

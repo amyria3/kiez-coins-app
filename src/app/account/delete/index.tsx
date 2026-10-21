@@ -50,7 +50,7 @@ export default function DeleteAccount() {
       onLeadingPress={() => router.back()}
       actions={
         <>
-          <Button label="Konto endgültig löschen" onPress={remove} disabled={confirm.trim() !== 'LÖSCHEN' || busy}
+          <Button busy={busy} label="Konto endgültig löschen" onPress={remove} disabled={confirm.trim() !== 'LÖSCHEN' || busy}
             whyDisabled={() => !busy && confirmField.nudge('Tipp LÖSCHEN in Großbuchstaben ein.')}
           />
           <Button label="Abbrechen" variant="secondary" onPress={() => router.back()} />

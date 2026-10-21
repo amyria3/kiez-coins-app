@@ -45,7 +45,7 @@ export default function Support() {
       title="Support"
       navigation="back"
       onLeadingPress={() => router.back()}
-      actions={<Button label={sending ? 'Wird gesendet …' : 'Anfrage senden'} disabled={!support.trim() || sending} whyDisabled={() => !sending && field.nudge('Schreib kurz, worum es geht.')} onPress={send} />}
+      actions={<Button busy={sending} label={sending ? 'Wird gesendet …' : 'Anfrage senden'} disabled={!support.trim() || sending} whyDisabled={() => !sending && field.nudge('Schreib kurz, worum es geht.')} onPress={send} />}
     >
       <TextField
         label="Support-Anfrage" required

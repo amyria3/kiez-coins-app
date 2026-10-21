@@ -67,7 +67,7 @@ export default function NewGroupTask() {
       navigation="close"
       onLeadingPress={() => router.back()}
       actions={
-        <Button
+        <Button busy={busy}
           label={busy ? 'Wird erstellt …' : 'Aufgabe veröffentlichen'}
           onPress={publish}
           disabled={busy || !group || !title.trim()}

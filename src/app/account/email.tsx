@@ -62,14 +62,14 @@ export default function ChangeEmail() {
       onLeadingPress={() => router.back()}
       actions={
         sentTo ? (
-          <Button
+          <Button busy={busy}
             label={busy ? 'Wird geprüft …' : 'Bestätigen'}
             onPress={confirm}
             disabled={digits.length < MIN_DIGITS || busy}
             whyDisabled={() => !busy && codeField.nudge(`Der Code hat ${MIN_DIGITS} Ziffern.`)}
           />
         ) : (
-          <Button
+          <Button busy={busy}
             label={busy ? 'Wird gesendet …' : 'Code senden'}
             onPress={send}
             disabled={!isEmail(email) || same || busy}
