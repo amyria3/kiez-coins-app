@@ -17,7 +17,7 @@ import { ChallengePost } from '../components/ChallengePost';
 import { AppHeader, FeedGreeting, PlannedHint, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
 import { FeedStateMessage } from '../components/FeedStateMessage';
 import { GroupBar, GroupsEmpty } from '../components/GroupBar';
-import { SkeletonPost } from '../components/Skeleton';
+import { GearsLoader } from '../components/GearsLoader';
 import { CameraButton, TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { useRequireKiez } from '../data/kiez';
 import { challengeTypes, isTypeActive } from '../data/features';
@@ -255,9 +255,9 @@ export default function FeedScreen() {
         return planned ? <PlannedHint title={planned.plannedTitle} message={planned.plannedHint} /> : null;
       case 'loading':
         return (
-          <View style={styles.list}>
-            <SkeletonPost />
-            <SkeletonPost />
+          // Lade-Animation mit Darias Zahnrädern statt grauer Platzhalter
+          <View style={styles.loading}>
+            <GearsLoader />
           </View>
         );
       case 'state':
@@ -378,6 +378,7 @@ type FeedItem =
   | { kind: 'post'; challenge: Challenge };
 
 const styles = StyleSheet.create({
+  loading: { alignItems: 'center', paddingVertical: space[48] },
   screen: { flex: 1, backgroundColor: color.bg.screen },
   flex: { flex: 1 },
   clip: { overflow: 'hidden' },

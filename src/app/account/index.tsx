@@ -48,7 +48,7 @@ export default function Account() {
       <NavCard
         title="YourPleasure"
         description="Verlauf, Aufgaben und Gruppen"
-        leading={<Icon name="heart" size={size.icon} color={color.accent.affection} />}
+        leading={<Icon name="ship" size={size.icon} color={color.accent.affection} />}
         onPress={() => router.push('/reise')}
       />
       <NavCard
