@@ -376,6 +376,11 @@ export async function loadOwnProfile(userId: string): Promise<Partial<Profile> |
 // ---------------------------------------------------------------------------
 
 /** Speichert Profil und Einstellungen. Wirft bei Fehlern (z. B. Deckname vergeben). */
+/** Legt Profil und Einstellungen an, falls sie fehlen (Migration 20261021000800). */
+export async function ensureOwnProfile(): Promise<void> {
+  check(await supabase.rpc('ensure_own_profile'));
+}
+
 export async function saveOwnProfile(userId: string, profile: Profile): Promise<void> {
   check(
     await supabase
