@@ -14,7 +14,7 @@ export default function PaymentSuccess() {
     <ResultScreen
       badge={<StatusBadge status="paid" />}
       title="Super, alles erledigt!"
-      message={t('Die Bounty ist angekommen. Danke, {anrede}!', { anrede: anrede(profile) })}
+      message={t('Die Coins sind angekommen. Danke, {anrede}!', { anrede: anrede(profile) })}
       onFeedPress={() => router.dismissTo('/feed')}
     />
   );

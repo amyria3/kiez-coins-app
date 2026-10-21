@@ -71,7 +71,7 @@ export default function PayoutShareScreen() {
         {saved ? '' : ` ${t('Gib mindestens Deine IBAN oder PayPal an.')}`}
       </KaterBubble>
       <View style={styles.group}>
-        <Text style={styles.label}>Zahlt Dir die Bounty</Text>
+        <Text style={styles.label}>Zahlt Dir die Coins</Text>
         <AuthorRow user={author} location={challenge.location} />
       </View>
       {saved ? (

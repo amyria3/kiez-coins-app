@@ -454,7 +454,7 @@ function DeletedCard({
                     {[
                       c.views === undefined ? null : `${c.views} ${c.views === 1 ? 'Ansicht' : 'Ansichten'}`,
                       `${c.comments.length} Kommentare`,
-                      c.bountyAmount ? 'mit Bounty' : null,
+                      c.bountyAmount ? 'mit Coins' : null,
                     ]
                       .filter(Boolean)
                       .join(' · ')}

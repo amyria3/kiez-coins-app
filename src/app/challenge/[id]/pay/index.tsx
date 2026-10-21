@@ -26,7 +26,7 @@ export default function PayScreen() {
 
   return (
     <SubScreen
-      title="Bounty bezahlen"
+      title="Coins bezahlen"
       navigation="back"
       onLeadingPress={() => router.back()}
       actions={

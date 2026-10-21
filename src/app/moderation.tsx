@@ -19,7 +19,7 @@ const reasonLabels: Record<string, string> = {
   violence: 'Gewalt',
   dangerous: 'Gefährliche Aufgabe',
   illegal: 'Rechtswidrig',
-  not_paid: 'Bounty nicht gezahlt',
+  not_paid: 'Coins nicht gezahlt',
   abusive: 'Unfreundlich oder bedrohlich',
   spam: 'Spam',
   other: 'Etwas anderes',

@@ -8,7 +8,7 @@ export default function UserReportSuccess() {
   return (
     <ResultScreen
       title="Danke, ich kümmere mich"
-      message="Die Moderation prüft Deine Meldung und meldet sich bei Dir. Wer öfter mit falschen Versprechen lockt, darf keine Bounties mehr anbieten."
+      message="Die Moderation prüft Deine Meldung und meldet sich bei Dir. Wer öfter mit falschen Versprechen lockt, darf keine Coins mehr anbieten."
       onFeedPress={() => router.dismissTo('/feed')}
     />
   );
