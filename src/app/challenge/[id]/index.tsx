@@ -6,6 +6,7 @@ import { AuthorRow } from '../../../components/AuthorRow';
 import { StatusBadge } from '../../../components/Badges';
 import { CoinsIcon, EdensteinIcon } from '../../../components/icons/Brand';
 import { Icon } from '../../../components/icons/Icon';
+import { GlassIconButton } from '../../../components/Glass';
 import { IconButton } from '../../../components/IconButton';
 import { Button } from '../../../components/Button';
 import { CommentSection } from '../../../components/Comments';
@@ -158,9 +159,9 @@ export default function ChallengeDetail() {
           <StatusBadge status={challenge.status} />
           <Text style={[styles.caption, styles.flex]}>{running ? formatRelative(challenge.createdAt) : ''}</Text>
           {isAuthor ? (
-            <IconButton
+            <GlassIconButton
               icon="settings"
-              iconSize={size.icon}
+              variant="regular"
               accessibilityLabel="Challenge verwalten"
               onPress={() => setMenuOpen((open) => !open)}
               style={[styles.gear, menuOpen && styles.gearOpen]}
@@ -397,8 +398,8 @@ const styles = StyleSheet.create({
   statusWrap: { zIndex: 10 },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   flex: { flex: 1 },
-  gear: { borderRadius: radius.full, backgroundColor: color.bg.surface, marginRight: -space[4] },
-  gearOpen: { backgroundColor: color.line.hairline },
+  gear: { marginRight: -space[4] },
+  gearOpen: { opacity: 0.7 },
   menu: {
     position: 'absolute',
     top: size.touchTarget + space[6],

@@ -21,7 +21,7 @@ import { color, motion, radius, size, space, text } from '../theme/tokens';
 import { useAppDimensions } from '../theme/layout';
 import { ActionBar } from './ActionBar';
 import { Cat, type CatMood } from './icons/Brand';
-import { IconButton } from './IconButton';
+import { GlassIconButton } from './Glass';
 import { NavigationBar } from './NavigationBar';
 
 type SubScreenProps = {
@@ -260,22 +260,8 @@ export function HeroScreen({
         {actions ? <ActionBar>{actions}</ActionBar> : <View style={{ height: insets.bottom }} />}
       </KeyboardAvoidingView>
       <View style={[styles.heroButtons, { top: insets.top + space[8] }]} pointerEvents="box-none">
-        <IconButton
-          icon="chevron-left"
-          iconSize={size.icon}
-          accessibilityLabel="Zurück"
-          onPress={onBackPress}
-          style={styles.heroButton}
-        />
-        {onSharePress ? (
-          <IconButton
-            icon="send"
-            iconSize={size.icon}
-            accessibilityLabel="Teilen"
-            onPress={onSharePress}
-            style={styles.heroButton}
-          />
-        ) : null}
+        <GlassIconButton icon="chevron-left" accessibilityLabel="Zurück" onPress={onBackPress} />
+        {onSharePress ? <GlassIconButton icon="send" accessibilityLabel="Teilen" onPress={onSharePress} /> : null}
       </View>
     </View>
   );
@@ -346,5 +332,4 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  heroButton: { borderRadius: radius.full, backgroundColor: color.bg.glass },
 });
