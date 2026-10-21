@@ -14,7 +14,7 @@ import { addressForms, anrede } from '../../data/format';
 import { errorText, saveAvatar, saveHandle } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
 import type { ImageSource } from '../../data/types';
-import { color, radius, space, stroke, text } from '../../theme/tokens';
+import { color, radius, space, text } from '../../theme/tokens';
 
 const AVATAR = 112;
 
@@ -111,7 +111,7 @@ export default function PersonalDetails() {
 
 const styles = StyleSheet.create({
   secondary: { ...text.body, color: color.text.secondary },
-  avatarBlock: { alignItems: 'center', gap: space[16], paddingVertical: space[8] },
+  avatarBlock: { alignItems: 'center', gap: space[24], paddingVertical: space[8] },
   pressed: { opacity: 0.8 },
   uploading: {
     position: 'absolute',
@@ -127,14 +127,13 @@ const styles = StyleSheet.create({
   // Kamera-Knopf unten rechts am Bild
   camera: {
     position: 'absolute',
-    right: -6,
-    bottom: -6,
+    // Diagonal außerhalb des Kreises, mit 4 pt Abstand zum Bild
+    right: -24,
+    bottom: -24,
     width: 44,
     height: 44,
     borderRadius: radius.full,
     backgroundColor: color.bg.surface,
-    borderWidth: stroke.ring,
-    borderColor: color.bg.screen,
     alignItems: 'center',
     justifyContent: 'center',
   },
