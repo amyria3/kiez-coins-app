@@ -387,7 +387,6 @@
   "Tipp ein Mitglied an, um es zu entfernen oder ihm die Gründerrolle zu geben.": "Touche un membre pour le retirer ou lui donner le rôle de fondateur.",
   "Leute einladen": "Inviter des gens",
   "Einladungscode": "Code d’invitation",
-  "Code teilen": "Partager le code",
   "Die Gruppe ist voll. Mehr als {MAX_MEMBERS} Mitglieder geht nicht.": "Le groupe est complet. Plus de {MAX_MEMBERS} membres, ce n’est pas possible.",
   "Gruppe auflösen": "Dissoudre le groupe",
   "Gruppe verlassen": "Quitter le groupe",
@@ -396,7 +395,6 @@
   "Trete bei …": "Connexion au groupe …",
   "Beitreten": "Rejoindre",
   "Der Code hat 6 Zeichen.": "Le code comporte 6 caractères.",
-  "6 Zeichen, die Du von der Gruppe bekommen hast.": "6 caractères que tu as reçus du groupe.",
   "Gruppen voll": "Groupes complets",
   "Du bist schon in {MAX_GROUPS} Gruppen. Verlass eine, dann kannst Du einer neuen beitreten oder eine gründen.": "Tu es déjà dans {MAX_GROUPS} groupes. Quittes-en un, et tu pourras en rejoindre ou en créer un nouveau.",
   "Gruppe gründen": "Créer un groupe",
@@ -755,7 +753,6 @@
   "Pirat": "Pirate",
   "Piratin": "Pirate",
   "The Pirat": "The Pirate",
-  "Komm in unsere Gruppe „{name}“ bei Kiez Coins: In der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und {code} eingeben.": "Rejoins notre groupe « {name} » sur Kiez Coins : dans l’app, sous « Groupes », touche « Rejoindre avec un code » et saisis {code}.",
   "Wo ist Dein Heimathafen?": "Où est ton port d’attache ?",
   "Challenges erstellen und annehmen kannst Du, sobald Dein Kiez feststeht.": "Tu pourras créer et accepter des défis dès que ton quartier sera défini.",
   "Kiez festlegen": "Définir le quartier",
@@ -908,5 +905,12 @@
   "Kann es mir vorstellen": "Je peux l’imaginer",
   "Nein, weil ich grundsätzlich keine Apps empfehle": "Non, je ne recommande jamais d’apps",
   "Ich kenne keine potentiell interessierte Person": "Je ne connais personne que ça pourrait intéresser",
-  "Nein, finde die App nicht gut": "Non, je n’aime pas l’app"
+  "Nein, finde die App nicht gut": "Non, je n’aime pas l’app",
+  "Einladungslink": "Lien d’invitation",
+  "Einladung teilen": "Partager l’invitation",
+  "In der Zwischenablage steht kein Einladungscode.": "Le presse-papiers ne contient pas de code d’invitation.",
+  "6 Zeichen. Du kannst auch den ganzen Link oder die Nachricht einfügen.": "6 caractères. Tu peux aussi coller le lien ou le message entier.",
+  "Aus Zwischenablage einfügen": "Coller depuis le presse-papiers",
+  "Komm in unsere Gruppe „{name}“ bei Kiez Coins. Mit diesem Link trittst Du bei:": "Rejoins notre groupe « {name} » sur Kiez Coins. Avec ce lien, tu rejoins le groupe :",
+  "Oder in der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und diesen Code eingeben:": "Ou dans l’app, sous « Groupes », touche « Rejoindre avec un code » et saisis ce code :"
 }

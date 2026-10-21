@@ -16,6 +16,7 @@ import { color, motion, space, text } from '../../theme/tokens';
 import { useAppDimensions } from '../../theme/layout';
 import { useNudge } from '../../components/Nudge';
 import { t } from '../../data/texts';
+import { homeAfterOnboarding } from '../../data/pendingInvite';
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 const MIN_PASSWORD = 8;
@@ -93,8 +94,9 @@ export default function Email() {
     const stored = data.user ? await loadOwnProfile(data.user.id).catch(() => null) : null;
     setBusy(false);
     if (stored?.onboarded) {
+      const target = await homeAfterOnboarding();
       router.dismissAll();
-      router.replace('/feed');
+      router.replace(target);
       return;
     }
     router.push('/onboarding/deckname');

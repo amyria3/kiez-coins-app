@@ -387,7 +387,6 @@
   "Tipp ein Mitglied an, um es zu entfernen oder ihm die Gründerrolle zu geben.": "اضغط على عضو لإزالته أو منحه دور المؤسس.",
   "Leute einladen": "دعوة أشخاص",
   "Einladungscode": "رمز الدعوة",
-  "Code teilen": "مشاركة الرمز",
   "Die Gruppe ist voll. Mehr als {MAX_MEMBERS} Mitglieder geht nicht.": "المجموعة ممتلئة. لا يمكن تجاوز {MAX_MEMBERS} عضوًا.",
   "Gruppe auflösen": "حلّ المجموعة",
   "Gruppe verlassen": "مغادرة المجموعة",
@@ -396,7 +395,6 @@
   "Trete bei …": "جارٍ الانضمام …",
   "Beitreten": "انضمام",
   "Der Code hat 6 Zeichen.": "يتكوّن الرمز من 6 أحرف.",
-  "6 Zeichen, die Du von der Gruppe bekommen hast.": "6 أحرف حصلت عليها من المجموعة.",
   "Gruppen voll": "المجموعات ممتلئة",
   "Du bist schon in {MAX_GROUPS} Gruppen. Verlass eine, dann kannst Du einer neuen beitreten oder eine gründen.": "أنت بالفعل في {MAX_GROUPS} مجموعات. غادر إحداها لتتمكن من الانضمام إلى مجموعة جديدة أو تأسيس واحدة.",
   "Gruppe gründen": "تأسيس مجموعة",
@@ -755,7 +753,6 @@
   "Pirat": "قرصان",
   "Piratin": "قرصانة",
   "The Pirat": "The Pirate",
-  "Komm in unsere Gruppe „{name}“ bei Kiez Coins: In der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und {code} eingeben.": "انضم إلى مجموعتنا «{name}» في Kiez Coins: في التطبيق ضمن «المجموعات» اضغط «انضم برمز» وأدخل {code}.",
   "Wo ist Dein Heimathafen?": "أين مرفؤك؟",
   "Challenges erstellen und annehmen kannst Du, sobald Dein Kiez feststeht.": "يمكنك إنشاء التحديات وقبولها بمجرد تحديد حيّك.",
   "Kiez festlegen": "تحديد الحي",
@@ -908,5 +905,12 @@
   "Kann es mir vorstellen": "يمكنني تخيّل ذلك",
   "Nein, weil ich grundsätzlich keine Apps empfehle": "لا، لأنني لا أوصي بالتطبيقات عمومًا",
   "Ich kenne keine potentiell interessierte Person": "لا أعرف أحدًا قد يهتم",
-  "Nein, finde die App nicht gut": "لا، لا يعجبني التطبيق"
+  "Nein, finde die App nicht gut": "لا، لا يعجبني التطبيق",
+  "Einladungslink": "رابط الدعوة",
+  "Einladung teilen": "مشاركة الدعوة",
+  "In der Zwischenablage steht kein Einladungscode.": "لا يوجد رمز دعوة في الحافظة.",
+  "6 Zeichen. Du kannst auch den ganzen Link oder die Nachricht einfügen.": "6 أحرف. يمكنك أيضًا لصق الرابط أو الرسالة كاملة.",
+  "Aus Zwischenablage einfügen": "لصق من الحافظة",
+  "Komm in unsere Gruppe „{name}“ bei Kiez Coins. Mit diesem Link trittst Du bei:": "انضم إلى مجموعتنا «{name}» في Kiez Coins. انضم عبر هذا الرابط:",
+  "Oder in der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und diesen Code eingeben:": "أو في التطبيق ضمن «المجموعات» اضغط «انضم برمز» وأدخل هذا الرمز:"
 }
