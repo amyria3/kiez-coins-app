@@ -41,7 +41,7 @@ export default function NewGroup() {
       }
     >
       <TextField
-        label="Name der Gruppe"
+        label="Name der Gruppe" required
         nudge={nameField}
         helperText="Zum Beispiel „WG Kastanienallee“ oder „Familie Brandt“. Max. 40 Zeichen."
         value={name}

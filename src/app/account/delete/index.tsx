@@ -64,7 +64,7 @@ export default function DeleteAccount() {
       />
       <Notice message="Offene Bounties musst Du vorher klären. Wenn Du nur eine Pause brauchst, kannst Du Dein Konto auch 3 Monate pausieren." />
       <TextField
-        label="Zum Bestätigen LÖSCHEN eintippen"
+        label="Zum Bestätigen LÖSCHEN eintippen" required
         nudge={confirmField}
         helperText="Erst dann wird der Button aktiv."
         value={confirm}

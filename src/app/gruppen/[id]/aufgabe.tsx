@@ -76,7 +76,7 @@ export default function NewGroupTask() {
       }
     >
       <PhotoPicker photo={photo} hint="Optional. Zeig, worum es geht." onChange={setPhoto} />
-      <TextField label="Titel" nudge={titleField} helperText="Max. 60 Zeichen" value={title} onChangeText={setTitle} maxLength={60} />
+      <TextField label="Titel" required nudge={titleField} helperText="Max. 60 Zeichen" value={title} onChangeText={setTitle} maxLength={60} />
       <TextField label="Beschreibung" helperText="Max. 500 Zeichen" value={body} onChangeText={setBody} maxLength={500} multiline />
       <FieldGroup label="Edensteine">
         <View style={styles.stepper}>

@@ -87,7 +87,7 @@ export default function ChangeEmail() {
       </KaterBubble>
       {sentTo ? (
         <TextField
-          label="Code aus der E-Mail"
+          label="Code aus der E-Mail" required
         nudge={codeField}
           error={error}
           value={digits}
@@ -103,7 +103,7 @@ export default function ChangeEmail() {
         />
       ) : (
         <TextField
-          label="Neue E-Mail"
+          label="Neue E-Mail" required
         nudge={emailField}
           error={error ?? (same ? 'Das ist schon Deine Adresse.' : undefined)}
           value={email}

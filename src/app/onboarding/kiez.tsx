@@ -101,7 +101,7 @@ export default function Kiez() {
         <>
           {problem ? <Text style={styles.problem}>{problem}</Text> : null}
           <TextField
-            label="Ortsteil, Postleitzahl und Ort"
+            label="Ortsteil, Postleitzahl und Ort" required
         nudge={manualField}
             helperText="Zum Beispiel „Prenzlauer Berg, 10437 Berlin“. Die Postleitzahl braucht es."
             value={manual}

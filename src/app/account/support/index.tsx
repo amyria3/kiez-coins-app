@@ -48,7 +48,7 @@ export default function Support() {
       actions={<Button label={sending ? 'Wird gesendet …' : 'Anfrage senden'} disabled={!support.trim() || sending} whyDisabled={() => !sending && field.nudge('Schreib kurz, worum es geht.')} onPress={send} />}
     >
       <TextField
-        label="Support-Anfrage"
+        label="Support-Anfrage" required
         nudge={field}
         helperText="Schreib uns, was nicht klappt. Wir antworten per E-Mail."
         value={support}

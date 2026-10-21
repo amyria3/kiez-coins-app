@@ -58,8 +58,9 @@ export default function Kodex() {
       <KaterBubble>Noch das Kleingedruckte. Auch Piraten haben einen Kodex.</KaterBubble>
       <Notice message="Kiez Coins ist eine kostenlose Testversion. Funktionen können sich ändern, und am Ende der Testphase setzen wir Daten eventuell zurück. Das kündigen wir vorher per E-Mail an." />
       <NudgeArea nudge={consent}>
-      <SwitchRow label="Ich bin mindestens 18 Jahre alt" description="Pflicht für Kiez Coins." value={age} onValueChange={setAge} />
+      <SwitchRow required label="Ich bin mindestens 18 Jahre alt" description="Pflicht für Kiez Coins." value={age} onValueChange={setAge} />
       <SwitchRow
+        required
         label="Ich akzeptiere die Nutzungsbedingungen für die Testphase"
         description="Bedingungen lesen"
         onDescriptionPress={() => router.push('/rechtliches/bedingungen')}
@@ -67,6 +68,7 @@ export default function Kodex() {
         onValueChange={setTerms}
       />
       <SwitchRow
+        required
         label="Ich halte mich an die Community-Regeln"
         description="Regeln lesen"
         onDescriptionPress={() => router.push('/rechtliches/regeln')}
@@ -74,6 +76,7 @@ export default function Kodex() {
         onValueChange={setRules}
       />
       <SwitchRow
+        required
         label="Ich habe die Datenschutzerklärung gelesen"
         description="Datenschutz lesen"
         onDescriptionPress={() => router.push('/rechtliches/datenschutz')}

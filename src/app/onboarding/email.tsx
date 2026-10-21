@@ -176,7 +176,7 @@ export default function Email() {
       </KaterBubble>
       <Animated.View style={{ height: lift }} />
       <TextField
-        label="E-Mail"
+        label="E-Mail" required
         error={emailError}
         value={email}
         onChangeText={(v) => {
@@ -218,7 +218,7 @@ export default function Email() {
         <Animated.View style={[styles.choices, enter]}>
           <Text style={styles.note}>Der Code ist unterwegs an {address}. Schau zur Not auch im Spam-Netz.</Text>
           <TextField
-            label="Code aus der E-Mail"
+            label="Code aus der E-Mail" required
         nudge={codeField}
             helperText="Gilt 20 Minuten."
             error={error}
@@ -253,6 +253,7 @@ export default function Email() {
         <Animated.View style={[styles.choices, enter]}>
           <TextField
             label={existing ? 'Passwort' : 'Neues Passwort'}
+            required
             nudge={pwField}
             helperText={existing ? undefined : `Mindestens ${MIN_PASSWORD} Zeichen.`}
             error={error}
