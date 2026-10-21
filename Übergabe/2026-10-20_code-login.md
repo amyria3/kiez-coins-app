@@ -6,8 +6,8 @@ Gehört nach Documentation: `kiez-coins/konto/MVP_Konto.md` (Anmeldung) und `kie
 
 ## Was sich geändert hat
 
-- `onboarding/email` bietet zwei Wege: E-Mail und Passwort, oder ohne Passwort einen Code per Mail. Der Code-Weg leitet auf `onboarding/code` weiter.
-- Bei „Ich hab schon ein Konto“ heißt der Code-Weg „Passwort vergessen? Code per Mail“.
+- `onboarding/email` (Stand 21.10.2026): zuerst nur die E-Mail, darunter „Mit Code registrieren“ und als zweite Wahl „Passwort festlegen“ (bei „Ich hab schon ein Konto“: „Mit Code anmelden“ und „Mit Passwort anmelden“). Nach der Wahl gleiten die Buttons zur Seite, die E-Mail rutscht hoch, und an derselben Stelle erscheint das Feld für den Code oder das Passwort. Der Code wird direkt dort geprüft. `onboarding/code` nutzt die App nicht mehr.
+- Im Passwort-Weg führt „Stattdessen mit Code“ bzw. „Passwort vergessen? Code per Mail“ zum Code.
 - Neuer Eintrag „Zugangsdaten“ unter „Dein Konto“ → `account/credentials` mit zwei Zeilen:
   - „E-Mail“ → `account/email`: neue Adresse eingeben, Code von der neuen Adresse bestätigen (`verifyOtp` mit Typ `email_change`).
   - „Passwort hinterlegen“ bzw. „Passwort ändern“ → `account/password`.
