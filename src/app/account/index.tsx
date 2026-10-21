@@ -3,13 +3,15 @@ import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { FieldGroup, KaterBubble } from '../../components/Content';
-import { NavRow, ProfileCard } from '../../components/Rows';
+import { EdensteinIcon } from '../../components/icons/Brand';
+import { Icon } from '../../components/icons/Icon';
+import { NavCard, NavRow, ProfileCard } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { anrede } from '../../data/format';
 import { useAuth } from '../../data/auth';
 import { isModerator } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
-import { space } from '../../theme/tokens';
+import { color, size, space } from '../../theme/tokens';
 
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
 export default function Account() {
@@ -40,11 +42,22 @@ export default function Account() {
         details={[anrede(profile), profile.kiez ?? 'Kiez noch nicht festgelegt']}
         onPress={() => router.push('/account/profile')}
       />
-      <NavRow label="YourPleasure" value="Verlauf, Aufgaben und Gruppen" onPress={() => router.push('/reise')} />
-      <NavRow label="Deine Challenges" value="Entwürfe, offen, geschlossen" onPress={() => router.push('/manage')} />
-      <NavRow
-        label="Deine Gruppen"
-        value={groups.length === 0 ? 'Gründen oder beitreten' : groups.length === 1 ? '1 Gruppe' : `${groups.length} Gruppen`}
+      <NavCard
+        title="YourPleasure"
+        description="Verlauf, Aufgaben und Gruppen"
+        leading={<Icon name="heart" size={size.icon} color={color.accent.affection} />}
+        onPress={() => router.push('/reise')}
+      />
+      <NavCard
+        title="Deine Challenges"
+        description="Entwürfe, offen, geschlossen"
+        leading={<Icon name="flag" size={size.icon} color={color.accent.primary} />}
+        onPress={() => router.push('/manage')}
+      />
+      <NavCard
+        title="Deine Gruppen"
+        description={groups.length === 0 ? 'Gründen oder beitreten' : groups.length === 1 ? '1 Gruppe' : `${groups.length} Gruppen`}
+        leading={<EdensteinIcon height={26} />}
         onPress={() => router.push('/gruppen')}
       />
       <FieldGroup label="Einstellungen">
