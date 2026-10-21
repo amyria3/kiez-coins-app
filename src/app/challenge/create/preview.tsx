@@ -213,7 +213,7 @@ export default function CreatePreview() {
         <Button
           label={busy ? 'Wird veröffentlicht …' : 'Veröffentlichen'}
           onPress={publish}
-          disabled={busy}
+          busy={busy}
           style={styles.flex}
         />
       </View>

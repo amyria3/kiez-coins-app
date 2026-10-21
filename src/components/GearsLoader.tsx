@@ -9,7 +9,20 @@ import { GEARS_DURATION, GEARS_VIEWBOX, gears } from './icons/gearsSvgs';
  * Lade-Animation: sechs ineinandergreifende Zahnräder aus Darias SVG (assets/animations/gears-moving.svg).
  * Jedes Zahnrad dreht sich einzeln um seine Mitte, so wie in der SVG-Animation.
  */
-export function GearsLoader({ size = 96, tint = color.text.primary }: { size?: number; tint?: string }) {
+/** Kleine Fassung für Buttons: die vier oberen Räder, ohne die zwei unteren (Daria, 21.10.2026) */
+export const SMALL_GEARS = [0, 1, 2, 3];
+
+export function GearsLoader({
+  size = 96,
+  tint = color.text.primary,
+  only,
+}: {
+  /** Breite in pt */
+  size?: number;
+  tint?: string;
+  /** Nur diese Räder (Indizes in gearsSvgs), zugeschnitten auf ihren Umriss */
+  only?: number[];
+}) {
   const progress = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     const loop = Animated.loop(
@@ -19,20 +32,29 @@ export function GearsLoader({ size = 96, tint = color.text.primary }: { size?: n
     return () => loop.stop();
   }, [progress]);
 
-  const scale = size / GEARS_VIEWBOX.width;
+  const shown = only ? gears.filter((_, i) => only.includes(i)) : gears;
+  const box = only
+    ? {
+        x: Math.min(...shown.map((g) => g.x)),
+        y: Math.min(...shown.map((g) => g.y)),
+        width: Math.max(...shown.map((g) => g.x + g.w)) - Math.min(...shown.map((g) => g.x)),
+        height: Math.max(...shown.map((g) => g.y + g.h)) - Math.min(...shown.map((g) => g.y)),
+      }
+    : { x: 0, y: 0, ...GEARS_VIEWBOX };
+  const scale = size / box.width;
   return (
     <View
-      style={{ width: size, height: GEARS_VIEWBOX.height * scale }}
+      style={{ width: size, height: box.height * scale }}
       accessibilityRole="progressbar"
       accessibilityLabel="Lädt"
     >
-      {gears.map((g, i) => (
+      {shown.map((g, i) => (
         <Animated.View
           key={i}
           style={{
             position: 'absolute',
-            left: g.x * scale,
-            top: g.y * scale,
+            left: (g.x - box.x) * scale,
+            top: (g.y - box.y) * scale,
             width: g.w * scale,
             height: g.h * scale,
             transform: [
