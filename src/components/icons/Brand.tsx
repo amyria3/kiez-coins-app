@@ -3,6 +3,7 @@ import { SvgXml } from 'react-native-svg';
 
 import { color } from '../../theme/tokens';
 import { catSvg, coinsSvg, wordmarkSvg, type CatMood } from './brandSvgs';
+import { crownSvg } from './crownSvg';
 import { diamondSvgs, type DiamondVariant } from './diamondSvgs';
 import { ICON_SCALE } from './Icon';
 
@@ -43,6 +44,17 @@ export const DiamondIcon = memo(function DiamondIcon({
 }) {
   const d = diamondSvgs[variant];
   return <SvgXml xml={d.svg(color.text.primary)} width={(d.width / d.height) * height} height={height} />;
+});
+
+/** Krone aus Figma (icon/crown) mit Verlauf. Export 43 × 40, Striche daneben in Textfarbe. */
+export const CrownIcon = memo(function CrownIcon({ height = 40 }: { height?: number }) {
+  return (
+    <SvgXml
+      xml={crownSvg.svg(color.text.primary)}
+      width={(crownSvg.width / crownSvg.height) * height}
+      height={height}
+    />
+  );
 });
 
 /** Welcher Diamant zu wie vielen Edensteinen passt: 1–3 klein, 4–6 mittel, 7–10 groß */
