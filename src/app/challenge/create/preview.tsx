@@ -1,6 +1,8 @@
-import { useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { useMemo, useRef, useState } from 'react';
+import { Alert, Animated, PanResponder, Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import MaskedView from '@react-native-masked-view/masked-view';
 import { BlurView } from 'expo-blur';
+import Svg, { Path } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -12,11 +14,23 @@ import { Icon } from '../../../components/icons/Icon';
 import { HeroScreen } from '../../../components/Screen';
 import { formatBountyShort, formatRemainingShort } from '../../../data/format';
 import { useCurrentUser, useStore } from '../../../data/store';
-import { color, font, radius, size, space, stroke, text } from '../../../theme/tokens';
+import { color, font, motion, radius, size, space, stroke, text } from '../../../theme/tokens';
 import { useDraft } from './_layout';
 
 /** Breite des ausgeblurrten Rands links und rechts */
-const EDGE = space[16];
+const EDGE = space[32];
+/** Rundung des scharfen Fensters innen */
+const WINDOW_RADIUS = radius.card;
+
+/** Rechteck mit abgerundetem Loch als SVG-Pfad (evenodd): außen der Bildschirm, innen das Fenster. */
+function framePath(w: number, h: number, x: number, y: number, iw: number, ih: number, r: number) {
+  const outer = `M0 0H${w}V${h}H0Z`;
+  const inner =
+    `M${x + r} ${y}H${x + iw - r}A${r} ${r} 0 0 1 ${x + iw} ${y + r}V${y + ih - r}` +
+    `A${r} ${r} 0 0 1 ${x + iw - r} ${y + ih}H${x + r}A${r} ${r} 0 0 1 ${x} ${y + ih - r}` +
+    `V${y + r}A${r} ${r} 0 0 1 ${x + r} ${y}Z`;
+  return `${outer} ${inner}`;
+}
 /** Höhe der Button-Leiste unten (Button 52 + Abstand oben) */
 const BAR = 52 + space[12];
 
@@ -37,6 +51,34 @@ export default function CreatePreview() {
   const bountyAmount = draft.bountyAmount;
   const bottom = Math.max(insets.bottom, space[16]);
   const top = insets.top + space[48];
+  const { width: screenW, height: screenH } = useWindowDimensions();
+  const windowBottom = BAR + bottom + space[8];
+
+  // Innerhalb des Fensters lässt sich die Vorschau seitlich verschieben, um unter den Rand zu schauen.
+  const shiftX = useRef(new Animated.Value(0)).current;
+  const offset = useRef(0);
+  const singlePhoto = draft.extras.length === 0;
+  const pan = useMemo(() => {
+    const clamp = (v: number) => Math.max(-EDGE, Math.min(EDGE, v));
+    const horizontal = (dx: number, dy: number) => Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) * 2;
+    return PanResponder.create({
+      // Ein Foto: seitlich ziehen verschiebt die Vorschau. Mehrere Fotos: erst wischen die Fotos.
+      onMoveShouldSetPanResponderCapture: (_, g) => singlePhoto && horizontal(g.dx, g.dy),
+      onMoveShouldSetPanResponder: (_, g) => horizontal(g.dx, g.dy),
+      onPanResponderMove: (_, g) => {
+        const raw = offset.current + g.dx;
+        // Über den Rand hinaus nur mit Widerstand
+        const over = raw - clamp(raw);
+        shiftX.setValue(clamp(raw) + over * 0.2);
+      },
+      onPanResponderRelease: (_, g) => {
+        offset.current = clamp(offset.current + g.dx);
+        Animated.spring(shiftX, { toValue: offset.current, useNativeDriver: true, ...motion.barrierSpring }).start();
+      },
+      onPanResponderTerminate: () =>
+        Animated.spring(shiftX, { toValue: offset.current, useNativeDriver: true, ...motion.barrierSpring }).start(),
+    });
+  }, [shiftX, singlePhoto]);
 
   const publish = async () => {
     if (!draft.photo || busy) return;
@@ -114,6 +156,7 @@ export default function CreatePreview() {
 
   return (
     <View style={styles.screen}>
+      <Animated.View style={[styles.flex, { transform: [{ translateX: shiftX }] }]} {...pan.panHandlers}>
       <HeroScreen
         image={draft.photo}
         moreImages={draft.extras.map((e) => e.photo)}
@@ -128,26 +171,25 @@ export default function CreatePreview() {
           <AuthorRow user={user} location={draft.location.trim()} />
         </View>
       </HeroScreen>
+      </Animated.View>
 
-      {/* Ausgeblurrter Rand: oben, unten, links, rechts. Die Mitte bleibt scharf. */}
+      {/* Ausgeblurrter Rand mit innen abgerundetem Fenster. Die Mitte bleibt scharf. */}
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        <BlurView intensity={30} tint="dark" style={[styles.edge, { top: 0, left: 0, right: 0, height: top }]} />
-        <BlurView
-          intensity={30}
-          tint="dark"
-          style={[styles.edge, { bottom: 0, left: 0, right: 0, height: BAR + bottom + space[8] }]}
-        />
-        <BlurView
-          intensity={30}
-          tint="dark"
-          style={[styles.edge, { top, bottom: BAR + bottom + space[8], left: 0, width: EDGE }]}
-        />
-        <BlurView
-          intensity={30}
-          tint="dark"
-          style={[styles.edge, { top, bottom: BAR + bottom + space[8], right: 0, width: EDGE }]}
-        />
-        <View style={[styles.frame, { top, bottom: BAR + bottom + space[8], left: EDGE, right: EDGE }]} />
+        <MaskedView
+          style={StyleSheet.absoluteFill}
+          maskElement={
+            // Native: nur die Deckkraft zählt. Im Browser zeigt MaskedView die Maske selbst, daher die Tönung.
+            <Svg width={screenW} height={screenH}>
+              <Path
+                d={framePath(screenW, screenH, EDGE, top, screenW - 2 * EDGE, screenH - top - windowBottom, WINDOW_RADIUS)}
+                fillRule="evenodd"
+                fill={Platform.OS === 'web' ? 'rgba(31, 33, 35, 0.7)' : '#000'}
+              />
+            </Svg>
+          }
+        >
+          <BlurView intensity={30} tint="dark" style={[StyleSheet.absoluteFill, styles.edge]} />
+        </MaskedView>
         <Text style={[styles.label, { top: insets.top + space[16] }]}>Vorschau</Text>
       </View>
 
@@ -167,13 +209,7 @@ export default function CreatePreview() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   flex: { flex: 1 },
-  edge: { position: 'absolute', backgroundColor: 'rgba(31, 33, 35, 0.35)' },
-  frame: {
-    position: 'absolute',
-    borderRadius: radius.lg,
-    borderWidth: stroke.thin,
-    borderColor: color.line.hairline,
-  },
+  edge: { backgroundColor: 'rgba(31, 33, 35, 0.35)' },
   label: { position: 'absolute', alignSelf: 'center', ...text.caption, color: color.text.primary },
   bar: {
     position: 'absolute',

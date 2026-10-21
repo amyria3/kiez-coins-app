@@ -115,6 +115,8 @@ export function SwitchRow({
         trackColor={{ false: color.text.secondary, true: color.accent.primary }}
         thumbColor={color.text.primary}
         ios_backgroundColor={color.text.secondary}
+        // Im Browser färbt react-native-web den Knopf im eingeschalteten Zustand sonst türkis.
+        {...(Platform.OS === 'web' ? ({ activeThumbColor: color.text.primary } as object) : null)}
       />
     </View>
   );
