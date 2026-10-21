@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Text } from '../../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../../components/Button';
@@ -9,6 +10,7 @@ import { useChallenge, useStore } from '../../../../data/store';
 import type { ImageSource } from '../../../../data/types';
 import { color, text } from '../../../../theme/tokens';
 import { NudgeArea, useNudge } from '../../../../components/Nudge';
+import { t } from '../../../../data/texts';
 
 /**
  * Route `challenge/[id]/report` (Modal). Figma: `challenge/report`, Flow „Challenge erfüllen“.
@@ -40,9 +42,7 @@ export default function ReportScreen() {
       onLeadingPress={() => router.back()}
       actions={<Button label="Erledigung senden" onPress={send} disabled={!photo} whyDisabled={() => photoField.nudge('Mach ein Foto vom Ergebnis.')} />}
     >
-      <Text style={styles.secondary}>
-        Zeig, was Du geschafft hast. {author.firstName} sieht Dein Foto und bestätigt die Erledigung.
-      </Text>
+      <Text style={styles.secondary}>{t('Zeig, was Du geschafft hast. {firstName} sieht Dein Foto und bestätigt die Erledigung.', { firstName: author.firstName })}</Text>
       <NudgeArea nudge={photoField}>
         <PhotoPicker photo={photo} hint="Ein Nachher-Foto ist Pflicht." onChange={(p) => (photoField.clear(), setPhoto(p))} />
       </NudgeArea>

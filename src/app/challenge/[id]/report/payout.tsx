@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '../../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AuthorRow } from '../../../../components/AuthorRow';
@@ -61,7 +62,7 @@ export default function PayoutShareScreen() {
       title="Zahlungsdaten freigeben"
       navigation="close"
       onLeadingPress={() => router.dismissTo('/feed')}
-      actions={<Button label={`Für ${name} freigeben`} onPress={share} disabled={!canShare}
+      actions={<Button label={t('Für {name} freigeben', { name })} onPress={share} disabled={!canShare}
           whyDisabled={() => ibanField.nudge('Gib Deine IBAN mit Kontoinhaber:in oder Deine PayPal-Adresse an.')}
         />}
     >
@@ -93,7 +94,12 @@ export default function PayoutShareScreen() {
           </View>
           <Button label="Zahlungsdaten bearbeiten" variant="secondary" onPress={() => router.push('/settings/payout')} />
           <Notice
-            message={`Ohne Zahlungsdaten kann ${name} nicht zahlen. ${name} sieht Deine Daten aber erst, wenn Du die Challenge erledigt hast und ${author.group ? 'sie' : 'er'} sie bestätigt hat. Alles beruht auf Vertrauen.`}
+            message={t(
+              author.group
+                ? 'Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten aber erst, wenn Du die Challenge erledigt hast und sie sie bestätigt hat. Alles beruht auf Vertrauen.'
+                : 'Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten aber erst, wenn Du die Challenge erledigt hast und er sie bestätigt hat. Alles beruht auf Vertrauen.',
+              { name },
+            )}
           />
         </>
       ) : (
@@ -131,7 +137,7 @@ export default function PayoutShareScreen() {
             onValueChange={setSaveToAccount}
           />
           <Notice
-            message={`Ohne Zahlungsdaten kann ${name} nicht zahlen, deshalb ist eine Methode Pflicht. ${name} sieht sie erst nach der Bestätigung und nur für diese Challenge. Alles beruht auf Vertrauen.`}
+            message={t('Ohne Zahlungsdaten kann {name} nicht zahlen, deshalb ist eine Methode Pflicht. {name} sieht sie erst nach der Bestätigung und nur für diese Challenge. Alles beruht auf Vertrauen.', { name })}
           />
         </>
       )}

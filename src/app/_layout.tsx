@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AppState } from 'react-native';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
@@ -12,11 +12,14 @@ import { InterTight_600SemiBold } from '@expo-google-fonts/inter-tight/600SemiBo
 import { WebAlertHost } from '../components/WebAlert';
 import { AuthProvider, useAuth } from '../data/auth';
 import { StoreProvider } from '../data/store';
-import { loadTexts } from '../data/texts';
+import { translateAlerts } from '../components/T';
+import { loadLanguage, loadTexts, useTexts, getLanguage } from '../data/texts';
 import { LoadingScreen } from '../components/GearsLoader';
 import { color } from '../theme/tokens';
 
 SplashScreen.preventAutoHideAsync();
+// Nach WebAlert: Rückfragen erscheinen in der gewählten Sprache
+translateAlerts();
 
 // Navigation laut Figma-Annotationen: Push = Stack, Modal = von unten.
 // Kopfzeilen kommen aus der Komponente NavigationBar, daher headerShown: false.
@@ -29,6 +32,12 @@ export default function RootLayout() {
     InterTight_600SemiBold,
   });
 
+  // Sprache (gespeicherte Wahl oder Handy), danach rendern
+  const [languageReady, setLanguageReady] = useState(false);
+  useEffect(() => {
+    loadLanguage().finally(() => setLanguageReady(true));
+  }, []);
+
   // Texte aus dem CMS (Tabelle app_texts): beim Start und jedes Mal, wenn die App wieder nach vorn kommt
   useEffect(() => {
     loadTexts();
@@ -37,10 +46,10 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if (fontsLoaded || fontError) SplashScreen.hideAsync();
-  }, [fontsLoaded, fontError]);
+    if ((fontsLoaded || fontError) && languageReady) SplashScreen.hideAsync();
+  }, [fontsLoaded, fontError, languageReady]);
 
-  if (!fontsLoaded && !fontError) return null;
+  if ((!fontsLoaded && !fontError) || !languageReady) return null;
 
   return (
     <StoreProvider>
@@ -53,13 +62,16 @@ export default function RootLayout() {
 
 function RootStack() {
   const { loading } = useAuth();
+  // Neue Sprache: Navigation neu aufbauen, damit jeder Screen die neuen Texte zeigt
+  useTexts();
+  const language = getLanguage();
   // Erst rendern, wenn die gespeicherte Sitzung gelesen ist, sonst springt der Start kurz ins Onboarding.
   if (loading) return <LoadingScreen />;
 
   return (
     <>
       <StatusBar style="light" />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
+      <Stack key={language} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
         {/* Vollbild ohne Wegwischen: Schließen nur über das X, damit die Frage nach dem Entwurf kommt
             und die Vorschau nicht wie ein Overlay wirkt, dessen Wischen mit den Gesten der Vorschau konkurriert */}
         <Stack.Screen name="challenge/create" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />

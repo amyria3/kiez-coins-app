@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Text } from './T';
 
 import { color, radius, space, stroke, text } from '../theme/tokens';
 

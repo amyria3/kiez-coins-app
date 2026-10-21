@@ -1,9 +1,11 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from './T';
 
 import { formatBountyShort } from '../data/format';
 import type { ChallengeStatus } from '../data/types';
 import { color, font, radius, space, stroke, text } from '../theme/tokens';
 import { CoinsIcon } from './icons/Brand';
+import { t } from '../data/texts';
 
 const statusStyles: Record<ChallengeStatus, { label: string; tint: string }> = {
   draft: { label: 'Entwurf', tint: color.text.secondary },
@@ -35,7 +37,7 @@ export function StatusBadge({ status }: { status: ChallengeStatus }) {
  */
 export function BountyBadge({ amount }: { amount: number }) {
   return (
-    <View style={styles.bounty} accessible accessibilityLabel={`Bounty ${amount} Euro`}>
+    <View style={styles.bounty} accessible accessibilityLabel={t('Bounty {amount} Euro', { amount })}>
       <CoinsIcon height={26} />
       <Text style={styles.bountyText}>{formatBountyShort(amount)}</Text>
     </View>

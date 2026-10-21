@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from './T';
 import { Image } from 'expo-image';
 
 import { challengeTypes, isTypeActive } from '../data/features';
@@ -8,6 +9,7 @@ import { color, font, motion, radius, size, space, stroke, text } from '../theme
 import { KaterCard } from './Content';
 import { Cat, Wordmark } from './icons/Brand';
 import { SkeletonTopItem } from './Skeleton';
+import { t } from '../data/texts';
 
 type AppHeaderProps = {
   /** Tipp auf Logo und Kater öffnet „Your Pleasure“. */
@@ -29,7 +31,7 @@ export function AppHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderP
         onPress={onLogoPress}
         onLongPress={onLogoLongPress}
         accessibilityRole="button"
-        accessibilityLabel={hasTasks ? 'Your Pleasure, Du bist dran' : 'Your Pleasure'}
+        accessibilityLabel={hasTasks ? t('Your Pleasure, Du bist dran') : t('Your Pleasure')}
         style={styles.logo}
       >
         <Wordmark />
@@ -47,7 +49,7 @@ export function AppHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderP
 export function FeedGreeting({ name, kiez, count }: { name: string; kiez?: string; count: number }) {
   const hour = new Date().getHours();
   const greeting = hour < 11 ? 'Guten Morgen' : hour < 18 ? 'Hallo' : 'Guten Abend';
-  const countText = count === 1 ? '1 Challenge in Deiner Nähe' : `${count} Challenges in Deiner Nähe`;
+  const countText = count === 1 ? '1 Challenge in Deiner Nähe' : t('{count} Challenges in Deiner Nähe', { count });
   return (
     <View style={styles.greeting}>
       <Text style={styles.greetingTitle} accessibilityRole="header">
@@ -186,7 +188,7 @@ export function Segments<K extends string>({ tabs, selectedKey, onChange, progre
           <Pressable
             key={tab.key}
             accessibilityRole="tab"
-            accessibilityLabel={tab.planned ? `${tab.label}, kommt später` : tab.label}
+            accessibilityLabel={tab.planned ? t('{label}, kommt später', { label: tab.label }) : tab.label}
             accessibilityState={{ selected }}
             onPress={() => onChange(tab.key)}
             onLayout={(e) => {
@@ -206,7 +208,7 @@ export function Segments<K extends string>({ tabs, selectedKey, onChange, progre
                   layouts[tab.key] ? { color: labelColor(left, layouts[tab.key]!) } : null,
                 ]}
               >
-                {tab.label}
+                {t(tab.label)}
               </Animated.Text>
             </View>
           </Pressable>

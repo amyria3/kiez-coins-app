@@ -1,9 +1,11 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
-import { useTexts } from '../../data/texts';
+import { getLanguage, useTexts } from '../../data/texts';
+import { Notice } from '../../components/Content';
 import { LEGAL_STAND, legalDocIds, legalDocs, type LegalDocId } from '../../data/legal';
 import { color, space, text } from '../../theme/tokens';
 
@@ -21,6 +23,7 @@ export default function LegalScreen() {
 
   return (
     <SubScreen title={tx(current.title)} subtitle={tx(`Stand ${LEGAL_STAND}`)} navigation="back" onLeadingPress={() => router.back()}>
+      {getLanguage() !== 'de' ? <Notice message="Übersetzung zur Orientierung. Verbindlich ist die deutsche Fassung." /> : null}
       {current.intro ? <Text style={styles.intro}>{tx(current.intro)}</Text> : null}
       {current.sections.map((section, index) => (
         <View key={index} style={styles.section}>

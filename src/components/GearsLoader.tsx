@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, StyleSheet, View } from 'react-native';
+import { Text } from './T';
 import { SvgXml } from 'react-native-svg';
 
 import { color, space, text } from '../theme/tokens';
 import { GEARS_DURATION, GEARS_VIEWBOX, gears } from './icons/gearsSvgs';
+import { t } from '../data/texts';
 
 /**
  * Lade-Animation: sechs ineinandergreifende Zahnräder aus Darias SVG (assets/animations/gears-moving.svg).
@@ -46,7 +48,7 @@ export function GearsLoader({
     <View
       style={{ width: size, height: box.height * scale }}
       accessibilityRole="progressbar"
-      accessibilityLabel="Lädt"
+      accessibilityLabel={t('Lädt')}
     >
       {shown.map((g, i) => (
         <Animated.View

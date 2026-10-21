@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
-import { Alert, Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { Alert, Animated, Easing, StyleSheet, View } from 'react-native';
+import { Text } from '../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
@@ -14,6 +15,7 @@ import { supabase } from '../../lib/supabase';
 import { color, motion, space, text } from '../../theme/tokens';
 import { useAppDimensions } from '../../theme/layout';
 import { useNudge } from '../../components/Nudge';
+import { t } from '../../data/texts';
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 const MIN_PASSWORD = 8;
@@ -152,7 +154,7 @@ export default function Email() {
   const resend = async () => {
     const failure = await sendCode(address, !existing);
     if (failure) setError(failure);
-    else Alert.alert('Code neu gesendet', `Schau in Dein Postfach: ${address}`);
+    else Alert.alert('Code neu gesendet', t('Schau in Dein Postfach: {address}', { address }));
   };
 
   const passwordValid = password.length >= (existing ? 1 : MIN_PASSWORD);
@@ -216,7 +218,7 @@ export default function Email() {
 
       {mode === 'code' ? (
         <Animated.View style={[styles.choices, enter]}>
-          <Text style={styles.note}>Der Code ist unterwegs an {address}. Schau zur Not auch im Spam-Netz.</Text>
+          <Text style={styles.note}>{t('Der Code ist unterwegs an {address}. Schau zur Not auch im Spam-Netz.', { address })}</Text>
           <TextField
             label="Code aus der E-Mail" required
         nudge={codeField}
@@ -237,7 +239,7 @@ export default function Email() {
             label={busy ? 'Wird geprüft …' : 'Bestätigen'}
             onPress={confirmCode}
             disabled={digits.length < MIN_DIGITS || busy}
-            whyDisabled={() => !busy && codeField.nudge(`Der Code hat ${MIN_DIGITS} Ziffern.`)}
+            whyDisabled={() => !busy && codeField.nudge(t('Der Code hat {MIN_DIGITS} Ziffern.', { MIN_DIGITS }))}
           />
           <Button label="Code neu senden" variant="ghost" onPress={resend} disabled={busy} />
           <Button
@@ -255,7 +257,7 @@ export default function Email() {
             label={existing ? 'Passwort' : 'Neues Passwort'}
             required
             nudge={pwField}
-            helperText={existing ? undefined : `Mindestens ${MIN_PASSWORD} Zeichen.`}
+            helperText={existing ? undefined : t('Mindestens {MIN_PASSWORD} Zeichen.', { MIN_PASSWORD })}
             error={error}
             value={password}
             onChangeText={(v) => {
@@ -275,7 +277,7 @@ export default function Email() {
             label={busy ? (existing ? 'Wird geprüft …' : 'Wird angelegt …') : existing ? 'Anmelden' : 'Konto anlegen'}
             onPress={submitPassword}
             disabled={!passwordValid || busy}
-            whyDisabled={() => !busy && pwField.nudge(existing ? 'Gib Dein Passwort ein.' : `Mindestens ${MIN_PASSWORD} Zeichen.`)}
+            whyDisabled={() => !busy && pwField.nudge(existing ? 'Gib Dein Passwort ein.' : t('Mindestens {MIN_PASSWORD} Zeichen.', { MIN_PASSWORD }))}
           />
           <Button
             label={existing ? 'Passwort vergessen? Code per Mail' : 'Stattdessen mit Code'}

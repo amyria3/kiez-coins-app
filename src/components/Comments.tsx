@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Text } from './T';
 
 import { formatRelative } from '../data/format';
 import type { Comment as CommentData, User } from '../data/types';
 import { color, font, radius, size, space, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { IconButton } from './IconButton';
+import { t } from '../data/texts';
 
 type CommentProps = {
   comment: CommentData;
@@ -24,7 +26,7 @@ export function Comment({ comment, author, onReport, onReply, isReply, onAuthorP
   const hidden = useHideName(author);
   return (
     <View style={[styles.comment, isReply && styles.reply]}>
-      <Pressable onPress={onAuthorPress} disabled={!onAuthorPress} accessibilityLabel={`Profil von ${author.name}`}>
+      <Pressable onPress={onAuthorPress} disabled={!onAuthorPress} accessibilityLabel={t('Profil von {name}', { name: author.name })}>
         <Avatar user={author} diameter={isReply ? 28 : undefined} />
       </Pressable>
       <View style={styles.body}>
@@ -39,7 +41,7 @@ export function Comment({ comment, author, onReport, onReply, isReply, onAuthorP
           <Pressable
             onPress={onReply}
             accessibilityRole="button"
-            accessibilityLabel={`${author.name} antworten`}
+            accessibilityLabel={t('{name} antworten', { name: author.name })}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             style={styles.replyButton}
           >
@@ -48,7 +50,7 @@ export function Comment({ comment, author, onReport, onReply, isReply, onAuthorP
         ) : null}
       </View>
       {onReport ? (
-        <IconButton icon="flag" accessibilityLabel={`Kommentar von ${author.name} melden`} onPress={onReport} />
+        <IconButton icon="flag" accessibilityLabel={t('Kommentar von {name} melden', { name: author.name })} onPress={onReport} />
       ) : null}
     </View>
   );
@@ -75,10 +77,8 @@ export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply }:
     <View style={styles.composerBlock}>
       {replyTo ? (
         <View style={styles.replyBar}>
-          <Text style={styles.replyBarText} numberOfLines={1}>
-            Antwort an {replyTo}
-          </Text>
-          <IconButton icon="close" iconSize={14} accessibilityLabel="Antwort aufheben" onPress={onCancelReply} />
+          <Text style={styles.replyBarText} numberOfLines={1}>{t('Antwort an {replyTo}', { replyTo })}</Text>
+          <IconButton icon="close" iconSize={14} accessibilityLabel={t('Antwort aufheben')} onPress={onCancelReply} />
         </View>
       ) : null}
     <View style={styles.composer}>
@@ -90,9 +90,9 @@ export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply }:
         onChangeText={setValue}
         multiline
         maxLength={500}
-        accessibilityLabel="Kommentar schreiben"
+        accessibilityLabel={t('Kommentar schreiben')}
       />
-      <IconButton icon="send" accessibilityLabel="Kommentar senden" onPress={send} iconSize={size.icon} />
+      <IconButton icon="send" accessibilityLabel={t('Kommentar senden')} onPress={send} iconSize={size.icon} />
     </View>
     </View>
   );
@@ -165,7 +165,7 @@ export function CommentSection({
       ))}
       {onSend ? (
         <CommentComposer
-          placeholder={replyTo ? `${nameOf(replyTo.authorId)} antworten …` : composerPlaceholder}
+          placeholder={replyTo ? t('{authorId} antworten …', { authorId: nameOf(replyTo.authorId) }) : composerPlaceholder}
           replyTo={replyTo ? nameOf(replyTo.authorId) : undefined}
           onCancelReply={() => setReplyTo(null)}
           onSend={(body) => {

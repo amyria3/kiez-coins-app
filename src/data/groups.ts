@@ -1,3 +1,4 @@
+import { t } from './texts';
 import type { Challenge, Group } from './types';
 
 // Gruppen: Rangliste und Grenzen (wie in Migration 20261021000100).
@@ -26,4 +27,7 @@ export const myEdensteine = (group: Group, challenges: Challenge[], userId: stri
 
 /** Text zum Teilen des Einladungscodes */
 export const inviteMessage = (group: Group) =>
-  `Komm in unsere Gruppe „${group.name}“ bei Kiez Coins: In der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und ${group.inviteCode} eingeben.`;
+  t('Komm in unsere Gruppe „{name}“ bei Kiez Coins: In der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und {code} eingeben.', {
+    name: group.name,
+    code: group.inviteCode,
+  });

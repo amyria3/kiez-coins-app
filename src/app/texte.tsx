@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../components/T';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../components/Button';
@@ -7,7 +8,7 @@ import { Chip, ChipGroup, TextField } from '../components/Form';
 import { GearsLoader } from '../components/GearsLoader';
 import { SubScreen } from '../components/Screen';
 import { errorText, loadAppTexts, saveAppText, type AppTextRow } from '../data/remote';
-import { loadTexts, normalizeText } from '../data/texts';
+import { loadTexts, normalizeText, t } from '../data/texts';
 import { color, radius, space, stroke, text } from '../theme/tokens';
 
 type Area = 'alle' | 'buttons' | 'kater' | 'recht';
@@ -99,7 +100,7 @@ export default function Texte() {
     if (placeholders(draft) !== placeholders(row.original)) {
       Alert.alert(
         'Platzhalter fehlen',
-        `Der Text braucht dieselben Platzhalter wie das Original: ${placeholders(row.original) || 'keine'}. Die App setzt dort den passenden Wert ein.`,
+        t('Der Text braucht dieselben Platzhalter wie das Original: {original}. Die App setzt dort den passenden Wert ein.', { original: placeholders(row.original) || 'keine' }),
       );
       return;
     }
@@ -107,7 +108,7 @@ export default function Texte() {
   };
 
   return (
-    <SubScreen title="Texte" subtitle={rows ? `${list.length} von ${rows.length}` : undefined} navigation="back" onLeadingPress={() => router.back()}>
+    <SubScreen title="Texte" subtitle={rows ? t('{list} von {rows}', { list: list.length, rows: rows.length }) : undefined} navigation="back" onLeadingPress={() => router.back()}>
       <TextField label="Suchen" value={query} onChangeText={setQuery} autoCapitalize="none" autoCorrect={false} returnKeyType="search" />
       <ChipGroup>
         {areas.map((a) => (
@@ -134,15 +135,12 @@ export default function Texte() {
               <Text style={styles.value} numberOfLines={isOpen ? undefined : 3}>
                 {shown(row)}
               </Text>
-              <Text style={styles.meta} numberOfLines={1}>
-                {shown(row).length} Zeichen · {shortOrt(row.ort)}
-                {changed(row) ? ' · geändert' : ''}
-              </Text>
+              <Text style={styles.meta} numberOfLines={1}>{[t('{anzahl} Zeichen', { anzahl: shown(row).length }), shortOrt(row.ort), changed(row) ? t('geändert') : null].filter(Boolean).join(' · ')}</Text>
             </Pressable>
             {isOpen ? (
               <View style={styles.editor}>
                 <TextField label="Text" value={draft} onChangeText={setDraft} multiline autoFocus />
-                {changed(row) ? <Text style={styles.meta}>Original: {row.original}</Text> : null}
+                {changed(row) ? <Text style={styles.meta}>{t('Original: {original}', { original: row.original })}</Text> : null}
                 <Button label="Speichern" busy={busy} disabled={draft.trim() === shown(row).trim()} onPress={() => trySave(row)} />
                 {changed(row) ? (
                   <Button label="Original wiederherstellen" variant="ghost" disabled={busy} onPress={() => save(row, '')} />

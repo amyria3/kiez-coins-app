@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '../../../../components/T';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -56,11 +57,12 @@ export default function ReviewScreen() {
       ) : null}
       {challenge.bountyAmount ? (
         <KaterBubble>
-          {t('Sieht gut aus? Wenn Du bestätigst, zahlst Du die {betrag} direkt an {name}. {deren} Zahlungsdaten siehst Du danach.', {
-            betrag: formatEuro(challenge.bountyAmount),
-            name: nameInText(assignee),
-            deren: assignee.group ? 'Ihre' : 'Die',
-          })}
+          {t(
+            assignee.group
+              ? 'Sieht gut aus? Wenn Du bestätigst, zahlst Du die {betrag} direkt an {name}. Ihre Zahlungsdaten siehst Du danach.'
+              : 'Sieht gut aus? Wenn Du bestätigst, zahlst Du die {betrag} direkt an {name}. Die Zahlungsdaten siehst Du danach.',
+            { betrag: formatEuro(challenge.bountyAmount), name: nameInText(assignee) },
+          )}
         </KaterBubble>
       ) : null}
     </SubScreen>
@@ -70,7 +72,7 @@ export default function ReviewScreen() {
 function Photo({ label, source }: { label: string; source: ImageSource }) {
   return (
     <View style={styles.photo}>
-      <Image source={source} style={styles.photoImage} contentFit="cover" accessibilityLabel={`${label}-Foto`} />
+      <Image source={source} style={styles.photoImage} contentFit="cover" accessibilityLabel={t('{label}-Foto', { label })} />
       <Text style={styles.caption}>{label}</Text>
     </View>
   );

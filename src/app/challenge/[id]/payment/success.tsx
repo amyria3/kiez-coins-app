@@ -4,6 +4,7 @@ import { StatusBadge } from '../../../../components/Badges';
 import { ResultScreen } from '../../../../components/Screen';
 import { anrede } from '../../../../data/format';
 import { useStore } from '../../../../data/store';
+import { t } from '../../../../data/texts';
 
 /** Route `challenge/[id]/payment/success`. Figma: `challenge/payment/success`. Status paid. */
 export default function PaymentSuccess() {
@@ -13,7 +14,7 @@ export default function PaymentSuccess() {
     <ResultScreen
       badge={<StatusBadge status="paid" />}
       title="Super, alles erledigt!"
-      message={`Die Bounty ist angekommen. Danke, ${anrede(profile)}!`}
+      message={t('Die Bounty ist angekommen. Danke, {anrede}!', { anrede: anrede(profile) })}
       onFeedPress={() => router.dismissTo('/feed')}
     />
   );

@@ -8,6 +8,7 @@ import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { useAuth } from '../../data/auth';
 import { useNudge } from '../../components/Nudge';
+import { t } from '../../data/texts';
 
 const MIN_PASSWORD = 8;
 
@@ -51,7 +52,7 @@ export default function Password() {
             saving
               ? undefined
               : password.length < MIN_PASSWORD
-                ? pwField.nudge(`Mindestens ${MIN_PASSWORD} Zeichen.`)
+                ? pwField.nudge(t('Mindestens {MIN_PASSWORD} Zeichen.', { MIN_PASSWORD }))
                 : repeatField.nudge('Wiederhol das Passwort genau so.')
           }
           onPress={save}
@@ -65,7 +66,7 @@ export default function Password() {
       <TextField
         label="Neues Passwort" required
         nudge={pwField}
-        helperText={`Mindestens ${MIN_PASSWORD} Zeichen.`}
+        helperText={t('Mindestens {MIN_PASSWORD} Zeichen.', { MIN_PASSWORD })}
         value={password}
         onChangeText={(v) => {
           setValue(v);

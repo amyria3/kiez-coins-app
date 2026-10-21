@@ -51,7 +51,7 @@ export default function ChangeEmail() {
       setError(failure);
       return;
     }
-    Alert.alert('Adresse geändert', `Ab jetzt meldest Du Dich mit ${sentTo} an.`);
+    Alert.alert('Adresse geändert', t('Ab jetzt meldest Du Dich mit {sentTo} an.', { sentTo }));
     router.back();
   };
 
@@ -66,7 +66,7 @@ export default function ChangeEmail() {
             label={busy ? 'Wird geprüft …' : 'Bestätigen'}
             onPress={confirm}
             disabled={digits.length < MIN_DIGITS || busy}
-            whyDisabled={() => !busy && codeField.nudge(`Der Code hat ${MIN_DIGITS} Ziffern.`)}
+            whyDisabled={() => !busy && codeField.nudge(t('Der Code hat {MIN_DIGITS} Ziffern.', { MIN_DIGITS }))}
           />
         ) : (
           <Button busy={busy}

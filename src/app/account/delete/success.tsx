@@ -5,6 +5,7 @@ import { ResultScreen } from '../../../components/Screen';
 import { anrede } from '../../../data/format';
 import { useAuth } from '../../../data/auth';
 import { useStore } from '../../../data/store';
+import { t } from '../../../data/texts';
 
 /** Route `account/delete/success`. Figma: `account/delete/success`. */
 export default function DeleteSuccess() {
@@ -14,7 +15,7 @@ export default function DeleteSuccess() {
   return (
     <ResultScreen
       title="Konto gelöscht"
-      message={`Mach’s gut, ${anrede(profile)}. Wenn Du zurückkommst, heuerst Du einfach neu an.`}
+      message={t('Mach’s gut, {anrede}. Wenn Du zurückkommst, heuerst Du einfach neu an.', { anrede: anrede(profile) })}
       actions={
         <Button
           label="Zum Start"

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
+import { Text } from '../../components/T';
 import { useRouter } from 'expo-router';
 
 import { AuthorRow } from '../../components/AuthorRow';
@@ -11,6 +12,7 @@ import { errorText, loadBlockedUsers } from '../../data/remote';
 import { useStore } from '../../data/store';
 import type { User } from '../../data/types';
 import { color, space, text } from '../../theme/tokens';
+import { t } from '../../data/texts';
 
 /** Route `account/blocked` (Push aus „Dein Konto“): blockierte Personen, Blockierung aufheben. */
 export default function BlockedUsers() {
@@ -36,7 +38,7 @@ export default function BlockedUsers() {
   }, [refresh]);
 
   const ask = (user: User) =>
-    Alert.alert('Blockierung aufheben?', `Du siehst wieder die Challenges und Kommentare von ${nameInText(user)}.`, [
+    Alert.alert('Blockierung aufheben?', t('Du siehst wieder die Challenges und Kommentare von {name}.', { name: nameInText(user) }), [
       { text: 'Abbrechen', style: 'cancel' },
       {
         text: 'Aufheben',

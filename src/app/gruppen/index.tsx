@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../../components/T';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
@@ -10,6 +11,7 @@ import { MAX_GROUPS, myEdensteine } from '../../data/groups';
 import { useStore } from '../../data/store';
 import { color, radius, size, space, text } from '../../theme/tokens';
 import { explain } from '../../components/Nudge';
+import { t } from '../../data/texts';
 
 /** Route `gruppen` („Deine Gruppen“): Liste, Gründen, Beitreten. Erreichbar aus dem Feed-Reiter und aus dem Konto. */
 export default function Groups() {
@@ -17,7 +19,7 @@ export default function Groups() {
   const { groups, challenges, currentUserId } = useStore();
   const full = groups.length >= MAX_GROUPS;
   const tooMany = () =>
-    explain('Gruppen voll', `Du bist schon in ${MAX_GROUPS} Gruppen. Verlass eine, dann kannst Du einer neuen beitreten oder eine gründen.`);
+    explain('Gruppen voll', t('Du bist schon in {MAX_GROUPS} Gruppen. Verlass eine, dann kannst Du einer neuen beitreten oder eine gründen.', { MAX_GROUPS }));
 
   return (
     <SubScreen
@@ -41,7 +43,7 @@ export default function Groups() {
         <Pressable
           key={g.id}
           accessibilityRole="button"
-          accessibilityLabel={`${g.name} öffnen`}
+          accessibilityLabel={t('{name} öffnen', { name: g.name })}
           onPress={() => router.push(`/gruppen/${g.id}`)}
           style={({ pressed }) => [styles.card, pressed && styles.pressed]}
         >
@@ -50,7 +52,7 @@ export default function Groups() {
               {g.name}
             </Text>
             <Text style={styles.meta}>
-              {g.members.length === 1 ? '1 Mitglied' : `${g.members.length} Mitglieder`}
+              {g.members.length === 1 ? '1 Mitglied' : t('{members} Mitglieder', { members: g.members.length })}
               {g.founderId === currentUserId ? ' · Du hast sie gegründet' : ''}
             </Text>
           </View>
@@ -61,7 +63,7 @@ export default function Groups() {
           <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
         </Pressable>
       ))}
-      {full ? <Text style={styles.meta}>Du bist in {MAX_GROUPS} Gruppen. Mehr geht nicht.</Text> : null}
+      {full ? <Text style={styles.meta}>{t('Du bist in {MAX_GROUPS} Gruppen. Mehr geht nicht.', { MAX_GROUPS })}</Text> : null}
     </SubScreen>
   );
 }

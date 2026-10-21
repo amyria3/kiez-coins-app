@@ -1,11 +1,13 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from './T';
 import { Image } from 'expo-image';
 
 import { useStore } from '../data/store';
 import type { User } from '../data/types';
 import { color, font, radius, size, space, text } from '../theme/tokens';
 import { Icon } from './icons/Icon';
+import { t } from '../data/texts';
 
 /**
  * Ohne Kiez (keine grobe Verortung) bleiben Namen und Profilbilder anderer Personen verdeckt.
@@ -78,7 +80,7 @@ export function AuthorRow({ user, location, trailing, onPress }: AuthorRowProps)
         <Text
           style={[styles.name, hidden && hiddenText]}
           numberOfLines={1}
-          accessibilityLabel={hidden ? 'Name verdeckt, solange Dein Kiez fehlt' : undefined}
+          accessibilityLabel={hidden ? t('Name verdeckt, solange Dein Kiez fehlt') : undefined}
         >
           {user.name}
         </Text>

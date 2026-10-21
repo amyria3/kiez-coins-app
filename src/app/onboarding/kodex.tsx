@@ -7,6 +7,7 @@ import { SwitchRow } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { useStore } from '../../data/store';
 import { NudgeArea, useNudge } from '../../components/Nudge';
+import { t } from '../../data/texts';
 
 /**
  * Route `onboarding/kodex`. Figma: `onboarding/kodex`. Speichert die drei Zeitstempel der Zustimmung.
@@ -34,14 +35,14 @@ export default function Kodex() {
           disabled={!(age && terms && rules && privacy)}
           whyDisabled={() =>
             consent.nudge(
-              `Noch offen: ${[
-                !age && '18 Jahre',
-                !terms && 'Nutzungsbedingungen',
-                !rules && 'Community-Regeln',
-                !privacy && 'Datenschutz',
+              t('Noch offen: {age}.', { age: [
+                !age && t('18 Jahre'),
+                !terms && t('Nutzungsbedingungen'),
+                !rules && t('Community-Regeln'),
+                !privacy && t('Datenschutz'),
               ]
                 .filter(Boolean)
-                .join(', ')}.`,
+                .join(', ') }),
             )
           }
           onPress={() => {

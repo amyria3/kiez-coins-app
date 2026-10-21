@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { Alert, Pressable, Share, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, Share, StyleSheet, View } from 'react-native';
+import { Text } from './T';
 import { Image } from 'expo-image';
 
 import { formatRemainingShort } from '../data/format';
@@ -10,6 +11,7 @@ import { BountyBadge } from './Badges';
 import { EdensteinPile } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
+import { t } from '../data/texts';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
@@ -50,7 +52,7 @@ export const ChallengePost = memo(function ChallengePost({
       <Pressable
         onPress={onPress}
         accessibilityRole="button"
-        accessibilityLabel={`${challenge.title} öffnen`}
+        accessibilityLabel={t('{title} öffnen', { title: challenge.title })}
         style={({ pressed }) => [styles.card, !image && styles.cardNoPhoto, pressed && styles.pressed]}
       >
         {image ? <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
@@ -60,7 +62,7 @@ export const ChallengePost = memo(function ChallengePost({
           </View>
         ) : null}
         {challenge.edensteine ? (
-          <View style={[styles.bounty, styles.eden]} accessible accessibilityLabel={`${challenge.edensteine} Edensteine`}>
+          <View style={[styles.bounty, styles.eden]} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine: challenge.edensteine })}>
             <EdensteinPile height={22} amount={challenge.edensteine} />
             <Text style={styles.edenText}>{challenge.edensteine}</Text>
           </View>
@@ -93,14 +95,14 @@ export const ChallengePost = memo(function ChallengePost({
           <IconButton
             icon="heart"
             iconSize={size.icon}
-            accessibilityLabel="Gefällt mir"
+            accessibilityLabel={t('Gefällt mir')}
             active={challenge.likedByMe}
             onPress={onLike}
           />
-          <IconButton icon="gift" iconSize={size.icon} accessibilityLabel="Geschenk senden" onPress={comingSoon} />
+          <IconButton icon="gift" iconSize={size.icon} accessibilityLabel={t('Geschenk senden')} onPress={comingSoon} />
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={commentCount ? `Kommentieren, ${commentCount} Kommentare` : 'Kommentieren'}
+            accessibilityLabel={commentCount ? t('Kommentieren, {commentCount} Kommentare', { commentCount }) : t('Kommentieren')}
             onPress={onPress}
             style={({ pressed }) => [styles.commentAction, pressed && styles.pressed]}
           >
@@ -112,15 +114,15 @@ export const ChallengePost = memo(function ChallengePost({
           <IconButton
             icon="send"
             iconSize={size.icon}
-            accessibilityLabel="Teilen"
-            onPress={() => Share.share({ message: `${challenge.title} – Kiez Coins` })}
+            accessibilityLabel={t('Teilen')}
+            onPress={() => Share.share({ message: t('{title} – Kiez Coins', { title: challenge.title }) })}
           />
         </View>
         <View style={styles.actionsRight}>
           {onManage ? (
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Deine Challenges verwalten"
+              accessibilityLabel={t('Deine Challenges verwalten')}
               onPress={onManage}
               style={({ pressed }) => [styles.manage, pressed && styles.pressed]}
             >

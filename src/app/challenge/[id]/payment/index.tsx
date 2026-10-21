@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '../../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AuthorRow } from '../../../../components/AuthorRow';
@@ -9,6 +10,7 @@ import { SubScreen } from '../../../../components/Screen';
 import { formatDayMonth, formatEuro } from '../../../../data/format';
 import { useChallenge, useStore } from '../../../../data/store';
 import { color, space, text } from '../../../../theme/tokens';
+import { t } from '../../../../data/texts';
 
 /** Route `challenge/[id]/payment` (Push). Figma: `challenge/payment`, Empfang der Bounty bestätigen. */
 export default function PaymentScreen() {
@@ -24,7 +26,7 @@ export default function PaymentScreen() {
     router.replace(`/challenge/${challenge.id}/payment/success`);
   };
 
-  const day = challenge.paidMarkedAt ? `am ${formatDayMonth(challenge.paidMarkedAt)} ` : '';
+  const day = challenge.paidMarkedAt ? formatDayMonth(challenge.paidMarkedAt) : undefined;
 
   return (
     <SubScreen
@@ -45,10 +47,9 @@ export default function PaymentScreen() {
       <AuthorRow user={author} location={challenge.location} trailing={<StatusBadge status={challenge.status} />} />
       <View style={styles.block}>
         <Text style={styles.title}>Ist die Bounty angekommen?</Text>
-        <Text style={styles.secondary}>
-          {author.firstName} hat {day}die {formatEuro(challenge.bountyAmount)} als bezahlt markiert. Schau auf Dein Konto
-          oder in PayPal.
-        </Text>
+        <Text style={styles.secondary}>{day
+            ? t('{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schau auf Dein Konto oder in PayPal.', { firstName: author.firstName, day, bountyAmount: formatEuro(challenge.bountyAmount) })
+            : t('{firstName} hat die {bountyAmount} als bezahlt markiert. Schau auf Dein Konto oder in PayPal.', { firstName: author.firstName, bountyAmount: formatEuro(challenge.bountyAmount) })}</Text>
       </View>
       <Notice message="Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach noch fehlt." />
     </SubScreen>

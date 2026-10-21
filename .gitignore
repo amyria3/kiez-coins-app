@@ -44,3 +44,4 @@ yarn-error.*
 website/app/
 website/.vercel
 website/.env*
+scripts/.i18n-missing.json

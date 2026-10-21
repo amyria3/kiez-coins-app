@@ -1,18 +1,7 @@
 import type { ReactNode } from 'react';
 import { useMemo, useRef, useState } from 'react';
-import {
-  Animated,
-  KeyboardAvoidingView,
-  LayoutAnimation,
-  PanResponder,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  type ImageSourcePropType,
-} from 'react-native';
+import { Animated, KeyboardAvoidingView, LayoutAnimation, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
+import { Text } from './T';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -24,6 +13,7 @@ import { Cat, type CatMood } from './icons/Brand';
 import { GlassIconButton } from './Glass';
 import { NavigationBar } from './NavigationBar';
 import { NudgeScrollProvider, useNudgeScroll } from './Nudge';
+import { t } from '../data/texts';
 
 type SubScreenProps = {
   title: string;
@@ -198,7 +188,7 @@ export function HeroScreen({
           <Pressable
             onPress={toggle}
             accessibilityRole="button"
-            accessibilityLabel={collapsed ? 'Details ausklappen' : 'Foto groß ansehen'}
+            accessibilityLabel={collapsed ? t('Details ausklappen') : t('Foto groß ansehen')}
             style={[styles.hero, { height: heroHeight }]}
           >
             {images.length > 1 ? (
@@ -217,7 +207,7 @@ export function HeroScreen({
                       source={source}
                       style={{ width, height: heroHeight }}
                       contentFit="cover"
-                      accessibilityLabel={`${imageLabel ?? 'Foto'}, ${i + 1} von ${images.length}`}
+                      accessibilityLabel={t('{imageLabel}, {i} von {images}', { imageLabel: imageLabel ?? t('Foto'), i: i + 1, images: images.length })}
                     />
                   ))}
                 </ScrollView>
@@ -245,7 +235,7 @@ export function HeroScreen({
             <Pressable
               onPress={toggle}
               accessibilityRole="button"
-              accessibilityLabel={collapsed ? 'Details ausklappen' : 'Details einklappen'}
+              accessibilityLabel={collapsed ? t('Details ausklappen') : t('Details einklappen')}
               accessibilityState={{ expanded: !collapsed }}
               hitSlop={{ top: 12, bottom: 4 }}
               style={styles.grabberArea}
@@ -256,7 +246,7 @@ export function HeroScreen({
             <Pressable
               onPress={toggle}
               disabled={!collapsed}
-              accessibilityLabel={collapsed ? 'Details ausklappen' : undefined}
+              accessibilityLabel={collapsed ? t('Details ausklappen') : undefined}
               style={styles.sheetHead}
             >
               {summary}
@@ -269,8 +259,8 @@ export function HeroScreen({
         {actions ? <ActionBar>{actions}</ActionBar> : <View style={{ height: insets.bottom }} />}
       </KeyboardAvoidingView>
       <View style={[styles.heroButtons, { top: insets.top + space[8] }]} pointerEvents="box-none">
-        <GlassIconButton icon="chevron-left" accessibilityLabel="Zurück" onPress={onBackPress} />
-        {onSharePress ? <GlassIconButton icon="send" accessibilityLabel="Teilen" onPress={onSharePress} /> : null}
+        <GlassIconButton icon="chevron-left" accessibilityLabel={t('Zurück')} onPress={onBackPress} />
+        {onSharePress ? <GlassIconButton icon="send" accessibilityLabel={t('Teilen')} onPress={onSharePress} /> : null}
       </View>
     </View>
   );

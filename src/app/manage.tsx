@@ -1,16 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
-import {
-  Alert,
-  Animated,
-  FlatList,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
-} from 'react-native';
+import { Alert, Animated, FlatList, Pressable, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { Text } from '../components/T';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -28,6 +18,7 @@ import { useStore } from '../data/store';
 import type { Challenge, User } from '../data/types';
 import { useAppDimensions } from '../theme/layout';
 import { color, radius, size, space, stroke, text } from '../theme/tokens';
+import { t } from '../data/texts';
 
 /** Reihenfolge: zuerst, was noch änderbar ist, dann was läuft, dann Entwürfe, dann Erledigtes */
 const ORDER: Record<string, number> = {
@@ -247,7 +238,7 @@ export default function ManageChallenges() {
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <NavigationBar
         title="Deine Challenges"
-        subtitle={pages.length > 1 ? `${current + 1} von ${pages.length}` : undefined}
+        subtitle={pages.length > 1 ? t('{current} von {pages}', { current: current + 1, pages: pages.length }) : undefined}
         variant="back"
         onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))}
       />
@@ -326,7 +317,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
     <View style={styles.card}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${c.title || 'Ohne Titel'} öffnen`}
+        accessibilityLabel={t('{title} öffnen', { title: c.title || t('Ohne Titel') })}
         onPress={onOpen}
         style={({ pressed }) => [styles.head, pressed && styles.pressed]}
       >
@@ -420,9 +411,7 @@ function DeletedCard({
     <View style={styles.card}>
       <View style={styles.badges}>
         <StatusBadge status="deleted" />
-        <Text style={styles.caption}>
-          {challenges.length === 1 ? '1 Challenge' : `${challenges.length} Challenges`}, nur für Dich sichtbar
-        </Text>
+        <Text style={styles.caption}>{t('{challenges}, nur für Dich sichtbar', { challenges: challenges.length === 1 ? t('1 Challenge') : t('{challenges} Challenges', { challenges: challenges.length }) })}</Text>
       </View>
       <ScrollView contentContainerStyle={styles.deletedList} showsVerticalScrollIndicator={false}>
         {challenges.map((c) => {
@@ -433,7 +422,7 @@ function DeletedCard({
               <Pressable
                 accessibilityRole="button"
                 accessibilityState={{ expanded: open }}
-                accessibilityLabel={`${c.title || 'Ohne Titel'}, gelöscht. ${open ? 'Zuklappen' : 'Aufklappen'}`}
+                accessibilityLabel={t('{title}, gelöscht. {open}', { title: c.title || t('Ohne Titel'), open: open ? t('Zuklappen') : t('Aufklappen') })}
                 onPress={() => setExpanded(open ? undefined : c.id)}
                 style={({ pressed }) => [styles.head, pressed && styles.pressed]}
               >
@@ -448,9 +437,7 @@ function DeletedCard({
                   <Text style={styles.deletedTitle} numberOfLines={1}>
                     {c.title || 'Ohne Titel'}
                   </Text>
-                  <Text style={styles.caption}>
-                    Gelöscht{c.deletedAt ? ` am ${formatDayMonthShort(c.deletedAt)}` : ''}
-                  </Text>
+                  <Text style={styles.caption}>{c.deletedAt ? t('Gelöscht am {date}', { date: formatDayMonthShort(c.deletedAt) }) : t('Gelöscht')}</Text>
                 </View>
                 <View style={open ? styles.chevronUp : styles.chevronDown}>
                   <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />

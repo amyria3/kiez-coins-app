@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, Text } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
+import { Text } from '../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
@@ -10,6 +11,7 @@ import { formatDayMonthShort, formatRemainingShort } from '../../../data/format'
 import { useChallenge, useStore } from '../../../data/store';
 import { color, text } from '../../../theme/tokens';
 import { useNudge } from '../../../components/Nudge';
+import { t } from '../../../data/texts';
 
 const presets = [5, 15, 50];
 const durations = [
@@ -193,9 +195,9 @@ export default function EditChallenge() {
         </ChipGroup>
         <Text style={styles.secondary}>
           {durationDays
-            ? `Neu ab jetzt: ${durations.find((d) => d.days === durationDays)?.label}.`
+            ? t('Neu ab jetzt: {label}.', { label: durations.find((d) => d.days === durationDays)?.label })
             : expired
-              ? `Abgelaufen. Läuft beim Veröffentlichen neu bis ${formatDayMonthShort(renewed())}.`
+              ? t('Abgelaufen. Läuft beim Veröffentlichen neu bis {datum}.', { datum: formatDayMonthShort(renewed()) })
               : formatRemainingShort(challenge.deadline)}
         </Text>
       </FieldGroup>

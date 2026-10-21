@@ -7,6 +7,7 @@ import { catSvg, coinsSvg, wordmarkSvg, type CatMood } from './brandSvgs';
 import { crownSvg } from './crownSvg';
 import { diamondSvgs, type DiamondVariant } from './diamondSvgs';
 import { ICON_SCALE } from './Icon';
+import { t } from '../../data/texts';
 
 type CatProps = {
   mood?: CatMood;
@@ -114,7 +115,7 @@ export const EdensteinPile = memo(function EdensteinPile({ amount, height = 24 }
     <View
       style={{ width: (maxX - minX + 1.1) * w, height: (maxY - minY + 1.1) * height }}
       accessible
-      accessibilityLabel={`${amount} Edensteine`}
+      accessibilityLabel={t('{amount} Edensteine', { amount })}
     >
       {order.map((p) => {
         const crystal = crystalSvgs[p.type];

@@ -1,4 +1,5 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from './T';
 
 import { useStore } from '../data/store';
 import { myEdensteine } from '../data/groups';
@@ -8,6 +9,7 @@ import { Button } from './Button';
 import { KaterCard } from './Content';
 import { EdensteinIcon } from './icons/Brand';
 import { Icon } from './icons/Icon';
+import { t } from '../data/texts';
 
 type GroupBarProps = {
   groups: Group[];
@@ -43,7 +45,7 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
               </Pressable>
             );
           })}
-          <Pressable accessibilityRole="button" accessibilityLabel="Alle Gruppen" onPress={onAll} style={styles.chip}>
+          <Pressable accessibilityRole="button" accessibilityLabel={t('Alle Gruppen')} onPress={onAll} style={styles.chip}>
             <Icon name="plus" size={14} color={color.text.secondary} />
           </Pressable>
         </ScrollView>
@@ -51,7 +53,7 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
       {selected ? (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`${selected.name}: Rangliste und Mitglieder`}
+          accessibilityLabel={t('{name}: Rangliste und Mitglieder', { name: selected.name })}
           onPress={() => onOpen(selected.id)}
           style={({ pressed }) => [styles.card, pressed && styles.pressed]}
         >
@@ -59,9 +61,7 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
             <Text style={styles.name} numberOfLines={1}>
               {selected.name}
             </Text>
-            <Text style={styles.meta}>
-              {selected.members.length} Mitglieder · Rangliste und Einladen
-            </Text>
+            <Text style={styles.meta}>{t('{members} Mitglieder · Rangliste und Einladen', { members: selected.members.length })}</Text>
           </View>
           <EdensteinIcon height={16} />
           <Text style={styles.eden}>{myEdensteine(selected, challenges, currentUserId)}</Text>

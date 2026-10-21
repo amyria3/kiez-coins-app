@@ -1,8 +1,10 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from './T';
 
 import { color, size, space, text } from '../theme/tokens';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
+import { t } from '../data/texts';
 
 type NavigationBarProps =
   | {
@@ -28,7 +30,7 @@ export function NavigationBar({ title, subtitle, variant, onLeadingPress }: Navi
         style={styles.bar}
         onPress={onLeadingPress}
         accessibilityRole="link"
-        accessibilityLabel="Zum Feed"
+        accessibilityLabel={t('Zum Feed')}
         hitSlop={{ top: 4, bottom: 4 }}
       >
         <View style={styles.trailingSpace} />
@@ -45,7 +47,7 @@ export function NavigationBar({ title, subtitle, variant, onLeadingPress }: Navi
     <View style={styles.bar}>
       <IconButton
         icon={variant === 'back' ? 'chevron-left' : 'close'}
-        accessibilityLabel={variant === 'back' ? 'Zurück' : 'Schließen'}
+        accessibilityLabel={variant === 'back' ? t('Zurück') : t('Schließen')}
         onPress={onLeadingPress}
       />
       <View style={styles.titleBlock} accessibilityRole="header">

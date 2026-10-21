@@ -5,6 +5,7 @@ import { ResultScreen } from '../../../components/Screen';
 import { formatDateLong } from '../../../data/format';
 import { useAuth } from '../../../data/auth';
 import { useStore } from '../../../data/store';
+import { t } from '../../../data/texts';
 
 /** Route `account/pause/success`. Figma: `account/pause/success`. */
 export default function PauseSuccess() {
@@ -15,7 +16,7 @@ export default function PauseSuccess() {
   return (
     <ResultScreen
       title="Gute Erholung!"
-      message={`Dein Konto ruht bis zum ${until}. Melde Dich einfach an, wenn Du früher zurück willst.`}
+      message={t('Dein Konto ruht bis zum {until}. Melde Dich einfach an, wenn Du früher zurück willst.', { until })}
       actions={
         <Button
           label="Zum Start"
