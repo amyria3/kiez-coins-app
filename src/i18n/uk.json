@@ -387,7 +387,6 @@
   "Tipp ein Mitglied an, um es zu entfernen oder ihm die Gründerrolle zu geben.": "Торкнись учасника, щоб видалити його або передати роль засновника.",
   "Leute einladen": "Запросити людей",
   "Einladungscode": "Код запрошення",
-  "Code teilen": "Поділитися кодом",
   "Die Gruppe ist voll. Mehr als {MAX_MEMBERS} Mitglieder geht nicht.": "Група заповнена. Більше ніж {MAX_MEMBERS} учасників не можна.",
   "Gruppe auflösen": "Розпустити групу",
   "Gruppe verlassen": "Вийти з групи",
@@ -396,7 +395,6 @@
   "Trete bei …": "Приєднуюся …",
   "Beitreten": "Приєднатися",
   "Der Code hat 6 Zeichen.": "Код має 6 символів.",
-  "6 Zeichen, die Du von der Gruppe bekommen hast.": "6 символів, які ти отримав(-ла) від групи.",
   "Gruppen voll": "Групи заповнені",
   "Du bist schon in {MAX_GROUPS} Gruppen. Verlass eine, dann kannst Du einer neuen beitreten oder eine gründen.": "Ти вже в {MAX_GROUPS} групах. Вийди з однієї — тоді зможеш приєднатися до нової або заснувати свою.",
   "Gruppe gründen": "Заснувати групу",
@@ -755,7 +753,6 @@
   "Pirat": "Пірат",
   "Piratin": "Піратка",
   "The Pirat": "The Pirate",
-  "Komm in unsere Gruppe „{name}“ bei Kiez Coins: In der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und {code} eingeben.": "Приєднуйся до нашої групи «{name}» у Kiez Coins: у застосунку в розділі «Групи» торкнись «Приєднатися за кодом» і введи {code}.",
   "Wo ist Dein Heimathafen?": "Де твоя рідна гавань?",
   "Challenges erstellen und annehmen kannst Du, sobald Dein Kiez feststeht.": "Створювати й брати челенджі можна, щойно вибрано район.",
   "Kiez festlegen": "Вибрати район",
@@ -908,5 +905,12 @@
   "Kann es mir vorstellen": "Можу собі це уявити",
   "Nein, weil ich grundsätzlich keine Apps empfehle": "Ні, я взагалі не рекомендую застосунки",
   "Ich kenne keine potentiell interessierte Person": "Не знаю нікого, кого це могло б зацікавити",
-  "Nein, finde die App nicht gut": "Ні, застосунок мені не подобається"
+  "Nein, finde die App nicht gut": "Ні, застосунок мені не подобається",
+  "Einladungslink": "Посилання-запрошення",
+  "Einladung teilen": "Поділитися запрошенням",
+  "In der Zwischenablage steht kein Einladungscode.": "У буфері обміну немає коду запрошення.",
+  "6 Zeichen. Du kannst auch den ganzen Link oder die Nachricht einfügen.": "6 символів. Можна також вставити все посилання або повідомлення.",
+  "Aus Zwischenablage einfügen": "Вставити з буфера обміну",
+  "Komm in unsere Gruppe „{name}“ bei Kiez Coins. Mit diesem Link trittst Du bei:": "Приєднуйся до нашої групи «{name}» у Kiez Coins. Приєднатися можна за цим посиланням:",
+  "Oder in der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und diesen Code eingeben:": "Або в застосунку в розділі «Групи» натисни «Приєднатися за кодом» і введи цей код:"
 }

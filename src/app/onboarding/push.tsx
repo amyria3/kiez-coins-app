@@ -6,6 +6,7 @@ import { KaterBubble } from '../../components/Content';
 import { SwitchRow } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { useStore } from '../../data/store';
+import { homeAfterOnboarding } from '../../data/pendingInvite';
 
 /**
  * Route `onboarding/push`. Figma: `onboarding/push`. Optional.
@@ -16,10 +17,11 @@ export default function Push() {
   const { dispatch } = useStore();
   const [push, setPush] = useState(true);
 
-  const finish = (allow: boolean) => {
+  const finish = async (allow: boolean) => {
     dispatch({ type: 'updateProfile', patch: { push: allow && push, onboarded: true } });
+    const target = await homeAfterOnboarding();
     router.dismissAll();
-    router.replace('/feed');
+    router.replace(target);
   };
 
   return (

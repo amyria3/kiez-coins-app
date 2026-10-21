@@ -387,7 +387,6 @@
   "Tipp ein Mitglied an, um es zu entfernen oder ihm die Gründerrolle zu geben.": "הקש על חבר כדי להסיר אותו או לתת לו את תפקיד המייסד.",
   "Leute einladen": "הזמן אנשים",
   "Einladungscode": "קוד הזמנה",
-  "Code teilen": "שתף קוד",
   "Die Gruppe ist voll. Mehr als {MAX_MEMBERS} Mitglieder geht nicht.": "הקבוצה מלאה. אי אפשר יותר מ־{MAX_MEMBERS} חברים.",
   "Gruppe auflösen": "פירוק הקבוצה",
   "Gruppe verlassen": "עזיבת הקבוצה",
@@ -396,7 +395,6 @@
   "Trete bei …": "מצטרף …",
   "Beitreten": "הצטרף",
   "Der Code hat 6 Zeichen.": "לקוד יש 6 תווים.",
-  "6 Zeichen, die Du von der Gruppe bekommen hast.": "6 תווים שקיבלת מהקבוצה.",
   "Gruppen voll": "הקבוצות מלאות",
   "Du bist schon in {MAX_GROUPS} Gruppen. Verlass eine, dann kannst Du einer neuen beitreten oder eine gründen.": "אתה כבר ב־{MAX_GROUPS} קבוצות. עזוב אחת, ואז תוכל להצטרף לקבוצה חדשה או להקים אחת.",
   "Gruppe gründen": "הקמת קבוצה",
@@ -755,7 +753,6 @@
   "Pirat": "פיראט",
   "Piratin": "פיראטית",
   "The Pirat": "The Pirate",
-  "Komm in unsere Gruppe „{name}“ bei Kiez Coins: In der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und {code} eingeben.": "הצטרף לקבוצה שלנו \"{name}\" ב־Kiez Coins: באפליקציה, תחת \"קבוצות\", הקש \"הצטרפות עם קוד\" והזן {code}.",
   "Wo ist Dein Heimathafen?": "איפה נמל הבית שלך?",
   "Challenges erstellen und annehmen kannst Du, sobald Dein Kiez feststeht.": "תוכל ליצור ולקבל אתגרים ברגע שהשכונה שלך תיקבע.",
   "Kiez festlegen": "קבע שכונה",
@@ -908,5 +905,12 @@
   "Kann es mir vorstellen": "יכול/ה לדמיין את זה",
   "Nein, weil ich grundsätzlich keine Apps empfehle": "לא, כי אני אף פעם לא ממליץ/ה על אפליקציות",
   "Ich kenne keine potentiell interessierte Person": "אני לא מכיר/ה מישהו שזה עשוי לעניין",
-  "Nein, finde die App nicht gut": "לא, האפליקציה לא מוצאת חן בעיניי"
+  "Nein, finde die App nicht gut": "לא, האפליקציה לא מוצאת חן בעיניי",
+  "Einladungslink": "קישור הזמנה",
+  "Einladung teilen": "שיתוף ההזמנה",
+  "In der Zwischenablage steht kein Einladungscode.": "אין קוד הזמנה בלוח.",
+  "6 Zeichen. Du kannst auch den ganzen Link oder die Nachricht einfügen.": "6 תווים. אפשר גם להדביק את כל הקישור או ההודעה.",
+  "Aus Zwischenablage einfügen": "הדבקה מהלוח",
+  "Komm in unsere Gruppe „{name}“ bei Kiez Coins. Mit diesem Link trittst Du bei:": "הצטרפו לקבוצה שלנו „{name}” ב־Kiez Coins. מצטרפים דרך הקישור הזה:",
+  "Oder in der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und diesen Code eingeben:": "או באפליקציה, תחת „קבוצות”, הקישו „הצטרפות עם קוד” והזינו את הקוד הזה:"
 }
