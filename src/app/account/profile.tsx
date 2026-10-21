@@ -86,7 +86,7 @@ export default function PersonalDetails() {
             </View>
           ) : null}
           <View style={styles.camera}>
-            <Icon name="camera" size={18} color={color.bg.screen} />
+            <Icon name="camera" size={14} color={color.text.primary} />
           </View>
         </View>
         <Text style={styles.avatarLabel}>{me.avatar ? 'Profilbild ändern' : 'Profilbild hinzufügen'}</Text>
@@ -111,7 +111,7 @@ export default function PersonalDetails() {
 
 const styles = StyleSheet.create({
   secondary: { ...text.body, color: color.text.secondary },
-  avatarBlock: { alignItems: 'center', gap: space[12], paddingVertical: space[8] },
+  avatarBlock: { alignItems: 'center', gap: space[16], paddingVertical: space[8] },
   pressed: { opacity: 0.8 },
   uploading: {
     position: 'absolute',
@@ -127,12 +127,12 @@ const styles = StyleSheet.create({
   // Kamera-Knopf unten rechts am Bild
   camera: {
     position: 'absolute',
-    right: 0,
-    bottom: 0,
-    width: 36,
-    height: 36,
+    right: -4,
+    bottom: -4,
+    width: 40,
+    height: 40,
     borderRadius: radius.full,
-    backgroundColor: color.accent.primary,
+    backgroundColor: color.bg.surface,
     borderWidth: stroke.ring,
     borderColor: color.bg.screen,
     alignItems: 'center',
