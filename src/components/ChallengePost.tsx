@@ -7,7 +7,7 @@ import type { Challenge, User } from '../data/types';
 import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BountyBadge } from './Badges';
-import { EdensteinIcon } from './icons/Brand';
+import { EdensteinPile } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 
@@ -61,7 +61,7 @@ export const ChallengePost = memo(function ChallengePost({
         ) : null}
         {challenge.edensteine ? (
           <View style={[styles.bounty, styles.eden]} accessible accessibilityLabel={`${challenge.edensteine} Edensteine`}>
-            <EdensteinIcon height={16} amount={challenge.edensteine} />
+            <EdensteinPile height={22} amount={challenge.edensteine} />
             <Text style={styles.edenText}>{challenge.edensteine}</Text>
           </View>
         ) : null}

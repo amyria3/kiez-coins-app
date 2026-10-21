@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AuthorRow } from '../../../components/AuthorRow';
 import { StatusBadge } from '../../../components/Badges';
-import { CoinsIcon, EdensteinIcon } from '../../../components/icons/Brand';
+import { CoinsIcon, EdensteinPile } from '../../../components/icons/Brand';
 import { Icon } from '../../../components/icons/Icon';
 import { GlassIconButton } from '../../../components/Glass';
 import { IconButton } from '../../../components/IconButton';
@@ -224,14 +224,14 @@ export default function ChallengeDetail() {
       <View style={styles.metrics}>
         {challenge.edensteine ? (
           <View style={styles.metric}>
-            <EdensteinIcon height={16} amount={challenge.edensteine} />
+            <EdensteinPile height={26} amount={challenge.edensteine} />
             <Text style={styles.metricLabel}>Edensteine</Text>
             <Text style={[styles.metricValue, styles.eden]}>{challenge.edensteine}</Text>
           </View>
         ) : null}
         {challenge.bountyAmount ? (
           <View style={styles.metric}>
-            <CoinsIcon height={18} />
+            <CoinsIcon height={28} />
             <Text style={styles.metricLabel}>Bounty</Text>
             <Text style={[styles.metricValue, styles.signal]}>{formatBountyShort(challenge.bountyAmount)}</Text>
           </View>
