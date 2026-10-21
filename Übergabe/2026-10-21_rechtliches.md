@@ -15,15 +15,17 @@ Gehört nach Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitt „Recht u
 
 `supabase/migrations/20261021000500_own_photos_select.sql`: Leserecht auf den eigenen Foto-Ordner. Storage braucht es für `list()` und `remove()`. Ohne die Migration löscht „Konto löschen“ die Fotos nicht, meldet aber keinen Fehler.
 
-## Offene Angaben (Daria trägt sie in `OPERATOR` in `src/data/legal.ts` ein)
+Die Foto-Migration ist ausgeführt (21.10.2026).
 
-- Straße und Hausnummer, PLZ und Ort (ladungsfähige Anschrift, kein Postfach)
-- E-Mail-Adresse für Impressum, Datenschutz und Meldungen
-- Telefonnummer
-- Zuständige Datenschutz-Aufsichtsbehörde
+## Angaben in `OPERATOR` (`src/data/legal.ts`), Stand 21.10.2026
+
+- E-Mail-Adresse und Aufsichtsbehörde (Sachsen) sind eingetragen.
+- Anschrift: Im Testbetrieb steht keine im Impressum, sie gibt es auf Anfrage per E-Mail (PR #19, gemergt). Eine c/o-Adresse kommt, wenn Kiez Coins öffentlich ist und ein Finanzierungskonzept steht.
+- Telefonnummer oder Kontaktformular als zweiter schneller Kontaktweg: offen.
+- Daria überarbeitet Kodex und Rechtstexte.
 
 ## Außerhalb des Codes
 
-- Auftragsverarbeitungsvertrag mit Supabase (im Dashboard unter Legal) und Brevo (Konto › Sicherheit) abschließen.
+- Auftragsverarbeitungsvertrag mit Supabase (im Dashboard unter Legal) unterschreiben. Brevo ist erledigt (über die Brevo-AGB, 21.10.2026).
 - Postfach der angegebenen E-Mail-Adresse einrichten.
 - Prüfen, ob Supabase-Projekt und Brevo-Konto auf Maria Arkadieff laufen.

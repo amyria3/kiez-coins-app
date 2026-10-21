@@ -58,4 +58,4 @@ iOS installiert Apps nur aus dem App Store, über TestFlight oder auf registrier
 
 - Anschrift im Impressum: Im Testbetrieb steht keine Anschrift im Impressum, sie gibt es auf Anfrage per E-Mail (Daria, 21.10.2026). Eine ladungsfähige c/o-Adresse kommt, sobald Kiez Coins offiziell frei zugänglich ist und ein Finanzierungskonzept steht. Eintragen in `src/data/legal.ts`, `OPERATOR`, Felder `street` und `city`.
 - Das App-Icon (`assets/icon.png`) ist noch das Expo-Platzhaltericon. Es erscheint auf dem Handy nach der Installation.
-- Auftragsverarbeitungsverträge: Supabase (Dashboard › Organization › Legal Documents) und Brevo (Konto › Sicherheit) abschließen.
+- Auftragsverarbeitungsvertrag mit Supabase (Dashboard › Organization › Legal Documents) unterschreiben. Brevo ist erledigt: Der Vertrag gilt über die Brevo-AGB (21.10.2026).

@@ -1,9 +1,9 @@
 # Blockieren, Melden, Profil und Community-Regeln
 
-Stand: 21.10.2026. Umgesetzt in Branch `claude/project-thread-svuml9`.
+Stand: 21.10.2026. Auf `main` (PR #17, gemergt). Die Migration `20261021000700_moderation` ist ausgeführt, Daria ist als Moderatorin eingetragen.
 
 - **Gehört nach:** Datenbank-Doku in Documentation (Liste der Migrationen, neue Tabellen `blocks`, `challenge_reports`, `praises`, `moderators`, Funktionen `is_moderator`, `is_blocked_between`, `praise_count`) und `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Moderation“.
-- **Wer:** Daria spielt die Migration nach dem Test ein. Claude hat sie lokal gegen alle bisherigen Migrationen geprüft.
+- **Wer:** Claude hat Code und Migration gebaut und lokal gegen alle bisherigen Migrationen geprüft. Daria hat die Migration ausgeführt.
 
 ## Die App kann jetzt blockieren, melden und loben
 
@@ -14,15 +14,13 @@ Stand: 21.10.2026. Umgesetzt in Branch `claude/project-thread-svuml9`.
 - **Moderation** (`moderation`): Erscheint unter „Dein Konto“ nur für Personen in der Tabelle `moderators`. Zeigt alle Meldungen, setzt den Status auf bestätigt oder verworfen. Sperren und Löschen laufen weiter im Supabase-Dashboard.
 - **Community-Regeln** (`rechtliches/regeln`, Text in `src/data/legal.ts`): gegen Sexismus, Rassismus, Antisemitismus und jede Diskriminierung, Belästigung, Gewalt, Täuschung. Neuer vierter Schalter im Kodex. Nutzungsbedingungen, Datenschutz und Impressum verweisen darauf. Die Download-Seite hat die Seite `community-regeln.html`.
 
-## So spielst Du die Migration ein
+## So lief die Migration (erledigt, 21.10.2026)
 
 1. Öffne im Supabase-Projekt den SQL-Editor.
 2. Kopiere `supabase/migrations/20261021000700_moderation.sql` in eine neue Abfrage und klicke auf „Run“.
 3. Trag Dich als Moderatorin ein. Deine Konto-ID steht unter „Authentication“ → „Users“:
    `insert into public.moderators (user_id) values ('<Deine Konto-ID>');`
 4. Optional: `supabase/tests/moderation.sql` ausführen. Jede Zeile beginnt mit „ok“ oder zeigt den erwarteten Wert.
-
-**Bis sie läuft:** Profil, Blockierte Personen und Kodex funktionieren. Lob blendet sich aus. Blockieren, Challenge melden und die neuen Meldegründe melden einen Fehler.
 
 ## Offene Punkte
 

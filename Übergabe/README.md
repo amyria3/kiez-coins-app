@@ -21,11 +21,14 @@ Diese `README.md` bleibt immer liegen.
 
 ## Liegt gerade hier
 
-- `2026-10-20_migrationen.md`: Anleitung für die Migrationen (alle 6 ausgeführt, Eintrag in Documentation offen).
+- `2026-10-21_stand.md`: Überblick, was erledigt und was offen ist. Brevo läuft und ist erledigt (Stand 21.10.2026).
+- `2026-10-20_migrationen.md`: Anleitung für die Migrationen (1 bis 7 ausgeführt, 8 und 9 unbestätigt, Eintrag in Documentation offen).
 - `2026-10-21_gruppen.md`: Gruppen mit Edensteinen umgesetzt, offene Punkte.
 - `2026-10-20_standort.md`: Standort-Erkennung, Kiez-Pflicht, offene Migration, Abwägung Standort bei Interaktion, später „nur verifizierte“ (Stand 20.10.2026).
-- `2026-10-20_code-login.md`: Anmeldung per Passwort oder E-Mail-Code, Zugangsdaten ändern, Mailversand über Brevo und kiezcoins.de (Stand 20.10.2026).
-- `2026-10-21_rechtliches.md`: Impressum, Datenschutz, Testbedingungen, Fotos beim Konto-Löschen, Migration 10, offene Angaben (Stand 21.10.2026).
+- `2026-10-20_code-login.md`: Anmeldung per Passwort oder E-Mail-Code, Zugangsdaten ändern, Mailversand über Brevo und kiezcoins.de läuft (Stand 21.10.2026).
+- `2026-10-21_rechtliches.md`: Impressum, Datenschutz, Testbedingungen, Fotos beim Konto-Löschen, Foto-Migration ausgeführt, offene Angaben (Stand 21.10.2026).
 - `2026-10-21_web-app.md`: Web-App fürs iPhone unter kiezcoins.de/app, Unterschiede im Browser, Schritte für Daria (Stand 21.10.2026).
-- `2026-10-21_moderation.md`: Blockieren, Melden, Profil, Lob, Moderation, Community-Regeln, Migration `20261021000700_moderation` offen (Stand 21.10.2026).
-- `2026-10-21_todos-app.md`: Offene To-dos aus Darias App-Test zu Challenges, Design, Animationen, Nutzer*innen und Verlauf, noch nicht umgesetzt (Stand 21.10.2026).
+- `2026-10-21_moderation.md`: Blockieren, Melden, Profil, Lob, Moderation, Community-Regeln, Migration `20261021000700_moderation` ausgeführt (Stand 21.10.2026).
+- `2026-10-21_todos-app.md`: Offene To-dos aus Darias App-Test zu Challenges, Design, Animationen, Nutzer*innen und Verlauf, Umgesetztes abgehakt (Stand 21.10.2026).
+- `2026-10-21_download-seite.md`: Download-Seite mit Passwort, APK-Build, Rechtstexte, Auftragsverarbeitung (Brevo erledigt, Supabase offen) (Stand 21.10.2026).
+- `2026-10-21_workflow-korrekturen.md`: Archiv-Switch, Kopie erstellen, Vorschau, YourPleasure (Stand 21.10.2026).

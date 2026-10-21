@@ -1,6 +1,8 @@
 # Anmeldung per Passwort oder E-Mail-Code
 
-Stand: 20.10.2026
+Stand: 21.10.2026
+
+**Status:** Läuft. Der Code-Login ist auf `main`, der Mailversand über Brevo und `kiezcoins.de` funktioniert seit 21.10.2026 (Code-Mail kam um 09:55 an, Anmeldung per Code klappt). Brevo ist erledigt.
 
 Gehört nach Documentation: `kiez-coins/konto/MVP_Konto.md` (Anmeldung) und `kiez-coins/ENTSCHEIDUNGEN.md`.
 
@@ -22,4 +24,10 @@ Gehört nach Documentation: `kiez-coins/konto/MVP_Konto.md` (Anmeldung) und `kie
 - Supabase-Vorlagen „Magic Link“, „Confirm signup“ und „Change Email Address“ enthalten `{{ .Token }}`, damit die Mail den Code zeigt.
 - „Secure email change“ in Supabase ist aus. Sonst verlangt Supabase einen zweiten Code von der alten Adresse, den die App nicht abfragt.
 - „Confirm email“ bleibt aus, damit die Passwort-Registrierung ohne Bestätigungsmail direkt eine Sitzung bekommt.
+- Brevo › Sicherheit: Die IP-Sperre für SMTP ist aus. Supabase verschickt von wechselnden IP-Adressen, mit Sperre lehnt Brevo die Mails ab.
+- Den Auftragsverarbeitungsvertrag mit Brevo hat Daria mit den Brevo-AGB akzeptiert (21.10.2026).
 - Redirect URL in Supabase: `kiezcoins://**`. Die App wertet Links noch nicht aus.
+
+## Pull Request
+
+PR #11 („Anmeldung mit Code per Mail oder Passwort“) ist geschlossen und nicht gemergt. Der Code kam über andere Branches auf `main` (`onboarding/code`, `account/credentials`, `account/email`, `account/password`). PR #11 braucht niemand mehr.
