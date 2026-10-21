@@ -135,8 +135,9 @@ export default function Email() {
         secureTextEntry
         autoCapitalize="none"
         autoCorrect={false}
-        autoComplete={existing ? 'current-password' : 'new-password'}
-        textContentType={existing ? 'password' : 'newPassword'}
+        // Ohne „new-password“: Sonst legt iOS automatisch einen Passwort-Vorschlag über die Tastatur.
+        autoComplete="current-password"
+        textContentType="password"
         onSubmitEditing={() => valid && !busy && submit()}
       />
       <LegalLinks />
