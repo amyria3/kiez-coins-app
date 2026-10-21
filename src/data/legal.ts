@@ -205,7 +205,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
   regeln: {
     title: 'Community-Regeln',
     intro:
-      'Die Idee hinter Kiez Coins ist, dass Menschen glücklicher und gesünder sind, wenn sie miteinander kooperieren und robuste soziale Netzwerke bilden. Das setzt gegenseitige Achtung voraus. Missbräuchliches Verhalten, Sexismus, Übergriffe, Antisemitismus, politischer oder religiöser Fundamentalismus und Rassismus werden nicht toleriert.',
+      'Die Idee hinter Kiez Coins ist, dass Menschen glücklicher und gesünder sind, wenn sie miteinander kooperieren und robuste soziale Netzwerke bilden. Das setzt gegenseitige Achtung voraus. Missbräuchliches Verhalten, Sexismus, Übergriffe, Antisemitismus, politischer oder religiöser Fundamentalismus, Rassismus und Behindertenfeindlichkeit werden nicht toleriert.',
     sections: [
       {
         heading: 'Respekt gilt für alle',
