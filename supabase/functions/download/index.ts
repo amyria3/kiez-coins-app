@@ -6,8 +6,8 @@
 //   DOWNLOAD_PASSWORD  Passwort für die Download-Seite (Pflicht)
 //   DOWNLOAD_PAGE      Adresse der Download-Seite, z. B. https://kiezcoins.de/ (für den Rückweg bei falschem Passwort)
 //   APK_PATH           optional, Datei im Bucket `downloads`, Standard: kiez-coins.apk
-// Ohne Secret gilt Tabelle `download_settings`: Passwort-Hash (SHA-256, hex) und APK-Adresse als Ausweichweg,
-// wenn im Bucket keine Datei liegt.
+// Ohne Secret gilt Tabelle `download_settings`: Passwort-Hash (SHA-256, hex), Adresse der Download-Seite
+// und APK-Adresse als Ausweichweg, wenn im Bucket keine Datei liegt.
 // SUPABASE_URL und SUPABASE_SERVICE_ROLE_KEY stellt Supabase selbst bereit.
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
@@ -45,17 +45,18 @@ function redirect(location: string): Response {
 }
 
 Deno.serve(async (req) => {
-  const page = Deno.env.get('DOWNLOAD_PAGE') ?? 'https://kiezcoins.de/';
+  const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+  const { data: settings } = await supabase
+    .from('download_settings')
+    .select('password_sha256, apk_url, download_page')
+    .eq('id', 1)
+    .maybeSingle();
+
+  const page = Deno.env.get('DOWNLOAD_PAGE') ?? settings?.download_page ?? 'https://kiezcoins.de/';
   const back = (reason: string) => redirect(`${page}${page.includes('?') ? '&' : '?'}fehler=${reason}#download`);
 
   if (req.method !== 'POST') return redirect(page);
 
-  const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
-  const { data: settings } = await supabase
-    .from('download_settings')
-    .select('password_sha256, apk_url')
-    .eq('id', 1)
-    .maybeSingle();
   const expected = Deno.env.get('DOWNLOAD_PASSWORD');
   if (!expected && !settings?.password_sha256) return back('technik');
 
