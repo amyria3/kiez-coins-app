@@ -115,16 +115,16 @@ export function isValidPaypal(input: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || /^(https?:\/\/)?(www\.)?paypal\.me\/[\w.-]+\/?$/i.test(value);
 }
 
+/** Auswahl in „Ansprache“, Standard ist Pirat:in. Ältere Profile mit `pirat_star` bekommen ebenfalls Pirat:in. */
 export const addressForms = [
   { key: 'pirat_colon', label: 'Pirat:in' },
-  { key: 'pirat_star', label: 'Pirat*in' },
   { key: 'pirat', label: 'Pirat' },
   { key: 'piratin', label: 'Piratin' },
   { key: 'the_pirat', label: 'The Pirat' },
 ] as const;
 
-/** Platzhalter `{anrede}` in Kater-Texten. Ohne Auswahl („Ist mir egal“) gilt „Pirat*in“. */
+/** Platzhalter `{anrede}` in Kater-Texten. Ohne Auswahl („Ist mir egal“) gilt „Pirat:in“. */
 export function anrede(profile: { addressForm?: string; addressCustom?: string }): string {
   if (profile.addressForm === 'custom' && profile.addressCustom?.trim()) return profile.addressCustom.trim();
-  return addressForms.find((f) => f.key === profile.addressForm)?.label ?? 'Pirat*in';
+  return addressForms.find((f) => f.key === profile.addressForm)?.label ?? 'Pirat:in';
 }
