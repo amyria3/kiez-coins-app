@@ -16,7 +16,7 @@ import { NudgeArea, useNudge } from '../../components/Nudge';
 export default function Ansprache() {
   const router = useRouter();
   const { profile, dispatch } = useStore();
-  const [form, setForm] = useState<AddressForm | undefined>(profile.addressForm ?? 'pirat_star');
+  const [form, setForm] = useState<AddressForm | undefined>(profile.addressForm === 'pirat_star' ? 'pirat_colon' : (profile.addressForm ?? 'pirat_colon'));
   const [custom, setCustom] = useState(profile.addressCustom ?? '');
   const choice = useNudge();
   const usesCustom = custom.trim().length > 0;
