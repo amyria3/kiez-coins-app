@@ -23,17 +23,24 @@ function taskLabel({ challenge, role }: ReiseEntry): string {
 }
 
 /**
- * Route `reise` (Tab „Deine Reise“ in der Tab-Leiste, Tipp auf den Kater im Feed oder „Deine Reise“ im Konto).
- * Upgrade „Nachtschicht“: Kater mit Sprechblase, Aufgaben „Du bist dran“, Bilanz und Verlauf als Liste.
+ * Route `reise` (Tab „YourPleasure“ in der Tab-Leiste, Tipp auf den Kater im Feed oder „YourPleasure“ im Konto).
+ * Upgrade „Nachtschicht“: Kater mit Sprechblase, Aufgaben „Du bist dran“, Bilanz, Deine Gruppen und Verlauf,
+ * getrennt nach öffentlichen Challenges und Gruppenaufgaben.
  */
 export default function Reise() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { challenges, currentUserId, profile } = useStore();
+  const { challenges, currentUserId, profile, groups } = useStore();
   const entries = useMemo(() => reiseEntries(challenges, currentUserId), [challenges, currentUserId]);
   const mood = reiseMood(entries);
   const tasks = entries.filter((e) => e.needsAction);
   const history = entries.filter((e) => !e.needsAction);
+  const publicHistory = history.filter((e) => !e.challenge.groupId);
+  const groupHistory = history.filter((e) => !!e.challenge.groupId);
+  // Selbst gegründete Gruppen zuerst
+  const ownGroups = [...groups].sort(
+    (a, b) => Number(b.founderId === currentUserId) - Number(a.founderId === currentUserId),
+  );
   const created = entries.filter((e) => e.role === 'author').length;
   const accepted = entries.filter((e) => e.role === 'assignee').length;
   const earned = entries
@@ -46,7 +53,7 @@ export default function Reise() {
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}>
         <Text style={styles.title} accessibilityRole="header">
-          Deine Reise
+          YourPleasure
         </Text>
 
         <KaterCard mood={catVariant(mood)}>{reiseMoodText(mood, anrede(profile))}</KaterCard>
@@ -81,33 +88,41 @@ export default function Reise() {
           </View>
         ) : null}
 
-        {history.length > 0 ? (
+        {ownGroups.length > 0 ? (
           <View style={styles.historyBlock}>
-            <Text style={styles.sectionLabel}>Verlauf</Text>
+            <Text style={styles.sectionLabel}>{ownGroups.length === 1 ? 'Deine Gruppe' : 'Deine Gruppen'}</Text>
             <View style={styles.list}>
-              {history.map((entry, i) => (
+              {ownGroups.map((group, i) => (
                 <Pressable
-                  key={entry.challenge.id}
+                  key={group.id}
                   accessibilityRole="button"
-                  accessibilityLabel={entry.label}
-                  onPress={() => router.push(entry.href)}
+                  accessibilityLabel={`Gruppe ${group.name} öffnen`}
+                  onPress={() => router.push(`/gruppen/${group.id}`)}
                   style={({ pressed }) => [styles.row, i > 0 && styles.rowDivider, pressed && styles.pressed]}
                 >
-                  <Thumb entry={entry} size={44} />
                   <View style={styles.flex}>
                     <Text style={styles.rowTitle} numberOfLines={1}>
-                      {entry.label}
+                      {group.name}
                     </Text>
                     <Text style={styles.sub} numberOfLines={1}>
-                      {entry.role === 'author' ? 'Erstellt' : 'Angenommen'} · {formatRelative(entry.lastActivity)}
+                      {group.founderId === currentUserId ? 'Von Dir gegründet' : 'Mitglied'} ·{' '}
+                      {group.members.length === 1 ? '1 Person' : `${group.members.length} Personen`}
                     </Text>
                   </View>
-                  <StatusBadge status={entry.challenge.status} />
+                  <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
                 </Pressable>
               ))}
             </View>
           </View>
         ) : null}
+
+        <History title="Verlauf öffentlich" entries={publicHistory} onOpen={(entry) => router.push(entry.href)} />
+        <History
+          title="Verlauf Gruppen"
+          entries={groupHistory}
+          groupName={(id) => groups.find((g) => g.id === id)?.name}
+          onOpen={(entry) => router.push(entry.href)}
+        />
       </ScrollView>
       <TabBar
         active="reise"
@@ -116,6 +131,53 @@ export default function Reise() {
         onReisePress={() => {}}
         onMenuPress={() => router.push('/account')}
       />
+    </View>
+  );
+}
+
+/** Verlauf als Liste. Bei Gruppenaufgaben steht der Gruppenname in der Unterzeile. */
+function History({
+  title,
+  entries,
+  groupName,
+  onOpen,
+}: {
+  title: string;
+  entries: ReiseEntry[];
+  groupName?: (id: string) => string | undefined;
+  onOpen: (entry: ReiseEntry) => void;
+}) {
+  if (entries.length === 0) return null;
+  return (
+    <View style={styles.historyBlock}>
+      <Text style={styles.sectionLabel}>{title}</Text>
+      <View style={styles.list}>
+        {entries.map((entry, i) => {
+          const group = entry.challenge.groupId ? groupName?.(entry.challenge.groupId) : undefined;
+          return (
+            <Pressable
+              key={entry.challenge.id}
+              accessibilityRole="button"
+              accessibilityLabel={entry.label}
+              onPress={() => onOpen(entry)}
+              style={({ pressed }) => [styles.row, i > 0 && styles.rowDivider, pressed && styles.pressed]}
+            >
+              <Thumb entry={entry} size={44} />
+              <View style={styles.flex}>
+                <Text style={styles.rowTitle} numberOfLines={1}>
+                  {entry.label}
+                </Text>
+                <Text style={styles.sub} numberOfLines={1}>
+                  {[group, entry.role === 'author' ? 'Erstellt' : 'Angenommen', formatRelative(entry.lastActivity)]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </Text>
+              </View>
+              <StatusBadge status={entry.challenge.status} />
+            </Pressable>
+          );
+        })}
+      </View>
     </View>
   );
 }
