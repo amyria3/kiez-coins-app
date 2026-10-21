@@ -260,6 +260,8 @@ button { font: inherit; color: inherit; }
 .card input { width: 100%; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 13px 14px; }
 .card .button, .card button { display: block; width: 100%; margin-top: 14px; text-align: center; text-decoration: none; font: 500 16px/1 Inter, sans-serif;
   color: var(--bg); background: var(--purple); border: 0; border-radius: 999px; padding: 17px; cursor: pointer; }
+.card .button-zweit { background: none; color: var(--text); border: 1px solid var(--line); font-weight: 400; }
+.card .button-zweit:hover { border-color: var(--muted); }
 .error { color: var(--red); font-size: 14px; margin: 8px 0 0; }
 .steps { padding-left: 20px; color: var(--muted); margin: 16px 0 0; font-size: 15px; }
 .steps li { margin-bottom: 6px; }
