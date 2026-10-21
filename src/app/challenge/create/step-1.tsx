@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -6,25 +5,21 @@ import { Button } from '../../../components/Button';
 import { ExtraPhotos, PhotoPicker, TextField } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
 import { hasContent, useDraft, useSaveDraft } from './_layout';
-import { explain } from '../../../components/Nudge';
+import { explain, NudgeArea, useNudge } from '../../../components/Nudge';
 
 /** Route `challenge/create/step-1`. Figma: `challenge/create/step-1`. */
 export default function CreateStep1() {
   const router = useRouter();
   const [draft, setDraft] = useDraft();
-  const [showErrors, setShowErrors] = useState(false);
   const { save, busy } = useSaveDraft();
+  const photoField = useNudge();
+  const titleField = useNudge();
 
   const missingPhoto = !draft.photo;
   const missingTitle = !draft.title.trim();
 
-  const next = () => {
-    if (missingPhoto || missingTitle) {
-      setShowErrors(true);
-      return;
-    }
-    router.push('/challenge/create/step-2');
-  };
+  // Weiter sieht deaktiviert aus, bis Foto und Titel da sind. Tippen zeigt, was fehlt.
+  const next = () => router.push('/challenge/create/step-2');
 
   // Schließen mit Eingaben: als Entwurf behalten oder verwerfen
   const close = () => {
@@ -44,7 +39,9 @@ export default function CreateStep1() {
       onLeadingPress={close}
       actions={
         <>
-          <Button label="Weiter" onPress={next} />
+          <Button label="Weiter" onPress={next} disabled={missingPhoto || missingTitle}
+            whyDisabled={() => (missingPhoto ? photoField.nudge('Füg ein Foto hinzu.') : titleField.nudge('Gib einen Titel ein.'))}
+          />
           <Button busy={busy}
             label={busy ? 'Wird gespeichert …' : 'Als Entwurf speichern'}
             variant="ghost"
@@ -55,11 +52,13 @@ export default function CreateStep1() {
         </>
       }
     >
-      <PhotoPicker
-        photo={draft.photo}
-        hint={showErrors && missingPhoto ? 'Bitte füge ein Foto hinzu.' : 'Zeig, wo geholfen werden soll.'}
-        onChange={(photo) => setDraft((d) => ({ ...d, photo, imagePath: undefined }))}
-      />
+      <NudgeArea nudge={photoField}>
+        <PhotoPicker
+          photo={draft.photo}
+          hint="Zeig, wo geholfen werden soll."
+          onChange={(photo) => (photoField.clear(), setDraft((d) => ({ ...d, photo, imagePath: undefined })))}
+        />
+      </NudgeArea>
       {draft.photo ? (
         <ExtraPhotos
           photos={draft.extras.map((e) => e.photo)}
@@ -70,7 +69,7 @@ export default function CreateStep1() {
       <TextField
         label="Titel" required
         helperText="Max. 60 Zeichen"
-        error={showErrors && missingTitle ? 'Bitte gib einen Titel ein.' : undefined}
+        nudge={titleField}
         value={draft.title}
         onChangeText={(title) => setDraft((d) => ({ ...d, title }))}
         maxLength={60}
