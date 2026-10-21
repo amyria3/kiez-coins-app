@@ -262,6 +262,8 @@ button { font: inherit; color: inherit; }
   color: var(--bg); background: var(--purple); border: 0; border-radius: 999px; padding: 17px; cursor: pointer; }
 .card .button-zweit { background: none; color: var(--text); border: 1px solid var(--line); font-weight: 400; }
 .card .button-zweit:hover { border-color: var(--muted); }
+.card .button-zweit { background: none; color: var(--text); border: 1px solid var(--line); margin-top: 10px; }
+.card .button-zweit:hover { border-color: var(--muted); }
 .error { color: var(--red); font-size: 14px; margin: 8px 0 0; }
 .steps { padding-left: 20px; color: var(--muted); margin: 16px 0 0; font-size: 15px; }
 .steps li { margin-bottom: 6px; }
