@@ -56,12 +56,14 @@ function RootStack() {
         <Stack.Screen name="challenge/[id]/report/payout" options={{ presentation: 'modal', gestureEnabled: false }} />
         <Stack.Screen name="challenge/[id]/review/reject" options={{ presentation: 'modal' }} />
         <Stack.Screen name="user/[id]/report/index" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="challenge/[id]/flag/index" options={{ presentation: 'modal' }} />
         <Stack.Screen name="demo" options={{ presentation: 'modal' }} />
         <Stack.Screen name="challenge/[id]/report/success" options={{ gestureEnabled: false }} />
         <Stack.Screen name="challenge/[id]/review/success" options={{ gestureEnabled: false }} />
         <Stack.Screen name="challenge/[id]/pay/success" options={{ gestureEnabled: false }} />
         <Stack.Screen name="challenge/[id]/payment/success" options={{ gestureEnabled: false }} />
         <Stack.Screen name="user/[id]/report/success" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="challenge/[id]/flag/success" options={{ gestureEnabled: false }} />
         <Stack.Screen name="account/support/success" options={{ gestureEnabled: false }} />
         <Stack.Screen name="account/pause/success" options={{ gestureEnabled: false }} />
         <Stack.Screen name="account/delete/success" options={{ gestureEnabled: false }} />

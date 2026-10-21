@@ -15,17 +15,23 @@ type CommentProps = {
   onReply?: () => void;
   /** Antwort: eingerückt, kleineres Profilbild */
   isReply?: boolean;
+  /** Tippen auf Bild oder Name öffnet das Profil */
+  onAuthorPress?: () => void;
 };
 
 /** Figma „Comment“: öffentlicher Kommentar. Die Fahne meldet den Kommentar. */
-export function Comment({ comment, author, onReport, onReply, isReply }: CommentProps) {
+export function Comment({ comment, author, onReport, onReply, isReply, onAuthorPress }: CommentProps) {
   const hidden = useHideName(author);
   return (
     <View style={[styles.comment, isReply && styles.reply]}>
-      <Avatar user={author} diameter={isReply ? 28 : undefined} />
+      <Pressable onPress={onAuthorPress} disabled={!onAuthorPress} accessibilityLabel={`Profil von ${author.name}`}>
+        <Avatar user={author} diameter={isReply ? 28 : undefined} />
+      </Pressable>
       <View style={styles.body}>
         <View style={styles.header}>
-          <Text style={[styles.name, hidden && hiddenText]}>{author.name}</Text>
+          <Text style={[styles.name, hidden && hiddenText]} onPress={onAuthorPress}>
+            {author.name}
+          </Text>
           <Text style={styles.time}>{formatRelative(comment.createdAt)}</Text>
         </View>
         <Text style={styles.text}>{comment.body}</Text>
@@ -105,6 +111,8 @@ type CommentSectionProps = {
   /** Wer mitlesen kann, z. B. bei Gruppenaufgaben nur die Gruppe */
   audience?: string;
   onReport: (comment: CommentData) => void;
+  /** Profil der Person öffnen */
+  onAuthorPress?: (userId: string) => void;
 };
 
 /** Figma „CommentSection“: Fragen zur Challenge, öffentlich. Es gibt keinen privaten Chat. */
@@ -117,6 +125,7 @@ export function CommentSection({
   closedHint,
   audience,
   onReport,
+  onAuthorPress,
 }: CommentSectionProps) {
   const [replyTo, setReplyTo] = useState<CommentData | null>(null);
   const nameOf = (id: string) => users.find((u) => u.id === id)?.name ?? '';
@@ -134,6 +143,7 @@ export function CommentSection({
         comment={c}
         author={author}
         isReply={isReply}
+        onAuthorPress={onAuthorPress ? () => onAuthorPress(c.authorId) : undefined}
         onReport={c.authorId === currentUserId ? undefined : () => onReport(c)}
         // Antworten auf eine Antwort hängen am selben Gespräch
         onReply={onSend ? () => setReplyTo({ ...c, id: rootId }) : undefined}

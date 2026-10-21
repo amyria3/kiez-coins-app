@@ -9,7 +9,7 @@ import { useStore } from '../../data/store';
 
 /**
  * Route `onboarding/kodex`. Figma: `onboarding/kodex`. Speichert die drei Zeitstempel der Zustimmung.
- * Die Texte stehen unter `rechtliches/bedingungen` und `rechtliches/datenschutz` (Stand in `data/legal.ts`).
+ * Die Texte stehen unter `rechtliches/bedingungen`, `rechtliches/regeln` und `rechtliches/datenschutz` (Stand in `data/legal.ts`).
  */
 export default function Kodex() {
   const router = useRouter();
@@ -17,6 +17,8 @@ export default function Kodex() {
   const [age, setAge] = useState(false);
   const [terms, setTerms] = useState(false);
   const [privacy, setPrivacy] = useState(false);
+  // Teil der Nutzungsbedingungen, Zustimmung zählt zu termsAcceptedAt
+  const [rules, setRules] = useState(false);
 
   return (
     <SubScreen
@@ -27,7 +29,7 @@ export default function Kodex() {
       actions={
         <Button
           label="Zustimmen und weiter"
-          disabled={!(age && terms && privacy)}
+          disabled={!(age && terms && rules && privacy)}
           onPress={() => {
             const now = new Date().toISOString();
             dispatch({
@@ -48,6 +50,13 @@ export default function Kodex() {
         onDescriptionPress={() => router.push('/rechtliches/bedingungen')}
         value={terms}
         onValueChange={setTerms}
+      />
+      <SwitchRow
+        label="Ich halte mich an die Community-Regeln"
+        description="Regeln lesen"
+        onDescriptionPress={() => router.push('/rechtliches/regeln')}
+        value={rules}
+        onValueChange={setRules}
       />
       <SwitchRow
         label="Ich habe die Datenschutzerklärung gelesen"

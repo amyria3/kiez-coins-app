@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -6,15 +7,21 @@ import { NavRow, ProfileCard } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { anrede } from '../../data/format';
 import { useAuth } from '../../data/auth';
+import { isModerator } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
 import { space } from '../../theme/tokens';
 
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
 export default function Account() {
   const router = useRouter();
-  const { profile, groups } = useStore();
+  const { profile, groups, mode, blockedIds } = useStore();
   const me = useCurrentUser();
   const { signOut, hasPassword } = useAuth();
+  // „Moderation“ nur für Personen in der Tabelle `moderators`
+  const [moderator, setModerator] = useState(false);
+  useEffect(() => {
+    if (mode === 'live') isModerator().then(setModerator);
+  }, [mode]);
 
   const payoutValue = me.payout?.iban ? 'IBAN hinterlegt' : me.payout?.paypal ? 'PayPal hinterlegt' : 'Nicht hinterlegt';
 
@@ -33,7 +40,7 @@ export default function Account() {
         details={[anrede(profile), profile.kiez ?? 'Kiez noch nicht festgelegt']}
         onPress={() => router.push('/account/profile')}
       />
-      <NavRow label="Deine Reise" value="Verlauf und Aufgaben" onPress={() => router.push('/reise')} />
+      <NavRow label="YourPleasure" value="Verlauf, Aufgaben und Gruppen" onPress={() => router.push('/reise')} />
       <NavRow label="Deine Challenges" value="Entwürfe, offen, geschlossen" onPress={() => router.push('/manage')} />
       <NavRow
         label="Deine Gruppen"
@@ -49,6 +56,12 @@ export default function Account() {
           />
           <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/settings/payout')} />
           <NavRow label="Support" value="Frage oder Problem" onPress={() => router.push('/account/support')} />
+          <NavRow
+            label="Blockierte Personen"
+            value={blockedIds.length === 0 ? 'Niemand' : `${blockedIds.length} blockiert`}
+            onPress={() => router.push('/account/blocked')}
+          />
+          {moderator ? <NavRow label="Moderation" value="Meldungen prüfen" onPress={() => router.push('/moderation')} /> : null}
         </View>
       </FieldGroup>
       <FieldGroup label="Konto">
@@ -68,6 +81,7 @@ export default function Account() {
           <NavRow label="Impressum" onPress={() => router.push('/rechtliches/impressum')} />
           <NavRow label="Datenschutz" onPress={() => router.push('/rechtliches/datenschutz')} />
           <NavRow label="Nutzungsbedingungen" value="Testphase" onPress={() => router.push('/rechtliches/bedingungen')} />
+          <NavRow label="Community-Regeln" onPress={() => router.push('/rechtliches/regeln')} />
         </View>
       </FieldGroup>
     </SubScreen>

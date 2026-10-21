@@ -30,6 +30,16 @@
         -webkit-tap-highlight-color: transparent;
         -webkit-text-size-adjust: 100%;
       }
+      /* Vom Browser ausgefüllte Felder (Passwort, E-Mail): dunkle Fläche statt Gelb oder Hellblau, heller Text */
+      input:-webkit-autofill,
+      input:-webkit-autofill:hover,
+      input:-webkit-autofill:focus {
+        -webkit-text-fill-color: #f0f0f0;
+        caret-color: #f0f0f0;
+        -webkit-box-shadow: 0 0 0 1000px #2b2d31 inset;
+        box-shadow: 0 0 0 1000px #2b2d31 inset;
+        transition: background-color 9999s ease-out 0s;
+      }
       #root {
         display: flex;
         height: 100%;

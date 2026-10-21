@@ -89,6 +89,9 @@ export default function ChallengeDetail() {
     actions = <Button label="Bounty bestätigen" onPress={() => router.push(`/challenge/${challenge.id}/payment`)} />;
   }
 
+  const openProfile = (userId: string) =>
+    router.push({ pathname: '/user/[id]', params: { id: userId, challengeId: challenge.id } });
+
   const amount = challenge.bountyAmount ? formatEuro(challenge.bountyAmount) : '';
   // Eigene Challenge, die noch niemand angenommen hat: bearbeiten oder schließen
   const canManage = isAuthor && challenge.status === 'open' && !challenge.assigneeId;
@@ -162,6 +165,14 @@ export default function ChallengeDetail() {
               onPress={() => setMenuOpen((open) => !open)}
               style={[styles.gear, menuOpen && styles.gearOpen]}
             />
+          ) : challenge.status !== 'draft' && challenge.status !== 'deleted' ? (
+            <IconButton
+              icon="flag"
+              iconSize={size.icon}
+              iconColor={color.text.secondary}
+              accessibilityLabel="Challenge melden"
+              onPress={() => router.push(`/challenge/${challenge.id}/flag`)}
+            />
           ) : null}
         </View>
         {isAuthor && menuOpen ? (
@@ -226,7 +237,7 @@ export default function ChallengeDetail() {
         {showDeadline ? (
           <View style={styles.metric}>
             <Icon name="clock" size={size.icon} color={color.text.secondary} />
-            <Text style={styles.metricLabel}>Frist</Text>
+            <Text style={styles.metricLabel}>Noch</Text>
             <Text style={styles.metricValue} numberOfLines={1}>
               {formatRemainingShort(challenge.deadline).replace('Noch ', '')}
             </Text>
@@ -279,6 +290,7 @@ export default function ChallengeDetail() {
         <AuthorRow
           user={author}
           location={acceptedByMe ? (challenge.kiez ?? challenge.location) : challenge.location}
+          onPress={() => openProfile(author.id)}
         />
       </View>
       {challenge.bountyAmount && !isAuthor ? (
@@ -309,6 +321,7 @@ export default function ChallengeDetail() {
                 ? 'Die Challenge ist gelöscht und nur für Dich sichtbar. Neue Kommentare sind nicht möglich.'
                 : 'Leg in Deinem Konto Deinen Kiez fest, dann kannst Du mitschreiben.'
           }
+          onAuthorPress={openProfile}
           onReport={(comment) =>
             router.push({ pathname: '/user/[id]/report', params: { id: comment.authorId, challengeId: challenge.id } })
           }
