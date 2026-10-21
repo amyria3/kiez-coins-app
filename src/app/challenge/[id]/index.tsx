@@ -222,7 +222,7 @@ export default function ChallengeDetail() {
       <View style={styles.metrics}>
         {challenge.edensteine ? (
           <View style={styles.metric}>
-            <EdensteinIcon height={16} />
+            <EdensteinIcon height={16} amount={challenge.edensteine} />
             <Text style={styles.metricLabel}>Edensteine</Text>
             <Text style={[styles.metricValue, styles.eden]}>{challenge.edensteine}</Text>
           </View>

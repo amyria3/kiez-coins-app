@@ -134,7 +134,7 @@ export default function GroupDetail() {
                     {r.done === 1 ? '1 Aufgabe erledigt' : `${r.done} Aufgaben erledigt`}
                   </Text>
                 </View>
-                <EdensteinIcon height={14} />
+                <EdensteinIcon height={14} amount={r.edensteine} />
                 <Text style={styles.eden}>{r.edensteine}</Text>
               </Pressable>
             );

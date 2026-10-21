@@ -11,9 +11,13 @@ type IconProps = {
   size?: number;
 };
 
+/** Alle Icons etwas größer als angegeben (Daria, 21.10.2026), die Kamera nur leicht */
+export const ICON_SCALE = 1.3;
+const CAMERA_SCALE = 1.1;
+
 export const Icon = memo(function Icon({ name, color = themeColor.text.primary, size }: IconProps) {
   const icon = iconSvgs[name];
-  const height = size ?? icon.height;
+  const height = Math.round((size ?? icon.height) * (name === 'camera' ? CAMERA_SCALE : ICON_SCALE));
   const width = (icon.width / icon.height) * height;
   return <SvgXml xml={icon.svg(color)} width={width} height={height} />;
 });

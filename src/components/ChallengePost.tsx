@@ -61,7 +61,7 @@ export const ChallengePost = memo(function ChallengePost({
         ) : null}
         {challenge.edensteine ? (
           <View style={[styles.bounty, styles.eden]} accessible accessibilityLabel={`${challenge.edensteine} Edensteine`}>
-            <EdensteinIcon height={16} />
+            <EdensteinIcon height={16} amount={challenge.edensteine} />
             <Text style={styles.edenText}>{challenge.edensteine}</Text>
           </View>
         ) : null}
