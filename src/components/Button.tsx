@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from 'react-native';
 
 import { color, radius, space, stroke, text } from '../theme/tokens';
+import { Glass, glassControls } from './Glass';
 
 // Figma „Button“ (Primary, Secondary). Die übrigen Varianten sind Überschreibungen in Screens:
 // `signal` („Aufgabe zurück schicken“, „Muss ich noch machen“), `signalOutline` („Rückgängig machen“),
@@ -17,6 +18,28 @@ type ButtonProps = {
 
 export function Button({ label, onPress, variant = 'primary', disabled, style }: ButtonProps) {
   const v = variants[variant];
+  // Versuch: Buttons aus Liquid Glass (iOS 26). Gefüllte Varianten bekommen ihre Farbe als Tönung.
+  if (glassControls && variant !== 'ghost') {
+    const g = glassVariants[variant];
+    return (
+      <Glass
+        variant="regular"
+        tint={g.tint}
+        interactive={!disabled}
+        style={[styles.glass, disabled && styles.disabled, style]}
+      >
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ disabled }}
+          disabled={disabled}
+          onPress={onPress}
+          style={styles.glassInner}
+        >
+          <Text style={[g.tint ? text.buttonDarkOnLight : text.buttonLightOnDark, { color: g.label }]}>{label}</Text>
+        </Pressable>
+      </Glass>
+    );
+  }
   return (
     <Pressable
       accessibilityRole="button"
@@ -46,7 +69,25 @@ const variants: Record<ButtonVariant, { container: ViewStyle; label: string; fil
   danger: { container: { borderWidth: stroke.thin, borderColor: color.accent.error }, label: color.accent.error },
 };
 
+/** Glas-Buttons: Tönung statt Fläche, kein Rahmen. Die Kante zeichnet das Glas selbst. */
+const glassVariants: Record<Exclude<ButtonVariant, 'ghost'>, { tint?: string; label: string }> = {
+  primary: { tint: color.accent.primary, label: color.bg.screen },
+  secondary: { label: color.text.primary },
+  signal: { tint: color.accent.signal, label: color.bg.screen },
+  signalOutline: { label: color.accent.signal },
+  danger: { label: color.accent.error },
+};
+
 const styles = StyleSheet.create({
+  glass: { minHeight: 52, borderRadius: radius.full },
+  glassInner: {
+    flex: 1,
+    minHeight: 52,
+    paddingHorizontal: space[24],
+    paddingVertical: space[12],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   base: {
     minHeight: 52,
     paddingHorizontal: space[24],
