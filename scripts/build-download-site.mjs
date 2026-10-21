@@ -159,7 +159,7 @@ const index = `<!doctype html>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#1F2123">
 <title>Kiez Coins – Kleine Challenges für Deinen Kiez</title>
-<meta name="description" content="Du stellst eine Aufgabe mit Foto und Bounty ein. Jemand aus der Nachbarschaft nimmt sie an und erledigt sie.">
+<meta name="description" content="Kennst Du das? Irgendwas muss erledigt werden, aber wer soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez">
 <link rel="icon" href="favicon.png">
 <link rel="preload" href="fonts/InterTight_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="stylesheet" href="seite.css?v=${version(seiteCss)}">
@@ -177,7 +177,7 @@ ${filterDefs}
 <section class="hero" id="prototyp-bereich">
   <div class="hero-text">
     <h1>Kleine Challenges für Deinen Kiez.</h1>
-    <p class="lede">Du stellst eine Aufgabe mit Foto und Bounty ein. Jemand aus der Nachbarschaft nimmt sie an und erledigt sie.</p>
+    <p class="lede">Kennst Du das? Irgendwas muss erledigt werden, aber wer soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez</p>
   </div>
   <div class="steuerung">
   <div class="rolle" id="rolle" role="radiogroup" aria-label="So spielst Du den Prototyp">
@@ -187,9 +187,9 @@ ${filterDefs}
   </div>
   <div class="szenarien" id="szenarien" aria-label="Prototyp steuern">
     <span class="szenario-mark" aria-hidden="true"></span>
-    <button type="button" data-szenario="finden" aria-pressed="true" aria-controls="prototyp"><b>Challenge finden</b><i>Finden</i><span>Tipp auf eine Karte und nimm sie an.</span></button>
-    <button type="button" data-szenario="stellen" aria-pressed="false" aria-controls="prototyp"><b>Challenge stellen</b><i>Stellen</i><span>Foto, Titel, Bounty. Fertig.</span></button>
-    <button type="button" data-szenario="gruppe" aria-pressed="false" aria-controls="prototyp"><b>Gruppe</b><i>Gruppe</i><span>Aufgaben im Hof, belohnt mit Edensteinen.</span></button>
+    <button type="button" data-szenario="finden" aria-pressed="true" aria-controls="prototyp"><b>Challenge finden</b><i>Finden</i><span>Scrollen? Ausnahmsweise richtig nützlich!</span></button>
+    <button type="button" data-szenario="stellen" aria-pressed="false" aria-controls="prototyp"><b>Challenge stellen</b><i>Stellen</i><span>Foto, Titel, Coins. Fertig.</span></button>
+    <button type="button" data-szenario="gruppe" aria-pressed="false" aria-controls="prototyp"><b>Gruppe</b><i>Gruppe</i><span>Selbstorganisation? Easy!</span></button>
   </div>
   </div>
   <p class="hinweis">Das Telefon ist klickbar. Alle Daten darin sind Beispiele.</p>
@@ -203,7 +203,7 @@ ${filterDefs}
 <section class="leute" aria-labelledby="leute-titel">
   <div class="wrap">
     <h2 id="leute-titel">Kiez Coins passt zwischen Briefkasten und Fahrradkeller.</h2>
-    <p>Kleine Aufgaben, die sonst liegen bleiben, findet jemand aus der Nachbarschaft.</p>
+    <p>Aufgaben, die sonst liegen bleiben, erledigt jemand safe - als wäre es ein Spiel</p>
     <div class="szene">
 ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p>${l.figur}</div>`).join('\n')}
     </div>

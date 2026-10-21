@@ -87,7 +87,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         heading: 'Dein Profil und Deine Beiträge',
         paragraphs: [
           'Wir speichern Deinen Decknamen, Dein Profilbild, Deine Ansprache, Deinen Kiez (als Text, zum Beispiel „Prenzlauer Berg, 10435 Berlin“), Deine Einstellungen und die Zeitpunkte Deiner Zustimmung zu diesen Bedingungen.',
-          'Zu Challenges speichern wir Titel, Text, Fotos, Ort als Text, Frist, Bounty, Status und einen auf rund 100 Meter gerundeten Punkt. Dazu kommen Kommentare, Likes, private Operationsnamen und Gruppen samt Mitgliedschaft.',
+          'Zu Challenges speichern wir Titel, Text, Fotos, Ort als Text, Frist, Coins, Status und einen auf rund 100 Meter gerundeten Punkt. Dazu kommen Kommentare, Likes, private Operationsnamen und Gruppen samt Mitgliedschaft.',
           'Andere angemeldete Personen sehen Deinen Decknamen, Dein Profilbild, Deinen Kiez, Deine Challenges und Kommentare. Challenges in Gruppen sehen nur die Mitglieder der Gruppe. Fotos liegen unter einer öffentlichen Adresse. Wer diese Adresse kennt, kann das Foto auch ohne Konto öffnen.',
           'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
         ],
@@ -103,7 +103,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'Zahlungsdaten gibst Du gezielt frei',
         paragraphs: [
-          'Kontoinhaberin oder Kontoinhaber, IBAN und PayPal-Adresse speichern wir nur, wenn Du sie einträgst. Sie sind privat. Für eine Bounty gibst Du sie genau der Person frei, die Dir die Bounty zahlt. Kiez Coins wickelt keine Zahlungen ab.',
+          'Kontoinhaberin oder Kontoinhaber, IBAN und PayPal-Adresse speichern wir nur, wenn Du sie einträgst. Sie sind privat. Für Coins gibst Du sie genau der Person frei, die Dir die Coins zahlt. Kiez Coins wickelt keine Zahlungen ab.',
           'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
         ],
       },
@@ -169,16 +169,16 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         ],
       },
       {
-        heading: '4. Bounties laufen direkt zwischen Euch',
+        heading: '4. Coins laufen direkt zwischen Euch',
         paragraphs: [
-          'Eine Bounty ist eine freiwillige Anerkennung zwischen zwei Personen. Kiez Coins ist nicht Vertragspartei, nimmt kein Geld an und zahlt keins aus. Das Geld fließt direkt per Überweisung oder PayPal. Barzahlung und Treffen zur Zahlung sind nicht vorgesehen.',
-          'Jede Person ist selbst dafür verantwortlich, eine Aufgabe sorgfältig zu erledigen, eine zugesagte Bounty zu zahlen und Einnahmen gegebenenfalls zu versteuern. Eine Challenge begründet kein Arbeitsverhältnis.',
+          'Coins sind eine freiwillige Anerkennung zwischen zwei Personen. Kiez Coins ist nicht Vertragspartei, nimmt kein Geld an und zahlt keins aus. Das Geld fließt direkt per Überweisung oder PayPal. Barzahlung und Treffen zur Zahlung sind nicht vorgesehen.',
+          'Jede Person ist selbst dafür verantwortlich, eine Aufgabe sorgfältig zu erledigen, zugesagte Coins zu zahlen und Einnahmen gegebenenfalls zu versteuern. Eine Challenge begründet kein Arbeitsverhältnis.',
         ],
       },
       {
         heading: '5. Melden und Moderation',
         paragraphs: [
-          'Über die Fahne an Challenges und Kommentaren, über „Person melden“ oder per E-Mail meldest Du Verstöße und rechtswidrige Inhalte. Wir prüfen jede Meldung und entfernen Inhalte, die gegen diese Bedingungen oder geltendes Recht verstoßen. Bei Verstößen können wir ein Konto sperren oder das Anbieten von Bounties beschränken. Wir begründen solche Entscheidungen per E-Mail. Du kannst ihnen per E-Mail widersprechen.',
+          'Über die Fahne an Challenges und Kommentaren, über „Person melden“ oder per E-Mail meldest Du Verstöße und rechtswidrige Inhalte. Wir prüfen jede Meldung und entfernen Inhalte, die gegen diese Bedingungen oder geltendes Recht verstoßen. Bei Verstößen können wir ein Konto sperren oder das Anbieten von Coins beschränken. Wir begründen solche Entscheidungen per E-Mail. Du kannst ihnen per E-Mail widersprechen.',
         ],
       },
       {
@@ -234,9 +234,9 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         ],
       },
       {
-        heading: 'Ehrlichkeit trägt die Bounties',
+        heading: 'Ehrlichkeit trägt die Coins',
         paragraphs: [
-          'Ein Profil gehört zu einem echten Menschen oder einer echten Gruppe. Zugesagte Bounties zahlst Du, erledigte Aufgaben meldest Du wahrheitsgemäß. Fake-Profile, Täuschung, Werbung und Spam sind verboten.',
+          'Ein Profil gehört zu einem echten Menschen oder einer echten Gruppe. Zugesagte Coins zahlst Du, erledigte Aufgaben meldest Du wahrheitsgemäß. Fake-Profile, Täuschung, Werbung und Spam sind verboten.',
         ],
       },
       {
@@ -261,7 +261,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'So reagiert die Moderation',
         paragraphs: [
-          'Wir prüfen jede Meldung zeitnah. Bei Verstößen entfernen wir Inhalte, verwarnen, beschränken Bounties oder sperren das Konto, bei schweren Verstößen sofort und dauerhaft. Straftaten zeigen wir an.',
+          'Wir prüfen jede Meldung zeitnah. Bei Verstößen entfernen wir Inhalte, verwarnen, beschränken Coins oder sperren das Konto, bei schweren Verstößen sofort und dauerhaft. Straftaten zeigen wir an.',
           'Unsere Entscheidung begründen wir per E-Mail. Du kannst ihr per E-Mail widersprechen, wir prüfen den Fall dann erneut.',
         ],
       },

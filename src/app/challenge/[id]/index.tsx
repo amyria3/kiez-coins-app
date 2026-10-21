@@ -87,9 +87,9 @@ export default function ChallengeDetail() {
   } else if (isAuthor && challenge.status === 'reported') {
     actions = <Button label="Erledigung prüfen" onPress={() => router.push(`/challenge/${challenge.id}/review`)} />;
   } else if (isAuthor && challenge.status === 'payment_open') {
-    actions = <Button label="Bounty bezahlen" onPress={() => router.push(`/challenge/${challenge.id}/pay`)} />;
+    actions = <Button label="Coins bezahlen" onPress={() => router.push(`/challenge/${challenge.id}/pay`)} />;
   } else if (isAssignee && challenge.status === 'paid_marked') {
-    actions = <Button label="Bounty bestätigen" onPress={() => router.push(`/challenge/${challenge.id}/payment`)} />;
+    actions = <Button label="Coins bestätigen" onPress={() => router.push(`/challenge/${challenge.id}/payment`)} />;
   }
 
   const openProfile = (userId: string) =>
@@ -233,7 +233,7 @@ export default function ChallengeDetail() {
         {challenge.bountyAmount ? (
           <View style={styles.metric}>
             <CoinsIcon height={28} />
-            <Text style={styles.metricLabel}>Bounty</Text>
+            <Text style={styles.metricLabel}>Coins</Text>
             <Text style={[styles.metricValue, styles.signal]}>{formatBountyShort(challenge.bountyAmount)}</Text>
           </View>
         ) : null}
@@ -303,7 +303,7 @@ export default function ChallengeDetail() {
           message={
             acceptedByMe
               ? t('{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })
-              : t('{firstName} zahlt die Bounty direkt an Dich, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName })
+              : t('{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName })
           }
         />
       ) : null}

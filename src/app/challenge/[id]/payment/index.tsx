@@ -12,7 +12,7 @@ import { useChallenge, useStore } from '../../../../data/store';
 import { color, space, text } from '../../../../theme/tokens';
 import { t } from '../../../../data/texts';
 
-/** Route `challenge/[id]/payment` (Push). Figma: `challenge/payment`, Empfang der Bounty bestätigen. */
+/** Route `challenge/[id]/payment` (Push). Figma: `challenge/payment`, Empfang der Coins bestätigen. */
 export default function PaymentScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -30,7 +30,7 @@ export default function PaymentScreen() {
 
   return (
     <SubScreen
-      title="Bounty"
+      title="Coins"
       navigation="back"
       onLeadingPress={() => router.back()}
       actions={
@@ -46,7 +46,7 @@ export default function PaymentScreen() {
     >
       <AuthorRow user={author} location={challenge.location} trailing={<StatusBadge status={challenge.status} />} />
       <View style={styles.block}>
-        <Text style={styles.title}>Ist die Bounty angekommen?</Text>
+        <Text style={styles.title}>Sind die Coins angekommen?</Text>
         <Text style={styles.secondary}>{day
             ? t('{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schau auf Dein Konto oder in PayPal.', { firstName: author.firstName, day, bountyAmount: formatEuro(challenge.bountyAmount) })
             : t('{firstName} hat die {bountyAmount} als bezahlt markiert. Schau auf Dein Konto oder in PayPal.', { firstName: author.firstName, bountyAmount: formatEuro(challenge.bountyAmount) })}</Text>
