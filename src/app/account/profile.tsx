@@ -86,7 +86,7 @@ export default function PersonalDetails() {
             </View>
           ) : null}
           <View style={styles.camera}>
-            <Icon name="camera" size={14} color={color.text.primary} />
+            <Icon name="camera" size={13} color={color.text.primary} />
           </View>
         </View>
         <Text style={styles.avatarLabel}>{me.avatar ? 'Profilbild ändern' : 'Profilbild hinzufügen'}</Text>
@@ -127,10 +127,10 @@ const styles = StyleSheet.create({
   // Kamera-Knopf unten rechts am Bild
   camera: {
     position: 'absolute',
-    right: -4,
-    bottom: -4,
-    width: 40,
-    height: 40,
+    right: -6,
+    bottom: -6,
+    width: 44,
+    height: 44,
     borderRadius: radius.full,
     backgroundColor: color.bg.surface,
     borderWidth: stroke.ring,
