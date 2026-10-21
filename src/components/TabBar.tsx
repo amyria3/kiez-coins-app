@@ -2,7 +2,6 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { color, radius, size, space, stroke } from '../theme/tokens';
-import { Cat } from './icons/Brand';
 import { Icon } from './icons/Icon';
 
 export type TabKey = 'feed' | 'reise';
@@ -20,7 +19,7 @@ type TabBarProps = {
 };
 
 /**
- * Schwebende Tab-Leiste (Upgrade „Nachtschicht“): Stecknadel = Feed, Kater = YourPleasure,
+ * Schwebende Tab-Leiste (Upgrade „Nachtschicht“): Stecknadel = Feed, Schiff = YourPleasure,
  * Burger = Menü (Konto). Die aktive Seite liegt auf einer dezenten, halbtransparenten Pille.
  * Challenge erstellen sitzt als CameraButton oben rechts.
  */
@@ -47,7 +46,7 @@ export function TabBar({ active, onFeedPress, onReisePress, onReiseLongPress, on
           style={({ pressed }) => [styles.item, active === 'reise' && styles.itemActive, pressed && styles.pressed]}
         >
           <View>
-            <Cat height={22} />
+            <Icon name="ship" size={size.icon} color={active === 'reise' ? color.text.primary : color.text.secondary} />
             {hasTasks ? <View style={styles.dot} /> : null}
           </View>
         </Pressable>

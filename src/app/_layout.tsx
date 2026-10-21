@@ -13,6 +13,7 @@ import { WebAlertHost } from '../components/WebAlert';
 import { AuthProvider, useAuth } from '../data/auth';
 import { StoreProvider } from '../data/store';
 import { loadTexts } from '../data/texts';
+import { LoadingScreen } from '../components/GearsLoader';
 import { color } from '../theme/tokens';
 
 SplashScreen.preventAutoHideAsync();
@@ -53,7 +54,7 @@ export default function RootLayout() {
 function RootStack() {
   const { loading } = useAuth();
   // Erst rendern, wenn die gespeicherte Sitzung gelesen ist, sonst springt der Start kurz ins Onboarding.
-  if (loading) return null;
+  if (loading) return <LoadingScreen />;
 
   return (
     <>
