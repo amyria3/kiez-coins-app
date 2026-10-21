@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase';
 import type {
   Challenge,
+  ChallengeReportReason,
   ChallengeStatus,
   ExtraPhoto,
   Group,
@@ -10,6 +11,7 @@ import type {
   PayoutShare,
   Profile,
   User,
+  ModerationReport,
   UserReportReason,
 } from './types';
 
@@ -200,7 +202,28 @@ function check<T extends { error: unknown }>(result: T): T {
 // comments(*): reply_to_id kommt mit, sobald die Migration eingespielt ist
 const CHALLENGE_COLUMNS = '*, comments(*)';
 
-export type LiveData = { users: User[]; challenges: Challenge[]; canOfferBounties: boolean; groups: Group[] };
+export type LiveData = {
+  users: User[];
+  challenges: Challenge[];
+  canOfferBounties: boolean;
+  groups: Group[];
+  /** Personen, die Du blockiert hast (Migration 20261021000700) */
+  blockedIds: string[];
+};
+
+/** Eigene Blockierungen. Leer, solange die Migration `moderation` fehlt. */
+async function loadBlockedIds(): Promise<Set<string>> {
+  const { data, error } = await supabase.from('blocks').select('blocked_id');
+  if (error) return new Set();
+  return new Set((data ?? []).map((b) => b.blocked_id as string));
+}
+
+function hideBlocked(rows: ChallengeRow[], blocked: Set<string>): ChallengeRow[] {
+  if (!blocked.size) return rows;
+  return rows
+    .filter((r) => !blocked.has(r.author_id))
+    .map((r) => ({ ...r, comments: (r.comments ?? []).filter((c) => !blocked.has(c.author_id)) }));
+}
 
 type GroupRow = {
   id: string;
@@ -238,9 +261,11 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
     loadViewCounts(),
     loadGroups(),
   ]);
+  const blocked = await loadBlockedIds();
   for (const res of [challengesRes, likesRes, namesRes, sharesRes, payoutRes]) check(res);
 
-  const rows = (challengesRes.data ?? []) as unknown as ChallengeRow[];
+  // Blockierte Personen: ihre Challenges und Kommentare verschwinden für Dich
+  const rows = hideBlocked((challengesRes.data ?? []) as unknown as ChallengeRow[], blocked);
   const liked = new Set((likesRes.data ?? []).map((l) => l.challenge_id as string));
   const names = new Map((namesRes.data ?? []).map((n) => [n.challenge_id as string, n.name as string]));
   const shares = new Map(((sharesRes.data ?? []) as ShareRow[]).map((s) => [s.challenge_id, s]));
@@ -273,6 +298,7 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
     })),
     canOfferBounties: me?.can_offer_bounties ?? true,
     groups,
+    blockedIds: [...blocked],
   };
 }
 
@@ -293,7 +319,8 @@ export async function loadChallenge(
   ]);
   for (const res of [rowRes, likeRes, nameRes, shareRes]) check(res);
   if (!rowRes.data) return { challenge: null, users: [] };
-  const row = rowRes.data as unknown as ChallengeRow;
+  const [row] = hideBlocked([rowRes.data as unknown as ChallengeRow], await loadBlockedIds());
+  if (!row) return { challenge: null, users: [] };
   const ids = new Set([row.author_id, ...(row.assignee_id ? [row.assignee_id] : []), ...row.comments.map((c) => c.author_id)]);
   ids.delete(userId); // das eigene Profil samt Zahlungsdaten kennt die App schon
   const profilesRes = ids.size
@@ -675,6 +702,132 @@ export async function reportUser(input: {
       reason: input.reason,
       description: input.description?.trim() || null,
     }),
+  );
+}
+
+export async function reportChallenge(input: { challengeId: string; reason: ChallengeReportReason; description?: string }) {
+  const res = await supabase.from('challenge_reports').insert({
+    challenge_id: input.challengeId,
+    reason: input.reason,
+    description: input.description?.trim() || null,
+  });
+  // Zweite Meldung derselben Person zur selben Challenge: die erste liegt schon bei der Moderation
+  if ((res.error as { code?: string } | null)?.code === '23505') return;
+  check(res);
+}
+
+export async function blockUser(userId: string) {
+  const res = await supabase.from('blocks').insert({ blocked_id: userId });
+  if ((res.error as { code?: string } | null)?.code === '23505') return;
+  check(res);
+}
+
+export async function unblockUser(userId: string) {
+  check(await supabase.from('blocks').delete().eq('blocked_id', userId));
+}
+
+/** Profile der blockierten Personen, für die Liste in „Dein Konto“. */
+export async function loadBlockedUsers(): Promise<User[]> {
+  const ids = [...(await loadBlockedIds())];
+  if (!ids.length) return [];
+  const res = check(
+    await supabase.from('profiles').select('id, handle, avatar_path, kiez, is_group, can_offer_bounties').in('id', ids),
+  );
+  return ((res.data ?? []) as ProfileRow[]).map((p) => toUser(p));
+}
+
+/** Lob: Anzahl und ob Du schon gelobt hast. null, solange die Migration fehlt. */
+export async function loadPraise(userId: string, meId: string): Promise<{ count: number; mine: boolean } | null> {
+  const [countRes, mineRes] = await Promise.all([
+    supabase.rpc('praise_count', { p_user: userId }),
+    supabase.from('praises').select('receiver_id').eq('giver_id', meId).eq('receiver_id', userId).maybeSingle(),
+  ]);
+  if (countRes.error || mineRes.error) return null;
+  return { count: (countRes.data as number) ?? 0, mine: !!mineRes.data };
+}
+
+export async function setPraise(userId: string, praised: boolean, meId: string) {
+  if (praised) check(await supabase.from('praises').insert({ receiver_id: userId }));
+  else check(await supabase.from('praises').delete().eq('giver_id', meId).eq('receiver_id', userId));
+}
+
+/** true, wenn die angemeldete Person in `moderators` steht. */
+export async function isModerator(): Promise<boolean> {
+  const { data, error } = await supabase.rpc('is_moderator');
+  return !error && data === true;
+}
+
+type ReportRow = {
+  id: string;
+  reporter_id: string;
+  reason: string;
+  description: string | null;
+  status: ModerationReport['status'];
+  created_at: string;
+  reported_id?: string;
+  challenge_id: string | null;
+};
+
+/** Alle Meldungen für die Moderation, neueste zuerst. */
+export async function loadModerationReports(): Promise<{ reports: ModerationReport[]; users: User[]; titles: Record<string, string> }> {
+  const [usersRes, challengesRes] = await Promise.all([
+    supabase.from('user_reports').select('*').order('created_at', { ascending: false }).limit(200),
+    supabase.from('challenge_reports').select('*').order('created_at', { ascending: false }).limit(200),
+  ]);
+  check(usersRes);
+  check(challengesRes);
+  const reports: ModerationReport[] = [
+    ...((usersRes.data ?? []) as ReportRow[]).map((r) => ({
+      kind: 'user' as const,
+      id: r.id,
+      reporterId: r.reporter_id,
+      reportedId: r.reported_id,
+      challengeId: r.challenge_id ?? undefined,
+      reason: r.reason,
+      description: r.description ?? undefined,
+      status: r.status,
+      createdAt: r.created_at,
+    })),
+    ...((challengesRes.data ?? []) as ReportRow[]).map((r) => ({
+      kind: 'challenge' as const,
+      id: r.id,
+      reporterId: r.reporter_id,
+      challengeId: r.challenge_id ?? undefined,
+      reason: r.reason,
+      description: r.description ?? undefined,
+      status: r.status,
+      createdAt: r.created_at,
+    })),
+  ].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+  const challengeIds = [...new Set(reports.flatMap((r) => (r.challengeId ? [r.challengeId] : [])))];
+  const challengeRows = challengeIds.length
+    ? ((check(await supabase.from('challenges').select('id, title, author_id').in('id', challengeIds)).data ?? []) as {
+        id: string;
+        title: string;
+        author_id: string;
+      }[])
+    : [];
+  const titles = Object.fromEntries(challengeRows.map((c) => [c.id, c.title]));
+  const authors = new Map(challengeRows.map((c) => [c.id, c.author_id]));
+  for (const r of reports) if (r.kind === 'challenge' && r.challengeId) r.reportedId = authors.get(r.challengeId);
+
+  const userIds = [...new Set(reports.flatMap((r) => [r.reporterId, ...(r.reportedId ? [r.reportedId] : [])]))];
+  const profiles = userIds.length
+    ? ((check(
+        await supabase.from('profiles').select('id, handle, avatar_path, kiez, is_group, can_offer_bounties').in('id', userIds),
+      ).data ?? []) as ProfileRow[])
+    : [];
+  return { reports, users: profiles.map((p) => toUser(p)), titles };
+}
+
+export async function setReportStatus(report: Pick<ModerationReport, 'kind' | 'id'>, status: ModerationReport['status']) {
+  const table = report.kind === 'user' ? 'user_reports' : 'challenge_reports';
+  check(
+    await supabase
+      .from(table)
+      .update({ status, handled_at: status === 'new' ? null : new Date().toISOString() })
+      .eq('id', report.id),
   );
 }
 
