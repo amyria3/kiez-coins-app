@@ -25,7 +25,7 @@
    ```
    `init` schreibt die Projekt-ID in `app.json`. Diese Änderung committen. Der Build läuft in der Expo-Cloud, etwa 15 Minuten. Am Ende steht ein Link zur `.apk`.
 3. **APK hochladen:** Datei herunterladen, in `kiez-coins.apk` umbenennen, Supabase › Storage › `downloads` › „Upload file“. Grenze: 50 MB. Die APK enthält nur arm64 (alle Android-Handys seit etwa 2017) und bleibt deshalb klein.
-4. **Seite online stellen:** Cloudflare Pages › „Create“ › „Upload assets“, Ordner `website/` hochladen. Danach unter „Custom domains“ `kiezcoins.de` eintragen und die angezeigten DNS-Einträge bei INWX anlegen.
+4. **Seite online stellen:** Das Vercel-Projekt `kiezcoins` ist mit dem GitHub-Repo verknüpft. Jeder Push auf einen Branch erzeugt eine Vorschau, `main` geht live. Im Vercel-Projekt unter „Domains“ `kiezcoins.de` eintragen und die angezeigten DNS-Einträge bei INWX anlegen.
 5. **Testen:** Falsches Passwort zeigt „Das Passwort stimmt nicht.“ Richtiges Passwort startet den Download.
 
 Liegt die Seite unter einer anderen Adresse als `https://kiezcoins.de/`, das Secret `DOWNLOAD_PAGE` mit der Adresse anlegen.
