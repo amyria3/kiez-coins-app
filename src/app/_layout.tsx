@@ -50,7 +50,9 @@ function RootStack() {
     <>
       <StatusBar style="light" />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
-        <Stack.Screen name="challenge/create" options={{ presentation: 'modal' }} />
+        {/* Vollbild ohne Wegwischen: Schließen nur über das X, damit die Frage nach dem Entwurf kommt
+            und die Vorschau nicht wie ein Overlay wirkt, dessen Wischen mit den Gesten der Vorschau konkurriert */}
+        <Stack.Screen name="challenge/create" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
         <Stack.Screen name="challenge/[id]/edit" options={{ presentation: 'modal' }} />
         <Stack.Screen name="challenge/[id]/report/index" options={{ presentation: 'modal' }} />
         <Stack.Screen name="challenge/[id]/report/payout" options={{ presentation: 'modal', gestureEnabled: false }} />
