@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '../components/T';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -13,6 +14,7 @@ import { anrede, formatBountyShort, formatRelative } from '../data/format';
 import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
 import { useStore } from '../data/store';
 import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
+import { t } from '../data/texts';
 
 /** Was in der Karte „Du bist dran“ als Aufgabe steht. */
 function taskLabel({ challenge, role }: ReiseEntry): string {
@@ -62,7 +64,7 @@ export default function Reise() {
           <Pressable
             key={entry.challenge.id}
             accessibilityRole="button"
-            accessibilityLabel={`Du bist dran: ${taskLabel(entry)}, ${entry.label}`}
+            accessibilityLabel={t('Du bist dran: {entry}, {label}', { entry: taskLabel(entry), label: entry.label })}
             onPress={() => router.push(entry.href)}
             style={({ pressed }) => [styles.task, pressed && styles.pressed]}
           >
@@ -96,7 +98,7 @@ export default function Reise() {
                 <Pressable
                   key={group.id}
                   accessibilityRole="button"
-                  accessibilityLabel={`Gruppe ${group.name} öffnen`}
+                  accessibilityLabel={t('Gruppe {name} öffnen', { name: group.name })}
                   onPress={() => router.push(`/gruppen/${group.id}`)}
                   style={({ pressed }) => [styles.row, i > 0 && styles.rowDivider, pressed && styles.pressed]}
                 >
@@ -106,7 +108,7 @@ export default function Reise() {
                     </Text>
                     <Text style={styles.sub} numberOfLines={1}>
                       {group.founderId === currentUserId ? 'Von Dir gegründet' : 'Mitglied'} ·{' '}
-                      {group.members.length === 1 ? '1 Person' : `${group.members.length} Personen`}
+                      {group.members.length === 1 ? '1 Person' : t('{members} Personen', { members: group.members.length })}
                     </Text>
                   </View>
                   <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />

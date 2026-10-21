@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
-import { Alert, Animated, PanResponder, Platform, StyleSheet, Text, View } from 'react-native';
+import { Alert, Animated, PanResponder, Platform, StyleSheet, View } from 'react-native';
+import { Text } from '../../../components/T';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { BlurView } from 'expo-blur';
 import Svg, { Path } from 'react-native-svg';

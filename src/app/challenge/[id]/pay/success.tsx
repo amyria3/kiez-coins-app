@@ -5,6 +5,7 @@ import { Button } from '../../../../components/Button';
 import { ResultScreen } from '../../../../components/Screen';
 import { nameInText } from '../../../../data/format';
 import { useChallenge, useStore } from '../../../../data/store';
+import { t } from '../../../../data/texts';
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -21,7 +22,7 @@ export default function PaySuccess() {
       title="Danke fürs Bezahlen!"
       message={
         assignee
-          ? `${capitalize(nameInText(assignee))} ${assignee.group ? 'bestätigen' : 'bestätigt'} jetzt noch, dass das Geld angekommen ist.`
+          ? t(assignee.group ? '{assignee} bestätigen jetzt noch, dass das Geld angekommen ist.' : '{assignee} bestätigt jetzt noch, dass das Geld angekommen ist.', { assignee: capitalize(nameInText(assignee)) })
           : ''
       }
       onFeedPress={() => router.dismissTo('/feed')}

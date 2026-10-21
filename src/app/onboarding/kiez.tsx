@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Text } from '../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
@@ -95,7 +96,7 @@ export default function Kiez() {
               anrede: anrede(profile),
             })}
       </KaterBubble>
-      {from && profile.kiez ? <InfoRow icon="map-pin" value={`Bisher: ${profile.kiez}`} /> : null}
+      {from && profile.kiez ? <InfoRow icon="map-pin" value={t('Bisher: {kiez}', { kiez: profile.kiez })} /> : null}
       {step === 'found' ? <InfoRow icon="map-pin" value={found} /> : null}
       {step === 'manual' ? (
         <>

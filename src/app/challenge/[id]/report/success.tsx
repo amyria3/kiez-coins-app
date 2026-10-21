@@ -4,6 +4,7 @@ import { StatusBadge } from '../../../../components/Badges';
 import { ResultScreen } from '../../../../components/Screen';
 import { formatEuro } from '../../../../data/format';
 import { useChallenge } from '../../../../data/store';
+import { t } from '../../../../data/texts';
 
 /** Route `challenge/[id]/report/success`. Figma: `challenge/report/success`. */
 export default function ReportSuccess() {
@@ -11,11 +12,15 @@ export default function ReportSuccess() {
   const router = useRouter();
   const { challenge, author } = useChallenge(id);
   const name = author?.firstName ?? '';
-  const data = challenge?.payoutShare?.method === 'paypal' ? 'Dein PayPal' : 'Deine IBAN';
 
   const message = challenge?.bountyAmount
-    ? `Ich sag Dir Bescheid, sobald ${name} bestätigt hat. Dann sieht ${name} ${data} und zahlt Dir die ${formatEuro(challenge.bountyAmount)} direkt.`
-    : `Ich sag Dir Bescheid, sobald ${name} bestätigt hat.`;
+    ? t(
+        challenge?.payoutShare?.method === 'paypal'
+          ? 'Ich sag Dir Bescheid, sobald {name} bestätigt hat. Dann sieht {name} Dein PayPal und zahlt Dir die {bountyAmount} direkt.'
+          : 'Ich sag Dir Bescheid, sobald {name} bestätigt hat. Dann sieht {name} Deine IBAN und zahlt Dir die {bountyAmount} direkt.',
+        { name, bountyAmount: formatEuro(challenge.bountyAmount) },
+      )
+    : t('Ich sag Dir Bescheid, sobald {name} bestätigt hat.', { name });
 
   return (
     <ResultScreen

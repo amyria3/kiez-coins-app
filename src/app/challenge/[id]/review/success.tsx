@@ -6,6 +6,7 @@ import { PaymentDetails } from '../../../../components/PaymentDetails';
 import { ResultScreen } from '../../../../components/Screen';
 import { formatEuro, nameInText } from '../../../../data/format';
 import { useChallenge, useStore } from '../../../../data/store';
+import { t } from '../../../../data/texts';
 
 /**
  * Route `challenge/[id]/review/success`. Figma: `challenge/review/success`.
@@ -19,15 +20,22 @@ export default function ReviewSuccess() {
   if (!challenge || !assignee) return null;
 
   const amount = formatEuro(challenge.bountyAmount ?? 0);
-  const pronoun = assignee.group ? 'ihre' : 'die';
-  const verb = challenge.payoutShare?.method === 'paypal' ? 'Schick' : 'Überweis';
+  const paypal = challenge.payoutShare?.method === 'paypal';
+  // Ganze Sätze je Fall, damit sie sich übersetzen lassen
+  const message = assignee.group
+    ? paypal
+      ? 'Jetzt bist Du dran: Schick die {amount} direkt an {assignee}. Hier sind ihre Zahlungsdaten.'
+      : 'Jetzt bist Du dran: Überweis die {amount} direkt an {assignee}. Hier sind ihre Zahlungsdaten.'
+    : paypal
+      ? 'Jetzt bist Du dran: Schick die {amount} direkt an {assignee}. Hier sind die Zahlungsdaten.'
+      : 'Jetzt bist Du dran: Überweis die {amount} direkt an {assignee}. Hier sind die Zahlungsdaten.';
 
   return (
     <ResultScreen
       mood="high"
       badge={<StatusBadge status="payment_open" />}
       title="Bestätigt!"
-      message={`Jetzt bist Du dran: ${verb} die ${amount} direkt an ${nameInText(assignee)}. Hier sind ${pronoun} Zahlungsdaten.`}
+      message={t(message, { amount, assignee: nameInText(assignee) })}
       onFeedPress={() => router.dismissTo('/feed')}
       actions={
         <>

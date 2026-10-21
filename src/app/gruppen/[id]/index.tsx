@@ -1,4 +1,5 @@
-import { Alert, Pressable, Share, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, Share, StyleSheet, View } from 'react-native';
+import { Text } from '../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Avatar } from '../../../components/AuthorRow';
@@ -11,6 +12,7 @@ import { inviteMessage, leaderboard, MAX_MEMBERS } from '../../../data/groups';
 import { useStore } from '../../../data/store';
 import type { User } from '../../../data/types';
 import { color, radius, space, text } from '../../../theme/tokens';
+import { t } from '../../../data/texts';
 
 /**
  * Route `gruppen/[id]`: Rangliste, Einladungscode, Aufgaben erstellen.
@@ -51,7 +53,7 @@ export default function GroupDetail() {
       {
         text: 'Gründerrolle übertragen',
         onPress: () =>
-          Alert.alert('Gründerrolle übertragen?', `${name} kann dann Mitglieder entfernen. Du bleibst Mitglied.`, [
+          Alert.alert('Gründerrolle übertragen?', t('{name} kann dann Mitglieder entfernen. Du bleibst Mitglied.', { name }), [
             { text: 'Abbrechen', style: 'cancel' },
             { text: 'Übertragen', onPress: () => run(() => groupApi.transferFounder(group.id, userId), 'Nicht übertragen') },
           ]),
@@ -60,7 +62,7 @@ export default function GroupDetail() {
         text: 'Aus der Gruppe entfernen',
         style: 'destructive',
         onPress: () =>
-          Alert.alert(`${name} entfernen?`, 'Die Edensteine bleiben im Verlauf erhalten.', [
+          Alert.alert(t('{name} entfernen?', { name }), 'Die Edensteine bleiben im Verlauf erhalten.', [
             { text: 'Abbrechen', style: 'cancel' },
             { text: 'Entfernen', style: 'destructive', onPress: () => run(() => groupApi.removeMember(group.id, userId), 'Nicht entfernt') },
           ]),
@@ -98,13 +100,13 @@ export default function GroupDetail() {
   return (
     <SubScreen
       title={group.name}
-      subtitle={`${group.members.length} von ${MAX_MEMBERS} Mitgliedern`}
+      subtitle={t('{members} von {MAX_MEMBERS} Mitgliedern', { members: group.members.length, MAX_MEMBERS })}
       navigation="back"
       onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/gruppen'))}
       actions={
         <>
           <Button label="Aufgabe erstellen" onPress={() => router.push(`/gruppen/${group.id}/aufgabe`)} />
-          <Button label={openTasks === 1 ? '1 offene Aufgabe ansehen' : openTasks ? `${openTasks} offene Aufgaben ansehen` : 'Aufgaben ansehen'} variant="ghost" onPress={() => router.replace({ pathname: '/feed', params: { gruppe: group.id } })} />
+          <Button label={openTasks === 1 ? '1 offene Aufgabe ansehen' : openTasks ? t('{openTasks} offene Aufgaben ansehen', { openTasks }) : 'Aufgaben ansehen'} variant="ghost" onPress={() => router.replace({ pathname: '/feed', params: { gruppe: group.id } })} />
         </>
       }
     >
@@ -118,7 +120,7 @@ export default function GroupDetail() {
               <Pressable
                 key={r.userId}
                 accessibilityRole={isFounder && !me ? 'button' : undefined}
-                accessibilityLabel={`Platz ${index + 1}, ${me ? 'Du' : user.name}, ${r.edensteine} Edensteine`}
+                accessibilityLabel={t('Platz {index}, {name}, {edensteine} Edensteine', { index: index + 1, name: me ? t('Du') : user.name, edensteine: r.edensteine })}
                 onPress={() => memberMenu(r.userId)}
                 disabled={!isFounder || me}
                 style={({ pressed }) => [styles.row, me && styles.rowMe, pressed && styles.pressed]}
@@ -131,7 +133,7 @@ export default function GroupDetail() {
                   </Text>
                   <Text style={styles.meta}>
                     {member?.role === 'founder' ? 'Gründerin · ' : ''}
-                    {r.done === 1 ? '1 Aufgabe erledigt' : `${r.done} Aufgaben erledigt`}
+                    {r.done === 1 ? '1 Aufgabe erledigt' : t('{done} Aufgaben erledigt', { done: r.done })}
                   </Text>
                 </View>
                 <EdensteinPile height={20} amount={r.edensteine} />
@@ -149,7 +151,7 @@ export default function GroupDetail() {
           <Button label="Code teilen" variant="secondary" onPress={() => Share.share({ message: inviteMessage(group) })} />
         </FieldGroup>
       ) : (
-        <Text style={styles.meta}>Die Gruppe ist voll. Mehr als {MAX_MEMBERS} Mitglieder geht nicht.</Text>
+        <Text style={styles.meta}>{t('Die Gruppe ist voll. Mehr als {MAX_MEMBERS} Mitglieder geht nicht.', { MAX_MEMBERS })}</Text>
       )}
 
       <Button

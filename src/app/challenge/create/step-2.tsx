@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, Text } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
+import { Text } from '../../../components/T';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';

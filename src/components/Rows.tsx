@@ -1,11 +1,13 @@
 import { useState, type ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Text } from './T';
 
 import type { User } from '../data/types';
 import { color, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
+import { t } from '../data/texts';
 
 type EditableRowProps = {
   label: string;
@@ -29,7 +31,7 @@ export function EditableRow({ label, value, onSave, renderEditor, maxLength }: E
       <Pressable
         style={styles.row}
         accessibilityRole="button"
-        accessibilityLabel={`${label}: ${value}. Ändern`}
+        accessibilityLabel={t('{label}: {value}. Ändern', { label, value })}
         onPress={() => {
           setDraft(value);
           setEditing(true);
@@ -64,7 +66,7 @@ export function EditableRow({ label, value, onSave, renderEditor, maxLength }: E
       </View>
       <IconButton
         icon="check"
-        accessibilityLabel={`${label} speichern`}
+        accessibilityLabel={t('{label} speichern', { label })}
         onPress={() => {
           if (draft.trim()) onSave(draft.trim());
           setEditing(false);
@@ -110,7 +112,7 @@ export function ProfileCard({ user, name, details, onPress }: ProfileCardProps) 
     <Pressable
       style={({ pressed }) => [styles.row, styles.profileCard, pressed && styles.pressed]}
       accessibilityRole="button"
-      accessibilityLabel={`Persönliche Angaben: ${name}, ${details.join(', ')}. Ändern`}
+      accessibilityLabel={t('Persönliche Angaben: {name}, {details}. Ändern', { name, details: details.join(', ') })}
       onPress={onPress}
     >
       <Avatar user={{ ...user, name }} diameter={56} />

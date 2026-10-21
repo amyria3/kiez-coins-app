@@ -1,16 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import {
-  Alert,
-  Animated,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Switch as NativeSwitch,
-  Text,
-  TextInput,
-  View,
-  type TextInputProps,
-} from 'react-native';
+import { Alert, Animated, Platform, Pressable, StyleSheet, Switch as NativeSwitch, TextInput, View, type TextInputProps } from 'react-native';
+import { Text } from './T';
 import * as Clipboard from 'expo-clipboard';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
@@ -21,6 +11,7 @@ import { Glass, glassControls } from './Glass';
 import { nudgeStyles, useNextField, type Nudge } from './Nudge';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
+import { t } from '../data/texts';
 
 type TextFieldProps = Omit<TextInputProps, 'style'> & {
   label: string;
@@ -72,7 +63,7 @@ export function TextField({
           if (onSubmitEditing) onSubmitEditing(e);
           else if (advances) goNext?.();
         }}
-        accessibilityLabel={required ? `${label}, Pflichtfeld` : label}
+        accessibilityLabel={required ? t('{label}, Pflichtfeld', { label }) : label}
         accessibilityHint={helper}
         multiline={multiline}
         placeholderTextColor={color.text.secondary}
@@ -123,7 +114,7 @@ export function ChipGroup({ children }: { children: React.ReactNode }) {
 /** Kennzeichnung für Pflichtangaben: Stern in color/accent/primary */
 export function RequiredMark() {
   return (
-    <Text style={styles.required} accessibilityLabel="Pflichtfeld">
+    <Text style={styles.required} accessibilityLabel={t('Pflichtfeld')}>
       {' *'}
     </Text>
   );
@@ -247,7 +238,7 @@ export function CopyField({ label, value }: { label: string; value: string }) {
       </View>
       <IconButton
         icon={copied ? 'check' : 'copy'}
-        accessibilityLabel={`${label} kopieren`}
+        accessibilityLabel={t('{label} kopieren', { label })}
         onPress={async () => {
           await Clipboard.setStringAsync(value);
           setCopied(true);
@@ -316,13 +307,13 @@ export function ExtraPhotos({
 }) {
   return (
     <View style={styles.field}>
-      <Text style={styles.fieldLabel}>Weitere Fotos (optional, bis zu {max})</Text>
+      <Text style={styles.fieldLabel}>{t('Weitere Fotos (optional, bis zu {max})', { max })}</Text>
       <View style={styles.extraRow}>
         {photos.map((photo, i) => (
           <Pressable
             key={i}
             accessibilityRole="button"
-            accessibilityLabel={`Foto ${i + 2} entfernen`}
+            accessibilityLabel={t('Foto {i} entfernen', { i: i + 2 })}
             onPress={() => onRemove(i)}
             style={styles.extraTile}
           >
@@ -335,7 +326,7 @@ export function ExtraPhotos({
         {photos.length < max ? (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Weiteres Foto hinzufügen"
+            accessibilityLabel={t('Weiteres Foto hinzufügen')}
             onPress={() => choosePhoto(onAdd)}
             style={[styles.extraTile, styles.extraAdd]}
           >
@@ -353,7 +344,7 @@ export function PhotoPicker({ photo, hint, onChange }: PhotoPickerProps) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={photo ? 'Foto ändern' : 'Foto aufnehmen oder auswählen'}
+      accessibilityLabel={photo ? t('Foto ändern') : t('Foto aufnehmen oder auswählen')}
       accessibilityHint={hint}
       onPress={choose}
       style={[styles.photoPicker, !photo && styles.photoPickerEmpty]}

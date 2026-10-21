@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Alert, Platform, Pressable, StyleSheet, Text, View, type AlertButton } from 'react-native';
+import { Alert, Platform, Pressable, StyleSheet, View, type AlertButton } from 'react-native';
+import { Text } from './T';
 
 import { color, radius, space, text } from '../theme/tokens';
 import { Button } from './Button';
+import { t } from '../data/texts';
 
 // Im Browser ist `Alert.alert` von react-native-web leer: Rückfragen wie „Challenge löschen?“ erscheinen dort nicht.
 // WebAlertHost ersetzt `Alert.alert` in der Web-App durch einen eigenen Dialog im Stil der App.
@@ -56,7 +58,7 @@ export function WebAlertHost() {
     <View style={styles.backdrop} accessibilityViewIsModal>
       <Pressable
         style={StyleSheet.absoluteFill}
-        accessibilityLabel="Schließen"
+        accessibilityLabel={t('Schließen')}
         onPress={() => dialog.cancelable && cancel && close(cancel)}
       />
       <View style={styles.card} accessibilityRole="alert">

@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from './T';
 
 import type { FeedState } from '../data/types';
 import { color, space, text } from '../theme/tokens';

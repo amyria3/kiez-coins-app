@@ -1,10 +1,12 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from './T';
 
 import { formatEuroCents } from '../data/format';
 import type { Challenge, User } from '../data/types';
 import { color, space, text } from '../theme/tokens';
 import { Notice } from './Content';
 import { CopyField } from './Form';
+import { t } from '../data/texts';
 
 type PaymentDetailsProps = {
   challenge: Challenge;
@@ -39,10 +41,10 @@ export function PaymentDetails({ challenge, recipient, noticeFirst }: PaymentDet
       {!share ? (
         <Notice
           variant="warning"
-          message={`${recipient.firstName} hat noch keine Zahlungsdaten freigegeben. Frag am besten in den Kommentaren nach.`}
+          message={t('{firstName} hat noch keine Zahlungsdaten freigegeben. Frag am besten in den Kommentaren nach.', { firstName: recipient.firstName })}
         />
       ) : null}
-      <CopyField label="Verwendungszweck" value={`Kiez Coins: ${challenge.title}`} />
+      <CopyField label="Verwendungszweck" value={t('Kiez Coins: {title}', { title: challenge.title })} />
       {noticeFirst ? null : notice}
     </View>
   );

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
@@ -12,6 +13,7 @@ import { useStore } from '../../../data/store';
 import type { ImageSource } from '../../../data/types';
 import { color, radius, size, space, text } from '../../../theme/tokens';
 import { explain, useNudge } from '../../../components/Nudge';
+import { t } from '../../../data/texts';
 
 const durations = [
   { days: 1, label: '1 Tag' },
@@ -82,20 +84,20 @@ export default function NewGroupTask() {
         <View style={styles.stepper}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Ein Edenstein weniger"
+            accessibilityLabel={t('Ein Edenstein weniger')}
             onPress={() => step(-1)}
             disabled={edensteine <= 1}
             style={[styles.stepButton, edensteine <= 1 && styles.disabled]}
           >
             <Text style={styles.stepText}>−</Text>
           </Pressable>
-          <View style={styles.value} accessible accessibilityLabel={`${edensteine} Edensteine`}>
+          <View style={styles.value} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine })}>
             <EdensteinPile height={30} amount={edensteine} />
             <Text style={styles.valueText}>{edensteine}</Text>
           </View>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Ein Edenstein mehr"
+            accessibilityLabel={t('Ein Edenstein mehr')}
             onPress={() => step(1)}
             disabled={edensteine >= 10}
             style={[styles.stepButton, edensteine >= 10 && styles.disabled]}

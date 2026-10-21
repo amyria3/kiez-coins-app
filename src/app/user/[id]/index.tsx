@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
+import { Text } from '../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Avatar, hiddenText, useHideName } from '../../../components/AuthorRow';
@@ -12,6 +13,7 @@ import { nameInText } from '../../../data/format';
 import { errorText, loadPraise, setPraise } from '../../../data/remote';
 import { useStore } from '../../../data/store';
 import { color, radius, space, text } from '../../../theme/tokens';
+import { t } from '../../../data/texts';
 
 /**
  * Route `user/[id]` (Push). Einfache Ansicht einer anderen Person: Foto, Name, Kiez, Lob.
@@ -66,8 +68,10 @@ export default function UserProfile() {
 
   const block = () =>
     Alert.alert(
-      `${Name} blockieren?`,
-      `Du siehst ${plural ? 'ihre' : 'die'} Challenges und Kommentare nicht mehr. ${Name} ${plural ? 'können' : 'kann'} Deine Challenges weder annehmen noch kommentieren und ${plural ? 'erfahren' : 'erfährt'} nichts davon. Aufheben kannst Du das unter „Dein Konto“.`,
+      t('{Name} blockieren?', { Name }),
+      plural
+        ? t('Du siehst ihre Challenges und Kommentare nicht mehr. {Name} können Deine Challenges weder annehmen noch kommentieren und erfahren nichts davon. Aufheben kannst Du das unter „Dein Konto“.', { Name })
+        : t('Du siehst die Challenges und Kommentare nicht mehr. {Name} kann Deine Challenges weder annehmen noch kommentieren und erfährt nichts davon. Aufheben kannst Du das unter „Dein Konto“.', { Name }),
       [
         { text: 'Abbrechen', style: 'cancel' },
         {
@@ -88,7 +92,7 @@ export default function UserProfile() {
         <Text
           style={[styles.name, hidden && hiddenText]}
           accessibilityRole="header"
-          accessibilityLabel={hidden ? 'Name verdeckt, solange Dein Kiez fehlt' : undefined}
+          accessibilityLabel={hidden ? t('Name verdeckt, solange Dein Kiez fehlt') : undefined}
         >
           {user.name}
         </Text>
@@ -99,7 +103,7 @@ export default function UserProfile() {
           </View>
         ) : null}
         {praise ? (
-          <View style={styles.praise} accessibilityLabel={`${praise.count} Mal gelobt`}>
+          <View style={styles.praise} accessibilityLabel={t('{count} Mal gelobt', { count: praise.count })}>
             <Icon name="thumbs-up" size={18} color={color.accent.confirmation} />
             <Text style={styles.praiseText}>{praise.count === 1 ? '1 Lob' : `${praise.count} Lob`}</Text>
           </View>

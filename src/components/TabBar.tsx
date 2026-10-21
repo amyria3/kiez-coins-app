@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { color, radius, size, space, stroke } from '../theme/tokens';
 import { Icon } from './icons/Icon';
 import { CrownIcon } from './icons/Brand';
+import { t } from '../data/texts';
 
 export type TabKey = 'feed' | 'reise';
 
@@ -31,7 +32,7 @@ export function TabBar({ active, onFeedPress, onReisePress, onReiseLongPress, on
       <View style={styles.bar} accessibilityRole="tablist">
         <Pressable
           accessibilityRole="tab"
-          accessibilityLabel="Feed"
+          accessibilityLabel={t('Feed')}
           accessibilityState={{ selected: active === 'feed' }}
           onPress={onFeedPress}
           style={({ pressed }) => [styles.item, active === 'feed' && styles.itemActive, pressed && styles.pressed]}
@@ -40,7 +41,7 @@ export function TabBar({ active, onFeedPress, onReisePress, onReiseLongPress, on
         </Pressable>
         <Pressable
           accessibilityRole="tab"
-          accessibilityLabel={hasTasks ? 'Your Pleasure, Du bist dran' : 'Your Pleasure'}
+          accessibilityLabel={hasTasks ? t('Your Pleasure, Du bist dran') : t('Your Pleasure')}
           accessibilityState={{ selected: active === 'reise' }}
           onPress={onReisePress}
           onLongPress={onReiseLongPress}
@@ -53,7 +54,7 @@ export function TabBar({ active, onFeedPress, onReisePress, onReiseLongPress, on
         </Pressable>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Menü"
+          accessibilityLabel={t('Menü')}
           onPress={onMenuPress}
           style={({ pressed }) => [styles.item, pressed && styles.pressed]}
         >
@@ -70,7 +71,7 @@ export function CameraButton({ onPress }: { onPress: () => void }) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="Challenge erstellen"
+      accessibilityLabel={t('Challenge erstellen')}
       onPress={onPress}
       hitSlop={4}
       style={({ pressed }) => [styles.camera, { top: insets.top + space[8] }, pressed && styles.pressed]}

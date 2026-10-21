@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
+import { Text } from '../../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AuthorRow } from '../../../../components/AuthorRow';
@@ -13,6 +14,7 @@ import { useChallenge, useStore } from '../../../../data/store';
 import type { UserReportReason } from '../../../../data/types';
 import { color, space, text } from '../../../../theme/tokens';
 import { NudgeArea, useNudge } from '../../../../components/Nudge';
+import { t } from '../../../../data/texts';
 
 const reasons: { key: UserReportReason; label: string }[] = [
   { key: 'discrimination', label: 'Sexismus, Rassismus, Antisemitismus oder andere Diskriminierung' },
@@ -97,7 +99,16 @@ export default function UserReportScreen() {
       />
       <Notice
         variant="warning"
-        message={`Die Moderation sieht Deine Meldung${challenge ? ' und die Challenge' : ''}. ${name.charAt(0).toUpperCase() + name.slice(1)} ${user.group ? 'erfahren' : 'erfährt'} nicht, wer gemeldet hat. Falsche Meldungen können zur Sperre führen.`}
+        message={t(
+          challenge
+            ? user.group
+              ? 'Die Moderation sieht Deine Meldung und die Challenge. {name} erfahren nicht, wer gemeldet hat. Falsche Meldungen können zur Sperre führen.'
+              : 'Die Moderation sieht Deine Meldung und die Challenge. {name} erfährt nicht, wer gemeldet hat. Falsche Meldungen können zur Sperre führen.'
+            : user.group
+              ? 'Die Moderation sieht Deine Meldung. {name} erfahren nicht, wer gemeldet hat. Falsche Meldungen können zur Sperre führen.'
+              : 'Die Moderation sieht Deine Meldung. {name} erfährt nicht, wer gemeldet hat. Falsche Meldungen können zur Sperre führen.',
+          { name: name.charAt(0).toUpperCase() + name.slice(1) },
+        )}
       />
       <Notice message="Bist Du in Gefahr? Ruf die Polizei unter 110." />
     </SubScreen>

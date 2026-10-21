@@ -11,6 +11,7 @@ import { loadOwnProfile } from '../../data/remote';
 import { supabase } from '../../lib/supabase';
 import { useStore } from '../../data/store';
 import { useNudge } from '../../components/Nudge';
+import { t } from '../../data/texts';
 
 /** Supabase verschickt je nach Projekteinstellung 6 bis 8 Ziffern (Standard: 6). */
 const MIN_DIGITS = 6;
@@ -55,7 +56,7 @@ export default function Code() {
   const resend = async () => {
     const failure = await sendCode(profile.email, !existing);
     if (failure) setError(failure);
-    else Alert.alert('Code neu gesendet', `Schau in Dein Postfach: ${profile.email}`);
+    else Alert.alert('Code neu gesendet', t('Schau in Dein Postfach: {email}', { email: profile.email }));
   };
 
   return (
@@ -70,7 +71,7 @@ export default function Code() {
             label={busy ? 'Wird geprüft …' : 'Bestätigen'}
             onPress={confirm}
             disabled={digits.length < MIN_DIGITS || busy}
-            whyDisabled={() => !busy && codeField.nudge(`Der Code hat ${MIN_DIGITS} Ziffern.`)}
+            whyDisabled={() => !busy && codeField.nudge(t('Der Code hat {MIN_DIGITS} Ziffern.', { MIN_DIGITS }))}
           />
           <Button label="Code neu senden" variant="secondary" onPress={resend} disabled={busy} />
         </>
@@ -80,7 +81,7 @@ export default function Code() {
       <TextField
         label="Code aus der E-Mail" required
         nudge={codeField}
-        helperText={`Gesendet an ${profile.email}. Gilt 20 Minuten.`}
+        helperText={t('Gesendet an {email}. Gilt 20 Minuten.', { email: profile.email })}
         error={error}
         value={digits.length === 6 ? `${digits.slice(0, 3)} ${digits.slice(3)}` : digits}
         onChangeText={(v) => {

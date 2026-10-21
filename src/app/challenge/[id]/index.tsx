@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, Share, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, Share, StyleSheet, View } from 'react-native';
+import { Text } from '../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AuthorRow } from '../../../components/AuthorRow';
@@ -163,7 +164,7 @@ export default function ChallengeDetail() {
             <GlassIconButton
               icon="settings"
               variant="regular"
-              accessibilityLabel="Challenge verwalten"
+              accessibilityLabel={t('Challenge verwalten')}
               onPress={() => setMenuOpen((open) => !open)}
               style={[styles.gear, menuOpen && styles.gearOpen]}
             />
@@ -172,7 +173,7 @@ export default function ChallengeDetail() {
               icon="flag"
               iconSize={size.icon}
               iconColor={color.text.secondary}
-              accessibilityLabel="Challenge melden"
+              accessibilityLabel={t('Challenge melden')}
               onPress={() => router.push(`/challenge/${challenge.id}/flag`)}
             />
           ) : null}
@@ -263,12 +264,12 @@ export default function ChallengeDetail() {
           </KaterBubble>
           <InfoRow icon="map-pin" value={challenge.location} />
           {challenge.acceptedAt ? (
-            <InfoRow icon="check" value={`Von Dir angenommen am ${formatDayMonthShort(challenge.acceptedAt)}`} />
+            <InfoRow icon="check" value={t('Von Dir angenommen am {acceptedAt}', { acceptedAt: formatDayMonthShort(challenge.acceptedAt) })} />
           ) : null}
           {challenge.rejectionReason ? (
             <Notice
               variant="warning"
-              message={`${author.firstName} hat die Erledigung abgelehnt: „${challenge.rejectionReason}“`}
+              message={t('{firstName} hat die Erledigung abgelehnt: „{rejectionReason}“', { firstName: author.firstName, rejectionReason: challenge.rejectionReason })}
             />
           ) : null}
           {!named ? (
@@ -301,8 +302,8 @@ export default function ChallengeDetail() {
         <Notice
           message={
             acceptedByMe
-              ? `${author.firstName} zahlt die ${amount} direkt an Dich. Beim Erledigt-Melden gibst Du ${author.firstName} dafür Deine IBAN oder PayPal frei. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.`
-              : `${author.firstName} zahlt die Bounty direkt an Dich, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.`
+              ? t('{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })
+              : t('{firstName} zahlt die Bounty direkt an Dich, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName })
           }
         />
       ) : null}
@@ -311,7 +312,7 @@ export default function ChallengeDetail() {
           comments={challenge.comments}
           users={users}
           currentUserId={currentUserId}
-          composerPlaceholder={isAuthor ? 'Antworte oder ergänze etwas …' : `Frag ${author.firstName} …`}
+          composerPlaceholder={isAuthor ? 'Antworte oder ergänze etwas …' : t('Frag {firstName} …', { firstName: author.firstName })}
           onSend={
             challenge.status === 'closed' || challenge.status === 'deleted' || !canWrite
               ? undefined
@@ -354,7 +355,7 @@ export default function ChallengeDetail() {
       moreImages={challenge.extraImages?.map((e) => e.photo)}
       imageLabel={challenge.title}
       onBackPress={() => router.back()}
-      onSharePress={() => Share.share({ message: `${challenge.title} – Kiez Coins` })}
+      onSharePress={() => Share.share({ message: t('{title} – Kiez Coins', { title: challenge.title }) })}
       imageOverlay={acceptedByMe && challenge.operationName ? <OperationTag name={challenge.operationName} /> : undefined}
       actions={actions}
       summary={summary}

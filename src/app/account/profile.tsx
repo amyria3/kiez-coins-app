@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../../components/T';
 import { useRouter } from 'expo-router';
 
 import { Avatar } from '../../components/AuthorRow';
@@ -15,6 +16,7 @@ import { errorText, saveAvatar, saveHandle } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
 import type { ImageSource } from '../../data/types';
 import { color, radius, space, text } from '../../theme/tokens';
+import { t } from '../../data/texts';
 
 const AVATAR = 112;
 
@@ -75,7 +77,7 @@ export default function PersonalDetails() {
         onPress={pickAvatar}
         disabled={uploading}
         accessibilityRole="button"
-        accessibilityLabel={me.avatar ? 'Profilbild ändern' : 'Profilbild hinzufügen'}
+        accessibilityLabel={me.avatar ? t('Profilbild ändern') : t('Profilbild hinzufügen')}
         style={({ pressed }) => [styles.avatarBlock, pressed && styles.pressed]}
       >
         <View>

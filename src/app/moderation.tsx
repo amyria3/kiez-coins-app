@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
+import { Text } from '../components/T';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../components/Button';
@@ -10,6 +11,7 @@ import { formatRelative } from '../data/format';
 import { errorText, loadModerationReports, setReportStatus } from '../data/remote';
 import type { ModerationReport, User } from '../data/types';
 import { color, radius, space, text } from '../theme/tokens';
+import { t } from '../data/texts';
 
 const reasonLabels: Record<string, string> = {
   discrimination: 'Diskriminierung',
@@ -65,7 +67,7 @@ export default function Moderation() {
   const open = data?.reports.filter((r) => r.status === 'new').length ?? 0;
 
   return (
-    <SubScreen title="Moderation" subtitle={`${open} offen`} navigation="back" onLeadingPress={() => router.back()}>
+    <SubScreen title="Moderation" subtitle={t('{open} offen', { open })} navigation="back" onLeadingPress={() => router.back()}>
       <Notice message="Bestätigst Du eine Meldung, entfernst Du den Inhalt oder sperrst das Konto im Supabase-Dashboard und schreibst der Person per E-Mail, warum." />
       <NavRow
         label={showDone ? 'Nur offene zeigen' : 'Auch erledigte zeigen'}
@@ -78,11 +80,13 @@ export default function Moderation() {
             {r.kind === 'user' ? 'Person' : 'Challenge'} · {statusLabels[r.status]} · {formatRelative(r.createdAt)}
           </Text>
           <Text style={styles.title}>{reasonLabels[r.reason] ?? r.reason}</Text>
-          <Text style={styles.body}>
-            Gemeldet: {userName(r.reportedId)}
-            {r.challengeId ? `\nChallenge: ${data?.titles[r.challengeId] ?? 'gelöscht'}` : ''}
-            {`\nVon: ${userName(r.reporterId)}`}
-          </Text>
+          <Text style={styles.body}>{[
+              t('Gemeldet: {name}', { name: userName(r.reportedId) }),
+              r.challengeId ? t('Challenge: {title}', { title: data?.titles[r.challengeId] ?? t('gelöscht') }) : null,
+              t('Von: {name}', { name: userName(r.reporterId) }),
+            ]
+              .filter(Boolean)
+              .join('\n')}</Text>
           {r.description ? <Text style={styles.description}>„{r.description}“</Text> : null}
           <View style={styles.actions}>
             {r.challengeId && data?.titles[r.challengeId] ? (

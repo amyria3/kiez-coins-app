@@ -55,7 +55,8 @@
             ]
           }
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "scheme": "kiezcoins",
     "backgroundColor": "#1F2123",
@@ -63,7 +64,8 @@
       "router": {},
       "eas": {
         "projectId": "e35cf809-b06f-4797-9ef0-d906e655123e"
-      }
+      },
+      "supportsRTL": true
     },
     "owner": "kiezcoins"
   }

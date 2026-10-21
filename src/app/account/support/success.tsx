@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { ResultScreen } from '../../../components/Screen';
 import { anrede } from '../../../data/format';
 import { useStore } from '../../../data/store';
+import { t } from '../../../data/texts';
 
 /** Route `account/support/success`. Figma: `account/support/success`. */
 export default function SupportSuccess() {
@@ -11,7 +12,7 @@ export default function SupportSuccess() {
   return (
     <ResultScreen
       title="Anfrage ist raus!"
-      message={`Danke, ${anrede(profile)}. Wir melden uns per E-Mail bei Dir.`}
+      message={t('Danke, {anrede}. Wir melden uns per E-Mail bei Dir.', { anrede: anrede(profile) })}
       onFeedPress={() => router.dismissTo('/feed')}
     />
   );

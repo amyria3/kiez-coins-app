@@ -12,7 +12,7 @@ import { useAuth } from '../../data/auth';
 import { isModerator } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
 import { color, size, space } from '../../theme/tokens';
-import { t } from '../../data/texts';
+import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
 
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
 export default function Account() {
@@ -22,6 +22,7 @@ export default function Account() {
   const { signOut, hasPassword } = useAuth();
   // „Moderation“ nur für Personen in der Tabelle `moderators`
   const [moderator, setModerator] = useState(false);
+  const languageName = getLanguageChoice() === 'auto' ? t('Wie das Handy') : languages.find((l) => l.code === getLanguage())?.name;
   useEffect(() => {
     if (mode === 'live') isModerator().then(setModerator);
   }, [mode]);
@@ -59,12 +60,13 @@ export default function Account() {
       />
       <NavCard
         title="Deine Gruppen"
-        description={groups.length === 0 ? 'Gründen oder beitreten' : groups.length === 1 ? '1 Gruppe' : `${groups.length} Gruppen`}
+        description={groups.length === 0 ? 'Gründen oder beitreten' : groups.length === 1 ? '1 Gruppe' : t('{groups} Gruppen', { groups: groups.length })}
         leading={<Icon name="behausung" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/gruppen')}
       />
       <FieldGroup label="Einstellungen">
         <View style={styles.list}>
+          <NavRow label="Sprache" value={languageName} onPress={() => router.push('/account/sprache')} />
           <NavRow
             label="Benachrichtigungen"
             value={profile.push ? 'Push an' : 'Push aus'}
@@ -74,7 +76,7 @@ export default function Account() {
           <NavRow label="Support" value="Frage oder Problem" onPress={() => router.push('/account/support')} />
           <NavRow
             label="Blockierte Personen"
-            value={blockedIds.length === 0 ? 'Niemand' : `${blockedIds.length} blockiert`}
+            value={blockedIds.length === 0 ? 'Niemand' : t('{blockedIds} blockiert', { blockedIds: blockedIds.length })}
             onPress={() => router.push('/account/blocked')}
           />
           {moderator ? <NavRow label="Moderation" value="Meldungen prüfen" onPress={() => router.push('/moderation')} /> : null}
