@@ -37,7 +37,7 @@ export function StatusBadge({ status }: { status: ChallengeStatus }) {
  */
 export function BountyBadge({ amount }: { amount: number }) {
   return (
-    <View style={styles.bounty} accessible accessibilityLabel={t('Bounty {amount} Euro', { amount })}>
+    <View style={styles.bounty} accessible accessibilityLabel={t('Coins: {amount} Euro', { amount })}>
       <CoinsIcon height={26} />
       <Text style={styles.bountyText}>{formatBountyShort(amount)}</Text>
     </View>

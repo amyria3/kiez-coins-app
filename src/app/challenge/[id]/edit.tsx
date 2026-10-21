@@ -98,7 +98,7 @@ export default function EditChallenge() {
   const publish = () => {
     if (!canSave) return;
     if (bounty && !canOfferBounties) {
-      Alert.alert('Keine Bounty möglich', 'Du kannst gerade keine Bounties anbieten. Wähl „Keine“ als Bounty.');
+      Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Wähl bei Coins „Keine“.');
       return;
     }
     const edit = editOf();
@@ -113,7 +113,7 @@ export default function EditChallenge() {
     if (!changed) return router.back();
     if (!canSave) return;
     if (bounty && !canOfferBounties) {
-      Alert.alert('Keine Bounty möglich', 'Du kannst gerade keine Bounties anbieten. Wähl „Keine“ als Bounty.');
+      Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Wähl bei Coins „Keine“.');
       return;
     }
     const edit = editOf();
@@ -145,7 +145,7 @@ export default function EditChallenge() {
   const save = () => {
     if (!canSave) return;
     if (bountyBlocked) {
-      Alert.alert('Keine Bounty möglich', 'Du kannst gerade keine Bounties anbieten oder erhöhen.');
+      Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten oder erhöhen.');
       return;
     }
     dispatch({ type: 'edit', id: challenge.id, edit: editOf() });
@@ -176,7 +176,7 @@ export default function EditChallenge() {
       {isGroup ? null : (
         <>
           <TextField label="Ort" required nudge={locationField} value={location} onChangeText={setLocation} maxLength={120} />
-          <FieldGroup label="Bounty">
+          <FieldGroup label="Coins">
             <ChipGroup>
               <Chip label="Keine" selected={bounty === undefined} onPress={() => setBounty(undefined)} />
               {bountyOptions.map((amount) => (

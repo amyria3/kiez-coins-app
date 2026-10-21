@@ -19,8 +19,8 @@ import { t } from '../data/texts';
 /** Was in der Karte „Du bist dran“ als Aufgabe steht. */
 function taskLabel({ challenge, role }: ReiseEntry): string {
   if (role === 'author' && challenge.status === 'reported') return 'Erledigung prüfen';
-  if (role === 'author' && challenge.status === 'payment_open') return 'Bounty bezahlen';
-  if (role === 'assignee' && challenge.status === 'paid_marked') return 'Bounty bestätigen';
+  if (role === 'author' && challenge.status === 'payment_open') return 'Coins bezahlen';
+  if (role === 'assignee' && challenge.status === 'paid_marked') return 'Coins bestätigen';
   return 'Erledigt melden';
 }
 

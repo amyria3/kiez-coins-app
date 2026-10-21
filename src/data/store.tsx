@@ -21,7 +21,7 @@ type State = {
   currentUserId: string;
   feedState: FeedState;
   profile: Profile;
-  /** false nach einer bestätigten Meldung „Bounty nicht gezahlt“ */
+  /** false nach einer bestätigten Meldung „Coins nicht gezahlt“ */
   canOfferBounties: boolean;
   /** Eigene Gruppen samt Mitgliedern */
   groups: Group[];

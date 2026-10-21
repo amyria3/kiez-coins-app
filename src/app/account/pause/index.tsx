@@ -7,7 +7,7 @@ import { SubScreen } from '../../../components/Screen';
 import { hasOpenWork } from '../../../data/openWork';
 import { useStore } from '../../../data/store';
 
-const OPEN_WORK = 'Offene Challenges und Bounties musst Du vorher abschließen oder abgeben.';
+const OPEN_WORK = 'Offene Challenges und Coins musst Du vorher abschließen oder abgeben.';
 
 /** Route `account/pause`. Figma: `account/pause`. Pause für 3 Monate, Anmelden hebt sie auf. */
 export default function Pause() {
