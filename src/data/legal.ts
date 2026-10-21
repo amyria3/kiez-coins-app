@@ -216,7 +216,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'Diskriminierung hat hier keinen Platz',
         paragraphs: [
-          'Diskriminierung ist in Worten, Bildern, Symbolen, Codes und „Witzen“ verboten. Verfassungsfeindliche Kennzeichen, Volksverhetzung und das Leugnen oder Verharmlosen des Holocaust zeigen wir an.',
+          'Diskriminierung ist in Worten, Bildern, Symbolen und Codes verboten. Verfassungsfeindliche Kennzeichen, Volksverhetzung und das Leugnen oder Verharmlosen des Holocaust zeigen wir an.',
         ],
       },
       {
