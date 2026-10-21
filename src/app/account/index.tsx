@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { FieldGroup, KaterBubble } from '../../components/Content';
-import { EdensteinIcon } from '../../components/icons/Brand';
+import { CrownIcon, EdensteinIcon } from '../../components/icons/Brand';
 import { Icon } from '../../components/icons/Icon';
 import { NavCard, NavRow, ProfileCard } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
@@ -46,15 +46,15 @@ export default function Account() {
         onPress={() => router.push('/account/profile')}
       />
       <NavCard
-        title="YourPleasure"
+        title="Your Pleasure"
         description="Verlauf, Aufgaben und Gruppen"
-        leading={<Icon name="ship" size={size.icon} color={color.accent.affection} />}
+        leading={<CrownIcon height={30} />}
         onPress={() => router.push('/reise')}
       />
       <NavCard
         title="Deine Challenges"
         description="Entwürfe, offen, geschlossen"
-        leading={<Icon name="flag" size={size.icon} color={color.accent.primary} />}
+        leading={<Icon name="ship" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/manage')}
       />
       <NavCard

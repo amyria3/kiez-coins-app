@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { color, radius, size, space, stroke } from '../theme/tokens';
 import { Icon } from './icons/Icon';
+import { CrownIcon } from './icons/Brand';
 
 export type TabKey = 'feed' | 'reise';
 
@@ -19,7 +20,7 @@ type TabBarProps = {
 };
 
 /**
- * Schwebende Tab-Leiste (Upgrade „Nachtschicht“): Stecknadel = Feed, Schiff = YourPleasure,
+ * Schwebende Tab-Leiste (Upgrade „Nachtschicht“): Stecknadel = Feed, Krone = Your Pleasure,
  * Burger = Menü (Konto). Die aktive Seite liegt auf einer dezenten, halbtransparenten Pille.
  * Challenge erstellen sitzt als CameraButton oben rechts.
  */
@@ -39,14 +40,14 @@ export function TabBar({ active, onFeedPress, onReisePress, onReiseLongPress, on
         </Pressable>
         <Pressable
           accessibilityRole="tab"
-          accessibilityLabel={hasTasks ? 'YourPleasure, Du bist dran' : 'YourPleasure'}
+          accessibilityLabel={hasTasks ? 'Your Pleasure, Du bist dran' : 'Your Pleasure'}
           accessibilityState={{ selected: active === 'reise' }}
           onPress={onReisePress}
           onLongPress={onReiseLongPress}
           style={({ pressed }) => [styles.item, active === 'reise' && styles.itemActive, pressed && styles.pressed]}
         >
           <View>
-            <Icon name="ship" size={size.icon} color={active === 'reise' ? color.text.primary : color.text.secondary} />
+            <CrownIcon height={26} />
             {hasTasks ? <View style={styles.dot} /> : null}
           </View>
         </Pressable>

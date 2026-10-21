@@ -10,7 +10,7 @@ import { Cat, Wordmark } from './icons/Brand';
 import { SkeletonTopItem } from './Skeleton';
 
 type AppHeaderProps = {
-  /** Tipp auf Logo und Kater öffnet „YourPleasure“. */
+  /** Tipp auf Logo und Kater öffnet „Your Pleasure“. */
   onLogoPress?: () => void;
   /** Langes Drücken aufs Logo öffnet das Demo-Menü (nur für Tests mit Beispieldaten). */
   onLogoLongPress?: () => void;
@@ -29,7 +29,7 @@ export function AppHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderP
         onPress={onLogoPress}
         onLongPress={onLogoLongPress}
         accessibilityRole="button"
-        accessibilityLabel={hasTasks ? 'YourPleasure, Du bist dran' : 'YourPleasure'}
+        accessibilityLabel={hasTasks ? 'Your Pleasure, Du bist dran' : 'Your Pleasure'}
         style={styles.logo}
       >
         <Wordmark />

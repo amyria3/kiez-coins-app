@@ -4,7 +4,7 @@ import type { CatMood } from '../components/icons/Brand';
 import type { Challenge } from './types';
 import { t } from './texts';
 
-// „YourPleasure“ (früher „Deine Reise“ und „Deine Spur im Kiez“): alle Challenges, die Du erstellt oder angenommen hast,
+// „Your Pleasure“ (früher „Deine Reise“ und „Deine Spur im Kiez“): alle Challenges, die Du erstellt oder angenommen hast,
 // als Karten. Regeln aus kiez-coins/konto/MVP_Konto.md.
 
 export type ReiseEntry = {
@@ -101,7 +101,7 @@ export function reiseMoodText(mood: ReiseMood, anrede: string): string {
     case 'Curious':
       return t('Ich bin gespannt, was als Nächstes kommt.');
     case 'Welcome':
-      return t('Willkommen bei YourPleasure, {anrede}! Erstell eine Challenge oder nimm eine an.', { anrede });
+      return t('Willkommen bei Your Pleasure, {anrede}! Erstell eine Challenge oder nimm eine an.', { anrede });
     case 'Lazy':
       return t('Ganz schön ruhig hier. Ich leg mich so lange in die Sonne.');
   }
