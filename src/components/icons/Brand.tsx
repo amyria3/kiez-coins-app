@@ -3,6 +3,7 @@ import { SvgXml } from 'react-native-svg';
 
 import { color } from '../../theme/tokens';
 import { catSvg, coinsSvg, wordmarkSvg, type CatMood } from './brandSvgs';
+import { diamondSvgs, type DiamondVariant } from './diamondSvgs';
 
 type CatProps = {
   mood?: CatMood;
@@ -31,6 +32,18 @@ export const CoinsIcon = memo(function CoinsIcon({ height = 22 }: { height?: num
   return <SvgXml xml={coinsSvg} width={(30 / 35) * height} height={height} />;
 });
 
+/** Diamant aus Figma (icon/diamand/1–3), Originalgröße 35 pt hoch. Striche daneben in Textfarbe. */
+export const DiamondIcon = memo(function DiamondIcon({
+  variant = 1,
+  height = 35,
+}: {
+  variant?: DiamondVariant;
+  height?: number;
+}) {
+  const d = diamondSvgs[variant];
+  return <SvgXml xml={d.svg(color.text.primary)} width={(d.width / d.height) * height} height={height} />;
+});
+
 /** Edenstein (noch nicht in Figma): geschliffener Stein in Grün, ideelle Bounty in Gruppen */
 export const EdensteinIcon = memo(function EdensteinIcon({ height = 18 }: { height?: number }) {
   const c = color.accent.confirmation;
@@ -38,4 +51,4 @@ export const EdensteinIcon = memo(function EdensteinIcon({ height = 18 }: { heig
   return <SvgXml xml={xml} width={(24 / 22) * height} height={height} />;
 });
 
-export type { CatMood };
+export type { CatMood, DiamondVariant };
