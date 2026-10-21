@@ -120,3 +120,13 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 **Danach prüfen:** Eine gelöschte Challenge aufklappen und „Endgültig löschen“ tippen. Sie verschwindet aus der Liste.
 
 **Offen:** Das Foto bleibt im Storage liegen.
+
+## 10. `supabase/migrations/20261021000800_ensure_profile.sql`
+
+**Wozu:** Am 21.10.2026 hatte Darias Konto keine Zeile in `profiles` und `profile_settings`. Deckname, Kiez und Einstellungen landeten dadurch nirgends, ohne Fehlermeldung. Der Trigger `on_auth_user_created` war vorhanden, die Ursache ist unklar.
+
+**Ändert:**
+- Trägt für alle Konten ohne Profil die fehlenden Zeilen nach.
+- Neue Funktion `ensure_own_profile`. Die App ruft sie nach dem Anmelden auf, wenn kein Profil da ist.
+
+**Danach prüfen:** In der App abmelden und neu anmelden, Deckname und Kiez festlegen. Im Table Editor steht dann eine Zeile in `profiles` mit Deckname und Kiez.

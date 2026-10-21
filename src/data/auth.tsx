@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 import type { AuthError, Session } from '@supabase/supabase-js';
 
 import { supabase } from '../lib/supabase';
-import { loadOwnProfile, saveOwnProfile } from './remote';
+import { ensureOwnProfile, loadOwnProfile, saveOwnProfile } from './remote';
 import { useStore } from './store';
 import type { Profile } from './types';
 
@@ -92,7 +92,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!next) return;
       const userId = next.user.id;
       try {
-        const fromDb = await loadOwnProfile(userId);
+        let fromDb = await loadOwnProfile(userId);
+        // Kein Profil in der Datenbank (sollte der Trigger anlegen): nachholen, sonst speichert die App ins Leere.
+        if (!fromDb) {
+          await ensureOwnProfile().catch(() => undefined);
+          fromDb = await loadOwnProfile(userId);
+        }
         const patch: Partial<Profile> = { email: next.user.email ?? '', ...fromDb };
         dispatch({ type: 'updateProfile', patch });
         lastSynced.current = SKIP_ONCE;
