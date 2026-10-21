@@ -99,7 +99,7 @@ export default function CreateStep2() {
         disabled={locating}
       />
       <Notice message="Wähle einen öffentlich bekannten Ort, etwa einen Platz, eine Straßenecke oder einen Laden. Keine Wohnadresse. Sei sorgsam mit der Sicherheit anderer Menschen." />
-      <FieldGroup label="Bounty (optional)">
+      <FieldGroup label="Coins (optional)">
         <ChipGroup>
           <Chip
             label="Keine"
@@ -138,13 +138,13 @@ export default function CreateStep2() {
           />
         ) : null}
         <Text style={styles.secondary}>
-          5 bis 50 €. Du zahlst die Bounty selbst direkt an die Person, die die Challenge erledigt.
+          5 bis 50 €. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.
         </Text>
       </FieldGroup>
       {bountyAmount ? (
         <Notice
           variant="warning"
-          message="Versprich nur, was Du zahlen kannst. Wer eine Bounty nicht zahlt, kann gemeldet und für Bounties gesperrt werden."
+          message="Versprich nur, was Du zahlen kannst. Wer zugesagte Coins nicht zahlt, kann gemeldet und für Coins gesperrt werden."
         />
       ) : null}
       <FieldGroup label="Zeitraum">

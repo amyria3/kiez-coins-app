@@ -79,7 +79,7 @@ export function OperationTag({ name }: { name: string }) {
   );
 }
 
-/** Abschnitt mit kleiner Überschrift (z. B. „Bounty (optional)“, „Notiz“) */
+/** Abschnitt mit kleiner Überschrift (z. B. „Coins (optional)“, „Notiz“) */
 export function FieldGroup({ label, children }: { label: string; children: ReactNode }) {
   return (
     <View style={styles.group}>

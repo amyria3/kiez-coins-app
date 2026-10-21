@@ -88,8 +88,8 @@ export default function CreatePreview() {
     if (!draft.photo || busy) return;
     if (bountyAmount && !canOfferBounties) {
       Alert.alert(
-        'Keine Bounty möglich',
-        'Nach einer Meldung wegen einer nicht gezahlten Bounty kannst Du keine Bounties mehr anbieten. Challenges ohne Bounty gehen weiterhin.',
+        'Keine Coins möglich',
+        'Nach einer Meldung wegen nicht gezahlter Coins kannst Du keine Coins mehr anbieten. Challenges ohne Coins gehen weiterhin.',
       );
       return;
     }
@@ -143,7 +143,7 @@ export default function CreatePreview() {
         {bountyAmount ? (
           <View style={styles.metric}>
             <CoinsIcon height={28} />
-            <Text style={styles.metricLabel}>Bounty</Text>
+            <Text style={styles.metricLabel}>Coins</Text>
             <Text style={[styles.metricValue, styles.signal]}>{formatBountyShort(bountyAmount)}</Text>
           </View>
         ) : null}

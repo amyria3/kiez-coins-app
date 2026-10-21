@@ -33,9 +33,9 @@ export default function DemoMenu() {
     if (c.authorId === currentUserId && c.status === 'reported')
       tasks.push({ label: `Erledigung prüfen: ${c.title}`, href: `/challenge/${c.id}/review` });
     if (c.authorId === currentUserId && c.status === 'payment_open')
-      tasks.push({ label: `Bounty bezahlen: ${c.title}`, href: `/challenge/${c.id}/pay` });
+      tasks.push({ label: `Coins bezahlen: ${c.title}`, href: `/challenge/${c.id}/pay` });
     if (c.assigneeId === currentUserId && c.status === 'paid_marked')
-      tasks.push({ label: `Bounty angekommen? ${c.title}`, href: `/challenge/${c.id}/payment` });
+      tasks.push({ label: `Coins angekommen? ${c.title}`, href: `/challenge/${c.id}/payment` });
   }
 
   const open = (href: Href) => {

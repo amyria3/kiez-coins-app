@@ -26,7 +26,7 @@ export default function DeleteAccount() {
 
   const remove = async () => {
     if (hasOpenWork(challenges, currentUserId)) {
-      Alert.alert('Noch nicht möglich', 'Offene Bounties musst Du vorher klären.');
+      Alert.alert('Noch nicht möglich', 'Offene Coins musst Du vorher klären.');
       return;
     }
     if (mode === 'live') {
@@ -62,7 +62,7 @@ export default function DeleteAccount() {
         variant="warning"
         message="Dein Profil, Deine Fotos, Challenges, Kommentare und Zahlungsdaten werden gelöscht. Das lässt sich nicht rückgängig machen."
       />
-      <Notice message="Offene Bounties musst Du vorher klären. Wenn Du nur eine Pause brauchst, kannst Du Dein Konto auch 3 Monate pausieren." />
+      <Notice message="Offene Coins musst Du vorher klären. Wenn Du nur eine Pause brauchst, kannst Du Dein Konto auch 3 Monate pausieren." />
       <TextField
         label="Zum Bestätigen LÖSCHEN eintippen" required
         nudge={confirmField}

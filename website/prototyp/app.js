@@ -93,9 +93,9 @@
         published: 'Deine Challenge ist online. Die Nachbarschaft sieht sie jetzt.',
       },
       scenarios: {
-        finden: ['Challenge finden', 'Tipp auf eine Karte und nimm sie an.', 'Finden'],
-        stellen: ['Challenge stellen', 'Foto, Titel, Bounty. Fertig.', 'Stellen'],
-        gruppe: ['Gruppe', 'Aufgaben im Hof, belohnt mit Edensteinen.', 'Gruppe'],
+        finden: ['Challenge finden', 'Scrollen? Ausnahmsweise richtig nützlich!', 'Finden'],
+        stellen: ['Challenge stellen', 'Foto, Titel, Coins. Fertig.', 'Stellen'],
+        gruppe: ['Gruppe', 'Selbstorganisation? Easy!', 'Gruppe'],
       },
     },
     family: {
@@ -457,7 +457,7 @@
       '<p class="p-author">' + avatar(c.author, 22) + esc(people[c.author].name) + '</p>' +
       (c.text ? '<p class="p-text">' + esc(c.text) + '</p>' : '') +
       '<div class="p-metrics p-metrics-row"><div><b class="p-bounty-big">' + rewardBadge(c.reward, 18) + '</b><span>' +
-      (M.unit === 'euro' ? 'Bounty' : 'Edensteine') + '</span></div>' +
+      (M.unit === 'euro' ? 'Coins' : 'Edensteine') + '</span></div>' +
       '<div><b>' + esc(c.left.replace('noch ', '')) + '</b><span>Frist</span></div><div><b>' + esc(c.dist) + '</b><span>' +
       (M.unit === 'euro' ? 'Weg' : 'Wo') + '</span></div></div>' +
       action +
@@ -506,7 +506,7 @@
       '</button>' +
       '<label class="p-field"><span>Titel</span><input type="text" maxlength="48" placeholder="Was soll passieren?" value="' + esc(d.title) + '" data-title></label>' +
       '<div class="p-sugg">' + M.create.suggestions.map(function (s) { return '<button type="button" class="p-pill" data-sugg="' + esc(s) + '">' + esc(s) + '</button>'; }).join('') + '</div>' +
-      '<div class="p-field"><span>' + (M.unit === 'euro' ? 'Bounty' : 'Edensteine') + '</span><div class="p-choice" role="radiogroup" aria-label="Belohnung">' +
+      '<div class="p-field"><span>' + (M.unit === 'euro' ? 'Coins' : 'Edensteine') + '</span><div class="p-choice" role="radiogroup" aria-label="Belohnung">' +
       M.create.rewards.map(function (n) { return '<button type="button" role="radio" aria-checked="' + (d.reward === n) + '" data-reward="' + n + '">' + n + unit + '</button>'; }).join('') +
       '</div></div>' +
       '<div class="p-field"><span>Frist</span><div class="p-choice" role="radiogroup" aria-label="Frist">' +

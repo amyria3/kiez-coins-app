@@ -20,7 +20,7 @@ const reasons: { key: UserReportReason; label: string }[] = [
   { key: 'discrimination', label: 'Sexismus, Rassismus, Antisemitismus oder andere Diskriminierung' },
   { key: 'harassment', label: 'Belästigung, Beleidigung oder Bedrohung' },
   { key: 'violence', label: 'Gewalt oder Aufruf zu Gewalt' },
-  { key: 'not_paid', label: 'Bounty wurde nicht gezahlt' },
+  { key: 'not_paid', label: 'Coins wurden nicht gezahlt' },
   { key: 'spam', label: 'Spam oder Fake-Profil' },
   { key: 'other', label: 'Etwas anderes' },
 ];
