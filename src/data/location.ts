@@ -1,8 +1,10 @@
 import * as Location from 'expo-location';
+import { Platform } from 'react-native';
 
 // Standort für Kiez, Ort-Vorschlag und Entfernungen.
 // Gespeichert wird nur der Kiez (Text) und bei Challenges ein auf rund 100 m gerundeter Punkt.
-// Die genaue Position verlässt das Handy nicht.
+// In der App verlässt die genaue Position das Handy nicht. Die Web-App fragt Kiez und Straße bei
+// OpenStreetMap (Nominatim) ab und schickt dafür nur den auf rund 100 m gerundeten Punkt.
 
 export type Coords = { latitude: number; longitude: number };
 
@@ -49,10 +51,30 @@ export async function coordsIfAllowed(): Promise<Coords | null> {
   }
 }
 
-/** Position in Kiez und Straße umwandeln (auf dem Gerät). */
+type Address = Pick<Location.LocationGeocodedAddress, 'street' | 'district' | 'city' | 'subregion' | 'region' | 'postalCode'>;
+
+/** Im Browser hat expo-location keine Adresssuche. Ersatz: Nominatim von OpenStreetMap, ohne Schlüssel. */
+async function reverseGeocodeWeb(coords: Coords): Promise<Address | undefined> {
+  const { latitude, longitude } = roundCoords(coords);
+  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&addressdetails=1&accept-language=de&lat=${latitude}&lon=${longitude}`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Kein Ort zu dieser Position gefunden.');
+  const { address: a } = (await response.json()) as { address?: Record<string, string | undefined> };
+  if (!a) return undefined;
+  return {
+    street: a.road ?? null,
+    district: a.suburb ?? a.city_district ?? a.quarter ?? null,
+    city: a.city ?? a.town ?? a.village ?? null,
+    subregion: a.county ?? null,
+    region: a.state ?? null,
+    postalCode: a.postcode ?? null,
+  };
+}
+
+/** Position in Kiez und Straße umwandeln (in der App auf dem Gerät, im Browser über OpenStreetMap). */
 export async function findPlace(): Promise<FoundPlace> {
   const coords = await currentCoords();
-  const [address] = await Location.reverseGeocodeAsync(coords);
+  const address = Platform.OS === 'web' ? await reverseGeocodeWeb(coords) : (await Location.reverseGeocodeAsync(coords))[0];
   if (!address) throw new Error('Kein Ort zu dieser Position gefunden.');
   const city = address.city ?? address.subregion ?? address.region ?? '';
   const area = [address.postalCode, city].filter(Boolean).join(' ');

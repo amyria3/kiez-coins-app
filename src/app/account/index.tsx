@@ -40,7 +40,7 @@ export default function Account() {
         details={[anrede(profile), profile.kiez ?? 'Kiez noch nicht festgelegt']}
         onPress={() => router.push('/account/profile')}
       />
-      <NavRow label="Deine Reise" value="Verlauf und Aufgaben" onPress={() => router.push('/reise')} />
+      <NavRow label="YourPleasure" value="Verlauf, Aufgaben und Gruppen" onPress={() => router.push('/reise')} />
       <NavRow label="Deine Challenges" value="Entwürfe, offen, geschlossen" onPress={() => router.push('/manage')} />
       <NavRow
         label="Deine Gruppen"

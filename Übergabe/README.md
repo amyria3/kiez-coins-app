@@ -26,4 +26,5 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-20_standort.md`: Standort-Erkennung, Kiez-Pflicht, offene Migration, Abwägung Standort bei Interaktion, später „nur verifizierte“ (Stand 20.10.2026).
 - `2026-10-20_code-login.md`: Anmeldung per Passwort oder E-Mail-Code, Zugangsdaten ändern, Mailversand über Brevo und kiezcoins.de (Stand 20.10.2026).
 - `2026-10-21_rechtliches.md`: Impressum, Datenschutz, Testbedingungen, Fotos beim Konto-Löschen, Migration 10, offene Angaben (Stand 21.10.2026).
+- `2026-10-21_web-app.md`: Web-App fürs iPhone unter kiezcoins.de/app, Unterschiede im Browser, Schritte für Daria (Stand 21.10.2026).
 - `2026-10-21_moderation.md`: Blockieren, Melden, Profil, Lob, Moderation, Community-Regeln, Migration `20261021000700_moderation` offen (Stand 21.10.2026).
