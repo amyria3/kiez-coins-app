@@ -9,6 +9,8 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import ts from 'typescript';
 
+import { collectKeys } from './text-keys.mjs';
+
 const root = new URL('..', import.meta.url).pathname;
 const src = join(root, 'src');
 
@@ -103,6 +105,11 @@ for (const file of walk(src)) {
       s.paragraphs.forEach((p) => add(p, file, kind));
     }
   }
+}
+
+// Alle übrigen Texte (Überschriften, Felder, Hinweise, Meldungen), damit sich jede Sprache im Editor anpassen lässt
+for (const [text, where] of await collectKeys()) {
+  if (!texts.has(norm(text))) add(text, join(root, where.replace(/ \(.*\)$/, '')), 'Text');
 }
 
 const q = (s) => `'${s.replace(/'/g, "''")}'`;
