@@ -8,6 +8,7 @@ import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { useAuth } from '../../data/auth';
 import { t } from '../../data/texts';
+import { useNudge } from '../../components/Nudge';
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 const MIN_DIGITS = 6;
@@ -25,6 +26,8 @@ export default function ChangeEmail() {
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
+  const codeField = useNudge();
+  const emailField = useNudge();
   const digits = code.replace(/\D/g, '');
   const address = email.trim().toLowerCase();
   const same = address === session?.user.email;
@@ -63,12 +66,14 @@ export default function ChangeEmail() {
             label={busy ? 'Wird geprüft …' : 'Bestätigen'}
             onPress={confirm}
             disabled={digits.length < MIN_DIGITS || busy}
+            whyDisabled={() => !busy && codeField.nudge(`Der Code hat ${MIN_DIGITS} Ziffern.`)}
           />
         ) : (
           <Button
             label={busy ? 'Wird gesendet …' : 'Code senden'}
             onPress={send}
             disabled={!isEmail(email) || same || busy}
+            whyDisabled={() => !busy && !same && emailField.nudge('Gib eine gültige E-Mail-Adresse ein.')}
           />
         )
       }
@@ -83,6 +88,7 @@ export default function ChangeEmail() {
       {sentTo ? (
         <TextField
           label="Code aus der E-Mail"
+        nudge={codeField}
           error={error}
           value={digits}
           onChangeText={(v) => {
@@ -98,6 +104,7 @@ export default function ChangeEmail() {
       ) : (
         <TextField
           label="Neue E-Mail"
+        nudge={emailField}
           error={error ?? (same ? 'Das ist schon Deine Adresse.' : undefined)}
           value={email}
           onChangeText={(v) => {

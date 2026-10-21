@@ -10,6 +10,7 @@ import { useAuth } from '../../data/auth';
 import { saveHandle } from '../../data/remote';
 import { useStore } from '../../data/store';
 import { color, text } from '../../theme/tokens';
+import { useNudge } from '../../components/Nudge';
 
 // Kater-Vorschläge kommen später aus einer Wortliste
 const suggestions = ['Käpt’n Kompost', 'Rostige Rosi'];
@@ -22,6 +23,7 @@ export default function Deckname() {
   const [handle, setHandle] = useState(profile.handle || suggestions[0]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
+  const handleField = useNudge();
 
   const next = async () => {
     // Deckname gleich speichern, damit „gibt es schon“ hier auffällt und nicht erst später.
@@ -44,11 +46,12 @@ export default function Deckname() {
       subtitle="Schritt 2 von 6"
       navigation="back"
       onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/onboarding/welcome'))}
-      actions={<Button label="Weiter" onPress={next} disabled={!handle.trim() || busy} />}
+      actions={<Button label="Weiter" onPress={next} disabled={!handle.trim() || busy} whyDisabled={() => !busy && handleField.nudge('Wähl einen Decknamen.')} />}
     >
       <KaterBubble>Dein Rufname</KaterBubble>
       <TextField
         label="Deckname"
+        nudge={handleField}
         helperText="Öffentlich sichtbar. Jeden Decknamen gibt es nur einmal."
         error={error}
         value={handle}

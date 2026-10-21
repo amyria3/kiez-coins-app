@@ -11,6 +11,7 @@ import { findPlace, LocationDenied, postalCodeOf } from '../../data/location';
 import { useStore } from '../../data/store';
 import { color, text } from '../../theme/tokens';
 import { t } from '../../data/texts';
+import { useNudge } from '../../components/Nudge';
 
 type Step = 'start' | 'searching' | 'found' | 'manual';
 
@@ -28,6 +29,7 @@ export default function Kiez() {
   const [found, setFound] = useState('');
   const [manual, setManual] = useState('');
   const [problem, setProblem] = useState<string | null>(null);
+  const manualField = useNudge();
 
   const next = (kiez?: string) => {
     dispatch({ type: 'updateProfile', patch: { kiez } });
@@ -62,7 +64,9 @@ export default function Kiez() {
       </>
     ) : step === 'manual' ? (
       <>
-        <Button label="Kiez übernehmen" onPress={() => next(manual.trim())} disabled={!manualValid} />
+        <Button label="Kiez übernehmen" onPress={() => next(manual.trim())} disabled={!manualValid}
+          whyDisabled={() => manualField.nudge('Mit Postleitzahl, zum Beispiel „Alt-West, 04177 Leipzig“.')}
+        />
         <Button label="Standort noch einmal suchen" variant="ghost" onPress={locate} />
       </>
     ) : (
@@ -98,6 +102,7 @@ export default function Kiez() {
           {problem ? <Text style={styles.problem}>{problem}</Text> : null}
           <TextField
             label="Ortsteil, Postleitzahl und Ort"
+        nudge={manualField}
             helperText="Zum Beispiel „Prenzlauer Berg, 10437 Berlin“. Die Postleitzahl braucht es."
             value={manual}
             onChangeText={setManual}

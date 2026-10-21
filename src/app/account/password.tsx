@@ -7,6 +7,7 @@ import { KaterBubble } from '../../components/Content';
 import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { useAuth } from '../../data/auth';
+import { useNudge } from '../../components/Nudge';
 
 const MIN_PASSWORD = 8;
 
@@ -24,6 +25,8 @@ export default function Password() {
 
   const mismatch = repeat.length > 0 && repeat !== password;
   const valid = password.length >= MIN_PASSWORD && repeat === password;
+  const pwField = useNudge();
+  const repeatField = useNudge();
 
   const save = async () => {
     setSaving(true);
@@ -43,7 +46,16 @@ export default function Password() {
       title={hasPassword ? 'Passwort ändern' : 'Passwort hinterlegen'}
       navigation="back"
       onLeadingPress={() => router.back()}
-      actions={<Button label={saving ? 'Wird gespeichert …' : 'Passwort speichern'} disabled={!valid || saving} onPress={save} />}
+      actions={<Button label={saving ? 'Wird gespeichert …' : 'Passwort speichern'} disabled={!valid || saving}
+          whyDisabled={() =>
+            saving
+              ? undefined
+              : password.length < MIN_PASSWORD
+                ? pwField.nudge(`Mindestens ${MIN_PASSWORD} Zeichen.`)
+                : repeatField.nudge('Wiederhol das Passwort genau so.')
+          }
+          onPress={save}
+        />}
     >
       <KaterBubble>
         {hasPassword
@@ -52,6 +64,7 @@ export default function Password() {
       </KaterBubble>
       <TextField
         label="Neues Passwort"
+        nudge={pwField}
         helperText={`Mindestens ${MIN_PASSWORD} Zeichen.`}
         value={password}
         onChangeText={(v) => {
@@ -67,6 +80,7 @@ export default function Password() {
       />
       <TextField
         label="Passwort wiederholen"
+        nudge={repeatField}
         error={error ?? (mismatch ? 'Die Passwörter stimmen nicht überein.' : undefined)}
         value={repeat}
         onChangeText={(v) => {

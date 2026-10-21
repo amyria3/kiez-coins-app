@@ -14,10 +14,19 @@ type ButtonProps = {
   onPress?: () => void;
   variant?: ButtonVariant;
   disabled?: boolean;
+  /**
+   * Tippen auf den deaktivierten Button: zeigt, was fehlt (zum Feld scrollen und Hinweis, siehe Nudge.tsx)
+   * oder erklärt per Meldung, warum es gerade nicht geht. Ohne diese Funktion passiert nichts.
+   */
+  whyDisabled?: () => void;
   style?: StyleProp<ViewStyle>;
 };
 
-export function Button({ label: original, onPress, variant = 'primary', disabled, style }: ButtonProps) {
+export function Button({ label: original, onPress: press, variant = 'primary', disabled: off, whyDisabled, style }: ButtonProps) {
+  // Mit Erklärung bleibt der Button tippbar, sieht aber deaktiviert aus
+  const explains = !!off && !!whyDisabled;
+  const disabled = off && !explains;
+  const onPress = explains ? whyDisabled : press;
   const v = variants[variant];
   // Beschriftung aus dem CMS (Tabelle app_texts), sonst wie im Code
   const label = useTexts()(original);
@@ -29,11 +38,11 @@ export function Button({ label: original, onPress, variant = 'primary', disabled
         variant="regular"
         tint={g.tint}
         interactive={!disabled}
-        style={[styles.glass, disabled && styles.disabled, style]}
+        style={[styles.glass, off && styles.disabled, style]}
       >
         <Pressable
           accessibilityRole="button"
-          accessibilityState={{ disabled }}
+          accessibilityState={{ disabled: off }}
           disabled={disabled}
           onPress={onPress}
           style={styles.glassInner}
@@ -46,10 +55,10 @@ export function Button({ label: original, onPress, variant = 'primary', disabled
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ disabled }}
+      accessibilityState={{ disabled: off }}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [styles.base, v.container, pressed && styles.pressed, disabled && styles.disabled, style]}
+      style={({ pressed }) => [styles.base, v.container, pressed && styles.pressed, off && styles.disabled, style]}
     >
       <Text style={[v.filled ? text.buttonDarkOnLight : text.buttonLightOnDark, { color: v.label }]}>{label}</Text>
     </Pressable>

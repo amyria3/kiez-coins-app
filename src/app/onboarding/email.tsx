@@ -13,6 +13,7 @@ import { useStore } from '../../data/store';
 import { supabase } from '../../lib/supabase';
 import { color, motion, space, text } from '../../theme/tokens';
 import { useAppDimensions } from '../../theme/layout';
+import { useNudge } from '../../components/Nudge';
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 const MIN_PASSWORD = 8;
@@ -45,6 +46,8 @@ export default function Email() {
   const [busy, setBusy] = useState(false);
   const [emailError, setEmailError] = useState<string>();
   const [error, setError] = useState<string>();
+  const codeField = useNudge();
+  const pwField = useNudge();
 
   const address = email.trim().toLowerCase();
   const emailValid = isEmail(email);
@@ -216,6 +219,7 @@ export default function Email() {
           <Text style={styles.note}>Der Code ist unterwegs an {address}. Schau zur Not auch im Spam-Netz.</Text>
           <TextField
             label="Code aus der E-Mail"
+        nudge={codeField}
             helperText="Gilt 20 Minuten."
             error={error}
             value={digits.length === 6 ? `${digits.slice(0, 3)} ${digits.slice(3)}` : digits}
@@ -233,6 +237,7 @@ export default function Email() {
             label={busy ? 'Wird geprüft …' : 'Bestätigen'}
             onPress={confirmCode}
             disabled={digits.length < MIN_DIGITS || busy}
+            whyDisabled={() => !busy && codeField.nudge(`Der Code hat ${MIN_DIGITS} Ziffern.`)}
           />
           <Button label="Code neu senden" variant="ghost" onPress={resend} disabled={busy} />
           <Button
@@ -248,6 +253,7 @@ export default function Email() {
         <Animated.View style={[styles.choices, enter]}>
           <TextField
             label={existing ? 'Passwort' : 'Neues Passwort'}
+            nudge={pwField}
             helperText={existing ? undefined : `Mindestens ${MIN_PASSWORD} Zeichen.`}
             error={error}
             value={password}
@@ -268,6 +274,7 @@ export default function Email() {
             label={busy ? (existing ? 'Wird geprüft …' : 'Wird angelegt …') : existing ? 'Anmelden' : 'Konto anlegen'}
             onPress={submitPassword}
             disabled={!passwordValid || busy}
+            whyDisabled={() => !busy && pwField.nudge(existing ? 'Gib Dein Passwort ein.' : `Mindestens ${MIN_PASSWORD} Zeichen.`)}
           />
           <Button
             label={existing ? 'Passwort vergessen? Code per Mail' : 'Stattdessen mit Code'}

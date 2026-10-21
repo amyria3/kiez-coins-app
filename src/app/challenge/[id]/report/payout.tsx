@@ -12,6 +12,7 @@ import { useChallenge, useCurrentUser, useStore } from '../../../../data/store';
 import type { PayoutMethod } from '../../../../data/types';
 import { color, space, text } from '../../../../theme/tokens';
 import { t } from '../../../../data/texts';
+import { useNudge } from '../../../../components/Nudge';
 
 /**
  * Route `challenge/[id]/report/payout` (Modal, direkt nach „Erledigung senden“, nur mit Bounty).
@@ -38,6 +39,7 @@ export default function PayoutShareScreen() {
   const ibanOk = isValidIban(iban) && accountHolder.trim().length > 0;
   const paypalOk = isValidPaypal(paypal);
   const canShare = saved ? true : ibanOk || paypalOk;
+  const ibanField = useNudge();
 
   const share = () => {
     if (saved) {
@@ -59,7 +61,9 @@ export default function PayoutShareScreen() {
       title="Zahlungsdaten freigeben"
       navigation="close"
       onLeadingPress={() => router.dismissTo('/feed')}
-      actions={<Button label={`Für ${name} freigeben`} onPress={share} disabled={!canShare} />}
+      actions={<Button label={`Für ${name} freigeben`} onPress={share} disabled={!canShare}
+          whyDisabled={() => ibanField.nudge('Gib Deine IBAN mit Kontoinhaber:in oder Deine PayPal-Adresse an.')}
+        />}
     >
       <KaterBubble>
         {t('Gemeldet! Wohin soll {name} Dir die {betrag} schicken?', { name, betrag: amount })}
@@ -103,6 +107,7 @@ export default function PayoutShareScreen() {
           />
           <TextField
             label="IBAN"
+        nudge={ibanField}
             helperText="IBAN oder PayPal, mindestens eins von beiden."
             error={iban.trim() && !isValidIban(iban) ? 'Diese IBAN stimmt nicht. Bitte prüf sie noch einmal.' : undefined}
             value={iban}

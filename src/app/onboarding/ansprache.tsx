@@ -10,6 +10,7 @@ import { addressForms } from '../../data/format';
 import { useStore } from '../../data/store';
 import type { AddressForm } from '../../data/types';
 import { space } from '../../theme/tokens';
+import { NudgeArea, useNudge } from '../../components/Nudge';
 
 /** Route `onboarding/ansprache`. Figma: `onboarding/ansprache`. Privat, nur für Kater-Texte. */
 export default function Ansprache() {
@@ -17,6 +18,7 @@ export default function Ansprache() {
   const { profile, dispatch } = useStore();
   const [form, setForm] = useState<AddressForm | undefined>(profile.addressForm ?? 'pirat_star');
   const [custom, setCustom] = useState(profile.addressCustom ?? '');
+  const choice = useNudge();
   const usesCustom = custom.trim().length > 0;
 
   const save = (addressForm?: AddressForm) => {
@@ -35,12 +37,15 @@ export default function Ansprache() {
       onLeadingPress={() => router.back()}
       actions={
         <>
-          <Button label="Weiter" onPress={() => save(form)} disabled={!form && !usesCustom} />
+          <Button label="Weiter" onPress={() => save(form)} disabled={!form && !usesCustom}
+            whyDisabled={() => choice.nudge('Wähl eine Ansprache oder schreib Deine eigene.')}
+          />
           <Button label="Ist mir egal" variant="secondary" onPress={() => save(undefined)} />
         </>
       }
     >
       <KaterBubble>Kommunikation ist alles. Wie spreche ich Dich an, Darling?</KaterBubble>
+      <NudgeArea nudge={choice}>
       <View style={{ gap: space[8] }}>
         {addressForms.map((f) => (
           <RadioOption
@@ -54,6 +59,7 @@ export default function Ansprache() {
           />
         ))}
       </View>
+      </NudgeArea>
       <TextField
         label="Oder eigene Bezeichnung (nur für uns zwei, nicht öffentlich)"
         helperText="Zum Beispiel Seebär:in. Sobald Du tippst, gilt Deine Bezeichnung statt der Auswahl oben."

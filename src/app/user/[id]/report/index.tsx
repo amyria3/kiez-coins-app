@@ -12,6 +12,7 @@ import { errorText, reportUser } from '../../../../data/remote';
 import { useChallenge, useStore } from '../../../../data/store';
 import type { UserReportReason } from '../../../../data/types';
 import { color, space, text } from '../../../../theme/tokens';
+import { NudgeArea, useNudge } from '../../../../components/Nudge';
 
 const reasons: { key: UserReportReason; label: string }[] = [
   { key: 'discrimination', label: 'Sexismus, Rassismus, Antisemitismus oder andere Diskriminierung' },
@@ -36,6 +37,8 @@ export default function UserReportScreen() {
   const { challenge } = useChallenge(params.challengeId);
   const [reason, setReason] = useState<UserReportReason | undefined>(params.reason);
   const [description, setDescription] = useState('');
+  const reasonField = useNudge();
+  const textField = useNudge();
 
   if (!user) return null;
   const needsText = reason === 'other' && !description.trim();
@@ -66,6 +69,7 @@ export default function UserReportScreen() {
         <Button
           label="Meldung senden"
           disabled={!reason || needsText || sending}
+          whyDisabled={() => (sending ? undefined : !reason ? reasonField.nudge('Wähl einen Grund.') : textField.nudge('Beschreib kurz, was passiert ist.'))}
           onPress={send}
         />
       }
@@ -76,12 +80,15 @@ export default function UserReportScreen() {
         <Text style={styles.hint} onPress={() => router.push('/rechtliches/regeln')}>
           Community-Regeln lesen
         </Text>
+        <NudgeArea nudge={reasonField}>
         {reasons.map((r) => (
           <RadioOption key={r.key} label={r.label} selected={reason === r.key} onPress={() => setReason(r.key)} />
         ))}
+        </NudgeArea>
       </View>
       <TextField
         label="Beschreibung"
+        nudge={textField}
         helperText="Max. 500 Zeichen. Bei „Etwas anderes“ Pflicht."
         value={description}
         onChangeText={setDescription}

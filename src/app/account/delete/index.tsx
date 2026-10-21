@@ -11,6 +11,7 @@ import { hasOpenWork } from '../../../data/openWork';
 import { deleteMyAccount, errorText } from '../../../data/remote';
 import { useStore } from '../../../data/store';
 import { t } from '../../../data/texts';
+import { useNudge } from '../../../components/Nudge';
 
 /**
  * Route `account/delete`. Figma: `account/delete`. Löscht Fotos, Profil, Challenges, Kommentare
@@ -21,6 +22,7 @@ export default function DeleteAccount() {
   const { profile, challenges, currentUserId, mode } = useStore();
   const [confirm, setConfirm] = useState('');
   const [busy, setBusy] = useState(false);
+  const confirmField = useNudge();
 
   const remove = async () => {
     if (hasOpenWork(challenges, currentUserId)) {
@@ -48,7 +50,9 @@ export default function DeleteAccount() {
       onLeadingPress={() => router.back()}
       actions={
         <>
-          <Button label="Konto endgültig löschen" onPress={remove} disabled={confirm.trim() !== 'LÖSCHEN' || busy} />
+          <Button label="Konto endgültig löschen" onPress={remove} disabled={confirm.trim() !== 'LÖSCHEN' || busy}
+            whyDisabled={() => !busy && confirmField.nudge('Tipp LÖSCHEN in Großbuchstaben ein.')}
+          />
           <Button label="Abbrechen" variant="secondary" onPress={() => router.back()} />
         </>
       }
@@ -61,6 +65,7 @@ export default function DeleteAccount() {
       <Notice message="Offene Bounties musst Du vorher klären. Wenn Du nur eine Pause brauchst, kannst Du Dein Konto auch 3 Monate pausieren." />
       <TextField
         label="Zum Bestätigen LÖSCHEN eintippen"
+        nudge={confirmField}
         helperText="Erst dann wird der Button aktiv."
         value={confirm}
         onChangeText={setConfirm}

@@ -9,12 +9,15 @@ import { SubScreen } from '../../components/Screen';
 import { MAX_GROUPS, myEdensteine } from '../../data/groups';
 import { useStore } from '../../data/store';
 import { color, radius, size, space, text } from '../../theme/tokens';
+import { explain } from '../../components/Nudge';
 
 /** Route `gruppen` („Deine Gruppen“): Liste, Gründen, Beitreten. Erreichbar aus dem Feed-Reiter und aus dem Konto. */
 export default function Groups() {
   const router = useRouter();
   const { groups, challenges, currentUserId } = useStore();
   const full = groups.length >= MAX_GROUPS;
+  const tooMany = () =>
+    explain('Gruppen voll', `Du bist schon in ${MAX_GROUPS} Gruppen. Verlass eine, dann kannst Du einer neuen beitreten oder eine gründen.`);
 
   return (
     <SubScreen
@@ -23,8 +26,8 @@ export default function Groups() {
       onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))}
       actions={
         <>
-          <Button label="Gruppe gründen" onPress={() => router.push('/gruppen/neu')} disabled={full} />
-          <Button label="Mit Code beitreten" variant="ghost" onPress={() => router.push('/gruppen/beitreten')} disabled={full} />
+          <Button label="Gruppe gründen" onPress={() => router.push('/gruppen/neu')} disabled={full} whyDisabled={tooMany} />
+          <Button label="Mit Code beitreten" variant="ghost" onPress={() => router.push('/gruppen/beitreten')} disabled={full} whyDisabled={tooMany} />
         </>
       }
     >

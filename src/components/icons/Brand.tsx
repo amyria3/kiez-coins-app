@@ -59,32 +59,42 @@ export const CrownIcon = memo(function CrownIcon({ height = 40 }: { height?: num
 });
 
 /**
- * Einzelner Kristall ohne die Striche daneben: Diamant 1 aus Figma, auf den Stein zugeschnitten.
+ * Einzelne Kristalle ohne die Striche daneben: die drei Diamanten aus Figma, auf den Stein zugeschnitten.
  * Grundlage für den Edenstein-Haufen.
  */
-const crystalSvg = (() => {
-  const full = diamondSvgs[1].svg('STRICH');
-  const stone = full.replace(/<path[^>]*fill="STRICH"[^>]*\/>/g, '');
-  return stone.replace(/viewBox="[^"]*"/, 'viewBox="7.2 0.6 19.8 33"').replace(/width="[^"]*" height="[^"]*"/, '');
-})();
-const CRYSTAL_RATIO = 19.8 / 33;
+const CRYSTAL_CROP: Record<DiamondVariant, { x: number; y: number; w: number; h: number }> = {
+  1: { x: 7.2, y: 0.6, w: 19.8, h: 33 },
+  2: { x: 8.6, y: 0, w: 16.4, h: 35 },
+  3: { x: 7.6, y: 0, w: 18.4, h: 35 },
+};
+const crystalSvgs = ([1, 2, 3] as DiamondVariant[]).map((v) => {
+  const c = CRYSTAL_CROP[v];
+  const stone = diamondSvgs[v].svg('STRICH').replace(/<path[^>]*fill="STRICH"[^>]*\/>/g, '');
+  return {
+    ratio: c.w / c.h,
+    svg: stone
+      .replace(/viewBox="[^"]*"/, `viewBox="${c.x} ${c.y} ${c.w} ${c.h}"`)
+      .replace(/width="[^"]*" height="[^"]*"/, ''),
+  };
+});
 
 /**
- * Lage der Kristalle im Haufen, in Kristallbreiten (x) und -höhen (y), Reihenfolge wie sie dazukommen:
+ * Lage der Kristalle im Haufen, in Kristallbreiten (x) und -höhen (y), in der Reihenfolge, wie sie dazukommen:
  * 1 steht, 2 daneben, 3 liegt davor, 4 liegt obendrauf, 5 und 6 hinten außen, 7 und 8 vorn außen,
- * 9 und 10 oben daneben. `z`: hinten 0, oben 1, vorn 2.
+ * 9 und 10 oben daneben. `z`: hinten 0, oben 1, vorn 2. Vorn größer, hinten etwas dunkler, jeder leicht gedreht,
+ * die Typen wechseln sich ab.
  */
-const PILE: { x: number; y: number; z: number }[] = [
-  { x: 0, y: 0, z: 0 },
-  { x: 0.85, y: 0, z: 0 },
-  { x: 0.42, y: 0.32, z: 2 },
-  { x: 0.42, y: -0.5, z: 1 },
-  { x: -0.85, y: 0, z: 0 },
-  { x: 1.7, y: 0, z: 0 },
-  { x: -0.42, y: 0.32, z: 2 },
-  { x: 1.27, y: 0.32, z: 2 },
-  { x: -0.42, y: -0.5, z: 1 },
-  { x: 1.27, y: -0.5, z: 1 },
+const PILE: { x: number; y: number; z: number; rot: number; scale: number; type: 0 | 1 | 2 }[] = [
+  { x: 0, y: 0, z: 0, rot: -6, scale: 1, type: 0 },
+  { x: 0.8, y: 0.05, z: 0, rot: 10, scale: 0.95, type: 1 },
+  { x: 0.4, y: 0.45, z: 2, rot: -4, scale: 1.1, type: 2 },
+  { x: 0.42, y: -0.52, z: 1, rot: 16, scale: 0.9, type: 1 },
+  { x: -0.8, y: 0.1, z: 0, rot: -14, scale: 0.92, type: 2 },
+  { x: 1.6, y: 0.1, z: 0, rot: 14, scale: 0.92, type: 0 },
+  { x: -0.4, y: 0.48, z: 2, rot: 8, scale: 1.05, type: 1 },
+  { x: 1.2, y: 0.48, z: 2, rot: -10, scale: 1.05, type: 0 },
+  { x: -0.25, y: -0.46, z: 1, rot: -16, scale: 0.88, type: 0 },
+  { x: 1.05, y: -0.46, z: 1, rot: 12, scale: 0.88, type: 2 },
 ];
 
 /**
@@ -93,7 +103,7 @@ const PILE: { x: number; y: number; z: number }[] = [
  */
 export const EdensteinPile = memo(function EdensteinPile({ amount, height = 24 }: { amount: number; height?: number }) {
   const n = Math.max(1, Math.min(10, Math.round(amount)));
-  const w = height * CRYSTAL_RATIO;
+  const w = height * 0.58;
   const used = PILE.slice(0, n);
   const minX = Math.min(...used.map((p) => p.x));
   const maxX = Math.max(...used.map((p) => p.x));
@@ -102,15 +112,29 @@ export const EdensteinPile = memo(function EdensteinPile({ amount, height = 24 }
   const order = used.map((p, i) => ({ ...p, i })).sort((a, b) => a.z - b.z || a.i - b.i);
   return (
     <View
-      style={{ width: (maxX - minX + 1) * w, height: (maxY - minY + 1) * height }}
+      style={{ width: (maxX - minX + 1.1) * w, height: (maxY - minY + 1.1) * height }}
       accessible
       accessibilityLabel={`${amount} Edensteine`}
     >
-      {order.map((p) => (
-        <View key={p.i} style={{ position: 'absolute', left: (p.x - minX) * w, top: (p.y - minY) * height }}>
-          <SvgXml xml={crystalSvg} width={w} height={height} />
-        </View>
-      ))}
+      {order.map((p) => {
+        const crystal = crystalSvgs[p.type];
+        const h = height * p.scale;
+        const cw = h * crystal.ratio;
+        return (
+          <View
+            key={p.i}
+            style={{
+              position: 'absolute',
+              left: (p.x - minX) * w + (w - cw) / 2,
+              top: (p.y - minY) * height + (height - h),
+              opacity: p.z === 0 && n > 2 ? 0.85 : 1,
+              transform: [{ rotate: `${p.rot}deg` }],
+            }}
+          >
+            <SvgXml xml={crystal.svg} width={cw} height={h} />
+          </View>
+        );
+      })}
     </View>
   );
 });
