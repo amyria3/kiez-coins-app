@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Button } from '../../../components/Button';
 import { FieldGroup } from '../../../components/Content';
 import { Chip, ChipGroup, PhotoPicker, TextField } from '../../../components/Form';
-import { EdensteinIcon } from '../../../components/icons/Brand';
+import { EdensteinPile } from '../../../components/icons/Brand';
 import { Icon } from '../../../components/icons/Icon';
 import { SubScreen } from '../../../components/Screen';
 import { useStore } from '../../../data/store';
@@ -87,7 +87,7 @@ export default function NewGroupTask() {
             <Text style={styles.stepText}>−</Text>
           </Pressable>
           <View style={styles.value} accessible accessibilityLabel={`${edensteine} Edensteine`}>
-            <EdensteinIcon height={22} amount={edensteine} />
+            <EdensteinPile height={30} amount={edensteine} />
             <Text style={styles.valueText}>{edensteine}</Text>
           </View>
           <Pressable

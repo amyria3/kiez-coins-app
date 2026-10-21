@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { FieldGroup, KaterBubble } from '../../components/Content';
-import { CrownIcon, EdensteinIcon } from '../../components/icons/Brand';
+import { CrownIcon } from '../../components/icons/Brand';
 import { Icon } from '../../components/icons/Icon';
 import { NavCard, NavRow, ProfileCard } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
@@ -60,7 +60,7 @@ export default function Account() {
       <NavCard
         title="Deine Gruppen"
         description={groups.length === 0 ? 'Gründen oder beitreten' : groups.length === 1 ? '1 Gruppe' : `${groups.length} Gruppen`}
-        leading={<EdensteinIcon height={26} />}
+        leading={<Icon name="behausung" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/gruppen')}
       />
       <FieldGroup label="Einstellungen">

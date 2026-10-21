@@ -141,7 +141,7 @@ export default function CreatePreview() {
       <View style={styles.metrics}>
         {bountyAmount ? (
           <View style={styles.metric}>
-            <CoinsIcon height={18} />
+            <CoinsIcon height={28} />
             <Text style={styles.metricLabel}>Bounty</Text>
             <Text style={[styles.metricValue, styles.signal]}>{formatBountyShort(bountyAmount)}</Text>
           </View>

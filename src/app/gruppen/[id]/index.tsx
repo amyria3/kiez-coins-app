@@ -5,7 +5,7 @@ import { Avatar } from '../../../components/AuthorRow';
 import { Button } from '../../../components/Button';
 import { FieldGroup, KaterCard } from '../../../components/Content';
 import { CopyField } from '../../../components/Form';
-import { EdensteinIcon } from '../../../components/icons/Brand';
+import { EdensteinPile } from '../../../components/icons/Brand';
 import { SubScreen } from '../../../components/Screen';
 import { inviteMessage, leaderboard, MAX_MEMBERS } from '../../../data/groups';
 import { useStore } from '../../../data/store';
@@ -134,7 +134,7 @@ export default function GroupDetail() {
                     {r.done === 1 ? '1 Aufgabe erledigt' : `${r.done} Aufgaben erledigt`}
                   </Text>
                 </View>
-                <EdensteinIcon height={14} amount={r.edensteine} />
+                <EdensteinPile height={20} amount={r.edensteine} />
                 <Text style={styles.eden}>{r.edensteine}</Text>
               </Pressable>
             );
