@@ -56,7 +56,7 @@ export default function Kodex() {
       }
     >
       <KaterBubble>Noch das Kleingedruckte. Auch Piraten haben einen Kodex.</KaterBubble>
-      <Notice message="Kiez Coins ist eine kostenlose Testversion. Funktionen können sich ändern, und am Ende der Testphase setzen wir Daten eventuell zurück. Das kündigen wir vorher per E-Mail an." />
+      <Notice message="Kiez Coins ist eine kostenlose Testversion. Funktionen können sich ändern. Am Ende der Testphase setzen wir Daten eventuell zurück. Das kündigen wir vorher per E-Mail an." />
       <NudgeArea nudge={consent}>
       <SwitchRow required label="Ich bin mindestens 18 Jahre alt" description="Pflicht für Kiez Coins." value={age} onValueChange={setAge} />
       <SwitchRow
