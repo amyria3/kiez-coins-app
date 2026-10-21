@@ -20,7 +20,7 @@ type TabBarProps = {
 };
 
 /**
- * Schwebende Tab-Leiste (Upgrade „Nachtschicht“): Stecknadel = Feed, Kater = Deine Reise,
+ * Schwebende Tab-Leiste (Upgrade „Nachtschicht“): Stecknadel = Feed, Kater = YourPleasure,
  * Burger = Menü (Konto). Die aktive Seite liegt auf einer dezenten, halbtransparenten Pille.
  * Challenge erstellen sitzt als CameraButton oben rechts.
  */
@@ -40,7 +40,7 @@ export function TabBar({ active, onFeedPress, onReisePress, onReiseLongPress, on
         </Pressable>
         <Pressable
           accessibilityRole="tab"
-          accessibilityLabel={hasTasks ? 'Deine Reise, Du bist dran' : 'Deine Reise'}
+          accessibilityLabel={hasTasks ? 'YourPleasure, Du bist dran' : 'YourPleasure'}
           accessibilityState={{ selected: active === 'reise' }}
           onPress={onReisePress}
           onLongPress={onReiseLongPress}

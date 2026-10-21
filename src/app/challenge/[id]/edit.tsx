@@ -6,7 +6,7 @@ import { Button } from '../../../components/Button';
 import { FieldGroup } from '../../../components/Content';
 import { Chip, ChipGroup, TextField } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
-import { formatRemainingShort } from '../../../data/format';
+import { formatDayMonthShort, formatRemainingShort } from '../../../data/format';
 import { useChallenge, useStore } from '../../../data/store';
 import { color, text } from '../../../theme/tokens';
 
@@ -18,12 +18,15 @@ const durations = [
   { days: 30, label: '1 Monat' },
 ];
 
+const DAY = 24 * 60 * 60 * 1000;
+
 /**
  * Route `challenge/[id]/edit` (Modal). Eigene Challenge bearbeiten, solange niemand sie angenommen hat:
  * Titel, Text, Ort, Bounty und Frist. Die Frist bleibt, bis eine neue gewählt wird.
  * Gruppenaufgaben: ohne Ort und Bounty, die Edensteine bleiben.
  * „Nicht veröffentlichen, Entwurf“ speichert die Änderungen und nimmt die Challenge aus dem Feed (status deleted).
- * „Wieder veröffentlichen“ in „Deine Challenges“ holt sie samt Kommentaren zurück.
+ * Gelöschte Challenges öffnet „Bearbeiten“ in „Deine Challenges“ hier: „Veröffentlichen“ holt sie samt Kommentaren
+ * zurück, „Nicht veröffentlichen, Entwurf“ speichert nur die Änderungen.
  */
 export default function EditChallenge() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -37,8 +40,9 @@ export default function EditChallenge() {
   const [bounty, setBounty] = useState<number | undefined>(challenge?.bountyAmount);
   const [durationDays, setDurationDays] = useState<number | null>(null);
 
-  const editable =
-    !!challenge && challenge.authorId === currentUserId && challenge.status === 'open' && !challenge.assigneeId;
+  const own = !!challenge && challenge.authorId === currentUserId && !challenge.assigneeId;
+  const deleted = own && challenge?.status === 'deleted';
+  const editable = own && (challenge?.status === 'open' || deleted);
 
   if (!challenge || !editable) {
     return (
@@ -54,22 +58,70 @@ export default function EditChallenge() {
   const isGroup = !!challenge.groupId;
   const canSave = title.trim().length > 0 && title.trim().length <= 60 && (isGroup || location.trim().length > 0);
 
-  // Nicht veröffentlichen: Änderungen speichern und die Challenge aus dem Feed nehmen (status deleted).
-  // In „Deine Challenges“ holt „Wieder veröffentlichen“ sie zurück, samt Kommentaren.
+  // Abgelaufene Frist einer gelöschten Challenge: läuft beim Veröffentlichen neu, so lang wie ursprünglich.
+  const expired = new Date(challenge.deadline).getTime() <= Date.now();
+  const renewed = () => {
+    const original = new Date(challenge.deadline).getTime() - new Date(challenge.createdAt).getTime();
+    return new Date(Date.now() + Math.max(original, DAY)).toISOString();
+  };
   const editOf = () => ({
     title: title.trim(),
     text: body.trim(),
     location: location.trim(),
     bountyAmount: bounty,
     deadline: durationDays
-      ? new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000).toISOString()
-      : challenge.deadline,
+      ? new Date(Date.now() + durationDays * DAY).toISOString()
+      : expired
+        ? renewed()
+        : challenge.deadline,
   });
+  const changed =
+    title.trim() !== challenge.title ||
+    body.trim() !== challenge.text ||
+    location.trim() !== challenge.location ||
+    bounty !== challenge.bountyAmount ||
+    durationDays !== null;
+  const bountyBlocked = !!bounty && bounty > (challenge.bountyAmount ?? 0) && !canOfferBounties;
+  const backToManage = () => {
+    router.dismissTo('/feed');
+    router.push('/manage');
+  };
 
+  // Gelöschte Challenge veröffentlichen: zurückholen (mit gültiger Frist), dann die Änderungen speichern.
+  const publish = () => {
+    if (!canSave) return;
+    if (bounty && !canOfferBounties) {
+      Alert.alert('Keine Bounty möglich', 'Du kannst gerade keine Bounties anbieten. Wähl „Keine“ als Bounty.');
+      return;
+    }
+    const edit = editOf();
+    dispatch({ type: 'restore', id: challenge.id, deadline: edit.deadline });
+    if (changed || expired) dispatch({ type: 'edit', id: challenge.id, edit });
+    router.back();
+  };
+
+  // Gelöschte Challenge bleibt unveröffentlicht. Die Datenbank ändert nur offene Challenges, deshalb kurz
+  // zurückholen, ändern und wieder löschen.
+  const keepUnpublished = () => {
+    if (!changed) return router.back();
+    if (!canSave) return;
+    if (bounty && !canOfferBounties) {
+      Alert.alert('Keine Bounty möglich', 'Du kannst gerade keine Bounties anbieten. Wähl „Keine“ als Bounty.');
+      return;
+    }
+    const edit = editOf();
+    dispatch({ type: 'restore', id: challenge.id, deadline: edit.deadline });
+    dispatch({ type: 'edit', id: challenge.id, edit });
+    dispatch({ type: 'delete', id: challenge.id });
+    router.back();
+  };
+
+  // Nicht veröffentlichen: Änderungen speichern und die Challenge aus dem Feed nehmen (status deleted).
+  // In „Deine Challenges“ unter „Gelöschte und geschlossene“ lässt sie sich wieder bearbeiten und veröffentlichen.
   const toDraft = () =>
     Alert.alert(
       'Nicht veröffentlichen?',
-      'Die Challenge verschwindet mit Deinen Änderungen aus dem Feed. In „Deine Challenges“ kannst Du sie wieder veröffentlichen.',
+      'Die Challenge verschwindet mit Deinen Änderungen aus dem Feed. In „Deine Challenges“ unter „Gelöschte und geschlossene“ kannst Du sie wieder veröffentlichen.',
       [
         { text: 'Abbrechen', style: 'cancel' },
         {
@@ -77,8 +129,7 @@ export default function EditChallenge() {
           onPress: () => {
             if (canSave) dispatch({ type: 'edit', id: challenge.id, edit: editOf() });
             dispatch({ type: 'delete', id: challenge.id });
-            router.dismissTo('/feed');
-            router.push('/manage');
+            backToManage();
           },
         },
       ],
@@ -86,7 +137,7 @@ export default function EditChallenge() {
 
   const save = () => {
     if (!canSave) return;
-    if (bounty && bounty > (challenge.bountyAmount ?? 0) && !canOfferBounties) {
+    if (bountyBlocked) {
       Alert.alert('Keine Bounty möglich', 'Du kannst gerade keine Bounties anbieten oder erhöhen.');
       return;
     }
@@ -100,10 +151,17 @@ export default function EditChallenge() {
       navigation="close"
       onLeadingPress={() => router.back()}
       actions={
-        <>
-          <Button label="Speichern" onPress={save} disabled={!canSave} />
-          <Button label="Nicht veröffentlichen, Entwurf" variant="ghost" onPress={toDraft} />
-        </>
+        deleted ? (
+          <>
+            <Button label="Veröffentlichen" onPress={publish} disabled={!canSave} />
+            <Button label="Nicht veröffentlichen, Entwurf" variant="ghost" onPress={keepUnpublished} />
+          </>
+        ) : (
+          <>
+            <Button label="Speichern" onPress={save} disabled={!canSave} />
+            <Button label="Nicht veröffentlichen, Entwurf" variant="ghost" onPress={toDraft} />
+          </>
+        )
       }
     >
       <TextField label="Titel" value={title} onChangeText={setTitle} maxLength={60} />
@@ -121,7 +179,7 @@ export default function EditChallenge() {
           </FieldGroup>
         </>
       )}
-      <FieldGroup label="Frist">
+      <FieldGroup label="Zeitraum">
         <ChipGroup>
           <Chip label="Unverändert" selected={durationDays === null} onPress={() => setDurationDays(null)} />
           {durations.map(({ days, label }) => (
@@ -129,7 +187,11 @@ export default function EditChallenge() {
           ))}
         </ChipGroup>
         <Text style={styles.secondary}>
-          {durationDays ? `Neue Frist ab jetzt: ${durations.find((d) => d.days === durationDays)?.label}.` : formatRemainingShort(challenge.deadline)}
+          {durationDays
+            ? `Neu ab jetzt: ${durations.find((d) => d.days === durationDays)?.label}.`
+            : expired
+              ? `Abgelaufen. Läuft beim Veröffentlichen neu bis ${formatDayMonthShort(renewed())}.`
+              : formatRemainingShort(challenge.deadline)}
         </Text>
       </FieldGroup>
     </SubScreen>

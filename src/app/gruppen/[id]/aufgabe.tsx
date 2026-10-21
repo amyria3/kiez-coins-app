@@ -19,16 +19,20 @@ const durations = [
   { days: 30, label: '1 Monat' },
 ];
 
-/** Route `gruppen/[id]/aufgabe`: Gruppenaufgabe mit 1 bis 10 Edensteinen. Foto optional, kein Ort, kein Entwurf. */
+/**
+ * Route `gruppen/[id]/aufgabe`: Gruppenaufgabe mit 1 bis 10 Edensteinen. Foto optional, kein Ort, kein Entwurf.
+ * Mit `copyOf` (aus „Deine Challenges“, „Kopie erstellen“) startet sie mit Foto, Titel, Text und Edensteinen einer alten Aufgabe.
+ */
 export default function NewGroupTask() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, copyOf } = useLocalSearchParams<{ id: string; copyOf?: string }>();
   const router = useRouter();
-  const { groups, groupApi } = useStore();
+  const { groups, groupApi, challenges } = useStore();
   const group = groups.find((g) => g.id === id);
-  const [photo, setPhoto] = useState<ImageSource>();
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-  const [edensteine, setEdensteine] = useState(3);
+  const original = copyOf ? challenges.find((c) => c.id === copyOf) : undefined;
+  const [photo, setPhoto] = useState<ImageSource | undefined>(original?.image);
+  const [title, setTitle] = useState(original?.title ?? '');
+  const [body, setBody] = useState(original?.text ?? '');
+  const [edensteine, setEdensteine] = useState(original?.edensteine ?? 3);
   const [days, setDays] = useState(7);
   const [busy, setBusy] = useState(false);
 

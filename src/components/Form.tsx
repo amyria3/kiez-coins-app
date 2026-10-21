@@ -49,7 +49,7 @@ export function TextField({ label, helperText, error, multiline, onFocus, onBlur
           setFocused(false);
           onBlur?.(e);
         }}
-        style={[styles.input, multiline && styles.inputMultiline, { borderColor }]}
+        style={[styles.input, multiline && styles.inputMultiline, error ? styles.inputError : null, { borderColor }]}
       />
       {helper ? <Text style={[styles.helper, error ? styles.helperError : null]}>{helper}</Text> : null}
     </View>
@@ -276,6 +276,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
   },
   inputMultiline: { minHeight: 88, textAlignVertical: 'top' },
+  // Fehler: Feld hebt sich mit heller Fläche ab, der Text bleibt gut lesbar
+  inputError: { backgroundColor: color.bg.surface },
   extraRow: { flexDirection: 'row', gap: space[8] },
   extraTile: { width: 88, height: 88, borderRadius: radius.md, overflow: 'hidden' },
   extraAdd: {
