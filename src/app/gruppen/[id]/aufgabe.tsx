@@ -87,7 +87,7 @@ export default function NewGroupTask() {
             <Text style={styles.stepText}>−</Text>
           </Pressable>
           <View style={styles.value} accessible accessibilityLabel={`${edensteine} Edensteine`}>
-            <EdensteinIcon height={22} />
+            <EdensteinIcon height={22} amount={edensteine} />
             <Text style={styles.valueText}>{edensteine}</Text>
           </View>
           <Pressable

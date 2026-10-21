@@ -54,10 +54,13 @@ export default function CreatePreview() {
   const top = insets.top + space[48];
   const { width: screenW, height: screenH } = useAppDimensions();
   const windowBottom = BAR + bottom + space[8];
+  const frame = framePath(screenW, screenH, EDGE, top, screenW - 2 * EDGE, screenH - top - windowBottom, WINDOW_RADIUS);
+  const framePathUrl = `url("data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${screenW}" height="${screenH}" viewBox="0 0 ${screenW} ${screenH}"><path d="${frame}" fill-rule="evenodd" fill="#000"/></svg>`,
+  )}")`;
 
-  // Innerhalb des Fensters lässt sich die Vorschau seitlich verschieben, um unter den Rand zu schauen.
+  // Innerhalb des Fensters lässt sich die Vorschau seitlich verschieben. Sie steht immer mittig und federt zurück.
   const shiftX = useRef(new Animated.Value(0)).current;
-  const offset = useRef(0);
   const singlePhoto = draft.extras.length === 0;
   const pan = useMemo(() => {
     const clamp = (v: number) => Math.max(-EDGE, Math.min(EDGE, v));
@@ -67,17 +70,16 @@ export default function CreatePreview() {
       onMoveShouldSetPanResponderCapture: (_, g) => singlePhoto && horizontal(g.dx, g.dy),
       onMoveShouldSetPanResponder: (_, g) => horizontal(g.dx, g.dy),
       onPanResponderMove: (_, g) => {
-        const raw = offset.current + g.dx;
+        const raw = g.dx;
         // Über den Rand hinaus nur mit Widerstand
         const over = raw - clamp(raw);
         shiftX.setValue(clamp(raw) + over * 0.2);
       },
-      onPanResponderRelease: (_, g) => {
-        offset.current = clamp(offset.current + g.dx);
-        Animated.spring(shiftX, { toValue: offset.current, useNativeDriver: true, ...motion.barrierSpring }).start();
-      },
+      // Loslassen: zurück in die Mitte
+      onPanResponderRelease: () =>
+        Animated.spring(shiftX, { toValue: 0, useNativeDriver: true, ...motion.barrierSpring }).start(),
       onPanResponderTerminate: () =>
-        Animated.spring(shiftX, { toValue: offset.current, useNativeDriver: true, ...motion.barrierSpring }).start(),
+        Animated.spring(shiftX, { toValue: 0, useNativeDriver: true, ...motion.barrierSpring }).start(),
     });
   }, [shiftX, singlePhoto]);
 
@@ -174,23 +176,35 @@ export default function CreatePreview() {
       </HeroScreen>
       </Animated.View>
 
-      {/* Ausgeblurrter Rand mit innen abgerundetem Fenster. Die Mitte bleibt scharf. */}
+      {/* Ausgeblurrter Rand mit innen abgerundetem Fenster, ohne Tönung. Die Mitte bleibt scharf. */}
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        <MaskedView
-          style={StyleSheet.absoluteFill}
-          maskElement={
-            // Native: nur die Deckkraft zählt. Im Browser zeigt MaskedView die Maske selbst, daher die Tönung.
-            <Svg width={screenW} height={screenH}>
-              <Path
-                d={framePath(screenW, screenH, EDGE, top, screenW - 2 * EDGE, screenH - top - windowBottom, WINDOW_RADIUS)}
-                fillRule="evenodd"
-                fill={Platform.OS === 'web' ? 'rgba(31, 33, 35, 0.7)' : '#000'}
-              />
-            </Svg>
-          }
-        >
-          <BlurView intensity={30} tint="dark" style={[StyleSheet.absoluteFill, styles.edge]} />
-        </MaskedView>
+        {Platform.OS === 'web' ? (
+          // Browser: Unschärfe per CSS, das Fenster schneidet eine SVG-Maske aus
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backdropFilter: 'blur(14px)',
+              WebkitBackdropFilter: 'blur(14px)',
+              maskImage: framePathUrl,
+              WebkitMaskImage: framePathUrl,
+              maskSize: '100% 100%',
+              WebkitMaskSize: '100% 100%',
+            }}
+          />
+        ) : (
+          <MaskedView
+            style={StyleSheet.absoluteFill}
+            maskElement={
+              // Nur die Deckkraft zählt: deckend = Unschärfe, Loch = scharfes Fenster
+              <Svg width={screenW} height={screenH}>
+                <Path d={frame} fillRule="evenodd" fill="#000" />
+              </Svg>
+            }
+          >
+            <BlurView intensity={40} tint="default" style={StyleSheet.absoluteFill} />
+          </MaskedView>
+        )}
         <Text style={[styles.label, { top: insets.top + space[16] }]}>Vorschau</Text>
       </View>
 
@@ -210,7 +224,6 @@ export default function CreatePreview() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   flex: { flex: 1 },
-  edge: { backgroundColor: 'rgba(31, 33, 35, 0.35)' },
   label: { position: 'absolute', alignSelf: 'center', ...text.caption, color: color.text.primary },
   bar: {
     position: 'absolute',
