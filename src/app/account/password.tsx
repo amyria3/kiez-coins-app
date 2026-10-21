@@ -46,7 +46,7 @@ export default function Password() {
       title={hasPassword ? 'Passwort ändern' : 'Passwort hinterlegen'}
       navigation="back"
       onLeadingPress={() => router.back()}
-      actions={<Button label={saving ? 'Wird gespeichert …' : 'Passwort speichern'} disabled={!valid || saving}
+      actions={<Button busy={saving} label={saving ? 'Wird gespeichert …' : 'Passwort speichern'} disabled={!valid || saving}
           whyDisabled={() =>
             saving
               ? undefined

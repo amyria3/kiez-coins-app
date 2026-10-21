@@ -46,7 +46,7 @@ export default function Deckname() {
       subtitle="Schritt 2 von 6"
       navigation="back"
       onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/onboarding/welcome'))}
-      actions={<Button label="Weiter" onPress={next} disabled={!handle.trim() || busy} whyDisabled={() => !busy && handleField.nudge('Wähl einen Decknamen.')} />}
+      actions={<Button busy={busy} label="Weiter" onPress={next} disabled={!handle.trim() || busy} whyDisabled={() => !busy && handleField.nudge('Wähl einen Decknamen.')} />}
     >
       <KaterBubble>Dein Rufname</KaterBubble>
       <TextField

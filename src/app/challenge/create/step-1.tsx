@@ -45,7 +45,7 @@ export default function CreateStep1() {
       actions={
         <>
           <Button label="Weiter" onPress={next} />
-          <Button
+          <Button busy={busy}
             label={busy ? 'Wird gespeichert …' : 'Als Entwurf speichern'}
             variant="ghost"
             onPress={save}

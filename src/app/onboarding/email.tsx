@@ -197,7 +197,7 @@ export default function Email() {
       {mode === 'choose' ? (
         <View style={styles.choices}>
           <Animated.View style={out(-1)}>
-            <Button
+            <Button busy={busy}
               label={busy ? 'Wird gesendet …' : existing ? 'Mit Code anmelden' : 'Mit Code registrieren'}
               onPress={requestCode}
               disabled={busy}
@@ -233,7 +233,7 @@ export default function Email() {
             autoFocus
             onSubmitEditing={() => digits.length >= MIN_DIGITS && !busy && confirmCode()}
           />
-          <Button
+          <Button busy={busy}
             label={busy ? 'Wird geprüft …' : 'Bestätigen'}
             onPress={confirmCode}
             disabled={digits.length < MIN_DIGITS || busy}
@@ -271,7 +271,7 @@ export default function Email() {
             autoFocus
             onSubmitEditing={() => passwordValid && !busy && submitPassword()}
           />
-          <Button
+          <Button busy={busy}
             label={busy ? (existing ? 'Wird geprüft …' : 'Wird angelegt …') : existing ? 'Anmelden' : 'Konto anlegen'}
             onPress={submitPassword}
             disabled={!passwordValid || busy}
