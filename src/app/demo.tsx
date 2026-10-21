@@ -99,7 +99,7 @@ export default function DemoMenu() {
               router.replace('/onboarding/welcome');
             }}
           />
-          <Button variant="secondary" label="YourPleasure" onPress={() => open('/reise')} />
+          <Button variant="secondary" label="Your Pleasure" onPress={() => open('/reise')} />
           <Button variant="secondary" label="Zahlungsdaten" onPress={() => open('/settings/payout')} />
           {demo ? (
             <Button variant="secondary" label="Person melden" onPress={() => open('/user/peter/report')} />

@@ -130,7 +130,7 @@ export function ProfileCard({ user, name, details, onPress }: ProfileCardProps) 
 }
 
 /**
- * Große Karte in der Größe der ProfileCard, z. B. für YourPleasure, Deine Challenges und Deine Gruppen.
+ * Große Karte in der Größe der ProfileCard, z. B. für Your Pleasure, Deine Challenges und Deine Gruppen.
  * Links ein runder Kreis mit Icon oder Zeichnung, daneben Titel und eine Zeile Beschreibung.
  */
 export function NavCard({
