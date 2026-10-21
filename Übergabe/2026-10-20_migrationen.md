@@ -156,3 +156,11 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 **Ändert:** Spalte `download_page` in `download_settings`.
 
 **Reihenfolge:** Erst 12, dann 13. Die Secrets `DOWNLOAD_PASSWORD` und `DOWNLOAD_PAGE` gehen weiter vor und sind ohne die Tabelle ebenfalls ausreichend.
+
+## 14. `supabase/migrations/20261021001200_app_texts_rechtstexte.sql`
+
+**Wozu:** Rechtstexte im Texte-CMS, siehe `2026-10-21_texte-cms.md`.
+
+**Ändert:** Trägt in `app_texts` alle Überschriften und Absätze von Impressum, Datenschutz, Nutzungsbedingungen und Community-Regeln ein, dazu „Stand 21.10.2026“ und neue Button-Texte. Schon geänderte Fassungen bleiben.
+
+**Voraussetzung:** Nr. 11 (`app_texts`) ist gelaufen.

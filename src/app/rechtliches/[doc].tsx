@@ -3,32 +3,35 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
+import { useTexts } from '../../data/texts';
 import { LEGAL_STAND, legalDocIds, legalDocs, type LegalDocId } from '../../data/legal';
 import { color, space, text } from '../../theme/tokens';
 
 /**
  * Route `rechtliches/[doc]` mit `impressum`, `datenschutz` oder `bedingungen`.
- * Erreichbar ohne Anmeldung (Start, Kodex) und aus „Dein Konto“. Texte in `data/legal.ts`.
+ * Erreichbar ohne Anmeldung (Start, Kodex) und aus „Dein Konto“. Texte in `data/legal.ts`,
+ * Daria ändert sie über das Texte-CMS (Tabelle `app_texts`, Ort „Rechtstexte“).
  */
 export default function LegalScreen() {
   const router = useRouter();
   const { doc } = useLocalSearchParams<{ doc: string }>();
   const id: LegalDocId = legalDocIds.includes(doc as LegalDocId) ? (doc as LegalDocId) : 'impressum';
   const current = legalDocs[id];
+  const tx = useTexts();
 
   return (
-    <SubScreen title={current.title} subtitle={`Stand ${LEGAL_STAND}`} navigation="back" onLeadingPress={() => router.back()}>
-      {current.intro ? <Text style={styles.intro}>{current.intro}</Text> : null}
+    <SubScreen title={tx(current.title)} subtitle={tx(`Stand ${LEGAL_STAND}`)} navigation="back" onLeadingPress={() => router.back()}>
+      {current.intro ? <Text style={styles.intro}>{tx(current.intro)}</Text> : null}
       {current.sections.map((section, index) => (
         <View key={index} style={styles.section}>
           {section.heading ? (
             <Text style={styles.heading} accessibilityRole="header">
-              {section.heading}
+              {tx(section.heading)}
             </Text>
           ) : null}
           {section.paragraphs.map((paragraph, p) => (
             <Text key={p} style={styles.paragraph} selectable>
-              {paragraph}
+              {tx(paragraph)}
             </Text>
           ))}
         </View>
@@ -37,7 +40,7 @@ export default function LegalScreen() {
         {legalDocIds
           .filter((other) => other !== id)
           .map((other) => (
-            <NavRow key={other} label={legalDocs[other].title} onPress={() => router.replace(`/rechtliches/${other}`)} />
+            <NavRow key={other} label={tx(legalDocs[other].title)} onPress={() => router.replace(`/rechtliches/${other}`)} />
           ))}
       </View>
     </SubScreen>

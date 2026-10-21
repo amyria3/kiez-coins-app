@@ -7,6 +7,7 @@
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import ts from 'typescript';
 
 const root = new URL('..', import.meta.url).pathname;
 const src = join(root, 'src');
@@ -82,6 +83,26 @@ for (const file of walk(src)) {
   // Geplante Features (src/data/features.ts)
   const planned = /planned(?:Title|Hint):\s*('(?:\\.|[^'\\])*')/g;
   while ((m = planned.exec(code))) add(unescape(m[1].slice(1, -1)), file, 'Kater');
+}
+
+// Rechtstexte (src/data/legal.ts): jede Überschrift und jeder Absatz einzeln, so wie App und Website sie zeigen
+{
+  const file = join(src, 'data/legal.ts');
+  const js = ts.transpileModule(readFileSync(file, 'utf8'), {
+    compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+  }).outputText;
+  const { LEGAL_STAND, legalDocIds, legalDocs } = await import(`data:text/javascript,${encodeURIComponent(js)}`);
+  add(`Stand ${LEGAL_STAND}`, file, 'Rechtstexte');
+  for (const id of legalDocIds) {
+    const doc = legalDocs[id];
+    const kind = `Rechtstexte, ${doc.title}`;
+    add(doc.title, file, kind);
+    if (doc.intro) add(doc.intro, file, kind);
+    for (const s of doc.sections) {
+      if (s.heading) add(s.heading, file, kind);
+      s.paragraphs.forEach((p) => add(p, file, kind));
+    }
+  }
 }
 
 const q = (s) => `'${s.replace(/'/g, "''")}'`;

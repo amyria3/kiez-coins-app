@@ -132,14 +132,37 @@ ${ios}
 </script>`,
 );
 
-const paragraphs = (ps) => ps.map((p) => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('\n');
+// data-t: Originaltext als Schlüssel für das Texte-CMS. Das Skript am Seitenende holt Darias Fassungen aus `app_texts`.
+const tag = (name, s, attrs = '') => `<${name}${attrs} data-t="${esc(s)}">${esc(s).replace(/\n/g, '<br>')}</${name}>`;
+const paragraphs = (ps) => ps.map((p) => tag('p', p)).join('\n');
+const cmsScript = `<script>
+(function () {
+  var norm = function (s) { return s.replace(/\\s+/g, ' ').trim(); };
+  var esc = function (s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+  fetch(${JSON.stringify(config.supabaseUrl + '/rest/v1/app_texts?select=original,text&text=neq.')}, {
+    headers: { apikey: ${JSON.stringify(config.publishableKey)} },
+  })
+    .then(function (r) { return r.ok ? r.json() : []; })
+    .then(function (rows) {
+      var map = {};
+      rows.forEach(function (row) { if (row.text && norm(row.text) !== norm(row.original)) map[norm(row.original)] = row.text.trim(); });
+      document.querySelectorAll('[data-t]').forEach(function (el) {
+        var t = map[norm(el.getAttribute('data-t'))];
+        if (t) el.innerHTML = esc(t).replace(/\\n/g, '<br>');
+      });
+      var h = document.querySelector('h1[data-t]');
+      if (h) document.title = h.textContent + ' – Kiez Coins';
+    })
+    .catch(function () {});
+})();
+</script>`;
 const legal = (id) => {
   const doc = legalDocs[id];
   const intro = doc.intro ? paragraphs([doc.intro]) : '';
   const sections = doc.sections
-    .map((s) => `${s.heading ? `<h2>${esc(s.heading)}</h2>\n` : ''}${paragraphs(s.paragraphs)}`)
+    .map((s) => `${s.heading ? `${tag('h2', s.heading)}\n` : ''}${paragraphs(s.paragraphs)}`)
     .join('\n');
-  return page(`${doc.title} – Kiez Coins`, `<h1>${esc(doc.title)}</h1>\n<p class="updated">Stand: ${esc(LEGAL_STAND)}</p>\n${intro}\n${sections}`);
+  return page(`${doc.title} – Kiez Coins`, `${tag('h1', doc.title)}\n${tag('p', `Stand ${LEGAL_STAND}`, ' class="updated"')}\n${intro}\n${sections}\n${cmsScript}`);
 };
 
 mkdirSync(out, { recursive: true });
@@ -159,7 +182,7 @@ copyFileSync(join(root, 'assets/favicon.png'), join(out, 'favicon.png'));
 // Hosting bei Vercel: Unterseiten der Web-App öffnen die App, Rechtstexte auch ohne .html
 writeFileSync(
   join(out, 'vercel.json'),
-  JSON.stringify({ cleanUrls: true, rewrites: [{ source: '/app/(.*)', destination: '/app/index.html' }] }, null, 2) + '\n',
+  JSON.stringify({ cleanUrls: true, rewrites: [{ source: '/app/:path*', destination: '/app/index.html' }] }, null, 2) + '\n',
 );
 // Logo: die bunten Coins aus der App (src/components/icons/brandSvgs.ts)
 const coins = readFileSync(join(root, 'src/components/icons/brandSvgs.ts'), 'utf8').match(/coinsSvg = `([^`]+)`/);
