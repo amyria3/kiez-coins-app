@@ -10,7 +10,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  useWindowDimensions,
   View,
   type ImageSourcePropType,
 } from 'react-native';
@@ -19,6 +18,7 @@ import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { color, motion, radius, size, space, text } from '../theme/tokens';
+import { useAppDimensions } from '../theme/layout';
 import { ActionBar } from './ActionBar';
 import { Cat, type CatMood } from './icons/Brand';
 import { IconButton } from './IconButton';
@@ -125,7 +125,7 @@ export function HeroScreen({
   children,
 }: HeroScreenProps) {
   const insets = useSafeAreaInsets();
-  const { height, width } = useWindowDimensions();
+  const { height, width } = useAppDimensions();
   const images = [image, ...(moreImages ?? [])];
   const [page, setPage] = useState(0);
   // Eingeklappt: Das Foto bekommt den Platz, das Blatt zeigt nur noch die Zusammenfassung.

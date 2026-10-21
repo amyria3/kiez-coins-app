@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Alert, Animated, Easing, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
@@ -12,6 +12,7 @@ import { loadOwnProfile } from '../../data/remote';
 import { useStore } from '../../data/store';
 import { supabase } from '../../lib/supabase';
 import { color, motion, space, text } from '../../theme/tokens';
+import { useAppDimensions } from '../../theme/layout';
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 const MIN_PASSWORD = 8;
@@ -34,7 +35,7 @@ type Mode = 'choose' | 'code' | 'password';
 export default function Email() {
   const router = useRouter();
   const { existing } = useLocalSearchParams<{ existing?: string }>();
-  const { width } = useWindowDimensions();
+  const { width } = useAppDimensions();
   const { profile, dispatch } = useStore();
   const { signUpWithPassword, signInWithPassword, sendCode, verifyCode } = useAuth();
   const [email, setEmail] = useState(profile.email);

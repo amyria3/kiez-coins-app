@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { Alert, Animated, PanResponder, Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, Animated, PanResponder, Platform, StyleSheet, Text, View } from 'react-native';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { BlurView } from 'expo-blur';
 import Svg, { Path } from 'react-native-svg';
@@ -15,6 +15,7 @@ import { HeroScreen } from '../../../components/Screen';
 import { formatBountyShort, formatRemainingShort } from '../../../data/format';
 import { useCurrentUser, useStore } from '../../../data/store';
 import { color, font, motion, radius, size, space, stroke, text } from '../../../theme/tokens';
+import { useAppDimensions } from '../../../theme/layout';
 import { useDraft } from './_layout';
 
 /** Breite des ausgeblurrten Rands links und rechts */
@@ -51,7 +52,7 @@ export default function CreatePreview() {
   const bountyAmount = draft.bountyAmount;
   const bottom = Math.max(insets.bottom, space[16]);
   const top = insets.top + space[48];
-  const { width: screenW, height: screenH } = useWindowDimensions();
+  const { width: screenW, height: screenH } = useAppDimensions();
   const windowBottom = BAR + bottom + space[8];
 
   // Innerhalb des Fensters lässt sich die Vorschau seitlich verschieben, um unter den Rand zu schauen.
