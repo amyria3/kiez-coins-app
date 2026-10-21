@@ -9,6 +9,7 @@ import { SubScreen } from '../../../components/Screen';
 import { color, text } from '../../../theme/tokens';
 import { findPlace, roundCoords } from '../../../data/location';
 import { useDraft, useSaveDraft } from './_layout';
+import { useNudge } from '../../../components/Nudge';
 
 const presets = [5, 15, 50];
 const durations = [
@@ -24,6 +25,8 @@ const MAX_BOUNTY = 50;
 export default function CreateStep2() {
   const router = useRouter();
   const [locating, setLocating] = useState(false);
+  const locationField = useNudge();
+  const amountField = useNudge();
 
   const useLocation = async () => {
     setLocating(true);
@@ -67,7 +70,11 @@ export default function CreateStep2() {
       onLeadingPress={() => router.back()}
       actions={
         <>
-          <Button label="Vorschau" onPress={preview} disabled={!canPublish || saving} />
+          <Button label="Vorschau" onPress={preview} disabled={!canPublish || saving}
+            whyDisabled={() =>
+              saving ? undefined : !draft.location.trim() ? locationField.nudge('Wo soll es stattfinden?') : amountField.nudge('Gib einen gültigen Betrag ein.')
+            }
+          />
           <Button
             label={saving ? 'Wird gespeichert …' : 'Als Entwurf speichern'}
             variant="ghost"
@@ -79,6 +86,7 @@ export default function CreateStep2() {
     >
       <TextField
         label="Ort"
+        nudge={locationField}
         helperText="Vorschlag aus Deinem Standort, ohne Hausnummer. Du kannst ihn ändern."
         value={draft.location}
         onChangeText={(location) => setDraft((d) => ({ ...d, location }))}
@@ -116,6 +124,7 @@ export default function CreateStep2() {
         {custom ? (
           <TextField
             label="Betrag in €"
+        nudge={amountField}
             keyboardType="number-pad"
             value={customText}
             onChangeText={(value) => {

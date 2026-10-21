@@ -9,6 +9,7 @@ import { SubScreen } from '../../components/Screen';
 import { MAX_MEMBERS } from '../../data/groups';
 import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
+import { useNudge } from '../../components/Nudge';
 
 /** Route `gruppen/neu`: Gruppe gründen. Danach geht es direkt zur Gruppe mit dem Einladungscode. */
 export default function NewGroup() {
@@ -16,6 +17,7 @@ export default function NewGroup() {
   const { groupApi } = useStore();
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
+  const nameField = useNudge();
 
   const create = async () => {
     setBusy(true);
@@ -35,11 +37,12 @@ export default function NewGroup() {
       navigation="back"
       onLeadingPress={() => router.back()}
       actions={
-        <Button label={busy ? 'Wird gegründet …' : 'Gruppe gründen'} onPress={create} disabled={busy || !name.trim()} />
+        <Button label={busy ? 'Wird gegründet …' : 'Gruppe gründen'} onPress={create} disabled={busy || !name.trim()} whyDisabled={() => !busy && nameField.nudge('Gib Eurer Gruppe einen Namen.')} />
       }
     >
       <TextField
         label="Name der Gruppe"
+        nudge={nameField}
         helperText="Zum Beispiel „WG Kastanienallee“ oder „Familie Brandt“. Max. 40 Zeichen."
         value={name}
         onChangeText={setName}

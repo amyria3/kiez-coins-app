@@ -6,6 +6,7 @@ import { KaterBubble, Notice } from '../../components/Content';
 import { SwitchRow } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { useStore } from '../../data/store';
+import { NudgeArea, useNudge } from '../../components/Nudge';
 
 /**
  * Route `onboarding/kodex`. Figma: `onboarding/kodex`. Speichert die drei Zeitstempel der Zustimmung.
@@ -19,6 +20,7 @@ export default function Kodex() {
   const [privacy, setPrivacy] = useState(false);
   // Teil der Nutzungsbedingungen, Zustimmung zählt zu termsAcceptedAt
   const [rules, setRules] = useState(false);
+  const consent = useNudge();
 
   return (
     <SubScreen
@@ -30,6 +32,18 @@ export default function Kodex() {
         <Button
           label="Zustimmen und weiter"
           disabled={!(age && terms && rules && privacy)}
+          whyDisabled={() =>
+            consent.nudge(
+              `Noch offen: ${[
+                !age && '18 Jahre',
+                !terms && 'Nutzungsbedingungen',
+                !rules && 'Community-Regeln',
+                !privacy && 'Datenschutz',
+              ]
+                .filter(Boolean)
+                .join(', ')}.`,
+            )
+          }
           onPress={() => {
             const now = new Date().toISOString();
             dispatch({
@@ -43,6 +57,7 @@ export default function Kodex() {
     >
       <KaterBubble>Noch das Kleingedruckte. Auch Piraten haben einen Kodex.</KaterBubble>
       <Notice message="Kiez Coins ist eine kostenlose Testversion. Funktionen können sich ändern, und am Ende der Testphase setzen wir Daten eventuell zurück. Das kündigen wir vorher per E-Mail an." />
+      <NudgeArea nudge={consent}>
       <SwitchRow label="Ich bin mindestens 18 Jahre alt" description="Pflicht für Kiez Coins." value={age} onValueChange={setAge} />
       <SwitchRow
         label="Ich akzeptiere die Nutzungsbedingungen für die Testphase"
@@ -65,6 +80,7 @@ export default function Kodex() {
         value={privacy}
         onValueChange={setPrivacy}
       />
+      </NudgeArea>
     </SubScreen>
   );
 }

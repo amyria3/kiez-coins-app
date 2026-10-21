@@ -23,6 +23,7 @@ import { ActionBar } from './ActionBar';
 import { Cat, type CatMood } from './icons/Brand';
 import { GlassIconButton } from './Glass';
 import { NavigationBar } from './NavigationBar';
+import { NudgeScrollProvider, useNudgeScroll } from './Nudge';
 
 type SubScreenProps = {
   title: string;
@@ -40,18 +41,26 @@ type SubScreenProps = {
  */
 export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions, children }: SubScreenProps) {
   const insets = useSafeAreaInsets();
+  // Deaktivierte Buttons können zu dem Feld scrollen, das noch fehlt (Nudge.tsx)
+  const scrollRef = useRef<ScrollView>(null);
+  const nudgeScroll = useNudgeScroll(scrollRef);
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <NavigationBar title={title} subtitle={subtitle} variant={navigation} onLeadingPress={onLeadingPress} />
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <NudgeScrollProvider value={nudgeScroll}>
         <ScrollView
+          ref={scrollRef}
           style={styles.flex}
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
+          scrollEventThrottle={32}
+          onScroll={(e) => nudgeScroll.onScroll(e.nativeEvent.contentOffset.y)}
         >
           {children}
         </ScrollView>
+        </NudgeScrollProvider>
         {actions ? <ActionBar>{actions}</ActionBar> : <View style={{ height: insets.bottom }} />}
       </KeyboardAvoidingView>
     </View>

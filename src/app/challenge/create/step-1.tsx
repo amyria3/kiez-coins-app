@@ -6,6 +6,7 @@ import { Button } from '../../../components/Button';
 import { ExtraPhotos, PhotoPicker, TextField } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
 import { hasContent, useDraft, useSaveDraft } from './_layout';
+import { explain } from '../../../components/Nudge';
 
 /** Route `challenge/create/step-1`. Figma: `challenge/create/step-1`. */
 export default function CreateStep1() {
@@ -49,6 +50,7 @@ export default function CreateStep1() {
             variant="ghost"
             onPress={save}
             disabled={busy || !hasContent(draft)}
+            whyDisabled={() => !busy && explain('Noch nichts zu speichern', 'Füg ein Foto hinzu oder gib einen Titel ein, dann lässt sich der Entwurf speichern.')}
           />
         </>
       }

@@ -8,6 +8,7 @@ import { SubScreen } from '../../../components/Screen';
 import { useAuth } from '../../../data/auth';
 import { errorText, sendSupportRequest } from '../../../data/remote';
 import { useStore } from '../../../data/store';
+import { useNudge } from '../../../components/Nudge';
 
 /**
  * Route `account/support` (Push aus „Dein Konto“): Support-Anfrage schreiben.
@@ -20,6 +21,7 @@ export default function Support() {
   const { session } = useAuth();
   const [support, setSupport] = useState(preset ?? '');
   const [sending, setSending] = useState(false);
+  const field = useNudge();
   const live = mode === 'live' && !!session;
 
   const send = async () => {
@@ -43,10 +45,11 @@ export default function Support() {
       title="Support"
       navigation="back"
       onLeadingPress={() => router.back()}
-      actions={<Button label={sending ? 'Wird gesendet …' : 'Anfrage senden'} disabled={!support.trim() || sending} onPress={send} />}
+      actions={<Button label={sending ? 'Wird gesendet …' : 'Anfrage senden'} disabled={!support.trim() || sending} whyDisabled={() => !sending && field.nudge('Schreib kurz, worum es geht.')} onPress={send} />}
     >
       <TextField
         label="Support-Anfrage"
+        nudge={field}
         helperText="Schreib uns, was nicht klappt. Wir antworten per E-Mail."
         value={support}
         onChangeText={setSupport}

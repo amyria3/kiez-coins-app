@@ -10,6 +10,7 @@ import { useAuth } from '../../data/auth';
 import { loadOwnProfile } from '../../data/remote';
 import { supabase } from '../../lib/supabase';
 import { useStore } from '../../data/store';
+import { useNudge } from '../../components/Nudge';
 
 /** Supabase verschickt je nach Projekteinstellung 6 bis 8 Ziffern (Standard: 6). */
 const MIN_DIGITS = 6;
@@ -27,6 +28,7 @@ export default function Code() {
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
+  const codeField = useNudge();
   const digits = code.replace(/\D/g, '');
 
   const confirm = async () => {
@@ -68,6 +70,7 @@ export default function Code() {
             label={busy ? 'Wird geprüft …' : 'Bestätigen'}
             onPress={confirm}
             disabled={digits.length < MIN_DIGITS || busy}
+            whyDisabled={() => !busy && codeField.nudge(`Der Code hat ${MIN_DIGITS} Ziffern.`)}
           />
           <Button label="Code neu senden" variant="secondary" onPress={resend} disabled={busy} />
         </>
@@ -76,6 +79,7 @@ export default function Code() {
       <KaterBubble>Der Code ist unterwegs! Schau in Dein Postfach, zur Not auch im Spam-Netz.</KaterBubble>
       <TextField
         label="Code aus der E-Mail"
+        nudge={codeField}
         helperText={`Gesendet an ${profile.email}. Gilt 20 Minuten.`}
         error={error}
         value={digits.length === 6 ? `${digits.slice(0, 3)} ${digits.slice(3)}` : digits}

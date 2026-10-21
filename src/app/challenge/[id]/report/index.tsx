@@ -8,6 +8,7 @@ import { SubScreen } from '../../../../components/Screen';
 import { useChallenge, useStore } from '../../../../data/store';
 import type { ImageSource } from '../../../../data/types';
 import { color, text } from '../../../../theme/tokens';
+import { NudgeArea, useNudge } from '../../../../components/Nudge';
 
 /**
  * Route `challenge/[id]/report` (Modal). Figma: `challenge/report`, Flow „Challenge erfüllen“.
@@ -20,6 +21,7 @@ export default function ReportScreen() {
   const { challenge, author } = useChallenge(id);
   const [photo, setPhoto] = useState<ImageSource>();
   const [note, setNote] = useState('');
+  const photoField = useNudge();
 
   if (!challenge || !author) return null;
 
@@ -36,12 +38,14 @@ export default function ReportScreen() {
       title="Erledigt melden"
       navigation="close"
       onLeadingPress={() => router.back()}
-      actions={<Button label="Erledigung senden" onPress={send} disabled={!photo} />}
+      actions={<Button label="Erledigung senden" onPress={send} disabled={!photo} whyDisabled={() => photoField.nudge('Mach ein Foto vom Ergebnis.')} />}
     >
       <Text style={styles.secondary}>
         Zeig, was Du geschafft hast. {author.firstName} sieht Dein Foto und bestätigt die Erledigung.
       </Text>
-      <PhotoPicker photo={photo} hint="Ein Nachher-Foto ist Pflicht." onChange={setPhoto} />
+      <NudgeArea nudge={photoField}>
+        <PhotoPicker photo={photo} hint="Ein Nachher-Foto ist Pflicht." onChange={(p) => (photoField.clear(), setPhoto(p))} />
+      </NudgeArea>
       <TextField
         label="Notiz (optional)"
         helperText="Max. 280 Zeichen"

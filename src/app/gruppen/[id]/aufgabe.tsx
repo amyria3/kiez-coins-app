@@ -11,6 +11,7 @@ import { SubScreen } from '../../../components/Screen';
 import { useStore } from '../../../data/store';
 import type { ImageSource } from '../../../data/types';
 import { color, radius, size, space, text } from '../../../theme/tokens';
+import { explain, useNudge } from '../../../components/Nudge';
 
 const durations = [
   { days: 1, label: '1 Tag' },
@@ -35,6 +36,7 @@ export default function NewGroupTask() {
   const [edensteine, setEdensteine] = useState(original?.edensteine ?? 3);
   const [days, setDays] = useState(7);
   const [busy, setBusy] = useState(false);
+  const titleField = useNudge();
 
   const publish = async () => {
     if (!group) return;
@@ -69,11 +71,12 @@ export default function NewGroupTask() {
           label={busy ? 'Wird erstellt …' : 'Aufgabe veröffentlichen'}
           onPress={publish}
           disabled={busy || !group || !title.trim()}
+          whyDisabled={() => (busy ? undefined : !group ? explain('Gruppe nicht gefunden', 'Diese Gruppe gibt es nicht mehr, oder Du bist nicht mehr dabei.') : titleField.nudge('Gib der Aufgabe einen Titel.'))}
         />
       }
     >
       <PhotoPicker photo={photo} hint="Optional. Zeig, worum es geht." onChange={setPhoto} />
-      <TextField label="Titel" helperText="Max. 60 Zeichen" value={title} onChangeText={setTitle} maxLength={60} />
+      <TextField label="Titel" nudge={titleField} helperText="Max. 60 Zeichen" value={title} onChangeText={setTitle} maxLength={60} />
       <TextField label="Beschreibung" helperText="Max. 500 Zeichen" value={body} onChangeText={setBody} maxLength={500} multiline />
       <FieldGroup label="Edensteine">
         <View style={styles.stepper}>

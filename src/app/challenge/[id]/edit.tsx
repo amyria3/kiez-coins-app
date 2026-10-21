@@ -9,6 +9,7 @@ import { SubScreen } from '../../../components/Screen';
 import { formatDayMonthShort, formatRemainingShort } from '../../../data/format';
 import { useChallenge, useStore } from '../../../data/store';
 import { color, text } from '../../../theme/tokens';
+import { useNudge } from '../../../components/Nudge';
 
 const presets = [5, 15, 50];
 const durations = [
@@ -39,6 +40,8 @@ export default function EditChallenge() {
   const [location, setLocation] = useState(challenge?.location ?? '');
   const [bounty, setBounty] = useState<number | undefined>(challenge?.bountyAmount);
   const [durationDays, setDurationDays] = useState<number | null>(null);
+  const titleField = useNudge();
+  const locationField = useNudge();
 
   const own = !!challenge && challenge.authorId === currentUserId && !challenge.assigneeId;
   const deleted = own && challenge?.status === 'deleted';
@@ -56,6 +59,8 @@ export default function EditChallenge() {
 
   const bountyOptions = bounty && !presets.includes(bounty) ? [...presets, bounty].sort((a, b) => a - b) : presets;
   const isGroup = !!challenge.groupId;
+  const whyNot = () =>
+    !title.trim() ? titleField.nudge('Gib einen Titel ein.') : locationField.nudge('Wo soll es stattfinden?');
   const canSave = title.trim().length > 0 && title.trim().length <= 60 && (isGroup || location.trim().length > 0);
 
   // Abgelaufene Frist einer gelöschten Challenge: läuft beim Veröffentlichen neu, so lang wie ursprünglich.
@@ -153,22 +158,22 @@ export default function EditChallenge() {
       actions={
         deleted ? (
           <>
-            <Button label="Veröffentlichen" onPress={publish} disabled={!canSave} />
+            <Button label="Veröffentlichen" onPress={publish} disabled={!canSave} whyDisabled={() => whyNot()} />
             <Button label="Nicht veröffentlichen, Entwurf" variant="ghost" onPress={keepUnpublished} />
           </>
         ) : (
           <>
-            <Button label="Speichern" onPress={save} disabled={!canSave} />
+            <Button label="Speichern" onPress={save} disabled={!canSave} whyDisabled={() => whyNot()} />
             <Button label="Nicht veröffentlichen, Entwurf" variant="ghost" onPress={toDraft} />
           </>
         )
       }
     >
-      <TextField label="Titel" value={title} onChangeText={setTitle} maxLength={60} />
+      <TextField label="Titel" nudge={titleField} value={title} onChangeText={setTitle} maxLength={60} />
       <TextField label="Beschreibung" value={body} onChangeText={setBody} maxLength={500} multiline />
       {isGroup ? null : (
         <>
-          <TextField label="Ort" value={location} onChangeText={setLocation} maxLength={120} />
+          <TextField label="Ort" nudge={locationField} value={location} onChangeText={setLocation} maxLength={120} />
           <FieldGroup label="Bounty">
             <ChipGroup>
               <Chip label="Keine" selected={bounty === undefined} onPress={() => setBounty(undefined)} />

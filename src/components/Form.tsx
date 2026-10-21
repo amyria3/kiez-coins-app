@@ -18,6 +18,7 @@ import * as ImagePicker from 'expo-image-picker';
 import type { ImageSource } from '../data/types';
 import { color, radius, space, stroke, text } from '../theme/tokens';
 import { Glass, glassControls } from './Glass';
+import { nudgeStyles, type Nudge } from './Nudge';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 
@@ -26,15 +27,18 @@ type TextFieldProps = Omit<TextInputProps, 'style'> & {
   helperText?: string;
   /** Zustand „Error“: Rahmen und Hilfetext in color/accent/error. Der Fehlertext ersetzt den Hilfetext. */
   error?: string;
+  /** Ziel für einen deaktivierten Button: hervorgehoben mit Hinweis, sobald etwas fehlt (Nudge.tsx) */
+  nudge?: Nudge;
 };
 
 /** Figma „TextField“ (Default, Focused, Error) */
-export function TextField({ label, helperText, error, multiline, onFocus, onBlur, ...inputProps }: TextFieldProps) {
+export function TextField({ label, helperText, error, multiline, onFocus, onBlur, nudge, onChangeText, ...inputProps }: TextFieldProps) {
   const [focused, setFocused] = useState(false);
-  const borderColor = error ? color.accent.error : focused ? color.accent.primary : color.text.secondary;
-  const helper = error ?? helperText;
+  const hinted = !error && !!nudge?.hint;
+  const borderColor = error ? color.accent.error : focused || hinted ? color.accent.primary : color.text.secondary;
+  const helper = error ?? nudge?.hint ?? helperText;
   return (
-    <View style={styles.field}>
+    <View style={styles.field} ref={nudge?.ref}>
       <Text style={styles.fieldLabel}>{label}</Text>
       <TextInput
         {...inputProps}
@@ -43,6 +47,10 @@ export function TextField({ label, helperText, error, multiline, onFocus, onBlur
         multiline={multiline}
         placeholderTextColor={color.text.secondary}
         selectionColor={color.accent.primary}
+        onChangeText={(v) => {
+          nudge?.clear();
+          onChangeText?.(v);
+        }}
         onFocus={(e) => {
           setFocused(true);
           onFocus?.(e);
@@ -53,7 +61,9 @@ export function TextField({ label, helperText, error, multiline, onFocus, onBlur
         }}
         style={[styles.input, multiline && styles.inputMultiline, error ? styles.inputError : null, { borderColor }]}
       />
-      {helper ? <Text style={[styles.helper, error ? styles.helperError : null]}>{helper}</Text> : null}
+      {helper ? (
+        <Text style={[styles.helper, error ? styles.helperError : hinted ? nudgeStyles.hint : null]}>{helper}</Text>
+      ) : null}
     </View>
   );
 }
