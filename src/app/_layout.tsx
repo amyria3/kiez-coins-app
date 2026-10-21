@@ -8,6 +8,7 @@ import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
 import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
 import { InterTight_600SemiBold } from '@expo-google-fonts/inter-tight/600SemiBold';
 
+import { WebAlertHost } from '../components/WebAlert';
 import { AuthProvider, useAuth } from '../data/auth';
 import { StoreProvider } from '../data/store';
 import { color } from '../theme/tokens';
@@ -67,6 +68,7 @@ function RootStack() {
         <Stack.Screen name="account/pause/success" options={{ gestureEnabled: false }} />
         <Stack.Screen name="account/delete/success" options={{ gestureEnabled: false }} />
       </Stack>
+      <WebAlertHost />
     </>
   );
 }

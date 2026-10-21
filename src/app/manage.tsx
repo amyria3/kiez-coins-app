@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Alert,
   FlatList,
-  LayoutAnimation,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -19,6 +18,7 @@ import { ActionBar } from '../components/ActionBar';
 import { BountyBadge, StatusBadge } from '../components/Badges';
 import { Button } from '../components/Button';
 import { KaterCard } from '../components/Content';
+import { SwitchRow } from '../components/Form';
 import { Icon, type IconName } from '../components/icons/Icon';
 import { NavigationBar } from '../components/NavigationBar';
 import { formatDayMonthShort, formatDurationSince, formatRemainingShort, nameInText } from '../data/format';
@@ -41,14 +41,6 @@ const ORDER: Record<string, number> = {
   closed: 3,
 };
 
-const DAY = 24 * 60 * 60 * 1000;
-
-/** Neue Frist beim Wiederveröffentlichen: so lang wie ursprünglich, mindestens ein Tag. */
-const renewedDeadline = (c: Challenge) => {
-  const original = new Date(c.deadline).getTime() - new Date(c.createdAt).getTime();
-  return new Date(Date.now() + Math.max(original, DAY)).toISOString();
-};
-
 /** Eine Seite pro Challenge, gelöschte zusammen auf der letzten Seite. */
 type Page = { kind: 'challenge'; challenge: Challenge } | { kind: 'deleted'; challenges: Challenge[] };
 
@@ -59,6 +51,7 @@ const deletable = (c: Challenge) =>
 /**
  * Route `manage` („Deine Challenges“). Erreichbar über „Verwalten“ an eigenen Posts im Feed und im Detail.
  * Jede eigene Challenge ist eine Karte fast in Bildschirmhöhe. Mehrere Karten wechselt man durch Wischen nach oben oder unten.
+ * Der Switch oben zeigt statt der laufenden die geschlossenen und gelöschten Challenges, dort ohne „Neue Challenge“.
  */
 export default function ManageChallenges() {
   const router = useRouter();
@@ -67,23 +60,35 @@ export default function ManageChallenges() {
   const { challenges, users, currentUserId, dispatch } = useStore();
   const [pageHeight, setPageHeight] = useState(0);
   const [index, setIndex] = useState(0);
+  // Archiv: geschlossene und gelöschte Challenges
+  const [archive, setArchive] = useState(false);
 
   const pages = useMemo<Page[]>(() => {
     const own = challenges.filter((c) => c.authorId === currentUserId);
+    const inArchive = (c: Challenge) => c.status === 'closed' || c.status === 'deleted';
     const active = own
-      .filter((c) => c.status !== 'deleted')
+      .filter((c) => !inArchive(c))
       .sort((a, b) => (ORDER[a.status] ?? 9) - (ORDER[b.status] ?? 9) || b.createdAt.localeCompare(a.createdAt));
+    if (!archive) return active.map((challenge) => ({ kind: 'challenge', challenge }));
+    const closed = own
+      .filter((c) => c.status === 'closed')
+      .sort((a, b) => (b.closedAt ?? '').localeCompare(a.closedAt ?? ''));
     const deleted = own
       .filter((c) => c.status === 'deleted')
       .sort((a, b) => (b.deletedAt ?? '').localeCompare(a.deletedAt ?? ''));
-    const list: Page[] = active.map((challenge) => ({ kind: 'challenge', challenge }));
+    const list: Page[] = closed.map((challenge) => ({ kind: 'challenge', challenge }));
     if (deleted.length) list.push({ kind: 'deleted', challenges: deleted });
     return list;
-  }, [challenges, currentUserId]);
+  }, [challenges, currentUserId, archive]);
 
   const create = () => requireKiez() && router.push('/challenge/create/step-1');
   const openDraft = (c: Challenge) =>
     requireKiez() && router.push({ pathname: '/challenge/create/step-1', params: { draftId: c.id } });
+  // Kopie: neue Challenge mit Foto, Titel, Text, Ort und Bounty der alten. Gruppenaufgaben bleiben in ihrer Gruppe.
+  const copy = (c: Challenge) =>
+    c.groupId
+      ? router.push({ pathname: '/gruppen/[id]/aufgabe', params: { id: c.groupId, copyOf: c.id } })
+      : requireKiez() && router.push({ pathname: '/challenge/create/step-1', params: { copyOf: c.id } });
 
   const close = (c: Challenge) =>
     Alert.alert(
@@ -122,7 +127,7 @@ export default function ManageChallenges() {
       isDraft ? 'Entwurf löschen?' : 'Challenge löschen?',
       isDraft
         ? 'Das lässt sich nicht rückgängig machen.'
-        : 'Die Challenge verschwindet aus dem Feed. Unten in „Deine Challenges“ kannst Du sie wieder veröffentlichen.',
+        : 'Die Challenge verschwindet aus dem Feed. Unter „Gelöschte und geschlossene“ kannst Du sie bearbeiten und wieder veröffentlichen.',
       [
         { text: 'Abbrechen', style: 'cancel' },
         {
@@ -144,50 +149,6 @@ export default function ManageChallenges() {
       ],
     );
 
-  // Nach „Wieder veröffentlichen“: Zeile klappt weg, die Liste scrollt zur Karte, die kurz aufleuchtet.
-  const listRef = useRef<FlatList<Page>>(null);
-  const scrollTo = useRef<string>(undefined);
-  const [highlight, setHighlight] = useState<string>();
-  const publishAgain = (id: string, deadline?: string) => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
-    scrollTo.current = id;
-    dispatch({ type: 'restore', id, deadline });
-  };
-  useEffect(() => {
-    const id = scrollTo.current;
-    if (!id) return;
-    const target = pages.findIndex((p) => p.kind === 'challenge' && p.challenge.id === id);
-    if (target < 0) return;
-    scrollTo.current = undefined;
-    const scroll = setTimeout(() => {
-      listRef.current?.scrollToIndex({ index: target, animated: true });
-      setHighlight(id);
-    }, 250);
-    const fade = setTimeout(() => setHighlight(undefined), 2000);
-    return () => {
-      clearTimeout(scroll);
-      clearTimeout(fade);
-    };
-  }, [pages]);
-
-  const restore = (c: Challenge) => {
-    if (!requireKiez()) return;
-    const expired = new Date(c.deadline).getTime() <= Date.now();
-    if (!expired) {
-      publishAgain(c.id);
-      return;
-    }
-    const deadline = renewedDeadline(c);
-    Alert.alert(
-      'Wieder veröffentlichen?',
-      `Die Frist war abgelaufen. Sie läuft jetzt neu bis ${formatDayMonthShort(deadline)}. Ändern kannst Du sie danach unter „Bearbeiten“.`,
-      [
-        { text: 'Abbrechen', style: 'cancel' },
-        { text: 'Veröffentlichen', onPress: () => publishAgain(c.id, deadline) },
-      ],
-    );
-  };
-
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (!pageHeight) return;
     const next = Math.round(e.nativeEvent.contentOffset.y / pageHeight);
@@ -204,14 +165,28 @@ export default function ManageChallenges() {
         variant="back"
         onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))}
       />
+      <View style={styles.switch}>
+        <SwitchRow
+          label="Gelöschte und geschlossene"
+          value={archive}
+          onValueChange={(value) => {
+            setIndex(0);
+            setArchive(value);
+          }}
+        />
+      </View>
       <View style={styles.flex} onLayout={(e) => setPageHeight(e.nativeEvent.layout.height)}>
         {pages.length === 0 ? (
           <View style={styles.empty}>
-            <KaterCard>Du hast noch keine Challenge erstellt. Fang mit einem Foto an.</KaterCard>
+            <KaterCard>
+              {archive
+                ? 'Hier liegen später Deine geschlossenen und gelöschten Challenges.'
+                : 'Du hast noch keine laufende Challenge. Fang mit einem Foto an.'}
+            </KaterCard>
           </View>
         ) : pageHeight > 0 ? (
           <FlatList
-            ref={listRef}
+            key={archive ? 'archive' : 'active'}
             data={pages}
             keyExtractor={(p) => (p.kind === 'deleted' ? 'deleted' : p.challenge.id)}
             pagingEnabled
@@ -229,7 +204,7 @@ export default function ManageChallenges() {
                     <DeletedCard
                       challenges={page.challenges}
                       onOpen={(c) => router.push(`/challenge/${c.id}`)}
-                      onRestore={restore}
+                      onEdit={(c) => requireKiez() && router.push(`/challenge/${c.id}/edit`)}
                       onPurge={purge}
                     />
                   </View>
@@ -244,9 +219,9 @@ export default function ManageChallenges() {
                     onOpen={() => (item.status === 'draft' ? openDraft(item) : router.push(`/challenge/${item.id}`))}
                     onEdit={() => (item.status === 'draft' ? openDraft(item) : router.push(`/challenge/${item.id}/edit`))}
                     onClose={() => close(item)}
+                    onCopy={() => copy(item)}
                     onDelete={() => remove(item)}
                     hasNext={hasNext}
-                    highlighted={highlight === item.id}
                   />
                 </View>
               );
@@ -254,9 +229,13 @@ export default function ManageChallenges() {
           />
         ) : null}
       </View>
-      <ActionBar>
-        <Button label="Neue Challenge" onPress={create} />
-      </ActionBar>
+      {archive ? (
+        <View style={{ height: insets.bottom }} />
+      ) : (
+        <ActionBar>
+          <Button label="Neue Challenge" onPress={create} />
+        </ActionBar>
+      )}
     </View>
   );
 }
@@ -267,13 +246,13 @@ type CardProps = {
   onOpen: () => void;
   onEdit: () => void;
   onClose: () => void;
+  /** Bei geschlossenen Challenges */
+  onCopy: () => void;
   onDelete: () => void;
   hasNext: boolean;
-  /** Kurz hervorgehoben, z. B. direkt nach dem Wiederveröffentlichen */
-  highlighted?: boolean;
 };
 
-function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onDelete, hasNext, highlighted }: CardProps) {
+function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy, onDelete, hasNext }: CardProps) {
   const isDraft = c.status === 'draft';
   const isOpen = c.status === 'open' && !c.assigneeId;
   const canDelete = deletable(c);
@@ -295,8 +274,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onDele
   const photo = c.image ?? c.imageAfter ?? c.imageBefore;
 
   return (
-    <View style={[styles.card, highlighted && styles.cardHighlight]}>
-      {highlighted ? <Text style={styles.highlightText}>Wieder veröffentlicht</Text> : null}
+    <View style={styles.card}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`${c.title || 'Ohne Titel'} öffnen`}
@@ -350,6 +328,11 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onDele
             <Button label="Bearbeiten" variant="secondary" onPress={onEdit} />
             <Button label="Schließen" variant="secondary" onPress={onClose} />
           </>
+        ) : c.status === 'closed' ? (
+          <>
+            <Button label="Kopie erstellen" onPress={onCopy} />
+            <Button label="Ansehen" variant="secondary" onPress={onOpen} />
+          </>
         ) : (
           <Button label="Ansehen" variant="secondary" onPress={onOpen} />
         )}
@@ -366,16 +349,19 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onDele
   );
 }
 
-/** Letzte Seite: gelöschte Challenges, zugeklappt. Aufgeklappt mit „Wieder veröffentlichen“. */
+/**
+ * Letzte Seite im Archiv: gelöschte Challenges, zugeklappt. Aufgeklappt mit „Bearbeiten“.
+ * Erst im Bearbeiten-Screen entscheidet die Person: veröffentlichen oder weiter nicht veröffentlichen.
+ */
 function DeletedCard({
   challenges,
   onOpen,
-  onRestore,
+  onEdit,
   onPurge,
 }: {
   challenges: Challenge[];
   onOpen: (c: Challenge) => void;
-  onRestore: (c: Challenge) => void;
+  onEdit: (c: Challenge) => void;
   onPurge: (c: Challenge) => void;
 }) {
   const [expanded, setExpanded] = useState<string>();
@@ -436,7 +422,7 @@ function DeletedCard({
                       .filter(Boolean)
                       .join(' · ')}
                   </Text>
-                  <Button label="Wieder veröffentlichen" onPress={() => onRestore(c)} />
+                  <Button label="Bearbeiten" onPress={() => onEdit(c)} />
                   <Button label="Ansehen" variant="secondary" onPress={() => onOpen(c)} />
                   <Button label="Endgültig löschen" variant="danger" onPress={() => onPurge(c)} />
                 </View>
@@ -472,6 +458,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   flex: { flex: 1 },
   empty: { padding: space[16] },
+  switch: { paddingHorizontal: space[16] },
   page: { paddingHorizontal: space[16], paddingTop: space[8], paddingBottom: space[12] },
   card: {
     flex: 1,
@@ -508,8 +495,6 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: space[8] },
   muted: { opacity: 0.35 },
   next: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
-  cardHighlight: { borderWidth: stroke.ring, borderColor: color.accent.primary },
-  highlightText: { ...text.caption, color: color.accent.primary },
   deletedList: { gap: space[8] },
   deletedItem: {
     gap: space[12],

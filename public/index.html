@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <!-- viewport-fit=cover: Die App reicht bis unter Statusleiste und Home-Balken, die Abstände kommen aus useSafeAreaInsets. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex" />
+    <title>Kiez Coins</title>
+    <!-- Web-App fürs iPhone: „Zum Home-Bildschirm“ in Safari startet Kiez Coins ohne Browserleiste. -->
+    <!-- Die Pfade beginnen mit /app/, passend zu experiments.baseUrl in app.json. -->
+    <link rel="manifest" href="/app/manifest.json" />
+    <link rel="apple-touch-icon" href="/app/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Kiez Coins" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#1F2123" />
+    <meta name="format-detection" content="telephone=no" />
+    <!-- Style-Reset von react-native-web: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      html,
+      body {
+        height: 100%;
+        background-color: #1f2123;
+        color-scheme: dark;
+      }
+      body {
+        overflow: hidden;
+        overscroll-behavior: none;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-text-size-adjust: 100%;
+      }
+      /* Vom Browser ausgefüllte Felder (Passwort, E-Mail): dunkle Fläche statt Gelb oder Hellblau, heller Text */
+      input:-webkit-autofill,
+      input:-webkit-autofill:hover,
+      input:-webkit-autofill:focus {
+        -webkit-text-fill-color: #f0f0f0;
+        caret-color: #f0f0f0;
+        -webkit-box-shadow: 0 0 0 1000px #2b2d31 inset;
+        box-shadow: 0 0 0 1000px #2b2d31 inset;
+        transition: background-color 9999s ease-out 0s;
+      }
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <noscript>Kiez Coins braucht JavaScript.</noscript>
+    <div id="root"></div>
+  </body>
+</html>

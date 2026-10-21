@@ -7,8 +7,9 @@ import { useStore } from '../../../data/store';
 import type { Challenge, ExtraPhoto, ImageSource } from '../../../data/types';
 import { color } from '../../../theme/tokens';
 
-// Entwurf einer neuen Challenge über beide Schritte hinweg.
+// Entwurf einer neuen Challenge über beide Schritte und die Vorschau hinweg.
 // Mit `draftId` (z. B. aus „Deine Challenges“) startet der Flow mit einem gespeicherten Entwurf.
+// Mit `copyOf` startet er als neue Challenge mit Fotos, Titel, Text, Ort und Bounty einer alten.
 export type Draft = {
   /** ID des gespeicherten Entwurfs in Supabase */
   id?: string;
@@ -40,6 +41,16 @@ function fromChallenge(c: Challenge): Draft {
     bountyAmount: c.bountyAmount,
     durationDays: 7,
     coords: c.coords,
+  };
+}
+
+/** Kopie einer Challenge: ohne id und Pfade, damit die Fotos neu hochgeladen werden. */
+function copyOf(c: Challenge): Draft {
+  return {
+    ...fromChallenge(c),
+    id: undefined,
+    imagePath: undefined,
+    extras: (c.extraImages ?? []).map((e) => ({ photo: e.photo })),
   };
 }
 
@@ -89,16 +100,18 @@ export const unstable_settings = { initialRouteName: 'step-1' };
 
 /** Flow „Challenge erstellen“: als Modal geöffnet, darin Schritte als Push. */
 export default function CreateLayout() {
-  const { draftId } = useGlobalSearchParams<{ draftId?: string }>();
+  const { draftId, copyOf: copyId } = useGlobalSearchParams<{ draftId?: string; copyOf?: string }>();
   const { challenges, profile } = useStore();
   const draft = useState<Draft>(() => {
     const saved = draftId ? challenges.find((c) => c.id === draftId && c.status === 'draft') : undefined;
-    return saved ? fromChallenge(saved) : emptyDraft(profile.kiez);
+    if (saved) return fromChallenge(saved);
+    const original = copyId ? challenges.find((c) => c.id === copyId) : undefined;
+    return original ? copyOf(original) : emptyDraft(profile.kiez);
   });
   const [, setDraft] = draft;
   // Neue Challenge: Ort aus dem Standort vorschlagen. Ohne Freigabe bleibt der Kiez stehen.
   useEffect(() => {
-    if (draftId) return;
+    if (draftId || copyId) return;
     let active = true;
     findPlace()
       .then((place) => {

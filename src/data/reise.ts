@@ -3,7 +3,7 @@ import type { Href } from 'expo-router';
 import type { CatMood } from '../components/icons/Brand';
 import type { Challenge } from './types';
 
-// „Deine Reise“ (früher „Deine Spur im Kiez“): alle Challenges, die Du erstellt oder angenommen hast,
+// „YourPleasure“ (früher „Deine Reise“ und „Deine Spur im Kiez“): alle Challenges, die Du erstellt oder angenommen hast,
 // als Karten. Regeln aus kiez-coins/konto/MVP_Konto.md.
 
 export type ReiseEntry = {
@@ -100,7 +100,7 @@ export function reiseMoodText(mood: ReiseMood, anrede: string): string {
     case 'Curious':
       return 'Ich bin gespannt, was als Nächstes kommt.';
     case 'Welcome':
-      return `Hier sammelt sich Deine Reise, ${anrede}. Erstell eine Challenge oder nimm eine an.`;
+      return `Willkommen bei YourPleasure, ${anrede}! Erstell eine Challenge oder nimm eine an.`;
     case 'Lazy':
       return 'Ganz schön ruhig hier. Ich leg mich so lange in die Sonne.';
   }

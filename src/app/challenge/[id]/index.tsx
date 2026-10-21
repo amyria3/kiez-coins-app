@@ -237,7 +237,7 @@ export default function ChallengeDetail() {
         {showDeadline ? (
           <View style={styles.metric}>
             <Icon name="clock" size={size.icon} color={color.text.secondary} />
-            <Text style={styles.metricLabel}>Frist</Text>
+            <Text style={styles.metricLabel}>Noch</Text>
             <Text style={styles.metricValue} numberOfLines={1}>
               {formatRemainingShort(challenge.deadline).replace('Noch ', '')}
             </Text>
