@@ -35,7 +35,7 @@ export default function Kodex() {
           disabled={!(age && terms && rules && privacy)}
           whyDisabled={() =>
             consent.nudge(
-              t('Noch offen: {age}.', { age: [
+              t('Noch offen: {liste}.', { liste: [
                 !age && t('18 Jahre'),
                 !terms && t('Nutzungsbedingungen'),
                 !rules && t('Community-Regeln'),

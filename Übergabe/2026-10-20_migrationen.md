@@ -172,3 +172,13 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 **Ändert:** Moderatorinnen (Tabelle `moderators`) dürfen in `app_texts` die Spalte `text` ändern.
 
 **Voraussetzung:** Nr. 7 (`moderation`, Tabelle `moderators`) und Nr. 11 (`app_texts`). Daria steht in `moderators`.
+
+## 16. `supabase/migrations/20261021001400_app_texts_languages.sql`
+
+**Wozu:** Mehrsprachigkeit, siehe `2026-10-21_mehrsprachigkeit.md`.
+
+**Ändert:** Spalten `en`, `fr`, `uk`, `ar`, `he` in `app_texts`, Schreibrecht für Moderatorinnen, und alle rund 880 Texte der App als Zeilen.
+
+**Voraussetzung:** Nr. 11 (`app_texts`) und Nr. 15 (`app_texts_edit`).
+
+**Bis sie läuft:** Die App zeigt die mitgelieferten Übersetzungen. Der Editor kennt nur die bisherigen Texte und nur Deutsch.

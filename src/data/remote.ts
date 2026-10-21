@@ -771,18 +771,29 @@ export async function setPraise(userId: string, praised: boolean, meId: string) 
   else check(await supabase.from('praises').delete().eq('giver_id', meId).eq('receiver_id', userId));
 }
 
-export type AppTextRow = { original: string; text: string; ort: string | null; updated_at: string };
+export type AppTextLang = 'en' | 'fr' | 'uk' | 'ar' | 'he';
+export type AppTextRow = { original: string; text: string; ort: string | null; updated_at: string } & Partial<
+  Record<AppTextLang, string | null>
+>;
 
-/** Alle Texte des CMS für den Editor (Route `texte`). */
+/** Alle Texte des CMS für den Editor (Route `texte`), mit Übersetzungen, sofern die Migration 1400 gelaufen ist. */
 export async function loadAppTexts(): Promise<AppTextRow[]> {
+  const full = await supabase.from('app_texts').select('original, text, ort, updated_at, en, fr, uk, ar, he');
+  if (!full.error) return (full.data ?? []) as AppTextRow[];
   const { data } = check(await supabase.from('app_texts').select('original, text, ort, updated_at'));
   return (data ?? []) as AppTextRow[];
 }
 
-/** Fassung speichern. Leerer Text: Die App zeigt wieder das Original. Nur für Moderatorinnen (RLS). */
-export async function saveAppText(original: string, text: string): Promise<void> {
-  const { data } = check(await supabase.from('app_texts').update({ text }).eq('original', original).select('original'));
-  if (!data?.length) throw new Error('Keine Berechtigung zum Ändern der Texte.');
+/**
+ * Fassung speichern, auf Deutsch (`text`) oder in einer Sprache (`en`, …). Leer: Die App zeigt wieder
+ * das Original bzw. die mitgelieferte Übersetzung. Nur für Moderatorinnen (RLS).
+ */
+export async function saveAppText(original: string, value: string, lang: 'de' | AppTextLang = 'de'): Promise<void> {
+  const column = lang === 'de' ? 'text' : lang;
+  const { data } = check(
+    await supabase.from('app_texts').update({ [column]: value }).eq('original', original).select('original'),
+  );
+  if (!data?.length) throw new Error(t('Keine Berechtigung zum Ändern der Texte.'));
 }
 
 /** true, wenn die angemeldete Person in `moderators` steht. */

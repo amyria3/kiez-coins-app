@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, Text as RawText, StyleSheet, View } from 'react-native';
 import { Text } from '../components/T';
 import { useRouter } from 'expo-router';
 
@@ -7,15 +7,15 @@ import { Button } from '../components/Button';
 import { Chip, ChipGroup, TextField } from '../components/Form';
 import { GearsLoader } from '../components/GearsLoader';
 import { SubScreen } from '../components/Screen';
-import { errorText, loadAppTexts, saveAppText, type AppTextRow } from '../data/remote';
-import { loadTexts, normalizeText, t } from '../data/texts';
+import { errorText, loadAppTexts, saveAppText, type AppTextLang, type AppTextRow } from '../data/remote';
+import { bundledTranslation, languages, loadTexts, normalizeText, t, type Lang } from '../data/texts';
 import { color, radius, space, stroke, text } from '../theme/tokens';
 
 type Area = 'alle' | 'buttons' | 'kater' | 'recht';
 const areas: { key: Area; label: string }[] = [
   { key: 'alle', label: 'Alle' },
   { key: 'buttons', label: 'Buttons' },
-  { key: 'kater', label: 'Kater und Hinweise' },
+  { key: 'kater', label: 'Weitere Texte' },
   { key: 'recht', label: 'Rechtstexte' },
 ];
 type Sort = 'kurz' | 'lang' | 'neu';
@@ -27,9 +27,17 @@ const sorts: { key: Sort; label: string }[] = [
 
 const areaOf = (ort: string | null): Exclude<Area, 'alle'> =>
   ort?.includes('Rechtstexte') ? 'recht' : ort?.includes('(Button)') ? 'buttons' : 'kater';
-const shown = (row: AppTextRow) => (row.text.trim() ? row.text : row.original);
-const changed = (row: AppTextRow) => !!row.text.trim() && normalizeText(row.text) !== normalizeText(row.original);
-const placeholders = (s: string) => (s.match(/\{\w+\}/g) ?? []).sort().join(' ');
+/** Fassung, die die App in Sprache `l` zeigt: eigene Fassung aus dem CMS, sonst mitgelieferte Übersetzung, sonst Deutsch */
+const shownIn = (row: AppTextRow, l: Lang) =>
+  l === 'de'
+    ? row.text.trim() || row.original
+    : row[l]?.trim() || bundledTranslation(row.original, l) || row.text.trim() || row.original;
+/** In Sprache `l` von Hand angepasst */
+const changedIn = (row: AppTextRow, l: Lang) =>
+  l === 'de' ? !!row.text.trim() && normalizeText(row.text) !== normalizeText(row.original) : !!row[l]?.trim();
+/** Mitgelieferte Fassung, auf die „Original wiederherstellen“ zurückgeht */
+const baseIn = (row: AppTextRow, l: Lang) => (l === 'de' ? row.original : bundledTranslation(row.original, l) || row.original);
+const placeholders = (s: string) => [...new Set([...s.matchAll(/\{(\w+)(?:\}|, plural)/g)].map((m) => `{${m[1]}}`))].sort().join(' ');
 /** Ort ohne Dateipfad: „Rechtstexte, Datenschutz“, „account/index (Button)“ */
 const shortOrt = (ort: string | null) =>
   (ort ?? '')
@@ -50,6 +58,10 @@ export default function Texte() {
   const [open, setOpen] = useState<string>();
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
+  // Sprache, die der Editor zeigt und ändert
+  const [lang, setLang] = useState<Lang>('de');
+  const shown = (row: AppTextRow) => shownIn(row, lang);
+  const changed = (row: AppTextRow) => changedIn(row, lang);
 
   const refresh = useCallback(async () => {
     try {
@@ -72,7 +84,7 @@ export default function Texte() {
           ? b.updated_at.localeCompare(a.updated_at)
           : (sort === 'kurz' ? 1 : -1) * (shown(a).length - shown(b).length) || shown(a).localeCompare(shown(b), 'de'),
       );
-  }, [rows, area, sort, query]);
+  }, [rows, area, sort, query, lang]);
 
   const edit = (row: AppTextRow) => {
     if (open === row.original) return setOpen(undefined);
@@ -81,12 +93,15 @@ export default function Texte() {
   };
 
   const save = async (row: AppTextRow, value: string) => {
-    // Gleich wie das Original: leer speichern, dann folgt die App künftigen Änderungen im Code
-    const next = normalizeText(value) === normalizeText(row.original) ? '' : value.trim();
+    // Gleich wie die mitgelieferte Fassung: leer speichern, dann folgt die App künftigen Änderungen im Code
+    const next = normalizeText(value) === normalizeText(baseIn(row, lang)) ? '' : value.trim();
+    const column = lang === 'de' ? 'text' : lang;
     setBusy(true);
     try {
-      await saveAppText(row.original, next);
-      setRows((all) => all?.map((r) => (r.original === row.original ? { ...r, text: next, updated_at: new Date().toISOString() } : r)));
+      await saveAppText(row.original, next, lang as 'de' | AppTextLang);
+      setRows((all) =>
+        all?.map((r) => (r.original === row.original ? { ...r, [column]: next, updated_at: new Date().toISOString() } : r)),
+      );
       setOpen(undefined);
       loadTexts();
     } catch (error) {
@@ -109,6 +124,19 @@ export default function Texte() {
 
   return (
     <SubScreen title="Texte" subtitle={rows ? t('{list} von {rows}', { list: list.length, rows: rows.length }) : undefined} navigation="back" onLeadingPress={() => router.back()}>
+      <ChipGroup>
+        {languages.map((l) => (
+          <Chip
+            key={l.code}
+            label={l.name}
+            selected={lang === l.code}
+            onPress={() => {
+              setLang(l.code);
+              setOpen(undefined);
+            }}
+          />
+        ))}
+      </ChipGroup>
       <TextField label="Suchen" value={query} onChangeText={setQuery} autoCapitalize="none" autoCorrect={false} returnKeyType="search" />
       <ChipGroup>
         {areas.map((a) => (
@@ -132,15 +160,21 @@ export default function Texte() {
         return (
           <View key={row.original} style={[styles.card, isOpen && styles.cardOpen]}>
             <Pressable onPress={() => edit(row)} accessibilityRole="button" accessibilityState={{ expanded: isOpen }}>
-              <Text style={styles.value} numberOfLines={isOpen ? undefined : 3}>
+              {/* RawText: Inhalte nicht in die Sprache der App übersetzen */}
+              <RawText style={styles.value} numberOfLines={isOpen ? undefined : 3}>
                 {shown(row)}
-              </Text>
+              </RawText>
+              {lang !== 'de' ? (
+                <RawText style={styles.meta} numberOfLines={isOpen ? undefined : 1}>
+                  {row.text.trim() || row.original}
+                </RawText>
+              ) : null}
               <Text style={styles.meta} numberOfLines={1}>{[t('{anzahl} Zeichen', { anzahl: shown(row).length }), shortOrt(row.ort), changed(row) ? t('geändert') : null].filter(Boolean).join(' · ')}</Text>
             </Pressable>
             {isOpen ? (
               <View style={styles.editor}>
                 <TextField label="Text" value={draft} onChangeText={setDraft} multiline autoFocus />
-                {changed(row) ? <Text style={styles.meta}>{t('Original: {original}', { original: row.original })}</Text> : null}
+                {changed(row) ? <RawText style={styles.meta}>{t('Original: {original}', { original: baseIn(row, lang) })}</RawText> : null}
                 <Button label="Speichern" busy={busy} disabled={draft.trim() === shown(row).trim()} onPress={() => trySave(row)} />
                 {changed(row) ? (
                   <Button label="Original wiederherstellen" variant="ghost" disabled={busy} onPress={() => save(row, '')} />

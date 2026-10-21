@@ -1,5 +1,8 @@
 import { memo } from 'react';
+import { View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
+
+import { isRtl } from '../../data/texts';
 
 import { color as themeColor } from '../../theme/tokens';
 import { iconSvgs, type IconName } from './svgs';
@@ -14,12 +17,16 @@ type IconProps = {
 /** Alle Icons etwas größer als angegeben (Daria, 21.10.2026), die Kamera nur leicht */
 export const ICON_SCALE = 1.5;
 const CAMERA_SCALE = 1.2;
+const MIRRORED = new Set<IconName>(['chevron-left', 'chevron-right', 'send']);
 
 export const Icon = memo(function Icon({ name, color = themeColor.text.primary, size }: IconProps) {
   const icon = iconSvgs[name];
   const height = Math.round((size ?? icon.height) * (name === 'camera' ? CAMERA_SCALE : ICON_SCALE));
   const width = (icon.width / icon.height) * height;
-  return <SvgXml xml={icon.svg(color)} width={width} height={height} />;
+  const svg = <SvgXml xml={icon.svg(color)} width={width} height={height} />;
+  // Arabisch und Hebräisch: Pfeile und Senden zeigen in Leserichtung
+  if (MIRRORED.has(name) && isRtl()) return <View style={{ transform: [{ scaleX: -1 }] }}>{svg}</View>;
+  return svg;
 });
 
 export type { IconName };
