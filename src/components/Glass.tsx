@@ -10,23 +10,38 @@ import type { IconName } from './icons/Icon';
  * Liquid Glass von iOS 26 (expo-glass-effect, in Expo Go enthalten). Einmal beim Start geprüft:
  * Manche iOS-26-Betas haben die API nicht und stürzen sonst ab.
  */
-const liquidGlass = Platform.OS === 'ios' && isGlassEffectAPIAvailable() && isLiquidGlassAvailable();
+export const liquidGlass = Platform.OS === 'ios' && isGlassEffectAPIAvailable() && isLiquidGlassAvailable();
+
+/** Versuch (Daria, 21.10.2026): Buttons und Schalter aus Glas. `false` stellt alles auf die flache Gestaltung zurück. */
+export const GLASS_CONTROLS = true;
+/** Buttons und Schalter aus Glas, sofern das Gerät Liquid Glass kann */
+export const glassControls = GLASS_CONTROLS && liquidGlass;
 
 type GlassProps = {
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   /** `clear`: fast durchsichtig, für Fotos. `regular`: stärker gestreut, für unruhigen Grund. */
   variant?: 'clear' | 'regular';
+  /** Färbt das Glas, z. B. in color/accent/primary für einen Primary-Button */
+  tint?: string;
+  /** Glas reagiert auf Berührung (leuchtet, federt) */
+  interactive?: boolean;
 };
 
 /**
  * Glasfläche. Auf iOS 26 echtes Systemglas mit Lichtbrechung am Rand, sonst die bisherige
  * halbtransparente Fläche (color/bg/glass).
  */
-export function Glass({ children, style, variant = 'clear' }: GlassProps) {
+export function Glass({ children, style, variant = 'clear', tint, interactive }: GlassProps) {
   if (liquidGlass) {
     return (
-      <GlassView glassEffectStyle={variant} colorScheme="dark" style={[styles.clip, style]}>
+      <GlassView
+        glassEffectStyle={variant}
+        colorScheme="dark"
+        tintColor={tint}
+        isInteractive={interactive}
+        style={[styles.clip, style]}
+      >
         {children}
       </GlassView>
     );

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
+  Animated,
   Platform,
   Pressable,
   StyleSheet,
@@ -16,6 +17,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 import type { ImageSource } from '../data/types';
 import { color, radius, space, stroke, text } from '../theme/tokens';
+import { Glass, glassControls } from './Glass';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 
@@ -108,6 +110,9 @@ export function SwitchRow({
           </Text>
         ) : null}
       </View>
+      {glassControls ? (
+        <GlassSwitch label={label} value={value} onValueChange={onValueChange} />
+      ) : (
       <NativeSwitch
         accessibilityLabel={label}
         value={value}
@@ -118,7 +123,44 @@ export function SwitchRow({
         // Im Browser färbt react-native-web den Knopf im eingeschalteten Zustand sonst türkis.
         {...(Platform.OS === 'web' ? ({ activeThumbColor: color.text.primary } as object) : null)}
       />
+      )}
     </View>
+  );
+}
+
+const SWITCH_W = 56;
+const SWITCH_H = 32;
+const KNOB = 26;
+
+/**
+ * Versuch (Daria, 21.10.2026): Schalter aus Liquid Glass. Die Spur ist Glas, eingeschaltet hellblau getönt,
+ * der Knopf ist ein heller Glastropfen und gleitet federnd hinüber.
+ */
+function GlassSwitch({ label, value, onValueChange }: { label: string; value: boolean; onValueChange: (v: boolean) => void }) {
+  const x = useRef(new Animated.Value(value ? 1 : 0)).current;
+  useEffect(() => {
+    Animated.spring(x, { toValue: value ? 1 : 0, useNativeDriver: true, friction: 6, tension: 80 }).start();
+  }, [value, x]);
+  const translateX = x.interpolate({ inputRange: [0, 1], outputRange: [0, SWITCH_W - KNOB - 6] });
+  return (
+    <Pressable
+      accessibilityRole="switch"
+      accessibilityLabel={label}
+      accessibilityState={{ checked: value }}
+      onPress={() => onValueChange(!value)}
+      hitSlop={8}
+    >
+      <Glass
+        variant="regular"
+        tint={value ? color.accent.primary : undefined}
+        interactive
+        style={styles.glassTrack}
+      >
+        <Animated.View style={[styles.glassKnobWrap, { transform: [{ translateX }] }]}>
+          <Glass variant="clear" tint="rgba(240,240,240,0.85)" style={styles.glassKnob} />
+        </Animated.View>
+      </Glass>
+    </Pressable>
   );
 }
 
@@ -313,6 +355,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   chipSelected: { backgroundColor: color.accent.primary, borderColor: color.accent.primary },
+  glassTrack: { width: SWITCH_W, height: SWITCH_H, borderRadius: SWITCH_H / 2, justifyContent: 'center' },
+  glassKnobWrap: { position: 'absolute', left: 3, top: (SWITCH_H - KNOB) / 2 },
+  glassKnob: { width: KNOB, height: KNOB, borderRadius: KNOB / 2 },
   switchRow: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12] },
   texts: { flex: 1, gap: space[2] },
   radioOption: {
