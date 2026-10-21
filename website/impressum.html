@@ -32,20 +32,42 @@ footer a { color:var(--muted); }
 </head>
 <body>
 <main>
-<h1>Impressum</h1>
-<p class="updated">Stand: 21.10.2026</p>
+<h1 data-t="Impressum">Impressum</h1>
+<p class="updated" data-t="Stand 21.10.2026">Stand 21.10.2026</p>
 
-<h2>Angaben nach § 5 DDG</h2>
-<p>Maria Arkadieff</p>
-<p>Die ladungsfähige Anschrift teilen wir bei berechtigtem Interesse auf Anfrage per E-Mail mit.</p>
-<h2>Kontakt</h2>
-<p>E-Mail: kiezkoins@protonmail.com<br>In der App: „Dein Konto“ › Support</p>
-<h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
-<p>Maria Arkadieff</p>
-<h2>Kontaktstelle nach dem Digital Services Act</h2>
-<p>Behörden, die EU-Kommission und Nutzerinnen und Nutzer erreichen uns unter kiezkoins@protonmail.com, auf Deutsch oder Englisch. Rechtswidrige Inhalte meldest Du direkt in der App über die Fahne an Challenges und Kommentaren, über „Person melden“ im Profil oder per E-Mail.</p>
-<h2>Testbetrieb</h2>
-<p>Kiez Coins ist eine kostenlose Testversion. Es gelten die Nutzungsbedingungen für die Testphase.</p>
+<h2 data-t="Angaben nach § 5 DDG">Angaben nach § 5 DDG</h2>
+<p data-t="Maria Arkadieff">Maria Arkadieff</p>
+<p data-t="Die ladungsfähige Anschrift teilen wir bei berechtigtem Interesse auf Anfrage per E-Mail mit.">Die ladungsfähige Anschrift teilen wir bei berechtigtem Interesse auf Anfrage per E-Mail mit.</p>
+<h2 data-t="Kontakt">Kontakt</h2>
+<p data-t="E-Mail: kiezkoins@protonmail.com
+In der App: „Dein Konto“ › Support">E-Mail: kiezkoins@protonmail.com<br>In der App: „Dein Konto“ › Support</p>
+<h2 data-t="Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV">Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+<p data-t="Maria Arkadieff">Maria Arkadieff</p>
+<h2 data-t="Kontaktstelle nach dem Digital Services Act">Kontaktstelle nach dem Digital Services Act</h2>
+<p data-t="Behörden, die EU-Kommission und Nutzerinnen und Nutzer erreichen uns unter kiezkoins@protonmail.com, auf Deutsch oder Englisch. Rechtswidrige Inhalte meldest Du direkt in der App über die Fahne an Challenges und Kommentaren, über „Person melden“ im Profil oder per E-Mail.">Behörden, die EU-Kommission und Nutzerinnen und Nutzer erreichen uns unter kiezkoins@protonmail.com, auf Deutsch oder Englisch. Rechtswidrige Inhalte meldest Du direkt in der App über die Fahne an Challenges und Kommentaren, über „Person melden“ im Profil oder per E-Mail.</p>
+<h2 data-t="Testbetrieb">Testbetrieb</h2>
+<p data-t="Kiez Coins ist eine kostenlose Testversion. Es gelten die Nutzungsbedingungen für die Testphase.">Kiez Coins ist eine kostenlose Testversion. Es gelten die Nutzungsbedingungen für die Testphase.</p>
+<script>
+(function () {
+  var norm = function (s) { return s.replace(/\s+/g, ' ').trim(); };
+  var esc = function (s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+  fetch("https://aqxzxpxrshizlaqyjplw.supabase.co/rest/v1/app_texts?select=original,text&text=neq.", {
+    headers: { apikey: "sb_publishable_WqrL7Y7Wm0l9cq4tHQpjAQ_iooAaNe0" },
+  })
+    .then(function (r) { return r.ok ? r.json() : []; })
+    .then(function (rows) {
+      var map = {};
+      rows.forEach(function (row) { if (row.text && norm(row.text) !== norm(row.original)) map[norm(row.original)] = row.text.trim(); });
+      document.querySelectorAll('[data-t]').forEach(function (el) {
+        var t = map[norm(el.getAttribute('data-t'))];
+        if (t) el.innerHTML = esc(t).replace(/\n/g, '<br>');
+      });
+      var h = document.querySelector('h1[data-t]');
+      if (h) document.title = h.textContent + ' – Kiez Coins';
+    })
+    .catch(function () {});
+})();
+</script>
 <footer>
   <a href="./">Start</a>
   <a href="impressum.html">Impressum</a>
