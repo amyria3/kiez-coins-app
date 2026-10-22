@@ -7,7 +7,9 @@ import { useAuth } from '../data/auth';
 import { errorText, loadMySurveyAnswer, saveSurveyAnswer } from '../data/remote';
 import { useStore } from '../data/store';
 import {
+  countUsageDay,
   isSurveySnoozed,
+  SURVEY_AFTER_DAYS,
   snoozeSurvey,
   surveyQuestions,
   type SurveyAnswer,
@@ -155,8 +157,8 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
 }
 
 /**
- * Zeigt die Umfrage einmal von selbst, wenn die Person angemeldet ist, noch nicht geantwortet hat
- * und sie auf diesem Gerät nicht vertagt hat.
+ * Zeigt die Umfrage einmal von selbst, wenn die Person angemeldet ist, die App an mindestens drei Tagen
+ * genutzt hat, noch nicht geantwortet hat und sie auf diesem Gerät nicht vertagt hat.
  */
 export function useSurveyPrompt(): [boolean, () => void] {
   const { mode, currentUserId } = useStore();
@@ -168,6 +170,8 @@ export function useSurveyPrompt(): [boolean, () => void] {
     if (!live) return;
     let cancelled = false;
     const timer = setTimeout(async () => {
+      // Erst nach mehrfacher Nutzung fragen: ab dem dritten Tag, an dem die App offen war
+      if ((await countUsageDay()) < SURVEY_AFTER_DAYS) return;
       if (await isSurveySnoozed(currentUserId)) return;
       const answer = await loadMySurveyAnswer().catch(() => undefined);
       // Ohne Verbindung oder ohne Tabelle (Migration fehlt) lieber nicht fragen

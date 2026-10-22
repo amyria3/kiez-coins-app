@@ -68,6 +68,7 @@ export default function Account() {
       />
       <FieldGroup label="Einstellungen">
         <View style={styles.list}>
+          <NavRow label="So geht Kiez Coins" value="Kurze Videos" onPress={() => router.push('/tour')} />
           <NavRow label="Sprache" value={languageName} onPress={() => router.push('/account/sprache')} />
           <NavRow
             label="Benachrichtigungen"
