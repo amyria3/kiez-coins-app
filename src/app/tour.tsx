@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useVideoPlayer, VideoView } from 'expo-video';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { ActionBar } from '../components/ActionBar';
@@ -98,6 +97,9 @@ function TourMedia({ step, active }: { step: TourStep; active: boolean }) {
 }
 
 function TourVideo({ source, active }: { source: number | string; active: boolean }) {
+  // Erst laden, wenn es wirklich ein Video gibt: So braucht die App das native Videomodul nur dann.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { useVideoPlayer, VideoView } = require('expo-video') as typeof import('expo-video');
   const player = useVideoPlayer(source, (p) => {
     p.loop = true;
     p.muted = true;
