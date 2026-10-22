@@ -339,6 +339,11 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
             <StatusBadge status={c.status} />
             {c.bountyAmount ? <BountyBadge amount={c.bountyAmount} /> : null}
           </View>
+          {state.hint ? (
+            <Text style={styles.caption} numberOfLines={1}>
+              {state.hint}
+            </Text>
+          ) : null}
         </View>
         <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
       </Pressable>
@@ -349,21 +354,18 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
         </Text>
       ) : null}
 
-      <View style={styles.grid}>
-        <Metric
-          value={c.views === undefined ? '–' : String(c.views)}
-          hint={c.views === 1 ? 'Ansicht' : 'Ansichten'}
-        />
+      {/* Zahlen als offene Leiste ohne Flächen, damit sie nicht wie Knöpfe aussehen (Daria, 22.10.2026).
+          Nur „Kommentare“ ist tippbar und trägt dafür einen Pfeil. */}
+      <View style={styles.stats}>
+        <Metric value={c.views === undefined ? '–' : String(c.views)} hint={c.views === 1 ? 'Ansicht' : 'Ansichten'} />
+        <View style={styles.statLine} />
         <Metric
           value={String(c.comments.length)}
           hint={c.comments.length === 1 ? 'Kommentar' : 'Kommentare'}
           onPress={isDraft ? undefined : onComments}
         />
-        <Metric
-          value={isDraft ? '–' : formatDurationSince(c.createdAt)}
-          hint={isDraft ? 'Noch nicht veröffentlicht' : 'online seit Veröffentlichung'}
-        />
-        <Metric value={state.value} hint={state.hint} />
+        <View style={styles.statLine} />
+        <Metric value={isDraft ? '–' : formatDurationSince(c.createdAt)} hint={isDraft ? 'Entwurf' : 'online'} />
       </View>
 
       <View style={styles.flex} />
@@ -479,7 +481,7 @@ function DeletedCard({
   );
 }
 
-/** Kachel ohne Icon: Wert groß, darunter in Worten, was er zählt („1“ / „Kommentar“) */
+/** Zahl ohne Fläche: Wert groß, darunter in Worten, was er zählt („1“ / „Kommentar“). Tippbar mit Pfeil. */
 function Metric({ value, hint, onPress }: { value: string; hint?: string; onPress?: () => void }) {
   return (
     <Pressable
@@ -493,9 +495,12 @@ function Metric({ value, hint, onPress }: { value: string; hint?: string; onPres
         {value}
       </Text>
       {hint ? (
-        <Text style={styles.caption} numberOfLines={1}>
-          {hint}
-        </Text>
+        <View style={styles.metricHint}>
+          <Text style={[styles.caption, onPress ? styles.link : null]} numberOfLines={1}>
+            {hint}
+          </Text>
+          {onPress ? <Icon name="chevron-right" size={10} color={color.text.primary} /> : null}
+        </View>
       ) : null}
     </Pressable>
   );
@@ -526,15 +531,11 @@ const styles = StyleSheet.create({
   title: { ...text.cardTitle, color: color.text.primary },
   badges: { flexDirection: 'row', alignItems: 'center', gap: space[8], marginTop: space[8] },
   body: { ...text.body, color: color.text.secondary },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
-  metric: {
-    flexBasis: '47%',
-    flexGrow: 1,
-    gap: space[4],
-    padding: space[12],
-    borderRadius: radius.xl,
-    backgroundColor: color.bg.screen,
-  },
+  stats: { flexDirection: 'row', alignItems: 'stretch', paddingVertical: space[4] },
+  statLine: { width: stroke.thin, backgroundColor: color.line.hairline, marginVertical: space[4] },
+  metric: { flex: 1, alignItems: 'center', gap: space[2], paddingVertical: space[4] },
+  metricHint: { flexDirection: 'row', alignItems: 'center', gap: space[2] },
+  link: { color: color.text.primary },
   metricValue: { ...text.metric, color: color.text.primary },
   caption: { ...text.caption, color: color.text.secondary },
   actions: { gap: space[8] },
