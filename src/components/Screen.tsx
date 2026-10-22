@@ -134,7 +134,8 @@ export function HeroScreen({
   const images = [image, ...(moreImages ?? [])];
   const [page, setPage] = useState(0);
   // Eingeklappt: Das Foto bekommt den Platz, das Blatt zeigt nur noch die Zusammenfassung.
-  const [collapsed, setCollapsed] = useState(false);
+  // So startet die Detailansicht (Daria, 22.10.2026). Mit Sprung zu den Kommentaren startet sie ausgeklappt.
+  const [collapsed, setCollapsed] = useState(!scrollToEndOnOpen);
   // Eingeklappt füllt das Foto den ganzen Bildschirm. Das Blatt liegt als Glas unten darüber.
   const [viewportHeight, setViewportHeight] = useState(0);
   const [headHeight, setHeadHeight] = useState(0);
