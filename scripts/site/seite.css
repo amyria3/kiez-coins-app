@@ -105,12 +105,14 @@ button { font: inherit; color: inherit; }
 .p-chip-accepted { color: var(--purple); }
 .p-chip-reported { color: var(--orange); }
 .p-chip-confirmed { color: var(--pink); }
+.p-chip-deadline { display: flex; align-items: center; gap: 4px; color: var(--text); border: 0; background: rgba(160,160,160,.28);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 .p-actions { display: flex; align-items: center; gap: 2px; padding: 2px 0 8px; }
 .p-actions button { display: flex; align-items: center; gap: 4px; min-width: 38px; height: 38px; justify-content: center; color: var(--muted); font-size: 11px; }
 .p-like.is-on { color: var(--pink); }
 .p-like.is-on .p-heart { animation: p-pop 560ms var(--barrier); }
 @keyframes p-pop { 40% { transform: scale(.7); } 75% { transform: scale(1.25); } }
-.p-actions .p-manage { margin-left: auto; padding: 0 12px; height: 28px; border-radius: 999px; border: 1px solid var(--line); color: var(--text); font-size: 10.5px; }
+.p-actions .p-manage { margin-left: auto; }
 .p-new { animation: p-in 700ms var(--barrier); }
 @keyframes p-in { from { opacity: 0; transform: translateY(-30px) scale(.92); } }
 .p-hint .p-post:first-child .p-card::after, .p-pulse .p-card::after { content: ''; position: absolute; inset: 0; border-radius: inherit;
@@ -302,4 +304,19 @@ footer a { color: var(--muted); }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition-duration: 1ms !important; transition-delay: 0ms !important; }
+}
+
+/* Lila Punkt statt Mauszeiger über klickbaren Flächen im Prototyp-Bereich (nur mit Maus) */
+.mit-punkt button:not(:disabled) { cursor: none; }
+.mit-punkt button[aria-pressed="true"], .mit-punkt button[aria-checked="true"], .mit-punkt button[aria-selected="true"] { cursor: default; }
+.klick-punkt { position: fixed; z-index: 1000; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+.klick-punkt span { position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%; background: var(--purple);
+  box-shadow: 0 0 0 0 rgba(126,148,255,.45); opacity: 0; transform: scale(.2); transition: opacity 160ms, transform 160ms; }
+.klick-punkt.is-on span { opacity: 1; transform: scale(1);
+  animation: punkt-wachsen 900ms cubic-bezier(.2,.7,.3,1) both, punkt-pulsieren 1400ms ease-in-out 900ms infinite; }
+@keyframes punkt-wachsen { from { transform: scale(.2); } to { transform: scale(1); } }
+@keyframes punkt-pulsieren {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(126,148,255,.45); }
+  50% { transform: scale(1.18); box-shadow: 0 0 0 8px rgba(126,148,255,0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(126,148,255,0); }
 }

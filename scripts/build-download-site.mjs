@@ -99,7 +99,8 @@ const icon = (name, c) => ({ w: iconSvgs[name].width, h: iconSvgs[name].height, 
 const kcSvg = {
   heart: icon('heart', C.muted),
   heartOn: icon('heart', C.pink),
-  gift: icon('gift', C.muted),
+  gear: icon('settings', C.muted),
+  clock: icon('clock', C.text),
   comment: icon('comment', C.muted),
   send: icon('send', C.muted),
   camera: icon('camera', C.text),
@@ -187,9 +188,10 @@ ${filterDefs}
   </div>
   <div class="szenarien" id="szenarien" aria-label="Prototyp steuern">
     <span class="szenario-mark" aria-hidden="true"></span>
-    <button type="button" data-szenario="finden" aria-pressed="true" aria-controls="prototyp"><b>Challenge finden</b><i>Finden</i><span>Scrollen? Ausnahmsweise richtig nützlich!</span></button>
-    <button type="button" data-szenario="stellen" aria-pressed="false" aria-controls="prototyp"><b>Challenge stellen</b><i>Stellen</i><span>Foto, Titel, Coins. Fertig.</span></button>
-    <button type="button" data-szenario="gruppe" aria-pressed="false" aria-controls="prototyp"><b>Gruppe</b><i>Gruppe</i><span>Selbstorganisation? Easy!</span></button>
+    <button type="button" data-szenario="scrollen" aria-pressed="true" aria-controls="prototyp"><b>Scrollen</b><i>Scrollen</i><span>Scrollen? Ausnahmsweise richtig nützlich!</span></button>
+    <button type="button" data-szenario="stellen" aria-pressed="false" aria-controls="prototyp"><b>Challenge erstellen</b><i>Erstellen</i><span>Foto, Titel, Coins. Fertig.</span></button>
+    <button type="button" data-szenario="uebernehmen" aria-pressed="false" aria-controls="prototyp"><b>Challenge übernehmen</b><i>Übernehmen</i><span>Annehmen, erledigen, Coins bekommen.</span></button>
+    <button type="button" data-szenario="rangliste" aria-pressed="false" aria-controls="prototyp"><b>Rangliste</b><i>Rangliste</i><span>Du magst es kompetitiv? Schalte die Rangliste als Feature für Deine Gruppe ein oder aus. May the best win!</span></button>
   </div>
   </div>
   <p class="hinweis">Das Telefon ist klickbar. Alle Daten darin sind Beispiele.</p>

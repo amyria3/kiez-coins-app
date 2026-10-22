@@ -9,7 +9,7 @@
 <meta name="description" content="Kennst Du das? Irgendwas muss erledigt werden, aber wer soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez">
 <link rel="icon" href="favicon.png">
 <link rel="preload" href="fonts/InterTight_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
-<link rel="stylesheet" href="seite.css?v=30a195a1">
+<link rel="stylesheet" href="seite.css?v=bcef2053">
 <script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
@@ -36,9 +36,10 @@
   </div>
   <div class="szenarien" id="szenarien" aria-label="Prototyp steuern">
     <span class="szenario-mark" aria-hidden="true"></span>
-    <button type="button" data-szenario="finden" aria-pressed="true" aria-controls="prototyp"><b>Challenge finden</b><i>Finden</i><span>Scrollen? Ausnahmsweise richtig nützlich!</span></button>
-    <button type="button" data-szenario="stellen" aria-pressed="false" aria-controls="prototyp"><b>Challenge stellen</b><i>Stellen</i><span>Foto, Titel, Coins. Fertig.</span></button>
-    <button type="button" data-szenario="gruppe" aria-pressed="false" aria-controls="prototyp"><b>Gruppe</b><i>Gruppe</i><span>Selbstorganisation? Easy!</span></button>
+    <button type="button" data-szenario="scrollen" aria-pressed="true" aria-controls="prototyp"><b>Scrollen</b><i>Scrollen</i><span>Scrollen? Ausnahmsweise richtig nützlich!</span></button>
+    <button type="button" data-szenario="stellen" aria-pressed="false" aria-controls="prototyp"><b>Challenge erstellen</b><i>Erstellen</i><span>Foto, Titel, Coins. Fertig.</span></button>
+    <button type="button" data-szenario="uebernehmen" aria-pressed="false" aria-controls="prototyp"><b>Challenge übernehmen</b><i>Übernehmen</i><span>Annehmen, erledigen, Coins bekommen.</span></button>
+    <button type="button" data-szenario="rangliste" aria-pressed="false" aria-controls="prototyp"><b>Rangliste</b><i>Rangliste</i><span>Du magst es kompetitiv? Schalte die Rangliste als Feature für Deine Gruppe ein oder aus. May the best win!</span></button>
   </div>
   </div>
   <p class="hinweis">Das Telefon ist klickbar. Alle Daten darin sind Beispiele.</p>
@@ -146,8 +147,8 @@
   </div>
 </section>
 
-<script src="prototyp/daten.js?v=3f275bfd"></script>
-<script src="prototyp/app.js?v=fb905074"></script>
+<script src="prototyp/daten.js?v=89326046"></script>
+<script src="prototyp/app.js?v=16479c75"></script>
 <script>
   // Fehler vom Download zeigen
   var f = new URLSearchParams(location.search).get('fehler');
