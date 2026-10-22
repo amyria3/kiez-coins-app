@@ -202,7 +202,6 @@
   "Challenge verwalten": "ניהול האתגר",
   "Alle verwalten": "ניהול הכול",
   "Edensteine": "אבני עדן",
-  "Noch": "נותרו",
   "Danke, dass Du anpackst! Mach am Ende ein Foto vom Ergebnis, dann kann {name} bestätigen.": "תודה שאתה נרתם! צלם בסוף את התוצאה כדי ש־{name} יוכל לאשר.",
   "Danke, dass Du anpackst! Taufen wir das Baby, Baby? Ich hätte da einen Namen für Deine Operation.": "תודה שאתה נרתם! נקרא לתינוק בשם, מותק? יש לי שם למבצע שלך.",
   "Von Dir angenommen am {acceptedAt}": "קיבלת ב־{acceptedAt}",
@@ -568,7 +567,6 @@
   "Mitglied": "חבר",
   "1 Person": "אדם אחד",
   "{members} Personen": "{members} אנשים",
-  "Verlauf öffentlich": "היסטוריה ציבורית",
   "Verlauf Gruppen": "היסטוריית קבוצות",
   "Erstellt": "נוצרו",
   "Kommentare, Antworten und Bestätigungen": "תגובות, תשובות ואישורים",
@@ -656,7 +654,6 @@
   "1 Challenge in Deiner Nähe": "אתגר אחד בקרבתך",
   "{count} Challenges in Deiner Nähe": "{count} אתגרים בקרבתך",
   "In der Nähe": "בקרבת מקום",
-  "Pleasure": "Pleasure",
   "Gruppen": "קבוצות",
   "{label}, kommt später": "{label}, יגיע בהמשך",
   "Noch keine Challenges in Deiner Nähe": "עדיין אין אתגרים בקרבתך",
@@ -913,5 +910,6 @@
   "Aus Zwischenablage einfügen": "הדבקה מהלוח",
   "Komm in unsere Gruppe „{name}“ bei Kiez Coins. Mit diesem Link trittst Du bei:": "הצטרפו לקבוצה שלנו „{name}” ב־Kiez Coins. מצטרפים דרך הקישור הזה:",
   "Oder in der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und diesen Code eingeben:": "או באפליקציה, תחת „קבוצות”, הקישו „הצטרפות עם קוד” והזינו את הקוד הזה:",
-  "{name} verwalten": "ניהול {name}"
+  "{name} verwalten": "ניהול {name}",
+  "Verlauf": "המסע"
 }

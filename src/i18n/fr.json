@@ -202,7 +202,6 @@
   "Challenge verwalten": "Gérer le défi",
   "Alle verwalten": "Tout gérer",
   "Edensteine": "Pierres d’Éden",
-  "Noch": "Reste",
   "Danke, dass Du anpackst! Mach am Ende ein Foto vom Ergebnis, dann kann {name} bestätigen.": "Merci de mettre la main à la pâte ! Prends une photo du résultat à la fin, pour que {name} puisse confirmer.",
   "Danke, dass Du anpackst! Taufen wir das Baby, Baby? Ich hätte da einen Namen für Deine Operation.": "Merci de mettre la main à la pâte ! On baptise le bébé, bébé ? J’ai un nom pour ton opération.",
   "Von Dir angenommen am {acceptedAt}": "Accepté par toi le {acceptedAt}",
@@ -568,7 +567,6 @@
   "Mitglied": "Membre",
   "1 Person": "1 personne",
   "{members} Personen": "{members} personnes",
-  "Verlauf öffentlich": "Historique public",
   "Verlauf Gruppen": "Historique des groupes",
   "Erstellt": "Créés",
   "Kommentare, Antworten und Bestätigungen": "Commentaires, réponses et confirmations",
@@ -656,7 +654,6 @@
   "1 Challenge in Deiner Nähe": "1 défi près de chez toi",
   "{count} Challenges in Deiner Nähe": "{count} défis près de chez toi",
   "In der Nähe": "À proximité",
-  "Pleasure": "Pleasure",
   "Gruppen": "Groupes",
   "{label}, kommt später": "{label}, bientôt",
   "Noch keine Challenges in Deiner Nähe": "Pas encore de défis près de chez toi",
@@ -913,5 +910,6 @@
   "Aus Zwischenablage einfügen": "Coller depuis le presse-papiers",
   "Komm in unsere Gruppe „{name}“ bei Kiez Coins. Mit diesem Link trittst Du bei:": "Rejoins notre groupe « {name} » sur Kiez Coins. Avec ce lien, tu rejoins le groupe :",
   "Oder in der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und diesen Code eingeben:": "Ou dans l’app, sous « Groupes », touche « Rejoindre avec un code » et saisis ce code :",
-  "{name} verwalten": "Gérer {name}"
+  "{name} verwalten": "Gérer {name}",
+  "Verlauf": "Parcours"
 }

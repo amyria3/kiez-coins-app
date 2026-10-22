@@ -202,7 +202,6 @@
   "Challenge verwalten": "Manage challenge",
   "Alle verwalten": "Manage all",
   "Edensteine": "Eden stones",
-  "Noch": "Left",
   "Danke, dass Du anpackst! Mach am Ende ein Foto vom Ergebnis, dann kann {name} bestätigen.": "Thanks for pitching in! Take a photo of the result at the end so {name} can confirm.",
   "Danke, dass Du anpackst! Taufen wir das Baby, Baby? Ich hätte da einen Namen für Deine Operation.": "Thanks for pitching in! Shall we christen the baby, baby? I have a name for your operation.",
   "Von Dir angenommen am {acceptedAt}": "Accepted by you on {acceptedAt}",
@@ -568,7 +567,6 @@
   "Mitglied": "Member",
   "1 Person": "1 person",
   "{members} Personen": "{members} people",
-  "Verlauf öffentlich": "Public history",
   "Verlauf Gruppen": "Group history",
   "Erstellt": "Created",
   "Kommentare, Antworten und Bestätigungen": "Comments, replies and confirmations",
@@ -656,7 +654,6 @@
   "1 Challenge in Deiner Nähe": "1 challenge near you",
   "{count} Challenges in Deiner Nähe": "{count} challenges near you",
   "In der Nähe": "Nearby",
-  "Pleasure": "Pleasure",
   "Gruppen": "Groups",
   "{label}, kommt später": "{label}, coming later",
   "Noch keine Challenges in Deiner Nähe": "No challenges near you yet",
@@ -913,5 +910,6 @@
   "Aus Zwischenablage einfügen": "Paste from clipboard",
   "Komm in unsere Gruppe „{name}“ bei Kiez Coins. Mit diesem Link trittst Du bei:": "Join our group “{name}” on Kiez Coins. Use this link to join:",
   "Oder in der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und diesen Code eingeben:": "Or in the app, under “Groups”, tap “Join with code” and enter this code:",
-  "{name} verwalten": "Manage {name}"
+  "{name} verwalten": "Manage {name}",
+  "Verlauf": "Journey"
 }
