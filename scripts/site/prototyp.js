@@ -91,6 +91,7 @@
       create: {
         heading: 'Neue Challenge',
         suggestions: ['Tonnen rausstellen', 'Igelhaus aufbauen', 'Fahrradkeller aufräumen'],
+        demo: ['Tonnen rausstellen', 'Die Mülltonnen müssen bis Dienstag früh an die Straße. Ich bin verreist, wer übernimmt?'],
         rewards: [5, 10, 15, 20],
         reward: 10,
         photo: 'tonnen',
@@ -163,6 +164,7 @@
       create: {
         heading: 'Neue Aufgabe',
         suggestions: ['Wäsche aufhängen', 'Altglas wegbringen', 'Katzenklo sauber machen'],
+        demo: ['Wäsche aufhängen', 'Die Maschine ist fertig. Bitte auf den Ständer im Flur, die Handtücher auf die Leine.'],
         rewards: [1, 3, 5, 10],
         reward: 3,
         photo: 'waesche',
@@ -553,6 +555,49 @@
     showLayer(create);
     syncScenario();
   }
+
+  // ---------- Scrollen im Erstellen-Blatt füllt das Formular wie von selbst ----------
+  var autoTimer = null;
+  function autofill() {
+    var d = state.draft;
+    if (!state.create || autoTimer || d.title.trim()) return;
+    var demo = M.create.demo;
+    var mode = state.mode;
+    d.photo = true;
+    renderCreate();
+    var title = $('[data-title]', create);
+    var text = $('[data-text]', create);
+    var queue = [[title, 'title', demo[0]], [text, 'text', demo[1]]];
+    var q = 0, i = 0;
+    function tick() {
+      if (!state.create || state.mode !== mode) { autoTimer = null; return; }
+      var job = queue[q];
+      if (!job) {
+        autoTimer = null;
+        var btn = $('[data-publish]', create);
+        btn.disabled = false;
+        if (!reduce) { btn.classList.remove('p-ready'); btn.offsetWidth; btn.classList.add('p-ready'); }
+        return;
+      }
+      i += 1;
+      d[job[1]] = job[2].slice(0, i);
+      job[0].value = d[job[1]];
+      if (job[1] === 'text') grow(job[0]);
+      if (job[1] === 'title') $('[data-publish]', create).disabled = true;
+      if (i >= job[2].length) { q += 1; i = 0; autoTimer = setTimeout(tick, 260); return; }
+      autoTimer = setTimeout(tick, reduce ? 0 : job[1] === 'title' ? 55 : 22);
+    }
+    autoTimer = setTimeout(tick, reduce ? 0 : 450);
+  }
+  create.addEventListener('wheel', function (e) { if (e.deltaY > 0) autofill(); }, { passive: true });
+  create.addEventListener('scroll', function () { if (create.scrollTop > 10) autofill(); }, { passive: true });
+  window.addEventListener('scroll', function () {
+    if (!state.create) return;
+    var r = root.getBoundingClientRect();
+    if (r.top < 0 && r.bottom > 0) autofill();
+  }, { passive: true });
+  // Wer selbst tippt, hält die Vorführung an
+  create.addEventListener('keydown', function () { clearTimeout(autoTimer); autoTimer = null; });
 
   function publish() {
     var d = state.draft;
