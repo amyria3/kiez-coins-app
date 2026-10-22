@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Avatar } from '../../../components/AuthorRow';
 import { Button } from '../../../components/Button';
 import { FieldGroup, KaterCard } from '../../../components/Content';
-import { CopyField } from '../../../components/Form';
+import { CopyField, SwitchRow } from '../../../components/Form';
 import { EdensteinPile } from '../../../components/icons/Brand';
 import { SubScreen } from '../../../components/Screen';
 import { inviteLink, inviteMessage, leaderboard, MAX_MEMBERS } from '../../../data/groups';
@@ -17,6 +17,8 @@ import { t } from '../../../data/texts';
 /**
  * Route `gruppen/[id]`: Rangliste, Einladungscode, Aufgaben erstellen.
  * Die Gründerin entfernt Mitglieder und überträgt ihre Rolle (Mitglied antippen).
+ * In den Gruppeneinstellungen schaltet sie die Rangliste ein und aus. Aus: Mitgliederliste nach Beitritt,
+ * jede Person sieht nur ihre eigenen Edensteine.
  */
 export default function GroupDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -33,7 +35,10 @@ export default function GroupDetail() {
   }
 
   const isFounder = group.founderId === currentUserId;
+  const showRanks = group.showLeaderboard;
   const ranks = leaderboard(group, challenges);
+  // Ohne Rangliste: Reihenfolge nach Beitritt, damit die Liste keinen Rang andeutet
+  const rows = showRanks ? ranks : group.members.flatMap((m) => ranks.filter((r) => r.userId === m.userId));
   const openTasks = challenges.filter((c) => c.groupId === group.id && c.status === 'open').length;
   const userOf = (userId: string): User =>
     users.find((u) => u.id === userId) ?? { id: userId, name: 'Unbekannt', firstName: 'Unbekannt' };
@@ -110,9 +115,9 @@ export default function GroupDetail() {
         </>
       }
     >
-      <FieldGroup label="Rangliste">
+      <FieldGroup label={showRanks ? 'Rangliste' : 'Mitglieder'}>
         <View style={styles.list}>
-          {ranks.map((r, index) => {
+          {rows.map((r, index) => {
             const member = group.members.find((m) => m.userId === r.userId);
             const user = userOf(r.userId);
             const me = r.userId === currentUserId;
@@ -120,30 +125,59 @@ export default function GroupDetail() {
               <Pressable
                 key={r.userId}
                 accessibilityRole={isFounder && !me ? 'button' : undefined}
-                accessibilityLabel={t('Platz {index}, {name}, {edensteine} Edensteine', { index: index + 1, name: me ? t('Du') : user.name, edensteine: r.edensteine })}
+                accessibilityLabel={
+                  showRanks
+                    ? t('Platz {index}, {name}, {edensteine} Edensteine', { index: index + 1, name: me ? t('Du') : user.name, edensteine: r.edensteine })
+                    : me
+                      ? t('Du, {edensteine} Edensteine', { edensteine: r.edensteine })
+                      : user.name
+                }
                 onPress={() => memberMenu(r.userId)}
                 disabled={!isFounder || me}
                 style={({ pressed }) => [styles.row, me && styles.rowMe, pressed && styles.pressed]}
               >
-                <Text style={styles.rank}>{index + 1}</Text>
+                {showRanks ? <Text style={styles.rank}>{index + 1}</Text> : null}
                 <Avatar user={user} diameter={32} />
                 <View style={styles.flex}>
                   <Text style={styles.name} numberOfLines={1}>
                     {me ? 'Du' : user.name}
                   </Text>
                   <Text style={styles.meta}>
-                    {member?.role === 'founder' ? 'Gründerin · ' : ''}
-                    {r.done === 1 ? '1 Aufgabe erledigt' : t('{done} Aufgaben erledigt', { done: r.done })}
+                    {[
+                      member?.role === 'founder' ? t('Gründerin') : null,
+                      showRanks || me ? (r.done === 1 ? t('1 Aufgabe erledigt') : t('{done} Aufgaben erledigt', { done: r.done })) : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
                   </Text>
                 </View>
-                <EdensteinPile height={20} amount={r.edensteine} />
-                <Text style={styles.eden}>{r.edensteine}</Text>
+                {showRanks || me ? (
+                  <>
+                    <EdensteinPile height={20} amount={r.edensteine} />
+                    <Text style={styles.eden}>{r.edensteine}</Text>
+                  </>
+                ) : null}
               </Pressable>
             );
           })}
         </View>
       </FieldGroup>
       {isFounder ? <Text style={styles.meta}>Tipp ein Mitglied an, um es zu entfernen oder ihm die Gründerrolle zu geben.</Text> : null}
+
+      {isFounder ? (
+        <FieldGroup label="Gruppeneinstellungen">
+          <SwitchRow
+            label="Rangliste anzeigen"
+            description={
+              showRanks
+                ? 'Alle sehen, wer wie viele Edensteine hat.'
+                : 'Alle sehen nur ihre eigenen Edensteine.'
+            }
+            value={showRanks}
+            onValueChange={(show) => run(() => groupApi.setLeaderboard(group.id, show), 'Nicht gespeichert')}
+          />
+        </FieldGroup>
+      ) : null}
 
       {group.members.length < MAX_MEMBERS ? (
         <FieldGroup label="Leute einladen">

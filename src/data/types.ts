@@ -136,6 +136,8 @@ export type Group = {
   founderId: string;
   /** 6 Zeichen, z. B. „K7M2QX“ */
   inviteCode: string;
+  /** Rangliste nach Edensteinen sichtbar. Aus: nur Mitgliederliste (Migration 20261022000500) */
+  showLeaderboard: boolean;
   members: GroupMember[];
   createdAt: string;
 };

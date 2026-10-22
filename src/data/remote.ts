@@ -234,6 +234,8 @@ type GroupRow = {
   name: string;
   founder_id: string;
   invite_code: string;
+  /** fehlt, solange Migration 20261022000500 aussteht */
+  show_leaderboard?: boolean;
   created_at: string;
   group_members: { user_id: string; role: 'founder' | 'member'; joined_at: string }[];
 };
@@ -247,6 +249,7 @@ async function loadGroups(): Promise<Group[]> {
     name: g.name,
     founderId: g.founder_id,
     inviteCode: g.invite_code,
+    showLeaderboard: g.show_leaderboard ?? true,
     createdAt: g.created_at,
     members: g.group_members
       .map((m) => ({ userId: m.user_id, role: m.role, joinedAt: m.joined_at }))
@@ -555,6 +558,8 @@ export const groupActions = {
     rpc('remove_group_member', { p_group_id: groupId, p_user_id: userId }),
   transferFounder: (groupId: string, userId: string) =>
     rpc('transfer_group_founder', { p_group_id: groupId, p_user_id: userId }),
+  setLeaderboard: (groupId: string, show: boolean) =>
+    rpc('set_group_leaderboard', { p_group_id: groupId, p_show: show }),
 };
 
 export type NewGroupTask = {

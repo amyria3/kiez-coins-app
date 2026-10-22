@@ -53,7 +53,11 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
       {selected ? (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={t('{name}: Rangliste und Mitglieder', { name: selected.name })}
+          accessibilityLabel={
+            selected.showLeaderboard
+              ? t('{name}: Rangliste und Mitglieder', { name: selected.name })
+              : t('{name}: Mitglieder', { name: selected.name })
+          }
           onPress={() => onOpen(selected.id)}
           style={({ pressed }) => [styles.card, pressed && styles.pressed]}
         >
@@ -69,7 +73,9 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
               {selected.name}
             </Text>
             <Text style={styles.meta} numberOfLines={1}>
-              {t('{members} Mitglieder · Rangliste und Einladen', { members: selected.members.length })}
+              {selected.showLeaderboard
+                ? t('{members} Mitglieder · Rangliste und Einladen', { members: selected.members.length })
+                : t('{members} Mitglieder · Einladen', { members: selected.members.length })}
             </Text>
           </View>
           <Icon name="settings" size={size.icon} color={color.text.secondary} />

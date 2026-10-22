@@ -312,7 +312,7 @@ type Store = State & {
   saveDraft: (id: string | undefined, draft: remote.DraftInput) => Promise<Challenge>;
   /** Entwurf speichern und veröffentlichen. Wirft mit einer lesbaren Meldung. */
   publishDraft: (id: string, draft: remote.DraftInput, deadline: string) => Promise<string>;
-  /** Gruppen: gründen, beitreten, verlassen, Mitglied entfernen, Rolle übertragen, Aufgabe erstellen. Werfen lesbar. */
+  /** Gruppen: gründen, beitreten, verlassen, Mitglied entfernen, Rolle übertragen, Rangliste schalten, Aufgabe erstellen. Werfen lesbar. */
   groupApi: GroupApi;
   /** Blockierung aufheben. Live: lädt danach alles neu, damit die Inhalte der Person zurückkommen. */
   unblock: (userId: string) => Promise<void>;
@@ -324,6 +324,8 @@ type GroupApi = {
   leave: (groupId: string) => Promise<void>;
   removeMember: (groupId: string, userId: string) => Promise<void>;
   transferFounder: (groupId: string, userId: string) => Promise<void>;
+  /** Rangliste ein- oder ausschalten (nur Gründerin) */
+  setLeaderboard: (groupId: string, show: boolean) => Promise<void>;
   createTask: (task: remote.NewGroupTask) => Promise<string>;
 };
 
@@ -497,6 +499,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           name: name.trim(),
           founderId: me(),
           inviteCode: demoCode(),
+          showLeaderboard: true,
           createdAt: new Date().toISOString(),
           members: [{ userId: me(), role: 'founder', joinedAt: new Date().toISOString() }],
         };
@@ -532,6 +535,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
               : g,
           ),
         );
+      },
+      setLeaderboard: async (groupId, show) => {
+        if (!isDemo()) return live(() => remote.groupActions.setLeaderboard(groupId, show));
+        setGroups((groups) => groups.map((g) => (g.id === groupId ? { ...g, showLeaderboard: show } : g)));
       },
       createTask: async (task) => {
         const s = stateRef.current;
