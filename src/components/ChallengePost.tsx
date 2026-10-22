@@ -121,27 +121,25 @@ export const ChallengePost = memo(function ChallengePost({
             <Text style={styles.waveText}>Wave</Text>
           </View>
         ) : null}
-        {/* Wer hat gepostet: nach dem ersten Tippen mittig auf der Karte */}
+        {/* Wer hat gepostet: nach dem ersten Tippen oben links, Bild und Name wie bei Instagram */}
         <Animated.View
           pointerEvents="none"
           style={[
             styles.who,
             {
               opacity: whoAnim,
-              transform: [{ scale: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] }) }],
+              transform: [{ translateY: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [-12, 0] }) }],
             },
           ]}
         >
-          <View style={styles.whoCard}>
-            <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
-            <Avatar user={author} diameter={56} />
+          <Avatar user={author} diameter={40} />
+          <View style={styles.whoTexts}>
             <Text style={[styles.whoName, hideName ? hiddenText : null]} numberOfLines={1}>
               {author.name}
             </Text>
             <Text style={styles.whoMeta} numberOfLines={1}>
-              {t('hat das {when} gepostet', { when: formatRelative(challenge.createdAt) })}
+              {formatRelative(challenge.createdAt)}
             </Text>
-            <Text style={styles.whoHint}>{t('Nochmal tippen zum Öffnen')}</Text>
           </View>
         </Animated.View>
         <View style={[styles.info, image ? styles.infoOnPhoto : styles.infoPlain]}>
@@ -311,20 +309,20 @@ const styles = StyleSheet.create({
     borderColor: color.line.hairline,
   },
   infoPlain: { paddingHorizontal: space[4] },
-  who: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center', zIndex: 2 },
-  whoCard: {
+  who: {
+    position: 'absolute',
+    top: space[12],
+    left: space[12],
+    right: 96,
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: space[6],
-    paddingVertical: space[16],
-    paddingHorizontal: space[24],
-    borderRadius: radius.xl,
-    overflow: 'hidden',
-    backgroundColor: 'rgba(31, 33, 35, 0.35)',
-    maxWidth: '80%',
+    gap: space[8],
+    zIndex: 2,
   },
-  whoName: { ...text.cardTitle, color: color.text.primary },
-  whoMeta: { ...text.caption, fontSize: 13, color: color.text.secondary },
-  whoHint: { ...text.caption, fontSize: 12, color: color.accent.primary, marginTop: space[4] },
+  whoTexts: { flexShrink: 1 },
+  // Schatten statt Fläche, damit Name und Zeit auf jedem Foto lesbar bleiben
+  whoName: { ...text.cardTitle, fontSize: 16, lineHeight: 20, color: color.text.primary, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
+  whoMeta: { ...text.caption, fontSize: 12, color: color.text.primary, opacity: 0.85, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
   title: { ...text.cardTitle, color: color.text.primary },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   meta: { ...text.caption, fontSize: 13, color: color.text.secondary, flex: 1 },
