@@ -250,7 +250,6 @@ export default function ChallengeDetail() {
           <View style={styles.metric}>
             {/* Ein einzelner, großer Kristall (Daria, 22.10.2026) */}
             <EdensteinIcon height={40} amount={1} />
-            <Text style={styles.metricLabel}>Edensteine</Text>
             <Text style={[styles.metricValue, styles.eden]}>{challenge.edensteine}</Text>
           </View>
         ) : null}
