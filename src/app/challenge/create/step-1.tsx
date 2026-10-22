@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
 import { ExtraPhotos, PhotoPicker, SwitchRow, TextField } from '../../../components/Form';
+import { PostTarget } from '../../../components/PostTarget';
 import { SubScreen } from '../../../components/Screen';
 import { hasContent, useDraft, useSaveDraft } from './_layout';
 import { explain } from '../../../components/Nudge';
@@ -56,6 +57,7 @@ export default function CreateStep1() {
         </>
       }
     >
+      {draft.id ? null : <PostTarget current="public" carry={{ title: draft.title, text: draft.text, photo: draft.photo }} />}
       {/* Challenge oder nur ein Bild (Daria, 22.10.2026). Ein Bild hat keine Coins und lässt sich nicht annehmen. */}
       <SwitchRow
         label={isChallenge ? 'Challenge: Hier muss etwas getan werden! Auf geht’s, Nachbarschaft!' : 'Hier ist nichts zu tun, nur ein schönes Bild'}

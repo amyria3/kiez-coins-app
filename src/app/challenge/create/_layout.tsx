@@ -104,13 +104,21 @@ export const unstable_settings = { initialRouteName: 'step-1' };
 
 /** Flow „Challenge erstellen“: als Modal geöffnet, darin Schritte als Push. */
 export default function CreateLayout() {
-  const { draftId, copyOf: copyId } = useGlobalSearchParams<{ draftId?: string; copyOf?: string }>();
+  const { draftId, copyOf: copyId, title, text, photo } = useGlobalSearchParams<{
+    draftId?: string;
+    copyOf?: string;
+    /** Aus der Gruppenaufgabe mitgebracht („Wo posten?“) */
+    title?: string;
+    text?: string;
+    photo?: string;
+  }>();
   const { challenges, profile } = useStore();
   const draft = useState<Draft>(() => {
     const saved = draftId ? challenges.find((c) => c.id === draftId && c.status === 'draft') : undefined;
     if (saved) return fromChallenge(saved);
     const original = copyId ? challenges.find((c) => c.id === copyId) : undefined;
-    return original ? copyOf(original) : emptyDraft(profile.kiez);
+    if (original) return copyOf(original);
+    return { ...emptyDraft(profile.kiez), title: title ?? '', text: text ?? '', ...(photo ? { photo: { uri: photo } } : {}) };
   });
   const [, setDraft] = draft;
   // Neue Challenge: Ort aus dem Standort vorschlagen. Ohne Freigabe bleibt der Kiez stehen.

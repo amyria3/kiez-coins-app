@@ -8,6 +8,7 @@ import { FieldGroup } from '../../../components/Content';
 import { Chip, ChipGroup, PhotoPicker, TextField } from '../../../components/Form';
 import { EdensteinPile } from '../../../components/icons/Brand';
 import { Icon } from '../../../components/icons/Icon';
+import { PostTarget } from '../../../components/PostTarget';
 import { SubScreen } from '../../../components/Screen';
 import { useStore } from '../../../data/store';
 import type { ImageSource } from '../../../data/types';
@@ -27,14 +28,14 @@ const durations = [
  * Mit `copyOf` (aus „Deine Challenges“, „Kopie erstellen“) startet sie mit Foto, Titel, Text und Edensteinen einer alten Aufgabe.
  */
 export default function NewGroupTask() {
-  const { id, copyOf } = useLocalSearchParams<{ id: string; copyOf?: string }>();
+  const { id, copyOf, ...carried } = useLocalSearchParams<{ id: string; copyOf?: string; title?: string; text?: string; photo?: string }>();
   const router = useRouter();
   const { groups, groupApi, challenges } = useStore();
   const group = groups.find((g) => g.id === id);
   const original = copyOf ? challenges.find((c) => c.id === copyOf) : undefined;
-  const [photo, setPhoto] = useState<ImageSource | undefined>(original?.image);
-  const [title, setTitle] = useState(original?.title ?? '');
-  const [body, setBody] = useState(original?.text ?? '');
+  const [photo, setPhoto] = useState<ImageSource | undefined>(original?.image ?? (carried.photo ? { uri: carried.photo } : undefined));
+  const [title, setTitle] = useState(original?.title ?? carried.title ?? '');
+  const [body, setBody] = useState(original?.text ?? carried.text ?? '');
   const [edensteine, setEdensteine] = useState(original?.edensteine ?? 3);
   const [days, setDays] = useState(7);
   const [busy, setBusy] = useState(false);
@@ -77,6 +78,7 @@ export default function NewGroupTask() {
         />
       }
     >
+      {copyOf ? null : <PostTarget current={id} carry={{ title, text: body, photo }} />}
       <PhotoPicker photo={photo} hint="Optional. Zeig, worum es geht." onChange={setPhoto} />
       <TextField label="Titel" required nudge={titleField} helperText="Max. 60 Zeichen" value={title} onChangeText={setTitle} maxLength={60} />
       <TextField label="Beschreibung" helperText="Max. 500 Zeichen" value={body} onChangeText={setBody} maxLength={500} multiline />
