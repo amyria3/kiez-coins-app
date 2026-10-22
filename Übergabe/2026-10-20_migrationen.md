@@ -217,3 +217,16 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 - Tabelle `friendships`: Anfrage (`pending`) und Freundschaft (`accepted`). Annehmen darf nur die angefragte Person, lösen beide. Keine Anfrage zwischen Personen, die sich blockieren. Blockieren beendet eine Freundschaft (Trigger).
 
 **Bis sie läuft:** Profil und Personenansicht zeigen keine Bio, keine Webseite und keinen Knopf für Freundschaften. „Freundschaften“ im Konto meldet, dass die Datenbank ein Update braucht.
+
+## 21. `supabase/migrations/20261022000500_messages.sql`
+
+**Wozu:** Direktnachrichten unter Freund:innen (Tab „Chats“).
+
+**Ändert:**
+- Funktion `are_friends`, Tabelle `messages`. Schreiben und Lesen nur zwischen bestätigten Freund:innen. Endet die Freundschaft, ist der Chat für beide weg.
+- Nachrichten älter als ein Monat sind unsichtbar und werden täglich gelöscht (pg_cron, Job `messages_nach_einem_monat_loeschen`).
+- `messages` kommt in die Realtime-Veröffentlichung, damit neue Nachrichten ohne Neuladen erscheinen.
+
+**Voraussetzung:** Nr. 20 (`bio_friends`). Falls `create extension pg_cron` scheitert: in Supabase unter Database › Extensions „pg_cron“ einschalten und die Migration noch einmal ausführen.
+
+**Bis sie läuft:** Der Tab „Chats“ meldet, dass die Datenbank ein Update braucht.

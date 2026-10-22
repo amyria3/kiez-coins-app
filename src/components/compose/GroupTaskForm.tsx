@@ -8,7 +8,7 @@ import { color, radius, size, space, text } from '../../theme/tokens';
 import { Button } from '../Button';
 import { FieldGroup } from '../Content';
 import { Chip, ChipGroup, PhotoPicker, TextField } from '../Form';
-import { EdensteinPile } from '../icons/Brand';
+import { LivingCrystal } from '../icons/Brand';
 import { Icon } from '../icons/Icon';
 import { explain, useNudge } from '../Nudge';
 import { Text } from '../T';
@@ -83,7 +83,12 @@ export function useGroupTaskForm(groupId: string | undefined, initial: Initial, 
             <Text style={styles.stepText}>−</Text>
           </Pressable>
           <View style={styles.value} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine })}>
-            <EdensteinPile height={30} amount={edensteine} />
+            {/* Ein einzelner, lebendiger Edenstein statt des Haufens (Daria, 22.10.2026) */}
+            <View style={styles.crystal}>
+              <View style={styles.crystalFloat}>
+                <LivingCrystal height={48} seed="neue-aufgabe" />
+              </View>
+            </View>
             <Text style={styles.valueText}>{edensteine}</Text>
           </View>
           <Pressable
@@ -128,6 +133,8 @@ export function useGroupTaskForm(groupId: string | undefined, initial: Initial, 
 }
 
 const styles = StyleSheet.create({
+  crystal: { width: 30, height: 30, alignItems: 'center' },
+  crystalFloat: { position: 'absolute', top: (30 - 48) / 2 },
   stepper: { flexDirection: 'row', alignItems: 'center', gap: space[16] },
   stepButton: {
     width: 48,

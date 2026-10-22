@@ -6,7 +6,7 @@ import { Avatar } from '../../../components/AuthorRow';
 import { Button } from '../../../components/Button';
 import { FieldGroup, KaterCard } from '../../../components/Content';
 import { CopyField, SwitchRow } from '../../../components/Form';
-import { EdensteinPile } from '../../../components/icons/Brand';
+import { LivingCrystal } from '../../../components/icons/Brand';
 import { SubScreen } from '../../../components/Screen';
 import { inviteLink, inviteMessage, leaderboard, MAX_MEMBERS } from '../../../data/groups';
 import { useStore } from '../../../data/store';
@@ -153,7 +153,11 @@ export default function GroupDetail() {
                 </View>
                 {showRanks || me ? (
                   <>
-                    <EdensteinPile height={20} amount={r.edensteine} />
+                    <View style={styles.crystal}>
+                      <View style={styles.crystalFloat}>
+                        <LivingCrystal height={36} seed={`rang-${user.id}`} />
+                      </View>
+                    </View>
                     <Text style={styles.eden}>{r.edensteine}</Text>
                   </>
                 ) : null}
@@ -199,6 +203,9 @@ export default function GroupDetail() {
 }
 
 const styles = StyleSheet.create({
+  // Einzelner Edenstein je Zeile, ragt über die Zeilenhöhe (Daria, 22.10.2026)
+  crystal: { width: 24, height: 22, alignItems: 'center' },
+  crystalFloat: { position: 'absolute', top: (22 - 36) / 2 },
   list: { gap: space[8] },
   row: {
     flexDirection: 'row',
