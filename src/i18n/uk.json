@@ -202,7 +202,6 @@
   "Challenge verwalten": "Керувати челенджем",
   "Alle verwalten": "Керувати всіма",
   "Edensteine": "Камені Едему",
-  "Noch": "Залишилось",
   "Danke, dass Du anpackst! Mach am Ende ein Foto vom Ergebnis, dann kann {name} bestätigen.": "Дякую, що берешся! Наприкінці сфотографуй результат, щоб {name} міг(ла) підтвердити.",
   "Danke, dass Du anpackst! Taufen wir das Baby, Baby? Ich hätte da einen Namen für Deine Operation.": "Дякую, що берешся! Охрестимо малечу, малечо? У мене є назва для твоєї операції.",
   "Von Dir angenommen am {acceptedAt}": "Ти взяв(-ла) {acceptedAt}",
@@ -568,7 +567,6 @@
   "Mitglied": "Учасник",
   "1 Person": "1 людина",
   "{members} Personen": "{members, plural, one {# людина} few {# людини} many {# людей} other {# людини}}",
-  "Verlauf öffentlich": "Публічна історія",
   "Verlauf Gruppen": "Історія груп",
   "Erstellt": "Створені",
   "Kommentare, Antworten und Bestätigungen": "Коментарі, відповіді та підтвердження",
@@ -656,7 +654,6 @@
   "1 Challenge in Deiner Nähe": "1 челендж поруч",
   "{count} Challenges in Deiner Nähe": "{count, plural, one {# челендж поруч} few {# челенджі поруч} many {# челенджів поруч} other {# челенджу поруч}}",
   "In der Nähe": "Поруч",
-  "Pleasure": "Pleasure",
   "Gruppen": "Групи",
   "{label}, kommt später": "{label}, з’явиться пізніше",
   "Noch keine Challenges in Deiner Nähe": "Поруч ще немає челенджів",
@@ -913,5 +910,6 @@
   "Aus Zwischenablage einfügen": "Вставити з буфера обміну",
   "Komm in unsere Gruppe „{name}“ bei Kiez Coins. Mit diesem Link trittst Du bei:": "Приєднуйся до нашої групи «{name}» у Kiez Coins. Приєднатися можна за цим посиланням:",
   "Oder in der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und diesen Code eingeben:": "Або в застосунку в розділі «Групи» натисни «Приєднатися за кодом» і введи цей код:",
-  "{name} verwalten": "Керувати {name}"
+  "{name} verwalten": "Керувати {name}",
+  "Verlauf": "Шлях"
 }

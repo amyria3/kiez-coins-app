@@ -90,6 +90,9 @@ export default function Reise() {
           </View>
         ) : null}
 
+        {/* Öffentlicher Verlauf zuerst, darunter Gruppen (Daria, 22.10.2026) */}
+        <History title="Verlauf" entries={publicHistory} onOpen={(entry) => router.push(entry.href)} />
+
         {ownGroups.length > 0 ? (
           <View style={styles.historyBlock}>
             <Text style={styles.sectionLabel}>{ownGroups.length === 1 ? 'Deine Gruppe' : 'Deine Gruppen'}</Text>
@@ -118,7 +121,6 @@ export default function Reise() {
           </View>
         ) : null}
 
-        <History title="Verlauf öffentlich" entries={publicHistory} onOpen={(entry) => router.push(entry.href)} />
         <History
           title="Verlauf Gruppen"
           entries={groupHistory}

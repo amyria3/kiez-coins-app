@@ -202,7 +202,6 @@
   "Challenge verwalten": "إدارة التحدي",
   "Alle verwalten": "إدارة الكل",
   "Edensteine": "أحجار عدن",
-  "Noch": "متبقٍّ",
   "Danke, dass Du anpackst! Mach am Ende ein Foto vom Ergebnis, dann kann {name} bestätigen.": "شكرًا لأنك تبادر! التقط صورة للنتيجة في النهاية ليتمكّن {name} من التأكيد.",
   "Danke, dass Du anpackst! Taufen wir das Baby, Baby? Ich hätte da einen Namen für Deine Operation.": "شكرًا لأنك تبادر! هل نسمّي المولود يا عزيزي؟ لديّ اسم لعمليتك.",
   "Von Dir angenommen am {acceptedAt}": "قبلته في {acceptedAt}",
@@ -568,7 +567,6 @@
   "Mitglied": "عضو",
   "1 Person": "شخص واحد",
   "{members} Personen": "{members, plural, two {شخصان} few {# أشخاص} many {# شخصًا} other {# شخص}}",
-  "Verlauf öffentlich": "السجل العام",
   "Verlauf Gruppen": "سجل المجموعات",
   "Erstellt": "المُنشأة",
   "Kommentare, Antworten und Bestätigungen": "التعليقات والردود والتأكيدات",
@@ -656,7 +654,6 @@
   "1 Challenge in Deiner Nähe": "تحدٍّ واحد بالقرب منك",
   "{count} Challenges in Deiner Nähe": "{count, plural, zero {لا تحديات بالقرب منك} two {تحدّيان بالقرب منك} few {# تحديات بالقرب منك} many {# تحديًا بالقرب منك} other {# تحدٍّ بالقرب منك}}",
   "In der Nähe": "بالقرب",
-  "Pleasure": "Pleasure",
   "Gruppen": "المجموعات",
   "{label}, kommt später": "{label}، قريبًا",
   "Noch keine Challenges in Deiner Nähe": "لا تحديات بالقرب منك بعد",
@@ -913,5 +910,6 @@
   "Aus Zwischenablage einfügen": "لصق من الحافظة",
   "Komm in unsere Gruppe „{name}“ bei Kiez Coins. Mit diesem Link trittst Du bei:": "انضم إلى مجموعتنا «{name}» في Kiez Coins. انضم عبر هذا الرابط:",
   "Oder in der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und diesen Code eingeben:": "أو في التطبيق ضمن «المجموعات» اضغط «انضم برمز» وأدخل هذا الرمز:",
-  "{name} verwalten": "إدارة {name}"
+  "{name} verwalten": "إدارة {name}",
+  "Verlauf": "المسار"
 }
