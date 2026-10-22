@@ -1,10 +1,10 @@
-import { memo } from 'react';
-import { Alert, Pressable, Share, StyleSheet, View } from 'react-native';
+import { memo, useEffect, useRef, useState } from 'react';
+import { Alert, Animated, Pressable, Share, StyleSheet, View } from 'react-native';
 import { Text } from './T';
 import { Image } from 'expo-image';
 import { BlurView } from 'expo-blur';
 
-import { formatRemainingShort } from '../data/format';
+import { formatRelative, formatRemainingShort } from '../data/format';
 import type { Challenge, User } from '../data/types';
 import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
@@ -51,12 +51,38 @@ export const ChallengePost = memo(function ChallengePost({
   const meta = [distance, state].filter(Boolean).join(' · ');
   const commentCount = challenge.comments.length;
 
+  // Einmal tippen zeigt, wer gepostet hat. Nochmal tippen (auch doppelt) oder lange drücken öffnet den Post.
+  const [who, setWho] = useState(false);
+  const whoAnim = useRef(new Animated.Value(0)).current;
+  const hideTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => {
+    Animated.spring(whoAnim, { toValue: who ? 1 : 0, friction: 7, tension: 90, useNativeDriver: true }).start();
+    clearTimeout(hideTimer.current);
+    if (who) hideTimer.current = setTimeout(() => setWho(false), 4000);
+    return () => clearTimeout(hideTimer.current);
+  }, [who, whoAnim]);
+  const tap = () => {
+    if (who) {
+      setWho(false);
+      onPress();
+    } else setWho(true);
+  };
+  const open = () => {
+    setWho(false);
+    onPress();
+  };
+
   return (
     <View style={styles.post}>
       <Pressable
-        onPress={onPress}
+        onPress={tap}
+        onLongPress={open}
+        delayLongPress={350}
         accessibilityRole="button"
         accessibilityLabel={t('{title} öffnen', { title: challenge.title })}
+        accessibilityHint={t('Einmal tippen zeigt, wer gepostet hat. Nochmal tippen öffnet den Post.')}
+        accessibilityActions={[{ name: 'activate' }]}
+        onAccessibilityAction={open}
         style={({ pressed }) => [styles.card, !image && styles.cardNoPhoto, pressed && styles.pressed]}
       >
         {image ? <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
@@ -95,6 +121,29 @@ export const ChallengePost = memo(function ChallengePost({
             <Text style={styles.waveText}>Wave</Text>
           </View>
         ) : null}
+        {/* Wer hat gepostet: nach dem ersten Tippen mittig auf der Karte */}
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.who,
+            {
+              opacity: whoAnim,
+              transform: [{ scale: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] }) }],
+            },
+          ]}
+        >
+          <View style={styles.whoCard}>
+            <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+            <Avatar user={author} diameter={56} />
+            <Text style={[styles.whoName, hideName ? hiddenText : null]} numberOfLines={1}>
+              {author.name}
+            </Text>
+            <Text style={styles.whoMeta} numberOfLines={1}>
+              {t('hat das {when} gepostet', { when: formatRelative(challenge.createdAt) })}
+            </Text>
+            <Text style={styles.whoHint}>{t('Nochmal tippen zum Öffnen')}</Text>
+          </View>
+        </Animated.View>
         <View style={[styles.info, image ? styles.infoOnPhoto : styles.infoPlain]}>
           {image ? <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} /> : null}
           <Text style={styles.title} numberOfLines={2}>
@@ -262,6 +311,20 @@ const styles = StyleSheet.create({
     borderColor: color.line.hairline,
   },
   infoPlain: { paddingHorizontal: space[4] },
+  who: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center', zIndex: 2 },
+  whoCard: {
+    alignItems: 'center',
+    gap: space[6],
+    paddingVertical: space[16],
+    paddingHorizontal: space[24],
+    borderRadius: radius.xl,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(31, 33, 35, 0.35)',
+    maxWidth: '80%',
+  },
+  whoName: { ...text.cardTitle, color: color.text.primary },
+  whoMeta: { ...text.caption, fontSize: 13, color: color.text.secondary },
+  whoHint: { ...text.caption, fontSize: 12, color: color.accent.primary, marginTop: space[4] },
   title: { ...text.cardTitle, color: color.text.primary },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   meta: { ...text.caption, fontSize: 13, color: color.text.secondary, flex: 1 },
