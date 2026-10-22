@@ -117,9 +117,14 @@ button { font: inherit; color: inherit; }
 .p-actions .p-manage { margin-left: auto; }
 .p-new { animation: p-in 700ms var(--barrier); }
 @keyframes p-in { from { opacity: 0; transform: translateY(-30px) scale(.92); } }
-.p-hint .p-post:first-child .p-card::after, .p-pulse .p-card::after { content: ''; position: absolute; inset: 0; border-radius: inherit;
+.p-pulse .p-card::after { content: ''; position: absolute; inset: 0; border-radius: inherit;
   box-shadow: inset 0 0 0 2px var(--purple); animation: p-ring 1.6s ease-out 2 600ms both; pointer-events: none; }
 @keyframes p-ring { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
+/* Ring: der Knopf, mit dem das gewählte Szenario weitergeht (links wählen, rechts tippen) */
+.p-screen .p-ring { outline: 2px solid var(--purple); outline-offset: 3px; animation: p-ring-puls 1.6s ease-in-out infinite; }
+.p-screen .p-card.p-ring, .p-screen .p-board.p-ring, .p-screen .p-photo-title.p-ring { outline-offset: -2px; }
+@keyframes p-ring-puls { 50% { outline-color: rgba(126,148,255,.25); } }
+@media (prefers-reduced-motion: reduce) { .p-screen .p-ring { animation: none; } }
 
 /* Pleasure */
 .p-pleasure { padding: 0 12px; }
