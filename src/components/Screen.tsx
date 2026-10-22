@@ -23,7 +23,7 @@ type SubScreenProps = {
   /** Buttons für die ActionBar */
   actions?: ReactNode;
   children: ReactNode;
-  /** Eigener Kopf statt NavigationBar, z. B. CreateHeader beim Erstellen */
+  /** Eigener Kopf statt NavigationBar, z. B. ein eigener Kopf */
   header?: ReactNode;
 };
 
