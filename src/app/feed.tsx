@@ -1,3 +1,4 @@
+import { nudgeCrystals } from '../components/icons/Brand';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
@@ -111,6 +112,7 @@ export default function FeedScreen() {
     const y = e.nativeEvent.contentOffset.y;
     maxY.current = Math.max(maxY.current, y);
     const settled = Date.now() - collapsedAt.current > motion.barrier.duration + 200;
+    nudgeCrystals(y - lastY.current);
     if (y > 8 && y > lastY.current) collapse();
     else if (settled && ((y <= 0 && maxY.current > 120) || (dragging.current && y < -48))) expand();
     lastY.current = y;

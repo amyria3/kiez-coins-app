@@ -94,7 +94,7 @@ button { font: inherit; color: inherit; }
 .p-card-text { height: 112px; }
 .p-img, .p-hero { position: absolute; inset: 0; }
 .p-img img, .p-img svg, .p-hero img, .p-hero svg { width: 100%; height: 100%; object-fit: cover; display: block; }
-.p-bounty { position: absolute; top: 9px; right: 9px; display: flex; align-items: center; gap: 5px; padding: 4px 10px 4px 7px; border-radius: 999px;
+.p-bounty { position: absolute; top: 9px; left: 9px; display: flex; align-items: center; gap: 5px; padding: 4px 10px 4px 7px; border-radius: 999px;
   background: var(--glass); border: .5px solid var(--line); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 .p-bounty b { font: 600 15px/1 var(--display); }
 .p-info { position: relative; display: grid; gap: 5px; padding: 10px 12px; border-radius: 16px; background: var(--glass); border: .5px solid var(--line);
@@ -103,7 +103,7 @@ button { font: inherit; color: inherit; }
 .p-meta { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10.5px; white-space: nowrap; overflow: hidden; }
 .p-avatar { flex: none; display: inline-grid; place-items: center; width: var(--s); height: var(--s); border-radius: 50%; background: var(--c);
   color: var(--bg); font: 600 calc(var(--s) * .5)/1 var(--display); }
-.p-chip { position: absolute; top: 9px; left: 9px; padding: 4px 10px; border-radius: 999px; font-size: 10px; background: var(--glass); border: .5px solid; }
+.p-chip { position: absolute; top: 9px; right: 9px; padding: 4px 10px; border-radius: 999px; font-size: 10px; background: var(--glass); border: .5px solid; }
 .p-chip-accepted { color: var(--purple); }
 .p-chip-reported { color: var(--orange); }
 .p-chip-confirmed { color: var(--pink); }
@@ -180,7 +180,7 @@ button { font: inherit; color: inherit; }
 .p-tabbar button { width: 52px; height: 40px; display: grid; place-items: center; border-radius: 999px; transition: background 300ms; }
 .p-tabbar button.is-on { background: rgba(240,240,240,.1); }
 .p-camera { position: absolute !important; z-index: 10; top: 52px; right: 12px; width: 40px; height: 40px; display: grid; place-items: center;
-  border-radius: 50% !important; background: var(--glass) !important; border: .5px solid var(--line) !important; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+  border-radius: 14px !important; background: var(--glass) !important; border: .5px solid var(--line) !important; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
 
 /* Ebenen */
 .p-scrim { position: absolute; inset: 0; z-index: 15; background: rgba(0,0,0,.5); opacity: 0; transition: opacity 400ms; }

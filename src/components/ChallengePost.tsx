@@ -61,14 +61,14 @@ export const ChallengePost = memo(function ChallengePost({
         {image ? <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
         {!isWave && challenge.bountyAmount ? (
           <View style={styles.bounty}>
-            <BountyBadge amount={challenge.bountyAmount} />
+            <BountyBadge amount={challenge.bountyAmount} small />
           </View>
         ) : null}
         {challenge.edensteine ? (
           <View style={[styles.bounty, styles.eden]} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine: challenge.edensteine })}>
             <View style={styles.edenCrystal}>
               <View style={styles.edenCrystalFloat}>
-                <LivingCrystal height={46} amount={challenge.edensteine} />
+                <LivingCrystal height={40} amount={challenge.edensteine} />
               </View>
             </View>
             <Text style={styles.edenText}>{challenge.edensteine}</Text>
@@ -187,15 +187,16 @@ const styles = StyleSheet.create({
   cardNoPhoto: { height: 150 },
   eden: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
   // Ein großer Edenstein, der oben und unten über das Badge ragt
-  edenCrystal: { width: 26, height: 22, alignItems: 'center' },
-  edenCrystalFloat: { position: 'absolute', top: (22 - 46) / 2 },
-  edenText: { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.confirmation },
+  edenCrystal: { width: 22, height: 20, alignItems: 'center' },
+  edenCrystalFloat: { position: 'absolute', top: (20 - 40) / 2 },
+  edenText: { fontFamily: font.display, fontSize: 16, lineHeight: 20, color: color.accent.confirmation },
   pressed: { opacity: 0.9 },
+  // Bounty links oben (Daria, 22.10.2026), Hinweise wie „Geschlossen“ rechts
   bounty: {
     position: 'absolute',
     top: space[12],
-    right: space[12],
-    paddingVertical: space[6],
+    left: space[12],
+    paddingVertical: space[4],
     paddingLeft: space[8],
     paddingRight: space[12],
     borderRadius: radius.full,
@@ -206,7 +207,7 @@ const styles = StyleSheet.create({
   waveTag: {
     position: 'absolute',
     top: space[12],
-    left: space[12],
+    right: space[12],
     paddingVertical: space[4],
     paddingHorizontal: space[12],
     borderRadius: radius.full,

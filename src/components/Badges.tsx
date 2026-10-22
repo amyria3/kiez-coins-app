@@ -56,11 +56,11 @@ export function DeadlineBadge({ deadline }: { deadline: string }) {
  * Figma „BountyBadge“, Anzeige „15,-“.
  * Die Handschrift „BROWN NOW TWO“ ist noch nicht eingebunden (Lizenz für Apps offen), bis dahin Inter.
  */
-export function BountyBadge({ amount }: { amount: number }) {
+export function BountyBadge({ amount, small }: { amount: number; small?: boolean }) {
   return (
     <View style={styles.bounty} accessible accessibilityLabel={t('Coins: {amount} Euro', { amount })}>
-      <CoinsIcon height={26} />
-      <Text style={styles.bountyText}>{formatBountyShort(amount)}</Text>
+      <CoinsIcon height={small ? 22 : 26} />
+      <Text style={[styles.bountyText, small ? styles.bountyTextSmall : null]}>{formatBountyShort(amount)}</Text>
     </View>
   );
 }
@@ -75,4 +75,5 @@ const styles = StyleSheet.create({
   deadline: { flexDirection: 'row', alignItems: 'center', gap: space[6], alignSelf: 'flex-start' },
   bounty: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
   bountyText: { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.signal },
+  bountyTextSmall: { fontSize: 16, lineHeight: 20 },
 });

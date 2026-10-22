@@ -110,7 +110,8 @@ const styles = StyleSheet.create({
     // Größer (Daria, 22.10.2026)
     width: 64,
     height: 64,
-    borderRadius: radius.full,
+    // Weniger rund (Daria, 22.10.2026)
+    borderRadius: 22,
     backgroundColor: color.accent.primary,
     alignItems: 'center',
     justifyContent: 'center',
