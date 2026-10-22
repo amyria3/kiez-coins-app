@@ -106,3 +106,25 @@ export async function isSurveySnoozed(userId: string): Promise<boolean> {
     return false;
   }
 }
+
+/** Ab so vielen Nutzungstagen fragt die App von selbst nach der Umfrage (Daria, 22.10.2026) */
+export const SURVEY_AFTER_DAYS = 3;
+const USAGE_KEY = 'usage_days_v1';
+
+/**
+ * Merkt sich den heutigen Tag als Nutzungstag (auf diesem Gerät) und gibt zurück,
+ * an wie vielen verschiedenen Tagen die App schon offen war.
+ */
+export async function countUsageDay(): Promise<number> {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const days: string[] = JSON.parse((await AsyncStorage.getItem(USAGE_KEY)) ?? '[]');
+    if (!days.includes(today)) {
+      days.push(today);
+      await AsyncStorage.setItem(USAGE_KEY, JSON.stringify(days.slice(-30)));
+    }
+    return days.length;
+  } catch {
+    return 0;
+  }
+}

@@ -21,7 +21,8 @@ export default function Push() {
     dispatch({ type: 'updateProfile', patch: { push: allow && push, onboarded: true } });
     const target = await homeAfterOnboarding();
     router.dismissAll();
-    router.replace(target);
+    // Erst die Begrüßung mit den Hauptfunktionen, danach ans Ziel (Daria, 22.10.2026)
+    router.replace({ pathname: '/tour', params: { next: target } });
   };
 
   return (
