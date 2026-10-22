@@ -47,6 +47,8 @@ button { font: inherit; color: inherit; }
 .szenarien button { position: relative; display: grid; gap: 2px; text-align: left; background: none; border: 0; border-radius: 22px; padding: 16px 20px; cursor: pointer; }
 .szenarien button b { font: 600 22px/1.15 var(--display); letter-spacing: -.01em; }
 .szenarien button span { color: var(--muted); font-size: 15px; }
+.szenarien button span.is-neu { animation: satz-neu 560ms var(--barrier); }
+@keyframes satz-neu { from { opacity: 0; transform: translateY(8px); } }
 .szenarien button i { display: none; }
 .szenarien button[aria-pressed="false"] b { color: var(--muted); }
 .szenarien button:hover b { color: var(--text); }

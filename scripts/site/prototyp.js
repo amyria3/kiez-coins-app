@@ -765,7 +765,7 @@
       if (!l) return;
       b.dataset.szenario = l[0];
       b.querySelector('b').textContent = l[1];
-      b.querySelector('span').textContent = l[2];
+      b.querySelector('span').textContent = l[0] === 'scrollen' && typeof scrollLine === 'number' ? SCROLL_LINES[scrollLine] : l[2];
       b.querySelector('i').textContent = l[3];
     });
   }
@@ -872,6 +872,26 @@
       $('[data-rolle="' + next + '"]', roles).focus();
     });
   }
+  // ---------- Scrollen: der Satz wechselt, während man durch den Feed scrollt ----------
+  var SCROLL_LINES = ['Scrollen? Ausnahmsweise richtig nützlich!', 'Addictive, yet not toxic.', 'The actually pro-social network.'];
+  var scrollLine = 0;
+  function setScrollLine(i) {
+    var btn = picker && $('[data-szenario="scrollen"]', picker);
+    if (!btn || i === scrollLine) return;
+    scrollLine = i;
+    var span = btn.querySelector('span');
+    span.classList.remove('is-neu');
+    span.offsetWidth;
+    span.textContent = SCROLL_LINES[i];
+    span.classList.add('is-neu');
+    if (btn.getAttribute('aria-pressed') === 'true') moveMark(picker, btn);
+  }
+  scroll.addEventListener('scroll', function () {
+    if (state.mode !== 'public' || state.create || state.tab !== 'nearby') return;
+    var y = scroll.scrollTop;
+    setScrollLine(y > 520 ? 2 : y > 140 ? 1 : scrollLine === 0 ? 0 : scrollLine);
+  }, { passive: true });
+
   // ---------- Lila Punkt statt Mauszeiger über klickbaren Flächen ----------
   var area = document.getElementById('prototyp-bereich');
   if (area && window.matchMedia('(hover: hover) and (pointer: fine)').matches && !reduce) {
