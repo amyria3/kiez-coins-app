@@ -69,7 +69,7 @@ button { font: inherit; color: inherit; }
 .p-battery::after { content: ''; position: absolute; inset: 1.5px; right: 5px; background: var(--text); border-radius: 1px; }
 .p-scroll { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; padding: 48px 0 96px; scrollbar-width: none; }
 .p-scroll::-webkit-scrollbar { display: none; }
-.p-head { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 0 2px; }
+.p-head { display: flex; align-items: center; justify-content: flex-start; gap: 6px; padding: 6px 16px 2px; }
 .p-greet { padding: 10px 16px 12px; }
 .p-greet h3 { font: 600 23px/1.1 var(--display); letter-spacing: -.02em; margin: 0 0 4px; }
 .p-greet p { margin: 0; color: var(--muted); font-size: 11px; }
@@ -89,7 +89,7 @@ button { font: inherit; color: inherit; }
 .p-list { display: grid; gap: 4px; }
 .p-post { padding: 0 12px; }
 .p-card { position: relative; display: flex; flex-direction: column; justify-content: flex-end; width: 100%; height: 270px; border-radius: 22px;
-  overflow: hidden; background: var(--surface); padding: 6px; text-align: left; transition: transform 200ms; }
+  overflow: hidden; background: var(--surface); padding: 10px; text-align: left; transition: transform 200ms; }
 .p-card:active { transform: scale(.985); }
 .p-card-text { height: 112px; }
 .p-img, .p-hero { position: absolute; inset: 0; }
