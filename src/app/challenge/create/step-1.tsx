@@ -4,7 +4,6 @@ import { useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
 import { ExtraPhotos, PhotoPicker, SwitchRow, TextField } from '../../../components/Form';
-import { CreateHeader } from '../../../components/PostTarget';
 import { SubScreen } from '../../../components/Screen';
 import { hasContent, useDraft, useSaveDraft } from './_layout';
 import { explain } from '../../../components/Nudge';
@@ -42,16 +41,6 @@ export default function CreateStep1() {
   return (
     <SubScreen
       title={draft.id ? 'Entwurf bearbeiten' : isChallenge ? 'Challenge erstellen' : 'Bild posten'}
-      header={
-        <CreateHeader
-          line={t('{was} · Schritt 1 von 2', { was: t(draft.id ? 'Entwurf bearbeiten' : isChallenge ? 'Challenge erstellen' : 'Bild posten') })}
-          current="public"
-          carry={{ title: draft.title, text: draft.text, photo: draft.photo }}
-          leading="close"
-          onLeadingPress={close}
-          locked={!!draft.id}
-        />
-      }
       subtitle="Schritt 1 von 2"
       navigation="close"
       onLeadingPress={close}

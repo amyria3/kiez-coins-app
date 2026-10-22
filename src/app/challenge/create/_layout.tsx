@@ -104,13 +104,16 @@ export const unstable_settings = { initialRouteName: 'step-1' };
 
 /** Flow „Challenge erstellen“: als Modal geöffnet, darin Schritte als Push. */
 export default function CreateLayout() {
-  const { draftId, copyOf: copyId, title, text, photo } = useGlobalSearchParams<{
+  const { draftId, copyOf: copyId, title, text, photo, type, extras } = useGlobalSearchParams<{
     draftId?: string;
     copyOf?: string;
-    /** Aus der Gruppenaufgabe mitgebracht („Wo posten?“) */
+    /** Aus dem Erstellen-Blatt über dem Feed mitgebracht (components/compose) */
     title?: string;
     text?: string;
     photo?: string;
+    type?: string;
+    /** JSON-Liste mit Adressen weiterer Fotos */
+    extras?: string;
   }>();
   const { challenges, profile } = useStore();
   const draft = useState<Draft>(() => {
@@ -118,7 +121,20 @@ export default function CreateLayout() {
     if (saved) return fromChallenge(saved);
     const original = copyId ? challenges.find((c) => c.id === copyId) : undefined;
     if (original) return copyOf(original);
-    return { ...emptyDraft(profile.kiez), title: title ?? '', text: text ?? '', ...(photo ? { photo: { uri: photo } } : {}) };
+    let extraUris: string[] = [];
+    try {
+      extraUris = extras ? (JSON.parse(extras) as string[]) : [];
+    } catch {
+      extraUris = [];
+    }
+    return {
+      ...emptyDraft(profile.kiez),
+      type: type === 'photo' ? 'photo' : 'individual',
+      title: title ?? '',
+      text: text ?? '',
+      ...(photo ? { photo: { uri: photo } } : {}),
+      extras: extraUris.map((uri) => ({ photo: { uri } })),
+    };
   });
   const [, setDraft] = draft;
   // Neue Challenge: Ort aus dem Standort vorschlagen. Ohne Freigabe bleibt der Kiez stehen.

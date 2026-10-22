@@ -10,10 +10,16 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ChallengePost } from '../components/ChallengePost';
+import { ComposeSheet } from '../components/compose/ComposeSheet';
+import { takeComposeDone } from '../components/compose/compose';
+import { IconButton } from '../components/IconButton';
+import { Text } from '../components/T';
+import { t } from '../data/texts';
+import { useAppDimensions } from '../theme/layout';
 import { AppHeader, FeedGreeting, PlannedHint, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
 import { FeedStateMessage } from '../components/FeedStateMessage';
 import { GroupBar, GroupsEmpty } from '../components/GroupBar';
@@ -27,7 +33,7 @@ import { coordsIfAllowed, distanceMeters, formatDistance, type Coords } from '..
 import { reiseEntries } from '../data/reise';
 import { topChallenges as pickTopChallenges, useStore } from '../data/store';
 import type { Challenge } from '../data/types';
-import { color, motion, space } from '../theme/tokens';
+import { color, motion, space, text } from '../theme/tokens';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
@@ -145,11 +151,49 @@ export default function FeedScreen() {
 
   const openChallenge = useCallback((id: string) => router.push(`/challenge/${id}`), [router]);
   const openManage = useCallback(() => router.push('/manage'), [router]);
+  // Erstellen über dem Feed (Daria, 22.10.2026): Logo und Begrüßung gleiten weg wie beim Scrollen, ein schmaler
+  // Kopf mit „Challenge erstellen“ erscheint, die Pille bleibt, und das Blatt kommt federnd von unten.
+  // Die Pille wechselt im Blatt zwischen öffentlicher Challenge und Gruppenaufgabe.
+  const { height: screenHeight } = useAppDimensions();
+  const [composing, setComposing] = useState(false);
+  const [composeKey, setComposeKey] = useState(0);
+  const composeAnim = useRef(new Animated.Value(0)).current;
+  const sheetAnim = useRef(new Animated.Value(0)).current;
+  const wasCollapsed = useRef(false);
   const createChallenge = () => {
-    // Im Reiter „Gruppen“ erstellt die Kamera eine Aufgabe für die gewählte Gruppe (ohne Kiez)
-    if (tab === 'groups') return router.push(groupId ? `/gruppen/${groupId}/aufgabe` : '/gruppen');
-    return requireKiez() && router.push('/challenge/create/step-1');
+    if (tab === 'nearby' && !requireKiez()) return;
+    wasCollapsed.current = collapsed;
+    setComposing(true);
+    if (!collapsed) animateHeader(1);
+    Animated.timing(composeAnim, {
+      toValue: 1,
+      duration: motion.barrier.duration,
+      easing: Easing.bezier(...motion.barrier.bezier),
+      useNativeDriver: false,
+    }).start();
+    sheetAnim.setValue(0);
+    Animated.spring(sheetAnim, { toValue: 1, useNativeDriver: true, ...motion.barrierSpring }).start();
   };
+  const closeCompose = (reset = false) => {
+    Animated.timing(sheetAnim, { toValue: 0, duration: 220, easing: Easing.in(Easing.cubic), useNativeDriver: true }).start(() => {
+      setComposing(false);
+      if (reset) setComposeKey((k) => k + 1);
+    });
+    Animated.timing(composeAnim, {
+      toValue: 0,
+      duration: motion.barrier.duration,
+      easing: Easing.bezier(...motion.barrier.bezier),
+      useNativeDriver: false,
+    }).start();
+    if (!wasCollapsed.current) animateHeader(0);
+  };
+  // Nach dem Veröffentlichen zurück im Feed: Blatt zu und leer
+  useFocusEffect(
+    useCallback(() => {
+      if (takeComposeDone()) closeCompose(true);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
 
   const reload = async () => {
     if (mode === 'live' && currentUserId) await load(currentUserId);
@@ -303,12 +347,25 @@ export default function FeedScreen() {
         transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) }],
       }
     : null;
-  const tabsPaddingRight = progress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [space[16], space[16] + CAMERA_WIDTH + space[8]],
-  });
+  // Beim Erstellen ist die Kamera weg, die Pille nutzt die volle Breite
+  const tabsPaddingRight = Animated.add(
+    progress.interpolate({ inputRange: [0, 1], outputRange: [space[16], space[16] + CAMERA_WIDTH + space[8]] }),
+    composeAnim.interpolate({ inputRange: [0, 1], outputRange: [0, -(CAMERA_WIDTH + space[8])] }),
+  );
+  const composeHeaderStyle = {
+    height: composeAnim.interpolate({ inputRange: [0, 1], outputRange: [0, COMPOSE_HEADER] }),
+    opacity: composeAnim.interpolate({ inputRange: [0, 0.4, 1], outputRange: [0, 0, 1] }),
+    transform: [{ translateY: composeAnim.interpolate({ inputRange: [0, 1], outputRange: [-16, 0] }) }],
+  };
+  const composeTarget = tab === 'groups' ? groupId : 'public';
+  const composeLine =
+    tab === 'groups'
+      ? groups.find((g) => g.id === groupId)
+        ? t('Aufgabe für {name}', { name: groups.find((g) => g.id === groupId)!.name })
+        : t('Aufgabe erstellen')
+      : t('Challenge erstellen');
   const storiesStyle = {
-    height: showStories
+    height: showStories && !composing
       ? progress.interpolate({ inputRange: [0, 1], outputRange: [0, storiesHeight], extrapolateLeft: 'clamp' })
       : 0,
     opacity: progress.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, 0, 1], extrapolate: 'clamp' }),
@@ -326,6 +383,14 @@ export default function FeedScreen() {
           <FeedGreeting name={anrede(profile)} kiez={kiezName} count={openCount} />
         </View>
       </Animated.View>
+      <Animated.View style={[styles.clip, composeHeaderStyle]}>
+        <View style={styles.composeHeader}>
+          <IconButton icon="close" accessibilityLabel={t('Schließen')} onPress={() => closeCompose()} />
+          <Text style={styles.composeLine} numberOfLines={1} accessibilityRole="header">
+            {composeLine}
+          </Text>
+        </View>
+      </Animated.View>
       <Animated.View style={[styles.tabsRow, { paddingRight: tabsPaddingRight }]}>
         <TabsNavigation selectedKey={tab} onChange={switchTab} />
       </Animated.View>
@@ -334,31 +399,43 @@ export default function FeedScreen() {
           <TopChallengeBar items={topChallenges} onItemPress={openChallenge} />
         </View>
       </Animated.View>
-      <Animated.View style={[styles.flex, { transform: [{ translateX: swipeX }] }]} {...swipe.panHandlers}>
-      <FlatList
-        ref={listRef}
-        data={items}
-        keyExtractor={(item) => (item.kind === 'post' ? item.challenge.id : item.kind)}
-        renderItem={renderItem}
-        onScroll={onScroll}
-        onScrollBeginDrag={() => (dragging.current = true)}
-        onScrollEndDrag={() => (dragging.current = false)}
-        scrollEventThrottle={16}
-        contentContainerStyle={[styles.list, styles.listTop, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={color.text.secondary} />
-        }
-      />
-      </Animated.View>
-      <CameraButton onPress={createChallenge} />
-      <TabBar
+      <View style={styles.flex}>
+        <Animated.View style={[styles.flex, { transform: [{ translateX: swipeX }] }]} {...swipe.panHandlers}>
+        <FlatList
+          ref={listRef}
+          data={items}
+          keyExtractor={(item) => (item.kind === 'post' ? item.challenge.id : item.kind)}
+          renderItem={renderItem}
+          onScroll={onScroll}
+          onScrollBeginDrag={() => (dragging.current = true)}
+          onScrollEndDrag={() => (dragging.current = false)}
+          scrollEventThrottle={16}
+          contentContainerStyle={[styles.list, styles.listTop, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={color.text.secondary} />
+          }
+        />
+        </Animated.View>
+        {composing ? (
+          <Animated.View
+            style={[
+              styles.composeSheet,
+              { transform: [{ translateY: sheetAnim.interpolate({ inputRange: [0, 1], outputRange: [screenHeight, 0] }) }] },
+            ]}
+          >
+            <ComposeSheet key={composeKey} target={composeTarget} onDone={() => closeCompose(true)} />
+          </Animated.View>
+        ) : null}
+      </View>
+      {composing ? null : <CameraButton onPress={createChallenge} />}
+      {composing ? null : <TabBar
         active="feed"
         hasTasks={hasTasks}
         onFeedPress={() => switchTab('nearby')}
         onReisePress={() => router.push('/reise')}
         onReiseLongPress={() => router.push('/demo')}
         onMenuPress={() => router.push('/account')}
-      />
+      />}
       <SurveyOverlay visible={surveyVisible} onClose={closeSurvey} />
     </View>
   );
@@ -366,6 +443,8 @@ export default function FeedScreen() {
 
 /** Breite der Kamera oben rechts (TabBar.tsx, CameraButton) */
 const CAMERA_WIDTH = 52;
+/** Höhe des schmalen Kopfs beim Erstellen */
+const COMPOSE_HEADER = 52;
 
 /** Reihenfolge der Reiter für das Wischen */
 const TAB_ORDER: FeedTab[] = ['nearby', 'groups'];
@@ -386,8 +465,11 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   flex: { flex: 1 },
   clip: { overflow: 'hidden' },
-  list: { gap: space[12] },
+  list: { gap: space[24] },
   listTop: { paddingTop: space[8] },
+  composeHeader: { height: COMPOSE_HEADER, flexDirection: 'row', alignItems: 'center', gap: space[4], paddingHorizontal: space[8] },
+  composeLine: { ...text.title, flex: 1, color: color.text.primary },
+  composeSheet: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
   tabsRow: {
     backgroundColor: color.bg.screen,
     paddingTop: space[8],

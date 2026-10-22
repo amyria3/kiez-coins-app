@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { Alert, StyleSheet } from 'react-native';
 import { Text } from '../../../components/T';
-import { useRouter } from 'expo-router';
+import { useGlobalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
 import { FieldGroup, Notice } from '../../../components/Content';
 import { Chip, ChipGroup, TextField } from '../../../components/Form';
 import { t } from '../../../data/texts';
-import { CreateHeader } from '../../../components/PostTarget';
 import { SubScreen } from '../../../components/Screen';
 import { color, text } from '../../../theme/tokens';
 import { findPlace, roundCoords } from '../../../data/location';
@@ -27,6 +26,7 @@ const MAX_BOUNTY = 50;
 /** Route `challenge/create/step-2`. Figma: `challenge/create/step-2`. Bounty 5–50 €, optional. Weiter zur Vorschau. */
 export default function CreateStep2() {
   const router = useRouter();
+  const { from } = useGlobalSearchParams<{ from?: string }>();
   const [locating, setLocating] = useState(false);
   const locationField = useNudge();
   const amountField = useNudge();
@@ -78,17 +78,8 @@ export default function CreateStep2() {
       title="Challenge erstellen"
       subtitle="Schritt 2 von 2"
       navigation="back"
-      onLeadingPress={() => router.back()}
-      header={
-        <CreateHeader
-          line={t('{was} · Schritt 2 von 2', { was: t(draft.type === 'photo' ? 'Bild posten' : 'Challenge erstellen') })}
-          current="public"
-          carry={{ title: draft.title, text: draft.text, photo: draft.photo }}
-          leading="back"
-          onLeadingPress={() => router.back()}
-          locked={!!draft.id}
-        />
-      }
+      // Aus dem Blatt über dem Feed: zurück ins Blatt, das noch offen ist
+      onLeadingPress={() => (from === 'feed' ? router.dismissTo('/feed') : router.back())}
       actions={
         <>
           <Button label="Vorschau" onPress={preview} disabled={!canPublish || saving}
