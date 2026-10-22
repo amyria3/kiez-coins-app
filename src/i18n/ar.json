@@ -53,7 +53,6 @@
   "Dein Konto": "حسابك",
   "Ahoi, {anrede}! Hier trimmst Du Dein Schiff. Tipp einfach auf das, was Du ändern willst.": "أهلًا يا {anrede}! هنا تضبط أشرعة سفينتك. اضغط على ما تريد تغييره.",
   "Kiez noch nicht festgelegt": "لم يُحدَّد الحي بعد",
-  "Your Pleasure": "Your Pleasure",
   "Verlauf, Aufgaben und Gruppen": "السجل والمهام والمجموعات",
   "Deine Challenges": "تحدياتك",
   "Entwürfe, offen, geschlossen": "مسودات، مفتوحة، مغلقة",
@@ -645,7 +644,6 @@
   "Fragen und Kommentare": "أسئلة وتعليقات",
   "Öffentlich, alle in der Nachbarschaft können mitlesen.": "علني، يمكن لكل الحي القراءة.",
   "{authorId} antworten …": "الرد على {authorId} …",
-  "Your Pleasure, Du bist dran": "Your Pleasure، دورك",
   "Guten Morgen": "صباح الخير",
   "Hallo": "مرحبًا",
   "Guten Abend": "مساء الخير",
@@ -838,7 +836,6 @@
   "Eine Deiner Challenges ist geschafft. Ich bin stolz auf diesen Kiez!": "أُنجز أحد تحدياتك. أنا فخور بهذا الحي!",
   "Du hast angepackt, {anrede}. Ich schnurre.": "لقد بادرت يا {anrede}. أنا أخرخر.",
   "Ich bin gespannt, was als Nächstes kommt.": "أتشوّق لما سيأتي بعد ذلك.",
-  "Willkommen bei Your Pleasure, {anrede}! Erstell eine Challenge oder nimm eine an.": "مرحبًا بك في Your Pleasure يا {anrede}! أنشئ تحديًا أو اقبل واحدًا.",
   "Ganz schön ruhig hier. Ich leg mich so lange in die Sonne.": "الجو هادئ هنا. سأستلقي في الشمس ريثما يحدث شيء.",
   "Neue Crew": "طاقم جديد",
   "Das geht gerade nicht mehr. Jemand war schneller oder der Stand hat sich geändert. Ich lade neu.": "لم يعد ذلك ممكنًا. سبقك أحدهم أو تغيّر الوضع. سأعيد التحميل.",
@@ -930,5 +927,8 @@
   "Wer Coins verspricht, zahlt sie direkt an Dich, per Überweisung oder PayPal. Kiez Coins bewegt kein Geld.": "من يعِد بالعملات يدفعها لك مباشرة بالتحويل أو عبر PayPal. لا تحوّل Kiez Coins أي أموال.",
   "Gruppen für WG, Familie und Verein": "مجموعات للسكن المشترك والعائلة والنادي",
   "Verteilt Aufgaben unter Euch und sammelt Edensteine. Sie gelten nur in Eurer Gruppe.": "وزّعوا المهام فيما بينكم واجمعوا أحجار عدن. هي صالحة في مجموعتكم فقط.",
-  "Aufgabe für {name}": "مهمة لـ {name}"
+  "Aufgabe für {name}": "مهمة لـ {name}",
+  "Was Du so machst": "ما تفعله",
+  "Was Du so machst, Du bist dran": "ما تفعله، حان دورك",
+  "Willkommen, {anrede}! Hier siehst Du, was Du so machst. Erstell eine Challenge oder nimm eine an.": "أهلًا يا {anrede}! هنا ترى ما تفعله. أنشئ تحديًا أو اقبل واحدًا."
 }

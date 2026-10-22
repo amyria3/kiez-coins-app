@@ -53,7 +53,6 @@
   "Dein Konto": "Твій акаунт",
   "Ahoi, {anrede}! Hier trimmst Du Dein Schiff. Tipp einfach auf das, was Du ändern willst.": "Агов, {anrede}! Тут ти налаштовуєш свій корабель. Просто торкнись того, що хочеш змінити.",
   "Kiez noch nicht festgelegt": "Район ще не вибрано",
-  "Your Pleasure": "Your Pleasure",
   "Verlauf, Aufgaben und Gruppen": "Історія, завдання та групи",
   "Deine Challenges": "Твої челенджі",
   "Entwürfe, offen, geschlossen": "Чернетки, відкриті, закриті",
@@ -645,7 +644,6 @@
   "Fragen und Kommentare": "Питання та коментарі",
   "Öffentlich, alle in der Nachbarschaft können mitlesen.": "Публічно, читати може весь район.",
   "{authorId} antworten …": "Відповісти {authorId} …",
-  "Your Pleasure, Du bist dran": "Your Pleasure, твоя черга",
   "Guten Morgen": "Доброго ранку",
   "Hallo": "Привіт",
   "Guten Abend": "Добрий вечір",
@@ -838,7 +836,6 @@
   "Eine Deiner Challenges ist geschafft. Ich bin stolz auf diesen Kiez!": "Один із твоїх челенджів виконано. Я пишаюся цим районом!",
   "Du hast angepackt, {anrede}. Ich schnurre.": "Ти взявся(-лась) до справи, {anrede}. Я муркочу.",
   "Ich bin gespannt, was als Nächstes kommt.": "Цікаво, що буде далі.",
-  "Willkommen bei Your Pleasure, {anrede}! Erstell eine Challenge oder nimm eine an.": "Ласкаво просимо до Your Pleasure, {anrede}! Створи челендж або візьми якийсь.",
   "Ganz schön ruhig hier. Ich leg mich so lange in die Sonne.": "Доволі тихо тут. Я поки полежу на сонечку.",
   "Neue Crew": "Нова команда",
   "Das geht gerade nicht mehr. Jemand war schneller oder der Stand hat sich geändert. Ich lade neu.": "Зараз це вже неможливо. Хтось був швидшим або стан змінився. Я перезавантажую.",
@@ -930,5 +927,8 @@
   "Wer Coins verspricht, zahlt sie direkt an Dich, per Überweisung oder PayPal. Kiez Coins bewegt kein Geld.": "Хто обіцяє coins, платить їх напряму тобі — переказом або через PayPal. Kiez Coins не переказує гроші.",
   "Gruppen für WG, Familie und Verein": "Групи для спільного житла, родини й клубу",
   "Verteilt Aufgaben unter Euch und sammelt Edensteine. Sie gelten nur in Eurer Gruppe.": "Розподіляйте завдання між собою й збирайте камені Едему. Вони діють лише у вашій групі.",
-  "Aufgabe für {name}": "Завдання для {name}"
+  "Aufgabe für {name}": "Завдання для {name}",
+  "Was Du so machst": "Чим ти займаєшся",
+  "Was Du so machst, Du bist dran": "Чим ти займаєшся, твоя черга",
+  "Willkommen, {anrede}! Hier siehst Du, was Du so machst. Erstell eine Challenge oder nimm eine an.": "Ласкаво просимо, {anrede}! Тут видно, чим ти займаєшся. Створи челендж або візьми якийсь."
 }

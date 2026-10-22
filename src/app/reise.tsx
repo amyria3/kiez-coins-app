@@ -25,7 +25,7 @@ function taskLabel({ challenge, role }: ReiseEntry): string {
 }
 
 /**
- * Route `reise` (Tab „Your Pleasure“ in der Tab-Leiste, Tipp auf den Kater im Feed oder „Your Pleasure“ im Konto).
+ * Route `reise` (Tab „Was Du so machst“ in der Tab-Leiste, Tipp auf den Kater im Feed oder „Was Du so machst“ im Konto).
  * Upgrade „Nachtschicht“: Kater mit Sprechblase, Aufgaben „Du bist dran“, Bilanz, Deine Gruppen und Verlauf,
  * getrennt nach öffentlichen Challenges und Gruppenaufgaben.
  */
@@ -55,7 +55,7 @@ export default function Reise() {
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}>
         <Text style={styles.title} accessibilityRole="header">
-          Your Pleasure
+          Was Du so machst
         </Text>
 
         <KaterCard mood={catVariant(mood)}>{reiseMoodText(mood, anrede(profile))}</KaterCard>
