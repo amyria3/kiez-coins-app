@@ -607,11 +607,16 @@ export type ChallengeEdit = {
   location: string;
   bountyAmount?: number;
   deadline: string;
+  /** Neues Foto vom Gerät; ohne bleibt das bisherige */
+  photo?: ImageSource;
 };
 
-/** Eigene offene Challenge bearbeiten (Migration 20261020000100_edit_open_challenge.sql). */
-export const editChallenge = (id: string, edit: ChallengeEdit) =>
-  rpc('edit_open_challenge', {
+/**
+ * Eigene offene Challenge bearbeiten (Migration 20261020000100_edit_open_challenge.sql).
+ * Ein neues Foto wird hochgeladen und per set_challenge_image eingetragen (Migration 20261022000300).
+ */
+export async function editChallenge(id: string, edit: ChallengeEdit, userId?: string) {
+  await rpc('edit_open_challenge', {
     p_challenge_id: id,
     p_title: edit.title,
     p_body: edit.text,
@@ -619,6 +624,11 @@ export const editChallenge = (id: string, edit: ChallengeEdit) =>
     p_bounty_amount: edit.bountyAmount ?? null,
     p_deadline: edit.deadline,
   });
+  if (edit.photo && userId) {
+    const path = await uploadPhoto(userId, edit.photo);
+    await rpc('set_challenge_image', { p_challenge_id: id, p_image_path: path });
+  }
+}
 
 /** Eigene offene Challenge schließen. Sie bleibt in der Timeline sichtbar (Migration 20261020000200). */
 export const closeChallenge = (id: string) => rpc('close_challenge', { p_challenge_id: id });

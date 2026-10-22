@@ -86,8 +86,10 @@ const emptyLive = (profile: Profile): State => ({
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'edit':
-      return updateChallenge(state, action.id, () => ({ ...action.edit }));
+    case 'edit': {
+      const { photo, ...rest } = action.edit;
+      return updateChallenge(state, action.id, () => ({ ...rest, ...(photo ? { image: photo } : {}) }));
+    }
     case 'close':
       return updateChallenge(state, action.id, () => ({ status: 'closed', closedAt: new Date().toISOString() }));
     case 'deleteDraft':
@@ -226,7 +228,7 @@ async function persist(action: Action, before: State): Promise<string | null> {
   const userId = before.currentUserId;
   switch (action.type) {
     case 'edit':
-      await remote.editChallenge(action.id, action.edit);
+      await remote.editChallenge(action.id, action.edit, userId);
       return action.id;
     case 'close':
       await remote.closeChallenge(action.id);
