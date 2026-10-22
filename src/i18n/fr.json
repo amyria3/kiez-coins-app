@@ -53,7 +53,6 @@
   "Dein Konto": "Ton compte",
   "Ahoi, {anrede}! Hier trimmst Du Dein Schiff. Tipp einfach auf das, was Du ändern willst.": "Ohé, {anrede} ! Ici, tu règles les voiles de ton navire. Touche simplement ce que tu veux changer.",
   "Kiez noch nicht festgelegt": "Quartier pas encore choisi",
-  "Your Pleasure": "Your Pleasure",
   "Verlauf, Aufgaben und Gruppen": "Historique, tâches et groupes",
   "Deine Challenges": "Tes défis",
   "Entwürfe, offen, geschlossen": "Brouillons, ouverts, fermés",
@@ -645,7 +644,6 @@
   "Fragen und Kommentare": "Questions et commentaires",
   "Öffentlich, alle in der Nachbarschaft können mitlesen.": "Public, tout le quartier peut lire.",
   "{authorId} antworten …": "Répondre à {authorId} …",
-  "Your Pleasure, Du bist dran": "Your Pleasure, à toi de jouer",
   "Guten Morgen": "Bonjour",
   "Hallo": "Salut",
   "Guten Abend": "Bonsoir",
@@ -838,7 +836,6 @@
   "Eine Deiner Challenges ist geschafft. Ich bin stolz auf diesen Kiez!": "L’un de tes défis est accompli. Je suis fier de ce quartier !",
   "Du hast angepackt, {anrede}. Ich schnurre.": "Tu as mis la main à la pâte, {anrede}. Je ronronne.",
   "Ich bin gespannt, was als Nächstes kommt.": "J’ai hâte de voir la suite.",
-  "Willkommen bei Your Pleasure, {anrede}! Erstell eine Challenge oder nimm eine an.": "Bienvenue dans Your Pleasure, {anrede} ! Crée un défi ou accepte-en un.",
   "Ganz schön ruhig hier. Ich leg mich so lange in die Sonne.": "Plutôt calme ici. En attendant, je me mets au soleil.",
   "Neue Crew": "Nouvel équipage",
   "Das geht gerade nicht mehr. Jemand war schneller oder der Stand hat sich geändert. Ich lade neu.": "Ce n’est plus possible. Quelqu’un a été plus rapide ou la situation a changé. Je recharge.",
@@ -930,5 +927,8 @@
   "Wer Coins verspricht, zahlt sie direkt an Dich, per Überweisung oder PayPal. Kiez Coins bewegt kein Geld.": "Qui promet des coins te les verse directement, par virement ou PayPal. Kiez Coins ne déplace pas d’argent.",
   "Gruppen für WG, Familie und Verein": "Groupes pour coloc, famille et association",
   "Verteilt Aufgaben unter Euch und sammelt Edensteine. Sie gelten nur in Eurer Gruppe.": "Répartissez les tâches entre vous et collectez des pierres d’Éden. Elles ne comptent que dans votre groupe.",
-  "Aufgabe für {name}": "Tâche pour {name}"
+  "Aufgabe für {name}": "Tâche pour {name}",
+  "Was Du so machst": "Ce que tu fais",
+  "Was Du so machst, Du bist dran": "Ce que tu fais, à toi de jouer",
+  "Willkommen, {anrede}! Hier siehst Du, was Du so machst. Erstell eine Challenge oder nimm eine an.": "Bienvenue, {anrede} ! Ici, tu vois ce que tu fais. Crée un défi ou accepte-en un."
 }

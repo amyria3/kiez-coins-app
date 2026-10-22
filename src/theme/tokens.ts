@@ -96,7 +96,7 @@ export const font = {
 
 // Text Styles
 export const text = {
-  /** Große Überschrift, z. B. Begrüßung im Feed, „Your Pleasure“ */
+  /** Große Überschrift, z. B. Begrüßung im Feed, „Was Du so machst“ */
   display: { fontFamily: font.display, fontSize: 30, lineHeight: 34, letterSpacing: -0.6 },
   /** Titel im Challenge-Detail */
   headline: { fontFamily: font.display, fontSize: 26, lineHeight: 30, letterSpacing: -0.5 },

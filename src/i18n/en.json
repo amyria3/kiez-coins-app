@@ -53,7 +53,6 @@
   "Dein Konto": "Your account",
   "Ahoi, {anrede}! Hier trimmst Du Dein Schiff. Tipp einfach auf das, was Du ändern willst.": "Ahoy, {anrede}! This is where you trim your ship. Just tap whatever you want to change.",
   "Kiez noch nicht festgelegt": "Neighbourhood not set yet",
-  "Your Pleasure": "Your Pleasure",
   "Verlauf, Aufgaben und Gruppen": "History, tasks and groups",
   "Deine Challenges": "Your challenges",
   "Entwürfe, offen, geschlossen": "Drafts, open, closed",
@@ -645,7 +644,6 @@
   "Fragen und Kommentare": "Questions and comments",
   "Öffentlich, alle in der Nachbarschaft können mitlesen.": "Public, everyone in the neighbourhood can read along.",
   "{authorId} antworten …": "Reply to {authorId} …",
-  "Your Pleasure, Du bist dran": "Your Pleasure, it’s your turn",
   "Guten Morgen": "Good morning",
   "Hallo": "Hello",
   "Guten Abend": "Good evening",
@@ -838,7 +836,6 @@
   "Eine Deiner Challenges ist geschafft. Ich bin stolz auf diesen Kiez!": "One of your challenges is done. I’m proud of this neighbourhood!",
   "Du hast angepackt, {anrede}. Ich schnurre.": "You pitched in, {anrede}. I’m purring.",
   "Ich bin gespannt, was als Nächstes kommt.": "I wonder what’s coming next.",
-  "Willkommen bei Your Pleasure, {anrede}! Erstell eine Challenge oder nimm eine an.": "Welcome to Your Pleasure, {anrede}! Create a challenge or accept one.",
   "Ganz schön ruhig hier. Ich leg mich so lange in die Sonne.": "Pretty quiet here. I’ll lie in the sun in the meantime.",
   "Neue Crew": "New crew",
   "Das geht gerade nicht mehr. Jemand war schneller oder der Stand hat sich geändert. Ich lade neu.": "That’s no longer possible. Someone was quicker or things have changed. I’m reloading.",
@@ -930,5 +927,8 @@
   "Wer Coins verspricht, zahlt sie direkt an Dich, per Überweisung oder PayPal. Kiez Coins bewegt kein Geld.": "Whoever promises coins pays them directly to you, by bank transfer or PayPal. Kiez Coins doesn’t move any money.",
   "Gruppen für WG, Familie und Verein": "Groups for flatshare, family and club",
   "Verteilt Aufgaben unter Euch und sammelt Edensteine. Sie gelten nur in Eurer Gruppe.": "Share out tasks among yourselves and collect Eden stones. They only count in your group.",
-  "Aufgabe für {name}": "Task for {name}"
+  "Aufgabe für {name}": "Task for {name}",
+  "Was Du so machst": "What you’re up to",
+  "Was Du so machst, Du bist dran": "What you’re up to, it’s your turn",
+  "Willkommen, {anrede}! Hier siehst Du, was Du so machst. Erstell eine Challenge oder nimm eine an.": "Welcome, {anrede}! This is where you see what you’re up to. Create a challenge or accept one."
 }

@@ -49,7 +49,7 @@ export default function Account() {
         onPress={() => router.push('/account/profile')}
       />
       <NavCard
-        title="Your Pleasure"
+        title="Was Du so machst"
         description="Verlauf, Aufgaben und Gruppen"
         leading={<CrownIcon height={30} />}
         onPress={() => router.push('/reise')}

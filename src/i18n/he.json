@@ -53,7 +53,6 @@
   "Dein Konto": "החשבון שלך",
   "Ahoi, {anrede}! Hier trimmst Du Dein Schiff. Tipp einfach auf das, was Du ändern willst.": "אהוי, {anrede}! כאן מכוונים את הספינה שלך. פשוט הקש על מה שתרצה לשנות.",
   "Kiez noch nicht festgelegt": "השכונה עוד לא נקבעה",
-  "Your Pleasure": "Your Pleasure",
   "Verlauf, Aufgaben und Gruppen": "היסטוריה, משימות וקבוצות",
   "Deine Challenges": "האתגרים שלך",
   "Entwürfe, offen, geschlossen": "טיוטות, פתוחים, סגורים",
@@ -645,7 +644,6 @@
   "Fragen und Kommentare": "שאלות ותגובות",
   "Öffentlich, alle in der Nachbarschaft können mitlesen.": "פומבי, כל השכונה יכולה לקרוא.",
   "{authorId} antworten …": "השב ל־{authorId} …",
-  "Your Pleasure, Du bist dran": "Your Pleasure, תורך",
   "Guten Morgen": "בוקר טוב",
   "Hallo": "שלום",
   "Guten Abend": "ערב טוב",
@@ -838,7 +836,6 @@
   "Eine Deiner Challenges ist geschafft. Ich bin stolz auf diesen Kiez!": "אחד האתגרים שלך הושלם. אני גאה בשכונה הזו!",
   "Du hast angepackt, {anrede}. Ich schnurre.": "נרתמת, {anrede}. אני מגרגר.",
   "Ich bin gespannt, was als Nächstes kommt.": "סקרן אותי מה יבוא אחר כך.",
-  "Willkommen bei Your Pleasure, {anrede}! Erstell eine Challenge oder nimm eine an.": "ברוך הבא ל־Your Pleasure, {anrede}! צור אתגר או קבל אחד.",
   "Ganz schön ruhig hier. Ich leg mich so lange in die Sonne.": "די שקט פה. בינתיים אשתזף בשמש.",
   "Neue Crew": "צוות חדש",
   "Das geht gerade nicht mehr. Jemand war schneller oder der Stand hat sich geändert. Ich lade neu.": "זה כבר לא אפשרי. מישהו היה מהיר יותר או שהמצב השתנה. אני טוען מחדש.",
@@ -930,5 +927,8 @@
   "Wer Coins verspricht, zahlt sie direkt an Dich, per Überweisung oder PayPal. Kiez Coins bewegt kein Geld.": "מי שמבטיח מטבעות משלם לך ישירות, בהעברה או ב־PayPal. Kiez Coins לא מעבירה כסף.",
   "Gruppen für WG, Familie und Verein": "קבוצות לדירת שותפים, משפחה ומועדון",
   "Verteilt Aufgaben unter Euch und sammelt Edensteine. Sie gelten nur in Eurer Gruppe.": "חלקו משימות ביניכם ואספו אבני עדן. הן תקפות רק בקבוצה שלכם.",
-  "Aufgabe für {name}": "משימה עבור {name}"
+  "Aufgabe für {name}": "משימה עבור {name}",
+  "Was Du so machst": "מה אתה עושה",
+  "Was Du so machst, Du bist dran": "מה אתה עושה, תורך",
+  "Willkommen, {anrede}! Hier siehst Du, was Du so machst. Erstell eine Challenge oder nimm eine an.": "ברוך הבא, {anrede}! כאן רואים מה אתה עושה. צור אתגר או קבל אחד."
 }
