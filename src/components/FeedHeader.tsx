@@ -7,7 +7,7 @@ import { challengeTypes, isTypeActive } from '../data/features';
 import type { Challenge } from '../data/types';
 import { color, font, motion, radius, size, space, stroke, text } from '../theme/tokens';
 import { KaterCard } from './Content';
-import { Cat, Wordmark } from './icons/Brand';
+import { Logo } from './icons/Brand';
 import { SkeletonTopItem } from './Skeleton';
 import { t } from '../data/texts';
 
@@ -34,10 +34,10 @@ export function AppHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderP
         accessibilityLabel={hasTasks ? t('Was Du so machst, Du bist dran') : t('Was Du so machst')}
         style={styles.logo}
       >
-        <Wordmark />
+        {/* Neues Logo mit Kater links (Daria, 22.10.2026); der Punkt sitzt am Kater */}
         <View>
-          <Cat height={30} />
-          {hasTasks ? <View style={styles.taskDot} /> : null}
+          <Logo height={30} />
+          {hasTasks ? <View style={[styles.taskDot, styles.taskDotLogo]} /> : null}
         </View>
       </Pressable>
       <View style={styles.spacer} />
@@ -235,6 +235,7 @@ export function PlannedHint({ title, message }: { title: string; message: string
 }
 
 const styles = StyleSheet.create({
+  taskDotLogo: { left: 28, right: undefined, top: -2 },
   row: { flexDirection: 'row' },
   noGrow: { flexGrow: 0, flexShrink: 0 },
   // Logo links; rechts sitzt die schwebende Kamera

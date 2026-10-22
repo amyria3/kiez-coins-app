@@ -4,6 +4,7 @@ import { SvgXml } from 'react-native-svg';
 
 import { color } from '../../theme/tokens';
 import { catSvg, coinsSvg, wordmarkSvg, type CatMood } from './brandSvgs';
+import { brandArt } from './brandArt';
 import { crownSvg } from './crownSvg';
 import { diamondSvgs, type DiamondVariant } from './diamondSvgs';
 import { ICON_SCALE } from './Icon';
@@ -15,18 +16,23 @@ type CatProps = {
   height?: number;
 };
 
-/** Kater (Figma „Cat“, Varianten Mood=Default|High). */
+/** Kater mit Sonnenbrille (Daria, 22.10.2026): normal, high (aufgeregt) und money (Dollar in den Gläsern). */
+const CAT_ART: Record<CatMood, string> = { default: 'kater-normal', high: 'kater-high', money: 'kater-money' };
 export const Cat = memo(function Cat({ mood = 'default', height = 39 }: CatProps) {
-  return (
-    <SvgXml
-      xml={catSvg(mood, color.accent.primary, color.text.primary)}
-      width={(35 / 41) * height}
-      height={height}
-    />
-  );
+  const art = brandArt[CAT_ART[mood]];
+  if (!art) {
+    return <SvgXml xml={catSvg(mood === 'money' ? 'high' : mood, color.accent.primary, color.text.primary)} width={(35 / 41) * height} height={height} />;
+  }
+  return <SvgXml xml={art.svg} width={(art.width / art.height) * height} height={height} />;
 });
 
-/** Schriftzug „KIEZ COINS“ */
+/** Logo: Kater und Schriftzug „KiezCoins“ (assets/brand/logo.svg) */
+export const Logo = memo(function Logo({ height = 26 }: { height?: number }) {
+  const art = brandArt.logo;
+  return <SvgXml xml={art.svg} width={(art.width / art.height) * height} height={height} />;
+});
+
+/** Schriftzug „KIEZ COINS“ (alt, für Stellen ohne Kater) */
 export const Wordmark = memo(function Wordmark() {
   return <SvgXml xml={wordmarkSvg(color.accent.primary)} width={131.7} height={24.8} />;
 });
