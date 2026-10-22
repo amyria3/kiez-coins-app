@@ -220,6 +220,7 @@ export default function ManageChallenges() {
                     onClose={() => close(item)}
                     onCopy={() => copy(item)}
                     onDelete={() => remove(item)}
+                    onComments={() => router.push({ pathname: '/challenge/[id]', params: { id: item.id, kommentare: '1' } })}
                     hasNext={hasNext}
                   />
                 </View>
@@ -289,10 +290,12 @@ type CardProps = {
   /** Bei geschlossenen Challenges */
   onCopy: () => void;
   onDelete: () => void;
+  /** Kachel „Kommentare“: Challenge mit den Kommentaren öffnen */
+  onComments: () => void;
   hasNext: boolean;
 };
 
-function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy, onDelete, hasNext }: CardProps) {
+function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy, onDelete, onComments, hasNext }: CardProps) {
   const isDraft = c.status === 'draft';
   const isOpen = c.status === 'open' && !c.assigneeId;
   const canDelete = deletable(c);
@@ -351,7 +354,11 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
           value={c.views === undefined ? '–' : String(c.views)}
           hint={c.views === 1 ? 'Ansicht' : 'Ansichten'}
         />
-        <Metric value={String(c.comments.length)} hint={c.comments.length === 1 ? 'Kommentar' : 'Kommentare'} />
+        <Metric
+          value={String(c.comments.length)}
+          hint={c.comments.length === 1 ? 'Kommentar' : 'Kommentare'}
+          onPress={isDraft ? undefined : onComments}
+        />
         <Metric
           value={isDraft ? '–' : formatDurationSince(c.createdAt)}
           hint={isDraft ? 'Noch nicht veröffentlicht' : 'online seit Veröffentlichung'}
@@ -473,9 +480,15 @@ function DeletedCard({
 }
 
 /** Kachel ohne Icon: Wert groß, darunter in Worten, was er zählt („1“ / „Kommentar“) */
-function Metric({ value, hint }: { value: string; hint?: string }) {
+function Metric({ value, hint, onPress }: { value: string; hint?: string; onPress?: () => void }) {
   return (
-    <View style={styles.metric} accessible accessibilityLabel={`${value}${hint ? ` ${hint}` : ''}`}>
+    <Pressable
+      style={({ pressed }) => [styles.metric, pressed && onPress ? styles.pressed : null]}
+      disabled={!onPress}
+      accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityLabel={`${value}${hint ? ` ${hint}` : ''}`}
+      onPress={onPress}
+    >
       <Text style={styles.metricValue} numberOfLines={1}>
         {value}
       </Text>
@@ -484,7 +497,7 @@ function Metric({ value, hint }: { value: string; hint?: string }) {
           {hint}
         </Text>
       ) : null}
-    </View>
+    </Pressable>
   );
 }
 

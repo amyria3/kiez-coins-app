@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { useMemo, useRef, useState } from 'react';
-import { Animated, KeyboardAvoidingView, LayoutAnimation, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, Easing, KeyboardAvoidingView, LayoutAnimation, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
 import { Text } from './T';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
@@ -106,6 +106,10 @@ type HeroScreenProps = {
   summary: ReactNode;
   /** Details, die sich einklappen lassen */
   children: ReactNode;
+  /** Beim Öffnen ans Ende scrollen, z. B. zu den Kommentaren */
+  scrollToEndOnOpen?: boolean;
+  /** Im Browser von rechts hereingleiten wie ein Overlay (iOS und Android machen das von selbst) */
+  slideIn?: boolean;
 };
 
 /**
@@ -122,6 +126,8 @@ export function HeroScreen({
   imageOverlay,
   summary,
   children,
+  scrollToEndOnOpen,
+  slideIn,
 }: HeroScreenProps) {
   const insets = useSafeAreaInsets();
   const { height, width } = useAppDimensions();
@@ -153,6 +159,13 @@ export function HeroScreen({
   // Wischen: oben angekommen nach unten ziehen klappt die Details zu, nach oben ziehen klappt sie auf.
   // Das Blatt folgt dabei leicht dem Finger und federt zurück.
   const scrollY = useRef(0);
+  const scrollRef = useRef<ScrollView>(null);
+  const scrolledToEnd = useRef(false);
+  const slide = useRef(new Animated.Value(slideIn && Platform.OS === 'web' ? 1 : 0)).current;
+  useEffect(() => {
+    if (!(slideIn && Platform.OS === 'web')) return;
+    Animated.timing(slide, { toValue: 0, duration: 280, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+  }, [slide, slideIn]);
   const drag = useRef(new Animated.Value(0)).current;
   const pan = useMemo(
     () =>
@@ -173,9 +186,17 @@ export function HeroScreen({
     [drag],
   );
   return (
-    <View style={styles.screen}>
+    <Animated.View
+      style={[styles.screen, { transform: [{ translateX: slide.interpolate({ inputRange: [0, 1], outputRange: [0, width] }) }] }]}
+    >
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
+          ref={scrollRef}
+          onContentSizeChange={() => {
+            if (!scrollToEndOnOpen || scrolledToEnd.current) return;
+            scrolledToEnd.current = true;
+            setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 350);
+          }}
           style={styles.flex}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
@@ -262,7 +283,7 @@ export function HeroScreen({
         <GlassIconButton icon="chevron-left" accessibilityLabel={t('Zurück')} onPress={onBackPress} />
         {onSharePress ? <GlassIconButton icon="send" accessibilityLabel={t('Teilen')} onPress={onSharePress} /> : null}
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
