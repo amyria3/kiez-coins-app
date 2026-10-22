@@ -72,6 +72,7 @@ export function usePublicComposeForm(onSaved: () => void): { fields: ReactNode; 
         photo={photo}
         hint={showErrors && missingPhoto ? 'Bitte füge ein Foto hinzu.' : isChallenge ? 'Zeig, wo geholfen werden soll.' : 'Zeig, was Dir gefällt.'}
         onChange={setPhoto}
+        title={{ value: title, onChange: setTitle, error: showErrors && missingTitle ? 'Bitte gib einen Titel ein.' : undefined }}
       />
       {photo ? (
         <ExtraPhotos
@@ -80,15 +81,6 @@ export function usePublicComposeForm(onSaved: () => void): { fields: ReactNode; 
           onRemove={(index) => setExtras((all) => all.filter((_, i) => i !== index))}
         />
       ) : null}
-      <TextField
-        label="Titel"
-        required
-        helperText="Max. 60 Zeichen"
-        error={showErrors && missingTitle ? 'Bitte gib einen Titel ein.' : undefined}
-        value={title}
-        onChangeText={setTitle}
-        maxLength={60}
-      />
       <TextField label="Beschreibung" helperText="Max. 500 Zeichen" value={text} onChangeText={setText} maxLength={500} multiline />
     </>
   );

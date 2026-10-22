@@ -244,6 +244,20 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
   </div>
 </section>
 
+<button type="button" class="kater-kopf" id="kater-kopf" aria-haspopup="dialog" aria-controls="kater" aria-label="Kater">
+  <img src="kater/kopf.png" alt="" width="199" height="191">
+</button>
+<div class="kater" id="kater" role="dialog" aria-modal="true" aria-label="Kater" hidden>
+  <div class="kater-buehne">
+    <p class="blase kater-blase">Love to get stuff done.</p>
+    <img class="kater-bild" src="kater/kater.png" alt="Kater mit Sonnenbrille, Schürze und Besen" width="560" height="698">
+    <div class="kater-wege">
+      <button type="button" data-kater="oben">Nach oben</button>
+      <button type="button" data-kater="download">Zum Download</button>
+    </div>
+  </div>
+</div>
+
 <script src="prototyp/daten.js?v=${version(datenJs)}"></script>
 <script src="prototyp/app.js?v=${version(appJs)}"></script>
 <script>
@@ -257,6 +271,30 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
     var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { leute.classList.add('is-seen'); io.disconnect(); } }, { threshold: 0.35 });
     io.observe(leute);
   } else leute.classList.add('is-seen');
+  // Kater: Kopf schaut links herein, Klick zeigt den ganzen Kater mit zwei Wegen
+  var kopf = document.getElementById('kater-kopf');
+  var kater = document.getElementById('kater');
+  function katerZu(weiter) {
+    kater.classList.remove('is-open');
+    kopf.classList.remove('is-weg');
+    setTimeout(function () { kater.hidden = true; if (weiter) weiter(); else kopf.focus(); }, 380);
+  }
+  kopf.addEventListener('click', function () {
+    kater.hidden = false;
+    kopf.classList.add('is-weg');
+    void kater.offsetWidth;
+    kater.classList.add('is-open');
+    kater.querySelector('[data-kater]').focus({ preventScroll: true });
+  });
+  kater.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-kater]');
+    if (b) {
+      var ziel = b.dataset.kater === 'oben' ? document.body : document.getElementById('download');
+      return katerZu(function () { ziel.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); });
+    }
+    if (!e.target.closest('.kater-bild, .kater-blase')) katerZu();
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !kater.hidden) katerZu(); });
   leute.addEventListener('click', function (e) {
     var fig = e.target.closest('.figur');
     if (!fig) return;
@@ -321,6 +359,9 @@ writeFileSync(join(out, 'prototyp/daten.js'), datenJs);
 writeFileSync(join(out, 'prototyp/app.js'), appJs);
 mkdirSync(join(out, 'prototyp/fotos'), { recursive: true });
 for (const f of fotos) copyFileSync(join(fotoDir, `${f}.jpg`), join(out, `prototyp/fotos/${f}.jpg`));
+// Kater (freigestellt aus Darias Illustration, scripts/site/kater/)
+mkdirSync(join(out, 'kater'), { recursive: true });
+for (const f of ['kater.png', 'kopf.png']) copyFileSync(join(siteDir, 'kater', f), join(out, 'kater', f));
 mkdirSync(join(out, 'fonts'), { recursive: true });
 for (const [pkg, file] of [
   ['inter/300Light', 'Inter_300Light'],

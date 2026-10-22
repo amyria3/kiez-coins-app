@@ -930,5 +930,6 @@
   "Aufgabe für {name}": "Tâche pour {name}",
   "Was Du so machst": "Ce que tu fais",
   "Was Du so machst, Du bist dran": "Ce que tu fais, à toi de jouer",
-  "Willkommen, {anrede}! Hier siehst Du, was Du so machst. Erstell eine Challenge oder nimm eine an.": "Bienvenue, {anrede} ! Ici, tu vois ce que tu fais. Crée un défi ou accepte-en un."
+  "Willkommen, {anrede}! Hier siehst Du, was Du so machst. Erstell eine Challenge oder nimm eine an.": "Bienvenue, {anrede} ! Ici, tu vois ce que tu fais. Crée un défi ou accepte-en un.",
+  "Titel eingeben": "Saisis un titre"
 }
