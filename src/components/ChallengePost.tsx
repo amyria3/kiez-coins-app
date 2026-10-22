@@ -2,6 +2,7 @@ import { memo, useEffect, useRef, useState } from 'react';
 import { Alert, Animated, Pressable, Share, StyleSheet, View } from 'react-native';
 import { Text } from './T';
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 
 import { formatRelative, formatRemainingShort } from '../data/format';
@@ -49,6 +50,7 @@ export const ChallengePost = memo(function ChallengePost({
   const image = isWave && completed && challenge.imageAfter ? challenge.imageAfter : challenge.image;
   const state = closed ? 'geschlossen' : completed ? 'erledigt' : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
   const hideName = useHideName(author);
+  const router = useRouter();
   const meta = [distance, state].filter(Boolean).join(' · ');
   const commentCount = challenge.comments.length;
 
@@ -127,7 +129,7 @@ export const ChallengePost = memo(function ChallengePost({
         ) : null}
         {/* Wer hat gepostet: nach dem ersten Tippen oben links, Bild und Name wie bei Instagram */}
         <Animated.View
-          pointerEvents="none"
+          pointerEvents={who ? 'box-none' : 'none'}
           style={[
             styles.who,
             {
@@ -136,15 +138,25 @@ export const ChallengePost = memo(function ChallengePost({
             },
           ]}
         >
-          <Avatar user={author} diameter={40} />
-          <View style={styles.whoTexts}>
-            <Text style={[styles.whoName, hideName ? hiddenText : null]} numberOfLines={1}>
-              {author.name}
-            </Text>
-            <Text style={styles.whoMeta} numberOfLines={1}>
-              {formatRelative(challenge.createdAt)}
-            </Text>
-          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('Profil von {name}', { name: author.name })}
+            onPress={() => {
+              setWho(false);
+              router.push({ pathname: '/user/[id]', params: { id: author.id, challengeId: challenge.id } });
+            }}
+            style={({ pressed }) => [styles.whoRow, pressed && styles.pressed]}
+          >
+            <Avatar user={author} diameter={40} />
+            <View style={styles.whoTexts}>
+              <Text style={[styles.whoName, hideName ? hiddenText : null]} numberOfLines={1}>
+                {author.name}
+              </Text>
+              <Text style={styles.whoMeta} numberOfLines={1}>
+                {formatRelative(challenge.createdAt)}
+              </Text>
+            </View>
+          </Pressable>
         </Animated.View>
         <View style={[styles.info, image ? styles.infoOnPhoto : styles.infoPlain]}>
           {image ? <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} /> : null}
@@ -152,7 +164,6 @@ export const ChallengePost = memo(function ChallengePost({
             {challenge.title}
           </Text>
           <View style={styles.metaRow}>
-            <Avatar user={author} diameter={20} />
             <Text style={styles.meta} numberOfLines={1}>
               <Text style={hideName ? hiddenText : undefined}>{author.name}</Text>
               {meta ? ` · ${meta}` : null}
@@ -163,25 +174,24 @@ export const ChallengePost = memo(function ChallengePost({
       <View style={styles.actions}>
         <View style={styles.actionsLeft}>
           {/* Herz mit Anzahl; das Geschenk ist ausgeblendet (Daria, 22.10.2026) */}
-          <View style={styles.commentAction}>
-            <IconButton
-              icon="heart"
-              iconSize={size.icon}
-              accessibilityLabel={challenge.likeCount ? t('Gefällt mir, {likeCount} Likes', { likeCount: challenge.likeCount }) : t('Gefällt mir')}
-              active={challenge.likedByMe}
-              onPress={onLike}
-            />
+          {/* Icon und Zahl als ein Knopf, Zahl mit festem Abstand rechts daneben (Daria, 22.10.2026) */}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: !!challenge.likedByMe }}
+            accessibilityLabel={challenge.likeCount ? t('Gefällt mir, {likeCount} Likes', { likeCount: challenge.likeCount }) : t('Gefällt mir')}
+            onPress={onLike}
+            style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
+          >
+            <Icon name="heart" size={size.icon} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
             {challenge.likeCount ? <Text style={styles.count}>{challenge.likeCount}</Text> : null}
-          </View>
+          </Pressable>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={commentCount ? t('Kommentieren, {commentCount} Kommentare', { commentCount }) : t('Kommentieren')}
             onPress={onCommentPress ?? onPress}
-            style={({ pressed }) => [styles.commentAction, pressed && styles.pressed]}
+            style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
           >
-            <View style={styles.commentIcon}>
-              <Icon name="comment" size={size.icon} color={color.text.primary} />
-            </View>
+            <Icon name="comment" size={size.icon} color={color.text.primary} />
             {commentCount > 0 ? <Text style={styles.count}>{commentCount}</Text> : null}
           </Pressable>
           <IconButton
@@ -325,6 +335,7 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   whoTexts: { flexShrink: 1 },
+  whoRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   // Schatten statt Fläche, damit Name und Zeit auf jedem Foto lesbar bleiben
   whoName: { ...text.cardTitle, fontSize: 16, lineHeight: 20, color: color.text.primary, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
   whoMeta: { ...text.caption, fontSize: 12, color: color.text.primary, opacity: 0.85, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
@@ -333,7 +344,15 @@ const styles = StyleSheet.create({
   meta: { ...text.caption, fontSize: 13, color: color.text.secondary, flex: 1 },
   actions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: space[4] },
   actionsLeft: { flexDirection: 'row', alignItems: 'center', flexShrink: 1 },
-  count: { ...text.caption, fontSize: 13, color: color.text.secondary, marginLeft: -space[8] },
+  count: { ...text.caption, fontSize: 15, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] },
+  countAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[6],
+    minHeight: size.touchTarget,
+    minWidth: size.touchTarget,
+    paddingHorizontal: space[6],
+  },
   textBlock: { paddingHorizontal: space[4], paddingBottom: space[8] },
   body: { ...text.body, color: color.text.secondary },
 });

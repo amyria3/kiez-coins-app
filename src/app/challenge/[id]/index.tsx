@@ -187,15 +187,34 @@ export default function ChallengeDetail() {
               style={[styles.gear, menuOpen && styles.gearOpen]}
             />
           ) : challenge.status !== 'draft' && challenge.status !== 'deleted' ? (
+            // Melden versteckt hinter drei Punkten (Daria, 22.10.2026)
             <IconButton
-              icon="flag"
+              icon="more"
               iconSize={size.icon}
               iconColor={color.text.secondary}
-              accessibilityLabel={t('Challenge melden')}
-              onPress={() => router.push(`/challenge/${challenge.id}/flag`)}
+              accessibilityLabel={t('Weitere Aktionen')}
+              onPress={() => Date.now() - menuClosedAt.current > 400 && setMenuOpen((open) => !open)}
             />
           ) : null}
         </View>
+        {!isAuthor && menuOpen ? (
+          <View
+            ref={menuRef}
+            style={styles.menu}
+            accessibilityRole="menu"
+            onLayout={() => menuRef.current?.measureInWindow((x, y, w, h) => (menuRect.current = { x, y, w, h }))}
+          >
+            <MenuItem
+              label="Melden"
+              tone="error"
+              last
+              onPress={() => {
+                setMenuOpen(false);
+                router.push(`/challenge/${challenge.id}/flag`);
+              }}
+            />
+          </View>
+        ) : null}
         {isAuthor && menuOpen ? (
           <View
             ref={menuRef}
