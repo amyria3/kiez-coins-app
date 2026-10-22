@@ -69,7 +69,7 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
       style={({ pressed }) => [styles.base, v.container, pressed && styles.pressed, off && !busy && styles.disabled, style]}
     >
       <View style={styles.row}>
-        {busy ? <GearsLoader size={22} tint={v.label} only={SMALL_GEARS} /> : icon ? <Icon name={icon} size={16} color={v.label} /> : null}
+        {busy ? <GearsLoader size={22} tint={v.label} only={SMALL_GEARS} /> : icon ? <Icon name={icon} size={22} color={v.label} /> : null}
         <Text style={[v.filled ? text.buttonDarkOnLight : text.buttonLightOnDark, { color: v.label }]}>{label}</Text>
       </View>
     </Pressable>
