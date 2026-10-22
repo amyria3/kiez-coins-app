@@ -7,7 +7,8 @@ import type { Group } from '../data/types';
 import { color, font, radius, size, space, text } from '../theme/tokens';
 import { Button } from './Button';
 import { KaterCard } from './Content';
-import { GroupCard } from './GroupCard';
+import { IconButton } from './IconButton';
+import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { t } from '../data/texts';
 
@@ -51,17 +52,33 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
         </ScrollView>
       ) : null}
       {selected ? (
-        <GroupCard
-          group={selected}
-          meta={
-            selected.showLeaderboard
-              ? t('{members} Mitglieder · Rangliste und Einladen', { members: selected.members.length })
-              : t('{members} Mitglieder · Einladen', { members: selected.members.length })
-          }
-          // Im Feed der Gruppe: Feed bringt nach oben zu den Aufgaben, Verwalten zur Gruppenseite
-          onFeed={() => onSelect(selected.id)}
-          onManage={() => onOpen(selected.id)}
-        />
+        // Hier bist Du gerade: Gruppenname als Überschrift ohne Fläche, nicht wie ein Knopf (Daria, 22.10.2026).
+        // Nur das kleine Zahnrad führt zur Gruppenseite.
+        <View style={styles.here}>
+          <View style={styles.flex}>
+            <Text style={styles.hereName} numberOfLines={1} accessibilityRole="header">
+              {selected.name}
+            </Text>
+            <Text style={styles.meta} numberOfLines={1}>
+              {t('{members} Mitglieder', { members: selected.members.length })}
+            </Text>
+          </View>
+          <View style={styles.hereEden} accessible accessibilityLabel={t('Du, {edensteine} Edensteine', { edensteine: myEdensteine(selected, challenges, currentUserId) })}>
+            <View style={styles.hereCrystal}>
+              <View style={styles.hereCrystalFloat}>
+                <LivingCrystal height={44} seed={selected.id} />
+              </View>
+            </View>
+            <Text style={styles.eden}>{myEdensteine(selected, challenges, currentUserId)}</Text>
+          </View>
+          <IconButton
+            icon="settings"
+            iconSize={18}
+            iconColor={color.text.secondary}
+            accessibilityLabel={t('{name} verwalten', { name: selected.name })}
+            onPress={() => onOpen(selected.id)}
+          />
+        </View>
       ) : null}
     </View>
   );
@@ -91,6 +108,11 @@ export function GroupsEmpty({
 const CRYSTAL = 88;
 
 const styles = StyleSheet.create({
+  here: { flexDirection: 'row', alignItems: 'center', gap: space[8], paddingTop: space[4], paddingBottom: space[4] },
+  hereName: { ...text.title, fontSize: 22, lineHeight: 28, color: color.text.primary },
+  hereEden: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
+  hereCrystal: { width: 26, height: 22, alignItems: 'center' },
+  hereCrystalFloat: { position: 'absolute', top: (22 - 44) / 2 },
   wrap: { gap: space[8], paddingHorizontal: space[16] },
   chips: { gap: space[8] },
   chip: {
