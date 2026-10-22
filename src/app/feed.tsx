@@ -26,7 +26,7 @@ import { FeedStateMessage } from '../components/FeedStateMessage';
 import { GroupBar, GroupsEmpty } from '../components/GroupBar';
 import { GearsLoader } from '../components/GearsLoader';
 import { SurveyOverlay, useSurveyPrompt } from '../components/SurveyOverlay';
-import { CameraButton, TAB_BAR_SPACE, TabBar } from '../components/TabBar';
+import { CAMERA_W, CameraButton, TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { useRequireKiez } from '../data/kiez';
 import { challengeTypes, isTypeActive } from '../data/features';
 import { anrede } from '../data/format';
@@ -451,7 +451,7 @@ export default function FeedScreen() {
 }
 
 /** Breite der Kamera oben rechts (TabBar.tsx, CameraButton) */
-const CAMERA_WIDTH = 64;
+const CAMERA_WIDTH = CAMERA_W;
 /** Höhe des schmalen Kopfs beim Erstellen */
 const COMPOSE_HEADER = 52;
 

@@ -84,6 +84,9 @@ export function CameraButton({ onPress }: { onPress: () => void }) {
 /** Platz unter Listen, damit die schwebende Leiste nichts verdeckt. */
 export const TAB_BAR_SPACE = 96;
 
+/** Breite der Kamera oben rechts; feed.tsx rückt die Pille um so viel ein */
+export const CAMERA_W = 76;
+
 const styles = StyleSheet.create({
   wrap: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
   bar: {
@@ -107,11 +110,10 @@ const styles = StyleSheet.create({
   camera: {
     position: 'absolute',
     right: space[16],
-    // Größer (Daria, 22.10.2026)
-    width: 64,
-    height: 64,
-    // Weniger rund (Daria, 22.10.2026)
-    borderRadius: 22,
+    // Querformat in Höhe und Form der Pille daneben (Daria, 22.10.2026): 4 + 40 + 4
+    width: CAMERA_W,
+    height: 48,
+    borderRadius: radius.full,
     backgroundColor: color.accent.primary,
     alignItems: 'center',
     justifyContent: 'center',
