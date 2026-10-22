@@ -1,5 +1,5 @@
-import { memo } from 'react';
-import { View } from 'react-native';
+import { memo, useEffect, useRef, useState } from 'react';
+import { AccessibilityInfo, Animated, Easing, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
 import { color } from '../../theme/tokens';
@@ -149,6 +149,89 @@ const diamondFor = (amount?: number): DiamondVariant => (!amount || amount <= 3 
  */
 export const EdensteinIcon = memo(function EdensteinIcon({ height = 18, amount }: { height?: number; amount?: number }) {
   return <DiamondIcon variant={diamondFor(amount)} height={Math.round(height * ICON_SCALE)} />;
+});
+
+const SPARKLE = '<svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"><path d="M5 0C5.4 3.3 6.7 4.6 10 5C6.7 5.4 5.4 6.7 5 10C4.6 6.7 3.3 5.4 0 5C3.3 4.6 4.6 3.3 5 0Z" fill="#FFFFFF"/></svg>';
+
+/** Gleichmäßiges Hin und Her (Sinus) mit eigener Dauer; verschiedene Dauern ergeben zusammen eine Bewegung ohne Takt */
+function useSway(duration: number, run: boolean) {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (!run) return;
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(v, { toValue: 1, duration: duration / 2, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(v, { toValue: 0, duration: duration / 2, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [v, duration, run]);
+  return v;
+}
+
+/**
+ * Ein einzelner, großer Edenstein, der lebt (Daria, 22.10.2026):
+ * 1. Schweben: Er hebt und senkt sich und neigt sich leicht. Zwei Bewegungen mit verschiedener Dauer,
+ *    daher wiederholt sich das Bild kaum und wirkt wie Atmen.
+ * 2. Funkeln: In unregelmäßigen Abständen blitzt oben am Stein ein Lichtstern auf, der Stein wird dabei kurz größer.
+ * Mit „Bewegung reduzieren“ steht er still. `height` ist die Höhe des Kristalls; er darf über seinen Rahmen ragen.
+ */
+export const LivingCrystal = memo(function LivingCrystal({ height = 48, amount }: { height?: number; amount?: number }) {
+  const [still, setStill] = useState(false);
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setStill).catch(() => {});
+  }, []);
+  const bob = useSway(2600, !still);
+  const tilt = useSway(3700, !still);
+  const flash = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (still) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const next = () => {
+      timer = setTimeout(() => {
+        flash.setValue(0);
+        Animated.timing(flash, { toValue: 1, duration: 900, easing: Easing.out(Easing.quad), useNativeDriver: true }).start(next);
+      }, 2500 + Math.random() * 4500);
+    };
+    next();
+    return () => clearTimeout(timer);
+  }, [flash, still]);
+  const crystal = crystalSvgs[!amount || amount <= 3 ? 0 : amount <= 6 ? 1 : 2];
+  const w = height * crystal.ratio;
+  const star = height * 0.42;
+  return (
+    <Animated.View
+      style={{
+        width: w,
+        height,
+        transform: [
+          { translateY: bob.interpolate({ inputRange: [0, 1], outputRange: [height * 0.04, -height * 0.04] }) },
+          { rotate: tilt.interpolate({ inputRange: [0, 1], outputRange: ['-6deg', '5deg'] }) },
+          { scale: flash.interpolate({ inputRange: [0, 0.3, 1], outputRange: [1, 1.07, 1] }) },
+        ],
+      }}
+    >
+      <SvgXml xml={crystal.svg} width={w} height={height} />
+      <Animated.View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          top: height * 0.02,
+          right: -star * 0.3,
+          width: star,
+          height: star,
+          opacity: flash.interpolate({ inputRange: [0, 0.25, 1], outputRange: [0, 1, 0] }),
+          transform: [
+            { scale: flash.interpolate({ inputRange: [0, 0.3, 1], outputRange: [0.2, 1, 0.4] }) },
+            { rotate: flash.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '90deg'] }) },
+          ],
+        }}
+      >
+        <SvgXml xml={SPARKLE} width={star} height={star} />
+      </Animated.View>
+    </Animated.View>
+  );
 });
 
 export type { CatMood, DiamondVariant };

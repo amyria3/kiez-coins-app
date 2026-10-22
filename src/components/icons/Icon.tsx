@@ -17,11 +17,13 @@ type IconProps = {
 /** Alle Icons etwas größer als angegeben (Daria, 21.10.2026), die Kamera nur leicht */
 export const ICON_SCALE = 1.5;
 const CAMERA_SCALE = 1.2;
+/** Icons, die neben den anderen optisch kleiner wirken, etwas größer (Daria, 22.10.2026: das Zahnrad) */
+const OPTICAL: Partial<Record<IconName, number>> = { settings: 1.18 };
 const MIRRORED = new Set<IconName>(['chevron-left', 'chevron-right', 'send']);
 
 export const Icon = memo(function Icon({ name, color = themeColor.text.primary, size }: IconProps) {
   const icon = iconSvgs[name];
-  const height = Math.round((size ?? icon.height) * (name === 'camera' ? CAMERA_SCALE : ICON_SCALE));
+  const height = Math.round((size ?? icon.height) * (name === 'camera' ? CAMERA_SCALE : ICON_SCALE) * (OPTICAL[name] ?? 1));
   const width = (icon.width / icon.height) * height;
   const svg = <SvgXml xml={icon.svg(color)} width={width} height={height} />;
   // Arabisch und Hebräisch: Pfeile und Senden zeigen in Leserichtung
