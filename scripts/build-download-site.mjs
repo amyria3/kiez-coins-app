@@ -108,6 +108,7 @@ const kcSvg = {
   burger: icon('burger', C.muted),
   close: icon('close', C.text),
   check: icon('check', C.dark),
+  hands: icon('wir-schaffen-das', C.dark),
   checkGreen: icon('check', C.green),
   wordmark: { w: 132, h: 25, svg: brand.wordmarkSvg(C.purple) },
   cat: { w: 35, h: 41, svg: brand.catSvg('default', C.purple, C.text) },
