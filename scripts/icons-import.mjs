@@ -29,8 +29,12 @@ for (const file of files) {
   const re = new RegExp(`  ${key.replace(/[-']/g, (m) => '\\' + m)}: \\{\\n[\\s\\S]*?\\n  \\},\\n`);
   if (re.test(ts)) ts = ts.replace(re, entry);
   else {
-    ts = ts.replace(/\n};\s*$/, `\n${entry}};\n`).replace(/(\n  \| '[^']+');/, `$1\n  | '${name}';`.replace(/';\n  \|/, "'\n  |"));
-    console.log(`Neues Icon: ${name} – Typ IconName ergänzen, falls nötig`);
+    // Eintrag ans Ende von iconSvgs, Name an den Typ IconName anhängen
+    const start = ts.indexOf('export const iconSvgs');
+    const end = ts.indexOf('\n};', start);
+    ts = ts.slice(0, end + 1) + entry + ts.slice(end + 1);
+    ts = ts.replace(/(\n  \| '[^']+');/, (m, last) => `${last}\n  | '${name}';`);
+    console.log(`Neues Icon: ${name}`);
   }
   console.log(`${name}: ${w}×${h}`);
 }
