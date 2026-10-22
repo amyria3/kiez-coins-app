@@ -1,5 +1,7 @@
 import { supabase } from '../lib/supabase';
 import type { SurveyAnswer, SurveyResults } from './survey';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+
 import { t } from './texts';
 import type {
   Challenge,
@@ -414,20 +416,33 @@ export async function saveHandle(userId: string, handle: string): Promise<string
   return error ? errorText(error) : null;
 }
 
-/** Lädt ein Foto vom Gerät in den eigenen Ordner hoch und gibt den Pfad zurück. */
+/** Längste Kante beim Hochladen, größere Fotos werden verkleinert */
+const MAX_EDGE = 2048;
+
+/**
+ * Lädt ein Foto vom Gerät in den eigenen Ordner hoch und gibt den Pfad zurück.
+ * Jedes Foto wird vorher zu JPEG umgewandelt und auf höchstens 2048 px verkleinert. So klappen auch
+ * Formate, die der Speicher nicht annimmt (z. B. Apple ProRAW als image/x-adobe-dng), und Uploads bleiben klein.
+ */
 export async function uploadPhoto(userId: string, photo: ImageSource): Promise<string> {
-  const uri = typeof photo === 'object' && photo && 'uri' in photo ? photo.uri : undefined;
-  if (!uri) throw new Error('Foto ohne Datei');
+  const original = typeof photo === 'object' && photo && 'uri' in photo ? photo.uri : undefined;
+  if (!original) throw new Error(t('Foto ohne Datei'));
+  const uri = await toJpeg(original);
   // fetch + arrayBuffer funktioniert in React Native für lokale Dateien (file://) und im Browser (blob:, data:).
   const response = await fetch(uri);
-  const header = response.headers.get('content-type') ?? '';
-  const fromUri = /\.(png|webp|heic)$/i.exec(uri)?.[1]?.toLowerCase();
-  const contentType = header.startsWith('image/') ? header.split(';')[0] : fromUri ? `image/${fromUri}` : 'image/jpeg';
-  const ext = contentType === 'image/jpeg' ? 'jpg' : contentType.split('/')[1];
-  const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
   const body = await response.arrayBuffer();
-  check(await supabase.storage.from(PHOTO_BUCKET).upload(path, body, { contentType, upsert: false }));
+  check(await supabase.storage.from(PHOTO_BUCKET).upload(path, body, { contentType: 'image/jpeg', upsert: false }));
   return path;
+}
+
+async function toJpeg(uri: string): Promise<string> {
+  const first = await manipulateAsync(uri, [], { format: SaveFormat.JPEG, compress: 0.85 });
+  const longest = Math.max(first.width, first.height);
+  if (longest <= MAX_EDGE) return first.uri;
+  const resize = first.width >= first.height ? { width: MAX_EDGE } : { height: MAX_EDGE };
+  const small = await manipulateAsync(uri, [{ resize }], { format: SaveFormat.JPEG, compress: 0.85 });
+  return small.uri;
 }
 
 /**

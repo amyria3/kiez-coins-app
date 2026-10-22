@@ -99,7 +99,7 @@ export default function Reise() {
                   key={group.id}
                   accessibilityRole="button"
                   accessibilityLabel={t('Gruppe {name} öffnen', { name: group.name })}
-                  onPress={() => router.push(`/gruppen/${group.id}`)}
+                  onPress={() => router.dismissTo({ pathname: '/feed', params: { gruppe: group.id } })}
                   style={({ pressed }) => [styles.row, i > 0 && styles.rowDivider, pressed && styles.pressed]}
                 >
                   <View style={styles.flex}>

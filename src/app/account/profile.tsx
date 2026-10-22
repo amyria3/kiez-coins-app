@@ -64,7 +64,8 @@ export default function PersonalDetails() {
   };
 
   const saveAnrede = (value: string) => {
-    const preset = addressForms.find((f) => f.label === value);
+    // Auswahl erkennen, auch in der übersetzten Fassung („Pirate“)
+    const preset = addressForms.find((f) => f.label === value || t(f.label) === value);
     dispatch({
       type: 'updateProfile',
       patch: preset ? { addressForm: preset.key, addressCustom: undefined } : { addressForm: 'custom', addressCustom: value },
