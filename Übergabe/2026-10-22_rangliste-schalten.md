@@ -2,7 +2,7 @@
 
 - **Datum:** 22.10.2026
 - **Gehört nach:** `kiez-coins` Konzept Gruppen, Datenbank-Doku (Migration 20261022000500), Feature-Liste.
-- **Code:** noch nicht auf `main`. Migration `20261022000500_group_leaderboard_toggle` noch nicht ausgeführt.
+- **Code:** auf `main`, Migration am 22.10.2026 ausgeführt.
 
 ## So ist es umgesetzt
 
