@@ -964,5 +964,14 @@
   "Weitere Aktionen": "Plus d’actions",
   "Melden": "Signaler",
   "Feed von {name}": "Fil de {name}",
-  "Verwalten": "Gérer"
+  "Verwalten": "Gérer",
+  "Mitglieder": "Membres",
+  "Du, {edensteine} Edensteine": "Toi, {edensteine} pierres d’Éden",
+  "Gründerin": "Fondatrice",
+  "Gruppeneinstellungen": "Réglages du groupe",
+  "Rangliste anzeigen": "Afficher le classement",
+  "Alle sehen, wer wie viele Edensteine hat.": "Tout le monde voit combien de pierres d’Éden chacun·e a.",
+  "Alle sehen nur ihre eigenen Edensteine.": "Chacun·e ne voit que ses propres pierres d’Éden.",
+  "{name}: Mitglieder": "{name} : membres",
+  "{members} Mitglieder · Einladen": "{members} membres · Inviter"
 }

@@ -964,5 +964,14 @@
   "Weitere Aktionen": "Інші дії",
   "Melden": "Поскаржитися",
   "Feed von {name}": "Стрічка {name}",
-  "Verwalten": "Керувати"
+  "Verwalten": "Керувати",
+  "Mitglieder": "Учасники",
+  "Du, {edensteine} Edensteine": "Ти, {edensteine} каменів Едему",
+  "Gründerin": "Засновниця",
+  "Gruppeneinstellungen": "Налаштування групи",
+  "Rangliste anzeigen": "Показувати рейтинг",
+  "Alle sehen, wer wie viele Edensteine hat.": "Усі бачать, скільки каменів Едему в кожного.",
+  "Alle sehen nur ihre eigenen Edensteine.": "Кожен бачить лише свої камені Едему.",
+  "{name}: Mitglieder": "{name}: учасники",
+  "{members} Mitglieder · Einladen": "{members} учасників · Запросити"
 }

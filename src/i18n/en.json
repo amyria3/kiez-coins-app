@@ -964,5 +964,14 @@
   "Weitere Aktionen": "More actions",
   "Melden": "Report",
   "Feed von {name}": "Feed of {name}",
-  "Verwalten": "Manage"
+  "Verwalten": "Manage",
+  "Mitglieder": "Members",
+  "Du, {edensteine} Edensteine": "You, {edensteine} Eden stones",
+  "Gründerin": "Founder",
+  "Gruppeneinstellungen": "Group settings",
+  "Rangliste anzeigen": "Show leaderboard",
+  "Alle sehen, wer wie viele Edensteine hat.": "Everyone sees how many Eden stones each person has.",
+  "Alle sehen nur ihre eigenen Edensteine.": "Everyone only sees their own Eden stones.",
+  "{name}: Mitglieder": "{name}: members",
+  "{members} Mitglieder · Einladen": "{members} members · Invite"
 }
