@@ -9,6 +9,7 @@ import { StatusBadge } from '../components/Badges';
 import { KaterCard } from '../components/Content';
 import { Cat } from '../components/icons/Brand';
 import { Icon } from '../components/icons/Icon';
+import { GroupCard } from '../components/GroupCard';
 import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { anrede, formatBountyShort, formatRelative } from '../data/format';
 import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
@@ -96,26 +97,14 @@ export default function Reise() {
         {ownGroups.length > 0 ? (
           <View style={styles.historyBlock}>
             <Text style={styles.sectionLabel}>{ownGroups.length === 1 ? 'Deine Gruppe' : 'Deine Gruppen'}</Text>
-            <View style={styles.list}>
-              {ownGroups.map((group, i) => (
-                <Pressable
+            <View style={styles.groupCards}>
+              {ownGroups.map((group) => (
+                <GroupCard
                   key={group.id}
-                  accessibilityRole="button"
-                  accessibilityLabel={t('Gruppe {name} öffnen', { name: group.name })}
-                  onPress={() => router.dismissTo({ pathname: '/feed', params: { gruppe: group.id } })}
-                  style={({ pressed }) => [styles.row, i > 0 && styles.rowDivider, pressed && styles.pressed]}
-                >
-                  <View style={styles.flex}>
-                    <Text style={styles.rowTitle} numberOfLines={1}>
-                      {group.name}
-                    </Text>
-                    <Text style={styles.sub} numberOfLines={1}>
-                      {group.founderId === currentUserId ? 'Von Dir gegründet' : 'Mitglied'} ·{' '}
-                      {group.members.length === 1 ? '1 Person' : t('{members} Personen', { members: group.members.length })}
-                    </Text>
-                  </View>
-                  <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
-                </Pressable>
+                  group={group}
+                  onFeed={() => router.dismissTo({ pathname: '/feed', params: { gruppe: group.id } })}
+                  onManage={() => router.push(`/gruppen/${group.id}`)}
+                />
               ))}
             </View>
           </View>
@@ -208,6 +197,7 @@ function Stat({ value, label, signal }: { value: string; label: string; signal?:
 }
 
 const styles = StyleSheet.create({
+  groupCards: { gap: space[12] },
   screen: { flex: 1, backgroundColor: color.bg.screen },
   content: { paddingTop: space[24], paddingHorizontal: space[20], gap: space[16] },
   flex: { flex: 1, gap: space[2] },

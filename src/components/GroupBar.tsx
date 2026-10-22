@@ -7,7 +7,7 @@ import type { Group } from '../data/types';
 import { color, font, radius, size, space, text } from '../theme/tokens';
 import { Button } from './Button';
 import { KaterCard } from './Content';
-import { LivingCrystal } from './icons/Brand';
+import { GroupCard } from './GroupCard';
 import { Icon } from './icons/Icon';
 import { t } from '../data/texts';
 
@@ -51,35 +51,17 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
         </ScrollView>
       ) : null}
       {selected ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={
+        <GroupCard
+          group={selected}
+          meta={
             selected.showLeaderboard
-              ? t('{name}: Rangliste und Mitglieder', { name: selected.name })
-              : t('{name}: Mitglieder', { name: selected.name })
+              ? t('{members} Mitglieder · Rangliste und Einladen', { members: selected.members.length })
+              : t('{members} Mitglieder · Einladen', { members: selected.members.length })
           }
-          onPress={() => onOpen(selected.id)}
-          style={({ pressed }) => [styles.card, pressed && styles.pressed]}
-        >
-          {/* Großer Edenstein links, ragt oben und unten über die Karte (Daria, 22.10.2026) */}
-          <View style={styles.crystal}>
-            <View style={styles.crystalFloat}>
-              <LivingCrystal height={CRYSTAL} seed={selected.id} />
-            </View>
-          </View>
-          <Text style={styles.eden}>{myEdensteine(selected, challenges, currentUserId)}</Text>
-          <View style={[styles.flex, styles.groupText]}>
-            <Text style={styles.name} numberOfLines={1}>
-              {selected.name}
-            </Text>
-            <Text style={styles.meta} numberOfLines={1}>
-              {selected.showLeaderboard
-                ? t('{members} Mitglieder · Rangliste und Einladen', { members: selected.members.length })
-                : t('{members} Mitglieder · Einladen', { members: selected.members.length })}
-            </Text>
-          </View>
-          <Icon name="settings" size={size.icon} color={color.text.secondary} />
-        </Pressable>
+          // Im Feed der Gruppe: Feed bringt nach oben zu den Aufgaben, Verwalten zur Gruppenseite
+          onFeed={() => onSelect(selected.id)}
+          onManage={() => onOpen(selected.id)}
+        />
       ) : null}
     </View>
   );

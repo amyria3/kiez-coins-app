@@ -4,8 +4,7 @@ import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
 import { KaterCard } from '../../components/Content';
-import { LivingCrystal } from '../../components/icons/Brand';
-import { Icon } from '../../components/icons/Icon';
+import { GroupCard } from '../../components/GroupCard';
 import { SubScreen } from '../../components/Screen';
 import { MAX_GROUPS, myEdensteine } from '../../data/groups';
 import { useStore } from '../../data/store';
@@ -40,49 +39,12 @@ export default function Groups() {
         </KaterCard>
       ) : null}
       {groups.map((g) => (
-        // Oben die Gruppe, unten zwei Wege: Feed der Gruppe und Verwalten (Daria, 22.10.2026)
-        <View key={g.id} style={styles.card}>
-          <View style={styles.top}>
-            <View style={styles.flex}>
-              <Text style={styles.name} numberOfLines={1}>
-                {g.name}
-              </Text>
-              <Text style={styles.meta}>
-                {g.members.length === 1 ? '1 Mitglied' : t('{members} Mitglieder', { members: g.members.length })}
-                {g.founderId === currentUserId ? ' · Du hast sie gegründet' : ''}
-              </Text>
-            </View>
-            <View style={styles.eden}>
-              <View style={styles.crystal}>
-                <View style={styles.crystalFloat}>
-                  <LivingCrystal height={52} seed={g.id} />
-                </View>
-              </View>
-              <Text style={styles.edenValue}>{myEdensteine(g, challenges, currentUserId)}</Text>
-            </View>
-          </View>
-          <View style={styles.links}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t('Feed von {name}', { name: g.name })}
-              onPress={() => router.dismissTo({ pathname: '/feed', params: { gruppe: g.id } })}
-              style={({ pressed }) => [styles.link, pressed && styles.pressed]}
-            >
-              <Icon name="behausung" size={size.icon} color={color.text.primary} />
-              <Text style={styles.linkText}>Feed</Text>
-            </Pressable>
-            <View style={styles.divider} />
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t('{name} verwalten', { name: g.name })}
-              onPress={() => router.push(`/gruppen/${g.id}`)}
-              style={({ pressed }) => [styles.link, pressed && styles.pressed]}
-            >
-              <Icon name="settings" size={size.icon} color={color.text.primary} />
-              <Text style={styles.linkText}>Verwalten</Text>
-            </Pressable>
-          </View>
-        </View>
+        <GroupCard
+          key={g.id}
+          group={g}
+          onFeed={() => router.dismissTo({ pathname: '/feed', params: { gruppe: g.id } })}
+          onManage={() => router.push(`/gruppen/${g.id}`)}
+        />
       ))}
       {full ? <Text style={styles.meta}>{t('Du bist in {MAX_GROUPS} Gruppen. Mehr geht nicht.', { MAX_GROUPS })}</Text> : null}
     </SubScreen>
