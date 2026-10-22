@@ -342,8 +342,15 @@ export default function FeedScreen() {
   const headerStyle = headerHeight
     ? {
         // Nachschwingen über 1 hinaus: Höhe bleibt bei 0, nur die Verschiebung schwingt mit
-        height: progress.interpolate({ inputRange: [0, 1], outputRange: [headerHeight, 0], extrapolateRight: 'clamp' }),
-        opacity: progress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0, 0], extrapolate: 'clamp' }),
+        // Beim Erstellen immer weg, egal wo der Feed gerade steht
+        height: Animated.multiply(
+          progress.interpolate({ inputRange: [0, 1], outputRange: [headerHeight, 0], extrapolateRight: 'clamp' }),
+          composeAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
+        ),
+        opacity: Animated.multiply(
+          progress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0, 0], extrapolate: 'clamp' }),
+          composeAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0, 0] }),
+        ),
         transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) }],
       }
     : null;
