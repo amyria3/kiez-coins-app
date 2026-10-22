@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { Alert, Pressable, Share, StyleSheet, View } from 'react-native';
 import { Text } from './T';
 import { Image } from 'expo-image';
+import { BlurView } from 'expo-blur';
 
 import { formatRemainingShort } from '../data/format';
 import type { Challenge, User } from '../data/types';
@@ -60,12 +61,22 @@ export const ChallengePost = memo(function ChallengePost({
       >
         {image ? <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
         {!isWave && challenge.bountyAmount ? (
-          <View style={styles.bounty}>
+          <View style={[styles.bounty, image ? styles.onPhoto : styles.plain]}>
+            {image ? (
+              <View style={styles.badgeBlur}>
+                <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+              </View>
+            ) : null}
             <BountyBadge amount={challenge.bountyAmount} small />
           </View>
         ) : null}
         {challenge.edensteine ? (
-          <View style={[styles.bounty, styles.eden]} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine: challenge.edensteine })}>
+          <View style={[styles.bounty, styles.eden, image ? styles.onPhoto : styles.plain]} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine: challenge.edensteine })}>
+            {image ? (
+              <View style={styles.badgeBlur}>
+                <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+              </View>
+            ) : null}
             <View style={styles.edenCrystal}>
               <View style={styles.edenCrystalFloat}>
                 <LivingCrystal height={40} seed={challenge.id} />
@@ -84,7 +95,8 @@ export const ChallengePost = memo(function ChallengePost({
             <Text style={styles.waveText}>Wave</Text>
           </View>
         ) : null}
-        <View style={styles.info}>
+        <View style={[styles.info, image ? styles.infoOnPhoto : styles.infoPlain]}>
+          {image ? <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} /> : null}
           <Text style={styles.title} numberOfLines={2}>
             {challenge.title}
           </Text>
@@ -199,11 +211,17 @@ const styles = StyleSheet.create({
     paddingVertical: space[4],
     paddingLeft: space[8],
     paddingRight: space[12],
-    borderRadius: radius.full,
-    backgroundColor: color.bg.glass,
-    borderWidth: stroke.ultraThin,
-    borderColor: color.line.hairline,
   },
+  // Auf dem Foto: wenig Farbe, viel Unschärfe, ohne Rand. Ohne Foto: gar keine Fläche (Daria, 22.10.2026).
+  // Die Unschärfe liegt in einer eigenen Ebene, damit der Edenstein über das Badge ragen darf.
+  onPhoto: {},
+  badgeBlur: {
+    position: 'absolute', top: 0, right: 0, bottom: 0, left: 0,
+    borderRadius: radius.full,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(31, 33, 35, 0.25)',
+  },
+  plain: { paddingLeft: 0, paddingRight: 0 },
   waveTag: {
     position: 'absolute',
     top: space[12],
@@ -236,10 +254,14 @@ const styles = StyleSheet.create({
     paddingVertical: space[12],
     paddingHorizontal: space[16],
     borderRadius: radius.xl,
-    backgroundColor: color.bg.glass,
+    overflow: 'hidden',
+  },
+  infoOnPhoto: {
+    backgroundColor: 'rgba(31, 33, 35, 0.3)',
     borderWidth: stroke.ultraThin,
     borderColor: color.line.hairline,
   },
+  infoPlain: { paddingHorizontal: space[4] },
   title: { ...text.cardTitle, color: color.text.primary },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   meta: { ...text.caption, fontSize: 13, color: color.text.secondary, flex: 1 },
