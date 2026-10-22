@@ -235,6 +235,7 @@ export const sampleGroups: Group[] = [
     name: 'Hof Kastanienallee',
     founderId: 'gardeners',
     inviteCode: 'K7M2QX',
+    showLeaderboard: true,
     createdAt: inPast(10 * DAY),
     members: [
       { userId: 'gardeners', role: 'founder', joinedAt: inPast(10 * DAY) },
