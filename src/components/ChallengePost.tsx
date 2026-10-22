@@ -21,6 +21,8 @@ type ChallengePostProps = {
   /** Entfernung, z. B. „300 m“, wenn Standort und Challenge-Punkt bekannt sind */
   distance?: string;
   onPress: () => void;
+  /** Sprechblase: Detail mit den Kommentaren öffnen. Ohne: wie onPress */
+  onCommentPress?: () => void;
   onLike: () => void;
   /** Nur bei eigenen Challenges: führt zu „Deine Challenges“ */
   onManage?: () => void;
@@ -35,6 +37,7 @@ export const ChallengePost = memo(function ChallengePost({
   author,
   distance,
   onPress,
+  onCommentPress,
   onLike,
   onManage,
 }: ChallengePostProps) {
@@ -103,7 +106,7 @@ export const ChallengePost = memo(function ChallengePost({
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={commentCount ? t('Kommentieren, {commentCount} Kommentare', { commentCount }) : t('Kommentieren')}
-            onPress={onPress}
+            onPress={onCommentPress ?? onPress}
             style={({ pressed }) => [styles.commentAction, pressed && styles.pressed]}
           >
             <View style={styles.commentIcon}>

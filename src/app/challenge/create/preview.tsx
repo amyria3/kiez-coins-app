@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuthorRow } from '../../../components/AuthorRow';
 import { StatusBadge } from '../../../components/Badges';
 import { Button } from '../../../components/Button';
+import { DeadlineBadge } from '../../../components/Badges';
 import { CoinsIcon } from '../../../components/icons/Brand';
 import { Icon } from '../../../components/icons/Icon';
 import { HeroScreen } from '../../../components/Screen';
@@ -147,12 +148,8 @@ export default function CreatePreview() {
             <Text style={[styles.metricValue, styles.signal]}>{formatBountyShort(bountyAmount)}</Text>
           </View>
         ) : null}
-        <View style={styles.metric}>
-          <Icon name="clock" size={size.icon} color={color.text.secondary} />
-          <Text style={styles.metricLabel}>Noch</Text>
-          <Text style={styles.metricValue} numberOfLines={1}>
-            {formatRemainingShort(deadline).replace('Noch ', '')}
-          </Text>
+        <View style={styles.deadline}>
+          <DeadlineBadge deadline={deadline} />
         </View>
       </View>
     </>
@@ -250,6 +247,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
   },
   metricLabel: { ...text.caption, fontSize: 13, color: color.text.secondary },
+  deadline: { justifyContent: 'center', minHeight: size.touchTarget },
   metricValue: { ...text.metric, fontSize: 17, lineHeight: 22, color: color.text.primary },
   signal: { color: color.accent.signal },
   description: { fontFamily: font.light, fontSize: 15, lineHeight: 22, color: color.text.secondary },

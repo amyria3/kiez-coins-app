@@ -1,7 +1,8 @@
 import { StyleSheet, View } from 'react-native';
 import { Text } from './T';
 
-import { formatBountyShort } from '../data/format';
+import { formatBountyShort, formatRemainingShort } from '../data/format';
+import { Icon } from './icons/Icon';
 import type { ChallengeStatus } from '../data/types';
 import { color, font, radius, space, stroke, text } from '../theme/tokens';
 import { CoinsIcon } from './icons/Brand';
@@ -35,6 +36,18 @@ export function StatusBadge({ status, showOpen }: { status: ChallengeStatus; sho
   );
 }
 
+/** Restzeit als Badge, nicht tippbar: Uhr und „Noch 6 Tage 23 Std.“ (Daria, 22.10.2026) */
+export function DeadlineBadge({ deadline }: { deadline: string }) {
+  return (
+    <View style={[styles.status, styles.deadline, { backgroundColor: `${color.text.secondary}26` }]} accessible>
+      <Icon name="clock" size={11} color={color.text.secondary} />
+      <Text style={[text.caption, { color: color.text.primary }]} numberOfLines={1}>
+        {formatRemainingShort(deadline)}
+      </Text>
+    </View>
+  );
+}
+
 /**
  * Figma „BountyBadge“, Anzeige „15,-“.
  * Die Handschrift „BROWN NOW TWO“ ist noch nicht eingebunden (Lizenz für Apps offen), bis dahin Inter.
@@ -55,6 +68,7 @@ const styles = StyleSheet.create({
     paddingVertical: space[6],
     alignSelf: 'center',
   },
+  deadline: { flexDirection: 'row', alignItems: 'center', gap: space[6], alignSelf: 'flex-start' },
   bounty: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
   bountyText: { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.signal },
 });

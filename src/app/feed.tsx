@@ -285,6 +285,7 @@ export default function FeedScreen() {
             author={author}
             distance={meters === undefined ? undefined : formatDistance(meters)}
             onPress={() => openChallenge(item.challenge.id)}
+            onCommentPress={() => router.push({ pathname: '/challenge/[id]', params: { id: item.challenge.id, kommentare: '1' } })}
             onLike={() => dispatch({ type: 'toggleLike', id: item.challenge.id })}
             onManage={item.challenge.authorId === currentUserId ? openManage : undefined}
           />

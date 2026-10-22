@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { Alert, Pressable, Share, StyleSheet, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Alert, Pressable, Share, StyleSheet, View, type GestureResponderEvent } from 'react-native';
 import { Text } from '../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AuthorRow } from '../../../components/AuthorRow';
-import { StatusBadge } from '../../../components/Badges';
+import { DeadlineBadge, StatusBadge } from '../../../components/Badges';
 import { CoinsIcon, EdensteinPile } from '../../../components/icons/Brand';
 import { Icon } from '../../../components/icons/Icon';
 import { GlassIconButton } from '../../../components/Glass';
@@ -34,7 +34,8 @@ const suggestName = (id: string) => operationNames[[...id].reduce((sum, ch) => s
 const RUNNING = new Set<ChallengeStatus>(['open', 'accepted', 'reported', 'rejected']);
 
 export default function ChallengeDetail() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  // `kommentare`: aus Feed oder „Deine Challenges“ direkt zu den Kommentaren
+  const { id, kommentare } = useLocalSearchParams<{ id: string; kommentare?: string }>();
   const router = useRouter();
   const { currentUserId, users, dispatch, mode, profile } = useStore();
 
@@ -45,6 +46,20 @@ export default function ChallengeDetail() {
   const needKiez = () => !!challenge?.groupId || requireKiezRaw();
   const requireKiezRaw = useRequireKiez();
   const [menuOpen, setMenuOpen] = useState(false);
+  // Tipp irgendwo außerhalb schließt das Zahnrad-Menü (Daria, 22.10.2026). Der Tipp selbst geht normal weiter.
+  const menuClosedAt = useRef(0);
+  const menuRef = useRef<View>(null);
+  const menuRect = useRef<{ x: number; y: number; w: number; h: number } | undefined>(undefined);
+  const closeMenuOnTouch = (e: GestureResponderEvent) => {
+    const r = menuRect.current;
+    const { pageX: px, pageY: py } = e.nativeEvent;
+    const inside = r && px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h;
+    if (menuOpen && !inside) {
+      menuClosedAt.current = Date.now();
+      setMenuOpen(false);
+    }
+    return false;
+  };
   const [operationName, setOperationName] = useState(() => (id ? suggestName(id) : ''));
   const authorId = challenge?.authorId;
 
@@ -165,7 +180,8 @@ export default function ChallengeDetail() {
               icon="settings"
               variant="regular"
               accessibilityLabel={t('Challenge verwalten')}
-              onPress={() => setMenuOpen((open) => !open)}
+              // Gerade durch den Tipp geschlossen: nicht gleich wieder öffnen
+              onPress={() => Date.now() - menuClosedAt.current > 400 && setMenuOpen((open) => !open)}
               style={[styles.gear, menuOpen && styles.gearOpen]}
             />
           ) : challenge.status !== 'draft' && challenge.status !== 'deleted' ? (
@@ -179,7 +195,12 @@ export default function ChallengeDetail() {
           ) : null}
         </View>
         {isAuthor && menuOpen ? (
-          <View style={styles.menu} accessibilityRole="menu">
+          <View
+            ref={menuRef}
+            style={styles.menu}
+            accessibilityRole="menu"
+            onLayout={() => menuRef.current?.measureInWindow((x, y, w, h) => (menuRect.current = { x, y, w, h }))}
+          >
             {canManage ? (
               <>
                 <MenuItem
@@ -238,12 +259,8 @@ export default function ChallengeDetail() {
           </View>
         ) : null}
         {showDeadline ? (
-          <View style={styles.metric}>
-            <Icon name="clock" size={size.icon} color={color.text.secondary} />
-            <Text style={styles.metricLabel}>Noch</Text>
-            <Text style={styles.metricValue} numberOfLines={1}>
-              {formatRemainingShort(challenge.deadline).replace('Noch ', '')}
-            </Text>
+          <View style={styles.deadline}>
+            <DeadlineBadge deadline={challenge.deadline} />
           </View>
         ) : null}
       </View>
@@ -350,7 +367,10 @@ export default function ChallengeDetail() {
   }
 
   return (
+    <View style={styles.flex} onStartShouldSetResponderCapture={closeMenuOnTouch}>
     <HeroScreen
+      scrollToEndOnOpen={!!kommentare}
+      slideIn
       image={image}
       moreImages={challenge.extraImages?.map((e) => e.photo)}
       imageLabel={challenge.title}
@@ -362,6 +382,7 @@ export default function ChallengeDetail() {
     >
       {details}
     </HeroScreen>
+    </View>
   );
 }
 
@@ -437,6 +458,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
   },
   metricLabel: { ...text.caption, fontSize: 13, color: color.text.secondary },
+  deadline: { justifyContent: 'center', minHeight: size.touchTarget },
   metricValue: { ...text.metric, fontSize: 17, lineHeight: 22, color: color.text.primary },
   pressed: { opacity: 0.7 },
   signal: { color: color.accent.signal },
