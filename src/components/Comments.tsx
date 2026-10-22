@@ -166,10 +166,13 @@ export function CommentSection({
 
   return (
     <View style={styles.section}>
-      <Text style={styles.title} accessibilityRole="header">
-        Fragen und Kommentare
-      </Text>
-      <Text style={styles.time}>{audience ?? 'Öffentlich, alle in der Nachbarschaft können mitlesen.'}</Text>
+      {/* Überschrift und Hinweis eng zusammen, danach mehr Luft bis zum ersten Kommentar (Daria, 22.10.2026) */}
+      <View style={styles.intro}>
+        <Text style={styles.title} accessibilityRole="header">
+          Fragen und Kommentare
+        </Text>
+        <Text style={styles.time}>{audience ?? 'Öffentlich, alle in der Nachbarschaft können mitlesen.'}</Text>
+      </View>
       {roots.map((root) => (
         <View key={root.id} style={styles.thread}>
           {renderComment(root, false, root.id)}
@@ -196,6 +199,7 @@ export function CommentSection({
 const styles = StyleSheet.create({
   section: { gap: space[12] },
   title: { ...text.title, color: color.text.primary },
+  intro: { gap: space[2], marginBottom: space[12] },
   thread: { gap: space[8] },
   comment: { flexDirection: 'row', gap: space[12], alignItems: 'flex-start' },
   reply: { marginLeft: 48, gap: space[8] },
