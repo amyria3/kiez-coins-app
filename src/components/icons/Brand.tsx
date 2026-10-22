@@ -231,8 +231,19 @@ function hashSeed(seed: string) {
  * 2. Funkeln: In unregelmäßigen Abständen blitzt oben am Stein ein Lichtstern auf, der Stein wird dabei kurz größer.
  * Mit „Bewegung reduzieren“ steht er still. `height` ist die Höhe des Kristalls; er darf über seinen Rahmen ragen.
  */
-export const LivingCrystal = memo(function LivingCrystal({ height = 48, seed }: { height?: number; amount?: number; seed?: string }) {
-  const [still, setStill] = useState(false);
+/** `calm`: ruht, ohne Bewegung und Funkeln (z. B. wenn es nichts zu holen gibt) */
+export const LivingCrystal = memo(function LivingCrystal({
+  height = 48,
+  seed,
+  calm,
+}: {
+  height?: number;
+  amount?: number;
+  seed?: string;
+  calm?: boolean;
+}) {
+  const [reduced, setStill] = useState(false);
+  const still = reduced || !!calm;
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setStill).catch(() => {});
   }, []);

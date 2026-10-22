@@ -1,4 +1,5 @@
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Text } from './T';
 
 import { useStore } from '../data/store';
@@ -26,6 +27,10 @@ type GroupBarProps = {
 export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupBarProps) {
   const { challenges, currentUserId } = useStore();
   const selected = groups.find((g) => g.id === selectedId);
+  const router = useRouter();
+  // Nächste offene Aufgabe der Gruppe, zuerst die von anderen
+  const open = challenges.filter((c) => c.groupId === selected?.id && c.status === 'open' && !c.assigneeId);
+  const openTask = open.find((c) => c.authorId !== currentUserId) ?? open[0];
   return (
     <View style={styles.wrap}>
       {groups.length > 1 ? (
@@ -56,28 +61,43 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
         // Nur das kleine Zahnrad führt zur Gruppenseite.
         <View style={styles.here}>
           <View style={styles.flex}>
-            <Text style={styles.hereName} numberOfLines={1} accessibilityRole="header">
-              {selected.name}
-            </Text>
+            <View style={styles.titleRow}>
+              <Text style={styles.hereName} numberOfLines={1} accessibilityRole="header">
+                {selected.name}
+              </Text>
+              <IconButton
+                icon="settings"
+                iconSize={16}
+                iconColor={color.text.secondary}
+                accessibilityLabel={t('{name} verwalten', { name: selected.name })}
+                onPress={() => onOpen(selected.id)}
+              />
+            </View>
             <Text style={styles.meta} numberOfLines={1}>
               {t('{members} Mitglieder', { members: selected.members.length })}
             </Text>
           </View>
-          <View style={styles.hereEden} accessible accessibilityLabel={t('Du, {edensteine} Edensteine', { edensteine: myEdensteine(selected, challenges, currentUserId) })}>
+          {/* Stein: lebt, wenn es offene Aufgaben gibt, und führt zur nächsten. Sonst klein, blass und still. */}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={
+              openTask
+                ? t('Offene Aufgabe öffnen: {title}', { title: openTask.title })
+                : t('In dieser Gruppe gibt es nichts zu holen!')
+            }
+            onPress={() =>
+              openTask ? router.push(`/challenge/${openTask.id}`) : Alert.alert(t('In dieser Gruppe gibt es nichts zu holen!'))
+            }
+            hitSlop={8}
+            style={({ pressed }) => [styles.hereEden, !openTask && styles.hereEdenCalm, pressed && styles.pressed]}
+          >
             <View style={styles.hereCrystal}>
-              <View style={styles.hereCrystalFloat}>
-                <LivingCrystal height={44} seed={selected.id} />
+              <View style={[styles.hereCrystalFloat, !openTask && styles.hereCrystalFloatCalm]}>
+                <LivingCrystal height={openTask ? 44 : 35} seed={selected.id} calm={!openTask} />
               </View>
             </View>
             <Text style={styles.eden}>{myEdensteine(selected, challenges, currentUserId)}</Text>
-          </View>
-          <IconButton
-            icon="settings"
-            iconSize={18}
-            iconColor={color.text.secondary}
-            accessibilityLabel={t('{name} verwalten', { name: selected.name })}
-            onPress={() => onOpen(selected.id)}
-          />
+          </Pressable>
         </View>
       ) : null}
     </View>
@@ -110,7 +130,10 @@ const CRYSTAL = 88;
 const styles = StyleSheet.create({
   here: { flexDirection: 'row', alignItems: 'center', gap: space[8], paddingTop: space[4], paddingBottom: space[4] },
   hereName: { ...text.title, fontSize: 22, lineHeight: 28, color: color.text.primary },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: space[2] },
   hereEden: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
+  hereEdenCalm: { opacity: 0.4 },
+  hereCrystalFloatCalm: { top: (22 - 35) / 2 },
   hereCrystal: { width: 26, height: 22, alignItems: 'center' },
   hereCrystalFloat: { position: 'absolute', top: (22 - 44) / 2 },
   wrap: { gap: space[8], paddingHorizontal: space[16] },
