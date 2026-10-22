@@ -1,0 +1,18 @@
+{
+  "_hinweis": "Sprüche für die Seite /kater. Ein Eintrag oder beliebig viele. Text allein oder mit Aktion: fegen, brille, stampfen, winken.",
+  "hallo": [
+    { "text": "Ahoi! Schön, dass Du vorbeischaust.", "aktion": "winken" },
+    { "text": "Na? Auch hier, um nichts zu tun? Ich auch nicht.", "aktion": "brille" },
+    { "text": "Hallo zurück. Ich hab gerade den Hof gefegt.", "aktion": "fegen" }
+  ],
+  "sprueche": [
+    { "text": "Love to get stuff done.", "aktion": "fegen" },
+    { "text": "Ich fege nicht. Ich choreografiere Staub.", "aktion": "fegen" },
+    { "text": "Sonnenbrille? Die Zukunft ist hell. Und der Hof jetzt auch.", "aktion": "brille" },
+    { "text": "Wer Aufgaben teilt, hat doppelt so viel Zeit für Nickerchen.", "aktion": "stampfen" },
+    { "text": "Ich hab 3 Edensteine. Frag nicht, wofür.", "aktion": "brille" },
+    { "text": "Müll rausbringen ist mein Cardio.", "aktion": "stampfen" },
+    { "text": "Ein Kiez ist nur so sauber wie sein faulster Kater. Ich arbeite dran.", "aktion": "fegen" },
+    { "text": "Challenge angenommen. Kaffee auch.", "aktion": "winken" }
+  ]
+}

@@ -258,6 +258,7 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
     <div class="kater-wege">
       <button type="button" data-kater="oben">Nach oben</button>
       <button type="button" data-kater="download">Zum Download</button>
+      <a class="kater-hallo-link" href="/kater">Hallo sagen</a>
     </div>
   </div>
 </div>
@@ -376,6 +377,103 @@ const einladung = `<!doctype html>
 </html>
 `;
 
+// ---------- Kater: /kater, dem Kater Hallo sagen ----------
+// Darias Kater als SVG (assets/illustrations/kater.svg). Die Gruppen Besen, Brille und Stiefel (IDs aus Affinity) bewegen sich per CSS
+// (einzelne Eigenschaften rotate/translate, damit die Matrizen aus Affinity erhalten bleiben). Die Sprüche stehen in
+// scripts/site/kater-sprueche.json: einer oder beliebig viele, jeweils mit Aktion fegen, brille, stampfen oder winken.
+const katerSvg = existsSync(join(root, 'assets/illustrations/kater.svg'))
+  ? readFileSync(join(root, 'assets/illustrations/kater.svg'), 'utf8')
+      .replace(/<\?xml[^>]*>\s*/, '')
+      .replace(/<!DOCTYPE[^>]*>\s*/, '')
+      .replace('width="100%" height="100%"', 'class="kater-svg" role="img" aria-label="Kater mit Sonnenbrille, Schürze und Besen"')
+  : '';
+const sprueche = JSON.parse(readFileSync(join(siteDir, 'kater-sprueche.json'), 'utf8'));
+const katerSeite = `<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1F2123">
+<title>Hallo, Kater – Kiez Coins</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="/seite.css?v=${version(seiteCss)}">
+</head>
+<body class="kater-seite">
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.coins, 30)}${sized(kcSvg.wordmark, 18)}</a>
+  <a class="top-link" href="/#download">Testversion laden</a>
+</header>
+<main class="kater-buehne-seite">
+  <p class="blase kater-spruch" id="spruch" aria-live="polite">Psst. Sag mal Hallo.</p>
+  <button type="button" class="kater-figur" id="figur" aria-label="Kater antippen: noch ein Spruch">${katerSvg}<span class="staub" id="staub" aria-hidden="true"></span></button>
+  <div class="kater-knoepfe">
+    <button type="button" class="kater-hallo" id="hallo">Hallo sagen</button>
+    <button type="button" class="kater-noch" id="noch">Noch ein Spruch</button>
+  </div>
+</main>
+</div>
+<script>
+(function () {
+  var S = ${JSON.stringify({ hallo: sprueche.hallo, sprueche: sprueche.sprueche })};
+  var figur = document.getElementById('figur');
+  var blase = document.getElementById('spruch');
+  var staub = document.getElementById('staub');
+  var ruhig = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var zuletzt = {};
+  var timer, idle;
+  // Aus einer Liste ziehen, möglichst nicht zweimal hintereinander dasselbe
+  function ziehe(name) {
+    var liste = (S[name] || []).map(function (e) { return typeof e === 'string' ? { text: e } : e; });
+    if (!liste.length) return null;
+    var i = Math.floor(Math.random() * liste.length);
+    if (liste.length > 1 && i === zuletzt[name]) i = (i + 1) % liste.length;
+    zuletzt[name] = i;
+    return liste[i];
+  }
+  function sag(e) {
+    if (!e) return;
+    blase.classList.remove('is-neu');
+    void blase.offsetWidth;
+    blase.textContent = e.text;
+    blase.classList.add('is-neu');
+    var a = e.aktion || 'fegen';
+    figur.classList.remove('fegen', 'brille', 'stampfen', 'winken');
+    void figur.offsetWidth;
+    if (!ruhig) figur.classList.add(a);
+    if (a === 'fegen' && !ruhig) puste();
+    clearTimeout(timer);
+    timer = setTimeout(function () { figur.classList.remove(a); }, 2600);
+    warte();
+  }
+  // Staubwölkchen am Besen
+  function puste() {
+    for (var i = 0; i < 7; i++) {
+      var w = document.createElement('i');
+      w.style.setProperty('--x', (Math.random() * 120 - 30) + 'px');
+      w.style.setProperty('--y', (-20 - Math.random() * 50) + 'px');
+      w.style.setProperty('--s', (0.6 + Math.random()) + '');
+      w.style.animationDelay = (300 + i * 220) + 'ms';
+      staub.appendChild(w);
+      setTimeout(w.remove.bind(w), 2600);
+    }
+  }
+  // Von selbst etwas sagen, wenn eine Weile nichts passiert
+  function warte() {
+    clearTimeout(idle);
+    idle = setTimeout(function () { sag(ziehe('sprueche')); }, 9000 + Math.random() * 6000);
+  }
+  document.getElementById('hallo').addEventListener('click', function () { sag(ziehe('hallo') || ziehe('sprueche')); });
+  document.getElementById('noch').addEventListener('click', function () { sag(ziehe('sprueche')); });
+  figur.addEventListener('click', function () { sag(ziehe('sprueche')); });
+  warte();
+})();
+</script>
+</body>
+</html>
+`;
+
 // data-t: Originaltext als Schlüssel für das Texte-CMS. Das Skript am Seitenende holt Darias Fassungen aus `app_texts`.
 const tag = (name, s, attrs = '') => `<${name}${attrs} data-t="${esc(s)}">${esc(s).replace(/\n/g, '<br>')}</${name}>`;
 const paragraphs = (ps) => ps.map((p) => tag('p', p)).join('\n');
@@ -412,6 +510,7 @@ const legal = (id) => {
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, 'index.html'), index);
 writeFileSync(join(out, 'einladung.html'), einladung);
+if (katerSvg) writeFileSync(join(out, 'kater.html'), katerSeite);
 // Eigene 404-Seite für unbekannte Adressen.
 writeFileSync(
   join(out, '404.html'),
