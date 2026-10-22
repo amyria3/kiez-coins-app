@@ -421,15 +421,15 @@ footer a { color: var(--muted); }
 .kater-svg #Besen { transform-origin: 28% 30%; }
 .kater-svg #Brille { transform-origin: 50% 50%; }
 .kater-svg #Stiefel { transform-origin: 50% 100%; }
-.fegen .kater-svg #Besen { animation: fegen 2.4s ease-in-out; }
-@keyframes fegen { 0%, 100% { rotate: 0deg; } 15% { rotate: 12deg; } 32% { rotate: -6deg; } 50% { rotate: 12deg; } 68% { rotate: -6deg; } 85% { rotate: 10deg; } }
+.fegen .kater-svg #Besen { animation: fegen 2.8s ease-in-out; }
+@keyframes fegen { 0%, 100% { rotate: 0deg; translate: 0 0; } 14% { rotate: 172deg; translate: 0 250px; } 28% { rotate: 164deg; translate: -14px 250px; } 42% { rotate: 178deg; translate: 10px 250px; } 56% { rotate: 164deg; translate: -14px 250px; } 70% { rotate: 178deg; translate: 10px 250px; } 86% { rotate: 172deg; translate: 0 250px; } }
 .winken .kater-svg #Besen { animation: winken 2.2s var(--barrier); }
 @keyframes winken { 0%, 100% { translate: 0 0; rotate: 0deg; } 20% { translate: 0 -60px; rotate: 8deg; } 40% { translate: 0 -60px; rotate: -8deg; } 60% { translate: 0 -60px; rotate: 8deg; } 80% { translate: 0 -30px; rotate: 0deg; } }
 .brille .kater-svg #Brille { animation: brille 2.4s var(--barrier); }
 @keyframes brille { 0%, 100% { translate: 0 0; } 20%, 70% { translate: 0 34px; } }
 .stampfen .kater-svg #Stiefel { animation: stampfen 1.6s ease-in-out; }
 @keyframes stampfen { 0%, 100% { translate: 0 0; } 15% { translate: 0 -26px; } 30% { translate: 0 0; } 45% { translate: 0 -20px; } 60% { translate: 0 0; } }
-.staub { position: absolute; left: 62%; bottom: 14%; width: 0; height: 0; pointer-events: none; }
+.staub { position: absolute; left: 60%; bottom: 8%; width: 0; height: 0; pointer-events: none; }
 .staub i { position: absolute; width: 18px; height: 18px; border-radius: 50%; background: rgba(240,240,240,.35); opacity: 0;
   animation: staub 1.4s ease-out forwards; }
 @keyframes staub { 0% { opacity: 0; transform: translate(0,0) scale(.3); } 25% { opacity: .9; } 100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(var(--s)); } }
