@@ -161,6 +161,9 @@ button { font: inherit; color: inherit; }
   background: var(--purple) !important; color: var(--bg) !important; font: 500 14px/1 Inter, sans-serif !important; transition: transform 200ms, opacity 200ms; }
 .p-btn:active { transform: scale(.97); }
 .p-btn:disabled { opacity: .35; cursor: default; }
+.p-btn { transition: opacity 300ms; }
+.p-btn.p-ready { animation: p-ready 700ms var(--barrier); }
+@keyframes p-ready { 40% { transform: scale(1.04); } }
 .p-btn-secondary { background: none !important; color: var(--text) !important; border: 1px solid var(--line) !important; margin-top: 12px; }
 .p-btn-wait:disabled { opacity: 1; background: var(--surface) !important; color: var(--orange) !important; }
 .p-btn-ok:disabled { opacity: 1; background: var(--green) !important; }
