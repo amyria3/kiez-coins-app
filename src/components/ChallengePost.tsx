@@ -95,14 +95,17 @@ export const ChallengePost = memo(function ChallengePost({
       </Pressable>
       <View style={styles.actions}>
         <View style={styles.actionsLeft}>
-          <IconButton
-            icon="heart"
-            iconSize={size.icon}
-            accessibilityLabel={t('Gefällt mir')}
-            active={challenge.likedByMe}
-            onPress={onLike}
-          />
-          <IconButton icon="gift" iconSize={size.icon} accessibilityLabel={t('Geschenk senden')} onPress={comingSoon} />
+          {/* Herz mit Anzahl; das Geschenk ist ausgeblendet (Daria, 22.10.2026) */}
+          <View style={styles.commentAction}>
+            <IconButton
+              icon="heart"
+              iconSize={size.icon}
+              accessibilityLabel={challenge.likeCount ? t('Gefällt mir, {likeCount} Likes', { likeCount: challenge.likeCount }) : t('Gefällt mir')}
+              active={challenge.likedByMe}
+              onPress={onLike}
+            />
+            {challenge.likeCount ? <Text style={styles.count}>{challenge.likeCount}</Text> : null}
+          </View>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={commentCount ? t('Kommentieren, {commentCount} Kommentare', { commentCount }) : t('Kommentieren')}
@@ -123,14 +126,13 @@ export const ChallengePost = memo(function ChallengePost({
         </View>
         <View style={styles.actionsRight}>
           {onManage ? (
-            <Pressable
-              accessibilityRole="button"
+            // Zahnrad statt Text-Button (Daria, 22.10.2026)
+            <IconButton
+              icon="settings"
+              iconSize={size.icon}
               accessibilityLabel={t('Deine Challenges verwalten')}
               onPress={onManage}
-              style={({ pressed }) => [styles.manage, pressed && styles.pressed]}
-            >
-              <Text style={styles.manageText}>Verwalten</Text>
-            </Pressable>
+            />
           ) : null}
         </View>
       </View>

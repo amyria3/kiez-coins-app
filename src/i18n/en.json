@@ -911,5 +911,12 @@
   "Komm in unsere Gruppe „{name}“ bei Kiez Coins. Mit diesem Link trittst Du bei:": "Join our group “{name}” on Kiez Coins. Use this link to join:",
   "Oder in der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und diesen Code eingeben:": "Or in the app, under “Groups”, tap “Join with code” and enter this code:",
   "{name} verwalten": "Manage {name}",
-  "Verlauf": "Journey"
+  "Verlauf": "Journey",
+  "Challenge: Hier muss etwas getan werden! Auf geht’s, Nachbarschaft!": "Challenge: something needs doing here! Let’s go, neighbourhood!",
+  "Hier ist nichts zu tun, nur ein schönes Bild": "Nothing to do here, just a nice picture",
+  "Bild posten": "Post a picture",
+  "Zeig, was Dir gefällt.": "Show what you like.",
+  "Nur ein Bild": "Just a picture",
+  "Gefällt mir, {likeCount} Likes": "Like, {likeCount} likes",
+  "Bild": "Picture"
 }

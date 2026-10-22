@@ -911,5 +911,12 @@
   "Komm in unsere Gruppe „{name}“ bei Kiez Coins. Mit diesem Link trittst Du bei:": "Приєднуйся до нашої групи «{name}» у Kiez Coins. Приєднатися можна за цим посиланням:",
   "Oder in der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und diesen Code eingeben:": "Або в застосунку в розділі «Групи» натисни «Приєднатися за кодом» і введи цей код:",
   "{name} verwalten": "Керувати {name}",
-  "Verlauf": "Шлях"
+  "Verlauf": "Шлях",
+  "Challenge: Hier muss etwas getan werden! Auf geht’s, Nachbarschaft!": "Челендж: тут треба щось зробити! Уперед, сусіди!",
+  "Hier ist nichts zu tun, nur ein schönes Bild": "Тут нічого не треба робити, просто гарне фото",
+  "Bild posten": "Опублікувати фото",
+  "Zeig, was Dir gefällt.": "Покажи, що тобі подобається.",
+  "Nur ein Bild": "Просто фото",
+  "Gefällt mir, {likeCount} Likes": "Подобається, вподобань: {likeCount}",
+  "Bild": "Фото"
 }

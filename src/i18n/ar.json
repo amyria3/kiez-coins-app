@@ -911,5 +911,12 @@
   "Komm in unsere Gruppe „{name}“ bei Kiez Coins. Mit diesem Link trittst Du bei:": "انضم إلى مجموعتنا «{name}» في Kiez Coins. انضم عبر هذا الرابط:",
   "Oder in der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und diesen Code eingeben:": "أو في التطبيق ضمن «المجموعات» اضغط «انضم برمز» وأدخل هذا الرمز:",
   "{name} verwalten": "إدارة {name}",
-  "Verlauf": "المسار"
+  "Verlauf": "المسار",
+  "Challenge: Hier muss etwas getan werden! Auf geht’s, Nachbarschaft!": "تحدٍّ: هنا شيء يجب فعله! هيّا يا جيران!",
+  "Hier ist nichts zu tun, nur ein schönes Bild": "لا شيء لفعله هنا، مجرد صورة جميلة",
+  "Bild posten": "نشر صورة",
+  "Zeig, was Dir gefällt.": "أرِنا ما يعجبك.",
+  "Nur ein Bild": "مجرد صورة",
+  "Gefällt mir, {likeCount} Likes": "إعجاب، {likeCount} إعجابات",
+  "Bild": "صورة"
 }

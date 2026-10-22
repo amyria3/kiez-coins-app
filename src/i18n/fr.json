@@ -911,5 +911,12 @@
   "Komm in unsere Gruppe „{name}“ bei Kiez Coins. Mit diesem Link trittst Du bei:": "Rejoins notre groupe « {name} » sur Kiez Coins. Avec ce lien, tu rejoins le groupe :",
   "Oder in der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und diesen Code eingeben:": "Ou dans l’app, sous « Groupes », touche « Rejoindre avec un code » et saisis ce code :",
   "{name} verwalten": "Gérer {name}",
-  "Verlauf": "Parcours"
+  "Verlauf": "Parcours",
+  "Challenge: Hier muss etwas getan werden! Auf geht’s, Nachbarschaft!": "Défi : il y a quelque chose à faire ici ! En avant, le quartier !",
+  "Hier ist nichts zu tun, nur ein schönes Bild": "Rien à faire ici, juste une belle image",
+  "Bild posten": "Publier une image",
+  "Zeig, was Dir gefällt.": "Montre ce qui te plaît.",
+  "Nur ein Bild": "Juste une image",
+  "Gefällt mir, {likeCount} Likes": "J’aime, {likeCount} j’aime",
+  "Bild": "Image"
 }

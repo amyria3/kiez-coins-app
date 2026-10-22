@@ -254,6 +254,14 @@ async function loadGroups(): Promise<Group[]> {
   }));
 }
 
+/** Anzahl Likes je Challenge (Funktion like_counts). Ohne Migration leer. */
+async function loadLikeCounts(ids: string[]): Promise<Map<string, number>> {
+  if (!ids.length) return new Map();
+  const { data, error } = await supabase.rpc('like_counts', { p_ids: ids });
+  if (error || !data) return new Map();
+  return new Map((data as { challenge_id: string; n: number }[]).map((r) => [r.challenge_id, Number(r.n)]));
+}
+
 /** Lädt Feed, eigene Likes, Operationsnamen, Freigaben und alle beteiligten Profile. */
 export async function loadLiveData(userId: string): Promise<LiveData> {
   const [challengesRes, likesRes, namesRes, sharesRes, payoutRes, views, groups] = await Promise.all([
@@ -292,6 +300,7 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
   const me = profiles.find((p) => p.id === userId);
 
   const users = profiles.map((p) => toUser(p, p.id === userId ? myPayout : undefined));
+  const likeCounts = await loadLikeCounts(rows.map((r) => r.id));
   if (!me) users.push({ id: userId, name: FALLBACK_NAME, firstName: FALLBACK_NAME, payout: myPayout });
 
   return {
@@ -299,6 +308,7 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
     challenges: rows.map((r) => ({
       ...toChallenge(r, { liked: liked.has(r.id), operationName: names.get(r.id), share: shares.get(r.id) }),
       ...(r.author_id === userId && views ? { views: views.get(r.id) ?? 0 } : {}),
+      ...(likeCounts.size ? { likeCount: likeCounts.get(r.id) ?? 0 } : {}),
     })),
     canOfferBounties: me?.can_offer_bounties ?? true,
     groups,
@@ -335,12 +345,16 @@ export async function loadChallenge(
           .in('id', [...ids]),
       )
     : { data: [] };
+  const likeCounts = await loadLikeCounts([row.id]);
   return {
-    challenge: toChallenge(row, {
-      liked: !!likeRes.data,
-      operationName: (nameRes.data?.name as string | undefined) ?? undefined,
-      share: (shareRes.data as ShareRow | null) ?? undefined,
-    }),
+    challenge: {
+      ...toChallenge(row, {
+        liked: !!likeRes.data,
+        operationName: (nameRes.data?.name as string | undefined) ?? undefined,
+        share: (shareRes.data as ShareRow | null) ?? undefined,
+      }),
+      ...(likeCounts.size ? { likeCount: likeCounts.get(row.id) ?? 0 } : {}),
+    },
     users: ((profilesRes.data ?? []) as ProfileRow[]).map((p) => toUser(p)),
   };
 }
@@ -460,6 +474,8 @@ export async function saveAvatar(userId: string, photo: ImageSource | null): Pro
 }
 
 export type NewChallenge = {
+  /** `photo`: nur ein Bild, ohne Aufgabe und ohne Coins */
+  type?: 'individual' | 'photo';
   title: string;
   text: string;
   location: string;
@@ -510,6 +526,7 @@ export async function createChallenge(userId: string, draft: NewChallenge): Prom
         .from('challenges')
         .insert({
           author_id: userId,
+          type: draft.type ?? 'individual',
           title: draft.title,
           body: draft.text,
           location: draft.location,
@@ -607,6 +624,7 @@ export const editChallenge = (id: string, edit: ChallengeEdit) =>
 export const closeChallenge = (id: string) => rpc('close_challenge', { p_challenge_id: id });
 
 export type DraftInput = {
+  type?: 'individual' | 'photo';
   title: string;
   text: string;
   location: string;
@@ -623,6 +641,7 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
   const imagePath = draft.imagePath ?? (draft.photo ? await uploadPhoto(userId, draft.photo) : null);
   const extraPaths = await uploadExtras(userId, draft.extras);
   const fields = {
+    type: draft.type ?? 'individual',
     title: draft.title.trim(),
     body: draft.text.trim(),
     location: draft.location.trim(),

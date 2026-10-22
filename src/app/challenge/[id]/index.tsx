@@ -90,7 +90,9 @@ export default function ChallengeDetail() {
     ]);
 
   let actions: React.ReactNode = null;
-  if (challenge.status === 'open' && !isAuthor) {
+  // Nur ein Bild: nichts anzunehmen
+  const isPhoto = challenge.type === 'photo';
+  if (challenge.status === 'open' && !isAuthor && !isPhoto) {
     actions = <Button label={challenge.groupId ? 'Aufgabe annehmen' : 'Challenge annehmen'} onPress={() => needKiez() && dispatch({ type: 'accept', id: challenge.id })} />;
   } else if (acceptedByMe) {
     actions = (
@@ -168,12 +170,12 @@ export default function ChallengeDetail() {
 
   // Zeitangaben nur, solange die Challenge läuft
   const running = RUNNING.has(challenge.status);
-  const showDeadline = running;
+  const showDeadline = running && !isPhoto;
   const summary = (
     <>
       <View style={styles.statusWrap}>
         <View style={styles.statusRow}>
-          <StatusBadge status={challenge.status} />
+          <StatusBadge status={challenge.status} photo={isPhoto} />
           <Text style={[styles.caption, styles.flex]}>{running ? formatRelative(challenge.createdAt) : ''}</Text>
           {isAuthor ? (
             <GlassIconButton

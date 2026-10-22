@@ -53,8 +53,16 @@ export default function CreateStep2() {
       : customAmount < MIN_BOUNTY || !Number.isFinite(customAmount)
         ? 'Mindestens 5 € möglich.'
         : undefined;
-  const bountyAmount = custom ? (customText && !customError ? Math.round(customAmount) : undefined) : draft.bountyAmount;
-  const canPublish = draft.location.trim().length > 0 && !(custom && (customError || !customText));
+  // Nur ein Bild: keine Coins
+  const isChallenge = draft.type !== 'photo';
+  const bountyAmount = !isChallenge
+    ? undefined
+    : custom
+      ? customText && !customError
+        ? Math.round(customAmount)
+        : undefined
+      : draft.bountyAmount;
+  const canPublish = draft.location.trim().length > 0 && !(isChallenge && custom && (customError || !customText));
 
   // Veröffentlicht wird erst in der Vorschau.
   const preview = () => {
@@ -99,6 +107,8 @@ export default function CreateStep2() {
         disabled={locating}
       />
       <Notice message="Wähle einen öffentlich bekannten Ort, etwa einen Platz, eine Straßenecke oder einen Laden. Keine Wohnadresse. Sei sorgsam mit der Sicherheit anderer Menschen." />
+      {isChallenge ? (
+      <>
       <FieldGroup label="Coins (optional)">
         <ChipGroup>
           <Chip
@@ -146,6 +156,8 @@ export default function CreateStep2() {
           variant="warning"
           message="Versprich nur, was Du zahlen kannst. Wer zugesagte Coins nicht zahlt, kann gemeldet und für Coins gesperrt werden."
         />
+      ) : null}
+      </>
       ) : null}
       <FieldGroup label="Zeitraum">
         <ChipGroup>

@@ -15,6 +15,12 @@ export const challengeTypes: Record<
     plannedTitle: '',
     plannedHint: '',
   },
+  photo: {
+    active: true,
+    label: 'Bild',
+    plannedTitle: '',
+    plannedHint: '',
+  },
   wave: {
     active: false,
     label: 'Wave',

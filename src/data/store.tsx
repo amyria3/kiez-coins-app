@@ -158,7 +158,10 @@ function reducer(state: State, action: Action): State {
     case 'create':
       return { ...state, challenges: [action.challenge, ...state.challenges.filter((c) => c.id !== action.challenge.id)] };
     case 'toggleLike':
-      return updateChallenge(state, action.id, (c) => ({ likedByMe: !c.likedByMe }));
+      return updateChallenge(state, action.id, (c) => ({
+        likedByMe: !c.likedByMe,
+        likeCount: c.likeCount === undefined ? undefined : Math.max(0, c.likeCount + (c.likedByMe ? -1 : 1)),
+      }));
     case 'savePayout':
       return {
         ...state,
@@ -371,7 +374,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (s.mode === 'demo') {
       const challenge: Challenge = {
         id: `challenge-${Date.now()}`,
-        type: 'individual',
+        type: draft.type ?? 'individual',
         title: draft.title,
         text: draft.text,
         authorId: s.currentUserId,
@@ -404,7 +407,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const existing = s.challenges.find((c) => c.id === id);
       const challenge: Challenge = {
         id: id ?? `draft-${Date.now()}`,
-        type: 'individual',
+        type: draft.type ?? 'individual',
         title: draft.title.trim(),
         text: draft.text.trim(),
         authorId: s.currentUserId,
@@ -439,7 +442,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const existing = s.challenges.find((c) => c.id === id);
         const challenge: Challenge = {
           id,
-          type: 'individual',
+          type: draft.type ?? 'individual',
           title: draft.title.trim(),
           text: draft.text.trim(),
           authorId: s.currentUserId,
@@ -626,7 +629,7 @@ export function topChallenges(state: Pick<State, 'mode' | 'challenges' | 'curren
   );
   const now = Date.now();
   const open = challenges
-    .filter((c) => !c.groupId && c.status === 'open' && Date.parse(c.deadline) > now && !mine.includes(c))
+    .filter((c) => !c.groupId && c.type !== 'photo' && c.status === 'open' && Date.parse(c.deadline) > now && !mine.includes(c))
     .sort((a, b) => a.deadline.localeCompare(b.deadline));
   return [...mine, ...open].filter((c) => !COMPLETED.has(c.status)).slice(0, max);
 }

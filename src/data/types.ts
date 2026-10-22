@@ -23,7 +23,8 @@ export type ChallengeStatus =
   | 'closed'
   | 'deleted';
 
-export type ChallengeType = 'individual' | 'wave';
+/** `photo`: nur ein schönes Bild, keine Aufgabe (Daria, 22.10.2026) */
+export type ChallengeType = 'individual' | 'wave' | 'photo';
 
 export type ImageSource = ImageSourcePropType;
 
@@ -105,6 +106,8 @@ export type Challenge = {
   imageBefore?: ImageSource;
   imageAfter?: ImageSource;
   likedByMe: boolean;
+  /** Wie viele Leute das mögen (Migration like_counts). Ohne Migration unbekannt. */
+  likeCount?: number;
   /** Bei Entwürfen leer: Die Frist entsteht erst beim Veröffentlichen. */
   deadline: string;
   createdAt: string;
