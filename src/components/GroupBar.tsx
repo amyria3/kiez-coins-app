@@ -65,7 +65,7 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
           </View>
           <EdensteinIcon height={16} />
           <Text style={styles.eden}>{myEdensteine(selected, challenges, currentUserId)}</Text>
-          <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
+          <Icon name="settings" size={size.icon} color={color.text.secondary} />
         </Pressable>
       ) : null}
     </View>

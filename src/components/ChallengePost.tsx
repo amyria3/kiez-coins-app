@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   meta: { ...text.caption, fontSize: 13, color: color.text.secondary, flex: 1 },
   actions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: space[4] },
-  actionsLeft: { flexDirection: 'row', alignItems: 'center', gap: space[8], flexShrink: 1 },
+  actionsLeft: { flexDirection: 'row', alignItems: 'center', flexShrink: 1 },
   count: { ...text.caption, fontSize: 13, color: color.text.secondary, marginLeft: -space[8] },
   textBlock: { paddingHorizontal: space[4], paddingBottom: space[8] },
   body: { ...text.body, color: color.text.secondary },
