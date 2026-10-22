@@ -207,7 +207,6 @@ export default function UserProfile() {
           <View style={styles.list}>
             <NavRow
               label={plural ? 'Gruppe melden' : 'Person melden'}
-              value="Verstoß gegen die Community-Regeln"
               onPress={() =>
                 router.push({
                   pathname: '/user/[id]/report',
@@ -244,5 +243,6 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
   },
   praiseText: { ...text.body, color: color.text.primary },
-  list: { gap: space[8] },
+  // Deutlich abgesetzt von den Knöpfen darüber (Daria, 22.10.2026)
+  list: { gap: space[8], marginTop: space[32] },
 });
