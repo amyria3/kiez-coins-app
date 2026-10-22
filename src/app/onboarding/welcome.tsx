@@ -5,19 +5,20 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ActionBar } from '../../components/ActionBar';
 import { Button } from '../../components/Button';
-import { Cat } from '../../components/icons/Brand';
+import { KaterStage } from '../../components/KaterStage';
+import { useKater } from '../../components/useKater';
 import { color, font, space, stroke, text } from '../../theme/tokens';
 
 /** Route `onboarding/welcome`. Figma: `onboarding/welcome`, Upgrade „Nachtschicht“. */
 export default function Welcome() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  // Am Anfang begrüßt der Kater mit Besen (Daria, 22.10.2026)
+  const kater = useKater('hallo', 10000);
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.tile}>
-          <Cat mood="high" height={120} />
-        </View>
+        <KaterStage width={190} spruch={kater.spruch} take={kater.take} onPress={kater.noch} />
         <Text style={styles.headline} accessibilityRole="header">
           Ahoi.{'\n'}
           <Text style={styles.headlineMuted}>Der Kiez sucht eine neue Crew.</Text>
