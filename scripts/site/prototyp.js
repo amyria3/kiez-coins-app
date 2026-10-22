@@ -213,7 +213,7 @@
       : svg('diamond', (h || 20) - 2) + '<b class="p-eden">' + n + '</b>';
   }
   function rewardText(n) {
-    return M.unit === 'euro' ? n + ' Euro' : n === 1 ? '1 virtuelle Belohnung' : n + ' virtuelle Belohnungen';
+    return M.unit === 'euro' ? n + ' Coins' : n === 1 ? '1 virtuelle Belohnung' : n + ' virtuelle Belohnungen';
   }
 
   // ---------- Aufbau ----------
