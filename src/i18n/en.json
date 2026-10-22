@@ -628,12 +628,10 @@
   "Coins: {amount} Euro": "Coins: {amount} euros",
   "Wave": "Wave",
   "Gefällt mir": "Like",
-  "Geschenk senden": "Send a gift",
   "Kommentieren, {commentCount} Kommentare": "Comment, {commentCount} comments",
   "Kommentieren": "Comment",
   "Teilen": "Share",
   "Deine Challenges verwalten": "Manage your challenges",
-  "Verwalten": "Manage",
   "Kommt bald": "Coming soon",
   "Geschenke folgen nach dem MVP.": "Gifts will follow after the MVP.",
   "Profil von {name}": "Profile of {name}",
@@ -932,6 +930,7 @@
   "Wer Coins verspricht, zahlt sie direkt an Dich, per Überweisung oder PayPal. Kiez Coins bewegt kein Geld.": "Whoever promises coins pays them directly to you, by bank transfer or PayPal. Kiez Coins doesn’t move any money.",
   "Gruppen für WG, Familie und Verein": "Groups for flatshare, family and club",
   "Verteilt Aufgaben unter Euch und sammelt Edensteine. Sie gelten nur in Eurer Gruppe.": "Share out tasks among yourselves and collect Eden stones. They only count in your group.",
-  "Wo posten?": "Where to post?",
-  "Öffentlich": "Public"
+  "{was} · Schritt 1 von 2": "{was} · step 1 of 2",
+  "{was} · Schritt 2 von 2": "{was} · step 2 of 2",
+  "Aufgabe für {name}": "Task for {name}"
 }

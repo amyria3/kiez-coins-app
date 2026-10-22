@@ -74,7 +74,9 @@ function RootStack() {
       <Stack key={language} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
         {/* Vollbild ohne Wegwischen: Schließen nur über das X, damit die Frage nach dem Entwurf kommt
             und die Vorschau nicht wie ein Overlay wirkt, dessen Wischen mit den Gesten der Vorschau konkurriert */}
-        <Stack.Screen name="challenge/create" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
+        {/* Erstellen: Kopf und Pille bleiben stehen, deshalb Überblenden statt Hochschieben (Daria, 22.10.2026) */}
+        <Stack.Screen name="challenge/create" options={{ presentation: 'fullScreenModal', gestureEnabled: false, animation: 'fade' }} />
+        <Stack.Screen name="gruppen/[id]/aufgabe" options={{ animation: 'fade' }} />
         <Stack.Screen name="challenge/[id]/edit" options={{ presentation: 'modal' }} />
         <Stack.Screen name="challenge/[id]/report/index" options={{ presentation: 'modal' }} />
         <Stack.Screen name="challenge/[id]/report/payout" options={{ presentation: 'modal', gestureEnabled: false }} />

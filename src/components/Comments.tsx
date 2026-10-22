@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Keyboard, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { scrollIntoView } from './Nudge';
 import { Text } from './T';
 
 import { formatRelative } from '../data/format';
@@ -73,8 +74,19 @@ export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply }:
     onSend(body);
     setValue('');
   };
+  // Beim Tippen ins Feld: sobald die Tastatur steht, das Feld ins Bild scrollen (Daria, 22.10.2026)
+  const boxRef = useRef<View>(null);
+  const reveal = () => {
+    const go = () => setTimeout(() => scrollIntoView(boxRef.current), 50);
+    if (Platform.OS === 'web') return go();
+    const sub = Keyboard.addListener('keyboardDidShow', () => {
+      sub.remove();
+      go();
+    });
+    setTimeout(() => sub.remove(), 1500);
+  };
   return (
-    <View style={styles.composerBlock}>
+    <View style={styles.composerBlock} ref={boxRef}>
       {replyTo ? (
         <View style={styles.replyBar}>
           <Text style={styles.replyBarText} numberOfLines={1}>{t('Antwort an {replyTo}', { replyTo })}</Text>
@@ -88,6 +100,7 @@ export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply }:
         placeholderTextColor={color.text.secondary}
         value={value}
         onChangeText={setValue}
+        onFocus={reveal}
         multiline
         maxLength={500}
         accessibilityLabel={t('Kommentar schreiben')}

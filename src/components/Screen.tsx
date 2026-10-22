@@ -23,20 +23,22 @@ type SubScreenProps = {
   /** Buttons für die ActionBar */
   actions?: ReactNode;
   children: ReactNode;
+  /** Eigener Kopf statt NavigationBar, z. B. CreateHeader beim Erstellen */
+  header?: ReactNode;
 };
 
 /**
  * Aufbau aller Unterseiten aus Figma: NavigationBar (fest), Inhalt in `scroll-y-auto`
  * (Abstand 16, unten 24) und ActionBar (fest, bleibt über der Tastatur).
  */
-export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions, children }: SubScreenProps) {
+export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions, children, header }: SubScreenProps) {
   const insets = useSafeAreaInsets();
   // Deaktivierte Buttons können zu dem Feld scrollen, das noch fehlt (Nudge.tsx)
   const scrollRef = useRef<ScrollView>(null);
   const nudgeScroll = useNudgeScroll(scrollRef);
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <NavigationBar title={title} subtitle={subtitle} variant={navigation} onLeadingPress={onLeadingPress} />
+      {header ?? <NavigationBar title={title} subtitle={subtitle} variant={navigation} onLeadingPress={onLeadingPress} />}
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <NudgeScrollProvider value={nudgeScroll}>
         <ScrollView
@@ -161,6 +163,8 @@ export function HeroScreen({
   // Das Blatt folgt dabei leicht dem Finger und federt zurück.
   const scrollY = useRef(0);
   const scrollRef = useRef<ScrollView>(null);
+  // Felder wie das Kommentarfeld können sich ins Bild scrollen (Nudge.tsx)
+  const heroNudge = useNudgeScroll(scrollRef);
   const scrolledToEnd = useRef(false);
   const slide = useRef(new Animated.Value(slideIn && Platform.OS === 'web' ? 1 : 0)).current;
   useEffect(() => {
@@ -191,6 +195,7 @@ export function HeroScreen({
       style={[styles.screen, { transform: [{ translateX: slide.interpolate({ inputRange: [0, 1], outputRange: [0, width] }) }] }]}
     >
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <NudgeScrollProvider value={heroNudge}>
         <ScrollView
           ref={scrollRef}
           onContentSizeChange={() => {
@@ -202,7 +207,10 @@ export function HeroScreen({
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
           scrollEventThrottle={16}
-          onScroll={(e) => (scrollY.current = e.nativeEvent.contentOffset.y)}
+          onScroll={(e) => {
+            scrollY.current = e.nativeEvent.contentOffset.y;
+            heroNudge.onScroll(e.nativeEvent.contentOffset.y);
+          }}
           onLayout={(e) => setViewportHeight(e.nativeEvent.layout.height)}
         >
           <Animated.View {...pan.panHandlers} style={{ transform: [{ translateY: drag }] }}>
@@ -278,6 +286,7 @@ export function HeroScreen({
           </View>
           </Animated.View>
         </ScrollView>
+        </NudgeScrollProvider>
         {actions ? <ActionBar>{actions}</ActionBar> : <View style={{ height: insets.bottom }} />}
       </KeyboardAvoidingView>
       <View style={[styles.heroButtons, { top: insets.top + space[8] }]} pointerEvents="box-none">
