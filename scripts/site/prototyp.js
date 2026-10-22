@@ -200,7 +200,7 @@
     };
   }
   function newDraft() {
-    return { photo: false, title: '', reward: M.create.reward, deadline: '3 Tage' };
+    return { photo: false, title: '', text: '', reward: M.create.reward, deadline: '3 Tage' };
   }
 
   // Belohnung: Euro mit Coins, virtuelle Belohnung mit Kristall
@@ -224,6 +224,7 @@
     '<div class="p-scroll">' +
     '  <div class="p-head"><span class="p-wordmark">' + svg('wordmark', 17) + '</span><span class="p-cat">' + svg('cat', 22) + '</span></div>' +
     '  <div class="p-greet"><h3>' + greeting + ', Mira</h3><p><span class="p-place"></span> · <span class="p-count"></span></p></div>' +
+    '  <div class="p-compose-head"><button type="button" class="p-x" data-close aria-label="Schließen">' + svg('close', 12) + '</button><strong class="p-compose-line"></strong></div>' +
     '  <div class="p-seg" role="tablist" aria-label="Feed">' +
     '    <span class="p-seg-pill" aria-hidden="true"></span>' +
     '    <button role="tab" data-tab="nearby"></button>' +
@@ -347,7 +348,7 @@
   }
 
   function placePill(animate) {
-    var btn = $('[data-tab="' + state.tab + '"]', seg);
+    var btn = $('[data-tab="' + segKey() + '"]', seg);
     var pill = $('.p-seg-pill', seg);
     // „Was Du so machst“ liegt nur in der Tab-Leiste, dann steht die Pille still
     pill.style.opacity = btn ? '' : '0';
@@ -358,17 +359,28 @@
     if (!animate) { pill.offsetWidth; pill.style.transition = ''; }
   }
 
+  function segKey() {
+    if (state.create) return state.mode === 'public' ? 'nearby' : 'groups';
+    return state.tab;
+  }
+  function syncSeg(animate) {
+    var composing = state.create;
+    screen.classList.toggle('is-composing', composing);
+    $('.p-compose-line').textContent = state.mode === 'public' ? 'Neue Challenge in ' + M.place : 'Neue Aufgabe für ' + M.place;
+    $$('[data-tab]', seg).forEach(function (b) {
+      b.textContent = composing ? (b.dataset.tab === 'nearby' ? 'Öffentlich' : 'Familie') : M.tabs[b.dataset.tab];
+      b.setAttribute('aria-selected', String(b.dataset.tab === segKey()));
+    });
+    placePill(animate);
+  }
   function render(opts) {
     opts = opts || {};
-    $$('[data-tab]', seg).forEach(function (b) {
-      b.textContent = M.tabs[b.dataset.tab];
-      b.setAttribute('aria-selected', String(b.dataset.tab === state.tab));
-    });
+    syncSeg(false);
     $$('[data-bar]').forEach(function (b) {
       var on = (b.dataset.bar === 'feed' && state.tab !== 'pleasure') || (b.dataset.bar === 'pleasure' && state.tab === 'pleasure');
       b.classList.toggle('is-on', on);
     });
-    placePill(opts.animate);
+    if (opts.animate) placePill(true);
     var open = challenges.filter(function (c) { return !state.status[c.id] || state.status[c.id] === 'accepted'; }).length;
     $('.p-place').textContent = M.place;
     $('.p-count').textContent = M.countText(open);
@@ -507,14 +519,15 @@
     var d = state.draft;
     var unit = M.unit === 'euro' ? ' €' : '';
     create.innerHTML =
-      '<div class="p-create-head"><button type="button" class="p-close p-close-inline" data-close aria-label="Abbrechen">' + svg('close', 12) +
-      '</button><strong>' + M.create.heading + '</strong><span></span></div>' +
       '<div class="p-create-body">' +
-      '<button type="button" class="p-photo' + (d.photo ? ' has-photo' : '') + '" data-photo>' +
-      (d.photo ? '<span class="p-img">' + image(M.create.photo) + '</span><span class="p-photo-label">Foto ändern</span>' : svg('camera', 22) + '<span>Foto hinzufügen</span>') +
+      '<div class="p-photo' + (d.photo ? ' has-photo' : '') + '">' +
+      '<button type="button" class="p-photo-hit" data-photo aria-label="' + (d.photo ? 'Foto ändern' : 'Foto hinzufügen') + '">' +
+      (d.photo ? '<span class="p-img">' + image(M.create.photo) + '</span>' : '<span class="p-photo-empty">' + svg('camera', 22) + '<span>Foto aufnehmen oder auswählen</span></span>') +
       '</button>' +
-      '<label class="p-field"><span>Titel</span><input type="text" maxlength="48" placeholder="Was soll passieren?" value="' + esc(d.title) + '" data-title></label>' +
+      '<div class="p-photo-title"><input type="text" maxlength="60" placeholder="Titel eingeben" aria-label="Titel" value="' + esc(d.title) + '" data-title></div>' +
+      '</div>' +
       '<div class="p-sugg">' + M.create.suggestions.map(function (s) { return '<button type="button" class="p-pill" data-sugg="' + esc(s) + '">' + esc(s) + '</button>'; }).join('') + '</div>' +
+      '<label class="p-field"><span>Beschreibung</span><textarea rows="2" maxlength="500" data-text>' + esc(d.text) + '</textarea></label>' +
       '<div class="p-field"><span>' + (M.unit === 'euro' ? 'Coins' : 'Virtuelle Belohnung') + '</span><div class="p-choice" role="radiogroup" aria-label="Belohnung">' +
       M.create.rewards.map(function (n) { return '<button type="button" role="radio" aria-checked="' + (d.reward === n) + '" data-reward="' + n + '">' + n + unit + '</button>'; }).join('') +
       '</div></div>' +
@@ -523,11 +536,19 @@
       '</div></div>' +
       '<button type="button" class="p-btn" data-publish' + (d.title.trim() ? '' : ' disabled') + '>Veröffentlichen</button>' +
       '</div>';
+    grow($('[data-text]', create));
+  }
+  function grow(el) {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 2 + 'px';
   }
 
   function openCreate() {
     state.create = true;
+    scroll.scrollTo({ top: 0 });
     renderCreate();
+    syncSeg(true);
     lastFocus = document.activeElement;
     showLayer(create);
     syncScenario();
@@ -540,7 +561,7 @@
     challenges.unshift({
       id: id,
       title: d.title.trim(),
-      text: '',
+      text: d.text.trim(),
       author: 'du',
       reward: d.reward,
       dist: M.unit === 'euro' ? 'hier' : 'zu Hause',
@@ -552,6 +573,7 @@
     state.draft = newDraft();
     hideLayer(create);
     state.create = false;
+    syncSeg(true);
     state.tab = 'nearby';
     state.hinted = true;
     render({ newId: id });
@@ -565,6 +587,7 @@
     el.classList.add('is-open');
     el.style.transform = '';
     el.scrollTop = 0;
+    if (el === create) { setTimeout(function () { el.focus({ preventScroll: true }); }, 30); return; }
     scrim.hidden = false;
     scrim.offsetWidth;
     scrim.classList.add('is-on');
@@ -581,7 +604,7 @@
   }
   function closeAll(restore) {
     if (state.detail) { hideLayer(sheet); state.detail = null; }
-    if (state.create) { hideLayer(create); state.create = false; }
+    if (state.create) { hideLayer(create); state.create = false; syncSeg(true); }
     syncScenario();
     if (restore && lastFocus && root.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
   }
@@ -663,6 +686,7 @@
     var t = e.target.closest('button');
     if (!t || !root.contains(t)) return;
     var d = t.dataset;
+    if (d.tab && state.create) return switchMode(d.tab === 'nearby' ? 'public' : 'family');
     if (d.tab) return setTab(d.tab);
     if (d.tabGo) return setTab(d.tabGo);
     if (d.bar) {
@@ -693,7 +717,7 @@
     if (d.sugg) {
       state.draft.title = d.sugg;
       renderCreate();
-      $('[data-publish]', create).focus();
+      $('[data-publish]', create).focus({ preventScroll: true });
       return;
     }
     if (d.reward) { state.draft.reward = +d.reward; renderCreate(); $('[data-reward="' + d.reward + '"]', create).focus(); return; }
@@ -702,6 +726,7 @@
     if (d.taskDo) return doTask(d.taskDo);
   });
   create.addEventListener('input', function (e) {
+    if (e.target.matches('[data-text]')) { state.draft.text = e.target.value; return grow(e.target); }
     if (!e.target.matches('[data-title]')) return;
     state.draft.title = e.target.value;
     $('[data-publish]', create).disabled = !e.target.value.trim();
@@ -805,9 +830,18 @@
   }
   function switchMode(mode) {
     if (mode === state.mode) return;
-    closeAll();
+    var composing = state.create;
+    var draft = state.draft;
+    if (!composing) closeAll();
     hush();
     load(mode);
+    if (composing) {
+      state.create = true;
+      state.draft.title = draft.title;
+      state.draft.text = draft.text;
+      state.draft.photo = draft.photo;
+      renderCreate();
+    }
     labelScenarios();
     scroll.scrollTo({ top: 0 });
     render({ animate: true });
@@ -858,6 +892,7 @@
       if (e.pointerType !== 'mouse') return;
       var b = clickable(e.target);
       dot.style.transform = 'translate(' + e.clientX + 'px,' + e.clientY + 'px)';
+      if (b) dot.classList.toggle('is-grau', getComputedStyle(b).backgroundColor === 'rgb(126, 148, 255)');
       if (b !== over) {
         over = b;
         dot.classList.remove('is-on');
