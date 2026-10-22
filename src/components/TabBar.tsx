@@ -1,12 +1,16 @@
+import { useEffect } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { color, radius, size, space, stroke } from '../theme/tokens';
 import { Icon } from './icons/Icon';
 import { CrownIcon } from './icons/Brand';
 import { t } from '../data/texts';
+import { refreshUnread, useUnreadMessages } from '../data/chat';
+import { useStore } from '../data/store';
 
-export type TabKey = 'feed' | 'reise';
+export type TabKey = 'feed' | 'reise' | 'chat';
 
 type TabBarProps = {
   active: TabKey;
@@ -27,6 +31,12 @@ type TabBarProps = {
  */
 export function TabBar({ active, onFeedPress, onReisePress, onReiseLongPress, onMenuPress, hasTasks }: TabBarProps) {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const { mode, currentUserId } = useStore();
+  const unread = useUnreadMessages();
+  useEffect(() => {
+    if (currentUserId) refreshUnread(currentUserId, mode === 'live').catch(() => {});
+  }, [currentUserId, mode]);
   return (
     <View style={[styles.wrap, { bottom: Math.max(insets.bottom, space[16]) }]} pointerEvents="box-none">
       <View style={styles.bar} accessibilityRole="tablist">
@@ -50,6 +60,19 @@ export function TabBar({ active, onFeedPress, onReisePress, onReiseLongPress, on
           <View>
             <CrownIcon height={26} />
             {hasTasks ? <View style={styles.dot} /> : null}
+          </View>
+        </Pressable>
+        {/* Chat und Freund:innen (Daria, 22.10.2026) */}
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : t('Chats')}
+          accessibilityState={{ selected: active === 'chat' }}
+          onPress={() => active !== 'chat' && router.push('/chat')}
+          style={({ pressed }) => [styles.item, active === 'chat' && styles.itemActive, pressed && styles.pressed]}
+        >
+          <View>
+            <Icon name="message" size={size.icon} color={active === 'chat' ? color.text.primary : color.text.secondary} />
+            {unread ? <View style={styles.dot} /> : null}
           </View>
         </Pressable>
         <Pressable

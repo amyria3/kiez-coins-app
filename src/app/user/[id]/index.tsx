@@ -194,7 +194,14 @@ export default function UserProfile() {
               />
             </View>
           ) : friend === 'friends' ? (
-            <Button label="Befreundet" variant="secondary" disabled={friendBusy} onPress={confirmEnd} />
+            <>
+              <Button
+                label="Nachricht schreiben"
+                icon="message"
+                onPress={() => router.push({ pathname: '/chat/[id]', params: { id: user.id, name: user.name } })}
+              />
+              <Button label="Befreundet" variant="secondary" disabled={friendBusy} onPress={confirmEnd} />
+            </>
           ) : null}
           {praise ? (
             <Button
