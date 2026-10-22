@@ -192,19 +192,39 @@ button { font: inherit; color: inherit; }
 .p-text { color: var(--muted); margin: 0 0 14px; font-size: 12.5px; }
 .p-metrics-row { margin-bottom: 14px; }
 
-.p-create { top: 40px; border-radius: 30px 30px 44px 44px; }
+.p-create { top: 140px; border-radius: 30px 30px 44px 44px; overflow-y: auto; scrollbar-width: none; box-shadow: 0 -12px 30px rgba(0,0,0,.35); }
+.p-create::-webkit-scrollbar { display: none; }
+/* Erstellen: Logo und Begrüßung klappen ein, schmaler Header mit X, die Pille bleibt */
+.p-head, .p-greet { max-height: 80px; overflow: hidden; transition: max-height 560ms var(--barrier), opacity 300ms, padding 560ms var(--barrier); }
+.p-compose-head { display: flex; align-items: center; gap: 4px; padding: 0 8px; max-height: 0; overflow: hidden; opacity: 0;
+  transition: max-height 560ms var(--barrier), opacity 300ms; }
+.p-compose-head strong { font: 600 15px/1.2 var(--display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.p-x { width: 40px; height: 40px; display: grid; place-items: center; flex: none; }
+.is-composing .p-head, .is-composing .p-greet { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; }
+.is-composing .p-compose-head { max-height: 52px; height: 52px; opacity: 1; }
+.p-camera { transition: opacity 300ms; }
+.is-composing .p-camera { opacity: 0; pointer-events: none; }
 .p-create-head { display: grid; grid-template-columns: 32px 1fr 32px; align-items: center; padding: 14px 14px 6px; text-align: center; }
 .p-create-head strong { font: 600 15px/1 var(--display); }
 .p-close-inline { position: static !important; }
-.p-create-body { padding: 8px 16px 20px; display: grid; gap: 14px; }
-.p-photo { position: relative; height: 140px; border-radius: 20px !important; border: 1.5px dashed var(--line) !important; display: grid; place-items: center;
-  align-content: center; gap: 8px; color: var(--muted); overflow: hidden; font-size: 12px; }
-.p-photo.has-photo { border-style: solid !important; animation: p-in 560ms var(--barrier); }
-.p-photo-label { position: absolute; bottom: 8px; right: 8px; padding: 5px 10px; border-radius: 999px; background: var(--glass); color: var(--text); font-size: 10.5px; }
+.p-create-body { padding: 16px 16px 96px; display: grid; gap: 14px; }
+.p-photo { position: relative; height: 210px; border-radius: 20px; border: 1.5px dashed rgba(160,160,160,.6); overflow: hidden; }
+.p-photo.has-photo { border-color: transparent; animation: p-in 560ms var(--barrier); }
+.p-photo-hit { position: absolute !important; inset: 0; width: 100%; }
+.p-photo-empty { position: absolute; inset: 0 0 64px; display: grid; place-items: center; align-content: center; gap: 8px; color: var(--muted); font-size: 12px; }
+.p-photo-title { position: absolute; left: 10px; right: 10px; bottom: 10px; padding: 10px 14px; border-radius: 18px; background: var(--glass);
+  border: .5px solid var(--line); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.p-photo-title:focus-within { border-color: var(--purple); }
+.p-photo-title input { width: 100%; background: none; border: 0; padding: 0; color: var(--text); font: 600 15.5px/1.2 var(--display); letter-spacing: -.01em; }
+.p-photo-title input:focus { outline: none; }
+.p-photo-title input::placeholder, .p-field textarea::placeholder { color: var(--muted); }
 .p-field { display: grid; gap: 6px; }
 .p-field > span { color: var(--muted); font-size: 11px; }
 .p-field input { width: 100%; font: 400 15px/1.2 Inter, sans-serif; color: var(--text); background: var(--surface); border: 1px solid transparent; border-radius: 14px; padding: 12px; }
 .p-field input:focus { outline: none; border-color: var(--purple); }
+.p-field textarea { width: 100%; min-height: 64px; resize: none; overflow: hidden; font: 400 13px/1.4 Inter, sans-serif; color: var(--text); background: none;
+  border: 1px solid var(--muted); border-radius: 14px; padding: 12px; }
+.p-field textarea:focus { outline: none; border-color: var(--purple); }
 .p-sugg { display: flex; flex-wrap: wrap; gap: 6px; margin-top: -6px; }
 .p-pill { padding: 6px 10px !important; border-radius: 999px !important; border: 1px solid var(--line) !important; color: var(--muted); font-size: 11px; }
 .p-choice { display: flex; gap: 6px; }
@@ -312,13 +332,15 @@ footer a { color: var(--muted); }
 .klick-punkt { position: fixed; z-index: 1000; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
 .klick-punkt span { position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; border-radius: 50%; background: rgba(126,148,255,.7);
   box-shadow: 0 0 0 0 rgba(126,148,255,.45); opacity: 0; transform: scale(.2); transition: opacity 160ms, transform 160ms; }
+.klick-punkt span { --ring: 126,148,255; }
+.klick-punkt.is-grau span { --ring: 200,200,200; background: rgba(160,160,160,.75); }
 .klick-punkt.is-on span { opacity: 1; transform: scale(1);
   animation: punkt-wachsen 900ms cubic-bezier(.2,.7,.3,1) both, punkt-pulsieren 1400ms ease-in-out 900ms infinite; }
 @keyframes punkt-wachsen { from { transform: scale(.2); } to { transform: scale(1); } }
 @keyframes punkt-pulsieren {
-  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(126,148,255,.45); }
-  50% { transform: scale(1.15); box-shadow: 0 0 0 14px rgba(126,148,255,0); }
-  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(126,148,255,0); }
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--ring),.45); }
+  50% { transform: scale(1.15); box-shadow: 0 0 0 14px rgba(var(--ring),0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--ring),0); }
 }
 
 /* Kater: Kopf schaut schräg vom linken Rand herein */
