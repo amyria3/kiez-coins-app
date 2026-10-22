@@ -225,7 +225,7 @@
   screen.innerHTML =
     '<div class="p-status" aria-hidden="true"><span>' + clock + '</span><span class="p-island"></span><span class="p-battery"></span></div>' +
     '<div class="p-scroll">' +
-    '  <div class="p-head"><span class="p-wordmark">' + svg('wordmark', 17) + '</span><span class="p-cat">' + svg('cat', 22) + '</span></div>' +
+    '  <div class="p-head"><span class="p-wordmark">' + svg('logo', 22) + '</span></div>' +
     '  <div class="p-greet"><h3>' + greeting + ', Mira</h3><p><span class="p-place"></span> · <span class="p-count"></span></p></div>' +
     '  <div class="p-compose-head"><button type="button" class="p-x" data-close aria-label="Schließen">' + svg('close', 12) + '</button><strong class="p-compose-line"></strong></div>' +
     '  <div class="p-seg" role="tablist" aria-label="Feed">' +

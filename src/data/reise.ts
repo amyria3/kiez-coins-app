@@ -107,10 +107,8 @@ export function reiseMoodText(mood: ReiseMood, anrede: string): string {
   }
 }
 
-/**
- * Bis Daria die Stimmungen illustriert hat, gibt es nur die Figma-Varianten Default und High.
- * Aufgeregte Stimmungen nutzen High.
- */
+/** Kater-Stimmungen von Daria: gierig mit Dollar in der Brille, stolz und verliebt aufgeregt, sonst normal. */
 export function catVariant(mood: ReiseMood): CatMood {
-  return mood === 'Greedy' || mood === 'Proud' || mood === 'InLove' ? 'high' : 'default';
+  if (mood === 'Greedy') return 'money';
+  return mood === 'Proud' || mood === 'InLove' ? 'high' : 'default';
 }

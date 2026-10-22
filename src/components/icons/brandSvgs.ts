@@ -27,12 +27,13 @@ const EYE_LEFT_HIGH =
 const EYE_RIGHT =
   'M21.69 26.69C20.19 26.66 19.17 25.80 18.65 24.51C18.12 23.21 18.12 21.49 18.68 19.83C19.06 18.72 20.14 18.24 21.27 18.06C22.39 17.88 23.48 18.00 23.75 18.03C24.04 18.10 24.99 18.21 26.10 18.71C27.23 19.23 28.45 20.14 29.00 21.76C29.46 23.11 29.29 23.99 28.93 24.62C28.65 25.11 28.26 25.46 27.90 25.77L27.54 26.07L27.35 26.24C26.90 26.62 26.53 26.84 26.20 26.97C25.83 27.11 25.49 27.14 25.10 27.11C24.70 27.08 24.28 26.98 23.72 26.89C23.17 26.79 22.51 26.71 21.69 26.69Z';
 
-export type CatMood = 'default' | 'high';
+export type CatMood = 'default' | 'high' | 'money';
 
 // Augenfarben aus den Shader-Parametern in Figma
 const EYE_STOPS: Record<CatMood, [string, string]> = {
   default: ['#FFE99E', '#00FF44'],
   high: ['#FFE99E', '#FF009B'],
+  money: ['#D5FF00', '#FF009B'],
 };
 
 export function catSvg(mood: CatMood, body: string, outline: string): string {

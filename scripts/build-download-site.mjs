@@ -93,6 +93,8 @@ const { iconSvgs } = await loadTs('src/components/icons/svgs.ts');
 const brand = await loadTs('src/components/icons/brandSvgs.ts');
 const { crownSvg } = await loadTs('src/components/icons/crownSvg.ts');
 const { diamondSvgs } = await loadTs('src/components/icons/diamondSvgs.ts');
+const { brandArt } = await loadTs('src/components/icons/brandArt.ts');
+const art = (name) => ({ w: brandArt[name].width, h: brandArt[name].height, svg: brandArt[name].svg });
 const { figuren, kartenbilder, filterDefs } = await import('./site/kunst.mjs');
 const C = { text: '#F0F0F0', muted: '#A0A0A0', purple: '#7E94FF', pink: '#FFB2E5', green: '#93F4A7', dark: '#1F2123' };
 const icon = (name, c) => ({ w: iconSvgs[name].width, h: iconSvgs[name].height, svg: iconSvgs[name].svg(c) });
@@ -111,8 +113,11 @@ const kcSvg = {
   hands: icon('wir-schaffen-das', C.dark),
   checkGreen: icon('check', C.green),
   wordmark: { w: 132, h: 25, svg: brand.wordmarkSvg(C.purple) },
-  cat: { w: 35, h: 41, svg: brand.catSvg('default', C.purple, C.text) },
-  catHigh: { w: 35, h: 41, svg: brand.catSvg('high', C.purple, C.text) },
+  // Kater und Logo von Daria (assets/brand/, übernommen mit scripts/brand-import.mjs)
+  cat: art('kater-normal'),
+  catHigh: art('kater-high'),
+  catMoney: art('kater-money'),
+  logo: art('logo'),
   coins: { w: 30, h: 35, svg: brand.coinsSvg },
   crown: { w: crownSvg.width, h: crownSvg.height, svg: crownSvg.svg(C.text) },
   diamond: { w: diamondSvgs[1].width, h: diamondSvgs[1].height, svg: diamondSvgs[1].svg(C.text) },
@@ -174,7 +179,7 @@ const index = `<!doctype html>
 ${filterDefs}
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="./" aria-label="Kiez Coins, Startseite">${sized(kcSvg.coins, 30)}${sized(kcSvg.wordmark, 18)}</a>
+  <a class="brand" href="./" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}</a>
   <a class="top-link" href="#download">Testversion laden</a>
 </header>
 
@@ -329,7 +334,7 @@ const einladung = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.coins, 30)}${sized(kcSvg.wordmark, 18)}</a>
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}</a>
 </header>
 <main>
 <section class="download einladung" id="download" aria-labelledby="einladung-titel">
@@ -402,7 +407,7 @@ const katerSeite = `<!doctype html>
 <body class="kater-seite">
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.coins, 30)}${sized(kcSvg.wordmark, 18)}</a>
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}</a>
   <a class="top-link" href="/#download">Testversion laden</a>
 </header>
 <main class="kater-buehne-seite">
