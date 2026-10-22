@@ -199,3 +199,11 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 
 **Bis sie läuft:** Das Herz zeigt keine Zahl.
 
+
+## 19. `supabase/migrations/20261022000300_edit_challenge_image.sql`
+
+**Wozu:** Foto beim Bearbeiten einer Challenge oder Aufgabe ändern.
+
+**Ändert:** Funktion `set_challenge_image`. Sie trägt den Pfad eines neuen Fotos ein, nur für eigene offene Challenges, die noch niemand angenommen hat.
+
+**Bis sie läuft:** Titel, Text und die übrigen Felder speichern wie bisher. Ein neues Foto meldet einen Fehler und bleibt nur bis zum nächsten Laden sichtbar.

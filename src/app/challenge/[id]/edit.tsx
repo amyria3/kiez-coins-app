@@ -5,7 +5,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
 import { FieldGroup } from '../../../components/Content';
-import { Chip, ChipGroup, TextField } from '../../../components/Form';
+import { Chip, ChipGroup, PhotoPicker, TextField } from '../../../components/Form';
+import type { ImageSource } from '../../../data/types';
 import { SubScreen } from '../../../components/Screen';
 import { formatDayMonthShort, formatRemainingShort } from '../../../data/format';
 import { useChallenge, useStore } from '../../../data/store';
@@ -42,6 +43,7 @@ export default function EditChallenge() {
   const [location, setLocation] = useState(challenge?.location ?? '');
   const [bounty, setBounty] = useState<number | undefined>(challenge?.bountyAmount);
   const [durationDays, setDurationDays] = useState<number | null>(null);
+  const [photo, setPhoto] = useState<ImageSource>();
   const titleField = useNudge();
   const locationField = useNudge();
 
@@ -81,13 +83,15 @@ export default function EditChallenge() {
       : expired
         ? renewed()
         : challenge.deadline,
+    ...(photo ? { photo } : {}),
   });
   const changed =
     title.trim() !== challenge.title ||
     body.trim() !== challenge.text ||
     location.trim() !== challenge.location ||
     bounty !== challenge.bountyAmount ||
-    durationDays !== null;
+    durationDays !== null ||
+    !!photo;
   const bountyBlocked = !!bounty && bounty > (challenge.bountyAmount ?? 0) && !canOfferBounties;
   const backToManage = () => {
     router.dismissTo('/feed');
@@ -171,7 +175,13 @@ export default function EditChallenge() {
         )
       }
     >
-      <TextField label="Titel" required nudge={titleField} value={title} onChangeText={setTitle} maxLength={60} />
+      {/* Foto ändern oder hinzufügen, Titel direkt auf dem Foto wie beim Erstellen */}
+      <PhotoPicker
+        photo={photo ?? challenge.image}
+        hint={isGroup ? 'Optional. Zeig, worum es geht.' : 'Zeig, wo geholfen werden soll.'}
+        onChange={setPhoto}
+        title={{ value: title, onChange: setTitle, nudge: titleField }}
+      />
       <TextField label="Beschreibung" value={body} onChangeText={setBody} maxLength={500} multiline />
       {isGroup ? null : (
         <>
