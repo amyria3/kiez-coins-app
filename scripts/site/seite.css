@@ -388,7 +388,8 @@ footer a { color: var(--muted); }
 .kater-wege { position: absolute; left: 100%; bottom: 40px; display: grid; gap: 10px; margin-left: 8px; }
 .kater-wege button { white-space: nowrap; border: 1px solid var(--line); background: var(--surface); color: var(--text); border-radius: 999px;
   padding: 12px 20px; font: 500 15px/1 Inter, sans-serif; cursor: pointer; }
-.kater-wege button:last-child { background: var(--purple); color: var(--bg); border-color: transparent; }
+.kater-wege button:last-of-type { background: var(--purple); color: var(--bg); border-color: transparent; }
+.kater-wege .kater-hallo-link { white-space: nowrap; text-align: center; text-decoration: none; color: var(--text); padding: 10px 20px; font: 400 14px/1 Inter, sans-serif; }
 @media (max-width: 640px) {
   .kater-kopf { width: 84px; left: -40px; top: 70vh; }
   .kater-kopf img { width: 84px; }
@@ -406,3 +407,34 @@ footer a { color: var(--muted); }
 .einladung h2 { font: 600 clamp(34px, 5vw, 56px)/1.05 var(--display); letter-spacing: -.025em; margin: 0 0 12px; }
 .einladung > p { color: var(--muted); margin: 0 0 32px; max-width: 46ch; }
 .einladung .error { color: var(--red); }
+
+/* Seite /kater: dem Kater Hallo sagen */
+.kater-buehne-seite { display: grid; justify-items: center; gap: 8px; padding: 8px 0 64px; }
+.kater-spruch { max-width: min(420px, 90vw); min-height: 1em; margin: 0; font: 600 clamp(18px, 2.4vw, 24px)/1.25 var(--display); transform: rotate(-2deg); }
+.kater-spruch.is-neu { animation: spruch-neu 560ms var(--barrier); }
+@keyframes spruch-neu { from { opacity: 0; transform: rotate(-2deg) scale(.7) translateY(12px); } }
+.kater-figur { position: relative; display: block; width: min(420px, 86vw); padding: 0; border: 0; background: none; cursor: pointer;
+  animation: atmen 4.2s ease-in-out infinite; transform-origin: 50% 100%; }
+.kater-svg { display: block; width: 100%; height: auto; overflow: visible; }
+@keyframes atmen { 50% { transform: scaleY(1.012); } }
+.kater-svg #Besen, .kater-svg #Brille, .kater-svg #Stiefel { transform-box: fill-box; }
+.kater-svg #Besen { transform-origin: 28% 30%; }
+.kater-svg #Brille { transform-origin: 50% 50%; }
+.kater-svg #Stiefel { transform-origin: 50% 100%; }
+.fegen .kater-svg #Besen { animation: fegen 2.4s ease-in-out; }
+@keyframes fegen { 0%, 100% { rotate: 0deg; } 15% { rotate: 12deg; } 32% { rotate: -6deg; } 50% { rotate: 12deg; } 68% { rotate: -6deg; } 85% { rotate: 10deg; } }
+.winken .kater-svg #Besen { animation: winken 2.2s var(--barrier); }
+@keyframes winken { 0%, 100% { translate: 0 0; rotate: 0deg; } 20% { translate: 0 -60px; rotate: 8deg; } 40% { translate: 0 -60px; rotate: -8deg; } 60% { translate: 0 -60px; rotate: 8deg; } 80% { translate: 0 -30px; rotate: 0deg; } }
+.brille .kater-svg #Brille { animation: brille 2.4s var(--barrier); }
+@keyframes brille { 0%, 100% { translate: 0 0; } 20%, 70% { translate: 0 34px; } }
+.stampfen .kater-svg #Stiefel { animation: stampfen 1.6s ease-in-out; }
+@keyframes stampfen { 0%, 100% { translate: 0 0; } 15% { translate: 0 -26px; } 30% { translate: 0 0; } 45% { translate: 0 -20px; } 60% { translate: 0 0; } }
+.staub { position: absolute; left: 62%; bottom: 14%; width: 0; height: 0; pointer-events: none; }
+.staub i { position: absolute; width: 18px; height: 18px; border-radius: 50%; background: rgba(240,240,240,.35); opacity: 0;
+  animation: staub 1.4s ease-out forwards; }
+@keyframes staub { 0% { opacity: 0; transform: translate(0,0) scale(.3); } 25% { opacity: .9; } 100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(var(--s)); } }
+.kater-knoepfe { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.kater-knoepfe button { border: 1px solid var(--line); background: var(--surface); color: var(--text); border-radius: 999px; padding: 14px 22px;
+  font: 500 16px/1 Inter, sans-serif; cursor: pointer; }
+.kater-knoepfe .kater-hallo { background: var(--purple); color: var(--bg); border-color: transparent; }
+@media (prefers-reduced-motion: reduce) { .kater-figur { animation: none; } }
