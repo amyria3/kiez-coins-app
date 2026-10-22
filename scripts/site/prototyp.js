@@ -889,7 +889,8 @@
       if (state.create) return $('[data-publish]:not(:disabled)', create) || $('.p-photo-title', create);
       if (state.detail) return $('.p-btn:not(:disabled)', sheet);
     }
-    if (state.tab === 'pleasure') return $('[data-bar="feed"]');
+    // In „Was Du so machst“ kein Ring: Wer gerade die Krone gewählt hat, soll nicht zurückgeschickt werden
+    if (state.tab === 'pleasure') return null;
     if (name === 'stellen') return $('.p-camera');
     if (name === 'rangliste') return state.mode === 'family' ? $('[data-task-do]') || $('.p-board') : $('.p-seg [data-tab="groups"]');
     if (name === 'gruppe' && state.mode !== 'family') return $('.p-seg [data-tab="groups"]');
