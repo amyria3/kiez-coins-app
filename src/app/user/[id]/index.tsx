@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -10,7 +10,18 @@ import { Icon } from '../../../components/icons/Icon';
 import { NavRow } from '../../../components/Rows';
 import { SubScreen } from '../../../components/Screen';
 import { nameInText } from '../../../data/format';
-import { errorText, loadPraise, setPraise } from '../../../data/remote';
+import {
+  acceptFriend,
+  errorText,
+  loadFriendState,
+  loadPraise,
+  loadProfileExtras,
+  removeFriend,
+  requestFriend,
+  setPraise,
+  type FriendState,
+  type ProfileExtras,
+} from '../../../data/remote';
 import { useStore } from '../../../data/store';
 import { color, radius, space, text } from '../../../theme/tokens';
 import { t } from '../../../data/texts';
@@ -32,10 +43,18 @@ export default function UserProfile() {
     mode === 'demo' ? { count: 3, mine: false } : null,
   );
   const [busy, setBusy] = useState(false);
+  // Bio und Webseite; Freundschaft (null: Migration fehlt oder lädt)
+  const [extras, setExtras] = useState<ProfileExtras | null>(
+    mode === 'demo' ? { bio: 'Kompost, Kaffee und kaputte Fahrräder. Frag mich, wenn was klemmt.', website: 'https://kiezcoins.de' } : null,
+  );
+  const [friend, setFriend] = useState<FriendState | null>(mode === 'demo' ? 'none' : null);
+  const [friendBusy, setFriendBusy] = useState(false);
 
   useEffect(() => {
     if (mode !== 'live' || !params.id || !currentUserId) return;
     loadPraise(params.id, currentUserId).then(setPraiseState, () => setPraiseState(null));
+    loadProfileExtras(params.id).then(setExtras);
+    if (params.id !== currentUserId) loadFriendState(currentUserId, params.id).then(setFriend);
   }, [mode, params.id, currentUserId]);
 
   if (!user) {
@@ -65,6 +84,28 @@ export default function UserProfile() {
       setBusy(false);
     }
   };
+
+  // Freundschaft: anfragen, zurückziehen, annehmen, ablehnen, beenden
+  const changeFriend = async (next: FriendState, run: () => Promise<void>) => {
+    const before = friend;
+    setFriend(next);
+    if (mode !== 'live') return;
+    setFriendBusy(true);
+    try {
+      await run();
+    } catch (error) {
+      setFriend(before);
+      Alert.alert('Nicht geklappt', errorText(error));
+    } finally {
+      setFriendBusy(false);
+    }
+  };
+  const confirmEnd = () =>
+    Alert.alert(t('Freundschaft mit {Name} beenden?', { Name }), t('{Name} erfährt nichts davon. Ihr könnt Euch jederzeit wieder anfragen.', { Name }), [
+      { text: 'Abbrechen', style: 'cancel' },
+      { text: 'Beenden', style: 'destructive', onPress: () => changeFriend('none', () => removeFriend(currentUserId, user.id)) },
+    ]);
+  const website = extras?.website ?? '';
 
   const block = () =>
     Alert.alert(
@@ -102,6 +143,20 @@ export default function UserProfile() {
             <Text style={styles.secondary}>{user.location}</Text>
           </View>
         ) : null}
+        {extras?.bio ? <Text style={styles.bio}>{extras.bio}</Text> : null}
+        {website ? (
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel={t('Webseite öffnen: {website}', { website })}
+            onPress={() => Linking.openURL(website).catch(() => {})}
+            style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}
+          >
+            <Icon name="send" size={13} color={color.accent.primary} />
+            <Text style={styles.link} numberOfLines={1}>
+              {website.replace(/^https?:\/\//i, '').replace(/\/$/, '')}
+            </Text>
+          </Pressable>
+        ) : null}
         {praise ? (
           <View style={styles.praise} accessibilityLabel={t('{count} Mal gelobt', { count: praise.count })}>
             <Icon name="thumbs-up" size={18} color={color.accent.confirmation} />
@@ -114,6 +169,33 @@ export default function UserProfile() {
         <Notice message="So sehen Dich die anderen. Foto, Deckname und Kiez änderst Du unter „Dein Konto“." />
       ) : (
         <>
+          {friend === 'none' ? (
+            <Button label="Als Freund:in anfragen" disabled={friendBusy} onPress={() => changeFriend('sent', () => requestFriend(user.id))} />
+          ) : friend === 'sent' ? (
+            <Button
+              label="Anfrage gesendet"
+              variant="secondary"
+              disabled={friendBusy}
+              onPress={() => changeFriend('none', () => removeFriend(currentUserId, user.id))}
+            />
+          ) : friend === 'received' ? (
+            <View style={styles.buttons}>
+              <Button
+                label="Anfrage annehmen"
+                disabled={friendBusy}
+                onPress={() => changeFriend('friends', () => acceptFriend(currentUserId, user.id))}
+                style={styles.flex}
+              />
+              <Button
+                label="Ablehnen"
+                variant="secondary"
+                disabled={friendBusy}
+                onPress={() => changeFriend('none', () => removeFriend(currentUserId, user.id))}
+              />
+            </View>
+          ) : friend === 'friends' ? (
+            <Button label="Befreundet" variant="secondary" disabled={friendBusy} onPress={confirmEnd} />
+          ) : null}
           {praise ? (
             <Button
               label={praise.mine ? 'Lob gezollt' : 'Lob zollen'}
@@ -147,6 +229,10 @@ const styles = StyleSheet.create({
   name: { ...text.headline, color: color.text.primary, textAlign: 'center' },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   secondary: { ...text.body, color: color.text.secondary },
+  bio: { ...text.body, color: color.text.primary, textAlign: 'center', maxWidth: 320 },
+  link: { ...text.body, color: color.accent.primary },
+  buttons: { flexDirection: 'row', gap: space[8] },
+  flex: { flex: 1 },
   praise: {
     flexDirection: 'row',
     alignItems: 'center',

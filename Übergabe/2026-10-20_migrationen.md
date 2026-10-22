@@ -207,3 +207,13 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 **Ändert:** Funktion `set_challenge_image`. Sie trägt den Pfad eines neuen Fotos ein, nur für eigene offene Challenges, die noch niemand angenommen hat.
 
 **Bis sie läuft:** Titel, Text und die übrigen Felder speichern wie bisher. Ein neues Foto meldet einen Fehler und bleibt nur bis zum nächsten Laden sichtbar.
+
+## 20. `supabase/migrations/20261022000400_bio_friends.sql`
+
+**Wozu:** Kurze Bio und Webseite im Profil, Freundschaftsanfragen.
+
+**Ändert:**
+- Spalten `bio` (bis 160 Zeichen) und `website` (http/https) in `profiles`, änderbar nur am eigenen Profil.
+- Tabelle `friendships`: Anfrage (`pending`) und Freundschaft (`accepted`). Annehmen darf nur die angefragte Person, lösen beide. Keine Anfrage zwischen Personen, die sich blockieren. Blockieren beendet eine Freundschaft (Trigger).
+
+**Bis sie läuft:** Profil und Personenansicht zeigen keine Bio, keine Webseite und keinen Knopf für Freundschaften. „Freundschaften“ im Konto meldet, dass die Datenbank ein Update braucht.

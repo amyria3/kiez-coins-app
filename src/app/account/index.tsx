@@ -10,7 +10,7 @@ import { SubScreen } from '../../components/Screen';
 import { SurveyOverlay } from '../../components/SurveyOverlay';
 import { anrede } from '../../data/format';
 import { useAuth } from '../../data/auth';
-import { isModerator } from '../../data/remote';
+import { isModerator, loadFriends } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
 import { color, size, space } from '../../theme/tokens';
 import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
@@ -24,6 +24,12 @@ export default function Account() {
   // „Moderation“ nur für Personen in der Tabelle `moderators`
   const [moderator, setModerator] = useState(false);
   const [survey, setSurvey] = useState(false);
+  // Offene Freundschaftsanfragen als Zahl an der Zeile
+  const [friendRequests, setFriendRequests] = useState(0);
+  useEffect(() => {
+    if (mode !== 'live') return;
+    loadFriends(me.id).then((l) => setFriendRequests(l?.incoming.length ?? 0), () => {});
+  }, [mode, me.id]);
   const languageName = getLanguageChoice() === 'auto' ? t('Wie das Handy') : languages.find((l) => l.code === getLanguage())?.name;
   useEffect(() => {
     if (mode === 'live') isModerator().then(setModerator);
@@ -68,6 +74,11 @@ export default function Account() {
       />
       <FieldGroup label="Einstellungen">
         <View style={styles.list}>
+          <NavRow
+            label="Freundschaften"
+            value={friendRequests ? t('{n, plural, one {# Anfrage} other {# Anfragen}}', { n: friendRequests }) : undefined}
+            onPress={() => router.push('/account/freunde')}
+          />
           <NavRow label="So geht Kiez Coins" value="Kurze Videos" onPress={() => router.push('/tour')} />
           <NavRow label="Sprache" value={languageName} onPress={() => router.push('/account/sprache')} />
           <NavRow
