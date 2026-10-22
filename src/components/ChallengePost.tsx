@@ -254,7 +254,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: color.bg.surface,
     justifyContent: 'flex-end',
-    padding: space[8],
+    // Glasleiste mit Abstand zum Kartenrand (Daria, 22.10.2026)
+    padding: space[12],
   },
   // Gruppenaufgabe ohne Foto: nur Glasleiste mit Titel
   cardNoPhoto: { height: 150 },
