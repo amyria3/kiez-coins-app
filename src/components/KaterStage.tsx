@@ -130,7 +130,7 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
         <Animated.View
           style={[
             flaeche,
-            { transformOrigin: 'bottom', transform: [{ scaleY: atem.interpolate({ inputRange: [0, 1], outputRange: [1, 1.012] }) }] },
+            { transformOrigin: [width / 2, height, 0], transform: [{ scaleY: atem.interpolate({ inputRange: [0, 1], outputRange: [1, 1.012] }) }] },
           ]}
         >
           <Image source={KOERPER} style={layer} contentFit="contain" />
@@ -139,7 +139,8 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
               layer,
               {
                 // Drehpunkt an der Pfote, die den Besen hält
-                transformOrigin: `${(450 / W) * 100}% ${(412 / H) * 100}%`,
+                // Als Zahlen in pt: iOS liest Prozentwerte mit vielen Nachkommastellen falsch
+                transformOrigin: [450 * s, 412 * s, 0],
                 transform: [
                   { translateX: Animated.multiply(besenX, s) },
                   { translateY: Animated.multiply(besenY, s) },
