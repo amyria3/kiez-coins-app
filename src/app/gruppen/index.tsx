@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { Button } from '../../components/Button';
 import { KaterCard } from '../../components/Content';
 import { EdensteinIcon } from '../../components/icons/Brand';
-import { Icon } from '../../components/icons/Icon';
+import { IconButton } from '../../components/IconButton';
 import { SubScreen } from '../../components/Screen';
 import { MAX_GROUPS, myEdensteine } from '../../data/groups';
 import { useStore } from '../../data/store';
@@ -44,7 +44,8 @@ export default function Groups() {
           key={g.id}
           accessibilityRole="button"
           accessibilityLabel={t('{name} öffnen', { name: g.name })}
-          onPress={() => router.push(`/gruppen/${g.id}`)}
+          // Tippen öffnet die Aufgaben der Gruppe im Feed, das Zahnrad die Verwaltung (Daria, 22.10.2026)
+          onPress={() => router.dismissTo({ pathname: '/feed', params: { gruppe: g.id } })}
           style={({ pressed }) => [styles.card, pressed && styles.pressed]}
         >
           <View style={styles.flex}>
@@ -60,7 +61,13 @@ export default function Groups() {
             <EdensteinIcon height={16} />
             <Text style={styles.edenValue}>{myEdensteine(g, challenges, currentUserId)}</Text>
           </View>
-          <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
+          <IconButton
+            icon="settings"
+            iconSize={size.icon}
+            iconColor={color.text.secondary}
+            accessibilityLabel={t('{name} verwalten', { name: g.name })}
+            onPress={() => router.push(`/gruppen/${g.id}`)}
+          />
         </Pressable>
       ))}
       {full ? <Text style={styles.meta}>{t('Du bist in {MAX_GROUPS} Gruppen. Mehr geht nicht.', { MAX_GROUPS })}</Text> : null}

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from './T';
 
@@ -25,6 +25,16 @@ type EditableRowProps = {
 export function EditableRow({ label, value, onSave, renderEditor, maxLength }: EditableRowProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
+  // Speichern genau einmal: beim Häkchen oder beim Verlassen des Felds. Das Feld verliert den Fokus,
+  // bevor das Häkchen den Tipp bekommt, deshalb speichert schon onBlur.
+  const committed = useRef(false);
+  const commit = () => {
+    if (committed.current) return;
+    committed.current = true;
+    const next = draft.trim();
+    if (next && next !== value) onSave(next);
+    setEditing(false);
+  };
 
   if (!editing) {
     return (
@@ -34,6 +44,7 @@ export function EditableRow({ label, value, onSave, renderEditor, maxLength }: E
         accessibilityLabel={t('{label}: {value}. Ändern', { label, value })}
         onPress={() => {
           setDraft(value);
+          committed.current = false;
           setEditing(true);
         }}
       >
@@ -56,7 +67,9 @@ export function EditableRow({ label, value, onSave, renderEditor, maxLength }: E
             style={[styles.value, styles.input]}
             value={draft}
             onChangeText={setDraft}
-            onBlur={() => setEditing(false)}
+            onBlur={commit}
+            onSubmitEditing={commit}
+            returnKeyType="done"
             autoFocus
             maxLength={maxLength}
             accessibilityLabel={label}
@@ -67,10 +80,7 @@ export function EditableRow({ label, value, onSave, renderEditor, maxLength }: E
       <IconButton
         icon="check"
         accessibilityLabel={t('{label} speichern', { label })}
-        onPress={() => {
-          if (draft.trim()) onSave(draft.trim());
-          setEditing(false);
-        }}
+        onPress={commit}
       />
     </View>
   );

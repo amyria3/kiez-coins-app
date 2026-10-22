@@ -133,7 +133,7 @@ export default function CreatePreview() {
   const summary = (
     <>
       <View style={styles.statusRow}>
-        <StatusBadge status="open" />
+        <StatusBadge status="open" showOpen />
         <Text style={styles.caption}>gerade eben</Text>
       </View>
       <Text style={styles.headline} accessibilityRole="header">

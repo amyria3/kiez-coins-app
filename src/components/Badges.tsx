@@ -9,7 +9,7 @@ import { t } from '../data/texts';
 
 const statusStyles: Record<ChallengeStatus, { label: string; tint: string }> = {
   draft: { label: 'Entwurf', tint: color.text.secondary },
-  open: { label: 'Offen', tint: color.text.secondary },
+  open: { label: 'Offen', tint: color.accent.confirmation },
   accepted: { label: 'Angenommen', tint: color.accent.primary },
   reported: { label: 'Erledigt gemeldet', tint: color.accent.signal },
   confirmed: { label: 'Bestätigt', tint: color.accent.affection },
@@ -21,11 +21,15 @@ const statusStyles: Record<ChallengeStatus, { label: string; tint: string }> = {
   deleted: { label: 'Gelöscht', tint: color.accent.signal },
 };
 
-/** Figma „StatusBadge“ */
-export function StatusBadge({ status }: { status: ChallengeStatus }) {
+/**
+ * Figma „StatusBadge“. Getönte Fläche ohne Rahmen, damit es nicht wie ein Button aussieht.
+ * „Offen“ (grün) erscheint nur in der Vorschau beim Erstellen (`showOpen`), sonst ist offen der Normalfall (Daria, 22.10.2026).
+ */
+export function StatusBadge({ status, showOpen }: { status: ChallengeStatus; showOpen?: boolean }) {
   const { label, tint } = statusStyles[status];
+  if (status === 'open' && !showOpen) return null;
   return (
-    <View style={[styles.status, { borderColor: tint }]}>
+    <View style={[styles.status, { backgroundColor: `${tint}26` }]}>
       <Text style={[text.caption, { color: tint }]}>{label}</Text>
     </View>
   );
@@ -46,7 +50,6 @@ export function BountyBadge({ amount }: { amount: number }) {
 
 const styles = StyleSheet.create({
   status: {
-    borderWidth: stroke.thin,
     borderRadius: radius.full,
     paddingHorizontal: space[8],
     paddingVertical: space[6],

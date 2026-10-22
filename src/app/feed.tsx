@@ -367,7 +367,7 @@ export default function FeedScreen() {
 const CAMERA_WIDTH = 52;
 
 /** Reihenfolge der Reiter für das Wischen */
-const TAB_ORDER: FeedTab[] = ['nearby', 'wave', 'completed', 'groups'];
+const TAB_ORDER: FeedTab[] = ['nearby', 'groups'];
 /** Mindestweg in Punkten, ab dem ein Wischen den Reiter wechselt */
 const SWIPE_DISTANCE = 64;
 

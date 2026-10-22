@@ -108,10 +108,9 @@ export function TopChallengeBar({ items, loading, onItemPress }: TopChallengeBar
 
 export type FeedTab = 'nearby' | 'wave' | 'completed' | 'groups';
 
+// Wave und Pleasure sind raus aus der Leiste (Daria, 22.10.2026). Die Filter in feed.tsx bleiben für später.
 const tabs: { key: FeedTab; label: string; planned?: boolean }[] = [
   { key: 'nearby', label: 'In der Nähe' },
-  { key: 'wave', label: challengeTypes.wave.label, planned: !isTypeActive('wave') },
-  { key: 'completed', label: 'Pleasure' },
   { key: 'groups', label: 'Gruppen' },
 ];
 
