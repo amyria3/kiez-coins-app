@@ -66,7 +66,7 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
           {/* Großer Edenstein, ragt oben und unten über die Karte */}
           <View style={styles.crystal}>
             <View style={styles.crystalFloat}>
-              <LivingCrystal height={CRYSTAL} />
+              <LivingCrystal height={CRYSTAL} seed={selected.id} />
             </View>
           </View>
           <Text style={styles.eden}>{myEdensteine(selected, challenges, currentUserId)}</Text>

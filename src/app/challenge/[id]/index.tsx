@@ -249,7 +249,7 @@ export default function ChallengeDetail() {
         {challenge.edensteine ? (
           <View style={styles.metric}>
             {/* Ein einzelner, großer Kristall (Daria, 22.10.2026) */}
-            <LivingCrystal height={52} amount={1} />
+            <LivingCrystal height={52} seed={challenge.id} />
             <Text style={[styles.metricValue, styles.eden]}>{challenge.edensteine}</Text>
           </View>
         ) : null}

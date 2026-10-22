@@ -181,15 +181,47 @@ function useWander(run: boolean, slow: number) {
   return v;
 }
 
-/** Gemeinsamer Schubs fürs Scrollen: Der Feed meldet, wie weit er sich bewegt, alle Edensteine schwingen nach. */
-const scrollKick = new Animated.Value(0);
-let kickSpring: Animated.CompositeAnimation | null = null;
+/** Schubs fürs Scrollen: Der Feed meldet, wie weit er sich bewegt; jeder Edenstein reagiert auf seine eigene Art. */
+const kickListeners = new Set<(delta: number) => void>();
 export function nudgeCrystals(delta: number) {
   if (!delta) return;
-  kickSpring?.stop();
-  scrollKick.setValue(Math.max(-1, Math.min(1, delta / 40)));
-  kickSpring = Animated.spring(scrollKick, { toValue: 0, friction: 3, tension: 60, useNativeDriver: true });
-  kickSpring.start();
+  kickListeners.forEach((l) => l(delta));
+}
+
+/** Eigene Antwort auf den Schubs: Stärke, Richtung, Verzögerung und Federung je Stein verschieden */
+function useScrollKick(run: boolean) {
+  const v = useRef(new Animated.Value(0)).current;
+  const feel = useRef({
+    gain: 0.6 + Math.random() * 0.8,
+    delay: Math.random() * 140,
+    friction: 2.4 + Math.random() * 2.2,
+    tension: 40 + Math.random() * 45,
+  }).current;
+  useEffect(() => {
+    if (!run) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const listener = (delta: number) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        v.stopAnimation();
+        v.setValue(Math.max(-1, Math.min(1, (delta / 40) * feel.gain)));
+        Animated.spring(v, { toValue: 0, friction: feel.friction, tension: feel.tension, useNativeDriver: true }).start();
+      }, feel.delay);
+    };
+    kickListeners.add(listener);
+    return () => {
+      kickListeners.delete(listener);
+      clearTimeout(timer);
+    };
+  }, [v, run, feel]);
+  return v;
+}
+
+/** Aus einer Kennung (z. B. Challenge-ID) eine feste Zahl, damit jeder Stein sein eigenes Aussehen behält */
+function hashSeed(seed: string) {
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) h = Math.imul(h ^ seed.charCodeAt(i), 16777619);
+  return h >>> 0;
 }
 
 /**
@@ -199,7 +231,7 @@ export function nudgeCrystals(delta: number) {
  * 2. Funkeln: In unregelmäßigen Abständen blitzt oben am Stein ein Lichtstern auf, der Stein wird dabei kurz größer.
  * Mit „Bewegung reduzieren“ steht er still. `height` ist die Höhe des Kristalls; er darf über seinen Rahmen ragen.
  */
-export const LivingCrystal = memo(function LivingCrystal({ height = 48, amount }: { height?: number; amount?: number }) {
+export const LivingCrystal = memo(function LivingCrystal({ height = 48, seed }: { height?: number; amount?: number; seed?: string }) {
   const [still, setStill] = useState(false);
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setStill).catch(() => {});
@@ -207,6 +239,9 @@ export const LivingCrystal = memo(function LivingCrystal({ height = 48, amount }
   const bob = useWander(!still, 1500);
   const tilt = useWander(!still, 2100);
   const drift = useWander(!still, 2700);
+  const scrollKick = useScrollKick(!still);
+  // Je Kennung ein anderer Kristall, mal gespiegelt, mit eigener Grundneigung
+  const look = useRef(seed ? hashSeed(seed) : Math.floor(Math.random() * 2 ** 31)).current;
   const flash = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     if (still) return;
@@ -220,7 +255,9 @@ export const LivingCrystal = memo(function LivingCrystal({ height = 48, amount }
     next();
     return () => clearTimeout(timer);
   }, [flash, still]);
-  const crystal = crystalSvgs[!amount || amount <= 3 ? 0 : amount <= 6 ? 1 : 2];
+  const crystal = crystalSvgs[look % 3];
+  const mirror = (look >> 3) % 2 === 1;
+  const lean = (((look >> 5) % 13) - 6) * 1.5;
   const w = height * crystal.ratio;
   const star = height * 0.42;
   return (
@@ -243,7 +280,9 @@ export const LivingCrystal = memo(function LivingCrystal({ height = 48, amount }
               outputRange: ['-22deg', '22deg'],
             }),
           },
+          { rotate: `${lean}deg` },
           { scale: flash.interpolate({ inputRange: [0, 0.3, 1], outputRange: [1, 1.08, 1] }) },
+          { scaleX: mirror ? -1 : 1 },
         ],
       }}
     >
