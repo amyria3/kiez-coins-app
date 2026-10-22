@@ -80,6 +80,7 @@ export default function Account() {
             onPress={() => router.push('/account/freunde')}
           />
           <NavRow label="So geht Kiez Coins" value="Kurze Videos" onPress={() => router.push('/tour')} />
+          <NavRow label="Dem Kater Hallo sagen" value="Sprüche" onPress={() => router.push('/kater')} />
           <NavRow label="Sprache" value={languageName} onPress={() => router.push('/account/sprache')} />
           <NavRow
             label="Benachrichtigungen"

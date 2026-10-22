@@ -380,14 +380,14 @@ const einladung = `<!doctype html>
 // ---------- Kater: /kater, dem Kater Hallo sagen ----------
 // Darias Kater als SVG (assets/illustrations/kater.svg). Die Gruppen Besen, Brille und Stiefel (IDs aus Affinity) bewegen sich per CSS
 // (einzelne Eigenschaften rotate/translate, damit die Matrizen aus Affinity erhalten bleiben). Die Sprüche stehen in
-// scripts/site/kater-sprueche.json: einer oder beliebig viele, jeweils mit Aktion fegen, brille, stampfen oder winken.
+// src/data/kater-sprueche.json (gemeinsam mit der App): einer oder beliebig viele, jeweils mit Aktion fegen, brille, stampfen oder winken.
 const katerSvg = existsSync(join(root, 'assets/illustrations/kater.svg'))
   ? readFileSync(join(root, 'assets/illustrations/kater.svg'), 'utf8')
       .replace(/<\?xml[^>]*>\s*/, '')
       .replace(/<!DOCTYPE[^>]*>\s*/, '')
       .replace('width="100%" height="100%"', 'class="kater-svg" role="img" aria-label="Kater mit Sonnenbrille, Schürze und Besen"')
   : '';
-const sprueche = JSON.parse(readFileSync(join(siteDir, 'kater-sprueche.json'), 'utf8'));
+const sprueche = JSON.parse(readFileSync(join(root, 'src/data/kater-sprueche.json'), 'utf8'));
 const katerSeite = `<!doctype html>
 <html lang="de">
 <head>

@@ -59,7 +59,10 @@ export default function Reise() {
           Was Du so machst
         </Text>
 
-        <KaterCard mood={catVariant(mood)}>{reiseMoodText(mood, anrede(profile))}</KaterCard>
+        {/* Tipp auf den Kater: zu seiner Seite mit Sprüchen */}
+        <Pressable accessibilityRole="button" accessibilityLabel={t('Dem Kater Hallo sagen')} onPress={() => router.push('/kater')}>
+          <KaterCard mood={catVariant(mood)}>{reiseMoodText(mood, anrede(profile))}</KaterCard>
+        </Pressable>
 
         {tasks.map((entry) => (
           <Pressable
