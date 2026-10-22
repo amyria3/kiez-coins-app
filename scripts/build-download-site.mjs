@@ -309,6 +309,73 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
 </html>
 `;
 
+// ---------- Einladung: /einladung/<code> trägt den Einladungscode schon ein ----------
+// Vercel leitet /einladung/:code auf diese Seite (vercel.json unten). Das Skript liest den Code aus der Adresse
+// und setzt ihn ins versteckte Feld. Der Download startet erst nach dem Tipp (Daria, 22.10.2026).
+// Pfade sind absolut, weil die Seite unter /einladung/<code> liegt.
+const einladung = `<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#1F2123">
+<title>Einladung – Kiez Coins</title>
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="/seite.css?v=${version(seiteCss)}">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.coins, 30)}${sized(kcSvg.wordmark, 18)}</a>
+</header>
+<main>
+<section class="download einladung" id="download" aria-labelledby="einladung-titel">
+  <h2 id="einladung-titel">Du bist eingeladen.</h2>
+  <p>Kiez Coins ist in der Testphase. Dein Einladungscode steckt schon im Link, Du musst nichts eintippen.</p>
+  <p class="error" id="ohne-code" hidden>In diesem Link fehlt der Einladungscode. Frag bei der Person nach, die ihn Dir geschickt hat.</p>
+  <div class="karten">
+    <div class="card" id="android">
+      <h3>Android</h3>
+      <form method="post" action="${esc(config.functionUrl)}">
+        <input type="hidden" name="passwort" id="code">
+        <p class="error" id="fehler" hidden></p>
+        <button type="submit">App herunterladen</button>
+      </form>
+      <a class="button button-zweit" href="/app/">Direkt im Browser anmelden und ausprobieren</a>
+      <ol class="steps">
+        <li>„App herunterladen“ tippen.</li>
+        <li>Die Datei <em>kiez-coins.apk</em> öffnen, wenn der Download fertig ist.</li>
+        <li>Android fragt, ob Dein Browser Apps installieren darf. Erlauben und „Installieren“ tippen.</li>
+      </ol>
+    </div>
+    ${ios.replace(/href="app\/"/g, 'href="/app/"')}
+  </div>
+  <footer>
+    <a href="/impressum">Impressum</a>
+    <a href="/datenschutz">Datenschutz</a>
+    <a href="/nutzungsbedingungen">Nutzungsbedingungen</a>
+    <a href="/community-regeln">Community-Regeln</a>
+  </footer>
+</section>
+</main>
+</div>
+<script>
+  // Code aus /einladung/<code>, ersatzweise ?code=… oder #…
+  var teile = location.pathname.split('/').filter(Boolean);
+  var code = teile[0] === 'einladung' && teile[1] ? decodeURIComponent(teile[1]) : '';
+  code = code || new URLSearchParams(location.search).get('code') || decodeURIComponent(location.hash.slice(1));
+  document.getElementById('code').value = code;
+  if (!code) {
+    document.getElementById('ohne-code').hidden = false;
+    document.querySelector('#android button').disabled = true;
+  }
+</script>
+</body>
+</html>
+`;
+
 // data-t: Originaltext als Schlüssel für das Texte-CMS. Das Skript am Seitenende holt Darias Fassungen aus `app_texts`.
 const tag = (name, s, attrs = '') => `<${name}${attrs} data-t="${esc(s)}">${esc(s).replace(/\n/g, '<br>')}</${name}>`;
 const paragraphs = (ps) => ps.map((p) => tag('p', p)).join('\n');
@@ -344,6 +411,7 @@ const legal = (id) => {
 
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, 'index.html'), index);
+writeFileSync(join(out, 'einladung.html'), einladung);
 // Eigene 404-Seite für unbekannte Adressen.
 writeFileSync(
   join(out, '404.html'),
@@ -377,7 +445,17 @@ for (const [pkg, file] of [
 // Hosting bei Vercel: Unterseiten der Web-App öffnen die App, Rechtstexte auch ohne .html
 writeFileSync(
   join(out, 'vercel.json'),
-  JSON.stringify({ cleanUrls: true, rewrites: [{ source: '/app/:path*', destination: '/app/index.html' }] }, null, 2) + '\n',
+  JSON.stringify(
+    {
+      cleanUrls: true,
+      rewrites: [
+        { source: '/app/:path*', destination: '/app/index.html' },
+        { source: '/einladung/:code', destination: '/einladung.html' },
+      ],
+    },
+    null,
+    2,
+  ) + '\n',
 );
 // Logo: die bunten Coins aus der App (src/components/icons/brandSvgs.ts)
 const coins = readFileSync(join(root, 'src/components/icons/brandSvgs.ts'), 'utf8').match(/coinsSvg = `([^`]+)`/);
