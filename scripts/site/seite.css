@@ -95,10 +95,25 @@ button { font: inherit; color: inherit; }
 .p-img, .p-hero { position: absolute; inset: 0; }
 .p-img img, .p-img svg, .p-hero img, .p-hero svg { width: 100%; height: 100%; object-fit: cover; display: block; }
 .p-bounty { position: absolute; top: 9px; right: 9px; display: flex; align-items: center; gap: 5px; padding: 4px 10px 4px 7px; border-radius: 999px;
-  background: var(--glass); border: .5px solid var(--line); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+  background: rgba(31,33,35,.25); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.p-card-text .p-bounty { background: none; -webkit-backdrop-filter: none; backdrop-filter: none; padding-right: 0; }
+/* Edenstein: groß, ragt über das Badge, schwebt unruhig, je Karte eigener Takt */
+.p-bounty-eden { padding-left: 4px; gap: 9px; }
+.p-crystal { display: block; width: 28px; height: 22px; position: relative; }
+.p-crystal svg { position: absolute; left: 50%; top: 50%; translate: -50% -50%; rotate: var(--r); animation: p-schweben var(--d) ease-in-out var(--o) infinite; }
+@keyframes p-schweben { 0%, 100% { transform: translateY(1px) rotate(-4deg); } 30% { transform: translateY(-3px) rotate(5deg); } 55% { transform: translateY(0) rotate(-1deg); } 75% { transform: translateY(-2px) rotate(7deg); } }
+.p-eden.is-done { color: var(--muted); }
 .p-bounty b { font: 600 15px/1 var(--display); }
-.p-info { position: relative; display: grid; gap: 5px; padding: 10px 12px; border-radius: 16px; background: var(--glass); border: .5px solid var(--line);
-  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.p-info { position: relative; display: grid; gap: 5px; padding: 10px 12px; border-radius: 16px; background: rgba(31,33,35,.3); border: .5px solid var(--line);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+.p-card-text .p-info { background: none; border-color: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; padding-left: 4px; }
+/* Wer hat gepostet: nach dem ersten Tippen oben links */
+.p-who { position: absolute; z-index: 3; top: 10px; left: 10px; display: flex; align-items: center; gap: 7px; opacity: 0; transform: translateY(-8px);
+  transition: opacity 250ms, transform 450ms var(--barrier); pointer-events: none; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+.p-who b { display: block; font: 600 14px/1.2 var(--display); }
+.p-who i { display: block; font-style: normal; font-size: 11px; line-height: 1.3; opacity: .9; }
+.p-card.is-who .p-who { opacity: 1; transform: none; }
+.p-card.is-who .p-chip { opacity: 0; }
 .p-info strong { font: 600 15.5px/1.15 var(--display); letter-spacing: -.01em; }
 .p-meta { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10.5px; white-space: nowrap; overflow: hidden; }
 .p-avatar { flex: none; display: inline-grid; place-items: center; width: var(--s); height: var(--s); border-radius: 50%; background: var(--c);
@@ -110,7 +125,7 @@ button { font: inherit; color: inherit; }
 .p-chip-deadline { display: flex; align-items: center; gap: 4px; color: var(--text); border: 0; background: rgba(160,160,160,.28);
   -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 .p-actions { display: flex; align-items: center; gap: 2px; padding: 2px 0 8px; }
-.p-actions button { display: flex; align-items: center; gap: 4px; min-width: 38px; height: 38px; justify-content: center; color: var(--muted); font-size: 11px; }
+.p-actions button { display: flex; align-items: center; gap: 5px; min-width: 38px; height: 38px; padding: 0 4px; justify-content: center; color: var(--text); font-size: 12px; }
 .p-like.is-on { color: var(--pink); }
 .p-like.is-on .p-heart { animation: p-pop 560ms var(--barrier); }
 @keyframes p-pop { 40% { transform: scale(.7); } 75% { transform: scale(1.25); } }
@@ -179,8 +194,8 @@ button { font: inherit; color: inherit; }
   background: var(--glass); border: .5px solid var(--line); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
 .p-tabbar button { width: 52px; height: 40px; display: grid; place-items: center; border-radius: 999px; transition: background 300ms; }
 .p-tabbar button.is-on { background: rgba(240,240,240,.1); }
-.p-camera { position: absolute !important; z-index: 10; top: 52px; right: 12px; width: 40px; height: 40px; display: grid; place-items: center;
-  border-radius: 14px !important; background: var(--glass) !important; border: .5px solid var(--line) !important; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+.p-camera { position: absolute !important; z-index: 10; top: 52px; right: 12px; width: 52px; height: 34px; display: grid; place-items: center;
+  border-radius: 999px !important; background: var(--purple) !important; }
 
 /* Ebenen */
 .p-scrim { position: absolute; inset: 0; z-index: 15; background: rgba(0,0,0,.5); opacity: 0; transition: opacity 400ms; }
@@ -384,3 +399,4 @@ footer a { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) {
   .kater-kopf, .kater-buehne, .kater { transition: none; animation: none !important; }
 }
+@media (prefers-reduced-motion: reduce) { .p-crystal svg { animation: none; } }

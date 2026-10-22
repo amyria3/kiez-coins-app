@@ -116,6 +116,9 @@ const kcSvg = {
   coins: { w: 30, h: 35, svg: brand.coinsSvg },
   crown: { w: crownSvg.width, h: crownSvg.height, svg: crownSvg.svg(C.text) },
   diamond: { w: diamondSvgs[1].width, h: diamondSvgs[1].height, svg: diamondSvgs[1].svg(C.text) },
+  diamond2: { w: diamondSvgs[2].width, h: diamondSvgs[2].height, svg: diamondSvgs[2].svg(C.text) },
+  diamond3: { w: diamondSvgs[3].width, h: diamondSvgs[3].height, svg: diamondSvgs[3].svg(C.text) },
+  cameraDark: icon('camera', C.dark),
 };
 const sized = (d, h) => d.svg.replace(/width="[^"]*" height="[^"]*"/, `width="${Math.round((d.w / d.h) * h)}" height="${h}" aria-hidden="true"`);
 // Dateien mit Prüfsumme im Namen-Parameter, damit Browser nach einem Update die neue Fassung laden
