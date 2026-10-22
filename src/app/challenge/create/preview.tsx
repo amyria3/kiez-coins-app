@@ -1,13 +1,14 @@
-import { useMemo, useRef, useState } from 'react';
-import { Alert, Animated, PanResponder, Platform, StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, Animated, PanResponder, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '../../../components/T';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { BlurView } from 'expo-blur';
 import Svg, { Path } from 'react-native-svg';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AuthorRow } from '../../../components/AuthorRow';
+import { KaterCard } from '../../../components/Content';
 import { StatusBadge } from '../../../components/Badges';
 import { Button } from '../../../components/Button';
 import { DeadlineBadge } from '../../../components/Badges';
@@ -21,8 +22,9 @@ import { color, font, motion, radius, size, space, stroke, text } from '../../..
 import { useAppDimensions } from '../../../theme/layout';
 import { useDraft } from './_layout';
 
-/** Breite des ausgeblurrten Rands links und rechts */
-const EDGE = space[32];
+/** Breite des ausgeblurrten Rands links und rechts (schmal, Daria 22.10.2026) */
+const EDGE = space[8];
+const NO_INSETS = { top: 0, bottom: 0, left: 0, right: 0 };
 /** Rundung des scharfen Fensters innen */
 const WINDOW_RADIUS = radius.card;
 
@@ -55,10 +57,22 @@ export default function CreatePreview() {
   const isPhoto = draft.type === 'photo';
   const bountyAmount = isPhoto ? undefined : draft.bountyAmount;
   const bottom = Math.max(insets.bottom, space[16]);
-  const top = insets.top + space[48];
+  const top = insets.top + space[8];
   const { width: screenW, height: screenH } = useAppDimensions();
   const windowBottom = BAR + bottom + space[8];
-  const frame = framePath(screenW, screenH, EDGE, top, screenW - 2 * EDGE, screenH - top - windowBottom, WINDOW_RADIUS);
+  // Fenster für die Vorschau: Der Post wird so verkleinert, dass er genau hineinpasst
+  const iw = screenW - 2 * EDGE;
+  const ih = screenH - top - windowBottom;
+  const scale = iw / screenW;
+  const innerH = ih / scale;
+  const frame = framePath(screenW, screenH, EDGE, top, iw, ih, WINDOW_RADIUS);
+
+  // Kater fragt oben nach, ob alles drin ist
+  const ask = useRef(new Animated.Value(0)).current;
+  const [asking, setAsking] = useState(true);
+  useEffect(() => {
+    Animated.spring(ask, { toValue: 1, delay: 350, useNativeDriver: true, ...motion.barrierSpring }).start();
+  }, [ask]);
   const framePathUrl = `url("data:image/svg+xml,${encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" width="${screenW}" height="${screenH}" viewBox="0 0 ${screenW} ${screenH}"><path d="${frame}" fill-rule="evenodd" fill="#000"/></svg>`,
   )}")`;
@@ -164,14 +178,23 @@ export default function CreatePreview() {
 
   return (
     <View style={styles.screen}>
-      <Animated.View style={[styles.flex, { transform: [{ translateX: shiftX }] }]} {...pan.panHandlers}>
+      <Animated.View
+        style={[styles.window, { left: EDGE, top, width: iw, height: ih, transform: [{ translateX: shiftX }] }]}
+        {...pan.panHandlers}
+      >
+      <View
+        style={{
+          width: screenW,
+          height: innerH,
+          transform: [{ translateX: (iw - screenW) / 2 }, { translateY: (ih - innerH) / 2 }, { scale }],
+        }}
+      >
+      <SafeAreaInsetsContext.Provider value={NO_INSETS}>
       <HeroScreen
         image={draft.photo}
         moreImages={draft.extras.map((e) => e.photo)}
         imageLabel={draft.title}
         onBackPress={() => router.back()}
-        // Platzhalter, damit der Inhalt über der eigenen Button-Leiste endet
-        actions={<View style={{ height: BAR - space[12] }} />}
         summary={summary}
       >
         {draft.text.trim() ? <Text style={styles.description}>{draft.text.trim()}</Text> : null}
@@ -179,6 +202,8 @@ export default function CreatePreview() {
           <AuthorRow user={user} location={draft.location.trim()} />
         </View>
       </HeroScreen>
+      </SafeAreaInsetsContext.Provider>
+      </View>
       </Animated.View>
 
       {/* Ausgeblurrter Rand mit innen abgerundetem Fenster, ohne Tönung. Die Mitte bleibt scharf. */}
@@ -210,8 +235,24 @@ export default function CreatePreview() {
             <BlurView intensity={40} tint="default" style={StyleSheet.absoluteFill} />
           </MaskedView>
         )}
-        <Text style={[styles.label, { top: insets.top + space[16] }]}>Vorschau</Text>
       </View>
+
+      {asking ? (
+        <Animated.View
+          style={[
+            styles.ask,
+            {
+              top: top + space[8],
+              opacity: ask,
+              transform: [{ translateY: ask.interpolate({ inputRange: [0, 1], outputRange: [-24, 0] }) }, { scale: ask.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1] }) }],
+            },
+          ]}
+        >
+          <Pressable accessibilityRole="button" accessibilityLabel="Hinweis schließen" onPress={() => setAsking(false)}>
+            <KaterCard>Alle Infos drin?</KaterCard>
+          </Pressable>
+        </Animated.View>
+      ) : null}
 
       <View style={[styles.bar, { paddingBottom: bottom }]}>
         <Button label="Bearbeiten" variant="secondary" onPress={() => router.back()} disabled={busy} />
@@ -229,7 +270,9 @@ export default function CreatePreview() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   flex: { flex: 1 },
-  label: { position: 'absolute', alignSelf: 'center', ...text.caption, color: color.text.primary },
+  window: { position: 'absolute', borderRadius: WINDOW_RADIUS, overflow: 'hidden' },
+  // Rechts oben über der Vorschau, links bleibt der Zurück-Knopf frei
+  ask: { position: 'absolute', left: EDGE + space[48] + space[8], right: EDGE + space[8] },
   bar: {
     position: 'absolute',
     left: 0,
