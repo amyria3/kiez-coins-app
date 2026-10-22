@@ -473,7 +473,7 @@
     var who = people[c.author].short;
     var action;
     if (c.author === 'du') action = '<button type="button" class="p-btn p-btn-secondary" data-soon="Teilen">' + M.noun + ' teilen</button>';
-    else if (!s) action = '<button type="button" class="p-btn" data-step="accept">' + M.noun + ' annehmen</button>';
+    else if (!s) action = '<button type="button" class="p-btn" data-step="accept">' + svg('hands', 14) + M.noun + ' annehmen</button>';
     else if (s === 'accepted') action = '<button type="button" class="p-btn" data-step="report">Erledigt melden</button>';
     else if (s === 'reported') action = '<button type="button" class="p-btn p-btn-wait" disabled>' + who + ' prüft …</button>';
     else action = '<button type="button" class="p-btn p-btn-ok" disabled>' + svg('check', 12) + ' ' + rewardText(c.reward) + ' von ' + who + '</button>';

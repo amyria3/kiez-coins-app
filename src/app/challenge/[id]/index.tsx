@@ -93,7 +93,7 @@ export default function ChallengeDetail() {
   // Nur ein Bild: nichts anzunehmen
   const isPhoto = challenge.type === 'photo';
   if (challenge.status === 'open' && !isAuthor && !isPhoto) {
-    actions = <Button label={challenge.groupId ? 'Aufgabe annehmen' : 'Challenge annehmen'} onPress={() => needKiez() && dispatch({ type: 'accept', id: challenge.id })} />;
+    actions = <Button icon="wir-schaffen-das" label={challenge.groupId ? 'Aufgabe annehmen' : 'Challenge annehmen'} onPress={() => needKiez() && dispatch({ type: 'accept', id: challenge.id })} />;
   } else if (acceptedByMe) {
     actions = (
       <>

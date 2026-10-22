@@ -5,6 +5,8 @@ import { color, radius, space, stroke, text } from '../theme/tokens';
 import { useTexts } from '../data/texts';
 import { Glass, glassControls } from './Glass';
 import { GearsLoader, SMALL_GEARS } from './GearsLoader';
+import { Icon } from './icons/Icon';
+import type { IconName } from './icons/svgs';
 
 // Figma „Button“ (Primary, Secondary). Die übrigen Varianten sind Überschreibungen in Screens:
 // `signal` („Aufgabe zurück schicken“, „Muss ich noch machen“), `signalOutline` („Rückgängig machen“),
@@ -23,10 +25,12 @@ type ButtonProps = {
   whyDisabled?: () => void;
   /** Läuft gerade: kleine Zahnräder vor der Beschriftung, Tippen ohne Wirkung */
   busy?: boolean;
+  /** Icon vor der Beschriftung, in der Farbe der Beschriftung */
+  icon?: IconName;
   style?: StyleProp<ViewStyle>;
 };
 
-export function Button({ label: original, onPress: press, variant = 'primary', disabled: off, whyDisabled, busy, style }: ButtonProps) {
+export function Button({ label: original, onPress: press, variant = 'primary', disabled: off, whyDisabled, busy, icon, style }: ButtonProps) {
   // Mit Erklärung bleibt der Button tippbar, sieht aber deaktiviert aus
   const explains = !!off && !!whyDisabled;
   const disabled = (off && !explains) || !!busy;
@@ -65,7 +69,7 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
       style={({ pressed }) => [styles.base, v.container, pressed && styles.pressed, off && !busy && styles.disabled, style]}
     >
       <View style={styles.row}>
-        {busy ? <GearsLoader size={22} tint={v.label} only={SMALL_GEARS} /> : null}
+        {busy ? <GearsLoader size={22} tint={v.label} only={SMALL_GEARS} /> : icon ? <Icon name={icon} size={16} color={v.label} /> : null}
         <Text style={[v.filled ? text.buttonDarkOnLight : text.buttonLightOnDark, { color: v.label }]}>{label}</Text>
       </View>
     </Pressable>
