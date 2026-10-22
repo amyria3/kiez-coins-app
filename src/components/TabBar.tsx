@@ -76,7 +76,7 @@ export function CameraButton({ onPress }: { onPress: () => void }) {
       hitSlop={4}
       style={({ pressed }) => [styles.camera, { top: insets.top + space[8] }, pressed && styles.pressed]}
     >
-      <Icon name="camera" size={size.icon} color={color.bg.screen} />
+      <Icon name="camera" size={24} color={color.bg.screen} />
     </Pressable>
   );
 }
@@ -107,8 +107,9 @@ const styles = StyleSheet.create({
   camera: {
     position: 'absolute',
     right: space[16],
-    width: 52,
-    height: 48,
+    // Größer (Daria, 22.10.2026)
+    width: 64,
+    height: 64,
     borderRadius: radius.full,
     backgroundColor: color.accent.primary,
     alignItems: 'center',

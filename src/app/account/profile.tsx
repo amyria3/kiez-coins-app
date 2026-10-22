@@ -85,7 +85,7 @@ export default function PersonalDetails() {
           <Avatar user={{ ...me, name: profile.handle || me.name }} diameter={AVATAR} />
           {uploading ? (
             <View style={styles.uploading}>
-              <GearsLoader size={56} only={SMALL_GEARS} />
+              <GearsLoader size={40} only={SMALL_GEARS} />
             </View>
           ) : null}
           <View style={styles.camera}>
