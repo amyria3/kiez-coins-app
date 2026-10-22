@@ -39,6 +39,7 @@ export function TextField({
   ...inputProps
 }: TextFieldProps) {
   const [focused, setFocused] = useState(false);
+  const [contentHeight, setContentHeight] = useState(0);
   const inputRef = useRef<TextInput>(null);
   const ownViewRef = useRef<View>(null);
   const viewRef = nudge?.ref ?? ownViewRef;
@@ -66,6 +67,10 @@ export function TextField({
         accessibilityLabel={required ? t('{label}, Pflichtfeld', { label }) : label}
         accessibilityHint={helper}
         multiline={multiline}
+        scrollEnabled={multiline ? false : undefined}
+        onContentSizeChange={
+          multiline && Platform.OS === 'web' ? (e) => setContentHeight(e.nativeEvent.contentSize.height) : undefined
+        }
         placeholderTextColor={color.text.secondary}
         selectionColor={color.accent.primary}
         onChangeText={(v) => {
@@ -80,7 +85,13 @@ export function TextField({
           setFocused(false);
           onBlur?.(e);
         }}
-        style={[styles.input, multiline && styles.inputMultiline, error ? styles.inputError : null, { borderColor }]}
+        style={[
+          styles.input,
+          multiline && styles.inputMultiline,
+          multiline && Platform.OS === 'web' && contentHeight ? { height: Math.max(88, contentHeight + 2) } : null,
+          error ? styles.inputError : null,
+          { borderColor },
+        ]}
       />
       {helper ? (
         <Text style={[styles.helper, error ? styles.helperError : hinted ? nudgeStyles.hint : null]}>{helper}</Text>
@@ -355,27 +366,71 @@ export function ExtraPhotos({
   );
 }
 
-export function PhotoPicker({ photo, hint, onChange }: PhotoPickerProps) {
+/**
+ * Titel direkt auf dem Foto, wie später im Feed (Daria, 22.10.2026): Glasfläche unten im Bild.
+ * Tippen ins Feld schreibt den Titel, Tippen aufs Bild daneben wählt das Foto.
+ */
+export type PhotoTitle = {
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
+  nudge?: Nudge;
+  maxLength?: number;
+};
+
+export function PhotoPicker({ photo, hint, onChange, title }: PhotoPickerProps & { title?: PhotoTitle }) {
   const choose = () => choosePhoto(onChange);
+  const [focused, setFocused] = useState(false);
+  const ownRef = useRef<View>(null);
+  const titleRef = title?.nudge?.ref ?? ownRef;
+  const hinted = !title?.error && !!title?.nudge?.hint;
+  const titleHelper = title?.error ?? title?.nudge?.hint;
+  const titleBorder = title?.error ? color.accent.error : focused || hinted ? color.accent.primary : color.line.hairline;
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={photo ? t('Foto ändern') : t('Foto aufnehmen oder auswählen')}
-      accessibilityHint={hint}
-      onPress={choose}
-      style={[styles.photoPicker, !photo && styles.photoPickerEmpty]}
-    >
-      {photo ? (
-        <Image source={photo} style={StyleSheet.absoluteFill} contentFit="cover" />
-      ) : (
-        <>
-          <Icon name="camera" />
-          <Text style={[text.body, { color: color.text.primary }]}>Foto aufnehmen oder auswählen</Text>
-          <Text style={[text.caption, { color: color.text.secondary }]}>{hint}</Text>
-        </>
-      )}
-    </Pressable>
+    <View style={styles.field}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={photo ? t('Foto ändern') : t('Foto aufnehmen oder auswählen')}
+        accessibilityHint={hint}
+        onPress={choose}
+        style={[styles.photoPicker, !photo && styles.photoPickerEmpty, title ? styles.photoPickerTitled : null]}
+      >
+        {photo ? <Image source={photo} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
+        {!photo ? (
+          <View style={styles.photoEmptyText}>
+            <Icon name="camera" />
+            <Text style={[text.body, { color: color.text.primary }]}>Foto aufnehmen oder auswählen</Text>
+            <Text style={[text.caption, { color: color.text.secondary }]}>{hint}</Text>
+          </View>
+        ) : null}
+        {title ? (
+          <View ref={titleRef} style={[styles.photoTitle, { borderColor: titleBorder }]}>
+            <TextInput
+              value={title.value}
+              onChangeText={(v) => {
+                title.nudge?.clear();
+                title.onChange(v);
+              }}
+              maxLength={title.maxLength ?? 60}
+              placeholder={t('Titel eingeben')}
+              placeholderTextColor={color.text.secondary}
+              selectionColor={color.accent.primary}
+              accessibilityLabel={t('{label}, Pflichtfeld', { label: t('Titel') })}
+              accessibilityHint={titleHelper}
+              multiline
+              scrollEnabled={false}
+              submitBehavior="blurAndSubmit"
+              returnKeyType="done"
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              style={styles.photoTitleInput}
+            />
+          </View>
+        ) : null}
+      </Pressable>
+      {titleHelper ? <Text style={[styles.helper, title?.error ? styles.helperError : nudgeStyles.hint]}>{titleHelper}</Text> : null}
+    </View>
   );
 }
 
@@ -487,4 +542,14 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   photoPickerEmpty: { borderWidth: stroke.thin, borderStyle: 'dashed', borderColor: color.text.secondary },
+  photoPickerTitled: { height: 300, justifyContent: 'flex-end', alignItems: 'stretch', padding: space[12] },
+  photoEmptyText: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 72, alignItems: 'center', justifyContent: 'center', gap: space[8] },
+  photoTitle: {
+    paddingVertical: space[12],
+    paddingHorizontal: space[16],
+    borderRadius: radius.xl,
+    backgroundColor: color.bg.glass,
+    borderWidth: stroke.ultraThin,
+  },
+  photoTitleInput: { ...text.cardTitle, color: color.text.primary, padding: 0, minHeight: 24, outlineStyle: 'none' } as never,
 });

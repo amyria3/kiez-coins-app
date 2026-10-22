@@ -67,6 +67,11 @@ export default function CreateStep1() {
         photo={draft.photo}
         hint={showErrors && missingPhoto ? 'Bitte füge ein Foto hinzu.' : isChallenge ? 'Zeig, wo geholfen werden soll.' : 'Zeig, was Dir gefällt.'}
         onChange={(photo) => setDraft((d) => ({ ...d, photo, imagePath: undefined }))}
+        title={{
+          value: draft.title,
+          onChange: (title) => setDraft((d) => ({ ...d, title })),
+          error: showErrors && missingTitle ? 'Bitte gib einen Titel ein.' : undefined,
+        }}
       />
       {draft.photo ? (
         <ExtraPhotos
@@ -75,14 +80,6 @@ export default function CreateStep1() {
           onRemove={(index) => setDraft((d) => ({ ...d, extras: d.extras.filter((_, i) => i !== index) }))}
         />
       ) : null}
-      <TextField
-        label="Titel" required
-        helperText="Max. 60 Zeichen"
-        error={showErrors && missingTitle ? 'Bitte gib einen Titel ein.' : undefined}
-        value={draft.title}
-        onChangeText={(title) => setDraft((d) => ({ ...d, title }))}
-        maxLength={60}
-      />
       <TextField
         label="Beschreibung"
         helperText="Max. 500 Zeichen"

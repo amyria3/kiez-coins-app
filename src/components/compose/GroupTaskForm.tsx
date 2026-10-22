@@ -64,8 +64,12 @@ export function useGroupTaskForm(groupId: string | undefined, initial: Initial, 
 
   const fields = (
     <>
-      <PhotoPicker photo={photo} hint="Optional. Zeig, worum es geht." onChange={setPhoto} />
-      <TextField label="Titel" required nudge={titleField} helperText="Max. 60 Zeichen" value={title} onChangeText={setTitle} maxLength={60} />
+      <PhotoPicker
+        photo={photo}
+        hint="Optional. Zeig, worum es geht."
+        onChange={setPhoto}
+        title={{ value: title, onChange: setTitle, nudge: titleField }}
+      />
       <TextField label="Beschreibung" helperText="Max. 500 Zeichen" value={body} onChangeText={setBody} maxLength={500} multiline />
       <FieldGroup label="Edensteine">
         <View style={styles.stepper}>
