@@ -962,5 +962,7 @@
   "Anfrage annehmen": "Accept request",
   "Befreundet": "Friends",
   "Weitere Aktionen": "More actions",
-  "Melden": "Report"
+  "Melden": "Report",
+  "Feed von {name}": "Feed of {name}",
+  "Verwalten": "Manage"
 }
