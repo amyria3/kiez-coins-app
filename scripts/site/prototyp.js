@@ -37,7 +37,7 @@
       unit: 'euro',
       place: 'Connewitz',
       countText: function (n) { return n === 1 ? '1 Challenge in Deiner Nähe' : n + ' Challenges in Deiner Nähe'; },
-      tabs: { nearby: 'In der Nähe', groups: 'Gruppen' },
+      tabs: { nearby: 'In der Nähe', groups: 'Gruppe' },
       headline: 'Kleine Challenges für Deinen Kiez.',
       noun: 'Challenge',
       people: {
@@ -109,7 +109,7 @@
       unit: 'eden',
       place: 'Familie Berger',
       countText: function (n) { return n === 1 ? '1 offene Aufgabe' : n + ' offene Aufgaben'; },
-      tabs: { nearby: 'Aufgaben', groups: 'Rangliste' },
+      tabs: { nearby: 'In der Nähe', groups: 'Gruppe' },
       headline: 'Spaß bei Aufgaben im Haushalt.',
       noun: 'Aufgabe',
       people: {
@@ -190,7 +190,8 @@
     group = clone(M.group);
     state = {
       mode: mode,
-      tab: 'nearby',
+      tab: 'nearby', // nearby = Startansicht der Rolle (Feed bzw. Gruppe), pleasure = „Was Du so machst“
+      focus: null, // 'rangliste', solange die Rangliste im Blick ist
       detail: null,
       create: false,
       liked: {},
@@ -330,10 +331,13 @@
       .join('');
   }
 
-  function renderGroups() {
+  function renderGroups(newId) {
+    var hint = !state.hinted ? ' p-hint' : '';
     content.innerHTML =
       '<div class="p-group">' +
       '<div class="p-group-head"><strong>' + group.name + '</strong><span>' + group.sub + '</span></div>' +
+      '<div class="p-list' + hint + '">' + challenges.map(function (c) { return card(c, c.id === newId); }).join('') + '</div>' +
+      '<h4 class="p-board-title">Rangliste</h4>' +
       '<ol class="p-board">' + memberRows() + '</ol>' +
       '<h4>Schnell erledigt</h4>' +
       group.tasks
@@ -350,7 +354,8 @@
   }
 
   function placePill(animate) {
-    var btn = $('[data-tab="' + segKey() + '"]', seg);
+    var key = segKey();
+    var btn = key && $('[data-tab="' + key + '"]', seg);
     var pill = $('.p-seg-pill', seg);
     // „Was Du so machst“ liegt nur in der Tab-Leiste, dann steht die Pille still
     pill.style.opacity = btn ? '' : '0';
@@ -361,16 +366,17 @@
     if (!animate) { pill.offsetWidth; pill.style.transition = ''; }
   }
 
+  // Pille und Schalter links gehören zusammen: In der Nähe = Öffentlich, Gruppe = Familie / Gruppe
   function segKey() {
-    if (state.create) return state.mode === 'public' ? 'nearby' : 'groups';
-    return state.tab;
+    if (!state.create && state.tab === 'pleasure') return null;
+    return state.mode === 'public' ? 'nearby' : 'groups';
   }
   function syncSeg(animate) {
     var composing = state.create;
     screen.classList.toggle('is-composing', composing);
     $('.p-compose-line').textContent = state.mode === 'public' ? 'Neue Challenge in ' + M.place : 'Neue Aufgabe für ' + M.place;
     $$('[data-tab]', seg).forEach(function (b) {
-      b.textContent = composing ? (b.dataset.tab === 'nearby' ? 'Öffentlich' : 'Familie') : M.tabs[b.dataset.tab];
+      b.textContent = composing ? (b.dataset.tab === 'nearby' ? 'Öffentlich' : 'Gruppe') : M.tabs[b.dataset.tab];
       b.setAttribute('aria-selected', String(b.dataset.tab === segKey()));
     });
     placePill(animate);
@@ -386,9 +392,9 @@
     var open = challenges.filter(function (c) { return !state.status[c.id] || state.status[c.id] === 'accepted'; }).length;
     $('.p-place').textContent = M.place;
     $('.p-count').textContent = M.countText(open);
-    if (state.tab === 'nearby') renderNearby(opts.newId);
-    else if (state.tab === 'pleasure') renderPleasure();
-    else renderGroups();
+    if (state.tab === 'pleasure') renderPleasure();
+    else if (state.mode === 'public') renderNearby(opts.newId);
+    else renderGroups(opts.newId);
     if (opts.animate && !reduce) {
       content.classList.remove('p-swap');
       content.offsetWidth;
@@ -400,6 +406,7 @@
   function setTab(tab) {
     if (tab === state.tab) return;
     state.tab = tab;
+    state.focus = null;
     render({ animate: true });
     scroll.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
   }
@@ -620,6 +627,7 @@
     state.create = false;
     syncSeg(true);
     state.tab = 'nearby';
+    state.focus = null;
     state.hinted = true;
     render({ newId: id });
     scroll.scrollTo({ top: 0 });
@@ -731,8 +739,11 @@
     var t = e.target.closest('button');
     if (!t || !root.contains(t)) return;
     var d = t.dataset;
-    if (d.tab && state.create) return switchMode(d.tab === 'nearby' ? 'public' : 'family');
-    if (d.tab) return setTab(d.tab);
+    if (d.tab) {
+      var target = d.tab === 'nearby' ? 'public' : 'family';
+      if (target !== state.mode) return switchMode(target);
+      return setTab('nearby');
+    }
     if (d.tabGo) return setTab(d.tabGo);
     if (d.bar) {
       if (d.bar === 'menu') return say('Konto und Einstellungen gibt es in der App.');
@@ -791,7 +802,7 @@
   function current() {
     if (state.create) return 'stellen';
     if (state.detail) return 'uebernehmen';
-    if (state.tab === 'groups') return 'rangliste';
+    if (state.focus === 'rangliste') return 'rangliste';
     return first();
   }
   function moveMark(container, active) {
@@ -844,19 +855,22 @@
   }
   function go(name) {
     closeAll();
-    if (name === 'stellen') {
-      if (state.tab === 'groups') { state.tab = 'nearby'; render(); }
-      return openCreate();
-    }
+    state.focus = null;
+    if (name === 'rangliste' && state.mode !== 'family') switchMode('family');
+    if (state.tab !== 'nearby') { state.tab = 'nearby'; render({ animate: true }); }
+    if (name === 'stellen') return openCreate();
     if (name === 'uebernehmen') {
-      if (state.tab !== 'nearby') setTab('nearby');
       var open = challenges.filter(function (c) { return c.author !== 'du' && !state.status[c.id]; })[0] ||
         challenges.filter(function (c) { return c.author !== 'du'; })[0];
       if (open) openDetail(open.id);
       return syncScenario();
     }
-    var tab = name === 'rangliste' ? 'groups' : 'nearby';
-    if (tab !== state.tab) setTab(tab);
+    if (name === 'rangliste') {
+      state.focus = 'rangliste';
+      var board = $('.p-board-title');
+      if (board) scroll.scrollTo({ top: board.offsetTop - 60, behavior: reduce ? 'auto' : 'smooth' });
+      return syncScenario();
+    }
     if (name === 'scrollen') {
       // Einmal sanft durch den Feed scrollen und zurück
       scroll.scrollTo({ top: 0 });

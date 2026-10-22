@@ -184,7 +184,7 @@ ${filterDefs}
   <div class="rolle" id="rolle" role="radiogroup" aria-label="So spielst Du den Prototyp">
     <span class="szenario-mark" aria-hidden="true"></span>
     <button type="button" role="radio" aria-checked="true" data-rolle="public" aria-controls="prototyp">Öffentlich</button>
-    <button type="button" role="radio" aria-checked="false" data-rolle="family" aria-controls="prototyp">Familie</button>
+    <button type="button" role="radio" aria-checked="false" data-rolle="family" aria-controls="prototyp">Familie / Gruppe</button>
   </div>
   <div class="szenarien" id="szenarien" aria-label="Prototyp steuern">
     <span class="szenario-mark" aria-hidden="true"></span>
