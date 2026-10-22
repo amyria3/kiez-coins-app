@@ -6,6 +6,8 @@ import { useRouter } from 'expo-router';
 import { Button } from '../../../components/Button';
 import { FieldGroup, Notice } from '../../../components/Content';
 import { Chip, ChipGroup, TextField } from '../../../components/Form';
+import { t } from '../../../data/texts';
+import { CreateHeader } from '../../../components/PostTarget';
 import { SubScreen } from '../../../components/Screen';
 import { color, text } from '../../../theme/tokens';
 import { findPlace, roundCoords } from '../../../data/location';
@@ -77,6 +79,16 @@ export default function CreateStep2() {
       subtitle="Schritt 2 von 2"
       navigation="back"
       onLeadingPress={() => router.back()}
+      header={
+        <CreateHeader
+          line={t('{was} · Schritt 2 von 2', { was: t(draft.type === 'photo' ? 'Bild posten' : 'Challenge erstellen') })}
+          current="public"
+          carry={{ title: draft.title, text: draft.text, photo: draft.photo }}
+          leading="back"
+          onLeadingPress={() => router.back()}
+          locked={!!draft.id}
+        />
+      }
       actions={
         <>
           <Button label="Vorschau" onPress={preview} disabled={!canPublish || saving}

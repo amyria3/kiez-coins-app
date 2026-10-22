@@ -8,7 +8,7 @@ import { FieldGroup } from '../../../components/Content';
 import { Chip, ChipGroup, PhotoPicker, TextField } from '../../../components/Form';
 import { EdensteinPile } from '../../../components/icons/Brand';
 import { Icon } from '../../../components/icons/Icon';
-import { PostTarget } from '../../../components/PostTarget';
+import { CreateHeader, GroupChoice } from '../../../components/PostTarget';
 import { SubScreen } from '../../../components/Screen';
 import { useStore } from '../../../data/store';
 import type { ImageSource } from '../../../data/types';
@@ -69,6 +69,16 @@ export default function NewGroupTask() {
       subtitle={group?.name}
       navigation="close"
       onLeadingPress={() => router.back()}
+      header={
+        <CreateHeader
+          line={group ? t('Aufgabe für {name}', { name: group.name }) : t('Aufgabe erstellen')}
+          current={id}
+          carry={{ title, text: body, photo }}
+          leading="close"
+          onLeadingPress={() => router.back()}
+          locked={!!copyOf}
+        />
+      }
       actions={
         <Button busy={busy}
           label={busy ? 'Wird erstellt …' : 'Aufgabe veröffentlichen'}
@@ -78,7 +88,7 @@ export default function NewGroupTask() {
         />
       }
     >
-      {copyOf ? null : <PostTarget current={id} carry={{ title, text: body, photo }} />}
+      {copyOf ? null : <GroupChoice current={id} carry={{ title, text: body, photo }} />}
       <PhotoPicker photo={photo} hint="Optional. Zeig, worum es geht." onChange={setPhoto} />
       <TextField label="Titel" required nudge={titleField} helperText="Max. 60 Zeichen" value={title} onChangeText={setTitle} maxLength={60} />
       <TextField label="Beschreibung" helperText="Max. 500 Zeichen" value={body} onChangeText={setBody} maxLength={500} multiline />

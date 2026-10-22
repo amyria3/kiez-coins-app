@@ -4,10 +4,11 @@ import { useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
 import { ExtraPhotos, PhotoPicker, SwitchRow, TextField } from '../../../components/Form';
-import { PostTarget } from '../../../components/PostTarget';
+import { CreateHeader } from '../../../components/PostTarget';
 import { SubScreen } from '../../../components/Screen';
 import { hasContent, useDraft, useSaveDraft } from './_layout';
 import { explain } from '../../../components/Nudge';
+import { t } from '../../../data/texts';
 
 /** Route `challenge/create/step-1`. Figma: `challenge/create/step-1`. */
 export default function CreateStep1() {
@@ -41,6 +42,16 @@ export default function CreateStep1() {
   return (
     <SubScreen
       title={draft.id ? 'Entwurf bearbeiten' : isChallenge ? 'Challenge erstellen' : 'Bild posten'}
+      header={
+        <CreateHeader
+          line={t('{was} · Schritt 1 von 2', { was: t(draft.id ? 'Entwurf bearbeiten' : isChallenge ? 'Challenge erstellen' : 'Bild posten') })}
+          current="public"
+          carry={{ title: draft.title, text: draft.text, photo: draft.photo }}
+          leading="close"
+          onLeadingPress={close}
+          locked={!!draft.id}
+        />
+      }
       subtitle="Schritt 1 von 2"
       navigation="close"
       onLeadingPress={close}
@@ -57,7 +68,6 @@ export default function CreateStep1() {
         </>
       }
     >
-      {draft.id ? null : <PostTarget current="public" carry={{ title: draft.title, text: draft.text, photo: draft.photo }} />}
       {/* Challenge oder nur ein Bild (Daria, 22.10.2026). Ein Bild hat keine Coins und lässt sich nicht annehmen. */}
       <SwitchRow
         label={isChallenge ? 'Challenge: Hier muss etwas getan werden! Auf geht’s, Nachbarschaft!' : 'Hier ist nichts zu tun, nur ein schönes Bild'}

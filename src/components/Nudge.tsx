@@ -97,6 +97,11 @@ export function useNextField(input: RefObject<TextInput | null>, view: RefObject
   return registry ? () => registry.next(entry) : undefined;
 }
 
+/** Ansicht ins Bild scrollen, z. B. das Kommentarfeld, sobald die Tastatur da ist. */
+export function scrollIntoView(view: View | null) {
+  scrollTargets[scrollTargets.length - 1]?.scrollToView(view);
+}
+
 /** Meldet die Scrollfläche eines Screens an, solange er offen ist. */
 export function NudgeScrollProvider({ value, children }: { value: ScrollTarget; children: ReactNode }) {
   const registry = useFieldRegistry(value);
