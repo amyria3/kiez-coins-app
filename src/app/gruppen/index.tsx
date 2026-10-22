@@ -4,12 +4,12 @@ import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
 import { KaterCard } from '../../components/Content';
-import { EdensteinIcon } from '../../components/icons/Brand';
-import { IconButton } from '../../components/IconButton';
+import { LivingCrystal } from '../../components/icons/Brand';
+import { Icon } from '../../components/icons/Icon';
 import { SubScreen } from '../../components/Screen';
 import { MAX_GROUPS, myEdensteine } from '../../data/groups';
 import { useStore } from '../../data/store';
-import { color, radius, size, space, text } from '../../theme/tokens';
+import { color, radius, size, space, stroke, text } from '../../theme/tokens';
 import { explain } from '../../components/Nudge';
 import { t } from '../../data/texts';
 
@@ -40,35 +40,49 @@ export default function Groups() {
         </KaterCard>
       ) : null}
       {groups.map((g) => (
-        <Pressable
-          key={g.id}
-          accessibilityRole="button"
-          accessibilityLabel={t('{name} öffnen', { name: g.name })}
-          // Tippen öffnet die Aufgaben der Gruppe im Feed, das Zahnrad die Verwaltung (Daria, 22.10.2026)
-          onPress={() => router.dismissTo({ pathname: '/feed', params: { gruppe: g.id } })}
-          style={({ pressed }) => [styles.card, pressed && styles.pressed]}
-        >
-          <View style={styles.flex}>
-            <Text style={styles.name} numberOfLines={1}>
-              {g.name}
-            </Text>
-            <Text style={styles.meta}>
-              {g.members.length === 1 ? '1 Mitglied' : t('{members} Mitglieder', { members: g.members.length })}
-              {g.founderId === currentUserId ? ' · Du hast sie gegründet' : ''}
-            </Text>
+        // Oben die Gruppe, unten zwei Wege: Feed der Gruppe und Verwalten (Daria, 22.10.2026)
+        <View key={g.id} style={styles.card}>
+          <View style={styles.top}>
+            <View style={styles.flex}>
+              <Text style={styles.name} numberOfLines={1}>
+                {g.name}
+              </Text>
+              <Text style={styles.meta}>
+                {g.members.length === 1 ? '1 Mitglied' : t('{members} Mitglieder', { members: g.members.length })}
+                {g.founderId === currentUserId ? ' · Du hast sie gegründet' : ''}
+              </Text>
+            </View>
+            <View style={styles.eden}>
+              <View style={styles.crystal}>
+                <View style={styles.crystalFloat}>
+                  <LivingCrystal height={52} seed={g.id} />
+                </View>
+              </View>
+              <Text style={styles.edenValue}>{myEdensteine(g, challenges, currentUserId)}</Text>
+            </View>
           </View>
-          <View style={styles.eden}>
-            <EdensteinIcon height={16} />
-            <Text style={styles.edenValue}>{myEdensteine(g, challenges, currentUserId)}</Text>
+          <View style={styles.links}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('Feed von {name}', { name: g.name })}
+              onPress={() => router.dismissTo({ pathname: '/feed', params: { gruppe: g.id } })}
+              style={({ pressed }) => [styles.link, pressed && styles.pressed]}
+            >
+              <Icon name="behausung" size={size.icon} color={color.text.primary} />
+              <Text style={styles.linkText}>Feed</Text>
+            </Pressable>
+            <View style={styles.divider} />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('{name} verwalten', { name: g.name })}
+              onPress={() => router.push(`/gruppen/${g.id}`)}
+              style={({ pressed }) => [styles.link, pressed && styles.pressed]}
+            >
+              <Icon name="settings" size={size.icon} color={color.text.primary} />
+              <Text style={styles.linkText}>Verwalten</Text>
+            </Pressable>
           </View>
-          <IconButton
-            icon="settings"
-            iconSize={size.icon}
-            iconColor={color.text.secondary}
-            accessibilityLabel={t('{name} verwalten', { name: g.name })}
-            onPress={() => router.push(`/gruppen/${g.id}`)}
-          />
-        </Pressable>
+        </View>
       ))}
       {full ? <Text style={styles.meta}>{t('Du bist in {MAX_GROUPS} Gruppen. Mehr geht nicht.', { MAX_GROUPS })}</Text> : null}
     </SubScreen>
@@ -77,13 +91,16 @@ export default function Groups() {
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space[12],
-    padding: space[16],
     borderRadius: radius.xl,
     backgroundColor: color.bg.surface,
   },
+  top: { flexDirection: 'row', alignItems: 'center', gap: space[12], padding: space[16] },
+  links: { flexDirection: 'row', borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
+  link: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space[8], minHeight: 52 },
+  linkText: { ...text.body, color: color.text.primary },
+  divider: { width: stroke.ultraThin, backgroundColor: color.line.hairline, marginVertical: space[12] },
+  crystal: { width: 30, height: 24, alignItems: 'center' },
+  crystalFloat: { position: 'absolute', top: (24 - 52) / 2 },
   pressed: { opacity: 0.7 },
   flex: { flex: 1, gap: space[4] },
   name: { ...text.cardTitle, color: color.text.primary },

@@ -962,5 +962,7 @@
   "Anfrage annehmen": "Accepter la demande",
   "Befreundet": "Ami·es",
   "Weitere Aktionen": "Plus d’actions",
-  "Melden": "Signaler"
+  "Melden": "Signaler",
+  "Feed von {name}": "Fil de {name}",
+  "Verwalten": "Gérer"
 }
