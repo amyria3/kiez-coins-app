@@ -153,27 +153,49 @@ export const EdensteinIcon = memo(function EdensteinIcon({ height = 18, amount }
 
 const SPARKLE = '<svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"><path d="M5 0C5.4 3.3 6.7 4.6 10 5C6.7 5.4 5.4 6.7 5 10C4.6 6.7 3.3 5.4 0 5C3.3 4.6 4.6 3.3 5 0Z" fill="#FFFFFF"/></svg>';
 
-/** Gleichmäßiges Hin und Her (Sinus) mit eigener Dauer; verschiedene Dauern ergeben zusammen eine Bewegung ohne Takt */
-function useSway(duration: number, run: boolean) {
+/**
+ * Unruhiges Wandern zwischen -1 und 1: jedes Stück mit neuem Ziel und neuer Dauer, ab und zu ein kurzer Ruck.
+ * So wiederholt sich nichts, die Bewegung wirkt lebendig und ein wenig sprunghaft.
+ */
+function useWander(run: boolean, slow: number) {
   const v = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     if (!run) return;
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(v, { toValue: 1, duration: duration / 2, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        Animated.timing(v, { toValue: 0, duration: duration / 2, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-      ]),
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [v, duration, run]);
+    let alive = true;
+    const step = () => {
+      if (!alive) return;
+      const jolt = Math.random() < 0.18;
+      Animated.timing(v, {
+        toValue: (Math.random() * 2 - 1) * (jolt ? 1 : 0.6),
+        duration: jolt ? 160 + Math.random() * 180 : slow * (0.5 + Math.random()),
+        easing: jolt ? Easing.out(Easing.back(2.2)) : Easing.inOut(Easing.sin),
+        useNativeDriver: true,
+      }).start(({ finished }) => finished && step());
+    };
+    step();
+    return () => {
+      alive = false;
+      v.stopAnimation();
+    };
+  }, [v, run, slow]);
   return v;
+}
+
+/** Gemeinsamer Schubs fürs Scrollen: Der Feed meldet, wie weit er sich bewegt, alle Edensteine schwingen nach. */
+const scrollKick = new Animated.Value(0);
+let kickSpring: Animated.CompositeAnimation | null = null;
+export function nudgeCrystals(delta: number) {
+  if (!delta) return;
+  kickSpring?.stop();
+  scrollKick.setValue(Math.max(-1, Math.min(1, delta / 40)));
+  kickSpring = Animated.spring(scrollKick, { toValue: 0, friction: 3, tension: 60, useNativeDriver: true });
+  kickSpring.start();
 }
 
 /**
  * Ein einzelner, großer Edenstein, der lebt (Daria, 22.10.2026):
- * 1. Schweben: Er hebt und senkt sich und neigt sich leicht. Zwei Bewegungen mit verschiedener Dauer,
- *    daher wiederholt sich das Bild kaum und wirkt wie Atmen.
+ * 1. Schweben: Er hebt, senkt und neigt sich unruhig, mit wechselndem Tempo und gelegentlichem Ruck.
+ *    Beim Scrollen im Feed hängt er nach und federt zurück (nudgeCrystals).
  * 2. Funkeln: In unregelmäßigen Abständen blitzt oben am Stein ein Lichtstern auf, der Stein wird dabei kurz größer.
  * Mit „Bewegung reduzieren“ steht er still. `height` ist die Höhe des Kristalls; er darf über seinen Rahmen ragen.
  */
@@ -182,8 +204,9 @@ export const LivingCrystal = memo(function LivingCrystal({ height = 48, amount }
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setStill).catch(() => {});
   }, []);
-  const bob = useSway(2600, !still);
-  const tilt = useSway(3700, !still);
+  const bob = useWander(!still, 1500);
+  const tilt = useWander(!still, 2100);
+  const drift = useWander(!still, 2700);
   const flash = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     if (still) return;
@@ -206,9 +229,21 @@ export const LivingCrystal = memo(function LivingCrystal({ height = 48, amount }
         width: w,
         height,
         transform: [
-          { translateY: bob.interpolate({ inputRange: [0, 1], outputRange: [height * 0.04, -height * 0.04] }) },
-          { rotate: tilt.interpolate({ inputRange: [0, 1], outputRange: ['-6deg', '5deg'] }) },
-          { scale: flash.interpolate({ inputRange: [0, 0.3, 1], outputRange: [1, 1.07, 1] }) },
+          { translateX: drift.interpolate({ inputRange: [-1, 1], outputRange: [-height * 0.03, height * 0.03] }) },
+          {
+            translateY: Animated.add(
+              bob.interpolate({ inputRange: [-1, 1], outputRange: [height * 0.05, -height * 0.05] }),
+              // Beim Scrollen hängt der Stein etwas nach und federt zurück
+              scrollKick.interpolate({ inputRange: [-1, 1], outputRange: [-height * 0.18, height * 0.18] }),
+            ),
+          },
+          {
+            rotate: Animated.add(tilt, scrollKick.interpolate({ inputRange: [-1, 1], outputRange: [1.4, -1.4] })).interpolate({
+              inputRange: [-2.4, 2.4],
+              outputRange: ['-22deg', '22deg'],
+            }),
+          },
+          { scale: flash.interpolate({ inputRange: [0, 0.3, 1], outputRange: [1, 1.08, 1] }) },
         ],
       }}
     >
