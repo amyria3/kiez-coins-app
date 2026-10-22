@@ -24,6 +24,13 @@ for (const file of files) {
     // eindeutige IDs, damit mehrere Icons auf einer Web-Seite sich nicht stören
     .replace(/id="([^"]+)"/g, `id="kc-${name}-$1"`)
     .replace(/url\(#([^)]+)\)/g, `url(#kc-${name}-$1)`);
+  // Die Krone hat eine eigene Datei (crownSvg.ts), weil Brand.tsx und die Website sie ohne IconName nutzen
+  if (name === 'crown') {
+    const head = '// Krone aus assets/icons/crown.svg (übernommen mit scripts/icons-import.mjs). Farbe zur Laufzeit (`c`).\n\n';
+    writeFileSync(join(root, 'src/components/icons/crownSvg.ts'), `${head}export const crownSvg = {\n  width: ${w},\n  height: ${h},\n  svg: (c: string) =>\n    \`${svg}\`,\n};\n`);
+    console.log(`crown: ${w}×${h} (crownSvg.ts)`);
+    continue;
+  }
   const key = /^[a-z]+$/.test(name) ? name : `'${name}'`;
   const entry = `  ${key}: {\n    width: ${w},\n    height: ${h},\n    svg: (c) =>\n      \`${svg}\`,\n  },\n`;
   const re = new RegExp(`  ${key.replace(/[-']/g, (m) => '\\' + m)}: \\{\\n[\\s\\S]*?\\n  \\},\\n`);
