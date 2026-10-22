@@ -11,13 +11,43 @@ import { errorText, loadAppTexts, saveAppText, type AppTextLang, type AppTextRow
 import { bundledTranslation, languages, loadTexts, normalizeText, t, type Lang } from '../data/texts';
 import { color, radius, space, stroke, text } from '../theme/tokens';
 
-type Area = 'alle' | 'buttons' | 'kater' | 'recht';
-const areas: { key: Area; label: string }[] = [
-  { key: 'alle', label: 'Alle' },
-  { key: 'buttons', label: 'Buttons' },
-  { key: 'kater', label: 'Weitere Texte' },
+// Seiten der App (Daria, 22.10.2026). Zuordnung: src/data/textSeiten.json, erzeugt von scripts/text-pages.mjs.
+// Texte, die auf mehreren Seiten stehen, haben eine eigene Gruppe: Eine Änderung gilt dann überall.
+import seitenJson from '../data/textSeiten.json';
+
+type Page =
+  | 'mehrere'
+  | 'start'
+  | 'feed'
+  | 'erstellen'
+  | 'detail'
+  | 'verwalten'
+  | 'gruppen'
+  | 'freunde'
+  | 'reise'
+  | 'konto'
+  | 'kater'
+  | 'moderation'
+  | 'recht'
+  | 'allgemein';
+type Area = 'alle' | Page;
+const pages: { key: Page; label: string }[] = [
+  { key: 'mehrere', label: 'Auf mehreren Seiten' },
+  { key: 'start', label: 'Start und Anmeldung' },
+  { key: 'feed', label: 'Feed' },
+  { key: 'erstellen', label: 'Challenge erstellen' },
+  { key: 'detail', label: 'Challenge-Detail' },
+  { key: 'verwalten', label: 'Deine Challenges' },
+  { key: 'gruppen', label: 'Gruppen' },
+  { key: 'freunde', label: 'Freund:innen und Chats' },
+  { key: 'reise', label: 'Was Du so machst' },
+  { key: 'konto', label: 'Konto und Einstellungen' },
+  { key: 'kater', label: 'Tour und Kater' },
+  { key: 'moderation', label: 'Moderation' },
   { key: 'recht', label: 'Rechtstexte' },
+  { key: 'allgemein', label: 'Allgemein' },
 ];
+const seiten = seitenJson as Record<string, Page>;
 type Sort = 'kurz' | 'lang' | 'neu';
 const sorts: { key: Sort; label: string }[] = [
   { key: 'kurz', label: 'Kurz zuerst' },
@@ -25,8 +55,8 @@ const sorts: { key: Sort; label: string }[] = [
   { key: 'neu', label: 'Zuletzt geändert' },
 ];
 
-const areaOf = (ort: string | null): Exclude<Area, 'alle'> =>
-  ort?.includes('Rechtstexte') ? 'recht' : ort?.includes('(Button)') ? 'buttons' : 'kater';
+const pageOf = (row: AppTextRow): Page =>
+  seiten[normalizeText(row.original)] ?? (row.ort?.includes('Rechtstexte') ? 'recht' : 'allgemein');
 /** Fassung, die die App in Sprache `l` zeigt: eigene Fassung aus dem CMS, sonst mitgelieferte Übersetzung, sonst Deutsch */
 const shownIn = (row: AppTextRow, l: Lang) =>
   l === 'de'
@@ -47,7 +77,8 @@ const shortOrt = (ort: string | null) =>
 
 /**
  * Route `texte` (Push aus „Dein Konto“, nur für Moderatorinnen). Editor für das Texte-CMS (Tabelle `app_texts`):
- * alle Buttons, Kater-Texte und Rechtstexte, sortiert nach Länge, mit Suche. Tippen öffnet den Text zum Bearbeiten.
+ * alle Texte nach Seiten gruppiert (Texte auf mehreren Seiten eigens), innerhalb nach Länge, mit Suche.
+ * Tippen öffnet den Text zum Bearbeiten.
  */
 export default function Texte() {
   const router = useRouter();
@@ -77,7 +108,7 @@ export default function Texte() {
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
     return (rows ?? [])
-      .filter((r) => area === 'alle' || areaOf(r.ort) === area)
+      .filter((r) => area === 'alle' || pageOf(r) === area)
       .filter((r) => !q || shown(r).toLowerCase().includes(q) || r.original.toLowerCase().includes(q))
       .sort((a, b) =>
         sort === 'neu'
@@ -85,6 +116,21 @@ export default function Texte() {
           : (sort === 'kurz' ? 1 : -1) * (shown(a).length - shown(b).length) || shown(a).localeCompare(shown(b), 'de'),
       );
   }, [rows, area, sort, query, lang]);
+
+  // Anzahl je Seite für die Chips
+  const counts = useMemo(() => {
+    const c: Partial<Record<Page, number>> = {};
+    for (const r of rows ?? []) c[pageOf(r)] = (c[pageOf(r)] ?? 0) + 1;
+    return c;
+  }, [rows]);
+  // „Alle“: nach Seiten gruppiert, in der Reihenfolge der Chips
+  const sections = useMemo(
+    () =>
+      (area === 'alle' ? pages : pages.filter((p) => p.key === area))
+        .map((p) => ({ ...p, rows: list.filter((r) => pageOf(r) === p.key) }))
+        .filter((p) => p.rows.length),
+    [list, area],
+  );
 
   const edit = (row: AppTextRow) => {
     if (open === row.original) return setOpen(undefined);
@@ -139,9 +185,12 @@ export default function Texte() {
       </ChipGroup>
       <TextField label="Suchen" value={query} onChangeText={setQuery} autoCapitalize="none" autoCorrect={false} returnKeyType="search" />
       <ChipGroup>
-        {areas.map((a) => (
-          <Chip key={a.key} label={a.label} selected={area === a.key} onPress={() => setArea(a.key)} />
-        ))}
+        <Chip label={t('Alle')} selected={area === 'alle'} onPress={() => setArea('alle')} />
+        {pages
+          .filter((p) => counts[p.key])
+          .map((p) => (
+            <Chip key={p.key} label={`${t(p.label)} ${counts[p.key]}`} selected={area === p.key} onPress={() => setArea(p.key)} />
+          ))}
       </ChipGroup>
       <ChipGroup>
         {sorts.map((s) => (
@@ -155,41 +204,53 @@ export default function Texte() {
         </View>
       ) : null}
 
-      {list.map((row) => {
-        const isOpen = open === row.original;
-        return (
-          <View key={row.original} style={[styles.card, isOpen && styles.cardOpen]}>
-            <Pressable onPress={() => edit(row)} accessibilityRole="button" accessibilityState={{ expanded: isOpen }}>
-              {/* RawText: Inhalte nicht in die Sprache der App übersetzen */}
-              <RawText style={styles.value} numberOfLines={isOpen ? undefined : 3}>
-                {shown(row)}
-              </RawText>
-              {lang !== 'de' ? (
-                <RawText style={styles.meta} numberOfLines={isOpen ? undefined : 1}>
-                  {row.text.trim() || row.original}
-                </RawText>
-              ) : null}
-              <Text style={styles.meta} numberOfLines={1}>{[t('{anzahl} Zeichen', { anzahl: shown(row).length }), shortOrt(row.ort), changed(row) ? t('geändert') : null].filter(Boolean).join(' · ')}</Text>
-            </Pressable>
-            {isOpen ? (
-              <View style={styles.editor}>
-                <TextField label="Text" value={draft} onChangeText={setDraft} multiline autoFocus />
-                {changed(row) ? <RawText style={styles.meta}>{t('Original: {original}', { original: baseIn(row, lang) })}</RawText> : null}
-                <Button label="Speichern" busy={busy} disabled={draft.trim() === shown(row).trim()} onPress={() => trySave(row)} />
-                {changed(row) ? (
-                  <Button label="Original wiederherstellen" variant="ghost" disabled={busy} onPress={() => save(row, '')} />
+      {sections.map((section) => (
+        <View key={section.key} style={styles.section}>
+          <Text style={styles.sectionTitle} accessibilityRole="header">
+            {t(section.label)} · {section.rows.length}
+          </Text>
+          {section.key === 'mehrere' ? (
+            <Text style={styles.meta}>Diese Texte stehen auf mehreren Seiten. Eine Änderung gilt überall.</Text>
+          ) : null}
+          {section.rows.map((row) => {
+            const isOpen = open === row.original;
+            return (
+              <View key={row.original} style={[styles.card, isOpen && styles.cardOpen]}>
+                <Pressable onPress={() => edit(row)} accessibilityRole="button" accessibilityState={{ expanded: isOpen }}>
+                  {/* RawText: Inhalte nicht in die Sprache der App übersetzen */}
+                  <RawText style={styles.value} numberOfLines={isOpen ? undefined : 3}>
+                    {shown(row)}
+                  </RawText>
+                  {lang !== 'de' ? (
+                    <RawText style={styles.meta} numberOfLines={isOpen ? undefined : 1}>
+                      {row.text.trim() || row.original}
+                    </RawText>
+                  ) : null}
+                  <Text style={styles.meta} numberOfLines={1}>{[t('{anzahl} Zeichen', { anzahl: shown(row).length }), shortOrt(row.ort), changed(row) ? t('geändert') : null].filter(Boolean).join(' · ')}</Text>
+                </Pressable>
+                {isOpen ? (
+                  <View style={styles.editor}>
+                    <TextField label="Text" value={draft} onChangeText={setDraft} multiline autoFocus />
+                    {changed(row) ? <RawText style={styles.meta}>{t('Original: {original}', { original: baseIn(row, lang) })}</RawText> : null}
+                    <Button label="Speichern" busy={busy} disabled={draft.trim() === shown(row).trim()} onPress={() => trySave(row)} />
+                    {changed(row) ? (
+                      <Button label="Original wiederherstellen" variant="ghost" disabled={busy} onPress={() => save(row, '')} />
+                    ) : null}
+                  </View>
                 ) : null}
               </View>
-            ) : null}
-          </View>
-        );
-      })}
+            );
+              })}
+        </View>
+      ))}
     </SubScreen>
   );
 }
 
 const styles = StyleSheet.create({
   loading: { alignItems: 'center', paddingVertical: space[48] },
+  section: { gap: space[8], marginTop: space[8] },
+  sectionTitle: { ...text.title, color: color.text.primary },
   card: {
     gap: space[8],
     padding: space[16],

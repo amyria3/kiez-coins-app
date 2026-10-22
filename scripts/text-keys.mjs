@@ -15,11 +15,14 @@ export async function collectKeys() {
     });
   const skipFile = (f) => /data\/(sample|texts)\.ts$|icons\/|i18n\//.test(f);
 
-  const keys = new Map(); // Text → Fundort
+  const keys = new Map(); // Text → erster Fundort
+  const all = new Map(); // Text → alle Fundorte (scripts/text-pages.mjs)
   const add = (text, where) => {
     const k = norm(text);
     if (!k || !/[A-Za-zÄÖÜäöüß]/.test(k)) return;
     if (!keys.has(k)) keys.set(k, where);
+    if (!all.has(k)) all.set(k, new Set());
+    all.get(k).add(where);
   };
   const looksText = (s) => {
     const v = s.trim();
@@ -75,5 +78,6 @@ export async function collectKeys() {
     }
   }
 
+  keys.all = all;
   return keys;
 }
