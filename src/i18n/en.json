@@ -933,5 +933,8 @@
   "Willkommen, {anrede}! Hier siehst Du, was Du so machst. Erstell eine Challenge oder nimm eine an.": "Welcome, {anrede}! This is where you see what you’re up to. Create a challenge or accept one.",
   "Titel eingeben": "Enter a title",
   "Alle Infos drin?": "Got everything in?",
-  "Hinweis schließen": "Close hint"
+  "Hinweis schließen": "Close hint",
+  "Einmal tippen zeigt, wer gepostet hat. Nochmal tippen öffnet den Post.": "Tap once to see who posted. Tap again to open the post.",
+  "hat das {when} gepostet": "posted this {when}",
+  "Nochmal tippen zum Öffnen": "Tap again to open"
 }
