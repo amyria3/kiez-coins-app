@@ -964,5 +964,14 @@
   "Weitere Aktionen": "إجراءات أخرى",
   "Melden": "إبلاغ",
   "Feed von {name}": "موجز {name}",
-  "Verwalten": "إدارة"
+  "Verwalten": "إدارة",
+  "Mitglieder": "الأعضاء",
+  "Du, {edensteine} Edensteine": "أنت، {edensteine} من أحجار عدن",
+  "Gründerin": "المؤسِّسة",
+  "Gruppeneinstellungen": "إعدادات المجموعة",
+  "Rangliste anzeigen": "عرض لوحة الترتيب",
+  "Alle sehen, wer wie viele Edensteine hat.": "يرى الجميع عدد أحجار عدن لدى كل شخص.",
+  "Alle sehen nur ihre eigenen Edensteine.": "يرى كل شخص أحجار عدن الخاصة به فقط.",
+  "{name}: Mitglieder": "{name}: الأعضاء",
+  "{members} Mitglieder · Einladen": "{members} أعضاء · دعوة"
 }
