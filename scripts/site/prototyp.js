@@ -294,7 +294,7 @@
   }
 
   function renderNearby(newId) {
-    var hint = !state.hinted ? ' p-hint' : '';
+    var hint = '';
     content.innerHTML =
       '<div class="p-list' + hint + '">' + challenges.map(function (c) { return card(c, c.id === newId); }).join('') + '</div>';
   }
@@ -332,7 +332,7 @@
   }
 
   function renderGroups(newId) {
-    var hint = !state.hinted ? ' p-hint' : '';
+    var hint = '';
     content.innerHTML =
       '<div class="p-group">' +
       '<div class="p-group-head"><strong>' + group.name + '</strong><span>' + group.sub + '</span></div>' +
@@ -583,6 +583,7 @@
         autoTimer = null;
         var btn = $('[data-publish]', create);
         btn.disabled = false;
+        updateRing();
         if (!reduce) { btn.classList.remove('p-ready'); btn.offsetWidth; btn.classList.add('p-ready'); }
         return;
       }
@@ -786,6 +787,7 @@
     if (!e.target.matches('[data-title]')) return;
     state.draft.title = e.target.value;
     $('[data-publish]', create).disabled = !e.target.value.trim();
+    updateRing();
   });
   scrim.addEventListener('click', function () { closeAll(true); });
   root.addEventListener('keydown', function (e) {
@@ -845,7 +847,32 @@
       });
       moveMark(roles, r);
     }
+    updateRing();
   }
+  // ---------- Ringe: zum Szenario links leuchtet rechts der Knopf, mit dem es weitergeht ----------
+  var preview = null; // Szenario unter der Maus links
+  function firstOpenCard() {
+    var c = challenges.filter(function (c) { return c.author !== 'du' && !state.status[c.id]; })[0] || challenges[0];
+    return c && $('.p-post[data-id="' + c.id + '"] .p-card');
+  }
+  function ringTarget(name) {
+    if (!preview || preview === current()) {
+      // Nächster Schritt im laufenden Szenario
+      if (state.create) return $('[data-publish]:not(:disabled)', create) || $('.p-photo-title', create);
+      if (state.detail) return $('.p-btn:not(:disabled)', sheet);
+    }
+    if (state.tab === 'pleasure') return $('[data-bar="feed"]');
+    if (name === 'stellen') return $('.p-camera');
+    if (name === 'rangliste') return state.mode === 'family' ? $('[data-task-do]') || $('.p-board') : $('.p-seg [data-tab="groups"]');
+    if (name === 'gruppe' && state.mode !== 'family') return $('.p-seg [data-tab="groups"]');
+    return firstOpenCard();
+  }
+  function updateRing() {
+    $$('.p-ring').forEach(function (el) { el.classList.remove('p-ring'); });
+    var el = ringTarget(preview || current());
+    if (el) el.classList.add('p-ring');
+  }
+
   function pulseFirst() {
     var el = $('.p-list .p-post');
     if (!el || reduce) return;
@@ -912,6 +939,17 @@
     say(mode === 'family' ? 'Du bist jetzt in der Familie Berger.' : 'Du bist jetzt in Connewitz unterwegs.');
   }
   if (picker) {
+    picker.addEventListener('pointerover', function (e) {
+      var b = e.target.closest('[data-szenario]');
+      var name = b ? b.dataset.szenario : null;
+      if (name !== preview) { preview = name; updateRing(); }
+    });
+    picker.addEventListener('pointerleave', function () { preview = null; updateRing(); });
+    picker.addEventListener('focusin', function (e) {
+      var b = e.target.closest('[data-szenario]');
+      if (b) { preview = b.dataset.szenario; updateRing(); }
+    });
+    picker.addEventListener('focusout', function () { preview = null; updateRing(); });
     picker.addEventListener('click', function (e) {
       var b = e.target.closest('[data-szenario]');
       if (b) go(b.dataset.szenario);
