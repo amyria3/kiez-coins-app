@@ -1,5 +1,5 @@
 // Klickbarer Prototyp der App auf kiezcoins.de. Läuft ohne Server und ohne Konto, alle Daten sind Beispiele.
-// Zwei Rollen: „Öffentlich“ (Nachbarschaft, Bounty in Euro) und „Familie“ (Gruppe, Belohnung in Edensteinen).
+// Zwei Rollen: „Öffentlich“ (Nachbarschaft, Bounty in Euro) und „Familie“ (Gruppe, virtuelle Belohnung).
 // Icons, Kater, Kartenbilder und die Liste der Fotos kommen aus `prototyp/daten.js` (erzeugt von
 // scripts/build-download-site.mjs aus denselben SVGs wie die App). Bewegung „Schranke“ wie in src/theme/tokens.ts.
 (function () {
@@ -24,6 +24,9 @@
   function $$(sel, el) {
     return Array.prototype.slice.call((el || root).querySelectorAll(sel));
   }
+  function cap(s) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
   function find(list, id) {
     return list.filter(function (x) { return x.id === id; })[0];
   }
@@ -34,7 +37,8 @@
       unit: 'euro',
       place: 'Connewitz',
       countText: function (n) { return n === 1 ? '1 Challenge in Deiner Nähe' : n + ' Challenges in Deiner Nähe'; },
-      tabs: { nearby: 'In der Nähe', pleasure: 'Pleasure', groups: 'Gruppen' },
+      tabs: { nearby: 'In der Nähe', groups: 'Gruppen' },
+      headline: 'Kleine Challenges für Deinen Kiez.',
       noun: 'Challenge',
       people: {
         lena: { name: 'Lena K.', short: 'Lena', color: '#FFB2E5' },
@@ -71,7 +75,7 @@
       ],
       group: {
         name: 'Hof Kastanienallee',
-        sub: '4 Mitglieder · Edensteine',
+        sub: '4 Mitglieder · Rangliste an',
         members: [
           { id: 'lena', score: 12 },
           { id: 'du', score: 9 },
@@ -92,17 +96,20 @@
         photo: 'tonnen',
         published: 'Deine Challenge ist online. Die Nachbarschaft sieht sie jetzt.',
       },
-      scenarios: {
-        finden: ['Challenge finden', 'Scrollen? Ausnahmsweise richtig nützlich!', 'Finden'],
-        stellen: ['Challenge stellen', 'Foto, Titel, Coins. Fertig.', 'Stellen'],
-        gruppe: ['Gruppe', 'Selbstorganisation? Easy!', 'Gruppe'],
-      },
+      // Reihenfolge = Reihenfolge der Knöpfe neben dem Telefon: [Schlüssel, Titel, Text, Kurzform fürs Handy]
+      scenarios: [
+        ['scrollen', 'Scrollen', 'Scrollen? Ausnahmsweise richtig nützlich!', 'Scrollen'],
+        ['stellen', 'Challenge erstellen', 'Foto, Titel, Coins. Fertig.', 'Erstellen'],
+        ['uebernehmen', 'Challenge übernehmen', 'Annehmen, erledigen, Coins bekommen.', 'Übernehmen'],
+        ['rangliste', 'Rangliste', 'Du magst es kompetitiv? Schalte die Rangliste als Feature für Deine Gruppe ein oder aus. May the best win!', 'Rangliste'],
+      ],
     },
     family: {
       unit: 'eden',
       place: 'Familie Berger',
       countText: function (n) { return n === 1 ? '1 offene Aufgabe' : n + ' offene Aufgaben'; },
-      tabs: { nearby: 'Aufgaben', pleasure: 'Pleasure', groups: 'Rangliste' },
+      tabs: { nearby: 'Aufgaben', groups: 'Rangliste' },
+      headline: 'Spaß bei Aufgaben im Haushalt.',
       noun: 'Aufgabe',
       people: {
         mama: { name: 'Mama', short: 'Mama', color: '#FFB2E5' },
@@ -139,7 +146,7 @@
       ],
       group: {
         name: 'Familie Berger',
-        sub: '5 Mitglieder · Edensteine',
+        sub: '5 Mitglieder · Rangliste an',
         members: [
           { id: 'mama', score: 18 },
           { id: 'jonas', score: 14 },
@@ -161,11 +168,12 @@
         photo: 'waesche',
         published: 'Deine Aufgabe ist da. Die Familie sieht sie jetzt.',
       },
-      scenarios: {
-        finden: ['Aufgabe übernehmen', 'Mama, Papa oder Oma brauchen Hilfe.', 'Übernehmen'],
-        stellen: ['Aufgabe stellen', 'Foto, Titel, Edensteine. Fertig.', 'Stellen'],
-        gruppe: ['Rangliste', 'Wer sammelt die meisten Edensteine?', 'Rangliste'],
-      },
+      scenarios: [
+        ['gruppe', 'Gruppe', 'Die ganze Familie in einer Gruppe. Alle sehen, was ansteht.', 'Gruppe'],
+        ['stellen', 'Aufgabe erstellen', 'Foto, Titel, virtuelle Belohnung. Fertig.', 'Erstellen'],
+        ['uebernehmen', 'Aufgabe übernehmen', 'Mama, Papa oder Oma brauchen Hilfe.', 'Übernehmen'],
+        ['rangliste', 'Rangliste', 'Viele Aufgaben bleiben liegen, weil man sie allein erledigen muss. Engagement im Haushalt muss nicht träge sein. Spielerische Anerkennung in Form von Ranglisten spiegelt den sozialen Wert von (Care-)arbeit.', 'Rangliste'],
+      ],
     },
   };
 
@@ -195,14 +203,14 @@
     return { photo: false, title: '', reward: M.create.reward, deadline: '3 Tage' };
   }
 
-  // Belohnung: Euro mit Coins, Edensteine mit Diamant
+  // Belohnung: Euro mit Coins, virtuelle Belohnung mit Kristall
   function rewardBadge(n, h) {
     return M.unit === 'euro'
       ? svg('coins', h || 20) + '<b>' + n + ',-</b>'
       : svg('diamond', (h || 20) - 2) + '<b class="p-eden">' + n + '</b>';
   }
   function rewardText(n) {
-    return M.unit === 'euro' ? n + ' Euro' : n === 1 ? '1 Edenstein' : n + ' Edensteine';
+    return M.unit === 'euro' ? n + ' Euro' : n === 1 ? '1 virtuelle Belohnung' : n + ' virtuelle Belohnungen';
   }
 
   // ---------- Aufbau ----------
@@ -219,7 +227,6 @@
     '  <div class="p-seg" role="tablist" aria-label="Feed">' +
     '    <span class="p-seg-pill" aria-hidden="true"></span>' +
     '    <button role="tab" data-tab="nearby"></button>' +
-    '    <button role="tab" data-tab="pleasure"></button>' +
     '    <button role="tab" data-tab="groups"></button>' +
     '  </div>' +
     '  <div class="p-content"></div>' +
@@ -227,7 +234,7 @@
     '<button class="p-camera" type="button" aria-label="Neu stellen">' + svg('camera', 15) + '</button>' +
     '<nav class="p-tabbar" aria-label="App-Leiste">' +
     '  <button type="button" data-bar="feed" aria-label="Feed">' + svg('pin', 18) + '</button>' +
-    '  <button type="button" data-bar="pleasure" aria-label="Your Pleasure">' + svg('crown', 22) + '</button>' +
+    '  <button type="button" data-bar="pleasure" aria-label="Was Du so machst">' + svg('crown', 22) + '</button>' +
     '  <button type="button" data-bar="menu" aria-label="Menü">' + svg('burger', 16) + '</button>' +
     '</nav>' +
     '<div class="p-scrim" hidden></div>' +
@@ -267,17 +274,16 @@
       '<button type="button" class="p-card' + (c.img ? '' : ' p-card-text') + '" data-open="' + c.id + '" aria-label="' + esc(c.title) + ' öffnen">' +
       (c.img ? '<span class="p-img">' + image(c.img) + '</span>' : '') +
       '<span class="p-bounty">' + rewardBadge(c.reward) + '</span>' +
-      statusChip(c.id) +
+      (statusChip(c.id) || '<span class="p-chip p-chip-deadline">' + svg('clock', 10) + esc(cap(c.left)) + '</span>') +
       '<span class="p-info"><strong>' + esc(c.title) + '</strong><span class="p-meta">' + avatar(c.author) +
-      esc(people[c.author].name) + ' · ' + esc(c.dist) + ' · ' + esc(c.left) + '</span></span>' +
+      esc(people[c.author].name) + ' · ' + esc(c.dist) + '</span></span>' +
       '</button>' +
       '<div class="p-actions">' +
       '<button type="button" class="p-like' + (liked ? ' is-on' : '') + '" data-like="' + c.id + '" aria-pressed="' + liked + '" aria-label="Gefällt mir">' +
       '<span class="p-heart">' + svg(liked ? 'heartOn' : 'heart', 17) + '</span><span>' + (c.likes + (liked ? 1 : 0)) + '</span></button>' +
-      '<button type="button" data-soon="Geschenke" aria-label="Geschenk senden">' + svg('gift', 17) + '</button>' +
       '<button type="button" data-open="' + c.id + '" aria-label="Kommentare">' + svg('comment', 17) + '<span>' + c.comments + '</span></button>' +
       '<button type="button" data-soon="Teilen" aria-label="Teilen">' + svg('send', 17) + '</button>' +
-      (c.author === 'du' ? '<button type="button" class="p-manage" data-soon="Verwalten">Verwalten</button>' : '') +
+      (c.author === 'du' ? '<button type="button" class="p-manage" data-soon="Verwalten" aria-label="Verwalten">' + svg('gear', 17) + '</button>' : '') +
       '</div>' +
       '</article>'
     );
@@ -302,7 +308,7 @@
     content.innerHTML =
       '<div class="p-pleasure">' +
       '<div class="p-metrics"><div><b>' + done.length + '</b><span>angenommen</span></div><div><b>' + earned +
-      '</b><span>' + (M.unit === 'euro' ? 'verdient' : 'Edensteine') + '</span></div><div><b>' + mine.length + '</b><span>gestellt</span></div></div>' +
+      '</b><span>' + (M.unit === 'euro' ? 'verdient' : 'gesammelt') + '</span></div><div><b>' + mine.length + '</b><span>gestellt</span></div></div>' +
       (rows
         ? '<ul class="p-rows">' + rows + '</ul>'
         : '<p class="p-empty">Nimm eine ' + M.noun + ' an. Hier siehst Du, was Du erledigst und ' + (M.unit === 'euro' ? 'verdienst' : 'sammelst') + '.</p>' +
@@ -330,7 +336,7 @@
       group.tasks
         .map(function (t) {
           return '<div class="p-task' + (t.done ? ' is-done' : '') + '" data-task="' + t.id + '"><div><strong>' + esc(t.title) + '</strong><span>' +
-            avatar(t.by) + people[t.by].short + ' · ' + svg('diamond', 13) + ' ' + rewardText(t.eden) + '</span></div>' +
+            avatar(t.by) + people[t.by].short + ' · ' + svg('diamond', 13) + ' ' + t.eden + '</span></div>' +
             (t.done
               ? '<span class="p-done">' + svg('checkGreen', 12) + ' Erledigt</span>'
               : '<button type="button" class="p-btn p-btn-small" data-task-do="' + t.id + '">Erledigt</button>') +
@@ -343,6 +349,9 @@
   function placePill(animate) {
     var btn = $('[data-tab="' + state.tab + '"]', seg);
     var pill = $('.p-seg-pill', seg);
+    // „Was Du so machst“ liegt nur in der Tab-Leiste, dann steht die Pille still
+    pill.style.opacity = btn ? '' : '0';
+    if (!btn) return;
     if (!animate) pill.style.transition = 'none';
     pill.style.transform = 'translateX(' + btn.offsetLeft + 'px)';
     pill.style.width = btn.offsetWidth + 'px';
@@ -400,7 +409,7 @@
     nudge.classList.remove('is-on');
   }
 
-  // ---------- Coins- oder Edenstein-Regen ----------
+  // ---------- Coins- oder Kristall-Regen ----------
   function burst(fromEl) {
     if (reduce) return;
     var box = screen.getBoundingClientRect();
@@ -457,7 +466,7 @@
       '<p class="p-author">' + avatar(c.author, 22) + esc(people[c.author].name) + '</p>' +
       (c.text ? '<p class="p-text">' + esc(c.text) + '</p>' : '') +
       '<div class="p-metrics p-metrics-row"><div><b class="p-bounty-big">' + rewardBadge(c.reward, 18) + '</b><span>' +
-      (M.unit === 'euro' ? 'Coins' : 'Edensteine') + '</span></div>' +
+      (M.unit === 'euro' ? 'Coins' : 'Virtuelle Belohnung') + '</span></div>' +
       '<div><b>' + esc(c.left.replace('noch ', '')) + '</b><span>Frist</span></div><div><b>' + esc(c.dist) + '</b><span>' +
       (M.unit === 'euro' ? 'Weg' : 'Wo') + '</span></div></div>' +
       action +
@@ -506,7 +515,7 @@
       '</button>' +
       '<label class="p-field"><span>Titel</span><input type="text" maxlength="48" placeholder="Was soll passieren?" value="' + esc(d.title) + '" data-title></label>' +
       '<div class="p-sugg">' + M.create.suggestions.map(function (s) { return '<button type="button" class="p-pill" data-sugg="' + esc(s) + '">' + esc(s) + '</button>'; }).join('') + '</div>' +
-      '<div class="p-field"><span>' + (M.unit === 'euro' ? 'Coins' : 'Edensteine') + '</span><div class="p-choice" role="radiogroup" aria-label="Belohnung">' +
+      '<div class="p-field"><span>' + (M.unit === 'euro' ? 'Coins' : 'Virtuelle Belohnung') + '</span><div class="p-choice" role="radiogroup" aria-label="Belohnung">' +
       M.create.rewards.map(function (n) { return '<button type="button" role="radio" aria-checked="' + (d.reward === n) + '" data-reward="' + n + '">' + n + unit + '</button>'; }).join('') +
       '</div></div>' +
       '<div class="p-field"><span>Frist</span><div class="p-choice" role="radiogroup" aria-label="Frist">' +
@@ -705,10 +714,15 @@
   // ---------- Rolle und Szenarien neben dem Telefon ----------
   var picker = document.getElementById('szenarien');
   var roles = document.getElementById('rolle');
+  var headline = document.querySelector('.hero h1');
+  function first() {
+    return M.scenarios[0][0];
+  }
   function current() {
     if (state.create) return 'stellen';
-    if (state.tab === 'groups') return 'gruppe';
-    return 'finden';
+    if (state.detail) return 'uebernehmen';
+    if (state.tab === 'groups') return 'rangliste';
+    return first();
   }
   function moveMark(container, active) {
     var mark = container && container.querySelector('.szenario-mark');
@@ -718,12 +732,16 @@
     mark.style.height = active.offsetHeight + 'px';
   }
   function labelScenarios() {
+    if (headline && M.headline) headline.textContent = M.headline;
     if (!picker) return;
-    $$('[data-szenario]', picker).forEach(function (b) {
-      var l = M.scenarios[b.dataset.szenario];
-      b.querySelector('b').textContent = l[0];
-      b.querySelector('span').textContent = l[1];
-      b.querySelector('i').textContent = l[2];
+    $$('[data-szenario]', picker).forEach(function (b, i) {
+      var l = M.scenarios[i];
+      b.hidden = !l;
+      if (!l) return;
+      b.dataset.szenario = l[0];
+      b.querySelector('b').textContent = l[1];
+      b.querySelector('span').textContent = l[2];
+      b.querySelector('i').textContent = l[3];
     });
   }
   function syncScenario() {
@@ -747,24 +765,43 @@
       moveMark(roles, r);
     }
   }
+  function pulseFirst() {
+    var el = $('.p-list .p-post');
+    if (!el || reduce) return;
+    el.classList.remove('p-pulse');
+    el.offsetWidth;
+    el.classList.add('p-pulse');
+  }
   function go(name) {
     closeAll();
     if (name === 'stellen') {
       if (state.tab === 'groups') { state.tab = 'nearby'; render(); }
       return openCreate();
     }
-    var tab = name === 'gruppe' ? 'groups' : 'nearby';
+    if (name === 'uebernehmen') {
+      if (state.tab !== 'nearby') setTab('nearby');
+      var open = challenges.filter(function (c) { return c.author !== 'du' && !state.status[c.id]; })[0] ||
+        challenges.filter(function (c) { return c.author !== 'du'; })[0];
+      if (open) openDetail(open.id);
+      return syncScenario();
+    }
+    var tab = name === 'rangliste' ? 'groups' : 'nearby';
     if (tab !== state.tab) setTab(tab);
-    else scroll.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
-    syncScenario();
-    if (name === 'finden' && !state.detail) {
-      var first = $('.p-list .p-post');
-      if (first && !reduce) {
-        first.classList.remove('p-pulse');
-        first.offsetWidth;
-        first.classList.add('p-pulse');
+    if (name === 'scrollen') {
+      // Einmal sanft durch den Feed scrollen und zurück
+      scroll.scrollTo({ top: 0 });
+      if (!reduce) {
+        setTimeout(function () { scroll.scrollTo({ top: 420, behavior: 'smooth' }); }, 120);
+        setTimeout(function () { scroll.scrollTo({ top: 0, behavior: 'smooth' }); pulseFirst(); }, 1500);
+      }
+    } else {
+      scroll.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      if (name === 'gruppe') {
+        pulseFirst();
+        say('Das ist Familie Berger. Alle sehen dieselben Aufgaben.');
       }
     }
+    syncScenario();
   }
   function switchMode(mode) {
     if (mode === state.mode) return;
@@ -801,6 +838,42 @@
       $('[data-rolle="' + next + '"]', roles).focus();
     });
   }
+  // ---------- Lila Punkt statt Mauszeiger über klickbaren Flächen ----------
+  var area = document.getElementById('prototyp-bereich');
+  if (area && window.matchMedia('(hover: hover) and (pointer: fine)').matches && !reduce) {
+    var dot = document.createElement('span');
+    dot.className = 'klick-punkt';
+    dot.setAttribute('aria-hidden', 'true');
+    dot.innerHTML = '<span></span>';
+    document.body.appendChild(dot);
+    area.classList.add('mit-punkt');
+    var over = null;
+    function clickable(el) {
+      var b = el && el.closest('button');
+      if (!b || !area.contains(b) || b.disabled) return null;
+      if (['aria-pressed', 'aria-checked', 'aria-selected'].some(function (a) { return b.getAttribute(a) === 'true'; })) return null;
+      return b;
+    }
+    area.addEventListener('pointermove', function (e) {
+      if (e.pointerType !== 'mouse') return;
+      var b = clickable(e.target);
+      dot.style.transform = 'translate(' + e.clientX + 'px,' + e.clientY + 'px)';
+      if (b !== over) {
+        over = b;
+        dot.classList.remove('is-on');
+        if (b) { dot.offsetWidth; dot.classList.add('is-on'); }
+      }
+    });
+    area.addEventListener('pointerleave', function () { over = null; dot.classList.remove('is-on'); });
+    // Nach einem Klick ändert sich oft, ob der Knopf noch klickbar ist (z. B. gewählter Chip)
+    area.addEventListener('click', function (e) {
+      setTimeout(function () {
+        var b = clickable(document.elementFromPoint(e.clientX, e.clientY));
+        if (b !== over) { over = b; dot.classList.toggle('is-on', !!b); }
+      }, 0);
+    });
+  }
+
   window.addEventListener('resize', function () { placePill(false); syncScenario(); });
 
   load('public');
