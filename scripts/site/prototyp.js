@@ -287,7 +287,7 @@
       '<span class="p-heart">' + svg(liked ? 'heartOn' : 'heart', 17) + '</span><span>' + (c.likes + (liked ? 1 : 0)) + '</span></button>' +
       '<button type="button" data-open="' + c.id + '" aria-label="Kommentare">' + svg('comment', 17) + '<span>' + c.comments + '</span></button>' +
       '<button type="button" data-soon="Teilen" aria-label="Teilen">' + svg('send', 17) + '</button>' +
-      (c.author === 'du' ? '<button type="button" class="p-manage" data-soon="Verwalten" aria-label="Verwalten">' + svg('gear', 17) + '</button>' : '') +
+      (c.author === 'du' ? '<button type="button" class="p-manage" data-soon="Verwalten" aria-label="Verwalten">' + svg('gear', 20) + '</button>' : '') +
       '</div>' +
       '</article>'
     );

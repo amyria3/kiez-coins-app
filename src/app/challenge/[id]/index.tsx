@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AuthorRow } from '../../../components/AuthorRow';
 import { DeadlineBadge, StatusBadge } from '../../../components/Badges';
-import { CoinsIcon, EdensteinIcon } from '../../../components/icons/Brand';
+import { CoinsIcon, LivingCrystal } from '../../../components/icons/Brand';
 import { Icon } from '../../../components/icons/Icon';
 import { GlassIconButton } from '../../../components/Glass';
 import { IconButton } from '../../../components/IconButton';
@@ -249,7 +249,7 @@ export default function ChallengeDetail() {
         {challenge.edensteine ? (
           <View style={styles.metric}>
             {/* Ein einzelner, großer Kristall (Daria, 22.10.2026) */}
-            <EdensteinIcon height={40} amount={1} />
+            <LivingCrystal height={52} amount={1} />
             <Text style={[styles.metricValue, styles.eden]}>{challenge.edensteine}</Text>
           </View>
         ) : null}

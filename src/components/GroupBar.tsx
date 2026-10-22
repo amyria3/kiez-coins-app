@@ -7,7 +7,7 @@ import type { Group } from '../data/types';
 import { color, font, radius, size, space, text } from '../theme/tokens';
 import { Button } from './Button';
 import { KaterCard } from './Content';
-import { EdensteinIcon } from './icons/Brand';
+import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { t } from '../data/texts';
 
@@ -63,7 +63,12 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
             </Text>
             <Text style={styles.meta}>{t('{members} Mitglieder · Rangliste und Einladen', { members: selected.members.length })}</Text>
           </View>
-          <EdensteinIcon height={16} />
+          {/* Großer Edenstein, ragt oben und unten über die Karte */}
+          <View style={styles.crystal}>
+            <View style={styles.crystalFloat}>
+              <LivingCrystal height={CRYSTAL} />
+            </View>
+          </View>
           <Text style={styles.eden}>{myEdensteine(selected, challenges, currentUserId)}</Text>
           <Icon name="settings" size={size.icon} color={color.text.secondary} />
         </Pressable>
@@ -93,6 +98,8 @@ export function GroupsEmpty({
   );
 }
 
+const CRYSTAL = 88;
+
 const styles = StyleSheet.create({
   wrap: { gap: space[8], paddingHorizontal: space[16] },
   chips: { gap: space[8] },
@@ -121,5 +128,7 @@ const styles = StyleSheet.create({
   name: { ...text.cardTitle, color: color.text.primary },
   meta: { ...text.caption, color: color.text.secondary },
   eden: { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.confirmation },
+  crystal: { width: CRYSTAL * 0.6, height: 40, alignItems: 'center' },
+  crystalFloat: { position: 'absolute', top: (40 - CRYSTAL) / 2 },
   empty: { gap: space[12], paddingHorizontal: space[16] },
 });

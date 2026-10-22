@@ -8,7 +8,7 @@ import type { Challenge, User } from '../data/types';
 import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BountyBadge } from './Badges';
-import { EdensteinPile } from './icons/Brand';
+import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 import { t } from '../data/texts';
@@ -66,7 +66,11 @@ export const ChallengePost = memo(function ChallengePost({
         ) : null}
         {challenge.edensteine ? (
           <View style={[styles.bounty, styles.eden]} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine: challenge.edensteine })}>
-            <EdensteinPile height={22} amount={challenge.edensteine} />
+            <View style={styles.edenCrystal}>
+              <View style={styles.edenCrystalFloat}>
+                <LivingCrystal height={46} amount={challenge.edensteine} />
+              </View>
+            </View>
             <Text style={styles.edenText}>{challenge.edensteine}</Text>
           </View>
         ) : null}
@@ -182,6 +186,9 @@ const styles = StyleSheet.create({
   // Gruppenaufgabe ohne Foto: nur Glasleiste mit Titel
   cardNoPhoto: { height: 150 },
   eden: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
+  // Ein großer Edenstein, der oben und unten über das Badge ragt
+  edenCrystal: { width: 26, height: 22, alignItems: 'center' },
+  edenCrystalFloat: { position: 'absolute', top: (22 - 46) / 2 },
   edenText: { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.confirmation },
   pressed: { opacity: 0.9 },
   bounty: {
