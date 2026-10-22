@@ -235,7 +235,7 @@
     '  </div>' +
     '  <div class="p-content"></div>' +
     '</div>' +
-    '<button class="p-camera" type="button" aria-label="Neu stellen">' + svg('camera', 15) + '</button>' +
+    '<button class="p-camera" type="button" aria-label="Neu stellen">' + svg('cameraDark', 15) + '</button>' +
     '<nav class="p-tabbar" aria-label="App-Leiste">' +
     '  <button type="button" data-bar="feed" aria-label="Feed">' + svg('pin', 18) + '</button>' +
     '  <button type="button" data-bar="pleasure" aria-label="Was Du so machst">' + svg('crown', 22) + '</button>' +
@@ -271,15 +271,34 @@
   }
 
   // ---------- Feed ----------
+  // Wann gepostet, für „Wer hat gepostet“ nach dem ersten Tippen
+  var AGO = ['vor 2 Std.', 'vor 5 Std.', 'gestern', 'vor 3 Tagen'];
+  function ago(c) {
+    var i = challenges.indexOf(c);
+    return c.author === 'du' ? 'gerade eben' : AGO[i % AGO.length];
+  }
+  // Ein großer, schwebender Edenstein je Karte, Form und Takt je Karte verschieden; nur bei aktiven Aufgaben
+  function crystal(c) {
+    var i = Math.abs(String(c.id).split('').reduce(function (h, ch) { return (h * 31 + ch.charCodeAt(0)) | 0; }, 7));
+    var name = ['diamond', 'diamond2', 'diamond3'][i % 3];
+    return '<span class="p-crystal" style="--d:' + (2.2 + (i % 7) * 0.35) + 's;--o:-' + (i % 11) * 0.3 + 's;--r:' + ((i % 9) - 4) * 2 + 'deg">' + svg(name, 46) + '</span>';
+  }
+  function bountyOf(c) {
+    if (M.unit === 'euro') return rewardBadge(c.reward);
+    var done = state.status[c.id] === 'confirmed';
+    return (done ? '' : crystal(c)) + '<b class="p-eden' + (done ? ' is-done' : '') + '">' + c.reward + '</b>';
+  }
+
   function card(c, isNew) {
     var liked = !!state.liked[c.id];
     return (
       '<article class="p-post' + (isNew ? ' p-new' : '') + '" data-id="' + c.id + '">' +
       '<button type="button" class="p-card' + (c.img ? '' : ' p-card-text') + '" data-open="' + c.id + '" aria-label="' + esc(c.title) + ' öffnen">' +
       (c.img ? '<span class="p-img">' + image(c.img) + '</span>' : '') +
-      '<span class="p-bounty">' + rewardBadge(c.reward) + '</span>' +
+      '<span class="p-bounty' + (M.unit === 'euro' ? '' : ' p-bounty-eden') + '">' + bountyOf(c) + '</span>' +
+      '<span class="p-who">' + avatar(c.author, 28) + '<span><b>' + esc(people[c.author].name) + '</b><i>' + ago(c) + '</i></span></span>' +
       (statusChip(c.id) || '<span class="p-chip p-chip-deadline">' + svg('clock', 10) + esc(cap(c.left)) + '</span>') +
-      '<span class="p-info"><strong>' + esc(c.title) + '</strong><span class="p-meta">' + avatar(c.author) +
+      '<span class="p-info"><strong>' + esc(c.title) + '</strong><span class="p-meta">' +
       esc(people[c.author].name) + ' · ' + esc(c.dist) + '</span></span>' +
       '</button>' +
       '<div class="p-actions">' +
@@ -473,7 +492,7 @@
     var who = people[c.author].short;
     var action;
     if (c.author === 'du') action = '<button type="button" class="p-btn p-btn-secondary" data-soon="Teilen">' + M.noun + ' teilen</button>';
-    else if (!s) action = '<button type="button" class="p-btn" data-step="accept">' + svg('hands', 14) + M.noun + ' annehmen</button>';
+    else if (!s) action = '<button type="button" class="p-btn" data-step="accept">' + svg('hands', 20) + M.noun + ' annehmen</button>';
     else if (s === 'accepted') action = '<button type="button" class="p-btn" data-step="report">Erledigt melden</button>';
     else if (s === 'reported') action = '<button type="button" class="p-btn p-btn-wait" disabled>' + who + ' prüft …</button>';
     else action = '<button type="button" class="p-btn p-btn-ok" disabled>' + svg('check', 12) + ' ' + rewardText(c.reward) + ' von ' + who + '</button>';
@@ -736,6 +755,7 @@
   }
 
   // ---------- Ereignisse ----------
+  var whoTimer;
   root.addEventListener('click', function (e) {
     var t = e.target.closest('button');
     if (!t || !root.contains(t)) return;
@@ -750,6 +770,14 @@
       if (d.bar === 'menu') return say('Konto und Einstellungen gibt es in der App.');
       closeAll();
       return setTab(d.bar === 'pleasure' ? 'pleasure' : 'nearby');
+    }
+    // Karte: einmal tippen zeigt, wer gepostet hat; nochmal tippen öffnet sie (wie in der App)
+    if (d.open && t.classList.contains('p-card') && !t.classList.contains('is-who')) {
+      $$('.p-card.is-who').forEach(function (el) { el.classList.remove('is-who'); });
+      t.classList.add('is-who');
+      clearTimeout(whoTimer);
+      whoTimer = setTimeout(function () { t.classList.remove('is-who'); }, 4000);
+      return;
     }
     if (d.open) return openDetail(d.open);
     if (d.like) {
