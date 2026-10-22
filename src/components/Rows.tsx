@@ -16,13 +16,19 @@ type EditableRowProps = {
   /** Statt eines Textfelds eigenen Inhalt zum Bearbeiten zeigen (z. B. Auswahl der Ansprache) */
   renderEditor?: (draft: string, setDraft: (value: string) => void) => React.ReactNode;
   maxLength?: number;
+  /** Leeren erlaubt (z. B. Bio). Ohne Wert steht `placeholder` grau da. */
+  allowEmpty?: boolean;
+  placeholder?: string;
+  /** Mehrzeilig eingeben (Bio) */
+  multiline?: boolean;
+  keyboardType?: 'default' | 'url';
 };
 
 /**
  * Figma „EditableRow“ (Display, Editing): Kachel, die beim Antippen zum Eingabefeld wird.
  * Häkchen speichert, Verlassen ohne Speichern verwirft.
  */
-export function EditableRow({ label, value, onSave, renderEditor, maxLength }: EditableRowProps) {
+export function EditableRow({ label, value, onSave, renderEditor, maxLength, allowEmpty, placeholder, multiline, keyboardType }: EditableRowProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   // Speichern genau einmal: beim Häkchen oder beim Verlassen des Felds. Das Feld verliert den Fokus,
@@ -32,7 +38,7 @@ export function EditableRow({ label, value, onSave, renderEditor, maxLength }: E
     if (committed.current) return;
     committed.current = true;
     const next = draft.trim();
-    if (next && next !== value) onSave(next);
+    if ((next || allowEmpty) && next !== value) onSave(next);
     setEditing(false);
   };
 
@@ -50,7 +56,7 @@ export function EditableRow({ label, value, onSave, renderEditor, maxLength }: E
       >
         <View style={styles.texts}>
           <Text style={styles.label}>{label}</Text>
-          <Text style={styles.value}>{value}</Text>
+          <Text style={[styles.value, !value && placeholder ? { color: color.text.secondary } : null]}>{value || placeholder}</Text>
         </View>
       </Pressable>
     );
@@ -72,6 +78,13 @@ export function EditableRow({ label, value, onSave, renderEditor, maxLength }: E
             returnKeyType="done"
             autoFocus
             maxLength={maxLength}
+            multiline={multiline}
+            submitBehavior={multiline ? 'blurAndSubmit' : undefined}
+            keyboardType={keyboardType === 'url' ? 'url' : 'default'}
+            autoCapitalize={keyboardType === 'url' ? 'none' : undefined}
+            autoCorrect={keyboardType === 'url' ? false : undefined}
+            placeholder={placeholder}
+            placeholderTextColor={color.text.secondary}
             accessibilityLabel={label}
             selectionColor={color.accent.primary}
           />

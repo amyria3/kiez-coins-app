@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '../../components/T';
 import { useRouter } from 'expo-router';
@@ -12,7 +12,7 @@ import { EditableRow, NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { useAuth } from '../../data/auth';
 import { addressForms, anrede } from '../../data/format';
-import { errorText, saveAvatar, saveHandle } from '../../data/remote';
+import { errorText, loadProfileExtras, normalizeWebsite, saveAvatar, saveHandle, saveProfileExtras, type ProfileExtras } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
 import type { ImageSource } from '../../data/types';
 import { color, radius, space, text } from '../../theme/tokens';
@@ -28,6 +28,28 @@ export default function PersonalDetails() {
   const { session } = useAuth();
   const live = mode === 'live' && !!session;
   const [uploading, setUploading] = useState(false);
+  // Bio und Webseite: null, solange sie laden oder die Migration fehlt (dann ausgeblendet)
+  const [extras, setExtras] = useState<ProfileExtras | null>(live ? null : { bio: '', website: '' });
+  useEffect(() => {
+    if (!live) return;
+    loadProfileExtras(session.user.id).then(setExtras);
+  }, [live, session]);
+  const saveExtra = async (patch: Partial<ProfileExtras>) => {
+    if (!extras) return;
+    const next = { ...extras, ...patch, ...(patch.website !== undefined ? { website: normalizeWebsite(patch.website) } : {}) };
+    if (next.website && !/^https?:\/\/[^\s]+\.[^\s]+$/i.test(next.website)) {
+      Alert.alert('Webseite nicht gespeichert', 'Das sieht nicht nach einer Webadresse aus, z. B. kiezcoins.de.');
+      return;
+    }
+    setExtras(next);
+    if (!live) return;
+    try {
+      await saveProfileExtras(session.user.id, patch);
+    } catch (error) {
+      setExtras(extras);
+      Alert.alert('Nicht gespeichert', errorText(error));
+    }
+  };
 
   // Profilbild: hochladen, alten Pfad ersetzen, dann sofort überall zeigen
   const setAvatar = async (photo: ImageSource | null) => {
@@ -103,6 +125,28 @@ export default function PersonalDetails() {
           onPress={() => router.push({ pathname: '/onboarding/kiez', params: { from: 'app' } })}
         />
       </FieldGroup>
+      {extras ? (
+        <FieldGroup label="Über Dich">
+          <EditableRow
+            label="Kurze Bio"
+            value={extras.bio}
+            placeholder={t('Ein, zwei Sätze über Dich')}
+            maxLength={160}
+            multiline
+            allowEmpty
+            onSave={(bio) => saveExtra({ bio })}
+          />
+          <EditableRow
+            label="Webseite"
+            value={extras.website.replace(/^https?:\/\//i, '')}
+            placeholder={t('z. B. deine-seite.de')}
+            maxLength={200}
+            keyboardType="url"
+            allowEmpty
+            onSave={(website) => saveExtra({ website })}
+          />
+        </FieldGroup>
+      ) : null}
       {profile.email ? (
         <FieldGroup label="Anmeldung">
           <Text style={styles.secondary}>{profile.email}</Text>

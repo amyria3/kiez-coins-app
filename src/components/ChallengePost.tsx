@@ -45,6 +45,7 @@ export const ChallengePost = memo(function ChallengePost({
   const isWave = challenge.type === 'wave';
   const completed = COMPLETED.has(challenge.status);
   const closed = challenge.status === 'closed';
+  const active = !closed && !completed;
   const image = isWave && completed && challenge.imageAfter ? challenge.imageAfter : challenge.image;
   const state = closed ? 'geschlossen' : completed ? 'erledigt' : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
   const hideName = useHideName(author);
@@ -103,12 +104,15 @@ export const ChallengePost = memo(function ChallengePost({
                 <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
               </View>
             ) : null}
-            <View style={styles.edenCrystal}>
-              <View style={styles.edenCrystalFloat}>
-                <LivingCrystal height={40} seed={challenge.id} />
+            {/* Edenstein nur bei aktiven Aufgaben; geschlossen oder erledigt nur die Zahl in Grau */}
+            {active ? (
+              <View style={styles.edenCrystal}>
+                <View style={styles.edenCrystalFloat}>
+                  <LivingCrystal height={40} seed={challenge.id} />
+                </View>
               </View>
-            </View>
-            <Text style={styles.edenText}>{challenge.edensteine}</Text>
+            ) : null}
+            <Text style={[styles.edenText, active ? null : styles.edenTextDone]}>{challenge.edensteine}</Text>
           </View>
         ) : null}
         {closed ? (
@@ -249,6 +253,7 @@ const styles = StyleSheet.create({
   edenCrystal: { width: 22, height: 20, alignItems: 'center' },
   edenCrystalFloat: { position: 'absolute', top: (20 - 40) / 2 },
   edenText: { fontFamily: font.display, fontSize: 16, lineHeight: 20, color: color.accent.confirmation },
+  edenTextDone: { color: color.text.secondary },
   pressed: { opacity: 0.9 },
   // Bounty rechts oben, Hinweise wie „Geschlossen“ links (Daria, 22.10.2026)
   bounty: {
