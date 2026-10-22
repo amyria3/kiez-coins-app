@@ -191,11 +191,11 @@ const styles = StyleSheet.create({
   edenCrystalFloat: { position: 'absolute', top: (20 - 40) / 2 },
   edenText: { fontFamily: font.display, fontSize: 16, lineHeight: 20, color: color.accent.confirmation },
   pressed: { opacity: 0.9 },
-  // Bounty links oben (Daria, 22.10.2026), Hinweise wie „Geschlossen“ rechts
+  // Bounty rechts oben, Hinweise wie „Geschlossen“ links (Daria, 22.10.2026)
   bounty: {
     position: 'absolute',
     top: space[12],
-    left: space[12],
+    right: space[12],
     paddingVertical: space[4],
     paddingLeft: space[8],
     paddingRight: space[12],
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   waveTag: {
     position: 'absolute',
     top: space[12],
-    right: space[12],
+    left: space[12],
     paddingVertical: space[4],
     paddingHorizontal: space[12],
     borderRadius: radius.full,
