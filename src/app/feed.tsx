@@ -303,7 +303,7 @@ export default function FeedScreen() {
         return (
           // Lade-Animation mit Darias Zahnrädern statt grauer Platzhalter
           <View style={styles.loading}>
-            <GearsLoader />
+            <GearsLoader size={160} />
           </View>
         );
       case 'state':
@@ -449,7 +449,7 @@ export default function FeedScreen() {
 }
 
 /** Breite der Kamera oben rechts (TabBar.tsx, CameraButton) */
-const CAMERA_WIDTH = 52;
+const CAMERA_WIDTH = 64;
 /** Höhe des schmalen Kopfs beim Erstellen */
 const COMPOSE_HEADER = 52;
 

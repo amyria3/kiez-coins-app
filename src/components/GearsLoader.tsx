@@ -11,8 +11,8 @@ import { t } from '../data/texts';
  * Lade-Animation: sechs ineinandergreifende Zahnräder aus Darias SVG (assets/animations/gears-moving.svg).
  * Jedes Zahnrad dreht sich einzeln um seine Mitte, so wie in der SVG-Animation.
  */
-/** Kleine Fassung für Buttons: die vier oberen Räder, ohne die zwei unteren (Daria, 21.10.2026) */
-export const SMALL_GEARS = [0, 1, 2, 3];
+/** Kleine Fassung für Buttons: ein einzelnes Rad (Daria, 22.10.2026) */
+export const SMALL_GEARS = [0];
 
 export function GearsLoader({
   size = 96,
@@ -75,7 +75,8 @@ export function GearsLoader({
 export function LoadingScreen({ label }: { label?: string }) {
   return (
     <View style={styles.screen}>
-      <GearsLoader />
+      {/* Beim Start deutlich größer (Daria, 22.10.2026) */}
+      <GearsLoader size={200} />
       {label ? <Text style={styles.label}>{label}</Text> : null}
     </View>
   );
