@@ -182,3 +182,20 @@ Jede Datei läuft genau einmal. Ein zweiter Lauf bricht mit „already exists“
 **Voraussetzung:** Nr. 11 (`app_texts`) und Nr. 15 (`app_texts_edit`).
 
 **Bis sie läuft:** Die App zeigt die mitgelieferten Übersetzungen. Der Editor kennt nur die bisherigen Texte und nur Deutsch.
+
+## 17. `supabase/migrations/20261022000100_photo_posts.sql`
+
+**Wozu:** Beitrag „Nur ein Bild“ (Schalter in Schritt 1 beim Erstellen).
+
+**Ändert:** `challenges.type` erlaubt `photo`. Ein Bild hat keine Coins. `accept_challenge` lehnt Bilder ab.
+
+**Bis sie läuft:** Challenges klappen wie bisher. Ein Bild zu posten scheitert an der Typprüfung der Datenbank.
+
+## 18. `supabase/migrations/20261022000200_like_counts.sql`
+
+**Wozu:** Anzahl Likes neben dem Herz.
+
+**Ändert:** Funktion `like_counts`. Sie liefert nur Summen, die Likes selbst bleiben privat.
+
+**Bis sie läuft:** Das Herz zeigt keine Zahl.
+

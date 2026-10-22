@@ -176,6 +176,7 @@ export default function EditChallenge() {
       {isGroup ? null : (
         <>
           <TextField label="Ort" required nudge={locationField} value={location} onChangeText={setLocation} maxLength={120} />
+          {challenge.type === 'photo' ? null : (
           <FieldGroup label="Coins">
             <ChipGroup>
               <Chip label="Keine" selected={bounty === undefined} onPress={() => setBounty(undefined)} />
@@ -184,6 +185,7 @@ export default function EditChallenge() {
               ))}
             </ChipGroup>
           </FieldGroup>
+          )}
         </>
       )}
       <FieldGroup label="Zeitraum">

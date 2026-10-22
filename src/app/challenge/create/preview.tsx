@@ -51,7 +51,8 @@ export default function CreatePreview() {
   const [busy, setBusy] = useState(false);
 
   const deadline = new Date(Date.now() + draft.durationDays * 24 * 60 * 60 * 1000).toISOString();
-  const bountyAmount = draft.bountyAmount;
+  const isPhoto = draft.type === 'photo';
+  const bountyAmount = isPhoto ? undefined : draft.bountyAmount;
   const bottom = Math.max(insets.bottom, space[16]);
   const top = insets.top + space[48];
   const { width: screenW, height: screenH } = useAppDimensions();
@@ -100,6 +101,7 @@ export default function CreatePreview() {
         ? await publishDraft(
             draft.id,
             {
+              type: draft.type,
               title: draft.title,
               text: draft.text,
               location: draft.location,
@@ -112,6 +114,7 @@ export default function CreatePreview() {
             deadline,
           )
         : await createChallenge({
+            type: draft.type,
             title: draft.title.trim(),
             text: draft.text.trim(),
             location: draft.location.trim(),
@@ -134,7 +137,7 @@ export default function CreatePreview() {
   const summary = (
     <>
       <View style={styles.statusRow}>
-        <StatusBadge status="open" showOpen />
+        <StatusBadge status="open" showOpen photo={isPhoto} />
         <Text style={styles.caption}>gerade eben</Text>
       </View>
       <Text style={styles.headline} accessibilityRole="header">
@@ -148,9 +151,11 @@ export default function CreatePreview() {
             <Text style={[styles.metricValue, styles.signal]}>{formatBountyShort(bountyAmount)}</Text>
           </View>
         ) : null}
-        <View style={styles.deadline}>
-          <DeadlineBadge deadline={deadline} />
-        </View>
+        {isPhoto ? null : (
+          <View style={styles.deadline}>
+            <DeadlineBadge deadline={deadline} />
+          </View>
+        )}
       </View>
     </>
   );

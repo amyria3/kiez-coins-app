@@ -13,6 +13,8 @@ import { color } from '../../../theme/tokens';
 export type Draft = {
   /** ID des gespeicherten Entwurfs in Supabase */
   id?: string;
+  /** `individual`: Challenge, hier muss etwas getan werden. `photo`: nur ein schönes Bild, ohne Coins. */
+  type: 'individual' | 'photo';
   photo?: ImageSource;
   /** Pfad des schon hochgeladenen Fotos. Wird beim Ändern des Fotos geleert. */
   imagePath?: string;
@@ -27,11 +29,12 @@ export type Draft = {
   coords?: Coords;
 };
 
-const emptyDraft = (kiez?: string): Draft => ({ title: '', text: '', location: kiez ?? '', durationDays: 7, extras: [] });
+const emptyDraft = (kiez?: string): Draft => ({ type: 'individual', title: '', text: '', location: kiez ?? '', durationDays: 7, extras: [] });
 
 function fromChallenge(c: Challenge): Draft {
   return {
     id: c.id,
+    type: c.type === 'photo' ? 'photo' : 'individual',
     photo: c.image,
     imagePath: c.imagePath,
     extras: c.extraImages ?? [],
@@ -67,10 +70,11 @@ export function useSaveDraft() {
     setBusy(true);
     try {
       const saved = await saveDraft(draft.id, {
+        type: draft.type,
         title: draft.title,
         text: draft.text,
         location: draft.location,
-        bountyAmount: draft.bountyAmount,
+        bountyAmount: draft.type === 'photo' ? undefined : draft.bountyAmount,
         photo: draft.imagePath ? undefined : draft.photo,
         imagePath: draft.imagePath,
         coords: draft.coords,

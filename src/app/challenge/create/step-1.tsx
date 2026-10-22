@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
-import { ExtraPhotos, PhotoPicker, TextField } from '../../../components/Form';
+import { ExtraPhotos, PhotoPicker, SwitchRow, TextField } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
 import { hasContent, useDraft, useSaveDraft } from './_layout';
 import { explain } from '../../../components/Nudge';
@@ -15,6 +15,7 @@ export default function CreateStep1() {
   const [showErrors, setShowErrors] = useState(false);
   const { save, busy } = useSaveDraft();
 
+  const isChallenge = draft.type !== 'photo';
   const missingPhoto = !draft.photo;
   const missingTitle = !draft.title.trim();
 
@@ -38,7 +39,7 @@ export default function CreateStep1() {
 
   return (
     <SubScreen
-      title={draft.id ? 'Entwurf bearbeiten' : 'Challenge erstellen'}
+      title={draft.id ? 'Entwurf bearbeiten' : isChallenge ? 'Challenge erstellen' : 'Bild posten'}
       subtitle="Schritt 1 von 2"
       navigation="close"
       onLeadingPress={close}
@@ -55,9 +56,15 @@ export default function CreateStep1() {
         </>
       }
     >
+      {/* Challenge oder nur ein Bild (Daria, 22.10.2026). Ein Bild hat keine Coins und lässt sich nicht annehmen. */}
+      <SwitchRow
+        label={isChallenge ? 'Challenge: Hier muss etwas getan werden! Auf geht’s, Nachbarschaft!' : 'Hier ist nichts zu tun, nur ein schönes Bild'}
+        value={isChallenge}
+        onValueChange={(on) => setDraft((d) => ({ ...d, type: on ? 'individual' : 'photo', bountyAmount: on ? d.bountyAmount : undefined }))}
+      />
       <PhotoPicker
         photo={draft.photo}
-        hint={showErrors && missingPhoto ? 'Bitte füge ein Foto hinzu.' : 'Zeig, wo geholfen werden soll.'}
+        hint={showErrors && missingPhoto ? 'Bitte füge ein Foto hinzu.' : isChallenge ? 'Zeig, wo geholfen werden soll.' : 'Zeig, was Dir gefällt.'}
         onChange={(photo) => setDraft((d) => ({ ...d, photo, imagePath: undefined }))}
       />
       {draft.photo ? (

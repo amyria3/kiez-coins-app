@@ -911,5 +911,12 @@
   "Komm in unsere Gruppe „{name}“ bei Kiez Coins. Mit diesem Link trittst Du bei:": "הצטרפו לקבוצה שלנו „{name}” ב־Kiez Coins. מצטרפים דרך הקישור הזה:",
   "Oder in der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und diesen Code eingeben:": "או באפליקציה, תחת „קבוצות”, הקישו „הצטרפות עם קוד” והזינו את הקוד הזה:",
   "{name} verwalten": "ניהול {name}",
-  "Verlauf": "המסע"
+  "Verlauf": "המסע",
+  "Challenge: Hier muss etwas getan werden! Auf geht’s, Nachbarschaft!": "אתגר: יש פה משהו לעשות! קדימה, שכונה!",
+  "Hier ist nichts zu tun, nur ein schönes Bild": "אין פה מה לעשות, רק תמונה יפה",
+  "Bild posten": "פרסום תמונה",
+  "Zeig, was Dir gefällt.": "הראה מה מוצא חן בעיניך.",
+  "Nur ein Bild": "רק תמונה",
+  "Gefällt mir, {likeCount} Likes": "אהבתי, {likeCount} לייקים",
+  "Bild": "תמונה"
 }
