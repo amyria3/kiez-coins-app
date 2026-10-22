@@ -57,19 +57,21 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
           onPress={() => onOpen(selected.id)}
           style={({ pressed }) => [styles.card, pressed && styles.pressed]}
         >
-          <View style={styles.flex}>
-            <Text style={styles.name} numberOfLines={1}>
-              {selected.name}
-            </Text>
-            <Text style={styles.meta}>{t('{members} Mitglieder · Rangliste und Einladen', { members: selected.members.length })}</Text>
-          </View>
-          {/* Großer Edenstein, ragt oben und unten über die Karte */}
+          {/* Großer Edenstein links, ragt oben und unten über die Karte (Daria, 22.10.2026) */}
           <View style={styles.crystal}>
             <View style={styles.crystalFloat}>
               <LivingCrystal height={CRYSTAL} seed={selected.id} />
             </View>
           </View>
           <Text style={styles.eden}>{myEdensteine(selected, challenges, currentUserId)}</Text>
+          <View style={[styles.flex, styles.groupText]}>
+            <Text style={styles.name} numberOfLines={1}>
+              {selected.name}
+            </Text>
+            <Text style={styles.meta} numberOfLines={1}>
+              {t('{members} Mitglieder · Rangliste und Einladen', { members: selected.members.length })}
+            </Text>
+          </View>
           <Icon name="settings" size={size.icon} color={color.text.secondary} />
         </Pressable>
       ) : null}
@@ -130,5 +132,6 @@ const styles = StyleSheet.create({
   eden: { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.confirmation },
   crystal: { width: CRYSTAL * 0.6, height: 40, alignItems: 'center' },
   crystalFloat: { position: 'absolute', top: (40 - CRYSTAL) / 2 },
+  groupText: { marginLeft: space[8] },
   empty: { gap: space[12], paddingHorizontal: space[16] },
 });
