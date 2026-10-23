@@ -75,16 +75,24 @@ export default function Email() {
       });
       return;
     }
+    const show = () => {
+      setMode(next);
+      setError(undefined);
+      reveal.setValue(0);
+      Animated.spring(reveal, { toValue: 1, useNativeDriver: false, ...motion.barrierSpring }).start();
+    };
+    // Von Code zu Passwort (oder zurück): Die Wahl ist schon weggeglitten. Gleich das neue Feld zeigen
+    // (Daria, 23.10.2026: „Doch mit Passwort“ zeigte in Safari nichts).
+    if (mode !== 'choose') {
+      show();
+      return;
+    }
     Animated.timing(away, {
       toValue: 1,
       duration: 320,
       easing: Easing.bezier(...motion.barrier.bezier),
       useNativeDriver: false,
-    }).start(() => {
-      setMode(next);
-      reveal.setValue(0);
-      Animated.spring(reveal, { toValue: 1, useNativeDriver: false, ...motion.barrierSpring }).start();
-    });
+    }).start(show);
   };
 
   const finish = async () => {
