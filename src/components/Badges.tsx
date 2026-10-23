@@ -4,6 +4,7 @@ import { Text } from './T';
 import { formatBountyShort, formatRemainingShort } from '../data/format';
 import { Icon } from './icons/Icon';
 import type { ChallengeStatus } from '../data/types';
+import { useIconPt } from './icons/instagramSvgs';
 import { color, font, isInstagram, radius, space, stroke, text } from '../theme/tokens';
 import { CoinsIcon } from './icons/Brand';
 import { t } from '../data/texts';
@@ -57,9 +58,10 @@ export function DeadlineBadge({ deadline }: { deadline: string }) {
  * Die Handschrift „BROWN NOW TWO“ ist noch nicht eingebunden (Lizenz für Apps offen), bis dahin Inter.
  */
 export function BountyBadge({ amount, small }: { amount: number; small?: boolean }) {
+  const iconPt = useIconPt();
   return (
     <View style={styles.bounty} accessible accessibilityLabel={t('Coins: {amount} Euro', { amount })}>
-      <CoinsIcon height={isInstagram ? 24 : small ? 22 : 26} />
+      <CoinsIcon height={isInstagram ? iconPt : small ? 22 : 26} />
       <Text style={[styles.bountyText, small ? styles.bountyTextSmall : null]}>{formatBountyShort(amount)}</Text>
     </View>
   );
