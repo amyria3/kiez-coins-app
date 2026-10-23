@@ -22,3 +22,4 @@ Diese `README.md` bleibt immer liegen.
 ## Liegt gerade hier
 
 - `2026-10-23_texte-druck-nummern.json` → bleibt liegen, bis Darias Papierkorrekturen eingetragen sind. Die Datei ordnet jeder Nummer im Ausdruck („S-022“) den Text im Code zu. Danach löschen, nicht nach Documentation übernehmen.
+- `2026-10-23_instagram-look-review.md` → `kiez-coins/ENTSCHEIDUNGEN.md` (Look) und `kiez-coins/app/Arbeitsstand_Code.md` (Wählbarer Look)

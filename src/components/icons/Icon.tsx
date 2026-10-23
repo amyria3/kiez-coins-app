@@ -22,8 +22,8 @@ const CAMERA_SCALE = 1.2;
 const OPTICAL: Partial<Record<IconName, number>> = { settings: 1.18 };
 const MIRRORED = new Set<IconName>(['chevron-left', 'chevron-right', 'send']);
 
-/** Linien-Icons im Instagram-Look: etwas größer als die angegebene Größe, wie bei Instagram */
-const INSTAGRAM_SCALE = 1.25;
+/** Linien-Icons im Instagram-Look: size.icon 20 ergibt 24 pt wie bei Instagram */
+const INSTAGRAM_SCALE = 1.2;
 
 export const Icon = memo(function Icon({ name, color = themeColor.text.primary, size }: IconProps) {
   const line = isInstagram ? instagramSvgs[name] : undefined;

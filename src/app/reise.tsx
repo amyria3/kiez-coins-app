@@ -14,7 +14,8 @@ import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { anrede, formatBountyShort, formatRelative } from '../data/format';
 import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
 import { useStore } from '../data/store';
-import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isInstagram, radius, size, space, stroke, text } from '../theme/tokens';
+import { InstaProfile } from '../components/InstaProfile';
 import { t } from '../data/texts';
 
 /** Was in der Karte „Du bist dran“ als Aufgabe steht. */
@@ -30,7 +31,12 @@ function taskLabel({ challenge, role }: ReiseEntry): string {
  * Upgrade „Nachtschicht“: Kater mit Sprechblase, Aufgaben „Du bist dran“, Bilanz, Deine Gruppen und Verlauf,
  * getrennt nach öffentlichen Challenges und Gruppenaufgaben.
  */
-export default function Reise() {
+export default function ReiseRoute() {
+  // Instagram-Look: Profilansicht wie bei Instagram (Daria, 23.10.2026)
+  return isInstagram ? <InstaProfile /> : <Reise />;
+}
+
+function Reise() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { challenges, currentUserId, profile, groups } = useStore();

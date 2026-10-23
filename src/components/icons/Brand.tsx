@@ -21,22 +21,23 @@ const CAT_ART: Record<CatMood, string> = { default: 'kater-normal', high: 'kater
 export const Cat = memo(function Cat({ mood = 'default', height = 39 }: CatProps) {
   const art = brandArt[CAT_ART[mood]];
   if (!art) {
-    return <SvgXml xml={catSvg(mood === 'money' ? 'high' : mood, color.accent.primary, color.text.primary)} width={(35 / 41) * height} height={height} />;
+    return <SvgXml xml={catSvg(mood === 'money' ? 'high' : mood, color.brand.signature, color.text.primary)} width={(35 / 41) * height} height={height} />;
   }
-  return <SvgXml xml={art.svg} width={(art.width / art.height) * height} height={height} />;
+  return <SvgXml xml={signature(art.svg)} width={(art.width / art.height) * height} height={height} />;
 });
+
+/** Lila aus Figma (#7E94FF) gegen die Signaturfarbe des Looks tauschen. Im Kiez-Look bleibt alles, wie es ist. */
+const signature = (svg: string) => (isInstagram ? svg.replace(/#7E94FF/gi, color.brand.signature) : svg);
 
 /** Logo: Kater und Schriftzug „KiezCoins“ (assets/brand/logo.svg) */
 export const Logo = memo(function Logo({ height = 26 }: { height?: number }) {
   const art = brandArt.logo;
-  // Look „Instagram“: Kater und Schriftzug schwarz wie Instagrams Schriftzug, die Sonnenbrille bleibt orange
-  const xml = isInstagram ? art.svg.replace(/#7E94FF/gi, color.text.primary) : art.svg;
-  return <SvgXml xml={xml} width={(art.width / art.height) * height} height={height} />;
+  return <SvgXml xml={signature(art.svg)} width={(art.width / art.height) * height} height={height} />;
 });
 
 /** Schriftzug „KIEZ COINS“ (alt, für Stellen ohne Kater) */
 export const Wordmark = memo(function Wordmark() {
-  return <SvgXml xml={wordmarkSvg(isInstagram ? color.text.primary : color.accent.primary)} width={131.7} height={24.8} />;
+  return <SvgXml xml={wordmarkSvg(color.brand.signature)} width={131.7} height={24.8} />;
 });
 
 /** icon/coins mit Verlauf, Standardgröße wie im BountyBadge (19×22) */

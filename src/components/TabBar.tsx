@@ -10,6 +10,8 @@ import { CrownIcon } from './icons/Brand';
 import { t } from '../data/texts';
 import { refreshUnread, useUnreadMessages } from '../data/chat';
 import { useStore } from '../data/store';
+import { Avatar } from './AuthorRow';
+import { CAMERA_PLUS, HOME, PEOPLE, PLANE, line } from './icons/instagramSvgs';
 
 /** Krone als Linie für den Look „Instagram“ */
 const crownLine = (c: string) =>
@@ -27,6 +29,12 @@ type TabBarProps = {
   onMenuPress: () => void;
   /** Punkt am Kater: Bei einer Deiner Challenges bist Du dran. */
   hasTasks?: boolean;
+  /** Instagram-Look: Kamera in der Leiste. Ohne: Feed öffnet das Erstellen. */
+  onCreatePress?: () => void;
+  /** Instagram-Look: Gruppen und Freund:innen. Ohne: Feed öffnet den Reiter „Gruppen“. */
+  onGroupsPress?: () => void;
+  /** Instagram-Look: Reiter „Gruppen“ im Feed ist offen */
+  groupsActive?: boolean;
 };
 
 /**
@@ -34,7 +42,91 @@ type TabBarProps = {
  * Burger = Menü (Konto). Die aktive Seite liegt auf einer dezenten, halbtransparenten Pille.
  * Challenge erstellen sitzt als CameraButton oben rechts.
  */
-export function TabBar({ active, onFeedPress, onReisePress, onReiseLongPress, onMenuPress, hasTasks }: TabBarProps) {
+export function TabBar(props: TabBarProps) {
+  return isInstagram ? <InstaTabBar {...props} /> : <KiezTabBar {...props} />;
+}
+
+/**
+ * Leiste im Look „Instagram“ (Daria, 23.10.2026): fünf gleich breite Felder über die ganze Breite, 50 pt hoch,
+ * Icons 24 pt. Haus = Feed, zwei Personen = Gruppen und Freund:innen, Kamera mit Plus = Beitrag erstellen (Mitte),
+ * Papierflieger = Chats, eigenes Bild = Profil („Was Du so machst“). Das Menü sitzt oben rechts im Profil.
+ * Aktiv: Haus und Personen gefüllt, Papierflieger kräftiger, Profilbild mit schwarzem Ring.
+ */
+function InstaTabBar({ active, onFeedPress, onReisePress, onReiseLongPress, hasTasks, onCreatePress, onGroupsPress, groupsActive }: TabBarProps) {
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const { mode, currentUserId, users } = useStore();
+  const unread = useUnreadMessages();
+  useEffect(() => {
+    if (currentUserId) refreshUnread(currentUserId, mode === 'live').catch(() => {});
+  }, [currentUserId, mode]);
+  const me = users.find((u) => u.id === currentUserId);
+  const feedActive = active === 'feed' && !groupsActive;
+  const groupsOn = active === 'feed' && !!groupsActive;
+  const c = color.text.primary;
+  const svg = (body: string, strong?: boolean) =>
+    line(c, body).replace(/stroke-width="[^"]*"/, `stroke-width="${strong ? 2.2 : 1.6}"`);
+  const filled = (body: string) => svg(body.replace('/>', ` fill="${c}"/>`));
+  return (
+    <View style={[styles.wrapFlat, { paddingBottom: insets.bottom }]} pointerEvents="box-none">
+      <View style={styles.barInsta} accessibilityRole="tablist">
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityLabel={t('Feed')}
+          accessibilityState={{ selected: feedActive }}
+          onPress={onFeedPress}
+          style={({ pressed }) => [styles.itemInsta, pressed && styles.pressed]}
+        >
+          <SvgXml xml={feedActive ? filled(HOME) : svg(HOME)} width={24} height={24} />
+        </Pressable>
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityLabel={t('Gruppen und Freund:innen')}
+          accessibilityState={{ selected: groupsOn }}
+          onPress={onGroupsPress ?? (() => router.dismissTo({ pathname: '/feed', params: { reiter: 'gruppen' } }))}
+          style={({ pressed }) => [styles.itemInsta, pressed && styles.pressed]}
+        >
+          <SvgXml xml={svg(PEOPLE, groupsOn)} width={24} height={24} />
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('Challenge erstellen')}
+          onPress={onCreatePress ?? (() => router.dismissTo({ pathname: '/feed', params: { erstellen: '1' } }))}
+          style={({ pressed }) => [styles.itemInsta, pressed && styles.pressed]}
+        >
+          <SvgXml xml={svg(CAMERA_PLUS)} width={24} height={24} />
+        </Pressable>
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : t('Chats')}
+          accessibilityState={{ selected: active === 'chat' }}
+          onPress={() => active !== 'chat' && router.push('/chat')}
+          style={({ pressed }) => [styles.itemInsta, pressed && styles.pressed]}
+        >
+          <View>
+            <SvgXml xml={svg(PLANE, active === 'chat')} width={24} height={24} />
+            {unread ? <View style={styles.dotInsta} /> : null}
+          </View>
+        </Pressable>
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityLabel={hasTasks ? t('Was Du so machst, Du bist dran') : t('Was Du so machst')}
+          accessibilityState={{ selected: active === 'reise' }}
+          onPress={onReisePress}
+          onLongPress={onReiseLongPress}
+          style={({ pressed }) => [styles.itemInsta, pressed && styles.pressed]}
+        >
+          <View style={[styles.me, active === 'reise' && styles.meActive]}>
+            {me ? <Avatar user={me} diameter={24} /> : <SvgXml xml={svg(PEOPLE)} width={24} height={24} />}
+          </View>
+          {hasTasks ? <View style={styles.dotInsta} /> : null}
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+function KiezTabBar({ active, onFeedPress, onReisePress, onReiseLongPress, onMenuPress, hasTasks }: TabBarProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { mode, currentUserId } = useStore();
@@ -167,6 +259,20 @@ const styles = StyleSheet.create({
   barFlat: { flexDirection: 'row', justifyContent: 'space-around', paddingVertical: space[2] },
   // Erstellen als schlichtes Icon ohne Fläche
   cameraFlat: { backgroundColor: 'transparent', width: 48 },
+  barInsta: { flexDirection: 'row', height: 50 },
+  itemInsta: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  // Profilbild 24 pt; aktiv mit 1,5 pt schwarzem Ring und 1,5 pt Luft (Rahmen 30 pt)
+  me: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'transparent' },
+  meActive: { borderColor: color.text.primary },
+  dotInsta: {
+    position: 'absolute',
+    top: 8,
+    right: '30%',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: color.accent.affection,
+  },
   dot: {
     position: 'absolute',
     top: -2,
