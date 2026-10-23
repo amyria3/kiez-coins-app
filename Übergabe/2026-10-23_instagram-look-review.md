@@ -4,7 +4,7 @@ Gehört nach Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitt „Look“
 
 ## Entscheidungen von Daria
 
-- Freundschaften gehören zum Reiter „Gruppen“ und stehen direkt unter der Gruppe, in beiden Looks (`src/components/FriendsRow.tsx`, Daten aus `src/data/friends.ts`).
+- Im Reiter „Gruppen“ steht keine Freundesleiste. Eine Leiste mit Kreisen liest sich wie Instagrams Stories, und Stories gibt es in Kiez Coins nicht (Daria, 23.10.2026). Freundschaften erreicht man über das Profil (Zahl „Freund:innen“, Knopf „Freundschaften“), Daten aus `src/data/friends.ts`.
 - Logo und Kater bekommen im Instagram-Look eine eigene Signaturfarbe: Kiez-Violett `#7B2FF7`, Token `color.brand.signature`. Im Kiez-Look bleibt `#7E94FF`.
 - Logo und Begrüßung im Feed gleiten nach 3,5 s von selbst weg (`HEADER_HIDE_MS` in `src/app/feed.tsx`), in beiden Looks.
 - Erstellen sitzt im Instagram-Look in der Leiste unten, mit Kamera-Icon (Kamera mit Plus in der Linse). Die Kamera oben rechts entfällt dort.
@@ -23,7 +23,6 @@ Haus (Feed), zwei Personen (Gruppen und Freund:innen), Kamera mit Plus (Erstelle
 - Umschalter: Felder 44 hoch, Schrift 15, Strich 1 pt schwarz, Haarlinie darunter.
 - Beitrag: Kopf 54 (links 12, rechts 4, Bild 32, 10 bis zum Namen), Foto 4:5, Aktionen 44 (links 4, Icons 24), Text 12 seitlich, 16 bis zum nächsten Beitrag.
 - Leiste: 50 hoch plus Safe Area, fünf gleich breite Felder, Icons 24, Profilbild 24 mit 1,5 Ring.
-- Freundesleiste: 16 seitlich, 12 zwischen den Kreisen, Kreis 70 (Bild 62, Ring 2, Luft 2).
 - Profil: Kopf 44, Bild 86, Knöpfe 34 hoch, Highlights 64, Reiter-Icons 44, Raster drei Spalten 3:4 mit 2 Fuge.
 
 ## Offen
