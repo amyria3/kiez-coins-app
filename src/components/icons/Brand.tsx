@@ -40,8 +40,14 @@ export const Wordmark = memo(function Wordmark() {
   return <SvgXml xml={wordmarkSvg(color.brand.signature)} width={131.7} height={24.8} />;
 });
 
+/** Zwei Münzen hintereinander: vorn ein ganzer Kreis, hinten nur der Bogen, der hervorschaut */
+const COINS_LINE = (c: string) =>
+  `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="14.5" cy="14.5" r="6.5"/><path d="M8.2 15.8A6.5 6.5 0 1 1 15.8 8.2"/></svg>`;
+
 /** icon/coins mit Verlauf, Standardgröße wie im BountyBadge (19×22) */
 export const CoinsIcon = memo(function CoinsIcon({ height = 22 }: { height?: number }) {
+  // Instagram-Look: zwei Münzen als Kontur, Linie 2 mit runden Enden, in Textfarbe (Daria, 23.10.2026)
+  if (isInstagram) return <SvgXml xml={COINS_LINE(color.text.primary)} width={height} height={height} />;
   return <SvgXml xml={coinsSvg} width={(30 / 35) * height} height={height} />;
 });
 
