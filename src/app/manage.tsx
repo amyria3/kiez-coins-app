@@ -17,7 +17,7 @@ import { useRequireKiez } from '../data/kiez';
 import { useStore } from '../data/store';
 import type { Challenge, User } from '../data/types';
 import { useAppDimensions } from '../theme/layout';
-import { color, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isInstagram, radius, size, space, stroke, text } from '../theme/tokens';
 import { t } from '../data/texts';
 
 /** Reihenfolge: zuerst, was noch änderbar ist, dann was läuft, dann Entwürfe, dann Erledigtes */
@@ -274,7 +274,8 @@ export default function ManageChallenges() {
         <View style={{ height: insets.bottom }} />
       ) : (
         <ActionBar>
-          <Button label="Neue Challenge" onPress={create} />
+          {/* Instagram-Look: 44 hoch, Radius 8 wie die Knöpfe im Mockup */}
+          <Button label="Neue Challenge" onPress={create} style={isInstagram ? styles.compact : undefined} />
         </ActionBar>
       )}
     </View>
@@ -315,6 +316,26 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
           ? { value: 'Geschlossen', hint: c.closedAt ? `am ${formatDayMonthShort(c.closedAt)}` : '' }
           : { value: 'Erledigt', hint: c.confirmedAt ? `am ${formatDayMonthShort(c.confirmedAt)}` : '' };
   const photo = c.image ?? c.imageAfter ?? c.imageBefore;
+
+  if (isInstagram) {
+    return (
+      <InstaCard
+        challenge={c}
+        hint={state.hint}
+        photo={photo}
+        isDraft={isDraft}
+        isOpen={isOpen}
+        canDelete={canDelete}
+        onOpen={onOpen}
+        onEdit={onEdit}
+        onClose={onClose}
+        onCopy={onCopy}
+        onDelete={onDelete}
+        onComments={onComments}
+        hasNext={hasNext}
+      />
+    );
+  }
 
   return (
     <View style={styles.card}>
@@ -482,6 +503,157 @@ function DeletedCard({
 }
 
 /** Zahl ohne Fläche: Wert groß, darunter in Worten, was er zählt („1“ / „Kommentar“). Tippbar mit Pfeil. */
+/**
+ * Verwaltungskarte im Look „Instagram“ nach Darias Mockup (24.10.2026): keine Fläche, alles direkt auf dem Grund.
+ * Maße in pt, seitlich 24 (unter 360 Breite 16): Bild 56 mit Radius 8, 21 unter den Reitern, 12 bis zum Titel
+ * (halbfett 16/20), Hinweis 13/18 grau. Zahlen 24 unter dem Bild, halbfett 16/20 über 13/18, ohne Trennstriche,
+ * 16 bis zu den Knöpfen. Knöpfe nebeneinander, 34 hoch, 8 Abstand, Radius 8, halbfett 14, grau gefüllt
+ * (Hauptaktion blau). „Challenge löschen“ als roter Text, 44 hoch, darunter nach 15 eine Haarlinie.
+ */
+function InstaCard({
+  challenge: c,
+  hint,
+  photo,
+  isDraft,
+  isOpen,
+  canDelete,
+  onOpen,
+  onEdit,
+  onClose,
+  onCopy,
+  onDelete,
+  onComments,
+  hasNext,
+}: Omit<CardProps, 'assignee'> & {
+  hint: string;
+  photo?: Challenge['image'];
+  isDraft: boolean;
+  isOpen: boolean;
+  canDelete: boolean;
+}) {
+  const { width } = useAppDimensions();
+  const side = { paddingHorizontal: width < 360 ? space[16] : space[24] };
+  const buttons: { label: string; onPress: () => void; primary?: boolean }[] = isDraft
+    ? [{ label: 'Weiter bearbeiten', onPress: onEdit, primary: true }]
+    : isOpen
+      ? [
+          { label: 'Bearbeiten', onPress: onEdit },
+          { label: 'Schließen', onPress: onClose },
+        ]
+      : c.status === 'closed'
+        ? [
+            { label: 'Kopie erstellen', onPress: onCopy, primary: true },
+            { label: 'Ansehen', onPress: onOpen },
+          ]
+        : [{ label: 'Ansehen', onPress: onOpen }];
+  return (
+    <View style={insta.card}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t('{title} öffnen', { title: c.title || t('Ohne Titel') })}
+        onPress={onOpen}
+        style={({ pressed }) => [insta.head, side, pressed && styles.pressed]}
+      >
+        {photo ? (
+          <Image source={photo} style={insta.thumb} contentFit="cover" />
+        ) : (
+          <View style={[insta.thumb, insta.thumbEmpty]}>
+            <Icon name="camera" size={14} color={color.text.secondary} />
+          </View>
+        )}
+        <View style={insta.headText}>
+          <Text style={insta.title} numberOfLines={2}>
+            {c.title || 'Ohne Titel'}
+          </Text>
+          {hint ? (
+            <Text style={insta.hint} numberOfLines={1}>
+              {hint}
+            </Text>
+          ) : null}
+        </View>
+        <Icon name="chevron-right" size={16} color={color.text.secondary} />
+      </Pressable>
+
+      <View style={[insta.stats, side]}>
+        <InstaMetric value={c.views === undefined ? '–' : String(c.views)} label={c.views === 1 ? 'Ansicht' : 'Ansichten'} />
+        <InstaMetric
+          value={String(c.comments.length)}
+          label={c.comments.length === 1 ? 'Kommentar' : 'Kommentare'}
+          onPress={isDraft ? undefined : onComments}
+        />
+        <InstaMetric value={isDraft ? '–' : formatDurationSince(c.createdAt)} label={isDraft ? 'Entwurf' : 'online'} />
+      </View>
+
+      <View style={[insta.buttons, side]}>
+        {buttons.map((b) => (
+          <Pressable
+            key={b.label}
+            accessibilityRole="button"
+            onPress={b.onPress}
+            style={({ pressed }) => [insta.button, b.primary && insta.buttonPrimary, pressed && styles.pressed]}
+          >
+            <Text style={[insta.buttonText, b.primary && insta.buttonTextPrimary]}>{b.label}</Text>
+          </Pressable>
+        ))}
+      </View>
+      {/* Ausgegraut, bleibt aber tippbar: Die Meldung erklärt, warum Löschen nicht geht. */}
+      <Pressable
+        accessibilityRole="button"
+        onPress={onDelete}
+        style={({ pressed }) => [insta.delete, !canDelete && styles.muted, pressed && styles.pressed]}
+      >
+        <Text style={insta.deleteText}>Challenge löschen</Text>
+      </Pressable>
+      <View style={insta.line} />
+
+      <View style={styles.flex} />
+      {hasNext ? <Text style={[styles.next, insta.next]}>Nach oben wischen für die nächste</Text> : null}
+    </View>
+  );
+}
+
+function InstaMetric({ value, label, onPress }: { value: string; label: string; onPress?: () => void }) {
+  return (
+    <Pressable
+      style={({ pressed }) => [insta.metric, pressed && onPress ? styles.pressed : null]}
+      disabled={!onPress}
+      accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityLabel={`${value} ${label}`}
+      onPress={onPress}
+    >
+      <Text style={insta.metricValue} numberOfLines={1}>
+        {value}
+      </Text>
+      <Text style={insta.metricLabel} numberOfLines={1}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
+const insta = StyleSheet.create({
+  card: { flex: 1 },
+  head: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingTop: 21, paddingBottom: 14 },
+  thumb: { width: 56, height: 56, borderRadius: radius.md },
+  thumbEmpty: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.bg.surface },
+  headText: { flex: 1, gap: space[2] },
+  title: { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.text.primary },
+  hint: { fontFamily: font.regular, fontSize: 13, lineHeight: 18, color: color.text.secondary },
+  stats: { flexDirection: 'row', paddingTop: 10, paddingBottom: space[16] },
+  metric: { flex: 1, alignItems: 'center' },
+  metricValue: { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] },
+  metricLabel: { fontFamily: font.regular, fontSize: 13, lineHeight: 18, color: color.text.primary },
+  buttons: { flexDirection: 'row', gap: space[8] },
+  button: { flex: 1, height: 34, borderRadius: radius.md, backgroundColor: color.bg.surface, alignItems: 'center', justifyContent: 'center' },
+  buttonPrimary: { backgroundColor: color.accent.primary },
+  buttonText: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18, color: color.text.primary },
+  buttonTextPrimary: { color: color.text.onAccent },
+  delete: { alignSelf: 'center', height: 44, marginTop: space[8], paddingHorizontal: space[16], justifyContent: 'center' },
+  deleteText: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18, color: color.accent.error },
+  line: { height: stroke.ultraThin, backgroundColor: color.line.hairline, marginTop: 15 },
+  next: { fontSize: 12, lineHeight: 16 },
+});
+
 function Metric({ value, hint, onPress }: { value: string; hint?: string; onPress?: () => void }) {
   return (
     <Pressable
@@ -510,8 +682,12 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   flex: { flex: 1 },
   empty: { padding: space[16] },
-  switch: { paddingHorizontal: space[16], paddingBottom: space[8] },
-  page: { paddingHorizontal: space[16], paddingTop: space[8], paddingBottom: space[12] },
+  compact: { minHeight: 44, paddingVertical: 0, borderRadius: radius.md },
+  // Instagram-Look: Unterstrich-Reiter über die ganze Breite
+  switch: isInstagram ? {} : { paddingHorizontal: space[16], paddingBottom: space[8] },
+  page: isInstagram
+    ? { paddingBottom: space[12] }
+    : { paddingHorizontal: space[16], paddingTop: space[8], paddingBottom: space[12] },
   card: {
     flex: 1,
     gap: space[16],
