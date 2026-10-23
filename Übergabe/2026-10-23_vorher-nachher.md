@@ -1,6 +1,6 @@
 # Vorher-Nachher-Beiträge (2026-10-23)
 
-Pflichtaufgabe: Migration `20261023000300_before_after` im SQL-Editor ausführen, nach `20261022000100_photo_posts`, `20261021000100_groups` und `20261022000500_messages` (pg_cron). Ohne sie lassen sich keine Vorher-Nachher-Beiträge anlegen. Stand: noch nicht ausgeführt.
+Pflichtaufgabe: Migration `20261023000300_before_after` im SQL-Editor ausführen, nach `20261022000100_photo_posts`, `20261021000100_groups` und `20261022000500_messages` (pg_cron). Ohne sie lassen sich keine Vorher-Nachher-Beiträge anlegen. Stand: am 2026-10-23 ausgeführt.
 
 Gehört nach Documentation: `kiez-coins/DATENBANK.md` (Migration, Spalten, Funktionen, Cron-Job), `kiez-coins/app/Stand_App.md` (Offene Pflichtaufgaben), Konzept nach `kiez-coins/konzept/`.
 
