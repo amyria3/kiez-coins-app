@@ -4,8 +4,8 @@
 // Nur die Seiten ohne Web-App: node scripts/build-download-site.mjs
 // Die Startseite zeigt einen klickbaren Prototyp der App (scripts/site/prototyp.js) und Illustrationen
 // (scripts/site/kunst.mjs). Icons, Kater und Coins kommen aus denselben SVGs wie die App.
-// Den Ordner `website/` lädt Daria danach beim Webhoster hoch (siehe Übergabe/2026-10-21_download-seite.md
-// und Übergabe/2026-10-21_web-app.md).
+// Vercel baut und veröffentlicht `website/` bei jedem Push (vercel.json). Ablauf: Documentation,
+// kiez-coins/app/Stand_App.md, Abschnitt „Website kiezcoins.de“.
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
