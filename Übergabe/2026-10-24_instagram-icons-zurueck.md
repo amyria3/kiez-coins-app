@@ -11,3 +11,4 @@ Gehört nach Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitt „Look“
   - Umschalter: Großbuchstaben halbfett 12, Laufweite 0,5, Strich 1,5.
   - Verwalten am Beitrag und an der Gruppe wieder als Zahnrad.
 - „Deine Challenges“ im Instagram-Look nach Darias Mockup „Verwaltungskarte“ (24.10.2026): keine graue Fläche; seitlich 24 (unter 360 Breite 16); Bild 56, Radius 8, 21 unter den Reitern; Titel halbfett 16/20, Hinweis 13/18 grau; Zahlen 24 unter dem Bild, halbfett 16/20 über 13/18, ohne Trennstriche; Knöpfe nebeneinander 34 hoch, Radius 8, grau gefüllt, Hauptaktion blau; „Challenge löschen“ als roter Text, 28 bis zur Haarlinie. „Neue Challenge“ unten 44 hoch mit Radius 8 (`InstaCard` in `src/app/manage.tsx`).
+- „Was Du so machst“ in „Dein Konto“ im Instagram-Look mit dem Herz als Icon, wie das Herz oben im Feed, das die Seite öffnet. Die Krone bleibt im Kiez-Look (24.10.2026).

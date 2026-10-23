@@ -12,7 +12,7 @@ import { anrede } from '../../data/format';
 import { useAuth } from '../../data/auth';
 import { isModerator, loadFriends } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
-import { color, size, space } from '../../theme/tokens';
+import { color, isInstagram, size, space } from '../../theme/tokens';
 import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
 import { look, looks, lookSelectable } from '../../theme/look';
 import { useGoBack } from '../../lib/goBack';
@@ -60,7 +60,8 @@ export default function Account() {
       <NavCard
         title="Was Du so machst"
         description="Verlauf, Aufgaben und Gruppen"
-        leading={<CrownIcon height={30} />}
+        // Instagram-Look: Herz wie oben im Feed, das „Was Du so machst“ öffnet
+        leading={isInstagram ? <Icon name="heart" size={size.icon} color={color.text.primary} /> : <CrownIcon height={30} />}
         onPress={() => router.push('/reise')}
       />
       <NavCard
