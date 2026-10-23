@@ -24,7 +24,6 @@ import { useAppDimensions } from '../theme/layout';
 import { AppHeader, FeedGreeting, PlannedHint, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
 import { FeedStateMessage } from '../components/FeedStateMessage';
 import { GroupBar, GroupsEmpty } from '../components/GroupBar';
-import { FriendsRow } from '../components/FriendsRow';
 import { GearsLoader } from '../components/GearsLoader';
 import { SurveyOverlay, useSurveyPrompt } from '../components/SurveyOverlay';
 import { CAMERA_W, CameraButton, TAB_BAR_SPACE, TabBar } from '../components/TabBar';
@@ -298,10 +297,9 @@ export default function FeedScreen() {
   const items: FeedItem[] = [];
   if (planned) items.push({ kind: 'planned' });
   if (tab === 'groups' && !loading) {
-    // Freundschaften gehören zum Reiter „Gruppen“ und stehen direkt unter der Gruppe (Daria, 23.10.2026)
-    if (groups.length === 0) items.push({ kind: 'groupsEmpty' }, { kind: 'friends' });
+    if (groups.length === 0) items.push({ kind: 'groupsEmpty' });
     else {
-      items.push({ kind: 'groupBar' }, { kind: 'friends' });
+      items.push({ kind: 'groupBar' });
       if (posts.length === 0) items.push({ kind: 'groupNoTasks' });
       else posts.forEach((challenge) => items.push({ kind: 'post', challenge }));
     }
@@ -323,8 +321,6 @@ export default function FeedScreen() {
             onAll={() => router.push('/gruppen')}
           />
         );
-      case 'friends':
-        return <FriendsRow />;
       case 'groupNoTasks':
         return (
           <GroupsEmpty
@@ -507,7 +503,6 @@ type FeedItem =
   | { kind: 'planned' }
   | { kind: 'groupsEmpty' }
   | { kind: 'groupBar' }
-  | { kind: 'friends' }
   | { kind: 'groupNoTasks' }
   | { kind: 'loading' }
   | { kind: 'state' }
