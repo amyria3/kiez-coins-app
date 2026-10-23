@@ -14,6 +14,7 @@ import { useStore } from '../../../data/store';
 import type { User } from '../../../data/types';
 import { color, radius, space, text } from '../../../theme/tokens';
 import { t } from '../../../data/texts';
+import { useGoBack } from '../../../lib/goBack';
 
 /**
  * Route `gruppen/[id]`: Rangliste, Einladungscode, Aufgaben erstellen.
@@ -24,12 +25,13 @@ import { t } from '../../../data/texts';
 export default function GroupDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const goBack = useGoBack();
   const { groups, challenges, users, currentUserId, groupApi } = useStore();
   const group = groups.find((g) => g.id === id);
 
   if (!group) {
     return (
-      <SubScreen title="Gruppe" navigation="back" onLeadingPress={() => router.back()}>
+      <SubScreen title="Gruppe" navigation="back" onLeadingPress={goBack}>
         <KaterCard>Diese Gruppe gibt es nicht mehr, oder Du bist nicht mehr dabei.</KaterCard>
       </SubScreen>
     );

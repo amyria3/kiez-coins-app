@@ -6,14 +6,16 @@ import { NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { useAuth } from '../../data/auth';
 import { space } from '../../theme/tokens';
+import { useGoBack } from '../../lib/goBack';
 
 /** Route `account/credentials` (Push aus „Dein Konto“): Zugangsdaten, also E-Mail und Passwort. */
 export default function Credentials() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { session, hasPassword } = useAuth();
 
   return (
-    <SubScreen title="Zugangsdaten" navigation="back" onLeadingPress={() => router.back()}>
+    <SubScreen title="Zugangsdaten" navigation="back" onLeadingPress={goBack}>
       <KaterBubble>
         {hasPassword
           ? 'Hier änderst Du Deine Adresse oder Dein Passwort. Den Code per Mail kannst Du immer nutzen.'

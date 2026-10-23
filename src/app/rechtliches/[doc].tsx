@@ -8,6 +8,7 @@ import { getLanguage, useTexts } from '../../data/texts';
 import { Notice } from '../../components/Content';
 import { LEGAL_STAND, legalDocIds, legalDocs, type LegalDocId } from '../../data/legal';
 import { color, space, text } from '../../theme/tokens';
+import { useGoBack } from '../../lib/goBack';
 
 /**
  * Route `rechtliches/[doc]` mit `impressum`, `datenschutz` oder `bedingungen`.
@@ -16,13 +17,14 @@ import { color, space, text } from '../../theme/tokens';
  */
 export default function LegalScreen() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { doc } = useLocalSearchParams<{ doc: string }>();
   const id: LegalDocId = legalDocIds.includes(doc as LegalDocId) ? (doc as LegalDocId) : 'impressum';
   const current = legalDocs[id];
   const tx = useTexts();
 
   return (
-    <SubScreen title={tx(current.title)} subtitle={tx(`Stand ${LEGAL_STAND}`)} navigation="back" onLeadingPress={() => router.back()}>
+    <SubScreen title={tx(current.title)} subtitle={tx(`Stand ${LEGAL_STAND}`)} navigation="back" onLeadingPress={goBack}>
       {getLanguage() !== 'de' ? <Notice message="Übersetzung zur Orientierung. Verbindlich ist die deutsche Fassung." /> : null}
       {current.intro ? <Text style={styles.intro}>{tx(current.intro)}</Text> : null}
       {current.sections.map((section, index) => (

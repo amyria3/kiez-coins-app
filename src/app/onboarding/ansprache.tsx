@@ -11,10 +11,12 @@ import { useStore } from '../../data/store';
 import type { AddressForm } from '../../data/types';
 import { space } from '../../theme/tokens';
 import { NudgeArea, useNudge } from '../../components/Nudge';
+import { useGoBack } from '../../lib/goBack';
 
 /** Route `onboarding/ansprache`. Figma: `onboarding/ansprache`. Privat, nur für Kater-Texte. */
 export default function Ansprache() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { profile, dispatch } = useStore();
   const [form, setForm] = useState<AddressForm | undefined>(profile.addressForm === 'pirat_star' ? 'pirat_colon' : (profile.addressForm ?? 'pirat_colon'));
   const [custom, setCustom] = useState(profile.addressCustom ?? '');
@@ -34,7 +36,7 @@ export default function Ansprache() {
       title="Ansprache"
       subtitle="Schritt 3 von 6"
       navigation="back"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={
         <>
           <Button label="Weiter" onPress={() => save(form)} disabled={!form && !usesCustom}

@@ -12,6 +12,7 @@ import { deleteMyAccount, errorText } from '../../../data/remote';
 import { useStore } from '../../../data/store';
 import { t } from '../../../data/texts';
 import { useNudge } from '../../../components/Nudge';
+import { useGoBack } from '../../../lib/goBack';
 
 /**
  * Route `account/delete`. Figma: `account/delete`. Löscht Fotos, Profil, Challenges, Kommentare
@@ -19,6 +20,7 @@ import { useNudge } from '../../../components/Nudge';
  */
 export default function DeleteAccount() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { profile, challenges, currentUserId, mode } = useStore();
   const [confirm, setConfirm] = useState('');
   const [busy, setBusy] = useState(false);
@@ -47,7 +49,7 @@ export default function DeleteAccount() {
     <SubScreen
       title="Konto löschen"
       navigation="back"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={
         <>
           <Button busy={busy} label="Konto endgültig löschen" onPress={remove} disabled={confirm.trim() !== 'LÖSCHEN' || busy}

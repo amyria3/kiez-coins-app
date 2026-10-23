@@ -11,10 +11,12 @@ import { isValidIban } from '../../data/format';
 import { useCurrentUser, useStore } from '../../data/store';
 import type { PayoutMethod } from '../../data/types';
 import { color, space, text } from '../../theme/tokens';
+import { useGoBack } from '../../lib/goBack';
 
 /** Route `settings/payout` (Push). Figma: `settings/payout`, Flow „Bounty auf Vertrauen“. */
 export default function PayoutSettings() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { dispatch } = useStore();
   const me = useCurrentUser();
   const [accountHolder, setAccountHolder] = useState(me.payout?.accountHolder ?? '');
@@ -45,7 +47,7 @@ export default function PayoutSettings() {
     <SubScreen
       title="Zahlungsdaten"
       navigation="back"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={<Button label="Speichern" onPress={save} />}
     >
       <Notice message="Kiez Coins bewegt kein Geld. Deine Daten sieht nur, wem Du sie für eine Challenge freigibst." />

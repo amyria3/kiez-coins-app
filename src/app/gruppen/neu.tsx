@@ -10,10 +10,12 @@ import { MAX_MEMBERS } from '../../data/groups';
 import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
 import { useNudge } from '../../components/Nudge';
+import { useGoBack } from '../../lib/goBack';
 
 /** Route `gruppen/neu`: Gruppe gründen. Danach geht es direkt zur Gruppe mit dem Einladungscode. */
 export default function NewGroup() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { groupApi } = useStore();
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
@@ -35,7 +37,7 @@ export default function NewGroup() {
     <SubScreen
       title="Gruppe gründen"
       navigation="back"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={
         <Button busy={busy} label={busy ? 'Wird gegründet …' : 'Gruppe gründen'} onPress={create} disabled={busy || !name.trim()} whyDisabled={() => !busy && nameField.nudge('Gib Eurer Gruppe einen Namen.')} />
       }

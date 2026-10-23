@@ -17,6 +17,7 @@ import { useAppDimensions } from '../../theme/layout';
 import { useNudge } from '../../components/Nudge';
 import { t } from '../../data/texts';
 import { homeAfterOnboarding } from '../../data/pendingInvite';
+import { useGoBack } from '../../lib/goBack';
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 const MIN_PASSWORD = 8;
@@ -39,6 +40,7 @@ type Mode = 'choose' | 'code' | 'password';
  */
 export default function Email() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { width } = useAppDimensions();
   const { profile, dispatch } = useStore();
   const { signInOrUpWithPassword, sendCode, verifyCode } = useAuth();
@@ -179,7 +181,7 @@ export default function Email() {
   };
 
   return (
-    <SubScreen title="Anmelden" subtitle="Schritt 1 von 6" navigation="back" onLeadingPress={() => router.back()}>
+    <SubScreen title="Anmelden" subtitle="Schritt 1 von 6" navigation="back" onLeadingPress={goBack}>
       <KaterBubble>
         Erst mal Deine Flaschenpost-Adresse. Dann schick ich Dir einen Code, oder Du gibst Dein Passwort ein.
       </KaterBubble>

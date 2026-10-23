@@ -8,6 +8,7 @@ import { SubScreen } from '../../components/Screen';
 import { useStore } from '../../data/store';
 import { NudgeArea, useNudge } from '../../components/Nudge';
 import { t } from '../../data/texts';
+import { useGoBack } from '../../lib/goBack';
 
 /**
  * Route `onboarding/kodex`. Figma: `onboarding/kodex`. Speichert die drei Zeitstempel der Zustimmung.
@@ -15,6 +16,7 @@ import { t } from '../../data/texts';
  */
 export default function Kodex() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { dispatch } = useStore();
   const [age, setAge] = useState(false);
   const [terms, setTerms] = useState(false);
@@ -28,7 +30,7 @@ export default function Kodex() {
       title="Der Kodex"
       subtitle="Schritt 5 von 6"
       navigation="back"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={
         <Button
           label="Zustimmen und weiter"

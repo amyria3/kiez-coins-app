@@ -6,6 +6,7 @@ import { Button } from '../../../../components/Button';
 import { PaymentDetails } from '../../../../components/PaymentDetails';
 import { SubScreen } from '../../../../components/Screen';
 import { useChallenge, useStore } from '../../../../data/store';
+import { useGoBack } from '../../../../lib/goBack';
 
 /**
  * Route `challenge/[id]/pay` (Push, nur Ersteller:in, nach confirmed). Figma: `challenge/pay`,
@@ -14,6 +15,7 @@ import { useChallenge, useStore } from '../../../../data/store';
 export default function PayScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const goBack = useGoBack();
   const { dispatch } = useStore();
   const { challenge, assignee } = useChallenge(id);
 
@@ -28,7 +30,7 @@ export default function PayScreen() {
     <SubScreen
       title="Coins bezahlen"
       navigation="back"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={
         <>
           <Button label="Als bezahlt markieren" onPress={markPaid} />

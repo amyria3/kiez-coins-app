@@ -6,12 +6,14 @@ import { KaterBubble, Notice } from '../../../components/Content';
 import { SubScreen } from '../../../components/Screen';
 import { hasOpenWork } from '../../../data/openWork';
 import { useStore } from '../../../data/store';
+import { useGoBack } from '../../../lib/goBack';
 
 const OPEN_WORK = 'Offene Challenges und Coins musst Du vorher abschließen oder abgeben.';
 
 /** Route `account/pause`. Figma: `account/pause`. Pause für 3 Monate, Anmelden hebt sie auf. */
 export default function Pause() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { challenges, currentUserId, dispatch } = useStore();
 
   const pause = () => {
@@ -29,7 +31,7 @@ export default function Pause() {
     <SubScreen
       title="Konto pausieren"
       navigation="back"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={
         <>
           <Button label="3 Monate pausieren" onPress={pause} />

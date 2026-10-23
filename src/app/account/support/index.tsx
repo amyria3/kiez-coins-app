@@ -9,6 +9,7 @@ import { useAuth } from '../../../data/auth';
 import { errorText, sendSupportRequest } from '../../../data/remote';
 import { useStore } from '../../../data/store';
 import { useNudge } from '../../../components/Nudge';
+import { useGoBack } from '../../../lib/goBack';
 
 /**
  * Route `account/support` (Push aus „Dein Konto“): Support-Anfrage schreiben.
@@ -16,6 +17,7 @@ import { useNudge } from '../../../components/Nudge';
  */
 export default function Support() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { text: preset } = useLocalSearchParams<{ text?: string }>();
   const { mode } = useStore();
   const { session } = useAuth();
@@ -44,7 +46,7 @@ export default function Support() {
     <SubScreen
       title="Support"
       navigation="back"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={<Button busy={sending} label={sending ? 'Wird gesendet …' : 'Anfrage senden'} disabled={!support.trim() || sending} whyDisabled={() => !sending && field.nudge('Schreib kurz, worum es geht.')} onPress={send} />}
     >
       <TextField

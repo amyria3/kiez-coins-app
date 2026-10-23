@@ -15,6 +15,7 @@ import type { UserReportReason } from '../../../../data/types';
 import { color, space, text } from '../../../../theme/tokens';
 import { NudgeArea, useNudge } from '../../../../components/Nudge';
 import { t } from '../../../../data/texts';
+import { useGoBack } from '../../../../lib/goBack';
 
 const reasons: { key: UserReportReason; label: string }[] = [
   { key: 'discrimination', label: 'Sexismus, Rassismus, Antisemitismus oder andere Diskriminierung' },
@@ -33,6 +34,7 @@ const reasons: { key: UserReportReason; label: string }[] = [
 export default function UserReportScreen() {
   const params = useLocalSearchParams<{ id: string; challengeId?: string; reason?: UserReportReason }>();
   const router = useRouter();
+  const goBack = useGoBack();
   const { users, mode } = useStore();
   const [sending, setSending] = useState(false);
   const user = users.find((u) => u.id === params.id);
@@ -66,7 +68,7 @@ export default function UserReportScreen() {
     <SubScreen
       title="Person melden"
       navigation="close"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={
         <Button busy={sending}
           label="Meldung senden"

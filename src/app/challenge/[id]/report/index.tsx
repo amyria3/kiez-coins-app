@@ -11,6 +11,7 @@ import type { ImageSource } from '../../../../data/types';
 import { color, text } from '../../../../theme/tokens';
 import { NudgeArea, useNudge } from '../../../../components/Nudge';
 import { t } from '../../../../data/texts';
+import { useGoBack } from '../../../../lib/goBack';
 
 /**
  * Route `challenge/[id]/report` (Modal). Figma: `challenge/report`, Flow „Challenge erfüllen“.
@@ -19,6 +20,7 @@ import { t } from '../../../../data/texts';
 export default function ReportScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const goBack = useGoBack();
   const { dispatch } = useStore();
   const { challenge, author } = useChallenge(id);
   const [photo, setPhoto] = useState<ImageSource>();
@@ -39,7 +41,7 @@ export default function ReportScreen() {
     <SubScreen
       title="Erledigt melden"
       navigation="close"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={<Button label="Erledigung senden" onPress={send} disabled={!photo} whyDisabled={() => photoField.nudge('Mach ein Foto vom Ergebnis.')} />}
     >
       <Text style={styles.secondary}>{t('Zeig, was Du geschafft hast. {firstName} sieht Dein Foto und bestätigt die Erledigung.', { firstName: author.firstName })}</Text>

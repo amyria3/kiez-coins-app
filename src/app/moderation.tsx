@@ -12,6 +12,7 @@ import { errorText, loadModerationReports, setReportStatus } from '../data/remot
 import type { ModerationReport, User } from '../data/types';
 import { color, radius, space, text } from '../theme/tokens';
 import { t } from '../data/texts';
+import { useGoBack } from '../lib/goBack';
 
 const reasonLabels: Record<string, string> = {
   discrimination: 'Diskriminierung',
@@ -37,6 +38,7 @@ const statusLabels: Record<ModerationReport['status'], string> = {
  */
 export default function Moderation() {
   const router = useRouter();
+  const goBack = useGoBack();
   const [data, setData] = useState<{ reports: ModerationReport[]; users: User[]; titles: Record<string, string> }>();
   const [showDone, setShowDone] = useState(false);
 
@@ -67,7 +69,7 @@ export default function Moderation() {
   const open = data?.reports.filter((r) => r.status === 'new').length ?? 0;
 
   return (
-    <SubScreen title="Moderation" subtitle={t('{open} offen', { open })} navigation="back" onLeadingPress={() => router.back()}>
+    <SubScreen title="Moderation" subtitle={t('{open} offen', { open })} navigation="back" onLeadingPress={goBack}>
       <Notice message="Bestätigst Du eine Meldung, entfernst Du den Inhalt oder sperrst das Konto im Supabase-Dashboard und schreibst der Person per E-Mail, warum." />
       <NavRow
         label={showDone ? 'Nur offene zeigen' : 'Auch erledigte zeigen'}

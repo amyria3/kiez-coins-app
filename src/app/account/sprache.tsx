@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Alert, DevSettings, View } from 'react-native';
-import { router as appRouter, useRouter } from 'expo-router';
+import { router as appRouter } from 'expo-router';
 
 import { KaterBubble } from '../../components/Content';
 import { RadioOption } from '../../components/Form';
@@ -15,13 +15,14 @@ import {
   type Lang,
 } from '../../data/texts';
 import { space } from '../../theme/tokens';
+import { useGoBack } from '../../lib/goBack';
 
 /**
  * Route `account/sprache` (Dein Konto › Sprache). Standard ist die Sprache des Handys.
  * Arabisch und Hebräisch laufen von rechts nach links. Auf iOS und Android gilt die neue Richtung nach einem Neustart.
  */
 export default function Sprache() {
-  const router = useRouter();
+  const goBack = useGoBack();
   const [choice, setChoice] = useState<Lang | 'auto'>(getLanguageChoice());
   const device = languages.find((l) => l.code === deviceLanguage())?.name ?? 'Deutsch';
 
@@ -42,7 +43,7 @@ export default function Sprache() {
   };
 
   return (
-    <SubScreen title="Sprache" navigation="back" onLeadingPress={() => router.back()}>
+    <SubScreen title="Sprache" navigation="back" onLeadingPress={goBack}>
       <KaterBubble>In welcher Sprache soll ich mit Dir reden?</KaterBubble>
       <View style={{ gap: space[8] }}>
         <RadioOption label={t('Wie das Handy ({sprache})', { sprache: device })} selected={choice === 'auto'} onPress={() => choose('auto')} />

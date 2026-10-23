@@ -11,6 +11,7 @@ import { acceptFriend, errorText, loadFriends, removeFriend, type FriendLists } 
 import { useStore } from '../../data/store';
 import type { User } from '../../data/types';
 import { color, space, text } from '../../theme/tokens';
+import { useGoBack } from '../../lib/goBack';
 
 /**
  * Route `account/freunde` (Push aus „Dein Konto“): Freundschaftsanfragen annehmen oder ablehnen,
@@ -18,6 +19,7 @@ import { color, space, text } from '../../theme/tokens';
  */
 export default function Friends() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { mode, users, currentUserId } = useStore();
   // undefined: lädt, null: Migration fehlt
   const [lists, setLists] = useState<FriendLists | null | undefined>(undefined);
@@ -63,7 +65,7 @@ export default function Friends() {
   const open = (user: User) => router.push({ pathname: '/user/[id]', params: { id: user.id } });
 
   return (
-    <SubScreen title="Freundschaften" navigation="back" onLeadingPress={() => router.back()}>
+    <SubScreen title="Freundschaften" navigation="back" onLeadingPress={goBack}>
       {lists === null ? (
         <Notice message="Freundschaften sind noch nicht freigeschaltet. Die Datenbank braucht dafür ein Update." />
       ) : null}

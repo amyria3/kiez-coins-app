@@ -9,6 +9,7 @@ import { SubScreen } from '../../components/Screen';
 import { useAuth } from '../../data/auth';
 import { t } from '../../data/texts';
 import { useNudge } from '../../components/Nudge';
+import { useGoBack } from '../../lib/goBack';
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 const MIN_DIGITS = 6;
@@ -20,6 +21,7 @@ const MAX_DIGITS = 8;
  */
 export default function ChangeEmail() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { session, requestEmailChange, confirmEmailChange } = useAuth();
   const [email, setEmail] = useState('');
   const [sentTo, setSentTo] = useState<string>();
@@ -59,7 +61,7 @@ export default function ChangeEmail() {
     <SubScreen
       title="E-Mail ändern"
       navigation="back"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={
         sentTo ? (
           <Button busy={busy}

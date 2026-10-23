@@ -15,10 +15,12 @@ import { useCurrentUser, useStore } from '../../data/store';
 import { color, size, space } from '../../theme/tokens';
 import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
 import { look, looks, lookSelectable } from '../../theme/look';
+import { useGoBack } from '../../lib/goBack';
 
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
 export default function Account() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { profile, groups, mode, blockedIds } = useStore();
   const me = useCurrentUser();
   const { signOut, hasPassword } = useAuth();
@@ -45,7 +47,7 @@ export default function Account() {
   };
 
   return (
-    <SubScreen title="Dein Konto" navigation="back" onLeadingPress={() => router.back()}>
+    <SubScreen title="Dein Konto" navigation="back" onLeadingPress={goBack}>
       <KaterBubble>
         {t('Ahoi, {anrede}! Hier trimmst Du Dein Schiff. Tipp einfach auf das, was Du ändern willst.', { anrede: anrede(profile) })}
       </KaterBubble>

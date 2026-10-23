@@ -11,11 +11,13 @@ import { formatDayMonth, formatEuro } from '../../../../data/format';
 import { useChallenge, useStore } from '../../../../data/store';
 import { color, space, text } from '../../../../theme/tokens';
 import { t } from '../../../../data/texts';
+import { useGoBack } from '../../../../lib/goBack';
 
 /** Route `challenge/[id]/payment` (Push). Figma: `challenge/payment`, Empfang der Coins bestätigen. */
 export default function PaymentScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const goBack = useGoBack();
   const { dispatch } = useStore();
   const { challenge, author } = useChallenge(id);
 
@@ -32,7 +34,7 @@ export default function PaymentScreen() {
     <SubScreen
       title="Coins"
       navigation="back"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={
         <>
           <Button label="Ja, erhalten" onPress={received} />

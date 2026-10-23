@@ -22,6 +22,7 @@ import { useChallenge, useStore } from '../../../data/store';
 import type { ChallengeStatus } from '../../../data/types';
 import { color, font, radius, size, space, stroke, text } from '../../../theme/tokens';
 import { t } from '../../../data/texts';
+import { useGoBack } from '../../../lib/goBack';
 
 // Vorschläge des Katers für den Operationsnamen (später aus einer Wortliste)
 const operationNames = ['Operation Gießkanne', 'Operation Igelglück', 'Operation Besenstiel', 'Operation Sonnenschirm'];
@@ -38,6 +39,7 @@ export default function ChallengeDetail() {
   // `kommentare`: aus Feed oder „Deine Challenges“ direkt zu den Kommentaren
   const { id, kommentare } = useLocalSearchParams<{ id: string; kommentare?: string }>();
   const router = useRouter();
+  const goBack = useGoBack();
   const { currentUserId, users, dispatch, mode, profile } = useStore();
 
   const { challenge, author } = useChallenge(id);
@@ -72,7 +74,7 @@ export default function ChallengeDetail() {
 
   if (!challenge || !author) {
     return (
-      <SubScreen title="Challenge" navigation="back" onLeadingPress={() => router.back()}>
+      <SubScreen title="Challenge" navigation="back" onLeadingPress={goBack}>
         <Text style={styles.secondary}>Diese Challenge gibt es nicht mehr.</Text>
       </SubScreen>
     );
@@ -379,7 +381,7 @@ export default function ChallengeDetail() {
       <SubScreen
         title={challenge.groupId ? 'Gruppenaufgabe' : 'Challenge'}
         navigation="back"
-        onLeadingPress={() => router.back()}
+        onLeadingPress={goBack}
         actions={actions}
       >
         {summary}

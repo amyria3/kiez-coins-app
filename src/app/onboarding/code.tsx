@@ -13,6 +13,7 @@ import { useStore } from '../../data/store';
 import { useNudge } from '../../components/Nudge';
 import { t } from '../../data/texts';
 import { homeAfterOnboarding } from '../../data/pendingInvite';
+import { useGoBack } from '../../lib/goBack';
 
 /** Supabase verschickt je nach Projekteinstellung 6 bis 8 Ziffern (Standard: 6). */
 const MIN_DIGITS = 6;
@@ -24,6 +25,7 @@ const MAX_DIGITS = 8;
  */
 export default function Code() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { existing } = useLocalSearchParams<{ existing?: string }>();
   const { profile } = useStore();
   const { sendCode, verifyCode } = useAuth();
@@ -66,7 +68,7 @@ export default function Code() {
       title="Anmelden"
       subtitle="Schritt 1 von 6"
       navigation="back"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={
         <>
           <Button busy={busy}

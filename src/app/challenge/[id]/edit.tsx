@@ -13,6 +13,7 @@ import { useChallenge, useStore } from '../../../data/store';
 import { color, text } from '../../../theme/tokens';
 import { useNudge } from '../../../components/Nudge';
 import { t } from '../../../data/texts';
+import { useGoBack } from '../../../lib/goBack';
 
 const presets = [5, 15, 50];
 const durations = [
@@ -35,6 +36,7 @@ const DAY = 24 * 60 * 60 * 1000;
 export default function EditChallenge() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const goBack = useGoBack();
   const { currentUserId, canOfferBounties, dispatch } = useStore();
   const { challenge } = useChallenge(id);
 
@@ -53,7 +55,7 @@ export default function EditChallenge() {
 
   if (!challenge || !editable) {
     return (
-      <SubScreen title="Bearbeiten" navigation="close" onLeadingPress={() => router.back()}>
+      <SubScreen title="Bearbeiten" navigation="close" onLeadingPress={goBack}>
         <Text style={styles.secondary}>
           Diese Challenge lässt sich nicht mehr bearbeiten, da sie schon angenommen wurde.
         </Text>
@@ -160,7 +162,7 @@ export default function EditChallenge() {
     <SubScreen
       title={isGroup ? 'Aufgabe bearbeiten' : 'Challenge bearbeiten'}
       navigation="close"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={
         deleted ? (
           <>
