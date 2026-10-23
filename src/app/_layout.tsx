@@ -17,6 +17,7 @@ import { translateAlerts } from '../components/T';
 import { loadLanguage, loadTexts, useTexts, getLanguage } from '../data/texts';
 import { LoadingScreen } from '../components/GearsLoader';
 import { StartKater } from '../components/StartKater';
+import { InstallHint } from '../components/InstallHint';
 import { color } from '../theme/tokens';
 import { look, setLook } from '../theme/look';
 
@@ -102,6 +103,7 @@ function RootStack() {
         <Stack.Screen name="account/delete/success" options={{ gestureEnabled: false }} />
       </Stack>
       {intro ? <StartKater onDone={() => setIntro(false)} /> : null}
+      <InstallHint />
       <WebAlertHost />
     </>
   );
