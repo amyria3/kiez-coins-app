@@ -15,7 +15,7 @@ import { StoreProvider } from '../data/store';
 import { translateAlerts } from '../components/T';
 import { loadLanguage, loadTexts, useTexts, getLanguage } from '../data/texts';
 import { LoadingScreen } from '../components/GearsLoader';
-import { color } from '../theme/tokens';
+import { color, scheme } from '../theme/tokens';
 
 SplashScreen.preventAutoHideAsync();
 // Nach WebAlert: Rückfragen erscheinen in der gewählten Sprache
@@ -70,7 +70,7 @@ function RootStack() {
 
   return (
     <>
-      <StatusBar style="light" />
+      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <Stack key={language} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
         {/* Vollbild ohne Wegwischen: Schließen nur über das X, damit die Frage nach dem Entwurf kommt
             und die Vorschau nicht wie ein Overlay wirkt, dessen Wischen mit den Gesten der Vorschau konkurriert */}

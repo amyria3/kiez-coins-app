@@ -145,7 +145,7 @@ const ios = config.testflightUrl
   : `<div class="card" id="iphone">
   <h3>iPhone</h3>
   <p>Auf dem iPhone läuft Kiez Coins als Web-App in Safari. Auf dem Home-Bildschirm startet sie wie eine App.</p>
-  <a class="button" href="app/">Kiez Coins öffnen</a>
+  <a class="button" href="app/" data-app-link>Kiez Coins öffnen</a>
   <ol class="steps">
     <li>Diese Seite in <strong>Safari</strong> öffnen und „Kiez Coins öffnen“ tippen.</li>
     <li>Unten in der Leiste auf das Teilen-Symbol tippen (Quadrat mit Pfeil nach oben).</li>
@@ -154,6 +154,24 @@ const ios = config.testflightUrl
   </ol>
   <p class="klein">Kamera, Fotos und Standort fragt Safari beim ersten Mal ab. Push-Benachrichtigungen gibt es in der Web-App nicht. Updates kommen automatisch beim nächsten Start.</p>
 </div>`;
+
+// ---------- Testphase: Zähler, Versprechen an den Ökolöwen, Kaffee (Daria, 23.10.2026) ----------
+// Als Testperson zählt, wer die Umfrage in der App abgeschickt hat (Funktion `tester_count`, Migration 20261023000100).
+// Ziel und Betrag stehen in scripts/download-site.config.json (`testerGoal`, `donationEuro`, `supportUrl`).
+const goal = config.testerGoal ?? 20;
+const donation = config.donationEuro ?? 100;
+const testen = `<section class="testen" id="testen" aria-labelledby="testen-titel">
+  <p class="testen-kicker">Testphase</p>
+  <h2 id="testen-titel">${goal} Leute testen, der Ökolöwe bekommt ${donation} €.</h2>
+  <p>Teste Kiez Coins und beantworte danach die fünf Fragen in der App. Sobald ${goal} Leute dabei waren, spende ich ${donation} € an den Ökolöwen – Umweltbund Leipzig.</p>
+  <div class="zaehler" aria-live="polite"><b id="tester-zahl">0</b><span>von ${goal} haben getestet</span></div>
+  <div class="balken" id="tester-balken" role="progressbar" aria-label="Testpersonen" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="0"><span></span></div>
+  <div class="testen-wege">
+    <a class="button" href="#download">Jetzt testen</a>
+    ${config.supportUrl ? `<a class="button button-zweit" href="${esc(config.supportUrl)}" target="_blank" rel="noopener">Spendier mir einen Kaffee</a>` : ''}
+  </div>
+  ${config.supportUrl ? `<p class="klein">Der Kaffee geht an mich und hilft, Kiez Coins weiterzubauen. Die ${donation} € an den Ökolöwen zahle ich unabhängig davon.</p>` : ''}
+</section>`;
 
 const leute = [
   { figur: figuren.muetze, text: 'Besser als Instagram' },
@@ -184,6 +202,7 @@ ${filterDefs}
 </header>
 
 <main>
+${testen}
 <section class="hero" id="prototyp-bereich">
   <div class="hero-text">
     <h1>Kleine Challenges für Deinen Kiez.</h1>
@@ -225,16 +244,22 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
   <div class="wrap">
     <h2 id="download-titel">So installierst Du die Testversion.</h2>
     <p>Kiez Coins ist in der Testphase. Android lädt die App mit Einladungscode, das iPhone nutzt die Web-App.</p>
+    <div class="look-wahl" role="radiogroup" aria-label="Look der App">
+      <span class="look-text">Look</span>
+      <button type="button" role="radio" aria-checked="true" data-look="nachtschicht">Nachtschicht <small>dunkel</small></button>
+      <button type="button" role="radio" aria-checked="false" data-look="insta">Insta <small>hell</small></button>
+    </div>
     <div class="karten">
       <div class="card" id="android">
         <h3>Android</h3>
         <form method="post" action="${esc(config.functionUrl)}">
           <label for="passwort">Einladungscode</label>
           <input id="passwort" name="passwort" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+          <input type="hidden" name="look" value="nachtschicht" data-look-feld>
           <p class="error" id="fehler" hidden></p>
           <button type="submit">App herunterladen</button>
         </form>
-        <a class="button button-zweit" href="app/">Direkt im Browser anmelden und ausprobieren</a>
+        <a class="button button-zweit" href="app/" data-app-link>Direkt im Browser anmelden und ausprobieren</a>
         <ol class="steps">
           <li>Einladungscode eingeben und „App herunterladen“ tippen.</li>
           <li>Die Datei <em>kiez-coins.apk</em> öffnen, wenn der Download fertig ist.</li>
@@ -271,6 +296,39 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
 <script src="prototyp/daten.js?v=${version(datenJs)}"></script>
 <script src="prototyp/app.js?v=${version(appJs)}"></script>
 <script>
+  // Look für Download und Web-App: Nachtschicht oder Insta. ?look=insta stellt Insta vorab ein (Daria, 23.10.2026).
+  (function () {
+    var wahl = document.querySelectorAll('[data-look]');
+    function setze(l) {
+      wahl.forEach(function (b) { b.setAttribute('aria-checked', String(b.dataset.look === l)); });
+      document.querySelectorAll('[data-look-feld]').forEach(function (i) { i.value = l; });
+      document.querySelectorAll('[data-app-link]').forEach(function (a) {
+        var basis = a.getAttribute('href').split('?')[0];
+        a.setAttribute('href', l === 'insta' ? basis + '?look=insta' : basis);
+      });
+    }
+    wahl.forEach(function (b) { b.addEventListener('click', function () { setze(b.dataset.look); }); });
+    setze(new URLSearchParams(location.search).get('look') === 'insta' ? 'insta' : 'nachtschicht');
+  })();
+  // Zähler der Testphase
+  (function () {
+    var ziel = ${goal};
+    fetch(${JSON.stringify(config.supabaseUrl + '/rest/v1/rpc/tester_count')}, {
+      method: 'POST',
+      headers: { apikey: ${JSON.stringify(config.publishableKey)}, 'Content-Type': 'application/json' },
+      body: '{}',
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (n) {
+        if (typeof n !== 'number') return;
+        document.getElementById('tester-zahl').textContent = n;
+        var b = document.getElementById('tester-balken');
+        b.setAttribute('aria-valuenow', String(Math.min(n, ziel)));
+        b.firstElementChild.style.width = Math.min(100, (n / ziel) * 100) + '%';
+        if (n >= ziel) document.getElementById('testen').classList.add('is-geschafft');
+      })
+      .catch(function () {});
+  })();
   // Fehler vom Download zeigen
   var f = new URLSearchParams(location.search).get('fehler');
   var t = { passwort: 'Der Einladungscode stimmt nicht.', datei: 'Die App-Datei fehlt gerade. Versuch es später noch mal.', technik: 'Der Download ist gerade nicht eingerichtet.' }[f];
@@ -340,16 +398,22 @@ const einladung = `<!doctype html>
 <section class="download einladung" id="download" aria-labelledby="einladung-titel">
   <h2 id="einladung-titel">Du bist eingeladen.</h2>
   <p>Kiez Coins ist in der Testphase. Dein Einladungscode steckt schon im Link, Du musst nichts eintippen.</p>
+  <div class="look-wahl" role="radiogroup" aria-label="Look der App">
+      <span class="look-text">Look</span>
+      <button type="button" role="radio" aria-checked="true" data-look="nachtschicht">Nachtschicht <small>dunkel</small></button>
+      <button type="button" role="radio" aria-checked="false" data-look="insta">Insta <small>hell</small></button>
+    </div>
   <p class="error" id="ohne-code" hidden>In diesem Link fehlt der Einladungscode. Frag bei der Person nach, die ihn Dir geschickt hat.</p>
   <div class="karten">
     <div class="card" id="android">
       <h3>Android</h3>
       <form method="post" action="${esc(config.functionUrl)}">
         <input type="hidden" name="passwort" id="code">
+        <input type="hidden" name="look" value="nachtschicht" data-look-feld>
         <p class="error" id="fehler" hidden></p>
         <button type="submit">App herunterladen</button>
       </form>
-      <a class="button button-zweit" href="/app/">Direkt im Browser anmelden und ausprobieren</a>
+      <a class="button button-zweit" href="/app/" data-app-link>Direkt im Browser anmelden und ausprobieren</a>
       <ol class="steps">
         <li>„App herunterladen“ tippen.</li>
         <li>Die Datei <em>kiez-coins.apk</em> öffnen, wenn der Download fertig ist.</li>
@@ -368,6 +432,20 @@ const einladung = `<!doctype html>
 </main>
 </div>
 <script>
+  // Look für Download und Web-App: Nachtschicht oder Insta. ?look=insta stellt Insta vorab ein (Daria, 23.10.2026).
+  (function () {
+    var wahl = document.querySelectorAll('[data-look]');
+    function setze(l) {
+      wahl.forEach(function (b) { b.setAttribute('aria-checked', String(b.dataset.look === l)); });
+      document.querySelectorAll('[data-look-feld]').forEach(function (i) { i.value = l; });
+      document.querySelectorAll('[data-app-link]').forEach(function (a) {
+        var basis = a.getAttribute('href').split('?')[0];
+        a.setAttribute('href', l === 'insta' ? basis + '?look=insta' : basis);
+      });
+    }
+    wahl.forEach(function (b) { b.addEventListener('click', function () { setze(b.dataset.look); }); });
+    setze(new URLSearchParams(location.search).get('look') === 'insta' ? 'insta' : 'nachtschicht');
+  })();
   // Code aus /einladung/<code>, ersatzweise ?code=… oder #…
   var teile = location.pathname.split('/').filter(Boolean);
   var code = teile[0] === 'einladung' && teile[1] ? decodeURIComponent(teile[1]) : '';

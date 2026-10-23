@@ -6,6 +6,7 @@
 //   DOWNLOAD_PASSWORD  Passwort für die Download-Seite (Pflicht)
 //   DOWNLOAD_PAGE      Adresse der Download-Seite, z. B. https://kiezcoins.de/ (für den Rückweg bei falschem Passwort)
 //   APK_PATH           optional, Datei im Bucket `downloads`, Standard: kiez-coins.apk
+//   APK_PATH_INSTA     optional, APK im Insta-Look, Standard: kiez-coins-insta.apk (Formularfeld `look=insta`)
 // Ohne Secret gilt Tabelle `download_settings`: Passwort-Hash (SHA-256, hex), Adresse der Download-Seite
 // und APK-Adresse als Ausweichweg, wenn im Bucket keine Datei liegt.
 // SUPABASE_URL und SUPABASE_SERVICE_ROLE_KEY stellt Supabase selbst bereit.
@@ -61,9 +62,11 @@ Deno.serve(async (req) => {
   if (!expected && !settings?.password_sha256) return back('technik');
 
   let given = '';
+  let look = 'nachtschicht';
   try {
     const form = await req.formData();
     given = String(form.get('passwort') ?? '');
+    look = String(form.get('look') ?? 'nachtschicht');
   } catch {
     return back('passwort');
   }
@@ -76,9 +79,10 @@ Deno.serve(async (req) => {
   }
 
   const path = Deno.env.get('APK_PATH') ?? 'kiez-coins.apk';
-  const { data, error } = await supabase.storage
-    .from(BUCKET)
-    .createSignedUrl(path, LINK_SECONDS, { download: 'kiez-coins.apk' });
+  const sign = (file: string) => supabase.storage.from(BUCKET).createSignedUrl(file, LINK_SECONDS, { download: file });
+  // Insta-Look: eigene APK. Fehlt sie im Bucket, gibt es die normale APK (der Look lässt sich in der App umstellen).
+  let { data, error } = look === 'insta' ? await sign(Deno.env.get('APK_PATH_INSTA') ?? 'kiez-coins-insta.apk') : await sign(path);
+  if (look === 'insta' && (error || !data?.signedUrl)) ({ data, error } = await sign(path));
   if (error || !data?.signedUrl) return settings?.apk_url ? redirect(settings.apk_url) : back('datei');
 
   return redirect(data.signedUrl);

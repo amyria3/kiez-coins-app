@@ -438,3 +438,29 @@ footer a { color: var(--muted); }
   font: 500 16px/1 Inter, sans-serif; cursor: pointer; }
 .kater-knoepfe .kater-hallo { background: var(--purple); color: var(--bg); border-color: transparent; }
 @media (prefers-reduced-motion: reduce) { .kater-figur { animation: none; } }
+
+/* Testphase: Zähler, Versprechen an den Ökolöwen, Kaffee (Daria, 23.10.2026) */
+.testen { background: var(--surface); border-radius: 28px; padding: 32px; margin: 8px 0 48px; }
+.testen-kicker { font: 500 13px/1 Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--green); margin: 0 0 14px; }
+.testen h2 { font: 600 clamp(28px, 4vw, 42px)/1.05 var(--display); letter-spacing: -.025em; margin: 0 0 12px; max-width: 20ch; }
+.testen > p { color: var(--muted); margin: 0 0 24px; max-width: 52ch; }
+.zaehler { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+.zaehler b { font: 600 56px/1 var(--display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.zaehler span { color: var(--muted); }
+.balken { height: 10px; border-radius: 999px; background: var(--bg); overflow: hidden; margin-bottom: 24px; }
+.balken span { display: block; height: 100%; width: 0; border-radius: 999px; background: var(--green); transition: width 900ms var(--barrier); }
+.testen-wege { display: flex; flex-wrap: wrap; gap: 10px; }
+.testen .button { display: inline-block; text-align: center; text-decoration: none; font: 500 16px/1 Inter, sans-serif; color: var(--bg);
+  background: var(--text); border: 1px solid transparent; border-radius: 999px; padding: 16px 24px; }
+.testen .button-zweit { background: none; color: var(--text); border-color: var(--line); font-weight: 400; }
+.testen .button-zweit:hover { border-color: var(--muted); }
+.testen .klein { color: var(--muted); margin: 14px 0 0; }
+.testen.is-geschafft .testen-kicker::after { content: ' · Ziel erreicht'; }
+@media (max-width: 640px) { .testen { padding: 22px; } .testen .button { flex: 1 1 100%; } }
+
+/* Look der App vorab wählen */
+.look-wahl { display: inline-flex; align-items: center; gap: 4px; padding: 4px; border-radius: 999px; border: 1px solid var(--line); margin: -16px 0 24px; }
+.look-text { color: var(--muted); font-size: 14px; padding: 0 10px 0 12px; }
+.look-wahl button { border: 0; background: none; color: var(--muted); border-radius: 999px; padding: 10px 16px; cursor: pointer; font: 500 15px/1 Inter, sans-serif; }
+.look-wahl button small { font-weight: 300; font-size: 13px; margin-left: 4px; }
+.look-wahl button[aria-checked="true"] { background: var(--text); color: var(--bg); }

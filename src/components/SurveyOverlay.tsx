@@ -17,7 +17,7 @@ import {
   type SurveySnooze,
 } from '../data/survey';
 import { t } from '../data/texts';
-import { color, radius, space, stroke, text } from '../theme/tokens';
+import { color, radius, space, stroke, text, scheme } from '../theme/tokens';
 import { Button } from './Button';
 import { CheckOption, RadioOption } from './Form';
 import { Text } from './T';
@@ -98,7 +98,7 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={() => snooze('tomorrow')}>
-      <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} />
+      <BlurView intensity={40} tint={scheme} style={StyleSheet.absoluteFill} />
       <View style={[styles.backdrop, { paddingTop: insets.top + space[16], paddingBottom: insets.bottom + space[16] }]}>
         <View style={styles.card} accessibilityViewIsModal>
           {done ? (
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: space[16],
     paddingHorizontal: space[16],
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    backgroundColor: color.bg.scrim,
   },
   card: {
     width: '100%',

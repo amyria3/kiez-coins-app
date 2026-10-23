@@ -14,7 +14,12 @@
         "buildType": "apk"
       }
     },
-    "production": {
+    "production": {},
+    "preview-insta": {
+      "extends": "preview",
+      "env": {
+        "EXPO_PUBLIC_LOOK": "insta"
+      }
     }
   },
   "submit": {
