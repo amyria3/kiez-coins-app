@@ -42,7 +42,9 @@ export const PLANE = `<path d="M5 9.2 18.6 4.2c1.6-.6 2.1-.1 1.5 1.5l-4.7 13.1c-
 export const CAMERA_PLUS = `<rect x="3" y="6.5" width="18" height="13.5" rx="4.5"/><path d="M9 6.5l.6-1.2c.4-.8 1.1-1.3 2-1.3h.8c.9 0 1.6.5 2 1.3l.6 1.2"/><circle cx="12" cy="13.2" r="3.4"/>`;
 /** Haus mit runden Ecken */
 export const HOME = `<path d="M4.5 10.6c0-.9.4-1.7 1.1-2.2l5-3.9a2.3 2.3 0 0 1 2.8 0l5 3.9c.7.5 1.1 1.3 1.1 2.2v7.6a2.3 2.3 0 0 1-2.3 2.3h-2.4v-4.7a2.8 2.8 0 0 0-5.6 0v4.7H6.8a2.3 2.3 0 0 1-2.3-2.3z"/>`;
-/** Zwei Personen: Gruppen und Freund:innen */
+/** Drei Striche: Menü */
+export const BURGER = `<path d="M4 6.6h16M4 12h16M4 17.4h16"/>`;
+/** Zwei Personen: Feed und Gruppen */
 export const PEOPLE = `<circle cx="9" cy="8.3" r="3.4"/><path d="M3 19.6c.5-3.2 3-5.2 6-5.2s5.5 2 6 5.2"/><path d="M15.4 5.2a3.3 3.3 0 0 1 0 6.3M17.6 14.6c1.8.8 3 2.5 3.4 5"/>`;
 
 export const instagramSvgs: Partial<Record<IconName, Svg>> = {
@@ -55,7 +57,7 @@ export const instagramSvgs: Partial<Record<IconName, Svg>> = {
   camera: icon(() => CAMERA_PLUS),
   // Feed: Haus
   'map-pin': icon(() => HOME),
-  burger: icon(() => `<path d="M4 6.6h16M4 12h16M4 17.4h16"/>`),
+  burger: icon(() => BURGER),
   // Chats: Papierflieger wie Instagrams Nachrichten
   message: icon(() => PLANE),
   // Zahnrad mit acht runden Zähnen, als glatte Kurve gezeichnet

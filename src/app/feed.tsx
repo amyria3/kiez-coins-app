@@ -127,6 +127,8 @@ export default function FeedScreen() {
     nudgeCrystals(y - lastY.current);
     if (y > 8 && y > lastY.current) collapse();
     else if (settled && ((y <= 0 && maxY.current > 120) || (dragging.current && y < -48))) expand();
+    // Instagram-Look: Der Kopf trägt Herz und Chats und kommt wie bei Instagram bei jedem Zurückscrollen wieder
+    else if (isInstagram && settled && dragging.current && y < lastY.current - 6) expand();
     lastY.current = y;
   };
 
