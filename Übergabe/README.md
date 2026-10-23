@@ -21,15 +21,4 @@ Diese `README.md` bleibt immer liegen.
 
 ## Liegt gerade hier
 
-- `2026-10-20_migrationen.md`: Anleitung für die Migrationen (alle 6 ausgeführt, Eintrag in Documentation offen).
-- `2026-10-21_gruppen.md`: Gruppen mit Edensteinen umgesetzt, offene Punkte.
-- `2026-10-20_standort.md`: Standort-Erkennung, Kiez-Pflicht, offene Migration, Abwägung Standort bei Interaktion, später „nur verifizierte“ (Stand 20.10.2026).
-- `2026-10-20_code-login.md`: Anmeldung per Passwort oder E-Mail-Code, Zugangsdaten ändern, Mailversand über Brevo und kiezcoins.de (Stand 20.10.2026).
-- `2026-10-21_rechtliches.md`: Impressum, Datenschutz, Testbedingungen, Fotos beim Konto-Löschen, Migration 10, offene Angaben (Stand 21.10.2026).
-- `2026-10-21_web-app.md`: Web-App fürs iPhone unter kiezcoins.de/app, Unterschiede im Browser, Schritte für Daria (Stand 21.10.2026).
-- `2026-10-21_moderation.md`: Blockieren, Melden, Profil, Lob, Moderation, Community-Regeln, Migration `20261021000700_moderation` offen (Stand 21.10.2026).
-- `2026-10-22_rangliste-schalten.md`: Rangliste in den Gruppeneinstellungen ein- und ausschalten, Migration ausgeführt (Stand 22.10.2026).
-- `2026-10-21_texte-cms.md`: Texte-CMS für Buttons und Kater (Tabelle app_texts), Bedienung für Daria (Stand 21.10.2026).
-- `2026-10-21_todos-app.md`: Offene To-dos aus Darias App-Test zu Challenges, Design, Animationen, Nutzer*innen und Verlauf, noch nicht umgesetzt (Stand 21.10.2026).
-- `2026-10-21_mehrsprachigkeit.md`: Sprachen, t(), Übersetzungen, Rechts nach links
-- `2026-10-21_umfrage.md`: UX/UI-Umfrage als Overlay, Tabelle survey_answers, Migration `20261021001500_survey` ausgeführt (Stand 21.10.2026).
+Nichts. Alle Notizen bis 2026-10-23 sind in Documentation eingearbeitet.
