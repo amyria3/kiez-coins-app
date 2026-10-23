@@ -396,7 +396,7 @@ export default function ChallengeDetail() {
       moreImages={challenge.extraImages?.map((e) => e.photo)}
       imageLabel={challenge.title}
       onBackPress={() => router.back()}
-      onSharePress={() => Share.share({ message: t('{title} – Kiez Coins', { title: challenge.title }) })}
+      onSharePress={() => Share.share({ message: t('{title} – Kiez Coins', { title: challenge.title }) }).catch(() => {})}
       imageOverlay={acceptedByMe && challenge.operationName ? <OperationTag name={challenge.operationName} /> : undefined}
       actions={actions}
       summary={summary}
