@@ -4,6 +4,10 @@
 
 import type { TextStyle } from 'react-native';
 
+import { look } from './look';
+
+export { look };
+
 // Primitives
 export const palette = {
   black: '#1F2123',
@@ -18,12 +22,24 @@ export const palette = {
 } as const;
 
 // Theme (semantische Farben, nur diese in Komponenten verwenden)
-export const color = {
+// Zwei Looks: „Nachtschicht“ (dunkel) und „Insta“ (hell, wie Instagram). Der Look steht beim Start fest (theme/look).
+type ThemeColors = {
+  bg: { screen: string; surface: string; glass: string; sheet: string; scrim: string };
+  line: { hairline: string };
+  text: { primary: string; secondary: string; onPhoto: string };
+  accent: { primary: string; affection: string; confirmation: string; signal: string; error: string };
+};
+
+const nachtschicht: ThemeColors = {
   bg: {
     screen: palette.black,
     surface: palette.graphite,
     /** Halbtransparente Fläche über Fotos (Bounty-Chip, Info-Leiste, Tab-Leiste) */
     glass: 'rgba(31, 33, 35, 0.82)',
+    /** Leichte Glasfläche, z. B. das Blatt im Challenge-Detail */
+    sheet: 'rgba(31, 33, 35, 0.45)',
+    /** Abdunklung hinter Overlays */
+    scrim: 'rgba(0, 0, 0, 0.35)',
   },
   /** Haarlinie auf dunklem Grund */
   line: {
@@ -32,6 +48,8 @@ export const color = {
   text: {
     primary: palette.white,
     secondary: palette.grey,
+    /** Schrift auf Fotos, in beiden Looks hell */
+    onPhoto: palette.white,
   },
   accent: {
     primary: palette.purple,
@@ -40,7 +58,38 @@ export const color = {
     signal: palette.orange,
     error: palette.red,
   },
-} as const;
+};
+
+/** Farben angelehnt an Instagram: weißer Grund, schwarze Schrift, Blau für Aktionen, Rot fürs Herz */
+const insta: ThemeColors = {
+  bg: {
+    screen: '#FFFFFF',
+    surface: '#EFEFEF',
+    glass: 'rgba(255, 255, 255, 0.96)',
+    sheet: 'rgba(255, 255, 255, 0.78)',
+    scrim: 'rgba(0, 0, 0, 0.4)',
+  },
+  line: {
+    hairline: '#DBDBDB',
+  },
+  text: {
+    primary: '#000000',
+    secondary: '#737373',
+    onPhoto: '#FFFFFF',
+  },
+  accent: {
+    primary: '#0095F6',
+    affection: '#FF3040',
+    confirmation: '#2FA84F',
+    signal: '#E1306C',
+    error: '#ED4956',
+  },
+};
+
+export const isInsta = look === 'insta';
+export const color = isInsta ? insta : nachtschicht;
+/** Für BlurView und Systemglas */
+export const scheme: 'dark' | 'light' = isInsta ? 'light' : 'dark';
 
 // Spacing
 export const space = {
@@ -63,7 +112,8 @@ export const radius = {
   md: 12,
   lg: 18,
   xl: 20,
-  card: 28,
+  /** Insta: Fotos ohne Rundung über die ganze Breite */
+  card: look === 'insta' ? 0 : 28,
   sheet: 32,
   full: 999,
 } as const;

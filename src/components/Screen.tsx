@@ -6,7 +6,7 @@ import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { color, motion, radius, size, space, text } from '../theme/tokens';
+import { color, motion, radius, size, space, text, scheme } from '../theme/tokens';
 import { useAppDimensions } from '../theme/layout';
 import { ActionBar } from './ActionBar';
 import { Cat, type CatMood } from './icons/Brand';
@@ -259,7 +259,7 @@ export function HeroScreen({
           </Pressable>
           <View style={[styles.sheet, collapsed && styles.sheetGlass, glassOffset]}>
             {collapsed ? (
-              <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} />
+              <BlurView intensity={40} tint={scheme} style={StyleSheet.absoluteFill} />
             ) : null}
             <View style={styles.sheetHead} onLayout={(e) => setHeadHeight(e.nativeEvent.layout.height)}>
             <Pressable
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
   },
   sheetHead: { gap: space[12] },
   // Eingeklappt: durchscheinend wie Glas, das Foto liegt darunter
-  sheetGlass: { backgroundColor: 'rgba(31,33,35,0.45)', overflow: 'hidden' },
+  sheetGlass: { backgroundColor: color.bg.sheet, overflow: 'hidden' },
   grabberArea: { alignSelf: 'center', paddingHorizontal: space[24], paddingVertical: space[6] },
   grabber: { width: 40, height: 5, borderRadius: 3, backgroundColor: color.line.hairline },
   more: { alignSelf: 'flex-start', minHeight: size.touchTarget, justifyContent: 'center' },

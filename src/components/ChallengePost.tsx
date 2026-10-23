@@ -7,7 +7,7 @@ import { BlurView } from 'expo-blur';
 
 import { formatRelative, formatRemainingShort } from '../data/format';
 import type { Challenge, User } from '../data/types';
-import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isInsta, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BountyBadge } from './Badges';
 import { LivingCrystal } from './icons/Brand';
@@ -34,7 +34,12 @@ type ChallengePostProps = {
  * Figma „ChallengePost“ (Type=Individual|Wave, Completed?), Upgrade „Nachtschicht“:
  * Foto als Karte, Bounty oben rechts, Titel und Autor auf einer Glasleiste unten im Foto.
  */
-export const ChallengePost = memo(function ChallengePost({
+export const ChallengePost = memo(function ChallengePost(props: ChallengePostProps) {
+  return isInsta ? <InstaPost {...props} /> : <NightPost {...props} />;
+});
+
+/** Look „Nachtschicht“ */
+function NightPost({
   challenge,
   author,
   distance,
@@ -222,7 +227,121 @@ export const ChallengePost = memo(function ChallengePost({
       ) : null}
     </View>
   );
-});
+}
+
+/**
+ * Look „Insta“ (Daria, 23.10.2026): Kopfzeile mit Bild, Name und Kiez über dem Foto, Foto quadratisch über die
+ * ganze Breite, darunter Herz, Sprechblase, Teilen und der Text mit fettem Titel vorn. Ein Tipp aufs Foto öffnet den Post.
+ */
+function InstaPost({ challenge, author, distance, onPress, onCommentPress, onLike, onManage }: ChallengePostProps) {
+  const isWave = challenge.type === 'wave';
+  const completed = COMPLETED.has(challenge.status);
+  const closed = challenge.status === 'closed';
+  const active = !closed && !completed;
+  const image = isWave && completed && challenge.imageAfter ? challenge.imageAfter : challenge.image;
+  const state = closed ? 'geschlossen' : completed ? 'erledigt' : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
+  const hideName = useHideName(author);
+  const router = useRouter();
+  const place = [challenge.kiez?.split(',')[0] ?? challenge.location, distance].filter(Boolean).join(' · ');
+  const commentCount = challenge.comments.length;
+
+  return (
+    <View style={insta.post}>
+      <View style={insta.head}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('Profil von {name}', { name: author.name })}
+          onPress={() => router.push({ pathname: '/user/[id]', params: { id: author.id, challengeId: challenge.id } })}
+          style={({ pressed }) => [insta.headWho, pressed && styles.pressed]}
+        >
+          <Avatar user={author} diameter={32} />
+          <View style={styles.whoTexts}>
+            <Text style={[insta.name, hideName ? hiddenText : null]} numberOfLines={1}>
+              {author.name}
+            </Text>
+            {place ? (
+              <Text style={insta.place} numberOfLines={1}>
+                {place}
+              </Text>
+            ) : null}
+          </View>
+        </Pressable>
+        <View style={insta.headRight}>
+          {!isWave && challenge.bountyAmount ? <BountyBadge amount={challenge.bountyAmount} small /> : null}
+          {challenge.edensteine ? (
+            <View style={styles.eden} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine: challenge.edensteine })}>
+              {active ? <LivingCrystal height={26} seed={challenge.id} /> : null}
+              <Text style={[styles.edenText, active ? null : styles.edenTextDone]}>{challenge.edensteine}</Text>
+            </View>
+          ) : null}
+          {onManage ? (
+            <IconButton icon="settings" iconSize={size.icon} accessibilityLabel={t('Deine Challenges verwalten')} onPress={onManage} />
+          ) : null}
+        </View>
+      </View>
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={t('{title} öffnen', { title: challenge.title })}
+        style={[insta.photo, !image && insta.noPhoto]}
+      >
+        {image ? (
+          <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" />
+        ) : (
+          <Text style={insta.noPhotoTitle} numberOfLines={3}>
+            {challenge.title}
+          </Text>
+        )}
+        {closed ? (
+          <View style={[styles.waveTag, styles.closedTag]}>
+            <Text style={styles.closedText}>Geschlossen</Text>
+          </View>
+        ) : null}
+        {isWave ? (
+          <View style={styles.waveTag}>
+            <Text style={styles.waveText}>Wave</Text>
+          </View>
+        ) : null}
+      </Pressable>
+      <View style={insta.actions}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ selected: !!challenge.likedByMe }}
+          accessibilityLabel={challenge.likeCount ? t('Gefällt mir, {likeCount} Likes', { likeCount: challenge.likeCount }) : t('Gefällt mir')}
+          onPress={onLike}
+          style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
+        >
+          <Icon name="heart" size={22} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
+          {challenge.likeCount ? <Text style={insta.count}>{challenge.likeCount}</Text> : null}
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={commentCount ? t('Kommentieren, {commentCount} Kommentare', { commentCount }) : t('Kommentieren')}
+          onPress={onCommentPress ?? onPress}
+          style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
+        >
+          <Icon name="comment" size={22} color={color.text.primary} />
+          {commentCount > 0 ? <Text style={insta.count}>{commentCount}</Text> : null}
+        </Pressable>
+        <IconButton
+          icon="send"
+          iconSize={22}
+          accessibilityLabel={t('Teilen')}
+          onPress={() => Share.share({ message: t('{title} – Kiez Coins', { title: challenge.title }) })}
+        />
+      </View>
+      <Pressable onPress={onPress} style={insta.caption}>
+        <Text style={insta.captionText} numberOfLines={3}>
+          {image ? <Text style={insta.captionTitle}>{challenge.title} </Text> : null}
+          {challenge.text ? <WithMentions value={challenge.text} /> : null}
+        </Text>
+        <Text style={insta.time}>
+          {formatRelative(challenge.createdAt)} · {state}
+        </Text>
+      </Pressable>
+    </View>
+  );
+}
 
 function comingSoon() {
   Alert.alert('Kommt bald', 'Geschenke folgen nach dem MVP.');
@@ -245,6 +364,31 @@ function WithMentions({ value }: { value: string }) {
     </>
   );
 }
+
+const insta = StyleSheet.create({
+  post: { paddingBottom: space[8] },
+  head: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: space[12],
+    paddingVertical: space[8],
+    gap: space[8],
+  },
+  headWho: { flexDirection: 'row', alignItems: 'center', gap: space[8], flexShrink: 1 },
+  headRight: { flexDirection: 'row', alignItems: 'center', gap: space[8], flexShrink: 0 },
+  name: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18, color: color.text.primary },
+  place: { ...text.caption, fontSize: 12, color: color.text.primary },
+  photo: { width: '100%', aspectRatio: 1, backgroundColor: color.bg.surface, overflow: 'hidden' },
+  noPhoto: { aspectRatio: undefined, height: 180, justifyContent: 'center', paddingHorizontal: space[24] },
+  noPhotoTitle: { ...text.headline, color: color.text.primary, textAlign: 'center' },
+  actions: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: space[6] },
+  count: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] },
+  caption: { paddingHorizontal: space[12], gap: space[4] },
+  captionText: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.primary },
+  captionTitle: { fontFamily: font.semiBold },
+  time: { ...text.caption, color: color.text.secondary },
+});
 
 const styles = StyleSheet.create({
   post: { paddingHorizontal: space[16] },
@@ -338,8 +482,8 @@ const styles = StyleSheet.create({
   whoTexts: { flexShrink: 1 },
   whoRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   // Schatten statt Fläche, damit Name und Zeit auf jedem Foto lesbar bleiben
-  whoName: { ...text.cardTitle, fontSize: 16, lineHeight: 20, color: color.text.primary, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
-  whoMeta: { ...text.caption, fontSize: 12, color: color.text.primary, opacity: 0.85, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
+  whoName: { ...text.cardTitle, fontSize: 16, lineHeight: 20, color: color.text.onPhoto, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
+  whoMeta: { ...text.caption, fontSize: 12, color: color.text.onPhoto, opacity: 0.85, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
   title: { ...text.cardTitle, color: color.text.primary },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   meta: { ...text.caption, fontSize: 13, color: color.text.secondary, flex: 1 },

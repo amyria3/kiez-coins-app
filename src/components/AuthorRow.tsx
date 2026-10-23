@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 
 import { useStore } from '../data/store';
 import type { User } from '../data/types';
-import { color, font, radius, size, space, text } from '../theme/tokens';
+import { color, font, radius, size, space, text, isInsta } from '../theme/tokens';
 import { Icon } from './icons/Icon';
 import { t } from '../data/texts';
 
@@ -23,7 +23,7 @@ export function useHideName(user: Pick<User, 'id'>): boolean {
 /** Verdeckter Text: nur ein unscharfer Schatten der Buchstaben bleibt sichtbar. */
 export const hiddenText = {
   color: 'transparent',
-  textShadowColor: 'rgba(240, 240, 240, 0.85)',
+  textShadowColor: isInsta ? 'rgba(0, 0, 0, 0.6)' : 'rgba(240, 240, 240, 0.85)',
   textShadowOffset: { width: 0, height: 0 },
   textShadowRadius: 10,
 } as const;

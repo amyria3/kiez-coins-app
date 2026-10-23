@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#1F2123">
 <title>Einladung – Kiez Coins</title>
 <link rel="icon" href="/favicon.png">
-<link rel="stylesheet" href="/seite.css?v=6d226ff8">
+<link rel="stylesheet" href="/seite.css?v=d6c6d72b">
 </head>
 <body>
 <div class="wrap">
@@ -19,16 +19,22 @@
 <section class="download einladung" id="download" aria-labelledby="einladung-titel">
   <h2 id="einladung-titel">Du bist eingeladen.</h2>
   <p>Kiez Coins ist in der Testphase. Dein Einladungscode steckt schon im Link, Du musst nichts eintippen.</p>
+  <div class="look-wahl" role="radiogroup" aria-label="Look der App">
+      <span class="look-text">Look</span>
+      <button type="button" role="radio" aria-checked="true" data-look="nachtschicht">Nachtschicht <small>dunkel</small></button>
+      <button type="button" role="radio" aria-checked="false" data-look="insta">Insta <small>hell</small></button>
+    </div>
   <p class="error" id="ohne-code" hidden>In diesem Link fehlt der Einladungscode. Frag bei der Person nach, die ihn Dir geschickt hat.</p>
   <div class="karten">
     <div class="card" id="android">
       <h3>Android</h3>
       <form method="post" action="https://aqxzxpxrshizlaqyjplw.supabase.co/functions/v1/download">
         <input type="hidden" name="passwort" id="code">
+        <input type="hidden" name="look" value="nachtschicht" data-look-feld>
         <p class="error" id="fehler" hidden></p>
         <button type="submit">App herunterladen</button>
       </form>
-      <a class="button button-zweit" href="/app/">Direkt im Browser anmelden und ausprobieren</a>
+      <a class="button button-zweit" href="/app/" data-app-link>Direkt im Browser anmelden und ausprobieren</a>
       <ol class="steps">
         <li>„App herunterladen“ tippen.</li>
         <li>Die Datei <em>kiez-coins.apk</em> öffnen, wenn der Download fertig ist.</li>
@@ -38,7 +44,7 @@
     <div class="card" id="iphone">
   <h3>iPhone</h3>
   <p>Auf dem iPhone läuft Kiez Coins als Web-App in Safari. Auf dem Home-Bildschirm startet sie wie eine App.</p>
-  <a class="button" href="/app/">Kiez Coins öffnen</a>
+  <a class="button" href="/app/" data-app-link>Kiez Coins öffnen</a>
   <ol class="steps">
     <li>Diese Seite in <strong>Safari</strong> öffnen und „Kiez Coins öffnen“ tippen.</li>
     <li>Unten in der Leiste auf das Teilen-Symbol tippen (Quadrat mit Pfeil nach oben).</li>
@@ -58,6 +64,20 @@
 </main>
 </div>
 <script>
+  // Look für Download und Web-App: Nachtschicht oder Insta. ?look=insta stellt Insta vorab ein (Daria, 23.10.2026).
+  (function () {
+    var wahl = document.querySelectorAll('[data-look]');
+    function setze(l) {
+      wahl.forEach(function (b) { b.setAttribute('aria-checked', String(b.dataset.look === l)); });
+      document.querySelectorAll('[data-look-feld]').forEach(function (i) { i.value = l; });
+      document.querySelectorAll('[data-app-link]').forEach(function (a) {
+        var basis = a.getAttribute('href').split('?')[0];
+        a.setAttribute('href', l === 'insta' ? basis + '?look=insta' : basis);
+      });
+    }
+    wahl.forEach(function (b) { b.addEventListener('click', function () { setze(b.dataset.look); }); });
+    setze(new URLSearchParams(location.search).get('look') === 'insta' ? 'insta' : 'nachtschicht');
+  })();
   // Code aus /einladung/<code>, ersatzweise ?code=… oder #…
   var teile = location.pathname.split('/').filter(Boolean);
   var code = teile[0] === 'einladung' && teile[1] ? decodeURIComponent(teile[1]) : '';

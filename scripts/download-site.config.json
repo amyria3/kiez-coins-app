@@ -2,5 +2,8 @@
   "functionUrl": "https://aqxzxpxrshizlaqyjplw.supabase.co/functions/v1/download",
   "testflightUrl": "",
   "supabaseUrl": "https://aqxzxpxrshizlaqyjplw.supabase.co",
-  "publishableKey": "sb_publishable_WqrL7Y7Wm0l9cq4tHQpjAQ_iooAaNe0"
+  "publishableKey": "sb_publishable_WqrL7Y7Wm0l9cq4tHQpjAQ_iooAaNe0",
+  "testerGoal": 20,
+  "donationEuro": 100,
+  "supportUrl": ""
 }

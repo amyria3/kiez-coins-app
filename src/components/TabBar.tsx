@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { color, radius, size, space, stroke } from '../theme/tokens';
+import { color, radius, size, space, stroke, isInsta } from '../theme/tokens';
 import { Icon } from './icons/Icon';
 import { CrownIcon } from './icons/Brand';
 import { t } from '../data/texts';
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   // Aktive Seite: dezente helle Fläche, damit der Kater nicht auf Weiß liegt
-  itemActive: { backgroundColor: 'rgba(240, 240, 240, 0.14)' },
+  itemActive: { backgroundColor: isInsta ? 'rgba(0, 0, 0, 0.06)' : 'rgba(240, 240, 240, 0.14)' },
   camera: {
     position: 'absolute',
     right: space[16],
