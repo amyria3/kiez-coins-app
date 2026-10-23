@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Alert, Animated, Easing, StyleSheet, View } from 'react-native';
 import { Text } from '../../components/T';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
 import { KaterBubble } from '../../components/Content';
@@ -30,18 +30,18 @@ type Mode = 'choose' | 'code' | 'password';
 
 /**
  * Route `onboarding/email`. Figma: `onboarding/email`.
- * Zuerst nur die E-Mail. Darunter „Mit Code registrieren“ (bzw. „Mit Code anmelden“) und als zweite Wahl
- * „Passwort festlegen“ (bzw. „Mit Passwort anmelden“). Nach der Wahl gleiten die Buttons zur Seite,
- * die E-Mail rutscht hoch, und an ihrer Stelle erscheint das Feld für den Code oder das Passwort.
+ * Ein Weg für neue und bekannte Konten (Daria, 24.10.2026). Zuerst die E-Mail, darunter „Mit Code anmelden“
+ * und „Mit Passwort anmelden“. Nach der Wahl gleiten die Buttons zur Seite, die E-Mail rutscht hoch, und
+ * darunter erscheint das Feld für den Code oder das Passwort. Das Passwortfeld erscheint auch ohne E-Mail.
+ * Beim Passwort prüft die App: Konto mit diesem Passwort → anmelden, kein Konto → anlegen.
  * Code-Versand über Brevo als registration.noreply@kiezcoins.de.
  * Danach: bekanntes Konto mit fertigem Onboarding direkt in den Feed, sonst weiter zum Deckname.
  */
 export default function Email() {
   const router = useRouter();
-  const { existing } = useLocalSearchParams<{ existing?: string }>();
   const { width } = useAppDimensions();
   const { profile, dispatch } = useStore();
-  const { signUpWithPassword, signInWithPassword, sendCode, verifyCode } = useAuth();
+  const { signInOrUpWithPassword, sendCode, verifyCode } = useAuth();
   const [email, setEmail] = useState(profile.email);
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
@@ -117,8 +117,7 @@ export default function Email() {
     }
     setBusy(true);
     setEmailError(undefined);
-    // „Ich hab schon ein Konto“ legt kein neues Konto an.
-    const failure = await sendCode(address, !existing);
+    const failure = await sendCode(address, true);
     setBusy(false);
     if (failure) {
       setEmailError(failure);
@@ -129,10 +128,6 @@ export default function Email() {
   };
 
   const choosePassword = () => {
-    if (!emailValid) {
-      setEmailError('Diese E-Mail-Adresse klappt nicht. Prüf sie bitte noch mal.');
-      return;
-    }
     setEmailError(undefined);
     switchTo('password');
   };
@@ -150,9 +145,13 @@ export default function Email() {
   };
 
   const submitPassword = async () => {
+    if (!emailValid) {
+      setEmailError('Diese E-Mail-Adresse klappt nicht. Prüf sie bitte noch mal.');
+      return;
+    }
     setBusy(true);
     setError(undefined);
-    const failure = existing ? await signInWithPassword(address, password) : await signUpWithPassword(address, password);
+    const failure = await signInOrUpWithPassword(address, password);
     if (failure) {
       setBusy(false);
       setError(failure);
@@ -162,12 +161,12 @@ export default function Email() {
   };
 
   const resend = async () => {
-    const failure = await sendCode(address, !existing);
+    const failure = await sendCode(address, true);
     if (failure) setError(failure);
     else Alert.alert('Code neu gesendet', t('Schau in Dein Postfach: {address}', { address }));
   };
 
-  const passwordValid = password.length >= (existing ? 1 : MIN_PASSWORD);
+  const passwordValid = password.length > 0;
 
   const lift = away.interpolate({ inputRange: [0, 1], outputRange: [LIFT, 0] });
   const out = (direction: -1 | 1) => ({
@@ -182,9 +181,7 @@ export default function Email() {
   return (
     <SubScreen title="Anmelden" subtitle="Schritt 1 von 6" navigation="back" onLeadingPress={() => router.back()}>
       <KaterBubble>
-        {existing
-          ? 'Willkommen zurück an Bord! Deine Flaschenpost-Adresse, bitte.'
-          : 'Erst mal Deine Flaschenpost-Adresse. Dann schick ich Dir einen Code, oder Du legst ein Passwort fest.'}
+        Erst mal Deine Flaschenpost-Adresse. Dann schick ich Dir einen Code, oder Du gibst Dein Passwort ein.
       </KaterBubble>
       <Animated.View style={{ height: lift }} />
       <TextField
@@ -194,8 +191,8 @@ export default function Email() {
         onChangeText={(v) => {
           setEmail(v);
           setEmailError(undefined);
-          // Neue Adresse: zurück zur Wahl, der alte Code gilt nicht mehr
-          if (mode !== 'choose') switchTo('choose');
+          // Neue Adresse: Der alte Code gilt nicht mehr. Das Passwortfeld bleibt stehen.
+          if (mode === 'code') switchTo('choose');
         }}
         keyboardType="email-address"
         autoCapitalize="none"
@@ -203,21 +200,25 @@ export default function Email() {
         autoComplete="email"
         textContentType="emailAddress"
         autoFocus
-        onSubmitEditing={() => mode === 'choose' && !busy && requestCode()}
+        onSubmitEditing={() => {
+          if (busy) return;
+          if (mode === 'choose') requestCode();
+          else if (mode === 'password' && passwordValid) submitPassword();
+        }}
       />
 
       {mode === 'choose' ? (
         <View style={styles.choices}>
           <Animated.View style={out(-1)}>
             <Button busy={busy}
-              label={busy ? 'Wird gesendet …' : existing ? 'Mit Code anmelden' : 'Mit Code registrieren'}
+              label={busy ? 'Wird gesendet …' : 'Mit Code anmelden'}
               onPress={requestCode}
               disabled={busy}
             />
           </Animated.View>
           <Animated.View style={out(1)}>
             <Button
-              label={existing ? 'Mit Passwort anmelden' : 'Passwort festlegen'}
+              label="Mit Passwort anmelden"
               variant="secondary"
               onPress={choosePassword}
               disabled={busy}
@@ -253,7 +254,7 @@ export default function Email() {
           />
           <Button label="Code neu senden" variant="ghost" onPress={resend} disabled={busy} />
           <Button
-            label={existing ? 'Doch mit Passwort' : 'Stattdessen Passwort festlegen'}
+            label="Doch mit Passwort"
             variant="ghost"
             onPress={() => switchTo('password')}
             disabled={busy}
@@ -264,10 +265,10 @@ export default function Email() {
       {mode === 'password' ? (
         <Animated.View style={[styles.choices, enter]}>
           <TextField
-            label={existing ? 'Passwort' : 'Neues Passwort'}
+            label="Passwort"
             required
             nudge={pwField}
-            helperText={existing ? undefined : t('Mindestens {MIN_PASSWORD} Zeichen.', { MIN_PASSWORD })}
+            helperText={t('Neu hier? Dann legst Du es jetzt fest, mindestens {MIN_PASSWORD} Zeichen.', { MIN_PASSWORD })}
             error={error}
             value={password}
             onChangeText={(v) => {
@@ -280,17 +281,18 @@ export default function Email() {
             // Ohne „new-password“: Sonst legt iOS automatisch einen Passwort-Vorschlag über die Tastatur.
             autoComplete="current-password"
             textContentType="password"
-            autoFocus
+            // Ohne E-Mail bleibt der Fokus in der E-Mail.
+            autoFocus={emailValid}
             onSubmitEditing={() => passwordValid && !busy && submitPassword()}
           />
           <Button busy={busy}
-            label={busy ? (existing ? 'Wird geprüft …' : 'Wird angelegt …') : existing ? 'Anmelden' : 'Konto anlegen'}
+            label={busy ? 'Wird geprüft …' : 'Weiter'}
             onPress={submitPassword}
             disabled={!passwordValid || busy}
-            whyDisabled={() => !busy && pwField.nudge(existing ? 'Gib Dein Passwort ein.' : t('Mindestens {MIN_PASSWORD} Zeichen.', { MIN_PASSWORD }))}
+            whyDisabled={() => !busy && pwField.nudge('Gib Dein Passwort ein.')}
           />
           <Button
-            label={existing ? 'Passwort vergessen? Code per Mail' : 'Stattdessen mit Code'}
+            label="Passwort vergessen? Code per Mail"
             variant="ghost"
             onPress={requestCode}
             disabled={busy}
