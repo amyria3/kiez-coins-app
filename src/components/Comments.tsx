@@ -32,7 +32,7 @@ export function Comment({ comment, author, onReport, onReply, isReply, onAuthorP
       </Pressable>
       <View style={styles.body}>
         <View style={styles.header}>
-          <Text style={[styles.name, hidden && hiddenText]} onPress={onAuthorPress}>
+          <Text noTranslate style={[styles.name, hidden && hiddenText]} onPress={onAuthorPress}>
             {author.name}
           </Text>
           <Text style={styles.time}>{formatRelative(comment.createdAt)}</Text>

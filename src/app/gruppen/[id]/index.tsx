@@ -1,4 +1,5 @@
-import { Alert, Pressable, Share, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { shareText } from '../../../lib/share';
 import { Text } from '../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -139,8 +140,8 @@ export default function GroupDetail() {
                 {showRanks ? <Text style={styles.rank}>{index + 1}</Text> : null}
                 <Avatar user={user} diameter={32} />
                 <View style={styles.flex}>
-                  <Text style={styles.name} numberOfLines={1}>
-                    {me ? 'Du' : user.name}
+                  <Text noTranslate style={styles.name} numberOfLines={1}>
+                    {me ? t('Du') : user.name}
                   </Text>
                   <Text style={styles.meta}>
                     {[
@@ -187,7 +188,7 @@ export default function GroupDetail() {
         <FieldGroup label="Leute einladen">
           <CopyField label="Einladungscode" value={group.inviteCode} />
           <CopyField label="Einladungslink" value={inviteLink(group.inviteCode)} />
-          <Button label="Einladung teilen" variant="secondary" onPress={() => Share.share({ message: inviteMessage(group) }).catch(() => {})} />
+          <Button label="Einladung teilen" variant="secondary" onPress={() => shareText(inviteMessage(group))} />
         </FieldGroup>
       ) : (
         <Text style={styles.meta}>{t('Die Gruppe ist voll. Mehr als {MAX_MEMBERS} Mitglieder geht nicht.', { MAX_MEMBERS })}</Text>

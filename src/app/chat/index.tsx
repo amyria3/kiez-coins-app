@@ -93,7 +93,7 @@ export default function Chats() {
                   style={styles.requestWho}
                 >
                   <Avatar user={user} diameter={40} />
-                  <Text style={styles.name} numberOfLines={1}>
+                  <Text noTranslate style={styles.name} numberOfLines={1}>
                     {user.name}
                   </Text>
                 </Pressable>
@@ -127,7 +127,7 @@ export default function Chats() {
             <Avatar user={friend} diameter={52} />
             <View style={styles.flex}>
               <View style={styles.rowTop}>
-                <Text style={[styles.name, unread ? styles.bold : null]} numberOfLines={1}>
+                <Text noTranslate style={[styles.name, unread ? styles.bold : null]} numberOfLines={1}>
                   {friend.name}
                 </Text>
                 {last ? <Text style={styles.time}>{formatRelative(last.createdAt)}</Text> : null}

@@ -1,5 +1,5 @@
-import { forwardRef, Children, type ReactNode } from 'react';
-import { Alert, Text as RNText, type TextProps } from 'react-native';
+import { forwardRef, Children, useCallback, type ReactNode } from 'react';
+import { Alert, Platform, Text as RNText, type TextProps } from 'react-native';
 
 import { tPadded, t, useTexts } from '../data/texts';
 
@@ -8,11 +8,31 @@ import { tPadded, t, useTexts } from '../data/texts';
  * Alle Screens und Komponenten importieren `Text` von hier statt aus react-native.
  * Texte mit Werten darin (Namen, Zahlen) übersetzt `t('… {name} …', { name })` an der Stelle selbst.
  */
-export const Text = forwardRef<RNText, TextProps>(function Text({ children, accessibilityLabel, ...props }, ref) {
+type Props = TextProps & {
+  /**
+   * Namen, Decknamen, Gruppennamen: weder `t()` noch die Übersetzung im Browser fassen sie an.
+   * Safari machte sonst aus „Sof“ ein „Sofa“ (Daria, 21.10.2026). Im Web setzt das `translate="no"`.
+   */
+  noTranslate?: boolean;
+};
+
+export const Text = forwardRef<RNText, Props>(function Text({ children, accessibilityLabel, noTranslate, ...props }, ref) {
   useTexts();
+  const setRef = useCallback(
+    (node: RNText | null) => {
+      if (noTranslate && Platform.OS === 'web' && node) {
+        const el = node as unknown as HTMLElement;
+        el.setAttribute?.('translate', 'no');
+        el.classList?.add('notranslate');
+      }
+      if (typeof ref === 'function') ref(node);
+      else if (ref) ref.current = node;
+    },
+    [ref, noTranslate],
+  );
   return (
-    <RNText ref={ref} accessibilityLabel={accessibilityLabel ? t(accessibilityLabel) : accessibilityLabel} {...props}>
-      {translateChildren(children)}
+    <RNText ref={setRef} accessibilityLabel={accessibilityLabel ? t(accessibilityLabel) : accessibilityLabel} {...props}>
+      {noTranslate ? children : translateChildren(children)}
     </RNText>
   );
 });

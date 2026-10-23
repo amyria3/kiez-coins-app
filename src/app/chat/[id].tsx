@@ -96,7 +96,7 @@ export default function ChatThread() {
           style={({ pressed }) => [styles.who, pressed && styles.pressed]}
         >
           <Avatar user={friend} diameter={36} />
-          <Text style={styles.name} numberOfLines={1}>
+          <Text noTranslate style={styles.name} numberOfLines={1}>
             {friend.name}
           </Text>
         </Pressable>

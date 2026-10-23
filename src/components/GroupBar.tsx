@@ -45,7 +45,7 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
                 onPress={() => onSelect(g.id)}
                 style={[styles.chip, active && styles.chipActive]}
               >
-                <Text style={[styles.chipText, active && styles.chipTextActive]} numberOfLines={1}>
+                <Text noTranslate style={[styles.chipText, active && styles.chipTextActive]} numberOfLines={1}>
                   {g.name}
                 </Text>
               </Pressable>
@@ -62,7 +62,7 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
         <View style={styles.here}>
           <View style={styles.flex}>
             <View style={styles.titleRow}>
-              <Text style={styles.hereName} numberOfLines={1} accessibilityRole="header">
+              <Text noTranslate style={styles.hereName} numberOfLines={1} accessibilityRole="header">
                 {selected.name}
               </Text>
               <IconButton

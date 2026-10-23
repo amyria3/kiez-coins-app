@@ -74,7 +74,7 @@ export const size = {
   avatar: 36,
   thumbnail: 60,
   /** Icons in Aktions- und Tab-Leisten (Figma-Icons verkleinert) */
-  icon: 18,
+  icon: 20,
 } as const;
 
 // Stroke

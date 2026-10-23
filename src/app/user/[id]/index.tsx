@@ -130,7 +130,7 @@ export default function UserProfile() {
     <SubScreen title="Profil" navigation="back" onLeadingPress={() => router.back()}>
       <View style={styles.head}>
         <Avatar user={user} diameter={120} />
-        <Text
+        <Text noTranslate
           style={[styles.name, hidden && hiddenText]}
           accessibilityRole="header"
           accessibilityLabel={hidden ? t('Name verdeckt, solange Dein Kiez fehlt') : undefined}
