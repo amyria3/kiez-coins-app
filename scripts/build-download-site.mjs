@@ -169,7 +169,7 @@ const blumenTeile = blumen.teile
     const dx = Math.round((50 - mitte) / -6); // links von links, rechts von rechts
     const dreh = ((i % 2 ? 1 : -1) * (2 + (i % 3))).toFixed(1);
     const verzug = i * 85 + (i % 3) * 45;
-    return `    <img src="blumen/${t.datei}?v=${version(readFileSync(join(blumenDir, t.datei)))}" alt="" loading="lazy" decoding="async" style="left:${t.x}%;top:${t.y}%;width:${t.b}%;--dx:${dx}%;--dreh:${dreh}deg;--verzug:${verzug}ms">`;
+    return `    <img src="/blumen/${t.datei}?v=${version(readFileSync(join(blumenDir, t.datei)))}" alt="" loading="lazy" decoding="async" style="left:${t.x}%;top:${t.y}%;width:${t.b}%;--dx:${dx}%;--dreh:${dreh}deg;--verzug:${verzug}ms">`;
   })
   .join('\n');
 const goal = config.testerGoal ?? 15;
@@ -185,7 +185,7 @@ ${blumenTeile}
     <p>Teste die App und hilf uns, das Spendenziel zu erreichen.</p>
     <div class="zaehler" aria-live="polite"><b id="tester-zahl">0</b><span>von ${goal} haben getestet und bewertet</span></div>
     <div class="balken" id="tester-balken" role="progressbar" aria-label="Testpersonen" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="0"><span></span></div>
-    <a class="button" href="#download">Jetzt testen</a>
+    <a class="button" href="/#download">Jetzt testen</a>
   </div>
 </section>`;
 
@@ -214,11 +214,10 @@ ${filterDefs}
 <div class="wrap">
 <header class="top">
   <a class="brand" href="./" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}</a>
-  <a class="top-link" href="#download">Testversion laden</a>
+  <nav class="top-links"><a class="top-link" href="/spenden"><span class="lang">Spendenaktion</span><span class="kurz">Spenden</span></a><a class="top-link" href="#download"><span class="lang">Testversion laden</span><span class="kurz">Testen</span></a></nav>
 </header>
 
 <main>
-${spenden}
 <section class="hero" id="prototyp-bereich">
   <div class="hero-text">
     <h1>Kleine Challenges für Deinen Kiez.</h1>
@@ -306,33 +305,6 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
 <script src="prototyp/daten.js?v=${version(datenJs)}"></script>
 <script src="prototyp/app.js?v=${version(appJs)}"></script>
 <script>
-  // Zähler der Spendenaktion
-  (function () {
-    var ziel = ${goal};
-    fetch(${JSON.stringify(config.supabaseUrl + '/rest/v1/rpc/tester_count')}, {
-      method: 'POST',
-      headers: { apikey: ${JSON.stringify(config.publishableKey)}, 'Content-Type': 'application/json' },
-      body: '{}',
-    })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (n) {
-        if (typeof n !== 'number') return;
-        document.getElementById('tester-zahl').textContent = n;
-        var b = document.getElementById('tester-balken');
-        b.setAttribute('aria-valuenow', String(Math.min(n, ziel)));
-        b.firstElementChild.style.width = Math.min(100, (n / ziel) * 100) + '%';
-        if (n >= ziel) document.getElementById('spenden').classList.add('is-geschafft');
-      })
-      .catch(function () {});
-  })();
-  // Blumen schieben sich ins Bild, sobald die Karte zu sehen ist (ohne JS stehen sie einfach da)
-  (function () {
-    var b = document.getElementById('spenden-blumen');
-    if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    b.classList.add('is-bereit');
-    var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { b.classList.add('is-da'); io.disconnect(); } }, { threshold: 0.3 });
-    io.observe(b);
-  })();
   // Fehler vom Download zeigen
   var f = new URLSearchParams(location.search).get('fehler');
   var t = { passwort: 'Der Einladungscode stimmt nicht.', datei: 'Die App-Datei fehlt gerade. Versuch es später noch mal.', technik: 'Der Download ist gerade nicht eingerichtet.' }[f];
@@ -448,6 +420,64 @@ const einladung = `<!doctype html>
 // Darias Kater als SVG (assets/illustrations/kater.svg). Die Gruppen Besen, Brille und Stiefel (IDs aus Affinity) bewegen sich per CSS
 // (einzelne Eigenschaften rotate/translate, damit die Matrizen aus Affinity erhalten bleiben). Die Sprüche stehen in
 // src/data/kater-sprueche.json (gemeinsam mit der App): einer oder beliebig viele, jeweils mit Aktion fegen, brille, stampfen oder winken.
+// ---------- Unterseite /spenden: Spendenaktion der Testphase ----------
+const spendenSeite = `<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1F2123">
+<title>Spendenaktion – Kiez Coins</title>
+<meta name="description" content="Damit Leipzig blüht, spende ich ${donation} € an den Ökolöwen, wenn ${goal} Menschen Kiez Coins testen und bewerten.">
+<link rel="icon" href="/favicon.png">
+<link rel="preload" href="/fonts/InterTight_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="/seite.css?v=${version(seiteCss)}">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}</a>
+  <a class="top-link" href="/#download">Testversion laden</a>
+</header>
+<main>
+${spenden}
+</main>
+${footer}
+</div>
+<script>
+  // Zähler der Spendenaktion
+  (function () {
+    var ziel = ${goal};
+    fetch(${JSON.stringify(config.supabaseUrl + '/rest/v1/rpc/tester_count')}, {
+      method: 'POST',
+      headers: { apikey: ${JSON.stringify(config.publishableKey)}, 'Content-Type': 'application/json' },
+      body: '{}',
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (n) {
+        if (typeof n !== 'number') return;
+        document.getElementById('tester-zahl').textContent = n;
+        var b = document.getElementById('tester-balken');
+        b.setAttribute('aria-valuenow', String(Math.min(n, ziel)));
+        b.firstElementChild.style.width = Math.min(100, (n / ziel) * 100) + '%';
+        if (n >= ziel) document.getElementById('spenden').classList.add('is-geschafft');
+      })
+      .catch(function () {});
+  })();
+  // Blumen schieben sich ins Bild, sobald die Karte zu sehen ist (ohne JS stehen sie einfach da)
+  (function () {
+    var b = document.getElementById('spenden-blumen');
+    if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    b.classList.add('is-bereit');
+    var bio = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { b.classList.add('is-da'); bio.disconnect(); } }, { threshold: 0.3 });
+    bio.observe(b);
+  })();
+</script>
+</body>
+</html>
+`;
+
 const katerSvg = existsSync(join(root, 'assets/illustrations/kater.svg'))
   ? readFileSync(join(root, 'assets/illustrations/kater.svg'), 'utf8')
       .replace(/<\?xml[^>]*>\s*/, '')
@@ -577,6 +607,7 @@ const legal = (id) => {
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, 'index.html'), index);
 writeFileSync(join(out, 'einladung.html'), einladung);
+writeFileSync(join(out, 'spenden.html'), spendenSeite);
 if (katerSvg) writeFileSync(join(out, 'kater.html'), katerSeite);
 // Eigene 404-Seite für unbekannte Adressen.
 writeFileSync(

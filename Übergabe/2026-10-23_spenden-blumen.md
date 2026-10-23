@@ -1,7 +1,9 @@
 Datum: 2026-10-23
 Gehört nach: Documentation, `kiez-coins/app/Stand_App.md`, Abschnitt „Website kiezcoins.de“
 
-# Die Spenden-Karte zeigt die Blumen einzeln und animiert
+# Die Spendenaktion hat eine eigene Unterseite mit animierten Blumen
+
+- Die Spendenaktion steht auf `/spenden` (`website/spenden.html`, gebaut von `scripts/build-download-site.mjs`). Die Startseite verlinkt sie im Kopf („Spendenaktion“, auf schmalen Bildschirmen „Spenden“ und „Testen“).
 
 - `scripts/blumen-zerlegen.py` zerlegt `scripts/site/blumen.webp` in 13 freistehende Pflanzen (`scripts/site/blumen/NN.webp`, Lage in `teile.json`). Pflanzen, die sich berühren, bleiben zusammen, da Erodieren die Stiele zerschneidet. Nach einem neuen Blumenbild läuft das Skript einmal, dann der Website-Build.
 - Die Karte hat helles Papier (`#ECE9DF`) mit dunkler Schrift. So fällt der helle Freistellrand der Blumen nicht auf.
