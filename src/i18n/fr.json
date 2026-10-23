@@ -1028,5 +1028,11 @@
   "Kopiert": "Copié",
   "Der Text liegt in der Zwischenablage. Füg ihn ein, wo Du ihn teilen willst.": "Le texte est dans le presse-papiers. Colle-le là où tu veux le partager.",
   "Teilen geht hier nicht": "Le partage n’est pas possible ici",
-  "Dein Browser kann weder teilen noch kopieren.": "Ton navigateur ne peut ni partager ni copier."
+  "Dein Browser kann weder teilen noch kopieren.": "Ton navigateur ne peut ni partager ni copier.",
+  "Look": "Apparence",
+  "Wie soll Kiez Coins für Dich aussehen?": "Quelle apparence veux-tu pour Kiez Coins ?",
+  "{name} – {description}": "{name} – {description}",
+  "Lila, rund, Kiez Coins pur": "Violet, arrondi, Kiez Coins pur",
+  "Instagram": "Instagram",
+  "Schwarz, blau, eckiger": "Noir, bleu, plus anguleux"
 }

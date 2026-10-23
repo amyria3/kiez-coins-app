@@ -4,8 +4,12 @@
 
 import type { TextStyle } from 'react-native';
 
+import { look } from './look';
+
+const instagram = look === 'instagram';
+
 // Primitives
-export const palette = {
+const kiezPalette = {
   black: '#1F2123',
   white: '#F0F0F0',
   grey: '#A0A0A0',
@@ -15,7 +19,22 @@ export const palette = {
   red: '#FF7E8B',
   pink: '#FFB2E5',
   graphite: '#2B2D31',
-} as const;
+};
+
+/** Look „Instagram“: Schwarz, Instagram-Blau, rotes Herz */
+const instagramPalette: typeof kiezPalette = {
+  black: '#000000',
+  white: '#F5F5F5',
+  grey: '#A8A8A8',
+  purple: '#0095F6',
+  orange: '#FFAD7E',
+  green: '#93F4A7',
+  red: '#ED4956',
+  pink: '#FF3040',
+  graphite: '#262626',
+};
+
+export const palette = Object.freeze(instagram ? instagramPalette : kiezPalette);
 
 // Theme (semantische Farben, nur diese in Komponenten verwenden)
 export const color = {
@@ -23,15 +42,17 @@ export const color = {
     screen: palette.black,
     surface: palette.graphite,
     /** Halbtransparente Fläche über Fotos (Bounty-Chip, Info-Leiste, Tab-Leiste) */
-    glass: 'rgba(31, 33, 35, 0.82)',
+    glass: instagram ? 'rgba(0, 0, 0, 0.82)' : 'rgba(31, 33, 35, 0.82)',
   },
   /** Haarlinie auf dunklem Grund */
   line: {
-    hairline: 'rgba(240, 240, 240, 0.12)',
+    hairline: instagram ? 'rgba(245, 245, 245, 0.15)' : 'rgba(240, 240, 240, 0.12)',
   },
   text: {
     primary: palette.white,
     secondary: palette.grey,
+    /** Schrift auf der Akzentfläche (Primary-Button, eigene Chatblase) */
+    onAccent: instagram ? '#FFFFFF' : palette.black,
   },
   accent: {
     primary: palette.purple,
@@ -57,14 +78,14 @@ export const space = {
   48: 48,
 } as const;
 
-// Radius
+// Radius (Look „Instagram“: eckiger)
 export const radius = {
-  sm: 5,
-  md: 12,
-  lg: 18,
-  xl: 20,
-  card: 28,
-  sheet: 32,
+  sm: instagram ? 4 : 5,
+  md: instagram ? 8 : 12,
+  lg: instagram ? 10 : 18,
+  xl: instagram ? 12 : 20,
+  card: instagram ? 6 : 28,
+  sheet: instagram ? 16 : 32,
   full: 999,
 } as const;
 

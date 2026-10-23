@@ -1028,5 +1028,11 @@
   "Kopiert": "تم النسخ",
   "Der Text liegt in der Zwischenablage. Füg ihn ein, wo Du ihn teilen willst.": "النص في الحافظة. الصقه حيث تريد مشاركته.",
   "Teilen geht hier nicht": "المشاركة غير متاحة هنا",
-  "Dein Browser kann weder teilen noch kopieren.": "متصفحك لا يستطيع المشاركة ولا النسخ."
+  "Dein Browser kann weder teilen noch kopieren.": "متصفحك لا يستطيع المشاركة ولا النسخ.",
+  "Look": "المظهر",
+  "Wie soll Kiez Coins für Dich aussehen?": "كيف تريد أن يبدو Kiez Coins؟",
+  "{name} – {description}": "{name} – {description}",
+  "Lila, rund, Kiez Coins pur": "بنفسجي، مستدير، Kiez Coins خالص",
+  "Instagram": "Instagram",
+  "Schwarz, blau, eckiger": "أسود، أزرق، بزوايا أوضح"
 }

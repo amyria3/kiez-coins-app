@@ -77,7 +77,7 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
 }
 
 const variants: Record<ButtonVariant, { container: ViewStyle; label: string; filled?: boolean }> = {
-  primary: { container: { backgroundColor: color.accent.primary }, label: color.bg.screen, filled: true },
+  primary: { container: { backgroundColor: color.accent.primary }, label: color.text.onAccent, filled: true },
   secondary: {
     container: { borderWidth: stroke.thin, borderColor: color.text.secondary },
     label: color.text.primary,
@@ -94,7 +94,7 @@ const variants: Record<ButtonVariant, { container: ViewStyle; label: string; fil
 
 /** Glas-Buttons: Tönung statt Fläche, kein Rahmen. Die Kante zeichnet das Glas selbst. */
 const glassVariants: Record<Exclude<ButtonVariant, 'ghost'>, { tint?: string; label: string }> = {
-  primary: { tint: color.accent.primary, label: color.bg.screen },
+  primary: { tint: color.accent.primary, label: color.text.onAccent },
   secondary: { label: color.text.primary },
   signal: { tint: color.accent.signal, label: color.bg.screen },
   signalOutline: { label: color.accent.signal },

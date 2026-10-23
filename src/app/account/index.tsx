@@ -14,6 +14,7 @@ import { isModerator, loadFriends } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
 import { color, size, space } from '../../theme/tokens';
 import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
+import { look, looks, lookSelectable } from '../../theme/look';
 
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
 export default function Account() {
@@ -82,6 +83,9 @@ export default function Account() {
           <NavRow label="So geht Kiez Coins" value="Kurze Videos" onPress={() => router.push('/tour')} />
           <NavRow label="Dem Kater Hallo sagen" value="Sprüche" onPress={() => router.push('/kater')} />
           <NavRow label="Sprache" value={languageName} onPress={() => router.push('/account/sprache')} />
+          {lookSelectable ? (
+            <NavRow label="Look" value={looks.find((l) => l.code === look)?.name} onPress={() => router.push('/account/look')} />
+          ) : null}
           <NavRow
             label="Benachrichtigungen"
             value={profile.push ? 'Push an' : 'Push aus'}

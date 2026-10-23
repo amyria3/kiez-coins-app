@@ -145,7 +145,7 @@ export default function ChatThread() {
             disabled={!draft.trim() || sending}
             style={({ pressed }) => [styles.send, (!draft.trim() || sending) && styles.sendOff, pressed && styles.pressed]}
           >
-            <Icon name="send" size={size.icon * 0.8} color={color.bg.screen} />
+            <Icon name="send" size={size.icon * 0.8} color={color.text.onAccent} />
           </Pressable>
         </View>
       </KeyboardAvoidingView>
@@ -169,9 +169,9 @@ const styles = StyleSheet.create({
   bubbleMine: { backgroundColor: color.accent.primary, borderBottomRightRadius: space[4] },
   bubbleTheirs: { backgroundColor: color.bg.surface, borderBottomLeftRadius: space[4] },
   body: { ...text.body, color: color.text.primary },
-  bodyMine: { color: color.bg.screen },
+  bodyMine: { color: color.text.onAccent },
   time: { fontFamily: font.regular, fontSize: 11, lineHeight: 14, color: color.text.secondary, alignSelf: 'flex-end' },
-  timeMine: { color: 'rgba(31, 33, 35, 0.6)' },
+  timeMine: { color: color.text.onAccent, opacity: 0.6 },
   composer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
