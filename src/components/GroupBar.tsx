@@ -5,7 +5,7 @@ import { Text } from './T';
 import { useStore } from '../data/store';
 import { myEdensteine } from '../data/groups';
 import type { Group } from '../data/types';
-import { color, font, radius, size, space, text } from '../theme/tokens';
+import { color, font, isInstagram, radius, size, space, text } from '../theme/tokens';
 import { Button } from './Button';
 import { KaterCard } from './Content';
 import { IconButton } from './IconButton';
@@ -93,7 +93,7 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
           >
             <View style={styles.hereCrystal}>
               <View style={[styles.hereCrystalFloat, !openTask && styles.hereCrystalFloatCalm]}>
-                <LivingCrystal height={openTask ? 44 : 35} seed={selected.id} calm={!openTask} />
+                <LivingCrystal height={isInstagram ? 34 : openTask ? 44 : 35} seed={selected.id} calm={!openTask} />
               </View>
             </View>
             <Text style={styles.eden}>{myEdensteine(selected, challenges, currentUserId)}</Text>
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   hereEdenCalm: { opacity: 0.4 },
   hereCrystalFloatCalm: { top: (22 - 35) / 2 },
   hereCrystal: { width: 26, height: 22, alignItems: 'center' },
-  hereCrystalFloat: { position: 'absolute', top: (22 - 44) / 2 },
+  hereCrystalFloat: { position: 'absolute', top: (22 - (isInstagram ? 34 : 44)) / 2 },
   wrap: { gap: space[8], paddingHorizontal: space[16] },
   chips: { gap: space[8] },
   chip: {
@@ -162,7 +162,9 @@ const styles = StyleSheet.create({
   flex: { flex: 1, gap: space[2] },
   name: { ...text.cardTitle, color: color.text.primary },
   meta: { ...text.caption, color: color.text.secondary },
-  eden: { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.confirmation },
+  eden: isInstagram
+    ? { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] }
+    : { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.confirmation },
   crystal: { width: CRYSTAL * 0.6, height: 40, alignItems: 'center' },
   crystalFloat: { position: 'absolute', top: (40 - CRYSTAL) / 2 },
   groupText: { marginLeft: space[8] },

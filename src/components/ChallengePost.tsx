@@ -270,9 +270,10 @@ function InstaPost({ challenge, author, distance, onPress, onCommentPress, onLik
         <View style={insta.headRight}>
           {!isWave && challenge.bountyAmount ? <BountyBadge amount={challenge.bountyAmount} small /> : null}
           {challenge.edensteine ? (
-            <View style={styles.eden} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine: challenge.edensteine })}>
-              {active ? <LivingCrystal height={32} seed={challenge.id} /> : null}
-              <Text style={[styles.edenText, active ? null : styles.edenTextDone]}>{challenge.edensteine}</Text>
+            // Angabe neben dem Namen, kein Knopf: Stein so hoch wie die Schrift, 4 pt bis zur Zahl, ohne Druckfläche
+            <View style={insta.eden} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine: challenge.edensteine })}>
+              <LivingCrystal height={30} seed={challenge.id} calm={!active} />
+              <Text style={[insta.edenText, active ? null : styles.edenTextDone]}>{challenge.edensteine}</Text>
             </View>
           ) : null}
           {onManage ? (
@@ -397,6 +398,8 @@ const insta = StyleSheet.create({
   captionText: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.primary },
   captionTitle: { fontFamily: font.semiBold },
   time: { ...text.caption, color: color.text.secondary },
+  eden: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  edenText: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18, color: color.text.primary, fontVariant: ['tabular-nums'] },
 });
 
 const styles = StyleSheet.create({
