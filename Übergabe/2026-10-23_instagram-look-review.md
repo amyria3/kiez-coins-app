@@ -5,7 +5,8 @@ Gehört nach Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitt „Look“
 ## Entscheidungen von Daria
 
 - Im Reiter „Gruppen“ steht keine Freundesleiste. Eine Leiste mit Kreisen liest sich wie Instagrams Stories, und Stories gibt es in Kiez Coins nicht (Daria, 23.10.2026). Freundschaften erreicht man über das Profil (Zahl „Freund:innen“, Knopf „Freundschaften“), Daten aus `src/data/friends.ts`.
-- Logo und Kater bekommen im Instagram-Look eine eigene Signaturfarbe: Kiez-Violett `#7B2FF7`, Token `color.brand.signature`. Im Kiez-Look bleibt `#7E94FF`.
+- Logo und Kater bekommen im Instagram-Look eine eigene Signaturfarbe, Token `color.brand.signature`. Kiez-Violett `#7B2FF7` hat Daria verworfen, ebenso Orange, Smaragd, Schwarz und das Kiez-Lila als Vorschläge. Bis zur Entscheidung steht dort Schwarz. Im Kiez-Look bleibt `#7E94FF`.
+- Edensteine im Instagram-Look glatt und symmetrisch: ein geschliffener Stein in drei Grüntönen, Tafel hell, Seiten gleich dunkel, ohne Striche. Er schwebt und funkelt, kippt und spiegelt sich aber nicht; im Haufen liegen die Steine gerade (`GEM_SVG` in `src/components/icons/Brand.tsx`).
 - Logo und Begrüßung im Feed gleiten nach 3,5 s von selbst weg (`HEADER_HIDE_MS` in `src/app/feed.tsx`), in beiden Looks.
 - Erstellen sitzt im Instagram-Look in der Leiste unten, mit Kamera-Icon (Kamera mit Plus in der Linse). Die Kamera oben rechts entfällt dort.
 - Icons im Instagram-Look weicher: Linie 1,6 statt 1,8, runde Ecken, neuer Papierflieger (`instagramSvgs.ts`).

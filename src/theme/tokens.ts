@@ -67,9 +67,9 @@ export const color = {
     /** Schrift auf Fotos, in beiden Looks hell */
     onPhoto: '#F0F0F0',
   },
-  /** Signaturfarbe für Logo und Kater. Im Instagram-Look Kiez-Violett (Daria, 23.10.2026), damit die Marke sich vom Blau der Aktionen abhebt. */
+  /** Signaturfarbe für Logo und Kater. Instagram-Look vorerst Schwarz: Das Violett #7B2FF7 hat Daria verworfen (23.10.2026), die neue Farbe steht noch aus. */
   brand: {
-    signature: instagram ? '#7B2FF7' : palette.purple,
+    signature: instagram ? '#000000' : palette.purple,
   },
   accent: {
     primary: palette.purple,

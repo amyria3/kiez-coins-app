@@ -271,7 +271,7 @@ function InstaPost({ challenge, author, distance, onPress, onCommentPress, onLik
           {!isWave && challenge.bountyAmount ? <BountyBadge amount={challenge.bountyAmount} small /> : null}
           {challenge.edensteine ? (
             <View style={styles.eden} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine: challenge.edensteine })}>
-              {active ? <LivingCrystal height={26} seed={challenge.id} /> : null}
+              {active ? <LivingCrystal height={32} seed={challenge.id} /> : null}
               <Text style={[styles.edenText, active ? null : styles.edenTextDone]}>{challenge.edensteine}</Text>
             </View>
           ) : null}
