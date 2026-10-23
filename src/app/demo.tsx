@@ -10,6 +10,7 @@ import { useAuth } from '../data/auth';
 import { useStore } from '../data/store';
 import type { FeedState } from '../data/types';
 import { color, text } from '../theme/tokens';
+import { useGoBack } from '../lib/goBack';
 
 // prototyp-only: Nicht Teil des Figma-Designs. Ersetzt Push-Benachrichtigungen und zeigt auf Wunsch
 // Beispieldaten (nur auf diesem Gerät), mit Rollenwechsel. Öffnen: Logo im Feed lange drücken.
@@ -24,6 +25,7 @@ const feedStates: { key: FeedState; label: string }[] = [
 
 export default function DemoMenu() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { users, challenges, currentUserId, feedState, mode, dispatch, load } = useStore();
   const { session } = useAuth();
   const demo = mode === 'demo';
@@ -48,7 +50,7 @@ export default function DemoMenu() {
       title="Demo"
       subtitle={demo ? 'Beispieldaten' : 'Echte Daten'}
       navigation="close"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
     >
       <Notice message="Dieses Menü gibt es nur im Prototyp. Es ersetzt Benachrichtigungen und zeigt auf Wunsch Beispieldaten." />
       <FieldGroup label="Daten">

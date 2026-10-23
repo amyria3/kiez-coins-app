@@ -13,11 +13,13 @@ import { useChallenge, useStore } from '../../../../data/store';
 import type { ImageSource } from '../../../../data/types';
 import { color, radius, space, text } from '../../../../theme/tokens';
 import { t } from '../../../../data/texts';
+import { useGoBack } from '../../../../lib/goBack';
 
 /** Route `challenge/[id]/review` (Push). Figma: `challenge/review`, Flow „Erledigung bestätigen“. Nur für die Ersteller:in. */
 export default function ReviewScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const goBack = useGoBack();
   const { dispatch } = useStore();
   const { challenge, assignee } = useChallenge(id);
 
@@ -35,7 +37,7 @@ export default function ReviewScreen() {
     <SubScreen
       title="Erledigung prüfen"
       navigation="back"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={
         <>
           <Button label="Bestätigen" onPress={confirm} />

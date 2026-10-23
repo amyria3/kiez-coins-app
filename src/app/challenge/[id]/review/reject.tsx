@@ -8,11 +8,13 @@ import { TextField } from '../../../../components/Form';
 import { SubScreen } from '../../../../components/Screen';
 import { useChallenge, useStore } from '../../../../data/store';
 import { color, text } from '../../../../theme/tokens';
+import { useGoBack } from '../../../../lib/goBack';
 
 /** Route `challenge/[id]/review/reject` (Modal). Figma: `challenge/review/reject`. */
 export default function RejectScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const goBack = useGoBack();
   const { dispatch } = useStore();
   const { challenge, assignee } = useChallenge(id);
   const [reason, setReason] = useState('');
@@ -39,7 +41,7 @@ export default function RejectScreen() {
     <SubScreen
       title="Erledigung ablehnen"
       navigation="close"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={
         <>
           <Button label="Trotzdem bestätigen" onPress={confirmAnyway} />

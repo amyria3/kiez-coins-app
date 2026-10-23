@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, Text as RawText, StyleSheet, View } from 'react-native';
 import { Text } from '../components/T';
-import { useRouter } from 'expo-router';
 
 import { Button } from '../components/Button';
 import { Chip, ChipGroup, TextField } from '../components/Form';
@@ -14,6 +13,7 @@ import { color, radius, space, stroke, text } from '../theme/tokens';
 // Seiten der App (Daria, 22.10.2026). Zuordnung: src/data/textSeiten.json, erzeugt von scripts/text-pages.mjs.
 // Texte, die auf mehreren Seiten stehen, haben eine eigene Gruppe: Eine Änderung gilt dann überall.
 import seitenJson from '../data/textSeiten.json';
+import { useGoBack } from '../lib/goBack';
 
 type Page =
   | 'mehrere'
@@ -81,7 +81,7 @@ const shortOrt = (ort: string | null) =>
  * Tippen öffnet den Text zum Bearbeiten.
  */
 export default function Texte() {
-  const router = useRouter();
+  const goBack = useGoBack();
   const [rows, setRows] = useState<AppTextRow[]>();
   const [area, setArea] = useState<Area>('alle');
   const [sort, setSort] = useState<Sort>('kurz');
@@ -169,7 +169,7 @@ export default function Texte() {
   };
 
   return (
-    <SubScreen title="Texte" subtitle={rows ? t('{list} von {rows}', { list: list.length, rows: rows.length }) : undefined} navigation="back" onLeadingPress={() => router.back()}>
+    <SubScreen title="Texte" subtitle={rows ? t('{list} von {rows}', { list: list.length, rows: rows.length }) : undefined} navigation="back" onLeadingPress={goBack}>
       <ChipGroup>
         {languages.map((l) => (
           <Chip

@@ -25,6 +25,7 @@ import {
 import { useStore } from '../../../data/store';
 import { color, radius, space, text } from '../../../theme/tokens';
 import { t } from '../../../data/texts';
+import { useGoBack } from '../../../lib/goBack';
 
 /**
  * Route `user/[id]` (Push). Einfache Ansicht einer anderen Person: Foto, Name, Kiez, Lob.
@@ -34,6 +35,7 @@ import { t } from '../../../data/texts';
 export default function UserProfile() {
   const params = useLocalSearchParams<{ id: string; challengeId?: string }>();
   const router = useRouter();
+  const goBack = useGoBack();
   const { users, currentUserId, mode, dispatch } = useStore();
   const user = users.find((u) => u.id === params.id);
   const hidden = useHideName(user ?? { id: params.id });
@@ -59,7 +61,7 @@ export default function UserProfile() {
 
   if (!user) {
     return (
-      <SubScreen title="Profil" navigation="back" onLeadingPress={() => router.back()}>
+      <SubScreen title="Profil" navigation="back" onLeadingPress={goBack}>
         <Text style={styles.secondary}>Dieses Profil gibt es nicht mehr.</Text>
       </SubScreen>
     );
@@ -127,7 +129,7 @@ export default function UserProfile() {
     );
 
   return (
-    <SubScreen title="Profil" navigation="back" onLeadingPress={() => router.back()}>
+    <SubScreen title="Profil" navigation="back" onLeadingPress={goBack}>
       <View style={styles.head}>
         <Avatar user={user} diameter={120} />
         <Text noTranslate

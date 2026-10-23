@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
 
 import { SubScreen } from '../../../components/Screen';
 import { Text } from '../../../components/T';
@@ -8,13 +7,14 @@ import { errorText, loadSurveyResults } from '../../../data/remote';
 import { surveyQuestions, type SurveyResults } from '../../../data/survey';
 import { t } from '../../../data/texts';
 import { color, radius, space, text } from '../../../theme/tokens';
+import { useGoBack } from '../../../lib/goBack';
 
 /**
  * Route `account/umfrage/ergebnis` (Push aus „Dein Konto“, nur für die Moderation).
  * Zeigt je Antwort die Zahl der Stimmen und den Anteil. Einzelne Antworten und Namen bleiben verborgen.
  */
 export default function SurveyResultsScreen() {
-  const router = useRouter();
+  const goBack = useGoBack();
   const [data, setData] = useState<SurveyResults>();
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function SurveyResultsScreen() {
       title="Umfrage-Ergebnis"
       subtitle={data ? t('{total} Antworten', { total }) : undefined}
       navigation="back"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
     >
       {surveyQuestions.map((q, i) => (
         <View key={q.key} style={styles.card}>

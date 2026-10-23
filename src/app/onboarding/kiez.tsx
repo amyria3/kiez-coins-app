@@ -13,6 +13,7 @@ import { useStore } from '../../data/store';
 import { color, text } from '../../theme/tokens';
 import { t } from '../../data/texts';
 import { useNudge } from '../../components/Nudge';
+import { useGoBack } from '../../lib/goBack';
 
 type Step = 'start' | 'searching' | 'found' | 'manual';
 
@@ -23,6 +24,7 @@ type Step = 'start' | 'searching' | 'found' | 'manual';
  */
 export default function Kiez() {
   const router = useRouter();
+  const goBack = useGoBack();
   /** `from=app`: aus der App heraus aufgerufen, danach zurück statt weiter im Onboarding */
   const { from } = useLocalSearchParams<{ from?: string }>();
   const { profile, dispatch } = useStore();
@@ -86,7 +88,7 @@ export default function Kiez() {
       title="Dein Kiez"
       subtitle={from ? undefined : 'Schritt 4 von 6'}
       navigation="back"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={actions}
     >
       <KaterBubble>

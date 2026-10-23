@@ -9,6 +9,7 @@ import { SubScreen } from '../../components/Screen';
 import { useAuth } from '../../data/auth';
 import { useNudge } from '../../components/Nudge';
 import { t } from '../../data/texts';
+import { useGoBack } from '../../lib/goBack';
 
 const MIN_PASSWORD = 8;
 
@@ -18,6 +19,7 @@ const MIN_PASSWORD = 8;
  */
 export default function Password() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { setPassword, hasPassword } = useAuth();
   const [password, setValue] = useState('');
   const [repeat, setRepeat] = useState('');
@@ -46,7 +48,7 @@ export default function Password() {
     <SubScreen
       title={hasPassword ? 'Passwort ändern' : 'Passwort hinterlegen'}
       navigation="back"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={<Button busy={saving} label={saving ? 'Wird gespeichert …' : 'Passwort speichern'} disabled={!valid || saving}
           whyDisabled={() =>
             saving

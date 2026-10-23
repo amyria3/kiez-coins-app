@@ -1,5 +1,4 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '../components/Button';
@@ -8,16 +7,17 @@ import { NavigationBar } from '../components/NavigationBar';
 import { useKater } from '../components/useKater';
 import { useAppDimensions } from '../theme/layout';
 import { color, space } from '../theme/tokens';
+import { useGoBack } from '../lib/goBack';
 
 /** Route `kater`: dem Kater Hallo sagen. Er fegt, winkt, schiebt die Brille runter und klopft Sprüche. */
 export default function Kater() {
-  const router = useRouter();
+  const goBack = useGoBack();
   const insets = useSafeAreaInsets();
   const { width } = useAppDimensions();
   const kater = useKater(null);
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <NavigationBar title="Der Kater" variant="back" onLeadingPress={() => router.back()} />
+      <NavigationBar title="Der Kater" variant="back" onLeadingPress={goBack} />
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + space[24] }]}>
         <KaterStage
           width={Math.min(width * 0.78, 340)}

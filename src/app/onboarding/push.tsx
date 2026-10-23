@@ -7,6 +7,7 @@ import { SwitchRow } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { useStore } from '../../data/store';
 import { homeAfterOnboarding } from '../../data/pendingInvite';
+import { useGoBack } from '../../lib/goBack';
 
 /**
  * Route `onboarding/push`. Figma: `onboarding/push`. Optional.
@@ -14,6 +15,7 @@ import { homeAfterOnboarding } from '../../data/pendingInvite';
  */
 export default function Push() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { dispatch } = useStore();
   const [push, setPush] = useState(true);
 
@@ -30,7 +32,7 @@ export default function Push() {
       title="Nachrichten"
       subtitle="Schritt 6 von 6"
       navigation="back"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={
         <>
           <Button label="Erlauben" onPress={() => finish(true)} />

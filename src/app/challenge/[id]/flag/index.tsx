@@ -12,6 +12,7 @@ import { useChallenge, useStore } from '../../../../data/store';
 import type { ChallengeReportReason } from '../../../../data/types';
 import { color, space, text } from '../../../../theme/tokens';
 import { NudgeArea, useNudge } from '../../../../components/Nudge';
+import { useGoBack } from '../../../../lib/goBack';
 
 const reasons: { key: ChallengeReportReason; label: string }[] = [
   { key: 'discrimination', label: 'Sexismus, Rassismus, Antisemitismus oder andere Diskriminierung' },
@@ -30,6 +31,7 @@ const reasons: { key: ChallengeReportReason; label: string }[] = [
 export default function ChallengeFlagScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const goBack = useGoBack();
   const { mode } = useStore();
   const { challenge } = useChallenge(id);
   const [reason, setReason] = useState<ChallengeReportReason>();
@@ -61,7 +63,7 @@ export default function ChallengeFlagScreen() {
     <SubScreen
       title="Challenge melden"
       navigation="close"
-      onLeadingPress={() => router.back()}
+      onLeadingPress={goBack}
       actions={<Button busy={sending} label="Meldung senden" disabled={!reason || needsText || sending}
           whyDisabled={() => (sending ? undefined : !reason ? reasonField.nudge('Wähl einen Grund.') : textField.nudge('Beschreib kurz, was passiert ist.'))} onPress={send} />}
     >

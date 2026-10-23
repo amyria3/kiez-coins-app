@@ -17,12 +17,14 @@ import { useCurrentUser, useStore } from '../../data/store';
 import type { ImageSource } from '../../data/types';
 import { color, radius, space, text } from '../../theme/tokens';
 import { t } from '../../data/texts';
+import { useGoBack } from '../../lib/goBack';
 
 const AVATAR = 112;
 
 /** Route `account/profile` (Push aus der Profilkarte in „Dein Konto“): persönliche Angaben ändern. */
 export default function PersonalDetails() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { profile, mode, dispatch } = useStore();
   const me = useCurrentUser();
   const { session } = useAuth();
@@ -95,7 +97,7 @@ export default function PersonalDetails() {
   };
 
   return (
-    <SubScreen title="Persönliche Angaben" navigation="back" onLeadingPress={() => router.back()}>
+    <SubScreen title="Persönliche Angaben" navigation="back" onLeadingPress={goBack}>
       <Pressable
         onPress={pickAvatar}
         disabled={uploading}
