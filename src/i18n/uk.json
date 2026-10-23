@@ -1028,5 +1028,11 @@
   "Kopiert": "Скопійовано",
   "Der Text liegt in der Zwischenablage. Füg ihn ein, wo Du ihn teilen willst.": "Текст у буфері обміну. Встав його там, де хочеш поділитися.",
   "Teilen geht hier nicht": "Тут поділитися не можна",
-  "Dein Browser kann weder teilen noch kopieren.": "Твій браузер не може ні ділитися, ні копіювати."
+  "Dein Browser kann weder teilen noch kopieren.": "Твій браузер не може ні ділитися, ні копіювати.",
+  "Look": "Вигляд",
+  "Wie soll Kiez Coins für Dich aussehen?": "Як для тебе має виглядати Kiez Coins?",
+  "{name} – {description}": "{name} – {description}",
+  "Lila, rund, Kiez Coins pur": "Фіолетовий, округлий, чистий Kiez Coins",
+  "Instagram": "Instagram",
+  "Schwarz, blau, eckiger": "Чорний, синій, кутастіший"
 }

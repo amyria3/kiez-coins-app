@@ -1028,5 +1028,11 @@
   "Kopiert": "Copied",
   "Der Text liegt in der Zwischenablage. Füg ihn ein, wo Du ihn teilen willst.": "The text is on your clipboard. Paste it wherever you want to share it.",
   "Teilen geht hier nicht": "Sharing isn't available here",
-  "Dein Browser kann weder teilen noch kopieren.": "Your browser can neither share nor copy."
+  "Dein Browser kann weder teilen noch kopieren.": "Your browser can neither share nor copy.",
+  "Look": "Look",
+  "Wie soll Kiez Coins für Dich aussehen?": "How should Kiez Coins look for you?",
+  "{name} – {description}": "{name} – {description}",
+  "Lila, rund, Kiez Coins pur": "Purple, round, pure Kiez Coins",
+  "Instagram": "Instagram",
+  "Schwarz, blau, eckiger": "Black, blue, more angular"
 }
