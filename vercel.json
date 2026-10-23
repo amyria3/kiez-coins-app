@@ -6,11 +6,11 @@
   "rewrites": [
     {
       "source": "/app/:path*",
-      "destination": "/app/index.html"
+      "destination": "/app/index"
     },
     {
       "source": "/einladung/:code",
-      "destination": "/einladung.html"
+      "destination": "/einladung"
     }
   ]
 }
