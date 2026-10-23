@@ -1,6 +1,6 @@
 // Linien-Icons für den Look „Instagram“ (Daria, 2026-10-23): weiche, runde Konturen auf 24 × 24 wie das heutige Instagram.
-// Überarbeitet am 23.10.2026: Linie 1,6 statt 1,8, Ecken als Bögen gezeichnet, keine spitzen Winkel mehr.
-// Eigene Zeichnungen. Das Zahnrad folgt Feather Icons (MIT-Lizenz, https://feathericons.com).
+// Überarbeitet am 23.10.2026: Linie 1,6, alle Ecken mit großen Radien (Daria: „nicht rund genug“), keine spitzen Winkel.
+// Eigene Zeichnungen.
 // Fehlt ein Name hier, zeigt Icon.tsx Darias Icon aus svgs.ts.
 import type { IconName } from './svgs';
 
@@ -14,11 +14,11 @@ export const line = (c: string, body: string) =>
 const icon = (body: (c: string, filled?: boolean) => string): Svg => ({ width: 24, height: 24, svg: (c, filled) => line(c, body(c, filled)) });
 
 /** Papierflieger mit runder Spitze und runden Ecken, wie Instagrams Teilen- und Nachrichten-Icon */
-export const PLANE = `<path d="M20.6 3.3 3.6 9.2c-.8.3-.9 1.4-.1 1.8l6.6 3.1c.2.1.3.2.4.4l3.1 6.6c.4.8 1.5.7 1.8-.1l5.9-17c.2-.5-.3-.9-.7-.7z"/><path d="M10.4 13.6 20.7 3.4"/>`;
+export const PLANE = `<path d="M20.3 3.7c.5-.2 1 .3.8.8l-5.7 15.6c-.4 1-1.8 1.1-2.2.1l-2.7-6c-.1-.3-.4-.5-.6-.6l-6-2.7c-1-.4-.9-1.8.1-2.2z"/><path d="M10.4 13.6l5-5"/>`;
 /** Kamera mit Plus in der Linse: Beitrag erstellen */
-export const CAMERA_PLUS = `<path d="M8.4 5.6 9.5 4.1c.3-.4.8-.6 1.3-.6h2.4c.5 0 1 .2 1.3.6l1.1 1.5h3a2.4 2.4 0 0 1 2.4 2.4v9.6a2.4 2.4 0 0 1-2.4 2.4H5.4A2.4 2.4 0 0 1 3 17.6V8a2.4 2.4 0 0 1 2.4-2.4z"/><circle cx="12" cy="12.6" r="4.1"/><path d="M12 10.9v3.4M10.3 12.6h3.4"/>`;
+export const CAMERA_PLUS = `<rect x="3" y="6.2" width="18" height="13.8" rx="4"/><path d="M8.7 6.2l.7-1.3c.4-.7 1.1-1.2 1.9-1.2h1.4c.8 0 1.5.5 1.9 1.2l.7 1.3"/><circle cx="12" cy="13.1" r="3.7"/><path d="M12 11.6v3M10.5 13.1h3"/>`;
 /** Haus mit runden Ecken */
-export const HOME = `<path d="M3.8 10.4c0-.6.3-1.1.7-1.5l6.3-5c.7-.6 1.7-.6 2.4 0l6.3 5c.4.4.7.9.7 1.5v8.4a1.7 1.7 0 0 1-1.7 1.7h-3.2v-5.2a1.3 1.3 0 0 0-1.3-1.3h-2a1.3 1.3 0 0 0-1.3 1.3v5.2H5.5a1.7 1.7 0 0 1-1.7-1.7z"/>`;
+export const HOME = `<path d="M4 10.8c0-.8.4-1.6 1-2.1l5.3-4.3c1-.8 2.4-.8 3.4 0l5.3 4.3c.6.5 1 1.3 1 2.1V18a2.5 2.5 0 0 1-2.5 2.5h-2.2a1 1 0 0 1-1-1v-3.8a1.3 1.3 0 0 0-1.3-1.3h-2a1.3 1.3 0 0 0-1.3 1.3v3.8a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 1 4 18z"/>`;
 /** Zwei Personen: Gruppen und Freund:innen */
 export const PEOPLE = `<circle cx="9" cy="8.3" r="3.4"/><path d="M3 19.6c.5-3.2 3-5.2 6-5.2s5.5 2 6 5.2"/><path d="M15.4 5.2a3.3 3.3 0 0 1 0 6.3M17.6 14.6c1.8.8 3 2.5 3.4 5"/>`;
 
@@ -35,10 +35,8 @@ export const instagramSvgs: Partial<Record<IconName, Svg>> = {
   burger: icon(() => `<path d="M4 6.6h16M4 12h16M4 17.4h16"/>`),
   // Chats: Papierflieger wie Instagrams Nachrichten
   message: icon(() => PLANE),
-  settings: icon(
-    () =>
-      `<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>`,
-  ),
+  // Zahnrad mit acht runden Zähnen, als glatte Kurve gezeichnet
+  settings: icon(() => `<circle cx="12" cy="12" r="3"/><path d="M18.86 10.61C19.41 11.07 20.75 10.48 21.13 10.9C21.51 11.31 21.51 12.69 21.13 13.1C20.75 13.52 19.41 12.93 18.86 13.39C18.31 13.85 17.77 15.15 17.83 15.87C17.9 16.58 19.26 17.12 19.24 17.68C19.21 18.24 18.24 19.21 17.68 19.24C17.12 19.26 16.58 17.9 15.87 17.83C15.15 17.77 13.85 18.31 13.39 18.86C12.93 19.41 13.52 20.75 13.1 21.13C12.69 21.51 11.31 21.51 10.9 21.13C10.48 20.75 11.07 19.41 10.61 18.86C10.15 18.31 8.85 17.77 8.13 17.83C7.42 17.9 6.88 19.26 6.32 19.24C5.76 19.21 4.79 18.24 4.76 17.68C4.74 17.12 6.1 16.58 6.17 15.87C6.23 15.15 5.69 13.85 5.14 13.39C4.59 12.93 3.25 13.52 2.87 13.1C2.49 12.69 2.49 11.31 2.87 10.9C3.25 10.48 4.59 11.07 5.14 10.61C5.69 10.15 6.23 8.85 6.17 8.13C6.1 7.42 4.74 6.88 4.76 6.32C4.79 5.76 5.76 4.79 6.32 4.76C6.88 4.74 7.42 6.1 8.13 6.17C8.85 6.23 10.15 5.69 10.61 5.14C11.07 4.59 10.48 3.25 10.9 2.87C11.31 2.49 12.69 2.49 13.1 2.87C13.52 3.25 12.93 4.59 13.39 5.14C13.85 5.69 15.15 6.23 15.87 6.17C16.58 6.1 17.12 4.74 17.68 4.76C18.24 4.79 19.21 5.76 19.24 6.32C19.26 6.88 17.9 7.42 17.83 8.13C17.77 8.85 18.31 10.15 18.86 10.61z"/>`),
   'chevron-left': icon(() => `<path d="M15 4.5 7.5 12l7.5 7.5"/>`),
   'chevron-right': icon(() => `<path d="M9 4.5 16.5 12 9 19.5"/>`),
   close: icon(() => `<path d="M5.5 5.5l13 13M18.5 5.5l-13 13"/>`),
@@ -47,13 +45,13 @@ export const instagramSvgs: Partial<Record<IconName, Svg>> = {
   more: icon((c) => `<circle cx="5.5" cy="12" r="1.3" fill="${c}" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="${c}" stroke="none"/><circle cx="18.5" cy="12" r="1.3" fill="${c}" stroke="none"/>`),
   clock: icon(() => `<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>`),
   info: icon((c) => `<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r="1.1" fill="${c}" stroke="none"/>`),
-  flag: icon(() => `<path d="M5 21V4"/><path d="M5 4h12l-2.5 4.5L17 13H5"/>`),
-  copy: icon(() => `<rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/><path d="M15.5 8.5V5.5a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h3"/>`),
+  flag: icon(() => `<path d="M5 21V4.8"/><path d="M5 4.8c3.5-2 6.5 1.9 10 0 1.2-.7 2.6-.5 3.5.2v8.2c-.9-.7-2.3-.9-3.5-.2-3.5 1.9-6.5-2-10 0"/>`),
+  copy: icon(() => `<rect x="8.5" y="8.5" width="12" height="12" rx="3.5"/><path d="M15.5 8.5V6.5a3 3 0 0 0-3-3h-6a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h2"/>`),
   eye: icon(() => `<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>`),
   // Deine Challenges: Raster wie das Profil-Raster
-  ship: icon(() => `<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>`),
+  ship: icon(() => `<rect x="3.5" y="3.5" width="7" height="7" rx="2.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="2.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="2.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="2.5"/>`),
   // Gruppen: zwei Personen
   behausung: icon(() => PEOPLE),
-  gift: icon(() => `<rect x="3.5" y="8" width="17" height="4" rx="1"/><path d="M5 12v8.5h14V12M12 8v12.5M12 8S10.5 3.5 7.8 4.6C6 5.4 7.2 8 12 8zm0 0s1.5-4.5 4.2-3.4C18 5.4 16.8 8 12 8z"/>`),
-  'thumbs-up': icon(() => `<path d="M7.5 10.5v10h-3v-10zM7.5 10.5 11 3.5a2 2 0 0 1 2.8 2.2L13 9.5h5.6a2 2 0 0 1 2 2.4l-1.5 7a2 2 0 0 1-2 1.6H7.5"/>`),
+  gift: icon(() => `<rect x="3.5" y="8" width="17" height="4" rx="1.8"/><path d="M5 12v6.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V12M12 8v12.5M12 8S10.5 3.5 7.8 4.6C6 5.4 7.2 8 12 8zm0 0s1.5-4.5 4.2-3.4C18 5.4 16.8 8 12 8z"/>`),
+  'thumbs-up': icon(() => `<rect x="3.5" y="10.5" width="4" height="10" rx="1.5"/><path d="M7.5 11.2 10.6 4.6c.5-1 1.7-1.3 2.6-.7.6.4.9 1.2.7 1.9L13 9.5h5.3c1.4 0 2.4 1.3 2.1 2.6l-1.3 6.3c-.3 1.2-1.3 2.1-2.6 2.1H7.5"/>`),
 };

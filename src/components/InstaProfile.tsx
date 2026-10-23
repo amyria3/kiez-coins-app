@@ -21,7 +21,7 @@ import { Text } from './T';
 
 type GridTab = 'created' | 'accepted' | 'groups';
 
-const GRID = `<rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M9.2 3.5v17M14.8 3.5v17M3.5 9.2h17M3.5 14.8h17"/>`;
+const GRID = `<rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><path d="M9.2 3.5v17M14.8 3.5v17M3.5 9.2h17M3.5 14.8h17"/>`;
 const HAND = `<circle cx="12" cy="12" r="8.5"/><path d="m8.2 12.3 2.6 2.6 5-5.2"/>`;
 const GRID_TABS: { key: GridTab; label: string; svg: string }[] = [
   { key: 'created', label: 'Erstellt', svg: GRID },
