@@ -8,6 +8,7 @@ import { brandArt } from './brandArt';
 import { crownSvg } from './crownSvg';
 import { diamondSvgs, type DiamondVariant } from './diamondSvgs';
 import { ICON_SCALE } from './Icon';
+import { strokeFor } from './instagramSvgs';
 import { t } from '../../data/texts';
 
 type CatProps = {
@@ -41,13 +42,13 @@ export const Wordmark = memo(function Wordmark() {
 });
 
 /** Zwei Münzen hintereinander: vorn ein ganzer Kreis, hinten nur der Bogen, der hervorschaut */
-const COINS_LINE = (c: string) =>
-  `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="14.5" cy="14.5" r="6.5"/><path d="M8.2 15.8A6.5 6.5 0 1 1 15.8 8.2"/></svg>`;
+const COINS_LINE = (c: string, px: number) =>
+  `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="${c}" stroke-width="${strokeFor(px)}" stroke-linecap="round" stroke-linejoin="round"><circle cx="14.5" cy="14.5" r="6.5"/><path d="M8.2 15.8A6.5 6.5 0 1 1 15.8 8.2"/></svg>`;
 
 /** icon/coins mit Verlauf, Standardgröße wie im BountyBadge (19×22) */
 export const CoinsIcon = memo(function CoinsIcon({ height = 22 }: { height?: number }) {
   // Instagram-Look: zwei Münzen als Kontur, Linie 2 mit runden Enden, in Textfarbe (Daria, 23.10.2026)
-  if (isInstagram) return <SvgXml xml={COINS_LINE(color.text.primary)} width={height} height={height} />;
+  if (isInstagram) return <SvgXml xml={COINS_LINE(color.text.primary, height)} width={height} height={height} />;
   return <SvgXml xml={coinsSvg} width={(30 / 35) * height} height={height} />;
 });
 
@@ -60,7 +61,7 @@ export const DiamondIcon = memo(function DiamondIcon({
   height?: number;
 }) {
   // Instagram-Look: glatter Stein ohne Striche, etwas kleiner, da die Striche als Rahmen fehlen
-  if (isInstagram) return <SvgXml xml={GEM_SVG} width={gem.ratio * height * 0.8} height={height * 0.8} />;
+  if (isInstagram) return <SvgXml xml={GEM_SVG(height * 0.8)} width={gem.ratio * height * 0.8} height={height * 0.8} />;
   const d = diamondSvgs[variant];
   return <SvgXml xml={d.svg(color.text.primary)} width={(d.width / d.height) * height} height={height} />;
 });
@@ -101,8 +102,9 @@ const crystalSvgs = ([1, 2, 3] as DiamondVariant[]).map((v) => {
  * alle Ecken rund, nur die Umrisslinie. Linie 2 auf 24 × 24 in Grün; der Ausschnitt ist auf den Stein zugeschnitten.
  */
 const GEM_COLOR = '#2FA84F';
-const GEM_SVG = `<svg viewBox="2.6 3.4 18.8 16.4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="${GEM_COLOR}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.5h6c1 0 1.9.5 2.5 1.2l2.1 2.7c.7.9.7 2.2-.1 3.1l-6 7a2 2 0 0 1-3 0l-6-7c-.8-.9-.8-2.2-.1-3.1l2.1-2.7C7.1 5 8 4.5 9 4.5z"/></svg>`;
-const gem = { ratio: 18.8 / 16.4, svg: GEM_SVG };
+/** Stein mit gleich kräftiger Linie: `px` ist die dargestellte Höhe */
+const GEM_SVG = (px: number) => `<svg viewBox="2.6 3.4 18.8 16.4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="${GEM_COLOR}" stroke-width="${strokeFor(px, 2, 16.4)}" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.5h6c1 0 1.9.5 2.5 1.2l2.1 2.7c.7.9.7 2.2-.1 3.1l-6 7a2 2 0 0 1-3 0l-6-7c-.8-.9-.8-2.2-.1-3.1l2.1-2.7C7.1 5 8 4.5 9 4.5z"/></svg>`;
+const gem = { ratio: 18.8 / 16.4, svg: GEM_SVG(16.4) };
 /** Kristall je Typ: im Instagram-Look immer der glatte Stein */
 const stoneOf = (type: number) => (isInstagram ? gem : crystalSvgs[type]);
 
@@ -160,7 +162,7 @@ export const EdensteinPile = memo(function EdensteinPile({ amount, height = 24 }
               transform: [{ rotate: `${isInstagram ? 0 : p.rot}deg` }],
             }}
           >
-            <SvgXml xml={crystal.svg} width={cw} height={h} />
+            <SvgXml xml={isInstagram ? GEM_SVG(h) : crystal.svg} width={cw} height={h} />
           </View>
         );
       })}
@@ -330,7 +332,7 @@ export const LivingCrystal = memo(function LivingCrystal({
         ],
       }}
     >
-      <SvgXml xml={crystal.svg} width={w} height={gemH} />
+      <SvgXml xml={isInstagram ? GEM_SVG(gemH) : crystal.svg} width={w} height={gemH} />
       <Animated.View
         pointerEvents="none"
         style={{

@@ -11,7 +11,7 @@ import { t } from '../data/texts';
 import { refreshUnread, useUnreadMessages } from '../data/chat';
 import { useStore } from '../data/store';
 import { Avatar } from './AuthorRow';
-import { CAMERA_PLUS, HOME, PEOPLE, PLANE, line } from './icons/instagramSvgs';
+import { CAMERA_PLUS, HOME, LINE, LINE_STRONG, PEOPLE, PLANE, line, strokeFor, useIconPt } from './icons/instagramSvgs';
 
 /** Krone als Linie für den Look „Instagram“ */
 const crownLine = (c: string) =>
@@ -61,11 +61,12 @@ function InstaTabBar({ active, onFeedPress, onReisePress, onReiseLongPress, hasT
     if (currentUserId) refreshUnread(currentUserId, mode === 'live').catch(() => {});
   }, [currentUserId, mode]);
   const me = users.find((u) => u.id === currentUserId);
+  const ICON_PT = useIconPt();
   const feedActive = active === 'feed' && !groupsActive;
   const groupsOn = active === 'feed' && !!groupsActive;
   const c = color.text.primary;
   const svg = (body: string, strong?: boolean) =>
-    line(c, body).replace(/stroke-width="[^"]*"/, `stroke-width="${strong ? 2.6 : 2}"`);
+    line(c, body, strokeFor(ICON_PT, strong ? LINE_STRONG : LINE));
   const filled = (body: string) => svg(body.replace('/>', ` fill="${c}"/>`));
   return (
     <View style={[styles.wrapFlat, { paddingBottom: insets.bottom }]} pointerEvents="box-none">
@@ -77,7 +78,7 @@ function InstaTabBar({ active, onFeedPress, onReisePress, onReiseLongPress, hasT
           onPress={onFeedPress}
           style={({ pressed }) => [styles.itemInsta, pressed && styles.pressed]}
         >
-          <SvgXml xml={feedActive ? filled(HOME) : svg(HOME)} width={24} height={24} />
+          <SvgXml xml={feedActive ? filled(HOME) : svg(HOME)} width={ICON_PT} height={ICON_PT} />
         </Pressable>
         <Pressable
           accessibilityRole="tab"
@@ -86,7 +87,7 @@ function InstaTabBar({ active, onFeedPress, onReisePress, onReiseLongPress, hasT
           onPress={onGroupsPress ?? (() => router.dismissTo({ pathname: '/feed', params: { reiter: 'gruppen' } }))}
           style={({ pressed }) => [styles.itemInsta, pressed && styles.pressed]}
         >
-          <SvgXml xml={svg(PEOPLE, groupsOn)} width={24} height={24} />
+          <SvgXml xml={svg(PEOPLE, groupsOn)} width={ICON_PT} height={ICON_PT} />
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -94,7 +95,7 @@ function InstaTabBar({ active, onFeedPress, onReisePress, onReiseLongPress, hasT
           onPress={onCreatePress ?? (() => router.dismissTo({ pathname: '/feed', params: { erstellen: '1' } }))}
           style={({ pressed }) => [styles.itemInsta, pressed && styles.pressed]}
         >
-          <SvgXml xml={svg(CAMERA_PLUS)} width={24} height={24} />
+          <SvgXml xml={svg(CAMERA_PLUS)} width={ICON_PT} height={ICON_PT} />
         </Pressable>
         <Pressable
           accessibilityRole="tab"
@@ -104,7 +105,7 @@ function InstaTabBar({ active, onFeedPress, onReisePress, onReiseLongPress, hasT
           style={({ pressed }) => [styles.itemInsta, pressed && styles.pressed]}
         >
           <View>
-            <SvgXml xml={svg(PLANE, active === 'chat')} width={24} height={24} />
+            <SvgXml xml={svg(PLANE, active === 'chat')} width={ICON_PT} height={ICON_PT} />
             {unread ? <View style={styles.dotInsta} /> : null}
           </View>
         </Pressable>
@@ -116,8 +117,8 @@ function InstaTabBar({ active, onFeedPress, onReisePress, onReiseLongPress, hasT
           onLongPress={onReiseLongPress}
           style={({ pressed }) => [styles.itemInsta, pressed && styles.pressed]}
         >
-          <View style={[styles.me, active === 'reise' && styles.meActive]}>
-            {me ? <Avatar user={me} diameter={24} /> : <SvgXml xml={svg(PEOPLE)} width={24} height={24} />}
+          <View style={[styles.me, { width: ICON_PT + 6, height: ICON_PT + 6, borderRadius: (ICON_PT + 6) / 2 }, active === 'reise' && styles.meActive]}>
+            {me ? <Avatar user={me} diameter={ICON_PT} /> : <SvgXml xml={svg(PEOPLE)} width={ICON_PT} height={ICON_PT} />}
           </View>
           {hasTasks ? <View style={styles.dotInsta} /> : null}
         </Pressable>
@@ -259,10 +260,10 @@ const styles = StyleSheet.create({
   barFlat: { flexDirection: 'row', justifyContent: 'space-around', paddingVertical: space[2] },
   // Erstellen als schlichtes Icon ohne Fläche
   cameraFlat: { backgroundColor: 'transparent', width: 48 },
-  barInsta: { flexDirection: 'row', height: 50 },
+  barInsta: { flexDirection: 'row', height: 54 },
   itemInsta: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  // Profilbild 24 pt; aktiv mit 1,5 pt schwarzem Ring und 1,5 pt Luft (Rahmen 30 pt)
-  me: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'transparent' },
+  // Profilbild so groß wie die Icons; aktiv mit 1,5 pt schwarzem Ring und 1,5 pt Luft
+  me: { alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'transparent' },
   meActive: { borderColor: color.text.primary },
   dotInsta: {
     position: 'absolute',

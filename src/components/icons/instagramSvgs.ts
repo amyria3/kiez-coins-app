@@ -4,15 +4,37 @@
 // Eigene Zeichnungen.
 // Fehlt ein Name hier, zeigt Icon.tsx Darias Icon aus svgs.ts.
 import type { IconName } from './svgs';
+import { useAppDimensions } from '../../theme/layout';
 
-type Svg = { width: number; height: number; svg: (c: string, filled?: boolean) => string };
+type Svg = { width: number; height: number; svg: (c: string, filled?: boolean, stroke?: number) => string };
 
-/** Linienstärke aller Instagram-Icons in px auf 24 × 24 */
+/**
+ * Maße wie in Darias Mockups „Vorher-Nachher“ (24.10.2026): Alle Hauptsymbole sind gleich groß, 24 pt bei 360 pt
+ * Breite, und haben dieselbe Linie, 2 auf 24 (ein Zwölftel der Größe, wie Instagram mit 1,98).
+ * Die Größe wächst mit der Breite der App, damit die Icons im Verhältnis zum Feed gleich bleiben.
+ */
 export const LINE = 2;
+/** Aktive Icons in der Leiste: kräftiger */
+export const LINE_STRONG = 2.6;
+/** Kleinste sichtbare Linie in pt, damit kleine Icons (Pfeile, Plus im Chip) nicht dünner wirken */
+const MIN_PT = 1.5;
 
-export const line = (c: string, body: string) =>
-  `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="${c}" stroke-width="${LINE}" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;
-const icon = (body: (c: string, filled?: boolean) => string): Svg => ({ width: 24, height: 24, svg: (c, filled) => line(c, body(c, filled)) });
+/** Größe der Hauptsymbole in pt: 24 bei 360 pt Breite, mit der Breite wachsend, höchstens 30 */
+export const iconPtFor = (width: number) => Math.max(24, Math.min(30, Math.round((width * 24) / 360)));
+export function useIconPt() {
+  return iconPtFor(useAppDimensions().width);
+}
+
+/** Linienstärke im viewBox (Breite `box`): ein Zwölftel der Größe, bei `px` Darstellungsgröße mindestens MIN_PT */
+export const strokeFor = (px: number, pt = LINE, box = 24) => +Math.max((pt * box) / 24, (MIN_PT * box) / px).toFixed(3);
+
+export const line = (c: string, body: string, stroke = LINE) =>
+  `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="${c}" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;
+const icon = (body: (c: string, filled?: boolean) => string): Svg => ({
+  width: 24,
+  height: 24,
+  svg: (c, filled, stroke) => line(c, body(c, filled), stroke),
+});
 
 /** Papierflieger mit runder Spitze und runden Ecken, wie Instagrams Teilen- und Nachrichten-Icon */
 export const PLANE = `<path d="M5 9.2 18.6 4.2c1.6-.6 2.1-.1 1.5 1.5l-4.7 13.1c-.5 1.5-1.3 1.6-2 .1l-2.3-5c-.2-.4-.5-.7-.9-.9l-5.2-2.1c-1.4-.6-1.4-1.1 0-1.7z"/><path d="M11.1 13 15.4 8.7"/>`;

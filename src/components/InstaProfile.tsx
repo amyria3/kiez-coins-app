@@ -15,7 +15,7 @@ import { color, font, radius, space, stroke } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
 import { Cat } from './icons/Brand';
 import { Icon } from './icons/Icon';
-import { PEOPLE, line } from './icons/instagramSvgs';
+import { PEOPLE, line, strokeFor, useIconPt } from './icons/instagramSvgs';
 import { TAB_BAR_SPACE, TabBar } from './TabBar';
 import { Text } from './T';
 
@@ -44,6 +44,7 @@ export function InstaProfile() {
   const { challenges, currentUserId, profile, groups, users } = useStore();
   const friends = useFriends();
   const [tab, setTab] = useState<GridTab>('created');
+  const ICON_PT = useIconPt();
   const entries = useMemo(() => reiseEntries(challenges, currentUserId), [challenges, currentUserId]);
   const mood = reiseMood(entries);
   const me = users.find((u) => u.id === currentUserId);
@@ -189,7 +190,7 @@ export function InstaProfile() {
                 onPress={() => setTab(g.key)}
                 style={[styles.gridTab, on && styles.gridTabOn]}
               >
-                <SvgXml xml={line(on ? color.text.primary : color.text.secondary, g.svg)} width={24} height={24} />
+                <SvgXml xml={line(on ? color.text.primary : color.text.secondary, g.svg, strokeFor(ICON_PT))} width={ICON_PT} height={ICON_PT} />
               </Pressable>
             );
           })}
