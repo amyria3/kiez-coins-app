@@ -312,7 +312,7 @@ function InstaPost({ challenge, author, distance, onPress, onCommentPress, onLik
           onPress={onLike}
           style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
         >
-          <Icon name="heart" size={22} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
+          <Icon name="heart" size={size.icon} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
           {challenge.likeCount ? <Text style={insta.count}>{challenge.likeCount}</Text> : null}
         </Pressable>
         <Pressable
@@ -321,12 +321,12 @@ function InstaPost({ challenge, author, distance, onPress, onCommentPress, onLik
           onPress={onCommentPress ?? onPress}
           style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
         >
-          <Icon name="comment" size={22} color={color.text.primary} />
+          <Icon name="comment" size={size.icon} color={color.text.primary} />
           {commentCount > 0 ? <Text style={insta.count}>{commentCount}</Text> : null}
         </Pressable>
         <IconButton
           icon="send"
-          iconSize={22}
+          iconSize={size.icon}
           accessibilityLabel={t('Teilen')}
           onPress={() => shareText(t('{title} – Kiez Coins', { title: challenge.title }))}
         />
@@ -366,24 +366,31 @@ function WithMentions({ value }: { value: string }) {
   );
 }
 
+/**
+ * Maße im Look „Instagram“ (Daria, 23.10.2026), in pt:
+ * Kopf 54 hoch: links 12, rechts 4 (das Zahnrad bringt 44 Fläche mit), Bild 32, 10 bis zum Namen.
+ * Foto über die ganze Breite im Hochformat 4:5 wie Instagram, ohne Foto 4:3 mit Titel.
+ * Aktionen 44 hoch, links 4, Icons 24. Text links und rechts 12, 4 zwischen den Zeilen, 16 bis zum nächsten Beitrag.
+ */
 const insta = StyleSheet.create({
-  post: { paddingBottom: space[8] },
+  post: { paddingBottom: space[16] },
   head: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: space[12],
-    paddingVertical: space[8],
+    height: 54,
+    paddingLeft: space[12],
+    paddingRight: space[4],
     gap: space[8],
   },
-  headWho: { flexDirection: 'row', alignItems: 'center', gap: space[8], flexShrink: 1 },
+  headWho: { flexDirection: 'row', alignItems: 'center', gap: 10, flexShrink: 1 },
   headRight: { flexDirection: 'row', alignItems: 'center', gap: space[8], flexShrink: 0 },
   name: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18, color: color.text.primary },
   place: { ...text.caption, fontSize: 12, color: color.text.primary },
-  photo: { width: '100%', aspectRatio: 1, backgroundColor: color.bg.surface, overflow: 'hidden' },
-  noPhoto: { aspectRatio: undefined, height: 180, justifyContent: 'center', paddingHorizontal: space[24] },
+  photo: { width: '100%', aspectRatio: 4 / 5, backgroundColor: color.bg.surface, overflow: 'hidden' },
+  noPhoto: { aspectRatio: 4 / 3, justifyContent: 'center', paddingHorizontal: space[24] },
   noPhotoTitle: { ...text.headline, color: color.text.primary, textAlign: 'center' },
-  actions: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: space[6] },
+  actions: { flexDirection: 'row', alignItems: 'center', height: 44, paddingHorizontal: space[4] },
   count: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] },
   caption: { paddingHorizontal: space[12], gap: space[4] },
   captionText: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.primary },

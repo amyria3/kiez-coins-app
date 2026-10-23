@@ -67,6 +67,10 @@ export const color = {
     /** Schrift auf Fotos, in beiden Looks hell */
     onPhoto: '#F0F0F0',
   },
+  /** Signaturfarbe für Logo und Kater. Im Instagram-Look Kiez-Violett (Daria, 23.10.2026), damit die Marke sich vom Blau der Aktionen abhebt. */
+  brand: {
+    signature: instagram ? '#7B2FF7' : palette.purple,
+  },
   accent: {
     primary: palette.purple,
     affection: palette.pink,

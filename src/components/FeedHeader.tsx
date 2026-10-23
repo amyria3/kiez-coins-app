@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 
 import { challengeTypes, isTypeActive } from '../data/features';
 import type { Challenge } from '../data/types';
-import { color, font, motion, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isInstagram, motion, radius, size, space, stroke, text } from '../theme/tokens';
 import { KaterCard } from './Content';
 import { Logo } from './icons/Brand';
 import { SkeletonTopItem } from './Skeleton';
@@ -36,7 +36,7 @@ export function AppHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderP
       >
         {/* Neues Logo mit Kater links (Daria, 22.10.2026); der Punkt sitzt am Kater */}
         <View>
-          <Logo height={30} />
+          <Logo height={isInstagram ? 28 : 30} />
           {hasTasks ? <View style={[styles.taskDot, styles.taskDotLogo]} /> : null}
         </View>
       </Pressable>
@@ -140,7 +140,64 @@ type SegmentsProps<K extends string> = {
 };
 
 /** Segmente mit gleitender Pille, z. B. Feed-Reiter oder „Aktuell / Archiv“ in „Deine Challenges“. */
-export function Segments<K extends string>({ tabs, selectedKey, onChange, progress }: SegmentsProps<K>) {
+export function Segments<K extends string>(props: SegmentsProps<K>) {
+  return isInstagram ? <UnderlineTabs {...props} /> : <PillSegments {...props} />;
+}
+
+/**
+ * Umschalter im Look „Instagram“ (Daria, 23.10.2026), wie die Reiter im Instagram-Profil: gleich breite Felder,
+ * 44 pt hoch, Schrift 15 pt. Aktiv schwarz und halbfett, sonst Grau #737373. Unter dem aktiven Reiter liegt
+ * ein schwarzer Strich, 1 pt stark und so breit wie das Feld; er gleitet mit „Schranke“ bzw. folgt dem Finger.
+ * Darunter eine Haarlinie über die ganze Breite.
+ */
+function UnderlineTabs<K extends string>({ tabs, selectedKey, onChange, progress }: SegmentsProps<K>) {
+  const [width, setWidth] = useState(0);
+  const index = Math.max(0, tabs.findIndex((tab) => tab.key === selectedKey));
+  const x = useRef(new Animated.Value(index)).current;
+  useEffect(() => {
+    if (progress) return;
+    Animated.timing(x, {
+      toValue: index,
+      duration: motion.tabSwitch.duration,
+      easing: Easing.bezier(...motion.barrier.bezier),
+      useNativeDriver: true,
+    }).start();
+  }, [index, x, progress]);
+  const at = progress ?? x;
+  const w = tabs.length ? width / tabs.length : 0;
+  return (
+    <View style={styles.under} accessibilityRole="tablist" onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
+      {tabs.map((tab) => {
+        const selected = tab.key === selectedKey;
+        return (
+          <Pressable
+            key={tab.key}
+            accessibilityRole="tab"
+            accessibilityLabel={tab.planned ? t('{label}, kommt später', { label: tab.label }) : tab.label}
+            accessibilityState={{ selected }}
+            onPress={() => onChange(tab.key)}
+            style={({ pressed }) => [styles.underTab, pressed && styles.underPressed]}
+          >
+            <Text numberOfLines={1} style={[styles.underText, selected && styles.underTextSelected, tab.planned && !selected && styles.planned]}>
+              {t(tab.label)}
+            </Text>
+          </Pressable>
+        );
+      })}
+      {w ? (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.underBar,
+            { width: w, transform: [{ translateX: Animated.multiply(at, w) }] },
+          ]}
+        />
+      ) : null}
+    </View>
+  );
+}
+
+function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress }: SegmentsProps<K>) {
   // Helle Pille gleitet zum gewählten Reiter (Bewegung „Schranke“, etwas langsamer)
   const [layouts, setLayouts] = useState<Partial<Record<K, { x: number; width: number }>>>({});
   const pillX = useRef(new Animated.Value(0)).current;
@@ -244,7 +301,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: space[16],
-    paddingVertical: space[8],
+    paddingVertical: isInstagram ? 0 : space[8],
   },
   spacer: { width: size.touchTarget, height: size.touchTarget },
   logo: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
@@ -259,9 +316,16 @@ const styles = StyleSheet.create({
     borderWidth: stroke.thin,
     borderColor: color.bg.screen,
   },
-  greeting: { paddingHorizontal: space[16], paddingTop: space[12], paddingBottom: space[8], gap: space[4] },
-  greetingTitle: { ...text.display, color: color.text.primary },
-  greetingSub: { fontFamily: font.light, fontSize: 15, lineHeight: 20, color: color.text.secondary },
+  // Instagram-Look: Kopf 44 hoch, Begrüßung kleiner und halbfett, 16 seitlich, 4 oben, 12 unten bis zum Umschalter
+  greeting: isInstagram
+    ? { paddingHorizontal: space[16], paddingTop: space[4], paddingBottom: space[12], gap: space[2] }
+    : { paddingHorizontal: space[16], paddingTop: space[12], paddingBottom: space[8], gap: space[4] },
+  greetingTitle: isInstagram
+    ? { fontFamily: font.semiBold, fontSize: 22, lineHeight: 28, letterSpacing: -0.3, color: color.text.primary }
+    : { ...text.display, color: color.text.primary },
+  greetingSub: isInstagram
+    ? { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.secondary }
+    : { fontFamily: font.light, fontSize: 15, lineHeight: 20, color: color.text.secondary },
   topBar: { paddingHorizontal: space[16], paddingTop: space[4], paddingBottom: space[4], gap: space[12] },
   topItem: { width: size.thumbnail, alignItems: 'center', gap: space[4] },
   thumbnail: {
@@ -294,4 +358,15 @@ const styles = StyleSheet.create({
   segmentInner: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   planned: { opacity: 0.6 },
   hint: { paddingHorizontal: space[16] },
+  under: {
+    flexDirection: 'row',
+    width: '100%',
+    borderBottomWidth: stroke.ultraThin,
+    borderBottomColor: color.line.hairline,
+  },
+  underTab: { flex: 1, height: 44, alignItems: 'center', justifyContent: 'center' },
+  underPressed: { opacity: 0.5 },
+  underText: { fontFamily: font.medium, fontSize: 15, lineHeight: 20, color: color.text.secondary },
+  underTextSelected: { fontFamily: font.semiBold, color: color.text.primary },
+  underBar: { position: 'absolute', left: 0, bottom: -stroke.ultraThin, height: 1, backgroundColor: color.text.primary },
 });

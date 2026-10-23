@@ -24,6 +24,7 @@ import { useAppDimensions } from '../theme/layout';
 import { AppHeader, FeedGreeting, PlannedHint, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
 import { FeedStateMessage } from '../components/FeedStateMessage';
 import { GroupBar, GroupsEmpty } from '../components/GroupBar';
+import { FriendsRow } from '../components/FriendsRow';
 import { GearsLoader } from '../components/GearsLoader';
 import { SurveyOverlay, useSurveyPrompt } from '../components/SurveyOverlay';
 import { CAMERA_W, CameraButton, TAB_BAR_SPACE, TabBar } from '../components/TabBar';
@@ -34,7 +35,7 @@ import { coordsIfAllowed, distanceMeters, formatDistance, type Coords } from '..
 import { reiseEntries } from '../data/reise';
 import { topChallenges as pickTopChallenges, useStore } from '../data/store';
 import type { Challenge } from '../data/types';
-import { color, motion, space, text } from '../theme/tokens';
+import { color, isInstagram, motion, space, text } from '../theme/tokens';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
@@ -58,8 +59,9 @@ export default function FeedScreen() {
   const requireKiez = useRequireKiez();
   const [surveyVisible, closeSurvey] = useSurveyPrompt();
   // `gruppe`: aus der Gruppenseite („Aufgaben ansehen“) direkt in den Reiter „Gruppen“
-  const { gruppe } = useLocalSearchParams<{ gruppe?: string }>();
-  const [tab, setTab] = useState<FeedTab>(gruppe ? 'groups' : 'nearby');
+  // `reiter=gruppen` und `erstellen=1`: aus der Leiste im Instagram-Look von anderen Seiten
+  const { gruppe, reiter, erstellen } = useLocalSearchParams<{ gruppe?: string; reiter?: string; erstellen?: string }>();
+  const [tab, setTab] = useState<FeedTab>(gruppe || reiter === 'gruppen' ? 'groups' : 'nearby');
   const [groupChoice, setGroupChoice] = useState<string | undefined>(gruppe);
   const groupId = groups.find((g) => g.id === groupChoice)?.id ?? groups[0]?.id;
   useEffect(() => {
@@ -87,6 +89,7 @@ export default function FeedScreen() {
     }).start();
 
   const collapse = () => {
+    clearTimeout(autoHide.current);
     if (collapsed) return;
     collapsedAt.current = Date.now();
     maxY.current = 0;
@@ -100,6 +103,16 @@ export default function FeedScreen() {
     setCollapsed(false);
     animateHeader(0);
   };
+
+  // Kopf geht auch ohne Interaktion weg (Daria, 23.10.2026): nach HEADER_HIDE_MS, sobald er sichtbar ist.
+  const autoHide = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const collapseRef = useRef(collapse);
+  collapseRef.current = collapse;
+  useEffect(() => {
+    if (collapsed) return;
+    autoHide.current = setTimeout(() => collapseRef.current(), HEADER_HIDE_MS);
+    return () => clearTimeout(autoHide.current);
+  }, [collapsed]);
 
   // Ausblenden: nach unten scrollen. Einblenden nur durch echtes Zurückscrollen nach oben
   // (vorher mehr als 120 Punkte weit unten) oder Herunterziehen ganz oben.
@@ -189,6 +202,20 @@ export default function FeedScreen() {
     }).start();
     if (!wasCollapsed.current) animateHeader(0);
   };
+  // Aus der Leiste einer anderen Seite: Reiter „Gruppen“ oder Erstellen öffnen
+  const createRef = useRef(createChallenge);
+  createRef.current = createChallenge;
+  useEffect(() => {
+    if (reiter === 'gruppen') {
+      setTab('groups');
+      router.setParams({ reiter: undefined });
+    }
+  }, [reiter, router]);
+  useEffect(() => {
+    if (erstellen !== '1') return;
+    router.setParams({ erstellen: undefined });
+    createRef.current();
+  }, [erstellen, router]);
   // Nach dem Veröffentlichen zurück im Feed: Blatt zu und leer
   useFocusEffect(
     useCallback(() => {
@@ -218,6 +245,8 @@ export default function FeedScreen() {
     setTab(key);
     collapse();
     lastY.current = 0;
+    // Sprung nach oben ist kein Zurückscrollen: Kopf bleibt weg
+    maxY.current = 0;
     listRef.current?.scrollToOffset({ offset: 0, animated: false });
   };
 
@@ -269,9 +298,10 @@ export default function FeedScreen() {
   const items: FeedItem[] = [];
   if (planned) items.push({ kind: 'planned' });
   if (tab === 'groups' && !loading) {
-    if (groups.length === 0) items.push({ kind: 'groupsEmpty' });
+    // Freundschaften gehören zum Reiter „Gruppen“ und stehen direkt unter der Gruppe (Daria, 23.10.2026)
+    if (groups.length === 0) items.push({ kind: 'groupsEmpty' }, { kind: 'friends' });
     else {
-      items.push({ kind: 'groupBar' });
+      items.push({ kind: 'groupBar' }, { kind: 'friends' });
       if (posts.length === 0) items.push({ kind: 'groupNoTasks' });
       else posts.forEach((challenge) => items.push({ kind: 'post', challenge }));
     }
@@ -293,11 +323,13 @@ export default function FeedScreen() {
             onAll={() => router.push('/gruppen')}
           />
         );
+      case 'friends':
+        return <FriendsRow />;
       case 'groupNoTasks':
         return (
           <GroupsEmpty
             title="Noch keine Aufgaben"
-            message="Tipp oben rechts auf die Kamera und stell die erste Aufgabe für Eure Gruppe ein."
+            message={isInstagram ? 'Tipp unten auf die Kamera und stell die erste Aufgabe für Eure Gruppe ein.' : 'Tipp oben rechts auf die Kamera und stell die erste Aufgabe für Eure Gruppe ein.'}
           />
         );
       case 'planned':
@@ -358,10 +390,13 @@ export default function FeedScreen() {
       }
     : null;
   // Beim Erstellen ist die Kamera weg, die Pille nutzt die volle Breite
-  const tabsPaddingRight = Animated.add(
-    progress.interpolate({ inputRange: [0, 1], outputRange: [space[16], space[16] + CAMERA_WIDTH + space[8]] }),
-    composeAnim.interpolate({ inputRange: [0, 1], outputRange: [0, -(CAMERA_WIDTH + space[8])] }),
-  );
+  // Instagram-Look: Erstellen sitzt in der Leiste unten, die Reiter nutzen die volle Breite ohne Rand
+  const tabsPaddingRight = isInstagram
+    ? 0
+    : Animated.add(
+        progress.interpolate({ inputRange: [0, 1], outputRange: [space[16], space[16] + CAMERA_WIDTH + space[8]] }),
+        composeAnim.interpolate({ inputRange: [0, 1], outputRange: [0, -(CAMERA_WIDTH + space[8])] }),
+      );
   const composeHeaderStyle = {
     height: composeAnim.interpolate({ inputRange: [0, 1], outputRange: [0, COMPOSE_HEADER] }),
     opacity: composeAnim.interpolate({ inputRange: [0, 0.4, 1], outputRange: [0, 0, 1] }),
@@ -401,7 +436,7 @@ export default function FeedScreen() {
           </Text>
         </View>
       </Animated.View>
-      <Animated.View style={[styles.tabsRow, { paddingRight: tabsPaddingRight }]}>
+      <Animated.View style={[styles.tabsRow, isInstagram && styles.tabsRowInsta, { paddingRight: tabsPaddingRight }]}>
         <TabsNavigation selectedKey={tab} onChange={switchTab} />
       </Animated.View>
       <Animated.View style={[styles.clip, storiesStyle]}>
@@ -420,7 +455,7 @@ export default function FeedScreen() {
           onScrollBeginDrag={() => (dragging.current = true)}
           onScrollEndDrag={() => (dragging.current = false)}
           scrollEventThrottle={16}
-          contentContainerStyle={[styles.list, styles.listTop, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
+          contentContainerStyle={[styles.list, isInstagram ? null : styles.listTop, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={color.text.secondary} />
           }
@@ -437,7 +472,7 @@ export default function FeedScreen() {
           </Animated.View>
         ) : null}
       </View>
-      {composing ? null : <CameraButton onPress={createChallenge} />}
+      {composing || isInstagram ? null : <CameraButton onPress={createChallenge} />}
       {composing ? null : <TabBar
         active="feed"
         hasTasks={hasTasks}
@@ -445,6 +480,9 @@ export default function FeedScreen() {
         onReisePress={() => router.push('/reise')}
         onReiseLongPress={() => router.push('/demo')}
         onMenuPress={() => router.push('/account')}
+        onCreatePress={createChallenge}
+        onGroupsPress={() => switchTab('groups')}
+        groupsActive={tab === 'groups'}
       />}
       <SurveyOverlay visible={surveyVisible} onClose={closeSurvey} />
     </View>
@@ -455,6 +493,8 @@ export default function FeedScreen() {
 const CAMERA_WIDTH = CAMERA_W;
 /** Stories-Leiste oben im Feed (Top-Challenges, später Videos) */
 const STORIES = false;
+/** Nach so vielen Millisekunden ohne Interaktion gleiten Logo und Begrüßung weg */
+const HEADER_HIDE_MS = 3500;
 /** Höhe des schmalen Kopfs beim Erstellen */
 const COMPOSE_HEADER = 52;
 
@@ -467,6 +507,7 @@ type FeedItem =
   | { kind: 'planned' }
   | { kind: 'groupsEmpty' }
   | { kind: 'groupBar' }
+  | { kind: 'friends' }
   | { kind: 'groupNoTasks' }
   | { kind: 'loading' }
   | { kind: 'state' }
@@ -477,7 +518,8 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   flex: { flex: 1 },
   clip: { overflow: 'hidden' },
-  list: { gap: space[24] },
+  // Instagram-Look: Beiträge ohne Lücke, jeder Beitrag bringt 16 pt Abstand unten selbst mit
+  list: { gap: isInstagram ? 0 : space[24] },
   listTop: { paddingTop: space[8] },
   composeHeader: { height: COMPOSE_HEADER, flexDirection: 'row', alignItems: 'center', gap: space[4], paddingHorizontal: space[8] },
   composeLine: { ...text.title, flex: 1, color: color.text.primary },
@@ -488,4 +530,6 @@ const styles = StyleSheet.create({
     paddingBottom: space[8],
     paddingLeft: space[16],
   },
+  // Unterstrich-Reiter über die ganze Breite, Haarlinie unten schließt an den ersten Beitrag an
+  tabsRowInsta: { paddingTop: 0, paddingBottom: 0, paddingLeft: 0 },
 });
