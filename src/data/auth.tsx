@@ -5,6 +5,9 @@ import { supabase } from '../lib/supabase';
 import { ensureOwnProfile, loadOwnProfile, saveOwnProfile } from './remote';
 import { useStore } from './store';
 import type { Profile } from './types';
+import { t } from './texts';
+
+const MIN_PASSWORD = 8;
 
 // Anmeldung per E-Mail-Code (sendCode/verifyCode, onboarding/email → onboarding/code). Supabase Auth
 // verschickt die Codes über Brevo als registration.noreply@kiezcoins.de. Alternativ meldet sich die
@@ -17,7 +20,7 @@ type Auth = {
   session: Session | null;
   /** true, bis die gespeicherte Sitzung vom Gerät gelesen ist */
   loading: boolean;
-  /** Schickt einen Code an die Adresse. `createUser: false` für „Ich hab schon ein Konto“. */
+  /** Schickt einen Code an die Adresse. Mit `createUser` legt Supabase bei Bedarf ein Konto an. */
   sendCode: (email: string, createUser: boolean) => Promise<string | null>;
   /** Prüft den Code. Gibt eine Fehlermeldung zurück oder null. */
   verifyCode: (email: string, code: string) => Promise<string | null>;
@@ -25,6 +28,8 @@ type Auth = {
   signUpWithPassword: (email: string, password: string) => Promise<string | null>;
   /** Mit Passwort anmelden. Gibt eine Fehlermeldung zurück oder null. */
   signInWithPassword: (email: string, password: string) => Promise<string | null>;
+  /** Mit Passwort anmelden und ohne Konto eins anlegen. Gibt eine Fehlermeldung zurück oder null. */
+  signInOrUpWithPassword: (email: string, password: string) => Promise<string | null>;
   /** true, wenn das Konto ein Passwort hat (Merker `has_password` in den Nutzer-Metadaten). */
   hasPassword: boolean;
   /** Passwort für das angemeldete Konto festlegen oder ändern. Gibt eine Fehlermeldung zurück oder null. */
@@ -48,7 +53,7 @@ export function authErrorText(error: AuthError): string {
     case 'otp_disabled':
     case 'signup_disabled':
     case 'user_not_found':
-      return 'Zu dieser Adresse gibt es noch kein Konto. Heuer einfach neu an.';
+      return 'Zu dieser Adresse gibt es noch kein Konto. Lass Dir einen Code schicken.';
     case 'over_email_send_rate_limit':
     case 'over_request_rate_limit':
       return 'Zu viele Codes auf einmal. Warte kurz und versuch es dann noch mal.';
@@ -58,7 +63,7 @@ export function authErrorText(error: AuthError): string {
       return 'E-Mail oder Passwort stimmen nicht.';
     case 'user_already_exists':
     case 'email_exists':
-      return 'Zu dieser Adresse gibt es schon ein Konto. Tipp auf „Ich hab schon ein Konto“.';
+      return 'Zu dieser Adresse gibt es schon ein Konto. Melde Dich mit Code oder Passwort an.';
     case 'same_password':
       return 'Das ist schon Dein Passwort. Nimm ein anderes.';
     case 'reauthentication_needed':
@@ -170,6 +175,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!data.user.user_metadata?.has_password) {
           await supabase.auth.updateUser({ data: { has_password: true } });
         }
+        return null;
+      },
+      signInOrUpWithPassword: async (email, password) => {
+        // Ein Weg für alle (Daria, 24.10.2026): Erst anmelden. Klappt das nicht, gibt es entweder kein Konto
+        // (dann anlegen) oder das Passwort stimmt nicht (dann meldet Supabase beim Anlegen „gibt es schon“).
+        const signIn = await supabase.auth.signInWithPassword({ email, password });
+        if (!signIn.error) {
+          if (!signIn.data.user.user_metadata?.has_password) {
+            await supabase.auth.updateUser({ data: { has_password: true } });
+          }
+          return null;
+        }
+        if (signIn.error.code !== 'invalid_credentials') return authErrorText(signIn.error);
+        if (password.length < MIN_PASSWORD) {
+          return t('E-Mail oder Passwort stimmen nicht. Ein neues Passwort braucht mindestens {MIN_PASSWORD} Zeichen.', { MIN_PASSWORD });
+        }
+        const signUp = await supabase.auth.signUp({ email, password, options: { data: { has_password: true } } });
+        if (signUp.error) {
+          if (signUp.error.code === 'user_already_exists' || signUp.error.code === 'email_exists') {
+            return 'E-Mail oder Passwort stimmen nicht.';
+          }
+          return authErrorText(signUp.error);
+        }
+        if (!signUp.data.session) return 'Konto angelegt, aber noch nicht freigeschaltet. Schreib uns bitte.';
         return null;
       },
       hasPassword: !!session?.user.user_metadata?.has_password,
