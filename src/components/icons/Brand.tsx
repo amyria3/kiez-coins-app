@@ -91,20 +91,12 @@ const crystalSvgs = ([1, 2, 3] as DiamondVariant[]).map((v) => {
 });
 
 /**
- * Edenstein im Look „Instagram“ (Daria, 23.10.2026): glatt und symmetrisch geschliffen, ohne Struktur und Striche.
- * Krone mit Tafel und zwei Seitenfacetten, darunter der Unterteil mit drei Facetten bis zur Spitze.
- * Licht von oben: Tafel hell, Mitte unten mittel, links und rechts gleich dunkel, damit beide Seiten gleich wirken.
+ * Edenstein im Look „Instagram“ (Daria, 23.10.2026): flach in einer Farbe, symmetrisch, mit runden Ecken
+ * und leicht gewölbten Seiten bis zur runden Spitze. Keine Facetten, kein Licht, keine Tiefe.
+ * Die runden Ecken entstehen aus einer Kontur in derselben Farbe mit runden Ecken (stroke-linejoin round).
  */
-const GEM_TONE = { light: '#A6F5C1', mid: '#4FD67F', dark: '#22A452', edge: '#178A42' };
-const GEM_SVG = `<svg viewBox="0 0 20 18" xmlns="http://www.w3.org/2000/svg">
-<path d="M1 6.2 5.2 1h9.6L19 6.2 10 17z" fill="${GEM_TONE.edge}"/>
-<path d="M1 6.2 5.2 1l1.9 5.2z" fill="${GEM_TONE.mid}"/>
-<path d="M14.8 1 19 6.2h-6.1z" fill="${GEM_TONE.mid}"/>
-<path d="M5.2 1h9.6l-1.9 5.2H7.1z" fill="${GEM_TONE.light}"/>
-<path d="M1 6.2h6.1L10 17z" fill="${GEM_TONE.dark}"/>
-<path d="M12.9 6.2H19L10 17z" fill="${GEM_TONE.dark}"/>
-<path d="M7.1 6.2h5.8L10 17z" fill="${GEM_TONE.mid}"/>
-</svg>`;
+const GEM_COLOR = '#2FA84F';
+const GEM_SVG = `<svg viewBox="0 0 20 18" xmlns="http://www.w3.org/2000/svg"><path d="M6 2.2h8l3.8 4.6Q15.5 11.6 10 15.8 4.5 11.6 2.2 6.8z" fill="${GEM_COLOR}" stroke="${GEM_COLOR}" stroke-width="2.6" stroke-linejoin="round"/></svg>`;
 const gem = { ratio: 20 / 18, svg: GEM_SVG };
 /** Kristall je Typ: im Instagram-Look immer der glatte Stein */
 const stoneOf = (type: number) => (isInstagram ? gem : crystalSvgs[type]);
