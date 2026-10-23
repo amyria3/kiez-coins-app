@@ -21,4 +21,3 @@ Diese `README.md` bleibt immer liegen.
 
 ## Liegt gerade hier
 
-- `2026-10-23_look-waehlbar.md` → `kiez-coins/ENTSCHEIDUNGEN.md` und `kiez-coins/APP-STAND.md`
