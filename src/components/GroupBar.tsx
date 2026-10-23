@@ -5,7 +5,7 @@ import { Text } from './T';
 import { useStore } from '../data/store';
 import { myEdensteine } from '../data/groups';
 import type { Group } from '../data/types';
-import { color, font, isInstagram, radius, size, space, text } from '../theme/tokens';
+import { color, font, radius, size, space, text } from '../theme/tokens';
 import { Button } from './Button';
 import { KaterCard } from './Content';
 import { IconButton } from './IconButton';
@@ -66,7 +66,7 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
                 {selected.name}
               </Text>
               <IconButton
-                icon={isInstagram ? 'more' : 'settings'}
+                icon="settings"
                 iconSize={16}
                 iconColor={color.text.secondary}
                 accessibilityLabel={t('{name} verwalten', { name: selected.name })}

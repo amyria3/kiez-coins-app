@@ -276,8 +276,8 @@ function InstaPost({ challenge, author, distance, onPress, onCommentPress, onLik
             </View>
           ) : null}
           {onManage ? (
-            // Drei Punkte wie bei Instagram oben rechts am Beitrag
-            <IconButton icon="more" iconSize={size.icon} accessibilityLabel={t('Deine Challenges verwalten')} onPress={onManage} />
+            // Zahnrad wie im Mockup oben rechts am Beitrag
+            <IconButton icon="settings" iconSize={size.icon} accessibilityLabel={t('Deine Challenges verwalten')} onPress={onManage} />
           ) : null}
         </View>
       </View>

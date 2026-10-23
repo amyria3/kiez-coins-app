@@ -10,8 +10,7 @@ import { CrownIcon } from './icons/Brand';
 import { t } from '../data/texts';
 import { refreshUnread, useUnreadMessages } from '../data/chat';
 import { useStore } from '../data/store';
-import { Avatar } from './AuthorRow';
-import { CAMERA_PLUS, HOME, LINE, LINE_STRONG, PEOPLE, PLANE, line, strokeFor, useIconPt } from './icons/instagramSvgs';
+import { BURGER, CAMERA_PLUS, PEOPLE, PLANE, line, strokeFor, useIconPt } from './icons/instagramSvgs';
 
 /** Krone als Linie für den Look „Instagram“ */
 const crownLine = (c: string) =>
@@ -47,53 +46,39 @@ export function TabBar(props: TabBarProps) {
 }
 
 /**
- * Leiste im Look „Instagram“ (Daria, 23.10.2026): fünf gleich breite Felder über die ganze Breite, 50 pt hoch,
- * Icons 24 pt. Haus = Feed, zwei Personen = Gruppen und Freund:innen, Kamera mit Plus = Beitrag erstellen (Mitte),
- * Papierflieger = Chats, eigenes Bild = Profil („Was Du so machst“). Das Menü sitzt oben rechts im Profil.
- * Aktiv: Haus und Personen gefüllt, Papierflieger kräftiger, Profilbild mit schwarzem Ring.
+ * Leiste im Look „Instagram“ nach Darias Mockup „Vorher-Nachher“ (24.10.2026): vier gleich breite Felder,
+ * zwei Personen = Feed (Nachbarschaft und Gruppen), Kamera = Beitrag erstellen, Papierflieger = Chats, Burger = Menü.
+ * Icons in Icon-Größe mit derselben Linie; inaktiv mit 55 % Deckkraft, aktiv voll. „Was Du so machst“ öffnet
+ * das Herz oben im Feed.
  */
-function InstaTabBar({ active, onFeedPress, onReisePress, onReiseLongPress, hasTasks, onCreatePress, onGroupsPress, groupsActive }: TabBarProps) {
+function InstaTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { mode, currentUserId, users } = useStore();
+  const { mode, currentUserId } = useStore();
   const unread = useUnreadMessages();
   useEffect(() => {
     if (currentUserId) refreshUnread(currentUserId, mode === 'live').catch(() => {});
   }, [currentUserId, mode]);
-  const me = users.find((u) => u.id === currentUserId);
   const ICON_PT = useIconPt();
-  const feedActive = active === 'feed' && !groupsActive;
-  const groupsOn = active === 'feed' && !!groupsActive;
-  const c = color.text.primary;
-  const svg = (body: string, strong?: boolean) =>
-    line(c, body, strokeFor(ICON_PT, strong ? LINE_STRONG : LINE));
-  const filled = (body: string) => svg(body.replace('/>', ` fill="${c}"/>`));
+  const svg = (body: string) => line(color.text.primary, body, strokeFor(ICON_PT));
+  const item = (on: boolean) => ({ pressed }: { pressed: boolean }) => [styles.itemInsta, !on && styles.off, pressed && styles.pressed];
   return (
     <View style={[styles.wrapFlat, { paddingBottom: insets.bottom }]} pointerEvents="box-none">
       <View style={styles.barInsta} accessibilityRole="tablist">
         <Pressable
           accessibilityRole="tab"
           accessibilityLabel={t('Feed')}
-          accessibilityState={{ selected: feedActive }}
+          accessibilityState={{ selected: active === 'feed' }}
           onPress={onFeedPress}
-          style={({ pressed }) => [styles.itemInsta, pressed && styles.pressed]}
+          style={item(active === 'feed')}
         >
-          <SvgXml xml={feedActive ? filled(HOME) : svg(HOME)} width={ICON_PT} height={ICON_PT} />
-        </Pressable>
-        <Pressable
-          accessibilityRole="tab"
-          accessibilityLabel={t('Gruppen und Freund:innen')}
-          accessibilityState={{ selected: groupsOn }}
-          onPress={onGroupsPress ?? (() => router.dismissTo({ pathname: '/feed', params: { reiter: 'gruppen' } }))}
-          style={({ pressed }) => [styles.itemInsta, pressed && styles.pressed]}
-        >
-          <SvgXml xml={svg(PEOPLE, groupsOn)} width={ICON_PT} height={ICON_PT} />
+          <SvgXml xml={svg(PEOPLE)} width={ICON_PT} height={ICON_PT} />
         </Pressable>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('Challenge erstellen')}
           onPress={onCreatePress ?? (() => router.dismissTo({ pathname: '/feed', params: { erstellen: '1' } }))}
-          style={({ pressed }) => [styles.itemInsta, pressed && styles.pressed]}
+          style={item(false)}
         >
           <SvgXml xml={svg(CAMERA_PLUS)} width={ICON_PT} height={ICON_PT} />
         </Pressable>
@@ -102,25 +87,15 @@ function InstaTabBar({ active, onFeedPress, onReisePress, onReiseLongPress, hasT
           accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : t('Chats')}
           accessibilityState={{ selected: active === 'chat' }}
           onPress={() => active !== 'chat' && router.push('/chat')}
-          style={({ pressed }) => [styles.itemInsta, pressed && styles.pressed]}
+          style={item(active === 'chat')}
         >
           <View>
-            <SvgXml xml={svg(PLANE, active === 'chat')} width={ICON_PT} height={ICON_PT} />
+            <SvgXml xml={svg(PLANE)} width={ICON_PT} height={ICON_PT} />
             {unread ? <View style={styles.dotInsta} /> : null}
           </View>
         </Pressable>
-        <Pressable
-          accessibilityRole="tab"
-          accessibilityLabel={hasTasks ? t('Was Du so machst, Du bist dran') : t('Was Du so machst')}
-          accessibilityState={{ selected: active === 'reise' }}
-          onPress={onReisePress}
-          onLongPress={onReiseLongPress}
-          style={({ pressed }) => [styles.itemInsta, pressed && styles.pressed]}
-        >
-          <View style={[styles.me, { width: ICON_PT + 6, height: ICON_PT + 6, borderRadius: (ICON_PT + 6) / 2 }, active === 'reise' && styles.meActive]}>
-            {me ? <Avatar user={me} diameter={ICON_PT} /> : <SvgXml xml={svg(PEOPLE)} width={ICON_PT} height={ICON_PT} />}
-          </View>
-          {hasTasks ? <View style={styles.dotInsta} /> : null}
+        <Pressable accessibilityRole="button" accessibilityLabel={t('Menü')} onPress={onMenuPress} style={item(false)}>
+          <SvgXml xml={svg(BURGER)} width={ICON_PT} height={ICON_PT} />
         </Pressable>
       </View>
     </View>
@@ -260,15 +235,14 @@ const styles = StyleSheet.create({
   barFlat: { flexDirection: 'row', justifyContent: 'space-around', paddingVertical: space[2] },
   // Erstellen als schlichtes Icon ohne Fläche
   cameraFlat: { backgroundColor: 'transparent', width: 48 },
-  barInsta: { flexDirection: 'row', height: 54 },
+  // Mockup: 72 hoch mit Home-Balken, Icons 12 unter der Haarlinie
+  barInsta: { flexDirection: 'row', height: 50 },
+  off: { opacity: 0.55 },
   itemInsta: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  // Profilbild so groß wie die Icons; aktiv mit 1,5 pt schwarzem Ring und 1,5 pt Luft
-  me: { alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'transparent' },
-  meActive: { borderColor: color.text.primary },
   dotInsta: {
     position: 'absolute',
-    top: 8,
-    right: '30%',
+    top: -2,
+    right: -4,
     width: 8,
     height: 8,
     borderRadius: 4,

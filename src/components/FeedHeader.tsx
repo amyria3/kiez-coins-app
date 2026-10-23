@@ -8,6 +8,9 @@ import type { Challenge } from '../data/types';
 import { color, font, isInstagram, motion, radius, size, space, stroke, text } from '../theme/tokens';
 import { KaterCard } from './Content';
 import { Logo } from './icons/Brand';
+import { Icon } from './icons/Icon';
+import { useRouter } from 'expo-router';
+import { useUnreadMessages } from '../data/chat';
 import { SkeletonTopItem } from './Skeleton';
 import { t } from '../data/texts';
 
@@ -24,7 +27,50 @@ type AppHeaderProps = {
  * Figma „AppHeader“, Upgrade „Nachtschicht“: Logo mit Kater in der Mitte. Das Menü liegt in der Tab-Leiste,
  * die Kamera schwebt oben rechts (CameraButton). Der Kopf scrollt mit dem Feed weg.
  */
-export function AppHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) {
+export function AppHeader(props: AppHeaderProps) {
+  return isInstagram ? <InstaHeader {...props} /> : <KiezHeader {...props} />;
+}
+
+/**
+ * Kopf im Look „Instagram“ nach Darias Mockup (24.10.2026): Schriftzug „Kiez Coins“ als Text links,
+ * Inter Tight halbfett 24/28, rechts Herz („Was Du so machst“) und Papierflieger (Chats), 18 pt Abstand.
+ * Abstände 4 oben, 12 rechts, 8 unten, 14 links.
+ */
+function InstaHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) {
+  const router = useRouter();
+  const unread = useUnreadMessages();
+  return (
+    <View style={styles.instaHead}>
+      <Pressable onLongPress={onLogoLongPress} accessibilityRole="header">
+        <Text noTranslate style={styles.wordmark}>
+          Kiez Coins
+        </Text>
+      </Pressable>
+      <View style={styles.headIcons}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={hasTasks ? t('Was Du so machst, Du bist dran') : t('Was Du so machst')}
+          onPress={onLogoPress}
+          hitSlop={10}
+        >
+          <Icon name="heart" size={size.icon} />
+          {hasTasks ? <View style={styles.headDot} /> : null}
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : t('Chats')}
+          onPress={() => router.push('/chat')}
+          hitSlop={10}
+        >
+          <Icon name="send" size={size.icon} />
+          {unread ? <View style={styles.headDot} /> : null}
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+function KiezHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) {
   return (
     <View style={styles.header}>
       <Pressable
@@ -47,6 +93,8 @@ export function AppHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderP
 
 /** Begrüßung über dem Feed: Tageszeit, Ansprache, Kiez und Anzahl offener Challenges. */
 export function FeedGreeting({ name, kiez, count }: { name: string; kiez?: string; count: number }) {
+  // Instagram-Look: keine Begrüßung, der Schriftzug steht allein (Mockup)
+  if (isInstagram) return null;
   const hour = new Date().getHours();
   const greeting = hour < 11 ? 'Guten Morgen' : hour < 18 ? 'Hallo' : 'Guten Abend';
   const countText = count === 1 ? '1 Challenge in Deiner Nähe' : t('{count} Challenges in Deiner Nähe', { count });
@@ -358,15 +406,36 @@ const styles = StyleSheet.create({
   segmentInner: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   planned: { opacity: 0.6 },
   hint: { paddingHorizontal: space[16] },
+  instaHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: space[4],
+    paddingRight: space[12],
+    paddingBottom: space[8],
+    paddingLeft: 14,
+  },
+  wordmark: { fontFamily: font.display, fontSize: 24, lineHeight: 28, letterSpacing: -0.4, color: color.text.primary },
+  headIcons: { flexDirection: 'row', alignItems: 'center', gap: 18 },
+  headDot: {
+    position: 'absolute',
+    top: -2,
+    right: -4,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: color.accent.affection,
+  },
   under: {
     flexDirection: 'row',
     width: '100%',
     borderBottomWidth: stroke.ultraThin,
     borderBottomColor: color.line.hairline,
   },
-  underTab: { flex: 1, height: 44, alignItems: 'center', justifyContent: 'center' },
+  // Mockup: Großbuchstaben halbfett 12, 0,5 Laufweite, 12 oben und 11 unten, Strich 1,5
+  underTab: { flex: 1, paddingTop: 12, paddingBottom: 11, alignItems: 'center', justifyContent: 'center' },
   underPressed: { opacity: 0.5 },
-  underText: { fontFamily: font.medium, fontSize: 15, lineHeight: 20, color: color.text.secondary },
-  underTextSelected: { fontFamily: font.semiBold, color: color.text.primary },
-  underBar: { position: 'absolute', left: 0, bottom: -stroke.ultraThin, height: 1, backgroundColor: color.text.primary },
+  underText: { fontFamily: font.semiBold, fontSize: 12, lineHeight: 16, letterSpacing: 0.5, textTransform: 'uppercase', color: color.text.secondary },
+  underTextSelected: { color: color.text.primary },
+  underBar: { position: 'absolute', left: 0, bottom: -stroke.ultraThin, height: 1.5, backgroundColor: color.text.primary },
 });
