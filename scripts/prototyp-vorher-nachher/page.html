@@ -1,0 +1,430 @@
+<meta charset="utf-8">
+<title>Vorher-Nachher</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/*FONTS*/
+/* Layout: Kopf mit Look-Schalter, darunter vier Telefone nebeneinander (auf dem Handy waagerecht wischen). Farben der Telefone kommen aus den App-Tokens (src/theme/tokens.ts). */
+:root {
+  --page: #EDEEF1; --page-ink: #1F2123; --page-muted: #61646B; --page-line: #D3D5DA; --page-chip: #FFFFFF;
+  --f-ui: 'Inter', system-ui, sans-serif; --f-display: 'Inter Tight', 'Inter', system-ui, sans-serif;
+  --barrier: cubic-bezier(.55,-.3,.3,1.3);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page: #121315; --page-ink: #ECEDEF; --page-muted: #9A9DA4; --page-line: #2C2E33; --page-chip: #1E2023; color-scheme: dark } }
+:root[data-theme="dark"] { --page: #121315; --page-ink: #ECEDEF; --page-muted: #9A9DA4; --page-line: #2C2E33; --page-chip: #1E2023; color-scheme: dark }
+body { background: var(--page); color: var(--page-ink); font-family: var(--f-ui); }
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 40px; display: flex; flex-direction: column; gap: 22px; }
+.head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; max-width: 1560px; }
+.head h1 { margin: 0; font: 600 30px/34px var(--f-display); letter-spacing: -.6px; }
+.head p { margin: 6px 0 0; color: var(--page-muted); font-size: 14px; line-height: 20px; max-width: 60ch; }
+.lookswitch { display: inline-flex; background: var(--page-chip); border: 1px solid var(--page-line); border-radius: 999px; padding: 3px; gap: 2px; }
+.lookswitch button { font: 500 13px/18px var(--f-ui); color: var(--page-muted); background: none; border: 0; border-radius: 999px; padding: 7px 16px; cursor: pointer; }
+.lookswitch button[aria-pressed="true"] { background: var(--page-ink); color: var(--page); }
+.lookswitch button:focus-visible, .stateswitch button:focus-visible { outline: 2px solid #7E94FF; outline-offset: 2px; }
+.rail { display: flex; gap: 28px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 12px; }
+.slot { flex: 0 0 auto; display: flex; flex-direction: column; gap: 10px; scroll-snap-align: start; }
+.cap { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 30px; }
+.cap b { font: 600 14px/18px var(--f-ui); }
+.cap span { color: var(--page-muted); font-size: 12px; }
+.stateswitch { display: inline-flex; gap: 2px; background: var(--page-chip); border: 1px solid var(--page-line); border-radius: 999px; padding: 2px; }
+.stateswitch button { font: 500 12px/16px var(--f-ui); background: none; border: 0; color: var(--page-muted); padding: 5px 10px; border-radius: 999px; cursor: pointer; }
+.stateswitch button[aria-pressed="true"] { background: var(--page-ink); color: var(--page); }
+
+/* Telefon */
+.phone { width: 360px; height: 760px; border-radius: 46px; padding: 9px; background: #0B0B0C; box-shadow: 0 1px 0 rgba(255,255,255,.06) inset, 0 18px 40px -18px rgba(0,0,0,.45); }
+.screen { position: relative; width: 100%; height: 100%; border-radius: 38px; overflow: hidden; background: var(--bg); color: var(--tx); font-family: var(--f-ui); }
+.scroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+.scroll::-webkit-scrollbar { display: none; }
+
+/* App-Tokens je Look */
+.look-kiez { --bg: #1F2123; --surface: #2B2D31; --tx: #F0F0F0; --tx2: #A0A0A0; --accent: #7E94FF; --signal: #FFAD7E; --ok: #93F4A7; --onAccent: #1F2123; --glass: rgba(31,33,35,.82); --line: rgba(240,240,240,.12); --r-card: 28px; --r-md: 12px; --r-lg: 18px; --chipBg: rgba(31,33,35,.45); }
+.look-instagram { --bg: #FFFFFF; --surface: #EFEFEF; --tx: #000000; --tx2: #737373; --accent: #0095F6; --signal: #00376B; --ok: #2FA84F; --onAccent: #FFFFFF; --glass: rgba(255,255,255,.96); --line: #DBDBDB; --r-card: 6px; --r-md: 8px; --r-lg: 10px; --chipBg: rgba(0,0,0,.55); }
+
+.ic { display: inline-flex; align-items: center; justify-content: center; color: currentColor; flex: 0 0 auto; }
+.ic svg { height: 100%; width: auto; display: block; }
+.tnum { font-variant-numeric: tabular-nums; }
+
+.sb { height: 46px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px 0 32px; font: 600 15px/1 var(--f-ui); position: relative; z-index: 3; }
+.sb i { display: inline-block; width: 24px; height: 11px; border: 1.5px solid currentColor; border-radius: 3px; opacity: .8; position: relative; }
+.sb i::after { content: ""; position: absolute; inset: 1.5px 6px 1.5px 1.5px; background: currentColor; border-radius: 1px; }
+
+/* Feed */
+.feedhead { padding: 6px 16px 14px; display: flex; flex-direction: column; gap: 4px; }
+.greet { font: 600 30px/34px var(--f-display); letter-spacing: -.6px; }
+.feedsub { font: 300 14px/18px var(--f-ui); color: var(--tx2); }
+.running { margin: 0 16px 16px; display: flex; align-items: center; gap: 12px; width: calc(100% - 32px); border: 0; cursor: pointer; text-align: left; color: var(--tx); background: var(--surface); border-radius: 22px; padding: 8px 16px 8px 8px; }
+.running .thumb { position: relative; width: 48px; height: 48px; flex: 0 0 auto; }
+.running .thumb img { position: absolute; inset: 5px; width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+.running .thumb svg { position: absolute; inset: 0; width: 48px; height: 48px; transform: rotate(-90deg); }
+.running .thumb .trk { stroke: var(--line); }
+.running .thumb .prg { stroke: var(--signal); transition: stroke-dashoffset 1s linear; }
+.running .txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.running .l1 { font: 500 14px/18px var(--f-ui); }
+.running .l2 { font: 400 12px/16px var(--f-ui); color: var(--tx2); white-space: nowrap; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--signal) 55%, transparent) } 70%,100% { box-shadow: 0 0 0 8px transparent } }
+.look-instagram .feedhead { flex-direction: row; align-items: center; justify-content: space-between; padding: 4px 12px 8px 14px; }
+.look-instagram .greet { font: 600 24px/28px var(--f-display); letter-spacing: -.4px; }
+.look-instagram .feedsub { display: none; }
+.look-instagram .running { margin: 0 0 4px; width: 100%; border-radius: 0; background: none; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 8px 12px; }
+.look-instagram .running .l1 { font-weight: 600; }
+.look-instagram .running .thumb .prg { stroke: var(--accent); }
+.headicons { display: flex; gap: 18px; }
+
+.post { display: flex; flex-direction: column; }
+.look-kiez .post { padding: 0 16px 22px; }
+.look-instagram .post { padding-bottom: 18px; }
+.ihead { display: flex; align-items: center; gap: 10px; height: 54px; padding: 0 12px; }
+.av { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #7E94FF, #FFB2E5); color: #1F2123; display: flex; align-items: center; justify-content: center; font: 600 13px/1 var(--f-ui); flex: 0 0 auto; }
+.ihead .nm { font: 600 14px/18px var(--f-ui); }
+.ihead .pl { font: 400 12px/16px var(--f-ui); }
+
+/* Vorher-Nachher-Karte */
+.ba { position: relative; overflow: hidden; background: var(--bg); transition: height 560ms var(--barrier); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.look-kiez .ba { border-radius: var(--r-card); }
+.half { position: absolute; left: 0; right: 0; overflow: hidden; transition: top 560ms var(--barrier), height 560ms var(--barrier); }
+.half img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: filter 400ms ease; }
+.half.before img { filter: saturate(.75); }
+.ba[data-state="after"] .half.before img { filter: saturate(.5) brightness(.85); }
+.ba[data-state="before"] .half.after img { filter: saturate(.6) brightness(.85); }
+.chip { position: absolute; left: 12px; top: 12px; padding: 4px 10px; border-radius: 999px; font: 500 11px/14px var(--f-ui); letter-spacing: .4px; color: #F0F0F0; background: var(--chipBg); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.look-instagram .chip { border-radius: 4px; text-transform: uppercase; font-weight: 600; letter-spacing: .6px; }
+.dur { position: absolute; right: 12px; z-index: 2; transform: translateY(-50%); display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px 5px 8px; border-radius: 999px; font: 500 12px/14px var(--f-ui); color: var(--tx); background: var(--bg); transition: top 560ms var(--barrier); box-shadow: 0 0 0 2px var(--bg); }
+.look-instagram .dur { border-radius: 4px; }
+.seam { position: absolute; left: 0; right: 0; height: 2px; background: var(--bg); z-index: 1; transform: translateY(-1px); transition: top 560ms var(--barrier); }
+.info { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 2; border-radius: 18px; padding: 10px 14px 11px; background: rgba(31,33,35,.45); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); color: #F0F0F0; transition: opacity 300ms ease, transform 560ms var(--barrier); }
+.ba[data-state="before"] .info { opacity: 0; transform: translateY(16px); pointer-events: none; }
+.info .t { font: 600 19px/23px var(--f-display); letter-spacing: -.2px; }
+.info .m { font: 300 13px/17px var(--f-ui); color: #D0D0D0; margin-top: 2px; }
+.acts { display: flex; align-items: center; gap: 4px; height: 44px; }
+.look-kiez .acts { padding: 0 2px; }
+.look-instagram .acts { padding: 0 6px; }
+.act { display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 8px; font: 600 14px/20px var(--f-ui); }
+.acts .sp { margin-left: auto; }
+.body { font: 300 14px/19px var(--f-ui); }
+.look-kiez .body { padding: 0 4px; }
+.look-instagram .body { padding: 0 12px; font-weight: 400; display: flex; flex-direction: column; gap: 4px; }
+.body .tag { color: var(--signal); font-weight: 500; }
+.look-instagram .body .tag { font-weight: 600; }
+.body .tt { font-weight: 600; }
+.body .time { font: 400 11px/16px var(--f-ui); color: var(--tx2); }
+.plaincard { height: 360px; border-radius: var(--r-card); overflow: hidden; position: relative; }
+.plaincard img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.look-instagram .plaincard { height: auto; aspect-ratio: 4 / 5; border-radius: 0; }
+
+.tabbar { position: absolute; left: 0; right: 0; bottom: 0; height: 78px; display: flex; justify-content: space-around; align-items: flex-start; padding-top: 14px; background: var(--glass); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); z-index: 4; }
+.look-instagram .tabbar { border-top: 1px solid var(--line); height: 72px; padding-top: 12px; }
+.tabbar .ic { opacity: .55; }
+.tabbar .ic.on { opacity: 1; }
+.homebar { position: absolute; left: 50%; bottom: 8px; width: 120px; height: 4px; margin-left: -60px; border-radius: 4px; background: var(--tx); opacity: .85; z-index: 5; }
+
+/* Formulare */
+.nav { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; padding: 0 8px; height: 52px; }
+.nav .mid { text-align: center; }
+.nav .t { font: 500 16px/20px var(--f-ui); }
+.nav .s { font: 400 11px/14px var(--f-ui); color: var(--tx2); }
+.nav button { background: none; border: 0; color: var(--tx); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.form { padding: 6px 16px 180px; display: flex; flex-direction: column; gap: 16px; }
+
+.seg { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); }
+.seg button { position: relative; z-index: 1; background: none; border: 0; cursor: pointer; font: 400 13px/16px var(--f-ui); color: var(--tx2); padding: 10px 4px; transition: color 250ms ease; white-space: nowrap; }
+.seg button[aria-selected="true"] { color: var(--tx); }
+.seg .ind { position: absolute; transition: transform 560ms var(--barrier); }
+.look-kiez .seg { background: var(--surface); border-radius: 999px; padding: 3px; }
+.look-kiez .seg .ind { top: 3px; bottom: 3px; left: 3px; width: calc((100% - 6px) / 3); border-radius: 999px; background: color-mix(in srgb, var(--accent) 18%, var(--surface)); }
+.look-kiez .seg button[aria-selected="true"] { color: var(--accent); font-weight: 500; }
+.look-instagram .seg { border-bottom: 1px solid var(--line); }
+.look-instagram .seg button { font-weight: 600; font-size: 12px; letter-spacing: .5px; text-transform: uppercase; padding: 12px 2px 11px; }
+.look-instagram .seg .ind { bottom: -1px; left: 0; width: calc(100% / 3); height: 1.5px; background: var(--tx); }
+.hint { display: flex; gap: 10px; align-items: flex-start; font: 300 14px/19px var(--f-ui); color: var(--tx2); }
+.hint .kat { width: 30px; flex: 0 0 auto; }
+.hint .kat svg { width: 100%; height: auto; display: block; }
+.look-instagram .hint { font-weight: 400; font-size: 13px; }
+.aud { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; font: 400 13px/16px var(--f-ui); color: var(--tx); border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; background: none; }
+.aud .chev { width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translate(-2px, -2px); opacity: .7; }
+.steps { display: flex; align-items: center; gap: 8px; font: 400 12px/16px var(--f-ui); color: var(--tx2); }
+.steps span { display: inline-flex; align-items: center; gap: 6px; }
+.steps i { width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font: 500 10px/1 var(--f-ui); font-style: normal; border: 1px solid var(--line); }
+.steps .on { color: var(--tx); }
+.steps .on i { background: var(--accent); border-color: var(--accent); color: var(--onAccent); }
+.steps .done i { background: var(--surface); border-color: var(--surface); color: var(--tx); }
+.steps .bar { flex: 1; height: 1px; background: var(--line); }
+.picker { position: relative; height: 230px; border-radius: var(--r-lg); overflow: hidden; background: var(--surface); }
+.picker img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.picker .ttl { position: absolute; left: 14px; right: 60px; bottom: 12px; font: 600 26px/30px var(--f-display); letter-spacing: -.5px; color: #F0F0F0; text-shadow: 0 1px 12px rgba(0,0,0,.35); }
+.picker .chg { position: absolute; right: 10px; bottom: 10px; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #F0F0F0; background: rgba(31,33,35,.45); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.picker .chip { top: 12px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font: 400 13px/16px var(--f-ui); color: var(--tx2); }
+.box { border-radius: var(--r-md); background: var(--surface); padding: 12px 14px; font: 300 15px/20px var(--f-ui); min-height: 70px; }
+.look-instagram .box { background: none; border: 1px solid var(--line); font-weight: 400; }
+.box .pre { color: var(--signal); font-weight: 500; }
+.look-instagram .box .pre { font-weight: 600; }
+.box.one { min-height: 0; }
+.help { font: 400 11px/16px var(--f-ui); color: var(--tx2); display: flex; justify-content: space-between; gap: 8px; }
+.cta { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 16px 30px; display: flex; flex-direction: column; gap: 4px; background: linear-gradient(to top, var(--bg) 70%, transparent); z-index: 4; }
+.btn { height: 50px; border-radius: 999px; border: 0; font: 500 16px/20px var(--f-ui); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn.pri { background: var(--accent); color: var(--onAccent); }
+.btn.gho { background: none; color: var(--tx); font-weight: 400; height: 44px; }
+.look-instagram .btn { border-radius: 8px; font-weight: 600; font-size: 14px; height: 44px; }
+.look-instagram .btn.gho { font-weight: 600; color: var(--accent); }
+
+/* Timer */
+.ring { position: relative; width: 236px; height: 236px; align-self: center; margin: 4px 0 2px; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring .trk { stroke: var(--surface); }
+.ring .prg { stroke: var(--accent); transition: stroke-dashoffset 1s linear; }
+.ring .ctr { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.ring .big { font: 600 44px/48px var(--f-display); letter-spacing: -1px; }
+.ring .of { font: 400 12px/16px var(--f-ui); color: var(--tx2); }
+.mini { display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: var(--r-lg); background: var(--surface); }
+.look-instagram .mini { background: none; border: 1px solid var(--line); }
+.mini img { width: 56px; height: 56px; object-fit: cover; border-radius: var(--r-md); flex: 0 0 auto; }
+.mini .t { font: 500 15px/19px var(--f-ui); }
+.mini .s { font: 400 12px/16px var(--f-ui); color: var(--tx2); }
+.note { font: 300 13px/18px var(--f-ui); color: var(--tx2); }
+.look-instagram .note { font-weight: 400; }
+.bubble { position: relative; background: var(--surface); border-radius: 16px 16px 16px 4px; padding: 10px 14px; font: 300 14px/19px var(--f-ui); color: var(--tx); }
+.look-instagram .bubble { font-weight: 400; }
+.katrow { display: flex; gap: 10px; align-items: flex-end; }
+.katrow .kat { width: 40px; flex: 0 0 auto; }
+.katrow .kat svg { width: 100%; height: auto; display: block; }
+.durrow { display: flex; align-items: center; gap: 8px; font: 400 13px/18px var(--f-ui); color: var(--tx2); }
+.durrow b { color: var(--tx); font-weight: 500; }
+.preview { border-left: 2px solid var(--line); padding: 2px 0 2px 12px; font: 300 14px/19px var(--f-ui); display: flex; flex-direction: column; gap: 6px; }
+.look-instagram .preview { font-weight: 400; }
+.preview .tag { color: var(--signal); font-weight: 500; }
+
+@media (prefers-reduced-motion: reduce) { .ba, .half, .dur, .seam, .info, .seg .ind { transition-duration: 1ms !important; } .running .thumb .prg { transition: none; } }
+@media (max-width: 440px) { .phone { width: calc(100vw - 40px); height: 720px; } .rail { gap: 16px; } }
+</style>
+
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>Vorher-Nachher</h1>
+      <p>Test-Screens in beiden Looks. Im Feed tippst Du auf Vorher oder Nachher, beim Erstellen wechselst Du oben den Beitragstyp.</p>
+    </div>
+    <div class="lookswitch" role="group" aria-label="Look">
+      <button type="button" id="look-kiez" data-look="kiez" aria-pressed="true">Kiez</button>
+      <button type="button" id="look-instagram" data-look="instagram" aria-pressed="false">Instagram</button>
+    </div>
+  </div>
+  <div class="rail" id="rail"></div>
+</div>
+
+<script>
+/*DATA*/
+let LOOK = 'kiez';
+try { const s = localStorage.getItem('vn-look'); if (s === 'kiez' || s === 'instagram') LOOK = s; } catch (e) {}
+const STATE = { type: 'ba', timer: 'run', posts: {} };
+
+// Beispiel: Timer seit 1:23:45 h
+const START = Date.now() - (1 * 3600 + 23 * 60 + 45) * 1000;
+const MAX = 48 * 3600 * 1000;
+const pad = (n) => String(n).padStart(2, '0');
+const hms = (ms) => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 3600)}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`; };
+const hShort = (ms) => { const m = Math.floor(ms / 60000); return `${Math.floor(m / 60)}:${pad(m % 60)} h`; };
+const hm = (ms) => { const m = Math.floor(ms / 60000); return `${Math.floor(m / 60)} h ${m % 60} min`; };
+const banner = (ms) => `seit ${hShort(ms)} · noch ${Math.ceil((MAX - ms) / 3600000)} h`;
+const clock = (t) => new Date(t).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+const dayClock = (t) => new Date(t).toLocaleDateString('de-DE', { weekday: 'long' }) + ', ' + clock(t) + ' Uhr';
+
+function ic(name, size) {
+  const set = ICONS[LOOK][name] || ICONS.kiez[name];
+  if (!set) return '';
+  const h = LOOK === 'instagram' && ICONS.instagram[name] && set.w === 24 ? 24 : size;
+  return `<span class="ic" style="height:${h}px" aria-hidden="true">${set.svg}</span>`;
+}
+const sb = () => `<div class="sb"><span>9:41</span><i></i></div>`;
+const kat = () => `<span class="kat" aria-hidden="true">${KATER}</span>`;
+
+const TEXT_VORHER = 'Nur Rasen, und der Boden ist lehmig.';
+const TEXT_NACHHER = 'Zwei Beete aus alten Paletten, Erde vom Gemeinschaftsgarten.';
+const TITLE = 'Hochbeet aus Paletten';
+
+function baPost(id) {
+  const insta = LOOK === 'instagram';
+  const head = insta ? `<div class="ihead"><div class="av">D</div><div><div class="nm">daria</div><div class="pl">Plagwitz · 300 m</div></div><span class="sp" style="margin-left:auto">${ic('settings', 20)}</span></div>` : '';
+  const info = insta ? '' : `<div class="info"><div class="t">${TITLE}</div><div class="m">Daria · 300 m · vor 3 Std.</div></div>`;
+  const body = insta
+    ? `<div class="body"><div><span class="tt">${TITLE}</span> <span class="tag">#vorher</span> ${TEXT_VORHER} <span class="tag">#nachher</span> ${TEXT_NACHHER}</div><div class="time">vor 3 Std. · in 2 h 14 min geschafft</div></div>`
+    : `<div class="body"><span class="tag">#vorher</span> ${TEXT_VORHER} <span class="tag">#nachher</span> ${TEXT_NACHHER}</div>`;
+  return `<article class="post">${head}
+    <div class="ba" id="${id}" data-state="rest" role="group" aria-label="Vorher und Nachher, ${TITLE}">
+      <div class="half before" role="button" tabindex="0" data-which="before" aria-label="Vorher vergrößern"><img src="${PHOTOS.vorher}" alt="Vorher: Rasenfläche"><span class="chip">Vorher</span></div>
+      <div class="half after" role="button" tabindex="0" data-which="after" aria-label="Nachher vergrößern"><img src="${PHOTOS.nachher}" alt="Nachher: zwei Hochbeete"><span class="chip">Nachher</span></div>
+      <div class="seam"></div>
+      <span class="dur tnum">${ic('clock', 14)}2 h 14 min</span>
+      ${info}
+    </div>
+    <div class="acts"><span class="act">${ic('heart', 20)}12</span><span class="act">${ic('comment', 20)}3</span><span class="act">${ic('send', 20)}</span>${insta ? '' : `<span class="act sp">${ic('settings', 20)}</span>`}</div>
+    ${body}
+  </article>`;
+}
+
+function plainPost() {
+  const insta = LOOK === 'instagram';
+  return `<article class="post">${insta ? `<div class="ihead"><div class="av" style="background:linear-gradient(135deg,#93F4A7,#7E94FF)">M</div><div><div class="nm">mira</div><div class="pl">Lindenau · 1,2 km</div></div></div>` : ''}
+    <div class="plaincard"><img src="${PHOTOS.igel}" alt="Igel im Gras"></div>
+    <div class="acts"><span class="act">${ic('heart', 20)}8</span><span class="act">${ic('comment', 20)}</span><span class="act">${ic('send', 20)}</span></div>
+  </article>`;
+}
+
+function feed() {
+  const insta = LOOK === 'instagram';
+  const head = insta
+    ? `<div class="feedhead"><div class="greet">Kiez Coins</div><div class="headicons">${ic('heart', 22)}${ic('message', 22)}</div></div>`
+    : `<div class="feedhead"><div class="greet">Moin, Daria</div><div class="feedsub">Plagwitz · 4 Beiträge in Deiner Nähe</div></div>`;
+  return `<div class="screen"><div class="scroll">${sb()}${head}
+    <button class="running" type="button" data-go="timer" aria-label="Zum Timer"><span class="thumb"><svg viewBox="0 0 48 48" aria-hidden="true"><circle class="trk" cx="24" cy="24" r="22" fill="none" stroke-width="2.5"/><circle class="prg" data-ring-small cx="24" cy="24" r="22" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="${2 * Math.PI * 22}" stroke-dashoffset="${2 * Math.PI * 22 * (1 - (Date.now() - START) / MAX)}"/></svg><img src="${PHOTOS.vorher}" alt=""></span><span class="txt"><span class="l1">Du hast Dich selbst herausgefordert</span><span class="l2 tnum" data-banner>${banner(Date.now() - START)}</span></span></button>
+    ${baPost('ba-' + LOOK)}${plainPost()}<div style="height:90px"></div></div>
+    <nav class="tabbar">${ic('behausung', 24).replace('class="ic"', 'class="ic on"')}${ic('plus', 24)}${ic('message', 24)}${ic('burger', 24)}</nav><div class="homebar"></div></div>`;
+}
+
+const TYPES = [
+  { id: 'challenge', label: 'Challenge', title: 'Challenge erstellen', hint: 'Hier muss etwas getan werden. Auf geht’s, Nachbarschaft!', step: 'Schritt 1 von 2', cta: 'Weiter' },
+  { id: 'ba', label: 'Vorher-Nachher', title: 'Vorher-Nachher', hint: 'Halte fest, wie Du etwas reparierst, umbaust oder verschönerst. Zuerst das Vorher-Foto.', step: 'Schritt 1 von 3 · Vorher', cta: 'Vorher speichern' },
+  { id: 'bild', label: 'Bild', title: 'Bild posten', hint: 'Hier ist nichts zu tun, nur ein schönes Bild.', step: 'Schritt 1 von 2', cta: 'Weiter' },
+];
+
+function steps(at) {
+  const names = ['Vorher', 'Timer', 'Nachher'];
+  return `<div class="steps">${names.map((n, i) => `<span class="${i === at ? 'on' : i < at ? 'done' : ''}"><i>${i + 1}</i>${n}</span>`).join('<span class="bar"></span>')}</div>`;
+}
+
+function compose() {
+  const ti = TYPES.findIndex((t) => t.id === STATE.type);
+  const t = TYPES[ti];
+  const ba = t.id === 'ba';
+  return `<div class="screen"><div class="scroll">${sb()}
+    <div class="nav"><button type="button" aria-label="Schließen">${ic('close', 16)}</button><div class="mid"><div class="t">${t.title}</div><div class="s">${t.step}</div></div><span></span></div>
+    <div class="form">
+      <div class="seg" role="tablist" aria-label="Beitragstyp"><span class="ind" style="transform:translateX(${(STATE.from ?? ti) * 100}%)"></span>
+        ${TYPES.map((x) => `<button type="button" role="tab" id="type-${x.id}-${LOOK}" data-type="${x.id}" aria-selected="${x.id === t.id}">${x.label}</button>`).join('')}
+      </div>
+      <div class="hint">${kat()}<span>${t.hint}</span></div>
+      <button type="button" class="aud">${ic('behausung', 14)}Öffentlich im Kiez<span class="chev"></span></button>
+      ${ba ? steps(0) : ''}
+      <div class="picker"><img src="${PHOTOS.vorher}" alt="Gewähltes Foto: Rasenfläche">${ba ? '<span class="chip">Vorher</span>' : ''}<div class="ttl">${TITLE}</div><span class="chg">${ic('camera', 15)}</span></div>
+      ${ba
+        ? `<div class="field"><label for="vtext-${LOOK}">Erklärung zum Vorher</label><div class="box" id="vtext-${LOOK}"><span class="pre">#vorher</span> ${TEXT_VORHER}</div><div class="help"><span>#vorher steht automatisch vorn.</span><span class="tnum">${TEXT_VORHER.length} / 240</span></div></div>`
+        : `<div class="field"><label for="btext-${LOOK}">Beschreibung</label><div class="box" id="btext-${LOOK}"></div><div class="help"><span>Max. 500 Zeichen</span></div></div>`}
+    </div></div>
+    <div class="cta"><button class="btn pri" type="button">${t.cta}</button><button class="btn gho" type="button">Abbrechen</button></div><div class="homebar"></div></div>`;
+}
+
+function timer() {
+  const run = STATE.timer === 'run';
+  const el = run ? Date.now() - START : 0;
+  const C = 2 * Math.PI * 104;
+  const end = (run ? START : Date.now()) + MAX;
+  return `<div class="screen"><div class="scroll">${sb()}
+    <div class="nav"><button type="button" aria-label="Schließen">${ic('close', 16)}</button><div class="mid"><div class="t">Vorher-Nachher</div><div class="s">Schritt 2 von 3 · Timer</div></div><span></span></div>
+    <div class="form">
+      ${steps(1)}
+      <div class="katrow">${kat()}<div class="bubble">${run ? 'Ich halte die Zeit fest, auch wenn Du die App schließt. Viel Erfolg!' : 'Bereit? Starte den Timer, sobald Du loslegst.'}</div></div>
+      <div class="ring"><svg viewBox="0 0 236 236"><circle class="trk" cx="118" cy="118" r="104" fill="none" stroke-width="8"/><circle class="prg" data-ring cx="118" cy="118" r="104" fill="none" stroke-width="8" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - el / MAX)}"/></svg>
+        <div class="ctr"><div class="big tnum" data-elapsed>${hms(el)}</div><div class="of">von 48 h</div></div></div>
+      <div class="mini"><img src="${PHOTOS.vorher}" alt=""><div><div class="t">${TITLE}</div><div class="s">Vorher gespeichert um ${clock(START - 4 * 60000)} Uhr</div></div></div>
+      <div class="note">${run ? `Spätestens ${dayClock(end)} postet die App den Beitrag, auch ohne Nachher-Foto.` : 'Der Timer läuft auch im Hintergrund. Nach 48 h postet die App den Beitrag, auch ohne Nachher-Foto.'}</div>
+    </div></div>
+    <div class="cta">${run ? `<button class="btn pri" type="button" data-go="nachher">${ic('camera', 15)}Nachher aufnehmen</button><button class="btn gho" type="button">Entwurf löschen</button>` : `<button class="btn pri" type="button" data-start>Timer starten</button><button class="btn gho" type="button">Später starten</button>`}</div><div class="homebar"></div></div>`;
+}
+
+function nachher() {
+  return `<div class="screen"><div class="scroll">${sb()}
+    <div class="nav"><button type="button" aria-label="Schließen">${ic('close', 16)}</button><div class="mid"><div class="t">Vorher-Nachher</div><div class="s">Schritt 3 von 3 · Nachher</div></div><span></span></div>
+    <div class="form">
+      ${steps(2)}
+      <div class="durrow">${ic('clock', 15)}<span>Dauer <b class="tnum" data-elapsed-hm>${hm(Date.now() - START)}</b>, stoppt beim Posten</span></div>
+      <div class="picker"><img src="${PHOTOS.nachher}" alt="Gewähltes Foto: zwei Hochbeete"><span class="chip">Nachher</span><div class="ttl">${TITLE}</div><span class="chg">${ic('camera', 15)}</span></div>
+      <div class="help" style="margin-top:-8px"><span>Die Überschrift gilt für Vorher und Nachher.</span></div>
+      <div class="field"><label for="ntext-${LOOK}">Erklärung zum Nachher</label><div class="box" id="ntext-${LOOK}"><span class="pre">#nachher</span> ${TEXT_NACHHER}</div><div class="help"><span>#nachher steht automatisch vorn.</span><span class="tnum">${TEXT_NACHHER.length} / 240</span></div></div>
+      <div class="field"><label>So steht der Text im Beitrag</label><div class="preview"><div><span class="tag">#vorher</span> ${TEXT_VORHER}</div><div><span class="tag">#nachher</span> ${TEXT_NACHHER}</div></div></div>
+    </div></div>
+    <div class="cta"><button class="btn pri" type="button">Posten</button><button class="btn gho" type="button">Später weitermachen</button></div><div class="homebar"></div></div>`;
+}
+
+const SLOTS = [
+  { id: 'feed', name: 'Feed', sub: 'Tippe auf Vorher oder Nachher', render: feed },
+  { id: 'compose', name: 'Neuer Beitrag', sub: 'Schalter mit drei Typen', render: compose },
+  { id: 'timer', name: 'Timer', sub: '', render: timer, states: [['ready', 'bereit'], ['run', 'läuft']] },
+  { id: 'nachher', name: 'Nachher', sub: 'Ein Text aus beiden Schritten', render: nachher },
+];
+
+function layoutBA(el) {
+  const insta = LOOK === 'instagram';
+  const w = el.clientWidth;
+  const H = insta ? w * 5 / 4 : 360;
+  const st = el.dataset.state;
+  const total = st === 'rest' ? H : H * 1.25;
+  const hb = st === 'rest' ? total / 3 : st === 'before' ? total * 5 / 6 : total / 6;
+  const before = el.querySelector('.before'), after = el.querySelector('.after');
+  el.style.height = total + 'px';
+  before.style.top = '0px'; before.style.height = hb + 'px';
+  after.style.top = hb + 'px'; after.style.height = (total - hb) + 'px';
+  el.querySelector('.seam').style.top = hb + 'px';
+  el.querySelector('.dur').style.top = hb + 'px';
+  before.setAttribute('aria-label', st === 'before' ? 'Vorher verkleinern' : 'Vorher vergrößern');
+  after.setAttribute('aria-label', st === 'after' ? 'Nachher verkleinern' : 'Nachher vergrößern');
+}
+
+function render() {
+  const rail = document.getElementById('rail');
+  rail.innerHTML = SLOTS.map((s) => `<section class="slot" aria-label="${s.name}">
+    <div class="cap"><div><b>${s.name}</b>${s.sub ? ` <span>· ${s.sub}</span>` : ''}</div>
+    ${s.states ? `<div class="stateswitch" role="group" aria-label="Zustand">${s.states.map(([k, l]) => `<button type="button" data-timer="${k}" aria-pressed="${STATE.timer === k}">${l}</button>`).join('')}</div>` : ''}</div>
+    <div class="phone look-${LOOK}" id="phone-${s.id}">${s.render()}</div></section>`).join('');
+  document.querySelectorAll('.ba').forEach(layoutBA);
+  document.querySelectorAll('.lookswitch button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.look === LOOK)));
+}
+
+function rerender(id) {
+  const s = SLOTS.find((x) => x.id === id);
+  document.getElementById('phone-' + id).innerHTML = s.render();
+}
+
+document.addEventListener('click', (e) => {
+  const lk = e.target.closest('[data-look]');
+  if (lk) { LOOK = lk.dataset.look; try { localStorage.setItem('vn-look', LOOK); } catch (er) {} render(); return; }
+  const half = e.target.closest('.half');
+  if (half) { const ba = half.closest('.ba'); const w = half.dataset.which; ba.dataset.state = ba.dataset.state === w ? 'rest' : w; layoutBA(ba); return; }
+  const ty = e.target.closest('[data-type]');
+  if (ty) {
+    const i = TYPES.findIndex((t) => t.id === ty.dataset.type);
+    const prev = STATE.type;
+    STATE.type = ty.dataset.type;
+    STATE.from = TYPES.findIndex((t) => t.id === prev);
+    const phone = document.getElementById('phone-compose');
+    const top = phone.querySelector('.scroll').scrollTop;
+    rerender('compose');
+    phone.querySelector('.scroll').scrollTop = top;
+    STATE.from = undefined;
+    const ind = phone.querySelector('.seg .ind');
+    requestAnimationFrame(() => requestAnimationFrame(() => { ind.style.transform = `translateX(${i * 100}%)`; }));
+    return;
+  }
+  const tm = e.target.closest('[data-timer]');
+  if (tm) { STATE.timer = tm.dataset.timer; document.querySelectorAll('[data-timer]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.timer === STATE.timer))); rerender('timer'); return; }
+  if (e.target.closest('[data-start]')) { STATE.timer = 'run'; document.querySelectorAll('[data-timer]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.timer === 'run'))); rerender('timer'); return; }
+  const go = e.target.closest('[data-go]');
+  if (go) { const t = document.getElementById('phone-' + go.dataset.go); t && t.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' }); }
+});
+document.addEventListener('keydown', (e) => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('half')) { e.preventDefault(); e.target.click(); }
+});
+window.addEventListener('resize', () => document.querySelectorAll('.ba').forEach(layoutBA));
+
+setInterval(() => {
+  const el = Date.now() - START;
+  document.querySelectorAll('[data-banner]').forEach((n) => (n.textContent = banner(el)));
+  document.querySelectorAll('[data-ring-small]').forEach((n) => n.setAttribute('stroke-dashoffset', 2 * Math.PI * 22 * (1 - el / MAX)));
+  document.querySelectorAll('[data-elapsed-hm]').forEach((n) => (n.textContent = hm(el)));
+  if (STATE.timer === 'run') {
+    document.querySelectorAll('[data-elapsed]').forEach((n) => (n.textContent = hms(el)));
+    const C = 2 * Math.PI * 104;
+    document.querySelectorAll('[data-ring]').forEach((n) => n.setAttribute('stroke-dashoffset', C * (1 - el / MAX)));
+  }
+}, 1000);
+
+render();
+</script>
