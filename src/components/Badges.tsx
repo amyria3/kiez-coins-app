@@ -4,7 +4,7 @@ import { Text } from './T';
 import { formatBountyShort, formatRemainingShort } from '../data/format';
 import { Icon } from './icons/Icon';
 import type { ChallengeStatus } from '../data/types';
-import { color, font, radius, space, stroke, text } from '../theme/tokens';
+import { color, font, isInstagram, radius, space, stroke, text } from '../theme/tokens';
 import { CoinsIcon } from './icons/Brand';
 import { t } from '../data/texts';
 
@@ -59,7 +59,7 @@ export function DeadlineBadge({ deadline }: { deadline: string }) {
 export function BountyBadge({ amount, small }: { amount: number; small?: boolean }) {
   return (
     <View style={styles.bounty} accessible accessibilityLabel={t('Coins: {amount} Euro', { amount })}>
-      <CoinsIcon height={small ? 22 : 26} />
+      <CoinsIcon height={isInstagram ? 24 : small ? 22 : 26} />
       <Text style={[styles.bountyText, small ? styles.bountyTextSmall : null]}>{formatBountyShort(amount)}</Text>
     </View>
   );
@@ -73,7 +73,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   deadline: { flexDirection: 'row', alignItems: 'center', gap: space[6], alignSelf: 'flex-start' },
-  bounty: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
-  bountyText: { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.signal },
-  bountyTextSmall: { fontSize: 16, lineHeight: 20 },
+  bounty: { flexDirection: 'row', alignItems: 'center', gap: isInstagram ? space[4] : space[6] },
+  // Instagram-Look: Betrag halbfett in Textfarbe wie Instagrams Zahlen
+  bountyText: isInstagram
+    ? { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] }
+    : { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.signal },
+  bountyTextSmall: isInstagram ? { fontSize: 14, lineHeight: 18 } : { fontSize: 16, lineHeight: 20 },
 });

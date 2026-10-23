@@ -10,6 +10,7 @@ Gehört nach Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitt „Look“
 - Logo und Begrüßung im Feed gleiten nach 3,5 s von selbst weg (`HEADER_HIDE_MS` in `src/app/feed.tsx`), in beiden Looks.
 - Erstellen sitzt im Instagram-Look in der Leiste unten, mit Kamera-Icon. Die Kamera oben rechts entfällt dort.
 - Icons im Instagram-Look immer als Kontur und minimalistisch: Linie 2 mit runden Enden und Ecken (Instagram selbst: 1,98), große Radien, keine Zusatzdetails. Haus mit runder Tür, Kamera ohne Plus, Papierflieger mit runden Ecken. Verwalten am Beitrag und an der Gruppe als drei Punkte wie bei Instagram (`instagramSvgs.ts`).
+- Bounty im Instagram-Look: zwei Münzen als Kontur (Linie 2, 24 pt, Textfarbe), Betrag halbfett 14 in Textfarbe (`CoinsIcon`, `BountyBadge`).
 - Beiträge im Instagram-Look im Hochformat 4:5, ohne Foto 4:3.
 - „Was Du so machst“ im Instagram-Look als Profil wie instagram.com/<name> (`src/components/InstaProfile.tsx`).
 - Umschalter „In der Nähe / Gruppen“ im Instagram-Look als Unterstrich-Reiter wie im Instagram-Profil.
@@ -28,7 +29,6 @@ Haus (Feed), zwei Personen (Gruppen und Freund:innen), Kamera (Erstellen), Papie
 
 ## Offen
 
-- Die Münze am Bounty bleibt die farbige Grafik aus dem Kiez-Look und passt nicht zu den flachen Konturen.
 
 - Der Kater im Startbild (`KaterStage`, PNG-Teile) bleibt braun; nur die SVG-Kater (Logo, Sprechblasen) nehmen die Signaturfarbe an.
 - Die Zahlen im Profil zählen Challenges, Freund:innen und Gruppen; der Verdienst steht darunter in der Bio-Zeile.
