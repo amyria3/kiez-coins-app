@@ -585,15 +585,16 @@ for (const [pkg, file] of [
   ['inter-tight/600SemiBold', 'InterTight_600SemiBold'],
 ])
   copyFileSync(join(root, `node_modules/@expo-google-fonts/${pkg}/${file}.ttf`), join(out, `fonts/${file}.ttf`));
-// Hosting bei Vercel: Unterseiten der Web-App öffnen die App, Rechtstexte auch ohne .html
+// Hosting bei Vercel: Unterseiten der Web-App öffnen die App, Rechtstexte auch ohne .html.
+// Mit cleanUrls bekommt Vercel keine Ziele mit .html, sonst endet jede Umleitung auf der 404-Seite.
 writeFileSync(
   join(out, 'vercel.json'),
   JSON.stringify(
     {
       cleanUrls: true,
       rewrites: [
-        { source: '/app/:path*', destination: '/app/index.html' },
-        { source: '/einladung/:code', destination: '/einladung.html' },
+        { source: '/app/:path*', destination: '/app/index' },
+        { source: '/einladung/:code', destination: '/einladung' },
       ],
     },
     null,
