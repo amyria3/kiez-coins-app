@@ -262,8 +262,9 @@ export default function FeedScreen() {
   const planned = typeOfTab && !isTypeActive(typeOfTab) ? challengeTypes[typeOfTab] : null;
   // Stories erst in der Ziel-Ansicht und nur, wenn es welche gibt.
   // Echte Stories gibt es noch nicht; bis dahin füllen die Top-Challenges die Leiste.
+  // Leiste vorerst aus: reserviert für Video-Stories später (Daria, 23.10.2026). Zum Einschalten STORIES auf true setzen.
   const showStories =
-    collapsed && tab !== 'completed' && tab !== 'groups' && !planned && !loading && topChallenges.length > 0;
+    STORIES && collapsed && tab !== 'completed' && tab !== 'groups' && !planned && !loading && topChallenges.length > 0;
 
   const items: FeedItem[] = [];
   if (planned) items.push({ kind: 'planned' });
@@ -452,6 +453,8 @@ export default function FeedScreen() {
 
 /** Breite der Kamera oben rechts (TabBar.tsx, CameraButton) */
 const CAMERA_WIDTH = CAMERA_W;
+/** Stories-Leiste oben im Feed (Top-Challenges, später Videos) */
+const STORIES = false;
 /** Höhe des schmalen Kopfs beim Erstellen */
 const COMPOSE_HEADER = 52;
 
