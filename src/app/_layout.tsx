@@ -3,6 +3,7 @@ import { AppState } from 'react-native';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Inter_300Light } from '@expo-google-fonts/inter/300Light';
 import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
 import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
@@ -51,12 +52,16 @@ export default function RootLayout() {
 
   if ((!fontsLoaded && !fontError) || !languageReady) return null;
 
+  // Seit SDK 58 liefert Expo Router im Web keine Safe-Area-Abstände mehr. Ohne eigenen Provider
+  // liegt der Kopf der Web-App auf dem Home-Bildschirm unter der Statusleiste (Daria, 2026-10-23).
   return (
-    <StoreProvider>
-      <AuthProvider>
-        <RootStack />
-      </AuthProvider>
-    </StoreProvider>
+    <SafeAreaProvider>
+      <StoreProvider>
+        <AuthProvider>
+          <RootStack />
+        </AuthProvider>
+      </StoreProvider>
+    </SafeAreaProvider>
   );
 }
 
