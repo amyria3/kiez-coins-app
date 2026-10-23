@@ -3,12 +3,17 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { color, radius, size, space, stroke } from '../theme/tokens';
+import { color, radius, size, space, stroke, isInstagram } from '../theme/tokens';
+import { SvgXml } from 'react-native-svg';
 import { Icon } from './icons/Icon';
 import { CrownIcon } from './icons/Brand';
 import { t } from '../data/texts';
 import { refreshUnread, useUnreadMessages } from '../data/chat';
 import { useStore } from '../data/store';
+
+/** Krone als Linie für den Look „Instagram“ */
+const crownLine = (c: string) =>
+  `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="${c}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M3.5 8 8 12l4-6.5 4 6.5 4.5-4-1.8 10.5H5.3z"/><path d="M5.5 21h13"/></svg>`;
 
 export type TabKey = 'feed' | 'reise' | 'chat';
 
@@ -38,8 +43,11 @@ export function TabBar({ active, onFeedPress, onReisePress, onReiseLongPress, on
     if (currentUserId) refreshUnread(currentUserId, mode === 'live').catch(() => {});
   }, [currentUserId, mode]);
   return (
-    <View style={[styles.wrap, { bottom: Math.max(insets.bottom, space[16]) }]} pointerEvents="box-none">
-      <View style={styles.bar} accessibilityRole="tablist">
+    <View
+      style={isInstagram ? [styles.wrapFlat, { paddingBottom: insets.bottom }] : [styles.wrap, { bottom: Math.max(insets.bottom, space[16]) }]}
+      pointerEvents="box-none"
+    >
+      <View style={isInstagram ? styles.barFlat : styles.bar} accessibilityRole="tablist">
         <Pressable
           accessibilityRole="tab"
           accessibilityLabel={t('Feed')}
@@ -58,7 +66,11 @@ export function TabBar({ active, onFeedPress, onReisePress, onReiseLongPress, on
           style={({ pressed }) => [styles.item, active === 'reise' && styles.itemActive, pressed && styles.pressed]}
         >
           <View>
-            <CrownIcon height={26} />
+            {isInstagram ? (
+              <SvgXml xml={crownLine(active === 'reise' ? color.text.primary : color.text.secondary)} width={25} height={25} />
+            ) : (
+              <CrownIcon height={26} />
+            )}
             {hasTasks ? <View style={styles.dot} /> : null}
           </View>
         </Pressable>
@@ -97,9 +109,9 @@ export function CameraButton({ onPress }: { onPress: () => void }) {
       accessibilityLabel={t('Challenge erstellen')}
       onPress={onPress}
       hitSlop={4}
-      style={({ pressed }) => [styles.camera, { top: insets.top + space[8] }, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.camera, isInstagram && styles.cameraFlat, { top: insets.top + space[8] }, pressed && styles.pressed]}
     >
-      <Icon name="camera" size={24} color={color.bg.screen} />
+      <Icon name="camera" size={24} color={isInstagram ? color.text.primary : color.bg.screen} />
     </Pressable>
   );
 }
@@ -129,7 +141,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   // Aktive Seite: dezente helle Fläche, damit der Kater nicht auf Weiß liegt
-  itemActive: { backgroundColor: 'rgba(240, 240, 240, 0.14)' },
+  itemActive: { backgroundColor: isInstagram ? 'transparent' : 'rgba(240, 240, 240, 0.14)' },
   camera: {
     position: 'absolute',
     right: space[16],
@@ -142,6 +154,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   pressed: { opacity: 0.7 },
+  // Look „Instagram“: Leiste über die ganze Breite am unteren Rand, Haarlinie oben, keine Pille
+  wrapFlat: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: color.bg.screen,
+    borderTopWidth: stroke.ultraThin,
+    borderTopColor: color.line.hairline,
+  },
+  barFlat: { flexDirection: 'row', justifyContent: 'space-around', paddingVertical: space[2] },
+  // Erstellen als schlichtes Icon ohne Fläche
+  cameraFlat: { backgroundColor: 'transparent', width: 48 },
   dot: {
     position: 'absolute',
     top: -2,
