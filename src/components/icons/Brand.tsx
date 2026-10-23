@@ -92,12 +92,11 @@ const crystalSvgs = ([1, 2, 3] as DiamondVariant[]).map((v) => {
 
 /**
  * Edenstein im Look „Instagram“ (Daria, 23.10.2026): Kontur wie alle Instagram-Icons, flach und symmetrisch,
- * alle Ecken rund. Oben eine gerade Kante, darunter die Gürtellinie, dann zwei Seiten bis zur runden Spitze.
- * Linie 1,6 auf 24 × 24 in Grün; der Ausschnitt ist auf den Stein zugeschnitten.
+ * alle Ecken rund, nur die Umrisslinie. Linie 2 auf 24 × 24 in Grün; der Ausschnitt ist auf den Stein zugeschnitten.
  */
 const GEM_COLOR = '#2FA84F';
-const GEM_SVG = `<svg viewBox="2.4 3 19.2 17.4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="${GEM_COLOR}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.6 4h6.8c.9 0 1.7.4 2.2 1.1l2.6 3.4c.6.8.6 1.9-.1 2.7l-6.4 7.9c-.9 1.1-2.5 1.1-3.4 0l-6.4-7.9c-.7-.8-.7-1.9-.1-2.7l2.6-3.4C6.9 4.4 7.7 4 8.6 4z"/><path d="M4 9.4h16"/></svg>`;
-const gem = { ratio: 19.2 / 17.4, svg: GEM_SVG };
+const GEM_SVG = `<svg viewBox="2.6 3.4 18.8 16.4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="${GEM_COLOR}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.5h6c1 0 1.9.5 2.5 1.2l2.1 2.7c.7.9.7 2.2-.1 3.1l-6 7a2 2 0 0 1-3 0l-6-7c-.8-.9-.8-2.2-.1-3.1l2.1-2.7C7.1 5 8 4.5 9 4.5z"/></svg>`;
+const gem = { ratio: 18.8 / 16.4, svg: GEM_SVG };
 /** Kristall je Typ: im Instagram-Look immer der glatte Stein */
 const stoneOf = (type: number) => (isInstagram ? gem : crystalSvgs[type]);
 

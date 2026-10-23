@@ -6,17 +6,17 @@ Gehört nach Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitt „Look“
 
 - Im Reiter „Gruppen“ steht keine Freundesleiste. Eine Leiste mit Kreisen liest sich wie Instagrams Stories, und Stories gibt es in Kiez Coins nicht (Daria, 23.10.2026). Freundschaften erreicht man über das Profil (Zahl „Freund:innen“, Knopf „Freundschaften“), Daten aus `src/data/friends.ts`.
 - Logo und Kater bekommen im Instagram-Look eine eigene Signaturfarbe, Token `color.brand.signature`. Kiez-Violett `#7B2FF7` hat Daria verworfen, ebenso Orange, Smaragd, Schwarz und das Kiez-Lila als Vorschläge. Bis zur Entscheidung steht dort Schwarz. Im Kiez-Look bleibt `#7E94FF`.
-- Edensteine im Instagram-Look als Kontur wie alle Instagram-Icons: flach, symmetrisch, alle Ecken rund, Gürtellinie unter der oberen Kante, Linie 1,6 in Grün `#2FA84F` (Daria, 23.10.2026). Er schwebt und funkelt, kippt und spiegelt sich aber nicht; im Haufen liegen die Steine gerade (`GEM_SVG` in `src/components/icons/Brand.tsx`).
+- Edensteine im Instagram-Look als Kontur wie alle Instagram-Icons: nur der Umriss, flach, symmetrisch, alle Ecken rund, Linie 2 in Grün `#2FA84F` (Daria, 23.10.2026). Er schwebt und funkelt, kippt und spiegelt sich aber nicht; im Haufen liegen die Steine gerade (`GEM_SVG` in `src/components/icons/Brand.tsx`).
 - Logo und Begrüßung im Feed gleiten nach 3,5 s von selbst weg (`HEADER_HIDE_MS` in `src/app/feed.tsx`), in beiden Looks.
-- Erstellen sitzt im Instagram-Look in der Leiste unten, mit Kamera-Icon (Kamera mit Plus in der Linse). Die Kamera oben rechts entfällt dort.
-- Icons im Instagram-Look immer als Kontur, Linie 1,6, alle Ecken mit großen Radien: Haus, Papierflieger, Kamera, Zahnrad mit runden Zähnen, Raster, Kopieren, Fahne, Daumen, Geschenk (`instagramSvgs.ts`).
+- Erstellen sitzt im Instagram-Look in der Leiste unten, mit Kamera-Icon. Die Kamera oben rechts entfällt dort.
+- Icons im Instagram-Look immer als Kontur und minimalistisch: Linie 2 mit runden Enden und Ecken (Instagram selbst: 1,98), große Radien, keine Zusatzdetails. Haus mit runder Tür, Kamera ohne Plus, Papierflieger mit runden Ecken. Verwalten am Beitrag und an der Gruppe als drei Punkte wie bei Instagram (`instagramSvgs.ts`).
 - Beiträge im Instagram-Look im Hochformat 4:5, ohne Foto 4:3.
 - „Was Du so machst“ im Instagram-Look als Profil wie instagram.com/<name> (`src/components/InstaProfile.tsx`).
 - Umschalter „In der Nähe / Gruppen“ im Instagram-Look als Unterstrich-Reiter wie im Instagram-Profil.
 
 ## Leiste im Instagram-Look
 
-Haus (Feed), zwei Personen (Gruppen und Freund:innen), Kamera mit Plus (Erstellen), Papierflieger (Chats), eigenes Bild (Profil). Das Menü (Konto) sitzt oben rechts im Profil. Von anderen Seiten öffnen `/feed?reiter=gruppen` und `/feed?erstellen=1` den Reiter bzw. das Erstellen.
+Haus (Feed), zwei Personen (Gruppen und Freund:innen), Kamera (Erstellen), Papierflieger (Chats), eigenes Bild (Profil). Das Menü (Konto) sitzt oben rechts im Profil. Von anderen Seiten öffnen `/feed?reiter=gruppen` und `/feed?erstellen=1` den Reiter bzw. das Erstellen.
 
 ## Maße (pt)
 
@@ -27,6 +27,8 @@ Haus (Feed), zwei Personen (Gruppen und Freund:innen), Kamera mit Plus (Erstelle
 - Profil: Kopf 44, Bild 86, Knöpfe 34 hoch, Highlights 64, Reiter-Icons 44, Raster drei Spalten 3:4 mit 2 Fuge.
 
 ## Offen
+
+- Die Münze am Bounty bleibt die farbige Grafik aus dem Kiez-Look und passt nicht zu den flachen Konturen.
 
 - Der Kater im Startbild (`KaterStage`, PNG-Teile) bleibt braun; nur die SVG-Kater (Logo, Sprechblasen) nehmen die Signaturfarbe an.
 - Die Zahlen im Profil zählen Challenges, Freund:innen und Gruppen; der Verdienst steht darunter in der Bio-Zeile.

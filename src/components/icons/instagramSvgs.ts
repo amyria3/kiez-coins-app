@@ -1,5 +1,6 @@
 // Linien-Icons für den Look „Instagram“ (Daria, 2026-10-23): weiche, runde Konturen auf 24 × 24 wie das heutige Instagram.
-// Überarbeitet am 23.10.2026: Linie 1,6, alle Ecken mit großen Radien (Daria: „nicht rund genug“), keine spitzen Winkel.
+// Überarbeitet am 23.10.2026: Linie 2 wie bei Instagram (dort gemessen: 1,98 mit runden Enden und Ecken), alle Ecken mit
+// großen Radien und keine Zusatzdetails (Daria: „nicht rund genug, nicht minimalistisch genug“).
 // Eigene Zeichnungen.
 // Fehlt ein Name hier, zeigt Icon.tsx Darias Icon aus svgs.ts.
 import type { IconName } from './svgs';
@@ -7,18 +8,18 @@ import type { IconName } from './svgs';
 type Svg = { width: number; height: number; svg: (c: string, filled?: boolean) => string };
 
 /** Linienstärke aller Instagram-Icons in px auf 24 × 24 */
-export const LINE = 1.6;
+export const LINE = 2;
 
 export const line = (c: string, body: string) =>
   `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="${c}" stroke-width="${LINE}" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;
 const icon = (body: (c: string, filled?: boolean) => string): Svg => ({ width: 24, height: 24, svg: (c, filled) => line(c, body(c, filled)) });
 
 /** Papierflieger mit runder Spitze und runden Ecken, wie Instagrams Teilen- und Nachrichten-Icon */
-export const PLANE = `<path d="M20.3 3.7c.5-.2 1 .3.8.8l-5.7 15.6c-.4 1-1.8 1.1-2.2.1l-2.7-6c-.1-.3-.4-.5-.6-.6l-6-2.7c-1-.4-.9-1.8.1-2.2z"/><path d="M10.4 13.6l5-5"/>`;
-/** Kamera mit Plus in der Linse: Beitrag erstellen */
-export const CAMERA_PLUS = `<rect x="3" y="6.2" width="18" height="13.8" rx="4"/><path d="M8.7 6.2l.7-1.3c.4-.7 1.1-1.2 1.9-1.2h1.4c.8 0 1.5.5 1.9 1.2l.7 1.3"/><circle cx="12" cy="13.1" r="3.7"/><path d="M12 11.6v3M10.5 13.1h3"/>`;
+export const PLANE = `<path d="M5 9.2 18.6 4.2c1.6-.6 2.1-.1 1.5 1.5l-4.7 13.1c-.5 1.5-1.3 1.6-2 .1l-2.3-5c-.2-.4-.5-.7-.9-.9l-5.2-2.1c-1.4-.6-1.4-1.1 0-1.7z"/><path d="M11.1 13 15.4 8.7"/>`;
+/** Kamera: Beitrag erstellen. Ohne Plus, damit das Icon so schlicht ist wie die übrigen. */
+export const CAMERA_PLUS = `<rect x="3" y="6.5" width="18" height="13.5" rx="4.5"/><path d="M9 6.5l.6-1.2c.4-.8 1.1-1.3 2-1.3h.8c.9 0 1.6.5 2 1.3l.6 1.2"/><circle cx="12" cy="13.2" r="3.4"/>`;
 /** Haus mit runden Ecken */
-export const HOME = `<path d="M4 10.8c0-.8.4-1.6 1-2.1l5.3-4.3c1-.8 2.4-.8 3.4 0l5.3 4.3c.6.5 1 1.3 1 2.1V18a2.5 2.5 0 0 1-2.5 2.5h-2.2a1 1 0 0 1-1-1v-3.8a1.3 1.3 0 0 0-1.3-1.3h-2a1.3 1.3 0 0 0-1.3 1.3v3.8a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 1 4 18z"/>`;
+export const HOME = `<path d="M4.5 10.6c0-.9.4-1.7 1.1-2.2l5-3.9a2.3 2.3 0 0 1 2.8 0l5 3.9c.7.5 1.1 1.3 1.1 2.2v7.6a2.3 2.3 0 0 1-2.3 2.3h-2.4v-4.7a2.8 2.8 0 0 0-5.6 0v4.7H6.8a2.3 2.3 0 0 1-2.3-2.3z"/>`;
 /** Zwei Personen: Gruppen und Freund:innen */
 export const PEOPLE = `<circle cx="9" cy="8.3" r="3.4"/><path d="M3 19.6c.5-3.2 3-5.2 6-5.2s5.5 2 6 5.2"/><path d="M15.4 5.2a3.3 3.3 0 0 1 0 6.3M17.6 14.6c1.8.8 3 2.5 3.4 5"/>`;
 
@@ -49,7 +50,7 @@ export const instagramSvgs: Partial<Record<IconName, Svg>> = {
   copy: icon(() => `<rect x="8.5" y="8.5" width="12" height="12" rx="3.5"/><path d="M15.5 8.5V6.5a3 3 0 0 0-3-3h-6a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h2"/>`),
   eye: icon(() => `<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>`),
   // Deine Challenges: Raster wie das Profil-Raster
-  ship: icon(() => `<rect x="3.5" y="3.5" width="7" height="7" rx="2.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="2.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="2.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="2.5"/>`),
+  ship: icon(() => `<rect x="3.5" y="3.5" width="7" height="7" rx="3"/><rect x="13.5" y="3.5" width="7" height="7" rx="3"/><rect x="3.5" y="13.5" width="7" height="7" rx="3"/><rect x="13.5" y="13.5" width="7" height="7" rx="3"/>`),
   // Gruppen: zwei Personen
   behausung: icon(() => PEOPLE),
   gift: icon(() => `<rect x="3.5" y="8" width="17" height="4" rx="1.8"/><path d="M5 12v6.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V12M12 8v12.5M12 8S10.5 3.5 7.8 4.6C6 5.4 7.2 8 12 8zm0 0s1.5-4.5 4.2-3.4C18 5.4 16.8 8 12 8z"/>`),
