@@ -22,6 +22,8 @@ type Props = {
   spruch?: KaterSpruch | null;
   take?: number;
   onPress?: () => void;
+  /** Ohne Sprechblase, nur die Aktion (Start der App) */
+  ohneBlase?: boolean;
 };
 
 /**
@@ -29,7 +31,7 @@ type Props = {
  * fegen (Besen umdrehen, mit der Bürste hin und her), winken (Besen heben und schwenken),
  * brille (Sonnenbrille runter, drüber schauen), stampfen (Stiefel heben). Darüber die Sprechblase.
  */
-export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, onPress }: Props) {
+export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, onPress, ohneBlase }: Props) {
   const s = width / W;
   const height = H * s;
   const [still, setStill] = useState(false);
@@ -108,7 +110,7 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
   const layer = { position: 'absolute' as const, left: 0, top: 0, width, height };
   return (
     <View style={styles.wrap}>
-      <Animated.View
+      {ohneBlase ? null : <Animated.View
         style={[
           styles.bubble,
           {
@@ -120,7 +122,7 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
       >
         <Text style={styles.bubbleText}>{spruch ? t(spruch.text) : ' '}</Text>
         <View style={styles.tail} />
-      </Animated.View>
+      </Animated.View>}
       <Pressable
         onPress={onPress}
         disabled={!onPress}

@@ -16,6 +16,7 @@ import { StoreProvider } from '../data/store';
 import { translateAlerts } from '../components/T';
 import { loadLanguage, loadTexts, useTexts, getLanguage } from '../data/texts';
 import { LoadingScreen } from '../components/GearsLoader';
+import { StartKater } from '../components/StartKater';
 import { color } from '../theme/tokens';
 
 SplashScreen.preventAutoHideAsync();
@@ -70,6 +71,8 @@ function RootStack() {
   // Neue Sprache: Navigation neu aufbauen, damit jeder Screen die neuen Texte zeigt
   useTexts();
   const language = getLanguage();
+  // Nach den Zahnrädern einmal der Kater mit dem Besen (Daria, 2026-10-23)
+  const [intro, setIntro] = useState(true);
   // Erst rendern, wenn die gespeicherte Sitzung gelesen ist, sonst springt der Start kurz ins Onboarding.
   if (loading) return <LoadingScreen />;
 
@@ -97,6 +100,7 @@ function RootStack() {
         <Stack.Screen name="account/pause/success" options={{ gestureEnabled: false }} />
         <Stack.Screen name="account/delete/success" options={{ gestureEnabled: false }} />
       </Stack>
+      {intro ? <StartKater onDone={() => setIntro(false)} /> : null}
       <WebAlertHost />
     </>
   );
