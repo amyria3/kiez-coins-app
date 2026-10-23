@@ -53,6 +53,8 @@ export const DiamondIcon = memo(function DiamondIcon({
   variant?: DiamondVariant;
   height?: number;
 }) {
+  // Instagram-Look: glatter Stein ohne Striche, etwas kleiner, da die Striche als Rahmen fehlen
+  if (isInstagram) return <SvgXml xml={GEM_SVG} width={gem.ratio * height * 0.8} height={height * 0.8} />;
   const d = diamondSvgs[variant];
   return <SvgXml xml={d.svg(color.text.primary)} width={(d.width / d.height) * height} height={height} />;
 });
@@ -87,6 +89,25 @@ const crystalSvgs = ([1, 2, 3] as DiamondVariant[]).map((v) => {
       .replace(/width="[^"]*" height="[^"]*"/, ''),
   };
 });
+
+/**
+ * Edenstein im Look „Instagram“ (Daria, 23.10.2026): glatt und symmetrisch geschliffen, ohne Struktur und Striche.
+ * Krone mit Tafel und zwei Seitenfacetten, darunter der Unterteil mit drei Facetten bis zur Spitze.
+ * Licht von oben: Tafel hell, Mitte unten mittel, links und rechts gleich dunkel, damit beide Seiten gleich wirken.
+ */
+const GEM_TONE = { light: '#A6F5C1', mid: '#4FD67F', dark: '#22A452', edge: '#178A42' };
+const GEM_SVG = `<svg viewBox="0 0 20 18" xmlns="http://www.w3.org/2000/svg">
+<path d="M1 6.2 5.2 1h9.6L19 6.2 10 17z" fill="${GEM_TONE.edge}"/>
+<path d="M1 6.2 5.2 1l1.9 5.2z" fill="${GEM_TONE.mid}"/>
+<path d="M14.8 1 19 6.2h-6.1z" fill="${GEM_TONE.mid}"/>
+<path d="M5.2 1h9.6l-1.9 5.2H7.1z" fill="${GEM_TONE.light}"/>
+<path d="M1 6.2h6.1L10 17z" fill="${GEM_TONE.dark}"/>
+<path d="M12.9 6.2H19L10 17z" fill="${GEM_TONE.dark}"/>
+<path d="M7.1 6.2h5.8L10 17z" fill="${GEM_TONE.mid}"/>
+</svg>`;
+const gem = { ratio: 20 / 18, svg: GEM_SVG };
+/** Kristall je Typ: im Instagram-Look immer der glatte Stein */
+const stoneOf = (type: number) => (isInstagram ? gem : crystalSvgs[type]);
 
 /**
  * Lage der Kristalle im Haufen, in Kristallbreiten (x) und -höhen (y), in der Reihenfolge, wie sie dazukommen:
@@ -127,7 +148,7 @@ export const EdensteinPile = memo(function EdensteinPile({ amount, height = 24 }
       accessibilityLabel={t('{amount} Edensteine', { amount })}
     >
       {order.map((p) => {
-        const crystal = crystalSvgs[p.type];
+        const crystal = stoneOf(p.type);
         const h = height * p.scale;
         const cw = h * crystal.ratio;
         return (
@@ -138,7 +159,8 @@ export const EdensteinPile = memo(function EdensteinPile({ amount, height = 24 }
               left: (p.x - minX) * w + (w - cw) / 2,
               top: (p.y - minY) * height + (height - h),
               opacity: p.z === 0 && n > 2 ? 0.85 : 1,
-              transform: [{ rotate: `${p.rot}deg` }],
+              // Glatter Stein liegt gerade, damit der Haufen ruhig und symmetrisch wirkt
+              transform: [{ rotate: `${isInstagram ? 0 : p.rot}deg` }],
             }}
           >
             <SvgXml xml={crystal.svg} width={cw} height={h} />
@@ -275,16 +297,21 @@ export const LivingCrystal = memo(function LivingCrystal({
     next();
     return () => clearTimeout(timer);
   }, [flash, still]);
-  const crystal = crystalSvgs[look % 3];
-  const mirror = (look >> 3) % 2 === 1;
-  const lean = (((look >> 5) % 13) - 6) * 1.5;
-  const w = height * crystal.ratio;
+  const crystal = stoneOf(look % 3);
+  // Glatter Stein: nie gespiegelt oder schief, er schwebt nur und funkelt
+  const mirror = !isInstagram && (look >> 3) % 2 === 1;
+  const lean = isInstagram ? 0 : (((look >> 5) % 13) - 6) * 1.5;
+  const tiltRange = isInstagram ? ['0deg', '0deg'] : ['-22deg', '22deg'];
+  // Glatter Stein ist breiter als hoch: auf 55 % der Höhe gezeichnet, damit er so breit ist wie der Kristall
+  const gemH = isInstagram ? height * 0.55 : height;
+  const w = gemH * crystal.ratio;
   const star = height * 0.42;
   return (
     <Animated.View
       style={{
         width: w,
         height,
+        justifyContent: 'center',
         transform: [
           { translateX: drift.interpolate({ inputRange: [-1, 1], outputRange: [-height * 0.03, height * 0.03] }) },
           {
@@ -297,7 +324,7 @@ export const LivingCrystal = memo(function LivingCrystal({
           {
             rotate: Animated.add(tilt, scrollKick.interpolate({ inputRange: [-1, 1], outputRange: [1.4, -1.4] })).interpolate({
               inputRange: [-2.4, 2.4],
-              outputRange: ['-22deg', '22deg'],
+              outputRange: tiltRange,
             }),
           },
           { rotate: `${lean}deg` },
@@ -306,7 +333,7 @@ export const LivingCrystal = memo(function LivingCrystal({
         ],
       }}
     >
-      <SvgXml xml={crystal.svg} width={w} height={height} />
+      <SvgXml xml={crystal.svg} width={w} height={gemH} />
       <Animated.View
         pointerEvents="none"
         style={{
