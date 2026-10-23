@@ -98,13 +98,26 @@ const crystalSvgs = ([1, 2, 3] as DiamondVariant[]).map((v) => {
 });
 
 /**
- * Edenstein im Look „Instagram“ (Daria, 23.10.2026): Kontur wie alle Instagram-Icons, flach und symmetrisch,
- * alle Ecken rund, nur die Umrisslinie. Linie 2 auf 24 × 24 in Grün; der Ausschnitt ist auf den Stein zugeschnitten.
+ * Edenstein im Look „Instagram“ (Daria, 24.10.2026): Brillant als Kontur in Textfarbe wie alle Icons, mit Gürtel
+ * und zwei Facetten, runde Enden und Ecken. Ab und zu blitzt der Verlauf Amethyst auf (InstaGem).
+ * Er steht als Angabe neben seiner Zahl: kleiner als die Aktions-Icons, ohne Bewegung und ohne Druckfläche,
+ * damit er nicht wie ein Knopf wirkt.
  */
-const GEM_COLOR = '#2FA84F';
-/** Stein mit gleich kräftiger Linie: `px` ist die dargestellte Höhe */
-const GEM_SVG = (px: number) => `<svg viewBox="2.6 3.4 18.8 16.4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="${GEM_COLOR}" stroke-width="${strokeFor(px, 2, 16.4)}" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.5h6c1 0 1.9.5 2.5 1.2l2.1 2.7c.7.9.7 2.2-.1 3.1l-6 7a2 2 0 0 1-3 0l-6-7c-.8-.9-.8-2.2-.1-3.1l2.1-2.7C7.1 5 8 4.5 9 4.5z"/></svg>`;
-const gem = { ratio: 18.8 / 16.4, svg: GEM_SVG(16.4) };
+const GEM_BOX = { x: 2.4, y: 3.5, w: 19.2, h: 17.2 };
+const GEM_PATHS =
+  '<path d="M8.3 4.5h7.4c.6 0 1.2.3 1.6.7l2.9 3.4c.5.6.5 1.4 0 2l-7.2 8.6c-.5.6-1.5.6-2 0L3.8 10.6c-.5-.6-.5-1.4 0-2l2.9-3.4c.4-.4 1-.7 1.6-.7z"/><path d="M3.6 9.6h16.8M9.6 4.6 8.2 9.6 12 19.2M14.4 4.6l1.4 5L12 19.2"/>';
+/** Verlauf, der aufblitzt */
+const GEM_FLASH = ['#F783AC', '#7048E8'] as const;
+/** Stein mit gleich kräftiger Linie: `px` ist die dargestellte Höhe, `stroke` Farbe oder Verlauf */
+const GEM_SVG = (px: number, stroke: string = color.text.primary, defs = '') =>
+  `<svg viewBox="${GEM_BOX.x} ${GEM_BOX.y} ${GEM_BOX.w} ${GEM_BOX.h}" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="${stroke}" stroke-width="${strokeFor(px, 2, GEM_BOX.h)}" stroke-linecap="round" stroke-linejoin="round">${defs}${GEM_PATHS}</svg>`;
+const GEM_GRADIENT_SVG = (px: number, id: string) =>
+  GEM_SVG(
+    px,
+    `url(#${id})`,
+    `<defs><linearGradient id="${id}" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${GEM_FLASH[0]}"/><stop offset="1" stop-color="${GEM_FLASH[1]}"/></linearGradient></defs>`,
+  );
+const gem = { ratio: GEM_BOX.w / GEM_BOX.h, svg: GEM_SVG(GEM_BOX.h) };
 /** Kristall je Typ: im Instagram-Look immer der glatte Stein */
 const stoneOf = (type: number) => (isInstagram ? gem : crystalSvgs[type]);
 
@@ -262,7 +275,53 @@ function hashSeed(seed: string) {
  * Mit „Bewegung reduzieren“ steht er still. `height` ist die Höhe des Kristalls; er darf über seinen Rahmen ragen.
  */
 /** `calm`: ruht, ohne Bewegung und Funkeln (z. B. wenn es nichts zu holen gibt) */
-export const LivingCrystal = memo(function LivingCrystal({
+export const LivingCrystal = memo(function LivingCrystal(props: { height?: number; amount?: number; seed?: string; calm?: boolean }) {
+  return isInstagram ? <InstaGem {...props} /> : <KiezCrystal {...props} />;
+});
+
+/**
+ * Edenstein im Instagram-Look: steht still in der Größe des Platzes, den der Kristall hatte (55 % von `height`),
+ * und blitzt alle 6 bis 14 Sekunden im Verlauf auf: 350 ms einblenden, 500 ms halten, 650 ms ausblenden.
+ * `calm` und „Bewegung reduzieren“: kein Aufblitzen.
+ */
+function InstaGem({ height = 48, seed, calm }: { height?: number; seed?: string; calm?: boolean }) {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduced).catch(() => {});
+  }, []);
+  const flash = useRef(new Animated.Value(0)).current;
+  const id = useRef(`gem-${seed ? hashSeed(seed) : Math.floor(Math.random() * 1e9)}-${Math.floor(Math.random() * 1e6)}`).current;
+  useEffect(() => {
+    if (reduced || calm) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const next = () => {
+      timer = setTimeout(() => {
+        Animated.sequence([
+          Animated.timing(flash, { toValue: 1, duration: 350, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+          Animated.delay(500),
+          Animated.timing(flash, { toValue: 0, duration: 650, easing: Easing.in(Easing.quad), useNativeDriver: true }),
+        ]).start(({ finished }) => finished && next());
+      }, 6000 + Math.random() * 8000);
+    };
+    next();
+    return () => {
+      clearTimeout(timer);
+      flash.stopAnimation();
+    };
+  }, [flash, reduced, calm]);
+  const gemH = Math.round(height * 0.55);
+  const w = gemH * gem.ratio;
+  return (
+    <View style={{ width: w, height, justifyContent: 'center' }}>
+      <SvgXml xml={GEM_SVG(gemH)} width={w} height={gemH} />
+      <Animated.View pointerEvents="none" style={{ position: 'absolute', left: 0, top: (height - gemH) / 2, opacity: flash }}>
+        <SvgXml xml={GEM_GRADIENT_SVG(gemH, id)} width={w} height={gemH} />
+      </Animated.View>
+    </View>
+  );
+}
+
+const KiezCrystal = memo(function KiezCrystal({
   height = 48,
   seed,
   calm,
