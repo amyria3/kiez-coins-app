@@ -1024,5 +1024,9 @@
   "Konto und Einstellungen": "Обліковий запис і налаштування",
   "Tour und Kater": "Тур і кіт",
   "Allgemein": "Загальне",
-  "Diese Texte stehen auf mehreren Seiten. Eine Änderung gilt überall.": "Ці тексти є на кількох сторінках. Зміна діє всюди."
+  "Diese Texte stehen auf mehreren Seiten. Eine Änderung gilt überall.": "Ці тексти є на кількох сторінках. Зміна діє всюди.",
+  "Kopiert": "Скопійовано",
+  "Der Text liegt in der Zwischenablage. Füg ihn ein, wo Du ihn teilen willst.": "Текст у буфері обміну. Встав його там, де хочеш поділитися.",
+  "Teilen geht hier nicht": "Тут поділитися не можна",
+  "Dein Browser kann weder teilen noch kopieren.": "Твій браузер не може ні ділитися, ні копіювати."
 }

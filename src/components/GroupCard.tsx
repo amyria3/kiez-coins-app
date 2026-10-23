@@ -29,7 +29,7 @@ export function GroupCard({ group, meta, onFeed, onManage }: GroupCardProps) {
     <View style={styles.card}>
       <View style={styles.top}>
         <View style={styles.flex}>
-          <Text style={styles.name} numberOfLines={1}>
+          <Text noTranslate style={styles.name} numberOfLines={1}>
             {group.name}
           </Text>
           <Text style={styles.meta} numberOfLines={1}>

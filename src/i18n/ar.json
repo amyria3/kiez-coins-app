@@ -1024,5 +1024,9 @@
   "Konto und Einstellungen": "الحساب والإعدادات",
   "Tour und Kater": "الجولة والقط",
   "Allgemein": "عام",
-  "Diese Texte stehen auf mehreren Seiten. Eine Änderung gilt überall.": "تظهر هذه النصوص في عدة صفحات. أي تغيير يسري في كل مكان."
+  "Diese Texte stehen auf mehreren Seiten. Eine Änderung gilt überall.": "تظهر هذه النصوص في عدة صفحات. أي تغيير يسري في كل مكان.",
+  "Kopiert": "تم النسخ",
+  "Der Text liegt in der Zwischenablage. Füg ihn ein, wo Du ihn teilen willst.": "النص في الحافظة. الصقه حيث تريد مشاركته.",
+  "Teilen geht hier nicht": "المشاركة غير متاحة هنا",
+  "Dein Browser kann weder teilen noch kopieren.": "متصفحك لا يستطيع المشاركة ولا النسخ."
 }

@@ -1,5 +1,6 @@
 import { memo, useEffect, useRef, useState } from 'react';
-import { Alert, Animated, Pressable, Share, StyleSheet, View } from 'react-native';
+import { Alert, Animated, Pressable, StyleSheet, View } from 'react-native';
+import { shareText } from '../lib/share';
 import { Text } from './T';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -149,7 +150,7 @@ export const ChallengePost = memo(function ChallengePost({
           >
             <Avatar user={author} diameter={40} />
             <View style={styles.whoTexts}>
-              <Text style={[styles.whoName, hideName ? hiddenText : null]} numberOfLines={1}>
+              <Text noTranslate style={[styles.whoName, hideName ? hiddenText : null]} numberOfLines={1}>
                 {author.name}
               </Text>
               <Text style={styles.whoMeta} numberOfLines={1}>
@@ -165,7 +166,7 @@ export const ChallengePost = memo(function ChallengePost({
           </Text>
           <View style={styles.metaRow}>
             <Text style={styles.meta} numberOfLines={1}>
-              <Text style={hideName ? hiddenText : undefined}>{author.name}</Text>
+              <Text noTranslate style={hideName ? hiddenText : undefined}>{author.name}</Text>
               {meta ? ` · ${meta}` : null}
             </Text>
           </View>
@@ -198,7 +199,7 @@ export const ChallengePost = memo(function ChallengePost({
             icon="send"
             iconSize={size.icon}
             accessibilityLabel={t('Teilen')}
-            onPress={() => Share.share({ message: t('{title} – Kiez Coins', { title: challenge.title }) }).catch(() => {})}
+            onPress={() => shareText(t('{title} – Kiez Coins', { title: challenge.title }))}
           />
         </View>
         <View style={styles.actionsRight}>

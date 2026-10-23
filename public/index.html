@@ -40,6 +40,12 @@
         box-shadow: 0 0 0 1000px #2b2d31 inset;
         transition: background-color 9999s ease-out 0s;
       }
+      /* Langes Drücken auf ein Foto öffnet den Post, nicht Safaris Menü „Sichern, Teilen“ */
+      img {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
       /* Aktive Farbe wie in der App (color/accent/primary) statt Browser-Blau */
       :root {
         accent-color: #7e94ff;

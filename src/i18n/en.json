@@ -1024,5 +1024,9 @@
   "Konto und Einstellungen": "Account and settings",
   "Tour und Kater": "Tour and cat",
   "Allgemein": "General",
-  "Diese Texte stehen auf mehreren Seiten. Eine Änderung gilt überall.": "These texts appear on several pages. A change applies everywhere."
+  "Diese Texte stehen auf mehreren Seiten. Eine Änderung gilt überall.": "These texts appear on several pages. A change applies everywhere.",
+  "Kopiert": "Copied",
+  "Der Text liegt in der Zwischenablage. Füg ihn ein, wo Du ihn teilen willst.": "The text is on your clipboard. Paste it wherever you want to share it.",
+  "Teilen geht hier nicht": "Sharing isn't available here",
+  "Dein Browser kann weder teilen noch kopieren.": "Your browser can neither share nor copy."
 }

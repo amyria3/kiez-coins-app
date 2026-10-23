@@ -1024,5 +1024,9 @@
   "Konto und Einstellungen": "חשבון והגדרות",
   "Tour und Kater": "סיור וחתול",
   "Allgemein": "כללי",
-  "Diese Texte stehen auf mehreren Seiten. Eine Änderung gilt überall.": "הטקסטים האלה מופיעים בכמה עמודים. שינוי חל בכל מקום."
+  "Diese Texte stehen auf mehreren Seiten. Eine Änderung gilt überall.": "הטקסטים האלה מופיעים בכמה עמודים. שינוי חל בכל מקום.",
+  "Kopiert": "הועתק",
+  "Der Text liegt in der Zwischenablage. Füg ihn ein, wo Du ihn teilen willst.": "הטקסט נמצא בלוח. הדביקו אותו איפה שתרצו לשתף.",
+  "Teilen geht hier nicht": "אי אפשר לשתף כאן",
+  "Dein Browser kann weder teilen noch kopieren.": "הדפדפן שלך לא יכול לשתף או להעתיק."
 }

@@ -1024,5 +1024,9 @@
   "Konto und Einstellungen": "Compte et réglages",
   "Tour und Kater": "Visite et chat",
   "Allgemein": "Général",
-  "Diese Texte stehen auf mehreren Seiten. Eine Änderung gilt überall.": "Ces textes apparaissent sur plusieurs pages. Une modification s’applique partout."
+  "Diese Texte stehen auf mehreren Seiten. Eine Änderung gilt überall.": "Ces textes apparaissent sur plusieurs pages. Une modification s’applique partout.",
+  "Kopiert": "Copié",
+  "Der Text liegt in der Zwischenablage. Füg ihn ein, wo Du ihn teilen willst.": "Le texte est dans le presse-papiers. Colle-le là où tu veux le partager.",
+  "Teilen geht hier nicht": "Le partage n’est pas possible ici",
+  "Dein Browser kann weder teilen noch kopieren.": "Ton navigateur ne peut ni partager ni copier."
 }

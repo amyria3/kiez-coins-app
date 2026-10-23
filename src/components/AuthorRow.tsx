@@ -77,7 +77,7 @@ export function AuthorRow({ user, location, trailing, onPress }: AuthorRowProps)
     >
       <Avatar user={user} />
       <View style={styles.info}>
-        <Text
+        <Text noTranslate
           style={[styles.name, hidden && hiddenText]}
           numberOfLines={1}
           accessibilityLabel={hidden ? t('Name verdeckt, solange Dein Kiez fehlt') : undefined}

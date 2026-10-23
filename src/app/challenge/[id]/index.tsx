@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Pressable, Share, StyleSheet, View, type GestureResponderEvent } from 'react-native';
+import { Alert, Pressable, StyleSheet, View, type GestureResponderEvent } from 'react-native';
+import { shareText } from '../../../lib/share';
 import { Text } from '../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -396,7 +397,7 @@ export default function ChallengeDetail() {
       moreImages={challenge.extraImages?.map((e) => e.photo)}
       imageLabel={challenge.title}
       onBackPress={() => router.back()}
-      onSharePress={() => Share.share({ message: t('{title} – Kiez Coins', { title: challenge.title }) }).catch(() => {})}
+      onSharePress={() => shareText(t('{title} – Kiez Coins', { title: challenge.title }))}
       imageOverlay={acceptedByMe && challenge.operationName ? <OperationTag name={challenge.operationName} /> : undefined}
       actions={actions}
       summary={summary}
