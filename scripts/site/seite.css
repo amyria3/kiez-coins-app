@@ -25,6 +25,16 @@ button { font: inherit; color: inherit; }
 .brand svg { display: block; }
 .top-link { font-size: 15px; font-weight: 400; text-decoration: none; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line); }
 .top-link:hover { border-color: var(--muted); }
+.top-links { display: flex; gap: 8px; }
+.top-link { white-space: nowrap; }
+.kurz { display: none; }
+@media (max-width: 480px) {
+  .top-links { gap: 6px; }
+  .top-links .top-link { padding: 8px 12px; font-size: 13px; }
+  .top:has(.top-links) .brand svg { height: 22px; width: auto; }
+  .top-links .lang { display: none; } .top-links .kurz { display: inline; }
+}
+@media (max-width: 340px) { .top-links .top-link { padding: 8px 10px; } }
 
 /* Erster Bildschirm: Text und Szenarien links, Telefon rechts */
 .hero { display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: 'text phone' 'wahl phone' 'hint phone';
