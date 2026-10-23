@@ -21,4 +21,4 @@ Diese `README.md` bleibt immer liegen.
 
 ## Liegt gerade hier
 
-Nichts. Alle Notizen bis 2026-10-23 sind in Documentation eingearbeitet.
+- `2026-10-23_web-mobile-abweichungen.md` → `kiez-coins/APP-STAND.md`

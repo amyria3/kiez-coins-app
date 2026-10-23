@@ -198,7 +198,7 @@ export const ChallengePost = memo(function ChallengePost({
             icon="send"
             iconSize={size.icon}
             accessibilityLabel={t('Teilen')}
-            onPress={() => Share.share({ message: t('{title} – Kiez Coins', { title: challenge.title }) })}
+            onPress={() => Share.share({ message: t('{title} – Kiez Coins', { title: challenge.title }) }).catch(() => {})}
           />
         </View>
         <View style={styles.actionsRight}>
