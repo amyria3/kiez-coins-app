@@ -22,6 +22,11 @@ import { color } from '../theme/tokens';
 import { look, setLook } from '../theme/look';
 
 SplashScreen.preventAutoHideAsync();
+
+/** Stand des Starts für die Fehleranzeige in public/index.html */
+function setStartInfo(info: string) {
+  if (typeof window !== 'undefined') (window as unknown as { __kiezStart?: string }).__kiezStart = info;
+}
 // Nach WebAlert: Rückfragen erscheinen in der gewählten Sprache
 translateAlerts();
 
@@ -49,11 +54,21 @@ export default function RootLayout() {
     return () => sub.remove();
   }, []);
 
+  // Spätestens nach 3 Sekunden starten, auch wenn Schrift oder Sprache hängen (Safari, Daria 23.10.2026).
+  // Ohne Inter springt der Browser auf die Systemschrift, die App bleibt bedienbar.
+  const [timedOut, setTimedOut] = useState(false);
   useEffect(() => {
-    if ((fontsLoaded || fontError) && languageReady) SplashScreen.hideAsync();
-  }, [fontsLoaded, fontError, languageReady]);
+    const timer = setTimeout(() => setTimedOut(true), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+  const ready = timedOut || ((fontsLoaded || !!fontError) && languageReady);
+  setStartInfo(`Schrift ${fontsLoaded ? 'ok' : fontError ? 'Fehler' : 'lädt'}, Sprache ${languageReady ? 'ok' : 'lädt'}${timedOut ? ', Zeitlimit' : ''}`);
 
-  if ((!fontsLoaded && !fontError) || !languageReady) return null;
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync();
+  }, [ready]);
+
+  if (!ready) return null;
 
   // Seit SDK 58 liefert Expo Router im Web keine Safe-Area-Abstände mehr. Ohne eigenen Provider
   // liegt der Kopf der Web-App auf dem Home-Bildschirm unter der Statusleiste (Daria, 2026-10-23).
@@ -76,6 +91,7 @@ function RootStack() {
   // Nach den Zahnrädern einmal der Kater mit dem Besen (Daria, 2026-10-23)
   const [intro, setIntro] = useState(true);
   // Erst rendern, wenn die gespeicherte Sitzung gelesen ist, sonst springt der Start kurz ins Onboarding.
+  setStartInfo(loading ? 'Anmeldung lädt' : 'App gerendert');
   if (loading) return <LoadingScreen />;
 
   return (

@@ -108,8 +108,12 @@
             '<p style="margin:0 0 16px;color:#a0a0a0">Schick bitte einen Screenshot an den Support.</p>' +
             '<pre style="white-space:pre-wrap;word-break:break-all;font-size:12px;color:#ff7e8b;margin:0 0 24px"></pre>' +
             '<a href="/app/?look=kiez" style="display:inline-block;padding:12px 20px;border-radius:12px;background:#7e94ff;color:#1f2123;text-decoration:none;font-weight:600">Neu laden</a>';
-          box.querySelector('pre').textContent = String(text).slice(0, 1200);
+          box.querySelector('pre').textContent = String(text).slice(0, 1200) + '\n\nStart: ' + (window.__kiezStart || 'Skript nicht gestartet') + '\n' + navigator.userAgent;
           document.body.appendChild(box);
+          // Startet die App doch noch, verschwindet der Hinweis wieder
+          var watch = setInterval(function () {
+            if (root.innerText.trim()) { clearInterval(watch); box.remove(); }
+          }, 1000);
         }
         window.addEventListener('error', function (e) {
           // Bilder, die nicht laden, sind kein Startproblem. Nur Skripte zählen.
@@ -122,7 +126,7 @@
           setTimeout(function () { show(r && r.stack ? r.stack : String(r)); }, 1500);
         });
         // Nach 12 Sekunden immer noch leer: Hinweis ohne Fehlertext
-        setTimeout(function () { show('Nach 12 Sekunden ist noch nichts zu sehen. ' + navigator.userAgent); }, 12000);
+        setTimeout(function () { show('Nach 8 Sekunden ist noch nichts zu sehen.'); }, 8000);
       })();
     </script>
   </body>
