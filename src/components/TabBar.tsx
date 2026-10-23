@@ -65,7 +65,7 @@ function InstaTabBar({ active, onFeedPress, onReisePress, onReiseLongPress, hasT
   const groupsOn = active === 'feed' && !!groupsActive;
   const c = color.text.primary;
   const svg = (body: string, strong?: boolean) =>
-    line(c, body).replace(/stroke-width="[^"]*"/, `stroke-width="${strong ? 2.2 : 1.6}"`);
+    line(c, body).replace(/stroke-width="[^"]*"/, `stroke-width="${strong ? 2.6 : 2}"`);
   const filled = (body: string) => svg(body.replace('/>', ` fill="${c}"/>`));
   return (
     <View style={[styles.wrapFlat, { paddingBottom: insets.bottom }]} pointerEvents="box-none">
