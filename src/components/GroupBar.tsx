@@ -77,6 +77,9 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
               {t('{members} Mitglieder', { members: selected.members.length })}
             </Text>
           </View>
+          {/* Instagram-Look: kein Stein mit Zahl rechts, der eigene Bestand steht in der Gruppe (Daria, 24.10.2026) */}
+          {isInstagram ? null : (
+            <>
           {/* Stein: lebt, wenn es offene Aufgaben gibt, und führt zur nächsten. Sonst klein, blass und still. */}
           <Pressable
             accessibilityRole="button"
@@ -98,6 +101,8 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
             </View>
             <Text style={styles.eden}>{myEdensteine(selected, challenges, currentUserId)}</Text>
           </Pressable>
+            </>
+          )}
         </View>
       ) : null}
     </View>
