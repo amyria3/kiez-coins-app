@@ -71,6 +71,16 @@
         position: relative;
         overflow: hidden;
       }
+      /* App auf dem iPhone-Home-Bildschirm: Mit durchsichtiger Statusleiste rechnet iOS die Höhe 100 % ohne die Statusleiste.
+         Die App endete dadurch um diese Höhe zu früh, und die Tab-Leiste saß zu weit oben (Daria, 2026-10-23). */
+      @media (display-mode: standalone) {
+        html {
+          overflow: hidden;
+        }
+        body {
+          height: calc(100% + env(safe-area-inset-top));
+        }
+      }
       /* Seitenränder neben der App im Desktop-Browser */
       @media (min-width: 481px) {
         body {
