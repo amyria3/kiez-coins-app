@@ -1,7 +1,10 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
+    "strict": true,
+    // SDK 58 (React Native 0.88): vorerst die alten Typen statt der Strict TypeScript API.
+    // Die Ausnahme fällt nach React Native 0.89 weg. Bis dahin die Refs und Bildquellen umstellen.
+    "customConditions": ["react-native", "react-native-legacy-deep-imports"]
   },
   "exclude": ["node_modules", "supabase/functions"]
 }
