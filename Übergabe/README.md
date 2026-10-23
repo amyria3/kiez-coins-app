@@ -21,4 +21,3 @@ Diese `README.md` bleibt immer liegen.
 
 ## Liegt gerade hier
 
-- `2026-10-23_todo-look-supabase.md` → To-do-Liste der App

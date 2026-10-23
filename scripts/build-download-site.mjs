@@ -155,6 +155,24 @@ const ios = config.testflightUrl
   <p class="klein">Kamera, Fotos und Standort fragt Safari beim ersten Mal ab. Push-Benachrichtigungen gibt es in der Web-App nicht. Updates kommen automatisch beim nächsten Start.</p>
 </div>`;
 
+// ---------- Spendenaktion der Testphase (Daria, 2026-10-23) ----------
+// Als Testperson zählt, wer die Umfrage in der App abgeschickt hat (Funktion `tester_count`, Migration 20261023000200).
+// Ziel und Betrag stehen in scripts/download-site.config.json (`testerGoal`, `donationEuro`). Blumen: scripts/site/blumen.webp.
+const goal = config.testerGoal ?? 15;
+const donation = config.donationEuro ?? 100;
+const spenden = `<section class="spenden" id="spenden" aria-labelledby="spenden-titel">
+  <img class="spenden-blumen" src="blumen.webp?v=${version(readFileSync(join(siteDir, 'blumen.webp')))}" alt="Wildblumen: Akelei, Kornblume, Mohn, Nachtkerze, Wiesenknopf und andere" width="1200" height="670" loading="lazy">
+  <div class="spenden-text">
+    <h2 id="spenden-titel">Magst Du Blumen? Ich auch!</h2>
+    <p>Damit Leipzig blüht, spende ich ${donation}&nbsp;€ an den Ökolöwen, wenn ${goal} Menschen meine App testen und bewerten.</p>
+    <p class="spenden-claim"><b>KiezCoins:</b> Von hier. Für den Kiez. Modern.</p>
+    <p>Teste die App und hilf uns, das Spendenziel zu erreichen.</p>
+    <div class="zaehler" aria-live="polite"><b id="tester-zahl">0</b><span>von ${goal} haben getestet und bewertet</span></div>
+    <div class="balken" id="tester-balken" role="progressbar" aria-label="Testpersonen" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="0"><span></span></div>
+    <a class="button" href="#download">Jetzt testen</a>
+  </div>
+</section>`;
+
 const leute = [
   { figur: figuren.muetze, text: 'Besser als Instagram' },
   { figur: figuren.locken, text: 'Wie GitHub für den Alltag' },
@@ -184,6 +202,7 @@ ${filterDefs}
 </header>
 
 <main>
+${spenden}
 <section class="hero" id="prototyp-bereich">
   <div class="hero-text">
     <h1>Kleine Challenges für Deinen Kiez.</h1>
@@ -271,6 +290,25 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
 <script src="prototyp/daten.js?v=${version(datenJs)}"></script>
 <script src="prototyp/app.js?v=${version(appJs)}"></script>
 <script>
+  // Zähler der Spendenaktion
+  (function () {
+    var ziel = ${goal};
+    fetch(${JSON.stringify(config.supabaseUrl + '/rest/v1/rpc/tester_count')}, {
+      method: 'POST',
+      headers: { apikey: ${JSON.stringify(config.publishableKey)}, 'Content-Type': 'application/json' },
+      body: '{}',
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (n) {
+        if (typeof n !== 'number') return;
+        document.getElementById('tester-zahl').textContent = n;
+        var b = document.getElementById('tester-balken');
+        b.setAttribute('aria-valuenow', String(Math.min(n, ziel)));
+        b.firstElementChild.style.width = Math.min(100, (n / ziel) * 100) + '%';
+        if (n >= ziel) document.getElementById('spenden').classList.add('is-geschafft');
+      })
+      .catch(function () {});
+  })();
   // Fehler vom Download zeigen
   var f = new URLSearchParams(location.search).get('fehler');
   var t = { passwort: 'Der Einladungscode stimmt nicht.', datei: 'Die App-Datei fehlt gerade. Versuch es später noch mal.', technik: 'Der Download ist gerade nicht eingerichtet.' }[f];
@@ -537,6 +575,7 @@ mkdirSync(join(out, 'prototyp/fotos'), { recursive: true });
 for (const f of fotos) copyFileSync(join(fotoDir, `${f}.jpg`), join(out, `prototyp/fotos/${f}.jpg`));
 // Kater (freigestellt aus Darias Illustration, scripts/site/kater/)
 mkdirSync(join(out, 'kater'), { recursive: true });
+copyFileSync(join(siteDir, 'blumen.webp'), join(out, 'blumen.webp'));
 for (const f of ['kater.png', 'kopf.png']) copyFileSync(join(siteDir, 'kater', f), join(out, 'kater', f));
 mkdirSync(join(out, 'fonts'), { recursive: true });
 for (const [pkg, file] of [

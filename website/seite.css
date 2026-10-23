@@ -438,3 +438,19 @@ footer a { color: var(--muted); }
   font: 500 16px/1 Inter, sans-serif; cursor: pointer; }
 .kater-knoepfe .kater-hallo { background: var(--purple); color: var(--bg); border-color: transparent; }
 @media (prefers-reduced-motion: reduce) { .kater-figur { animation: none; } }
+
+/* Spendenaktion der Testphase (Daria, 2026-10-23) */
+.spenden { background: var(--surface); border-radius: 28px; overflow: hidden; margin: 8px 0 48px; display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; }
+.spenden-blumen { width: 100%; height: auto; display: block; }
+.spenden-text { padding: 32px; }
+.spenden h2 { font: 600 clamp(28px, 4vw, 42px)/1.05 var(--display); letter-spacing: -.025em; margin: 0 0 14px; }
+.spenden-text > p { color: var(--muted); margin: 0 0 14px; max-width: 46ch; }
+.spenden .spenden-claim { color: var(--text); font-size: 18px; }
+.zaehler { display: flex; align-items: baseline; gap: 10px; margin: 22px 0 12px; }
+.zaehler b { font: 600 56px/1 var(--display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.zaehler span { color: var(--muted); }
+.balken { height: 10px; border-radius: 999px; background: var(--bg); overflow: hidden; margin-bottom: 24px; }
+.balken span { display: block; height: 100%; width: 0; border-radius: 999px; background: var(--green); transition: width 900ms var(--barrier); }
+.spenden .button { display: inline-block; text-align: center; text-decoration: none; font: 500 16px/1 Inter, sans-serif; color: var(--bg); background: var(--text); border-radius: 999px; padding: 16px 24px; }
+.spenden.is-geschafft h2::after { content: ' Geschafft!'; color: var(--green); }
+@media (max-width: 760px) { .spenden { grid-template-columns: 1fr; } .spenden-text { padding: 22px; } .spenden .button { display: block; } }
