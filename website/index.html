@@ -9,7 +9,7 @@
 <meta name="description" content="Kennst Du das? Irgendwas muss erledigt werden, aber wer soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez">
 <link rel="icon" href="favicon.png">
 <link rel="preload" href="fonts/InterTight_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
-<link rel="stylesheet" href="seite.css?v=3d4552ae">
+<link rel="stylesheet" href="seite.css?v=b12a8c76">
 <script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
@@ -24,7 +24,21 @@
 
 <main>
 <section class="spenden" id="spenden" aria-labelledby="spenden-titel">
-  <img class="spenden-blumen" src="blumen.webp?v=afecabce" alt="Wildblumen: Akelei, Kornblume, Mohn, Nachtkerze, Wiesenknopf und andere" width="1200" height="670" loading="lazy">
+  <div class="spenden-blumen" id="spenden-blumen" role="img" aria-label="Wildblumen: Akelei, Kornblume, Mohn, Nachtkerze, Wiesenknopf und andere">
+    <img src="blumen/01.webp?v=10a55396" alt="" loading="lazy" decoding="async" style="left:0.5%;top:1.794%;width:30.167%;--dx:-6%;--dreh:-2.0deg;--verzug:0ms">
+    <img src="blumen/02.webp?v=5d3dc838" alt="" loading="lazy" decoding="async" style="left:15.75%;top:58.146%;width:4%;--dx:-5%;--dreh:3.0deg;--verzug:130ms">
+    <img src="blumen/03.webp?v=be9a26ca" alt="" loading="lazy" decoding="async" style="left:24.583%;top:85.501%;width:5.083%;--dx:-4%;--dreh:-4.0deg;--verzug:260ms">
+    <img src="blumen/04.webp?v=fedd8cab" alt="" loading="lazy" decoding="async" style="left:28%;top:35.127%;width:8.417%;--dx:-3%;--dreh:2.0deg;--verzug:255ms">
+    <img src="blumen/05.webp?v=744d683e" alt="" loading="lazy" decoding="async" style="left:30.25%;top:0.598%;width:26.25%;--dx:-1%;--dreh:-3.0deg;--verzug:385ms">
+    <img src="blumen/06.webp?v=4ecead75" alt="" loading="lazy" decoding="async" style="left:34.583%;top:68.46%;width:17.333%;--dx:-1%;--dreh:4.0deg;--verzug:515ms">
+    <img src="blumen/07.webp?v=2d99e503" alt="" loading="lazy" decoding="async" style="left:35.25%;top:56.502%;width:9%;--dx:-2%;--dreh:-2.0deg;--verzug:510ms">
+    <img src="blumen/08.webp?v=e6c0d4ee" alt="" loading="lazy" decoding="async" style="left:40.333%;top:38.416%;width:7.333%;--dx:-1%;--dreh:3.0deg;--verzug:640ms">
+    <img src="blumen/09.webp?v=ac8e5d68" alt="" loading="lazy" decoding="async" style="left:41.667%;top:3.886%;width:57.25%;--dx:3%;--dreh:-4.0deg;--verzug:770ms">
+    <img src="blumen/10.webp?v=9e25ac0d" alt="" loading="lazy" decoding="async" style="left:46.583%;top:32.436%;width:6.25%;--dx:0%;--dreh:2.0deg;--verzug:765ms">
+    <img src="blumen/11.webp?v=5bc0007a" alt="" loading="lazy" decoding="async" style="left:77.833%;top:83.857%;width:8.167%;--dx:5%;--dreh:-3.0deg;--verzug:895ms">
+    <img src="blumen/12.webp?v=16fc21ee" alt="" loading="lazy" decoding="async" style="left:86.25%;top:4.036%;width:8.75%;--dx:7%;--dreh:4.0deg;--verzug:1025ms">
+    <img src="blumen/13.webp?v=8e1fef58" alt="" loading="lazy" decoding="async" style="left:93.25%;top:75.037%;width:5.583%;--dx:8%;--dreh:-2.0deg;--verzug:1020ms">
+  </div>
   <div class="spenden-text">
     <h2 id="spenden-titel">Magst Du Blumen? Ich auch!</h2>
     <p>Damit Leipzig blüht, spende ich 100&nbsp;€ an den Ökolöwen, wenn 15 Menschen meine App testen und bewerten.</p>
@@ -195,6 +209,14 @@
         if (n >= ziel) document.getElementById('spenden').classList.add('is-geschafft');
       })
       .catch(function () {});
+  })();
+  // Blumen schieben sich ins Bild, sobald die Karte zu sehen ist (ohne JS stehen sie einfach da)
+  (function () {
+    var b = document.getElementById('spenden-blumen');
+    if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    b.classList.add('is-bereit');
+    var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { b.classList.add('is-da'); io.disconnect(); } }, { threshold: 0.3 });
+    io.observe(b);
   })();
   // Fehler vom Download zeigen
   var f = new URLSearchParams(location.search).get('fehler');

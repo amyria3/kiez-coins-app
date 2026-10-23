@@ -440,8 +440,19 @@ footer a { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .kater-figur { animation: none; } }
 
 /* Spendenaktion der Testphase (Daria, 2026-10-23) */
-.spenden { background: var(--surface); border-radius: 28px; overflow: hidden; margin: 8px 0 48px; display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; }
-.spenden-blumen { width: 100%; height: auto; display: block; }
+/* Helles Papier, damit der helle Freistellrand der Blumen verschwindet */
+.spenden { --papier: #ECE9DF; --text: #1F2123; --muted: #5C5D60; --gruen: #2E9E57;
+  background: var(--papier); color: var(--text); border-radius: 28px; overflow: hidden; margin: 8px 0 48px; display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; }
+.spenden-blumen { position: relative; width: 100%; aspect-ratio: 1200 / 669; }
+.spenden-blumen img { position: absolute; height: auto; display: block; transform-origin: 50% 100%; }
+.spenden-blumen.is-bereit img { opacity: 0; }
+.spenden-blumen.is-da img { opacity: 1; animation: blume-schieben 1500ms cubic-bezier(.2,.7,.25,1) var(--verzug) both; }
+@keyframes blume-schieben {
+  0% { opacity: 0; transform: translate(var(--dx), 26%) rotate(var(--dreh)) scale(.94, .82); }
+  25% { opacity: 1; }
+  72% { transform: translate(calc(var(--dx) * -.08), -1.2%) rotate(calc(var(--dreh) * -.15)) scale(1, 1.015); }
+  100% { opacity: 1; transform: none; }
+}
 .spenden-text { padding: 32px; }
 .spenden h2 { font: 600 clamp(28px, 4vw, 42px)/1.05 var(--display); letter-spacing: -.025em; margin: 0 0 14px; }
 .spenden-text > p { color: var(--muted); margin: 0 0 14px; max-width: 46ch; }
@@ -449,8 +460,8 @@ footer a { color: var(--muted); }
 .zaehler { display: flex; align-items: baseline; gap: 10px; margin: 22px 0 12px; }
 .zaehler b { font: 600 56px/1 var(--display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
 .zaehler span { color: var(--muted); }
-.balken { height: 10px; border-radius: 999px; background: var(--bg); overflow: hidden; margin-bottom: 24px; }
-.balken span { display: block; height: 100%; width: 0; border-radius: 999px; background: var(--green); transition: width 900ms var(--barrier); }
-.spenden .button { display: inline-block; text-align: center; text-decoration: none; font: 500 16px/1 Inter, sans-serif; color: var(--bg); background: var(--text); border-radius: 999px; padding: 16px 24px; }
-.spenden.is-geschafft h2::after { content: ' Geschafft!'; color: var(--green); }
+.balken { height: 10px; border-radius: 999px; background: rgba(31,33,35,.1); overflow: hidden; margin-bottom: 24px; }
+.balken span { display: block; height: 100%; width: 0; border-radius: 999px; background: var(--gruen); transition: width 900ms var(--barrier); }
+.spenden .button { display: inline-block; text-align: center; text-decoration: none; font: 500 16px/1 Inter, sans-serif; color: var(--papier); background: var(--text); border-radius: 999px; padding: 16px 24px; }
+.spenden.is-geschafft h2::after { content: ' Geschafft!'; color: var(--gruen); }
 @media (max-width: 760px) { .spenden { grid-template-columns: 1fr; } .spenden-text { padding: 22px; } .spenden .button { display: block; } }

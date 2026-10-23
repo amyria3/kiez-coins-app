@@ -157,11 +157,27 @@ const ios = config.testflightUrl
 
 // ---------- Spendenaktion der Testphase (Daria, 2026-10-23) ----------
 // Als Testperson zählt, wer die Umfrage in der App abgeschickt hat (Funktion `tester_count`, Migration 20261023000200).
-// Ziel und Betrag stehen in scripts/download-site.config.json (`testerGoal`, `donationEuro`). Blumen: scripts/site/blumen.webp.
+// Ziel und Betrag stehen in scripts/download-site.config.json (`testerGoal`, `donationEuro`). Blumen: scripts/site/blumen/,
+// zerlegt aus scripts/site/blumen.webp mit scripts/blumen-zerlegen.py.
+// Jede Pflanze ist ein eigenes Bild. Sie gleitet beim ersten Sichtkontakt von unten aufs Blatt, als schöbe eine Hand
+// sie hin; die Reihenfolge läuft locker von links nach rechts.
+const blumenDir = join(siteDir, 'blumen');
+const blumen = JSON.parse(readFileSync(join(blumenDir, 'teile.json'), 'utf8'));
+const blumenTeile = blumen.teile
+  .map((t, i) => {
+    const mitte = t.x + t.b / 2;
+    const dx = Math.round((50 - mitte) / -6); // links von links, rechts von rechts
+    const dreh = ((i % 2 ? 1 : -1) * (2 + (i % 3))).toFixed(1);
+    const verzug = i * 85 + (i % 3) * 45;
+    return `    <img src="blumen/${t.datei}?v=${version(readFileSync(join(blumenDir, t.datei)))}" alt="" loading="lazy" decoding="async" style="left:${t.x}%;top:${t.y}%;width:${t.b}%;--dx:${dx}%;--dreh:${dreh}deg;--verzug:${verzug}ms">`;
+  })
+  .join('\n');
 const goal = config.testerGoal ?? 15;
 const donation = config.donationEuro ?? 100;
 const spenden = `<section class="spenden" id="spenden" aria-labelledby="spenden-titel">
-  <img class="spenden-blumen" src="blumen.webp?v=${version(readFileSync(join(siteDir, 'blumen.webp')))}" alt="Wildblumen: Akelei, Kornblume, Mohn, Nachtkerze, Wiesenknopf und andere" width="1200" height="670" loading="lazy">
+  <div class="spenden-blumen" id="spenden-blumen" role="img" aria-label="Wildblumen: Akelei, Kornblume, Mohn, Nachtkerze, Wiesenknopf und andere">
+${blumenTeile}
+  </div>
   <div class="spenden-text">
     <h2 id="spenden-titel">Magst Du Blumen? Ich auch!</h2>
     <p>Damit Leipzig blüht, spende ich ${donation}&nbsp;€ an den Ökolöwen, wenn ${goal} Menschen meine App testen und bewerten.</p>
@@ -308,6 +324,14 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
         if (n >= ziel) document.getElementById('spenden').classList.add('is-geschafft');
       })
       .catch(function () {});
+  })();
+  // Blumen schieben sich ins Bild, sobald die Karte zu sehen ist (ohne JS stehen sie einfach da)
+  (function () {
+    var b = document.getElementById('spenden-blumen');
+    if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    b.classList.add('is-bereit');
+    var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { b.classList.add('is-da'); io.disconnect(); } }, { threshold: 0.3 });
+    io.observe(b);
   })();
   // Fehler vom Download zeigen
   var f = new URLSearchParams(location.search).get('fehler');
@@ -575,7 +599,10 @@ mkdirSync(join(out, 'prototyp/fotos'), { recursive: true });
 for (const f of fotos) copyFileSync(join(fotoDir, `${f}.jpg`), join(out, `prototyp/fotos/${f}.jpg`));
 // Kater (freigestellt aus Darias Illustration, scripts/site/kater/)
 mkdirSync(join(out, 'kater'), { recursive: true });
-copyFileSync(join(siteDir, 'blumen.webp'), join(out, 'blumen.webp'));
+rmSync(join(out, 'blumen.webp'), { force: true });
+rmSync(join(out, 'blumen'), { recursive: true, force: true });
+mkdirSync(join(out, 'blumen'), { recursive: true });
+for (const t of blumen.teile) copyFileSync(join(blumenDir, t.datei), join(out, 'blumen', t.datei));
 for (const f of ['kater.png', 'kopf.png']) copyFileSync(join(siteDir, 'kater', f), join(out, 'kater', f));
 mkdirSync(join(out, 'fonts'), { recursive: true });
 for (const [pkg, file] of [
