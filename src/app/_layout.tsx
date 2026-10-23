@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AppState } from 'react-native';
+import { AppState, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -18,6 +18,7 @@ import { loadLanguage, loadTexts, useTexts, getLanguage } from '../data/texts';
 import { LoadingScreen } from '../components/GearsLoader';
 import { StartKater } from '../components/StartKater';
 import { color } from '../theme/tokens';
+import { look, setLook } from '../theme/look';
 
 SplashScreen.preventAutoHideAsync();
 // Nach WebAlert: Rückfragen erscheinen in der gewählten Sprache
@@ -105,3 +106,38 @@ function RootStack() {
     </>
   );
 }
+
+/**
+ * Absturz beim Rendern: Fehlertext statt schwarzem Bildschirm (Daria, 23.10.2026).
+ * Expo Router zeigt diese Komponente, wenn ein Screen darunter einen Fehler wirft.
+ */
+export function ErrorBoundary({ error, retry }: { error: Error; retry: () => Promise<void> }) {
+  return (
+    <View style={errorStyles.screen}>
+      <Text style={errorStyles.title}>Hier ist etwas schiefgelaufen.</Text>
+      <Text style={errorStyles.hint}>Schick bitte einen Screenshot an den Support.</Text>
+      <Text style={errorStyles.detail} selectable>
+        {String(error?.stack ?? error?.message ?? error).slice(0, 1200)}
+      </Text>
+      <Pressable style={errorStyles.button} onPress={() => retry()} accessibilityRole="button">
+        <Text style={errorStyles.buttonText}>Nochmal versuchen</Text>
+      </Pressable>
+      {look !== 'kiez' ? (
+        <Pressable style={errorStyles.link} onPress={() => setLook('kiez')} accessibilityRole="button">
+          <Text style={errorStyles.linkText}>Zurück zum Kiez-Look</Text>
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
+const errorStyles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: color.bg.screen, paddingHorizontal: 24, paddingTop: 80, gap: 12 },
+  title: { color: color.text.primary, fontSize: 22, fontWeight: '600' },
+  hint: { color: color.text.secondary, fontSize: 15 },
+  detail: { color: color.accent.error, fontSize: 12, marginTop: 8 },
+  button: { marginTop: 16, alignSelf: 'flex-start', backgroundColor: color.accent.primary, borderRadius: 12, paddingVertical: 12, paddingHorizontal: 20 },
+  buttonText: { color: color.text.onAccent, fontSize: 16, fontWeight: '600' },
+  link: { alignSelf: 'flex-start', paddingVertical: 8 },
+  linkText: { color: color.text.primary, fontSize: 15, textDecorationLine: 'underline' },
+});

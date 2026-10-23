@@ -87,5 +87,43 @@
   <body>
     <noscript>Kiez Coins braucht JavaScript.</noscript>
     <div id="root"></div>
+    <script>
+      // Safari kennt requestIdleCallback nicht. Expo Router ruft es an einer Stelle ohne Prüfung auf.
+      if (!window.requestIdleCallback) {
+        window.requestIdleCallback = function (cb) {
+          return setTimeout(function () { cb({ didTimeout: false, timeRemaining: function () { return 0; } }); }, 1);
+        };
+        window.cancelIdleCallback = function (id) { clearTimeout(id); };
+      }
+      // Startet die App nicht, zeigt die Seite den Fehler statt eines schwarzen Bildschirms (Daria, 23.10.2026).
+      (function () {
+        var shown = false;
+        function show(text) {
+          var root = document.getElementById('root');
+          if (shown || !root || root.innerText.trim()) return;
+          shown = true;
+          var box = document.createElement('div');
+          box.setAttribute('style', 'position:fixed;inset:0;z-index:99;padding:64px 24px;background:#1f2123;color:#f0f0f0;font:15px/1.4 -apple-system,system-ui,sans-serif;overflow:auto');
+          box.innerHTML = '<p style="font-size:22px;font-weight:600;margin:0 0 12px">Kiez Coins startet nicht</p>' +
+            '<p style="margin:0 0 16px;color:#a0a0a0">Schick bitte einen Screenshot an den Support.</p>' +
+            '<pre style="white-space:pre-wrap;word-break:break-all;font-size:12px;color:#ff7e8b;margin:0 0 24px"></pre>' +
+            '<a href="/app/?look=kiez" style="display:inline-block;padding:12px 20px;border-radius:12px;background:#7e94ff;color:#1f2123;text-decoration:none;font-weight:600">Neu laden</a>';
+          box.querySelector('pre').textContent = String(text).slice(0, 1200);
+          document.body.appendChild(box);
+        }
+        window.addEventListener('error', function (e) {
+          // Bilder, die nicht laden, sind kein Startproblem. Nur Skripte zählen.
+          if (e.target && e.target !== window && e.target.tagName !== 'SCRIPT') return;
+          var msg = e.error && e.error.stack ? e.error.stack : (e.message || 'Skript nicht geladen: ' + ((e.target && e.target.src) || '?'));
+          setTimeout(function () { show(msg); }, 1500);
+        }, true);
+        window.addEventListener('unhandledrejection', function (e) {
+          var r = e.reason;
+          setTimeout(function () { show(r && r.stack ? r.stack : String(r)); }, 1500);
+        });
+        // Nach 12 Sekunden immer noch leer: Hinweis ohne Fehlertext
+        setTimeout(function () { show('Nach 12 Sekunden ist noch nichts zu sehen. ' + navigator.userAgent); }, 12000);
+      })();
+    </script>
   </body>
 </html>
