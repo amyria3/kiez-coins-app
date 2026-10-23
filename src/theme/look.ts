@@ -8,7 +8,7 @@ import { Platform } from 'react-native';
 export type Look = 'kiez' | 'instagram';
 export const looks: { code: Look; name: string; description: string }[] = [
   { code: 'kiez', name: 'Kiez', description: 'Lila, rund, Kiez Coins pur' },
-  { code: 'instagram', name: 'Instagram', description: 'Schwarz, blau, eckiger' },
+  { code: 'instagram', name: 'Instagram', description: 'Hell, blau, Fotos über die ganze Breite' },
 ];
 
 const KEY = 'kiez-look';
@@ -35,12 +35,14 @@ function readLook(): Look {
 
 export const look: Look = readLook();
 
-// Seite hinter der App und Statusleiste der PWA im selben Schwarz (public/index.html setzt das Kiez-Grau)
+// Seite hinter der App und Statusleiste der PWA im selben Weiß (public/index.html setzt das Kiez-Grau)
 if (look === 'instagram' && typeof document !== 'undefined') {
-  document.documentElement.style.backgroundColor = '#000000';
+  document.documentElement.style.backgroundColor = '#FFFFFF';
+  document.documentElement.style.colorScheme = 'light';
   document.documentElement.style.setProperty('accent-color', '#0095F6');
-  if (document.body) document.body.style.backgroundColor = '#000000';
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#000000');
+  if (document.body) document.body.style.backgroundColor = '#FFFFFF';
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#FFFFFF');
+  document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')?.setAttribute('content', 'default');
 }
 
 /** Look speichern und die App neu laden. Der Parameter `look` im Link fällt dabei weg. */

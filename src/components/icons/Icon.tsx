@@ -4,7 +4,8 @@ import { SvgXml } from 'react-native-svg';
 
 import { isRtl } from '../../data/texts';
 
-import { color as themeColor } from '../../theme/tokens';
+import { color as themeColor, isInstagram } from '../../theme/tokens';
+import { instagramSvgs } from './instagramSvgs';
 import { iconSvgs, type IconName } from './svgs';
 
 type IconProps = {
@@ -21,7 +22,19 @@ const CAMERA_SCALE = 1.2;
 const OPTICAL: Partial<Record<IconName, number>> = { settings: 1.18 };
 const MIRRORED = new Set<IconName>(['chevron-left', 'chevron-right', 'send']);
 
+/** Linien-Icons im Instagram-Look: etwas größer als die angegebene Größe, wie bei Instagram */
+const INSTAGRAM_SCALE = 1.25;
+
 export const Icon = memo(function Icon({ name, color = themeColor.text.primary, size }: IconProps) {
+  const line = isInstagram ? instagramSvgs[name] : undefined;
+  if (line) {
+    const h = Math.round((size ?? 20) * INSTAGRAM_SCALE);
+    // Herz gefüllt, sobald es in der Herzfarbe erscheint (gefällt mir)
+    const xml = line.svg(color, name === 'heart' && color === themeColor.accent.affection);
+    const el = <SvgXml xml={xml} width={h} height={h} />;
+    if (MIRRORED.has(name) && isRtl()) return <View style={{ transform: [{ scaleX: -1 }] }}>{el}</View>;
+    return el;
+  }
   const icon = iconSvgs[name];
   const height = Math.round((size ?? icon.height) * (name === 'camera' ? CAMERA_SCALE : ICON_SCALE) * (OPTICAL[name] ?? 1));
   const width = (icon.width / icon.height) * height;

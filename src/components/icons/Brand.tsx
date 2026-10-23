@@ -2,7 +2,7 @@ import { memo, useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
-import { color } from '../../theme/tokens';
+import { color, isInstagram } from '../../theme/tokens';
 import { catSvg, coinsSvg, wordmarkSvg, type CatMood } from './brandSvgs';
 import { brandArt } from './brandArt';
 import { crownSvg } from './crownSvg';
@@ -29,12 +29,14 @@ export const Cat = memo(function Cat({ mood = 'default', height = 39 }: CatProps
 /** Logo: Kater und Schriftzug „KiezCoins“ (assets/brand/logo.svg) */
 export const Logo = memo(function Logo({ height = 26 }: { height?: number }) {
   const art = brandArt.logo;
-  return <SvgXml xml={art.svg} width={(art.width / art.height) * height} height={height} />;
+  // Look „Instagram“: Kater und Schriftzug schwarz wie Instagrams Schriftzug, die Sonnenbrille bleibt orange
+  const xml = isInstagram ? art.svg.replace(/#7E94FF/gi, color.text.primary) : art.svg;
+  return <SvgXml xml={xml} width={(art.width / art.height) * height} height={height} />;
 });
 
 /** Schriftzug „KIEZ COINS“ (alt, für Stellen ohne Kater) */
 export const Wordmark = memo(function Wordmark() {
-  return <SvgXml xml={wordmarkSvg(color.accent.primary)} width={131.7} height={24.8} />;
+  return <SvgXml xml={wordmarkSvg(isInstagram ? color.text.primary : color.accent.primary)} width={131.7} height={24.8} />;
 });
 
 /** icon/coins mit Verlauf, Standardgröße wie im BountyBadge (19×22) */

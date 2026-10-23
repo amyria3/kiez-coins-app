@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { GlassView, isGlassEffectAPIAvailable, isLiquidGlassAvailable } from 'expo-glass-effect';
 
-import { color, radius, size } from '../theme/tokens';
+import { color, radius, size, scheme } from '../theme/tokens';
 import { IconButton } from './IconButton';
 import type { IconName } from './icons/Icon';
 
@@ -37,7 +37,7 @@ export function Glass({ children, style, variant = 'clear', tint, interactive }:
     return (
       <GlassView
         glassEffectStyle={variant}
-        colorScheme="dark"
+        colorScheme={scheme}
         tintColor={tint}
         isInteractive={interactive}
         style={[styles.clip, style]}

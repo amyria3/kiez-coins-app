@@ -7,6 +7,9 @@ import type { TextStyle } from 'react-native';
 import { look } from './look';
 
 const instagram = look === 'instagram';
+/** Im Instagram-Look hell: für BlurView, Systemglas und Statusleiste */
+export const isInstagram = instagram;
+export const scheme: 'dark' | 'light' = instagram ? 'light' : 'dark';
 
 // Primitives
 const kiezPalette = {
@@ -21,17 +24,21 @@ const kiezPalette = {
   graphite: '#2B2D31',
 };
 
-/** Look „Instagram“: Schwarz, Instagram-Blau, rotes Herz */
+/**
+ * Look „Instagram“, hell wie Instagram (Daria, 2026-10-23): weißer Grund, schwarze Schrift, Grau #737373,
+ * Blau #0095F6 für Aktionen, Rot #FF3040 fürs Herz. `black` ist hier der Grund und `white` die Schrift,
+ * damit die Namen der Kiez-Palette in beiden Looks dieselbe Rolle haben.
+ */
 const instagramPalette: typeof kiezPalette = {
-  black: '#000000',
-  white: '#F5F5F5',
-  grey: '#A8A8A8',
+  black: '#FFFFFF',
+  white: '#000000',
+  grey: '#737373',
   purple: '#0095F6',
-  orange: '#FFAD7E',
-  green: '#93F4A7',
+  orange: '#E1306C',
+  green: '#2FA84F',
   red: '#ED4956',
   pink: '#FF3040',
-  graphite: '#262626',
+  graphite: '#EFEFEF',
 };
 
 export const palette = Object.freeze(instagram ? instagramPalette : kiezPalette);
@@ -42,17 +49,23 @@ export const color = {
     screen: palette.black,
     surface: palette.graphite,
     /** Halbtransparente Fläche über Fotos (Bounty-Chip, Info-Leiste, Tab-Leiste) */
-    glass: instagram ? 'rgba(0, 0, 0, 0.82)' : 'rgba(31, 33, 35, 0.82)',
+    glass: instagram ? 'rgba(255, 255, 255, 0.96)' : 'rgba(31, 33, 35, 0.82)',
+    /** Leichte Glasfläche, z. B. das eingeklappte Blatt im Challenge-Detail */
+    sheet: instagram ? 'rgba(255, 255, 255, 0.82)' : 'rgba(31, 33, 35, 0.45)',
+    /** Dunkle Glasfläche über Fotos, in beiden Looks dunkel */
+    onPhoto: 'rgba(31, 33, 35, 0.3)',
   },
   /** Haarlinie auf dunklem Grund */
   line: {
-    hairline: instagram ? 'rgba(245, 245, 245, 0.15)' : 'rgba(240, 240, 240, 0.12)',
+    hairline: instagram ? '#DBDBDB' : 'rgba(240, 240, 240, 0.12)',
   },
   text: {
     primary: palette.white,
     secondary: palette.grey,
     /** Schrift auf der Akzentfläche (Primary-Button, eigene Chatblase) */
     onAccent: instagram ? '#FFFFFF' : palette.black,
+    /** Schrift auf Fotos, in beiden Looks hell */
+    onPhoto: '#F0F0F0',
   },
   accent: {
     primary: palette.purple,
