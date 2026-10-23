@@ -35,7 +35,7 @@ Ohne Handy geht es auch im Browser: `npx expo start --web`.
 
 ## Testversion verteilen
 
-Die Download-Seite mit Passwort liegt in `website/` und entsteht mit `node scripts/build-download-site.mjs`. Ablauf und Einrichtung: [`Übergabe/2026-10-21_download-seite.md`](Übergabe/2026-10-21_download-seite.md).
+Die Download-Seite mit Passwort liegt in `website/` und entsteht mit `node scripts/build-download-site.mjs`. Ablauf und Einrichtung stehen im privaten Repo Documentation unter `kiez-coins/app/Stand_App.md`, Abschnitt „Website kiezcoins.de“.
 
 ## Übergabe
 
