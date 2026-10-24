@@ -65,7 +65,7 @@ export default function Deckname() {
         maxLength={30}
         autoCorrect={false}
       />
-      <Text style={styles.label}>Vorschläge vom Kater</Text>
+      <Text style={styles.label}>Vorschläge von Cat The Käptn</Text>
       <ChipGroup>
         {suggestions.map((s) => (
           <Chip key={s} label={s} selected={handle === s} onPress={() => setHandle(s)} />

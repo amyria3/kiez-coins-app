@@ -24,7 +24,7 @@ export default function Welcome() {
           <Text style={styles.headlineMuted}>Der Kiez sucht eine neue Crew.</Text>
         </Text>
         <Text style={styles.body}>
-          Ich bin der alte Kater vom Kiez. Die Segel hab ich eingeholt, aber für eine neue Crew würde ich alles tun.
+          Ich bin Cat The Käptn, der alte Kater vom Kiez. Die Segel hab ich eingeholt, aber für eine neue Crew würde ich alles tun.
           Alles. Hilf Deinen Nachbar*innen mit kleinen Challenges.
         </Text>
         <Text style={styles.legal}>

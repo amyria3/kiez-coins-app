@@ -9,7 +9,7 @@ import { Cat } from './icons/Brand';
 const messages: Record<Exclude<FeedState, 'filled' | 'loading'>, { title: string; body: string; action: string }> = {
   empty: {
     title: 'Noch keine Challenges in Deiner Nähe',
-    body: 'Starte die erste Challenge für Deinen Kiez. Der Kater freut sich schon.',
+    body: 'Starte die erste Challenge für Deinen Kiez. Cat The Käptn freut sich schon.',
     action: 'Challenge erstellen',
   },
   error: {
