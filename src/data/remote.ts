@@ -1183,3 +1183,29 @@ export async function loadFriends(meId: string): Promise<FriendLists | null> {
   return { friends: pick('friends'), incoming: pick('received'), outgoing: pick('sent') };
 }
 
+
+// ---------------------------------------------------------------------------
+// Freundschaftseinladung (Migration 20261024000200)
+// ---------------------------------------------------------------------------
+
+/** Eigener Einladungscode, beim ersten Mal angelegt. `renew` erzeugt einen neuen, der alte gilt dann nicht mehr. */
+export async function myFriendInvite(renew = false): Promise<string> {
+  const { data } = check(await supabase.rpc('my_friend_invite', { p_renew: renew }));
+  return data as string;
+}
+
+/** Einladung annehmen. Liefert die einladende Person. */
+export async function acceptFriendInvite(code: string): Promise<User | null> {
+  const { data } = check(await supabase.rpc('accept_friend_invite', { p_code: code }));
+  const res = check(await selectProfiles([data as string]));
+  const row = ((res.data ?? []) as ProfileRow[])[0];
+  return row ? toUser(row) : null;
+}
+
+/** Wer seit dem letzten Aufruf eine eigene Einladung angenommen hat. Leer, solange die Migration fehlt. */
+export async function takeNewInviteFriends(): Promise<User[]> {
+  const { data, error } = await supabase.rpc('take_new_invite_friends');
+  if (error || !data?.length) return [];
+  const res = check(await selectProfiles(data as string[]));
+  return ((res.data ?? []) as ProfileRow[]).map((p) => toUser(p));
+}
