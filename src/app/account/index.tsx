@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 
 import { FieldGroup, KaterBubble } from '../../components/Content';
 import { CrownIcon } from '../../components/icons/Brand';
-import { FaIcon, Icon } from '../../components/icons/Icon';
+import { Icon, PhIcon } from '../../components/icons/Icon';
 import { Avatar } from '../../components/AuthorRow';
 import { NavCard, NavRow, ProfileCard } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
@@ -78,7 +78,7 @@ export default function Account() {
         leading={<Icon name="behausung" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/gruppen')}
       />
-      {/* Freundschaften, Sprache und Look als große Karten (Daria, 24.10.2026); Icons vorerst nur im Instagram-Look */}
+      {/* Freundschaften, Sprache und Look als große Karten mit Phosphor-Icons, in beiden Looks (Daria, 24.10.2026) */}
       <NavCard
         title="Freundschaften"
         description={
@@ -88,20 +88,20 @@ export default function Account() {
               })
             : 'Freund:innen und Anfragen'
         }
-        leading={isInstagram ? <FaIcon name="friends" size={size.icon} /> : undefined}
+        leading={<PhIcon name="friends" size={size.icon} />}
         onPress={() => router.push('/account/freunde')}
       />
       <NavCard
         title="Sprache"
         description={languageName}
-        leading={isInstagram ? <FaIcon name="language" size={size.icon} /> : undefined}
+        leading={<PhIcon name="language" size={size.icon} />}
         onPress={() => router.push('/account/sprache')}
       />
       {lookSelectable ? (
         <NavCard
           title="Look"
           description={looks.find((l) => l.code === look)?.name}
-          leading={isInstagram ? <FaIcon name="look" size={size.icon} /> : undefined}
+          leading={<PhIcon name="look" size={size.icon} />}
           onPress={() => router.push('/account/look')}
         />
       ) : null}
@@ -121,9 +121,6 @@ export default function Account() {
           {moderator ? <NavRow label="Moderation" value="Meldungen prüfen" onPress={() => router.push('/moderation')} /> : null}
           {moderator ? <NavRow label="Umfrage-Ergebnis" value="Antworten zählen" onPress={() => router.push('/account/umfrage/ergebnis')} /> : null}
           {moderator ? <NavRow label="Texte" value="Buttons, Kater, Rechtstexte" onPress={() => router.push('/texte')} /> : null}
-          {/* Test eines anderen Font-Awesome-Stils (Daria, 24.10.2026) */}
-          {isInstagram ? <NavRow label="Icon-Test Menü" value="Alles gefüllt" onPress={() => router.push('/icontest/menu')} /> : null}
-          {isInstagram ? <NavRow label="Icon-Test Feed" value="Alles gefüllt" onPress={() => router.push('/icontest/feed')} /> : null}
         </View>
       </FieldGroup>
       <FieldGroup label="Konto">
