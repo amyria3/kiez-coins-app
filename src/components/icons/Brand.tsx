@@ -21,6 +21,8 @@ type CatProps = {
 /** Kater mit Sonnenbrille (Daria, 22.10.2026): normal, high (aufgeregt) und money (Dollar in den Gläsern). */
 const CAT_ART: Record<CatMood, string> = { default: 'kater-normal', high: 'kater-high', money: 'kater-money' };
 export const Cat = memo(function Cat({ mood = 'default', height = 39 }: CatProps) {
+  // Instagram-Look: überall der Kater aus dem monochromen Logo (Daria, 24.10.2026)
+  if (isInstagram) return <MonoCat height={height} />;
   const art = brandArt[CAT_ART[mood]];
   if (!art) {
     return <SvgXml xml={catSvg(mood === 'money' ? 'high' : mood, color.brand.signature, color.text.primary)} width={(35 / 41) * height} height={height} />;
