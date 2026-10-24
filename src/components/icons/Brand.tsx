@@ -32,6 +32,16 @@ export const Cat = memo(function Cat({ mood = 'default', height = 39 }: CatProps
 const signature = (svg: string) => (isInstagram ? svg.replace(/#7E94FF/gi, color.brand.signature) : svg);
 
 /** Logo: Kater und Schriftzug „KiezCoins“ (assets/brand/logo.svg) */
+/** Kater aus dem monochromen Logo, quadratisch zugeschnitten, in Textfarbe (Instagram-Look, Daria 24.10.2026) */
+export const MonoCat = memo(function MonoCat({ height = 26 }: { height?: number }) {
+  const mono = brandArt['logo-mono'];
+  const xml = mono.svg
+    .replace(/#111111/gi, color.text.primary)
+    .replace(/viewBox="[^"]*"/, 'viewBox="0 1 34 34"')
+    .replace(/width="[^"]*" height="[^"]*"/, '');
+  return <SvgXml xml={xml} width={height} height={height} />;
+});
+
 /**
  * Logo (Daria, 24.10.2026): Kiez-Look `assets/brand/logo.svg`, Lila mit Kater; Instagram-Look
  * `assets/brand/logo-mono.svg`, Kater mit Brille und Wortmarke einfarbig in Textfarbe.

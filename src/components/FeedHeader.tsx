@@ -7,7 +7,7 @@ import { challengeTypes, isTypeActive } from '../data/features';
 import type { Challenge } from '../data/types';
 import { color, font, isInstagram, motion, radius, size, space, stroke, text } from '../theme/tokens';
 import { KaterCard } from './Content';
-import { Logo } from './icons/Brand';
+import { Logo, MonoCat } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { Avatar } from './AuthorRow';
 import { useStore } from '../data/store';
@@ -48,9 +48,12 @@ function InstaHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps)
   return (
     <View style={styles.instaHead}>
       <Pressable onLongPress={onLogoLongPress} accessibilityRole="header">
-        {/* Monochromes Logo mit Kater (Daria, 24.10.2026), 28 hoch wie der Schriftzug vorher */}
-        <View accessible accessibilityLabel="Kiez Coins">
-          <Logo height={28} />
+        {/* Kater aus dem monochromen Logo (26) und Schriftzug „Kiez Coins“, 8 Abstand (Daria, 24.10.2026, Variante B) */}
+        <View style={styles.brand} accessible accessibilityLabel="Kiez Coins">
+          <MonoCat height={26} />
+          <Text noTranslate style={styles.wordmark}>
+            Kiez Coins
+          </Text>
         </View>
       </Pressable>
       <View style={styles.headIcons}>
@@ -423,6 +426,7 @@ const styles = StyleSheet.create({
     paddingBottom: space[8],
     paddingLeft: 14,
   },
+  brand: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   wordmark: { fontFamily: font.display, fontSize: 24, lineHeight: 28, letterSpacing: -0.4, color: color.text.primary },
   headIcons: { flexDirection: 'row', alignItems: 'center', gap: 18 },
   headDot: {
