@@ -31,6 +31,20 @@ Die Texte nutzen drei Schreibweisen nebeneinander:
 - Sternchen: „Nachbar*innen“ in der Begrüßung (S-078, `src/app/onboarding/welcome.tsx`) und in Nutzerdaten der Demo („Nachbarschaftsgärtner*innen“).
 - Paarform in den Rechtstexten (`src/data/legal.ts`): „Nutzerinnen und Nutzer“, „Kontoinhaberin oder Kontoinhaber“.
 
+## Entscheidung (Daria, 24.10.2026)
+
+- **Neue Auswahl im Profil: „er“, „sie“ oder „unbestimmt (Person)“.** Die App nutzt sie für Texte an die Person und für Texte über die Person. Andere sehen die Wahl nur indirekt über die Texte.
+- **Anrede „Freund“:** er → „mein Freund“, sie → „my friend“, unbestimmt → „my friend“ (so von Daria festgelegt, das Englische ist neutral).
+- **„Gründerin“ wird „Initiator:in“:** er → „Initiator“, sie → „Initiatorin“, unbestimmt → „Initiator:in“. Dazu passen „Initiator:innen-Rolle übertragen“ oder kürzer „Rolle übertragen“ in `src/app/gruppen/[id]/index.tsx` (Zeilen 62, 64, 85, 150, 172). „Gruppe gründen“ und „Du hast sie gegründet“ (`GroupCard.tsx`) bleiben, da das Verb kein Geschlecht hat.
+- **Texte über andere Personen** wählen das Pronomen nach deren Auswahl: „… und er/sie sie bestätigt hat“, bei „unbestimmt“ mit Namen: „… und {name} sie bestätigt hat“ (D-098/D-099 in `report/payout.tsx`).
+
+## Umsetzung
+
+- Pflichtaufgabe: Migration. Neue Spalte `profiles.gender` (`'er' | 'sie' | 'person'`, Standard `'person'`). Andere Personen brauchen Lesezugriff, da Texte über sie das Pronomen brauchen (Spalte in die öffentliche Profilabfrage aufnehmen, `grant update (gender)` für die eigene Zeile).
+- Onboarding: Auswahl auf `onboarding/ansprache` (eigener Block unter der Ansprache) und änderbar unter „Dein Konto“. Offene Frage an Daria: Soll die Ansprache (Pirat, Piratin …) die Auswahl vorbelegen?
+- Code: Hilfsfunktion `byGender(user, { er, sie, person })` in `src/data/format.ts`, die ganze Sätze auswählt, damit Übersetzungen ganze Sätze bekommen (wie bei `user.group` heute).
+- Übersetzungen: je Satz drei Fassungen. Ukrainisch, Hebräisch und Arabisch verlieren damit die Klammerformen und die feste männliche Form.
+
 ## Vorschlag
 
 1. **Eine Schreibweise festlegen** für Gruppen von Menschen, zum Beispiel den Doppelpunkt, da ihn die App schon am häufigsten nutzt. Rechtstexte können bei der Paarform bleiben.
@@ -42,5 +56,4 @@ Die Texte nutzen drei Schreibweisen nebeneinander:
 ## Offene Fragen an Daria
 
 - Welche Schreibweise gilt für Gruppen von Menschen: Doppelpunkt, Sternchen oder Mittelpunkt?
-- Reicht die Ansprache als Quelle für das Geschlecht, oder braucht das Profil ein eigenes Feld (zum Beispiel Pronomen, auch öffentlich für andere)?
 - Sollen die Übersetzungen ebenfalls neutral oder nach Ansprache gegendert werden?
