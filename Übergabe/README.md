@@ -1,25 +1,36 @@
 # Übergabe
 
-Briefkasten für Doku, die beim Arbeiten am Code entsteht. Die Doku selbst liegt nur im privaten Repo [amyria3/Documentation](https://github.com/amyria3/Documentation).
+Ablage für alles, was ein anderer Account braucht, um unfertige Arbeit zu übernehmen. Die Doku selbst liegt nur im privaten Repo [amyria3/Documentation](https://github.com/amyria3/Documentation).
 
-## Wer hier etwas ablegt
+## Was hierher gehört
 
-Jede Sitzung, die am Code arbeitet und keinen Zugriff auf Documentation hat (zum Beispiel ein anderer Account):
+Daria hat am 2026-10-24 festgelegt:
 
-- Eine Datei pro Thema, Name mit Datum vorn, zum Beispiel `2026-10-21_push-nachrichten.md`.
-- Oben in der Datei: Datum, was sich geändert hat, und wohin es in Documentation gehört (zum Beispiel `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Challenges“).
+- **In die Doku (Documentation):** abgeschlossene Aufgaben und Entscheidungen.
+- **Hierher:** unklare Punkte, abgebrochene Prozesse und offene Aufgaben, mit allem, was ein anderer Account braucht, um sie zu übernehmen. Der andere Account erreicht nur dieses Repo.
+
+Dazu kommen Notizen von Sitzungen ohne Zugriff auf Documentation: Erledigtes und Entscheidungen, die noch in die Doku müssen.
+
+## So legst Du eine Notiz ab
+
+- Eine Datei pro Thema, Datum vorn.
+    - Offene Aufgabe: `JJJJ-MM-TT_offen_thema.md`, zum Beispiel `2026-10-24_offen_vorher-nachher-app.md`.
+    - Notiz für die Doku: `JJJJ-MM-TT_thema.md`, zum Beispiel `2026-10-21_push-nachrichten.md`.
+- Oben in der Datei: Datum, Status (offen, abgebrochen, unklar) und wohin das Ergebnis in Documentation gehört, zum Beispiel `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Challenges“.
+- Eine offene Aufgabe enthält: Stand, nächster Schritt, offene Fragen an Daria, betroffene Dateien, SQL-Skript oder Pfad zur Migration, Code-Vorschläge. Nach dem Lesen kann ein anderer Account weitermachen, ohne nachzufragen.
+- Braucht die Aufgabe eine Migration oder eine Einstellung, steht ganz oben eine Zeile „Pflichtaufgabe: …“.
 - Keine Geheimnisse (Passwörter, Tokens, Service-Role-Keys, IBANs). Dieses Repo ist öffentlich.
 
-## Wer die Doku pflegt
+## So arbeitest Du die Übergabe ab
 
-**Vor jeder Änderung an Documentation** hier nachsehen, ob neue Dateien liegen. Wenn ja:
+**Vor jeder Änderung an Documentation** hier nachsehen:
 
-1. Inhalt an die richtige Stelle in Documentation übernehmen (nach dessen `AGENTS.md`).
-2. Die übernommene Datei hier löschen, im selben Arbeitsgang.
+1. Notizen für die Doku: Inhalt an die richtige Stelle in Documentation übernehmen (nach dessen `AGENTS.md`) und die Datei hier im selben Arbeitsgang löschen.
+2. Offene Aufgaben: liegen lassen, bis sie erledigt sind. Wer eine erledigt, schreibt das Ergebnis in die Doku und löscht die Notiz im selben Arbeitsgang. Wer sie nur teilweise schafft, aktualisiert Stand und nächsten Schritt.
 
 Diese `README.md` bleibt immer liegen.
 
-## Liegt gerade hier
+## Offene Aufgaben in diesem Ordner
 
-- `2026-10-23_texte-druck-nummern.json` → bleibt liegen, bis Darias Papierkorrekturen eingetragen sind. Die Datei ordnet jeder Nummer im Ausdruck („S-022“) den Text im Code zu. Danach löschen, nicht nach Documentation übernehmen.
-- `2026-10-24_icon-regelwerk.md` → `kiez-coins/design/ICON-REGELWERK.md` und Verweis in `kiez-coins/ENTSCHEIDUNGEN.md`
+- `2026-10-23_offen_texte-druck-nummern.json`: ordnet jeder Nummer im Ausdruck („S-022“) den Text im Code zu. Bleibt liegen, bis Darias Papierkorrekturen eingetragen sind, dann löschen. Nicht nach Documentation übernehmen.
+- Alle anderen `_offen_`-Dateien beschreiben sich selbst.
