@@ -33,7 +33,7 @@ Daria hat diese Punkte am Rand des Ausdrucks notiert (Nummern aus `Übergabe/202
 
 ## Gendern als Feature
 
-- [ ] **Anrede nach Geschlecht**: „mein Freund“ (D-082), „Kamerad“ (S-022) und Ähnliches sollen sich nach der Person richten (Freund/Freundin …). Ansprache gibt es schon (`profile.address_form`, Platzhalter `{anrede}`). Offene Frage: eigenes Feld für das Geschlecht oder aus der gewählten Ansprache ableiten?
+- [ ] Eigene Aufgabe mit allen Fundstellen: `Übergabe/2026-10-24_offen_gendern.md`.
 
 ## Kodex
 
