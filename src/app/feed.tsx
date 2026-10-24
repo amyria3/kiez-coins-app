@@ -322,7 +322,12 @@ export default function FeedScreen() {
   const renderItem = ({ item }: { item: FeedItem }) => {
     switch (item.kind) {
       case 'groupsEmpty':
-        return <GroupsEmpty onCreate={() => router.push('/gruppen/neu')} onJoin={() => router.push('/gruppen/beitreten')} />;
+        // Fashionable Look: Liste ohne Abstand oben, daher hier 16 pt unter den Reitern (Daria, 24.10.2026)
+        return (
+          <View style={isFashionable ? styles.emptyTop : undefined}>
+            <GroupsEmpty onCreate={() => router.push('/gruppen/neu')} onJoin={() => router.push('/gruppen/beitreten')} />
+          </View>
+        );
       case 'groupBar':
         return (
           <GroupBar
@@ -540,6 +545,7 @@ const styles = StyleSheet.create({
   // Fashionable Look: Beiträge ohne Lücke, jeder Beitrag bringt 16 pt Abstand unten selbst mit
   list: { gap: isFashionable ? 0 : space[24] },
   listTop: { paddingTop: space[8] },
+  emptyTop: { paddingTop: space[16] },
   composeHeader: { height: COMPOSE_HEADER, flexDirection: 'row', alignItems: 'center', gap: space[4], paddingHorizontal: space[8] },
   composeLine: { ...text.title, flex: 1, color: color.text.primary },
   composeSheet: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
