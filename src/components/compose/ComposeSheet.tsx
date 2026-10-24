@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { color, radius, space } from '../../theme/tokens';
+import { isInstagram, color, radius, space } from '../../theme/tokens';
 import { ActionBar } from '../ActionBar';
 import { GroupsEmpty } from '../GroupBar';
 import { NudgeScrollProvider, useNudgeScroll } from '../Nudge';
@@ -82,8 +82,9 @@ const styles = StyleSheet.create({
   sheet: {
     flex: 1,
     backgroundColor: color.bg.screen,
-    borderTopLeftRadius: radius.sheet,
-    borderTopRightRadius: radius.sheet,
+    // Instagram-Look: bündig unter den Reitern, ohne runde Ecken, durch die sonst der Feed scheint
+    borderTopLeftRadius: isInstagram ? 0 : radius.sheet,
+    borderTopRightRadius: isInstagram ? 0 : radius.sheet,
     overflow: 'hidden',
   },
   flex: { flex: 1 },
