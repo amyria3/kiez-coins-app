@@ -28,7 +28,7 @@ Hier entscheidet das Geschlecht von `{name}`. Die App kennt es nicht. Sie unters
 Die Texte nutzen drei Schreibweisen nebeneinander:
 
 - Doppelpunkt (die meisten): „Nachbar:innen“, „Freund:innen“, „Kontoinhaber:in“, „Empfänger:in“, „Pirat:in“, „Seebär:in“.
-- Sternchen: „Nachbar*innen“ in der Begrüßung (S-078, `src/app/onboarding/welcome.tsx`) und in Nutzerdaten der Demo („Nachbarschaftsgärtner*innen“).
+- Sternchen: „Nachbar*innen“ in der Begrüßung (S-078) und in den Demo-Daten. Seit 24.10.2026 mit Doppelpunkt.
 - Paarform in den Rechtstexten (`src/data/legal.ts`): „Nutzerinnen und Nutzer“, „Kontoinhaberin oder Kontoinhaber“.
 
 ## Entscheidung (Daria, 24.10.2026)
@@ -41,14 +41,10 @@ Die Texte nutzen drei Schreibweisen nebeneinander:
 ## Umsetzung
 
 - Pflichtaufgabe: Migration. Neue Spalte `profiles.gender` (`'er' | 'sie' | 'person'`, Standard `'person'`). Andere Personen brauchen Lesezugriff, da Texte über sie das Pronomen brauchen (Spalte in die öffentliche Profilabfrage aufnehmen, `grant update (gender)` für die eigene Zeile).
-- Onboarding: Auswahl auf `onboarding/ansprache` (eigener Block unter der Ansprache) und änderbar unter „Dein Konto“. Offene Frage an Daria: Soll die Ansprache (Pirat, Piratin …) die Auswahl vorbelegen?
+- Onboarding: Auswahl auf `onboarding/ansprache` (eigener Block unter der Ansprache) und änderbar unter „Dein Konto“. Die Ansprache belegt die Auswahl vor (Daria, 24.10.2026): Pirat → er, Piratin → sie, alle anderen → unbestimmt.
 - Code: Hilfsfunktion `byGender(user, { er, sie, person })` in `src/data/format.ts`, die ganze Sätze auswählt, damit Übersetzungen ganze Sätze bekommen (wie bei `user.group` heute).
 - Übersetzungen: je Satz drei Fassungen. Ukrainisch, Hebräisch und Arabisch verlieren damit die Klammerformen und die feste männliche Form.
 
-## Vorschlag für Gruppen von Menschen
+## Schreibweise für Gruppen von Menschen
 
-Die App nutzt durchgehend den Doppelpunkt („Nachbar:innen“), da sie ihn schon am häufigsten nutzt. Rechtstexte bleiben bei der Paarform.
-
-## Offene Fragen an Daria
-
-- Welche Schreibweise gilt für Gruppen von Menschen: Doppelpunkt, Sternchen oder Mittelpunkt?
+Daria (24.10.2026): Die App nutzt durchgehend den Doppelpunkt („Nachbar:innen“). Rechtstexte bleiben bei der Paarform. Die Ansprache „Pirat*in“ bleibt als Auswahl erhalten, da die Person sie selbst wählt.

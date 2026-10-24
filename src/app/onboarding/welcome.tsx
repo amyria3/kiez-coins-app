@@ -24,7 +24,7 @@ export default function Welcome() {
           <Text style={styles.headlineMuted}>Cat The Käptn sucht eine neue Crew für seinen Kiez.</Text>
         </Text>
         <Text style={styles.body}>
-          Ich bin ein alter Mann … hm, Kater. Die Segel hab ich eingeholt, aber zur Ruhe will ich mich nicht setzen. Hilf Deinen Nachbar*innen mit kleinen Challenges.
+          Ich bin ein alter Mann … hm, Kater. Die Segel hab ich eingeholt, aber zur Ruhe will ich mich nicht setzen. Hilf Deinen Nachbar:innen mit kleinen Challenges.
         </Text>
         <Text style={styles.legal}>
           Testversion ·{' '}

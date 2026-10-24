@@ -54,7 +54,7 @@ export function maskIban(input: string): string {
   return `${iban.slice(0, 4)} •••• •••• •••• ${iban.slice(-4)}`;
 }
 
-/** Name im Satz: „die Nachbarschaftsgärtner*innen“ bzw. „Peter“. */
+/** Name im Satz: „die Nachbarschaftsgärtner:innen“ bzw. „Peter“. */
 export function nameInText(user: { firstName: string; name: string; group?: boolean }): string {
   return user.group ? t('die {name}', { name: user.name }) : user.firstName;
 }
