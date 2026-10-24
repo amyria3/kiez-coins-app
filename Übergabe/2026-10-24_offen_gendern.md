@@ -45,15 +45,10 @@ Die Texte nutzen drei Schreibweisen nebeneinander:
 - Code: Hilfsfunktion `byGender(user, { er, sie, person })` in `src/data/format.ts`, die ganze Sätze auswählt, damit Übersetzungen ganze Sätze bekommen (wie bei `user.group` heute).
 - Übersetzungen: je Satz drei Fassungen. Ukrainisch, Hebräisch und Arabisch verlieren damit die Klammerformen und die feste männliche Form.
 
-## Vorschlag
+## Vorschlag für Gruppen von Menschen
 
-1. **Eine Schreibweise festlegen** für Gruppen von Menschen, zum Beispiel den Doppelpunkt, da ihn die App schon am häufigsten nutzt. Rechtstexte können bei der Paarform bleiben.
-2. **Texte über andere Personen neutral fassen.** So braucht die App kein Geschlecht anderer Personen zu kennen. Beispiele:
-   - „… wenn Du die Challenge erledigt hast und {name} sie bestätigt hat.“
-   - „Gründerin“ → „Gründet die Gruppe“ oder „Gründung“.
-3. **Anrede über die vorhandene Ansprache steuern.** Aus `addressForm` ergibt sich die Form für Texte an Dich: Pirat → „mein Freund“, Piratin → „meine Freundin“, Pirat:in, The Pirat und eigene Bezeichnung → neutrale Form (zum Beispiel „{anrede}“ selbst: „Nur Geduld, {anrede}!“).
+Die App nutzt durchgehend den Doppelpunkt („Nachbar:innen“), da sie ihn schon am häufigsten nutzt. Rechtstexte bleiben bei der Paarform.
 
 ## Offene Fragen an Daria
 
 - Welche Schreibweise gilt für Gruppen von Menschen: Doppelpunkt, Sternchen oder Mittelpunkt?
-- Sollen die Übersetzungen ebenfalls neutral oder nach Ansprache gegendert werden?
