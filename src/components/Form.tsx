@@ -6,7 +6,7 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 
 import type { ImageSource } from '../data/types';
-import { color, radius, space, stroke, text } from '../theme/tokens';
+import { color, isInstagram, radius, space, stroke, text } from '../theme/tokens';
 import { Glass, glassControls } from './Glass';
 import { nudgeStyles, useNextField, type Nudge } from './Nudge';
 import { Icon } from './icons/Icon';
@@ -167,7 +167,9 @@ export function SwitchRow({
           </Text>
         ) : null}
       </View>
-      {glassControls ? (
+      {isInstagram ? (
+        <InstaSwitch label={label} value={value} onValueChange={onValueChange} />
+      ) : glassControls ? (
         <GlassSwitch label={label} value={value} onValueChange={onValueChange} />
       ) : (
       <NativeSwitch
@@ -182,6 +184,36 @@ export function SwitchRow({
       />
       )}
     </View>
+  );
+}
+
+/**
+ * Schalter im Look „Instagram“ (Daria, 24.10.2026), nach dem iOS-Muster, das Instagram nutzt: Spur 51 × 31,
+ * weißer Knopf 27 mit leichtem Schatten. Aus hellgrau #E5E5E5, an Instagram-Blau. Der Knopf gleitet in 200 ms.
+ */
+function InstaSwitch({ label, value, onValueChange }: { label: string; value: boolean; onValueChange: (v: boolean) => void }) {
+  const x = useRef(new Animated.Value(value ? 1 : 0)).current;
+  useEffect(() => {
+    Animated.timing(x, { toValue: value ? 1 : 0, duration: 200, useNativeDriver: false }).start();
+  }, [value, x]);
+  return (
+    <Pressable
+      accessibilityRole="switch"
+      accessibilityLabel={label}
+      accessibilityState={{ checked: value }}
+      onPress={() => onValueChange(!value)}
+      hitSlop={8}
+      style={styles.instaTrackHit}
+    >
+      <Animated.View
+        style={[
+          styles.instaTrack,
+          { backgroundColor: x.interpolate({ inputRange: [0, 1], outputRange: ['#E5E5E5', color.accent.primary] }) },
+        ]}
+      >
+        <Animated.View style={[styles.instaKnob, { transform: [{ translateX: x.interpolate({ inputRange: [0, 1], outputRange: [0, 20] }) }] }]} />
+      </Animated.View>
+    </Pressable>
   );
 }
 
@@ -435,6 +467,19 @@ export function PhotoPicker({ photo, hint, onChange, title }: PhotoPickerProps &
 }
 
 const styles = StyleSheet.create({
+  instaTrackHit: { justifyContent: 'center' },
+  instaTrack: { width: 51, height: 31, borderRadius: 15.5, padding: 2 },
+  instaKnob: {
+    width: 27,
+    height: 27,
+    borderRadius: 13.5,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000000',
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
   flex: { flex: 1 },
   link: { textDecorationLine: 'underline', color: color.text.primary },
   field: { gap: space[6] },
