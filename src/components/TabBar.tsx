@@ -12,7 +12,7 @@ import { refreshUnread, useUnreadMessages } from '../data/chat';
 import { useStore } from '../data/store';
 import { PH, phXml, useIconPt } from './icons/instagramSvgs';
 
-/** Krone als Linie für den Look „Instagram“ */
+/** Krone als Linie für den Look „Fashionable“ */
 const crownLine = (c: string) =>
   `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="${c}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M3.5 8 8 12l4-6.5 4 6.5 4.5-4-1.8 10.5H5.3z"/><path d="M5.5 21h13"/></svg>`;
 
@@ -28,11 +28,11 @@ type TabBarProps = {
   onMenuPress: () => void;
   /** Punkt am Kater: Bei einer Deiner Challenges bist Du dran. */
   hasTasks?: boolean;
-  /** Instagram-Look: Kamera in der Leiste. Ohne: Feed öffnet das Erstellen. */
+  /** Fashionable Look: Kamera in der Leiste. Ohne: Feed öffnet das Erstellen. */
   onCreatePress?: () => void;
-  /** Instagram-Look: Gruppen und Freund:innen. Ohne: Feed öffnet den Reiter „Gruppen“. */
+  /** Fashionable Look: Gruppen und Freund:innen. Ohne: Feed öffnet den Reiter „Gruppen“. */
   onGroupsPress?: () => void;
-  /** Instagram-Look: Reiter „Gruppen“ im Feed ist offen */
+  /** Fashionable Look: Reiter „Gruppen“ im Feed ist offen */
   groupsActive?: boolean;
 };
 
@@ -46,7 +46,7 @@ export function TabBar(props: TabBarProps) {
 }
 
 /**
- * Leiste im Look „Instagram“ nach Darias Mockup „Vorher-Nachher“ (24.10.2026): vier gleich breite Felder,
+ * Leiste im Look „Fashionable“ nach Darias Mockup „Vorher-Nachher“ (24.10.2026): vier gleich breite Felder,
  * Haus = Feed, Kamera = Beitrag erstellen, Sprechblase mit Zeilen = Chats, Burger = Menü (Icon-Regelwerk, 24.10.2026).
  * Icons in Icon-Größe mit derselben Linie; inaktiv mit 55 % Deckkraft, aktiv voll. „Was Du so machst“ öffnet
  * das Herz oben im Feed.
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   pressed: { opacity: 0.7 },
-  // Look „Instagram“: Leiste über die ganze Breite am unteren Rand, Haarlinie oben, keine Pille
+  // Look „Fashionable“: Leiste über die ganze Breite am unteren Rand, Haarlinie oben, keine Pille
   wrapFlat: {
     position: 'absolute',
     left: 0,

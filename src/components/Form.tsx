@@ -188,7 +188,7 @@ export function SwitchRow({
 }
 
 /**
- * Schalter im Look „Instagram“ (Daria, 24.10.2026), nach dem iOS-Muster, das Instagram nutzt: Spur 51 × 31,
+ * Schalter im Look „Fashionable“ (Daria, 24.10.2026), nach dem iOS-Muster, das Instagram nutzt: Spur 51 × 31,
  * weißer Knopf 27 mit leichtem Schatten. Aus hellgrau #E5E5E5, an Instagram-Blau. Der Knopf gleitet in 200 ms.
  */
 function InstaSwitch({ label, value, onValueChange }: { label: string; value: boolean; onValueChange: (v: boolean) => void }) {
@@ -417,7 +417,8 @@ export function PhotoPicker({ photo, hint, onChange, title }: PhotoPickerProps &
   const titleRef = title?.nudge?.ref ?? ownRef;
   const hinted = !title?.error && !!title?.nudge?.hint;
   const titleHelper = title?.error ?? title?.nudge?.hint;
-  const titleBorder = title?.error ? color.accent.error : focused || hinted ? color.accent.primary : color.line.hairline;
+  // Ohne Rahmen (Daria, 24.10.2026); nur ein Fehler zeigt einen roten Rand
+  const titleBorder = title?.error ? color.accent.error : 'transparent';
 
   return (
     <View style={styles.field}>
@@ -596,5 +597,5 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.glass,
     borderWidth: stroke.ultraThin,
   },
-  photoTitleInput: { ...text.cardTitle, color: color.text.primary, padding: 0, minHeight: 24, outlineStyle: 'none' } as never,
+  photoTitleInput: { ...text.cardTitle, color: color.text.primary, padding: 0, minHeight: 24, textAlign: 'center', outlineStyle: 'none' } as never,
 });

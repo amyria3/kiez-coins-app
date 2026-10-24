@@ -33,7 +33,7 @@ function taskLabel({ challenge, role }: ReiseEntry): string {
  * getrennt nach öffentlichen Challenges und Gruppenaufgaben.
  */
 export default function ReiseRoute() {
-  // Instagram-Look: Profilansicht wie bei Instagram (Daria, 23.10.2026)
+  // Fashionable Look: Profilansicht wie bei Instagram (Daria, 23.10.2026)
   return isInstagram ? <InstaProfile /> : <Reise />;
 }
 

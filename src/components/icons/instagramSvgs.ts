@@ -1,4 +1,4 @@
-// Icons für den Look „Instagram“: Phosphor Icons, Gewicht Regular (Daria, 24.10.2026), bis Font Awesome Pro bezahlt ist.
+// Icons für den Look „Fashionable“: Phosphor Icons, Gewicht Regular (Daria, 24.10.2026), bis Font Awesome Pro bezahlt ist.
 // Gefüllt (z. B. Herz bei „gefällt mir“) in Phosphor Fill. Lizenz: MIT (phosphoricons.com).
 // Im Kiez-Look erscheinen sie nur dort, wo es kein handgezeichnetes Icon gibt (PhIcon).
 // Fehlt ein Name hier, zeigt Icon.tsx Darias Icon aus svgs.ts.

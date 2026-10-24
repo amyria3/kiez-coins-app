@@ -59,7 +59,7 @@ export default function FeedScreen() {
   const requireKiez = useRequireKiez();
   const [surveyVisible, closeSurvey] = useSurveyPrompt();
   // `gruppe`: aus der Gruppenseite („Aufgaben ansehen“) direkt in den Reiter „Gruppen“
-  // `reiter=gruppen` und `erstellen=1`: aus der Leiste im Instagram-Look von anderen Seiten
+  // `reiter=gruppen` und `erstellen=1`: aus der Leiste im Fashionable Look von anderen Seiten
   const { gruppe, reiter, erstellen } = useLocalSearchParams<{ gruppe?: string; reiter?: string; erstellen?: string }>();
   const [tab, setTab] = useState<FeedTab>(gruppe || reiter === 'gruppen' ? 'groups' : 'nearby');
   const [groupChoice, setGroupChoice] = useState<string | undefined>(gruppe);
@@ -382,7 +382,7 @@ export default function FeedScreen() {
   };
 
   // Kopf: Höhe und Deckkraft gehen auf 0. Segmente: rechts Platz für die Kamera, sobald der Kopf weg ist.
-  // Instagram-Look: Der Kopf trägt Profil und Chats und bleibt stehen (Daria, 24.10.2026). Nur beim Erstellen geht er weg.
+  // Fashionable Look: Der Kopf trägt Profil und Chats und bleibt stehen (Daria, 24.10.2026). Nur beim Erstellen geht er weg.
   const headerStyle = headerHeight && isInstagram
     ? {
         height: composeAnim.interpolate({ inputRange: [0, 1], outputRange: [headerHeight, 0] }),
@@ -404,7 +404,7 @@ export default function FeedScreen() {
       }
     : null;
   // Beim Erstellen ist die Kamera weg, die Pille nutzt die volle Breite
-  // Instagram-Look: Erstellen sitzt in der Leiste unten, die Reiter nutzen die volle Breite ohne Rand
+  // Fashionable Look: Erstellen sitzt in der Leiste unten, die Reiter nutzen die volle Breite ohne Rand
   const tabsPaddingRight = isInstagram
     ? 0
     : Animated.add(
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   flex: { flex: 1 },
   clip: { overflow: 'hidden' },
-  // Instagram-Look: Beiträge ohne Lücke, jeder Beitrag bringt 16 pt Abstand unten selbst mit
+  // Fashionable Look: Beiträge ohne Lücke, jeder Beitrag bringt 16 pt Abstand unten selbst mit
   list: { gap: isInstagram ? 0 : space[24] },
   listTop: { paddingTop: space[8] },
   composeHeader: { height: COMPOSE_HEADER, flexDirection: 'row', alignItems: 'center', gap: space[4], paddingHorizontal: space[8] },

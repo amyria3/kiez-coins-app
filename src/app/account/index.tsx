@@ -62,7 +62,7 @@ export default function Account() {
       <NavCard
         title="Was Du so machst"
         description="Verlauf, Aufgaben und Gruppen"
-        // Instagram-Look: Dein Bild wie oben im Feed (Regelwerk: Was Du so machst = Dein Profil)
+        // Fashionable Look: Dein Bild wie oben im Feed (Regelwerk: Was Du so machst = Dein Profil)
         leading={isInstagram ? <Avatar user={me} diameter={28} /> : <CrownIcon height={30} />}
         onPress={() => router.push('/reise')}
       />

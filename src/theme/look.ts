@@ -1,4 +1,4 @@
-// Wählbarer Look der App (Daria, 23.10.2026): „Kiez“ ist das eigene Design, „Instagram“ lehnt sich an Instagram an.
+// Wählbarer Look der App (Daria, 23.10.2026): „Kiez“ ist das eigene Design, „Fashionable“ (Code: instagram) lehnt sich an Instagram an. Name seit 24.10.2026.
 // Die Tokens lesen den Look einmal beim Start, da StyleSheet.create die Farben beim Laden festschreibt.
 // Ein Wechsel lädt die App deshalb neu.
 // Im Web wählt der Link `/app/?look=instagram` den Look vor. Der Browser merkt sich die Wahl.
@@ -8,7 +8,7 @@ import { Platform } from 'react-native';
 export type Look = 'kiez' | 'instagram';
 export const looks: { code: Look; name: string; description: string }[] = [
   { code: 'kiez', name: 'Kiez', description: 'Lila, rund, Kiez Coins pur' },
-  { code: 'instagram', name: 'Instagram', description: 'Hell, blau, Fotos über die ganze Breite' },
+  { code: 'instagram', name: 'Fashionable', description: 'Hell, blau, Fotos über die ganze Breite' },
 ];
 
 const KEY = 'kiez-look';

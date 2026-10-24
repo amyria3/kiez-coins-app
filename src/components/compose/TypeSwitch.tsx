@@ -7,7 +7,7 @@ import { Text } from '../T';
 
 /**
  * Schalter für den Beitragstyp beim Erstellen (Daria, 23.10.2026): Challenge, Vorher-Nachher, Bild.
- * Look „Kiez“: Pille mit getönter Markierung. Look „Instagram“: Reiter mit Strich darunter.
+ * Look „Kiez“: Pille mit getönter Markierung. Look „Fashionable“: Reiter mit Strich darunter.
  * Die Markierung gleitet mit der Bewegung „Schranke“.
  */
 export function TypeSwitch<K extends string>({

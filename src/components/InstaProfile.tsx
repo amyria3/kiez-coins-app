@@ -29,7 +29,7 @@ const GRID_TABS: { key: GridTab; label: string; icon: (typeof PH)[keyof typeof P
 ];
 
 /**
- * „Was Du so machst“ im Look „Instagram“ als Profil (Daria, 23.10.2026), wie instagram.com/<name> mobil.
+ * „Was Du so machst“ im Look „Fashionable“ als Profil (Daria, 23.10.2026), wie instagram.com/<name> mobil.
  * Maße in pt, seitlich 16:
  * Kopf 44: Name halbfett 20 mit Pfeil, rechts das Menü (Konto). Darunter Bild 86 links, Notiz-Blase des Katers
  * darüber; rechts Name und drei Zahlen (Challenges, Freund:innen, Gruppen). Danach Ort und Verdienst,

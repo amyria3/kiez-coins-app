@@ -80,7 +80,7 @@ export function useGroupTaskForm(groupId: string | undefined, initial: Initial, 
             disabled={edensteine <= 1}
             style={[styles.stepButton, edensteine <= 1 && styles.disabled]}
           >
-            <Icon name="minus" size={size.icon} color={color.text.primary} />
+            <Icon name="minus" size={STEP_ICON} color={color.text.primary} />
           </Pressable>
           <View style={styles.value} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine })}>
             {/* Ein einzelner, lebendiger Edenstein statt des Haufens (Daria, 22.10.2026) */}
@@ -98,7 +98,7 @@ export function useGroupTaskForm(groupId: string | undefined, initial: Initial, 
             disabled={edensteine >= 10}
             style={[styles.stepButton, edensteine >= 10 && styles.disabled]}
           >
-            <Icon name="plus" size={size.icon} color={color.text.primary} />
+            <Icon name="plus" size={STEP_ICON} color={color.text.primary} />
           </Pressable>
         </View>
         <Text style={styles.hint}>1 bis 10. Edensteine gelten nur in dieser Gruppe und haben keinen Geldwert.</Text>
@@ -132,13 +132,16 @@ export function useGroupTaskForm(groupId: string | undefined, initial: Initial, 
   return { fields, button };
 }
 
+/** Plus und Minus kleiner als die Hauptsymbole (Daria, 24.10.2026) */
+const STEP_ICON = 14;
+
 const styles = StyleSheet.create({
   crystal: { width: 30, height: 30, alignItems: 'center' },
   crystalFloat: { position: 'absolute', top: (30 - 48) / 2 },
   stepper: { flexDirection: 'row', alignItems: 'center', gap: space[16] },
   stepButton: {
-    width: 48,
-    height: 48,
+    width: 40,
+    height: 40,
     borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
@@ -146,6 +149,7 @@ const styles = StyleSheet.create({
   },
   disabled: { opacity: 0.4 },
   value: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space[8] },
-  valueText: { ...text.display, color: color.accent.confirmation },
+  // Zahl in Textfarbe, damit sie neben dem bunten Stein ruhig bleibt (Daria, 24.10.2026)
+  valueText: { ...text.metric, color: color.text.primary },
   hint: { ...text.caption, color: color.text.secondary },
 });

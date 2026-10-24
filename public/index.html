@@ -91,11 +91,41 @@
           box-shadow: 0 0 0 1px rgba(240, 240, 240, 0.08);
         }
       }
+      /* Zahnräder, bevor das Skript läuft: gleiche Größe und Lage wie im Startbildschirm (StartKater.tsx).
+         Beim Neuladen nach einem Look-Wechsel drehen sie so sofort (Daria, 24.10.2026). */
+      #boot {
+        position: fixed;
+        left: 50%;
+        bottom: calc(env(safe-area-inset-bottom) + 32px);
+        width: min(200px, 22vh);
+        transform: translateX(-50%);
+        z-index: 20;
+        pointer-events: none;
+      }
+      #boot img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      html.fashionable body {
+        background-color: #ffffff;
+      }
+      html.fashionable #boot img {
+        filter: invert(1);
+      }
     </style>
+    <script>
+      // Look vor dem Start lesen, damit Grund und Zahnräder gleich in den richtigen Farben erscheinen (src/theme/look.ts)
+      try {
+        var look = new URLSearchParams(location.search).get('look') || localStorage.getItem('kiez-look');
+        if (look === 'instagram') document.documentElement.classList.add('fashionable');
+      } catch (e) {}
+    </script>
   </head>
 
   <body>
     <noscript>Kiez Coins braucht JavaScript.</noscript>
+    <div id="boot" aria-hidden="true"><img src="/app/gears.svg" alt="" /></div>
     <div id="root"></div>
     <script>
       // Safari kennt requestIdleCallback nicht. Expo Router ruft es an einer Stelle ohne Prüfung auf.

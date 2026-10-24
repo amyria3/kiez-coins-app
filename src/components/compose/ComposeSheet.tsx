@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   sheet: {
     flex: 1,
     backgroundColor: color.bg.screen,
-    // Instagram-Look: bündig unter den Reitern, ohne runde Ecken, durch die sonst der Feed scheint
+    // Fashionable Look: bündig unter den Reitern, ohne runde Ecken, durch die sonst der Feed scheint
     borderTopLeftRadius: isInstagram ? 0 : radius.sheet,
     borderTopRightRadius: isInstagram ? 0 : radius.sheet,
     overflow: 'hidden',

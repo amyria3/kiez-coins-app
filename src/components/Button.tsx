@@ -78,7 +78,7 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
 }
 
 /**
- * Knopf im Look „Instagram“ (Daria, 24.10.2026), überall gleich: 44 hoch, Radius 8, halbfett 14, ohne Icon.
+ * Knopf im Look „Fashionable“ (Daria, 24.10.2026), überall gleich: 44 hoch, Radius 8, halbfett 14, ohne Icon.
  * Primary blau mit weißer Schrift; Secondary und die übrigen grau gefüllt, Danger mit roter Schrift; Ghost nur Text in Blau.
  */
 function InstaButton({

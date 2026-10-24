@@ -35,7 +35,7 @@ export function AppHeader(props: AppHeaderProps) {
 }
 
 /**
- * Kopf im Look „Instagram“ nach Darias Mockup (24.10.2026): Schriftzug „Kiez Coins“ als Text links,
+ * Kopf im Look „Fashionable“ nach Darias Mockup (24.10.2026): Schriftzug „Kiez Coins“ als Text links,
  * Inter Tight halbfett 24/28, rechts Dein Profilbild („Was Du so machst“) und die Sprechblase mit Zeilen (Chats), 18 pt Abstand.
  * Abstände 4 oben, 12 rechts, 8 unten, 14 links.
  */
@@ -104,7 +104,7 @@ function KiezHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) 
 
 /** Begrüßung über dem Feed: Tageszeit, Ansprache, Kiez und Anzahl offener Challenges. */
 export function FeedGreeting({ name, kiez, count }: { name: string; kiez?: string; count: number }) {
-  // Instagram-Look: keine Begrüßung, der Schriftzug steht allein (Mockup)
+  // Fashionable Look: keine Begrüßung, der Schriftzug steht allein (Mockup)
   if (isInstagram) return null;
   const hour = new Date().getHours();
   const greeting = hour < 11 ? 'Guten Morgen' : hour < 18 ? 'Hallo' : 'Guten Abend';
@@ -204,7 +204,7 @@ export function Segments<K extends string>(props: SegmentsProps<K>) {
 }
 
 /**
- * Umschalter im Look „Instagram“ (Daria, 23.10.2026), wie die Reiter im Instagram-Profil: gleich breite Felder,
+ * Umschalter im Look „Fashionable“ (Daria, 23.10.2026), wie die Reiter im Instagram-Profil: gleich breite Felder,
  * 44 pt hoch, Schrift 15 pt. Aktiv schwarz und halbfett, sonst Grau #737373. Unter dem aktiven Reiter liegt
  * ein schwarzer Strich, 1 pt stark und so breit wie das Feld; er gleitet mit „Schranke“ bzw. folgt dem Finger.
  * Darunter eine Haarlinie über die ganze Breite.
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
     borderWidth: stroke.thin,
     borderColor: color.bg.screen,
   },
-  // Instagram-Look: Kopf 44 hoch, Begrüßung kleiner und halbfett, 16 seitlich, 4 oben, 12 unten bis zum Umschalter
+  // Fashionable Look: Kopf 44 hoch, Begrüßung kleiner und halbfett, 16 seitlich, 4 oben, 12 unten bis zum Umschalter
   greeting: isInstagram
     ? { paddingHorizontal: space[16], paddingTop: space[4], paddingBottom: space[12], gap: space[2] }
     : { paddingHorizontal: space[16], paddingTop: space[12], paddingBottom: space[8], gap: space[4] },

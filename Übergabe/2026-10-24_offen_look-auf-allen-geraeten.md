@@ -6,7 +6,7 @@ Ergebnis gehört nach Documentation: `kiez-coins/design/Designsystem.md`
 
 ## Offen
 
-- iOS und Android zeigen immer den Kiez-Look. Sie brauchen einen Speicher, der beim Start synchron liest (z. B. `expo-sqlite/kv-store`). Etwa 14 feste `rgba(31, 33, 35, …)`-Flächen über Fotos bleiben im Kiez-Grau. Schrift, Logo und Kater ändern sich nicht. Den Edenstein zeichnet der Instagram-Look eigens (`InstaGem`).
+- iOS und Android zeigen immer den Kiez-Look. Sie brauchen einen Speicher, der beim Start synchron liest (z. B. `expo-sqlite/kv-store`). Etwa 14 feste `rgba(31, 33, 35, …)`-Flächen über Fotos bleiben im Kiez-Grau. Schrift, Logo und Kater ändern sich nicht. Den Edenstein zeichnet der Fashionable Look eigens (`InstaGem`).
 - Der Kater im Startbild (`KaterStage`, PNG-Teile) bleibt braun. Nur die SVG-Kater nehmen die Signaturfarbe an.
 
 ## Vorschlag aus Darias To-do-Liste (2026-10-23)

@@ -17,14 +17,14 @@ type CatProps = {
   mood?: CatMood;
   /** Höhe in pt (Original 39 pt) */
   height?: number;
-  /** Instagram-Look: Farbe des Katers, sonst Textfarbe */
+  /** Fashionable Look: Farbe des Katers, sonst Textfarbe */
   tint?: string;
 };
 
 /** Kater mit Sonnenbrille (Daria, 22.10.2026): normal, high (aufgeregt) und money (Dollar in den Gläsern). */
 const CAT_ART: Record<CatMood, string> = { default: 'kater-normal', high: 'kater-high', money: 'kater-money' };
 export const Cat = memo(function Cat({ mood = 'default', height = 39, tint }: CatProps) {
-  // Instagram-Look: überall der Kater aus dem monochromen Logo (Daria, 24.10.2026)
+  // Fashionable Look: überall der Kater aus dem monochromen Logo (Daria, 24.10.2026)
   if (isInstagram) return <MonoCat height={height} tint={tint} />;
   const art = brandArt[CAT_ART[mood]];
   if (!art) {
@@ -37,7 +37,7 @@ export const Cat = memo(function Cat({ mood = 'default', height = 39, tint }: Ca
 const signature = (svg: string) => (isInstagram ? svg.replace(/#7E94FF/gi, color.brand.signature) : svg);
 
 /** Logo: Kater und Schriftzug „KiezCoins“ (assets/brand/logo.svg) */
-/** Kater aus dem monochromen Logo, quadratisch zugeschnitten, in Textfarbe (Instagram-Look, Daria 24.10.2026) */
+/** Kater aus dem monochromen Logo, quadratisch zugeschnitten, in Textfarbe (Fashionable Look, Daria 24.10.2026) */
 export const MonoCat = memo(function MonoCat({ height = 26, tint = color.text.primary }: { height?: number; tint?: string }) {
   const mono = brandArt['logo-mono'];
   const xml = mono.svg
@@ -48,7 +48,7 @@ export const MonoCat = memo(function MonoCat({ height = 26, tint = color.text.pr
 });
 
 /**
- * Logo (Daria, 24.10.2026): Kiez-Look `assets/brand/logo.svg`, Lila mit Kater; Instagram-Look
+ * Logo (Daria, 24.10.2026): Kiez-Look `assets/brand/logo.svg`, Lila mit Kater; Fashionable Look
  * `assets/brand/logo-mono.svg`, Kater mit Brille und Wortmarke einfarbig in Textfarbe.
  */
 export const Logo = memo(function Logo({ height = 26 }: { height?: number }) {
@@ -69,7 +69,7 @@ export const Wordmark = memo(function Wordmark() {
 /** Zwei Münzen hintereinander: vorn ein ganzer Kreis, hinten nur der Bogen, der hervorschaut */
 /** icon/coins mit Verlauf, Standardgröße wie im BountyBadge (19×22) */
 export const CoinsIcon = memo(function CoinsIcon({ height = 22 }: { height?: number }) {
-  // Instagram-Look: zwei Münzen als Kontur, Linie 2 mit runden Enden, in Textfarbe (Daria, 23.10.2026)
+  // Fashionable Look: zwei Münzen als Kontur, Linie 2 mit runden Enden, in Textfarbe (Daria, 23.10.2026)
   if (isInstagram) return <SvgXml xml={phXml(PH.coins, color.text.primary)} width={height} height={height} />;
   return <SvgXml xml={coinsSvg} width={(30 / 35) * height} height={height} />;
 });
@@ -82,7 +82,7 @@ export const DiamondIcon = memo(function DiamondIcon({
   variant?: DiamondVariant;
   height?: number;
 }) {
-  // Instagram-Look: glatter Stein ohne Striche, etwas kleiner, da die Striche als Rahmen fehlen
+  // Fashionable Look: glatter Stein ohne Striche, etwas kleiner, da die Striche als Rahmen fehlen
   if (isInstagram) return <SvgXml xml={GEM_SVG(height * 0.8)} width={gem.ratio * height * 0.8} height={height * 0.8} />;
   const d = diamondSvgs[variant];
   return <SvgXml xml={d.svg(color.text.primary)} width={(d.width / d.height) * height} height={height} />;
@@ -120,12 +120,12 @@ const crystalSvgs = ([1, 2, 3] as DiamondVariant[]).map((v) => {
 });
 
 /**
- * Edenstein im Look „Instagram“ (Daria, 24.10.2026): Font Awesome „gem“ in Textfarbe wie alle Icons.
+ * Edenstein im Look „Fashionable“ (Daria, 24.10.2026): Font Awesome „gem“ in Textfarbe wie alle Icons.
  * Ab und zu blitzt der Verlauf Amethyst auf (InstaGem).
  * Er steht als Angabe neben seiner Zahl: kleiner als die Aktions-Icons, ohne Bewegung und ohne Druckfläche,
  * damit er nicht wie ein Knopf wirkt.
  */
-/** Font Awesome „gem“ (Regular), Rahmen auf den Stein zugeschnitten (Daria, 24.10.2026: Font Awesome im Instagram-Look) */
+/** Font Awesome „gem“ (Regular), Rahmen auf den Stein zugeschnitten (Daria, 24.10.2026: Font Awesome im Fashionable Look) */
 const GEM_BOX = { x: 0, y: 24, w: 512, h: 456 };
 const GEM_PATH = faGem.icon[4] as string;
 /** Verlauf, der aufblitzt */
@@ -140,7 +140,7 @@ const GEM_GRADIENT_SVG = (px: number, id: string) =>
     `<defs><linearGradient id="${id}" x1="0" y1="24" x2="512" y2="480" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${GEM_FLASH[0]}"/><stop offset="1" stop-color="${GEM_FLASH[1]}"/></linearGradient></defs>`,
   );
 const gem = { ratio: GEM_BOX.w / GEM_BOX.h, svg: GEM_SVG(GEM_BOX.h) };
-/** Kristall je Typ: im Instagram-Look immer der glatte Stein */
+/** Kristall je Typ: im Fashionable Look immer der glatte Stein */
 const stoneOf = (type: number) => (isInstagram ? gem : crystalSvgs[type]);
 
 /**
@@ -302,7 +302,7 @@ export const LivingCrystal = memo(function LivingCrystal(props: { height?: numbe
 });
 
 /**
- * Edenstein im Instagram-Look: steht still, 46 % von `height` hoch (Daria, 24.10.2026: 55 % war zu groß),
+ * Edenstein im Fashionable Look: steht still, 46 % von `height` hoch (Daria, 24.10.2026: 55 % war zu groß),
  * und blitzt alle 6 bis 14 Sekunden im Verlauf auf: 350 ms einblenden, 500 ms halten, 650 ms ausblenden.
  * `calm` und „Bewegung reduzieren“: kein Aufblitzen.
  */

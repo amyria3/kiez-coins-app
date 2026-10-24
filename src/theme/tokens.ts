@@ -7,7 +7,7 @@ import type { TextStyle } from 'react-native';
 import { look } from './look';
 
 const instagram = look === 'instagram';
-/** Im Instagram-Look hell: für BlurView, Systemglas und Statusleiste */
+/** Im Fashionable Look hell: für BlurView, Systemglas und Statusleiste */
 export const isInstagram = instagram;
 export const scheme: 'dark' | 'light' = instagram ? 'light' : 'dark';
 
@@ -25,7 +25,7 @@ const kiezPalette = {
 };
 
 /**
- * Look „Instagram“, hell wie Instagram (Daria, 2026-10-23): weißer Grund, schwarze Schrift, Grau #737373,
+ * Look „Fashionable“, hell wie Instagram (Daria, 2026-10-23): weißer Grund, schwarze Schrift, Grau #737373,
  * Blau #0095F6 für Aktionen, Rot #FF3040 fürs Herz. `black` ist hier der Grund und `white` die Schrift,
  * damit die Namen der Kiez-Palette in beiden Looks dieselbe Rolle haben.
  */
@@ -35,7 +35,7 @@ const instagramPalette: typeof kiezPalette = {
   grey: '#737373',
   purple: '#0095F6',
   orange: '#E1306C',
-  // Kein Grün im Instagram-Look (Daria, 24.10.2026): Edensteine, „Offen“ und gewählte Chips in Textfarbe
+  // Kein Grün im Fashionable Look (Daria, 24.10.2026): Edensteine, „Offen“ und gewählte Chips in Textfarbe
   green: '#000000',
   red: '#ED4956',
   pink: '#FF3040',
@@ -68,7 +68,7 @@ export const color = {
     /** Schrift auf Fotos, in beiden Looks hell */
     onPhoto: '#F0F0F0',
   },
-  /** Signaturfarbe für Logo und Kater. Instagram-Look vorerst Schwarz: Das Violett #7B2FF7 hat Daria verworfen (23.10.2026), die neue Farbe steht noch aus. */
+  /** Signaturfarbe für Logo und Kater. Fashionable Look vorerst Schwarz: Das Violett #7B2FF7 hat Daria verworfen (23.10.2026), die neue Farbe steht noch aus. */
   brand: {
     signature: instagram ? '#000000' : palette.purple,
   },
@@ -96,7 +96,7 @@ export const space = {
   48: 48,
 } as const;
 
-// Radius (Look „Instagram“: eckiger)
+// Radius (Look „Fashionable“: eckiger)
 export const radius = {
   sm: instagram ? 4 : 5,
   md: instagram ? 8 : 12,
