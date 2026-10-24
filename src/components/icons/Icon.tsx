@@ -5,7 +5,7 @@ import { SvgXml } from 'react-native-svg';
 import { isRtl } from '../../data/texts';
 
 import { color as themeColor, isInstagram } from '../../theme/tokens';
-import { instagramSvgs, strokeFor, useIconPt } from './instagramSvgs';
+import { FA, faXml, instagramSvgs, strokeFor, useIconPt } from './instagramSvgs';
 import { iconSvgs, type IconName } from './svgs';
 
 type IconProps = {
@@ -43,6 +43,13 @@ export const Icon = memo(function Icon({ name, color = themeColor.text.primary, 
   // Arabisch und Hebräisch: Pfeile und Senden zeigen in Leserichtung
   if (MIRRORED.has(name) && isRtl()) return <View style={{ transform: [{ scaleX: -1 }] }}>{svg}</View>;
   return svg;
+});
+
+/** Font-Awesome-Icon ohne IconName, nur im Instagram-Look (z. B. Karten im Konto). Größe wie Icon. */
+export const FaIcon = memo(function FaIcon({ name, color = themeColor.text.primary, size }: { name: keyof typeof FA; color?: string; size?: number }) {
+  const iconPt = useIconPt();
+  const h = Math.round(((size ?? 20) / 20) * iconPt);
+  return <SvgXml xml={faXml(FA[name], color)} width={h} height={h} />;
 });
 
 export type { IconName };
