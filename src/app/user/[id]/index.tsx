@@ -214,6 +214,7 @@ export default function UserProfile() {
             />
           ) : null}
           <View style={styles.list}>
+            <NavRow label="Community-Regeln" onPress={() => router.push('/rechtliches/regeln')} />
             <NavRow
               label={plural ? 'Gruppe melden' : 'Person melden'}
               onPress={() =>
@@ -224,7 +225,6 @@ export default function UserProfile() {
               }
             />
             <NavRow label={plural ? 'Gruppe blockieren' : 'Person blockieren'} tone="danger" onPress={block} />
-            <NavRow label="Community-Regeln" onPress={() => router.push('/rechtliches/regeln')} />
           </View>
         </>
       )}

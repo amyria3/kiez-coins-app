@@ -122,10 +122,10 @@ export default function Account() {
       </FieldGroup>
       <FieldGroup label="Rechtliches">
         <View style={styles.list}>
+          <NavRow label="Community-Regeln" onPress={() => router.push('/rechtliches/regeln')} />
           <NavRow label="Impressum" onPress={() => router.push('/rechtliches/impressum')} />
           <NavRow label="Datenschutz" onPress={() => router.push('/rechtliches/datenschutz')} />
           <NavRow label="Nutzungsbedingungen" value="Testphase" onPress={() => router.push('/rechtliches/bedingungen')} />
-          <NavRow label="Community-Regeln" onPress={() => router.push('/rechtliches/regeln')} />
         </View>
       </FieldGroup>
       <SurveyOverlay visible={survey} onClose={() => setSurvey(false)} />
