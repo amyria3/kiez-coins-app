@@ -47,4 +47,20 @@ Die Texte nutzen drei Schreibweisen nebeneinander:
 
 ## Schreibweise für Gruppen von Menschen
 
-Daria (24.10.2026): Die App nutzt durchgehend den Doppelpunkt („Nachbar:innen“). Rechtstexte bleiben bei der Paarform. Die Ansprache „Pirat*in“ bleibt als Auswahl erhalten, da die Person sie selbst wählt.
+Daria (24.10.2026): Die App nutzt durchgehend den Doppelpunkt („Nachbar:innen“). Rechtstexte bleiben bei der Paarform. Die Ansprache „Pirat*in“ gibt es schon nicht mehr, ältere Profile bekommen „Pirat:in“.
+
+## Übersetzungen (Prüfung vom 24.10.2026)
+
+Behoben: Die Gruppen-Fassung von D-098 („… und sie sie bestätigt hat“, Plural für Gruppen) war in allen Sprachen als weiblich übersetzt („she“, „elle“, „вона“ …). Sie steht jetzt im Plural.
+
+Offen: In anderen Sprachen hängen auch Texte an **Dich** vom Geschlecht ab, im Deutschen nicht. Die Auswahl er/sie/unbestimmt muss deshalb auch diese Texte steuern.
+
+- **Hebräisch und Arabisch:** Die ganze App spricht Dich männlich an (Imperative, Verben, Adjektive, z. B. „הראה“, „תשלם“, „أرِنا“). Für „sie“ braucht jeder Text an Dich eine weibliche Fassung, für „unbestimmt“ eine neutrale Lösung (im Hebräischen oft Plural oder Infinitiv).
+- **Ukrainisch:** Klammerformen bei Dir und bei anderen: „сам(а)“, „один (одна)“, „міг(ла)“, „платив(ла)“, „порекомендував(ла)“, „заснував(-ла)“, „{name} … взяв(ла)“, „{firstName} не підтвердив(ла)“, Berufsbezeichnungen „Власник(ця) рахунку“, „Одержувач(ка)“. Anrede „друже“ ist männlich.
+- **Französisch:** Mittelpunkt bei Dir: „averti·e“, „seul·e“, „encourageant·e et constructif·ve“, „l’ami·e“, „Demander en ami·e“. „Patience, mon ami !“ (D-082) ist fest männlich. Der Rollenname der Gruppe heißt „Fondatrice“ (wird Initiateur/Initiatrice/Initiateur·rice).
+- **Englisch:** neutral, „my friend“ passt für alle drei.
+
+Offene Fragen an Daria:
+- Welche Anrede gilt in den Übersetzungen für „sie“ und „unbestimmt“? Vorschlag: wie Deutsch über eine neutrale Form („my friend“, fr „l’ami·e“, uk „друже“ nur für er, sonst ohne Anrede).
+- Welche Schreibweise gilt in den anderen Sprachen für Gruppen von Menschen? Vorschlag: die übliche der Sprache (fr Mittelpunkt, uk Paarform statt Klammern, he/ar Plural).
+- Hebräisch und Arabisch: weibliche Fassungen für alle Texte an Dich jetzt mit dem Feature oder später? Das betrifft rund 1000 Texte je Sprache.
