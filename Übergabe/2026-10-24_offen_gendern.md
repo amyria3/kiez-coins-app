@@ -60,10 +60,19 @@ Offen: In anderen Sprachen hängen auch Texte an **Dich** vom Geschlecht ab, im 
 - **Französisch:** Mittelpunkt bei Dir: „averti·e“, „seul·e“, „encourageant·e et constructif·ve“, „l’ami·e“, „Demander en ami·e“. „Patience, mon ami !“ (D-082) ist fest männlich. Der Rollenname der Gruppe heißt „Fondatrice“ (wird Initiateur/Initiatrice/Initiateur·rice).
 - **Englisch:** neutral, „my friend“ passt für alle drei.
 
-Offene Fragen an Daria:
-- Welche Anrede gilt in den Übersetzungen für „sie“ und „unbestimmt“? Vorschlag: wie Deutsch über eine neutrale Form („my friend“, fr „l’ami·e“, uk „друже“ nur für er, sonst ohne Anrede).
-- Welche Schreibweise gilt in den anderen Sprachen für Gruppen von Menschen? Vorschlag: die übliche der Sprache (fr Mittelpunkt, uk Paarform statt Klammern, he/ar Plural).
-- Hebräisch und Arabisch: weibliche Fassungen für alle Texte an Dich jetzt mit dem Feature oder später? Das betrifft rund 1000 Texte je Sprache.
+Festgelegt (Claude auf Darias Bitte, 24.10.2026; Daria passt an, sobald sie eine Prüfung durch Muttersprachler:innen findet):
+
+- **Anrede:** Englisch „my friend“ für alle drei. Französisch, Ukrainisch, Hebräisch und Arabisch nutzen für „er“ und „sie“ die eigene männliche und weibliche Form der Sprache, für „unbestimmt“ eine Anrede ohne Geschlecht oder gar keine. Nur Deutsch folgt Darias Sonderregel (sie → „my friend“).
+- **Gruppen von Menschen:** die übliche Form der Sprache. Französisch Mittelpunkt („voisin·es“), Ukrainisch Paarform oder ein neutrales Wort („люди“, „учасники й учасниці“), Hebräisch und Arabisch Plural.
+- **„unbestimmt“ bei Texten an Dich:** Hebräisch Infinitiv für Aufforderungen (in hebräischen Apps üblich, z. B. „להקיש“) und Plural, wo der Infinitiv nicht passt. Arabisch Verbalnomen („النقر على …“) und Passiv. Ukrainisch und Französisch Sätze ohne Partizip oder Adjektiv, die sich auf Dich beziehen.
+- **Hebräisch und Arabisch kommen mit dem Feature,** da „sie“ sonst in diesen Sprachen nichts bewirkt.
+
+## So entstehen die Übersetzungen ohne Daria
+
+1. Claude schreibt die Fassungen je Sprache und Geschlecht.
+2. Ein zweiter, unabhängiger Durchgang übersetzt jede Fassung zurück ins Deutsche und vergleicht mit dem Original. Abweichungen und unsichere Texte kommen in eine Liste `scripts/.i18n-pruefen.json`.
+3. Die Fassungen gehen als Übersetzung in die App, mit dem Hinweis „Übersetzung zur Orientierung“ wie heute.
+4. Später prüfen Muttersprachler:innen im Texte-Editor (Spalten je Sprache in `app_texts`), zum Beispiel Testpersonen aus der Testphase. Die Liste aus Schritt 2 zeigt, wo sie zuerst schauen.
 
 ## Laden der Übersetzungen nach Sprache und Geschlecht (Daria, 24.10.2026)
 
