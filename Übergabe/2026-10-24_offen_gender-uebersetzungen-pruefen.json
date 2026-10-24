@@ -1,0 +1,1488 @@
+{
+ "stand": "2026-10-24",
+ "hinweis": "Von Claude geschrieben, ungeprüft. Muttersprachler:innen prüfen und korrigieren in src/i18n/<sprache>.<geschlecht>.json. Danach Eintrag hier löschen.",
+ "texte": [
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Nur Geduld, my friend! Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach immer noch fehlt.",
+   "fassung": "صبرًا! تستغرق التحويلات حتى يومي عمل. التواصل يكون فقط إذا ظل المبلغ ناقصًا بعد ذلك."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und {name} sie bestätigt hat. Alles beruht auf Vertrauen.",
+   "fassung": "بدون بيانات الدفع لا يمكن الدفع لك. تظهر بياناتك لـ {name} فقط بعد إنجاز التحدي وتأكيده. كل شيء قائم على الثقة."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Initiator:in",
+   "fassung": "المبادِر/ة"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Tippe ein Mitglied an und übertrage ihm Deine Rolle. Danach kannst Du gehen.",
+   "fassung": "النقر على عضو ونقل الدور إليه، ثم تصبح المغادرة ممكنة."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Tippe ein Mitglied an, um es zu entfernen oder ihm Deine Rolle zu geben.",
+   "fassung": "يمكن النقر على عضو لإزالته أو لمنحه الدور."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "{firstName} hat noch keine Zahlungsdaten freigegeben. Frage am besten in den Kommentaren nach.",
+   "fassung": "لا توجد بيانات دفع من {firstName} بعد. الأفضل السؤال في التعليقات."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "{Name} erfährt nichts davon. Ihr könnt Euch jederzeit wieder anfragen.",
+   "fassung": "لن يصل إلى {Name} أي إشعار بذلك. يمكنكما إرسال طلب مجددًا في أي وقت."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Du siehst die Challenges und Kommentare nicht mehr. {Name} kann Deine Challenges weder annehmen noch kommentieren und erfährt nichts davon. Aufheben kannst Du das unter „Dein Konto“.",
+   "fassung": "لن ترى التحديات والتعليقات بعد الآن. لن يكون بإمكان {Name} قبول تحدياتك أو التعليق عليها، ولن يصله إشعار بذلك. يمكنك التراجع من «حسابك»."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Gemeldet! Wohin soll {name} Dir die {betrag} schicken?",
+   "fassung": "تم الإبلاغ! إلى أين يُرسَل إليك مبلغ {betrag} من {name}؟"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Ohne Zahlungsdaten kann {name} nicht zahlen, deshalb ist eine Methode Pflicht. {name} sieht sie erst nach der Bestätigung und nur für diese Challenge. Alles beruht auf Vertrauen.",
+   "fassung": "بدون بيانات الدفع لا يمكن الدفع لك، لذا يلزم وسيلة واحدة. تظهر لـ {name} فقط بعد التأكيد ولهذا التحدي وحده. كل شيء قائم على الثقة."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Pflichtfeld, max. 280 Zeichen. {name} sieht Deine Begründung.",
+   "fassung": "حقل إلزامي، 280 حرفًا كحد أقصى. يظهر مبررك لـ {name}."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Diese Challenge lässt sich nicht mehr bearbeiten, weil {name} sie schon angenommen hat.",
+   "fassung": "لم يعد بالإمكان تعديل هذا التحدي لأنه صار عند {name}."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.",
+   "fassung": "في {day} وُضعت علامة «مدفوع» على {bountyAmount} من {firstName}. تحقّق من حسابك أو من PayPal."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "{firstName} hat die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.",
+   "fassung": "وُضعت علامة «مدفوع» على {bountyAmount} من {firstName}. تحقّق من حسابك أو من PayPal."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "{firstName} hat nicht als erledigt bestätigt: „{rejectionReason}“",
+   "fassung": "لم يُؤكَّد الإنجاز من {firstName}: «{rejectionReason}»"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.",
+   "fassung": "يصلك مبلغ {amount} مباشرة من {firstName}. عند الإبلاغ بالإنجاز تُشارَك بيانات IBAN أو PayPal مع {firstName}. لا تحوّل Kiez Coins أي أموال، فكل شيء قائم على الثقة."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.",
+   "fassung": "تصلك المكافأة مباشرة من {firstName}، مثلًا بتحويل بنكي أو عبر PayPal. لا تحوّل Kiez Coins أي أموال، فكل شيء قائم على الثقة."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Ich sag Dir Bescheid, sobald {name} bestätigt hat. Dann sieht {name} Dein PayPal und zahlt Dir die {bountyAmount} direkt.",
+   "fassung": "سأخبرك فور وصول التأكيد من {name}. عندها يظهر حساب PayPal الخاص بك لـ {name} ويصلك مبلغ {bountyAmount} مباشرة."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Ich sag Dir Bescheid, sobald {name} bestätigt hat. Dann sieht {name} Deine IBAN und zahlt Dir die {bountyAmount} direkt.",
+   "fassung": "سأخبرك فور وصول التأكيد من {name}. عندها يظهر رقم IBAN الخاص بك لـ {name} ويصلك مبلغ {bountyAmount} مباشرة."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Ich sag Dir Bescheid, sobald {name} bestätigt hat.",
+   "fassung": "سأخبرك فور وصول التأكيد من {name}."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "{name} kann dann Mitglieder entfernen. Du bleibst Mitglied.",
+   "fassung": "سيصبح بإمكان {name} عندها إزالة الأعضاء. تبقى عضويتك."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Zeige, was Du geschafft hast. {firstName} sieht Dein Foto und bestätigt die Erledigung.",
+   "fassung": "هنا تظهر النتيجة. سيرى {firstName} الصورة ويؤكد الإنجاز."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Passwort vergessen? Code per Mail",
+   "fassung": "كلمة المرور منسية؟ رمز عبر البريد"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Definiere Deine Ansprache.",
+   "fassung": "تحديد طريقة المخاطبة."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Schaue in Dein Postfach: {email}",
+   "fassung": "يُرجى التحقق من البريد الوارد: {email}"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Schaue in Dein Postfach: {address}",
+   "fassung": "يُرجى التحقق من البريد الوارد: {address}"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Neuen Code schicken",
+   "fassung": "إرسال رمز جديد"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Der Code ist unterwegs! Schaue in Dein Postfach.",
+   "fassung": "الرمز في الطريق! يُرجى تفقد البريد."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Wähle einen Decknamen.",
+   "fassung": "يُرجى اختيار اسم مستعار."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Zuerst Deine Flaschenpost-Adresse. Du bekommst einen Code und legst Dein Passwort fest.",
+   "fassung": "أولًا عنوان رسالتك في الزجاجة. بعدها يصل رمز ثم تُحدَّد كلمة المرور."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Gib Dein Passwort ein.",
+   "fassung": "يُرجى إدخال كلمة المرور."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Stimmt nicht, von Hand eingeben",
+   "fassung": "غير صحيح، إدخال يدوي"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Ahoi, {anrede}! Wo liegt Dein Heimathafen? Melde Dich, wenn Du zuhause bist.",
+   "fassung": "أهلًا يا {anrede}! أين المرفأ؟ يمكن العودة إلى هنا من البيت."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Bedingungen lesen",
+   "fassung": "قراءة الشروط"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Regeln lesen",
+   "fassung": "قراءة القواعد"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Datenschutz lesen",
+   "fassung": "قراءة سياسة الخصوصية"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Ich bin ein alter Mann … hm, Kater. Die Segel hab ich eingeholt, aber zur Ruhe will ich mich nicht setzen. Hilf Deinen Nachbar:innen mit kleinen Challenges.",
+   "fassung": "أنا رجل عجوز … احم، قط. طويت الأشرعة، لكنني لا أنوي التقاعد. هيا نساعد الجيران بتحديات صغيرة."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Anheuern",
+   "fassung": "الانضمام إلى الطاقم"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Kommunikation ist alles. Wie spreche ich Dich an, Darling?",
+   "fassung": "التواصل هو كل شيء. ما طريقة المخاطبة المفضّلة؟"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "person",
+   "deutsch": "Du startest mit Me-Challenge und Bild. Mehr schaltest Du hier oder jederzeit in Deinem Konto dazu.",
+   "fassung": "البداية مع Me-Challenge والصورة. يمكن تفعيل المزيد هنا أو في أي وقت من الحساب."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Nur Geduld, my friend! Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach immer noch fehlt.",
+   "fassung": "صبرًا يا صديقتي! تستغرق التحويلات حتى يومي عمل. تواصلي فقط إذا ظل المبلغ ناقصًا بعد ذلك."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und {name} sie bestätigt hat. Alles beruht auf Vertrauen.",
+   "fassung": "بدون بيانات الدفع لا تستطيع {name} الدفع. ترى {name} بياناتك فقط بعد أن تنجز التحدي وتؤكده هي. كل شيء قائم على الثقة."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Initiator:in",
+   "fassung": "المبادِرة"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Tippe ein Mitglied an und übertrage ihm Deine Rolle. Danach kannst Du gehen.",
+   "fassung": "انقري على عضو وانقلي إليه دورك. بعدها يمكنكِ المغادرة."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Tippe ein Mitglied an, um es zu entfernen oder ihm Deine Rolle zu geben.",
+   "fassung": "انقري على عضو لإزالته أو لمنحه دورك."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "{firstName} hat noch keine Zahlungsdaten freigegeben. Frage am besten in den Kommentaren nach.",
+   "fassung": "لم تشارك {firstName} بيانات الدفع بعد. الأفضل أن تسأل في التعليقات."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "{Name} erfährt nichts davon. Ihr könnt Euch jederzeit wieder anfragen.",
+   "fassung": "لن تعرف {Name} بذلك. يمكنكما إرسال طلب مجددًا في أي وقت."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Du siehst die Challenges und Kommentare nicht mehr. {Name} kann Deine Challenges weder annehmen noch kommentieren und erfährt nichts davon. Aufheben kannst Du das unter „Dein Konto“.",
+   "fassung": "لن ترى التحديات والتعليقات بعد الآن. لن تتمكن {Name} من قبول تحدياتك أو التعليق عليها ولن تعرف بذلك. يمكنك التراجع من «حسابك»."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Gemeldet! Wohin soll {name} Dir die {betrag} schicken?",
+   "fassung": "تم الإبلاغ! إلى أين ترسل لك {name} مبلغ {betrag}؟"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Ohne Zahlungsdaten kann {name} nicht zahlen, deshalb ist eine Methode Pflicht. {name} sieht sie erst nach der Bestätigung und nur für diese Challenge. Alles beruht auf Vertrauen.",
+   "fassung": "بدون بيانات الدفع لا تستطيع {name} الدفع، لذا يلزم وسيلة واحدة. تراها {name} فقط بعد التأكيد ولهذا التحدي وحده. كل شيء قائم على الثقة."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Pflichtfeld, max. 280 Zeichen. {name} sieht Deine Begründung.",
+   "fassung": "حقل إلزامي، 280 حرفًا كحد أقصى. سترى {name} مبررك."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Diese Challenge lässt sich nicht mehr bearbeiten, weil {name} sie schon angenommen hat.",
+   "fassung": "لم يعد بالإمكان تعديل هذا التحدي لأن {name} قبلته بالفعل."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.",
+   "fassung": "وضعت {firstName} في {day} علامة «مدفوع» على {bountyAmount}. تحقّق من حسابك أو من PayPal."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "{firstName} hat die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.",
+   "fassung": "وضعت {firstName} علامة «مدفوع» على {bountyAmount}. تحقّق من حسابك أو من PayPal."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "{firstName} hat nicht als erledigt bestätigt: „{rejectionReason}“",
+   "fassung": "لم تؤكد {firstName} الإنجاز: «{rejectionReason}»"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.",
+   "fassung": "تدفع لك {firstName} مبلغ {amount} مباشرة. عند الإبلاغ بالإنجاز تشارك رقم IBAN أو PayPal مع {firstName}. لا تحوّل Kiez Coins أي أموال، فكل شيء قائم على الثقة."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.",
+   "fassung": "تدفع لك {firstName} المكافأة مباشرة، مثلًا بتحويل بنكي أو عبر PayPal. لا تحوّل Kiez Coins أي أموال، فكل شيء قائم على الثقة."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Ich sag Dir Bescheid, sobald {name} bestätigt hat. Dann sieht {name} Dein PayPal und zahlt Dir die {bountyAmount} direkt.",
+   "fassung": "سأخبرك فور تأكيد {name}. عندها ترى {name} حساب PayPal الخاص بك وتدفع لك {bountyAmount} مباشرة."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Ich sag Dir Bescheid, sobald {name} bestätigt hat. Dann sieht {name} Deine IBAN und zahlt Dir die {bountyAmount} direkt.",
+   "fassung": "سأخبرك فور تأكيد {name}. عندها ترى {name} رقم IBAN الخاص بك وتدفع لك {bountyAmount} مباشرة."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "{name} kann dann Mitglieder entfernen. Du bleibst Mitglied.",
+   "fassung": "ستتمكن {name} عندها من إزالة الأعضاء. ستبقى عضوًا."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Zeige, was Du geschafft hast. {firstName} sieht Dein Foto und bestätigt die Erledigung.",
+   "fassung": "أرينا ما أنجزتِه. سيرى {firstName} صورتك ويؤكد الإنجاز."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Passwort vergessen? Code per Mail",
+   "fassung": "نسيتِ كلمة المرور؟ رمز عبر البريد"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Definiere Deine Ansprache.",
+   "fassung": "حدّدي كيف أخاطبك."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Schaue in Dein Postfach: {email}",
+   "fassung": "تحقّقي من بريدك الوارد: {email}"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Schaue in Dein Postfach: {address}",
+   "fassung": "تحقّقي من بريدك الوارد: {address}"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Neuen Code schicken",
+   "fassung": "أرسلي رمزًا جديدًا"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Der Code ist unterwegs! Schaue in Dein Postfach.",
+   "fassung": "الرمز في الطريق! تفقدي بريدك."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Wähle einen Decknamen.",
+   "fassung": "اختاري اسمًا مستعارًا."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Zuerst Deine Flaschenpost-Adresse. Du bekommst einen Code und legst Dein Passwort fest.",
+   "fassung": "أولًا عنوان رسالتك في الزجاجة. ستحصلين على رمز وتضعين كلمة مرورك."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Gib Dein Passwort ein.",
+   "fassung": "أدخلي كلمة المرور."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Stimmt nicht, von Hand eingeben",
+   "fassung": "غير صحيح، أدخليه يدويًا"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Ahoi, {anrede}! Wo liegt Dein Heimathafen? Melde Dich, wenn Du zuhause bist.",
+   "fassung": "أهلًا يا {anrede}! أين مرفؤك؟ تواصلي معي عندما تكونين في البيت."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Bedingungen lesen",
+   "fassung": "اقرئي الشروط"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Regeln lesen",
+   "fassung": "اقرئي القواعد"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Datenschutz lesen",
+   "fassung": "اقرئي سياسة الخصوصية"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Ich bin ein alter Mann … hm, Kater. Die Segel hab ich eingeholt, aber zur Ruhe will ich mich nicht setzen. Hilf Deinen Nachbar:innen mit kleinen Challenges.",
+   "fassung": "أنا رجل عجوز … احم، قط. طويت الأشرعة، لكنني لا أنوي التقاعد. ساعدي جيرانك بتحديات صغيرة."
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Anheuern",
+   "fassung": "انضمي إلى الطاقم"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Kommunikation ist alles. Wie spreche ich Dich an, Darling?",
+   "fassung": "التواصل هو كل شيء. كيف أناديكِ يا عزيزتي؟"
+  },
+  {
+   "sprache": "ar",
+   "geschlecht": "sie",
+   "deutsch": "Du startest mit Me-Challenge und Bild. Mehr schaltest Du hier oder jederzeit in Deinem Konto dazu.",
+   "fassung": "تبدئين بـ Me-Challenge والصورة. فعّلي المزيد هنا أو في أي وقت من حسابك."
+  },
+  {
+   "sprache": "de",
+   "geschlecht": "er",
+   "deutsch": "Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und {name} sie bestätigt hat. Alles beruht auf Vertrauen.",
+   "fassung": "Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und er sie bestätigt hat. Alles beruht auf Vertrauen."
+  },
+  {
+   "sprache": "de",
+   "geschlecht": "er",
+   "deutsch": "Nur Geduld, my friend! Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach immer noch fehlt.",
+   "fassung": "Nur Geduld, mein Freund! Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach immer noch fehlt."
+  },
+  {
+   "sprache": "de",
+   "geschlecht": "er",
+   "deutsch": "Initiator:in",
+   "fassung": "Initiator"
+  },
+  {
+   "sprache": "de",
+   "geschlecht": "sie",
+   "deutsch": "Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und {name} sie bestätigt hat. Alles beruht auf Vertrauen.",
+   "fassung": "Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und sie sie bestätigt hat. Alles beruht auf Vertrauen."
+  },
+  {
+   "sprache": "de",
+   "geschlecht": "sie",
+   "deutsch": "Initiator:in",
+   "fassung": "Initiatorin"
+  },
+  {
+   "sprache": "en",
+   "geschlecht": "er",
+   "deutsch": "Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und {name} sie bestätigt hat. Alles beruht auf Vertrauen.",
+   "fassung": "Without payment details {name} can’t pay. {name} only sees your details once you’ve done the challenge and he has confirmed it. It all runs on trust."
+  },
+  {
+   "sprache": "en",
+   "geschlecht": "sie",
+   "deutsch": "Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und {name} sie bestätigt hat. Alles beruht auf Vertrauen.",
+   "fassung": "Without payment details {name} can’t pay. {name} only sees your details once you’ve done the challenge and she has confirmed it. It all runs on trust."
+  },
+  {
+   "sprache": "fr",
+   "geschlecht": "er",
+   "deutsch": "Nur Geduld, my friend! Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach immer noch fehlt.",
+   "fassung": "Patience, mon ami ! Les virements prennent jusqu’à 2 jours ouvrés. Ne nous contacte que si l’argent manque toujours après."
+  },
+  {
+   "sprache": "fr",
+   "geschlecht": "er",
+   "deutsch": "Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und {name} sie bestätigt hat. Alles beruht auf Vertrauen.",
+   "fassung": "Sans coordonnées de paiement, {name} ne peut pas payer. {name} ne voit tes coordonnées qu’une fois le défi fait et confirmé par lui. Tout repose sur la confiance."
+  },
+  {
+   "sprache": "fr",
+   "geschlecht": "er",
+   "deutsch": "Initiator:in",
+   "fassung": "Initiateur"
+  },
+  {
+   "sprache": "fr",
+   "geschlecht": "er",
+   "deutsch": "Gemeldet! Wohin soll {name} Dir die {betrag} schicken?",
+   "fassung": "Signalé ! Où {name} doit-il t’envoyer les {betrag} ?"
+  },
+  {
+   "sprache": "fr",
+   "geschlecht": "er",
+   "deutsch": "Du bist allein in der Gruppe. Sie verschwindet samt Aufgaben. Das lässt sich nicht rückgängig machen.",
+   "fassung": "Tu es seul dans le groupe. Il disparaît avec ses tâches. C’est irréversible."
+  },
+  {
+   "sprache": "fr",
+   "geschlecht": "er",
+   "deutsch": "Ich möchte bei Kommentaren, Antworten und Bestätigungen benachrichtigt werden. Ich kann diese Einstellungen jederzeit ändern.",
+   "fassung": "Je veux être averti des commentaires, réponses et confirmations. Je peux modifier ces réglages à tout moment."
+  },
+  {
+   "sprache": "fr",
+   "geschlecht": "er",
+   "deutsch": "Bitte begründe Deine Entscheidung nach bestem Wissen und Gewissen. Sei ermutigend und konstruktiv.",
+   "fassung": "Explique ta décision en toute honnêteté. Sois encourageant et constructif."
+  },
+  {
+   "sprache": "fr",
+   "geschlecht": "sie",
+   "deutsch": "Nur Geduld, my friend! Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach immer noch fehlt.",
+   "fassung": "Patience, mon amie ! Les virements prennent jusqu’à 2 jours ouvrés. Ne nous contacte que si l’argent manque toujours après."
+  },
+  {
+   "sprache": "fr",
+   "geschlecht": "sie",
+   "deutsch": "Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und {name} sie bestätigt hat. Alles beruht auf Vertrauen.",
+   "fassung": "Sans coordonnées de paiement, {name} ne peut pas payer. {name} ne voit tes coordonnées qu’une fois le défi fait et confirmé par elle. Tout repose sur la confiance."
+  },
+  {
+   "sprache": "fr",
+   "geschlecht": "sie",
+   "deutsch": "Initiator:in",
+   "fassung": "Initiatrice"
+  },
+  {
+   "sprache": "fr",
+   "geschlecht": "sie",
+   "deutsch": "Gemeldet! Wohin soll {name} Dir die {betrag} schicken?",
+   "fassung": "Signalé ! Où {name} doit-elle t’envoyer les {betrag} ?"
+  },
+  {
+   "sprache": "fr",
+   "geschlecht": "sie",
+   "deutsch": "Du bist allein in der Gruppe. Sie verschwindet samt Aufgaben. Das lässt sich nicht rückgängig machen.",
+   "fassung": "Tu es seule dans le groupe. Il disparaît avec ses tâches. C’est irréversible."
+  },
+  {
+   "sprache": "fr",
+   "geschlecht": "sie",
+   "deutsch": "Ich möchte bei Kommentaren, Antworten und Bestätigungen benachrichtigt werden. Ich kann diese Einstellungen jederzeit ändern.",
+   "fassung": "Je veux être avertie des commentaires, réponses et confirmations. Je peux modifier ces réglages à tout moment."
+  },
+  {
+   "sprache": "fr",
+   "geschlecht": "sie",
+   "deutsch": "Bitte begründe Deine Entscheidung nach bestem Wissen und Gewissen. Sei ermutigend und konstruktiv.",
+   "fassung": "Explique ta décision en toute honnêteté. Sois encourageante et constructive."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Nur Geduld, my friend! Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach immer noch fehlt.",
+   "fassung": "סבלנות! העברות לוקחות עד 2 ימי עסקים. יש לפנות רק אם הכסף עדיין חסר אחרי זה."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und {name} sie bestätigt hat. Alles beruht auf Vertrauen.",
+   "fassung": "בלי פרטי תשלום אי אפשר לשלם לך. הפרטים שלך יוצגו ל־{name} רק אחרי ביצוע האתגר ואישורו. הכול מבוסס על אמון."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Initiator:in",
+   "fassung": "יוזם/ת"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Rolle übertragen",
+   "fassung": "העברת תפקיד"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Tippe ein Mitglied an und übertrage ihm Deine Rolle. Danach kannst Du gehen.",
+   "fassung": "יש להקיש על חבר ולהעביר לו את התפקיד. אחר כך אפשר לעזוב."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Tippe ein Mitglied an, um es zu entfernen oder ihm Deine Rolle zu geben.",
+   "fassung": "אפשר להקיש על חבר כדי להסיר אותו או להעביר לו את התפקיד."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "{firstName} hat noch keine Zahlungsdaten freigegeben. Frage am besten in den Kommentaren nach.",
+   "fassung": "עדיין אין פרטי תשלום מ־{firstName}. הכי טוב לשאול בתגובות."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "{Name} erfährt nichts davon. Ihr könnt Euch jederzeit wieder anfragen.",
+   "fassung": "{Name} לא יקבל/תקבל על כך הודעה. אפשר לשלוח שוב בקשה בכל עת."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Du siehst die Challenges und Kommentare nicht mehr. {Name} kann Deine Challenges weder annehmen noch kommentieren und erfährt nichts davon. Aufheben kannst Du das unter „Dein Konto“.",
+   "fassung": "לא תראה יותר את האתגרים והתגובות. ל־{Name} לא תהיה אפשרות לקבל את האתגרים שלך או להגיב עליהם, ולא תישלח על כך הודעה. אפשר לבטל את זה ב\"החשבון שלך\"."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Gemeldet! Wohin soll {name} Dir die {betrag} schicken?",
+   "fassung": "דווח! לאן לשלוח לך את {betrag} מ־{name}?"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Ohne Zahlungsdaten kann {name} nicht zahlen, deshalb ist eine Methode Pflicht. {name} sieht sie erst nach der Bestätigung und nur für diese Challenge. Alles beruht auf Vertrauen.",
+   "fassung": "בלי פרטי תשלום אי אפשר לשלם לך, ולכן אמצעי אחד הוא חובה. הוא יוצג ל־{name} רק אחרי האישור ורק עבור האתגר הזה. הכול מבוסס על אמון."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Pflichtfeld, max. 280 Zeichen. {name} sieht Deine Begründung.",
+   "fassung": "חובה, עד 280 תווים. הנימוק שלך יוצג ל־{name}."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Diese Challenge lässt sich nicht mehr bearbeiten, weil {name} sie schon angenommen hat.",
+   "fassung": "אי אפשר לערוך את האתגר הזה, כי הוא כבר אצל {name}."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.",
+   "fassung": "ב־{day} סומן {bountyAmount} כשולם על ידי {firstName}. בדוק בחשבון או ב־PayPal."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "{firstName} hat die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.",
+   "fassung": "{bountyAmount} סומן כשולם על ידי {firstName}. בדוק בחשבון או ב־PayPal."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "{firstName} hat nicht als erledigt bestätigt: „{rejectionReason}“",
+   "fassung": "הביצוע לא אושר על ידי {firstName}: „{rejectionReason}”"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.",
+   "fassung": "התשלום של {amount} מגיע אליך ישירות מ־{firstName}. בדיווח על ביצוע, ה־IBAN או ה־PayPal שלך משותפים עם {firstName}. Kiez Coins לא מעבירה כסף, הכול מבוסס על אמון."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.",
+   "fassung": "הפרס מגיע אליך ישירות מ־{firstName}, למשל בהעברה בנקאית או ב־PayPal. Kiez Coins לא מעבירה כסף, הכול מבוסס על אמון."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Ich sag Dir Bescheid, sobald {name} bestätigt hat. Dann sieht {name} Dein PayPal und zahlt Dir die {bountyAmount} direkt.",
+   "fassung": "אודיע לך ברגע שיגיע אישור מ־{name}. אז ה־PayPal שלך יוצג ל־{name} והתשלום של {bountyAmount} יגיע אליך ישירות."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Ich sag Dir Bescheid, sobald {name} bestätigt hat. Dann sieht {name} Deine IBAN und zahlt Dir die {bountyAmount} direkt.",
+   "fassung": "אודיע לך ברגע שיגיע אישור מ־{name}. אז ה־IBAN שלך יוצג ל־{name} והתשלום של {bountyAmount} יגיע אליך ישירות."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Ich sag Dir Bescheid, sobald {name} bestätigt hat.",
+   "fassung": "אודיע לך ברגע שיגיע אישור מ־{name}."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "{name} kann dann Mitglieder entfernen. Du bleibst Mitglied.",
+   "fassung": "ל־{name} תהיה אז אפשרות להסיר חברים. החברות שלך נשארת."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Zeige, was Du geschafft hast. {firstName} sieht Dein Foto und bestätigt die Erledigung.",
+   "fassung": "כאן מראים מה נעשה. {firstName} יראה את התמונה ויאשר את הביצוע."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Passwort vergessen? Code per Mail",
+   "fassung": "סיסמה נשכחה? קוד במייל"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Definiere Deine Ansprache.",
+   "fassung": "כאן מגדירים איך לפנות."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Schaue in Dein Postfach: {email}",
+   "fassung": "כדאי לבדוק את תיבת הדואר: {email}"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Schaue in Dein Postfach: {address}",
+   "fassung": "כדאי לבדוק את תיבת הדואר: {address}"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Anmelden",
+   "fassung": "התחברות"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Neuen Code schicken",
+   "fassung": "שליחת קוד חדש"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Der Code ist unterwegs! Schaue in Dein Postfach.",
+   "fassung": "הקוד בדרך! כדאי לבדוק את תיבת הדואר."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Wähle einen Decknamen.",
+   "fassung": "יש לבחור כינוי."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Zuerst Deine Flaschenpost-Adresse. Du bekommst einen Code und legst Dein Passwort fest.",
+   "fassung": "קודם כתובת הבקבוק בים. אחר כך מגיע קוד וקובעים סיסמה."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Mit Code anmelden",
+   "fassung": "התחברות עם קוד"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Mit Passwort anmelden",
+   "fassung": "התחברות עם סיסמה"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Gib Dein Passwort ein.",
+   "fassung": "יש להזין את הסיסמה."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Stimmt nicht, von Hand eingeben",
+   "fassung": "לא נכון, הזנה ידנית"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Standort noch einmal suchen",
+   "fassung": "חיפוש מיקום שוב"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Standort verwenden",
+   "fassung": "שימוש במיקום"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Ahoi, {anrede}! Wo liegt Dein Heimathafen? Melde Dich, wenn Du zuhause bist.",
+   "fassung": "אהוי, {anrede}! איפה נמל הבית? אפשר לחזור לכאן מהבית."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Zustimmen und weiter",
+   "fassung": "הסכמה והמשך"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Ich bin mindestens 18 Jahre alt",
+   "fassung": "אני בן/בת 18 לפחות"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Ich akzeptiere die Nutzungsbedingungen für die Testphase",
+   "fassung": "אני מקבל/ת את תנאי השימוש לשלב הניסיון"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Ich halte mich an die Community-Regeln",
+   "fassung": "אני מקיים/ת את כללי הקהילה"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Bedingungen lesen",
+   "fassung": "לקריאת התנאים"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Regeln lesen",
+   "fassung": "לקריאת הכללים"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Datenschutz lesen",
+   "fassung": "לקריאת מדיניות הפרטיות"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Ich bin ein alter Mann … hm, Kater. Die Segel hab ich eingeholt, aber zur Ruhe will ich mich nicht setzen. Hilf Deinen Nachbar:innen mit kleinen Challenges.",
+   "fassung": "אני איש זקן … אהם, חתול. קיפלתי את המפרשים, אבל לפרוש אני לא מתכוון. בואו נעזור לשכנים באתגרים קטנים."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "person",
+   "deutsch": "Anheuern",
+   "fassung": "הצטרפות לצוות"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Nur Geduld, my friend! Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach immer noch fehlt.",
+   "fassung": "סבלנות, חברה! העברות לוקחות עד 2 ימי עסקים. פני רק אם הכסף עדיין חסר אחרי זה."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und {name} sie bestätigt hat. Alles beruht auf Vertrauen.",
+   "fassung": "בלי פרטי תשלום {name} לא יכולה לשלם. {name} תראה את הפרטים שלך רק אחרי שתבצע את האתגר והיא תאשר אותו. הכול מבוסס על אמון."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Initiator:in",
+   "fassung": "יוזמת"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Rolle übertragen",
+   "fassung": "העבירי תפקיד"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Tippe ein Mitglied an und übertrage ihm Deine Rolle. Danach kannst Du gehen.",
+   "fassung": "הקישי על חבר והעבירי לו את התפקיד שלך. אחר כך תוכלי לעזוב."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Tippe ein Mitglied an, um es zu entfernen oder ihm Deine Rolle zu geben.",
+   "fassung": "הקישי על חבר כדי להסיר אותו או להעביר לו את התפקיד שלך."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "{firstName} hat noch keine Zahlungsdaten freigegeben. Frage am besten in den Kommentaren nach.",
+   "fassung": "{firstName} עדיין לא שיתפה פרטי תשלום. הכי טוב לשאול בתגובות."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "{Name} erfährt nichts davon. Ihr könnt Euch jederzeit wieder anfragen.",
+   "fassung": "{Name} לא תדע על כך. אפשר לשלוח שוב בקשה בכל עת."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Du siehst die Challenges und Kommentare nicht mehr. {Name} kann Deine Challenges weder annehmen noch kommentieren und erfährt nichts davon. Aufheben kannst Du das unter „Dein Konto“.",
+   "fassung": "לא תראה יותר את האתגרים והתגובות. {Name} לא תוכל לקבל את האתגרים שלך או להגיב עליהם, ולא תדע על כך. אפשר לבטל את זה ב\"החשבון שלך\"."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Gemeldet! Wohin soll {name} Dir die {betrag} schicken?",
+   "fassung": "דווח! לאן {name} תשלח לך את {betrag}?"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Ohne Zahlungsdaten kann {name} nicht zahlen, deshalb ist eine Methode Pflicht. {name} sieht sie erst nach der Bestätigung und nur für diese Challenge. Alles beruht auf Vertrauen.",
+   "fassung": "בלי פרטי תשלום {name} לא יכולה לשלם, ולכן אמצעי אחד הוא חובה. {name} תראה אותו רק אחרי האישור ורק עבור האתגר הזה. הכול מבוסס על אמון."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Pflichtfeld, max. 280 Zeichen. {name} sieht Deine Begründung.",
+   "fassung": "חובה, עד 280 תווים. {name} תראה את הנימוק שלך."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Diese Challenge lässt sich nicht mehr bearbeiten, weil {name} sie schon angenommen hat.",
+   "fassung": "אי אפשר לערוך את האתגר הזה, כי {name} כבר קיבלה אותו."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.",
+   "fassung": "{firstName} סימנה ב־{day} את {bountyAmount} כשולם. בדוק בחשבון או ב־PayPal."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "{firstName} hat die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.",
+   "fassung": "{firstName} סימנה את {bountyAmount} כשולם. בדוק בחשבון או ב־PayPal."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "{firstName} hat nicht als erledigt bestätigt: „{rejectionReason}“",
+   "fassung": "{firstName} לא אישרה שבוצע: „{rejectionReason}”"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.",
+   "fassung": "{firstName} משלמת לך את {amount} ישירות. כשאתה מדווח על ביצוע, אתה משתף עם {firstName} את ה־IBAN או ה־PayPal שלך. Kiez Coins לא מעבירה כסף, הכול מבוסס על אמון."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.",
+   "fassung": "{firstName} משלמת לך את הפרס ישירות, למשל בהעברה בנקאית או ב־PayPal. Kiez Coins לא מעבירה כסף, הכול מבוסס על אמון."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Ich sag Dir Bescheid, sobald {name} bestätigt hat. Dann sieht {name} Dein PayPal und zahlt Dir die {bountyAmount} direkt.",
+   "fassung": "אודיע לך ברגע ש־{name} תאשר. אז {name} תראה את ה־PayPal שלך ותשלם לך את {bountyAmount} ישירות."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Ich sag Dir Bescheid, sobald {name} bestätigt hat. Dann sieht {name} Deine IBAN und zahlt Dir die {bountyAmount} direkt.",
+   "fassung": "אודיע לך ברגע ש־{name} תאשר. אז {name} תראה את ה־IBAN שלך ותשלם לך את {bountyAmount} ישירות."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Ich sag Dir Bescheid, sobald {name} bestätigt hat.",
+   "fassung": "אודיע לך ברגע ש־{name} תאשר."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "{name} kann dann Mitglieder entfernen. Du bleibst Mitglied.",
+   "fassung": "{name} תוכל אז להסיר חברים. אתה נשאר חבר."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Zeige, was Du geschafft hast. {firstName} sieht Dein Foto und bestätigt die Erledigung.",
+   "fassung": "הראי מה עשית. {firstName} יראה את התמונה ויאשר את הביצוע."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Passwort vergessen? Code per Mail",
+   "fassung": "שכחת סיסמה? קוד במייל"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Definiere Deine Ansprache.",
+   "fassung": "הגדירי איך לפנות אלייך."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Schaue in Dein Postfach: {email}",
+   "fassung": "בדקי את תיבת הדואר: {email}"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Schaue in Dein Postfach: {address}",
+   "fassung": "בדקי את תיבת הדואר: {address}"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Anmelden",
+   "fassung": "התחברי"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Neuen Code schicken",
+   "fassung": "שלחי קוד חדש"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Der Code ist unterwegs! Schaue in Dein Postfach.",
+   "fassung": "הקוד בדרך! בדקי את תיבת הדואר שלך."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Wähle einen Decknamen.",
+   "fassung": "בחרי כינוי."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Zuerst Deine Flaschenpost-Adresse. Du bekommst einen Code und legst Dein Passwort fest.",
+   "fassung": "קודם כתובת הבקבוק בים שלך. תקבלי קוד ותקבעי סיסמה."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Mit Code anmelden",
+   "fassung": "התחברי עם קוד"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Mit Passwort anmelden",
+   "fassung": "התחברי עם סיסמה"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Gib Dein Passwort ein.",
+   "fassung": "הזיני את הסיסמה."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Stimmt nicht, von Hand eingeben",
+   "fassung": "לא נכון, הזיני ידנית"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Standort noch einmal suchen",
+   "fassung": "חפשי מיקום שוב"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Standort verwenden",
+   "fassung": "השתמשי במיקום"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Ahoi, {anrede}! Wo liegt Dein Heimathafen? Melde Dich, wenn Du zuhause bist.",
+   "fassung": "אהוי, {anrede}! איפה נמל הבית שלך? דברי איתי כשאת בבית."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Zustimmen und weiter",
+   "fassung": "הסכימי והמשיכי"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Ich bin mindestens 18 Jahre alt",
+   "fassung": "אני בת 18 לפחות"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Ich akzeptiere die Nutzungsbedingungen für die Testphase",
+   "fassung": "אני מקבלת את תנאי השימוש לשלב הניסיון"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Ich halte mich an die Community-Regeln",
+   "fassung": "אני מקיימת את כללי הקהילה"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Bedingungen lesen",
+   "fassung": "קראי את התנאים"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Regeln lesen",
+   "fassung": "קראי את הכללים"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Datenschutz lesen",
+   "fassung": "קראי את מדיניות הפרטיות"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Ich bin ein alter Mann … hm, Kater. Die Segel hab ich eingeholt, aber zur Ruhe will ich mich nicht setzen. Hilf Deinen Nachbar:innen mit kleinen Challenges.",
+   "fassung": "אני איש זקן … אהם, חתול. קיפלתי את המפרשים, אבל לפרוש אני לא מתכוון. עזרי לשכנים שלך באתגרים קטנים."
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Anheuern",
+   "fassung": "הצטרפי לצוות"
+  },
+  {
+   "sprache": "he",
+   "geschlecht": "sie",
+   "deutsch": "Kommunikation ist alles. Wie spreche ich Dich an, Darling?",
+   "fassung": "תקשורת זה הכול. איך לפנות אלייך, מותק?"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Nur Geduld, my friend! Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach immer noch fehlt.",
+   "fassung": "Терпіння, друже! Перекази йдуть до 2 робочих днів. Звертайся, лише якщо гроші й після цього не прийшли."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und {name} sie bestätigt hat. Alles beruht auf Vertrauen.",
+   "fassung": "Без платіжних даних {name} не зможе заплатити. {name} побачить твої дані лише тоді, коли ти виконаєш челендж і він його підтвердить. Усе тримається на довірі."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Initiator:in",
+   "fassung": "Ініціатор"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "{firstName} hat noch keine Zahlungsdaten freigegeben. Frage am besten in den Kommentaren nach.",
+   "fassung": "{firstName} ще не поділився платіжними даними. Найкраще запитай у коментарях."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Diese Challenge lässt sich nicht mehr bearbeiten, weil {name} sie schon angenommen hat.",
+   "fassung": "Цей челендж уже не можна редагувати, бо {name} його вже взяв."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.",
+   "fassung": "{firstName} {day} позначив {bountyAmount} як оплачені. Перевір свій рахунок або PayPal."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "{firstName} hat die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.",
+   "fassung": "{firstName} позначив {bountyAmount} як оплачені. Перевір свій рахунок або PayPal."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "{firstName} hat nicht als erledigt bestätigt: „{rejectionReason}“",
+   "fassung": "{firstName} не підтвердив виконання: «{rejectionReason}»"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Du bist allein in der Gruppe. Sie verschwindet samt Aufgaben. Das lässt sich nicht rückgängig machen.",
+   "fassung": "Ти один у групі. Вона зникне разом із завданнями. Це не можна скасувати."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Bitte begründe Deine Entscheidung nach bestem Wissen und Gewissen. Sei ermutigend und konstruktiv.",
+   "fassung": "Будь ласка, поясни своє рішення чесно й сумлінно. Будь доброзичливим і конструктивним."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Blockierte Personen sehen nicht, dass Du sie blockiert hast. Sie können Deine Challenges weder annehmen noch kommentieren.",
+   "fassung": "Заблоковані люди не бачать, що ти їх заблокував. Вони не можуть ні брати, ні коментувати твої челенджі."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Du hast niemanden blockiert.",
+   "fassung": "Ти нікого не заблокував."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Von Dir angenommen am {acceptedAt}",
+   "fassung": "Ти взяв {acceptedAt}"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Zeige, was Du geschafft hast. {firstName} sieht Dein Foto und bestätigt die Erledigung.",
+   "fassung": "Покажи, що ти зробив. {firstName} побачить фото й підтвердить виконання."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "5 bis 50 €. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.",
+   "fassung": "Від 5 до 50 €. Ти сам платиш винагороду напряму людині, яка виконає челендж."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "· Du hast sie gegründet",
+   "fassung": "· Ти її заснував"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Du hast sie gegründet",
+   "fassung": "Ти її заснував"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Passwort vergessen? Code per Mail",
+   "fassung": "Забув пароль? Код поштою"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Ich habe die Datenschutzerklärung gelesen",
+   "fassung": "Я прочитав політику конфіденційності"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Das darfst Du gerade nicht. Hast Du schon Deinen Kiez festgelegt?",
+   "fassung": "Зараз тобі це не дозволено. Ти вже вибрав свій район?"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Könntest Du Dir vorstellen, das Team finanziell zu unterstützen?",
+   "fassung": "Чи міг би ти уявити, що фінансово підтримаєш команду?"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Würde für diese App nicht bezahlen",
+   "fassung": "Не платив би за цей застосунок"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Hab ich schon",
+   "fassung": "Уже порекомендував"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Danke fürs Gießen 🌱",
+   "fassung": "Дякую, що полив 🌱"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "er",
+   "deutsch": "Du hast angepackt, {anrede}. Ich schnurre.",
+   "fassung": "Ти взявся до справи, {anrede}. Я муркочу."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Nur Geduld, my friend! Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach immer noch fehlt.",
+   "fassung": "Терпіння, подруго! Перекази йдуть до 2 робочих днів. Звертайся, лише якщо гроші й після цього не прийшли."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und {name} sie bestätigt hat. Alles beruht auf Vertrauen.",
+   "fassung": "Без платіжних даних {name} не зможе заплатити. {name} побачить твої дані лише тоді, коли ти виконаєш челендж і вона його підтвердить. Усе тримається на довірі."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Initiator:in",
+   "fassung": "Ініціаторка"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "{firstName} hat noch keine Zahlungsdaten freigegeben. Frage am besten in den Kommentaren nach.",
+   "fassung": "{firstName} ще не поділилася платіжними даними. Найкраще запитай у коментарях."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Diese Challenge lässt sich nicht mehr bearbeiten, weil {name} sie schon angenommen hat.",
+   "fassung": "Цей челендж уже не можна редагувати, бо {name} його вже взяла."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.",
+   "fassung": "{firstName} {day} позначила {bountyAmount} як оплачені. Перевір свій рахунок або PayPal."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "{firstName} hat die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.",
+   "fassung": "{firstName} позначила {bountyAmount} як оплачені. Перевір свій рахунок або PayPal."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "{firstName} hat nicht als erledigt bestätigt: „{rejectionReason}“",
+   "fassung": "{firstName} не підтвердила виконання: «{rejectionReason}»"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Du bist allein in der Gruppe. Sie verschwindet samt Aufgaben. Das lässt sich nicht rückgängig machen.",
+   "fassung": "Ти одна в групі. Вона зникне разом із завданнями. Це не можна скасувати."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Bitte begründe Deine Entscheidung nach bestem Wissen und Gewissen. Sei ermutigend und konstruktiv.",
+   "fassung": "Будь ласка, поясни своє рішення чесно й сумлінно. Будь доброзичливою і конструктивною."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Blockierte Personen sehen nicht, dass Du sie blockiert hast. Sie können Deine Challenges weder annehmen noch kommentieren.",
+   "fassung": "Заблоковані люди не бачать, що ти їх заблокувала. Вони не можуть ні брати, ні коментувати твої челенджі."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Du hast niemanden blockiert.",
+   "fassung": "Ти нікого не заблокувала."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Von Dir angenommen am {acceptedAt}",
+   "fassung": "Ти взяла {acceptedAt}"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Zeige, was Du geschafft hast. {firstName} sieht Dein Foto und bestätigt die Erledigung.",
+   "fassung": "Покажи, що ти зробила. {firstName} побачить фото й підтвердить виконання."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "5 bis 50 €. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.",
+   "fassung": "Від 5 до 50 €. Ти сама платиш винагороду напряму людині, яка виконає челендж."
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "· Du hast sie gegründet",
+   "fassung": "· Ти її заснувала"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Du hast sie gegründet",
+   "fassung": "Ти її заснувала"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Passwort vergessen? Code per Mail",
+   "fassung": "Забула пароль? Код поштою"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Ich habe die Datenschutzerklärung gelesen",
+   "fassung": "Я прочитала політику конфіденційності"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Das darfst Du gerade nicht. Hast Du schon Deinen Kiez festgelegt?",
+   "fassung": "Зараз тобі це не дозволено. Ти вже вибрала свій район?"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Könntest Du Dir vorstellen, das Team finanziell zu unterstützen?",
+   "fassung": "Чи могла б ти уявити, що фінансово підтримаєш команду?"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Würde für diese App nicht bezahlen",
+   "fassung": "Не платила б за цей застосунок"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Hab ich schon",
+   "fassung": "Уже порекомендувала"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Danke fürs Gießen 🌱",
+   "fassung": "Дякую, що полила 🌱"
+  },
+  {
+   "sprache": "uk",
+   "geschlecht": "sie",
+   "deutsch": "Du hast angepackt, {anrede}. Ich schnurre.",
+   "fassung": "Ти взялася до справи, {anrede}. Я муркочу."
+  }
+ ]
+}

@@ -12,7 +12,7 @@ import { formatEuro, isValidIban, isValidPaypal, maskIbanShort } from '../../../
 import { useChallenge, useCurrentUser, useStore } from '../../../../data/store';
 import type { PayoutMethod } from '../../../../data/types';
 import { color, space, text } from '../../../../theme/tokens';
-import { t } from '../../../../data/texts';
+import { t, tAbout } from '../../../../data/texts';
 import { useNudge } from '../../../../components/Nudge';
 
 /**
@@ -67,7 +67,7 @@ export default function PayoutShareScreen() {
         />}
     >
       <KaterBubble>
-        {t('Gemeldet! Wohin soll {name} Dir die {betrag} schicken?', { name, betrag: amount })}
+        {tAbout(author, 'Gemeldet! Wohin soll {name} Dir die {betrag} schicken?', { name, betrag: amount })}
         {saved ? '' : ` ${t('Gib mindestens Deine IBAN oder PayPal an.')}`}
       </KaterBubble>
       <View style={styles.group}>
@@ -94,12 +94,12 @@ export default function PayoutShareScreen() {
           </View>
           <Button label="Zahlungsdaten bearbeiten" variant="secondary" onPress={() => router.push('/settings/payout')} />
           <Notice
-            message={t(
+            message={
               author.group
-                ? 'Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und sie sie bestätigt hat. Alles beruht auf Vertrauen.'
-                : 'Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und er sie bestätigt hat. Alles beruht auf Vertrauen.',
-              { name },
-            )}
+                ? t('Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und sie sie bestätigt hat. Alles beruht auf Vertrauen.', { name })
+                : // Pronomen nach dem Geschlecht der Person (Daria, 24.10.2026), unbestimmt mit Namen
+                  tAbout(author, 'Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und {name} sie bestätigt hat. Alles beruht auf Vertrauen.', { name })
+            }
           />
         </>
       ) : (
@@ -137,7 +137,7 @@ export default function PayoutShareScreen() {
             onValueChange={setSaveToAccount}
           />
           <Notice
-            message={t('Ohne Zahlungsdaten kann {name} nicht zahlen, deshalb ist eine Methode Pflicht. {name} sieht sie erst nach der Bestätigung und nur für diese Challenge. Alles beruht auf Vertrauen.', { name })}
+            message={tAbout(author, 'Ohne Zahlungsdaten kann {name} nicht zahlen, deshalb ist eine Methode Pflicht. {name} sieht sie erst nach der Bestätigung und nur für diese Challenge. Alles beruht auf Vertrauen.', { name })}
           />
         </>
       )}

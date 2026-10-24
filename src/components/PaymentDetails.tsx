@@ -6,7 +6,7 @@ import type { Challenge, User } from '../data/types';
 import { color, space, text } from '../theme/tokens';
 import { Notice } from './Content';
 import { CopyField } from './Form';
-import { t } from '../data/texts';
+import { t, tAbout } from '../data/texts';
 
 type PaymentDetailsProps = {
   challenge: Challenge;
@@ -41,7 +41,7 @@ export function PaymentDetails({ challenge, recipient, noticeFirst }: PaymentDet
       {!share ? (
         <Notice
           variant="warning"
-          message={t('{firstName} hat noch keine Zahlungsdaten freigegeben. Frage am besten in den Kommentaren nach.', { firstName: recipient.firstName })}
+          message={tAbout(recipient, '{firstName} hat noch keine Zahlungsdaten freigegeben. Frage am besten in den Kommentaren nach.', { firstName: recipient.firstName })}
         />
       ) : null}
       <CopyField label="Verwendungszweck" value={t('Kiez Coins: {title}', { title: challenge.title })} />

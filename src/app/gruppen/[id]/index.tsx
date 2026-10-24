@@ -13,7 +13,7 @@ import { inviteLink, inviteMessage, leaderboard, MAX_MEMBERS } from '../../../da
 import { useStore } from '../../../data/store';
 import type { User } from '../../../data/types';
 import { color, radius, space, text } from '../../../theme/tokens';
-import { t } from '../../../data/texts';
+import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 
 /**
@@ -59,9 +59,9 @@ export default function GroupDetail() {
     const name = userOf(userId).name;
     Alert.alert(name, undefined, [
       {
-        text: 'Gründerrolle übertragen',
+        text: 'Rolle übertragen',
         onPress: () =>
-          Alert.alert('Gründerrolle übertragen?', t('{name} kann dann Mitglieder entfernen. Du bleibst Mitglied.', { name }), [
+          Alert.alert('Rolle übertragen?', tAbout(userOf(userId), '{name} kann dann Mitglieder entfernen. Du bleibst Mitglied.', { name }), [
             { text: 'Abbrechen', style: 'cancel' },
             { text: 'Übertragen', onPress: () => run(() => groupApi.transferFounder(group.id, userId), 'Nicht übertragen') },
           ]),
@@ -82,7 +82,7 @@ export default function GroupDetail() {
   const leave = () => {
     const alone = group.members.length === 1;
     if (isFounder && !alone) {
-      Alert.alert('Erst die Rolle übertragen', 'Tippe ein Mitglied an und übertrage ihm die Gründerrolle. Danach kannst Du gehen.');
+      Alert.alert('Erst die Rolle übertragen', 'Tippe ein Mitglied an und übertrage ihm Deine Rolle. Danach kannst Du gehen.');
       return;
     }
     Alert.alert(
@@ -147,7 +147,8 @@ export default function GroupDetail() {
                   </Text>
                   <Text style={styles.meta}>
                     {[
-                      member?.role === 'founder' ? t('Gründerin') : null,
+                      // Initiator:in nach dem Geschlecht der Person (Daria, 24.10.2026)
+                      member?.role === 'founder' ? (me ? t('Initiator:in') : tAbout(user, 'Initiator:in')) : null,
                       showRanks || me ? (r.done === 1 ? t('1 Aufgabe erledigt') : t('{done} Aufgaben erledigt', { done: r.done })) : null,
                     ]
                       .filter(Boolean)
@@ -169,7 +170,7 @@ export default function GroupDetail() {
           })}
         </View>
       </FieldGroup>
-      {isFounder ? <Text style={styles.meta}>Tippe ein Mitglied an, um es zu entfernen oder ihm die Gründerrolle zu geben.</Text> : null}
+      {isFounder ? <Text style={styles.meta}>Tippe ein Mitglied an, um es zu entfernen oder ihm Deine Rolle zu geben.</Text> : null}
 
       {isFounder ? (
         <FieldGroup label="Gruppeneinstellungen">

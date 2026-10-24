@@ -157,3 +157,12 @@ export function anrede(profile: { addressForm?: string; addressCustom?: string }
   if (profile.addressForm === 'custom' && profile.addressCustom?.trim()) return profile.addressCustom.trim();
   return t(addressForms.find((f) => f.key === profile.addressForm)?.label ?? 'Pirat:in');
 }
+
+/** Grammatisches Geschlecht (Daria, 24.10.2026). Steuert Texte an die Person und über sie, unabhängig von der Ansprache. */
+export const genders = [
+  { key: 'er', label: 'er' },
+  { key: 'sie', label: 'sie' },
+  { key: 'person', label: 'unbestimmt (Person)' },
+] as const;
+
+export const genderLabel = (g?: string) => t(genders.find((x) => x.key === g)?.label ?? 'unbestimmt (Person)');

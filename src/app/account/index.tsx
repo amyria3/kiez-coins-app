@@ -9,7 +9,7 @@ import { Avatar } from '../../components/AuthorRow';
 import { NavCard, NavRow, ProfileCard } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { SurveyOverlay } from '../../components/SurveyOverlay';
-import { anrede } from '../../data/format';
+import { anrede, genderLabel } from '../../data/format';
 import { useAuth } from '../../data/auth';
 import { isModerator, loadFriends } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
@@ -108,6 +108,12 @@ export default function Account() {
         description={languageName}
         leading={<PhIcon name="language" size={size.icon} />}
         onPress={() => router.push('/account/sprache')}
+      />
+      <NavCard
+        title="Grammatisches Geschlecht"
+        description={genderLabel(profile.gender)}
+        leading={<PhIcon name="grammar" size={size.icon} />}
+        onPress={() => router.push('/account/geschlecht')}
       />
       {lookSelectable ? (
         <NavCard

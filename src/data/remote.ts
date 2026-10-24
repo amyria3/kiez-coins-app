@@ -8,6 +8,7 @@ import type {
   ChallengeReportReason,
   ChallengeStatus,
   ExtraPhoto,
+  Gender,
   Group,
   ImageSource,
   Payout,
@@ -35,7 +36,22 @@ type ProfileRow = {
   kiez: string | null;
   is_group: boolean;
   can_offer_bounties: boolean;
+  gender?: Gender | null;
 };
+
+const PROFILE_COLUMNS = 'id, handle, avatar_path, kiez, is_group, can_offer_bounties';
+/** false, sobald die Datenbank die Spalte `gender` nicht kennt (Migration 20261024000100 fehlt) */
+let hasGenderColumn = true;
+
+/** Öffentliche Profile mit Geschlecht. Ohne die Migration geht es ohne Geschlecht weiter. */
+async function selectProfiles(ids: string[]) {
+  if (hasGenderColumn) {
+    const res = await supabase.from('profiles').select(`${PROFILE_COLUMNS}, gender`).in('id', ids);
+    if (!res.error) return res;
+    hasGenderColumn = false;
+  }
+  return supabase.from('profiles').select(PROFILE_COLUMNS).in('id', ids);
+}
 
 type SettingsRow = {
   address_form: Profile['addressForm'] | null;
@@ -122,6 +138,7 @@ function toUser(row: ProfileRow, payout?: Payout): User {
     avatar: photoUrl(row.avatar_path),
     location: row.kiez ?? undefined,
     group: row.is_group,
+    gender: row.gender ?? undefined,
     payout,
   };
 }
@@ -304,10 +321,7 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
   }
   for (const g of groups) for (const m of g.members) ids.add(m.userId);
   const profilesRes = check(
-    await supabase
-      .from('profiles')
-      .select('id, handle, avatar_path, kiez, is_group, can_offer_bounties')
-      .in('id', [...ids]),
+    await selectProfiles([...ids]),
   );
   const profiles = (profilesRes.data ?? []) as ProfileRow[];
   const myPayout = payoutRes.data ? toPayout(payoutRes.data as PayoutRow) : undefined;
@@ -353,10 +367,7 @@ export async function loadChallenge(
   ids.delete(userId); // das eigene Profil samt Zahlungsdaten kennt die App schon
   const profilesRes = ids.size
     ? check(
-        await supabase
-          .from('profiles')
-          .select('id, handle, avatar_path, kiez, is_group, can_offer_bounties')
-          .in('id', [...ids]),
+        await selectProfiles([...ids]),
       )
     : { data: [] };
   const likeCounts = await loadLikeCounts([row.id]);
@@ -373,10 +384,23 @@ export async function loadChallenge(
   };
 }
 
+type OwnPublicRow = { handle: string | null; kiez: string | null; gender?: Gender | null };
+
+/** Öffentlicher Teil des eigenen Profils, ohne die Migration 20261024000100 ohne Geschlecht */
+async function selectOwnPublic(userId: string) {
+  if (hasGenderColumn) {
+    const res = await supabase.from('profiles').select('handle, kiez, gender').eq('id', userId).maybeSingle();
+    if (!res.error) return { data: res.data as OwnPublicRow | null, error: null };
+    hasGenderColumn = false;
+  }
+  const res = await supabase.from('profiles').select('handle, kiez').eq('id', userId).maybeSingle();
+  return { data: res.data as OwnPublicRow | null, error: res.error };
+}
+
 /** Profil (öffentlich und privat) der angemeldeten Person. */
 export async function loadOwnProfile(userId: string): Promise<Partial<Profile> | null> {
   const [profileRes, settingsRes] = await Promise.all([
-    supabase.from('profiles').select('handle, kiez').eq('id', userId).maybeSingle(),
+    selectOwnPublic(userId),
     supabase
       .from('profile_settings')
       .select(
@@ -392,6 +416,7 @@ export async function loadOwnProfile(userId: string): Promise<Partial<Profile> |
   return {
     handle: profileRes.data.handle ?? '',
     kiez: profileRes.data.kiez ?? undefined,
+    gender: profileRes.data.gender ?? undefined,
     addressForm: s.address_form ?? undefined,
     addressCustom: s.address_custom ?? undefined,
     push: s.push,
@@ -420,6 +445,11 @@ export async function saveOwnProfile(userId: string, profile: Profile): Promise<
       .update({ handle: profile.handle.trim() || null, kiez: profile.kiez ?? null })
       .eq('id', userId),
   );
+  // Geschlecht getrennt, damit das Speichern ohne die Migration 20261024000100 nicht scheitert
+  if (hasGenderColumn && profile.gender) {
+    const { error } = await supabase.from('profiles').update({ gender: profile.gender }).eq('id', userId);
+    if (error) hasGenderColumn = false;
+  }
   check(
     await supabase
       .from('profile_settings')
@@ -877,7 +907,7 @@ export async function loadBlockedUsers(): Promise<User[]> {
   const ids = [...(await loadBlockedIds())];
   if (!ids.length) return [];
   const res = check(
-    await supabase.from('profiles').select('id, handle, avatar_path, kiez, is_group, can_offer_bounties').in('id', ids),
+    await selectProfiles(ids),
   );
   return ((res.data ?? []) as ProfileRow[]).map((p) => toUser(p));
 }
@@ -986,7 +1016,7 @@ export async function loadModerationReports(): Promise<{ reports: ModerationRepo
   const userIds = [...new Set(reports.flatMap((r) => [r.reporterId, ...(r.reportedId ? [r.reportedId] : [])]))];
   const profiles = userIds.length
     ? ((check(
-        await supabase.from('profiles').select('id, handle, avatar_path, kiez, is_group, can_offer_bounties').in('id', userIds),
+        await selectProfiles(userIds),
       ).data ?? []) as ProfileRow[])
     : [];
   return { reports, users: profiles.map((p) => toUser(p)), titles };
@@ -1144,7 +1174,7 @@ export async function loadFriends(meId: string): Promise<FriendLists | null> {
   const users = new Map<string, User>();
   if (ids.length) {
     const res = check(
-      await supabase.from('profiles').select('id, handle, avatar_path, kiez, is_group, can_offer_bounties').in('id', ids),
+      await selectProfiles(ids),
     );
     for (const p of (res.data ?? []) as ProfileRow[]) users.set(p.id, toUser(p));
   }

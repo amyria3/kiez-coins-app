@@ -43,6 +43,9 @@ export type Payout = {
   paypal?: string;
 };
 
+/** Grammatisches Geschlecht (Daria, 24.10.2026): steuert Texte an die Person und über sie. „person“ = unbestimmt. */
+export type Gender = 'er' | 'sie' | 'person';
+
 export type User = {
   id: string;
   name: string;
@@ -53,6 +56,8 @@ export type User = {
   location?: string;
   /** Gruppe statt Einzelperson: Texte sprechen sie mit Artikel und im Plural an */
   group?: boolean;
+  /** Grammatisches Geschlecht für Texte über die Person; ohne Angabe unbestimmt */
+  gender?: Gender;
   payout?: Payout;
 };
 
@@ -203,6 +208,8 @@ export type Profile = {
   handle: string;
   addressForm?: AddressForm;
   addressCustom?: string;
+  /** Grammatisches Geschlecht, öffentlich (`profiles.gender`) */
+  gender?: Gender;
   /** Figma `kiez_id`; ohne Kiez darf man nur lesen */
   kiez?: string;
   push: boolean;
