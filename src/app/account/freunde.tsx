@@ -6,16 +6,24 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { AuthorRow } from '../../components/AuthorRow';
 import { Button } from '../../components/Button';
 import { FieldGroup, Notice } from '../../components/Content';
+import { CopyField } from '../../components/Form';
+import { FriendInviteQr } from '../../components/FriendInviteQr';
 import { SubScreen } from '../../components/Screen';
-import { acceptFriend, errorText, loadFriends, removeFriend, type FriendLists } from '../../data/remote';
+import { friendInviteLink, friendInviteMessage } from '../../data/friendInvites';
+import { acceptFriend, errorText, loadFriends, myFriendInvite, removeFriend, type FriendLists } from '../../data/remote';
 import { useStore } from '../../data/store';
 import type { User } from '../../data/types';
 import { color, space, text } from '../../theme/tokens';
 import { useGoBack } from '../../lib/goBack';
+import { shareText } from '../../lib/share';
+
+/** Code in den Beispieldaten, ohne Datenbank */
+const DEMO_INVITE_CODE = 'K7M2QXA';
 
 /**
  * Route `account/freunde` (Push aus „Dein Konto“): Freundschaftsanfragen annehmen oder ablehnen,
  * gesendete Anfragen und Freund:innen. Anfragen stellt man im Profil einer Person.
+ * Einladen per Link, QR-Code oder Code (Daria, 24.10.2026): Wer die Einladung annimmt, ist sofort befreundet.
  */
 export default function Friends() {
   const router = useRouter();
@@ -23,6 +31,35 @@ export default function Friends() {
   const { mode, users, currentUserId } = useStore();
   // undefined: lädt, null: Migration fehlt
   const [lists, setLists] = useState<FriendLists | null | undefined>(undefined);
+  // undefined: lädt, null: Migration fehlt
+  const [inviteCode, setInviteCode] = useState<string | null | undefined>(undefined);
+
+  useEffect(() => {
+    if (mode !== 'live') {
+      setInviteCode(DEMO_INVITE_CODE);
+      return;
+    }
+    myFriendInvite()
+      .then(setInviteCode)
+      .catch(() => setInviteCode(null));
+  }, [mode]);
+
+  const renewCode = () =>
+    Alert.alert('Neuen Code erzeugen?', 'Der bisherige Link, QR-Code und Code funktionieren danach nicht mehr.', [
+      { text: 'Abbrechen', style: 'cancel' },
+      {
+        text: 'Neu erzeugen',
+        style: 'destructive',
+        onPress: async () => {
+          if (mode !== 'live') return;
+          try {
+            setInviteCode(await myFriendInvite(true));
+          } catch (error) {
+            Alert.alert('Nicht geklappt', errorText(error));
+          }
+        },
+      },
+    ]);
 
   const refresh = useCallback(async () => {
     if (mode !== 'live') {
@@ -87,10 +124,23 @@ export default function Friends() {
           {lists.friends.length ? (
             lists.friends.map((user) => <AuthorRow key={user.id} user={user} location={user.location} onPress={() => open(user)} />)
           ) : (
-            <Text style={styles.secondary}>Noch niemand. Im Profil einer Person fragst Du an.</Text>
+            <Text style={styles.secondary}>Noch niemand. Lade Leute per Link, QR-Code oder Code ein.</Text>
           )}
         </FieldGroup>
       ) : null}
+      {inviteCode ? (
+        <FieldGroup label="Einladen">
+          <Text style={styles.secondary}>Wer Deine Einladung annimmt, ist sofort mit Dir befreundet.</Text>
+          <FriendInviteQr value={friendInviteLink(inviteCode)} />
+          <CopyField label="Einladungslink" value={friendInviteLink(inviteCode)} />
+          <CopyField label="Einladungscode" value={inviteCode} />
+          <Button label="Einladung teilen" onPress={() => shareText(friendInviteMessage(inviteCode))} />
+          <Button label="Neuen Code erzeugen" variant="secondary" onPress={renewCode} />
+        </FieldGroup>
+      ) : null}
+      <FieldGroup label="Einladung annehmen">
+        <Button label="Einladungscode eingeben" variant="secondary" onPress={() => router.push('/freunde/einladen')} />
+      </FieldGroup>
       {lists && lists.outgoing.length ? (
         <FieldGroup label="Gesendet">
           {lists.outgoing.map((user) => (

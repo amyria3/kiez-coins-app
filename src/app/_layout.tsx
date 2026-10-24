@@ -18,6 +18,7 @@ import { loadLanguage, loadTexts, useTexts, getLanguage } from '../data/texts';
 import { LoadingScreen } from '../components/GearsLoader';
 import { StartKater } from '../components/StartKater';
 import { InstallHint } from '../components/InstallHint';
+import { FriendInviteNotice } from '../components/FriendInviteNotice';
 import { color, scheme } from '../theme/tokens';
 import { look, setLook } from '../theme/look';
 
@@ -100,6 +101,7 @@ function RootStack() {
       {loading ? null : (
         <>
         <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+        <FriendInviteNotice />
         <Stack key={language} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
           {/* Vollbild ohne Wegwischen: Schließen nur über das X, damit die Frage nach dem Entwurf kommt
               und die Vorschau nicht wie ein Overlay wirkt, dessen Wischen mit den Gesten der Vorschau konkurriert */}
