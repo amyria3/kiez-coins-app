@@ -9,7 +9,7 @@ import { SubScreen } from '../../../../components/Screen';
 import { useChallenge, useStore } from '../../../../data/store';
 import { color, text } from '../../../../theme/tokens';
 import { useGoBack } from '../../../../lib/goBack';
-import { t } from '../../../../data/texts';
+import { t, tAbout } from '../../../../data/texts';
 
 /** Route `challenge/[id]/review/reject` (Modal). Figma: `challenge/review/reject`. */
 export default function RejectScreen() {
@@ -58,7 +58,7 @@ export default function RejectScreen() {
       <Text style={styles.title}>Was fehlt noch?</Text>
       <TextField
         label="Begründung"
-        helperText={t('Pflichtfeld, max. 280 Zeichen. {name} sieht Deine Begründung.', { name: assignee.firstName })}
+        helperText={tAbout(assignee, 'Pflichtfeld, max. 280 Zeichen. {name} sieht Deine Begründung.', { name: assignee.firstName })}
         error={showError && !reason.trim() ? 'Bitte begründe Deine Entscheidung nach bestem Wissen und Gewissen. Sei ermutigend und konstruktiv.' : undefined}
         value={reason}
         onChangeText={setReason}

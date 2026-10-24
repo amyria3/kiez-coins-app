@@ -20,6 +20,7 @@ export const sampleUsers: User[] = [
     id: 'peter',
     name: 'Peter J.',
     firstName: 'Peter',
+    gender: 'er',
     location: 'Radebergerstr. 12, 04188 Leipzig',
     avatar: images.avatarPeter,
   },
@@ -27,6 +28,7 @@ export const sampleUsers: User[] = [
     id: 'lena',
     name: 'Lena K.',
     firstName: 'Lena',
+    gender: 'sie',
   },
   {
     id: 'gardeners',

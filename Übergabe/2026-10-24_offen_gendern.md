@@ -1,7 +1,7 @@
 # Konsistentes Gendern
 
 Datum: 2026-10-24
-Status: offen
+Status: teilweise umgesetzt (24.10.2026), Rest offen
 Ziel in Documentation: `kiez-coins/ENTSCHEIDUNGEN.md`, neuer Abschnitt „Gendern“; das Feature nach `kiez-coins/konzept/`.
 
 Daria will konsistentes Gendern als Feature. Claude hat alle Texte im Code (Stand `main`, 24.10.2026) nach grammatischem Geschlecht durchsucht. Es gibt drei Arten von Stellen.
@@ -83,3 +83,24 @@ Daria will die gegenderten Übersetzungen erst laden, wenn die Person Sprache od
 - `t()` sucht zuerst in der Ergänzung, dann in der Grunddatei, dann im deutschen Original.
 - Web: Die App lädt die Dateien erst beim Wechsel (`import()` oder Abruf vom Server) und legt sie wie `app_texts` im Speicher ab (`AsyncStorage`). Native App: Die Dateien liegen im Paket, die App liest nur die gewählten ein.
 - Alternativ: Spalten je Geschlecht in der Tabelle `app_texts` (z. B. `he_sie`), dann kann Daria die Fassungen auch im Texte-Editor pflegen.
+
+## Stand der Umsetzung (24.10.2026, Claude auf Darias Bitte)
+
+Umgesetzt und gepusht:
+
+- Pflichtaufgabe: Migration `supabase/migrations/20261024000100_gender.sql` im SQL-Editor ausführen (Spalte `profiles.gender`, Standard `person`). Ohne die Migration läuft die App weiter: Sie merkt sich die Wahl auf dem Gerät, andere sehen „unbestimmt“.
+- Auswahl „er“, „sie“, „unbestimmt (Person)“ auf `onboarding/ansprache` (eigener Block, `src/components/GenderChoice.tsx`) und unter Dein Konto › Grammatisches Geschlecht (`src/app/account/geschlecht.tsx`).
+- Textlogik in `src/data/texts.ts`: `t()` nutzt das eigene Geschlecht, `tAbout(person, …)` das Geschlecht der Person, über die der Text spricht. Ergänzungen in `src/i18n/<sprache>.<er|sie|person>.json`, eingebunden über `src/i18n/gender.ts`.
+- Deutsch: „Initiator“, „Initiatorin“, „Initiator:in“; „Rolle übertragen“; „Nur Geduld, mein Freund!“ (er) und „my friend“ (sie, unbestimmt); D-098 mit „er“, „sie“ oder Namen.
+- Texte über andere laufen über `tAbout` (Zahlungsdaten, bezahlt markiert, nicht bestätigt, Freundschaft, Blockieren, Rolle übertragen …).
+- Französisch und Ukrainisch: alle Mittelpunkt- und Klammerformen bei Dir und bei anderen haben Fassungen für „er“ und „sie“. Die Grundfassung mit Mittelpunkt und Klammern gilt für „unbestimmt“.
+- Hebräisch und Arabisch: Fassungen für „sie“ und „unbestimmt“ für das ganze Onboarding, alle Texte über andere und alle neuen Texte. Neutral heißt: Infinitiv oder unpersönlicher Satz (he), Verbalnomen oder Passiv (ar).
+- Demo-Daten: Peter ist „er“, Lena ist „sie“.
+
+Offen:
+
+- Hebräisch und Arabisch außerhalb des Onboardings: Die übrigen Texte an Dich sprechen noch männlich an (Grundfassung). Nächste Pakete: Feed und Challenge erstellen, dann Challenge-Detail, dann Konto.
+- Prüfung: `Übergabe/2026-10-24_offen_gender-uebersetzungen-pruefen.json` listet alle neuen Fassungen. Muttersprachler:innen prüfen sie.
+- Laden erst beim Wechsel: Die Ergänzungen liegen vorerst im Paket (zusammen rund 30 KB). Nachladen lohnt sich, sobald Hebräisch und Arabisch vollständig sind.
+- Texte-Editor: Die Ergänzungen nach Geschlecht lassen sich dort noch nicht pflegen (dafür Spalten wie `he_sie` in `app_texts`).
+- Seiten, die Personen per Rolle zeigen, außer der Gruppe (z. B. Moderation), nutzen noch kein Geschlecht.

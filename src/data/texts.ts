@@ -9,6 +9,8 @@ import en from '../i18n/en.json';
 import fr from '../i18n/fr.json';
 import he from '../i18n/he.json';
 import uk from '../i18n/uk.json';
+import { genderOverlays } from '../i18n/gender';
+import type { Gender } from './types';
 
 /**
  * Texte und Sprachen.
@@ -20,6 +22,11 @@ import uk from '../i18n/uk.json';
  *
  * Platzhalter in geschweiften Klammern, z. B. „Ahoi, {anrede}!“, setzt die App ein. Übersetzungen können
  * Mehrzahlformen enthalten: „{n, plural, one {# день} few {# дні} many {# днів} other {# дня}}“.
+ *
+ * Geschlecht (Daria, 24.10.2026): Die Grundfassung jeder Sprache ist „unbestimmt“. Ergänzungen in
+ * `src/i18n/<sprache>.<er|sie|person>.json` (auch `de`) enthalten nur Texte, die je nach Geschlecht abweichen.
+ * `t()` nimmt das Geschlecht der Person, die die App benutzt (Texte an Dich). `tAbout(person, …)` nimmt das
+ * Geschlecht der Person, über die der Text spricht (Pronomen, „Initiator“/„Initiatorin“).
  *
  * Neue Texte in die Tabelle bringen: `node scripts/app-texts.mjs` erzeugt SQL für den SQL-Editor.
  * Übersetzungen ergänzen: `node scripts/i18n.mjs` listet fehlende Texte je Sprache.
@@ -43,6 +50,10 @@ const bundled: Record<OtherLang, Record<string, string>> = { en, fr, uk, ar, he 
 
 const CACHE_KEY = 'app_texts_v2';
 const LANG_KEY = 'app_language';
+const GENDER_KEY = 'app_gender';
+
+/** Grammatisches Geschlecht der Person, die die App benutzt */
+let gender: Gender = 'person';
 
 let lang: Lang = 'de';
 /** 'auto': Sprache des Handys */
@@ -91,6 +102,28 @@ function applyDirection() {
 export const needsRestartForDirection = () => Platform.OS !== 'web' && I18nManager.isRTL !== isRtl();
 
 export const getLanguage = () => lang;
+export const getGender = () => gender;
+
+/** Geschlecht für Texte an Dich. Kommt aus dem Profil und liegt zusätzlich auf dem Gerät. */
+export async function setGender(next: Gender) {
+  if (next === gender) return;
+  gender = next;
+  notify();
+  try {
+    await AsyncStorage.setItem(GENDER_KEY, next);
+  } catch {
+    // gilt dann bis zum Neustart
+  }
+}
+
+async function loadGender() {
+  try {
+    const saved = await AsyncStorage.getItem(GENDER_KEY);
+    if (saved === 'er' || saved === 'sie' || saved === 'person') gender = saved;
+  } catch {
+    // unbestimmt
+  }
+}
 export const getLanguageChoice = () => choice;
 
 /** Sprache wählen. 'auto' folgt dem Handy. */
@@ -114,6 +147,7 @@ export async function loadLanguage() {
   } catch {
     choice = 'auto';
   }
+  await loadGender();
   lang = choice === 'auto' ? deviceLanguage() : choice;
   applyDirection();
   notify();
@@ -211,11 +245,12 @@ export function format(template: string, vars?: Record<string, string | number |
   return out;
 }
 
-/** Fassung in der gewählten Sprache, ohne Platzhalter einzusetzen */
-export function lookup(original: string, l: Lang = lang): string {
+/** Fassung in der gewählten Sprache, ohne Platzhalter einzusetzen. `g`: Geschlecht, nach dem sich der Text richtet. */
+export function lookup(original: string, l: Lang = lang, g: Gender = gender): string {
   const key = normalizeText(original);
-  if (l === 'de') return overrides.get(key) ?? original;
-  return cms[l]?.get(key) ?? bundled[l][key] ?? overrides.get(key) ?? original;
+  const byGender = genderOverlays[l]?.[g]?.[key];
+  if (l === 'de') return overrides.get(key) ?? byGender ?? original;
+  return cms[l]?.get(key) ?? byGender ?? bundled[l][key] ?? overrides.get(key) ?? original;
 }
 
 /**
@@ -224,6 +259,18 @@ export function lookup(original: string, l: Lang = lang): string {
  */
 export function t(original: string, vars?: Record<string, string | number | null | undefined>): string {
   return format(lookup(original), vars);
+}
+
+/**
+ * Text über eine andere Person: richtet sich nach deren Geschlecht („er“, „sie“, unbestimmt).
+ * Gruppenkonten haben eigene Sätze im Plural und kommen hier nicht hin.
+ */
+export function tAbout(
+  person: { gender?: Gender } | null | undefined,
+  original: string,
+  vars?: Record<string, string | number | null | undefined>,
+): string {
+  return format(lookup(original, lang, person?.gender ?? 'person'), vars);
 }
 
 /** Wie `t`, behält aber Leerraum am Anfang und Ende (Textstücke zwischen anderen Elementen). */

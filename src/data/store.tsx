@@ -1,7 +1,8 @@
-import { createContext, useCallback, useContext, useMemo, useReducer, useRef, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from 'react';
 import { Alert } from 'react-native';
 
 import * as remote from './remote';
+import { setGender } from './texts';
 import { sampleChallenges, sampleGroups, sampleProfile, sampleUsers, topChallengeIds } from './sample';
 import { isPostOnly, type Challenge, type ChallengeReport, type ImageSource, type Comment, type FeedState, type Group, type Payout, type PayoutShare, type Profile, type User } from './types';
 
@@ -357,6 +358,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, localDispatch] = useReducer(reducer, sampleProfile, emptyLive);
   const stateRef = useRef(state);
   stateRef.current = state;
+  // Geschlecht aus dem Profil steuert die Texte an Dich (src/data/texts.ts)
+  const profileGender = state.profile.gender;
+  useEffect(() => {
+    if (profileGender) setGender(profileGender);
+  }, [profileGender]);
   /** Warteschlange, damit z. B. „Erledigt melden“ vor „Zahlungsdaten freigeben“ ankommt. */
   const queue = useRef<Promise<void>>(Promise.resolve());
 

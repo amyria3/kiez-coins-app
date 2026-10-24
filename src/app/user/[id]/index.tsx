@@ -24,7 +24,7 @@ import {
 } from '../../../data/remote';
 import { useStore } from '../../../data/store';
 import { color, radius, space, text } from '../../../theme/tokens';
-import { t } from '../../../data/texts';
+import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 
 /**
@@ -103,7 +103,7 @@ export default function UserProfile() {
     }
   };
   const confirmEnd = () =>
-    Alert.alert(t('Freundschaft mit {Name} beenden?', { Name }), t('{Name} erfährt nichts davon. Ihr könnt Euch jederzeit wieder anfragen.', { Name }), [
+    Alert.alert(t('Freundschaft mit {Name} beenden?', { Name }), tAbout(user, '{Name} erfährt nichts davon. Ihr könnt Euch jederzeit wieder anfragen.', { Name }), [
       { text: 'Abbrechen', style: 'cancel' },
       { text: 'Beenden', style: 'destructive', onPress: () => changeFriend('none', () => removeFriend(currentUserId, user.id)) },
     ]);
@@ -114,7 +114,7 @@ export default function UserProfile() {
       t('{Name} blockieren?', { Name }),
       plural
         ? t('Du siehst ihre Challenges und Kommentare nicht mehr. {Name} können Deine Challenges weder annehmen noch kommentieren und erfahren nichts davon. Aufheben kannst Du das unter „Dein Konto“.', { Name })
-        : t('Du siehst die Challenges und Kommentare nicht mehr. {Name} kann Deine Challenges weder annehmen noch kommentieren und erfährt nichts davon. Aufheben kannst Du das unter „Dein Konto“.', { Name }),
+        : tAbout(user, 'Du siehst die Challenges und Kommentare nicht mehr. {Name} kann Deine Challenges weder annehmen noch kommentieren und erfährt nichts davon. Aufheben kannst Du das unter „Dein Konto“.', { Name }),
       [
         { text: 'Abbrechen', style: 'cancel' },
         {

@@ -12,7 +12,7 @@ import { formatDayMonthShort, formatRemainingShort } from '../../../data/format'
 import { useChallenge, useStore } from '../../../data/store';
 import { color, text } from '../../../theme/tokens';
 import { useNudge } from '../../../components/Nudge';
-import { t } from '../../../data/texts';
+import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 
 const presets = [5, 15, 50];
@@ -58,7 +58,7 @@ export default function EditChallenge() {
       <SubScreen title="Bearbeiten" navigation="close" onLeadingPress={goBack}>
         <Text style={styles.secondary}>
           {assignee
-            ? t('Diese Challenge lässt sich nicht mehr bearbeiten, weil {name} sie schon angenommen hat.', { name: assignee.firstName })
+            ? tAbout(assignee, 'Diese Challenge lässt sich nicht mehr bearbeiten, weil {name} sie schon angenommen hat.', { name: assignee.firstName })
             : 'Diese Challenge lässt sich nicht mehr bearbeiten, da sie schon angenommen wurde.'}
         </Text>
       </SubScreen>

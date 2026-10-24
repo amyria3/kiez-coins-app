@@ -22,7 +22,7 @@ import { recordView } from '../../../data/remote';
 import { useChallenge, useStore } from '../../../data/store';
 import { isPostOnly, type ChallengeStatus } from '../../../data/types';
 import { color, font, radius, size, space, stroke, text } from '../../../theme/tokens';
-import { t } from '../../../data/texts';
+import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 
 // Vorschläge des Katers für den Operationsnamen (später aus einer Wortliste)
@@ -322,7 +322,7 @@ export default function ChallengeDetail() {
           {challenge.rejectionReason ? (
             <Notice
               variant="warning"
-              message={t('{firstName} hat nicht als erledigt bestätigt: „{rejectionReason}“', { firstName: author.firstName, rejectionReason: challenge.rejectionReason })}
+              message={tAbout(author, '{firstName} hat nicht als erledigt bestätigt: „{rejectionReason}“', { firstName: author.firstName, rejectionReason: challenge.rejectionReason })}
             />
           ) : null}
           {!named ? (
@@ -360,8 +360,8 @@ export default function ChallengeDetail() {
         <Notice
           message={
             acceptedByMe
-              ? t('{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })
-              : t('{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName })
+              ? tAbout(author, '{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })
+              : tAbout(author, '{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName })
           }
         />
       ) : null}

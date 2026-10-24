@@ -5,10 +5,11 @@ import { useRouter } from 'expo-router';
 import { Button } from '../../components/Button';
 import { KaterBubble } from '../../components/Content';
 import { RadioOption, TextField } from '../../components/Form';
+import { GenderChoice } from '../../components/GenderChoice';
 import { SubScreen } from '../../components/Screen';
 import { addressForms } from '../../data/format';
 import { useStore } from '../../data/store';
-import type { AddressForm } from '../../data/types';
+import type { AddressForm, Gender } from '../../data/types';
 import { space } from '../../theme/tokens';
 import { NudgeArea, useNudge } from '../../components/Nudge';
 import { useGoBack } from '../../lib/goBack';
@@ -20,13 +21,17 @@ export default function Ansprache() {
   const { profile, dispatch } = useStore();
   const [form, setForm] = useState<AddressForm | undefined>(profile.addressForm === 'pirat_star' ? 'pirat_colon' : (profile.addressForm ?? 'pirat_colon'));
   const [custom, setCustom] = useState(profile.addressCustom ?? '');
+  const [gender, setGender] = useState<Gender>(profile.gender ?? 'person');
   const choice = useNudge();
   const usesCustom = custom.trim().length > 0;
 
   const save = (addressForm?: AddressForm) => {
     dispatch({
       type: 'updateProfile',
-      patch: usesCustom && addressForm ? { addressForm: 'custom', addressCustom: custom.trim() } : { addressForm, addressCustom: undefined },
+      patch: {
+        ...(usesCustom && addressForm ? { addressForm: 'custom', addressCustom: custom.trim() } : { addressForm, addressCustom: undefined }),
+        gender,
+      },
     });
     router.push('/onboarding/kiez');
   };
@@ -72,6 +77,8 @@ export default function Ansprache() {
         }}
         maxLength={30}
       />
+      {/* Eigene Frage, unabhängig von der Ansprache (Daria, 24.10.2026) */}
+      <GenderChoice value={gender} onChange={setGender} />
     </SubScreen>
   );
 }
