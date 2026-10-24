@@ -20,29 +20,28 @@ export function TypeSwitch<K extends string>({
   onChange: (key: K) => void;
 }) {
   const index = Math.max(0, options.findIndex((o) => o.key === value));
-  const [width, setWidth] = useState(0);
-  const x = useRef(new Animated.Value(index)).current;
+  // Jedes Feld so breit wie sein Begriff plus gleicher Anteil am Rest (Daria, 24.10.2026: kurze Begriffe
+  // bekamen zu viel Platz). Die Markierung folgt den gemessenen Feldern.
+  const [boxes, setBoxes] = useState<Record<string, { x: number; width: number }>>({});
+  const box = boxes[options[index]?.key ?? ''];
+  const x = useRef(new Animated.Value(0)).current;
+  const w = useRef(new Animated.Value(0)).current;
+  const placed = useRef(false);
   useEffect(() => {
-    Animated.timing(x, {
-      toValue: index,
-      duration: motion.barrier.duration,
-      easing: Easing.bezier(...motion.barrier.bezier),
-      useNativeDriver: true,
-    }).start();
-  }, [index, x]);
-  const inner = width - (isFashionable ? 0 : PAD * 2);
-  const segment = inner / options.length;
+    if (!box) return;
+    if (!placed.current) {
+      x.setValue(box.x);
+      w.setValue(box.width);
+      placed.current = true;
+      return;
+    }
+    const timing = { duration: motion.barrier.duration, easing: Easing.bezier(...motion.barrier.bezier), useNativeDriver: false };
+    Animated.parallel([Animated.timing(x, { ...timing, toValue: box.x }), Animated.timing(w, { ...timing, toValue: box.width })]).start();
+  }, [box, x, w]);
   return (
-    <View
-      style={styles.track}
-      accessibilityRole="tablist"
-      onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
-    >
-      {width ? (
-        <Animated.View
-          pointerEvents="none"
-          style={[styles.indicator, { width: segment, transform: [{ translateX: Animated.multiply(x, segment) }] }]}
-        />
+    <View style={styles.track} accessibilityRole="tablist">
+      {box ? (
+        <Animated.View pointerEvents="none" style={[styles.indicator, { width: w, transform: [{ translateX: x }] }]} />
       ) : null}
       {options.map((o) => {
         const selected = o.key === value;
@@ -52,6 +51,10 @@ export function TypeSwitch<K extends string>({
             accessibilityRole="tab"
             accessibilityState={{ selected }}
             onPress={() => onChange(o.key)}
+            onLayout={(e) => {
+              const { x: ox, width } = e.nativeEvent.layout;
+              setBoxes((prev) => (prev[o.key]?.x === ox && prev[o.key]?.width === width ? prev : { ...prev, [o.key]: { x: ox, width } }));
+            }}
             style={styles.option}
           >
             <Text style={[styles.label, selected && styles.selected]} numberOfLines={1}>
@@ -74,13 +77,13 @@ const styles = StyleSheet.create({
     ? { position: 'absolute', left: 0, bottom: -stroke.thin, height: 1.5, backgroundColor: color.text.primary }
     : {
         position: 'absolute',
-        left: PAD,
+        left: 0,
         top: PAD,
         bottom: PAD,
         borderRadius: radius.full,
         backgroundColor: `${color.accent.primary}2E`,
       },
-  option: { flex: 1, minHeight: isFashionable ? 44 : 38, alignItems: 'center', justifyContent: 'center', paddingHorizontal: isFashionable ? 0 : 4 },
+  option: { flexGrow: 1, flexShrink: 1, flexBasis: 'auto', minHeight: isFashionable ? 44 : 38, alignItems: 'center', justifyContent: 'center', paddingHorizontal: isFashionable ? 8 : 10 },
   label: isFashionable
     ? // Drei Begriffe in Großbuchstaben passen auch auf 360 pt Breite
       { fontFamily: font.semiBold, fontSize: 11, lineHeight: 16, letterSpacing: 0.3, textTransform: 'uppercase', color: color.text.secondary }
