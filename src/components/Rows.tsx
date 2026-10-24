@@ -173,7 +173,8 @@ export function NavCard({
 }: {
   title: string;
   description?: string;
-  leading: ReactNode;
+  /** Ohne Icon steht der Text bündig links */
+  leading?: ReactNode;
   onPress: () => void;
 }) {
   return (
@@ -183,7 +184,7 @@ export function NavCard({
       accessibilityLabel={description ? `${title}, ${description}` : title}
       onPress={onPress}
     >
-      <View style={styles.cardLeading}>{leading}</View>
+      {leading ? <View style={styles.cardLeading}>{leading}</View> : null}
       <View style={styles.texts}>
         <Text style={styles.profileName} numberOfLines={1}>
           {title}
