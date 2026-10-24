@@ -16,13 +16,15 @@ type CatProps = {
   mood?: CatMood;
   /** Höhe in pt (Original 39 pt) */
   height?: number;
+  /** Instagram-Look: Farbe des Katers, sonst Textfarbe */
+  tint?: string;
 };
 
 /** Kater mit Sonnenbrille (Daria, 22.10.2026): normal, high (aufgeregt) und money (Dollar in den Gläsern). */
 const CAT_ART: Record<CatMood, string> = { default: 'kater-normal', high: 'kater-high', money: 'kater-money' };
-export const Cat = memo(function Cat({ mood = 'default', height = 39 }: CatProps) {
+export const Cat = memo(function Cat({ mood = 'default', height = 39, tint }: CatProps) {
   // Instagram-Look: überall der Kater aus dem monochromen Logo (Daria, 24.10.2026)
-  if (isInstagram) return <MonoCat height={height} />;
+  if (isInstagram) return <MonoCat height={height} tint={tint} />;
   const art = brandArt[CAT_ART[mood]];
   if (!art) {
     return <SvgXml xml={catSvg(mood === 'money' ? 'high' : mood, color.brand.signature, color.text.primary)} width={(35 / 41) * height} height={height} />;
@@ -35,10 +37,10 @@ const signature = (svg: string) => (isInstagram ? svg.replace(/#7E94FF/gi, color
 
 /** Logo: Kater und Schriftzug „KiezCoins“ (assets/brand/logo.svg) */
 /** Kater aus dem monochromen Logo, quadratisch zugeschnitten, in Textfarbe (Instagram-Look, Daria 24.10.2026) */
-export const MonoCat = memo(function MonoCat({ height = 26 }: { height?: number }) {
+export const MonoCat = memo(function MonoCat({ height = 26, tint = color.text.primary }: { height?: number; tint?: string }) {
   const mono = brandArt['logo-mono'];
   const xml = mono.svg
-    .replace(/#111111/gi, color.text.primary)
+    .replace(/#111111/gi, tint)
     .replace(/viewBox="[^"]*"/, 'viewBox="0 1 34 34"')
     .replace(/width="[^"]*" height="[^"]*"/, '');
   return <SvgXml xml={xml} width={height} height={height} />;
