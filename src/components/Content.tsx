@@ -66,10 +66,10 @@ export function KaterCard({ children, title, mood = 'default' }: { children: Rea
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
       >
-        {/* Fashionable Look: kleinere, rundere Kachel in Textfarbe, der Kater ausgestanzt (Daria, 24.10.2026) */}
+        {/* Fashionable Look: kleinere, rundere Kachel im Grau der Sprechblase, Kater in Textfarbe (Daria, 24.10.2026: hell neben schwarz klappt nicht) */}
         {/* Kiez-Look: Kater etwas höher in der Kachel (Daria, 24.10.2026) */}
         <View style={isFashionable ? undefined : styles.speechCatLift}>
-          <Cat mood={mood} height={isFashionable ? 36 : 52} tint={isFashionable ? color.bg.screen : undefined} />
+          <Cat mood={mood} height={isFashionable ? 36 : 52} tint={isFashionable ? color.text.primary : undefined} />
         </View>
       </View>
     </View>
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 20,
     borderWidth: 0,
-    backgroundColor: color.text.primary,
+    backgroundColor: color.bg.surface,
   },
   group: { gap: space[8] },
   groupLabel: { ...text.caption, color: color.text.secondary },
