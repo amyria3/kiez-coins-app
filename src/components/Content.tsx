@@ -165,10 +165,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   speechCatLift: { transform: [{ translateY: -6 }] },
+  // Mehr Luft um den Kater (Daria, 24.10.2026): Kachel 68 pt, Kater bleibt 36 pt
   speechCatMono: {
-    width: 56,
-    height: 56,
-    borderRadius: 20,
+    width: 68,
+    height: 68,
+    borderRadius: 24,
     borderWidth: 0,
     backgroundColor: color.bg.surface,
   },
