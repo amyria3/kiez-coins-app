@@ -48,9 +48,10 @@ function InstaHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps)
   return (
     <View style={styles.instaHead}>
       <Pressable onLongPress={onLogoLongPress} accessibilityRole="header">
-        <Text noTranslate style={styles.wordmark}>
-          Kiez Coins
-        </Text>
+        {/* Monochromes Logo mit Kater (Daria, 24.10.2026), 28 hoch wie der Schriftzug vorher */}
+        <View accessible accessibilityLabel="Kiez Coins">
+          <Logo height={28} />
+        </View>
       </Pressable>
       <View style={styles.headIcons}>
         <Pressable

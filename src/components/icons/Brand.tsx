@@ -31,9 +31,18 @@ export const Cat = memo(function Cat({ mood = 'default', height = 39 }: CatProps
 const signature = (svg: string) => (isInstagram ? svg.replace(/#7E94FF/gi, color.brand.signature) : svg);
 
 /** Logo: Kater und Schriftzug „KiezCoins“ (assets/brand/logo.svg) */
+/**
+ * Logo (Daria, 24.10.2026): Kiez-Look `assets/brand/logo.svg`, Lila mit Kater; Instagram-Look
+ * `assets/brand/logo-mono.svg`, Kater mit Brille und Wortmarke einfarbig in Textfarbe.
+ */
 export const Logo = memo(function Logo({ height = 26 }: { height?: number }) {
+  if (isInstagram) {
+    const mono = brandArt['logo-mono'];
+    const xml = mono.svg.replace(/#111111/gi, color.text.primary);
+    return <SvgXml xml={xml} width={(mono.width / mono.height) * height} height={height} />;
+  }
   const art = brandArt.logo;
-  return <SvgXml xml={signature(art.svg)} width={(art.width / art.height) * height} height={height} />;
+  return <SvgXml xml={art.svg} width={(art.width / art.height) * height} height={height} />;
 });
 
 /** Schriftzug „KIEZ COINS“ (alt, für Stellen ohne Kater) */
