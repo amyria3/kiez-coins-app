@@ -46,3 +46,7 @@ Datum: 2026-10-24 · Status: erledigt, muss in die Doku · Ziel in Documentation
 ## Konto im Instagram-Look
 
 - Freundschaften, Sprache und Look stehen als große Karten (NavCard) unter „Deine Gruppen“, mit Handschlag, Sprache und Palette. Im Kiez-Look bleiben sie Zeilen unter „Einstellungen“.
+
+## Nachtrag 2026-10-24: Icon „Freundschaften“
+
+Freundschaften zeigt im Instagram-Look den gefüllten Handschlag (`faHandshakeSimple`, Solid). Der Kontur-Handschlag wirkte neben den gefüllten Icons für Sprache und Look zu dünn.

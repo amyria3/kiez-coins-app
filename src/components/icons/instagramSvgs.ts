@@ -17,7 +17,7 @@ import { faFlag } from '@fortawesome/free-regular-svg-icons/faFlag';
 import { faCopy } from '@fortawesome/free-regular-svg-icons/faCopy';
 import { faEye } from '@fortawesome/free-regular-svg-icons/faEye';
 import { faThumbsUp } from '@fortawesome/free-regular-svg-icons/faThumbsUp';
-import { faHandshake } from '@fortawesome/free-regular-svg-icons/faHandshake';
+import { faHandshakeSimple } from '@fortawesome/free-solid-svg-icons/faHandshakeSimple';
 import { faCircleCheck } from '@fortawesome/free-regular-svg-icons/faCircleCheck';
 import { faGem } from '@fortawesome/free-regular-svg-icons/faGem';
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons/faLocationDot';
@@ -91,7 +91,8 @@ export const FA = {
   created: faTableCells,
   accepted: faCircleCheck,
   groups: faUsers,
-  friends: faHandshake,
+  // Gefüllt wie Sprache und Look daneben (Daria, 24.10.2026)
+  friends: faHandshakeSimple,
   language: faLanguage,
   look: faPalette,
   gem: faGem,
