@@ -280,7 +280,7 @@ export const LivingCrystal = memo(function LivingCrystal(props: { height?: numbe
 });
 
 /**
- * Edenstein im Instagram-Look: steht still in der Größe des Platzes, den der Kristall hatte (55 % von `height`),
+ * Edenstein im Instagram-Look: steht still, 46 % von `height` hoch (Daria, 24.10.2026: 55 % war zu groß),
  * und blitzt alle 6 bis 14 Sekunden im Verlauf auf: 350 ms einblenden, 500 ms halten, 650 ms ausblenden.
  * `calm` und „Bewegung reduzieren“: kein Aufblitzen.
  */
@@ -309,7 +309,7 @@ function InstaGem({ height = 48, seed, calm }: { height?: number; seed?: string;
       flash.stopAnimation();
     };
   }, [flash, reduced, calm]);
-  const gemH = Math.round(height * 0.55);
+  const gemH = Math.round(height * 0.46);
   const w = gemH * gem.ratio;
   return (
     <View style={{ width: w, height, justifyContent: 'center' }}>
