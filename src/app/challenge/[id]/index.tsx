@@ -164,7 +164,7 @@ export default function ChallengeDetail() {
         text: 'Löschen',
         style: 'destructive',
         onPress: () => {
-          router.back();
+          goBack();
           dispatch({ type: 'delete', id: challenge.id });
         },
       },
@@ -398,7 +398,7 @@ export default function ChallengeDetail() {
       image={image}
       moreImages={challenge.extraImages?.map((e) => e.photo)}
       imageLabel={challenge.title}
-      onBackPress={() => router.back()}
+      onBackPress={() => goBack()}
       onSharePress={() => shareText(t('{title} – Kiez Coins', { title: challenge.title }))}
       imageOverlay={acceptedByMe && challenge.operationName ? <OperationTag name={challenge.operationName} /> : undefined}
       actions={actions}

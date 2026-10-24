@@ -36,7 +36,7 @@ export default function Kiez() {
 
   const next = (kiez?: string) => {
     dispatch({ type: 'updateProfile', patch: { kiez } });
-    if (from) router.back();
+    if (from) goBack();
     else router.push('/onboarding/kodex');
   };
 

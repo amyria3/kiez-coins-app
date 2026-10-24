@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from './T';
 
 import type { User } from '../data/types';
-import { color, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isInstagram, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
@@ -90,11 +90,18 @@ export function EditableRow({ label, value, onSave, renderEditor, maxLength, all
           />
         )}
       </View>
-      <IconButton
-        icon="check"
-        accessibilityLabel={t('{label} speichern', { label })}
-        onPress={commit}
-      />
+      {isInstagram ? (
+        // Regelwerk: Der Haken heißt nur „erledigt“ oder „angenommen“. Speichern ist ein Textknopf.
+        <Pressable accessibilityRole="button" accessibilityLabel={t('{label} speichern', { label })} onPress={commit} hitSlop={8}>
+          <Text style={styles.saveText}>Speichern</Text>
+        </Pressable>
+      ) : (
+        <IconButton
+          icon="check"
+          accessibilityLabel={t('{label} speichern', { label })}
+          onPress={commit}
+        />
+      )}
     </View>
   );
 }
@@ -193,6 +200,7 @@ export function NavCard({
 }
 
 const styles = StyleSheet.create({
+  saveText: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18, color: color.accent.primary },
   cardLeading: {
     width: 56,
     height: 56,

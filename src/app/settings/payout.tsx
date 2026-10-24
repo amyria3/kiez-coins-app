@@ -40,7 +40,7 @@ export default function PayoutSettings() {
       type: 'savePayout',
       payout: { accountHolder: accountHolder.trim(), iban: iban.trim(), paypal: paypal.trim() || undefined },
     });
-    router.back();
+    goBack();
   };
 
   return (

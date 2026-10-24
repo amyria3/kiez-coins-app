@@ -12,6 +12,7 @@ import { color, text } from '../../../theme/tokens';
 import { findPlace, roundCoords } from '../../../data/location';
 import { useDraft, useSaveDraft } from './_layout';
 import { useNudge } from '../../../components/Nudge';
+import { useGoBack } from '../../../lib/goBack';
 
 const presets = [5, 15, 50];
 const durations = [
@@ -26,6 +27,7 @@ const MAX_BOUNTY = 50;
 /** Route `challenge/create/step-2`. Figma: `challenge/create/step-2`. Bounty 5–50 €, optional. Weiter zur Vorschau. */
 export default function CreateStep2() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { from } = useGlobalSearchParams<{ from?: string }>();
   const [locating, setLocating] = useState(false);
   const locationField = useNudge();
@@ -79,7 +81,7 @@ export default function CreateStep2() {
       subtitle="Schritt 2 von 2"
       navigation="back"
       // Aus dem Blatt über dem Feed: zurück ins Blatt, das noch offen ist
-      onLeadingPress={() => (from === 'feed' ? router.dismissTo('/feed') : router.back())}
+      onLeadingPress={() => (from === 'feed' ? router.dismissTo('/feed') : goBack())}
       actions={
         <>
           <Button label="Vorschau" onPress={preview} disabled={!canPublish || saving}

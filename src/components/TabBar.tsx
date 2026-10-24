@@ -10,7 +10,7 @@ import { CrownIcon } from './icons/Brand';
 import { t } from '../data/texts';
 import { refreshUnread, useUnreadMessages } from '../data/chat';
 import { useStore } from '../data/store';
-import { BURGER, CAMERA_PLUS, PEOPLE, PLANE, line, strokeFor, useIconPt } from './icons/instagramSvgs';
+import { BURGER, CAMERA_PLUS, CHAT, HOME, line, strokeFor, useIconPt } from './icons/instagramSvgs';
 
 /** Krone als Linie für den Look „Instagram“ */
 const crownLine = (c: string) =>
@@ -47,7 +47,7 @@ export function TabBar(props: TabBarProps) {
 
 /**
  * Leiste im Look „Instagram“ nach Darias Mockup „Vorher-Nachher“ (24.10.2026): vier gleich breite Felder,
- * zwei Personen = Feed (Nachbarschaft und Gruppen), Kamera = Beitrag erstellen, Papierflieger = Chats, Burger = Menü.
+ * Haus = Feed, Kamera = Beitrag erstellen, Sprechblase mit Zeilen = Chats, Burger = Menü (Icon-Regelwerk, 24.10.2026).
  * Icons in Icon-Größe mit derselben Linie; inaktiv mit 55 % Deckkraft, aktiv voll. „Was Du so machst“ öffnet
  * das Herz oben im Feed.
  */
@@ -72,7 +72,7 @@ function InstaTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBar
           onPress={onFeedPress}
           style={item(active === 'feed')}
         >
-          <SvgXml xml={svg(PEOPLE)} width={ICON_PT} height={ICON_PT} />
+          <SvgXml xml={svg(HOME)} width={ICON_PT} height={ICON_PT} />
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -90,7 +90,7 @@ function InstaTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBar
           style={item(active === 'chat')}
         >
           <View>
-            <SvgXml xml={svg(PLANE)} width={ICON_PT} height={ICON_PT} />
+            <SvgXml xml={svg(CHAT)} width={ICON_PT} height={ICON_PT} />
             {unread ? <View style={styles.dotInsta} /> : null}
           </View>
         </Pressable>

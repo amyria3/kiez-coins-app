@@ -98,7 +98,7 @@ export default function GroupDetail() {
           onPress: () =>
             run(async () => {
               await groupApi.leave(group.id);
-              router.back();
+              goBack();
             }, 'Hat nicht geklappt'),
         },
       ],
@@ -110,7 +110,7 @@ export default function GroupDetail() {
       title={group.name}
       subtitle={t('{members} von {MAX_MEMBERS} Mitgliedern', { members: group.members.length, MAX_MEMBERS })}
       navigation="back"
-      onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/gruppen'))}
+      onLeadingPress={() => (goBack())}
       actions={
         <>
           <Button label="Aufgabe erstellen" onPress={() => router.push(`/gruppen/${group.id}/aufgabe`)} />

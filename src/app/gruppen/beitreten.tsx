@@ -11,6 +11,7 @@ import { parseInviteCode } from '../../data/groups';
 import { rememberInvite } from '../../data/pendingInvite';
 import { useStore } from '../../data/store';
 import { useNudge } from '../../components/Nudge';
+import { useGoBack } from '../../lib/goBack';
 
 /**
  * Route `gruppen/beitreten`: Einladungscode eingeben.
@@ -19,6 +20,7 @@ import { useNudge } from '../../components/Nudge';
  */
 export default function JoinGroup() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { session } = useAuth();
   const { groupApi } = useStore();
   const params = useLocalSearchParams<{ code?: string }>();
@@ -60,7 +62,7 @@ export default function JoinGroup() {
     <SubScreen
       title="Gruppe beitreten"
       navigation="back"
-      onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))}
+      onLeadingPress={() => (goBack())}
       actions={<Button busy={busy} label={busy ? 'Trete bei …' : 'Beitreten'} onPress={join} disabled={busy || clean.length !== 6} whyDisabled={() => !busy && codeField.nudge('Der Code hat 6 Zeichen.')} />}
     >
       <TextField

@@ -52,7 +52,8 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
             );
           })}
           <Pressable accessibilityRole="button" accessibilityLabel={t('Alle Gruppen')} onPress={onAll} style={styles.chip}>
-            <Icon name="plus" size={14} color={color.text.secondary} />
+            {/* Regelwerk: Plus heißt nur „Hinzufügen“. Zur Übersicht führt der Text „Alle“. */}
+            <Text style={styles.chipText}>Alle</Text>
           </Pressable>
         </ScrollView>
       ) : null}

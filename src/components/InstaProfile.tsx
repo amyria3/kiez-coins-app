@@ -18,6 +18,7 @@ import { Icon } from './icons/Icon';
 import { PEOPLE, line, strokeFor, useIconPt } from './icons/instagramSvgs';
 import { TAB_BAR_SPACE, TabBar } from './TabBar';
 import { Text } from './T';
+import { useGoBack } from '../lib/goBack';
 
 type GridTab = 'created' | 'accepted' | 'groups';
 
@@ -39,6 +40,7 @@ const GRID_TABS: { key: GridTab; label: string; svg: string }[] = [
  */
 export function InstaProfile() {
   const router = useRouter();
+  const goBack = useGoBack();
   const insets = useSafeAreaInsets();
   const { width } = useAppDimensions();
   const { challenges, currentUserId, profile, groups, users } = useStore();
@@ -220,7 +222,7 @@ export function InstaProfile() {
       <TabBar
         active="reise"
         hasTasks={tasks.length > 0}
-        onFeedPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))}
+        onFeedPress={() => (goBack())}
         onReisePress={() => {}}
         onMenuPress={() => router.push('/account')}
       />

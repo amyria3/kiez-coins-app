@@ -153,7 +153,7 @@ export default function UserProfile() {
             onPress={() => Linking.openURL(website).catch(() => {})}
             style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}
           >
-            <Icon name="send" size={13} color={color.accent.primary} />
+            <Icon name="link" size={13} color={color.accent.primary} />
             <Text style={styles.link} numberOfLines={1}>
               {website.replace(/^https?:\/\//i, '').replace(/\/$/, '')}
             </Text>

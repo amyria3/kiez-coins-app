@@ -41,7 +41,7 @@ export default function DemoMenu() {
   }
 
   const open = (href: Href) => {
-    router.back();
+    goBack();
     router.push(href);
   };
 
@@ -98,7 +98,7 @@ export default function DemoMenu() {
             variant="secondary"
             label="Onboarding ansehen"
             onPress={() => {
-              router.back();
+              goBack();
               router.replace('/onboarding/welcome');
             }}
           />

@@ -54,7 +54,7 @@ export default function ChangeEmail() {
       return;
     }
     Alert.alert('Adresse geändert', t('Ab jetzt meldest Du Dich mit {sentTo} an.', { sentTo }));
-    router.back();
+    goBack();
   };
 
   return (

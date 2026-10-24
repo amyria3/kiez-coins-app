@@ -42,6 +42,12 @@ export const PLANE = `<path d="M5 9.2 18.6 4.2c1.6-.6 2.1-.1 1.5 1.5l-4.7 13.1c-
 export const CAMERA_PLUS = `<rect x="3" y="6.5" width="18" height="13.5" rx="4.5"/><path d="M9 6.5l.6-1.2c.4-.8 1.1-1.3 2-1.3h.8c.9 0 1.6.5 2 1.3l.6 1.2"/><circle cx="12" cy="13.2" r="3.4"/>`;
 /** Haus mit runden Ecken */
 export const HOME = `<path d="M4.5 10.6c0-.9.4-1.7 1.1-2.2l5-3.9a2.3 2.3 0 0 1 2.8 0l5 3.9c.7.5 1.1 1.3 1.1 2.2v7.6a2.3 2.3 0 0 1-2.3 2.3h-2.4v-4.7a2.8 2.8 0 0 0-5.6 0v4.7H6.8a2.3 2.3 0 0 1-2.3-2.3z"/>`;
+/** Stecknadel: Ort (Challenge, Profil, Kiez) */
+export const PIN = `<path d="M12 21.2s-6.6-5.6-6.6-11A6.6 6.6 0 0 1 12 3.6a6.6 6.6 0 0 1 6.6 6.6c0 5.4-6.6 11-6.6 11z"/><circle cx="12" cy="10.2" r="2.4"/>`;
+/** Sprechblase mit zwei Zeilen: Chats */
+export const CHAT = `<path d="M7 4.5h10a3.5 3.5 0 0 1 3.5 3.5v6a3.5 3.5 0 0 1-3.5 3.5h-5.2l-4.1 3.1c-.5.4-1.2 0-1.2-.6v-2.5A3.5 3.5 0 0 1 3.5 14V8A3.5 3.5 0 0 1 7 4.5z"/><path d="M8 9.5h8M8 12.8h5"/>`;
+/** Kettenglied: Webseite */
+export const LINK = `<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>`;
 /** Drei Striche: Menü */
 export const BURGER = `<path d="M4 6.6h16M4 12h16M4 17.4h16"/>`;
 /** Zwei Personen: Feed und Gruppen */
@@ -56,10 +62,13 @@ export const instagramSvgs: Partial<Record<IconName, Svg>> = {
   send: icon(() => PLANE),
   camera: icon(() => CAMERA_PLUS),
   // Feed: Haus
-  'map-pin': icon(() => HOME),
+  // Ort: Stecknadel (Regelwerk: das Haus steht nur für den Feed)
+  'map-pin': icon(() => PIN),
   burger: icon(() => BURGER),
   // Chats: Papierflieger wie Instagrams Nachrichten
-  message: icon(() => PLANE),
+  // Chats: Sprechblase mit Zeilen (Regelwerk: der Papierflieger steht nur für Senden)
+  message: icon(() => CHAT),
+  link: icon(() => LINK),
   // Zahnrad mit acht runden Zähnen, als glatte Kurve gezeichnet
   settings: icon(() => `<circle cx="12" cy="12" r="3"/><path d="M18.86 10.61C19.41 11.07 20.75 10.48 21.13 10.9C21.51 11.31 21.51 12.69 21.13 13.1C20.75 13.52 19.41 12.93 18.86 13.39C18.31 13.85 17.77 15.15 17.83 15.87C17.9 16.58 19.26 17.12 19.24 17.68C19.21 18.24 18.24 19.21 17.68 19.24C17.12 19.26 16.58 17.9 15.87 17.83C15.15 17.77 13.85 18.31 13.39 18.86C12.93 19.41 13.52 20.75 13.1 21.13C12.69 21.51 11.31 21.51 10.9 21.13C10.48 20.75 11.07 19.41 10.61 18.86C10.15 18.31 8.85 17.77 8.13 17.83C7.42 17.9 6.88 19.26 6.32 19.24C5.76 19.21 4.79 18.24 4.76 17.68C4.74 17.12 6.1 16.58 6.17 15.87C6.23 15.15 5.69 13.85 5.14 13.39C4.59 12.93 3.25 13.52 2.87 13.1C2.49 12.69 2.49 11.31 2.87 10.9C3.25 10.48 4.59 11.07 5.14 10.61C5.69 10.15 6.23 8.85 6.17 8.13C6.1 7.42 4.74 6.88 4.76 6.32C4.79 5.76 5.76 4.79 6.32 4.76C6.88 4.74 7.42 6.1 8.13 6.17C8.85 6.23 10.15 5.69 10.61 5.14C11.07 4.59 10.48 3.25 10.9 2.87C11.31 2.49 12.69 2.49 13.1 2.87C13.52 3.25 12.93 4.59 13.39 5.14C13.85 5.69 15.15 6.23 15.87 6.17C16.58 6.1 17.12 4.74 17.68 4.76C18.24 4.79 19.21 5.76 19.24 6.32C19.26 6.88 17.9 7.42 17.83 8.13C17.77 8.85 18.31 10.15 18.86 10.61z"/>`),
   'chevron-left': icon(() => `<path d="M15 4.5 7.5 12l7.5 7.5"/>`),

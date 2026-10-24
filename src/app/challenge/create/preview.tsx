@@ -21,6 +21,7 @@ import { useCurrentUser, useStore } from '../../../data/store';
 import { color, font, motion, radius, size, space, stroke, text } from '../../../theme/tokens';
 import { useAppDimensions } from '../../../theme/layout';
 import { useDraft } from './_layout';
+import { useGoBack } from '../../../lib/goBack';
 
 /** Breite des ausgeblurrten Rands links und rechts (schmal, Daria 22.10.2026) */
 const EDGE = space[8];
@@ -47,6 +48,7 @@ const BAR = 52 + space[12];
  */
 export default function CreatePreview() {
   const router = useRouter();
+  const goBack = useGoBack();
   const insets = useSafeAreaInsets();
   const [draft] = useDraft();
   const user = useCurrentUser();
@@ -194,7 +196,7 @@ export default function CreatePreview() {
         image={draft.photo}
         moreImages={draft.extras.map((e) => e.photo)}
         imageLabel={draft.title}
-        onBackPress={() => router.back()}
+        onBackPress={() => goBack()}
         summary={summary}
       >
         {draft.text.trim() ? <Text style={styles.description}>{draft.text.trim()}</Text> : null}
@@ -255,7 +257,7 @@ export default function CreatePreview() {
       ) : null}
 
       <View style={[styles.bar, { paddingBottom: bottom }]}>
-        <Button label="Bearbeiten" variant="secondary" onPress={() => router.back()} disabled={busy} />
+        <Button label="Bearbeiten" variant="secondary" onPress={() => goBack()} disabled={busy} />
         <Button
           label={busy ? 'Wird veröffentlicht …' : 'Veröffentlichen'}
           onPress={publish}

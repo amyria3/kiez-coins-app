@@ -11,10 +11,12 @@ import { useStore } from '../../data/store';
 import { color, radius, size, space, stroke, text } from '../../theme/tokens';
 import { explain } from '../../components/Nudge';
 import { t } from '../../data/texts';
+import { useGoBack } from '../../lib/goBack';
 
 /** Route `gruppen` („Deine Gruppen“): Liste, Gründen, Beitreten. Erreichbar aus dem Feed-Reiter und aus dem Konto. */
 export default function Groups() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { groups, challenges, currentUserId } = useStore();
   const full = groups.length >= MAX_GROUPS;
   const tooMany = () =>
@@ -24,7 +26,7 @@ export default function Groups() {
     <SubScreen
       title="Deine Gruppen"
       navigation="back"
-      onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))}
+      onLeadingPress={() => (goBack())}
       actions={
         <>
           <Button label="Gruppe gründen" onPress={() => router.push('/gruppen/neu')} disabled={full} whyDisabled={tooMany} />

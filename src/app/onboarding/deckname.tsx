@@ -12,6 +12,7 @@ import { saveHandle } from '../../data/remote';
 import { useStore } from '../../data/store';
 import { color, text } from '../../theme/tokens';
 import { useNudge } from '../../components/Nudge';
+import { useGoBack } from '../../lib/goBack';
 
 // Kater-Vorschläge kommen später aus einer Wortliste
 const suggestions = ['Käpt’n Kompost', 'Rostige Rosi'];
@@ -19,6 +20,7 @@ const suggestions = ['Käpt’n Kompost', 'Rostige Rosi'];
 /** Route `onboarding/deckname`. Figma: `onboarding/deckname`. Deckname ist öffentlich und einmalig. */
 export default function Deckname() {
   const router = useRouter();
+  const goBack = useGoBack();
   const { profile, mode, dispatch } = useStore();
   const userId = useAuth().session?.user.id;
   const [handle, setHandle] = useState(profile.handle || suggestions[0]);
@@ -46,7 +48,7 @@ export default function Deckname() {
       title="Deckname"
       subtitle="Schritt 2 von 6"
       navigation="back"
-      onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/onboarding/welcome'))}
+      onLeadingPress={() => (goBack())}
       actions={<Button busy={busy} label="Weiter" onPress={next} disabled={!handle.trim() || busy} whyDisabled={() => !busy && handleField.nudge('Wähl einen Decknamen.')} />}
     >
       <KaterBubble>Dein Rufname</KaterBubble>
