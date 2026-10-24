@@ -70,6 +70,11 @@ type ChallengeRow = {
   extra_image_paths?: string[] | null;
   image_before_path: string | null;
   image_after_path: string | null;
+  /** Vorher-Nachher (Migration 20261023000300) */
+  before_text?: string | null;
+  after_text?: string | null;
+  timer_started_at?: string | null;
+  finished_at?: string | null;
   deadline: string | null;
   created_at: string;
   closed_at: string | null;
@@ -153,6 +158,12 @@ function toChallenge(
     }),
     imageBefore: photoUrl(row.image_before_path),
     imageAfter: photoUrl(row.image_after_path),
+    imageBeforePath: row.image_before_path ?? undefined,
+    imageAfterPath: row.image_after_path ?? undefined,
+    beforeText: row.before_text ?? undefined,
+    afterText: row.after_text ?? undefined,
+    timerStartedAt: row.timer_started_at ?? undefined,
+    finishedAt: row.finished_at ?? undefined,
     likedByMe: extra.liked,
     deadline: row.deadline ?? '',
     createdAt: row.created_at,
@@ -672,6 +683,71 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
   });
   return toChallenge(data as unknown as ChallengeRow, { liked: false });
 }
+
+// ---------------------------------------------------------------------------
+// Vorher-Nachher (Migration 20261023000300)
+// ---------------------------------------------------------------------------
+
+/** Höchstdauer des Timers. Danach postet der Server den Entwurf, auch ohne Nachher-Foto. */
+export const BEFORE_AFTER_MAX_MS = 48 * 60 * 60 * 1000;
+/** Höchstlänge je Erklärung (ohne #vorher/#nachher) */
+export const BEFORE_AFTER_TEXT_MAX = 240;
+
+export type NewBeforeAfter = {
+  /** leer: öffentlich im Kiez */
+  groupId?: string;
+  title: string;
+  beforeText: string;
+  photo: ImageSource;
+};
+
+export type BeforeAfterEdit = {
+  title?: string;
+  beforeText?: string;
+  afterText?: string;
+  /** Neue Fotos vom Gerät */
+  beforePhoto?: ImageSource;
+  afterPhoto?: ImageSource;
+};
+
+/** 1. Entwurf mit Vorher-Foto anlegen. Gibt den Entwurf zurück. */
+export async function startBeforeAfter(userId: string, input: NewBeforeAfter): Promise<Challenge> {
+  const path = await uploadPhoto(userId, input.photo);
+  const { data } = check(
+    await supabase.rpc('start_before_after', {
+      p_group_id: input.groupId ?? null,
+      p_title: input.title,
+      p_before_text: input.beforeText,
+      p_image_before_path: path,
+    }),
+  );
+  const { challenge } = await loadChallenge(data as string, userId);
+  if (!challenge) throw new Error(t('Der Entwurf ist nicht angekommen. Versuch es bitte noch mal.'));
+  return challenge;
+}
+
+/** 2. Timer starten. Gibt den Startzeitpunkt vom Server zurück. */
+export async function startBeforeAfterTimer(id: string): Promise<string> {
+  const { data } = check(await supabase.rpc('start_before_after_timer', { p_challenge_id: id }));
+  return data as string;
+}
+
+/** 3. Entwurf ändern: neue Fotos hochladen, Texte setzen. Nicht übergebene Werte bleiben. */
+export async function updateBeforeAfter(userId: string, id: string, edit: BeforeAfterEdit): Promise<void> {
+  const before = edit.beforePhoto ? await uploadPhoto(userId, edit.beforePhoto) : null;
+  const after = edit.afterPhoto ? await uploadPhoto(userId, edit.afterPhoto) : null;
+  await rpc('update_before_after', {
+    p_challenge_id: id,
+    p_title: edit.title ?? null,
+    p_before_text: edit.beforeText ?? null,
+    p_after_text: edit.afterText ?? null,
+    p_image_before_path: before,
+    p_image_after_path: after,
+  });
+}
+
+/** 4. Posten. Die Datenbank setzt den Text aus #vorher und #nachher zusammen. */
+export const finishBeforeAfter = (id: string) => rpc('finish_before_after', { p_challenge_id: id });
 
 /** Entwurf veröffentlichen. Die Datenbank prüft Titel, Ort, Foto, Frist und Bounty. */
 export const publishDraft = (id: string, deadline: string) =>

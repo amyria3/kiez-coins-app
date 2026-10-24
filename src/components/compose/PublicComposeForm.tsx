@@ -1,24 +1,29 @@
 import { useState, type ReactNode } from 'react';
-import { Alert } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { useStore } from '../../data/store';
 import type { ImageSource } from '../../data/types';
 import { Button } from '../Button';
-import { ExtraPhotos, PhotoPicker, SwitchRow, TextField } from '../Form';
+import { ExtraPhotos, PhotoPicker, TextField } from '../Form';
+import { Text } from '../T';
 import { explain } from '../Nudge';
+import { color, text } from '../../theme/tokens';
 
 const uriOf = (photo?: ImageSource) =>
   typeof photo === 'object' && photo && 'uri' in photo && typeof photo.uri === 'string' ? photo.uri : undefined;
 
 /**
- * Schritt 1 einer öffentlichen Challenge im Blatt über dem Feed: Challenge oder Bild, Fotos, Titel, Beschreibung.
+ * Schritt 1 einer öffentlichen Challenge oder eines Bilds im Blatt über dem Feed: Fotos, Titel, Beschreibung.
+ * Den Typ wählt der Schalter oben im Blatt (ComposeSheet).
  * „Weiter“ öffnet Schritt 2 (Ort, Coins, Zeitraum) wie bisher, dort führt „Zurück“ wieder ins Blatt.
  */
-export function usePublicComposeForm(onSaved: () => void): { fields: ReactNode; buttons: ReactNode } {
+export function usePublicComposeForm(
+  onSaved: () => void,
+  type: 'individual' | 'photo',
+): { fields: ReactNode; buttons: ReactNode } {
   const router = useRouter();
   const { saveDraft } = useStore();
-  const [type, setType] = useState<'individual' | 'photo'>('individual');
   const [photo, setPhoto] = useState<ImageSource>();
   const [extras, setExtras] = useState<ImageSource[]>([]);
   const [title, setTitle] = useState('');
@@ -63,11 +68,9 @@ export function usePublicComposeForm(onSaved: () => void): { fields: ReactNode; 
 
   const fields = (
     <>
-      <SwitchRow
-        label={isChallenge ? 'Challenge: Hier muss etwas getan werden! Auf geht’s, Nachbarschaft!' : 'Hier ist nichts zu tun, nur ein schönes Bild'}
-        value={isChallenge}
-        onValueChange={(on) => setType(on ? 'individual' : 'photo')}
-      />
+      <Text style={styles.hint}>
+        {isChallenge ? 'Hier muss etwas getan werden. Auf geht’s, Nachbarschaft!' : 'Hier ist nichts zu tun, nur ein schönes Bild.'}
+      </Text>
       <PhotoPicker
         photo={photo}
         hint={showErrors && missingPhoto ? 'Bitte füge ein Foto hinzu.' : isChallenge ? 'Zeig, wo geholfen werden soll.' : 'Zeig, was Dir gefällt.'}
@@ -101,3 +104,7 @@ export function usePublicComposeForm(onSaved: () => void): { fields: ReactNode; 
 
   return { fields, buttons };
 }
+
+const styles = StyleSheet.create({
+  hint: { ...text.body, fontSize: 14, lineHeight: 19, color: color.text.secondary },
+});

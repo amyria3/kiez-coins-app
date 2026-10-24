@@ -12,7 +12,7 @@ import { KaterCard } from '../components/Content';
 import { Segments } from '../components/FeedHeader';
 import { Icon } from '../components/icons/Icon';
 import { NavigationBar } from '../components/NavigationBar';
-import { formatDayMonthShort, formatDurationSince, formatRemainingShort, nameInText } from '../data/format';
+import { formatDayMonthShort, formatDurationSince, formatRelative, formatRemainingShort, nameInText } from '../data/format';
 import { useRequireKiez } from '../data/kiez';
 import { useStore } from '../data/store';
 import type { Challenge, User } from '../data/types';
@@ -103,8 +103,11 @@ export default function ManageChallenges() {
   }, [challenges, currentUserId]);
 
   const create = () => requireKiez() && router.push('/challenge/create/step-1');
+  // Vorher-Nachher: zurück zum Timer bzw. Nachher (Route vorher-nachher/[id])
   const openDraft = (c: Challenge) =>
-    requireKiez() && router.push({ pathname: '/challenge/create/step-1', params: { draftId: c.id } });
+    c.type === 'before_after'
+      ? router.push({ pathname: '/vorher-nachher/[id]', params: { id: c.id } })
+      : requireKiez() && router.push({ pathname: '/challenge/create/step-1', params: { draftId: c.id } });
   // Kopie: neue Challenge mit Foto, Titel, Text, Ort und Bounty der alten. Gruppenaufgaben bleiben in ihrer Gruppe.
   const copy = (c: Challenge) =>
     c.groupId
@@ -299,11 +302,18 @@ type CardProps = {
 
 function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy, onDelete, onComments, hasNext }: CardProps) {
   const isDraft = c.status === 'draft';
-  const isOpen = c.status === 'open' && !c.assigneeId;
+  // Vorher-Nachher hat nach dem Posten nichts zu bearbeiten oder zu schließen
+  const isBeforeAfter = c.type === 'before_after';
+  const isOpen = c.status === 'open' && !c.assigneeId && !isBeforeAfter;
   const canDelete = deletable(c);
 
   const state = isDraft
-    ? { value: 'Entwurf', hint: 'Nur für Dich sichtbar' }
+    ? {
+        value: 'Entwurf',
+        hint: isBeforeAfter ? (c.timerStartedAt ? 'Vorher-Nachher, Timer läuft' : 'Vorher-Nachher, Timer noch nicht gestartet') : 'Nur für Dich sichtbar',
+      }
+    : isBeforeAfter && c.status === 'open'
+      ? { value: 'Gepostet', hint: formatRelative(c.createdAt) }
     : isOpen
       ? { value: 'Offen', hint: formatRemainingShort(c.deadline) }
       : c.assigneeId

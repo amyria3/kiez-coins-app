@@ -10,6 +10,8 @@ import { formatRelative, formatRemainingShort } from '../data/format';
 import type { Challenge, User } from '../data/types';
 import { color, font, isInstagram, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
+import { BeforeAfterPost } from './BeforeAfterPost';
+import { WithMentions } from './WithMentions';
 import { BountyBadge } from './Badges';
 import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
@@ -18,7 +20,7 @@ import { t } from '../data/texts';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
-type ChallengePostProps = {
+export type ChallengePostProps = {
   challenge: Challenge;
   author: User;
   /** Entfernung, z. B. „300 m“, wenn Standort und Challenge-Punkt bekannt sind */
@@ -36,6 +38,7 @@ type ChallengePostProps = {
  * Foto als Karte, Bounty oben rechts, Titel und Autor auf einer Glasleiste unten im Foto.
  */
 export const ChallengePost = memo(function ChallengePost(props: ChallengePostProps) {
+  if (props.challenge.type === 'before_after') return <BeforeAfterPost {...props} />;
   return isInstagram ? <InstaPost {...props} /> : <KiezPost {...props} />;
 });
 
@@ -344,24 +347,6 @@ function InstaPost({ challenge, author, distance, onPress, onCommentPress, onLik
 
 function comingSoon() {
   Alert.alert('Kommt bald', 'Geschenke folgen nach dem MVP.');
-}
-
-/** @-Namen in color/accent/signal hervorheben (verschachteltes Text). */
-function WithMentions({ value }: { value: string }) {
-  const parts = value.split(/(@[\p{L}\p{N}_]+)/u);
-  return (
-    <>
-      {parts.map((part, i) =>
-        part.startsWith('@') ? (
-          <Text key={i} style={{ color: color.accent.signal }}>
-            {part}
-          </Text>
-        ) : (
-          part
-        ),
-      )}
-    </>
-  );
 }
 
 /**

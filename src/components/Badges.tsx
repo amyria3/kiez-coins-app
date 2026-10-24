@@ -27,13 +27,24 @@ const statusStyles: Record<ChallengeStatus, { label: string; tint: string }> = {
  * Figma „StatusBadge“. Getönte Fläche ohne Rahmen, damit es nicht wie ein Button aussieht.
  * „Offen“ (grün) erscheint nur in der Vorschau beim Erstellen (`showOpen`), sonst ist offen der Normalfall (Daria, 22.10.2026).
  */
-export function StatusBadge({ status, showOpen, photo }: { status: ChallengeStatus; showOpen?: boolean; photo?: boolean }) {
-  // Nur ein Bild, keine Aufgabe: eigenes Badge, solange es online ist
-  const { label, tint } =
-    photo && (status === 'open' || status === 'draft')
-      ? { label: 'Nur ein Bild', tint: color.accent.affection }
-      : statusStyles[status];
-  if (status === 'open' && !showOpen && !photo) return null;
+export function StatusBadge({
+  status,
+  showOpen,
+  photo,
+  beforeAfter,
+}: {
+  status: ChallengeStatus;
+  showOpen?: boolean;
+  photo?: boolean;
+  /** Vorher-Nachher: eigenes Badge wie beim Bild */
+  beforeAfter?: boolean;
+}) {
+  // Nur ein Bild oder Vorher-Nachher, keine Aufgabe: eigenes Badge, solange es online ist
+  const postOnly = (photo || beforeAfter) && (status === 'open' || status === 'draft');
+  const { label, tint } = postOnly
+    ? { label: beforeAfter ? 'Vorher-Nachher' : 'Nur ein Bild', tint: color.accent.affection }
+    : statusStyles[status];
+  if (status === 'open' && !showOpen && !postOnly) return null;
   return (
     <View style={[styles.status, { backgroundColor: `${tint}26` }]}>
       <Text style={[text.caption, { color: tint }]}>{label}</Text>

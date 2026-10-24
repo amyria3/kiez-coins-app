@@ -21,6 +21,12 @@ export const challengeTypes: Record<
     plannedTitle: '',
     plannedHint: '',
   },
+  before_after: {
+    active: true,
+    label: 'Vorher-Nachher',
+    plannedTitle: '',
+    plannedHint: '',
+  },
   wave: {
     active: false,
     label: 'Wave',

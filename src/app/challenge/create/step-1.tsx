@@ -1,14 +1,23 @@
 import { useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
-import { ExtraPhotos, PhotoPicker, SwitchRow, TextField } from '../../../components/Form';
+import { ExtraPhotos, PhotoPicker, TextField } from '../../../components/Form';
+import { TypeSwitch } from '../../../components/compose/TypeSwitch';
+import { Text } from '../../../components/T';
+import { color, text } from '../../../theme/tokens';
 import { SubScreen } from '../../../components/Screen';
 import { hasContent, useDraft, useSaveDraft } from './_layout';
 import { explain } from '../../../components/Nudge';
 import { t } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
+
+/** Entwürfe aus „Deine Challenges“: Challenge oder Bild. Vorher-Nachher hat einen eigenen Ablauf. */
+const TYPES = [
+  { key: 'individual', label: 'Challenge' },
+  { key: 'photo', label: 'Bild' },
+] as const;
 
 /** Route `challenge/create/step-1`. Figma: `challenge/create/step-1`. */
 export default function CreateStep1() {
@@ -60,11 +69,14 @@ export default function CreateStep1() {
       }
     >
       {/* Challenge oder nur ein Bild (Daria, 22.10.2026). Ein Bild hat keine Coins und lässt sich nicht annehmen. */}
-      <SwitchRow
-        label={isChallenge ? 'Challenge: Hier muss etwas getan werden! Auf geht’s, Nachbarschaft!' : 'Hier ist nichts zu tun, nur ein schönes Bild'}
-        value={isChallenge}
-        onValueChange={(on) => setDraft((d) => ({ ...d, type: on ? 'individual' : 'photo', bountyAmount: on ? d.bountyAmount : undefined }))}
+      <TypeSwitch
+        options={TYPES}
+        value={draft.type}
+        onChange={(type) => setDraft((d) => ({ ...d, type, bountyAmount: type === 'individual' ? d.bountyAmount : undefined }))}
       />
+      <Text style={styles.hint}>
+        {isChallenge ? 'Hier muss etwas getan werden. Auf geht’s, Nachbarschaft!' : 'Hier ist nichts zu tun, nur ein schönes Bild.'}
+      </Text>
       <PhotoPicker
         photo={draft.photo}
         hint={showErrors && missingPhoto ? 'Bitte füge ein Foto hinzu.' : isChallenge ? 'Zeig, wo geholfen werden soll.' : 'Zeig, was Dir gefällt.'}
@@ -93,3 +105,7 @@ export default function CreateStep1() {
     </SubScreen>
   );
 }
+
+const styles = StyleSheet.create({
+  hint: { ...text.body, fontSize: 14, lineHeight: 19, color: color.text.secondary },
+});
