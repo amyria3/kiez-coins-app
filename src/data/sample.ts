@@ -30,12 +30,12 @@ export const sampleUsers: User[] = [
   },
   {
     id: 'gardeners',
-    name: 'Nachbarschaftsgärtner*innen',
-    firstName: 'Nachbarschaftsgärtner*innen',
+    name: 'Nachbarschaftsgärtner:innen',
+    firstName: 'Nachbarschaftsgärtner:innen',
     location: 'Tempelhofer Feld',
     group: true,
     payout: {
-      accountHolder: 'Nachbarschaftsgärtner*innen e. V.',
+      accountHolder: 'Nachbarschaftsgärtner:innen e. V.',
       // Wie in Figma, aber mit gültiger Prüfziffer (Figma: DE12 …)
       iban: 'DE38 4306 0967 1234 5648 21',
       paypal: 'garten@example.org',
@@ -114,7 +114,7 @@ export const sampleChallenges: Challenge[] = [
     id: 'tempelhofer-feld',
     type: 'wave',
     title: 'Müll auf dem Tempelhofer Feld',
-    text: 'Nachbarschaftsgärtner*innen in der Fachhochschule: heute mit @DeinSchönerNachbar',
+    text: 'Nachbarschaftsgärtner:innen in der Fachhochschule: heute mit @DeinSchönerNachbar',
     challengeText:
       'Hilfe! Auf dem Tempelhofer Feld hat sich nach den letzten paar Festivals einiges an Müll angesammelt. Wir möchten am Sonntag gemeinsam aufräumen. Greifzangen und Säcke sind da.',
     authorId: 'gardeners',
