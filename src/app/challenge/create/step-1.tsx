@@ -52,7 +52,7 @@ export default function CreateStep1() {
   // Schließen mit Eingaben: als Entwurf behalten oder verwerfen
   const close = () => {
     if (!hasContent(draft)) return goBack();
-    Alert.alert('Als Entwurf speichern?', 'Du kannst die Challenge später in „Deine Challenges“ fertig machen.', [
+    Alert.alert('Als Entwurf speichern?', 'Du kannst die Challenge später in „Deine Challenges“ fertigstellen.', [
       { text: 'Abbrechen', style: 'cancel' },
       { text: 'Verwerfen', style: 'destructive', onPress: () => goBack() },
       { text: 'Speichern', onPress: save },
@@ -73,7 +73,7 @@ export default function CreateStep1() {
             variant="ghost"
             onPress={save}
             disabled={busy || !hasContent(draft)}
-            whyDisabled={() => !busy && explain('Noch nichts zu speichern', 'Füg ein Foto hinzu oder gib einen Titel ein, dann lässt sich der Entwurf speichern.')}
+            whyDisabled={() => !busy && explain('Noch nichts zu speichern', 'Füge ein Foto hinzu oder gib einen Titel ein, dann lässt sich der Entwurf speichern.')}
           />
         </>
       }
@@ -85,16 +85,16 @@ export default function CreateStep1() {
         onChange={(type) => setDraft((d) => ({ ...d, type, bountyAmount: type === 'individual' ? d.bountyAmount : undefined }))}
       /> : null}
       <Text style={styles.hint}>
-        {isChallenge ? 'Hier muss etwas getan werden. Auf geht’s, Nachbarschaft!' : 'Hier ist nichts zu tun, nur ein schönes Bild.'}
+        {isChallenge ? 'Hier gibt es etwas zu tun! Zu den Spaten! Zu den Müllsäcken!' : 'Hier ist nichts zu tun, nur ein schönes Bild.'}
       </Text>
       <PhotoPicker
         photo={draft.photo}
-        hint={showErrors && missingPhoto ? 'Bitte füge ein Foto hinzu.' : isChallenge ? 'Zeig, wo geholfen werden soll.' : 'Zeig, was Dir gefällt.'}
+        hint={showErrors && missingPhoto ? 'Bitte ein Foto hinzufügen.' : isChallenge ? 'Zeige, wo geholfen werden soll.' : 'Zeige Deinem Kiez, was Dir gefällt.'}
         onChange={(photo) => setDraft((d) => ({ ...d, photo, imagePath: undefined }))}
         title={{
           value: draft.title,
           onChange: (title) => setDraft((d) => ({ ...d, title })),
-          error: showErrors && missingTitle ? 'Bitte gib einen Titel ein.' : undefined,
+          error: showErrors && missingTitle ? 'Einen Titel eingeben, bitte.' : undefined,
         }}
       />
       {draft.photo ? (

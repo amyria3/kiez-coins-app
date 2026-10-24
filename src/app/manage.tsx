@@ -117,7 +117,9 @@ export default function ManageChallenges() {
   const close = (c: Challenge) =>
     Alert.alert(
       'Challenge schließen?',
-      'Die Challenge bleibt im Feed sichtbar, lässt sich aber nicht mehr annehmen oder kommentieren. Das lässt sich nicht rückgängig machen.',
+      c.groupId
+        ? 'Bestätigen? Deine Gruppenmitglieder können diese Challenge nicht mehr annehmen. (Sie bleibt aber im Feed sichtbar.)'
+        : 'Bestätigen? Deine Nachbar:innen können diese Challenge nicht mehr annehmen. (Sie bleibt aber im Feed sichtbar.)',
       [
         { text: 'Abbrechen', style: 'cancel' },
         { text: 'Schließen', style: 'destructive', onPress: () => dispatch({ type: 'close', id: c.id }) },
@@ -151,7 +153,7 @@ export default function ManageChallenges() {
       isDraft ? 'Entwurf löschen?' : 'Challenge löschen?',
       isDraft
         ? 'Das lässt sich nicht rückgängig machen.'
-        : 'Die Challenge verschwindet aus dem Feed. Unter „Geschlossen und gelöscht“ kannst Du sie bearbeiten und wieder veröffentlichen.',
+        : 'Die Challenge verschwindet aus dem Feed.',
       [
         { text: 'Abbrechen', style: 'cancel' },
         {
@@ -166,7 +168,7 @@ export default function ManageChallenges() {
   const purge = (c: Challenge) =>
     Alert.alert(
       'Endgültig löschen?',
-      'Die Challenge verschwindet samt Kommentaren für immer. Das lässt sich nicht rückgängig machen.',
+      'Die Challenge verschwindet samt Kommentaren. Das ist irreparabel, lässt sich nicht rückgängig machen.',
       [
         { text: 'Abbrechen', style: 'cancel' },
         { text: 'Endgültig löschen', style: 'destructive', onPress: () => dispatch({ type: 'purge', id: c.id }) },
@@ -186,7 +188,7 @@ export default function ManageChallenges() {
             <KaterCard>
               {tab === 'archive'
                 ? 'Hier liegen später Deine geschlossenen und gelöschten Challenges.'
-                : 'Du hast noch keine laufende Challenge. Fang mit einem Foto an.'}
+                : 'Du hast noch keine laufende Challenge. Fange mit einem Foto an.'}
             </KaterCard>
           </View>
         ) : (

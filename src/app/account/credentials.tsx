@@ -19,7 +19,7 @@ export default function Credentials() {
       <KaterBubble>
         {hasPassword
           ? 'Hier änderst Du Deine Adresse oder Dein Passwort. Den Code per Mail kannst Du immer nutzen.'
-          : 'Du meldest Dich per Code an. Leg ein Passwort fest, dann geht es auch ohne Mail.'}
+          : 'Du meldest Dich per Code an. Lege ein Passwort fest, dann geht es auch ohne Mail.'}
       </KaterBubble>
       <View style={styles.list}>
         <NavRow label="E-Mail" value={session?.user.email ?? 'Nicht angemeldet'} onPress={() => router.push('/account/email')} />

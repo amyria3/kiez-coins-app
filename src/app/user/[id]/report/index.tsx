@@ -73,7 +73,7 @@ export default function UserReportScreen() {
         <Button busy={sending}
           label="Meldung senden"
           disabled={!reason || needsText || sending}
-          whyDisabled={() => (sending ? undefined : !reason ? reasonField.nudge('Wähl einen Grund.') : textField.nudge('Beschreib kurz, was passiert ist.'))}
+          whyDisabled={() => (sending ? undefined : !reason ? reasonField.nudge('Wähle einen Grund.') : textField.nudge('Beschreibe kurz, was passiert ist.'))}
           onPress={send}
         />
       }
@@ -112,7 +112,7 @@ export default function UserReportScreen() {
           { name: name.charAt(0).toUpperCase() + name.slice(1) },
         )}
       />
-      <Notice message="Bist Du in Gefahr? Ruf die Polizei unter 110." />
+      <Notice message="Bist Du in Gefahr? Rufe die Polizei unter 110." />
     </SubScreen>
   );
 }

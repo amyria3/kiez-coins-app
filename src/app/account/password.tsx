@@ -55,15 +55,15 @@ export default function Password() {
               ? undefined
               : password.length < MIN_PASSWORD
                 ? pwField.nudge(t('Mindestens {MIN_PASSWORD} Zeichen.', { MIN_PASSWORD }))
-                : repeatField.nudge('Wiederhol das Passwort genau so.')
+                : repeatField.nudge('Wiederhole das Passwort genau so.')
           }
           onPress={save}
         />}
     >
       <KaterBubble>
         {hasPassword
-          ? 'Wähl ein neues Passwort. Das alte gilt danach nicht mehr.'
-          : 'Leg ein Passwort fest, das nur Du kennst. Den Code per Mail kannst Du weiter nutzen.'}
+          ? 'Wähle ein neues Passwort. Das alte gilt danach nicht mehr.'
+          : 'Lege ein Passwort fest, das nur Du kennst. Den Code per Mail kannst Du weiter nutzen.'}
       </KaterBubble>
       <TextField
         label="Neues Passwort" required

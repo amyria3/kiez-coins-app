@@ -55,7 +55,7 @@ export default function Account() {
 
   return (
     <SubScreen title="Dein Konto" navigation="back" onLeadingPress={goBack}>
-      <KaterBubble>{t('Ahoi, {anrede}! Hier trimmst Du Dein Schiff. Tipp einfach auf das, was Du ändern willst.', { anrede: anrede(profile) })}</KaterBubble>
+      <KaterBubble>{t('Ahoi, {anrede}! Hier trimmst Du Dein Schiff. Tippe einfach auf das, was Du ändern willst.', { anrede: anrede(profile) })}</KaterBubble>
       <ProfileCard
         user={me}
         name={profile.handle || me.name}

@@ -73,9 +73,9 @@ export function InstallHint() {
       <View style={styles.card}>
         <Cat height={34} />
         <View style={styles.body}>
-          <Text style={styles.title}>Leg mich auf Deinen Home-Bildschirm!</Text>
+          <Text style={styles.title}>Lege mich auf Deinen Home-Bildschirm!</Text>
           {mode === 'ios' ? (
-            <Text style={styles.steps}>Tipp in Safari auf Teilen (zuerst auf „…“, falls Du es nicht siehst) und dann auf „Zum Home-Bildschirm“.</Text>
+            <Text style={styles.steps}>Tippe in Safari auf Teilen (zuerst auf „…“, falls Du es nicht siehst) und dann auf „Zum Home-Bildschirm“.</Text>
           ) : (
             <Pressable onPress={install} style={styles.button} accessibilityRole="button">
               <Text style={styles.buttonText}>Installieren</Text>

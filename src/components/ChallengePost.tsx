@@ -92,7 +92,7 @@ function KiezPost({
         delayLongPress={350}
         accessibilityRole="button"
         accessibilityLabel={t('{title} öffnen', { title: challenge.title })}
-        accessibilityHint={t('Einmal tippen zeigt, wer gepostet hat. Nochmal tippen öffnet den Post.')}
+        accessibilityHint={t('Tippe einmal, um den Namen anzuzeigen, oder zweimal oder lange, um den Post zu öffnen.')}
         accessibilityActions={[{ name: 'activate' }]}
         onAccessibilityAction={open}
         style={({ pressed }) => [styles.card, !image && styles.cardNoPhoto, pressed && styles.pressed]}

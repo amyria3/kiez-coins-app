@@ -104,7 +104,7 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
           {done ? (
             <View style={styles.head}>
               <Text style={styles.headline} accessibilityRole="header">Danke!</Text>
-              <Text style={styles.body}>Deine Antwort hilft uns, KiezKoins besser zu machen.</Text>
+              <Text style={styles.body}>Deine Antwort hilft uns, KiezCoins besser zu machen.</Text>
             </View>
           ) : (
             <>

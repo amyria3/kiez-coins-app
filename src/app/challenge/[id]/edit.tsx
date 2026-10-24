@@ -38,7 +38,7 @@ export default function EditChallenge() {
   const router = useRouter();
   const goBack = useGoBack();
   const { currentUserId, canOfferBounties, dispatch } = useStore();
-  const { challenge } = useChallenge(id);
+  const { challenge, assignee } = useChallenge(id);
 
   const [title, setTitle] = useState(challenge?.title ?? '');
   const [body, setBody] = useState(challenge?.text ?? '');
@@ -57,7 +57,9 @@ export default function EditChallenge() {
     return (
       <SubScreen title="Bearbeiten" navigation="close" onLeadingPress={goBack}>
         <Text style={styles.secondary}>
-          Diese Challenge lässt sich nicht mehr bearbeiten, da sie schon angenommen wurde.
+          {assignee
+            ? t('Diese Challenge lässt sich nicht mehr bearbeiten, weil {name} sie schon angenommen hat.', { name: assignee.firstName })
+            : 'Diese Challenge lässt sich nicht mehr bearbeiten, da sie schon angenommen wurde.'}
         </Text>
       </SubScreen>
     );
@@ -104,7 +106,7 @@ export default function EditChallenge() {
   const publish = () => {
     if (!canSave) return;
     if (bounty && !canOfferBounties) {
-      Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Wähl bei Coins „Keine“.');
+      Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Wähle bei Coins „Keine“.');
       return;
     }
     const edit = editOf();
@@ -119,7 +121,7 @@ export default function EditChallenge() {
     if (!changed) return goBack();
     if (!canSave) return;
     if (bounty && !canOfferBounties) {
-      Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Wähl bei Coins „Keine“.');
+      Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Wähle bei Coins „Keine“.');
       return;
     }
     const edit = editOf();
@@ -133,8 +135,8 @@ export default function EditChallenge() {
   // In „Deine Challenges“ unter „Geschlossen und gelöscht“ lässt sie sich wieder bearbeiten und veröffentlichen.
   const toDraft = () =>
     Alert.alert(
-      'Nicht veröffentlichen?',
-      'Die Challenge verschwindet mit Deinen Änderungen aus dem Feed. In „Deine Challenges“ unter „Geschlossen und gelöscht“ kannst Du sie wieder veröffentlichen.',
+      'Doch nicht veröffentlichen?',
+      'Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Geschlossen und gelöscht“.',
       [
         { text: 'Abbrechen', style: 'cancel' },
         {

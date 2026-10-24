@@ -48,11 +48,8 @@ export default function Kiez() {
       setFound(place.kiez);
       setStep('found');
     } catch (error) {
-      setProblem(
-        error instanceof LocationDenied
-          ? 'Ohne Freigabe finde ich Deinen Kiez nicht. Gib ihn von Hand ein oder erlaube den Standort in den Einstellungen.'
-          : 'Ich habe Deinen Kiez gerade nicht gefunden. Versuch es noch einmal oder gib ihn von Hand ein.',
-      );
+      // Ohne Freigabe kein Hinweis, nur das Feld (Daria, 24.10.2026)
+      setProblem(error instanceof LocationDenied ? null : 'Wir haben hier ein technisches Problem. Ich kann Deinen Kiez gerade nicht finden.');
       setStep('manual');
     }
   };
@@ -62,12 +59,12 @@ export default function Kiez() {
   const actions =
     step === 'found' ? (
       <>
-        <Button label="Diesen Kiez übernehmen" onPress={() => next(found)} />
+        <Button label="Passt" onPress={() => next(found)} />
         <Button label="Stimmt nicht, von Hand eingeben" variant="ghost" onPress={() => setStep('manual')} />
       </>
     ) : step === 'manual' ? (
       <>
-        <Button label="Kiez übernehmen" onPress={() => next(manual.trim())} disabled={!manualValid}
+        <Button label="Passt" onPress={() => next(manual.trim())} disabled={!manualValid}
           whyDisabled={() => manualField.nudge('Mit Postleitzahl, zum Beispiel „Alt-West, 04177 Leipzig“.')}
         />
         <Button label="Standort noch einmal suchen" variant="ghost" onPress={locate} />
@@ -94,7 +91,7 @@ export default function Kiez() {
       <KaterBubble>
         {step === 'found'
           ? t('Ahoi, {anrede}! Ist das Dein Heimathafen?', { anrede: anrede(profile) })
-          : t('Ahoi, {anrede}! Wo liegt Dein Heimathafen? Am besten fragst Du, wenn Du zu Hause bist.', {
+          : t('Ahoi, {anrede}! Wo liegt Dein Heimathafen? Melde Dich, wenn Du zuhause bist.', {
               anrede: anrede(profile),
             })}
       </KaterBubble>
@@ -106,14 +103,14 @@ export default function Kiez() {
           <TextField
             label="Ortsteil, Postleitzahl und Ort" required
         nudge={manualField}
-            helperText="Zum Beispiel „Prenzlauer Berg, 10437 Berlin“. Die Postleitzahl braucht es."
+            helperText="Zum Beispiel „Prenzlauer Berg, 10437 Berlin“. Die Postleitzahl ist notwendig."
             value={manual}
             onChangeText={setManual}
             maxLength={80}
           />
         </>
       ) : null}
-      <Notice message="Wir speichern nur den Kiez, nicht Deinen genauen Standort. Ohne Kiez kannst Du lesen, aber nichts schreiben, erstellen oder annehmen, und Namen bleiben verdeckt." />
+      <Notice message="Wir speichern nur den Kiez, nicht Deinen genauen Standort. Ohne Kiez kannst Du lesen und Me-Challenges posten. Für We-Challenges ist die Autorisierung Pflicht." />
     </SubScreen>
   );
 }

@@ -21,11 +21,10 @@ export default function Welcome() {
         <KaterStage width={190} spruch={kater.spruch} take={kater.take} onPress={kater.noch} />
         <Text style={styles.headline} accessibilityRole="header">
           Ahoi.{'\n'}
-          <Text style={styles.headlineMuted}>Der Kiez sucht eine neue Crew.</Text>
+          <Text style={styles.headlineMuted}>Cat The Käptn sucht eine neue Crew für seinen Kiez.</Text>
         </Text>
         <Text style={styles.body}>
-          Ich bin Cat The Käptn, der alte Kater vom Kiez. Die Segel hab ich eingeholt, aber für eine neue Crew würde ich alles tun.
-          Alles. Hilf Deinen Nachbar*innen mit kleinen Challenges.
+          Ich bin ein alter Mann … hm, Kater. Die Segel hab ich eingeholt, aber zur Ruhe will ich mich nicht setzen. Hilf Deinen Nachbar*innen mit kleinen Challenges.
         </Text>
         <Text style={styles.legal}>
           Testversion ·{' '}

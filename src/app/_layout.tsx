@@ -138,7 +138,7 @@ export function ErrorBoundary({ error, retry }: { error: Error; retry: () => Pro
   return (
     <View style={errorStyles.screen}>
       <Text style={errorStyles.title}>Hier ist etwas schiefgelaufen.</Text>
-      <Text style={errorStyles.hint}>Schick bitte einen Screenshot an den Support.</Text>
+      <Text style={errorStyles.hint}>Schicke bitte einen Screenshot an den Support.</Text>
       <Text style={errorStyles.detail} selectable>
         {String(error?.stack ?? error?.message ?? error).slice(0, 1200)}
       </Text>

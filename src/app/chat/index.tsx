@@ -108,7 +108,7 @@ export default function Chats() {
 
         {data && data.conversations.length === 0 ? (
           <KaterCard title="Noch keine Freund:innen">
-            Öffne das Profil einer Person aus Deinem Kiez und frag sie als Freund:in an. Dann könnt Ihr Euch hier schreiben.
+            Öffne das Profil einer Person aus Deinem Kiez und frage sie als Freund:in an. Dann könnt Ihr Euch hier schreiben.
           </KaterCard>
         ) : null}
 
@@ -133,7 +133,7 @@ export default function Chats() {
                 {last ? <Text style={styles.time}>{formatRelative(last.createdAt)}</Text> : null}
               </View>
               <Text style={[styles.preview, unread ? styles.previewUnread : null]} numberOfLines={1}>
-                {last ? (last.senderId === currentUserId ? t('Du: {body}', { body: last.body }) : last.body) : t('Schreib die erste Nachricht')}
+                {last ? (last.senderId === currentUserId ? t('Du: {body}', { body: last.body }) : last.body) : t('Schreibe die erste Nachricht')}
               </Text>
             </View>
             {unread ? <View style={styles.badge}><Text style={styles.badgeText}>{unread}</Text></View> : null}

@@ -27,7 +27,7 @@ export default function Kodex() {
 
   return (
     <SubScreen
-      title="Der Kodex"
+      title="Wertekodex"
       subtitle="Schritt 5 von 7"
       navigation="back"
       onLeadingPress={goBack}
@@ -58,8 +58,8 @@ export default function Kodex() {
         />
       }
     >
-      <KaterBubble>Noch das Kleingedruckte. Auch Piraten haben einen Kodex.</KaterBubble>
-      <Notice message="Kiez Coins ist eine kostenlose Testversion. Funktionen können sich ändern. Am Ende der Testphase setzen wir Daten eventuell zurück. Das kündigen wir vorher per E-Mail an." />
+      <KaterBubble>Noch das Kleingedruckte.</KaterBubble>
+      <Notice message="Die Kiez Coins App ist momentan eine kostenlose Testversion. Einige Funktionen können sich ändern. Am Ende der Testphase setzen wir Daten zurück. Das kündigen wir vorher per E-Mail an." />
       <NudgeArea nudge={consent}>
       <SwitchRow required label="Ich bin mindestens 18 Jahre alt" value={age} onValueChange={setAge} />
       <SwitchRow

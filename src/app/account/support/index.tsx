@@ -47,12 +47,12 @@ export default function Support() {
       title="Support"
       navigation="back"
       onLeadingPress={goBack}
-      actions={<Button busy={sending} label={sending ? 'Wird gesendet …' : 'Anfrage senden'} disabled={!support.trim() || sending} whyDisabled={() => !sending && field.nudge('Schreib kurz, worum es geht.')} onPress={send} />}
+      actions={<Button busy={sending} label={sending ? 'Wird gesendet …' : 'Anfrage senden'} disabled={!support.trim() || sending} whyDisabled={() => !sending && field.nudge('Schreibe kurz, worum es geht.')} onPress={send} />}
     >
       <TextField
         label="Support-Anfrage" required
         nudge={field}
-        helperText="Schreib uns, was nicht klappt. Wir antworten per E-Mail."
+        helperText="Schreibe uns, was nicht klappt. Wir antworten per E-Mail."
         value={support}
         onChangeText={setSupport}
         multiline

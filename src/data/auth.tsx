@@ -49,16 +49,16 @@ const AuthContext = createContext<Auth | null>(null);
 export function authErrorText(error: AuthError): string {
   switch (error.code) {
     case 'otp_expired':
-      return 'Der Code ist abgelaufen oder stimmt nicht. Lass Dir einen neuen schicken.';
+      return 'Der Code ist abgelaufen oder stimmt nicht. Lasse Dir einen neuen schicken.';
     case 'otp_disabled':
     case 'signup_disabled':
     case 'user_not_found':
-      return 'Zu dieser Adresse gibt es noch kein Konto. Lass Dir einen Code schicken.';
+      return 'Zu dieser Adresse gibt es noch kein Konto. Lasse Dir einen Code schicken.';
     case 'over_email_send_rate_limit':
     case 'over_request_rate_limit':
-      return 'Zu viele Codes auf einmal. Warte kurz und versuch es dann noch mal.';
+      return 'Zu viele Codes auf einmal. Warte kurz und versuche es dann noch mal.';
     case 'email_address_invalid':
-      return 'Diese E-Mail-Adresse klappt nicht. Prüf sie bitte noch mal.';
+      return 'Diese E-Mail-Adresse klappt nicht. Prüfe sie bitte noch mal.';
     case 'invalid_credentials':
       return 'E-Mail oder Passwort stimmen nicht.';
     case 'user_already_exists':
@@ -67,18 +67,18 @@ export function authErrorText(error: AuthError): string {
     case 'same_password':
       return 'Das ist schon Dein Passwort. Nimm ein anderes.';
     case 'reauthentication_needed':
-      return 'Melde Dich bitte neu an und versuch es dann noch mal.';
+      return 'Melde Dich bitte neu an und versuche es dann noch mal.';
     case 'weak_password':
       return 'Das Passwort ist zu schwach. Nimm mindestens 8 Zeichen.';
     case 'email_not_confirmed':
-      return 'Diese Adresse ist noch nicht bestätigt. Schreib uns, dann schalten wir Dich frei.';
+      return 'Diese Adresse ist noch nicht bestätigt. Schreibe uns, dann schalten wir Dich frei.';
     case 'user_banned':
-      return 'Dieses Konto ist gesperrt. Schreib uns, wenn Du Einspruch einlegen willst.';
+      return 'Dieses Konto ist gesperrt. Schreibe uns, wenn Du Einspruch einlegen willst.';
   }
   if (error.status === 0 || /fetch|network/i.test(error.message)) {
-    return 'Keine Verbindung. Prüf Dein Internet und versuch es noch mal.';
+    return 'Keine Verbindung. Prüfe Dein Internet und versuche es noch mal.';
   }
-  return 'Da ist etwas schiefgegangen. Versuch es bitte noch mal.';
+  return 'Da ist etwas schiefgegangen. Versuche es bitte noch mal.';
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -165,7 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { has_password: true } } });
         if (error) return authErrorText(error);
         // Ohne Sitzung verlangt Supabase noch eine Bestätigungsmail („Confirm email“ ist an).
-        if (!data.session) return 'Konto angelegt, aber noch nicht freigeschaltet. Schreib uns bitte.';
+        if (!data.session) return 'Konto angelegt, aber noch nicht freigeschaltet. Schreibe uns bitte.';
         return null;
       },
       signInWithPassword: async (email, password) => {
@@ -198,7 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
           return authErrorText(signUp.error);
         }
-        if (!signUp.data.session) return 'Konto angelegt, aber noch nicht freigeschaltet. Schreib uns bitte.';
+        if (!signUp.data.session) return 'Konto angelegt, aber noch nicht freigeschaltet. Schreibe uns bitte.';
         return null;
       },
       hasPassword: !!session?.user.user_metadata?.has_password,

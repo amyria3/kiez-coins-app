@@ -42,11 +42,11 @@ export default function ReportScreen() {
       title="Erledigt melden"
       navigation="close"
       onLeadingPress={goBack}
-      actions={<Button label="Erledigung senden" onPress={send} disabled={!photo} whyDisabled={() => photoField.nudge('Mach ein Foto vom Ergebnis.')} />}
+      actions={<Button label="Erledigung senden" onPress={send} disabled={!photo} whyDisabled={() => photoField.nudge('Dokumentiere das Ergebnis.')} />}
     >
       <Text style={styles.secondary}>{t('Zeig, was Du geschafft hast. {firstName} sieht Dein Foto und bestätigt die Erledigung.', { firstName: author.firstName })}</Text>
       <NudgeArea nudge={photoField}>
-        <PhotoPicker photo={photo} hint="Ein Nachher-Foto ist Pflicht." onChange={(p) => (photoField.clear(), setPhoto(p))} />
+        <PhotoPicker photo={photo} hint="Ein Nachher-Foto ist erforderlich." onChange={(p) => (photoField.clear(), setPhoto(p))} />
       </NudgeArea>
       <TextField
         label="Notiz (optional)"

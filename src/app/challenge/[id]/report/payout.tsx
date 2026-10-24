@@ -96,8 +96,8 @@ export default function PayoutShareScreen() {
           <Notice
             message={t(
               author.group
-                ? 'Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten aber erst, wenn Du die Challenge erledigt hast und sie sie bestätigt hat. Alles beruht auf Vertrauen.'
-                : 'Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten aber erst, wenn Du die Challenge erledigt hast und er sie bestätigt hat. Alles beruht auf Vertrauen.',
+                ? 'Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und sie sie bestätigt hat. Alles beruht auf Vertrauen.'
+                : 'Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und er sie bestätigt hat. Alles beruht auf Vertrauen.',
               { name },
             )}
           />
@@ -115,7 +115,7 @@ export default function PayoutShareScreen() {
             label="IBAN"
         nudge={ibanField}
             helperText="IBAN oder PayPal, mindestens eins von beiden."
-            error={iban.trim() && !isValidIban(iban) ? 'Diese IBAN stimmt nicht. Bitte prüf sie noch einmal.' : undefined}
+            error={iban.trim() && !isValidIban(iban) ? 'Diese IBAN stimmt nicht. Bitte prüfe sie noch einmal.' : undefined}
             value={iban}
             onChangeText={setIban}
             autoCapitalize="characters"

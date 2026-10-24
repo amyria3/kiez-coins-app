@@ -24,11 +24,11 @@ export default function ReviewSuccess() {
   // Ganze Sätze je Fall, damit sie sich übersetzen lassen
   const message = assignee.group
     ? paypal
-      ? 'Jetzt bist Du dran: Schick die {amount} direkt an {assignee}. Hier sind ihre Zahlungsdaten.'
-      : 'Jetzt bist Du dran: Überweis die {amount} direkt an {assignee}. Hier sind ihre Zahlungsdaten.'
+      ? 'Jetzt bist Du dran: Schicke die {amount} direkt an {assignee}. Hier sind ihre Zahlungsdaten.'
+      : 'Jetzt bist Du dran: Überweise die {amount} direkt an {assignee}. Hier sind ihre Zahlungsdaten.'
     : paypal
-      ? 'Jetzt bist Du dran: Schick die {amount} direkt an {assignee}. Hier sind die Zahlungsdaten.'
-      : 'Jetzt bist Du dran: Überweis die {amount} direkt an {assignee}. Hier sind die Zahlungsdaten.';
+      ? 'Jetzt bist Du dran: Schicke die {amount} direkt an {assignee}. Hier sind die Zahlungsdaten.'
+      : 'Jetzt bist Du dran: Überweise die {amount} direkt an {assignee}. Hier sind die Zahlungsdaten.';
 
   return (
     <ResultScreen

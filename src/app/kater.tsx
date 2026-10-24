@@ -21,7 +21,7 @@ export default function Kater() {
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + space[24] }]}>
         <KaterStage
           width={Math.min(width * 0.78, 340)}
-          spruch={kater.spruch ?? { text: 'Psst. Sag mal Hallo.', aktion: 'brille' }}
+          spruch={kater.spruch ?? { text: 'Psst. Sage mal Hallo.', aktion: 'brille' }}
           take={kater.take}
           onPress={kater.noch}
         />

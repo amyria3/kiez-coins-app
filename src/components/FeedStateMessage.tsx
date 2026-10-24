@@ -9,17 +9,17 @@ import { Cat } from './icons/Brand';
 const messages: Record<Exclude<FeedState, 'filled' | 'loading'>, { title: string; body: string; action: string }> = {
   empty: {
     title: 'Noch keine Challenges in Deiner Nähe',
-    body: 'Starte die erste Challenge für Deinen Kiez. Cat The Käptn freut sich schon.',
+    body: 'Starte die erste Challenge für Deinen Kiez. Cat The Käptn kann’s nicht erwarten.',
     action: 'Challenge erstellen',
   },
   error: {
     title: 'Das hat nicht geklappt',
-    body: 'Die Challenges konnten nicht geladen werden. Versuch es gleich noch einmal.',
+    body: 'Die Challenges konnten nicht geladen werden. Versuche es gleich noch einmal.',
     action: 'Erneut versuchen',
   },
   offline: {
     title: 'Du bist offline',
-    body: 'Sobald Du wieder Internet hast, laden wir die Challenges neu.',
+    body: 'Wird neu geladen, sobald Du wieder Netz hast.',
     action: 'Erneut versuchen',
   },
 };

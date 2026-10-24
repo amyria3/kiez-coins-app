@@ -37,10 +37,10 @@ export const inviteLink = (code: string) => `${WEB_APP_URL}/gruppen/beitreten?co
  */
 export const inviteMessage = (group: Group) =>
   [
-    t('Komm in unsere Gruppe „{name}“ bei Kiez Coins. Mit diesem Link trittst Du bei:', { name: group.name }),
+    t('Ahoi, Friend! Komme in unsere Gruppe „{name}“ bei Kiez Coins. Mit diesem Link trittst Du bei:', { name: group.name }),
     inviteLink(group.inviteCode),
     '',
-    t('Oder in der App unter „Gruppen“ auf „Mit Code beitreten“ tippen und diesen Code eingeben:'),
+    t('Oder in der App unter „Gruppen“ mit Beitrittscode beitreten:'),
     group.inviteCode,
   ].join('\n');
 

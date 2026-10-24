@@ -39,7 +39,7 @@ export default function CreateStep2() {
       const place = await findPlace();
       setDraft((d) => ({ ...d, location: place.street ?? place.kiez, coords: roundCoords(place.coords) }));
     } catch {
-      Alert.alert('Standort nicht gefunden', 'Gib den Ort von Hand ein oder erlaube den Standort in den Einstellungen.');
+      Alert.alert('Standort nicht gefunden', 'Gib Deine PLZ von Hand ein oder erlaube den Standort in den Einstellungen.');
     } finally {
       setLocating(false);
     }
@@ -50,13 +50,25 @@ export default function CreateStep2() {
   const [customText, setCustomText] = useState(custom && draft.bountyAmount ? String(draft.bountyAmount) : '');
 
   const customAmount = Number(customText.replace(',', '.'));
+  // Nur Ziffern, Komma oder Punkt (Daria, 24.10.2026: Fehler nennt den Grund)
+  const badChars = /[^\d.,\s]/.test(customText) || !Number.isFinite(customAmount);
   const customError = !custom || !customText
     ? undefined
-    : customAmount > MAX_BOUNTY
-      ? 'Maximal 50 € möglich.'
-      : customAmount < MIN_BOUNTY || !Number.isFinite(customAmount)
-        ? 'Mindestens 5 € möglich.'
-        : undefined;
+    : badChars
+      ? 'Dieser Betrag enthält unerlaubte Zeichen.'
+      : customAmount > MAX_BOUNTY
+        ? 'Maximal 50 € möglich.'
+        : customAmount < MIN_BOUNTY
+          ? 'Mindestens 5 € möglich.'
+          : undefined;
+  const amountProblem = () =>
+    !customText
+      ? 'Mindestens 5 € möglich.'
+      : badChars
+        ? 'Dieser Betrag enthält unerlaubte Zeichen.'
+        : customAmount > MAX_BOUNTY
+          ? 'Dieser Betrag ist größer als erlaubt.'
+          : customError ?? 'Mindestens 5 € möglich.';
   // Nur ein Bild: keine Coins
   const isChallenge = draft.type !== 'photo';
   const bountyAmount = !isChallenge
@@ -86,7 +98,7 @@ export default function CreateStep2() {
         <>
           <Button label="Vorschau" onPress={preview} disabled={!canPublish || saving}
             whyDisabled={() =>
-              saving ? undefined : !draft.location.trim() ? locationField.nudge('Wo soll es stattfinden?') : amountField.nudge('Gib einen gültigen Betrag ein.')
+              saving ? undefined : !draft.location.trim() ? locationField.nudge('Wo soll es stattfinden?') : amountField.nudge(amountProblem())
             }
           />
           <Button busy={saving}
@@ -101,7 +113,7 @@ export default function CreateStep2() {
       <TextField
         label="Ort" required
         nudge={locationField}
-        helperText="Vorschlag aus Deinem Standort, ohne Hausnummer. Du kannst ihn ändern."
+        helperText="Vorschlag auf Grundlage Deines Standorts, ohne Hausnummer."
         value={draft.location}
         onChangeText={(location) => setDraft((d) => ({ ...d, location }))}
       />
@@ -111,7 +123,7 @@ export default function CreateStep2() {
         onPress={useLocation}
         disabled={locating}
       />
-      <Notice message="Wähle einen öffentlich bekannten Ort, etwa einen Platz, eine Straßenecke oder einen Laden. Keine Wohnadresse. Sei sorgsam mit der Sicherheit anderer Menschen." />
+      <Notice message="Wähle einen öffentlich bekannten Ort, etwa einen Platz, eine Straßenecke oder ein Geschäft. Keine Wohnadresse. Sei sorgsam mit der Sicherheit anderer Menschen." />
       {isChallenge ? (
       <>
       <FieldGroup label="Coins (optional)">

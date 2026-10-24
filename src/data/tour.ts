@@ -18,12 +18,12 @@ export const tourSteps: TourStep[] = [
   {
     key: 'posten',
     title: 'Foto machen, Challenge posten',
-    text: 'Siehst Du etwas, das im Kiez zu tun ist? Tipp auf die Kamera, gib einen Titel und den Ort an. Coins sind freiwillig. Oder teil einfach ein schönes Bild.',
+    text: 'Siehst Du etwas, das im Kiez zu tun ist? Tippe auf die Kamera, gib einen Titel und den Ort an. Coins sind freiwillig. Oder teile einfach ein schönes Bild.',
   },
   {
     key: 'annehmen',
     title: 'Annehmen und anpacken',
-    text: 'Nimm eine Challenge in Deiner Nähe an, erledige sie und zeig das Ergebnis mit einem Foto. Die Person bestätigt, dann ist es geschafft.',
+    text: 'Nimm eine Challenge in Deiner Nähe an, erledige sie und zeige das Ergebnis mit einem Foto. Die Person bestätigt, dann ist es geschafft.',
   },
   {
     key: 'coins',

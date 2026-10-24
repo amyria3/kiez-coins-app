@@ -114,7 +114,7 @@ export default function Email() {
 
   const requestCode = async () => {
     if (!emailValid) {
-      setEmailError('Diese E-Mail-Adresse klappt nicht. Prüf sie bitte noch mal.');
+      setEmailError('Diese E-Mail-Adresse klappt nicht. Prüfe sie bitte noch mal.');
       return;
     }
     setBusy(true);
@@ -148,7 +148,7 @@ export default function Email() {
 
   const submitPassword = async () => {
     if (!emailValid) {
-      setEmailError('Diese E-Mail-Adresse klappt nicht. Prüf sie bitte noch mal.');
+      setEmailError('Diese E-Mail-Adresse klappt nicht. Prüfe sie bitte noch mal.');
       return;
     }
     setBusy(true);
@@ -165,7 +165,7 @@ export default function Email() {
   const resend = async () => {
     const failure = await sendCode(address, true);
     if (failure) setError(failure);
-    else Alert.alert('Code neu gesendet', t('Schau in Dein Postfach: {address}', { address }));
+    else Alert.alert('Code neu gesendet', t('Schaue in Dein Postfach: {address}', { address }));
   };
 
   const passwordValid = password.length > 0;
@@ -183,7 +183,7 @@ export default function Email() {
   return (
     <SubScreen title="Anmelden" subtitle="Schritt 1 von 7" navigation="back" onLeadingPress={goBack}>
       <KaterBubble>
-        Erst mal Deine Flaschenpost-Adresse. Dann schick ich Dir einen Code, oder Du gibst Dein Passwort ein.
+        Zuerst Deine Flaschenpost-Adresse. Du bekommst einen Code und legst Dein Passwort fest.
       </KaterBubble>
       <Animated.View style={{ height: lift }} />
       <TextField
@@ -231,11 +231,11 @@ export default function Email() {
 
       {mode === 'code' ? (
         <Animated.View style={[styles.choices, enter]}>
-          <Text style={styles.note}>{t('Der Code ist unterwegs an {address}. Schau zur Not auch im Spam-Netz.', { address })}</Text>
+          <Text style={styles.note}>Der Code ist unterwegs! Schaue in Dein Postfach.</Text>
           <TextField
             label="Code aus der E-Mail" required
         nudge={codeField}
-            helperText="Gilt 20 Minuten."
+            helperText={t('Gesendet an {email}. Gilt 5 Minuten.', { email: address })}
             error={error}
             value={digits.length === 6 ? `${digits.slice(0, 3)} ${digits.slice(3)}` : digits}
             onChangeText={(v) => {
@@ -254,7 +254,7 @@ export default function Email() {
             disabled={digits.length < MIN_DIGITS || busy}
             whyDisabled={() => !busy && codeField.nudge(t('Der Code hat {MIN_DIGITS} Ziffern.', { MIN_DIGITS }))}
           />
-          <Button label="Code neu senden" variant="ghost" onPress={resend} disabled={busy} />
+          <Button label="Neuen Code schicken" variant="ghost" onPress={resend} disabled={busy} />
           <Button
             label="Doch mit Passwort"
             variant="ghost"

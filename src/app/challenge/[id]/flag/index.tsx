@@ -65,7 +65,7 @@ export default function ChallengeFlagScreen() {
       navigation="close"
       onLeadingPress={goBack}
       actions={<Button busy={sending} label="Meldung senden" disabled={!reason || needsText || sending}
-          whyDisabled={() => (sending ? undefined : !reason ? reasonField.nudge('Wähl einen Grund.') : textField.nudge('Beschreib kurz, was passiert ist.'))} onPress={send} />}
+          whyDisabled={() => (sending ? undefined : !reason ? reasonField.nudge('Wähle einen Grund.') : textField.nudge('Beschreibe kurz, was passiert ist.'))} onPress={send} />}
     >
       <Text style={styles.challenge} numberOfLines={2}>
         {challenge.title}
@@ -92,7 +92,7 @@ export default function ChallengeFlagScreen() {
       />
       <Notice
         variant="warning"
-        message="Die Moderation prüft die Challenge. Die Person, die sie erstellt hat, erfährt nicht, wer gemeldet hat. Falsche Meldungen können zur Sperre führen."
+        message="Die Moderation prüft diese Challenge. Die Person, die sie erstellt hat, erfährt nicht, wer sie gemeldet hat. Wiederholt falsche Meldungen können aber zur Sperre führen."
       />
     </SubScreen>
   );

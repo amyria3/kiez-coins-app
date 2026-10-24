@@ -113,7 +113,7 @@ export default function ChatThread() {
           keyboardDismissMode="interactive"
           ListFooterComponent={
             messages && messages.length === 0 ? (
-              <Text style={styles.empty}>{t('Schreib {name} die erste Nachricht. Nachrichten verschwinden nach einem Monat.', { name: friend.name })}</Text>
+              <Text style={styles.empty}>{t('Schreibe {name} die erste Nachricht. Nachrichten verschwinden nach einem Monat.', { name: friend.name })}</Text>
             ) : null
           }
           renderItem={({ item }) => {

@@ -82,7 +82,7 @@ export default function ChangeEmail() {
     >
       <KaterBubble>
         {sentTo
-          ? t('Der Code ist unterwegs an {adresse}. Schau auch im Spam-Netz.', { adresse: sentTo })
+          ? t('Der Code ist unterwegs an {adresse}. Schaue auch im Spam-Netz.', { adresse: sentTo })
           : t('Gerade nutzt Du {adresse}. An die neue schick ich Dir einen Code.', {
               adresse: session?.user.email ?? 'keine Adresse',
             })}

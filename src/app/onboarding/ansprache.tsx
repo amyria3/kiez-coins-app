@@ -40,7 +40,7 @@ export default function Ansprache() {
       actions={
         <>
           <Button label="Weiter" onPress={() => save(form)} disabled={!form && !usesCustom}
-            whyDisabled={() => choice.nudge('Wähl eine Ansprache oder schreib Deine eigene.')}
+            whyDisabled={() => choice.nudge('Definiere Deine Ansprache.')}
           />
           <Button label="Ist mir egal" variant="secondary" onPress={() => save(undefined)} />
         </>
@@ -63,8 +63,8 @@ export default function Ansprache() {
       </View>
       </NudgeArea>
       <TextField
-        label="Oder eigene Bezeichnung (nur für uns zwei, nicht öffentlich)"
-        helperText="Zum Beispiel Seebär:in. Sobald Du tippst, gilt Deine Bezeichnung statt der Auswahl oben."
+        label="Oder eigene Bezeichnung (nur zwischen uns, nicht öffentlich)"
+        helperText="Zum Beispiel Seebär:in."
         value={custom}
         onChangeText={(v) => {
           setCustom(v);

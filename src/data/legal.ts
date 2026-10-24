@@ -133,7 +133,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'Deine Rechte',
         paragraphs: [
-          `Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch (Art. 15 bis 21 DSGVO). Schreib dafür an ${email} oder nutze den Support in der App. Vieles änderst oder löschst Du direkt unter „Dein Konto“.`,
+          `Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch (Art. 15 bis 21 DSGVO). Schreibe dafür an ${email} oder nutze den Support in der App. Vieles änderst oder löschst Du direkt unter „Dein Konto“.`,
           `Du kannst Dich bei einer Datenschutz-Aufsichtsbehörde beschweren. Zuständig für uns ist: ${authority}.`,
         ],
       },
@@ -248,7 +248,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'So meldest Du einen Verstoß',
         paragraphs: [
-          'Tipp auf die Fahne an einer Challenge oder einem Kommentar oder auf „Person melden“ im Profil. Die gemeldete Person erfährt nicht, wer gemeldet hat. Falsche Meldungen mit Absicht sind selbst ein Verstoß.',
+          'Tippe auf die Fahne an einer Challenge oder einem Kommentar oder auf „Person melden“ im Profil. Die gemeldete Person erfährt nicht, wer gemeldet hat. Falsche Meldungen mit Absicht sind selbst ein Verstoß.',
           `Bei akuter Gefahr rufst Du die Polizei unter 110 oder den Rettungsdienst unter 112. Für alles andere erreichst Du uns unter ${email}.`,
         ],
       },
