@@ -11,7 +11,7 @@ import { useGoBack } from '../../lib/goBack';
 
 /**
  * Route `account/look` (Dein Konto › Look). Ein Wechsel lädt die App neu.
- * Direkt-Link mit vorgewähltem Look: `/app/?look=instagram`.
+ * Direkt-Link mit vorgewähltem Look: `/app/?look=fashionable` (alt: `?look=instagram`, gilt weiter).
  */
 export default function LookScreen() {
   const goBack = useGoBack();

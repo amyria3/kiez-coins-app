@@ -10,5 +10,5 @@
 - Kater in der Kachel neben der Sprechblase (Kiez-Look) sitzt 6 pt höher.
 - Gruppenkarte: höher, Tipp auf Name und Zeile öffnet den Feed der Gruppe.
 - Deine Challenges: Bearbeiten, Schließen, Ansehen und Löschen sind eine leise Leiste mit Trennlinien wie auf der Gruppenkarte, in beiden Looks. „Weiter bearbeiten“ (Entwurf) und „Kopie erstellen“ bleiben Buttons.
-- Der Look „Instagram“ heißt überall „Fashionable“. Im Code und in Links bleibt der Schlüssel `instagram` (`?look=instagram`, gespeicherte Wahl).
+- Der Look „Instagram“ heißt überall „Fashionable“, auch im Link: `/app/?look=fashionable`. Alte Links mit `?look=instagram` und die gespeicherte Wahl `instagram` gelten weiter, die App speichert sie als `fashionable`.
 - Start: `public/index.html` zeigt die Zahnräder (`public/gears.svg`) sofort an derselben Stelle wie der Startbildschirm, auch nach dem Neuladen beim Look-Wechsel. `StartKater` entfernt sie beim Erscheinen.
