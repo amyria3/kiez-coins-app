@@ -4,6 +4,7 @@
 // Fehlt ein Name hier, zeigt Icon.tsx Darias Icon aus svgs.ts.
 import type { IconName } from './svgs';
 import { useAppDimensions } from '../../theme/layout';
+import { inStyle, type IconStyle } from './iconStyle';
 // Einzeln importiert, damit nur diese Icons im Bundle landen
 import { faHeart as faHeartR } from '@fortawesome/free-regular-svg-icons/faHeart';
 import { faHeart as faHeartS } from '@fortawesome/free-solid-svg-icons/faHeart';
@@ -39,7 +40,7 @@ import { faGift } from '@fortawesome/free-solid-svg-icons/faGift';
 import { faLanguage } from '@fortawesome/free-solid-svg-icons/faLanguage';
 import { faPalette } from '@fortawesome/free-solid-svg-icons/faPalette';
 
-type Svg = { width: number; height: number; svg: (c: string, filled?: boolean, stroke?: number) => string };
+type Svg = { width: number; height: number; svg: (c: string, filled?: boolean, stroke?: number, style?: IconStyle) => string };
 
 /**
  * Maße wie in Darias Mockups „Vorher-Nachher“ (24.10.2026): Alle Hauptsymbole sind gleich groß, 24 pt bei 360 pt
@@ -75,8 +76,8 @@ type FaDef = { icon: [number, number, string[], string, string | string[]] };
 const FILL = 0.8;
 
 /** Font-Awesome-Icon als quadratisches SVG, mittig, in Farbe `c` */
-export function faXml(def: FaDef, c: string) {
-  const [w, h, , , d] = def.icon;
+export function faXml(def: FaDef, c: string, style: IconStyle = 'regular') {
+  const [w, h, , , d] = inStyle(def, style).icon;
   const box = Math.max(w, h) / FILL;
   const paths = (Array.isArray(d) ? d : [d]).map((p) => `<path d="${p}"/>`).join('');
   return `<svg width="24" height="24" viewBox="${-(box - w) / 2} ${-(box - h) / 2} ${box} ${box}" xmlns="http://www.w3.org/2000/svg" fill="${c}">${paths}</svg>`;
@@ -101,7 +102,7 @@ export const FA = {
 const fa = (regular: FaDef, solid?: FaDef): Svg => ({
   width: 24,
   height: 24,
-  svg: (c, filled) => faXml(filled && solid ? solid : regular, c),
+  svg: (c, filled, _stroke, style) => faXml(filled && solid ? solid : regular, c, style),
 });
 
 /**

@@ -142,6 +142,9 @@ export default function Account() {
           {moderator ? <NavRow label="Moderation" value="Meldungen prüfen" onPress={() => router.push('/moderation')} /> : null}
           {moderator ? <NavRow label="Umfrage-Ergebnis" value="Antworten zählen" onPress={() => router.push('/account/umfrage/ergebnis')} /> : null}
           {moderator ? <NavRow label="Texte" value="Buttons, Kater, Rechtstexte" onPress={() => router.push('/texte')} /> : null}
+          {/* Test eines anderen Font-Awesome-Stils (Daria, 24.10.2026) */}
+          {isInstagram ? <NavRow label="Icon-Test Menü" value="Alles gefüllt" onPress={() => router.push('/icontest/menu')} /> : null}
+          {isInstagram ? <NavRow label="Icon-Test Feed" value="Alles gefüllt" onPress={() => router.push('/icontest/feed')} /> : null}
         </View>
       </FieldGroup>
       <FieldGroup label="Konto">

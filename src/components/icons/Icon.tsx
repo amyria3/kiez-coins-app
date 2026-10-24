@@ -7,6 +7,7 @@ import { isRtl } from '../../data/texts';
 import { color as themeColor, isInstagram } from '../../theme/tokens';
 import { FA, faXml, instagramSvgs, strokeFor, useIconPt } from './instagramSvgs';
 import { iconSvgs, type IconName } from './svgs';
+import { useIconStyle } from './iconStyle';
 
 type IconProps = {
   name: IconName;
@@ -25,13 +26,14 @@ const MIRRORED = new Set<IconName>(['chevron-left', 'chevron-right', 'send']);
 
 export const Icon = memo(function Icon({ name, color = themeColor.text.primary, size }: IconProps) {
   const iconPt = useIconPt();
+  const style = useIconStyle();
   const line = isInstagram ? instagramSvgs[name] : undefined;
   if (line) {
     // size.icon (20) ist die Größe der Hauptsymbole; kleinere Angaben im selben Verhältnis
     const h = Math.round(((size ?? 20) / 20) * iconPt);
     // Herz gefüllt, sobald es in der Herzfarbe erscheint (gefällt mir)
     // Gleich kräftige Linie bei jeder Größe
-    const xml = line.svg(color, name === 'heart' && color === themeColor.accent.affection, strokeFor(h));
+    const xml = line.svg(color, name === 'heart' && color === themeColor.accent.affection, strokeFor(h), style);
     const el = <SvgXml xml={xml} width={h} height={h} />;
     if (MIRRORED.has(name) && isRtl()) return <View style={{ transform: [{ scaleX: -1 }] }}>{el}</View>;
     return el;
@@ -48,8 +50,9 @@ export const Icon = memo(function Icon({ name, color = themeColor.text.primary, 
 /** Font-Awesome-Icon ohne IconName, nur im Instagram-Look (z. B. Karten im Konto). Größe wie Icon. */
 export const FaIcon = memo(function FaIcon({ name, color = themeColor.text.primary, size }: { name: keyof typeof FA; color?: string; size?: number }) {
   const iconPt = useIconPt();
+  const style = useIconStyle();
   const h = Math.round(((size ?? 20) / 20) * iconPt);
-  return <SvgXml xml={faXml(FA[name], color)} width={h} height={h} />;
+  return <SvgXml xml={faXml(FA[name], color, style)} width={h} height={h} />;
 });
 
 export type { IconName };
