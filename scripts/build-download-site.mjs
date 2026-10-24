@@ -287,13 +287,13 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
   </div>
 </section>
 
-<button type="button" class="kater-kopf" id="kater-kopf" aria-haspopup="dialog" aria-controls="kater" aria-label="Kater">
+<button type="button" class="kater-kopf" id="kater-kopf" aria-haspopup="dialog" aria-controls="kater" aria-label="Cat The Käptn">
   <img src="kater/kopf.png" alt="" width="199" height="191">
 </button>
-<div class="kater" id="kater" role="dialog" aria-modal="true" aria-label="Kater" hidden>
+<div class="kater" id="kater" role="dialog" aria-modal="true" aria-label="Cat The Käptn" hidden>
   <div class="kater-buehne">
     <p class="blase kater-blase">Love to get stuff done.</p>
-    <img class="kater-bild" src="kater/kater.png" alt="Kater mit Sonnenbrille, Schürze und Besen" width="560" height="698">
+    <img class="kater-bild" src="kater/kater.png" alt="Cat The Käptn mit Sonnenbrille, Schürze und Besen" width="560" height="698">
     <div class="kater-wege">
       <button type="button" data-kater="oben">Nach oben</button>
       <button type="button" data-kater="download">Zum Download</button>
@@ -482,7 +482,7 @@ const katerSvg = existsSync(join(root, 'assets/illustrations/kater.svg'))
   ? readFileSync(join(root, 'assets/illustrations/kater.svg'), 'utf8')
       .replace(/<\?xml[^>]*>\s*/, '')
       .replace(/<!DOCTYPE[^>]*>\s*/, '')
-      .replace('width="100%" height="100%"', 'class="kater-svg" role="img" aria-label="Kater mit Sonnenbrille, Schürze und Besen"')
+      .replace('width="100%" height="100%"', 'class="kater-svg" role="img" aria-label="Cat The Käptn mit Sonnenbrille, Schürze und Besen"')
   : '';
 const sprueche = JSON.parse(readFileSync(join(root, 'src/data/kater-sprueche.json'), 'utf8'));
 const katerSeite = `<!doctype html>
@@ -492,7 +492,7 @@ const katerSeite = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#1F2123">
-<title>Hallo, Kater – Kiez Coins</title>
+<title>Hallo, Cat The Käptn – Kiez Coins</title>
 <link rel="icon" href="/favicon.png">
 <link rel="stylesheet" href="/seite.css?v=${version(seiteCss)}">
 </head>
@@ -504,7 +504,7 @@ const katerSeite = `<!doctype html>
 </header>
 <main class="kater-buehne-seite">
   <p class="blase kater-spruch" id="spruch" aria-live="polite">Psst. Sag mal Hallo.</p>
-  <button type="button" class="kater-figur" id="figur" aria-label="Kater antippen: noch ein Spruch">${katerSvg}<span class="staub" id="staub" aria-hidden="true"></span></button>
+  <button type="button" class="kater-figur" id="figur" aria-label="Cat The Käptn antippen: noch ein Spruch">${katerSvg}<span class="staub" id="staub" aria-hidden="true"></span></button>
   <div class="kater-knoepfe">
     <button type="button" class="kater-hallo" id="hallo">Hallo sagen</button>
     <button type="button" class="kater-noch" id="noch">Noch ein Spruch</button>

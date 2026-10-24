@@ -68,7 +68,7 @@ function Reise() {
         </Text>
 
         {/* Tipp auf den Kater: zu seiner Seite mit Sprüchen */}
-        <Pressable accessibilityRole="button" accessibilityLabel={t('Dem Kater Hallo sagen')} onPress={() => router.push('/kater')}>
+        <Pressable accessibilityRole="button" accessibilityLabel={t('Cat The Käptn Hallo sagen')} onPress={() => router.push('/kater')}>
           <KaterCard mood={catVariant(mood)}>{reiseMoodText(mood, anrede(profile))}</KaterCard>
         </Pressable>
 

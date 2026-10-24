@@ -17,7 +17,7 @@ export default function Kater() {
   const kater = useKater(null);
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <NavigationBar title="Der Kater" variant="back" onLeadingPress={goBack} />
+      <NavigationBar title="Cat The Käptn" variant="back" onLeadingPress={goBack} />
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + space[24] }]}>
         <KaterStage
           width={Math.min(width * 0.78, 340)}

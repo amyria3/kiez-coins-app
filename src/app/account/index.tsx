@@ -120,7 +120,7 @@ export default function Account() {
       <FieldGroup label="Einstellungen">
         <View style={styles.list}>
           <NavRow label="So geht Kiez Coins" value="Kurze Videos" onPress={() => router.push('/tour')} />
-          <NavRow label="Dem Kater Hallo sagen" value="Sprüche" onPress={() => router.push('/kater')} />
+          <NavRow label="Cat The Käptn Hallo sagen" value="Sprüche" onPress={() => router.push('/kater')} />
           <NavRow label="Benachrichtigungen" value={profile.push ? 'Push an' : 'Push aus'} onPress={() => router.push('/settings/notifications')} />
           <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/settings/payout')} />
           <NavRow label="Umfrage" value="5 Fragen zur App" onPress={() => setSurvey(true)} />

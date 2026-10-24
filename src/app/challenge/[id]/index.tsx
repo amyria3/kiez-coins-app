@@ -327,7 +327,7 @@ export default function ChallengeDetail() {
             <View style={styles.naming}>
               <TextField
                 label="Operationsname (nur für Dich)"
-                helperText="Vorschlag vom Kater. Ändern, übernehmen oder leer lassen, die Taufe ist freiwillig."
+                helperText="Vorschlag von Cat The Käptn. Ändern, übernehmen oder leer lassen, die Taufe ist freiwillig."
                 value={operationName}
                 onChangeText={setOperationName}
                 maxLength={40}

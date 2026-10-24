@@ -88,7 +88,7 @@ export function FashionProfile() {
           <View style={styles.avatarCol}>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={t('Dem Kater Hallo sagen')}
+              accessibilityLabel={t('Cat The Käptn Hallo sagen')}
               onPress={() => router.push('/kater')}
               style={styles.note}
             >

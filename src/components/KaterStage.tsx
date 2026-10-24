@@ -127,7 +127,7 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
         onPress={onPress}
         disabled={!onPress}
         accessibilityRole={onPress ? 'button' : 'image'}
-        accessibilityLabel={onPress ? t('Kater antippen: noch ein Spruch') : t('Kater mit Sonnenbrille, Schürze und Besen')}
+        accessibilityLabel={onPress ? t('Cat The Käptn antippen: noch ein Spruch') : t('Cat The Käptn mit Sonnenbrille, Schürze und Besen')}
       >
         <Animated.View
           style={[
