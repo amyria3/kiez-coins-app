@@ -29,7 +29,7 @@ export default function PayoutSettings() {
   const [revoked, setRevoked] = useState<Record<string, PayoutMethod>>({});
 
   const holderError = !accountHolder.trim() ? 'Bitte gib den Namen der Kontoinhaber:in ein.' : undefined;
-  const ibanError = !isValidIban(iban) ? 'Diese IBAN stimmt nicht. Bitte prüf sie noch einmal.' : undefined;
+  const ibanError = !isValidIban(iban) ? 'Diese IBAN stimmt nicht. Bitte prüfe sie noch einmal.' : undefined;
 
   const save = () => {
     if (holderError || ibanError) {

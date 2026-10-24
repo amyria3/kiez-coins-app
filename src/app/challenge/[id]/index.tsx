@@ -96,7 +96,7 @@ export default function ChallengeDetail() {
   const baDuration = isBeforeAfter ? beforeAfterDuration(challenge) : undefined;
 
   const giveBack = () =>
-    Alert.alert('Challenge abgeben?', 'Die Challenge ist dann wieder für alle offen.', [
+    Alert.alert('Challenge abgeben?', 'Die Challenge wird dann wieder für alle offen sein.', [
       { text: 'Abbrechen', style: 'cancel' },
       { text: 'Abgeben', style: 'destructive', onPress: () => dispatch({ type: 'giveBack', id: challenge.id }) },
     ]);
@@ -135,7 +135,9 @@ export default function ChallengeDetail() {
   const closeChallenge = () =>
     Alert.alert(
       'Challenge schließen?',
-      'Hat sich das erledigt? Die Challenge bleibt im Feed sichtbar, lässt sich aber nicht mehr annehmen oder kommentieren. Das lässt sich nicht rückgängig machen.',
+      challenge.groupId
+        ? 'Bestätigen? Deine Gruppenmitglieder können diese Challenge nicht mehr annehmen. (Sie bleibt aber im Feed sichtbar.)'
+        : 'Bestätigen? Deine Nachbar:innen können diese Challenge nicht mehr annehmen. (Sie bleibt aber im Feed sichtbar.)',
       [
         { text: 'Abbrechen', style: 'cancel' },
         {
@@ -168,7 +170,7 @@ export default function ChallengeDetail() {
       );
       return;
     }
-    Alert.alert('Challenge löschen?', 'Sie verschwindet aus dem Feed. In „Deine Challenges“ kannst Du sie wieder veröffentlichen.', [
+    Alert.alert('Challenge löschen?', 'Die Challenge verschwindet aus dem Feed.', [
       { text: 'Abbrechen', style: 'cancel' },
       {
         text: 'Löschen',
@@ -308,10 +310,10 @@ export default function ChallengeDetail() {
         <>
           <KaterBubble>
             {named
-              ? t('Danke, dass Du anpackst! Mach am Ende ein Foto vom Ergebnis, dann kann {name} bestätigen.', {
+              ? t('Danke, dass Du anpackst! Fotografiere am Ende das Ergebnis, und wir warten. Wenn {name} bestätigt, aktualisiert sich der Status automatisch. Du bekommst eine Nachricht.', {
                   name: author.firstName,
                 })
-              : 'Danke, dass Du anpackst! Taufen wir das Baby, Baby? Ich hätte da einen Namen für Deine Operation.'}
+              : 'Danke, dass Du anpackst! Taufen wir das Baby, Baby? Ich hätte da eine Idee für einen Namen für Deine Operation.'}
           </KaterBubble>
           <InfoRow icon="map-pin" value={challenge.location} />
           {challenge.acceptedAt ? (
@@ -320,20 +322,20 @@ export default function ChallengeDetail() {
           {challenge.rejectionReason ? (
             <Notice
               variant="warning"
-              message={t('{firstName} hat die Erledigung abgelehnt: „{rejectionReason}“', { firstName: author.firstName, rejectionReason: challenge.rejectionReason })}
+              message={t('{firstName} hat nicht als erledigt bestätigt: „{rejectionReason}“', { firstName: author.firstName, rejectionReason: challenge.rejectionReason })}
             />
           ) : null}
           {!named ? (
             <View style={styles.naming}>
               <TextField
                 label="Operationsname (nur für Dich)"
-                helperText="Vorschlag von Cat The Käptn. Ändern, übernehmen oder leer lassen, die Taufe ist freiwillig."
+                helperText="Vorschlag von Cat The Käptn. Du kannst den Vorschlag übernehmen, ändern oder das Feld leer lassen."
                 value={operationName}
                 onChangeText={setOperationName}
                 maxLength={40}
               />
               <Button
-                label="Taufen"
+                label="Namen geben"
                 variant="secondary"
                 onPress={() => dispatch({ type: 'nameOperation', id: challenge.id, name: operationName })}
               />
@@ -368,19 +370,19 @@ export default function ChallengeDetail() {
           comments={challenge.comments}
           users={users}
           currentUserId={currentUserId}
-          composerPlaceholder={isAuthor ? 'Antworte oder ergänze etwas …' : t('Frag {firstName} …', { firstName: author.firstName })}
+          composerPlaceholder={isAuthor ? 'Antworten oder ergänzen …' : t('Frage {firstName} …', { firstName: author.firstName })}
           onSend={
             challenge.status === 'closed' || challenge.status === 'deleted' || !canWrite
               ? undefined
               : (body, replyToId) => needKiez() && dispatch({ type: 'addComment', id: challenge.id, body, replyToId })
           }
-          audience={challenge.groupId ? 'Nur Eure Gruppe kann mitlesen.' : undefined}
+          audience={challenge.groupId ? 'Nur Eure Gruppe kann hier mitlesen.' : undefined}
           closedHint={
             challenge.status === 'closed'
               ? 'Die Challenge ist geschlossen. Neue Kommentare sind nicht mehr möglich.'
               : challenge.status === 'deleted'
                 ? 'Die Challenge ist gelöscht und nur für Dich sichtbar. Neue Kommentare sind nicht möglich.'
-                : 'Leg in Deinem Konto Deinen Kiez fest, dann kannst Du mitschreiben.'
+                : 'Lege in Deinem Konto Deinen Kiez fest, dann kannst Du mitschreiben.'
           }
           onAuthorPress={openProfile}
           onReport={(comment) =>

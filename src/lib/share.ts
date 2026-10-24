@@ -17,7 +17,7 @@ export async function shareText(message: string): Promise<void> {
   }
   try {
     await Clipboard.setStringAsync(message);
-    Alert.alert('Kopiert', 'Der Text liegt in der Zwischenablage. Füg ihn ein, wo Du ihn teilen willst.');
+    Alert.alert('Kopiert', 'Der Text liegt in der Zwischenablage. Füge ihn ein, wo Du ihn teilen willst.');
   } catch {
     Alert.alert('Teilen geht hier nicht', 'Dein Browser kann weder teilen noch kopieren.');
   }

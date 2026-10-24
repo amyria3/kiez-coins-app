@@ -197,12 +197,12 @@ export function errorText(error: unknown): string {
     return t('Das geht gerade nicht mehr. Jemand war schneller oder der Stand hat sich geändert. Ich lade neu.');
   }
   if (e?.code === 'P0001' && e.message) return t(e.message);
-  if (e?.code === '23505') return t('Diesen Decknamen gibt es schon. Such Dir bitte einen anderen aus.');
+  if (e?.code === '23505') return t('Diesen Decknamen gibt es schon. Suche Dir bitte einen anderen aus.');
   if (e?.code === '42501') return t('Das darfst Du gerade nicht. Hast Du schon Deinen Kiez festgelegt?');
-  if (/fetch|network/i.test(e?.message ?? '')) return t('Keine Verbindung. Prüf Dein Internet und versuch es noch mal.');
+  if (/fetch|network/i.test(e?.message ?? '')) return t('Keine Verbindung. Prüfe Dein Internet und versuche es noch mal.');
   // Unbekannter Fehler: technischen Grund klein anhängen, damit sich die Ursache finden lässt
   const detail = [e?.code, e?.message].filter(Boolean).join(': ').slice(0, 160);
-  return `${t('Da ist etwas schiefgegangen. Versuch es bitte noch mal.')}${detail ? `\n\n(${detail})` : ''}`;
+  return `${t('Da ist etwas schiefgegangen. Versuche es bitte noch mal.')}${detail ? `\n\n(${detail})` : ''}`;
 }
 
 function check<T extends { error: unknown }>(result: T): T {
@@ -722,7 +722,7 @@ export async function startBeforeAfter(userId: string, input: NewBeforeAfter): P
     }),
   );
   const { challenge } = await loadChallenge(data as string, userId);
-  if (!challenge) throw new Error(t('Der Entwurf ist nicht angekommen. Versuch es bitte noch mal.'));
+  if (!challenge) throw new Error(t('Der Entwurf ist nicht angekommen. Versuche es bitte noch mal.'));
   return challenge;
 }
 

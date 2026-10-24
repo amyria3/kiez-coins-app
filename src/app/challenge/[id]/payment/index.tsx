@@ -50,10 +50,10 @@ export default function PaymentScreen() {
       <View style={styles.block}>
         <Text style={styles.title}>Sind die Coins angekommen?</Text>
         <Text style={styles.secondary}>{day
-            ? t('{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schau auf Dein Konto oder in PayPal.', { firstName: author.firstName, day, bountyAmount: formatEuro(challenge.bountyAmount) })
-            : t('{firstName} hat die {bountyAmount} als bezahlt markiert. Schau auf Dein Konto oder in PayPal.', { firstName: author.firstName, bountyAmount: formatEuro(challenge.bountyAmount) })}</Text>
+            ? t('{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.', { firstName: author.firstName, day, bountyAmount: formatEuro(challenge.bountyAmount) })
+            : t('{firstName} hat die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.', { firstName: author.firstName, bountyAmount: formatEuro(challenge.bountyAmount) })}</Text>
       </View>
-      <Notice message="Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach noch fehlt." />
+      <Notice message="Nur Geduld, mein Freund! Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach immer noch fehlt." />
     </SubScreen>
   );
 }

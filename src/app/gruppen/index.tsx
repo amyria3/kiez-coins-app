@@ -20,7 +20,7 @@ export default function Groups() {
   const { groups, challenges, currentUserId } = useStore();
   const full = groups.length >= MAX_GROUPS;
   const tooMany = () =>
-    explain('Gruppen voll', t('Du bist schon in {MAX_GROUPS} Gruppen. Verlass eine, dann kannst Du einer neuen beitreten oder eine gründen.', { MAX_GROUPS }));
+    explain('Gruppen voll', t('Du bist bereits in {MAX_GROUPS} Gruppen. Verlasse eine Gruppe, um einer neuen beizutreten oder eine neue zu gründen.', { MAX_GROUPS }));
 
   return (
     <SubScreen
@@ -30,14 +30,13 @@ export default function Groups() {
       actions={
         <>
           <Button label="Gruppe gründen" onPress={() => router.push('/gruppen/neu')} disabled={full} whyDisabled={tooMany} />
-          <Button label="Mit Code beitreten" variant="ghost" onPress={() => router.push('/gruppen/beitreten')} disabled={full} whyDisabled={tooMany} />
+          <Button label="Mit Beitrittscode beitreten" variant="ghost" onPress={() => router.push('/gruppen/beitreten')} disabled={full} whyDisabled={tooMany} />
         </>
       }
     >
       {groups.length === 0 ? (
         <KaterCard title="Gemeinsam statt einsam">
-          In einer Gruppe verteilt Ihr Aufgaben unter Euch, etwa in der WG, der Familie oder im Verein. Statt Euro gibt
-          es Edensteine.
+          In einer Gruppe verteilt Ihr Aufgaben unter Euch, etwa im Verein, in der Hausgemeinschaft, der WG oder der Familie.
         </KaterCard>
       ) : null}
       {groups.map((g) => (

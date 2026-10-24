@@ -337,7 +337,7 @@ export default function FeedScreen() {
         return (
           <GroupsEmpty
             title="Noch keine Aufgaben"
-            message={isFashionable ? 'Tipp unten auf die Kamera und stell die erste Aufgabe für Eure Gruppe ein.' : 'Tipp oben rechts auf die Kamera und stell die erste Aufgabe für Eure Gruppe ein.'}
+            message={isFashionable ? 'Tippe unten auf die Kamera und erstelle die erste We-Challenge für Eure Gruppe!' : 'Tippe oben rechts auf die Kamera und erstelle die erste We-Challenge für Eure Gruppe!'}
           />
         );
       case 'running':

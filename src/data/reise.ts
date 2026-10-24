@@ -93,7 +93,7 @@ export function reiseMoodText(mood: ReiseMood, anrede: string): string {
     case 'Greedy':
       return t('Goldalarm, {anrede}! Bei einer Deiner Challenges bist Du dran.', { anrede });
     case 'Worried':
-      return t('Oha. Eine Erledigung kam zurück. Schau mal, was noch fehlt.');
+      return t('Oha. Eine Erledigung kam zurück. Schaue mal, was noch fehlt.');
     case 'Proud':
       return t('Eine Deiner Challenges ist geschafft. Ich bin stolz auf diesen Kiez!');
     case 'InLove':

@@ -69,13 +69,13 @@ export function usePublicComposeForm(
   const fields = (
     <>
       <Text style={styles.hint}>
-        {isChallenge ? 'Hier muss etwas getan werden. Auf geht’s, Nachbarschaft!' : 'Hier ist nichts zu tun, nur ein schönes Bild.'}
+        {isChallenge ? 'Hier gibt es etwas zu tun! Zu den Spaten! Zu den Müllsäcken!' : 'Hier ist nichts zu tun, nur ein schönes Bild.'}
       </Text>
       <PhotoPicker
         photo={photo}
-        hint={showErrors && missingPhoto ? 'Bitte füge ein Foto hinzu.' : isChallenge ? 'Zeig, wo geholfen werden soll.' : 'Zeig, was Dir gefällt.'}
+        hint={showErrors && missingPhoto ? 'Bitte ein Foto hinzufügen.' : isChallenge ? 'Zeige, wo geholfen werden soll.' : 'Zeige Deinem Kiez, was Dir gefällt.'}
         onChange={setPhoto}
-        title={{ value: title, onChange: setTitle, error: showErrors && missingTitle ? 'Bitte gib einen Titel ein.' : undefined }}
+        title={{ value: title, onChange: setTitle, error: showErrors && missingTitle ? 'Einen Titel eingeben, bitte.' : undefined }}
       />
       {photo ? (
         <ExtraPhotos
@@ -97,7 +97,7 @@ export function usePublicComposeForm(
         variant="ghost"
         onPress={save}
         disabled={busy || !hasContent}
-        whyDisabled={() => !busy && explain('Noch nichts zu speichern', 'Füg ein Foto hinzu oder gib einen Titel ein, dann lässt sich der Entwurf speichern.')}
+        whyDisabled={() => !busy && explain('Noch nichts zu speichern', 'Füge ein Foto hinzu oder gib einen Titel ein, dann lässt sich der Entwurf speichern.')}
       />
     </>
   );

@@ -47,7 +47,7 @@ export default function UserProfile() {
   const [busy, setBusy] = useState(false);
   // Bio und Webseite; Freundschaft (null: Migration fehlt oder lädt)
   const [extras, setExtras] = useState<ProfileExtras | null>(
-    mode === 'demo' ? { bio: 'Kompost, Kaffee und kaputte Fahrräder. Frag mich, wenn was klemmt.', website: 'https://kiezcoins.de' } : null,
+    mode === 'demo' ? { bio: 'Kompost, Kaffee und kaputte Fahrräder. Frage mich, wenn was klemmt.', website: 'https://kiezcoins.de' } : null,
   );
   const [friend, setFriend] = useState<FriendState | null>(mode === 'demo' ? 'none' : null);
   const [friendBusy, setFriendBusy] = useState(false);

@@ -307,7 +307,7 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
 <script>
   // Fehler vom Download zeigen
   var f = new URLSearchParams(location.search).get('fehler');
-  var t = { passwort: 'Der Einladungscode stimmt nicht.', datei: 'Die App-Datei fehlt gerade. Versuch es später noch mal.', technik: 'Der Download ist gerade nicht eingerichtet.' }[f];
+  var t = { passwort: 'Der Einladungscode stimmt nicht.', datei: 'Die App-Datei fehlt gerade. Versuche es später noch mal.', technik: 'Der Download ist gerade nicht eingerichtet.' }[f];
   if (t) { var e = document.getElementById('fehler'); e.textContent = t; e.hidden = false; document.getElementById('download').scrollIntoView(); }
   // Sprechblasen erscheinen, sobald die Leute im Bild sind. Tipp auf eine Figur lässt sie wackeln.
   var leute = document.querySelector('.leute');
@@ -374,7 +374,7 @@ const einladung = `<!doctype html>
 <section class="download einladung" id="download" aria-labelledby="einladung-titel">
   <h2 id="einladung-titel">Du bist eingeladen.</h2>
   <p>Kiez Coins ist in der Testphase. Dein Einladungscode steckt schon im Link, Du musst nichts eintippen.</p>
-  <p class="error" id="ohne-code" hidden>In diesem Link fehlt der Einladungscode. Frag bei der Person nach, die ihn Dir geschickt hat.</p>
+  <p class="error" id="ohne-code" hidden>In diesem Link fehlt der Einladungscode. Frage bei der Person nach, die ihn Dir geschickt hat.</p>
   <div class="karten">
     <div class="card" id="android">
       <h3>Android</h3>
@@ -503,7 +503,7 @@ const katerSeite = `<!doctype html>
   <a class="top-link" href="/#download">Testversion laden</a>
 </header>
 <main class="kater-buehne-seite">
-  <p class="blase kater-spruch" id="spruch" aria-live="polite">Psst. Sag mal Hallo.</p>
+  <p class="blase kater-spruch" id="spruch" aria-live="polite">Psst. Sage mal Hallo.</p>
   <button type="button" class="kater-figur" id="figur" aria-label="Cat The Käptn antippen: noch ein Spruch">${katerSvg}<span class="staub" id="staub" aria-hidden="true"></span></button>
   <div class="kater-knoepfe">
     <button type="button" class="kater-hallo" id="hallo">Hallo sagen</button>

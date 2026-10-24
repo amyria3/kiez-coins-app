@@ -13,7 +13,7 @@ const statusStyles: Record<ChallengeStatus, { label: string; tint: string }> = {
   draft: { label: 'Entwurf', tint: color.text.secondary },
   open: { label: 'Offen', tint: color.accent.confirmation },
   accepted: { label: 'Angenommen', tint: color.accent.primary },
-  reported: { label: 'Erledigt gemeldet', tint: color.accent.signal },
+  reported: { label: 'Yey, erledigt!', tint: color.accent.signal },
   confirmed: { label: 'Bestätigt', tint: color.accent.affection },
   rejected: { label: 'Abgelehnt', tint: color.text.secondary },
   payment_open: { label: 'Zahlung offen', tint: color.accent.signal },

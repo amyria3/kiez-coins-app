@@ -167,7 +167,7 @@
 <script>
   // Fehler vom Download zeigen
   var f = new URLSearchParams(location.search).get('fehler');
-  var t = { passwort: 'Der Einladungscode stimmt nicht.', datei: 'Die App-Datei fehlt gerade. Versuch es später noch mal.', technik: 'Der Download ist gerade nicht eingerichtet.' }[f];
+  var t = { passwort: 'Der Einladungscode stimmt nicht.', datei: 'Die App-Datei fehlt gerade. Versuche es später noch mal.', technik: 'Der Download ist gerade nicht eingerichtet.' }[f];
   if (t) { var e = document.getElementById('fehler'); e.textContent = t; e.hidden = false; document.getElementById('download').scrollIntoView(); }
   // Sprechblasen erscheinen, sobald die Leute im Bild sind. Tipp auf eine Figur lässt sie wackeln.
   var leute = document.querySelector('.leute');

@@ -527,7 +527,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       join: async (code) => {
         if (!isDemo()) return live(() => remote.groupActions.join(code));
         const group = stateRef.current.groups.find((g) => g.inviteCode === code.trim().toUpperCase());
-        if (!group) throw new Error('Diesen Code gibt es nicht. Prüf ihn noch einmal.');
+        if (!group) throw new Error('Diesen Code gibt es nicht. Prüfe ihn noch einmal.');
         return group.id;
       },
       leave: async (groupId) => {

@@ -130,7 +130,7 @@ export function useBeforeAfterStartForm(
       <BeforeAfterSteps at={0} />
       <PhotoPicker
         photo={photo}
-        hint={showErrors && missingPhoto ? 'Bitte füge ein Vorher-Foto hinzu.' : 'So sieht es jetzt aus.'}
+        hint={showErrors && missingPhoto ? 'Bitte ein Vorher-Foto hinzufügen.' : 'So sieht es jetzt aus.'}
         onChange={setPhoto}
         title={{
           value: title,

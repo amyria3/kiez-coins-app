@@ -53,7 +53,7 @@ export default function DeleteAccount() {
       actions={
         <>
           <Button busy={busy} label="Konto endgültig löschen" onPress={remove} disabled={confirm.trim() !== 'LÖSCHEN' || busy}
-            whyDisabled={() => !busy && confirmField.nudge('Tipp LÖSCHEN in Großbuchstaben ein.')}
+            whyDisabled={() => !busy && confirmField.nudge('Tippe LÖSCHEN in Großbuchstaben ein.')}
           />
           <Button label="Abbrechen" variant="secondary" onPress={() => goBack()} />
         </>

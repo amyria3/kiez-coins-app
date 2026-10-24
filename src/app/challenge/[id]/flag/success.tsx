@@ -8,7 +8,7 @@ export default function ChallengeFlagSuccess() {
   return (
     <ResultScreen
       title="Danke, ich kümmere mich"
-      message="Die Moderation prüft die Challenge. Verstößt sie gegen die Community-Regeln, verschwindet sie aus dem Feed."
+      message="Die Moderation prüft diese Challenge. Wenn sie gegen die Community-Regeln verstößt, verschwindet sie aus dem Feed."
       onFeedPress={() => router.dismissTo('/feed')}
     />
   );

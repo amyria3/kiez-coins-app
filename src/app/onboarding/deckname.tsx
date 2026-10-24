@@ -49,13 +49,13 @@ export default function Deckname() {
       subtitle="Schritt 2 von 7"
       navigation="back"
       onLeadingPress={() => (goBack())}
-      actions={<Button busy={busy} label="Weiter" onPress={next} disabled={!handle.trim() || busy} whyDisabled={() => !busy && handleField.nudge('Wähl einen Decknamen.')} />}
+      actions={<Button busy={busy} label="Weiter" onPress={next} disabled={!handle.trim() || busy} whyDisabled={() => !busy && handleField.nudge('Wähle einen Decknamen.')} />}
     >
       <KaterBubble>Dein Rufname</KaterBubble>
       <TextField
         label="Deckname" required
         nudge={handleField}
-        helperText="Öffentlich sichtbar. Jeden Decknamen gibt es nur einmal."
+        helperText="Öffentlich sichtbar."
         error={error}
         value={handle}
         onChangeText={(value) => {
@@ -65,7 +65,7 @@ export default function Deckname() {
         maxLength={30}
         autoCorrect={false}
       />
-      <Text style={styles.label}>Vorschläge von Cat The Käptn</Text>
+      <Text style={styles.label}>Vorschläge</Text>
       <ChipGroup>
         {suggestions.map((s) => (
           <Chip key={s} label={s} selected={handle === s} onPress={() => setHandle(s)} />

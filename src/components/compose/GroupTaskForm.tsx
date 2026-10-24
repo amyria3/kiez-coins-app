@@ -54,7 +54,7 @@ export function useGroupTaskForm(groupId: string | undefined, initial: Initial, 
       });
       onCreated(taskId);
     } catch (error) {
-      Alert.alert('Aufgabe nicht erstellt', (error as Error).message);
+      Alert.alert('Aufgabe konnte nicht erstellt werden', (error as Error).message);
     } finally {
       setBusy(false);
     }
@@ -101,7 +101,7 @@ export function useGroupTaskForm(groupId: string | undefined, initial: Initial, 
             <Icon name="plus" size={STEP_ICON} color={color.text.primary} />
           </Pressable>
         </View>
-        <Text style={styles.hint}>1 bis 10. Edensteine gelten nur in dieser Gruppe und haben keinen Geldwert.</Text>
+        <Text style={styles.hint}>1 bis 10. Edensteine gelten nur in dieser Gruppe und haben so viel ideellen Wert, wie Ihr ihnen zusprecht.</Text>
       </FieldGroup>
       <FieldGroup label="Frist">
         <ChipGroup>

@@ -40,7 +40,7 @@ export default function Push() {
         </>
       }
     >
-      <KaterBubble>Stay in touch.</KaterBubble>
+      <KaterBubble>Haben wir einen Draht?!</KaterBubble>
       <SwitchRow
         label="Push-Nachrichten"
         description="Ich möchte bei Kommentaren, Antworten und Bestätigungen benachrichtigt werden. Ich kann diese Einstellungen jederzeit ändern."

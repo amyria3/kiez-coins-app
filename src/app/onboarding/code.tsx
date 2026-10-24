@@ -60,7 +60,7 @@ export default function Code() {
   const resend = async () => {
     const failure = await sendCode(profile.email, !existing);
     if (failure) setError(failure);
-    else Alert.alert('Code neu gesendet', t('Schau in Dein Postfach: {email}', { email: profile.email }));
+    else Alert.alert('Code neu gesendet', t('Schaue in Dein Postfach: {email}', { email: profile.email }));
   };
 
   return (
@@ -77,15 +77,15 @@ export default function Code() {
             disabled={digits.length < MIN_DIGITS || busy}
             whyDisabled={() => !busy && codeField.nudge(t('Der Code hat {MIN_DIGITS} Ziffern.', { MIN_DIGITS }))}
           />
-          <Button label="Code neu senden" variant="secondary" onPress={resend} disabled={busy} />
+          <Button label="Neuen Code schicken" variant="secondary" onPress={resend} disabled={busy} />
         </>
       }
     >
-      <KaterBubble>Der Code ist unterwegs! Schau in Dein Postfach, zur Not auch im Spam-Netz.</KaterBubble>
+      <KaterBubble>Der Code ist unterwegs! Schaue in Dein Postfach.</KaterBubble>
       <TextField
         label="Code aus der E-Mail" required
         nudge={codeField}
-        helperText={t('Gesendet an {email}. Gilt 20 Minuten.', { email: profile.email })}
+        helperText={t('Gesendet an {email}. Gilt 5 Minuten.', { email: profile.email })}
         error={error}
         value={digits.length === 6 ? `${digits.slice(0, 3)} ${digits.slice(3)}` : digits}
         onChangeText={(v) => {

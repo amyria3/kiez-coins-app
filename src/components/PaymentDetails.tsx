@@ -41,7 +41,7 @@ export function PaymentDetails({ challenge, recipient, noticeFirst }: PaymentDet
       {!share ? (
         <Notice
           variant="warning"
-          message={t('{firstName} hat noch keine Zahlungsdaten freigegeben. Frag am besten in den Kommentaren nach.', { firstName: recipient.firstName })}
+          message={t('{firstName} hat noch keine Zahlungsdaten freigegeben. Frage am besten in den Kommentaren nach.', { firstName: recipient.firstName })}
         />
       ) : null}
       <CopyField label="Verwendungszweck" value={t('Kiez Coins: {title}', { title: challenge.title })} />

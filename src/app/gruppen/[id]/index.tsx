@@ -82,7 +82,7 @@ export default function GroupDetail() {
   const leave = () => {
     const alone = group.members.length === 1;
     if (isFounder && !alone) {
-      Alert.alert('Erst die Rolle übertragen', 'Tipp ein Mitglied an und übertrag ihm die Gründerrolle. Danach kannst Du gehen.');
+      Alert.alert('Erst die Rolle übertragen', 'Tippe ein Mitglied an und übertrage ihm die Gründerrolle. Danach kannst Du gehen.');
       return;
     }
     Alert.alert(
@@ -169,7 +169,7 @@ export default function GroupDetail() {
           })}
         </View>
       </FieldGroup>
-      {isFounder ? <Text style={styles.meta}>Tipp ein Mitglied an, um es zu entfernen oder ihm die Gründerrolle zu geben.</Text> : null}
+      {isFounder ? <Text style={styles.meta}>Tippe ein Mitglied an, um es zu entfernen oder ihm die Gründerrolle zu geben.</Text> : null}
 
       {isFounder ? (
         <FieldGroup label="Gruppeneinstellungen">
@@ -188,7 +188,7 @@ export default function GroupDetail() {
 
       {group.members.length < MAX_MEMBERS ? (
         <FieldGroup label="Leute einladen">
-          <CopyField label="Einladungscode" value={group.inviteCode} />
+          <CopyField label="Beitrittscode" value={group.inviteCode} />
           <CopyField label="Einladungslink" value={inviteLink(group.inviteCode)} />
           <Button label="Einladung teilen" variant="secondary" onPress={() => shareText(inviteMessage(group))} />
         </FieldGroup>
