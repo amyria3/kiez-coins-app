@@ -42,7 +42,7 @@ export function StatusBadge({
   // Nur ein Bild oder Vorher-Nachher, keine Aufgabe: eigenes Badge, solange es online ist
   const postOnly = (photo || beforeAfter) && (status === 'open' || status === 'draft');
   const { label, tint } = postOnly
-    ? { label: beforeAfter ? 'Vorher-Nachher' : 'Nur ein Bild', tint: color.accent.affection }
+    ? { label: beforeAfter ? 'Me-Challenge' : 'Nur ein Bild', tint: color.accent.affection }
     : statusStyles[status];
   if (status === 'open' && !showOpen && !postOnly) return null;
   return (

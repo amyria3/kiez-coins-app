@@ -59,7 +59,7 @@ export default function BeforeAfterScreen() {
 
   if (!challenge || challenge.type !== 'before_after' || posted) {
     return (
-      <SubScreen title="Vorher-Nachher" navigation="close" onLeadingPress={goBack}>
+      <SubScreen title="Me-Challenge" navigation="close" onLeadingPress={goBack}>
         <Text style={styles.note}>{posted ? 'Der Beitrag ist schon gepostet.' : 'Diesen Entwurf gibt es nicht mehr.'}</Text>
       </SubScreen>
     );
@@ -133,13 +133,13 @@ export default function BeforeAfterScreen() {
     const preview = beforeAfterBody({ beforeText: challenge.beforeText, afterText: afterText.trim() || undefined, imageAfter: after });
     return (
       <SubScreen
-        title="Vorher-Nachher"
+        title="Me-Challenge"
         subtitle="Schritt 3 von 3 · Nachher"
         navigation="back"
         onLeadingPress={() => setStage('timer')}
         actions={
           <>
-            <Button busy={busy === 'post'} label={busy === 'post' ? 'Wird gepostet …' : 'Posten'} onPress={post} disabled={!!busy} />
+            <Button busy={busy === 'post'} label={busy === 'post' ? 'Wird gepostet …' : 'Me-Challenge posten'} onPress={post} disabled={!!busy} />
             <Button
               busy={busy === 'save'}
               label={busy === 'save' ? 'Wird gespeichert …' : 'Später weitermachen'}
@@ -189,7 +189,7 @@ export default function BeforeAfterScreen() {
 
   return (
     <SubScreen
-      title="Vorher-Nachher"
+      title="Me-Challenge"
       subtitle="Schritt 2 von 3 · Timer"
       navigation="close"
       onLeadingPress={() => router.dismissTo('/feed')}

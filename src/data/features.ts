@@ -11,7 +11,7 @@ export const challengeTypes: Record<
 > = {
   individual: {
     active: true,
-    label: 'Challenge',
+    label: 'We-Challenge',
     plannedTitle: '',
     plannedHint: '',
   },
@@ -23,7 +23,7 @@ export const challengeTypes: Record<
   },
   before_after: {
     active: true,
-    label: 'Vorher-Nachher',
+    label: 'Me-Challenge',
     plannedTitle: '',
     plannedHint: '',
   },

@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
       },
   option: { flex: 1, minHeight: isInstagram ? 44 : 38, alignItems: 'center', justifyContent: 'center', paddingHorizontal: isInstagram ? 0 : 4 },
   label: isInstagram
-    ? // „Vorher-Nachher“ passt in Großbuchstaben auch auf 360 pt Breite in ein Drittel
+    ? // Drei Begriffe in Großbuchstaben passen auch auf 360 pt Breite
       { fontFamily: font.semiBold, fontSize: 11, lineHeight: 16, letterSpacing: 0.3, textTransform: 'uppercase', color: color.text.secondary }
     : { fontFamily: font.regular, fontSize: 13, lineHeight: 16, color: color.text.secondary },
   selected: isInstagram ? { color: color.text.primary } : { color: color.accent.primary, fontFamily: font.medium },
