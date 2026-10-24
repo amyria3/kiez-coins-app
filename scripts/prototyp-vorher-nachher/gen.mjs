@@ -19,15 +19,15 @@ async function loadTs(rel) {
 
 mkdirSync(out, { recursive: true });
 const { iconSvgs } = await loadTs('src/components/icons/svgs.ts');
-const { instagramSvgs } = await loadTs('src/components/icons/instagramSvgs.ts');
+const { fashionableSvgs } = await loadTs('src/components/icons/fashionableSvgs.ts');
 const { brandArt } = await loadTs('src/components/icons/brandArt.ts');
 
 const names = ['heart', 'comment', 'send', 'settings', 'camera', 'clock', 'close', 'plus', 'behausung', 'message', 'burger'];
-const icons = { kiez: {}, instagram: {} };
+const icons = { kiez: {}, fashionable: {} };
 for (const n of names) {
   if (iconSvgs[n]) icons.kiez[n] = { w: iconSvgs[n].width, h: iconSvgs[n].height, svg: iconSvgs[n].svg('currentColor') };
-  const l = instagramSvgs[n] ?? iconSvgs[n];
-  if (l) icons.instagram[n] = { w: l.width, h: l.height, svg: l.svg('currentColor') };
+  const l = fashionableSvgs[n] ?? iconSvgs[n];
+  if (l) icons.fashionable[n] = { w: l.width, h: l.height, svg: l.svg('currentColor') };
 }
 
 const b64 = (p) => readFileSync(join(root, p)).toString('base64');

@@ -35,7 +35,7 @@ import { reiseEntries } from '../data/reise';
 import { runningBeforeAfter, topChallenges as pickTopChallenges, useStore } from '../data/store';
 import { RunningBeforeAfter } from '../components/BeforeAfterTimer';
 import type { Challenge } from '../data/types';
-import { color, isInstagram, motion, space, text } from '../theme/tokens';
+import { color, isFashionable, motion, space, text } from '../theme/tokens';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
@@ -330,7 +330,7 @@ export default function FeedScreen() {
         return (
           <GroupsEmpty
             title="Noch keine Aufgaben"
-            message={isInstagram ? 'Tipp unten auf die Kamera und stell die erste Aufgabe für Eure Gruppe ein.' : 'Tipp oben rechts auf die Kamera und stell die erste Aufgabe für Eure Gruppe ein.'}
+            message={isFashionable ? 'Tipp unten auf die Kamera und stell die erste Aufgabe für Eure Gruppe ein.' : 'Tipp oben rechts auf die Kamera und stell die erste Aufgabe für Eure Gruppe ein.'}
           />
         );
       case 'running':
@@ -383,7 +383,7 @@ export default function FeedScreen() {
 
   // Kopf: Höhe und Deckkraft gehen auf 0. Segmente: rechts Platz für die Kamera, sobald der Kopf weg ist.
   // Fashionable Look: Der Kopf trägt Profil und Chats und bleibt stehen (Daria, 24.10.2026). Nur beim Erstellen geht er weg.
-  const headerStyle = headerHeight && isInstagram
+  const headerStyle = headerHeight && isFashionable
     ? {
         height: composeAnim.interpolate({ inputRange: [0, 1], outputRange: [headerHeight, 0] }),
         opacity: composeAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0, 0] }),
@@ -405,7 +405,7 @@ export default function FeedScreen() {
     : null;
   // Beim Erstellen ist die Kamera weg, die Pille nutzt die volle Breite
   // Fashionable Look: Erstellen sitzt in der Leiste unten, die Reiter nutzen die volle Breite ohne Rand
-  const tabsPaddingRight = isInstagram
+  const tabsPaddingRight = isFashionable
     ? 0
     : Animated.add(
         progress.interpolate({ inputRange: [0, 1], outputRange: [space[16], space[16] + CAMERA_WIDTH + space[8]] }),
@@ -446,7 +446,7 @@ export default function FeedScreen() {
           </Text>
         </View>
       </Animated.View>
-      <Animated.View style={[styles.tabsRow, isInstagram && styles.tabsRowInsta, { paddingRight: tabsPaddingRight }]}>
+      <Animated.View style={[styles.tabsRow, isFashionable && styles.tabsRowInsta, { paddingRight: tabsPaddingRight }]}>
         <TabsNavigation selectedKey={tab} onChange={switchTab} />
       </Animated.View>
       <Animated.View style={[styles.clip, storiesStyle]}>
@@ -467,7 +467,7 @@ export default function FeedScreen() {
           onScrollBeginDrag={() => (dragging.current = true)}
           onScrollEndDrag={() => (dragging.current = false)}
           scrollEventThrottle={16}
-          contentContainerStyle={[styles.list, isInstagram ? null : styles.listTop, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
+          contentContainerStyle={[styles.list, isFashionable ? null : styles.listTop, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={color.text.secondary} />
           }
@@ -484,7 +484,7 @@ export default function FeedScreen() {
           </Animated.View>
         ) : null}
       </View>
-      {composing || isInstagram ? null : <CameraButton onPress={createChallenge} />}
+      {composing || isFashionable ? null : <CameraButton onPress={createChallenge} />}
       {composing ? null : <TabBar
         active="feed"
         hasTasks={hasTasks}
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   clip: { overflow: 'hidden' },
   // Fashionable Look: Beiträge ohne Lücke, jeder Beitrag bringt 16 pt Abstand unten selbst mit
-  list: { gap: isInstagram ? 0 : space[24] },
+  list: { gap: isFashionable ? 0 : space[24] },
   listTop: { paddingTop: space[8] },
   composeHeader: { height: COMPOSE_HEADER, flexDirection: 'row', alignItems: 'center', gap: space[4], paddingHorizontal: space[8] },
   composeLine: { ...text.title, flex: 1, color: color.text.primary },

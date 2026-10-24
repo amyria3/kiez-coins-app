@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
-import { color, font, isInstagram, radius, space, text } from '../theme/tokens';
+import { color, font, isFashionable, radius, space, text } from '../theme/tokens';
 import { useTexts } from '../data/texts';
 import { Cat, type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
@@ -62,14 +62,14 @@ export function KaterCard({ children, title, mood = 'default' }: { children: Rea
         <View style={styles.speechTail} />
       </View>
       <View
-        style={[styles.speechCat, isInstagram && styles.speechCatMono]}
+        style={[styles.speechCat, isFashionable && styles.speechCatMono]}
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
       >
         {/* Fashionable Look: kleinere, rundere Kachel in Textfarbe, der Kater ausgestanzt (Daria, 24.10.2026) */}
         {/* Kiez-Look: Kater etwas höher in der Kachel (Daria, 24.10.2026) */}
-        <View style={isInstagram ? undefined : styles.speechCatLift}>
-          <Cat mood={mood} height={isInstagram ? 36 : 52} tint={isInstagram ? color.bg.screen : undefined} />
+        <View style={isFashionable ? undefined : styles.speechCatLift}>
+          <Cat mood={mood} height={isFashionable ? 36 : 52} tint={isFashionable ? color.bg.screen : undefined} />
         </View>
       </View>
     </View>

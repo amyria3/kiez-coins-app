@@ -14,8 +14,8 @@ import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { anrede, formatBountyShort, formatRelative } from '../data/format';
 import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
 import { useStore } from '../data/store';
-import { color, font, isInstagram, radius, size, space, stroke, text } from '../theme/tokens';
-import { InstaProfile } from '../components/InstaProfile';
+import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
+import { FashionProfile } from '../components/FashionProfile';
 import { t } from '../data/texts';
 import { useGoBack } from '../lib/goBack';
 
@@ -33,8 +33,8 @@ function taskLabel({ challenge, role }: ReiseEntry): string {
  * getrennt nach öffentlichen Challenges und Gruppenaufgaben.
  */
 export default function ReiseRoute() {
-  // Fashionable Look: Profilansicht wie bei Instagram (Daria, 23.10.2026)
-  return isInstagram ? <InstaProfile /> : <Reise />;
+  // Fashionable Look: Profilansicht wie bei großen Foto-Apps (Daria, 23.10.2026)
+  return isFashionable ? <FashionProfile /> : <Reise />;
 }
 
 function Reise() {

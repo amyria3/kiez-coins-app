@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 
 import { t } from '../../data/texts';
-import { color, font, isInstagram, motion, radius, stroke } from '../../theme/tokens';
+import { color, font, isFashionable, motion, radius, stroke } from '../../theme/tokens';
 import { Text } from '../T';
 
 /**
@@ -30,7 +30,7 @@ export function TypeSwitch<K extends string>({
       useNativeDriver: true,
     }).start();
   }, [index, x]);
-  const inner = width - (isInstagram ? 0 : PAD * 2);
+  const inner = width - (isFashionable ? 0 : PAD * 2);
   const segment = inner / options.length;
   return (
     <View
@@ -67,10 +67,10 @@ export function TypeSwitch<K extends string>({
 const PAD = 3;
 
 const styles = StyleSheet.create({
-  track: isInstagram
+  track: isFashionable
     ? { flexDirection: 'row', borderBottomWidth: stroke.thin, borderBottomColor: color.line.hairline }
     : { flexDirection: 'row', padding: PAD, borderRadius: radius.full, backgroundColor: color.bg.surface },
-  indicator: isInstagram
+  indicator: isFashionable
     ? { position: 'absolute', left: 0, bottom: -stroke.thin, height: 1.5, backgroundColor: color.text.primary }
     : {
         position: 'absolute',
@@ -80,10 +80,10 @@ const styles = StyleSheet.create({
         borderRadius: radius.full,
         backgroundColor: `${color.accent.primary}2E`,
       },
-  option: { flex: 1, minHeight: isInstagram ? 44 : 38, alignItems: 'center', justifyContent: 'center', paddingHorizontal: isInstagram ? 0 : 4 },
-  label: isInstagram
+  option: { flex: 1, minHeight: isFashionable ? 44 : 38, alignItems: 'center', justifyContent: 'center', paddingHorizontal: isFashionable ? 0 : 4 },
+  label: isFashionable
     ? // Drei Begriffe in Großbuchstaben passen auch auf 360 pt Breite
       { fontFamily: font.semiBold, fontSize: 11, lineHeight: 16, letterSpacing: 0.3, textTransform: 'uppercase', color: color.text.secondary }
     : { fontFamily: font.regular, fontSize: 13, lineHeight: 16, color: color.text.secondary },
-  selected: isInstagram ? { color: color.text.primary } : { color: color.accent.primary, fontFamily: font.medium },
+  selected: isFashionable ? { color: color.text.primary } : { color: color.accent.primary, fontFamily: font.medium },
 });

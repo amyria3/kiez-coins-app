@@ -3,14 +3,14 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { color, radius, size, space, stroke, isInstagram } from '../theme/tokens';
+import { color, radius, size, space, stroke, isFashionable } from '../theme/tokens';
 import { SvgXml } from 'react-native-svg';
 import { Icon } from './icons/Icon';
 import { CrownIcon } from './icons/Brand';
 import { t } from '../data/texts';
 import { refreshUnread, useUnreadMessages } from '../data/chat';
 import { useStore } from '../data/store';
-import { PH, phXml, useIconPt } from './icons/instagramSvgs';
+import { PH, phXml, useIconPt } from './icons/fashionableSvgs';
 
 /** Krone als Linie für den Look „Fashionable“ */
 const crownLine = (c: string) =>
@@ -42,7 +42,7 @@ type TabBarProps = {
  * Challenge erstellen sitzt als CameraButton oben rechts.
  */
 export function TabBar(props: TabBarProps) {
-  return isInstagram ? <InstaTabBar {...props} /> : <KiezTabBar {...props} />;
+  return isFashionable ? <FashionTabBar {...props} /> : <KiezTabBar {...props} />;
 }
 
 /**
@@ -51,7 +51,7 @@ export function TabBar(props: TabBarProps) {
  * Icons in Icon-Größe mit derselben Linie; inaktiv mit 55 % Deckkraft, aktiv voll. „Was Du so machst“ öffnet
  * das Herz oben im Feed.
  */
-function InstaTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarProps) {
+function FashionTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { mode, currentUserId } = useStore();
@@ -111,10 +111,10 @@ function KiezTabBar({ active, onFeedPress, onReisePress, onReiseLongPress, onMen
   }, [currentUserId, mode]);
   return (
     <View
-      style={isInstagram ? [styles.wrapFlat, { paddingBottom: insets.bottom }] : [styles.wrap, { bottom: Math.max(insets.bottom, space[16]) }]}
+      style={isFashionable ? [styles.wrapFlat, { paddingBottom: insets.bottom }] : [styles.wrap, { bottom: Math.max(insets.bottom, space[16]) }]}
       pointerEvents="box-none"
     >
-      <View style={isInstagram ? styles.barFlat : styles.bar} accessibilityRole="tablist">
+      <View style={isFashionable ? styles.barFlat : styles.bar} accessibilityRole="tablist">
         <Pressable
           accessibilityRole="tab"
           accessibilityLabel={t('Feed')}
@@ -133,7 +133,7 @@ function KiezTabBar({ active, onFeedPress, onReisePress, onReiseLongPress, onMen
           style={({ pressed }) => [styles.item, active === 'reise' && styles.itemActive, pressed && styles.pressed]}
         >
           <View>
-            {isInstagram ? (
+            {isFashionable ? (
               <SvgXml xml={crownLine(active === 'reise' ? color.text.primary : color.text.secondary)} width={25} height={25} />
             ) : (
               <CrownIcon height={26} />
@@ -176,9 +176,9 @@ export function CameraButton({ onPress }: { onPress: () => void }) {
       accessibilityLabel={t('Challenge erstellen')}
       onPress={onPress}
       hitSlop={4}
-      style={({ pressed }) => [styles.camera, isInstagram && styles.cameraFlat, { top: insets.top + space[8] }, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.camera, isFashionable && styles.cameraFlat, { top: insets.top + space[8] }, pressed && styles.pressed]}
     >
-      <Icon name="camera" size={24} color={isInstagram ? color.text.primary : color.bg.screen} />
+      <Icon name="camera" size={24} color={isFashionable ? color.text.primary : color.bg.screen} />
     </Pressable>
   );
 }
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   // Aktive Seite: dezente helle Fläche, damit der Kater nicht auf Weiß liegt
-  itemActive: { backgroundColor: isInstagram ? 'transparent' : 'rgba(240, 240, 240, 0.14)' },
+  itemActive: { backgroundColor: isFashionable ? 'transparent' : 'rgba(240, 240, 240, 0.14)' },
   camera: {
     position: 'absolute',
     right: space[16],

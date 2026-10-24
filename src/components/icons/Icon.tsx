@@ -4,8 +4,8 @@ import { SvgXml } from 'react-native-svg';
 
 import { isRtl } from '../../data/texts';
 
-import { color as themeColor, isInstagram } from '../../theme/tokens';
-import { PH, instagramSvgs, phXml, useIconPt } from './instagramSvgs';
+import { color as themeColor, isFashionable } from '../../theme/tokens';
+import { PH, fashionableSvgs, phXml, useIconPt } from './fashionableSvgs';
 import { iconSvgs, type IconName } from './svgs';
 
 type IconProps = {
@@ -25,7 +25,7 @@ const MIRRORED = new Set<IconName>(['chevron-left', 'chevron-right', 'send']);
 
 export const Icon = memo(function Icon({ name, color = themeColor.text.primary, size }: IconProps) {
   const iconPt = useIconPt();
-  const line = isInstagram ? instagramSvgs[name] : undefined;
+  const line = isFashionable ? fashionableSvgs[name] : undefined;
   if (line) {
     // size.icon (20) ist die Größe der Hauptsymbole; kleinere Angaben im selben Verhältnis
     const h = Math.round(((size ?? 20) / 20) * iconPt);

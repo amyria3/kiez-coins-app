@@ -1,4 +1,4 @@
-// Wählbarer Look der App (Daria, 23.10.2026): „Kiez“ ist das eigene Design, „Fashionable“ (Code: instagram) lehnt sich an Instagram an. Name seit 24.10.2026.
+// Wählbarer Look der App (Daria, 23.10.2026): „Kiez“ ist das eigene Design, „Fashionable“ ist hell, mit Fotos über die ganze Breite.
 // Die Tokens lesen den Look einmal beim Start, da StyleSheet.create die Farben beim Laden festschreibt.
 // Ein Wechsel lädt die App deshalb neu.
 // Im Web wählt der Link `/app/?look=fashionable` den Look vor. Der Browser merkt sich die Wahl.
@@ -12,8 +12,6 @@ export const looks: { code: Look; name: string; description: string }[] = [
 ];
 
 const KEY = 'kiez-look';
-/** Bis 24.10.2026 hieß „fashionable“ im Link und im Speicher „instagram“. Alte Links und gespeicherte Wahl gelten weiter. */
-const normalize = (v: string | null) => (v === 'instagram' ? 'fashionable' : v);
 const isLook = (v: unknown): v is Look => v === 'kiez' || v === 'fashionable';
 
 /** Look im Web wählbar, auf iOS und Android noch nicht */
@@ -21,7 +19,7 @@ export const lookSelectable = Platform.OS === 'web';
 
 function readLook(): Look {
   if (Platform.OS !== 'web' || typeof window === 'undefined') return 'kiez';
-  const fromLink = normalize(new URLSearchParams(window.location.search).get('look'));
+  const fromLink = new URLSearchParams(window.location.search).get('look');
   if (isLook(fromLink)) {
     try {
       window.localStorage.setItem(KEY, fromLink);
@@ -29,7 +27,7 @@ function readLook(): Look {
     return fromLink;
   }
   try {
-    const saved = normalize(window.localStorage.getItem(KEY));
+    const saved = window.localStorage.getItem(KEY);
     if (isLook(saved)) {
       window.localStorage.setItem(KEY, saved);
       return saved;

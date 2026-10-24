@@ -6,7 +6,7 @@ import { SvgXml } from 'react-native-svg';
 
 import { useStore } from '../data/store';
 import type { User } from '../data/types';
-import { color, font, radius, size, space, text, isInstagram } from '../theme/tokens';
+import { color, font, radius, size, space, text, isFashionable } from '../theme/tokens';
 import { Icon } from './icons/Icon';
 import { t } from '../data/texts';
 
@@ -24,7 +24,7 @@ export function useHideName(user: Pick<User, 'id'>): boolean {
 /** Verdeckter Text: nur ein unscharfer Schatten der Buchstaben bleibt sichtbar. */
 export const hiddenText = {
   color: 'transparent',
-  textShadowColor: isInstagram ? 'rgba(0, 0, 0, 0.55)' : 'rgba(240, 240, 240, 0.85)',
+  textShadowColor: isFashionable ? 'rgba(0, 0, 0, 0.55)' : 'rgba(240, 240, 240, 0.85)',
   textShadowOffset: { width: 0, height: 0 },
   textShadowRadius: 10,
 } as const;
@@ -55,9 +55,9 @@ export function Avatar({ user, diameter }: { user: User; diameter?: number }) {
     .join('');
   const d = diameter ?? size.avatar;
   return (
-    <View style={[styles.avatar, styles.fallback, isInstagram && styles.fallbackInsta, sizeStyle]}>
+    <View style={[styles.avatar, styles.fallback, isFashionable && styles.fallbackInsta, sizeStyle]}>
       {/* Fashionable Look: Verlauf wie im Mockup, 135° von Kiez-Lila #7E94FF nach Rosa #FFB2E5 (Daria, 24.10.2026) */}
-      {isInstagram ? (
+      {isFashionable ? (
         <SvgXml
           xml={AVATAR_GRADIENT}
           width={d}
@@ -65,7 +65,7 @@ export function Avatar({ user, diameter }: { user: User; diameter?: number }) {
           style={StyleSheet.absoluteFill}
         />
       ) : null}
-      <Text style={[styles.initials, isInstagram && styles.initialsInsta, { fontSize: Math.round(d * 0.4) }]}>{initials}</Text>
+      <Text style={[styles.initials, isFashionable && styles.initialsInsta, { fontSize: Math.round(d * 0.4) }]}>{initials}</Text>
     </View>
   );
 }
