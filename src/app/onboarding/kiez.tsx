@@ -110,7 +110,7 @@ export default function Kiez() {
           />
         </>
       ) : null}
-      <Notice message="Wir speichern nur den Kiez, nicht Deinen genauen Standort. Ohne Kiez kannst Du lesen und Me-Challenges posten. Für We-Challenges ist die Autorisierung Pflicht." />
+      <Notice message="Wir speichern nur den Kiez, nicht Deinen genauen Standort. Ohne Kiez kannst Du lesen, Bilder und Me-Challenges posten. Für We-Challenges ist die Autorisierung Pflicht." />
     </SubScreen>
   );
 }
