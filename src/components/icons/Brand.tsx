@@ -8,8 +8,9 @@ import { brandArt } from './brandArt';
 import { crownSvg } from './crownSvg';
 import { diamondSvgs, type DiamondVariant } from './diamondSvgs';
 import { ICON_SCALE } from './Icon';
-import { FA } from './instagramSvgs';
-import { faCoins } from '@fortawesome/free-solid-svg-icons/faCoins';
+import { PH, phXml } from './instagramSvgs';
+// Edenstein: Phosphor hat keinen Edelstein, daher bleibt Font Awesome Free „gem“ (CC BY 4.0)
+import { faGem } from '@fortawesome/free-regular-svg-icons/faGem';
 import { t } from '../../data/texts';
 
 type CatProps = {
@@ -66,17 +67,10 @@ export const Wordmark = memo(function Wordmark() {
 });
 
 /** Zwei Münzen hintereinander: vorn ein ganzer Kreis, hinten nur der Bogen, der hervorschaut */
-/** Instagram-Look: Münzen aus Font Awesome (Solid), quadratisch in 24 × 24, mittig */
-const COINS_FA = (c: string) => {
-  const [w, h, , , d] = faCoins.icon;
-  const box = Math.max(w, h) / 0.8;
-  return `<svg viewBox="${-(box - w) / 2} ${-(box - h) / 2} ${box} ${box}" xmlns="http://www.w3.org/2000/svg" fill="${c}"><path d="${d}"/></svg>`;
-};
-
 /** icon/coins mit Verlauf, Standardgröße wie im BountyBadge (19×22) */
 export const CoinsIcon = memo(function CoinsIcon({ height = 22 }: { height?: number }) {
   // Instagram-Look: zwei Münzen als Kontur, Linie 2 mit runden Enden, in Textfarbe (Daria, 23.10.2026)
-  if (isInstagram) return <SvgXml xml={COINS_FA(color.text.primary)} width={height} height={height} />;
+  if (isInstagram) return <SvgXml xml={phXml(PH.coins, color.text.primary)} width={height} height={height} />;
   return <SvgXml xml={coinsSvg} width={(30 / 35) * height} height={height} />;
 });
 
@@ -133,7 +127,7 @@ const crystalSvgs = ([1, 2, 3] as DiamondVariant[]).map((v) => {
  */
 /** Font Awesome „gem“ (Regular), Rahmen auf den Stein zugeschnitten (Daria, 24.10.2026: Font Awesome im Instagram-Look) */
 const GEM_BOX = { x: 0, y: 24, w: 512, h: 456 };
-const GEM_PATH = FA.gem.icon[4] as string;
+const GEM_PATH = faGem.icon[4] as string;
 /** Verlauf, der aufblitzt */
 const GEM_FLASH = ['#F783AC', '#7048E8'] as const;
 /** Stein als Fläche: `fill` Farbe oder Verlauf. `_px` bleibt für die Aufrufer, die Größe regelt das SvgXml. */

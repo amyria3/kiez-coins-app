@@ -10,8 +10,7 @@ import { CrownIcon } from './icons/Brand';
 import { t } from '../data/texts';
 import { refreshUnread, useUnreadMessages } from '../data/chat';
 import { useStore } from '../data/store';
-import { FA, faXml, useIconPt } from './icons/instagramSvgs';
-import { useIconStyle } from './icons/iconStyle';
+import { PH, phXml, useIconPt } from './icons/instagramSvgs';
 
 /** Krone als Linie für den Look „Instagram“ */
 const crownLine = (c: string) =>
@@ -61,7 +60,6 @@ function InstaTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBar
     if (currentUserId) refreshUnread(currentUserId, mode === 'live').catch(() => {});
   }, [currentUserId, mode]);
   const ICON_PT = useIconPt();
-  const iconStyle = useIconStyle();
   const item = (on: boolean) => ({ pressed }: { pressed: boolean }) => [styles.itemInsta, !on && styles.off, pressed && styles.pressed];
   return (
     <View style={[styles.wrapFlat, { paddingBottom: insets.bottom }]} pointerEvents="box-none">
@@ -73,7 +71,7 @@ function InstaTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBar
           onPress={onFeedPress}
           style={item(active === 'feed')}
         >
-          <SvgXml xml={faXml(FA.home, color.text.primary, iconStyle)} width={ICON_PT} height={ICON_PT} />
+          <SvgXml xml={phXml(PH.home, color.text.primary)} width={ICON_PT} height={ICON_PT} />
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -81,7 +79,7 @@ function InstaTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBar
           onPress={onCreatePress ?? (() => router.dismissTo({ pathname: '/feed', params: { erstellen: '1' } }))}
           style={item(false)}
         >
-          <SvgXml xml={faXml(FA.create, color.text.primary, iconStyle)} width={ICON_PT} height={ICON_PT} />
+          <SvgXml xml={phXml(PH.create, color.text.primary)} width={ICON_PT} height={ICON_PT} />
         </Pressable>
         <Pressable
           accessibilityRole="tab"
@@ -91,12 +89,12 @@ function InstaTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBar
           style={item(active === 'chat')}
         >
           <View>
-            <SvgXml xml={faXml(FA.chats, color.text.primary, iconStyle)} width={ICON_PT} height={ICON_PT} />
+            <SvgXml xml={phXml(PH.chats, color.text.primary)} width={ICON_PT} height={ICON_PT} />
             {unread ? <View style={styles.dotInsta} /> : null}
           </View>
         </Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel={t('Menü')} onPress={onMenuPress} style={item(false)}>
-          <SvgXml xml={faXml(FA.menu, color.text.primary, iconStyle)} width={ICON_PT} height={ICON_PT} />
+          <SvgXml xml={phXml(PH.menu, color.text.primary)} width={ICON_PT} height={ICON_PT} />
         </Pressable>
       </View>
     </View>

@@ -15,18 +15,17 @@ import { color, font, radius, space, stroke } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
 import { Cat } from './icons/Brand';
 import { Icon } from './icons/Icon';
-import { FA, faXml, useIconPt } from './icons/instagramSvgs';
-import { useIconStyle } from './icons/iconStyle';
+import { PH, phXml, useIconPt } from './icons/instagramSvgs';
 import { TAB_BAR_SPACE, TabBar } from './TabBar';
 import { Text } from './T';
 import { useGoBack } from '../lib/goBack';
 
 type GridTab = 'created' | 'accepted' | 'groups';
 
-const GRID_TABS: { key: GridTab; label: string; icon: (typeof FA)[keyof typeof FA] }[] = [
-  { key: 'created', label: 'Erstellt', icon: FA.created },
-  { key: 'accepted', label: 'Angenommen', icon: FA.accepted },
-  { key: 'groups', label: 'Gruppenaufgaben', icon: FA.groups },
+const GRID_TABS: { key: GridTab; label: string; icon: (typeof PH)[keyof typeof PH] }[] = [
+  { key: 'created', label: 'Erstellt', icon: PH.created },
+  { key: 'accepted', label: 'Angenommen', icon: PH.accepted },
+  { key: 'groups', label: 'Gruppenaufgaben', icon: PH.groups },
 ];
 
 /**
@@ -46,7 +45,6 @@ export function InstaProfile() {
   const friends = useFriends();
   const [tab, setTab] = useState<GridTab>('created');
   const ICON_PT = useIconPt();
-  const iconStyle = useIconStyle();
   const entries = useMemo(() => reiseEntries(challenges, currentUserId), [challenges, currentUserId]);
   const mood = reiseMood(entries);
   const me = users.find((u) => u.id === currentUserId);
@@ -192,7 +190,7 @@ export function InstaProfile() {
                 onPress={() => setTab(g.key)}
                 style={[styles.gridTab, on && styles.gridTabOn]}
               >
-                <SvgXml xml={faXml(g.icon, on ? color.text.primary : color.text.secondary, iconStyle)} width={ICON_PT} height={ICON_PT} />
+                <SvgXml xml={phXml(g.icon, on ? color.text.primary : color.text.secondary)} width={ICON_PT} height={ICON_PT} />
               </Pressable>
             );
           })}
