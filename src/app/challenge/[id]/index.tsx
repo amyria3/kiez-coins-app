@@ -15,11 +15,12 @@ import { CommentSection } from '../../../components/Comments';
 import { InfoRow, KaterBubble, Notice, OperationTag } from '../../../components/Content';
 import { TextField } from '../../../components/Form';
 import { HeroScreen, SubScreen } from '../../../components/Screen';
-import { formatBountyShort, formatDayMonthShort, formatEuro, formatRelative, formatRemainingShort } from '../../../data/format';
+import { beforeAfterDuration, formatBountyShort, formatDayMonthShort, formatEuro, formatHoursMinutes, formatRelative, formatRemainingShort } from '../../../data/format';
+import { WithMentions } from '../../../components/WithMentions';
 import { useRequireKiez } from '../../../data/kiez';
 import { recordView } from '../../../data/remote';
 import { useChallenge, useStore } from '../../../data/store';
-import type { ChallengeStatus } from '../../../data/types';
+import { isPostOnly, type ChallengeStatus } from '../../../data/types';
 import { color, font, radius, size, space, stroke, text } from '../../../theme/tokens';
 import { t } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
@@ -84,7 +85,15 @@ export default function ChallengeDetail() {
   const isAssignee = challenge.assigneeId === currentUserId;
   const acceptedByMe = challenge.status === 'accepted' && isAssignee;
   const named = challenge.operationName !== undefined;
-  const image = challenge.image ?? challenge.imageAfter;
+  const isBeforeAfter = challenge.type === 'before_after';
+  // Vorher-Nachher: erst das Vorher-, dann das Nachher-Foto in der Galerie
+  const image = isBeforeAfter ? (challenge.imageBefore ?? challenge.image) : (challenge.image ?? challenge.imageAfter);
+  const moreImages = isBeforeAfter
+    ? challenge.imageAfter && challenge.imageBefore
+      ? [challenge.imageAfter]
+      : undefined
+    : challenge.extraImages?.map((e) => e.photo);
+  const baDuration = isBeforeAfter ? beforeAfterDuration(challenge) : undefined;
 
   const giveBack = () =>
     Alert.alert('Challenge abgeben?', 'Die Challenge ist dann wieder für alle offen.', [
@@ -93,8 +102,8 @@ export default function ChallengeDetail() {
     ]);
 
   let actions: React.ReactNode = null;
-  // Nur ein Bild: nichts anzunehmen
-  const isPhoto = challenge.type === 'photo';
+  // Nur ein Bild oder Vorher-Nachher: nichts anzunehmen
+  const isPhoto = isPostOnly(challenge.type);
   if (challenge.status === 'open' && !isAuthor && !isPhoto) {
     actions = <Button icon="wir-schaffen-das" label={challenge.groupId ? 'Aufgabe annehmen' : 'Challenge annehmen'} onPress={() => needKiez() && dispatch({ type: 'accept', id: challenge.id })} />;
   } else if (acceptedByMe) {
@@ -117,7 +126,8 @@ export default function ChallengeDetail() {
 
   const amount = challenge.bountyAmount ? formatEuro(challenge.bountyAmount) : '';
   // Eigene Challenge, die noch niemand angenommen hat: bearbeiten oder schließen
-  const canManage = isAuthor && challenge.status === 'open' && !challenge.assigneeId;
+  // Vorher-Nachher lässt sich nach dem Posten nur löschen
+  const canManage = isAuthor && challenge.status === 'open' && !challenge.assigneeId && !isBeforeAfter;
   // Löschen bis jemand annimmt, auch geschlossene (Migration 20261021000300)
   const canDelete = isAuthor && (challenge.status === 'open' || challenge.status === 'closed') && !challenge.assigneeId;
   const description = (challenge.type === 'wave' ? challenge.challengeText : challenge.text)?.trim();
@@ -178,7 +188,7 @@ export default function ChallengeDetail() {
     <>
       <View style={styles.statusWrap}>
         <View style={styles.statusRow}>
-          <StatusBadge status={challenge.status} photo={isPhoto} />
+          <StatusBadge status={challenge.status} photo={isPhoto && !isBeforeAfter} beforeAfter={isBeforeAfter} />
           <Text style={[styles.caption, styles.flex]}>{running ? formatRelative(challenge.createdAt) : ''}</Text>
           {isAuthor ? (
             <GlassIconButton
@@ -331,7 +341,12 @@ export default function ChallengeDetail() {
           ) : null}
         </>
       ) : null}
-      {description ? <Text style={styles.description}>{description}</Text> : null}
+      {baDuration !== undefined ? (
+        <InfoRow icon="clock" value={t('In {duration} geschafft', { duration: formatHoursMinutes(baDuration) })} />
+      ) : null}
+      {description ? (
+        <Text style={styles.description}>{isBeforeAfter ? <WithMentions value={description} /> : description}</Text>
+      ) : null}
       <View style={styles.authorBlock}>
         <AuthorRow
           user={author}
@@ -396,7 +411,7 @@ export default function ChallengeDetail() {
       scrollToEndOnOpen={!!kommentare}
       slideIn
       image={image}
-      moreImages={challenge.extraImages?.map((e) => e.photo)}
+      moreImages={moreImages}
       imageLabel={challenge.title}
       onBackPress={() => goBack()}
       onSharePress={() => shareText(t('{title} – Kiez Coins', { title: challenge.title }))}

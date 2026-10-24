@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -8,6 +8,20 @@ import { GroupsEmpty } from '../GroupBar';
 import { NudgeScrollProvider, useNudgeScroll } from '../Nudge';
 import { useGroupTaskForm } from './GroupTaskForm';
 import { usePublicComposeForm } from './PublicComposeForm';
+import { useBeforeAfterStartForm } from './BeforeAfterForm';
+import { TypeSwitch } from './TypeSwitch';
+
+/** Beitragstypen im Kiez, in dieser Reihenfolge (Daria, 23.10.2026) */
+const PUBLIC_TYPES = [
+  { key: 'individual', label: 'Challenge' },
+  { key: 'before_after', label: 'Vorher-Nachher' },
+  { key: 'photo', label: 'Bild' },
+] as const;
+/** In Gruppen: Aufgabe mit Edensteinen oder Vorher-Nachher */
+const GROUP_TYPES = [
+  { key: 'task', label: 'Aufgabe' },
+  { key: 'before_after', label: 'Vorher-Nachher' },
+] as const;
 
 type Props = {
   /** 'public' (Reiter „In der Nähe“) oder die gewählte Gruppe */
@@ -55,18 +69,43 @@ function SheetScroll({ children, actions }: { children: React.ReactNode; actions
   );
 }
 
+/** Nach „Vorher speichern“: Blatt zu, weiter zum Timer */
+function useOpenTimer(onDone: () => void) {
+  const router = useRouter();
+  return (id: string) => {
+    onDone();
+    router.push({ pathname: '/vorher-nachher/[id]', params: { id } });
+  };
+}
+
 function PublicBody({ onDone }: { onDone: () => void }) {
-  const { fields, buttons } = usePublicComposeForm(onDone);
-  return <SheetScroll actions={buttons}>{fields}</SheetScroll>;
+  const [type, setType] = useState<(typeof PUBLIC_TYPES)[number]['key']>('individual');
+  const post = usePublicComposeForm(onDone, type === 'photo' ? 'photo' : 'individual');
+  const ba = useBeforeAfterStartForm(undefined, useOpenTimer(onDone));
+  const isBa = type === 'before_after';
+  return (
+    <SheetScroll actions={isBa ? ba.button : post.buttons}>
+      <TypeSwitch options={PUBLIC_TYPES} value={type} onChange={setType} />
+      {isBa ? ba.fields : post.fields}
+    </SheetScroll>
+  );
 }
 
 function GroupBody({ groupId, onDone }: { groupId: string; onDone: () => void }) {
   const router = useRouter();
-  const { fields, button } = useGroupTaskForm(groupId, {}, (taskId) => {
+  const [type, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('task');
+  const task = useGroupTaskForm(groupId, {}, (taskId) => {
     onDone();
     router.push(`/challenge/${taskId}`);
   });
-  return <SheetScroll actions={button}>{fields}</SheetScroll>;
+  const ba = useBeforeAfterStartForm(groupId, useOpenTimer(onDone));
+  const isBa = type === 'before_after';
+  return (
+    <SheetScroll actions={isBa ? ba.button : task.button}>
+      <TypeSwitch options={GROUP_TYPES} value={type} onChange={setType} />
+      {isBa ? ba.fields : task.fields}
+    </SheetScroll>
+  );
 }
 
 function NoGroup() {

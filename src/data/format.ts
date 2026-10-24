@@ -109,6 +109,29 @@ export function formatDurationSince(iso: string, now = Date.now()): string {
   return days === 1 ? t('1 Tag') : t('{n} Tage', { n: days });
 }
 
+/** Dauer in Stunden und Minuten: „45 min“, „2 h 14 min“, „48 h“ (Vorher-Nachher) */
+export function formatHoursMinutes(ms: number): string {
+  const minutes = Math.max(0, Math.floor(ms / 60_000));
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h === 0) return t('{m} min', { m });
+  if (m === 0) return t('{h} h', { h });
+  return t('{h} h {m} min', { h, m });
+}
+
+/** Laufender Timer: „1:23:45“ */
+export function formatClock(ms: number): string {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${Math.floor(s / 3600)}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`;
+}
+
+/** Dauer eines Vorher-Nachher-Beitrags vom Timerstart bis zum Posten, ohne Timer leer */
+export function beforeAfterDuration(c: { timerStartedAt?: string; finishedAt?: string }): number | undefined {
+  if (!c.timerStartedAt || !c.finishedAt) return undefined;
+  return Math.max(0, Date.parse(c.finishedAt) - Date.parse(c.timerStartedAt));
+}
+
 /** „DE12 •••• 4821“ (kurze Form in Auswahllisten) */
 export function maskIbanShort(input: string): string {
   const iban = input.replace(/\s+/g, '');

@@ -23,8 +23,14 @@ export type ChallengeStatus =
   | 'closed'
   | 'deleted';
 
-/** `photo`: nur ein schönes Bild, keine Aufgabe (Daria, 22.10.2026) */
-export type ChallengeType = 'individual' | 'wave' | 'photo';
+/**
+ * `photo`: nur ein schönes Bild, keine Aufgabe (Daria, 22.10.2026).
+ * `before_after`: Vorher-Nachher mit Timer, keine Aufgabe (Daria, 23.10.2026, Migration 20261023000300).
+ */
+export type ChallengeType = 'individual' | 'wave' | 'photo' | 'before_after';
+
+/** Beiträge ohne Aufgabe: nichts anzunehmen, keine Frist, keine Coins */
+export const isPostOnly = (type: ChallengeType) => type === 'photo' || type === 'before_after';
 
 export type ImageSource = ImageSourcePropType;
 
@@ -105,6 +111,15 @@ export type Challenge = {
   extraImages?: ExtraPhoto[];
   imageBefore?: ImageSource;
   imageAfter?: ImageSource;
+  /** Nur Vorher-Nachher: Texte ohne #vorher/#nachher, im Entwurf getrennt (nach dem Posten steht beides in `text`) */
+  beforeText?: string;
+  afterText?: string;
+  /** Nur Vorher-Nachher: Pfade der Fotos im Storage */
+  imageBeforePath?: string;
+  imageAfterPath?: string;
+  /** Nur Vorher-Nachher: Timerstart (Server) und Ende beim Posten, höchstens 48 h danach */
+  timerStartedAt?: string;
+  finishedAt?: string;
   likedByMe: boolean;
   /** Wie viele Leute das mögen (Migration like_counts). Ohne Migration unbekannt. */
   likeCount?: number;

@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 
 import * as remote from './remote';
 import { sampleChallenges, sampleGroups, sampleProfile, sampleUsers, topChallengeIds } from './sample';
-import type { Challenge, ChallengeReport, ImageSource, Comment, FeedState, Group, Payout, PayoutShare, Profile, User } from './types';
+import { isPostOnly, type Challenge, type ChallengeReport, type ImageSource, type Comment, type FeedState, type Group, type Payout, type PayoutShare, type Profile, type User } from './types';
 
 // Zustand der App. Zwei Betriebsarten:
 // * live: Daten aus Supabase. Jede Aktion ändert sofort den lokalen Stand (damit die App flüssig bleibt)
@@ -316,7 +316,25 @@ type Store = State & {
   groupApi: GroupApi;
   /** Blockierung aufheben. Live: lädt danach alles neu, damit die Inhalte der Person zurückkommen. */
   unblock: (userId: string) => Promise<void>;
+  /** Vorher-Nachher: Entwurf anlegen, Timer starten, ändern, posten. Werfen lesbar. */
+  beforeAfter: BeforeAfterApi;
 };
+
+type BeforeAfterApi = {
+  /** Gibt die id des Entwurfs zurück */
+  start: (input: remote.NewBeforeAfter) => Promise<string>;
+  startTimer: (id: string) => Promise<void>;
+  update: (id: string, edit: remote.BeforeAfterEdit) => Promise<void>;
+  /** Speichert `edit` (falls übergeben) und postet */
+  finish: (id: string, edit?: remote.BeforeAfterEdit) => Promise<void>;
+};
+
+/** Text des fertigen Beitrags, wie ihn die Datenbank beim Posten zusammensetzt */
+export function beforeAfterBody(c: Pick<Challenge, 'beforeText' | 'afterText' | 'imageAfter'>): string {
+  const lines = [`#vorher${c.beforeText ? ` ${c.beforeText}` : ''}`];
+  if (c.imageAfter || c.afterText) lines.push(`#nachher${c.afterText ? ` ${c.afterText}` : ''}`);
+  return lines.join('\n').slice(0, 500);
+}
 
 type GroupApi = {
   create: (name: string) => Promise<string>;
@@ -592,9 +610,101 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [load],
   );
 
+  const beforeAfter = useMemo<BeforeAfterApi>(() => {
+    const isDemo = () => stateRef.current.mode === 'demo';
+    const find = (id: string) => stateRef.current.challenges.find((c) => c.id === id);
+    const put = (challenge: Challenge) => localDispatch({ type: 'challengeLoaded', id: challenge.id, challenge, users: [] });
+    // Live: Funktion in Supabase, danach den Beitrag neu laden
+    const live = async (id: string, run: () => Promise<unknown>) => {
+      const s = stateRef.current;
+      try {
+        await run();
+        const { challenge, users } = await remote.loadChallenge(id, s.currentUserId);
+        localDispatch({ type: 'challengeLoaded', id, challenge, users });
+      } catch (error) {
+        throw new Error(remote.errorText(error));
+      }
+    };
+    const editDemo = (c: Challenge, edit: remote.BeforeAfterEdit): Challenge => ({
+      ...c,
+      title: edit.title === undefined ? c.title : edit.title.trim().slice(0, 60),
+      beforeText: edit.beforeText === undefined ? c.beforeText : edit.beforeText.trim() || undefined,
+      afterText: edit.afterText === undefined ? c.afterText : edit.afterText.trim() || undefined,
+      imageBefore: edit.beforePhoto ?? c.imageBefore,
+      imageAfter: edit.afterPhoto ?? c.imageAfter,
+      image: edit.beforePhoto ?? c.imageBefore,
+    });
+    return {
+      start: async (input) => {
+        const s = stateRef.current;
+        if (!isDemo()) {
+          try {
+            const challenge = await remote.startBeforeAfter(s.currentUserId, input);
+            localDispatch({ type: 'create', challenge });
+            return challenge.id;
+          } catch (error) {
+            throw new Error(remote.errorText(error));
+          }
+        }
+        const challenge: Challenge = {
+          id: `vorher-nachher-${Date.now()}`,
+          type: 'before_after',
+          title: input.title.trim().slice(0, 60),
+          text: '',
+          beforeText: input.beforeText.trim() || undefined,
+          authorId: s.currentUserId,
+          groupId: input.groupId,
+          location: '',
+          status: 'draft',
+          image: input.photo,
+          imageBefore: input.photo,
+          likedByMe: false,
+          comments: [],
+          createdAt: new Date().toISOString(),
+          deadline: '',
+        };
+        localDispatch({ type: 'create', challenge });
+        return challenge.id;
+      },
+      startTimer: async (id) => {
+        if (!isDemo()) return live(id, () => remote.startBeforeAfterTimer(id));
+        const c = find(id);
+        if (c && !c.timerStartedAt) put({ ...c, timerStartedAt: new Date().toISOString() });
+      },
+      update: async (id, edit) => {
+        if (!isDemo()) return live(id, () => remote.updateBeforeAfter(stateRef.current.currentUserId, id, edit));
+        const c = find(id);
+        if (c) put(editDemo(c, edit));
+      },
+      finish: async (id, edit) => {
+        if (!isDemo()) {
+          return live(id, async () => {
+            if (edit) await remote.updateBeforeAfter(stateRef.current.currentUserId, id, edit);
+            await remote.finishBeforeAfter(id);
+          });
+        }
+        const found = find(id);
+        if (!found) return;
+        const c = edit ? editDemo(found, edit) : found;
+        const now = Date.now();
+        const end = c.timerStartedAt ? Math.min(now, Date.parse(c.timerStartedAt) + remote.BEFORE_AFTER_MAX_MS) : now;
+        put({
+          ...c,
+          status: 'open',
+          title: c.title.trim() || 'Vorher-Nachher',
+          text: beforeAfterBody(c),
+          image: c.imageAfter ?? c.imageBefore,
+          finishedAt: new Date(end).toISOString(),
+          createdAt: new Date(now).toISOString(),
+          deadline: new Date(now).toISOString(),
+        });
+      },
+    };
+  }, []);
+
   const value = useMemo(
-    () => ({ ...state, dispatch, load, createChallenge, saveDraft, publishDraft, groupApi, unblock }),
-    [state, dispatch, load, createChallenge, saveDraft, publishDraft, groupApi, unblock],
+    () => ({ ...state, dispatch, load, createChallenge, saveDraft, publishDraft, groupApi, unblock, beforeAfter }),
+    [state, dispatch, load, createChallenge, saveDraft, publishDraft, groupApi, unblock, beforeAfter],
   );
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
@@ -638,7 +748,24 @@ export function topChallenges(state: Pick<State, 'mode' | 'challenges' | 'curren
   );
   const now = Date.now();
   const open = challenges
-    .filter((c) => !c.groupId && c.type !== 'photo' && c.status === 'open' && Date.parse(c.deadline) > now && !mine.includes(c))
+    .filter((c) => !c.groupId && !isPostOnly(c.type) && c.status === 'open' && Date.parse(c.deadline) > now && !mine.includes(c))
     .sort((a, b) => a.deadline.localeCompare(b.deadline));
   return [...mine, ...open].filter((c) => !COMPLETED.has(c.status)).slice(0, max);
+}
+
+/**
+ * Eigene Vorher-Nachher-Entwürfe mit laufendem Timer, der jüngste zuerst. Der Feed zeigt sie oben als Ring.
+ * Ein Entwurf älter als 48 h zählt nicht mehr: Den postet der Server beim nächsten Lauf.
+ */
+export function runningBeforeAfter(challenges: Challenge[], me: string, now = Date.now()): Challenge[] {
+  return challenges
+    .filter(
+      (c) =>
+        c.type === 'before_after' &&
+        c.status === 'draft' &&
+        c.authorId === me &&
+        !!c.timerStartedAt &&
+        now - Date.parse(c.timerStartedAt) < remote.BEFORE_AFTER_MAX_MS,
+    )
+    .sort((a, b) => b.timerStartedAt!.localeCompare(a.timerStartedAt!));
 }

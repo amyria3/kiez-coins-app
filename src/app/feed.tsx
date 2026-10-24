@@ -32,7 +32,8 @@ import { challengeTypes, isTypeActive } from '../data/features';
 import { anrede } from '../data/format';
 import { coordsIfAllowed, distanceMeters, formatDistance, type Coords } from '../data/location';
 import { reiseEntries } from '../data/reise';
-import { topChallenges as pickTopChallenges, useStore } from '../data/store';
+import { runningBeforeAfter, topChallenges as pickTopChallenges, useStore } from '../data/store';
+import { RunningBeforeAfter } from '../components/BeforeAfterTimer';
 import type { Challenge } from '../data/types';
 import { color, isInstagram, motion, space, text } from '../theme/tokens';
 
@@ -294,8 +295,12 @@ export default function FeedScreen() {
   const showStories =
     STORIES && collapsed && tab !== 'completed' && tab !== 'groups' && !planned && !loading && topChallenges.length > 0;
 
+  // Eigene Vorher-Nachher-Timer, die gerade laufen: oben im Feed (Daria, 23.10.2026)
+  const running = useMemo(() => runningBeforeAfter(challenges, currentUserId), [challenges, currentUserId]);
+
   const items: FeedItem[] = [];
   if (planned) items.push({ kind: 'planned' });
+  if (!loading && !composing) running.forEach((challenge) => items.push({ kind: 'running', challenge }));
   if (tab === 'groups' && !loading) {
     if (groups.length === 0) items.push({ kind: 'groupsEmpty' });
     else {
@@ -326,6 +331,13 @@ export default function FeedScreen() {
           <GroupsEmpty
             title="Noch keine Aufgaben"
             message={isInstagram ? 'Tipp unten auf die Kamera und stell die erste Aufgabe für Eure Gruppe ein.' : 'Tipp oben rechts auf die Kamera und stell die erste Aufgabe für Eure Gruppe ein.'}
+          />
+        );
+      case 'running':
+        return (
+          <RunningBeforeAfter
+            challenge={item.challenge}
+            onPress={() => router.push({ pathname: '/vorher-nachher/[id]', params: { id: item.challenge.id } })}
           />
         );
       case 'planned':
@@ -447,7 +459,9 @@ export default function FeedScreen() {
         <FlatList
           ref={listRef}
           data={items}
-          keyExtractor={(item) => (item.kind === 'post' ? item.challenge.id : item.kind)}
+          keyExtractor={(item) =>
+            item.kind === 'post' ? item.challenge.id : item.kind === 'running' ? `running-${item.challenge.id}` : item.kind
+          }
           renderItem={renderItem}
           onScroll={onScroll}
           onScrollBeginDrag={() => (dragging.current = true)}
@@ -508,6 +522,7 @@ type FeedItem =
   | { kind: 'groupNoTasks' }
   | { kind: 'loading' }
   | { kind: 'state' }
+  | { kind: 'running'; challenge: Challenge }
   | { kind: 'post'; challenge: Challenge };
 
 const styles = StyleSheet.create({
