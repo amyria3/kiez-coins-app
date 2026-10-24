@@ -16,6 +16,7 @@ import { useCurrentUser, useStore } from '../../data/store';
 import { color, isFashionable, size, space } from '../../theme/tokens';
 import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
 import { look, looks, lookSelectable } from '../../theme/look';
+import { features, useFeatures } from '../../data/features';
 import { useGoBack } from '../../lib/goBack';
 
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
@@ -25,6 +26,8 @@ export default function Account() {
   const { profile, groups, mode, blockedIds } = useStore();
   const me = useCurrentUser();
   const { signOut, hasPassword } = useAuth();
+  const featureState = useFeatures();
+  const featuresOn = features.filter((f) => featureState[f.key]).map((f) => f.label).join(', ');
   // „Moderation“ nur für Personen in der Tabelle `moderators`
   const [moderator, setModerator] = useState(false);
   const [survey, setSurvey] = useState(false);
@@ -72,12 +75,14 @@ export default function Account() {
         leading={<Icon name="ship" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/manage')}
       />
+      {featureState.groups ? (
       <NavCard
         title="Deine Gruppen"
         description={groups.length === 0 ? 'Gründen oder beitreten' : groups.length === 1 ? '1 Gruppe' : t('{groups} Gruppen', { groups: groups.length })}
         leading={<Icon name="behausung" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/gruppen')}
       />
+      ) : null}
       {/* Freundschaften, Sprache und Look als große Karten mit Phosphor-Icons, in beiden Looks (Daria, 24.10.2026) */}
       <NavCard
         title="Freundschaften"
@@ -90,6 +95,13 @@ export default function Account() {
         }
         leading={<PhIcon name="friends" size={size.icon} />}
         onPress={() => router.push('/account/freunde')}
+      />
+      {/* Funktionen an- und abschalten (Daria, 24.10.2026) */}
+      <NavCard
+        title="Funktionen"
+        description={featuresOn}
+        leading={<PhIcon name="features" size={size.icon} />}
+        onPress={() => router.push('/account/funktionen')}
       />
       <NavCard
         title="Sprache"

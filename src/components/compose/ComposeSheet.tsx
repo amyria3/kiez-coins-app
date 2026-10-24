@@ -10,6 +10,7 @@ import { useGroupTaskForm } from './GroupTaskForm';
 import { usePublicComposeForm } from './PublicComposeForm';
 import { useBeforeAfterStartForm } from './BeforeAfterForm';
 import { TypeSwitch } from './TypeSwitch';
+import { useFeatures, type Feature } from '../../data/features';
 
 /** Beitragstypen im Kiez, in dieser Reihenfolge (Daria, 23.10.2026) */
 const PUBLIC_TYPES = [
@@ -17,7 +18,13 @@ const PUBLIC_TYPES = [
   { key: 'before_after', label: 'Me-Challenge' },
   { key: 'photo', label: 'Bild' },
 ] as const;
-/** In Gruppen: Aufgabe mit Edensteinen oder Vorher-Nachher */
+/** Schalter in „Dein Konto › Funktionen“ je Beitragstyp (Daria, 24.10.2026) */
+const FEATURE_OF: Record<'individual' | 'before_after' | 'photo', Feature> = {
+  individual: 'we',
+  before_after: 'me',
+  photo: 'photo',
+};
+/** In Gruppen: Aufgabe mit Edensteinen (gehört zu Gruppen, immer da) oder Vorher-Nachher (Schalter Me-Challenge) */
 const GROUP_TYPES = [
   { key: 'task', label: 'We-Challenge' },
   { key: 'before_after', label: 'Me-Challenge' },
@@ -79,13 +86,17 @@ function useOpenTimer(onDone: () => void) {
 }
 
 function PublicBody({ onDone }: { onDone: () => void }) {
-  const [type, setType] = useState<(typeof PUBLIC_TYPES)[number]['key']>('individual');
+  const on = useFeatures();
+  const options = PUBLIC_TYPES.filter((o) => on[FEATURE_OF[o.key]]);
+  const [choice, setType] = useState<(typeof PUBLIC_TYPES)[number]['key']>('individual');
+  // Abgeschalteter Typ: der erste angeschaltete springt ein
+  const type = options.some((o) => o.key === choice) ? choice : (options[0]?.key ?? 'before_after');
   const post = usePublicComposeForm(onDone, type === 'photo' ? 'photo' : 'individual');
   const ba = useBeforeAfterStartForm(undefined, useOpenTimer(onDone));
   const isBa = type === 'before_after';
   return (
     <SheetScroll actions={isBa ? ba.button : post.buttons}>
-      <TypeSwitch options={PUBLIC_TYPES} value={type} onChange={setType} />
+      {options.length > 1 ? <TypeSwitch options={options} value={type} onChange={setType} /> : null}
       {isBa ? ba.fields : post.fields}
     </SheetScroll>
   );
@@ -93,7 +104,10 @@ function PublicBody({ onDone }: { onDone: () => void }) {
 
 function GroupBody({ groupId, onDone }: { groupId: string; onDone: () => void }) {
   const router = useRouter();
-  const [type, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('task');
+  const on = useFeatures();
+  const options = GROUP_TYPES.filter((o) => o.key === 'task' || on.me);
+  const [choice, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('task');
+  const type = options.some((o) => o.key === choice) ? choice : 'task';
   const task = useGroupTaskForm(groupId, {}, (taskId) => {
     onDone();
     router.push(`/challenge/${taskId}`);
@@ -102,7 +116,7 @@ function GroupBody({ groupId, onDone }: { groupId: string; onDone: () => void })
   const isBa = type === 'before_after';
   return (
     <SheetScroll actions={isBa ? ba.button : task.button}>
-      <TypeSwitch options={GROUP_TYPES} value={type} onChange={setType} />
+      {options.length > 1 ? <TypeSwitch options={options} value={type} onChange={setType} /> : null}
       {isBa ? ba.fields : task.fields}
     </SheetScroll>
   );

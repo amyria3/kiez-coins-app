@@ -7,6 +7,7 @@ import { Notice } from '../../components/Content';
 import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { MAX_MEMBERS } from '../../data/groups';
+import { turnOnGroups } from '../../data/features';
 import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
 import { useNudge } from '../../components/Nudge';
@@ -16,7 +17,7 @@ import { useGoBack } from '../../lib/goBack';
 export default function NewGroup() {
   const router = useRouter();
   const goBack = useGoBack();
-  const { groupApi } = useStore();
+  const { groupApi, currentUserId } = useStore();
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
   const nameField = useNudge();
@@ -25,6 +26,7 @@ export default function NewGroup() {
     setBusy(true);
     try {
       const id = await groupApi.create(name.trim());
+      turnOnGroups(currentUserId);
       router.replace(`/gruppen/${id}`);
     } catch (error) {
       Alert.alert('Gruppe nicht gegründet', (error as Error).message);
