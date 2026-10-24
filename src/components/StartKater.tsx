@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Pressable, StyleSheet } from 'react-native';
+import { AccessibilityInfo, Animated, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import sprueche from '../data/kater-sprueche.json';
@@ -22,17 +22,24 @@ const AUSBLENDEN_MS = 320;
 /** Erst drehen sich die Zahnräder, dann taucht der Kater auf. */
 const KATER_NACH_MS = 600;
 const EINBLENDEN_MS = 280;
+/** Kater und Zahnräder stehen mindestens so lange zusammen auf dem Bild (Daria, 2026-10-24) */
+const ZUSAMMEN_MS = 1000;
 
 /**
  * Startbildschirm (Daria, 2026-10-24): Zuerst drehen sich die Zahnräder unten. Danach taucht der Kater in der Mitte auf,
- * fegt einmal und sagt einen Spruch. Die Zahnräder verschwinden, sobald alles geladen ist (`loaded`).
- * Der Bildschirm blendet aus, wenn alles geladen ist und der Kater fertig gefegt hat. Ein Tipp überspringt das Fegen,
- * sobald alles geladen ist. Mit „Bewegung reduzieren“ steht der Kater nur kurz da.
+ * fegt einmal und sagt einen Spruch. Die Zahnräder verschwinden, sobald alles geladen ist (`loaded`) und Kater und
+ * Zahnräder mindestens eine Sekunde zusammen zu sehen waren. Der Bildschirm blendet aus, wenn die Zahnräder weg sind
+ * und der Kater fertig gefegt hat. Ein Tipp überspringt das Fegen, sobald die Zahnräder weg sind. Mit „Bewegung reduzieren“ steht der Kater nur kurz da.
  */
 export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => void }) {
   const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
+  // Zahnräder groß wie beim Start vorher (200), auf kleinen Handys etwas kleiner, damit sie den Kater nicht berühren
+  const raederSize = Math.round(Math.min(200, height * 0.22));
   const [spruch] = useState(fegeSpruch);
   const [kater, setKater] = useState(false);
+  const [zusammen, setZusammen] = useState(false);
+  const [raederWeg, setRaederWeg] = useState(false);
   const [gefegt, setGefegt] = useState(false);
   const sichtbar = useRef(new Animated.Value(1)).current;
   const katerSichtbar = useRef(new Animated.Value(0)).current;
@@ -42,8 +49,10 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
   // Kater nach den Zahnrädern einblenden, dann fegen lassen
   useEffect(() => {
     let fegen: ReturnType<typeof setTimeout>;
+    let gemeinsam: ReturnType<typeof setTimeout>;
     const auftritt = setTimeout(() => {
       setKater(true);
+      gemeinsam = setTimeout(() => setZusammen(true), EINBLENDEN_MS + ZUSAMMEN_MS);
       Animated.timing(katerSichtbar, {
         toValue: 1,
         duration: EINBLENDEN_MS,
@@ -57,19 +66,20 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
     }, KATER_NACH_MS);
     return () => {
       clearTimeout(auftritt);
+      clearTimeout(gemeinsam);
       clearTimeout(fegen);
     };
   }, [katerSichtbar]);
 
-  // Zahnräder ausblenden, sobald alles geladen ist
+  // Zahnräder ausblenden, sobald alles geladen ist und sie eine Sekunde mit dem Kater zu sehen waren
   useEffect(() => {
-    if (loaded)
+    if (loaded && zusammen)
       Animated.timing(raeder, {
         toValue: 0,
         duration: AUSBLENDEN_MS,
         useNativeDriver: true,
-      }).start();
-  }, [loaded, raeder]);
+      }).start(() => setRaederWeg(true));
+  }, [loaded, zusammen, raeder]);
 
   const weg = () => {
     if (fertig.current) return;
@@ -82,14 +92,14 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
   };
 
   useEffect(() => {
-    if (loaded && gefegt) weg();
+    if (raederWeg && gefegt) weg();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaded, gefegt]);
+  }, [raederWeg, gefegt]);
 
   return (
     <Animated.View style={[StyleSheet.absoluteFill, styles.screen, { opacity: sichtbar }]}>
       <Pressable
-        onPress={() => loaded && weg()}
+        onPress={() => raederWeg && weg()}
         style={styles.flaeche}
         accessibilityRole="button"
         accessibilityLabel="Weiter"
@@ -102,9 +112,9 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
       </Pressable>
       <Animated.View
         pointerEvents="none"
-        style={[styles.raeder, { bottom: insets.bottom + space[48], opacity: raeder }]}
+        style={[styles.raeder, { bottom: insets.bottom + space[32], opacity: raeder }]}
       >
-        <GearsLoader size={96} />
+        <GearsLoader size={raederSize} />
       </Animated.View>
     </Animated.View>
   );
