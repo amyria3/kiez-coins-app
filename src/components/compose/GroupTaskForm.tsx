@@ -80,7 +80,7 @@ export function useGroupTaskForm(groupId: string | undefined, initial: Initial, 
             disabled={edensteine <= 1}
             style={[styles.stepButton, edensteine <= 1 && styles.disabled]}
           >
-            <Text style={styles.stepText}>−</Text>
+            <Icon name="minus" size={size.icon} color={color.text.primary} />
           </Pressable>
           <View style={styles.value} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine })}>
             {/* Ein einzelner, lebendiger Edenstein statt des Haufens (Daria, 22.10.2026) */}
@@ -144,7 +144,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: color.bg.surface,
   },
-  stepText: { ...text.metric, color: color.text.primary },
   disabled: { opacity: 0.4 },
   value: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space[8] },
   valueText: { ...text.display, color: color.accent.confirmation },

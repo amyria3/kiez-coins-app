@@ -76,6 +76,7 @@ export const instagramSvgs: Partial<Record<IconName, Svg>> = {
   close: icon(() => `<path d="M5.5 5.5l13 13M18.5 5.5l-13 13"/>`),
   check: icon(() => `<path d="M4.5 12.5l5 5L19.5 7"/>`),
   plus: icon(() => `<path d="M12 4.5v15M4.5 12h15"/>`),
+  minus: icon(() => `<path d="M4.5 12h15"/>`),
   more: icon((c) => `<circle cx="5.5" cy="12" r="1.3" fill="${c}" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="${c}" stroke="none"/><circle cx="18.5" cy="12" r="1.3" fill="${c}" stroke="none"/>`),
   clock: icon(() => `<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>`),
   info: icon((c) => `<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r="1.1" fill="${c}" stroke="none"/>`),
