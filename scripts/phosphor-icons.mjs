@@ -6,7 +6,7 @@ const regular = [
   'house', 'camera', 'chats', 'chat-circle', 'paper-plane-tilt', 'map-pin', 'list', 'link', 'gear',
   'caret-left', 'caret-right', 'x', 'check', 'plus', 'minus', 'dots-three', 'clock', 'info', 'flag',
   'copy', 'eye', 'squares-four', 'check-circle', 'users-three', 'handshake', 'translate', 'palette',
-  'gift', 'thumbs-up', 'heart', 'coins',
+  'gift', 'thumbs-up', 'heart', 'coins', 'toggle-right',
 ];
 const fill = ['heart'];
 

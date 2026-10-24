@@ -176,6 +176,8 @@ const tabs: { key: FeedTab; label: string; planned?: boolean }[] = [
 type TabsNavigationProps = {
   selectedKey: FeedTab;
   onChange: (key: FeedTab) => void;
+  /** Reiter „Gruppen“ zeigen (Schalter in „Dein Konto › Funktionen“, Daria, 24.10.2026) */
+  groups: boolean;
 };
 
 /**
@@ -183,8 +185,8 @@ type TabsNavigationProps = {
  * Abgeschaltete Challenge-Typen (data/features.ts) sind gedimmt, lassen sich aber öffnen:
  * Der Feed zeigt dann einen Hinweis und vorhandene Challenges dieses Typs.
  */
-export function TabsNavigation({ selectedKey, onChange }: TabsNavigationProps) {
-  return <Segments tabs={tabs} selectedKey={selectedKey} onChange={onChange} />;
+export function TabsNavigation({ selectedKey, onChange, groups }: TabsNavigationProps) {
+  return <Segments tabs={groups ? tabs : tabs.filter((tab) => tab.key !== 'groups')} selectedKey={selectedKey} onChange={onChange} />;
 }
 
 type SegmentsProps<K extends string> = {

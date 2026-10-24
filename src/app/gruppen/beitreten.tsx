@@ -9,6 +9,7 @@ import { SubScreen } from '../../components/Screen';
 import { useAuth } from '../../data/auth';
 import { parseInviteCode } from '../../data/groups';
 import { rememberInvite } from '../../data/pendingInvite';
+import { turnOnGroups } from '../../data/features';
 import { useStore } from '../../data/store';
 import { useNudge } from '../../components/Nudge';
 import { useGoBack } from '../../lib/goBack';
@@ -22,7 +23,7 @@ export default function JoinGroup() {
   const router = useRouter();
   const goBack = useGoBack();
   const { session } = useAuth();
-  const { groupApi } = useStore();
+  const { groupApi, currentUserId } = useStore();
   const params = useLocalSearchParams<{ code?: string }>();
   const linkCode = parseInviteCode(String(params.code ?? ''));
   const [code, setCode] = useState(linkCode ?? '');
@@ -50,6 +51,7 @@ export default function JoinGroup() {
     setBusy(true);
     try {
       const id = await groupApi.join(clean);
+      turnOnGroups(currentUserId);
       router.replace(`/gruppen/${id}`);
     } catch (error) {
       Alert.alert('Beitreten hat nicht geklappt', (error as Error).message);

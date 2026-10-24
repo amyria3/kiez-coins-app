@@ -28,7 +28,7 @@ import { GearsLoader } from '../components/GearsLoader';
 import { SurveyOverlay, useSurveyPrompt } from '../components/SurveyOverlay';
 import { CAMERA_W, CameraButton, TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { useRequireKiez } from '../data/kiez';
-import { challengeTypes, isTypeActive } from '../data/features';
+import { challengeTypes, isTypeActive, useFeatures } from '../data/features';
 import { anrede } from '../data/format';
 import { coordsIfAllowed, distanceMeters, formatDistance, type Coords } from '../data/location';
 import { reiseEntries } from '../data/reise';
@@ -61,7 +61,13 @@ export default function FeedScreen() {
   // `gruppe`: aus der Gruppenseite („Aufgaben ansehen“) direkt in den Reiter „Gruppen“
   // `reiter=gruppen` und `erstellen=1`: aus der Leiste im Fashionable Look von anderen Seiten
   const { gruppe, reiter, erstellen } = useLocalSearchParams<{ gruppe?: string; reiter?: string; erstellen?: string }>();
-  const [tab, setTab] = useState<FeedTab>(gruppe || reiter === 'gruppen' ? 'groups' : 'nearby');
+  const [chosenTab, setTab] = useState<FeedTab>(gruppe || reiter === 'gruppen' ? 'groups' : 'nearby');
+  // Gruppen abgeschaltet (Dein Konto › Funktionen): kein Reiter „Gruppen“
+  const groupsOn = useFeatures().groups;
+  const tab: FeedTab = chosenTab === 'groups' && !groupsOn ? 'nearby' : chosenTab;
+  const tabOrder = groupsOn ? TAB_ORDER : TAB_ORDER.filter((key) => key !== 'groups');
+  const tabOrderRef = useRef(tabOrder);
+  tabOrderRef.current = tabOrder;
   const [groupChoice, setGroupChoice] = useState<string | undefined>(gruppe);
   const groupId = groups.find((g) => g.id === groupChoice)?.id ?? groups[0]?.id;
   useEffect(() => {
@@ -262,10 +268,11 @@ export default function FeedScreen() {
         onMoveShouldSetPanResponderCapture: (_, g) => Math.abs(g.dx) > 16 && Math.abs(g.dx) > Math.abs(g.dy) * 2,
         onPanResponderMove: (_, g) => swipeX.setValue(g.dx * 0.25),
         onPanResponderRelease: (_, g) => {
-          const index = TAB_ORDER.indexOf(tabRef.current);
+          const order = tabOrderRef.current;
+          const index = order.indexOf(tabRef.current);
           const next = g.dx < -SWIPE_DISTANCE || g.vx < -0.5 ? index + 1 : g.dx > SWIPE_DISTANCE || g.vx > 0.5 ? index - 1 : index;
-          if (next !== index && next >= 0 && next < TAB_ORDER.length) {
-            selectTabRef.current(TAB_ORDER[next]);
+          if (next !== index && next >= 0 && next < order.length) {
+            selectTabRef.current(order[next]);
             // Neuer Reiter schwingt von der Seite herein, aus der gewischt wurde
             swipeX.setValue(next > index ? motion.tabSwitch.offset : -motion.tabSwitch.offset);
           }
@@ -279,8 +286,8 @@ export default function FeedScreen() {
 
   // Tippen auf einen Reiter: dieselbe Bewegung wie beim Wischen, aus der Richtung des Reiters.
   const switchTab = (key: FeedTab) => {
-    const from = TAB_ORDER.indexOf(tab);
-    const to = TAB_ORDER.indexOf(key);
+    const from = tabOrder.indexOf(tab);
+    const to = tabOrder.indexOf(key);
     selectTab(key);
     if (to === from) return;
     swipeX.setValue(to > from ? motion.tabSwitch.offset : -motion.tabSwitch.offset);
@@ -447,7 +454,7 @@ export default function FeedScreen() {
         </View>
       </Animated.View>
       <Animated.View style={[styles.tabsRow, isFashionable && styles.tabsRowInsta, { paddingRight: tabsPaddingRight }]}>
-        <TabsNavigation selectedKey={tab} onChange={switchTab} />
+        <TabsNavigation selectedKey={tab} onChange={switchTab} groups={groupsOn} />
       </Animated.View>
       <Animated.View style={[styles.clip, storiesStyle]}>
         <View onLayout={(e) => setStoriesHeight(e.nativeEvent.layout.height)}>
@@ -493,7 +500,7 @@ export default function FeedScreen() {
         onReiseLongPress={() => router.push('/demo')}
         onMenuPress={() => router.push('/account')}
         onCreatePress={createChallenge}
-        onGroupsPress={() => switchTab('groups')}
+        onGroupsPress={groupsOn ? () => switchTab('groups') : undefined}
         groupsActive={tab === 'groups'}
       />}
       <SurveyOverlay visible={surveyVisible} onClose={closeSurvey} />

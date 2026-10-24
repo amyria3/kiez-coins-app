@@ -38,6 +38,7 @@ export const PH = {
   language: 'translate',
   look: 'palette',
   coins: 'coins',
+  features: 'toggle-right',
 } satisfies Record<string, PhosphorName>;
 
 const ph = (name: PhosphorName): Svg => ({ width: 24, height: 24, svg: (c, filled) => phXml(name, c, filled) });
