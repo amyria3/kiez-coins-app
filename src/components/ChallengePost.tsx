@@ -282,30 +282,24 @@ function InstaPost({ challenge, author, distance, onPress, onCommentPress, onLik
           ) : null}
         </View>
       </View>
-      <Pressable
-        onPress={onPress}
-        accessibilityRole="button"
-        accessibilityLabel={t('{title} öffnen', { title: challenge.title })}
-        style={[insta.photo, !image && insta.noPhoto]}
-      >
-        {image ? (
+      {/* Ohne Foto keine Fläche: Der Titel steht fett im Text (Daria, 24.10.2026) */}
+      {image ? (
+        <Pressable
+          onPress={onPress}
+          accessibilityRole="button"
+          accessibilityLabel={t('{title} öffnen', { title: challenge.title })}
+          style={insta.photo}
+        >
           <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" />
-        ) : (
-          <Text style={insta.noPhotoTitle} numberOfLines={3}>
-            {challenge.title}
-          </Text>
-        )}
-        {closed ? (
-          <View style={[styles.waveTag, styles.closedTag]}>
-            <Text style={styles.closedText}>Geschlossen</Text>
-          </View>
-        ) : null}
-        {isWave ? (
-          <View style={styles.waveTag}>
-            <Text style={styles.waveText}>Wave</Text>
-          </View>
-        ) : null}
-      </Pressable>
+          {isWave ? (
+            <View style={styles.waveTag}>
+              <Text style={styles.waveText}>Wave</Text>
+            </View>
+          ) : null}
+        </Pressable>
+      ) : (
+        <View style={insta.noPhotoLine} />
+      )}
       <View style={insta.actions}>
         <Pressable
           accessibilityRole="button"
@@ -332,15 +326,17 @@ function InstaPost({ challenge, author, distance, onPress, onCommentPress, onLik
           accessibilityLabel={t('Teilen')}
           onPress={() => shareText(t('{title} – Kiez Coins', { title: challenge.title }))}
         />
+        {/* Status rechts unter dem Bild, als Angabe in Grau (Daria, 24.10.2026) */}
+        <Text style={[insta.state, closed && insta.stateClosed]} numberOfLines={1}>
+          {closed ? 'Geschlossen' : completed ? 'Erledigt' : state.replace(/^noch/, 'Noch')}
+        </Text>
       </View>
       <Pressable onPress={onPress} style={insta.caption}>
         <Text style={insta.captionText} numberOfLines={3}>
-          {image ? <Text style={insta.captionTitle}>{challenge.title} </Text> : null}
+          <Text style={insta.captionTitle}>{challenge.title} </Text>
           {challenge.text ? <WithMentions value={challenge.text} /> : null}
         </Text>
-        <Text style={insta.time}>
-          {formatRelative(challenge.createdAt)} · {state}
-        </Text>
+        <Text style={insta.time}>{formatRelative(challenge.createdAt)}</Text>
       </Pressable>
     </View>
   );
@@ -390,8 +386,9 @@ const insta = StyleSheet.create({
   name: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18, color: color.text.primary },
   place: { ...text.caption, fontSize: 12, color: color.text.primary },
   photo: { width: '100%', aspectRatio: 4 / 5, backgroundColor: color.bg.surface, overflow: 'hidden' },
-  noPhoto: { aspectRatio: 4 / 3, justifyContent: 'center', paddingHorizontal: space[24] },
-  noPhotoTitle: { ...text.headline, color: color.text.primary, textAlign: 'center' },
+  noPhotoLine: { height: stroke.ultraThin, backgroundColor: color.line.hairline, marginHorizontal: space[12] },
+  state: { flex: 1, textAlign: 'right', paddingRight: space[8], fontFamily: font.regular, fontSize: 13, lineHeight: 18, color: color.text.secondary },
+  stateClosed: { color: color.text.primary, fontFamily: font.semiBold },
   actions: { flexDirection: 'row', alignItems: 'center', height: 44, paddingHorizontal: space[4] },
   count: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] },
   caption: { paddingHorizontal: space[12], gap: space[4] },

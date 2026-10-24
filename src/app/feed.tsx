@@ -405,12 +405,8 @@ export default function FeedScreen() {
     transform: [{ translateY: composeAnim.interpolate({ inputRange: [0, 1], outputRange: [-16, 0] }) }],
   };
   const composeTarget = tab === 'groups' ? groupId : 'public';
-  const composeLine =
-    tab === 'groups'
-      ? groups.find((g) => g.id === groupId)
-        ? t('Aufgabe für {name}', { name: groups.find((g) => g.id === groupId)!.name })
-        : t('Aufgabe erstellen')
-      : t('Challenge erstellen');
+  // Kurz und gleich für jede Gruppe (Daria, 24.10.2026)
+  const composeLine = tab === 'groups' ? t('Aufgabe erstellen') : t('Challenge erstellen');
   const storiesStyle = {
     height: showStories && !composing
       ? progress.interpolate({ inputRange: [0, 1], outputRange: [0, storiesHeight], extrapolateLeft: 'clamp' })

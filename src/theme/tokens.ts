@@ -35,7 +35,8 @@ const instagramPalette: typeof kiezPalette = {
   grey: '#737373',
   purple: '#0095F6',
   orange: '#E1306C',
-  green: '#2FA84F',
+  // Kein Grün im Instagram-Look (Daria, 24.10.2026): Edensteine, „Offen“ und gewählte Chips in Textfarbe
+  green: '#000000',
   red: '#ED4956',
   pink: '#FF3040',
   graphite: '#EFEFEF',

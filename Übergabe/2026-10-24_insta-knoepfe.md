@@ -1,0 +1,8 @@
+# Instagram-Look: Knöpfe, Farben, Beitrag ohne Foto (2026-10-24)
+
+Gehört nach Documentation: `kiez-coins/design/ICON-REGELWERK.md` (Abschnitt „Weitere Festlegungen“) und `kiez-coins/ENTSCHEIDUNGEN.md` (Look).
+
+- Knöpfe im Instagram-Look überall gleich (`InstaButton` in `src/components/Button.tsx`): 44 hoch, Radius 8, halbfett 14, ohne Icon. Primary blau mit weißer Schrift, die übrigen grau gefüllt, Danger mit roter Schrift, Ghost blauer Text. Kein Glas.
+- Kein Grün im Instagram-Look: Edensteine, „Offen“ und gewählte Chips in Textfarbe.
+- Beitrag ohne Foto im Instagram-Look ohne Fläche: Haarlinie, darunter Aktionen und der Titel fett im Text. Status („Noch 23 Std.“, „Geschlossen“, „Erledigt“) rechts in der Aktionsleiste unter dem Bild, grau; darunter nur noch die Zeit seit dem Posten.
+- Erstellen im Reiter „Gruppen“: Kopf „Aufgabe erstellen“ (in beiden Looks). Das Blatt hat im Instagram-Look keine runden Ecken.

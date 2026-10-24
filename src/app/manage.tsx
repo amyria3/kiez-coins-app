@@ -276,8 +276,7 @@ export default function ManageChallenges() {
         <View style={{ height: insets.bottom }} />
       ) : (
         <ActionBar>
-          {/* Instagram-Look: 44 hoch, Radius 8 wie die Knöpfe im Mockup */}
-          <Button label="Neue Challenge" onPress={create} style={isInstagram ? styles.compact : undefined} />
+          <Button label="Neue Challenge" onPress={create} />
         </ActionBar>
       )}
     </View>
@@ -684,7 +683,6 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   flex: { flex: 1 },
   empty: { padding: space[16] },
-  compact: { minHeight: 44, paddingVertical: 0, borderRadius: radius.md },
   // Instagram-Look: Unterstrich-Reiter über die ganze Breite
   switch: isInstagram ? {} : { paddingHorizontal: space[16], paddingBottom: space[8] },
   page: isInstagram

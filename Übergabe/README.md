@@ -34,3 +34,4 @@ Diese `README.md` bleibt immer liegen.
 
 - `2026-10-23_offen_texte-druck-nummern.json`: ordnet jeder Nummer im Ausdruck („S-022“) den Text im Code zu. Bleibt liegen, bis Darias Papierkorrekturen eingetragen sind, dann löschen. Nicht nach Documentation übernehmen.
 - Alle anderen `_offen_`-Dateien beschreiben sich selbst.
+- `2026-10-24_insta-knoepfe.md` → `kiez-coins/design/ICON-REGELWERK.md` (Weitere Festlegungen) und `kiez-coins/ENTSCHEIDUNGEN.md` (Look)
