@@ -40,9 +40,19 @@ Docs: https://docs.expo.dev/eas/index.md
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
 
+## Committing
+
+- Claude may commit and push directly to `main` (Daria, 2026-10-23).
+- Do not implement a feature that was only discussed and is not yet on `main` without Daria's explicit request (2026-10-23).
+
+## UI work
+
+Follow `kiez-coins/design/UX_UI_Regeln.md`, `kiez-coins/design/Icon_Regelwerk.md` and `kiez-coins/design/Designsystem.md` in Documentation. Every icon has exactly one meaning per look, and every meaning has exactly one icon.
+
 ## Documentation
 
 - All docs (concept, decisions, app status, structure, database) live only in the private repo [amyria3/Documentation](https://github.com/amyria3/Documentation). Do not add docs to this repo, except to `Übergabe/`.
-- No access to Documentation? Put new doc content into `Übergabe/` as described in `Übergabe/README.md`.
+- Finished tasks and decisions go into Documentation. Unclear points, aborted processes and open tasks go into `Übergabe/` (`YYYY-MM-DD_offen_topic.md`) with everything another account needs to take over: status, next step, open questions for Daria, affected files, SQL script or migration path, code suggestions (Daria, 2026-10-24). Rules in `Übergabe/README.md`.
+- No access to Documentation? Put finished results and decisions into `Übergabe/` as well, as described in `Übergabe/README.md`.
 - Before you change anything in Documentation, check `Übergabe/` here for new files, move their content into Documentation and delete them here in the same piece of work.
 - When you add a migration or a database function in `supabase/migrations`, update the database doc in Documentation (or leave a note in `Übergabe/`). Its daily check fails otherwise.
