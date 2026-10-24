@@ -78,58 +78,37 @@ export default function Account() {
         leading={<Icon name="behausung" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/gruppen')}
       />
-      {/* Instagram-Look: Freundschaften, Sprache und Look als große Karten (Daria, 24.10.2026) */}
-      {isInstagram ? (
-        <>
-          <NavCard
-            title="Freundschaften"
-            description={
-              friendRequests
-                ? t('{n, plural, one {# Anfrage} other {# Anfragen}}', {
-                    n: friendRequests,
-                  })
-                : 'Freund:innen und Anfragen'
-            }
-            leading={<FaIcon name="friends" size={size.icon} />}
-            onPress={() => router.push('/account/freunde')}
-          />
-          <NavCard
-            title="Sprache"
-            description={languageName}
-            leading={<FaIcon name="language" size={size.icon} />}
-            onPress={() => router.push('/account/sprache')}
-          />
-          {lookSelectable ? (
-            <NavCard
-              title="Look"
-              description={looks.find((l) => l.code === look)?.name}
-              leading={<FaIcon name="look" size={size.icon} />}
-              onPress={() => router.push('/account/look')}
-            />
-          ) : null}
-        </>
+      {/* Freundschaften, Sprache und Look als große Karten (Daria, 24.10.2026); Icons vorerst nur im Instagram-Look */}
+      <NavCard
+        title="Freundschaften"
+        description={
+          friendRequests
+            ? t('{n, plural, one {# Anfrage} other {# Anfragen}}', {
+                n: friendRequests,
+              })
+            : 'Freund:innen und Anfragen'
+        }
+        leading={isInstagram ? <FaIcon name="friends" size={size.icon} /> : undefined}
+        onPress={() => router.push('/account/freunde')}
+      />
+      <NavCard
+        title="Sprache"
+        description={languageName}
+        leading={isInstagram ? <FaIcon name="language" size={size.icon} /> : undefined}
+        onPress={() => router.push('/account/sprache')}
+      />
+      {lookSelectable ? (
+        <NavCard
+          title="Look"
+          description={looks.find((l) => l.code === look)?.name}
+          leading={isInstagram ? <FaIcon name="look" size={size.icon} /> : undefined}
+          onPress={() => router.push('/account/look')}
+        />
       ) : null}
       <FieldGroup label="Einstellungen">
         <View style={styles.list}>
-          {isInstagram ? null : (
-            <NavRow
-              label="Freundschaften"
-              value={
-                friendRequests
-                  ? t('{n, plural, one {# Anfrage} other {# Anfragen}}', {
-                      n: friendRequests,
-                    })
-                  : undefined
-              }
-              onPress={() => router.push('/account/freunde')}
-            />
-          )}
           <NavRow label="So geht Kiez Coins" value="Kurze Videos" onPress={() => router.push('/tour')} />
           <NavRow label="Dem Kater Hallo sagen" value="Sprüche" onPress={() => router.push('/kater')} />
-          {isInstagram ? null : <NavRow label="Sprache" value={languageName} onPress={() => router.push('/account/sprache')} />}
-          {lookSelectable && !isInstagram ? (
-            <NavRow label="Look" value={looks.find((l) => l.code === look)?.name} onPress={() => router.push('/account/look')} />
-          ) : null}
           <NavRow label="Benachrichtigungen" value={profile.push ? 'Push an' : 'Push aus'} onPress={() => router.push('/settings/notifications')} />
           <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/settings/payout')} />
           <NavRow label="Umfrage" value="5 Fragen zur App" onPress={() => setSurvey(true)} />
