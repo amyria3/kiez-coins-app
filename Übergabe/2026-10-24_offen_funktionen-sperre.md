@@ -6,7 +6,7 @@ Ergebnis gehört nach Documentation: `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt �
 
 ## Stand
 
-Die Schalter in „Dein Konto › Funktionen“ sind fertig, ohne Sperre (Notiz `2026-10-24_funktionen-schalter.md`). Jede Funktion lässt sich jederzeit anschalten.
+Die Schalter in „Dein Konto › Funktionen“ sind fertig, ohne Sperre (Entscheidung in Documentation, `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Challenges“). Jede Funktion lässt sich jederzeit anschalten.
 
 ## Vorschlag aus dem Gespräch vom 24.10.2026, noch nicht entschieden
 
