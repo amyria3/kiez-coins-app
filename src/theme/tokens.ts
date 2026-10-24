@@ -6,7 +6,7 @@ import type { TextStyle } from 'react-native';
 
 import { look } from './look';
 
-const instagram = look === 'instagram';
+const instagram = look === 'fashionable';
 /** Im Fashionable Look hell: für BlurView, Systemglas und Statusleiste */
 export const isInstagram = instagram;
 export const scheme: 'dark' | 'light' = instagram ? 'light' : 'dark';

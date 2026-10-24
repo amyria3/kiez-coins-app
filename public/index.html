@@ -118,7 +118,7 @@
       // Look vor dem Start lesen, damit Grund und Zahnräder gleich in den richtigen Farben erscheinen (src/theme/look.ts)
       try {
         var look = new URLSearchParams(location.search).get('look') || localStorage.getItem('kiez-look');
-        if (look === 'instagram') document.documentElement.classList.add('fashionable');
+        if (look === 'fashionable' || look === 'instagram') document.documentElement.classList.add('fashionable');
       } catch (e) {}
     </script>
   </head>
