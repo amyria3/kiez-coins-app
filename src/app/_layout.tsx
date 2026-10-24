@@ -88,39 +88,44 @@ function RootStack() {
   // Neue Sprache: Navigation neu aufbauen, damit jeder Screen die neuen Texte zeigt
   useTexts();
   const language = getLanguage();
-  // Nach den Zahnrädern einmal der Kater mit dem Besen (Daria, 2026-10-23)
+  // Startbildschirm: Zahnräder unten, dann der Kater mit dem Besen (Daria, 2026-10-24)
   const [intro, setIntro] = useState(true);
   // Erst rendern, wenn die gespeicherte Sitzung gelesen ist, sonst springt der Start kurz ins Onboarding.
   setStartInfo(loading ? 'Anmeldung lädt' : 'App gerendert');
-  if (loading) return <LoadingScreen />;
+  if (loading && !intro) return <LoadingScreen />;
 
+  // Der Startbildschirm steht immer an derselben Stelle im Baum, damit er beim Ende des Ladens nicht neu startet.
   return (
     <>
-      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-      <Stack key={language} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
-        {/* Vollbild ohne Wegwischen: Schließen nur über das X, damit die Frage nach dem Entwurf kommt
-            und die Vorschau nicht wie ein Overlay wirkt, dessen Wischen mit den Gesten der Vorschau konkurriert */}
-        <Stack.Screen name="challenge/create" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
-        <Stack.Screen name="challenge/[id]/edit" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="challenge/[id]/report/index" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="challenge/[id]/report/payout" options={{ presentation: 'modal', gestureEnabled: false }} />
-        <Stack.Screen name="challenge/[id]/review/reject" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="user/[id]/report/index" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="challenge/[id]/flag/index" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="demo" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="challenge/[id]/report/success" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="challenge/[id]/review/success" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="challenge/[id]/pay/success" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="challenge/[id]/payment/success" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="user/[id]/report/success" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="challenge/[id]/flag/success" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="account/support/success" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="account/pause/success" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="account/delete/success" options={{ gestureEnabled: false }} />
-      </Stack>
-      {intro ? <StartKater onDone={() => setIntro(false)} /> : null}
-      <InstallHint />
-      <WebAlertHost />
+      {loading ? null : (
+        <>
+        <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+        <Stack key={language} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
+          {/* Vollbild ohne Wegwischen: Schließen nur über das X, damit die Frage nach dem Entwurf kommt
+              und die Vorschau nicht wie ein Overlay wirkt, dessen Wischen mit den Gesten der Vorschau konkurriert */}
+          <Stack.Screen name="challenge/create" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
+          <Stack.Screen name="challenge/[id]/edit" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="challenge/[id]/report/index" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="challenge/[id]/report/payout" options={{ presentation: 'modal', gestureEnabled: false }} />
+          <Stack.Screen name="challenge/[id]/review/reject" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="user/[id]/report/index" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="challenge/[id]/flag/index" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="demo" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="challenge/[id]/report/success" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="challenge/[id]/review/success" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="challenge/[id]/pay/success" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="challenge/[id]/payment/success" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="user/[id]/report/success" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="challenge/[id]/flag/success" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="account/support/success" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="account/pause/success" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="account/delete/success" options={{ gestureEnabled: false }} />
+        </Stack>
+          <InstallHint />
+          <WebAlertHost />
+        </>
+      )}
+      {intro ? <StartKater loaded={!loading} onDone={() => setIntro(false)} /> : null}
     </>
   );
 }
