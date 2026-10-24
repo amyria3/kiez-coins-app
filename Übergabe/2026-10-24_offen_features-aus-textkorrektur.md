@@ -4,7 +4,7 @@ Datum: 2026-10-24
 Status: offen
 Ziel in Documentation: `kiez-coins/app/Offene_Punkte.md`, neuer Abschnitt „2026-10-24 – Textkorrektur auf Papier (Daria)“; erledigte Punkte als Entscheidung nach `kiez-coins/ENTSCHEIDUNGEN.md`.
 
-Daria hat diese Punkte am Rand des Ausdrucks notiert (Nummern aus `Übergabe/2026-10-23_offen_texte-druck-nummern.json`). Die Texte selbst sind schon geändert, siehe `Übergabe/2026-10-24_textkorrektur-papier.md`.
+Daria hat diese Punkte am Rand des Ausdrucks notiert (Nummern aus `Übergabe/2026-10-23_offen_texte-druck-nummern.json`). Die Texte selbst sind schon geändert, Regeln dazu in Documentation, `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Texte“.
 
 ## Standort und Kiez
 
