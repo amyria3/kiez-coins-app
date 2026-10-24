@@ -15,7 +15,7 @@ import { useGoBack } from '../../../lib/goBack';
 
 /** Entwürfe aus „Deine Challenges“: Challenge oder Bild. Vorher-Nachher hat einen eigenen Ablauf. */
 const TYPES = [
-  { key: 'individual', label: 'Challenge' },
+  { key: 'individual', label: 'We-Challenge' },
   { key: 'photo', label: 'Bild' },
 ] as const;
 

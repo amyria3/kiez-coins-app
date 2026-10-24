@@ -12,6 +12,9 @@ Ergebnis gehört nach Documentation: `kiez-coins/konzept/Vorher_Nachher.md`, `ki
 
 ## So funktioniert es in der App
 
+Namen (Daria, 2026-10-24): Vorher-Nachher heißt in der App „Me-Challenge“, die normale Challenge „We-Challenge“, in Gruppen auch statt „Aufgabe“. Der Knopf zum Posten heißt „Me-Challenge posten“. Code-Typ bleibt `before_after`, die Marken bleiben `#vorher` und `#nachher`.
+
+
 1. Erstellen-Blatt über dem Feed: oben ein Schalter. Im Kiez Challenge, Vorher-Nachher, Bild; in einer Gruppe Aufgabe, Vorher-Nachher. Der bisherige Schalter „Challenge/Bild“ ist durch diesen Schalter ersetzt, auch in `challenge/create/step-1` (dort nur Challenge und Bild).
 2. Vorher: Foto, Überschrift (Pflicht), Erklärung mit fester Marke `#vorher`, höchstens 240 Zeichen. „Vorher speichern“ legt den Entwurf an (`start_before_after`) und öffnet den Timer.
 3. Timer (Route `vorher-nachher/[id]`): Ring über 48 h, Uhr „0:00:00“, Vorher-Foto klein mit Uhrzeit. „Timer starten“ oder „Später starten“. Läuft er: „Nachher aufnehmen“ oder „Entwurf löschen“.

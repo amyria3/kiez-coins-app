@@ -13,14 +13,14 @@ import { TypeSwitch } from './TypeSwitch';
 
 /** Beitragstypen im Kiez, in dieser Reihenfolge (Daria, 23.10.2026) */
 const PUBLIC_TYPES = [
-  { key: 'individual', label: 'Challenge' },
-  { key: 'before_after', label: 'Vorher-Nachher' },
+  { key: 'individual', label: 'We-Challenge' },
+  { key: 'before_after', label: 'Me-Challenge' },
   { key: 'photo', label: 'Bild' },
 ] as const;
 /** In Gruppen: Aufgabe mit Edensteinen oder Vorher-Nachher */
 const GROUP_TYPES = [
-  { key: 'task', label: 'Aufgabe' },
-  { key: 'before_after', label: 'Vorher-Nachher' },
+  { key: 'task', label: 'We-Challenge' },
+  { key: 'before_after', label: 'Me-Challenge' },
 ] as const;
 
 type Props = {
