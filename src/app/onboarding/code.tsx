@@ -66,7 +66,7 @@ export default function Code() {
   return (
     <SubScreen
       title="Anmelden"
-      subtitle="Schritt 1 von 6"
+      subtitle="Schritt 1 von 7"
       navigation="back"
       onLeadingPress={goBack}
       actions={

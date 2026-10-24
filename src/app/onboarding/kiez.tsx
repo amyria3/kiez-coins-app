@@ -86,7 +86,7 @@ export default function Kiez() {
   return (
     <SubScreen
       title="Dein Kiez"
-      subtitle={from ? undefined : 'Schritt 4 von 6'}
+      subtitle={from ? undefined : 'Schritt 4 von 7'}
       navigation="back"
       onLeadingPress={goBack}
       actions={actions}

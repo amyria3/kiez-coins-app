@@ -99,7 +99,7 @@ export default function Account() {
       {/* Funktionen an- und abschalten (Daria, 24.10.2026) */}
       <NavCard
         title="Funktionen"
-        description={featuresOn}
+        description={featuresOn || 'Nur Me-Challenge'}
         leading={<PhIcon name="features" size={size.icon} />}
         onPress={() => router.push('/account/funktionen')}
       />

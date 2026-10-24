@@ -10,7 +10,7 @@ import { useGroupTaskForm } from './GroupTaskForm';
 import { usePublicComposeForm } from './PublicComposeForm';
 import { useBeforeAfterStartForm } from './BeforeAfterForm';
 import { TypeSwitch } from './TypeSwitch';
-import { useFeatures, type Feature } from '../../data/features';
+import { useFeatures, type FeatureState } from '../../data/features';
 
 /** Beitragstypen im Kiez, in dieser Reihenfolge (Daria, 23.10.2026) */
 const PUBLIC_TYPES = [
@@ -19,7 +19,7 @@ const PUBLIC_TYPES = [
   { key: 'photo', label: 'Bild' },
 ] as const;
 /** Schalter in „Dein Konto › Funktionen“ je Beitragstyp (Daria, 24.10.2026) */
-const FEATURE_OF: Record<'individual' | 'before_after' | 'photo', Feature> = {
+const FEATURE_OF: Record<'individual' | 'before_after' | 'photo', keyof FeatureState> = {
   individual: 'we',
   before_after: 'me',
   photo: 'photo',

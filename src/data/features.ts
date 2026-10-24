@@ -43,29 +43,27 @@ export const isTypeActive = (type: ChallengeType) => challengeTypes[type].active
 
 /**
  * Funktionen, die jede Person für sich an- und abschaltet (Daria, 24.10.2026), damit der Einstieg leicht bleibt.
- * Start: Me-Challenge und Bild. We-Challenge und Gruppen schaltet die Person in „Dein Konto › Funktionen“ zu.
+ * Me-Challenge ist immer an und steht nicht in der Liste (Daria, 24.10.2026). Start: Bild an, We-Challenge und
+ * Gruppen aus. Die Person schaltet sie im Onboarding (Schritt „Funktionen“) oder in „Dein Konto › Funktionen“.
  * Abschalten blendet nur das Erstellen aus. Beiträge anderer bleiben im Feed sichtbar.
  * Gespeichert auf dem Gerät, pro Konto. Eine Sperre bis zur ersten erledigten Challenge kommt später (Übergabe).
  */
-export type Feature = 'me' | 'photo' | 'we' | 'groups';
+export type Feature = 'photo' | 'we' | 'groups';
 
 export const features: { key: Feature; label: string; description: string }[] = [
-  { key: 'me', label: 'Me-Challenge', description: 'Vorher-Nachher: Du packst selbst etwas an' },
   { key: 'photo', label: 'Bild', description: 'Ein schönes Bild aus dem Kiez, ohne Aufgabe' },
   { key: 'we', label: 'We-Challenge', description: 'Aufgabe für den Kiez, mit Coins als Belohnung' },
   { key: 'groups', label: 'Gruppen', description: 'Aufgaben im kleinen Kreis, mit Edensteinen' },
 ];
 
-/** Beitragstypen im Kiez. Einer davon bleibt immer an, damit das Erstellen nie leer ist. */
-export const POST_FEATURES: Feature[] = ['me', 'photo', 'we'];
+/** Stand der Schalter; `me` ist immer an, damit das Erstellen nie leer ist */
+export type FeatureState = Record<Feature | 'me', boolean>;
 
-export type FeatureState = Record<Feature, boolean>;
-
-const START: FeatureState = { me: true, photo: true, we: false, groups: false };
+const START: Record<Feature, boolean> = { photo: true, we: false, groups: false };
 const KEY = (userId: string) => `kiez-features:${userId}`;
 
 let loadedFor: string | undefined;
-let saved: Partial<FeatureState> = {};
+let saved: Partial<Record<Feature, boolean>> = {};
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
 
@@ -82,21 +80,16 @@ async function load(userId: string) {
   } catch {}
 }
 
-/** Schaltet eine Funktion an oder ab. `false`, wenn sie der letzte Beitragstyp ist und an bleiben muss. */
-export function setFeature(userId: string, state: FeatureState, key: Feature, on: boolean) {
-  if (!on && POST_FEATURES.includes(key) && POST_FEATURES.every((k) => k === key || !state[k])) return false;
+/** Schaltet eine Funktion an oder ab */
+export function setFeature(userId: string, key: Feature, on: boolean) {
   saved = { ...saved, [key]: on };
   emit();
   AsyncStorage.setItem(KEY(userId), JSON.stringify(saved)).catch(() => {});
-  return true;
 }
 
-/**
- * Aktueller Stand der Funktionen. Ohne gespeicherte Wahl gilt der Start; Gruppen sind an, sobald die Person in
- * einer Gruppe ist (Testerinnen vom Oktober 2026 behalten ihren Reiter).
- */
+/** Aktueller Stand der Funktionen. Ohne gespeicherte Wahl gilt der Start: Me-Challenge und Bild (Daria, 24.10.2026). */
 export function useFeatures(): FeatureState {
-  const { currentUserId, groups } = useStore();
+  const { currentUserId } = useStore();
   const [, rerender] = useState(0);
   useEffect(() => {
     const l = () => rerender((n) => n + 1);
@@ -109,10 +102,10 @@ export function useFeatures(): FeatureState {
     if (currentUserId) load(currentUserId);
   }, [currentUserId]);
   return {
-    me: saved.me ?? START.me,
+    me: true,
     photo: saved.photo ?? START.photo,
     we: saved.we ?? START.we,
-    groups: saved.groups ?? (groups.length > 0 || START.groups),
+    groups: saved.groups ?? START.groups,
   };
 }
 

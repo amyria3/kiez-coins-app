@@ -181,7 +181,7 @@ export default function Email() {
   };
 
   return (
-    <SubScreen title="Anmelden" subtitle="Schritt 1 von 6" navigation="back" onLeadingPress={goBack}>
+    <SubScreen title="Anmelden" subtitle="Schritt 1 von 7" navigation="back" onLeadingPress={goBack}>
       <KaterBubble>
         Erst mal Deine Flaschenpost-Adresse. Dann schick ich Dir einen Code, oder Du gibst Dein Passwort ein.
       </KaterBubble>

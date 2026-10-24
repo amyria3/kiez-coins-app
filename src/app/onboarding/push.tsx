@@ -30,7 +30,7 @@ export default function Push() {
   return (
     <SubScreen
       title="Nachrichten"
-      subtitle="Schritt 6 von 6"
+      subtitle="Schritt 7 von 7"
       navigation="back"
       onLeadingPress={goBack}
       actions={
