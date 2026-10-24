@@ -6,6 +6,7 @@ import { isRtl } from '../../data/texts';
 
 import { color as themeColor, isFashionable } from '../../theme/tokens';
 import { PH, fashionableSvgs, phXml, useIconPt } from './fashionableSvgs';
+import type { PhosphorName } from './phosphorSvgs';
 import { iconSvgs, type IconName } from './svgs';
 
 type IconProps = {
@@ -17,6 +18,8 @@ type IconProps = {
 
 /** Alle Icons etwas größer als angegeben (Daria, 21.10.2026), die Kamera nur leicht */
 export const ICON_SCALE = 1.5;
+/** Kiez-Look: Icons aus der Figma-Sammlung, die nicht in Darias Stil gezeichnet sind, kommen aus Phosphor (Daria, 24.10.2026) */
+const KIEZ_PHOSPHOR: Partial<Record<IconName, PhosphorName>> = { copy: 'copy' };
 const CAMERA_SCALE = 1.2;
 /** Icons, die neben den anderen optisch kleiner wirken, etwas größer (Daria, 22.10.2026: das Zahnrad) */
 const OPTICAL: Partial<Record<IconName, number>> = { settings: 1.18 };
@@ -25,7 +28,8 @@ const MIRRORED = new Set<IconName>(['chevron-left', 'chevron-right', 'send']);
 
 export const Icon = memo(function Icon({ name, color = themeColor.text.primary, size }: IconProps) {
   const iconPt = useIconPt();
-  const line = isFashionable ? fashionableSvgs[name] : undefined;
+  const kiezPh = isFashionable ? undefined : KIEZ_PHOSPHOR[name];
+  const line = isFashionable ? fashionableSvgs[name] : kiezPh ? { svg: (c: string) => phXml(kiezPh, c) } : undefined;
   if (line) {
     // size.icon (20) ist die Größe der Hauptsymbole; kleinere Angaben im selben Verhältnis
     const h = Math.round(((size ?? 20) / 20) * iconPt);
