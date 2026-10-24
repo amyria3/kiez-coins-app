@@ -17,6 +17,7 @@ import { useStore } from '../data/store';
 import { color, font, isInstagram, radius, size, space, stroke, text } from '../theme/tokens';
 import { InstaProfile } from '../components/InstaProfile';
 import { t } from '../data/texts';
+import { useGoBack } from '../lib/goBack';
 
 /** Was in der Karte „Du bist dran“ als Aufgabe steht. */
 function taskLabel({ challenge, role }: ReiseEntry): string {
@@ -38,6 +39,7 @@ export default function ReiseRoute() {
 
 function Reise() {
   const router = useRouter();
+  const goBack = useGoBack();
   const insets = useSafeAreaInsets();
   const { challenges, currentUserId, profile, groups } = useStore();
   const entries = useMemo(() => reiseEntries(challenges, currentUserId), [challenges, currentUserId]);
@@ -56,7 +58,7 @@ function Reise() {
     .filter((e) => e.role === 'assignee' && e.challenge.status === 'paid')
     .reduce((sum, e) => sum + (e.challenge.bountyAmount ?? 0), 0);
 
-  const toFeed = () => (router.canGoBack() ? router.back() : router.replace('/feed'));
+  const toFeed = () => (goBack());
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>

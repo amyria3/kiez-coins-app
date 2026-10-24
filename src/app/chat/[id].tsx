@@ -13,6 +13,7 @@ import { useStore } from '../../data/store';
 import type { User } from '../../data/types';
 import { color, font, radius, size, space, text } from '../../theme/tokens';
 import { localeTag, t } from '../../data/texts';
+import { useGoBack } from '../../lib/goBack';
 
 /**
  * Route `chat/[id]`: Unterhaltung mit einer Freund:in. Eigene Nachrichten rechts in Lila, die der anderen links.
@@ -21,6 +22,7 @@ import { localeTag, t } from '../../data/texts';
 export default function ChatThread() {
   const params = useLocalSearchParams<{ id: string; name?: string }>();
   const router = useRouter();
+  const goBack = useGoBack();
   const insets = useSafeAreaInsets();
   const { mode, users, currentUserId: storedId } = useStore();
   const live = mode === 'live';
@@ -88,7 +90,7 @@ export default function ChatThread() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <IconButton icon="chevron-left" accessibilityLabel={t('Zurück')} onPress={() => router.back()} />
+        <IconButton icon="chevron-left" accessibilityLabel={t('Zurück')} onPress={() => goBack()} />
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('Profil von {name}', { name: friend.name })}

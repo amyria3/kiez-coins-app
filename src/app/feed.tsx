@@ -127,8 +127,6 @@ export default function FeedScreen() {
     nudgeCrystals(y - lastY.current);
     if (y > 8 && y > lastY.current) collapse();
     else if (settled && ((y <= 0 && maxY.current > 120) || (dragging.current && y < -48))) expand();
-    // Instagram-Look: Der Kopf trägt Herz und Chats und kommt wie bei Instagram bei jedem Zurückscrollen wieder
-    else if (isInstagram && settled && dragging.current && y < lastY.current - 6) expand();
     lastY.current = y;
   };
 
@@ -372,7 +370,13 @@ export default function FeedScreen() {
   };
 
   // Kopf: Höhe und Deckkraft gehen auf 0. Segmente: rechts Platz für die Kamera, sobald der Kopf weg ist.
-  const headerStyle = headerHeight
+  // Instagram-Look: Der Kopf trägt Profil und Chats und bleibt stehen (Daria, 24.10.2026). Nur beim Erstellen geht er weg.
+  const headerStyle = headerHeight && isInstagram
+    ? {
+        height: composeAnim.interpolate({ inputRange: [0, 1], outputRange: [headerHeight, 0] }),
+        opacity: composeAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0, 0] }),
+      }
+    : headerHeight
     ? {
         // Nachschwingen über 1 hinaus: Höhe bleibt bei 0, nur die Verschiebung schwingt mit
         // Beim Erstellen immer weg, egal wo der Feed gerade steht

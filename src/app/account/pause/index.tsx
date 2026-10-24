@@ -35,7 +35,7 @@ export default function Pause() {
       actions={
         <>
           <Button label="3 Monate pausieren" onPress={pause} />
-          <Button label="Abbrechen" variant="secondary" onPress={() => router.back()} />
+          <Button label="Abbrechen" variant="secondary" onPress={() => goBack()} />
         </>
       }
     >

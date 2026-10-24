@@ -19,6 +19,7 @@ import type { Challenge, User } from '../data/types';
 import { useAppDimensions } from '../theme/layout';
 import { color, font, isInstagram, radius, size, space, stroke, text } from '../theme/tokens';
 import { t } from '../data/texts';
+import { useGoBack } from '../lib/goBack';
 
 /** Reihenfolge: zuerst, was noch änderbar ist, dann was läuft, dann Entwürfe, dann Erledigtes */
 const ORDER: Record<string, number> = {
@@ -48,6 +49,7 @@ const deletable = (c: Challenge) =>
  */
 export default function ManageChallenges() {
   const router = useRouter();
+  const goBack = useGoBack();
   const insets = useSafeAreaInsets();
   const requireKiez = useRequireKiez();
   const { challenges, users, currentUserId, dispatch } = useStore();
@@ -241,7 +243,7 @@ export default function ManageChallenges() {
         title="Deine Challenges"
         subtitle={pages.length > 1 ? t('{current} von {pages}', { current: current + 1, pages: pages.length }) : undefined}
         variant="back"
-        onLeadingPress={() => (router.canGoBack() ? router.back() : router.replace('/feed'))}
+        onLeadingPress={() => (goBack())}
       />
       <View style={styles.switch}>
         <Segments

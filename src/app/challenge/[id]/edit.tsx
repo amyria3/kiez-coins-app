@@ -110,13 +110,13 @@ export default function EditChallenge() {
     const edit = editOf();
     dispatch({ type: 'restore', id: challenge.id, deadline: edit.deadline });
     if (changed || expired) dispatch({ type: 'edit', id: challenge.id, edit });
-    router.back();
+    goBack();
   };
 
   // Gelöschte Challenge bleibt unveröffentlicht. Die Datenbank ändert nur offene Challenges, deshalb kurz
   // zurückholen, ändern und wieder löschen.
   const keepUnpublished = () => {
-    if (!changed) return router.back();
+    if (!changed) return goBack();
     if (!canSave) return;
     if (bounty && !canOfferBounties) {
       Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Wähl bei Coins „Keine“.');
@@ -126,7 +126,7 @@ export default function EditChallenge() {
     dispatch({ type: 'restore', id: challenge.id, deadline: edit.deadline });
     dispatch({ type: 'edit', id: challenge.id, edit });
     dispatch({ type: 'delete', id: challenge.id });
-    router.back();
+    goBack();
   };
 
   // Nicht veröffentlichen: Änderungen speichern und die Challenge aus dem Feed nehmen (status deleted).
@@ -155,7 +155,7 @@ export default function EditChallenge() {
       return;
     }
     dispatch({ type: 'edit', id: challenge.id, edit: editOf() });
-    router.back();
+    goBack();
   };
 
   return (

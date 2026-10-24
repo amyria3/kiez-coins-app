@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { FieldGroup, KaterBubble } from '../../components/Content';
 import { CrownIcon } from '../../components/icons/Brand';
 import { Icon } from '../../components/icons/Icon';
+import { Avatar } from '../../components/AuthorRow';
 import { NavCard, NavRow, ProfileCard } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { SurveyOverlay } from '../../components/SurveyOverlay';
@@ -60,8 +61,8 @@ export default function Account() {
       <NavCard
         title="Was Du so machst"
         description="Verlauf, Aufgaben und Gruppen"
-        // Instagram-Look: Herz wie oben im Feed, das „Was Du so machst“ öffnet
-        leading={isInstagram ? <Icon name="heart" size={size.icon} color={color.text.primary} /> : <CrownIcon height={30} />}
+        // Instagram-Look: Dein Bild wie oben im Feed (Regelwerk: Was Du so machst = Dein Profil)
+        leading={isInstagram ? <Avatar user={me} diameter={28} /> : <CrownIcon height={30} />}
         onPress={() => router.push('/reise')}
       />
       <NavCard

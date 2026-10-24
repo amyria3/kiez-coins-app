@@ -8,10 +8,12 @@ import { SubScreen } from '../../../components/Screen';
 import { hasContent, useDraft, useSaveDraft } from './_layout';
 import { explain } from '../../../components/Nudge';
 import { t } from '../../../data/texts';
+import { useGoBack } from '../../../lib/goBack';
 
 /** Route `challenge/create/step-1`. Figma: `challenge/create/step-1`. */
 export default function CreateStep1() {
   const router = useRouter();
+  const goBack = useGoBack();
   const [draft, setDraft] = useDraft();
   const [showErrors, setShowErrors] = useState(false);
   const { save, busy } = useSaveDraft();
@@ -30,10 +32,10 @@ export default function CreateStep1() {
 
   // Schließen mit Eingaben: als Entwurf behalten oder verwerfen
   const close = () => {
-    if (!hasContent(draft)) return router.back();
+    if (!hasContent(draft)) return goBack();
     Alert.alert('Als Entwurf speichern?', 'Du kannst die Challenge später in „Deine Challenges“ fertig machen.', [
       { text: 'Abbrechen', style: 'cancel' },
-      { text: 'Verwerfen', style: 'destructive', onPress: () => router.back() },
+      { text: 'Verwerfen', style: 'destructive', onPress: () => goBack() },
       { text: 'Speichern', onPress: save },
     ]);
   };

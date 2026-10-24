@@ -41,7 +41,7 @@ export default function Password() {
       return;
     }
     Alert.alert('Passwort gespeichert', 'Ab jetzt meldest Du Dich mit E-Mail und Passwort oder per Code an.');
-    router.back();
+    goBack();
   };
 
   return (
