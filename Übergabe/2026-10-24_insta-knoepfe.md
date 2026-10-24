@@ -1,6 +1,8 @@
 # Instagram-Look: Knöpfe, Farben, Beitrag ohne Foto (2026-10-24)
 
-Gehört nach Documentation: `kiez-coins/design/ICON-REGELWERK.md` (Abschnitt „Weitere Festlegungen“) und `kiez-coins/ENTSCHEIDUNGEN.md` (Look).
+Status: erledigt, Notiz für die Doku.
+
+Gehört nach Documentation: `kiez-coins/design/UX_UI_Regeln.md` (Knöpfe, Farben, Beitrag ohne Foto) und `kiez-coins/ENTSCHEIDUNGEN.md` (Look).
 
 - Knöpfe im Instagram-Look überall gleich (`InstaButton` in `src/components/Button.tsx`): 44 hoch, Radius 8, halbfett 14, ohne Icon. Primary blau mit weißer Schrift, die übrigen grau gefüllt, Danger mit roter Schrift, Ghost blauer Text. Kein Glas.
 - Kein Grün im Instagram-Look: Edensteine, „Offen“ und gewählte Chips in Textfarbe.
