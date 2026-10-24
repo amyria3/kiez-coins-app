@@ -41,7 +41,7 @@ Die Texte nutzen drei Schreibweisen nebeneinander:
 ## Umsetzung
 
 - Pflichtaufgabe: Migration. Neue Spalte `profiles.gender` (`'er' | 'sie' | 'person'`, Standard `'person'`). Andere Personen brauchen Lesezugriff, da Texte über sie das Pronomen brauchen (Spalte in die öffentliche Profilabfrage aufnehmen, `grant update (gender)` für die eigene Zeile).
-- Onboarding: Auswahl auf `onboarding/ansprache` (eigener Block unter der Ansprache) und änderbar unter „Dein Konto“. Die Ansprache belegt die Auswahl vor (Daria, 24.10.2026): Pirat → er, Piratin → sie, alle anderen → unbestimmt.
+- Onboarding: eigene Frage nach dem grammatischen Geschlecht, änderbar unter „Dein Konto“. Die Auswahl hat nichts mit der Ansprache (Pirat, Piratin …) zu tun und wird nicht aus ihr vorbelegt (Daria, 24.10.2026: Die Ansprache ist nur ein Zusatz, die Herausforderung ist die Grammatik).
 - Code: Hilfsfunktion `byGender(user, { er, sie, person })` in `src/data/format.ts`, die ganze Sätze auswählt, damit Übersetzungen ganze Sätze bekommen (wie bei `user.group` heute).
 - Übersetzungen: je Satz drei Fassungen. Ukrainisch, Hebräisch und Arabisch verlieren damit die Klammerformen und die feste männliche Form.
 
