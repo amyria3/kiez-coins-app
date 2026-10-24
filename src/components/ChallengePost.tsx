@@ -8,7 +8,7 @@ import { BlurView } from 'expo-blur';
 
 import { formatRelative, formatRemainingShort } from '../data/format';
 import type { Challenge, User } from '../data/types';
-import { color, font, isInstagram, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BeforeAfterPost } from './BeforeAfterPost';
 import { WithMentions } from './WithMentions';
@@ -39,7 +39,7 @@ export type ChallengePostProps = {
  */
 export const ChallengePost = memo(function ChallengePost(props: ChallengePostProps) {
   if (props.challenge.type === 'before_after') return <BeforeAfterPost {...props} />;
-  return isInstagram ? <InstaPost {...props} /> : <KiezPost {...props} />;
+  return isFashionable ? <FashionPost {...props} /> : <KiezPost {...props} />;
 });
 
 /** Look „Kiez“ */
@@ -136,7 +136,7 @@ function KiezPost({
             <Text style={styles.waveText}>Wave</Text>
           </View>
         ) : null}
-        {/* Wer hat gepostet: nach dem ersten Tippen oben links, Bild und Name wie bei Instagram */}
+        {/* Wer hat gepostet: nach dem ersten Tippen oben links, Bild und Name wie bei großen Foto-Apps */}
         <Animated.View
           pointerEvents={who ? 'box-none' : 'none'}
           style={[
@@ -237,7 +237,7 @@ function KiezPost({
  * Look „Fashionable“ (Daria, 2026-10-23): Kopfzeile mit Bild, Name und Kiez über dem Foto, Foto quadratisch über die
  * ganze Breite, darunter Herz, Sprechblase, Teilen und der Text mit fettem Titel vorn. Ein Tipp aufs Foto öffnet den Post.
  */
-function InstaPost({ challenge, author, distance, onPress, onCommentPress, onLike, onManage }: ChallengePostProps) {
+function FashionPost({ challenge, author, distance, onPress, onCommentPress, onLike, onManage }: ChallengePostProps) {
   const isWave = challenge.type === 'wave';
   const completed = COMPLETED.has(challenge.status);
   const closed = challenge.status === 'closed';
@@ -250,33 +250,33 @@ function InstaPost({ challenge, author, distance, onPress, onCommentPress, onLik
   const commentCount = challenge.comments.length;
 
   return (
-    <View style={insta.post}>
-      <View style={insta.head}>
+    <View style={fashion.post}>
+      <View style={fashion.head}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('Profil von {name}', { name: author.name })}
           onPress={() => router.push({ pathname: '/user/[id]', params: { id: author.id, challengeId: challenge.id } })}
-          style={({ pressed }) => [insta.headWho, pressed && styles.pressed]}
+          style={({ pressed }) => [fashion.headWho, pressed && styles.pressed]}
         >
           <Avatar user={author} diameter={32} />
           <View style={styles.whoTexts}>
-            <Text noTranslate style={[insta.name, hideName ? hiddenText : null]} numberOfLines={1}>
+            <Text noTranslate style={[fashion.name, hideName ? hiddenText : null]} numberOfLines={1}>
               {author.name}
             </Text>
             {place ? (
-              <Text style={insta.place} numberOfLines={1}>
+              <Text style={fashion.place} numberOfLines={1}>
                 {place}
               </Text>
             ) : null}
           </View>
         </Pressable>
-        <View style={insta.headRight}>
+        <View style={fashion.headRight}>
           {!isWave && challenge.bountyAmount ? <BountyBadge amount={challenge.bountyAmount} small /> : null}
           {challenge.edensteine ? (
             // Angabe neben dem Namen, kein Knopf: Stein so hoch wie die Schrift, 4 pt bis zur Zahl, ohne Druckfläche
-            <View style={insta.eden} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine: challenge.edensteine })}>
+            <View style={fashion.eden} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine: challenge.edensteine })}>
               <LivingCrystal height={30} seed={challenge.id} calm={!active} />
-              <Text style={[insta.edenText, active ? null : styles.edenTextDone]}>{challenge.edensteine}</Text>
+              <Text style={[fashion.edenText, active ? null : styles.edenTextDone]}>{challenge.edensteine}</Text>
             </View>
           ) : null}
           {onManage ? (
@@ -291,7 +291,7 @@ function InstaPost({ challenge, author, distance, onPress, onCommentPress, onLik
           onPress={onPress}
           accessibilityRole="button"
           accessibilityLabel={t('{title} öffnen', { title: challenge.title })}
-          style={insta.photo}
+          style={fashion.photo}
         >
           <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" />
           {isWave ? (
@@ -301,9 +301,9 @@ function InstaPost({ challenge, author, distance, onPress, onCommentPress, onLik
           ) : null}
         </Pressable>
       ) : (
-        <View style={insta.noPhotoLine} />
+        <View style={fashion.noPhotoLine} />
       )}
-      <View style={insta.actions}>
+      <View style={fashion.actions}>
         <Pressable
           accessibilityRole="button"
           accessibilityState={{ selected: !!challenge.likedByMe }}
@@ -312,7 +312,7 @@ function InstaPost({ challenge, author, distance, onPress, onCommentPress, onLik
           style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
         >
           <Icon name="heart" size={size.icon} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
-          {challenge.likeCount ? <Text style={insta.count}>{challenge.likeCount}</Text> : null}
+          {challenge.likeCount ? <Text style={fashion.count}>{challenge.likeCount}</Text> : null}
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -321,7 +321,7 @@ function InstaPost({ challenge, author, distance, onPress, onCommentPress, onLik
           style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
         >
           <Icon name="comment" size={size.icon} color={color.text.primary} />
-          {commentCount > 0 ? <Text style={insta.count}>{commentCount}</Text> : null}
+          {commentCount > 0 ? <Text style={fashion.count}>{commentCount}</Text> : null}
         </Pressable>
         <IconButton
           icon="send"
@@ -330,16 +330,16 @@ function InstaPost({ challenge, author, distance, onPress, onCommentPress, onLik
           onPress={() => shareText(t('{title} – Kiez Coins', { title: challenge.title }))}
         />
         {/* Status rechts unter dem Bild, als Angabe in Grau (Daria, 24.10.2026) */}
-        <Text style={[insta.state, closed && insta.stateClosed]} numberOfLines={1}>
+        <Text style={[fashion.state, closed && fashion.stateClosed]} numberOfLines={1}>
           {closed ? 'Geschlossen' : completed ? 'Erledigt' : state.replace(/^noch/, 'Noch')}
         </Text>
       </View>
-      <Pressable onPress={onPress} style={insta.caption}>
-        <Text style={insta.captionText} numberOfLines={3}>
-          <Text style={insta.captionTitle}>{challenge.title} </Text>
+      <Pressable onPress={onPress} style={fashion.caption}>
+        <Text style={fashion.captionText} numberOfLines={3}>
+          <Text style={fashion.captionTitle}>{challenge.title} </Text>
           {challenge.text ? <WithMentions value={challenge.text} /> : null}
         </Text>
-        <Text style={insta.time}>{formatRelative(challenge.createdAt)}</Text>
+        <Text style={fashion.time}>{formatRelative(challenge.createdAt)}</Text>
       </Pressable>
     </View>
   );
@@ -352,10 +352,10 @@ function comingSoon() {
 /**
  * Maße im Look „Fashionable“ (Daria, 23.10.2026), in pt:
  * Kopf 54 hoch: links 12, rechts 4 (das Zahnrad bringt 44 Fläche mit), Bild 32, 10 bis zum Namen.
- * Foto über die ganze Breite im Hochformat 4:5 wie Instagram, ohne Foto 4:3 mit Titel.
+ * Foto über die ganze Breite im Hochformat 4:5 wie große Foto-Apps, ohne Foto 4:3 mit Titel.
  * Aktionen 44 hoch, links 4, Icons 24. Text links und rechts 12, 4 zwischen den Zeilen, 16 bis zum nächsten Beitrag.
  */
-const insta = StyleSheet.create({
+const fashion = StyleSheet.create({
   post: { paddingBottom: space[16] },
   head: {
     flexDirection: 'row',

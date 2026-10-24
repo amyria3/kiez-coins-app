@@ -46,7 +46,7 @@ const ph = (name: PhosphorName): Svg => ({ width: 24, height: 24, svg: (c, fille
  * Regelwerk: jedes Icon eine Bedeutung. Kommentar = Sprechblase, Chats = zwei Sprechblasen,
  * Senden = Papierflieger, Ort = Stecknadel, Feed = Haus, Gruppen = Personen.
  */
-export const instagramSvgs: Partial<Record<IconName, Svg>> = {
+export const fashionableSvgs: Partial<Record<IconName, Svg>> = {
   heart: ph('heart'),
   comment: ph('chat-circle'),
   send: ph('paper-plane-tilt'),

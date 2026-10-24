@@ -13,7 +13,7 @@ import { anrede } from '../../data/format';
 import { useAuth } from '../../data/auth';
 import { isModerator, loadFriends } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
-import { color, isInstagram, size, space } from '../../theme/tokens';
+import { color, isFashionable, size, space } from '../../theme/tokens';
 import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
 import { look, looks, lookSelectable } from '../../theme/look';
 import { useGoBack } from '../../lib/goBack';
@@ -63,7 +63,7 @@ export default function Account() {
         title="Was Du so machst"
         description="Verlauf, Aufgaben und Gruppen"
         // Fashionable Look: Dein Bild wie oben im Feed (Regelwerk: Was Du so machst = Dein Profil)
-        leading={isInstagram ? <Avatar user={me} diameter={28} /> : <CrownIcon height={30} />}
+        leading={isFashionable ? <Avatar user={me} diameter={28} /> : <CrownIcon height={30} />}
         onPress={() => router.push('/reise')}
       />
       <NavCard

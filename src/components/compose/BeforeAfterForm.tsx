@@ -5,7 +5,7 @@ import { BEFORE_AFTER_TEXT_MAX } from '../../data/remote';
 import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
 import type { ImageSource } from '../../data/types';
-import { color, font, isInstagram, radius, space, stroke, text } from '../../theme/tokens';
+import { color, font, isFashionable, radius, space, stroke, text } from '../../theme/tokens';
 import { Button } from '../Button';
 import { PhotoPicker } from '../Form';
 import { useNudge } from '../Nudge';
@@ -58,7 +58,7 @@ export function TagTextField({
     <View style={styles.field}>
       <Text style={styles.label}>{t(label)}</Text>
       <View
-        style={[styles.box, { borderColor: focused ? color.accent.primary : isInstagram ? color.line.hairline : color.text.secondary }]}
+        style={[styles.box, { borderColor: focused ? color.accent.primary : isFashionable ? color.line.hairline : color.text.secondary }]}
         onTouchEnd={() => inputRef.current?.focus()}
       >
         <Text style={styles.tag} noTranslate>
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     paddingBottom: space[8],
     gap: space[2],
   },
-  tag: { fontFamily: isInstagram ? font.semiBold : font.medium, fontSize: 14, lineHeight: 18, color: color.accent.signal },
+  tag: { fontFamily: isFashionable ? font.semiBold : font.medium, fontSize: 14, lineHeight: 18, color: color.accent.signal },
   input: { ...text.body, color: color.text.primary, padding: 0, minHeight: 40, textAlignVertical: 'top' },
   inputWeb: { outlineStyle: 'none' } as object,
   help: { flexDirection: 'row', justifyContent: 'space-between', gap: space[8] },

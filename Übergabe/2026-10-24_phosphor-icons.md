@@ -14,7 +14,7 @@ Ersetzt die Notiz „Font Awesome im Fashionable Look“ vom selben Tag. Font Aw
 ## Technik
 
 - `scripts/phosphor-icons.mjs` erzeugt `src/components/icons/phosphorSvgs.ts` aus `@phosphor-icons/core` (devDependency). Neues Icon: Namen im Skript eintragen und `node scripts/phosphor-icons.mjs` ausführen.
-- `src/components/icons/instagramSvgs.ts`: `instagramSvgs` (nach IconName), `PH` (Leiste, Profil-Reiter, Konto, Coins), `phXml`. `PhIcon` in `Icon.tsx`.
+- `src/components/icons/fashionableSvgs.ts`: `fashionableSvgs` (nach IconName), `PH` (Leiste, Profil-Reiter, Konto, Coins), `phXml`. `PhIcon` in `Icon.tsx`.
 
 | Bedeutung | IconName / PH-Schlüssel | Phosphor |
 |---|---|---|

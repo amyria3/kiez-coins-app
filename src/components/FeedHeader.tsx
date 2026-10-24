@@ -5,13 +5,13 @@ import { Image } from 'expo-image';
 
 import { challengeTypes, isTypeActive } from '../data/features';
 import type { Challenge } from '../data/types';
-import { color, font, isInstagram, motion, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isFashionable, motion, radius, size, space, stroke, text } from '../theme/tokens';
 import { KaterCard } from './Content';
 import { Logo, MonoCat } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { Avatar } from './AuthorRow';
 import { useStore } from '../data/store';
-import { useIconPt } from './icons/instagramSvgs';
+import { useIconPt } from './icons/fashionableSvgs';
 import { useRouter } from 'expo-router';
 import { useUnreadMessages } from '../data/chat';
 import { SkeletonTopItem } from './Skeleton';
@@ -31,7 +31,7 @@ type AppHeaderProps = {
  * die Kamera schwebt oben rechts (CameraButton). Der Kopf scrollt mit dem Feed weg.
  */
 export function AppHeader(props: AppHeaderProps) {
-  return isInstagram ? <InstaHeader {...props} /> : <KiezHeader {...props} />;
+  return isFashionable ? <FashionHeader {...props} /> : <KiezHeader {...props} />;
 }
 
 /**
@@ -39,14 +39,14 @@ export function AppHeader(props: AppHeaderProps) {
  * Inter Tight halbfett 24/28, rechts Dein Profilbild („Was Du so machst“) und die Sprechblase mit Zeilen (Chats), 18 pt Abstand.
  * Abstände 4 oben, 12 rechts, 8 unten, 14 links.
  */
-function InstaHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) {
+function FashionHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) {
   const router = useRouter();
   const unread = useUnreadMessages();
   const { users, currentUserId } = useStore();
   const me = users.find((u) => u.id === currentUserId);
   const iconPt = useIconPt();
   return (
-    <View style={styles.instaHead}>
+    <View style={styles.fashionHead}>
       <Pressable onLongPress={onLogoLongPress} accessibilityRole="header">
         {/* Kater aus dem monochromen Logo (26) und Schriftzug „Kiez Coins“, 8 Abstand (Daria, 24.10.2026, Variante B) */}
         <View style={styles.brand} accessible accessibilityLabel="Kiez Coins">
@@ -93,7 +93,7 @@ function KiezHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) 
       >
         {/* Neues Logo mit Kater links (Daria, 22.10.2026); der Punkt sitzt am Kater */}
         <View>
-          <Logo height={isInstagram ? 28 : 30} />
+          <Logo height={isFashionable ? 28 : 30} />
           {hasTasks ? <View style={[styles.taskDot, styles.taskDotLogo]} /> : null}
         </View>
       </Pressable>
@@ -105,7 +105,7 @@ function KiezHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) 
 /** Begrüßung über dem Feed: Tageszeit, Ansprache, Kiez und Anzahl offener Challenges. */
 export function FeedGreeting({ name, kiez, count }: { name: string; kiez?: string; count: number }) {
   // Fashionable Look: keine Begrüßung, der Schriftzug steht allein (Mockup)
-  if (isInstagram) return null;
+  if (isFashionable) return null;
   const hour = new Date().getHours();
   const greeting = hour < 11 ? 'Guten Morgen' : hour < 18 ? 'Hallo' : 'Guten Abend';
   const countText = count === 1 ? '1 Challenge in Deiner Nähe' : t('{count} Challenges in Deiner Nähe', { count });
@@ -200,11 +200,11 @@ type SegmentsProps<K extends string> = {
 
 /** Segmente mit gleitender Pille, z. B. Feed-Reiter oder „Aktuell / Archiv“ in „Deine Challenges“. */
 export function Segments<K extends string>(props: SegmentsProps<K>) {
-  return isInstagram ? <UnderlineTabs {...props} /> : <PillSegments {...props} />;
+  return isFashionable ? <UnderlineTabs {...props} /> : <PillSegments {...props} />;
 }
 
 /**
- * Umschalter im Look „Fashionable“ (Daria, 23.10.2026), wie die Reiter im Instagram-Profil: gleich breite Felder,
+ * Umschalter im Look „Fashionable“ (Daria, 23.10.2026), wie die Reiter in Profilen großer Foto-Apps: gleich breite Felder,
  * 44 pt hoch, Schrift 15 pt. Aktiv schwarz und halbfett, sonst Grau #737373. Unter dem aktiven Reiter liegt
  * ein schwarzer Strich, 1 pt stark und so breit wie das Feld; er gleitet mit „Schranke“ bzw. folgt dem Finger.
  * Darunter eine Haarlinie über die ganze Breite.
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: space[16],
-    paddingVertical: isInstagram ? 0 : space[8],
+    paddingVertical: isFashionable ? 0 : space[8],
   },
   spacer: { width: size.touchTarget, height: size.touchTarget },
   logo: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
@@ -376,13 +376,13 @@ const styles = StyleSheet.create({
     borderColor: color.bg.screen,
   },
   // Fashionable Look: Kopf 44 hoch, Begrüßung kleiner und halbfett, 16 seitlich, 4 oben, 12 unten bis zum Umschalter
-  greeting: isInstagram
+  greeting: isFashionable
     ? { paddingHorizontal: space[16], paddingTop: space[4], paddingBottom: space[12], gap: space[2] }
     : { paddingHorizontal: space[16], paddingTop: space[12], paddingBottom: space[8], gap: space[4] },
-  greetingTitle: isInstagram
+  greetingTitle: isFashionable
     ? { fontFamily: font.semiBold, fontSize: 22, lineHeight: 28, letterSpacing: -0.3, color: color.text.primary }
     : { ...text.display, color: color.text.primary },
-  greetingSub: isInstagram
+  greetingSub: isFashionable
     ? { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.secondary }
     : { fontFamily: font.light, fontSize: 15, lineHeight: 20, color: color.text.secondary },
   topBar: { paddingHorizontal: space[16], paddingTop: space[4], paddingBottom: space[4], gap: space[12] },
@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
   segmentInner: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   planned: { opacity: 0.6 },
   hint: { paddingHorizontal: space[16] },
-  instaHead: {
+  fashionHead: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

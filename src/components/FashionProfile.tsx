@@ -15,7 +15,7 @@ import { color, font, radius, space, stroke } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
 import { Cat } from './icons/Brand';
 import { Icon } from './icons/Icon';
-import { PH, phXml, useIconPt } from './icons/instagramSvgs';
+import { PH, phXml, useIconPt } from './icons/fashionableSvgs';
 import { TAB_BAR_SPACE, TabBar } from './TabBar';
 import { Text } from './T';
 import { useGoBack } from '../lib/goBack';
@@ -29,14 +29,14 @@ const GRID_TABS: { key: GridTab; label: string; icon: (typeof PH)[keyof typeof P
 ];
 
 /**
- * „Was Du so machst“ im Look „Fashionable“ als Profil (Daria, 23.10.2026), wie instagram.com/<name> mobil.
+ * „Was Du so machst“ im Look „Fashionable“ als Profil (Daria, 23.10.2026), wie fashionable.com/<name> mobil.
  * Maße in pt, seitlich 16:
  * Kopf 44: Name halbfett 20 mit Pfeil, rechts das Menü (Konto). Darunter Bild 86 links, Notiz-Blase des Katers
  * darüber; rechts Name und drei Zahlen (Challenges, Freund:innen, Gruppen). Danach Ort und Verdienst,
  * zwei Knöpfe 34 hoch (8 Abstand), Highlights mit den Gruppen (Kreis 64), Reiter-Icons 44 hoch mit 1 pt Strich,
  * Raster mit drei Spalten im Hochformat 3:4 und 2 pt Fuge.
  */
-export function InstaProfile() {
+export function FashionProfile() {
   const router = useRouter();
   const goBack = useGoBack();
   const insets = useSafeAreaInsets();
@@ -84,7 +84,7 @@ export function InstaProfile() {
 
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + TAB_BAR_SPACE }}>
         <View style={styles.head}>
-          {/* Notiz-Blase wie bei Instagram: Der Kater sagt, wie es steht. Tipp öffnet seine Seite. */}
+          {/* Notiz-Blase wie bei großen Foto-Apps: Der Kater sagt, wie es steht. Tipp öffnet seine Seite. */}
           <View style={styles.avatarCol}>
             <Pressable
               accessibilityRole="button"

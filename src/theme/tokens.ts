@@ -6,10 +6,10 @@ import type { TextStyle } from 'react-native';
 
 import { look } from './look';
 
-const instagram = look === 'fashionable';
+const fashionable = look === 'fashionable';
 /** Im Fashionable Look hell: für BlurView, Systemglas und Statusleiste */
-export const isInstagram = instagram;
-export const scheme: 'dark' | 'light' = instagram ? 'light' : 'dark';
+export const isFashionable = fashionable;
+export const scheme: 'dark' | 'light' = fashionable ? 'light' : 'dark';
 
 // Primitives
 const kiezPalette = {
@@ -25,11 +25,11 @@ const kiezPalette = {
 };
 
 /**
- * Look „Fashionable“, hell wie Instagram (Daria, 2026-10-23): weißer Grund, schwarze Schrift, Grau #737373,
+ * Look „Fashionable“, hell (Daria, 2026-10-23): weißer Grund, schwarze Schrift, Grau #737373,
  * Blau #0095F6 für Aktionen, Rot #FF3040 fürs Herz. `black` ist hier der Grund und `white` die Schrift,
  * damit die Namen der Kiez-Palette in beiden Looks dieselbe Rolle haben.
  */
-const instagramPalette: typeof kiezPalette = {
+const fashionablePalette: typeof kiezPalette = {
   black: '#FFFFFF',
   white: '#000000',
   grey: '#737373',
@@ -42,7 +42,7 @@ const instagramPalette: typeof kiezPalette = {
   graphite: '#EFEFEF',
 };
 
-export const palette = Object.freeze(instagram ? instagramPalette : kiezPalette);
+export const palette = Object.freeze(fashionable ? fashionablePalette : kiezPalette);
 
 // Theme (semantische Farben, nur diese in Komponenten verwenden)
 export const color = {
@@ -50,27 +50,27 @@ export const color = {
     screen: palette.black,
     surface: palette.graphite,
     /** Halbtransparente Fläche über Fotos (Bounty-Chip, Info-Leiste, Tab-Leiste) */
-    glass: instagram ? 'rgba(255, 255, 255, 0.96)' : 'rgba(31, 33, 35, 0.82)',
+    glass: fashionable ? 'rgba(255, 255, 255, 0.96)' : 'rgba(31, 33, 35, 0.82)',
     /** Leichte Glasfläche, z. B. das eingeklappte Blatt im Challenge-Detail */
-    sheet: instagram ? 'rgba(255, 255, 255, 0.82)' : 'rgba(31, 33, 35, 0.45)',
+    sheet: fashionable ? 'rgba(255, 255, 255, 0.82)' : 'rgba(31, 33, 35, 0.45)',
     /** Dunkle Glasfläche über Fotos, in beiden Looks dunkel */
     onPhoto: 'rgba(31, 33, 35, 0.3)',
   },
   /** Haarlinie auf dunklem Grund */
   line: {
-    hairline: instagram ? '#DBDBDB' : 'rgba(240, 240, 240, 0.12)',
+    hairline: fashionable ? '#DBDBDB' : 'rgba(240, 240, 240, 0.12)',
   },
   text: {
     primary: palette.white,
     secondary: palette.grey,
     /** Schrift auf der Akzentfläche (Primary-Button, eigene Chatblase) */
-    onAccent: instagram ? '#FFFFFF' : palette.black,
+    onAccent: fashionable ? '#FFFFFF' : palette.black,
     /** Schrift auf Fotos, in beiden Looks hell */
     onPhoto: '#F0F0F0',
   },
   /** Signaturfarbe für Logo und Kater. Fashionable Look vorerst Schwarz: Das Violett #7B2FF7 hat Daria verworfen (23.10.2026), die neue Farbe steht noch aus. */
   brand: {
-    signature: instagram ? '#000000' : palette.purple,
+    signature: fashionable ? '#000000' : palette.purple,
   },
   accent: {
     primary: palette.purple,
@@ -98,12 +98,12 @@ export const space = {
 
 // Radius (Look „Fashionable“: eckiger)
 export const radius = {
-  sm: instagram ? 4 : 5,
-  md: instagram ? 8 : 12,
-  lg: instagram ? 10 : 18,
-  xl: instagram ? 12 : 20,
-  card: instagram ? 6 : 28,
-  sheet: instagram ? 16 : 32,
+  sm: fashionable ? 4 : 5,
+  md: fashionable ? 8 : 12,
+  lg: fashionable ? 10 : 18,
+  xl: fashionable ? 12 : 20,
+  card: fashionable ? 6 : 28,
+  sheet: fashionable ? 16 : 32,
   full: 999,
 } as const;
 

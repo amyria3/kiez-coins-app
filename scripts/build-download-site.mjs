@@ -190,7 +190,7 @@ ${blumenTeile}
 </section>`;
 
 const leute = [
-  { figur: figuren.muetze, text: 'Besser als Instagram' },
+  { figur: figuren.muetze, text: 'Besser als Doomscrolling' },
   { figur: figuren.locken, text: 'Wie GitHub für den Alltag' },
   { figur: figuren.nachbarin, text: 'Schon praktisch' },
 ];

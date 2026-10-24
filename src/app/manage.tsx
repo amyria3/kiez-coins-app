@@ -17,7 +17,7 @@ import { useRequireKiez } from '../data/kiez';
 import { useStore } from '../data/store';
 import type { Challenge, User } from '../data/types';
 import { useAppDimensions } from '../theme/layout';
-import { color, font, isInstagram, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { t } from '../data/texts';
 import { useGoBack } from '../lib/goBack';
 
@@ -328,9 +328,9 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
           : { value: 'Erledigt', hint: c.confirmedAt ? `am ${formatDayMonthShort(c.confirmedAt)}` : '' };
   const photo = c.image ?? c.imageAfter ?? c.imageBefore;
 
-  if (isInstagram) {
+  if (isFashionable) {
     return (
-      <InstaCard
+      <FashionCard
         challenge={c}
         hint={state.hint}
         photo={photo}
@@ -533,7 +533,7 @@ function DeletedCard({
  * 16 bis zu den Knöpfen. Knöpfe nebeneinander, 34 hoch, 8 Abstand, Radius 8, halbfett 14, grau gefüllt
  * (Hauptaktion blau). „Challenge löschen“ als roter Text, 44 hoch, darunter nach 15 eine Haarlinie.
  */
-function InstaCard({
+function FashionCard({
   challenge: c,
   hint,
   photo,
@@ -570,26 +570,26 @@ function InstaCard({
           ]
         : [{ label: 'Ansehen', onPress: onOpen }];
   return (
-    <View style={insta.card}>
+    <View style={fashion.card}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={t('{title} öffnen', { title: c.title || t('Ohne Titel') })}
         onPress={onOpen}
-        style={({ pressed }) => [insta.head, side, pressed && styles.pressed]}
+        style={({ pressed }) => [fashion.head, side, pressed && styles.pressed]}
       >
         {photo ? (
-          <Image source={photo} style={insta.thumb} contentFit="cover" />
+          <Image source={photo} style={fashion.thumb} contentFit="cover" />
         ) : (
-          <View style={[insta.thumb, insta.thumbEmpty]}>
+          <View style={[fashion.thumb, fashion.thumbEmpty]}>
             <Icon name="camera" size={14} color={color.text.secondary} />
           </View>
         )}
-        <View style={insta.headText}>
-          <Text style={insta.title} numberOfLines={2}>
+        <View style={fashion.headText}>
+          <Text style={fashion.title} numberOfLines={2}>
             {c.title || 'Ohne Titel'}
           </Text>
           {hint ? (
-            <Text style={insta.hint} numberOfLines={1}>
+            <Text style={fashion.hint} numberOfLines={1}>
               {hint}
             </Text>
           ) : null}
@@ -597,25 +597,25 @@ function InstaCard({
         <Icon name="chevron-right" size={16} color={color.text.secondary} />
       </Pressable>
 
-      <View style={[insta.stats, side]}>
-        <InstaMetric value={c.views === undefined ? '–' : String(c.views)} label={c.views === 1 ? 'Ansicht' : 'Ansichten'} />
-        <InstaMetric
+      <View style={[fashion.stats, side]}>
+        <FashionMetric value={c.views === undefined ? '–' : String(c.views)} label={c.views === 1 ? 'Ansicht' : 'Ansichten'} />
+        <FashionMetric
           value={String(c.comments.length)}
           label={c.comments.length === 1 ? 'Kommentar' : 'Kommentare'}
           onPress={isDraft ? undefined : onComments}
         />
-        <InstaMetric value={isDraft ? '–' : formatDurationSince(c.createdAt)} label={isDraft ? 'Entwurf' : 'online'} />
+        <FashionMetric value={isDraft ? '–' : formatDurationSince(c.createdAt)} label={isDraft ? 'Entwurf' : 'online'} />
       </View>
 
-      <View style={[insta.buttons, side]}>
+      <View style={[fashion.buttons, side]}>
         {buttons.map((b) => (
           <Pressable
             key={b.label}
             accessibilityRole="button"
             onPress={b.onPress}
-            style={({ pressed }) => [insta.button, b.primary && insta.buttonPrimary, pressed && styles.pressed]}
+            style={({ pressed }) => [fashion.button, b.primary && fashion.buttonPrimary, pressed && styles.pressed]}
           >
-            <Text style={[insta.buttonText, b.primary && insta.buttonTextPrimary]}>{b.label}</Text>
+            <Text style={[fashion.buttonText, b.primary && fashion.buttonTextPrimary]}>{b.label}</Text>
           </Pressable>
         ))}
       </View>
@@ -623,38 +623,38 @@ function InstaCard({
       <Pressable
         accessibilityRole="button"
         onPress={onDelete}
-        style={({ pressed }) => [insta.delete, !canDelete && styles.muted, pressed && styles.pressed]}
+        style={({ pressed }) => [fashion.delete, !canDelete && styles.muted, pressed && styles.pressed]}
       >
-        <Text style={insta.deleteText}>Challenge löschen</Text>
+        <Text style={fashion.deleteText}>Challenge löschen</Text>
       </Pressable>
-      <View style={insta.line} />
+      <View style={fashion.line} />
 
       <View style={styles.flex} />
-      {hasNext ? <Text style={[styles.next, insta.next]}>Nach oben wischen für die nächste</Text> : null}
+      {hasNext ? <Text style={[styles.next, fashion.next]}>Nach oben wischen für die nächste</Text> : null}
     </View>
   );
 }
 
-function InstaMetric({ value, label, onPress }: { value: string; label: string; onPress?: () => void }) {
+function FashionMetric({ value, label, onPress }: { value: string; label: string; onPress?: () => void }) {
   return (
     <Pressable
-      style={({ pressed }) => [insta.metric, pressed && onPress ? styles.pressed : null]}
+      style={({ pressed }) => [fashion.metric, pressed && onPress ? styles.pressed : null]}
       disabled={!onPress}
       accessibilityRole={onPress ? 'button' : undefined}
       accessibilityLabel={`${value} ${label}`}
       onPress={onPress}
     >
-      <Text style={insta.metricValue} numberOfLines={1}>
+      <Text style={fashion.metricValue} numberOfLines={1}>
         {value}
       </Text>
-      <Text style={insta.metricLabel} numberOfLines={1}>
+      <Text style={fashion.metricLabel} numberOfLines={1}>
         {label}
       </Text>
     </Pressable>
   );
 }
 
-const insta = StyleSheet.create({
+const fashion = StyleSheet.create({
   card: { flex: 1 },
   head: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingTop: 21, paddingBottom: 14 },
   thumb: { width: 56, height: 56, borderRadius: radius.md },
@@ -706,8 +706,8 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   empty: { padding: space[16] },
   // Fashionable Look: Unterstrich-Reiter über die ganze Breite
-  switch: isInstagram ? {} : { paddingHorizontal: space[16], paddingBottom: space[8] },
-  page: isInstagram
+  switch: isFashionable ? {} : { paddingHorizontal: space[16], paddingBottom: space[8] },
+  page: isFashionable
     ? { paddingBottom: space[12] }
     : { paddingHorizontal: space[16], paddingTop: space[8], paddingBottom: space[12] },
   card: {

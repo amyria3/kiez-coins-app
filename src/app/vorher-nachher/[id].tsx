@@ -18,7 +18,7 @@ import { beforeAfterBody, useChallenge, useStore } from '../../data/store';
 import { getLanguage, t } from '../../data/texts';
 import type { ImageSource } from '../../data/types';
 import { useGoBack } from '../../lib/goBack';
-import { color, font, isInstagram, radius, space, stroke, text } from '../../theme/tokens';
+import { color, font, isFashionable, radius, space, stroke, text } from '../../theme/tokens';
 
 const clock = (iso: string) =>
   new Date(iso).toLocaleTimeString(getLanguage() === 'de' ? 'de-DE' : undefined, { hour: '2-digit', minute: '2-digit' });
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     gap: space[12],
     padding: space[8],
     borderRadius: radius.lg,
-    ...(isInstagram
+    ...(isFashionable
       ? { borderWidth: stroke.thin, borderColor: color.line.hairline }
       : { backgroundColor: color.bg.surface }),
   },

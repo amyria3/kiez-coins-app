@@ -9,7 +9,7 @@ import { t } from '../data/texts';
 import type { ImageSource } from '../data/types';
 import { shareText } from '../lib/share';
 import { useAppDimensions } from '../theme/layout';
-import { color, font, isInstagram, motion, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isFashionable, motion, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import type { ChallengePostProps } from './ChallengePost';
 import { Icon } from './icons/Icon';
@@ -129,7 +129,7 @@ function Tag({ label }: { label: string }) {
 
 /** Feed-Karte eines Vorher-Nachher-Beitrags in beiden Looks */
 export function BeforeAfterPost(props: ChallengePostProps) {
-  return isInstagram ? <InstaBeforeAfter {...props} /> : <KiezBeforeAfter {...props} />;
+  return isFashionable ? <FashionBeforeAfter {...props} /> : <KiezBeforeAfter {...props} />;
 }
 
 function useParts({ challenge }: ChallengePostProps) {
@@ -144,9 +144,9 @@ function useParts({ challenge }: ChallengePostProps) {
 
 function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: ChallengePostProps & { end?: ReactNode }) {
   const commentCount = challenge.comments.length;
-  const countStyle = isInstagram ? styles.countInsta : styles.count;
+  const countStyle = isFashionable ? styles.countInsta : styles.count;
   return (
-    <View style={isInstagram ? styles.actionsInsta : styles.actions}>
+    <View style={isFashionable ? styles.actionsInsta : styles.actions}>
       <Pressable
         accessibilityRole="button"
         accessibilityState={{ selected: !!challenge.likedByMe }}
@@ -174,7 +174,7 @@ function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: 
       />
       <View style={styles.flex} />
       {end}
-      {onManage && !isInstagram ? (
+      {onManage && !isFashionable ? (
         <IconButton icon="settings" iconSize={size.icon} accessibilityLabel={t('Deine Challenges verwalten')} onPress={onManage} />
       ) : null}
     </View>
@@ -231,7 +231,7 @@ function KiezBeforeAfter(props: ChallengePostProps) {
 }
 
 /** Look „Fashionable“: Kopfzeile, Bildpaar über die ganze Breite im Hochformat 4:5, Text mit fettem Titel */
-function InstaBeforeAfter(props: ChallengePostProps) {
+function FashionBeforeAfter(props: ChallengePostProps) {
   const { challenge, author, distance, onPress, onManage } = props;
   const { before, after, duration } = useParts(props);
   const hideName = useHideName(author);
@@ -304,16 +304,16 @@ const styles = StyleSheet.create({
     left: space[12],
     paddingVertical: space[4],
     paddingHorizontal: space[8],
-    borderRadius: isInstagram ? radius.sm : radius.full,
+    borderRadius: isFashionable ? radius.sm : radius.full,
     overflow: 'hidden',
     backgroundColor: 'rgba(31, 33, 35, 0.35)',
   },
   tagText: {
-    fontFamily: isInstagram ? font.semiBold : font.medium,
+    fontFamily: isFashionable ? font.semiBold : font.medium,
     fontSize: 11,
     lineHeight: 14,
-    letterSpacing: isInstagram ? 0.6 : 0.4,
-    textTransform: isInstagram ? 'uppercase' : 'none',
+    letterSpacing: isFashionable ? 0.6 : 0.4,
+    textTransform: isFashionable ? 'uppercase' : 'none',
     color: color.text.onPhoto,
   },
   // Dauer an der Naht, rechts, halb über beiden Fotos
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     gap: space[6],
     paddingLeft: space[8],
     paddingRight: space[12],
-    borderRadius: isInstagram ? radius.sm : radius.full,
+    borderRadius: isFashionable ? radius.sm : radius.full,
     backgroundColor: color.bg.screen,
     zIndex: 2,
   },

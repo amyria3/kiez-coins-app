@@ -4,8 +4,8 @@ import { Text } from './T';
 import { formatBountyShort, formatRemainingShort } from '../data/format';
 import { Icon } from './icons/Icon';
 import type { ChallengeStatus } from '../data/types';
-import { useIconPt } from './icons/instagramSvgs';
-import { color, font, isInstagram, radius, space, stroke, text } from '../theme/tokens';
+import { useIconPt } from './icons/fashionableSvgs';
+import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
 import { CoinsIcon } from './icons/Brand';
 import { t } from '../data/texts';
 
@@ -72,7 +72,7 @@ export function BountyBadge({ amount, small }: { amount: number; small?: boolean
   const iconPt = useIconPt();
   return (
     <View style={styles.bounty} accessible accessibilityLabel={t('Coins: {amount} Euro', { amount })}>
-      <CoinsIcon height={isInstagram ? iconPt : small ? 22 : 26} />
+      <CoinsIcon height={isFashionable ? iconPt : small ? 22 : 26} />
       <Text style={[styles.bountyText, small ? styles.bountyTextSmall : null]}>{formatBountyShort(amount)}</Text>
     </View>
   );
@@ -86,10 +86,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   deadline: { flexDirection: 'row', alignItems: 'center', gap: space[6], alignSelf: 'flex-start' },
-  bounty: { flexDirection: 'row', alignItems: 'center', gap: isInstagram ? space[4] : space[6] },
-  // Fashionable Look: Betrag halbfett in Textfarbe wie Instagrams Zahlen
-  bountyText: isInstagram
+  bounty: { flexDirection: 'row', alignItems: 'center', gap: isFashionable ? space[4] : space[6] },
+  // Fashionable Look: Betrag halbfett in Textfarbe wie die Zahlen großer Foto-Apps
+  bountyText: isFashionable
     ? { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] }
     : { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.signal },
-  bountyTextSmall: isInstagram ? { fontSize: 14, lineHeight: 18 } : { fontSize: 16, lineHeight: 20 },
+  bountyTextSmall: isFashionable ? { fontSize: 14, lineHeight: 18 } : { fontSize: 16, lineHeight: 20 },
 });

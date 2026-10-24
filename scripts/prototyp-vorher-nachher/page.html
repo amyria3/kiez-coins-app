@@ -37,7 +37,7 @@ body { background: var(--page); color: var(--page-ink); font-family: var(--f-ui)
 
 /* App-Tokens je Look */
 .look-kiez { --bg: #1F2123; --surface: #2B2D31; --tx: #F0F0F0; --tx2: #A0A0A0; --accent: #7E94FF; --signal: #FFAD7E; --ok: #93F4A7; --onAccent: #1F2123; --glass: rgba(31,33,35,.82); --line: rgba(240,240,240,.12); --r-card: 28px; --r-md: 12px; --r-lg: 18px; --chipBg: rgba(31,33,35,.45); }
-.look-instagram { --bg: #FFFFFF; --surface: #EFEFEF; --tx: #000000; --tx2: #737373; --accent: #0095F6; --signal: #00376B; --ok: #2FA84F; --onAccent: #FFFFFF; --glass: rgba(255,255,255,.96); --line: #DBDBDB; --r-card: 6px; --r-md: 8px; --r-lg: 10px; --chipBg: rgba(0,0,0,.55); }
+.look-fashionable { --bg: #FFFFFF; --surface: #EFEFEF; --tx: #000000; --tx2: #737373; --accent: #0095F6; --signal: #00376B; --ok: #2FA84F; --onAccent: #FFFFFF; --glass: rgba(255,255,255,.96); --line: #DBDBDB; --r-card: 6px; --r-md: 8px; --r-lg: 10px; --chipBg: rgba(0,0,0,.55); }
 
 .ic { display: inline-flex; align-items: center; justify-content: center; color: currentColor; flex: 0 0 auto; }
 .ic svg { height: 100%; width: auto; display: block; }
@@ -61,17 +61,17 @@ body { background: var(--page); color: var(--page-ink); font-family: var(--f-ui)
 .running .l1 { font: 500 14px/18px var(--f-ui); }
 .running .l2 { font: 400 12px/16px var(--f-ui); color: var(--tx2); white-space: nowrap; }
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--signal) 55%, transparent) } 70%,100% { box-shadow: 0 0 0 8px transparent } }
-.look-instagram .feedhead { flex-direction: row; align-items: center; justify-content: space-between; padding: 4px 12px 8px 14px; }
-.look-instagram .greet { font: 600 24px/28px var(--f-display); letter-spacing: -.4px; }
-.look-instagram .feedsub { display: none; }
-.look-instagram .running { margin: 0 0 4px; width: 100%; border-radius: 0; background: none; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 8px 12px; }
-.look-instagram .running .l1 { font-weight: 600; }
-.look-instagram .running .thumb .prg { stroke: var(--accent); }
+.look-fashionable .feedhead { flex-direction: row; align-items: center; justify-content: space-between; padding: 4px 12px 8px 14px; }
+.look-fashionable .greet { font: 600 24px/28px var(--f-display); letter-spacing: -.4px; }
+.look-fashionable .feedsub { display: none; }
+.look-fashionable .running { margin: 0 0 4px; width: 100%; border-radius: 0; background: none; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 8px 12px; }
+.look-fashionable .running .l1 { font-weight: 600; }
+.look-fashionable .running .thumb .prg { stroke: var(--accent); }
 .headicons { display: flex; gap: 18px; }
 
 .post { display: flex; flex-direction: column; }
 .look-kiez .post { padding: 0 16px 22px; }
-.look-instagram .post { padding-bottom: 18px; }
+.look-fashionable .post { padding-bottom: 18px; }
 .ihead { display: flex; align-items: center; gap: 10px; height: 54px; padding: 0 12px; }
 .av { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #7E94FF, #FFB2E5); color: #1F2123; display: flex; align-items: center; justify-content: center; font: 600 13px/1 var(--f-ui); flex: 0 0 auto; }
 .ihead .nm { font: 600 14px/18px var(--f-ui); }
@@ -86,9 +86,9 @@ body { background: var(--page); color: var(--page-ink); font-family: var(--f-ui)
 .ba[data-state="after"] .half.before img { filter: saturate(.5) brightness(.85); }
 .ba[data-state="before"] .half.after img { filter: saturate(.6) brightness(.85); }
 .chip { position: absolute; left: 12px; top: 12px; padding: 4px 10px; border-radius: 999px; font: 500 11px/14px var(--f-ui); letter-spacing: .4px; color: #F0F0F0; background: var(--chipBg); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
-.look-instagram .chip { border-radius: 4px; text-transform: uppercase; font-weight: 600; letter-spacing: .6px; }
+.look-fashionable .chip { border-radius: 4px; text-transform: uppercase; font-weight: 600; letter-spacing: .6px; }
 .dur { position: absolute; right: 12px; z-index: 2; transform: translateY(-50%); display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px 5px 8px; border-radius: 999px; font: 500 12px/14px var(--f-ui); color: var(--tx); background: var(--bg); transition: top 560ms var(--barrier); box-shadow: 0 0 0 2px var(--bg); }
-.look-instagram .dur { border-radius: 4px; }
+.look-fashionable .dur { border-radius: 4px; }
 .seam { position: absolute; left: 0; right: 0; height: 2px; background: var(--bg); z-index: 1; transform: translateY(-1px); transition: top 560ms var(--barrier); }
 .info { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 2; border-radius: 18px; padding: 10px 14px 11px; background: rgba(31,33,35,.45); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); color: #F0F0F0; transition: opacity 300ms ease, transform 560ms var(--barrier); }
 .ba[data-state="before"] .info { opacity: 0; transform: translateY(16px); pointer-events: none; }
@@ -96,22 +96,22 @@ body { background: var(--page); color: var(--page-ink); font-family: var(--f-ui)
 .info .m { font: 300 13px/17px var(--f-ui); color: #D0D0D0; margin-top: 2px; }
 .acts { display: flex; align-items: center; gap: 4px; height: 44px; }
 .look-kiez .acts { padding: 0 2px; }
-.look-instagram .acts { padding: 0 6px; }
+.look-fashionable .acts { padding: 0 6px; }
 .act { display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 8px; font: 600 14px/20px var(--f-ui); }
 .acts .sp { margin-left: auto; }
 .body { font: 300 14px/19px var(--f-ui); }
 .look-kiez .body { padding: 0 4px; }
-.look-instagram .body { padding: 0 12px; font-weight: 400; display: flex; flex-direction: column; gap: 4px; }
+.look-fashionable .body { padding: 0 12px; font-weight: 400; display: flex; flex-direction: column; gap: 4px; }
 .body .tag { color: var(--signal); font-weight: 500; }
-.look-instagram .body .tag { font-weight: 600; }
+.look-fashionable .body .tag { font-weight: 600; }
 .body .tt { font-weight: 600; }
 .body .time { font: 400 11px/16px var(--f-ui); color: var(--tx2); }
 .plaincard { height: 360px; border-radius: var(--r-card); overflow: hidden; position: relative; }
 .plaincard img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.look-instagram .plaincard { height: auto; aspect-ratio: 4 / 5; border-radius: 0; }
+.look-fashionable .plaincard { height: auto; aspect-ratio: 4 / 5; border-radius: 0; }
 
 .tabbar { position: absolute; left: 0; right: 0; bottom: 0; height: 78px; display: flex; justify-content: space-around; align-items: flex-start; padding-top: 14px; background: var(--glass); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); z-index: 4; }
-.look-instagram .tabbar { border-top: 1px solid var(--line); height: 72px; padding-top: 12px; }
+.look-fashionable .tabbar { border-top: 1px solid var(--line); height: 72px; padding-top: 12px; }
 .tabbar .ic { opacity: .55; }
 .tabbar .ic.on { opacity: 1; }
 .homebar { position: absolute; left: 50%; bottom: 8px; width: 120px; height: 4px; margin-left: -60px; border-radius: 4px; background: var(--tx); opacity: .85; z-index: 5; }
@@ -131,13 +131,13 @@ body { background: var(--page); color: var(--page-ink); font-family: var(--f-ui)
 .look-kiez .seg { background: var(--surface); border-radius: 999px; padding: 3px; }
 .look-kiez .seg .ind { top: 3px; bottom: 3px; left: 3px; width: calc((100% - 6px) / 3); border-radius: 999px; background: color-mix(in srgb, var(--accent) 18%, var(--surface)); }
 .look-kiez .seg button[aria-selected="true"] { color: var(--accent); font-weight: 500; }
-.look-instagram .seg { border-bottom: 1px solid var(--line); }
-.look-instagram .seg button { font-weight: 600; font-size: 12px; letter-spacing: .5px; text-transform: uppercase; padding: 12px 2px 11px; }
-.look-instagram .seg .ind { bottom: -1px; left: 0; width: calc(100% / 3); height: 1.5px; background: var(--tx); }
+.look-fashionable .seg { border-bottom: 1px solid var(--line); }
+.look-fashionable .seg button { font-weight: 600; font-size: 12px; letter-spacing: .5px; text-transform: uppercase; padding: 12px 2px 11px; }
+.look-fashionable .seg .ind { bottom: -1px; left: 0; width: calc(100% / 3); height: 1.5px; background: var(--tx); }
 .hint { display: flex; gap: 10px; align-items: flex-start; font: 300 14px/19px var(--f-ui); color: var(--tx2); }
 .hint .kat { width: 30px; flex: 0 0 auto; }
 .hint .kat svg { width: 100%; height: auto; display: block; }
-.look-instagram .hint { font-weight: 400; font-size: 13px; }
+.look-fashionable .hint { font-weight: 400; font-size: 13px; }
 .aud { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; font: 400 13px/16px var(--f-ui); color: var(--tx); border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; background: none; }
 .aud .chev { width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translate(-2px, -2px); opacity: .7; }
 .steps { display: flex; align-items: center; gap: 8px; font: 400 12px/16px var(--f-ui); color: var(--tx2); }
@@ -155,17 +155,17 @@ body { background: var(--page); color: var(--page-ink); font-family: var(--f-ui)
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field label { font: 400 13px/16px var(--f-ui); color: var(--tx2); }
 .box { border-radius: var(--r-md); background: var(--surface); padding: 12px 14px; font: 300 15px/20px var(--f-ui); min-height: 70px; }
-.look-instagram .box { background: none; border: 1px solid var(--line); font-weight: 400; }
+.look-fashionable .box { background: none; border: 1px solid var(--line); font-weight: 400; }
 .box .pre { color: var(--signal); font-weight: 500; }
-.look-instagram .box .pre { font-weight: 600; }
+.look-fashionable .box .pre { font-weight: 600; }
 .box.one { min-height: 0; }
 .help { font: 400 11px/16px var(--f-ui); color: var(--tx2); display: flex; justify-content: space-between; gap: 8px; }
 .cta { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 16px 30px; display: flex; flex-direction: column; gap: 4px; background: linear-gradient(to top, var(--bg) 70%, transparent); z-index: 4; }
 .btn { height: 50px; border-radius: 999px; border: 0; font: 500 16px/20px var(--f-ui); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .btn.pri { background: var(--accent); color: var(--onAccent); }
 .btn.gho { background: none; color: var(--tx); font-weight: 400; height: 44px; }
-.look-instagram .btn { border-radius: 8px; font-weight: 600; font-size: 14px; height: 44px; }
-.look-instagram .btn.gho { font-weight: 600; color: var(--accent); }
+.look-fashionable .btn { border-radius: 8px; font-weight: 600; font-size: 14px; height: 44px; }
+.look-fashionable .btn.gho { font-weight: 600; color: var(--accent); }
 
 /* Timer */
 .ring { position: relative; width: 236px; height: 236px; align-self: center; margin: 4px 0 2px; }
@@ -176,21 +176,21 @@ body { background: var(--page); color: var(--page-ink); font-family: var(--f-ui)
 .ring .big { font: 600 44px/48px var(--f-display); letter-spacing: -1px; }
 .ring .of { font: 400 12px/16px var(--f-ui); color: var(--tx2); }
 .mini { display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: var(--r-lg); background: var(--surface); }
-.look-instagram .mini { background: none; border: 1px solid var(--line); }
+.look-fashionable .mini { background: none; border: 1px solid var(--line); }
 .mini img { width: 56px; height: 56px; object-fit: cover; border-radius: var(--r-md); flex: 0 0 auto; }
 .mini .t { font: 500 15px/19px var(--f-ui); }
 .mini .s { font: 400 12px/16px var(--f-ui); color: var(--tx2); }
 .note { font: 300 13px/18px var(--f-ui); color: var(--tx2); }
-.look-instagram .note { font-weight: 400; }
+.look-fashionable .note { font-weight: 400; }
 .bubble { position: relative; background: var(--surface); border-radius: 16px 16px 16px 4px; padding: 10px 14px; font: 300 14px/19px var(--f-ui); color: var(--tx); }
-.look-instagram .bubble { font-weight: 400; }
+.look-fashionable .bubble { font-weight: 400; }
 .katrow { display: flex; gap: 10px; align-items: flex-end; }
 .katrow .kat { width: 40px; flex: 0 0 auto; }
 .katrow .kat svg { width: 100%; height: auto; display: block; }
 .durrow { display: flex; align-items: center; gap: 8px; font: 400 13px/18px var(--f-ui); color: var(--tx2); }
 .durrow b { color: var(--tx); font-weight: 500; }
 .preview { border-left: 2px solid var(--line); padding: 2px 0 2px 12px; font: 300 14px/19px var(--f-ui); display: flex; flex-direction: column; gap: 6px; }
-.look-instagram .preview { font-weight: 400; }
+.look-fashionable .preview { font-weight: 400; }
 .preview .tag { color: var(--signal); font-weight: 500; }
 
 @media (prefers-reduced-motion: reduce) { .ba, .half, .dur, .seam, .info, .seg .ind { transition-duration: 1ms !important; } .running .thumb .prg { transition: none; } }
@@ -205,7 +205,7 @@ body { background: var(--page); color: var(--page-ink); font-family: var(--f-ui)
     </div>
     <div class="lookswitch" role="group" aria-label="Look">
       <button type="button" id="look-kiez" data-look="kiez" aria-pressed="true">Kiez</button>
-      <button type="button" id="look-instagram" data-look="instagram" aria-pressed="false">Instagram</button>
+      <button type="button" id="look-fashionable" data-look="fashionable" aria-pressed="false">Fashionable</button>
     </div>
   </div>
   <div class="rail" id="rail"></div>
@@ -214,7 +214,7 @@ body { background: var(--page); color: var(--page-ink); font-family: var(--f-ui)
 <script>
 /*DATA*/
 let LOOK = 'kiez';
-try { const s = localStorage.getItem('vn-look'); if (s === 'kiez' || s === 'instagram') LOOK = s; } catch (e) {}
+try { const s = localStorage.getItem('vn-look'); if (s === 'kiez' || s === 'fashionable') LOOK = s; } catch (e) {}
 const STATE = { type: 'ba', timer: 'run', posts: {} };
 
 // Beispiel: Timer seit 1:23:45 h
@@ -231,7 +231,7 @@ const dayClock = (t) => new Date(t).toLocaleDateString('de-DE', { weekday: 'long
 function ic(name, size) {
   const set = ICONS[LOOK][name] || ICONS.kiez[name];
   if (!set) return '';
-  const h = LOOK === 'instagram' && ICONS.instagram[name] && set.w === 24 ? 24 : size;
+  const h = LOOK === 'fashionable' && ICONS.fashionable[name] && set.w === 24 ? 24 : size;
   return `<span class="ic" style="height:${h}px" aria-hidden="true">${set.svg}</span>`;
 }
 const sb = () => `<div class="sb"><span>9:41</span><i></i></div>`;
@@ -242,10 +242,10 @@ const TEXT_NACHHER = 'Zwei Beete aus alten Paletten, Erde vom Gemeinschaftsgarte
 const TITLE = 'Hochbeet aus Paletten';
 
 function baPost(id) {
-  const insta = LOOK === 'instagram';
-  const head = insta ? `<div class="ihead"><div class="av">D</div><div><div class="nm">daria</div><div class="pl">Plagwitz · 300 m</div></div><span class="sp" style="margin-left:auto">${ic('settings', 20)}</span></div>` : '';
-  const info = insta ? '' : `<div class="info"><div class="t">${TITLE}</div><div class="m">Daria · 300 m · vor 3 Std.</div></div>`;
-  const body = insta
+  const fashion = LOOK === 'fashionable';
+  const head = fashion ? `<div class="ihead"><div class="av">D</div><div><div class="nm">daria</div><div class="pl">Plagwitz · 300 m</div></div><span class="sp" style="margin-left:auto">${ic('settings', 20)}</span></div>` : '';
+  const info = fashion ? '' : `<div class="info"><div class="t">${TITLE}</div><div class="m">Daria · 300 m · vor 3 Std.</div></div>`;
+  const body = fashion
     ? `<div class="body"><div><span class="tt">${TITLE}</span> <span class="tag">#vorher</span> ${TEXT_VORHER} <span class="tag">#nachher</span> ${TEXT_NACHHER}</div><div class="time">vor 3 Std. · in 2 h 14 min geschafft</div></div>`
     : `<div class="body"><span class="tag">#vorher</span> ${TEXT_VORHER} <span class="tag">#nachher</span> ${TEXT_NACHHER}</div>`;
   return `<article class="post">${head}
@@ -256,22 +256,22 @@ function baPost(id) {
       <span class="dur tnum">${ic('clock', 14)}2 h 14 min</span>
       ${info}
     </div>
-    <div class="acts"><span class="act">${ic('heart', 20)}12</span><span class="act">${ic('comment', 20)}3</span><span class="act">${ic('send', 20)}</span>${insta ? '' : `<span class="act sp">${ic('settings', 20)}</span>`}</div>
+    <div class="acts"><span class="act">${ic('heart', 20)}12</span><span class="act">${ic('comment', 20)}3</span><span class="act">${ic('send', 20)}</span>${fashion ? '' : `<span class="act sp">${ic('settings', 20)}</span>`}</div>
     ${body}
   </article>`;
 }
 
 function plainPost() {
-  const insta = LOOK === 'instagram';
-  return `<article class="post">${insta ? `<div class="ihead"><div class="av" style="background:linear-gradient(135deg,#93F4A7,#7E94FF)">M</div><div><div class="nm">mira</div><div class="pl">Lindenau · 1,2 km</div></div></div>` : ''}
+  const fashion = LOOK === 'fashionable';
+  return `<article class="post">${fashion ? `<div class="ihead"><div class="av" style="background:linear-gradient(135deg,#93F4A7,#7E94FF)">M</div><div><div class="nm">mira</div><div class="pl">Lindenau · 1,2 km</div></div></div>` : ''}
     <div class="plaincard"><img src="${PHOTOS.igel}" alt="Igel im Gras"></div>
     <div class="acts"><span class="act">${ic('heart', 20)}8</span><span class="act">${ic('comment', 20)}</span><span class="act">${ic('send', 20)}</span></div>
   </article>`;
 }
 
 function feed() {
-  const insta = LOOK === 'instagram';
-  const head = insta
+  const fashion = LOOK === 'fashionable';
+  const head = fashion
     ? `<div class="feedhead"><div class="greet">Kiez Coins</div><div class="headicons">${ic('heart', 22)}${ic('message', 22)}</div></div>`
     : `<div class="feedhead"><div class="greet">Moin, Daria</div><div class="feedsub">Plagwitz · 4 Beiträge in Deiner Nähe</div></div>`;
   return `<div class="screen"><div class="scroll">${sb()}${head}
@@ -352,9 +352,9 @@ const SLOTS = [
 ];
 
 function layoutBA(el) {
-  const insta = LOOK === 'instagram';
+  const fashion = LOOK === 'fashionable';
   const w = el.clientWidth;
-  const H = insta ? w * 5 / 4 : 360;
+  const H = fashion ? w * 5 / 4 : 360;
   const st = el.dataset.state;
   const total = st === 'rest' ? H : H * 1.25;
   const hb = st === 'rest' ? total / 3 : st === 'before' ? total * 5 / 6 : total / 6;
