@@ -9,6 +9,14 @@ Daria hat diese Punkte am Rand des Ausdrucks notiert (Nummern aus `Übergabe/202
 ## Standort und Kiez
 
 - [ ] **Standort nur für We-Challenges Pflicht** (S-038, S-055). Ohne Kiez darf man lesen, Bilder und Me-Challenges posten (Bilder: Daria, 24.10.2026). Heute verlangt `useRequireKiez()` den Kiez für jedes Posten aus dem Feed (`src/app/feed.tsx`) und unter „Deine Challenges“ (`src/app/manage.tsx`). Für We-Challenges ist die Freigabe des Standorts Pflicht. Betrifft `src/app/onboarding/kiez.tsx`, `requireKiez()` und die Sperren beim Erstellen und Annehmen. Der Hinweis S-055 sagt das schon.
+  - Pflichtaufgabe: Migration. Die Datenbank prüft den Kiez über `public.is_active_member()` (`profiles.kiez is not null`, Datei `20261019000100_tables.sql`). Diese Stellen sperren heute Bilder und Me-Challenges ohne Kiez:
+    - Regel „Challenge erstellen“ auf `challenges` (zuletzt `20261021000100_groups.sql`, Zeile 118 ff.): jeder neue Kiez-Post, auch Entwürfe, aus denen ein Bild wird.
+    - `start_before_after` (`20261023000300_before_after.sql`): Me-Challenge im Kiez.
+    - `restore_challenge` (`20261021000200_soft_delete_challenge.sql`): gelöschten Post wieder veröffentlichen.
+    - Regeln „Kommentar schreiben“ und „Liken“ (`20261021000200_soft_delete_challenge.sql`): Ohne Kiez darf man unter Kiez-Posts weder kommentieren noch liken.
+  - Vorschlag: neue Funktion `public.is_member()` (wie `is_active_member()`, ohne die Kiez-Bedingung). Bilder (`type = 'photo'`) und Me-Challenges (`type = 'before_after'`) prüfen `is_member()`, We-Challenges (`type = 'individual'`) und `accept_challenge` weiter `is_active_member()`. Achtung: Ein Bild entsteht als Entwurf vom Typ `individual` und wechselt den Typ per Update (`grant update (type)` in `20261022000100_photo_posts.sql`). Die Regel muss deshalb auch den Typwechsel abdecken, sonst wird aus einem Bild-Entwurf eine We-Challenge ohne Kiez.
+  - Offene Frage an Daria: Wo erscheint ein Bild von jemandem ohne Kiez? Ohne Ort trägt die Datenbank heute „Kiez“ ein (`publish_before_after_row`), der Feed „In der Nähe“ hat für diese Posts keinen Kiez.
+  - Offene Frage an Daria: Dürfen Personen ohne Kiez kommentieren und liken?
 - [ ] **Testphase: Pflicht zu PLZ und Lokalisierung aussetzen** (Notiz über S-054). Offene Frage an Daria: Gilt das für alle oder nur für Testerinnen? Widerspricht dem Hilfetext S-054 („Die Postleitzahl ist notwendig“), den sie gleichzeitig so korrigiert hat.
 - [ ] **Kiez von Hand muss in der Nähe des Pins liegen**, mit Fehlertoleranz (S-041 „Stimmt nicht, von Hand eingeben“). Offene Frage: welche Toleranz (z. B. Nachbarbezirk, 2 km)?
 - [ ] **Angaben über eine Person: nur Stadtteil, Straße auf Wunsch** (Notiz über E-036/E-037). Der Ortsvorschlag beim Erstellen (`src/app/challenge/create/step-2.tsx`, `place.street ?? place.kiez`) soll standardmäßig nur den Stadtteil eintragen, die Straße nur auf Wunsch.
