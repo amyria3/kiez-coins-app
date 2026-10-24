@@ -5,7 +5,8 @@ import { Text } from './T';
 
 import type { KaterAktion, KaterSpruch } from '../data/kater';
 import { t } from '../data/texts';
-import { color, font, motion, radius, space } from '../theme/tokens';
+import { color, font, isInstagram, motion, radius, space } from '../theme/tokens';
+import { MonoCat } from './icons/Brand';
 
 // Ebenen aus Darias SVG (assets/illustrations/kater.svg), alle auf derselben Fläche 651 × 812
 const KOERPER = require('../../assets/kater/koerper.png');
@@ -135,6 +136,13 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
             { transformOrigin: [width / 2, height, 0], transform: [{ scaleY: atem.interpolate({ inputRange: [0, 1], outputRange: [1, 1.012] }) }] },
           ]}
         >
+          {/* Instagram-Look: der monochrome Kater statt der Zeichnung mit Besen (Daria, 24.10.2026), er atmet weiter */}
+          {isInstagram ? (
+            <View style={[layer, styles.monoWrap]}>
+              <MonoCat height={width * 0.6} />
+            </View>
+          ) : (
+            <>
           <Image source={KOERPER} style={layer} contentFit="contain" />
           <Animated.View
             style={[
@@ -159,6 +167,8 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
           <Animated.View style={[layer, { transform: [{ translateY: Animated.multiply(brilleY, s) }] }]}>
             <Image source={BRILLE} style={flaeche} contentFit="contain" />
           </Animated.View>
+            </>
+          )}
         </Animated.View>
       </Pressable>
     </View>
@@ -166,6 +176,7 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
 });
 
 const styles = StyleSheet.create({
+  monoWrap: { alignItems: 'center', justifyContent: 'flex-end' },
   wrap: { alignItems: 'center', gap: space[12] },
   bubble: {
     maxWidth: 320,
