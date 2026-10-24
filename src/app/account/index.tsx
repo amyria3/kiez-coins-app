@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 
 import { FieldGroup, KaterBubble } from '../../components/Content';
 import { CrownIcon } from '../../components/icons/Brand';
-import { Icon } from '../../components/icons/Icon';
+import { FaIcon, Icon } from '../../components/icons/Icon';
 import { Avatar } from '../../components/AuthorRow';
 import { NavCard, NavRow, ProfileCard } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
@@ -32,7 +32,10 @@ export default function Account() {
   const [friendRequests, setFriendRequests] = useState(0);
   useEffect(() => {
     if (mode !== 'live') return;
-    loadFriends(me.id).then((l) => setFriendRequests(l?.incoming.length ?? 0), () => {});
+    loadFriends(me.id).then(
+      (l) => setFriendRequests(l?.incoming.length ?? 0),
+      () => {},
+    );
   }, [mode, me.id]);
   const languageName = getLanguageChoice() === 'auto' ? t('Wie das Handy') : languages.find((l) => l.code === getLanguage())?.name;
   useEffect(() => {
@@ -49,9 +52,7 @@ export default function Account() {
 
   return (
     <SubScreen title="Dein Konto" navigation="back" onLeadingPress={goBack}>
-      <KaterBubble>
-        {t('Ahoi, {anrede}! Hier trimmst Du Dein Schiff. Tipp einfach auf das, was Du ändern willst.', { anrede: anrede(profile) })}
-      </KaterBubble>
+      <KaterBubble>{t('Ahoi, {anrede}! Hier trimmst Du Dein Schiff. Tipp einfach auf das, was Du ändern willst.', { anrede: anrede(profile) })}</KaterBubble>
       <ProfileCard
         user={me}
         name={profile.handle || me.name}
@@ -77,24 +78,59 @@ export default function Account() {
         leading={<Icon name="behausung" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/gruppen')}
       />
-      <FieldGroup label="Einstellungen">
-        <View style={styles.list}>
-          <NavRow
-            label="Freundschaften"
-            value={friendRequests ? t('{n, plural, one {# Anfrage} other {# Anfragen}}', { n: friendRequests }) : undefined}
+      {/* Instagram-Look: Freundschaften, Sprache und Look als große Karten (Daria, 24.10.2026) */}
+      {isInstagram ? (
+        <>
+          <NavCard
+            title="Freundschaften"
+            description={
+              friendRequests
+                ? t('{n, plural, one {# Anfrage} other {# Anfragen}}', {
+                    n: friendRequests,
+                  })
+                : 'Freund:innen und Anfragen'
+            }
+            leading={<FaIcon name="friends" size={size.icon} />}
             onPress={() => router.push('/account/freunde')}
           />
+          <NavCard
+            title="Sprache"
+            description={languageName}
+            leading={<FaIcon name="language" size={size.icon} />}
+            onPress={() => router.push('/account/sprache')}
+          />
+          {lookSelectable ? (
+            <NavCard
+              title="Look"
+              description={looks.find((l) => l.code === look)?.name}
+              leading={<FaIcon name="look" size={size.icon} />}
+              onPress={() => router.push('/account/look')}
+            />
+          ) : null}
+        </>
+      ) : null}
+      <FieldGroup label="Einstellungen">
+        <View style={styles.list}>
+          {isInstagram ? null : (
+            <NavRow
+              label="Freundschaften"
+              value={
+                friendRequests
+                  ? t('{n, plural, one {# Anfrage} other {# Anfragen}}', {
+                      n: friendRequests,
+                    })
+                  : undefined
+              }
+              onPress={() => router.push('/account/freunde')}
+            />
+          )}
           <NavRow label="So geht Kiez Coins" value="Kurze Videos" onPress={() => router.push('/tour')} />
           <NavRow label="Dem Kater Hallo sagen" value="Sprüche" onPress={() => router.push('/kater')} />
-          <NavRow label="Sprache" value={languageName} onPress={() => router.push('/account/sprache')} />
-          {lookSelectable ? (
+          {isInstagram ? null : <NavRow label="Sprache" value={languageName} onPress={() => router.push('/account/sprache')} />}
+          {lookSelectable && !isInstagram ? (
             <NavRow label="Look" value={looks.find((l) => l.code === look)?.name} onPress={() => router.push('/account/look')} />
           ) : null}
-          <NavRow
-            label="Benachrichtigungen"
-            value={profile.push ? 'Push an' : 'Push aus'}
-            onPress={() => router.push('/settings/notifications')}
-          />
+          <NavRow label="Benachrichtigungen" value={profile.push ? 'Push an' : 'Push aus'} onPress={() => router.push('/settings/notifications')} />
           <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/settings/payout')} />
           <NavRow label="Umfrage" value="5 Fragen zur App" onPress={() => setSurvey(true)} />
           <NavRow label="Support" value="Frage oder Problem" onPress={() => router.push('/account/support')} />

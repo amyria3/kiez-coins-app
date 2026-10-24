@@ -15,19 +15,17 @@ import { color, font, radius, space, stroke } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
 import { Cat } from './icons/Brand';
 import { Icon } from './icons/Icon';
-import { PEOPLE, line, strokeFor, useIconPt } from './icons/instagramSvgs';
+import { FA, faXml, useIconPt } from './icons/instagramSvgs';
 import { TAB_BAR_SPACE, TabBar } from './TabBar';
 import { Text } from './T';
 import { useGoBack } from '../lib/goBack';
 
 type GridTab = 'created' | 'accepted' | 'groups';
 
-const GRID = `<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M9.2 3.5v17M14.8 3.5v17M3.5 9.2h17M3.5 14.8h17"/>`;
-const HAND = `<circle cx="12" cy="12" r="8.5"/><path d="m8.2 12.3 2.6 2.6 5-5.2"/>`;
-const GRID_TABS: { key: GridTab; label: string; svg: string }[] = [
-  { key: 'created', label: 'Erstellt', svg: GRID },
-  { key: 'accepted', label: 'Angenommen', svg: HAND },
-  { key: 'groups', label: 'Gruppenaufgaben', svg: PEOPLE },
+const GRID_TABS: { key: GridTab; label: string; icon: (typeof FA)[keyof typeof FA] }[] = [
+  { key: 'created', label: 'Erstellt', icon: FA.created },
+  { key: 'accepted', label: 'Angenommen', icon: FA.accepted },
+  { key: 'groups', label: 'Gruppenaufgaben', icon: FA.groups },
 ];
 
 /**
@@ -192,7 +190,7 @@ export function InstaProfile() {
                 onPress={() => setTab(g.key)}
                 style={[styles.gridTab, on && styles.gridTabOn]}
               >
-                <SvgXml xml={line(on ? color.text.primary : color.text.secondary, g.svg, strokeFor(ICON_PT))} width={ICON_PT} height={ICON_PT} />
+                <SvgXml xml={faXml(g.icon, on ? color.text.primary : color.text.secondary)} width={ICON_PT} height={ICON_PT} />
               </Pressable>
             );
           })}
