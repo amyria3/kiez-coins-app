@@ -56,7 +56,7 @@ export function Avatar({ user, diameter }: { user: User; diameter?: number }) {
   const d = diameter ?? size.avatar;
   return (
     <View style={[styles.avatar, styles.fallback, isInstagram && styles.fallbackInsta, sizeStyle]}>
-      {/* Instagram-Look: Verlauf wie im Mockup, 135° von Kiez-Lila #7E94FF nach Rosa #FFB2E5 (Daria, 24.10.2026) */}
+      {/* Fashionable Look: Verlauf wie im Mockup, 135° von Kiez-Lila #7E94FF nach Rosa #FFB2E5 (Daria, 24.10.2026) */}
       {isInstagram ? (
         <SvgXml
           xml={AVATAR_GRADIENT}

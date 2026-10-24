@@ -234,7 +234,7 @@ function KiezPost({
 }
 
 /**
- * Look „Instagram“ (Daria, 2026-10-23): Kopfzeile mit Bild, Name und Kiez über dem Foto, Foto quadratisch über die
+ * Look „Fashionable“ (Daria, 2026-10-23): Kopfzeile mit Bild, Name und Kiez über dem Foto, Foto quadratisch über die
  * ganze Breite, darunter Herz, Sprechblase, Teilen und der Text mit fettem Titel vorn. Ein Tipp aufs Foto öffnet den Post.
  */
 function InstaPost({ challenge, author, distance, onPress, onCommentPress, onLike, onManage }: ChallengePostProps) {
@@ -350,7 +350,7 @@ function comingSoon() {
 }
 
 /**
- * Maße im Look „Instagram“ (Daria, 23.10.2026), in pt:
+ * Maße im Look „Fashionable“ (Daria, 23.10.2026), in pt:
  * Kopf 54 hoch: links 12, rechts 4 (das Zahnrad bringt 44 Fläche mit), Bild 32, 10 bis zum Namen.
  * Foto über die ganze Breite im Hochformat 4:5 wie Instagram, ohne Foto 4:3 mit Titel.
  * Aktionen 44 hoch, links 4, Icons 24. Text links und rechts 12, 4 zwischen den Zeilen, 16 bis zum nächsten Beitrag.

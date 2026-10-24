@@ -230,7 +230,7 @@ function KiezBeforeAfter(props: ChallengePostProps) {
   );
 }
 
-/** Look „Instagram“: Kopfzeile, Bildpaar über die ganze Breite im Hochformat 4:5, Text mit fettem Titel */
+/** Look „Fashionable“: Kopfzeile, Bildpaar über die ganze Breite im Hochformat 4:5, Text mit fettem Titel */
 function InstaBeforeAfter(props: ChallengePostProps) {
   const { challenge, author, distance, onPress, onManage } = props;
   const { before, after, duration } = useParts(props);
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   },
   textBlock: { paddingHorizontal: space[4], paddingBottom: space[8] },
   body: { ...text.body, color: color.text.secondary },
-  // Look „Instagram“
+  // Look „Fashionable“
   postInsta: { paddingBottom: space[16] },
   head: {
     flexDirection: 'row',

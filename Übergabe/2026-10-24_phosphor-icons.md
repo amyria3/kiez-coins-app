@@ -1,12 +1,12 @@
-# Phosphor Icons im Instagram-Look und als Ersatz im Kiez-Look
+# Phosphor Icons im Fashionable Look und als Ersatz im Kiez-Look
 
 Datum: 2026-10-24 · Status: erledigt, muss in die Doku · Ziel in Documentation: `kiez-coins/design/Icon_Regelwerk.md` und `kiez-coins/design/Designsystem.md` (Konto)
 
-Ersetzt die Notiz „Font Awesome im Instagram-Look“ vom selben Tag. Font Awesome Free hat nur Solid und Regular; Pro ist ein Jahresabo. Daria wechselt zu Font Awesome Pro, sobald Geld dafür da ist.
+Ersetzt die Notiz „Font Awesome im Fashionable Look“ vom selben Tag. Font Awesome Free hat nur Solid und Regular; Pro ist ein Jahresabo. Daria wechselt zu Font Awesome Pro, sobald Geld dafür da ist.
 
 ## Entscheidung
 
-- Instagram-Look: alle Icons aus Phosphor Icons, Gewicht Regular (phosphoricons.com, MIT-Lizenz). Gefüllt (Herz bei „gefällt mir“) in Phosphor Fill.
+- Fashionable Look: alle Icons aus Phosphor Icons, Gewicht Regular (phosphoricons.com, MIT-Lizenz). Gefüllt (Herz bei „gefällt mir“) in Phosphor Fill.
 - Kiez-Look: Darias handgezeichnete Figma-Icons. Wo es keins gibt, steht das Phosphor-Icon (`PhIcon`).
 - Konto: Freundschaften, Sprache und Look stehen in beiden Looks als große Karten unter „Deine Gruppen“, mit Handschlag, Übersetzen und Palette aus Phosphor.
 - Edenstein: Phosphor hat keinen Edelstein. Er bleibt Font Awesome Free „gem“ (Regular, CC BY 4.0).

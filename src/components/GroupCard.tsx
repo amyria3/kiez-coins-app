@@ -27,7 +27,13 @@ export function GroupCard({ group, meta, onFeed, onManage }: GroupCardProps) {
   const line = meta ?? (group.founderId === currentUserId ? `${members} · ${t('Du hast sie gegründet')}` : members);
   return (
     <View style={styles.card}>
-      <View style={styles.top}>
+      {/* Tipp auf Name und Zeile öffnet den Feed der Gruppe (Daria, 24.10.2026) */}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t('Feed von {name}', { name: group.name })}
+        onPress={onFeed}
+        style={({ pressed }) => [styles.top, pressed && styles.pressed]}
+      >
         <View style={styles.flex}>
           <Text noTranslate style={styles.name} numberOfLines={1}>
             {group.name}
@@ -44,7 +50,7 @@ export function GroupCard({ group, meta, onFeed, onManage }: GroupCardProps) {
           </View>
           <Text style={styles.edenValue}>{myEdensteine(group, challenges, currentUserId)}</Text>
         </View>
-      </View>
+      </Pressable>
       <View style={styles.links}>
         <Pressable
           accessibilityRole="button"
@@ -72,14 +78,15 @@ export function GroupCard({ group, meta, onFeed, onManage }: GroupCardProps) {
 
 const styles = StyleSheet.create({
   card: { borderRadius: radius.xl, backgroundColor: color.bg.surface },
-  top: { flexDirection: 'row', alignItems: 'center', gap: space[12], padding: space[16] },
-  flex: { flex: 1, gap: space[4] },
+  // Mehr Raum, die Karte ist höher (Daria, 24.10.2026)
+  top: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingHorizontal: space[20], paddingVertical: space[32] },
+  flex: { flex: 1, gap: space[6] },
   name: { ...text.cardTitle, color: color.text.primary },
   meta: { ...text.caption, color: color.text.secondary },
   eden: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
   crystal: { width: 30, height: 24, alignItems: 'center' },
   crystalFloat: { position: 'absolute', top: (24 - 52) / 2 },
-  edenValue: { ...text.metric, fontSize: 18, color: color.accent.confirmation },
+  edenValue: { ...text.metric, fontSize: 18, color: color.text.primary },
   links: { flexDirection: 'row', borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   link: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space[8], minHeight: 52 },
   linkText: { ...text.body, color: color.text.primary },

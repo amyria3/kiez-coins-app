@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   },
   deadline: { flexDirection: 'row', alignItems: 'center', gap: space[6], alignSelf: 'flex-start' },
   bounty: { flexDirection: 'row', alignItems: 'center', gap: isInstagram ? space[4] : space[6] },
-  // Instagram-Look: Betrag halbfett in Textfarbe wie Instagrams Zahlen
+  // Fashionable Look: Betrag halbfett in Textfarbe wie Instagrams Zahlen
   bountyText: isInstagram
     ? { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] }
     : { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.signal },

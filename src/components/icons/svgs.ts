@@ -178,7 +178,7 @@ export const iconSvgs: Record<IconName, { width: number; height: number; svg: Sv
     svg: (c) =>
       `<svg width="35" height="35" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="6.2" cy="17.8" r="3.6" fill="${c}"/><circle cx="17.5" cy="17.3" r="3.7" fill="${c}"/><circle cx="28.8" cy="17.7" r="3.5" fill="${c}"/></svg>`,
   },
-  // Kettenglied: Webseite (Linie wie im Instagram-Look, auch im Kiez-Look)
+  // Kettenglied: Webseite (Linie wie im Fashionable Look, auch im Kiez-Look)
   link: {
     width: 24,
     height: 24,

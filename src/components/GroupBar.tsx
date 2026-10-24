@@ -78,7 +78,7 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupB
               {t('{members} Mitglieder', { members: selected.members.length })}
             </Text>
           </View>
-          {/* Instagram-Look: kein Stein mit Zahl rechts, der eigene Bestand steht in der Gruppe (Daria, 24.10.2026) */}
+          {/* Fashionable Look: kein Stein mit Zahl rechts, der eigene Bestand steht in der Gruppe (Daria, 24.10.2026) */}
           {isInstagram ? null : (
             <>
           {/* Stein: lebt, wenn es offene Aufgaben gibt, und führt zur nächsten. Sonst klein, blass und still. */}
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   meta: { ...text.caption, color: color.text.secondary },
   eden: isInstagram
     ? { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] }
-    : { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.confirmation },
+    : { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.text.primary },
   crystal: { width: CRYSTAL * 0.6, height: 40, alignItems: 'center' },
   crystalFloat: { position: 'absolute', top: (40 - CRYSTAL) / 2 },
   groupText: { marginLeft: space[8] },

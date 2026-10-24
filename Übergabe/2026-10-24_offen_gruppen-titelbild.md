@@ -1,0 +1,20 @@
+# Titelbild für Gruppen
+
+- Datum: 2026-10-24
+- Status: offen, Idee von Daria
+- Ziel in Documentation: `kiez-coins/KONZEPT.md` bzw. Feature „Groups“, sobald entschieden
+
+## Stand
+
+Daria will, dass Gruppen ein Titelbild haben können. Die Gruppenkarte (`src/components/GroupCard.tsx`) ist dafür schon höher (32 pt Innenabstand oben und unten). Ein Tipp auf Name und Zeile öffnet den Feed der Gruppe.
+
+## Nächster Schritt
+
+- Spalte für das Bild in der Gruppen-Tabelle (Migration in `supabase/migrations`, Speicherort im Storage wie bei Challenge-Fotos) und Datenbank-Doku aktualisieren.
+- Bild beim Gründen und unter „Verwalten“ wählbar machen (`PhotoPicker` aus `src/components/Form.tsx`).
+- Karte zeigt das Bild als Hintergrund der oberen Fläche, Name und Zeile darauf.
+
+## Offene Fragen an Daria
+
+- Wer darf das Bild ändern: nur die Person, die gegründet hat, oder alle Mitglieder?
+- Ohne Bild: Fläche wie jetzt oder ein Standardbild?

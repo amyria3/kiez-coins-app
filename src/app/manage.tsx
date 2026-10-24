@@ -405,29 +405,41 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
       <View style={styles.actions}>
         {isDraft ? (
           <Button label="Weiter bearbeiten" onPress={onEdit} />
-        ) : isOpen ? (
-          <>
-            <Button label="Bearbeiten" variant="secondary" onPress={onEdit} />
-            <Button label="Schließen" variant="secondary" onPress={onClose} />
-          </>
         ) : c.status === 'closed' ? (
-          <>
-            <Button label="Kopie erstellen" onPress={onCopy} />
-            <Button label="Ansehen" variant="secondary" onPress={onOpen} />
-          </>
-        ) : (
-          <Button label="Ansehen" variant="secondary" onPress={onOpen} />
-        )}
-        {/* Ausgegraut, bleibt aber tippbar: Die Meldung erklärt, warum Löschen nicht geht. */}
-        <Button
-          label="Löschen"
-          variant="danger"
-          onPress={onDelete}
-          style={canDelete ? undefined : styles.muted}
-        />
+          <Button label="Kopie erstellen" onPress={onCopy} />
+        ) : null}
+        {/* Leise Aktionen als Leiste wie auf der Gruppenkarte, damit sie die Karte nicht beherrschen (Daria, 24.10.2026).
+            Löschen bleibt ausgegraut tippbar: Die Meldung erklärt, warum es nicht geht. */}
+        <View style={styles.quietBar}>
+          {isOpen ? (
+            <>
+              <QuietAction label="Bearbeiten" onPress={onEdit} />
+              <View style={styles.quietDivider} />
+              <QuietAction label="Schließen" onPress={onClose} />
+            </>
+          ) : isDraft ? null : (
+            <QuietAction label="Ansehen" onPress={onOpen} />
+          )}
+          {isDraft ? null : <View style={styles.quietDivider} />}
+          <QuietAction label="Löschen" danger muted={!canDelete} onPress={onDelete} />
+        </View>
       </View>
       {hasNext ? <Text style={styles.next}>Nach oben wischen für die nächste</Text> : null}
     </View>
+  );
+}
+
+/** Leise Aktion: nur Text, gleich breit neben ihren Nachbarn */
+function QuietAction({ label, onPress, danger, muted }: { label: string; onPress: () => void; danger?: boolean; muted?: boolean }) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={t(label)}
+      onPress={onPress}
+      style={({ pressed }) => [styles.quietAction, muted && styles.muted, pressed && styles.pressed]}
+    >
+      <Text style={[styles.quietLabel, danger && styles.quietDanger]}>{label}</Text>
+    </Pressable>
   );
 }
 
@@ -515,7 +527,7 @@ function DeletedCard({
 
 /** Zahl ohne Fläche: Wert groß, darunter in Worten, was er zählt („1“ / „Kommentar“). Tippbar mit Pfeil. */
 /**
- * Verwaltungskarte im Look „Instagram“ nach Darias Mockup (24.10.2026): keine Fläche, alles direkt auf dem Grund.
+ * Verwaltungskarte im Look „Fashionable“ nach Darias Mockup (24.10.2026): keine Fläche, alles direkt auf dem Grund.
  * Maße in pt, seitlich 24 (unter 360 Breite 16): Bild 56 mit Radius 8, 21 unter den Reitern, 12 bis zum Titel
  * (halbfett 16/20), Hinweis 13/18 grau. Zahlen 24 unter dem Bild, halbfett 16/20 über 13/18, ohne Trennstriche,
  * 16 bis zu den Knöpfen. Knöpfe nebeneinander, 34 hoch, 8 Abstand, Radius 8, halbfett 14, grau gefüllt
@@ -693,7 +705,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   flex: { flex: 1 },
   empty: { padding: space[16] },
-  // Instagram-Look: Unterstrich-Reiter über die ganze Breite
+  // Fashionable Look: Unterstrich-Reiter über die ganze Breite
   switch: isInstagram ? {} : { paddingHorizontal: space[16], paddingBottom: space[8] },
   page: isInstagram
     ? { paddingBottom: space[12] }
@@ -725,6 +737,11 @@ const styles = StyleSheet.create({
   metricValue: { ...text.metric, color: color.text.primary },
   caption: { ...text.caption, color: color.text.secondary },
   actions: { gap: space[8] },
+  quietBar: { flexDirection: 'row', borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
+  quietAction: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 48 },
+  quietDivider: { width: stroke.ultraThin, backgroundColor: color.line.hairline, marginVertical: space[12] },
+  quietLabel: { ...text.body, color: color.text.primary },
+  quietDanger: { color: color.accent.error },
   row: { flexDirection: 'row', gap: space[8] },
   muted: { opacity: 0.35 },
   next: { ...text.caption, color: color.text.secondary, textAlign: 'center' },

@@ -46,6 +46,11 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
   const raeder = useRef(new Animated.Value(1)).current;
   const fertig = useRef(false);
 
+  // Die Zahnräder aus public/index.html übernehmen: Ab hier drehen die eigenen an derselben Stelle
+  useEffect(() => {
+    if (typeof document !== 'undefined') document.getElementById('boot')?.remove();
+  }, []);
+
   // Kater nach den Zahnrädern einblenden, dann fegen lassen
   useEffect(() => {
     let fegen: ReturnType<typeof setTimeout>;

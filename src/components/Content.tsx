@@ -66,8 +66,11 @@ export function KaterCard({ children, title, mood = 'default' }: { children: Rea
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
       >
-        {/* Instagram-Look: kleinere, rundere Kachel in Textfarbe, der Kater ausgestanzt (Daria, 24.10.2026) */}
-        <Cat mood={mood} height={isInstagram ? 36 : 52} tint={isInstagram ? color.bg.screen : undefined} />
+        {/* Fashionable Look: kleinere, rundere Kachel in Textfarbe, der Kater ausgestanzt (Daria, 24.10.2026) */}
+        {/* Kiez-Look: Kater etwas höher in der Kachel (Daria, 24.10.2026) */}
+        <View style={isInstagram ? undefined : styles.speechCatLift}>
+          <Cat mood={mood} height={isInstagram ? 36 : 52} tint={isInstagram ? color.bg.screen : undefined} />
+        </View>
       </View>
     </View>
   );
@@ -161,6 +164,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  speechCatLift: { transform: [{ translateY: -6 }] },
   speechCatMono: {
     width: 56,
     height: 56,

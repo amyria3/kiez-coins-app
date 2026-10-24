@@ -70,5 +70,5 @@ const styles = StyleSheet.create({
   name: { ...text.cardTitle, color: color.text.primary },
   meta: { ...text.caption, color: color.text.secondary },
   eden: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
-  edenValue: { ...text.metric, fontSize: 18, color: color.accent.confirmation },
+  edenValue: { ...text.metric, fontSize: 18, color: color.text.primary },
 });
