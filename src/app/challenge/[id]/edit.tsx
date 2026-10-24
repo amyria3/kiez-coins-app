@@ -182,7 +182,7 @@ export default function EditChallenge() {
       {/* Foto ändern oder hinzufügen, Titel direkt auf dem Foto wie beim Erstellen */}
       <PhotoPicker
         photo={photo ?? challenge.image}
-        hint={isGroup ? 'Optional. Zeig, worum es geht.' : 'Zeig, wo geholfen werden soll.'}
+        hint={isGroup ? 'Optional. Zeige, worum es geht.' : 'Zeige, wo geholfen werden soll.'}
         onChange={setPhoto}
         title={{ value: title, onChange: setTitle, nudge: titleField }}
       />

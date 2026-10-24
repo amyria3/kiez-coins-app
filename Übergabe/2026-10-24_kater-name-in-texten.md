@@ -17,9 +17,10 @@ Ziel in Documentation: `kiez-coins/app/Offene_Punkte.md`, Abschnitt „2026-10-2
 | Vorschlag vom Kater. Ändern, … | Vorschlag von Cat The Käptn. Ändern, … |
 | Kater antippen: noch ein Spruch | Cat The Käptn antippen: noch ein Spruch |
 | Kater mit Sonnenbrille, Schürze und Besen | Cat The Käptn mit Sonnenbrille, Schürze und Besen |
-| Ich bin der alte Kater vom Kiez. … | Ich bin Cat The Käptn, der alte Kater vom Kiez. … |
 
 Website: `aria-label` und `alt` des Katers sowie der Seitentitel von `/kater` („Hallo, Cat The Käptn – Kiez Coins“) in `scripts/build-download-site.mjs` und `website/`.
+
+Die Begrüßung („Ich bin …“) und weitere Texte hat Daria danach auf Papier neu gefasst, siehe `Übergabe/2026-10-24_textkorrektur-papier.md`.
 
 ## Was bleibt
 
