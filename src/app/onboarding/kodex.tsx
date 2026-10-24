@@ -28,7 +28,7 @@ export default function Kodex() {
   return (
     <SubScreen
       title="Der Kodex"
-      subtitle="Schritt 5 von 6"
+      subtitle="Schritt 5 von 7"
       navigation="back"
       onLeadingPress={goBack}
       actions={
@@ -53,7 +53,7 @@ export default function Kodex() {
               type: 'updateProfile',
               patch: { ageConfirmedAt: now, termsAcceptedAt: now, privacyAcceptedAt: now },
             });
-            router.push('/onboarding/push');
+            router.push('/onboarding/funktionen');
           }}
         />
       }
