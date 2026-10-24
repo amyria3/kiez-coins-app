@@ -44,7 +44,7 @@ export default function ReportScreen() {
       onLeadingPress={goBack}
       actions={<Button label="Erledigung senden" onPress={send} disabled={!photo} whyDisabled={() => photoField.nudge('Dokumentiere das Ergebnis.')} />}
     >
-      <Text style={styles.secondary}>{t('Zeig, was Du geschafft hast. {firstName} sieht Dein Foto und bestätigt die Erledigung.', { firstName: author.firstName })}</Text>
+      <Text style={styles.secondary}>{t('Zeige, was Du geschafft hast. {firstName} sieht Dein Foto und bestätigt die Erledigung.', { firstName: author.firstName })}</Text>
       <NudgeArea nudge={photoField}>
         <PhotoPicker photo={photo} hint="Ein Nachher-Foto ist erforderlich." onChange={(p) => (photoField.clear(), setPhoto(p))} />
       </NudgeArea>

@@ -66,7 +66,7 @@ export function useGroupTaskForm(groupId: string | undefined, initial: Initial, 
     <>
       <PhotoPicker
         photo={photo}
-        hint="Optional. Zeig, worum es geht."
+        hint="Optional. Zeige, worum es geht."
         onChange={setPhoto}
         title={{ value: title, onChange: setTitle, nudge: titleField }}
       />

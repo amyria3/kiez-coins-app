@@ -34,4 +34,5 @@ Diese `README.md` bleibt immer liegen.
 
 - `2026-10-23_offen_texte-druck-nummern.json`: ordnet jeder Nummer im Ausdruck („S-022“) den Text im Code zu. Bleibt liegen, bis Darias Papierkorrekturen eingetragen sind, dann löschen. Nicht nach Documentation übernehmen.
 - Alle anderen `_offen_`-Dateien beschreiben sich selbst.
+- `2026-10-24_offen_features-aus-textkorrektur.md`: Features, Bugs und offene Fragen, die Daria am 24.10.2026 an den Rand des Text-Ausdrucks geschrieben hat.
 - `2026-10-24_offen_umbenennung-kiezkoinz.md`, `2026-10-24_offen_funktionen-sperre.md` und `2026-10-24_offen_coin-animation-me-challenge.md`: Darias To-do-Liste vom 24.10.2026.
