@@ -12,6 +12,7 @@ import { LivingCrystal } from '../icons/Brand';
 import { Icon } from '../icons/Icon';
 import { explain, useNudge } from '../Nudge';
 import { Text } from '../T';
+import { useComposeContent, type ComposeContent } from './compose';
 
 const durations = [
   { days: 1, label: '1 Tag' },
@@ -26,15 +27,19 @@ type Initial = { photo?: ImageSource; title?: string; text?: string; edensteine?
  * Gruppenaufgabe mit 1 bis 10 Edensteinen: Felder und Button „Aufgabe veröffentlichen“.
  * Genutzt in der Route `gruppen/[id]/aufgabe` und im Erstellen-Blatt über dem Feed.
  */
-export function useGroupTaskForm(groupId: string | undefined, initial: Initial, onCreated: (taskId: string) => void): {
+export function useGroupTaskForm(
+  groupId: string | undefined,
+  initial: Initial,
+  onCreated: (taskId: string) => void,
+  shared?: ComposeContent,
+): {
   fields: ReactNode;
   button: ReactNode;
 } {
   const { groups, groupApi } = useStore();
   const group = groups.find((g) => g.id === groupId);
-  const [photo, setPhoto] = useState<ImageSource | undefined>(initial.photo);
-  const [title, setTitle] = useState(initial.title ?? '');
-  const [body, setBody] = useState(initial.text ?? '');
+  const own = useComposeContent(initial);
+  const { photo, setPhoto, title, setTitle, text: body, setText: setBody } = shared ?? own;
   const [edensteine, setEdensteine] = useState(initial.edensteine ?? 3);
   const [days, setDays] = useState(7);
   const [busy, setBusy] = useState(false);

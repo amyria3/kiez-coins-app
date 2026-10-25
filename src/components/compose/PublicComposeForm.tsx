@@ -8,6 +8,7 @@ import { Button } from '../Button';
 import { ExtraPhotos, PhotoPicker, TextField } from '../Form';
 import { Text } from '../T';
 import { explain } from '../Nudge';
+import { useComposeContent, type ComposeContent } from './compose';
 import { color, text } from '../../theme/tokens';
 
 const uriOf = (photo?: ImageSource) =>
@@ -21,13 +22,13 @@ const uriOf = (photo?: ImageSource) =>
 export function usePublicComposeForm(
   onSaved: () => void,
   type: 'individual' | 'photo',
+  shared?: ComposeContent,
 ): { fields: ReactNode; buttons: ReactNode } {
   const router = useRouter();
   const { saveDraft } = useStore();
-  const [photo, setPhoto] = useState<ImageSource>();
+  const own = useComposeContent();
+  const { photo, setPhoto, title, setTitle, text, setText } = shared ?? own;
   const [extras, setExtras] = useState<ImageSource[]>([]);
-  const [title, setTitle] = useState('');
-  const [text, setText] = useState('');
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState(false);
   const isChallenge = type !== 'photo';
