@@ -341,6 +341,8 @@ export function choosePhoto(
     const options: ImagePicker.ImagePickerOptions = {
       mediaTypes: ['images'],
       quality: 0.8,
+      // Im Browser setzt `back` das Attribut capture="environment": So öffnet Android direkt die Rückkamera.
+      ...(source === 'camera' ? { cameraType: ImagePicker.CameraType.back } : null),
       ...(square ? { allowsEditing: true, aspect: [1, 1] as [number, number] } : null),
     };
     const result =
@@ -348,12 +350,15 @@ export function choosePhoto(
     const asset = result.canceled ? undefined : result.assets[0];
     if (asset) onPicked({ uri: asset.uri });
   }
-  if (Platform.OS === 'web' && !onRemove) {
+  // Web: Die Kamera-Option erscheint nur auf Touch-Geräten. Die Android-Fotoauswahl zeigt seit Android 14 keine Kamera mehr.
+  const offersCamera =
+    Platform.OS !== 'web' || (typeof window !== 'undefined' && !!window.matchMedia?.('(pointer: coarse)').matches);
+  if (!offersCamera && !onRemove) {
     pick('library');
     return;
   }
   Alert.alert(title, undefined, [
-    ...(Platform.OS === 'web' ? [] : [{ text: 'Foto aufnehmen', onPress: () => pick('camera') }]),
+    ...(offersCamera ? [{ text: 'Foto aufnehmen', onPress: () => pick('camera') }] : []),
     { text: 'Foto auswählen', onPress: () => pick('library') },
     ...(onRemove ? [{ text: 'Foto entfernen', style: 'destructive' as const, onPress: onRemove }] : []),
     { text: 'Abbrechen', style: 'cancel' as const },
