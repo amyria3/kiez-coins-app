@@ -18,3 +18,8 @@ Daria will, dass Gruppen ein Titelbild haben können. Die Gruppenkarte (`src/com
 
 - Wer darf das Bild ändern: nur die Person, die gegründet hat, oder alle Mitglieder?
 - Ohne Bild: Fläche wie jetzt oder ein Standardbild?
+
+## Entscheidung (Daria, 25.10.2026)
+
+- Jedes Mitglied der Gruppe darf das Titelbild ändern.
+- Noch offen: Was zeigt die Karte ohne Bild?
