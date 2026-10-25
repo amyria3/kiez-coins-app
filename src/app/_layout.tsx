@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { AppState, Pressable, StyleSheet, Text, View } from 'react-native';
+import { AppState } from 'react-native';
 import { useFonts } from 'expo-font';
-import { SplashScreen, Stack } from 'expo-router';
+import { SplashScreen, Stack, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Inter_300Light } from '@expo-google-fonts/inter/300Light';
@@ -21,7 +21,8 @@ import { InstallHint } from '../components/InstallHint';
 import { WebSafeArea } from '../components/WebSafeArea';
 import { FriendInviteNotice } from '../components/FriendInviteNotice';
 import { color, scheme } from '../theme/tokens';
-import { look, setLook } from '../theme/look';
+import { ErrorScreen } from '../components/ErrorScreen';
+import { setLastScreen } from '../lib/errorReport';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -94,6 +95,9 @@ function RootStack() {
   const language = getLanguage();
   // Startbildschirm: Zahnräder unten, dann der Kater mit dem Besen (Daria, 2026-10-24)
   const [intro, setIntro] = useState(true);
+  // Aktueller Screen für den Fehlerbericht
+  const pathname = usePathname();
+  useEffect(() => setLastScreen(pathname), [pathname]);
   // Erst rendern, wenn die gespeicherte Sitzung gelesen ist, sonst springt der Start kurz ins Onboarding.
   setStartInfo(loading ? 'Anmeldung lädt' : 'App gerendert');
   if (loading && !intro) return <LoadingScreen />;
@@ -136,36 +140,9 @@ function RootStack() {
 }
 
 /**
- * Absturz beim Rendern: Fehlertext statt schwarzem Bildschirm (Daria, 23.10.2026).
+ * Absturz beim Rendern: Fehler-Screen mit Fehlerbericht statt schwarzem Bildschirm (Daria, 23. und 25.10.2026).
  * Expo Router zeigt diese Komponente, wenn ein Screen darunter einen Fehler wirft.
  */
 export function ErrorBoundary({ error, retry }: { error: Error; retry: () => Promise<void> }) {
-  return (
-    <View style={errorStyles.screen}>
-      <Text style={errorStyles.title}>Hier ist etwas schiefgelaufen.</Text>
-      <Text style={errorStyles.hint}>Schicke bitte einen Screenshot an den Support.</Text>
-      <Text style={errorStyles.detail} selectable>
-        {String(error?.stack ?? error?.message ?? error).slice(0, 1200)}
-      </Text>
-      <Pressable style={errorStyles.button} onPress={() => retry()} accessibilityRole="button">
-        <Text style={errorStyles.buttonText}>Nochmal versuchen</Text>
-      </Pressable>
-      {look !== 'kiez' ? (
-        <Pressable style={errorStyles.link} onPress={() => setLook('kiez')} accessibilityRole="button">
-          <Text style={errorStyles.linkText}>Zurück zum Kiez-Look</Text>
-        </Pressable>
-      ) : null}
-    </View>
-  );
+  return <ErrorScreen error={error} retry={retry} />;
 }
-
-const errorStyles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: color.bg.screen, paddingHorizontal: 24, paddingTop: 80, gap: 12 },
-  title: { color: color.text.primary, fontSize: 22, fontWeight: '600' },
-  hint: { color: color.text.secondary, fontSize: 15 },
-  detail: { color: color.accent.error, fontSize: 12, marginTop: 8 },
-  button: { marginTop: 16, alignSelf: 'flex-start', backgroundColor: color.accent.primary, borderRadius: 12, paddingVertical: 12, paddingHorizontal: 20 },
-  buttonText: { color: color.text.onAccent, fontSize: 16, fontWeight: '600' },
-  link: { alignSelf: 'flex-start', paddingVertical: 8 },
-  linkText: { color: color.text.primary, fontSize: 15, textDecorationLine: 'underline' },
-});
