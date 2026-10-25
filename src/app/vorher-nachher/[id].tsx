@@ -15,15 +15,15 @@ import { WithMentions } from '../../components/WithMentions';
 import { formatClock, formatHoursMinutes } from '../../data/format';
 import { BEFORE_AFTER_MAX_MS } from '../../data/remote';
 import { beforeAfterBody, useChallenge, useStore } from '../../data/store';
-import { getLanguage, t } from '../../data/texts';
+import { localeTag, t } from '../../data/texts';
 import type { ImageSource } from '../../data/types';
 import { useGoBack } from '../../lib/goBack';
 import { color, font, isFashionable, radius, space, stroke, text } from '../../theme/tokens';
 
 const clock = (iso: string) =>
-  new Date(iso).toLocaleTimeString(getLanguage() === 'de' ? 'de-DE' : undefined, { hour: '2-digit', minute: '2-digit' });
+  new Date(iso).toLocaleTimeString(localeTag(), { hour: '2-digit', minute: '2-digit' });
 const dayClock = (ms: number) =>
-  `${new Date(ms).toLocaleDateString(getLanguage() === 'de' ? 'de-DE' : undefined, { weekday: 'long' })}, ${clock(new Date(ms).toISOString())}`;
+  `${new Date(ms).toLocaleDateString(localeTag(), { weekday: 'long' })}, ${clock(new Date(ms).toISOString())}`;
 
 /**
  * Route `vorher-nachher/[id]`: Schritt 2 (Timer) und 3 (Nachher) eines Vorher-Nachher-Entwurfs (Daria, 23.10.2026).

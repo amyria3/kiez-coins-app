@@ -9,7 +9,7 @@ import { Icon } from './icons/Icon';
 import type { IconName } from './icons/svgs';
 
 // Figma „Button“ (Primary, Secondary). Die übrigen Varianten sind Überschreibungen in Screens:
-// `signal` („Aufgabe zurück schicken“, „Muss ich noch machen“), `signalOutline` („Rückgängig machen“),
+// `signal` („Aufgabe zurückschicken“, „Muss ich noch machen“), `signalOutline` („Rückgängig machen“),
 // `danger` („Missbrauch melden“).
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'signal' | 'signalOutline' | 'danger';
 

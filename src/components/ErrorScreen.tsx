@@ -55,7 +55,7 @@ function ErrorContent({ error, retry }: Props) {
       <Text style={styles.title} accessibilityRole="header">
         Hier ist etwas schiefgelaufen.
       </Text>
-      <Text style={styles.body}>Schick uns den Fehlerbericht. So finden wir den Fehler schneller.</Text>
+      <Text style={styles.body}>Schicke uns den Fehlerbericht. So finden wir den Fehler schneller.</Text>
 
       {state === 'sent' ? (
         <Text style={[styles.body, styles.confirmation]}>Danke! Der Fehlerbericht ist bei uns angekommen.</Text>
@@ -81,7 +81,7 @@ function ErrorContent({ error, retry }: Props) {
           </Pressable>
           {state === 'failed' ? (
             <>
-              <Text style={[styles.body, styles.error]}>Der Bericht ist nicht angekommen. Schick ihn per E-Mail.</Text>
+              <Text style={[styles.body, styles.error]}>Der Bericht ist nicht angekommen. Schicke ihn per E-Mail.</Text>
               <Pressable style={[styles.button, styles.secondary]} onPress={() => mailErrorReport(report())} accessibilityRole="button">
                 <Text style={styles.secondaryText}>Per E-Mail senden</Text>
               </Pressable>

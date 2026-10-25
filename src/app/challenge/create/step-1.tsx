@@ -94,7 +94,7 @@ export default function CreateStep1() {
         title={{
           value: draft.title,
           onChange: (title) => setDraft((d) => ({ ...d, title })),
-          error: showErrors && missingTitle ? 'Einen Titel eingeben, bitte.' : undefined,
+          error: showErrors && missingTitle ? 'Gib einen Titel ein.' : undefined,
         }}
       />
       {draft.photo ? (

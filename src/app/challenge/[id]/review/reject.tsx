@@ -46,7 +46,7 @@ export default function RejectScreen() {
       actions={
         <>
           <Button label="Trotzdem bestätigen" onPress={confirmAnyway} />
-          <Button label="Aufgabe zurück schicken" variant="signal" onPress={sendBack} />
+          <Button label="Aufgabe zurückschicken" variant="signal" onPress={sendBack} />
           <Button
             label="Missbrauch melden"
             variant="danger"
