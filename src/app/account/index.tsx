@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { FieldGroup, KaterBubble } from '../../components/Content';
-import { CrownIcon } from '../../components/icons/Brand';
+import { CrownIcon, MonoCat } from '../../components/icons/Brand';
 import { Icon, PhIcon } from '../../components/icons/Icon';
 import { Avatar } from '../../components/AuthorRow';
 import { NavCard, NavRow, ProfileCard } from '../../components/Rows';
@@ -123,10 +123,16 @@ export default function Account() {
           onPress={() => router.push('/account/look')}
         />
       ) : null}
+      {/* Kater-Seite als große Karte unter Look (Daria, 25.10.2026) */}
+      <NavCard
+        title="Auf eine Frotzerei"
+        description="Sprüche"
+        leading={<MonoCat height={size.icon} />}
+        onPress={() => router.push('/kater')}
+      />
       <FieldGroup label="Einstellungen">
         <View style={styles.list}>
           <NavRow label="So geht Kiez Coins" value="Kurze Videos" onPress={() => router.push('/tour')} />
-          <NavRow label="Cat The Käptn Hallo sagen" value="Sprüche" onPress={() => router.push('/kater')} />
           <NavRow label="Benachrichtigungen" value={profile.push ? 'Push an' : 'Push aus'} onPress={() => router.push('/settings/notifications')} />
           <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/settings/payout')} />
           <NavRow label="Umfrage" value="5 Fragen zur App" onPress={() => setSurvey(true)} />
