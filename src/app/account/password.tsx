@@ -6,12 +6,11 @@ import { Button } from '../../components/Button';
 import { KaterBubble } from '../../components/Content';
 import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
-import { useAuth } from '../../data/auth';
+import { MIN_PASSWORD, useAuth } from '../../data/auth';
 import { useNudge } from '../../components/Nudge';
 import { t } from '../../data/texts';
 import { useGoBack } from '../../lib/goBack';
 
-const MIN_PASSWORD = 8;
 
 /**
  * Route `account/password` (Push aus „Zugangsdaten“): Passwort hinterlegen oder ändern.

@@ -7,7 +7,8 @@ import { useStore } from './store';
 import type { Profile } from './types';
 import { t } from './texts';
 
-const MIN_PASSWORD = 8;
+/** Mindestlänge für Passwörter, gilt in Anmeldung und Konto */
+export const MIN_PASSWORD = 8;
 
 // Anmeldung per E-Mail-Code (sendCode/verifyCode, onboarding/email → onboarding/code). Supabase Auth
 // verschickt die Codes über Brevo als registration.noreply@kiezcoins.de. Alternativ meldet sich die

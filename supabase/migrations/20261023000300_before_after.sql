@@ -15,7 +15,7 @@
 -- Keine Bounty, keine Edensteine, kein Annehmen. Geht öffentlich im Kiez und in Gruppen.
 -- Gelöscht wird wie jeder Beitrag: Entwurf endgültig, gepostet über delete_challenge.
 --
--- Voraussetzung: 20261022000100_photo_posts, 20261021000100_groups, 20261022000500_messages (pg_cron).
+-- Voraussetzung: 20261022000100_photo_posts, 20261021000100_groups, 20261022000600_messages (pg_cron).
 -- Das Skript läuft auch ein zweites Mal ohne Fehler.
 
 -- ---------------------------------------------------------------------------

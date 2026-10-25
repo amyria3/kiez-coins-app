@@ -144,9 +144,9 @@ function useParts({ challenge }: ChallengePostProps) {
 
 function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: ChallengePostProps & { end?: ReactNode }) {
   const commentCount = challenge.comments.length;
-  const countStyle = isFashionable ? styles.countInsta : styles.count;
+  const countStyle = isFashionable ? styles.countFashionable : styles.count;
   return (
-    <View style={isFashionable ? styles.actionsInsta : styles.actions}>
+    <View style={isFashionable ? styles.actionsFashionable : styles.actions}>
       <Pressable
         accessibilityRole="button"
         accessibilityState={{ selected: !!challenge.likedByMe }}
@@ -242,7 +242,7 @@ function FashionBeforeAfter(props: ChallengePostProps) {
     .filter(Boolean)
     .join(' · ');
   return (
-    <View style={styles.postInsta}>
+    <View style={styles.postFashionable}>
       <View style={styles.head}>
         <Pressable
           accessibilityRole="button"
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
   textBlock: { paddingHorizontal: space[4], paddingBottom: space[8] },
   body: { ...text.body, color: color.text.secondary },
   // Look „Fashionable“
-  postInsta: { paddingBottom: space[16] },
+  postFashionable: { paddingBottom: space[16] },
   head: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -376,8 +376,8 @@ const styles = StyleSheet.create({
   headTexts: { flexShrink: 1 },
   name: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18, color: color.text.primary },
   place: { ...text.caption, fontSize: 12, color: color.text.primary },
-  actionsInsta: { flexDirection: 'row', alignItems: 'center', height: 44, paddingHorizontal: space[4] },
-  countInsta: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] },
+  actionsFashionable: { flexDirection: 'row', alignItems: 'center', height: 44, paddingHorizontal: space[4] },
+  countFashionable: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] },
   caption: { paddingHorizontal: space[12], gap: space[4] },
   captionText: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.primary },
   captionTitle: { fontFamily: font.semiBold },
