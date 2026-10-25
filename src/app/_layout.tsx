@@ -18,6 +18,7 @@ import { loadLanguage, loadTexts, useTexts, getLanguage } from '../data/texts';
 import { LoadingScreen } from '../components/GearsLoader';
 import { StartKater } from '../components/StartKater';
 import { InstallHint } from '../components/InstallHint';
+import { WebSafeArea } from '../components/WebSafeArea';
 import { FriendInviteNotice } from '../components/FriendInviteNotice';
 import { color, scheme } from '../theme/tokens';
 import { look, setLook } from '../theme/look';
@@ -75,11 +76,13 @@ export default function RootLayout() {
   // liegt der Kopf der Web-App auf dem Home-Bildschirm unter der Statusleiste (Daria, 2026-10-23).
   return (
     <SafeAreaProvider>
-      <StoreProvider>
-        <AuthProvider>
-          <RootStack />
-        </AuthProvider>
-      </StoreProvider>
+      <WebSafeArea>
+        <StoreProvider>
+          <AuthProvider>
+            <RootStack />
+          </AuthProvider>
+        </StoreProvider>
+      </WebSafeArea>
     </SafeAreaProvider>
   );
 }
