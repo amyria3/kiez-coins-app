@@ -40,3 +40,4 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-24_offen_umbenennung-kiezkoinz.md`, `2026-10-24_offen_funktionen-sperre.md` und `2026-10-24_offen_coin-animation-me-challenge.md`: Darias To-do-Liste vom 24.10.2026.
 - `2026-10-25_offen_fehlerberichte.md`: Fehler-Screen mit Fehlerbericht. Pflichtaufgabe: Migration `20261025000200_error_reports.sql` ausführen.
 - `2026-10-25_offen_konsistenz.md`: Konsistenzprüfung vom 25.10.2026, Korrekturen auf `main`, offene Entscheidungen und neue Textschlüssel.
+- `2026-10-25_offen_gruppe-beim-erstellen.md`: Beim Erstellen zeigt die App, in welcher Gruppe die Person ist (To-do, Daria).
