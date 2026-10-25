@@ -7,6 +7,7 @@ const regular = [
   'caret-left', 'caret-right', 'x', 'check', 'plus', 'minus', 'dots-three', 'clock', 'info', 'flag',
   'copy', 'eye', 'squares-four', 'check-circle', 'users-three', 'handshake', 'translate', 'palette',
   'gift', 'thumbs-up', 'heart', 'coins', 'toggle-right', 'text-aa',
+  'hand-waving', 'arrow-right',
 ];
 const fill = ['heart'];
 

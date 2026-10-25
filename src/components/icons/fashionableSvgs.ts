@@ -76,4 +76,10 @@ export const fashionableSvgs: Partial<Record<IconName, Svg>> = {
   behausung: ph('users-three'),
   gift: ph('gift'),
   'thumbs-up': ph('thumbs-up'),
+  // Darias Icons vom 25.10.2026, im Fashionable Look als Phosphor
+  hallo: ph('hand-waving'),
+  'this-way': ph('arrow-right'),
+  friends: ph('handshake'),
+  look: ph('palette'),
+  switch: ph('toggle-right'),
 };

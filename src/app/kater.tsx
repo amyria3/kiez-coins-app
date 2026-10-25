@@ -26,7 +26,7 @@ export default function Kater() {
           onPress={kater.noch}
         />
         <View style={styles.buttons}>
-          <Button label="Hallo sagen" icon="wir-schaffen-das" onPress={kater.hallo} />
+          <Button label="Hallo sagen" icon="hallo" onPress={kater.hallo} />
           <Button label="Noch ein Spruch" variant="secondary" onPress={kater.noch} />
         </View>
       </ScrollView>

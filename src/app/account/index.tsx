@@ -83,7 +83,7 @@ export default function Account() {
         onPress={() => router.push('/gruppen')}
       />
       ) : null}
-      {/* Freundschaften, Sprache und Look als große Karten mit Phosphor-Icons, in beiden Looks (Daria, 24.10.2026) */}
+      {/* Freundschaften, Funktionen und Look mit Darias Icons (25.10.2026), Sprache und Geschlecht mit Phosphor */}
       <NavCard
         title="Freundschaften"
         description={
@@ -93,14 +93,14 @@ export default function Account() {
               })
             : 'Freund:innen und Anfragen'
         }
-        leading={<PhIcon name="friends" size={size.icon} />}
+        leading={<Icon name="friends" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/account/freunde')}
       />
       {/* Funktionen an- und abschalten (Daria, 24.10.2026) */}
       <NavCard
         title="Funktionen"
         description={featuresOn || 'Nur Me-Challenge'}
-        leading={<PhIcon name="features" size={size.icon} />}
+        leading={<Icon name="switch" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/account/funktionen')}
       />
       <NavCard
@@ -119,7 +119,7 @@ export default function Account() {
         <NavCard
           title="Look"
           description={looks.find((l) => l.code === look)?.name}
-          leading={<PhIcon name="look" size={size.icon} />}
+          leading={<Icon name="look" size={size.icon} color={color.text.primary} />}
           onPress={() => router.push('/account/look')}
         />
       ) : null}
