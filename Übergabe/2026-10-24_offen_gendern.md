@@ -89,7 +89,7 @@ Daria will die gegenderten Übersetzungen erst laden, wenn die Person Sprache od
 Umgesetzt und gepusht:
 
 - Migration `supabase/migrations/20261024000100_gender.sql`: Daria hat sie am 25.10.2026 im SQL-Editor ausgeführt (Spalte `profiles.gender`, Standard `person`).
-- Auswahl „er“, „sie“, „unbestimmt (Person)“ auf `onboarding/ansprache` (eigener Block, `src/components/GenderChoice.tsx`) und unter Dein Konto › Grammatisches Geschlecht (`src/app/account/geschlecht.tsx`).
+- Auswahl „er“, „sie“, „unbestimmt (Person)“ auf `onboarding/ansprache` (eigener Block, `src/components/GenderChoice.tsx`) und unter Dein Konto › Grammatisches Geschlecht (`src/app/account/geschlecht.tsx`). Seit 25.10.2026 auch als Zeile unter Ansprache in „Persönliche Angaben“ (`src/app/account/profile.tsx`).
 - Textlogik in `src/data/texts.ts`: `t()` nutzt das eigene Geschlecht, `tAbout(person, …)` das Geschlecht der Person, über die der Text spricht. Ergänzungen in `src/i18n/<sprache>.<er|sie|person>.json`, eingebunden über `src/i18n/gender.ts`.
 - Deutsch: „Initiator“, „Initiatorin“, „Initiator:in“; „Rolle übertragen“; „Nur Geduld, mein Freund!“ (er) und „my friend“ (sie, unbestimmt); D-098 mit „er“, „sie“ oder Namen.
 - Texte über andere laufen über `tAbout` (Zahlungsdaten, bezahlt markiert, nicht bestätigt, Freundschaft, Blockieren, Rolle übertragen …).
