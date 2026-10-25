@@ -10,7 +10,7 @@ import { useNudge } from '../../components/Nudge';
 import { useAuth } from '../../data/auth';
 import { FRIEND_CODE_LENGTH, parseFriendCode } from '../../data/friendInvites';
 import { rememberInvite } from '../../data/pendingInvite';
-import { acceptFriendInvite, errorText } from '../../data/remote';
+import { acceptFriendInvite, errorText, loadFriends } from '../../data/remote';
 import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
 import { useGoBack } from '../../lib/goBack';
@@ -20,12 +20,13 @@ import { useGoBack } from '../../lib/goBack';
  * Link und QR-Code öffnen die Seite mit `?code=…`. Ohne Anmeldung merkt sich die App den Code. Nach Anmeldung
  * und Zustimmung zu den Nutzungsbedingungen führt das Onboarding hierher zurück, und die App nimmt die
  * Einladung selbst an. Ohne Link tippt die Person den Code ein.
+ * Sind beide schon befreundet, meldet die App das (Daria, 25.10.2026).
  */
 export default function AcceptFriendInvite() {
   const router = useRouter();
   const goBack = useGoBack();
   const { session } = useAuth();
-  const { mode } = useStore();
+  const { mode, currentUserId } = useStore();
   const params = useLocalSearchParams<{ code?: string }>();
   const linkCode = parseFriendCode(String(params.code ?? ''));
   const [code, setCode] = useState(linkCode ?? '');
@@ -41,11 +42,18 @@ export default function AcceptFriendInvite() {
   const accept = async (value: string) => {
     setBusy(true);
     try {
+      // Vorher die bestätigten Freund:innen merken, damit die App „schon befreundet“ erkennt
+      const before = mode === 'live' ? await loadFriends(currentUserId).catch(() => null) : null;
       const inviter = mode === 'live' ? await acceptFriendInvite(value) : null;
-      Alert.alert(
-        'Ihr seid befreundet',
-        inviter ? t('Du und {name} seid jetzt befreundet.', { name: inviter.name }) : 'Die Einladung ist angenommen.',
-      );
+      const already = !!inviter && !!before?.friends.some((f) => f.id === inviter.id);
+      if (already) {
+        Alert.alert('Schon befreundet', t('Du und {name} seid schon befreundet.', { name: inviter.name }));
+      } else {
+        Alert.alert(
+          'Ihr seid befreundet',
+          inviter ? t('Du und {name} seid jetzt befreundet.', { name: inviter.name }) : 'Die Einladung ist angenommen.',
+        );
+      }
       router.replace('/account/freunde');
     } catch (error) {
       Alert.alert('Annehmen hat nicht geklappt', errorText(error));

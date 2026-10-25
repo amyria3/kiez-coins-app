@@ -1226,3 +1226,10 @@ export async function takeNewInviteFriends(): Promise<User[]> {
   const res = check(await selectProfiles(data as string[]));
   return ((res.data ?? []) as ProfileRow[]).map((p) => toUser(p));
 }
+
+/** Eigene Gruppe mit diesem Beitrittscode, sonst null. Fragt die Datenbank direkt, unabhängig vom geladenen Stand. */
+export async function myGroupByCode(code: string): Promise<{ id: string; name: string } | null> {
+  const { data, error } = await supabase.from('groups').select('id, name').eq('invite_code', code).maybeSingle();
+  if (error || !data) return null;
+  return data as { id: string; name: string };
+}
