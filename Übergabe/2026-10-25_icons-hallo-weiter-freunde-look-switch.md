@@ -17,3 +17,5 @@ Daria, 25.10.2026: neue Icons in `assets/icons/`, übernommen mit `scripts/icons
 
 Sprache und Grammatisches Geschlecht behalten Phosphor, da es dafür noch kein handgezeichnetes Icon gibt.
 `assets/swsitch.svg` war identisch mit `wsitch.svg` und ist entfernt. `assets/Vector.svg` (einzelner Bogen) ist nicht eingebunden.
+
+Nachtrag 25.10.2026: `friends` 15 % größer, `switch` 20 % kleiner (OPTICAL in `src/components/icons/Icon.tsx`, nur Kiez-Look).
