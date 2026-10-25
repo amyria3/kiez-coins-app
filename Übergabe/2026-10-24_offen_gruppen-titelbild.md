@@ -1,7 +1,7 @@
 # Titelbild für Gruppen
 
 - Datum: 2026-10-24
-- Status: offen, Idee von Daria
+- Status: offen, teilweise entschieden (25.10.2026: alle Mitglieder dürfen das Bild ändern)
 - Ziel in Documentation: `kiez-coins/KONZEPT.md` bzw. Feature „Groups“, sobald entschieden
 
 ## Stand
