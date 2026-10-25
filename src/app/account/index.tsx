@@ -83,7 +83,7 @@ export default function Account() {
         onPress={() => router.push('/gruppen')}
       />
       ) : null}
-      {/* Freundschaften, Funktionen und Look mit Darias Icons (25.10.2026), Sprache und Geschlecht mit Phosphor */}
+      {/* Freundschaften, Funktionen, Geschlecht und Look mit Darias Icons (25.10.2026), Sprache mit Phosphor */}
       <NavCard
         title="Freundschaften"
         description={
@@ -112,7 +112,7 @@ export default function Account() {
       <NavCard
         title="Grammatisches Geschlecht"
         description={genderLabel(profile.gender)}
-        leading={<PhIcon name="grammar" size={size.icon} />}
+        leading={<Icon name="questionmark" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/account/geschlecht')}
       />
       {lookSelectable ? (
