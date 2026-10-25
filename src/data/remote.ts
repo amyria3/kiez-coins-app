@@ -676,6 +676,23 @@ export async function editChallenge(id: string, edit: ChallengeEdit, userId?: st
   }
 }
 
+/**
+ * Eigene gelöschte Challenge bearbeiten, ohne sie zu veröffentlichen (Migration 20261025000100).
+ * Ein neues Foto wird vorher hochgeladen; die Datenbank trägt alles in einem Schritt ein.
+ */
+export async function editDeletedChallenge(id: string, edit: ChallengeEdit, userId?: string) {
+  const imagePath = edit.photo && userId ? await uploadPhoto(userId, edit.photo) : null;
+  await rpc('edit_deleted_challenge', {
+    p_challenge_id: id,
+    p_title: edit.title,
+    p_body: edit.text,
+    p_location: edit.location,
+    p_bounty_amount: edit.bountyAmount ?? null,
+    p_deadline: edit.deadline,
+    p_image_path: imagePath,
+  });
+}
+
 /** Eigene offene Challenge schließen. Sie bleibt in der Timeline sichtbar (Migration 20261020000200). */
 export const closeChallenge = (id: string) => rpc('close_challenge', { p_challenge_id: id });
 

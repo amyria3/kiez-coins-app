@@ -115,8 +115,7 @@ export default function EditChallenge() {
     goBack();
   };
 
-  // Gelöschte Challenge bleibt unveröffentlicht. Die Datenbank ändert nur offene Challenges, deshalb kurz
-  // zurückholen, ändern und wieder löschen.
+  // Gelöschte Challenge bleibt unveröffentlicht: in einem Schritt ändern (edit_deleted_challenge).
   const keepUnpublished = () => {
     if (!changed) return goBack();
     if (!canSave) return;
@@ -124,10 +123,7 @@ export default function EditChallenge() {
       Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Wähle bei Coins „Keine“.');
       return;
     }
-    const edit = editOf();
-    dispatch({ type: 'restore', id: challenge.id, deadline: edit.deadline });
-    dispatch({ type: 'edit', id: challenge.id, edit });
-    dispatch({ type: 'delete', id: challenge.id });
+    dispatch({ type: 'editDeleted', id: challenge.id, edit: editOf() });
     goBack();
   };
 
