@@ -151,7 +151,7 @@ export default function FeedScreen() {
     [here],
   );
 
-  // „In der Nähe“: die nächsten zuerst, Challenges ohne Punkt danach in der bisherigen Reihenfolge.
+  // „Im Kiez“: die nächsten zuerst, Challenges ohne Punkt danach in der bisherigen Reihenfolge.
   const posts = useMemo(() => {
     const list = challenges.filter((c) => matchesTab(c, tab, groupId));
     if (tab !== 'nearby' || !here) return list;

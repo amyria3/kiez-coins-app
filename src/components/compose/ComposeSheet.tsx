@@ -32,7 +32,7 @@ const GROUP_TYPES = [
 ] as const;
 
 type Props = {
-  /** 'public' (Reiter „In der Nähe“) oder die gewählte Gruppe */
+  /** 'public' (Reiter „Im Kiez“) oder die gewählte Gruppe */
   target: 'public' | string | undefined;
   onDone: () => void;
 };

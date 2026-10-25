@@ -169,8 +169,8 @@ export type FeedTab = 'nearby' | 'wave' | 'completed' | 'groups';
 
 // Wave und Pleasure sind raus aus der Leiste (Daria, 22.10.2026). Die Filter in feed.tsx bleiben für später.
 const tabs: { key: FeedTab; label: string; planned?: boolean }[] = [
-  { key: 'nearby', label: 'In der Nähe' },
-  { key: 'groups', label: 'Gruppen' },
+  { key: 'nearby', label: 'Im Kiez' },
+  { key: 'groups', label: 'In Gruppen' },
 ];
 
 type TabsNavigationProps = {
