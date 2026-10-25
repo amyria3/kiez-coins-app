@@ -224,18 +224,18 @@ ${filterDefs}
     <p class="lede">Kennst Du das? Irgendwas muss erledigt werden, aber wer soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez</p>
   </div>
   <div class="steuerung">
-  <div class="rolle" id="rolle" role="radiogroup" aria-label="So spielst Du den Prototyp">
+  <div class="rolle" id="rolle" role="radiogroup" aria-label="Ort im Prototyp">
     <span class="szenario-mark" aria-hidden="true"></span>
-    <button type="button" role="radio" aria-checked="true" data-rolle="public" aria-controls="prototyp">Öffentlich</button>
-    <button type="button" role="radio" aria-checked="false" data-rolle="family" aria-controls="prototyp">Familie / Gruppe</button>
+    <button type="button" role="radio" aria-checked="true" data-rolle="kiez" aria-controls="prototyp">Kiez</button>
+    <button type="button" role="radio" aria-checked="false" data-rolle="gruppe" aria-controls="prototyp">Gruppe Luxor</button>
   </div>
   <div class="szenarien" id="szenarien" aria-label="Prototyp steuern">
     <span class="szenario-mark" aria-hidden="true"></span>
-    <button type="button" data-szenario="scrollen" aria-pressed="true" aria-controls="prototyp"><b>Scrollen</b><i>Scrollen</i><span>Scrollen? Ausnahmsweise richtig nützlich!</span></button>
-    <button type="button" data-szenario="stellen" aria-pressed="false" aria-controls="prototyp"><b>Challenge erstellen</b><i>Erstellen</i><span>Foto, Titel, Coins. Fertig.</span></button>
-    <button type="button" data-szenario="uebernehmen" aria-pressed="false" aria-controls="prototyp"><b>Challenge übernehmen</b><i>Übernehmen</i><span>Annehmen, erledigen, Coins bekommen.</span></button>
-    <button type="button" data-szenario="rangliste" aria-pressed="false" aria-controls="prototyp"><b>Rangliste</b><i>Rangliste</i><span>Du magst es kompetitiv? Schalte die Rangliste als Feature für Deine Gruppe ein oder aus. May the best win!</span></button>
+    <button type="button" data-szenario="me" aria-pressed="true" aria-controls="prototyp"><b>Me-Challenge</b><i>Me-Challenge</i><span>Du forderst Dich selbst heraus: Vorher-Foto, loslegen, Nachher-Foto. Eine gute Tat für den Kiez, ganz ohne Coins.</span></button>
+    <button type="button" data-szenario="we" aria-pressed="false" aria-controls="prototyp"><b>We-Challenge</b><i>We-Challenge</i><span>Eine Aufgabe für den Kiez, mit Coins als Belohnung. Annehmen, erledigen, Coins bekommen.</span></button>
+    <button type="button" data-szenario="rangliste" aria-pressed="false" aria-controls="prototyp" hidden><b>Rangliste</b><i>Rangliste</i><span>Du magst es kompetitiv? Schalte die Rangliste für Eure Gruppe ein oder aus. May the best win!</span></button>
   </div>
+  <p class="szenario-text" id="szenario-text" aria-hidden="true">Du forderst Dich selbst heraus: Vorher-Foto, loslegen, Nachher-Foto. Eine gute Tat für den Kiez, ganz ohne Coins.</p>
   </div>
   <p class="hinweis">Das Telefon ist klickbar. Alle Daten darin sind Beispiele.</p>
   <div class="phone" id="prototyp" role="region" aria-label="Klickbarer Prototyp der App Kiez Coins">
