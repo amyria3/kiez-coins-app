@@ -89,6 +89,7 @@ export default function CreateStep1() {
       </Text>
       <PhotoPicker
         photo={draft.photo}
+        error={showErrors && missingPhoto}
         hint={showErrors && missingPhoto ? 'Bitte ein Foto hinzufügen.' : isChallenge ? 'Zeige, wo geholfen werden soll.' : 'Zeige Deinem Kiez, was Dir gefällt.'}
         onChange={(photo) => setDraft((d) => ({ ...d, photo, imagePath: undefined }))}
         title={{

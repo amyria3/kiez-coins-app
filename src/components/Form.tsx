@@ -320,6 +320,8 @@ type PhotoPickerProps = {
   photo?: ImageSource;
   /** Im Fehlerzustand steht hier die Fehlermeldung (Figma: „Bitte füge ein Foto hinzu.“) */
   hint: string;
+  /** Pflichtfoto fehlt: Rand und Hinweis in der Fehlerfarbe, damit der Fehler sichtbar ist */
+  error?: boolean;
   onChange: (photo: ImageSource) => void;
 };
 
@@ -422,7 +424,7 @@ export type PhotoTitle = {
   maxLength?: number;
 };
 
-export function PhotoPicker({ photo, hint, onChange, title }: PhotoPickerProps & { title?: PhotoTitle }) {
+export function PhotoPicker({ photo, hint, error, onChange, title }: PhotoPickerProps & { title?: PhotoTitle }) {
   const choose = () => choosePhoto(onChange);
   const [focused, setFocused] = useState(false);
   const ownRef = useRef<View>(null);
@@ -436,7 +438,7 @@ export function PhotoPicker({ photo, hint, onChange, title }: PhotoPickerProps &
     <View style={styles.field}>
       {/* Das Titelfeld liegt neben der Fläche und nicht in ihr. Auf Android reicht ein Tippen ins Feld
           sonst an die Fläche weiter, und die Bildauswahl geht auf (Daria, 25.10.2026). */}
-      <View style={[styles.photoPicker, !photo && styles.photoPickerEmpty, title ? styles.photoPickerTitled : null]}>
+      <View style={[styles.photoPicker, !photo && styles.photoPickerEmpty, !photo && error ? styles.photoPickerError : null, title ? styles.photoPickerTitled : null]}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={photo ? t('Foto ändern') : t('Foto aufnehmen oder auswählen')}
@@ -449,7 +451,7 @@ export function PhotoPicker({ photo, hint, onChange, title }: PhotoPickerProps &
             <View style={styles.photoEmptyText}>
               <Icon name="camera" />
               <Text style={[text.body, { color: color.text.primary }]}>Foto aufnehmen oder auswählen</Text>
-              <Text style={[text.caption, { color: color.text.secondary }]}>{hint}</Text>
+              <Text style={[text.caption, { color: error ? color.accent.error : color.text.secondary }]}>{hint}</Text>
             </View>
           ) : null}
         </Pressable>
@@ -604,6 +606,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   photoPickerEmpty: { borderWidth: stroke.thin, borderStyle: 'dashed', borderColor: color.text.secondary },
+  photoPickerError: { borderColor: color.accent.error },
   photoPickerTitled: { height: 300, justifyContent: 'flex-end', alignItems: 'stretch', padding: space[12] },
   photoEmptyText: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 72, alignItems: 'center', justifyContent: 'center', gap: space[8] },
   photoTitle: {

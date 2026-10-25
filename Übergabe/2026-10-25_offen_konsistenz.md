@@ -14,6 +14,7 @@
 - `errorText()` zeigt „Diesen Decknamen gibt es schon“ nur bei `profiles_handle_unique`. Ein doppelter Like gilt als erledigt.
 - Entwicklertexte in `remote.ts` (`purgeChallenge`, `saveSurveyAnswer`) durch vorhandene, übersetzte Sätze ersetzt.
 - `vorher-nachher/[id].tsx` formatiert Uhrzeit und Wochentag mit `localeTag()` (App-Sprache).
+- Fehlendes Pflichtfoto ist sichtbar (Daria, 25.10.2026: „Weiter“ wirkte wirkungslos): `PhotoPicker` hat `error`, Rand und Hinweis erscheinen in der Fehlerfarbe. Genutzt in `challenge/create/step-1.tsx`, `PublicComposeForm.tsx`, `BeforeAfterForm.tsx`, `vorher-nachher/[id].tsx`.
 - Drei Übergabe-Notizen auf den Stand vom 25.10.2026 gebracht (Funktionen-Sperre, Gruppen-Titelbild, Badge „Me-Challenge“).
 
 ## Texte mit neuem Schlüssel

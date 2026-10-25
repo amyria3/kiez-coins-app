@@ -73,6 +73,7 @@ export function usePublicComposeForm(
       </Text>
       <PhotoPicker
         photo={photo}
+        error={showErrors && missingPhoto}
         hint={showErrors && missingPhoto ? 'Bitte ein Foto hinzufügen.' : isChallenge ? 'Zeige, wo geholfen werden soll.' : 'Zeige Deinem Kiez, was Dir gefällt.'}
         onChange={setPhoto}
         title={{ value: title, onChange: setTitle, error: showErrors && missingTitle ? 'Gib einen Titel ein.' : undefined }}
