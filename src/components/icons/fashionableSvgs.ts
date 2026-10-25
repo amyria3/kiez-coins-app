@@ -82,4 +82,5 @@ export const fashionableSvgs: Partial<Record<IconName, Svg>> = {
   friends: ph('handshake'),
   look: ph('palette'),
   switch: ph('toggle-right'),
+  questionmark: ph('question'),
 };
