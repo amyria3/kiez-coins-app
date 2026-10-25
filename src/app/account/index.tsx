@@ -127,7 +127,16 @@ export default function Account() {
       <NavCard
         title="Auf eine Frotzerei"
         description="Sprüche"
-        leading={isFashionable ? <MonoCat height={size.icon} /> : <Icon name="cat" size={size.icon} color={color.text.primary} />}
+        leading={
+          isFashionable ? (
+            <MonoCat height={size.icon} />
+          ) : (
+            <View style={styles.catBleed}>
+              <Icon name="cat" size={26} color={color.text.primary} />
+            </View>
+          )
+        }
+        leadingFill={!isFashionable}
         onPress={() => router.push('/kater')}
       />
       <FieldGroup label="Einstellungen">
@@ -174,4 +183,6 @@ export default function Account() {
 
 const styles = StyleSheet.create({
   list: { gap: space[8] },
+  // Kater ragt 2 pt über den Kreisrand hinaus, damit der Kreis seine Unterkante rund abschneidet
+  catBleed: { marginBottom: -2 },
 });

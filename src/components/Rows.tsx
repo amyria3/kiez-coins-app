@@ -169,12 +169,15 @@ export function NavCard({
   title,
   description,
   leading,
+  leadingFill,
   onPress,
 }: {
   title: string;
   description?: string;
   /** Ohne Icon steht der Text bündig links */
   leading?: ReactNode;
+  /** Zeichnung sitzt unten im Kreis, der Kreis schneidet ihre Unterkante rund ab (Kater, Daria 25.10.2026) */
+  leadingFill?: boolean;
   onPress: () => void;
 }) {
   return (
@@ -184,7 +187,7 @@ export function NavCard({
       accessibilityLabel={description ? `${title}, ${description}` : title}
       onPress={onPress}
     >
-      {leading ? <View style={styles.cardLeading}>{leading}</View> : null}
+      {leading ? <View style={[styles.cardLeading, leadingFill && styles.cardLeadingFill]}>{leading}</View> : null}
       <View style={styles.texts}>
         <Text style={styles.profileName} numberOfLines={1}>
           {title}
@@ -210,6 +213,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  cardLeadingFill: { overflow: 'hidden', justifyContent: 'flex-end' },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
