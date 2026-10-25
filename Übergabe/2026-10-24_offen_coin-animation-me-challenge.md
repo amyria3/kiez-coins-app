@@ -26,3 +26,8 @@ Die Me-Challenge bringt keine Coins. Eine Coin-Animation beim Abschluss stellt t
 - Abschluss der Me-Challenge: `finishBeforeAfter` in `src/data/store.tsx` (um Zeile 683) und Bildschirm `src/app/vorher-nachher/[id].tsx`.
 - Coin-Grafik: Phosphor `coins` (`PH.coins`) oder Darias Coin aus `src/components/icons/Brand.tsx`.
 - Bewegungen: `motion` in `src/theme/tokens.ts`.
+
+## Entscheidung (Daria, 25.10.2026)
+
+- Text beim Abschluss: „1 gute Tat für den Kiez!“
+- Die Animation kommt später.

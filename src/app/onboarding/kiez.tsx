@@ -9,6 +9,7 @@ import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { anrede } from '../../data/format';
 import { findPlace, LocationDenied, postalCodeOf } from '../../data/location';
+import { POSTAL_CODE_REQUIRED } from '../../data/testphase';
 import { useStore } from '../../data/store';
 import { color, text } from '../../theme/tokens';
 import { t } from '../../data/texts';
@@ -54,7 +55,9 @@ export default function Kiez() {
     }
   };
 
-  const manualValid = !!postalCodeOf(manual) && manual.trim().length >= 7;
+  const manualValid = POSTAL_CODE_REQUIRED
+    ? !!postalCodeOf(manual) && manual.trim().length >= 7
+    : manual.trim().length >= 3;
 
   const actions =
     step === 'found' ? (
@@ -65,7 +68,13 @@ export default function Kiez() {
     ) : step === 'manual' ? (
       <>
         <Button label="Passt" onPress={() => next(manual.trim())} disabled={!manualValid}
-          whyDisabled={() => manualField.nudge('Mit Postleitzahl, zum Beispiel „Alt-West, 04177 Leipzig“.')}
+          whyDisabled={() =>
+            manualField.nudge(
+              POSTAL_CODE_REQUIRED
+                ? 'Mit Postleitzahl, zum Beispiel „Alt-West, 04177 Leipzig“.'
+                : 'Trage Deinen Ortsteil ein, zum Beispiel „Alt-West, 04177 Leipzig“.',
+            )
+          }
         />
         <Button label="Standort noch einmal suchen" variant="ghost" onPress={locate} />
       </>
@@ -103,7 +112,11 @@ export default function Kiez() {
           <TextField
             label="Ortsteil, Postleitzahl und Ort" required
         nudge={manualField}
-            helperText="Zum Beispiel „Prenzlauer Berg, 10437 Berlin“. Die Postleitzahl ist notwendig."
+            helperText={
+              POSTAL_CODE_REQUIRED
+                ? 'Zum Beispiel „Prenzlauer Berg, 10437 Berlin“. Die Postleitzahl ist notwendig.'
+                : 'Zum Beispiel „Prenzlauer Berg, 10437 Berlin“.'
+            }
             value={manual}
             onChangeText={setManual}
             maxLength={80}
