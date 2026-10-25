@@ -159,6 +159,7 @@ export default function BeforeAfterScreen() {
         </View>
         <PhotoPicker
           photo={after}
+          error={showErrors && !after}
           hint={showErrors && !after ? 'Bitte ein Nachher-Foto hinzufügen.' : 'So sieht es jetzt aus.'}
           onChange={setAfterPhoto}
           title={{
