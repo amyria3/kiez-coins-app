@@ -11,6 +11,7 @@
     "@react-native-masked-view/masked-view": "0.3.2",
     "@supabase/supabase-js": "^2.118.0",
     "expo": "~58.0.17",
+    "expo-application": "~58.1.2",
     "expo-blur": "~58.0.5",
     "expo-build-properties": "~58.0.11",
     "expo-clipboard": "~58.0.4",
@@ -25,6 +26,7 @@
     "expo-location": "~58.0.18",
     "expo-router": "~58.0.25",
     "expo-status-bar": "~58.0.4",
+    "expo-updates": "~58.0.18",
     "expo-video": "~58.0.12",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -42,8 +44,8 @@
   },
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "build:website": "EXPO_WEB_BASE_URL=/app expo export -p web --output-dir website/app && node scripts/build-download-site.mjs"

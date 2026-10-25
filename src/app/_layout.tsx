@@ -20,6 +20,7 @@ import { StartKater } from '../components/StartKater';
 import { InstallHint } from '../components/InstallHint';
 import { WebSafeArea } from '../components/WebSafeArea';
 import { FriendInviteNotice } from '../components/FriendInviteNotice';
+import { UpdateHint } from '../components/UpdateHint';
 import { color, scheme } from '../theme/tokens';
 import { ErrorScreen } from '../components/ErrorScreen';
 import { setLastScreen } from '../lib/errorReport';
@@ -131,6 +132,7 @@ function RootStack() {
           <Stack.Screen name="account/delete/success" options={{ gestureEnabled: false }} />
         </Stack>
           <InstallHint />
+          <UpdateHint />
           <WebAlertHost />
         </>
       )}

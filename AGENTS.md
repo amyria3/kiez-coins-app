@@ -49,8 +49,9 @@ Docs: https://docs.expo.dev/eas/index.md
 
 - Web, iPhone and Android always run the same state (Daria, 2026-10-25). Every change on `main` must reach all platforms.
 - Vercel rebuilds the web app on every push to `main`. iPhone testers use the web app until TestFlight exists.
-- The Android APK has no over-the-air updates yet. After a push that changes the app, tell Daria at the end of your reply that a new APK is due. Steps: Documentation `kiez-coins/app/Stand_App.md`, section "Testversion verteilen".
-- Planned automatic updates: `Übergabe/2026-10-25_offen_updates-ueberall.md`.
+- Android: the EAS workflow `.eas/workflows/android.yml` runs on every push to `main`. Same native fingerprint as an existing APK → it publishes an `expo-updates` update to channel `preview`. Changed fingerprint (native packages, `app.json`, icons, plugins) → it builds a new APK, uploads it to the Supabase bucket `downloads` and sets `download_settings.latest_version_code`. The app then shows `UpdateHint` with a download button.
+- After a push with native changes, tell Daria that a new APK is being built and that testers will see the update hint.
+- Raise `download_settings.min_version_code` only when older APKs no longer work with the database or the code; tell Daria first.
 
 ## UI work
 

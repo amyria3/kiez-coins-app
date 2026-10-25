@@ -1,0 +1,84 @@
+# Android auf demselben Stand wie Web und iPhone (Daria, 2026-10-25).
+#
+# Läuft bei jedem Push auf main in der Expo-Cloud (EAS Workflows, Projekt kiezcoins/kiez-coins-app).
+# - Der Fingerabdruck beschreibt den nativen Teil der App (Pakete mit nativem Code, app.json, Icons).
+# - Gibt es schon eine APK mit diesem Fingerabdruck, geht nur der neue Code als Update raus.
+#   Die installierten APKs laden ihn beim nächsten Start und zeigen ihn beim Start danach.
+# - Sonst baut EAS eine neue APK, lädt sie als downloads/kiez-coins.apk in Supabase hoch und setzt
+#   download_settings.latest_version_code. Die App zeigt dann den Hinweis „Neue Version da“.
+#
+# Einrichten: siehe Documentation › kiez-coins/app/Stand_App.md, „So bleiben Web, iPhone und Android
+# auf demselben Stand“. Braucht die EAS-Umgebungsvariable SUPABASE_SECRET_KEY (Umgebung preview, Sichtbarkeit Secret).
+
+name: Android-Updates
+
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  fingerprint:
+    name: Fingerabdruck
+    type: fingerprint
+    environment: preview
+
+  get_build:
+    name: Passende APK suchen
+    needs: [fingerprint]
+    type: get-build
+    params:
+      platform: android
+      profile: preview
+      fingerprint_hash: ${{ needs.fingerprint.outputs.android_fingerprint_hash }}
+      # Baut EAS gerade schon eine APK mit diesem Fingerabdruck, wartet der Workflow auf sie und baut keine zweite.
+      wait_for_in_progress: true
+
+  build_android:
+    name: Neue APK bauen
+    needs: [get_build]
+    if: ${{ !needs.get_build.outputs.build_id }}
+    type: build
+    params:
+      platform: android
+      profile: preview
+
+  publish_apk:
+    name: APK hochladen
+    needs: [build_android]
+    environment: preview
+    steps:
+      - uses: eas/download_build
+        id: apk
+        with:
+          build_id: ${{ needs.build_android.outputs.build_id }}
+          extensions: ['apk']
+      - name: In Supabase hochladen und Versionsnummer setzen
+        run: |
+          set -eu
+          SUPABASE_URL="https://aqxzxpxrshizlaqyjplw.supabase.co"
+          VERSION_CODE="${{ needs.build_android.outputs.app_build_version }}"
+          APK="${{ steps.apk.outputs.artifact_path }}"
+          if [ -z "${SUPABASE_SECRET_KEY:-}" ]; then
+            echo "SUPABASE_SECRET_KEY fehlt (EAS-Umgebungsvariable, Umgebung preview). Die APK liegt bei EAS, bitte von Hand hochladen."
+            exit 1
+          fi
+          # Neue Schlüssel (sb_secret_…) reichen im Header apikey, alte JWT-Schlüssel brauchen zusätzlich Authorization.
+          set -- -H "apikey: $SUPABASE_SECRET_KEY"
+          case "$SUPABASE_SECRET_KEY" in eyJ*) set -- "$@" -H "Authorization: Bearer $SUPABASE_SECRET_KEY" ;; esac
+          curl --fail-with-body -sS -X POST "$SUPABASE_URL/storage/v1/object/downloads/kiez-coins.apk" "$@" \
+            -H "x-upsert: true" -H "Content-Type: application/vnd.android.package-archive" \
+            --data-binary "@$APK"
+          curl --fail-with-body -sS -X PATCH "$SUPABASE_URL/rest/v1/download_settings?id=eq.1" "$@" \
+            -H "Content-Type: application/json" -H "Prefer: return=minimal" \
+            -d "{\"latest_version_code\": $VERSION_CODE, \"updated_at\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}"
+          echo "APK $VERSION_CODE liegt in Supabase."
+
+  publish_update:
+    name: Update veröffentlichen
+    needs: [get_build]
+    if: ${{ needs.get_build.outputs.build_id }}
+    type: update
+    environment: preview
+    params:
+      channel: preview
+      platform: android
