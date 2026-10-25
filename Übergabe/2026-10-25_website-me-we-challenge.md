@@ -18,9 +18,10 @@ Ergebnis gehört nach Documentation: `kiez-coins/app/Stand_App.md`, Abschnitt �
 - Ein laufender Timer steht oben im Feed („Du hast Dich selbst herausgefordert“) und führt zurück zum Timer.
 - Das Erstellen-Blatt hat oben die Wahl Me-Challenge / We-Challenge. Die Kamera öffnet die Me-Challenge.
 - We-Challenge: Annehmen, erledigt melden, Bestätigung mit Coins (Kiez) bzw. Edensteinen (Gruppe). „Virtuelle Belohnung“ heißt jetzt überall „Edensteine“.
-- Gruppe Luxor ersetzt Familie Berger: Mitglieder Jule, Tom, Ben, Ayla, Du; Beispielaufgaben Spülmaschine, Einkauf für Gisela, Schnell-erledigt-Liste.
+- Gruppe Luxor ersetzt Familie Berger und ist eine Hausgemeinschaft: Mitglieder Jule, Tom, Ben, Ayla, Du; Aufgaben Einkauf für Gisela (nach Hüft-OP), Fahrradkeller entrümpeln, Wäscheleine im Hof spannen (Erstellen-Beispiel).
+- Beispiele mit Substanz (Daria, 25.10.2026): Jede Beispiel-Challenge nennt einen echten Bedarf, einen Grund oder eine Frist. Hausarbeit mit selbsterklärenden Anweisungen (Spülmaschine ausräumen, Wäsche aufhängen) fliegt raus.
 - Auf dem Handy steht unter der Szenario-Leiste der Satz zum gewählten Szenario.
-- Fotos: Me-Beispiel Lena „Rasen wird Hochbeet“ (rasen → garten), eigene Me-Challenge Müll am Weg → Igel (muell → igel). Keine neuen Fotos.
+- Fotos: Me-Beispiel Lena „Müll im Auwald gesammelt“ (muell → igel), eigene Me-Challenge „Gemeinschaftsgarten pflegen“ (rasen → garten). Keine neuen Fotos.
 
 ## Betroffene Dateien
 

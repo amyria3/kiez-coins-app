@@ -32,13 +32,13 @@
     return list.filter(function (x) { return x.id === id; })[0];
   }
 
-  // Me-Challenge im Prototyp: dieselben Fotos in beiden Orten (Vorher Müll am Weg, Nachher Igel im sauberen Gras)
+  // Eigene Me-Challenge im Prototyp, in beiden Orten gleich (Vorher hohes Gras, Nachher gepflegte Beete)
   var ME = {
-    before: 'muell',
-    after: 'igel',
-    suggestions: ['Müll am Weg sammeln', 'Treppenhaus putzen', 'Fahrradkeller aufräumen'],
-    demo: ['Müll am Auwald-Weg sammeln', 'Nach dem Wochenende liegen Flaschen und Verpackungen am Weg. Ich ziehe los.'],
-    demoAfter: 'Drei Säcke voll. Der Igel hat seine Ruhe wieder.',
+    before: 'rasen',
+    after: 'garten',
+    suggestions: ['Gemeinschaftsgarten pflegen', 'Müll im Park sammeln', 'Fahrradkeller aufräumen'],
+    demo: ['Gemeinschaftsgarten pflegen', 'Das Gras steht kniehoch, die Beete sind voller Unkraut.'],
+    demoAfter: 'Gemäht und gejätet. Die Beete sind bereit für den Winter.',
     done: '1 gute Tat für den Kiez!',
   };
 
@@ -58,28 +58,28 @@
       },
       challenges: [
         {
-          id: 'hochbeet', kind: 'me',
-          title: 'Rasen wird Hochbeet',
-          text: 'Ein Stück Rasen hinter dem Haus. Jetzt wachsen dort Kräuter für alle im Hof.',
-          author: 'lena', before: 'rasen', after: 'garten', took: '2 h 14 min', comments: 3, likes: 24,
+          id: 'auwald', kind: 'me',
+          title: 'Müll im Auwald gesammelt',
+          text: 'Nach dem Wochenende lagen Flaschen und Verpackungen am Weg. Drei Säcke später hat der Igel seine Ruhe.',
+          author: 'lena', before: 'muell', after: 'igel', took: '1 h 40 min', comments: 3, likes: 24,
         },
         {
           id: 'fahrrad', kind: 'we',
           title: 'Platten am Kinderrad flicken',
-          text: 'Der Hinterreifen am Rad meiner Tochter ist platt. Flickzeug und Pumpe habe ich da, mir fehlt nur die Geduld.',
+          text: 'Am Rad meiner Tochter ist hinten der Schlauch platt. Flickzeug habe ich, aber ich bekomme den Reifen nicht von der Felge. Sie braucht das Rad Montag für den Schulweg.',
           author: 'mo', reward: 8, dist: '450 m', left: 'noch 3 Tage', img: 'fahrrad', comments: 1, likes: 6,
         },
         {
           id: 'hund', kind: 'we',
-          title: 'Mit Bruno Gassi gehen',
-          text: 'Ich stecke diese Woche lange im Büro fest. Leine und Tüten hängen an der Haustür, Bruno freut sich über eine große Runde.',
+          title: 'Mittags mit Bruno Gassi gehen',
+          text: 'Mittwoch und Donnerstag gegen 13 Uhr, eine Runde von 45 Minuten. Ich bin bis abends im Büro. Bruno ist ruhig und läuft gut an der Leine.',
           author: 'peter', reward: 5, dist: '200 m', left: 'noch 2 Tage', img: 'hund', comments: 2, likes: 9,
         },
       ],
       group: null,
       create: {
         suggestions: ['Tonnen rausstellen', 'Igelhaus aufbauen', 'Fahrradkeller aufräumen'],
-        demo: ['Tonnen rausstellen', 'Die Mülltonnen müssen bis Dienstag früh an die Straße. Ich bin verreist, wer übernimmt?'],
+        demo: ['Tonnen rausstellen', 'Die Mülltonnen müssen Dienstag früh an die Straße und Mittwoch wieder rein. Ich bin verreist.'],
         rewards: [5, 10, 15, 20],
         reward: 10,
         photo: 'tonnen',
@@ -105,16 +105,16 @@
       },
       challenges: [
         {
-          id: 'spuel', kind: 'we',
-          title: 'Spülmaschine ausräumen',
-          text: 'Sie läuft gerade noch. Wenn sie piept: Teller in den Schrank, Besteck in die Schublade, Töpfe unter die Spüle.',
-          author: 'jule', reward: 2, dist: 'Küche', left: 'heute', img: 'spuel', comments: 1, likes: 2,
+          id: 'gisela', kind: 'we',
+          title: 'Für Gisela aus dem 3. Stock einkaufen',
+          text: 'Gisela kommt nach ihrer Hüft-OP noch nicht die Treppen runter. Sie gibt Dir Liste und Geld an der Wohnungstür.',
+          author: 'ayla', reward: 4, dist: '3. Stock', left: 'bis Freitag', img: null, comments: 2, likes: 6,
         },
         {
-          id: 'einkauf', kind: 'we',
-          title: 'Für Gisela aus dem 3. Stock einkaufen',
-          text: 'Milch, Brot, Äpfel und Kaffee. Die Liste hängt an ihrer Tür, das Geld liegt in der Dose im Flur.',
-          author: 'ayla', reward: 4, dist: 'Edeka', left: 'morgen', img: 'einkauf', comments: 2, likes: 3,
+          id: 'keller', kind: 'we',
+          title: 'Fahrradkeller entrümpeln',
+          text: 'Samstag ab 10 Uhr tragen wir Räder ohne Besitzer:in zum Sperrmüll. Markiert Eure Räder bis Freitag mit Band. Wer hilft beim Tragen?',
+          author: 'jule', reward: 5, dist: 'Keller', left: 'Samstag', img: null, comments: 4, likes: 5,
         },
       ],
       group: {
@@ -134,8 +134,8 @@
         ],
       },
       create: {
-        suggestions: ['Wäsche aufhängen', 'Altglas wegbringen', 'Hof fegen'],
-        demo: ['Wäsche aufhängen', 'Die Maschine im Keller ist fertig. Bitte auf den Ständer im Flur, die Handtücher auf die Leine.'],
+        suggestions: ['Wäscheleine spannen', 'Treppenhaus wischen', 'Hof fegen'],
+        demo: ['Wäscheleine im Hof spannen', 'Die alte Leine ist gerissen. Neue Leine und Haken liegen im Keller, es fehlt jemand mit Leiter.'],
         rewards: [1, 3, 5, 10],
         reward: 3,
         photo: 'waesche',
