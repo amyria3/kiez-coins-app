@@ -21,7 +21,7 @@ Namen (Daria, 2026-10-24): Vorher-Nachher heißt in der App „Me-Challenge“, 
 4. Nachher: Dauer bis jetzt, Nachher-Foto (Pflicht) mit Überschrift für beide, Erklärung mit `#nachher`, Vorschau „So steht der Text im Beitrag“. „Posten“ oder „Später weitermachen“ (speichert Foto und Text).
 5. Feed: Läuft ein eigener Timer, steht oben „Du hast Dich selbst herausgefordert“ mit dem Vorher-Foto im Ring; Tippen führt zum Timer. Entwürfe ohne gestarteten Timer liegen in „Deine Challenges“, „Weiter bearbeiten“ führt zum Timer.
 6. Karte: Vorher oben 1/3, Nachher 2/3. Tipp auf eine Hälfte vergrößert sie auf 5/6, die Karte wächst um 25 %, zweiter Tipp stellt zurück (Schranke). Dauer an der Naht. Kiez-Look: Glasleiste mit Titel unten, sie verschwindet, solange Vorher groß ist; Tipp auf die Leiste oder den Text öffnet den Beitrag, langes Drücken auch. Fashionable Look: Kopfzeile, 4:5, Text mit fettem Titel, darunter „vor 1 Std. · in 2 h 14 min geschafft“. Ohne Nachher-Foto (nach 48 h automatisch gepostet) zeigt die Karte nur das Vorher-Foto.
-7. Detail: Galerie erst Vorher, dann Nachher, Badge „Vorher-Nachher“, Zeile „In 2 h 14 min geschafft“, Text mit hervorgehobenem `#vorher`/`#nachher`. Nach dem Posten nur Löschen, kein Bearbeiten oder Schließen.
+7. Detail: Galerie erst Vorher, dann Nachher, Badge „Me-Challenge“, Zeile „In 2 h 14 min geschafft“, Text mit hervorgehobenem `#vorher`/`#nachher`. Nach dem Posten nur Löschen, kein Bearbeiten oder Schließen.
 
 ## Betroffene Dateien
 

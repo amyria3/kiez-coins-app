@@ -1,8 +1,12 @@
 # Funktionen freischalten
 
 Datum: 2026-10-24
-Status: offen
+Status: entschieden (25.10.2026), Notiz für die Doku
 Ergebnis gehört nach Documentation: `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Challenges“
+
+## Entscheidung (Daria, 25.10.2026)
+
+Eine Sperre ist vorerst nicht nötig. Die Schalter bleiben frei wählbar, damit sie den Lernprozess erleichtern. Der Vorschlag unten bleibt als Idee für später.
 
 ## Stand
 
