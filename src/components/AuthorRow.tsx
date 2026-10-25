@@ -55,7 +55,7 @@ export function Avatar({ user, diameter }: { user: User; diameter?: number }) {
     .join('');
   const d = diameter ?? size.avatar;
   return (
-    <View style={[styles.avatar, styles.fallback, isFashionable && styles.fallbackInsta, sizeStyle]}>
+    <View style={[styles.avatar, styles.fallback, isFashionable && styles.fallbackFashionable, sizeStyle]}>
       {/* Fashionable Look: Verlauf wie im Mockup, 135° von Kiez-Lila #7E94FF nach Rosa #FFB2E5 (Daria, 24.10.2026) */}
       {isFashionable ? (
         <SvgXml
@@ -65,7 +65,7 @@ export function Avatar({ user, diameter }: { user: User; diameter?: number }) {
           style={StyleSheet.absoluteFill}
         />
       ) : null}
-      <Text style={[styles.initials, isFashionable && styles.initialsInsta, { fontSize: Math.round(d * 0.4) }]}>{initials}</Text>
+      <Text style={[styles.initials, isFashionable && styles.initialsFashionable, { fontSize: Math.round(d * 0.4) }]}>{initials}</Text>
     </View>
   );
 }
@@ -116,9 +116,9 @@ const styles = StyleSheet.create({
   avatar: { width: size.avatar, height: size.avatar, borderRadius: radius.full },
   fallback: { backgroundColor: color.accent.primary, alignItems: 'center', justifyContent: 'center' },
   initials: { fontFamily: font.semiBold, fontSize: 14, color: color.bg.screen },
-  fallbackInsta: { backgroundColor: 'transparent', overflow: 'hidden' },
+  fallbackFashionable: { backgroundColor: 'transparent', overflow: 'hidden' },
   /** Dunkle Schrift auf dem hellen Verlauf, wie im Mockup */
-  initialsInsta: { color: '#1F2123' },
+  initialsFashionable: { color: '#1F2123' },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

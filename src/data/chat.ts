@@ -1,4 +1,4 @@
-// Direktnachrichten unter Freund:innen (Migration 20261022000500_messages.sql).
+// Direktnachrichten unter Freund:innen (Migration 20261022000600_messages.sql).
 // Nur bestätigte Freund:innen schreiben sich. Inhalte verschwinden nach einem Monat.
 // Neue Nachrichten kommen über Supabase Realtime; die Zahl ungelesener Nachrichten teilen sich Tab-Leiste und Liste.
 import { useSyncExternalStore } from 'react';

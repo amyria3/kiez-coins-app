@@ -8,7 +8,7 @@ import { KaterBubble } from '../../components/Content';
 import { TextField } from '../../components/Form';
 import { LegalLinks } from '../../components/LegalLinks';
 import { SubScreen } from '../../components/Screen';
-import { useAuth } from '../../data/auth';
+import { MIN_PASSWORD, useAuth } from '../../data/auth';
 import { loadOwnProfile } from '../../data/remote';
 import { useStore } from '../../data/store';
 import { supabase } from '../../lib/supabase';
@@ -20,7 +20,6 @@ import { homeAfterOnboarding } from '../../data/pendingInvite';
 import { useGoBack } from '../../lib/goBack';
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
-const MIN_PASSWORD = 8;
 /** Supabase verschickt je nach Projekteinstellung 6 bis 8 Ziffern (Standard: 6). */
 const MIN_DIGITS = 6;
 const MAX_DIGITS = 8;

@@ -60,10 +60,10 @@ function FashionTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabB
     if (currentUserId) refreshUnread(currentUserId, mode === 'live').catch(() => {});
   }, [currentUserId, mode]);
   const ICON_PT = useIconPt();
-  const item = (on: boolean) => ({ pressed }: { pressed: boolean }) => [styles.itemInsta, !on && styles.off, pressed && styles.pressed];
+  const item = (on: boolean) => ({ pressed }: { pressed: boolean }) => [styles.itemFashionable, !on && styles.off, pressed && styles.pressed];
   return (
     <View style={[styles.wrapFlat, { paddingBottom: insets.bottom }]} pointerEvents="box-none">
-      <View style={styles.barInsta} accessibilityRole="tablist">
+      <View style={styles.barFashionable} accessibilityRole="tablist">
         <Pressable
           accessibilityRole="tab"
           accessibilityLabel={t('Feed')}
@@ -90,7 +90,7 @@ function FashionTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabB
         >
           <View>
             <SvgXml xml={phXml(PH.chats, color.text.primary)} width={ICON_PT} height={ICON_PT} />
-            {unread ? <View style={styles.dotInsta} /> : null}
+            {unread ? <View style={styles.dotFashionable} /> : null}
           </View>
         </Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel={t('Menü')} onPress={onMenuPress} style={item(false)}>
@@ -235,10 +235,10 @@ const styles = StyleSheet.create({
   // Erstellen als schlichtes Icon ohne Fläche
   cameraFlat: { backgroundColor: 'transparent', width: 48 },
   // Mockup: 72 hoch mit Home-Balken, Icons 12 unter der Haarlinie
-  barInsta: { flexDirection: 'row', height: 50 },
+  barFashionable: { flexDirection: 'row', height: 50 },
   off: { opacity: 0.55 },
-  itemInsta: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  dotInsta: {
+  itemFashionable: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  dotFashionable: {
     position: 'absolute',
     top: -2,
     right: -4,

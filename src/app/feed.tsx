@@ -458,7 +458,7 @@ export default function FeedScreen() {
           </Text>
         </View>
       </Animated.View>
-      <Animated.View style={[styles.tabsRow, isFashionable && styles.tabsRowInsta, { paddingRight: tabsPaddingRight }]}>
+      <Animated.View style={[styles.tabsRow, isFashionable && styles.tabsRowFashionable, { paddingRight: tabsPaddingRight }]}>
         <TabsNavigation selectedKey={tab} onChange={switchTab} groups={groupsOn} />
       </Animated.View>
       <Animated.View style={[styles.clip, storiesStyle]}>
@@ -556,5 +556,5 @@ const styles = StyleSheet.create({
     paddingLeft: space[16],
   },
   // Unterstrich-Reiter über die ganze Breite, Haarlinie unten schließt an den ersten Beitrag an
-  tabsRowInsta: { paddingTop: 0, paddingBottom: 0, paddingLeft: 0 },
+  tabsRowFashionable: { paddingTop: 0, paddingBottom: 0, paddingLeft: 0 },
 });

@@ -262,7 +262,7 @@ type GroupRow = {
   name: string;
   founder_id: string;
   invite_code: string;
-  /** fehlt, solange Migration 20261022000500 aussteht */
+  /** fehlt, solange Migration 20261022000500_group_leaderboard_toggle aussteht */
   show_leaderboard?: boolean;
   created_at: string;
   group_members: { user_id: string; role: 'founder' | 'member'; joined_at: string }[];
