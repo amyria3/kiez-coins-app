@@ -91,7 +91,7 @@ export function UpdateHint() {
       <View style={[styles.card, hint.required && { marginTop: insets.top + space[8] }]}>
         <Cat height={34} />
         <View style={styles.body}>
-          <Text style={styles.title}>{hint.required ? 'Diese Version ist zu alt.' : 'Ich habe eine neue Version für Dich!'}</Text>
+          <Text style={styles.title}>{hint.required ? 'Diese Version ist zu alt.' : 'Jo, meine Friends haben eine neue Version für Dich!'}</Text>
           <Text style={styles.steps}>Lade sie herunter und installiere sie über die alte. Deine Daten bleiben.</Text>
           <Pressable onPress={download} disabled={busy} style={[styles.button, busy && styles.busy]} accessibilityRole="button">
             <Text style={styles.buttonText}>Herunterladen</Text>
