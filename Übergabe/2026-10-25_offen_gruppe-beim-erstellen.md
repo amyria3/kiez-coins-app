@@ -10,16 +10,16 @@ Erstellt die Person eine Challenge, sieht sie, in welcher Gruppe sie gerade ist.
 
 ## Stand
 
-- Das Erstellen-Blatt über dem Feed (`src/components/compose/ComposeSheet.tsx`, `GroupBody`) zeigt im Reiter „Gruppen“ nur den Schalter We-Challenge / Me-Challenge und das Formular. Der Gruppenname fehlt.
-- Die Gruppe kommt als `target` aus `src/app/feed.tsx` (gewählte Gruppe im Reiter „Gruppen“).
+- Das Erstellen-Blatt über dem Feed (`src/components/compose/ComposeSheet.tsx`, `GroupBody`) zeigt im Reiter „In Gruppen“ nur den Schalter We-Challenge / Me-Challenge und das Formular. Der Gruppenname fehlt.
+- Die Gruppe kommt als `target` aus `src/app/feed.tsx` (gewählte Gruppe im Reiter „In Gruppen“).
 - Die Route `gruppen/[id]/aufgabe` (aus der Gruppenseite) zeigt den Namen schon als Untertitel: `<SubScreen title="Aufgabe erstellen" subtitle={group?.name}>`.
-- Im Reiter „In der Nähe“ (`PublicBody`) fehlt ebenso ein Hinweis, dass der Beitrag öffentlich im Kiez erscheint.
+- Im Reiter „Im Kiez“ (`PublicBody`) fehlt ebenso ein Hinweis, dass der Beitrag öffentlich im Kiez erscheint.
 
 ## Offene Fragen an Daria
 
 - Nur anzeigen oder auch im Blatt die Gruppe wechseln können?
 - Wo steht der Name: über dem Schalter, als Zeile „In {Gruppenname}“, oder als Chip mit dem Gruppen-Icon?
-- Bekommt der Kiez-Reiter dieselbe Zeile („Im Kiez“, „In der Nähe“)?
+- Bekommt der Kiez-Reiter dieselbe Zeile („Im Kiez“)?
 
 ## Code-Vorschlag
 

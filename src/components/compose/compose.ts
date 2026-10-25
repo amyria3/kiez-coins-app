@@ -19,7 +19,7 @@ export const takeComposeDone = () => {
 
 /**
  * Foto, Titel und Text, die alle Formulare im Erstellen-Blatt teilen (Daria, 25.10.2026):
- * Wer zwischen „In der Nähe“ und „Gruppen“ oder zwischen den Beitragstypen wechselt, behält die Eingaben.
+ * Wer zwischen „Im Kiez“ und „Gruppen“ oder zwischen den Beitragstypen wechselt, behält die Eingaben.
  * Zusatzfotos, Edensteine und Frist bleiben im jeweiligen Formular.
  */
 export type ComposeContent = {

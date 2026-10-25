@@ -15,7 +15,8 @@
 - Entwicklertexte in `remote.ts` (`purgeChallenge`, `saveSurveyAnswer`) durch vorhandene, übersetzte Sätze ersetzt.
 - `vorher-nachher/[id].tsx` formatiert Uhrzeit und Wochentag mit `localeTag()` (App-Sprache).
 - Fehlendes Pflichtfoto ist sichtbar (Daria, 25.10.2026: „Weiter“ wirkte wirkungslos): `PhotoPicker` hat `error`, Rand und Hinweis erscheinen in der Fehlerfarbe. Genutzt in `challenge/create/step-1.tsx`, `PublicComposeForm.tsx`, `BeforeAfterForm.tsx`, `vorher-nachher/[id].tsx`.
-- Erstellen-Blatt (Daria, 25.10.2026): Foto, Titel und Beschreibung bleiben beim Wechsel zwischen „In der Nähe“ und „Gruppen“ und zwischen den Beitragstypen erhalten (`useComposeContent` in `compose/compose.ts`, geteilt in `ComposeSheet.tsx`). Zusatzfotos, Edensteine und Frist bleiben pro Formular. Ist der Text für die Me-Challenge zu lang (über 240 Zeichen), färben sich Rand und Zähler rot, und „Vorher speichern“ wartet.
+- Erstellen-Blatt (Daria, 25.10.2026): Foto, Titel und Beschreibung bleiben beim Wechsel zwischen „Im Kiez“ und „In Gruppen“ und zwischen den Beitragstypen erhalten (`useComposeContent` in `compose/compose.ts`, geteilt in `ComposeSheet.tsx`). Zusatzfotos, Edensteine und Frist bleiben pro Formular. Ist der Text für die Me-Challenge zu lang (über 240 Zeichen), färben sich Rand und Zähler rot, und „Vorher speichern“ wartet.
+- Feed-Reiter heißen „Im Kiez“ (vorher „In der Nähe“) und „In Gruppen“ (vorher „Gruppen“), Daria 25.10.2026.
 - Drei Übergabe-Notizen auf den Stand vom 25.10.2026 gebracht (Funktionen-Sperre, Gruppen-Titelbild, Badge „Me-Challenge“).
 
 ## Texte mit neuem Schlüssel
