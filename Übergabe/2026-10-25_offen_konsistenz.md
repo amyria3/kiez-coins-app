@@ -1,13 +1,11 @@
-Pflichtaufgabe: Nach dem Merge `node scripts/app-texts.mjs > /tmp/app-texts.sql` ausführen und das SQL im Supabase-SQL-Editor einspielen, da einige Texte neue Schlüssel haben (Liste unten).
-
 # Konsistenzprüfung des Codes
 
 - Datum: 2026-10-25
-- Status: offen (Branch `konsistenz-2026-10-25`, nicht gemergt; Daria merged selbst)
+- Status: offen; Korrekturen am 25.10.2026 nach `main` gemergt, Entscheidungen unten stehen aus
 - Gehört in Documentation: `kiez-coins/app/Arbeitsstand_Code.md` (Abschnitt Konsistenz), Textregeln nach `kiez-coins/ENTSCHEIDUNGEN.md`
 - Bericht mit allen Befunden: Claude Doc „KiezCoins: Konsistenzprüfung des Codes“ (https://claude.ai/artifact/3CZNQXf759uEbSbr9csXf1)
 
-## Auf dem Branch erledigt
+## Erledigt (auf `main`)
 
 - Migration `20261022000500_messages.sql` heißt `20261022000600_messages.sql`, da die Nummer doppelt war. Im Supabase-Projekt ändert sich nichts.
 - Stilnamen für den Fashionable Look enden auf `Fashionable` (vorher `Insta`).
@@ -20,7 +18,7 @@ Pflichtaufgabe: Nach dem Merge `node scripts/app-texts.mjs > /tmp/app-texts.sql`
 
 ## Texte mit neuem Schlüssel
 
-Die Übersetzungen in `src/i18n` sind mitgezogen. Eigene Fassungen in `app_texts` (Spalte `text`) zum alten Schlüssel greifen nicht mehr und müssen bei Bedarf neu eingetragen werden:
+Die Übersetzungen in `src/i18n` sind mitgezogen. Daria hatte keine eigenen Fassungen in `app_texts` angepasst (25.10.2026), es geht nichts verloren. `node scripts/app-texts.mjs` bringt die neuen Texte bei Gelegenheit in den Texteditor:
 
 - „Aufgabe zurück schicken“ → „Aufgabe zurückschicken“
 - „Erstell eine Challenge …“ (`reise.ts`) → „Erstelle …“
