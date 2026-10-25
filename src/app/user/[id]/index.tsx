@@ -103,7 +103,7 @@ export default function UserProfile() {
     }
   };
   const confirmEnd = () =>
-    Alert.alert(t('Freundschaft mit {Name} beenden?', { Name }), tAbout(user, '{Name} erfährt nichts davon. Ihr könnt Euch jederzeit wieder anfragen.', { Name }), [
+    Alert.alert(t('Freundschaft mit {name} beenden?', { name: Name }), tAbout(user, '{name} erfährt nichts davon. Ihr könnt Euch jederzeit wieder anfragen.', { name: Name }), [
       { text: 'Abbrechen', style: 'cancel' },
       { text: 'Beenden', style: 'destructive', onPress: () => changeFriend('none', () => removeFriend(currentUserId, user.id)) },
     ]);
@@ -111,10 +111,10 @@ export default function UserProfile() {
 
   const block = () =>
     Alert.alert(
-      t('{Name} blockieren?', { Name }),
+      t('{name} blockieren?', { name: Name }),
       plural
-        ? t('Du siehst ihre Challenges und Kommentare nicht mehr. {Name} können Deine Challenges weder annehmen noch kommentieren und erfahren nichts davon. Aufheben kannst Du das unter „Dein Konto“.', { Name })
-        : tAbout(user, 'Du siehst die Challenges und Kommentare nicht mehr. {Name} kann Deine Challenges weder annehmen noch kommentieren und erfährt nichts davon. Aufheben kannst Du das unter „Dein Konto“.', { Name }),
+        ? t('Du siehst ihre Challenges und Kommentare nicht mehr. {name} können Deine Challenges weder annehmen noch kommentieren und erfahren nichts davon. Aufheben kannst Du das unter „Dein Konto“.', { name: Name })
+        : tAbout(user, 'Du siehst die Challenges und Kommentare nicht mehr. {name} kann Deine Challenges weder annehmen noch kommentieren und erfährt nichts davon. Aufheben kannst Du das unter „Dein Konto“.', { name: Name }),
       [
         { text: 'Abbrechen', style: 'cancel' },
         {

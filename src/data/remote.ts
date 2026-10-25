@@ -214,7 +214,10 @@ export function errorText(error: unknown): string {
     return t('Das geht gerade nicht mehr. Jemand war schneller oder der Stand hat sich geändert. Ich lade neu.');
   }
   if (e?.code === 'P0001' && e.message) return t(e.message);
-  if (e?.code === '23505') return t('Diesen Decknamen gibt es schon. Suche Dir bitte einen anderen aus.');
+  // Doppelter Eintrag: nur beim Decknamen ein eigener Satz, sonst der allgemeine Fehler
+  if (e?.code === '23505' && /profiles_handle_unique/.test(e.message ?? '')) {
+    return t('Diesen Decknamen gibt es schon. Suche Dir bitte einen anderen aus.');
+  }
   if (e?.code === '42501') return t('Das darfst Du gerade nicht. Hast Du schon Deinen Kiez festgelegt?');
   if (/fetch|network/i.test(e?.message ?? '')) return t('Keine Verbindung. Prüfe Dein Internet und versuche es noch mal.');
   // Unbekannter Fehler: technischen Grund klein anhängen, damit sich die Ursache finden lässt
@@ -827,7 +830,7 @@ export async function recordView(challengeId: string) {
 /** Gelöschte Challenge endgültig löschen (Migration 20261021000400). */
 export async function purgeChallenge(id: string) {
   const res = check(await supabase.from('challenges').delete().eq('id', id).eq('status', 'deleted').select('id'));
-  if (!res.data?.length) throw new Error('Endgültig löschen ging nicht. Läuft schon Migration 20261021000400?');
+  if (!res.data?.length) throw new Error(t('Da ist etwas schiefgegangen. Versuche es bitte noch mal.'));
 }
 
 export async function deleteDraft(id: string) {
@@ -849,8 +852,12 @@ export async function addComment(challengeId: string, body: string, replyToId?: 
 }
 
 export async function setLike(challengeId: string, userId: string, liked: boolean) {
-  if (liked) check(await supabase.from('likes').insert({ challenge_id: challengeId }));
-  else check(await supabase.from('likes').delete().eq('challenge_id', challengeId).eq('user_id', userId));
+  if (liked) {
+    const res = await supabase.from('likes').insert({ challenge_id: challengeId });
+    // Schon geliked (z. B. auf einem anderen Gerät): Ziel erreicht
+    if ((res.error as { code?: string } | null)?.code === '23505') return;
+    check(res);
+  } else check(await supabase.from('likes').delete().eq('challenge_id', challengeId).eq('user_id', userId));
 }
 
 export async function sharePayout(challengeId: string, share: PayoutShare) {
@@ -1093,7 +1100,7 @@ export async function loadMySurveyAnswer(): Promise<SurveyAnswer | null> {
 /** Antwort speichern. Eine Antwort pro Person; erneutes Absenden ändert sie. */
 export async function saveSurveyAnswer(answer: SurveyAnswer) {
   const { data } = await supabase.auth.getUser();
-  if (!data.user) throw new Error('not signed in');
+  if (!data.user) throw new Error(t('Melde Dich bitte neu an und versuche es dann noch mal.'));
   check(
     await supabase
       .from('survey_answers')

@@ -702,7 +702,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         put({
           ...c,
           status: 'open',
-          title: c.title.trim() || 'Vorher-Nachher',
+          title: c.title.trim() || 'Me-Challenge',
           text: beforeAfterBody(c),
           image: c.imageAfter ?? c.imageBefore,
           finishedAt: new Date(end).toISOString(),

@@ -101,7 +101,7 @@ export function reiseMoodText(mood: ReiseMood, anrede: string): string {
     case 'Curious':
       return t('Ich bin gespannt, was als Nächstes kommt.');
     case 'Welcome':
-      return t('Willkommen, {anrede}! Hier siehst Du, was Du so machst. Erstell eine Challenge oder nimm eine an.', { anrede });
+      return t('Willkommen, {anrede}! Hier siehst Du, was Du so machst. Erstelle eine Challenge oder nimm eine an.', { anrede });
     case 'Lazy':
       return t('Ganz schön ruhig hier. Ich leg mich so lange in die Sonne.');
   }

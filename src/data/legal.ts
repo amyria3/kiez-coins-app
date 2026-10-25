@@ -58,7 +58,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'Kontaktstelle nach dem Digital Services Act',
         paragraphs: [
-          `Behörden, die EU-Kommission und Nutzerinnen und Nutzer erreichen uns unter ${email}, auf Deutsch oder Englisch. Rechtswidrige Inhalte meldest Du direkt in der App über die Fahne an Challenges und Kommentaren, über „Person melden“ im Profil oder per E-Mail.`,
+          `Behörden, die EU-Kommission und Nutzer:innen erreichen uns unter ${email}, auf Deutsch oder Englisch. Rechtswidrige Inhalte meldest Du direkt in der App über die Fahne an Challenges und Kommentaren, über „Person melden“ im Profil oder per E-Mail.`,
         ],
       },
       {
@@ -184,7 +184,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: '6. Haftung',
         paragraphs: [
-          'Wir haften unbeschränkt für Vorsatz und grobe Fahrlässigkeit sowie für Schäden an Leben, Körper und Gesundheit. Sonst haften wir für den kostenlosen Testbetrieb nicht. Für Absprachen, Aufgaben und Zahlungen zwischen Nutzerinnen und Nutzern haften die beteiligten Personen.',
+          'Wir haften unbeschränkt für Vorsatz und grobe Fahrlässigkeit sowie für Schäden an Leben, Körper und Gesundheit. Sonst haften wir für den kostenlosen Testbetrieb nicht. Für Absprachen, Aufgaben und Zahlungen zwischen Nutzer:innen haften die beteiligten Personen.',
         ],
       },
       {

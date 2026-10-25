@@ -312,7 +312,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
   const state = isDraft
     ? {
         value: 'Entwurf',
-        hint: isBeforeAfter ? (c.timerStartedAt ? 'Vorher-Nachher, Timer läuft' : 'Vorher-Nachher, Timer noch nicht gestartet') : 'Nur für Dich sichtbar',
+        hint: isBeforeAfter ? (c.timerStartedAt ? 'Me-Challenge, Timer läuft' : 'Me-Challenge, Timer noch nicht gestartet') : 'Nur für Dich sichtbar',
       }
     : isBeforeAfter && c.status === 'open'
       ? { value: 'Gepostet', hint: formatRelative(c.createdAt) }
