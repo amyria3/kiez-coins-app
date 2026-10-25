@@ -191,7 +191,7 @@ export default function GroupDetail() {
         <FieldGroup label="Leute einladen">
           <CopyField label="Beitrittscode" value={group.inviteCode} />
           <CopyField label="Einladungslink" value={inviteLink(group.inviteCode)} />
-          <Button label="Einladung teilen" variant="secondary" onPress={() => shareText(inviteMessage(group))} />
+          <Button label="Einladung teilen" variant="secondary" icon="friends" onPress={() => shareText(inviteMessage(group))} />
         </FieldGroup>
       ) : (
         <Text style={styles.meta}>{t('Die Gruppe ist voll. Mehr als {MAX_MEMBERS} Mitglieder geht nicht.', { MAX_MEMBERS })}</Text>

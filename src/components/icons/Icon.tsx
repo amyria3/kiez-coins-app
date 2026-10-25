@@ -23,7 +23,7 @@ const KIEZ_PHOSPHOR: Partial<Record<IconName, PhosphorName>> = { copy: 'copy' };
 const CAMERA_SCALE = 1.2;
 /** Icons, die neben den anderen optisch kleiner wirken, etwas größer (Daria, 22.10.2026: das Zahnrad) */
 const OPTICAL: Partial<Record<IconName, number>> = { settings: 1.18 };
-const MIRRORED = new Set<IconName>(['chevron-left', 'chevron-right', 'send']);
+const MIRRORED = new Set<IconName>(['chevron-left', 'chevron-right', 'send', 'this-way']);
 
 
 export const Icon = memo(function Icon({ name, color = themeColor.text.primary, size }: IconProps) {

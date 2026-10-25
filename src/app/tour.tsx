@@ -78,7 +78,7 @@ export default function Tour() {
         ))}
       </View>
       <ActionBar>
-        <Button label={last ? 'Los geht’s' : 'Weiter'} onPress={() => (last ? finish() : goTo(page + 1))} />
+        <Button label={last ? 'Los geht’s' : 'Weiter'} icon="this-way" onPress={() => (last ? finish() : goTo(page + 1))} />
       </ActionBar>
     </View>
   );

@@ -134,7 +134,7 @@ export default function Friends() {
           <FriendInviteQr value={friendInviteLink(inviteCode)} />
           <CopyField label="Einladungslink" value={friendInviteLink(inviteCode)} />
           <CopyField label="Einladungscode" value={inviteCode} />
-          <Button label="Einladung teilen" onPress={() => shareText(friendInviteMessage(inviteCode))} />
+          <Button label="Einladung teilen" icon="friends" onPress={() => shareText(friendInviteMessage(inviteCode))} />
           <Button label="Neuen Code erzeugen" variant="secondary" onPress={renewCode} />
         </FieldGroup>
       ) : null}

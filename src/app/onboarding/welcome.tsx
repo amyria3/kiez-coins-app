@@ -43,7 +43,7 @@ export default function Welcome() {
       </ScrollView>
       <ActionBar>
         {/* Ein Weg für neue und bekannte Konten (Daria, 24.10.2026) */}
-        <Button label="Anheuern" onPress={() => router.push('/onboarding/email')} />
+        <Button label="Anheuern" icon="this-way" onPress={() => router.push('/onboarding/email')} />
       </ActionBar>
     </View>
   );

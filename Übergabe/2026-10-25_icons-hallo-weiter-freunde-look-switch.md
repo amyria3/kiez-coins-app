@@ -1,0 +1,19 @@
+# Neue handgezeichnete Icons (hallo, this-way, friends, look, switch, settings)
+
+Datum: 2026-10-25
+Status: erledigt, gehört in die Doku
+Ergebnis gehört nach Documentation: `kiez-coins/app/Anleitung_App.md` (Abschnitte „Dein Konto“, „Tour“, „Kater“) und die Icon-Übersicht
+
+Daria, 25.10.2026: neue Icons in `assets/icons/`, übernommen mit `scripts/icons-import.mjs` nach `src/components/icons/svgs.ts`.
+
+| Icon | Bild | Kiez-Look | Fashionable Look (Phosphor) |
+|:---|:---|:---|:---|
+| `hallo` | winkende Hand | Button „Hallo sagen“ auf der Kater-Seite (vorher `wir-schaffen-das`) | `hand-waving` |
+| `this-way` | zeigende Hand | Button „Weiter“/„Los geht’s“ in der Tour, Button „Anheuern“ auf der Willkommensseite; in Arabisch und Hebräisch gespiegelt | `arrow-right` |
+| `friends` | zwei Gesichter | Karte „Freundschaften“ in „Dein Konto“, Buttons „Einladung teilen“ (Freundschaften, Gruppe) | `handshake` |
+| `look` | Farbpalette | Karte „Look“ in „Dein Konto“ | `palette` |
+| `switch` | Schalter | Karte „Funktionen“ in „Dein Konto“ | `toggle-right` |
+| `settings` | Zahnrad | neue Fassung ersetzt die alte | `gear` (unverändert) |
+
+Sprache und Grammatisches Geschlecht behalten Phosphor, da es dafür noch kein handgezeichnetes Icon gibt.
+`assets/swsitch.svg` war identisch mit `wsitch.svg` und ist entfernt. `assets/Vector.svg` (einzelner Bogen) ist nicht eingebunden.
