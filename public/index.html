@@ -145,10 +145,42 @@
           var box = document.createElement('div');
           box.setAttribute('style', 'position:fixed;inset:0;z-index:99;padding:64px 24px;background:#1f2123;color:#f0f0f0;font:15px/1.4 -apple-system,system-ui,sans-serif;overflow:auto');
           box.innerHTML = '<p style="font-size:22px;font-weight:600;margin:0 0 12px">Kiez Coins startet nicht</p>' +
-            '<p style="margin:0 0 16px;color:#a0a0a0">Schick bitte einen Screenshot an den Support.</p>' +
-            '<pre style="white-space:pre-wrap;word-break:break-all;font-size:12px;color:#ff7e8b;margin:0 0 24px"></pre>' +
-            '<a href="/app/?look=kiez" style="display:inline-block;padding:12px 20px;border-radius:12px;background:#7e94ff;color:#1f2123;text-decoration:none;font-weight:600">Neu laden</a>';
-          box.querySelector('pre').textContent = String(text).slice(0, 1200) + '\n\nStart: ' + (window.__kiezStart || 'Skript nicht gestartet') + '\n' + navigator.userAgent;
+            '<p style="margin:0 0 16px;color:#a0a0a0">Schick uns den Fehlerbericht. So finden wir den Fehler schneller.</p>' +
+            '<button type="button" data-send style="display:block;margin:0 0 12px;padding:12px 20px;border:0;border-radius:12px;background:#7e94ff;color:#1f2123;font:600 16px -apple-system,system-ui,sans-serif">Fehlerbericht senden</button>' +
+            '<p data-status style="margin:0 0 12px"></p>' +
+            '<a href="/app/?look=kiez" style="display:inline-block;margin:0 0 24px;padding:12px 20px;border-radius:12px;border:1px solid #555;color:#f0f0f0;text-decoration:none">Neu laden</a>' +
+            '<pre style="white-space:pre-wrap;word-break:break-all;font-size:12px;color:#ff7e8b;margin:0"></pre>';
+          var start = window.__kiezStart || 'Skript nicht gestartet';
+          box.querySelector('pre').textContent = String(text).slice(0, 1200) + '\n\nStart: ' + start + '\n' + navigator.userAgent;
+          // Fehlerbericht an die Tabelle error_reports (Migration 20261025000200). URL und Publishable Key wie in src/lib/supabase.ts.
+          var report = {
+            message: String(text).split('\n')[0].slice(0, 1000) || 'Startfehler',
+            stack: String(text).slice(0, 8000),
+            screen: (location.pathname + location.search).slice(0, 300),
+            platform: ('web, ' + navigator.userAgent).slice(0, 300),
+            look: document.documentElement.classList.contains('fashionable') ? 'fashionable' : 'kiez',
+            start_info: String(start).slice(0, 300)
+          };
+          var status = box.querySelector('[data-status]');
+          var send = box.querySelector('[data-send]');
+          send.addEventListener('click', function () {
+            send.disabled = true;
+            send.textContent = 'Wird gesendet …';
+            fetch('https://aqxzxpxrshizlaqyjplw.supabase.co/rest/v1/error_reports', {
+              method: 'POST',
+              headers: { apikey: 'sb_publishable_WqrL7Y7Wm0l9cq4tHQpjAQ_iooAaNe0', 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+              body: JSON.stringify(report)
+            }).then(function (res) {
+              if (!res.ok) throw new Error(res.status);
+              send.remove();
+              status.style.color = '#93f4a7';
+              status.textContent = 'Danke! Der Fehlerbericht ist bei uns angekommen.';
+            }).catch(function () {
+              send.remove();
+              var body = encodeURIComponent(report.stack.slice(0, 1500) + '\n\nStart: ' + report.start_info + '\n' + report.platform);
+              status.innerHTML = 'Der Bericht ist nicht angekommen. <a style="color:#7e94ff" href="mailto:kiezkoins@protonmail.com?subject=' + encodeURIComponent('Fehlerbericht Kiez Coins') + '&body=' + body + '">Per E-Mail senden</a>';
+            });
+          });
           document.body.appendChild(box);
           // Startet die App doch noch, verschwindet der Hinweis wieder
           var watch = setInterval(function () {
