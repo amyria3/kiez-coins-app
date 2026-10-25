@@ -14,6 +14,7 @@ Daria, 25.10.2026: neue Icons in `assets/icons/`, übernommen mit `scripts/icons
 | `look` | Farbpalette | Karte „Look“ in „Dein Konto“ | `palette` |
 | `switch` | Schalter | Karte „Funktionen“ in „Dein Konto“ | `toggle-right` |
 | `questionmark` | Fragezeichen | Karte „Grammatisches Geschlecht“ in „Dein Konto“ | `question` |
+| `cat` | Kater mit Brille, gefüllt | Karte „Auf eine Frotzerei“ in „Dein Konto“ | bleibt `MonoCat` (Logo-Kater) |
 | `settings` | Zahnrad | neue Fassung ersetzt die alte | `gear` (unverändert) |
 
 Sprache behält Phosphor, da es dafür noch kein handgezeichnetes Icon gibt.

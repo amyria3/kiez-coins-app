@@ -123,11 +123,11 @@ export default function Account() {
           onPress={() => router.push('/account/look')}
         />
       ) : null}
-      {/* Kater-Seite als große Karte unter Look (Daria, 25.10.2026) */}
+      {/* Kater-Seite als große Karte unter Look (Daria, 25.10.2026); Kiez-Look: Darias Kater-Icon, Fashionable: Logo-Kater */}
       <NavCard
         title="Auf eine Frotzerei"
         description="Sprüche"
-        leading={<MonoCat height={size.icon} />}
+        leading={isFashionable ? <MonoCat height={size.icon} /> : <Icon name="cat" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/kater')}
       />
       <FieldGroup label="Einstellungen">
