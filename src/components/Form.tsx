@@ -434,21 +434,25 @@ export function PhotoPicker({ photo, hint, onChange, title }: PhotoPickerProps &
 
   return (
     <View style={styles.field}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={photo ? t('Foto ändern') : t('Foto aufnehmen oder auswählen')}
-        accessibilityHint={hint}
-        onPress={choose}
-        style={[styles.photoPicker, !photo && styles.photoPickerEmpty, title ? styles.photoPickerTitled : null]}
-      >
-        {photo ? <Image source={photo} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
-        {!photo ? (
-          <View style={styles.photoEmptyText}>
-            <Icon name="camera" />
-            <Text style={[text.body, { color: color.text.primary }]}>Foto aufnehmen oder auswählen</Text>
-            <Text style={[text.caption, { color: color.text.secondary }]}>{hint}</Text>
-          </View>
-        ) : null}
+      {/* Das Titelfeld liegt neben der Fläche und nicht in ihr. Auf Android reicht ein Tippen ins Feld
+          sonst an die Fläche weiter, und die Bildauswahl geht auf (Daria, 25.10.2026). */}
+      <View style={[styles.photoPicker, !photo && styles.photoPickerEmpty, title ? styles.photoPickerTitled : null]}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={photo ? t('Foto ändern') : t('Foto aufnehmen oder auswählen')}
+          accessibilityHint={hint}
+          onPress={choose}
+          style={StyleSheet.absoluteFill}
+        >
+          {photo ? <Image source={photo} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
+          {!photo ? (
+            <View style={styles.photoEmptyText}>
+              <Icon name="camera" />
+              <Text style={[text.body, { color: color.text.primary }]}>Foto aufnehmen oder auswählen</Text>
+              <Text style={[text.caption, { color: color.text.secondary }]}>{hint}</Text>
+            </View>
+          ) : null}
+        </Pressable>
         {title ? (
           <View ref={titleRef} style={[styles.photoTitle, { borderColor: titleBorder }]}>
             <TextInput
@@ -473,7 +477,7 @@ export function PhotoPicker({ photo, hint, onChange, title }: PhotoPickerProps &
             />
           </View>
         ) : null}
-      </Pressable>
+      </View>
       {titleHelper ? <Text style={[styles.helper, title?.error ? styles.helperError : nudgeStyles.hint]}>{titleHelper}</Text> : null}
     </View>
   );
