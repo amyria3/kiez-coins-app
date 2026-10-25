@@ -4,11 +4,11 @@ import { Alert, Platform, StyleSheet, TextInput, View } from 'react-native';
 import { BEFORE_AFTER_TEXT_MAX } from '../../data/remote';
 import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
-import type { ImageSource } from '../../data/types';
 import { color, font, isFashionable, radius, space, stroke, text } from '../../theme/tokens';
 import { Button } from '../Button';
 import { PhotoPicker } from '../Form';
 import { useNudge } from '../Nudge';
+import { useComposeContent, type ComposeContent } from './compose';
 import { Text } from '../T';
 
 /** Fortschritt „1 Vorher, 2 Timer, 3 Nachher“ */
@@ -45,12 +45,15 @@ export function TagTextField({
   value,
   onChangeText,
   placeholder,
+  tooLong,
 }: {
   label: string;
   tag: '#vorher' | '#nachher';
   value: string;
   onChangeText: (v: string) => void;
   placeholder?: string;
+  /** Zu langer Text (aus einem anderen Formular übernommen): Rand und Zähler in der Fehlerfarbe */
+  tooLong?: boolean;
 }) {
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<TextInput>(null);
@@ -58,7 +61,7 @@ export function TagTextField({
     <View style={styles.field}>
       <Text style={styles.label}>{t(label)}</Text>
       <View
-        style={[styles.box, { borderColor: focused ? color.accent.primary : isFashionable ? color.line.hairline : color.text.secondary }]}
+        style={[styles.box, { borderColor: tooLong ? color.accent.error : focused ? color.accent.primary : isFashionable ? color.line.hairline : color.text.secondary }]}
         onTouchEnd={() => inputRef.current?.focus()}
       >
         <Text style={styles.tag} noTranslate>
@@ -82,7 +85,7 @@ export function TagTextField({
       </View>
       <View style={styles.help}>
         <Text style={styles.helpText}>{t('{tag} steht automatisch vorn.', { tag })}</Text>
-        <Text style={styles.helpText}>{`${value.length} / ${BEFORE_AFTER_TEXT_MAX}`}</Text>
+        <Text style={[styles.helpText, tooLong ? { color: color.accent.error } : null]}>{`${value.length} / ${BEFORE_AFTER_TEXT_MAX}`}</Text>
       </View>
     </View>
   );
@@ -95,19 +98,21 @@ export function TagTextField({
 export function useBeforeAfterStartForm(
   groupId: string | undefined,
   onStarted: (id: string) => void,
+  shared?: ComposeContent,
 ): { fields: ReactNode; button: ReactNode } {
   const { beforeAfter } = useStore();
-  const [photo, setPhoto] = useState<ImageSource>();
-  const [title, setTitle] = useState('');
-  const [beforeText, setBeforeText] = useState('');
+  const own = useComposeContent();
+  const { photo, setPhoto, title, setTitle, text: beforeText, setText: setBeforeText } = shared ?? own;
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState(false);
   const titleField = useNudge();
   const missingPhoto = !photo;
   const missingTitle = !title.trim();
+  // Text aus einem anderen Formular kann länger sein als die Me-Challenge erlaubt
+  const textTooLong = beforeText.length > BEFORE_AFTER_TEXT_MAX;
 
   const save = async () => {
-    if (!photo || missingTitle) {
+    if (!photo || missingTitle || textTooLong) {
       setShowErrors(true);
       return;
     }
@@ -146,6 +151,7 @@ export function useBeforeAfterStartForm(
         value={beforeText}
         onChangeText={setBeforeText}
         placeholder="Was ist das Problem?"
+        tooLong={showErrors && textTooLong}
       />
     </>
   );

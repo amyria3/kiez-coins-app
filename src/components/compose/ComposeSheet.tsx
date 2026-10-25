@@ -10,6 +10,7 @@ import { useGroupTaskForm } from './GroupTaskForm';
 import { usePublicComposeForm } from './PublicComposeForm';
 import { useBeforeAfterStartForm } from './BeforeAfterForm';
 import { TypeSwitch } from './TypeSwitch';
+import { useComposeContent, type ComposeContent } from './compose';
 import { useFeatures, type FeatureState } from '../../data/features';
 
 /** Beitragstypen im Kiez, in dieser Reihenfolge (Daria, 23.10.2026) */
@@ -41,13 +42,15 @@ type Props = {
  * nichts verliert. Die Bewegung (von unten, federnd) macht feed.tsx.
  */
 export function ComposeSheet({ target, onDone }: Props) {
+  // Foto, Titel und Text gelten für alle Formulare im Blatt (Daria, 25.10.2026)
+  const shared = useComposeContent();
   return (
     <View style={styles.sheet}>
       <View style={[styles.flex, target === 'public' ? null : styles.hidden]}>
-        <PublicBody onDone={onDone} />
+        <PublicBody onDone={onDone} shared={shared} />
       </View>
       <View style={[styles.flex, target === 'public' ? styles.hidden : null]}>
-        {target && target !== 'public' ? <GroupBody key={target} groupId={target} onDone={onDone} /> : <NoGroup />}
+        {target && target !== 'public' ? <GroupBody key={target} groupId={target} onDone={onDone} shared={shared} /> : <NoGroup />}
       </View>
     </View>
   );
@@ -85,14 +88,14 @@ function useOpenTimer(onDone: () => void) {
   };
 }
 
-function PublicBody({ onDone }: { onDone: () => void }) {
+function PublicBody({ onDone, shared }: { onDone: () => void; shared: ComposeContent }) {
   const on = useFeatures();
   const options = PUBLIC_TYPES.filter((o) => on[FEATURE_OF[o.key]]);
   const [choice, setType] = useState<(typeof PUBLIC_TYPES)[number]['key']>('individual');
   // Abgeschalteter Typ: der erste angeschaltete springt ein
   const type = options.some((o) => o.key === choice) ? choice : (options[0]?.key ?? 'before_after');
-  const post = usePublicComposeForm(onDone, type === 'photo' ? 'photo' : 'individual');
-  const ba = useBeforeAfterStartForm(undefined, useOpenTimer(onDone));
+  const post = usePublicComposeForm(onDone, type === 'photo' ? 'photo' : 'individual', shared);
+  const ba = useBeforeAfterStartForm(undefined, useOpenTimer(onDone), shared);
   const isBa = type === 'before_after';
   return (
     <SheetScroll actions={isBa ? ba.button : post.buttons}>
@@ -102,7 +105,7 @@ function PublicBody({ onDone }: { onDone: () => void }) {
   );
 }
 
-function GroupBody({ groupId, onDone }: { groupId: string; onDone: () => void }) {
+function GroupBody({ groupId, onDone, shared }: { groupId: string; onDone: () => void; shared: ComposeContent }) {
   const router = useRouter();
   const on = useFeatures();
   const options = GROUP_TYPES.filter((o) => o.key === 'task' || on.me);
@@ -111,8 +114,8 @@ function GroupBody({ groupId, onDone }: { groupId: string; onDone: () => void })
   const task = useGroupTaskForm(groupId, {}, (taskId) => {
     onDone();
     router.push(`/challenge/${taskId}`);
-  });
-  const ba = useBeforeAfterStartForm(groupId, useOpenTimer(onDone));
+  }, shared);
+  const ba = useBeforeAfterStartForm(groupId, useOpenTimer(onDone), shared);
   const isBa = type === 'before_after';
   return (
     <SheetScroll actions={isBa ? ba.button : task.button}>
