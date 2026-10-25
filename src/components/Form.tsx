@@ -69,7 +69,14 @@ export function TextField({
         multiline={multiline}
         scrollEnabled={multiline ? false : undefined}
         onContentSizeChange={
-          multiline && Platform.OS === 'web' ? (e) => setContentHeight(e.nativeEvent.contentSize.height) : undefined
+          multiline && Platform.OS === 'web'
+            ? (e) => {
+                // Hysterese: Rundungsabweichungen der Pixeldichte (±1–2 px) lösen kein neues Rendern aus.
+                // So wächst das Feld zeilenweise und gerät nicht in eine Endlosschleife (React-Fehler #185).
+                const next = Math.round(e.nativeEvent.contentSize.height);
+                setContentHeight((prev) => (Math.abs(next - prev) > 2 ? next : prev));
+              }
+            : undefined
         }
         placeholderTextColor={color.text.secondary}
         selectionColor={color.accent.primary}
