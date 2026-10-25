@@ -11,7 +11,7 @@ import { FieldGroup } from '../../components/Content';
 import { EditableRow, NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { useAuth } from '../../data/auth';
-import { addressForms, anrede } from '../../data/format';
+import { addressForms, anrede, genderLabel } from '../../data/format';
 import { errorText, loadProfileExtras, normalizeWebsite, saveAvatar, saveHandle, saveProfileExtras, type ProfileExtras } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
 import type { ImageSource } from '../../data/types';
@@ -121,6 +121,11 @@ export default function PersonalDetails() {
       <FieldGroup label="Profil">
         <EditableRow label="Deckname" value={profile.handle || me.name} maxLength={30} onSave={saveDeckname} />
         <EditableRow label="Ansprache" value={anrede(profile)} maxLength={30} onSave={saveAnrede} />
+        <NavRow
+          label="Grammatisches Geschlecht"
+          value={genderLabel(profile.gender)}
+          onPress={() => router.push('/account/geschlecht')}
+        />
         <NavRow
           label="Kiez"
           value={profile.kiez ?? 'Noch nicht festgelegt'}
