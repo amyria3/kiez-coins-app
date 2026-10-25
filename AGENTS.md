@@ -45,6 +45,13 @@ Docs: https://docs.expo.dev/eas/index.md
 - Claude may commit and push directly to `main` (Daria, 2026-10-23).
 - Do not implement a feature that was only discussed and is not yet on `main` without Daria's explicit request (2026-10-23).
 
+## Releases
+
+- Web, iPhone and Android always run the same state (Daria, 2026-10-25). Every change on `main` must reach all platforms.
+- Vercel rebuilds the web app on every push to `main`. iPhone testers use the web app until TestFlight exists.
+- The Android APK has no over-the-air updates yet. After a push that changes the app, tell Daria at the end of your reply that a new APK is due. Steps: Documentation `kiez-coins/app/Stand_App.md`, section "Testversion verteilen".
+- Planned automatic updates: `Übergabe/2026-10-25_offen_updates-ueberall.md`.
+
 ## UI work
 
 Follow `kiez-coins/design/UX_UI_Regeln.md`, `kiez-coins/design/Icon_Regelwerk.md` and `kiez-coins/design/Designsystem.md` in Documentation. Every icon has exactly one meaning per look, and every meaning has exactly one icon.
