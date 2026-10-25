@@ -38,5 +38,4 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-24_offen_gendern.md`: konsistentes Gendern, alle Stellen mit grammatischem Geschlecht und offene Fragen an Daria.
 - `2026-10-24_offen_features-aus-textkorrektur.md`: Features, Bugs und offene Fragen, die Daria am 24.10.2026 an den Rand des Text-Ausdrucks geschrieben hat.
 - `2026-10-24_offen_umbenennung-kiezkoinz.md`, `2026-10-24_offen_funktionen-sperre.md` und `2026-10-24_offen_coin-animation-me-challenge.md`: Darias To-do-Liste vom 24.10.2026.
-- `2026-10-25_offen_updates-ueberall.md`: automatische Updates für Android per `expo-updates` und GitHub Action, damit alle Plattformen ohne Handarbeit auf demselben Stand bleiben.
 - `2026-10-25_offen_fehlerberichte.md`: Fehler-Screen mit Fehlerbericht. Pflichtaufgabe: Migration `20261025000200_error_reports.sql` ausführen.
