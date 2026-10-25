@@ -58,6 +58,7 @@ type Action =
   | { type: 'challengeLoaded'; id: string; challenge: Challenge | null; users: User[] }
   | { type: 'useSampleData' }
   | { type: 'edit'; id: string; edit: remote.ChallengeEdit }
+  | { type: 'editDeleted'; id: string; edit: remote.ChallengeEdit }
   | { type: 'close'; id: string }
   | { type: 'deleteDraft'; id: string }
   | { type: 'purge'; id: string }
@@ -87,7 +88,8 @@ const emptyLive = (profile: Profile): State => ({
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'edit': {
+    case 'edit':
+    case 'editDeleted': {
       const { photo, ...rest } = action.edit;
       return updateChallenge(state, action.id, () => ({ ...rest, ...(photo ? { image: photo } : {}) }));
     }
@@ -230,6 +232,9 @@ async function persist(action: Action, before: State): Promise<string | null> {
   switch (action.type) {
     case 'edit':
       await remote.editChallenge(action.id, action.edit, userId);
+      return action.id;
+    case 'editDeleted':
+      await remote.editDeletedChallenge(action.id, action.edit, userId);
       return action.id;
     case 'close':
       await remote.closeChallenge(action.id);
