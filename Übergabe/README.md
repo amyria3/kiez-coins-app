@@ -38,6 +38,11 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-24_offen_gendern.md`: konsistentes Gendern, alle Stellen mit grammatischem Geschlecht und offene Fragen an Daria.
 - `2026-10-24_offen_features-aus-textkorrektur.md`: Features, Bugs und offene Fragen, die Daria am 24.10.2026 an den Rand des Text-Ausdrucks geschrieben hat.
 - `2026-10-24_offen_umbenennung-kiezkoinz.md`, `2026-10-24_offen_funktionen-sperre.md` und `2026-10-24_offen_coin-animation-me-challenge.md`: Darias To-do-Liste vom 24.10.2026.
+- `2026-10-24_offen_email-code-5-minuten.md`: Anmeldung per E-Mail-Code, jeder Code der letzten 5 Minuten gilt. Pflichtaufgabe: Migration für `login_codes`, zwei Edge Functions, Secrets und `pg_cron`-Job.
+- `2026-10-24_offen_gruppen.md` und `2026-10-24_offen_gruppen-titelbild.md`: offene Punkte zum Feature „Gruppen“ und zum Gruppen-Titelbild.
+- `2026-10-24_offen_look-auf-allen-geraeten.md` und `2026-10-24_offen_web-und-mobile.md`: Abweichungen im Look und zwischen Web-App und Mobile.
+- `2026-10-24_offen_figma-abgleich.md`: Figma an den Stand der App anpassen.
+- `2026-10-24_offen_typescript-strict.md`: TypeScript auf die neuen React-Native-Typen umstellen.
 - `2026-10-25_offen_fehlerberichte.md`: Fehler-Screen mit Fehlerbericht. Pflichtaufgabe: Migration `20261025000200_error_reports.sql` ausführen.
 - `2026-10-25_offen_konsistenz.md`: Konsistenzprüfung vom 25.10.2026, Korrekturen auf `main`, offene Entscheidungen und neue Textschlüssel.
 - `2026-10-25_offen_gruppe-beim-erstellen.md`: Beim Erstellen zeigt die App, in welcher Gruppe die Person ist (To-do, Daria).
