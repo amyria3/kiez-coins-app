@@ -266,7 +266,7 @@ ${sprachen.map((l) => `<link rel="alternate" hreflang="${l.code}" href="${pfad(l
 </head>
 <body>
 ${filterDefs}
-<div class="fx-spur" aria-hidden="true"><span class="fx-coin">${sized(kcSvg.coins, 22)}</span></div>
+<div class="fx-spur" aria-hidden="true"></div>
 <div class="wrap">
 <header class="top">
   <a class="brand" href="${L === 'de' ? './' : pfad(L)}" aria-label="${t('Kiez Coins, Startseite', 'Kiez Coins, home')}">${sized(kcSvg.logo, 28)}</a>
@@ -481,7 +481,7 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
   });
 </script>
 <script>
-  // Scrolleffekte (Vorschau): A Abschnitte blenden ein, B Kater und Telefon bewegen sich leicht mit, C Coin-Spur oben,
+  // Scrolleffekte (Vorschau): A Abschnitte blenden ein, B Kater und Telefon bewegen sich leicht mit, C Fortschrittsbalken oben,
   // D Abschnitte stapeln sich wie Karten. ?fx=a,b,c,d schaltet einzelne Effekte, ?fx zeigt dazu eine kleine Auswahl. Bei „Bewegung reduzieren“ bleibt alles still.
   (function () {
     var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -492,7 +492,7 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
     if (q !== null) {
       var w = document.createElement('div');
       w.className = 'fx-wahl';
-      w.innerHTML = ['a Einblenden', 'b Kater', 'c Coin-Spur', 'd Kartenstapel'].map(function (n) { var k = n[0]; return '<label><input type="checkbox" value="' + k + '"' + (an.indexOf(k) > -1 ? ' checked' : '') + '> ' + n.toUpperCase().slice(0, 1) + n.slice(1) + '</label>'; }).join('');
+      w.innerHTML = ['a Einblenden', 'b Kater', 'c Fortschritt', 'd Kartenstapel'].map(function (n) { var k = n[0]; return '<label><input type="checkbox" value="' + k + '"' + (an.indexOf(k) > -1 ? ' checked' : '') + '> ' + n.toUpperCase().slice(0, 1) + n.slice(1) + '</label>'; }).join('');
       w.addEventListener('change', function () { var v = [].map.call(w.querySelectorAll(':checked'), function (i) { return i.value; }).join(','); location.search = '?fx=' + v; });
       document.body.appendChild(w);
     }

@@ -9,7 +9,7 @@
   --bg: #FAFBEF; --surface: #FFFFFF; --glass: rgba(250,251,239,.85); --text: #26233A; --muted: #6A6680;
   --purple: #5260E0; --orange: #FFAD7E; --green: #93F4A7; --red: #D6334A; --pink: #FFB2E5;
   --line: rgba(38,35,58,.10); --on-accent: #FFFFFF;
-  --buehne: #DCE1FF; --band: #EEF4CC; --flaeche-tief: #E9EBFA; --schatten: rgba(60,60,140,.25);
+  --buehne: #DCE1FF; --band: #F1F7D0; --flaeche-tief: #E9EBFA; --schatten: rgba(60,60,140,.25);
   --barrier: cubic-bezier(.55,-.3,.3,1.3);
   --display: 'Inter Tight', Inter, system-ui, sans-serif;
 }
@@ -303,7 +303,7 @@ button { font: inherit; color: inherit; }
 }
 
 /* Leute */
-.mehr { padding: 64px 0; background: var(--band); }
+.mehr { padding: 64px 0; background: var(--band) linear-gradient(135deg, #F1F7D0 0%, #EDEAFF 50%, #FFE8DA 100%); }
 .mehr > .wrap > p { color: var(--muted); margin: 0 0 32px; max-width: 46ch; }
 .mehr-karten { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .mehr-karte { display: grid; grid-template-rows: auto auto 1fr auto; gap: 14px; text-align: start; padding: 20px; border-radius: 28px;
@@ -588,15 +588,12 @@ footer a { color: var(--muted); }
 /* B: Kater wandert mit und neigt den Kopf, das Telefon bleibt beim Scrollen etwas zurück */
 .fx-b .kater-kopf { translate: 0 var(--ky, 0px); rotate: var(--kr, 0deg); transition: transform 560ms var(--barrier), opacity 200ms, translate 400ms ease-out; }
 .fx-b .phone-spalte { translate: 0 var(--ty, 0px); }
-/* C: Coin-Spur oben zeigt, wie weit man gescrollt hat; die Münze rollt mit */
+/* C: Farbverlauf oben zeigt, wie weit man gescrollt hat */
 .fx-spur { display: none; }
 .fx-c .fx-spur { display: block; position: fixed; z-index: 800; inset: 0 0 auto 0; height: 4px; pointer-events: none; }
 .fx-c .fx-spur::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--purple), var(--pink), var(--orange));
   transform: scaleX(var(--p, 0)); transform-origin: left; border-radius: 0 4px 4px 0; }
 [dir="rtl"].fx-c .fx-spur::before { transform-origin: right; background: linear-gradient(-90deg, var(--purple), var(--pink), var(--orange)); }
-.fx-coin { position: absolute; top: 4px; inset-inline-start: calc(var(--p, 0) * (100% - 26px)); rotate: calc(var(--p, 0) * 1080deg); display: block; line-height: 0;
-  filter: drop-shadow(0 2px 3px var(--schatten)); }
-[dir="rtl"] .fx-coin { rotate: calc(var(--p, 0) * -1080deg); }
 /* Auswahl für die Vorschau */
 .fx-wahl { position: fixed; z-index: 990; inset-inline-end: 12px; bottom: 12px; display: grid; gap: 4px; padding: 10px 14px; border-radius: 16px;
   background: var(--surface); box-shadow: 0 12px 30px -12px var(--schatten); font-size: 14px; }
