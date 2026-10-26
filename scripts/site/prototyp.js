@@ -9,10 +9,16 @@
   var root = document.getElementById('prototyp');
   if (!KC || !root) return;
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // Sprache kommt aus <html lang>: Deutsch unter /, Englisch unter /en/ (Daria, 26.10.2026)
-  var EN = document.documentElement.lang === 'en';
-  function T(de, en) {
-    return EN ? en : de;
+  // Sprache kommt aus <html lang> (Daria, 26.10.2026). Im Code stehen Deutsch und Englisch, die übrigen Sprachen
+  // bringt die Seite als window.KC_T mit (scripts/site/sprachen/<code>.json, Schlüssel ist der deutsche Text).
+  // Fehlt dort ein Text, gilt Englisch. Platzhalter wie {name} füllt `vars`.
+  var LANG = document.documentElement.lang || 'de';
+  var EN = LANG !== 'de';
+  var D = window.KC_T || {};
+  function T(de, en, vars) {
+    var s = LANG === 'de' ? de : LANG === 'en' ? en : D[de] || en;
+    if (vars) Object.keys(vars).forEach(function (k) { s = s.split('{' + k + '}').join(vars[k]); });
+    return s;
   }
 
   // ---------- Hilfen ----------
@@ -38,7 +44,7 @@
   }
 
   // Text unter der Überschrift, wenn der Ort keinen eigenen für das Szenario hat
-  var LEDE = EN ? 'Sound familiar? Something needs doing, but who on earth is going to do it? KiezCoins gives you an interface to share work better – at home or in your neighborhood. Together we’re stronger, healthier, happier, wealthier and we even get more done!' : 'Kennst Du das? Irgendwas muss erledigt werden, doch wer in Gottes Namen soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez. Zusammen sind wir stärker, gesünder, glücklicher, wohlhabender und bekommen sogar mehr gebacken!';
+  var LEDE = T('Kennst Du das? Irgendwas muss erledigt werden, doch wer in Gottes Namen soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez. Zusammen sind wir stärker, gesünder, glücklicher, wohlhabender und bekommen sogar mehr gebacken!', 'Sound familiar? Something needs doing, but who on earth is going to do it? KiezCoins gives you an interface to share work better – at home or in your neighborhood. Together we’re stronger, healthier, happier, wealthier and we even get more done!');
 
   // Eigene Me-Challenge im Prototyp, in beiden Orten gleich (Vorher hohes Gras, Nachher gepflegte Beete)
   var ME = {
@@ -56,7 +62,7 @@
     kiez: {
       unit: 'euro',
       place: 'Connewitz',
-      countText: function (n) { return n === 1 ? '1 We-Challenge in Deiner Nähe' : n + ' We-Challenges in Deiner Nähe'; },
+      countText: function (n) { return n === 1 ? T('1 We-Challenge in Deiner Nähe', '1 We-Challenge near you') : T('{n} We-Challenges in Deiner Nähe', '{n} We-Challenges near you', { n: n }); },
       headline: 'Kleine Challenges für mehr echte Gemeinschaft',
       // Text unter der Überschrift je nach Szenario (Daria, 26.10.2026); ohne Eintrag gilt LEDE
       ledes: {
@@ -107,7 +113,7 @@
     gruppe: {
       unit: 'eden',
       place: 'Hof Kastanienallee',
-      countText: function (n) { return n === 1 ? '1 offene Aufgabe' : n + ' offene Aufgaben'; },
+      countText: function (n) { return n === 1 ? T('1 offene Aufgabe', '1 open task') : T('{n} offene Aufgaben', '{n} open tasks', { n: n }); },
       headline: 'Kleine Challenges für mehr echte Gemeinschaft',
       people: {
         lena: { name: 'Lena K.', short: 'Lena', color: '#FFB2E5' },
@@ -168,7 +174,6 @@
   };
   var MODES_EN = {
     kiez: {
-      countText: function (n) { return n === 1 ? '1 We-Challenge near you' : n + ' We-Challenges near you'; },
       headline: 'Small challenges for more real community',
       ledes: {
         me: 'Know the saying “Do good and talk about it”? This is the space for it, because we all learn a little from each other. Showing off and friendly competition are part of the game!',
@@ -191,7 +196,6 @@
       ],
     },
     gruppe: {
-      countText: function (n) { return n === 1 ? '1 open task' : n + ' open tasks'; },
       headline: 'Small challenges for more real community',
       people: { gardeners: { name: 'Neighborhood gardeners', short: 'Gardeners' }, du: { name: 'You', short: 'You' } },
       challenges: [
@@ -223,9 +227,23 @@
       } else to[k] = v;
     });
   }
-  if (EN) {
+  // Übrige Sprachen: jeder deutsche Text aus KC_T, sonst der englische an derselben Stelle, sonst unverändert
+  function tr(de, en) {
+    if (typeof de === 'string') return D[de] || (typeof en === 'string' ? en : de);
+    if (Array.isArray(de)) return de.map(function (x, i) { return tr(x, en && en[i]); });
+    if (de && typeof de === 'object') {
+      var o = {};
+      Object.keys(de).forEach(function (k) { o[k] = tr(de[k], en && en[k]); });
+      return o;
+    }
+    return de;
+  }
+  if (LANG === 'en') {
     overlay(ME, ME_EN);
     overlay(MODES, MODES_EN);
+  } else if (EN) {
+    ME = tr(ME, ME_EN);
+    MODES = tr(MODES, MODES_EN);
   }
 
   var M, people, challenges, group, state;
@@ -266,7 +284,7 @@
       : svg('diamond', (h || 20) - 2) + '<b class="p-eden">' + n + '</b>';
   }
   function rewardText(n) {
-    return M.unit === 'euro' ? n + ' Coins' : n === 1 ? T('1 Edenstein', '1 Eden stone') : n + T(' Edensteine', ' Eden stones');
+    return M.unit === 'euro' ? n + ' Coins' : n === 1 ? T('1 Edenstein', '1 Eden stone') : T('{n} Edensteine', '{n} Eden stones', { n: n });
   }
 
   // ---------- Aufbau ----------
@@ -319,13 +337,13 @@
   function statusChip(id) {
     var s = state.status[id];
     if (!s) return '';
-    var t = EN ? { accepted: 'Accepted', reported: 'Reported done', confirmed: 'Confirmed' }[s] : { accepted: 'Angenommen', reported: 'Erledigt gemeldet', confirmed: 'Bestätigt' }[s];
+    var t = { accepted: T('Angenommen', 'Accepted'), reported: T('Erledigt gemeldet', 'Reported done'), confirmed: T('Bestätigt', 'Confirmed') }[s];
     return '<span class="p-chip p-chip-' + s + '">' + t + '</span>';
   }
 
   // ---------- Feed ----------
   // Wann gepostet, für „Wer hat gepostet“ nach dem ersten Tippen
-  var AGO = EN ? ['2 hrs ago', '5 hrs ago', 'yesterday', '3 days ago'] : ['vor 2 Std.', 'vor 5 Std.', 'gestern', 'vor 3 Tagen'];
+  var AGO = [T('vor 2 Std.', '2 hrs ago'), T('vor 5 Std.', '5 hrs ago'), T('gestern', 'yesterday'), T('vor 3 Tagen', '3 days ago')];
   function ago(c) {
     var i = challenges.indexOf(c);
     return c.author === 'du' ? T('gerade eben', 'just now') : AGO[i % AGO.length];
@@ -377,7 +395,7 @@
     var liked = !!state.liked[c.id];
     return (
       '<article class="p-post' + (isNew ? ' p-new' : '') + '" data-id="' + c.id + '">' +
-      '<button type="button" class="p-card' + (c.img ? '' : ' p-card-text') + '" data-open="' + c.id + '" aria-label="' + T(esc(c.title) + ' öffnen', 'Open ' + esc(c.title)) + '">' +
+      '<button type="button" class="p-card' + (c.img ? '' : ' p-card-text') + '" data-open="' + c.id + '" aria-label="' + T('{title} öffnen', 'Open {title}', { title: esc(c.title) }) + '">' +
       (c.img ? '<span class="p-img">' + image(c.img) + '</span>' : '') +
       '<span class="p-bounty' + (M.unit === 'euro' ? '' : ' p-bounty-eden') + '">' + bountyOf(c) + '</span>' +
       '<span class="p-who">' + avatar(c.author, 28) + '<span><b>' + esc(people[c.author].name) + '</b><i>' + ago(c) + '</i></span></span>' +
@@ -420,7 +438,7 @@
       '</b><span>' + (M.unit === 'euro' ? T('verdient', 'earned') : T('gesammelt', 'collected')) + '</span></div><div><b>' + mine.length + '</b><span>' + T('gestellt', 'posted') + '</span></div></div>' +
       (rows
         ? '<ul class="p-rows">' + rows + '</ul>'
-        : '<p class="p-empty">' + T('Nimm eine We-Challenge an. Hier siehst Du, was Du erledigst und ' + (M.unit === 'euro' ? 'verdienst' : 'sammelst') + '.', 'Accept a We-Challenge. Here you see what you get done and ' + (M.unit === 'euro' ? 'earn' : 'collect') + '.') + '</p>' +
+        : '<p class="p-empty">' + (M.unit === 'euro' ? T('Nimm eine We-Challenge an. Hier siehst Du, was Du erledigst und verdienst.', 'Accept a We-Challenge. Here you see what you get done and earn.') : T('Nimm eine We-Challenge an. Hier siehst Du, was Du erledigst und sammelst.', 'Accept a We-Challenge. Here you see what you get done and collect.')) + '</p>' +
           '<button type="button" class="p-btn p-btn-secondary" data-tab-go="nearby">' + M.place + '</button>') +
       '</div>';
   }
@@ -580,8 +598,8 @@
     if (c.author === 'du') action = '<button type="button" class="p-btn p-btn-secondary" data-soon="' + T('Teilen', 'Sharing') + '">' + T('We-Challenge teilen', 'Share We-Challenge') + '</button>';
     else if (!s) action = '<button type="button" class="p-btn" data-step="accept">' + svg('hands', 20) + T('We-Challenge annehmen', 'Accept We-Challenge') + '</button>';
     else if (s === 'accepted') action = '<button type="button" class="p-btn" data-step="report">' + T('Erledigt melden', 'Report done') + '</button>';
-    else if (s === 'reported') action = '<button type="button" class="p-btn p-btn-wait" disabled>' + who + T(' prüft …', ' is checking …') + '</button>';
-    else action = '<button type="button" class="p-btn p-btn-ok" disabled>' + svg('check', 12) + ' ' + rewardText(c.reward) + T(' von ', ' from ') + who + '</button>';
+    else if (s === 'reported') action = '<button type="button" class="p-btn p-btn-wait" disabled>' + T('{who} prüft …', '{who} is checking …', { who: who }) + '</button>';
+    else action = '<button type="button" class="p-btn p-btn-ok" disabled>' + svg('check', 12) + ' ' + T('{reward} von {who}', '{reward} from {who}', { reward: rewardText(c.reward), who: who }) + '</button>';
     sheet.innerHTML =
       '<div class="p-grab" aria-hidden="true"></div>' +
       '<button type="button" class="p-close" data-close aria-label="' + T('Schließen', 'Close') + '">' + svg('close', 12) + '</button>' +
@@ -593,7 +611,7 @@
       (c.text ? '<p class="p-text">' + esc(c.text) + '</p>' : '') +
       '<div class="p-metrics p-metrics-row"><div><b class="p-bounty-big">' + rewardBadge(c.reward, 18) + '</b><span>' +
       (M.unit === 'euro' ? 'Coins' : T('Edensteine', 'Eden stones')) + '</span></div>' +
-      '<div><b>' + esc(c.left.replace('noch ', '').replace(/ left$/, '')) + '</b><span>' + T('Frist', 'Deadline') + '</span></div><div><b>' + esc(c.dist) + '</b><span>' +
+      '<div><b>' + esc(c.left.replace(/^noch /, '').replace(/ left$/, '')) + '</b><span>' + T('Frist', 'Deadline') + '</span></div><div><b>' + esc(c.dist) + '</b><span>' +
       (M.unit === 'euro' ? T('Weg', 'Distance') : T('Wo', 'Where')) + '</span></div></div>' +
       action +
       '</div>';
@@ -606,11 +624,11 @@
     if (kind === 'accept') {
       state.status[c.id] = 'accepted';
       renderDetail();
-      say(who + T(' weiß Bescheid. Melde Dich, wenn es erledigt ist.', ' knows. Report back when it’s done.'));
+      say(T('{who} weiß Bescheid. Melde Dich, wenn es erledigt ist.', '{who} knows. Report back when it’s done.', { who: who }));
     } else if (kind === 'report') {
       state.status[c.id] = 'reported';
       renderDetail();
-      say(T('Foto ist dabei. ', 'Photo attached. ') + who + T(' prüft jetzt.', ' is checking now.'));
+      say(T('Foto ist dabei. {who} prüft jetzt.', 'Photo attached. {who} is checking now.', { who: who }));
       setTimeout(function () {
         if (state.mode !== mode || state.status[c.id] !== 'reported') return;
         state.status[c.id] = 'confirmed';
@@ -621,7 +639,7 @@
           renderDetail();
           burst($('.p-btn', sheet) || sheet);
         }
-        say(who + T(' hat bestätigt. ', ' confirmed. ') + rewardText(c.reward) + (M.unit === 'euro' ? T(' gehen an Dich.', ' go to you.') : T(' für Dich.', ' for you.')), 'high');
+        say(M.unit === 'euro' ? T('{who} hat bestätigt. {reward} gehen an Dich.', '{who} confirmed. {reward} go to you.', { who: who, reward: rewardText(c.reward) }) : T('{who} hat bestätigt. {reward} für Dich.', '{who} confirmed. {reward} for you.', { who: who, reward: rewardText(c.reward) }), 'high');
         render();
       }, 1700);
     }
@@ -716,7 +734,7 @@
       var m = minutes(d);
       body =
         '<div class="p-mini"><span class="p-thumb">' + image(ME.before) + '</span><span><strong>' + esc(d.title) + '</strong>' +
-        '<i>' + T('Vorher gespeichert um ' + clockOf(d.start) + ' Uhr', 'Before saved at ' + clockOf(d.start)) + '</i></span></div>' +
+        '<i>' + T('Vorher gespeichert um {uhr} Uhr', 'Before saved at {uhr}', { uhr: clockOf(d.start) }) + '</i></span></div>' +
         '<div class="p-timer"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="54" class="p-timer-track"/>' +
         '<circle cx="60" cy="60" r="54" class="p-timer-bar" data-ring stroke-dasharray="' + r + '" stroke-dashoffset="' + r * (1 - m / MAX_MIN) + '"/></svg>' +
         '<div><b data-timer>' + took(m) + '</b><span>' + T('von 48 h', 'of 48 h') + '</span></div></div>' +
@@ -725,7 +743,7 @@
     } else {
       body =
         photoBox(d.after, ME.after, T('Nachher', 'After'), T('Nachher-Foto aufnehmen', 'Take after photo')) + '</div>' +
-        '<p class="p-help">' + T('So sieht es jetzt aus. Die Überschrift „' + esc(d.title) + '“ gilt für Vorher und Nachher.', 'This is how it looks now. The title “' + esc(d.title) + '” applies to before and after.') + '</p>' +
+        '<p class="p-help">' + T('So sieht es jetzt aus. Die Überschrift „{title}“ gilt für Vorher und Nachher.', 'This is how it looks now. The title “{title}” applies to before and after.', { title: esc(d.title) }) + '</p>' +
         '<label class="p-field"><span>' + T('Erklärung zum Nachher', 'About the after') + '</span><textarea rows="2" maxlength="240" data-after-text>' + esc(d.afterText) + '</textarea></label>' +
         '<button type="button" class="p-btn" data-me-post' + (d.after ? '' : ' disabled') + '>' + T('Me-Challenge posten', 'Post Me-Challenge') + '</button>';
     }
@@ -734,7 +752,7 @@
     if (d.stage === 'timer' && !timerIv) timerIv = setInterval(tickTimer, 100);
   }
   function deadlineLabel(n) {
-    return EN ? { Heute: 'Today', '3 Tage': '3 days', '1 Woche': '1 week' }[n] : n;
+    return { Heute: T('Heute', 'Today'), '3 Tage': T('3 Tage', '3 days'), '1 Woche': T('1 Woche', '1 week') }[n];
   }
   function clockOf(t) {
     return new Date(t).toTimeString().slice(0, 5);
@@ -868,7 +886,7 @@
       author: 'du',
       reward: d.reward,
       dist: M.unit === 'euro' ? T('hier', 'here') : T('im Haus', 'in the building'),
-      left: d.deadline === 'Heute' ? T('heute', 'today') : T('noch ' + d.deadline, deadlineLabel(d.deadline) + ' left'),
+      left: d.deadline === 'Heute' ? T('heute', 'today') : T('noch {frist}', '{frist} left', { frist: deadlineLabel(d.deadline) }),
       img: d.photo ? M.create.photo : null,
       comments: 0,
       likes: 0,
@@ -989,10 +1007,10 @@
     var rankAfter = group.members.slice().sort(function (a, b) { return b.score - a.score; });
     var posBefore = rankBefore.indexOf(me);
     var posAfter = rankAfter.indexOf(me);
-    var text = rewardText(t.eden) + T(' für Dich.', ' for you.');
+    var text = T('{reward} für Dich.', '{reward} for you.', { reward: rewardText(t.eden) });
     var mood = 'default';
-    if (posAfter === 0 && posBefore !== 0) { text = rewardText(t.eden) + T('. Du führst!', '. You’re in the lead!'); mood = 'high'; }
-    else if (posAfter < posBefore) { text = rewardText(t.eden) + T('. Du überholst ', '. You overtake ') + people[rankBefore[posAfter].id].short + '.'; mood = 'high'; }
+    if (posAfter === 0 && posBefore !== 0) { text = T('{reward}. Du führst!', '{reward}. You’re in the lead!', { reward: rewardText(t.eden) }); mood = 'high'; }
+    else if (posAfter < posBefore) { text = T('{reward}. Du überholst {name}.', '{reward}. You overtake {name}.', { reward: rewardText(t.eden), name: people[rankBefore[posAfter].id].short }); mood = 'high'; }
     say(text, mood);
   }
 
@@ -1042,7 +1060,7 @@
     if ('meSave' in d) return meSave();
     if ('meAfter' in d) return meAfter();
     if ('mePost' in d) return mePost();
-    if (d.soon) return say(T(d.soon + ' gibt es in der App.', d.soon + ' is in the app.'));
+    if (d.soon) return say(T('{was} gibt es in der App.', '{was} is in the app.', { was: d.soon }));
     if ('close' in d) return closeAll(true);
     if (d.step) return step(d.step);
     if (t.classList.contains('p-camera')) return openCreate();
