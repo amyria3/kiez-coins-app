@@ -28,8 +28,8 @@ button { font: inherit; color: inherit; }
 .top { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
 .brand { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; text-decoration: none; }
 /* Marke unter dem Logo (Daria, 26.10.2026) */
-.marke { font: 500 12px/1 Inter, system-ui, sans-serif; letter-spacing: .02em; color: var(--text); white-space: nowrap; }
-@media (max-width: 420px) { .marke { font-size: 10px; letter-spacing: 0; } }
+.marke { font: italic 400 13px/1 Inter, system-ui, sans-serif; letter-spacing: .01em; color: var(--text); white-space: nowrap; }
+@media (max-width: 420px) { .marke { font-size: 11px; letter-spacing: 0; } }
 .brand svg { display: block; }
 /* Logo im Seitenkopf in der dunklen Textfarbe statt Kater-Lila (nur Website, im Telefon bleibt es lila) */
 .brand svg [fill="#7E94FF"] { fill: var(--text); }
@@ -52,11 +52,11 @@ button { font: inherit; color: inherit; }
 @media (max-width: 480px) {
   .top-links { gap: 6px; }
   .top-links .top-link { padding: 8px 12px; font-size: 13px; }
-  .top:has(.top-links) .brand svg { height: 22px; width: auto; }
+  .top:has(.top-links) .brand svg { height: 27px; width: auto; }
   .top-links .lang { display: none; } .top-links .kurz { display: inline; }
   .sprachwahl summary { padding: 8px 10px; font-size: 12px; }
 }
-@media (max-width: 360px) { .top-links { gap: 4px; } .top-links .top-link { padding: 8px 10px; } .top:has(.top-links) .brand svg { height: 18px; } }
+@media (max-width: 360px) { .top-links { gap: 4px; } .top-links .top-link { padding: 8px 10px; } .top:has(.top-links) .brand svg { height: 23px; } }
 
 /* Erster Bildschirm: Text und Szenarien links, Telefon rechts */
 .hero { display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: 'text phone' 'wahl phone';
