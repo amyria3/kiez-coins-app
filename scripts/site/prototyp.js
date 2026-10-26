@@ -52,7 +52,7 @@
       unit: 'euro',
       place: 'Connewitz',
       countText: function (n) { return n === 1 ? '1 We-Challenge in Deiner Nähe' : n + ' We-Challenges in Deiner Nähe'; },
-      headline: 'Kleine Challenges für Deinen Kiez.',
+      headline: 'Kleine Challenges für mehr echte Gemeinschaft',
       // Text unter der Überschrift je nach Szenario (Daria, 26.10.2026); ohne Eintrag gilt LEDE
       ledes: {
         me: 'Kennst Du den Spruch „Tue Gutes und rede darüber“? Und hier ist Space dafür, weil wir alle so ein bisschen voneinander lernen. Angeben und freundschaftlicher Wettbewerb sind Teil des Games!',
@@ -103,7 +103,7 @@
       unit: 'eden',
       place: 'Hof Kastanienallee',
       countText: function (n) { return n === 1 ? '1 offene Aufgabe' : n + ' offene Aufgaben'; },
-      headline: 'Kleine Challenges für Deine Gruppe.',
+      headline: 'Kleine Challenges für mehr echte Gemeinschaft',
       people: {
         lena: { name: 'Lena K.', short: 'Lena', color: '#FFB2E5' },
         peter: { name: 'Peter J.', short: 'Peter', color: '#FFAD7E' },
