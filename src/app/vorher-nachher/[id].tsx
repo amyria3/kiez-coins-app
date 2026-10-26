@@ -19,6 +19,7 @@ import { localeTag, t } from '../../data/texts';
 import type { ImageSource } from '../../data/types';
 import { useGoBack } from '../../lib/goBack';
 import { color, font, isFashionable, radius, space, stroke, text } from '../../theme/tokens';
+import { celebratePost } from '../../components/HeartBurst';
 
 const clock = (iso: string) =>
   new Date(iso).toLocaleTimeString(localeTag(), { hour: '2-digit', minute: '2-digit' });
@@ -106,6 +107,7 @@ export default function BeforeAfterScreen() {
     setBusy('post');
     try {
       await beforeAfter.finish(challenge.id, edit());
+      celebratePost();
       router.replace(`/challenge/${challenge.id}`);
     } catch (error) {
       fail('Nicht gepostet')(error);

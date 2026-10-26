@@ -13,6 +13,7 @@ import { Icon } from '../icons/Icon';
 import { explain, useNudge } from '../Nudge';
 import { Text } from '../T';
 import { useComposeContent, type ComposeContent } from './compose';
+import { celebratePost } from '../HeartBurst';
 
 const durations = [
   { days: 1, label: '1 Tag' },
@@ -57,6 +58,7 @@ export function useGroupTaskForm(
         deadline: new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString(),
         photo,
       });
+      celebratePost();
       onCreated(taskId);
     } catch (error) {
       Alert.alert('Aufgabe konnte nicht erstellt werden', (error as Error).message);
