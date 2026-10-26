@@ -39,8 +39,11 @@ export default function SurveyResultsScreen() {
           <Text style={styles.title}>{`${i + 1}. `}{q.title}</Text>
           {q.multiple ? <Text style={styles.caption}>Mehrfachauswahl, Anteil bezogen auf alle Antworten</Text> : null}
           {q.options.map((o) => {
-            const n = data?.[q.key]?.[o.key] ?? 0;
-            const share = total ? Math.round((n / total) * 100) : 0;
+            const counts = data?.[q.key] ?? {};
+            const n = counts[o.key] ?? 0;
+            // Einfachauswahl: Anteil an allen, die diese Frage beantwortet haben (die Frage zur Nutzung fehlt in alten Antworten)
+            const base = q.multiple ? total : Object.values(counts).reduce((sum, v) => sum + v, 0);
+            const share = base ? Math.round((n / base) * 100) : 0;
             return (
               <View key={o.key} style={styles.row}>
                 <View style={styles.rowText}>
