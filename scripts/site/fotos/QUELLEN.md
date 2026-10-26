@@ -14,3 +14,4 @@ Alle Fotos stammen von Unsplash und stehen unter der Unsplash-Lizenz (https://un
 | einkauf.jpg | Montage: geschlossene Blechdose auf einer Flur-Konsole | Dose https://unsplash.com/photos/NLDG5Z9V9KM, Flur https://unsplash.com/photos/7ITcqxp3McM |
 | hund.jpg | Golden Retriever an der Leine auf dem Gehweg | https://unsplash.com/photos/VehdYPKnX8Y |
 | waesche.jpg | Wäsche auf der Leine vor Hochhäusern | https://unsplash.com/photos/l0bqydPG994 |
+| wald.jpg | Birken am Waldrand über einer Wiese (Karte „Schöne Waldbilder posten“) | Von Maria Arkadieff geschickt am 26.10.2026, Quelle [offen] |
