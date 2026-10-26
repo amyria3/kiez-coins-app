@@ -232,7 +232,7 @@ ${filterDefs}
   <div class="szenarien" id="szenarien" aria-label="Prototyp steuern">
     <span class="szenario-mark" aria-hidden="true"></span>
     <button type="button" data-szenario="me" aria-pressed="true" aria-controls="prototyp"><b>Me-Challenge</b><i>Me-Challenge</i><span>How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!</span></button>
-    <button type="button" data-szenario="we" aria-pressed="false" aria-controls="prototyp"><b>We-Challenge</b><i>We-Challenge</i><span>Eine Aufgabe für den Kiez, mit Coins als Belohnung. Annehmen, erledigen, Coins bekommen.</span></button>
+    <button type="button" data-szenario="we" aria-pressed="false" aria-controls="prototyp"><b>We-Challenge</b><i>We-Challenge</i><span>Dir ist etwas aufgefallen, was getan werden müsste, was Du aber nicht selbst tun kannst? Poste eine We-Challenge in Deinem Kiez, setze eine Belohnung aus und lehn Dich erst mal zurück. Wir sind gespannt, was sich so alles bewegen lässt!</span></button>
     <button type="button" data-szenario="rangliste" aria-pressed="false" aria-controls="prototyp" hidden><b>Rangliste</b><i>Rangliste</i><span>Du magst es kompetitiv? Schalte die Rangliste für Eure Gruppe ein oder aus. May the best win!</span></button>
   </div>
   <p class="szenario-text" id="szenario-text" aria-hidden="true">How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!</p>
