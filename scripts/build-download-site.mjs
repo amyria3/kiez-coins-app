@@ -237,9 +237,11 @@ ${filterDefs}
   </div>
   <p class="szenario-text" id="szenario-text" aria-hidden="true">How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!</p>
   </div>
-  <p class="hinweis">Das Telefon ist klickbar. Alle Daten darin sind Beispiele.</p>
+  <div class="phone-spalte">
   <div class="phone" id="prototyp" role="region" aria-label="Klickbarer Prototyp der App Kiez Coins">
     <div class="p-screen"></div>
+  </div>
+  <p class="hinweis">Das Telefon ist klickbar. Alle Daten darin sind Beispiele.</p>
   </div>
 </section>
 </main>

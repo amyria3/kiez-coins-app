@@ -37,8 +37,8 @@ button { font: inherit; color: inherit; }
 @media (max-width: 340px) { .top-links .top-link { padding: 8px 10px; } }
 
 /* Erster Bildschirm: Text und Szenarien links, Telefon rechts */
-.hero { display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: 'text phone' 'wahl phone' 'hint phone';
-  grid-template-rows: auto auto 1fr; column-gap: 72px; padding: 40px 0 96px; }
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: 'text phone' 'wahl phone';
+  grid-template-rows: auto 1fr; column-gap: 72px; padding: 40px 0 96px; }
 .hero-text { grid-area: text; align-self: end; }
 .steuerung { grid-area: wahl; display: grid; gap: 20px; justify-items: start; }
 .rolle { position: relative; display: inline-flex; padding: 3px; border-radius: 999px; border: 1px solid var(--line); }
@@ -47,8 +47,7 @@ button { font: inherit; color: inherit; }
   font: 500 15px/1 Inter, sans-serif; color: var(--muted); transition: color 300ms; }
 .rolle button[aria-checked="true"] { color: var(--bg); }
 .szenarien { width: 100%; }
-.hinweis { grid-area: hint; }
-.phone { grid-area: phone; align-self: center; }
+.phone-spalte { grid-area: phone; align-self: center; }
 .hero h1 { font: 600 clamp(44px, 6.4vw, 80px)/1 var(--display); letter-spacing: -.035em; margin: 0 0 24px; max-width: 11ch; }
 .lede { color: var(--muted); font-size: 19px; max-width: 34ch; margin: 0 0 40px; }
 .szenarien { position: relative; display: grid; gap: 6px; max-width: 420px; }
@@ -62,7 +61,7 @@ button { font: inherit; color: inherit; }
 .szenarien button i { display: none; }
 .szenarien button[aria-pressed="false"] b { color: var(--muted); }
 .szenarien button:hover b { color: var(--text); }
-.hinweis { color: var(--muted); font-size: 13px; margin: 20px 0 0 20px; }
+.hinweis { color: var(--muted); font-size: 13px; margin: 16px 0 0; text-align: center; }
 
 /* Telefon */
 .phone { width: 320px; height: 664px; padding: 10px; border-radius: 54px; background: #0F1011; position: relative;
