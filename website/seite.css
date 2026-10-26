@@ -586,7 +586,7 @@ footer a { color: var(--muted); }
   .szenario-text { display: block; margin: 0; max-width: 34ch; text-align: center; color: var(--muted); font-size: 15px; line-height: 1.45; min-height: 4.35em; }
 }
 
-/* Scrolleffekte (Vorschau, ?fx=a,b,c). Ohne JS oder bei „Bewegung reduzieren“ greift nichts davon. */
+/* Scrolleffekte. Ohne JS oder bei „Bewegung reduzieren“ greift nichts davon. */
 /* A: Abschnitte blenden ein */
 .fx-a .fx-zeigen { opacity: 0; translate: 0 28px; transition: opacity 500ms ease-out, translate 700ms var(--barrier); transition-delay: calc(var(--i, 0) * 110ms); }
 .fx-a .fx-zeigen.is-da { opacity: 1; translate: 0 0; }
@@ -599,10 +599,6 @@ footer a { color: var(--muted); }
 .fx-c .fx-spur::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--purple), var(--pink), var(--orange));
   transform: scaleX(var(--p, 0)); transform-origin: left; border-radius: 0 4px 4px 0; }
 [dir="rtl"].fx-c .fx-spur::before { transform-origin: right; background: linear-gradient(-90deg, var(--purple), var(--pink), var(--orange)); }
-/* Auswahl für die Vorschau */
-.fx-wahl { position: fixed; z-index: 990; inset-inline-end: 12px; bottom: 12px; display: grid; gap: 4px; padding: 10px 14px; border-radius: 16px;
-  background: var(--surface); box-shadow: 0 12px 30px -12px var(--schatten); font-size: 14px; }
-.fx-wahl label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
 /* D: Kartenstapel. Jeder Abschnitt scrollt ganz durch, bleibt dann stehen, und der nächste schiebt sich mit runden Ecken darüber. */
 .fx-d body > .wrap, .fx-d .mehr, .fx-d .leute { position: sticky; top: min(0px, calc(100vh - var(--h, 100vh))); }
 .fx-d .mehr, .fx-d .leute, .fx-d .download { border-radius: 36px 36px 0 0; box-shadow: 0 -18px 40px -24px var(--schatten); }

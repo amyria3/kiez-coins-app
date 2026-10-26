@@ -491,21 +491,12 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
   });
 </script>
 <script>
-  // Scrolleffekte (Vorschau): A Abschnitte blenden ein, B Kater und Telefon bewegen sich leicht mit, C Fortschrittsbalken oben,
-  // D Abschnitte stapeln sich wie Karten. ?fx=a,b,c,d schaltet einzelne Effekte, ?fx zeigt dazu eine kleine Auswahl. Bei „Bewegung reduzieren“ bleibt alles still.
+  // Scrolleffekte: A Abschnitte blenden ein, B Kater und Telefon bewegen sich leicht mit, C Fortschrittsbalken oben,
+  // D Abschnitte stapeln sich wie Karten (Daria, 26.10.2026). Bei „Bewegung reduzieren“ bleibt alles still.
   (function () {
     var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var q = new URLSearchParams(location.search).get('fx');
-    var an = (q || 'a,b,c,d').split(',');
     var root = document.documentElement;
-    if (!still) an.forEach(function (x) { if (/^[abcd]$/.test(x)) root.classList.add('fx-' + x); });
-    if (q !== null) {
-      var w = document.createElement('div');
-      w.className = 'fx-wahl';
-      w.innerHTML = ['a Einblenden', 'b Kater', 'c Fortschritt', 'd Kartenstapel'].map(function (n) { var k = n[0]; return '<label><input type="checkbox" value="' + k + '"' + (an.indexOf(k) > -1 ? ' checked' : '') + '> ' + n.toUpperCase().slice(0, 1) + n.slice(1) + '</label>'; }).join('');
-      w.addEventListener('change', function () { var v = [].map.call(w.querySelectorAll(':checked'), function (i) { return i.value; }).join(','); location.search = '?fx=' + v; });
-      document.body.appendChild(w);
-    }
+    if (!still) root.classList.add('fx-a', 'fx-b', 'fx-c', 'fx-d');
     if (still) return;
     // A: Abschnitte gleiten beim Erreichen von unten herein, Karten nacheinander
     if (root.classList.contains('fx-a') && 'IntersectionObserver' in window) {
