@@ -144,7 +144,7 @@ export default function Account() {
           <NavRow label="So geht Kiez Coins" value="Kurze Videos" onPress={() => router.push('/tour')} />
           <NavRow label="Benachrichtigungen" value={profile.push ? 'Push an' : 'Push aus'} onPress={() => router.push('/settings/notifications')} />
           <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/settings/payout')} />
-          <NavRow label="Umfrage" value="5 Fragen zur App" onPress={() => setSurvey(true)} />
+          <NavRow label="Umfrage" value="7 Fragen zur App" onPress={() => setSurvey(true)} />
           <NavRow label="Support" value="Frage oder Problem" onPress={() => router.push('/account/support')} />
           <NavRow
             label="Blockierte Personen"
