@@ -148,7 +148,7 @@
         published: 'Deine We-Challenge ist da. Alle im Hof Kastanienallee sehen sie jetzt.',
       },
       scenarios: [
-        ['me', 'Me-Challenge', 'Auch in der Gruppe: Vorher, Nachher, fertig. Alle im Hof sehen Deine gute Tat.', 'Me-Challenge'],
+        ['me', 'Me-Challenge', 'Teile Life-Hacks und Rezepte in Deiner Gruppe. Hol Dir Bestätigung und Ermutigung für eine Gewohnheit, die Du entwickeln möchtest. Oder hast Du etwas für die anderen Menschen in Deiner Gruppe gemacht – und es verdient eine Portion Wertschätzung? Go!', 'Me-Challenge'],
         ['we', 'We-Challenge', 'Aufgaben nur für Eure Gruppe, belohnt mit Edensteinen.', 'We-Challenge'],
       ],
     },
