@@ -27,14 +27,25 @@ button { font: inherit; color: inherit; }
 .top-link:hover { border-color: var(--muted); }
 .top-links { display: flex; gap: 8px; }
 .top-link { white-space: nowrap; }
+.sprachwahl { display: flex; align-items: center; padding: 3px; border-radius: 999px; border: 1px solid var(--line); }
+.sprachwahl a { padding: 7px 10px; border-radius: 999px; font-size: 13px; font-weight: 500; line-height: 1; text-decoration: none; color: var(--muted); }
+.sprachwahl a:hover { color: var(--text); }
+.sprachwahl a[aria-current] { background: var(--text); color: var(--bg); }
 .kurz { display: none; }
 @media (max-width: 480px) {
   .top-links { gap: 6px; }
   .top-links .top-link { padding: 8px 12px; font-size: 13px; }
   .top:has(.top-links) .brand svg { height: 22px; width: auto; }
   .top-links .lang { display: none; } .top-links .kurz { display: inline; }
+  .sprachwahl a { padding: 6px 8px; font-size: 12px; }
 }
-@media (max-width: 340px) { .top-links .top-link { padding: 8px 10px; } }
+@media (max-width: 400px) {
+  /* Auf schmalen Handys steht nur die andere Sprache als Link */
+  .sprachwahl { padding: 0; }
+  .sprachwahl a[aria-current] { display: none; }
+  .sprachwahl a { padding: 8px 10px; }
+}
+@media (max-width: 360px) { .top-links { gap: 4px; } .top-links .top-link { padding: 8px 10px; } .top:has(.top-links) .brand svg { height: 18px; } }
 
 /* Erster Bildschirm: Text und Szenarien links, Telefon rechts */
 .hero { display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: 'text phone' 'wahl phone';
