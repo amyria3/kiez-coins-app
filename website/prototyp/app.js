@@ -407,7 +407,7 @@
     var kind = state.draft.kind === 'me' ? 'Me-Challenge' : 'We-Challenge';
     $('.p-compose-line').textContent = kind + ' · ' + M.place;
     $$('[data-tab]', seg).forEach(function (b) {
-      b.textContent = b.dataset.tab === 'nearby' ? 'Kiez' : 'Hof Kastanienallee';
+      b.textContent = b.dataset.tab === 'nearby' ? 'Mein Kiez' : 'Meine Gruppen';
       b.setAttribute('aria-selected', String(b.dataset.tab === segKey()));
     });
     placePill(animate);

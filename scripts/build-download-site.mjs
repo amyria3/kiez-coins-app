@@ -226,8 +226,8 @@ ${filterDefs}
   <div class="steuerung">
   <div class="rolle" id="rolle" role="radiogroup" aria-label="Ort im Prototyp">
     <span class="szenario-mark" aria-hidden="true"></span>
-    <button type="button" role="radio" aria-checked="true" data-rolle="kiez" aria-controls="prototyp">Kiez</button>
-    <button type="button" role="radio" aria-checked="false" data-rolle="gruppe" aria-controls="prototyp">Hof Kastanienallee</button>
+    <button type="button" role="radio" aria-checked="true" data-rolle="kiez" aria-controls="prototyp">Mein Kiez</button>
+    <button type="button" role="radio" aria-checked="false" data-rolle="gruppe" aria-controls="prototyp">Meine Gruppen</button>
   </div>
   <div class="szenarien" id="szenarien" aria-label="Prototyp steuern">
     <span class="szenario-mark" aria-hidden="true"></span>
