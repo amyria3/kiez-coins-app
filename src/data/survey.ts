@@ -72,10 +72,18 @@ export type SurveyAnswer = {
   design: string;
   support: string[];
   recommend: string;
+  /** Freier Kommentar, freiwillig (Migration 20261026000100) */
+  comment?: string | null;
 };
 
+/** Höchstlänge des Kommentars, wie in der Datenbank */
+export const SURVEY_COMMENT_MAX = 1000;
+
 /** Auswertung aus `survey_results()`: Anzahl Antworten und je Frage die Zahl pro Antwort. */
-export type SurveyResults = { total: number } & Record<SurveyQuestion['key'], Record<string, number>>;
+export type SurveyResults = { total: number; comments?: { text: string; at: string }[] } & Record<
+  SurveyQuestion['key'],
+  Record<string, number>
+>;
 
 // ---------------------------------------------------------------------------
 // Wann die Umfrage von selbst erscheint

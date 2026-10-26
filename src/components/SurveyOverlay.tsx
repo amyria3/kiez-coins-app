@@ -11,6 +11,7 @@ import {
   isSurveySnoozed,
   SURVEY_AFTER_DAYS,
   snoozeSurvey,
+  SURVEY_COMMENT_MAX,
   surveyQuestions,
   type SurveyAnswer,
   type SurveyQuestion,
@@ -19,7 +20,7 @@ import {
 import { t } from '../data/texts';
 import { color, radius, space, stroke, text, scheme } from '../theme/tokens';
 import { Button } from './Button';
-import { CheckOption, RadioOption } from './Form';
+import { CheckOption, RadioOption, TextField } from './Form';
 import { Text } from './T';
 
 type Draft = Partial<Record<SurveyQuestion['key'], string[]>>;
@@ -33,7 +34,8 @@ const snoozeOptions: { key: SurveySnooze; label: string }[] = [
 /**
  * UX/UI-Umfrage als Overlay über dem Feed (Vorgabe Daria, 21.10.2026): Hintergrund geblurrt,
  * eine Frage pro Schritt („Frage 1 von 5“), wegklicken mit „Morgen“, „In einer Woche“ oder „Nicht wieder fragen“.
- * Antworten landen in `survey_answers` (Migration 20261021001500), eine pro Person.
+ * Zum Schluss ein freiwilliges Kommentarfeld (Wunsch Daria, 26.10.2026).
+ * Antworten landen in `survey_answers` (Migrationen 20261021001500, 20261026000100), eine pro Person.
  */
 export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const insets = useSafeAreaInsets();
@@ -42,8 +44,12 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
   const live = mode === 'live' && !!session;
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState<Draft>({});
+  const [comment, setComment] = useState('');
   const [sending, setSending] = useState(false);
-  const done = step === surveyQuestions.length;
+  // Schritte: die Fragen, danach der Kommentar, danach der Dank
+  const commentStep = step === surveyQuestions.length;
+  const done = step === surveyQuestions.length + 1;
+  const stepCount = surveyQuestions.length + 1;
 
   // Schon abgegebene Antwort vorbelegen, zum Beispiel beim Öffnen aus „Dein Konto“
   useEffect(() => {
@@ -52,7 +58,9 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
     if (!live) return;
     loadMySurveyAnswer()
       .then((a) => {
-        if (a) setDraft({ opinion: [a.opinion], usability: [a.usability], design: [a.design], support: a.support, recommend: [a.recommend] });
+        if (!a) return;
+        setDraft({ opinion: [a.opinion], usability: [a.usability], design: [a.design], support: a.support, recommend: [a.recommend] });
+        setComment(a.comment ?? '');
       })
       .catch(() => undefined);
   }, [visible, live]);
@@ -74,6 +82,7 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
         design: draft.design![0],
         support: draft.support!,
         recommend: draft.recommend![0],
+        comment: comment.trim() || null,
       };
       setSending(true);
       try {
@@ -86,10 +95,10 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
       }
     }
     if (currentUserId) await snoozeSurvey(currentUserId, 'never');
-    setStep(surveyQuestions.length);
+    setStep(surveyQuestions.length + 1);
   };
 
-  const next = () => (step === surveyQuestions.length - 1 ? send() : setStep(step + 1));
+  const next = () => (commentStep ? send() : setStep(step + 1));
 
   const snooze = async (key: SurveySnooze) => {
     if (currentUserId) await snoozeSurvey(currentUserId, key);
@@ -106,15 +115,29 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
               <Text style={styles.headline} accessibilityRole="header">Danke!</Text>
               <Text style={styles.body}>Deine Antwort hilft uns, KiezCoins besser zu machen.</Text>
             </View>
+          ) : commentStep ? (
+            <>
+              <View style={styles.head}>
+                <Text style={styles.caption}>Zum Schluss</Text>
+                <Progress step={step} count={stepCount} />
+                <Text style={styles.title} accessibilityRole="header">Möchtest Du uns noch etwas sagen?</Text>
+              </View>
+              <ScrollView style={styles.options} keyboardShouldPersistTaps="handled">
+                <TextField
+                  label="Kommentar"
+                  helperText={t('Freiwillig, höchstens {max} Zeichen.', { max: SURVEY_COMMENT_MAX })}
+                  value={comment}
+                  onChangeText={setComment}
+                  maxLength={SURVEY_COMMENT_MAX}
+                  multiline
+                />
+              </ScrollView>
+            </>
           ) : (
             <>
               <View style={styles.head}>
                 <Text style={styles.caption}>{t('Frage {n} von {total}', { n: step + 1, total: surveyQuestions.length })}</Text>
-                <View style={styles.progress}>
-                  {surveyQuestions.map((q, i) => (
-                    <View key={q.key} style={[styles.progressStep, i <= step && styles.progressStepActive]} />
-                  ))}
-                </View>
+                <Progress step={step} count={stepCount} />
                 <Text style={styles.title} accessibilityRole="header">{question.title}</Text>
                 {question.multiple ? <Text style={styles.caption}>Mehrere Antworten möglich</Text> : null}
               </View>
@@ -133,8 +156,8 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
               <>
                 <Button
                   busy={sending}
-                  label={step === surveyQuestions.length - 1 ? (sending ? 'Wird gesendet …' : 'Antwort senden') : 'Weiter'}
-                  disabled={selected.length === 0 || sending}
+                  label={commentStep ? (sending ? 'Wird gesendet …' : 'Antwort senden') : 'Weiter'}
+                  disabled={(!commentStep && selected.length === 0) || sending}
                   onPress={next}
                 />
                 {step > 0 ? <Button label="Zurück" variant="ghost" onPress={() => setStep(step - 1)} /> : null}
@@ -153,6 +176,17 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
         )}
       </View>
     </Modal>
+  );
+}
+
+/** Fortschritt als Balken, ein Segment pro Schritt */
+function Progress({ step, count }: { step: number; count: number }) {
+  return (
+    <View style={styles.progress}>
+      {Array.from({ length: count }, (_, i) => (
+        <View key={i} style={[styles.progressStep, i <= step && styles.progressStepActive]} />
+      ))}
+    </View>
   );
 }
 

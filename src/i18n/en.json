@@ -1063,5 +1063,9 @@
   "Diese Version ist zu alt.": "This version is too old.",
   "Jo, meine Friends haben eine neue Version für Dich!": "Yo, my friends have a new version for you!",
   "Lade sie herunter und installiere sie über die alte. Deine Daten bleiben.": "Download it and install it over the old one. Your data stays.",
-  "Herunterladen": "Download"
+  "Herunterladen": "Download",
+  "Noch keine Kommentare.": "No comments yet.",
+  "Zum Schluss": "One last thing",
+  "Möchtest Du uns noch etwas sagen?": "Anything else you’d like to tell us?",
+  "Freiwillig, höchstens {max} Zeichen.": "Optional, up to {max} characters."
 }
