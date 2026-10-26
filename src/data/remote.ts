@@ -951,16 +951,15 @@ export async function setPraise(userId: string, praised: boolean, meId: string) 
   else check(await supabase.from('praises').delete().eq('giver_id', meId).eq('receiver_id', userId));
 }
 
-export type AppTextLang = 'en' | 'fr' | 'uk' | 'ar' | 'he';
+export type AppTextLang = 'en' | 'fr' | 'uk' | 'ru' | 'ar' | 'he';
 export type AppTextRow = { original: string; text: string; ort: string | null; updated_at: string } & Partial<
   Record<AppTextLang, string | null>
 >;
 
 /** Alle Texte des CMS für den Editor (Route `texte`), mit Übersetzungen, sofern die Migration 1400 gelaufen ist. */
 export async function loadAppTexts(): Promise<AppTextRow[]> {
-  const full = await supabase.from('app_texts').select('original, text, ort, updated_at, en, fr, uk, ar, he');
-  if (!full.error) return (full.data ?? []) as AppTextRow[];
-  const { data } = check(await supabase.from('app_texts').select('original, text, ort, updated_at'));
+  // Alle Spalten: Fehlt eine Sprachspalte noch (Migration nicht gelaufen), bleibt sie einfach leer.
+  const { data } = check(await supabase.from('app_texts').select('*'));
   return (data ?? []) as AppTextRow[];
 }
 

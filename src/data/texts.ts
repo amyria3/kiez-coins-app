@@ -8,6 +8,7 @@ import ar from '../i18n/ar.json';
 import en from '../i18n/en.json';
 import fr from '../i18n/fr.json';
 import he from '../i18n/he.json';
+import ru from '../i18n/ru.json';
 import uk from '../i18n/uk.json';
 import { genderOverlays } from '../i18n/gender';
 import type { Gender } from './types';
@@ -32,21 +33,23 @@ import type { Gender } from './types';
  * Übersetzungen ergänzen: `node scripts/i18n.mjs` listet fehlende Texte je Sprache.
  */
 
+// Reihenfolge nach Alter der Sprache, die älteste zuerst (Daria, 26.10.2026)
 export const languages = [
-  { code: 'de', name: 'Deutsch' },
+  { code: 'he', name: 'עברית' },
+  { code: 'ar', name: 'العربية' },
   { code: 'en', name: 'English' },
+  { code: 'de', name: 'Deutsch' },
   { code: 'fr', name: 'Français' },
   { code: 'uk', name: 'Українська' },
-  { code: 'ar', name: 'العربية' },
-  { code: 'he', name: 'עברית' },
+  { code: 'ru', name: 'Русский' },
 ] as const;
 export type Lang = (typeof languages)[number]['code'];
-export const otherLanguages = ['en', 'fr', 'uk', 'ar', 'he'] as const;
+export const otherLanguages = ['en', 'fr', 'uk', 'ru', 'ar', 'he'] as const;
 type OtherLang = (typeof otherLanguages)[number];
 const RTL = new Set<Lang>(['ar', 'he']);
 export const isRtl = (l: Lang = lang) => RTL.has(l);
 
-const bundled: Record<OtherLang, Record<string, string>> = { en, fr, uk, ar, he };
+const bundled: Record<OtherLang, Record<string, string>> = { en, fr, uk, ru, ar, he };
 
 const CACHE_KEY = 'app_texts_v2';
 const LANG_KEY = 'app_language';
@@ -181,13 +184,12 @@ export async function loadTexts() {
     // ohne Speicher geht es mit den Originalen weiter
   }
   try {
-    let res = await supabase.from('app_texts').select(`original, text, ${otherLanguages.join(', ')}`);
-    // Ohne Sprachspalten (Migration noch nicht gelaufen): nur Deutsch
-    if (res.error) res = (await supabase.from('app_texts').select('original, text')) as typeof res;
+    // Alle Spalten: Fehlt eine Sprachspalte noch (Migration nicht gelaufen), gelten die übrigen trotzdem.
+    const res = await supabase.from('app_texts').select('*');
     if (res.error || !res.data) return;
-    const rows = (res.data as unknown as Row[]).filter(
-      (r) => (r.text && normalizeText(r.text) !== normalizeText(r.original)) || otherLanguages.some((l) => r[l]?.trim()),
-    );
+    const rows = (res.data as unknown as Row[])
+      .filter((r) => (r.text && normalizeText(r.text) !== normalizeText(r.original)) || otherLanguages.some((l) => r[l]?.trim()))
+      .map((r) => ({ original: r.original, text: r.text, ...Object.fromEntries(otherLanguages.map((l) => [l, r[l] ?? null])) }) as Row);
     apply(rows);
     await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(rows));
   } catch {
@@ -204,6 +206,7 @@ function pluralCategory(l: Lang, n: number): string {
     case 'fr':
       return abs === 0 || abs === 1 ? 'one' : 'other';
     case 'uk':
+    case 'ru':
       if (m10 === 1 && m100 !== 11) return 'one';
       if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'few';
       return 'many';
@@ -298,7 +301,7 @@ export function useTexts(): typeof t {
 }
 
 /** Sprache für Datum und Zahlen, z. B. 'de-DE' */
-export const localeTag = () => ({ de: 'de-DE', en: 'en-GB', fr: 'fr-FR', uk: 'uk-UA', ar: 'ar', he: 'he-IL' })[lang];
+export const localeTag = () => ({ de: 'de-DE', en: 'en-GB', fr: 'fr-FR', uk: 'uk-UA', ru: 'ru-RU', ar: 'ar', he: 'he-IL' })[lang];
 
 /** Für den Editor: mitgelieferte Übersetzung eines Texts */
 export const bundledTranslation = (original: string, l: OtherLang) => bundled[l][normalizeText(original)];
