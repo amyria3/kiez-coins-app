@@ -24,6 +24,7 @@ import { UpdateHint } from '../components/UpdateHint';
 import { color, scheme } from '../theme/tokens';
 import { ErrorScreen } from '../components/ErrorScreen';
 import { setLastScreen } from '../lib/errorReport';
+import { HeartBurst } from '../components/HeartBurst';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -134,6 +135,7 @@ function RootStack() {
           <InstallHint />
           <UpdateHint />
           <WebAlertHost />
+          <HeartBurst />
         </>
       )}
       {intro ? <StartKater loaded={!loading} onDone={() => setIntro(false)} /> : null}

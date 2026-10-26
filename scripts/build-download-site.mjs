@@ -107,6 +107,9 @@ const kcSvg = {
   send: icon('send', C.muted),
   camera: icon('camera', C.text),
   pin: icon('map-pin', C.text),
+  // Doppelherz = Feed (Daria, 26.10.2026), in Pink für die Herz-Animation nach dem Posten
+  feed: icon('feed', C.text),
+  feedOn: icon('feed', C.pink),
   burger: icon('burger', C.muted),
   close: icon('close', C.text),
   check: icon('check', C.dark),
@@ -369,7 +372,7 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(t(l.text, l
       <a href="${P}datenschutz.html">${t('Datenschutz', 'Privacy')}</a>
       <a href="${P}nutzungsbedingungen.html">${t('Nutzungsbedingungen', 'Terms of use')}</a>
       <a href="${P}community-regeln.html">${t('Community-Regeln', 'Community rules')}</a>
-      <a href="https://waldentdeckenberlin.org/voll-der-mist/" rel="noopener">${t('Bildquelle Müll im Wald: Wald entdecken Berlin', 'Photo credit, litter in the forest: Wald entdecken Berlin')}</a>
+      <a href="https://waldentdeckenberlin.org/voll-der-mist/" rel="noopener">${t('Bildquellen', 'Photo credits')}</a>
     </footer>
   </div>
 </section>

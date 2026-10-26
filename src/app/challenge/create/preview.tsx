@@ -13,6 +13,7 @@ import { StatusBadge } from '../../../components/Badges';
 import { Button } from '../../../components/Button';
 import { DeadlineBadge } from '../../../components/Badges';
 import { markComposeDone } from '../../../components/compose/compose';
+import { celebratePost } from '../../../components/HeartBurst';
 import { CoinsIcon } from '../../../components/icons/Brand';
 import { Icon } from '../../../components/icons/Icon';
 import { HeroScreen } from '../../../components/Screen';
@@ -142,6 +143,7 @@ export default function CreatePreview() {
             extras: draft.extras,
           });
       markComposeDone();
+      celebratePost();
       router.replace({ pathname: '/challenge/create/success', params: { id } });
     } catch (error) {
       Alert.alert('Nicht veröffentlicht', (error as Error).message);
