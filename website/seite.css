@@ -28,6 +28,8 @@ button { font: inherit; color: inherit; }
 .top { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
 .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
 .brand svg { display: block; }
+/* Logo im Seitenkopf in Schwarz statt Kater-Lila (nur Website, im Telefon bleibt es lila) */
+.brand svg [fill="#7E94FF"] { fill: #111111; }
 .top-link { font-size: 15px; font-weight: 400; text-decoration: none; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
 .top-link:hover { border-color: var(--muted); }
 .top-links { display: flex; gap: 8px; }
