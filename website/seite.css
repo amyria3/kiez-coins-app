@@ -9,7 +9,7 @@
   --bg: #FAFBEF; --surface: #FFFFFF; --glass: rgba(250,251,239,.85); --text: #26233A; --muted: #6A6680;
   --purple: #5260E0; --orange: #FFAD7E; --green: #93F4A7; --red: #D6334A; --pink: #FFB2E5;
   --line: rgba(38,35,58,.10); --on-accent: #FFFFFF;
-  --buehne: #DCE1FF; --band: #F1F7D0; --flaeche-tief: #E9EBFA; --schatten: rgba(60,60,140,.25);
+  --buehne: #DCE1FF; --band: #F4F7E2; --flaeche-tief: #E9EBFA; --schatten: rgba(60,60,140,.25);
   --barrier: cubic-bezier(.55,-.3,.3,1.3);
   --display: 'Inter Tight', Inter, system-ui, sans-serif;
 }
@@ -26,7 +26,10 @@ button { font: inherit; color: inherit; }
 
 /* Kopf */
 .top { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
-.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.brand { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; text-decoration: none; }
+/* Marke unter dem Logo (Daria, 26.10.2026) */
+.marke { font: 500 12px/1 Inter, system-ui, sans-serif; letter-spacing: .02em; color: var(--text); white-space: nowrap; }
+@media (max-width: 420px) { .marke { font-size: 10px; letter-spacing: 0; } }
 .brand svg { display: block; }
 /* Logo im Seitenkopf in Schwarz statt Kater-Lila (nur Website, im Telefon bleibt es lila) */
 .brand svg [fill="#7E94FF"] { fill: #111111; }
@@ -305,7 +308,7 @@ button { font: inherit; color: inherit; }
 }
 
 /* Leute */
-.mehr { padding: 64px 0; background: var(--band) linear-gradient(135deg, #F1F7D0 0%, #EDEAFF 50%, #FFE8DA 100%); }
+.mehr { padding: 64px 0; background: var(--band) linear-gradient(135deg, #F4F7E2 0%, #EFECFF 50%, #FFEDE3 100%); }
 .mehr > .wrap > p { color: var(--muted); margin: 0 0 32px; max-width: 46ch; }
 .mehr-karten { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .mehr-karte { display: grid; grid-template-rows: auto auto 1fr auto; gap: 14px; text-align: start; padding: 20px; border-radius: 28px;
@@ -344,7 +347,7 @@ button { font: inherit; color: inherit; }
 @keyframes mehr-blase { from { transform: translateY(10px) scale(.9); opacity: 0; } }
 @media (max-width: 760px) { .mehr-karten { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .mehr-flug, .mehr-blase { animation: none; } }
-.leute { padding: 64px 0 40px; }
+.leute { padding: 64px 0 40px; background: linear-gradient(160deg, #FFF1EA 0%, #FBEFF7 100%); }
 .mehr h2, .leute h2, .download h2 { font: 600 clamp(30px, 4vw, 44px)/1.05 var(--display); letter-spacing: -.025em; margin: 0 0 12px; max-width: 18ch; }
 .leute > .wrap > p, .download > .wrap > p { color: var(--muted); margin: 0 0 40px; max-width: 46ch; }
 .szene { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: end; border-bottom: 2.5px solid var(--text); }
@@ -365,7 +368,7 @@ button { font: inherit; color: inherit; }
 .js .leute.is-seen .person:nth-child(3) .blase { transition-delay: 520ms; }
 
 /* Download */
-.download { padding: 80px 0 24px; }
+.download { padding: 80px 0 24px; background: linear-gradient(160deg, #ECEEFF 0%, #F6F4FF 60%, #FFFFFF 100%); }
 .karten { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 28px; padding: 28px; box-shadow: 0 12px 30px -18px var(--schatten); }
 .card h3 { font: 600 24px/1.1 var(--display); margin: 0 0 8px; }
@@ -603,5 +606,4 @@ footer a { color: var(--muted); }
 /* D: Kartenstapel. Jeder Abschnitt scrollt ganz durch, bleibt dann stehen, und der nächste schiebt sich mit runden Ecken darüber. */
 .fx-d body > .wrap, .fx-d .mehr, .fx-d .leute { position: sticky; top: min(0px, calc(100vh - var(--h, 100vh))); }
 .fx-d .mehr, .fx-d .leute, .fx-d .download { border-radius: 36px 36px 0 0; box-shadow: 0 -18px 40px -24px var(--schatten); }
-.fx-d .leute, .fx-d .download { background: var(--bg); }
 .fx-d .download { position: relative; }
