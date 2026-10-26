@@ -55,7 +55,7 @@
       headline: 'Kleine Challenges für Deinen Kiez.',
       // Text unter der Überschrift je nach Szenario (Daria, 26.10.2026); ohne Eintrag gilt LEDE
       ledes: {
-        me: 'Kennst Du den Spruch „Tue Gutes und rede darüber“? Denn so können wir alle ein bisschen voneinander lernen. Angeber:innen willkommen!',
+        me: 'Kennst Du den Spruch „Tue Gutes und rede darüber“? Und hier ist Space dafür, weil wir alle so ein bisschen voneinander lernen. Angeben und freundschaftlicher Wettbewerb sind Teil des Games!',
         we: 'Kampf der Abstumpfung, Kampf der Indifferenz – wider den totalen Rückzug in die eigenen vier Wände. Reclaim den öffentlichen Raum. Ob Geld oder Zeit und Skills – teile Deine Ressourcen mit anderen und lass wunderbare Synergieeffekte entstehen.',
       },
       people: {

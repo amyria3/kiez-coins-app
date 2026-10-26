@@ -221,7 +221,7 @@ ${filterDefs}
 <section class="hero" id="prototyp-bereich">
   <div class="hero-text">
     <h1>Kleine Challenges für Deinen Kiez.</h1>
-    <p class="lede">Kennst Du den Spruch „Tue Gutes und rede darüber“? Denn so können wir alle ein bisschen voneinander lernen. Angeber:innen willkommen!</p>
+    <p class="lede">Kennst Du den Spruch „Tue Gutes und rede darüber“? Und hier ist Space dafür, weil wir alle so ein bisschen voneinander lernen. Angeben und freundschaftlicher Wettbewerb sind Teil des Games!</p>
   </div>
   <div class="steuerung">
   <div class="rolle" id="rolle" role="radiogroup" aria-label="Ort im Prototyp">
