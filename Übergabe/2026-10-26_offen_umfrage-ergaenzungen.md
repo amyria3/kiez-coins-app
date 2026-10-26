@@ -18,4 +18,4 @@
 ## Datenbank
 
 - Migration `supabase/migrations/20261026000100_survey_frequency_comment.sql`: Spalten `frequency`, `reason`, `reason_other` und `comment` in `survey_answers`; `survey_results()` liefert zusätzlich `frequency`, `reason`, `reason_other` und `comments`.
-- Pflichtaufgabe vor dem Merge: Migration im Supabase-SQL-Editor ausführen. Ohne die Spalten lädt die App keine Antwort und speichert keine neue.
+- Erledigt: Daria hat die Migration am 26.10.2026 im Supabase-SQL-Editor ausgeführt.
