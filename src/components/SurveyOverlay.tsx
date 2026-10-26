@@ -45,6 +45,8 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState<Draft>({});
   const [comment, setComment] = useState('');
+  // Eigene Antwort bei Fragen mit `freeText`
+  const [other, setOther] = useState('');
   const [sending, setSending] = useState(false);
   // Schritte: die Fragen, danach der Kommentar, danach der Dank
   const commentStep = step === surveyQuestions.length;
@@ -59,14 +61,16 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
     loadMySurveyAnswer()
       .then((a) => {
         if (!a) return;
-        setDraft({ opinion: [a.opinion], frequency: a.frequency ? [a.frequency] : [], usability: [a.usability], design: [a.design], support: a.support, recommend: [a.recommend] });
+        setDraft({ opinion: [a.opinion], frequency: a.frequency ? [a.frequency] : [], usability: [a.usability], design: [a.design], support: a.support, recommend: [a.recommend], reason: a.reason ? [a.reason] : [] });
         setComment(a.comment ?? '');
+        setOther(a.reason_other ?? '');
       })
       .catch(() => undefined);
   }, [visible, live]);
 
   const question = surveyQuestions[step];
   const selected = question ? draft[question.key] ?? [] : [];
+  const answered = selected.length > 0 || (!!question?.freeText && !!other.trim());
 
   const toggle = (key: string) =>
     setDraft((d) => {
@@ -83,6 +87,8 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
         design: draft.design![0],
         support: draft.support!,
         recommend: draft.recommend![0],
+        reason: draft.reason?.[0] ?? null,
+        reason_other: other.trim() || null,
         comment: comment.trim() || null,
       };
       setSending(true);
@@ -142,11 +148,21 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
                 <Text style={styles.title} accessibilityRole="header">{question.title}</Text>
                 {question.multiple ? <Text style={styles.caption}>Mehrere Antworten möglich</Text> : null}
               </View>
-              <ScrollView style={styles.options} contentContainerStyle={styles.optionsContent}>
+              <ScrollView style={styles.options} contentContainerStyle={styles.optionsContent} keyboardShouldPersistTaps="handled">
                 {question.options.map((o) => {
                   const Option = question.multiple ? CheckOption : RadioOption;
                   return <Option key={o.key} label={o.label} selected={selected.includes(o.key)} onPress={() => toggle(o.key)} />;
                 })}
+                {question.freeText ? (
+                  <TextField
+                    label="Eigene Antwort"
+                    helperText={t('Freiwillig, höchstens {max} Zeichen.', { max: SURVEY_COMMENT_MAX })}
+                    value={other}
+                    onChangeText={setOther}
+                    maxLength={SURVEY_COMMENT_MAX}
+                    multiline
+                  />
+                ) : null}
               </ScrollView>
             </>
           )}
@@ -158,7 +174,7 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
                 <Button
                   busy={sending}
                   label={commentStep ? (sending ? 'Wird gesendet …' : 'Antwort senden') : 'Weiter'}
-                  disabled={(!commentStep && selected.length === 0) || sending}
+                  disabled={(!commentStep && !answered) || sending}
                   onPress={next}
                 />
                 {step > 0 ? <Button label="Zurück" variant="ghost" onPress={() => setStep(step - 1)} /> : null}

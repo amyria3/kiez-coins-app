@@ -1067,9 +1067,16 @@
   "Zum Schluss": "לסיום",
   "Möchtest Du uns noch etwas sagen?": "רוצה לספר לנו עוד משהו?",
   "Freiwillig, höchstens {max} Zeichen.": "לא חובה, עד {max} תווים.",
-  "6 Fragen zur App": "6 שאלות על האפליקציה",
   "Wie oft würdest Du die App nutzen?": "באיזו תדירות היית משתמש/ת באפליקציה?",
   "Oft, vielleicht sogar täglich": "לעיתים קרובות, אולי אפילו כל יום",
   "Gelegentlich": "מדי פעם",
-  "Eher ausnahmsweise": "רק לעיתים רחוקות"
+  "Eher ausnahmsweise": "רק לעיתים רחוקות",
+  "7 Fragen zur App": "7 שאלות על האפליקציה",
+  "Wieso hast Du die App getestet?": "למה בדקת את האפליקציה?",
+  "Klingt mega spannend": "נשמע מרגש במיוחד",
+  "Neugierde": "סקרנות",
+  "Wollte nur nett sein": "רק רציתי להיות נחמד/ה",
+  "Eigene Antwort": "תשובה משלך",
+  "Eigene Antworten: {title}": "תשובות חופשיות: {title}",
+  "Noch keine eigenen Antworten.": "עדיין אין תשובות חופשיות."
 }

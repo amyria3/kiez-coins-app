@@ -5,13 +5,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
  * Die Schlüssel stehen so in der Tabelle `survey_answers` (Migration 20261021001500).
  */
 export type SurveyQuestion = {
-  key: 'opinion' | 'frequency' | 'usability' | 'design' | 'support' | 'recommend';
+  key: 'opinion' | 'frequency' | 'usability' | 'design' | 'support' | 'recommend' | 'reason';
   title: string;
   /** Mehrfachauswahl */
   multiple?: boolean;
+  /** Zusätzliches Feld für eine eigene Antwort. Die Frage gilt als beantwortet mit Auswahl oder eigener Antwort. */
+  freeText?: boolean;
   options: { key: string; label: string }[];
 };
 
+/** Reihenfolge der Antworten: von „top“ zu „flop“ (Daria, 26.10.2026). */
 export const surveyQuestions: SurveyQuestion[] = [
   {
     // Ergänzt am 26.10.2026 (Daria: „mitunter wichtigste Frage“, an erster Stelle)
@@ -73,6 +76,17 @@ export const surveyQuestions: SurveyQuestion[] = [
       { key: 'dislike', label: 'Nein, finde die App nicht gut' },
     ],
   },
+  {
+    // Ergänzt am 26.10.2026 als letzte Frage, mit eigener Antwort
+    key: 'reason',
+    title: 'Wieso hast Du die App getestet?',
+    freeText: true,
+    options: [
+      { key: 'exciting', label: 'Klingt mega spannend' },
+      { key: 'curious', label: 'Neugierde' },
+      { key: 'nice', label: 'Wollte nur nett sein' },
+    ],
+  },
 ];
 
 /** Antworten je Frage: Einfachauswahl als ein Schlüssel, Mehrfachauswahl als Liste. */
@@ -84,6 +98,9 @@ export type SurveyAnswer = {
   design: string;
   support: string[];
   recommend: string;
+  /** Frage „Wieso getestet?“: Auswahl und eigene Antwort, beides freiwillig, eins von beiden nötig */
+  reason?: string | null;
+  reason_other?: string | null;
   /** Freier Kommentar, freiwillig (Migration 20261026000100) */
   comment?: string | null;
 };
@@ -92,7 +109,12 @@ export type SurveyAnswer = {
 export const SURVEY_COMMENT_MAX = 1000;
 
 /** Auswertung aus `survey_results()`: Anzahl Antworten und je Frage die Zahl pro Antwort. */
-export type SurveyResults = { total: number; comments?: { text: string; at: string }[] } & Record<
+export type SurveyResults = {
+  total: number;
+  comments?: { text: string; at: string }[];
+  /** Eigene Antworten zu „Wieso hast Du die App getestet?“ */
+  reason_other?: { text: string; at: string }[];
+} & Record<
   SurveyQuestion['key'],
   Record<string, number>
 >;

@@ -1067,9 +1067,16 @@
   "Zum Schluss": "في الختام",
   "Möchtest Du uns noch etwas sagen?": "هل تريد أن تقول لنا شيئًا آخر؟",
   "Freiwillig, höchstens {max} Zeichen.": "اختياري، {max} حرف كحد أقصى.",
-  "6 Fragen zur App": "6 أسئلة عن التطبيق",
   "Wie oft würdest Du die App nutzen?": "كم مرة ستستخدم التطبيق؟",
   "Oft, vielleicht sogar täglich": "كثيرًا، وربما يوميًا",
   "Gelegentlich": "أحيانًا",
-  "Eher ausnahmsweise": "نادرًا فقط"
+  "Eher ausnahmsweise": "نادرًا فقط",
+  "7 Fragen zur App": "7 أسئلة عن التطبيق",
+  "Wieso hast Du die App getestet?": "لماذا جرّبت التطبيق؟",
+  "Klingt mega spannend": "يبدو مثيرًا جدًا",
+  "Neugierde": "الفضول",
+  "Wollte nur nett sein": "أردت فقط أن أكون لطيفًا",
+  "Eigene Antwort": "إجابتك الخاصة",
+  "Eigene Antworten: {title}": "إجابات خاصة: {title}",
+  "Noch keine eigenen Antworten.": "لا توجد إجابات خاصة بعد."
 }
