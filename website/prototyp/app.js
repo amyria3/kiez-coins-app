@@ -96,7 +96,7 @@
       // Reihenfolge = Reihenfolge der Knöpfe neben dem Telefon: [Schlüssel, Titel, Text, Kurzform fürs Handy]
       scenarios: [
         ['me', 'Me-Challenge', 'How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!', 'Me-Challenge'],
-        ['we', 'We-Challenge', 'Eine Aufgabe für den Kiez, mit Coins als Belohnung. Annehmen, erledigen, Coins bekommen.', 'We-Challenge'],
+        ['we', 'We-Challenge', 'Dir ist etwas aufgefallen, was getan werden müsste, was Du aber nicht selbst tun kannst? Poste eine We-Challenge in Deinem Kiez, setze eine Belohnung aus und lehn Dich erst mal zurück. Wir sind gespannt, was sich so alles bewegen lässt!', 'We-Challenge'],
       ],
     },
     gruppe: {
