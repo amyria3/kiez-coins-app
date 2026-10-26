@@ -74,7 +74,7 @@
           id: 'auwald', kind: 'me',
           title: 'Müll im Auwald gesammelt',
           text: 'Nach dem Wochenende lagen Flaschen und Verpackungen am Weg. Drei Säcke später hat der Igel seine Ruhe.',
-          author: 'lena', before: 'muell-wald', after: 'igel', took: '1 h 40 min', comments: 3, likes: 24,
+          author: 'lena', before: 'muell-wald', after: 'wald', took: '1 h 40 min', comments: 3, likes: 24,
         },
         {
           id: 'fahrrad', kind: 'we',
