@@ -221,7 +221,7 @@ ${filterDefs}
 <section class="hero" id="prototyp-bereich">
   <div class="hero-text">
     <h1>Kleine Challenges für Deinen Kiez.</h1>
-    <p class="lede">Kennst Du das? Irgendwas muss erledigt werden, aber wer soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez</p>
+    <p class="lede">Kennst Du den Spruch „Tue Gutes und rede darüber“? Denn so können wir alle ein bisschen voneinander lernen. Angeber willkommen!</p>
   </div>
   <div class="steuerung">
   <div class="rolle" id="rolle" role="radiogroup" aria-label="Ort im Prototyp">
@@ -231,11 +231,11 @@ ${filterDefs}
   </div>
   <div class="szenarien" id="szenarien" aria-label="Prototyp steuern">
     <span class="szenario-mark" aria-hidden="true"></span>
-    <button type="button" data-szenario="me" aria-pressed="true" aria-controls="prototyp"><b>Me-Challenge</b><i>Me-Challenge</i><span>Du forderst Dich selbst heraus: Vorher-Foto, loslegen, Nachher-Foto. Eine gute Tat für den Kiez, ganz ohne Coins.</span></button>
+    <button type="button" data-szenario="me" aria-pressed="true" aria-controls="prototyp"><b>Me-Challenge</b><i>Me-Challenge</i><span>How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!</span></button>
     <button type="button" data-szenario="we" aria-pressed="false" aria-controls="prototyp"><b>We-Challenge</b><i>We-Challenge</i><span>Eine Aufgabe für den Kiez, mit Coins als Belohnung. Annehmen, erledigen, Coins bekommen.</span></button>
     <button type="button" data-szenario="rangliste" aria-pressed="false" aria-controls="prototyp" hidden><b>Rangliste</b><i>Rangliste</i><span>Du magst es kompetitiv? Schalte die Rangliste für Eure Gruppe ein oder aus. May the best win!</span></button>
   </div>
-  <p class="szenario-text" id="szenario-text" aria-hidden="true">Du forderst Dich selbst heraus: Vorher-Foto, loslegen, Nachher-Foto. Eine gute Tat für den Kiez, ganz ohne Coins.</p>
+  <p class="szenario-text" id="szenario-text" aria-hidden="true">How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!</p>
   </div>
   <p class="hinweis">Das Telefon ist klickbar. Alle Daten darin sind Beispiele.</p>
   <div class="phone" id="prototyp" role="region" aria-label="Klickbarer Prototyp der App Kiez Coins">
