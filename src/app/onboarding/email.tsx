@@ -30,7 +30,7 @@ type Mode = 'choose' | 'code' | 'password';
 
 /**
  * Route `onboarding/email`. Figma: `onboarding/email`.
- * Ein Weg für neue und bekannte Konten (Daria, 24.10.2026). Zuerst die E-Mail, darunter „Mit Code anmelden“
+ * Ein Weg für neue und bekannte Konten (Daria, 24.10.2026). Zuerst die E-Mail, darunter „Code per Mail“
  * und „Mit Passwort anmelden“. Nach der Wahl gleiten die Buttons zur Seite, die E-Mail rutscht hoch, und
  * darunter erscheint das Feld für den Code oder das Passwort. Das Passwortfeld erscheint auch ohne E-Mail.
  * Beim Passwort prüft die App: Konto mit diesem Passwort → anmelden, kein Konto → anlegen.
@@ -212,7 +212,7 @@ export default function Email() {
         <View style={styles.choices}>
           <Animated.View style={out(-1)}>
             <Button busy={busy}
-              label={busy ? 'Wird gesendet …' : 'Mit Code anmelden'}
+              label={busy ? 'Wird gesendet …' : 'Code per Mail'}
               onPress={requestCode}
               disabled={busy}
             />
