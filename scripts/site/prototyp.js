@@ -33,7 +33,7 @@
   }
 
   // Text unter der Überschrift, wenn der Ort keinen eigenen für das Szenario hat
-  var LEDE = 'Kennst Du das? Irgendwas muss erledigt werden, aber wer soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez';
+  var LEDE = 'Kennst Du das? Irgendwas muss erledigt werden, doch wer in Gottes Namen soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez';
 
   // Eigene Me-Challenge im Prototyp, in beiden Orten gleich (Vorher hohes Gras, Nachher gepflegte Beete)
   var ME = {
