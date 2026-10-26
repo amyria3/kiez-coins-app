@@ -6,7 +6,7 @@ Alle Fotos stammen von Unsplash und stehen unter der Unsplash-Lizenz (https://un
 |---|---|---|
 | igel.jpg | Igel im Gras | https://unsplash.com/photos/OMCgkp1oZ3Q |
 | garten.jpg | Zwei Personen an Hochbeeten im Gemeinschaftsgarten | https://unsplash.com/photos/b7wzLHZJ8-A |
-| muell.jpg | Müll sammeln mit Handschuhen und Sack | https://unsplash.com/photos/0tPD48uD9Fk |
+| muell-wald.jpg | Kaffeebecher und Verpackungen im Laub | Wald entdecken Berlin, „Voll der Mist“: https://waldentdeckenberlin.org/voll-der-mist/ (Quelle im Footer der Startseite genannt) |
 | fahrrad.jpg | Person repariert ein Fahrrad | https://unsplash.com/photos/o6wceYJw2Tw |
 | tonnen.jpg | Drei Mülltonnen an einer Steinmauer | https://unsplash.com/photos/yNo7pGe6VNA |
 | spuel.jpg | Offene Spülmaschine mit Tellern, rechts beschnitten | https://unsplash.com/photos/mAWTLZIjI8k |
@@ -14,3 +14,4 @@ Alle Fotos stammen von Unsplash und stehen unter der Unsplash-Lizenz (https://un
 | einkauf.jpg | Montage: geschlossene Blechdose auf einer Flur-Konsole | Dose https://unsplash.com/photos/NLDG5Z9V9KM, Flur https://unsplash.com/photos/7ITcqxp3McM |
 | hund.jpg | Golden Retriever an der Leine auf dem Gehweg | https://unsplash.com/photos/VehdYPKnX8Y |
 | waesche.jpg | Wäsche auf der Leine vor Hochhäusern | https://unsplash.com/photos/l0bqydPG994 |
+| wald.jpg | Birken am Waldrand über einer Wiese (Karte „Schöne Waldbilder posten“) | Von Maria Arkadieff geschickt am 26.10.2026, Quelle [offen] |
