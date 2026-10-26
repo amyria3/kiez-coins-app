@@ -927,7 +927,7 @@
     var d = t.dataset;
     if (d.tab) {
       var target = d.tab === 'nearby' ? 'kiez' : 'gruppe';
-      if (target !== state.mode) return switchMode(target);
+      if (target !== state.mode) return switchMode(target, true);
       return setTab('nearby');
     }
     if (d.tabGo) return setTab(d.tabGo);
@@ -1110,7 +1110,12 @@
     state.focus = null;
     if (name === 'rangliste' && state.mode !== 'gruppe') switchMode('gruppe');
     if (state.tab !== 'nearby') { state.tab = 'nearby'; render({ animate: true }); }
-    if (name === 'me') return openCreate('me');
+    // Me-Challenge: im Kiez und in der Gruppe gleich. Der Ring zeigt auf die Kamera, Posten startet erst dort (Daria, 26.10.2026)
+    if (name === 'me') {
+      syncScenario();
+      if (!$('[data-me-open]')) say('Tipp auf die Kamera und poste Deine Me-Challenge.');
+      return;
+    }
     if (name === 'we') {
       var open = openWe();
       if (open) openDetail(open.id);
@@ -1123,9 +1128,11 @@
     }
     syncScenario();
   }
-  function switchMode(mode) {
+  // fromPhone: Wechsel über die Pille im Telefon. Nur dann zieht ein angefangener Entwurf mit um.
+  // Der Schalter neben dem Telefon startet beide Orte gleich im Feed (Daria, 26.10.2026).
+  function switchMode(mode, fromPhone) {
     if (mode === state.mode) return;
-    var composing = state.create;
+    var composing = fromPhone && state.create;
     var draft = state.draft;
     if (!composing) closeAll();
     hush();
