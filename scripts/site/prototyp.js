@@ -32,6 +32,9 @@
     return list.filter(function (x) { return x.id === id; })[0];
   }
 
+  // Text unter der Überschrift, wenn der Ort keinen eigenen für das Szenario hat
+  var LEDE = 'Kennst Du das? Irgendwas muss erledigt werden, aber wer soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez';
+
   // Eigene Me-Challenge im Prototyp, in beiden Orten gleich (Vorher hohes Gras, Nachher gepflegte Beete)
   var ME = {
     before: 'rasen',
@@ -50,6 +53,11 @@
       place: 'Connewitz',
       countText: function (n) { return n === 1 ? '1 We-Challenge in Deiner Nähe' : n + ' We-Challenges in Deiner Nähe'; },
       headline: 'Kleine Challenges für Deinen Kiez.',
+      // Text unter der Überschrift je nach Szenario (Daria, 26.10.2026); ohne Eintrag gilt LEDE
+      ledes: {
+        me: 'Kennst Du den Spruch „Tue Gutes und rede darüber“? Denn so können wir alle ein bisschen voneinander lernen. Angeber willkommen!',
+        we: 'Kampf der Abstumpfung, Kampf der Indifferenz – wider den totalen Rückzug in die eigenen vier Wände. Reclaim den öffentlichen Raum. Ob Geld oder Zeit und Skills – teile Deine Ressourcen mit anderen und lass wunderbare Synergieeffekte entstehen.',
+      },
       people: {
         lena: { name: 'Lena K.', short: 'Lena', color: '#FFB2E5' },
         peter: { name: 'Peter J.', short: 'Peter', color: '#FFAD7E' },
@@ -87,7 +95,7 @@
       },
       // Reihenfolge = Reihenfolge der Knöpfe neben dem Telefon: [Schlüssel, Titel, Text, Kurzform fürs Handy]
       scenarios: [
-        ['me', 'Me-Challenge', 'Du forderst Dich selbst heraus: Vorher-Foto, loslegen, Nachher-Foto. Eine gute Tat für den Kiez, ganz ohne Coins.', 'Me-Challenge'],
+        ['me', 'Me-Challenge', 'How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!', 'Me-Challenge'],
         ['we', 'We-Challenge', 'Eine Aufgabe für den Kiez, mit Coins als Belohnung. Annehmen, erledigen, Coins bekommen.', 'We-Challenge'],
       ],
     },
@@ -1005,6 +1013,7 @@
   var picker = document.getElementById('szenarien');
   var roles = document.getElementById('rolle');
   var headline = document.querySelector('.hero h1');
+  var lede = document.querySelector('.hero .lede');
   var pickText = document.getElementById('szenario-text');
   function first() {
     return M.scenarios[0][0];
@@ -1047,6 +1056,10 @@
       moveMark(picker, active);
       // Auf dem Handy stehen nur Kurzformen in der Leiste; der Satz zum gewählten Szenario steht darunter
       if (pickText && active) pickText.textContent = active.querySelector('span').textContent;
+    }
+    if (lede) {
+      var t = (M.ledes && M.ledes[current()]) || LEDE;
+      if (lede.textContent !== t) lede.textContent = t;
     }
     if (roles) {
       var r;
