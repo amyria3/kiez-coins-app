@@ -290,7 +290,7 @@
     '</div>' +
     '<button class="p-camera" type="button" aria-label="' + T('Neu stellen', 'New post') + '">' + svg('cameraDark', 15) + '</button>' +
     '<nav class="p-tabbar" aria-label="' + T('App-Leiste', 'App bar') + '">' +
-    '  <button type="button" data-bar="feed" aria-label="Feed">' + svg('pin', 18) + '</button>' +
+    '  <button type="button" data-bar="feed" aria-label="Feed">' + svg('feed', 18) + '</button>' +
     '  <button type="button" data-bar="pleasure" aria-label="' + T('Was Du so machst', 'What you’re up to') + '">' + svg('crown', 22) + '</button>' +
     '  <button type="button" data-bar="menu" aria-label="' + T('Menü', 'Menu') + '">' + svg('burger', 16) + '</button>' +
     '</nav>' +
@@ -887,6 +887,25 @@
     state.hinted = true;
     render({ newId: id });
     scroll.scrollTo({ top: 0 });
+    heartBurst();
+  }
+  // Herz-Animation nach dem Posten wie in der App (src/components/HeartBurst.tsx): Doppelherz springt in die Mitte,
+  // kleine Herzen steigen auf. Mit „Bewegung reduzieren“ nur kurz ein- und ausblenden.
+  function heartBurst() {
+    var old = $('.p-burst');
+    if (old) old.remove();
+    var el = document.createElement('div');
+    el.className = 'p-burst' + (reduce ? ' p-burst-still' : '');
+    el.setAttribute('aria-hidden', 'true');
+    var html = '<span class="p-burst-big">' + svg('feedOn', 72) + '</span>';
+    if (!reduce) {
+      [[-52, 80, 20], [44, 160, 16], [-20, 260, 14], [62, 320, 12], [14, 420, 15]].forEach(function (s) {
+        html += '<span class="p-burst-small" style="--x:' + s[0] + 'px;animation-delay:' + s[1] + 'ms">' + svg('feedOn', s[2]) + '</span>';
+      });
+    }
+    el.innerHTML = html;
+    screen.appendChild(el);
+    setTimeout(function () { el.remove(); }, 1400);
   }
 
   // ---------- Ebenen ----------

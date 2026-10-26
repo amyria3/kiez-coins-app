@@ -107,6 +107,9 @@ const kcSvg = {
   send: icon('send', C.muted),
   camera: icon('camera', C.text),
   pin: icon('map-pin', C.text),
+  // Doppelherz = Feed (Daria, 26.10.2026), in Pink für die Herz-Animation nach dem Posten
+  feed: icon('feed', C.text),
+  feedOn: icon('feed', C.pink),
   burger: icon('burger', C.muted),
   close: icon('close', C.text),
   check: icon('check', C.dark),
