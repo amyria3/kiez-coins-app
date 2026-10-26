@@ -10,6 +10,8 @@
 
 Beim Posten (Challenge, Bild, Vorher-Nachher) wählt die Person die Sichtbarkeit „Nur ich“. Der Beitrag ist veröffentlicht, aber nur für die Ersteller:in sichtbar. Das ist etwas anderes als ein Entwurf: Ein Entwurf ist unfertig (Titel, Ort und Frist dürfen fehlen), ein „Nur ich“-Beitrag ist fertig und gepostet.
 
+Verwandt: `2026-10-26_offen_kiez-ausschalten.md` (Kiez ganz ausschalten, Modus „Erstmal nur ich“). Am besten zusammen umsetzen.
+
 ## Stand
 
 Noch nichts umgesetzt. Heute sieht nur die Ersteller:in einen Beitrag, wenn er ein Entwurf (`status = 'draft'`) oder gelöscht (`status = 'deleted'`) ist. Die Lese-Policy steht zuletzt in `supabase/migrations/20261021000200_soft_delete_challenge.sql`:
