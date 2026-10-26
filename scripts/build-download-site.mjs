@@ -269,7 +269,7 @@ ${filterDefs}
 <div class="fx-spur" aria-hidden="true"></div>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="${L === 'de' ? './' : pfad(L)}" aria-label="${t('Kiez Coins, Startseite', 'Kiez Coins, home')}">${sized(kcSvg.logo, 28)}</a>
+  <a class="brand" href="${L === 'de' ? './' : pfad(L)}" aria-label="${t('Kiez Coins, Startseite', 'Kiez Coins, home')}">${sized(kcSvg.logo, 28)}<span class="marke" lang="en">The actually pro-social App</span></a>
   <nav class="top-links"><a class="top-link" href="/spenden"><span class="lang">${t('Spendenaktion', 'Fundraiser')}</span><span class="kurz">${t('Spenden', 'Donate')}</span></a><a class="top-link" href="#download"><span class="lang">${t('Testversion laden', 'Get the beta')}</span><span class="kurz">${t('Testen', 'Try it')}</span></a>${sprachwahl(L)}</nav>
 </header>
 
@@ -566,7 +566,7 @@ const einladung = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}</a>
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}<span class="marke" lang="en">The actually pro-social App</span></a>
 </header>
 <main>
 <section class="download einladung" id="download" aria-labelledby="einladung-titel">
@@ -635,7 +635,7 @@ const spendenSeite = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}</a>
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}<span class="marke" lang="en">The actually pro-social App</span></a>
   <a class="top-link" href="/#download">Testversion laden</a>
 </header>
 <main>
@@ -697,7 +697,7 @@ const katerSeite = `<!doctype html>
 <body class="kater-seite">
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}</a>
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}<span class="marke" lang="en">The actually pro-social App</span></a>
   <a class="top-link" href="/#download">Testversion laden</a>
 </header>
 <main class="kater-buehne-seite">
