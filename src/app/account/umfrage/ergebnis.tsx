@@ -5,13 +5,15 @@ import { SubScreen } from '../../../components/Screen';
 import { Text } from '../../../components/T';
 import { errorText, loadSurveyResults } from '../../../data/remote';
 import { surveyQuestions, type SurveyResults } from '../../../data/survey';
+import { formatRelative } from '../../../data/format';
 import { t } from '../../../data/texts';
 import { color, radius, space, text } from '../../../theme/tokens';
 import { useGoBack } from '../../../lib/goBack';
 
 /**
  * Route `account/umfrage/ergebnis` (Push aus „Dein Konto“, nur für die Moderation).
- * Zeigt je Antwort die Zahl der Stimmen und den Anteil. Einzelne Antworten und Namen bleiben verborgen.
+ * Zeigt je Antwort die Zahl der Stimmen und den Anteil, darunter die Kommentare, neueste zuerst.
+ * Einzelne Antworten und Namen bleiben verborgen.
  */
 export default function SurveyResultsScreen() {
   const goBack = useGoBack();
@@ -37,8 +39,11 @@ export default function SurveyResultsScreen() {
           <Text style={styles.title}>{`${i + 1}. `}{q.title}</Text>
           {q.multiple ? <Text style={styles.caption}>Mehrfachauswahl, Anteil bezogen auf alle Antworten</Text> : null}
           {q.options.map((o) => {
-            const n = data?.[q.key]?.[o.key] ?? 0;
-            const share = total ? Math.round((n / total) * 100) : 0;
+            const counts = data?.[q.key] ?? {};
+            const n = counts[o.key] ?? 0;
+            // Einfachauswahl: Anteil an allen, die diese Frage beantwortet haben (die Frage zur Nutzung fehlt in alten Antworten)
+            const base = q.multiple ? total : Object.values(counts).reduce((sum, v) => sum + v, 0);
+            const share = base ? Math.round((n / base) * 100) : 0;
             return (
               <View key={o.key} style={styles.row}>
                 <View style={styles.rowText}>
@@ -53,6 +58,26 @@ export default function SurveyResultsScreen() {
           })}
         </View>
       ))}
+      <View style={styles.card}>
+        <Text style={styles.title}>{t('Eigene Antworten: {title}', { title: surveyQuestions.find((q) => q.key === 'reason')?.title ?? '' })}</Text>
+        {data && !data.reason_other?.length ? <Text style={styles.caption}>Noch keine eigenen Antworten.</Text> : null}
+        {data?.reason_other?.map((c, i) => (
+          <View key={i} style={styles.comment}>
+            <Text style={styles.body}>{c.text}</Text>
+            <Text style={styles.caption}>{formatRelative(c.at)}</Text>
+          </View>
+        ))}
+      </View>
+      <View style={styles.card}>
+        <Text style={styles.title}>Kommentare</Text>
+        {data && !data.comments?.length ? <Text style={styles.caption}>Noch keine Kommentare.</Text> : null}
+        {data?.comments?.map((c, i) => (
+          <View key={i} style={styles.comment}>
+            <Text style={styles.body}>{c.text}</Text>
+            <Text style={styles.caption}>{formatRelative(c.at)}</Text>
+          </View>
+        ))}
+      </View>
     </SubScreen>
   );
 }
@@ -63,6 +88,7 @@ const styles = StyleSheet.create({
   body: { ...text.body, color: color.text.primary, flex: 1 },
   caption: { ...text.caption, color: color.text.secondary },
   row: { gap: space[4] },
+  comment: { gap: space[4], paddingTop: space[12], borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.line.hairline },
   rowText: { flexDirection: 'row', gap: space[8], alignItems: 'baseline' },
   track: { height: 6, borderRadius: radius.full, backgroundColor: color.bg.screen, overflow: 'hidden' },
   bar: { height: 6, borderRadius: radius.full, backgroundColor: color.accent.primary },
