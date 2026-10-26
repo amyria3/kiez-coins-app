@@ -379,7 +379,7 @@ footer a { color: var(--muted); }
 }
 
 /* Kater: Kopf schaut schräg vom linken Rand herein */
-.kater-kopf { position: fixed; z-index: 900; left: -52px; top: 60vh; width: 110px; padding: 0; border: 0; background: none; cursor: pointer;
+.kater-kopf { position: fixed; z-index: 900; left: -26px; top: 60vh; width: 110px; padding: 0; border: 0; background: none; cursor: pointer;
   transform: rotate(60deg); transition: transform 560ms var(--barrier), opacity 200ms; }
 .kater-kopf img { display: block; width: 110px; height: auto; }
 .kater-kopf:hover, .kater-kopf:focus-visible { transform: translateX(14px) rotate(50deg); }
@@ -388,8 +388,8 @@ footer a { color: var(--muted); }
 @keyframes kater-gucken { from { transform: translateX(-90px) rotate(60deg); } }
 .kater { position: fixed; z-index: 950; inset: 0; background: rgba(15,16,17,0); transition: background 300ms; }
 .kater.is-open { background: rgba(15,16,17,.72); }
-.kater-buehne { position: absolute; left: max(16px, 6vw); bottom: 0; width: min(340px, 78vw); display: grid; justify-items: start;
-  transform: translateY(105%); transition: transform 560ms var(--barrier); }
+.kater-buehne { position: absolute; left: max(16px, 6vw); bottom: 32px; width: min(340px, 78vw); display: grid; justify-items: start;
+  transform: translateY(calc(100% + 48px)); transition: transform 560ms var(--barrier); }
 .kater.is-open .kater-buehne { transform: none; }
 .kater-blase { justify-self: end; white-space: nowrap; max-width: none; margin: 0 0 -8px; font: 600 20px/1.2 var(--display); transform: rotate(-3deg); }
 .kater-blase::after { left: 30%; z-index: -1; }
@@ -401,7 +401,7 @@ footer a { color: var(--muted); }
 .kater-wege button:last-of-type { background: var(--purple); color: var(--bg); border-color: transparent; }
 .kater-wege .kater-hallo-link { white-space: nowrap; text-align: center; text-decoration: none; color: var(--text); padding: 10px 20px; font: 400 14px/1 Inter, sans-serif; }
 @media (max-width: 640px) {
-  .kater-kopf { width: 84px; left: -40px; top: 70vh; }
+  .kater-kopf { width: 84px; left: -20px; top: 70vh; }
   .kater-kopf img { width: 84px; }
   .kater-buehne { left: 16px; width: min(260px, 68vw); }
   .kater-blase { justify-self: start; font-size: 17px; }
