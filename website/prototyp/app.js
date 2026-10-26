@@ -149,7 +149,7 @@
       },
       scenarios: [
         ['me', 'Me-Challenge', 'Teile Life-Hacks und Rezepte in Deiner Gruppe. Hol Dir Bestätigung und Ermutigung für eine Gewohnheit, die Du entwickeln möchtest. Oder hast Du etwas für die anderen Menschen in Deiner Gruppe gemacht – und es verdient eine Portion Wertschätzung? Go!', 'Me-Challenge'],
-        ['we', 'We-Challenge', 'Aufgaben nur für Eure Gruppe, belohnt mit Edensteinen.', 'We-Challenge'],
+        ['we', 'We-Challenge', 'Organisiert euch spielerisch innerhalb eurer Gruppe. Wer mehr lästige Aufgaben übernimmt, verdient sich einen hohen Rang in der Liste. Auf die Plätze, fertig, los!', 'We-Challenge'],
       ],
     },
   };
