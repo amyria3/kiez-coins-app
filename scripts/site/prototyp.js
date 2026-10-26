@@ -1,5 +1,5 @@
 // Klickbarer Prototyp der App auf kiezcoins.de. Läuft ohne Server und ohne Konto, alle Daten sind Beispiele.
-// Zwei Orte: „Kiez“ (Nachbarschaft, We-Challenges mit Coins) und „Gruppe Luxor“ (Aufgaben mit Edensteinen).
+// Zwei Orte: „Kiez“ (Nachbarschaft, We-Challenges mit Coins) und „Hof Kastanienallee“ (Gruppe) (Aufgaben mit Edensteinen).
 // Drei Hauptfunktionen (Daria, 25.10.2026): Me-Challenge (Standard, ohne Coins), We-Challenge, Kiez und Gruppe.
 // Icons, Kater, Kartenbilder und die Liste der Fotos kommen aus `prototyp/daten.js` (erzeugt von
 // scripts/build-download-site.mjs aus denselben SVGs wie die App). Bewegung „Schranke“ wie in src/theme/tokens.ts.
@@ -93,7 +93,7 @@
     },
     gruppe: {
       unit: 'eden',
-      place: 'Gruppe Luxor',
+      place: 'Hof Kastanienallee',
       countText: function (n) { return n === 1 ? '1 offene Aufgabe' : n + ' offene Aufgaben'; },
       headline: 'Kleine Challenges für Deine Gruppe.',
       people: {
@@ -117,7 +117,7 @@
         },
       ],
       group: {
-        name: 'Gruppe Luxor',
+        name: 'Hof Kastanienallee',
         sub: '4 Mitglieder · Rangliste an',
         members: [
           { id: 'peter', score: 18 },
@@ -137,10 +137,10 @@
         rewards: [1, 3, 5, 10],
         reward: 3,
         photo: 'waesche',
-        published: 'Deine We-Challenge ist da. Die Gruppe Luxor sieht sie jetzt.',
+        published: 'Deine We-Challenge ist da. Alle im Hof Kastanienallee sehen sie jetzt.',
       },
       scenarios: [
-        ['me', 'Me-Challenge', 'Auch in der Gruppe: Vorher, Nachher, fertig. Alle in Luxor sehen Deine gute Tat.', 'Me-Challenge'],
+        ['me', 'Me-Challenge', 'Auch in der Gruppe: Vorher, Nachher, fertig. Alle im Hof sehen Deine gute Tat.', 'Me-Challenge'],
         ['we', 'We-Challenge', 'Aufgaben nur für Eure Gruppe, belohnt mit Edensteinen.', 'We-Challenge'],
         ['rangliste', 'Rangliste', 'Du magst es kompetitiv? Schalte die Rangliste für Eure Gruppe ein oder aus. May the best win!', 'Rangliste'],
       ],
@@ -389,7 +389,7 @@
     if (!animate) { pill.offsetWidth; pill.style.transition = ''; }
   }
 
-  // Pille und Schalter links gehören zusammen: Kiez = Kiez, Gruppe Luxor = Gruppe Luxor
+  // Pille und Schalter links gehören zusammen: Kiez = Kiez, Hof Kastanienallee = Hof Kastanienallee
   function segKey() {
     if (!state.create && state.tab === 'pleasure') return null;
     return state.mode === 'kiez' ? 'nearby' : 'groups';
@@ -400,7 +400,7 @@
     var kind = state.draft.kind === 'me' ? 'Me-Challenge' : 'We-Challenge';
     $('.p-compose-line').textContent = kind + ' · ' + M.place;
     $$('[data-tab]', seg).forEach(function (b) {
-      b.textContent = b.dataset.tab === 'nearby' ? 'Kiez' : 'Gruppe Luxor';
+      b.textContent = b.dataset.tab === 'nearby' ? 'Kiez' : 'Hof Kastanienallee';
       b.setAttribute('aria-selected', String(b.dataset.tab === segKey()));
     });
     placePill(animate);
@@ -1135,7 +1135,7 @@
       screen.offsetWidth;
       screen.classList.add('p-flip');
     }
-    say(mode === 'gruppe' ? 'Du bist jetzt in der Gruppe Luxor.' : 'Du bist jetzt in Connewitz unterwegs.');
+    say(mode === 'gruppe' ? 'Du bist jetzt im Hof Kastanienallee.' : 'Du bist jetzt in Connewitz unterwegs.');
   }
   if (picker) {
     picker.addEventListener('pointerover', function (e) {
