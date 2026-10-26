@@ -47,6 +47,7 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-25_offen_konsistenz.md`: Konsistenzprüfung vom 25.10.2026, Korrekturen auf `main`, offene Entscheidungen und neue Textschlüssel.
 - `2026-10-25_offen_gruppe-beim-erstellen.md`: Beim Erstellen zeigt die App, in welcher Gruppe die Person ist (To-do, Daria).
 - `2026-10-25_offen_kopf-grosse-bildschirme.md`: Der Feed-Kopf verschwindet auf großen Bildschirmen scheinbar zufällig (To-do, Daria).
+- `2026-10-26_offen_umfrage-ergaenzungen.md`: Zwei neue Fragen und Kommentarfeld in der Umfrage. Migration `20261026000100_survey_frequency_comment.sql` ausgeführt (26.10.2026).
 - `2026-10-26_offen_sichtbarkeit-nur-ich.md`: Sichtbarkeit „Nur ich“ beim Posten, veröffentlicht, aber nur für die Ersteller:in sichtbar, kein Entwurf (To-do, Daria).
 - `2026-10-26_offen_lila-ungemuetlich.md`: Kritik „Farbe Lila, ungemütlich“, offene Fragen zu Ort und Ersatzfarbe (To-do, Daria).
 - `2026-10-26_offen_kiez-ausschalten.md`: Kiez als Funktion ausschalten, Modus „Erstmal nur ich“, hängt mit „Nur ich“ zusammen (To-do, Daria).
