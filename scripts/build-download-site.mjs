@@ -38,7 +38,7 @@ const open = JSON.stringify(legalDocs).match(/\[offen:[^\]]*\]/g);
 if (open) console.warn(`Achtung, noch offen: ${[...new Set(open)].join(', ')}`);
 
 const css = `
-:root { --bg:#1F2123; --surface:#2B2D31; --text:#F0F0F0; --muted:#A0A0A0; --accent:#7E94FF; --error:#FF7E8B; --line:rgba(240,240,240,.12); }
+:root { --bg:#FAFBEF; --surface:#FFFFFF; --text:#26233A; --muted:#6A6680; --accent:#5260E0; --error:#D6334A; --line:rgba(38,35,58,.10); }
 * { box-sizing:border-box; }
 html { background:var(--bg); color:var(--text); }
 body { margin:0; font:300 16px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
@@ -52,7 +52,7 @@ a { color:var(--text); }
 .card { background:var(--surface); border-radius:20px; padding:20px; margin:24px 0; }
 label { display:block; font-size:14px; color:var(--muted); margin-bottom:6px; }
 input { width:100%; font:inherit; color:var(--text); background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:12px 14px; }
-button, .button { display:block; text-align:center; text-decoration:none; box-sizing:border-box; width:100%; margin-top:12px; font:500 16px/1 Inter, system-ui, sans-serif; color:var(--bg); background:var(--accent); border:0; border-radius:999px; padding:16px; cursor:pointer; }
+button, .button { display:block; text-align:center; text-decoration:none; box-sizing:border-box; width:100%; margin-top:12px; font:500 16px/1 Inter, system-ui, sans-serif; color:#FFFFFF; background:var(--accent); border:0; border-radius:999px; padding:16px; cursor:pointer; }
 .error { color:var(--error); font-size:14px; margin:8px 0 0; }
 .steps { padding-left:20px; color:var(--muted); margin:0; }
 .steps li { margin-bottom:6px; }
@@ -211,7 +211,7 @@ const startseite = (L) => {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#1F2123">
+<meta name="theme-color" content="#DCE1FF">
 <title>Kiez Coins – ${t('Kleine Challenges für mehr echte Gemeinschaft', 'Small challenges for more real community')}</title>
 <meta name="description" content="${t('Kennst Du das? Irgendwas muss erledigt werden, doch wer in Gottes Namen soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez. Zusammen sind wir stärker, gesünder, glücklicher, wohlhabender und bekommen sogar mehr gebacken!', 'Sound familiar? Something needs doing, but who on earth is going to do it? KiezCoins gives you an interface to share work better – at home or in your neighborhood. Together we’re stronger, healthier, happier, wealthier and we even get more done!')}">
 <link rel="icon" href="${P}favicon.png">
@@ -447,7 +447,7 @@ const einladung = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <meta name="referrer" content="no-referrer">
-<meta name="theme-color" content="#1F2123">
+<meta name="theme-color" content="#FAFBEF">
 <title>Einladung – Kiez Coins</title>
 <link rel="icon" href="/favicon.png">
 <link rel="stylesheet" href="/seite.css?v=${version(seiteCss)}">
@@ -514,7 +514,7 @@ const spendenSeite = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#1F2123">
+<meta name="theme-color" content="#FAFBEF">
 <title>Spendenaktion – Kiez Coins</title>
 <meta name="description" content="Damit Leipzig blüht, spende ich ${donation} € an den Ökolöwen, wenn ${goal} Menschen Kiez Coins testen und bewerten.">
 <link rel="icon" href="/favicon.png">
@@ -578,7 +578,7 @@ const katerSeite = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#1F2123">
+<meta name="theme-color" content="#FAFBEF">
 <title>Hallo, Cat The Käptn – Kiez Coins</title>
 <link rel="icon" href="/favicon.png">
 <link rel="stylesheet" href="/seite.css?v=${version(seiteCss)}">
