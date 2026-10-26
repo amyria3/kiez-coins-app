@@ -5,14 +5,19 @@
 @font-face { font-family: 'Inter Tight'; font-weight: 600; font-display: swap; src: url(fonts/InterTight_600SemiBold.ttf) format('truetype'); }
 
 :root {
-  --bg: #1F2123; --surface: #2B2D31; --glass: rgba(31,33,35,.82); --text: #F0F0F0; --muted: #A0A0A0;
-  --purple: #7E94FF; --orange: #FFAD7E; --green: #93F4A7; --red: #FF7E8B; --pink: #FFB2E5;
-  --line: rgba(240,240,240,.12);
+  /* Helle Seite „Lila-Bühne“: Kopf auf hellem Kater-Lila, darunter sehr helles Gelb-Grün. Das Telefon bleibt dunkel wie die App (.phone). */
+  --bg: #FAFBEF; --surface: #FFFFFF; --glass: rgba(250,251,239,.85); --text: #26233A; --muted: #6A6680;
+  --purple: #5260E0; --orange: #FFAD7E; --green: #93F4A7; --red: #D6334A; --pink: #FFB2E5;
+  --line: rgba(38,35,58,.10); --on-accent: #FFFFFF;
+  --buehne: #DCE1FF; --band: #EEF4CC; --flaeche-tief: #E9EBFA; --schatten: rgba(60,60,140,.25);
   --barrier: cubic-bezier(.55,-.3,.3,1.3);
   --display: 'Inter Tight', Inter, system-ui, sans-serif;
 }
+/* Dunkle App-Farben für das Telefon und den Kater-Dialog (wie src/theme/tokens.ts) */
+.phone, .kater { --bg: #1F2123; --surface: #2B2D31; --glass: rgba(31,33,35,.82); --text: #F0F0F0; --muted: #A0A0A0;
+  --purple: #7E94FF; --red: #FF7E8B; --line: rgba(240,240,240,.12); --on-accent: #1F2123; color: var(--text); }
 * { box-sizing: border-box; }
-html { background: var(--bg); color: var(--text); -webkit-text-size-adjust: 100%; }
+html { background: var(--bg) linear-gradient(180deg, var(--buehne) 0, #E9E5FF 640px, var(--bg) 900px) no-repeat; color: var(--text); -webkit-text-size-adjust: 100%; }
 body { margin: 0; font: 300 17px/1.55 Inter, system-ui, -apple-system, 'Segoe UI', sans-serif; }
 a { color: var(--text); }
 button { font: inherit; color: inherit; }
@@ -23,7 +28,7 @@ button { font: inherit; color: inherit; }
 .top { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
 .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
 .brand svg { display: block; }
-.top-link { font-size: 15px; font-weight: 400; text-decoration: none; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line); }
+.top-link { font-size: 15px; font-weight: 400; text-decoration: none; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
 .top-link:hover { border-color: var(--muted); }
 .top-links { display: flex; gap: 8px; }
 .top-link { white-space: nowrap; }
@@ -62,7 +67,7 @@ button { font: inherit; color: inherit; }
 .hero h1 { font: 600 clamp(44px, 6.4vw, 80px)/1 var(--display); letter-spacing: -.035em; margin: 0 0 24px; max-width: 11ch; }
 .lede { color: var(--muted); font-size: 19px; max-width: 34ch; margin: 0 0 40px; }
 .szenarien { position: relative; display: grid; gap: 6px; max-width: 420px; }
-.szenario-mark { position: absolute; left: 0; top: 0; border-radius: 22px; background: var(--surface); border: .5px solid var(--line);
+.szenario-mark { position: absolute; left: 0; top: 0; border-radius: 22px; background: var(--surface); border: .5px solid var(--line); box-shadow: 0 10px 24px -16px var(--schatten);
   transition: transform 560ms var(--barrier), width 560ms var(--barrier), height 560ms var(--barrier); pointer-events: none; }
 .szenarien button { position: relative; display: grid; gap: 2px; text-align: left; background: none; border: 0; border-radius: 22px; padding: 16px 20px; cursor: pointer; }
 .szenarien button b { font: 600 22px/1.15 var(--display); letter-spacing: -.01em; }
@@ -76,7 +81,7 @@ button { font: inherit; color: inherit; }
 
 /* Telefon */
 .phone { width: 320px; height: 664px; padding: 10px; border-radius: 54px; background: #0F1011; position: relative;
-  box-shadow: 0 0 0 1.5px #3A3C40, 0 40px 80px -20px rgba(126,148,255,.28), 0 20px 50px -30px rgba(0,0,0,.8); }
+  box-shadow: 0 0 0 1.5px #3A3C40, 0 40px 80px -24px rgba(40,40,120,.35), 0 24px 50px -30px rgba(40,30,20,.45); }
 .p-screen { position: relative; width: 300px; height: 644px; border-radius: 44px; overflow: hidden; background: var(--bg);
   font-family: Inter, system-ui, sans-serif; font-size: 13px; line-height: 1.35; isolation: isolate; }
 .p-screen button { background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -297,18 +302,19 @@ button { font: inherit; color: inherit; }
 }
 
 /* Leute */
-.mehr { padding: 64px 0; border-top: 1px solid var(--line); }
+.mehr { padding: 64px 0; background: var(--band); }
 .mehr > .wrap > p { color: var(--muted); margin: 0 0 32px; max-width: 46ch; }
 .mehr-karten { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .mehr-karte { display: grid; grid-template-rows: auto auto 1fr auto; gap: 14px; text-align: left; padding: 20px; border-radius: 28px;
   border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit; cursor: pointer;
+  box-shadow: 0 12px 30px -18px var(--schatten);
   transition: transform 560ms var(--barrier), border-color 200ms; }
 .mehr-karte:hover, .mehr-karte:focus-visible { border-color: var(--c); }
 .mehr-karte:active { transform: scale(.98); }
 .mehr-karte > b { font: 600 22px/1.15 var(--display); letter-spacing: -.01em; }
 .mehr-icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: var(--c); transition: transform 560ms var(--barrier); }
 .mehr-karte:hover .mehr-icon { transform: rotate(-8deg) scale(1.06); }
-.mehr-buehne { position: relative; display: block; height: 150px; border-radius: 18px; background: #191A1C; overflow: hidden; }
+.mehr-buehne { position: relative; display: block; height: 150px; border-radius: 18px; background: var(--flaeche-tief); overflow: hidden; }
 .mehr-status { color: var(--muted); font-size: 14px; min-height: 1.4em; }
 .mehr-wald img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 60%;
   opacity: .25; filter: grayscale(1); transform: scale(1.08); transition: opacity 300ms, filter 300ms, transform 560ms var(--barrier); }
@@ -322,20 +328,20 @@ button { font: inherit; color: inherit; }
   border-radius: 999px; background: rgba(15,16,17,.8); font-size: 13px; }
 .mehr-herz i { font-style: normal; font-variant-numeric: tabular-nums; }
 .mehr-freunde { display: flex; align-items: center; justify-content: center; gap: 14px; }
-.mehr-avatar { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; border: 2px dashed var(--line);
+.mehr-avatar { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; border: 2px dashed rgba(38,35,58,.25);
   color: var(--muted); font: 600 20px/1 var(--display); position: relative;
   transition: background 200ms, color 200ms, border-color 200ms, transform 560ms var(--barrier); }
 .mehr-avatar.is-freund { background: var(--a); color: #1F2123; border: 2px solid var(--a); transform: translateY(-6px); }
 .mehr-avatar.is-freund::after { content: '✓'; position: absolute; right: -4px; bottom: -4px; width: 20px; height: 20px; border-radius: 50%;
   background: var(--text); color: #1F2123; font: 700 12px/20px Inter, sans-serif; text-align: center; }
 .mehr-chat { display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; padding: 10px; }
-.mehr-blase { align-self: flex-start; max-width: 85%; padding: 7px 12px; border-radius: 16px 16px 16px 4px; background: var(--surface);
+.mehr-blase { align-self: flex-start; max-width: 85%; padding: 7px 12px; border-radius: 16px 16px 16px 4px; background: var(--bg);
   font-size: 13px; line-height: 1.3; animation: mehr-blase 400ms var(--barrier) both; }
-.mehr-blase.is-mein { align-self: flex-end; border-radius: 16px 16px 4px 16px; background: var(--purple); color: #1F2123; }
+.mehr-blase.is-mein { align-self: flex-end; border-radius: 16px 16px 4px 16px; background: var(--purple); color: var(--on-accent); }
 @keyframes mehr-blase { from { transform: translateY(10px) scale(.9); opacity: 0; } }
 @media (max-width: 760px) { .mehr-karten { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .mehr-flug, .mehr-blase { animation: none; } }
-.leute { padding: 64px 0 40px; border-top: 1px solid var(--line); }
+.leute { padding: 64px 0 40px; }
 .mehr h2, .leute h2, .download h2 { font: 600 clamp(30px, 4vw, 44px)/1.05 var(--display); letter-spacing: -.025em; margin: 0 0 12px; max-width: 18ch; }
 .leute > .wrap > p, .download > .wrap > p { color: var(--muted); margin: 0 0 40px; max-width: 46ch; }
 .szene { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: end; border-bottom: 2.5px solid var(--text); }
@@ -358,13 +364,13 @@ button { font: inherit; color: inherit; }
 /* Download */
 .download { padding: 80px 0 24px; }
 .karten { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.card { background: var(--surface); border-radius: 28px; padding: 28px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 28px; padding: 28px; box-shadow: 0 12px 30px -18px var(--schatten); }
 .card h3 { font: 600 24px/1.1 var(--display); margin: 0 0 8px; }
 .card p { color: var(--muted); margin: 0 0 12px; font-size: 15px; }
 .card label { display: block; font-size: 14px; color: var(--muted); margin: 16px 0 6px; }
 .card input { width: 100%; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 13px 14px; }
 .card .button, .card button { display: block; width: 100%; margin-top: 14px; text-align: center; text-decoration: none; font: 500 16px/1 Inter, sans-serif;
-  color: var(--bg); background: var(--purple); border: 0; border-radius: 999px; padding: 17px; cursor: pointer; }
+  color: var(--on-accent); background: var(--purple); border: 0; border-radius: 999px; padding: 17px; cursor: pointer; }
 .card .button-zweit { background: none; color: var(--text); border: 1px solid var(--line); font-weight: 400; }
 .card .button-zweit:hover { border-color: var(--muted); }
 .card .button-zweit { background: none; color: var(--text); border: 1px solid var(--line); margin-top: 10px; }
@@ -499,7 +505,7 @@ footer a { color: var(--muted); }
 
 /* Spendenaktion der Testphase (Daria, 2026-10-23) */
 /* Helles Papier, damit der helle Freistellrand der Blumen verschwindet */
-.spenden { --papier: #ECE9DF; --text: #1F2123; --muted: #5C5D60; --gruen: #2E9E57;
+.spenden { --papier: #FFFFFF; --text: #1F2123; --muted: #5C5D60; --gruen: #2E9E57;
   background: var(--papier); color: var(--text); border-radius: 28px; overflow: hidden; margin: 8px 0 48px; display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; }
 .spenden-blumen { position: relative; width: 100%; aspect-ratio: 1200 / 669; }
 .spenden-blumen img { position: absolute; height: auto; display: block; transform-origin: 50% 100%; }
