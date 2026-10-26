@@ -203,7 +203,7 @@ const index = `<!doctype html>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#1F2123">
 <title>Kiez Coins – Kleine Challenges für Deinen Kiez</title>
-<meta name="description" content="Kennst Du das? Irgendwas muss erledigt werden, doch wer in Gottes Namen soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez">
+<meta name="description" content="Kennst Du das? Irgendwas muss erledigt werden, doch wer in Gottes Namen soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez. Zusammen sind wir stärker, gesünder, glücklicher, wohlhabender und bekommen sogar mehr gebacken!">
 <link rel="icon" href="favicon.png">
 <link rel="preload" href="fonts/InterTight_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="stylesheet" href="seite.css?v=${version(seiteCss)}">
