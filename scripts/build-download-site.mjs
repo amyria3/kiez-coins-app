@@ -140,14 +140,15 @@ const seiteCss = readFileSync(join(siteDir, 'seite.css'), 'utf8');
 // Deutsch unter /, alle anderen unter /<code>/. Im Code steht je Text Deutsch und Englisch: t('Deutsch', 'English').
 // Die übrigen Sprachen liegen in scripts/site/sprachen/<code>.json, Schlüssel ist der deutsche Text.
 // Fehlt dort ein Text (etwa weil er gerade neu ist), zeigt die Seite die englische Fassung.
+// Reihenfolge im Menü nach Alter der Sprache, die älteste zuerst (Daria, 26.10.2026)
 const sprachen = [
-  { code: 'de', name: 'Deutsch' },
+  { code: 'he', name: 'עברית', rtl: true },
+  { code: 'ar', name: 'العربية', rtl: true },
   { code: 'en', name: 'English' },
+  { code: 'de', name: 'Deutsch' },
   { code: 'fr', name: 'Français' },
   { code: 'uk', name: 'Українська' },
   { code: 'ru', name: 'Русский' },
-  { code: 'ar', name: 'العربية', rtl: true },
-  { code: 'he', name: 'עברית', rtl: true },
 ];
 const sprachDir = join(root, 'scripts/site/sprachen');
 const normText = (s) => s.replace(/\s+/g, ' ').trim();
@@ -740,7 +741,7 @@ const legal = (id) => {
 
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, 'index.html'), startseite('de'));
-for (const { code } of sprachen.slice(1)) {
+for (const { code } of sprachen.filter((l) => l.code !== 'de')) {
   mkdirSync(join(out, code), { recursive: true });
   writeFileSync(join(out, code, 'index.html'), startseite(code));
 }

@@ -33,14 +33,15 @@ import type { Gender } from './types';
  * Übersetzungen ergänzen: `node scripts/i18n.mjs` listet fehlende Texte je Sprache.
  */
 
+// Reihenfolge nach Alter der Sprache, die älteste zuerst (Daria, 26.10.2026)
 export const languages = [
-  { code: 'de', name: 'Deutsch' },
+  { code: 'he', name: 'עברית' },
+  { code: 'ar', name: 'العربية' },
   { code: 'en', name: 'English' },
+  { code: 'de', name: 'Deutsch' },
   { code: 'fr', name: 'Français' },
   { code: 'uk', name: 'Українська' },
   { code: 'ru', name: 'Русский' },
-  { code: 'ar', name: 'العربية' },
-  { code: 'he', name: 'עברית' },
 ] as const;
 export type Lang = (typeof languages)[number]['code'];
 export const otherLanguages = ['en', 'fr', 'uk', 'ru', 'ar', 'he'] as const;
