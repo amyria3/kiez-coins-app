@@ -951,16 +951,15 @@ export async function setPraise(userId: string, praised: boolean, meId: string) 
   else check(await supabase.from('praises').delete().eq('giver_id', meId).eq('receiver_id', userId));
 }
 
-export type AppTextLang = 'en' | 'fr' | 'uk' | 'ar' | 'he';
+export type AppTextLang = 'en' | 'fr' | 'uk' | 'ru' | 'ar' | 'he';
 export type AppTextRow = { original: string; text: string; ort: string | null; updated_at: string } & Partial<
   Record<AppTextLang, string | null>
 >;
 
 /** Alle Texte des CMS für den Editor (Route `texte`), mit Übersetzungen, sofern die Migration 1400 gelaufen ist. */
 export async function loadAppTexts(): Promise<AppTextRow[]> {
-  const full = await supabase.from('app_texts').select('original, text, ort, updated_at, en, fr, uk, ar, he');
-  if (!full.error) return (full.data ?? []) as AppTextRow[];
-  const { data } = check(await supabase.from('app_texts').select('original, text, ort, updated_at'));
+  // Alle Spalten: Fehlt eine Sprachspalte noch (Migration nicht gelaufen), bleibt sie einfach leer.
+  const { data } = check(await supabase.from('app_texts').select('*'));
   return (data ?? []) as AppTextRow[];
 }
 
@@ -1086,13 +1085,13 @@ export async function deleteMyAccount() {
 }
 
 // ---------------------------------------------------------------------------
-// UX/UI-Umfrage (Migration 20261021001500_survey)
+// UX/UI-Umfrage (Migrationen 20261021001500_survey, 20261026000100_survey_frequency_comment)
 // ---------------------------------------------------------------------------
 
 /** Eigene Antwort, falls schon abgegeben. */
 export async function loadMySurveyAnswer(): Promise<SurveyAnswer | null> {
   const { data } = check(
-    await supabase.from('survey_answers').select('opinion, usability, design, support, recommend').maybeSingle(),
+    await supabase.from('survey_answers').select('opinion, frequency, usability, design, support, recommend, reason, reason_other, comment').maybeSingle(),
   );
   return (data as SurveyAnswer | null) ?? null;
 }

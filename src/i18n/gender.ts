@@ -10,6 +10,8 @@ import frEr from './fr.er.json';
 import frSie from './fr.sie.json';
 import ukEr from './uk.er.json';
 import ukSie from './uk.sie.json';
+import ruEr from './ru.er.json';
+import ruSie from './ru.sie.json';
 import heEr from './he.er.json';
 import heSie from './he.sie.json';
 import hePerson from './he.person.json';
@@ -24,6 +26,7 @@ export const genderOverlays: Record<string, Partial<Record<Gender, Overlay>>> = 
   en: { er: enEr, sie: enSie },
   fr: { er: frEr, sie: frSie },
   uk: { er: ukEr, sie: ukSie },
+  ru: { er: ruEr, sie: ruSie },
   // Hebräisch und Arabisch: Die Grunddatei spricht noch männlich an. „person“ ersetzt sie durch neutrale Formen.
   he: { er: heEr, sie: heSie, person: hePerson },
   ar: { er: arEr, sie: arSie, person: arPerson },
