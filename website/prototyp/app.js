@@ -150,7 +150,6 @@
       scenarios: [
         ['me', 'Me-Challenge', 'Auch in der Gruppe: Vorher, Nachher, fertig. Alle im Hof sehen Deine gute Tat.', 'Me-Challenge'],
         ['we', 'We-Challenge', 'Aufgaben nur für Eure Gruppe, belohnt mit Edensteinen.', 'We-Challenge'],
-        ['rangliste', 'Rangliste', 'Du magst es kompetitiv? Schalte die Rangliste für Eure Gruppe ein oder aus. May the best win!', 'Rangliste'],
       ],
     },
   };
