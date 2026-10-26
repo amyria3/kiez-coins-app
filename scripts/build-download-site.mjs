@@ -288,7 +288,7 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
 </section>
 
 <button type="button" class="kater-kopf" id="kater-kopf" aria-haspopup="dialog" aria-controls="kater" aria-label="Cat The Käptn">
-  <img src="kater/kopf.png" alt="" width="199" height="191">
+  <img src="kater/kopf.png?v=${version(readFileSync(join(siteDir, 'kater', 'kopf.png')))}" alt="" width="240" height="162">
 </button>
 <div class="kater" id="kater" role="dialog" aria-modal="true" aria-label="Cat The Käptn" hidden>
   <div class="kater-buehne">
