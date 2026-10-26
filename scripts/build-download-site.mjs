@@ -38,7 +38,7 @@ const open = JSON.stringify(legalDocs).match(/\[offen:[^\]]*\]/g);
 if (open) console.warn(`Achtung, noch offen: ${[...new Set(open)].join(', ')}`);
 
 const css = `
-:root { --bg:#1F2123; --surface:#2B2D31; --text:#F0F0F0; --muted:#A0A0A0; --accent:#7E94FF; --error:#FF7E8B; --line:rgba(240,240,240,.12); }
+:root { --bg:#FAFBEF; --surface:#FFFFFF; --text:#26233A; --muted:#6A6680; --accent:#5260E0; --error:#D6334A; --line:rgba(38,35,58,.10); }
 * { box-sizing:border-box; }
 html { background:var(--bg); color:var(--text); }
 body { margin:0; font:300 16px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
@@ -52,7 +52,7 @@ a { color:var(--text); }
 .card { background:var(--surface); border-radius:20px; padding:20px; margin:24px 0; }
 label { display:block; font-size:14px; color:var(--muted); margin-bottom:6px; }
 input { width:100%; font:inherit; color:var(--text); background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:12px 14px; }
-button, .button { display:block; text-align:center; text-decoration:none; box-sizing:border-box; width:100%; margin-top:12px; font:500 16px/1 Inter, system-ui, sans-serif; color:var(--bg); background:var(--accent); border:0; border-radius:999px; padding:16px; cursor:pointer; }
+button, .button { display:block; text-align:center; text-decoration:none; box-sizing:border-box; width:100%; margin-top:12px; font:500 16px/1 Inter, system-ui, sans-serif; color:#FFFFFF; background:var(--accent); border:0; border-radius:999px; padding:16px; cursor:pointer; }
 .error { color:var(--error); font-size:14px; margin:8px 0 0; }
 .steps { padding-left:20px; color:var(--muted); margin:0; }
 .steps li { margin-bottom:6px; }
@@ -136,24 +136,31 @@ const datenJs = `window.KC = ${JSON.stringify({ svg: kcSvg, art: kartenbilder, f
 const appJs = readFileSync(join(siteDir, 'prototyp.js'), 'utf8');
 const seiteCss = readFileSync(join(siteDir, 'seite.css'), 'utf8');
 
-const ios = config.testflightUrl
+const ios = (L) => {
+  const t = (de, en) => (L === 'en' ? en : de);
+  const P = L === 'en' ? '/' : '';
+  return config.testflightUrl
   ? `<div class="card" id="iphone">
   <h3>iPhone</h3>
-  <p>Auf dem iPhone läuft Kiez Coins über TestFlight, Apples App für Testversionen.</p>
-  <a class="button" href="${esc(config.testflightUrl)}">Kiez Coins in TestFlight öffnen</a>
+  <p>${t('Auf dem iPhone läuft Kiez Coins über TestFlight, Apples App für Testversionen.', 'On the iPhone, Kiez Coins runs via TestFlight, Apple’s app for beta versions.')}</p>
+  <a class="button" href="${esc(config.testflightUrl)}">${t('Kiez Coins in TestFlight öffnen', 'Open Kiez Coins in TestFlight')}</a>
 </div>`
   : `<div class="card" id="iphone">
   <h3>iPhone</h3>
-  <p>Auf dem iPhone läuft Kiez Coins als Web-App in Safari. Auf dem Home-Bildschirm startet sie wie eine App.</p>
-  <a class="button" href="app/">Kiez Coins öffnen</a>
+  <p>${t('Auf dem iPhone läuft Kiez Coins als Web-App in Safari. Auf dem Home-Bildschirm startet sie wie eine App.', 'On the iPhone, Kiez Coins runs as a web app in Safari. From the home screen it starts like an app.')}</p>
+  <a class="button" href="${P}app/">${t('Kiez Coins öffnen', 'Open Kiez Coins')}</a>
   <ol class="steps">
-    <li>Diese Seite in <strong>Safari</strong> öffnen und „Kiez Coins öffnen“ tippen.</li>
-    <li>Unten in der Leiste auf das Teilen-Symbol tippen (Quadrat mit Pfeil nach oben).</li>
-    <li>„Zum Home-Bildschirm“ wählen und „Hinzufügen“ tippen.</li>
-    <li>Kiez Coins ab jetzt über das neue Symbol starten und einmal anmelden.</li>
+    <li>${t('Diese Seite in <strong>Safari</strong> öffnen und „Kiez Coins öffnen“ tippen.', 'Open this page in <strong>Safari</strong> and tap “Open Kiez Coins”.')}</li>
+    <li>${t('Unten in der Leiste auf das Teilen-Symbol tippen (Quadrat mit Pfeil nach oben).', 'Tap the share icon in the bottom bar (square with an arrow pointing up).')}</li>
+    <li>${t('„Zum Home-Bildschirm“ wählen und „Hinzufügen“ tippen.', 'Choose “Add to Home Screen” and tap “Add”.')}</li>
+    <li>${t('Kiez Coins ab jetzt über das neue Symbol starten und einmal anmelden.', 'From now on, start Kiez Coins from the new icon and sign in once.')}</li>
   </ol>
-  <p class="klein">Kamera, Fotos und Standort fragt Safari beim ersten Mal ab. Push-Benachrichtigungen gibt es in der Web-App nicht. Updates kommen automatisch beim nächsten Start.</p>
+  <p class="klein">${t('Kamera, Fotos und Standort fragt Safari beim ersten Mal ab. Push-Benachrichtigungen gibt es in der Web-App nicht. Updates kommen automatisch beim nächsten Start.', 'Safari asks for camera, photos and location the first time. The web app has no push notifications. Updates arrive automatically on the next start.')}</p>
 </div>`;
+};
+// Sprachauswahl oben rechts: Deutsch unter /, Englisch unter /en/ (Daria, 26.10.2026)
+const sprachwahl = (L) =>
+  `<span class="sprachwahl" role="group" aria-label="${L === 'en' ? 'Language' : 'Sprache'}"><a href="/" hreflang="de" lang="de"${L === 'de' ? ' aria-current="true"' : ''}>DE</a><a href="/en/" hreflang="en" lang="en"${L === 'en' ? ' aria-current="true"' : ''}>EN</a></span>`;
 
 // ---------- Spendenaktion der Testphase (Daria, 2026-10-23) ----------
 // Als Testperson zählt, wer die Umfrage in der App abgeschickt hat (Funktion `tester_count`, Migration 20261023000200).
@@ -190,58 +197,63 @@ ${blumenTeile}
 </section>`;
 
 const leute = [
-  { figur: figuren.muetze, text: 'Besser als Doomscrolling' },
-  { figur: figuren.locken, text: 'Wie GitHub für den Alltag' },
-  { figur: figuren.nachbarin, text: 'Schon praktisch' },
+  { figur: figuren.muetze, text: 'Besser als Doomscrolling', en: 'Better than doomscrolling' },
+  { figur: figuren.locken, text: 'Wie GitHub für den Alltag', en: 'Like GitHub for everyday life' },
+  { figur: figuren.nachbarin, text: 'Schon praktisch', en: 'Pretty handy' },
 ];
 
-const index = `<!doctype html>
-<html lang="de">
+const startseite = (L) => {
+  const t = (de, en) => (L === 'en' ? en : de);
+  const P = L === 'en' ? '/' : '';
+  return `<!doctype html>
+<html lang="${L}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#1F2123">
-<title>Kiez Coins – Kleine Challenges für mehr echte Gemeinschaft</title>
-<meta name="description" content="Kennst Du das? Irgendwas muss erledigt werden, doch wer in Gottes Namen soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez. Zusammen sind wir stärker, gesünder, glücklicher, wohlhabender und bekommen sogar mehr gebacken!">
-<link rel="icon" href="favicon.png">
-<link rel="preload" href="fonts/InterTight_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
-<link rel="stylesheet" href="seite.css?v=${version(seiteCss)}">
+<meta name="theme-color" content="#DCE1FF">
+<title>Kiez Coins – ${t('Kleine Challenges für mehr echte Gemeinschaft', 'Small challenges for more real community')}</title>
+<meta name="description" content="${t('Kennst Du das? Irgendwas muss erledigt werden, doch wer in Gottes Namen soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez. Zusammen sind wir stärker, gesünder, glücklicher, wohlhabender und bekommen sogar mehr gebacken!', 'Sound familiar? Something needs doing, but who on earth is going to do it? KiezCoins gives you an interface to share work better – at home or in your neighborhood. Together we’re stronger, healthier, happier, wealthier and we even get more done!')}">
+<link rel="icon" href="${P}favicon.png">
+<link rel="alternate" hreflang="de" href="/">
+<link rel="alternate" hreflang="en" href="/en/">
+<link rel="preload" href="${P}fonts/InterTight_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="${P}seite.css?v=${version(seiteCss)}">
 <script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
 ${filterDefs}
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="./" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}</a>
-  <nav class="top-links"><a class="top-link" href="/spenden"><span class="lang">Spendenaktion</span><span class="kurz">Spenden</span></a><a class="top-link" href="#download"><span class="lang">Testversion laden</span><span class="kurz">Testen</span></a></nav>
+  <a class="brand" href="${L === 'en' ? '/en/' : './'}" aria-label="${t('Kiez Coins, Startseite', 'Kiez Coins, home')}">${sized(kcSvg.logo, 28)}</a>
+  <nav class="top-links"><a class="top-link" href="/spenden"><span class="lang">${t('Spendenaktion', 'Fundraiser')}</span><span class="kurz">${t('Spenden', 'Donate')}</span></a><a class="top-link" href="#download"><span class="lang">${t('Testversion laden', 'Get the beta')}</span><span class="kurz">${t('Testen', 'Try it')}</span></a>${sprachwahl(L)}</nav>
 </header>
 
 <main>
 <section class="hero" id="prototyp-bereich">
   <div class="hero-text">
-    <h1>Kleine Challenges für mehr echte Gemeinschaft</h1>
-    <p class="lede">Kennst Du den Spruch „Tue Gutes und rede darüber“? Und hier ist Space dafür, weil wir alle so ein bisschen voneinander lernen. Angeben und freundschaftlicher Wettbewerb sind Teil des Games!</p>
+    <h1>${t('Kleine Challenges für mehr echte Gemeinschaft', 'Small challenges for more real community')}</h1>
+    <p class="lede">${t('Kennst Du den Spruch „Tue Gutes und rede darüber“? Und hier ist Space dafür, weil wir alle so ein bisschen voneinander lernen. Angeben und freundschaftlicher Wettbewerb sind Teil des Games!', 'Know the saying “Do good and talk about it”? This is the space for it, because we all learn a little from each other. Showing off and friendly competition are part of the game!')}</p>
   </div>
   <div class="steuerung">
-  <div class="rolle" id="rolle" role="radiogroup" aria-label="Ort im Prototyp">
+  <div class="rolle" id="rolle" role="radiogroup" aria-label="${t('Ort im Prototyp', 'Place in the prototype')}">
     <span class="szenario-mark" aria-hidden="true"></span>
-    <button type="button" role="radio" aria-checked="true" data-rolle="kiez" aria-controls="prototyp">Kiez</button>
-    <button type="button" role="radio" aria-checked="false" data-rolle="gruppe" aria-controls="prototyp">Hof Kastanienallee</button>
+    <button type="button" role="radio" aria-checked="true" data-rolle="kiez" aria-controls="prototyp">${t('Mein Kiez', 'My neighborhood')}</button>
+    <button type="button" role="radio" aria-checked="false" data-rolle="gruppe" aria-controls="prototyp">${t('Meine Gruppen', 'My groups')}</button>
   </div>
-  <div class="szenarien" id="szenarien" aria-label="Prototyp steuern">
+  <div class="szenarien" id="szenarien" aria-label="${t('Prototyp steuern', 'Control the prototype')}">
     <span class="szenario-mark" aria-hidden="true"></span>
-    <button type="button" data-szenario="me" aria-pressed="true" aria-controls="prototyp"><b>Me-Challenge</b><i>Me-Challenge</i><span>How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!</span></button>
-    <button type="button" data-szenario="we" aria-pressed="false" aria-controls="prototyp"><b>We-Challenge</b><i>We-Challenge</i><span>Dir ist etwas aufgefallen, was getan werden müsste, was Du aber nicht selbst tun kannst? Poste eine We-Challenge in Deinem Kiez, setze eine Belohnung aus und lehn Dich erst mal zurück. Wir sind gespannt, was sich so alles bewegen lässt!</span></button>
-    <button type="button" data-szenario="rangliste" aria-pressed="false" aria-controls="prototyp" hidden><b>Rangliste</b><i>Rangliste</i><span>Du magst es kompetitiv? Schalte die Rangliste für Eure Gruppe ein oder aus. May the best win!</span></button>
+    <button type="button" data-szenario="me" aria-pressed="true" aria-controls="prototyp"><b>Me-Challenge</b><i>Me-Challenge</i><span>${t('How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!', 'How do you feel today? Share a life hack or an especially kid- and budget-friendly recipe. Or challenge yourself and do something really nice for people or animals. Showing off and friendly competition are welcome!')}</span></button>
+    <button type="button" data-szenario="we" aria-pressed="false" aria-controls="prototyp"><b>We-Challenge</b><i>We-Challenge</i><span>${t('Dir ist etwas aufgefallen, was getan werden müsste, was Du aber nicht selbst tun kannst? Poste eine We-Challenge in Deinem Kiez, setze eine Belohnung aus und lehn Dich erst mal zurück. Wir sind gespannt, was sich so alles bewegen lässt!', 'Noticed something that needs doing, but you can’t do it yourself? Post a We-Challenge in your neighborhood, set a reward and sit back for a while. We’re curious how much we can get moving!')}</span></button>
+    <button type="button" data-szenario="rangliste" aria-pressed="false" aria-controls="prototyp" hidden><b>${t('Rangliste', 'Leaderboard')}</b><i>${t('Rangliste', 'Leaderboard')}</i><span>${t('Du magst es kompetitiv? Schalte die Rangliste für Eure Gruppe ein oder aus. May the best win!', 'Like it competitive? Turn the leaderboard for your group on or off. May the best win!')}</span></button>
   </div>
-  <p class="szenario-text" id="szenario-text" aria-hidden="true">How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!</p>
+  <p class="szenario-text" id="szenario-text" aria-hidden="true">${t('How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!', 'How do you feel today? Share a life hack or an especially kid- and budget-friendly recipe. Or challenge yourself and do something really nice for people or animals. Showing off and friendly competition are welcome!')}</p>
   </div>
   <div class="phone-spalte">
-  <div class="phone" id="prototyp" role="region" aria-label="Klickbarer Prototyp der App Kiez Coins">
+  <div class="phone" id="prototyp" role="region" aria-label="${t('Klickbarer Prototyp der App Kiez Coins', 'Clickable prototype of the Kiez Coins app')}">
     <div class="p-screen"></div>
   </div>
-  <p class="hinweis">Das Telefon ist klickbar. Alle Daten darin sind Beispiele.</p>
+  <p class="hinweis">${t('Das Telefon ist klickbar. Alle Daten darin sind Beispiele.', 'The phone is clickable. All data in it are examples.')}</p>
   </div>
 </section>
 </main>
@@ -249,78 +261,97 @@ ${filterDefs}
 
 <section class="mehr" aria-labelledby="mehr-titel">
   <div class="wrap">
-    <h2 id="mehr-titel">Kann die App noch mehr?</h2>
-    <ul>
-      <li>Nette Blumenbilder posten</li>
-      <li>Freunde hinzufügen</li>
-      <li>Nachrichten an Freunde schicken</li>
-    </ul>
+    <h2 id="mehr-titel">${t('Kann die App noch mehr?', 'Can the app do more?')}</h2>
+    <p>${t('Klar. Tipp auf eine Karte und probier es aus.', 'Sure. Tap a card and try it out.')}</p>
+    <div class="mehr-karten">
+      <button type="button" class="mehr-karte" data-mehr="wald" style="--c:${C.pink}">
+        <span class="mehr-icon">${sized(icon('camera', C.dark), 30)}</span>
+        <b>${t('Schöne Waldbilder posten', 'Post beautiful forest photos')}</b>
+        <span class="mehr-buehne mehr-wald" aria-hidden="true"><img src="${P}prototyp/fotos/wald.jpg?v=${version(readFileSync(join(fotoDir, 'wald.jpg')))}" alt="" loading="lazy" decoding="async"><span class="mehr-herz">${sized(icon('heart', C.pink), 14)}<i>0</i></span></span>
+        <span class="mehr-status" aria-live="polite">${t('Tipp und poste das Foto.', 'Tap to post the photo.')}</span>
+      </button>
+      <button type="button" class="mehr-karte" data-mehr="freunde" style="--c:${C.green}">
+        <span class="mehr-icon">${sized(icon('friends', C.dark), 30)}</span>
+        <b>${t('Freunde hinzufügen', 'Add friends')}</b>
+        <span class="mehr-buehne mehr-freunde" aria-hidden="true">
+          <span class="mehr-avatar" style="--a:#FFB2E5">L</span><span class="mehr-avatar" style="--a:#FFAD7E">P</span><span class="mehr-avatar" style="--a:#93F4A7">M</span>
+        </span>
+        <span class="mehr-status" aria-live="polite">${t('Tipp und füg Lena hinzu.', 'Tap to add Lena.')}</span>
+      </button>
+      <button type="button" class="mehr-karte" data-mehr="nachrichten" style="--c:${C.purple}">
+        <span class="mehr-icon">${sized(icon('message', C.dark), 30)}</span>
+        <b>${t('Nachrichten an Freunde schicken', 'Send messages to friends')}</b>
+        <span class="mehr-buehne mehr-chat" aria-hidden="true"></span>
+        <span class="mehr-status" aria-live="polite">${t('Tipp und schreib Lena.', 'Tap to text Lena.')}</span>
+      </button>
+    </div>
   </div>
 </section>
 
 <section class="leute" aria-labelledby="leute-titel">
   <div class="wrap">
-    <h2 id="leute-titel">Kiez Coins passt zwischen Briefkasten und Fahrradkeller.</h2>
-    <p>Aufgaben, die sonst liegen bleiben, erledigt jemand safe - als wäre es ein Spiel</p>
+    <h2 id="leute-titel">${t('Kiez Coins passt zwischen Briefkasten und Fahrradkeller.', 'Kiez Coins fits between the mailbox and the bike cellar.')}</h2>
+    <p>${t('Aufgaben, die sonst liegen bleiben, erledigt jemand safe - als wäre es ein Spiel', 'Tasks that would otherwise pile up get done for sure – as if it were a game')}</p>
     <div class="szene">
-${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p>${l.figur}</div>`).join('\n')}
+${leute.map((l) => `      <div class="person"><p class="blase">${esc(L === 'en' ? l.en : l.text)}</p>${l.figur}</div>`).join('\n')}
     </div>
   </div>
 </section>
 
 <section class="download" id="download" aria-labelledby="download-titel">
   <div class="wrap">
-    <h2 id="download-titel">So installierst Du die Testversion.</h2>
-    <p>Kiez Coins ist in der Testphase. Android lädt die App mit Einladungscode, das iPhone nutzt die Web-App.</p>
+    <h2 id="download-titel">${t('So installierst Du die Testversion.', 'How to install the beta.')}</h2>
+    <p>${t('Kiez Coins ist in der Testphase. Android lädt die App mit Einladungscode, das iPhone nutzt die Web-App.', 'Kiez Coins is in beta. Android downloads the app with an invitation code, the iPhone uses the web app.')}</p>
     <div class="karten">
       <div class="card" id="android">
         <h3>Android</h3>
         <form method="post" action="${esc(config.functionUrl)}">
-          <label for="passwort">Einladungscode</label>
+          <label for="passwort">${t('Einladungscode', 'Invitation code')}</label>
           <input id="passwort" name="passwort" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required>
           <p class="error" id="fehler" hidden></p>
-          <button type="submit">App herunterladen</button>
+          <button type="submit">${t('App herunterladen', 'Download the app')}</button>
         </form>
-        <a class="button button-zweit" href="app/">Direkt im Browser anmelden und ausprobieren</a>
+        <a class="button button-zweit" href="${P}app/">${t('Direkt im Browser anmelden und ausprobieren', 'Sign in and try it right in the browser')}</a>
         <ol class="steps">
-          <li>Einladungscode eingeben und „App herunterladen“ tippen.</li>
-          <li>Die Datei <em>kiez-coins.apk</em> öffnen, wenn der Download fertig ist.</li>
-          <li>Android fragt, ob Dein Browser Apps installieren darf. Erlauben und „Installieren“ tippen.</li>
-          <li>Für ein Update lädst Du die neue Datei hier herunter und installierst sie genauso. Deine Daten bleiben erhalten.</li>
+          <li>${t('Einladungscode eingeben und „App herunterladen“ tippen.', 'Enter the invitation code and tap “Download the app”.')}</li>
+          <li>${t('Die Datei <em>kiez-coins.apk</em> öffnen, wenn der Download fertig ist.', 'Open the file <em>kiez-coins.apk</em> when the download is finished.')}</li>
+          <li>${t('Android fragt, ob Dein Browser Apps installieren darf. Erlauben und „Installieren“ tippen.', 'Android asks whether your browser may install apps. Allow it and tap “Install”.')}</li>
+          <li>${t('Für ein Update lädst Du die neue Datei hier herunter und installierst sie genauso. Deine Daten bleiben erhalten.', 'To update, download the new file here and install it the same way. Your data stays.')}</li>
         </ol>
       </div>
-      ${ios}
+      ${ios(L)}
     </div>
     <footer>
-      <a href="impressum.html">Impressum</a>
-      <a href="datenschutz.html">Datenschutz</a>
-      <a href="nutzungsbedingungen.html">Nutzungsbedingungen</a>
-      <a href="community-regeln.html">Community-Regeln</a>
+      <a href="${P}impressum.html">${t('Impressum', 'Legal notice')}</a>
+      <a href="${P}datenschutz.html">${t('Datenschutz', 'Privacy')}</a>
+      <a href="${P}nutzungsbedingungen.html">${t('Nutzungsbedingungen', 'Terms of use')}</a>
+      <a href="${P}community-regeln.html">${t('Community-Regeln', 'Community rules')}</a>
+      <a href="https://waldentdeckenberlin.org/voll-der-mist/" rel="noopener">${t('Bildquelle Müll im Wald: Wald entdecken Berlin', 'Photo credit, litter in the forest: Wald entdecken Berlin')}</a>
     </footer>
   </div>
 </section>
 
 <button type="button" class="kater-kopf" id="kater-kopf" aria-haspopup="dialog" aria-controls="kater" aria-label="Cat The Käptn">
-  <img src="kater/kopf.png?v=${version(readFileSync(join(siteDir, 'kater', 'kopf.png')))}" alt="" width="240" height="162">
+  <img src="${P}kater/kopf.png?v=${version(readFileSync(join(siteDir, 'kater', 'kopf.png')))}" alt="" width="240" height="162">
 </button>
 <div class="kater" id="kater" role="dialog" aria-modal="true" aria-label="Cat The Käptn" hidden>
   <div class="kater-buehne">
     <p class="blase kater-blase">Love to get stuff done.</p>
-    <img class="kater-bild" src="kater/kater.png" alt="Cat The Käptn mit Sonnenbrille, Schürze und Besen" width="560" height="698">
+    <img class="kater-bild" src="${P}kater/kater.png" alt="${t('Cat The Käptn mit Sonnenbrille, Schürze und Besen', 'Cat The Käptn with sunglasses, apron and broom')}" width="560" height="698">
     <div class="kater-wege">
-      <button type="button" data-kater="oben">Nach oben</button>
-      <button type="button" data-kater="download">Zum Download</button>
-      <a class="kater-hallo-link" href="/kater">Hallo sagen</a>
+      <button type="button" data-kater="oben">${t('Nach oben', 'Back to top')}</button>
+      <button type="button" data-kater="download">${t('Zum Download', 'To the download')}</button>
+      <a class="kater-hallo-link" href="/kater">${t('Hallo sagen', 'Say hi')}</a>
     </div>
   </div>
 </div>
 
-<script src="prototyp/daten.js?v=${version(datenJs)}"></script>
-<script src="prototyp/app.js?v=${version(appJs)}"></script>
+<script src="${P}prototyp/daten.js?v=${version(datenJs)}"></script>
+<script src="${P}prototyp/app.js?v=${version(appJs)}"></script>
 <script>
   // Fehler vom Download zeigen
   var f = new URLSearchParams(location.search).get('fehler');
-  var t = { passwort: 'Der Einladungscode stimmt nicht.', datei: 'Die App-Datei fehlt gerade. Versuche es später noch mal.', technik: 'Der Download ist gerade nicht eingerichtet.' }[f];
+  var t = { passwort: '${t('Der Einladungscode stimmt nicht.', 'The invitation code is not correct.')}', datei: '${t('Die App-Datei fehlt gerade. Versuche es später noch mal.', 'The app file is missing right now. Please try again later.')}', technik: '${t('Der Download ist gerade nicht eingerichtet.', 'The download is not set up right now.')}' }[f];
   if (t) { var e = document.getElementById('fehler'); e.textContent = t; e.hidden = false; document.getElementById('download').scrollIntoView(); }
   // Sprechblasen erscheinen, sobald die Leute im Bild sind. Tipp auf eine Figur lässt sie wackeln.
   var leute = document.querySelector('.leute');
@@ -357,10 +388,53 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
     if (!fig) return;
     fig.classList.remove('is-wave'); void fig.getBoundingClientRect(); fig.classList.add('is-wave');
   });
+  // Kann die App noch mehr? Jede Karte spielt bei jedem Tipp einen kleinen Schritt vor.
+  var mehr = { wald: 0, freunde: 0, nachrichten: 0 };
+  var freunde = ['Lena', 'Peter', 'Mo'];
+  var chat = [
+    ['${t('Kommst Du Samstag mit in den Garten?', 'Coming to the garden on Saturday?')}', '${t('Klar! Ich bring Kaffee mit.', 'Sure! I’ll bring coffee.')}'],
+    ['${t('Hast Du den Igel gesehen?', 'Have you seen the hedgehog?')}', '${t('OMG, ja, wie süß!', 'OMG, yes, so cute!')}'],
+    ['${t('Danke fürs Gießen!', 'Thanks for watering!')}', '${t('Gern, die Kanne steht wieder unter der Treppe.', 'Sure, the can is back under the stairs.')}'],
+  ];
+  function blase(buehne, text, mein) {
+    var b = document.createElement('span');
+    b.className = 'mehr-blase' + (mein ? ' is-mein' : '');
+    b.textContent = text;
+    buehne.appendChild(b);
+    while (buehne.children.length > 3) buehne.removeChild(buehne.firstChild);
+  }
+  document.querySelector('.mehr-karten').addEventListener('click', function (e) {
+    var k = e.target.closest('[data-mehr]');
+    if (!k) return;
+    var art = k.dataset.mehr, n = ++mehr[art], buehne = k.querySelector('.mehr-buehne'), status = k.querySelector('.mehr-status');
+    if (art === 'wald') {
+      buehne.classList.add('is-gepostet');
+      var herz = buehne.querySelector('.mehr-herz i');
+      herz.textContent = String(+herz.textContent + 3 + (n % 4));
+      var flug = document.createElement('span');
+      flug.className = 'mehr-flug';
+      flug.style.left = (20 + ((n * 37) % 60)) + '%';
+      flug.innerHTML = buehne.querySelector('.mehr-herz svg').outerHTML;
+      buehne.appendChild(flug);
+      setTimeout(function () { flug.remove(); }, 1200);
+      status.textContent = n === 1 ? '${t('Gepostet! Die ersten Herzen kommen.', 'Posted! The first hearts are coming in.')}' : herz.textContent + '${t(' Herzen für Dein Waldbild.', ' hearts for your forest photo.')}';
+    } else if (art === 'freunde') {
+      var av = buehne.querySelectorAll('.mehr-avatar');
+      if (n > av.length) { mehr.freunde = 0; av.forEach(function (a) { a.classList.remove('is-freund'); }); status.textContent = '${t('Tipp und füg Lena hinzu.', 'Tap to add Lena.')}'; return; }
+      av[n - 1].classList.add('is-freund');
+      status.textContent = n < av.length ? freunde[n - 1] + '${t(' ist jetzt dabei. Tipp für ', ' is in. Tap for ')}' + freunde[n] + '.' : '${t('Drei Freunde. Tipp, um neu zu starten.', 'Three friends. Tap to start over.')}';
+    } else {
+      var paar = chat[(n - 1) % chat.length];
+      blase(buehne, paar[0], true);
+      status.textContent = '${t('Lena schreibt …', 'Lena is typing …')}';
+      setTimeout(function () { blase(buehne, paar[1], false); status.textContent = '${t('Tipp für die nächste Nachricht.', 'Tap for the next message.')}'; }, 900);
+    }
+  });
 </script>
 </body>
 </html>
-`;
+`
+};
 
 // ---------- Einladung: /einladung/<code> trägt den Einladungscode schon ein ----------
 // Vercel leitet /einladung/:code auf diese Seite (vercel.json unten). Das Skript liest den Code aus der Adresse
@@ -373,7 +447,7 @@ const einladung = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <meta name="referrer" content="no-referrer">
-<meta name="theme-color" content="#1F2123">
+<meta name="theme-color" content="#FAFBEF">
 <title>Einladung – Kiez Coins</title>
 <link rel="icon" href="/favicon.png">
 <link rel="stylesheet" href="/seite.css?v=${version(seiteCss)}">
@@ -403,7 +477,7 @@ const einladung = `<!doctype html>
         <li>Android fragt, ob Dein Browser Apps installieren darf. Erlauben und „Installieren“ tippen.</li>
       </ol>
     </div>
-    ${ios.replace(/href="app\/"/g, 'href="/app/"')}
+    ${ios('de').replace(/href="app\/"/g, 'href="/app/"')}
   </div>
   <footer>
     <a href="/impressum">Impressum</a>
@@ -440,7 +514,7 @@ const spendenSeite = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#1F2123">
+<meta name="theme-color" content="#FAFBEF">
 <title>Spendenaktion – Kiez Coins</title>
 <meta name="description" content="Damit Leipzig blüht, spende ich ${donation} € an den Ökolöwen, wenn ${goal} Menschen Kiez Coins testen und bewerten.">
 <link rel="icon" href="/favicon.png">
@@ -504,7 +578,7 @@ const katerSeite = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#1F2123">
+<meta name="theme-color" content="#FAFBEF">
 <title>Hallo, Cat The Käptn – Kiez Coins</title>
 <link rel="icon" href="/favicon.png">
 <link rel="stylesheet" href="/seite.css?v=${version(seiteCss)}">
@@ -618,7 +692,9 @@ const legal = (id) => {
 };
 
 mkdirSync(out, { recursive: true });
-writeFileSync(join(out, 'index.html'), index);
+writeFileSync(join(out, 'index.html'), startseite('de'));
+mkdirSync(join(out, 'en'), { recursive: true });
+writeFileSync(join(out, 'en', 'index.html'), startseite('en'));
 writeFileSync(join(out, 'einladung.html'), einladung);
 writeFileSync(join(out, 'spenden.html'), spendenSeite);
 if (katerSvg) writeFileSync(join(out, 'kater.html'), katerSeite);
