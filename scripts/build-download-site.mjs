@@ -202,7 +202,7 @@ const index = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#1F2123">
-<title>Kiez Coins – Kleine Challenges für Deinen Kiez</title>
+<title>Kiez Coins – Kleine Challenges für mehr echte Gemeinschaft</title>
 <meta name="description" content="Kennst Du das? Irgendwas muss erledigt werden, doch wer in Gottes Namen soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez. Zusammen sind wir stärker, gesünder, glücklicher, wohlhabender und bekommen sogar mehr gebacken!">
 <link rel="icon" href="favicon.png">
 <link rel="preload" href="fonts/InterTight_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
@@ -220,7 +220,7 @@ ${filterDefs}
 <main>
 <section class="hero" id="prototyp-bereich">
   <div class="hero-text">
-    <h1>Kleine Challenges für Deinen Kiez.</h1>
+    <h1>Kleine Challenges für mehr echte Gemeinschaft</h1>
     <p class="lede">Kennst Du den Spruch „Tue Gutes und rede darüber“? Und hier ist Space dafür, weil wir alle so ein bisschen voneinander lernen. Angeben und freundschaftlicher Wettbewerb sind Teil des Games!</p>
   </div>
   <div class="steuerung">
