@@ -1063,5 +1063,9 @@
   "Diese Version ist zu alt.": "Ця версія застаріла.",
   "Jo, meine Friends haben eine neue Version für Dich!": "Йо, мої друзі мають для тебе нову версію!",
   "Lade sie herunter und installiere sie über die alte. Deine Daten bleiben.": "Завантаж її та встанови поверх старої. Твої дані залишаться.",
-  "Herunterladen": "Завантажити"
+  "Herunterladen": "Завантажити",
+  "Noch keine Kommentare.": "Коментарів ще немає.",
+  "Zum Schluss": "Наостанок",
+  "Möchtest Du uns noch etwas sagen?": "Хочеш ще щось нам сказати?",
+  "Freiwillig, höchstens {max} Zeichen.": "Необов’язково, до {max} символів."
 }

@@ -1086,13 +1086,13 @@ export async function deleteMyAccount() {
 }
 
 // ---------------------------------------------------------------------------
-// UX/UI-Umfrage (Migration 20261021001500_survey)
+// UX/UI-Umfrage (Migrationen 20261021001500_survey, 20261026000100_survey_comment)
 // ---------------------------------------------------------------------------
 
 /** Eigene Antwort, falls schon abgegeben. */
 export async function loadMySurveyAnswer(): Promise<SurveyAnswer | null> {
   const { data } = check(
-    await supabase.from('survey_answers').select('opinion, usability, design, support, recommend').maybeSingle(),
+    await supabase.from('survey_answers').select('opinion, usability, design, support, recommend, comment').maybeSingle(),
   );
   return (data as SurveyAnswer | null) ?? null;
 }

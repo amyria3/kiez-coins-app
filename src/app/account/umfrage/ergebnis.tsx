@@ -5,13 +5,15 @@ import { SubScreen } from '../../../components/Screen';
 import { Text } from '../../../components/T';
 import { errorText, loadSurveyResults } from '../../../data/remote';
 import { surveyQuestions, type SurveyResults } from '../../../data/survey';
+import { formatRelative } from '../../../data/format';
 import { t } from '../../../data/texts';
 import { color, radius, space, text } from '../../../theme/tokens';
 import { useGoBack } from '../../../lib/goBack';
 
 /**
  * Route `account/umfrage/ergebnis` (Push aus „Dein Konto“, nur für die Moderation).
- * Zeigt je Antwort die Zahl der Stimmen und den Anteil. Einzelne Antworten und Namen bleiben verborgen.
+ * Zeigt je Antwort die Zahl der Stimmen und den Anteil, darunter die Kommentare, neueste zuerst.
+ * Einzelne Antworten und Namen bleiben verborgen.
  */
 export default function SurveyResultsScreen() {
   const goBack = useGoBack();
@@ -53,6 +55,16 @@ export default function SurveyResultsScreen() {
           })}
         </View>
       ))}
+      <View style={styles.card}>
+        <Text style={styles.title}>Kommentare</Text>
+        {data && !data.comments?.length ? <Text style={styles.caption}>Noch keine Kommentare.</Text> : null}
+        {data?.comments?.map((c, i) => (
+          <View key={i} style={styles.comment}>
+            <Text style={styles.body}>{c.text}</Text>
+            <Text style={styles.caption}>{formatRelative(c.at)}</Text>
+          </View>
+        ))}
+      </View>
     </SubScreen>
   );
 }
@@ -63,6 +75,7 @@ const styles = StyleSheet.create({
   body: { ...text.body, color: color.text.primary, flex: 1 },
   caption: { ...text.caption, color: color.text.secondary },
   row: { gap: space[4] },
+  comment: { gap: space[4], paddingTop: space[12], borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.line.hairline },
   rowText: { flexDirection: 'row', gap: space[8], alignItems: 'baseline' },
   track: { height: 6, borderRadius: radius.full, backgroundColor: color.bg.screen, overflow: 'hidden' },
   bar: { height: 6, borderRadius: radius.full, backgroundColor: color.accent.primary },

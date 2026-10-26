@@ -47,3 +47,4 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-25_offen_konsistenz.md`: Konsistenzprüfung vom 25.10.2026, Korrekturen auf `main`, offene Entscheidungen und neue Textschlüssel.
 - `2026-10-25_offen_gruppe-beim-erstellen.md`: Beim Erstellen zeigt die App, in welcher Gruppe die Person ist (To-do, Daria).
 - `2026-10-25_offen_kopf-grosse-bildschirme.md`: Der Feed-Kopf verschwindet auf großen Bildschirmen scheinbar zufällig (To-do, Daria).
+- `2026-10-26_offen_umfrage-kommentar.md`: Kommentarfeld in der Umfrage. Pflichtaufgabe: Migration `20261026000100_survey_comment.sql` ausführen.

@@ -1063,5 +1063,9 @@
   "Diese Version ist zu alt.": "هذه النسخة قديمة جدًا.",
   "Jo, meine Friends haben eine neue Version für Dich!": "يو، أصدقائي عندهم نسخة جديدة لك!",
   "Lade sie herunter und installiere sie über die alte. Deine Daten bleiben.": "حمّلها وثبّتها فوق القديمة. تبقى بياناتك.",
-  "Herunterladen": "تنزيل"
+  "Herunterladen": "تنزيل",
+  "Noch keine Kommentare.": "لا توجد تعليقات بعد.",
+  "Zum Schluss": "في الختام",
+  "Möchtest Du uns noch etwas sagen?": "هل تريد أن تقول لنا شيئًا آخر؟",
+  "Freiwillig, höchstens {max} Zeichen.": "اختياري، {max} حرف كحد أقصى."
 }
