@@ -125,6 +125,16 @@ const kcSvg = {
   diamond3: { w: diamondSvgs[3].width, h: diamondSvgs[3].height, svg: diamondSvgs[3].svg(C.text) },
   cameraDark: icon('camera', C.dark),
 };
+// Logo für den Seitenkopf: Schriftzug wie in der App, die Katze vorne ersetzt durch Darias FatCat (scripts/site/fatcat.svg, 26.10.2026).
+// Die ersten acht Pfade im Logo sind die alte Katze. Die FatCat bekommt die Logo-Farbe, damit seite.css sie mit umfärbt.
+const logoSeite = (() => {
+  const pfade = kcSvg.logo.svg.match(/<path[\s\S]*?\/>/g);
+  const fat = readFileSync(join(root, 'scripts/site/fatcat.svg'), 'utf8').match(/<path[\s\S]*?\/>/)[0].replace(/fill="[^"]*"/, 'fill="#7E94FF"');
+  const katze = `<g transform="translate(0.5 1.5) scale(${(24 / 35).toFixed(4)})">${fat}</g>`;
+  let svg = kcSvg.logo.svg.replace(pfade[0], katze);
+  for (const alt of pfade.slice(1, 8)) svg = svg.replace(alt, '');
+  return { ...kcSvg.logo, svg };
+})();
 const sized = (d, h) => d.svg.replace(/width="[^"]*" height="[^"]*"/, `width="${Math.round((d.w / d.h) * h)}" height="${h}" aria-hidden="true"`);
 // Dateien mit Prüfsumme im Namen-Parameter, damit Browser nach einem Update die neue Fassung laden
 const version = (text) => createHash('sha1').update(text).digest('hex').slice(0, 8);
@@ -269,7 +279,7 @@ ${filterDefs}
 <div class="fx-spur" aria-hidden="true"></div>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="${L === 'de' ? './' : pfad(L)}" aria-label="${t('Kiez Coins, Startseite', 'Kiez Coins, home')}">${sized(kcSvg.logo, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+  <a class="brand" href="${L === 'de' ? './' : pfad(L)}" aria-label="${t('Kiez Coins, Startseite', 'Kiez Coins, home')}">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
   <nav class="top-links"><a class="top-link" href="#download"><span class="lang">${t('Testversion laden', 'Get the beta')}</span><span class="kurz">${t('Testen', 'Try it')}</span></a>${sprachwahl(L)}</nav>
 </header>
 
@@ -566,7 +576,7 @@ const einladung = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
 </header>
 <main>
 <section class="download einladung" id="download" aria-labelledby="einladung-titel">
@@ -635,7 +645,7 @@ const spendenSeite = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
   <a class="top-link" href="/#download">Testversion laden</a>
 </header>
 <main>
@@ -697,7 +707,7 @@ const katerSeite = `<!doctype html>
 <body class="kater-seite">
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
   <a class="top-link" href="/#download">Testversion laden</a>
 </header>
 <main class="kater-buehne-seite">
