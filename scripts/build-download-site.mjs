@@ -247,6 +247,17 @@ ${filterDefs}
 </main>
 </div>
 
+<section class="mehr" aria-labelledby="mehr-titel">
+  <div class="wrap">
+    <h2 id="mehr-titel">Kann die App noch mehr?</h2>
+    <ul>
+      <li>Nette Blumenbilder posten</li>
+      <li>Freunde hinzufügen</li>
+      <li>Nachrichten an Freunde schicken</li>
+    </ul>
+  </div>
+</section>
+
 <section class="leute" aria-labelledby="leute-titel">
   <div class="wrap">
     <h2 id="leute-titel">Kiez Coins passt zwischen Briefkasten und Fahrradkeller.</h2>
