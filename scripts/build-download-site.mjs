@@ -266,6 +266,7 @@ ${sprachen.map((l) => `<link rel="alternate" hreflang="${l.code}" href="${pfad(l
 </head>
 <body>
 ${filterDefs}
+<div class="fx-spur" aria-hidden="true"><span class="fx-coin">${sized(kcSvg.coins, 22)}</span></div>
 <div class="wrap">
 <header class="top">
   <a class="brand" href="${L === 'de' ? './' : pfad(L)}" aria-label="${t('Kiez Coins, Startseite', 'Kiez Coins, home')}">${sized(kcSvg.logo, 28)}</a>
@@ -478,6 +479,59 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
       setTimeout(function () { blase(buehne, paar[1], false); status.textContent = '${t('Tipp für die nächste Nachricht.', 'Tap for the next message.')}'; }, 900);
     }
   });
+</script>
+<script>
+  // Scrolleffekte (Vorschau): A Abschnitte blenden ein, B Kater und Telefon bewegen sich leicht mit, C Coin-Spur oben.
+  // ?fx=a,b,c schaltet einzelne Effekte, ?fx zeigt dazu eine kleine Auswahl. Bei „Bewegung reduzieren“ bleibt alles still.
+  (function () {
+    var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var q = new URLSearchParams(location.search).get('fx');
+    var an = (q || 'a,b,c').split(',');
+    var root = document.documentElement;
+    if (!still) an.forEach(function (x) { if (/^[abc]$/.test(x)) root.classList.add('fx-' + x); });
+    if (q !== null) {
+      var w = document.createElement('div');
+      w.className = 'fx-wahl';
+      w.innerHTML = ['a Einblenden', 'b Kater', 'c Coin-Spur'].map(function (n) { var k = n[0]; return '<label><input type="checkbox" value="' + k + '"' + (an.indexOf(k) > -1 ? ' checked' : '') + '> ' + n.toUpperCase().slice(0, 1) + n.slice(1) + '</label>'; }).join('');
+      w.addEventListener('change', function () { var v = [].map.call(w.querySelectorAll(':checked'), function (i) { return i.value; }).join(','); location.search = '?fx=' + v; });
+      document.body.appendChild(w);
+    }
+    if (still) return;
+    // A: Abschnitte gleiten beim Erreichen von unten herein, Karten nacheinander
+    if (root.classList.contains('fx-a') && 'IntersectionObserver' in window) {
+      var els = document.querySelectorAll('.mehr h2, .mehr > .wrap > p, .mehr-karte, .leute h2, .leute > .wrap > p, .download h2, .download > .wrap > p, .download .card');
+      var seh = new IntersectionObserver(function (es) {
+        es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-da'); seh.unobserve(e.target); } });
+      }, { rootMargin: '0px 0px -12% 0px' });
+      els.forEach(function (el) {
+        var i = [].indexOf.call(el.parentNode.children, el);
+        if (el.matches('.mehr-karte, .card')) el.style.setProperty('--i', i);
+        el.classList.add('fx-zeigen');
+        seh.observe(el);
+      });
+    }
+    // B und C hängen an der Scrollposition, ein Frame pro Bild
+    var kopf = document.getElementById('kater-kopf'), tel = document.querySelector('.phone-spalte'), spur = document.querySelector('.fx-spur');
+    var letzt = scrollY, kipp = 0, wartet = false;
+    function frame() {
+      wartet = false;
+      var y = scrollY, max = Math.max(1, document.documentElement.scrollHeight - innerHeight), p = Math.min(1, y / max);
+      if (root.classList.contains('fx-b')) {
+        // Kater wandert gemächlich mit und neigt den Kopf in Scrollrichtung
+        kipp += (Math.max(-14, Math.min(14, (y - letzt) * .6)) - kipp) * .25;
+        kopf.style.setProperty('--ky', ((.5 - p) * 140).toFixed(1) + 'px');
+        kopf.style.setProperty('--kr', kipp.toFixed(2) + 'deg');
+        if (y < innerHeight * 1.2) tel.style.setProperty('--ty', (y * -.12).toFixed(1) + 'px');
+        if (Math.abs(kipp) > .05) planen();
+      }
+      if (root.classList.contains('fx-c')) spur.style.setProperty('--p', p.toFixed(4));
+      letzt = y;
+    }
+    function planen() { if (!wartet) { wartet = true; requestAnimationFrame(frame); } }
+    addEventListener('scroll', planen, { passive: true });
+    addEventListener('resize', planen);
+    frame();
+  })();
 </script>
 </body>
 </html>
