@@ -299,9 +299,14 @@ button { font: inherit; color: inherit; }
 .mehr-karte:hover .mehr-icon { transform: rotate(-8deg) scale(1.06); }
 .mehr-buehne { position: relative; display: block; height: 150px; border-radius: 18px; background: #191A1C; overflow: hidden; }
 .mehr-status { color: var(--muted); font-size: 14px; min-height: 1.4em; }
-.mehr-blumen img { position: absolute; bottom: -6px; height: auto; width: auto; max-height: 128px; max-width: 34%; transform: translateX(-50%) rotate(var(--dreh));
-  transform-origin: bottom center; animation: mehr-wachsen 560ms var(--barrier) both; }
-@keyframes mehr-wachsen { from { transform: translateX(-50%) rotate(var(--dreh)) scale(.2); opacity: 0; } }
+.mehr-wald img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 60%;
+  opacity: .25; filter: grayscale(1); transform: scale(1.08); transition: opacity 300ms, filter 300ms, transform 560ms var(--barrier); }
+.mehr-wald.is-gepostet img { opacity: 1; filter: none; transform: none; }
+.mehr-wald .mehr-herz { opacity: 0; transition: opacity 200ms; }
+.mehr-wald.is-gepostet .mehr-herz { opacity: 1; }
+.mehr-flug { position: absolute; z-index: 2; bottom: 10px; animation: mehr-flug 1100ms ease-out both; }
+.mehr-flug svg { width: 22px; height: auto; }
+@keyframes mehr-flug { from { transform: translateY(0) scale(.6); opacity: 1; } to { transform: translateY(-110px) scale(1.2); opacity: 0; } }
 .mehr-herz { position: absolute; z-index: 1; top: 10px; right: 10px; display: flex; align-items: center; gap: 5px; padding: 5px 10px;
   border-radius: 999px; background: rgba(15,16,17,.8); font-size: 13px; }
 .mehr-herz i { font-style: normal; font-variant-numeric: tabular-nums; }
@@ -318,7 +323,7 @@ button { font: inherit; color: inherit; }
 .mehr-blase.is-mein { align-self: flex-end; border-radius: 16px 16px 4px 16px; background: var(--purple); color: #1F2123; }
 @keyframes mehr-blase { from { transform: translateY(10px) scale(.9); opacity: 0; } }
 @media (max-width: 760px) { .mehr-karten { grid-template-columns: 1fr; } }
-@media (prefers-reduced-motion: reduce) { .mehr-blumen img, .mehr-blase { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .mehr-flug, .mehr-blase { animation: none; } }
 .leute { padding: 64px 0 40px; border-top: 1px solid var(--line); }
 .mehr h2, .leute h2, .download h2 { font: 600 clamp(30px, 4vw, 44px)/1.05 var(--display); letter-spacing: -.025em; margin: 0 0 12px; max-width: 18ch; }
 .leute > .wrap > p, .download > .wrap > p { color: var(--muted); margin: 0 0 40px; max-width: 46ch; }

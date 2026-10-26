@@ -252,11 +252,11 @@ ${filterDefs}
     <h2 id="mehr-titel">Kann die App noch mehr?</h2>
     <p>Klar. Tipp auf eine Karte und probier es aus.</p>
     <div class="mehr-karten">
-      <button type="button" class="mehr-karte" data-mehr="blumen" style="--c:${C.pink}">
+      <button type="button" class="mehr-karte" data-mehr="wald" style="--c:${C.pink}">
         <span class="mehr-icon">${sized(icon('camera', C.dark), 30)}</span>
-        <b>Nette Blumenbilder posten</b>
-        <span class="mehr-buehne mehr-blumen" aria-hidden="true"><span class="mehr-herz">${sized(icon('heart', C.pink), 14)}<i>0</i></span></span>
-        <span class="mehr-status" aria-live="polite">Tipp für eine Blume.</span>
+        <b>Schöne Waldbilder posten</b>
+        <span class="mehr-buehne mehr-wald" aria-hidden="true"><img src="prototyp/fotos/wald.jpg?v=${version(readFileSync(join(fotoDir, 'wald.jpg')))}" alt="" loading="lazy" decoding="async"><span class="mehr-herz">${sized(icon('heart', C.pink), 14)}<i>0</i></span></span>
+        <span class="mehr-status" aria-live="polite">Tipp und poste das Foto.</span>
       </button>
       <button type="button" class="mehr-karte" data-mehr="freunde" style="--c:${C.green}">
         <span class="mehr-icon">${sized(icon('friends', C.dark), 30)}</span>
@@ -377,8 +377,7 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
     fig.classList.remove('is-wave'); void fig.getBoundingClientRect(); fig.classList.add('is-wave');
   });
   // Kann die App noch mehr? Jede Karte spielt bei jedem Tipp einen kleinen Schritt vor.
-  var mehr = { blumen: 0, freunde: 0, nachrichten: 0 };
-  var blumen = ['05', '04', '12', '06', '11', '10', '07'];
+  var mehr = { wald: 0, freunde: 0, nachrichten: 0 };
   var freunde = ['Lena', 'Peter', 'Mo'];
   var chat = [
     ['Kommst Du Samstag mit in den Garten?', 'Klar! Ich bring Kaffee mit.'],
@@ -396,18 +395,17 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
     var k = e.target.closest('[data-mehr]');
     if (!k) return;
     var art = k.dataset.mehr, n = ++mehr[art], buehne = k.querySelector('.mehr-buehne'), status = k.querySelector('.mehr-status');
-    if (art === 'blumen') {
-      var img = document.createElement('img');
-      img.src = '/blumen/' + blumen[(n - 1) % blumen.length] + '.webp';
-      img.alt = '';
-      img.style.left = (8 + ((n * 37) % 76)) + '%';
-      img.style.setProperty('--dreh', (((n * 53) % 21) - 10) + 'deg');
-      buehne.appendChild(img);
-      var bilder = buehne.querySelectorAll('img');
-      if (bilder.length > 6) buehne.removeChild(bilder[0]);
+    if (art === 'wald') {
+      buehne.classList.add('is-gepostet');
       var herz = buehne.querySelector('.mehr-herz i');
       herz.textContent = String(+herz.textContent + 3 + (n % 4));
-      status.textContent = n === 1 ? 'Gepostet! Die ersten Herzen kommen.' : n + ' Blumen gepostet. Der Kiez blüht.';
+      var flug = document.createElement('span');
+      flug.className = 'mehr-flug';
+      flug.style.left = (20 + ((n * 37) % 60)) + '%';
+      flug.innerHTML = buehne.querySelector('.mehr-herz svg').outerHTML;
+      buehne.appendChild(flug);
+      setTimeout(function () { flug.remove(); }, 1200);
+      status.textContent = n === 1 ? 'Gepostet! Die ersten Herzen kommen.' : herz.textContent + ' Herzen für Dein Waldbild.';
     } else if (art === 'freunde') {
       var av = buehne.querySelectorAll('.mehr-avatar');
       if (n > av.length) { mehr.freunde = 0; av.forEach(function (a) { a.classList.remove('is-freund'); }); status.textContent = 'Tipp und füg Lena hinzu.'; return; }
