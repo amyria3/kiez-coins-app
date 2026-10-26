@@ -481,18 +481,18 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
   });
 </script>
 <script>
-  // Scrolleffekte (Vorschau): A Abschnitte blenden ein, B Kater und Telefon bewegen sich leicht mit, C Coin-Spur oben.
-  // ?fx=a,b,c schaltet einzelne Effekte, ?fx zeigt dazu eine kleine Auswahl. Bei „Bewegung reduzieren“ bleibt alles still.
+  // Scrolleffekte (Vorschau): A Abschnitte blenden ein, B Kater und Telefon bewegen sich leicht mit, C Coin-Spur oben,
+  // D Abschnitte stapeln sich wie Karten. ?fx=a,b,c,d schaltet einzelne Effekte, ?fx zeigt dazu eine kleine Auswahl. Bei „Bewegung reduzieren“ bleibt alles still.
   (function () {
     var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
     var q = new URLSearchParams(location.search).get('fx');
-    var an = (q || 'a,b,c').split(',');
+    var an = (q || 'a,b,c,d').split(',');
     var root = document.documentElement;
-    if (!still) an.forEach(function (x) { if (/^[abc]$/.test(x)) root.classList.add('fx-' + x); });
+    if (!still) an.forEach(function (x) { if (/^[abcd]$/.test(x)) root.classList.add('fx-' + x); });
     if (q !== null) {
       var w = document.createElement('div');
       w.className = 'fx-wahl';
-      w.innerHTML = ['a Einblenden', 'b Kater', 'c Coin-Spur'].map(function (n) { var k = n[0]; return '<label><input type="checkbox" value="' + k + '"' + (an.indexOf(k) > -1 ? ' checked' : '') + '> ' + n.toUpperCase().slice(0, 1) + n.slice(1) + '</label>'; }).join('');
+      w.innerHTML = ['a Einblenden', 'b Kater', 'c Coin-Spur', 'd Kartenstapel'].map(function (n) { var k = n[0]; return '<label><input type="checkbox" value="' + k + '"' + (an.indexOf(k) > -1 ? ' checked' : '') + '> ' + n.toUpperCase().slice(0, 1) + n.slice(1) + '</label>'; }).join('');
       w.addEventListener('change', function () { var v = [].map.call(w.querySelectorAll(':checked'), function (i) { return i.value; }).join(','); location.search = '?fx=' + v; });
       document.body.appendChild(w);
     }
@@ -509,6 +509,15 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
         el.classList.add('fx-zeigen');
         seh.observe(el);
       });
+    }
+    // D: Jeder Abschnitt bleibt stehen, sobald sein Ende im Bild ist, der nächste schiebt sich darüber.
+    // Dafür braucht jeder Abschnitt seine Höhe als --h (top: min(0, 100vh - Höhe) in seite.css).
+    if (root.classList.contains('fx-d')) {
+      var stapel = document.querySelectorAll('body > .wrap, .mehr, .leute');
+      var messen = function () { stapel.forEach(function (el) { el.style.setProperty('--h', el.offsetHeight + 'px'); }); };
+      if ('ResizeObserver' in window) { var ro = new ResizeObserver(messen); stapel.forEach(function (el) { ro.observe(el); }); }
+      addEventListener('resize', messen);
+      messen();
     }
     // B und C hängen an der Scrollposition, ein Frame pro Bild
     var kopf = document.getElementById('kater-kopf'), tel = document.querySelector('.phone-spalte'), spur = document.querySelector('.fx-spur');
