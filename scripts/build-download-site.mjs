@@ -250,11 +250,29 @@ ${filterDefs}
 <section class="mehr" aria-labelledby="mehr-titel">
   <div class="wrap">
     <h2 id="mehr-titel">Kann die App noch mehr?</h2>
-    <ul>
-      <li>Nette Blumenbilder posten</li>
-      <li>Freunde hinzufügen</li>
-      <li>Nachrichten an Freunde schicken</li>
-    </ul>
+    <p>Klar. Tipp auf eine Karte und probier es aus.</p>
+    <div class="mehr-karten">
+      <button type="button" class="mehr-karte" data-mehr="blumen" style="--c:${C.pink}">
+        <span class="mehr-icon">${sized(icon('camera', C.dark), 30)}</span>
+        <b>Nette Blumenbilder posten</b>
+        <span class="mehr-buehne mehr-blumen" aria-hidden="true"><span class="mehr-herz">${sized(icon('heart', C.pink), 14)}<i>0</i></span></span>
+        <span class="mehr-status" aria-live="polite">Tipp für eine Blume.</span>
+      </button>
+      <button type="button" class="mehr-karte" data-mehr="freunde" style="--c:${C.green}">
+        <span class="mehr-icon">${sized(icon('friends', C.dark), 30)}</span>
+        <b>Freunde hinzufügen</b>
+        <span class="mehr-buehne mehr-freunde" aria-hidden="true">
+          <span class="mehr-avatar" style="--a:#FFB2E5">L</span><span class="mehr-avatar" style="--a:#FFAD7E">P</span><span class="mehr-avatar" style="--a:#93F4A7">M</span>
+        </span>
+        <span class="mehr-status" aria-live="polite">Tipp und füg Lena hinzu.</span>
+      </button>
+      <button type="button" class="mehr-karte" data-mehr="nachrichten" style="--c:${C.purple}">
+        <span class="mehr-icon">${sized(icon('message', C.dark), 30)}</span>
+        <b>Nachrichten an Freunde schicken</b>
+        <span class="mehr-buehne mehr-chat" aria-hidden="true"></span>
+        <span class="mehr-status" aria-live="polite">Tipp und schreib Lena.</span>
+      </button>
+    </div>
   </div>
 </section>
 
@@ -296,6 +314,7 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
       <a href="datenschutz.html">Datenschutz</a>
       <a href="nutzungsbedingungen.html">Nutzungsbedingungen</a>
       <a href="community-regeln.html">Community-Regeln</a>
+      <a href="https://waldentdeckenberlin.org/voll-der-mist/" rel="noopener">Bildquelle Müll im Wald: Wald entdecken Berlin</a>
     </footer>
   </div>
 </section>
@@ -356,6 +375,50 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(l.text)}</p
     var fig = e.target.closest('.figur');
     if (!fig) return;
     fig.classList.remove('is-wave'); void fig.getBoundingClientRect(); fig.classList.add('is-wave');
+  });
+  // Kann die App noch mehr? Jede Karte spielt bei jedem Tipp einen kleinen Schritt vor.
+  var mehr = { blumen: 0, freunde: 0, nachrichten: 0 };
+  var blumen = ['05', '04', '12', '06', '11', '10', '07'];
+  var freunde = ['Lena', 'Peter', 'Mo'];
+  var chat = [
+    ['Kommst Du Samstag mit in den Garten?', 'Klar! Ich bring Kaffee mit.'],
+    ['Hast Du den Igel gesehen?', 'Ja, er wohnt jetzt unterm Laub.'],
+    ['Danke fürs Gießen!', 'Gern, die Kanne steht wieder unter der Treppe.'],
+  ];
+  function blase(buehne, text, mein) {
+    var b = document.createElement('span');
+    b.className = 'mehr-blase' + (mein ? ' is-mein' : '');
+    b.textContent = text;
+    buehne.appendChild(b);
+    while (buehne.children.length > 3) buehne.removeChild(buehne.firstChild);
+  }
+  document.querySelector('.mehr-karten').addEventListener('click', function (e) {
+    var k = e.target.closest('[data-mehr]');
+    if (!k) return;
+    var art = k.dataset.mehr, n = ++mehr[art], buehne = k.querySelector('.mehr-buehne'), status = k.querySelector('.mehr-status');
+    if (art === 'blumen') {
+      var img = document.createElement('img');
+      img.src = '/blumen/' + blumen[(n - 1) % blumen.length] + '.webp';
+      img.alt = '';
+      img.style.left = (8 + ((n * 37) % 76)) + '%';
+      img.style.setProperty('--dreh', (((n * 53) % 21) - 10) + 'deg');
+      buehne.appendChild(img);
+      var bilder = buehne.querySelectorAll('img');
+      if (bilder.length > 6) buehne.removeChild(bilder[0]);
+      var herz = buehne.querySelector('.mehr-herz i');
+      herz.textContent = String(+herz.textContent + 3 + (n % 4));
+      status.textContent = n === 1 ? 'Gepostet! Die ersten Herzen kommen.' : n + ' Blumen gepostet. Der Kiez blüht.';
+    } else if (art === 'freunde') {
+      var av = buehne.querySelectorAll('.mehr-avatar');
+      if (n > av.length) { mehr.freunde = 0; av.forEach(function (a) { a.classList.remove('is-freund'); }); status.textContent = 'Tipp und füg Lena hinzu.'; return; }
+      av[n - 1].classList.add('is-freund');
+      status.textContent = n < av.length ? freunde[n - 1] + ' ist jetzt dabei. Tipp für ' + freunde[n] + '.' : 'Drei Freunde. Tipp, um neu zu starten.';
+    } else {
+      var paar = chat[(n - 1) % chat.length];
+      blase(buehne, paar[0], true);
+      status.textContent = 'Lena schreibt …';
+      setTimeout(function () { blase(buehne, paar[1], false); status.textContent = 'Tipp für die nächste Nachricht.'; }, 900);
+    }
   });
 </script>
 </body>
