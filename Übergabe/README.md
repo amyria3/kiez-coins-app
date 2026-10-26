@@ -48,3 +48,4 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-25_offen_gruppe-beim-erstellen.md`: Beim Erstellen zeigt die App, in welcher Gruppe die Person ist (To-do, Daria).
 - `2026-10-25_offen_kopf-grosse-bildschirme.md`: Der Feed-Kopf verschwindet auf großen Bildschirmen scheinbar zufällig (To-do, Daria).
 - `2026-10-26_offen_sichtbarkeit-nur-ich.md`: Sichtbarkeit „Nur ich“ beim Posten, veröffentlicht, aber nur für die Ersteller:in sichtbar, kein Entwurf (To-do, Daria).
+- `2026-10-26_offen_lila-ungemuetlich.md`: Kritik „Farbe Lila, ungemütlich“, offene Fragen zu Ort und Ersatzfarbe (To-do, Daria).
