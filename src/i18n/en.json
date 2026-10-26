@@ -1067,9 +1067,16 @@
   "Zum Schluss": "One last thing",
   "Möchtest Du uns noch etwas sagen?": "Anything else you’d like to tell us?",
   "Freiwillig, höchstens {max} Zeichen.": "Optional, up to {max} characters.",
-  "6 Fragen zur App": "6 questions about the app",
   "Wie oft würdest Du die App nutzen?": "How often would you use the app?",
   "Oft, vielleicht sogar täglich": "Often, maybe even daily",
   "Gelegentlich": "Now and then",
-  "Eher ausnahmsweise": "Only rarely"
+  "Eher ausnahmsweise": "Only rarely",
+  "7 Fragen zur App": "7 questions about the app",
+  "Wieso hast Du die App getestet?": "Why did you test the app?",
+  "Klingt mega spannend": "Sounds super exciting",
+  "Neugierde": "Curiosity",
+  "Wollte nur nett sein": "Just wanted to be nice",
+  "Eigene Antwort": "Your own answer",
+  "Eigene Antworten: {title}": "Own answers: {title}",
+  "Noch keine eigenen Antworten.": "No own answers yet."
 }

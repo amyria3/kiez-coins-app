@@ -1067,9 +1067,16 @@
   "Zum Schluss": "Pour finir",
   "Möchtest Du uns noch etwas sagen?": "Veux-tu nous dire autre chose ?",
   "Freiwillig, höchstens {max} Zeichen.": "Facultatif, {max} caractères maximum.",
-  "6 Fragen zur App": "6 questions sur l’app",
   "Wie oft würdest Du die App nutzen?": "À quelle fréquence utiliserais-tu l’app ?",
   "Oft, vielleicht sogar täglich": "Souvent, peut-être même tous les jours",
   "Gelegentlich": "De temps en temps",
-  "Eher ausnahmsweise": "Plutôt exceptionnellement"
+  "Eher ausnahmsweise": "Plutôt exceptionnellement",
+  "7 Fragen zur App": "7 questions sur l’app",
+  "Wieso hast Du die App getestet?": "Pourquoi as-tu testé l’app ?",
+  "Klingt mega spannend": "Ça a l’air super passionnant",
+  "Neugierde": "Curiosité",
+  "Wollte nur nett sein": "Je voulais juste être sympa",
+  "Eigene Antwort": "Ta propre réponse",
+  "Eigene Antworten: {title}": "Réponses libres : {title}",
+  "Noch keine eigenen Antworten.": "Pas encore de réponses libres."
 }

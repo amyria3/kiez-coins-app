@@ -1092,7 +1092,7 @@ export async function deleteMyAccount() {
 /** Eigene Antwort, falls schon abgegeben. */
 export async function loadMySurveyAnswer(): Promise<SurveyAnswer | null> {
   const { data } = check(
-    await supabase.from('survey_answers').select('opinion, frequency, usability, design, support, recommend, comment').maybeSingle(),
+    await supabase.from('survey_answers').select('opinion, frequency, usability, design, support, recommend, reason, reason_other, comment').maybeSingle(),
   );
   return (data as SurveyAnswer | null) ?? null;
 }

@@ -59,6 +59,16 @@ export default function SurveyResultsScreen() {
         </View>
       ))}
       <View style={styles.card}>
+        <Text style={styles.title}>{t('Eigene Antworten: {title}', { title: surveyQuestions.find((q) => q.key === 'reason')?.title ?? '' })}</Text>
+        {data && !data.reason_other?.length ? <Text style={styles.caption}>Noch keine eigenen Antworten.</Text> : null}
+        {data?.reason_other?.map((c, i) => (
+          <View key={i} style={styles.comment}>
+            <Text style={styles.body}>{c.text}</Text>
+            <Text style={styles.caption}>{formatRelative(c.at)}</Text>
+          </View>
+        ))}
+      </View>
+      <View style={styles.card}>
         <Text style={styles.title}>Kommentare</Text>
         {data && !data.comments?.length ? <Text style={styles.caption}>Noch keine Kommentare.</Text> : null}
         {data?.comments?.map((c, i) => (

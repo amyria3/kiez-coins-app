@@ -1067,9 +1067,16 @@
   "Zum Schluss": "Наостанок",
   "Möchtest Du uns noch etwas sagen?": "Хочеш ще щось нам сказати?",
   "Freiwillig, höchstens {max} Zeichen.": "Необов’язково, до {max} символів.",
-  "6 Fragen zur App": "6 запитань про застосунок",
   "Wie oft würdest Du die App nutzen?": "Як часто ти користувався(-лася) б застосунком?",
   "Oft, vielleicht sogar täglich": "Часто, можливо, навіть щодня",
   "Gelegentlich": "Іноді",
-  "Eher ausnahmsweise": "Хіба що зрідка"
+  "Eher ausnahmsweise": "Хіба що зрідка",
+  "7 Fragen zur App": "7 запитань про застосунок",
+  "Wieso hast Du die App getestet?": "Чому ти тестував(-ла) застосунок?",
+  "Klingt mega spannend": "Звучить дуже захопливо",
+  "Neugierde": "Цікавість",
+  "Wollte nur nett sein": "Просто хотів(-ла) бути люб’язним(-ною)",
+  "Eigene Antwort": "Власна відповідь",
+  "Eigene Antworten: {title}": "Власні відповіді: {title}",
+  "Noch keine eigenen Antworten.": "Власних відповідей ще немає."
 }
