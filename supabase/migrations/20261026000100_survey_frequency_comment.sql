@@ -1,9 +1,12 @@
--- Umfrage: freies Kommentarfeld als letzter, freiwilliger Schritt (Wunsch Daria, 26.10.2026).
+-- Umfrage, Ergänzungen von Daria (26.10.2026):
 --
--- * survey_answers.comment: Freitext, höchstens 1000 Zeichen, leer erlaubt.
--- * survey_results() liefert zusätzlich alle Kommentare, neueste zuerst, ohne Namen.
+-- * survey_answers.frequency: neue Frage „Wie oft würdest Du die App nutzen?“. Leer bei Antworten
+--   von vorher; die App fragt diese Personen noch einmal.
+-- * survey_answers.comment: freies Kommentarfeld als letzter, freiwilliger Schritt, höchstens 1000 Zeichen.
+-- * survey_results() liefert zusätzlich die Zählung zu `frequency` und alle Kommentare, neueste zuerst, ohne Namen.
 
 alter table public.survey_answers
+  add column frequency text check (frequency in ('often', 'sometimes', 'rarely')),
   add column comment text check (char_length(comment) <= 1000);
 
 create or replace function public.survey_results()
@@ -20,6 +23,7 @@ begin
   return jsonb_build_object(
     'total', (select count(*) from public.survey_answers),
     'opinion', (select coalesce(jsonb_object_agg(k, n), '{}') from (select opinion k, count(*) n from public.survey_answers group by 1) s),
+    'frequency', (select coalesce(jsonb_object_agg(k, n), '{}') from (select frequency k, count(*) n from public.survey_answers where frequency is not null group by 1) s),
     'usability', (select coalesce(jsonb_object_agg(k, n), '{}') from (select usability k, count(*) n from public.survey_answers group by 1) s),
     'design', (select coalesce(jsonb_object_agg(k, n), '{}') from (select design k, count(*) n from public.survey_answers group by 1) s),
     'support', (select coalesce(jsonb_object_agg(k, n), '{}') from (select unnest(support) k, count(*) n from public.survey_answers group by 1) s),

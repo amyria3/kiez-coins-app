@@ -747,7 +747,6 @@
   "Push-Nachrichten": "الإشعارات الفورية",
   "Weitere Texte": "نصوص أخرى",
   "Umfrage": "استطلاع",
-  "5 Fragen zur App": "5 أسئلة عن التطبيق",
   "Umfrage-Ergebnis": "نتائج الاستطلاع",
   "Antworten zählen": "عدّ الإجابات",
   "Auswertung nicht geladen": "لم يتم تحميل النتائج",
@@ -1067,5 +1066,10 @@
   "Noch keine Kommentare.": "لا توجد تعليقات بعد.",
   "Zum Schluss": "في الختام",
   "Möchtest Du uns noch etwas sagen?": "هل تريد أن تقول لنا شيئًا آخر؟",
-  "Freiwillig, höchstens {max} Zeichen.": "اختياري، {max} حرف كحد أقصى."
+  "Freiwillig, höchstens {max} Zeichen.": "اختياري، {max} حرف كحد أقصى.",
+  "6 Fragen zur App": "6 أسئلة عن التطبيق",
+  "Wie oft würdest Du die App nutzen?": "كم مرة ستستخدم التطبيق؟",
+  "Oft, vielleicht sogar täglich": "كثيرًا، وربما يوميًا",
+  "Gelegentlich": "أحيانًا",
+  "Eher ausnahmsweise": "نادرًا فقط"
 }

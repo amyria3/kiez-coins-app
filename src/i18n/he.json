@@ -747,7 +747,6 @@
   "Push-Nachrichten": "התראות פוש",
   "Weitere Texte": "טקסטים נוספים",
   "Umfrage": "סקר",
-  "5 Fragen zur App": "5 שאלות על האפליקציה",
   "Umfrage-Ergebnis": "תוצאות הסקר",
   "Antworten zählen": "ספירת תשובות",
   "Auswertung nicht geladen": "התוצאות לא נטענו",
@@ -1067,5 +1066,10 @@
   "Noch keine Kommentare.": "עדיין אין תגובות.",
   "Zum Schluss": "לסיום",
   "Möchtest Du uns noch etwas sagen?": "רוצה לספר לנו עוד משהו?",
-  "Freiwillig, höchstens {max} Zeichen.": "לא חובה, עד {max} תווים."
+  "Freiwillig, höchstens {max} Zeichen.": "לא חובה, עד {max} תווים.",
+  "6 Fragen zur App": "6 שאלות על האפליקציה",
+  "Wie oft würdest Du die App nutzen?": "באיזו תדירות היית משתמש/ת באפליקציה?",
+  "Oft, vielleicht sogar täglich": "לעיתים קרובות, אולי אפילו כל יום",
+  "Gelegentlich": "מדי פעם",
+  "Eher ausnahmsweise": "רק לעיתים רחוקות"
 }

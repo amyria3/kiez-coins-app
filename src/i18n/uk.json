@@ -747,7 +747,6 @@
   "Push-Nachrichten": "Push-сповіщення",
   "Weitere Texte": "Інші тексти",
   "Umfrage": "Опитування",
-  "5 Fragen zur App": "5 запитань про застосунок",
   "Umfrage-Ergebnis": "Результати опитування",
   "Antworten zählen": "Підрахувати відповіді",
   "Auswertung nicht geladen": "Результати не завантажено",
@@ -1067,5 +1066,10 @@
   "Noch keine Kommentare.": "Коментарів ще немає.",
   "Zum Schluss": "Наостанок",
   "Möchtest Du uns noch etwas sagen?": "Хочеш ще щось нам сказати?",
-  "Freiwillig, höchstens {max} Zeichen.": "Необов’язково, до {max} символів."
+  "Freiwillig, höchstens {max} Zeichen.": "Необов’язково, до {max} символів.",
+  "6 Fragen zur App": "6 запитань про застосунок",
+  "Wie oft würdest Du die App nutzen?": "Як часто ти користувався(-лася) б застосунком?",
+  "Oft, vielleicht sogar täglich": "Часто, можливо, навіть щодня",
+  "Gelegentlich": "Іноді",
+  "Eher ausnahmsweise": "Хіба що зрідка"
 }

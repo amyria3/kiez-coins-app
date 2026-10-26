@@ -747,7 +747,6 @@
   "Push-Nachrichten": "Notifications push",
   "Weitere Texte": "Autres textes",
   "Umfrage": "Sondage",
-  "5 Fragen zur App": "5 questions sur l’app",
   "Umfrage-Ergebnis": "Résultats du sondage",
   "Antworten zählen": "Compter les réponses",
   "Auswertung nicht geladen": "Résultats non chargés",
@@ -1067,5 +1066,10 @@
   "Noch keine Kommentare.": "Pas encore de commentaires.",
   "Zum Schluss": "Pour finir",
   "Möchtest Du uns noch etwas sagen?": "Veux-tu nous dire autre chose ?",
-  "Freiwillig, höchstens {max} Zeichen.": "Facultatif, {max} caractères maximum."
+  "Freiwillig, höchstens {max} Zeichen.": "Facultatif, {max} caractères maximum.",
+  "6 Fragen zur App": "6 questions sur l’app",
+  "Wie oft würdest Du die App nutzen?": "À quelle fréquence utiliserais-tu l’app ?",
+  "Oft, vielleicht sogar täglich": "Souvent, peut-être même tous les jours",
+  "Gelegentlich": "De temps en temps",
+  "Eher ausnahmsweise": "Plutôt exceptionnellement"
 }

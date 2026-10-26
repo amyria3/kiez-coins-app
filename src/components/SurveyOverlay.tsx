@@ -33,7 +33,7 @@ const snoozeOptions: { key: SurveySnooze; label: string }[] = [
 
 /**
  * UX/UI-Umfrage als Overlay über dem Feed (Vorgabe Daria, 21.10.2026): Hintergrund geblurrt,
- * eine Frage pro Schritt („Frage 1 von 5“), wegklicken mit „Morgen“, „In einer Woche“ oder „Nicht wieder fragen“.
+ * eine Frage pro Schritt („Frage 1 von 6“), wegklicken mit „Morgen“, „In einer Woche“ oder „Nicht wieder fragen“.
  * Zum Schluss ein freiwilliges Kommentarfeld (Wunsch Daria, 26.10.2026).
  * Antworten landen in `survey_answers` (Migrationen 20261021001500, 20261026000100), eine pro Person.
  */
@@ -59,7 +59,7 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
     loadMySurveyAnswer()
       .then((a) => {
         if (!a) return;
-        setDraft({ opinion: [a.opinion], usability: [a.usability], design: [a.design], support: a.support, recommend: [a.recommend] });
+        setDraft({ opinion: [a.opinion], frequency: a.frequency ? [a.frequency] : [], usability: [a.usability], design: [a.design], support: a.support, recommend: [a.recommend] });
         setComment(a.comment ?? '');
       })
       .catch(() => undefined);
@@ -78,6 +78,7 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
     if (live) {
       const answer: SurveyAnswer = {
         opinion: draft.opinion![0],
+        frequency: draft.frequency![0],
         usability: draft.usability![0],
         design: draft.design![0],
         support: draft.support!,
@@ -208,8 +209,9 @@ export function useSurveyPrompt(): [boolean, () => void] {
       if ((await countUsageDay()) < SURVEY_AFTER_DAYS) return;
       if (await isSurveySnoozed(currentUserId)) return;
       const answer = await loadMySurveyAnswer().catch(() => undefined);
-      // Ohne Verbindung oder ohne Tabelle (Migration fehlt) lieber nicht fragen
-      if (answer === undefined || answer) return;
+      // Ohne Verbindung oder ohne Tabelle (Migration fehlt) lieber nicht fragen.
+      // Antworten von vor dem 26.10.2026 fehlt die Frage zur Nutzung: dann noch einmal fragen.
+      if (answer === undefined || (answer && answer.frequency)) return;
       if (!cancelled) setVisible(true);
     }, 2500);
     return () => {

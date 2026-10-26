@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
  * Die Schlüssel stehen so in der Tabelle `survey_answers` (Migration 20261021001500).
  */
 export type SurveyQuestion = {
-  key: 'opinion' | 'usability' | 'design' | 'support' | 'recommend';
+  key: 'opinion' | 'frequency' | 'usability' | 'design' | 'support' | 'recommend';
   title: string;
   /** Mehrfachauswahl */
   multiple?: boolean;
@@ -14,12 +14,22 @@ export type SurveyQuestion = {
 
 export const surveyQuestions: SurveyQuestion[] = [
   {
+    // Ergänzt am 26.10.2026 (Daria: „mitunter wichtigste Frage“, an erster Stelle)
+    key: 'frequency',
+    title: 'Wie oft würdest Du die App nutzen?',
+    options: [
+      { key: 'often', label: 'Oft, vielleicht sogar täglich' },
+      { key: 'sometimes', label: 'Gelegentlich' },
+      { key: 'rarely', label: 'Eher ausnahmsweise' },
+    ],
+  },
+  {
     key: 'opinion',
     title: 'Was denkst Du über diese App?',
     options: [
-      { key: 'no_more_apps', label: '„Nicht noch eine App!“' },
       { key: 'good_idea', label: 'Gute Idee' },
       { key: 'undecided', label: 'Weiß noch nicht' },
+      { key: 'no_more_apps', label: '„Nicht noch eine App!“' },
     ],
   },
   {
@@ -68,6 +78,8 @@ export const surveyQuestions: SurveyQuestion[] = [
 /** Antworten je Frage: Einfachauswahl als ein Schlüssel, Mehrfachauswahl als Liste. */
 export type SurveyAnswer = {
   opinion: string;
+  /** Fehlt bei Antworten vor dem 26.10.2026 */
+  frequency: string | null;
   usability: string;
   design: string;
   support: string[];

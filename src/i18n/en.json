@@ -747,7 +747,6 @@
   "Push-Nachrichten": "Push notifications",
   "Weitere Texte": "Other texts",
   "Umfrage": "Survey",
-  "5 Fragen zur App": "5 questions about the app",
   "Umfrage-Ergebnis": "Survey results",
   "Antworten zählen": "Count answers",
   "Auswertung nicht geladen": "Results not loaded",
@@ -1067,5 +1066,10 @@
   "Noch keine Kommentare.": "No comments yet.",
   "Zum Schluss": "One last thing",
   "Möchtest Du uns noch etwas sagen?": "Anything else you’d like to tell us?",
-  "Freiwillig, höchstens {max} Zeichen.": "Optional, up to {max} characters."
+  "Freiwillig, höchstens {max} Zeichen.": "Optional, up to {max} characters.",
+  "6 Fragen zur App": "6 questions about the app",
+  "Wie oft würdest Du die App nutzen?": "How often would you use the app?",
+  "Oft, vielleicht sogar täglich": "Often, maybe even daily",
+  "Gelegentlich": "Now and then",
+  "Eher ausnahmsweise": "Only rarely"
 }
