@@ -9,6 +9,11 @@
   var root = document.getElementById('prototyp');
   if (!KC || !root) return;
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Sprache kommt aus <html lang>: Deutsch unter /, Englisch unter /en/ (Daria, 26.10.2026)
+  var EN = document.documentElement.lang === 'en';
+  function T(de, en) {
+    return EN ? en : de;
+  }
 
   // ---------- Hilfen ----------
   function svg(name, h) {
@@ -33,7 +38,7 @@
   }
 
   // Text unter der Überschrift, wenn der Ort keinen eigenen für das Szenario hat
-  var LEDE = 'Kennst Du das? Irgendwas muss erledigt werden, doch wer in Gottes Namen soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez. Zusammen sind wir stärker, gesünder, glücklicher, wohlhabender und bekommen sogar mehr gebacken!';
+  var LEDE = EN ? 'Sound familiar? Something needs doing, but who on earth is going to do it? KiezCoins gives you an interface to share work better – at home or in your neighborhood. Together we’re stronger, healthier, happier, wealthier and we even get more done!' : 'Kennst Du das? Irgendwas muss erledigt werden, doch wer in Gottes Namen soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez. Zusammen sind wir stärker, gesünder, glücklicher, wohlhabender und bekommen sogar mehr gebacken!';
 
   // Eigene Me-Challenge im Prototyp, in beiden Orten gleich (Vorher hohes Gras, Nachher gepflegte Beete)
   var ME = {
@@ -154,6 +159,75 @@
     },
   };
 
+  // Englische Fassung der Beispieldaten: überschreibt nur die Texte, Struktur und Zahlen bleiben
+  var ME_EN = {
+    suggestions: ['Tend the community garden', 'Pick up litter in the park', 'Tidy the bike cellar'],
+    demo: ['Tend the community garden', 'The grass is knee-high, the beds are full of weeds.'],
+    demoAfter: 'Mowed and weeded. The beds are ready for winter.',
+    done: '1 good deed for the neighborhood!',
+  };
+  var MODES_EN = {
+    kiez: {
+      countText: function (n) { return n === 1 ? '1 We-Challenge near you' : n + ' We-Challenges near you'; },
+      headline: 'Small challenges for more real community',
+      ledes: {
+        me: 'Know the saying “Do good and talk about it”? This is the space for it, because we all learn a little from each other. Showing off and friendly competition are part of the game!',
+        we: 'Fight numbness, fight indifference – against retreating completely into your own four walls. Reclaim public space. Money, time or skills – share your resources with others and let wonderful synergies happen.',
+      },
+      people: { du: { name: 'You', short: 'You' } },
+      challenges: [
+        { title: 'Picked up litter in the floodplain forest', text: 'After the weekend, bottles and packaging lay along the path. Three bags later, the hedgehog has its peace.' },
+        { title: 'Fix a flat on a kid’s bike', text: 'The rear tube on my daughter’s bike is flat. I have a patch kit, but I can’t get the tire off the rim. She needs the bike on Monday to get to school.', left: '3 days left' },
+        { title: 'Walk Bruno at lunchtime', text: 'Wednesday and Thursday around 1 pm, a 45-minute walk. I’m at the office until evening. Bruno is calm and walks well on the leash.', left: '2 days left' },
+      ],
+      create: {
+        suggestions: ['Put out the bins', 'Build a hedgehog house', 'Tidy the bike cellar'],
+        demo: ['Put out the bins', 'The bins need to go out to the street early Tuesday and back in on Wednesday. I’m away.'],
+        published: 'Your We-Challenge is live. The neighborhood can see it now.',
+      },
+      scenarios: [
+        ['me', 'Me-Challenge', 'How do you feel today? Share a life hack or an especially kid- and budget-friendly recipe. Or challenge yourself and do something really nice for people or animals. Showing off and friendly competition are welcome!', 'Me-Challenge'],
+        ['we', 'We-Challenge', 'Noticed something that needs doing, but you can’t do it yourself? Post a We-Challenge in your neighborhood, set a reward and sit back for a while. We’re curious how much we can get moving!', 'We-Challenge'],
+      ],
+    },
+    gruppe: {
+      countText: function (n) { return n === 1 ? '1 open task' : n + ' open tasks'; },
+      headline: 'Small challenges for more real community',
+      people: { gardeners: { name: 'Neighborhood gardeners', short: 'Gardeners' }, du: { name: 'You', short: 'You' } },
+      challenges: [
+        { title: 'Shop for Gisela on the 3rd floor', text: 'After her hip surgery, Gisela can’t manage the stairs yet. She’ll give you the list and money at her door.', dist: '3rd floor', left: 'by Friday' },
+        { title: 'Clear out the bike cellar', text: 'Saturday from 10 am we’re taking ownerless bikes to the bulky waste. Mark your bikes with tape by Friday. Who can help carry?', dist: 'Cellar', left: 'Saturday' },
+      ],
+      group: {
+        sub: '4 members · Leaderboard on',
+        tasks: [{ title: 'Sweep the courtyard' }, { title: 'Water the plants in the stairwell' }, { title: 'Put out the bins' }],
+      },
+      create: {
+        suggestions: ['Put up a clothesline', 'Mop the stairwell', 'Sweep the courtyard'],
+        demo: ['Put up a clothesline in the courtyard', 'The old line snapped. New line and hooks are in the cellar, we need someone with a ladder.'],
+        published: 'Your We-Challenge is up. Everyone in Hof Kastanienallee can see it now.',
+      },
+      scenarios: [
+        ['me', 'Me-Challenge', 'Share life hacks and recipes in your group. Get recognition and encouragement for a habit you want to build. Or did you do something for the other people in your group – and it deserves a portion of appreciation? Go!', 'Me-Challenge'],
+        ['we', 'We-Challenge', 'Organize yourselves playfully within your group. Whoever takes on more tedious tasks earns a high rank on the list. On your marks, get set, go!', 'We-Challenge'],
+      ],
+    },
+  };
+  // Legt die Texte von `from` über `to`; Listen werden Eintrag für Eintrag zusammengeführt
+  function overlay(to, from) {
+    Object.keys(from).forEach(function (k) {
+      var v = from[k];
+      if (v && typeof v === 'object' && !Array.isArray(v) && to[k] && typeof to[k] === 'object') overlay(to[k], v);
+      else if (Array.isArray(v) && Array.isArray(to[k]) && v.length && typeof v[0] === 'object' && !Array.isArray(v[0])) {
+        v.forEach(function (item, i) { if (to[k][i]) overlay(to[k][i], item); });
+      } else to[k] = v;
+    });
+  }
+  if (EN) {
+    overlay(ME, ME_EN);
+    overlay(MODES, MODES_EN);
+  }
+
   var M, people, challenges, group, state;
   function clone(o) {
     return JSON.parse(JSON.stringify(o));
@@ -192,12 +266,12 @@
       : svg('diamond', (h || 20) - 2) + '<b class="p-eden">' + n + '</b>';
   }
   function rewardText(n) {
-    return M.unit === 'euro' ? n + ' Coins' : n === 1 ? '1 Edenstein' : n + ' Edensteine';
+    return M.unit === 'euro' ? n + ' Coins' : n === 1 ? T('1 Edenstein', '1 Eden stone') : n + T(' Edensteine', ' Eden stones');
   }
 
   // ---------- Aufbau ----------
   var hour = new Date().getHours();
-  var greeting = hour < 11 ? 'Guten Morgen' : hour < 18 ? 'Hallo' : 'Guten Abend';
+  var greeting = hour < 11 ? T('Guten Morgen', 'Good morning') : hour < 18 ? T('Hallo', 'Hi') : T('Guten Abend', 'Good evening');
   var clock = new Date().toTimeString().slice(0, 5);
 
   var screen = $('.p-screen');
@@ -206,7 +280,7 @@
     '<div class="p-scroll">' +
     '  <div class="p-head"><span class="p-wordmark">' + svg('logo', 22) + '</span></div>' +
     '  <div class="p-greet"><h3>' + greeting + ', Mira</h3><p><span class="p-place"></span> · <span class="p-count"></span></p></div>' +
-    '  <div class="p-compose-head"><button type="button" class="p-x" data-close aria-label="Schließen">' + svg('close', 12) + '</button><strong class="p-compose-line"></strong></div>' +
+    '  <div class="p-compose-head"><button type="button" class="p-x" data-close aria-label="' + T('Schließen', 'Close') + '">' + svg('close', 12) + '</button><strong class="p-compose-line"></strong></div>' +
     '  <div class="p-seg" role="tablist" aria-label="Feed">' +
     '    <span class="p-seg-pill" aria-hidden="true"></span>' +
     '    <button role="tab" data-tab="nearby"></button>' +
@@ -214,15 +288,15 @@
     '  </div>' +
     '  <div class="p-content"></div>' +
     '</div>' +
-    '<button class="p-camera" type="button" aria-label="Neu stellen">' + svg('cameraDark', 15) + '</button>' +
-    '<nav class="p-tabbar" aria-label="App-Leiste">' +
+    '<button class="p-camera" type="button" aria-label="' + T('Neu stellen', 'New post') + '">' + svg('cameraDark', 15) + '</button>' +
+    '<nav class="p-tabbar" aria-label="' + T('App-Leiste', 'App bar') + '">' +
     '  <button type="button" data-bar="feed" aria-label="Feed">' + svg('pin', 18) + '</button>' +
-    '  <button type="button" data-bar="pleasure" aria-label="Was Du so machst">' + svg('crown', 22) + '</button>' +
-    '  <button type="button" data-bar="menu" aria-label="Menü">' + svg('burger', 16) + '</button>' +
+    '  <button type="button" data-bar="pleasure" aria-label="' + T('Was Du so machst', 'What you’re up to') + '">' + svg('crown', 22) + '</button>' +
+    '  <button type="button" data-bar="menu" aria-label="' + T('Menü', 'Menu') + '">' + svg('burger', 16) + '</button>' +
     '</nav>' +
     '<div class="p-scrim" hidden></div>' +
     '<section class="p-sheet" role="dialog" aria-modal="true" aria-label="Details" aria-hidden="true" tabindex="-1"></section>' +
-    '<section class="p-create" role="dialog" aria-modal="true" aria-label="Neu stellen" aria-hidden="true" tabindex="-1"></section>' +
+    '<section class="p-create" role="dialog" aria-modal="true" aria-label="' + T('Neu stellen', 'New post') + '" aria-hidden="true" tabindex="-1"></section>' +
     '<div class="p-nudge" aria-live="polite"><span class="p-nudge-cat"></span><p></p></div>' +
     '<div class="p-burst" aria-hidden="true"></div>';
 
@@ -235,7 +309,7 @@
 
   // ---------- Bilder: Foto, wenn vorhanden, sonst Zeichnung ----------
   function image(key) {
-    if (KC.fotos && KC.fotos.indexOf(key) >= 0) return '<img src="prototyp/fotos/' + key + '.jpg" alt="" decoding="async">';
+    if (KC.fotos && KC.fotos.indexOf(key) >= 0) return '<img src="/prototyp/fotos/' + key + '.jpg" alt="" decoding="async">';
     return KC.art[key] || '';
   }
   function avatar(id, size) {
@@ -245,16 +319,16 @@
   function statusChip(id) {
     var s = state.status[id];
     if (!s) return '';
-    var t = { accepted: 'Angenommen', reported: 'Erledigt gemeldet', confirmed: 'Bestätigt' }[s];
+    var t = EN ? { accepted: 'Accepted', reported: 'Reported done', confirmed: 'Confirmed' }[s] : { accepted: 'Angenommen', reported: 'Erledigt gemeldet', confirmed: 'Bestätigt' }[s];
     return '<span class="p-chip p-chip-' + s + '">' + t + '</span>';
   }
 
   // ---------- Feed ----------
   // Wann gepostet, für „Wer hat gepostet“ nach dem ersten Tippen
-  var AGO = ['vor 2 Std.', 'vor 5 Std.', 'gestern', 'vor 3 Tagen'];
+  var AGO = EN ? ['2 hrs ago', '5 hrs ago', 'yesterday', '3 days ago'] : ['vor 2 Std.', 'vor 5 Std.', 'gestern', 'vor 3 Tagen'];
   function ago(c) {
     var i = challenges.indexOf(c);
-    return c.author === 'du' ? 'gerade eben' : AGO[i % AGO.length];
+    return c.author === 'du' ? T('gerade eben', 'just now') : AGO[i % AGO.length];
   }
   // Ein großer, schwebender Edenstein je Karte, Form und Takt je Karte verschieden; nur bei aktiven Aufgaben
   function crystal(c) {
@@ -271,11 +345,11 @@
   function actions(c, liked) {
     return (
       '<div class="p-actions">' +
-      '<button type="button" class="p-like' + (liked ? ' is-on' : '') + '" data-like="' + c.id + '" aria-pressed="' + liked + '" aria-label="Gefällt mir">' +
+      '<button type="button" class="p-like' + (liked ? ' is-on' : '') + '" data-like="' + c.id + '" aria-pressed="' + liked + '" aria-label="' + T('Gefällt mir', 'Like') + '">' +
       '<span class="p-heart">' + svg(liked ? 'heartOn' : 'heart', 17) + '</span><span>' + (c.likes + (liked ? 1 : 0)) + '</span></button>' +
-      '<button type="button" ' + (c.kind === 'me' ? 'data-soon="Kommentare"' : 'data-open="' + c.id + '"') + ' aria-label="Kommentare">' + svg('comment', 17) + '<span>' + c.comments + '</span></button>' +
-      '<button type="button" data-soon="Teilen" aria-label="Teilen">' + svg('send', 17) + '</button>' +
-      (c.author === 'du' ? '<button type="button" class="p-manage" data-soon="Verwalten" aria-label="Verwalten">' + svg('gear', 20) + '</button>' : '') +
+      '<button type="button" ' + (c.kind === 'me' ? 'data-soon="' + T('Kommentare', 'Comments') + '"' : 'data-open="' + c.id + '"') + ' aria-label="' + T('Kommentare', 'Comments') + '">' + svg('comment', 17) + '<span>' + c.comments + '</span></button>' +
+      '<button type="button" data-soon="' + T('Teilen', 'Sharing') + '" aria-label="' + T('Teilen', 'Share') + '">' + svg('send', 17) + '</button>' +
+      (c.author === 'du' ? '<button type="button" class="p-manage" data-soon="' + T('Verwalten', 'Managing posts') + '" aria-label="' + T('Verwalten', 'Manage') + '">' + svg('gear', 20) + '</button>' : '') +
       '</div>'
     );
   }
@@ -287,8 +361,8 @@
     return (
       '<article class="p-post p-post-me' + (isNew ? ' p-new' : '') + '" data-id="' + c.id + '">' +
       '<div class="p-pair" data-focus="none">' +
-      '<button type="button" class="p-half p-before" data-pair="before" aria-label="Vorher-Foto vergrößern">' + image(c.before) + '<span class="p-tag">Vorher</span></button>' +
-      '<button type="button" class="p-half p-after" data-pair="after" aria-label="Nachher-Foto vergrößern">' + image(c.after) + '<span class="p-tag">Nachher</span></button>' +
+      '<button type="button" class="p-half p-before" data-pair="before" aria-label="' + T('Vorher-Foto vergrößern', 'Enlarge before photo') + '">' + image(c.before) + '<span class="p-tag">' + T('Vorher', 'Before') + '</span></button>' +
+      '<button type="button" class="p-half p-after" data-pair="after" aria-label="' + T('Nachher-Foto vergrößern', 'Enlarge after photo') + '">' + image(c.after) + '<span class="p-tag">' + T('Nachher', 'After') + '</span></button>' +
       '<span class="p-took">' + svg('clock', 10) + esc(c.took) + '</span>' +
       '<span class="p-info"><strong>' + esc(c.title) + '</strong><span class="p-meta">' +
       esc(people[c.author].name) + ' · Me-Challenge · ' + ago(c) + '</span></span>' +
@@ -303,7 +377,7 @@
     var liked = !!state.liked[c.id];
     return (
       '<article class="p-post' + (isNew ? ' p-new' : '') + '" data-id="' + c.id + '">' +
-      '<button type="button" class="p-card' + (c.img ? '' : ' p-card-text') + '" data-open="' + c.id + '" aria-label="' + esc(c.title) + ' öffnen">' +
+      '<button type="button" class="p-card' + (c.img ? '' : ' p-card-text') + '" data-open="' + c.id + '" aria-label="' + T(esc(c.title) + ' öffnen', 'Open ' + esc(c.title)) + '">' +
       (c.img ? '<span class="p-img">' + image(c.img) + '</span>' : '') +
       '<span class="p-bounty' + (M.unit === 'euro' ? '' : ' p-bounty-eden') + '">' + bountyOf(c) + '</span>' +
       '<span class="p-who">' + avatar(c.author, 28) + '<span><b>' + esc(people[c.author].name) + '</b><i>' + ago(c) + '</i></span></span>' +
@@ -321,7 +395,7 @@
     var d = state.draft;
     if (d.kind !== 'me' || d.stage === 'vorher') return '';
     return '<div class="p-post"><button type="button" class="p-running" data-me-open><span class="p-thumb">' + image(ME.before) + '</span>' +
-      '<span><strong>Du hast Dich selbst herausgefordert</strong><i>' + esc(d.title) + (d.stage === 'timer' ? ' · Timer läuft' : ' · Nachher fehlt') +
+      '<span><strong>' + T('Du hast Dich selbst herausgefordert', 'You challenged yourself') + '</strong><i>' + esc(d.title) + (d.stage === 'timer' ? T(' · Timer läuft', ' · Timer running') : T(' · Nachher fehlt', ' · After photo missing')) +
       '</i></span></button></div>';
   }
 
@@ -342,11 +416,11 @@
     var earned = M.unit === 'euro' ? state.earned + ',-' : String(state.earned);
     content.innerHTML =
       '<div class="p-pleasure">' +
-      '<div class="p-metrics"><div><b>' + done.length + '</b><span>angenommen</span></div><div><b>' + earned +
-      '</b><span>' + (M.unit === 'euro' ? 'verdient' : 'gesammelt') + '</span></div><div><b>' + mine.length + '</b><span>gestellt</span></div></div>' +
+      '<div class="p-metrics"><div><b>' + done.length + '</b><span>' + T('angenommen', 'accepted') + '</span></div><div><b>' + earned +
+      '</b><span>' + (M.unit === 'euro' ? T('verdient', 'earned') : T('gesammelt', 'collected')) + '</span></div><div><b>' + mine.length + '</b><span>' + T('gestellt', 'posted') + '</span></div></div>' +
       (rows
         ? '<ul class="p-rows">' + rows + '</ul>'
-        : '<p class="p-empty">Nimm eine We-Challenge an. Hier siehst Du, was Du erledigst und ' + (M.unit === 'euro' ? 'verdienst' : 'sammelst') + '.</p>' +
+        : '<p class="p-empty">' + T('Nimm eine We-Challenge an. Hier siehst Du, was Du erledigst und ' + (M.unit === 'euro' ? 'verdienst' : 'sammelst') + '.', 'Accept a We-Challenge. Here you see what you get done and ' + (M.unit === 'euro' ? 'earn' : 'collect') + '.') + '</p>' +
           '<button type="button" class="p-btn p-btn-secondary" data-tab-go="nearby">' + M.place + '</button>') +
       '</div>';
   }
@@ -367,16 +441,16 @@
       '<div class="p-group">' +
       '<div class="p-group-head"><strong>' + group.name + '</strong><span>' + group.sub + '</span></div>' +
       '<div class="p-list">' + running() + challenges.map(function (c) { return card(c, c.id === newId); }).join('') + '</div>' +
-      '<h4 class="p-board-title">Rangliste</h4>' +
+      '<h4 class="p-board-title">' + T('Rangliste', 'Leaderboard') + '</h4>' +
       '<ol class="p-board">' + memberRows() + '</ol>' +
-      '<h4>Schnell erledigt</h4>' +
+      '<h4>' + T('Schnell erledigt', 'Quick tasks') + '</h4>' +
       group.tasks
         .map(function (t) {
           return '<div class="p-task' + (t.done ? ' is-done' : '') + '" data-task="' + t.id + '"><div><strong>' + esc(t.title) + '</strong><span>' +
             avatar(t.by) + people[t.by].short + ' · ' + svg('diamond', 13) + ' ' + t.eden + '</span></div>' +
             (t.done
-              ? '<span class="p-done">' + svg('checkGreen', 12) + ' Erledigt</span>'
-              : '<button type="button" class="p-btn p-btn-small" data-task-do="' + t.id + '">Erledigt</button>') +
+              ? '<span class="p-done">' + svg('checkGreen', 12) + T(' Erledigt', ' Done') + '</span>'
+              : '<button type="button" class="p-btn p-btn-small" data-task-do="' + t.id + '">' + T('Erledigt', 'Done') + '</button>') +
             '</div>';
         })
         .join('') +
@@ -407,7 +481,7 @@
     var kind = state.draft.kind === 'me' ? 'Me-Challenge' : 'We-Challenge';
     $('.p-compose-line').textContent = kind + ' · ' + M.place;
     $$('[data-tab]', seg).forEach(function (b) {
-      b.textContent = b.dataset.tab === 'nearby' ? 'Mein Kiez' : 'Meine Gruppen';
+      b.textContent = b.dataset.tab === 'nearby' ? T('Mein Kiez', 'My neighborhood') : T('Meine Gruppen', 'My groups');
       b.setAttribute('aria-selected', String(b.dataset.tab === segKey()));
     });
     placePill(animate);
@@ -503,14 +577,14 @@
     var s = state.status[c.id];
     var who = people[c.author].short;
     var action;
-    if (c.author === 'du') action = '<button type="button" class="p-btn p-btn-secondary" data-soon="Teilen">We-Challenge teilen</button>';
-    else if (!s) action = '<button type="button" class="p-btn" data-step="accept">' + svg('hands', 20) + 'We-Challenge annehmen</button>';
-    else if (s === 'accepted') action = '<button type="button" class="p-btn" data-step="report">Erledigt melden</button>';
-    else if (s === 'reported') action = '<button type="button" class="p-btn p-btn-wait" disabled>' + who + ' prüft …</button>';
-    else action = '<button type="button" class="p-btn p-btn-ok" disabled>' + svg('check', 12) + ' ' + rewardText(c.reward) + ' von ' + who + '</button>';
+    if (c.author === 'du') action = '<button type="button" class="p-btn p-btn-secondary" data-soon="' + T('Teilen', 'Sharing') + '">' + T('We-Challenge teilen', 'Share We-Challenge') + '</button>';
+    else if (!s) action = '<button type="button" class="p-btn" data-step="accept">' + svg('hands', 20) + T('We-Challenge annehmen', 'Accept We-Challenge') + '</button>';
+    else if (s === 'accepted') action = '<button type="button" class="p-btn" data-step="report">' + T('Erledigt melden', 'Report done') + '</button>';
+    else if (s === 'reported') action = '<button type="button" class="p-btn p-btn-wait" disabled>' + who + T(' prüft …', ' is checking …') + '</button>';
+    else action = '<button type="button" class="p-btn p-btn-ok" disabled>' + svg('check', 12) + ' ' + rewardText(c.reward) + T(' von ', ' from ') + who + '</button>';
     sheet.innerHTML =
       '<div class="p-grab" aria-hidden="true"></div>' +
-      '<button type="button" class="p-close" data-close aria-label="Schließen">' + svg('close', 12) + '</button>' +
+      '<button type="button" class="p-close" data-close aria-label="' + T('Schließen', 'Close') + '">' + svg('close', 12) + '</button>' +
       (c.img ? '<div class="p-hero">' + image(c.img) + '</div>' : '') +
       '<div class="p-sheet-body">' +
       statusChip(c.id) +
@@ -518,9 +592,9 @@
       '<p class="p-author">' + avatar(c.author, 22) + esc(people[c.author].name) + '</p>' +
       (c.text ? '<p class="p-text">' + esc(c.text) + '</p>' : '') +
       '<div class="p-metrics p-metrics-row"><div><b class="p-bounty-big">' + rewardBadge(c.reward, 18) + '</b><span>' +
-      (M.unit === 'euro' ? 'Coins' : 'Edensteine') + '</span></div>' +
-      '<div><b>' + esc(c.left.replace('noch ', '')) + '</b><span>Frist</span></div><div><b>' + esc(c.dist) + '</b><span>' +
-      (M.unit === 'euro' ? 'Weg' : 'Wo') + '</span></div></div>' +
+      (M.unit === 'euro' ? 'Coins' : T('Edensteine', 'Eden stones')) + '</span></div>' +
+      '<div><b>' + esc(c.left.replace('noch ', '').replace(/ left$/, '')) + '</b><span>' + T('Frist', 'Deadline') + '</span></div><div><b>' + esc(c.dist) + '</b><span>' +
+      (M.unit === 'euro' ? T('Weg', 'Distance') : T('Wo', 'Where')) + '</span></div></div>' +
       action +
       '</div>';
   }
@@ -532,11 +606,11 @@
     if (kind === 'accept') {
       state.status[c.id] = 'accepted';
       renderDetail();
-      say(who + ' weiß Bescheid. Melde Dich, wenn es erledigt ist.');
+      say(who + T(' weiß Bescheid. Melde Dich, wenn es erledigt ist.', ' knows. Report back when it’s done.'));
     } else if (kind === 'report') {
       state.status[c.id] = 'reported';
       renderDetail();
-      say('Foto ist dabei. ' + who + ' prüft jetzt.');
+      say(T('Foto ist dabei. ', 'Photo attached. ') + who + T(' prüft jetzt.', ' is checking now.'));
       setTimeout(function () {
         if (state.mode !== mode || state.status[c.id] !== 'reported') return;
         state.status[c.id] = 'confirmed';
@@ -547,7 +621,7 @@
           renderDetail();
           burst($('.p-btn', sheet) || sheet);
         }
-        say(who + ' hat bestätigt. ' + rewardText(c.reward) + (M.unit === 'euro' ? ' gehen an Dich.' : ' für Dich.'), 'high');
+        say(who + T(' hat bestätigt. ', ' confirmed. ') + rewardText(c.reward) + (M.unit === 'euro' ? T(' gehen an Dich.', ' go to you.') : T(' für Dich.', ' for you.')), 'high');
         render();
       }, 1700);
     }
@@ -557,7 +631,7 @@
   // ---------- Neu stellen: Me-Challenge (Vorher, Timer, Nachher) oder We-Challenge ----------
   // Art wählen wie im Erstellen-Blatt der App; nach „Vorher speichern“ steht die Art fest
   function kindSwitch(d) {
-    return '<div class="p-choice p-kind" role="radiogroup" aria-label="Art">' +
+    return '<div class="p-choice p-kind" role="radiogroup" aria-label="' + T('Art', 'Type') + '">' +
       [['me', 'Me-Challenge'], ['we', 'We-Challenge']].map(function (k) {
         return '<button type="button" role="radio" aria-checked="' + (d.kind === k[0]) + '" data-kind="' + k[0] + '">' + k[1] + '</button>';
       }).join('') + '</div>';
@@ -567,7 +641,7 @@
   }
   function photoBox(has, key, tag, label) {
     return '<div class="p-photo' + (has ? ' has-photo' : '') + '">' +
-      '<button type="button" class="p-photo-hit" data-photo aria-label="' + (has ? 'Foto ändern' : 'Foto hinzufügen') + '">' +
+      '<button type="button" class="p-photo-hit" data-photo aria-label="' + (has ? T('Foto ändern', 'Change photo') : T('Foto hinzufügen', 'Add photo')) + '">' +
       (has ? '<span class="p-img">' + image(key) + '</span>' : '<span class="p-photo-empty">' + svg('camera', 22) + '<span>' + label + '</span></span>') +
       '</button>' + (tag && has ? '<span class="p-tag">' + tag + '</span>' : '');
   }
@@ -579,18 +653,18 @@
     create.innerHTML =
       '<div class="p-create-body">' +
       kindSwitch(d) +
-      photoBox(d.photo, M.create.photo, '', 'Foto aufnehmen oder auswählen') +
-      '<div class="p-photo-title"><input type="text" maxlength="60" placeholder="Titel eingeben" aria-label="Titel" value="' + esc(d.title) + '" data-title></div>' +
+      photoBox(d.photo, M.create.photo, '', T('Foto aufnehmen oder auswählen', 'Take or choose a photo')) +
+      '<div class="p-photo-title"><input type="text" maxlength="60" placeholder="' + T('Titel eingeben', 'Enter title') + '" aria-label="' + T('Titel', 'Title') + '" value="' + esc(d.title) + '" data-title></div>' +
       '</div>' +
       sugg(M.create.suggestions) +
-      '<label class="p-field"><span>Beschreibung</span><textarea rows="2" maxlength="500" data-text>' + esc(d.text) + '</textarea></label>' +
-      '<div class="p-field"><span>' + (M.unit === 'euro' ? 'Coins' : 'Edensteine') + '</span><div class="p-choice" role="radiogroup" aria-label="Belohnung">' +
+      '<label class="p-field"><span>' + T('Beschreibung', 'Description') + '</span><textarea rows="2" maxlength="500" data-text>' + esc(d.text) + '</textarea></label>' +
+      '<div class="p-field"><span>' + (M.unit === 'euro' ? 'Coins' : T('Edensteine', 'Eden stones')) + '</span><div class="p-choice" role="radiogroup" aria-label="' + T('Belohnung', 'Reward') + '">' +
       M.create.rewards.map(function (n) { return '<button type="button" role="radio" aria-checked="' + (d.reward === n) + '" data-reward="' + n + '">' + n + unit + '</button>'; }).join('') +
       '</div></div>' +
-      '<div class="p-field"><span>Frist</span><div class="p-choice" role="radiogroup" aria-label="Frist">' +
-      ['Heute', '3 Tage', '1 Woche'].map(function (n) { return '<button type="button" role="radio" aria-checked="' + (d.deadline === n) + '" data-deadline="' + n + '">' + n + '</button>'; }).join('') +
+      '<div class="p-field"><span>' + T('Frist', 'Deadline') + '</span><div class="p-choice" role="radiogroup" aria-label="' + T('Frist', 'Deadline') + '">' +
+      ['Heute', '3 Tage', '1 Woche'].map(function (n) { return '<button type="button" role="radio" aria-checked="' + (d.deadline === n) + '" data-deadline="' + n + '">' + deadlineLabel(n) + '</button>'; }).join('') +
       '</div></div>' +
-      '<button type="button" class="p-btn" data-publish' + (d.title.trim() ? '' : ' disabled') + '>Veröffentlichen</button>' +
+      '<button type="button" class="p-btn" data-publish' + (d.title.trim() ? '' : ' disabled') + '>' + T('Veröffentlichen', 'Publish') + '</button>' +
       '</div>';
     grow($('[data-text]', create));
   }
@@ -630,34 +704,37 @@
     if (d.stage === 'vorher') {
       body =
         kindSwitch(d) +
-        photoBox(d.photo, ME.before, 'Vorher', 'Vorher-Foto aufnehmen') +
-        '<div class="p-photo-title"><input type="text" maxlength="60" placeholder="Titel eingeben" aria-label="Titel" value="' + esc(d.title) + '" data-title></div>' +
+        photoBox(d.photo, ME.before, T('Vorher', 'Before'), T('Vorher-Foto aufnehmen', 'Take before photo')) +
+        '<div class="p-photo-title"><input type="text" maxlength="60" placeholder="' + T('Titel eingeben', 'Enter title') + '" aria-label="' + T('Titel', 'Title') + '" value="' + esc(d.title) + '" data-title></div>' +
         '</div>' +
         sugg(ME.suggestions) +
-        '<label class="p-field"><span>Erklärung zum Vorher</span><textarea rows="2" maxlength="240" data-text>' + esc(d.text) + '</textarea></label>' +
-        '<p class="p-help">Me-Challenges laufen ohne Coins. Du forderst Dich selbst heraus.</p>' +
-        '<button type="button" class="p-btn" data-me-save' + (d.photo && d.title.trim() ? '' : ' disabled') + '>Vorher speichern</button>';
+        '<label class="p-field"><span>' + T('Erklärung zum Vorher', 'About the before') + '</span><textarea rows="2" maxlength="240" data-text>' + esc(d.text) + '</textarea></label>' +
+        '<p class="p-help">' + T('Me-Challenges laufen ohne Coins. Du forderst Dich selbst heraus.', 'Me-Challenges run without coins. You challenge yourself.') + '</p>' +
+        '<button type="button" class="p-btn" data-me-save' + (d.photo && d.title.trim() ? '' : ' disabled') + '>' + T('Vorher speichern', 'Save before') + '</button>';
     } else if (d.stage === 'timer') {
       var r = 2 * Math.PI * 54;
       var m = minutes(d);
       body =
         '<div class="p-mini"><span class="p-thumb">' + image(ME.before) + '</span><span><strong>' + esc(d.title) + '</strong>' +
-        '<i>Vorher gespeichert um ' + clockOf(d.start) + ' Uhr</i></span></div>' +
+        '<i>' + T('Vorher gespeichert um ' + clockOf(d.start) + ' Uhr', 'Before saved at ' + clockOf(d.start)) + '</i></span></div>' +
         '<div class="p-timer"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="54" class="p-timer-track"/>' +
         '<circle cx="60" cy="60" r="54" class="p-timer-bar" data-ring stroke-dasharray="' + r + '" stroke-dashoffset="' + r * (1 - m / MAX_MIN) + '"/></svg>' +
-        '<div><b data-timer>' + took(m) + '</b><span>von 48 h</span></div></div>' +
-        '<p class="p-help">Der Timer läuft auch im Hintergrund. Nach 48 h postet die App den Beitrag, auch ohne Nachher-Foto.</p>' +
-        '<button type="button" class="p-btn" data-me-after>' + svg('cameraDark', 14) + 'Nachher aufnehmen</button>';
+        '<div><b data-timer>' + took(m) + '</b><span>' + T('von 48 h', 'of 48 h') + '</span></div></div>' +
+        '<p class="p-help">' + T('Der Timer läuft auch im Hintergrund. Nach 48 h postet die App den Beitrag, auch ohne Nachher-Foto.', 'The timer keeps running in the background. After 48 h the app posts it, even without an after photo.') + '</p>' +
+        '<button type="button" class="p-btn" data-me-after>' + svg('cameraDark', 14) + T('Nachher aufnehmen', 'Take after photo') + '</button>';
     } else {
       body =
-        photoBox(d.after, ME.after, 'Nachher', 'Nachher-Foto aufnehmen') + '</div>' +
-        '<p class="p-help">So sieht es jetzt aus. Die Überschrift „' + esc(d.title) + '“ gilt für Vorher und Nachher.</p>' +
-        '<label class="p-field"><span>Erklärung zum Nachher</span><textarea rows="2" maxlength="240" data-after-text>' + esc(d.afterText) + '</textarea></label>' +
-        '<button type="button" class="p-btn" data-me-post' + (d.after ? '' : ' disabled') + '>Me-Challenge posten</button>';
+        photoBox(d.after, ME.after, T('Nachher', 'After'), T('Nachher-Foto aufnehmen', 'Take after photo')) + '</div>' +
+        '<p class="p-help">' + T('So sieht es jetzt aus. Die Überschrift „' + esc(d.title) + '“ gilt für Vorher und Nachher.', 'This is how it looks now. The title “' + esc(d.title) + '” applies to before and after.') + '</p>' +
+        '<label class="p-field"><span>' + T('Erklärung zum Nachher', 'About the after') + '</span><textarea rows="2" maxlength="240" data-after-text>' + esc(d.afterText) + '</textarea></label>' +
+        '<button type="button" class="p-btn" data-me-post' + (d.after ? '' : ' disabled') + '>' + T('Me-Challenge posten', 'Post Me-Challenge') + '</button>';
     }
     create.innerHTML = '<div class="p-create-body p-me-' + d.stage + '">' + body + '</div>';
     grow($('textarea', create));
     if (d.stage === 'timer' && !timerIv) timerIv = setInterval(tickTimer, 100);
+  }
+  function deadlineLabel(n) {
+    return EN ? { Heute: 'Today', '3 Tage': '3 days', '1 Woche': '1 week' }[n] : n;
   }
   function clockOf(t) {
     return new Date(t).toTimeString().slice(0, 5);
@@ -671,7 +748,7 @@
     create.scrollTop = 0;
     renderMe();
     syncScenario();
-    say('Vorher ist gespeichert. Leg los!');
+    say(T('Vorher ist gespeichert. Leg los!', 'Before is saved. Get going!'));
   }
   function meAfter() {
     var d = state.draft;
@@ -790,8 +867,8 @@
       text: d.text.trim(),
       author: 'du',
       reward: d.reward,
-      dist: M.unit === 'euro' ? 'hier' : 'im Haus',
-      left: d.deadline === 'Heute' ? 'heute' : 'noch ' + d.deadline,
+      dist: M.unit === 'euro' ? T('hier', 'here') : T('im Haus', 'in the building'),
+      left: d.deadline === 'Heute' ? T('heute', 'today') : T('noch ' + d.deadline, deadlineLabel(d.deadline) + ' left'),
       img: d.photo ? M.create.photo : null,
       comments: 0,
       likes: 0,
@@ -912,10 +989,10 @@
     var rankAfter = group.members.slice().sort(function (a, b) { return b.score - a.score; });
     var posBefore = rankBefore.indexOf(me);
     var posAfter = rankAfter.indexOf(me);
-    var text = rewardText(t.eden) + ' für Dich.';
+    var text = rewardText(t.eden) + T(' für Dich.', ' for you.');
     var mood = 'default';
-    if (posAfter === 0 && posBefore !== 0) { text = rewardText(t.eden) + '. Du führst!'; mood = 'high'; }
-    else if (posAfter < posBefore) { text = rewardText(t.eden) + '. Du überholst ' + people[rankBefore[posAfter].id].short + '.'; mood = 'high'; }
+    if (posAfter === 0 && posBefore !== 0) { text = rewardText(t.eden) + T('. Du führst!', '. You’re in the lead!'); mood = 'high'; }
+    else if (posAfter < posBefore) { text = rewardText(t.eden) + T('. Du überholst ', '. You overtake ') + people[rankBefore[posAfter].id].short + '.'; mood = 'high'; }
     say(text, mood);
   }
 
@@ -932,7 +1009,7 @@
     }
     if (d.tabGo) return setTab(d.tabGo);
     if (d.bar) {
-      if (d.bar === 'menu') return say('Konto und Einstellungen gibt es in der App.');
+      if (d.bar === 'menu') return say(T('Konto und Einstellungen gibt es in der App.', 'Account and settings are in the app.'));
       closeAll();
       return setTab(d.bar === 'pleasure' ? 'pleasure' : 'nearby');
     }
@@ -965,7 +1042,7 @@
     if ('meSave' in d) return meSave();
     if ('meAfter' in d) return meAfter();
     if ('mePost' in d) return mePost();
-    if (d.soon) return say(d.soon + ' gibt es in der App.');
+    if (d.soon) return say(T(d.soon + ' gibt es in der App.', d.soon + ' is in the app.'));
     if ('close' in d) return closeAll(true);
     if (d.step) return step(d.step);
     if (t.classList.contains('p-camera')) return openCreate();
@@ -1113,7 +1190,7 @@
     // Me-Challenge: im Kiez und in der Gruppe gleich. Der Ring zeigt auf die Kamera, Posten startet erst dort (Daria, 26.10.2026)
     if (name === 'me') {
       syncScenario();
-      if (!$('[data-me-open]')) say('Tipp auf die Kamera und poste Deine Me-Challenge.');
+      if (!$('[data-me-open]')) say(T('Tipp auf die Kamera und poste Deine Me-Challenge.', 'Tap the camera and post your Me-Challenge.'));
       return;
     }
     if (name === 'we') {
@@ -1154,7 +1231,7 @@
       screen.offsetWidth;
       screen.classList.add('p-flip');
     }
-    say(mode === 'gruppe' ? 'Du bist jetzt im Hof Kastanienallee.' : 'Du bist jetzt in Connewitz unterwegs.');
+    say(mode === 'gruppe' ? T('Du bist jetzt im Hof Kastanienallee.', 'You’re now in Hof Kastanienallee.') : T('Du bist jetzt in Connewitz unterwegs.', 'You’re now out and about in Connewitz.'));
   }
   if (picker) {
     picker.addEventListener('pointerover', function (e) {
