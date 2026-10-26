@@ -37,7 +37,7 @@ type TabBarProps = {
 };
 
 /**
- * Schwebende Tab-Leiste (Upgrade „Nachtschicht“): Stecknadel = Feed, Krone = Was Du so machst,
+ * Schwebende Tab-Leiste (Upgrade „Nachtschicht“): Doppelherz = Feed (Daria, 26.10.2026), Krone = Was Du so machst,
  * Burger = Menü (Konto). Die aktive Seite liegt auf einer dezenten, halbtransparenten Pille.
  * Challenge erstellen sitzt als CameraButton oben rechts.
  */
@@ -122,7 +122,7 @@ function KiezTabBar({ active, onFeedPress, onReisePress, onReiseLongPress, onMen
           onPress={onFeedPress}
           style={({ pressed }) => [styles.item, active === 'feed' && styles.itemActive, pressed && styles.pressed]}
         >
-          <Icon name="map-pin" size={size.icon} color={active === 'feed' ? color.text.primary : color.text.secondary} />
+          <Icon name="feed" size={size.icon} color={active === 'feed' ? color.text.primary : color.text.secondary} />
         </Pressable>
         <Pressable
           accessibilityRole="tab"
