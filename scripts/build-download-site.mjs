@@ -393,7 +393,7 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(L === 'en' 
   var freunde = ['Lena', 'Peter', 'Mo'];
   var chat = [
     ['${t('Kommst Du Samstag mit in den Garten?', 'Coming to the garden on Saturday?')}', '${t('Klar! Ich bring Kaffee mit.', 'Sure! I’ll bring coffee.')}'],
-    ['${t('Hast Du den Igel gesehen?', 'Have you seen the hedgehog?')}', '${t('Ja, er wohnt jetzt unterm Laub.', 'Yes, it lives under the leaves now.')}'],
+    ['${t('Hast Du den Igel gesehen?', 'Have you seen the hedgehog?')}', '${t('OMG, ja, wie süß!', 'OMG, yes, so cute!')}'],
     ['${t('Danke fürs Gießen!', 'Thanks for watering!')}', '${t('Gern, die Kanne steht wieder unter der Treppe.', 'Sure, the can is back under the stairs.')}'],
   ];
   function blase(buehne, text, mein) {
