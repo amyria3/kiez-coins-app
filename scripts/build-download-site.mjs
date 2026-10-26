@@ -329,7 +329,7 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(L === 'en' 
       <a href="${P}datenschutz.html">${t('Datenschutz', 'Privacy')}</a>
       <a href="${P}nutzungsbedingungen.html">${t('Nutzungsbedingungen', 'Terms of use')}</a>
       <a href="${P}community-regeln.html">${t('Community-Regeln', 'Community rules')}</a>
-      <a href="https://waldentdeckenberlin.org/voll-der-mist/" rel="noopener">${t('Bildquelle Müll im Wald: Wald entdecken Berlin', 'Photo credit, litter in the forest: Wald entdecken Berlin')}</a>
+      <a href="https://waldentdeckenberlin.org/voll-der-mist/" rel="noopener">${t('Bildquellen', 'Photo credits')}</a>
     </footer>
   </div>
 </section>
