@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { collectKeys } from './text-keys.mjs';
 
 const root = new URL('..', import.meta.url).pathname;
-const langs = ['en', 'fr', 'uk', 'ar', 'he'];
+const langs = ['en', 'fr', 'uk', 'ru', 'ar', 'he'];
 const keys = await collectKeys();
 
 const args = process.argv.slice(2);

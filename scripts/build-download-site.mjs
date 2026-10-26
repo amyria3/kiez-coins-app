@@ -139,9 +139,47 @@ const datenJs = `window.KC = ${JSON.stringify({ svg: kcSvg, art: kartenbilder, f
 const appJs = readFileSync(join(siteDir, 'prototyp.js'), 'utf8');
 const seiteCss = readFileSync(join(siteDir, 'seite.css'), 'utf8');
 
+// ---------- Sprachen der Startseite (Daria, 26.10.2026) ----------
+// Deutsch unter /, alle anderen unter /<code>/. Im Code steht je Text Deutsch und Englisch: t('Deutsch', 'English').
+// Die übrigen Sprachen liegen in scripts/site/sprachen/<code>.json, Schlüssel ist der deutsche Text.
+// Fehlt dort ein Text (etwa weil er gerade neu ist), zeigt die Seite die englische Fassung.
+// Reihenfolge im Menü nach Alter der Sprache, die älteste zuerst (Daria, 26.10.2026)
+const sprachen = [
+  { code: 'he', name: 'עברית', rtl: true },
+  { code: 'ar', name: 'العربية', rtl: true },
+  { code: 'en', name: 'English' },
+  { code: 'de', name: 'Deutsch' },
+  { code: 'fr', name: 'Français' },
+  { code: 'uk', name: 'Українська' },
+  { code: 'ru', name: 'Русский' },
+];
+const sprachDir = join(root, 'scripts/site/sprachen');
+const normText = (s) => s.replace(/\s+/g, ' ').trim();
+const woerter = Object.fromEntries(
+  sprachen
+    .filter((l) => existsSync(join(sprachDir, `${l.code}.json`)))
+    .map((l) => {
+      const dict = JSON.parse(readFileSync(join(sprachDir, `${l.code}.json`), 'utf8'));
+      // Gerades Apostroph würde die JS-Strings auf der Seite beenden, daher typografisch
+      return [l.code, Object.fromEntries(Object.entries(dict).map(([k, v]) => [normText(k), v.replace(/'/g, '’')]))];
+    }),
+);
+const fehlend = new Map();
+const uebersetzer = (L) => (de, en) => {
+  if (L === 'de') return de;
+  if (L === 'en') return en;
+  const v = woerter[L]?.[normText(de)];
+  if (v == null) {
+    if (!fehlend.has(L)) fehlend.set(L, new Set());
+    fehlend.get(L).add(de);
+  }
+  return v ?? en;
+};
+const pfad = (L) => (L === 'de' ? '/' : `/${L}/`);
+
 const ios = (L) => {
-  const t = (de, en) => (L === 'en' ? en : de);
-  const P = L === 'en' ? '/' : '';
+  const t = uebersetzer(L);
+  const P = L === 'de' ? '' : '/';
   return config.testflightUrl
   ? `<div class="card" id="iphone">
   <h3>iPhone</h3>
@@ -161,9 +199,14 @@ const ios = (L) => {
   <p class="klein">${t('Kamera, Fotos und Standort fragt Safari beim ersten Mal ab. Push-Benachrichtigungen gibt es in der Web-App nicht. Updates kommen automatisch beim nächsten Start.', 'Safari asks for camera, photos and location the first time. The web app has no push notifications. Updates arrive automatically on the next start.')}</p>
 </div>`;
 };
-// Sprachauswahl oben rechts: Deutsch unter /, Englisch unter /en/ (Daria, 26.10.2026)
-const sprachwahl = (L) =>
-  `<span class="sprachwahl" role="group" aria-label="${L === 'en' ? 'Language' : 'Sprache'}"><a href="/" hreflang="de" lang="de"${L === 'de' ? ' aria-current="true"' : ''}>DE</a><a href="/en/" hreflang="en" lang="en"${L === 'en' ? ' aria-current="true"' : ''}>EN</a></span>`;
+// Sprachauswahl oben rechts: kleines Menü mit Kürzel, darin die Sprachen in ihrer eigenen Schrift.
+// <details> klappt auch ohne JavaScript auf.
+const sprachwahl = (L) => {
+  const t = uebersetzer(L);
+  return `<details class="sprachwahl"><summary aria-label="${t('Sprache', 'Language')}: ${sprachen.find((l) => l.code === L).name}">${L.toUpperCase()}</summary><ul>${sprachen
+    .map((l) => `<li><a href="${pfad(l.code)}" hreflang="${l.code}" lang="${l.code}"${l.rtl ? ' dir="rtl"' : ''}${l.code === L ? ' aria-current="true"' : ''}>${l.name}</a></li>`)
+    .join('')}</ul></details>`;
+};
 
 // ---------- Spendenaktion der Testphase (Daria, 2026-10-23) ----------
 // Als Testperson zählt, wer die Umfrage in der App abgeschickt hat (Funktion `tester_count`, Migration 20261023000200).
@@ -206,10 +249,11 @@ const leute = [
 ];
 
 const startseite = (L) => {
-  const t = (de, en) => (L === 'en' ? en : de);
-  const P = L === 'en' ? '/' : '';
+  const t = uebersetzer(L);
+  const P = L === 'de' ? '' : '/';
+  const rtl = sprachen.find((l) => l.code === L).rtl;
   return `<!doctype html>
-<html lang="${L}">
+<html lang="${L}"${rtl ? ' dir="rtl"' : ''}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -218,8 +262,7 @@ const startseite = (L) => {
 <title>Kiez Coins – ${t('Kleine Challenges für mehr echte Gemeinschaft', 'Small challenges for more real community')}</title>
 <meta name="description" content="${t('Kennst Du das? Irgendwas muss erledigt werden, doch wer in Gottes Namen soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez. Zusammen sind wir stärker, gesünder, glücklicher, wohlhabender und bekommen sogar mehr gebacken!', 'Sound familiar? Something needs doing, but who on earth is going to do it? KiezCoins gives you an interface to share work better – at home or in your neighborhood. Together we’re stronger, healthier, happier, wealthier and we even get more done!')}">
 <link rel="icon" href="${P}favicon.png">
-<link rel="alternate" hreflang="de" href="/">
-<link rel="alternate" hreflang="en" href="/en/">
+${sprachen.map((l) => `<link rel="alternate" hreflang="${l.code}" href="${pfad(l.code)}">`).join('\n')}
 <link rel="preload" href="${P}fonts/InterTight_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="stylesheet" href="${P}seite.css?v=${version(seiteCss)}">
 <script>document.documentElement.classList.add('js')</script>
@@ -228,7 +271,7 @@ const startseite = (L) => {
 ${filterDefs}
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="${L === 'en' ? '/en/' : './'}" aria-label="${t('Kiez Coins, Startseite', 'Kiez Coins, home')}">${sized(kcSvg.logo, 28)}</a>
+  <a class="brand" href="${L === 'de' ? './' : pfad(L)}" aria-label="${t('Kiez Coins, Startseite', 'Kiez Coins, home')}">${sized(kcSvg.logo, 28)}</a>
   <nav class="top-links"><a class="top-link" href="/spenden"><span class="lang">${t('Spendenaktion', 'Fundraiser')}</span><span class="kurz">${t('Spenden', 'Donate')}</span></a><a class="top-link" href="#download"><span class="lang">${t('Testversion laden', 'Get the beta')}</span><span class="kurz">${t('Testen', 'Try it')}</span></a>${sprachwahl(L)}</nav>
 </header>
 
@@ -296,7 +339,7 @@ ${filterDefs}
     <h2 id="leute-titel">${t('Kiez Coins passt zwischen Briefkasten und Fahrradkeller.', 'Kiez Coins fits between the mailbox and the bike cellar.')}</h2>
     <p>${t('Aufgaben, die sonst liegen bleiben, erledigt jemand safe - als wäre es ein Spiel', 'Tasks that would otherwise pile up get done for sure – as if it were a game')}</p>
     <div class="szene">
-${leute.map((l) => `      <div class="person"><p class="blase">${esc(L === 'en' ? l.en : l.text)}</p>${l.figur}</div>`).join('\n')}
+${leute.map((l) => `      <div class="person"><p class="blase">${esc(t(l.text, l.en))}</p>${l.figur}</div>`).join('\n')}
     </div>
   </div>
 </section>
@@ -350,8 +393,13 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(L === 'en' 
 </div>
 
 <script src="${P}prototyp/daten.js?v=${version(datenJs)}"></script>
+${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g, '\\u003c')};</script>` : ''}
 <script src="${P}prototyp/app.js?v=${version(appJs)}"></script>
 <script>
+  // Sprachmenü schließt beim Tipp daneben und mit Escape
+  var sprache = document.querySelector('.sprachwahl');
+  document.addEventListener('click', function (e) { if (sprache.open && !sprache.contains(e.target)) sprache.open = false; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sprache.open) { sprache.open = false; sprache.querySelector('summary').focus(); } });
   // Fehler vom Download zeigen
   var f = new URLSearchParams(location.search).get('fehler');
   var t = { passwort: '${t('Der Einladungscode stimmt nicht.', 'The invitation code is not correct.')}', datei: '${t('Die App-Datei fehlt gerade. Versuche es später noch mal.', 'The app file is missing right now. Please try again later.')}', technik: '${t('Der Download ist gerade nicht eingerichtet.', 'The download is not set up right now.')}' }[f];
@@ -420,12 +468,12 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(L === 'en' 
       flug.innerHTML = buehne.querySelector('.mehr-herz svg').outerHTML;
       buehne.appendChild(flug);
       setTimeout(function () { flug.remove(); }, 1200);
-      status.textContent = n === 1 ? '${t('Gepostet! Die ersten Herzen kommen.', 'Posted! The first hearts are coming in.')}' : herz.textContent + '${t(' Herzen für Dein Waldbild.', ' hearts for your forest photo.')}';
+      status.textContent = n === 1 ? '${t('Gepostet! Die ersten Herzen kommen.', 'Posted! The first hearts are coming in.')}' : '${t('{n} Herzen für Dein Waldbild.', '{n} hearts for your forest photo.')}'.replace('{n}', herz.textContent);
     } else if (art === 'freunde') {
       var av = buehne.querySelectorAll('.mehr-avatar');
       if (n > av.length) { mehr.freunde = 0; av.forEach(function (a) { a.classList.remove('is-freund'); }); status.textContent = '${t('Tipp und füg Lena hinzu.', 'Tap to add Lena.')}'; return; }
       av[n - 1].classList.add('is-freund');
-      status.textContent = n < av.length ? freunde[n - 1] + '${t(' ist jetzt dabei. Tipp für ', ' is in. Tap for ')}' + freunde[n] + '.' : '${t('Drei Freunde. Tipp, um neu zu starten.', 'Three friends. Tap to start over.')}';
+      status.textContent = n < av.length ? '${t('{a} ist jetzt dabei. Tipp für {b}.', '{a} is in. Tap for {b}.')}'.replace('{a}', freunde[n - 1]).replace('{b}', freunde[n]) : '${t('Drei Freunde. Tipp, um neu zu starten.', 'Three friends. Tap to start over.')}';
     } else {
       var paar = chat[(n - 1) % chat.length];
       blase(buehne, paar[0], true);
@@ -696,8 +744,11 @@ const legal = (id) => {
 
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, 'index.html'), startseite('de'));
-mkdirSync(join(out, 'en'), { recursive: true });
-writeFileSync(join(out, 'en', 'index.html'), startseite('en'));
+for (const { code } of sprachen.filter((l) => l.code !== 'de')) {
+  mkdirSync(join(out, code), { recursive: true });
+  writeFileSync(join(out, code, 'index.html'), startseite(code));
+}
+for (const [L, texte] of fehlend) console.warn(`Startseite ${L}: ${texte.size} Texte ohne Übersetzung, dort steht Englisch (scripts/site/sprachen/${L}.json)`);
 writeFileSync(join(out, 'einladung.html'), einladung);
 writeFileSync(join(out, 'spenden.html'), spendenSeite);
 if (katerSvg) writeFileSync(join(out, 'kater.html'), katerSeite);
