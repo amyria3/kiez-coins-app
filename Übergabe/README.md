@@ -30,6 +30,10 @@ Dazu kommen Notizen von Sitzungen ohne Zugriff auf Documentation: Erledigtes und
 
 Diese `README.md` bleibt immer liegen.
 
+## Die To-do-Liste liegt in `TODO.md`
+
+`TODO.md` in diesem Ordner ist die einzige To-do-Liste für KiezKoins und bleibt immer liegen. Neue To-dos von Daria kommen dort hinein, mit Datum als Abschnitt. Erledigtes wird dort abgehakt. Braucht ein Punkt mehr Kontext, bekommt er zusätzlich eine eigene `_offen_`-Notiz.
+
 ## Offene Aufgaben in diesem Ordner
 
 - `2026-10-23_offen_texte-druck-nummern.json`: ordnet jeder Nummer im Ausdruck („S-022“) den Text im Code zu. Bleibt liegen, bis Darias Papierkorrekturen eingetragen sind, dann löschen. Nicht nach Documentation übernehmen.
