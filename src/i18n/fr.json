@@ -348,7 +348,6 @@
   "Gib Eurer Gruppe einen Namen.": "Donne un nom à votre groupe.",
   "Name der Gruppe": "Nom du groupe",
   "Zum Beispiel „WG Kastanienallee“ oder „Familie Brandt“. Max. 40 Zeichen.": "Par exemple « Coloc Kastanienallee » ou « Famille Brandt ». 40 caractères max.",
-  "Nach dem Gründen bekommst Du einen Code mit 6 Zeichen. Den teilst Du mit bis zu {anzahl} Leuten. Einen Kiez braucht es dafür nicht.": "Après la création, tu reçois un code de 6 caractères. Partage-le avec jusqu’à {anzahl} personnes. Pas besoin de quartier pour ça.",
   "Ohne Titel": "Sans titre",
   "Entwurf löschen?": "Supprimer le brouillon ?",
   "Das lässt sich nicht rückgängig machen.": "C’est irréversible.",
@@ -1086,5 +1085,6 @@
   "Deine Edensteine": "Tes pierres d’Éden",
   "Dein Platz: {rank} von {total}": "Ta place : {rank} sur {total}",
   "Was Du hier postest, sehen alle Nutzer:innen in Deinem Kiez.": "Tout le monde dans ton quartier voit ce que tu publies ici.",
-  "Was Du hier postest, sehen nur die Mitglieder in dieser Gruppe.": "Seuls les membres de ce groupe voient ce que tu publies ici."
+  "Was Du hier postest, sehen nur die Mitglieder in dieser Gruppe.": "Seuls les membres de ce groupe voient ce que tu publies ici.",
+  "Die App erstellt für Dich einen Code und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "L’app crée pour toi un code et un lien d’invitation. Ainsi, {anzahl} autres personnes peuvent rejoindre ton groupe."
 }

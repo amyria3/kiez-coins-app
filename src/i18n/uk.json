@@ -348,7 +348,6 @@
   "Gib Eurer Gruppe einen Namen.": "Дай вашій групі назву.",
   "Name der Gruppe": "Назва групи",
   "Zum Beispiel „WG Kastanienallee“ oder „Familie Brandt“. Max. 40 Zeichen.": "Наприклад, «Квартира на Каштановій» або «Родина Брандт». Макс. 40 символів.",
-  "Nach dem Gründen bekommst Du einen Code mit 6 Zeichen. Den teilst Du mit bis zu {anzahl} Leuten. Einen Kiez braucht es dafür nicht.": "Після заснування ти отримаєш код із 6 символів. Поділися ним із не більш ніж {anzahl} людьми. Район для цього не потрібен.",
   "Ohne Titel": "Без назви",
   "Entwurf löschen?": "Видалити чернетку?",
   "Das lässt sich nicht rückgängig machen.": "Це не можна скасувати.",
@@ -1086,5 +1085,6 @@
   "Deine Edensteine": "Твої камені Едему",
   "Dein Platz: {rank} von {total}": "Твоє місце: {rank} з {total}",
   "Was Du hier postest, sehen alle Nutzer:innen in Deinem Kiez.": "Те, що ти публікуєш тут, бачать усі у твоєму районі.",
-  "Was Du hier postest, sehen nur die Mitglieder in dieser Gruppe.": "Те, що ти публікуєш тут, бачать лише учасники цієї групи."
+  "Was Du hier postest, sehen nur die Mitglieder in dieser Gruppe.": "Те, що ти публікуєш тут, бачать лише учасники цієї групи.",
+  "Die App erstellt für Dich einen Code und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "Застосунок створить для тебе код і посилання-запрошення. Так ще {anzahl} людей зможуть приєднатися до твоєї групи."
 }
