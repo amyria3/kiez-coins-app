@@ -1131,7 +1131,6 @@
   "{mode} verbergen": "Сховати {mode}",
   "{mode} zeigen": "Показати {mode}",
   "Posten": "Опублікувати",
-  "Was hast Du Dir vorgenommen?": "Що ти плануєш зробити?",
   "Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.": "Покажи, як ти щось лагодиш, переробляєш, прикрашаєш або вправляєшся в новій корисній звичці. Спершу сфотографуй, як усе виглядає «до».",
   "Deine Nachbar:innen sehen den Post und nehmen die We-Challenge an.": "Твої сусіди бачать допис і беруться за We-Challenge.",
   "Erklärung": "Пояснення",
@@ -1143,5 +1142,7 @@
   "mit Edensteinen": "з Каменями Едему",
   "Was ist hier zu tun?": "Що тут треба зробити?",
   "Was hast Du gemacht?": "Що ти зробив(-ла)?",
-  "{label}, beginnt mit {tag}": "{label}, починається з {tag}"
+  "{label}, beginnt mit {tag}": "{label}, починається з {tag}",
+  "Dein Text": "Твій текст",
+  "Was ist die Aufgabe oder die Ausgangslage? Erkläre, worin die Me-Challenge besteht.": "Яке завдання чи вихідна ситуація? Поясни, у чому полягає Me-Challenge."
 }

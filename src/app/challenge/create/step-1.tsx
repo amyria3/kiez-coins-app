@@ -105,7 +105,7 @@ export default function CreateStep1() {
       ) : null}
       {/* We-Challenge: Die Beschreibung ist das Vorher (Daria, 27.10.2026). Bild: #InDiesemMoment */}
       <TagTextField
-        label="Beschreibung"
+        label={isChallenge ? 'Beschreibung' : 'Dein Text'}
         tag={isChallenge ? '#vorher' : PHOTO_TAG}
         placeholder={isChallenge ? 'Was ist hier zu tun?' : undefined}
         value={draft.text}

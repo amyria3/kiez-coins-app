@@ -1131,7 +1131,6 @@
   "{mode} verbergen": "Masquer {mode}",
   "{mode} zeigen": "Afficher {mode}",
   "Posten": "Publier",
-  "Was hast Du Dir vorgenommen?": "Qu’est-ce que tu as prévu de faire ?",
   "Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.": "Montre comment tu répares, transformes ou embellis quelque chose, ou comment tu prends une nouvelle habitude utile. Commence par une photo de l’état « avant ».",
   "Deine Nachbar:innen sehen den Post und nehmen die We-Challenge an.": "Tes voisin·es voient la publication et relèvent le We-Challenge.",
   "Erklärung": "Explication",
@@ -1143,5 +1142,7 @@
   "mit Edensteinen": "avec pierres d’Éden",
   "Was ist hier zu tun?": "Qu’y a-t-il à faire ici ?",
   "Was hast Du gemacht?": "Qu’as-tu fait ?",
-  "{label}, beginnt mit {tag}": "{label}, commence par {tag}"
+  "{label}, beginnt mit {tag}": "{label}, commence par {tag}",
+  "Dein Text": "Ton texte",
+  "Was ist die Aufgabe oder die Ausgangslage? Erkläre, worin die Me-Challenge besteht.": "Quelle est la tâche ou la situation de départ ? Explique en quoi consiste ton Me-Challenge."
 }

@@ -1116,7 +1116,6 @@
   "{mode} verbergen": "Скрыть {mode}",
   "{mode} zeigen": "Показать {mode}",
   "Posten": "Опубликовать",
-  "Was hast Du Dir vorgenommen?": "Что ты планируешь сделать?",
   "Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.": "Покажи, как ты что-то чинишь, переделываешь, украшаешь или осваиваешь новую полезную привычку. Сначала сфотографируй, как всё выглядит «до».",
   "Deine Nachbar:innen sehen den Post und nehmen die We-Challenge an.": "Твои соседи видят пост и берутся за We-Challenge.",
   "Erklärung": "Пояснение",
@@ -1128,5 +1127,7 @@
   "mit Edensteinen": "с Камнями Эдема",
   "Was ist hier zu tun?": "Что здесь нужно сделать?",
   "Was hast Du gemacht?": "Что ты сделал(а)?",
-  "{label}, beginnt mit {tag}": "{label}, начинается с {tag}"
+  "{label}, beginnt mit {tag}": "{label}, начинается с {tag}",
+  "Dein Text": "Твой текст",
+  "Was ist die Aufgabe oder die Ausgangslage? Erkläre, worin die Me-Challenge besteht.": "Какая задача или исходная ситуация? Объясни, в чём состоит Me-Challenge."
 }

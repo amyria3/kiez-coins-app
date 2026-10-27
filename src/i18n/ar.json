@@ -1131,7 +1131,6 @@
   "{mode} verbergen": "إخفاء {mode}",
   "{mode} zeigen": "إظهار {mode}",
   "Posten": "نشر",
-  "Was hast Du Dir vorgenommen?": "ماذا تنوي أن تفعل؟",
   "Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.": "وثّق كيف تصلح شيئًا أو تعيد بناءه أو تجمّله، أو تتدرّب على عادة جديدة مفيدة. التقط أولًا صورة للحال «قبل».",
   "Deine Nachbar:innen sehen den Post und nehmen die We-Challenge an.": "يرى جيرانك المنشور ويقبلون الـ We-Challenge.",
   "Erklärung": "شرح",
@@ -1143,5 +1142,7 @@
   "mit Edensteinen": "مع أحجار عدن",
   "Was ist hier zu tun?": "ما الذي يلزم فعله هنا؟",
   "Was hast Du gemacht?": "ماذا فعلت؟",
-  "{label}, beginnt mit {tag}": "{label}، يبدأ بـ {tag}"
+  "{label}, beginnt mit {tag}": "{label}، يبدأ بـ {tag}",
+  "Dein Text": "نصّك",
+  "Was ist die Aufgabe oder die Ausgangslage? Erkläre, worin die Me-Challenge besteht.": "ما المهمة أو الوضع الحالي؟ اشرح ما هو الـ Me-Challenge."
 }

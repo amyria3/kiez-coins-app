@@ -194,7 +194,7 @@ export default function EditChallenge() {
       {challenge.type === 'individual' ? (
         <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={body} onChangeText={setBody} maxLength={500} />
       ) : challenge.type === 'photo' ? (
-        <TagTextField label="Beschreibung" tag={PHOTO_TAG} value={body} onChangeText={setBody} maxLength={500} />
+        <TagTextField label="Dein Text" tag={PHOTO_TAG} value={body} onChangeText={setBody} maxLength={500} />
       ) : (
         <TextField label="Beschreibung" value={body} onChangeText={setBody} maxLength={500} multiline />
       )}
