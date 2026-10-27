@@ -37,7 +37,14 @@ export default function BeforeAfterScreen() {
   const { beforeAfter, dispatch } = useStore();
   const running = !!challenge?.timerStartedAt;
   const [stage, setStage] = useState<'timer' | 'after'>(schritt === 'nachher' ? 'after' : 'timer');
-  const [busy, setBusy] = useState<'start' | 'post' | 'save' | null>(null);
+  const [busy, setBusy] = useState<'start' | 'stop' | 'post' | 'save' | null>(null);
+  // „Timer starten“ liegt an der Stelle von „Vorher speichern“. Ein zweiter Tipp darauf startete den Timer
+  // aus Versehen (Daria, 26.10.2026). Daher nimmt der Knopf erst nach einer Sekunde Tipps an.
+  const [armed, setArmed] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setArmed(true), 1000);
+    return () => clearTimeout(timer);
+  }, []);
   const now = useNow(1000, stage === 'timer' || running);
 
   // Nachher: Foto, Überschrift und Text. Startwerte aus dem Entwurf.
@@ -73,11 +80,29 @@ export default function BeforeAfterScreen() {
 
   const fail = (title: string) => (error: unknown) => Alert.alert(title, (error as Error).message);
 
+  // Schließen blockiert nichts: Der Entwurf bleibt, ein laufender Timer steht oben im Feed (Daria, 26.10.2026).
+  const close = () => router.dismissTo('/feed');
+
   const start = async () => {
+    if (!armed) return;
     setBusy('start');
     await beforeAfter.startTimer(challenge.id).catch(fail('Timer nicht gestartet'));
     setBusy(null);
   };
+
+  // Zu früh oder aus Versehen gestartet: wieder ein Entwurf, der nicht als gestartet gilt
+  const stop = () =>
+    Alert.alert('Timer stoppen?', 'Die Me-Challenge bleibt als Entwurf. Den Timer startest Du später neu.', [
+      { text: 'Abbrechen', style: 'cancel' },
+      {
+        text: 'Stoppen',
+        onPress: async () => {
+          setBusy('stop');
+          await beforeAfter.stopTimer(challenge.id).catch(fail('Timer nicht gestoppt'));
+          setBusy(null);
+        },
+      },
+    ]);
 
   const remove = () =>
     Alert.alert('Entwurf löschen?', 'Vorher-Foto, Texte und Timer sind dann weg.', [
@@ -193,17 +218,24 @@ export default function BeforeAfterScreen() {
       title="Me-Challenge"
       subtitle="Schritt 2 von 3 · Timer"
       navigation="close"
-      onLeadingPress={() => router.dismissTo('/feed')}
+      onLeadingPress={close}
       actions={
         running ? (
           <>
-            <Button icon="camera" label="Nachher aufnehmen" onPress={() => setStage('after')} />
-            <Button label="Entwurf löschen" variant="ghost" onPress={remove} />
+            <Button icon="camera" label="Nachher aufnehmen" onPress={() => setStage('after')} disabled={!!busy} />
+            <Button
+              busy={busy === 'stop'}
+              label={busy === 'stop' ? 'Wird gestoppt …' : 'Timer stoppen, Entwurf behalten'}
+              variant="ghost"
+              onPress={stop}
+              disabled={!!busy}
+            />
+            <Button label="Entwurf löschen" variant="ghost" onPress={remove} disabled={!!busy} />
           </>
         ) : (
           <>
             <Button busy={busy === 'start'} label={busy === 'start' ? 'Wird gestartet …' : 'Timer starten'} onPress={start} disabled={!!busy} />
-            <Button label="Später starten" variant="ghost" onPress={() => router.dismissTo('/feed')} />
+            <Button label="Später starten" variant="ghost" onPress={close} />
           </>
         )
       }
@@ -233,7 +265,9 @@ export default function BeforeAfterScreen() {
         {over
           ? 'Die 48 Stunden sind um. Gleich postet die App den Beitrag, auch ohne Nachher-Foto.'
           : running
-            ? t('Spätestens {when} Uhr postet die App den Beitrag, auch ohne Nachher-Foto.', { when: dayClock(end) })
+            ? t('Spätestens {when} Uhr postet die App den Beitrag, auch ohne Nachher-Foto.', { when: dayClock(end) }) +
+              ' ' +
+              t('Mit dem X oben nutzt Du die App normal weiter. Zurück zum Timer kommst Du oben im Feed.')
             : 'Der Timer läuft auch im Hintergrund. Nach 48 h postet die App den Beitrag, auch ohne Nachher-Foto.'}
       </Text>
     </SubScreen>

@@ -782,6 +782,9 @@ export async function startBeforeAfterTimer(id: string): Promise<string> {
   return data as string;
 }
 
+/** Timer stoppen: wieder ein Entwurf ohne Timer (Migration 20261027000100). */
+export const stopBeforeAfterTimer = (id: string) => rpc('stop_before_after_timer', { p_challenge_id: id });
+
 /** 3. Entwurf ändern: neue Fotos hochladen, Texte setzen. Nicht übergebene Werte bleiben. */
 export async function updateBeforeAfter(userId: string, id: string, edit: BeforeAfterEdit): Promise<void> {
   const before = edit.beforePhoto ? await uploadPhoto(userId, edit.beforePhoto) : null;
