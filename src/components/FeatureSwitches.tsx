@@ -1,30 +1,65 @@
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { features, setFeature, useFeatures, type Feature } from '../data/features';
+import { MODES, setModeHidden, setStandardMode, useModes, type Mode } from '../data/features';
 import { useStore } from '../data/store';
-import { space } from '../theme/tokens';
-import { SwitchRow } from './Form';
+import { t } from '../data/texts';
+import { color, space, text } from '../theme/tokens';
+import { FieldGroup } from './Content';
+import { RadioOption } from './Form';
+import { IconButton } from './IconButton';
+import { Text } from './T';
 
-/** Schalter für Bild, We-Challenge und Gruppen (Onboarding und Dein Konto › Funktionen). Me-Challenge ist immer an. */
+/**
+ * Modi Privat, Gruppe, Kiez (Onboarding und Dein Konto › Funktionen, Daria, 27.10.2026): Das Auge verbirgt
+ * einen Modus, der letzte sichtbare bleibt. Darunter der Standard, der im Umschalter oben vorausgewählt ist.
+ */
 export function FeatureSwitches() {
   const { currentUserId } = useStore();
-  const state = useFeatures();
+  const modes = useModes();
+  const lastVisible = modes.visible.length === 1;
 
-  const change = (key: Feature, on: boolean) => {
-    if (currentUserId) setFeature(currentUserId, key, on);
+  const toggle = (mode: Mode) => {
+    if (currentUserId) setModeHidden(currentUserId, mode, modes.isVisible(mode));
+  };
+  const choose = (mode: Mode) => {
+    if (currentUserId) setStandardMode(currentUserId, mode);
   };
 
   return (
-    <View style={{ gap: space[8] }}>
-      {features.map((f) => (
-        <SwitchRow
-          key={f.key}
-          label={f.label}
-          description={f.description}
-          value={state[f.key]}
-          onValueChange={(on) => change(f.key, on)}
-        />
-      ))}
+    <View style={styles.wrap}>
+      <FieldGroup label="Modi">
+        {MODES.map((m) => {
+          const visible = modes.isVisible(m.key);
+          const locked = visible && lastVisible;
+          return (
+            <View key={m.key} style={styles.row}>
+              <View style={[styles.texts, !visible && styles.dim]}>
+                <Text style={[text.body, { color: color.text.primary }]}>{m.label}</Text>
+                <Text style={[text.caption, { color: color.text.secondary }]}>{m.description}</Text>
+              </View>
+              <IconButton
+                icon={visible ? 'eye' : 'eye-off'}
+                accessibilityLabel={t(visible ? '{mode} verbergen' : '{mode} zeigen', { mode: t(m.label) })}
+                iconColor={locked ? color.text.secondary : color.text.primary}
+                onPress={locked ? undefined : () => toggle(m.key)}
+              />
+            </View>
+          );
+        })}
+      </FieldGroup>
+      <FieldGroup label="Standard">
+        <Text style={[text.caption, { color: color.text.secondary }]}>Dieser Modus ist oben im Umschalter vorausgewählt.</Text>
+        {MODES.filter((m) => modes.isVisible(m.key)).map((m) => (
+          <RadioOption key={m.key} label={m.label} selected={modes.standard === m.key} onPress={() => choose(m.key)} />
+        ))}
+      </FieldGroup>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  wrap: { gap: space[24] },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[4] },
+  texts: { flex: 1, gap: space[2] },
+  dim: { opacity: 0.5 },
+});
