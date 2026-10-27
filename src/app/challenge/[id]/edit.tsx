@@ -6,6 +6,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Button } from '../../../components/Button';
 import { FieldGroup } from '../../../components/Content';
 import { Chip, ChipGroup, PhotoPicker, TextField } from '../../../components/Form';
+import { TagTextField } from '../../../components/compose/BeforeAfterForm';
+import { PHOTO_TAG } from '../../../components/WithMentions';
 import type { ImageSource } from '../../../data/types';
 import { SubScreen } from '../../../components/Screen';
 import { formatDayMonthShort, formatRemainingShort } from '../../../data/format';
@@ -182,7 +184,11 @@ export default function EditChallenge() {
         onChange={setPhoto}
         title={{ value: title, onChange: setTitle, nudge: titleField }}
       />
-      <TextField label="Beschreibung" value={body} onChangeText={setBody} maxLength={500} multiline />
+      {challenge.type === 'photo' ? (
+        <TagTextField label="Beschreibung" tag={PHOTO_TAG} value={body} onChangeText={setBody} maxLength={500} />
+      ) : (
+        <TextField label="Beschreibung" value={body} onChangeText={setBody} maxLength={500} multiline />
+      )}
       {isGroup ? null : (
         <>
           <TextField label="Ort" required nudge={locationField} value={location} onChangeText={setLocation} maxLength={120} />

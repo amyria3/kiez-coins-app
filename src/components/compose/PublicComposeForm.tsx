@@ -7,6 +7,8 @@ import type { ImageSource } from '../../data/types';
 import { Button } from '../Button';
 import { ExtraPhotos, PhotoPicker, TextField } from '../Form';
 import { Text } from '../T';
+import { PHOTO_TAG } from '../WithMentions';
+import { TagTextField } from './BeforeAfterForm';
 import { explain } from '../Nudge';
 import { useComposeContent, type ComposeContent } from './compose';
 import { color, text } from '../../theme/tokens';
@@ -86,7 +88,11 @@ export function usePublicComposeForm(
           onRemove={(index) => setExtras((all) => all.filter((_, i) => i !== index))}
         />
       ) : null}
-      <TextField label="Beschreibung" helperText="Max. 500 Zeichen" value={text} onChangeText={setText} maxLength={500} multiline />
+      {isChallenge ? (
+        <TextField label="Beschreibung" helperText="Max. 500 Zeichen" value={text} onChangeText={setText} maxLength={500} multiline />
+      ) : (
+        <TagTextField label="Beschreibung" tag={PHOTO_TAG} value={text} onChangeText={setText} maxLength={500} />
+      )}
     </>
   );
 

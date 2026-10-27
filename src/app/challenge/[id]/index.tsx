@@ -16,7 +16,7 @@ import { InfoRow, KaterBubble, Notice, OperationTag } from '../../../components/
 import { TextField } from '../../../components/Form';
 import { HeroScreen, SubScreen } from '../../../components/Screen';
 import { beforeAfterDuration, formatBountyShort, formatDayMonthShort, formatEuro, formatHoursMinutes, formatRelative, formatRemainingShort } from '../../../data/format';
-import { WithMentions } from '../../../components/WithMentions';
+import { WithMentions, postText } from '../../../components/WithMentions';
 import { useRequireKiez } from '../../../data/kiez';
 import { recordView } from '../../../data/remote';
 import { useChallenge, useStore } from '../../../data/store';
@@ -130,7 +130,7 @@ export default function ChallengeDetail() {
   const canManage = isAuthor && challenge.status === 'open' && !challenge.assigneeId && !isBeforeAfter;
   // Löschen bis jemand annimmt, auch geschlossene (Migration 20261021000300)
   const canDelete = isAuthor && (challenge.status === 'open' || challenge.status === 'closed') && !challenge.assigneeId;
-  const description = (challenge.type === 'wave' ? challenge.challengeText : challenge.text)?.trim();
+  const description = challenge.type === 'wave' ? challenge.challengeText?.trim() : postText(challenge);
 
   const closeChallenge = () =>
     Alert.alert(
@@ -347,7 +347,7 @@ export default function ChallengeDetail() {
         <InfoRow icon="clock" value={t('In {duration} geschafft', { duration: formatHoursMinutes(baDuration) })} />
       ) : null}
       {description ? (
-        <Text style={styles.description}>{isBeforeAfter ? <WithMentions value={description} /> : description}</Text>
+        <Text style={styles.description}>{isBeforeAfter || challenge.type === 'photo' ? <WithMentions value={description} /> : description}</Text>
       ) : null}
       <View style={styles.authorBlock}>
         <AuthorRow

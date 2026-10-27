@@ -1,9 +1,25 @@
+import type { Challenge } from '../data/types';
 import { color, font, isFashionable } from '../theme/tokens';
 import { Text } from './T';
 
-/** @-Namen und die Marken #vorher/#nachher in color/accent/signal hervorheben (verschachteltes Text). */
+/**
+ * Feste Marke vor jedem Beitrag „Bild“ (Daria, 27.10.2026). Wie #vorher und #nachher in allen Sprachen gleich.
+ * Sie steht nicht im gespeicherten Text, die App setzt sie beim Anzeigen davor. So tragen auch ältere Bilder sie.
+ */
+export const PHOTO_TAG = '#InDiesemMoment';
+
+/** Text eines Beitrags zum Anzeigen: bei „Bild“ mit #InDiesemMoment vorn, auch ohne eigenen Text */
+export function postText(challenge: Pick<Challenge, 'type' | 'text'>): string {
+  const own = challenge.text?.trim() ?? '';
+  if (challenge.type !== 'photo') return own;
+  return own ? `${PHOTO_TAG} ${own}` : PHOTO_TAG;
+}
+
+const TAGS = ['#vorher', '#nachher', PHOTO_TAG];
+
+/** @-Namen und die Marken #vorher/#nachher/#InDiesemMoment in color/accent/signal hervorheben (verschachteltes Text). */
 export function WithMentions({ value }: { value: string }) {
-  const parts = value.split(/(@[\p{L}\p{N}_]+|#vorher\b|#nachher\b)/u);
+  const parts = value.split(/(@[\p{L}\p{N}_]+|#vorher\b|#nachher\b|#InDiesemMoment\b)/u);
   return (
     <>
       {parts.map((part, i) =>
@@ -11,8 +27,8 @@ export function WithMentions({ value }: { value: string }) {
           <Text key={i} style={{ color: color.accent.signal }}>
             {part}
           </Text>
-        ) : part === '#vorher' || part === '#nachher' ? (
-          <Text key={i} style={{ color: color.accent.signal, fontFamily: isFashionable ? font.semiBold : font.medium }}>
+        ) : TAGS.includes(part) ? (
+          <Text key={i} noTranslate style={{ color: color.accent.signal, fontFamily: isFashionable ? font.semiBold : font.medium }}>
             {part}
           </Text>
         ) : (
