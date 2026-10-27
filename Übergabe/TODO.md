@@ -12,6 +12,12 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Kodex und Rechtstexte überarbeiten (Daria)
 - [ ] Anschrift (c/o) im Impressum, sobald die App öffentlich ist und ein Finanzierungskonzept steht
 
+## 28.10.2026 – Pflicht für Daria: Anmeldung ohne E-Mail und Testkonto (PR #90)
+
+- [ ] Supabase › Authentication › Sign In / Providers: „Allow anonymous sign-ins“ einschalten
+- [ ] Brevo-API-Schlüssel als Secret `BREVO_API_KEY` für die Edge Function `konto-ohne-mail` hinterlegen (Supabase › Edge Functions › Secrets)
+- [ ] Claude Bescheid geben, dann spielt Claude Migrationen und Edge Function auf und merged PR #90
+
 ## 20.10.2026 – Challenges und Design (Daria)
 
 - [x] Deleted C. -> "Bearbeiten" statt direkt "Wider veröffentlichen", und erst im Bearbeitungsscreen "Veröffentlichen"  oder "Nicht veröffentlichen, Entwurf"
