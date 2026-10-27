@@ -24,6 +24,8 @@ export type Draft = {
   text: string;
   location: string;
   bountyAmount?: number;
+  /** Edensteine statt Euro (Daria, 27.10.2026). Nie zusammen mit `bountyAmount`. */
+  edensteine?: number;
   durationDays: number;
   /** Auf rund 100 m gerundeter Punkt für Entfernungen im Feed */
   coords?: Coords;
@@ -42,6 +44,7 @@ function fromChallenge(c: Challenge): Draft {
     text: c.text,
     location: c.location,
     bountyAmount: c.bountyAmount,
+    edensteine: c.edensteine,
     durationDays: 7,
     coords: c.coords,
   };
@@ -75,6 +78,7 @@ export function useSaveDraft() {
         text: draft.text,
         location: draft.location,
         bountyAmount: draft.type === 'photo' ? undefined : draft.bountyAmount,
+        edensteine: draft.type === 'photo' ? undefined : draft.edensteine,
         photo: draft.imagePath ? undefined : draft.photo,
         imagePath: draft.imagePath,
         coords: draft.coords,

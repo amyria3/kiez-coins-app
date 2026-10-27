@@ -529,6 +529,8 @@ export type NewChallenge = {
   /** Gerundeter Punkt (location.ts, roundCoords) */
   coords?: { latitude: number; longitude: number };
   bountyAmount?: number;
+  /** Edensteine statt Euro, 1 bis 10 (Migration 20261027000300) */
+  edensteine?: number;
   deadline: string;
   photo: ImageSource;
   extras?: ExtraPhoto[];
@@ -563,6 +565,9 @@ async function retryWithoutCoords<T>(run: (withCoords: boolean) => Promise<T>): 
   }
 }
 
+/** Edensteine nur mitschicken, wenn es welche gibt. So legt die App ohne Edensteine weiter an wie bisher. */
+const edenField = (edensteine?: number) => (edensteine ? { edensteine } : {});
+
 /** Neue Challenge anlegen. Gibt die gespeicherte Challenge zurück. */
 export async function createChallenge(userId: string, draft: NewChallenge): Promise<Challenge> {
   const imagePath = await uploadPhoto(userId, draft.photo);
@@ -578,6 +583,7 @@ export async function createChallenge(userId: string, draft: NewChallenge): Prom
           body: draft.text,
           location: draft.location,
           bounty_amount: draft.bountyAmount ?? null,
+          ...edenField(draft.edensteine),
           ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}),
           deadline: draft.deadline,
           image_path: imagePath,
@@ -664,6 +670,8 @@ export type ChallengeEdit = {
   text: string;
   location: string;
   bountyAmount?: number;
+  /** Nur Kiez-Challenges; Gruppenaufgaben behalten ihre Edensteine */
+  edensteine?: number;
   deadline: string;
   /** Neues Foto vom Gerät; ohne bleibt das bisherige */
   photo?: ImageSource;
@@ -681,6 +689,7 @@ export async function editChallenge(id: string, edit: ChallengeEdit, userId?: st
     p_location: edit.location,
     p_bounty_amount: edit.bountyAmount ?? null,
     p_deadline: edit.deadline,
+    p_edensteine: edit.edensteine ?? null,
   });
   if (edit.photo && userId) {
     const path = await uploadPhoto(userId, edit.photo);
@@ -702,6 +711,7 @@ export async function editDeletedChallenge(id: string, edit: ChallengeEdit, user
     p_bounty_amount: edit.bountyAmount ?? null,
     p_deadline: edit.deadline,
     p_image_path: imagePath,
+    p_edensteine: edit.edensteine ?? null,
   });
 }
 
@@ -714,6 +724,8 @@ export type DraftInput = {
   text: string;
   location: string;
   bountyAmount?: number;
+  /** Edensteine statt Euro, 1 bis 10 */
+  edensteine?: number;
   coords?: { latitude: number; longitude: number };
   /** Neues Foto vom Gerät. Ohne neues Foto bleibt `imagePath`. */
   photo?: ImageSource;
@@ -731,6 +743,7 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
     body: draft.text.trim(),
     location: draft.location.trim(),
     bounty_amount: draft.bountyAmount ?? null,
+    edensteine: draft.edensteine ?? null,
     image_path: imagePath,
   };
   const { data } = await retryWithoutCoords(async (withCoords) => {
