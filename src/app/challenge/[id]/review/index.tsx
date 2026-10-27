@@ -14,6 +14,7 @@ import type { ImageSource } from '../../../../data/types';
 import { color, radius, space, text } from '../../../../theme/tokens';
 import { t } from '../../../../data/texts';
 import { useGoBack } from '../../../../lib/goBack';
+import { WithMentions } from '../../../../components/WithMentions';
 
 /** Route `challenge/[id]/review` (Push). Figma: `challenge/review`, Flow „Erledigung bestätigen“. Nur für die Ersteller:in. */
 export default function ReviewScreen() {
@@ -54,7 +55,9 @@ export default function ReviewScreen() {
       {challenge.report.note ? (
         <View style={styles.note}>
           <Text style={styles.caption}>Notiz</Text>
-          <Text style={styles.body}>„{challenge.report.note}“</Text>
+          <Text style={styles.body}>
+            <WithMentions value={`#nachher ${challenge.report.note}`} />
+          </Text>
         </View>
       ) : null}
       {challenge.bountyAmount ? (
