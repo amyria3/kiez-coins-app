@@ -4,12 +4,13 @@
 
 import type { TextStyle } from 'react-native';
 
-import { look } from './look';
+import { look, looks } from './look';
 
 const fashionable = look === 'fashionable';
-/** Im Fashionable Look hell: für BlurView, Systemglas und Statusleiste */
+/** Fashionable hat ein eigenes Layout (Fotos über die ganze Breite, eckig). Die übrigen Looks nutzen das Kiez-Layout. */
 export const isFashionable = fashionable;
-export const scheme: 'dark' | 'light' = fashionable ? 'light' : 'dark';
+/** Hell oder dunkel: für BlurView, Systemglas und Statusleiste */
+export const scheme: 'dark' | 'light' = looks.find((l) => l.code === look)!.scheme;
 
 // Primitives
 const kiezPalette = {
@@ -42,7 +43,119 @@ const fashionablePalette: typeof kiezPalette = {
   graphite: '#EFEFEF',
 };
 
-export const palette = Object.freeze(fashionable ? fashionablePalette : kiezPalette);
+/** Farben, die nicht aus der Palette folgen */
+type LookExtras = { glass: string; sheet: string; hairline: string; onAccent: string; signature: string };
+
+const kiezExtras: LookExtras = {
+  glass: 'rgba(31, 33, 35, 0.82)',
+  sheet: 'rgba(31, 33, 35, 0.45)',
+  hairline: 'rgba(240, 240, 240, 0.12)',
+  onAccent: kiezPalette.black,
+  signature: kiezPalette.purple,
+};
+
+const fashionableExtras: LookExtras = {
+  glass: 'rgba(255, 255, 255, 0.96)',
+  sheet: 'rgba(255, 255, 255, 0.82)',
+  hairline: '#DBDBDB',
+  onAccent: '#FFFFFF',
+  signature: '#000000',
+};
+
+/**
+ * Entwürfe vom 27.10.2026: cozy und bunt, im Kiez-Layout. Die Namen der Palette behalten ihre Rolle:
+ * `black` = Grund, `white` = Schrift, `purple` = Aktion, `orange` = Signal, `green` = Bestätigung, `pink` = Herz.
+ */
+const draftLooks: Record<string, { palette: typeof kiezPalette; extras: LookExtras }> = {
+  /** Dunkel und warm: Pflaumenbraun, Creme, Bernstein */
+  kaminabend: {
+    palette: {
+      black: '#241A1E',
+      white: '#F7EADB',
+      grey: '#B9A79B',
+      purple: '#FFB547',
+      orange: '#FF8A5B',
+      green: '#A8D98A',
+      red: '#FF6F6F',
+      pink: '#FF9DBA',
+      graphite: '#35272C',
+    },
+    extras: {
+      glass: 'rgba(36, 26, 30, 0.82)',
+      sheet: 'rgba(36, 26, 30, 0.45)',
+      hairline: 'rgba(247, 234, 219, 0.12)',
+      onAccent: '#241A1E',
+      signature: '#FFB547',
+    },
+  },
+  /** Hell und bunt: Creme, Tomatenrot, Senf, Petrol */
+  flohmarkt: {
+    palette: {
+      black: '#FBF3E4',
+      white: '#2A211C',
+      grey: '#7C6B5E',
+      purple: '#E0482E',
+      orange: '#C9711A',
+      green: '#1E8C7E',
+      red: '#C8323C',
+      pink: '#E2457A',
+      graphite: '#F2E4CC',
+    },
+    extras: {
+      glass: 'rgba(251, 243, 228, 0.92)',
+      sheet: 'rgba(251, 243, 228, 0.8)',
+      hairline: 'rgba(42, 33, 28, 0.12)',
+      onAccent: '#FFFFFF',
+      signature: '#E0482E',
+    },
+  },
+  /** Pastell: Flieder, Violett, Pink */
+  brause: {
+    palette: {
+      black: '#F3EEFF',
+      white: '#2A2149',
+      grey: '#756C93',
+      purple: '#6A4CFF',
+      orange: '#E8631A',
+      green: '#13A06A',
+      red: '#E5384F',
+      pink: '#FF4FA0',
+      graphite: '#FFFFFF',
+    },
+    extras: {
+      glass: 'rgba(243, 238, 255, 0.92)',
+      sheet: 'rgba(243, 238, 255, 0.8)',
+      hairline: 'rgba(42, 33, 73, 0.1)',
+      onAccent: '#FFFFFF',
+      signature: '#6A4CFF',
+    },
+  },
+  /** Schrebergarten: Salbei, Tannengrün, Kürbis */
+  laube: {
+    palette: {
+      black: '#EDF2E3',
+      white: '#1E2A20',
+      grey: '#637061',
+      purple: '#1F7A5A',
+      orange: '#E06A1B',
+      green: '#3E9F4A',
+      red: '#D9443F',
+      pink: '#E8608A',
+      graphite: '#FAFCF4',
+    },
+    extras: {
+      glass: 'rgba(237, 242, 227, 0.92)',
+      sheet: 'rgba(237, 242, 227, 0.8)',
+      hairline: 'rgba(30, 42, 32, 0.12)',
+      onAccent: '#FFFFFF',
+      signature: '#1F7A5A',
+    },
+  },
+};
+
+const draft = draftLooks[look];
+export const palette = Object.freeze(draft ? draft.palette : fashionable ? fashionablePalette : kiezPalette);
+const extras: LookExtras = draft ? draft.extras : fashionable ? fashionableExtras : kiezExtras;
 
 // Theme (semantische Farben, nur diese in Komponenten verwenden)
 export const color = {
@@ -50,27 +163,27 @@ export const color = {
     screen: palette.black,
     surface: palette.graphite,
     /** Halbtransparente Fläche über Fotos (Bounty-Chip, Info-Leiste, Tab-Leiste) */
-    glass: fashionable ? 'rgba(255, 255, 255, 0.96)' : 'rgba(31, 33, 35, 0.82)',
+    glass: extras.glass,
     /** Leichte Glasfläche, z. B. das eingeklappte Blatt im Challenge-Detail */
-    sheet: fashionable ? 'rgba(255, 255, 255, 0.82)' : 'rgba(31, 33, 35, 0.45)',
+    sheet: extras.sheet,
     /** Dunkle Glasfläche über Fotos, in beiden Looks dunkel */
     onPhoto: 'rgba(31, 33, 35, 0.3)',
   },
   /** Haarlinie auf dunklem Grund */
   line: {
-    hairline: fashionable ? '#DBDBDB' : 'rgba(240, 240, 240, 0.12)',
+    hairline: extras.hairline,
   },
   text: {
     primary: palette.white,
     secondary: palette.grey,
     /** Schrift auf der Akzentfläche (Primary-Button, eigene Chatblase) */
-    onAccent: fashionable ? '#FFFFFF' : palette.black,
+    onAccent: extras.onAccent,
     /** Schrift auf Fotos, in beiden Looks hell */
     onPhoto: '#F0F0F0',
   },
   /** Signaturfarbe für Logo und Kater. Fashionable Look vorerst Schwarz: Das Violett #7B2FF7 hat Daria verworfen (23.10.2026), die neue Farbe steht noch aus. */
   brand: {
-    signature: fashionable ? '#000000' : palette.purple,
+    signature: extras.signature,
   },
   accent: {
     primary: palette.purple,

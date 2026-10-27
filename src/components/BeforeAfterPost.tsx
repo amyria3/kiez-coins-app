@@ -9,7 +9,7 @@ import { t } from '../data/texts';
 import type { ImageSource } from '../data/types';
 import { shareText } from '../lib/share';
 import { useAppDimensions } from '../theme/layout';
-import { color, font, isFashionable, motion, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isFashionable, motion, radius, size, space, stroke, text, scheme } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import type { ChallengePostProps } from './ChallengePost';
 import { Icon } from './icons/Icon';
@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
     borderColor: color.line.hairline,
   },
   title: { ...text.cardTitle, color: color.text.onPhoto },
-  meta: { ...text.caption, fontSize: 13, color: color.text.secondary },
+  meta: { ...text.caption, fontSize: 13, color: scheme === 'light' ? 'rgba(240, 240, 240, 0.75)' : color.text.secondary },
   // Look „Kiez“
   post: { paddingHorizontal: space[16] },
   actions: { flexDirection: 'row', alignItems: 'center', paddingTop: space[4] },

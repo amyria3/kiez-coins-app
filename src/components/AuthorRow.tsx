@@ -6,7 +6,7 @@ import { SvgXml } from 'react-native-svg';
 
 import { useStore } from '../data/store';
 import type { User } from '../data/types';
-import { color, font, radius, size, space, text, isFashionable } from '../theme/tokens';
+import { color, font, radius, size, space, text, isFashionable, scheme } from '../theme/tokens';
 import { Icon } from './icons/Icon';
 import { t } from '../data/texts';
 
@@ -24,7 +24,7 @@ export function useHideName(user: Pick<User, 'id'>): boolean {
 /** Verdeckter Text: nur ein unscharfer Schatten der Buchstaben bleibt sichtbar. */
 export const hiddenText = {
   color: 'transparent',
-  textShadowColor: isFashionable ? 'rgba(0, 0, 0, 0.55)' : 'rgba(240, 240, 240, 0.85)',
+  textShadowColor: scheme === 'light' ? 'rgba(0, 0, 0, 0.55)' : 'rgba(240, 240, 240, 0.85)',
   textShadowOffset: { width: 0, height: 0 },
   textShadowRadius: 10,
 } as const;
