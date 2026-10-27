@@ -88,7 +88,6 @@ export function TagTextField({
         />
       </View>
       <View style={styles.help}>
-        <Text style={styles.helpText}>{t('{tag} steht automatisch vorn.', { tag })}</Text>
         <Text style={[styles.helpText, tooLong ? { color: color.accent.error } : null]}>{`${value.length} / ${maxLength}`}</Text>
       </View>
     </View>
@@ -154,7 +153,7 @@ export function useBeforeAfterStartForm(
         tag="#vorher"
         value={beforeText}
         onChangeText={setBeforeText}
-        placeholder="Was ist das Problem?"
+        placeholder="Was hast Du Dir vorgenommen?"
         tooLong={showErrors && textTooLong}
       />
     </>
@@ -215,6 +214,6 @@ const styles = StyleSheet.create({
   tag: { fontFamily: isFashionable ? font.semiBold : font.medium, fontSize: 14, lineHeight: 18, color: color.accent.signal },
   input: { ...text.body, color: color.text.primary, padding: 0, minHeight: 40, textAlignVertical: 'top' },
   inputWeb: { outlineStyle: 'none' } as object,
-  help: { flexDirection: 'row', justifyContent: 'space-between', gap: space[8] },
+  help: { flexDirection: 'row', justifyContent: 'flex-end', gap: space[8] },
   helpText: { ...text.caption, color: color.text.secondary, fontVariant: ['tabular-nums'] },
 });

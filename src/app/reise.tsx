@@ -125,12 +125,13 @@ function Reise() {
               />
             </View>
             <GroupRanking group={group} />
+            <History title="Verlauf" entries={groupHistory} onOpen={(entry) => router.push(entry.href)} />
+            {/* Daria, 27.10.2026: „Aufgaben ansehen“ steht unter dem Verlauf, nicht mehr direkt unter der Rangliste */}
             <Button
               label="Aufgaben ansehen"
               variant="secondary"
               onPress={() => router.dismissTo({ pathname: '/feed', params: { gruppe: group.id } })}
             />
-            <History title="Verlauf" entries={groupHistory} onOpen={(entry) => router.push(entry.href)} />
           </>
         ) : (
           <View style={styles.bleed}>
