@@ -11,7 +11,7 @@ import type { Challenge, User } from '../data/types';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BeforeAfterPost } from './BeforeAfterPost';
-import { WithMentions } from './WithMentions';
+import { WithMentions, postText } from './WithMentions';
 import { BountyBadge } from './Badges';
 import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
@@ -222,10 +222,10 @@ function KiezPost({
           ) : null}
         </View>
       </View>
-      {challenge.text ? (
+      {postText(challenge) ? (
         <Pressable onPress={onPress} style={styles.textBlock}>
           <Text style={styles.body} numberOfLines={2}>
-            <WithMentions value={challenge.text} />
+            <WithMentions value={postText(challenge)} />
           </Text>
         </Pressable>
       ) : null}
@@ -337,7 +337,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
       <Pressable onPress={onPress} style={fashion.caption}>
         <Text style={fashion.captionText} numberOfLines={3}>
           <Text style={fashion.captionTitle}>{challenge.title} </Text>
-          {challenge.text ? <WithMentions value={challenge.text} /> : null}
+          {postText(challenge) ? <WithMentions value={postText(challenge)} /> : null}
         </Text>
         <Text style={fashion.time}>{formatRelative(challenge.createdAt)}</Text>
       </Pressable>
