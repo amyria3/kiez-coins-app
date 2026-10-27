@@ -1,6 +1,6 @@
 # Protokoll fürs Mitlesen privater Chats
 
-Pflichtaufgabe: Migration `supabase/migrations/20261027000100_chat_access_log.sql` ausführen (SQL-Editor oder Supabase-MCP `apply_migration`), sobald Daria den PR freigegeben hat.
+Migration `supabase/migrations/20261027000100_chat_access_log.sql` ausgeführt (Daria im SQL-Editor, 27.10.2026). Geprüft: Tabelle, beide Funktionen, Cron-Job ruft `messages_alte_loeschen()` auf, pgaudit 17.1 aktiv für `postgres` und `service_role`, die App darf `chat_einsehen` nicht aufrufen. Der erste automatische Eintrag kommt beim nächsten Lauf um 3:17 UTC.
 
 ## Stand (27.10.2026)
 
@@ -23,7 +23,7 @@ Regel für Claude steht in `AGENTS.md` (Abschnitt Rules).
 
 ## Nächste Schritte
 
-- Migration ausführen, danach Test: `select * from public.chat_einsehen('<id a>', '<id b>', 'Claude', 'Test');`, `select public.messages_alte_loeschen();` und `select * from public.chat_access_log;`. Prüfen, dass `cron.job` den neuen Befehl zeigt.
+- Nach dem ersten Cron-Lauf prüfen: `select * from public.chat_access_log;` zeigt einen Eintrag `automatisch` mit Darias Wortlaut. Im Postgres-Log nachsehen, wie der Lauf dort erscheint.
 - Datenschutzerklärung und Kodex: Hinweis, dass die Betreiberin private Nachrichten in begründeten Fällen (z. B. Meldungen) einsehen kann und jedes Einsehen protokolliert wird.
 - Datenbank-Doku in Documentation ergänzen, dann diese Notiz löschen.
 - Später optional: Protokoll im Moderations-Screen anzeigen (Moderator:innen dürfen es schon lesen).
