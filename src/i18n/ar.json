@@ -348,7 +348,6 @@
   "Gib Eurer Gruppe einen Namen.": "أعطِ مجموعتكم اسمًا.",
   "Name der Gruppe": "اسم المجموعة",
   "Zum Beispiel „WG Kastanienallee“ oder „Familie Brandt“. Max. 40 Zeichen.": "مثلًا «سكن كاستانيين آليه» أو «عائلة براندت». 40 حرفًا كحد أقصى.",
-  "Nach dem Gründen bekommst Du einen Code mit 6 Zeichen. Den teilst Du mit bis zu {anzahl} Leuten. Einen Kiez braucht es dafür nicht.": "بعد التأسيس تحصل على رمز من 6 أحرف. شاركه مع ما يصل إلى {anzahl} أشخاص. لا تحتاج إلى حيّ لذلك.",
   "Ohne Titel": "بلا عنوان",
   "Entwurf löschen?": "حذف المسودة؟",
   "Das lässt sich nicht rückgängig machen.": "لا يمكن التراجع عن ذلك.",
@@ -1081,10 +1080,11 @@
   "Noch keine eigenen Antworten.": "لا توجد إجابات خاصة بعد.",
   "Alle sehen in „Was Du so machst“, wer wie viele Edensteine hat.": "يرى الجميع في «ما تفعله» عدد أحجار عدن لدى كل شخص.",
   "Alle sehen in „Was Du so machst“ nur ihre eigenen Edensteine.": "في «ما تفعله» يرى كل شخص أحجار عدن الخاصة به فقط.",
-  "Was Du hier postest, sehen alle, die bei Kiez Coins angemeldet sind.": "ما تنشره هنا يراه كل من سجّل الدخول إلى Kiez Coins.",
-  "Was Du hier postest, sehen nur die Mitglieder der gewählten Gruppe.": "ما تنشره هنا يراه أعضاء المجموعة المختارة فقط.",
   "Gruppe wählen, gewählt: {name}": "اختر مجموعة، المختارة: {name}",
   "Neue Gruppe erstellen": "إنشاء مجموعة جديدة",
   "Deine Edensteine": "أحجار عدن الخاصة بك",
-  "Dein Platz: {rank} von {total}": "مركزك: {rank} من {total}"
+  "Dein Platz: {rank} von {total}": "مركزك: {rank} من {total}",
+  "Was Du hier postest, sehen alle Nutzer:innen in Deinem Kiez.": "ما تنشره هنا يراه جميع المستخدمين في حيّك.",
+  "Was Du hier postest, sehen nur die Mitglieder in dieser Gruppe.": "ما تنشره هنا يراه أعضاء هذه المجموعة فقط.",
+  "Die App erstellt für Dich einen Code und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "ينشئ التطبيق لك رمزًا ورابط دعوة. هكذا يمكن لـ {anzahl} أشخاص آخرين الانضمام إلى مجموعتك."
 }

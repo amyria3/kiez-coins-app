@@ -348,7 +348,6 @@
   "Gib Eurer Gruppe einen Namen.": "תן לקבוצה שלכם שם.",
   "Name der Gruppe": "שם הקבוצה",
   "Zum Beispiel „WG Kastanienallee“ oder „Familie Brandt“. Max. 40 Zeichen.": "למשל \"דירת שותפים קסטניינאלה\" או \"משפחת ברנדט\". עד 40 תווים.",
-  "Nach dem Gründen bekommst Du einen Code mit 6 Zeichen. Den teilst Du mit bis zu {anzahl} Leuten. Einen Kiez braucht es dafür nicht.": "אחרי ההקמה תקבל קוד בן 6 תווים. שתף אותו עם עד {anzahl} אנשים. לא צריך שכונה בשביל זה.",
   "Ohne Titel": "ללא כותרת",
   "Entwurf löschen?": "למחוק את הטיוטה?",
   "Das lässt sich nicht rückgängig machen.": "אי אפשר לבטל את זה.",
@@ -1081,10 +1080,11 @@
   "Noch keine eigenen Antworten.": "עדיין אין תשובות חופשיות.",
   "Alle sehen in „Was Du so machst“, wer wie viele Edensteine hat.": "כולם רואים ב„מה אתה עושה“ כמה אבני עדן יש לכל אחד.",
   "Alle sehen in „Was Du so machst“ nur ihre eigenen Edensteine.": "ב„מה אתה עושה“ כל אחד רואה רק את אבני העדן שלו.",
-  "Was Du hier postest, sehen alle, die bei Kiez Coins angemeldet sind.": "כל מי שמחובר ל־Kiez Coins רואה את מה שאתה מפרסם כאן.",
-  "Was Du hier postest, sehen nur die Mitglieder der gewählten Gruppe.": "רק חברי הקבוצה שנבחרה רואים את מה שאתה מפרסם כאן.",
   "Gruppe wählen, gewählt: {name}": "בחירת קבוצה, נבחרה: {name}",
   "Neue Gruppe erstellen": "יצירת קבוצה חדשה",
   "Deine Edensteine": "אבני העדן שלך",
-  "Dein Platz: {rank} von {total}": "המקום שלך: {rank} מתוך {total}"
+  "Dein Platz: {rank} von {total}": "המקום שלך: {rank} מתוך {total}",
+  "Was Du hier postest, sehen alle Nutzer:innen in Deinem Kiez.": "כל המשתמשים בשכונה שלך רואים את מה שאתה מפרסם כאן.",
+  "Was Du hier postest, sehen nur die Mitglieder in dieser Gruppe.": "רק חברי הקבוצה הזו רואים את מה שאתה מפרסם כאן.",
+  "Die App erstellt für Dich einen Code und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "האפליקציה יוצרת בשבילך קוד וקישור הזמנה. כך עוד {anzahl} אנשים יכולים להצטרף לקבוצה שלך."
 }
