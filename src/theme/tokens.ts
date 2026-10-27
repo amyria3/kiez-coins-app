@@ -7,6 +7,12 @@ import type { TextStyle } from 'react-native';
 import { look, looks } from './look';
 
 const fashionable = look === 'fashionable';
+const playful = look === 'pausenhof';
+/**
+ * Look „Pausenhof“ (Entwurf 27.10.2026, Richtung Duolingo): runde, fette Schrift (Nunito), Knöpfe mit 3D-Kante,
+ * Karten mit grauem Rand. Layout wie Kiez.
+ */
+export const isPlayful = playful;
 /** Fashionable hat ein eigenes Layout (Fotos über die ganze Breite, eckig). Die übrigen Looks nutzen das Kiez-Layout. */
 export const isFashionable = fashionable;
 /** Hell oder dunkel: für BlurView, Systemglas und Statusleiste */
@@ -130,6 +136,27 @@ const draftLooks: Record<string, { palette: typeof kiezPalette; extras: LookExtr
       signature: '#6A4CFF',
     },
   },
+  /** Spielerisch und knallig: Weiß, Grün, Orange, Himmelblau */
+  pausenhof: {
+    palette: {
+      black: '#FFFFFF',
+      white: '#3C3C3C',
+      grey: '#777777',
+      purple: '#58CC02',
+      orange: '#FF9600',
+      green: '#58CC02',
+      red: '#FF4B4B',
+      pink: '#FF4B7D',
+      graphite: '#F7F7F7',
+    },
+    extras: {
+      glass: 'rgba(255, 255, 255, 0.94)',
+      sheet: 'rgba(255, 255, 255, 0.85)',
+      hairline: '#E5E5E5',
+      onAccent: '#FFFFFF',
+      signature: '#58CC02',
+    },
+  },
   /** Schrebergarten: Salbei, Tannengrün, Kürbis */
   laube: {
     palette: {
@@ -194,6 +221,21 @@ export const color = {
   },
 } as const;
 
+/** Nur im Look „Pausenhof“: dunklere Unterkanten für die 3D-Knöpfe, Rand für Karten, Blau für Nebenaktionen */
+export const playfulColor = {
+  edgePrimary: '#58A700',
+  edgeSignal: '#E08600',
+  edgeError: '#EA2B2B',
+  border: '#E5E5E5',
+  link: '#1CB0F6',
+  edgeLink: '#1899D6',
+} as const;
+
+/** Pausenhof: Flächen werden weiße Karten mit grauem Rand und dickerer Unterkante. In anderen Looks leer. */
+export const playfulCard = playful
+  ? { backgroundColor: color.bg.screen, borderWidth: 2, borderBottomWidth: 4, borderColor: playfulColor.border }
+  : {};
+
 // Spacing
 export const space = {
   0: 0,
@@ -211,12 +253,12 @@ export const space = {
 
 // Radius (Look „Fashionable“: eckiger)
 export const radius = {
-  sm: fashionable ? 4 : 5,
+  sm: fashionable ? 4 : playful ? 8 : 5,
   md: fashionable ? 8 : 12,
-  lg: fashionable ? 10 : 18,
-  xl: fashionable ? 12 : 20,
-  card: fashionable ? 6 : 28,
-  sheet: fashionable ? 16 : 32,
+  lg: fashionable ? 10 : playful ? 16 : 18,
+  xl: fashionable ? 12 : playful ? 16 : 20,
+  card: fashionable ? 6 : playful ? 20 : 28,
+  sheet: fashionable ? 16 : playful ? 24 : 32,
   full: 999,
 } as const;
 
@@ -239,21 +281,30 @@ export const stroke = {
 } as const;
 
 // Schriften (Inter, geladen in src/app/_layout.tsx)
-export const font = {
-  light: 'Inter_300Light',
-  regular: 'Inter_400Regular',
-  medium: 'Inter_500Medium',
-  semiBold: 'Inter_600SemiBold',
-  /** Inter Tight für große Überschriften und Zahlen */
-  display: 'InterTight_600SemiBold',
-} as const;
+export const font = playful
+  ? {
+      // Pausenhof: Nunito, eine Stufe fetter als Inter, damit sie rund und kräftig wirkt
+      light: 'Nunito_600SemiBold',
+      regular: 'Nunito_600SemiBold',
+      medium: 'Nunito_700Bold',
+      semiBold: 'Nunito_800ExtraBold',
+      display: 'Nunito_800ExtraBold',
+    }
+  : {
+      light: 'Inter_300Light',
+      regular: 'Inter_400Regular',
+      medium: 'Inter_500Medium',
+      semiBold: 'Inter_600SemiBold',
+      /** Inter Tight für große Überschriften und Zahlen */
+      display: 'InterTight_600SemiBold',
+    };
 
 // Text Styles
 export const text = {
   /** Große Überschrift, z. B. Begrüßung im Feed, „Was Du so machst“ */
-  display: { fontFamily: font.display, fontSize: 30, lineHeight: 34, letterSpacing: -0.6 },
+  display: { fontFamily: font.display, fontSize: 30, lineHeight: 34, letterSpacing: playful ? -0.2 : -0.6 },
   /** Titel im Challenge-Detail */
-  headline: { fontFamily: font.display, fontSize: 26, lineHeight: 30, letterSpacing: -0.5 },
+  headline: { fontFamily: font.display, fontSize: 26, lineHeight: 30, letterSpacing: playful ? -0.2 : -0.5 },
   /** Titel auf Karten */
   cardTitle: { fontFamily: font.display, fontSize: 19, lineHeight: 23, letterSpacing: -0.2 },
   /** Kennzahlen (Bounty, Frist, Bilanz) */

@@ -5,7 +5,7 @@ import { myEdensteine } from '../data/groups';
 import { useStore } from '../data/store';
 import type { Group } from '../data/types';
 import { t } from '../data/texts';
-import { color, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, radius, size, space, stroke, text, playfulCard } from '../theme/tokens';
 import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
 
@@ -80,7 +80,7 @@ export function GroupCard({ group, meta, onFeed, onManage }: GroupCardProps) {
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: radius.xl, backgroundColor: color.bg.surface },
+  card: { borderRadius: radius.xl, backgroundColor: color.bg.surface, ...playfulCard },
   // Mehr Raum, die Karte ist höher (Daria, 24.10.2026)
   top: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingHorizontal: space[20], paddingVertical: space[32] },
   flex: { flex: 1, gap: space[6] },

@@ -7,7 +7,7 @@ import { leaderboard } from '../data/groups';
 import { useStore } from '../data/store';
 import type { Group, User } from '../data/types';
 import { t } from '../data/texts';
-import { color, radius, space, text } from '../theme/tokens';
+import { color, radius, space, text, playfulCard } from '../theme/tokens';
 
 /**
  * Dein Platz in der Rangliste einer Gruppe, in „Was Du so machst“ unter „In Gruppen“ (UX-Audit, Daria, 27.10.2026).
@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: space[12],
     borderRadius: radius.xl,
     backgroundColor: color.bg.surface,
+    ...playfulCard,
   },
   rowMe: { borderWidth: 1, borderColor: color.accent.confirmation },
   rank: { ...text.metric, fontSize: 18, width: 22, textAlign: 'center', color: color.text.secondary },

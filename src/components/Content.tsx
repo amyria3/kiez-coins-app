@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
-import { color, font, isFashionable, radius, space, text } from '../theme/tokens';
+import { color, font, isFashionable, radius, space, text, playfulCard, isPlayful, playfulColor } from '../theme/tokens';
 import { useTexts } from '../data/texts';
 import { Cat, type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
     padding: space[12],
     borderRadius: radius.md,
     backgroundColor: color.bg.surface,
+    ...playfulCard,
   },
   noticeText: { ...text.caption, color: color.text.primary, flex: 1 },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 24 },
@@ -139,6 +140,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: space[16],
     borderRadius: radius.xl,
     backgroundColor: color.bg.surface,
+    ...playfulCard,
   },
   // Spitze rechts zur Katze: gedrehtes Quadrat in der Farbe der Blase
   speechTail: {
@@ -150,6 +152,8 @@ const styles = StyleSheet.create({
     height: 16,
     borderRadius: 3,
     backgroundColor: color.bg.surface,
+    // Pausenhof: Rand nur an den zwei Kanten, die nach außen zeigen
+    ...(isPlayful ? { right: -9, backgroundColor: color.bg.screen, borderTopWidth: 2, borderRightWidth: 2, borderColor: playfulColor.border } : null),
     transform: [{ rotate: '45deg' }],
   },
   speechTitle: { ...text.cardTitle, fontSize: 17, lineHeight: 22, color: color.text.primary },
@@ -161,6 +165,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: color.line.hairline,
     backgroundColor: color.bg.surface,
+    ...playfulCard,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -172,6 +177,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 0,
     backgroundColor: color.bg.surface,
+    ...playfulCard,
   },
   group: { gap: space[8] },
   groupLabel: { ...text.caption, color: color.text.secondary },
