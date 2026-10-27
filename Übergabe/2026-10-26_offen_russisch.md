@@ -1,9 +1,7 @@
 # Russisch in der App, alle Sprachen auf der Website
 
-Pflichtaufgabe: Migration `supabase/migrations/20261026000200_app_texts_russian.sql` im SQL-Editor von Supabase ausführen. Ohne sie zeigt die App trotzdem Russisch (aus `src/i18n/ru.json`), nur der Texte-Editor kann die Spalte `ru` noch nicht speichern.
-
 - Datum: 2026-10-26
-- Status: offen (Migration und Prüfung durch Muttersprachler:innen)
+- Status: offen (Prüfung der Übersetzungen durch Muttersprachler:innen, Übernahme in Documentation)
 - Gehört in Documentation: `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Sprachen“, und die Datenbank-Doku (Tabelle `app_texts`, neue Spalte `ru`)
 
 ## Stand
@@ -18,5 +16,6 @@ Pflichtaufgabe: Migration `supabase/migrations/20261026000200_app_texts_russian.
 
 ## Nächster Schritt
 
-- Migration ausführen (siehe oben).
+- Migration `20261026000200_app_texts_russian.sql` hat Daria am 27.10.2026 im SQL-Editor ausgeführt. Erledigt.
+- Reihenfolge der Sprachen in App und Website nach Alter (Daria, 26.10.2026): Hebräisch, Arabisch, Englisch, Deutsch, Französisch, Ukrainisch, Russisch.
 - Neue Texte aus anderen Pull Requests (z. B. Umfrage, PR #49) brauchen auch einen Eintrag in `ru.json`. `node scripts/i18n.mjs` zeigt, was fehlt.
