@@ -435,12 +435,27 @@ export function PhotoPicker({ photo, hint, error, onChange, title }: PhotoPicker
   const titleHelper = title?.error ?? title?.nudge?.hint;
   // Ohne Rahmen (Daria, 24.10.2026); nur ein Fehler zeigt einen roten Rand
   const titleBorder = title?.error ? color.accent.error : 'transparent';
+  const emptyText = (
+    <>
+      <Icon name="camera" />
+      <Text style={[text.body, { color: color.text.primary }]}>Foto aufnehmen oder auswählen</Text>
+      <Text style={[text.caption, { color: error ? color.accent.error : color.text.secondary }]}>{hint}</Text>
+    </>
+  );
 
   return (
     <View style={styles.field}>
       {/* Das Titelfeld liegt neben der Fläche und nicht in ihr. Auf Android reicht ein Tippen ins Feld
           sonst an die Fläche weiter, und die Bildauswahl geht auf (Daria, 25.10.2026). */}
-      <View style={[styles.photoPicker, !photo && styles.photoPickerEmpty, !photo && error ? styles.photoPickerError : null, title ? styles.photoPickerTitled : null]}>
+      <View
+        style={[
+          styles.photoPicker,
+          !photo && styles.photoPickerEmpty,
+          !photo && error ? styles.photoPickerError : null,
+          title ? styles.photoPickerTitled : null,
+          title && !photo ? styles.photoPickerTitledEmpty : null,
+        ]}
+      >
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={photo ? t('Foto ändern') : t('Foto aufnehmen oder auswählen')}
@@ -449,14 +464,11 @@ export function PhotoPicker({ photo, hint, error, onChange, title }: PhotoPicker
           style={StyleSheet.absoluteFill}
         >
           {photo ? <Image source={photo} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
-          {!photo ? (
-            <View style={styles.photoEmptyText}>
-              <Icon name="camera" />
-              <Text style={[text.body, { color: color.text.primary }]}>Foto aufnehmen oder auswählen</Text>
-              <Text style={[text.caption, { color: error ? color.accent.error : color.text.secondary }]}>{hint}</Text>
-            </View>
-          ) : null}
+          {!photo && !title ? <View style={styles.photoEmptyText}>{emptyText}</View> : null}
         </Pressable>
+        {/* Mit Titel liegt der Hinweis im Fluss über dem Titel, damit die Fläche nur so hoch ist wie nötig
+            (Daria, 27.10.2026). Tippen geht durch ihn hindurch an die Fläche. */}
+        {!photo && title ? <View style={styles.photoEmptyTextTitled}>{emptyText}</View> : null}
         {title ? (
           <View ref={titleRef} style={[styles.photoTitle, { borderColor: titleBorder }]}>
             <TextInput
@@ -616,6 +628,9 @@ const styles = StyleSheet.create({
   photoPickerError: { borderColor: color.accent.error },
   photoPickerTitled: { height: 300, justifyContent: 'flex-end', alignItems: 'stretch', padding: space[12] },
   photoEmptyText: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 72, alignItems: 'center', justifyContent: 'center', gap: space[8] },
+  // Leere Fläche mit Titel: so hoch wie der Inhalt. Oben wenig Luft, zum Titel etwas weniger als vorher (Daria, 27.10.2026)
+  photoPickerTitledEmpty: { height: 'auto', justifyContent: 'flex-start', paddingTop: space[24], gap: space[48] },
+  photoEmptyTextTitled: { alignItems: 'center', gap: space[8], pointerEvents: 'none' },
   photoTitle: {
     paddingVertical: space[12],
     paddingHorizontal: space[16],
