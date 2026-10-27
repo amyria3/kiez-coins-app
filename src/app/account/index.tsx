@@ -62,6 +62,13 @@ export default function Account() {
         details={[anrede(profile), profile.kiez ?? 'Kiez noch nicht festgelegt']}
         onPress={() => router.push('/account/profile')}
       />
+      {/* Funktionen an- und abschalten (Daria, 24.10.2026), direkt unter Deinem Namen (Daria, 27.10.2026) */}
+      <NavCard
+        title="Funktionen"
+        description={featuresOn || 'Nur Me-Challenge'}
+        leading={<Icon name="switch" size={size.icon} color={color.text.primary} />}
+        onPress={() => router.push('/account/funktionen')}
+      />
       <NavCard
         title="Was Du so machst"
         description="Verlauf, Aufgaben und Gruppen"
@@ -95,13 +102,6 @@ export default function Account() {
         }
         leading={<Icon name="friends" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/account/freunde')}
-      />
-      {/* Funktionen an- und abschalten (Daria, 24.10.2026) */}
-      <NavCard
-        title="Funktionen"
-        description={featuresOn || 'Nur Me-Challenge'}
-        leading={<Icon name="switch" size={size.icon} color={color.text.primary} />}
-        onPress={() => router.push('/account/funktionen')}
       />
       <NavCard
         title="Sprache"

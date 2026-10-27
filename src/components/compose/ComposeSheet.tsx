@@ -26,7 +26,7 @@ const FEATURE_OF: Record<'individual' | 'before_after' | 'photo', keyof FeatureS
   photo: 'photo',
 };
 /** In Gruppen: Aufgabe mit Edensteinen (gehört zu Gruppen, immer da) oder Vorher-Nachher (Schalter Me-Challenge) */
-const GROUP_TYPES = [
+export const GROUP_TYPES = [
   { key: 'task', label: 'We-Challenge' },
   { key: 'before_after', label: 'Me-Challenge' },
 ] as const;
