@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
-import { Alert, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { AccessibilityInfo, Alert, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from './T';
 
 import { color, radius, space, stroke, text } from '../theme/tokens';
@@ -14,7 +14,9 @@ import { color, radius, space, stroke, text } from '../theme/tokens';
  * am Button `whyDisabled={() => title.nudge('Gib einen Titel ein.')}`.
  */
 
-type ScrollTarget = { scrollToView: (view: View | null) => void };
+/** `start`: Ansicht oben mit etwas Luft (Felder). `end`: nur so weit, dass die Ansicht unten ganz zu sehen ist (Buttons). */
+type ScrollAlign = 'start' | 'end';
+type ScrollTarget = { scrollToView: (view: View | null, align?: ScrollAlign) => void };
 
 /**
  * Scrollflächen der offenen Screens, die jüngste oben. Die Screen-Komponente ruft useNudge() außerhalb
@@ -26,14 +28,20 @@ const scrollTargets: ScrollTarget[] = [];
 export function useNudgeScroll(scrollRef: RefObject<ScrollView | null>) {
   const offset = useRef(0);
   const scrollToView = useCallback(
-    (view: View | null) => {
+    (view: View | null, align: ScrollAlign = 'start') => {
       const scroll = scrollRef.current;
       if (!view || !scroll) return;
-      // Lage des Felds relativ zur ScrollView berechnen, dann mit etwas Luft darüber hinscrollen
+      // Lage der Ansicht relativ zur ScrollView berechnen, dann animiert hinscrollen
       const scrollNode = scroll as unknown as View;
-      view.measureInWindow((_x, viewY) => {
-        scrollNode.measureInWindow((_sx, scrollY) => {
-          scroll.scrollTo({ y: Math.max(0, offset.current + (viewY - scrollY) - space[24]), animated: true });
+      view.measureInWindow((_x, viewY, _w, viewH) => {
+        scrollNode.measureInWindow((_sx, scrollY, _sw, scrollH) => {
+          let y = offset.current + (viewY - scrollY) - space[24];
+          if (align === 'end') {
+            const hidden = viewY + viewH + space[24] - (scrollY + scrollH);
+            if (hidden <= 0) return;
+            y = offset.current + hidden;
+          }
+          scroll.scrollTo({ y: Math.max(0, y), animated: true });
         });
       });
     },
@@ -46,15 +54,42 @@ export function useNudgeScroll(scrollRef: RefObject<ScrollView | null>) {
 }
 
 /**
- * Textfelder eines Screens. Enter in einem einzeiligen Feld springt ins nächste Feld darunter und scrollt es
- * ins Bild (Daria, 21.10.2026). Die Reihenfolge ergibt sich aus der Lage auf dem Bildschirm.
+ * Formulare (Daria, 21. und 27.10.2026): „Weiter“, „Fertig“ oder Enter in einem einzeiligen Feld springt ins
+ * nächste Feld darunter und scrollt es animiert ins Bild. Nach dem letzten Feld geht es zum Absende-Button:
+ * Die Tastatur geht zu, der Screen scrollt zum Button, im Browser bekommt er den Fokus. Ein zweites Enter schickt ab.
+ * Die Reihenfolge ergibt sich aus der Lage auf dem Bildschirm.
  */
 type FieldEntry = { input: RefObject<TextInput | null>; view: RefObject<View | null> };
-type FieldRegistry = { add: (f: FieldEntry) => () => void; next: (from: FieldEntry) => boolean };
+type ButtonEntry = { view: RefObject<View | null>; fixed: boolean };
+type FieldRegistry = {
+  add: (f: FieldEntry) => () => void;
+  addButton: (b: ButtonEntry) => () => void;
+  next: (from: FieldEntry) => boolean;
+};
 const FieldContext = createContext<FieldRegistry | null>(null);
+
+/** Buttons in der festen ActionBar unter dem Scrollbereich */
+export const FixedBarContext = createContext(false);
+
+const measureY = (view: RefObject<View | null>) =>
+  new Promise<number>((resolve) => view.current!.measureInWindow((_x, y) => resolve(y)));
+
+function focusButton(view: View) {
+  if (Platform.OS === 'web') {
+    (view as unknown as HTMLElement).focus?.();
+    return;
+  }
+  // iPhone und Android: Buttons nehmen keinen Tastaturfokus. Der Screenreader springt aber hin.
+  try {
+    AccessibilityInfo.sendAccessibilityEvent(view, 'focus');
+  } catch {
+    // ohne Screenreader-Fokus geht es auch
+  }
+}
 
 function useFieldRegistry(scroll: ScrollTarget): FieldRegistry {
   const fields = useRef<FieldEntry[]>([]);
+  const buttons = useRef<ButtonEntry[]>([]);
   return useMemo(
     () => ({
       add: (f) => {
@@ -63,25 +98,40 @@ function useFieldRegistry(scroll: ScrollTarget): FieldRegistry {
           fields.current = fields.current.filter((x) => x !== f);
         };
       },
-      // Nächstes Feld unterhalb suchen, fokussieren und hinscrollen. false: es gibt keins.
+      addButton: (b) => {
+        buttons.current.push(b);
+        return () => {
+          buttons.current = buttons.current.filter((x) => x !== b);
+        };
+      },
+      // Nächstes Feld unterhalb suchen, fokussieren und hinscrollen, sonst den Absende-Button.
       next: (from) => {
+        if (!from.view.current) return false;
         const list = fields.current.filter((f) => f.view.current && f.input.current);
-        if (list.length < 2 || !from.view.current) return false;
-        const measure = (f: FieldEntry) =>
-          new Promise<number>((resolve) => f.view.current!.measureInWindow((_x, y) => resolve(y)));
-        Promise.all(list.map(measure)).then((ys) => {
-          const own = ys[list.indexOf(from)];
-          const below = list
-            .map((f, i) => ({ f, y: ys[i] }))
-            .filter((e) => e.f !== from && e.y > own + 1)
-            .sort((a, b) => a.y - b.y)[0];
-          if (!below) {
+        const targets = buttons.current.filter((b) => b.view.current);
+        Promise.all([Promise.all(list.map((f) => measureY(f.view))), Promise.all(targets.map((b) => measureY(b.view)))]).then(
+          ([ys, buttonYs]) => {
+            const own = ys[list.indexOf(from)];
+            const below = list
+              .map((f, i) => ({ f, y: ys[i] }))
+              .filter((e) => e.f !== from && e.y > own + 1)
+              .sort((a, b) => a.y - b.y)[0];
+            if (below) {
+              below.f.input.current?.focus();
+              scroll.scrollToView(below.f.view.current);
+              return;
+            }
+            // Erst ein Button im Formular unterhalb, sonst der Haupt-Button der ActionBar (der oberste)
+            const candidates = targets.map((b, i) => ({ b, y: buttonYs[i] })).filter((e) => e.y > own + 1);
+            const pick = (fixed: boolean) => candidates.filter((e) => e.b.fixed === fixed).sort((a, b) => a.y - b.y)[0];
+            const button = (pick(false) ?? pick(true))?.b;
             from.input.current?.blur();
-            return;
-          }
-          below.f.input.current?.focus();
-          scroll.scrollToView(below.f.view.current);
-        });
+            const view = button?.view.current;
+            if (!button || !view) return;
+            if (!button.fixed) scroll.scrollToView(view, 'end');
+            focusButton(view);
+          },
+        );
         return true;
       },
     }),
@@ -95,6 +145,15 @@ export function useNextField(input: RefObject<TextInput | null>, view: RefObject
   const entry = useRef<FieldEntry>({ input, view }).current;
   useEffect(() => registry?.add(entry), [registry, entry]);
   return registry ? () => registry.next(entry) : undefined;
+}
+
+/** Für Button: meldet ihn als mögliches Ziel nach dem letzten Feld an. */
+export function useSubmitTarget(view: RefObject<View | null>, enabled: boolean) {
+  const registry = useContext(FieldContext);
+  const fixed = useContext(FixedBarContext);
+  const entry = useRef<ButtonEntry>({ view, fixed }).current;
+  entry.fixed = fixed;
+  useEffect(() => (enabled ? registry?.addButton(entry) : undefined), [registry, entry, enabled]);
 }
 
 /** Ansicht ins Bild scrollen, z. B. das Kommentarfeld, sobald die Tastatur da ist. */

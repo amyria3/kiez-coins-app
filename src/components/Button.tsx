@@ -1,3 +1,4 @@
+import { useRef, type RefObject } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
@@ -6,6 +7,7 @@ import { useTexts } from '../data/texts';
 import { Glass, glassControls } from './Glass';
 import { GearsLoader, SMALL_GEARS } from './GearsLoader';
 import { Icon } from './icons/Icon';
+import { useSubmitTarget } from './Nudge';
 import type { IconName } from './icons/svgs';
 
 // Figma „Button“ (Primary, Secondary). Die übrigen Varianten sind Überschreibungen in Screens:
@@ -38,8 +40,11 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
   const v = variants[variant];
   // Beschriftung aus dem CMS (Tabelle app_texts), sonst wie im Code
   const label = useTexts()(original);
+  // Ziel nach dem letzten Formularfeld (Nudge.tsx). Ghost-Buttons sind Nebenwege und zählen nicht.
+  const ref = useRef<View>(null);
+  useSubmitTarget(ref, variant !== 'ghost');
   // Versuch: Buttons aus Liquid Glass (iOS 26). Gefüllte Varianten bekommen ihre Farbe als Tönung.
-  if (isFashionable) return <FashionButton label={label} onPress={onPress} variant={variant} off={off} disabled={disabled} busy={busy} style={style} />;
+  if (isFashionable) return <FashionButton pressRef={ref} label={label} onPress={onPress} variant={variant} off={off} disabled={disabled} busy={busy} style={style} />;
   if (glassControls && variant !== 'ghost') {
     const g = glassVariants[variant];
     return (
@@ -50,6 +55,7 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
         style={[styles.glass, off && styles.disabled, style]}
       >
         <Pressable
+          ref={ref}
           accessibilityRole="button"
           accessibilityState={{ disabled: off }}
           disabled={disabled}
@@ -63,6 +69,7 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
   }
   return (
     <Pressable
+      ref={ref}
       accessibilityRole="button"
       accessibilityState={{ disabled: off, busy }}
       disabled={disabled}
@@ -82,6 +89,7 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
  * Primary blau mit weißer Schrift; Secondary und die übrigen grau gefüllt, Danger mit roter Schrift; Ghost nur Text in Blau.
  */
 function FashionButton({
+  pressRef,
   label,
   onPress,
   variant,
@@ -90,6 +98,7 @@ function FashionButton({
   busy,
   style,
 }: {
+  pressRef: RefObject<View | null>;
   label: string;
   onPress?: () => void;
   variant: ButtonVariant;
@@ -101,6 +110,7 @@ function FashionButton({
   const v = fashionVariants[variant];
   return (
     <Pressable
+      ref={pressRef}
       accessibilityRole="button"
       accessibilityState={{ disabled: off, busy }}
       disabled={disabled}
