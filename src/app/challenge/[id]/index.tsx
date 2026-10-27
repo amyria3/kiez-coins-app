@@ -190,7 +190,7 @@ export default function ChallengeDetail() {
     <>
       <View style={styles.statusWrap}>
         <View style={styles.statusRow}>
-          <StatusBadge status={challenge.status} photo={isPhoto && !isBeforeAfter} beforeAfter={isBeforeAfter} />
+          <StatusBadge status={challenge.status} challenge={challenge} photo={isPhoto && !isBeforeAfter} beforeAfter={isBeforeAfter} />
           <Text style={[styles.caption, styles.flex]}>{running ? formatRelative(challenge.createdAt) : ''}</Text>
           {isAuthor ? (
             <GlassIconButton

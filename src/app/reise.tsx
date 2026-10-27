@@ -191,7 +191,7 @@ function History({
                     .join(' · ')}
                 </Text>
               </View>
-              <StatusBadge status={entry.challenge.status} />
+              <StatusBadge status={entry.challenge.status} challenge={entry.challenge} />
             </Pressable>
           );
         })}
