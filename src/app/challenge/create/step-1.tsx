@@ -120,7 +120,7 @@ export default function CreateStep1() {
         <TagTextField
           label="Beschreibung"
           tag="#vorher"
-          placeholder="Was ist das Problem?"
+          placeholder="Was ist hier zu tun?"
           value={draft.text}
           onChangeText={(text) => setDraft((d) => ({ ...d, text }))}
           maxLength={500}

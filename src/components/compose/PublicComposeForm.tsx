@@ -89,7 +89,7 @@ export function usePublicComposeForm(
       ) : null}
       {/* We-Challenge: Die Beschreibung ist das Vorher (Daria, 27.10.2026) */}
       {isChallenge ? (
-        <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist das Problem?" value={text} onChangeText={setText} maxLength={500} />
+        <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={text} onChangeText={setText} maxLength={500} />
       ) : (
         <TextField label="Beschreibung" helperText="Max. 500 Zeichen" value={text} onChangeText={setText} maxLength={500} multiline />
       )}
