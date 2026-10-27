@@ -1063,5 +1063,13 @@
   "Diese Version ist zu alt.": "Эта версия устарела.",
   "Jo, meine Friends haben eine neue Version für Dich!": "Йо, у моих друзей для тебя новая версия!",
   "Lade sie herunter und installiere sie über die alte. Deine Daten bleiben.": "Скачай её и установи поверх старой. Твои данные останутся.",
-  "Herunterladen": "Скачать"
+  "Herunterladen": "Скачать",
+  "Alle sehen in „Was Du so machst“, wer wie viele Edensteine hat.": "В «Чем ты занимаешься» все видят, сколько камней Эдема у каждого.",
+  "Alle sehen in „Was Du so machst“ nur ihre eigenen Edensteine.": "В «Чем ты занимаешься» каждый видит только свои камни Эдема.",
+  "Was Du hier postest, sehen alle, die bei Kiez Coins angemeldet sind.": "То, что ты публикуешь здесь, видят все, кто вошёл в Kiez Coins.",
+  "Was Du hier postest, sehen nur die Mitglieder der gewählten Gruppe.": "То, что ты публикуешь здесь, видят только участники выбранной группы.",
+  "Gruppe wählen, gewählt: {name}": "Выбрать группу, выбрано: {name}",
+  "Neue Gruppe erstellen": "Создать новую группу",
+  "Deine Edensteine": "Твои камни Эдема",
+  "Dein Platz: {rank} von {total}": "Твоё место: {rank} из {total}"
 }

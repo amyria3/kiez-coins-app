@@ -120,6 +120,8 @@ export const size = {
 export const stroke = {
   ultraThin: 0.5,
   thin: 1,
+  /** Rand um ein aktives Eingabefeld (Daria, 27.10.2026) */
+  focus: 2,
   ring: 3,
 } as const;
 
