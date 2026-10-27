@@ -7,9 +7,8 @@ import { Avatar } from '../../../components/AuthorRow';
 import { Button } from '../../../components/Button';
 import { FieldGroup, KaterCard } from '../../../components/Content';
 import { CopyField, SwitchRow } from '../../../components/Form';
-import { LivingCrystal } from '../../../components/icons/Brand';
 import { SubScreen } from '../../../components/Screen';
-import { inviteLink, inviteMessage, leaderboard, MAX_MEMBERS } from '../../../data/groups';
+import { inviteLink, inviteMessage, MAX_MEMBERS } from '../../../data/groups';
 import { useStore } from '../../../data/store';
 import type { User } from '../../../data/types';
 import { color, radius, space, text } from '../../../theme/tokens';
@@ -17,10 +16,10 @@ import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 
 /**
- * Route `gruppen/[id]`: Rangliste, Einladungscode, Aufgaben erstellen.
+ * Route `gruppen/[id]`: Mitglieder, Einladungscode, Aufgaben erstellen.
  * Die Gründerin entfernt Mitglieder und überträgt ihre Rolle (Mitglied antippen).
- * In den Gruppeneinstellungen schaltet sie die Rangliste ein und aus. Aus: Mitgliederliste nach Beitritt,
- * jede Person sieht nur ihre eigenen Edensteine.
+ * In den Gruppeneinstellungen schaltet sie die Rangliste ein und aus. Die Rangliste selbst steht in
+ * „Was Du so machst“ unter „In Gruppen“ (UX-Audit, Daria, 27.10.2026); hier stehen die Mitglieder nach Beitritt.
  */
 export default function GroupDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -39,9 +38,6 @@ export default function GroupDetail() {
 
   const isFounder = group.founderId === currentUserId;
   const showRanks = group.showLeaderboard;
-  const ranks = leaderboard(group, challenges);
-  // Ohne Rangliste: Reihenfolge nach Beitritt, damit die Liste keinen Rang andeutet
-  const rows = showRanks ? ranks : group.members.flatMap((m) => ranks.filter((r) => r.userId === m.userId));
   const openTasks = challenges.filter((c) => c.groupId === group.id && c.status === 'open').length;
   const userOf = (userId: string): User =>
     users.find((u) => u.id === userId) ?? { id: userId, name: 'Unbekannt', firstName: 'Unbekannt' };
@@ -118,53 +114,30 @@ export default function GroupDetail() {
         </>
       }
     >
-      <FieldGroup label={showRanks ? 'Rangliste' : 'Mitglieder'}>
+      <FieldGroup label="Mitglieder">
         <View style={styles.list}>
-          {rows.map((r, index) => {
-            const member = group.members.find((m) => m.userId === r.userId);
-            const user = userOf(r.userId);
-            const me = r.userId === currentUserId;
+          {group.members.map((member) => {
+            const user = userOf(member.userId);
+            const me = member.userId === currentUserId;
             return (
               <Pressable
-                key={r.userId}
+                key={member.userId}
                 accessibilityRole={isFounder && !me ? 'button' : undefined}
-                accessibilityLabel={
-                  showRanks
-                    ? t('Platz {index}, {name}, {edensteine} Edensteine', { index: index + 1, name: me ? t('Du') : user.name, edensteine: r.edensteine })
-                    : me
-                      ? t('Du, {edensteine} Edensteine', { edensteine: r.edensteine })
-                      : user.name
-                }
-                onPress={() => memberMenu(r.userId)}
+                accessibilityLabel={me ? t('Du') : user.name}
+                onPress={() => memberMenu(member.userId)}
                 disabled={!isFounder || me}
                 style={({ pressed }) => [styles.row, me && styles.rowMe, pressed && styles.pressed]}
               >
-                {showRanks ? <Text style={styles.rank}>{index + 1}</Text> : null}
                 <Avatar user={user} diameter={32} />
                 <View style={styles.flex}>
                   <Text noTranslate style={styles.name} numberOfLines={1}>
                     {me ? t('Du') : user.name}
                   </Text>
-                  <Text style={styles.meta}>
-                    {[
-                      // Initiator:in nach dem Geschlecht der Person (Daria, 24.10.2026)
-                      member?.role === 'founder' ? (me ? t('Initiator:in') : tAbout(user, 'Initiator:in')) : null,
-                      showRanks || me ? (r.done === 1 ? t('1 Aufgabe erledigt') : t('{done} Aufgaben erledigt', { done: r.done })) : null,
-                    ]
-                      .filter(Boolean)
-                      .join(' · ')}
-                  </Text>
+                  {member.role === 'founder' ? (
+                    // Initiator:in nach dem Geschlecht der Person (Daria, 24.10.2026)
+                    <Text style={styles.meta}>{me ? t('Initiator:in') : tAbout(user, 'Initiator:in')}</Text>
+                  ) : null}
                 </View>
-                {showRanks || me ? (
-                  <>
-                    <View style={styles.crystal}>
-                      <View style={styles.crystalFloat}>
-                        <LivingCrystal height={36} seed={`rang-${user.id}`} />
-                      </View>
-                    </View>
-                    <Text style={styles.eden}>{r.edensteine}</Text>
-                  </>
-                ) : null}
               </Pressable>
             );
           })}
@@ -178,8 +151,8 @@ export default function GroupDetail() {
             label="Rangliste anzeigen"
             description={
               showRanks
-                ? 'Alle sehen, wer wie viele Edensteine hat.'
-                : 'Alle sehen nur ihre eigenen Edensteine.'
+                ? 'Alle sehen in „Was Du so machst“, wer wie viele Edensteine hat.'
+                : 'Alle sehen in „Was Du so machst“ nur ihre eigenen Edensteine.'
             }
             value={showRanks}
             onValueChange={(show) => run(() => groupApi.setLeaderboard(group.id, show), 'Nicht gespeichert')}
@@ -207,9 +180,6 @@ export default function GroupDetail() {
 }
 
 const styles = StyleSheet.create({
-  // Einzelner Edenstein je Zeile, ragt über die Zeilenhöhe (Daria, 22.10.2026)
-  crystal: { width: 24, height: 22, alignItems: 'center' },
-  crystalFloat: { position: 'absolute', top: (22 - 36) / 2 },
   list: { gap: space[8] },
   row: {
     flexDirection: 'row',
@@ -222,9 +192,7 @@ const styles = StyleSheet.create({
   },
   rowMe: { borderWidth: 1, borderColor: color.accent.confirmation },
   pressed: { opacity: 0.7 },
-  rank: { ...text.metric, fontSize: 18, width: 22, textAlign: 'center', color: color.text.secondary },
   flex: { flex: 1, gap: space[2] },
   name: { ...text.title, fontSize: 16, color: color.text.primary },
   meta: { ...text.caption, color: color.text.secondary },
-  eden: { ...text.metric, fontSize: 18, color: color.accent.confirmation, minWidth: 24, textAlign: 'right' },
 });

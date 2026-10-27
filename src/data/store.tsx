@@ -330,6 +330,8 @@ type BeforeAfterApi = {
   /** Gibt die id des Entwurfs zurück */
   start: (input: remote.NewBeforeAfter) => Promise<string>;
   startTimer: (id: string) => Promise<void>;
+  /** Timer stoppen: Die Challenge ist wieder ein Entwurf, der noch nicht gestartet ist. */
+  stopTimer: (id: string) => Promise<void>;
   update: (id: string, edit: remote.BeforeAfterEdit) => Promise<void>;
   /** Speichert `edit` (falls übergeben) und postet */
   finish: (id: string, edit?: remote.BeforeAfterEdit) => Promise<void>;
@@ -681,6 +683,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         if (!isDemo()) return live(id, () => remote.startBeforeAfterTimer(id));
         const c = find(id);
         if (c && !c.timerStartedAt) put({ ...c, timerStartedAt: new Date().toISOString() });
+      },
+      stopTimer: async (id) => {
+        if (!isDemo()) return live(id, () => remote.stopBeforeAfterTimer(id));
+        const c = find(id);
+        if (c) put({ ...c, timerStartedAt: undefined });
       },
       update: async (id, edit) => {
         if (!isDemo()) return live(id, () => remote.updateBeforeAfter(stateRef.current.currentUserId, id, edit));

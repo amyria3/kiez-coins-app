@@ -38,7 +38,7 @@ const open = JSON.stringify(legalDocs).match(/\[offen:[^\]]*\]/g);
 if (open) console.warn(`Achtung, noch offen: ${[...new Set(open)].join(', ')}`);
 
 const css = `
-:root { --bg:#FAFBEF; --surface:#FFFFFF; --text:#26233A; --muted:#6A6680; --accent:#5260E0; --error:#D6334A; --line:rgba(38,35,58,.10); }
+:root { --bg:#FAFBEF; --surface:#FFFFFF; --text:#26233A; --muted:#4A465E; --accent:#5260E0; --error:#D6334A; --line:rgba(38,35,58,.10); }
 * { box-sizing:border-box; }
 html { background:var(--bg); color:var(--text); }
 body { margin:0; font:300 16px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
@@ -107,6 +107,9 @@ const kcSvg = {
   send: icon('send', C.muted),
   camera: icon('camera', C.text),
   pin: icon('map-pin', C.text),
+  // Doppelherz = Feed (Daria, 26.10.2026), in Pink für die Herz-Animation nach dem Posten
+  feed: icon('feed', C.text),
+  feedOn: icon('feed', C.pink),
   burger: icon('burger', C.muted),
   close: icon('close', C.text),
   check: icon('check', C.dark),
@@ -125,6 +128,16 @@ const kcSvg = {
   diamond3: { w: diamondSvgs[3].width, h: diamondSvgs[3].height, svg: diamondSvgs[3].svg(C.text) },
   cameraDark: icon('camera', C.dark),
 };
+// Logo für den Seitenkopf: Schriftzug wie in der App, die Katze vorne ersetzt durch Darias FatCat (scripts/site/fatcat.svg, 26.10.2026).
+// Die ersten acht Pfade im Logo sind die alte Katze. Die FatCat bekommt die Logo-Farbe, damit seite.css sie mit umfärbt.
+const logoSeite = (() => {
+  const pfade = kcSvg.logo.svg.match(/<path[\s\S]*?\/>/g);
+  const fat = readFileSync(join(root, 'scripts/site/fatcat.svg'), 'utf8').match(/<path[\s\S]*?\/>/)[0].replace(/fill="[^"]*"/, 'fill="#7E94FF"');
+  const katze = `<g transform="translate(0.5 1.5) scale(${(24 / 35).toFixed(4)})">${fat}</g>`;
+  let svg = kcSvg.logo.svg.replace(pfade[0], katze);
+  for (const alt of pfade.slice(1, 8)) svg = svg.replace(alt, '');
+  return { ...kcSvg.logo, svg };
+})();
 const sized = (d, h) => d.svg.replace(/width="[^"]*" height="[^"]*"/, `width="${Math.round((d.w / d.h) * h)}" height="${h}" aria-hidden="true"`);
 // Dateien mit Prüfsumme im Namen-Parameter, damit Browser nach einem Update die neue Fassung laden
 const version = (text) => createHash('sha1').update(text).digest('hex').slice(0, 8);
@@ -136,9 +149,47 @@ const datenJs = `window.KC = ${JSON.stringify({ svg: kcSvg, art: kartenbilder, f
 const appJs = readFileSync(join(siteDir, 'prototyp.js'), 'utf8');
 const seiteCss = readFileSync(join(siteDir, 'seite.css'), 'utf8');
 
+// ---------- Sprachen der Startseite (Daria, 26.10.2026) ----------
+// Deutsch unter /, alle anderen unter /<code>/. Im Code steht je Text Deutsch und Englisch: t('Deutsch', 'English').
+// Die übrigen Sprachen liegen in scripts/site/sprachen/<code>.json, Schlüssel ist der deutsche Text.
+// Fehlt dort ein Text (etwa weil er gerade neu ist), zeigt die Seite die englische Fassung.
+// Reihenfolge im Menü nach Alter der Sprache, die älteste zuerst (Daria, 26.10.2026)
+const sprachen = [
+  { code: 'he', name: 'עברית', rtl: true },
+  { code: 'ar', name: 'العربية', rtl: true },
+  { code: 'en', name: 'English' },
+  { code: 'de', name: 'Deutsch' },
+  { code: 'fr', name: 'Français' },
+  { code: 'uk', name: 'Українська' },
+  { code: 'ru', name: 'Русский' },
+];
+const sprachDir = join(root, 'scripts/site/sprachen');
+const normText = (s) => s.replace(/\s+/g, ' ').trim();
+const woerter = Object.fromEntries(
+  sprachen
+    .filter((l) => existsSync(join(sprachDir, `${l.code}.json`)))
+    .map((l) => {
+      const dict = JSON.parse(readFileSync(join(sprachDir, `${l.code}.json`), 'utf8'));
+      // Gerades Apostroph würde die JS-Strings auf der Seite beenden, daher typografisch
+      return [l.code, Object.fromEntries(Object.entries(dict).map(([k, v]) => [normText(k), v.replace(/'/g, '’')]))];
+    }),
+);
+const fehlend = new Map();
+const uebersetzer = (L) => (de, en) => {
+  if (L === 'de') return de;
+  if (L === 'en') return en;
+  const v = woerter[L]?.[normText(de)];
+  if (v == null) {
+    if (!fehlend.has(L)) fehlend.set(L, new Set());
+    fehlend.get(L).add(de);
+  }
+  return v ?? en;
+};
+const pfad = (L) => (L === 'de' ? '/' : `/${L}/`);
+
 const ios = (L) => {
-  const t = (de, en) => (L === 'en' ? en : de);
-  const P = L === 'en' ? '/' : '';
+  const t = uebersetzer(L);
+  const P = L === 'de' ? '' : '/';
   return config.testflightUrl
   ? `<div class="card" id="iphone">
   <h3>iPhone</h3>
@@ -158,9 +209,14 @@ const ios = (L) => {
   <p class="klein">${t('Kamera, Fotos und Standort fragt Safari beim ersten Mal ab. Push-Benachrichtigungen gibt es in der Web-App nicht. Updates kommen automatisch beim nächsten Start.', 'Safari asks for camera, photos and location the first time. The web app has no push notifications. Updates arrive automatically on the next start.')}</p>
 </div>`;
 };
-// Sprachauswahl oben rechts: Deutsch unter /, Englisch unter /en/ (Daria, 26.10.2026)
-const sprachwahl = (L) =>
-  `<span class="sprachwahl" role="group" aria-label="${L === 'en' ? 'Language' : 'Sprache'}"><a href="/" hreflang="de" lang="de"${L === 'de' ? ' aria-current="true"' : ''}>DE</a><a href="/en/" hreflang="en" lang="en"${L === 'en' ? ' aria-current="true"' : ''}>EN</a></span>`;
+// Sprachauswahl oben rechts: kleines Menü mit Kürzel, darin die Sprachen in ihrer eigenen Schrift.
+// <details> klappt auch ohne JavaScript auf.
+const sprachwahl = (L) => {
+  const t = uebersetzer(L);
+  return `<details class="sprachwahl"><summary aria-label="${t('Sprache', 'Language')}: ${sprachen.find((l) => l.code === L).name}">${L.toUpperCase()}</summary><ul>${sprachen
+    .map((l) => `<li><a href="${pfad(l.code)}" hreflang="${l.code}" lang="${l.code}"${l.rtl ? ' dir="rtl"' : ''}${l.code === L ? ' aria-current="true"' : ''}>${l.name}</a></li>`)
+    .join('')}</ul></details>`;
+};
 
 // ---------- Spendenaktion der Testphase (Daria, 2026-10-23) ----------
 // Als Testperson zählt, wer die Umfrage in der App abgeschickt hat (Funktion `tester_count`, Migration 20261023000200).
@@ -203,10 +259,11 @@ const leute = [
 ];
 
 const startseite = (L) => {
-  const t = (de, en) => (L === 'en' ? en : de);
-  const P = L === 'en' ? '/' : '';
+  const t = uebersetzer(L);
+  const P = L === 'de' ? '' : '/';
+  const rtl = sprachen.find((l) => l.code === L).rtl;
   return `<!doctype html>
-<html lang="${L}">
+<html lang="${L}"${rtl ? ' dir="rtl"' : ''}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -215,18 +272,18 @@ const startseite = (L) => {
 <title>Kiez Coins – ${t('Kleine Challenges für mehr echte Gemeinschaft', 'Small challenges for more real community')}</title>
 <meta name="description" content="${t('Kennst Du das? Irgendwas muss erledigt werden, doch wer in Gottes Namen soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez. Zusammen sind wir stärker, gesünder, glücklicher, wohlhabender und bekommen sogar mehr gebacken!', 'Sound familiar? Something needs doing, but who on earth is going to do it? KiezCoins gives you an interface to share work better – at home or in your neighborhood. Together we’re stronger, healthier, happier, wealthier and we even get more done!')}">
 <link rel="icon" href="${P}favicon.png">
-<link rel="alternate" hreflang="de" href="/">
-<link rel="alternate" hreflang="en" href="/en/">
+${sprachen.map((l) => `<link rel="alternate" hreflang="${l.code}" href="${pfad(l.code)}">`).join('\n')}
 <link rel="preload" href="${P}fonts/InterTight_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="stylesheet" href="${P}seite.css?v=${version(seiteCss)}">
 <script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
 ${filterDefs}
+<div class="fx-spur" aria-hidden="true"></div>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="${L === 'en' ? '/en/' : './'}" aria-label="${t('Kiez Coins, Startseite', 'Kiez Coins, home')}">${sized(kcSvg.logo, 28)}</a>
-  <nav class="top-links"><a class="top-link" href="/spenden"><span class="lang">${t('Spendenaktion', 'Fundraiser')}</span><span class="kurz">${t('Spenden', 'Donate')}</span></a><a class="top-link" href="#download"><span class="lang">${t('Testversion laden', 'Get the beta')}</span><span class="kurz">${t('Testen', 'Try it')}</span></a>${sprachwahl(L)}</nav>
+  <a class="brand" href="${L === 'de' ? './' : pfad(L)}" aria-label="${t('Kiez Coins, Startseite', 'Kiez Coins, home')}">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+  <nav class="top-links"><a class="top-link" href="#download"><span class="lang">${t('Testversion laden', 'Get the beta')}</span><span class="kurz">${t('Testen', 'Try it')}</span></a>${sprachwahl(L)}</nav>
 </header>
 
 <main>
@@ -293,7 +350,7 @@ ${filterDefs}
     <h2 id="leute-titel">${t('Kiez Coins passt zwischen Briefkasten und Fahrradkeller.', 'Kiez Coins fits between the mailbox and the bike cellar.')}</h2>
     <p>${t('Aufgaben, die sonst liegen bleiben, erledigt jemand safe - als wäre es ein Spiel', 'Tasks that would otherwise pile up get done for sure – as if it were a game')}</p>
     <div class="szene">
-${leute.map((l) => `      <div class="person"><p class="blase">${esc(L === 'en' ? l.en : l.text)}</p>${l.figur}</div>`).join('\n')}
+${leute.map((l) => `      <div class="person"><p class="blase">${esc(t(l.text, l.en))}</p>${l.figur}</div>`).join('\n')}
     </div>
   </div>
 </section>
@@ -326,7 +383,7 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(L === 'en' 
       <a href="${P}datenschutz.html">${t('Datenschutz', 'Privacy')}</a>
       <a href="${P}nutzungsbedingungen.html">${t('Nutzungsbedingungen', 'Terms of use')}</a>
       <a href="${P}community-regeln.html">${t('Community-Regeln', 'Community rules')}</a>
-      <a href="https://waldentdeckenberlin.org/voll-der-mist/" rel="noopener">${t('Bildquelle Müll im Wald: Wald entdecken Berlin', 'Photo credit, litter in the forest: Wald entdecken Berlin')}</a>
+      <a href="https://waldentdeckenberlin.org/voll-der-mist/" rel="noopener">${t('Bildquellen', 'Photo credits')}</a>
     </footer>
   </div>
 </section>
@@ -347,8 +404,13 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(L === 'en' 
 </div>
 
 <script src="${P}prototyp/daten.js?v=${version(datenJs)}"></script>
+${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g, '\\u003c')};</script>` : ''}
 <script src="${P}prototyp/app.js?v=${version(appJs)}"></script>
 <script>
+  // Sprachmenü schließt beim Tipp daneben und mit Escape
+  var sprache = document.querySelector('.sprachwahl');
+  document.addEventListener('click', function (e) { if (sprache.open && !sprache.contains(e.target)) sprache.open = false; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sprache.open) { sprache.open = false; sprache.querySelector('summary').focus(); } });
   // Fehler vom Download zeigen
   var f = new URLSearchParams(location.search).get('fehler');
   var t = { passwort: '${t('Der Einladungscode stimmt nicht.', 'The invitation code is not correct.')}', datei: '${t('Die App-Datei fehlt gerade. Versuche es später noch mal.', 'The app file is missing right now. Please try again later.')}', technik: '${t('Der Download ist gerade nicht eingerichtet.', 'The download is not set up right now.')}' }[f];
@@ -417,12 +479,12 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(L === 'en' 
       flug.innerHTML = buehne.querySelector('.mehr-herz svg').outerHTML;
       buehne.appendChild(flug);
       setTimeout(function () { flug.remove(); }, 1200);
-      status.textContent = n === 1 ? '${t('Gepostet! Die ersten Herzen kommen.', 'Posted! The first hearts are coming in.')}' : herz.textContent + '${t(' Herzen für Dein Waldbild.', ' hearts for your forest photo.')}';
+      status.textContent = n === 1 ? '${t('Gepostet! Die ersten Herzen kommen.', 'Posted! The first hearts are coming in.')}' : '${t('{n} Herzen für Dein Waldbild.', '{n} hearts for your forest photo.')}'.replace('{n}', herz.textContent);
     } else if (art === 'freunde') {
       var av = buehne.querySelectorAll('.mehr-avatar');
       if (n > av.length) { mehr.freunde = 0; av.forEach(function (a) { a.classList.remove('is-freund'); }); status.textContent = '${t('Tipp und füg Lena hinzu.', 'Tap to add Lena.')}'; return; }
       av[n - 1].classList.add('is-freund');
-      status.textContent = n < av.length ? freunde[n - 1] + '${t(' ist jetzt dabei. Tipp für ', ' is in. Tap for ')}' + freunde[n] + '.' : '${t('Drei Freunde. Tipp, um neu zu starten.', 'Three friends. Tap to start over.')}';
+      status.textContent = n < av.length ? '${t('{a} ist jetzt dabei. Tipp für {b}.', '{a} is in. Tap for {b}.')}'.replace('{a}', freunde[n - 1]).replace('{b}', freunde[n]) : '${t('Drei Freunde. Tipp, um neu zu starten.', 'Three friends. Tap to start over.')}';
     } else {
       var paar = chat[(n - 1) % chat.length];
       blase(buehne, paar[0], true);
@@ -430,6 +492,59 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(L === 'en' 
       setTimeout(function () { blase(buehne, paar[1], false); status.textContent = '${t('Tipp für die nächste Nachricht.', 'Tap for the next message.')}'; }, 900);
     }
   });
+</script>
+<script>
+  // Scrolleffekte: A Abschnitte blenden ein, B Kater und Telefon bewegen sich leicht mit, C Fortschrittsbalken oben,
+  // D Abschnitte stapeln sich wie Karten (Daria, 26.10.2026). Bei „Bewegung reduzieren“ bleibt alles still.
+  (function () {
+    var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var root = document.documentElement;
+    if (!still) root.classList.add('fx-a', 'fx-b', 'fx-c', 'fx-d');
+    if (still) return;
+    // A: Abschnitte gleiten beim Erreichen von unten herein, Karten nacheinander
+    if (root.classList.contains('fx-a') && 'IntersectionObserver' in window) {
+      var els = document.querySelectorAll('.mehr h2, .mehr > .wrap > p, .mehr-karte, .leute h2, .leute > .wrap > p, .download h2, .download > .wrap > p, .download .card');
+      var seh = new IntersectionObserver(function (es) {
+        es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-da'); seh.unobserve(e.target); } });
+      }, { rootMargin: '0px 0px -12% 0px' });
+      els.forEach(function (el) {
+        var i = [].indexOf.call(el.parentNode.children, el);
+        if (el.matches('.mehr-karte, .card')) el.style.setProperty('--i', i);
+        el.classList.add('fx-zeigen');
+        seh.observe(el);
+      });
+    }
+    // D: Jeder Abschnitt bleibt stehen, sobald sein Ende im Bild ist, der nächste schiebt sich darüber.
+    // Dafür braucht jeder Abschnitt seine Höhe als --h (top: min(0, 100vh - Höhe) in seite.css).
+    if (root.classList.contains('fx-d')) {
+      var stapel = document.querySelectorAll('body > .wrap, .mehr, .leute');
+      var messen = function () { stapel.forEach(function (el) { el.style.setProperty('--h', el.offsetHeight + 'px'); }); };
+      if ('ResizeObserver' in window) { var ro = new ResizeObserver(messen); stapel.forEach(function (el) { ro.observe(el); }); }
+      addEventListener('resize', messen);
+      messen();
+    }
+    // B und C hängen an der Scrollposition, ein Frame pro Bild
+    var kopf = document.getElementById('kater-kopf'), tel = document.querySelector('.phone-spalte'), spur = document.querySelector('.fx-spur');
+    var letzt = scrollY, kipp = 0, wartet = false;
+    function frame() {
+      wartet = false;
+      var y = scrollY, max = Math.max(1, document.documentElement.scrollHeight - innerHeight), p = Math.min(1, y / max);
+      if (root.classList.contains('fx-b')) {
+        // Kater wandert gemächlich mit und neigt den Kopf in Scrollrichtung
+        kipp += (Math.max(-14, Math.min(14, (y - letzt) * .6)) - kipp) * .25;
+        kopf.style.setProperty('--ky', ((.5 - p) * 140).toFixed(1) + 'px');
+        kopf.style.setProperty('--kr', kipp.toFixed(2) + 'deg');
+        if (y < innerHeight * 1.2) tel.style.setProperty('--ty', (y * -.12).toFixed(1) + 'px');
+        if (Math.abs(kipp) > .05) planen();
+      }
+      if (root.classList.contains('fx-c')) spur.style.setProperty('--p', p.toFixed(4));
+      letzt = y;
+    }
+    function planen() { if (!wartet) { wartet = true; requestAnimationFrame(frame); } }
+    addEventListener('scroll', planen, { passive: true });
+    addEventListener('resize', planen);
+    frame();
+  })();
 </script>
 </body>
 </html>
@@ -455,7 +570,7 @@ const einladung = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}</a>
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
 </header>
 <main>
 <section class="download einladung" id="download" aria-labelledby="einladung-titel">
@@ -524,7 +639,7 @@ const spendenSeite = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}</a>
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
   <a class="top-link" href="/#download">Testversion laden</a>
 </header>
 <main>
@@ -586,7 +701,7 @@ const katerSeite = `<!doctype html>
 <body class="kater-seite">
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}</a>
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
   <a class="top-link" href="/#download">Testversion laden</a>
 </header>
 <main class="kater-buehne-seite">
@@ -693,8 +808,11 @@ const legal = (id) => {
 
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, 'index.html'), startseite('de'));
-mkdirSync(join(out, 'en'), { recursive: true });
-writeFileSync(join(out, 'en', 'index.html'), startseite('en'));
+for (const { code } of sprachen.filter((l) => l.code !== 'de')) {
+  mkdirSync(join(out, code), { recursive: true });
+  writeFileSync(join(out, code, 'index.html'), startseite(code));
+}
+for (const [L, texte] of fehlend) console.warn(`Startseite ${L}: ${texte.size} Texte ohne Übersetzung, dort steht Englisch (scripts/site/sprachen/${L}.json)`);
 writeFileSync(join(out, 'einladung.html'), einladung);
 writeFileSync(join(out, 'spenden.html'), spendenSeite);
 if (katerSvg) writeFileSync(join(out, 'kater.html'), katerSeite);

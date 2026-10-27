@@ -61,7 +61,7 @@ export function TagTextField({
     <View style={styles.field}>
       <Text style={styles.label}>{t(label)}</Text>
       <View
-        style={[styles.box, { borderColor: tooLong ? color.accent.error : focused ? color.accent.primary : isFashionable ? color.line.hairline : color.text.secondary }]}
+        style={[styles.box, focused && styles.boxFocused, { borderColor: tooLong ? color.accent.error : focused ? color.accent.primary : isFashionable ? color.line.hairline : color.text.secondary }]}
         onTouchEnd={() => inputRef.current?.focus()}
       >
         <Text style={styles.tag} noTranslate>
@@ -200,6 +200,13 @@ const styles = StyleSheet.create({
     paddingTop: space[12],
     paddingBottom: space[8],
     gap: space[2],
+  },
+  // Aktives Feld mit kräftigerem Rand, Inhalt bleibt an seinem Platz
+  boxFocused: {
+    borderWidth: stroke.focus,
+    paddingHorizontal: space[12] - (stroke.focus - stroke.thin),
+    paddingTop: space[12] - (stroke.focus - stroke.thin),
+    paddingBottom: space[8] - (stroke.focus - stroke.thin),
   },
   tag: { fontFamily: isFashionable ? font.semiBold : font.medium, fontSize: 14, lineHeight: 18, color: color.accent.signal },
   input: { ...text.body, color: color.text.primary, padding: 0, minHeight: 40, textAlignVertical: 'top' },

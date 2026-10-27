@@ -348,7 +348,6 @@
   "Gib Eurer Gruppe einen Namen.": "Give your group a name.",
   "Name der Gruppe": "Group name",
   "Zum Beispiel „WG Kastanienallee“ oder „Familie Brandt“. Max. 40 Zeichen.": "For example “Flatshare Kastanienallee” or “Brandt family”. Max. 40 characters.",
-  "Nach dem Gründen bekommst Du einen Code mit 6 Zeichen. Den teilst Du mit bis zu {anzahl} Leuten. Einen Kiez braucht es dafür nicht.": "After founding you get a code with 6 characters. Share it with up to {anzahl} people. You don’t need a neighbourhood for that.",
   "Ohne Titel": "Untitled",
   "Entwurf löschen?": "Delete draft?",
   "Das lässt sich nicht rückgängig machen.": "This can’t be undone.",
@@ -1078,5 +1077,14 @@
   "Wollte nur nett sein": "Just wanted to be nice",
   "Eigene Antwort": "Your own answer",
   "Eigene Antworten: {title}": "Own answers: {title}",
-  "Noch keine eigenen Antworten.": "No own answers yet."
+  "Noch keine eigenen Antworten.": "No own answers yet.",
+  "Alle sehen in „Was Du so machst“, wer wie viele Edensteine hat.": "Everyone sees in “What you’re up to” how many Eden stones each person has.",
+  "Alle sehen in „Was Du so machst“ nur ihre eigenen Edensteine.": "In “What you’re up to”, everyone only sees their own Eden stones.",
+  "Gruppe wählen, gewählt: {name}": "Choose group, selected: {name}",
+  "Neue Gruppe erstellen": "Create new group",
+  "Deine Edensteine": "Your Eden stones",
+  "Dein Platz: {rank} von {total}": "Your place: {rank} of {total}",
+  "Was Du hier postest, sehen alle Nutzer:innen in Deinem Kiez.": "Everyone in your neighbourhood sees what you post here.",
+  "Was Du hier postest, sehen nur die Mitglieder in dieser Gruppe.": "Only the members of this group see what you post here.",
+  "Die App erstellt für Dich einen Code und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "The app creates a code and an invite link for you. This way, {anzahl} more people can join your group."
 }

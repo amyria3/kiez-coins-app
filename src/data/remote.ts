@@ -782,6 +782,9 @@ export async function startBeforeAfterTimer(id: string): Promise<string> {
   return data as string;
 }
 
+/** Timer stoppen: wieder ein Entwurf ohne Timer (Migration 20261027000100). */
+export const stopBeforeAfterTimer = (id: string) => rpc('stop_before_after_timer', { p_challenge_id: id });
+
 /** 3. Entwurf ändern: neue Fotos hochladen, Texte setzen. Nicht übergebene Werte bleiben. */
 export async function updateBeforeAfter(userId: string, id: string, edit: BeforeAfterEdit): Promise<void> {
   const before = edit.beforePhoto ? await uploadPhoto(userId, edit.beforePhoto) : null;
@@ -951,16 +954,15 @@ export async function setPraise(userId: string, praised: boolean, meId: string) 
   else check(await supabase.from('praises').delete().eq('giver_id', meId).eq('receiver_id', userId));
 }
 
-export type AppTextLang = 'en' | 'fr' | 'uk' | 'ar' | 'he';
+export type AppTextLang = 'en' | 'fr' | 'uk' | 'ru' | 'ar' | 'he';
 export type AppTextRow = { original: string; text: string; ort: string | null; updated_at: string } & Partial<
   Record<AppTextLang, string | null>
 >;
 
 /** Alle Texte des CMS für den Editor (Route `texte`), mit Übersetzungen, sofern die Migration 1400 gelaufen ist. */
 export async function loadAppTexts(): Promise<AppTextRow[]> {
-  const full = await supabase.from('app_texts').select('original, text, ort, updated_at, en, fr, uk, ar, he');
-  if (!full.error) return (full.data ?? []) as AppTextRow[];
-  const { data } = check(await supabase.from('app_texts').select('original, text, ort, updated_at'));
+  // Alle Spalten: Fehlt eine Sprachspalte noch (Migration nicht gelaufen), bleibt sie einfach leer.
+  const { data } = check(await supabase.from('app_texts').select('*'));
   return (data ?? []) as AppTextRow[];
 }
 
