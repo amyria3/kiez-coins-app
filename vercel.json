@@ -5,7 +5,7 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/app/:path*",
+      "source": "/app/:path((?!_expo/).*)",
       "destination": "/app/index"
     },
     {
