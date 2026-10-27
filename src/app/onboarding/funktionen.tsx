@@ -7,8 +7,8 @@ import { SubScreen } from '../../components/Screen';
 import { useGoBack } from '../../lib/goBack';
 
 /**
- * Route `onboarding/funktionen`, Schritt 6 nach dem Kodex (Daria, 24.10.2026): zeigt den Start mit Bild
- * (Me-Challenge ist immer an und steht nicht in der Liste). We-Challenge und Gruppen lassen sich hier schon zuschalten, später in „Dein Konto › Funktionen“.
+ * Route `onboarding/funktionen`, Schritt 6 nach dem Kodex: Modi Privat, Gruppe und Kiez verbergen und den
+ * Standard wählen (Daria, 27.10.2026), später in „Dein Konto › Funktionen“.
  */
 export default function OnboardingFeatures() {
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function OnboardingFeatures() {
       onLeadingPress={goBack}
       actions={<Button label="Weiter" onPress={() => router.push('/onboarding/push')} />}
     >
-      <KaterBubble>Du startest mit Me-Challenge und Bild. Mehr schaltest Du hier oder jederzeit in Deinem Konto dazu.</KaterBubble>
+      <KaterBubble>Privat siehst nur Du, in der Gruppe nur Deine Gruppe, im Kiez alle in Deinem Kiez. Verbirg, was Du nicht brauchst. Das geht auch später in Deinem Konto.</KaterBubble>
       <FeatureSwitches />
     </SubScreen>
   );
