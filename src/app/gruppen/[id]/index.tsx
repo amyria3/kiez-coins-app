@@ -107,7 +107,7 @@ export default function GroupDetail() {
       navigation="back"
       onLeadingPress={() => (goBack())}
       // Daria, 27.10.2026: „Aufgabe erstellen“ und „Aufgaben ansehen“ entfallen, unten steht nur noch der Weg zurück zum Feed
-      actions={<Button label="Zurück zum Feed" variant="secondary" onPress={() => router.replace('/feed')} />}
+      actions={<Button label="Zurück zum Feed" variant="secondary" icon="this-way" iconFlip onPress={() => router.replace('/feed')} />}
     >
       <FieldGroup label="Mitglieder">
         <View style={styles.list}>
