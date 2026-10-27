@@ -17,7 +17,7 @@ Regel für Claude steht in `AGENTS.md` (Abschnitt Rules).
 
 ## Menüpunkt „Abrufe Deiner Daten“ (27.10.2026)
 
-Pflichtaufgabe: Migration `supabase/migrations/20261027000200_my_data_access.sql` ausführen. Ohne sie zeigt der Screen „Protokoll nicht geladen“.
+Migration `supabase/migrations/20261027000200_my_data_access.sql` ausgeführt (Daria im SQL-Editor, 27.10.2026). Geprüft: Funktion vorhanden, `authenticated` darf sie aufrufen, `anon` nicht.
 
 - Route `account/datenabrufe`, Zeile in „Dein Konto“ unter Einstellungen nach „Blockierte Personen“.
 - `meine_datenabrufe()` liefert die gezielten Abrufe, an denen die Person beteiligt ist, und den letzten automatischen Eintrag (ohne Zahl gelöschter Nachrichten).
