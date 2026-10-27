@@ -97,6 +97,8 @@ export function TextField({
           multiline && styles.inputMultiline,
           multiline && Platform.OS === 'web' && contentHeight ? { height: Math.max(88, contentHeight + 2) } : null,
           error ? styles.inputError : null,
+          // Aktives Feld mit kräftigerem Rand; das Innere rückt um die Differenz ein, damit nichts springt
+          focused || hinted ? styles.inputFocused : null,
           { borderColor },
         ]}
       />
@@ -514,6 +516,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
   },
   inputMultiline: { minHeight: 88, textAlignVertical: 'top' },
+  inputFocused: {
+    borderWidth: stroke.focus,
+    paddingHorizontal: space[12] - (stroke.focus - stroke.thin),
+    paddingVertical: space[12] - (stroke.focus - stroke.thin),
+  },
   // Fehler: Feld hebt sich mit heller Fläche ab, der Text bleibt gut lesbar
   inputError: { backgroundColor: color.bg.surface },
   extraRow: { flexDirection: 'row', gap: space[8] },

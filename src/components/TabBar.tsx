@@ -6,28 +6,18 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { color, radius, size, space, stroke, isFashionable } from '../theme/tokens';
 import { SvgXml } from 'react-native-svg';
 import { Icon } from './icons/Icon';
-import { CrownIcon } from './icons/Brand';
 import { t } from '../data/texts';
 import { refreshUnread, useUnreadMessages } from '../data/chat';
 import { useStore } from '../data/store';
 import { PH, phXml, useIconPt } from './icons/fashionableSvgs';
-
-/** Krone als Linie für den Look „Fashionable“ */
-const crownLine = (c: string) =>
-  `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="${c}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M3.5 8 8 12l4-6.5 4 6.5 4.5-4-1.8 10.5H5.3z"/><path d="M5.5 21h13"/></svg>`;
 
 export type TabKey = 'feed' | 'reise' | 'chat';
 
 type TabBarProps = {
   active: TabKey;
   onFeedPress: () => void;
-  onReisePress: () => void;
-  /** Langes Drücken auf den Kater öffnet das Demo-Menü (nur Prototyp) */
-  onReiseLongPress?: () => void;
   /** Menü: Dein Konto und Einstellungen */
   onMenuPress: () => void;
-  /** Punkt am Kater: Bei einer Deiner Challenges bist Du dran. */
-  hasTasks?: boolean;
   /** Fashionable Look: Kamera in der Leiste. Ohne: Feed öffnet das Erstellen. */
   onCreatePress?: () => void;
   /** Fashionable Look: Gruppen und Freund:innen. Ohne: Feed öffnet den Reiter „Gruppen“. */
@@ -37,8 +27,8 @@ type TabBarProps = {
 };
 
 /**
- * Schwebende Tab-Leiste (Upgrade „Nachtschicht“): Doppelherz = Feed (Daria, 26.10.2026), Krone = Was Du so machst,
- * Burger = Menü (Konto). Die aktive Seite liegt auf einer dezenten, halbtransparenten Pille.
+ * Schwebende Tab-Leiste (Upgrade „Nachtschicht“): Doppelherz = Feed (Daria, 26.10.2026), Sprechblase = Chats,
+ * Burger = Menü (Konto). Die Krone für „Was Du so machst“ ist raus, das Logo oben im Feed führt dorthin (UX-Audit, 27.10.2026). Die aktive Seite liegt auf einer dezenten, halbtransparenten Pille.
  * Challenge erstellen sitzt als CameraButton oben rechts.
  */
 export function TabBar(props: TabBarProps) {
@@ -101,7 +91,7 @@ function FashionTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabB
   );
 }
 
-function KiezTabBar({ active, onFeedPress, onReisePress, onReiseLongPress, onMenuPress, hasTasks }: TabBarProps) {
+function KiezTabBar({ active, onFeedPress, onMenuPress }: TabBarProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { mode, currentUserId } = useStore();
@@ -123,23 +113,6 @@ function KiezTabBar({ active, onFeedPress, onReisePress, onReiseLongPress, onMen
           style={({ pressed }) => [styles.item, active === 'feed' && styles.itemActive, pressed && styles.pressed]}
         >
           <Icon name="feed" size={size.icon} color={active === 'feed' ? color.text.primary : color.text.secondary} />
-        </Pressable>
-        <Pressable
-          accessibilityRole="tab"
-          accessibilityLabel={hasTasks ? t('Was Du so machst, Du bist dran') : t('Was Du so machst')}
-          accessibilityState={{ selected: active === 'reise' }}
-          onPress={onReisePress}
-          onLongPress={onReiseLongPress}
-          style={({ pressed }) => [styles.item, active === 'reise' && styles.itemActive, pressed && styles.pressed]}
-        >
-          <View>
-            {isFashionable ? (
-              <SvgXml xml={crownLine(active === 'reise' ? color.text.primary : color.text.secondary)} width={25} height={25} />
-            ) : (
-              <CrownIcon height={26} />
-            )}
-            {hasTasks ? <View style={styles.dot} /> : null}
-          </View>
         </Pressable>
         {/* Chat und Freund:innen (Daria, 22.10.2026) */}
         <Pressable
