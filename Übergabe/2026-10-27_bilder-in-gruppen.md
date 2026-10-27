@@ -24,14 +24,15 @@ Gehört in Documentation: `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Challenge
 - `src/app/gruppen/[id]/aufgabe.tsx`: derselbe Schalter auf der eigenen Route, Titel wechselt zu „Bild posten“.
 - `src/app/gruppen/[id]/index.tsx`: offene Aufgaben ohne Bilder und Vorher-Nachher.
 - `src/data/remote.ts`, `src/data/store.tsx`: `NewGroupTask` kennt `type` und `extras`, Edensteine sind optional.
-- `supabase/migrations/20261027000200_group_photo_posts.sql`: Prüfung `challenges_group_reward` und Policy „Gruppenaufgabe erstellen“.
+- `supabase/migrations/20261027000200_group_photo_posts.sql`: Prüfung `challenges_group_reward`, Policies „Gruppenaufgabe erstellen“ und „Challenge erstellen“.
 
 ## Datenbank
 
-Die Migration ändert zwei Dinge:
+Die Migration ändert drei Dinge:
 
 1. `challenges_group_reward` erlaubt in einer Gruppe jetzt auch `type = 'photo'` ohne Edensteine.
 2. Die Policy „Gruppenaufgabe erstellen“ erlaubt neben der Aufgabe mit 1 bis 10 Edensteinen ein Bild ohne Edensteine, mit Foto im eigenen Ordner.
+3. Die Policy „Challenge erstellen“ erlaubt im Kiez jetzt `type in ('individual', 'photo')`. Bisher stand dort nur `'individual'`: Ein Bild im Kiez scheiterte beim Posten und beim Speichern als Entwurf. In der Datenbank gab es am 27.10.2026 kein einziges Bild.
 
 Lesen regelt weiter die Policy „Challenges lesen“ über `is_group_member`: Ein Gruppenbild sehen nur Mitglieder.
 
