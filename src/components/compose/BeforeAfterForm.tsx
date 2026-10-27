@@ -36,8 +36,9 @@ export function BeforeAfterSteps({ at }: { at: 0 | 1 | 2 }) {
 }
 
 /**
- * Erklärung mit fester Marke vorn (#vorher bzw. #nachher). Die Marke gehört nicht zum gespeicherten Text,
- * die Datenbank setzt sie beim Posten davor. Höchstens 240 Zeichen.
+ * Erklärung mit fester Marke vorn (#vorher, #nachher oder #InDiesemMoment). Die Marke gehört nicht zum gespeicherten Text:
+ * #vorher und #nachher setzt die Datenbank beim Posten davor, #InDiesemMoment die App beim Anzeigen.
+ * Höchstens 240 Zeichen, sofern `maxLength` nichts anderes sagt.
  */
 export function TagTextField({
   label,
@@ -46,14 +47,16 @@ export function TagTextField({
   onChangeText,
   placeholder,
   tooLong,
+  maxLength = BEFORE_AFTER_TEXT_MAX,
 }: {
   label: string;
-  tag: '#vorher' | '#nachher';
+  tag: string;
   value: string;
   onChangeText: (v: string) => void;
   placeholder?: string;
   /** Zu langer Text (aus einem anderen Formular übernommen): Rand und Zähler in der Fehlerfarbe */
   tooLong?: boolean;
+  maxLength?: number;
 }) {
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<TextInput>(null);
@@ -71,7 +74,7 @@ export function TagTextField({
           ref={inputRef}
           value={value}
           onChangeText={onChangeText}
-          maxLength={BEFORE_AFTER_TEXT_MAX}
+          maxLength={maxLength}
           multiline
           scrollEnabled={false}
           placeholder={placeholder ? t(placeholder) : undefined}
@@ -85,7 +88,7 @@ export function TagTextField({
       </View>
       <View style={styles.help}>
         <Text style={styles.helpText}>{t('{tag} steht automatisch vorn.', { tag })}</Text>
-        <Text style={[styles.helpText, tooLong ? { color: color.accent.error } : null]}>{`${value.length} / ${BEFORE_AFTER_TEXT_MAX}`}</Text>
+        <Text style={[styles.helpText, tooLong ? { color: color.accent.error } : null]}>{`${value.length} / ${maxLength}`}</Text>
       </View>
     </View>
   );
