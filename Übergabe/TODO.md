@@ -90,3 +90,12 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 - [ ] Nachrichten von Audio zu Text und von Text zu Audio umwandeln
 - [ ] Audio-Assistent: Person anschreiben, indem man ihren Namen sagt
+
+## 27.10.2026 (3) – Rechtstexte nach den neuen Community-Regeln (Daria)
+
+Kontext: `Übergabe/2026-10-27_offen_community-regeln.md`.
+
+- [ ] Nutzungsbedingungen (Abschnitt 2, „ab 18 Jahren“) und Datenschutz (Abschnitt „Alter“) an den Abschnitt „Kinder“ anpassen: Kinder nutzen die App über Eltern oder Lehrkräfte
+- [ ] Nutzungsbedingungen, Abschnitt 3: „Werbung“ als Verbot streichen oder in die Community-Regeln aufnehmen
+- [ ] Schreibweise „KiezCoins“ oder „Kiez Coins“ in den Regeln vereinheitlichen
+- [ ] Migration `20261027000300_app_texts_community_regeln.sql` im Supabase-SQL-Editor ausführen (Texte-Editor)
