@@ -1089,5 +1089,11 @@
   "Dein Platz: {rank} von {total}": "המקום שלך: {rank} מתוך {total}",
   "Was Du hier postest, sehen alle Nutzer:innen in Deinem Kiez.": "כל המשתמשים בשכונה שלך רואים את מה שאתה מפרסם כאן.",
   "Was Du hier postest, sehen nur die Mitglieder in dieser Gruppe.": "רק חברי הקבוצה הזו רואים את מה שאתה מפרסם כאן.",
-  "Die App erstellt für Dich einen Code und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "האפליקציה יוצרת בשבילך קוד וקישור הזמנה. כך עוד {anzahl} אנשים יכולים להצטרף לקבוצה שלך."
+  "Die App erstellt für Dich einen Code und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "האפליקציה יוצרת בשבילך קוד וקישור הזמנה. כך עוד {anzahl} אנשים יכולים להצטרף לקבוצה שלך.",
+  "hat angenommen": "קיבל",
+  "hat's erledigt!": "ביצע!",
+  "hat bestätigt": "אישר",
+  "hat abgelehnt": "דחה",
+  "hat als bezahlt markiert": "סימן כשולם",
+  "hat bezahlt": "שילם"
 }

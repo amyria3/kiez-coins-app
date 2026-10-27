@@ -23,5 +23,11 @@
   "Würde für diese App nicht bezahlen": "Не платив би за цей застосунок",
   "Hab ich schon": "Уже порекомендував",
   "Danke fürs Gießen 🌱": "Дякую, що полив 🌱",
-  "Du hast angepackt, {anrede}. Ich schnurre.": "Ти взявся до справи, {anrede}. Я муркочу."
+  "Du hast angepackt, {anrede}. Ich schnurre.": "Ти взявся до справи, {anrede}. Я муркочу.",
+  "hat angenommen": "прийняв",
+  "hat's erledigt!": "виконав!",
+  "hat bestätigt": "підтвердив",
+  "hat abgelehnt": "відхилив",
+  "hat als bezahlt markiert": "позначив як оплачено",
+  "hat bezahlt": "оплатив"
 }
