@@ -2,7 +2,7 @@ import { useRef, type RefObject } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
-import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
+import { color, font, isFashionable, isPlayful, playfulColor, radius, space, stroke, text } from '../theme/tokens';
 import { useTexts } from '../data/texts';
 import { Glass, glassControls } from './Glass';
 import { GearsLoader, SMALL_GEARS } from './GearsLoader';
@@ -44,6 +44,7 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
   const ref = useRef<View>(null);
   useSubmitTarget(ref, variant !== 'ghost');
   // Versuch: Buttons aus Liquid Glass (iOS 26). Gefüllte Varianten bekommen ihre Farbe als Tönung.
+  if (isPlayful) return <PlayButton pressRef={ref} label={label} onPress={onPress} variant={variant} off={off} disabled={disabled} busy={busy} icon={icon} style={style} />;
   if (isFashionable) return <FashionButton pressRef={ref} label={label} onPress={onPress} variant={variant} off={off} disabled={disabled} busy={busy} style={style} />;
   if (glassControls && variant !== 'ghost') {
     const g = glassVariants[variant];
@@ -125,6 +126,65 @@ function FashionButton({
   );
 }
 
+/**
+ * Knopf im Look „Pausenhof“ (Entwurf 27.10.2026): 3D-Kante unten in einem dunkleren Ton, Beschriftung in Versalien.
+ * Beim Drücken sinkt der Knopf um die Kante ein.
+ */
+function PlayButton({
+  pressRef,
+  label,
+  onPress,
+  variant,
+  off,
+  disabled,
+  busy,
+  icon,
+  style,
+}: {
+  pressRef: RefObject<View | null>;
+  label: string;
+  onPress?: () => void;
+  variant: ButtonVariant;
+  off?: boolean;
+  disabled: boolean;
+  busy?: boolean;
+  icon?: IconName;
+  style?: StyleProp<ViewStyle>;
+}) {
+  const v = playVariants[variant];
+  return (
+    <Pressable
+      ref={pressRef}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: off, busy }}
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.play,
+        { backgroundColor: v.bg, borderColor: v.border, borderBottomColor: v.edge },
+        variant === 'ghost' && styles.playGhost,
+        pressed && variant !== 'ghost' && styles.playPressed,
+        off && !busy && styles.disabled,
+        style,
+      ]}
+    >
+      <View style={styles.row}>
+        {busy ? <GearsLoader size={20} tint={v.label} only={SMALL_GEARS} /> : icon ? <Icon name={icon} size={20} color={v.label} /> : null}
+        <Text style={[styles.playLabel, { color: v.label }]}>{label.toLocaleUpperCase('de-DE')}</Text>
+      </View>
+    </Pressable>
+  );
+}
+
+const playVariants: Record<ButtonVariant, { bg: string; border: string; edge: string; label: string }> = {
+  primary: { bg: color.accent.primary, border: color.accent.primary, edge: playfulColor.edgePrimary, label: '#FFFFFF' },
+  secondary: { bg: color.bg.screen, border: playfulColor.border, edge: playfulColor.border, label: playfulColor.link },
+  ghost: { bg: 'transparent', border: 'transparent', edge: 'transparent', label: playfulColor.link },
+  signal: { bg: color.accent.signal, border: color.accent.signal, edge: playfulColor.edgeSignal, label: '#FFFFFF' },
+  signalOutline: { bg: color.bg.screen, border: playfulColor.border, edge: playfulColor.border, label: color.accent.signal },
+  danger: { bg: color.bg.screen, border: playfulColor.border, edge: playfulColor.border, label: color.accent.error },
+};
+
 const fashionVariants: Record<ButtonVariant, { bg: string; label: string }> = {
   primary: { bg: color.accent.primary, label: color.text.onAccent },
   secondary: { bg: color.bg.surface, label: color.text.primary },
@@ -180,6 +240,18 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   fashion: { minHeight: 44, paddingHorizontal: space[16], borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
   fashionLabel: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18 },
+  play: {
+    minHeight: 50,
+    paddingHorizontal: space[20],
+    borderRadius: 16,
+    borderWidth: 2,
+    borderBottomWidth: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  playGhost: { borderWidth: 0, borderBottomWidth: 0 },
+  playPressed: { borderBottomWidth: 2, transform: [{ translateY: 3 }] },
+  playLabel: { fontFamily: font.semiBold, fontSize: 15, lineHeight: 20, letterSpacing: 0.8 },
   pressed: { opacity: 0.8 },
   disabled: { opacity: 0.5 },
 });

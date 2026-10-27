@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 
 import { challengeTypes, isTypeActive } from '../data/features';
 import type { Challenge } from '../data/types';
-import { color, font, isFashionable, motion, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isFashionable, isPlayful, playfulColor, motion, radius, size, space, stroke, text } from '../theme/tokens';
 import { KaterCard } from './Content';
 import { Logo, MonoCat } from './icons/Brand';
 import { Icon } from './icons/Icon';
@@ -339,7 +339,7 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress 
 const labelColor = (pillX: Animated.Value | Animated.AnimatedInterpolation<number>, l: { x: number; width: number }) =>
   pillX.interpolate({
     inputRange: [l.x - l.width * 0.6, l.x, l.x + l.width * 0.6],
-    outputRange: [color.text.secondary, color.bg.screen, color.text.secondary],
+    outputRange: [color.text.secondary, isPlayful ? playfulColor.link : color.bg.screen, color.text.secondary],
     extrapolate: 'clamp',
   });
 
@@ -403,6 +403,8 @@ const styles = StyleSheet.create({
     padding: space[4],
     borderRadius: radius.full,
     backgroundColor: color.bg.surface,
+    // Pausenhof: weiße Leiste mit grauem Rand und Unterkante
+    ...(isPlayful ? { borderRadius: 16, backgroundColor: color.bg.screen, borderWidth: 2, borderBottomWidth: 4, borderColor: playfulColor.border } : null),
   },
   pill: {
     position: 'absolute',
@@ -410,12 +412,14 @@ const styles = StyleSheet.create({
     bottom: space[4],
     borderRadius: radius.full,
     backgroundColor: color.text.primary,
+    // Pausenhof: hellblaue Pille mit blauem Rand
+    ...(isPlayful ? { borderRadius: 12, backgroundColor: '#DDF4FF', borderWidth: 2, borderColor: '#84D8FF' } : null),
   },
   // Breite nach Inhalt, damit vier Reiter neben die Kamera passen
   segment: { flexGrow: 1, flexShrink: 1, paddingHorizontal: space[8], minHeight: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
   segmentSelected: { backgroundColor: color.text.primary },
   segmentText: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.secondary },
-  segmentTextSelected: { fontFamily: font.medium, color: color.bg.screen },
+  segmentTextSelected: { fontFamily: font.medium, color: isPlayful ? playfulColor.link : color.bg.screen },
   segmentInner: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   planned: { opacity: 0.6 },
   hint: { paddingHorizontal: space[16] },

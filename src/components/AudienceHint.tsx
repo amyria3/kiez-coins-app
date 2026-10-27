@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text } from './T';
 import { IconButton } from './IconButton';
 import { t } from '../data/texts';
-import { color, isFashionable, radius, space, text } from '../theme/tokens';
+import { color, isFashionable, radius, space, text, playfulCard } from '../theme/tokens';
 
 /**
  * Hinweis unter dem Umschalter „Im Kiez / In Gruppen“ (UX-Audit, Daria, 27.10.2026): wer sieht, was Du hier postest.
@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
     paddingRight: space[4],
     borderRadius: radius.lg,
     backgroundColor: color.bg.surface,
+    ...playfulCard,
   },
   text: { ...text.caption, color: color.text.primary, flex: 1 },
 });

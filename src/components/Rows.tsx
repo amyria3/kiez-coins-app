@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from './T';
 
 import type { User } from '../data/types';
-import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isFashionable, radius, size, space, stroke, text, playfulCard } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
@@ -222,6 +222,7 @@ const styles = StyleSheet.create({
     minHeight: 60,
     borderRadius: radius.md,
     backgroundColor: color.bg.surface,
+    ...playfulCard,
   },
   navRow: { minHeight: 48 },
   profileCard: { padding: space[16], gap: space[16], borderRadius: radius.lg },

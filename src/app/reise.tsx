@@ -18,7 +18,7 @@ import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { anrede, formatBountyShort, formatRelative } from '../data/format';
 import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
 import { useStore } from '../data/store';
-import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isFashionable, radius, size, space, stroke, text, playfulCard, isPlayful, playfulColor } from '../theme/tokens';
 import { FashionProfile } from '../components/FashionProfile';
 import { t } from '../data/texts';
 import { useGoBack } from '../lib/goBack';
@@ -106,8 +106,8 @@ function Reise() {
           <>
             {created + accepted > 0 ? (
               <View style={styles.stats}>
-                <Stat value={String(created)} label="erstellt" />
-                <Stat value={String(accepted)} label="angenommen" />
+                <Stat value={String(created)} label="erstellt" tint={isPlayful ? playfulColor.link : undefined} />
+                <Stat value={String(accepted)} label="angenommen" tint={isPlayful ? color.accent.confirmation : undefined} />
                 <Stat value={formatBountyShort(earned)} label="verdient" signal />
               </View>
             ) : null}
@@ -212,10 +212,11 @@ function Thumb({ entry, size: side }: { entry: ReiseEntry; size: number }) {
   );
 }
 
-function Stat({ value, label, signal }: { value: string; label: string; signal?: boolean }) {
+/** `tint`: Zahl in eigener Farbe (Look „Pausenhof“) */
+function Stat({ value, label, signal, tint }: { value: string; label: string; signal?: boolean; tint?: string }) {
   return (
     <View style={styles.stat}>
-      <Text style={[styles.statValue, signal && styles.signal]}>{value}</Text>
+      <Text style={[styles.statValue, signal && styles.signal, tint ? { color: tint } : null]}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
     </View>
   );
@@ -236,6 +237,7 @@ const styles = StyleSheet.create({
     padding: space[12],
     borderRadius: radius.xl + 4,
     backgroundColor: color.bg.surface,
+    ...playfulCard,
     borderWidth: stroke.thin,
     borderColor: color.accent.signal,
   },
@@ -243,13 +245,13 @@ const styles = StyleSheet.create({
   taskTitle: { ...text.cardTitle, fontSize: 17, lineHeight: 21, color: color.text.primary },
   sub: { ...text.caption, fontSize: 12, color: color.text.secondary },
   stats: { flexDirection: 'row', gap: space[8] },
-  stat: { flex: 1, gap: space[4], padding: space[12], borderRadius: radius.lg, backgroundColor: color.bg.surface },
+  stat: { flex: 1, gap: space[4], padding: space[12], borderRadius: radius.lg, backgroundColor: color.bg.surface, ...playfulCard },
   statValue: { ...text.metric, fontSize: 24, lineHeight: 28, color: color.text.primary },
   statLabel: { ...text.caption, color: color.text.secondary },
   signal: { color: color.accent.signal },
   historyBlock: { gap: space[8] },
   sectionLabel: { ...text.caption, letterSpacing: 1, textTransform: 'uppercase', color: color.text.secondary },
-  list: { borderRadius: radius.xl + 2, backgroundColor: color.bg.surface, overflow: 'hidden' },
+  list: { borderRadius: radius.xl + 2, backgroundColor: color.bg.surface, ...playfulCard, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12], paddingHorizontal: space[12] },
   rowDivider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   rowTitle: { fontFamily: font.regular, fontSize: 15, lineHeight: 20, color: color.text.primary },

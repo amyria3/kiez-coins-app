@@ -9,6 +9,9 @@ import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
 import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
 import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
 import { InterTight_600SemiBold } from '@expo-google-fonts/inter-tight/600SemiBold';
+import { Nunito_600SemiBold } from '@expo-google-fonts/nunito/600SemiBold';
+import { Nunito_700Bold } from '@expo-google-fonts/nunito/700Bold';
+import { Nunito_800ExtraBold } from '@expo-google-fonts/nunito/800ExtraBold';
 
 import { WebAlertHost } from '../components/WebAlert';
 import { AuthProvider, useAuth } from '../data/auth';
@@ -21,7 +24,7 @@ import { InstallHint } from '../components/InstallHint';
 import { WebSafeArea } from '../components/WebSafeArea';
 import { FriendInviteNotice } from '../components/FriendInviteNotice';
 import { UpdateHint } from '../components/UpdateHint';
-import { color, scheme } from '../theme/tokens';
+import { color, isPlayful, scheme } from '../theme/tokens';
 import { ErrorScreen } from '../components/ErrorScreen';
 import { setLastScreen } from '../lib/errorReport';
 import { HeartBurst } from '../components/HeartBurst';
@@ -44,6 +47,8 @@ export default function RootLayout() {
     Inter_500Medium,
     Inter_600SemiBold,
     InterTight_600SemiBold,
+    // Nur im Look „Pausenhof“
+    ...(isPlayful ? { Nunito_600SemiBold, Nunito_700Bold, Nunito_800ExtraBold } : {}),
   });
 
   // Sprache (gespeicherte Wahl oder Handy), danach rendern
