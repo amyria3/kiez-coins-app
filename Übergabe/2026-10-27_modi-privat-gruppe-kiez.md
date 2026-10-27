@@ -1,6 +1,6 @@
 # Modi Privat, Gruppe, Kiez
 
-Datum: 2026-10-27 · Status: Entscheidung, umgesetzt, Migration noch einspielen, noch in die Doku übernehmen · Ziel in Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitte „Challenges“ und „Funktionen“), `kiez-coins/app/Offene_Punkte.md` (offene Punkte unten)
+Datum: 2026-10-27 · Status: Entscheidung, umgesetzt (PR #93), Migration am 27.10.2026 eingespielt, noch in die Doku übernehmen · Ziel in Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitte „Challenges“ und „Funktionen“), `kiez-coins/app/Offene_Punkte.md` (offene Punkte unten)
 
 Ersetzt `2026-10-26_offen_sichtbarkeit-nur-ich.md` und `2026-10-26_offen_kiez-ausschalten.md`.
 
@@ -21,7 +21,7 @@ Ersetzt `2026-10-26_offen_sichtbarkeit-nur-ich.md` und `2026-10-26_offen_kiez-au
 
 ## Offene Punkte
 
-- Migration im Supabase-Projekt einspielen, bevor die App live geht. Ohne Spalte schlägt privates Posten mit einer Fehlermeldung fehl; öffentliche Beiträge gehen weiter.
+- Migration `20261028000100` ist im Supabase-Projekt „Kiez Coins Data“ eingespielt (27.10.2026, per MCP).
 - Sichtbarkeit nachträglich ändern (z. B. Privat → Kiez) gibt es noch nicht.
 - Onboarding fragt weiter nach dem Kiez, auch wenn jemand nur Privat nutzt.
 - Fashionable Look: Die eigene Profilansicht (`FashionProfile.tsx`) hat noch keinen Umschalter.
