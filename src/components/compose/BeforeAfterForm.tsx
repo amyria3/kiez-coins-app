@@ -151,11 +151,11 @@ export function useBeforeAfterStartForm(
         }}
       />
       <TagTextField
-        label="Erklärung zum Vorher"
+        label="Beschreibung"
         tag="#vorher"
         value={beforeText}
         onChangeText={setBeforeText}
-        placeholder="Was hast Du Dir vorgenommen?"
+        placeholder="Was ist die Aufgabe oder die Ausgangslage? Erkläre, worin die Me-Challenge besteht."
         tooLong={showErrors && textTooLong}
       />
     </>

@@ -26,3 +26,8 @@ Migration `supabase/migrations/20261028000200_kiez_edensteine.sql`:
 ## Offen
 
 - Wo zählen Edensteine aus dem Kiez? In Gruppen rechnet die App sie aus den bestätigten Gruppenaufgaben (`src/data/groups.ts`, `leaderboard`). Für den Kiez fehlt noch ein Stand, zum Beispiel im Profil neben „verdient“ (`src/components/FashionProfile.tsx`, `src/app/reise.tsx`).
+
+## Feldnamen (Daria, 27.10.2026)
+
+- We-Challenge und Me-Challenge: Das Textfeld zum Vorher heißt überall „Beschreibung“. Platzhalter bei der Me-Challenge: „Was ist die Aufgabe oder die Ausgangslage? Erkläre, worin die Me-Challenge besteht.“
+- Bild (Kiez und Gruppe): Das Textfeld heißt „Dein Text“.

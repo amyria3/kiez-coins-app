@@ -1131,7 +1131,6 @@
   "{mode} verbergen": "Hide {mode}",
   "{mode} zeigen": "Show {mode}",
   "Posten": "Post",
-  "Was hast Du Dir vorgenommen?": "What are you planning to do?",
   "Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.": "Record how you repair, rebuild or brighten up something, or practise a new, useful habit. First take a photo of how things look “before”.",
   "Deine Nachbar:innen sehen den Post und nehmen die We-Challenge an.": "Your neighbours see the post and take on the We-Challenge.",
   "Erklärung": "Explanation",
@@ -1143,5 +1142,7 @@
   "mit Edensteinen": "with Eden stones",
   "Was ist hier zu tun?": "What needs doing here?",
   "Was hast Du gemacht?": "What did you do?",
-  "{label}, beginnt mit {tag}": "{label}, starts with {tag}"
+  "{label}, beginnt mit {tag}": "{label}, starts with {tag}",
+  "Dein Text": "Your text",
+  "Was ist die Aufgabe oder die Ausgangslage? Erkläre, worin die Me-Challenge besteht.": "What is the task or the starting point? Explain what your Me-Challenge is about."
 }

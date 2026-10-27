@@ -99,7 +99,7 @@ export function usePublicComposeForm(
       {isChallenge ? (
         <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={text} onChangeText={setText} maxLength={500} />
       ) : (
-        <TagTextField label="Beschreibung" tag={PHOTO_TAG} value={text} onChangeText={setText} maxLength={500} />
+        <TagTextField label="Dein Text" tag={PHOTO_TAG} value={text} onChangeText={setText} maxLength={500} />
       )}
     </>
   );
