@@ -6,13 +6,14 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Button } from '../../../components/Button';
 import { FieldGroup } from '../../../components/Content';
 import { Chip, ChipGroup, PhotoPicker, TextField } from '../../../components/Form';
+import { TagTextField } from '../../../components/compose/BeforeAfterForm';
+import { PHOTO_TAG } from '../../../components/WithMentions';
 import type { ImageSource } from '../../../data/types';
 import { SubScreen } from '../../../components/Screen';
 import { formatDayMonthShort, formatRemainingShort } from '../../../data/format';
 import { useChallenge, useStore } from '../../../data/store';
 import { color, text } from '../../../theme/tokens';
 import { useNudge } from '../../../components/Nudge';
-import { TagTextField } from '../../../components/compose/BeforeAfterForm';
 import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 
@@ -185,6 +186,8 @@ export default function EditChallenge() {
       />
       {challenge.type === 'individual' ? (
         <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={body} onChangeText={setBody} maxLength={500} />
+      ) : challenge.type === 'photo' ? (
+        <TagTextField label="Beschreibung" tag={PHOTO_TAG} value={body} onChangeText={setBody} maxLength={500} />
       ) : (
         <TextField label="Beschreibung" value={body} onChangeText={setBody} maxLength={500} multiline />
       )}

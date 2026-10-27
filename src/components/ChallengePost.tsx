@@ -11,9 +11,9 @@ import type { Challenge, User } from '../data/types';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BeforeAfterPair, BeforeAfterPost } from './BeforeAfterPost';
-import { weChallengeAfter, weChallengeText } from '../data/weChallenge';
+import { weChallengeAfter } from '../data/weChallenge';
 import { useAppDimensions } from '../theme/layout';
-import { WithMentions } from './WithMentions';
+import { WithMentions, postText } from './WithMentions';
 import { BountyBadge } from './Badges';
 import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
@@ -61,7 +61,7 @@ function KiezPost({
   const image = isWave && completed && challenge.imageAfter ? challenge.imageAfter : challenge.image;
   // Erledigte We-Challenge: Aufgabenfoto als Vorher, Erledigungsfoto als Nachher (Daria, 27.10.2026)
   const after = image ? weChallengeAfter(challenge) : undefined;
-  const body = weChallengeText(challenge);
+  const body = postText(challenge);
   const state = closed ? 'geschlossen' : completed ? 'erledigt' : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
   const hideName = useHideName(author);
   const router = useRouter();
@@ -291,7 +291,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
   const image = isWave && completed && challenge.imageAfter ? challenge.imageAfter : challenge.image;
   // Erledigte We-Challenge: Aufgabenfoto als Vorher, Erledigungsfoto als Nachher (Daria, 27.10.2026)
   const after = image ? weChallengeAfter(challenge) : undefined;
-  const body = weChallengeText(challenge);
+  const body = postText(challenge);
   const state = closed ? 'geschlossen' : completed ? 'erledigt' : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
   const hideName = useHideName(author);
   const router = useRouter();

@@ -5,11 +5,12 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../../data/store';
 import type { ImageSource } from '../../data/types';
 import { Button } from '../Button';
-import { ExtraPhotos, PhotoPicker, TextField } from '../Form';
+import { ExtraPhotos, PhotoPicker } from '../Form';
 import { Text } from '../T';
+import { PHOTO_TAG } from '../WithMentions';
+import { TagTextField } from './BeforeAfterForm';
 import { explain } from '../Nudge';
 import { useComposeContent, type ComposeContent } from './compose';
-import { TagTextField } from './BeforeAfterForm';
 import { color, text } from '../../theme/tokens';
 
 const uriOf = (photo?: ImageSource) =>
@@ -91,7 +92,7 @@ export function usePublicComposeForm(
       {isChallenge ? (
         <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={text} onChangeText={setText} maxLength={500} />
       ) : (
-        <TextField label="Beschreibung" helperText="Max. 500 Zeichen" value={text} onChangeText={setText} maxLength={500} multiline />
+        <TagTextField label="Beschreibung" tag={PHOTO_TAG} value={text} onChangeText={setText} maxLength={500} />
       )}
     </>
   );

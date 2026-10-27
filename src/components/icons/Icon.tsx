@@ -14,6 +14,8 @@ type IconProps = {
   color?: string;
   /** Höhe in pt; Breite skaliert mit. Ohne Angabe Originalgröße aus Figma. */
   size?: number;
+  /** Waagerecht gespiegelt, z. B. die Hand „this-way“ als Zurück (Daria, 27.10.2026). In Arabisch und Hebräisch zeigt sie dann wieder nach rechts. */
+  flip?: boolean;
 };
 
 /** Alle Icons etwas größer als angegeben (Daria, 21.10.2026), die Kamera nur leicht */
@@ -26,8 +28,9 @@ const OPTICAL: Partial<Record<IconName, number>> = { settings: 1.18, friends: 1.
 const MIRRORED = new Set<IconName>(['chevron-left', 'chevron-right', 'send', 'this-way']);
 
 
-export const Icon = memo(function Icon({ name, color = themeColor.text.primary, size }: IconProps) {
+export const Icon = memo(function Icon({ name, color = themeColor.text.primary, size, flip }: IconProps) {
   const iconPt = useIconPt();
+  const mirror = (MIRRORED.has(name) && isRtl()) !== !!flip;
   const kiezPh = isFashionable ? undefined : KIEZ_PHOSPHOR[name];
   const line = isFashionable ? fashionableSvgs[name] : kiezPh ? { svg: (c: string) => phXml(kiezPh, c) } : undefined;
   if (line) {
@@ -36,7 +39,7 @@ export const Icon = memo(function Icon({ name, color = themeColor.text.primary, 
     // Herz gefüllt, sobald es in der Herzfarbe erscheint (gefällt mir)
     const xml = line.svg(color, name === 'heart' && color === themeColor.accent.affection);
     const el = <SvgXml xml={xml} width={h} height={h} />;
-    if (MIRRORED.has(name) && isRtl()) return <View style={{ transform: [{ scaleX: -1 }] }}>{el}</View>;
+    if (mirror) return <View style={{ transform: [{ scaleX: -1 }] }}>{el}</View>;
     return el;
   }
   const icon = iconSvgs[name];
@@ -44,7 +47,7 @@ export const Icon = memo(function Icon({ name, color = themeColor.text.primary, 
   const width = (icon.width / icon.height) * height;
   const svg = <SvgXml xml={icon.svg(color)} width={width} height={height} />;
   // Arabisch und Hebräisch: Pfeile und Senden zeigen in Leserichtung
-  if (MIRRORED.has(name) && isRtl()) return <View style={{ transform: [{ scaleX: -1 }] }}>{svg}</View>;
+  if (mirror) return <View style={{ transform: [{ scaleX: -1 }] }}>{svg}</View>;
   return svg;
 });
 

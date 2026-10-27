@@ -584,9 +584,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
         const challenge: Challenge = {
           id: `task-${Date.now()}`,
-          type: 'individual',
+          type: task.type ?? 'individual',
           groupId: task.groupId,
-          edensteine: task.edensteine,
+          edensteine: task.type === 'photo' ? undefined : task.edensteine,
+          extraImages: task.type === 'photo' ? task.extras : undefined,
           title: task.title.trim(),
           text: task.text.trim(),
           authorId: s.currentUserId,
