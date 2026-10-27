@@ -6,14 +6,16 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { AuthorRow } from '../../components/AuthorRow';
 import { Button } from '../../components/Button';
 import { FieldGroup, Notice } from '../../components/Content';
-import { CopyField } from '../../components/Form';
+import { CopyField, TextField } from '../../components/Form';
+import { useNudge } from '../../components/Nudge';
 import { FriendInviteQr } from '../../components/FriendInviteQr';
 import { SubScreen } from '../../components/Screen';
-import { friendInviteLink, friendInviteMessage } from '../../data/friendInvites';
-import { acceptFriend, errorText, loadFriends, myFriendInvite, removeFriend, type FriendLists } from '../../data/remote';
+import { FRIEND_CODE_LENGTH, friendInviteLink, friendInviteMessage, parseFriendCode } from '../../data/friendInvites';
+import { acceptFriend, acceptFriendInvite, errorText, loadFriends, myFriendInvite, removeFriend, type FriendLists } from '../../data/remote';
 import { useStore } from '../../data/store';
 import type { User } from '../../data/types';
 import { color, space, text } from '../../theme/tokens';
+import { t } from '../../data/texts';
 import { useGoBack } from '../../lib/goBack';
 import { shareText } from '../../lib/share';
 
@@ -101,6 +103,33 @@ export default function Friends() {
     run((l) => ({ ...l, outgoing: without(l.outgoing, user) }), () => removeFriend(currentUserId, user.id));
   const open = (user: User) => router.push({ pathname: '/user/[id]', params: { id: user.id } });
 
+  // Einladungscode gleich hier eintippen, ohne eigene Seite (UX-Audit, Daria, 27.10.2026)
+  const [code, setCode] = useState('');
+  const [joining, setJoining] = useState(false);
+  const codeField = useNudge();
+  const cleanCode = code.replace(/\s+/g, '').toUpperCase();
+  const acceptInvite = async () => {
+    setJoining(true);
+    try {
+      const already = (inviterId: string) => !!lists?.friends.some((f) => f.id === inviterId);
+      const inviter = mode === 'live' ? await acceptFriendInvite(cleanCode) : null;
+      if (inviter && already(inviter.id)) {
+        Alert.alert('Schon befreundet', t('Du und {name} seid schon befreundet.', { name: inviter.name }));
+      } else {
+        Alert.alert(
+          'Ihr seid befreundet',
+          inviter ? t('Du und {name} seid jetzt befreundet.', { name: inviter.name }) : 'Die Einladung ist angenommen.',
+        );
+      }
+      setCode('');
+      await refresh();
+    } catch (error) {
+      Alert.alert('Annehmen hat nicht geklappt', errorText(error));
+    } finally {
+      setJoining(false);
+    }
+  };
+
   return (
     <SubScreen title="Freundschaften" navigation="back" onLeadingPress={goBack}>
       {lists === null ? (
@@ -139,7 +168,25 @@ export default function Friends() {
         </FieldGroup>
       ) : null}
       <FieldGroup label="Einladung annehmen">
-        <Button label="Einladungscode eingeben" variant="secondary" onPress={() => router.push('/freunde/einladen')} />
+        <TextField
+          label="Einladungscode"
+          nudge={codeField}
+          helperText="7 Zeichen. Du kannst auch den ganzen Link oder die Nachricht einfügen."
+          value={code}
+          onChangeText={(value) => setCode(parseFriendCode(value) ?? value.slice(0, 9))}
+          onSubmitEditing={() => cleanCode.length === FRIEND_CODE_LENGTH && acceptInvite()}
+          autoCapitalize="characters"
+          autoCorrect={false}
+          returnKeyType="done"
+        />
+        <Button
+          busy={joining}
+          label={joining ? 'Nehme an …' : 'Annehmen'}
+          variant="secondary"
+          onPress={acceptInvite}
+          disabled={joining || cleanCode.length !== FRIEND_CODE_LENGTH}
+          whyDisabled={() => !joining && codeField.nudge('Der Code hat 7 Zeichen.')}
+        />
       </FieldGroup>
       {lists && lists.outgoing.length ? (
         <FieldGroup label="Gesendet">

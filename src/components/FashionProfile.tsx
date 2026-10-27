@@ -219,9 +219,7 @@ export function FashionProfile() {
 
       <TabBar
         active="reise"
-        hasTasks={tasks.length > 0}
         onFeedPress={() => (goBack())}
-        onReisePress={() => {}}
         onMenuPress={() => router.push('/account')}
       />
     </View>

@@ -1,109 +1,107 @@
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from './T';
 
-import { useStore } from '../data/store';
-import { myEdensteine } from '../data/groups';
+import { MAX_GROUPS } from '../data/groups';
 import type { Group } from '../data/types';
-import { color, font, isFashionable, radius, size, space, text } from '../theme/tokens';
+import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
 import { Button } from './Button';
 import { KaterCard } from './Content';
 import { IconButton } from './IconButton';
-import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
-import { t } from '../data/texts';
+import { isRtl, t } from '../data/texts';
 
 type GroupBarProps = {
   groups: Group[];
   selectedId?: string;
   onSelect: (id: string) => void;
+  /** Zahnrad: Gruppenseite mit Einstellungen */
   onOpen: (id: string) => void;
-  onAll: () => void;
+  /** Letzter Eintrag im Auswahlmenü */
+  onCreate: () => void;
 };
 
 /**
- * Leiste im Reiter „Gruppen“: Gruppe wählen (bei mehreren), darunter eigener Bestand und Weg zur Gruppenseite.
+ * Gruppenauswahl unter dem Umschalter „Im Kiez / In Gruppen“, im Feed und in „Was Du so machst“ (UX-Audit, Daria, 27.10.2026):
+ * Der Name der gewählten Gruppe öffnet das Auswahlmenü mit allen Gruppen, unmittelbar darunter „Neue Gruppe erstellen“.
+ * Das Zahnrad führt zur Gruppenseite. Edensteine und Anzahl der Mitglieder stehen hier nicht.
  */
-export function GroupBar({ groups, selectedId, onSelect, onOpen, onAll }: GroupBarProps) {
-  const { challenges, currentUserId } = useStore();
-  const selected = groups.find((g) => g.id === selectedId);
-  const router = useRouter();
-  // Nächste offene Aufgabe der Gruppe, zuerst die von anderen
-  const open = challenges.filter((c) => c.groupId === selected?.id && c.status === 'open' && !c.assigneeId);
-  const openTask = open.find((c) => c.authorId !== currentUserId) ?? open[0];
+export function GroupBar({ groups, selectedId, onSelect, onOpen, onCreate }: GroupBarProps) {
+  const [open, setOpen] = useState(false);
+  const selected = groups.find((g) => g.id === selectedId) ?? groups[0];
+  if (!selected) return null;
+  // Pfeil zeigt nach unten, offen nach oben; in Arabisch und Hebräisch ist chevron-right gespiegelt
+  const turn = (open ? -90 : 90) * (isRtl() ? -1 : 1);
+  const create = () => {
+    setOpen(false);
+    if (groups.length >= MAX_GROUPS) {
+      Alert.alert(
+        t('Gruppen voll'),
+        t('Du bist bereits in {MAX_GROUPS} Gruppen. Verlasse eine Gruppe, um einer neuen beizutreten oder eine neue zu gründen.', { MAX_GROUPS }),
+      );
+      return;
+    }
+    onCreate();
+  };
   return (
     <View style={styles.wrap}>
-      {groups.length > 1 ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-          {groups.map((g) => {
-            const active = g.id === selectedId;
+      <View style={styles.here}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('Gruppe wählen, gewählt: {name}', { name: selected.name })}
+          accessibilityState={{ expanded: open }}
+          onPress={() => setOpen((o) => !o)}
+          hitSlop={4}
+          style={({ pressed }) => [styles.trigger, pressed && styles.pressed]}
+        >
+          <View style={styles.titleRow}>
+            <Text noTranslate style={styles.hereName} numberOfLines={1} accessibilityRole="header">
+              {selected.name}
+            </Text>
+            <View style={{ transform: [{ rotate: `${turn}deg` }] }}>
+              <Icon name="chevron-right" size={14} color={color.text.secondary} />
+            </View>
+          </View>
+        </Pressable>
+        <IconButton
+          icon="settings"
+          iconSize={16}
+          iconColor={color.text.secondary}
+          accessibilityLabel={t('{name} verwalten', { name: selected.name })}
+          onPress={() => onOpen(selected.id)}
+        />
+      </View>
+      {open ? (
+        <View style={styles.menu} accessibilityRole="menu">
+          {groups.map((g, i) => {
+            const active = g.id === selected.id;
             return (
               <Pressable
                 key={g.id}
-                accessibilityRole="tab"
+                accessibilityRole="menuitem"
                 accessibilityState={{ selected: active }}
-                onPress={() => onSelect(g.id)}
-                style={[styles.chip, active && styles.chipActive]}
+                onPress={() => {
+                  setOpen(false);
+                  onSelect(g.id);
+                }}
+                style={({ pressed }) => [styles.option, i > 0 && styles.optionDivider, pressed && styles.pressed]}
               >
-                <Text noTranslate style={[styles.chipText, active && styles.chipTextActive]} numberOfLines={1}>
+                <Text noTranslate style={[styles.optionName, styles.flex, active && styles.optionNameActive]} numberOfLines={1}>
                   {g.name}
                 </Text>
+                {active ? <Icon name="check" size={size.icon} color={color.accent.confirmation} /> : null}
               </Pressable>
             );
           })}
-          <Pressable accessibilityRole="button" accessibilityLabel={t('Alle Gruppen')} onPress={onAll} style={styles.chip}>
-            {/* Regelwerk: Plus heißt nur „Hinzufügen“. Zur Übersicht führt der Text „Alle“. */}
-            <Text style={styles.chipText}>Alle</Text>
-          </Pressable>
-        </ScrollView>
-      ) : null}
-      {selected ? (
-        // Hier bist Du gerade: Gruppenname als Überschrift ohne Fläche, nicht wie ein Knopf (Daria, 22.10.2026).
-        // Nur das kleine Zahnrad führt zur Gruppenseite.
-        <View style={styles.here}>
-          <View style={styles.flex}>
-            <View style={styles.titleRow}>
-              <Text noTranslate style={styles.hereName} numberOfLines={1} accessibilityRole="header">
-                {selected.name}
-              </Text>
-              <IconButton
-                icon="settings"
-                iconSize={16}
-                iconColor={color.text.secondary}
-                accessibilityLabel={t('{name} verwalten', { name: selected.name })}
-                onPress={() => onOpen(selected.id)}
-              />
-            </View>
-            <Text style={styles.meta} numberOfLines={1}>
-              {t('{members} Mitglieder', { members: selected.members.length })}
-            </Text>
-          </View>
-          {/* Fashionable Look: kein Stein mit Zahl rechts, der eigene Bestand steht in der Gruppe (Daria, 24.10.2026) */}
-          {isFashionable ? null : (
-            <>
-          {/* Stein: lebt, wenn es offene Aufgaben gibt, und führt zur nächsten. Sonst klein, blass und still. */}
           <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={
-              openTask
-                ? t('Offene Aufgabe öffnen: {title}', { title: openTask.title })
-                : t('In dieser Gruppe gibt es gerade nichts zu holen. Vielleicht ist einfach alles erledigt, oder Ihr braucht einen Break.')
-            }
-            onPress={() =>
-              openTask ? router.push(`/challenge/${openTask.id}`) : Alert.alert(t('In dieser Gruppe gibt es gerade nichts zu holen. Vielleicht ist einfach alles erledigt, oder Ihr braucht einen Break.'))
-            }
-            hitSlop={8}
-            style={({ pressed }) => [styles.hereEden, !openTask && styles.hereEdenCalm, pressed && styles.pressed]}
+            accessibilityRole="menuitem"
+            onPress={create}
+            style={({ pressed }) => [styles.option, styles.optionDivider, pressed && styles.pressed]}
           >
-            <View style={styles.hereCrystal}>
-              <View style={[styles.hereCrystalFloat, !openTask && styles.hereCrystalFloatCalm]}>
-                <LivingCrystal height={isFashionable ? 34 : openTask ? 44 : 35} seed={selected.id} calm={!openTask} />
-              </View>
-            </View>
-            <Text style={styles.eden}>{myEdensteine(selected, challenges, currentUserId)}</Text>
+            {/* Regelwerk: Plus heißt nur „Hinzufügen“ */}
+            <Icon name="plus" size={16} color={color.text.primary} />
+            <Text style={styles.optionName}>Neue Gruppe erstellen</Text>
           </Pressable>
-            </>
-          )}
         </View>
       ) : null}
     </View>
@@ -131,48 +129,18 @@ export function GroupsEmpty({
   );
 }
 
-const CRYSTAL = 88;
-
 const styles = StyleSheet.create({
-  here: { flexDirection: 'row', alignItems: 'center', gap: space[8], paddingTop: space[4], paddingBottom: space[4] },
-  hereName: { ...text.title, fontSize: 22, lineHeight: 28, color: color.text.primary },
-  titleRow: { flexDirection: 'row', alignItems: 'center', gap: space[2] },
-  hereEden: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
-  hereEdenCalm: { opacity: 0.4 },
-  hereCrystalFloatCalm: { top: (22 - 35) / 2 },
-  hereCrystal: { width: 26, height: 22, alignItems: 'center' },
-  hereCrystalFloat: { position: 'absolute', top: (22 - (isFashionable ? 34 : 44)) / 2 },
   wrap: { gap: space[8], paddingHorizontal: space[16] },
-  chips: { gap: space[8] },
-  chip: {
-    minHeight: 36,
-    paddingHorizontal: space[12],
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: color.line.hairline,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  chipActive: { backgroundColor: color.accent.confirmation, borderColor: color.accent.confirmation },
-  chipText: { ...text.caption, fontSize: 13, color: color.text.primary },
-  chipTextActive: { fontFamily: font.medium, color: color.bg.screen },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space[8],
-    padding: space[12],
-    borderRadius: radius.xl,
-    backgroundColor: color.bg.surface,
-  },
+  here: { flexDirection: 'row', alignItems: 'center', gap: space[8], paddingTop: space[4], paddingBottom: space[4] },
+  trigger: { flex: 1 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
+  hereName: { ...text.title, fontSize: 22, lineHeight: 28, color: color.text.primary, flexShrink: 1 },
+  menu: { borderRadius: radius.xl, backgroundColor: color.bg.surface, overflow: 'hidden' },
+  option: { flexDirection: 'row', alignItems: 'center', gap: space[12], minHeight: 52, paddingVertical: space[8], paddingHorizontal: space[16] },
+  optionDivider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
+  optionName: { ...text.body, color: color.text.primary },
+  optionNameActive: { fontFamily: font.medium },
+  flex: { flex: 1 },
   pressed: { opacity: 0.7 },
-  flex: { flex: 1, gap: space[2] },
-  name: { ...text.cardTitle, color: color.text.primary },
-  meta: { ...text.caption, color: color.text.secondary },
-  eden: isFashionable
-    ? { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] }
-    : { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.text.primary },
-  crystal: { width: CRYSTAL * 0.6, height: 40, alignItems: 'center' },
-  crystalFloat: { position: 'absolute', top: (40 - CRYSTAL) / 2 },
-  groupText: { marginLeft: space[8] },
   empty: { gap: space[12], paddingHorizontal: space[16] },
 });

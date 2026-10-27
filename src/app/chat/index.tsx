@@ -145,7 +145,7 @@ export default function Chats() {
         ) : null}
         <Button label="Freundschaften verwalten" variant="ghost" onPress={() => router.push('/account/freunde')} />
       </ScrollView>
-      <TabBar active="chat" onFeedPress={toFeed} onReisePress={() => router.push('/reise')} onMenuPress={() => router.push('/account')} />
+      <TabBar active="chat" onFeedPress={toFeed} onMenuPress={() => router.push('/account')} />
     </View>
   );
 }

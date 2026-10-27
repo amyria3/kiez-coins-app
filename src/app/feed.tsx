@@ -24,6 +24,7 @@ import { useAppDimensions } from '../theme/layout';
 import { AppHeader, FeedGreeting, PlannedHint, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
 import { FeedStateMessage } from '../components/FeedStateMessage';
 import { GroupBar, GroupsEmpty } from '../components/GroupBar';
+import { AudienceHint, useAudienceHint } from '../components/AudienceHint';
 import { GearsLoader } from '../components/GearsLoader';
 import { SurveyOverlay, useSurveyPrompt } from '../components/SurveyOverlay';
 import { CAMERA_W, CameraButton, TAB_BAR_SPACE, TabBar } from '../components/TabBar';
@@ -305,7 +306,14 @@ export default function FeedScreen() {
   // Eigene Vorher-Nachher-Timer, die gerade laufen: oben im Feed (Daria, 23.10.2026)
   const running = useMemo(() => runningBeforeAfter(challenges, currentUserId), [challenges, currentUserId]);
 
+  // Hinweis unter dem Umschalter: wer sieht, was Du hier postest (Daria, 27.10.2026)
+  const audience = tab === 'groups' ? 'groups' : 'kiez';
+  const [audienceHint, closeAudienceHint] = useAudienceHint(audience);
+  const showAudience =
+    audienceHint && !composing && !loading && (tab === 'nearby' || (tab === 'groups' && groups.length > 0));
+
   const items: FeedItem[] = [];
+  if (showAudience) items.push({ kind: 'audience' });
   if (planned) items.push({ kind: 'planned' });
   if (!loading && !composing) running.forEach((challenge) => items.push({ kind: 'running', challenge }));
   if (tab === 'groups' && !loading) {
@@ -328,6 +336,8 @@ export default function FeedScreen() {
             <GroupsEmpty onCreate={() => router.push('/gruppen/neu')} onJoin={() => router.push('/gruppen/beitreten')} />
           </View>
         );
+      case 'audience':
+        return <AudienceHint audience={audience} onClose={closeAudienceHint} />;
       case 'groupBar':
         return (
           <GroupBar
@@ -335,7 +345,7 @@ export default function FeedScreen() {
             selectedId={groupId}
             onSelect={setGroupChoice}
             onOpen={(id) => router.push(`/gruppen/${id}`)}
-            onAll={() => router.push('/gruppen')}
+            onCreate={() => router.push('/gruppen/neu')}
           />
         );
       case 'groupNoTasks':
@@ -499,10 +509,7 @@ export default function FeedScreen() {
       {composing || isFashionable ? null : <CameraButton onPress={createChallenge} />}
       {composing ? null : <TabBar
         active="feed"
-        hasTasks={hasTasks}
         onFeedPress={() => switchTab('nearby')}
-        onReisePress={() => router.push('/reise')}
-        onReiseLongPress={() => router.push('/demo')}
         onMenuPress={() => router.push('/account')}
         onCreatePress={createChallenge}
         onGroupsPress={groupsOn ? () => switchTab('groups') : undefined}
@@ -529,6 +536,7 @@ const SWIPE_DISTANCE = 64;
 
 type FeedItem =
   | { kind: 'planned' }
+  | { kind: 'audience' }
   | { kind: 'groupsEmpty' }
   | { kind: 'groupBar' }
   | { kind: 'groupNoTasks' }
