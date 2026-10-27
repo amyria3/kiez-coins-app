@@ -19,7 +19,7 @@ type GroupCardProps = {
 
 /**
  * Eine Gruppe, überall gleich (Daria, 22.10.2026): oben Name, Zeile darunter und rechts der eigene Edenstein-Stand,
- * unten zwei Wege: Feed (Haus) und Verwalten (Zahnrad).
+ * unten zwei Wege: Feed (Doppelherz und Haus nebeneinander, Daria, 27.10.2026) und Verwalten (Zahnrad).
  */
 export function GroupCard({ group, meta, onFeed, onManage }: GroupCardProps) {
   const { challenges, currentUserId } = useStore();
@@ -58,7 +58,10 @@ export function GroupCard({ group, meta, onFeed, onManage }: GroupCardProps) {
           onPress={onFeed}
           style={({ pressed }) => [styles.link, pressed && styles.pressed]}
         >
-          <Icon name="behausung" size={size.icon} color={color.text.primary} />
+          <View style={styles.feedIcons}>
+            <Icon name="feed" size={size.icon} color={color.text.primary} />
+            <Icon name="behausung" size={size.icon} color={color.text.primary} />
+          </View>
           <Text style={styles.linkText}>Feed</Text>
         </Pressable>
         <View style={styles.divider} />
@@ -89,6 +92,7 @@ const styles = StyleSheet.create({
   edenValue: { ...text.metric, fontSize: 18, color: color.text.primary },
   links: { flexDirection: 'row', borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   link: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space[8], minHeight: 52 },
+  feedIcons: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   linkText: { ...text.body, color: color.text.primary },
   divider: { width: stroke.ultraThin, backgroundColor: color.line.hairline, marginVertical: space[12] },
   pressed: { opacity: 0.7 },
