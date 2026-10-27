@@ -134,7 +134,7 @@ export function useBeforeAfterStartForm(
   const fields = (
     <>
       <Text style={styles.hint}>
-        Halte fest, wie Du etwas reparierst, umbaust oder verschönerst. Zuerst das Vorher-Foto.
+        Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.
       </Text>
       <BeforeAfterSteps at={0} />
       <PhotoPicker
