@@ -78,7 +78,7 @@ export function useGroupTaskForm(
         onChange={setPhoto}
         title={{ value: title, onChange: setTitle, nudge: titleField }}
       />
-      <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist das Problem?" value={body} onChangeText={setBody} maxLength={500} />
+      <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={body} onChangeText={setBody} maxLength={500} />
       <FieldGroup label="Edensteine">
         <View style={styles.stepper}>
           <Pressable

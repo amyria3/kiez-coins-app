@@ -184,7 +184,7 @@ export default function EditChallenge() {
         title={{ value: title, onChange: setTitle, nudge: titleField }}
       />
       {challenge.type === 'individual' ? (
-        <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist das Problem?" value={body} onChangeText={setBody} maxLength={500} />
+        <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={body} onChangeText={setBody} maxLength={500} />
       ) : (
         <TextField label="Beschreibung" value={body} onChangeText={setBody} maxLength={500} multiline />
       )}
