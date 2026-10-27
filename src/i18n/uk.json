@@ -1096,5 +1096,18 @@
   "hat abgelehnt": "відхилив(-ла)",
   "hat als bezahlt markiert": "позначив(-ла) як оплачено",
   "hat bezahlt": "оплатив(-ла)",
-  "Zurück zum Feed": "Назад до стрічки"
+  "Zurück zum Feed": "Назад до стрічки",
+  "Dieser Modus ist oben im Umschalter vorausgewählt.": "Цей режим попередньо вибрано в перемикачі вгорі.",
+  "Halte fest, was Dir gefällt.": "Збережи те, що тобі подобається.",
+  "Hier sammelst Du Me-Challenges und Bilder, die nur Du siehst. Tippe auf die Kamera und fang an.": "Тут ти збираєш Me-Challenges і фото, які бачиш лише ти. Торкнися камери й почни.",
+  "Modi": "Режими",
+  "Noch nichts für Dich": "Поки нічого лише для тебе",
+  "Privat": "Приватно",
+  "Privat siehst nur Du, in der Gruppe nur Deine Gruppe, im Kiez alle in Deinem Kiez. Verbirg, was Du nicht brauchst. Das geht auch später in Deinem Konto.": "Приватне бачиш лише ти, групове — твоя група, у Кіці — усі у твоєму районі. Сховай те, що тобі не потрібно. Це можна зробити й пізніше у своєму акаунті.",
+  "Standard": "Типово",
+  "Verbirg, was Du gerade nicht brauchst. Mit dem Auge holst Du es Dir zurück, wann Du willst.": "Сховай те, що зараз не потрібно. Оком ти повернеш це будь-коли.",
+  "Was Du hier postest, sehen alle in Deinem Kiez.": "Те, що ти тут публікуєш, бачать усі у твоєму районі.",
+  "Was Du hier postest, siehst nur Du.": "Те, що ти тут публікуєш, бачиш лише ти.",
+  "{mode} verbergen": "Сховати {mode}",
+  "{mode} zeigen": "Показати {mode}"
 }

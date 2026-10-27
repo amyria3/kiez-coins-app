@@ -8,7 +8,6 @@ import { useGroupPhotoForm } from '../../../components/compose/GroupPhotoForm';
 import { useGroupTaskForm } from '../../../components/compose/GroupTaskForm';
 import { TypeSwitch } from '../../../components/compose/TypeSwitch';
 import { SubScreen } from '../../../components/Screen';
-import { useFeatures } from '../../../data/features';
 import { useStore } from '../../../data/store';
 import { useGoBack } from '../../../lib/goBack';
 
@@ -24,8 +23,7 @@ export default function NewGroupTask() {
   const { groups, challenges } = useStore();
   const group = groups.find((g) => g.id === id);
   const original = copyOf ? challenges.find((c) => c.id === copyOf) : undefined;
-  const on = useFeatures();
-  const options = GROUP_TYPES.filter((o) => o.key === 'task' || (o.key === 'photo' ? on.photo : on.me));
+  const options = GROUP_TYPES;
   const [choice, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('task');
   const type = options.some((o) => o.key === choice) ? choice : 'task';
   // Foto, Titel und Text bleiben beim Wechsel des Typs erhalten
