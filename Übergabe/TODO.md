@@ -83,10 +83,14 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Infrastruktur für Gewinnspiele vorplanen
 - [ ] Zeitplan: erster Testlauf, erste 100 Mitglieder
 - [ ] Sprayform
-- [ ] Layout so gemütlich wie Duolingo
+- [ ] Layout so gemütlich wie Duolingo (Entwurf: Look „Pausenhof“ auf Branch `claude/project-thread-zawun4`, Mittelweg zwischen Kiez und Duolingo)
 - [ ] Wiederkehrende Challenges, z. B. „1 mal im Monat etwas für den Kiez“ oder „start a habit and post 2–3 times a week“
 
 ## 27.10.2026 (2) – Für später: Sprachfunktionen (Daria)
 
 - [ ] Nachrichten von Audio zu Text und von Text zu Audio umwandeln
 - [ ] Audio-Assistent: Person anschreiben, indem man ihren Namen sagt
+
+## 27.10.2026 (3) – Icons zum Look „Pausenhof“ (Daria)
+
+- [ ] Icons passen ästhetisch nicht zum runden Look „Pausenhof“. Eigene Icon-Linie entwickeln, die zu Nunito und den runden Knöpfen passt.

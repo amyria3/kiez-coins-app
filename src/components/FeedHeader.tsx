@@ -403,8 +403,8 @@ const styles = StyleSheet.create({
     padding: space[4],
     borderRadius: radius.full,
     backgroundColor: color.bg.surface,
-    // Pausenhof: weiße Leiste mit grauem Rand und Unterkante
-    ...(isPlayful ? { borderRadius: 16, backgroundColor: color.bg.screen, borderWidth: 2, borderBottomWidth: 4, borderColor: playfulColor.border } : null),
+    // Pausenhof: weiße Leiste mit feinem Rand
+    ...(isPlayful ? { backgroundColor: color.bg.surface, borderWidth: 1.5, borderColor: playfulColor.border } : null),
   },
   pill: {
     position: 'absolute',
@@ -412,8 +412,8 @@ const styles = StyleSheet.create({
     bottom: space[4],
     borderRadius: radius.full,
     backgroundColor: color.text.primary,
-    // Pausenhof: hellblaue Pille mit blauem Rand
-    ...(isPlayful ? { borderRadius: 12, backgroundColor: '#DDF4FF', borderWidth: 2, borderColor: '#84D8FF' } : null),
+    // Pausenhof: helle Lila-Pille
+    ...(isPlayful ? { backgroundColor: playfulColor.tint } : null),
   },
   // Breite nach Inhalt, damit vier Reiter neben die Kamera passen
   segment: { flexGrow: 1, flexShrink: 1, paddingHorizontal: space[8], minHeight: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },

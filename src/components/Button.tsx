@@ -129,7 +129,7 @@ function FashionButton({
 }
 
 /**
- * Knopf im Look „Pausenhof“ (Entwurf 27.10.2026): 3D-Kante unten in einem dunkleren Ton, Beschriftung in Versalien.
+ * Knopf im Look „Pausenhof“ (Entwurf 27.10.2026): runde Kiez-Form mit flacher 3D-Kante unten in einem dunkleren Ton.
  * Beim Drücken sinkt der Knopf um die Kante ein.
  */
 function PlayButton({
@@ -172,7 +172,7 @@ function PlayButton({
     >
       <View style={styles.row}>
         {busy ? <GearsLoader size={20} tint={v.label} only={SMALL_GEARS} /> : icon ? <Icon name={icon} size={20} color={v.label} /> : null}
-        <Text style={[styles.playLabel, { color: v.label }]}>{label.toLocaleUpperCase('de-DE')}</Text>
+        <Text style={[styles.playLabel, { color: v.label }]}>{label}</Text>
       </View>
     </Pressable>
   );
@@ -180,11 +180,11 @@ function PlayButton({
 
 const playVariants: Record<ButtonVariant, { bg: string; border: string; edge: string; label: string }> = {
   primary: { bg: color.accent.primary, border: color.accent.primary, edge: playfulColor.edgePrimary, label: '#FFFFFF' },
-  secondary: { bg: color.bg.screen, border: playfulColor.border, edge: playfulColor.border, label: playfulColor.link },
-  ghost: { bg: 'transparent', border: 'transparent', edge: 'transparent', label: playfulColor.link },
+  secondary: { bg: color.bg.surface, border: playfulColor.border, edge: playfulColor.border, label: color.text.primary },
+  ghost: { bg: 'transparent', border: 'transparent', edge: 'transparent', label: color.text.primary },
   signal: { bg: color.accent.signal, border: color.accent.signal, edge: playfulColor.edgeSignal, label: '#FFFFFF' },
-  signalOutline: { bg: color.bg.screen, border: playfulColor.border, edge: playfulColor.border, label: color.accent.signal },
-  danger: { bg: color.bg.screen, border: playfulColor.border, edge: playfulColor.border, label: color.accent.error },
+  signalOutline: { bg: color.bg.surface, border: playfulColor.border, edge: playfulColor.border, label: color.accent.signal },
+  danger: { bg: color.bg.surface, border: playfulColor.border, edge: playfulColor.border, label: color.accent.error },
 };
 
 const fashionVariants: Record<ButtonVariant, { bg: string; label: string }> = {
@@ -243,17 +243,17 @@ const styles = StyleSheet.create({
   fashion: { minHeight: 44, paddingHorizontal: space[16], borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
   fashionLabel: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18 },
   play: {
-    minHeight: 50,
-    paddingHorizontal: space[20],
-    borderRadius: 16,
-    borderWidth: 2,
-    borderBottomWidth: 5,
+    minHeight: 52,
+    paddingHorizontal: space[24],
+    borderRadius: radius.full,
+    borderWidth: 1.5,
+    borderBottomWidth: 4,
     alignItems: 'center',
     justifyContent: 'center',
   },
   playGhost: { borderWidth: 0, borderBottomWidth: 0 },
-  playPressed: { borderBottomWidth: 2, transform: [{ translateY: 3 }] },
-  playLabel: { fontFamily: font.semiBold, fontSize: 15, lineHeight: 20, letterSpacing: 0.8 },
+  playPressed: { borderBottomWidth: 1.5, transform: [{ translateY: 2 }] },
+  playLabel: { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20 },
   pressed: { opacity: 0.8 },
   disabled: { opacity: 0.5 },
 });

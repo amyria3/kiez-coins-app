@@ -9,7 +9,6 @@ import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
 import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
 import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
 import { InterTight_600SemiBold } from '@expo-google-fonts/inter-tight/600SemiBold';
-import { Nunito_600SemiBold } from '@expo-google-fonts/nunito/600SemiBold';
 import { Nunito_700Bold } from '@expo-google-fonts/nunito/700Bold';
 import { Nunito_800ExtraBold } from '@expo-google-fonts/nunito/800ExtraBold';
 
@@ -48,7 +47,7 @@ export default function RootLayout() {
     Inter_600SemiBold,
     InterTight_600SemiBold,
     // Nur im Look „Pausenhof“
-    ...(isPlayful ? { Nunito_600SemiBold, Nunito_700Bold, Nunito_800ExtraBold } : {}),
+    ...(isPlayful ? { Nunito_700Bold, Nunito_800ExtraBold } : {}),
   });
 
   // Sprache (gespeicherte Wahl oder Handy), danach rendern
