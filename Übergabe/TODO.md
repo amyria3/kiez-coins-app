@@ -62,13 +62,13 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 ## 21.10.2026 (4) – Bugs (Daria)
 
-- [ ] Bug: persönliche Ansprache lässt sich nicht ändern (Dein Konto › Persönliche Angaben › Ansprache). Vermutete Ursache, noch nicht behoben: In `EditableRow` (`src/components/Rows.tsx`) schließt `onBlur` das Eingabefeld, bevor das Häkchen den Tipp bekommt. Damit speichert das Häkchen nie. Derselbe Fehler betrifft vermutlich den Deckname. Datenbank und Schema sind in Ordnung.
+- [x] Bug: persönliche Ansprache lässt sich nicht ändern (Dein Konto › Persönliche Angaben › Ansprache). Ursache: In `EditableRow` (`src/components/Rows.tsx`) schloss `onBlur` das Eingabefeld, bevor das Häkchen den Tipp bekam. Behoben: `onBlur` speichert jetzt selbst, genau einmal. Das gilt auch für den Decknamen.
 
 ## 21.10.2026 (5) – Feedback (Daria)
 
 - [ ] Das Badge „Open“ (Offen) sieht wie ein Button aus. Hängt mit „Badge ‚Offen‘ farblich betonen“ vom 20.10.2026 zusammen.
 - [ ] Das Zahnrad-Menü in der Gruppenaufgabe soll sich bei Klick außerhalb schließen. (Screenshot `2026-10-21_zahnrad-menue-gruppenaufgabe.png`: Gruppenaufgabe mit offenem Menü „Edit, Close, Delete, Manage all“)
-- [ ] Bug: Der Name „Sof“ erschien als „Sofa“. Vermutete Ursache: die Übersetzung im Browser (Safari, Übersetzen-Symbol in der Adressleiste im Screenshot zum Zahnrad-Menü) übersetzt Namen mit. Die App selbst enthält „Sofa“ nirgends, und die Web-App setzt bisher nirgends `translate="no"`. Fix: Namen, Decknamen und Gruppennamen mit `translate="no"` bzw. der Klasse `notranslate` auszeichnen.
+- [x] Bug: Der Name „Sof“ erschien als „Sofa“. Ursache: Die Übersetzung im Browser (Safari) übersetzte Namen mit. Behoben: Namen, Decknamen und Gruppennamen tragen `noTranslate` (`src/components/T.tsx`), im Web `translate="no"` und die Klasse `notranslate`.
 
 ## 22.10.2026 – Feedback (Daria)
 

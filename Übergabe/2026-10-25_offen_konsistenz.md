@@ -44,4 +44,4 @@ Die Übersetzungen in `src/i18n` sind mitgezogen. Daria hatte keine eigenen Fass
 ## Fehler im Werkzeug, nicht behoben
 
 - `node scripts/i18n.mjs --prune` löscht auch genutzte Übersetzungen, da `scripts/text-keys.mjs` `src/data/kater-sprueche.json` und einzelne Wörter wie „Mitglied“, „er“, „sie“ nicht erfasst. Nicht ausführen, bis `collectKeys()` diese Quellen kennt.
-- `AGENTS.md` verlangt `npx expo lint`, die Repo hat keine ESLint-Konfiguration.
+- `AGENTS.md` verlangt `npx expo lint`, das Repo hat keine ESLint-Konfiguration.

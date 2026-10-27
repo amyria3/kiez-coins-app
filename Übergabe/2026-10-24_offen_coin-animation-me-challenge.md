@@ -23,7 +23,7 @@ Die Me-Challenge bringt keine Coins. Eine Coin-Animation beim Abschluss stellt t
 
 ## Betroffene Dateien
 
-- Abschluss der Me-Challenge: `finishBeforeAfter` in `src/data/store.tsx` (um Zeile 683) und Bildschirm `src/app/vorher-nachher/[id].tsx`.
+- Abschluss der Me-Challenge: `finishBeforeAfter` in `src/data/remote.ts`, Aufruf in `src/data/store.tsx` und Bildschirm `src/app/vorher-nachher/[id].tsx`.
 - Coin-Grafik: Phosphor `coins` (`PH.coins`) oder Darias Coin aus `src/components/icons/Brand.tsx`.
 - Bewegungen: `motion` in `src/theme/tokens.ts`.
 
