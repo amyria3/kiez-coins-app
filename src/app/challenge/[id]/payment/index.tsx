@@ -46,7 +46,7 @@ export default function PaymentScreen() {
         </>
       }
     >
-      <AuthorRow user={author} location={challenge.location} trailing={<StatusBadge status={challenge.status} />} />
+      <AuthorRow user={author} location={challenge.location} trailing={<StatusBadge status={challenge.status} challenge={challenge} />} />
       <View style={styles.block}>
         <Text style={styles.title}>Sind die Coins angekommen?</Text>
         <Text style={styles.secondary}>{day

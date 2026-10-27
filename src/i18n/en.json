@@ -1089,5 +1089,12 @@
   "Dein Platz: {rank} von {total}": "Your place: {rank} of {total}",
   "Was Du hier postest, sehen alle Nutzer:innen in Deinem Kiez.": "Everyone in your neighbourhood sees what you post here.",
   "Was Du hier postest, sehen nur die Mitglieder in dieser Gruppe.": "Only the members of this group see what you post here.",
-  "Die App erstellt für Dich einen Code und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "The app creates a code and an invite link for you. This way, {anzahl} more people can join your group."
+  "Die App erstellt für Dich einen Code und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "The app creates a code and an invite link for you. This way, {anzahl} more people can join your group.",
+  "hat angenommen": "accepted",
+  "hat's erledigt!": "got it done!",
+  "hat bestätigt": "confirmed",
+  "hat abgelehnt": "declined",
+  "hat als bezahlt markiert": "marked as paid",
+  "hat bezahlt": "paid",
+  "Zurück zum Feed": "Back to the feed"
 }
