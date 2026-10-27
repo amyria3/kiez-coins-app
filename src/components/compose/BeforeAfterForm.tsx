@@ -155,7 +155,7 @@ export function useBeforeAfterStartForm(
         tag="#vorher"
         value={beforeText}
         onChangeText={setBeforeText}
-        placeholder="Was ist die Aufgabe oder die Ausgangslage? Erkläre, worin die Me-Challenge besteht."
+        placeholder="Was ist die Aufgabe oder die Ausgangslage? Erkläre kurz, worin die Me-Challenge besteht."
         tooLong={showErrors && textTooLong}
       />
     </>

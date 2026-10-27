@@ -29,5 +29,5 @@ Migration `supabase/migrations/20261028000200_kiez_edensteine.sql`:
 
 ## Feldnamen (Daria, 27.10.2026)
 
-- We-Challenge und Me-Challenge: Das Textfeld zum Vorher heißt überall „Beschreibung“. Platzhalter bei der Me-Challenge: „Was ist die Aufgabe oder die Ausgangslage? Erkläre, worin die Me-Challenge besteht.“
+- We-Challenge und Me-Challenge: Das Textfeld zum Vorher heißt überall „Beschreibung“. Platzhalter bei der Me-Challenge: „Was ist die Aufgabe oder die Ausgangslage? Erkläre kurz, worin die Me-Challenge besteht.“
 - Bild (Kiez und Gruppe): Das Textfeld heißt „Dein Text“.
