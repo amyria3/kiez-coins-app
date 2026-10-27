@@ -51,3 +51,4 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-26_offen_sichtbarkeit-nur-ich.md`: Sichtbarkeit „Nur ich“ beim Posten, veröffentlicht, aber nur für die Ersteller:in sichtbar, kein Entwurf (To-do, Daria).
 - `2026-10-26_offen_lila-ungemuetlich.md`: Kritik „Farbe Lila, ungemütlich“, offene Fragen zu Ort und Ersatzfarbe (To-do, Daria).
 - `2026-10-26_offen_kiez-ausschalten.md`: Kiez als Funktion ausschalten, Modus „Erstmal nur ich“, hängt mit „Nur ich“ zusammen (To-do, Daria).
+- `2026-10-27_offen_chat-mitlesen-protokoll.md`: Protokoll, wer private Chats liest. Pflichtaufgabe: Migration `20261027000100_chat_access_log.sql` ausführen.
