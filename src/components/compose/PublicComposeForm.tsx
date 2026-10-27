@@ -25,6 +25,8 @@ export function usePublicComposeForm(
   onSaved: () => void,
   type: 'individual' | 'photo',
   shared?: ComposeContent,
+  /** Modus „Privat“: nur Bild, nur für Dich sichtbar (Daria, 27.10.2026) */
+  isPrivate = false,
 ): { fields: ReactNode; buttons: ReactNode } {
   const router = useRouter();
   const { saveDraft } = useStore();
@@ -52,6 +54,7 @@ export function usePublicComposeForm(
         title,
         text,
         photo: uriOf(photo) ?? '',
+        ...(isPrivate ? { privat: '1' } : {}),
         ...(extraUris.length ? { extras: JSON.stringify(extraUris) } : {}),
       },
     });
@@ -60,7 +63,7 @@ export function usePublicComposeForm(
   const save = async () => {
     setBusy(true);
     try {
-      await saveDraft(undefined, { type, title, text, location: '', photo, extras: extras.map((p) => ({ photo: p })) });
+      await saveDraft(undefined, { type, title, text, location: '', photo, extras: extras.map((p) => ({ photo: p })), private: isPrivate });
       onSaved();
     } catch (error) {
       Alert.alert('Entwurf nicht gespeichert', (error as Error).message);
@@ -77,7 +80,7 @@ export function usePublicComposeForm(
       <PhotoPicker
         photo={photo}
         error={showErrors && missingPhoto}
-        hint={showErrors && missingPhoto ? 'Bitte ein Foto hinzufügen.' : isChallenge ? 'Zeige, wo geholfen werden soll.' : 'Zeige Deinem Kiez, was Dir gefällt.'}
+        hint={showErrors && missingPhoto ? 'Bitte ein Foto hinzufügen.' : isChallenge ? 'Zeige, wo geholfen werden soll.' : isPrivate ? 'Halte fest, was Dir gefällt.' : 'Zeige Deinem Kiez, was Dir gefällt.'}
         onChange={setPhoto}
         title={{ value: title, onChange: setTitle, error: showErrors && missingTitle ? 'Gib einen Titel ein.' : undefined }}
       />
