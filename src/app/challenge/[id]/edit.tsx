@@ -12,6 +12,7 @@ import { formatDayMonthShort, formatRemainingShort } from '../../../data/format'
 import { useChallenge, useStore } from '../../../data/store';
 import { color, text } from '../../../theme/tokens';
 import { useNudge } from '../../../components/Nudge';
+import { TagTextField } from '../../../components/compose/BeforeAfterForm';
 import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 
@@ -182,7 +183,11 @@ export default function EditChallenge() {
         onChange={setPhoto}
         title={{ value: title, onChange: setTitle, nudge: titleField }}
       />
-      <TextField label="Beschreibung" value={body} onChangeText={setBody} maxLength={500} multiline />
+      {challenge.type === 'individual' ? (
+        <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist das Problem?" value={body} onChangeText={setBody} maxLength={500} />
+      ) : (
+        <TextField label="Beschreibung" value={body} onChangeText={setBody} maxLength={500} multiline />
+      )}
       {isGroup ? null : (
         <>
           <TextField label="Ort" required nudge={locationField} value={location} onChangeText={setLocation} maxLength={120} />

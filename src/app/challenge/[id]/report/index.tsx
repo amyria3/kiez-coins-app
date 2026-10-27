@@ -4,7 +4,8 @@ import { Text } from '../../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../../components/Button';
-import { PhotoPicker, TextField } from '../../../../components/Form';
+import { PhotoPicker } from '../../../../components/Form';
+import { TagTextField } from '../../../../components/compose/BeforeAfterForm';
 import { SubScreen } from '../../../../components/Screen';
 import { useChallenge, useStore } from '../../../../data/store';
 import type { ImageSource } from '../../../../data/types';
@@ -48,13 +49,14 @@ export default function ReportScreen() {
       <NudgeArea nudge={photoField}>
         <PhotoPicker photo={photo} hint="Ein Nachher-Foto ist erforderlich." onChange={(p) => (photoField.clear(), setPhoto(p))} />
       </NudgeArea>
-      <TextField
+      {/* Die Notiz ist das Nachher, das Foto der Aufgabe das Vorher (Daria, 27.10.2026) */}
+      <TagTextField
         label="Notiz (optional)"
-        helperText="Max. 280 Zeichen"
+        tag="#nachher"
+        placeholder="Was hast Du gemacht?"
         value={note}
         onChangeText={setNote}
         maxLength={280}
-        multiline
       />
     </SubScreen>
   );

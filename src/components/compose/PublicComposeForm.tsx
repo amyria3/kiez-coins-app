@@ -9,6 +9,7 @@ import { ExtraPhotos, PhotoPicker, TextField } from '../Form';
 import { Text } from '../T';
 import { explain } from '../Nudge';
 import { useComposeContent, type ComposeContent } from './compose';
+import { TagTextField } from './BeforeAfterForm';
 import { color, text } from '../../theme/tokens';
 
 const uriOf = (photo?: ImageSource) =>
@@ -86,7 +87,12 @@ export function usePublicComposeForm(
           onRemove={(index) => setExtras((all) => all.filter((_, i) => i !== index))}
         />
       ) : null}
-      <TextField label="Beschreibung" helperText="Max. 500 Zeichen" value={text} onChangeText={setText} maxLength={500} multiline />
+      {/* We-Challenge: Die Beschreibung ist das Vorher (Daria, 27.10.2026) */}
+      {isChallenge ? (
+        <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist das Problem?" value={text} onChangeText={setText} maxLength={500} />
+      ) : (
+        <TextField label="Beschreibung" helperText="Max. 500 Zeichen" value={text} onChangeText={setText} maxLength={500} multiline />
+      )}
     </>
   );
 

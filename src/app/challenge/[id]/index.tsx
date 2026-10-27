@@ -17,6 +17,7 @@ import { TextField } from '../../../components/Form';
 import { HeroScreen, SubScreen } from '../../../components/Screen';
 import { beforeAfterDuration, formatBountyShort, formatDayMonthShort, formatEuro, formatHoursMinutes, formatRelative, formatRemainingShort } from '../../../data/format';
 import { WithMentions } from '../../../components/WithMentions';
+import { weChallengeAfter, weChallengeText } from '../../../data/weChallenge';
 import { useRequireKiez } from '../../../data/kiez';
 import { recordView } from '../../../data/remote';
 import { useChallenge, useStore } from '../../../data/store';
@@ -88,11 +89,16 @@ export default function ChallengeDetail() {
   const isBeforeAfter = challenge.type === 'before_after';
   // Vorher-Nachher: erst das Vorher-, dann das Nachher-Foto in der Galerie
   const image = isBeforeAfter ? (challenge.imageBefore ?? challenge.image) : (challenge.image ?? challenge.imageAfter);
+  // Erledigte We-Challenge: das Erledigungsfoto als Nachher direkt nach dem Aufgabenfoto (Daria, 27.10.2026)
+  const weAfter = weChallengeAfter(challenge);
+  const extras = challenge.extraImages?.map((e) => e.photo);
   const moreImages = isBeforeAfter
     ? challenge.imageAfter && challenge.imageBefore
       ? [challenge.imageAfter]
       : undefined
-    : challenge.extraImages?.map((e) => e.photo);
+    : weAfter
+      ? [weAfter, ...(extras ?? [])]
+      : extras;
   const baDuration = isBeforeAfter ? beforeAfterDuration(challenge) : undefined;
 
   const giveBack = () =>
@@ -130,7 +136,9 @@ export default function ChallengeDetail() {
   const canManage = isAuthor && challenge.status === 'open' && !challenge.assigneeId && !isBeforeAfter;
   // Löschen bis jemand annimmt, auch geschlossene (Migration 20261021000300)
   const canDelete = isAuthor && (challenge.status === 'open' || challenge.status === 'closed') && !challenge.assigneeId;
-  const description = (challenge.type === 'wave' ? challenge.challengeText : challenge.text)?.trim();
+  const description = (challenge.type === 'wave' ? challenge.challengeText : weChallengeText(challenge))?.trim();
+  // #vorher und #nachher hervorheben (Me-Challenge und We-Challenge)
+  const tagged = isBeforeAfter || challenge.type === 'individual';
 
   const closeChallenge = () =>
     Alert.alert(
@@ -347,7 +355,7 @@ export default function ChallengeDetail() {
         <InfoRow icon="clock" value={t('In {duration} geschafft', { duration: formatHoursMinutes(baDuration) })} />
       ) : null}
       {description ? (
-        <Text style={styles.description}>{isBeforeAfter ? <WithMentions value={description} /> : description}</Text>
+        <Text style={styles.description}>{tagged ? <WithMentions value={description} /> : description}</Text>
       ) : null}
       <View style={styles.authorBlock}>
         <AuthorRow
