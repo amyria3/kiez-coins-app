@@ -108,7 +108,8 @@ begin
   values (
     'automatisch',
     'System (pg_cron)',
-    'Tägliches Löschen von Nachrichten, die älter als einen Monat sind. Nur das Datum geprüft, keine Inhalte gelesen, keine Person, keine gezielte Abfrage.',
+    -- Wortlaut von Daria (27.10.2026)
+    'Abfrage: Datum und Uhrzeit der Nachricht. Keine Person. Keine gezielte Abfrage Deiner gespeicherten Chatverläufe oder anderer Daten. Keine Inhalte gelesen.',
     false,
     false,
     n
