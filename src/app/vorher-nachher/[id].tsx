@@ -92,7 +92,7 @@ export default function BeforeAfterScreen() {
 
   // Zu früh oder aus Versehen gestartet: wieder ein Entwurf, der nicht als gestartet gilt
   const stop = () =>
-    Alert.alert('Timer stoppen?', 'Die Me-Challenge bleibt als Entwurf. Den Timer startest Du später neu.', [
+    Alert.alert('Timer stoppen?', 'Der Timer wird zurückgesetzt, aber Deine Challenge wird als Entwurf gespeichert.', [
       { text: 'Abbrechen', style: 'cancel' },
       {
         text: 'Stoppen',
