@@ -46,6 +46,14 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onCreate }: Gro
   return (
     <View style={styles.wrap}>
       <View style={styles.here}>
+        {/* Zahnrad links vom Namen, Pfeil ganz rechts und deutlicher (Daria, 27.10.2026) */}
+        <IconButton
+          icon="settings"
+          iconSize={16}
+          iconColor={color.text.secondary}
+          accessibilityLabel={t('{name} verwalten', { name: selected.name })}
+          onPress={() => onOpen(selected.id)}
+        />
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('Gruppe wählen, gewählt: {name}', { name: selected.name })}
@@ -54,22 +62,13 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onCreate }: Gro
           hitSlop={4}
           style={({ pressed }) => [styles.trigger, pressed && styles.pressed]}
         >
-          <View style={styles.titleRow}>
-            <Text noTranslate style={styles.hereName} numberOfLines={1} accessibilityRole="header">
-              {selected.name}
-            </Text>
-            <View style={{ transform: [{ rotate: `${turn}deg` }] }}>
-              <Icon name="chevron-right" size={14} color={color.text.secondary} />
-            </View>
+          <Text noTranslate style={styles.hereName} numberOfLines={1} accessibilityRole="header">
+            {selected.name}
+          </Text>
+          <View style={[styles.caret, { transform: [{ rotate: `${turn}deg` }] }]}>
+            <Icon name="chevron-right" size={size.icon} color={color.text.primary} />
           </View>
         </Pressable>
-        <IconButton
-          icon="settings"
-          iconSize={16}
-          iconColor={color.text.secondary}
-          accessibilityLabel={t('{name} verwalten', { name: selected.name })}
-          onPress={() => onOpen(selected.id)}
-        />
       </View>
       {open ? (
         <View style={styles.menu} accessibilityRole="menu">
@@ -131,9 +130,9 @@ export function GroupsEmpty({
 
 const styles = StyleSheet.create({
   wrap: { gap: space[8], paddingHorizontal: space[16] },
-  here: { flexDirection: 'row', alignItems: 'center', gap: space[8], paddingTop: space[4], paddingBottom: space[4] },
-  trigger: { flex: 1 },
-  titleRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
+  here: { flexDirection: 'row', alignItems: 'center', gap: space[4], paddingTop: space[4], paddingBottom: space[4] },
+  trigger: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 44 },
+  caret: { marginLeft: 'auto', width: 44, alignItems: 'center', justifyContent: 'center' },
   hereName: { ...text.title, fontSize: 22, lineHeight: 28, color: color.text.primary, flexShrink: 1 },
   menu: { borderRadius: radius.xl, backgroundColor: color.bg.surface, overflow: 'hidden' },
   option: { flexDirection: 'row', alignItems: 'center', gap: space[12], minHeight: 52, paddingVertical: space[8], paddingHorizontal: space[16] },

@@ -55,7 +55,7 @@ export default function NewGroup() {
       />
       <Notice
         message={t(
-          'Nach dem Gründen bekommst Du einen Code mit 6 Zeichen. Den teilst Du mit bis zu {anzahl} Leuten. Einen Kiez braucht es dafür nicht.',
+          'Die App erstellt für Dich einen Code und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.',
           { anzahl: MAX_MEMBERS - 1 },
         )}
       />
