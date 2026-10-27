@@ -1089,5 +1089,11 @@
   "Dein Platz: {rank} von {total}": "Твоє місце: {rank} з {total}",
   "Was Du hier postest, sehen alle Nutzer:innen in Deinem Kiez.": "Те, що ти публікуєш тут, бачать усі у твоєму районі.",
   "Was Du hier postest, sehen nur die Mitglieder in dieser Gruppe.": "Те, що ти публікуєш тут, бачать лише учасники цієї групи.",
-  "Die App erstellt für Dich einen Code und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "Застосунок створить для тебе код і посилання-запрошення. Так ще {anzahl} людей зможуть приєднатися до твоєї групи."
+  "Die App erstellt für Dich einen Code und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "Застосунок створить для тебе код і посилання-запрошення. Так ще {anzahl} людей зможуть приєднатися до твоєї групи.",
+  "hat angenommen": "прийняв(-ла)",
+  "hat's erledigt!": "виконав(-ла)!",
+  "hat bestätigt": "підтвердив(-ла)",
+  "hat abgelehnt": "відхилив(-ла)",
+  "hat als bezahlt markiert": "позначив(-ла) як оплачено",
+  "hat bezahlt": "оплатив(-ла)"
 }
