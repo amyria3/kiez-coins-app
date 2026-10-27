@@ -23,5 +23,11 @@
   "Würde für diese App nicht bezahlen": "Не стала бы платить за это приложение",
   "Hab ich schon": "Уже порекомендовала",
   "Danke fürs Gießen 🌱": "Спасибо, что полила 🌱",
-  "Du hast angepackt, {anrede}. Ich schnurre.": "Ты взялась за дело, {anrede}. Я мурлычу."
+  "Du hast angepackt, {anrede}. Ich schnurre.": "Ты взялась за дело, {anrede}. Я мурлычу.",
+  "hat angenommen": "приняла",
+  "hat's erledigt!": "выполнила!",
+  "hat bestätigt": "подтвердила",
+  "hat abgelehnt": "отклонила",
+  "hat als bezahlt markiert": "отметила как оплачено",
+  "hat bezahlt": "оплатила"
 }
