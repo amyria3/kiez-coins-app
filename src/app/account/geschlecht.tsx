@@ -4,7 +4,7 @@ import { useStore } from '../../data/store';
 import { useGoBack } from '../../lib/goBack';
 
 /**
- * Route `account/geschlecht` (Dein Konto › Grammatisches Geschlecht, Daria 24.10.2026).
+ * Route `account/geschlecht` (Dein Konto › Persönliche Angaben › Grammatisches Geschlecht, Daria 24.10.2026, seit 27.10.2026 nur dort).
  * Die Wahl gilt sofort für Texte an Dich und, sobald gespeichert, für Texte anderer über Dich.
  */
 export default function Geschlecht() {

@@ -10,7 +10,7 @@ import { t } from '../data/texts';
 
 /**
  * Auswahl „er“, „sie“ oder „unbestimmt (Person)“ (Daria, 24.10.2026). Steht im Onboarding auf der Seite
- * „Ansprache“ und unter Dein Konto › Grammatisches Geschlecht.
+ * „Ansprache“ und unter Dein Konto › Persönliche Angaben › Grammatisches Geschlecht.
  */
 export function GenderChoice({ value, onChange }: { value: Gender; onChange: (g: Gender) => void }) {
   return (
