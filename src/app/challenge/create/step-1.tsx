@@ -3,9 +3,10 @@ import { Alert, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
-import { ExtraPhotos, PhotoPicker, TextField } from '../../../components/Form';
-import { TypeSwitch } from '../../../components/compose/TypeSwitch';
+import { ExtraPhotos, PhotoPicker } from '../../../components/Form';
 import { TagTextField } from '../../../components/compose/BeforeAfterForm';
+import { PHOTO_TAG } from '../../../components/WithMentions';
+import { TypeSwitch } from '../../../components/compose/TypeSwitch';
 import { Text } from '../../../components/T';
 import { color, text } from '../../../theme/tokens';
 import { SubScreen } from '../../../components/Screen';
@@ -106,26 +107,15 @@ export default function CreateStep1() {
           onRemove={(index) => setDraft((d) => ({ ...d, extras: d.extras.filter((_, i) => i !== index) }))}
         />
       ) : null}
-      {/* We-Challenge: Die Beschreibung ist das Vorher (Daria, 27.10.2026) */}
-      {draft.type === 'photo' ? (
-        <TextField
-          label="Beschreibung"
-          helperText="Max. 500 Zeichen"
-          value={draft.text}
-          onChangeText={(text) => setDraft((d) => ({ ...d, text }))}
-          maxLength={500}
-          multiline
-        />
-      ) : (
-        <TagTextField
-          label="Beschreibung"
-          tag="#vorher"
-          placeholder="Was ist hier zu tun?"
-          value={draft.text}
-          onChangeText={(text) => setDraft((d) => ({ ...d, text }))}
-          maxLength={500}
-        />
-      )}
+      {/* We-Challenge: Die Beschreibung ist das Vorher (Daria, 27.10.2026). Bild: #InDiesemMoment */}
+      <TagTextField
+        label="Beschreibung"
+        tag={isChallenge ? '#vorher' : PHOTO_TAG}
+        placeholder={isChallenge ? 'Was ist hier zu tun?' : undefined}
+        value={draft.text}
+        onChangeText={(text) => setDraft((d) => ({ ...d, text }))}
+        maxLength={500}
+      />
     </SubScreen>
   );
 }

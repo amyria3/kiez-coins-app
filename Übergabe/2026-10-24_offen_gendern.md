@@ -78,7 +78,7 @@ Festgelegt (Claude auf Darias Bitte, 24.10.2026; Daria passt an, sobald sie eine
 
 Daria will die gegenderten Übersetzungen erst laden, wenn die Person Sprache oder Auswahl wechselt. Maschinelle Übersetzung löst das Gendern nicht, Claude schreibt die Fassungen, Muttersprachler:innen prüfen.
 
-- Heute bündelt `src/data/texts.ts` alle fünf Sprachdateien fest in die App (`import en from '../i18n/en.json'` …), je rund 100 KB.
+- Heute bündelt `src/data/texts.ts` alle sechs Sprachdateien fest in die App (`import en from '../i18n/en.json'` …), je rund 100 KB.
 - Vorschlag: Je Sprache eine Grunddatei (Fassung „unbestimmt“) und je Geschlecht eine Ergänzungsdatei nur mit den abweichenden Texten, z. B. `src/i18n/he.json`, `src/i18n/he.er.json`, `src/i18n/he.sie.json`. Für Deutsch, Englisch und Französisch bleiben die Ergänzungen klein, für Hebräisch und Arabisch betreffen sie fast jeden Text an Dich.
 - `t()` sucht zuerst in der Ergänzung, dann in der Grunddatei, dann im deutschen Original.
 - Web: Die App lädt die Dateien erst beim Wechsel (`import()` oder Abruf vom Server) und legt sie wie `app_texts` im Speicher ab (`AsyncStorage`). Native App: Die Dateien liegen im Paket, die App liest nur die gewählten ein.

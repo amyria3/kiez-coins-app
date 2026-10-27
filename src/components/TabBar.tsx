@@ -10,6 +10,8 @@ import { t } from '../data/texts';
 import { refreshUnread, useUnreadMessages } from '../data/chat';
 import { useStore } from '../data/store';
 import { PH, phXml, useIconPt } from './icons/fashionableSvgs';
+import { Avatar } from './AuthorRow';
+import { reiseEntries } from '../data/reise';
 
 export type TabKey = 'feed' | 'reise' | 'chat';
 
@@ -41,10 +43,12 @@ export function TabBar(props: TabBarProps) {
  * Icons in Icon-Größe mit derselben Linie; inaktiv mit 55 % Deckkraft, aktiv voll. „Was Du so machst“ öffnet
  * das Herz oben im Feed.
  */
-function FashionTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarProps) {
+function FashionTabBar({ active, onFeedPress, onCreatePress }: TabBarProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { mode, currentUserId } = useStore();
+  const { mode, currentUserId, users, challenges } = useStore();
+  const me = users.find((u) => u.id === currentUserId);
+  const hasTasks = reiseEntries(challenges, currentUserId).some((e) => e.needsAction);
   const unread = useUnreadMessages();
   useEffect(() => {
     if (currentUserId) refreshUnread(currentUserId, mode === 'live').catch(() => {});
@@ -83,8 +87,18 @@ function FashionTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabB
             {unread ? <View style={styles.dotFashionable} /> : null}
           </View>
         </Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel={t('Menü')} onPress={onMenuPress} style={item(false)}>
-          <SvgXml xml={phXml(PH.menu, color.text.primary)} width={ICON_PT} height={ICON_PT} />
+        {/* Dein Bild = Was Du so machst (Icon-Regelwerk). Das Menü liegt dort oben rechts. */}
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityLabel={hasTasks ? t('Was Du so machst, Du bist dran') : t('Was Du so machst')}
+          accessibilityState={{ selected: active === 'reise' }}
+          onPress={() => active !== 'reise' && router.push('/reise')}
+          style={item(true)}
+        >
+          <View style={[styles.me, active === 'reise' && styles.meActive]}>
+            {me ? <Avatar user={me} diameter={ICON_PT} /> : <SvgXml xml={phXml(PH.menu, color.text.primary)} width={ICON_PT} height={ICON_PT} />}
+            {hasTasks ? <View style={styles.dotFashionable} /> : null}
+          </View>
         </Pressable>
       </View>
     </View>
@@ -210,6 +224,9 @@ const styles = StyleSheet.create({
   // Mockup: 72 hoch mit Home-Balken, Icons 12 unter der Haarlinie
   barFashionable: { flexDirection: 'row', height: 50 },
   off: { opacity: 0.55 },
+  // Dein Bild in der Leiste: aktiv mit dunklem Ring
+  me: { borderRadius: 999, padding: 1.5, borderWidth: 1.5, borderColor: 'transparent' },
+  meActive: { borderColor: color.text.primary },
   itemFashionable: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   dotFashionable: {
     position: 'absolute',

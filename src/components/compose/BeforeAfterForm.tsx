@@ -36,9 +36,10 @@ export function BeforeAfterSteps({ at }: { at: 0 | 1 | 2 }) {
 }
 
 /**
- * Erklärung mit fester Marke vorn (#vorher bzw. #nachher). Die Marke gehört nicht zum gespeicherten Text.
- * Me-Challenge: Die Datenbank setzt sie beim Posten davor, höchstens 240 Zeichen.
- * We-Challenge: Die App setzt sie in der Anzeige davor (`data/weChallenge.ts`), Länge über `maxLength`.
+ * Erklärung mit fester Marke vorn (#vorher, #nachher oder #InDiesemMoment). Die Marke gehört nicht zum gespeicherten Text.
+ * Me-Challenge: #vorher und #nachher setzt die Datenbank beim Posten davor.
+ * We-Challenge (#vorher, #nachher, `data/weChallenge.ts`) und Bild (#InDiesemMoment): Die App setzt sie beim Anzeigen davor.
+ * Höchstens 240 Zeichen, sofern `maxLength` nichts anderes sagt.
  */
 export function TagTextField({
   label,
@@ -50,13 +51,12 @@ export function TagTextField({
   maxLength = BEFORE_AFTER_TEXT_MAX,
 }: {
   label: string;
-  tag: '#vorher' | '#nachher';
+  tag: string;
   value: string;
   onChangeText: (v: string) => void;
   placeholder?: string;
   /** Zu langer Text (aus einem anderen Formular übernommen): Rand und Zähler in der Fehlerfarbe */
   tooLong?: boolean;
-  /** Höchstlänge ohne Marke, Standard 240 (Me-Challenge) */
   maxLength?: number;
 }) {
   const [focused, setFocused] = useState(false);

@@ -608,23 +608,32 @@ export const groupActions = {
 
 export type NewGroupTask = {
   groupId: string;
+  /** `photo`: nur ein Bild für die Gruppe, ohne Edensteine (Migration 20261027000200) */
+  type?: 'individual' | 'photo';
   title: string;
   text: string;
-  edensteine: number;
+  /** Nur bei Aufgaben */
+  edensteine?: number;
   deadline: string;
   photo?: ImageSource;
+  /** Bis zu zwei weitere Fotos, nur bei Bildern */
+  extras?: ExtraPhoto[];
 };
 
-/** Gruppenaufgabe direkt veröffentlichen (ohne Entwurf, ohne Ort). */
+/** Gruppenaufgabe oder Gruppenbild direkt veröffentlichen (ohne Entwurf, ohne Ort). */
 export async function createGroupTask(userId: string, task: NewGroupTask): Promise<Challenge> {
+  const isPhoto = task.type === 'photo';
   const imagePath = task.photo ? await uploadPhoto(userId, task.photo) : null;
+  const extraPaths = isPhoto ? await uploadExtras(userId, task.extras) : undefined;
   const { data } = check(
     await supabase
       .from('challenges')
       .insert({
         author_id: userId,
         group_id: task.groupId,
-        edensteine: task.edensteine,
+        type: isPhoto ? 'photo' : 'individual',
+        edensteine: isPhoto ? null : task.edensteine,
+        ...(extraPaths?.length ? { extra_image_paths: extraPaths } : {}),
         title: task.title.trim(),
         body: task.text.trim(),
         location: '',
