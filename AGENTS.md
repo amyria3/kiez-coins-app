@@ -39,6 +39,7 @@ Docs: https://docs.expo.dev/eas/index.md
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+- Private chats (`public.messages`): never read them with a direct query. If Daria asks you to look into a chat, use `select * from public.chat_einsehen('<id a>', '<id b>', 'Claude', '<reason>');` so the read is logged in `chat_access_log`. Counting or checking structure without `body` is fine (Daria, 2026-10-27).
 
 ## Committing
 
