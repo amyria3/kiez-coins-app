@@ -1078,5 +1078,13 @@
   "Wollte nur nett sein": "أردت فقط أن أكون لطيفًا",
   "Eigene Antwort": "إجابتك الخاصة",
   "Eigene Antworten: {title}": "إجابات خاصة: {title}",
-  "Noch keine eigenen Antworten.": "لا توجد إجابات خاصة بعد."
+  "Noch keine eigenen Antworten.": "لا توجد إجابات خاصة بعد.",
+  "Alle sehen in „Was Du so machst“, wer wie viele Edensteine hat.": "يرى الجميع في «ما تفعله» عدد أحجار عدن لدى كل شخص.",
+  "Alle sehen in „Was Du so machst“ nur ihre eigenen Edensteine.": "في «ما تفعله» يرى كل شخص أحجار عدن الخاصة به فقط.",
+  "Was Du hier postest, sehen alle, die bei Kiez Coins angemeldet sind.": "ما تنشره هنا يراه كل من سجّل الدخول إلى Kiez Coins.",
+  "Was Du hier postest, sehen nur die Mitglieder der gewählten Gruppe.": "ما تنشره هنا يراه أعضاء المجموعة المختارة فقط.",
+  "Gruppe wählen, gewählt: {name}": "اختر مجموعة، المختارة: {name}",
+  "Neue Gruppe erstellen": "إنشاء مجموعة جديدة",
+  "Deine Edensteine": "أحجار عدن الخاصة بك",
+  "Dein Platz: {rank} von {total}": "مركزك: {rank} من {total}"
 }

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../components/T';
 import { Image } from 'expo-image';
@@ -9,7 +9,11 @@ import { StatusBadge } from '../components/Badges';
 import { KaterCard } from '../components/Content';
 import { Cat } from '../components/icons/Brand';
 import { Icon } from '../components/icons/Icon';
-import { GroupCard } from '../components/GroupCard';
+import { Button } from '../components/Button';
+import { Segments } from '../components/FeedHeader';
+import { GroupBar, GroupsEmpty } from '../components/GroupBar';
+import { GroupRanking } from '../components/GroupRanking';
+import { useFeatures } from '../data/features';
 import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { anrede, formatBountyShort, formatRelative } from '../data/format';
 import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
@@ -29,8 +33,9 @@ function taskLabel({ challenge, role }: ReiseEntry): string {
 
 /**
  * Route `reise` (Tab „Was Du so machst“ in der Tab-Leiste, Tipp auf den Kater im Feed oder „Was Du so machst“ im Konto).
- * Upgrade „Nachtschicht“: Kater mit Sprechblase, Aufgaben „Du bist dran“, Bilanz, Deine Gruppen und Verlauf,
- * getrennt nach öffentlichen Challenges und Gruppenaufgaben.
+ * Upgrade „Nachtschicht“: Kater mit Sprechblase und Aufgaben „Du bist dran“. Darunter der Umschalter „Im Kiez / In Gruppen“
+ * wie im Feed (UX-Audit, Daria, 27.10.2026): Im Kiez stehen Bilanz und Verlauf, in Gruppen die Gruppenauswahl,
+ * Dein Platz in der Rangliste und der Verlauf der gewählten Gruppe.
  */
 export default function ReiseRoute() {
   // Fashionable Look: Profilansicht wie bei großen Foto-Apps (Daria, 23.10.2026)
@@ -47,13 +52,14 @@ function Reise() {
   const tasks = entries.filter((e) => e.needsAction);
   const history = entries.filter((e) => !e.needsAction);
   const publicHistory = history.filter((e) => !e.challenge.groupId);
-  const groupHistory = history.filter((e) => !!e.challenge.groupId);
-  // Selbst gegründete Gruppen zuerst
-  const ownGroups = [...groups].sort(
-    (a, b) => Number(b.founderId === currentUserId) - Number(a.founderId === currentUserId),
-  );
-  const created = entries.filter((e) => e.role === 'author').length;
-  const accepted = entries.filter((e) => e.role === 'assignee').length;
+  const groupsOn = useFeatures().groups;
+  const [chosenTab, setTab] = useState<ReiseTab>('kiez');
+  const tab: ReiseTab = groupsOn ? chosenTab : 'kiez';
+  const [groupChoice, setGroupChoice] = useState<string>();
+  const group = groups.find((g) => g.id === groupChoice) ?? groups[0];
+  const groupHistory = history.filter((e) => !!group && e.challenge.groupId === group.id);
+  const created = entries.filter((e) => e.role === 'author' && !e.challenge.groupId).length;
+  const accepted = entries.filter((e) => e.role === 'assignee' && !e.challenge.groupId).length;
   const earned = entries
     .filter((e) => e.role === 'assignee' && e.challenge.status === 'paid')
     .reduce((sum, e) => sum + (e.challenge.bountyAmount ?? 0), 0);
@@ -94,50 +100,58 @@ function Reise() {
           </Pressable>
         ))}
 
-        {entries.length > 0 ? (
-          <View style={styles.stats}>
-            <Stat value={String(created)} label="erstellt" />
-            <Stat value={String(accepted)} label="angenommen" />
-            <Stat value={formatBountyShort(earned)} label="verdient" signal />
-          </View>
-        ) : null}
+        {groupsOn ? <Segments tabs={REISE_TABS} selectedKey={tab} onChange={setTab} /> : null}
 
-        {/* Öffentlicher Verlauf zuerst, darunter Gruppen (Daria, 22.10.2026) */}
-        <History title="Verlauf" entries={publicHistory} onOpen={(entry) => router.push(entry.href)} />
-
-        {ownGroups.length > 0 ? (
-          <View style={styles.historyBlock}>
-            <Text style={styles.sectionLabel}>{ownGroups.length === 1 ? 'Deine Gruppe' : 'Deine Gruppen'}</Text>
-            <View style={styles.groupCards}>
-              {ownGroups.map((group) => (
-                <GroupCard
-                  key={group.id}
-                  group={group}
-                  onFeed={() => router.dismissTo({ pathname: '/feed', params: { gruppe: group.id } })}
-                  onManage={() => router.push(`/gruppen/${group.id}`)}
-                />
-              ))}
+        {tab === 'kiez' ? (
+          <>
+            {created + accepted > 0 ? (
+              <View style={styles.stats}>
+                <Stat value={String(created)} label="erstellt" />
+                <Stat value={String(accepted)} label="angenommen" />
+                <Stat value={formatBountyShort(earned)} label="verdient" signal />
+              </View>
+            ) : null}
+            <History title="Verlauf" entries={publicHistory} onOpen={(entry) => router.push(entry.href)} />
+          </>
+        ) : group ? (
+          <>
+            <View style={styles.bleed}>
+              <GroupBar
+                groups={groups}
+                selectedId={group.id}
+                onSelect={setGroupChoice}
+                onOpen={(id) => router.push(`/gruppen/${id}`)}
+                onCreate={() => router.push('/gruppen/neu')}
+              />
             </View>
+            <GroupRanking group={group} />
+            <Button
+              label="Aufgaben ansehen"
+              variant="secondary"
+              onPress={() => router.dismissTo({ pathname: '/feed', params: { gruppe: group.id } })}
+            />
+            <History title="Verlauf" entries={groupHistory} onOpen={(entry) => router.push(entry.href)} />
+          </>
+        ) : (
+          <View style={styles.bleed}>
+            <GroupsEmpty onCreate={() => router.push('/gruppen/neu')} onJoin={() => router.push('/gruppen/beitreten')} />
           </View>
-        ) : null}
-
-        <History
-          title="Verlauf Gruppen"
-          entries={groupHistory}
-          groupName={(id) => groups.find((g) => g.id === id)?.name}
-          onOpen={(entry) => router.push(entry.href)}
-        />
+        )}
       </ScrollView>
       <TabBar
         active="reise"
-        hasTasks={tasks.length > 0}
         onFeedPress={toFeed}
-        onReisePress={() => {}}
         onMenuPress={() => router.push('/account')}
       />
     </View>
   );
 }
+
+type ReiseTab = 'kiez' | 'groups';
+const REISE_TABS: { key: ReiseTab; label: string }[] = [
+  { key: 'kiez', label: 'Im Kiez' },
+  { key: 'groups', label: 'In Gruppen' },
+];
 
 /** Verlauf als Liste. Bei Gruppenaufgaben steht der Gruppenname in der Unterzeile. */
 function History({
@@ -208,7 +222,8 @@ function Stat({ value, label, signal }: { value: string; label: string; signal?:
 }
 
 const styles = StyleSheet.create({
-  groupCards: { gap: space[12] },
+  // GroupBar und GroupsEmpty bringen 16 pt Rand mit; hier steht schon der Rand der Seite
+  bleed: { marginHorizontal: -space[16] },
   screen: { flex: 1, backgroundColor: color.bg.screen },
   content: { paddingTop: space[24], paddingHorizontal: space[20], gap: space[16] },
   flex: { flex: 1, gap: space[2] },
