@@ -9,9 +9,6 @@ import { color, font, isFashionable, motion, radius, size, space, stroke, text }
 import { KaterCard } from './Content';
 import { Logo, MonoCat } from './icons/Brand';
 import { Icon } from './icons/Icon';
-import { Avatar } from './AuthorRow';
-import { useStore } from '../data/store';
-import { useIconPt } from './icons/fashionableSvgs';
 import { useRouter } from 'expo-router';
 import { useUnreadMessages } from '../data/chat';
 import { SkeletonTopItem } from './Skeleton';
@@ -36,15 +33,12 @@ export function AppHeader(props: AppHeaderProps) {
 
 /**
  * Kopf im Look „Fashionable“ nach Darias Mockup (24.10.2026): Schriftzug „Kiez Coins“ als Text links,
- * Inter Tight halbfett 24/28, rechts Dein Profilbild („Was Du so machst“) und die Sprechblase mit Zeilen (Chats), 18 pt Abstand.
+ * Inter Tight halbfett 24/28, rechts die Sprechblase mit Zeilen (Chats). Dein Profilbild („Was Du so machst“) sitzt in der Leiste unten (Daria, 27.10.2026).
  * Abstände 4 oben, 12 rechts, 8 unten, 14 links.
  */
-function FashionHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) {
+function FashionHeader({ onLogoLongPress }: AppHeaderProps) {
   const router = useRouter();
   const unread = useUnreadMessages();
-  const { users, currentUserId } = useStore();
-  const me = users.find((u) => u.id === currentUserId);
-  const iconPt = useIconPt();
   return (
     <View style={styles.fashionHead}>
       <Pressable onLongPress={onLogoLongPress} accessibilityRole="header">
@@ -57,16 +51,6 @@ function FashionHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProp
         </View>
       </Pressable>
       <View style={styles.headIcons}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={hasTasks ? t('Was Du so machst, Du bist dran') : t('Was Du so machst')}
-          onPress={onLogoPress}
-          hitSlop={10}
-        >
-          {/* Regelwerk: Das Herz heißt nur „Gefällt mir“. Was Du so machst = Dein Profil = Dein Bild. */}
-          {me ? <Avatar user={me} diameter={iconPt} /> : <Icon name="behausung" size={size.icon} />}
-          {hasTasks ? <View style={styles.headDot} /> : null}
-        </Pressable>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : t('Chats')}
