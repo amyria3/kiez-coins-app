@@ -6,10 +6,10 @@
 
 :root {
   /* Helle Seite „Lila-Bühne“: Kopf auf hellem Kater-Lila, darunter sehr helles Gelb-Grün. Das Telefon bleibt dunkel wie die App (.phone). */
-  --bg: #FAFBEF; --surface: #FFFFFF; --glass: rgba(250,251,239,.85); --text: #26233A; --muted: #6A6680;
+  --bg: #FAFBEF; --surface: #FFFFFF; --glass: rgba(250,251,239,.85); --text: #26233A; --muted: #4A465E;
   --purple: #5260E0; --orange: #FFAD7E; --green: #93F4A7; --red: #D6334A; --pink: #FFB2E5;
   --line: rgba(38,35,58,.10); --on-accent: #FFFFFF;
-  --buehne: #DCE1FF; --band: #EEF4CC; --flaeche-tief: #E9EBFA; --schatten: rgba(60,60,140,.25);
+  --buehne: #DCE1FF; --band: #F4F7E2; --flaeche-tief: #E9EBFA; --schatten: rgba(60,60,140,.25);
   --barrier: cubic-bezier(.55,-.3,.3,1.3);
   --display: 'Inter Tight', Inter, system-ui, sans-serif;
 }
@@ -26,8 +26,13 @@ button { font: inherit; color: inherit; }
 
 /* Kopf */
 .top { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
-.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.brand { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; text-decoration: none; }
+/* Marke unter dem Logo (Daria, 26.10.2026) */
+.marke { font: italic 400 13px/1 Inter, system-ui, sans-serif; letter-spacing: .01em; color: var(--text); white-space: nowrap; }
+@media (max-width: 420px) { .marke { font-size: 11px; letter-spacing: 0; } }
 .brand svg { display: block; }
+/* Logo im Seitenkopf in der dunklen Textfarbe statt Kater-Lila (nur Website, im Telefon bleibt es lila) */
+.brand svg [fill="#7E94FF"] { fill: var(--text); }
 .top-link { font-size: 15px; font-weight: 400; text-decoration: none; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
 .top-link:hover { border-color: var(--muted); }
 .top-links { display: flex; gap: 8px; }
@@ -47,11 +52,11 @@ button { font: inherit; color: inherit; }
 @media (max-width: 480px) {
   .top-links { gap: 6px; }
   .top-links .top-link { padding: 8px 12px; font-size: 13px; }
-  .top:has(.top-links) .brand svg { height: 22px; width: auto; }
+  .top:has(.top-links) .brand svg { height: 27px; width: auto; }
   .top-links .lang { display: none; } .top-links .kurz { display: inline; }
   .sprachwahl summary { padding: 8px 10px; font-size: 12px; }
 }
-@media (max-width: 360px) { .top-links { gap: 4px; } .top-links .top-link { padding: 8px 10px; } .top:has(.top-links) .brand svg { height: 18px; } }
+@media (max-width: 360px) { .top-links { gap: 4px; } .top-links .top-link { padding: 8px 10px; } .top:has(.top-links) .brand svg { height: 23px; } }
 
 /* Erster Bildschirm: Text und Szenarien links, Telefon rechts */
 .hero { display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: 'text phone' 'wahl phone';
@@ -303,7 +308,7 @@ button { font: inherit; color: inherit; }
 }
 
 /* Leute */
-.mehr { padding: 64px 0; background: var(--band); }
+.mehr { padding: 64px 0; background: var(--band) linear-gradient(135deg, #F4F7E2 0%, #EFECFF 50%, #FFEDE3 100%); }
 .mehr > .wrap > p { color: var(--muted); margin: 0 0 32px; max-width: 46ch; }
 .mehr-karten { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .mehr-karte { display: grid; grid-template-rows: auto auto 1fr auto; gap: 14px; text-align: start; padding: 20px; border-radius: 28px;
@@ -342,7 +347,7 @@ button { font: inherit; color: inherit; }
 @keyframes mehr-blase { from { transform: translateY(10px) scale(.9); opacity: 0; } }
 @media (max-width: 760px) { .mehr-karten { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .mehr-flug, .mehr-blase { animation: none; } }
-.leute { padding: 64px 0 40px; }
+.leute { padding: 64px 0 40px; background: linear-gradient(160deg, #FFF1EA 0%, #FBEFF7 100%); }
 .mehr h2, .leute h2, .download h2 { font: 600 clamp(30px, 4vw, 44px)/1.05 var(--display); letter-spacing: -.025em; margin: 0 0 12px; max-width: 18ch; }
 .leute > .wrap > p, .download > .wrap > p { color: var(--muted); margin: 0 0 40px; max-width: 46ch; }
 .szene { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: end; border-bottom: 2.5px solid var(--text); }
@@ -363,7 +368,7 @@ button { font: inherit; color: inherit; }
 .js .leute.is-seen .person:nth-child(3) .blase { transition-delay: 520ms; }
 
 /* Download */
-.download { padding: 80px 0 24px; }
+.download { padding: 80px 0 24px; background: linear-gradient(160deg, #ECEEFF 0%, #F6F4FF 60%, #FFFFFF 100%); }
 .karten { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 28px; padding: 28px; box-shadow: 0 12px 30px -18px var(--schatten); }
 .card h3 { font: 600 24px/1.1 var(--display); margin: 0 0 8px; }
@@ -599,3 +604,21 @@ footer a { color: var(--muted); }
   100% { opacity: 0; transform: translate(var(--x), -150px) scale(.9); }
 }
 @keyframes p-burst-fade { 0%, 100% { opacity: 0; } 15%, 75% { opacity: 1; } }
+
+/* Scrolleffekte. Ohne JS oder bei „Bewegung reduzieren“ greift nichts davon. */
+/* A: Abschnitte blenden ein */
+.fx-a .fx-zeigen { opacity: 0; translate: 0 28px; transition: opacity 500ms ease-out, translate 700ms var(--barrier); transition-delay: calc(var(--i, 0) * 110ms); }
+.fx-a .fx-zeigen.is-da { opacity: 1; translate: 0 0; }
+/* B: Kater wandert mit und neigt den Kopf, das Telefon bleibt beim Scrollen etwas zurück */
+.fx-b .kater-kopf { translate: 0 var(--ky, 0px); rotate: var(--kr, 0deg); transition: transform 560ms var(--barrier), opacity 200ms, translate 400ms ease-out; }
+.fx-b .phone-spalte { translate: 0 var(--ty, 0px); }
+/* C: Farbverlauf oben zeigt, wie weit man gescrollt hat */
+.fx-spur { display: none; }
+.fx-c .fx-spur { display: block; position: fixed; z-index: 800; inset: 0 0 auto 0; height: 4px; pointer-events: none; }
+.fx-c .fx-spur::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--purple), var(--pink), var(--orange));
+  transform: scaleX(var(--p, 0)); transform-origin: left; border-radius: 0 4px 4px 0; }
+[dir="rtl"].fx-c .fx-spur::before { transform-origin: right; background: linear-gradient(-90deg, var(--purple), var(--pink), var(--orange)); }
+/* D: Kartenstapel. Jeder Abschnitt scrollt ganz durch, bleibt dann stehen, und der nächste schiebt sich mit runden Ecken darüber. */
+.fx-d body > .wrap, .fx-d .mehr, .fx-d .leute { position: sticky; top: min(0px, calc(100vh - var(--h, 100vh))); }
+.fx-d .mehr, .fx-d .leute, .fx-d .download { border-radius: 36px 36px 0 0; box-shadow: 0 -18px 40px -24px var(--schatten); }
+.fx-d .download { position: relative; }
