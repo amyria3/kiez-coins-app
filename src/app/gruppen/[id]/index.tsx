@@ -16,7 +16,7 @@ import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 
 /**
- * Route `gruppen/[id]`: Mitglieder, Einladungscode, Aufgaben erstellen.
+ * Route `gruppen/[id]`: Mitglieder, Einladungscode, unten „Zurück zum Feed“.
  * Die Gründerin entfernt Mitglieder und überträgt ihre Rolle (Mitglied antippen).
  * In den Gruppeneinstellungen schaltet sie die Rangliste ein und aus. Die Rangliste selbst steht in
  * „Was Du so machst“ unter „In Gruppen“ (UX-Audit, Daria, 27.10.2026); hier stehen die Mitglieder nach Beitritt.
@@ -25,7 +25,7 @@ export default function GroupDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const goBack = useGoBack();
-  const { groups, challenges, users, currentUserId, groupApi } = useStore();
+  const { groups, users, currentUserId, groupApi } = useStore();
   const group = groups.find((g) => g.id === id);
 
   if (!group) {
@@ -38,7 +38,6 @@ export default function GroupDetail() {
 
   const isFounder = group.founderId === currentUserId;
   const showRanks = group.showLeaderboard;
-  const openTasks = challenges.filter((c) => c.groupId === group.id && c.status === 'open').length;
   const userOf = (userId: string): User =>
     users.find((u) => u.id === userId) ?? { id: userId, name: 'Unbekannt', firstName: 'Unbekannt' };
 
@@ -107,12 +106,8 @@ export default function GroupDetail() {
       subtitle={t('{members} von {MAX_MEMBERS} Mitgliedern', { members: group.members.length, MAX_MEMBERS })}
       navigation="back"
       onLeadingPress={() => (goBack())}
-      actions={
-        <>
-          <Button label="Aufgabe erstellen" onPress={() => router.push(`/gruppen/${group.id}/aufgabe`)} />
-          <Button label={openTasks === 1 ? '1 offene Aufgabe ansehen' : openTasks ? t('{openTasks} offene Aufgaben ansehen', { openTasks }) : 'Aufgaben ansehen'} variant="ghost" onPress={() => router.replace({ pathname: '/feed', params: { gruppe: group.id } })} />
-        </>
-      }
+      // Daria, 27.10.2026: „Aufgabe erstellen“ und „Aufgaben ansehen“ entfallen, unten steht nur noch der Weg zurück zum Feed
+      actions={<Button label="Zurück zum Feed" variant="secondary" icon="this-way" iconFlip onPress={() => router.replace('/feed')} />}
     >
       <FieldGroup label="Mitglieder">
         <View style={styles.list}>
