@@ -147,6 +147,8 @@ export default function Account() {
             value={blockedIds.length === 0 ? 'Niemand' : t('{blockedIds} blockiert', { blockedIds: blockedIds.length })}
             onPress={() => router.push('/account/blocked')}
           />
+          {/* Ob jemand aus dem Team Deine Daten abgerufen hat (Daria, 27.10.2026) */}
+          <NavRow label="Abrufe Deiner Daten" value="Durchs Team" onPress={() => router.push('/account/datenabrufe')} />
           {moderator ? <NavRow label="Moderation" value="Meldungen prüfen" onPress={() => router.push('/moderation')} /> : null}
           {moderator ? <NavRow label="Umfrage-Ergebnis" value="Antworten zählen" onPress={() => router.push('/account/umfrage/ergebnis')} /> : null}
           {moderator ? <NavRow label="Texte" value="Buttons, Kater, Rechtstexte" onPress={() => router.push('/texte')} /> : null}
