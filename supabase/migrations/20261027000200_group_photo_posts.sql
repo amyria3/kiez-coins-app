@@ -41,3 +41,28 @@ alter policy "Gruppenaufgabe erstellen" on public.challenges
     and report_photo_path is null
     and (image_path is null or image_path like (select auth.uid())::text || '/%')
   );
+
+-- Bild im Kiez: Die Policy „Challenge erstellen“ ließ bisher nur type 'individual' zu. Ein Bild
+-- (type 'photo') scheiterte deshalb beim Posten und beim Speichern als Entwurf.
+-- Stand 20261021000100 plus type 'photo'.
+alter policy "Challenge erstellen" on public.challenges
+  with check (
+    author_id = (select auth.uid())
+    and group_id is null
+    and type in ('individual', 'photo')
+    and assignee_id is null
+    and accepted_at is null
+    and reported_at is null
+    and confirmed_at is null
+    and paid_marked_at is null
+    and paid_at is null
+    and closed_at is null
+    and report_photo_path is null
+    and (status = 'draft' or (status = 'open' and deadline > now()))
+    and (image_path is null or image_path like (select auth.uid())::text || '/%')
+    and (select public.is_active_member())
+    and (
+      bounty_amount is null
+      or exists (select 1 from public.profiles p where p.id = (select auth.uid()) and p.can_offer_bounties)
+    )
+  );
