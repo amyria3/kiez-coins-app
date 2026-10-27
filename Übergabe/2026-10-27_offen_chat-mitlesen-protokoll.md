@@ -8,9 +8,10 @@ Daria will private Chats im Moment mitlesen können, braucht aber mindestens ein
 
 Die Migration bringt:
 
-1. `chat_access_log`: dauerhaftes Protokoll mit Zeit, wer (`Daria` oder `Claude`), Paar, Grund, Anzahl Nachrichten.
+1. `chat_access_log`: dauerhaftes Protokoll mit Zeit, Art (`person` oder `automatisch`), wer, Paar, Grund, `targeted` (gezielt?), `content_read` (Inhalte gelesen?), Anzahl Nachrichten. Ein Check-Constraint erzwingt: `person` heißt gezielt und Inhalte gelesen, `automatisch` heißt keine Person, nicht gezielt, keine Inhalte.
 2. `chat_einsehen(person_a, person_b, wer, grund)`: der einzige vorgesehene Weg zum Lesen. Schreibt zuerst ins Protokoll, gibt dann den Chat zurück. Nur für die Rolle `postgres` (SQL-Editor, MCP), nicht aus der App.
-3. pgaudit als Sicherheitsnetz: Jedes direkte Lesen von `public.messages` durch `postgres` oder `service_role` steht im Postgres-Log (Dashboard > Logs > Postgres, nach `AUDIT` suchen). App-Nutzer:innen werden nicht protokolliert.
+3. `messages_alte_loeschen()`: das tägliche Löschen nach einem Monat (pg_cron, 3:17 UTC) läuft jetzt über diese Funktion. Sie prüft nur das Datum und vermerkt jeden Lauf als `automatisch` mit der Zahl gelöschter Nachrichten (Daria, 27.10.2026: automatische Vorgänge müssen als solche erkennbar sein).
+4. pgaudit als Sicherheitsnetz: Jedes direkte Lesen von `public.messages` durch `postgres` oder `service_role` steht im Postgres-Log (Dashboard > Logs > Postgres, nach `AUDIT` suchen). App-Nutzer:innen werden nicht protokolliert.
 
 Regel für Claude steht in `AGENTS.md` (Abschnitt Rules).
 
@@ -22,7 +23,7 @@ Regel für Claude steht in `AGENTS.md` (Abschnitt Rules).
 
 ## Nächste Schritte
 
-- Migration ausführen, danach Test: `select * from public.chat_einsehen('<id a>', '<id b>', 'Claude', 'Test');` und `select * from public.chat_access_log;`
+- Migration ausführen, danach Test: `select * from public.chat_einsehen('<id a>', '<id b>', 'Claude', 'Test');`, `select public.messages_alte_loeschen();` und `select * from public.chat_access_log;`. Prüfen, dass `cron.job` den neuen Befehl zeigt.
 - Datenschutzerklärung und Kodex: Hinweis, dass die Betreiberin private Nachrichten in begründeten Fällen (z. B. Meldungen) einsehen kann und jedes Einsehen protokolliert wird.
 - Datenbank-Doku in Documentation ergänzen, dann diese Notiz löschen.
 - Später optional: Protokoll im Moderations-Screen anzeigen (Moderator:innen dürfen es schon lesen).
