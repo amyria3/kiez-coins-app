@@ -32,6 +32,7 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onCreate }: Gro
   if (!selected) return null;
   // Pfeil zeigt nach unten, offen nach oben; in Arabisch und Hebräisch ist chevron-right gespiegelt
   const turn = (open ? -90 : 90) * (isRtl() ? -1 : 1);
+  const toggle = () => setOpen((o) => !o);
   const create = () => {
     setOpen(false);
     if (groups.length >= MAX_GROUPS) {
@@ -46,7 +47,19 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onCreate }: Gro
   return (
     <View style={styles.wrap}>
       <View style={styles.here}>
-        {/* Zahnrad links vom Namen, Pfeil ganz rechts und deutlicher (Daria, 27.10.2026) */}
+        {/* Name bündig links, Zahnrad direkt rechts daneben, Pfeil bündig rechts (Daria, 27.10.2026).
+            Name, Freiraum und Pfeil öffnen das Menü. */}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('Gruppe wählen, gewählt: {name}', { name: selected.name })}
+          accessibilityState={{ expanded: open }}
+          onPress={toggle}
+          style={({ pressed }) => [styles.name, pressed && styles.pressed]}
+        >
+          <Text noTranslate style={styles.hereName} numberOfLines={1} accessibilityRole="header">
+            {selected.name}
+          </Text>
+        </Pressable>
         <IconButton
           icon="settings"
           iconSize={16}
@@ -55,16 +68,11 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onCreate }: Gro
           onPress={() => onOpen(selected.id)}
         />
         <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('Gruppe wählen, gewählt: {name}', { name: selected.name })}
-          accessibilityState={{ expanded: open }}
-          onPress={() => setOpen((o) => !o)}
-          hitSlop={4}
+          accessible={false}
+          importantForAccessibility="no"
+          onPress={toggle}
           style={({ pressed }) => [styles.trigger, pressed && styles.pressed]}
         >
-          <Text noTranslate style={styles.hereName} numberOfLines={1} accessibilityRole="header">
-            {selected.name}
-          </Text>
           <View style={[styles.caret, { transform: [{ rotate: `${turn}deg` }] }]}>
             <Icon name="chevron-right" size={size.icon} color={color.text.primary} />
           </View>
@@ -131,8 +139,9 @@ export function GroupsEmpty({
 const styles = StyleSheet.create({
   wrap: { gap: space[8], paddingHorizontal: space[16] },
   here: { flexDirection: 'row', alignItems: 'center', gap: space[4], paddingTop: space[4], paddingBottom: space[4] },
-  trigger: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 44 },
-  caret: { marginLeft: 'auto', width: 44, alignItems: 'center', justifyContent: 'center' },
+  name: { flexShrink: 1, minHeight: size.touchTarget, justifyContent: 'center' },
+  trigger: { flex: 1, minHeight: size.touchTarget, alignItems: 'flex-end', justifyContent: 'center' },
+  caret: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
   hereName: { ...text.title, fontSize: 22, lineHeight: 28, color: color.text.primary, flexShrink: 1 },
   menu: { borderRadius: radius.xl, backgroundColor: color.bg.surface, overflow: 'hidden' },
   option: { flexDirection: 'row', alignItems: 'center', gap: space[12], minHeight: 52, paddingVertical: space[8], paddingHorizontal: space[16] },
