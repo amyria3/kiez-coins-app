@@ -8,7 +8,7 @@ import { BlurView } from 'expo-blur';
 
 import { formatRelative, formatRemainingShort } from '../data/format';
 import type { Challenge, User } from '../data/types';
-import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isFashionable, radius, size, space, stroke, text, scheme } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BeforeAfterPost } from './BeforeAfterPost';
 import { WithMentions } from './WithMentions';
@@ -169,11 +169,11 @@ function KiezPost({
         </Animated.View>
         <View style={[styles.info, image ? styles.infoOnPhoto : styles.infoPlain]}>
           {image ? <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} /> : null}
-          <Text style={styles.title} numberOfLines={2}>
+          <Text style={[styles.title, image ? styles.titleOnPhoto : null]} numberOfLines={2}>
             {challenge.title}
           </Text>
           <View style={styles.metaRow}>
-            <Text style={styles.meta} numberOfLines={1}>
+            <Text style={[styles.meta, image ? styles.metaOnPhoto : null]} numberOfLines={1}>
               <Text noTranslate style={hideName ? hiddenText : undefined}>{author.name}</Text>
               {meta ? ` · ${meta}` : null}
             </Text>
@@ -479,6 +479,9 @@ const styles = StyleSheet.create({
   whoName: { ...text.cardTitle, fontSize: 16, lineHeight: 20, color: color.text.primary, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
   whoMeta: { ...text.caption, fontSize: 12, color: color.text.primary, opacity: 0.85, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
   title: { ...text.cardTitle, color: color.text.primary },
+  /** Auf dem dunklen Glas über dem Foto in hellen Looks helle Schrift */
+  titleOnPhoto: scheme === 'light' ? { color: color.text.onPhoto } : {},
+  metaOnPhoto: scheme === 'light' ? { color: 'rgba(240, 240, 240, 0.75)' } : {},
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   meta: { ...text.caption, fontSize: 13, color: color.text.secondary, flex: 1 },
   actions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: space[4] },
