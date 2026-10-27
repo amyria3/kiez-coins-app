@@ -38,7 +38,7 @@ const open = JSON.stringify(legalDocs).match(/\[offen:[^\]]*\]/g);
 if (open) console.warn(`Achtung, noch offen: ${[...new Set(open)].join(', ')}`);
 
 const css = `
-:root { --bg:#FAFBEF; --surface:#FFFFFF; --text:#26233A; --muted:#6A6680; --accent:#5260E0; --error:#D6334A; --line:rgba(38,35,58,.10); }
+:root { --bg:#FAFBEF; --surface:#FFFFFF; --text:#26233A; --muted:#4A465E; --accent:#5260E0; --error:#D6334A; --line:rgba(38,35,58,.10); }
 * { box-sizing:border-box; }
 html { background:var(--bg); color:var(--text); }
 body { margin:0; font:300 16px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
@@ -128,6 +128,16 @@ const kcSvg = {
   diamond3: { w: diamondSvgs[3].width, h: diamondSvgs[3].height, svg: diamondSvgs[3].svg(C.text) },
   cameraDark: icon('camera', C.dark),
 };
+// Logo für den Seitenkopf: Schriftzug wie in der App, die Katze vorne ersetzt durch Darias FatCat (scripts/site/fatcat.svg, 26.10.2026).
+// Die ersten acht Pfade im Logo sind die alte Katze. Die FatCat bekommt die Logo-Farbe, damit seite.css sie mit umfärbt.
+const logoSeite = (() => {
+  const pfade = kcSvg.logo.svg.match(/<path[\s\S]*?\/>/g);
+  const fat = readFileSync(join(root, 'scripts/site/fatcat.svg'), 'utf8').match(/<path[\s\S]*?\/>/)[0].replace(/fill="[^"]*"/, 'fill="#7E94FF"');
+  const katze = `<g transform="translate(0.5 1.5) scale(${(24 / 35).toFixed(4)})">${fat}</g>`;
+  let svg = kcSvg.logo.svg.replace(pfade[0], katze);
+  for (const alt of pfade.slice(1, 8)) svg = svg.replace(alt, '');
+  return { ...kcSvg.logo, svg };
+})();
 const sized = (d, h) => d.svg.replace(/width="[^"]*" height="[^"]*"/, `width="${Math.round((d.w / d.h) * h)}" height="${h}" aria-hidden="true"`);
 // Dateien mit Prüfsumme im Namen-Parameter, damit Browser nach einem Update die neue Fassung laden
 const version = (text) => createHash('sha1').update(text).digest('hex').slice(0, 8);
@@ -269,10 +279,11 @@ ${sprachen.map((l) => `<link rel="alternate" hreflang="${l.code}" href="${pfad(l
 </head>
 <body>
 ${filterDefs}
+<div class="fx-spur" aria-hidden="true"></div>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="${L === 'de' ? './' : pfad(L)}" aria-label="${t('Kiez Coins, Startseite', 'Kiez Coins, home')}">${sized(kcSvg.logo, 28)}</a>
-  <nav class="top-links"><a class="top-link" href="/spenden"><span class="lang">${t('Spendenaktion', 'Fundraiser')}</span><span class="kurz">${t('Spenden', 'Donate')}</span></a><a class="top-link" href="#download"><span class="lang">${t('Testversion laden', 'Get the beta')}</span><span class="kurz">${t('Testen', 'Try it')}</span></a>${sprachwahl(L)}</nav>
+  <a class="brand" href="${L === 'de' ? './' : pfad(L)}" aria-label="${t('Kiez Coins, Startseite', 'Kiez Coins, home')}">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+  <nav class="top-links"><a class="top-link" href="#download"><span class="lang">${t('Testversion laden', 'Get the beta')}</span><span class="kurz">${t('Testen', 'Try it')}</span></a>${sprachwahl(L)}</nav>
 </header>
 
 <main>
@@ -482,6 +493,59 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
     }
   });
 </script>
+<script>
+  // Scrolleffekte: A Abschnitte blenden ein, B Kater und Telefon bewegen sich leicht mit, C Fortschrittsbalken oben,
+  // D Abschnitte stapeln sich wie Karten (Daria, 26.10.2026). Bei „Bewegung reduzieren“ bleibt alles still.
+  (function () {
+    var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var root = document.documentElement;
+    if (!still) root.classList.add('fx-a', 'fx-b', 'fx-c', 'fx-d');
+    if (still) return;
+    // A: Abschnitte gleiten beim Erreichen von unten herein, Karten nacheinander
+    if (root.classList.contains('fx-a') && 'IntersectionObserver' in window) {
+      var els = document.querySelectorAll('.mehr h2, .mehr > .wrap > p, .mehr-karte, .leute h2, .leute > .wrap > p, .download h2, .download > .wrap > p, .download .card');
+      var seh = new IntersectionObserver(function (es) {
+        es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-da'); seh.unobserve(e.target); } });
+      }, { rootMargin: '0px 0px -12% 0px' });
+      els.forEach(function (el) {
+        var i = [].indexOf.call(el.parentNode.children, el);
+        if (el.matches('.mehr-karte, .card')) el.style.setProperty('--i', i);
+        el.classList.add('fx-zeigen');
+        seh.observe(el);
+      });
+    }
+    // D: Jeder Abschnitt bleibt stehen, sobald sein Ende im Bild ist, der nächste schiebt sich darüber.
+    // Dafür braucht jeder Abschnitt seine Höhe als --h (top: min(0, 100vh - Höhe) in seite.css).
+    if (root.classList.contains('fx-d')) {
+      var stapel = document.querySelectorAll('body > .wrap, .mehr, .leute');
+      var messen = function () { stapel.forEach(function (el) { el.style.setProperty('--h', el.offsetHeight + 'px'); }); };
+      if ('ResizeObserver' in window) { var ro = new ResizeObserver(messen); stapel.forEach(function (el) { ro.observe(el); }); }
+      addEventListener('resize', messen);
+      messen();
+    }
+    // B und C hängen an der Scrollposition, ein Frame pro Bild
+    var kopf = document.getElementById('kater-kopf'), tel = document.querySelector('.phone-spalte'), spur = document.querySelector('.fx-spur');
+    var letzt = scrollY, kipp = 0, wartet = false;
+    function frame() {
+      wartet = false;
+      var y = scrollY, max = Math.max(1, document.documentElement.scrollHeight - innerHeight), p = Math.min(1, y / max);
+      if (root.classList.contains('fx-b')) {
+        // Kater wandert gemächlich mit und neigt den Kopf in Scrollrichtung
+        kipp += (Math.max(-14, Math.min(14, (y - letzt) * .6)) - kipp) * .25;
+        kopf.style.setProperty('--ky', ((.5 - p) * 140).toFixed(1) + 'px');
+        kopf.style.setProperty('--kr', kipp.toFixed(2) + 'deg');
+        if (y < innerHeight * 1.2) tel.style.setProperty('--ty', (y * -.12).toFixed(1) + 'px');
+        if (Math.abs(kipp) > .05) planen();
+      }
+      if (root.classList.contains('fx-c')) spur.style.setProperty('--p', p.toFixed(4));
+      letzt = y;
+    }
+    function planen() { if (!wartet) { wartet = true; requestAnimationFrame(frame); } }
+    addEventListener('scroll', planen, { passive: true });
+    addEventListener('resize', planen);
+    frame();
+  })();
+</script>
 </body>
 </html>
 `
@@ -506,7 +570,7 @@ const einladung = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}</a>
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
 </header>
 <main>
 <section class="download einladung" id="download" aria-labelledby="einladung-titel">
@@ -575,7 +639,7 @@ const spendenSeite = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}</a>
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
   <a class="top-link" href="/#download">Testversion laden</a>
 </header>
 <main>
@@ -637,7 +701,7 @@ const katerSeite = `<!doctype html>
 <body class="kater-seite">
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(kcSvg.logo, 28)}</a>
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
   <a class="top-link" href="/#download">Testversion laden</a>
 </header>
 <main class="kater-buehne-seite">
