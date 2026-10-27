@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../../data/store';
 import type { ImageSource } from '../../data/types';
 import { Button } from '../Button';
-import { ExtraPhotos, PhotoPicker, TextField } from '../Form';
+import { ExtraPhotos, PhotoPicker } from '../Form';
 import { Text } from '../T';
 import { PHOTO_TAG } from '../WithMentions';
 import { TagTextField } from './BeforeAfterForm';
@@ -88,8 +88,9 @@ export function usePublicComposeForm(
           onRemove={(index) => setExtras((all) => all.filter((_, i) => i !== index))}
         />
       ) : null}
+      {/* We-Challenge: Die Beschreibung ist das Vorher (Daria, 27.10.2026) */}
       {isChallenge ? (
-        <TextField label="Beschreibung" helperText="Max. 500 Zeichen" value={text} onChangeText={setText} maxLength={500} multiline />
+        <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={text} onChangeText={setText} maxLength={500} />
       ) : (
         <TagTextField label="Beschreibung" tag={PHOTO_TAG} value={text} onChangeText={setText} maxLength={500} />
       )}

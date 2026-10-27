@@ -23,6 +23,7 @@ import { color, font, motion, radius, size, space, stroke, text } from '../../..
 import { useAppDimensions } from '../../../theme/layout';
 import { useDraft } from './_layout';
 import { useGoBack } from '../../../lib/goBack';
+import { WithMentions } from '../../../components/WithMentions';
 
 /** Breite des ausgeblurrten Rands links und rechts (schmal, Daria 22.10.2026) */
 const EDGE = space[8];
@@ -201,7 +202,11 @@ export default function CreatePreview() {
         onBackPress={() => goBack()}
         summary={summary}
       >
-        {draft.text.trim() ? <Text style={styles.description}>{draft.text.trim()}</Text> : null}
+        {draft.text.trim() ? (
+          <Text style={styles.description}>
+            {isPhoto ? draft.text.trim() : <WithMentions value={`#vorher ${draft.text.trim()}`} />}
+          </Text>
+        ) : null}
         <View style={styles.authorBlock}>
           <AuthorRow user={user} location={draft.location.trim()} />
         </View>

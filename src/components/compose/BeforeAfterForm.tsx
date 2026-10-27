@@ -36,8 +36,9 @@ export function BeforeAfterSteps({ at }: { at: 0 | 1 | 2 }) {
 }
 
 /**
- * Erklärung mit fester Marke vorn (#vorher, #nachher oder #InDiesemMoment). Die Marke gehört nicht zum gespeicherten Text:
- * #vorher und #nachher setzt die Datenbank beim Posten davor, #InDiesemMoment die App beim Anzeigen.
+ * Erklärung mit fester Marke vorn (#vorher, #nachher oder #InDiesemMoment). Die Marke gehört nicht zum gespeicherten Text.
+ * Me-Challenge: #vorher und #nachher setzt die Datenbank beim Posten davor.
+ * We-Challenge (#vorher, #nachher, `data/weChallenge.ts`) und Bild (#InDiesemMoment): Die App setzt sie beim Anzeigen davor.
  * Höchstens 240 Zeichen, sofern `maxLength` nichts anderes sagt.
  */
 export function TagTextField({
