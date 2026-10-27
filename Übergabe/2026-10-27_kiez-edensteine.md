@@ -18,7 +18,7 @@ Daria, 27.10.2026: Edensteine sind die ideelle Währung, ein Ersatz für Euro. A
 
 ## Datenbank
 
-Migration `supabase/migrations/20261027000300_kiez_edensteine.sql`:
+Migration `supabase/migrations/20261028000200_kiez_edensteine.sql`:
 
 - Regel `challenges_group_reward`: neuer Fall Kiez, `type = 'individual'`, `edensteine` 1 bis 10, `bounty_amount` leer.
 - `edit_open_challenge` und `edit_deleted_challenge` haben am Ende den Parameter `p_edensteine` (Vorgabe null). Bei Kiez-Challenges setzt er die Edensteine, bei Gruppenaufgaben bleiben sie unverändert.

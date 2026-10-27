@@ -88,7 +88,6 @@ export function TagTextField({
         />
       </View>
       <View style={styles.help}>
-        <Text style={styles.helpText}>{t('{tag} steht automatisch vorn.', { tag })}</Text>
         <Text style={[styles.helpText, tooLong ? { color: color.accent.error } : null]}>{`${value.length} / ${maxLength}`}</Text>
       </View>
     </View>
@@ -103,6 +102,8 @@ export function useBeforeAfterStartForm(
   groupId: string | undefined,
   onStarted: (id: string) => void,
   shared?: ComposeContent,
+  /** Modus „Privat“, nur ohne Gruppe (Daria, 27.10.2026) */
+  isPrivate = false,
 ): { fields: ReactNode; button: ReactNode } {
   const { beforeAfter } = useStore();
   const own = useComposeContent();
@@ -122,7 +123,7 @@ export function useBeforeAfterStartForm(
     }
     setBusy(true);
     try {
-      const id = await beforeAfter.start({ groupId, title, beforeText, photo });
+      const id = await beforeAfter.start({ groupId, title, beforeText, photo, private: isPrivate });
       onStarted(id);
     } catch (error) {
       Alert.alert('Vorher nicht gespeichert', (error as Error).message);
@@ -154,7 +155,7 @@ export function useBeforeAfterStartForm(
         tag="#vorher"
         value={beforeText}
         onChangeText={setBeforeText}
-        placeholder="Was ist das Problem?"
+        placeholder="Was hast Du Dir vorgenommen?"
         tooLong={showErrors && textTooLong}
       />
     </>
@@ -215,6 +216,6 @@ const styles = StyleSheet.create({
   tag: { fontFamily: isFashionable ? font.semiBold : font.medium, fontSize: 14, lineHeight: 18, color: color.accent.signal },
   input: { ...text.body, color: color.text.primary, padding: 0, minHeight: 40, textAlignVertical: 'top' },
   inputWeb: { outlineStyle: 'none' } as object,
-  help: { flexDirection: 'row', justifyContent: 'space-between', gap: space[8] },
+  help: { flexDirection: 'row', justifyContent: 'flex-end', gap: space[8] },
   helpText: { ...text.caption, color: color.text.secondary, fontVariant: ['tabular-nums'] },
 });

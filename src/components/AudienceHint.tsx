@@ -8,25 +8,27 @@ import { t } from '../data/texts';
 import { color, isFashionable, radius, space, text } from '../theme/tokens';
 
 /**
- * Hinweis unter dem Umschalter „Im Kiez / In Gruppen“ (UX-Audit, Daria, 27.10.2026): wer sieht, was Du hier postest.
+ * Hinweis unter dem Umschalter „Privat / Gruppe / Kiez“ (UX-Audit, Daria, 27.10.2026): wer sieht, was Du hier postest.
  * Das Kreuz blendet ihn aus, je Reiter einmal und dauerhaft auf diesem Gerät.
  * Texte von Daria (27.10.2026). Gruppe = nur Mitglieder laut Policy „Challenges lesen“.
  */
-export type Audience = 'kiez' | 'groups';
+export type Audience = 'private' | 'kiez' | 'groups';
 
 const KEY = (audience: Audience) => `kiez-hinweis-sichtbarkeit-${audience}`;
 
 const MESSAGE: Record<Audience, string> = {
+  private: 'Was Du hier postest, siehst nur Du.',
   kiez: 'Was Du hier postest, sehen alle Nutzer:innen in Deinem Kiez.',
   groups: 'Was Du hier postest, sehen nur die Mitglieder in dieser Gruppe.',
 };
 
 export function useAudienceHint(audience: Audience): [boolean, () => void] {
-  const [hidden, setHidden] = useState<Record<Audience, boolean>>({ kiez: true, groups: true });
+  const [hidden, setHidden] = useState<Record<Audience, boolean>>({ private: true, kiez: true, groups: true });
   useEffect(() => {
     let alive = true;
-    Promise.all((['kiez', 'groups'] as const).map((a) => AsyncStorage.getItem(KEY(a)).catch(() => null))).then(([kiez, groups]) => {
-      if (alive) setHidden({ kiez: !!kiez, groups: !!groups });
+    const all = ['private', 'kiez', 'groups'] as const;
+    Promise.all(all.map((a) => AsyncStorage.getItem(KEY(a)).catch(() => null))).then(([priv, kiez, groups]) => {
+      if (alive) setHidden({ private: !!priv, kiez: !!kiez, groups: !!groups });
     });
     return () => {
       alive = false;

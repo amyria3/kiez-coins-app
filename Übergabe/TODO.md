@@ -12,6 +12,12 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Kodex und Rechtstexte überarbeiten (Daria)
 - [ ] Anschrift (c/o) im Impressum, sobald die App öffentlich ist und ein Finanzierungskonzept steht
 
+## 28.10.2026 – Pflicht für Daria: Anmeldung ohne E-Mail und Testkonto (PR #90)
+
+- [ ] Supabase › Authentication › Sign In / Providers: „Allow anonymous sign-ins“ einschalten
+- [ ] Brevo-API-Schlüssel als Secret `BREVO_API_KEY` für die Edge Function `konto-ohne-mail` hinterlegen (Supabase › Edge Functions › Secrets)
+- [ ] Claude Bescheid geben, dann spielt Claude Migrationen und Edge Function auf und merged PR #90
+
 ## 20.10.2026 – Challenges und Design (Daria)
 
 - [x] Deleted C. -> "Bearbeiten" statt direkt "Wider veröffentlichen", und erst im Bearbeitungsscreen "Veröffentlichen"  oder "Nicht veröffentlichen, Entwurf"
@@ -90,3 +96,12 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 - [ ] Nachrichten von Audio zu Text und von Text zu Audio umwandeln
 - [ ] Audio-Assistent: Person anschreiben, indem man ihren Namen sagt
+
+## 27.10.2026 (3) – Rechtstexte nach den neuen Community-Regeln (Daria)
+
+Kontext: `Übergabe/2026-10-27_offen_community-regeln.md`.
+
+- [ ] Nutzungsbedingungen (Abschnitt 2, „ab 18 Jahren“) und Datenschutz (Abschnitt „Alter“) an den Abschnitt „Kinder“ anpassen: Kinder nutzen die App über Eltern oder Lehrkräfte
+- [ ] Nutzungsbedingungen, Abschnitt 3: „Werbung“ als Verbot streichen oder in die Community-Regeln aufnehmen
+- [ ] Schreibweise „KiezCoins“ oder „Kiez Coins“ in den Regeln vereinheitlichen
+- [ ] Migration `20261028000200_app_texts_community_regeln.sql` im Supabase-SQL-Editor ausführen (Texte-Editor)

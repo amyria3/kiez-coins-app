@@ -145,6 +145,7 @@ export default function CreatePreview() {
             deadline,
             coords: draft.coords,
             extras: draft.extras,
+            private: draft.private,
           });
       markComposeDone();
       celebratePost();

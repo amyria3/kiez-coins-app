@@ -83,6 +83,8 @@ type ChallengeRow = {
   image_path: string | null;
   group_id?: string | null;
   edensteine?: number | null;
+  /** Migration 20261028000100 */
+  visibility?: 'public' | 'private' | null;
   extra_image_paths?: string[] | null;
   image_before_path: string | null;
   image_after_path: string | null;
@@ -168,6 +170,7 @@ function toChallenge(
     image: photoUrl(row.image_path),
     imagePath: row.image_path ?? undefined,
     groupId: row.group_id ?? undefined,
+    private: row.visibility === 'private' || undefined,
     edensteine: row.edensteine ?? undefined,
     extraImages: (row.extra_image_paths ?? []).flatMap((path) => {
       const photo = photoUrl(path);
@@ -529,11 +532,13 @@ export type NewChallenge = {
   /** Gerundeter Punkt (location.ts, roundCoords) */
   coords?: { latitude: number; longitude: number };
   bountyAmount?: number;
-  /** Edensteine statt Euro, 1 bis 10 (Migration 20261027000300) */
+  /** Edensteine statt Euro, 1 bis 10 (Migration 20261028000200) */
   edensteine?: number;
   deadline: string;
   photo: ImageSource;
   extras?: ExtraPhoto[];
+  /** Modus „Privat“: nur Bild, ohne Coins (Migration 20261028000100) */
+  private?: boolean;
 };
 
 /** Spalten lat/lng (Migration 20261020000400). Ohne Punkt bleiben sie weg, damit es auch ohne Migration läuft. */
@@ -587,6 +592,7 @@ export async function createChallenge(userId: string, draft: NewChallenge): Prom
           ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}),
           deadline: draft.deadline,
           image_path: imagePath,
+          ...(draft.private ? { visibility: 'private' } : {}),
         })
         .select(CHALLENGE_COLUMNS)
         .single(),
@@ -731,6 +737,8 @@ export type DraftInput = {
   photo?: ImageSource;
   imagePath?: string;
   extras?: ExtraPhoto[];
+  /** Modus „Privat“, nur beim Anlegen (Migration 20261028000100) */
+  private?: boolean;
 };
 
 /** Entwurf anlegen (ohne id) oder aktualisieren. Lädt ein neues Foto hoch. Gibt den gespeicherten Entwurf zurück. */
@@ -750,7 +758,9 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
     const all = { ...fields, ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}) };
     const query = id
       ? supabase.from('challenges').update(all).eq('id', id).eq('status', 'draft')
-      : supabase.from('challenges').insert({ ...all, author_id: userId, status: 'draft' });
+      : supabase
+          .from('challenges')
+          .insert({ ...all, author_id: userId, status: 'draft', ...(draft.private ? { visibility: 'private' } : {}) });
     return check(await query.select(CHALLENGE_COLUMNS).single());
   });
   return toChallenge(data as unknown as ChallengeRow, { liked: false });
@@ -768,6 +778,8 @@ export const BEFORE_AFTER_TEXT_MAX = 240;
 export type NewBeforeAfter = {
   /** leer: öffentlich im Kiez */
   groupId?: string;
+  /** Modus „Privat“, nur ohne Gruppe (Migration 20261028000100) */
+  private?: boolean;
   title: string;
   beforeText: string;
   photo: ImageSource;
@@ -793,6 +805,10 @@ export async function startBeforeAfter(userId: string, input: NewBeforeAfter): P
       p_image_before_path: path,
     }),
   );
+  // Privat: Der Entwurf bekommt die Sichtbarkeit gleich nach dem Anlegen (Policy „Eigenen Entwurf bearbeiten“)
+  if (input.private && !input.groupId) {
+    check(await supabase.from('challenges').update({ visibility: 'private' }).eq('id', data as string).eq('status', 'draft'));
+  }
   const { challenge } = await loadChallenge(data as string, userId);
   if (!challenge) throw new Error(t('Der Entwurf ist nicht angekommen. Versuche es bitte noch mal.'));
   return challenge;
