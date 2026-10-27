@@ -62,9 +62,10 @@ export default function Account() {
         details={[anrede(profile), profile.kiez ?? 'Kiez noch nicht festgelegt']}
         onPress={() => router.push('/account/profile')}
       />
-      {/* Funktionen an- und abschalten (Daria, 24.10.2026), direkt unter Deinem Namen (Daria, 27.10.2026) */}
+      {/* Funktionen an- und abschalten (Daria, 24.10.2026), direkt unter Deinem Namen (Daria, 27.10.2026).
+          Titel mit „Deine“ wie Deine Challenges und Deine Gruppen (Daria, 27.10.2026) */}
       <NavCard
-        title="Funktionen"
+        title="Deine Funktionen"
         description={featuresOn || 'Nur Me-Challenge'}
         leading={<Icon name="switch" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/account/funktionen')}
@@ -93,7 +94,7 @@ export default function Account() {
       {/* Freundschaften, Funktionen und Look mit Darias Icons (25.10.2026), Sprache mit Phosphor.
           Grammatisches Geschlecht steht nur noch unter Persönliche Angaben (Daria, 27.10.2026). */}
       <NavCard
-        title="Freundschaften"
+        title="Deine Freundschaften"
         description={
           friendRequests
             ? t('{n, plural, one {# Anfrage} other {# Anfragen}}', {
@@ -105,7 +106,7 @@ export default function Account() {
         onPress={() => router.push('/account/freunde')}
       />
       <NavCard
-        title="Sprache"
+        title="Deine Sprache"
         description={languageName}
         leading={<PhIcon name="language" size={size.icon} />}
         onPress={() => router.push('/account/sprache')}
