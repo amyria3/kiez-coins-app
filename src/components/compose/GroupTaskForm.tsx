@@ -7,12 +7,13 @@ import type { ImageSource } from '../../data/types';
 import { color, radius, size, space, text } from '../../theme/tokens';
 import { Button } from '../Button';
 import { FieldGroup } from '../Content';
-import { Chip, ChipGroup, PhotoPicker, TextField } from '../Form';
+import { Chip, ChipGroup, PhotoPicker } from '../Form';
 import { LivingCrystal } from '../icons/Brand';
 import { Icon } from '../icons/Icon';
 import { explain, useNudge } from '../Nudge';
 import { Text } from '../T';
 import { useComposeContent, type ComposeContent } from './compose';
+import { TagTextField } from './BeforeAfterForm';
 import { celebratePost } from '../HeartBurst';
 
 const durations = [
@@ -77,7 +78,7 @@ export function useGroupTaskForm(
         onChange={setPhoto}
         title={{ value: title, onChange: setTitle, nudge: titleField }}
       />
-      <TextField label="Beschreibung" helperText="Max. 500 Zeichen" value={body} onChangeText={setBody} maxLength={500} multiline />
+      <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={body} onChangeText={setBody} maxLength={500} />
       <FieldGroup label="Edensteine">
         <View style={styles.stepper}>
           <Pressable

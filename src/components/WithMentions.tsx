@@ -1,4 +1,5 @@
 import type { Challenge } from '../data/types';
+import { weChallengeText } from '../data/weChallenge';
 import { color, font, isFashionable } from '../theme/tokens';
 import { Text } from './T';
 
@@ -8,8 +9,12 @@ import { Text } from './T';
  */
 export const PHOTO_TAG = '#InDiesemMoment';
 
-/** Text eines Beitrags zum Anzeigen: bei „Bild“ mit #InDiesemMoment vorn, auch ohne eigenen Text */
-export function postText(challenge: Pick<Challenge, 'type' | 'text'>): string {
+/**
+ * Text eines Beitrags zum Anzeigen: bei „Bild“ mit #InDiesemMoment vorn, auch ohne eigenen Text.
+ * We-Challenge: #vorher vor der Beschreibung, nach dem Bestätigen #nachher vor der Notiz (Daria, 27.10.2026).
+ */
+export function postText(challenge: Challenge): string {
+  if (challenge.type === 'individual') return weChallengeText(challenge);
   const own = challenge.text?.trim() ?? '';
   if (challenge.type !== 'photo') return own;
   return own ? `${PHOTO_TAG} ${own}` : PHOTO_TAG;
