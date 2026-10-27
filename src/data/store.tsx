@@ -423,6 +423,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         createdAt: new Date().toISOString(),
         deadline: draft.deadline,
         coords: draft.coords,
+        private: draft.private,
       };
       localDispatch({ type: 'create', challenge });
       return challenge.id;
@@ -456,6 +457,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         createdAt: existing?.createdAt ?? new Date().toISOString(),
         deadline: '',
         coords: draft.coords ?? existing?.coords,
+        private: existing ? existing.private : draft.private,
       };
       localDispatch(existing ? { type: 'challengeLoaded', id: challenge.id, challenge, users: [] } : { type: 'create', challenge });
       return challenge;
@@ -668,6 +670,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           beforeText: input.beforeText.trim() || undefined,
           authorId: s.currentUserId,
           groupId: input.groupId,
+          private: !input.groupId && input.private ? true : undefined,
           location: '',
           status: 'draft',
           image: input.photo,

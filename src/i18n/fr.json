@@ -1096,5 +1096,18 @@
   "hat abgelehnt": "a refusé",
   "hat als bezahlt markiert": "a marqué comme payé",
   "hat bezahlt": "a payé",
-  "Zurück zum Feed": "Retour au fil"
+  "Zurück zum Feed": "Retour au fil",
+  "Dieser Modus ist oben im Umschalter vorausgewählt.": "Ce mode est présélectionné dans le sélecteur en haut.",
+  "Halte fest, was Dir gefällt.": "Garde ce qui te plaît.",
+  "Hier sammelst Du Me-Challenges und Bilder, die nur Du siehst. Tippe auf die Kamera und fang an.": "Rassemble ici des Me-Challenges et des images que toi seul·e vois. Touche la caméra pour commencer.",
+  "Modi": "Modes",
+  "Noch nichts für Dich": "Rien que pour toi pour l’instant",
+  "Privat": "Privé",
+  "Privat siehst nur Du, in der Gruppe nur Deine Gruppe, im Kiez alle in Deinem Kiez. Verbirg, was Du nicht brauchst. Das geht auch später in Deinem Konto.": "Privé, c’est pour toi seul·e, Groupe pour ton groupe, Kiez pour tout ton quartier. Masque ce dont tu n’as pas besoin. Tu peux aussi le faire plus tard dans ton compte.",
+  "Standard": "Par défaut",
+  "Verbirg, was Du gerade nicht brauchst. Mit dem Auge holst Du es Dir zurück, wann Du willst.": "Masque ce dont tu n’as pas besoin pour l’instant. Avec l’œil, tu le récupères quand tu veux.",
+  "Was Du hier postest, sehen alle in Deinem Kiez.": "Tout ton quartier voit ce que tu publies ici.",
+  "Was Du hier postest, siehst nur Du.": "Toi seul·e vois ce que tu publies ici.",
+  "{mode} verbergen": "Masquer {mode}",
+  "{mode} zeigen": "Afficher {mode}"
 }

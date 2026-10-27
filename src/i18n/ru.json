@@ -1081,5 +1081,18 @@
   "hat abgelehnt": "отклонил(а)",
   "hat als bezahlt markiert": "отметил(а) как оплачено",
   "hat bezahlt": "оплатил(а)",
-  "Zurück zum Feed": "Назад к ленте"
+  "Zurück zum Feed": "Назад к ленте",
+  "Dieser Modus ist oben im Umschalter vorausgewählt.": "Этот режим заранее выбран в переключателе вверху.",
+  "Halte fest, was Dir gefällt.": "Сохрани то, что тебе нравится.",
+  "Hier sammelst Du Me-Challenges und Bilder, die nur Du siehst. Tippe auf die Kamera und fang an.": "Здесь ты собираешь Me-Challenges и фото, которые видишь только ты. Нажми на камеру и начни.",
+  "Modi": "Режимы",
+  "Noch nichts für Dich": "Пока ничего только для тебя",
+  "Privat": "Лично",
+  "Privat siehst nur Du, in der Gruppe nur Deine Gruppe, im Kiez alle in Deinem Kiez. Verbirg, was Du nicht brauchst. Das geht auch später in Deinem Konto.": "Личное видишь только ты, групповое — твоя группа, в Кице — все в твоём районе. Скрой то, что тебе не нужно. Это можно сделать и позже в своём аккаунте.",
+  "Standard": "По умолчанию",
+  "Verbirg, was Du gerade nicht brauchst. Mit dem Auge holst Du es Dir zurück, wann Du willst.": "Скрой то, что сейчас не нужно. Глазом вернёшь это, когда захочешь.",
+  "Was Du hier postest, sehen alle in Deinem Kiez.": "То, что ты здесь публикуешь, видят все в твоём районе.",
+  "Was Du hier postest, siehst nur Du.": "То, что ты здесь публикуешь, видишь только ты.",
+  "{mode} verbergen": "Скрыть {mode}",
+  "{mode} zeigen": "Показать {mode}"
 }

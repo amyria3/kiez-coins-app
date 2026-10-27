@@ -94,6 +94,7 @@ export const fashionableSvgs: Partial<Record<IconName, Svg>> = {
   flag: ph('flag'),
   copy: ph('copy'),
   eye: ph('eye'),
+  'eye-off': ph('eye-slash'),
   // Deine Challenges: Raster
   ship: ph('squares-four'),
   // Gruppen: Personen

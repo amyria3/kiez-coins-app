@@ -1096,5 +1096,18 @@
   "hat abgelehnt": "رفض",
   "hat als bezahlt markiert": "وضع علامة «مدفوع»",
   "hat bezahlt": "دفع",
-  "Zurück zum Feed": "العودة إلى الصفحة الرئيسية"
+  "Zurück zum Feed": "العودة إلى الصفحة الرئيسية",
+  "Dieser Modus ist oben im Umschalter vorausgewählt.": "هذا الوضع محدد مسبقًا في المبدّل في الأعلى.",
+  "Halte fest, was Dir gefällt.": "احتفظ بما يعجبك.",
+  "Hier sammelst Du Me-Challenges und Bilder, die nur Du siehst. Tippe auf die Kamera und fang an.": "هنا تجمع تحديات Me والصور التي تراها أنت فقط. اضغط على الكاميرا وابدأ.",
+  "Modi": "الأوضاع",
+  "Noch nichts für Dich": "لا شيء لك وحدك بعد",
+  "Privat": "خاص",
+  "Privat siehst nur Du, in der Gruppe nur Deine Gruppe, im Kiez alle in Deinem Kiez. Verbirg, was Du nicht brauchst. Das geht auch später in Deinem Konto.": "الخاص تراه أنت فقط، والمجموعة تراها مجموعتك، والكيتس يراه الجميع في حيّك. أخفِ ما لا تحتاجه. يمكنك ذلك لاحقًا أيضًا في حسابك.",
+  "Standard": "الافتراضي",
+  "Verbirg, was Du gerade nicht brauchst. Mit dem Auge holst Du es Dir zurück, wann Du willst.": "أخفِ ما لا تحتاجه الآن. بالعين تستعيده متى شئت.",
+  "Was Du hier postest, sehen alle in Deinem Kiez.": "ما تنشره هنا يراه الجميع في حيّك.",
+  "Was Du hier postest, siehst nur Du.": "ما تنشره هنا تراه أنت فقط.",
+  "{mode} verbergen": "إخفاء {mode}",
+  "{mode} zeigen": "إظهار {mode}"
 }

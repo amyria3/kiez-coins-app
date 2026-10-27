@@ -112,6 +112,8 @@ export type Challenge = {
   /** Nur Gruppenaufgaben: Gruppe und Edensteine (1 bis 10) statt Bounty */
   groupId?: string;
   edensteine?: number;
+  /** Modus „Privat“: nur die Ersteller:in sieht den Beitrag (Migration 20261028000100) */
+  private?: boolean;
   /** Bis zu 2 weitere Fotos (Migration 20261020000700) */
   extraImages?: ExtraPhoto[];
   imageBefore?: ImageSource;

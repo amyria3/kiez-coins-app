@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Alert, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -13,7 +13,6 @@ import { SubScreen } from '../../../components/Screen';
 import { hasContent, useDraft, useSaveDraft } from './_layout';
 import { explain } from '../../../components/Nudge';
 import { t } from '../../../data/texts';
-import { useFeatures } from '../../../data/features';
 import { useGoBack } from '../../../lib/goBack';
 
 /** Entwürfe aus „Deine Challenges“: Challenge oder Bild. Vorher-Nachher hat einen eigenen Ablauf. */
@@ -29,15 +28,8 @@ export default function CreateStep1() {
   const [draft, setDraft] = useDraft();
   const [showErrors, setShowErrors] = useState(false);
   const { save, busy } = useSaveDraft();
-  // Schalter aus „Dein Konto › Funktionen“; der Typ des Entwurfs bleibt immer wählbar
-  const on = useFeatures();
-  const types = TYPES.filter((o) => o.key === draft.type || (o.key === 'photo' ? on.photo : on.we));
-  // Neuer Entwurf: startet mit einem angeschalteten Typ
-  useEffect(() => {
-    if (draft.id) return;
-    if (draft.type === 'individual' && !on.we && on.photo) setDraft((d) => ({ ...d, type: 'photo', bountyAmount: undefined }));
-    if (draft.type === 'photo' && !on.photo && on.we) setDraft((d) => ({ ...d, type: 'individual' }));
-  }, [draft.id, draft.type, on.we, on.photo, setDraft]);
+  // We-Challenge und Bild sind immer wählbar (Daria, 27.10.2026), privat nur Bild
+  const types = draft.private ? TYPES.filter((o) => o.key === 'photo') : TYPES;
 
   const isChallenge = draft.type !== 'photo';
   const missingPhoto = !draft.photo;

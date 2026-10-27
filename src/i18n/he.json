@@ -1096,5 +1096,18 @@
   "hat abgelehnt": "דחה",
   "hat als bezahlt markiert": "סימן כשולם",
   "hat bezahlt": "שילם",
-  "Zurück zum Feed": "חזרה לפיד"
+  "Zurück zum Feed": "חזרה לפיד",
+  "Dieser Modus ist oben im Umschalter vorausgewählt.": "מצב זה נבחר מראש במתג למעלה.",
+  "Halte fest, was Dir gefällt.": "שמור את מה שאתה אוהב.",
+  "Hier sammelst Du Me-Challenges und Bilder, die nur Du siehst. Tippe auf die Kamera und fang an.": "כאן אתה אוסף Me-Challenges ותמונות שרק אתה רואה. הקש על המצלמה והתחל.",
+  "Modi": "מצבים",
+  "Noch nichts für Dich": "עדיין אין כאן משהו רק בשבילך",
+  "Privat": "פרטי",
+  "Privat siehst nur Du, in der Gruppe nur Deine Gruppe, im Kiez alle in Deinem Kiez. Verbirg, was Du nicht brauchst. Das geht auch später in Deinem Konto.": "פרטי רואה רק אתה, קבוצה רואה הקבוצה שלך, קיץ רואים כולם בשכונה שלך. הסתר את מה שאינך צריך. אפשר לעשות זאת גם מאוחר יותר בחשבון שלך.",
+  "Standard": "ברירת מחדל",
+  "Verbirg, was Du gerade nicht brauchst. Mit dem Auge holst Du es Dir zurück, wann Du willst.": "הסתר את מה שאינך צריך כרגע. עם העין תחזיר אותו מתי שתרצה.",
+  "Was Du hier postest, sehen alle in Deinem Kiez.": "את מה שאתה מפרסם כאן רואים כולם בשכונה שלך.",
+  "Was Du hier postest, siehst nur Du.": "את מה שאתה מפרסם כאן רואה רק אתה.",
+  "{mode} verbergen": "הסתר {mode}",
+  "{mode} zeigen": "הצג {mode}"
 }

@@ -1096,5 +1096,18 @@
   "hat abgelehnt": "declined",
   "hat als bezahlt markiert": "marked as paid",
   "hat bezahlt": "paid",
-  "Zurück zum Feed": "Back to the feed"
+  "Zurück zum Feed": "Back to the feed",
+  "Dieser Modus ist oben im Umschalter vorausgewählt.": "This mode is preselected in the switch at the top.",
+  "Halte fest, was Dir gefällt.": "Capture what you like.",
+  "Hier sammelst Du Me-Challenges und Bilder, die nur Du siehst. Tippe auf die Kamera und fang an.": "Collect Me-Challenges and pictures here that only you can see. Tap the camera to get started.",
+  "Modi": "Modes",
+  "Noch nichts für Dich": "Nothing just for you yet",
+  "Privat": "Private",
+  "Privat siehst nur Du, in der Gruppe nur Deine Gruppe, im Kiez alle in Deinem Kiez. Verbirg, was Du nicht brauchst. Das geht auch später in Deinem Konto.": "Private is just for you, Group for your group, Kiez for everyone in your neighbourhood. Hide what you don’t need. You can also do this later in your account.",
+  "Standard": "Default",
+  "Verbirg, was Du gerade nicht brauchst. Mit dem Auge holst Du es Dir zurück, wann Du willst.": "Hide what you don’t need right now. Tap the eye to bring it back whenever you like.",
+  "Was Du hier postest, sehen alle in Deinem Kiez.": "Everyone in your neighbourhood sees what you post here.",
+  "Was Du hier postest, siehst nur Du.": "Only you can see what you post here.",
+  "{mode} verbergen": "Hide {mode}",
+  "{mode} zeigen": "Show {mode}"
 }
