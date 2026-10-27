@@ -78,8 +78,8 @@ function SheetScroll({ children, actions }: { children: React.ReactNode; actions
         >
           {children}
         </ScrollView>
+        <ActionBar>{actions}</ActionBar>
       </NudgeScrollProvider>
-      <ActionBar>{actions}</ActionBar>
     </KeyboardAvoidingView>
   );
 }

@@ -43,7 +43,8 @@ export function TextField({
   const inputRef = useRef<TextInput>(null);
   const ownViewRef = useRef<View>(null);
   const viewRef = nudge?.ref ?? ownViewRef;
-  // Enter springt ins nächste Feld, sofern das Feld selbst nichts abschickt
+  // Enter springt ins nächste Feld, nach dem letzten zum Absende-Button, sofern das Feld selbst nichts abschickt.
+  // Mehrzeilige Felder (Beschreibung) behalten Enter für den Zeilenumbruch.
   const goNext = useNextField(inputRef, viewRef);
   const advances = !multiline && !onSubmitEditing && !!goNext;
   const hinted = !error && !!nudge?.hint;
@@ -431,6 +432,9 @@ export function PhotoPicker({ photo, hint, error, onChange, title }: PhotoPicker
   const [focused, setFocused] = useState(false);
   const ownRef = useRef<View>(null);
   const titleRef = title?.nudge?.ref ?? ownRef;
+  // „Fertig“ oder Enter im Titel springt ins nächste Feld (Nudge.tsx)
+  const titleInputRef = useRef<TextInput>(null);
+  const goNext = useNextField(titleInputRef, titleRef);
   const hinted = !title?.error && !!title?.nudge?.hint;
   const titleHelper = title?.error ?? title?.nudge?.hint;
   // Ohne Rahmen (Daria, 24.10.2026); nur ein Fehler zeigt einen roten Rand
@@ -460,6 +464,7 @@ export function PhotoPicker({ photo, hint, error, onChange, title }: PhotoPicker
         {title ? (
           <View ref={titleRef} style={[styles.photoTitle, { borderColor: titleBorder }]}>
             <TextInput
+              ref={titleInputRef}
               value={title.value}
               onChangeText={(v) => {
                 title.nudge?.clear();
@@ -473,8 +478,12 @@ export function PhotoPicker({ photo, hint, error, onChange, title }: PhotoPicker
               accessibilityHint={titleHelper}
               multiline
               scrollEnabled={false}
-              submitBehavior="blurAndSubmit"
-              returnKeyType="done"
+              // Mehrzeilig nur zum Umbrechen: Enter schreibt keinen Zeilenumbruch, sondern geht weiter.
+              // Der Browser kennt nur `blurOnSubmit` (react-native-web).
+              submitBehavior={goNext ? 'submit' : 'blurAndSubmit'}
+              {...(Platform.OS === 'web' ? ({ blurOnSubmit: true } as object) : null)}
+              returnKeyType={goNext ? 'next' : 'done'}
+              onSubmitEditing={() => goNext?.()}
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
               style={styles.photoTitleInput}

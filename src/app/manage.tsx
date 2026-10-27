@@ -370,7 +370,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
             {c.title || 'Ohne Titel'}
           </Text>
           <View style={styles.badges}>
-            <StatusBadge status={c.status} />
+            <StatusBadge status={c.status} challenge={c} />
             {c.bountyAmount ? <BountyBadge amount={c.bountyAmount} /> : null}
           </View>
           {state.hint ? (
