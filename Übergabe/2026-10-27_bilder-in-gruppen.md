@@ -15,14 +15,12 @@ Gehört in Documentation: `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Challenge
 - Ein Gruppenbild braucht Foto und Titel, dazu bis zu zwei weitere Fotos, eine Beschreibung und einen Zeitraum. Es hat keine Edensteine, keine Coins und keinen Ort.
 - Das Bild geht direkt raus, ohne Entwurf und ohne Vorschau, wie die Gruppenaufgabe. Danach öffnet die App den Beitrag.
 - Annehmen, Erledigt melden und Bezahlen gibt es nicht; `isPostOnly` deckt das in der Oberfläche ab, `accept_challenge` in der Datenbank.
-- Die Zählung „offene Aufgaben“ auf der Gruppenseite überspringt Bilder und Vorher-Nachher.
 
 ## Betroffene Dateien
 
 - `src/components/compose/GroupPhotoForm.tsx` (neu): Felder und Knopf „Bild posten“.
 - `src/components/compose/ComposeSheet.tsx`: `GROUP_TYPES` um `photo` erweitert, Formular je Typ.
 - `src/app/gruppen/[id]/aufgabe.tsx`: derselbe Schalter auf der eigenen Route, Titel wechselt zu „Bild posten“.
-- `src/app/gruppen/[id]/index.tsx`: offene Aufgaben ohne Bilder und Vorher-Nachher.
 - `src/data/remote.ts`, `src/data/store.tsx`: `NewGroupTask` kennt `type` und `extras`, Edensteine sind optional.
 - `supabase/migrations/20261027000200_group_photo_posts.sql`: Prüfung `challenges_group_reward`, Policies „Gruppenaufgabe erstellen“ und „Challenge erstellen“.
 
