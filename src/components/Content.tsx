@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: color.bg.surface,
     // Pausenhof: Rand nur an den zwei Kanten, die nach außen zeigen
-    ...(isPlayful ? { right: -9, backgroundColor: color.bg.screen, borderTopWidth: 2, borderRightWidth: 2, borderColor: playfulColor.border } : null),
+    ...(isPlayful ? { right: -8, backgroundColor: color.bg.surface, borderTopWidth: 1.5, borderRightWidth: 1.5, borderColor: playfulColor.border } : null),
     transform: [{ rotate: '45deg' }],
   },
   speechTitle: { ...text.cardTitle, fontSize: 17, lineHeight: 22, color: color.text.primary },

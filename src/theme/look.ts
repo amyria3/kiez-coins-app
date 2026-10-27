@@ -13,7 +13,7 @@ export const looks: { code: Look; name: string; description: string; bg: string;
   { code: 'kaminabend', name: 'Kaminabend', description: 'Dunkel, Bernstein, warm wie Holzfeuer', bg: '#241A1E', accent: '#FFB547', scheme: 'dark' },
   { code: 'flohmarkt', name: 'Flohmarkt', description: 'Creme, Tomatenrot, Senf und Petrol', bg: '#FBF3E4', accent: '#E0482E', scheme: 'light' },
   { code: 'brause', name: 'Brause', description: 'Lila Pastell, Violett und Pink', bg: '#F3EEFF', accent: '#6A4CFF', scheme: 'light' },
-  { code: 'pausenhof', name: 'Pausenhof', description: 'Weiß, knallgrün, runde Schrift, Knöpfe zum Draufdrücken', bg: '#FFFFFF', accent: '#58CC02', scheme: 'light' },
+  { code: 'pausenhof', name: 'Pausenhof', description: 'Warmweiß, Lila, runde Überschriften, Knöpfe zum Draufdrücken', bg: '#FFFCF7', accent: '#5B6CF0', scheme: 'light' },
   { code: 'laube', name: 'Laube', description: 'Salbeigrün, Tannengrün und Kürbis', bg: '#EDF2E3', accent: '#1F7A5A', scheme: 'light' },
 ];
 

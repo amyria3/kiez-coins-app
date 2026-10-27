@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.glass,
     borderWidth: stroke.ultraThin,
     borderColor: color.line.hairline,
-    ...(isPlayful ? { borderRadius: 20, borderWidth: 2, borderBottomWidth: 4, borderColor: playfulColor.border } : null),
+    ...(isPlayful ? { borderWidth: 1.5, borderBottomWidth: 3, borderColor: playfulColor.border } : null),
   },
   item: {
     width: 56,
@@ -183,8 +183,7 @@ const styles = StyleSheet.create({
   },
   // Aktive Seite: dezente helle Fläche, damit der Kater nicht auf Weiß liegt
   itemActive: {
-    backgroundColor: isFashionable ? 'transparent' : isPlayful ? '#DDF4FF' : scheme === 'light' ? 'rgba(0, 0, 0, 0.06)' : 'rgba(240, 240, 240, 0.14)',
-    ...(isPlayful ? { borderRadius: 14, borderWidth: 2, borderColor: '#84D8FF' } : null),
+    backgroundColor: isFashionable ? 'transparent' : isPlayful ? playfulColor.tint : scheme === 'light' ? 'rgba(0, 0, 0, 0.06)' : 'rgba(240, 240, 240, 0.14)',
   },
   camera: {
     position: 'absolute',
@@ -197,7 +196,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     // Pausenhof: 3D-Kante wie die Knöpfe
-    ...(isPlayful ? { borderRadius: 16, borderBottomWidth: 5, borderBottomColor: playfulColor.edgePrimary } : null),
+    ...(isPlayful ? { borderBottomWidth: 4, borderBottomColor: playfulColor.edgePrimary } : null),
   },
   pressed: { opacity: 0.7 },
   // Look „Fashionable“: Leiste über die ganze Breite am unteren Rand, Haarlinie oben, keine Pille
