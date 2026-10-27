@@ -29,10 +29,12 @@ type ButtonProps = {
   busy?: boolean;
   /** Icon vor der Beschriftung, in der Farbe der Beschriftung */
   icon?: IconName;
+  /** Icon waagerecht spiegeln (Hand nach links für „Zurück zum Feed“) */
+  iconFlip?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
-export function Button({ label: original, onPress: press, variant = 'primary', disabled: off, whyDisabled, busy, icon, style }: ButtonProps) {
+export function Button({ label: original, onPress: press, variant = 'primary', disabled: off, whyDisabled, busy, icon, iconFlip, style }: ButtonProps) {
   // Mit Erklärung bleibt der Button tippbar, sieht aber deaktiviert aus
   const explains = !!off && !!whyDisabled;
   const disabled = (off && !explains) || !!busy;
@@ -78,7 +80,7 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
       style={({ pressed }) => [styles.base, v.container, pressed && styles.pressed, off && !busy && styles.disabled, style]}
     >
       <View style={styles.row}>
-        {busy ? <GearsLoader size={22} tint={v.label} only={SMALL_GEARS} /> : icon ? <Icon name={icon} size={22} color={v.label} /> : null}
+        {busy ? <GearsLoader size={22} tint={v.label} only={SMALL_GEARS} /> : icon ? <Icon name={icon} size={22} color={v.label} flip={iconFlip} /> : null}
         <Text style={[v.filled ? text.buttonDarkOnLight : text.buttonLightOnDark, { color: v.label }]}>{label}</Text>
       </View>
     </Pressable>

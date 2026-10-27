@@ -30,7 +30,3 @@ Die Schalter in „Dein Konto › Funktionen“ sind fertig, ohne Sperre (Entsch
 - `src/data/features.ts` (`useFeatures`, `setFeature`): Sperre als zusätzliches Feld je Funktion, z. B. `unlocked: boolean` aus den Challenges berechnet.
 - `src/app/account/funktionen.tsx`: Zeile mit Schloss und Bedingung. `SwitchRow` in `src/components/Form.tsx` braucht dafür einen gesperrten Zustand.
 - Icon für „gesperrt“ nach Icon-Regelwerk wählen (Phosphor `lock`, noch nicht im Skript `scripts/phosphor-icons.mjs`).
-
-## Entscheidung (Daria, 25.10.2026)
-
-Eine Sperre ist vorerst nicht nötig. Alle Funktionen bleiben frei wählbar.
