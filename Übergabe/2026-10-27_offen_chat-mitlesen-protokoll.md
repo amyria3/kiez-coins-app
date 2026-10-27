@@ -15,6 +15,15 @@ Die Migration bringt:
 
 Regel für Claude steht in `AGENTS.md` (Abschnitt Rules).
 
+## Menüpunkt „Abrufe Deiner Daten“ (27.10.2026)
+
+Pflichtaufgabe: Migration `supabase/migrations/20261027000200_my_data_access.sql` ausführen. Ohne sie zeigt der Screen „Protokoll nicht geladen“.
+
+- Route `account/datenabrufe`, Zeile in „Dein Konto“ unter Einstellungen nach „Blockierte Personen“.
+- `meine_datenabrufe()` liefert die gezielten Abrufe, an denen die Person beteiligt ist, und den letzten automatischen Eintrag (ohne Zahl gelöschter Nachrichten).
+- Text zur geplanten Ende-zu-Ende-Verschlüsselung auf dem Screen (Daria, 27.10.2026).
+- Neue Texte noch nicht übersetzt und nicht in `app_texts` (`node scripts/i18n.mjs`, `node scripts/app-texts.mjs`).
+
 ## Grenzen
 
 - Daria und Claude arbeiten beide als Rolle `postgres`. Wer gelesen hat, steht nur im Protokoll, weil es beim Aufruf angegeben wird. Es ist eine Selbstverpflichtung, kein technischer Zwang.
