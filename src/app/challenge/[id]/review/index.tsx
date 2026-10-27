@@ -45,7 +45,7 @@ export default function ReviewScreen() {
         </>
       }
     >
-      <AuthorRow user={assignee} location={assignee.location} trailing={<StatusBadge status="reported" />} />
+      <AuthorRow user={assignee} location={assignee.location} trailing={<StatusBadge status="reported" challenge={challenge} />} />
       <Text style={styles.title}>{challenge.title}</Text>
       <View style={styles.beforeAfter}>
         {before ? <Photo label="Vorher" source={before} /> : null}
