@@ -356,10 +356,8 @@
   "Das lässt sich nicht rückgängig machen.": "C’est irréversible.",
   "Endgültig löschen?": "Supprimer définitivement ?",
   "Endgültig löschen": "Supprimer définitivement",
-  "Hier liegen später Deine geschlossenen und gelöschten Challenges.": "Tes défis fermés et supprimés apparaîtront ici plus tard.",
   "{current} von {pages}": "{current} sur {pages}",
   "Aktuell": "En cours",
-  "Geschlossen und gelöscht": "Fermés et supprimés",
   "Neue Challenge": "Nouveau défi",
   "Entwurf": "Brouillon",
   "Nur für Dich sichtbar": "Visible par toi seul",
@@ -979,7 +977,6 @@
   "Deine Antwort hilft uns, KiezCoins besser zu machen.": "Ta réponse nous aide à améliorer KiezCoins.",
   "Der Code ist unterwegs! Schaue in Dein Postfach.": "Le code est en route ! Regarde dans ta boîte mail.",
   "Die Challenge verschwindet aus dem Feed.": "Le défi disparaît du fil.",
-  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Geschlossen und gelöscht“.": "Le défi disparaît du fil. Tes dernières modifications sont enregistrées. Tu retrouves le défi dans « Tes défis », sous « Fermés et supprimés ».",
   "Die Challenge verschwindet samt Kommentaren. Das ist irreparabel, lässt sich nicht rückgängig machen.": "Le défi disparaît avec ses commentaires. C’est irréversible, impossible à annuler.",
   "Die Challenge wird dann wieder für alle offen sein.": "Le défi sera alors de nouveau ouvert à tout le monde.",
   "Die Kiez Coins App ist momentan eine kostenlose Testversion. Einige Funktionen können sich ändern. Am Ende der Testphase setzen wir Daten zurück. Das kündigen wir vorher per E-Mail an.": "L’app Kiez Coins est pour l’instant une version de test gratuite. Certaines fonctions peuvent changer. À la fin de la phase de test, nous réinitialisons les données. Nous te prévenons avant par e-mail.",
@@ -1132,5 +1129,11 @@
   "{mode} zeigen": "Afficher {mode}",
   "Posten": "Publier",
   "Was hast Du Dir vorgenommen?": "Qu’est-ce que tu as prévu de faire ?",
-  "Noch nichts für Dich.": "Rien que pour toi pour l’instant."
+  "Noch nichts für Dich.": "Rien que pour toi pour l’instant.",
+  "Archiv": "Archives",
+  "1 Gruppenaufgabe": "1 tâche de groupe",
+  "{count} Gruppenaufgaben": "{count} tâches de groupe",
+  "Erledigte Aufgaben ({count})": "Tâches terminées ({count})",
+  "Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte Gruppenaufgaben.": "Tes défis fermés et supprimés et les tâches de groupe terminées apparaîtront ici plus tard.",
+  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Archiv“.": "Le défi disparaît du fil. Tes dernières modifications sont enregistrées. Tu retrouves le défi dans « Tes défis », sous « Archives »."
 }
