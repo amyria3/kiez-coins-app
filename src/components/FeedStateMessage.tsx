@@ -10,7 +10,7 @@ const messages: Record<Exclude<FeedState, 'filled' | 'loading'>, { title: string
   empty: {
     title: 'Noch keine Challenges in Deiner Nähe',
     body: 'Starte die erste Challenge für Deinen Kiez. Cat The Käptn kann’s nicht erwarten.',
-    action: 'Challenge erstellen',
+    action: 'Posten',
   },
   error: {
     title: 'Das hat nicht geklappt',
