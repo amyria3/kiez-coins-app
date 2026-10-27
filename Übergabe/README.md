@@ -47,12 +47,13 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-24_offen_look-auf-allen-geraeten.md` und `2026-10-24_offen_web-und-mobile.md`: Abweichungen im Look und zwischen Web-App und Mobile.
 - `2026-10-24_offen_figma-abgleich.md`: Figma an den Stand der App anpassen.
 - `2026-10-24_offen_typescript-strict.md`: TypeScript auf die neuen React-Native-Typen umstellen.
-- `2026-10-25_offen_fehlerberichte.md`: Fehler-Screen mit Fehlerbericht. Pflichtaufgabe: Migration `20261025000200_error_reports.sql` ausführen.
+- `2026-10-25_offen_fehlerberichte.md`: Fehler-Screen mit Fehlerbericht. Migration `20261025000200_error_reports.sql` eingespielt, offene Fragen an Daria.
 - `2026-10-25_offen_konsistenz.md`: Konsistenzprüfung vom 25.10.2026, Korrekturen auf `main`, offene Entscheidungen und neue Textschlüssel.
 - `2026-10-25_offen_gruppe-beim-erstellen.md`: Beim Erstellen zeigt die App, in welcher Gruppe die Person ist (To-do, Daria).
 - `2026-10-25_offen_kopf-grosse-bildschirme.md`: Der Feed-Kopf verschwindet auf großen Bildschirmen scheinbar zufällig (To-do, Daria).
 - `2026-10-26_offen_umfrage-ergaenzungen.md`: Zwei neue Fragen und Kommentarfeld in der Umfrage. Migration `20261026000100_survey_frequency_comment.sql` ausgeführt (26.10.2026).
 - `2026-10-26_offen_sichtbarkeit-nur-ich.md`: Sichtbarkeit „Nur ich“ beim Posten, veröffentlicht, aber nur für die Ersteller:in sichtbar, kein Entwurf (To-do, Daria).
+- `2026-10-26_offen_russisch.md`: Russisch in der App, alle Sprachen auf der Website. Prüfung der Übersetzungen durch Muttersprachler:innen steht aus.
 - `2026-10-26_offen_lila-ungemuetlich.md`: Kritik „Farbe Lila, ungemütlich“, offene Fragen zu Ort und Ersatzfarbe (To-do, Daria).
 - `2026-10-26_offen_kiez-ausschalten.md`: Kiez als Funktion ausschalten, Modus „Erstmal nur ich“, hängt mit „Nur ich“ zusammen (To-do, Daria).
 - `2026-10-27_offen_chat-mitlesen-protokoll.md`: Protokoll, wer private Chats liest. Migration `20261027000100_chat_access_log.sql` ausgeführt (27.10.2026).

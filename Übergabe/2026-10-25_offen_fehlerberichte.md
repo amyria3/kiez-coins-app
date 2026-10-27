@@ -1,9 +1,7 @@
-Pflichtaufgabe: Migration `supabase/migrations/20261025000200_error_reports.sql` im Supabase-Projekt „Kiez Coins Data“ ausführen (SQL-Editor). Ohne sie meldet der Fehler-Screen „nicht angekommen“ und bietet nur die E-Mail an.
-
 # Fehler-Screen mit Fehlerbericht
 
 - Datum: 2026-10-25
-- Status: offen (Code auf `main`, Migration noch nicht im Projekt)
+- Status: offen (Code auf `main`; Migration `20261025000200_error_reports.sql` ist im Supabase-Projekt eingespielt, Tabelle `error_reports` geprüft am 27.10.2026; offene Fragen unten)
 - Gehört in Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitt Fehler und Support), Datenbank-Doku (neue Tabelle `error_reports`), App-Stand.
 
 ## Entscheidung
@@ -22,8 +20,7 @@ Daria hat am 25.10.2026 einen Fehler-Screen verlangt, über den Nutzer:innen den
 
 ## Nächster Schritt
 
-1. Migration ausführen (siehe oben).
-2. Berichte lesen: im Supabase-Table-Editor, Tabelle `error_reports`, neueste zuerst.
+1. Berichte lesen: im Supabase-Table-Editor, Tabelle `error_reports`, neueste zuerst.
 
 ## Offene Fragen an Daria
 
