@@ -7,7 +7,7 @@
  */
 
 /** Stand aller Texte (TT.MM.JJJJ). */
-export const LEGAL_STAND = '21.10.2026';
+export const LEGAL_STAND = '27.10.2026';
 
 /** Angaben zur Anbieterin. Leere Felder erscheinen in der App als „[offen: …]“. */
 export const OPERATOR = {
@@ -210,7 +210,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'Respekt gilt für alle',
         paragraphs: [
-          'Wir begegnen allen Menschen mit Respekt, unabhängig von Herkunft, Hautfarbe, Religion, Geschlecht, sexueller Orientierung, geschlechtlicher Identität, Behinderung, Alter und sozialer Lage.',
+          'Wir begegnen allen Menschen mit Respekt: unabhängig von Herkunft, Hautfarbe, Religion, Geschlecht, sexueller Orientierung, geschlechtlicher Identität, Behinderung, Alter und sozialer Lage.',
         ],
       },
       {
@@ -223,47 +223,61 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         heading: 'Belästigung und Bedrohung sind verboten',
         paragraphs: [
           'Verboten sind Beleidigungen, Bedrohungen, Einschüchterung, sexuelle Belästigung, Stalking und Bloßstellen.',
-          'Private Daten anderer (Adresse, Telefonnummer, Fotos) veröffentlichst Du nur mit deren explizitem Einverständnis. Ein Nein beendet den Kontakt.',
+          'Private Daten anderer (Adresse, Klarname, Telefonnummer) dürfen niemals veröffentlicht werden. Fotos dürfen ausschließlich mit dem expliziten Einverständnis der Person veröffentlicht werden. Ein Nein beendet den Kontakt.',
         ],
       },
       {
         heading: 'Gewalt bleibt draußen',
         paragraphs: [
-          'Verboten sind Gewalt, Drohungen mit Gewalt, Aufrufe dazu und ihre Verherrlichung. Challenges dürfen niemanden gefährden, auch Dich selbst nicht.',
-          'Aufgaben mit Waffen, Drogen, Feuer oder besonderer Gefahr gehören nicht in die App.',
+          'Physische und verbale Gewalt werden nicht toleriert, ebenso wenig Aufrufe zu und Verherrlichung jener. Challenges dürfen niemanden gefährden, nicht einmal Dich selbst.',
+          'Herausforderungen mit Waffen, Drogen, Feuer oder besonderer Gefahr gehören nicht hierher.',
         ],
       },
       {
-        heading: 'Ehrlichkeit trägt die Coins',
+        heading: 'KiezCoins baut auf gegenseitiges Vertrauen',
         paragraphs: [
-          'Ein Profil gehört zu einem echten Menschen oder einer echten Gruppe. Zugesagte Coins zahlst Du, erledigte Aufgaben meldest Du wahrheitsgemäß. Fake-Profile, Täuschung, Werbung und Spam sind verboten.',
+          'Ein Profil gehört zu einem echten Menschen oder einer Gruppe echter Menschen. KI-generierte Posts sind nicht erwünscht. Fake-Profile, Täuschung und Spam sind verboten.',
         ],
       },
       {
-        heading: 'Fotos zeigen Orte und Ergebnisse',
+        heading: 'Gemeinschaft braucht Verlässlichkeit',
+        paragraphs: ['Erledigte Aufgaben meldest Du wahrheitsgemäß als erledigt, sonst bleibt der Spaß auf der Strecke.'],
+      },
+      {
+        heading: 'Fotos zeigen Orte, Ergebnisse und Erlebnisse',
         paragraphs: [
-          'Erkennbare Menschen fotografierst Du nur mit deren explizitem Einverständnis. Fotos mit erkennbaren Kindern, Nacktheit oder Gewalt sind verboten.',
+          'Bilder von erkennbaren Menschen dürfen nur mit deren explizitem Einverständnis online gehen. Pornografische Inhalte und Nacktheit sind nicht erwünscht.',
+        ],
+      },
+      {
+        heading: 'Kinder',
+        paragraphs: [
+          'Kinder dürfen die App nutzen, wenn Du sie als Elternteil oder Lehrkraft zu einer Gruppe hinzufügst. Du darfst Fotos Deiner Kinder posten, wenn sie sich damit wohlfühlen und damit einverstanden sind. Du darfst keine fremden Kinder ansprechen – besser Vorsicht als Nachsicht.',
         ],
       },
       {
         heading: 'So meldest Du einen Verstoß',
         paragraphs: [
-          'Tippe auf die Fahne an einer Challenge oder einem Kommentar oder auf „Person melden“ im Profil. Die gemeldete Person erfährt nicht, wer gemeldet hat. Falsche Meldungen mit Absicht sind selbst ein Verstoß.',
-          `Bei akuter Gefahr rufst Du die Polizei unter 110 oder den Rettungsdienst unter 112. Für alles andere erreichst Du uns unter ${email}.`,
+          'Tippe auf die Fahne an einer Challenge oder einem Kommentar oder auf „Person melden“ im Profil. Die gemeldete Person erfährt nicht, wer sie gemeldet hat. Beabsichtigte Falschmeldungen sind selbst ein Verstoß.',
+          'Rufe bei akuter Gefahr die Polizei unter 110 oder den Rettungsdienst unter 112.',
+          `Für alles andere erreichst Du uns unter ${email}.`,
         ],
       },
       {
-        heading: 'Blockieren schützt Dich sofort',
+        heading: 'Blockieren schützt Dich unmittelbar',
         paragraphs: [
-          'Im Profil einer Person tippst Du auf „Person blockieren“. Du siehst ihre Challenges und Kommentare dann nicht mehr. Sie kann Deine Challenges weder annehmen noch kommentieren und erfährt nichts davon. Unter „Dein Konto“ hebst Du die Blockierung jederzeit auf.',
+          'Im Profil einer Person tippst Du auf „Person blockieren“. Du siehst ihre Challenges und Kommentare dann nicht mehr und sie kann Deine Challenges weder annehmen noch kommentieren. Sie erfährt nicht den Grund. Unter „Dein Konto“ kannst Du die Blockierung wieder aufheben.',
         ],
       },
       {
         heading: 'So reagiert die Moderation',
         paragraphs: [
-          'Wir prüfen jede Meldung zeitnah. Bei Verstößen entfernen wir Inhalte, verwarnen, beschränken Coins oder sperren das Konto, bei schweren Verstößen sofort und dauerhaft. Straftaten zeigen wir an.',
+          'Wir prüfen Meldungen zeitnah. Bei Verstößen entfernen wir Inhalte, verwarnen, beschränken oder sperren das Konto, bei schweren Verstößen sofort und dauerhaft. Straftaten zeigen wir an.',
           'Unsere Entscheidung begründen wir per E-Mail. Du kannst ihr per E-Mail widersprechen, wir prüfen den Fall dann erneut.',
         ],
+      },
+      {
+        paragraphs: ['Let’s have fun & do some good', 'Cat The Käptn'],
       },
     ],
   },
