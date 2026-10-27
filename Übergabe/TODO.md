@@ -12,6 +12,11 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Kodex und Rechtstexte überarbeiten (Daria)
 - [ ] Anschrift (c/o) im Impressum, sobald die App öffentlich ist und ein Finanzierungskonzept steht
 
+## 28.10.2026 – Prio für Daria: Migration für Edensteine im Kiez (PR #97)
+
+- [ ] Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261028000200_kiez_edensteine.sql` (Branch `claude/project-thread-jtu0yb`, PR #97) ausführen. Claudes Zugang darf in Supabase nur lesen, deshalb geht es nur von Hand.
+- [ ] Claude Bescheid geben, dann prüft Claude die Datenbank und merged PR #97. Vorher nicht mergen, sonst schlägt das Bearbeiten von Challenges fehl.
+
 ## 28.10.2026 – Pflicht für Daria: Anmeldung ohne E-Mail und Testkonto (PR #90)
 
 - [ ] Supabase › Authentication › Sign In / Providers: „Allow anonymous sign-ins“ einschalten
