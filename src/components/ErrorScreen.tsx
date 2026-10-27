@@ -1,6 +1,9 @@
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import Constants from 'expo-constants';
+import { router } from 'expo-router';
+import * as Updates from 'expo-updates';
 
 import { buildErrorReport, mailErrorReport, sendErrorReport } from '../lib/errorReport';
 import { color, font, radius, space, text } from '../theme/tokens';
@@ -9,6 +12,53 @@ import { look, setLook } from '../theme/look';
 type Props = { error: unknown; retry: () => void | Promise<void> };
 
 type SendState = 'idle' | 'sending' | 'sent' | 'failed';
+
+/** Startadresse der Web-App, z. B. „/app/“ (baseUrl aus app.config.js) */
+function webStart() {
+  const base = String(Constants.expoConfig?.experiments?.baseUrl ?? '').replace(/\/$/, '');
+  return `${base}/`;
+}
+
+/**
+ * Zurück zum Start (Daria, 27.10.2026): baut die App neu auf und öffnet den Start-Screen.
+ * Der leitet je nach Anmeldung in den Feed oder ins Onboarding.
+ * Web lädt die Seite neu und holt dabei auch eine neue Version. Die Android-App startet ihr JavaScript neu.
+ */
+async function goToStart(retry: Props['retry']) {
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    window.location.replace(webStart());
+    return;
+  }
+  try {
+    await Updates.reloadAsync();
+  } catch {
+    // Expo Go und Entwicklung: kein Neustart möglich, also nur Navigation zurücksetzen
+    router.replace('/');
+    await retry();
+  }
+}
+
+/**
+ * Im Web fehlt nach einem Deploy ein Teil der alten Version: Der offene Tab lädt Code, den es auf dem Server
+ * nicht mehr gibt (Fehlerbericht vom 27.10.2026, „Requiring unknown module“). Neu laden holt die neue Version.
+ */
+const STALE_WEB_BUILD = /Requiring unknown module|Loading module .* failed/;
+const RELOAD_KEY = 'kiez-neu-geladen';
+
+/** Höchstens einmal pro Minute neu laden, damit ein echter Fehler nicht in einer Schleife endet. */
+function shouldReload(error: unknown): boolean {
+  if (Platform.OS !== 'web' || typeof window === 'undefined') return false;
+  const message = error instanceof Error ? error.message : String(error);
+  if (!STALE_WEB_BUILD.test(message)) return false;
+  try {
+    const last = Number(window.sessionStorage.getItem(RELOAD_KEY) ?? 0);
+    if (Date.now() - last < 60_000) return false;
+    window.sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
+  } catch {
+    return false;
+  }
+  return true;
+}
 
 /**
  * Fehler-Screen mit Fehlerbericht (Daria, 2026-10-25). Expo Router zeigt ihn über `ErrorBoundary`
@@ -31,6 +81,10 @@ function ErrorContent({ error, retry }: Props) {
   const [comment, setComment] = useState('');
   const [state, setState] = useState<SendState>('idle');
   const [details, setDetails] = useState(false);
+  const [reloading] = useState(() => shouldReload(error));
+  useEffect(() => {
+    if (reloading) window.location.reload();
+  }, [reloading]);
   const report = () => buildErrorReport(error, comment);
 
   const send = async () => {
@@ -45,6 +99,14 @@ function ErrorContent({ error, retry }: Props) {
 
   const message = error instanceof Error ? error.message : String(error);
   const stack = error instanceof Error ? error.stack : undefined;
+
+  if (reloading) {
+    return (
+      <View style={[styles.screen, styles.content, { paddingTop: insets.top + space[48] }]}>
+        <Text style={styles.body}>Neue Version wird geladen …</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView
@@ -90,8 +152,11 @@ function ErrorContent({ error, retry }: Props) {
         </>
       )}
 
-      <Pressable style={[styles.button, styles.secondary]} onPress={() => retry()} accessibilityRole="button">
-        <Text style={styles.secondaryText}>Nochmal versuchen</Text>
+      <Pressable style={[styles.button, styles.secondary]} onPress={() => goToStart(retry)} accessibilityRole="button">
+        <Text style={styles.secondaryText}>Zurück zum Start</Text>
+      </Pressable>
+      <Pressable style={styles.link} onPress={() => retry()} accessibilityRole="button">
+        <Text style={styles.linkText}>Nochmal versuchen</Text>
       </Pressable>
       {look !== 'kiez' ? (
         <Pressable style={styles.link} onPress={() => setLook('kiez')} accessibilityRole="button">
