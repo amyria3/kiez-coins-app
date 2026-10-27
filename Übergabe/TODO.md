@@ -110,3 +110,10 @@ Kontext: `Übergabe/2026-10-27_offen_community-regeln.md`.
 - [ ] Nutzungsbedingungen, Abschnitt 3: „Werbung“ als Verbot streichen oder in die Community-Regeln aufnehmen
 - [ ] Schreibweise „KiezCoins“ oder „Kiez Coins“ in den Regeln vereinheitlichen
 - [ ] Migration `20261027000300_app_texts_community_regeln.sql` im Supabase-SQL-Editor ausführen (Texte-Editor)
+
+## 27.10.2026 (4) – We-Challenge mit mehreren Personen (Daria)
+
+Plan und offene Fragen: `Übergabe/2026-10-27_offen_we-challenge-mehrere-personen.md`.
+
+- [ ] Offene Punkte im Plan beantworten (Daria)
+- [ ] Migration, Funktionen und App-Code bauen (Claude)
