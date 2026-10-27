@@ -27,6 +27,8 @@ export type Draft = {
   durationDays: number;
   /** Auf rund 100 m gerundeter Punkt für Entfernungen im Feed */
   coords?: Coords;
+  /** Modus „Privat“: nur Bild, nur für Dich sichtbar (Daria, 27.10.2026) */
+  private?: boolean;
 };
 
 const emptyDraft = (kiez?: string): Draft => ({ type: 'individual', title: '', text: '', location: kiez ?? '', durationDays: 7, extras: [] });
@@ -44,6 +46,7 @@ function fromChallenge(c: Challenge): Draft {
     bountyAmount: c.bountyAmount,
     durationDays: 7,
     coords: c.coords,
+    private: c.private,
   };
 }
 
@@ -79,6 +82,7 @@ export function useSaveDraft() {
         imagePath: draft.imagePath,
         coords: draft.coords,
         extras: draft.extras,
+        private: draft.private,
       });
       setDraft((d) => ({ ...d, id: saved.id, imagePath: saved.imagePath, extras: saved.extraImages?.length ? saved.extraImages : d.extras }));
       router.dismissTo('/feed');
@@ -104,7 +108,7 @@ export const unstable_settings = { initialRouteName: 'step-1' };
 
 /** Flow „Challenge erstellen“: als Modal geöffnet, darin Schritte als Push. */
 export default function CreateLayout() {
-  const { draftId, copyOf: copyId, title, text, photo, type, extras } = useGlobalSearchParams<{
+  const { draftId, copyOf: copyId, title, text, photo, type, extras, privat } = useGlobalSearchParams<{
     draftId?: string;
     copyOf?: string;
     /** Aus dem Erstellen-Blatt über dem Feed mitgebracht (components/compose) */
@@ -114,6 +118,8 @@ export default function CreateLayout() {
     type?: string;
     /** JSON-Liste mit Adressen weiterer Fotos */
     extras?: string;
+    /** `1`: Modus „Privat“ */
+    privat?: string;
   }>();
   const { challenges, profile } = useStore();
   const draft = useState<Draft>(() => {
@@ -129,7 +135,9 @@ export default function CreateLayout() {
     }
     return {
       ...emptyDraft(profile.kiez),
-      type: type === 'photo' ? 'photo' : 'individual',
+      // Privat gibt es nur als Bild
+      type: type === 'photo' || privat === '1' ? 'photo' : 'individual',
+      private: privat === '1' || undefined,
       title: title ?? '',
       text: text ?? '',
       ...(photo ? { photo: { uri: photo } } : {}),

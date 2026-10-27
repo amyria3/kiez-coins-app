@@ -102,6 +102,8 @@ export function useBeforeAfterStartForm(
   groupId: string | undefined,
   onStarted: (id: string) => void,
   shared?: ComposeContent,
+  /** Modus „Privat“, nur ohne Gruppe (Daria, 27.10.2026) */
+  isPrivate = false,
 ): { fields: ReactNode; button: ReactNode } {
   const { beforeAfter } = useStore();
   const own = useComposeContent();
@@ -121,7 +123,7 @@ export function useBeforeAfterStartForm(
     }
     setBusy(true);
     try {
-      const id = await beforeAfter.start({ groupId, title, beforeText, photo });
+      const id = await beforeAfter.start({ groupId, title, beforeText, photo, private: isPrivate });
       onStarted(id);
     } catch (error) {
       Alert.alert('Vorher nicht gespeichert', (error as Error).message);

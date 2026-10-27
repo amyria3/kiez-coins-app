@@ -13,7 +13,7 @@ import { Button } from '../components/Button';
 import { Segments } from '../components/FeedHeader';
 import { GroupBar, GroupsEmpty } from '../components/GroupBar';
 import { GroupRanking } from '../components/GroupRanking';
-import { useFeatures } from '../data/features';
+import { useModes, type Mode } from '../data/features';
 import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { anrede, formatBountyShort, formatRelative } from '../data/format';
 import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
@@ -33,7 +33,7 @@ function taskLabel({ challenge, role }: ReiseEntry): string {
 
 /**
  * Route `reise` (Tab „Was Du so machst“ in der Tab-Leiste, Tipp auf den Kater im Feed oder „Was Du so machst“ im Konto).
- * Upgrade „Nachtschicht“: Kater mit Sprechblase und Aufgaben „Du bist dran“. Darunter der Umschalter „Im Kiez / In Gruppen“
+ * Upgrade „Nachtschicht“: Kater mit Sprechblase und Aufgaben „Du bist dran“. Darunter der Umschalter „Privat / Gruppe / Kiez“
  * wie im Feed (UX-Audit, Daria, 27.10.2026): Im Kiez stehen Bilanz und Verlauf, in Gruppen die Gruppenauswahl,
  * Dein Platz in der Rangliste und der Verlauf der gewählten Gruppe.
  */
@@ -51,14 +51,17 @@ function Reise() {
   const mood = reiseMood(entries);
   const tasks = entries.filter((e) => e.needsAction);
   const history = entries.filter((e) => !e.needsAction);
-  const publicHistory = history.filter((e) => !e.challenge.groupId);
-  const groupsOn = useFeatures().groups;
-  const [chosenTab, setTab] = useState<ReiseTab>('kiez');
-  const tab: ReiseTab = groupsOn ? chosenTab : 'kiez';
+  const publicHistory = history.filter((e) => !e.challenge.groupId && !e.challenge.private);
+  const privateHistory = history.filter((e) => !!e.challenge.private);
+  // Modi wie im Feed: Privat, Gruppe, Kiez, ohne eigene Wahl der Standard (Daria, 27.10.2026)
+  const modes = useModes();
+  const [chosenTab, setTab] = useState<Mode>();
+  const tab: Mode = chosenTab && modes.isVisible(chosenTab) ? chosenTab : modes.standard;
+  const reiseTabs = REISE_TABS.filter((r) => modes.isVisible(r.key));
   const [groupChoice, setGroupChoice] = useState<string>();
   const group = groups.find((g) => g.id === groupChoice) ?? groups[0];
   const groupHistory = history.filter((e) => !!group && e.challenge.groupId === group.id);
-  const created = entries.filter((e) => e.role === 'author' && !e.challenge.groupId).length;
+  const created = entries.filter((e) => e.role === 'author' && !e.challenge.groupId && !e.challenge.private).length;
   const accepted = entries.filter((e) => e.role === 'assignee' && !e.challenge.groupId).length;
   const earned = entries
     .filter((e) => e.role === 'assignee' && e.challenge.status === 'paid')
@@ -100,9 +103,11 @@ function Reise() {
           </Pressable>
         ))}
 
-        {groupsOn ? <Segments tabs={REISE_TABS} selectedKey={tab} onChange={setTab} /> : null}
+        {reiseTabs.length > 1 ? <Segments tabs={reiseTabs} selectedKey={tab} onChange={setTab} /> : null}
 
-        {tab === 'kiez' ? (
+        {tab === 'private' ? (
+          <History title="Verlauf" entries={privateHistory} onOpen={(entry) => router.push(entry.href)} />
+        ) : tab === 'kiez' ? (
           <>
             {created + accepted > 0 ? (
               <View style={styles.stats}>
@@ -148,10 +153,11 @@ function Reise() {
   );
 }
 
-type ReiseTab = 'kiez' | 'groups';
-const REISE_TABS: { key: ReiseTab; label: string }[] = [
-  { key: 'kiez', label: 'Im Kiez' },
-  { key: 'groups', label: 'In Gruppen' },
+/** Reihenfolge Privat, Gruppe, Kiez wie im Feed (Daria, 27.10.2026) */
+const REISE_TABS: { key: Mode; label: string }[] = [
+  { key: 'private', label: 'Privat' },
+  { key: 'groups', label: 'Gruppe' },
+  { key: 'kiez', label: 'Kiez' },
 ];
 
 /** Verlauf als Liste. Bei Gruppenaufgaben steht der Gruppenname in der Unterzeile. */

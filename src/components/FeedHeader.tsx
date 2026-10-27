@@ -13,6 +13,7 @@ import { useRouter } from 'expo-router';
 import { useUnreadMessages } from '../data/chat';
 import { SkeletonTopItem } from './Skeleton';
 import { t } from '../data/texts';
+import type { Mode } from '../data/features';
 
 type AppHeaderProps = {
   /** Tipp auf Logo und Kater öffnet „Was Du so machst“. */
@@ -149,19 +150,25 @@ export function TopChallengeBar({ items, loading, onItemPress }: TopChallengeBar
   );
 }
 
-export type FeedTab = 'nearby' | 'wave' | 'completed' | 'groups';
+export type FeedTab = 'private' | 'nearby' | 'wave' | 'completed' | 'groups';
+
+/** Reiter je Modus (data/features.ts): Privat, Gruppe, Kiez */
+export const TAB_OF_MODE: Record<Mode, FeedTab> = { private: 'private', groups: 'groups', kiez: 'nearby' };
+export const MODE_OF_TAB: Partial<Record<FeedTab, Mode>> = { private: 'private', groups: 'groups', nearby: 'kiez' };
 
 // Wave und Pleasure sind raus aus der Leiste (Daria, 22.10.2026). Die Filter in feed.tsx bleiben für später.
+// Reihenfolge Privat, Gruppe, Kiez (Daria, 27.10.2026)
 const tabs: { key: FeedTab; label: string; planned?: boolean }[] = [
-  { key: 'nearby', label: 'Im Kiez' },
-  { key: 'groups', label: 'In Gruppen' },
+  { key: 'private', label: 'Privat' },
+  { key: 'groups', label: 'Gruppe' },
+  { key: 'nearby', label: 'Kiez' },
 ];
 
 type TabsNavigationProps = {
   selectedKey: FeedTab;
   onChange: (key: FeedTab) => void;
-  /** Reiter „Gruppen“ zeigen (Schalter in „Dein Konto › Funktionen“, Daria, 24.10.2026) */
-  groups: boolean;
+  /** Sichtbare Modi (Auge in „Dein Konto › Funktionen“, Daria, 27.10.2026) */
+  visible: Mode[];
 };
 
 /**
@@ -169,8 +176,11 @@ type TabsNavigationProps = {
  * Abgeschaltete Challenge-Typen (data/features.ts) sind gedimmt, lassen sich aber öffnen:
  * Der Feed zeigt dann einen Hinweis und vorhandene Challenges dieses Typs.
  */
-export function TabsNavigation({ selectedKey, onChange, groups }: TabsNavigationProps) {
-  return <Segments tabs={groups ? tabs : tabs.filter((tab) => tab.key !== 'groups')} selectedKey={selectedKey} onChange={onChange} />;
+export function TabsNavigation({ selectedKey, onChange, visible }: TabsNavigationProps) {
+  const shown = tabs.filter((tab) => visible.some((mode) => TAB_OF_MODE[mode] === tab.key));
+  // Nur ein Modus sichtbar: kein Umschalter
+  if (shown.length < 2) return null;
+  return <Segments tabs={shown} selectedKey={selectedKey} onChange={onChange} />;
 }
 
 type SegmentsProps<K extends string> = {

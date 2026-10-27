@@ -16,7 +16,7 @@ import { useCurrentUser, useStore } from '../../data/store';
 import { color, isFashionable, size, space } from '../../theme/tokens';
 import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
 import { look, looks, lookSelectable } from '../../theme/look';
-import { features, useFeatures } from '../../data/features';
+import { MODES, useModes } from '../../data/features';
 import { useGoBack } from '../../lib/goBack';
 
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
@@ -26,8 +26,8 @@ export default function Account() {
   const { profile, groups, mode, blockedIds } = useStore();
   const me = useCurrentUser();
   const { signOut, hasPassword } = useAuth();
-  const featureState = useFeatures();
-  const featuresOn = features.filter((f) => featureState[f.key]).map((f) => f.label).join(', ');
+  const modes = useModes();
+  const modesShown = MODES.filter((m) => modes.isVisible(m.key)).map((m) => t(m.label)).join(', ');
   // „Moderation“ nur für Personen in der Tabelle `moderators`
   const [moderator, setModerator] = useState(false);
   const [survey, setSurvey] = useState(false);
@@ -66,7 +66,7 @@ export default function Account() {
           Titel mit „Deine“ wie Deine Challenges und Deine Gruppen (Daria, 27.10.2026) */}
       <NavCard
         title="Deine Funktionen"
-        description={featuresOn || 'Nur Me-Challenge'}
+        description={modesShown}
         leading={<Icon name="switch" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/account/funktionen')}
       />
@@ -83,7 +83,7 @@ export default function Account() {
         leading={<Icon name="ship" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/manage')}
       />
-      {featureState.groups ? (
+      {modes.isVisible('groups') ? (
       <NavCard
         title="Deine Gruppen"
         description={groups.length === 0 ? 'Gründen oder beitreten' : groups.length === 1 ? '1 Gruppe' : t('{groups} Gruppen', { groups: groups.length })}
