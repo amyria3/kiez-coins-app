@@ -72,8 +72,9 @@ export function StatusBadge({
     <View style={[styles.status, { backgroundColor: `${tint}26` }]}>
       {actor && by ? (
         <Text noTranslate style={[text.caption, { color: tint }]} numberOfLines={1}>
+          {/* Isoliert links nach rechts, damit das @ auch auf Arabisch und Hebräisch vor dem Namen bleibt */}
           <Text noTranslate style={styles.actorName}>
-            @{actor.name}
+            {`\u2066@${actor.name}\u2069`}
           </Text>
           {` » ${tAbout(actor, by.phrase)}`}
         </Text>
