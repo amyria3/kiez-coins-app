@@ -2,7 +2,7 @@
 
 Datum: 2026-10-27 · Status: Notiz für die Doku · Gehört nach: Documentation, Datenbank-Doku (Funktionen) und App-Stand, Abschnitt „Me-Challenge“.
 
-Pflichtaufgabe: Migration `supabase/migrations/20261027000100_before_after_stop_timer.sql` in Supabase ausführen (vor oder mit dem Merge).
+Migration `supabase/migrations/20261027000100_before_after_stop_timer.sql` ist in Supabase eingespielt (27.10.2026).
 
 ## Anlass
 
