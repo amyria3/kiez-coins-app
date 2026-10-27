@@ -1089,5 +1089,12 @@
   "Dein Platz: {rank} von {total}": "Ta place : {rank} sur {total}",
   "Was Du hier postest, sehen alle Nutzer:innen in Deinem Kiez.": "Tout le monde dans ton quartier voit ce que tu publies ici.",
   "Was Du hier postest, sehen nur die Mitglieder in dieser Gruppe.": "Seuls les membres de ce groupe voient ce que tu publies ici.",
-  "Die App erstellt für Dich einen Code und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "L’app crée pour toi un code et un lien d’invitation. Ainsi, {anzahl} autres personnes peuvent rejoindre ton groupe."
+  "Die App erstellt für Dich einen Code und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "L’app crée pour toi un code et un lien d’invitation. Ainsi, {anzahl} autres personnes peuvent rejoindre ton groupe.",
+  "hat angenommen": "a accepté",
+  "hat's erledigt!": "l'a fait !",
+  "hat bestätigt": "a confirmé",
+  "hat abgelehnt": "a refusé",
+  "hat als bezahlt markiert": "a marqué comme payé",
+  "hat bezahlt": "a payé",
+  "Zurück zum Feed": "Retour au fil"
 }

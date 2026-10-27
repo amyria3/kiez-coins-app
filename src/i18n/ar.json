@@ -1089,5 +1089,12 @@
   "Dein Platz: {rank} von {total}": "مركزك: {rank} من {total}",
   "Was Du hier postest, sehen alle Nutzer:innen in Deinem Kiez.": "ما تنشره هنا يراه جميع المستخدمين في حيّك.",
   "Was Du hier postest, sehen nur die Mitglieder in dieser Gruppe.": "ما تنشره هنا يراه أعضاء هذه المجموعة فقط.",
-  "Die App erstellt für Dich einen Code und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "ينشئ التطبيق لك رمزًا ورابط دعوة. هكذا يمكن لـ {anzahl} أشخاص آخرين الانضمام إلى مجموعتك."
+  "Die App erstellt für Dich einen Code und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "ينشئ التطبيق لك رمزًا ورابط دعوة. هكذا يمكن لـ {anzahl} أشخاص آخرين الانضمام إلى مجموعتك.",
+  "hat angenommen": "قَبِلَ",
+  "hat's erledigt!": "أنجز!",
+  "hat bestätigt": "أكّد",
+  "hat abgelehnt": "رفض",
+  "hat als bezahlt markiert": "وضع علامة «مدفوع»",
+  "hat bezahlt": "دفع",
+  "Zurück zum Feed": "العودة إلى الصفحة الرئيسية"
 }
