@@ -4,15 +4,17 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useBeforeAfterStartForm } from '../../../components/compose/BeforeAfterForm';
 import { GROUP_TYPES } from '../../../components/compose/ComposeSheet';
 import { useComposeContent } from '../../../components/compose/compose';
+import { useGroupPhotoForm } from '../../../components/compose/GroupPhotoForm';
 import { useGroupTaskForm } from '../../../components/compose/GroupTaskForm';
 import { TypeSwitch } from '../../../components/compose/TypeSwitch';
 import { SubScreen } from '../../../components/Screen';
+import { useFeatures } from '../../../data/features';
 import { useStore } from '../../../data/store';
 import { useGoBack } from '../../../lib/goBack';
 
 /**
  * Route `gruppen/[id]/aufgabe`: Gruppenaufgabe mit 1 bis 10 Edensteinen. Foto optional, kein Ort, kein Entwurf.
- * Der Schalter oben wechselt zur Me-Challenge in dieser Gruppe (Daria, 27.10.2026), wie im Erstellen-Blatt über dem Feed.
+ * Der Schalter oben wechselt zur Me-Challenge oder zum Bild in dieser Gruppe (Daria, 27.10.2026), wie im Erstellen-Blatt über dem Feed.
  * Mit `copyOf` (aus „Deine Challenges“, „Kopie erstellen“) startet sie mit Foto, Titel, Text und Edensteinen einer alten Aufgabe.
  */
 export default function NewGroupTask() {
@@ -22,22 +24,26 @@ export default function NewGroupTask() {
   const { groups, challenges } = useStore();
   const group = groups.find((g) => g.id === id);
   const original = copyOf ? challenges.find((c) => c.id === copyOf) : undefined;
-  const [type, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('task');
+  const on = useFeatures();
+  const options = GROUP_TYPES.filter((o) => o.key === 'task' || (o.key === 'photo' ? on.photo : on.me));
+  const [choice, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('task');
+  const type = options.some((o) => o.key === choice) ? choice : 'task';
   // Foto, Titel und Text bleiben beim Wechsel des Typs erhalten
   const shared = useComposeContent({ photo: original?.image, title: original?.title, text: original?.text });
   const task = useGroupTaskForm(id, { edensteine: original?.edensteine }, (taskId) => router.replace(`/challenge/${taskId}`), shared);
+  const photo = useGroupPhotoForm(id, (postId) => router.replace(`/challenge/${postId}`), shared);
   const ba = useBeforeAfterStartForm(id, (draftId) => router.replace({ pathname: '/vorher-nachher/[id]', params: { id: draftId } }), shared);
-  const isBa = type === 'before_after';
+  const form = type === 'before_after' ? ba : type === 'photo' ? photo : task;
   return (
     <SubScreen
-      title="Aufgabe erstellen"
+      title={type === 'photo' ? 'Bild posten' : 'Aufgabe erstellen'}
       subtitle={group?.name}
       navigation="close"
       onLeadingPress={goBack}
-      actions={isBa ? ba.button : task.button}
+      actions={form.button}
     >
-      <TypeSwitch options={GROUP_TYPES} value={type} onChange={setType} />
-      {isBa ? ba.fields : task.fields}
+      {options.length > 1 ? <TypeSwitch options={options} value={type} onChange={setType} /> : null}
+      {form.fields}
     </SubScreen>
   );
 }

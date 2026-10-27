@@ -7,6 +7,7 @@ import { ActionBar } from '../ActionBar';
 import { GroupsEmpty } from '../GroupBar';
 import { NudgeScrollProvider, useNudgeScroll } from '../Nudge';
 import { useGroupTaskForm } from './GroupTaskForm';
+import { useGroupPhotoForm } from './GroupPhotoForm';
 import { usePublicComposeForm } from './PublicComposeForm';
 import { useBeforeAfterStartForm } from './BeforeAfterForm';
 import { TypeSwitch } from './TypeSwitch';
@@ -25,10 +26,14 @@ const FEATURE_OF: Record<'individual' | 'before_after' | 'photo', keyof FeatureS
   before_after: 'me',
   photo: 'photo',
 };
-/** In Gruppen: Aufgabe mit Edensteinen (gehört zu Gruppen, immer da) oder Vorher-Nachher (Schalter Me-Challenge) */
+/**
+ * In Gruppen: Aufgabe mit Edensteinen (gehört zu Gruppen, immer da), Vorher-Nachher (Schalter Me-Challenge)
+ * oder Bild (Schalter Bild, Daria, 27.10.2026)
+ */
 export const GROUP_TYPES = [
   { key: 'task', label: 'We-Challenge' },
   { key: 'before_after', label: 'Me-Challenge' },
+  { key: 'photo', label: 'Bild' },
 ] as const;
 
 type Props = {
@@ -108,19 +113,21 @@ function PublicBody({ onDone, shared }: { onDone: () => void; shared: ComposeCon
 function GroupBody({ groupId, onDone, shared }: { groupId: string; onDone: () => void; shared: ComposeContent }) {
   const router = useRouter();
   const on = useFeatures();
-  const options = GROUP_TYPES.filter((o) => o.key === 'task' || on.me);
+  const options = GROUP_TYPES.filter((o) => o.key === 'task' || (o.key === 'photo' ? on.photo : on.me));
   const [choice, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('task');
   const type = options.some((o) => o.key === choice) ? choice : 'task';
-  const task = useGroupTaskForm(groupId, {}, (taskId) => {
+  const openPost = (id: string) => {
     onDone();
-    router.push(`/challenge/${taskId}`);
-  }, shared);
+    router.push(`/challenge/${id}`);
+  };
+  const task = useGroupTaskForm(groupId, {}, openPost, shared);
+  const photo = useGroupPhotoForm(groupId, openPost, shared);
   const ba = useBeforeAfterStartForm(groupId, useOpenTimer(onDone), shared);
-  const isBa = type === 'before_after';
+  const form = type === 'before_after' ? ba : type === 'photo' ? photo : task;
   return (
-    <SheetScroll actions={isBa ? ba.button : task.button}>
+    <SheetScroll actions={form.button}>
       {options.length > 1 ? <TypeSwitch options={options} value={type} onChange={setType} /> : null}
-      {isBa ? ba.fields : task.fields}
+      {form.fields}
     </SheetScroll>
   );
 }

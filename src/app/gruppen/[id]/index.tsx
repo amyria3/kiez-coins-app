@@ -10,7 +10,7 @@ import { CopyField, SwitchRow } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
 import { inviteLink, inviteMessage, MAX_MEMBERS } from '../../../data/groups';
 import { useStore } from '../../../data/store';
-import type { User } from '../../../data/types';
+import { isPostOnly, type User } from '../../../data/types';
 import { color, radius, space, text } from '../../../theme/tokens';
 import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
@@ -38,7 +38,8 @@ export default function GroupDetail() {
 
   const isFounder = group.founderId === currentUserId;
   const showRanks = group.showLeaderboard;
-  const openTasks = challenges.filter((c) => c.groupId === group.id && c.status === 'open').length;
+  // Bilder und Vorher-Nachher sind keine Aufgaben
+  const openTasks = challenges.filter((c) => c.groupId === group.id && c.status === 'open' && !isPostOnly(c.type)).length;
   const userOf = (userId: string): User =>
     users.find((u) => u.id === userId) ?? { id: userId, name: 'Unbekannt', firstName: 'Unbekannt' };
 
