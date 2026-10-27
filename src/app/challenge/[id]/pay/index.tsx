@@ -38,7 +38,7 @@ export default function PayScreen() {
         </>
       }
     >
-      <AuthorRow user={assignee} location={assignee.location} trailing={<StatusBadge status={challenge.status} />} />
+      <AuthorRow user={assignee} location={assignee.location} trailing={<StatusBadge status={challenge.status} challenge={challenge} />} />
       <PaymentDetails challenge={challenge} recipient={assignee} noticeFirst />
     </SubScreen>
   );

@@ -3,7 +3,8 @@ import { Text } from './T';
 
 import { formatBountyShort, formatRemainingShort } from '../data/format';
 import { Icon } from './icons/Icon';
-import type { ChallengeStatus } from '../data/types';
+import type { Challenge, ChallengeStatus } from '../data/types';
+import { useStore } from '../data/store';
 import { useIconPt } from './icons/fashionableSvgs';
 import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
 import { CoinsIcon } from './icons/Brand';
@@ -24,6 +25,23 @@ const statusStyles: Record<ChallengeStatus, { label: string; tint: string }> = {
 };
 
 /**
+ * Wer den Status ausgelöst hat (Daria, 27.10.2026): annehmen und erledigt melden die Annehmenden,
+ * bestätigen, ablehnen und bezahlen die Ersteller:innen. Entwurf, offen, Zahlung offen, geschlossen
+ * und gelöscht zeigen keinen Namen.
+ */
+const statusActor: Partial<Record<ChallengeStatus, 'assignee' | 'author'>> = {
+  accepted: 'assignee',
+  reported: 'assignee',
+  confirmed: 'author',
+  rejected: 'author',
+  paid_marked: 'author',
+  paid: 'author',
+};
+
+/** Zeichen zwischen Status und Deckname, gleichbedeutend mit „by“: „Angenommen · Sof“ */
+const ACTOR_SEPARATOR = ' · ';
+
+/**
  * Figma „StatusBadge“. Getönte Fläche ohne Rahmen, damit es nicht wie ein Button aussieht.
  * „Offen“ (grün) erscheint nur in der Vorschau beim Erstellen (`showOpen`), sonst ist offen der Normalfall (Daria, 22.10.2026).
  */
@@ -32,8 +50,11 @@ export function StatusBadge({
   showOpen,
   photo,
   beforeAfter,
+  challenge,
 }: {
   status: ChallengeStatus;
+  /** Mit Challenge zeigt das Badge den Decknamen der Person, die den Status ausgelöst hat. */
+  challenge?: Challenge;
   showOpen?: boolean;
   photo?: boolean;
   /** Vorher-Nachher: eigenes Badge wie beim Bild */
@@ -44,10 +65,24 @@ export function StatusBadge({
   const { label, tint } = postOnly
     ? { label: beforeAfter ? 'Me-Challenge' : 'Nur ein Bild', tint: color.accent.affection }
     : statusStyles[status];
+  const { users } = useStore();
+  const role = postOnly ? undefined : statusActor[status];
+  const actorId = role === 'assignee' ? challenge?.assigneeId : role === 'author' ? challenge?.authorId : undefined;
+  const actor = actorId ? users.find((u) => u.id === actorId)?.name : undefined;
   if (status === 'open' && !showOpen && !postOnly) return null;
   return (
     <View style={[styles.status, { backgroundColor: `${tint}26` }]}>
-      <Text style={[text.caption, { color: tint }]}>{label}</Text>
+      <Text style={[text.caption, { color: tint }]} numberOfLines={1}>
+        {label}
+        {actor ? (
+          <Text noTranslate>
+            {ACTOR_SEPARATOR}
+            <Text noTranslate style={styles.actorName}>
+              {actor}
+            </Text>
+          </Text>
+        ) : null}
+      </Text>
     </View>
   );
 }
@@ -85,6 +120,7 @@ const styles = StyleSheet.create({
     paddingVertical: space[6],
     alignSelf: 'center',
   },
+  actorName: { fontFamily: font.semiBold },
   deadline: { flexDirection: 'row', alignItems: 'center', gap: space[6], alignSelf: 'flex-start' },
   bounty: { flexDirection: 'row', alignItems: 'center', gap: isFashionable ? space[4] : space[6] },
   // Fashionable Look: Betrag halbfett in Textfarbe wie die Zahlen großer Foto-Apps
