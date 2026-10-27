@@ -52,8 +52,9 @@ export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions
         >
           {children}
         </ScrollView>
-        </NudgeScrollProvider>
+        {/* Die ActionBar gehört dazu: Enter im letzten Feld springt zu ihrem Haupt-Button */}
         {actions ? <ActionBar>{actions}</ActionBar> : <View style={{ height: insets.bottom }} />}
+        </NudgeScrollProvider>
       </KeyboardAvoidingView>
     </View>
   );
@@ -286,8 +287,8 @@ export function HeroScreen({
           </View>
           </Animated.View>
         </ScrollView>
-        </NudgeScrollProvider>
         {actions ? <ActionBar>{actions}</ActionBar> : <View style={{ height: insets.bottom }} />}
+        </NudgeScrollProvider>
       </KeyboardAvoidingView>
       <View style={[styles.heroButtons, { top: insets.top + space[8] }]} pointerEvents="box-none">
         <GlassIconButton icon="chevron-left" accessibilityLabel={t('Zurück')} onPress={onBackPress} />
