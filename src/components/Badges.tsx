@@ -38,8 +38,8 @@ const statusActor: Partial<Record<ChallengeStatus, 'assignee' | 'author'>> = {
   paid: 'author',
 };
 
-/** Zeichen zwischen Status und Deckname, gleichbedeutend mit „by“: „Angenommen · Sof“ */
-const ACTOR_SEPARATOR = ' · ';
+/** Zeichen vor dem Decknamen, gleichbedeutend mit „by“: Signatur „Angenommen ~Sof“ (Daria, 27.10.2026) */
+const ACTOR_SEPARATOR = ' ~';
 
 /**
  * Figma „StatusBadge“. Getönte Fläche ohne Rahmen, damit es nicht wie ein Button aussieht.
