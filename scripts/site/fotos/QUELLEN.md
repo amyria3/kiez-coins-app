@@ -12,6 +12,6 @@ Alle Fotos stammen von Unsplash und stehen unter der Unsplash-Lizenz (https://un
 | spuel.jpg | Offene Spülmaschine mit Tellern, rechts beschnitten | https://unsplash.com/photos/mAWTLZIjI8k |
 | rasen.jpg | Rasenmäher auf dem Rasen | https://unsplash.com/photos/zfwyrIA6bFw |
 | einkauf.jpg | Montage: geschlossene Blechdose auf einer Flur-Konsole | Dose https://unsplash.com/photos/NLDG5Z9V9KM, Flur https://unsplash.com/photos/7ITcqxp3McM |
-| hund.jpg | Golden Retriever an der Leine auf dem Gehweg | https://unsplash.com/photos/VehdYPKnX8Y |
+| hund.jpg | Welpe auf dem Schoß | Von Maria Arkadieff geschickt am 27.10.2026 aus https://www.businessinsider.de/leben/10-hunderassen-die-ihr-auch-halten-koennt-wenn-ihr-eine-kleine-wohnung-habt/, Lizenz [offen] |
 | waesche.jpg | Wäsche auf der Leine vor Hochhäusern | https://unsplash.com/photos/l0bqydPG994 |
 | wald.jpg | Birken am Waldrand über einer Wiese (Karte „Schöne Waldbilder posten“) | Von Maria Arkadieff geschickt am 26.10.2026, Quelle [offen] |
