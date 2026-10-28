@@ -1213,5 +1213,9 @@
   "{min} bis {max}. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.": "من {min} إلى {max}. تدفع الـ Coins بنفسك مباشرة للشخص الذي ينجز التحدي.",
   "Machen weniger mit, bekommt jede mehr.": "كلما قلّ المشاركون، زادت حصة كل منهم.",
   "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "تُقسَّم الـ Coins: {share} للشخص مع {n} أشخاص.",
-  "Alle auswählen": "اختيار الجميع"
+  "Alle auswählen": "اختيار الجميع",
+  "Noch keine Posts in Deinem privaten Feed": "لا منشورات في صفحتك الخاصة بعد",
+  "Noch keine Posts in dieser Gruppe": "لا منشورات في هذه المجموعة بعد",
+  "Noch keine Posts in Deinem Kiez": "لا منشورات في حيّك بعد",
+  "Sei eine Pionier:in und poste als Erste:r Challenge oder Bild.": "كن رائدًا وانشر أول تحدٍّ أو صورة."
 }

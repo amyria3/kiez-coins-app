@@ -1198,5 +1198,9 @@
   "{min} bis {max}. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.": "От {min} до {max}. Ты сам(а) платишь Coins напрямую тому, кто выполнит челлендж.",
   "Machen weniger mit, bekommt jede mehr.": "Чем меньше участников, тем больше получает каждый.",
   "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "Coins делятся: {share} на человека, если участвуют {n} человек.",
-  "Alle auswählen": "Выбрать всех"
+  "Alle auswählen": "Выбрать всех",
+  "Noch keine Posts in Deinem privaten Feed": "В твоей личной ленте пока нет постов",
+  "Noch keine Posts in dieser Gruppe": "В этой группе пока нет постов",
+  "Noch keine Posts in Deinem Kiez": "В твоём районе пока нет постов",
+  "Sei eine Pionier:in und poste als Erste:r Challenge oder Bild.": "Будь первопроходцем (-ицей) и опубликуй первый челлендж или фото."
 }

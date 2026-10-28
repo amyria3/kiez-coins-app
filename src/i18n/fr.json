@@ -1213,5 +1213,9 @@
   "{min} bis {max}. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.": "De {min} à {max}. Tu paies toi-même les Coins directement à la personne qui réalise le challenge.",
   "Machen weniger mit, bekommt jede mehr.": "Moins il y a de participant·es, plus chacun·e reçoit.",
   "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "Les Coins sont partagés : {share} par personne pour {n} personnes.",
-  "Alle auswählen": "Tout sélectionner"
+  "Alle auswählen": "Tout sélectionner",
+  "Noch keine Posts in Deinem privaten Feed": "Pas encore de posts dans ton fil privé",
+  "Noch keine Posts in dieser Gruppe": "Pas encore de posts dans ce groupe",
+  "Noch keine Posts in Deinem Kiez": "Pas encore de posts dans ton quartier",
+  "Sei eine Pionier:in und poste als Erste:r Challenge oder Bild.": "Sois pionnier·ère et poste le premier défi ou la première image."
 }
