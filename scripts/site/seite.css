@@ -273,9 +273,9 @@ button { font: inherit; color: inherit; }
 .p-photo-title { position: absolute; left: 10px; right: 10px; bottom: 10px; padding: 10px 14px; border-radius: 18px; background: var(--glass);
   border: .5px solid var(--line); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 .p-photo-title:focus-within { border-color: var(--purple); }
-.p-photo-title input { width: 100%; background: none; border: 0; padding: 0; color: var(--text); font: 600 15.5px/1.2 var(--display); letter-spacing: -.01em; }
-.p-photo-title input:focus { outline: none; }
-.p-photo-title input::placeholder, .p-field textarea::placeholder { color: var(--muted); }
+.p-photo-title textarea { display: block; width: 100%; resize: none; overflow: hidden; background: none; border: 0; padding: 0; color: var(--text); font: 600 15.5px/1.2 var(--display); letter-spacing: -.01em; }
+.p-photo-title textarea:focus { outline: none; }
+.p-photo-title textarea::placeholder, .p-field textarea::placeholder { color: var(--muted); }
 .p-field { display: grid; gap: 6px; }
 .p-field > span { color: var(--muted); font-size: 11px; }
 .p-field input { width: 100%; font: 400 15px/1.2 Inter, sans-serif; color: var(--text); background: var(--surface); border: 1px solid transparent; border-radius: 14px; padding: 12px; }
