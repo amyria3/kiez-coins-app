@@ -23,7 +23,7 @@ const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim(
  * Route `onboarding/ohne-mail`, erreichbar über „Ich möchte meine E-Mail nicht teilen“ (Daria, 27.10.2026).
  * Anmelden mit Deckname und Passwort. Gibt es zum Decknamen kein Konto ohne E-Mail, legt die App eins an.
  * Wer möchte, bekommt Deckname und Passwort einmal per Mail; die Adresse wird nicht gespeichert.
- * Danach: bekanntes Konto mit fertigem Onboarding in den Feed, sonst weiter zur Ansprache
+ * Danach: bekanntes Konto mit fertigem Onboarding in den Feed, sonst weiter zu Deckname und Geschlecht
  * (der Deckname steht ja schon).
  */
 export default function OhneMail() {
@@ -67,11 +67,11 @@ export default function OhneMail() {
       router.replace(target);
       return;
     }
-    router.push('/onboarding/ansprache');
+    router.push('/onboarding/deckname');
   };
 
   return (
-    <SubScreen title="Ohne E-Mail" subtitle="Schritt 1 von 6" navigation="back" onLeadingPress={goBack}>
+    <SubScreen title="Ohne E-Mail" subtitle="Schritt 1 von 5" navigation="back" onLeadingPress={goBack}>
       <KaterBubble>
         Geht auch ohne Flaschenpost. Merk Dir Deckname und Passwort gut, ohne E-Mail kann ich Dir kein neues schicken.
       </KaterBubble>

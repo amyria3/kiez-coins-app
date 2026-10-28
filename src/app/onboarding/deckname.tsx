@@ -6,6 +6,8 @@ import { useRouter } from 'expo-router';
 import { Button } from '../../components/Button';
 import { KaterBubble } from '../../components/Content';
 import { Chip, ChipGroup, TextField } from '../../components/Form';
+import { GenderChoice } from '../../components/GenderChoice';
+import type { Gender } from '../../data/types';
 import { SubScreen } from '../../components/Screen';
 import { useAuth } from '../../data/auth';
 import { saveHandle, takenHandles } from '../../data/remote';
@@ -27,7 +29,10 @@ function candidates(count: number): string[] {
   return [...NAMES].sort(() => Math.random() - 0.5).slice(0, count);
 }
 
-/** Route `onboarding/deckname`. Figma: `onboarding/deckname`. Deckname ist öffentlich und einmalig. */
+/**
+ * Route `onboarding/deckname`. Figma: `onboarding/deckname`. Deckname ist öffentlich und einmalig.
+ * Seit 28.10.2026 (Daria) auch das grammatische Geschlecht auf dieser Seite; der Schritt „Ansprache“ entfällt.
+ */
 export default function Deckname() {
   const router = useRouter();
   const goBack = useGoBack();
@@ -35,6 +40,7 @@ export default function Deckname() {
   const userId = useAuth().session?.user.id;
   const [handle, setHandle] = useState(profile.handle || '');
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [gender, setGender] = useState<Gender>(profile.gender ?? 'person');
 
   // Vorschläge erst zeigen, wenn klar ist, dass sie frei sind. Klappt die Prüfung nicht, gibt es keine Vorschläge.
   useEffect(() => {
@@ -66,21 +72,21 @@ export default function Deckname() {
         return;
       }
     }
-    dispatch({ type: 'updateProfile', patch: { handle: handle.trim() } });
-    router.push('/onboarding/ansprache');
+    dispatch({ type: 'updateProfile', patch: { handle: handle.trim(), gender } });
+    router.push('/onboarding/kiez');
   };
 
   return (
     <SubScreen
       title="Deckname"
-      subtitle="Schritt 2 von 6"
+      subtitle="Schritt 2 von 5"
       navigation="back"
       onLeadingPress={() => (goBack())}
       actions={<Button busy={busy} label="Weiter" onPress={next} disabled={!handle.trim() || busy} whyDisabled={() => !busy && handleField.nudge('Wähle einen Decknamen.')} />}
     >
       <KaterBubble>Dein Rufname</KaterBubble>
       <TextField
-        label="Deckname" required
+        label="Deckname (Nickname)" required
         nudge={handleField}
         helperText="Öffentlich sichtbar."
         error={error}
@@ -105,6 +111,7 @@ export default function Deckname() {
           </ChipGroup>
         </>
       ) : null}
+      <GenderChoice value={gender} onChange={setGender} />
     </SubScreen>
   );
 }

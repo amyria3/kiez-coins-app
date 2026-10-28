@@ -135,7 +135,7 @@ export function FashionProfile() {
           </View>
           <View style={styles.headRight}>
             <Text noTranslate style={styles.name} numberOfLines={1}>
-              {anrede(profile)}
+              {handle}
             </Text>
             <View style={styles.stats}>
               <Stat value={entries.length} label="Challenges" />
