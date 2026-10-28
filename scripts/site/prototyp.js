@@ -51,7 +51,7 @@
     before: 'rasen',
     after: 'garten',
     suggestions: ['Gemeinschaftsgarten pflegen', 'Müll im Park sammeln', 'Fahrradkeller aufräumen'],
-    demo: ['Gemeinschaftsgarten pflegen', 'Das Gras steht kniehoch, die Beete sind voller Unkraut.'],
+    demo: ['Gemeinschaftsgarten pflegen', 'Es wäre schön, wenn jemand ein Stück des Rasens für die Kleinen frei-mähen könnte, weil Elisa am Freitag Geburtstag hat und die Zecken im hohen Rasen gerade wüten.'],
     demoAfter: 'Gemäht und gejätet. Die Beete sind bereit für den Winter.',
     done: '1 gute Tat für den Kiez!',
   };
@@ -239,7 +239,7 @@
   // Englische Fassung der Beispieldaten: überschreibt nur die Texte, Struktur und Zahlen bleiben
   var ME_EN = {
     suggestions: ['Tend the community garden', 'Pick up litter in the park', 'Tidy the bike cellar'],
-    demo: ['Tend the community garden', 'The grass is knee-high, the beds are full of weeds.'],
+    demo: ['Tend the community garden', 'It would be lovely if someone could mow a patch of the lawn for the little ones, because Elisa’s birthday is on Friday and the ticks are running wild in the tall grass.'],
     demoAfter: 'Mowed and weeded. The beds are ready for winter.',
     done: '1 good deed for the neighborhood!',
   };
