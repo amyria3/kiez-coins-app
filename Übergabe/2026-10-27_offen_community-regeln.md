@@ -2,7 +2,7 @@
 
 Stand: 27.10.2026. Status: offen (Migration und ein Widerspruch zum Alter). Das Ergebnis gehört in Documentation nach `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Rechtstexte“, und in die Datenbank-Doku zu `app_texts`.
 
-Pflichtaufgabe: Migration `supabase/migrations/20261027000300_app_texts_community_regeln.sql` im Supabase-SQL-Editor ausführen. Sie trägt die neuen Texte ins Texte-CMS ein. Ohne sie zeigt die App die Regeln trotzdem richtig, der Editor unter „Dein Konto › Texte“ listet sie nur nicht.
+Pflichtaufgabe: Migration `supabase/migrations/20261028000200_app_texts_community_regeln.sql` im Supabase-SQL-Editor ausführen. Sie trägt die neuen Texte ins Texte-CMS ein. Ohne sie zeigt die App die Regeln trotzdem richtig, der Editor unter „Dein Konto › Texte“ listet sie nur nicht.
 
 ## Was sich geändert hat
 

@@ -13,6 +13,9 @@ import { findPlace, roundCoords } from '../../../data/location';
 import { useDraft, useSaveDraft } from './_layout';
 import { useNudge } from '../../../components/Nudge';
 import { useGoBack } from '../../../lib/goBack';
+import { EdensteinStepper } from '../../../components/compose/EdensteinStepper';
+import { DEFAULT_PARTICIPATION, ParticipantsField } from '../../../components/compose/ParticipantsField';
+import type { Participation } from '../../../data/remote';
 
 const presets = [5, 15, 50];
 const durations = [
@@ -24,7 +27,15 @@ const durations = [
 const MIN_BOUNTY = 5;
 const MAX_BOUNTY = 50;
 
-/** Route `challenge/create/step-2`. Figma: `challenge/create/step-2`. Bounty 5–50 €, optional. Weiter zur Vorschau. */
+/** Belohnung: keine, Euro oder Edensteine (Daria, 27.10.2026: Edensteine sind die ideelle Währung, Ersatz für Euro) */
+type Reward = 'none' | 'euro' | 'eden';
+/** Vorgabe beim Wechsel zu Edensteinen, wie bei der Gruppenaufgabe */
+const EDEN_START = 3;
+
+/**
+ * Route `challenge/create/step-2`. Figma: `challenge/create/step-2`.
+ * Belohnung optional: Bounty 5–50 € oder 1–10 Edensteine, nie beides. Weiter zur Vorschau.
+ */
 export default function CreateStep2() {
   const router = useRouter();
   const goBack = useGoBack();
@@ -48,6 +59,24 @@ export default function CreateStep2() {
   const { save, busy: saving } = useSaveDraft();
   const [custom, setCustom] = useState(draft.bountyAmount !== undefined && !presets.includes(draft.bountyAmount));
   const [customText, setCustomText] = useState(custom && draft.bountyAmount ? String(draft.bountyAmount) : '');
+  const [reward, setReward] = useState<Reward>(draft.edensteine ? 'eden' : draft.bountyAmount !== undefined || custom ? 'euro' : 'none');
+  const chooseReward = (next: Reward) => {
+    setReward(next);
+    if (next !== 'euro') setCustom(false);
+    setDraft((d) => ({
+      ...d,
+      bountyAmount: next === 'euro' ? (d.bountyAmount ?? presets[0]) : undefined,
+      edensteine: next === 'eden' ? (d.edensteine ?? EDEN_START) : undefined,
+    }));
+  };
+
+  // Mehrere Personen: nur Edensteine, keine Coins in Euro (Daria, 27.10.2026)
+  const participation = draft.participation ?? DEFAULT_PARTICIPATION;
+  const many = participation.max > 1;
+  const changeParticipation = (next: Participation) => {
+    setDraft((d) => ({ ...d, participation: next }));
+    if (next.max > 1 && reward === 'euro') chooseReward('eden');
+  };
 
   const customAmount = Number(customText.replace(',', '.'));
   // Nur Ziffern, Komma oder Punkt (Daria, 24.10.2026: Fehler nennt den Grund)
@@ -71,19 +100,20 @@ export default function CreateStep2() {
           : customError ?? 'Mindestens 5 € möglich.';
   // Nur ein Bild: keine Coins
   const isChallenge = draft.type !== 'photo';
-  const bountyAmount = !isChallenge
+  const bountyAmount = !isChallenge || reward !== 'euro'
     ? undefined
     : custom
       ? customText && !customError
         ? Math.round(customAmount)
         : undefined
       : draft.bountyAmount;
-  const canPublish = draft.location.trim().length > 0 && !(isChallenge && custom && (customError || !customText));
+  const edensteine = isChallenge && reward === 'eden' ? draft.edensteine : undefined;
+  const canPublish = draft.location.trim().length > 0 && !(isChallenge && reward === 'euro' && custom && (customError || !customText));
 
   // Veröffentlicht wird erst in der Vorschau.
   const preview = () => {
     if (!canPublish || !draft.photo) return;
-    setDraft((d) => ({ ...d, bountyAmount }));
+    setDraft((d) => ({ ...d, bountyAmount, edensteine }));
     router.push('/challenge/create/preview');
   };
 
@@ -126,16 +156,22 @@ export default function CreateStep2() {
       <Notice message="Wähle einen öffentlich bekannten Ort, etwa einen Platz, eine Straßenecke oder ein Geschäft. Keine Wohnadresse. Sei sorgsam mit der Sicherheit anderer Menschen." />
       {isChallenge ? (
       <>
-      <FieldGroup label="Coins (optional)">
+      <ParticipantsField value={participation} onChange={changeParticipation} withCoinsHint />
+      <FieldGroup label="Belohnung (optional)">
         <ChipGroup>
-          <Chip
-            label="Keine"
-            selected={!custom && draft.bountyAmount === undefined}
-            onPress={() => {
-              setCustom(false);
-              setDraft((d) => ({ ...d, bountyAmount: undefined }));
-            }}
-          />
+          <Chip label="Keine" selected={reward === 'none'} onPress={() => chooseReward('none')} />
+          {many ? null : <Chip label="Coins (€)" selected={reward === 'euro'} onPress={() => chooseReward('euro')} />}
+          <Chip label="Edensteine" selected={reward === 'eden'} onPress={() => chooseReward('eden')} />
+        </ChipGroup>
+        <Text style={styles.secondary}>
+          {reward === 'eden'
+            ? 'Edensteine sind eine ideelle Währung. Sie kosten nichts und haben so viel Wert, wie Ihr ihnen zusprecht.'
+            : 'Coins oder Edensteine, nie beides.'}
+        </Text>
+      </FieldGroup>
+      {reward === 'euro' ? (
+      <FieldGroup label="Coins">
+        <ChipGroup>
           {presets.map((amount) => (
             <Chip
               key={amount}
@@ -152,7 +188,7 @@ export default function CreateStep2() {
         {custom ? (
           <TextField
             label="Betrag in €"
-        nudge={amountField}
+            nudge={amountField}
             keyboardType="number-pad"
             value={customText}
             onChangeText={(value) => {
@@ -168,6 +204,17 @@ export default function CreateStep2() {
           5 bis 50 €. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.
         </Text>
       </FieldGroup>
+      ) : null}
+      {reward === 'eden' ? (
+      <FieldGroup label="Edensteine">
+        <EdensteinStepper
+          value={draft.edensteine ?? EDEN_START}
+          onChange={(n) => setDraft((d) => ({ ...d, edensteine: n }))}
+          seed="neue-we-challenge"
+        />
+        <Text style={styles.secondary}>1 bis 10.</Text>
+      </FieldGroup>
+      ) : null}
       {bountyAmount ? (
         <Notice
           variant="warning"

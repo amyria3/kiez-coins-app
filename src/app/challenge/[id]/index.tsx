@@ -17,7 +17,15 @@ import { TextField } from '../../../components/Form';
 import { HeroScreen, SubScreen } from '../../../components/Screen';
 import { beforeAfterDuration, formatBountyShort, formatDayMonthShort, formatEuro, formatHoursMinutes, formatRelative, formatRemainingShort } from '../../../data/format';
 import { WithMentions, postText } from '../../../components/WithMentions';
-import { weChallengeAfter } from '../../../data/weChallenge';
+import {
+  freeSpots,
+  isMultiPerson,
+  isParticipant,
+  myParticipation,
+  participantsOpen,
+  weChallengeAfter,
+} from '../../../data/weChallenge';
+import { ParticipantsSection } from '../../../components/Participants';
 import { useRequireKiez } from '../../../data/kiez';
 import { recordView } from '../../../data/remote';
 import { useChallenge, useStore } from '../../../data/store';
@@ -84,7 +92,12 @@ export default function ChallengeDetail() {
 
   const isAuthor = challenge.authorId === currentUserId;
   const isAssignee = challenge.assigneeId === currentUserId;
-  const acceptedByMe = challenge.status === 'accepted' && isAssignee;
+  // Mehrere Personen (Daria, 27.10.2026): Alle Teilnehmenden sehen „angenommen“-Inhalte, die erste Person meldet erledigt
+  const multi = isMultiPerson(challenge);
+  const approval = challenge.joinMode === 'approval';
+  const mine = myParticipation(challenge, currentUserId);
+  const acceptedByMe = challenge.status === 'accepted' && isParticipant(challenge, currentUserId);
+  const reportsForAll = acceptedByMe && isAssignee;
   const named = challenge.operationName !== undefined;
   const isBeforeAfter = challenge.type === 'before_after';
   // Vorher-Nachher: erst das Vorher-, dann das Nachher-Foto in der Galerie
@@ -102,23 +115,45 @@ export default function ChallengeDetail() {
   const baDuration = isBeforeAfter ? beforeAfterDuration(challenge) : undefined;
 
   const giveBack = () =>
-    Alert.alert('Challenge abgeben?', 'Die Challenge wird dann wieder für alle offen sein.', [
-      { text: 'Abbrechen', style: 'cancel' },
-      { text: 'Abgeben', style: 'destructive', onPress: () => dispatch({ type: 'giveBack', id: challenge.id }) },
+    multi
+      ? Alert.alert(t('Aussteigen?'), t('Dein Platz wird frei. Ohne Teilnehmende ist die Challenge wieder für alle offen.'), [
+          { text: t('Abbrechen'), style: 'cancel' },
+          { text: t('Aussteigen'), style: 'destructive', onPress: () => dispatch({ type: 'leave', id: challenge.id }) },
+        ])
+      : Alert.alert('Challenge abgeben?', 'Die Challenge wird dann wieder für alle offen sein.', [
+          { text: 'Abbrechen', style: 'cancel' },
+          { text: 'Abgeben', style: 'destructive', onPress: () => dispatch({ type: 'giveBack', id: challenge.id }) },
+        ]);
+  const withdraw = () =>
+    Alert.alert(t('Anfrage zurückziehen?'), undefined, [
+      { text: t('Abbrechen'), style: 'cancel' },
+      { text: t('Zurückziehen'), style: 'destructive', onPress: () => dispatch({ type: 'leave', id: challenge.id }) },
     ]);
 
   let actions: React.ReactNode = null;
   // Nur ein Bild oder Vorher-Nachher: nichts anzunehmen
   const isPhoto = isPostOnly(challenge.type);
-  if (challenge.status === 'open' && !isAuthor && !isPhoto) {
-    actions = <Button icon="wir-schaffen-das" label={challenge.groupId ? 'Aufgabe annehmen' : 'Challenge annehmen'} onPress={() => needKiez() && dispatch({ type: 'accept', id: challenge.id })} />;
-  } else if (acceptedByMe) {
+  const joinOpen = !isAuthor && !isPhoto && participantsOpen(challenge);
+  if (joinOpen && mine?.status === 'requested') {
+    actions = <Button label="Anfrage zurückziehen" variant="secondary" onPress={withdraw} />;
+  } else if (joinOpen && !mine && freeSpots(challenge) > 0 && (challenge.status === 'open' || multi)) {
+    const join = () => needKiez() && dispatch({ type: 'join', id: challenge.id });
+    actions = approval ? (
+      <Button icon="wir-schaffen-das" label="Anfrage senden" onPress={join} />
+    ) : multi ? (
+      <Button icon="wir-schaffen-das" label="Mitmachen" onPress={join} />
+    ) : (
+      <Button icon="wir-schaffen-das" label={challenge.groupId ? 'Aufgabe annehmen' : 'Challenge annehmen'} onPress={join} />
+    );
+  } else if (reportsForAll) {
     actions = (
       <>
         <Button label="Erledigt melden" onPress={() => router.push(`/challenge/${challenge.id}/report`)} />
-        <Button label="Challenge abgeben" variant="secondary" onPress={giveBack} />
+        <Button label={multi ? 'Aussteigen' : 'Challenge abgeben'} variant="secondary" onPress={giveBack} />
       </>
     );
+  } else if (acceptedByMe) {
+    actions = <Button label="Aussteigen" variant="secondary" onPress={giveBack} />;
   } else if (isAuthor && challenge.status === 'reported') {
     actions = <Button label="Erledigung prüfen" onPress={() => router.push(`/challenge/${challenge.id}/review`)} />;
   } else if (isAuthor && challenge.status === 'payment_open') {
@@ -315,15 +350,25 @@ export default function ChallengeDetail() {
       {acceptedByMe ? (
         <>
           <KaterBubble>
-            {named
+            {!isAssignee && named
+              ? t('Danke, dass Du mitmachst! {name} war zuerst dabei und meldet erledigt, für alle. Wenn {author} bestätigt, bekommst Du eine Nachricht.', {
+                  name: users.find((u) => u.id === challenge.assigneeId)?.name ?? '',
+                  author: author.firstName,
+                })
+              : named
               ? t('Danke, dass Du anpackst! Fotografiere am Ende das Ergebnis, und wir warten. Wenn {name} bestätigt, aktualisiert sich der Status automatisch. Du bekommst eine Nachricht.', {
                   name: author.firstName,
                 })
               : 'Danke, dass Du anpackst! Taufen wir das Baby, Baby? Ich hätte da eine Idee für einen Namen für Deine Operation.'}
           </KaterBubble>
           <InfoRow icon="map-pin" value={challenge.location} />
-          {challenge.acceptedAt ? (
-            <InfoRow icon="check" value={t('Von Dir angenommen am {acceptedAt}', { acceptedAt: formatDayMonthShort(challenge.acceptedAt) })} />
+          {(isAssignee ? challenge.acceptedAt : mine?.joinedAt) ? (
+            <InfoRow
+              icon="check"
+              value={t('Von Dir angenommen am {acceptedAt}', {
+                acceptedAt: formatDayMonthShort((isAssignee ? challenge.acceptedAt : mine?.joinedAt) ?? ''),
+              })}
+            />
           ) : null}
           {challenge.rejectionReason ? (
             <Notice
@@ -352,10 +397,30 @@ export default function ChallengeDetail() {
       {baDuration !== undefined ? (
         <InfoRow icon="clock" value={t('In {duration} geschafft', { duration: formatHoursMinutes(baDuration) })} />
       ) : null}
+      {!isAuthor && mine?.status === 'requested' ? (
+        <Notice message={tAbout(author, 'Deine Anfrage ist bei {firstName}. Du bekommst Bescheid, sobald {firstName} antwortet.', { firstName: author.firstName })} />
+      ) : null}
+      {!isAuthor && (mine?.status === 'removed' || mine?.status === 'declined') ? (
+        <Notice variant="warning" message={mine.status === 'removed' ? t('Du bist bei dieser Challenge nicht mehr dabei.') : t('Deine Anfrage wurde abgelehnt.')} />
+      ) : null}
+      {!isAuthor && !mine && multi && participantsOpen(challenge) && freeSpots(challenge) === 0 ? (
+        <Notice message={t('Alle Plätze sind vergeben.')} />
+      ) : null}
       {description ? (
         <Text style={styles.description}>
           {isBeforeAfter || challenge.type === 'photo' || challenge.type === 'individual' ? <WithMentions value={description} /> : description}
         </Text>
+      ) : null}
+      {challenge.type === 'individual' && (multi || approval || (challenge.participants ?? []).length > 1) ? (
+        <ParticipantsSection
+          challenge={challenge}
+          users={users}
+          currentUserId={currentUserId}
+          isAuthor={isAuthor}
+          onOpenProfile={openProfile}
+          onAnswer={(userId, accept) => dispatch({ type: 'answerRequest', id: challenge.id, userId, accept })}
+          onRemove={(userId) => dispatch({ type: 'removeParticipant', id: challenge.id, userId })}
+        />
       ) : null}
       <View style={styles.authorBlock}>
         <AuthorRow

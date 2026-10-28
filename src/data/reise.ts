@@ -3,6 +3,7 @@ import type { Href } from 'expo-router';
 import type { CatMood } from '../components/icons/Brand';
 import type { Challenge } from './types';
 import { t } from './texts';
+import { isParticipant } from './weChallenge';
 
 // „Was Du so machst“ (früher „Was Du so machst“, „Deine Reise“ und „Deine Spur im Kiez“): alle Challenges, die Du erstellt oder angenommen hast,
 // als Karten. Regeln aus kiez-coins/konto/MVP_Konto.md.
@@ -43,7 +44,8 @@ export function reiseEntries(challenges: Challenge[], userId: string): ReiseEntr
   const entries: ReiseEntry[] = [];
   for (const c of challenges) {
     if (c.status === 'draft' || c.status === 'deleted') continue; // stehen in „Deine Challenges“
-    const role = c.authorId === userId ? 'author' : c.assigneeId === userId ? 'assignee' : null;
+    // Mehrere Personen: Alle Teilnehmenden sehen die Challenge auf ihrer Reise
+    const role = c.authorId === userId ? 'author' : isParticipant(c, userId) ? 'assignee' : null;
     if (!role) continue;
     const { href, needsAction } = target(c, role);
     const label = role === 'assignee' && c.operationName ? c.operationName : c.title;
