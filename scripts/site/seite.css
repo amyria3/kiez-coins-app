@@ -443,7 +443,8 @@ button { font: inherit; color: inherit; }
 
 /* Download */
 .download { padding: 80px 0 24px; background: linear-gradient(160deg, #ECEEFF 0%, #F6F4FF 60%, #FFFFFF 100%); }
-.karten { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.karten { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 1000px) { .karten { grid-template-columns: 1fr 1fr; } }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 28px; padding: 28px; box-shadow: 0 12px 30px -18px var(--schatten); }
 .card h3 { font: 600 24px/1.1 var(--display); margin: 0 0 8px; }
 .card p { color: var(--muted); margin: 0 0 12px; font-size: 15px; }

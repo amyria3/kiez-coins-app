@@ -385,7 +385,6 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
           <p class="error" id="fehler" hidden></p>
           <button type="submit">${t('App herunterladen', 'Download the app')}</button>
         </form>
-        <a class="button button-zweit" href="${P}app/">${t('Direkt im Browser anmelden und ausprobieren', 'Sign in and try it right in the browser')}</a>
         <ol class="steps">
           <li>${t('„App herunterladen“ tippen.', 'Tap “Download the app”.')}</li>
           <li>${t('Die Datei <em>kiez-coins.apk</em> öffnen, wenn der Download fertig ist.', 'Open the file <em>kiez-coins.apk</em> when the download is finished.')}</li>
@@ -394,6 +393,11 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
         </ol>
       </div>
       ${ios(L)}
+      <div class="card" id="browser">
+        <h3>${t('Im Browser', 'In the browser')}</h3>
+        <p>${t('Ohne Installation: Kiez Coins läuft auf jedem Gerät direkt im Browser.', 'No installation: Kiez Coins runs right in the browser on any device.')}</p>
+        <a class="button" href="${P}app/">${t('Direkt im Browser anmelden und ausprobieren', 'Sign in and try it right in the browser')}</a>
+      </div>
     </div>
     <footer>
       <a href="${P}impressum.html">${t('Impressum', 'Legal notice')}</a>
