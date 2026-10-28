@@ -39,7 +39,7 @@ export default function Ansprache() {
   return (
     <SubScreen
       title="Ansprache"
-      subtitle="Schritt 3 von 7"
+      subtitle="Schritt 3 von 6"
       navigation="back"
       onLeadingPress={goBack}
       actions={

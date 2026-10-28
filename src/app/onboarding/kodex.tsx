@@ -28,7 +28,7 @@ export default function Kodex() {
   return (
     <SubScreen
       title="Wertekodex"
-      subtitle="Schritt 5 von 7"
+      subtitle="Schritt 5 von 6"
       navigation="back"
       onLeadingPress={goBack}
       actions={
