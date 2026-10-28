@@ -118,8 +118,8 @@
       ],
       // Bild ohne Aufgabe, ohne Coins (Daria, 28.10.2026)
       bild: {
-        suggestions: ['Herbst im Auwald', 'Neues Café am Kreuz', 'Buchtipp für den Winter'],
-        demo: ['Herbst im Auwald', 'Heute Morgen lag Nebel zwischen den Bäumen. Der Weg am Floßgraben lohnt sich gerade sehr.'],
+        suggestions: ['Cospudener See', 'Neues Café am Kreuz', 'Buchtipp für den Winter'],
+        demo: ['Cospudener See', 'Einfach eine besondere Stimmung hier, besonders im Frühling.'],
         photo: 'wald',
         published: 'Dein Bild ist online. Die Nachbarschaft sieht es jetzt.',
       },
@@ -268,8 +268,8 @@
         ['bild', 'Just a photo', 'Share special moments, places or book tips with your neighbors.', 'Photo'],
       ],
       bild: {
-        suggestions: ['Autumn in the floodplain forest', 'New café at the corner', 'Book tip for winter'],
-        demo: ['Autumn in the floodplain forest', 'This morning there was fog between the trees. The path along the canal is really worth it right now.'],
+        suggestions: ['Lake Cospuden', 'New café at the corner', 'Book tip for winter'],
+        demo: ['Lake Cospuden', 'Just a special atmosphere here, especially in spring.'],
         published: 'Your photo is live. The neighborhood can see it now.',
       },
     },
