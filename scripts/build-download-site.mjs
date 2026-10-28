@@ -322,7 +322,7 @@ ${filterDefs}
     <h2 id="mehr-titel">${t('Kann die App noch mehr?', 'Can the app do more?')}</h2>
     <p>${t('Klar. Tipp auf eine Karte und probier es aus.', 'Sure. Tap a card and try it out.')}</p>
     <div class="mehr-karten">
-      <button type="button" class="mehr-karte" data-mehr="rangliste" style="--c:${C.pink}">
+      <div class="mehr-karte mehr-karte-fest" data-mehr="rangliste" style="--c:${C.pink}">
         <span class="mehr-icon">${sized({ ...kcSvg.crown, svg: crownSvg.svg(C.dark) }, 26)}</span>
         <b>${t('Rangliste in der Gruppe', 'Leaderboard in your group')}</b>
         <ol class="mehr-buehne mehr-rang" aria-hidden="true">
@@ -330,8 +330,9 @@ ${filterDefs}
           <li data-rang="lena" style="--a:#FFB2E5"><span class="mehr-avatar">L</span><span>Lena</span><b>14</b></li>
           <li data-rang="du" class="is-ich" style="--a:#7E94FF"><span class="mehr-avatar">${t('D', 'Y')}</span><span>${t('Du', 'You')}</span><b>12</b></li>
         </ol>
-        <span class="mehr-status" aria-live="polite">${t('Du magst es kompetitiv? Tipp und erledige eine Aufgabe.', 'Like it competitive? Tap to get a task done.')}</span>
-      </button>
+        <button type="button" class="mehr-aktion">${t('Aufgabe erledigt?', 'Task done?')}</button>
+        <span class="mehr-status" aria-live="polite">${t('Du magst es kompetitiv? Jede erledigte Aufgabe bringt Dich nach oben.', 'Like it competitive? Every task you get done moves you up.')}</span>
+      </div>
       <button type="button" class="mehr-karte" data-mehr="freunde" style="--c:${C.green}">
         <span class="mehr-icon">${sized(icon('friends', C.dark), 30)}</span>
         <b>${t('Freunde hinzufügen', 'Add friends')}</b>
@@ -473,6 +474,7 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
   document.querySelector('.mehr-karten').addEventListener('click', function (e) {
     var k = e.target.closest('[data-mehr]');
     if (!k) return;
+    if (k.dataset.mehr === 'rangliste' && !e.target.closest('.mehr-aktion')) return;
     var art = k.dataset.mehr, n = ++mehr[art], buehne = k.querySelector('.mehr-buehne'), status = k.querySelector('.mehr-status');
     if (art === 'rangliste') {
       // Jeder Tipp bringt Dir Edensteine; die Liste ordnet sich neu (FLIP). Nach Platz 1 startet sie neu.
@@ -489,15 +491,15 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
         li.offsetWidth; li.style.transition = ''; li.style.transform = '';
       });
       var platz = Array.prototype.indexOf.call(liste.children, du);
-      status.textContent = n > 3 ? '${t('Neue Woche, neues Glück. Tipp und leg los.', 'New week, new luck. Tap to get going.')}'
+      status.textContent = n > 3 ? '${t('Neue Woche, neues Glück.', 'New week, new luck.')}'
         : platz === 0 ? '${t('Du führst! May the best win.', 'You’re in the lead! May the best win.')}'
         : n === 1 ? '${t('1 Edenstein. Noch 2 bis Lena.', '1 Eden stone. 2 more to Lena.')}'
-        : '${t('Du überholst Lena. Tipp für Platz 1.', 'You overtake Lena. Tap for first place.')}';
+        : '${t('Du überholst Lena.', 'You overtake Lena.')}';
     } else if (art === 'freunde') {
       var av = buehne.querySelectorAll('.mehr-avatar');
       if (n > av.length) { mehr.freunde = 0; av.forEach(function (a) { a.classList.remove('is-freund'); }); status.textContent = '${t('Tipp und füg Lena hinzu.', 'Tap to add Lena.')}'; return; }
       av[n - 1].classList.add('is-freund');
-      status.textContent = n < av.length ? '${t('{a} ist jetzt dabei. Tipp für {b}.', '{a} is in. Tap for {b}.')}'.replace('{a}', freunde[n - 1]).replace('{b}', freunde[n]) : '${t('Drei Freunde. Tipp, um neu zu starten.', 'Three friends. Tap to start over.')}';
+      status.textContent = n < av.length ? '${t('{a} ist jetzt dabei. Tipp für {b}.', '{a} is in. Tap for {b}.')}'.replace('{a}', freunde[n - 1]).replace('{b}', freunde[n]) : '${t('Einfach vernetzen mit QR-Code oder Link.', 'Connect easily with a QR code or link.')}';
     } else {
       var paar = chat[(n - 1) % chat.length];
       blase(buehne, paar[0], true);
