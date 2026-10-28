@@ -1212,5 +1212,6 @@
   "Pro Person {perMin} bis {perMax}, bei {n} Plätzen also {min} bis {max}. Der Betrag wird unter allen geteilt, die mitmachen.": "Від {perMin} до {perMax} на людину, тобто від {min} до {max} для {n} місць. Сума ділиться між усіма, хто бере участь.",
   "{min} bis {max}. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.": "Від {min} до {max}. Ти сам(а) платиш Coins напряму людині, яка виконає челендж.",
   "Machen weniger mit, bekommt jede mehr.": "Що менше учасників, то більше отримує кожен.",
-  "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "Coins діляться: {share} на людину, якщо {n} людей."
+  "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "Coins діляться: {share} на людину, якщо {n} людей.",
+  "Alle auswählen": "Вибрати всіх"
 }

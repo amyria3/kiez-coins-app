@@ -1212,5 +1212,6 @@
   "Pro Person {perMin} bis {perMax}, bei {n} Plätzen also {min} bis {max}. Der Betrag wird unter allen geteilt, die mitmachen.": "{perMin} to {perMax} per person, so {min} to {max} for {n} spots. The amount is shared among everyone who takes part.",
   "{min} bis {max}. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.": "{min} to {max}. You pay the Coins yourself, directly to the person who completes the challenge.",
   "Machen weniger mit, bekommt jede mehr.": "If fewer take part, each gets more.",
-  "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "The Coins are shared: {share} per person with {n} people."
+  "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "The Coins are shared: {share} per person with {n} people.",
+  "Alle auswählen": "Select all"
 }
