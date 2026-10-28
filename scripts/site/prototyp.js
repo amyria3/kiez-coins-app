@@ -1356,7 +1356,8 @@
       // Nächster Schritt im laufenden Szenario
       if (state.create) {
         var dr = state.draft;
-        if (dr.kind === 'me' && dr.stage === 'vorher' && !dr.photo) return $('.p-photo', create);
+        // Erst das Foto, gleich für Me, We und Bild (Daria, 28.10.2026)
+        if (dr.stage === 'vorher' && !dr.photo) return $('.p-photo', create);
         if (dr.kind === 'me' && dr.stage === 'nachher' && !dr.after) return $('.p-photo', create);
         return $('.p-create-body > .p-btn:not(:disabled)', create) || $('.p-photo-title', create);
       }
