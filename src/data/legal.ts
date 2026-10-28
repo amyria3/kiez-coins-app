@@ -101,13 +101,6 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         ],
       },
       {
-        heading: 'Zahlungsdaten gibst Du gezielt frei',
-        paragraphs: [
-          'Kontoinhaberin oder Kontoinhaber, IBAN und PayPal-Adresse speichern wir nur, wenn Du sie einträgst. Sie sind privat. Für Coins gibst Du sie genau der Person frei, die Dir die Coins zahlt. Kiez Coins wickelt keine Zahlungen ab.',
-          'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
-        ],
-      },
-      {
         heading: 'Meldungen, Support und Sicherheit',
         paragraphs: [
           'Meldest Du eine Person oder Challenge oder schreibst Du dem Support, speichern wir Deine Nachricht, um sie zu bearbeiten. Die gemeldete Person erfährt nicht, wer gemeldet hat. Blockierst Du eine Person, speichern wir, wen Du blockiert hast. Zollst Du Lob, speichern wir, wen Du gelobt hast. Andere sehen nur die Anzahl, nicht wer gelobt hat. Zum Schutz vor Missbrauch speichert unser Hosting-Dienst technische Protokolle mit IP-Adresse und Zeitpunkt für kurze Zeit.',
@@ -126,7 +119,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'So lange bleiben Deine Daten',
         paragraphs: [
-          'Deine Daten bleiben, bis Du Dein Konto löschst. „Konto löschen“ entfernt Konto, Profil, Fotos, Challenges, Kommentare, Zahlungsdaten, Meldungen, Blockierungen, Lob und Support-Anfragen sofort. Reste in Sicherungskopien verschwinden, wenn Supabase diese turnusmäßig überschreibt.',
+          'Deine Daten bleiben, bis Du Dein Konto löschst. „Konto löschen“ entfernt Konto, Profil, Fotos, Challenges, Kommentare, Meldungen, Blockierungen, Lob und Support-Anfragen sofort. Reste in Sicherungskopien verschwinden, wenn Supabase diese turnusmäßig überschreibt.',
           'Am Ende der Testphase können wir alle Daten löschen. Darüber informieren wir Dich vorher per E-Mail.',
         ],
       },
@@ -169,10 +162,10 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         ],
       },
       {
-        heading: '4. Coins laufen direkt zwischen Euch',
+        heading: '4. Coins und Edensteine sind ideelle Anerkennung',
         paragraphs: [
-          'Coins sind eine freiwillige Anerkennung zwischen zwei Personen. Kiez Coins ist nicht Vertragspartei, nimmt kein Geld an und zahlt keins aus. Das Geld fließt direkt per Überweisung oder PayPal. Barzahlung und Treffen zur Zahlung sind nicht vorgesehen.',
-          'Jede Person ist selbst dafür verantwortlich, eine Aufgabe sorgfältig zu erledigen, zugesagte Coins zu zahlen und Einnahmen gegebenenfalls zu versteuern. Eine Challenge begründet kein Arbeitsverhältnis.',
+          'Coins und Edensteine sind eine freiwillige, ideelle Anerkennung. Sie lassen sich weder kaufen noch eintauschen. Kiez Coins ist nicht Vertragspartei der Absprachen zwischen Euch.',
+          'Jede Person ist selbst dafür verantwortlich, eine Aufgabe sorgfältig zu erledigen. Eine Challenge begründet kein Arbeitsverhältnis.',
         ],
       },
       {
@@ -184,7 +177,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: '6. Haftung',
         paragraphs: [
-          'Wir haften unbeschränkt für Vorsatz und grobe Fahrlässigkeit sowie für Schäden an Leben, Körper und Gesundheit. Sonst haften wir für den kostenlosen Testbetrieb nicht. Für Absprachen, Aufgaben und Zahlungen zwischen Nutzer:innen haften die beteiligten Personen.',
+          'Wir haften unbeschränkt für Vorsatz und grobe Fahrlässigkeit sowie für Schäden an Leben, Körper und Gesundheit. Sonst haften wir für den kostenlosen Testbetrieb nicht. Für Absprachen und Aufgaben zwischen Nutzer:innen haften die beteiligten Personen.',
         ],
       },
       {
