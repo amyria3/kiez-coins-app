@@ -1,4 +1,4 @@
-import { useRef, type RefObject } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
@@ -32,9 +32,11 @@ type ButtonProps = {
   /** Icon waagerecht spiegeln (Hand nach links für „Zurück zum Feed“) */
   iconFlip?: boolean;
   style?: StyleProp<ViewStyle>;
+  /** Fokus beim Erscheinen auf diesen Button (Tastatur und Screenreader), z. B. „Weiter“ in der Tour */
+  autoFocus?: boolean;
 };
 
-export function Button({ label: original, onPress: press, variant = 'primary', disabled: off, whyDisabled, busy, icon, iconFlip, style }: ButtonProps) {
+export function Button({ label: original, onPress: press, variant = 'primary', disabled: off, whyDisabled, busy, icon, iconFlip, style, autoFocus }: ButtonProps) {
   // Mit Erklärung bleibt der Button tippbar, sieht aber deaktiviert aus
   const explains = !!off && !!whyDisabled;
   const disabled = (off && !explains) || !!busy;
@@ -45,6 +47,11 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
   // Ziel nach dem letzten Formularfeld (Nudge.tsx). Ghost-Buttons sind Nebenwege und zählen nicht.
   const ref = useRef<View>(null);
   useSubmitTarget(ref, variant !== 'ghost');
+  useEffect(() => {
+    if (!autoFocus) return;
+    const id = setTimeout(() => (ref.current as unknown as { focus?: () => void } | null)?.focus?.(), 50);
+    return () => clearTimeout(id);
+  }, [autoFocus]);
   // Versuch: Buttons aus Liquid Glass (iOS 26). Gefüllte Varianten bekommen ihre Farbe als Tönung.
   if (isFashionable) return <FashionButton pressRef={ref} label={label} onPress={onPress} variant={variant} off={off} disabled={disabled} busy={busy} style={style} />;
   if (glassControls && variant !== 'ghost') {

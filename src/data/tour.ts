@@ -38,3 +38,8 @@ export const tourSteps: TourStep[] = [
 ];
 
 export const TOUR_SEEN_KEY = 'tour_seen_v1';
+
+/** Wann die App anbietet, die Tour zu zeigen (Zeitstempel in ms). Gesetzt am Ende des Onboardings. */
+export const TOUR_OFFER_KEY = 'tour_offer_at_v1';
+/** Etwa 5 Minuten nach der Anmeldung fragt die App, ob sie die wichtigsten Funktionen zeigen soll (Daria, 28.10.2026). */
+export const TOUR_OFFER_DELAY_MS = 5 * 60 * 1000;

@@ -73,7 +73,7 @@ export default function Deckname() {
   return (
     <SubScreen
       title="Deckname"
-      subtitle="Schritt 2 von 7"
+      subtitle="Schritt 2 von 6"
       navigation="back"
       onLeadingPress={() => (goBack())}
       actions={<Button busy={busy} label="Weiter" onPress={next} disabled={!handle.trim() || busy} whyDisabled={() => !busy && handleField.nudge('Wähle einen Decknamen.')} />}
