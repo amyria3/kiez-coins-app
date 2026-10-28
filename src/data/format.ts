@@ -14,6 +14,11 @@ export function formatEuroCents(amount: number): string {
   return `${amount.toLocaleString(localeTag(), { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
 }
 
+/** Betrag in Cent: ganze Euro ohne Nachkommastellen, sonst mit (6,67 €) */
+export function formatCents(cents: number): string {
+  return cents % 100 === 0 ? formatEuro(cents / 100) : formatEuroCents(cents / 100);
+}
+
 /** „12.10.“ */
 export function formatDayMonth(iso: string): string {
   const d = new Date(iso);
