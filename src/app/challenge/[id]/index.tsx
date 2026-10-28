@@ -99,7 +99,8 @@ export default function ChallengeDetail() {
   const approval = challenge.joinMode === 'approval';
   const mine = myParticipation(challenge, currentUserId);
   const acceptedByMe = challenge.status === 'accepted' && isParticipant(challenge, currentUserId);
-  const reportsForAll = acceptedByMe && isAssignee;
+  // Erledigt melden: jede teilnehmende Person, für alle (Daria, 28.10.2026)
+  const reportsForAll = acceptedByMe;
   const named = challenge.operationName !== undefined;
   const isBeforeAfter = challenge.type === 'before_after';
   // Vorher-Nachher: erst das Vorher-, dann das Nachher-Foto in der Galerie
@@ -376,8 +377,7 @@ export default function ChallengeDetail() {
         <>
           <KaterBubble>
             {!isAssignee && named
-              ? t('Danke, dass Du mitmachst! {name} war zuerst dabei und meldet erledigt, für alle. Wenn {author} bestätigt, bekommst Du eine Nachricht.', {
-                  name: users.find((u) => u.id === challenge.assigneeId)?.name ?? '',
+              ? t('Danke, dass Du mitmachst! Jede teilnehmende Person kann erledigt melden, für alle. Wenn {author} bestätigt, bekommst Du eine Nachricht.', {
                   author: author.firstName,
                 })
               : named
