@@ -12,7 +12,7 @@ Datum: 28.10.2026. Status: offen, Code im PR, Migration noch nicht ausgeführt. 
 - „Offen“ oder „Auf Anfrage“ hängt nicht von der Belohnung ab.
 - Mit Coins machen höchstens 10 Personen mit, pro Person mindestens 5 €. Die bisherige Obergrenze von 50 € gilt pro Platz (bis 500 € bei 10 Plätzen).
 - Der Betrag wird geteilt, unter allen, die beim Bestätigen ausgewählt sind. Gerundet auf Cent, übrige Cent an die Ersten (20 € für 3: 6,67 €, 6,67 €, 6,66 €).
-- Bestätigen je Person: Beim „Erledigung prüfen“ sind alle Teilnehmenden vorausgewählt. Die Erstellerin wählt einzelne ab. Abgewählte bekommen weder Coins noch Edensteine (Status `unconfirmed`). „Rückgängig machen“ wählt wieder alle aus.
+- Bestätigen je Person: Beim „Erledigung prüfen“ sind alle Teilnehmenden vorausgewählt. Die Erstellerin wählt einzelne ab. Abgewählte bekommen weder Coins noch Edensteine (Status `unconfirmed`). „Alle auswählen“ setzt die Häkchen wieder bei allen.
 
 ## So ist es gebaut
 
