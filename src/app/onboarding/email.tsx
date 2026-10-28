@@ -180,7 +180,7 @@ export default function Email() {
   };
 
   return (
-    <SubScreen title="Anmelden" subtitle="Schritt 1 von 7" navigation="back" onLeadingPress={goBack}>
+    <SubScreen title="Anmelden" subtitle="Schritt 1 von 6" navigation="back" onLeadingPress={goBack}>
       <KaterBubble>
         Zuerst Deine Flaschenpost-Adresse. Du bekommst einen Code und legst Dein Passwort fest.
       </KaterBubble>

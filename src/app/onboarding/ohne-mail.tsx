@@ -71,7 +71,7 @@ export default function OhneMail() {
   };
 
   return (
-    <SubScreen title="Ohne E-Mail" subtitle="Schritt 1 von 7" navigation="back" onLeadingPress={goBack}>
+    <SubScreen title="Ohne E-Mail" subtitle="Schritt 1 von 6" navigation="back" onLeadingPress={goBack}>
       <KaterBubble>
         Geht auch ohne Flaschenpost. Merk Dir Deckname und Passwort gut, ohne E-Mail kann ich Dir kein neues schicken.
       </KaterBubble>
