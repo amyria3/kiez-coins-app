@@ -121,17 +121,21 @@ export function GroupsEmpty({
   message = 'Verteilt Aufgaben in Eurem Verein, Eurer Hausgemeinschaft, WG oder Familie.',
   onCreate,
   onJoin,
+  onPost,
 }: {
   title?: string;
   message?: string;
   onCreate?: () => void;
   onJoin?: () => void;
+  /** Leerer Feed: „Posten“ öffnet das Erstellen (Daria, 28.10.2026) */
+  onPost?: () => void;
 }) {
   return (
     <View style={styles.empty}>
       <KaterCard title={title}>{message}</KaterCard>
       {onCreate ? <Button label="Gruppe gründen" onPress={onCreate} /> : null}
       {onJoin ? <Button label="Mit Beitrittscode beitreten" variant="secondary" onPress={onJoin} /> : null}
+      {onPost ? <Button label="Posten" onPress={onPost} /> : null}
     </View>
   );
 }
