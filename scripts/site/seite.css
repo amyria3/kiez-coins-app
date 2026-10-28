@@ -287,6 +287,17 @@ button { font: inherit; color: inherit; }
 .p-photo-title textarea:focus { outline: none; }
 .p-photo-title textarea::placeholder, .p-field textarea::placeholder { color: var(--muted); }
 .p-field { display: grid; gap: 6px; }
+.p-tagbox { display: grid; gap: 2px; padding: 10px 12px 8px; border: 1px solid var(--line); border-radius: 14px; }
+.p-tagbox:focus-within { border-color: var(--purple); }
+.p-tagbox b { font: 500 12px/1.4 Inter, sans-serif; color: var(--purple); }
+.p-tagbox textarea { border: 0 !important; padding: 0 !important; min-height: 36px !important; background: none; }
+.p-steps { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+.p-step { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.p-step i { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--line); font: 500 9px/1 Inter, sans-serif; font-style: normal; }
+.p-step.is-on, .p-step.is-done { color: var(--text); }
+.p-step.is-on i { background: var(--purple); border-color: var(--purple); color: var(--on-accent); }
+.p-step.is-done i { background: var(--surface); border-color: var(--surface); }
+.p-step-bar { flex: 1; height: 1px; background: var(--line); }
 .p-field > span { color: var(--muted); font-size: 11px; }
 .p-field input { width: 100%; font: 400 15px/1.2 Inter, sans-serif; color: var(--text); background: var(--surface); border: 1px solid transparent; border-radius: 14px; padding: 12px; }
 .p-field input:focus { outline: none; border-color: var(--purple); }

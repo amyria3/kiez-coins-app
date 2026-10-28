@@ -847,23 +847,37 @@
     if (btn && create.classList.contains('is-open')) create.scrollTo({ top: create.scrollHeight, behavior: reduce ? 'auto' : 'smooth' });
   }
 
+  // Wie in der App (BeforeAfterForm): Schritte Vorher · Timer · Nachher und Beschreibung mit fester Marke
+  function meSteps(at) {
+    var names = [T('Vorher', 'Before'), 'Timer', T('Nachher', 'After')];
+    return '<div class="p-steps" aria-label="' + T('Schritt {n} von 3', 'Step {n} of 3', { n: at + 1 }) + '">' + names.map(function (n, i) {
+      return '<span class="p-step' + (i === at ? ' is-on' : i < at ? ' is-done' : '') + '"><i>' + (i + 1) + '</i>' + n + '</span>' + (i < 2 ? '<span class="p-step-bar"></span>' : '');
+    }).join('') + '</div>';
+  }
+  function tagField(tag, attr, value, placeholder) {
+    return '<label class="p-field"><span>' + T('Beschreibung', 'Description') + '</span><span class="p-tagbox"><b>' + tag + '</b><textarea rows="2" maxlength="240" ' + attr +
+      ' placeholder="' + placeholder + '">' + esc(value) + '</textarea></span></label>';
+  }
+
   function renderMe() {
     var d = state.draft;
     var body;
     if (d.stage === 'vorher') {
       body =
         kindSwitch(d) +
+        '<p class="p-help">' + T('Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.', 'Capture how you repair, rebuild or beautify something, or practise a new, useful habit. First document the “before” state with a photo.') + '</p>' +
+        meSteps(0) +
         photoBox(d.photo, ME.before, T('Vorher', 'Before'), T('Vorher-Foto aufnehmen', 'Take before photo')) +
         '<div class="p-photo-title"><textarea rows="1" maxlength="90" placeholder="' + T('Titel eingeben', 'Enter title') + '" aria-label="' + T('Titel', 'Title') + '" data-title>' + esc(d.title) + '</textarea></div>' +
         '</div>' +
-        sugg(ME.suggestions) +
-        '<label class="p-field"><span>' + T('Erklärung zum Vorher', 'About the before') + '</span><textarea rows="2" maxlength="240" data-text>' + esc(d.text) + '</textarea></label>' +
-        '<p class="p-help">' + T('Me-Challenges laufen ohne Coins. Du forderst Dich selbst heraus.', 'Me-Challenges run without coins. You challenge yourself.') + '</p>' +
+        '<p class="p-help">' + T('So sieht es jetzt aus.', 'This is how it looks now.') + '</p>' +
+        tagField('#vorher', 'data-text', d.text, T('Was ist die Aufgabe oder die Ausgangslage? Erkläre kurz, worin die Me-Challenge besteht.', 'What is the task or the starting point? Briefly explain what the Me-Challenge is about.')) +
         '<button type="button" class="p-btn" data-me-save' + (d.photo && d.title.trim() ? '' : ' disabled') + '>' + T('Vorher speichern', 'Save before') + '</button>';
     } else if (d.stage === 'timer') {
       var r = 2 * Math.PI * 54;
       var m = minutes(d);
       body =
+        meSteps(1) +
         '<div class="p-mini"><span class="p-thumb">' + image(ME.before) + '</span><span><strong>' + esc(d.title) + '</strong>' +
         '<i>' + T('Vorher gespeichert um {uhr} Uhr', 'Before saved at {uhr}', { uhr: clockOf(d.start) }) + '</i></span></div>' +
         '<div class="p-timer"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="54" class="p-timer-track"/>' +
@@ -873,9 +887,10 @@
         '<button type="button" class="p-btn" data-me-after>' + svg('cameraDark', 14) + T('Nachher aufnehmen', 'Take after photo') + '</button>';
     } else {
       body =
+        meSteps(2) +
         photoBox(d.after, ME.after, T('Nachher', 'After'), T('Nachher-Foto aufnehmen', 'Take after photo')) + '</div>' +
         '<p class="p-help">' + T('So sieht es jetzt aus. Die Überschrift „{title}“ gilt für Vorher und Nachher.', 'This is how it looks now. The title “{title}” applies to before and after.', { title: esc(d.title) }) + '</p>' +
-        '<label class="p-field"><span>' + T('Erklärung zum Nachher', 'About the after') + '</span><textarea rows="2" maxlength="240" data-after-text>' + esc(d.afterText) + '</textarea></label>' +
+        tagField('#nachher', 'data-after-text', d.afterText, T('Was hast Du gemacht?', 'What did you do?')) +
         '<button type="button" class="p-btn" data-me-post' + (d.after ? '' : ' disabled') + '>' + T('Me-Challenge posten', 'Post Me-Challenge') + '</button>';
     }
     create.innerHTML = '<div class="p-create-body p-me-' + d.stage + '">' + body + '</div>';
