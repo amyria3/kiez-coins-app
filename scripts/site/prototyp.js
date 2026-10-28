@@ -48,8 +48,8 @@
 
   // Eigene Me-Challenge im Prototyp, in beiden Orten gleich (Vorher hohes Gras, Nachher gepflegte Beete)
   var ME = {
-    before: 'rasen',
-    after: 'garten',
+    before: 'hohes-gras',
+    after: 'gemaeht',
     suggestions: ['Rasenmäher bei Peter abholen & ein Stück Rasen für Elisas Geburtstag freimähen', 'Müll im Park sammeln', 'Fahrradkeller aufräumen'],
     demo: ['Rasenmäher bei Peter abholen & ein Stück Rasen für Elisas Geburtstag freimähen', 'Es wäre schön, wenn jemand ein Stück des Rasens für die Kleinen frei-mähen könnte, weil Elisa am Freitag Geburtstag hat und die Zecken im hohen Rasen gerade wüten.'],
     demoAfter: 'Gemäht und gejätet. Die Beete sind bereit für den Winter.',
@@ -80,7 +80,7 @@
           id: 'auwald', kind: 'me',
           title: 'Müll im Auwald gesammelt',
           text: 'Nach dem Wochenende lagen Flaschen und Verpackungen am Weg. Drei Säcke später hat der Igel seine Ruhe.',
-          author: 'lena', before: 'muell-wald', after: 'wald', took: '1 h 40 min', comments: 3, likes: 24,
+          author: 'lena', before: 'muell-wald', after: 'waldweg', took: '1 h 40 min', comments: 3, likes: 24,
         },
         {
           id: 'fahrrad', kind: 'we',
@@ -91,7 +91,7 @@
         {
           id: 'hund', kind: 'we',
           title: 'Mittags mit Bruno Gassi gehen',
-          text: 'Mittwoch und Donnerstag gegen 13 Uhr, eine Runde von 45 Minuten. Ich bin bis abends im Büro. Bruno ist ruhig und läuft gut an der Leine.',
+          text: 'Hallo liebe Nachbar:innen, ich bin Peter und stolzer Besitzer eines kleinen, süßen Hundes. Mein Job ist zurzeit sehr herausfordernd, und ich brauche deshalb jemanden, der mit ihm spazieren geht: Mittwoch und Donnerstag gegen 13 Uhr, eine Runde von 45 Minuten. Ich bin bis abends im Büro. Bruno ist ruhig und läuft gut an der Leine. Aufgrund seiner Rasse hat er ein paar gesundheitliche Issues, das erkläre ich dann gern direkt.',
           author: 'peter', reward: 5, dist: '200 m', left: 'noch 2 Tage', img: 'hund', comments: 2, likes: 9,
         },
         {
@@ -120,7 +120,7 @@
       bild: {
         suggestions: ['Cospudener See', 'Neues Café am Kreuz', 'Buchtipp für den Winter'],
         demo: ['Cospudener See', 'Einfach eine besondere Stimmung hier, besonders im Frühling.'],
-        photo: 'wald',
+        photo: 'see',
         published: 'Dein Bild ist online. Die Nachbarschaft sieht es jetzt.',
       },
     },
@@ -147,12 +147,6 @@
           title: 'Fahrradkeller entrümpeln',
           text: 'Samstag ab 10 Uhr tragen wir Räder ohne Besitzer:in zum Sperrmüll. Markiert Eure Räder bis Freitag mit Band. Wer hilft beim Tragen?',
           author: 'peter', reward: 5, dist: 'Keller', left: 'Samstag', img: null, comments: 4, likes: 5,
-        },
-        {
-          id: 'beete', kind: 'bild',
-          title: 'Unsere Beete im Hof',
-          text: 'Alles geerntet, die Beete sind bereit für den Winter.',
-          author: 'gardeners', img: 'garten', comments: 2, likes: 12,
         },
       ],
       group: {
@@ -184,9 +178,9 @@
         ['bild', 'Nur ein Bild', 'Teile mit Deinen Liebsten und Freund:innen besondere Momente, Orte oder Buchempfehlungen.', 'Bild'],
       ],
       bild: {
-        suggestions: ['Igel im Hof', 'Buchtipp für den Winter', 'Sommerfest im Hof'],
-        demo: ['Igel im Hof', 'Gestern Abend unter der Hecke am Fahrradständer. Bitte langsam fahren!'],
-        photo: 'igel',
+        suggestions: ['Unsere Beete im Hof', 'Buchtipp für den Winter', 'Sommerfest im Hof'],
+        demo: ['Unsere Beete im Hof', 'Alles geerntet, die Beete sind bereit für den Winter.'],
+        photo: 'garten',
         published: 'Dein Bild ist da. Alle im Hof Kastanienallee sehen es jetzt.',
       },
     },
@@ -200,24 +194,6 @@
         du: { name: 'Du', short: 'Du', color: '#7E94FF' },
       },
       challenges: [
-        // Me-Challenge als persönliches Ziel: Fortschritt und Serie, nur für Dich sichtbar
-        {
-          id: 'klavier', kind: 'ziel',
-          title: 'Jeden Tag 10 Minuten Klavier',
-          author: 'du', done: 12, goal: 30, streak: 5, today: false, comments: 0, likes: 0,
-        },
-        {
-          id: 'spuele', kind: 'me',
-          title: 'Hochbeet angelegt',
-          text: 'Seit dem Frühjahr wollte ich das schaffen. Jetzt wächst da Feldsalat.',
-          author: 'du', before: 'rasen', after: 'garten', took: '3 h 20 min', comments: 0, likes: 0,
-        },
-        {
-          id: 'waesche', kind: 'bild',
-          title: 'Waschtag mit Aussicht',
-          text: 'Endlich wieder Sonne. Die Wäsche war in zwei Stunden trocken.',
-          author: 'du', img: 'waesche', comments: 0, likes: 0,
-        },
       ],
       group: null,
       create: {
@@ -254,7 +230,7 @@
       challenges: [
         { title: 'Picked up litter in the floodplain forest', text: 'After the weekend, bottles and packaging lay along the path. Three bags later, the hedgehog has its peace.' },
         { title: 'Fix a flat on a kid’s bike', text: 'The rear tube on my daughter’s bike is flat. I have a patch kit, but I can’t get the tire off the rim. She needs the bike on Monday to get to school.', left: '3 days left' },
-        { title: 'Walk Bruno at lunchtime', text: 'Wednesday and Thursday around 1 pm, a 45-minute walk. I’m at the office until evening. Bruno is calm and walks well on the leash.', left: '2 days left' },
+        { title: 'Walk Bruno at lunchtime', text: 'Hi dear neighbors, I’m Peter, the proud owner of a small, sweet dog. My job is very demanding right now, so I need someone to walk him: Wednesday and Thursday around 1 pm, a 45-minute walk. I’m at the office until evening. Bruno is calm and walks well on the leash. Because of his breed he has a few health issues – I’m happy to explain them in person.', left: '2 days left' },
         { title: 'Hedgehog by the path', text: 'Tonight by the path in the park. Please ride slowly!' },
       ],
       create: {
@@ -279,7 +255,6 @@
       challenges: [
         { title: 'Shop for Gisela on the 3rd floor', text: 'After her hip surgery, Gisela can’t manage the stairs yet. She’ll give you the list and money at her door.', dist: '3rd floor', left: 'by Friday' },
         { title: 'Clear out the bike cellar', text: 'Saturday from 10 am we’re taking ownerless bikes to the bulky waste. Mark your bikes with tape by Friday. Who can help carry?', dist: 'Cellar', left: 'Saturday' },
-        { title: 'Our courtyard beds', text: 'Everything harvested, the beds are ready for winter.' },
       ],
       group: {
         sub: '4 members · Leaderboard on',
@@ -296,8 +271,8 @@
         ['bild', 'Just a photo', 'Share special moments, places or book tips with your loved ones and friends.', 'Photo'],
       ],
       bild: {
-        suggestions: ['Hedgehog in the courtyard', 'Book tip for winter', 'Courtyard summer party'],
-        demo: ['Hedgehog in the courtyard', 'Last night under the hedge by the bike rack. Please ride slowly!'],
+        suggestions: ['Our courtyard beds', 'Book tip for winter', 'Courtyard summer party'],
+        demo: ['Our courtyard beds', 'Everything harvested, the beds are ready for winter.'],
         published: 'Your photo is up. Everyone in Hof Kastanienallee can see it now.',
       },
     },
@@ -306,9 +281,6 @@
       place: 'Just me',
       people: { du: { name: 'You', short: 'You' } },
       challenges: [
-        { title: '10 minutes of piano every day' },
-        { title: 'Built a raised bed', text: 'I’d wanted to do this since spring. Now lamb’s lettuce is growing there.' },
-        { title: 'Laundry day with a view', text: 'Finally sunshine again. The laundry was dry in two hours.' },
       ],
       scenarios: [
         ['me', 'Me-Challenge', 'Set yourself a goal and need a little motivation from the Silicon Valley bag of tricks? Track your progress – use gamification to maximize happiness, safe from prying eyes.', 'Me-Challenge'],
@@ -597,8 +569,6 @@
       '<div class="p-group">' +
       '<div class="p-group-head"><strong>' + group.name + '</strong><span>' + group.sub + '</span></div>' +
       '<div class="p-list">' + running() + challenges.map(function (c) { return card(c, c.id === newId); }).join('') + '</div>' +
-      '<h4 class="p-board-title">' + T('Rangliste', 'Leaderboard') + '</h4>' +
-      '<ol class="p-board">' + memberRows() + '</ol>' +
       '<h4>' + T('Schnell erledigt', 'Quick tasks') + '</h4>' +
       group.tasks
         .map(function (t) {
@@ -1169,7 +1139,7 @@
     if (!t || t.done) return;
     var board = $('.p-board');
     var before = {};
-    $$('li', board).forEach(function (li) { before[li.dataset.member] = li.getBoundingClientRect().top; });
+    if (board) $$('li', board).forEach(function (li) { before[li.dataset.member] = li.getBoundingClientRect().top; });
     var rankBefore = group.members.slice().sort(function (a, b) { return b.score - a.score; });
     t.done = true;
     var me = find(group.members, 'du');
@@ -1178,7 +1148,7 @@
     renderGroups();
     var nb = $('.p-board');
     // FLIP: alte Lage zuerst, dann mit „Schranke“ an den neuen Platz
-    $$('li', nb).forEach(function (li) {
+    if (nb) $$('li', nb).forEach(function (li) {
       var dy = before[li.dataset.member] - li.getBoundingClientRect().top;
       if (!dy || reduce) return;
       li.style.transition = 'none';
@@ -1187,8 +1157,8 @@
       li.style.transition = '';
       li.style.transform = '';
     });
-    var scoreEl = $('[data-member="du"] .p-score', nb);
-    if (!reduce) {
+    var scoreEl = nb && $('[data-member="du"] .p-score', nb);
+    if (scoreEl && !reduce) {
       var n = from;
       scoreEl.textContent = n;
       var iv = setInterval(function () {
