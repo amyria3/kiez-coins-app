@@ -1213,5 +1213,11 @@
   "{min} bis {max}. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.": "{min} to {max}. You pay the Coins yourself, directly to the person who completes the challenge.",
   "Machen weniger mit, bekommt jede mehr.": "If fewer take part, each gets more.",
   "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "The Coins are shared: {share} per person with {n} people.",
-  "Alle auswählen": "Select all"
+  "Alle auswählen": "Select all",
+  "Danke, dass Du mitmachst! Jede teilnehmende Person kann erledigt melden, für alle. Wenn {author} bestätigt, bekommst Du eine Nachricht.": "Thanks for joining in! Any participant can report it done, for everyone. When {author} confirms, you'll get a message.",
+  "Jede teilnehmende Person kann erledigt melden, für alle.": "Any participant can report it done, for everyone.",
+  "Jede teilnehmende Person kann erledigt melden, für alle. Die Coins werden geteilt. Mit Coins machen höchstens 10 Personen mit.": "Any participant can report it done, for everyone. The coins are split. With coins, at most 10 people take part.",
+  "Jede teilnehmende Person kann erledigt melden, für alle. Jede Person bekommt alle Edensteine.": "Any participant can report it done, for everyone. Each person gets all the Edensteine.",
+  "Nachbar:innen, die die Challenge sehen, können den Beitritt anfragen. Du musst den Beitritt aber gestatten.": "Neighbours who see the challenge can ask to join. You have to approve each request.",
+  "Nachbar:innen, die die Challenge sehen, können direkt beitreten.": "Neighbours who see the challenge can join right away."
 }
