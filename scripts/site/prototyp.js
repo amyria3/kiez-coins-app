@@ -50,8 +50,8 @@
   var ME = {
     before: 'rasen',
     after: 'garten',
-    suggestions: ['Gemeinschaftsgarten pflegen', 'Müll im Park sammeln', 'Fahrradkeller aufräumen'],
-    demo: ['Gemeinschaftsgarten pflegen', 'Es wäre schön, wenn jemand ein Stück des Rasens für die Kleinen frei-mähen könnte, weil Elisa am Freitag Geburtstag hat und die Zecken im hohen Rasen gerade wüten.'],
+    suggestions: ['Rasenmäher bei Peter abholen & ein Stück Rasen für Elisas Geburtstag freimähen', 'Müll im Park sammeln', 'Fahrradkeller aufräumen'],
+    demo: ['Rasenmäher bei Peter abholen & ein Stück Rasen für Elisas Geburtstag freimähen', 'Es wäre schön, wenn jemand ein Stück des Rasens für die Kleinen frei-mähen könnte, weil Elisa am Freitag Geburtstag hat und die Zecken im hohen Rasen gerade wüten.'],
     demoAfter: 'Gemäht und gejätet. Die Beete sind bereit für den Winter.',
     done: '1 gute Tat für den Kiez!',
   };
@@ -238,8 +238,8 @@
 
   // Englische Fassung der Beispieldaten: überschreibt nur die Texte, Struktur und Zahlen bleiben
   var ME_EN = {
-    suggestions: ['Tend the community garden', 'Pick up litter in the park', 'Tidy the bike cellar'],
-    demo: ['Tend the community garden', 'It would be lovely if someone could mow a patch of the lawn for the little ones, because Elisa’s birthday is on Friday and the ticks are running wild in the tall grass.'],
+    suggestions: ['Pick up the mower from Peter & mow a patch for Elisa’s birthday', 'Pick up litter in the park', 'Tidy the bike cellar'],
+    demo: ['Pick up the mower from Peter & mow a patch for Elisa’s birthday', 'It would be lovely if someone could mow a patch of the lawn for the little ones, because Elisa’s birthday is on Friday and the ticks are running wild in the tall grass.'],
     demoAfter: 'Mowed and weeded. The beds are ready for winter.',
     done: '1 good deed for the neighborhood!',
   };
@@ -814,7 +814,7 @@
       '<div class="p-create-body">' +
       kindSwitch(d) +
       photoBox(d.photo, M.create.photo, '', T('Foto aufnehmen oder auswählen', 'Take or choose a photo')) +
-      '<div class="p-photo-title"><input type="text" maxlength="60" placeholder="' + T('Titel eingeben', 'Enter title') + '" aria-label="' + T('Titel', 'Title') + '" value="' + esc(d.title) + '" data-title></div>' +
+      '<div class="p-photo-title"><textarea rows="1" maxlength="90" placeholder="' + T('Titel eingeben', 'Enter title') + '" aria-label="' + T('Titel', 'Title') + '" data-title>' + esc(d.title) + '</textarea></div>' +
       '</div>' +
       sugg(M.create.suggestions) +
       '<label class="p-field"><span>' + T('Beschreibung', 'Description') + '</span><textarea rows="2" maxlength="500" data-text>' + esc(d.text) + '</textarea></label>' +
@@ -827,6 +827,7 @@
       '<button type="button" class="p-btn" data-publish' + (d.title.trim() ? '' : ' disabled') + '>' + T('Veröffentlichen', 'Publish') + '</button>' +
       '</div>';
     grow($('[data-text]', create));
+    grow($('[data-title]', create));
   }
 
   // Nur ein Bild: Foto, Titel, Beschreibung, sofort posten
@@ -836,7 +837,7 @@
       '<div class="p-create-body">' +
       kindSwitch(d) +
       photoBox(d.photo, M.bild.photo, '', T('Foto aufnehmen oder auswählen', 'Take or choose a photo')) +
-      '<div class="p-photo-title"><input type="text" maxlength="60" placeholder="' + T('Titel eingeben', 'Enter title') + '" aria-label="' + T('Titel', 'Title') + '" value="' + esc(d.title) + '" data-title></div>' +
+      '<div class="p-photo-title"><textarea rows="1" maxlength="90" placeholder="' + T('Titel eingeben', 'Enter title') + '" aria-label="' + T('Titel', 'Title') + '" data-title>' + esc(d.title) + '</textarea></div>' +
       '</div>' +
       sugg(M.bild.suggestions) +
       '<label class="p-field"><span>' + T('Beschreibung', 'Description') + '</span><textarea rows="2" maxlength="500" data-text>' + esc(d.text) + '</textarea></label>' +
@@ -844,6 +845,7 @@
       '<button type="button" class="p-btn" data-publish' + (d.photo && d.title.trim() ? '' : ' disabled') + '>' + T('Bild posten', 'Post photo') + '</button>' +
       '</div>';
     grow($('[data-text]', create));
+    grow($('[data-title]', create));
   }
 
   // Timer im Prototyp im Zeitraffer: 1 Sekunde = 10 Minuten. In der App läuft er echt, höchstens 48 h.
@@ -882,7 +884,7 @@
       body =
         kindSwitch(d) +
         photoBox(d.photo, ME.before, T('Vorher', 'Before'), T('Vorher-Foto aufnehmen', 'Take before photo')) +
-        '<div class="p-photo-title"><input type="text" maxlength="60" placeholder="' + T('Titel eingeben', 'Enter title') + '" aria-label="' + T('Titel', 'Title') + '" value="' + esc(d.title) + '" data-title></div>' +
+        '<div class="p-photo-title"><textarea rows="1" maxlength="90" placeholder="' + T('Titel eingeben', 'Enter title') + '" aria-label="' + T('Titel', 'Title') + '" data-title>' + esc(d.title) + '</textarea></div>' +
         '</div>' +
         sugg(ME.suggestions) +
         '<label class="p-field"><span>' + T('Erklärung zum Vorher', 'About the before') + '</span><textarea rows="2" maxlength="240" data-text>' + esc(d.text) + '</textarea></label>' +
@@ -907,7 +909,7 @@
         '<button type="button" class="p-btn" data-me-post' + (d.after ? '' : ' disabled') + '>' + T('Me-Challenge posten', 'Post Me-Challenge') + '</button>';
     }
     create.innerHTML = '<div class="p-create-body p-me-' + d.stage + '">' + body + '</div>';
-    grow($('textarea', create));
+    $$('textarea', create).forEach(grow);
     if (d.stage === 'timer' && !timerIv) timerIv = setInterval(tickTimer, 100);
   }
   function deadlineLabel(n) {
@@ -1016,7 +1018,7 @@
       i += 1;
       d[job[1]] = job[2].slice(0, i);
       job[0].value = d[job[1]];
-      if (job[1] !== 'title') grow(job[0]);
+      grow(job[0]);
       if (job[1] === 'title') $(button, create).disabled = true;
       if (i >= job[2].length) { q += 1; i = 0; autoTimer = setTimeout(tick, 260); return; }
       autoTimer = setTimeout(tick, reduce ? 0 : job[1] === 'title' ? 55 : 22);
@@ -1031,7 +1033,11 @@
     if (r.top < 0 && r.bottom > 0) autofill();
   }, { passive: true });
   // Wer selbst tippt, hält die Vorführung an
-  create.addEventListener('keydown', function () { clearTimeout(autoTimer); autoTimer = null; });
+  create.addEventListener('keydown', function (e) {
+    clearTimeout(autoTimer); autoTimer = null;
+    // Titel bleibt einzeilig im Inhalt, bricht aber sichtbar um
+    if (e.key === 'Enter' && e.target.matches('[data-title]')) e.preventDefault();
+  });
 
   function publish() {
     var d = state.draft;
@@ -1291,7 +1297,8 @@
     if (e.target.matches('[data-text]')) { dr.text = e.target.value; return grow(e.target); }
     if (e.target.matches('[data-after-text]')) { dr.afterText = e.target.value; return grow(e.target); }
     if (!e.target.matches('[data-title]')) return;
-    dr.title = e.target.value;
+    dr.title = e.target.value.replace(/\n/g, ' ');
+    grow(e.target);
     var btn = $('[data-publish], [data-me-save]', create);
     btn.disabled = !dr.title.trim() || (dr.kind !== 'we' && !dr.photo);
     updateRing();
