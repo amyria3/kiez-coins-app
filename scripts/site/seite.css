@@ -716,3 +716,34 @@ footer a { color: var(--muted); }
 @keyframes wort-auf { from { opacity: 0; transform: translateY(.45em) rotate(3deg); filter: blur(6px); } }
 @keyframes wort-schwung { 30% { transform: rotate(-2.5deg); } 60% { transform: rotate(1.2deg); } }
 @media (prefers-reduced-motion: reduce) { .h-wort, .h-wort:last-child { animation: none; } }
+
+/* H2: Wörter steigen nacheinander auf, ruhiger als die Seitenüberschrift */
+.fx-a h2.fx-zeigen { opacity: 1; translate: none; }
+.h2-wort { display: inline-block; }
+.fx-a h2.fx-zeigen .h2-wort { opacity: 0; transform: translateY(.3em); filter: blur(3px); }
+.fx-a h2.fx-zeigen.is-da .h2-wort { opacity: 1; transform: none; filter: none;
+  transition: opacity 500ms ease-out, transform 640ms var(--barrier), filter 500ms ease-out; transition-delay: calc(var(--i) * 60ms); }
+
+/* Leute fallen von oben (über den Titel) an ihren Platz, jede Person eigenes Tempo, mit Federn (Daria, 28.10.2026) */
+.leute .szene { position: relative; z-index: 2; }
+.szene > .person:nth-child(1) { --y0: -240px; --d: 1150ms; --v: 0ms; }
+.szene > .person:nth-child(2) { --y0: -300px; --d: 1500ms; --v: 120ms; }
+.szene > .person:nth-child(3) { --y0: -200px; --d: 950ms; --v: 60ms; }
+.szene > .person:nth-child(4) { --y0: -340px; --d: 1700ms; --v: 200ms; }
+.szene > .person:nth-child(5) { --y0: -380px; --d: 1350ms; --v: 260ms; }
+.szene > .person:nth-child(6) { --y0: -440px; --d: 1800ms; --v: 140ms; }
+.szene > .person:nth-child(7) { --y0: -360px; --d: 1250ms; --v: 320ms; }
+.szene > .person:nth-child(8) { --y0: -420px; --d: 1600ms; --v: 220ms; }
+.js .leute .szene > .person { translate: 0 var(--y0); }
+.js .leute.is-seen .szene > .person { translate: 0 0; animation: leute-fallen var(--d) linear var(--v) both; }
+@keyframes leute-fallen {
+  0% { translate: 0 var(--y0); opacity: 0; animation-timing-function: cubic-bezier(.45,0,.9,.6); }
+  20% { opacity: 1; }
+  55% { translate: 0 0; animation-timing-function: cubic-bezier(.2,.6,.4,1); }
+  70% { translate: 0 calc(var(--y0) * 0.08); animation-timing-function: cubic-bezier(.5,0,.8,.5); }
+  82% { translate: 0 0; animation-timing-function: cubic-bezier(.2,.6,.4,1); }
+  91% { translate: 0 calc(var(--y0) * 0.025); animation-timing-function: cubic-bezier(.5,0,.8,.5); }
+  100% { translate: 0 0; }
+}
+@media (max-width: 640px) { .js .leute .szene > .person, .js .leute.is-seen .szene > .person { translate: none; animation: none; } }
+@media (prefers-reduced-motion: reduce) { .js .leute .szene > .person, .js .leute.is-seen .szene > .person { translate: none; animation: none; } }
