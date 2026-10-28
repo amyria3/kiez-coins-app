@@ -255,7 +255,7 @@ ${blumenTeile}
 const leute = [
   // Foto statt Zeichnung, freigestellt mit schmalem Rand (Daria, 28.10.2026)
   { foto: 'frau.webp', w: 484, h: 590, alt: 'Junge Frau in Jacke', altEn: 'Young woman in a jacket', text: 'Besser als Doomscrolling', en: 'Better than doomscrolling' },
-  { foto: 'mann.webp', w: 524, h: 464, alt: 'Lachender Mann mit Brille', altEn: 'Laughing man with glasses', text: 'Wie GitHub für den Alltag', en: 'Like GitHub for everyday life' },
+  { foto: 'mann.webp', w: 558, h: 489, alt: 'Lachender Mann mit Brille', altEn: 'Laughing man with glasses', text: 'Wie GitHub für den Alltag', en: 'Like GitHub for everyday life' },
   { figur: figuren.nachbarin, text: 'Schon praktisch', en: 'Pretty handy' },
 ];
 
