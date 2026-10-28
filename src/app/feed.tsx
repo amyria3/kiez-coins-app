@@ -55,6 +55,9 @@ function matchesTab(challenge: Challenge, tab: FeedTab, groupId: string | undefi
   return true;
 }
 
+// Leere Feeds: gleicher Text in Privat, Gruppe und Kiez (Daria, 28.10.2026). Geschlechtsformen in src/i18n/*.er/sie/person.json
+const EMPTY_FEED_MESSAGE = 'Sei eine Pionier:in und poste als Erste:r Challenge oder Bild.';
+
 /** Route `feed` – Figma „FeedScreen“ (Filled, Loading, Empty, Error, Offline). */
 export default function FeedScreen() {
   const router = useRouter();
@@ -346,10 +349,7 @@ export default function FeedScreen() {
       case 'privateEmpty':
         return (
           <View style={isFashionable ? styles.emptyTop : undefined}>
-            <GroupsEmpty
-              title="Noch nichts für Dich"
-              message="Hier sammelst Du Me-Challenges und Bilder, die nur Du siehst. Tippe auf die Kamera und fang an."
-            />
+            <GroupsEmpty title="Noch keine Posts in Deinem privaten Feed" message={EMPTY_FEED_MESSAGE} onPost={createChallenge} />
           </View>
         );
       case 'audience':
@@ -365,12 +365,7 @@ export default function FeedScreen() {
           />
         );
       case 'groupNoTasks':
-        return (
-          <GroupsEmpty
-            title="Noch keine Aufgaben"
-            message={isFashionable ? 'Tippe unten auf die Kamera und erstelle die erste We-Challenge für Eure Gruppe!' : 'Tippe oben rechts auf die Kamera und erstelle die erste We-Challenge für Eure Gruppe!'}
-          />
-        );
+        return <GroupsEmpty title="Noch keine Posts in dieser Gruppe" message={EMPTY_FEED_MESSAGE} onPost={createChallenge} />;
       case 'running':
         return (
           <RunningBeforeAfter
@@ -388,15 +383,19 @@ export default function FeedScreen() {
           </View>
         );
       case 'state':
+        if (showState === 'empty')
+          return (
+            <View style={isFashionable ? styles.emptyTop : undefined}>
+              <GroupsEmpty title="Noch keine Posts in Deinem Kiez" message={EMPTY_FEED_MESSAGE} onPost={createChallenge} />
+            </View>
+          );
         return showState ? (
           <FeedStateMessage
             variant={showState}
             onAction={() =>
-              showState === 'empty'
-                ? createChallenge()
-                : mode === 'live'
-                  ? (dispatch({ type: 'setFeedState', feedState: 'loading' }), reload())
-                  : dispatch({ type: 'setFeedState', feedState: 'filled' })
+              mode === 'live'
+                ? (dispatch({ type: 'setFeedState', feedState: 'loading' }), reload())
+                : dispatch({ type: 'setFeedState', feedState: 'filled' })
             }
           />
         ) : null;
