@@ -24,7 +24,7 @@ export default function NewGroupTask() {
   const group = groups.find((g) => g.id === id);
   const original = copyOf ? challenges.find((c) => c.id === copyOf) : undefined;
   const options = GROUP_TYPES;
-  const [choice, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('task');
+  const [choice, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('before_after'); // Me-Challenge vorausgewählt (Daria, 28.10.2026)
   const type = options.some((o) => o.key === choice) ? choice : 'task';
   // Foto, Titel und Text bleiben beim Wechsel des Typs erhalten
   const shared = useComposeContent({ photo: original?.image, title: original?.title, text: original?.text });
