@@ -83,12 +83,6 @@
           author: 'lena', before: 'muell-wald', after: 'waldweg', took: '1 h 40 min', comments: 3, likes: 24,
         },
         {
-          id: 'fahrrad', kind: 'we',
-          title: 'Platten am Kinderrad flicken',
-          text: 'Am Rad meiner Tochter ist hinten der Schlauch platt. Flickzeug habe ich, aber ich bekomme den Reifen nicht von der Felge. Sie braucht das Rad Montag für den Schulweg.',
-          author: 'mo', reward: 8, dist: '450 m', left: 'noch 3 Tage', img: 'fahrrad', comments: 1, likes: 6,
-        },
-        {
           id: 'hund', kind: 'we',
           title: 'Mittags mit Bruno Gassi gehen',
           text: 'Hallo liebe Nachbar:innen, ich bin Peter und stolzer Besitzer eines kleinen, süßen Hundes. Mein Job ist zurzeit sehr herausfordernd, und ich brauche deshalb jemanden, der mit ihm spazieren geht: Mittwoch und Donnerstag gegen 13 Uhr, eine Runde von 45 Minuten. Ich bin bis abends im Büro. Bruno ist ruhig und läuft gut an der Leine. Aufgrund seiner Rasse hat er ein paar gesundheitliche Issues, das erkläre ich dann gern direkt.',

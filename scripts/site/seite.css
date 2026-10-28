@@ -77,15 +77,16 @@ button { font: inherit; color: inherit; }
   font: 500 15px/1 Inter, sans-serif; color: var(--muted); transition: color 300ms; }
 .rolle button[aria-checked="true"] { color: var(--bg); }
 .rolle button { white-space: nowrap; }
-@media (max-width: 480px) { .rolle button { padding: 11px 14px; font-size: 14px; } .szenarien button i { font-size: 12.5px; white-space: nowrap; } .szenarien button { padding-inline: 2px; } }
-.szenarien { width: 100%; }
+@media (max-width: 480px) { .rolle button { padding: 11px 14px; font-size: 14px; } .szenarien button i { font-size: 12.5px; white-space: nowrap; } .szenarien { --sz-pad: 2px; } }
+.szenarien { width: calc(100% + var(--sz-pad)); }
 .phone-spalte { grid-area: phone; align-self: center; }
 .hero h1 { font: 600 clamp(35px, 5.12vw, 64px)/1 var(--display); letter-spacing: -.035em; margin: 0 0 24px; max-width: 15ch; }
 .lede { color: var(--muted); font-size: 19px; max-width: 44ch; margin: 0 0 40px; }
-.szenarien { position: relative; display: grid; gap: 6px; max-width: 420px; }
+/* Text bündig links; Hover- und Auswahlfläche ragen nach links über den Rand (Daria, 28.10.2026) */
+.szenarien { --sz-pad: 20px; position: relative; display: grid; gap: 6px; max-width: calc(420px + var(--sz-pad)); margin-inline-start: calc(-1 * var(--sz-pad)); }
 .szenario-mark { position: absolute; left: 0; top: 0; border-radius: 22px; background: var(--surface); border: .5px solid var(--line); box-shadow: 0 10px 24px -16px var(--schatten);
   transition: transform 560ms var(--barrier), width 560ms var(--barrier), height 560ms var(--barrier); pointer-events: none; }
-.szenarien button { position: relative; display: grid; gap: 2px; text-align: start; background: none; border: 0; border-radius: 22px; padding: 16px 20px; cursor: pointer; }
+.szenarien button { position: relative; display: grid; gap: 2px; text-align: start; background: none; border: 0; border-radius: 22px; padding: 16px var(--sz-pad); cursor: pointer; }
 .szenarien button b { font: 600 22px/1.15 var(--display); letter-spacing: -.01em; }
 .szenarien button span { color: var(--muted); font-size: 15px; }
 .szenarien button span.is-neu { animation: satz-neu 560ms var(--barrier); }
