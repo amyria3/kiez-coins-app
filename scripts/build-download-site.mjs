@@ -254,8 +254,8 @@ ${blumenTeile}
 
 const leute = [
   // Foto statt Zeichnung, freigestellt mit schmalem Rand (Daria, 28.10.2026)
-  { foto: 'frau.webp', alt: 'Junge Frau in Jacke', altEn: 'Young woman in a jacket', text: 'Besser als Doomscrolling', en: 'Better than doomscrolling' },
-  { figur: figuren.locken, text: 'Wie GitHub für den Alltag', en: 'Like GitHub for everyday life' },
+  { foto: 'frau.webp', w: 484, h: 590, alt: 'Junge Frau in Jacke', altEn: 'Young woman in a jacket', text: 'Besser als Doomscrolling', en: 'Better than doomscrolling' },
+  { foto: 'mann.webp', w: 524, h: 464, alt: 'Lachender Mann mit Brille', altEn: 'Laughing man with glasses', text: 'Wie GitHub für den Alltag', en: 'Like GitHub for everyday life' },
   { figur: figuren.nachbarin, text: 'Schon praktisch', en: 'Pretty handy' },
 ];
 
@@ -358,7 +358,7 @@ ${filterDefs}
     <h2 id="leute-titel">${t('Kiez Coins passt zwischen Briefkasten und Fahrradkeller.', 'Kiez Coins fits between the mailbox and the bike cellar.')}</h2>
     <p>${t('Aufgaben, die sonst liegen bleiben, erledigt jemand safe - als wäre es ein Spiel', 'Tasks that would otherwise pile up get done for sure – as if it were a game')}</p>
     <div class="szene">
-${leute.map((l) => `      <div class="person"><p class="blase">${esc(t(l.text, l.en))}</p>${l.foto ? `<img class="figur figur-foto" src="${P}leute/${l.foto}?v=${version(readFileSync(join(siteDir, 'leute', l.foto)))}" alt="${esc(t(l.alt, l.altEn))}" width="484" height="590" loading="lazy" decoding="async">` : l.figur}</div>`).join('\n')}
+${leute.map((l) => `      <div class="person"><p class="blase">${esc(t(l.text, l.en))}</p>${l.foto ? `<img class="figur figur-foto" src="${P}leute/${l.foto}?v=${version(readFileSync(join(siteDir, 'leute', l.foto)))}" alt="${esc(t(l.alt, l.altEn))}" width="${l.w}" height="${l.h}" loading="lazy" decoding="async">` : l.figur}</div>`).join('\n')}
     </div>
   </div>
 </section>
