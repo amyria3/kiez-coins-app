@@ -171,7 +171,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: '4. Coins laufen direkt zwischen Euch',
         paragraphs: [
-          'Coins sind Versprechen von realem Geld. Das Konzept befindet sich in der Testphase. Kiez Coins ist nicht Vertragspartei, nimmt kein Geld an und zahlt keins aus. Das Geld fließt direkt per Überweisung oder PayPal. Barzahlung und Treffen zur Zahlung sind nicht vorgesehen.',
+          'Coins sind Versprechen von realem Geld und eine Alternative zu Edensteinen. Coins versprichst Du nur für nicht öffentliche Gruppenaufgaben mit höchstens 10 Personen. Das Konzept befindet sich in der Testphase. Kiez Coins ist nicht Vertragspartei, nimmt kein Geld an und zahlt keins aus. Das Geld fließt direkt per Überweisung oder PayPal. Barzahlung und Treffen zur Zahlung sind nicht vorgesehen.',
           'Jede Person ist selbst dafür verantwortlich, eine Aufgabe sorgfältig zu erledigen, zugesagte Coins zu zahlen und Einnahmen gegebenenfalls zu versteuern. Eine Challenge begründet kein Arbeitsverhältnis.',
           'Edensteine sind eine ideelle Anerkennung. Sie lassen sich weder kaufen noch in Geld tauschen.',
         ],
