@@ -1313,11 +1313,14 @@
     if (state.create) return state.draft.kind;
     if (state.detail) return 'feed';
     if (state.focus) return state.focus;
-    return 'feed';
+    // Beim Laden ist nichts gewählt; nach einem Wechsel des Reiters steht Feed (Daria, 28.10.2026)
+    return chosen ? 'feed' : null;
   }
   function moveMark(container, active) {
     var mark = container && container.querySelector('.szenario-mark');
-    if (!mark || !active) return;
+    if (!mark) return;
+    mark.style.opacity = active ? '' : '0';
+    if (!active) return;
     mark.style.transform = 'translate(' + active.offsetLeft + 'px,' + active.offsetTop + 'px)';
     mark.style.width = active.offsetWidth + 'px';
     mark.style.height = active.offsetHeight + 'px';
@@ -1402,8 +1405,10 @@
 
   // Ist noch ein Blatt offen, schließt es erst ganz, dann öffnet nach einer kurzen Pause das neue (Daria, 28.10.2026)
   var goTimer = null;
+  var chosen = false;
   var pending = null;
   function go(name) {
+    chosen = true;
     clearTimeout(goTimer);
     if (state.detail || state.create) {
       // Die Markierung links springt gleich zum neuen Knopf und wartet dort, statt über Feed zu wandern
@@ -1464,6 +1469,7 @@
   // Der Schalter neben dem Telefon startet beide Orte gleich im Feed (Daria, 26.10.2026).
   function switchMode(mode, fromPhone) {
     if (mode === state.mode) return;
+    chosen = true;
     var composing = fromPhone && state.create;
     var draft = state.draft;
     if (!composing) closeAll();
