@@ -537,6 +537,23 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
       if ('ResizeObserver' in window) { var ro = new ResizeObserver(messen); stapel.forEach(function (el) { ro.observe(el); }); }
       addEventListener('resize', messen);
       messen();
+      // Eine neue Karte steigt erst sehr langsam auf und holt dann zur Scrollposition auf (Daria, 28.10.2026)
+      var karten = document.querySelectorAll('.mehr, .leute, .download');
+      var tick = false;
+      var heben = function () {
+        tick = false;
+        var vh = innerHeight;
+        karten.forEach(function (el) {
+          el.style.transform = '';
+          var t = el.getBoundingClientRect().top;
+          if (t <= 0 || t >= vh) return;
+          var x = t / vh;
+          var v = vh * (1 - Math.pow(1 - x, 3));
+          el.style.transform = 'translateY(' + (v - t).toFixed(1) + 'px)';
+        });
+      };
+      addEventListener('scroll', function () { if (!tick) { tick = true; requestAnimationFrame(heben); } }, { passive: true });
+      heben();
     }
     // B und C hängen an der Scrollposition, ein Frame pro Bild
     var kopf = document.getElementById('kater-kopf'), tel = document.querySelector('.phone-spalte'), spur = document.querySelector('.fx-spur');
