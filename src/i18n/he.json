@@ -356,10 +356,8 @@
   "Das lässt sich nicht rückgängig machen.": "אי אפשר לבטל את זה.",
   "Endgültig löschen?": "למחוק לצמיתות?",
   "Endgültig löschen": "מחק לצמיתות",
-  "Hier liegen später Deine geschlossenen und gelöschten Challenges.": "כאן יופיעו בהמשך האתגרים הסגורים והנמחקים שלך.",
   "{current} von {pages}": "{current} מתוך {pages}",
   "Aktuell": "נוכחיים",
-  "Geschlossen und gelöscht": "סגורים ונמחקים",
   "Neue Challenge": "אתגר חדש",
   "Entwurf": "טיוטה",
   "Nur für Dich sichtbar": "גלוי רק לך",
@@ -979,7 +977,6 @@
   "Deine Antwort hilft uns, KiezCoins besser zu machen.": "התשובה שלך עוזרת לנו לשפר את KiezCoins.",
   "Der Code ist unterwegs! Schaue in Dein Postfach.": "הקוד בדרך! בדוק את תיבת הדואר שלך.",
   "Die Challenge verschwindet aus dem Feed.": "האתגר ייעלם מהפיד.",
-  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Geschlossen und gelöscht“.": "האתגר ייעלם מהפיד. השינויים האחרונים שלך נשמרים. את האתגר תמצא ב„האתגרים שלך” תחת „סגורים ונמחקים”.",
   "Die Challenge verschwindet samt Kommentaren. Das ist irreparabel, lässt sich nicht rückgängig machen.": "האתגר ייעלם יחד עם התגובות. זה בלתי הפיך ואי אפשר לבטל.",
   "Die Challenge wird dann wieder für alle offen sein.": "האתגר יהיה אז שוב פתוח לכולם.",
   "Die Kiez Coins App ist momentan eine kostenlose Testversion. Einige Funktionen können sich ändern. Am Ende der Testphase setzen wir Daten zurück. Das kündigen wir vorher per E-Mail an.": "אפליקציית Kiez Coins היא כרגע גרסת ניסיון חינמית. חלק מהפונקציות עשויות להשתנות. בסוף שלב הניסיון נאפס את הנתונים. נודיע על כך מראש באימייל.",
@@ -1132,5 +1129,11 @@
   "{mode} zeigen": "הצג {mode}",
   "Posten": "לפרסם",
   "Was hast Du Dir vorgenommen?": "מה תכננת לעשות?",
-  "Noch nichts für Dich.": "עדיין אין כאן משהו רק בשבילך."
+  "Noch nichts für Dich.": "עדיין אין כאן משהו רק בשבילך.",
+  "Archiv": "ארכיון",
+  "1 Gruppenaufgabe": "משימה קבוצתית אחת",
+  "{count} Gruppenaufgaben": "משימות קבוצתיות: {count}",
+  "Erledigte Aufgaben ({count})": "משימות שהושלמו ({count})",
+  "Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte Gruppenaufgaben.": "כאן יופיעו בהמשך האתגרים שסגרת ומחקת ומשימות קבוצתיות שהושלמו.",
+  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Archiv“.": "האתגר ייעלם מהפיד. השינויים האחרונים שלך נשמרים. את האתגר תמצא ב„האתגרים שלך” תחת „ארכיון”."
 }

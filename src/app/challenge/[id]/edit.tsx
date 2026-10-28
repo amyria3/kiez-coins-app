@@ -130,11 +130,11 @@ export default function EditChallenge() {
   };
 
   // Nicht veröffentlichen: Änderungen speichern und die Challenge aus dem Feed nehmen (status deleted).
-  // In „Deine Challenges“ unter „Geschlossen und gelöscht“ lässt sie sich wieder bearbeiten und veröffentlichen.
+  // In „Deine Challenges“ unter „Archiv“ lässt sie sich wieder bearbeiten und veröffentlichen.
   const toDraft = () =>
     Alert.alert(
       'Doch nicht veröffentlichen?',
-      'Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Geschlossen und gelöscht“.',
+      'Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Archiv“.',
       [
         { text: 'Abbrechen', style: 'cancel' },
         {
