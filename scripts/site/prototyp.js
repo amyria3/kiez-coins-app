@@ -51,7 +51,7 @@
     before: 'hohes-gras',
     after: 'gemaeht',
     suggestions: ['Rasenmäher bei Peter abholen & ein Stück Rasen für Elisas Geburtstag freimähen', 'Müll im Park sammeln', 'Fahrradkeller aufräumen'],
-    demo: ['Rasenmäher bei Peter abholen & ein Stück Rasen für Elisas Geburtstag freimähen', 'Es wäre schön, wenn jemand ein Stück des Rasens für die Kleinen frei-mähen könnte, weil Elisa am Freitag Geburtstag hat und die Zecken im hohen Rasen gerade wüten.'],
+    demo: ['Rasenmäher bei Peter abholen & ein Stück Rasen für Elisas Geburtstag freimähen', ''],
     demoAfter: 'Gemäht und gejätet. Die Beete sind bereit für den Winter.',
     done: '1 gute Tat für den Kiez!',
   };
@@ -215,7 +215,7 @@
   // Englische Fassung der Beispieldaten: überschreibt nur die Texte, Struktur und Zahlen bleiben
   var ME_EN = {
     suggestions: ['Pick up the mower from Peter & mow a patch for Elisa’s birthday', 'Pick up litter in the park', 'Tidy the bike cellar'],
-    demo: ['Pick up the mower from Peter & mow a patch for Elisa’s birthday', 'It would be lovely if someone could mow a patch of the lawn for the little ones, because Elisa’s birthday is on Friday and the ticks are running wild in the tall grass.'],
+    demo: ['Pick up the mower from Peter & mow a patch for Elisa’s birthday', ''],
     demoAfter: 'Mowed and weeded. The beds are ready for winter.',
     done: '1 good deed for the neighborhood!',
   };
