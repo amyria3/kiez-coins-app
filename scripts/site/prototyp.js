@@ -1352,8 +1352,16 @@
     mark.style.width = active.offsetWidth + 'px';
     mark.style.height = active.offsetHeight + 'px';
   }
+  // Überschrift Wort für Wort einblenden, nur wenn sich der Text ändert (Daria, 28.10.2026)
+  function setHeadline(text) {
+    if (headline.getAttribute('aria-label') === text) return;
+    headline.setAttribute('aria-label', text);
+    headline.innerHTML = text.split(' ').map(function (w, i) {
+      return '<span class="h-wort" aria-hidden="true" style="--i:' + i + '">' + esc(w) + '</span>';
+    }).join(' ');
+  }
   function labelScenarios() {
-    if (headline && M.headline) headline.textContent = M.headline;
+    if (headline && M.headline) setHeadline(M.headline);
     if (!picker) return;
     $$('[data-szenario]', picker).forEach(function (b, i) {
       var l = M.scenarios[i];
