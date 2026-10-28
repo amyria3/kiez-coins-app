@@ -1197,5 +1197,6 @@
   "Pro Person {perMin} bis {perMax}, bei {n} Plätzen also {min} bis {max}. Der Betrag wird unter allen geteilt, die mitmachen.": "От {perMin} до {perMax} на человека, то есть от {min} до {max} на {n} мест. Сумма делится между всеми, кто участвует.",
   "{min} bis {max}. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.": "От {min} до {max}. Ты сам(а) платишь Coins напрямую тому, кто выполнит челлендж.",
   "Machen weniger mit, bekommt jede mehr.": "Чем меньше участников, тем больше получает каждый.",
-  "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "Coins делятся: {share} на человека, если участвуют {n} человек."
+  "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "Coins делятся: {share} на человека, если участвуют {n} человек.",
+  "Alle auswählen": "Выбрать всех"
 }

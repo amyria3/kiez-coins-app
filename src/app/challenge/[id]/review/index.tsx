@@ -89,6 +89,9 @@ export default function ReviewScreen() {
               <CheckOption key={uid} label={user?.name ?? ''} selected={!unselected.has(uid)} onPress={() => toggle(uid)} />
             );
           })}
+          {unselected.size ? (
+            <Button label="Alle auswählen" variant="ghost" onPress={() => setUnselected(new Set())} />
+          ) : null}
           <Text style={styles.caption}>
             {people
               ? challenge.edensteine

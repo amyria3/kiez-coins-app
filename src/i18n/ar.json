@@ -1212,5 +1212,6 @@
   "Pro Person {perMin} bis {perMax}, bei {n} Plätzen also {min} bis {max}. Der Betrag wird unter allen geteilt, die mitmachen.": "من {perMin} إلى {perMax} للشخص، أي من {min} إلى {max} لـ {n} أماكن. يُقسَّم المبلغ على كل من يشارك.",
   "{min} bis {max}. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.": "من {min} إلى {max}. تدفع الـ Coins بنفسك مباشرة للشخص الذي ينجز التحدي.",
   "Machen weniger mit, bekommt jede mehr.": "كلما قلّ المشاركون، زادت حصة كل منهم.",
-  "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "تُقسَّم الـ Coins: {share} للشخص مع {n} أشخاص."
+  "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "تُقسَّم الـ Coins: {share} للشخص مع {n} أشخاص.",
+  "Alle auswählen": "اختيار الجميع"
 }

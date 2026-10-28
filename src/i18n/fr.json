@@ -1212,5 +1212,6 @@
   "Pro Person {perMin} bis {perMax}, bei {n} Plätzen also {min} bis {max}. Der Betrag wird unter allen geteilt, die mitmachen.": "De {perMin} à {perMax} par personne, donc de {min} à {max} pour {n} places. Le montant est partagé entre toutes les personnes qui participent.",
   "{min} bis {max}. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.": "De {min} à {max}. Tu paies toi-même les Coins directement à la personne qui réalise le challenge.",
   "Machen weniger mit, bekommt jede mehr.": "Moins il y a de participant·es, plus chacun·e reçoit.",
-  "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "Les Coins sont partagés : {share} par personne pour {n} personnes."
+  "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "Les Coins sont partagés : {share} par personne pour {n} personnes.",
+  "Alle auswählen": "Tout sélectionner"
 }
