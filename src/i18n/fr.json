@@ -1213,5 +1213,11 @@
   "{min} bis {max}. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.": "De {min} à {max}. Tu paies toi-même les Coins directement à la personne qui réalise le challenge.",
   "Machen weniger mit, bekommt jede mehr.": "Moins il y a de participant·es, plus chacun·e reçoit.",
   "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "Les Coins sont partagés : {share} par personne pour {n} personnes.",
-  "Alle auswählen": "Tout sélectionner"
+  "Alle auswählen": "Tout sélectionner",
+  "Danke, dass Du mitmachst! Jede teilnehmende Person kann erledigt melden, für alle. Wenn {author} bestätigt, bekommst Du eine Nachricht.": "Merci de participer ! Chaque participant·e peut signaler le défi comme fait, pour tout le monde. Quand {author} confirme, tu reçois un message.",
+  "Jede teilnehmende Person kann erledigt melden, für alle.": "Chaque participant·e peut signaler le défi comme fait, pour tout le monde.",
+  "Jede teilnehmende Person kann erledigt melden, für alle. Die Coins werden geteilt. Mit Coins machen höchstens 10 Personen mit.": "Chaque participant·e peut signaler le défi comme fait, pour tout le monde. Les coins sont partagés. Avec des coins, 10 personnes au plus participent.",
+  "Jede teilnehmende Person kann erledigt melden, für alle. Jede Person bekommt alle Edensteine.": "Chaque participant·e peut signaler le défi comme fait, pour tout le monde. Chaque personne reçoit tous les Edensteine.",
+  "Nachbar:innen, die die Challenge sehen, können den Beitritt anfragen. Du musst den Beitritt aber gestatten.": "Les voisin·es qui voient le défi peuvent demander à le rejoindre. Tu dois accepter chaque demande.",
+  "Nachbar:innen, die die Challenge sehen, können direkt beitreten.": "Les voisin·es qui voient le défi peuvent le rejoindre directement."
 }

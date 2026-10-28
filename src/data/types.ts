@@ -122,7 +122,7 @@ export type Challenge = {
   /** Nur bei Wave: Text der ursprünglichen Challenge */
   challengeText?: string;
   authorId: string;
-  /** Erste teilnehmende Person. Sie meldet erledigt, für alle. */
+  /** Erste teilnehmende Person. Erledigt melden kann jede teilnehmende Person, für alle (Daria, 28.10.2026). */
   assigneeId?: string;
   /** Höchstzahl an Teilnehmenden, 1 = eine Person (Daria, 27.10.2026). Ohne Migration 20261028000300 leer. */
   maxParticipants?: number;

@@ -1213,5 +1213,11 @@
   "{min} bis {max}. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.": "Від {min} до {max}. Ти сам(а) платиш Coins напряму людині, яка виконає челендж.",
   "Machen weniger mit, bekommt jede mehr.": "Що менше учасників, то більше отримує кожен.",
   "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "Coins діляться: {share} на людину, якщо {n} людей.",
-  "Alle auswählen": "Вибрати всіх"
+  "Alle auswählen": "Вибрати всіх",
+  "Danke, dass Du mitmachst! Jede teilnehmende Person kann erledigt melden, für alle. Wenn {author} bestätigt, bekommst Du eine Nachricht.": "Дякуємо, що долучаєшся! Кожен учасник чи учасниця може позначити челендж виконаним — для всіх. Коли {author} підтвердить, ти отримаєш повідомлення.",
+  "Jede teilnehmende Person kann erledigt melden, für alle.": "Кожен учасник чи учасниця може позначити челендж виконаним — для всіх.",
+  "Jede teilnehmende Person kann erledigt melden, für alle. Die Coins werden geteilt. Mit Coins machen höchstens 10 Personen mit.": "Кожен учасник чи учасниця може позначити челендж виконаним — для всіх. Coins діляться. З Coins беруть участь не більше 10 осіб.",
+  "Jede teilnehmende Person kann erledigt melden, für alle. Jede Person bekommt alle Edensteine.": "Кожен учасник чи учасниця може позначити челендж виконаним — для всіх. Кожна людина отримує всі Edensteine.",
+  "Nachbar:innen, die die Challenge sehen, können den Beitritt anfragen. Du musst den Beitritt aber gestatten.": "Сусіди, які бачать челендж, можуть надіслати запит на участь. Ти маєш схвалити кожен запит.",
+  "Nachbar:innen, die die Challenge sehen, können direkt beitreten.": "Сусіди, які бачать челендж, можуть одразу приєднатися."
 }
