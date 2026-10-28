@@ -20,11 +20,12 @@
 /* Lila oben geht in gekrümmten, leicht gedrehten Bögen ins Grün über (Daria, 28.10.2026) */
 html { background-color: var(--bg); color: var(--text); -webkit-text-size-adjust: 100%;
   background-image:
-    radial-gradient(ellipse 70% 45% at 88% 18%, rgba(233,229,255,.95) 0%, rgba(233,229,255,0) 70%),
-    radial-gradient(ellipse 60% 38% at 8% 78%, rgba(226,242,200,.85) 0%, rgba(226,242,200,0) 72%),
-    radial-gradient(ellipse 130% 70% at 25% -8%, var(--buehne) 0%, rgba(220,225,255,0) 78%),
-    linear-gradient(168deg, var(--buehne) 0%, #E9E5FF 42%, rgba(250,251,239,0) 88%);
-  background-size: 100% 1050px; background-repeat: no-repeat; }
+    radial-gradient(ellipse 70% 32% at 88% 13%, rgba(233,229,255,.95) 0%, rgba(233,229,255,0) 70%),
+    radial-gradient(ellipse 60% 30% at 8% 55%, rgba(226,242,200,.85) 0%, rgba(226,242,200,0) 72%),
+    radial-gradient(ellipse 130% 50% at 25% -8%, var(--buehne) 0%, rgba(220,225,255,0) 78%),
+    linear-gradient(168deg, var(--buehne) 0%, #E9E5FF 30%, rgba(250,251,239,0) 62%);
+  /* Fläche hoch genug, damit alle Verläufe vor ihrem Ende ganz auslaufen: keine Kante beim Scrollen */
+  background-size: 100% 1500px; background-repeat: no-repeat; }
 body { margin: 0; font: 300 17px/1.55 Inter, system-ui, -apple-system, 'Segoe UI', sans-serif; }
 a { color: var(--text); }
 button { font: inherit; color: inherit; }
