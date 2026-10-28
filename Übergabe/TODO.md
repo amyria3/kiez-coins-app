@@ -18,8 +18,8 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 ## 28.10.2026 – Prio für Daria: Migration für Edensteine im Kiez (PR #97)
 
-- [ ] Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261028000200_kiez_edensteine.sql` (Branch `claude/project-thread-jtu0yb`, PR #97) ausführen. Claudes Zugang darf in Supabase nur lesen, deshalb geht es nur von Hand.
-- [ ] Claude Bescheid geben, dann prüft Claude die Datenbank und merged PR #97. Vorher nicht mergen, sonst schlägt das Bearbeiten von Challenges fehl.
+- [x] (28.10.2026) Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261028000200_kiez_edensteine.sql` (Branch `claude/project-thread-jtu0yb`, PR #97) ausführen. Claudes Zugang darf in Supabase nur lesen, deshalb geht es nur von Hand.
+- [x] (28.10.2026, mit PR #104) Claude Bescheid geben, dann prüft Claude die Datenbank und merged PR #97. Vorher nicht mergen, sonst schlägt das Bearbeiten von Challenges fehl.
 
 ## 28.10.2026 – Pflicht für Daria: Anmeldung ohne E-Mail und Testkonto (PR #90)
 
@@ -117,8 +117,8 @@ Kontext: `Übergabe/2026-10-27_offen_community-regeln.md`.
 
 ## 27.10.2026 (4) – We-Challenge mit mehreren Personen (Daria)
 
-Plan und offene Fragen: `Übergabe/2026-10-27_offen_we-challenge-mehrere-personen.md`.
+Plan und Entscheidungen: `Übergabe/2026-10-27_we-challenge-mehrere-personen.md`.
 
 - [x] Offene Punkte im Plan beantworten (Daria, 27.10.2026)
 - [x] Migration, Funktionen und App-Code bauen (Claude, 28.10.2026)
-- [ ] Nach PR #97: Inhalt von `supabase/migrations/20261028000300_we_challenge_teilnehmende.sql` im Supabase-SQL-Editor ausführen (Daria), dann Claude Bescheid geben
+- [x] Nach PR #97: Inhalt von `supabase/migrations/20261028000300_we_challenge_teilnehmende.sql` im Supabase-SQL-Editor ausführen (Daria, 28.10.2026; Claude hat die Datenbank geprüft, PR #104 gemergt)
