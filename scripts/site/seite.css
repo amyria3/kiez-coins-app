@@ -336,6 +336,11 @@ button { font: inherit; color: inherit; }
   font-size: 13px; line-height: 1.3; animation: mehr-blase 400ms var(--barrier) both; }
 .mehr-blase.is-mein { align-self: flex-end; border-radius: 16px 16px 4px 16px; background: var(--purple); color: var(--on-accent); }
 @keyframes mehr-blase { from { transform: translateY(10px) scale(.9); opacity: 0; } }
+.mehr-karte-fest { cursor: default; grid-template-rows: auto auto 1fr auto auto; }
+.mehr-karte-fest:active { transform: none; }
+.mehr-aktion { justify-self: start; padding: 10px 18px; border: 0; border-radius: 999px; background: var(--text); color: var(--bg); font: 500 15px/1 Inter, sans-serif; cursor: pointer;
+  transition: transform 300ms var(--barrier); }
+.mehr-aktion:active { transform: scale(.96); }
 .mehr-rang { display: flex; flex-direction: column; justify-content: center; gap: 6px; margin: 0; padding: 10px 12px; list-style: none; }
 .mehr-rang li { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 14px; background: var(--bg); font-size: 14px;
   transition: transform 560ms var(--barrier); }
@@ -556,6 +561,18 @@ footer a { color: var(--muted); }
   transition: top 560ms var(--barrier); }
 .p-pair[data-focus="before"] .p-took { top: 83.333%; }
 .p-pair[data-focus="after"] .p-took { top: 16.667%; }
+.p-ziel { display: grid; gap: 10px; padding: 14px; margin-bottom: 14px; border-radius: 22px; background: var(--surface); border: .5px solid var(--line); }
+.p-ziel-kopf { display: grid; gap: 3px; }
+.p-ziel-kopf strong { font: 600 15.5px/1.15 var(--display); letter-spacing: -.01em; }
+.p-ziel-zahl { display: flex; align-items: baseline; gap: 4px; font-size: 12px; color: var(--muted); }
+.p-ziel-zahl b { font: 600 26px/1 var(--display); color: var(--text); }
+.p-ziel-serie { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 4px; color: var(--text); }
+.p-ziel-balken { display: block; height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.p-ziel-balken span { display: block; height: 100%; border-radius: inherit; background: var(--purple); transition: width 560ms var(--barrier); }
+.p-ziel-tage { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
+.p-ziel-tage i { aspect-ratio: 1; border-radius: 50%; background: var(--line); }
+.p-ziel-tage i.is-on { background: var(--purple); }
+.p-ziel .p-btn, .p-ziel .p-done { justify-self: start; }
 .p-pair .p-info { position: absolute; z-index: 2; left: 10px; right: 10px; bottom: 10px; pointer-events: none; transition: opacity 300ms; }
 .p-pair[data-focus="before"] .p-info { opacity: 0; }
 
