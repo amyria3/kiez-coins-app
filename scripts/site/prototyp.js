@@ -1404,20 +1404,25 @@
     state.focus = null;
     if (name === 'rangliste' && state.mode !== 'gruppe') switchMode('gruppe');
     if (state.tab !== 'nearby') { state.tab = 'nearby'; render({ animate: true }); }
-    // Me-Challenge: im Kiez und in der Gruppe gleich. Der Ring zeigt auf die Kamera, Posten startet erst dort (Daria, 26.10.2026)
+    // Ein Tipp auf eine Karte links startet ihren Ablauf im Telefon von selbst (Daria, 28.10.2026)
     if (name === 'me') {
-      if (state.draft.stage === 'vorher') state.draft.kind = 'me';
-      syncScenario();
-      if ($('[data-ziel]')) say(T('Tipp auf „Heute geschafft“ und halte Deine Serie.', 'Tap “Done today” and keep your streak.'));
-      else if (!$('[data-me-open]')) say(T('Tipp auf die Kamera und poste Deine Me-Challenge.', 'Tap the camera and post your Me-Challenge.'));
+      var ziel = state.mode === 'ich' && find(challenges, 'klavier');
+      if (ziel && !ziel.today) {
+        // Nur ich: das eigene Ziel zählt den heutigen Tag
+        scroll.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+        syncScenario();
+        setTimeout(function () { var b = $('[data-ziel]'); if (b && state.mode === 'ich') b.click(); }, reduce ? 0 : 700);
+        return;
+      }
+      if (state.draft.stage === 'vorher') state.draft = newDraft('me');
+      openCreate('me');
+      autofill();
       return;
     }
-    // Nur ein Bild: wie die Me-Challenge zeigt der Ring auf die Kamera, die Kamera öffnet dann gleich „Bild“
     if (name === 'bild') {
-      state.focus = 'bild';
-      state.draft.kind = state.draft.stage === 'vorher' ? 'bild' : state.draft.kind;
-      syncScenario();
-      say(T('Tipp auf die Kamera und poste Dein Bild.', 'Tap the camera and post your photo.'));
+      if (state.draft.stage === 'vorher') state.draft = newDraft('bild');
+      openCreate('bild');
+      autofill();
       return;
     }
     if (name === 'we') {
