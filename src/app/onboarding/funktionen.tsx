@@ -35,7 +35,7 @@ export default function OnboardingFeatures() {
   return (
     <SubScreen
       title="Funktionen"
-      subtitle="Schritt 6 von 6"
+      subtitle="Schritt 5 von 5"
       navigation="back"
       onLeadingPress={goBack}
       actions={<Button label="Weiter" onPress={finish} />}
