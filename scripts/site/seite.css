@@ -83,6 +83,9 @@ button { font: inherit; color: inherit; }
 .szenarien button i { display: none; }
 .szenarien button[aria-pressed="false"] b { color: var(--muted); }
 .szenarien button:hover b { color: var(--text); }
+/* Nicht gewählte Karten zeigen beim Darüberfahren eine helle Fläche, gleich für alle Szenarien */
+.szenarien button { transition: background-color 200ms; }
+@media (hover: hover) { .szenarien button[aria-pressed="false"]:hover { background: rgba(255,255,255,.55); } }
 .hinweis { color: var(--muted); font-size: 13px; margin: 16px 0 0; text-align: center; }
 
 /* Telefon */
