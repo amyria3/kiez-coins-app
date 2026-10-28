@@ -1309,6 +1309,7 @@
     return M.scenarios[0][0];
   }
   function current() {
+    if (pending) return pending;
     if (state.create) return state.draft.kind;
     if (state.detail) return 'feed';
     if (state.focus) return state.focus;
@@ -1401,11 +1402,14 @@
 
   // Ist noch ein Blatt offen, schließt es erst ganz, dann öffnet nach einer kurzen Pause das neue (Daria, 28.10.2026)
   var goTimer = null;
+  var pending = null;
   function go(name) {
     clearTimeout(goTimer);
     if (state.detail || state.create) {
+      // Die Markierung links springt gleich zum neuen Knopf und wartet dort, statt über Feed zu wandern
+      pending = name;
       closeAll();
-      goTimer = setTimeout(function () { goNow(name); }, reduce ? 0 : 650);
+      goTimer = setTimeout(function () { pending = null; goNow(name); }, reduce ? 0 : 650);
       return;
     }
     goNow(name);
