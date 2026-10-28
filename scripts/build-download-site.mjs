@@ -59,15 +59,20 @@ button, .button { display:block; text-align:center; text-decoration:none; box-si
 footer { display:flex; flex-wrap:wrap; gap:16px; font-size:13px; margin-top:40px; padding-top:16px; border-top:1px solid var(--line); }
 footer a { color:var(--muted); }
 .updated { font-size:13px; }
+.zurueck { margin:0 0 24px; font-size:14px; }
+.zurueck a { color:var(--muted); text-decoration:none; }
+.zurueck a:hover { color:var(--text); text-decoration:underline; }
 `;
 
 const footer = `<footer>
-  <a href="./">Start</a>
-  <a href="impressum.html">Impressum</a>
-  <a href="datenschutz.html">Datenschutz</a>
-  <a href="nutzungsbedingungen.html">Nutzungsbedingungen</a>
-  <a href="community-regeln.html">Community-Regeln</a>
+  <a href="/">Start</a>
+  <a href="/impressum">Impressum</a>
+  <a href="/datenschutz">Datenschutz</a>
+  <a href="/nutzungsbedingungen">Nutzungsbedingungen</a>
+  <a href="/community-regeln">Community-Regeln</a>
 </footer>`;
+// Jede Unterseite führt oben sichtbar zurück zur Startseite (Daria, 28.10.2026)
+const zurueck = `<nav class="zurueck"><a href="/">← Zurück zur Startseite</a></nav>`;
 
 const page = (title, body) => `<!doctype html>
 <html lang="de">
@@ -81,6 +86,7 @@ const page = (title, body) => `<!doctype html>
 </head>
 <body>
 <main>
+${zurueck}
 ${body}
 ${footer}
 </main>
