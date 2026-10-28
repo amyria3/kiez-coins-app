@@ -23,9 +23,9 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 ## 28.10.2026 – Pflicht für Daria: Anmeldung ohne E-Mail und Testkonto (PR #90)
 
-- [ ] Supabase › Authentication › Sign In / Providers: „Allow anonymous sign-ins“ einschalten
-- [ ] Brevo-API-Schlüssel als Secret `BREVO_API_KEY` für die Edge Function `konto-ohne-mail` hinterlegen (Supabase › Edge Functions › Secrets)
-- [ ] Claude Bescheid geben, dann spielt Claude Migrationen und Edge Function auf und merged PR #90
+- [x] (28.10.2026) Supabase › Authentication › Sign In / Providers: „Allow anonymous sign-ins“ einschalten
+- [x] (28.10.2026) Brevo-API-Schlüssel als Secret `BREVO_API_KEY` für die Edge Function `konto-ohne-mail` hinterlegen (Supabase › Edge Functions › Secrets)
+- [x] (28.10.2026) Migrationen als Skripte 6 und 7 eingespielt (in der Repo jetzt 20261028000400 und 20261028000500), Edge Function `konto-ohne-mail` mit `--no-verify-jwt` deployt, PR #90 gemergt
 
 ## 20.10.2026 – Challenges und Design (Daria)
 
