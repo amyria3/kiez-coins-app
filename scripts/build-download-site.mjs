@@ -257,6 +257,7 @@ const leute = [
   { foto: 'frau3.webp', w: 446, h: 572, alt: 'Lachende Frau mit Brille', altEn: 'Laughing woman with glasses', text: 'Viel besser als Doomscrolling', en: 'Way better than doomscrolling' },
   { foto: 'mann.webp', w: 558, h: 489, alt: 'Lachender Mann mit Brille', altEn: 'Laughing man with glasses', text: 'Wie GitHub für den Alltag', en: 'Like GitHub for everyday life' },
   { foto: 'frau.webp', w: 484, h: 590, alt: 'Junge Frau in Jacke', altEn: 'Young woman in a jacket', text: 'Schon praktisch', en: 'Pretty handy' },
+  { foto: 'mann2.webp', w: 600, h: 430, alt: 'Lachender Mann mit Brille und Anzug', altEn: 'Laughing man with glasses and a suit', text: 'I like the idea', en: 'I like the idea' },
 ];
 
 const startseite = (L) => {
