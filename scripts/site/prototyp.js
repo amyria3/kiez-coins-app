@@ -94,6 +94,12 @@
           text: 'Mittwoch und Donnerstag gegen 13 Uhr, eine Runde von 45 Minuten. Ich bin bis abends im Büro. Bruno ist ruhig und läuft gut an der Leine.',
           author: 'peter', reward: 5, dist: '200 m', left: 'noch 2 Tage', img: 'hund', comments: 2, likes: 9,
         },
+        {
+          id: 'igel', kind: 'bild',
+          title: 'Igel am Wegrand',
+          text: 'Heute Abend am Wegrand im Park. Bitte langsam fahren!',
+          author: 'lena', img: 'igel', comments: 4, likes: 31,
+        },
       ],
       group: null,
       create: {
@@ -142,6 +148,12 @@
           text: 'Samstag ab 10 Uhr tragen wir Räder ohne Besitzer:in zum Sperrmüll. Markiert Eure Räder bis Freitag mit Band. Wer hilft beim Tragen?',
           author: 'peter', reward: 5, dist: 'Keller', left: 'Samstag', img: null, comments: 4, likes: 5,
         },
+        {
+          id: 'beete', kind: 'bild',
+          title: 'Unsere Beete im Hof',
+          text: 'Alles geerntet, die Beete sind bereit für den Winter.',
+          author: 'gardeners', img: 'garten', comments: 2, likes: 12,
+        },
       ],
       group: {
         name: 'Hof Kastanienallee',
@@ -188,6 +200,12 @@
         du: { name: 'Du', short: 'Du', color: '#7E94FF' },
       },
       challenges: [
+        // Me-Challenge als persönliches Ziel: Fortschritt und Serie, nur für Dich sichtbar
+        {
+          id: 'klavier', kind: 'ziel',
+          title: 'Jeden Tag 10 Minuten Klavier',
+          author: 'du', done: 12, goal: 30, streak: 5, today: false, comments: 0, likes: 0,
+        },
         {
           id: 'spuele', kind: 'me',
           title: 'Hochbeet angelegt',
@@ -237,6 +255,7 @@
         { title: 'Picked up litter in the floodplain forest', text: 'After the weekend, bottles and packaging lay along the path. Three bags later, the hedgehog has its peace.' },
         { title: 'Fix a flat on a kid’s bike', text: 'The rear tube on my daughter’s bike is flat. I have a patch kit, but I can’t get the tire off the rim. She needs the bike on Monday to get to school.', left: '3 days left' },
         { title: 'Walk Bruno at lunchtime', text: 'Wednesday and Thursday around 1 pm, a 45-minute walk. I’m at the office until evening. Bruno is calm and walks well on the leash.', left: '2 days left' },
+        { title: 'Hedgehog by the path', text: 'Tonight by the path in the park. Please ride slowly!' },
       ],
       create: {
         suggestions: ['Put out the bins', 'Build a hedgehog house', 'Tidy the bike cellar'],
@@ -260,6 +279,7 @@
       challenges: [
         { title: 'Shop for Gisela on the 3rd floor', text: 'After her hip surgery, Gisela can’t manage the stairs yet. She’ll give you the list and money at her door.', dist: '3rd floor', left: 'by Friday' },
         { title: 'Clear out the bike cellar', text: 'Saturday from 10 am we’re taking ownerless bikes to the bulky waste. Mark your bikes with tape by Friday. Who can help carry?', dist: 'Cellar', left: 'Saturday' },
+        { title: 'Our courtyard beds', text: 'Everything harvested, the beds are ready for winter.' },
       ],
       group: {
         sub: '4 members · Leaderboard on',
@@ -286,6 +306,7 @@
       place: 'Just me',
       people: { du: { name: 'You', short: 'You' } },
       challenges: [
+        { title: '10 minutes of piano every day' },
         { title: 'Built a raised bed', text: 'I’d wanted to do this since spring. Now lamb’s lettuce is growing there.' },
         { title: 'Laundry day with a view', text: 'Finally sunshine again. The laundry was dry in two hours.' },
       ],
@@ -487,7 +508,26 @@
     );
   }
 
+  // Persönliches Ziel (Nur ich): Fortschrittsbalken, Tage als Punkte, Serie. „Heute geschafft“ zählt hoch.
+  function zielCard(c) {
+    var dots = '';
+    for (var i = 0; i < c.goal; i++) dots += '<i' + (i < c.done ? ' class="is-on"' : '') + '></i>';
+    return (
+      '<article class="p-post" data-id="' + c.id + '"><div class="p-ziel">' +
+      '<span class="p-ziel-kopf"><strong>' + esc(c.title) + '</strong><span class="p-meta">Me-Challenge · ' + T('nur für Dich', 'only for you') + '</span></span>' +
+      '<span class="p-ziel-zahl"><b>' + c.done + '</b>/' + c.goal + ' ' + T('Tage', 'days') + '<span class="p-ziel-serie">' + svg('crown', 12) + ' ' +
+      T('{n} Tage in Folge', '{n} days in a row', { n: c.streak }) + '</span></span>' +
+      '<span class="p-ziel-balken"><span style="width:' + Math.round((c.done / c.goal) * 100) + '%"></span></span>' +
+      '<span class="p-ziel-tage" aria-hidden="true">' + dots + '</span>' +
+      (c.today
+        ? '<span class="p-done">' + svg('checkGreen', 12) + T(' Heute geschafft', ' Done today') + '</span>'
+        : '<button type="button" class="p-btn p-btn-small" data-ziel="' + c.id + '">' + T('Heute geschafft', 'Done today') + '</button>') +
+      '</div></article>'
+    );
+  }
+
   function card(c, isNew) {
+    if (c.kind === 'ziel') return zielCard(c);
     if (c.kind === 'me') return meCard(c, isNew);
     if (c.kind === 'bild') return bildCard(c, isNew);
     var liked = !!state.liked[c.id];
@@ -1234,6 +1274,17 @@
     if (d.deadline) { state.draft.deadline = d.deadline; renderCreate(); $('[data-deadline="' + d.deadline + '"]', create).focus(); return; }
     if ('publish' in d) return publish();
     if (d.taskDo) return doTask(d.taskDo);
+    if (d.ziel) {
+      var z = find(challenges, d.ziel);
+      if (!z || z.today) return;
+      z.today = true;
+      z.done += 1;
+      z.streak += 1;
+      render();
+      burst($('.p-ziel .p-done') || t);
+      say(z.streak % 7 === 0 ? T('Eine ganze Woche am Stück!', 'A whole week in a row!') : T('{n} Tage in Folge. Weiter so!', '{n} days in a row. Keep going!', { n: z.streak }), 'high');
+      return;
+    }
   });
   create.addEventListener('input', function (e) {
     var dr = state.draft;
@@ -1337,7 +1388,7 @@
     // In „Was Du so machst“ kein Ring: Wer gerade die Krone gewählt hat, soll nicht zurückgeschickt werden
     if (state.tab === 'pleasure') return null;
     // Me-Challenge: ein laufender Timer im Feed, sonst die Kamera
-    if (name === 'me') return $('[data-me-open]') || $('.p-camera');
+    if (name === 'me') return $('[data-me-open]') || $('[data-ziel]') || $('.p-camera');
     if (name === 'bild') return $('.p-camera');
     if (name === 'rangliste') return state.mode === 'gruppe' ? $('[data-task-do]') || $('.p-board') : $('.p-seg [data-tab="groups"]');
     return firstOpenCard();
@@ -1357,7 +1408,8 @@
     if (name === 'me') {
       if (state.draft.stage === 'vorher') state.draft.kind = 'me';
       syncScenario();
-      if (!$('[data-me-open]')) say(T('Tipp auf die Kamera und poste Deine Me-Challenge.', 'Tap the camera and post your Me-Challenge.'));
+      if ($('[data-ziel]')) say(T('Tipp auf „Heute geschafft“ und halte Deine Serie.', 'Tap “Done today” and keep your streak.'));
+      else if (!$('[data-me-open]')) say(T('Tipp auf die Kamera und poste Deine Me-Challenge.', 'Tap the camera and post your Me-Challenge.'));
       return;
     }
     // Nur ein Bild: wie die Me-Challenge zeigt der Ring auf die Kamera, die Kamera öffnet dann gleich „Bild“
