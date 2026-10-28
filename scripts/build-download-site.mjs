@@ -546,6 +546,9 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
         karten.forEach(function (el) {
           el.style.transform = '';
           var t = el.getBoundingClientRect().top;
+          // Deckkraft steigt beim Aufsteigen von 0,3 auf 0,6, der Blur bleibt gleich (Daria, 28.10.2026)
+          var x0 = Math.min(1, Math.max(0, t / vh));
+          el.style.setProperty('--a', (0.6 - 0.3 * x0).toFixed(3));
           if (t <= 0 || t >= vh) return;
           var x = t / vh;
           var v = vh * (1 - Math.pow(1 - x, 3));
