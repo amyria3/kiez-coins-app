@@ -377,19 +377,17 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
 <section class="download" id="download" aria-labelledby="download-titel">
   <div class="wrap">
     <h2 id="download-titel">${t('So installierst Du die Testversion.', 'How to install the beta.')}</h2>
-    <p>${t('Kiez Coins ist in der Testphase. Android lädt die App mit Einladungscode, das iPhone nutzt die Web-App.', 'Kiez Coins is in beta. Android downloads the app with an invitation code, the iPhone uses the web app.')}</p>
+    <p>${t('Kiez Coins ist in der Testphase. Android lädt die App direkt, das iPhone nutzt die Web-App.', 'Kiez Coins is in beta. Android downloads the app directly, the iPhone uses the web app.')}</p>
     <div class="karten">
       <div class="card" id="android">
         <h3>Android</h3>
         <form method="post" action="${esc(config.functionUrl)}">
-          <label for="passwort">${t('Einladungscode', 'Invitation code')}</label>
-          <input id="passwort" name="passwort" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required>
           <p class="error" id="fehler" hidden></p>
           <button type="submit">${t('App herunterladen', 'Download the app')}</button>
         </form>
         <a class="button button-zweit" href="${P}app/">${t('Direkt im Browser anmelden und ausprobieren', 'Sign in and try it right in the browser')}</a>
         <ol class="steps">
-          <li>${t('Einladungscode eingeben und „App herunterladen“ tippen.', 'Enter the invitation code and tap “Download the app”.')}</li>
+          <li>${t('„App herunterladen“ tippen.', 'Tap “Download the app”.')}</li>
           <li>${t('Die Datei <em>kiez-coins.apk</em> öffnen, wenn der Download fertig ist.', 'Open the file <em>kiez-coins.apk</em> when the download is finished.')}</li>
           <li>${t('Android fragt, ob Dein Browser Apps installieren darf. Erlauben und „Installieren“ tippen.', 'Android asks whether your browser may install apps. Allow it and tap “Install”.')}</li>
           <li>${t('Für ein Update lädst Du die neue Datei hier herunter und installierst sie genauso. Deine Daten bleiben erhalten.', 'To update, download the new file here and install it the same way. Your data stays.')}</li>
