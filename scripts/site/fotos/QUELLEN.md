@@ -14,8 +14,7 @@ Alle Fotos stammen von Unsplash und stehen unter der Unsplash-Lizenz (https://un
 | einkauf.jpg | Montage: geschlossene Blechdose auf einer Flur-Konsole | Dose https://unsplash.com/photos/NLDG5Z9V9KM, Flur https://unsplash.com/photos/7ITcqxp3McM |
 | hund.jpg | Welpe auf dem Schoß | Von Maria Arkadieff geschickt am 27.10.2026 aus https://www.businessinsider.de/leben/10-hunderassen-die-ihr-auch-halten-koennt-wenn-ihr-eine-kleine-wohnung-habt/, Lizenz [offen] |
 | waesche.jpg | Wäsche auf der Leine vor Hochhäusern | https://unsplash.com/photos/l0bqydPG994 |
-| wald.jpg | Birken am Waldrand über einer Wiese (Bild im Prototyp) | Von Maria Arkadieff geschickt am 26.10.2026, Quelle [offen] |
+| wald.jpg | Birken am Waldrand über einer Wiese (Bild „Cospudener See“ und „Lieblingsplatz“) | Von Maria Arkadieff geschickt am 26.10.2026, Quelle [offen] |
 | hohes-gras.jpg | Zwei weiße Gartenstühle im hohen Gras (Vorher, Rasen für Elisas Geburtstag) | https://unsplash.com/photos/-xOA4sXtq0w |
 | gemaeht.jpg | Frisch gemähter Rasen im Garten (Nachher, Rasen für Elisas Geburtstag) | https://unsplash.com/photos/zXH4Y7bRu3Y |
 | waldweg.jpg | Waldweg mit Laub, ohne Müll (Nachher, Müll im Auwald) | https://unsplash.com/photos/VRpibe3qpM0 |
-| see.jpg | See mit Schilf und Segelboot (Bild „Cospudener See“) | https://unsplash.com/photos/F2FZukn-1cg |
