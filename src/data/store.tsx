@@ -5,7 +5,8 @@ import * as remote from './remote';
 import { setGender } from './texts';
 import { sampleChallenges, sampleGroups, sampleProfile, sampleUsers, topChallengeIds } from './sample';
 import { joinedIds } from './weChallenge';
-import { isPostOnly, type Challenge, type Participant, type ParticipantStatus, type ChallengeReport, type ImageSource, type Comment, type FeedState, type Group, type Payout, type PayoutShare, type Profile, type User } from './types';
+import { splitCents } from './coins';
+import { isPostOnly, type Challenge, type Participant, type ParticipantStatus, type ChallengeReport, type ImageSource, type Comment, type FeedState, type Group, type Payout, type PayoutLine, type PayoutShare, type Profile, type User } from './types';
 
 // Zustand der App. Zwei Betriebsarten:
 // * live: Daten aus Supabase. Jede Aktion ändert sofort den lokalen Stand (damit die App flüssig bleibt)
@@ -54,6 +55,8 @@ type Action =
   | { type: 'deleteAccount' }
   | { type: 'reject'; id: string; reason: string }
   | { type: 'markPaid'; id: string }
+  /** Eine Person als bezahlt bzw. unbezahlt markieren (Migration 20261028000400) */
+  | { type: 'markParticipantPaid'; id: string; userId: string; paid: boolean }
   | { type: 'confirmReceived'; id: string }
   | { type: 'create'; challenge: Challenge }
   | { type: 'toggleLike'; id: string }
@@ -94,6 +97,22 @@ function setParticipant(c: Challenge, userId: string, status: ParticipantStatus)
     assigneeId: first,
     status: first ? 'accepted' : 'open',
     acceptedAt: first ? (first === c.assigneeId ? c.acceptedAt : now) : undefined,
+  };
+}
+
+/**
+ * Status aus den Auszahlungen, wie challenge_sync_payment: alle markiert → paid_marked, alle erhalten → paid.
+ * Ohne Auszahlungen (alte Daten, Demo) bleibt `fallback`.
+ */
+function withPayouts(c: Challenge, payouts: PayoutLine[] | undefined, fallback: Partial<Challenge>): Partial<Challenge> {
+  if (!payouts?.length) return fallback;
+  const now = new Date().toISOString();
+  const allMarked = payouts.every((p) => p.paidMarkedAt);
+  const allPaid = payouts.every((p) => p.paidAt);
+  return {
+    payouts,
+    status: allPaid ? 'paid' : allMarked ? 'paid_marked' : 'payment_open',
+    paidMarkedAt: allMarked ? (c.paidMarkedAt ?? now) : undefined,
   };
 }
 
@@ -181,13 +200,24 @@ function reducer(state: State, action: Action): State {
       return updateChallenge(state, action.id, (c) => ({ comments: [...c.comments, comment] }));
     }
     case 'sharePayout':
-      return updateChallenge(state, action.id, () => ({ payoutShare: action.share }));
+      return updateChallenge(state, action.id, (c) => ({
+        payoutShare: action.share,
+        payoutShares: { ...c.payoutShares, [state.currentUserId]: action.share },
+      }));
     case 'revokeShare':
-      return updateChallenge(state, action.id, () => ({ payoutShare: undefined }));
+      return updateChallenge(state, action.id, (c) => {
+        const { [state.currentUserId]: _, ...rest } = c.payoutShares ?? {};
+        return { payoutShare: undefined, payoutShares: rest };
+      });
     case 'undoConfirm':
-      return updateChallenge(state, action.id, () => ({ status: 'reported' }));
+      return updateChallenge(state, action.id, () => ({ status: 'reported', payouts: undefined }));
     case 'unmarkPaid':
-      return updateChallenge(state, action.id, () => ({ status: 'payment_open', paidMarkedAt: undefined }));
+      return updateChallenge(state, action.id, (c) =>
+        withPayouts(c, c.payouts?.map((p) => (p.paidAt ? p : { ...p, paidMarkedAt: undefined })), {
+          status: 'payment_open',
+          paidMarkedAt: undefined,
+        }),
+      );
     case 'updateProfile':
       return { ...state, profile: { ...state.profile, ...action.patch } };
     case 'signOut':
@@ -200,13 +230,46 @@ function reducer(state: State, action: Action): State {
         rejectionReason: undefined,
       }));
     case 'confirm':
-      return updateChallenge(state, action.id, (c) => ({ status: c.bountyAmount ? 'payment_open' : 'confirmed' }));
+      return updateChallenge(state, action.id, (c) => {
+        if (!c.bountyAmount) return { status: 'confirmed' };
+        // Coins geteilt unter allen, die dabei sind (Daria, 28.10.2026)
+        const ids = joinedIds(c);
+        const cents = splitCents(c.bountyAmount, ids.length || 1);
+        return { status: 'payment_open', payouts: ids.map((userId, i) => ({ userId, amountCents: cents[i] })) };
+      });
     case 'reject':
       return updateChallenge(state, action.id, () => ({ status: 'accepted', rejectionReason: action.reason }));
-    case 'markPaid':
-      return updateChallenge(state, action.id, () => ({ status: 'paid_marked', paidMarkedAt: new Date().toISOString() }));
-    case 'confirmReceived':
-      return updateChallenge(state, action.id, () => ({ status: 'paid' }));
+    case 'markPaid': {
+      const now = new Date().toISOString();
+      return updateChallenge(state, action.id, (c) =>
+        withPayouts(c, c.payouts?.map((p) => ({ ...p, paidMarkedAt: p.paidMarkedAt ?? now })), {
+          status: 'paid_marked',
+          paidMarkedAt: now,
+        }),
+      );
+    }
+    case 'markParticipantPaid': {
+      const now = new Date().toISOString();
+      return updateChallenge(state, action.id, (c) =>
+        withPayouts(
+          c,
+          c.payouts?.map((p) =>
+            p.userId === action.userId && !p.paidAt ? { ...p, paidMarkedAt: action.paid ? (p.paidMarkedAt ?? now) : undefined } : p,
+          ),
+          {},
+        ),
+      );
+    }
+    case 'confirmReceived': {
+      const now = new Date().toISOString();
+      return updateChallenge(state, action.id, (c) =>
+        withPayouts(
+          c,
+          c.payouts?.map((p) => (p.userId === state.currentUserId && p.paidMarkedAt ? { ...p, paidAt: p.paidAt ?? now } : p)),
+          { status: 'paid' },
+        ),
+      );
+    }
     case 'create':
       return { ...state, challenges: [action.challenge, ...state.challenges.filter((c) => c.id !== action.challenge.id)] };
     case 'toggleLike':
@@ -328,10 +391,10 @@ async function persist(action: Action, before: State): Promise<string | null> {
       await remote.addComment(action.id, action.body, action.replyToId);
       return action.id;
     case 'sharePayout':
-      await remote.sharePayout(action.id, action.share);
+      await remote.sharePayout(action.id, action.share, userId);
       return action.id;
     case 'revokeShare':
-      await remote.revokeShare(action.id);
+      await remote.revokeShare(action.id, userId);
       return action.id;
     case 'confirm':
       await remote.challengeActions.confirm(action.id);
@@ -344,6 +407,9 @@ async function persist(action: Action, before: State): Promise<string | null> {
       return action.id;
     case 'markPaid':
       await remote.challengeActions.markPaid(action.id);
+      return action.id;
+    case 'markParticipantPaid':
+      await remote.challengeActions.markParticipantPaid(action.id, action.userId, action.paid);
       return action.id;
     case 'unmarkPaid':
       await remote.challengeActions.unmarkPaid(action.id);

@@ -3,6 +3,7 @@ import type { SurveyAnswer, SurveyResults } from './survey';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 import { t } from './texts';
+import { bountyFits } from './coins';
 import type {
   Challenge,
   ChallengeReportReason,
@@ -19,6 +20,7 @@ import type {
   ModerationReport,
   JoinMode,
   Participant,
+  PayoutLine,
   UserReportReason,
 } from './types';
 
@@ -121,10 +123,21 @@ type ParticipantRow = {
 
 type ShareRow = {
   challenge_id: string;
+  /** Ohne Spalte in älteren Abfragen leer */
+  user_id?: string;
   method: PayoutMethod;
   account_holder: string | null;
   iban: string | null;
   paypal: string | null;
+};
+
+/** Auszahlung je Person (Migration 20261028000400) */
+type PayoutLineRow = {
+  challenge_id: string;
+  user_id: string;
+  amount_cents: number;
+  paid_marked_at: string | null;
+  paid_at: string | null;
 };
 
 type PayoutRow = { account_holder: string | null; iban: string | null; paypal: string | null };
@@ -163,9 +176,57 @@ function toShare(row: ShareRow | undefined): PayoutShare | undefined {
   return { method: row.method, payout: toPayout(row) };
 }
 
+/**
+ * Freigaben einer Challenge: die eigene (oder bei der Erstellerin die der ersten Person) und alle je Person.
+ */
+function toShares(row: ChallengeRow, shares: ShareRow[] | undefined, userId?: string) {
+  if (!shares?.length) return {};
+  const byUser: Record<string, PayoutShare> = {};
+  for (const s of shares) if (s.user_id) byUser[s.user_id] = toShare(s)!;
+  const own =
+    shares.find((s) => s.user_id && s.user_id === userId) ??
+    shares.find((s) => s.user_id && s.user_id === row.assignee_id) ??
+    shares[0];
+  return { payoutShare: toShare(own), payoutShares: Object.keys(byUser).length ? byUser : undefined };
+}
+
+const toPayoutLine = (r: PayoutLineRow): PayoutLine => ({
+  userId: r.user_id,
+  amountCents: r.amount_cents,
+  paidMarkedAt: r.paid_marked_at ?? undefined,
+  paidAt: r.paid_at ?? undefined,
+});
+
+/** Auszahlungen je Challenge (Migration 20261028000400). Ohne Migration leer. */
+async function loadPayoutLines(challengeIds: string[]): Promise<Map<string, PayoutLine[]>> {
+  const byChallenge = new Map<string, PayoutLine[]>();
+  if (!challengeIds.length) return byChallenge;
+  const { data, error } = await supabase
+    .from('challenge_payouts')
+    .select('challenge_id, user_id, amount_cents, paid_marked_at, paid_at')
+    .in('challenge_id', challengeIds);
+  if (error) return byChallenge;
+  for (const r of (data ?? []) as PayoutLineRow[]) {
+    const list = byChallenge.get(r.challenge_id) ?? [];
+    list.push(toPayoutLine(r));
+    byChallenge.set(r.challenge_id, list);
+  }
+  return byChallenge;
+}
+
+/** Status, in denen es Auszahlungen gibt */
+const PAYMENT_STATUSES = new Set<ChallengeStatus>(['payment_open', 'paid_marked', 'paid']);
+
 function toChallenge(
   row: ChallengeRow,
-  extra: { liked: boolean; operationName?: string; share?: ShareRow; participants?: Participant[] },
+  extra: {
+    liked: boolean;
+    operationName?: string;
+    shares?: ShareRow[];
+    participants?: Participant[];
+    payouts?: PayoutLine[];
+    userId?: string;
+  },
 ): Challenge {
   return {
     id: row.id,
@@ -210,7 +271,8 @@ function toChallenge(
     report: row.report_photo_path
       ? { photo: photoUrl(row.report_photo_path)!, note: row.report_note ?? undefined }
       : undefined,
-    payoutShare: toShare(extra.share),
+    ...toShares(row, extra.shares, extra.userId),
+    payouts: extra.payouts,
     comments: [...(row.comments ?? [])]
       .sort((a, b) => a.created_at.localeCompare(b.created_at))
       .map((c) => ({
@@ -338,7 +400,7 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
     supabase.from('challenges').select(CHALLENGE_COLUMNS).order('created_at', { ascending: false }).limit(200),
     supabase.from('likes').select('challenge_id').eq('user_id', userId),
     supabase.from('operation_names').select('challenge_id, name').eq('user_id', userId),
-    supabase.from('payout_shares').select('challenge_id, method, account_holder, iban, paypal'),
+    supabase.from('payout_shares').select('challenge_id, user_id, method, account_holder, iban, paypal'),
     supabase.from('payout_details').select('account_holder, iban, paypal').eq('user_id', userId).maybeSingle(),
     loadViewCounts(),
     loadGroups(),
@@ -350,8 +412,12 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
   const rows = hideBlocked((challengesRes.data ?? []) as unknown as ChallengeRow[], blocked);
   const liked = new Set((likesRes.data ?? []).map((l) => l.challenge_id as string));
   const names = new Map((namesRes.data ?? []).map((n) => [n.challenge_id as string, n.name as string]));
-  const shares = new Map(((sharesRes.data ?? []) as ShareRow[]).map((s) => [s.challenge_id, s]));
-  const participants = await loadParticipants(rows.filter((r) => r.type === 'individual').map((r) => r.id));
+  const shares = new Map<string, ShareRow[]>();
+  for (const s of (sharesRes.data ?? []) as ShareRow[]) shares.set(s.challenge_id, [...(shares.get(s.challenge_id) ?? []), s]);
+  const [participants, payoutLines] = await Promise.all([
+    loadParticipants(rows.filter((r) => r.type === 'individual').map((r) => r.id)),
+    loadPayoutLines(rows.filter((r) => r.bounty_amount && PAYMENT_STATUSES.has(r.status)).map((r) => r.id)),
+  ]);
 
   const ids = new Set<string>([userId]);
   for (const r of rows) {
@@ -378,8 +444,10 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
       ...toChallenge(r, {
         liked: liked.has(r.id),
         operationName: names.get(r.id),
-        share: shares.get(r.id),
+        shares: shares.get(r.id),
         participants: participants.get(r.id),
+        payouts: payoutLines.get(r.id),
+        userId,
       }),
       ...(r.author_id === userId && views ? { views: views.get(r.id) ?? 0 } : {}),
       ...(likeCounts.size ? { likeCount: likeCounts.get(r.id) ?? 0 } : {}),
@@ -401,15 +469,16 @@ export async function loadChallenge(
     supabase.from('operation_names').select('name').eq('challenge_id', id).eq('user_id', userId).maybeSingle(),
     supabase
       .from('payout_shares')
-      .select('challenge_id, method, account_holder, iban, paypal')
-      .eq('challenge_id', id)
-      .maybeSingle(),
+      .select('challenge_id, user_id, method, account_holder, iban, paypal')
+      .eq('challenge_id', id),
   ]);
   for (const res of [rowRes, likeRes, nameRes, shareRes]) check(res);
   if (!rowRes.data) return { challenge: null, users: [] };
   const [row] = hideBlocked([rowRes.data as unknown as ChallengeRow], await loadBlockedIds());
   if (!row) return { challenge: null, users: [] };
   const participants = row.type === 'individual' ? (await loadParticipants([row.id])).get(row.id) : undefined;
+  const payouts =
+    row.bounty_amount && PAYMENT_STATUSES.has(row.status) ? (await loadPayoutLines([row.id])).get(row.id) : undefined;
   const ids = new Set([
     row.author_id,
     ...(row.assignee_id ? [row.assignee_id] : []),
@@ -428,8 +497,10 @@ export async function loadChallenge(
       ...toChallenge(row, {
         liked: !!likeRes.data,
         operationName: (nameRes.data?.name as string | undefined) ?? undefined,
-        share: (shareRes.data as ShareRow | null) ?? undefined,
+        shares: (shareRes.data as ShareRow[] | null) ?? undefined,
         participants,
+        payouts,
+        userId,
       }),
       ...(likeCounts.size ? { likeCount: likeCounts.get(row.id) ?? 0 } : {}),
     },
@@ -602,11 +673,41 @@ export const isDefaultParticipation = (p?: Participation) => !p || (p.max === 1 
 export const setParticipation = (id: string, p: Participation) =>
   rpc('set_challenge_participation', { p_challenge_id: id, p_max: p.max, p_mode: p.mode });
 
-/** Nach dem Anlegen: Teilnahme setzen, wenn sie vom Standard abweicht, und in die Challenge übernehmen. */
-async function withParticipation(challenge: Challenge, p?: Participation): Promise<Challenge> {
-  if (isDefaultParticipation(p)) return challenge;
-  await setParticipation(challenge.id, p!);
-  return { ...challenge, maxParticipants: p!.max, joinMode: p!.mode };
+/**
+ * Teilnahme direkt beim Anlegen mitschicken, wenn sie vom Standard abweicht. So passt ein Betrag in Coins
+ * für mehrere Plätze schon beim Anlegen zur Regel (pro Platz 5 bis 50 €, Migration 20261028000400).
+ */
+const participationFields = (p?: Participation) =>
+  isDefaultParticipation(p) ? {} : { max_participants: p!.max, join_mode: p!.mode };
+
+/**
+ * Betrag und Teilnahme in einer Reihenfolge speichern, bei der die Regel „pro Platz 5 bis 50 €“ in jedem
+ * Schritt gilt: erst der Betrag, wenn er zu den bisherigen Plätzen passt, sonst erst die Plätze. Passt
+ * beides nicht, kommt der Betrag kurz weg und danach wieder dazu. `save(true)` speichert ohne Betrag.
+ */
+async function inRewardOrder(
+  id: string,
+  bounty: number | undefined,
+  p: Participation | undefined,
+  save: (withoutBounty: boolean) => Promise<void>,
+) {
+  if (!p) return save(false);
+  const { data } = check(
+    await supabase.from('challenges').select('bounty_amount, max_participants').eq('id', id).single(),
+  );
+  const row = data as { bounty_amount: number | null; max_participants: number | null };
+  const oldMax = row.max_participants ?? 1;
+  if (bountyFits(bounty, oldMax)) {
+    await save(false);
+    await setParticipation(id, p);
+  } else if (bountyFits(row.bounty_amount ?? undefined, p.max)) {
+    await setParticipation(id, p);
+    await save(false);
+  } else {
+    await save(true);
+    await setParticipation(id, p);
+    await save(false);
+  }
 }
 
 /** Spalten lat/lng (Migration 20261020000400). Ohne Punkt bleiben sie weg, damit es auch ohne Migration läuft. */
@@ -661,12 +762,13 @@ export async function createChallenge(userId: string, draft: NewChallenge): Prom
           deadline: draft.deadline,
           image_path: imagePath,
           ...(draft.private ? { visibility: 'private' } : {}),
+          ...(draft.type === 'photo' ? {} : participationFields(draft.participation)),
         })
         .select(CHALLENGE_COLUMNS)
         .single(),
     ),
   );
-  return withParticipation(toChallenge(data as unknown as ChallengeRow, { liked: false }), draft.participation);
+  return toChallenge(data as unknown as ChallengeRow, { liked: false });
 }
 
 const rpc = async (fn: string, args: Record<string, unknown>) => {
@@ -715,6 +817,7 @@ export async function createGroupTask(userId: string, task: NewGroupTask): Promi
         group_id: task.groupId,
         type: isPhoto ? 'photo' : 'individual',
         edensteine: isPhoto ? null : task.edensteine,
+        ...(isPhoto ? {} : participationFields(task.participation)),
         ...(extraPaths?.length ? { extra_image_paths: extraPaths } : {}),
         title: task.title.trim(),
         body: task.text.trim(),
@@ -725,8 +828,7 @@ export async function createGroupTask(userId: string, task: NewGroupTask): Promi
       .select(CHALLENGE_COLUMNS)
       .single(),
   );
-  const challenge = toChallenge(data as unknown as ChallengeRow, { liked: false });
-  return isPhoto ? challenge : withParticipation(challenge, task.participation);
+  return toChallenge(data as unknown as ChallengeRow, { liked: false });
 }
 
 export const challengeActions = {
@@ -740,6 +842,9 @@ export const challengeActions = {
   markPaid: (id: string) => rpc('mark_challenge_paid', { p_challenge_id: id }),
   unmarkPaid: (id: string) => rpc('unmark_challenge_paid', { p_challenge_id: id }),
   confirmReceived: (id: string) => rpc('confirm_bounty_received', { p_challenge_id: id }),
+  /** Eine Person als bezahlt bzw. unbezahlt markieren (Migration 20261028000400) */
+  markParticipantPaid: (id: string, userId: string, paid: boolean) =>
+    rpc('mark_participant_paid', { p_challenge_id: id, p_user_id: userId, p_paid: paid }),
   /** Beitreten bzw. anfragen (Migration 20261028000300) */
   join: (id: string) => rpc('join_challenge', { p_challenge_id: id }),
   /** Aussteigen oder Anfrage zurückziehen */
@@ -764,28 +869,18 @@ export type ChallengeEdit = {
   participation?: Participation;
 };
 
-/**
- * Teilnahme und Bearbeiten in der richtigen Reihenfolge: Zurück auf eine Person zuerst (dann darf wieder
- * eine Euro-Bounty dazukommen), mehr Personen danach (dann ist die Euro-Bounty schon weg).
- */
-async function editWithParticipation(id: string, edit: ChallengeEdit, run: () => Promise<void>) {
-  const p = edit.participation;
-  if (p && p.max === 1) await setParticipation(id, p);
-  await run();
-  if (p && p.max > 1) await setParticipation(id, p);
-}
 
 /**
  * Eigene offene Challenge bearbeiten (Migration 20261020000100_edit_open_challenge.sql).
  * Ein neues Foto wird hochgeladen und per set_challenge_image eingetragen (Migration 20261022000300).
  */
 export async function editChallenge(id: string, edit: ChallengeEdit, userId?: string) {
-  await editWithParticipation(id, edit, () => rpc('edit_open_challenge', {
+  await inRewardOrder(id, edit.bountyAmount, edit.participation, (withoutBounty) => rpc('edit_open_challenge', {
     p_challenge_id: id,
     p_title: edit.title,
     p_body: edit.text,
     p_location: edit.location,
-    p_bounty_amount: edit.bountyAmount ?? null,
+    p_bounty_amount: withoutBounty ? null : (edit.bountyAmount ?? null),
     p_deadline: edit.deadline,
     p_edensteine: edit.edensteine ?? null,
   }));
@@ -801,12 +896,12 @@ export async function editChallenge(id: string, edit: ChallengeEdit, userId?: st
  */
 export async function editDeletedChallenge(id: string, edit: ChallengeEdit, userId?: string) {
   const imagePath = edit.photo && userId ? await uploadPhoto(userId, edit.photo) : null;
-  await editWithParticipation(id, edit, () => rpc('edit_deleted_challenge', {
+  await inRewardOrder(id, edit.bountyAmount, edit.participation, (withoutBounty) => rpc('edit_deleted_challenge', {
     p_challenge_id: id,
     p_title: edit.title,
     p_body: edit.text,
     p_location: edit.location,
-    p_bounty_amount: edit.bountyAmount ?? null,
+    p_bounty_amount: withoutBounty ? null : (edit.bountyAmount ?? null),
     p_deadline: edit.deadline,
     p_image_path: imagePath,
     p_edensteine: edit.edensteine ?? null,
@@ -847,28 +942,36 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
     edensteine: draft.edensteine ?? null,
     image_path: imagePath,
   };
-  // Zurück auf eine Person mit Euro-Bounty: erst die Personenzahl, sonst lehnt die Datenbank die Bounty ab.
-  // Ohne Migration 20261028000300 gibt es die Funktion nicht, dann gibt es auch die Regel nicht.
-  if (id && draft.bountyAmount && draft.participation?.max === 1) {
-    await setParticipation(id, draft.participation).catch(() => undefined);
-  }
-  const { data } = await retryWithoutCoords(async (withCoords) => {
-    const all = { ...fields, ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}) };
-    const query = id
-      ? supabase.from('challenges').update(all).eq('id', id).eq('status', 'draft')
-      : supabase
-          .from('challenges')
-          .insert({ ...all, author_id: userId, status: 'draft', ...(draft.private ? { visibility: 'private' } : {}) });
-    return check(await query.select(CHALLENGE_COLUMNS).single());
+  const isTask = draft.type !== 'photo';
+  const write = async (withoutBounty: boolean) => {
+    const { data } = await retryWithoutCoords(async (withCoords) => {
+      const all = {
+        ...fields,
+        ...(withoutBounty ? { bounty_amount: null } : {}),
+        ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}),
+      };
+      const query = id
+        ? supabase.from('challenges').update(all).eq('id', id).eq('status', 'draft')
+        : supabase.from('challenges').insert({
+            ...all,
+            author_id: userId,
+            status: 'draft',
+            ...(draft.private ? { visibility: 'private' } : {}),
+            ...(isTask ? participationFields(draft.participation) : {}),
+          });
+      return check(await query.select(CHALLENGE_COLUMNS).single());
+    });
+    return toChallenge(data as unknown as ChallengeRow, { liked: false });
+  };
+  // Neuer Entwurf: Teilnahme steckt schon im Anlegen
+  if (!id) return write(false);
+  let saved: Challenge | undefined;
+  // Bestehender Entwurf: Betrag und Plätze in einer Reihenfolge, bei der die Regel für Coins immer gilt
+  await inRewardOrder(id, draft.bountyAmount, isTask ? draft.participation : undefined, async (withoutBounty) => {
+    saved = await write(withoutBounty);
   });
-  const saved = toChallenge(data as unknown as ChallengeRow, { liked: false });
-  // Ein Entwurf, der schon mehrere Personen hatte, darf auch zurück auf eine
-  const had = saved.maxParticipants !== undefined && !isDefaultParticipation({ max: saved.maxParticipants, mode: saved.joinMode ?? 'open' });
-  if (draft.type !== 'photo' && draft.participation && (had || !isDefaultParticipation(draft.participation))) {
-    await setParticipation(saved.id, draft.participation);
-    return { ...saved, maxParticipants: draft.participation.max, joinMode: draft.participation.mode };
-  }
-  return saved;
+  const p = isTask ? draft.participation : undefined;
+  return p ? { ...saved!, maxParticipants: p.max, joinMode: p.mode } : saved!;
 }
 
 // ---------------------------------------------------------------------------
@@ -1006,8 +1109,9 @@ export async function setLike(challengeId: string, userId: string, liked: boolea
   } else check(await supabase.from('likes').delete().eq('challenge_id', challengeId).eq('user_id', userId));
 }
 
-export async function sharePayout(challengeId: string, share: PayoutShare) {
-  check(await supabase.from('payout_shares').delete().eq('challenge_id', challengeId));
+export async function sharePayout(challengeId: string, share: PayoutShare, userId: string) {
+  // Nur die eigene Freigabe ersetzen; bei mehreren Personen hat jede ihre eigene (Migration 20261028000400)
+  check(await supabase.from('payout_shares').delete().eq('challenge_id', challengeId).eq('user_id', userId));
   check(
     await supabase.from('payout_shares').insert({
       challenge_id: challengeId,
@@ -1019,8 +1123,8 @@ export async function sharePayout(challengeId: string, share: PayoutShare) {
   );
 }
 
-export async function revokeShare(challengeId: string) {
-  check(await supabase.from('payout_shares').delete().eq('challenge_id', challengeId));
+export async function revokeShare(challengeId: string, userId: string) {
+  check(await supabase.from('payout_shares').delete().eq('challenge_id', challengeId).eq('user_id', userId));
 }
 
 export async function savePayout(userId: string, payout: Payout) {
