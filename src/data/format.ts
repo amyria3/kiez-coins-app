@@ -158,11 +158,12 @@ export const addressForms = [
 ] as const;
 
 /**
- * Platzhalter `{anrede}` in Kater-Texten. Die Auswahl „Ansprache“ (Pirat:in usw.) und die nicht öffentliche eigene
- * Bezeichnung sind aus der App entfernt (Daria, 28.10.2026). Der Kater spricht Dich mit Deinem Decknamen an.
+ * Platzhalter `{anrede}` in Kater-Texten. Ohne Auswahl gilt „Pirat:in“.
+ * Die Ansprache steht nicht mehr im Onboarding, nur noch im Konto; die eigene, nicht öffentliche Bezeichnung
+ * ist entfernt (Daria, 28.10.2026). Ältere Profile mit eigener Bezeichnung bekommen „Pirat:in“.
  */
-export function anrede(profile: { handle?: string }): string {
-  return profile.handle?.trim() || t('Du');
+export function anrede(profile: { addressForm?: string }): string {
+  return t(addressForms.find((f) => f.key === profile.addressForm)?.label ?? 'Pirat:in');
 }
 
 /** Grammatisches Geschlecht (Daria, 24.10.2026). Steuert Texte an die Person und über sie, unabhängig von der Ansprache. */
