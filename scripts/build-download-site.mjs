@@ -363,7 +363,7 @@ ${filterDefs}
     <h2 id="leute-titel">${t('Kiez Coins passt zwischen Briefkasten und Fahrradkeller.', 'Kiez Coins fits between the mailbox and the bike cellar.')}</h2>
     <p>${t('Aufgaben, die sonst liegen bleiben, erledigt jemand safe - als wäre es ein Spiel', 'Tasks that would otherwise pile up get done for sure – as if it were a game')}</p>
     <div class="szene">
-${leute.map((l) => `      <div class="person"><p class="blase">${esc(t(l.text, l.en))}</p>${l.foto ? `<img class="figur figur-foto" src="${P}leute/${l.foto}?v=${version(readFileSync(join(siteDir, 'leute', l.foto)))}" alt="${esc(t(l.alt, l.altEn))}" width="${l.w}" height="${l.h}" loading="lazy" decoding="async">` : l.figur}</div>`).join('\n')}
+${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" viewBox="0 0 40 40" aria-hidden="true"><path d="M14 14a10 10 0 0 1 12 0"/><path d="M9 8a17 17 0 0 1 22 0"/><path d="M22 22l8 -3"/><path d="M20 26l9 2"/></svg><p class="blase">${esc(t(l.text, l.en))}</p>${l.foto ? `<img class="figur figur-foto" src="${P}leute/${l.foto}?v=${version(readFileSync(join(siteDir, 'leute', l.foto)))}" alt="${esc(t(l.alt, l.altEn))}" width="${l.w}" height="${l.h}" loading="lazy" decoding="async">` : l.figur}</div>`).join('\n')}
     </div>
   </div>
 </section>
@@ -458,11 +458,33 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
     if (!e.target.closest('.kater-bild, .kater-blase')) katerZu();
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !kater.hidden) katerZu(); });
+  // Die Leute sagen nur etwas bei Hover, Fokus oder Tipp. Ab und zu ruft eine Person, damit man mit der Maus hingeht (Daria, 28.10.2026).
+  var personen = [].slice.call(leute.querySelectorAll('.person'));
   leute.addEventListener('click', function (e) {
-    var fig = e.target.closest('.figur');
-    if (!fig) return;
+    var p = e.target.closest('.person');
+    if (!p) return;
+    var an = !p.classList.contains('is-on');
+    personen.forEach(function (x) { x.classList.remove('is-on'); });
+    if (an) p.classList.add('is-on');
+    var fig = p.querySelector('.figur');
     fig.classList.remove('is-wave'); void fig.getBoundingClientRect(); fig.classList.add('is-wave');
   });
+  leute.addEventListener('keydown', function (e) {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('person')) { e.preventDefault(); e.target.click(); }
+  });
+  var rufTimer = null, letzte = -1;
+  function rufen() {
+    var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var frei = personen.filter(function (x, i) { return i !== letzte && !x.matches(':hover') && !x.classList.contains('is-on'); });
+    if (frei.length && !document.hidden && leute.classList.contains('is-seen') && !still) {
+      var p = frei[Math.floor(Math.random() * frei.length)];
+      letzte = personen.indexOf(p);
+      p.classList.remove('is-ruft'); void p.offsetWidth; p.classList.add('is-ruft');
+      setTimeout(function () { p.classList.remove('is-ruft'); }, 1600);
+    }
+    rufTimer = setTimeout(rufen, 2600 + Math.random() * 2600);
+  }
+  rufTimer = setTimeout(rufen, 1200);
   // Kann die App noch mehr? Jede Karte spielt bei jedem Tipp einen kleinen Schritt vor.
   var mehr = { rangliste: 0, freunde: 0, nachrichten: 0 };
   var freunde = ['Lena', 'Peter', 'Mo'];
