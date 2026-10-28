@@ -1,6 +1,6 @@
 # We-Challenge: Mehrere Personen machen mit
 
-Zweck: Plan für We-Challenges mit mehreren Teilnehmenden, noch ohne Code. Stand: 27.10.2026. Status: offen, wartet auf Darias Antworten unter „Offene Punkte“. Gehört nach: Documentation, App-Stand und Entscheidungen, Abschnitt „We-Challenge“.
+Zweck: Plan für We-Challenges mit mehreren Teilnehmenden, noch ohne Code. Stand: 28.10.2026. Status: offen, Entscheidungen stehen fest, der Bau läuft. Gehört nach: Documentation, App-Stand und Entscheidungen, Abschnitt „We-Challenge“.
 
 ## Daria will mehrere Personen in einer We-Challenge
 
@@ -26,7 +26,7 @@ Vorschlag für die Migration `JJJJMMTT_we_challenge_teilnehmende.sql`:
 
 ```sql
 alter table public.challenges
-  add column max_participants integer not null default 1 check (max_participants between 1 and 13),
+  add column max_participants integer not null default 1 check (max_participants >= 1),
   add column join_mode text not null default 'open' check (join_mode in ('open', 'approval'));
 
 create table public.challenge_participants (
@@ -52,7 +52,7 @@ create table public.challenge_participants (
 - `remove_participant(id, user_id)`: nur Erstellerin, `joined → removed`, nur vor dem Erledigt-Melden.
 - `leave_challenge(id)`: Teilnehmende steigen aus (`left`). Steigt die letzte Person aus, geht die Challenge zurück auf `open`.
 - `report_challenge`, `has_open_work` und die Leserechte für Operationsnamen prüfen die Teilnehmenden-Liste statt `assignee_id`.
-- Gruppenaufgaben: Beitreten nur als Mitglied. Die Höchstzahl liegt bei höchstens 13, der Größe einer Gruppe.
+- Gruppenaufgaben: Beitreten nur als Mitglied.
 
 ## Die App zeigt, wer mitmacht
 
@@ -65,18 +65,25 @@ create table public.challenge_participants (
 
 ## Arbeitsteilung zwischen Claude und Daria
 
-- Daria beantwortet die offenen Punkte und führt die Migration im Supabase-SQL-Editor aus. Claudes Zugang zu Supabase darf nur lesen.
+- Daria führt die Migration im Supabase-SQL-Editor aus. Claudes Zugang zu Supabase darf nur lesen.
 - Claude schreibt Migration, Funktionen und App-Code in einem PR, prüft die Datenbank nach Darias Ausführung und merged danach.
+
+## Daria hat die Fragen am 27.10.2026 beantwortet
+
+1. **Auf Anfrage gilt schon für die erste Person.** Die erste Person setzt die Challenge erst nach der Zusage der Erstellerin auf `accepted`.
+2. **Die Erstellerin wählt die Höchstzahl.** Die App setzt keine feste Obergrenze. Gruppenaufgaben begrenzt die Größe der Gruppe.
+3. **Die erste Person meldet erledigt, für alle.** Ein gemeinsames Nachher-Foto, alle Teilnehmenden sehen die Meldung.
+4. **Jede Person bekommt die volle Zahl Edensteine.**
+5. **Challenges mit mehreren Personen tragen nur Edensteine, keine Euro-Bounty.**
+
+Claude setzt die übrigen Vorschläge um:
+
+- Die Erstellerin bestätigt einmal für alle. Ablehnen setzt alle zurück auf `accepted`.
+- Ab `reported` ist die Liste fest: kein Beitreten, kein Ausschließen, kein Aussteigen.
+- Ausschließen geht bis zum Erledigt-Melden, ohne Pflicht-Grund.
+- Jede Person tauft die Challenge für sich (Operationsname).
+- Steigt die erste Person aus, rückt die nächste nach und meldet erledigt.
 
 ## Offene Punkte
 
-1. **Erstes Annehmen:** Gilt „Auf Anfrage“ schon für die erste Person? Vorschlag: ja. Sonst bestimmt die erste Person ungeprüft mit.
-2. **Höchstzahl:** Bis wie viele Personen? Vorschlag: 13 wie bei Gruppen.
-3. **Erledigt melden:** Meldet eine Person für alle (ein gemeinsames Nachher-Foto), oder meldet jede Person einzeln? Vorschlag: eine Person meldet für alle, alle Teilnehmenden sehen die Meldung. Das passt zum Bildpaar aus Vorher und Nachher.
-4. **Bestätigen:** Bestätigt die Erstellerin einmal für alle? Vorschlag: ja. Ablehnen setzt alle zurück auf `accepted`.
-5. **Edensteine:** Bekommt jede Person die volle Zahl, oder teilen sich alle die Edensteine? Vorschlag: jede Person die volle Zahl. Edensteine sind ideell, Teilen ergibt bei 3 Edensteinen und 2 Personen Bruchteile.
-6. **Euro-Bounty:** Daria will das Thema Geld vorerst aus den Texten nehmen. Vorschlag: Challenges mit mehreren Personen tragen nur Edensteine. Mehrere Zahlungen an verschiedene Personen entfallen damit.
-7. **Beitreten nach dem Erledigt-Melden:** Vorschlag: nicht mehr möglich. Ab `reported` ist die Liste fest.
-8. **Ausschließen:** Bis wann darf die Erstellerin ausschließen, und sieht die ausgeschlossene Person einen Grund? Vorschlag: bis zum Erledigt-Melden, ohne Pflicht-Grund, mit kurzer Mitteilung „Du bist nicht mehr dabei“.
-9. **Operationsname:** Tauft jede Person für sich, wie heute, oder gibt die erste Person den Namen für alle vor? Vorschlag: jede Person für sich.
-10. **Wave:** Der abgeschaltete Typ `wave` („Gruppen und Vereine rufen den ganzen Kiez zu gemeinsamen Aktionen auf“, `src/data/features.ts`) überschneidet sich mit diesem Plan. Geht Wave in der offenen We-Challenge ohne Höchstgrenze auf?
+- **Wave:** Der abgeschaltete Typ `wave` („Gruppen und Vereine rufen den ganzen Kiez zu gemeinsamen Aktionen auf“, `src/data/features.ts`) überschneidet sich mit diesem Plan. Geht Wave in der offenen We-Challenge ohne Höchstgrenze auf?
