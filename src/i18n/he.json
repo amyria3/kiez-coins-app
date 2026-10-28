@@ -1213,5 +1213,11 @@
   "{min} bis {max}. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.": "{min} עד {max}. אתם משלמים את ה־Coins בעצמכם, ישירות למי שמשלים את האתגר.",
   "Machen weniger mit, bekommt jede mehr.": "ככל שפחות משתתפים, כל אחד מקבל יותר.",
   "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "ה־Coins מתחלקים: {share} לאדם כש־{n} משתתפים.",
-  "Alle auswählen": "בחירת כולם"
+  "Alle auswählen": "בחירת כולם",
+  "Danke, dass Du mitmachst! Jede teilnehmende Person kann erledigt melden, für alle. Wenn {author} bestätigt, bekommst Du eine Nachricht.": "תודה שהצטרפת! כל משתתף יכול לסמן שהאתגר בוצע, עבור כולם. כש־{author} יאשר, תקבל הודעה.",
+  "Jede teilnehmende Person kann erledigt melden, für alle.": "כל משתתף יכול לסמן שהאתגר בוצע, עבור כולם.",
+  "Jede teilnehmende Person kann erledigt melden, für alle. Die Coins werden geteilt. Mit Coins machen höchstens 10 Personen mit.": "כל משתתף יכול לסמן שהאתגר בוצע, עבור כולם. ה־Coins מתחלקים. עם Coins משתתפים עד 10 אנשים.",
+  "Jede teilnehmende Person kann erledigt melden, für alle. Jede Person bekommt alle Edensteine.": "כל משתתף יכול לסמן שהאתגר בוצע, עבור כולם. כל אחד מקבל את כל ה־Edensteine.",
+  "Nachbar:innen, die die Challenge sehen, können den Beitritt anfragen. Du musst den Beitritt aber gestatten.": "שכנים שרואים את האתגר יכולים לבקש להצטרף. אתה צריך לאשר כל בקשה.",
+  "Nachbar:innen, die die Challenge sehen, können direkt beitreten.": "שכנים שרואים את האתגר יכולים להצטרף מיד."
 }

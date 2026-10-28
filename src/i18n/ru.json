@@ -1198,5 +1198,11 @@
   "{min} bis {max}. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.": "От {min} до {max}. Ты сам(а) платишь Coins напрямую тому, кто выполнит челлендж.",
   "Machen weniger mit, bekommt jede mehr.": "Чем меньше участников, тем больше получает каждый.",
   "Die Coins werden geteilt: bei {n} Personen {share} pro Person.": "Coins делятся: {share} на человека, если участвуют {n} человек.",
-  "Alle auswählen": "Выбрать всех"
+  "Alle auswählen": "Выбрать всех",
+  "Danke, dass Du mitmachst! Jede teilnehmende Person kann erledigt melden, für alle. Wenn {author} bestätigt, bekommst Du eine Nachricht.": "Спасибо, что участвуешь! Любой участник может отметить челлендж выполненным — для всех. Когда {author} подтвердит, ты получишь сообщение.",
+  "Jede teilnehmende Person kann erledigt melden, für alle.": "Любой участник может отметить челлендж выполненным — для всех.",
+  "Jede teilnehmende Person kann erledigt melden, für alle. Die Coins werden geteilt. Mit Coins machen höchstens 10 Personen mit.": "Любой участник может отметить челлендж выполненным — для всех. Coins делятся. С Coins участвуют не более 10 человек.",
+  "Jede teilnehmende Person kann erledigt melden, für alle. Jede Person bekommt alle Edensteine.": "Любой участник может отметить челлендж выполненным — для всех. Каждый получает все Edensteine.",
+  "Nachbar:innen, die die Challenge sehen, können den Beitritt anfragen. Du musst den Beitritt aber gestatten.": "Соседи, которые видят челлендж, могут запросить участие. Ты должен(-на) одобрить каждый запрос.",
+  "Nachbar:innen, die die Challenge sehen, können direkt beitreten.": "Соседи, которые видят челлендж, могут сразу присоединиться."
 }
