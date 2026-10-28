@@ -59,7 +59,7 @@ export default function Account() {
       <ProfileCard
         user={me}
         name={profile.handle || me.name}
-        details={[profile.kiez ?? 'Kiez noch nicht festgelegt']}
+        details={[anrede(profile), profile.kiez ?? 'Kiez noch nicht festgelegt']}
         onPress={() => router.push('/account/profile')}
       />
       {/* Funktionen an- und abschalten (Daria, 24.10.2026), direkt unter Deinem Namen (Daria, 27.10.2026).
