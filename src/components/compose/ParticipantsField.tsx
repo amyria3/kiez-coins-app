@@ -68,15 +68,15 @@ export function ParticipantsField({
       <Text style={styles.secondary}>
         {value.mode === 'open'
           ? many
-            ? 'Wer die Challenge sieht, macht direkt mit, bis alle Plätze vergeben sind.'
+            ? 'Nachbar:innen, die die Challenge sehen, können direkt beitreten.'
             : 'Wer die Challenge sieht, nimmt sie direkt an.'
-          : 'Jede Person fragt an. Du nimmst an oder lehnst ab und kannst Teilnehmende ausschließen.'}
+          : 'Nachbar:innen, die die Challenge sehen, können den Beitritt anfragen. Du musst den Beitritt aber gestatten.'}
       </Text>
       {many ? (
         <Text style={styles.secondary}>
           {coins
-            ? 'Die erste Person meldet erledigt, für alle. Die Coins werden geteilt. Mit Coins machen höchstens 10 Personen mit.'
-            : 'Die erste Person meldet erledigt, für alle. Jede Person bekommt alle Edensteine.'}
+            ? 'Jede teilnehmende Person kann erledigt melden, für alle. Die Coins werden geteilt. Mit Coins machen höchstens 10 Personen mit.'
+            : 'Jede teilnehmende Person kann erledigt melden, für alle. Jede Person bekommt alle Edensteine.'}
         </Text>
       ) : null}
     </FieldGroup>
