@@ -437,7 +437,7 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
   // Sprechblasen erscheinen, sobald die Leute im Bild sind. Tipp auf eine Figur lässt sie wackeln.
   var leute = document.querySelector('.leute');
   if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { leute.classList.add('is-seen'); io.disconnect(); } }, { threshold: 0.35 });
+    var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { leute.classList.add('is-seen'); io.disconnect(); } }, { threshold: 0.2 });
     io.observe(leute);
   } else leute.classList.add('is-seen');
   // Kater: Kopf schaut links herein, Klick zeigt den ganzen Kater mit zwei Wegen
@@ -553,6 +553,12 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
     if (still) return;
     // A: Abschnitte gleiten beim Erreichen von unten herein, Karten nacheinander
     if (root.classList.contains('fx-a') && 'IntersectionObserver' in window) {
+      // H2 steigen Wort für Wort auf, etwas ruhiger als die Seitenüberschrift (Daria, 28.10.2026)
+      document.querySelectorAll('.mehr h2, .leute h2, .download h2').forEach(function (h) {
+        var text = h.textContent;
+        h.setAttribute('aria-label', text);
+        h.innerHTML = text.split(' ').map(function (w, i) { return '<span class="h2-wort" aria-hidden="true" style="--i:' + i + '">' + w.replace(/</g, '&lt;') + '</span>'; }).join(' ');
+      });
       var els = document.querySelectorAll('.mehr h2, .mehr > .wrap > p, .mehr-karte, .leute h2, .leute > .wrap > p, .download h2, .download > .wrap > p, .download .card');
       var seh = new IntersectionObserver(function (es) {
         es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-da'); seh.unobserve(e.target); } });
@@ -581,13 +587,16 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
         karten.forEach(function (el) {
           el.style.transform = '';
           var t = el.getBoundingClientRect().top;
-          // Deckkraft steigt beim Aufsteigen von 0,3 auf 0,6, der Blur bleibt gleich (Daria, 28.10.2026)
+          // Deckkraft steigt beim Aufsteigen von 0,15 auf 0,4, der Blur bleibt gleich (Daria, 28.10.2026: weniger deckend)
           var x0 = Math.min(1, Math.max(0, t / vh));
-          el.style.setProperty('--a', (0.6 - 0.3 * x0).toFixed(3));
+          el.style.setProperty('--a', (0.4 - 0.25 * x0).toFixed(3));
           if (t <= 0 || t >= vh) return;
           var x = t / vh;
           var v = vh * (1 - Math.pow(1 - x, 3));
-          el.style.transform = 'translateY(' + (v - t).toFixed(1) + 'px)';
+          // Nie tiefer als das Ende der Karte davor, sonst entsteht eine Lücke (Daria, 28.10.2026)
+          var vor = el.previousElementSibling;
+          var grenze = vor ? Math.max(0, vor.getBoundingClientRect().bottom - t) : Infinity;
+          el.style.transform = 'translateY(' + Math.min(v - t, grenze).toFixed(1) + 'px)';
         });
       };
       addEventListener('scroll', function () { if (!tick) { tick = true; requestAnimationFrame(heben); } }, { passive: true });
