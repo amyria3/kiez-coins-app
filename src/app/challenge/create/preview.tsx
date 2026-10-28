@@ -14,7 +14,7 @@ import { Button } from '../../../components/Button';
 import { DeadlineBadge } from '../../../components/Badges';
 import { markComposeDone } from '../../../components/compose/compose';
 import { celebratePost } from '../../../components/HeartBurst';
-import { CoinsIcon } from '../../../components/icons/Brand';
+import { CoinsIcon, LivingCrystal } from '../../../components/icons/Brand';
 import { Icon } from '../../../components/icons/Icon';
 import { HeroScreen } from '../../../components/Screen';
 import { formatBountyShort, formatRemainingShort } from '../../../data/format';
@@ -60,6 +60,7 @@ export default function CreatePreview() {
   const deadline = new Date(Date.now() + draft.durationDays * 24 * 60 * 60 * 1000).toISOString();
   const isPhoto = draft.type === 'photo';
   const bountyAmount = isPhoto ? undefined : draft.bountyAmount;
+  const edensteine = isPhoto || bountyAmount ? undefined : draft.edensteine;
   const bottom = Math.max(insets.bottom, space[16]);
   const top = insets.top + space[8];
   const { width: screenW, height: screenH } = useAppDimensions();
@@ -125,6 +126,7 @@ export default function CreatePreview() {
               text: draft.text,
               location: draft.location,
               bountyAmount,
+              edensteine,
               photo: draft.imagePath ? undefined : draft.photo,
               imagePath: draft.imagePath,
               coords: draft.coords,
@@ -138,6 +140,7 @@ export default function CreatePreview() {
             text: draft.text.trim(),
             location: draft.location.trim(),
             bountyAmount,
+            edensteine,
             photo: draft.photo,
             deadline,
             coords: draft.coords,
@@ -166,6 +169,12 @@ export default function CreatePreview() {
         {draft.title.trim()}
       </Text>
       <View style={styles.metrics}>
+        {edensteine ? (
+          <View style={styles.metric}>
+            <LivingCrystal height={52} seed="neue-we-challenge" />
+            <Text style={[styles.metricValue, styles.eden]}>{edensteine}</Text>
+          </View>
+        ) : null}
         {bountyAmount ? (
           <View style={styles.metric}>
             <CoinsIcon height={28} />
@@ -310,6 +319,7 @@ const styles = StyleSheet.create({
   deadline: { justifyContent: 'center', minHeight: size.touchTarget },
   metricValue: { ...text.metric, fontSize: 17, lineHeight: 22, color: color.text.primary },
   signal: { color: color.accent.signal },
+  eden: { color: color.accent.confirmation },
   description: { fontFamily: font.light, fontSize: 15, lineHeight: 22, color: color.text.secondary },
   authorBlock: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
 });
