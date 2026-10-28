@@ -1377,7 +1377,18 @@
     if (el) el.classList.add('p-ring');
   }
 
+  // Ist noch ein Blatt offen, schließt es erst ganz, dann öffnet nach einer kurzen Pause das neue (Daria, 28.10.2026)
+  var goTimer = null;
   function go(name) {
+    clearTimeout(goTimer);
+    if (state.detail || state.create) {
+      closeAll();
+      goTimer = setTimeout(function () { goNow(name); }, reduce ? 0 : 650);
+      return;
+    }
+    goNow(name);
+  }
+  function goNow(name) {
     closeAll();
     state.focus = null;
     if (name === 'rangliste' && state.mode !== 'gruppe') switchMode('gruppe');
