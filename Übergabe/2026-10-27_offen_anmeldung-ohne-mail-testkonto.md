@@ -1,10 +1,11 @@
 # Anmeldung ohne E-Mail und Testkonto
 
-Stand: 27.10.2026. Status: offen, bis der PR gemergt und die Einstellungen gesetzt sind. Gehört in Documentation nach `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Anmeldung“, und in die Datenbank-Doku (zwei neue Migrationen, Edge Function `konto-ohne-mail`).
+Stand: 28.10.2026. Status: umgesetzt und live (PR #90 gemergt). Offen sind nur noch die Punkte unten. Gehört in Documentation nach `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Anmeldung“, und in die Datenbank-Doku (zwei Migrationen, Edge Function `konto-ohne-mail`); das steht noch aus.
 
-Pflichtaufgabe: In Supabase › Authentication › Sign In / Providers „Allow anonymous sign-ins“ einschalten (Daria).
-Pflichtaufgabe: Secret `BREVO_API_KEY` für die Edge Function `konto-ohne-mail` setzen, sonst geht keine Kopie per Mail raus.
-Pflichtaufgabe beim Merge: Migrationen `20261027000300_login_without_email.sql` und `20261027000400_test_accounts.sql` anwenden, Edge Function `konto-ohne-mail` mit `verify_jwt: false` deployen (die App schickt den Publishable Key, kein JWT).
+Erledigt (Daria, 28.10.2026, siehe `TODO.md`):
+- In Supabase › Authentication › Sign In / Providers „Allow anonymous sign-ins“ eingeschaltet.
+- Secret `BREVO_API_KEY` für die Edge Function `konto-ohne-mail` gesetzt.
+- Migrationen `20261028000400_login_without_email.sql` und `20261028000500_test_accounts.sql` eingespielt, Edge Function `konto-ohne-mail` mit `--no-verify-jwt` deployt (die App schickt den Publishable Key, kein JWT).
 
 ## Entscheidungen (Daria, 27.10.2026)
 
@@ -22,12 +23,13 @@ Pflichtaufgabe beim Merge: Migrationen `20261027000300_login_without_email.sql` 
 - Die Kopie per Mail enthält das Passwort im Klartext, so gewünscht.
 - Fotos gelöschter Testkonten bleiben im Bucket `photos` liegen. Bei Bedarf im Cron-Job mitlöschen.
 - Testkonten dürfen bisher alles (Chat, Bountys). Einschränken, falls Missbrauch auffällt.
-- Übersetzungen der neuen Texte fehlen noch (`node scripts/i18n.mjs --missing`).
+- Übersetzungen der neuen Texte fehlen noch (`node scripts/i18n.mjs --missing`, Stand 28.10.2026: Texte zu Deckname, Passwort, „ohne Anmeldung“, „E-Mail nicht teilen“ und „Testaccount“).
+- Nach Documentation übernehmen (`kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Anmeldung“, und Datenbank-Doku), danach diese Notiz auf die offenen Punkte kürzen oder löschen.
 
 ## Dateien
 
 - `supabase/functions/konto-ohne-mail/index.ts`
-- `supabase/migrations/20261027000300_login_without_email.sql`, `20261027000400_test_accounts.sql`
+- `supabase/migrations/20261028000400_login_without_email.sql`, `20261028000500_test_accounts.sql`
 - `src/app/onboarding/ohne-mail.tsx`, `src/app/onboarding/email.tsx`, `src/app/onboarding/welcome.tsx`
 - `src/data/auth.tsx` (`signInOrUpWithHandle`, `startTest`, `isTest`, `noEmail`)
 - `src/components/Badges.tsx` (`TestAccountBadge`, `NameWithTestMark`), `ChallengePost.tsx`, `BeforeAfterPost.tsx`

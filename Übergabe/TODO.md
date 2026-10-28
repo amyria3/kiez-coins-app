@@ -94,7 +94,9 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Diverse Codes: QR-Codes und Einladungscodes
 - [ ] Liste potenziell interessierter Leipziger Organisationen
 - [ ] Gazelle-Werbung je nach Modus, mit Codes, die eine Vorauswahl treffen
-- [ ] Anmeldeprozess vereinfachen (erster Schritt: Anmeldung ohne E-Mail und Testkonto, siehe `2026-10-27_offen_anmeldung-ohne-mail-testkonto.md`)
+- [x] Anmeldeprozess vereinfachen, erster Schritt: Anmeldung ohne E-Mail und Testkonto (PR #90, 28.10.2026; offene Punkte in `2026-10-27_offen_anmeldung-ohne-mail-testkonto.md`)
+- [ ] E-Mail-Code: jeder Code der letzten 5 Minuten gilt, Sperre 30 Sekunden mit Countdown (Plan: `2026-10-24_offen_email-code-5-minuten.md`; Migration `login_codes`, Edge Functions `send-code` und `verify-code`, Brevo-Template, Secrets)
+- [ ] Übersetzungen der Anmeldetexte nachtragen (`node scripts/i18n.mjs --missing`)
 - [ ] Infrastruktur für Gewinnspiele vorplanen
 - [ ] Zeitplan: erster Testlauf, erste 100 Mitglieder
 - [ ] Sprayform
