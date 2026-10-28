@@ -1,0 +1,12 @@
+-- Geld raus aus den Rechtstexten (Daria, 27.10.2026): die geänderten Texte aus src/data/legal.ts im Texte-CMS.
+-- Coins und Edensteine stehen als ideelle Anerkennung da. Abschnitt „Zahlungsdaten“ im Datenschutz entfällt.
+-- Übersetzungen liegen in src/i18n/<sprache>.json; die Sprachspalten bleiben leer.
+-- Voraussetzung: 1400 (app_texts_languages). Läuft auch mehrfach ohne Fehler.
+
+insert into public.app_texts (original, text, ort) values
+  ('4. Coins und Edensteine sind ideelle Anerkennung', '4. Coins und Edensteine sind ideelle Anerkennung', 'src/data/legal.ts (Rechtstexte, Nutzungsbedingungen)'),
+  ('Coins und Edensteine sind eine freiwillige, ideelle Anerkennung. Sie lassen sich weder kaufen noch eintauschen. Kiez Coins ist nicht Vertragspartei der Absprachen zwischen Euch.', 'Coins und Edensteine sind eine freiwillige, ideelle Anerkennung. Sie lassen sich weder kaufen noch eintauschen. Kiez Coins ist nicht Vertragspartei der Absprachen zwischen Euch.', 'src/data/legal.ts (Rechtstexte, Nutzungsbedingungen)'),
+  ('Jede Person ist selbst dafür verantwortlich, eine Aufgabe sorgfältig zu erledigen. Eine Challenge begründet kein Arbeitsverhältnis.', 'Jede Person ist selbst dafür verantwortlich, eine Aufgabe sorgfältig zu erledigen. Eine Challenge begründet kein Arbeitsverhältnis.', 'src/data/legal.ts (Rechtstexte, Nutzungsbedingungen)'),
+  ('Wir haften unbeschränkt für Vorsatz und grobe Fahrlässigkeit sowie für Schäden an Leben, Körper und Gesundheit. Sonst haften wir für den kostenlosen Testbetrieb nicht. Für Absprachen und Aufgaben zwischen Nutzer:innen haften die beteiligten Personen.', 'Wir haften unbeschränkt für Vorsatz und grobe Fahrlässigkeit sowie für Schäden an Leben, Körper und Gesundheit. Sonst haften wir für den kostenlosen Testbetrieb nicht. Für Absprachen und Aufgaben zwischen Nutzer:innen haften die beteiligten Personen.', 'src/data/legal.ts (Rechtstexte, Nutzungsbedingungen)'),
+  ('Deine Daten bleiben, bis Du Dein Konto löschst. „Konto löschen“ entfernt Konto, Profil, Fotos, Challenges, Kommentare, Meldungen, Blockierungen, Lob und Support-Anfragen sofort. Reste in Sicherungskopien verschwinden, wenn Supabase diese turnusmäßig überschreibt.', 'Deine Daten bleiben, bis Du Dein Konto löschst. „Konto löschen“ entfernt Konto, Profil, Fotos, Challenges, Kommentare, Meldungen, Blockierungen, Lob und Support-Anfragen sofort. Reste in Sicherungskopien verschwinden, wenn Supabase diese turnusmäßig überschreibt.', 'src/data/legal.ts (Rechtstexte, Datenschutz)')
+on conflict (original) do update set ort = excluded.ort;
