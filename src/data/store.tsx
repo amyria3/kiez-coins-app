@@ -4,7 +4,8 @@ import { Alert } from 'react-native';
 import * as remote from './remote';
 import { setGender } from './texts';
 import { sampleChallenges, sampleGroups, sampleProfile, sampleUsers, topChallengeIds } from './sample';
-import { isPostOnly, type Challenge, type ChallengeReport, type ImageSource, type Comment, type FeedState, type Group, type Payout, type PayoutShare, type Profile, type User } from './types';
+import { joinedIds } from './weChallenge';
+import { isPostOnly, type Challenge, type Participant, type ParticipantStatus, type ChallengeReport, type ImageSource, type Comment, type FeedState, type Group, type Payout, type PayoutShare, type Profile, type User } from './types';
 
 // Zustand der App. Zwei Betriebsarten:
 // * live: Daten aus Supabase. Jede Aktion ändert sofort den lokalen Stand (damit die App flüssig bleibt)
@@ -33,6 +34,11 @@ type State = {
 type Action =
   | { type: 'accept'; id: string }
   | { type: 'giveBack'; id: string }
+  /** We-Challenge mit mehreren Personen (Migration 20261028000300) */
+  | { type: 'join'; id: string }
+  | { type: 'leave'; id: string }
+  | { type: 'answerRequest'; id: string; userId: string; accept: boolean }
+  | { type: 'removeParticipant'; id: string; userId: string }
   | { type: 'report'; id: string; report: ChallengeReport }
   | { type: 'nameOperation'; id: string; name?: string }
   | { type: 'addComment'; id: string; body: string; replyToId?: string }
@@ -67,6 +73,30 @@ type Action =
   | { type: 'setGroups'; groups: Group[] }
   | { type: 'block'; userId: string };
 
+/** Status einer Person in der Teilnehmenden-Liste setzen, dann die erste Person neu bestimmen (wie challenge_sync_first). */
+function setParticipant(c: Challenge, userId: string, status: ParticipantStatus): Partial<Challenge> {
+  const now = new Date().toISOString();
+  const list: Participant[] = [...(c.participants ?? [])];
+  // Alte Daten ohne Liste: die annehmende Person aufnehmen
+  if (c.assigneeId && !list.some((p) => p.userId === c.assigneeId)) {
+    list.push({ userId: c.assigneeId, status: 'joined', requestedAt: c.acceptedAt ?? now, joinedAt: c.acceptedAt ?? now });
+  }
+  const i = list.findIndex((p) => p.userId === userId);
+  const next: Participant = { userId, status, requestedAt: i >= 0 ? list[i].requestedAt : now, joinedAt: status === 'joined' ? now : undefined };
+  if (i >= 0) list[i] = next;
+  else list.push(next);
+  // Die erste Person bleibt, solange sie dabei ist
+  const stays = c.assigneeId && list.find((p) => p.userId === c.assigneeId)?.status === 'joined';
+  const updated = { ...c, participants: list, assigneeId: stays ? c.assigneeId : undefined };
+  const [first] = joinedIds(updated);
+  return {
+    participants: list,
+    assigneeId: first,
+    status: first ? 'accepted' : 'open',
+    acceptedAt: first ? (first === c.assigneeId ? c.acceptedAt : now) : undefined,
+  };
+}
+
 function updateChallenge(state: State, id: string, patch: (c: Challenge) => Partial<Challenge>): State {
   return {
     ...state,
@@ -90,9 +120,26 @@ function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'edit':
     case 'editDeleted': {
-      const { photo, ...rest } = action.edit;
-      return updateChallenge(state, action.id, () => ({ ...rest, ...(photo ? { image: photo } : {}) }));
+      const { photo, participation, ...rest } = action.edit;
+      return updateChallenge(state, action.id, () => ({
+        ...rest,
+        ...(photo ? { image: photo } : {}),
+        ...(participation ? { maxParticipants: participation.max, joinMode: participation.mode } : {}),
+      }));
     }
+    case 'join':
+      return updateChallenge(state, action.id, (c) =>
+        setParticipant(c, state.currentUserId, c.joinMode === 'approval' ? 'requested' : 'joined'),
+      );
+    case 'leave':
+      return updateChallenge(state, action.id, (c) => ({
+        ...setParticipant(c, state.currentUserId, 'left'),
+        operationName: undefined,
+      }));
+    case 'answerRequest':
+      return updateChallenge(state, action.id, (c) => setParticipant(c, action.userId, action.accept ? 'joined' : 'declined'));
+    case 'removeParticipant':
+      return updateChallenge(state, action.id, (c) => setParticipant(c, action.userId, 'removed'));
     case 'close':
       return updateChallenge(state, action.id, () => ({ status: 'closed', closedAt: new Date().toISOString() }));
     case 'deleteDraft':
@@ -257,6 +304,18 @@ async function persist(action: Action, before: State): Promise<string | null> {
     case 'giveBack':
       await remote.challengeActions.giveBack(action.id);
       return action.id;
+    case 'join':
+      await remote.challengeActions.join(action.id);
+      return action.id;
+    case 'leave':
+      await remote.challengeActions.leave(action.id);
+      return action.id;
+    case 'answerRequest':
+      await remote.challengeActions.answerRequest(action.id, action.userId, action.accept);
+      return action.id;
+    case 'removeParticipant':
+      await remote.challengeActions.removeParticipant(action.id, action.userId);
+      return action.id;
     case 'report': {
       const path = await remote.uploadPhoto(userId, action.report.photo);
       await remote.challengeActions.report(action.id, path, action.report.note);
@@ -416,6 +475,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         location: draft.location,
         bountyAmount: draft.bountyAmount,
         edensteine: draft.edensteine,
+        maxParticipants: draft.participation?.max,
+        joinMode: draft.participation?.mode,
         status: 'open',
         image: draft.photo,
         extraImages: draft.extras,
@@ -451,6 +512,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         location: draft.location.trim(),
         bountyAmount: draft.bountyAmount,
         edensteine: draft.edensteine,
+        maxParticipants: draft.participation?.max ?? existing?.maxParticipants,
+        joinMode: draft.participation?.mode ?? existing?.joinMode,
         status: 'draft',
         image: draft.photo ?? existing?.image,
         extraImages: draft.extras ?? existing?.extraImages,
@@ -488,6 +551,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           location: draft.location.trim(),
           bountyAmount: draft.bountyAmount,
           edensteine: draft.edensteine,
+          maxParticipants: draft.participation?.max ?? existing?.maxParticipants,
+          joinMode: draft.participation?.mode ?? existing?.joinMode,
           status: 'open',
           image: draft.photo ?? existing?.image,
           extraImages: draft.extras ?? existing?.extraImages,
@@ -592,6 +657,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           type: task.type ?? 'individual',
           groupId: task.groupId,
           edensteine: task.type === 'photo' ? undefined : task.edensteine,
+          maxParticipants: task.type === 'photo' ? undefined : task.participation?.max,
+          joinMode: task.type === 'photo' ? undefined : task.participation?.mode,
           extraImages: task.type === 'photo' ? task.extras : undefined,
           title: task.title.trim(),
           text: task.text.trim(),
@@ -769,7 +836,8 @@ export function topChallenges(state: Pick<State, 'mode' | 'challenges' | 'curren
   const mine = challenges.filter(
     (c) =>
       (c.authorId === me && (c.status === 'reported' || c.status === 'payment_open')) ||
-      (c.assigneeId === me && (c.status === 'accepted' || c.status === 'paid_marked')),
+      (c.assigneeId === me && (c.status === 'accepted' || c.status === 'paid_marked')) ||
+      (c.status === 'accepted' && joinedIds(c).includes(me)),
   );
   const now = Date.now();
   const open = challenges

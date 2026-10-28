@@ -13,6 +13,9 @@ import { Text } from '../T';
 import { useComposeContent, type ComposeContent } from './compose';
 import { TagTextField } from './BeforeAfterForm';
 import { EdensteinStepper } from './EdensteinStepper';
+import { DEFAULT_PARTICIPATION, ParticipantsField } from './ParticipantsField';
+import { MAX_MEMBERS } from '../../data/groups';
+import type { Participation } from '../../data/remote';
 import { celebratePost } from '../HeartBurst';
 
 const durations = [
@@ -43,6 +46,7 @@ export function useGroupTaskForm(
   const { photo, setPhoto, title, setTitle, text: body, setText: setBody } = shared ?? own;
   const [edensteine, setEdensteine] = useState(initial.edensteine ?? 3);
   const [days, setDays] = useState(7);
+  const [participation, setParticipation] = useState<Participation>(DEFAULT_PARTICIPATION);
   const [busy, setBusy] = useState(false);
   const titleField = useNudge();
 
@@ -55,6 +59,7 @@ export function useGroupTaskForm(
         title,
         text: body,
         edensteine,
+        participation,
         deadline: new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString(),
         photo,
       });
@@ -81,6 +86,8 @@ export function useGroupTaskForm(
         <EdensteinStepper value={edensteine} onChange={setEdensteine} seed="neue-aufgabe" />
         <Text style={styles.hint}>1 bis 10. Edensteine gelten nur in dieser Gruppe und haben so viel ideellen Wert, wie Ihr ihnen zusprecht.</Text>
       </FieldGroup>
+      {/* Höchstens alle anderen Mitglieder einer vollen Gruppe */}
+      <ParticipantsField value={participation} onChange={setParticipation} limit={MAX_MEMBERS - 1} />
       <FieldGroup label="Frist">
         <ChipGroup>
           {durations.map((d) => (

@@ -14,6 +14,8 @@ import { useDraft, useSaveDraft } from './_layout';
 import { useNudge } from '../../../components/Nudge';
 import { useGoBack } from '../../../lib/goBack';
 import { EdensteinStepper } from '../../../components/compose/EdensteinStepper';
+import { DEFAULT_PARTICIPATION, ParticipantsField } from '../../../components/compose/ParticipantsField';
+import type { Participation } from '../../../data/remote';
 
 const presets = [5, 15, 50];
 const durations = [
@@ -66,6 +68,14 @@ export default function CreateStep2() {
       bountyAmount: next === 'euro' ? (d.bountyAmount ?? presets[0]) : undefined,
       edensteine: next === 'eden' ? (d.edensteine ?? EDEN_START) : undefined,
     }));
+  };
+
+  // Mehrere Personen: nur Edensteine, keine Coins in Euro (Daria, 27.10.2026)
+  const participation = draft.participation ?? DEFAULT_PARTICIPATION;
+  const many = participation.max > 1;
+  const changeParticipation = (next: Participation) => {
+    setDraft((d) => ({ ...d, participation: next }));
+    if (next.max > 1 && reward === 'euro') chooseReward('eden');
   };
 
   const customAmount = Number(customText.replace(',', '.'));
@@ -146,10 +156,11 @@ export default function CreateStep2() {
       <Notice message="Wähle einen öffentlich bekannten Ort, etwa einen Platz, eine Straßenecke oder ein Geschäft. Keine Wohnadresse. Sei sorgsam mit der Sicherheit anderer Menschen." />
       {isChallenge ? (
       <>
+      <ParticipantsField value={participation} onChange={changeParticipation} withCoinsHint />
       <FieldGroup label="Belohnung (optional)">
         <ChipGroup>
           <Chip label="Keine" selected={reward === 'none'} onPress={() => chooseReward('none')} />
-          <Chip label="Coins (€)" selected={reward === 'euro'} onPress={() => chooseReward('euro')} />
+          {many ? null : <Chip label="Coins (€)" selected={reward === 'euro'} onPress={() => chooseReward('euro')} />}
           <Chip label="Edensteine" selected={reward === 'eden'} onPress={() => chooseReward('eden')} />
         </ChipGroup>
         <Text style={styles.secondary}>
