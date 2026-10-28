@@ -1,8 +1,6 @@
 # We-Challenge: Mehrere Personen machen mit
 
-Pflichtaufgabe: Daria führt nach der Migration aus PR #97 die Migration `supabase/migrations/20261028000300_we_challenge_teilnehmende.sql` im Supabase-SQL-Editor aus. Erst danach merged Claude den PR.
-
-Zweck: Plan und Bau für We-Challenges mit mehreren Teilnehmenden. Stand: 28.10.2026. Status: offen, gebaut, wartet auf die Migration. Gehört nach: Documentation, App-Stand und Entscheidungen, Abschnitt „We-Challenge“, und Datenbank-Doku (Tabelle `challenge_participants`, neue Funktionen).
+Zweck: Plan und Bau für We-Challenges mit mehreren Teilnehmenden. Stand: 28.10.2026. Status: Notiz für die Doku. Migration am 28.10.2026 eingespielt und geprüft, PR #104 gemergt. Gehört nach: Documentation, App-Stand und Entscheidungen, Abschnitt „We-Challenge“, und Datenbank-Doku (Tabelle `challenge_participants`, neue Funktionen).
 
 ## Daria will mehrere Personen in einer We-Challenge
 
