@@ -1244,5 +1244,8 @@
   "Ein neues Passwort braucht mindestens {MIN_PASSWORD} Zeichen.": "A new password needs at least {MIN_PASSWORD} characters.",
   "Diesen Decknamen gibt es schon. Melde Dich mit E-Mail an oder nimm einen anderen.": "This alias is already taken. Sign in with email or pick another one.",
   "Gerade melden sich sehr viele an. Versuche es in einer Stunde noch mal.": "Lots of people are signing up right now. Please try again in an hour.",
-  "Testkonten sind gerade ausgeschaltet. Melde Dich bitte mit E-Mail an.": "Test accounts are switched off right now. Please sign in with email."
+  "Testkonten sind gerade ausgeschaltet. Melde Dich bitte mit E-Mail an.": "Test accounts are switched off right now. Please sign in with email.",
+  "Anheuern oder Einloggen": "Sign on or log in",
+  "Ohne Anmeldung testen": "Test without signing up",
+  "Dein Testkonto und alles, was Du postest, verschwinden nach 7 Tagen oder sobald Du Dich abmeldest. Trägst Du vorher eine E-Mail ein, bleibt alles.": "Your test account and everything you post disappear after 7 days or as soon as you sign out. Add an email before then and everything stays."
 }
