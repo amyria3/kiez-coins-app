@@ -119,5 +119,5 @@ Kontext: `Übergabe/2026-10-27_offen_community-regeln.md`.
 
 Plan und offene Fragen: `Übergabe/2026-10-27_offen_we-challenge-mehrere-personen.md`.
 
-- [ ] Offene Punkte im Plan beantworten (Daria)
+- [x] Offene Punkte im Plan beantworten (Daria, 27.10.2026)
 - [ ] Migration, Funktionen und App-Code bauen (Claude)
