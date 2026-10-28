@@ -385,7 +385,7 @@ button { font: inherit; color: inherit; }
 .leute { padding: 64px 0 40px; background: linear-gradient(160deg, #FFF1EA 0%, #FBEFF7 100%); }
 .mehr h2, .leute h2, .download h2 { font: 600 clamp(30px, 4vw, 44px)/1.05 var(--display); letter-spacing: -.025em; margin: 0 0 12px; max-width: 18ch; }
 .leute > .wrap > p, .download > .wrap > p { color: var(--muted); margin: 0 0 40px; max-width: 46ch; }
-.szene { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; row-gap: 80px; padding-top: 88px; }
+.szene { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; row-gap: 48px; padding-top: 40px; }
 /* Organisch: jede Person eigene Größe, Höhe und leichte Überlappung (Daria, 28.10.2026) */
 .szene > .person { width: var(--w, 24%); margin: var(--m, 0); }
 .szene > .person:nth-child(1) { --r: -2.5deg; --w: 25%; --m: 0 -1% 24px 2%; }
@@ -397,6 +397,11 @@ button { font: inherit; color: inherit; }
 .szene > .person:nth-child(7) { --r: 2deg; --w: 21%; --m: -8px 2% 40px 0; }
 .szene > .person:nth-child(8) { --r: -1.6deg; --w: 23%; --m: -40px 0 4px -1%; }
 .szene .figur { max-width: none; rotate: var(--r, 0deg); }
+/* Alle Gesichter auf einen Bildschirm: Figuren richten sich nach der Fensterhöhe (Daria, 28.10.2026) */
+@media (min-width: 641px) {
+  .szene > .person { display: flex; justify-content: center; }
+  .szene .figur { width: auto; max-width: 100%; max-height: calc((100svh - 500px) / 2); min-height: 110px; }
+}
 .person { display: grid; justify-items: center; gap: 4px; }
 .person:nth-child(2) { padding-bottom: 0; }
 .person .figur { width: 100%; max-width: 240px; height: auto; display: block; margin-bottom: -2px; transform-origin: 50% 100%; cursor: pointer; }
