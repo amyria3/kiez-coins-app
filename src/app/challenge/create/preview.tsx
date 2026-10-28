@@ -25,6 +25,7 @@ import { useDraft } from './_layout';
 import { useGoBack } from '../../../lib/goBack';
 import { WithMentions } from '../../../components/WithMentions';
 import { participationText } from '../../../data/weChallenge';
+import { sharedBountyText } from '../../../data/coins';
 
 /** Breite des ausgeblurrten Rands links und rechts (schmal, Daria 22.10.2026) */
 const EDGE = space[8];
@@ -196,6 +197,9 @@ export default function CreatePreview() {
       </View>
       {participation && participationText(participation.max, participation.mode) ? (
         <Text style={styles.caption}>{participationText(participation.max, participation.mode)}</Text>
+      ) : null}
+      {participation && sharedBountyText(bountyAmount, participation.max) ? (
+        <Text style={styles.caption}>{sharedBountyText(bountyAmount, participation.max)}</Text>
       ) : null}
     </>
   );

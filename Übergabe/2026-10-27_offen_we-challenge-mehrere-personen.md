@@ -76,7 +76,7 @@ create table public.challenge_participants (
 2. **Die Erstellerin wählt die Höchstzahl.** Die App setzt keine feste Obergrenze. Gruppenaufgaben begrenzt die Größe der Gruppe.
 3. **Die erste Person meldet erledigt, für alle.** Ein gemeinsames Nachher-Foto, alle Teilnehmenden sehen die Meldung.
 4. **Jede Person bekommt die volle Zahl Edensteine.**
-5. **Challenges mit mehreren Personen tragen nur Edensteine, keine Euro-Bounty.**
+5. ~~**Challenges mit mehreren Personen tragen nur Edensteine, keine Euro-Bounty.**~~ Ersetzt am 28.10.2026: Coins gehen auch mit mehreren Personen, siehe `2026-10-28_offen_we-challenge-coins.md`.
 
 Claude setzt die übrigen Vorschläge um:
 

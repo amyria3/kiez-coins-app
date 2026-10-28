@@ -99,10 +99,11 @@ export type Comment = {
 };
 
 /**
- * Teilnahme an einer We-Challenge (Migration 20261028000300). `requested`: wartet auf die Erstellerin.
+ * Teilnahme an einer We-Challenge (Migration 20261028000300). `unconfirmed`: beim Bestätigen abgewählt,
+ * ohne Coins und Edensteine (Migration 20261028000400). `requested`: wartet auf die Erstellerin.
  * `joined`: dabei. `declined`, `removed`, `left`: nicht mehr dabei (abgelehnt, ausgeschlossen, ausgestiegen).
  */
-export type ParticipantStatus = 'requested' | 'joined' | 'declined' | 'removed' | 'left';
+export type ParticipantStatus = 'requested' | 'joined' | 'declined' | 'removed' | 'left' | 'unconfirmed';
 export type Participant = { userId: string; status: ParticipantStatus; requestedAt: string; joinedAt?: string };
 
 /** `open`: Jede Person tritt direkt bei. `approval`: Die Erstellerin nimmt jede Anfrage an oder lehnt sie ab. */
