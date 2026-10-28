@@ -767,7 +767,7 @@
   // Art wählen wie im Erstellen-Blatt der App; nach „Vorher speichern“ steht die Art fest
   function kindSwitch(d) {
     return '<div class="p-choice p-kind" role="radiogroup" aria-label="' + T('Art', 'Type') + '">' +
-      M.scenarios.map(function (k) {
+      M.scenarios.filter(function (k) { return k[0] !== 'feed'; }).map(function (k) {
         return '<button type="button" role="radio" aria-checked="' + (d.kind === k[0]) + '" data-kind="' + k[0] + '">' + KIND_NAME[k[0]] + '</button>';
       }).join('') + '</div>';
   }
