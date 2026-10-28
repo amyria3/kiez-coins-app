@@ -6,6 +6,8 @@ import { FeatureSwitches } from '../../components/FeatureSwitches';
 import { SubScreen } from '../../components/Screen';
 import { homeAfterOnboarding } from '../../data/pendingInvite';
 import { useStore } from '../../data/store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { TOUR_OFFER_DELAY_MS, TOUR_OFFER_KEY } from '../../data/tour';
 import { useGoBack } from '../../lib/goBack';
 
 /**
@@ -21,8 +23,14 @@ export default function OnboardingFeatures() {
   const finish = async () => {
     dispatch({ type: 'updateProfile', patch: { onboarded: true } });
     const target = await homeAfterOnboarding();
+    // Die Tour kommt nicht mehr sofort, sondern als Frage etwa 5 Minuten später (TourOffer, Daria, 28.10.2026)
+    try {
+      await AsyncStorage.setItem(TOUR_OFFER_KEY, String(Date.now() + TOUR_OFFER_DELAY_MS));
+    } catch {
+      // dann fragt die App nicht; die Tour bleibt im Konto erreichbar
+    }
     router.dismissAll();
-    router.replace({ pathname: '/tour', params: { next: target } });
+    router.replace(target as never);
   };
   return (
     <SubScreen
