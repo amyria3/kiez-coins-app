@@ -17,7 +17,14 @@
 .phone, .kater { --bg: #1F2123; --surface: #2B2D31; --glass: rgba(31,33,35,.82); --text: #F0F0F0; --muted: #A0A0A0;
   --purple: #7E94FF; --red: #FF7E8B; --line: rgba(240,240,240,.12); --on-accent: #1F2123; color: var(--text); }
 * { box-sizing: border-box; }
-html { background: var(--bg) linear-gradient(180deg, var(--buehne) 0, #E9E5FF 640px, var(--bg) 900px) no-repeat; color: var(--text); -webkit-text-size-adjust: 100%; }
+/* Lila oben geht in gekrümmten, leicht gedrehten Bögen ins Grün über (Daria, 28.10.2026) */
+html { background-color: var(--bg); color: var(--text); -webkit-text-size-adjust: 100%;
+  background-image:
+    radial-gradient(ellipse 70% 45% at 88% 18%, rgba(233,229,255,.95) 0%, rgba(233,229,255,0) 70%),
+    radial-gradient(ellipse 60% 38% at 8% 78%, rgba(226,242,200,.85) 0%, rgba(226,242,200,0) 72%),
+    radial-gradient(ellipse 130% 70% at 25% -8%, var(--buehne) 0%, rgba(220,225,255,0) 78%),
+    linear-gradient(168deg, var(--buehne) 0%, #E9E5FF 42%, rgba(250,251,239,0) 88%);
+  background-size: 100% 1050px; background-repeat: no-repeat; }
 body { margin: 0; font: 300 17px/1.55 Inter, system-ui, -apple-system, 'Segoe UI', sans-serif; }
 a { color: var(--text); }
 button { font: inherit; color: inherit; }
