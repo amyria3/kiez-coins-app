@@ -138,7 +138,8 @@ button { font: inherit; color: inherit; }
 .p-card:active { transform: scale(.985); }
 /* .p-screen button setzt padding auf 0 und ist spezifischer als .p-card. Ohne diese Zeile klebt der Titelkasten am Rand. */
 .p-screen .p-card { padding: 10px; }
-.p-card-text { height: 112px; }
+.p-card-text { height: 128px; }
+.p-body { margin: 0 0 8px; padding: 0 4px; color: var(--muted); font-size: 12.5px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .p-img, .p-hero { position: absolute; inset: 0; }
 .p-img img, .p-img svg, .p-hero img, .p-hero svg { width: 100%; height: 100%; object-fit: cover; display: block; }
 .p-bounty { position: absolute; top: 9px; inset-inline-end: 9px; display: flex; align-items: center; gap: 5px; padding: 4px 10px 4px 7px; border-radius: 999px;
