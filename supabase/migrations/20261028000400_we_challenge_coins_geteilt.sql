@@ -8,6 +8,8 @@
 --   Bei einer Person bleibt es bei 5 bis 50 € wie bisher.
 -- * Der Betrag wird geteilt, unter allen, die beim Bestätigen dabei sind. Gerundet auf Cent, übrige Cent
 --   gehen an die Ersten (20 € für 3 Personen: 6,67 €, 6,67 €, 6,66 €).
+-- * Bestätigen je Person (Daria, 28.10.2026): Die Erstellerin wählt beim Bestätigen, wer mitgemacht hat. Alle sind
+--   vorausgewählt, abgewählte Personen bekommen 'unconfirmed' und weder Coins noch Edensteine. Mindestens eine bleibt.
 -- * Jede Person gibt ihre Zahlungsdaten frei und bestätigt den Empfang selbst. Die Erstellerin markiert je
 --   Person als bezahlt. Die Challenge ist 'paid_marked', wenn alle markiert sind, und 'paid', wenn alle
 --   den Empfang bestätigt haben.
@@ -149,8 +151,15 @@ begin
 end;
 $$;
 
--- Bestätigen: mit Coins entstehen die Auszahlungen, der Betrag geteilt unter allen, die dabei sind
-create or replace function public.confirm_challenge(p_challenge_id uuid)
+-- Neuer Teilnahme-Status 'unconfirmed': beim Bestätigen abgewählt
+alter table public.challenge_participants drop constraint if exists challenge_participants_status_check;
+alter table public.challenge_participants add constraint challenge_participants_status_check
+  check (status in ('requested', 'joined', 'declined', 'removed', 'left', 'unconfirmed'));
+
+-- Bestätigen: p_user_ids sind die Ausgewählten (ohne Angabe alle, die dabei sind). Abgewählte werden 'unconfirmed'.
+-- Mit Coins entstehen die Auszahlungen, der Betrag geteilt unter den Ausgewählten.
+drop function if exists public.confirm_challenge(uuid);
+create or replace function public.confirm_challenge(p_challenge_id uuid, p_user_ids uuid[] default null)
 returns void
 language plpgsql
 security definer
@@ -169,6 +178,18 @@ begin
    for update;
   if not found then perform public.challenge_not_changed('bestätigt werden'); end if;
 
+  -- Auswahl: nur Personen, die dabei sind; mindestens eine
+  if p_user_ids is not null then
+    if not exists (
+      select 1 from public.challenge_participants p
+       where p.challenge_id = p_challenge_id and p.status = 'joined' and p.user_id = any (p_user_ids)
+    ) then
+      perform public.participant_error('Wähle mindestens eine Person aus.', 'confirm_none_selected');
+    end if;
+    update public.challenge_participants set status = 'unconfirmed'
+     where challenge_id = p_challenge_id and status = 'joined' and not (user_id = any (p_user_ids));
+  end if;
+
   if c.bounty_amount is null then
     update public.challenges set status = 'confirmed', confirmed_at = now(), rejection_reason = null
      where id = p_challenge_id;
@@ -182,7 +203,7 @@ begin
         from public.challenge_participants p
        where p.challenge_id = p_challenge_id and p.status = 'joined'
     ) x;
-  if v_ids is null then v_ids := array[c.assignee_id]; end if;
+  if v_ids is null then v_ids := array[c.assignee_id]; end if;  -- alte Daten ohne Liste
   v_n := array_length(v_ids, 1);
   v_base := (c.bounty_amount * 100) / v_n;
   v_rest := (c.bounty_amount * 100) - v_base * v_n;
@@ -215,6 +236,8 @@ begin
    where id = p_challenge_id and status in ('confirmed', 'payment_open') and author_id = auth.uid();
   if not found then perform public.challenge_not_changed('zurückgesetzt werden'); end if;
   delete from public.challenge_payouts where challenge_id = p_challenge_id;
+  update public.challenge_participants set status = 'joined'
+   where challenge_id = p_challenge_id and status = 'unconfirmed';
 end;
 $$;
 
@@ -322,10 +345,13 @@ $$;
 -- ---------------------------------------------------------------------------
 
 revoke execute on function public.challenge_sync_payment(uuid) from public, anon, authenticated;
-revoke execute on function public.mark_participant_paid(uuid, uuid, boolean) from public, anon;
+revoke execute on function
+  public.mark_participant_paid(uuid, uuid, boolean),
+  public.confirm_challenge(uuid, uuid[])
+from public, anon;
 grant execute on function
   public.mark_participant_paid(uuid, uuid, boolean),
-  public.confirm_challenge(uuid),
+  public.confirm_challenge(uuid, uuid[]),
   public.undo_confirm_challenge(uuid),
   public.mark_challenge_paid(uuid),
   public.unmark_challenge_paid(uuid),

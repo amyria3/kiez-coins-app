@@ -45,7 +45,8 @@ type Action =
   | { type: 'addComment'; id: string; body: string; replyToId?: string }
   | { type: 'sharePayout'; id: string; share: PayoutShare }
   | { type: 'revokeShare'; id: string }
-  | { type: 'confirm'; id: string }
+  /** `userIds`: Ausgewählte beim Bestätigen; Abgewählte werden 'unconfirmed' */
+  | { type: 'confirm'; id: string; userIds?: string[] }
   | { type: 'undoConfirm'; id: string }
   | { type: 'unmarkPaid'; id: string }
   | { type: 'updateProfile'; patch: Partial<Profile> }
@@ -210,7 +211,11 @@ function reducer(state: State, action: Action): State {
         return { payoutShare: undefined, payoutShares: rest };
       });
     case 'undoConfirm':
-      return updateChallenge(state, action.id, () => ({ status: 'reported', payouts: undefined }));
+      return updateChallenge(state, action.id, (c) => ({
+        status: 'reported',
+        payouts: undefined,
+        participants: c.participants?.map((p) => (p.status === 'unconfirmed' ? { ...p, status: 'joined' as const } : p)),
+      }));
     case 'unmarkPaid':
       return updateChallenge(state, action.id, (c) =>
         withPayouts(c, c.payouts?.map((p) => (p.paidAt ? p : { ...p, paidMarkedAt: undefined })), {
@@ -231,11 +236,16 @@ function reducer(state: State, action: Action): State {
       }));
     case 'confirm':
       return updateChallenge(state, action.id, (c) => {
-        if (!c.bountyAmount) return { status: 'confirmed' };
-        // Coins geteilt unter allen, die dabei sind (Daria, 28.10.2026)
-        const ids = joinedIds(c);
+        // Bestätigen je Person (Daria, 28.10.2026): Abgewählte bekommen nichts
+        const selected = action.userIds ? new Set(action.userIds) : undefined;
+        const participants = selected
+          ? c.participants?.map((p) => (p.status === 'joined' && !selected.has(p.userId) ? { ...p, status: 'unconfirmed' as const } : p))
+          : c.participants;
+        if (!c.bountyAmount) return { status: 'confirmed', participants };
+        // Coins geteilt unter den Ausgewählten
+        const ids = joinedIds({ ...c, participants });
         const cents = splitCents(c.bountyAmount, ids.length || 1);
-        return { status: 'payment_open', payouts: ids.map((userId, i) => ({ userId, amountCents: cents[i] })) };
+        return { status: 'payment_open', participants, payouts: ids.map((userId, i) => ({ userId, amountCents: cents[i] })) };
       });
     case 'reject':
       return updateChallenge(state, action.id, () => ({ status: 'accepted', rejectionReason: action.reason }));
@@ -397,7 +407,7 @@ async function persist(action: Action, before: State): Promise<string | null> {
       await remote.revokeShare(action.id, userId);
       return action.id;
     case 'confirm':
-      await remote.challengeActions.confirm(action.id);
+      await remote.challengeActions.confirm(action.id, action.userIds);
       return action.id;
     case 'undoConfirm':
       await remote.challengeActions.undoConfirm(action.id);

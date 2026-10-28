@@ -836,7 +836,9 @@ export const challengeActions = {
   giveBack: (id: string) => rpc('give_back_challenge', { p_challenge_id: id }),
   report: (id: string, photoPath: string, note?: string) =>
     rpc('report_challenge', { p_challenge_id: id, p_photo_path: photoPath, p_note: note ?? null }),
-  confirm: (id: string) => rpc('confirm_challenge', { p_challenge_id: id }),
+  /** `userIds`: beim Bestätigen ausgewählt; ohne Angabe alle (Migration 20261028000400) */
+  confirm: (id: string, userIds?: string[]) =>
+    rpc('confirm_challenge', { p_challenge_id: id, ...(userIds ? { p_user_ids: userIds } : {}) }),
   undoConfirm: (id: string) => rpc('undo_confirm_challenge', { p_challenge_id: id }),
   reject: (id: string, reason: string) => rpc('reject_challenge', { p_challenge_id: id, p_reason: reason }),
   markPaid: (id: string) => rpc('mark_challenge_paid', { p_challenge_id: id }),

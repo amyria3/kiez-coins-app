@@ -1,4 +1,6 @@
 import type { Challenge, PayoutLine } from './types';
+import { formatCents } from './format';
+import { t } from './texts';
 import { joinedIds } from './weChallenge';
 
 // ---------------------------------------------------------------------------
@@ -67,3 +69,13 @@ export function shareCentsOf(c: Challenge, userId: string): number {
 
 /** Coins für mehrere Personen: Der Betrag wird geteilt */
 export const isSharedBounty = (c: Challenge) => !!c.bountyAmount && (c.maxParticipants ?? 1) > 1;
+
+/** „Die Coins werden geteilt: bei 4 Personen 5 € pro Person.“ Leer bei einer Person. */
+export function sharedBountyText(amountEuro: number | undefined, places: number): string {
+  if (!amountEuro || places <= 1) return '';
+  const shares = splitCents(amountEuro, places);
+  return t('Die Coins werden geteilt: bei {n} Personen {share} pro Person.', {
+    n: places,
+    share: formatCents(shares[shares.length - 1]),
+  });
+}
