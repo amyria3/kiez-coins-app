@@ -343,7 +343,12 @@ export default function FeedScreen() {
         // Fashionable Look: Liste ohne Abstand oben, daher hier 16 pt unter den Reitern (Daria, 24.10.2026)
         return (
           <View style={isFashionable ? styles.emptyTop : undefined}>
-            <GroupsEmpty onCreate={() => router.push('/gruppen/neu')} onJoin={() => router.push('/gruppen/beitreten')} />
+            <GroupsEmpty
+              title="Noch keine Gruppen in Deinem Feed"
+              message="Sei Initiator:in und gründe die erste Gruppe."
+              onCreate={() => router.push('/gruppen/neu')}
+              onJoin={() => router.push('/gruppen/beitreten')}
+            />
           </View>
         );
       case 'privateEmpty':
