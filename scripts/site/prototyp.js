@@ -120,7 +120,7 @@
       bild: {
         suggestions: ['Cospudener See', 'Neues Café am Kreuz', 'Buchtipp für den Winter'],
         demo: ['Cospudener See', 'Einfach eine besondere Stimmung hier, besonders im Frühling.'],
-        photo: 'see',
+        photo: 'wald',
         published: 'Dein Bild ist online. Die Nachbarschaft sieht es jetzt.',
       },
     },
