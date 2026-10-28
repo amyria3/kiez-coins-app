@@ -1,4 +1,5 @@
-// Download der Test-App hinter einem Passwort.
+// Download der Test-App. Seit 28.10.2026 ohne Passwort (Daria); die Prüfung greift nur noch, wenn ein
+// Passwort gesetzt ist (Secret oder Hash in `download_settings`).
 // Die Download-Seite schickt das Formular per POST hierher. Stimmt das Passwort, leitet die Funktion
 // auf einen 10 Minuten gültigen Link zur APK im privaten Bucket `downloads` weiter, sonst zurück zur Seite.
 //
@@ -55,20 +56,20 @@ Deno.serve(async (req) => {
   const page = Deno.env.get('DOWNLOAD_PAGE') ?? settings?.download_page ?? 'https://kiezcoins.de/';
   const back = (reason: string) => redirect(`${page}${page.includes('?') ? '&' : '?'}fehler=${reason}#download`);
 
-  if (req.method !== 'POST') return redirect(page);
-
   const expected = Deno.env.get('DOWNLOAD_PASSWORD');
-  if (!expected && !settings?.password_sha256) return back('technik');
+  const open = !expected && !settings?.password_sha256;
+  // Ohne Passwort lädt auch ein einfacher Link (GET) die App
+  if (req.method !== 'POST' && !open) return redirect(page);
 
   let given = '';
-  try {
+  if (!open) try {
     const form = await req.formData();
     given = String(form.get('passwort') ?? '');
   } catch {
     return back('passwort');
   }
 
-  const ok = expected ? await samePassword(given, expected) : await matchesHash(given, settings!.password_sha256!);
+  const ok = open || (expected ? await samePassword(given, expected) : await matchesHash(given, settings!.password_sha256!));
   if (!ok) {
     // Bremst Durchprobieren aus.
     await new Promise((resolve) => setTimeout(resolve, 1500));
