@@ -1244,5 +1244,8 @@
   "Ein neues Passwort braucht mindestens {MIN_PASSWORD} Zeichen.": "Новий пароль має містити щонайменше {MIN_PASSWORD} символів.",
   "Diesen Decknamen gibt es schon. Melde Dich mit E-Mail an oder nimm einen anderen.": "Такий псевдонім уже є. Увійди з поштою або обери інший.",
   "Gerade melden sich sehr viele an. Versuche es in einer Stunde noch mal.": "Зараз реєструється дуже багато людей. Спробуй ще раз за годину.",
-  "Testkonten sind gerade ausgeschaltet. Melde Dich bitte mit E-Mail an.": "Тестові акаунти зараз вимкнено. Увійди, будь ласка, з поштою."
+  "Testkonten sind gerade ausgeschaltet. Melde Dich bitte mit E-Mail an.": "Тестові акаунти зараз вимкнено. Увійди, будь ласка, з поштою.",
+  "Anheuern oder Einloggen": "Приєднатися або увійти",
+  "Ohne Anmeldung testen": "Спробувати без реєстрації",
+  "Dein Testkonto und alles, was Du postest, verschwinden nach 7 Tagen oder sobald Du Dich abmeldest. Trägst Du vorher eine E-Mail ein, bleibt alles.": "Твій тестовий акаунт і все, що ти публікуєш, зникнуть через 7 днів або щойно ти вийдеш. Додай пошту раніше — і все збережеться."
 }

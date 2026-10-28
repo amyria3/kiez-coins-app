@@ -1244,5 +1244,8 @@
   "Ein neues Passwort braucht mindestens {MIN_PASSWORD} Zeichen.": "סיסמה חדשה צריכה לפחות {MIN_PASSWORD} תווים.",
   "Diesen Decknamen gibt es schon. Melde Dich mit E-Mail an oder nimm einen anderen.": "הכינוי הזה כבר תפוס. היכנסו עם מייל או בחרו כינוי אחר.",
   "Gerade melden sich sehr viele an. Versuche es in einer Stunde noch mal.": "הרבה אנשים נרשמים עכשיו. נסו שוב בעוד שעה.",
-  "Testkonten sind gerade ausgeschaltet. Melde Dich bitte mit E-Mail an.": "חשבונות ניסיון כבויים כרגע. היכנסו עם מייל, בבקשה."
+  "Testkonten sind gerade ausgeschaltet. Melde Dich bitte mit E-Mail an.": "חשבונות ניסיון כבויים כרגע. היכנסו עם מייל, בבקשה.",
+  "Anheuern oder Einloggen": "הצטרפות או כניסה",
+  "Ohne Anmeldung testen": "לנסות בלי הרשמה",
+  "Dein Testkonto und alles, was Du postest, verschwinden nach 7 Tagen oder sobald Du Dich abmeldest. Trägst Du vorher eine E-Mail ein, bleibt alles.": "חשבון הניסיון וכל מה שתפרסמו ייעלמו אחרי 7 ימים או ברגע שתצאו. הוסיפו מייל לפני כן והכול יישאר."
 }

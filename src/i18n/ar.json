@@ -1244,5 +1244,8 @@
   "Ein neues Passwort braucht mindestens {MIN_PASSWORD} Zeichen.": "كلمة المرور الجديدة تحتاج إلى {MIN_PASSWORD} أحرف على الأقل.",
   "Diesen Decknamen gibt es schon. Melde Dich mit E-Mail an oder nimm einen anderen.": "هذا الاسم المستعار موجود بالفعل. سجّل الدخول بالبريد الإلكتروني أو اختر اسمًا آخر.",
   "Gerade melden sich sehr viele an. Versuche es in einer Stunde noch mal.": "كثيرون يسجّلون الآن. حاول مرة أخرى بعد ساعة.",
-  "Testkonten sind gerade ausgeschaltet. Melde Dich bitte mit E-Mail an.": "حسابات التجربة متوقفة الآن. سجّل الدخول بالبريد الإلكتروني من فضلك."
+  "Testkonten sind gerade ausgeschaltet. Melde Dich bitte mit E-Mail an.": "حسابات التجربة متوقفة الآن. سجّل الدخول بالبريد الإلكتروني من فضلك.",
+  "Anheuern oder Einloggen": "انضم أو سجّل الدخول",
+  "Ohne Anmeldung testen": "جرّب بدون تسجيل",
+  "Dein Testkonto und alles, was Du postest, verschwinden nach 7 Tagen oder sobald Du Dich abmeldest. Trägst Du vorher eine E-Mail ein, bleibt alles.": "يختفي حساب التجربة وكل ما تنشره بعد 7 أيام أو فور تسجيل خروجك. أضف بريدًا إلكترونيًا قبل ذلك ويبقى كل شيء."
 }

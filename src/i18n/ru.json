@@ -1229,5 +1229,8 @@
   "Ein neues Passwort braucht mindestens {MIN_PASSWORD} Zeichen.": "Новый пароль должен содержать минимум {MIN_PASSWORD} символов.",
   "Diesen Decknamen gibt es schon. Melde Dich mit E-Mail an oder nimm einen anderen.": "Такой псевдоним уже есть. Войди с почтой или выбери другой.",
   "Gerade melden sich sehr viele an. Versuche es in einer Stunde noch mal.": "Сейчас регистрируется очень много людей. Попробуй ещё раз через час.",
-  "Testkonten sind gerade ausgeschaltet. Melde Dich bitte mit E-Mail an.": "Тестовые аккаунты сейчас отключены. Войди, пожалуйста, с почтой."
+  "Testkonten sind gerade ausgeschaltet. Melde Dich bitte mit E-Mail an.": "Тестовые аккаунты сейчас отключены. Войди, пожалуйста, с почтой.",
+  "Anheuern oder Einloggen": "Вступить или войти",
+  "Ohne Anmeldung testen": "Попробовать без регистрации",
+  "Dein Testkonto und alles, was Du postest, verschwinden nach 7 Tagen oder sobald Du Dich abmeldest. Trägst Du vorher eine E-Mail ein, bleibt alles.": "Твой тестовый аккаунт и всё, что ты публикуешь, исчезнут через 7 дней или как только ты выйдешь. Добавь почту раньше — и всё сохранится."
 }
