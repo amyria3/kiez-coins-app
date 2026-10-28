@@ -258,6 +258,8 @@ const leute = [
   { foto: 'mann.webp', w: 558, h: 489, alt: 'Lachender Mann mit Brille', altEn: 'Laughing man with glasses', text: 'Wie GitHub für den Alltag', en: 'Like GitHub for everyday life' },
   { foto: 'frau.webp', w: 484, h: 590, alt: 'Junge Frau in Jacke', altEn: 'Young woman in a jacket', text: 'Schon praktisch', en: 'Pretty handy' },
   { foto: 'mann2.webp', w: 600, h: 430, alt: 'Lachender Mann mit Brille und Anzug', altEn: 'Laughing man with glasses and a suit', text: 'I like the idea', en: 'I like the idea' },
+  { foto: 'mann3.webp', w: 652, h: 486, alt: 'Lachender älterer Mann im Jeanshemd', altEn: 'Laughing older man in a denim shirt', text: 'Gemeinsam statt einsam', en: 'Together, not alone' },
+  { foto: 'frau4.webp', w: 551, h: 496, alt: 'Lachende Frau mit grauen Locken', altEn: 'Laughing woman with grey curls', text: 'Gut investierte Zeit', en: 'Time well spent' },
 ];
 
 const startseite = (L) => {
