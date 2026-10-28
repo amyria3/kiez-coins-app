@@ -58,7 +58,7 @@ export function ParticipantsSection({ challenge: c, users, currentUserId, isAuth
       })}
       {joined.length > 1 ? (
         <Text style={styles.empty}>
-          {t('{name} war zuerst dabei und meldet erledigt, für alle.', { name: userOf(joined[0]).name })}
+          {t('Jede teilnehmende Person kann erledigt melden, für alle.')}
         </Text>
       ) : null}
       {requests.length ? (
