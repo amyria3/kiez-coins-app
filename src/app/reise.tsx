@@ -16,7 +16,7 @@ import { GroupRanking } from '../components/GroupRanking';
 import { useModes, type Mode } from '../data/features';
 import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { anrede, formatBountyShort, formatRelative } from '../data/format';
-import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
+import { catVariant, isGroupDone, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
 import { useStore } from '../data/store';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { FashionProfile } from '../components/FashionProfile';
@@ -60,7 +60,9 @@ function Reise() {
   const reiseTabs = REISE_TABS.filter((r) => modes.isVisible(r.key));
   const [groupChoice, setGroupChoice] = useState<string>();
   const group = groups.find((g) => g.id === groupChoice) ?? groups[0];
-  const groupHistory = history.filter((e) => !!group && e.challenge.groupId === group.id);
+  // Erledigte Gruppenaufgaben liegen im Archiv unter „Deine Challenges“ (Daria, 27.10.2026)
+  const groupHistory = history.filter((e) => !!group && e.challenge.groupId === group.id && !isGroupDone(e.challenge));
+  const groupDoneCount = history.filter((e) => isGroupDone(e.challenge)).length;
   const created = entries.filter((e) => e.role === 'author' && !e.challenge.groupId && !e.challenge.private).length;
   const accepted = entries.filter((e) => e.role === 'assignee' && !e.challenge.groupId).length;
   const earned = entries
@@ -137,6 +139,13 @@ function Reise() {
               variant="secondary"
               onPress={() => router.dismissTo({ pathname: '/feed', params: { gruppe: group.id } })}
             />
+            {groupDoneCount > 0 ? (
+              <Button
+                label={t('Erledigte Aufgaben ({count})', { count: groupDoneCount })}
+                variant="ghost"
+                onPress={() => router.push({ pathname: '/manage', params: { archiv: '1' } })}
+              />
+            ) : null}
           </>
         ) : (
           <View style={styles.bleed}>

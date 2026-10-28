@@ -356,10 +356,8 @@
   "Das lässt sich nicht rückgängig machen.": "Це не можна скасувати.",
   "Endgültig löschen?": "Видалити назавжди?",
   "Endgültig löschen": "Видалити назавжди",
-  "Hier liegen später Deine geschlossenen und gelöschten Challenges.": "Згодом тут будуть твої закриті й видалені челенджі.",
   "{current} von {pages}": "{current} з {pages}",
   "Aktuell": "Поточні",
-  "Geschlossen und gelöscht": "Закриті та видалені",
   "Neue Challenge": "Новий челендж",
   "Entwurf": "Чернетка",
   "Nur für Dich sichtbar": "Бачиш лише ти",
@@ -979,7 +977,6 @@
   "Deine Antwort hilft uns, KiezCoins besser zu machen.": "Твоя відповідь допомагає нам покращити KiezCoins.",
   "Der Code ist unterwegs! Schaue in Dein Postfach.": "Код уже в дорозі! Зазирни в пошту.",
   "Die Challenge verschwindet aus dem Feed.": "Челендж зникне зі стрічки.",
-  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Geschlossen und gelöscht“.": "Челендж зникне зі стрічки. Твої останні зміни збережуться. Челендж буде в «Твої челенджі» у розділі «Закриті та видалені».",
   "Die Challenge verschwindet samt Kommentaren. Das ist irreparabel, lässt sich nicht rückgängig machen.": "Челендж зникне разом із коментарями. Це незворотно, скасувати не вийде.",
   "Die Challenge wird dann wieder für alle offen sein.": "Тоді челендж знову буде відкритий для всіх.",
   "Die Kiez Coins App ist momentan eine kostenlose Testversion. Einige Funktionen können sich ändern. Am Ende der Testphase setzen wir Daten zurück. Das kündigen wir vorher per E-Mail an.": "Застосунок Kiez Coins зараз — безкоштовна тестова версія. Деякі функції можуть змінитися. Наприкінці тестової фази ми скинемо дані. Про це повідомимо заздалегідь електронною поштою.",
@@ -1132,5 +1129,11 @@
   "{mode} zeigen": "Показати {mode}",
   "Posten": "Опублікувати",
   "Was hast Du Dir vorgenommen?": "Що ти плануєш зробити?",
-  "Noch nichts für Dich.": "Поки нічого лише для тебе."
+  "Noch nichts für Dich.": "Поки нічого лише для тебе.",
+  "Archiv": "Архів",
+  "1 Gruppenaufgabe": "1 групове завдання",
+  "{count} Gruppenaufgaben": "Групових завдань: {count}",
+  "Erledigte Aufgaben ({count})": "Виконані завдання ({count})",
+  "Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte Gruppenaufgaben.": "Тут згодом будуть твої закриті та видалені челенджі й виконані групові завдання.",
+  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Archiv“.": "Челендж зникне зі стрічки. Твої останні зміни збережуться. Челендж буде в «Твої челенджі» у розділі «Архів»."
 }

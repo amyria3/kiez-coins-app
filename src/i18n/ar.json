@@ -356,10 +356,8 @@
   "Das lässt sich nicht rückgängig machen.": "لا يمكن التراجع عن ذلك.",
   "Endgültig löschen?": "حذف نهائي؟",
   "Endgültig löschen": "حذف نهائي",
-  "Hier liegen später Deine geschlossenen und gelöschten Challenges.": "ستظهر هنا لاحقًا تحدياتك المغلقة والمحذوفة.",
   "{current} von {pages}": "{current} من {pages}",
   "Aktuell": "الحالية",
-  "Geschlossen und gelöscht": "مغلقة ومحذوفة",
   "Neue Challenge": "تحدٍّ جديد",
   "Entwurf": "مسودة",
   "Nur für Dich sichtbar": "مرئي لك فقط",
@@ -979,7 +977,6 @@
   "Deine Antwort hilft uns, KiezCoins besser zu machen.": "إجابتك تساعدنا على تحسين KiezCoins.",
   "Der Code ist unterwegs! Schaue in Dein Postfach.": "الرمز في الطريق! تفقد بريدك.",
   "Die Challenge verschwindet aus dem Feed.": "يختفي التحدي من الصفحة الرئيسية.",
-  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Geschlossen und gelöscht“.": "يختفي التحدي من الصفحة الرئيسية. تُحفظ آخر تعديلاتك. تجد التحدي في «تحدياتك» ضمن «مغلقة ومحذوفة».",
   "Die Challenge verschwindet samt Kommentaren. Das ist irreparabel, lässt sich nicht rückgängig machen.": "يختفي التحدي مع تعليقاته. هذا نهائي ولا يمكن التراجع عنه.",
   "Die Challenge wird dann wieder für alle offen sein.": "سيصبح التحدي حينها متاحًا للجميع من جديد.",
   "Die Kiez Coins App ist momentan eine kostenlose Testversion. Einige Funktionen können sich ändern. Am Ende der Testphase setzen wir Daten zurück. Das kündigen wir vorher per E-Mail an.": "تطبيق Kiez Coins حاليًا نسخة تجريبية مجانية. قد تتغير بعض الوظائف. في نهاية المرحلة التجريبية نعيد ضبط البيانات. سنعلن ذلك مسبقًا بالبريد الإلكتروني.",
@@ -1132,5 +1129,11 @@
   "{mode} zeigen": "إظهار {mode}",
   "Posten": "نشر",
   "Was hast Du Dir vorgenommen?": "ماذا تنوي أن تفعل؟",
-  "Noch nichts für Dich.": "لا شيء لك وحدك بعد."
+  "Noch nichts für Dich.": "لا شيء لك وحدك بعد.",
+  "Archiv": "الأرشيف",
+  "1 Gruppenaufgabe": "مهمة جماعية واحدة",
+  "{count} Gruppenaufgaben": "مهام جماعية: {count}",
+  "Erledigte Aufgaben ({count})": "المهام المنجزة ({count})",
+  "Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte Gruppenaufgaben.": "ستظهر هنا لاحقًا تحدياتك المغلقة والمحذوفة والمهام الجماعية المنجزة.",
+  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Archiv“.": "يختفي التحدي من الصفحة الرئيسية. تُحفظ آخر تعديلاتك. تجد التحدي في «تحدياتك» ضمن «الأرشيف»."
 }
