@@ -108,7 +108,15 @@
       scenarios: [
         ['me', 'Me-Challenge', 'How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!', 'Me-Challenge'],
         ['we', 'We-Challenge', 'Dir ist etwas aufgefallen, was getan werden müsste, was Du aber nicht selbst tun kannst? Poste eine We-Challenge in Deinem Kiez, setze eine Belohnung aus und lehn Dich erst mal zurück. Wir sind gespannt, was sich so alles bewegen lässt!', 'We-Challenge'],
+        ['bild', 'Nur ein Bild', 'Teile mit Deinen Nachbar:innen besondere Momente, Orte oder Buchempfehlungen.', 'Bild'],
       ],
+      // Bild ohne Aufgabe, ohne Coins (Daria, 28.10.2026)
+      bild: {
+        suggestions: ['Herbst im Auwald', 'Neues Café am Kreuz', 'Buchtipp für den Winter'],
+        demo: ['Herbst im Auwald', 'Heute Morgen lag Nebel zwischen den Bäumen. Der Weg am Floßgraben lohnt sich gerade sehr.'],
+        photo: 'wald',
+        published: 'Dein Bild ist online. Die Nachbarschaft sieht es jetzt.',
+      },
     },
     gruppe: {
       unit: 'eden',
@@ -161,7 +169,52 @@
       scenarios: [
         ['me', 'Me-Challenge', 'Teile Life-Hacks und Rezepte in Deiner Gruppe. Hol Dir Bestätigung und Ermutigung für eine Gewohnheit, die Du entwickeln möchtest. Oder hast Du etwas für die anderen Menschen in Deiner Gruppe gemacht – und es verdient eine Portion Wertschätzung? Go!', 'Me-Challenge'],
         ['we', 'We-Challenge', 'Organisiert euch spielerisch innerhalb eurer Gruppe. Wer mehr lästige Aufgaben übernimmt, verdient sich einen hohen Rang in der Liste. Auf die Plätze, fertig, los!', 'We-Challenge'],
+        ['bild', 'Nur ein Bild', 'Teile mit Deinen Liebsten und Freund:innen besondere Momente, Orte oder Buchempfehlungen.', 'Bild'],
       ],
+      bild: {
+        suggestions: ['Igel im Hof', 'Buchtipp für den Winter', 'Sommerfest im Hof'],
+        demo: ['Igel im Hof', 'Gestern Abend unter der Hecke am Fahrradständer. Bitte langsam fahren!'],
+        photo: 'igel',
+        published: 'Dein Bild ist da. Alle im Hof Kastanienallee sehen es jetzt.',
+      },
+    },
+    // Nur ich: Was Du hier postest, siehst nur Du. Me-Challenges und Bilder, keine We-Challenges, keine Coins (Daria, 27.10.2026)
+    ich: {
+      unit: 'euro',
+      place: 'Nur ich',
+      countText: function () { return T('Was Du hier postest, siehst nur Du.', 'Only you see what you post here.'); },
+      headline: 'Kleine Challenges für mehr echte Gemeinschaft',
+      people: {
+        du: { name: 'Du', short: 'Du', color: '#7E94FF' },
+      },
+      challenges: [
+        {
+          id: 'spuele', kind: 'me',
+          title: 'Hochbeet angelegt',
+          text: 'Seit dem Frühjahr wollte ich das schaffen. Jetzt wächst da Feldsalat.',
+          author: 'du', before: 'rasen', after: 'garten', took: '3 h 20 min', comments: 0, likes: 0,
+        },
+        {
+          id: 'waesche', kind: 'bild',
+          title: 'Waschtag mit Aussicht',
+          text: 'Endlich wieder Sonne. Die Wäsche war in zwei Stunden trocken.',
+          author: 'du', img: 'waesche', comments: 0, likes: 0,
+        },
+      ],
+      group: null,
+      create: {
+        suggestions: [], demo: ['', ''], rewards: [], reward: 0, photo: null, published: '',
+      },
+      scenarios: [
+        ['me', 'Me-Challenge', 'Hast Du Dir etwas vorgenommen und brauchst ein wenig Motivation aus der Silicon-Valley-Trickkiste? Dokumentiere Deinen Fortschritt – nutze Gamification zur Glücksmaximierung, geschützt vor fremden Blicken.', 'Me-Challenge'],
+        ['bild', 'Nur ein Bild', 'Speichere visuelle Notizen oder schöne Momente in Deinem Alltag.', 'Bild'],
+      ],
+      bild: {
+        suggestions: ['Lieblingsplatz', 'Notiz für später', 'Sonnenuntergang'],
+        demo: ['Lieblingsplatz', 'Die Bank am Teich, kurz bevor die Sonne untergeht.'],
+        photo: 'wald',
+        published: 'Gespeichert. Nur Du siehst Dein Bild.',
+      },
     },
   };
 
@@ -193,7 +246,13 @@
       scenarios: [
         ['me', 'Me-Challenge', 'How do you feel today? Share a life hack or an especially kid- and budget-friendly recipe. Or challenge yourself and do something really nice for people or animals. Showing off and friendly competition are welcome!', 'Me-Challenge'],
         ['we', 'We-Challenge', 'Noticed something that needs doing, but you can’t do it yourself? Post a We-Challenge in your neighborhood, set a reward and sit back for a while. We’re curious how much we can get moving!', 'We-Challenge'],
+        ['bild', 'Just a photo', 'Share special moments, places or book tips with your neighbors.', 'Photo'],
       ],
+      bild: {
+        suggestions: ['Autumn in the floodplain forest', 'New café at the corner', 'Book tip for winter'],
+        demo: ['Autumn in the floodplain forest', 'This morning there was fog between the trees. The path along the canal is really worth it right now.'],
+        published: 'Your photo is live. The neighborhood can see it now.',
+      },
     },
     gruppe: {
       headline: 'Small challenges for more real community',
@@ -214,7 +273,31 @@
       scenarios: [
         ['me', 'Me-Challenge', 'Share life hacks and recipes in your group. Get recognition and encouragement for a habit you want to build. Or did you do something for the other people in your group – and it deserves a portion of appreciation? Go!', 'Me-Challenge'],
         ['we', 'We-Challenge', 'Organize yourselves playfully within your group. Whoever takes on more tedious tasks earns a high rank on the list. On your marks, get set, go!', 'We-Challenge'],
+        ['bild', 'Just a photo', 'Share special moments, places or book tips with your loved ones and friends.', 'Photo'],
       ],
+      bild: {
+        suggestions: ['Hedgehog in the courtyard', 'Book tip for winter', 'Courtyard summer party'],
+        demo: ['Hedgehog in the courtyard', 'Last night under the hedge by the bike rack. Please ride slowly!'],
+        published: 'Your photo is up. Everyone in Hof Kastanienallee can see it now.',
+      },
+    },
+    ich: {
+      headline: 'Small challenges for more real community',
+      place: 'Just me',
+      people: { du: { name: 'You', short: 'You' } },
+      challenges: [
+        { title: 'Built a raised bed', text: 'I’d wanted to do this since spring. Now lamb’s lettuce is growing there.' },
+        { title: 'Laundry day with a view', text: 'Finally sunshine again. The laundry was dry in two hours.' },
+      ],
+      scenarios: [
+        ['me', 'Me-Challenge', 'Set yourself a goal and need a little motivation from the Silicon Valley bag of tricks? Track your progress – use gamification to maximize happiness, safe from prying eyes.', 'Me-Challenge'],
+        ['bild', 'Just a photo', 'Save visual notes or beautiful moments from your everyday life.', 'Photo'],
+      ],
+      bild: {
+        suggestions: ['Favorite spot', 'Note for later', 'Sunset'],
+        demo: ['Favorite spot', 'The bench by the pond, just before the sun goes down.'],
+        published: 'Saved. Only you see your photo.',
+      },
     },
   };
   // Legt die Texte von `from` über `to`; Listen werden Eintrag für Eintrag zusammengeführt
@@ -258,7 +341,7 @@
     state = {
       mode: mode,
       tab: 'nearby', // nearby = Startansicht des Orts (Feed bzw. Gruppe), pleasure = „Was Du so machst“
-      focus: null, // 'rangliste', solange die Rangliste im Blick ist
+      focus: null, // gewähltes Szenario ohne eigene Ansicht, z. B. 'bild' (Ring auf der Kamera)
       detail: null,
       create: false,
       liked: {},
@@ -301,8 +384,9 @@
     '  <div class="p-compose-head"><button type="button" class="p-x" data-close aria-label="' + T('Schließen', 'Close') + '">' + svg('close', 12) + '</button><strong class="p-compose-line"></strong></div>' +
     '  <div class="p-seg" role="tablist" aria-label="Feed">' +
     '    <span class="p-seg-pill" aria-hidden="true"></span>' +
-    '    <button role="tab" data-tab="nearby"></button>' +
+    '    <button role="tab" data-tab="ich"></button>' +
     '    <button role="tab" data-tab="groups"></button>' +
+    '    <button role="tab" data-tab="nearby"></button>' +
     '  </div>' +
     '  <div class="p-content"></div>' +
     '</div>' +
@@ -365,7 +449,7 @@
       '<div class="p-actions">' +
       '<button type="button" class="p-like' + (liked ? ' is-on' : '') + '" data-like="' + c.id + '" aria-pressed="' + liked + '" aria-label="' + T('Gefällt mir', 'Like') + '">' +
       '<span class="p-heart">' + svg(liked ? 'heartOn' : 'heart', 17) + '</span><span>' + (c.likes + (liked ? 1 : 0)) + '</span></button>' +
-      '<button type="button" ' + (c.kind === 'me' ? 'data-soon="' + T('Kommentare', 'Comments') + '"' : 'data-open="' + c.id + '"') + ' aria-label="' + T('Kommentare', 'Comments') + '">' + svg('comment', 17) + '<span>' + c.comments + '</span></button>' +
+      '<button type="button" ' + (c.kind !== 'we' ? 'data-soon="' + T('Kommentare', 'Comments') + '"' : 'data-open="' + c.id + '"') + ' aria-label="' + T('Kommentare', 'Comments') + '">' + svg('comment', 17) + '<span>' + c.comments + '</span></button>' +
       '<button type="button" data-soon="' + T('Teilen', 'Sharing') + '" aria-label="' + T('Teilen', 'Share') + '">' + svg('send', 17) + '</button>' +
       (c.author === 'du' ? '<button type="button" class="p-manage" data-soon="' + T('Verwalten', 'Managing posts') + '" aria-label="' + T('Verwalten', 'Manage') + '">' + svg('gear', 20) + '</button>' : '') +
       '</div>'
@@ -390,8 +474,22 @@
     );
   }
 
+  // Nur ein Bild: Foto mit Titel, ohne Belohnung und ohne Annehmen
+  function bildCard(c, isNew) {
+    var liked = !!state.liked[c.id];
+    return (
+      '<article class="p-post' + (isNew ? ' p-new' : '') + '" data-id="' + c.id + '">' +
+      '<div class="p-card p-card-bild"><span class="p-img">' + image(c.img) + '</span>' +
+      '<span class="p-info"><strong>' + esc(c.title) + '</strong><span class="p-meta">' +
+      esc(people[c.author].name) + ' · ' + T('Bild', 'Photo') + ' · ' + ago(c) + '</span></span></div>' +
+      actions(c, liked) +
+      '</article>'
+    );
+  }
+
   function card(c, isNew) {
     if (c.kind === 'me') return meCard(c, isNew);
+    if (c.kind === 'bild') return bildCard(c, isNew);
     var liked = !!state.liked[c.id];
     return (
       '<article class="p-post' + (isNew ? ' p-new' : '') + '" data-id="' + c.id + '">' +
@@ -438,7 +536,7 @@
       '</b><span>' + (M.unit === 'euro' ? T('verdient', 'earned') : T('gesammelt', 'collected')) + '</span></div><div><b>' + mine.length + '</b><span>' + T('gestellt', 'posted') + '</span></div></div>' +
       (rows
         ? '<ul class="p-rows">' + rows + '</ul>'
-        : '<p class="p-empty">' + (M.unit === 'euro' ? T('Nimm eine We-Challenge an. Hier siehst Du, was Du erledigst und verdienst.', 'Accept a We-Challenge. Here you see what you get done and earn.') : T('Nimm eine We-Challenge an. Hier siehst Du, was Du erledigst und sammelst.', 'Accept a We-Challenge. Here you see what you get done and collect.')) + '</p>' +
+        : '<p class="p-empty">' + (state.mode === 'ich' ? T('Nur Du siehst, was Du hier machst. Starte eine Me-Challenge mit der Kamera.', 'Only you see what you do here. Start a Me-Challenge with the camera.') : M.unit === 'euro' ? T('Nimm eine We-Challenge an. Hier siehst Du, was Du erledigst und verdienst.', 'Accept a We-Challenge. Here you see what you get done and earn.') : T('Nimm eine We-Challenge an. Hier siehst Du, was Du erledigst und sammelst.', 'Accept a We-Challenge. Here you see what you get done and collect.')) + '</p>' +
           '<button type="button" class="p-btn p-btn-secondary" data-tab-go="nearby">' + M.place + '</button>') +
       '</div>';
   }
@@ -491,15 +589,18 @@
   // Pille und Schalter links gehören zusammen: Kiez = Kiez, Hof Kastanienallee = Hof Kastanienallee
   function segKey() {
     if (!state.create && state.tab === 'pleasure') return null;
-    return state.mode === 'kiez' ? 'nearby' : 'groups';
+    return TAB_OF[state.mode];
   }
+  var TAB_OF = { ich: 'ich', gruppe: 'groups', kiez: 'nearby' };
+  var MODE_OF = { ich: 'ich', groups: 'gruppe', nearby: 'kiez' };
+  var KIND_NAME = { me: 'Me-Challenge', we: 'We-Challenge', bild: T('Bild', 'Photo') };
   function syncSeg(animate) {
     var composing = state.create;
     screen.classList.toggle('is-composing', composing);
-    var kind = state.draft.kind === 'me' ? 'Me-Challenge' : 'We-Challenge';
+    var kind = KIND_NAME[state.draft.kind];
     $('.p-compose-line').textContent = kind + ' · ' + M.place;
     $$('[data-tab]', seg).forEach(function (b) {
-      b.textContent = b.dataset.tab === 'nearby' ? T('Mein Kiez', 'My neighborhood') : T('Meine Gruppen', 'My groups');
+      b.textContent = { ich: T('Nur ich', 'Just me'), groups: T('Gruppen', 'Groups'), nearby: T('Kiez', 'Neighborhood') }[b.dataset.tab];
       b.setAttribute('aria-selected', String(b.dataset.tab === segKey()));
     });
     placePill(animate);
@@ -516,8 +617,8 @@
     $('.p-place').textContent = M.place;
     $('.p-count').textContent = M.countText(open);
     if (state.tab === 'pleasure') renderPleasure();
-    else if (state.mode === 'kiez') renderNearby(opts.newId);
-    else renderGroups(opts.newId);
+    else if (state.mode === 'gruppe') renderGroups(opts.newId);
+    else renderNearby(opts.newId);
     if (opts.animate && !reduce) {
       content.classList.remove('p-swap');
       content.offsetWidth;
@@ -650,8 +751,8 @@
   // Art wählen wie im Erstellen-Blatt der App; nach „Vorher speichern“ steht die Art fest
   function kindSwitch(d) {
     return '<div class="p-choice p-kind" role="radiogroup" aria-label="' + T('Art', 'Type') + '">' +
-      [['me', 'Me-Challenge'], ['we', 'We-Challenge']].map(function (k) {
-        return '<button type="button" role="radio" aria-checked="' + (d.kind === k[0]) + '" data-kind="' + k[0] + '">' + k[1] + '</button>';
+      M.scenarios.map(function (k) {
+        return '<button type="button" role="radio" aria-checked="' + (d.kind === k[0]) + '" data-kind="' + k[0] + '">' + KIND_NAME[k[0]] + '</button>';
       }).join('') + '</div>';
   }
   function sugg(list) {
@@ -667,6 +768,7 @@
   function renderCreate() {
     var d = state.draft;
     if (d.kind === 'me') return renderMe();
+    if (d.kind === 'bild') return renderBild();
     var unit = M.unit === 'euro' ? ' €' : '';
     create.innerHTML =
       '<div class="p-create-body">' +
@@ -683,6 +785,23 @@
       ['Heute', '3 Tage', '1 Woche'].map(function (n) { return '<button type="button" role="radio" aria-checked="' + (d.deadline === n) + '" data-deadline="' + n + '">' + deadlineLabel(n) + '</button>'; }).join('') +
       '</div></div>' +
       '<button type="button" class="p-btn" data-publish' + (d.title.trim() ? '' : ' disabled') + '>' + T('Veröffentlichen', 'Publish') + '</button>' +
+      '</div>';
+    grow($('[data-text]', create));
+  }
+
+  // Nur ein Bild: Foto, Titel, Beschreibung, sofort posten
+  function renderBild() {
+    var d = state.draft;
+    create.innerHTML =
+      '<div class="p-create-body">' +
+      kindSwitch(d) +
+      photoBox(d.photo, M.bild.photo, '', T('Foto aufnehmen oder auswählen', 'Take or choose a photo')) +
+      '<div class="p-photo-title"><input type="text" maxlength="60" placeholder="' + T('Titel eingeben', 'Enter title') + '" aria-label="' + T('Titel', 'Title') + '" value="' + esc(d.title) + '" data-title></div>' +
+      '</div>' +
+      sugg(M.bild.suggestions) +
+      '<label class="p-field"><span>' + T('Beschreibung', 'Description') + '</span><textarea rows="2" maxlength="500" data-text>' + esc(d.text) + '</textarea></label>' +
+      '<p class="p-help">' + (state.mode === 'ich' ? T('Was Du hier postest, siehst nur Du.', 'Only you see what you post here.') : T('Ein Bild läuft ohne Coins und ohne Aufgabe.', 'A photo has no coins and no task.')) + '</p>' +
+      '<button type="button" class="p-btn" data-publish' + (d.photo && d.title.trim() ? '' : ' disabled') + '>' + T('Bild posten', 'Post photo') + '</button>' +
       '</div>';
     grow($('[data-text]', create));
   }
@@ -835,7 +954,7 @@
       queue = [[$('[data-after-text]', create), 'afterText', ME.demoAfter]];
       button = '[data-me-post]';
     } else if (d.stage === 'vorher' && !d.title.trim()) {
-      var demo = d.kind === 'me' ? ME.demo : M.create.demo;
+      var demo = d.kind === 'me' ? ME.demo : d.kind === 'bild' ? M.bild.demo : M.create.demo;
       d.photo = true;
       renderCreate();
       queue = [[$('[data-title]', create), 'title', demo[0]], [$('[data-text]', create), 'text', demo[1]]];
@@ -876,6 +995,15 @@
 
   function publish() {
     var d = state.draft;
+    if (d.kind === 'bild') {
+      if (!d.photo || !d.title.trim()) return;
+      state.created += 1;
+      var bid = 'neu' + state.created;
+      challenges.unshift({ id: bid, kind: 'bild', title: d.title.trim(), text: d.text.trim(), author: 'du', img: M.bild.photo, comments: 0, likes: 0 });
+      finishCreate(bid);
+      say(M.bild.published, 'high');
+      return;
+    }
     state.created += 1;
     var id = 'neu' + state.created;
     challenges.unshift({
@@ -1040,7 +1168,7 @@
     if (!t || !root.contains(t)) return;
     var d = t.dataset;
     if (d.tab) {
-      var target = d.tab === 'nearby' ? 'kiez' : 'gruppe';
+      var target = MODE_OF[d.tab];
       if (target !== state.mode) return switchMode(target, true);
       return setTab('nearby');
     }
@@ -1114,7 +1242,7 @@
     if (!e.target.matches('[data-title]')) return;
     dr.title = e.target.value;
     var btn = $('[data-publish], [data-me-save]', create);
-    btn.disabled = !dr.title.trim() || (dr.kind === 'me' && !dr.photo);
+    btn.disabled = !dr.title.trim() || (dr.kind !== 'we' && !dr.photo);
     updateRing();
   });
   scrim.addEventListener('click', function () { closeAll(true); });
@@ -1134,7 +1262,7 @@
   function current() {
     if (state.create) return state.draft.kind;
     if (state.detail) return 'we';
-    if (state.focus === 'rangliste') return 'rangliste';
+    if (state.focus) return state.focus;
     return first();
   }
   function moveMark(container, active) {
@@ -1210,6 +1338,7 @@
     if (state.tab === 'pleasure') return null;
     // Me-Challenge: ein laufender Timer im Feed, sonst die Kamera
     if (name === 'me') return $('[data-me-open]') || $('.p-camera');
+    if (name === 'bild') return $('.p-camera');
     if (name === 'rangliste') return state.mode === 'gruppe' ? $('[data-task-do]') || $('.p-board') : $('.p-seg [data-tab="groups"]');
     return firstOpenCard();
   }
@@ -1226,8 +1355,17 @@
     if (state.tab !== 'nearby') { state.tab = 'nearby'; render({ animate: true }); }
     // Me-Challenge: im Kiez und in der Gruppe gleich. Der Ring zeigt auf die Kamera, Posten startet erst dort (Daria, 26.10.2026)
     if (name === 'me') {
+      if (state.draft.stage === 'vorher') state.draft.kind = 'me';
       syncScenario();
       if (!$('[data-me-open]')) say(T('Tipp auf die Kamera und poste Deine Me-Challenge.', 'Tap the camera and post your Me-Challenge.'));
+      return;
+    }
+    // Nur ein Bild: wie die Me-Challenge zeigt der Ring auf die Kamera, die Kamera öffnet dann gleich „Bild“
+    if (name === 'bild') {
+      state.focus = 'bild';
+      state.draft.kind = state.draft.stage === 'vorher' ? 'bild' : state.draft.kind;
+      syncScenario();
+      say(T('Tipp auf die Kamera und poste Dein Bild.', 'Tap the camera and post your photo.'));
       return;
     }
     if (name === 'we') {
@@ -1252,6 +1390,8 @@
     hush();
     load(mode);
     // Ein angefangener Entwurf zieht mit um, ein laufender Timer läuft weiter
+    // Nur ich kennt keine We-Challenge: ein angefangener Entwurf wird zur Me-Challenge
+    if (mode === 'ich' && draft.kind === 'we') { draft.kind = 'me'; draft.photo = false; }
     if (composing || draft.stage !== 'vorher') {
       draft.reward = M.create.reward;
       state.draft = draft;
@@ -1268,7 +1408,7 @@
       screen.offsetWidth;
       screen.classList.add('p-flip');
     }
-    say(mode === 'gruppe' ? T('Du bist jetzt im Hof Kastanienallee.', 'You’re now in Hof Kastanienallee.') : T('Du bist jetzt in Connewitz unterwegs.', 'You’re now out and about in Connewitz.'));
+    say(mode === 'gruppe' ? T('Du bist jetzt im Hof Kastanienallee.', 'You’re now in Hof Kastanienallee.') : mode === 'ich' ? T('Hier siehst nur Du, was Du postest.', 'Only you see what you post here.') : T('Du bist jetzt in Connewitz unterwegs.', 'You’re now out and about in Connewitz.'));
   }
   if (picker) {
     picker.addEventListener('pointerover', function (e) {
@@ -1296,7 +1436,10 @@
     roles.addEventListener('keydown', function (e) {
       if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].indexOf(e.key) < 0) return;
       e.preventDefault();
-      var next = state.mode === 'kiez' ? 'gruppe' : 'kiez';
+      var order = ['ich', 'gruppe', 'kiez'];
+      var step = e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 1;
+      if (document.documentElement.dir === 'rtl' && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) step = -step;
+      var next = order[(order.indexOf(state.mode) + step + order.length) % order.length];
       switchMode(next);
       $('[data-rolle="' + next + '"]', roles).focus();
     });
