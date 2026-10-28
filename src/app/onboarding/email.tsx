@@ -225,6 +225,15 @@ export default function Email() {
               disabled={busy}
             />
           </Animated.View>
+          {/* Konto mit Deckname und Passwort, ohne gespeicherte E-Mail (Daria, 27.10.2026) */}
+          <Animated.View style={out(-1)}>
+            <Button
+              label="Ich möchte meine E-Mail nicht teilen"
+              variant="ghost"
+              onPress={() => router.push('/onboarding/ohne-mail')}
+              disabled={busy}
+            />
+          </Animated.View>
         </View>
       ) : null}
 

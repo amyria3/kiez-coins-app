@@ -14,7 +14,7 @@ import { BeforeAfterPair, BeforeAfterPost } from './BeforeAfterPost';
 import { weChallengeAfter, joinedIds, maxParticipants, participationText } from '../data/weChallenge';
 import { useAppDimensions } from '../theme/layout';
 import { WithMentions, postText } from './WithMentions';
-import { BountyBadge } from './Badges';
+import { BountyBadge, NameWithTestMark } from './Badges';
 import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
@@ -211,9 +211,11 @@ function KiezPost({
             >
               <Avatar user={author} diameter={40} />
               <View style={styles.whoTexts}>
-                <Text noTranslate style={[styles.whoName, hideName ? hiddenText : null]} numberOfLines={1}>
-                  {author.name}
-                </Text>
+                <NameWithTestMark test={author.test}>
+                  <Text noTranslate style={[styles.whoName, hideName ? hiddenText : null]} numberOfLines={1}>
+                    {author.name}
+                  </Text>
+                </NameWithTestMark>
                 <Text style={styles.whoMeta} numberOfLines={1}>
                   {formatRelative(challenge.createdAt)}
                 </Text>
@@ -316,9 +318,11 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
         >
           <Avatar user={author} diameter={32} />
           <View style={styles.whoTexts}>
-            <Text noTranslate style={[fashion.name, hideName ? hiddenText : null]} numberOfLines={1}>
-              {author.name}
-            </Text>
+            <NameWithTestMark test={author.test}>
+              <Text noTranslate style={[fashion.name, hideName ? hiddenText : null]} numberOfLines={1}>
+                {author.name}
+              </Text>
+            </NameWithTestMark>
             {place ? (
               <Text style={fashion.place} numberOfLines={1}>
                 {place}

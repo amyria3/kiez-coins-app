@@ -39,14 +39,22 @@ type ProfileRow = {
   is_group: boolean;
   can_offer_bounties: boolean;
   gender?: Gender | null;
+  is_test?: boolean | null;
 };
 
 const PROFILE_COLUMNS = 'id, handle, avatar_path, kiez, is_group, can_offer_bounties';
 /** false, sobald die Datenbank die Spalte `gender` nicht kennt (Migration 20261024000100 fehlt) */
 let hasGenderColumn = true;
+/** false, sobald die Datenbank die Spalte `is_test` nicht kennt (Migration 20261027000400 fehlt) */
+let hasTestColumn = true;
 
 /** Öffentliche Profile mit Geschlecht. Ohne die Migration geht es ohne Geschlecht weiter. */
 async function selectProfiles(ids: string[]) {
+  if (hasGenderColumn && hasTestColumn) {
+    const res = await supabase.from('profiles').select(`${PROFILE_COLUMNS}, gender, is_test`).in('id', ids);
+    if (!res.error) return res;
+    hasTestColumn = false;
+  }
   if (hasGenderColumn) {
     const res = await supabase.from('profiles').select(`${PROFILE_COLUMNS}, gender`).in('id', ids);
     if (!res.error) return res;
@@ -155,6 +163,7 @@ function toUser(row: ProfileRow, payout?: Payout): User {
     group: row.is_group,
     gender: row.gender ?? undefined,
     payout,
+    test: row.is_test ?? undefined,
   };
 }
 
