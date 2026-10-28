@@ -295,14 +295,15 @@ ${filterDefs}
   <div class="steuerung">
   <div class="rolle" id="rolle" role="radiogroup" aria-label="${t('Ort im Prototyp', 'Place in the prototype')}">
     <span class="szenario-mark" aria-hidden="true"></span>
-    <button type="button" role="radio" aria-checked="true" data-rolle="kiez" aria-controls="prototyp">${t('Mein Kiez', 'My neighborhood')}</button>
+    <button type="button" role="radio" aria-checked="false" data-rolle="ich" aria-controls="prototyp">${t('Nur ich', 'Just me')}</button>
     <button type="button" role="radio" aria-checked="false" data-rolle="gruppe" aria-controls="prototyp">${t('Meine Gruppen', 'My groups')}</button>
+    <button type="button" role="radio" aria-checked="true" data-rolle="kiez" aria-controls="prototyp">${t('Mein Kiez', 'My neighborhood')}</button>
   </div>
   <div class="szenarien" id="szenarien" aria-label="${t('Prototyp steuern', 'Control the prototype')}">
     <span class="szenario-mark" aria-hidden="true"></span>
     <button type="button" data-szenario="me" aria-pressed="true" aria-controls="prototyp"><b>Me-Challenge</b><i>Me-Challenge</i><span>${t('How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!', 'How do you feel today? Share a life hack or an especially kid- and budget-friendly recipe. Or challenge yourself and do something really nice for people or animals. Showing off and friendly competition are welcome!')}</span></button>
     <button type="button" data-szenario="we" aria-pressed="false" aria-controls="prototyp"><b>We-Challenge</b><i>We-Challenge</i><span>${t('Dir ist etwas aufgefallen, was getan werden müsste, was Du aber nicht selbst tun kannst? Poste eine We-Challenge in Deinem Kiez, setze eine Belohnung aus und lehn Dich erst mal zurück. Wir sind gespannt, was sich so alles bewegen lässt!', 'Noticed something that needs doing, but you can’t do it yourself? Post a We-Challenge in your neighborhood, set a reward and sit back for a while. We’re curious how much we can get moving!')}</span></button>
-    <button type="button" data-szenario="rangliste" aria-pressed="false" aria-controls="prototyp" hidden><b>${t('Rangliste', 'Leaderboard')}</b><i>${t('Rangliste', 'Leaderboard')}</i><span>${t('Du magst es kompetitiv? Schalte die Rangliste für Eure Gruppe ein oder aus. May the best win!', 'Like it competitive? Turn the leaderboard for your group on or off. May the best win!')}</span></button>
+    <button type="button" data-szenario="bild" aria-pressed="false" aria-controls="prototyp"><b>${t('Nur ein Bild', 'Just a photo')}</b><i>${t('Bild', 'Photo')}</i><span>${t('Teile mit Deinen Nachbar:innen besondere Momente, Orte oder Buchempfehlungen.', 'Share special moments, places or book tips with your neighbors.')}</span></button>
   </div>
   <p class="szenario-text" id="szenario-text" aria-hidden="true">${t('How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!', 'How do you feel today? Share a life hack or an especially kid- and budget-friendly recipe. Or challenge yourself and do something really nice for people or animals. Showing off and friendly competition are welcome!')}</p>
   </div>
@@ -321,11 +322,15 @@ ${filterDefs}
     <h2 id="mehr-titel">${t('Kann die App noch mehr?', 'Can the app do more?')}</h2>
     <p>${t('Klar. Tipp auf eine Karte und probier es aus.', 'Sure. Tap a card and try it out.')}</p>
     <div class="mehr-karten">
-      <button type="button" class="mehr-karte" data-mehr="wald" style="--c:${C.pink}">
-        <span class="mehr-icon">${sized(icon('camera', C.dark), 30)}</span>
-        <b>${t('Schöne Waldbilder posten', 'Post beautiful forest photos')}</b>
-        <span class="mehr-buehne mehr-wald" aria-hidden="true"><img src="${P}prototyp/fotos/wald.jpg?v=${version(readFileSync(join(fotoDir, 'wald.jpg')))}" alt="" loading="lazy" decoding="async"><span class="mehr-herz">${sized(icon('heart', C.pink), 14)}<i>0</i></span></span>
-        <span class="mehr-status" aria-live="polite">${t('Tipp und poste das Foto.', 'Tap to post the photo.')}</span>
+      <button type="button" class="mehr-karte" data-mehr="rangliste" style="--c:${C.pink}">
+        <span class="mehr-icon">${sized({ ...kcSvg.crown, svg: crownSvg.svg(C.dark) }, 26)}</span>
+        <b>${t('Rangliste in der Gruppe', 'Leaderboard in your group')}</b>
+        <ol class="mehr-buehne mehr-rang" aria-hidden="true">
+          <li data-rang="peter" style="--a:#FFAD7E"><span class="mehr-avatar">P</span><span>Peter</span><b>18</b></li>
+          <li data-rang="lena" style="--a:#FFB2E5"><span class="mehr-avatar">L</span><span>Lena</span><b>14</b></li>
+          <li data-rang="du" class="is-ich" style="--a:#7E94FF"><span class="mehr-avatar">${t('D', 'Y')}</span><span>${t('Du', 'You')}</span><b>12</b></li>
+        </ol>
+        <span class="mehr-status" aria-live="polite">${t('Du magst es kompetitiv? Tipp und erledige eine Aufgabe.', 'Like it competitive? Tap to get a task done.')}</span>
       </button>
       <button type="button" class="mehr-karte" data-mehr="freunde" style="--c:${C.green}">
         <span class="mehr-icon">${sized(icon('friends', C.dark), 30)}</span>
@@ -451,7 +456,7 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
     fig.classList.remove('is-wave'); void fig.getBoundingClientRect(); fig.classList.add('is-wave');
   });
   // Kann die App noch mehr? Jede Karte spielt bei jedem Tipp einen kleinen Schritt vor.
-  var mehr = { wald: 0, freunde: 0, nachrichten: 0 };
+  var mehr = { rangliste: 0, freunde: 0, nachrichten: 0 };
   var freunde = ['Lena', 'Peter', 'Mo'];
   var chat = [
     ['${t('Kommst Du Samstag mit in den Garten?', 'Coming to the garden on Saturday?')}', '${t('Klar! Ich bring Kaffee mit.', 'Sure! I’ll bring coffee.')}'],
@@ -469,17 +474,25 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
     var k = e.target.closest('[data-mehr]');
     if (!k) return;
     var art = k.dataset.mehr, n = ++mehr[art], buehne = k.querySelector('.mehr-buehne'), status = k.querySelector('.mehr-status');
-    if (art === 'wald') {
-      buehne.classList.add('is-gepostet');
-      var herz = buehne.querySelector('.mehr-herz i');
-      herz.textContent = String(+herz.textContent + 3 + (n % 4));
-      var flug = document.createElement('span');
-      flug.className = 'mehr-flug';
-      flug.style.left = (20 + ((n * 37) % 60)) + '%';
-      flug.innerHTML = buehne.querySelector('.mehr-herz svg').outerHTML;
-      buehne.appendChild(flug);
-      setTimeout(function () { flug.remove(); }, 1200);
-      status.textContent = n === 1 ? '${t('Gepostet! Die ersten Herzen kommen.', 'Posted! The first hearts are coming in.')}' : '${t('{n} Herzen für Dein Waldbild.', '{n} hearts for your forest photo.')}'.replace('{n}', herz.textContent);
+    if (art === 'rangliste') {
+      // Jeder Tipp bringt Dir Edensteine; die Liste ordnet sich neu (FLIP). Nach Platz 1 startet sie neu.
+      var liste = buehne, du = liste.querySelector('[data-rang="du"]'), punkte = du.querySelector('b');
+      var reihen = Array.prototype.slice.call(liste.children);
+      var vorher = {};
+      reihen.forEach(function (li) { vorher[li.dataset.rang] = li.getBoundingClientRect().top; });
+      if (n > 3) { mehr.rangliste = 0; punkte.textContent = '12'; } else punkte.textContent = String(+punkte.textContent + [1, 3, 3][n - 1]);
+      reihen.sort(function (a, b) { return +b.querySelector('b').textContent - +a.querySelector('b').textContent; }).forEach(function (li) { liste.appendChild(li); });
+      reihen.forEach(function (li) {
+        var dy = vorher[li.dataset.rang] - li.getBoundingClientRect().top;
+        if (!dy) return;
+        li.style.transition = 'none'; li.style.transform = 'translateY(' + dy + 'px)';
+        li.offsetWidth; li.style.transition = ''; li.style.transform = '';
+      });
+      var platz = Array.prototype.indexOf.call(liste.children, du);
+      status.textContent = n > 3 ? '${t('Neue Woche, neues Glück. Tipp und leg los.', 'New week, new luck. Tap to get going.')}'
+        : platz === 0 ? '${t('Du führst! May the best win.', 'You’re in the lead! May the best win.')}'
+        : n === 1 ? '${t('1 Edenstein. Noch 2 bis Lena.', '1 Eden stone. 2 more to Lena.')}'
+        : '${t('Du überholst Lena. Tipp für Platz 1.', 'You overtake Lena. Tap for first place.')}';
     } else if (art === 'freunde') {
       var av = buehne.querySelectorAll('.mehr-avatar');
       if (n > av.length) { mehr.freunde = 0; av.forEach(function (a) { a.classList.remove('is-freund'); }); status.textContent = '${t('Tipp und füg Lena hinzu.', 'Tap to add Lena.')}'; return; }
