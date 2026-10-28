@@ -115,6 +115,7 @@
         ['me', 'Me-Challenge', 'How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!', 'Me-Challenge'],
         ['we', 'We-Challenge', 'Dir ist etwas aufgefallen, was getan werden müsste, was Du aber nicht selbst tun kannst? Poste eine We-Challenge in Deinem Kiez, setze eine Belohnung aus und lehn Dich erst mal zurück. Wir sind gespannt, was sich so alles bewegen lässt!', 'We-Challenge'],
         ['bild', 'Nur ein Bild', 'Teile mit Deinen Nachbar:innen besondere Momente, Orte oder Buchempfehlungen.', 'Bild'],
+        ['feed', 'Feed', 'Wie in jedem sozialen Netzwerk: sehen, was andere Menschen so posten. Hol Dir Inspiration, Tipps, Life Hacks & Satisfaction über erledigte Challenges.', 'Feed'],
       ],
       // Bild ohne Aufgabe, ohne Coins (Daria, 28.10.2026)
       bild: {
@@ -176,6 +177,7 @@
         ['me', 'Me-Challenge', 'Teile Life-Hacks und Rezepte in Deiner Gruppe. Hol Dir Bestätigung und Ermutigung für eine Gewohnheit, die Du entwickeln möchtest. Oder hast Du etwas für die anderen Menschen in Deiner Gruppe gemacht – und es verdient eine Portion Wertschätzung? Go!', 'Me-Challenge'],
         ['we', 'We-Challenge', 'Organisiert euch spielerisch innerhalb eurer Gruppe. Wer mehr lästige Aufgaben übernimmt, verdient sich einen hohen Rang in der Liste. Auf die Plätze, fertig, los!', 'We-Challenge'],
         ['bild', 'Nur ein Bild', 'Teile mit Deinen Liebsten und Freund:innen besondere Momente, Orte oder Buchempfehlungen.', 'Bild'],
+        ['feed', 'Feed', 'Wie in jedem sozialen Netzwerk: sehen, was andere Menschen so posten. Hol Dir Inspiration, Tipps, Life Hacks & Satisfaction über erledigte Challenges.', 'Feed'],
       ],
       bild: {
         suggestions: ['Unsere Beete im Hof', 'Buchtipp für den Winter', 'Sommerfest im Hof'],
@@ -202,6 +204,7 @@
       scenarios: [
         ['me', 'Me-Challenge', 'Hast Du Dir etwas vorgenommen und brauchst ein wenig Motivation aus der Silicon-Valley-Trickkiste? Dokumentiere Deinen Fortschritt – nutze Gamification zur Glücksmaximierung, geschützt vor fremden Blicken.', 'Me-Challenge'],
         ['bild', 'Nur ein Bild', 'Speichere visuelle Notizen oder schöne Momente in Deinem Alltag.', 'Bild'],
+        ['feed', 'Feed', 'Wie in jedem sozialen Netzwerk: sehen, was andere Menschen so posten. Hol Dir Inspiration, Tipps, Life Hacks & Satisfaction über erledigte Challenges.', 'Feed'],
       ],
       bild: {
         suggestions: ['Lieblingsplatz', 'Notiz für später', 'Sonnenuntergang'],
@@ -242,6 +245,7 @@
         ['me', 'Me-Challenge', 'How do you feel today? Share a life hack or an especially kid- and budget-friendly recipe. Or challenge yourself and do something really nice for people or animals. Showing off and friendly competition are welcome!', 'Me-Challenge'],
         ['we', 'We-Challenge', 'Noticed something that needs doing, but you can’t do it yourself? Post a We-Challenge in your neighborhood, set a reward and sit back for a while. We’re curious how much we can get moving!', 'We-Challenge'],
         ['bild', 'Just a photo', 'Share special moments, places or book tips with your neighbors.', 'Photo'],
+        ['feed', 'Feed', 'Like any social network: see what other people post. Get inspiration, tips, life hacks & satisfaction from completed challenges.', 'Feed'],
       ],
       bild: {
         suggestions: ['Lake Cospuden', 'New café at the corner', 'Book tip for winter'],
@@ -269,6 +273,7 @@
         ['me', 'Me-Challenge', 'Share life hacks and recipes in your group. Get recognition and encouragement for a habit you want to build. Or did you do something for the other people in your group – and it deserves a portion of appreciation? Go!', 'Me-Challenge'],
         ['we', 'We-Challenge', 'Organize yourselves playfully within your group. Whoever takes on more tedious tasks earns a high rank on the list. On your marks, get set, go!', 'We-Challenge'],
         ['bild', 'Just a photo', 'Share special moments, places or book tips with your loved ones and friends.', 'Photo'],
+        ['feed', 'Feed', 'Like any social network: see what other people post. Get inspiration, tips, life hacks & satisfaction from completed challenges.', 'Feed'],
       ],
       bild: {
         suggestions: ['Our courtyard beds', 'Book tip for winter', 'Courtyard summer party'],
@@ -285,6 +290,7 @@
       scenarios: [
         ['me', 'Me-Challenge', 'Set yourself a goal and need a little motivation from the Silicon Valley bag of tricks? Track your progress – use gamification to maximize happiness, safe from prying eyes.', 'Me-Challenge'],
         ['bild', 'Just a photo', 'Save visual notes or beautiful moments from your everyday life.', 'Photo'],
+        ['feed', 'Feed', 'Like any social network: see what other people post. Get inspiration, tips, life hacks & satisfaction from completed challenges.', 'Feed'],
       ],
       bild: {
         suggestions: ['Favorite spot', 'Note for later', 'Sunset'],
@@ -1304,9 +1310,9 @@
   }
   function current() {
     if (state.create) return state.draft.kind;
-    if (state.detail) return 'we';
+    if (state.detail) return 'feed';
     if (state.focus) return state.focus;
-    return first();
+    return 'feed';
   }
   function moveMark(container, active) {
     var mark = container && container.querySelector('.szenario-mark');
@@ -1384,6 +1390,7 @@
     if (name === 'me') return $('[data-me-open]') || $('[data-ziel]') || $('.p-camera');
     if (name === 'bild') return $('.p-camera');
     if (name === 'rangliste') return state.mode === 'gruppe' ? $('[data-task-do]') || $('.p-board') : $('.p-seg [data-tab="groups"]');
+    if (name === 'feed') return null;
     return firstOpenCard();
   }
   function updateRing() {
@@ -1429,10 +1436,18 @@
       autofill();
       return;
     }
+    // Jeder Knopf links führt zum Posten (Daria, 28.10.2026)
     if (name === 'we') {
-      var open = openWe();
-      if (open) openDetail(open.id);
-      return syncScenario();
+      if (state.draft.stage === 'vorher') state.draft = newDraft('we');
+      openCreate('we');
+      autofill();
+      return;
+    }
+    // Feed: einfach die Beiträge der anderen ansehen
+    if (name === 'feed') {
+      scroll.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      syncScenario();
+      return;
     }
     if (name === 'rangliste') {
       state.focus = 'rangliste';
