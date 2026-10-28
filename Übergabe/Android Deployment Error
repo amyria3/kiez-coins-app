@@ -1,0 +1,714 @@
+Android Error: 
+
+Von https://github.com/amyria3/kiez-coins-app
+   d1dce4f..fb50922  main                  -> origin/main
+ * [neuer Branch]    claude/insta-look-testing -> origin/claude/insta-look-testing
+ * [neuer Branch]    claude/project-thread-0c88xi -> origin/claude/project-thread-0c88xi
+ * [neuer Branch]    claude/project-thread-0znuzw -> origin/claude/project-thread-0znuzw
+ * [neuer Branch]    claude/project-thread-2rf5gn -> origin/claude/project-thread-2rf5gn
+ * [neuer Branch]    claude/project-thread-58ueqq -> origin/claude/project-thread-58ueqq
+ * [neuer Branch]    claude/project-thread-5tbmpf -> origin/claude/project-thread-5tbmpf
+ * [neuer Branch]    claude/project-thread-6kmbt2 -> origin/claude/project-thread-6kmbt2
+ * [neuer Branch]    claude/project-thread-8ivewd -> origin/claude/project-thread-8ivewd
+ * [neuer Branch]    claude/project-thread-91v64t -> origin/claude/project-thread-91v64t
+ * [neuer Branch]    claude/project-thread-9zm1md -> origin/claude/project-thread-9zm1md
+   c5c8fff..5e36ec8  claude/project-thread-a4zu42 -> origin/claude/project-thread-a4zu42
+ * [neuer Branch]    claude/project-thread-ajakub -> origin/claude/project-thread-ajakub
+ * [neuer Branch]    claude/project-thread-b7z3mo -> origin/claude/project-thread-b7z3mo
+ * [neuer Branch]    claude/project-thread-bq3aj5 -> origin/claude/project-thread-bq3aj5
+ * [neuer Branch]    claude/project-thread-cc3x8z -> origin/claude/project-thread-cc3x8z
+ * [neuer Branch]    claude/project-thread-f4ctlq -> origin/claude/project-thread-f4ctlq
+ * [neuer Branch]    claude/project-thread-hkb8jf -> origin/claude/project-thread-hkb8jf
+ * [neuer Branch]    claude/project-thread-jtu0yb -> origin/claude/project-thread-jtu0yb
+ * [neuer Branch]    claude/project-thread-k3m6pi -> origin/claude/project-thread-k3m6pi
+ * [neuer Branch]    claude/project-thread-k9cdub -> origin/claude/project-thread-k9cdub
+ * [neuer Branch]    claude/project-thread-l29xpv -> origin/claude/project-thread-l29xpv
+ * [neuer Branch]    claude/project-thread-lugcdo -> origin/claude/project-thread-lugcdo
+ * [neuer Branch]    claude/project-thread-myyk6d -> origin/claude/project-thread-myyk6d
+ * [neuer Branch]    claude/project-thread-qwehnz -> origin/claude/project-thread-qwehnz
+ * [neuer Branch]    claude/project-thread-r1wqso -> origin/claude/project-thread-r1wqso
+ * [neuer Branch]    claude/project-thread-s58gl8 -> origin/claude/project-thread-s58gl8
+ + 562cee6...7dcdab2 claude/project-thread-uhc573 -> origin/claude/project-thread-uhc573  (Aktualisierung erzwungen)
+ * [neuer Branch]    claude/project-thread-utv4vc -> origin/claude/project-thread-utv4vc
+ * [neuer Branch]    claude/project-thread-v7iiew -> origin/claude/project-thread-v7iiew
+ * [neuer Branch]    claude/project-thread-vl55qs -> origin/claude/project-thread-vl55qs
+ * [neuer Branch]    claude/project-thread-vrid8f -> origin/claude/project-thread-vrid8f
+ * [neuer Branch]    claude/project-thread-x4mllk -> origin/claude/project-thread-x4mllk
+ * [neuer Branch]    claude/project-thread-xdfdwc -> origin/claude/project-thread-xdfdwc
+ * [neuer Branch]    claude/project-thread-yyxls5 -> origin/claude/project-thread-yyxls5
+ * [neuer Branch]    claude/project-thread-zawun4 -> origin/claude/project-thread-zawun4
+ * [neuer Branch]    erledigt-alle         -> origin/erledigt-alle
+ * [neuer Branch]    konsistenz-2026-10-25 -> origin/konsistenz-2026-10-25
+ * [neuer Branch]    leere-feeds-posten    -> origin/leere-feeds-posten
+ * [neuer Branch]    reiter-reihenfolge    -> origin/reiter-reihenfolge
+ * [neuer Branch]    text-verschluesselung -> origin/text-verschluesselung
+Aktualisiere d1dce4f..fb50922
+Fast-forward
+ .eas/workflows/android.yml                         |   84 +
+ AGENTS.md                                          |   21 +-
+ README.md                                          |    2 +-
+ app.json                                           |    8 +
+ assets/Vector.svg                                  |    3 +
+ assets/android-icon-background.png                 |  Bin 2203 -> 1880 bytes
+ assets/android-icon-foreground.png                 |  Bin 32008 -> 22980 bytes
+ assets/android-icon-monochrome.png                 |  Bin 10399 -> 5761 bytes
+ assets/brand/logo-mono.svg                         |   15 +
+ assets/brand/logo.svg                              |   49 +-
+ assets/favicon.png                                 |  Bin 2771 -> 2119 bytes
+ assets/icon.png                                    |  Bin 110403 -> 92900 bytes
+ assets/icons/cat.svg                               |    3 +
+ assets/icons/feed.svg                              |    5 +
+ assets/icons/friends.svg                           |    8 +
+ assets/icons/hallo.svg                             |    3 +
+ assets/icons/look.svg                              |    3 +
+ assets/icons/questionmark.svg                      |    4 +
+ assets/icons/settings.svg                          |   14 +-
+ assets/icons/switch.svg                            |    3 +
+ assets/icons/this-way.svg                          |    3 +
+ eas.json                                           |   11 +-
+ package-lock.json                                  | 3351 ++++++++++----------
+ package.json                                       |   53 +-
+ public/apple-touch-icon.png                        |  Bin 12183 -> 10905 bytes
+ public/gears.svg                                   |  587 ++++
+ public/icon-192.png                                |  Bin 13041 -> 11768 bytes
+ public/icon-512.png                                |  Bin 45779 -> 43648 bytes
+ public/index.html                                  |  120 +
+ scripts/blumen-zerlegen.py                         |   52 +
+ scripts/build-download-site.mjs                    |  467 ++-
+ scripts/download-site.config.json                  |    4 +-
+ scripts/i18n.mjs                                   |    2 +-
+ scripts/phosphor-icons.mjs                         |   35 +
+ scripts/prototyp-vorher-nachher/gen.mjs            |   56 +
+ scripts/prototyp-vorher-nachher/page.html          |  430 +++
+ scripts/site/blumen.webp                           |  Bin 0 -> 343584 bytes
+ scripts/site/blumen/01.webp                        |  Bin 0 -> 100912 bytes
+ scripts/site/blumen/02.webp                        |  Bin 0 -> 5070 bytes
+ scripts/site/blumen/03.webp                        |  Bin 0 -> 3170 bytes
+ scripts/site/blumen/04.webp                        |  Bin 0 -> 17986 bytes
+ scripts/site/blumen/05.webp                        |  Bin 0 -> 40864 bytes
+ scripts/site/blumen/06.webp                        |  Bin 0 -> 22724 bytes
+ scripts/site/blumen/07.webp                        |  Bin 0 -> 9658 bytes
+ scripts/site/blumen/08.webp                        |  Bin 0 -> 5168 bytes
+ scripts/site/blumen/09.webp                        |  Bin 0 -> 146318 bytes
+ scripts/site/blumen/10.webp                        |  Bin 0 -> 5344 bytes
+ scripts/site/blumen/11.webp                        |  Bin 0 -> 3882 bytes
+ scripts/site/blumen/12.webp                        |  Bin 0 -> 3932 bytes
+ scripts/site/blumen/13.webp                        |  Bin 0 -> 5052 bytes
+ scripts/site/blumen/teile.json                     |   97 +
+ scripts/site/fatcat.svg                            |    3 +
+ scripts/site/fotos/QUELLEN.md                      |    5 +-
+ scripts/site/fotos/hund.jpg                        |  Bin 67340 -> 55167 bytes
+ scripts/site/fotos/muell-wald.jpg                  |  Bin 0 -> 272525 bytes
+ scripts/site/fotos/muell.jpg                       |  Bin 52785 -> 0 bytes
+ scripts/site/fotos/wald.jpg                        |  Bin 0 -> 126912 bytes
+ scripts/site/kater/kopf.png                        |  Bin 25966 -> 2994 bytes
+ scripts/site/prototyp.js                           |  789 +++--
+ scripts/site/seite.css                             |  250 +-
+ scripts/site/sprachen/ar.json                      |  213 ++
+ scripts/site/sprachen/fr.json                      |  210 ++
+ scripts/site/sprachen/he.json                      |  213 ++
+ scripts/site/sprachen/ru.json                      |  213 ++
+ scripts/site/sprachen/uk.json                      |  213 ++
+ src/app/_layout.tsx                                |  122 +-
+ src/app/account/blocked.tsx                        |    6 +-
+ src/app/account/credentials.tsx                    |   16 +-
+ src/app/account/datenabrufe.tsx                    |   93 +
+ src/app/account/delete/index.tsx                   |    8 +-
+ src/app/account/email.tsx                          |   12 +-
+ src/app/account/freunde.tsx                        |  105 +-
+ src/app/account/funktionen.tsx                     |   18 +
+ src/app/account/geschlecht.tsx                     |   18 +
+ src/app/account/index.tsx                          |  102 +-
+ src/app/account/look.tsx                           |   40 +
+ src/app/account/password.tsx                       |   15 +-
+ src/app/account/pause/index.tsx                    |    6 +-
+ src/app/account/profile.tsx                        |   11 +-
+ src/app/account/sprache.tsx                        |    7 +-
+ src/app/account/support/index.tsx                  |    8 +-
+ src/app/account/umfrage/ergebnis.tsx               |   38 +-
+ src/app/challenge/[id]/edit.tsx                    |  115 +-
+ src/app/challenge/[id]/flag/index.tsx              |    8 +-
+ src/app/challenge/[id]/flag/success.tsx            |    2 +-
+ src/app/challenge/[id]/index.tsx                   |  217 +-
+ src/app/challenge/[id]/pay/index.tsx               |   99 +-
+ src/app/challenge/[id]/payment/index.tsx           |   25 +-
+ src/app/challenge/[id]/report/index.tsx            |   20 +-
+ src/app/challenge/[id]/report/payout.tsx           |   41 +-
+ src/app/challenge/[id]/report/success.tsx          |    7 +-
+ src/app/challenge/[id]/review/index.tsx            |   75 +-
+ src/app/challenge/[id]/review/reject.tsx           |   11 +-
+ src/app/challenge/[id]/review/success.tsx          |    8 +-
+ src/app/challenge/create/_layout.tsx               |   21 +-
+ src/app/challenge/create/preview.tsx               |   41 +-
+ src/app/challenge/create/step-1.tsx                |   62 +-
+ src/app/challenge/create/step-2.tsx                |  143 +-
+ src/app/chat/[id].tsx                              |   14 +-
+ src/app/chat/index.tsx                             |   10 +-
+ src/app/demo.tsx                                   |    8 +-
+ src/app/feed.tsx                                   |  180 +-
+ src/app/freunde/einladen.tsx                       |  112 +
+ src/app/gruppen/[id]/aufgabe.tsx                   |   35 +-
+ src/app/gruppen/[id]/index.tsx                     |  105 +-
+ src/app/gruppen/beitreten.tsx                      |   40 +-
+ src/app/gruppen/index.tsx                          |   13 +-
+ src/app/gruppen/neu.tsx                            |   10 +-
+ src/app/index.tsx                                  |   13 +-
+ src/app/kater.tsx                                  |   10 +-
+ src/app/manage.tsx                                 |  386 ++-
+ src/app/moderation.tsx                             |    4 +-
+ src/app/onboarding/_layout.tsx                     |    2 +-
+ src/app/onboarding/ansprache.tsx                   |   23 +-
+ src/app/onboarding/code.tsx                        |   14 +-
+ src/app/onboarding/deckname.tsx                    |   12 +-
+ src/app/onboarding/email.tsx                       |  106 +-
+ src/app/onboarding/funktionen.tsx                  |   28 +
+ src/app/onboarding/kiez.tsx                        |   42 +-
+ src/app/onboarding/kodex.tsx                       |   14 +-
+ src/app/onboarding/ohne-mail.tsx                   |  144 +
+ src/app/onboarding/push.tsx                        |    8 +-
+ src/app/onboarding/welcome.tsx                     |   32 +-
+ src/app/rechtliches/[doc].tsx                      |    4 +-
+ src/app/reise.tsx                                  |  141 +-
+ src/app/settings/notifications.tsx                 |    6 +-
+ src/app/settings/payout.tsx                        |    8 +-
+ src/app/texte.tsx                                  |    6 +-
+ src/app/tour.tsx                                   |    2 +-
+ src/app/user/[id]/index.tsx                        |   24 +-
+ src/app/user/[id]/report/index.tsx                 |    8 +-
+ src/app/vorher-nachher/[id].tsx                    |  303 ++
+ src/components/ActionBar.tsx                       |    7 +-
+ src/components/AudienceHint.tsx                    |   70 +
+ src/components/AuthorRow.tsx                       |   27 +-
+ src/components/Badges.tsx                          |  113 +-
+ src/components/BeforeAfterPost.tsx                 |  388 +++
+ src/components/BeforeAfterTimer.tsx                |  139 +
+ src/components/Button.tsx                          |   74 +-
+ src/components/ChallengePost.tsx                   |  434 ++-
+ src/components/Comments.tsx                        |    4 +-
+ src/components/Content.tsx                         |   23 +-
+ src/components/ErrorScreen.tsx                     |  207 ++
+ src/components/FashionProfile.tsx                  |  435 +++
+ src/components/FeatureSwitches.tsx                 |   65 +
+ src/components/FeedHeader.tsx                      |  180 +-
+ src/components/FeedStateMessage.tsx                |    8 +-
+ src/components/Form.tsx                            |  135 +-
+ src/components/FriendInviteNotice.tsx              |   52 +
+ src/components/FriendInviteQr.tsx                  |   25 +
+ src/components/GenderChoice.tsx                    |   28 +
+ src/components/Glass.tsx                           |    4 +-
+ src/components/GroupBar.tsx                        |  200 +-
+ src/components/GroupCard.tsx                       |   27 +-
+ src/components/GroupRanking.tsx                    |   95 +
+ src/components/HeartBurst.tsx                      |  122 +
+ src/components/InstallHint.tsx                     |  117 +
+ src/components/KaterStage.tsx                      |   10 +-
+ src/components/Nudge.tsx                           |  111 +-
+ src/components/Participants.tsx                    |  118 +
+ src/components/PaymentDetails.tsx                  |   19 +-
+ src/components/Rows.tsx                            |   29 +-
+ src/components/Screen.tsx                          |   11 +-
+ src/components/StartKater.tsx                      |  132 +
+ src/components/SurveyOverlay.tsx                   |   92 +-
+ src/components/T.tsx                               |   30 +-
+ src/components/TabBar.tsx                          |  143 +-
+ src/components/UpdateHint.tsx                      |  145 +
+ src/components/WebSafeArea.tsx                     |   20 +
+ src/components/WithMentions.tsx                    |   45 +
+ src/components/compose/BeforeAfterForm.tsx         |  221 ++
+ src/components/compose/ComposeSheet.tsx            |   97 +-
+ src/components/compose/EdensteinStepper.tsx        |   70 +
+ src/components/compose/GroupPhotoForm.tsx          |  114 +
+ src/components/compose/GroupTaskForm.tsx           |   86 +-
+ src/components/compose/HintWithInfo.tsx            |   42 +
+ src/components/compose/ParticipantsField.tsx       |  102 +
+ src/components/compose/PublicComposeForm.tsx       |   59 +-
+ src/components/compose/RewardField.tsx             |  184 ++
+ src/components/compose/TypeSwitch.tsx              |   92 +
+ src/components/compose/compose.ts                  |   25 +
+ src/components/icons/Brand.tsx                     |  140 +-
+ src/components/icons/Icon.tsx                      |   42 +-
+ src/components/icons/brandArt.ts                   |    3 +-
+ src/components/icons/fashionableSvgs.ts            |  111 +
+ src/components/icons/phosphorSvgs.ts               |   47 +
+ src/components/icons/svgs.ts                       |   91 +-
+ src/data/appRelease.ts                             |   38 +
+ src/data/auth.tsx                                  |  129 +-
+ src/data/chat.ts                                   |    2 +-
+ src/data/coins.ts                                  |   81 +
+ src/data/dataAccess.ts                             |   37 +
+ src/data/features.ts                               |  160 +-
+ src/data/format.ts                                 |   39 +-
+ src/data/friendInvites.ts                          |   30 +
+ src/data/friends.ts                                |   39 +
+ src/data/groups.ts                                 |   22 +-
+ src/data/legal.ts                                  |   48 +-
+ src/data/openWork.ts                               |    7 +-
+ src/data/pendingInvite.ts                          |   35 +-
+ src/data/reise.ts                                  |   21 +-
+ src/data/remote.ts                                 |  531 +++-
+ src/data/sample.ts                                 |   49 +-
+ src/data/store.tsx                                 |  346 +-
+ src/data/survey.ts                                 |   48 +-
+ src/data/testphase.ts                              |    5 +
+ src/data/textSeiten.json                           |    2 +-
+ src/data/texts.ts                                  |   82 +-
+ src/data/tour.ts                                   |    4 +-
+ src/data/types.ts                                  |   70 +-
+ src/data/weChallenge.ts                            |   78 +
+ src/i18n/ar.er.json                                |    8 +
+ src/i18n/ar.json                                   |  537 +++-
+ src/i18n/ar.person.json                            |   53 +
+ src/i18n/ar.sie.json                               |   53 +
+ src/i18n/de.er.json                                |    5 +
+ src/i18n/de.sie.json                               |    4 +
+ src/i18n/en.er.json                                |    3 +
+ src/i18n/en.json                                   |  537 +++-
+ src/i18n/en.sie.json                               |    3 +
+ src/i18n/fr.er.json                                |    9 +
+ src/i18n/fr.json                                   |  539 +++-
+ src/i18n/fr.sie.json                               |    9 +
+ src/i18n/gender.ts                                 |   33 +
+ src/i18n/he.er.json                                |    8 +
+ src/i18n/he.json                                   |  543 +++-
+ src/i18n/he.person.json                            |   61 +
+ src/i18n/he.sie.json                               |   62 +
+ src/i18n/ru.er.json                                |   34 +
+ src/i18n/ru.json                                   | 1208 +++++++
+ src/i18n/ru.sie.json                               |   34 +
+ src/i18n/uk.er.json                                |   33 +
+ src/i18n/uk.json                                   |  537 +++-
+ src/i18n/uk.sie.json                               |   33 +
+ src/lib/errorReport.ts                             |   81 +
+ src/lib/goBack.ts                                  |   36 +
+ src/lib/share.ts                                   |   24 +
+ src/theme/look.ts                                  |   60 +
+ src/theme/tokens.ts                                |   65 +-
+ supabase/functions/konto-ohne-mail/index.ts        |  108 +
+ ...00_messages.sql => 20261022000600_messages.sql} |    0
+ .../migrations/20261023000200_tester_count.sql     |   16 +
+ .../migrations/20261023000300_before_after.sql     |  315 ++
+ supabase/migrations/20261024000100_gender.sql      |    9 +
+ .../migrations/20261024000200_friend_invites.sql   |  111 +
+ .../20261025000100_edit_deleted_challenge.sql      |   46 +
+ .../migrations/20261025000200_error_reports.sql    |   36 +
+ supabase/migrations/20261025000300_app_release.sql |   32 +
+ .../20261026000100_app_texts_code_per_mail.sql     |    6 +
+ .../20261026000100_survey_frequency_comment.sql    |   51 +
+ .../20261026000200_app_texts_russian.sql           |   14 +
+ .../20261027000100_before_after_stop_timer.sql     |   21 +
+ .../migrations/20261027000100_chat_access_log.sql  |  153 +
+ .../20261027000200_group_photo_posts.sql           |   68 +
+ .../migrations/20261027000200_my_data_access.sql   |   28 +
+ .../20261027000300_app_texts_community_regeln.sql  |   27 +
+ ...20261028000100_challenge_visibility_private.sql |   31 +
+ .../migrations/20261028000200_kiez_edensteine.sql  |  104 +
+ .../20261028000300_we_challenge_teilnehmende.sql   |  368 +++
+ .../20261028000400_login_without_email.sql         |   53 +
+ .../migrations/20261028000500_test_accounts.sql    |   76 +
+ .../20261028000600_we_challenge_coins_geteilt.sql  |  361 +++
+ .../20261028000700_report_any_participant.sql      |   27 +
+ supabase/tests/before_after.sql                    |   71 +
+ supabase/tests/error_reports.sql                   |   53 +
+ supabase/tests/friend_invites.sql                  |   67 +
+ supabase/tests/lokal/pruefen.sh                    |   19 +
+ supabase/tests/lokal/supabase-ersatz.sql           |   22 +
+ tsconfig.json                                      |    5 +-
+ vercel.json                                        |    6 +-
+ website/404.html                                   |    4 +-
+ website/ar/index.html                              |  349 ++
+ website/blumen/01.webp                             |  Bin 0 -> 100912 bytes
+ website/blumen/02.webp                             |  Bin 0 -> 5070 bytes
+ website/blumen/03.webp                             |  Bin 0 -> 3170 bytes
+ website/blumen/04.webp                             |  Bin 0 -> 17986 bytes
+ website/blumen/05.webp                             |  Bin 0 -> 40864 bytes
+ website/blumen/06.webp                             |  Bin 0 -> 22724 bytes
+ website/blumen/07.webp                             |  Bin 0 -> 9658 bytes
+ website/blumen/08.webp                             |  Bin 0 -> 5168 bytes
+ website/blumen/09.webp                             |  Bin 0 -> 146318 bytes
+ website/blumen/10.webp                             |  Bin 0 -> 5344 bytes
+ website/blumen/11.webp                             |  Bin 0 -> 3882 bytes
+ website/blumen/12.webp                             |  Bin 0 -> 3932 bytes
+ website/blumen/13.webp                             |  Bin 0 -> 5052 bytes
+ website/community-regeln.html                      |   39 +-
+ website/datenschutz.html                           |    8 +-
+ website/einladung.html                             |    8 +-
+ website/en/index.html                              |  349 ++
+ website/favicon.png                                |  Bin 2771 -> 2119 bytes
+ website/fr/index.html                              |  349 ++
+ website/he/index.html                              |  349 ++
+ website/impressum.html                             |    8 +-
+ website/index.html                                 |  188 +-
+ website/kater.html                                 |   12 +-
+ website/kater/kopf.png                             |  Bin 25966 -> 2994 bytes
+ website/nutzungsbedingungen.html                   |    8 +-
+ website/prototyp/app.js                            |  789 +++--
+ website/prototyp/daten.js                          |    2 +-
+ website/prototyp/fotos/hund.jpg                    |  Bin 67340 -> 55167 bytes
+ website/prototyp/fotos/muell-wald.jpg              |  Bin 0 -> 272525 bytes
+ website/prototyp/fotos/muell.jpg                   |  Bin 52785 -> 0 bytes
+ website/prototyp/fotos/wald.jpg                    |  Bin 0 -> 126912 bytes
+ website/ru/index.html                              |  349 ++
+ website/seite.css                                  |  250 +-
+ website/spenden.html                               |   86 +
+ website/uk/index.html                              |  349 ++
+ website/vercel.json                                |    4 +-
+ "\303\234bergabe/2026-10-20_code-login.md"         |   25 -
+ "\303\234bergabe/2026-10-20_migrationen.md"        |  232 --
+ "\303\234bergabe/2026-10-20_standort.md"           |   51 -
+ "\303\234bergabe/2026-10-21_download-seite.md"     |   61 -
+ "\303\234bergabe/2026-10-21_gruppen.md"            |   22 -
+ "\303\234bergabe/2026-10-21_mehrsprachigkeit.md"   |   44 -
+ "\303\234bergabe/2026-10-21_moderation.md"         |   31 -
+ "\303\234bergabe/2026-10-21_rechtliches.md"        |   29 -
+ .../2026-10-21_startseite-prototyp.md"             |   46 -
+ "\303\234bergabe/2026-10-21_texte-cms.md"          |   41 -
+ "\303\234bergabe/2026-10-21_todos-app.md"          |   81 -
+ "\303\234bergabe/2026-10-21_umfrage.md"            |   31 -
+ "\303\234bergabe/2026-10-21_web-app.md"            |   43 -
+ .../2026-10-21_workflow-korrekturen.md"            |   30 -
+ "\303\234bergabe/2026-10-22_rangliste-schalten.md" |   14 -
+ .../2026-10-23_offen_texte-druck-nummern.json"     | 1036 ++++++
+ ...026-10-24_offen_coin-animation-me-challenge.md" |   33 +
+ .../2026-10-24_offen_email-code-5-minuten.md"      |  102 +
+ ...2026-10-24_offen_features-aus-textkorrektur.md" |   50 +
+ .../2026-10-24_offen_figma-abgleich.md"            |   10 +
+ .../2026-10-24_offen_funktionen-sperre.md"         |   32 +
+ ...10-24_offen_gender-uebersetzungen-pruefen.json" | 1488 +++++++++
+ "\303\234bergabe/2026-10-24_offen_gendern.md"      |  106 +
+ .../2026-10-24_offen_gruppen-titelbild.md"         |   24 +
+ "\303\234bergabe/2026-10-24_offen_gruppen.md"      |    9 +
+ .../2026-10-24_offen_look-auf-allen-geraeten.md"   |   21 +
+ .../2026-10-24_offen_typescript-strict.md"         |   10 +
+ .../2026-10-24_offen_umbenennung-kiezkoinz.md"     |   32 +
+ .../2026-10-24_offen_vorher-nachher-app.md"        |   41 +
+ .../2026-10-24_offen_web-und-mobile.md"            |   12 +
+ .../2026-10-25_offen_fehlerberichte.md"            |   30 +
+ .../2026-10-25_offen_gruppe-beim-erstellen.md"     |   35 +
+ "\303\234bergabe/2026-10-25_offen_konsistenz.md"   |   47 +
+ .../2026-10-25_offen_kopf-grosse-bildschirme.md"   |   36 +
+ "\303\234bergabe/2026-10-26_feed-doppelherz.md"    |    8 +
+ .../2026-10-26_offen_lila-ungemuetlich.md"         |   32 +
+ "\303\234bergabe/2026-10-26_offen_russisch.md"     |   21 +
+ .../2026-10-26_offen_umfrage-ergaenzungen.md"      |   21 +
+ .../2026-10-27_bild-marke-in-diesem-moment.md"     |   13 +
+ "\303\234bergabe/2026-10-27_bilder-in-gruppen.md"  |   41 +
+ .../2026-10-27_formulare-enter-naechstes-feld.md"  |   23 +
+ "\303\234bergabe/2026-10-27_kiez-edensteine.md"    |   33 +
+ .../2026-10-27_me-challenge-timer-stoppen.md"      |   20 +
+ .../2026-10-27_modi-privat-gruppe-kiez.md"         |   28 +
+ ...6-10-27_offen_anmeldung-ohne-mail-testkonto.md" |   34 +
+ .../2026-10-27_offen_chat-mitlesen-protokoll.md"   |   42 +
+ .../2026-10-27_offen_community-regeln.md"          |   18 +
+ .../2026-10-27_status-badges-deckname.md"          |   28 +
+ .../2026-10-27_ux-audit-gruppen-navigation.md"     |   21 +
+ .../2026-10-27_we-challenge-mehrere-personen.md"   |   97 +
+ .../2026-10-27_we-challenge-vorher-nachher.md"     |   19 +
+ .../2026-10-28_offen_we-challenge-coins.md"        |   29 +
+ ...g_Kiez_Coins.md (Original unter original-).pdf" |  Bin 144354 -> 0 bytes
+ "\303\234bergabe/README.md"                        |   70 +-
+ "\303\234bergabe/TODO.md"                          |  124 +
+ 363 files changed, 27847 insertions(+), 5528 deletions(-)
+ create mode 100644 .eas/workflows/android.yml
+ create mode 100644 assets/Vector.svg
+ create mode 100644 assets/brand/logo-mono.svg
+ create mode 100644 assets/icons/cat.svg
+ create mode 100644 assets/icons/feed.svg
+ create mode 100644 assets/icons/friends.svg
+ create mode 100644 assets/icons/hallo.svg
+ create mode 100644 assets/icons/look.svg
+ create mode 100644 assets/icons/questionmark.svg
+ create mode 100644 assets/icons/switch.svg
+ create mode 100644 assets/icons/this-way.svg
+ create mode 100644 public/gears.svg
+ create mode 100644 scripts/blumen-zerlegen.py
+ create mode 100644 scripts/phosphor-icons.mjs
+ create mode 100644 scripts/prototyp-vorher-nachher/gen.mjs
+ create mode 100644 scripts/prototyp-vorher-nachher/page.html
+ create mode 100644 scripts/site/blumen.webp
+ create mode 100644 scripts/site/blumen/01.webp
+ create mode 100644 scripts/site/blumen/02.webp
+ create mode 100644 scripts/site/blumen/03.webp
+ create mode 100644 scripts/site/blumen/04.webp
+ create mode 100644 scripts/site/blumen/05.webp
+ create mode 100644 scripts/site/blumen/06.webp
+ create mode 100644 scripts/site/blumen/07.webp
+ create mode 100644 scripts/site/blumen/08.webp
+ create mode 100644 scripts/site/blumen/09.webp
+ create mode 100644 scripts/site/blumen/10.webp
+ create mode 100644 scripts/site/blumen/11.webp
+ create mode 100644 scripts/site/blumen/12.webp
+ create mode 100644 scripts/site/blumen/13.webp
+ create mode 100644 scripts/site/blumen/teile.json
+ create mode 100644 scripts/site/fatcat.svg
+ create mode 100644 scripts/site/fotos/muell-wald.jpg
+ delete mode 100644 scripts/site/fotos/muell.jpg
+ create mode 100644 scripts/site/fotos/wald.jpg
+ create mode 100644 scripts/site/sprachen/ar.json
+ create mode 100644 scripts/site/sprachen/fr.json
+ create mode 100644 scripts/site/sprachen/he.json
+ create mode 100644 scripts/site/sprachen/ru.json
+ create mode 100644 scripts/site/sprachen/uk.json
+ create mode 100644 src/app/account/datenabrufe.tsx
+ create mode 100644 src/app/account/funktionen.tsx
+ create mode 100644 src/app/account/geschlecht.tsx
+ create mode 100644 src/app/account/look.tsx
+ create mode 100644 src/app/freunde/einladen.tsx
+ create mode 100644 src/app/onboarding/funktionen.tsx
+ create mode 100644 src/app/onboarding/ohne-mail.tsx
+ create mode 100644 src/app/vorher-nachher/[id].tsx
+ create mode 100644 src/components/AudienceHint.tsx
+ create mode 100644 src/components/BeforeAfterPost.tsx
+ create mode 100644 src/components/BeforeAfterTimer.tsx
+ create mode 100644 src/components/ErrorScreen.tsx
+ create mode 100644 src/components/FashionProfile.tsx
+ create mode 100644 src/components/FeatureSwitches.tsx
+ create mode 100644 src/components/FriendInviteNotice.tsx
+ create mode 100644 src/components/FriendInviteQr.tsx
+ create mode 100644 src/components/GenderChoice.tsx
+ create mode 100644 src/components/GroupRanking.tsx
+ create mode 100644 src/components/HeartBurst.tsx
+ create mode 100644 src/components/InstallHint.tsx
+ create mode 100644 src/components/Participants.tsx
+ create mode 100644 src/components/StartKater.tsx
+ create mode 100644 src/components/UpdateHint.tsx
+ create mode 100644 src/components/WebSafeArea.tsx
+ create mode 100644 src/components/WithMentions.tsx
+ create mode 100644 src/components/compose/BeforeAfterForm.tsx
+ create mode 100644 src/components/compose/EdensteinStepper.tsx
+ create mode 100644 src/components/compose/GroupPhotoForm.tsx
+ create mode 100644 src/components/compose/HintWithInfo.tsx
+ create mode 100644 src/components/compose/ParticipantsField.tsx
+ create mode 100644 src/components/compose/RewardField.tsx
+ create mode 100644 src/components/compose/TypeSwitch.tsx
+ create mode 100644 src/components/icons/fashionableSvgs.ts
+ create mode 100644 src/components/icons/phosphorSvgs.ts
+ create mode 100644 src/data/appRelease.ts
+ create mode 100644 src/data/coins.ts
+ create mode 100644 src/data/dataAccess.ts
+ create mode 100644 src/data/friendInvites.ts
+ create mode 100644 src/data/friends.ts
+ create mode 100644 src/data/testphase.ts
+ create mode 100644 src/data/weChallenge.ts
+ create mode 100644 src/i18n/ar.er.json
+ create mode 100644 src/i18n/ar.person.json
+ create mode 100644 src/i18n/ar.sie.json
+ create mode 100644 src/i18n/de.er.json
+ create mode 100644 src/i18n/de.sie.json
+ create mode 100644 src/i18n/en.er.json
+ create mode 100644 src/i18n/en.sie.json
+ create mode 100644 src/i18n/fr.er.json
+ create mode 100644 src/i18n/fr.sie.json
+ create mode 100644 src/i18n/gender.ts
+ create mode 100644 src/i18n/he.er.json
+ create mode 100644 src/i18n/he.person.json
+ create mode 100644 src/i18n/he.sie.json
+ create mode 100644 src/i18n/ru.er.json
+ create mode 100644 src/i18n/ru.json
+ create mode 100644 src/i18n/ru.sie.json
+ create mode 100644 src/i18n/uk.er.json
+ create mode 100644 src/i18n/uk.sie.json
+ create mode 100644 src/lib/errorReport.ts
+ create mode 100644 src/lib/goBack.ts
+ create mode 100644 src/lib/share.ts
+ create mode 100644 src/theme/look.ts
+ create mode 100644 supabase/functions/konto-ohne-mail/index.ts
+ rename supabase/migrations/{20261022000500_messages.sql => 20261022000600_messages.sql} (100%)
+ create mode 100644 supabase/migrations/20261023000200_tester_count.sql
+ create mode 100644 supabase/migrations/20261023000300_before_after.sql
+ create mode 100644 supabase/migrations/20261024000100_gender.sql
+ create mode 100644 supabase/migrations/20261024000200_friend_invites.sql
+ create mode 100644 supabase/migrations/20261025000100_edit_deleted_challenge.sql
+ create mode 100644 supabase/migrations/20261025000200_error_reports.sql
+ create mode 100644 supabase/migrations/20261025000300_app_release.sql
+ create mode 100644 supabase/migrations/20261026000100_app_texts_code_per_mail.sql
+ create mode 100644 supabase/migrations/20261026000100_survey_frequency_comment.sql
+ create mode 100644 supabase/migrations/20261026000200_app_texts_russian.sql
+ create mode 100644 supabase/migrations/20261027000100_before_after_stop_timer.sql
+ create mode 100644 supabase/migrations/20261027000100_chat_access_log.sql
+ create mode 100644 supabase/migrations/20261027000200_group_photo_posts.sql
+ create mode 100644 supabase/migrations/20261027000200_my_data_access.sql
+ create mode 100644 supabase/migrations/20261027000300_app_texts_community_regeln.sql
+ create mode 100644 supabase/migrations/20261028000100_challenge_visibility_private.sql
+ create mode 100644 supabase/migrations/20261028000200_kiez_edensteine.sql
+ create mode 100644 supabase/migrations/20261028000300_we_challenge_teilnehmende.sql
+ create mode 100644 supabase/migrations/20261028000400_login_without_email.sql
+ create mode 100644 supabase/migrations/20261028000500_test_accounts.sql
+ create mode 100644 supabase/migrations/20261028000600_we_challenge_coins_geteilt.sql
+ create mode 100644 supabase/migrations/20261028000700_report_any_participant.sql
+ create mode 100644 supabase/tests/before_after.sql
+ create mode 100644 supabase/tests/error_reports.sql
+ create mode 100644 supabase/tests/friend_invites.sql
+ create mode 100755 supabase/tests/lokal/pruefen.sh
+ create mode 100644 supabase/tests/lokal/supabase-ersatz.sql
+ create mode 100644 website/ar/index.html
+ create mode 100644 website/blumen/01.webp
+ create mode 100644 website/blumen/02.webp
+ create mode 100644 website/blumen/03.webp
+ create mode 100644 website/blumen/04.webp
+ create mode 100644 website/blumen/05.webp
+ create mode 100644 website/blumen/06.webp
+ create mode 100644 website/blumen/07.webp
+ create mode 100644 website/blumen/08.webp
+ create mode 100644 website/blumen/09.webp
+ create mode 100644 website/blumen/10.webp
+ create mode 100644 website/blumen/11.webp
+ create mode 100644 website/blumen/12.webp
+ create mode 100644 website/blumen/13.webp
+ create mode 100644 website/en/index.html
+ create mode 100644 website/fr/index.html
+ create mode 100644 website/he/index.html
+ create mode 100644 website/prototyp/fotos/muell-wald.jpg
+ delete mode 100644 website/prototyp/fotos/muell.jpg
+ create mode 100644 website/prototyp/fotos/wald.jpg
+ create mode 100644 website/ru/index.html
+ create mode 100644 website/spenden.html
+ create mode 100644 website/uk/index.html
+ delete mode 100644 "\303\234bergabe/2026-10-20_code-login.md"
+ delete mode 100644 "\303\234bergabe/2026-10-20_migrationen.md"
+ delete mode 100644 "\303\234bergabe/2026-10-20_standort.md"
+ delete mode 100644 "\303\234bergabe/2026-10-21_download-seite.md"
+ delete mode 100644 "\303\234bergabe/2026-10-21_gruppen.md"
+ delete mode 100644 "\303\234bergabe/2026-10-21_mehrsprachigkeit.md"
+ delete mode 100644 "\303\234bergabe/2026-10-21_moderation.md"
+ delete mode 100644 "\303\234bergabe/2026-10-21_rechtliches.md"
+ delete mode 100644 "\303\234bergabe/2026-10-21_startseite-prototyp.md"
+ delete mode 100644 "\303\234bergabe/2026-10-21_texte-cms.md"
+ delete mode 100644 "\303\234bergabe/2026-10-21_todos-app.md"
+ delete mode 100644 "\303\234bergabe/2026-10-21_umfrage.md"
+ delete mode 100644 "\303\234bergabe/2026-10-21_web-app.md"
+ delete mode 100644 "\303\234bergabe/2026-10-21_workflow-korrekturen.md"
+ delete mode 100644 "\303\234bergabe/2026-10-22_rangliste-schalten.md"
+ create mode 100644 "\303\234bergabe/2026-10-23_offen_texte-druck-nummern.json"
+ create mode 100644 "\303\234bergabe/2026-10-24_offen_coin-animation-me-challenge.md"
+ create mode 100644 "\303\234bergabe/2026-10-24_offen_email-code-5-minuten.md"
+ create mode 100644 "\303\234bergabe/2026-10-24_offen_features-aus-textkorrektur.md"
+ create mode 100644 "\303\234bergabe/2026-10-24_offen_figma-abgleich.md"
+ create mode 100644 "\303\234bergabe/2026-10-24_offen_funktionen-sperre.md"
+ create mode 100644 "\303\234bergabe/2026-10-24_offen_gender-uebersetzungen-pruefen.json"
+ create mode 100644 "\303\234bergabe/2026-10-24_offen_gendern.md"
+ create mode 100644 "\303\234bergabe/2026-10-24_offen_gruppen-titelbild.md"
+ create mode 100644 "\303\234bergabe/2026-10-24_offen_gruppen.md"
+ create mode 100644 "\303\234bergabe/2026-10-24_offen_look-auf-allen-geraeten.md"
+ create mode 100644 "\303\234bergabe/2026-10-24_offen_typescript-strict.md"
+ create mode 100644 "\303\234bergabe/2026-10-24_offen_umbenennung-kiezkoinz.md"
+ create mode 100644 "\303\234bergabe/2026-10-24_offen_vorher-nachher-app.md"
+ create mode 100644 "\303\234bergabe/2026-10-24_offen_web-und-mobile.md"
+ create mode 100644 "\303\234bergabe/2026-10-25_offen_fehlerberichte.md"
+ create mode 100644 "\303\234bergabe/2026-10-25_offen_gruppe-beim-erstellen.md"
+ create mode 100644 "\303\234bergabe/2026-10-25_offen_konsistenz.md"
+ create mode 100644 "\303\234bergabe/2026-10-25_offen_kopf-grosse-bildschirme.md"
+ create mode 100644 "\303\234bergabe/2026-10-26_feed-doppelherz.md"
+ create mode 100644 "\303\234bergabe/2026-10-26_offen_lila-ungemuetlich.md"
+ create mode 100644 "\303\234bergabe/2026-10-26_offen_russisch.md"
+ create mode 100644 "\303\234bergabe/2026-10-26_offen_umfrage-ergaenzungen.md"
+ create mode 100644 "\303\234bergabe/2026-10-27_bild-marke-in-diesem-moment.md"
+ create mode 100644 "\303\234bergabe/2026-10-27_bilder-in-gruppen.md"
+ create mode 100644 "\303\234bergabe/2026-10-27_formulare-enter-naechstes-feld.md"
+ create mode 100644 "\303\234bergabe/2026-10-27_kiez-edensteine.md"
+ create mode 100644 "\303\234bergabe/2026-10-27_me-challenge-timer-stoppen.md"
+ create mode 100644 "\303\234bergabe/2026-10-27_modi-privat-gruppe-kiez.md"
+ create mode 100644 "\303\234bergabe/2026-10-27_offen_anmeldung-ohne-mail-testkonto.md"
+ create mode 100644 "\303\234bergabe/2026-10-27_offen_chat-mitlesen-protokoll.md"
+ create mode 100644 "\303\234bergabe/2026-10-27_offen_community-regeln.md"
+ create mode 100644 "\303\234bergabe/2026-10-27_status-badges-deckname.md"
+ create mode 100644 "\303\234bergabe/2026-10-27_ux-audit-gruppen-navigation.md"
+ create mode 100644 "\303\234bergabe/2026-10-27_we-challenge-mehrere-personen.md"
+ create mode 100644 "\303\234bergabe/2026-10-27_we-challenge-vorher-nachher.md"
+ create mode 100644 "\303\234bergabe/2026-10-28_offen_we-challenge-coins.md"
+ delete mode 100644 "\303\234bergabe/Aus- Briefing_Kiez_Coins.md (Original unter original-).pdf"
+ create mode 100644 "\303\234bergabe/TODO.md"
+Mac:kiez-coins-app arkadieff$ npx eas-cli@latest update --channel preview --message "Stand main 28.10."
+Need to install the following packages:
+  eas-cli@26.0.0
+Ok to proceed? (y) y
+y
+(node:16141) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ Select environment: › development
+[expo-cli] --non-interactive is not supported, use $CI=1 instead
+[expo-cli] Using src/app as the root directory for Expo Router.
+[expo-cli] Starting Metro Bundler
+[expo-cli] iOS Bundling failed 15576ms node_modules/expo-router/entry.js (1534 modules)
+[expo-cli] 
+[expo-cli] Error: Unable to resolve module expo-updates from /Users/arkadieff/kiez-coins-app/src/components/ErrorScreen.tsx: expo-updates could not be found within the project or in these directories:
+[expo-cli]   node_modules
+[expo-cli]   4 | import Constants from 'expo-constants';
+[expo-cli]   5 | import { router } from 'expo-router';
+[expo-cli] > 6 | import * as Updates from 'expo-updates';
+[expo-cli]     |                           ^
+[expo-cli]   7 |
+[expo-cli]   8 | import { buildErrorReport, mailErrorReport, sendErrorReport } from '../lib/errorReport';
+[expo-cli]   9 | import { color, font, radius, space, text } from '../theme/tokens';
+[expo-cli] 
+[expo-cli] Import stack:
+[expo-cli] 
+[expo-cli]  src/components/ErrorScreen.tsx
+[expo-cli]  | import "expo-updates"
+[expo-cli] 
+[expo-cli]  src/app/_layout.tsx
+[expo-cli]  | import "../components/ErrorScreen"
+[expo-cli] 
+[expo-cli]  src/app (require.context)
+✖ Export failed
+/Users/arkadieff/kiez-coins-app/node_modules/expo/bin/cli export --output-dir dist --experimental-bundle --non-interactive --dump-sourcemap --dump-assetmap --platform=all exited with non-zero code: 1
+    Error: update command failed.
+Mac:kiez-coins-app arkadieff$ npx eas-cli@latest update --channel preview --message "Stand main 28.10."
+(node:16248) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ Select environment: › production
+[expo-cli] --non-interactive is not supported, use $CI=1 instead
+[expo-cli] Using src/app as the root directory for Expo Router.
+[expo-cli] Starting Metro Bundler
+[expo-cli] iOS Bundling failed 2546ms node_modules/expo-router/entry.js (1534 modules)
+[expo-cli] Error: Unable to resolve module react-native-qrcode-svg from /Users/arkadieff/kiez-coins-app/src/components/FriendInviteQr.tsx: react-native-qrcode-svg could not be found within the project or in these directories:
+[expo-cli]   node_modules
+[expo-cli]   1 | import { StyleSheet, View } from 'react-native';
+[expo-cli] > 2 | import QRCode from 'react-native-qrcode-svg';
+[expo-cli]     |                     ^
+[expo-cli]   3 |
+[expo-cli]   4 | import { radius, space } from '../theme/tokens';
+[expo-cli]   5 |
+[expo-cli] 
+[expo-cli] Import stack:
+[expo-cli] 
+[expo-cli]  src/components/FriendInviteQr.tsx
+[expo-cli]  | import "react-native-qrcode-svg"
+[expo-cli] 
+[expo-cli]  src/app/account/freunde.tsx
+[expo-cli]  | import "../../components/FriendInviteQr"
+[expo-cli] 
+[expo-cli]  src/app (require.context)
+✖ Export failed
+/Users/arkadieff/kiez-coins-app/node_modules/expo/bin/cli export --output-dir dist --experimental-bundle --non-interactive --dump-sourcemap --dump-assetmap --platform=all exited with non-zero code: 1
+    Error: update command failed.
+Mac:kiez-coins-app arkadieff$ npx eas-cli@latest update --channel preview --message "Stand main 28.10."
+(node:16538) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ Select environment: › preview
+[expo-cli] --non-interactive is not supported, use $CI=1 instead
+[expo-cli] Using src/app as the root directory for Expo Router.
+[expo-cli] Starting Metro Bundler
+[expo-cli] iOS Bundling failed 2894ms node_modules/expo-router/entry.js (1491 modules)
+[expo-cli] Error: Unable to resolve module expo-updates from /Users/arkadieff/kiez-coins-app/src/components/ErrorScreen.tsx: expo-updates could not be found within the project or in these directories:
+[expo-cli]   node_modules
+[expo-cli]   4 | import Constants from 'expo-constants';
+[expo-cli]   5 | import { router } from 'expo-router';
+[expo-cli] > 6 | import * as Updates from 'expo-updates';
+[expo-cli]     |                           ^
+[expo-cli]   7 |
+[expo-cli]   8 | import { buildErrorReport, mailErrorReport, sendErrorReport } from '../lib/errorReport';
+[expo-cli]   9 | import { color, font, radius, space, text } from '../theme/tokens';
+[expo-cli] 
+[expo-cli] Import stack:
+[expo-cli] 
+[expo-cli]  src/components/ErrorScreen.tsx
+[expo-cli]  | import "expo-updates"
+[expo-cli] 
+[expo-cli]  src/app/_layout.tsx
+[expo-cli]  | import "../components/ErrorScreen"
+[expo-cli] 
+[expo-cli]  src/app (require.context)
+✖ Export failed
+/Users/arkadieff/kiez-coins-app/node_modules/expo/bin/cli export --output-dir dist --experimental-bundle --non-interactive --dump-sourcemap --dump-assetmap --platform=all exited with non-zero code: 1
+    Error: update command failed.
+Mac:kiez-coins-app arkadieff$ 
