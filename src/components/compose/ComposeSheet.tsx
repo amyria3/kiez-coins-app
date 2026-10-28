@@ -13,22 +13,22 @@ import { useBeforeAfterStartForm } from './BeforeAfterForm';
 import { TypeSwitch } from './TypeSwitch';
 import { useComposeContent, type ComposeContent } from './compose';
 
-/** Beitragstypen im Kiez, in dieser Reihenfolge (Daria, 23.10.2026). Alle immer an (Daria, 27.10.2026). */
+/** Beitragstypen im Kiez, in dieser Reihenfolge: Bild, Me-Challenge, We-Challenge (Daria, 28.10.2026). Alle immer an (Daria, 27.10.2026). */
 const PUBLIC_TYPES = [
-  { key: 'individual', label: 'We-Challenge' },
-  { key: 'before_after', label: 'Me-Challenge' },
   { key: 'photo', label: 'Bild' },
+  { key: 'before_after', label: 'Me-Challenge' },
+  { key: 'individual', label: 'We-Challenge' },
 ] as const;
 /** Privat: ohne We-Challenge, die braucht andere, die sie annehmen (Daria, 27.10.2026) */
 const PRIVATE_TYPES = [
-  { key: 'before_after', label: 'Me-Challenge' },
   { key: 'photo', label: 'Bild' },
+  { key: 'before_after', label: 'Me-Challenge' },
 ] as const;
-/** In Gruppen: Aufgabe mit Edensteinen, Vorher-Nachher oder Bild (Daria, 27.10.2026) */
+/** In Gruppen: Bild, Vorher-Nachher oder Aufgabe mit Edensteinen (Daria, 28.10.2026) */
 export const GROUP_TYPES = [
-  { key: 'task', label: 'We-Challenge' },
-  { key: 'before_after', label: 'Me-Challenge' },
   { key: 'photo', label: 'Bild' },
+  { key: 'before_after', label: 'Me-Challenge' },
+  { key: 'task', label: 'We-Challenge' },
 ] as const;
 
 type Props = {
@@ -97,7 +97,7 @@ function useOpenTimer(onDone: () => void) {
 
 function PublicBody({ onDone, shared, isPrivate = false }: { onDone: () => void; shared: ComposeContent; isPrivate?: boolean }) {
   const options: readonly { key: (typeof PUBLIC_TYPES)[number]['key']; label: string }[] = isPrivate ? PRIVATE_TYPES : PUBLIC_TYPES;
-  const [type, setType] = useState<(typeof PUBLIC_TYPES)[number]['key']>(isPrivate ? 'before_after' : 'individual');
+  const [type, setType] = useState<(typeof PUBLIC_TYPES)[number]['key']>('before_after'); // Me-Challenge vorausgewählt (Daria, 28.10.2026)
   const post = usePublicComposeForm(onDone, type === 'photo' ? 'photo' : 'individual', shared, isPrivate);
   const ba = useBeforeAfterStartForm(undefined, useOpenTimer(onDone), shared, isPrivate);
   const isBa = type === 'before_after';
@@ -112,7 +112,7 @@ function PublicBody({ onDone, shared, isPrivate = false }: { onDone: () => void;
 function GroupBody({ groupId, onDone, shared }: { groupId: string; onDone: () => void; shared: ComposeContent }) {
   const router = useRouter();
   const options = GROUP_TYPES;
-  const [type, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('task');
+  const [type, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('before_after'); // Me-Challenge vorausgewählt (Daria, 28.10.2026)
   const openPost = (id: string) => {
     onDone();
     router.push(`/challenge/${id}`);
