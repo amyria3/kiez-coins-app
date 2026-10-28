@@ -385,7 +385,9 @@ button { font: inherit; color: inherit; }
 .leute { padding: 64px 0 40px; background: linear-gradient(160deg, #FFF1EA 0%, #FBEFF7 100%); }
 .mehr h2, .leute h2, .download h2 { font: 600 clamp(30px, 4vw, 44px)/1.05 var(--display); letter-spacing: -.025em; margin: 0 0 12px; max-width: 18ch; }
 .leute > .wrap > p, .download > .wrap > p { color: var(--muted); margin: 0 0 40px; max-width: 46ch; }
-.szene { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; align-items: end; border-bottom: 2.5px solid var(--text); }
+.szene { display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 0; row-gap: 56px; align-items: end; }
+/* Zwei Reihen à vier Personen, jede Reihe mit eigener Bodenlinie (Daria, 28.10.2026) */
+.szene > .person { border-bottom: 2.5px solid var(--text); }
 .person { display: grid; justify-items: center; gap: 4px; }
 .person:nth-child(2) { padding-bottom: 0; }
 .person .figur { width: 100%; max-width: 240px; height: auto; display: block; margin-bottom: -2px; transform-origin: 50% 100%; cursor: pointer; }
@@ -401,8 +403,7 @@ button { font: inherit; color: inherit; }
 .person:nth-child(5) .blase { transform: rotate(2deg); }
 .person:nth-child(6) .blase { transform: rotate(-2deg); }
 .person:nth-child(7) .blase { transform: rotate(1.5deg); }
-/* Sieben Personen in einer Reihe: kleinere Sprechblasen */
-@media (min-width: 641px) { .szene .blase { font-size: clamp(14px, 1.25vw, 18px); padding: 10px 14px; border-radius: 18px; } }
+.person:nth-child(8) .blase { transform: rotate(-1deg); }
 .js .leute .blase { opacity: 0; scale: .6; }
 .js .leute.is-seen .blase { opacity: 1; scale: 1; transition: opacity 200ms, scale 560ms var(--barrier); }
 .js .leute.is-seen .person:nth-child(2) .blase { transition-delay: 260ms; }
@@ -411,6 +412,7 @@ button { font: inherit; color: inherit; }
 .js .leute.is-seen .person:nth-child(5) .blase { transition-delay: 1040ms; }
 .js .leute.is-seen .person:nth-child(6) .blase { transition-delay: 1300ms; }
 .js .leute.is-seen .person:nth-child(7) .blase { transition-delay: 1560ms; }
+.js .leute.is-seen .person:nth-child(8) .blase { transition-delay: 1820ms; }
 
 /* Download */
 .download { padding: 80px 0 24px; background: linear-gradient(160deg, #ECEEFF 0%, #F6F4FF 60%, #FFFFFF 100%); }

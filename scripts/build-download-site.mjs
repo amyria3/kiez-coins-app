@@ -261,6 +261,7 @@ const leute = [
   { foto: 'mann3.webp', w: 652, h: 486, alt: 'Lachender älterer Mann im Jeanshemd', altEn: 'Laughing older man in a denim shirt', text: 'Gemeinsam statt einsam', en: 'Together, not alone' },
   { foto: 'frau4.webp', w: 551, h: 496, alt: 'Lachende Frau mit grauen Locken', altEn: 'Laughing woman with grey curls', text: 'Gut investierte Zeit', en: 'Time well spent' },
   { foto: 'frau5.webp', w: 584, h: 492, alt: 'Junge Frau mit Baskenmütze und Kaffeebecher', altEn: 'Young woman with a beret and a coffee cup', text: 'Ganz fresh auf dem Markt und fast schon Avantgarde', en: 'Fresh on the market and almost avant-garde' },
+  { foto: 'frau6.webp', w: 575, h: 483, alt: 'Lachende junge Frau im gelben Pullover', altEn: 'Laughing young woman in a yellow sweater', text: 'Weniger Bullshit, mehr Leben', en: 'Less bullshit, more life' },
 ];
 
 const startseite = (L) => {
