@@ -388,15 +388,15 @@ button { font: inherit; color: inherit; }
 .szene { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; row-gap: 80px; padding-top: 88px; }
 /* Organisch: jede Person eigene Größe, Höhe und leichte Überlappung (Daria, 28.10.2026) */
 .szene > .person { width: var(--w, 24%); margin: var(--m, 0); }
-.szene > .person:nth-child(1) { --w: 25%; --m: 0 -1% 24px 2%; }
-.szene > .person:nth-child(2) { --w: 21%; --m: 0 1% 0 0; }
-.szene > .person:nth-child(3) { --w: 24%; --m: 0 -2% 48px 0; }
-.szene > .person:nth-child(4) { --w: 20%; --m: 0 3% 8px 1%; }
-.szene > .person:nth-child(5) { --w: 22%; --m: -24px 0 16px -1%; }
-.szene > .person:nth-child(6) { --w: 24%; --m: -56px -2% 0 3%; }
-.szene > .person:nth-child(7) { --w: 21%; --m: -8px 2% 40px 0; }
-.szene > .person:nth-child(8) { --w: 23%; --m: -40px 0 4px -1%; }
-.szene .figur { max-width: none; }
+.szene > .person:nth-child(1) { --r: -2.5deg; --w: 25%; --m: 0 -1% 24px 2%; }
+.szene > .person:nth-child(2) { --r: 1.8deg; --w: 21%; --m: 0 1% 0 0; }
+.szene > .person:nth-child(3) { --r: -1.2deg; --w: 24%; --m: 0 -2% 48px 0; }
+.szene > .person:nth-child(4) { --r: 2.6deg; --w: 20%; --m: 0 3% 8px 1%; }
+.szene > .person:nth-child(5) { --r: 1.5deg; --w: 22%; --m: -24px 0 16px -1%; }
+.szene > .person:nth-child(6) { --r: -2.2deg; --w: 24%; --m: -56px -2% 0 3%; }
+.szene > .person:nth-child(7) { --r: 2deg; --w: 21%; --m: -8px 2% 40px 0; }
+.szene > .person:nth-child(8) { --r: -1.6deg; --w: 23%; --m: -40px 0 4px -1%; }
+.szene .figur { max-width: none; rotate: var(--r, 0deg); }
 .person { display: grid; justify-items: center; gap: 4px; }
 .person:nth-child(2) { padding-bottom: 0; }
 .person .figur { width: 100%; max-width: 240px; height: auto; display: block; margin-bottom: -2px; transform-origin: 50% 100%; cursor: pointer; }
