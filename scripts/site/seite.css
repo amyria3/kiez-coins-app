@@ -60,7 +60,7 @@ button { font: inherit; color: inherit; }
 
 /* Erster Bildschirm: Text und Szenarien links, Telefon rechts */
 .hero { display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: 'text phone' 'wahl phone';
-  grid-template-rows: auto 1fr; column-gap: 72px; padding: 40px 0 96px; }
+  grid-template-rows: auto 1fr; column-gap: 72px; padding: 40px 0 180px; }
 .hero-text { grid-area: text; align-self: end; }
 .steuerung { grid-area: wahl; display: grid; gap: 20px; justify-items: start; }
 .rolle { position: relative; display: inline-flex; padding: 3px; border-radius: 999px; border: 1px solid var(--line); }
@@ -70,8 +70,8 @@ button { font: inherit; color: inherit; }
 .rolle button[aria-checked="true"] { color: var(--bg); }
 .szenarien { width: 100%; }
 .phone-spalte { grid-area: phone; align-self: center; }
-.hero h1 { font: 600 clamp(44px, 6.4vw, 80px)/1 var(--display); letter-spacing: -.035em; margin: 0 0 24px; max-width: 11ch; }
-.lede { color: var(--muted); font-size: 19px; max-width: 34ch; margin: 0 0 40px; }
+.hero h1 { font: 600 clamp(35px, 5.12vw, 64px)/1 var(--display); letter-spacing: -.035em; margin: 0 0 24px; max-width: 11ch; }
+.lede { color: var(--muted); font-size: 19px; max-width: 44ch; margin: 0 0 40px; }
 .szenarien { position: relative; display: grid; gap: 6px; max-width: 420px; }
 .szenario-mark { position: absolute; left: 0; top: 0; border-radius: 22px; background: var(--surface); border: .5px solid var(--line); box-shadow: 0 10px 24px -16px var(--schatten);
   transition: transform 560ms var(--barrier), width 560ms var(--barrier), height 560ms var(--barrier); pointer-events: none; }
