@@ -16,12 +16,12 @@ import { color, text } from '../../../theme/tokens';
 import { useNudge } from '../../../components/Nudge';
 import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
-import { EdensteinStepper } from '../../../components/compose/EdensteinStepper';
+import { RewardField, rewardOf, type RewardValue } from '../../../components/compose/RewardField';
+import { bountyFits, clampBounty } from '../../../data/coins';
 import { ParticipantsField } from '../../../components/compose/ParticipantsField';
 import { MAX_MEMBERS } from '../../../data/groups';
 import type { Participation } from '../../../data/remote';
 
-const presets = [5, 15, 50];
 const durations = [
   { days: 1, label: '1 Tag' },
   { days: 3, label: '3 Tage' },
@@ -49,10 +49,14 @@ export default function EditChallenge() {
   const [title, setTitle] = useState(challenge?.title ?? '');
   const [body, setBody] = useState(challenge?.text ?? '');
   const [location, setLocation] = useState(challenge?.location ?? '');
-  const [bounty, setBounty] = useState<number | undefined>(challenge?.bountyAmount);
-  // Kiez-We-Challenge: Edensteine statt Euro (Daria, 27.10.2026). Gruppenaufgaben behalten ihre Edensteine.
-  const [eden, setEden] = useState<number | undefined>(challenge?.groupId ? undefined : challenge?.edensteine);
-  const [reward, setReward] = useState<'none' | 'euro' | 'eden'>(eden ? 'eden' : bounty ? 'euro' : 'none');
+  // Kiez-We-Challenge: Edensteine oder Coins (Daria, 28.10.2026). Gruppenaufgaben behalten ihre Edensteine.
+  const [rewardValue, setRewardValue] = useState<RewardValue>(() => {
+    const eden = challenge?.groupId ? undefined : challenge?.edensteine;
+    return { reward: rewardOf(eden, challenge?.bountyAmount), edensteine: eden, bountyAmount: challenge?.bountyAmount };
+  });
+  const reward = rewardValue.reward;
+  const bounty = rewardValue.bountyAmount;
+  const eden = rewardValue.edensteine;
   const [durationDays, setDurationDays] = useState<number | null>(null);
   // Mehrere Personen (Daria, 27.10.2026)
   const [participation, setParticipation] = useState<Participation>({
@@ -79,7 +83,6 @@ export default function EditChallenge() {
     );
   }
 
-  const bountyOptions = bounty && !presets.includes(bounty) ? [...presets, bounty].sort((a, b) => a - b) : presets;
   const isGroup = !!challenge.groupId;
   const whyNot = () =>
     !title.trim() ? titleField.nudge('Gib einen Titel ein.') : locationField.nudge('Wo soll es stattfinden?');
@@ -94,13 +97,11 @@ export default function EditChallenge() {
   const isTask = challenge.type === 'individual';
   const participationChanged =
     isTask && (participation.max !== (challenge.maxParticipants ?? 1) || participation.mode !== (challenge.joinMode ?? 'open'));
-  const many = participation.max > 1;
+  // Mit Coins: höchstens 10 Personen, pro Platz 5 bis 50 € (Daria, 28.10.2026)
   const changeParticipation = (next: Participation) => {
     setParticipation(next);
-    // Mehrere Personen: Edensteine statt Coins in Euro
-    if (next.max > 1 && reward === 'euro') {
-      setReward('eden');
-      setEden((n) => n ?? 3);
+    if (reward === 'euro' && bounty !== undefined && !bountyFits(bounty, next.max)) {
+      setRewardValue((r) => ({ ...r, bountyAmount: clampBounty(bounty, next.max) }));
     }
   };
   const editOf = () => ({
@@ -137,7 +138,7 @@ export default function EditChallenge() {
   const publish = () => {
     if (!canSave) return;
     if (reward === 'euro' && bounty && !canOfferBounties) {
-      Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Wähle bei Coins „Keine“.');
+      Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Schalte „Das ist mir bares Geld wert“ aus.');
       return;
     }
     const edit = editOf();
@@ -151,7 +152,7 @@ export default function EditChallenge() {
     if (!changed) return goBack();
     if (!canSave) return;
     if (reward === 'euro' && bounty && !canOfferBounties) {
-      Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Wähle bei Coins „Keine“.');
+      Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Schalte „Das ist mir bares Geld wert“ aus.');
       return;
     }
     dispatch({ type: 'editDeleted', id: challenge.id, edit: editOf() });
@@ -224,31 +225,7 @@ export default function EditChallenge() {
         <>
           <TextField label="Ort" required nudge={locationField} value={location} onChangeText={setLocation} maxLength={120} />
           {challenge.type === 'photo' ? null : (
-          <>
-          <FieldGroup label="Belohnung">
-            <ChipGroup>
-              <Chip label="Keine" selected={reward === 'none'} onPress={() => setReward('none')} />
-              {many ? null : (
-                <Chip label="Coins (€)" selected={reward === 'euro'} onPress={() => (setReward('euro'), setBounty((b) => b ?? presets[0]))} />
-              )}
-              <Chip label="Edensteine" selected={reward === 'eden'} onPress={() => (setReward('eden'), setEden((n) => n ?? 3))} />
-            </ChipGroup>
-          </FieldGroup>
-          {reward === 'euro' ? (
-          <FieldGroup label="Coins">
-            <ChipGroup>
-              {bountyOptions.map((amount) => (
-                <Chip key={amount} label={`${amount} €`} selected={bounty === amount} onPress={() => setBounty(amount)} />
-              ))}
-            </ChipGroup>
-          </FieldGroup>
-          ) : null}
-          {reward === 'eden' ? (
-          <FieldGroup label="Edensteine">
-            <EdensteinStepper value={eden ?? 3} onChange={setEden} seed={challenge.id} />
-          </FieldGroup>
-          ) : null}
-          </>
+            <RewardField value={rewardValue} onChange={setRewardValue} places={participation.max} seed={challenge.id} />
           )}
         </>
       )}
@@ -257,7 +234,7 @@ export default function EditChallenge() {
           value={participation}
           onChange={changeParticipation}
           limit={isGroup ? MAX_MEMBERS - 1 : undefined}
-          withCoinsHint={!isGroup}
+          coins={reward === 'euro'}
         />
       ) : null}
       <FieldGroup label="Zeitraum">

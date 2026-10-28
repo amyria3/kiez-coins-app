@@ -38,7 +38,9 @@ export function joinedIds(c: Challenge): string[] {
     .filter((p) => p.status === 'joined')
     .sort((a, b) => (a.joinedAt ?? a.requestedAt).localeCompare(b.joinedAt ?? b.requestedAt))
     .map((p) => p.userId);
-  return c.assigneeId ? [c.assigneeId, ...joined.filter((id) => id !== c.assigneeId)] : joined;
+  // Die erste Person zählt, außer sie steht mit anderem Status in der Liste (z. B. beim Bestätigen abgewählt)
+  const firstOut = c.participants?.some((p) => p.userId === c.assigneeId && p.status !== 'joined');
+  return c.assigneeId && !firstOut ? [c.assigneeId, ...joined.filter((id) => id !== c.assigneeId)] : joined;
 }
 
 /** Ist die Person dabei? */
