@@ -264,7 +264,6 @@
   "Schritt 2 von 2": "Step 2 of 2",
   "Suche Standort …": "Finding location …",
   "Aktuellen Standort verwenden": "Use current location",
-  "Belohnung (optional)": "Reward (optional)",
   "Eigener Betrag": "Custom amount",
   "Betrag in €": "Amount in €",
   "5 bis 50 €. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.": "€5 to €50. You pay the coins yourself, directly to the person who completes the challenge.",
@@ -993,7 +992,6 @@
   "Gesendet an {email}. Gilt 5 Minuten.": "Sent to {email}. Valid for 5 minutes.",
   "Gib Deine PLZ von Hand ein oder erlaube den Standort in den Einstellungen.": "Enter your postcode manually or allow location in the settings.",
   "Haben wir einen Draht?!": "Are we connected?!",
-  "Hier gibt es etwas zu tun! Dokumentiere die Ausgangslage und poste es im Kiez!": "There’s work to do here! Document how things are now and post it in your neighbourhood!",
   "Ich bin ein alter Mann … hm, Kater. Die Segel hab ich eingeholt, aber zur Ruhe will ich mich nicht setzen. Hilf Deinen Nachbar:innen mit kleinen Challenges.": "I’m an old man … hm, tomcat. I’ve hauled in the sails, but I’m not ready to retire. Help your neighbours with small challenges.",
   "In der Zwischenablage steht kein Beitrittscode.": "There’s no join code on the clipboard.",
   "In dieser Gruppe gibt es gerade nichts zu holen. Vielleicht ist einfach alles erledigt, oder Ihr braucht einen Break.": "Nothing to grab in this group right now. Maybe everything’s done, or you all need a break.",
@@ -1128,16 +1126,15 @@
   "{mode} verbergen": "Hide {mode}",
   "{mode} zeigen": "Show {mode}",
   "Posten": "Post",
-<<<<<<< HEAD
-  "Was hast Du Dir vorgenommen?": "What are you planning to do?",
   "Noch nichts für Dich.": "Nothing just for you yet.",
   "Archiv": "Archive",
   "1 Gruppenaufgabe": "1 group task",
   "{count} Gruppenaufgaben": "{count} group tasks",
   "Erledigte Aufgaben ({count})": "Completed tasks ({count})",
   "Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte Gruppenaufgaben.": "Your closed and deleted challenges and completed group tasks will appear here later.",
-  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Archiv“.": "The challenge disappears from the feed. Your latest changes are saved. You’ll find the challenge in “Your challenges” under “Archive”."
-=======
+  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Archiv“.": "The challenge disappears from the feed. Your latest changes are saved. You’ll find the challenge in “Your challenges” under “Archive”.",
+  "Belohnung (optional)": "Reward (optional)",
+  "Hier gibt es etwas zu tun! Dokumentiere die Ausgangslage und poste es im Kiez!": "There’s work to do here! Document how things are now and post it in your neighbourhood!",
   "Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.": "Record how you repair, rebuild or brighten up something, or practise a new, useful habit. First take a photo of how things look “before”.",
   "Deine Nachbar:innen sehen den Post und nehmen die We-Challenge an.": "Your neighbours see the post and take on the We-Challenge.",
   "Erklärung": "Explanation",
@@ -1152,5 +1149,4 @@
   "{label}, beginnt mit {tag}": "{label}, starts with {tag}",
   "Dein Text": "Your text",
   "Was ist die Aufgabe oder die Ausgangslage? Erkläre kurz, worin die Me-Challenge besteht.": "What is the task or the starting point? Briefly explain what your Me-Challenge is about."
->>>>>>> origin/claude/project-thread-jtu0yb
 }

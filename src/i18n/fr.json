@@ -264,7 +264,6 @@
   "Schritt 2 von 2": "Étape 2 sur 2",
   "Suche Standort …": "Recherche de la position …",
   "Aktuellen Standort verwenden": "Utiliser ma position",
-  "Belohnung (optional)": "Récompense (facultatif)",
   "Eigener Betrag": "Montant libre",
   "Betrag in €": "Montant en €",
   "5 bis 50 €. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.": "De 5 à 50 €. Tu verses toi-même la prime directement à la personne qui réalise le défi.",
@@ -993,7 +992,6 @@
   "Gesendet an {email}. Gilt 5 Minuten.": "Envoyé à {email}. Valable 5 minutes.",
   "Gib Deine PLZ von Hand ein oder erlaube den Standort in den Einstellungen.": "Saisis ton code postal à la main ou autorise la localisation dans les réglages.",
   "Haben wir einen Draht?!": "On garde le contact ?!",
-  "Hier gibt es etwas zu tun! Dokumentiere die Ausgangslage und poste es im Kiez!": "Il y a du boulot ici ! Documente la situation de départ et publie-la dans ton quartier !",
   "Ich bin ein alter Mann … hm, Kater. Die Segel hab ich eingeholt, aber zur Ruhe will ich mich nicht setzen. Hilf Deinen Nachbar:innen mit kleinen Challenges.": "Je suis un vieil homme … hm, matou. J’ai rentré les voiles, mais je ne veux pas prendre ma retraite. Aide tes voisin·es avec de petits défis.",
   "In der Zwischenablage steht kein Beitrittscode.": "Le presse-papiers ne contient pas de code d’adhésion.",
   "In dieser Gruppe gibt es gerade nichts zu holen. Vielleicht ist einfach alles erledigt, oder Ihr braucht einen Break.": "Rien à prendre dans ce groupe pour le moment. Peut-être que tout est fait, ou que vous avez besoin d’une pause.",
@@ -1128,16 +1126,15 @@
   "{mode} verbergen": "Masquer {mode}",
   "{mode} zeigen": "Afficher {mode}",
   "Posten": "Publier",
-<<<<<<< HEAD
-  "Was hast Du Dir vorgenommen?": "Qu’est-ce que tu as prévu de faire ?",
   "Noch nichts für Dich.": "Rien que pour toi pour l’instant.",
   "Archiv": "Archives",
   "1 Gruppenaufgabe": "1 tâche de groupe",
   "{count} Gruppenaufgaben": "{count} tâches de groupe",
   "Erledigte Aufgaben ({count})": "Tâches terminées ({count})",
   "Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte Gruppenaufgaben.": "Tes défis fermés et supprimés et les tâches de groupe terminées apparaîtront ici plus tard.",
-  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Archiv“.": "Le défi disparaît du fil. Tes dernières modifications sont enregistrées. Tu retrouves le défi dans « Tes défis », sous « Archives »."
-=======
+  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Archiv“.": "Le défi disparaît du fil. Tes dernières modifications sont enregistrées. Tu retrouves le défi dans « Tes défis », sous « Archives ».",
+  "Belohnung (optional)": "Récompense (facultatif)",
+  "Hier gibt es etwas zu tun! Dokumentiere die Ausgangslage und poste es im Kiez!": "Il y a du boulot ici ! Documente la situation de départ et publie-la dans ton quartier !",
   "Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.": "Montre comment tu répares, transformes ou embellis quelque chose, ou comment tu prends une nouvelle habitude utile. Commence par une photo de l’état « avant ».",
   "Deine Nachbar:innen sehen den Post und nehmen die We-Challenge an.": "Tes voisin·es voient la publication et relèvent le We-Challenge.",
   "Erklärung": "Explication",
@@ -1152,5 +1149,4 @@
   "{label}, beginnt mit {tag}": "{label}, commence par {tag}",
   "Dein Text": "Ton texte",
   "Was ist die Aufgabe oder die Ausgangslage? Erkläre kurz, worin die Me-Challenge besteht.": "Quelle est la tâche ou la situation de départ ? Explique brièvement en quoi consiste ton Me-Challenge."
->>>>>>> origin/claude/project-thread-jtu0yb
 }

@@ -264,7 +264,6 @@
   "Schritt 2 von 2": "Шаг 2 из 2",
   "Suche Standort …": "Ищу местоположение …",
   "Aktuellen Standort verwenden": "Использовать текущее местоположение",
-  "Belohnung (optional)": "Вознаграждение (необязательно)",
   "Eigener Betrag": "Своя сумма",
   "Betrag in €": "Сумма в €",
   "5 bis 50 €. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.": "От 5 до 50 €. Ты сам(а) платишь вознаграждение напрямую человеку, который выполнит челлендж.",
@@ -994,7 +993,6 @@
   "Gesendet an {email}. Gilt 5 Minuten.": "Отправлено на {email}. Действует 5 минут.",
   "Gib Deine PLZ von Hand ein oder erlaube den Standort in den Einstellungen.": "Введи почтовый индекс вручную или разреши доступ к местоположению в настройках.",
   "Haben wir einen Draht?!": "Будем на связи?!",
-  "Hier gibt es etwas zu tun! Dokumentiere die Ausgangslage und poste es im Kiez!": "Тут есть работа! Задокументируй, как всё выглядит сейчас, и опубликуй это в районе!",
   "Ich bin ein alter Mann … hm, Kater. Die Segel hab ich eingeholt, aber zur Ruhe will ich mich nicht setzen. Hilf Deinen Nachbar:innen mit kleinen Challenges.": "Я старый человек … гм, кот. Паруса я свернул, но на покой не собираюсь. Помогай соседям маленькими челленджами.",
   "In der Zwischenablage steht kein Beitrittscode.": "В буфере обмена нет кода вступления.",
   "In dieser Gruppe gibt es gerade nichts zu holen. Vielleicht ist einfach alles erledigt, oder Ihr braucht einen Break.": "В этой группе сейчас нечего брать. Может, всё уже сделано, или вам нужен перерыв.",
@@ -1113,16 +1111,15 @@
   "{mode} verbergen": "Скрыть {mode}",
   "{mode} zeigen": "Показать {mode}",
   "Posten": "Опубликовать",
-<<<<<<< HEAD
-  "Was hast Du Dir vorgenommen?": "Что ты планируешь сделать?",
   "Noch nichts für Dich.": "Пока ничего только для тебя.",
   "Archiv": "Архив",
   "1 Gruppenaufgabe": "1 групповое задание",
   "{count} Gruppenaufgaben": "Групповых заданий: {count}",
   "Erledigte Aufgaben ({count})": "Выполненные задания ({count})",
   "Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte Gruppenaufgaben.": "Здесь позже появятся твои закрытые и удалённые челленджи и выполненные групповые задания.",
-  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Archiv“.": "Челлендж исчезнет из ленты. Твои последние изменения сохранятся. Челлендж будет в «Твои челленджи» в разделе «Архив»."
-=======
+  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Archiv“.": "Челлендж исчезнет из ленты. Твои последние изменения сохранятся. Челлендж будет в «Твои челленджи» в разделе «Архив».",
+  "Belohnung (optional)": "Вознаграждение (необязательно)",
+  "Hier gibt es etwas zu tun! Dokumentiere die Ausgangslage und poste es im Kiez!": "Тут есть работа! Задокументируй, как всё выглядит сейчас, и опубликуй это в районе!",
   "Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.": "Покажи, как ты что-то чинишь, переделываешь, украшаешь или осваиваешь новую полезную привычку. Сначала сфотографируй, как всё выглядит «до».",
   "Deine Nachbar:innen sehen den Post und nehmen die We-Challenge an.": "Твои соседи видят пост и берутся за We-Challenge.",
   "Erklärung": "Пояснение",
@@ -1137,5 +1134,4 @@
   "{label}, beginnt mit {tag}": "{label}, начинается с {tag}",
   "Dein Text": "Твой текст",
   "Was ist die Aufgabe oder die Ausgangslage? Erkläre kurz, worin die Me-Challenge besteht.": "Какая задача или исходная ситуация? Кратко объясни, в чём состоит Me-Challenge."
->>>>>>> origin/claude/project-thread-jtu0yb
 }
