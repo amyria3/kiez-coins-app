@@ -5,6 +5,7 @@ import { Stack, useGlobalSearchParams, useRouter } from 'expo-router';
 import { findPlace, roundCoords, type Coords } from '../../../data/location';
 import { useStore } from '../../../data/store';
 import type { Challenge, ExtraPhoto, ImageSource } from '../../../data/types';
+import type { Participation } from '../../../data/remote';
 import { color } from '../../../theme/tokens';
 
 // Entwurf einer neuen Challenge über beide Schritte und die Vorschau hinweg.
@@ -31,6 +32,8 @@ export type Draft = {
   coords?: Coords;
   /** Modus „Privat“: nur Bild, nur für Dich sichtbar (Daria, 27.10.2026) */
   private?: boolean;
+  /** Mehrere Personen (Daria, 27.10.2026). Ohne Angabe eine Person, offen. */
+  participation?: Participation;
 };
 
 const emptyDraft = (kiez?: string): Draft => ({ type: 'individual', title: '', text: '', location: kiez ?? '', durationDays: 7, extras: [] });
@@ -47,6 +50,7 @@ function fromChallenge(c: Challenge): Draft {
     location: c.location,
     bountyAmount: c.bountyAmount,
     edensteine: c.edensteine,
+    participation: c.maxParticipants ? { max: c.maxParticipants, mode: c.joinMode ?? 'open' } : undefined,
     durationDays: 7,
     coords: c.coords,
     private: c.private,
@@ -82,6 +86,7 @@ export function useSaveDraft() {
         location: draft.location,
         bountyAmount: draft.type === 'photo' ? undefined : draft.bountyAmount,
         edensteine: draft.type === 'photo' ? undefined : draft.edensteine,
+        participation: draft.type === 'photo' ? undefined : draft.participation,
         photo: draft.imagePath ? undefined : draft.photo,
         imagePath: draft.imagePath,
         coords: draft.coords,

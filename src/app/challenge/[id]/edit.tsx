@@ -17,6 +17,9 @@ import { useNudge } from '../../../components/Nudge';
 import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 import { EdensteinStepper } from '../../../components/compose/EdensteinStepper';
+import { ParticipantsField } from '../../../components/compose/ParticipantsField';
+import { MAX_MEMBERS } from '../../../data/groups';
+import type { Participation } from '../../../data/remote';
 
 const presets = [5, 15, 50];
 const durations = [
@@ -51,6 +54,11 @@ export default function EditChallenge() {
   const [eden, setEden] = useState<number | undefined>(challenge?.groupId ? undefined : challenge?.edensteine);
   const [reward, setReward] = useState<'none' | 'euro' | 'eden'>(eden ? 'eden' : bounty ? 'euro' : 'none');
   const [durationDays, setDurationDays] = useState<number | null>(null);
+  // Mehrere Personen (Daria, 27.10.2026)
+  const [participation, setParticipation] = useState<Participation>({
+    max: challenge?.maxParticipants ?? 1,
+    mode: challenge?.joinMode ?? 'open',
+  });
   const [photo, setPhoto] = useState<ImageSource>();
   const titleField = useNudge();
   const locationField = useNudge();
@@ -83,6 +91,18 @@ export default function EditChallenge() {
     const original = new Date(challenge.deadline).getTime() - new Date(challenge.createdAt).getTime();
     return new Date(Date.now() + Math.max(original, DAY)).toISOString();
   };
+  const isTask = challenge.type === 'individual';
+  const participationChanged =
+    isTask && (participation.max !== (challenge.maxParticipants ?? 1) || participation.mode !== (challenge.joinMode ?? 'open'));
+  const many = participation.max > 1;
+  const changeParticipation = (next: Participation) => {
+    setParticipation(next);
+    // Mehrere Personen: Edensteine statt Coins in Euro
+    if (next.max > 1 && reward === 'euro') {
+      setReward('eden');
+      setEden((n) => n ?? 3);
+    }
+  };
   const editOf = () => ({
     title: title.trim(),
     text: body.trim(),
@@ -96,6 +116,7 @@ export default function EditChallenge() {
         ? renewed()
         : challenge.deadline,
     ...(photo ? { photo } : {}),
+    ...(participationChanged ? { participation } : {}),
   });
   const changed =
     title.trim() !== challenge.title ||
@@ -104,6 +125,7 @@ export default function EditChallenge() {
     (reward === 'euro' ? bounty : undefined) !== challenge.bountyAmount ||
     (!isGroup && (reward === 'eden' ? eden : undefined) !== challenge.edensteine) ||
     durationDays !== null ||
+    participationChanged ||
     !!photo;
   const bountyBlocked = reward === 'euro' && !!bounty && bounty > (challenge.bountyAmount ?? 0) && !canOfferBounties;
   const backToManage = () => {
@@ -206,7 +228,9 @@ export default function EditChallenge() {
           <FieldGroup label="Belohnung">
             <ChipGroup>
               <Chip label="Keine" selected={reward === 'none'} onPress={() => setReward('none')} />
-              <Chip label="Coins (€)" selected={reward === 'euro'} onPress={() => (setReward('euro'), setBounty((b) => b ?? presets[0]))} />
+              {many ? null : (
+                <Chip label="Coins (€)" selected={reward === 'euro'} onPress={() => (setReward('euro'), setBounty((b) => b ?? presets[0]))} />
+              )}
               <Chip label="Edensteine" selected={reward === 'eden'} onPress={() => (setReward('eden'), setEden((n) => n ?? 3))} />
             </ChipGroup>
           </FieldGroup>
@@ -228,6 +252,14 @@ export default function EditChallenge() {
           )}
         </>
       )}
+      {isTask ? (
+        <ParticipantsField
+          value={participation}
+          onChange={changeParticipation}
+          limit={isGroup ? MAX_MEMBERS - 1 : undefined}
+          withCoinsHint={!isGroup}
+        />
+      ) : null}
       <FieldGroup label="Zeitraum">
         <ChipGroup>
           <Chip label="Unverändert" selected={durationDays === null} onPress={() => setDurationDays(null)} />

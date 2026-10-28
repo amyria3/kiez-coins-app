@@ -24,6 +24,7 @@ import { useAppDimensions } from '../../../theme/layout';
 import { useDraft } from './_layout';
 import { useGoBack } from '../../../lib/goBack';
 import { WithMentions } from '../../../components/WithMentions';
+import { participationText } from '../../../data/weChallenge';
 
 /** Breite des ausgeblurrten Rands links und rechts (schmal, Daria 22.10.2026) */
 const EDGE = space[8];
@@ -106,6 +107,9 @@ export default function CreatePreview() {
     });
   }, [shiftX, singlePhoto]);
 
+  // Mehrere Personen nur für We-Challenges (Daria, 27.10.2026)
+  const participation = draft.type === 'photo' ? undefined : draft.participation;
+
   const publish = async () => {
     if (!draft.photo || busy) return;
     if (bountyAmount && !canOfferBounties) {
@@ -127,6 +131,7 @@ export default function CreatePreview() {
               location: draft.location,
               bountyAmount,
               edensteine,
+              participation,
               photo: draft.imagePath ? undefined : draft.photo,
               imagePath: draft.imagePath,
               coords: draft.coords,
@@ -141,6 +146,7 @@ export default function CreatePreview() {
             location: draft.location.trim(),
             bountyAmount,
             edensteine,
+            participation,
             photo: draft.photo,
             deadline,
             coords: draft.coords,
@@ -188,6 +194,9 @@ export default function CreatePreview() {
           </View>
         )}
       </View>
+      {participation && participationText(participation.max, participation.mode) ? (
+        <Text style={styles.caption}>{participationText(participation.max, participation.mode)}</Text>
+      ) : null}
     </>
   );
 

@@ -1,6 +1,8 @@
 # We-Challenge: Mehrere Personen machen mit
 
-Zweck: Plan für We-Challenges mit mehreren Teilnehmenden, noch ohne Code. Stand: 28.10.2026. Status: offen, Entscheidungen stehen fest, der Bau läuft. Gehört nach: Documentation, App-Stand und Entscheidungen, Abschnitt „We-Challenge“.
+Pflichtaufgabe: Daria führt nach der Migration aus PR #97 die Migration `supabase/migrations/20261028000300_we_challenge_teilnehmende.sql` im Supabase-SQL-Editor aus. Erst danach merged Claude den PR.
+
+Zweck: Plan und Bau für We-Challenges mit mehreren Teilnehmenden. Stand: 28.10.2026. Status: offen, gebaut, wartet auf die Migration. Gehört nach: Documentation, App-Stand und Entscheidungen, Abschnitt „We-Challenge“, und Datenbank-Doku (Tabelle `challenge_participants`, neue Funktionen).
 
 ## Daria will mehrere Personen in einer We-Challenge
 
@@ -83,6 +85,14 @@ Claude setzt die übrigen Vorschläge um:
 - Ausschließen geht bis zum Erledigt-Melden, ohne Pflicht-Grund.
 - Jede Person tauft die Challenge für sich (Operationsname).
 - Steigt die erste Person aus, rückt die nächste nach und meldet erledigt.
+
+## Claude hat am 28.10.2026 gebaut
+
+- Migration `20261028000300_we_challenge_teilnehmende.sql`: Spalten `max_participants` und `join_mode`, Tabelle `challenge_participants`, Funktionen `join_challenge`, `answer_join_request`, `remove_participant`, `leave_challenge`, `set_challenge_participation`, interne Hilfe `challenge_sync_first`. `accept_challenge` und `give_back_challenge` rufen die neuen Funktionen auf, ältere App-Fassungen laufen weiter. `has_open_work` und die Regel „Operation taufen“ zählen alle Teilnehmenden. Lokal mit Postgres 16 geprüft: Anfragen, volle Challenge, Nachrücken, Ausschließen, Euro-Sperre, zweiter Lauf.
+- Die Datenbank hält die erste Person in `assignee_id`. Steigt sie aus oder wird ausgeschlossen, rückt die Person nach, die am längsten dabei ist. Ohne Teilnehmende ist die Challenge wieder `open`.
+- Wechselt die Erstellerin von „Auf Anfrage“ zu „Offen“, bleiben offene Anfragen stehen. Die Person tritt mit einem neuen Tipp auf „Mitmachen“ direkt bei.
+- App: `src/data/weChallenge.ts` (Hilfen), `src/components/compose/ParticipantsField.tsx` (Feld im Erstellen und Bearbeiten), `src/components/Participants.tsx` („Wer macht mit“ mit Anfragen und Ausschließen), Detailansicht, Feed („2 von 5 dabei“), Rangliste der Gruppe (alle Teilnehmenden bekommen die Edensteine), Übersetzungen in allen Sprachen.
+- Der PR baut auf PR #97 (Edensteine im Kiez) auf und enthält dessen Stand.
 
 ## Offene Punkte
 
