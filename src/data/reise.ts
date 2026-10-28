@@ -19,6 +19,9 @@ export type ReiseEntry = {
   lastActivity: string;
 };
 
+/** Erledigte Gruppenaufgaben stehen im Archiv unter „Deine Challenges“, nicht mehr unter „Was Du so machst“ (Daria, 27.10.2026). */
+export const isGroupDone = (c: Challenge) => !!c.groupId && (c.status === 'confirmed' || c.status === 'paid');
+
 function lastActivity(c: Challenge): string {
   return [c.createdAt, c.acceptedAt, c.report ? c.acceptedAt : undefined, c.confirmedAt, c.paidMarkedAt, c.closedAt]
     .filter((d): d is string => !!d)

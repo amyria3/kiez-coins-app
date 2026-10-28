@@ -1,8 +1,8 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Animated, FlatList, Pressable, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { Text } from '../components/T';
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ActionBar } from '../components/ActionBar';
@@ -14,6 +14,7 @@ import { Icon } from '../components/icons/Icon';
 import { NavigationBar } from '../components/NavigationBar';
 import { formatDayMonthShort, formatDurationSince, formatRelative, formatRemainingShort, nameInText } from '../data/format';
 import { useRequireKiez } from '../data/kiez';
+import { isGroupDone } from '../data/reise';
 import { useStore } from '../data/store';
 import type { Challenge, User } from '../data/types';
 import { useAppDimensions } from '../theme/layout';
@@ -35,8 +36,11 @@ const ORDER: Record<string, number> = {
   closed: 3,
 };
 
-/** Eine Seite pro Challenge, gelöschte zusammen auf der letzten Seite. */
-type Page = { kind: 'challenge'; challenge: Challenge } | { kind: 'deleted'; challenges: Challenge[] };
+/** Eine Seite pro Challenge, erledigte Gruppenaufgaben und gelöschte jeweils zusammen auf einer Seite. */
+type Page =
+  | { kind: 'challenge'; challenge: Challenge }
+  | { kind: 'groupDone'; challenges: Challenge[] }
+  | { kind: 'deleted'; challenges: Challenge[] };
 
 // Löschen bis jemand annimmt: Entwürfe, offene und geschlossene (Migration 20261021000300)
 const deletable = (c: Challenge) =>
@@ -52,7 +56,9 @@ export default function ManageChallenges() {
   const goBack = useGoBack();
   const insets = useSafeAreaInsets();
   const requireKiez = useRequireKiez();
-  const { challenges, users, currentUserId, dispatch } = useStore();
+  const { challenges, users, groups, currentUserId, dispatch } = useStore();
+  // `archiv=1`: gleich im Reiter „Archiv“ öffnen (von „Was Du so machst“, In Gruppen)
+  const { archiv } = useLocalSearchParams<{ archiv?: string }>();
   const [pageHeight, setPageHeight] = useState(0);
   // Aktuelle Seite je Reiter, für „2 von 5“
   const [index, setIndex] = useState({ active: 0, archive: 0 });
@@ -83,10 +89,18 @@ export default function ManageChallenges() {
   );
   const showTab = (key: 'active' | 'archive') =>
     pager.current?.scrollTo({ x: key === 'archive' ? width : 0, animated: true });
+  const openedArchive = useRef(false);
+  useEffect(() => {
+    if (archiv !== '1' || openedArchive.current || !pageHeight || !width) return;
+    openedArchive.current = true;
+    pager.current?.scrollTo({ x: width, animated: false });
+    archiveRef.current = true;
+    setArchive(true);
+  }, [archiv, pageHeight, width]);
 
   const { activePages, archivePages } = useMemo(() => {
     const own = challenges.filter((c) => c.authorId === currentUserId);
-    const inArchive = (c: Challenge) => c.status === 'closed' || c.status === 'deleted';
+    const inArchive = (c: Challenge) => c.status === 'closed' || c.status === 'deleted' || isGroupDone(c);
     const active = own
       .filter((c) => !inArchive(c))
       .sort((a, b) => (ORDER[a.status] ?? 9) - (ORDER[b.status] ?? 9) || b.createdAt.localeCompare(a.createdAt));
@@ -97,7 +111,13 @@ export default function ManageChallenges() {
     const deleted = own
       .filter((c) => c.status === 'deleted')
       .sort((a, b) => (b.deletedAt ?? '').localeCompare(a.deletedAt ?? ''));
-    const list: Page[] = closed.map((challenge) => ({ kind: 'challenge', challenge }));
+    // Erledigte Gruppenaufgaben: selbst erstellt oder angenommen
+    const groupDone = challenges
+      .filter((c) => isGroupDone(c) && (c.authorId === currentUserId || c.assigneeId === currentUserId))
+      .sort((a, b) => (b.confirmedAt ?? '').localeCompare(a.confirmedAt ?? ''));
+    const list: Page[] = [];
+    if (groupDone.length) list.push({ kind: 'groupDone', challenges: groupDone });
+    list.push(...closed.map((challenge): Page => ({ kind: 'challenge', challenge })));
     if (deleted.length) list.push({ kind: 'deleted', challenges: deleted });
     return { activePages, archivePages: list };
   }, [challenges, currentUserId]);
@@ -187,14 +207,14 @@ export default function ManageChallenges() {
           <View style={styles.empty}>
             <KaterCard>
               {tab === 'archive'
-                ? 'Hier liegen später Deine geschlossenen und gelöschten Challenges.'
+                ? 'Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte Gruppenaufgaben.'
                 : 'Du hast noch keine laufende Challenge. Fange mit einem Foto an.'}
             </KaterCard>
           </View>
         ) : (
           <FlatList
             data={pages}
-            keyExtractor={(p) => (p.kind === 'deleted' ? 'deleted' : p.challenge.id)}
+            keyExtractor={(p) => (p.kind === 'challenge' ? p.challenge.id : p.kind)}
             pagingEnabled
             snapToInterval={pageHeight}
             decelerationRate="fast"
@@ -204,6 +224,18 @@ export default function ManageChallenges() {
             getItemLayout={(_, i) => ({ length: pageHeight, offset: pageHeight * i, index: i })}
             renderItem={({ item: page, index: i }) => {
               const hasNext = i < pages.length - 1;
+              if (page.kind === 'groupDone') {
+                return (
+                  <View style={[styles.page, { height: pageHeight }]}>
+                    <GroupDoneCard
+                      challenges={page.challenges}
+                      userId={currentUserId}
+                      groupName={(id) => groups.find((g) => g.id === id)?.name}
+                      onOpen={(c) => router.push(`/challenge/${c.id}`)}
+                    />
+                  </View>
+                );
+              }
               if (page.kind === 'deleted') {
                 return (
                   <View style={[styles.page, { height: pageHeight }]}>
@@ -254,7 +286,7 @@ export default function ManageChallenges() {
         <Segments
           tabs={[
             { key: 'active', label: 'Aktuell' },
-            { key: 'archive', label: 'Geschlossen und gelöscht' },
+            { key: 'archive', label: 'Archiv' },
           ]}
           selectedKey={archive ? 'archive' : 'active'}
           onChange={showTab}
@@ -449,6 +481,69 @@ function QuietAction({ label, onPress, danger, muted }: { label: string; onPress
  * Letzte Seite im Archiv: gelöschte Challenges, zugeklappt. Aufgeklappt mit „Bearbeiten“.
  * Erst im Bearbeiten-Screen entscheidet die Person: veröffentlichen oder weiter nicht veröffentlichen.
  */
+/** Erledigte Gruppenaufgaben als Liste: Gruppe, ob erstellt oder angenommen, wann erledigt. Tipp öffnet das Detail. */
+function GroupDoneCard({
+  challenges,
+  userId,
+  groupName,
+  onOpen,
+}: {
+  challenges: Challenge[];
+  userId: string;
+  groupName: (id: string) => string | undefined;
+  onOpen: (c: Challenge) => void;
+}) {
+  return (
+    <View style={styles.card}>
+      <View style={styles.badges}>
+        <StatusBadge status="confirmed" />
+        <Text style={styles.caption}>
+          {challenges.length === 1 ? t('1 Gruppenaufgabe') : t('{count} Gruppenaufgaben', { count: challenges.length })}
+        </Text>
+      </View>
+      <ScrollView contentContainerStyle={styles.deletedList} showsVerticalScrollIndicator={false}>
+        {challenges.map((c) => {
+          const photo = c.image ?? c.imageAfter ?? c.report?.photo ?? c.imageBefore;
+          const mine = c.authorId === userId;
+          const title = !mine && c.operationName ? c.operationName : c.title || t('Ohne Titel');
+          return (
+            <Pressable
+              key={c.id}
+              accessibilityRole="button"
+              accessibilityLabel={title}
+              onPress={() => onOpen(c)}
+              style={({ pressed }) => [styles.deletedItem, styles.head, pressed && styles.pressed]}
+            >
+              {photo ? (
+                <Image source={photo} style={styles.thumbSmall} contentFit="cover" />
+              ) : (
+                <View style={[styles.thumbSmall, styles.thumbEmpty]}>
+                  <Icon name="camera" size={size.icon} color={color.text.secondary} />
+                </View>
+              )}
+              <View style={styles.flex}>
+                <Text style={styles.deletedTitle} numberOfLines={1}>
+                  {title}
+                </Text>
+                <Text style={styles.caption} numberOfLines={1}>
+                  {[
+                    c.groupId ? groupName(c.groupId) : null,
+                    mine ? t('Erstellt') : t('Angenommen'),
+                    c.confirmedAt ? formatDayMonthShort(c.confirmedAt) : null,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </Text>
+              </View>
+              <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
+}
+
 function DeletedCard({
   challenges,
   onOpen,

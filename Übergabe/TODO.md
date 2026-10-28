@@ -1,6 +1,6 @@
 # To-dos
 
-Stand: 27.10.2026. Diese Liste ist die einzige To-do-Liste für KiezKoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
+Stand: 28.10.2026. Diese Liste ist die einzige To-do-Liste für KiezKoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
 
 Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coins/screenshots/`. Sie stehen absichtlich nicht im Repo, weil das Repo öffentlich ist und einige Bilder Adressen und Namen zeigen.
 
@@ -11,6 +11,15 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Auftragsverarbeitungsvertrag Supabase unterschreiben (prüfen, ob es schon passiert ist)
 - [ ] Kodex und Rechtstexte überarbeiten (Daria)
 - [ ] Anschrift (c/o) im Impressum, sobald die App öffentlich ist und ein Finanzierungskonzept steht
+
+## 28.10.2026 – Prio: animierte Coins (Daria)
+
+- [ ] Animierte Coins bauen. Daria hat sie am 27.10.2026 als sehr wichtig markiert. Ideen und offene Fragen stehen in `Übergabe/2026-10-24_offen_coin-animation-me-challenge.md`. Die Animation „Diamantenregen“ weiter unten gehört dazu.
+
+## 28.10.2026 – Prio für Daria: Migration für Edensteine im Kiez (PR #97)
+
+- [x] Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261028000200_kiez_edensteine.sql` (Branch `claude/project-thread-jtu0yb`, PR #97) ausführen. Claudes Zugang darf in Supabase nur lesen, deshalb geht es nur von Hand.
+- [x] Claude Bescheid geben, dann prüft Claude die Datenbank und merged PR #97. Vorher nicht mergen, sonst schlägt das Bearbeiten von Challenges fehl.
 
 ## 28.10.2026 – Pflicht für Daria: Anmeldung ohne E-Mail und Testkonto (PR #90)
 
@@ -104,4 +113,11 @@ Kontext: `Übergabe/2026-10-27_offen_community-regeln.md`.
 - [ ] Nutzungsbedingungen (Abschnitt 2, „ab 18 Jahren“) und Datenschutz (Abschnitt „Alter“) an den Abschnitt „Kinder“ anpassen: Kinder nutzen die App über Eltern oder Lehrkräfte
 - [ ] Nutzungsbedingungen, Abschnitt 3: „Werbung“ als Verbot streichen oder in die Community-Regeln aufnehmen
 - [ ] Schreibweise „KiezCoins“ oder „Kiez Coins“ in den Regeln vereinheitlichen
-- [ ] Migration `20261028000200_app_texts_community_regeln.sql` im Supabase-SQL-Editor ausführen (Texte-Editor)
+- [ ] Migration `20261027000300_app_texts_community_regeln.sql` im Supabase-SQL-Editor ausführen (Texte-Editor)
+
+## 27.10.2026 (4) – We-Challenge mit mehreren Personen (Daria)
+
+Plan und offene Fragen: `Übergabe/2026-10-27_offen_we-challenge-mehrere-personen.md`.
+
+- [x] Offene Punkte im Plan beantworten (Daria, 27.10.2026)
+- [ ] Migration, Funktionen und App-Code bauen (Claude)

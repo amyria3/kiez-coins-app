@@ -53,8 +53,8 @@ export type Mode = 'private' | 'groups' | 'kiez';
 
 export const MODES: { key: Mode; label: string; description: string }[] = [
   { key: 'private', label: 'Privat', description: 'Was Du hier postest, siehst nur Du.' },
-  { key: 'groups', label: 'Gruppe', description: 'Aufgaben im kleinen Kreis, mit Edensteinen' },
-  { key: 'kiez', label: 'Kiez', description: 'Was Du hier postest, sehen alle in Deinem Kiez.' },
+  { key: 'groups', label: 'Deine Gruppen', description: 'Aufgaben im kleinen Kreis, mit Edensteinen' },
+  { key: 'kiez', label: 'Dein Kiez', description: 'Was Du hier postest, sehen alle in Deinem Kiez.' },
 ];
 
 /** Name des Modus in Links (`?modus=privat`) */
