@@ -3,6 +3,7 @@ import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
+import { NameWithTestMark } from './Badges';
 
 import { beforeAfterDuration, formatHoursMinutes, formatRelative } from '../data/format';
 import { t } from '../data/texts';
@@ -252,9 +253,11 @@ function FashionBeforeAfter(props: ChallengePostProps) {
         >
           <Avatar user={author} diameter={32} />
           <View style={styles.headTexts}>
-            <Text noTranslate style={[styles.name, hideName ? hiddenText : null]} numberOfLines={1}>
-              {author.name}
-            </Text>
+            <NameWithTestMark test={author.test}>
+              <Text noTranslate style={[styles.name, hideName ? hiddenText : null]} numberOfLines={1}>
+                {author.name}
+              </Text>
+            </NameWithTestMark>
             {place ? (
               <Text style={styles.place} numberOfLines={1}>
                 {place}

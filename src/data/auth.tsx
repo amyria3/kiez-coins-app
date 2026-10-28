@@ -10,6 +10,15 @@ import { t } from './texts';
 /** Mindestlänge für Passwörter, gilt in Anmeldung und Konto */
 export const MIN_PASSWORD = 8;
 
+/** Konten ohne E-Mail haben intern eine erfundene Adresse unter dieser Domain (Edge Function `konto-ohne-mail`). */
+const NO_EMAIL_DOMAIN = '@ohne-mail.kiezcoins.de';
+
+/** true für die erfundene Adresse eines Kontos ohne E-Mail. Die App zeigt sie nie an. */
+export const isHiddenEmail = (email: string | undefined | null) => !!email?.endsWith(NO_EMAIL_DOMAIN);
+
+/** Echte Adresse des Kontos oder leer. */
+export const visibleEmail = (email: string | undefined | null) => (email && !isHiddenEmail(email) ? email : '');
+
 // Anmeldung per E-Mail-Code (sendCode/verifyCode, onboarding/email → onboarding/code). Supabase Auth
 // verschickt die Codes über Brevo als registration.noreply@kiezcoins.de. Alternativ meldet sich die
 // Nutzerin mit Passwort an. Das Passwort legt sie unter `account/password` fest oder ändert es dort;
@@ -31,6 +40,20 @@ type Auth = {
   signInWithPassword: (email: string, password: string) => Promise<string | null>;
   /** Mit Passwort anmelden und ohne Konto eins anlegen. Gibt eine Fehlermeldung zurück oder null. */
   signInOrUpWithPassword: (email: string, password: string) => Promise<string | null>;
+  /**
+   * Konto ohne E-Mail (Deckname und Passwort): Erst anmelden, gibt es zum Decknamen kein solches Konto,
+   * eins anlegen. `copyTo` bekommt Deckname und Passwort einmal per Mail und wird nicht gespeichert.
+   */
+  signInOrUpWithHandle: (handle: string, password: string, copyTo: string) => Promise<HandleResult>;
+  /**
+   * Testkonto ohne Anmeldung (Daria, 27.10.2026): anonyme Anmeldung von Supabase. Beiträge tragen
+   * die Marke „Testaccount“, nach 7 Tagen löscht die Datenbank das Konto. Gibt eine Fehlermeldung zurück oder null.
+   */
+  startTest: () => Promise<string | null>;
+  /** true für ein Testkonto (anonym angemeldet). E-Mail nachtragen macht daraus ein echtes Konto. */
+  isTest: boolean;
+  /** true, wenn das Konto keine echte E-Mail-Adresse hat. */
+  noEmail: boolean;
   /** true, wenn das Konto ein Passwort hat (Merker `has_password` in den Nutzer-Metadaten). */
   hasPassword: boolean;
   /** Passwort für das angemeldete Konto festlegen oder ändern. Gibt eine Fehlermeldung zurück oder null. */
@@ -43,6 +66,8 @@ type Auth = {
 };
 
 const SKIP_ONCE = 'skip-once';
+
+export type HandleResult = { error: string | null; created?: boolean; copySent?: boolean };
 
 const AuthContext = createContext<Auth | null>(null);
 
@@ -104,7 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await ensureOwnProfile().catch(() => undefined);
           fromDb = await loadOwnProfile(userId);
         }
-        const patch: Partial<Profile> = { email: next.user.email ?? '', ...fromDb };
+        const patch: Partial<Profile> = { email: visibleEmail(next.user.email), ...fromDb };
         dispatch({ type: 'updateProfile', patch });
         lastSynced.current = SKIP_ONCE;
       } catch {
@@ -202,6 +227,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!signUp.data.session) return 'Konto angelegt, aber noch nicht freigeschaltet. Schreibe uns bitte.';
         return null;
       },
+      signInOrUpWithHandle: async (handle, password, copyTo) => {
+        const name = handle.trim();
+        const { data: loginEmail, error: lookupError } = await supabase.rpc('login_email_for_handle', { p_handle: name });
+        if (lookupError) return { error: 'Keine Verbindung. Prüfe Dein Internet und versuche es noch mal.' };
+        if (loginEmail) {
+          const { error } = await supabase.auth.signInWithPassword({ email: loginEmail as string, password });
+          if (!error) return { error: null };
+          if (error.code === 'invalid_credentials') return { error: 'Deckname oder Passwort stimmen nicht.' };
+          return { error: authErrorText(error) };
+        }
+        if (password.length < MIN_PASSWORD) {
+          return { error: t('Ein neues Passwort braucht mindestens {MIN_PASSWORD} Zeichen.', { MIN_PASSWORD }) };
+        }
+        const { data, error } = await supabase.functions.invoke<{ email?: string; copySent?: boolean; error?: string }>(
+          'konto-ohne-mail',
+          { body: { handle: name, password, copyTo: copyTo.trim() || undefined } },
+        );
+        if (error || !data?.email) {
+          // Bei Status ≠ 2xx steckt der Grund im Body der Antwort.
+          let reason = data?.error;
+          const context = (error as { context?: Response } | null)?.context;
+          if (!reason && context && typeof context.json === 'function') {
+            reason = await context.json().then((b: { error?: string }) => b.error).catch(() => undefined);
+          }
+          switch (reason) {
+            case 'handle_taken':
+              return { error: 'Diesen Decknamen gibt es schon. Melde Dich mit E-Mail an oder nimm einen anderen.' };
+            case 'weak_password':
+              return { error: t('Ein neues Passwort braucht mindestens {MIN_PASSWORD} Zeichen.', { MIN_PASSWORD }) };
+            case 'copy_invalid':
+              return { error: 'Diese E-Mail-Adresse klappt nicht. Prüfe sie bitte noch mal.' };
+            case 'rate_limit':
+              return { error: 'Gerade melden sich sehr viele an. Versuche es in einer Stunde noch mal.' };
+          }
+          return { error: 'Da ist etwas schiefgegangen. Versuche es bitte noch mal.' };
+        }
+        const signIn = await supabase.auth.signInWithPassword({ email: data.email, password });
+        if (signIn.error) return { error: authErrorText(signIn.error) };
+        return { error: null, created: true, copySent: !!data.copySent };
+      },
+      startTest: async () => {
+        const { error } = await supabase.auth.signInAnonymously();
+        if (!error) return null;
+        if (error.code === 'anonymous_provider_disabled') return 'Testkonten sind gerade ausgeschaltet. Melde Dich bitte mit E-Mail an.';
+        return authErrorText(error);
+      },
+      isTest: !!session?.user.is_anonymous,
+      noEmail: isHiddenEmail(session?.user.email),
       hasPassword: !!session?.user.user_metadata?.has_password,
       setPassword: async (password) => {
         const { error } = await supabase.auth.updateUser({ password, data: { has_password: true } });

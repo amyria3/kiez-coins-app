@@ -94,7 +94,7 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Diverse Codes: QR-Codes und Einladungscodes
 - [ ] Liste potenziell interessierter Leipziger Organisationen
 - [ ] Gazelle-Werbung je nach Modus, mit Codes, die eine Vorauswahl treffen
-- [ ] Anmeldeprozess vereinfachen
+- [ ] Anmeldeprozess vereinfachen (erster Schritt: Anmeldung ohne E-Mail und Testkonto, siehe `2026-10-27_offen_anmeldung-ohne-mail-testkonto.md`)
 - [ ] Infrastruktur für Gewinnspiele vorplanen
 - [ ] Zeitplan: erster Testlauf, erste 100 Mitglieder
 - [ ] Sprayform

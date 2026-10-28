@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../../components/T';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,6 +8,7 @@ import { ActionBar } from '../../components/ActionBar';
 import { Button } from '../../components/Button';
 import { KaterStage } from '../../components/KaterStage';
 import { useKater } from '../../components/useKater';
+import { useAuth } from '../../data/auth';
 import { color, font, space, stroke, text } from '../../theme/tokens';
 
 /** Route `onboarding/welcome`. Figma: `onboarding/welcome`, Upgrade „Nachtschicht“. */
@@ -15,6 +17,20 @@ export default function Welcome() {
   const insets = useSafeAreaInsets();
   // Am Anfang begrüßt der Kater mit Besen (Daria, 22.10.2026)
   const kater = useKater('hallo', 10000);
+  const { startTest } = useAuth();
+  const [busy, setBusy] = useState(false);
+
+  // Einmal testen ohne Anmeldung (Daria, 27.10.2026): Testkonto, danach normal weiter mit dem Decknamen.
+  const test = async () => {
+    setBusy(true);
+    const failure = await startTest();
+    setBusy(false);
+    if (failure) {
+      Alert.alert('Klappt gerade nicht', failure);
+      return;
+    }
+    router.push('/onboarding/deckname');
+  };
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -43,7 +59,8 @@ export default function Welcome() {
       </ScrollView>
       <ActionBar>
         {/* Ein Weg für neue und bekannte Konten (Daria, 24.10.2026) */}
-        <Button label="Anheuern" icon="this-way" onPress={() => router.push('/onboarding/email')} />
+        <Button label="Anheuern" icon="this-way" onPress={() => router.push('/onboarding/email')} disabled={busy} />
+        <Button busy={busy} label="Erst mal testen, ohne Anmeldung" variant="ghost" onPress={test} disabled={busy} />
       </ActionBar>
     </View>
   );

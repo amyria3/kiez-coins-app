@@ -59,6 +59,8 @@ export type User = {
   /** Grammatisches Geschlecht für Texte über die Person; ohne Angabe unbestimmt */
   gender?: Gender;
   payout?: Payout;
+  /** Testkonto: Beiträge tragen die Marke „Testaccount“ (Daria, 27.10.2026) */
+  test?: boolean;
 };
 
 export type PayoutMethod = 'iban' | 'paypal';
