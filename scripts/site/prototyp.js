@@ -179,7 +179,7 @@
       ],
       bild: {
         suggestions: ['Unsere Beete im Hof', 'Buchtipp für den Winter', 'Sommerfest im Hof'],
-        demo: ['Unsere Beete im Hof', 'Alles geerntet, die Beete sind bereit für den Winter.'],
+        demo: ['Unsere Beete im Hof', 'Neue Beete by CityGardening (mein Verein) – sagt Bescheid, wenn ihr euch was wünscht.'],
         photo: 'garten',
         published: 'Dein Bild ist da. Alle im Hof Kastanienallee sehen es jetzt.',
       },
@@ -272,7 +272,7 @@
       ],
       bild: {
         suggestions: ['Our courtyard beds', 'Book tip for winter', 'Courtyard summer party'],
-        demo: ['Our courtyard beds', 'Everything harvested, the beds are ready for winter.'],
+        demo: ['Our courtyard beds', 'New beds by CityGardening (my club) – let us know if there’s anything you’d like.'],
         published: 'Your photo is up. Everyone in Hof Kastanienallee can see it now.',
       },
     },
