@@ -46,13 +46,13 @@
   // Text unter der Überschrift, wenn der Ort keinen eigenen für das Szenario hat
   var LEDE = T('Kennst Du das? Irgendwas muss erledigt werden, doch wer in Gottes Namen soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez. Zusammen sind wir stärker, gesünder, glücklicher, wohlhabender und bekommen sogar mehr gebacken!', 'Sound familiar? Something needs doing, but who on earth is going to do it? KiezCoins gives you an interface to share work better – at home or in your neighborhood. Together we’re stronger, healthier, happier, wealthier and we even get more done!');
 
-  // Eigene Me-Challenge im Prototyp, in beiden Orten gleich (Vorher hohes Gras, Nachher gepflegte Beete)
+  // Eigene Me-Challenge in Kiez und Gruppen: Du spannst selbst die Wäscheleine. Das Mähen ist dort eine Bitte an andere (We-Challenge, Daria, 28.10.2026)
   var ME = {
-    before: 'hohes-gras',
-    after: 'gemaeht',
-    suggestions: ['Rasenmäher bei Peter abholen & ein Stück Rasen für Elisas Geburtstag freimähen', 'Müll im Park sammeln', 'Fahrradkeller aufräumen'],
-    demo: ['Rasenmäher bei Peter abholen & ein Stück Rasen für Elisas Geburtstag freimähen', ''],
-    demoAfter: 'Gemäht und gejätet. Die Beete sind bereit für den Winter.',
+    before: 'waesche',
+    after: 'waesche',
+    suggestions: ['Neue Wäscheleine im Hof spannen', 'Müll im Park sammeln', 'Fahrradkeller aufräumen'],
+    demo: ['Neue Wäscheleine im Hof spannen', ''],
+    demoAfter: 'Die neue Leine hängt, die erste Wäsche trocknet schon.',
     done: '1 gute Tat für den Kiez!',
   };
 
@@ -161,11 +161,11 @@
         ],
       },
       create: {
-        suggestions: ['Wäscheleine spannen', 'Treppenhaus wischen', 'Hof fegen'],
-        demo: ['Wäscheleine im Hof spannen', 'Die alte Leine ist gerissen. Neue Leine und Haken liegen im Keller, es fehlt jemand mit Leiter.'],
+        suggestions: ['Ein Stück Rasen mähen', 'Treppenhaus wischen', 'Hof fegen'],
+        demo: ['Ein Stück Rasen für Elisas Geburtstag mähen', 'Es wäre schön, wenn jemand ein Stück des Rasens für die Kleinen frei-mähen könnte, weil Elisa am Freitag Geburtstag hat und die Zecken im hohen Rasen gerade wüten.'],
         rewards: [1, 3, 5, 10],
         reward: 3,
-        photo: 'waesche',
+        photo: 'hohes-gras',
         published: 'Deine We-Challenge ist da. Alle im Hof Kastanienallee sehen sie jetzt.',
       },
       scenarios: [
@@ -219,9 +219,9 @@
 
   // Englische Fassung der Beispieldaten: überschreibt nur die Texte, Struktur und Zahlen bleiben
   var ME_EN = {
-    suggestions: ['Pick up the mower from Peter & mow a patch for Elisa’s birthday', 'Pick up litter in the park', 'Tidy the bike cellar'],
-    demo: ['Pick up the mower from Peter & mow a patch for Elisa’s birthday', ''],
-    demoAfter: 'Mowed and weeded. The beds are ready for winter.',
+    suggestions: ['Put up a new clothesline in the courtyard', 'Pick up litter in the park', 'Tidy the bike cellar'],
+    demo: ['Put up a new clothesline in the courtyard', ''],
+    demoAfter: 'The new line is up, the first laundry is already drying.',
     done: '1 good deed for the neighborhood!',
   };
   var MODES_EN = {
@@ -267,8 +267,8 @@
         tasks: [{ title: 'Sweep the courtyard' }, { title: 'Water the plants in the stairwell' }, { title: 'Put out the bins' }],
       },
       create: {
-        suggestions: ['Put up a clothesline', 'Mop the stairwell', 'Sweep the courtyard'],
-        demo: ['Put up a clothesline in the courtyard', 'The old line snapped. New line and hooks are in the cellar, we need someone with a ladder.'],
+        suggestions: ['Mow a patch of lawn', 'Mop the stairwell', 'Sweep the courtyard'],
+        demo: ['Mow a patch of lawn for Elisa’s birthday', 'It would be lovely if someone could mow a patch of the lawn for the little ones, because Elisa’s birthday is on Friday and the ticks are running wild in the tall grass.'],
         published: 'Your We-Challenge is up. Everyone in Hof Kastanienallee can see it now.',
       },
       scenarios: [
@@ -403,7 +403,7 @@
     '<div class="p-scrim" hidden></div>' +
     '<section class="p-sheet" role="dialog" aria-modal="true" aria-label="Details" aria-hidden="true" tabindex="-1"></section>' +
     '<section class="p-create" role="dialog" aria-modal="true" aria-label="' + T('Neu stellen', 'New post') + '" aria-hidden="true" tabindex="-1"></section>' +
-    '<div class="p-nudge" aria-live="polite"><span class="p-nudge-cat"></span><p></p></div>' +
+    '<div class="p-nudge" aria-live="polite"><p><span class="p-nudge-cat"></span><span class="p-nudge-text"></span></p></div>' +
     '<div class="p-burst" aria-hidden="true"></div>';
 
   var scroll = $('.p-scroll');
@@ -659,16 +659,33 @@
   // ---------- Kater-Hinweis ----------
   var nudge = $('.p-nudge');
   var nudgeTimer;
+  // Der Kater sitzt außerhalb des Handys, in der Pill, und zeigt auf den Bereich, um den es geht (Daria, 28.10.2026)
+  root.appendChild(nudge);
+  function placeNudge() {
+    var pr = root.getBoundingClientRect();
+    var innen = pr.left < 270;
+    nudge.classList.toggle('is-innen', innen);
+    nudge.classList.toggle('is-top', innen && !!(state.detail || state.create));
+    if (innen) { nudge.style.top = ''; return; }
+    var scale = pr.height / root.offsetHeight || 1;
+    var ziel = $('.p-ring', screen) || (state.create ? create : state.detail ? sheet : $('.p-tabbar', screen));
+    var zr = ziel.getBoundingClientRect();
+    var mitte = Math.max(zr.top, pr.top) + Math.min(zr.height, pr.bottom - Math.max(zr.top, pr.top)) / 2;
+    var y = (mitte - pr.top) / scale;
+    nudge.style.top = Math.max(40, Math.min(root.offsetHeight - 40, y)) + 'px';
+  }
   function say(text, mood) {
-    $('.p-nudge-cat', nudge).innerHTML = svg(mood === 'high' ? 'catHigh' : 'cat', 30);
-    $('p', nudge).textContent = text;
-    // Über einem offenen Sheet sitzt der Kater oben, damit er keine Knöpfe verdeckt
-    nudge.classList.toggle('is-top', !!(state.detail || state.create));
+    $('.p-nudge-cat', nudge).innerHTML = svg(mood === 'high' ? 'catHigh' : 'cat', 28);
+    $('.p-nudge-text', nudge).textContent = text;
     nudge.classList.remove('is-on');
-    nudge.offsetWidth;
-    nudge.classList.add('is-on');
     clearTimeout(nudgeTimer);
-    nudgeTimer = setTimeout(function () { nudge.classList.remove('is-on'); }, 3400);
+    // Erst nach dem Ring-Update platzieren, damit der Kater auf den aktuellen Schritt zeigt
+    setTimeout(function () {
+      placeNudge();
+      nudge.offsetWidth;
+      nudge.classList.add('is-on');
+      nudgeTimer = setTimeout(function () { nudge.classList.remove('is-on'); }, 3400);
+    }, 80);
   }
   function hush() {
     clearTimeout(nudgeTimer);
