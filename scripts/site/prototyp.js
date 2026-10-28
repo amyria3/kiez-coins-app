@@ -1343,7 +1343,7 @@
       var cur = current();
       var active;
       $$('[data-szenario]', picker).forEach(function (b) {
-        var on = b.dataset.szenario === cur;
+        var on = !b.hidden && b.dataset.szenario === cur;
         b.setAttribute('aria-pressed', String(on));
         if (on) active = b;
       });
