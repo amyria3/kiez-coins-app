@@ -83,7 +83,7 @@ export function useGroupPhotoForm(
           onRemove={(index) => setExtras((all) => all.filter((_, i) => i !== index))}
         />
       ) : null}
-      <TextField label="Beschreibung" helperText="Max. 500 Zeichen" value={body} onChangeText={setBody} maxLength={500} multiline />
+      <TextField label="Dein Text" helperText="Max. 500 Zeichen" value={body} onChangeText={setBody} maxLength={500} multiline />
       <FieldGroup label="Zeitraum">
         <ChipGroup>
           {durations.map((d) => (

@@ -87,6 +87,16 @@ export type Comment = {
   replyToId?: string;
 };
 
+/**
+ * Teilnahme an einer We-Challenge (Migration 20261028000300). `requested`: wartet auf die Erstellerin.
+ * `joined`: dabei. `declined`, `removed`, `left`: nicht mehr dabei (abgelehnt, ausgeschlossen, ausgestiegen).
+ */
+export type ParticipantStatus = 'requested' | 'joined' | 'declined' | 'removed' | 'left';
+export type Participant = { userId: string; status: ParticipantStatus; requestedAt: string; joinedAt?: string };
+
+/** `open`: Jede Person tritt direkt bei. `approval`: Die Erstellerin nimmt jede Anfrage an oder lehnt sie ab. */
+export type JoinMode = 'open' | 'approval';
+
 export type Challenge = {
   /** Grober Punkt (rund 100 m), wenn beim Erstellen der Standort freigegeben war */
   coords?: { latitude: number; longitude: number };
@@ -98,7 +108,13 @@ export type Challenge = {
   /** Nur bei Wave: Text der ursprünglichen Challenge */
   challengeText?: string;
   authorId: string;
+  /** Erste teilnehmende Person. Sie meldet erledigt, für alle. */
   assigneeId?: string;
+  /** Höchstzahl an Teilnehmenden, 1 = eine Person (Daria, 27.10.2026). Ohne Migration 20261028000300 leer. */
+  maxParticipants?: number;
+  joinMode?: JoinMode;
+  /** Alle Teilnehmenden und Anfragen, die Du sehen darfst. Ohne Migration leer. */
+  participants?: Participant[];
   /** Straße bzw. Ort, PLZ */
   location: string;
   /** Stadtteil, z. B. „Schönefeld, Leipzig“ (unter dem Namen nach dem Annehmen) */

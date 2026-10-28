@@ -17,6 +17,8 @@ import type {
   Profile,
   User,
   ModerationReport,
+  JoinMode,
+  Participant,
   UserReportReason,
 } from './types';
 
@@ -83,6 +85,9 @@ type ChallengeRow = {
   image_path: string | null;
   group_id?: string | null;
   edensteine?: number | null;
+  /** Mehrere Personen (Migration 20261028000300) */
+  max_participants?: number | null;
+  join_mode?: JoinMode | null;
   /** Migration 20261028000100 */
   visibility?: 'public' | 'private' | null;
   extra_image_paths?: string[] | null;
@@ -104,6 +109,14 @@ type ChallengeRow = {
   confirmed_at: string | null;
   paid_marked_at: string | null;
   comments: CommentRow[];
+};
+
+type ParticipantRow = {
+  challenge_id: string;
+  user_id: string;
+  status: Participant['status'];
+  requested_at: string;
+  joined_at: string | null;
 };
 
 type ShareRow = {
@@ -152,7 +165,7 @@ function toShare(row: ShareRow | undefined): PayoutShare | undefined {
 
 function toChallenge(
   row: ChallengeRow,
-  extra: { liked: boolean; operationName?: string; share?: ShareRow },
+  extra: { liked: boolean; operationName?: string; share?: ShareRow; participants?: Participant[] },
 ): Challenge {
   return {
     id: row.id,
@@ -162,6 +175,9 @@ function toChallenge(
     challengeText: row.challenge_text ?? undefined,
     authorId: row.author_id,
     assigneeId: row.assignee_id ?? undefined,
+    maxParticipants: row.max_participants ?? undefined,
+    joinMode: row.join_mode ?? undefined,
+    participants: extra.participants,
     location: row.location,
     coords: row.lat != null && row.lng != null ? { latitude: row.lat, longitude: row.lng } : undefined,
     kiez: row.kiez ?? undefined,
@@ -291,6 +307,23 @@ async function loadGroups(): Promise<Group[]> {
   }));
 }
 
+/** Teilnehmende und Anfragen je Challenge (Migration 20261028000300). Ohne Migration leer. */
+async function loadParticipants(challengeIds: string[]): Promise<Map<string, Participant[]>> {
+  const byChallenge = new Map<string, Participant[]>();
+  if (!challengeIds.length) return byChallenge;
+  const { data, error } = await supabase
+    .from('challenge_participants')
+    .select('challenge_id, user_id, status, requested_at, joined_at')
+    .in('challenge_id', challengeIds);
+  if (error) return byChallenge;
+  for (const r of (data ?? []) as ParticipantRow[]) {
+    const list = byChallenge.get(r.challenge_id) ?? [];
+    list.push({ userId: r.user_id, status: r.status, requestedAt: r.requested_at, joinedAt: r.joined_at ?? undefined });
+    byChallenge.set(r.challenge_id, list);
+  }
+  return byChallenge;
+}
+
 /** Anzahl Likes je Challenge (Funktion like_counts). Ohne Migration leer. */
 async function loadLikeCounts(ids: string[]): Promise<Map<string, number>> {
   if (!ids.length) return new Map();
@@ -318,12 +351,14 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
   const liked = new Set((likesRes.data ?? []).map((l) => l.challenge_id as string));
   const names = new Map((namesRes.data ?? []).map((n) => [n.challenge_id as string, n.name as string]));
   const shares = new Map(((sharesRes.data ?? []) as ShareRow[]).map((s) => [s.challenge_id, s]));
+  const participants = await loadParticipants(rows.filter((r) => r.type === 'individual').map((r) => r.id));
 
   const ids = new Set<string>([userId]);
   for (const r of rows) {
     ids.add(r.author_id);
     if (r.assignee_id) ids.add(r.assignee_id);
     for (const c of r.comments ?? []) ids.add(c.author_id);
+    for (const p of participants.get(r.id) ?? []) ids.add(p.userId);
   }
   for (const g of groups) for (const m of g.members) ids.add(m.userId);
   const profilesRes = check(
@@ -340,7 +375,12 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
   return {
     users,
     challenges: rows.map((r) => ({
-      ...toChallenge(r, { liked: liked.has(r.id), operationName: names.get(r.id), share: shares.get(r.id) }),
+      ...toChallenge(r, {
+        liked: liked.has(r.id),
+        operationName: names.get(r.id),
+        share: shares.get(r.id),
+        participants: participants.get(r.id),
+      }),
       ...(r.author_id === userId && views ? { views: views.get(r.id) ?? 0 } : {}),
       ...(likeCounts.size ? { likeCount: likeCounts.get(r.id) ?? 0 } : {}),
     })),
@@ -369,7 +409,13 @@ export async function loadChallenge(
   if (!rowRes.data) return { challenge: null, users: [] };
   const [row] = hideBlocked([rowRes.data as unknown as ChallengeRow], await loadBlockedIds());
   if (!row) return { challenge: null, users: [] };
-  const ids = new Set([row.author_id, ...(row.assignee_id ? [row.assignee_id] : []), ...row.comments.map((c) => c.author_id)]);
+  const participants = row.type === 'individual' ? (await loadParticipants([row.id])).get(row.id) : undefined;
+  const ids = new Set([
+    row.author_id,
+    ...(row.assignee_id ? [row.assignee_id] : []),
+    ...row.comments.map((c) => c.author_id),
+    ...(participants ?? []).map((p) => p.userId),
+  ]);
   ids.delete(userId); // das eigene Profil samt Zahlungsdaten kennt die App schon
   const profilesRes = ids.size
     ? check(
@@ -383,6 +429,7 @@ export async function loadChallenge(
         liked: !!likeRes.data,
         operationName: (nameRes.data?.name as string | undefined) ?? undefined,
         share: (shareRes.data as ShareRow | null) ?? undefined,
+        participants,
       }),
       ...(likeCounts.size ? { likeCount: likeCounts.get(row.id) ?? 0 } : {}),
     },
@@ -532,12 +579,35 @@ export type NewChallenge = {
   /** Gerundeter Punkt (location.ts, roundCoords) */
   coords?: { latitude: number; longitude: number };
   bountyAmount?: number;
+  /** Edensteine statt Euro, 1 bis 10 (Migration 20261028000200) */
+  edensteine?: number;
   deadline: string;
   photo: ImageSource;
   extras?: ExtraPhoto[];
   /** Modus „Privat“: nur Bild, ohne Coins (Migration 20261028000100) */
   private?: boolean;
+  participation?: Participation;
 };
+
+/**
+ * Mehrere Personen in einer We-Challenge (Daria, 27.10.2026, Migration 20261028000300): Höchstzahl und
+ * Art des Beitretens. Ohne Angabe bleibt es bei einer Person und „Offen“, wie vor der Migration.
+ */
+export type Participation = { max: number; mode: JoinMode };
+
+/** Nur nötig, wenn es von „1 Person, offen“ abweicht oder vorher abwich. */
+export const isDefaultParticipation = (p?: Participation) => !p || (p.max === 1 && p.mode === 'open');
+
+/** Höchstzahl und Art des Beitretens setzen. Die Datenbank prüft Rolle, Status und Euro-Bounty. */
+export const setParticipation = (id: string, p: Participation) =>
+  rpc('set_challenge_participation', { p_challenge_id: id, p_max: p.max, p_mode: p.mode });
+
+/** Nach dem Anlegen: Teilnahme setzen, wenn sie vom Standard abweicht, und in die Challenge übernehmen. */
+async function withParticipation(challenge: Challenge, p?: Participation): Promise<Challenge> {
+  if (isDefaultParticipation(p)) return challenge;
+  await setParticipation(challenge.id, p!);
+  return { ...challenge, maxParticipants: p!.max, joinMode: p!.mode };
+}
 
 /** Spalten lat/lng (Migration 20261020000400). Ohne Punkt bleiben sie weg, damit es auch ohne Migration läuft. */
 const coordFields = (coords?: { latitude: number; longitude: number }) =>
@@ -568,6 +638,9 @@ async function retryWithoutCoords<T>(run: (withCoords: boolean) => Promise<T>): 
   }
 }
 
+/** Edensteine nur mitschicken, wenn es welche gibt. So legt die App ohne Edensteine weiter an wie bisher. */
+const edenField = (edensteine?: number) => (edensteine ? { edensteine } : {});
+
 /** Neue Challenge anlegen. Gibt die gespeicherte Challenge zurück. */
 export async function createChallenge(userId: string, draft: NewChallenge): Promise<Challenge> {
   const imagePath = await uploadPhoto(userId, draft.photo);
@@ -583,6 +656,7 @@ export async function createChallenge(userId: string, draft: NewChallenge): Prom
           body: draft.text,
           location: draft.location,
           bounty_amount: draft.bountyAmount ?? null,
+          ...edenField(draft.edensteine),
           ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}),
           deadline: draft.deadline,
           image_path: imagePath,
@@ -592,7 +666,7 @@ export async function createChallenge(userId: string, draft: NewChallenge): Prom
         .single(),
     ),
   );
-  return toChallenge(data as unknown as ChallengeRow, { liked: false });
+  return withParticipation(toChallenge(data as unknown as ChallengeRow, { liked: false }), draft.participation);
 }
 
 const rpc = async (fn: string, args: Record<string, unknown>) => {
@@ -624,6 +698,8 @@ export type NewGroupTask = {
   photo?: ImageSource;
   /** Bis zu zwei weitere Fotos, nur bei Bildern */
   extras?: ExtraPhoto[];
+  /** Nur bei Aufgaben */
+  participation?: Participation;
 };
 
 /** Gruppenaufgabe oder Gruppenbild direkt veröffentlichen (ohne Entwurf, ohne Ort). */
@@ -649,7 +725,8 @@ export async function createGroupTask(userId: string, task: NewGroupTask): Promi
       .select(CHALLENGE_COLUMNS)
       .single(),
   );
-  return toChallenge(data as unknown as ChallengeRow, { liked: false });
+  const challenge = toChallenge(data as unknown as ChallengeRow, { liked: false });
+  return isPhoto ? challenge : withParticipation(challenge, task.participation);
 }
 
 export const challengeActions = {
@@ -663,6 +740,14 @@ export const challengeActions = {
   markPaid: (id: string) => rpc('mark_challenge_paid', { p_challenge_id: id }),
   unmarkPaid: (id: string) => rpc('unmark_challenge_paid', { p_challenge_id: id }),
   confirmReceived: (id: string) => rpc('confirm_bounty_received', { p_challenge_id: id }),
+  /** Beitreten bzw. anfragen (Migration 20261028000300) */
+  join: (id: string) => rpc('join_challenge', { p_challenge_id: id }),
+  /** Aussteigen oder Anfrage zurückziehen */
+  leave: (id: string) => rpc('leave_challenge', { p_challenge_id: id }),
+  answerRequest: (id: string, userId: string, accept: boolean) =>
+    rpc('answer_join_request', { p_challenge_id: id, p_user_id: userId, p_accept: accept }),
+  removeParticipant: (id: string, userId: string) =>
+    rpc('remove_participant', { p_challenge_id: id, p_user_id: userId }),
 };
 
 export type ChallengeEdit = {
@@ -670,24 +755,40 @@ export type ChallengeEdit = {
   text: string;
   location: string;
   bountyAmount?: number;
+  /** Nur Kiez-Challenges; Gruppenaufgaben behalten ihre Edensteine */
+  edensteine?: number;
   deadline: string;
   /** Neues Foto vom Gerät; ohne bleibt das bisherige */
   photo?: ImageSource;
+  /** Nur mitgeben, wenn sich etwas ändert */
+  participation?: Participation;
 };
+
+/**
+ * Teilnahme und Bearbeiten in der richtigen Reihenfolge: Zurück auf eine Person zuerst (dann darf wieder
+ * eine Euro-Bounty dazukommen), mehr Personen danach (dann ist die Euro-Bounty schon weg).
+ */
+async function editWithParticipation(id: string, edit: ChallengeEdit, run: () => Promise<void>) {
+  const p = edit.participation;
+  if (p && p.max === 1) await setParticipation(id, p);
+  await run();
+  if (p && p.max > 1) await setParticipation(id, p);
+}
 
 /**
  * Eigene offene Challenge bearbeiten (Migration 20261020000100_edit_open_challenge.sql).
  * Ein neues Foto wird hochgeladen und per set_challenge_image eingetragen (Migration 20261022000300).
  */
 export async function editChallenge(id: string, edit: ChallengeEdit, userId?: string) {
-  await rpc('edit_open_challenge', {
+  await editWithParticipation(id, edit, () => rpc('edit_open_challenge', {
     p_challenge_id: id,
     p_title: edit.title,
     p_body: edit.text,
     p_location: edit.location,
     p_bounty_amount: edit.bountyAmount ?? null,
     p_deadline: edit.deadline,
-  });
+    p_edensteine: edit.edensteine ?? null,
+  }));
   if (edit.photo && userId) {
     const path = await uploadPhoto(userId, edit.photo);
     await rpc('set_challenge_image', { p_challenge_id: id, p_image_path: path });
@@ -700,7 +801,7 @@ export async function editChallenge(id: string, edit: ChallengeEdit, userId?: st
  */
 export async function editDeletedChallenge(id: string, edit: ChallengeEdit, userId?: string) {
   const imagePath = edit.photo && userId ? await uploadPhoto(userId, edit.photo) : null;
-  await rpc('edit_deleted_challenge', {
+  await editWithParticipation(id, edit, () => rpc('edit_deleted_challenge', {
     p_challenge_id: id,
     p_title: edit.title,
     p_body: edit.text,
@@ -708,7 +809,8 @@ export async function editDeletedChallenge(id: string, edit: ChallengeEdit, user
     p_bounty_amount: edit.bountyAmount ?? null,
     p_deadline: edit.deadline,
     p_image_path: imagePath,
-  });
+    p_edensteine: edit.edensteine ?? null,
+  }));
 }
 
 /** Eigene offene Challenge schließen. Sie bleibt in der Timeline sichtbar (Migration 20261020000200). */
@@ -720,6 +822,8 @@ export type DraftInput = {
   text: string;
   location: string;
   bountyAmount?: number;
+  /** Edensteine statt Euro, 1 bis 10 */
+  edensteine?: number;
   coords?: { latitude: number; longitude: number };
   /** Neues Foto vom Gerät. Ohne neues Foto bleibt `imagePath`. */
   photo?: ImageSource;
@@ -727,6 +831,7 @@ export type DraftInput = {
   extras?: ExtraPhoto[];
   /** Modus „Privat“, nur beim Anlegen (Migration 20261028000100) */
   private?: boolean;
+  participation?: Participation;
 };
 
 /** Entwurf anlegen (ohne id) oder aktualisieren. Lädt ein neues Foto hoch. Gibt den gespeicherten Entwurf zurück. */
@@ -739,8 +844,14 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
     body: draft.text.trim(),
     location: draft.location.trim(),
     bounty_amount: draft.bountyAmount ?? null,
+    edensteine: draft.edensteine ?? null,
     image_path: imagePath,
   };
+  // Zurück auf eine Person mit Euro-Bounty: erst die Personenzahl, sonst lehnt die Datenbank die Bounty ab.
+  // Ohne Migration 20261028000300 gibt es die Funktion nicht, dann gibt es auch die Regel nicht.
+  if (id && draft.bountyAmount && draft.participation?.max === 1) {
+    await setParticipation(id, draft.participation).catch(() => undefined);
+  }
   const { data } = await retryWithoutCoords(async (withCoords) => {
     const all = { ...fields, ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}) };
     const query = id
@@ -750,7 +861,14 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
           .insert({ ...all, author_id: userId, status: 'draft', ...(draft.private ? { visibility: 'private' } : {}) });
     return check(await query.select(CHALLENGE_COLUMNS).single());
   });
-  return toChallenge(data as unknown as ChallengeRow, { liked: false });
+  const saved = toChallenge(data as unknown as ChallengeRow, { liked: false });
+  // Ein Entwurf, der schon mehrere Personen hatte, darf auch zurück auf eine
+  const had = saved.maxParticipants !== undefined && !isDefaultParticipation({ max: saved.maxParticipants, mode: saved.joinMode ?? 'open' });
+  if (draft.type !== 'photo' && draft.participation && (had || !isDefaultParticipation(draft.participation))) {
+    await setParticipation(saved.id, draft.participation);
+    return { ...saved, maxParticipants: draft.participation.max, joinMode: draft.participation.mode };
+  }
+  return saved;
 }
 
 // ---------------------------------------------------------------------------

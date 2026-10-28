@@ -11,7 +11,7 @@ import type { Challenge, User } from '../data/types';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BeforeAfterPair, BeforeAfterPost } from './BeforeAfterPost';
-import { weChallengeAfter } from '../data/weChallenge';
+import { weChallengeAfter, joinedIds, maxParticipants, participationText } from '../data/weChallenge';
 import { useAppDimensions } from '../theme/layout';
 import { WithMentions, postText } from './WithMentions';
 import { BountyBadge } from './Badges';
@@ -65,7 +65,7 @@ function KiezPost({
   const state = closed ? 'geschlossen' : completed ? 'erledigt' : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
   const hideName = useHideName(author);
   const router = useRouter();
-  const meta = [distance, state].filter(Boolean).join(' · ');
+  const meta = [distance, state, spotsText(challenge, active)].filter(Boolean).join(' · ');
   const commentCount = challenge.comments.length;
 
   // Einmal tippen zeigt, wer gepostet hat. Nochmal tippen (auch doppelt) oder lange drücken öffnet den Post.
@@ -279,6 +279,12 @@ function KiezPost({
   );
 }
 
+/** Mehrere Personen: „2 von 5 dabei“, solange die Challenge läuft (Daria, 27.10.2026) */
+function spotsText(c: Challenge, active: boolean): string {
+  if (!active || c.type !== 'individual') return '';
+  return participationText(maxParticipants(c), c.joinMode, joinedIds(c).length);
+}
+
 /**
  * Look „Fashionable“ (Daria, 2026-10-23): Kopfzeile mit Bild, Name und Kiez über dem Foto, Foto quadratisch über die
  * ganze Breite, darunter Herz, Sprechblase, Teilen und der Text mit fettem Titel vorn. Ein Tipp aufs Foto öffnet den Post.
@@ -295,7 +301,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
   const state = closed ? 'geschlossen' : completed ? 'erledigt' : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
   const hideName = useHideName(author);
   const router = useRouter();
-  const place = [challenge.kiez?.split(',')[0] ?? challenge.location, distance].filter(Boolean).join(' · ');
+  const place = [challenge.kiez?.split(',')[0] ?? challenge.location, distance, spotsText(challenge, active)].filter(Boolean).join(' · ');
   const commentCount = challenge.comments.length;
   const { width } = useAppDimensions();
 
