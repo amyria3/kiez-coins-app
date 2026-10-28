@@ -103,11 +103,12 @@
       ],
       group: null,
       create: {
-        suggestions: ['Tonnen rausstellen', 'Igelhaus aufbauen', 'Fahrradkeller aufräumen'],
-        demo: ['Tonnen rausstellen', 'Die Mülltonnen müssen Dienstag früh an die Straße und Mittwoch wieder rein. Ich bin verreist.'],
+        suggestions: ['Ein Stück Rasen für Elisas Geburtstag mähen', 'Igelhaus aufbauen', 'Fahrradkeller aufräumen'],
+        // Das Mähen bittet die Nachbarschaft; dieselbe Aufgabe als eigene Me-Challenge steht unter „Nur ich“ (Daria, 28.10.2026)
+        demo: ['Ein Stück Rasen für Elisas Geburtstag mähen', 'Es wäre schön, wenn jemand ein Stück des Rasens für die Kleinen frei-mähen könnte, weil Elisa am Freitag Geburtstag hat und die Zecken im hohen Rasen gerade wüten.'],
         rewards: [5, 10, 15, 20],
         reward: 10,
-        photo: 'tonnen',
+        photo: 'hohes-gras',
         published: 'Deine We-Challenge ist online. Die Nachbarschaft sieht sie jetzt.',
       },
       // Reihenfolge = Reihenfolge der Knöpfe neben dem Telefon: [Schlüssel, Titel, Text, Kurzform fürs Handy]
@@ -201,6 +202,13 @@
       create: {
         suggestions: [], demo: ['', ''], rewards: [], reward: 0, photo: null, published: '',
       },
+      me: {
+        before: 'hohes-gras',
+        after: 'gemaeht',
+        demo: ['Rasenmäher bei Peter abholen & ein Stück Rasen für Elisas Geburtstag freimähen', ''],
+        demoAfter: '',
+        done: 'Geschafft! Nur Du siehst es.',
+      },
       scenarios: [
         ['me', 'Me-Challenge', 'Hast Du Dir etwas vorgenommen und brauchst ein wenig Motivation aus der Silicon-Valley-Trickkiste? Dokumentiere Deinen Fortschritt – nutze Gamification zur Glücksmaximierung, geschützt vor fremden Blicken.', 'Me-Challenge'],
         ['bild', 'Nur ein Bild', 'Speichere visuelle Notizen oder schöne Momente in Deinem Alltag.', 'Bild'],
@@ -237,8 +245,8 @@
         { title: 'Hedgehog by the path', text: 'Tonight by the path in the park. Please ride slowly!' },
       ],
       create: {
-        suggestions: ['Put out the bins', 'Build a hedgehog house', 'Tidy the bike cellar'],
-        demo: ['Put out the bins', 'The bins need to go out to the street early Tuesday and back in on Wednesday. I’m away.'],
+        suggestions: ['Mow a patch of lawn for Elisa’s birthday', 'Build a hedgehog house', 'Tidy the bike cellar'],
+        demo: ['Mow a patch of lawn for Elisa’s birthday', 'It would be lovely if someone could mow a patch of the lawn for the little ones, because Elisa’s birthday is on Friday and the ticks are running wild in the tall grass.'],
         published: 'Your We-Challenge is live. The neighborhood can see it now.',
       },
       scenarios: [
@@ -284,6 +292,7 @@
     ich: {
       headline: 'Small challenges for more real community',
       place: 'Just me',
+      me: { demo: ['Pick up the mower from Peter & mow a patch for Elisa’s birthday', ''], done: 'Done! Only you can see it.' },
       people: { du: { name: 'You', short: 'You' } },
       challenges: [
       ],
@@ -329,6 +338,8 @@
   }
 
   var M, people, challenges, group, state;
+  // Me-Challenge je Ort: „Nur ich“ hat eigene Beispieldaten, sonst gilt ME
+  function meData() { return M.me || ME; }
   function clone(o) {
     return JSON.parse(JSON.stringify(o));
   }
@@ -528,7 +539,7 @@
   function running() {
     var d = state.draft;
     if (d.kind !== 'me' || d.stage === 'vorher') return '';
-    return '<div class="p-post"><button type="button" class="p-running" data-me-open><span class="p-thumb">' + image(ME.before) + '</span>' +
+    return '<div class="p-post"><button type="button" class="p-running" data-me-open><span class="p-thumb">' + image(meData().before) + '</span>' +
       '<span><strong>' + T('Du hast Dich selbst herausgefordert', 'You challenged yourself') + '</strong><i>' + esc(d.title) + (d.stage === 'timer' ? T(' · Timer läuft', ' · Timer running') : T(' · Nachher fehlt', ' · After photo missing')) +
       '</i></span></button></div>';
   }
@@ -873,7 +884,7 @@
         kindSwitch(d) +
         '<p class="p-help">' + T('Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.', 'Capture how you repair, rebuild or beautify something, or practise a new, useful habit. First document the “before” state with a photo.') + '</p>' +
         meSteps(0) +
-        photoBox(d.photo, ME.before, T('Vorher', 'Before'), T('Vorher-Foto aufnehmen', 'Take before photo')) +
+        photoBox(d.photo, meData().before, T('Vorher', 'Before'), T('Vorher-Foto aufnehmen', 'Take before photo')) +
         '<div class="p-photo-title"><textarea rows="1" maxlength="90" placeholder="' + T('Titel eingeben', 'Enter title') + '" aria-label="' + T('Titel', 'Title') + '" data-title>' + esc(d.title) + '</textarea></div>' +
         '</div>' +
         '<p class="p-help">' + T('So sieht es jetzt aus.', 'This is how it looks now.') + '</p>' +
@@ -884,7 +895,7 @@
       var m = minutes(d);
       body =
         meSteps(1) +
-        '<div class="p-mini"><span class="p-thumb">' + image(ME.before) + '</span><span><strong>' + esc(d.title) + '</strong>' +
+        '<div class="p-mini"><span class="p-thumb">' + image(meData().before) + '</span><span><strong>' + esc(d.title) + '</strong>' +
         '<i>' + T('Vorher gespeichert um {uhr} Uhr', 'Before saved at {uhr}', { uhr: clockOf(d.start) }) + '</i></span></div>' +
         '<div class="p-timer"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="54" class="p-timer-track"/>' +
         '<circle cx="60" cy="60" r="54" class="p-timer-bar" data-ring stroke-dasharray="' + r + '" stroke-dashoffset="' + r * (1 - m / MAX_MIN) + '"/></svg>' +
@@ -894,7 +905,7 @@
     } else {
       body =
         meSteps(2) +
-        photoBox(d.after, ME.after, T('Nachher', 'After'), T('Nachher-Foto aufnehmen', 'Take after photo')) + '</div>' +
+        photoBox(d.after, meData().after, T('Nachher', 'After'), T('Nachher-Foto aufnehmen', 'Take after photo')) + '</div>' +
         '<p class="p-help">' + T('So sieht es jetzt aus. Die Überschrift „{title}“ gilt für Vorher und Nachher.', 'This is how it looks now. The title “{title}” applies to before and after.', { title: esc(d.title) }) + '</p>' +
         tagField('#nachher', 'data-after-text', d.afterText, T('Was hast Du gemacht?', 'What did you do?')) +
         '<button type="button" class="p-btn" data-me-post' + (d.after ? '' : ' disabled') + '>' + T('Me-Challenge posten', 'Post Me-Challenge') + '</button>';
@@ -936,11 +947,11 @@
     var id = 'neu' + state.created;
     challenges.unshift({
       id: id, kind: 'me', title: d.title.trim(), text: d.afterText.trim() || d.text.trim(),
-      author: 'du', before: ME.before, after: ME.after, took: d.took, comments: 0, likes: 0,
+      author: 'du', before: meData().before, after: meData().after, took: d.took, comments: 0, likes: 0,
     });
     finishCreate(id);
     // Coin-Animation kommt später (Übergabe: Coin-Animation bei der Me-Challenge)
-    say(ME.done, 'high');
+    say(meData().done, 'high');
   }
 
   function grow(el) {
@@ -964,12 +975,13 @@
     if (d.kind === kind || d.stage !== 'vorher') return;
     clearTimeout(autoTimer);
     autoTimer = null;
-    d.kind = kind;
-    d.photo = false;
+    // Neue Art, neuer Entwurf: Titel und Text der vorigen Art bleiben nicht stehen (Daria, 28.10.2026)
+    state.draft = newDraft(kind);
     renderCreate();
     syncSeg(false);
     syncScenario();
     $('[data-kind="' + kind + '"]', create).focus({ preventScroll: true });
+    autofill();
   }
 
   // ---------- Scrollen im Erstellen-Blatt füllt das Formular wie von selbst ----------
@@ -984,10 +996,10 @@
       if (d.afterText.trim()) return;
       d.after = true;
       renderMe();
-      queue = [[$('[data-after-text]', create), 'afterText', ME.demoAfter]];
+      queue = [[$('[data-after-text]', create), 'afterText', meData().demoAfter]];
       button = '[data-me-post]';
     } else if (d.stage === 'vorher' && !d.title.trim()) {
-      var demo = d.kind === 'me' ? ME.demo : d.kind === 'bild' ? M.bild.demo : M.create.demo;
+      var demo = d.kind === 'me' ? meData().demo : d.kind === 'bild' ? M.bild.demo : M.create.demo;
       d.photo = true;
       renderCreate();
       queue = [[$('[data-title]', create), 'title', demo[0]], [$('[data-text]', create), 'text', demo[1]]];
@@ -1003,6 +1015,8 @@
         if (!btn) return;
         btn.disabled = false;
         updateRing();
+        // Fertig ausgefüllt: zum nächsten Schritt scrollen (Daria, 28.10.2026)
+        create.scrollTo({ top: create.scrollHeight, behavior: reduce ? 'auto' : 'smooth' });
         if (!reduce) { btn.classList.remove('p-ready'); btn.offsetWidth; btn.classList.add('p-ready'); }
         return;
       }
