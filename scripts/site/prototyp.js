@@ -520,11 +520,13 @@
       (c.img ? '<span class="p-img">' + image(c.img) + '</span>' : '') +
       '<span class="p-bounty' + (M.unit === 'euro' ? '' : ' p-bounty-eden') + '">' + bountyOf(c) + '</span>' +
       '<span class="p-who">' + avatar(c.author, 28) + '<span><b>' + esc(people[c.author].name) + '</b><i>' + ago(c) + '</i></span></span>' +
-      (statusChip(c.id) || '<span class="p-chip p-chip-deadline">' + svg('clock', 10) + esc(cap(c.left)) + '</span>') +
+      // Ohne Foto wie in der App: keine Frist-Pill, die Frist steht in der Meta-Zeile, der Text unter den Aktionen (Daria, 28.10.2026)
+      (c.img ? statusChip(c.id) || '<span class="p-chip p-chip-deadline">' + svg('clock', 10) + esc(cap(c.left)) + '</span>' : statusChip(c.id) || '') +
       '<span class="p-info"><strong>' + esc(c.title) + '</strong><span class="p-meta">' +
-      esc(people[c.author].name) + ' · ' + esc(c.dist) + '</span></span>' +
+      esc(people[c.author].name) + ' · ' + esc(c.dist) + (c.img ? '' : ' · ' + esc(c.left)) + '</span></span>' +
       '</button>' +
       actions(c, liked) +
+      (c.img || !c.text ? '' : '<p class="p-body">' + esc(c.text) + '</p>') +
       '</article>'
     );
   }
