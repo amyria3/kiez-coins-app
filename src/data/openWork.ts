@@ -8,6 +8,8 @@ export function hasOpenWork(challenges: Challenge[], userId: string): boolean {
       (c.assigneeId === userId && ['accepted', 'reported', 'payment_open', 'paid_marked'].includes(c.status)) ||
       (c.authorId === userId && ['reported', 'payment_open'].includes(c.status)) ||
       // Mehrere Personen: alle Teilnehmenden, bis die Challenge bestätigt ist
-      (['accepted', 'reported'].includes(c.status) && isParticipant(c, userId)),
+      (['accepted', 'reported'].includes(c.status) && isParticipant(c, userId)) ||
+      // Coins je Person: offene Auszahlung an Dich oder von Dir (Migration 20261028000400)
+      !!c.payouts?.some((p) => !p.paidAt && (p.userId === userId || c.authorId === userId)),
   );
 }

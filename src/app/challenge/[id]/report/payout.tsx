@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text } from '../../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useGoBack } from '../../../../lib/goBack';
+import { isSharedBounty, shareCentsOf } from '../../../../data/coins';
 
 import { AuthorRow } from '../../../../components/AuthorRow';
 import { Button } from '../../../../components/Button';
 import { KaterBubble, Notice } from '../../../../components/Content';
 import { RadioOption, SwitchRow, TextField } from '../../../../components/Form';
 import { SubScreen } from '../../../../components/Screen';
-import { formatEuro, isValidIban, isValidPaypal, maskIbanShort } from '../../../../data/format';
+import { formatCents, formatEuro, isValidIban, isValidPaypal, maskIbanShort } from '../../../../data/format';
 import { useChallenge, useCurrentUser, useStore } from '../../../../data/store';
 import type { PayoutMethod } from '../../../../data/types';
 import { color, space, text } from '../../../../theme/tokens';
@@ -19,10 +21,14 @@ import { useNudge } from '../../../../components/Nudge';
  * Route `challenge/[id]/report/payout` (Modal, direkt nach „Erledigung senden“, nur mit Bounty).
  * Figma: `challenge/report/payout` (gespeicherte Daten) und `--empty` (ohne gespeicherte Daten).
  * Pflichtschritt: ohne Methode keine Freigabe. Speichert eine Freigabe (`payout_share`) für diese Challenge.
+ * `nur=1`: aus der Detailansicht, ohne Erledigt-Melden, z. B. für weitere Teilnehmende (Daria, 28.10.2026).
+ * Danach geht es zurück statt zur Erfolgsseite.
  */
 export default function PayoutShareScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, nur } = useLocalSearchParams<{ id: string; nur?: string }>();
   const router = useRouter();
+  const goBack = useGoBack();
+  const onlyShare = nur === '1';
   const { dispatch } = useStore();
   const me = useCurrentUser();
   const { challenge, author } = useChallenge(id);
@@ -35,7 +41,9 @@ export default function PayoutShareScreen() {
 
   if (!challenge || !author || !challenge.bountyAmount) return null;
   const name = author.firstName;
-  const amount = formatEuro(challenge.bountyAmount);
+  // Mehrere Personen: Dein Anteil (geschätzt, bis die Erstellerin bestätigt)
+  const shared = isSharedBounty(challenge);
+  const amount = shared ? formatCents(shareCentsOf(challenge, me.id)) : formatEuro(challenge.bountyAmount);
 
   const ibanOk = isValidIban(iban) && accountHolder.trim().length > 0;
   const paypalOk = isValidPaypal(paypal);
@@ -54,20 +62,25 @@ export default function PayoutShareScreen() {
       if (saveToAccount) dispatch({ type: 'savePayout', payout });
       dispatch({ type: 'sharePayout', id: challenge.id, share: { method: ibanOk ? 'iban' : 'paypal', payout } });
     }
-    router.replace(`/challenge/${challenge.id}/report/success`);
+    if (onlyShare) goBack();
+    else router.replace(`/challenge/${challenge.id}/report/success`);
   };
 
   return (
     <SubScreen
       title="Zahlungsdaten freigeben"
       navigation="close"
-      onLeadingPress={() => router.dismissTo('/feed')}
+      onLeadingPress={() => (onlyShare ? goBack() : router.dismissTo('/feed'))}
       actions={<Button label={t('Für {name} freigeben', { name })} onPress={share} disabled={!canShare}
           whyDisabled={() => ibanField.nudge('Gib Deine IBAN mit Kontoinhaber:in oder Deine PayPal-Adresse an.')}
         />}
     >
       <KaterBubble>
-        {tAbout(author, 'Gemeldet! Wohin soll {name} Dir die {betrag} schicken?', { name, betrag: amount })}
+        {onlyShare
+          ? tAbout(author, 'Wohin soll {name} Dir Deinen Anteil von {betrag} schicken?', { name, betrag: amount })
+          : shared
+            ? tAbout(author, 'Gemeldet! Wohin soll {name} Dir Deinen Anteil von {betrag} schicken?', { name, betrag: amount })
+            : tAbout(author, 'Gemeldet! Wohin soll {name} Dir die {betrag} schicken?', { name, betrag: amount })}
         {saved ? '' : ` ${t('Gib mindestens Deine IBAN oder PayPal an.')}`}
       </KaterBubble>
       <View style={styles.group}>

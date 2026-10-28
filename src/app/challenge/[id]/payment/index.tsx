@@ -7,7 +7,8 @@ import { StatusBadge } from '../../../../components/Badges';
 import { Button } from '../../../../components/Button';
 import { Notice } from '../../../../components/Content';
 import { SubScreen } from '../../../../components/Screen';
-import { formatDayMonth, formatEuro } from '../../../../data/format';
+import { formatCents, formatDayMonth, formatEuro } from '../../../../data/format';
+import { payoutOf } from '../../../../data/coins';
 import { useChallenge, useStore } from '../../../../data/store';
 import { color, space, text } from '../../../../theme/tokens';
 import { t, tAbout } from '../../../../data/texts';
@@ -18,7 +19,7 @@ export default function PaymentScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const goBack = useGoBack();
-  const { dispatch } = useStore();
+  const { dispatch, currentUserId } = useStore();
   const { challenge, author } = useChallenge(id);
 
   if (!challenge || !author || !challenge.bountyAmount) return null;
@@ -28,7 +29,11 @@ export default function PaymentScreen() {
     router.replace(`/challenge/${challenge.id}/payment/success`);
   };
 
-  const day = challenge.paidMarkedAt ? formatDayMonth(challenge.paidMarkedAt) : undefined;
+  // Mehrere Personen: Dein Anteil und wann er als bezahlt markiert wurde (Migration 20261028000400)
+  const line = payoutOf(challenge, currentUserId);
+  const markedAt = line?.paidMarkedAt ?? challenge.paidMarkedAt;
+  const day = markedAt ? formatDayMonth(markedAt) : undefined;
+  const bountyAmount = line ? formatCents(line.amountCents) : formatEuro(challenge.bountyAmount);
 
   return (
     <SubScreen
@@ -50,8 +55,8 @@ export default function PaymentScreen() {
       <View style={styles.block}>
         <Text style={styles.title}>Sind die Coins angekommen?</Text>
         <Text style={styles.secondary}>{day
-            ? tAbout(author, '{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.', { firstName: author.firstName, day, bountyAmount: formatEuro(challenge.bountyAmount) })
-            : tAbout(author, '{firstName} hat die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.', { firstName: author.firstName, bountyAmount: formatEuro(challenge.bountyAmount) })}</Text>
+            ? tAbout(author, '{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.', { firstName: author.firstName, day, bountyAmount })
+            : tAbout(author, '{firstName} hat die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.', { firstName: author.firstName, bountyAmount })}</Text>
       </View>
       <Notice message="Nur Geduld, my friend! Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach immer noch fehlt." />
     </SubScreen>

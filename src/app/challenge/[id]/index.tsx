@@ -15,11 +15,13 @@ import { CommentSection } from '../../../components/Comments';
 import { InfoRow, KaterBubble, Notice, OperationTag } from '../../../components/Content';
 import { TextField } from '../../../components/Form';
 import { HeroScreen, SubScreen } from '../../../components/Screen';
-import { beforeAfterDuration, formatBountyShort, formatDayMonthShort, formatEuro, formatHoursMinutes, formatRelative, formatRemainingShort } from '../../../data/format';
+import { beforeAfterDuration, formatBountyShort, formatCents, formatDayMonthShort, formatEuro, formatHoursMinutes, formatRelative, formatRemainingShort } from '../../../data/format';
 import { WithMentions, postText } from '../../../components/WithMentions';
+import { isSharedBounty, payoutOf, shareCentsOf, sharedBountyText } from '../../../data/coins';
 import {
   freeSpots,
   isMultiPerson,
+  maxParticipants,
   isParticipant,
   myParticipation,
   participantsOpen,
@@ -130,6 +132,22 @@ export default function ChallengeDetail() {
       { text: t('Zurückziehen'), style: 'destructive', onPress: () => dispatch({ type: 'leave', id: challenge.id }) },
     ]);
 
+  // Coins (Migration 20261028000400): jede Person bestätigt den Empfang ihres Anteils selbst
+  const myLine = payoutOf(challenge, currentUserId);
+  const canConfirmReceived = myLine
+    ? !!myLine.paidMarkedAt && !myLine.paidAt && (challenge.status === 'payment_open' || challenge.status === 'paid_marked')
+    : isAssignee && challenge.status === 'paid_marked';
+  const sharedBounty = isSharedBounty(challenge);
+  const takingPart = isParticipant(challenge, currentUserId) || !!myLine;
+  // Weitere Teilnehmende geben ihre Zahlungsdaten hier frei; die erste Person beim Erledigt-Melden
+  const needsShare =
+    !!challenge.bountyAmount &&
+    !isAuthor &&
+    takingPart &&
+    !challenge.payoutShare &&
+    !myLine?.paidMarkedAt &&
+    (challenge.status === 'reported' || challenge.status === 'payment_open' || (challenge.status === 'accepted' && !isAssignee));
+
   let actions: React.ReactNode = null;
   // Nur ein Bild oder Vorher-Nachher: nichts anzunehmen
   const isPhoto = isPostOnly(challenge.type);
@@ -158,7 +176,7 @@ export default function ChallengeDetail() {
     actions = <Button label="Erledigung prüfen" onPress={() => router.push(`/challenge/${challenge.id}/review`)} />;
   } else if (isAuthor && challenge.status === 'payment_open') {
     actions = <Button label="Coins bezahlen" onPress={() => router.push(`/challenge/${challenge.id}/pay`)} />;
-  } else if (isAssignee && challenge.status === 'paid_marked') {
+  } else if (canConfirmReceived) {
     actions = <Button label="Coins bestätigen" onPress={() => router.push(`/challenge/${challenge.id}/payment`)} />;
   }
 
@@ -342,6 +360,13 @@ export default function ChallengeDetail() {
         ) : null}
       </View>
       ) : null}
+      {sharedBounty ? (
+        <Text style={styles.caption}>
+          {takingPart
+            ? t('Die Coins werden geteilt. Dein Anteil: {share}.', { share: formatCents(shareCentsOf(challenge, currentUserId)) })
+            : sharedBountyText(challenge.bountyAmount, maxParticipants(challenge))}
+        </Text>
+      ) : null}
     </>
   );
 
@@ -400,6 +425,9 @@ export default function ChallengeDetail() {
       {!isAuthor && mine?.status === 'requested' ? (
         <Notice message={tAbout(author, 'Deine Anfrage ist bei {firstName}. Du bekommst Bescheid, sobald {firstName} antwortet.', { firstName: author.firstName })} />
       ) : null}
+      {!isAuthor && mine?.status === 'unconfirmed' ? (
+        <Notice variant="warning" message={tAbout(author, '{firstName} hat Dich beim Bestätigen nicht ausgewählt. Die Belohnung geht an die anderen.', { firstName: author.firstName })} />
+      ) : null}
       {!isAuthor && (mine?.status === 'removed' || mine?.status === 'declined') ? (
         <Notice variant="warning" message={mine.status === 'removed' ? t('Du bist bei dieser Challenge nicht mehr dabei.') : t('Deine Anfrage wurde abgelehnt.')} />
       ) : null}
@@ -429,7 +457,19 @@ export default function ChallengeDetail() {
           onPress={() => openProfile(author.id)}
         />
       </View>
-      {challenge.bountyAmount && !isAuthor ? (
+      {needsShare ? (
+        <View style={styles.naming}>
+          <Notice
+            message={tAbout(author, 'Damit {firstName} Dir Deinen Anteil zahlen kann, gib Deine IBAN oder PayPal frei. {firstName} sieht sie erst nach der Bestätigung.', { firstName: author.firstName })}
+          />
+          <Button label="Zahlungsdaten freigeben" variant="secondary" onPress={() => router.push(`/challenge/${challenge.id}/report/payout?nur=1`)} />
+        </View>
+      ) : null}
+      {challenge.bountyAmount && !isAuthor && sharedBounty ? (
+        <Notice
+          message={tAbout(author, 'Die {amount} werden unter allen geteilt, die mitmachen. {firstName} zahlt jeder Person ihren Anteil direkt, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })}
+        />
+      ) : challenge.bountyAmount && !isAuthor ? (
         <Notice
           message={
             acceptedByMe

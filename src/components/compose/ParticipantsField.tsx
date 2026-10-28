@@ -7,30 +7,33 @@ import { FieldGroup } from '../Content';
 import { Chip, ChipGroup } from '../Form';
 import { Icon } from '../icons/Icon';
 import { Text } from '../T';
+import { COINS_MAX_PEOPLE } from '../../data/coins';
 
 export const DEFAULT_PARTICIPATION: Participation = { max: 1, mode: 'open' };
 
 /**
  * „Wie viele machen mit?“ und „Offen“ / „Auf Anfrage“ (Daria, 27.10.2026).
  * Die Erstellerin wählt die Höchstzahl; die App setzt keine feste Obergrenze, außer `limit` (Gruppengröße).
- * Ab 2 Personen gibt es nur Edensteine, keine Coins in Euro. `withCoinsHint` sagt das im Kiez dazu.
+ * Mit Coins höchstens 10 Personen, der Betrag wird geteilt (Daria, 28.10.2026). „Offen“ und „Auf Anfrage“
+ * gelten für Coins und Edensteine gleich.
  */
 export function ParticipantsField({
   value,
   onChange,
   min = 1,
   limit,
-  withCoinsHint,
+  coins,
 }: {
   value: Participation;
   onChange: (next: Participation) => void;
   /** Beim Bearbeiten: nie unter die Zahl der Teilnehmenden */
   min?: number;
   limit?: number;
-  withCoinsHint?: boolean;
+  /** Belohnung in Coins: höchstens 10 Personen */
+  coins?: boolean;
 }) {
   const lower = Math.max(1, min);
-  const upper = limit ?? Number.MAX_SAFE_INTEGER;
+  const upper = Math.min(limit ?? Number.MAX_SAFE_INTEGER, coins ? COINS_MAX_PEOPLE : Number.MAX_SAFE_INTEGER);
   const step = (delta: number) => onChange({ ...value, max: Math.min(upper, Math.max(lower, value.max + delta)) });
   const many = value.max > 1;
   return (
@@ -71,8 +74,8 @@ export function ParticipantsField({
       </Text>
       {many ? (
         <Text style={styles.secondary}>
-          {withCoinsHint
-            ? 'Die erste Person meldet erledigt, für alle. Jede Person bekommt alle Edensteine. Coins in Euro gibt es nur für eine Person.'
+          {coins
+            ? 'Die erste Person meldet erledigt, für alle. Die Coins werden geteilt. Mit Coins machen höchstens 10 Personen mit.'
             : 'Die erste Person meldet erledigt, für alle. Jede Person bekommt alle Edensteine.'}
         </Text>
       ) : null}
