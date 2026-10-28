@@ -264,7 +264,7 @@
   "Schritt 2 von 2": "שלב 2 מתוך 2",
   "Suche Standort …": "מחפש מיקום …",
   "Aktuellen Standort verwenden": "השתמש במיקום הנוכחי",
-  "Coins (optional)": "פרס (לא חובה)",
+  "Belohnung (optional)": "פרס (לא חובה)",
   "Eigener Betrag": "סכום אחר",
   "Betrag in €": "סכום ב־€",
   "5 bis 50 €. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.": "5 עד 50 €. אתה משלם את הפרס בעצמך, ישירות למי שמשלים את האתגר.",
@@ -993,7 +993,7 @@
   "Gesendet an {email}. Gilt 5 Minuten.": "נשלח אל {email}. בתוקף 5 דקות.",
   "Gib Deine PLZ von Hand ein oder erlaube den Standort in den Einstellungen.": "הזן מיקוד ידנית או אפשר גישה למיקום בהגדרות.",
   "Haben wir einen Draht?!": "אנחנו מחוברים?!",
-  "Hier gibt es etwas zu tun! Zu den Spaten! Zu den Müllsäcken!": "יש פה מה לעשות! לאתים! לשקיות הזבל!",
+  "Hier gibt es etwas zu tun! Dokumentiere die Ausgangslage und poste es im Kiez!": "יש פה מה לעשות! תעד את המצב הנוכחי ופרסם אותו בשכונה!",
   "Ich bin ein alter Mann … hm, Kater. Die Segel hab ich eingeholt, aber zur Ruhe will ich mich nicht setzen. Hilf Deinen Nachbar:innen mit kleinen Challenges.": "אני איש זקן … אהם, חתול. קיפלתי את המפרשים, אבל לפרוש אני לא מתכוון. עזור לשכנים שלך באתגרים קטנים.",
   "In der Zwischenablage steht kein Beitrittscode.": "אין קוד הצטרפות בלוח.",
   "In dieser Gruppe gibt es gerade nichts zu holen. Vielleicht ist einfach alles erledigt, oder Ihr braucht einen Break.": "בקבוצה הזו אין כרגע מה לקחת. אולי פשוט הכול נעשה, או שאתם צריכים הפסקה.",
@@ -1128,6 +1128,7 @@
   "{mode} verbergen": "הסתר {mode}",
   "{mode} zeigen": "הצג {mode}",
   "Posten": "לפרסם",
+<<<<<<< HEAD
   "Was hast Du Dir vorgenommen?": "מה תכננת לעשות?",
   "Noch nichts für Dich.": "עדיין אין כאן משהו רק בשבילך.",
   "Archiv": "ארכיון",
@@ -1136,4 +1137,20 @@
   "Erledigte Aufgaben ({count})": "משימות שהושלמו ({count})",
   "Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte Gruppenaufgaben.": "כאן יופיעו בהמשך האתגרים שסגרת ומחקת ומשימות קבוצתיות שהושלמו.",
   "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Archiv“.": "האתגר ייעלם מהפיד. השינויים האחרונים שלך נשמרים. את האתגר תמצא ב„האתגרים שלך” תחת „ארכיון”."
+=======
+  "Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.": "תעד איך אתה מתקן, בונה מחדש או מייפה משהו, או מתרגל הרגל חדש ומועיל. קודם צלם את המצב „לפני“.",
+  "Deine Nachbar:innen sehen den Post und nehmen die We-Challenge an.": "השכנים שלך רואים את הפוסט ולוקחים על עצמם את ה־We-Challenge.",
+  "Erklärung": "הסבר",
+  "Belohnung": "פרס",
+  "Coins (€)": "Coins (€)",
+  "Edensteine sind eine ideelle Währung. Sie kosten nichts und haben so viel Wert, wie Ihr ihnen zusprecht.": "אבני עדן הן מטבע סמלי. הן לא עולות כלום ושוות כמה שאתם מחליטים.",
+  "Coins oder Edensteine, nie beides.": "Coins או אבני עדן, לא שניהם.",
+  "1 bis 10.": "1 עד 10.",
+  "mit Edensteinen": "עם אבני עדן",
+  "Was ist hier zu tun?": "מה צריך לעשות כאן?",
+  "Was hast Du gemacht?": "מה עשית?",
+  "{label}, beginnt mit {tag}": "{label}, מתחיל ב־{tag}",
+  "Dein Text": "הטקסט שלך",
+  "Was ist die Aufgabe oder die Ausgangslage? Erkläre kurz, worin die Me-Challenge besteht.": "מה המשימה או המצב ההתחלתי? הסבר בקצרה במה ה־Me-Challenge מתבטא."
+>>>>>>> origin/claude/project-thread-jtu0yb
 }

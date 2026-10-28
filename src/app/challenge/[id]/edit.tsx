@@ -16,6 +16,7 @@ import { color, text } from '../../../theme/tokens';
 import { useNudge } from '../../../components/Nudge';
 import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
+import { EdensteinStepper } from '../../../components/compose/EdensteinStepper';
 
 const presets = [5, 15, 50];
 const durations = [
@@ -46,6 +47,9 @@ export default function EditChallenge() {
   const [body, setBody] = useState(challenge?.text ?? '');
   const [location, setLocation] = useState(challenge?.location ?? '');
   const [bounty, setBounty] = useState<number | undefined>(challenge?.bountyAmount);
+  // Kiez-We-Challenge: Edensteine statt Euro (Daria, 27.10.2026). Gruppenaufgaben behalten ihre Edensteine.
+  const [eden, setEden] = useState<number | undefined>(challenge?.groupId ? undefined : challenge?.edensteine);
+  const [reward, setReward] = useState<'none' | 'euro' | 'eden'>(eden ? 'eden' : bounty ? 'euro' : 'none');
   const [durationDays, setDurationDays] = useState<number | null>(null);
   const [photo, setPhoto] = useState<ImageSource>();
   const titleField = useNudge();
@@ -83,7 +87,9 @@ export default function EditChallenge() {
     title: title.trim(),
     text: body.trim(),
     location: location.trim(),
-    bountyAmount: bounty,
+    bountyAmount: reward === 'euro' ? bounty : undefined,
+    // Gruppenaufgabe: Edensteine nicht mitschicken, sonst wären sie in der App kurz weg
+    ...(isGroup ? {} : { edensteine: reward === 'eden' ? eden : undefined }),
     deadline: durationDays
       ? new Date(Date.now() + durationDays * DAY).toISOString()
       : expired
@@ -95,10 +101,11 @@ export default function EditChallenge() {
     title.trim() !== challenge.title ||
     body.trim() !== challenge.text ||
     location.trim() !== challenge.location ||
-    bounty !== challenge.bountyAmount ||
+    (reward === 'euro' ? bounty : undefined) !== challenge.bountyAmount ||
+    (!isGroup && (reward === 'eden' ? eden : undefined) !== challenge.edensteine) ||
     durationDays !== null ||
     !!photo;
-  const bountyBlocked = !!bounty && bounty > (challenge.bountyAmount ?? 0) && !canOfferBounties;
+  const bountyBlocked = reward === 'euro' && !!bounty && bounty > (challenge.bountyAmount ?? 0) && !canOfferBounties;
   const backToManage = () => {
     router.dismissTo('/feed');
     router.push('/manage');
@@ -107,7 +114,7 @@ export default function EditChallenge() {
   // Gelöschte Challenge veröffentlichen: zurückholen (mit gültiger Frist), dann die Änderungen speichern.
   const publish = () => {
     if (!canSave) return;
-    if (bounty && !canOfferBounties) {
+    if (reward === 'euro' && bounty && !canOfferBounties) {
       Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Wähle bei Coins „Keine“.');
       return;
     }
@@ -121,7 +128,7 @@ export default function EditChallenge() {
   const keepUnpublished = () => {
     if (!changed) return goBack();
     if (!canSave) return;
-    if (bounty && !canOfferBounties) {
+    if (reward === 'euro' && bounty && !canOfferBounties) {
       Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Wähle bei Coins „Keine“.');
       return;
     }
@@ -187,7 +194,7 @@ export default function EditChallenge() {
       {challenge.type === 'individual' ? (
         <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={body} onChangeText={setBody} maxLength={500} />
       ) : challenge.type === 'photo' ? (
-        <TagTextField label="Beschreibung" tag={PHOTO_TAG} value={body} onChangeText={setBody} maxLength={500} />
+        <TagTextField label="Dein Text" tag={PHOTO_TAG} value={body} onChangeText={setBody} maxLength={500} />
       ) : (
         <TextField label="Beschreibung" value={body} onChangeText={setBody} maxLength={500} multiline />
       )}
@@ -195,14 +202,29 @@ export default function EditChallenge() {
         <>
           <TextField label="Ort" required nudge={locationField} value={location} onChangeText={setLocation} maxLength={120} />
           {challenge.type === 'photo' ? null : (
+          <>
+          <FieldGroup label="Belohnung">
+            <ChipGroup>
+              <Chip label="Keine" selected={reward === 'none'} onPress={() => setReward('none')} />
+              <Chip label="Coins (€)" selected={reward === 'euro'} onPress={() => (setReward('euro'), setBounty((b) => b ?? presets[0]))} />
+              <Chip label="Edensteine" selected={reward === 'eden'} onPress={() => (setReward('eden'), setEden((n) => n ?? 3))} />
+            </ChipGroup>
+          </FieldGroup>
+          {reward === 'euro' ? (
           <FieldGroup label="Coins">
             <ChipGroup>
-              <Chip label="Keine" selected={bounty === undefined} onPress={() => setBounty(undefined)} />
               {bountyOptions.map((amount) => (
                 <Chip key={amount} label={`${amount} €`} selected={bounty === amount} onPress={() => setBounty(amount)} />
               ))}
             </ChipGroup>
           </FieldGroup>
+          ) : null}
+          {reward === 'eden' ? (
+          <FieldGroup label="Edensteine">
+            <EdensteinStepper value={eden ?? 3} onChange={setEden} seed={challenge.id} />
+          </FieldGroup>
+          ) : null}
+          </>
           )}
         </>
       )}

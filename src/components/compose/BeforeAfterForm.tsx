@@ -135,7 +135,7 @@ export function useBeforeAfterStartForm(
   const fields = (
     <>
       <Text style={styles.hint}>
-        Halte fest, wie Du etwas reparierst, umbaust oder verschönerst. Zuerst das Vorher-Foto.
+        Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.
       </Text>
       <BeforeAfterSteps at={0} />
       <PhotoPicker
@@ -151,11 +151,11 @@ export function useBeforeAfterStartForm(
         }}
       />
       <TagTextField
-        label="Erklärung zum Vorher"
+        label="Beschreibung"
         tag="#vorher"
         value={beforeText}
         onChangeText={setBeforeText}
-        placeholder="Was hast Du Dir vorgenommen?"
+        placeholder="Was ist die Aufgabe oder die Ausgangslage? Erkläre kurz, worin die Me-Challenge besteht."
         tooLong={showErrors && textTooLong}
       />
     </>
