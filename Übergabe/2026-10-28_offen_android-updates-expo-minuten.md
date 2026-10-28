@@ -24,7 +24,7 @@ npx eas-cli@latest update --channel preview --message "Stand main"
 
 Die App lädt das Update beim nächsten Start und zeigt es beim Start danach. Ändert sich der native Teil (neues Paket mit nativem Code, `app.json`, Icons, Plugins), braucht es stattdessen eine neue APK, siehe „So bringst Du eine APK von Hand heraus“ in `Stand_App.md`.
 
-## Offene Entscheidung (Daria)
+## Entscheidung (Daria, 28.10.2026)
 
-- [ ] Bis zum 01.11.2026 jedes Update von Hand veröffentlichen, oder den Expo-Plan umstellen.
+- [x] Bis zum 01.11.2026 veröffentlicht Daria jedes Update von Hand. Der Expo-Plan bleibt kostenlos.
 - [ ] Prüfen, ob der Workflow nach dem 01.11.2026 wieder startet. Ein Build einer neuen APK verbraucht deutlich mehr Minuten als ein reines Update.
