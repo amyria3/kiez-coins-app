@@ -395,8 +395,8 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
       ${ios(L)}
       <div class="card" id="browser">
         <h3>${t('Im Browser', 'In the browser')}</h3>
-        <p>${t('Ohne Installation: Kiez Coins läuft auf jedem Gerät direkt im Browser.', 'No installation: Kiez Coins runs right in the browser on any device.')}</p>
-        <a class="button" href="${P}app/">${t('Direkt im Browser anmelden und ausprobieren', 'Sign in and try it right in the browser')}</a>
+        <p>${t('Ohne Installation und ohne Anmeldung: Kiez Coins läuft auf jedem Gerät direkt im Browser.', 'No installation, no sign-up: Kiez Coins runs right in the browser on any device.')}</p>
+        <a class="button" href="${P}app/">${t('Direkt im Browser ausprobieren', 'Try it right in the browser')}</a>
       </div>
     </div>
     <footer>
