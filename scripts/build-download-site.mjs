@@ -950,7 +950,7 @@ const ladenSeite = `<!doctype html>
 `;
 
 // ---------- /qr: QR-Codes zum Vorzeigen auf dem eigenen Telefon (Daria, 29.10.2026) ----------
-// Zwei Codes: Webseite und /laden. „Vollbild“ zeigt den Code bildschirmfüllend, der Bildschirm bleibt an.
+// Zwei Codes nebeneinander: Webseite und /laden. „Vollbild“ zeigt sie bildschirmfüllend, der Bildschirm bleibt an.
 // iPhone: Element-Vollbild gibt es dort nicht. Deshalb spielt die Seite den Code als kurzes Video in Schleife
 // (scripts/site/qr/*.mp4, online unter /qr-filme/) im Vollbild-Player ab; solange ein Video läuft, sperrt sich das iPhone nicht.
 // Android: echtes Vollbild der Seite. Dazu überall Screen Wake Lock, wo vorhanden, sonst ein stilles Video im Hintergrund.
@@ -973,45 +973,35 @@ const qrSeite = `<!doctype html>
   @font-face { font-family: 'Inter Tight'; src: url(/fonts/InterTight_600SemiBold.ttf) format('truetype'); font-weight: 600; }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; background: #fff; color: #1F2123; font-family: Inter, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
-  body { display: flex; flex-direction: column; align-items: center; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); gap: 16px; }
-  .wahl { display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: #F0F0F4; width: 100%; max-width: 420px; }
-  .wahl button { flex: 1; border: 0; border-radius: 999px; padding: 12px 8px; font: 500 15px/1 Inter, sans-serif; background: none; color: #555; }
-  .wahl button[aria-pressed="true"] { background: #1F2123; color: #fff; }
-  .code { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; width: 100%; text-align: center; background: #fff; }
-  .code h1 { margin: 0; font: 600 clamp(26px, 7vw, 44px)/1.12 'Inter Tight', Inter, sans-serif; max-width: 16ch; }
-  .code .q { width: min(86vw, 62vh, 560px); aspect-ratio: 1; }
+  body { display: flex; flex-direction: column; align-items: center; padding: max(16px, env(safe-area-inset-top)) 12px max(16px, env(safe-area-inset-bottom)); gap: 16px; }
+  /* Beide Codes nebeneinander (Daria, 29.10.2026) */
+  /* Abstand zwischen den Codes mindestens vier Kästchen breit, sonst liest die Kamera beide auf einmal */
+  .codes { flex: 1; display: flex; align-items: center; justify-content: space-evenly; gap: 32px; width: 100%; background: #fff; }
+  .code { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; min-width: 0; }
+  .code h1 { margin: 0; font: 600 clamp(15px, 3.6vw, 40px)/1.15 'Inter Tight', Inter, sans-serif; min-height: 2.3em; display: flex; align-items: flex-end; }
+  .code .q { width: min(100%, 72vh, 520px); aspect-ratio: 1; }
   .code .q svg { width: 100%; height: 100%; display: block; }
-  .code p { margin: 0; color: #666; font-size: 15px; }
-  .code:fullscreen { justify-content: center; padding: 24px; }
+  .code p { margin: 0; color: #666; font-size: clamp(11px, 2.6vw, 16px); overflow-wrap: anywhere; }
+  .codes:fullscreen { padding: 24px; }
   .knopf { width: 100%; max-width: 420px; border: 0; border-radius: 999px; padding: 16px; font: 500 17px/1 Inter, sans-serif; background: #5161DB; color: #fff; }
   .an { font-size: 13px; color: #2E9E4F; min-height: 1em; margin: 0; }
+  .tipp { font-size: 13px; color: #666; margin: 0; text-align: center; max-width: 420px; }
   video.film { position: fixed; width: 1px; height: 1px; opacity: 0; pointer-events: none; left: 0; top: 0; }
 </style>
 </head>
 <body>
-<div class="wahl" role="group" aria-label="Welcher Code">
-${qrCodes.map((c, i) => `  <button type="button" data-code="${c.key}" aria-pressed="${i === 0}">${c.key === 'webseite' ? 'Webseite' : 'Direkt laden'}</button>`).join('\n')}
+<div class="codes" id="codes">
+${qrCodes.map((c) => `  <div class="code"><h1>${c.title}</h1><div class="q" role="img" aria-label="QR-Code zu ${c.url}">${c.svg}</div><p>${c.url.replace('https://', '')}</p></div>`).join('\n')}
 </div>
-<div class="code" id="code">
-${qrCodes.map((c, i) => `  <div data-zeige="${c.key}"${i ? ' hidden' : ''} style="display:${i ? 'none' : 'contents'}"><h1>${c.title}</h1><div class="q" role="img" aria-label="QR-Code zu ${c.url}">${c.svg}</div><p>${c.url.replace('https://', '')}</p></div>`).join('\n')}
-</div>
+<p class="tipp">Tipp: Telefon quer halten, dann werden die Codes größer.</p>
 <button type="button" class="knopf" id="vollbild">Vollbild</button>
 <p class="an" id="an" aria-live="polite"></p>
-${qrCodes.map((c) => `<video class="film" data-film="${c.key}" src="/qr-filme/qr-${c.key}.mp4" muted loop playsinline preload="auto"></video>`).join('\n')}
+<video class="film" id="film" src="/qr-filme/qr-beide.mp4" muted loop playsinline preload="auto"></video>
 <script>
   (function () {
-    var aktuell = 'webseite';
     var an = document.getElementById('an');
-    var code = document.getElementById('code');
-    var film = function () { return document.querySelector('[data-film="' + aktuell + '"]'); };
-    // Umschalten zwischen den beiden Codes
-    document.querySelectorAll('[data-code]').forEach(function (b) {
-      b.addEventListener('click', function () {
-        aktuell = b.dataset.code;
-        document.querySelectorAll('[data-code]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
-        document.querySelectorAll('[data-zeige]').forEach(function (x) { x.hidden = x.dataset.zeige !== aktuell; x.style.display = x.hidden ? 'none' : 'contents'; });
-      });
-    });
+    var codes = document.getElementById('codes');
+    var film = document.getElementById('film');
     // Bildschirm anlassen: Wake Lock, sonst ein stilles Video in Schleife
     var sperre = null;
     function wachHalten() {
@@ -1019,9 +1009,9 @@ ${qrCodes.map((c) => `<video class="film" data-film="${c.key}" src="/qr-filme/qr
         navigator.wakeLock.request('screen').then(function (s) {
           sperre = s; an.textContent = 'Bildschirm bleibt an.';
           s.addEventListener('release', function () { sperre = null; });
-        }).catch(function () { film().play().catch(function () {}); an.textContent = 'Bildschirm bleibt an.'; });
+        }).catch(function () { film.play().catch(function () {}); an.textContent = 'Bildschirm bleibt an.'; });
       } else {
-        film().play().catch(function () {});
+        film.play().catch(function () {});
         an.textContent = 'Bildschirm bleibt an.';
       }
     }
@@ -1029,15 +1019,17 @@ ${qrCodes.map((c) => `<video class="film" data-film="${c.key}" src="/qr-filme/qr
     document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && an.textContent && !sperre) wachHalten(); });
     document.getElementById('vollbild').addEventListener('click', function () {
       wachHalten();
-      if (code.requestFullscreen) {
-        code.requestFullscreen().catch(function () { filmVollbild(); });
+      if (codes.requestFullscreen) {
+        codes.requestFullscreen().then(function () {
+          // Android: im Vollbild quer drehen, wenn das Telefon es erlaubt
+          if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {});
+        }).catch(filmVollbild);
       } else filmVollbild();
     });
-    // iPhone: den Code als Film im Vollbild-Player zeigen
+    // iPhone: beide Codes als Film (quer) im Vollbild-Player zeigen
     function filmVollbild() {
-      var v = film();
-      v.play().catch(function () {});
-      if (v.webkitEnterFullscreen) v.webkitEnterFullscreen();
+      film.play().catch(function () {});
+      if (film.webkitEnterFullscreen) film.webkitEnterFullscreen();
     }
   })();
 </script>
