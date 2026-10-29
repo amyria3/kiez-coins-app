@@ -20,6 +20,7 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 ## 29.10.2026 – Was Du so machst: positive Bestärkung (PR #113)
 
 - [x] Ziele statt Meilensteine (Daria, 29.10.2026): erster Post, erste Me-/We-Challenge, je eine Me-/We-Challenge pro Monat, erste Einladung; Balken in Lila, Geschenk öffnet sich mit pinken Herzen (`src/components/Quests.tsx`)
+- [x] Ziele „Deine erste Gruppe“ und „Du hast 2 Menschen zu Deiner Gruppe eingeladen“ (Daria, 29.10.2026), nur wenn Gruppen nicht ausgeschaltet sind. Eingeladen zählt weitere Mitglieder in selbst gegründeten Gruppen, da die Datenbank nicht speichert, wer eingeladen hat.
 - [ ] „Danke von anderen“ erkennt Dank an Wörtern wie „Danke“, „super“, „toll“ oder Herzen im Kommentar. Später ggf. eigener Danke-Knopf.
 - [ ] Fashionable Look (`FashionProfile.tsx`) zeigt noch Erstellt/Angenommen statt der Geschafft-Wand
 
