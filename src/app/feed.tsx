@@ -23,7 +23,7 @@ import { t } from '../data/texts';
 import { useAppDimensions } from '../theme/layout';
 import { AppHeader, FeedGreeting, MODE_OF_TAB, PlannedHint, TAB_OF_MODE, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
 import { FeedStateMessage } from '../components/FeedStateMessage';
-import { GroupBar, GroupsEmpty } from '../components/GroupBar';
+import { GroupBar } from '../components/GroupBar';
 import { AudienceHint, useAudienceHint } from '../components/AudienceHint';
 import { GearsLoader } from '../components/GearsLoader';
 import { SurveyOverlay, useSurveyPrompt } from '../components/SurveyOverlay';
@@ -346,22 +346,19 @@ export default function FeedScreen() {
 
   const renderItem = ({ item }: { item: FeedItem }) => {
     switch (item.kind) {
+      // Leere Reiter sehen aus wie Kiez und Überall (Daria, 29.10.2026)
       case 'groupsEmpty':
-        // Fashionable Look: Liste ohne Abstand oben, daher hier 16 pt unter den Reitern (Daria, 24.10.2026)
         return (
-          <View style={isFashionable ? styles.emptyTop : undefined}>
-            <GroupsEmpty onCreate={() => router.push('/gruppen/neu')} onJoin={() => router.push('/gruppen/beitreten')} />
-          </View>
+          <FeedStateMessage
+            variant="empty"
+            body="Erstelle Deine erste Gruppe"
+            action="Gruppe gründen"
+            onAction={() => router.push('/gruppen/neu')}
+            secondary={{ label: 'Mit Beitrittscode beitreten', onPress: () => router.push('/gruppen/beitreten') }}
+          />
         );
       case 'privateEmpty':
-        return (
-          <View style={isFashionable ? styles.emptyTop : undefined}>
-            <GroupsEmpty
-              title="Noch nichts für Dich"
-              message="Hier sammelst Du Me-Challenges und Bilder, die nur Du siehst. Tippe auf die Kamera und fang an."
-            />
-          </View>
-        );
+        return <FeedStateMessage variant="empty" body="Poste Deine erste Me-Challenge" onAction={createChallenge} />;
       case 'audience':
         return <AudienceHint audience={audience} onClose={closeAudienceHint} />;
       case 'groupBar':
@@ -375,12 +372,7 @@ export default function FeedScreen() {
           />
         );
       case 'groupNoTasks':
-        return (
-          <GroupsEmpty
-            title="Noch keine Aufgaben"
-            message={isFashionable ? 'Tippe unten auf die Kamera und erstelle die erste We-Challenge für Eure Gruppe!' : 'Tippe oben rechts auf die Kamera und erstelle die erste We-Challenge für Eure Gruppe!'}
-          />
-        );
+        return <FeedStateMessage variant="empty" body="Poste die erste Challenge in Deiner Gruppe" onAction={createChallenge} />;
       case 'running':
         return (
           <RunningBeforeAfter
@@ -580,7 +572,6 @@ const styles = StyleSheet.create({
   // Fashionable Look: Beiträge ohne Lücke, jeder Beitrag bringt 16 pt Abstand unten selbst mit
   list: { gap: isFashionable ? 0 : space[24] },
   listTop: { paddingTop: space[8] },
-  emptyTop: { paddingTop: space[16] },
   composeHeader: { height: COMPOSE_HEADER, flexDirection: 'row', alignItems: 'center', gap: space[4], paddingHorizontal: space[8] },
   composeLine: { ...text.title, flex: 1, color: color.text.primary },
   composeSheet: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
