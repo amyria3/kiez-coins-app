@@ -838,3 +838,15 @@ footer a { color: var(--muted); }
   96% { rotate: 1deg; scale: 1; }
 }
 @media (prefers-reduced-motion: reduce) { .testen-schwebend { transition: opacity 200ms; translate: none; } .testen-schwebend.is-da { animation: none; } }
+
+/* Große Abschnitte und Karten unten mit doppeltem Abstand (Daria, 29.10.2026) */
+.hero { padding-bottom: 144px; }
+.mehr { padding-bottom: 128px; }
+.mehr-karte { padding-bottom: 40px; }
+.leute { padding-bottom: 80px; }
+.wechsel { padding-bottom: 128px; }
+.download { padding-bottom: 48px; }
+.card { padding-bottom: 56px; }
+.spenden-text { padding-bottom: 64px; }
+@media (max-width: 900px) { .hero { padding-bottom: 144px; } .wechsel { padding-bottom: 128px; } }
+@media (max-width: 760px) { .spenden-text { padding-bottom: 44px; } }
