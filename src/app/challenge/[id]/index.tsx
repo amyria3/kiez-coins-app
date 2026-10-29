@@ -561,6 +561,7 @@ export default function ChallengeDetail() {
       image={image}
       moreImages={moreImages}
       imageLabel={challenge.title}
+      photoText={challenge.type === 'photo' && image === challenge.image ? challenge.photoText : undefined}
       onBackPress={() => goBack()}
       onSharePress={() => shareText(t('{title} – Kiez Coins', { title: challenge.title }))}
       imageOverlay={acceptedByMe && challenge.operationName ? <OperationTag name={challenge.operationName} /> : undefined}

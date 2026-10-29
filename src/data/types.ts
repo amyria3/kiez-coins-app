@@ -111,6 +111,9 @@ export type Participant = { userId: string; status: ParticipantStatus; requested
 /** `open`: Jede Person tritt direkt bei. `approval`: Die Erstellerin nimmt jede Anfrage an oder lehnt sie ab. */
 export type JoinMode = 'open' | 'approval';
 
+/** Text auf dem Foto, nur bei „Nur ein Bild“ (Daria, 29.10.2026). x, y: Mitte des Texts als Anteil der Fläche (0 bis 1). */
+export type PhotoText = { text: string; x: number; y: number };
+
 export type Challenge = {
   /** Grober Punkt (rund 100 m), wenn beim Erstellen der Standort freigegeben war */
   coords?: { latitude: number; longitude: number };
@@ -151,6 +154,8 @@ export type Challenge = {
   localOnly?: boolean;
   /** Bis zu 2 weitere Fotos (Migration 20261020000700) */
   extraImages?: ExtraPhoto[];
+  /** Nur „Nur ein Bild“: Text auf dem ersten Foto (Migration 20261029000200) */
+  photoText?: PhotoText;
   imageBefore?: ImageSource;
   imageAfter?: ImageSource;
   /** Nur Vorher-Nachher: Texte ohne #vorher/#nachher, im Entwurf getrennt (nach dem Posten steht beides in `text`) */

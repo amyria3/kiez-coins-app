@@ -8,6 +8,7 @@ import { TagTextField } from '../../../components/compose/BeforeAfterForm';
 import { HintWithInfo } from '../../../components/compose/HintWithInfo';
 import { PHOTO_TAG } from '../../../components/WithMentions';
 import { TypeSwitch } from '../../../components/compose/TypeSwitch';
+import { PhotoTextEditor } from '../../../components/PhotoText';
 import { Text } from '../../../components/T';
 import { color, text } from '../../../theme/tokens';
 import { SubScreen } from '../../../components/Screen';
@@ -102,6 +103,10 @@ export default function CreateStep1() {
           onAdd={(photo) => setDraft((d) => ({ ...d, extras: [...d.extras, { photo }].slice(0, 2) }))}
           onRemove={(index) => setDraft((d) => ({ ...d, extras: d.extras.filter((_, i) => i !== index) }))}
         />
+      ) : null}
+      {/* Nur Bild: Text aufs Foto legen und verschieben (Daria, 29.10.2026) */}
+      {!isChallenge && draft.photo ? (
+        <PhotoTextEditor photo={draft.photo} value={draft.photoText} onChange={(photoText) => setDraft((d) => ({ ...d, photoText }))} />
       ) : null}
       {/* We-Challenge: Die Beschreibung ist das Vorher (Daria, 27.10.2026). Bild: #InDiesemMoment */}
       <TagTextField

@@ -12,9 +12,15 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Kodex und Rechtstexte überarbeiten (Daria)
 - [ ] Anschrift (c/o) im Impressum, sobald die App öffentlich ist und ein Finanzierungskonzept steht
 
+## 29.10.2026 – Pflicht für Daria: Text auf dem Foto
+
+- [ ] Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261029000200_bild_text.sql` ausführen (Branch `claude/bild-text`). Erst danach den PR mergen, sonst schlägt Posten mit Text auf dem Foto fehl. Bilder ohne Text gehen auch ohne Migration.
+- [ ] Claude Bescheid geben, dann prüft Claude die Datenbank.
+
 ## 29.10.2026 – Was Du so machst: positive Bestärkung (PR #113)
 
 - [x] Ziele statt Meilensteine (Daria, 29.10.2026): erster Post, erste Me-/We-Challenge, je eine Me-/We-Challenge pro Monat, erste Einladung; Balken in Lila, Geschenk öffnet sich mit pinken Herzen (`src/components/Quests.tsx`)
+- [x] Ziele „Deine erste Gruppe“ und „Du hast 2 Menschen zu Deiner Gruppe eingeladen“ (Daria, 29.10.2026), nur wenn Gruppen nicht ausgeschaltet sind. Eingeladen zählt weitere Mitglieder in selbst gegründeten Gruppen, da die Datenbank nicht speichert, wer eingeladen hat.
 - [ ] „Danke von anderen“ erkennt Dank an Wörtern wie „Danke“, „super“, „toll“ oder Herzen im Kommentar. Später ggf. eigener Danke-Knopf.
 - [ ] Fashionable Look (`FashionProfile.tsx`) zeigt noch Erstellt/Angenommen statt der Geschafft-Wand
 
