@@ -1317,5 +1317,13 @@
   "Umständlich": "Незручно",
   "Hätte ich nicht gebraucht": "Мені це було не потрібно",
   "Tour: {title}": "Тур: {title}",
-  "{total} Antworten, Mehrfachauswahl, Anteil bezogen auf alle Antworten": "{total} відповідей, кілька варіантів, частка від усіх відповідей"
+  "{total} Antworten, Mehrfachauswahl, Anteil bezogen auf alle Antworten": "{total} відповідей, кілька варіантів, частка від усіх відповідей",
+  "Ausschnitt ändern": "Змінити кадрування",
+  "Ausschnitt wählen": "Обрати кадр",
+  "Verschiebe das Foto mit dem Finger, zoome mit zwei Fingern oder mit Minus und Plus.": "Пересувай фото пальцем, масштабуй двома пальцями або кнопками мінус і плюс.",
+  "Ausschnitt des Profilbilds": "Кадр фото профілю",
+  "Kleiner": "Менше",
+  "Größer": "Більше",
+  "Wird zugeschnitten …": "Обрізаємо …",
+  "Übernehmen": "Застосувати"
 }

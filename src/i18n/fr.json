@@ -1317,5 +1317,13 @@
   "Umständlich": "Compliqué",
   "Hätte ich nicht gebraucht": "Je n’en avais pas besoin",
   "Tour: {title}": "Visite : {title}",
-  "{total} Antworten, Mehrfachauswahl, Anteil bezogen auf alle Antworten": "{total} réponses, choix multiples, part de toutes les réponses"
+  "{total} Antworten, Mehrfachauswahl, Anteil bezogen auf alle Antworten": "{total} réponses, choix multiples, part de toutes les réponses",
+  "Ausschnitt ändern": "Modifier le cadrage",
+  "Ausschnitt wählen": "Choisir le cadrage",
+  "Verschiebe das Foto mit dem Finger, zoome mit zwei Fingern oder mit Minus und Plus.": "Déplace la photo avec le doigt, zoome avec deux doigts ou avec moins et plus.",
+  "Ausschnitt des Profilbilds": "Cadrage de la photo de profil",
+  "Kleiner": "Plus petit",
+  "Größer": "Plus grand",
+  "Wird zugeschnitten …": "Recadrage …",
+  "Übernehmen": "Appliquer"
 }

@@ -335,7 +335,18 @@ type PhotoPickerProps = {
  */
 export function choosePhoto(
   onPicked: (photo: ImageSource) => void,
-  { square, onRemove, title = 'Foto hinzufügen' }: { square?: boolean; onRemove?: () => void; title?: string } = {},
+  {
+    square,
+    onRemove,
+    title = 'Foto hinzufügen',
+    extra,
+  }: {
+    square?: boolean;
+    onRemove?: () => void;
+    title?: string;
+    /** Weitere Wahl im Menü, z. B. „Ausschnitt ändern“ */
+    extra?: { text: string; onPress: () => void };
+  } = {},
 ) {
   async function pick(source: 'camera' | 'library') {
     const permission =
@@ -358,13 +369,14 @@ export function choosePhoto(
   // Web: Die Kamera-Option erscheint nur auf Touch-Geräten. Die Android-Fotoauswahl zeigt seit Android 14 keine Kamera mehr.
   const offersCamera =
     Platform.OS !== 'web' || (typeof window !== 'undefined' && !!window.matchMedia?.('(pointer: coarse)').matches);
-  if (!offersCamera && !onRemove) {
+  if (!offersCamera && !onRemove && !extra) {
     pick('library');
     return;
   }
   Alert.alert(title, undefined, [
     ...(offersCamera ? [{ text: 'Foto aufnehmen', onPress: () => pick('camera') }] : []),
     { text: 'Foto auswählen', onPress: () => pick('library') },
+    ...(extra ? [extra] : []),
     ...(onRemove ? [{ text: 'Foto entfernen', style: 'destructive' as const, onPress: onRemove }] : []),
     { text: 'Abbrechen', style: 'cancel' as const },
   ]);
