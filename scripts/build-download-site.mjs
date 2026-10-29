@@ -627,12 +627,17 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
       // Eine neue Karte steigt erst sehr langsam auf und holt dann zur Scrollposition auf (Daria, 28.10.2026)
       var karten = document.querySelectorAll('.mehr, .leute, .wechsel, .download');
       var tick = false;
+      // Telefon und Tablet: kein Nachziehen und keine wechselnde Deckkraft, das ließ das Scrollen stocken (Daria, 29.10.2026)
+      var leicht = matchMedia('(max-width: 900px), (pointer: coarse)');
       var heben = function () {
         tick = false;
+        if (leicht.matches) return;
         var vh = innerHeight;
-        karten.forEach(function (el) {
-          el.style.transform = '';
-          var t = el.getBoundingClientRect().top;
+        // Erst alle Verschiebungen lösen, dann alle Lagen lesen: ein Layout pro Bild statt eines pro Karte
+        karten.forEach(function (el) { el.style.transform = ''; });
+        var lagen = [].map.call(karten, function (el) { return el.getBoundingClientRect(); });
+        karten.forEach(function (el, i) {
+          var t = lagen[i].top;
           // Deckkraft steigt beim Aufsteigen von 0,15 auf 0,4, der Blur bleibt gleich (Daria, 28.10.2026: weniger deckend)
           var x0 = Math.min(1, Math.max(0, t / vh));
           el.style.setProperty('--a', (0.4 - 0.25 * x0).toFixed(3));
@@ -641,12 +646,32 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
           var v = vh * (1 - Math.pow(1 - x, 3));
           // Nie tiefer als das Ende der Karte davor, sonst entsteht eine Lücke (Daria, 28.10.2026)
           var vor = el.previousElementSibling;
-          var grenze = vor ? Math.max(0, vor.getBoundingClientRect().bottom - t) : Infinity;
+          var j = [].indexOf.call(karten, vor);
+          var unten = j >= 0 ? lagen[j].bottom : vor ? vor.getBoundingClientRect().bottom : null;
+          var grenze = unten !== null ? Math.max(0, unten - t) : Infinity;
           el.style.transform = 'translateY(' + Math.min(v - t, grenze).toFixed(1) + 'px)';
         });
       };
       addEventListener('scroll', function () { if (!tick) { tick = true; requestAnimationFrame(heben); } }, { passive: true });
       heben();
+    }
+    // Wieso wechseln: Die Karte, die der Mitte des Bildschirms am nächsten ist, steht vorn (Daria, 29.10.2026)
+    var gruende = document.querySelectorAll('.wechsel-liste li');
+    if (gruende.length) {
+      var vornTick = false;
+      var vorn = function () {
+        vornTick = false;
+        var mitte = innerHeight * 0.5, best = null, abstand = Infinity;
+        var lagen = [].map.call(gruende, function (li) { return li.getBoundingClientRect(); });
+        lagen.forEach(function (r, i) {
+          if (r.bottom < 0 || r.top > innerHeight) return;
+          var d = Math.abs(r.top + r.height / 2 - mitte);
+          if (d < abstand) { abstand = d; best = gruende[i]; }
+        });
+        gruende.forEach(function (li) { li.classList.toggle('is-vorn', li === best); });
+      };
+      addEventListener('scroll', function () { if (!vornTick) { vornTick = true; requestAnimationFrame(vorn); } }, { passive: true });
+      vorn();
     }
     // B und C hängen an der Scrollposition, ein Frame pro Bild
     var kopf = document.getElementById('kater-kopf'), tel = document.querySelector('.phone-spalte'), spur = document.querySelector('.fx-spur');
