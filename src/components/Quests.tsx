@@ -180,12 +180,14 @@ function Gift({ open, seenKey }: { open: boolean; seenKey: string }) {
 }
 
 const styles = StyleSheet.create({
-  list: { gap: space[8] },
+  // Ziele enger zusammen, mehr Luft zum nächsten Abschnitt (Daria, 29.10.2026)
+  list: { gap: space[4], marginBottom: space[12] },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space[12],
-    paddingVertical: space[8],
+    paddingTop: space[8],
+    paddingBottom: space[12],
     paddingHorizontal: space[12],
     // Etwas eckiger (Daria, 29.10.2026)
     borderRadius: radius.md,
