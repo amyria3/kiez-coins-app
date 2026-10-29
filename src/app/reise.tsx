@@ -11,6 +11,7 @@ import { Cat } from '../components/icons/Brand';
 import { Icon } from '../components/icons/Icon';
 import { Button } from '../components/Button';
 import { Segments } from '../components/FeedHeader';
+import { AudienceHint, useAudienceHint } from '../components/AudienceHint';
 import { GroupBar, GroupsEmpty } from '../components/GroupBar';
 import { GroupRanking } from '../components/GroupRanking';
 import { useModes, type Mode } from '../data/features';
@@ -63,6 +64,8 @@ function Reise() {
   const [chosenTab, setTab] = useState<Mode>();
   const tab: Mode = chosenTab && modes.isVisible(chosenTab) ? chosenTab : modes.standard;
   const reiseTabs = REISE_TABS.filter((r) => modes.isVisible(r.key));
+  // Derselbe Hinweis wie im Feed unter dem Umschalter (Daria, 29.10.2026)
+  const [audienceHint, closeAudienceHint] = useAudienceHint(tab);
   const [groupChoice, setGroupChoice] = useState<string>();
   const group = groups.find((g) => g.id === groupChoice) ?? groups[0];
   const privateEntries = entries.filter((e) => !!e.challenge.private);
@@ -135,6 +138,11 @@ function Reise() {
         <Quests quests={goals} />
 
         {reiseTabs.length > 1 ? <Segments tabs={reiseTabs} selectedKey={tab} onChange={setTab} /> : null}
+        {audienceHint ? (
+          <View style={styles.bleed}>
+            <AudienceHint audience={tab} onClose={closeAudienceHint} />
+          </View>
+        ) : null}
 
         {/* Kein Verlauf mehr: Hier steht nur, was geschafft ist (Daria, 29.10.2026) */}
         {tab === 'private' ? (
