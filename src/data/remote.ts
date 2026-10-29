@@ -1435,6 +1435,37 @@ export async function loadSurveyResults(): Promise<SurveyResults> {
 }
 
 // ---------------------------------------------------------------------------
+// Rückmeldung zur Tour (Migration 20261029000300_tour_feedback)
+// ---------------------------------------------------------------------------
+
+export type TourFeedbackChoice = 'helpful' | 'motivating' | 'cumbersome' | 'not_needed';
+export type TourFeedbackResults = {
+  total: number;
+  choices: Partial<Record<TourFeedbackChoice, number>>;
+  other: { text: string; at: string }[];
+};
+
+/** Antwort speichern. Eine Antwort pro Person; erneutes Absenden ändert sie. */
+export async function saveTourFeedback(choices: TourFeedbackChoice[], other: string) {
+  const { data } = await supabase.auth.getUser();
+  if (!data.user) throw new Error(t('Melde Dich bitte neu an und versuche es dann noch mal.'));
+  check(
+    await supabase.from('tour_feedback').upsert({
+      user_id: data.user.id,
+      choices,
+      other: other.trim() || null,
+      updated_at: new Date().toISOString(),
+    }),
+  );
+}
+
+/** Auswertung für die Moderation */
+export async function loadTourFeedbackResults(): Promise<TourFeedbackResults> {
+  const { data } = check(await supabase.rpc('tour_feedback_results'));
+  return data as TourFeedbackResults;
+}
+
+// ---------------------------------------------------------------------------
 // Bio, Webseite und Freundschaften (Migration 20261022000400_bio_friends.sql)
 // ---------------------------------------------------------------------------
 

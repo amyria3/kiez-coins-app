@@ -24,6 +24,11 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] „Danke von anderen“ erkennt Dank an Wörtern wie „Danke“, „super“, „toll“ oder Herzen im Kommentar. Später ggf. eigener Danke-Knopf.
 - [ ] Fashionable Look (`FashionProfile.tsx`) zeigt noch Erstellt/Angenommen statt der Geschafft-Wand
 
+## 29.10.2026 – Pflicht für Daria: Rückmeldung zur Tour
+
+- [x] (29.10.2026, von Claude geprüft, PR #115 gemergt) Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261029000300_tour_feedback.sql` ausführen (Branch `claude/tour-scroll`, PR #115). Erst danach mergen, sonst schlägt „Absenden“ auf der letzten Tour-Seite fehl.
+- [ ] Texte von Claude in der Tour prüfen: Titel „Einfach ein schönes Bild“, Text zur Sichtbarkeit, Titel und Text „Privat: nur für Dich“ (`src/data/tour.ts`).
+
 ## 29.10.2026 – Pflicht für Daria: Modus „Überall“ und 5-km-Umkreis
 
 - [x] (29.10.2026) Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261029000100_ueberall_umkreis.sql` ausführen (Branch `claude/modus-ueberall`). Erst danach den PR mergen, sonst schlägt Mitmachen mit Standort fehl.
