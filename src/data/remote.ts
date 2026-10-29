@@ -8,6 +8,7 @@ import type {
   Challenge,
   ChallengeReportReason,
   ChallengeStatus,
+  ChallengeType,
   ExtraPhoto,
   Gender,
   Group,
@@ -21,6 +22,7 @@ import type {
   JoinMode,
   Participant,
   PayoutLine,
+  PhotoText,
   UserReportReason,
 } from './types';
 
@@ -102,6 +104,10 @@ type ChallengeRow = {
   visibility?: 'public' | 'private' | null;
   /** Migration 20261029000100 */
   local_only?: boolean | null;
+  /** Text auf dem Foto (Migration 20261029000200) */
+  photo_text?: string | null;
+  photo_text_x?: number | null;
+  photo_text_y?: number | null;
   extra_image_paths?: string[] | null;
   image_before_path: string | null;
   image_after_path: string | null;
@@ -260,6 +266,9 @@ function toChallenge(
     groupId: row.group_id ?? undefined,
     private: row.visibility === 'private' || undefined,
     localOnly: row.local_only || undefined,
+    photoText: row.photo_text?.trim()
+      ? { text: row.photo_text, x: row.photo_text_x ?? 0.5, y: row.photo_text_y ?? 0.5 }
+      : undefined,
     edensteine: row.edensteine ?? undefined,
     extraImages: (row.extra_image_paths ?? []).flatMap((path) => {
       const photo = photoUrl(path);
@@ -685,6 +694,8 @@ export type NewChallenge = {
   private?: boolean;
   /** Nur im Umkreis von 5 km, nicht in „Überall“ (Migration 20261029000100) */
   localOnly?: boolean;
+  /** Nur „Nur ein Bild“: Text auf dem Foto (Migration 20261029000200). `null` löscht ihn im Entwurf. */
+  photoText?: PhotoText | null;
   participation?: Participation;
 };
 
@@ -767,6 +778,18 @@ async function retryWithoutCoords<T>(run: (withCoords: boolean) => Promise<T>): 
   }
 }
 
+/**
+ * Text auf dem Foto nur mitschicken, wenn gesetzt oder ausdrücklich gelöscht (`null`). So speichert die App auch
+ * ohne Migration 20261029000200 wie bisher. Nur bei „Nur ein Bild“.
+ */
+function photoTextFields(type: ChallengeType | undefined, value: PhotoText | null | undefined) {
+  if (value === undefined) return {};
+  const text = type === 'photo' ? value?.text.trim() : undefined;
+  if (!text) return { photo_text: null, photo_text_x: null, photo_text_y: null };
+  const round = (v: number) => Math.round(Math.min(1, Math.max(0, v)) * 1000) / 1000;
+  return { photo_text: text.slice(0, 80), photo_text_x: round(value!.x), photo_text_y: round(value!.y) };
+}
+
 /** Edensteine nur mitschicken, wenn es welche gibt. So legt die App ohne Edensteine weiter an wie bisher. */
 const edenField = (edensteine?: number) => (edensteine ? { edensteine } : {});
 
@@ -792,6 +815,7 @@ export async function createChallenge(userId: string, draft: NewChallenge): Prom
           ...(draft.private ? { visibility: 'private' } : {}),
           // Nur mitschicken, wenn gesetzt: So legt die App auch ohne Migration 20261029000100 an
           ...(draft.localOnly && !draft.private ? { local_only: true } : {}),
+          ...photoTextFields(draft.type, draft.photoText),
           ...(draft.type === 'photo' ? {} : participationFields(draft.participation)),
         })
         .select(CHALLENGE_COLUMNS)
@@ -964,6 +988,8 @@ export type DraftInput = {
   private?: boolean;
   /** Nur im Umkreis von 5 km, nicht in „Überall“ (Migration 20261029000100) */
   localOnly?: boolean;
+  /** Nur „Nur ein Bild“: Text auf dem Foto (Migration 20261029000200). `null` löscht ihn im Entwurf. */
+  photoText?: PhotoText | null;
   participation?: Participation;
 };
 
@@ -989,6 +1015,7 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
         ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}),
         // Nur mitschicken, wenn gewählt: So speichert die App auch ohne Migration 20261029000100
         ...(draft.localOnly !== undefined && !draft.private ? { local_only: draft.localOnly } : {}),
+        ...photoTextFields(draft.type, draft.photoText),
       };
       const query = id
         ? supabase.from('challenges').update(all).eq('id', id).eq('status', 'draft')
