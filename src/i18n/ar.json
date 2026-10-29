@@ -1317,5 +1317,13 @@
   "Umständlich": "مُرهِق",
   "Hätte ich nicht gebraucht": "لم أكن بحاجة إليه",
   "Tour: {title}": "الجولة: {title}",
-  "{total} Antworten, Mehrfachauswahl, Anteil bezogen auf alle Antworten": "{total} إجابة، اختيار متعدد، النسبة من كل الإجابات"
+  "{total} Antworten, Mehrfachauswahl, Anteil bezogen auf alle Antworten": "{total} إجابة، اختيار متعدد، النسبة من كل الإجابات",
+  "Ausschnitt ändern": "تغيير القص",
+  "Ausschnitt wählen": "اختر جزء الصورة",
+  "Verschiebe das Foto mit dem Finger, zoome mit zwei Fingern oder mit Minus und Plus.": "حرّك الصورة بإصبعك، وكبّر بإصبعين أو بزر الناقص والزائد.",
+  "Ausschnitt des Profilbilds": "جزء صورة الملف الشخصي",
+  "Kleiner": "أصغر",
+  "Größer": "أكبر",
+  "Wird zugeschnitten …": "جارٍ القص …",
+  "Übernehmen": "تطبيق"
 }

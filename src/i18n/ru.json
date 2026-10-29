@@ -1303,5 +1303,13 @@
   "Hätte ich nicht gebraucht": "Мне это было не нужно",
   "Tour: {title}": "Тур: {title}",
   "{total} Antworten, Mehrfachauswahl, Anteil bezogen auf alle Antworten": "{total} ответов, несколько вариантов, доля от всех ответов",
-  "Freiwillig, höchstens {max} Zeichen.": "Необязательно, до {max} символов."
+  "Freiwillig, höchstens {max} Zeichen.": "Необязательно, до {max} символов.",
+  "Ausschnitt ändern": "Изменить кадрирование",
+  "Ausschnitt wählen": "Выбрать кадр",
+  "Verschiebe das Foto mit dem Finger, zoome mit zwei Fingern oder mit Minus und Plus.": "Двигай фото пальцем, масштабируй двумя пальцами или кнопками минус и плюс.",
+  "Ausschnitt des Profilbilds": "Кадр фото профиля",
+  "Kleiner": "Меньше",
+  "Größer": "Больше",
+  "Wird zugeschnitten …": "Обрезаем …",
+  "Übernehmen": "Применить"
 }
