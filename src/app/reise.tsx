@@ -100,6 +100,8 @@ function Reise() {
           <KaterCard mood={catVariant(mood)}>{reiseMoodText(mood, anrede(profile))}</KaterCard>
         </Pressable>
 
+        {tasks.length ? (
+        <View style={styles.tasks}>
         {tasks.map((entry) => (
           <Pressable
             key={entry.challenge.id}
@@ -121,6 +123,8 @@ function Reise() {
             <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
           </Pressable>
         ))}
+        </View>
+        ) : null}
 
         {/* Ziele mit Geschenk, für das ganze Konto (Daria, 29.10.2026) */}
         <Quests quests={goals} />
@@ -295,7 +299,9 @@ const styles = StyleSheet.create({
   // GroupBar und GroupsEmpty bringen 16 pt Rand mit; hier steht schon der Rand der Seite
   bleed: { marginHorizontal: -space[16] },
   screen: { flex: 1, backgroundColor: color.bg.screen },
-  content: { paddingTop: space[24], paddingHorizontal: space[20], gap: space[16] },
+  // Mehr Luft zwischen den Abschnitten (Daria, 29.10.2026)
+  content: { paddingTop: space[24], paddingHorizontal: space[20], gap: space[24] },
+  tasks: { gap: space[8] },
   flex: { flex: 1, gap: space[2] },
   badgeLine: { flexDirection: 'row', marginTop: space[4] },
   pressed: { opacity: 0.8 },
