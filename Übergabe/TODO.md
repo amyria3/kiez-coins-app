@@ -14,8 +14,8 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 ## 29.10.2026 – Pflicht für Daria: Modus „Überall“ und 5-km-Umkreis
 
-- [ ] Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261029000100_ueberall_umkreis.sql` ausführen (Branch `claude/modus-ueberall`). Erst danach den PR mergen, sonst schlägt Mitmachen mit Standort fehl.
-- [ ] Claude Bescheid geben, dann prüft Claude die Datenbank und merged den PR.
+- [x] (29.10.2026) Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261029000100_ueberall_umkreis.sql` ausführen (Branch `claude/modus-ueberall`). Erst danach den PR mergen, sonst schlägt Mitmachen mit Standort fehl.
+- [x] (29.10.2026) Claude Bescheid geben, dann prüft Claude die Datenbank und merged den PR (#111).
 - Plan und offene Punkte: `Übergabe/2026-10-29_offen_modus-ueberall.md`
 
 ## 28.10.2026 – Prio: animierte Coins (Daria)

@@ -1,8 +1,8 @@
 # Modus „Überall“ und 5-km-Umkreis
 
-Datum: 2026-10-29 · Status: offen, bis die Migration eingespielt und der PR gemergt ist · Ziel in Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitte „Challenges“ und „Funktionen“), Datenbank-Doku (`challenges.local_only`, `join_challenge`)
+Datum: 2026-10-29 · Status: umgesetzt, Migration am 29.10.2026 eingespielt, PR #111 gemergt; noch in die Doku übernehmen · Ziel in Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitte „Challenges“ und „Funktionen“), Datenbank-Doku (`challenges.local_only`, `join_challenge`)
 
-Pflichtaufgabe: Inhalt von `supabase/migrations/20261029000100_ueberall_umkreis.sql` im Supabase-SQL-Editor ausführen, bevor der PR gemergt wird (Daria). Claudes Zugang darf in Supabase nur lesen.
+Migration `supabase/migrations/20261029000100_ueberall_umkreis.sql` am 29.10.2026 eingespielt (Daria). Claude hat geprüft: `join_challenge` mit Standort, `set_challenge_local_only` und `distance_meters` sind da.
 
 ## Entscheidungen von Daria (29.10.2026)
 

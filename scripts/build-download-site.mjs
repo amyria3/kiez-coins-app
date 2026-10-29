@@ -375,6 +375,24 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
   </div>
 </section>
 
+<!-- Texte von Daria (29.10.2026) -->
+<section class="wechsel" aria-labelledby="wechsel-titel">
+  <div class="wrap">
+    <h2 id="wechsel-titel">${t('Wieso Du einen Wechsel erwägen solltest:', 'Why you should consider switching:')}</h2>
+    <ul class="wechsel-liste">
+      <li>${t('Drin ist, was drauf steht - ein pro-soziales Netzwerk', 'What it says on the tin – a pro-social network')}</li>
+      <li>${t('Dich suchtartig an die App zu ketten - sowas machen wir nicht.', 'Chaining you to the app like an addiction – we don’t do that.')}</li>
+      <li>${t('Wir tolerieren keine Hassrede oder Inhalte, die Erkrankungen wie Bulimie fördern oder aus solchen Kapital schlagen.', 'We don’t tolerate hate speech or content that promotes illnesses like bulimia or profits from them.')}</li>
+      <li>${t('Deine Konto- und Inhaltsdaten liegen auf Servern in der EU: und hier bleiben sie auch.', 'Your account and content data are stored on servers in the EU – and that’s where they stay.')}</li>
+      <li>${t('Wir verkaufen Deine Daten nicht und nutzen sie nicht zu Trainingszwecken für die KI.', 'We don’t sell your data and don’t use it to train AI.')}</li>
+      <li>${t('Kiez Coins zeigt (noch) keine Werbung - wir können nicht ganz so weit in die Zukunft schauen, doch fürs Erste bleibt es so.', 'Kiez Coins shows no ads (yet) – we can’t see that far into the future, but for now it stays that way.')}</li>
+      <li>${t('Dein Feed sortiert nach Nähe und Zeit.', 'Your feed is sorted by proximity and time.')}</li>
+      <li>${t('Die Idee hinter der App: Selbstorganisation, Vernetzung und Synergieeffekte - wir fördern keine Parallelrealität.', 'The idea behind the app: self-organization, connection and synergies – we don’t foster a parallel reality.')}</li>
+      <li>${t('Du entscheidest: nutze die App für Dich, in Gruppen, im Kiez, landesweit - oder alles davon.', 'You decide: use the app for yourself, in groups, in your neighborhood, nationwide – or all of it.')}</li>
+    </ul>
+  </div>
+</section>
+
 <section class="download" id="download" aria-labelledby="download-titel">
   <div class="wrap">
     <h2 id="download-titel">${t('So installierst Du die Testversion.', 'How to install the beta.')}</h2>
@@ -557,7 +575,7 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
     // A: Abschnitte gleiten beim Erreichen von unten herein, Karten nacheinander
     if (root.classList.contains('fx-a') && 'IntersectionObserver' in window) {
       // H2 steigen Wort für Wort auf, etwas ruhiger als die Seitenüberschrift (Daria, 28.10.2026)
-      document.querySelectorAll('.mehr h2, .leute h2, .download h2').forEach(function (h) {
+      document.querySelectorAll('.mehr h2, .leute h2, .wechsel h2, .download h2').forEach(function (h) {
         var text = h.textContent;
         h.setAttribute('aria-label', text);
         h.innerHTML = text.split(' ').map(function (w, i) { return '<span class="h2-wort" aria-hidden="true" style="--i:' + i + '">' + w.replace(/</g, '&lt;') + '</span>'; }).join(' ');
@@ -576,13 +594,13 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
     // D: Jeder Abschnitt bleibt stehen, sobald sein Ende im Bild ist, der nächste schiebt sich darüber.
     // Dafür braucht jeder Abschnitt seine Höhe als --h (top: min(0, 100vh - Höhe) in seite.css).
     if (root.classList.contains('fx-d')) {
-      var stapel = document.querySelectorAll('body > .wrap, .mehr, .leute');
+      var stapel = document.querySelectorAll('body > .wrap, .mehr, .leute, .wechsel');
       var messen = function () { stapel.forEach(function (el) { el.style.setProperty('--h', el.offsetHeight + 'px'); }); };
       if ('ResizeObserver' in window) { var ro = new ResizeObserver(messen); stapel.forEach(function (el) { ro.observe(el); }); }
       addEventListener('resize', messen);
       messen();
       // Eine neue Karte steigt erst sehr langsam auf und holt dann zur Scrollposition auf (Daria, 28.10.2026)
-      var karten = document.querySelectorAll('.mehr, .leute, .download');
+      var karten = document.querySelectorAll('.mehr, .leute, .wechsel, .download');
       var tick = false;
       var heben = function () {
         tick = false;
