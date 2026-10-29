@@ -1317,5 +1317,13 @@
   "Umständlich": "Cumbersome",
   "Hätte ich nicht gebraucht": "Didn’t need it",
   "Tour: {title}": "Tour: {title}",
-  "{total} Antworten, Mehrfachauswahl, Anteil bezogen auf alle Antworten": "{total} answers, multiple choice, share of all answers"
+  "{total} Antworten, Mehrfachauswahl, Anteil bezogen auf alle Antworten": "{total} answers, multiple choice, share of all answers",
+  "Ausschnitt ändern": "Change crop",
+  "Ausschnitt wählen": "Choose crop",
+  "Verschiebe das Foto mit dem Finger, zoome mit zwei Fingern oder mit Minus und Plus.": "Drag the photo with your finger, zoom with two fingers or with minus and plus.",
+  "Ausschnitt des Profilbilds": "Profile photo crop",
+  "Kleiner": "Smaller",
+  "Größer": "Larger",
+  "Wird zugeschnitten …": "Cropping …",
+  "Übernehmen": "Apply"
 }

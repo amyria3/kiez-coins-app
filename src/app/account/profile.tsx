@@ -4,6 +4,7 @@ import { Text } from '../../components/T';
 import { useRouter } from 'expo-router';
 
 import { Avatar } from '../../components/AuthorRow';
+import { AvatarCropper } from '../../components/AvatarCropper';
 import { choosePhoto } from '../../components/Form';
 import { GearsLoader, SMALL_GEARS } from '../../components/GearsLoader';
 import { Icon } from '../../components/icons/Icon';
@@ -69,11 +70,15 @@ export default function PersonalDetails() {
       setUploading(false);
     }
   };
+  // Nach der Wahl den Ausschnitt im Kreis festlegen (Daria, 29.10.2026). Auch das jetzige Bild lässt sich neu zuschneiden.
+  const [cropUri, setCropUri] = useState<string>();
+  const uriOf = (photo?: ImageSource) =>
+    typeof photo === 'object' && photo && 'uri' in photo && typeof photo.uri === 'string' ? photo.uri : undefined;
   const pickAvatar = () =>
-    choosePhoto((photo) => setAvatar(photo), {
-      square: true,
+    choosePhoto((photo) => setCropUri(uriOf(photo)), {
       title: me.avatar ? 'Profilbild ändern' : 'Profilbild hinzufügen',
       onRemove: me.avatar ? () => setAvatar(null) : undefined,
+      extra: uriOf(me.avatar) ? { text: 'Ausschnitt ändern', onPress: () => setCropUri(uriOf(me.avatar)) } : undefined,
     });
 
   const saveDeckname = async (handle: string) => {
@@ -151,6 +156,14 @@ export default function PersonalDetails() {
           <Text style={styles.secondary}>{profile.email}</Text>
         </FieldGroup>
       ) : null}
+      <AvatarCropper
+        uri={cropUri}
+        onCancel={() => setCropUri(undefined)}
+        onDone={(uri) => {
+          setCropUri(undefined);
+          setAvatar({ uri });
+        }}
+      />
     </SubScreen>
   );
 }
