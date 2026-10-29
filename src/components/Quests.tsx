@@ -15,17 +15,36 @@ import type { Quest } from '../data/erfolge';
  * einmal und pinke Herzen steigen heraus. Danach bleibt es offen. Gemerkt pro Gerät und Ziel.
  */
 const native = Platform.OS !== 'web';
-const GIFT_H = 52;
+const GIFT_H = 40;
 const GIFT_W = (iconSvgs.gift.width / iconSvgs.gift.height) * GIFT_H;
 // Deckel mit Schleife: oberer Teil des Geschenks bis zur Fuge (y ≈ 17 von 35)
 const LID = Math.round(GIFT_H * (17.2 / 35));
 const SEEN = (key: string) => `kiez-ziel-geoeffnet:${key}`;
 
+/** Immer nur drei Ziele (Daria, 29.10.2026): neu erreichte zuerst (dann geht das Geschenk auf), dann offene, dann erreichte. */
+const SHOWN = 3;
+
 export function Quests({ quests }: { quests: Quest[] }) {
-  if (!quests.length) return null;
+  const [seen, setSeen] = useState<Record<string, boolean> | null>(null);
+  const keys = quests.map((q) => q.seenKey).join('|');
+  useEffect(() => {
+    let active = true;
+    Promise.all(quests.map((q) => AsyncStorage.getItem(SEEN(q.seenKey)).catch(() => null)))
+      .then((values) => active && setSeen(Object.fromEntries(quests.map((q, i) => [q.seenKey, !!values[i]]))))
+      .catch(() => active && setSeen({}));
+    return () => {
+      active = false;
+    };
+    // Nur neu lesen, wenn sich die Ziele ändern
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keys]);
+  if (!quests.length || !seen) return null;
+  const done = (q: Quest) => q.value >= q.goal;
+  const rank = (q: Quest) => (done(q) && !seen[q.seenKey] ? 0 : !done(q) ? 1 : 2);
+  const shown = [...quests].sort((a, b) => rank(a) - rank(b)).slice(0, SHOWN);
   return (
     <View style={styles.list}>
-      {quests.map((q) => (
+      {shown.map((q) => (
         <QuestRow key={q.key} quest={q} />
       ))}
     </View>
@@ -124,7 +143,7 @@ function Gift({ open, seenKey }: { open: boolean; seenKey: string }) {
                   opacity: rise[i].interpolate({ inputRange: [0, 0.15, 0.7, 1], outputRange: [0, 1, 1, 0] }),
                   transform: [
                     { translateX: rise[i].interpolate({ inputRange: [0, 1], outputRange: [0, h.x] }) },
-                    { translateY: rise[i].interpolate({ inputRange: [0, 1], outputRange: [0, -60 - h.size * 2] }) },
+                    { translateY: rise[i].interpolate({ inputRange: [0, 1], outputRange: [0, -46 - h.size * 2] }) },
                     { scale: rise[i].interpolate({ inputRange: [0, 0.3, 1], outputRange: [0.3, 1.1, 0.9] }) },
                   ],
                 },
@@ -161,23 +180,24 @@ function Gift({ open, seenKey }: { open: boolean; seenKey: string }) {
 }
 
 const styles = StyleSheet.create({
-  list: { gap: space[12] },
+  list: { gap: space[8] },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: space[16],
-    paddingVertical: space[12],
-    paddingHorizontal: space[16],
-    borderRadius: radius.xl,
+    gap: space[12],
+    paddingVertical: space[8],
+    paddingHorizontal: space[12],
+    // Etwas eckiger (Daria, 29.10.2026)
+    borderRadius: radius.md,
     backgroundColor: color.bg.surface,
   },
-  texts: { flex: 1, gap: space[8] },
-  title: { ...text.cardTitle, color: color.text.primary },
-  bar: { height: 24, borderRadius: radius.full, backgroundColor: color.bg.screen, overflow: 'hidden', justifyContent: 'center' },
-  fill: { position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: radius.full, backgroundColor: color.accent.primary },
+  texts: { flex: 1, gap: space[6] },
+  title: { ...text.cardTitle, fontSize: 15, lineHeight: 19, color: color.text.primary },
+  bar: { height: 18, borderRadius: 6, backgroundColor: color.bg.screen, overflow: 'hidden', justifyContent: 'center' },
+  fill: { position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 6, backgroundColor: color.accent.primary },
   // Heller Streifen oben im Balken wie im Vorbild
-  shine: { position: 'absolute', left: 8, right: 8, top: 4, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,.28)' },
-  count: { textAlign: 'center', fontFamily: font.semiBold, fontSize: 13, lineHeight: 16, color: color.text.primary },
+  shine: { position: 'absolute', left: 6, right: 6, top: 3, height: 3, borderRadius: 2, backgroundColor: 'rgba(255,255,255,.28)' },
+  count: { textAlign: 'center', fontFamily: font.semiBold, fontSize: 11, lineHeight: 14, color: color.text.primary },
   gift: { width: GIFT_W + 8, height: GIFT_H, alignItems: 'center' },
   part: { position: 'absolute', left: 4, width: GIFT_W, overflow: 'hidden' },
   heart: { position: 'absolute', top: GIFT_H * 0.3, left: GIFT_W / 2 - 4 },
