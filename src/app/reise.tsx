@@ -209,8 +209,11 @@ function History({
                     .filter(Boolean)
                     .join(' · ')}
                 </Text>
+                {/* Badge unter dem Titel statt daneben: Lange Decknamen im Badge drückten den Titel auf einen Buchstaben (29.10.2026) */}
+                <View style={styles.badgeLine}>
+                  <StatusBadge status={entry.challenge.status} challenge={entry.challenge} />
+                </View>
               </View>
-              <StatusBadge status={entry.challenge.status} challenge={entry.challenge} />
             </Pressable>
           );
         })}
@@ -246,6 +249,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   content: { paddingTop: space[24], paddingHorizontal: space[20], gap: space[16] },
   flex: { flex: 1, gap: space[2] },
+  badgeLine: { flexDirection: 'row', marginTop: space[4] },
   pressed: { opacity: 0.8 },
   title: { ...text.display, color: color.text.primary },
   task: {
