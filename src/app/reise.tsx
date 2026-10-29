@@ -1,12 +1,11 @@
 import { isInKiez, useHere } from '../data/nearby';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../components/T';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { StatusBadge } from '../components/Badges';
 import { KaterCard } from '../components/Content';
 import { Cat } from '../components/icons/Brand';
 import { Icon } from '../components/icons/Icon';
@@ -16,8 +15,12 @@ import { GroupBar, GroupsEmpty } from '../components/GroupBar';
 import { GroupRanking } from '../components/GroupRanking';
 import { useModes, type Mode } from '../data/features';
 import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
-import { anrede, formatBountyShort, formatRelative } from '../data/format';
-import { catVariant, isGroupDone, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
+import { anrede, formatBountyShort, formatHoursMinutes } from '../data/format';
+import { donePhoto, erfolge, meilensteine } from '../data/erfolge';
+import { loadPraise } from '../data/remote';
+import { Avatar } from '../components/AuthorRow';
+import { useAppDimensions } from '../theme/layout';
+import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
 import { useStore } from '../data/store';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { FashionProfile } from '../components/FashionProfile';
@@ -47,32 +50,37 @@ function Reise() {
   const router = useRouter();
   const goBack = useGoBack();
   const insets = useSafeAreaInsets();
-  const { challenges, currentUserId, profile, groups } = useStore();
+  const { challenges, currentUserId, profile, groups, mode } = useStore();
   const entries = useMemo(() => reiseEntries(challenges, currentUserId), [challenges, currentUserId]);
   const mood = reiseMood(entries);
   const tasks = entries.filter((e) => e.needsAction);
-  const history = entries.filter((e) => !e.needsAction);
   // Kiez nur bis 5 km, Überall alles Öffentliche (Daria, 29.10.2026)
   const here = useHere();
-  const isPublic = (e: ReiseEntry) => !e.challenge.groupId && !e.challenge.private;
-  const privateHistory = history.filter((e) => !!e.challenge.private);
-  // Modi wie im Feed: Privat, Gruppe, Kiez, ohne eigene Wahl der Standard (Daria, 27.10.2026)
+  // Modi wie im Feed: Privat, Gruppe, Kiez, Überall, ohne eigene Wahl der Standard (Daria, 27.10.2026)
   const modes = useModes();
   const [chosenTab, setTab] = useState<Mode>();
   const tab: Mode = chosenTab && modes.isVisible(chosenTab) ? chosenTab : modes.standard;
   const reiseTabs = REISE_TABS.filter((r) => modes.isVisible(r.key));
-  const inTab = (e: ReiseEntry) => isPublic(e) && (tab !== 'kiez' || isInKiez(e.challenge, here, profile.kiez, currentUserId));
-  const publicHistory = history.filter(inTab);
   const [groupChoice, setGroupChoice] = useState<string>();
   const group = groups.find((g) => g.id === groupChoice) ?? groups[0];
-  // Erledigte Gruppenaufgaben liegen im Archiv unter „Deine Challenges“ (Daria, 27.10.2026)
-  const groupHistory = history.filter((e) => !!group && e.challenge.groupId === group.id && !isGroupDone(e.challenge));
-  const groupDoneCount = history.filter((e) => isGroupDone(e.challenge)).length;
-  const created = entries.filter((e) => e.role === 'author' && inTab(e)).length;
-  const accepted = entries.filter((e) => e.role === 'assignee' && inTab(e)).length;
-  const earned = entries
-    .filter((e) => e.role === 'assignee' && inTab(e) && e.challenge.status === 'paid')
-    .reduce((sum, e) => sum + (e.challenge.bountyAmount ?? 0), 0);
+  const privateEntries = entries.filter((e) => !!e.challenge.private);
+  const publicEntries = entries.filter(
+    (e) =>
+      !e.challenge.groupId &&
+      !e.challenge.private &&
+      (tab !== 'kiez' || isInKiez(e.challenge, here, profile.kiez, currentUserId)),
+  );
+  const groupEntries = entries.filter((e) => !!group && e.challenge.groupId === group.id);
+  // Lob für Dich (Migration für Lob nötig, sonst keine Zahl)
+  const [praise, setPraise] = useState<number | null>(null);
+  useEffect(() => {
+    if (mode !== 'live' || !currentUserId) return;
+    let active = true;
+    loadPraise(currentUserId, currentUserId).then((p) => active && setPraise(p?.count ?? null)).catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [mode, currentUserId]);
 
   const toFeed = () => (goBack());
 
@@ -112,19 +120,11 @@ function Reise() {
 
         {reiseTabs.length > 1 ? <Segments tabs={reiseTabs} selectedKey={tab} onChange={setTab} /> : null}
 
+        {/* Kein Verlauf mehr: Hier steht nur, was geschafft ist (Daria, 29.10.2026) */}
         {tab === 'private' ? (
-          <History title="Verlauf" entries={privateHistory} onOpen={(entry) => router.push(entry.href)} />
+          <Geschafft entries={privateEntries} me={currentUserId} praise={null} onOpen={(entry) => router.push(entry.href)} />
         ) : tab === 'kiez' || tab === 'everywhere' ? (
-          <>
-            {created + accepted > 0 ? (
-              <View style={styles.stats}>
-                <Stat value={String(created)} label="erstellt" />
-                <Stat value={String(accepted)} label="angenommen" />
-                <Stat value={formatBountyShort(earned)} label="verdient" signal />
-              </View>
-            ) : null}
-            <History title="Verlauf" entries={publicHistory} onOpen={(entry) => router.push(entry.href)} />
-          </>
+          <Geschafft entries={publicEntries} me={currentUserId} praise={praise} onOpen={(entry) => router.push(entry.href)} />
         ) : group ? (
           <>
             <View style={styles.bleed}>
@@ -137,20 +137,12 @@ function Reise() {
               />
             </View>
             <GroupRanking group={group} />
-            <History title="Verlauf" entries={groupHistory} onOpen={(entry) => router.push(entry.href)} />
-            {/* Daria, 27.10.2026: „Aufgaben ansehen“ steht unter dem Verlauf, nicht mehr direkt unter der Rangliste */}
+            <Geschafft entries={groupEntries} me={currentUserId} praise={null} onOpen={(entry) => router.push(entry.href)} />
             <Button
               label="Aufgaben ansehen"
               variant="secondary"
               onPress={() => router.dismissTo({ pathname: '/feed', params: { gruppe: group.id } })}
             />
-            {groupDoneCount > 0 ? (
-              <Button
-                label={t('Erledigte Aufgaben ({count})', { count: groupDoneCount })}
-                variant="ghost"
-                onPress={() => router.push({ pathname: '/manage', params: { archiv: '1' } })}
-              />
-            ) : null}
           </>
         ) : (
           <View style={styles.bleed}>
@@ -175,53 +167,110 @@ const REISE_TABS: { key: Mode; label: string }[] = [
   { key: 'everywhere', label: 'Überall' },
 ];
 
-/** Verlauf als Liste. Bei Gruppenaufgaben steht der Gruppenname in der Unterzeile. */
-function History({
-  title,
+/**
+ * Geschafft (Daria, 29.10.2026): Zahlen, die nur wachsen (erst ab 1), Meilensteine (nur erreichte), Danke von anderen
+ * und eine Wand mit Fotos von allem, was erledigt ist.
+ */
+function Geschafft({
   entries,
-  groupName,
+  me,
+  praise,
   onOpen,
 }: {
-  title: string;
   entries: ReiseEntry[];
-  groupName?: (id: string) => string | undefined;
+  me: string;
+  praise: number | null;
   onOpen: (entry: ReiseEntry) => void;
 }) {
-  if (entries.length === 0) return null;
+  const { users } = useStore();
+  const { width } = useAppDimensions();
+  const e = useMemo(() => erfolge(entries, me), [entries, me]);
+  const stones = meilensteine(e);
+  const stats: { value: string; label: string; signal?: boolean }[] = [];
+  if (e.helped) stats.push({ value: String(e.helped), label: t('Mal geholfen') });
+  if (e.meDone) stats.push({ value: String(e.meDone), label: t('Me-Challenges') });
+  if (e.meTime >= 60000) stats.push({ value: formatHoursMinutes(e.meTime), label: t('für Dich') });
+  if (e.gotHelp) stats.push({ value: String(e.gotHelp), label: t('Hilfe bekommen') });
+  if (e.hearts) stats.push({ value: String(e.hearts), label: t('Herzen') });
+  if (praise) stats.push({ value: String(praise), label: t('Lob') });
+  if (e.edensteine) stats.push({ value: String(e.edensteine), label: t('Edensteine') });
+  if (e.coins) stats.push({ value: formatBountyShort(e.coins), label: t('verdient'), signal: true });
+  // Drei Fotos pro Reihe, Seitenrand 20, Abstand 4
+  const tile = Math.floor((Math.min(width, 640) - 2 * space[20] - 2 * space[4]) / 3);
+
+  if (e.done.length === 0 && stats.length === 0) {
+    return <Text style={styles.empty}>{t('Hier sammelt sich, was Du schaffst. Das erste Foto landet hier, sobald etwas erledigt ist.')}</Text>;
+  }
   return (
-    <View style={styles.historyBlock}>
-      <Text style={styles.sectionLabel}>{title}</Text>
-      <View style={styles.list}>
-        {entries.map((entry, i) => {
-          const group = entry.challenge.groupId ? groupName?.(entry.challenge.groupId) : undefined;
-          return (
-            <Pressable
-              key={entry.challenge.id}
-              accessibilityRole="button"
-              accessibilityLabel={entry.label}
-              onPress={() => onOpen(entry)}
-              style={({ pressed }) => [styles.row, i > 0 && styles.rowDivider, pressed && styles.pressed]}
-            >
-              <Thumb entry={entry} size={44} />
-              <View style={styles.flex}>
-                <Text style={styles.rowTitle} numberOfLines={1}>
-                  {entry.label}
-                </Text>
-                <Text style={styles.sub} numberOfLines={1}>
-                  {[group, entry.role === 'author' ? 'Erstellt' : 'Angenommen', formatRelative(entry.lastActivity)]
-                    .filter(Boolean)
-                    .join(' · ')}
-                </Text>
-                {/* Badge unter dem Titel statt daneben: Lange Decknamen im Badge drückten den Titel auf einen Buchstaben (29.10.2026) */}
-                <View style={styles.badgeLine}>
-                  <StatusBadge status={entry.challenge.status} challenge={entry.challenge} />
+    <>
+      {stats.length ? (
+        <View style={styles.stats}>
+          {stats.slice(0, 6).map((s) => (
+            <Stat key={s.label} value={s.value} label={s.label} signal={s.signal} />
+          ))}
+        </View>
+      ) : null}
+      {stones.length ? (
+        <View style={styles.stones}>
+          {stones.map((m) => (
+            <View key={m} style={styles.stone}>
+              <Icon name="check" size={12} color={color.accent.confirmation} />
+              <Text style={styles.stoneText}>{t(m)}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+      {e.thanks.length ? (
+        <View style={styles.historyBlock}>
+          <Text style={styles.sectionLabel}>{t('Danke von anderen')}</Text>
+          <View style={styles.list}>
+            {e.thanks.slice(0, 3).map(({ comment, challenge }, i) => {
+              const author = users.find((u) => u.id === comment.authorId);
+              return (
+                <View key={comment.id} style={[styles.row, i > 0 && styles.rowDivider]}>
+                  {author ? <Avatar user={author} diameter={32} /> : null}
+                  <View style={styles.flex}>
+                    <Text style={styles.rowTitle} numberOfLines={2}>
+                      {comment.body}
+                    </Text>
+                    <Text style={styles.sub} numberOfLines={1}>
+                      {[author?.name, challenge.title].filter(Boolean).join(' · ')}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            </Pressable>
-          );
-        })}
-      </View>
-    </View>
+              );
+            })}
+          </View>
+        </View>
+      ) : null}
+      {e.done.length ? (
+        <View style={styles.historyBlock}>
+          <Text style={styles.sectionLabel}>{t('Geschafft')}</Text>
+          <View style={styles.wall}>
+            {e.done.map((entry) => {
+              const photo = donePhoto(entry.challenge);
+              return (
+                <Pressable
+                  key={entry.challenge.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={entry.label}
+                  onPress={() => onOpen(entry)}
+                  style={({ pressed }) => [{ width: tile, height: tile }, styles.tile, pressed && styles.pressed]}
+                >
+                  {photo ? (
+                    <Image source={photo} style={StyleSheet.absoluteFill} contentFit="cover" />
+                  ) : (
+                    <View style={[StyleSheet.absoluteFill, styles.thumbFallback]}>
+                      <Cat height={tile * 0.5} />
+                    </View>
+                  )}
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+      ) : null}
+    </>
   );
 }
 
@@ -268,8 +317,8 @@ const styles = StyleSheet.create({
   taskKicker: { ...text.caption, fontFamily: font.medium, color: color.accent.signal },
   taskTitle: { ...text.cardTitle, fontSize: 17, lineHeight: 21, color: color.text.primary },
   sub: { ...text.caption, fontSize: 12, color: color.text.secondary },
-  stats: { flexDirection: 'row', gap: space[8] },
-  stat: { flex: 1, gap: space[4], padding: space[12], borderRadius: radius.lg, backgroundColor: color.bg.surface },
+  stats: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
+  stat: { flexGrow: 1, flexBasis: '30%', gap: space[4], padding: space[12], borderRadius: radius.lg, backgroundColor: color.bg.surface },
   statValue: { ...text.metric, fontSize: 24, lineHeight: 28, color: color.text.primary },
   statLabel: { ...text.caption, color: color.text.secondary },
   signal: { color: color.accent.signal },
@@ -279,5 +328,11 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12], paddingHorizontal: space[12] },
   rowDivider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   rowTitle: { fontFamily: font.regular, fontSize: 15, lineHeight: 20, color: color.text.primary },
+  empty: { ...text.body, color: color.text.secondary },
+  stones: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
+  stone: { flexDirection: 'row', alignItems: 'center', gap: space[6], paddingVertical: space[6], paddingHorizontal: space[12], borderRadius: radius.full, backgroundColor: color.bg.surface },
+  stoneText: { ...text.caption, color: color.text.primary },
+  wall: { flexDirection: 'row', flexWrap: 'wrap', gap: space[4] },
+  tile: { borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.bg.surface },
   thumbFallback: { backgroundColor: color.bg.screen, alignItems: 'center', justifyContent: 'center' },
 });
