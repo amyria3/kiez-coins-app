@@ -1,3 +1,4 @@
+import { isInKiez, useHere } from '../data/nearby';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
@@ -37,6 +38,7 @@ const MODE_TABS: { key: Mode; label: string }[] = [
   { key: 'private', label: 'Privat' },
   { key: 'groups', label: 'Gruppe' },
   { key: 'kiez', label: 'Kiez' },
+  { key: 'everywhere', label: 'Überall' },
 ];
 
 /**
@@ -58,11 +60,10 @@ export function FashionProfile() {
   // Modus wie im Feed, ohne eigene Wahl der Standard (Daria, 27.10.2026)
   const modes = useModes();
   const [chosenMode, setMode] = useState<Mode>();
-  // Überall zählt hier wie Kiez: Eigenes ist dasselbe (Daria, 29.10.2026)
-  const shown = (m: Mode) => modes.isVisible(m) || (m === 'kiez' && modes.isVisible('everywhere'));
-  const rawMode: Mode = chosenMode && shown(chosenMode) ? chosenMode : modes.standard;
-  const mode: Mode = rawMode === 'everywhere' ? 'kiez' : rawMode;
-  const modeTabs = MODE_TABS.filter((m) => shown(m.key));
+  const mode: Mode = chosenMode && modes.isVisible(chosenMode) ? chosenMode : modes.standard;
+  const modeTabs = MODE_TABS.filter((m) => modes.isVisible(m.key));
+  // Kiez nur bis 5 km, Überall alles Öffentliche (Daria, 29.10.2026)
+  const here = useHere();
   const [groupChoice, setGroupChoice] = useState<string>();
   const group = groups.find((g) => g.id === groupChoice) ?? groups[0];
   const ICON_PT = useIconPt();
@@ -78,7 +79,10 @@ export function FashionProfile() {
       ? !!e.challenge.private
       : mode === 'groups'
         ? !!group && e.challenge.groupId === group.id
-        : !e.challenge.groupId && !e.challenge.private && e.role === (tab === 'created' ? 'author' : 'assignee'),
+        : !e.challenge.groupId &&
+          !e.challenge.private &&
+          e.role === (tab === 'created' ? 'author' : 'assignee') &&
+          (mode !== 'kiez' || isInKiez(e.challenge, here, profile.kiez, currentUserId)),
   );
   const tile = (width - 2 * GUTTER) / 3;
   const handle = profile.handle || me?.name || anrede(profile);
@@ -228,7 +232,7 @@ export function FashionProfile() {
           )
         ) : null}
 
-        {mode === 'kiez' ? (
+        {mode === 'kiez' || mode === 'everywhere' ? (
         <View style={styles.gridTabs} accessibilityRole="tablist">
           {GRID_TABS.map((g) => {
             const on = g.key === tab;
