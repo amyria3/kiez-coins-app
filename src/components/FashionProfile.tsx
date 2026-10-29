@@ -58,8 +58,11 @@ export function FashionProfile() {
   // Modus wie im Feed, ohne eigene Wahl der Standard (Daria, 27.10.2026)
   const modes = useModes();
   const [chosenMode, setMode] = useState<Mode>();
-  const mode: Mode = chosenMode && modes.isVisible(chosenMode) ? chosenMode : modes.standard;
-  const modeTabs = MODE_TABS.filter((m) => modes.isVisible(m.key));
+  // Überall zählt hier wie Kiez: Eigenes ist dasselbe (Daria, 29.10.2026)
+  const shown = (m: Mode) => modes.isVisible(m) || (m === 'kiez' && modes.isVisible('everywhere'));
+  const rawMode: Mode = chosenMode && shown(chosenMode) ? chosenMode : modes.standard;
+  const mode: Mode = rawMode === 'everywhere' ? 'kiez' : rawMode;
+  const modeTabs = MODE_TABS.filter((m) => shown(m.key));
   const [groupChoice, setGroupChoice] = useState<string>();
   const group = groups.find((g) => g.id === groupChoice) ?? groups[0];
   const ICON_PT = useIconPt();

@@ -1262,5 +1262,14 @@
   "Schritt 2 von 5": "Étape 2 sur 5",
   "Schritt 3 von 5": "Étape 3 sur 5",
   "Schritt 4 von 5": "Étape 4 sur 5",
-  "Schritt 5 von 5": "Étape 5 sur 5"
+  "Schritt 5 von 5": "Étape 5 sur 5",
+  "Überall": "Partout",
+  "Alle öffentlichen Beiträge, auch außerhalb Deines Kiezes.": "Toutes les publications publiques, aussi hors de ton quartier.",
+  "Hier siehst Du Beiträge von überall. Mitmachen geht ab 5 km Entfernung nur auf Anfrage.": "Ici, tu vois des publications de partout. À plus de 5 km, tu ne peux participer que sur demande.",
+  "Auf einen Umkreis von 5 km begrenzen": "Limiter à un rayon de 5 km",
+  "Dann sehen den Beitrag nur Menschen in Deinem Kiez, nicht in „Überall“. Wer den Link bekommt, kann ihn trotzdem öffnen.": "Seules les personnes de ton quartier verront la publication, pas dans « Partout ». Qui a le lien peut quand même l’ouvrir.",
+  "Du bist mehr als 5 km entfernt. Du kannst anfragen, {firstName} entscheidet.": "Tu es à plus de 5 km. Tu peux envoyer une demande, {firstName} décide.",
+  "Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.": "Sans ta position, l’app ne sait pas si tu es à proximité. Tu peux envoyer une demande, {firstName} décide.",
+  "Auch in „Überall“ zeigen": "Afficher aussi dans « Partout »",
+  "Auf 5 km begrenzen": "Limiter à 5 km"
 }

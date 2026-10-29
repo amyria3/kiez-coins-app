@@ -1262,5 +1262,14 @@
   "Schritt 2 von 5": "الخطوة 2 من 5",
   "Schritt 3 von 5": "الخطوة 3 من 5",
   "Schritt 4 von 5": "الخطوة 4 من 5",
-  "Schritt 5 von 5": "الخطوة 5 من 5"
+  "Schritt 5 von 5": "الخطوة 5 من 5",
+  "Überall": "في كل مكان",
+  "Alle öffentlichen Beiträge, auch außerhalb Deines Kiezes.": "كل المنشورات العامة، حتى خارج حيّك.",
+  "Hier siehst Du Beiträge von überall. Mitmachen geht ab 5 km Entfernung nur auf Anfrage.": "هنا ترى منشورات من كل مكان. من مسافة أكثر من 5 كم يمكنك المشاركة بطلب فقط.",
+  "Auf einen Umkreis von 5 km begrenzen": "قصر على دائرة 5 كم",
+  "Dann sehen den Beitrag nur Menschen in Deinem Kiez, nicht in „Überall“. Wer den Link bekommt, kann ihn trotzdem öffnen.": "عندها يرى المنشور فقط من في حيّك، وليس في «في كل مكان». من لديه الرابط يمكنه فتحه رغم ذلك.",
+  "Du bist mehr als 5 km entfernt. Du kannst anfragen, {firstName} entscheidet.": "أنت على بعد أكثر من 5 كم. يمكنك إرسال طلب، و{firstName} يقرر.",
+  "Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.": "بدون موقعك لا يعرف التطبيق إن كنت قريبًا. يمكنك إرسال طلب، و{firstName} يقرر.",
+  "Auch in „Überall“ zeigen": "اعرضه أيضًا في «في كل مكان»",
+  "Auf 5 km begrenzen": "قصر على 5 كم"
 }

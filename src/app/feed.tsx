@@ -31,7 +31,7 @@ import { CAMERA_W, CameraButton, TAB_BAR_SPACE, TabBar } from '../components/Tab
 import { useRequireKiez } from '../data/kiez';
 import { challengeTypes, isTypeActive, useModes } from '../data/features';
 import { anrede } from '../data/format';
-import { coordsIfAllowed, distanceMeters, formatDistance, type Coords } from '../data/location';
+import { coordsIfAllowed, distanceMeters, formatDistance, KIEZ_RADIUS_METERS, type Coords } from '../data/location';
 import { reiseEntries } from '../data/reise';
 import { runningBeforeAfter, topChallenges as pickTopChallenges, useStore } from '../data/store';
 import { RunningBeforeAfter } from '../components/BeforeAfterTimer';
@@ -52,6 +52,8 @@ function matchesTab(challenge: Challenge, tab: FeedTab, groupId: string | undefi
   if (challenge.groupId) return false;
   if (tab === 'wave') return challenge.type === 'wave';
   if (tab === 'completed') return COMPLETED.has(challenge.status);
+  // Überall: alles Öffentliche außer „nur im Umkreis“, eigene Beiträge immer (Daria, 29.10.2026)
+  if (tab === 'everywhere') return !challenge.localOnly || challenge.authorId === me;
   return true;
 }
 
@@ -158,15 +160,23 @@ export default function FeedScreen() {
     [here],
   );
 
-  // „Im Kiez“: die nächsten zuerst, Challenges ohne Punkt danach in der bisherigen Reihenfolge.
+  // „Kiez“: nur bis 5 km (Daria, 29.10.2026), die nächsten zuerst, Challenges ohne Punkt danach.
+  // Ohne Standortfreigabe zählt der Kiez aus dem Profil. Eigene Beiträge stehen immer drin.
+  const myKiez = profile.kiez?.split(',')[0].trim().toLowerCase();
   const posts = useMemo(() => {
     const list = challenges.filter((c) => matchesTab(c, tab, groupId, currentUserId));
-    if (tab !== 'nearby' || !here) return list;
+    if (tab !== 'nearby') return list;
+    if (!here) {
+      return list.filter(
+        (c) => c.authorId === currentUserId || !myKiez || !c.kiez || c.kiez.split(',')[0].trim().toLowerCase() === myKiez,
+      );
+    }
     return list
       .map((c, i) => ({ c, i, d: distanceTo(c) }))
+      .filter((x) => x.c.authorId === currentUserId || x.d === undefined || x.d <= KIEZ_RADIUS_METERS)
       .sort((a, b) => (a.d ?? Infinity) - (b.d ?? Infinity) || a.i - b.i)
       .map((x) => x.c);
-  }, [challenges, tab, here, distanceTo, groupId, currentUserId]);
+  }, [challenges, tab, here, distanceTo, groupId, currentUserId, myKiez]);
   const topChallenges = useMemo(
     () => pickTopChallenges({ mode, challenges, currentUserId }),
     [mode, challenges, currentUserId],
@@ -189,7 +199,7 @@ export default function FeedScreen() {
   const sheetAnim = useRef(new Animated.Value(0)).current;
   const wasCollapsed = useRef(false);
   const createChallenge = () => {
-    if (tab === 'nearby' && !requireKiez()) return;
+    if ((tab === 'nearby' || tab === 'everywhere') && !requireKiez()) return;
     wasCollapsed.current = collapsed;
     setComposing(true);
     if (!collapsed) animateHeader(1);
@@ -316,7 +326,7 @@ export default function FeedScreen() {
   const audience = MODE_OF_TAB[tab] ?? 'kiez';
   const [audienceHint, closeAudienceHint] = useAudienceHint(audience);
   const showAudience =
-    audienceHint && !composing && !loading && (tab === 'nearby' || tab === 'private' || (tab === 'groups' && groups.length > 0));
+    audienceHint && !composing && !loading && (tab === 'nearby' || tab === 'everywhere' || tab === 'private' || (tab === 'groups' && groups.length > 0));
 
   const items: FeedItem[] = [];
   if (showAudience) items.push({ kind: 'audience' });
@@ -545,8 +555,8 @@ const HEADER_HIDE_MS = 3500;
 /** Höhe des schmalen Kopfs beim Erstellen */
 const COMPOSE_HEADER = 52;
 
-/** Reihenfolge der Reiter, auch für das Wischen: Privat, Gruppe, Kiez (Daria, 27.10.2026) */
-const TAB_ORDER: FeedTab[] = ['private', 'groups', 'nearby'];
+/** Reihenfolge der Reiter, auch für das Wischen: Privat, Gruppe, Kiez, Überall (Daria, 27./29.10.2026) */
+const TAB_ORDER: FeedTab[] = ['private', 'groups', 'nearby', 'everywhere'];
 /** Mindestweg in Punkten, ab dem ein Wischen den Reiter wechselt */
 const SWIPE_DISTANCE = 64;
 
