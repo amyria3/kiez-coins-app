@@ -19,6 +19,7 @@ import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 import { t } from '../data/texts';
+import { PhotoTextOverlay } from './PhotoText';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
@@ -178,6 +179,7 @@ function KiezPost({
           style={({ pressed }) => [styles.card, !image && styles.cardNoPhoto, pressed && styles.pressed]}
         >
           {image ? <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
+          {image && challenge.type === 'photo' ? <PhotoTextOverlay value={challenge.photoText} /> : null}
           {rewards}
           {closed ? (
             <View style={[styles.waveTag, styles.closedTag]}>
@@ -356,6 +358,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
           style={fashion.photo}
         >
           <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" />
+          {challenge.type === 'photo' ? <PhotoTextOverlay value={challenge.photoText} /> : null}
           {isWave ? (
             <View style={styles.waveTag}>
               <Text style={styles.waveText}>Wave</Text>
