@@ -1,4 +1,4 @@
-import type { Challenge, Comment, ImageSource } from './types';
+import type { Challenge, Comment, Group, ImageSource } from './types';
 import { beforeAfterDuration } from './format';
 import type { ReiseEntry } from './reise';
 
@@ -81,19 +81,34 @@ export type Quest = {
  * - Me-Challenge: fertig gepostet. We-Challenge: veröffentlicht oder angenommen
  * - Pro Monat: im laufenden Kalendermonat
  * - Einladung: mindestens eine Freundschaft
+ * - Gruppe (Daria, 29.10.2026), nur wenn Gruppen nicht ausgeschaltet sind: Mitglied in mindestens einer Gruppe;
+ *   2 Menschen eingeladen = 2 weitere Mitglieder in Gruppen, die Du gegründet hast. Wer eingeladen hat, speichert
+ *   die Datenbank nicht, deshalb zählen alle, die später beigetreten sind.
  */
-export function quests(entries: ReiseEntry[], friends: number, now = new Date()): Quest[] {
+export type GroupProgress = { groups: number; invited: number };
+
+/** Gruppen-Ziele zählen: Mitgliedschaften und weitere Mitglieder in selbst gegründeten Gruppen */
+export function groupProgress(groups: Group[], me: string): GroupProgress {
+  const mine = groups.filter((g) => g.members.some((m) => m.userId === me));
+  const invited = mine
+    .filter((g) => g.founderId === me)
+    .reduce((n, g) => n + g.members.filter((m) => m.userId !== me).length, 0);
+  return { groups: mine.length, invited };
+}
+
+/** `groups` leer lassen, wenn Gruppen ausgeschaltet sind: Dann fehlen die Gruppen-Ziele. */
+export function quests(entries: ReiseEntry[], friends: number, groups?: GroupProgress, now = new Date()): Quest[] {
   const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const inMonth = (iso?: string) => !!iso && iso.slice(0, 7) === month;
   const own = entries.filter((e) => e.role === 'author');
   const meDone = own.filter((e) => e.challenge.type === 'before_after' && !!e.challenge.finishedAt);
   const we = entries.filter((e) => e.challenge.type === 'individual');
   const weSince = (e: ReiseEntry) => (e.role === 'author' ? e.challenge.createdAt : e.challenge.acceptedAt ?? e.lastActivity);
-  const q = (key: string, title: string, value: number, monthly = false): Quest => ({
+  const q = (key: string, title: string, value: number, monthly = false, goal = 1): Quest => ({
     key,
     title,
-    value: Math.min(value, 1),
-    goal: 1,
+    value: Math.min(value, goal),
+    goal,
     seenKey: monthly ? `${key}:${month}` : key,
   });
   return [
@@ -103,5 +118,11 @@ export function quests(entries: ReiseEntry[], friends: number, now = new Date())
     q('me-monat', 'Eine Me-Challenge pro Monat', meDone.filter((e) => inMonth(e.challenge.finishedAt)).length, true),
     q('we-monat', 'Eine We-Challenge pro Monat', we.filter((e) => inMonth(weSince(e))).length, true),
     q('einladung', 'Deine erste Einladung', friends),
+    ...(groups
+      ? [
+          q('gruppe', 'Deine erste Gruppe', groups.groups),
+          q('gruppe-einladen', 'Du hast 2 Menschen zu Deiner Gruppe eingeladen', groups.invited, false, 2),
+        ]
+      : []),
   ];
 }
