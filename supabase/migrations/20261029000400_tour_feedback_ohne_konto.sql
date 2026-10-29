@@ -11,24 +11,12 @@
 
 alter table public.tour_feedback add column if not exists id uuid not null default gen_random_uuid();
 
--- Primärschlüssel von user_id auf id umstellen, user_id bleibt eindeutig (für „erneut Absenden ändert“)
-do $$
-begin
-  if exists (
-    select 1 from pg_constraint
-     where conrelid = 'public.tour_feedback'::regclass and contype = 'p'
-       and pg_get_constraintdef(oid) = 'PRIMARY KEY (user_id)'
-  ) then
-    alter table public.tour_feedback drop constraint tour_feedback_pkey;
-    alter table public.tour_feedback add constraint tour_feedback_pkey primary key (id);
-  end if;
-  if not exists (
-    select 1 from pg_constraint where conrelid = 'public.tour_feedback'::regclass and conname = 'tour_feedback_user_id_key'
-  ) then
-    alter table public.tour_feedback add constraint tour_feedback_user_id_key unique (user_id);
-  end if;
-end;
-$$;
+-- Primärschlüssel von user_id auf id umstellen, user_id bleibt eindeutig (für „erneut Absenden ändert“).
+-- Ohne do-Block, damit das Skript beim Kopieren aus dem Chat heil bleibt (Dollarzeichen gingen verloren).
+alter table public.tour_feedback drop constraint if exists tour_feedback_pkey;
+alter table public.tour_feedback add constraint tour_feedback_pkey primary key (id);
+alter table public.tour_feedback drop constraint if exists tour_feedback_user_id_key;
+alter table public.tour_feedback add constraint tour_feedback_user_id_key unique (user_id);
 
 alter table public.tour_feedback alter column user_id drop not null;
 
