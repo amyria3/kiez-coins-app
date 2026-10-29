@@ -1,7 +1,8 @@
 -- Modus „Überall“ (Daria, 29.10.2026). Plan und Entscheidungen: Übergabe/2026-10-29_offen_modus-ueberall.md
 --
 -- * Kiez zeigt nur Beiträge bis 5 km, Überall alle öffentlichen. Das filtert die App.
--- * Neue Spalte challenges.local_only: „Auf einen Umkreis von 5 km begrenzen“. Solche Beiträge erscheinen nicht
+-- * Neue Spalte challenges.local_only: „Auf einen Umkreis von 5 km begrenzen“, später änderbar über
+--   set_challenge_local_only. Solche Beiträge erscheinen nicht
 --   in „Überall“. Lesen bleibt erlaubt (Policy unverändert), damit ein Link zur Challenge weiter funktioniert.
 -- * join_challenge: Wer weiter als 5 km vom Ort der Challenge entfernt ist oder keinen Standort mitschickt,
 --   kann nur anfragen. Die Erstellerin nimmt an oder lehnt ab (wie join_mode 'approval').
@@ -13,6 +14,25 @@
 alter table public.challenges add column if not exists local_only boolean not null default false;
 -- Entwürfe dürfen den Schalter ändern (Spaltenrechte wie bei visibility)
 grant update (local_only) on public.challenges to authenticated;
+
+-- Umkreis-Begrenzung nachträglich ändern (Daria, 29.10.2026): nur die Ersteller:in, nur öffentliche Beiträge
+-- ohne Gruppe, nicht gelöscht. Gilt auch für veröffentlichte Beiträge, deshalb als Funktion statt Spaltenrecht.
+create or replace function public.set_challenge_local_only(p_challenge_id uuid, p_local_only boolean)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  update public.challenges
+     set local_only = coalesce(p_local_only, false)
+   where id = p_challenge_id and author_id = auth.uid() and group_id is null
+     and visibility = 'public' and status <> 'deleted';
+  if not found then perform public.challenge_not_changed('geändert werden'); end if;
+end;
+$$;
+revoke execute on function public.set_challenge_local_only(uuid, boolean) from public, anon;
+grant execute on function public.set_challenge_local_only(uuid, boolean) to authenticated;
 
 -- Entfernung in Metern zwischen zwei Punkten (Haversine, Erdradius 6371 km)
 create or replace function public.distance_meters(p_lat1 double precision, p_lng1 double precision, p_lat2 double precision, p_lng2 double precision)

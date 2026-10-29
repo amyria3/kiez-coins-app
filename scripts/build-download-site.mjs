@@ -310,6 +310,7 @@ ${filterDefs}
     <button type="button" role="radio" aria-checked="false" data-rolle="ich" aria-controls="prototyp">${t('Nur ich', 'Just me')}</button>
     <button type="button" role="radio" aria-checked="false" data-rolle="gruppe" aria-controls="prototyp">${t('Meine Gruppen', 'My groups')}</button>
     <button type="button" role="radio" aria-checked="true" data-rolle="kiez" aria-controls="prototyp">${t('Mein Kiez', 'My neighborhood')}</button>
+    <button type="button" role="radio" aria-checked="false" data-rolle="ueberall" aria-controls="prototyp">${t('Überall', 'Everywhere')}</button>
   </div>
   <div class="szenarien" id="szenarien" aria-label="${t('Prototyp steuern', 'Control the prototype')}">
     <span class="szenario-mark" aria-hidden="true"></span>

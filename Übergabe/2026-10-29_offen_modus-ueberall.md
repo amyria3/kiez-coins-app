@@ -24,9 +24,13 @@ Pflichtaufgabe: Inhalt von `supabase/migrations/20261029000100_ueberall_umkreis.
 - Eigene Beiträge stehen immer in Kiez und Überall, auch mit Umkreis-Begrenzung.
 - Ältere App-Fassungen schicken keinen Standort mit. Bei Challenges mit Punkt fragen sie deshalb nach der Migration immer an.
 
+## Nachgereicht (Daria, 29.10.2026)
+
+- Me-Challenge im Kiez: Schalter „Auf einen Umkreis von 5 km begrenzen“ im ersten Schritt (`BeforeAfterForm.tsx`), gespeichert gleich nach dem Anlegen des Entwurfs.
+- Nachträglich ändern: Im Menü der eigenen Challenge „Auf 5 km begrenzen“ bzw. „Auch in „Überall“ zeigen“. Funktion `set_challenge_local_only` in derselben Migration (nur Ersteller:in, nur öffentlich ohne Gruppe, nicht gelöscht).
+- Website-Prototyp: Modus „Überall“ neben „Mein Kiez“ und im Umschalter im Telefon. Dort steht eine We-Challenge in 148 km Entfernung; „Anfrage senden“, nach kurzer Zeit sagt Mo zu. Texte dafür von Claude, bitte prüfen.
+
 ## Offene Punkte
 
-- Me-Challenges im Kiez (Vorher-Nachher) haben den Schalter noch nicht, nur We-Challenge und Bild über Schritt 2.
-- Umkreis-Begrenzung nach dem Veröffentlichen ändern geht noch nicht (Spaltenrecht ist schon da).
 - Die 5 km prüft der Server mit dem Standort, den die App schickt. Wer seinen Standort fälscht, kann die Regel umgehen.
-- Website-Prototyp zeigt „Überall“ noch nicht.
+- Im Feed zeigt keine Markierung, dass ein eigener Beitrag auf 5 km begrenzt ist; das steht nur im Menü.

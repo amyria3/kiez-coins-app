@@ -1269,5 +1269,7 @@
   "Auf einen Umkreis von 5 km begrenzen": "Limit to a 5 km radius",
   "Dann sehen den Beitrag nur Menschen in Deinem Kiez, nicht in „Überall“. Wer den Link bekommt, kann ihn trotzdem öffnen.": "Then only people in your neighbourhood see the post, not in “Everywhere”. Anyone with the link can still open it.",
   "Du bist mehr als 5 km entfernt. Du kannst anfragen, {firstName} entscheidet.": "You’re more than 5 km away. You can send a request, {firstName} decides.",
-  "Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.": "Without your location the app can’t tell whether you’re nearby. You can send a request, {firstName} decides."
+  "Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.": "Without your location the app can’t tell whether you’re nearby. You can send a request, {firstName} decides.",
+  "Auch in „Überall“ zeigen": "Also show in “Everywhere”",
+  "Auf 5 km begrenzen": "Limit to 5 km"
 }

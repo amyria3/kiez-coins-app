@@ -880,6 +880,9 @@ export const challengeActions = {
   /** Beitreten bzw. anfragen (Migration 20261028000300). Mit Standort: über 5 km nur Anfrage (Migration 20261029000100) */
   join: (id: string, coords?: { latitude: number; longitude: number }) =>
     rpc('join_challenge', { p_challenge_id: id, ...(coords ? { p_lat: coords.latitude, p_lng: coords.longitude } : {}) }),
+  /** Umkreis-Begrenzung nachträglich ändern (Migration 20261029000100) */
+  setLocalOnly: (id: string, localOnly: boolean) =>
+    rpc('set_challenge_local_only', { p_challenge_id: id, p_local_only: localOnly }),
   /** Aussteigen oder Anfrage zurückziehen */
   leave: (id: string) => rpc('leave_challenge', { p_challenge_id: id }),
   answerRequest: (id: string, userId: string, accept: boolean) =>
@@ -1025,6 +1028,8 @@ export type NewBeforeAfter = {
   groupId?: string;
   /** Modus „Privat“, nur ohne Gruppe (Migration 20261028000100) */
   private?: boolean;
+  /** Nur im Umkreis von 5 km, nicht in „Überall“ (Migration 20261029000100) */
+  localOnly?: boolean;
   title: string;
   beforeText: string;
   photo: ImageSource;
@@ -1053,6 +1058,8 @@ export async function startBeforeAfter(userId: string, input: NewBeforeAfter): P
   // Privat: Der Entwurf bekommt die Sichtbarkeit gleich nach dem Anlegen (Policy „Eigenen Entwurf bearbeiten“)
   if (input.private && !input.groupId) {
     check(await supabase.from('challenges').update({ visibility: 'private' }).eq('id', data as string).eq('status', 'draft'));
+  } else if (input.localOnly && !input.groupId) {
+    check(await supabase.from('challenges').update({ local_only: true }).eq('id', data as string).eq('status', 'draft'));
   }
   const { challenge } = await loadChallenge(data as string, userId);
   if (!challenge) throw new Error(t('Der Entwurf ist nicht angekommen. Versuche es bitte noch mal.'));
