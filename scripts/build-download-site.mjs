@@ -647,41 +647,9 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
       if ('ResizeObserver' in window) { var ro = new ResizeObserver(messen); stapel.forEach(function (el) { ro.observe(el); }); }
       addEventListener('resize', messen);
       messen();
-      // Eine neue Karte steigt erst sehr langsam auf und holt dann zur Scrollposition auf (Daria, 28.10.2026)
-      var karten = document.querySelectorAll('.mehr, .leute, .wechsel, .download');
-      var tick = false;
-      // Telefon und Tablet: kein Nachziehen und keine wechselnde Deckkraft, das ließ das Scrollen stocken (Daria, 29.10.2026)
-      var leicht = matchMedia('(max-width: 900px), (pointer: coarse)');
-      var heben = function () {
-        tick = false;
-        // Schmales Fenster: Reste vom breiten Fenster entfernen, sonst bleibt ein Abschnitt verschoben und durchsichtig (Daria, 29.10.2026)
-        if (leicht.matches) {
-          karten.forEach(function (el) { el.style.transform = ''; el.style.removeProperty('--a'); });
-          return;
-        }
-        var vh = innerHeight;
-        // Erst alle Verschiebungen lösen, dann alle Lagen lesen: ein Layout pro Bild statt eines pro Karte
-        karten.forEach(function (el) { el.style.transform = ''; });
-        var lagen = [].map.call(karten, function (el) { return el.getBoundingClientRect(); });
-        karten.forEach(function (el, i) {
-          var t = lagen[i].top;
-          // Deckkraft steigt beim Aufsteigen von 0,15 auf 0,4, der Blur bleibt gleich (Daria, 28.10.2026: weniger deckend)
-          var x0 = Math.min(1, Math.max(0, t / vh));
-          el.style.setProperty('--a', (0.4 - 0.25 * x0).toFixed(3));
-          if (t <= 0 || t >= vh) return;
-          var x = t / vh;
-          var v = vh * (1 - Math.pow(1 - x, 3));
-          // Nie tiefer als das Ende der Karte davor, sonst entsteht eine Lücke (Daria, 28.10.2026)
-          var vor = el.previousElementSibling;
-          var j = [].indexOf.call(karten, vor);
-          var unten = j >= 0 ? lagen[j].bottom : vor ? vor.getBoundingClientRect().bottom : null;
-          var grenze = unten !== null ? Math.max(0, unten - t) : Infinity;
-          el.style.transform = 'translateY(' + Math.min(v - t, grenze).toFixed(1) + 'px)';
-        });
-      };
-      addEventListener('scroll', function () { if (!tick) { tick = true; requestAnimationFrame(heben); } }, { passive: true });
-      addEventListener('resize', function () { if (!tick) { tick = true; requestAnimationFrame(heben); } });
-      heben();
+      // Das verzögerte Aufsteigen der Karten (28.10.2026) ist entfernt: Es wurde bei jedem Bild in JavaScript
+      // berechnet und lief dem Scrollen ein Bild hinterher, dadurch ruckelte und sprang die Seite (Daria, 29.10.2026).
+      // Das Stapeln selbst macht der Browser mit position: sticky, das bleibt flüssig.
     }
     // Wieso wechseln (Daria, 29.10.2026): Mit Maus steht die Karte unter dem Zeiger vorn. Auf dem Telefon die Karte,
     // die der Mitte des Bildschirms am nächsten ist. Die anderen blassen je nach Abstand aus.
