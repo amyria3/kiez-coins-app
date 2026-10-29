@@ -1445,17 +1445,23 @@ export type TourFeedbackResults = {
   other: { text: string; at: string }[];
 };
 
-/** Antwort speichern. Eine Antwort pro Person; erneutes Absenden ändert sie. */
+/**
+ * Antwort speichern. Mit Konto eine Antwort pro Person, erneutes Absenden ändert sie.
+ * Ohne Konto (Beispieldaten) eine neue Antwort ohne Person (Migration 20261029000400, Daria: alle sollen
+ * testen und Rückmeldung geben können).
+ */
 export async function saveTourFeedback(choices: TourFeedbackChoice[], other: string) {
-  const { data } = await supabase.auth.getUser();
-  if (!data.user) throw new Error(t('Melde Dich bitte neu an und versuche es dann noch mal.'));
+  const { data } = await supabase.auth.getSession();
+  const user = data.session?.user;
+  const answer = { choices, other: other.trim() || null };
+  if (!user) {
+    check(await supabase.from('tour_feedback').insert(answer));
+    return;
+  }
   check(
-    await supabase.from('tour_feedback').upsert({
-      user_id: data.user.id,
-      choices,
-      other: other.trim() || null,
-      updated_at: new Date().toISOString(),
-    }),
+    await supabase
+      .from('tour_feedback')
+      .upsert({ user_id: user.id, ...answer, updated_at: new Date().toISOString() }, { onConflict: 'user_id' }),
   );
 }
 
