@@ -14,7 +14,7 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 ## 29.10.2026 – Was Du so machst: positive Bestärkung (PR #113)
 
-- [ ] Meilensteine und Schwellen prüfen (Vorschlag Claude in `src/data/erfolge.ts`, `meilensteine`): 1/5/20 Me-Challenges, 1/5/20 Mal geholfen, erste Hilfe bekommen, 10/50/100 Herzen, 1/10 Stunden für Dich (Daria)
+- [x] Ziele statt Meilensteine (Daria, 29.10.2026): erster Post, erste Me-/We-Challenge, je eine Me-/We-Challenge pro Monat, erste Einladung; Balken in Lila, Geschenk öffnet sich mit pinken Herzen (`src/components/Quests.tsx`)
 - [ ] „Danke von anderen“ erkennt Dank an Wörtern wie „Danke“, „super“, „toll“ oder Herzen im Kommentar. Später ggf. eigener Danke-Knopf.
 - [ ] Fashionable Look (`FashionProfile.tsx`) zeigt noch Erstellt/Angenommen statt der Geschafft-Wand
 

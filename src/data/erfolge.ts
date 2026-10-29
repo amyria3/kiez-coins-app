@@ -66,20 +66,42 @@ export function erfolge(entries: ReiseEntry[], me: string): Erfolge {
   };
 }
 
+export type Quest = {
+  key: string;
+  title: string;
+  value: number;
+  goal: number;
+  /** Schlüssel, unter dem das Gerät sich merkt, dass das Geschenk schon aufging (Monatsziele pro Monat) */
+  seenKey: string;
+};
+
 /**
- * Meilensteine (Vorschlag Claude, 29.10.2026, Schwellen bitte mit Daria abstimmen). Es erscheinen nur erreichte,
- * nie ausgegraute, damit kein Druck entsteht. Der höchste erreichte Wert je Reihe zählt.
+ * Ziele mit Balken und Geschenk (Daria, 29.10.2026). Zählen für das ganze Konto, nicht je Reiter.
+ * - Post: jeder veröffentlichte eigene Beitrag (Bild, Me- oder We-Challenge)
+ * - Me-Challenge: fertig gepostet. We-Challenge: veröffentlicht oder angenommen
+ * - Pro Monat: im laufenden Kalendermonat
+ * - Einladung: mindestens eine Freundschaft
  */
-export function meilensteine(e: Erfolge): string[] {
-  const out: string[] = [];
-  const step = (n: number, list: [number, string][]) => {
-    const hit = list.filter(([min]) => n >= min).at(-1);
-    if (hit) out.push(hit[1]);
-  };
-  step(e.meDone, [[1, 'Erste Me-Challenge geschafft'], [5, '5 Me-Challenges geschafft'], [20, '20 Me-Challenges geschafft']]);
-  step(e.helped, [[1, 'Zum ersten Mal geholfen'], [5, '5 Mal geholfen'], [20, '20 Mal geholfen']]);
-  step(e.gotHelp, [[1, 'Erste Hilfe bekommen']]);
-  step(e.hearts, [[10, '10 Herzen bekommen'], [50, '50 Herzen bekommen'], [100, '100 Herzen bekommen']]);
-  step(e.meTime / 3600000, [[1, '1 Stunde für Dich'], [10, '10 Stunden für Dich']]);
-  return out;
+export function quests(entries: ReiseEntry[], friends: number, now = new Date()): Quest[] {
+  const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const inMonth = (iso?: string) => !!iso && iso.slice(0, 7) === month;
+  const own = entries.filter((e) => e.role === 'author');
+  const meDone = own.filter((e) => e.challenge.type === 'before_after' && !!e.challenge.finishedAt);
+  const we = entries.filter((e) => e.challenge.type === 'individual');
+  const weSince = (e: ReiseEntry) => (e.role === 'author' ? e.challenge.createdAt : e.challenge.acceptedAt ?? e.lastActivity);
+  const q = (key: string, title: string, value: number, monthly = false): Quest => ({
+    key,
+    title,
+    value: Math.min(value, 1),
+    goal: 1,
+    seenKey: monthly ? `${key}:${month}` : key,
+  });
+  return [
+    q('post', 'Dein erster Post', own.length),
+    q('me', 'Deine erste Me-Challenge', meDone.length),
+    q('we', 'Deine erste We-Challenge', we.length),
+    q('me-monat', 'Eine Me-Challenge pro Monat', meDone.filter((e) => inMonth(e.challenge.finishedAt)).length, true),
+    q('we-monat', 'Eine We-Challenge pro Monat', we.filter((e) => inMonth(weSince(e))).length, true),
+    q('einladung', 'Deine erste Einladung', friends),
+  ];
 }
