@@ -727,11 +727,13 @@ footer a { color: var(--muted); }
 .fx-d .mehr, .fx-d .leute, .fx-d .wechsel, .fx-d .download { border-radius: 36px 36px 0 0; box-shadow: 0 -18px 40px -24px var(--schatten); }
 .fx-d .download { position: relative; }
 /* Karten durchscheinend mit Unschärfe: Was darunter liegt, bleibt zu ahnen (Daria, 28.10.2026) */
+/* Feste Deckkraft wie bisher im Ruhezustand; sie wechselt nicht mehr beim Scrollen (Daria, 29.10.2026) */
+.fx-d .mehr, .fx-d .leute, .fx-d .wechsel, .fx-d .download { --a: .4; }
 .fx-d .mehr { background: linear-gradient(135deg, rgba(244,247,226,var(--a,.6)) 0%, rgba(239,236,255,var(--a,.6)) 50%, rgba(255,237,227,var(--a,.6)) 100%); }
 .fx-d .wechsel { background: linear-gradient(160deg, rgba(239,248,240,var(--a,.6)) 0%, rgba(244,247,226,var(--a,.6)) 100%); }
 .fx-d .leute { background: linear-gradient(160deg, rgba(255,241,234,var(--a,.6)) 0%, rgba(251,239,247,var(--a,.6)) 100%); }
 .fx-d .download { background: linear-gradient(160deg, rgba(236,238,255,var(--a,.6)) 0%, rgba(246,244,255,var(--a,.6)) 60%, rgba(255,255,255,var(--a,.6)) 100%); }
-.fx-d .mehr, .fx-d .leute, .fx-d .wechsel, .fx-d .download { -webkit-backdrop-filter: blur(28px) saturate(1.2); backdrop-filter: blur(28px) saturate(1.2); will-change: transform; }
+.fx-d .mehr, .fx-d .leute, .fx-d .wechsel, .fx-d .download { -webkit-backdrop-filter: blur(28px) saturate(1.2); backdrop-filter: blur(28px) saturate(1.2); }
 /* Telefon und Tablet: ohne Unschärfe und fast deckend, sonst stockt das Scrollen (Daria, 29.10.2026) */
 @media (max-width: 900px), (pointer: coarse) {
   .fx-d .mehr, .fx-d .leute, .fx-d .wechsel, .fx-d .download { -webkit-backdrop-filter: none; backdrop-filter: none; will-change: auto; --a: 1; }
