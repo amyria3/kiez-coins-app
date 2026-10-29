@@ -949,6 +949,102 @@ const ladenSeite = `<!doctype html>
 </html>
 `;
 
+// ---------- /qr: QR-Codes zum Vorzeigen auf dem eigenen Telefon (Daria, 29.10.2026) ----------
+// Zwei Codes: Webseite und /laden. „Vollbild“ zeigt den Code bildschirmfüllend, der Bildschirm bleibt an.
+// iPhone: Element-Vollbild gibt es dort nicht. Deshalb spielt die Seite den Code als kurzes Video in Schleife
+// (scripts/site/qr/*.mp4, online unter /qr-filme/) im Vollbild-Player ab; solange ein Video läuft, sperrt sich das iPhone nicht.
+// Android: echtes Vollbild der Seite. Dazu überall Screen Wake Lock, wo vorhanden, sonst ein stilles Video im Hintergrund.
+const qrCodes = [
+  { key: 'webseite', title: 'KiezCoins auschecken (zur Webseite)', url: 'https://kiezcoins.vercel.app' },
+  { key: 'laden', title: 'KiezCoins direkt runterladen', url: 'https://kiezcoins.vercel.app/laden' },
+];
+for (const c of qrCodes) c.svg = await QRCode.toString(c.url, { type: 'svg', margin: 0, errorCorrectionLevel: 'M', color: { dark: '#1F2123', light: '#FFFFFF' } });
+const qrSeite = `<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FFFFFF">
+<title>Kiez Coins QR-Codes</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preload" href="/fonts/InterTight_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
+<style>
+  @font-face { font-family: 'Inter Tight'; src: url(/fonts/InterTight_600SemiBold.ttf) format('truetype'); font-weight: 600; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #fff; color: #1F2123; font-family: Inter, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+  body { display: flex; flex-direction: column; align-items: center; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); gap: 16px; }
+  .wahl { display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: #F0F0F4; width: 100%; max-width: 420px; }
+  .wahl button { flex: 1; border: 0; border-radius: 999px; padding: 12px 8px; font: 500 15px/1 Inter, sans-serif; background: none; color: #555; }
+  .wahl button[aria-pressed="true"] { background: #1F2123; color: #fff; }
+  .code { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; width: 100%; text-align: center; background: #fff; }
+  .code h1 { margin: 0; font: 600 clamp(26px, 7vw, 44px)/1.12 'Inter Tight', Inter, sans-serif; max-width: 16ch; }
+  .code .q { width: min(86vw, 62vh, 560px); aspect-ratio: 1; }
+  .code .q svg { width: 100%; height: 100%; display: block; }
+  .code p { margin: 0; color: #666; font-size: 15px; }
+  .code:fullscreen { justify-content: center; padding: 24px; }
+  .knopf { width: 100%; max-width: 420px; border: 0; border-radius: 999px; padding: 16px; font: 500 17px/1 Inter, sans-serif; background: #5161DB; color: #fff; }
+  .an { font-size: 13px; color: #2E9E4F; min-height: 1em; margin: 0; }
+  video.film { position: fixed; width: 1px; height: 1px; opacity: 0; pointer-events: none; left: 0; top: 0; }
+</style>
+</head>
+<body>
+<div class="wahl" role="group" aria-label="Welcher Code">
+${qrCodes.map((c, i) => `  <button type="button" data-code="${c.key}" aria-pressed="${i === 0}">${c.key === 'webseite' ? 'Webseite' : 'Direkt laden'}</button>`).join('\n')}
+</div>
+<div class="code" id="code">
+${qrCodes.map((c, i) => `  <div data-zeige="${c.key}"${i ? ' hidden' : ''} style="display:${i ? 'none' : 'contents'}"><h1>${c.title}</h1><div class="q" role="img" aria-label="QR-Code zu ${c.url}">${c.svg}</div><p>${c.url.replace('https://', '')}</p></div>`).join('\n')}
+</div>
+<button type="button" class="knopf" id="vollbild">Vollbild</button>
+<p class="an" id="an" aria-live="polite"></p>
+${qrCodes.map((c) => `<video class="film" data-film="${c.key}" src="/qr-filme/qr-${c.key}.mp4" muted loop playsinline preload="auto"></video>`).join('\n')}
+<script>
+  (function () {
+    var aktuell = 'webseite';
+    var an = document.getElementById('an');
+    var code = document.getElementById('code');
+    var film = function () { return document.querySelector('[data-film="' + aktuell + '"]'); };
+    // Umschalten zwischen den beiden Codes
+    document.querySelectorAll('[data-code]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        aktuell = b.dataset.code;
+        document.querySelectorAll('[data-code]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        document.querySelectorAll('[data-zeige]').forEach(function (x) { x.hidden = x.dataset.zeige !== aktuell; x.style.display = x.hidden ? 'none' : 'contents'; });
+      });
+    });
+    // Bildschirm anlassen: Wake Lock, sonst ein stilles Video in Schleife
+    var sperre = null;
+    function wachHalten() {
+      if ('wakeLock' in navigator) {
+        navigator.wakeLock.request('screen').then(function (s) {
+          sperre = s; an.textContent = 'Bildschirm bleibt an.';
+          s.addEventListener('release', function () { sperre = null; });
+        }).catch(function () { film().play().catch(function () {}); an.textContent = 'Bildschirm bleibt an.'; });
+      } else {
+        film().play().catch(function () {});
+        an.textContent = 'Bildschirm bleibt an.';
+      }
+    }
+    // Nach dem Zurückkehren zur Seite fällt die Sperre weg: neu anfordern
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && an.textContent && !sperre) wachHalten(); });
+    document.getElementById('vollbild').addEventListener('click', function () {
+      wachHalten();
+      if (code.requestFullscreen) {
+        code.requestFullscreen().catch(function () { filmVollbild(); });
+      } else filmVollbild();
+    });
+    // iPhone: den Code als Film im Vollbild-Player zeigen
+    function filmVollbild() {
+      var v = film();
+      v.play().catch(function () {});
+      if (v.webkitEnterFullscreen) v.webkitEnterFullscreen();
+    }
+  })();
+</script>
+</body>
+</html>
+`;
+
 // ---------- Kater: /kater, dem Kater Hallo sagen ----------
 // Darias Kater als SVG (assets/illustrations/kater.svg). Die Gruppen Besen, Brille und Stiefel (IDs aus Affinity) bewegen sich per CSS
 // (einzelne Eigenschaften rotate/translate, damit die Matrizen aus Affinity erhalten bleiben). Die Sprüche stehen in
@@ -1146,6 +1242,9 @@ for (const { code } of sprachen.filter((l) => l.code !== 'de')) {
 for (const [L, texte] of fehlend) console.warn(`Startseite ${L}: ${texte.size} Texte ohne Übersetzung, dort steht Englisch (scripts/site/sprachen/${L}.json)`);
 writeFileSync(join(out, 'einladung.html'), einladung);
 writeFileSync(join(out, 'laden.html'), ladenSeite);
+writeFileSync(join(out, 'qr.html'), qrSeite);
+mkdirSync(join(out, 'qr-filme'), { recursive: true });
+for (const f of readdirSync(join(siteDir, 'qr'))) copyFileSync(join(siteDir, 'qr', f), join(out, 'qr-filme', f));
 writeFileSync(join(out, 'spenden.html'), spendenSeite);
 if (katerSvg) writeFileSync(join(out, 'kater.html'), katerSeite);
 // Eigene 404-Seite für unbekannte Adressen.
