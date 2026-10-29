@@ -207,7 +207,8 @@
       scenarios: [
         ['me', 'Me-Challenge', 'Hast Du Dir etwas vorgenommen und brauchst ein wenig Motivation aus der Silicon-Valley-Trickkiste? Dokumentiere Deinen Fortschritt – nutze Gamification zur Glücksmaximierung, geschützt vor fremden Blicken.', 'Me-Challenge'],
         ['bild', 'Nur ein Bild', 'Speichere visuelle Notizen oder schöne Momente in Deinem Alltag.', 'Bild'],
-        ['feed', 'Feed', 'Wie in jedem sozialen Netzwerk: sehen, was andere Menschen so posten. Hol Dir Inspiration, Tipps, Life Hacks & Satisfaction über erledigte Challenges.', 'Feed'],
+        // „Nur ich“: Hier postet niemand sonst (Text von Claude, 29.10.2026)
+        ['feed', 'Feed', 'Dein Feed nur für Dich: Hier sammelst Du Deine Bilder und Me-Challenges, geschützt vor fremden Blicken.', 'Feed'],
       ],
       bild: {
         suggestions: ['Lieblingsplatz', 'Notiz für später', 'Sonnenuntergang'],
@@ -294,7 +295,7 @@
       scenarios: [
         ['me', 'Me-Challenge', 'Set yourself a goal and need a little motivation from the Silicon Valley bag of tricks? Track your progress – use gamification to maximize happiness, safe from prying eyes.', 'Me-Challenge'],
         ['bild', 'Just a photo', 'Save visual notes or beautiful moments from your everyday life.', 'Photo'],
-        ['feed', 'Feed', 'Like any social network: see what other people post. Get inspiration, tips, life hacks & satisfaction from completed challenges.', 'Feed'],
+        ['feed', 'Feed', 'Your feed, just for you: collect your photos and Me-Challenges here, safe from prying eyes.', 'Feed'],
       ],
       bild: {
         suggestions: ['Favorite spot', 'Note for later', 'Sunset'],
@@ -1419,8 +1420,14 @@
         if (on) active = b;
       });
       moveMark(picker, active);
-      // Auf dem Handy stehen nur Kurzformen in der Leiste; der Satz zum gewählten Szenario steht darunter
-      if (pickText && active) pickText.textContent = active.querySelector('span').textContent;
+    }
+    // Telefon und Tablet: Die Leiste ist ausgeblendet; der Satz darunter beschreibt, was der Prototyp gerade zeigt.
+    // Ohne Wahl zeigt der Prototyp den Feed. Ohne passendes Szenario (z. B. Rangliste) bleibt der Satz weg.
+    if (pickText) {
+      var shown = current() || 'feed';
+      var line = M.scenarios.filter(function (k) { return k[0] === shown; })[0];
+      if (line && pickText.textContent !== line[2]) pickText.textContent = line[2];
+      pickText.style.display = line ? '' : 'none';
     }
     if (lede) {
       var t = (M.ledes && M.ledes[current()]) || LEDE;

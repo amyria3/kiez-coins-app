@@ -483,6 +483,11 @@ footer a { color: var(--muted); }
   .hinweis { display: none; }
   .karten { grid-template-columns: 1fr; }
 }
+/* Telefon und Tablet: Ort und Szenario wählt man nur im Telefon-Prototyp, der hat dieselben Umschalter.
+   Der Satz darunter (#szenario-text) beschreibt, was der Prototyp gerade zeigt (Daria, 29.10.2026). */
+@media (max-width: 900px) {
+  .rolle, .szenarien { display: none; }
+}
 @media (max-width: 640px) {
   .szene { display: grid; grid-template-columns: 1fr; gap: 0; border-bottom: 0; }
   .szene > .person { width: auto; margin: 0; }
@@ -493,8 +498,6 @@ footer a { color: var(--muted); }
   .blase::after { left: auto; right: -6px; bottom: 18px; transform: rotate(-45deg); }
   .person:nth-child(even) .blase::after { right: auto; left: -6px; transform: rotate(135deg); }
   .card { padding: 22px; }
-  /* Ort wählen nur im Telefon-Prototyp, der hat denselben Umschalter (Daria, 29.10.2026) */
-  .rolle { display: none; }
 }
 @media (max-width: 360px) {
   .phone { transform: scale(.92); transform-origin: top center; margin-bottom: -50px; }
