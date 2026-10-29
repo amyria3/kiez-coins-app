@@ -28,6 +28,8 @@ export default function Tour() {
   const { width } = useAppDimensions();
   const pager = useRef<ScrollView>(null);
   const [page, setPage] = useState(0);
+  // Höhe des Blätterbereichs: Jede Seite füllt sie, damit die Fläche oben den Rest neben Titel und Text nimmt
+  const [pagerH, setPagerH] = useState(0);
   const last = page === tourSteps.length - 1;
 
   const finish = async () => {
@@ -75,9 +77,10 @@ export default function Tour() {
         showsHorizontalScrollIndicator={false}
         onScroll={onScroll}
         scrollEventThrottle={32}
+        onLayout={(e) => setPagerH(e.nativeEvent.layout.height)}
       >
         {tourSteps.map((step, i) => (
-          <View key={step.key} style={[styles.page, { width }]}>
+          <View key={step.key} style={[styles.page, { width }, pagerH ? { height: pagerH } : null]}>
             <TourMedia step={step} active={i === page} />
             <Text style={styles.title} accessibilityRole="header">
               {step.title}
@@ -116,10 +119,33 @@ function TourPreview({ stepKey }: { stepKey: string }) {
   // Immer als offene Challenge zeigen, damit Frist, Coins und Edensteine wie im Feed aussehen
   const challenge = found && { ...found, status: 'open' as const, deadline: new Date(Date.now() + 3 * 86400000).toISOString() };
   const author = challenge && sampleUsers.find((u) => u.id === challenge.authorId);
+  // Die Fläche passt sich dem Bildschirm an, der Text darunter bleibt ganz sichtbar (Daria, 29.10.2026).
+  // Deshalb misst die Vorschau Fläche und Inhalt und verkleinert den Inhalt, bis er hineinpasst.
+  const [box, setBox] = useState({ w: 0, h: 0 });
+  const [contentH, setContentH] = useState(0);
   if (!challenge || !author) return <Cat mood="high" height={120} />;
   const noop = () => undefined;
+  const scale = box.h && contentH ? Math.min(1, box.h / contentH) : 1;
   return (
-    <View style={styles.preview} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+    <View
+      style={StyleSheet.absoluteFill}
+      onLayout={(e) => setBox({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
+      pointerEvents="none"
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
+    <View
+      style={[
+        styles.preview,
+        {
+          width: box.w,
+          top: (box.h - contentH) / 2,
+          opacity: box.w && contentH ? 1 : 0,
+          transform: [{ scale }],
+        },
+      ]}
+      onLayout={(e) => setContentH(e.nativeEvent.layout.height)}
+    >
       <ChallengePost challenge={challenge} author={author} distance="300 m" onPress={noop} onLike={noop} />
       {p.accept ? (
         <View style={styles.previewAction}>
@@ -128,9 +154,10 @@ function TourPreview({ stepKey }: { stepKey: string }) {
       ) : null}
       {p.camera ? (
         <View style={styles.previewCamera}>
-          <CameraButton onPress={noop} />
+          <CameraButton onPress={noop} inline />
         </View>
       ) : null}
+    </View>
     </View>
   );
 }
@@ -170,11 +197,12 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingLeft: space[16] },
   step: { ...text.caption, color: color.text.secondary },
-  page: { paddingHorizontal: space[16], gap: space[16], paddingTop: space[8] },
+  page: { paddingHorizontal: space[16], gap: space[16], paddingTop: space[8], paddingBottom: space[8] },
+  // Nimmt den Platz, den Titel und Text übrig lassen, höchstens 460
   media: {
     flex: 1,
     maxHeight: 460,
-    minHeight: 260,
+    minHeight: 160,
     borderRadius: radius.card,
     backgroundColor: color.bg.surface,
     alignItems: 'center',
@@ -182,8 +210,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   video: { width: '100%', height: '100%' },
-  // Verkleinert, damit Beitrag, Knopf und Kamera ganz in die Fläche passen
-  preview: { width: '125%', paddingVertical: space[16], transform: [{ scale: 0.8 }] },
+  // Verkleinert sich, bis Beitrag, Knopf und Kamera ganz in die Fläche passen (TourPreview)
+  preview: { position: 'absolute', left: 0, paddingVertical: space[16] },
   previewAction: { paddingHorizontal: space[16], paddingTop: space[8] },
   previewCamera: { position: 'absolute', right: space[24], bottom: space[24] },
   title: { ...text.headline, color: color.text.primary },
