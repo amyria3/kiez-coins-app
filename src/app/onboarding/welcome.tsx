@@ -59,14 +59,19 @@ export default function Welcome() {
       </ScrollView>
       <ActionBar>
         {/* Ein Weg für neue und bekannte Konten (Daria, 24.10.2026) */}
-        <Button label="Anheuern" icon="this-way" onPress={() => router.push('/onboarding/email')} disabled={busy} />
-        <Button busy={busy} label="Erst mal testen, ohne Anmeldung" variant="ghost" onPress={test} disabled={busy} />
+        <Button label="Anheuern oder Einloggen" icon="this-way" onPress={() => router.push('/onboarding/email')} disabled={busy} />
+        <Button busy={busy} label="Ohne Anmeldung testen" variant="ghost" onPress={test} disabled={busy} />
+        {/* Wann die Testdaten verschwinden, steht direkt unter dem Button (Daria, 28.10.2026) */}
+        <Text style={styles.testHint}>
+          Dein Testkonto und alles, was Du postest, verschwinden nach 7 Tagen oder sobald Du Dich abmeldest. Trägst Du vorher eine E-Mail ein, bleibt alles.
+        </Text>
       </ActionBar>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  testHint: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
   screen: { flex: 1, backgroundColor: color.bg.screen },
   content: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: space[20], paddingVertical: space[24], gap: space[24] },
   tile: {
