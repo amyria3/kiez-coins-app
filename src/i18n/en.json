@@ -1262,5 +1262,12 @@
   "Schritt 2 von 5": "Step 2 of 5",
   "Schritt 3 von 5": "Step 3 of 5",
   "Schritt 4 von 5": "Step 4 of 5",
-  "Schritt 5 von 5": "Step 5 of 5"
+  "Schritt 5 von 5": "Step 5 of 5",
+  "Überall": "Everywhere",
+  "Alle öffentlichen Beiträge, auch außerhalb Deines Kiezes.": "All public posts, also outside your neighbourhood.",
+  "Hier siehst Du Beiträge von überall. Mitmachen geht ab 5 km Entfernung nur auf Anfrage.": "Here you see posts from everywhere. From 5 km away you can only join on request.",
+  "Auf einen Umkreis von 5 km begrenzen": "Limit to a 5 km radius",
+  "Dann sehen den Beitrag nur Menschen in Deinem Kiez, nicht in „Überall“. Wer den Link bekommt, kann ihn trotzdem öffnen.": "Then only people in your neighbourhood see the post, not in “Everywhere”. Anyone with the link can still open it.",
+  "Du bist mehr als 5 km entfernt. Du kannst anfragen, {firstName} entscheidet.": "You’re more than 5 km away. You can send a request, {firstName} decides.",
+  "Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.": "Without your location the app can’t tell whether you’re nearby. You can send a request, {firstName} decides."
 }

@@ -12,6 +12,12 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Kodex und Rechtstexte überarbeiten (Daria)
 - [ ] Anschrift (c/o) im Impressum, sobald die App öffentlich ist und ein Finanzierungskonzept steht
 
+## 29.10.2026 – Pflicht für Daria: Modus „Überall“ und 5-km-Umkreis
+
+- [ ] Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261029000100_ueberall_umkreis.sql` ausführen (Branch `claude/modus-ueberall`). Erst danach den PR mergen, sonst schlägt Mitmachen mit Standort fehl.
+- [ ] Claude Bescheid geben, dann prüft Claude die Datenbank und merged den PR.
+- Plan und offene Punkte: `Übergabe/2026-10-29_offen_modus-ueberall.md`
+
 ## 28.10.2026 – Prio: animierte Coins (Daria)
 
 - [ ] Animierte Coins bauen. Daria hat sie am 27.10.2026 als sehr wichtig markiert. Ideen und offene Fragen stehen in `Übergabe/2026-10-24_offen_coin-animation-me-challenge.md`. Die Animation „Diamantenregen“ weiter unten gehört dazu.

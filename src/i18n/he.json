@@ -1262,5 +1262,12 @@
   "Schritt 2 von 5": "שלב 2 מתוך 5",
   "Schritt 3 von 5": "שלב 3 מתוך 5",
   "Schritt 4 von 5": "שלב 4 מתוך 5",
-  "Schritt 5 von 5": "שלב 5 מתוך 5"
+  "Schritt 5 von 5": "שלב 5 מתוך 5",
+  "Überall": "בכל מקום",
+  "Alle öffentlichen Beiträge, auch außerhalb Deines Kiezes.": "כל הפוסטים הציבוריים, גם מחוץ לשכונה שלך.",
+  "Hier siehst Du Beiträge von überall. Mitmachen geht ab 5 km Entfernung nur auf Anfrage.": "כאן רואים פוסטים מכל מקום. ממרחק של יותר מ־5 ק״מ אפשר להצטרף רק בבקשה.",
+  "Auf einen Umkreis von 5 km begrenzen": "להגביל לרדיוס של 5 ק״מ",
+  "Dann sehen den Beitrag nur Menschen in Deinem Kiez, nicht in „Überall“. Wer den Link bekommt, kann ihn trotzdem öffnen.": "אז רק אנשים בשכונה שלך יראו את הפוסט, לא ב„בכל מקום“. מי שיש לו את הקישור עדיין יכול לפתוח אותו.",
+  "Du bist mehr als 5 km entfernt. Du kannst anfragen, {firstName} entscheidet.": "את/ה במרחק של יותר מ־5 ק״מ. אפשר לשלוח בקשה, {firstName} מחליט/ה.",
+  "Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.": "בלי המיקום שלך האפליקציה לא יודעת אם את/ה בקרבת מקום. אפשר לשלוח בקשה, {firstName} מחליט/ה."
 }
