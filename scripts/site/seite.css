@@ -94,6 +94,12 @@ button { font: inherit; color: inherit; }
 .szenarien button span.is-neu { animation: satz-neu 560ms var(--barrier); }
 @keyframes satz-neu { from { opacity: 0; transform: translateY(8px); } }
 .szenarien button i { display: none; }
+/* Texte so breit wie der Umschalter darüber (Daria, 29.10.2026): Die Spalte richtet sich nach dem Umschalter,
+   die Szenarien tragen nichts zur Breite bei (width 0, min-width 100 %) und brechen innerhalb um. */
+@media (min-width: 901px) {
+  .steuerung { width: fit-content; max-width: 100%; }
+  .szenarien { width: 0; min-width: calc(100% + 2 * var(--sz-pad)); max-width: none; }
+}
 .szenarien button[aria-pressed="false"] b { color: var(--muted); }
 .szenarien button:hover b { color: var(--text); }
 /* Nicht gewählte Karten zeigen beim Darüberfahren eine helle Fläche, gleich für alle Szenarien */
