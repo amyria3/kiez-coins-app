@@ -13,9 +13,14 @@ import { t } from '../data/texts';
 /**
  * Ohne Kiez (keine grobe Verortung) bleiben Namen und Profilbilder anderer Personen verdeckt.
  * Beispieldaten und das eigene Profil sind immer sichtbar.
+ * Vorerst ausgeschaltet (Daria, 29.10.2026): Namen und Bilder sind auch ohne Kiez zu sehen. Zum Einschalten
+ * `NAMEN_OHNE_KIEZ_VERDECKEN` auf true setzen.
  */
+const NAMEN_OHNE_KIEZ_VERDECKEN = false;
+
 export function useHideName(user: Pick<User, 'id'>): boolean {
   const { mode, profile, currentUserId, groups } = useStore();
+  if (!NAMEN_OHNE_KIEZ_VERDECKEN) return false;
   if (mode !== 'live' || profile.kiez || user.id === currentUserId) return false;
   // Mitglieder gemeinsamer Gruppen kennt man, auch ohne Kiez
   return !groups.some((g) => g.members.some((m) => m.userId === user.id));
