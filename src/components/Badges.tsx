@@ -144,6 +144,8 @@ const styles = StyleSheet.create({
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
   nameShrink: { flexShrink: 1, minWidth: 0 },
   status: {
+    // Darf schmaler werden, dann kürzt der Text mit „…“ statt über den Rand zu ragen
+    flexShrink: 1,
     borderRadius: radius.full,
     paddingHorizontal: space[8],
     paddingVertical: space[6],
