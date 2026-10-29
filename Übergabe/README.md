@@ -44,6 +44,7 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-24_offen_umbenennung-kiezkoinz.md`, `2026-10-24_offen_funktionen-sperre.md` und `2026-10-24_offen_coin-animation-me-challenge.md`: Darias To-do-Liste vom 24.10.2026.
 - `2026-10-24_offen_email-code-5-minuten.md`: Anmeldung per E-Mail-Code, jeder Code der letzten 5 Minuten gilt. Pflichtaufgabe: Migration für `login_codes`, zwei Edge Functions, Secrets und `pg_cron`-Job.
 - `2026-10-29_offen_bild-text.md`: Text auf dem Foto bei „Nur ein Bild“, verschiebbar wie bei Stories. Pflichtaufgabe: Migration `20261029000200` einspielen.
+- `2026-10-29_offen_tour.md`: Tour mit 8 Seiten, neuer Coins-Text, Rückmeldung „Wie fandest Du diese Erklärung?“. Pflichtaufgabe: Migration `20261029000300` einspielen.
 - `2026-10-29_offen_modus-ueberall.md`: Modus „Überall“, Kiez nur bis 5 km, Mitmachen ab 5 km nur auf Anfrage, Schalter „Auf einen Umkreis von 5 km begrenzen“. Pflichtaufgabe: Migration `20261029000100` einspielen.
 - `2026-10-24_offen_gruppen.md` und `2026-10-24_offen_gruppen-titelbild.md`: offene Punkte zum Feature „Gruppen“ und zum Gruppen-Titelbild.
 - `2026-10-24_offen_look-auf-allen-geraeten.md` und `2026-10-24_offen_web-und-mobile.md`: Abweichungen im Look und zwischen Web-App und Mobile.
