@@ -16,7 +16,9 @@ import { GroupRanking } from '../components/GroupRanking';
 import { useModes, type Mode } from '../data/features';
 import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { anrede, formatBountyShort, formatHoursMinutes } from '../data/format';
-import { donePhoto, erfolge, meilensteine } from '../data/erfolge';
+import { donePhoto, erfolge, quests } from '../data/erfolge';
+import { Quests } from '../components/Quests';
+import { useFriends } from '../data/friends';
 import { loadPraise } from '../data/remote';
 import { Avatar } from '../components/AuthorRow';
 import { useAppDimensions } from '../theme/layout';
@@ -70,6 +72,8 @@ function Reise() {
       !e.challenge.private &&
       (tab !== 'kiez' || isInKiez(e.challenge, here, profile.kiez, currentUserId)),
   );
+  const friends = useFriends();
+  const goals = useMemo(() => quests(entries, friends?.friends.length ?? 0), [entries, friends]);
   const groupEntries = entries.filter((e) => !!group && e.challenge.groupId === group.id);
   // Lob für Dich (Migration für Lob nötig, sonst keine Zahl)
   const [praise, setPraise] = useState<number | null>(null);
@@ -117,6 +121,9 @@ function Reise() {
             <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
           </Pressable>
         ))}
+
+        {/* Ziele mit Geschenk, für das ganze Konto (Daria, 29.10.2026) */}
+        <Quests quests={goals} />
 
         {reiseTabs.length > 1 ? <Segments tabs={reiseTabs} selectedKey={tab} onChange={setTab} /> : null}
 
@@ -185,7 +192,6 @@ function Geschafft({
   const { users } = useStore();
   const { width } = useAppDimensions();
   const e = useMemo(() => erfolge(entries, me), [entries, me]);
-  const stones = meilensteine(e);
   const stats: { value: string; label: string; signal?: boolean }[] = [];
   if (e.helped) stats.push({ value: String(e.helped), label: t('Mal geholfen') });
   if (e.meDone) stats.push({ value: String(e.meDone), label: t('Me-Challenges') });
@@ -207,16 +213,6 @@ function Geschafft({
         <View style={styles.stats}>
           {stats.slice(0, 6).map((s) => (
             <Stat key={s.label} value={s.value} label={s.label} signal={s.signal} />
-          ))}
-        </View>
-      ) : null}
-      {stones.length ? (
-        <View style={styles.stones}>
-          {stones.map((m) => (
-            <View key={m} style={styles.stone}>
-              <Icon name="check" size={12} color={color.accent.confirmation} />
-              <Text style={styles.stoneText}>{t(m)}</Text>
-            </View>
           ))}
         </View>
       ) : null}
@@ -329,9 +325,6 @@ const styles = StyleSheet.create({
   rowDivider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   rowTitle: { fontFamily: font.regular, fontSize: 15, lineHeight: 20, color: color.text.primary },
   empty: { ...text.body, color: color.text.secondary },
-  stones: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
-  stone: { flexDirection: 'row', alignItems: 'center', gap: space[6], paddingVertical: space[6], paddingHorizontal: space[12], borderRadius: radius.full, backgroundColor: color.bg.surface },
-  stoneText: { ...text.caption, color: color.text.primary },
   wall: { flexDirection: 'row', flexWrap: 'wrap', gap: space[4] },
   tile: { borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.bg.surface },
   thumbFallback: { backgroundColor: color.bg.screen, alignItems: 'center', justifyContent: 'center' },
