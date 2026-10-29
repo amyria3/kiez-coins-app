@@ -12,6 +12,12 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Kodex und Rechtstexte überarbeiten (Daria)
 - [ ] Anschrift (c/o) im Impressum, sobald die App öffentlich ist und ein Finanzierungskonzept steht
 
+## 29.10.2026 – Was Du so machst: positive Bestärkung (PR #113)
+
+- [ ] Meilensteine und Schwellen prüfen (Vorschlag Claude in `src/data/erfolge.ts`, `meilensteine`): 1/5/20 Me-Challenges, 1/5/20 Mal geholfen, erste Hilfe bekommen, 10/50/100 Herzen, 1/10 Stunden für Dich (Daria)
+- [ ] „Danke von anderen“ erkennt Dank an Wörtern wie „Danke“, „super“, „toll“ oder Herzen im Kommentar. Später ggf. eigener Danke-Knopf.
+- [ ] Fashionable Look (`FashionProfile.tsx`) zeigt noch Erstellt/Angenommen statt der Geschafft-Wand
+
 ## 29.10.2026 – Pflicht für Daria: Modus „Überall“ und 5-km-Umkreis
 
 - [x] (29.10.2026) Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261029000100_ueberall_umkreis.sql` ausführen (Branch `claude/modus-ueberall`). Erst danach den PR mergen, sonst schlägt Mitmachen mit Standort fehl.
