@@ -1,3 +1,4 @@
+import { isInKiez, useHere } from '../data/nearby';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../components/T';
@@ -51,25 +52,26 @@ function Reise() {
   const mood = reiseMood(entries);
   const tasks = entries.filter((e) => e.needsAction);
   const history = entries.filter((e) => !e.needsAction);
-  const publicHistory = history.filter((e) => !e.challenge.groupId && !e.challenge.private);
+  // Kiez nur bis 5 km, Überall alles Öffentliche (Daria, 29.10.2026)
+  const here = useHere();
+  const isPublic = (e: ReiseEntry) => !e.challenge.groupId && !e.challenge.private;
   const privateHistory = history.filter((e) => !!e.challenge.private);
   // Modi wie im Feed: Privat, Gruppe, Kiez, ohne eigene Wahl der Standard (Daria, 27.10.2026)
   const modes = useModes();
   const [chosenTab, setTab] = useState<Mode>();
-  // Überall zählt hier wie Kiez: Eigenes ist dasselbe (Daria, 29.10.2026)
-  const shown = (m: Mode) => modes.isVisible(m) || (m === 'kiez' && modes.isVisible('everywhere'));
-  const raw: Mode = chosenTab && shown(chosenTab) ? chosenTab : modes.standard;
-  const tab: Mode = raw === 'everywhere' ? 'kiez' : raw;
-  const reiseTabs = REISE_TABS.filter((r) => shown(r.key));
+  const tab: Mode = chosenTab && modes.isVisible(chosenTab) ? chosenTab : modes.standard;
+  const reiseTabs = REISE_TABS.filter((r) => modes.isVisible(r.key));
+  const inTab = (e: ReiseEntry) => isPublic(e) && (tab !== 'kiez' || isInKiez(e.challenge, here, profile.kiez, currentUserId));
+  const publicHistory = history.filter(inTab);
   const [groupChoice, setGroupChoice] = useState<string>();
   const group = groups.find((g) => g.id === groupChoice) ?? groups[0];
   // Erledigte Gruppenaufgaben liegen im Archiv unter „Deine Challenges“ (Daria, 27.10.2026)
   const groupHistory = history.filter((e) => !!group && e.challenge.groupId === group.id && !isGroupDone(e.challenge));
   const groupDoneCount = history.filter((e) => isGroupDone(e.challenge)).length;
-  const created = entries.filter((e) => e.role === 'author' && !e.challenge.groupId && !e.challenge.private).length;
-  const accepted = entries.filter((e) => e.role === 'assignee' && !e.challenge.groupId).length;
+  const created = entries.filter((e) => e.role === 'author' && inTab(e)).length;
+  const accepted = entries.filter((e) => e.role === 'assignee' && inTab(e)).length;
   const earned = entries
-    .filter((e) => e.role === 'assignee' && e.challenge.status === 'paid')
+    .filter((e) => e.role === 'assignee' && inTab(e) && e.challenge.status === 'paid')
     .reduce((sum, e) => sum + (e.challenge.bountyAmount ?? 0), 0);
 
   const toFeed = () => (goBack());
@@ -112,7 +114,7 @@ function Reise() {
 
         {tab === 'private' ? (
           <History title="Verlauf" entries={privateHistory} onOpen={(entry) => router.push(entry.href)} />
-        ) : tab === 'kiez' ? (
+        ) : tab === 'kiez' || tab === 'everywhere' ? (
           <>
             {created + accepted > 0 ? (
               <View style={styles.stats}>
@@ -170,6 +172,7 @@ const REISE_TABS: { key: Mode; label: string }[] = [
   { key: 'private', label: 'Privat' },
   { key: 'groups', label: 'Gruppe' },
   { key: 'kiez', label: 'Kiez' },
+  { key: 'everywhere', label: 'Überall' },
 ];
 
 /** Verlauf als Liste. Bei Gruppenaufgaben steht der Gruppenname in der Unterzeile. */
