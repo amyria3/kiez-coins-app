@@ -1,6 +1,6 @@
 # Text auf dem Foto
 
-Datum: 2026-10-29 · Status: umgesetzt im PR, Migration noch nicht eingespielt · Ziel in Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitt „Beiträge“), Datenbank-Doku (`challenges.photo_text`, `photo_text_x`, `photo_text_y`)
+Datum: 2026-10-29 · Status: umgesetzt, Migration am 29.10.2026 eingespielt (von Claude geprüft), PR #114 gemergt; noch in die Doku übernehmen · Ziel in Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitt „Beiträge“), Datenbank-Doku (`challenges.photo_text`, `photo_text_x`, `photo_text_y`)
 
 ## Entscheidung von Daria (29.10.2026)
 
