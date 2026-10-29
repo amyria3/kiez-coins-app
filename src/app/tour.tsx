@@ -28,7 +28,6 @@ import { CheckOption, SwitchRow, TextField } from '../components/Form';
 import { explain } from '../components/Nudge';
 import { iconSvgs } from '../components/icons/svgs';
 import { errorText, saveTourFeedback, type TourFeedbackChoice } from '../data/remote';
-import { useStore } from '../data/store';
 import { CameraButton } from '../components/TabBar';
 import { sampleChallenges, sampleUsers } from '../data/sample';
 import { Text } from '../components/T';
@@ -47,7 +46,6 @@ export default function Tour() {
   const insets = useSafeAreaInsets();
   const { next } = useLocalSearchParams<{ next?: string }>();
   const { width } = useAppDimensions();
-  const { mode } = useStore();
   const pager = useRef<ScrollView>(null);
   const [page, setPage] = useState(0);
   // Höhe des Blätterbereichs: Jede Seite füllt sie, damit die Fläche oben den Rest neben Titel und Text nimmt
@@ -75,17 +73,15 @@ export default function Tour() {
 
   const send = async () => {
     if (!answered || sending) return;
-    // Beispieldaten: nichts senden, nur danken
-    if (mode === 'live') {
-      setSending(true);
-      try {
-        await saveTourFeedback(choices, other);
-      } catch (error) {
-        Alert.alert('Antwort nicht gesendet', errorText(error));
-        return;
-      } finally {
-        setSending(false);
-      }
+    // Auch mit Beispieldaten und ohne Konto (Daria, 29.10.2026): dann ohne Person gespeichert
+    setSending(true);
+    try {
+      await saveTourFeedback(choices, other);
+    } catch (error) {
+      Alert.alert('Antwort nicht gesendet', errorText(error));
+      return;
+    } finally {
+      setSending(false);
     }
     setSent(true);
   };
