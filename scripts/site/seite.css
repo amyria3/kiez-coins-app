@@ -403,7 +403,8 @@ button { font: inherit; color: inherit; }
 /* Alle Gesichter auf einen Bildschirm: Figuren richten sich nach der Fensterhöhe (Daria, 28.10.2026) */
 @media (min-width: 641px) {
   .szene > .person { display: flex; justify-content: center; }
-  .szene .figur { width: auto; max-width: 100%; max-height: calc((100svh - 500px) / 2); min-height: 110px; }
+  /* Breite aus dem Seitenverhältnis: „.person .figur { width: 100% }“ weiter unten stauchte die Fotos (29.10.2026) */
+  .szene .person .figur { width: auto; max-width: 100%; max-height: calc((100svh - 500px) / 2); min-height: 110px; margin-inline: auto; }
 }
 .person { display: grid; justify-items: center; gap: 4px; }
 .person:nth-child(2) { padding-bottom: 0; }
