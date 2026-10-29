@@ -810,6 +810,21 @@ const ladenSeite = `<!doctype html>
   .teilen-symbol { vertical-align: -3px; margin: 0 2px; }
   .laden .qr { width: 200px; max-width: 60vw; margin: 8px 0 4px; background: #fff; border-radius: 16px; padding: 8px; }
   .laden .qr svg { display: block; width: 100%; height: auto; }
+  /* Kleines Fenster unten: Download startet in 30 Sekunden, abbrechbar (Daria, 29.10.2026) */
+  .countdown { position: fixed; z-index: 900; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); max-width: 420px; margin: 0 auto;
+    display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 22px; background: var(--text); color: var(--bg);
+    box-shadow: 0 14px 36px -12px rgba(20, 16, 50, .45); transition: opacity 250ms, translate 350ms cubic-bezier(.2, .7, .2, 1); }
+  .countdown[hidden] { display: flex; opacity: 0; translate: 0 24px; pointer-events: none; }
+  .countdown .ring { position: relative; flex: none; width: 44px; height: 44px; }
+  .countdown .ring svg { width: 44px; height: 44px; rotate: -90deg; }
+  .countdown .ring circle { fill: none; stroke-width: 4; }
+  .countdown .ring .spur { stroke: rgba(255, 255, 255, .18); }
+  .countdown .ring .lauf { stroke: var(--purple); stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+  .countdown .ring b { position: absolute; inset: 0; display: grid; place-items: center; font: 600 15px/1 Inter, sans-serif; }
+  .countdown p { flex: 1; margin: 0; font-size: 15px; line-height: 1.3; color: inherit; }
+  .countdown button { flex: none; font: 500 14px/1 Inter, sans-serif; color: inherit; background: none; border: 1px solid rgba(255, 255, 255, .35);
+    border-radius: 999px; padding: 10px 14px; cursor: pointer; }
+  @media (prefers-reduced-motion: reduce) { .countdown, .countdown .ring .lauf { transition: none; } }
 </style>
 </head>
 <body>
@@ -872,6 +887,11 @@ const ladenSeite = `<!doctype html>
 </section>
 </main>
 </div>
+<div class="countdown" id="countdown" role="status" aria-live="polite" hidden>
+  <div class="ring" aria-hidden="true"><svg viewBox="0 0 44 44"><circle class="spur" cx="22" cy="22" r="19"/><circle class="lauf" cx="22" cy="22" r="19" stroke-dasharray="119.4" stroke-dashoffset="0"/></svg><b id="countdown-zahl">30</b></div>
+  <p id="countdown-text">Download startet in 30 Sek.</p>
+  <button type="button" id="countdown-stopp">Download abbrechen</button>
+</div>
 <script>
   (function () {
     var ua = navigator.userAgent || '';
@@ -888,8 +908,35 @@ const ladenSeite = `<!doctype html>
       // Download nur einmal von selbst, nicht bei jedem Zurück
       var schon = false;
       try { schon = sessionStorage.getItem('kc-laden') === '1'; sessionStorage.setItem('kc-laden', '1'); } catch (e) {}
-      if (!schon) setTimeout(function () { location.href = document.getElementById('android-laden').href; }, 800);
-      else document.getElementById('android-text').textContent = 'Tippe auf „App herunterladen“, um die App noch einmal zu laden.';
+      var knopf = document.getElementById('android-laden');
+      var hinweis = document.getElementById('android-text');
+      if (schon) { hinweis.textContent = 'Tippe auf „App herunterladen“, um die App noch einmal zu laden.'; return; }
+      // Fenster mit Countdown: nach 30 Sekunden startet der Download, „Download abbrechen“ hält ihn an
+      var fenster = document.getElementById('countdown');
+      var zahl = document.getElementById('countdown-zahl');
+      var satz = document.getElementById('countdown-text');
+      var lauf = fenster.querySelector('.lauf');
+      var GESAMT = 30, rest = GESAMT, uhr = null;
+      hinweis.textContent = 'Der Download startet in 30 Sekunden von selbst. Du kannst ihn auch gleich mit „App herunterladen“ starten.';
+      var zeigen = function () {
+        zahl.textContent = String(rest);
+        satz.textContent = rest === 1 ? 'Download startet in 1 Sek.' : 'Download startet in ' + rest + ' Sek.';
+        lauf.style.strokeDashoffset = String(119.4 * (1 - rest / GESAMT));
+      };
+      var stoppen = function () { clearInterval(uhr); uhr = null; fenster.hidden = true; };
+      fenster.hidden = false;
+      zeigen();
+      uhr = setInterval(function () {
+        rest -= 1;
+        if (rest <= 0) { stoppen(); location.href = knopf.href; return; }
+        zeigen();
+      }, 1000);
+      document.getElementById('countdown-stopp').addEventListener('click', function () {
+        stoppen();
+        hinweis.textContent = 'Download abgebrochen. Tippe auf „App herunterladen“, wenn Du es Dir anders überlegst.';
+      });
+      // Selbst getippt: Countdown aus, der Link lädt sofort
+      knopf.addEventListener('click', stoppen);
     } else if (iphone) {
       seite.classList.add(appBrowser ? 'ist-app-browser' : 'ist-iphone');
       if (appBrowser) seite.classList.add('ist-iphone');
