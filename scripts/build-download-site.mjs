@@ -10,6 +10,7 @@ import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync,
 import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import QRCode from 'qrcode';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const out = join(root, 'website');
@@ -782,6 +783,125 @@ const einladung = `<!doctype html>
 </html>
 `;
 
+// ---------- /laden: ein Link für alle Geräte (Daria, 29.10.2026) ----------
+// Erkennt das Gerät: Android startet den Download der APK sofort, das iPhone zeigt die Web-App und wie man sie auf
+// den Home-Bildschirm legt. In Instagram, Facebook & Co. erst der Hinweis, die Seite in Safari zu öffnen.
+// Am Computer: QR-Code zum Scannen mit dem Telefon. Ohne JavaScript stehen alle Wege untereinander.
+const ladenUrl = 'https://kiezcoins.vercel.app/laden';
+const ladenQr = await QRCode.toString(ladenUrl, { type: 'svg', margin: 1, color: { dark: '#1F2123', light: '#FFFFFF' } });
+const teilenSymbol = '<svg class="teilen-symbol" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const ladenSeite = `<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#FAFBEF">
+<title>Kiez Coins laden</title>
+<meta name="description" content="Kiez Coins auf Dein Telefon holen: Android lädt die App, das iPhone legt die Web-App auf den Home-Bildschirm.">
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="/seite.css?v=${version(seiteCss)}">
+<style>
+  .laden .card { margin-bottom: 16px; }
+  .laden [data-geraet] { display: none; }
+  .laden.ist-android [data-geraet~="android"], .laden.ist-iphone [data-geraet~="iphone"],
+  .laden.ist-app-browser [data-geraet~="app-browser"], .laden.ist-computer [data-geraet~="computer"],
+  .laden.ohne-js [data-geraet] { display: block; }
+  .laden .steps li strong { white-space: nowrap; }
+  .teilen-symbol { vertical-align: -3px; margin: 0 2px; }
+  .laden .qr { width: 200px; max-width: 60vw; margin: 8px 0 4px; background: #fff; border-radius: 16px; padding: 8px; }
+  .laden .qr svg { display: block; width: 100%; height: auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+</header>
+<main>
+<section class="download einladung laden ohne-js" id="laden" aria-labelledby="laden-titel">
+  <h2 id="laden-titel">Kiez Coins auf Dein Telefon</h2>
+
+  <div class="card" data-geraet="android">
+    <h3>Android</h3>
+    <p id="android-text">Der Download startet gleich von selbst. Falls nicht, tippe auf „App herunterladen“.</p>
+    <a class="button" id="android-laden" href="${esc(config.functionUrl)}">App herunterladen</a>
+    <ol class="steps">
+      <li>Die Datei <em>kiez-coins.apk</em> öffnen, wenn der Download fertig ist.</li>
+      <li>Android fragt, ob Dein Browser Apps installieren darf. Erlauben und „Installieren“ tippen.</li>
+      <li>Kiez Coins über das neue Symbol starten. Updates kommen von selbst.</li>
+    </ol>
+    <a class="button button-zweit" href="/app/">Lieber direkt im Browser ausprobieren</a>
+  </div>
+
+  <div class="card" data-geraet="app-browser">
+    <h3>Erst in Safari öffnen</h3>
+    <p>Du hast den Link in einer anderen App geöffnet. Damit Kiez Coins auf Deinen Home-Bildschirm kommt, brauchst Du Safari:</p>
+    <ol class="steps">
+      <li>Oben oder unten auf <strong>···</strong> oder das Teilen-Symbol ${teilenSymbol} tippen.</li>
+      <li><strong>„In Safari öffnen“</strong> wählen (manchmal „Im Browser öffnen“).</li>
+    </ol>
+  </div>
+
+  <div class="card" data-geraet="iphone">
+    <h3>iPhone</h3>
+    <p>Auf dem iPhone läuft Kiez Coins als Web-App. Auf dem Home-Bildschirm startet sie wie jede andere App.</p>
+    <a class="button" href="/app/">Kiez Coins öffnen</a>
+    <ol class="steps">
+      <li><strong>„Kiez Coins öffnen“</strong> tippen.</li>
+      <li>Unten in der Leiste auf das Teilen-Symbol ${teilenSymbol} tippen. Siehst Du die Leiste nicht, tippe einmal unten auf den Bildschirm.</li>
+      <li>Nach unten scrollen, <strong>„Zum Home-Bildschirm“</strong> wählen und <strong>„Hinzufügen“</strong> tippen.</li>
+      <li>Kiez Coins ab jetzt über das neue Symbol starten und einmal anmelden.</li>
+    </ol>
+    <p class="klein">Kamera, Fotos und Standort fragt Safari beim ersten Mal ab. Updates kommen automatisch beim nächsten Start.</p>
+  </div>
+
+  <div class="card" data-geraet="computer">
+    <h3>Mit dem Telefon scannen</h3>
+    <p>Öffne die Kamera Deines Telefons und richte sie auf den Code. Das Telefon zeigt dann den passenden Weg.</p>
+    <div class="qr" role="img" aria-label="QR-Code zu ${ladenUrl}">${ladenQr}</div>
+    <p class="klein">Oder schick Dir diesen Link: <a href="/laden">${ladenUrl.replace('https://', '')}</a></p>
+    <a class="button button-zweit" href="/app/">Hier am Computer im Browser ausprobieren</a>
+  </div>
+
+  <footer>
+    <a href="/impressum">Impressum</a>
+    <a href="/datenschutz">Datenschutz</a>
+    <a href="/nutzungsbedingungen">Nutzungsbedingungen</a>
+    <a href="/community-regeln">Community-Regeln</a>
+  </footer>
+</section>
+</main>
+</div>
+<script>
+  (function () {
+    var ua = navigator.userAgent || '';
+    var seite = document.getElementById('laden');
+    var iphone = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    var android = /Android/i.test(ua);
+    // Eingebaute Browser in Apps: Dort fehlt „Zum Home-Bildschirm“
+    var appBrowser = /Instagram|FBAN|FBAV|FB_IAB|Line\\/|musical_ly|TikTok|LinkedInApp|Snapchat|Pinterest/i.test(ua);
+    seite.classList.remove('ohne-js');
+    // Schon als Web-App vom Home-Bildschirm gestartet: gleich in die App
+    if (iphone && (navigator.standalone || matchMedia('(display-mode: standalone)').matches)) { location.replace('/app/'); return; }
+    if (android) {
+      seite.classList.add('ist-android');
+      // Download nur einmal von selbst, nicht bei jedem Zurück
+      var schon = false;
+      try { schon = sessionStorage.getItem('kc-laden') === '1'; sessionStorage.setItem('kc-laden', '1'); } catch (e) {}
+      if (!schon) setTimeout(function () { location.href = document.getElementById('android-laden').href; }, 800);
+      else document.getElementById('android-text').textContent = 'Tippe auf „App herunterladen“, um die App noch einmal zu laden.';
+    } else if (iphone) {
+      seite.classList.add(appBrowser ? 'ist-app-browser' : 'ist-iphone');
+      if (appBrowser) seite.classList.add('ist-iphone');
+    } else {
+      seite.classList.add('ist-computer');
+    }
+  })();
+</script>
+</body>
+</html>
+`;
+
 // ---------- Kater: /kater, dem Kater Hallo sagen ----------
 // Darias Kater als SVG (assets/illustrations/kater.svg). Die Gruppen Besen, Brille und Stiefel (IDs aus Affinity) bewegen sich per CSS
 // (einzelne Eigenschaften rotate/translate, damit die Matrizen aus Affinity erhalten bleiben). Die Sprüche stehen in
@@ -978,6 +1098,7 @@ for (const { code } of sprachen.filter((l) => l.code !== 'de')) {
 }
 for (const [L, texte] of fehlend) console.warn(`Startseite ${L}: ${texte.size} Texte ohne Übersetzung, dort steht Englisch (scripts/site/sprachen/${L}.json)`);
 writeFileSync(join(out, 'einladung.html'), einladung);
+writeFileSync(join(out, 'laden.html'), ladenSeite);
 writeFileSync(join(out, 'spenden.html'), spendenSeite);
 if (katerSvg) writeFileSync(join(out, 'kater.html'), katerSeite);
 // Eigene 404-Seite für unbekannte Adressen.
