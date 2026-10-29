@@ -950,7 +950,7 @@ const ladenSeite = `<!doctype html>
 `;
 
 // ---------- /qr: QR-Codes zum Vorzeigen auf dem eigenen Telefon (Daria, 29.10.2026) ----------
-// Zwei Codes nebeneinander: Webseite und /laden. „Vollbild“ zeigt sie bildschirmfüllend, der Bildschirm bleibt an.
+// Zwei Codes, hochkant übereinander und quer nebeneinander: Webseite und /laden. „Vollbild“ zeigt sie bildschirmfüllend, der Bildschirm bleibt an.
 // iPhone: Element-Vollbild gibt es dort nicht. Deshalb spielt die Seite den Code als kurzes Video in Schleife
 // (scripts/site/qr/*.mp4, online unter /qr-filme/) im Vollbild-Player ab; solange ein Video läuft, sperrt sich das iPhone nicht.
 // Android: echtes Vollbild der Seite. Dazu überall Screen Wake Lock, wo vorhanden, sonst ein stilles Video im Hintergrund.
@@ -974,14 +974,17 @@ const qrSeite = `<!doctype html>
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; background: #fff; color: #1F2123; font-family: Inter, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
   body { display: flex; flex-direction: column; align-items: center; padding: max(16px, env(safe-area-inset-top)) 12px max(16px, env(safe-area-inset-bottom)); gap: 16px; }
-  /* Beide Codes nebeneinander (Daria, 29.10.2026) */
-  /* Abstand zwischen den Codes mindestens vier Kästchen breit, sonst liest die Kamera beide auf einmal */
-  .codes { flex: 1; display: flex; align-items: center; justify-content: space-evenly; gap: 32px; width: 100%; background: #fff; }
-  .code { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; min-width: 0; }
-  .code h1 { margin: 0; font: 600 clamp(15px, 3.6vw, 40px)/1.15 'Inter Tight', Inter, sans-serif; min-height: 2.3em; display: flex; align-items: flex-end; }
-  .code .q { width: min(100%, 72vh, 520px); aspect-ratio: 1; }
+  /* Beide Codes mit flex-wrap (Daria, 29.10.2026): hochkant übereinander, quer und auf breiten Bildschirmen nebeneinander.
+     Abstand mindestens vier Kästchen breit, sonst liest die Kamera beide auf einmal. */
+  /* --q: Kantenlänge eines Codes. Hochkant passen zwei übereinander in die Höhe, quer zwei nebeneinander. */
+  .codes { --q: min(80vw, calc((100svh - 330px) / 2), 520px); flex: 1; display: flex; flex-wrap: wrap; align-items: center; align-content: space-evenly; justify-content: space-evenly; gap: 28px 40px; width: 100%; background: #fff; }
+  @media (orientation: landscape) { .codes { --q: min(40vw, calc(100svh - 190px), 520px); } }
+  /* Die Überschrift bricht innerhalb der Code-Breite um, damit quer beide nebeneinander bleiben */
+  .code { width: max(var(--q), 160px); align-self: stretch; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 10px; text-align: center; }
+  .code h1 { margin: 0; font: 600 clamp(16px, 1.6vw + 1.2vh, 36px)/1.15 'Inter Tight', Inter, sans-serif; text-wrap: balance; }
+  .code .q { width: var(--q); aspect-ratio: 1; }
   .code .q svg { width: 100%; height: 100%; display: block; }
-  .code p { margin: 0; color: #666; font-size: clamp(11px, 2.6vw, 16px); overflow-wrap: anywhere; }
+  .code p { margin: 0; color: #666; font-size: clamp(11px, 1.2vw + 0.8vh, 16px); white-space: nowrap; }
   .codes:fullscreen { padding: 24px; }
   .knopf { width: 100%; max-width: 420px; border: 0; border-radius: 999px; padding: 16px; font: 500 17px/1 Inter, sans-serif; background: #5161DB; color: #fff; }
   .an { font-size: 13px; color: #2E9E4F; min-height: 1em; margin: 0; }
@@ -993,15 +996,16 @@ const qrSeite = `<!doctype html>
 <div class="codes" id="codes">
 ${qrCodes.map((c) => `  <div class="code"><h1>${c.title}</h1><div class="q" role="img" aria-label="QR-Code zu ${c.url}">${c.svg}</div><p>${c.url.replace('https://', '')}</p></div>`).join('\n')}
 </div>
-<p class="tipp">Tipp: Telefon quer halten, dann werden die Codes größer.</p>
 <button type="button" class="knopf" id="vollbild">Vollbild</button>
 <p class="an" id="an" aria-live="polite"></p>
-<video class="film" id="film" src="/qr-filme/qr-beide.mp4" muted loop playsinline preload="auto"></video>
+<video class="film" data-film="hoch" src="/qr-filme/qr-hoch.mp4" muted loop playsinline preload="auto"></video>
+<video class="film" data-film="quer" src="/qr-filme/qr-quer.mp4" muted loop playsinline preload="auto"></video>
 <script>
   (function () {
     var an = document.getElementById('an');
     var codes = document.getElementById('codes');
-    var film = document.getElementById('film');
+    // Film passend zur Haltung des Telefons: hochkant übereinander, quer nebeneinander
+    var filmFuer = function () { return document.querySelector('[data-film="' + (matchMedia('(orientation: landscape)').matches ? 'quer' : 'hoch') + '"]'); };
     // Bildschirm anlassen: Wake Lock, sonst ein stilles Video in Schleife
     var sperre = null;
     function wachHalten() {
@@ -1009,9 +1013,9 @@ ${qrCodes.map((c) => `  <div class="code"><h1>${c.title}</h1><div class="q" role
         navigator.wakeLock.request('screen').then(function (s) {
           sperre = s; an.textContent = 'Bildschirm bleibt an.';
           s.addEventListener('release', function () { sperre = null; });
-        }).catch(function () { film.play().catch(function () {}); an.textContent = 'Bildschirm bleibt an.'; });
+        }).catch(function () { filmFuer().play().catch(function () {}); an.textContent = 'Bildschirm bleibt an.'; });
       } else {
-        film.play().catch(function () {});
+        filmFuer().play().catch(function () {});
         an.textContent = 'Bildschirm bleibt an.';
       }
     }
@@ -1021,13 +1025,12 @@ ${qrCodes.map((c) => `  <div class="code"><h1>${c.title}</h1><div class="q" role
       wachHalten();
       if (codes.requestFullscreen) {
         codes.requestFullscreen().then(function () {
-          // Android: im Vollbild quer drehen, wenn das Telefon es erlaubt
-          if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {});
         }).catch(filmVollbild);
       } else filmVollbild();
     });
-    // iPhone: beide Codes als Film (quer) im Vollbild-Player zeigen
+    // iPhone: beide Codes als Film im Vollbild-Player zeigen
     function filmVollbild() {
+      var film = filmFuer();
       film.play().catch(function () {});
       if (film.webkitEnterFullscreen) film.webkitEnterFullscreen();
     }
