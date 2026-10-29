@@ -36,8 +36,11 @@ type Action =
   | { type: 'accept'; id: string }
   | { type: 'giveBack'; id: string }
   /** We-Challenge mit mehreren Personen (Migration 20261028000300) */
-  | { type: 'join'; id: string }
+  /** `coords`: eigener Standort, `far`: weiter als 5 km oder ohne Standort, dann nur Anfrage (Daria, 29.10.2026) */
+  | { type: 'join'; id: string; coords?: { latitude: number; longitude: number }; far?: boolean }
   | { type: 'leave'; id: string }
+  /** Umkreis-Begrenzung an oder aus (Daria, 29.10.2026) */
+  | { type: 'setLocalOnly'; id: string; localOnly: boolean }
   | { type: 'answerRequest'; id: string; userId: string; accept: boolean }
   | { type: 'removeParticipant'; id: string; userId: string }
   | { type: 'report'; id: string; report: ChallengeReport }
@@ -149,7 +152,7 @@ function reducer(state: State, action: Action): State {
     }
     case 'join':
       return updateChallenge(state, action.id, (c) =>
-        setParticipant(c, state.currentUserId, c.joinMode === 'approval' ? 'requested' : 'joined'),
+        setParticipant(c, state.currentUserId, c.joinMode === 'approval' || action.far ? 'requested' : 'joined'),
       );
     case 'leave':
       return updateChallenge(state, action.id, (c) => ({
@@ -162,6 +165,8 @@ function reducer(state: State, action: Action): State {
       return updateChallenge(state, action.id, (c) => setParticipant(c, action.userId, 'removed'));
     case 'close':
       return updateChallenge(state, action.id, () => ({ status: 'closed', closedAt: new Date().toISOString() }));
+    case 'setLocalOnly':
+      return updateChallenge(state, action.id, () => ({ localOnly: action.localOnly || undefined }));
     case 'deleteDraft':
     case 'purge':
       return { ...state, challenges: state.challenges.filter((c) => c.id !== action.id) };
@@ -359,6 +364,9 @@ async function persist(action: Action, before: State): Promise<string | null> {
     case 'close':
       await remote.closeChallenge(action.id);
       return action.id;
+    case 'setLocalOnly':
+      await remote.challengeActions.setLocalOnly(action.id, action.localOnly);
+      return action.id;
     case 'purge':
       await remote.purgeChallenge(action.id);
       return null;
@@ -378,7 +386,7 @@ async function persist(action: Action, before: State): Promise<string | null> {
       await remote.challengeActions.giveBack(action.id);
       return action.id;
     case 'join':
-      await remote.challengeActions.join(action.id);
+      await remote.challengeActions.join(action.id, action.coords);
       return action.id;
     case 'leave':
       await remote.challengeActions.leave(action.id);
@@ -562,6 +570,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         deadline: draft.deadline,
         coords: draft.coords,
         private: draft.private,
+        localOnly: draft.localOnly,
       };
       localDispatch({ type: 'create', challenge });
       return challenge.id;
@@ -817,6 +826,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           authorId: s.currentUserId,
           groupId: input.groupId,
           private: !input.groupId && input.private ? true : undefined,
+          localOnly: !input.groupId && !input.private && input.localOnly ? true : undefined,
           location: '',
           status: 'draft',
           image: input.photo,

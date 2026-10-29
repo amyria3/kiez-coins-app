@@ -1247,5 +1247,14 @@
   "Schritt 2 von 5": "Шаг 2 из 5",
   "Schritt 3 von 5": "Шаг 3 из 5",
   "Schritt 4 von 5": "Шаг 4 из 5",
-  "Schritt 5 von 5": "Шаг 5 из 5"
+  "Schritt 5 von 5": "Шаг 5 из 5",
+  "Überall": "Везде",
+  "Alle öffentlichen Beiträge, auch außerhalb Deines Kiezes.": "Все публичные посты, в том числе за пределами твоего района.",
+  "Hier siehst Du Beiträge von überall. Mitmachen geht ab 5 km Entfernung nur auf Anfrage.": "Здесь ты видишь посты отовсюду. Если ты дальше 5 км, присоединиться можно только по запросу.",
+  "Auf einen Umkreis von 5 km begrenzen": "Ограничить радиусом 5 км",
+  "Dann sehen den Beitrag nur Menschen in Deinem Kiez, nicht in „Überall“. Wer den Link bekommt, kann ihn trotzdem öffnen.": "Тогда пост увидят только люди в твоём районе, не в «Везде». Кто получит ссылку, всё равно сможет его открыть.",
+  "Du bist mehr als 5 km entfernt. Du kannst anfragen, {firstName} entscheidet.": "Ты дальше 5 км. Ты можешь отправить запрос, {firstName} решает.",
+  "Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.": "Без твоего местоположения приложение не знает, рядом ли ты. Ты можешь отправить запрос, {firstName} решает.",
+  "Auch in „Überall“ zeigen": "Показывать также в «Везде»",
+  "Auf 5 km begrenzen": "Ограничить 5 км"
 }

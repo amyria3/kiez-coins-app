@@ -4,7 +4,7 @@ import { useGlobalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
 import { FieldGroup, Notice } from '../../../components/Content';
-import { Chip, ChipGroup, TextField } from '../../../components/Form';
+import { Chip, ChipGroup, SwitchRow, TextField } from '../../../components/Form';
 import { t } from '../../../data/texts';
 import { SubScreen } from '../../../components/Screen';
 import { findPlace, roundCoords } from '../../../data/location';
@@ -130,6 +130,15 @@ export default function CreateStep2() {
         disabled={locating}
       />
       <Notice message="Wähle einen öffentlich bekannten Ort, etwa einen Platz, eine Straßenecke oder ein Geschäft. Keine Wohnadresse. Sei sorgsam mit der Sicherheit anderer Menschen." />
+      {/* Nicht in „Überall“, nur im Kiez; ein Link öffnet den Beitrag trotzdem (Daria, 29.10.2026) */}
+      {draft.private ? null : (
+        <SwitchRow
+          label="Auf einen Umkreis von 5 km begrenzen"
+          description="Dann sehen den Beitrag nur Menschen in Deinem Kiez, nicht in „Überall“. Wer den Link bekommt, kann ihn trotzdem öffnen."
+          value={!!draft.localOnly}
+          onValueChange={(localOnly) => setDraft((d) => ({ ...d, localOnly }))}
+        />
+      )}
       {isChallenge ? (
       <>
       <ParticipantsField value={participation} onChange={changeParticipation} coins={coins} />

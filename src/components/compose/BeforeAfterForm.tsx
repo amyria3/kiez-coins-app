@@ -6,7 +6,7 @@ import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
 import { color, font, isFashionable, radius, space, stroke, text } from '../../theme/tokens';
 import { Button } from '../Button';
-import { PhotoPicker } from '../Form';
+import { PhotoPicker, SwitchRow } from '../Form';
 import { useNudge } from '../Nudge';
 import { useComposeContent, type ComposeContent } from './compose';
 import { Text } from '../T';
@@ -110,6 +110,8 @@ export function useBeforeAfterStartForm(
   const { photo, setPhoto, title, setTitle, text: beforeText, setText: setBeforeText } = shared ?? own;
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState(false);
+  // Nur im Kiez, nicht in „Überall“ (Daria, 29.10.2026)
+  const [localOnly, setLocalOnly] = useState(false);
   const titleField = useNudge();
   const missingPhoto = !photo;
   const missingTitle = !title.trim();
@@ -123,7 +125,7 @@ export function useBeforeAfterStartForm(
     }
     setBusy(true);
     try {
-      const id = await beforeAfter.start({ groupId, title, beforeText, photo, private: isPrivate });
+      const id = await beforeAfter.start({ groupId, title, beforeText, photo, private: isPrivate, localOnly: !groupId && !isPrivate && localOnly });
       onStarted(id);
     } catch (error) {
       Alert.alert('Vorher nicht gespeichert', (error as Error).message);
@@ -158,6 +160,14 @@ export function useBeforeAfterStartForm(
         placeholder="Was ist die Aufgabe oder die Ausgangslage? Erkläre kurz, worin die Me-Challenge besteht."
         tooLong={showErrors && textTooLong}
       />
+      {!groupId && !isPrivate ? (
+        <SwitchRow
+          label="Auf einen Umkreis von 5 km begrenzen"
+          description="Dann sehen den Beitrag nur Menschen in Deinem Kiez, nicht in „Überall“. Wer den Link bekommt, kann ihn trotzdem öffnen."
+          value={localOnly}
+          onValueChange={setLocalOnly}
+        />
+      ) : null}
     </>
   );
 

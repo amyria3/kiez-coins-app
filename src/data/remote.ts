@@ -100,6 +100,8 @@ type ChallengeRow = {
   join_mode?: JoinMode | null;
   /** Migration 20261028000100 */
   visibility?: 'public' | 'private' | null;
+  /** Migration 20261029000100 */
+  local_only?: boolean | null;
   extra_image_paths?: string[] | null;
   image_before_path: string | null;
   image_after_path: string | null;
@@ -257,6 +259,7 @@ function toChallenge(
     imagePath: row.image_path ?? undefined,
     groupId: row.group_id ?? undefined,
     private: row.visibility === 'private' || undefined,
+    localOnly: row.local_only || undefined,
     edensteine: row.edensteine ?? undefined,
     extraImages: (row.extra_image_paths ?? []).flatMap((path) => {
       const photo = photoUrl(path);
@@ -680,6 +683,8 @@ export type NewChallenge = {
   extras?: ExtraPhoto[];
   /** Modus „Privat“: nur Bild, ohne Coins (Migration 20261028000100) */
   private?: boolean;
+  /** Nur im Umkreis von 5 km, nicht in „Überall“ (Migration 20261029000100) */
+  localOnly?: boolean;
   participation?: Participation;
 };
 
@@ -785,6 +790,8 @@ export async function createChallenge(userId: string, draft: NewChallenge): Prom
           deadline: draft.deadline,
           image_path: imagePath,
           ...(draft.private ? { visibility: 'private' } : {}),
+          // Nur mitschicken, wenn gesetzt: So legt die App auch ohne Migration 20261029000100 an
+          ...(draft.localOnly && !draft.private ? { local_only: true } : {}),
           ...(draft.type === 'photo' ? {} : participationFields(draft.participation)),
         })
         .select(CHALLENGE_COLUMNS)
@@ -870,8 +877,12 @@ export const challengeActions = {
   /** Eine Person als bezahlt bzw. unbezahlt markieren (Migration 20261028000400) */
   markParticipantPaid: (id: string, userId: string, paid: boolean) =>
     rpc('mark_participant_paid', { p_challenge_id: id, p_user_id: userId, p_paid: paid }),
-  /** Beitreten bzw. anfragen (Migration 20261028000300) */
-  join: (id: string) => rpc('join_challenge', { p_challenge_id: id }),
+  /** Beitreten bzw. anfragen (Migration 20261028000300). Mit Standort: über 5 km nur Anfrage (Migration 20261029000100) */
+  join: (id: string, coords?: { latitude: number; longitude: number }) =>
+    rpc('join_challenge', { p_challenge_id: id, ...(coords ? { p_lat: coords.latitude, p_lng: coords.longitude } : {}) }),
+  /** Umkreis-Begrenzung nachträglich ändern (Migration 20261029000100) */
+  setLocalOnly: (id: string, localOnly: boolean) =>
+    rpc('set_challenge_local_only', { p_challenge_id: id, p_local_only: localOnly }),
   /** Aussteigen oder Anfrage zurückziehen */
   leave: (id: string) => rpc('leave_challenge', { p_challenge_id: id }),
   answerRequest: (id: string, userId: string, accept: boolean) =>
@@ -951,6 +962,8 @@ export type DraftInput = {
   extras?: ExtraPhoto[];
   /** Modus „Privat“, nur beim Anlegen (Migration 20261028000100) */
   private?: boolean;
+  /** Nur im Umkreis von 5 km, nicht in „Überall“ (Migration 20261029000100) */
+  localOnly?: boolean;
   participation?: Participation;
 };
 
@@ -974,6 +987,8 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
         ...fields,
         ...(withoutBounty ? { bounty_amount: null } : {}),
         ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}),
+        // Nur mitschicken, wenn gewählt: So speichert die App auch ohne Migration 20261029000100
+        ...(draft.localOnly !== undefined && !draft.private ? { local_only: draft.localOnly } : {}),
       };
       const query = id
         ? supabase.from('challenges').update(all).eq('id', id).eq('status', 'draft')
@@ -1013,6 +1028,8 @@ export type NewBeforeAfter = {
   groupId?: string;
   /** Modus „Privat“, nur ohne Gruppe (Migration 20261028000100) */
   private?: boolean;
+  /** Nur im Umkreis von 5 km, nicht in „Überall“ (Migration 20261029000100) */
+  localOnly?: boolean;
   title: string;
   beforeText: string;
   photo: ImageSource;
@@ -1041,6 +1058,8 @@ export async function startBeforeAfter(userId: string, input: NewBeforeAfter): P
   // Privat: Der Entwurf bekommt die Sichtbarkeit gleich nach dem Anlegen (Policy „Eigenen Entwurf bearbeiten“)
   if (input.private && !input.groupId) {
     check(await supabase.from('challenges').update({ visibility: 'private' }).eq('id', data as string).eq('status', 'draft'));
+  } else if (input.localOnly && !input.groupId) {
+    check(await supabase.from('challenges').update({ local_only: true }).eq('id', data as string).eq('status', 'draft'));
   }
   const { challenge } = await loadChallenge(data as string, userId);
   if (!challenge) throw new Error(t('Der Entwurf ist nicht angekommen. Versuche es bitte noch mal.'));

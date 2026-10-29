@@ -150,11 +150,11 @@ export function TopChallengeBar({ items, loading, onItemPress }: TopChallengeBar
   );
 }
 
-export type FeedTab = 'private' | 'nearby' | 'wave' | 'completed' | 'groups';
+export type FeedTab = 'private' | 'nearby' | 'everywhere' | 'wave' | 'completed' | 'groups';
 
-/** Reiter je Modus (data/features.ts): Privat, Gruppe, Kiez */
-export const TAB_OF_MODE: Record<Mode, FeedTab> = { private: 'private', groups: 'groups', kiez: 'nearby' };
-export const MODE_OF_TAB: Partial<Record<FeedTab, Mode>> = { private: 'private', groups: 'groups', nearby: 'kiez' };
+/** Reiter je Modus (data/features.ts): Privat, Gruppe, Kiez, Überall */
+export const TAB_OF_MODE: Record<Mode, FeedTab> = { private: 'private', groups: 'groups', kiez: 'nearby', everywhere: 'everywhere' };
+export const MODE_OF_TAB: Partial<Record<FeedTab, Mode>> = { private: 'private', groups: 'groups', nearby: 'kiez', everywhere: 'everywhere' };
 
 // Wave und Pleasure sind raus aus der Leiste (Daria, 22.10.2026). Die Filter in feed.tsx bleiben für später.
 // Reihenfolge Privat, Gruppe, Kiez (Daria, 27.10.2026)
@@ -162,6 +162,8 @@ const tabs: { key: FeedTab; label: string; planned?: boolean }[] = [
   { key: 'private', label: 'Privat' },
   { key: 'groups', label: 'Gruppe' },
   { key: 'nearby', label: 'Kiez' },
+  // Rechts im Umschalter (Daria, 29.10.2026)
+  { key: 'everywhere', label: 'Überall' },
 ];
 
 type TabsNavigationProps = {

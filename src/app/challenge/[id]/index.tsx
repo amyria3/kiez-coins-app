@@ -23,6 +23,7 @@ import {
   isMultiPerson,
   maxParticipants,
   isParticipant,
+  joinRequests,
   myParticipation,
   participantsOpen,
   weChallengeAfter,
@@ -30,6 +31,7 @@ import {
 import { ParticipantsSection } from '../../../components/Participants';
 import { useRequireKiez } from '../../../data/kiez';
 import { recordView } from '../../../data/remote';
+import { coordsIfAllowed, distanceMeters, KIEZ_RADIUS_METERS, type Coords } from '../../../data/location';
 import { useChallenge, useStore } from '../../../data/store';
 import { isPostOnly, type ChallengeStatus } from '../../../data/types';
 import { color, font, radius, size, space, stroke, text } from '../../../theme/tokens';
@@ -61,6 +63,15 @@ export default function ChallengeDetail() {
   const needKiez = () => !!challenge?.groupId || requireKiezRaw();
   const requireKiezRaw = useRequireKiez();
   const [menuOpen, setMenuOpen] = useState(false);
+  // Eigener Standort für die 5-km-Regel (Daria, 29.10.2026). Ohne Freigabe: null, dann nur Anfrage.
+  const [here, setHere] = useState<Coords | null>(null);
+  useEffect(() => {
+    let active = true;
+    coordsIfAllowed().then((c) => active && setHere(c));
+    return () => {
+      active = false;
+    };
+  }, []);
   // Tipp irgendwo außerhalb schließt das Zahnrad-Menü (Daria, 22.10.2026). Der Tipp selbst geht normal weiter.
   const menuClosedAt = useRef(0);
   const menuRef = useRef<View>(null);
@@ -96,7 +107,10 @@ export default function ChallengeDetail() {
   const isAssignee = challenge.assigneeId === currentUserId;
   // Mehrere Personen (Daria, 27.10.2026): Alle Teilnehmenden sehen „angenommen“-Inhalte, die erste Person meldet erledigt
   const multi = isMultiPerson(challenge);
-  const approval = challenge.joinMode === 'approval';
+  // Weiter als 5 km oder ohne Standort: nur auf Anfrage (wie Migration 20261029000100). Gruppenaufgaben und
+  // Challenges ohne Punkt wie bisher.
+  const far = !challenge.groupId && !!challenge.coords && (!here || distanceMeters(here, challenge.coords) > KIEZ_RADIUS_METERS);
+  const approval = challenge.joinMode === 'approval' || far;
   const mine = myParticipation(challenge, currentUserId);
   const acceptedByMe = challenge.status === 'accepted' && isParticipant(challenge, currentUserId);
   // Erledigt melden: jede teilnehmende Person, für alle (Daria, 28.10.2026)
@@ -156,7 +170,7 @@ export default function ChallengeDetail() {
   if (joinOpen && mine?.status === 'requested') {
     actions = <Button label="Anfrage zurückziehen" variant="secondary" onPress={withdraw} />;
   } else if (joinOpen && !mine && freeSpots(challenge) > 0 && (challenge.status === 'open' || multi)) {
-    const join = () => needKiez() && dispatch({ type: 'join', id: challenge.id });
+    const join = () => needKiez() && dispatch({ type: 'join', id: challenge.id, coords: here ?? undefined, far });
     actions = approval ? (
       <Button icon="wir-schaffen-das" label="Anfrage senden" onPress={join} />
     ) : multi ? (
@@ -316,6 +330,16 @@ export default function ChallengeDetail() {
                 />
               </>
             ) : null}
+            {/* Umkreis-Begrenzung nachträglich ändern (Daria, 29.10.2026) */}
+            {!challenge.groupId && !challenge.private && challenge.status !== 'deleted' ? (
+              <MenuItem
+                label={challenge.localOnly ? 'Auch in „Überall“ zeigen' : 'Auf 5 km begrenzen'}
+                onPress={() => {
+                  setMenuOpen(false);
+                  dispatch({ type: 'setLocalOnly', id: challenge.id, localOnly: !challenge.localOnly });
+                }}
+              />
+            ) : null}
             <MenuItem
               label="Löschen"
               tone={canDelete ? 'error' : 'muted'}
@@ -431,6 +455,15 @@ export default function ChallengeDetail() {
       {!isAuthor && (mine?.status === 'removed' || mine?.status === 'declined') ? (
         <Notice variant="warning" message={mine.status === 'removed' ? t('Du bist bei dieser Challenge nicht mehr dabei.') : t('Deine Anfrage wurde abgelehnt.')} />
       ) : null}
+      {joinOpen && !mine && far && challenge.joinMode !== 'approval' && freeSpots(challenge) > 0 ? (
+        <Notice
+          message={
+            here
+              ? tAbout(author, 'Du bist mehr als 5 km entfernt. Du kannst anfragen, {firstName} entscheidet.', { firstName: author.firstName })
+              : tAbout(author, 'Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.', { firstName: author.firstName })
+          }
+        />
+      ) : null}
       {!isAuthor && !mine && multi && participantsOpen(challenge) && freeSpots(challenge) === 0 ? (
         <Notice message={t('Alle Plätze sind vergeben.')} />
       ) : null}
@@ -439,7 +472,7 @@ export default function ChallengeDetail() {
           {isBeforeAfter || challenge.type === 'photo' || challenge.type === 'individual' ? <WithMentions value={description} /> : description}
         </Text>
       ) : null}
-      {challenge.type === 'individual' && (multi || approval || (challenge.participants ?? []).length > 1) ? (
+      {challenge.type === 'individual' && (multi || challenge.joinMode === 'approval' || joinRequests(challenge).length > 0 || (challenge.participants ?? []).length > 1) ? (
         <ParticipantsSection
           challenge={challenge}
           users={users}

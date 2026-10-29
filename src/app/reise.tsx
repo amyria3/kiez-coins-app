@@ -56,8 +56,11 @@ function Reise() {
   // Modi wie im Feed: Privat, Gruppe, Kiez, ohne eigene Wahl der Standard (Daria, 27.10.2026)
   const modes = useModes();
   const [chosenTab, setTab] = useState<Mode>();
-  const tab: Mode = chosenTab && modes.isVisible(chosenTab) ? chosenTab : modes.standard;
-  const reiseTabs = REISE_TABS.filter((r) => modes.isVisible(r.key));
+  // Überall zählt hier wie Kiez: Eigenes ist dasselbe (Daria, 29.10.2026)
+  const shown = (m: Mode) => modes.isVisible(m) || (m === 'kiez' && modes.isVisible('everywhere'));
+  const raw: Mode = chosenTab && shown(chosenTab) ? chosenTab : modes.standard;
+  const tab: Mode = raw === 'everywhere' ? 'kiez' : raw;
+  const reiseTabs = REISE_TABS.filter((r) => shown(r.key));
   const [groupChoice, setGroupChoice] = useState<string>();
   const group = groups.find((g) => g.id === groupChoice) ?? groups[0];
   // Erledigte Gruppenaufgaben liegen im Archiv unter „Deine Challenges“ (Daria, 27.10.2026)

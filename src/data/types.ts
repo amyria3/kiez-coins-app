@@ -147,6 +147,8 @@ export type Challenge = {
   edensteine?: number;
   /** Modus „Privat“: nur die Ersteller:in sieht den Beitrag (Migration 20261028000100) */
   private?: boolean;
+  /** Nur im Umkreis von 5 km zeigen, nicht in „Überall“. Über einen Link bleibt der Beitrag erreichbar (Daria, 29.10.2026). */
+  localOnly?: boolean;
   /** Bis zu 2 weitere Fotos (Migration 20261020000700) */
   extraImages?: ExtraPhoto[];
   imageBefore?: ImageSource;
