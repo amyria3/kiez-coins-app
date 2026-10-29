@@ -524,10 +524,33 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
   leute.addEventListener('keydown', function (e) {
     if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('person')) { e.preventDefault(); e.target.click(); }
   });
+  // Telefon: Die Person in der Bildschirmmitte ist größer und sagt ihren Satz (Daria, 29.10.2026)
+  var schmal = matchMedia('(max-width: 640px)');
+  var mitteTick = false, mitteP = null;
+  function mitte() {
+    mitteTick = false;
+    var best = null;
+    if (schmal.matches) {
+      var m = innerHeight * 0.5, abstand = Infinity;
+      var lagen = personen.map(function (x) { return x.getBoundingClientRect(); });
+      lagen.forEach(function (r, i) {
+        if (r.bottom < 0 || r.top > innerHeight) return;
+        var d = Math.abs(r.top + r.height / 2 - m);
+        if (d < abstand) { abstand = d; best = personen[i]; }
+      });
+    }
+    if (best === mitteP) return;
+    if (mitteP) mitteP.classList.remove('is-mitte');
+    if (best) best.classList.add('is-mitte');
+    mitteP = best;
+  }
+  addEventListener('scroll', function () { if (!mitteTick) { mitteTick = true; requestAnimationFrame(mitte); } }, { passive: true });
+  addEventListener('resize', mitte);
+  mitte();
   var rufTimer = null, letzte = -1;
   function rufen() {
     var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var frei = personen.filter(function (x, i) { return i !== letzte && !x.matches(':hover') && !x.classList.contains('is-on'); });
+    var frei = personen.filter(function (x, i) { return i !== letzte && !x.matches(':hover') && !x.classList.contains('is-on') && !x.classList.contains('is-mitte'); });
     if (frei.length && !document.hidden && leute.classList.contains('is-seen') && !still) {
       var p = frei[Math.floor(Math.random() * frei.length)];
       letzte = personen.indexOf(p);
