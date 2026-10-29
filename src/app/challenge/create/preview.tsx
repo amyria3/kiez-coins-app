@@ -21,7 +21,7 @@ import { formatBountyShort, formatRemainingShort } from '../../../data/format';
 import { useCurrentUser, useStore } from '../../../data/store';
 import { color, font, motion, radius, size, space, stroke, text } from '../../../theme/tokens';
 import { useAppDimensions } from '../../../theme/layout';
-import { useDraft } from './_layout';
+import { photoTextInput, useDraft } from './_layout';
 import { useGoBack } from '../../../lib/goBack';
 import { WithMentions } from '../../../components/WithMentions';
 import { participationText } from '../../../data/weChallenge';
@@ -138,6 +138,7 @@ export default function CreatePreview() {
               coords: draft.coords,
               extras: draft.extras,
               localOnly: draft.localOnly,
+              photoText: photoTextInput(draft),
             },
             deadline,
           )
@@ -155,6 +156,7 @@ export default function CreatePreview() {
             extras: draft.extras,
             private: draft.private,
             localOnly: draft.localOnly,
+            photoText: photoTextInput(draft) ?? undefined,
           });
       markComposeDone();
       celebratePost();
@@ -224,6 +226,7 @@ export default function CreatePreview() {
         image={draft.photo}
         moreImages={draft.extras.map((e) => e.photo)}
         imageLabel={draft.title}
+        photoText={isPhoto ? draft.photoText : undefined}
         onBackPress={() => goBack()}
         summary={summary}
       >
