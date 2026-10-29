@@ -149,3 +149,13 @@ Plan und Entscheidungen: `Übergabe/2026-10-27_we-challenge-mehrere-personen.md`
 - [x] Offene Punkte im Plan beantworten (Daria, 27.10.2026)
 - [x] Migration, Funktionen und App-Code bauen (Claude, 28.10.2026)
 - [x] Nach PR #97: Inhalt von `supabase/migrations/20261028000300_we_challenge_teilnehmende.sql` im Supabase-SQL-Editor ausführen (Daria, 28.10.2026; Claude hat die Datenbank geprüft, PR #104 gemergt)
+
+## 29.10.2026 – Offen nach dem Tag (Daria, Claude)
+
+- [x] PR #120 mergen: Namen ohne Kiez wieder verdecken, nur ohne Hinweistext (Daria, 29.10.2026)
+- [ ] Android-Update von Hand nach dem Merge (`Übergabe/2026-10-28_offen_android-updates-expo-minuten.md`, Abschnitt „Stand 29.10.2026“)
+- [ ] `/laden` und `/qr` live am Telefon prüfen, danach die QR-Codes drucken (`Übergabe/2026-10-29_offen_website-laden-qr.md`)
+- [ ] Nach dem 01.11.2026 prüfen, ob der EAS-Workflow wieder startet
+- [ ] Texte von Claude in der Tour prüfen (`Übergabe/2026-10-29_offen_tour.md`)
+- [ ] Notizen vom 29.10.2026 in Documentation übernehmen: Bild-Text, Tour, Modus „Überall“, Profil, Website
+
