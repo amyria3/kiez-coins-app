@@ -655,23 +655,41 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
       addEventListener('scroll', function () { if (!tick) { tick = true; requestAnimationFrame(heben); } }, { passive: true });
       heben();
     }
-    // Wieso wechseln: Die Karte, die der Mitte des Bildschirms am nächsten ist, steht vorn (Daria, 29.10.2026)
-    var gruende = document.querySelectorAll('.wechsel-liste li');
+    // Wieso wechseln (Daria, 29.10.2026): Mit Maus steht die Karte unter dem Zeiger vorn. Auf dem Telefon die Karte,
+    // die der Mitte des Bildschirms am nächsten ist. Die anderen blassen je nach Abstand aus.
+    var liste = document.querySelector('.wechsel-liste');
+    var gruende = liste ? liste.querySelectorAll('li') : [];
     if (gruende.length) {
-      var vornTick = false;
-      var vorn = function () {
-        vornTick = false;
-        var mitte = innerHeight * 0.5, best = null, abstand = Infinity;
-        var lagen = [].map.call(gruende, function (li) { return li.getBoundingClientRect(); });
-        lagen.forEach(function (r, i) {
-          if (r.bottom < 0 || r.top > innerHeight) return;
-          var d = Math.abs(r.top + r.height / 2 - mitte);
-          if (d < abstand) { abstand = d; best = gruende[i]; }
+      var aktuell = null;
+      var setzen = function (best) {
+        if (best === aktuell) return;
+        aktuell = best;
+        var k = [].indexOf.call(gruende, best);
+        gruende.forEach(function (li, i) {
+          li.classList.toggle('is-vorn', li === best);
+          li.style.setProperty('--d', best ? Math.abs(i - k) : 0);
         });
-        gruende.forEach(function (li) { li.classList.toggle('is-vorn', li === best); });
+        liste.classList.toggle('hat-vorn', !!best);
       };
-      addEventListener('scroll', function () { if (!vornTick) { vornTick = true; requestAnimationFrame(vorn); } }, { passive: true });
-      vorn();
+      if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        liste.addEventListener('pointerover', function (e) { var li = e.target.closest('li'); if (li) setzen(li); });
+        liste.addEventListener('pointerleave', function () { setzen(null); });
+      } else {
+        var vornTick = false;
+        var vorn = function () {
+          vornTick = false;
+          var mitte = innerHeight * 0.5, best = null, abstand = Infinity;
+          var lagen = [].map.call(gruende, function (li) { return li.getBoundingClientRect(); });
+          lagen.forEach(function (r, i) {
+            if (r.bottom < 0 || r.top > innerHeight) return;
+            var d = Math.abs(r.top + r.height / 2 - mitte);
+            if (d < abstand) { abstand = d; best = gruende[i]; }
+          });
+          setzen(best);
+        };
+        addEventListener('scroll', function () { if (!vornTick) { vornTick = true; requestAnimationFrame(vorn); } }, { passive: true });
+        vorn();
+      }
     }
     // B und C hängen an der Scrollposition, ein Frame pro Bild
     var kopf = document.getElementById('kater-kopf'), tel = document.querySelector('.phone-spalte'), spur = document.querySelector('.fx-spur');
