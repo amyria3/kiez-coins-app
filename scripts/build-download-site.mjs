@@ -654,7 +654,11 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
       var leicht = matchMedia('(max-width: 900px), (pointer: coarse)');
       var heben = function () {
         tick = false;
-        if (leicht.matches) return;
+        // Schmales Fenster: Reste vom breiten Fenster entfernen, sonst bleibt ein Abschnitt verschoben und durchsichtig (Daria, 29.10.2026)
+        if (leicht.matches) {
+          karten.forEach(function (el) { el.style.transform = ''; el.style.removeProperty('--a'); });
+          return;
+        }
         var vh = innerHeight;
         // Erst alle Verschiebungen lösen, dann alle Lagen lesen: ein Layout pro Bild statt eines pro Karte
         karten.forEach(function (el) { el.style.transform = ''; });
@@ -676,6 +680,7 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
         });
       };
       addEventListener('scroll', function () { if (!tick) { tick = true; requestAnimationFrame(heben); } }, { passive: true });
+      addEventListener('resize', function () { if (!tick) { tick = true; requestAnimationFrame(heben); } });
       heben();
     }
     // Wieso wechseln (Daria, 29.10.2026): Mit Maus steht die Karte unter dem Zeiger vorn. Auf dem Telefon die Karte,
