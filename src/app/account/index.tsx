@@ -62,26 +62,26 @@ export default function Account() {
         details={[anrede(profile), profile.kiez ?? 'Kiez noch nicht festgelegt']}
         onPress={() => router.push('/account/profile')}
       />
-      {/* Funktionen an- und abschalten (Daria, 24.10.2026), direkt unter Deinem Namen (Daria, 27.10.2026).
-          Titel mit „Deine“ wie Deine Challenges und Deine Gruppen (Daria, 27.10.2026) */}
+      {/* Reihenfolge und Namen (Daria, 29.10.2026): Me, Meine Challenges, Meine Features, danach der Rest */}
       <NavCard
-        title="Deine Funktionen"
-        description={modesShown}
-        leading={<Icon name="switch" size={size.icon} color={color.text.primary} />}
-        onPress={() => router.push('/account/funktionen')}
-      />
-      <NavCard
-        title="Was Du so machst"
+        title="Me"
         description="Geschafft, Ziele und Gruppen"
         // Fashionable Look: Dein Bild wie oben im Feed (Regelwerk: Was Du so machst = Dein Profil)
         leading={isFashionable ? <Avatar user={me} diameter={28} /> : <CrownIcon height={30} />}
         onPress={() => router.push('/reise')}
       />
       <NavCard
-        title="Deine Challenges"
+        title="Meine Challenges"
         description="Entwürfe, offen, geschlossen"
         leading={<Icon name="ship" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/manage')}
+      />
+      {/* Funktionen an- und abschalten (Daria, 24.10.2026) */}
+      <NavCard
+        title="Meine Features"
+        description={modesShown}
+        leading={<Icon name="switch" size={size.icon} color={color.text.primary} />}
+        onPress={() => router.push('/account/funktionen')}
       />
       {modes.isVisible('groups') ? (
       <NavCard
