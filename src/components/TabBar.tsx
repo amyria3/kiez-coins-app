@@ -155,7 +155,8 @@ function KiezTabBar({ active, onFeedPress, onMenuPress }: TabBarProps) {
 }
 
 /** Kamera oben rechts: bleibt beim Scrollen stehen und erstellt eine Challenge. */
-export function CameraButton({ onPress }: { onPress: () => void }) {
+/** `inline`: im Fluss statt oben rechts angeheftet, z. B. in der Vorschau der Tour */
+export function CameraButton({ onPress, inline = false }: { onPress: () => void; inline?: boolean }) {
   const insets = useSafeAreaInsets();
   return (
     <Pressable
@@ -163,7 +164,7 @@ export function CameraButton({ onPress }: { onPress: () => void }) {
       accessibilityLabel={t('Challenge erstellen')}
       onPress={onPress}
       hitSlop={4}
-      style={({ pressed }) => [styles.camera, isFashionable && styles.cameraFlat, { top: insets.top + space[8] }, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.camera, isFashionable && styles.cameraFlat, inline ? styles.cameraInline : { top: insets.top + space[8] }, pressed && styles.pressed]}
     >
       <Icon name="camera" size={24} color={isFashionable ? color.text.primary : color.bg.screen} />
     </Pressable>
@@ -207,6 +208,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  cameraInline: { position: 'relative', right: 0 },
   pressed: { opacity: 0.7 },
   // Look „Fashionable“: Leiste über die ganze Breite am unteren Rand, Haarlinie oben, keine Pille
   wrapFlat: {
