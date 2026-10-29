@@ -130,6 +130,9 @@ button { font: inherit; color: inherit; }
 .p-seg { position: relative; display: flex; margin: 0 12px 12px; padding: 3px; border-radius: 999px; background: var(--surface); }
 .p-seg button { position: relative; z-index: 1; flex: 1; padding: 7px 0; font-size: 11.5px; color: var(--muted); transition: color 300ms; }
 .p-seg button[aria-selected="true"] { color: var(--bg); font-weight: 500; }
+/* Gewählter Reiter immer ganz lesbar, die anderen kürzen mit … (Daria, 29.10.2026; auf Englisch ist „Neighborhood“ lang) */
+.p-seg button { flex: 1 1 auto; min-width: 0; padding: 7px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.p-seg button[aria-selected="true"] { flex: 1 0 auto; padding-inline: 10px; }
 .p-seg-pill { position: absolute; z-index: 0; left: 0; top: 3px; bottom: 3px; border-radius: 999px; background: var(--text);
   transition: transform 620ms var(--barrier), width 620ms var(--barrier); }
 .p-flip { animation: p-flip 620ms var(--barrier); }
