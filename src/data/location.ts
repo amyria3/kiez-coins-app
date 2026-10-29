@@ -87,6 +87,9 @@ export async function findPlace(): Promise<FoundPlace> {
 }
 
 /** Entfernung in Metern (Haversine) */
+/** Umkreis des Kiezes: Kiez zeigt Beiträge bis hier, weiter weg geht Mitmachen nur auf Anfrage (Daria, 29.10.2026) */
+export const KIEZ_RADIUS_METERS = 5000;
+
 export function distanceMeters(a: Coords, b: Coords): number {
   const R = 6371000;
   const toRad = (d: number) => (d * Math.PI) / 180;

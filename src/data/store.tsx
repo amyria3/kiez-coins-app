@@ -36,7 +36,8 @@ type Action =
   | { type: 'accept'; id: string }
   | { type: 'giveBack'; id: string }
   /** We-Challenge mit mehreren Personen (Migration 20261028000300) */
-  | { type: 'join'; id: string }
+  /** `coords`: eigener Standort, `far`: weiter als 5 km oder ohne Standort, dann nur Anfrage (Daria, 29.10.2026) */
+  | { type: 'join'; id: string; coords?: { latitude: number; longitude: number }; far?: boolean }
   | { type: 'leave'; id: string }
   | { type: 'answerRequest'; id: string; userId: string; accept: boolean }
   | { type: 'removeParticipant'; id: string; userId: string }
@@ -149,7 +150,7 @@ function reducer(state: State, action: Action): State {
     }
     case 'join':
       return updateChallenge(state, action.id, (c) =>
-        setParticipant(c, state.currentUserId, c.joinMode === 'approval' ? 'requested' : 'joined'),
+        setParticipant(c, state.currentUserId, c.joinMode === 'approval' || action.far ? 'requested' : 'joined'),
       );
     case 'leave':
       return updateChallenge(state, action.id, (c) => ({
@@ -378,7 +379,7 @@ async function persist(action: Action, before: State): Promise<string | null> {
       await remote.challengeActions.giveBack(action.id);
       return action.id;
     case 'join':
-      await remote.challengeActions.join(action.id);
+      await remote.challengeActions.join(action.id, action.coords);
       return action.id;
     case 'leave':
       await remote.challengeActions.leave(action.id);
@@ -562,6 +563,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         deadline: draft.deadline,
         coords: draft.coords,
         private: draft.private,
+        localOnly: draft.localOnly,
       };
       localDispatch({ type: 'create', challenge });
       return challenge.id;

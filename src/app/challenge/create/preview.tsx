@@ -137,6 +137,7 @@ export default function CreatePreview() {
               imagePath: draft.imagePath,
               coords: draft.coords,
               extras: draft.extras,
+              localOnly: draft.localOnly,
             },
             deadline,
           )
@@ -153,6 +154,7 @@ export default function CreatePreview() {
             coords: draft.coords,
             extras: draft.extras,
             private: draft.private,
+            localOnly: draft.localOnly,
           });
       markComposeDone();
       celebratePost();

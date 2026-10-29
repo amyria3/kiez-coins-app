@@ -34,6 +34,8 @@ export type Draft = {
   private?: boolean;
   /** Mehrere Personen (Daria, 27.10.2026). Ohne Angabe eine Person, offen. */
   participation?: Participation;
+  /** „Auf einen Umkreis von 5 km begrenzen“: nicht in „Überall“ (Daria, 29.10.2026) */
+  localOnly?: boolean;
 };
 
 const emptyDraft = (kiez?: string): Draft => ({ type: 'individual', title: '', text: '', location: kiez ?? '', durationDays: 7, extras: [] });
@@ -54,6 +56,7 @@ function fromChallenge(c: Challenge): Draft {
     durationDays: 7,
     coords: c.coords,
     private: c.private,
+    localOnly: c.localOnly,
   };
 }
 
@@ -92,6 +95,7 @@ export function useSaveDraft() {
         coords: draft.coords,
         extras: draft.extras,
         private: draft.private,
+        localOnly: draft.localOnly,
       });
       setDraft((d) => ({ ...d, id: saved.id, imagePath: saved.imagePath, extras: saved.extraImages?.length ? saved.extraImages : d.extras }));
       router.dismissTo('/feed');
