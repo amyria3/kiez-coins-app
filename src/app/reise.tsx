@@ -163,7 +163,7 @@ function Reise() {
             <GroupRanking group={group} />
             <Geschafft entries={groupEntries} me={currentUserId} praise={null} onOpen={(entry) => router.push(entry.href)} />
             <Button
-              label="Aufgaben ansehen"
+              label="Feed ansehen"
               variant="secondary"
               onPress={() => router.dismissTo({ pathname: '/feed', params: { gruppe: group.id } })}
             />
