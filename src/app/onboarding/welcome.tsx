@@ -10,11 +10,14 @@ import { KaterStage } from '../../components/KaterStage';
 import { useKater } from '../../components/useKater';
 import { useAuth } from '../../data/auth';
 import { color, font, space, stroke, text } from '../../theme/tokens';
+import { useAppDimensions } from '../../theme/layout';
 
 /** Route `onboarding/welcome`. Figma: `onboarding/welcome`, Upgrade „Nachtschicht“. */
 export default function Welcome() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  // Kleine Android-Handys (z. B. 360 × 740): Kater und Überschrift kleiner, damit der Text ohne Scrollen sichtbar ist (29.10.2026)
+  const compact = useAppDimensions().height < 800;
   // Am Anfang begrüßt der Kater mit Besen (Daria, 22.10.2026)
   const kater = useKater('hallo', 10000);
   const { startTest } = useAuth();
@@ -33,9 +36,9 @@ export default function Welcome() {
   };
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <KaterStage width={190} spruch={kater.spruch} take={kater.take} onPress={kater.noch} />
-        <Text style={styles.headline} accessibilityRole="header">
+      <ScrollView contentContainerStyle={[styles.content, compact && styles.contentCompact]}>
+        <KaterStage width={compact ? 130 : 190} spruch={kater.spruch} take={kater.take} onPress={kater.noch} />
+        <Text style={[styles.headline, compact && styles.headlineCompact]} accessibilityRole="header">
           Ahoi.{'\n'}
           <Text style={styles.headlineMuted}>Cat The Käptn sucht eine neue Crew für seinen Kiez.</Text>
         </Text>
@@ -85,6 +88,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headline: { ...text.display, fontSize: 44, lineHeight: 46, letterSpacing: -1.2, color: color.text.primary },
+  headlineCompact: { fontSize: 34, lineHeight: 36, letterSpacing: -0.9 },
+  contentCompact: { gap: space[16], paddingVertical: space[16] },
   headlineMuted: { color: color.text.secondary },
   body: { fontFamily: font.light, fontSize: 16, lineHeight: 23, color: color.text.secondary },
   legal: { ...text.caption, color: color.text.secondary },
