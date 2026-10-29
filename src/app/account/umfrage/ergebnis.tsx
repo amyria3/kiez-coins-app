@@ -3,7 +3,8 @@ import { Alert, StyleSheet, View } from 'react-native';
 
 import { SubScreen } from '../../../components/Screen';
 import { Text } from '../../../components/T';
-import { errorText, loadSurveyResults } from '../../../data/remote';
+import { errorText, loadSurveyResults, loadTourFeedbackResults, type TourFeedbackResults } from '../../../data/remote';
+import { tourFeedbackOptions, tourSteps } from '../../../data/tour';
 import { surveyQuestions, type SurveyResults } from '../../../data/survey';
 import { formatRelative } from '../../../data/format';
 import { t } from '../../../data/texts';
@@ -18,11 +19,16 @@ import { useGoBack } from '../../../lib/goBack';
 export default function SurveyResultsScreen() {
   const goBack = useGoBack();
   const [data, setData] = useState<SurveyResults>();
+  // Rückmeldung zur Tour (Migration 20261029000300). Ohne Migration bleibt die Karte weg.
+  const [tour, setTour] = useState<TourFeedbackResults | null>(null);
 
   useEffect(() => {
     loadSurveyResults()
       .then(setData)
       .catch((error) => Alert.alert('Auswertung nicht geladen', errorText(error)));
+    loadTourFeedbackResults()
+      .then(setTour)
+      .catch(() => setTour(null));
   }, []);
 
   const total = data?.total ?? 0;
@@ -68,6 +74,33 @@ export default function SurveyResultsScreen() {
           </View>
         ))}
       </View>
+      {tour ? (
+        <View style={styles.card}>
+          <Text style={styles.title}>{t('Tour: {title}', { title: tourSteps.find((s) => s.kind === 'feedback')?.title ?? '' })}</Text>
+          <Text style={styles.caption}>{t('{total} Antworten, Mehrfachauswahl, Anteil bezogen auf alle Antworten', { total: tour.total })}</Text>
+          {tourFeedbackOptions.map((o) => {
+            const n = tour.choices[o.key] ?? 0;
+            const share = tour.total ? Math.round((n / tour.total) * 100) : 0;
+            return (
+              <View key={o.key} style={styles.row}>
+                <View style={styles.rowText}>
+                  <Text style={styles.body}>{o.label}</Text>
+                  <Text style={styles.caption}>{`${n} · ${share} %`}</Text>
+                </View>
+                <View style={styles.track}>
+                  <View style={[styles.bar, { width: `${share}%` }]} />
+                </View>
+              </View>
+            );
+          })}
+          {tour.other.map((c, i) => (
+            <View key={i} style={styles.comment}>
+              <Text style={styles.body}>{c.text}</Text>
+              <Text style={styles.caption}>{formatRelative(c.at)}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
       <View style={styles.card}>
         <Text style={styles.title}>Kommentare</Text>
         {data && !data.comments?.length ? <Text style={styles.caption}>Noch keine Kommentare.</Text> : null}
