@@ -51,7 +51,8 @@
     before: 'waesche',
     after: 'waesche',
     suggestions: ['Neue Wäscheleine im Hof spannen', 'Müll im Park sammeln', 'Fahrradkeller aufräumen'],
-    demo: ['Neue Wäscheleine im Hof spannen', ''],
+    // Titel von Daria (29.10.2026)
+    demo: ['Waschtag mit Aussicht', ''],
     demoAfter: 'Die neue Leine hängt, die erste Wäsche trocknet schon.',
     done: '1 gute Tat für den Kiez!',
   };
@@ -220,7 +221,7 @@
   // Englische Fassung der Beispieldaten: überschreibt nur die Texte, Struktur und Zahlen bleiben
   var ME_EN = {
     suggestions: ['Put up a new clothesline in the courtyard', 'Pick up litter in the park', 'Tidy the bike cellar'],
-    demo: ['Put up a new clothesline in the courtyard', ''],
+    demo: ['Laundry day with a view', ''],
     demoAfter: 'The new line is up, the first laundry is already drying.',
     done: '1 good deed for the neighborhood!',
   };
