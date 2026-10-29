@@ -571,6 +571,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         coords: draft.coords,
         private: draft.private,
         localOnly: draft.localOnly,
+        photoText: draft.photoText ?? undefined,
       };
       localDispatch({ type: 'create', challenge });
       return challenge.id;
@@ -608,6 +609,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         deadline: '',
         coords: draft.coords ?? existing?.coords,
         private: existing ? existing.private : draft.private,
+        photoText: draft.photoText === undefined ? existing?.photoText : (draft.photoText ?? undefined),
       };
       localDispatch(existing ? { type: 'challengeLoaded', id: challenge.id, challenge, users: [] } : { type: 'create', challenge });
       return challenge;
@@ -646,6 +648,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           createdAt: new Date().toISOString(),
           deadline,
           coords: draft.coords ?? existing?.coords,
+          photoText: draft.photoText === undefined ? existing?.photoText : (draft.photoText ?? undefined),
         };
         localDispatch({ type: 'challengeLoaded', id, challenge, users: [] });
         return id;

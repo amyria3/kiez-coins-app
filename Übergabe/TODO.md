@@ -12,6 +12,11 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Kodex und Rechtstexte überarbeiten (Daria)
 - [ ] Anschrift (c/o) im Impressum, sobald die App öffentlich ist und ein Finanzierungskonzept steht
 
+## 29.10.2026 – Pflicht für Daria: Text auf dem Foto
+
+- [ ] Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261029000200_bild_text.sql` ausführen (Branch `claude/bild-text`). Erst danach den PR mergen, sonst schlägt Posten mit Text auf dem Foto fehl. Bilder ohne Text gehen auch ohne Migration.
+- [ ] Claude Bescheid geben, dann prüft Claude die Datenbank.
+
 ## 29.10.2026 – Was Du so machst: positive Bestärkung (PR #113)
 
 - [x] Ziele statt Meilensteine (Daria, 29.10.2026): erster Post, erste Me-/We-Challenge, je eine Me-/We-Challenge pro Monat, erste Einladung; Balken in Lila, Geschenk öffnet sich mit pinken Herzen (`src/components/Quests.tsx`)

@@ -14,6 +14,8 @@ import { GlassIconButton } from './Glass';
 import { NavigationBar } from './NavigationBar';
 import { NudgeScrollProvider, useNudgeScroll } from './Nudge';
 import { t } from '../data/texts';
+import type { PhotoText as PhotoTextValue } from '../data/types';
+import { PhotoTextOverlay } from './PhotoText';
 
 type SubScreenProps = {
   title: string;
@@ -105,6 +107,8 @@ type HeroScreenProps = {
   actions?: ReactNode;
   /** Kleines Element über dem Foto unten links, z. B. das Etikett der Operation */
   imageOverlay?: ReactNode;
+  /** Nur Bild: Text auf dem ersten Foto (Daria, 29.10.2026) */
+  photoText?: PhotoTextValue;
   /** Immer sichtbar: Status, Titel, Kennzahlen */
   summary: ReactNode;
   /** Details, die sich einklappen lassen */
@@ -127,6 +131,7 @@ export function HeroScreen({
   onSharePress,
   actions,
   imageOverlay,
+  photoText,
   summary,
   children,
   scrollToEndOnOpen,
@@ -233,13 +238,19 @@ export function HeroScreen({
                   onScroll={(e) => setPage(Math.round(e.nativeEvent.contentOffset.x / width))}
                 >
                   {images.map((source, i) => (
-                    <Image
-                      key={i}
-                      source={source}
-                      style={{ width, height: heroHeight }}
-                      contentFit="cover"
-                      accessibilityLabel={t('{imageLabel}, {i} von {images}', { imageLabel: imageLabel ?? t('Foto'), i: i + 1, images: images.length })}
-                    />
+                    <View key={i} style={{ width, height: heroHeight }}>
+                      <Image
+                        source={source}
+                        style={StyleSheet.absoluteFill}
+                        contentFit="cover"
+                        accessibilityLabel={t('{imageLabel}, {i} von {images}', { imageLabel: imageLabel ?? t('Foto'), i: i + 1, images: images.length })}
+                      />
+                      {i === 0 && photoText ? (
+                        <View style={styles.heroText} pointerEvents="none">
+                          <PhotoTextOverlay value={photoText} size="hero" />
+                        </View>
+                      ) : null}
+                    </View>
                   ))}
                 </ScrollView>
                 <View style={styles.dots} pointerEvents="none">
@@ -256,6 +267,11 @@ export function HeroScreen({
                 accessibilityLabel={imageLabel}
               />
             )}
+            {images.length === 1 && photoText ? (
+              <View style={styles.heroText} pointerEvents="none">
+                <PhotoTextOverlay value={photoText} size="hero" />
+              </View>
+            ) : null}
             {imageOverlay ? <View style={styles.heroOverlay}>{imageOverlay}</View> : null}
           </Pressable>
           <View style={[styles.sheet, collapsed && styles.sheetGlass, glassOffset]}>
@@ -339,6 +355,8 @@ const styles = StyleSheet.create({
   resultMessage: { ...text.body, color: color.text.secondary, textAlign: 'center' },
   hero: { backgroundColor: color.bg.surface },
   heroOverlay: { position: 'absolute', left: space[16], bottom: space[48] },
+  // Unten liegt das Blatt 32 px über dem Foto
+  heroText: { position: 'absolute', left: 0, right: 0, top: 0, bottom: space[32] },
   sheet: {
     marginTop: -space[32],
     borderTopLeftRadius: radius.sheet,

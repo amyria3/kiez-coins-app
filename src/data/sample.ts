@@ -209,6 +209,8 @@ export const sampleChallenges: Challenge[] = [
     location: '',
     status: 'open',
     image: images.garden,
+    // Text auf dem Foto (Daria, 29.10.2026)
+    photoText: { text: 'Herbst auf dem Balkon', x: 0.5, y: 0.22 },
     likedByMe: false,
     comments: [],
     createdAt: inPast(2 * HOUR),
