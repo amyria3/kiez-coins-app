@@ -96,7 +96,14 @@ export default function Texte() {
 
   const refresh = useCallback(async () => {
     try {
-      setRows(await loadAppTexts());
+      // Texte aus dem Code, die noch nicht in app_texts stehen, gehören auch dazu (Daria, 29.10.2026: die Suche
+      // fand neue Texte nicht). Beim ersten Speichern legt saveAppText die Zeile an.
+      const db = await loadAppTexts();
+      const known = new Set(db.map((r) => normalizeText(r.original)));
+      const missing = Object.keys(seiten)
+        .filter((original) => !known.has(original))
+        .map((original): AppTextRow => ({ original, text: '', ort: null, updated_at: '' }));
+      setRows([...db, ...missing]);
     } catch (error) {
       Alert.alert('Texte nicht geladen', errorText(error));
     }

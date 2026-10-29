@@ -1293,7 +1293,10 @@ export async function saveAppText(original: string, value: string, lang: 'de' | 
   const { data } = check(
     await supabase.from('app_texts').update({ [column]: value }).eq('original', original).select('original'),
   );
-  if (!data?.length) throw new Error(t('Keine Berechtigung zum Ändern der Texte.'));
+  if (data?.length) return;
+  // Text aus dem Code, der noch nicht in der Tabelle steht: Zeile anlegen (Migration 20261029000500)
+  const { error } = await supabase.from('app_texts').insert({ original, [column]: value });
+  if (error) throw new Error(t('Keine Berechtigung zum Ändern der Texte.'));
 }
 
 /** true, wenn die angemeldete Person in `moderators` steht. */
