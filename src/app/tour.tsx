@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -7,6 +7,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActionBar } from '../components/ActionBar';
 import { Button } from '../components/Button';
 import { Cat } from '../components/icons/Brand';
+import { ChallengePost } from '../components/ChallengePost';
+import { CameraButton } from '../components/TabBar';
+import { sampleChallenges, sampleUsers } from '../data/sample';
 import { Text } from '../components/T';
 import { t } from '../data/texts';
 import { TOUR_SEEN_KEY, tourSteps, type TourStep } from '../data/tour';
@@ -15,7 +18,7 @@ import { color, radius, space, text } from '../theme/tokens';
 
 /**
  * Route `tour`: Begrüßung mit kurzen Videos zu den Hauptfunktionen (Daria, 22.10.2026).
- * Kommt einmal nach dem Anheuern, danach über Dein Konto › So geht Kiez Coins. `next`: Ziel danach.
+ * Etwa 5 Minuten nach dem Anheuern fragt die App, ob sie die Tour zeigen soll (TourOffer), sonst über Dein Konto › So geht Kiez Coins. `next`: Ziel danach.
  * Wischen oder „Weiter“ blättert. Videos stehen in data/tour.ts.
  */
 export default function Tour() {
@@ -42,6 +45,17 @@ export default function Tour() {
     pager.current?.scrollTo({ x: i * width, animated: true });
     setPage(i);
   };
+
+  // Im Browser blättern die Pfeiltasten vor und zurück; der Fokus bleibt auf „Weiter“ (Daria, 28.10.2026)
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight' && page < tourSteps.length - 1) goTo(page + 1);
+      else if (e.key === 'ArrowLeft' && page > 0) goTo(page - 1);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
 
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const i = Math.round(e.nativeEvent.contentOffset.x / Math.max(width, 1));
@@ -78,18 +92,55 @@ export default function Tour() {
         ))}
       </View>
       <ActionBar>
-        <Button label={last ? 'Los geht’s' : 'Weiter'} icon="this-way" onPress={() => (last ? finish() : goTo(page + 1))} />
+        <Button autoFocus label={last ? 'Los geht’s' : 'Weiter'} icon="this-way" onPress={() => (last ? finish() : goTo(page + 1))} />
       </ActionBar>
     </View>
   );
 }
 
-/** Video der Seite, läuft nur, solange die Seite zu sehen ist. Ohne Video der Kater. */
+/**
+ * Ohne Video zeigt jede Seite echte Elemente der App mit Beispieldaten, statt nur zu beschreiben (Daria, 28.10.2026):
+ * posten = Beitrag mit Kamera-Knopf, annehmen = Beitrag mit „Challenge annehmen“, coins = Beitrag mit Coins,
+ * gruppen = Gruppenaufgabe mit Edensteinen. Nur zum Ansehen, Tippen bewirkt nichts.
+ */
+const PREVIEW: Record<string, { challenge: string; accept?: boolean; camera?: boolean }> = {
+  posten: { challenge: 'igelnest', camera: true },
+  annehmen: { challenge: 'gruenstreifen-malibu', accept: true },
+  coins: { challenge: 'sommerfest' },
+  gruppen: { challenge: 'gruppe-muell' },
+};
+
+function TourPreview({ stepKey }: { stepKey: string }) {
+  const p = PREVIEW[stepKey];
+  const found = p && sampleChallenges.find((c) => c.id === p.challenge);
+  // Immer als offene Challenge zeigen, damit Frist, Coins und Edensteine wie im Feed aussehen
+  const challenge = found && { ...found, status: 'open' as const, deadline: new Date(Date.now() + 3 * 86400000).toISOString() };
+  const author = challenge && sampleUsers.find((u) => u.id === challenge.authorId);
+  if (!challenge || !author) return <Cat mood="high" height={120} />;
+  const noop = () => undefined;
+  return (
+    <View style={styles.preview} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <ChallengePost challenge={challenge} author={author} distance="300 m" onPress={noop} onLike={noop} />
+      {p.accept ? (
+        <View style={styles.previewAction}>
+          <Button icon="wir-schaffen-das" label="Challenge annehmen" onPress={noop} />
+        </View>
+      ) : null}
+      {p.camera ? (
+        <View style={styles.previewCamera}>
+          <CameraButton onPress={noop} />
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+/** Video der Seite, läuft nur, solange die Seite zu sehen ist. Ohne Video echte Elemente der App. */
 function TourMedia({ step, active }: { step: TourStep; active: boolean }) {
   if (!step.video) {
     return (
       <View style={styles.media}>
-        <Cat mood="high" height={120} />
+        <TourPreview stepKey={step.key} />
       </View>
     );
   }
@@ -131,6 +182,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   video: { width: '100%', height: '100%' },
+  // Verkleinert, damit Beitrag, Knopf und Kamera ganz in die Fläche passen
+  preview: { width: '125%', paddingVertical: space[16], transform: [{ scale: 0.8 }] },
+  previewAction: { paddingHorizontal: space[16], paddingTop: space[8] },
+  previewCamera: { position: 'absolute', right: space[24], bottom: space[24] },
   title: { ...text.headline, color: color.text.primary },
   body: { ...text.body, fontSize: 16, lineHeight: 23, color: color.text.secondary },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: space[8], paddingVertical: space[12] },

@@ -97,6 +97,7 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [x] Anmeldeprozess vereinfachen, erster Schritt: Anmeldung ohne E-Mail und Testkonto (PR #90, 28.10.2026; offene Punkte in `2026-10-27_offen_anmeldung-ohne-mail-testkonto.md`)
 - [ ] E-Mail-Code: jeder Code der letzten 5 Minuten gilt, Sperre 30 Sekunden mit Countdown (Plan: `2026-10-24_offen_email-code-5-minuten.md`; Migration `login_codes`, Edge Functions `send-code` und `verify-code`, Brevo-Template, Secrets)
 - [ ] Übersetzungen der Anmeldetexte nachtragen (`node scripts/i18n.mjs --missing`)
+- [ ] Deckname-Vorschläge per KI erzeugen (z. B. Edge Function mit Sprachmodell, passend zu Ansprache und Kiez), nur freie Namen anzeigen. Bis dahin: feste Liste in `src/app/onboarding/deckname.tsx`, vergebene Namen werden ausgefiltert (Daria, 28.10.2026)
 - [ ] Infrastruktur für Gewinnspiele vorplanen
 - [ ] Zeitplan: erster Testlauf, erste 100 Mitglieder
 - [ ] Sprayform

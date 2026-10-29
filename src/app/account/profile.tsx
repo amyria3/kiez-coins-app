@@ -4,7 +4,7 @@ import { Text } from '../../components/T';
 import { useRouter } from 'expo-router';
 
 import { Avatar } from '../../components/AuthorRow';
-import { choosePhoto } from '../../components/Form';
+import { choosePhoto, RadioOption } from '../../components/Form';
 import { GearsLoader, SMALL_GEARS } from '../../components/GearsLoader';
 import { Icon } from '../../components/icons/Icon';
 import { FieldGroup } from '../../components/Content';
@@ -87,14 +87,6 @@ export default function PersonalDetails() {
     dispatch({ type: 'updateProfile', patch: { handle: handle.trim() } });
   };
 
-  const saveAnrede = (value: string) => {
-    // Auswahl erkennen, auch in der übersetzten Fassung („Pirate“)
-    const preset = addressForms.find((f) => f.label === value || t(f.label) === value);
-    dispatch({
-      type: 'updateProfile',
-      patch: preset ? { addressForm: preset.key, addressCustom: undefined } : { addressForm: 'custom', addressCustom: value },
-    });
-  };
 
   return (
     <SubScreen title="Persönliche Angaben" navigation="back" onLeadingPress={goBack}>
@@ -119,8 +111,23 @@ export default function PersonalDetails() {
         <Text style={styles.avatarLabel}>{me.avatar ? 'Profilbild ändern' : 'Profilbild hinzufügen'}</Text>
       </Pressable>
       <FieldGroup label="Profil">
-        <EditableRow label="Deckname" value={profile.handle || me.name} maxLength={30} onSave={saveDeckname} />
-        <EditableRow label="Ansprache" value={anrede(profile)} maxLength={30} onSave={saveAnrede} />
+        <EditableRow label="Deckname (Nickname)" value={profile.handle || me.name} maxLength={30} onSave={saveDeckname} />
+        {/* Nur Auswahl, keine eigene Bezeichnung mehr (Daria, 28.10.2026) */}
+        <EditableRow
+          label="Ansprache"
+          value={anrede(profile)}
+          onSave={(label) => {
+            const preset = addressForms.find((f) => t(f.label) === label || f.label === label);
+            if (preset) dispatch({ type: 'updateProfile', patch: { addressForm: preset.key, addressCustom: undefined } });
+          }}
+          renderEditor={(draft, setDraft) => (
+            <View style={{ gap: space[8] }}>
+              {addressForms.map((f) => (
+                <RadioOption key={f.key} label={t(f.label)} selected={draft === t(f.label)} onPress={() => setDraft(t(f.label))} />
+              ))}
+            </View>
+          )}
+        />
         <NavRow
           label="Grammatisches Geschlecht"
           value={genderLabel(profile.gender)}

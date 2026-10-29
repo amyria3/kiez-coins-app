@@ -602,6 +602,20 @@ export async function saveOwnProfile(userId: string, profile: Profile): Promise<
 }
 
 /** Deckname sofort speichern, damit „gibt es schon“ direkt beim Eingeben auffällt. Gibt eine Fehlermeldung zurück oder null. */
+/**
+ * Welche der Decknamen sind schon vergeben? Vergleich wie der eindeutige Index: ohne Groß-/Kleinschreibung
+ * und ohne Leerraum am Rand. Gibt die vergebenen Namen kleingeschrieben zurück, bei einem Fehler null.
+ */
+export async function takenHandles(candidates: string[]): Promise<Set<string> | null> {
+  const names = candidates.map((c) => c.trim()).filter(Boolean);
+  if (!names.length) return new Set();
+  // ilike ohne Platzhalter: % und _ maskieren, Anführungszeichen für den or-Filter maskieren
+  const filter = names.map((n) => `handle.ilike."${n.replace(/[\\%_]/g, '\\$&').replace(/"/g, '\\"')}"`).join(',');
+  const { data, error } = await supabase.from('profiles').select('handle').or(filter);
+  if (error) return null;
+  return new Set((data ?? []).map((r: { handle: string | null }) => (r.handle ?? '').trim().toLowerCase()));
+}
+
 export async function saveHandle(userId: string, handle: string): Promise<string | null> {
   const { error } = await supabase.from('profiles').update({ handle: handle.trim() }).eq('id', userId);
   return error ? errorText(error) : null;

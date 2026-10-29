@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Text } from '../../components/T';
 import { useRouter } from 'expo-router';
@@ -6,24 +6,57 @@ import { useRouter } from 'expo-router';
 import { Button } from '../../components/Button';
 import { KaterBubble } from '../../components/Content';
 import { Chip, ChipGroup, TextField } from '../../components/Form';
+import { GenderChoice } from '../../components/GenderChoice';
+import type { Gender } from '../../data/types';
 import { SubScreen } from '../../components/Screen';
 import { useAuth } from '../../data/auth';
-import { saveHandle } from '../../data/remote';
+import { saveHandle, takenHandles } from '../../data/remote';
 import { useStore } from '../../data/store';
 import { color, text } from '../../theme/tokens';
 import { useNudge } from '../../components/Nudge';
 import { useGoBack } from '../../lib/goBack';
 
-// Kater-Vorschläge kommen später aus einer Wortliste
-const suggestions = ['Käpt’n Kompost', 'Rostige Rosi'];
+// Kater-Vorschläge aus zwei Wortlisten. Die App schlägt nur Namen vor, die noch frei sind (Daria, 28.10.2026).
+const NAMES = [
+  'Käpt’n Kompost', 'Rostige Rosi', 'Flinke Flora', 'Kesse Kastanie', 'Muntere Möwe', 'Stille Eule',
+  'Bunte Hummel', 'Schlaue Schnecke', 'Tapfere Tulpe', 'Wilder Wilhelm', 'Fixer Felix', 'Kühne Kelle',
+  'Fröhliche Frida', 'Leise Laterne', 'Brave Brezel', 'Muntere Mira', 'Flotte Lotte', 'Gute Gießkanne',
+  'Heitere Hilde', 'Schneller Schorsch', 'Rote Rübe', 'Lustiger Lurch', 'Sanfte Socke', 'Mutige Maus',
+];
+const SHOWN = 3;
 
-/** Route `onboarding/deckname`. Figma: `onboarding/deckname`. Deckname ist öffentlich und einmalig. */
+function candidates(count: number): string[] {
+  return [...NAMES].sort(() => Math.random() - 0.5).slice(0, count);
+}
+
+/**
+ * Route `onboarding/deckname`. Figma: `onboarding/deckname`. Deckname ist öffentlich und einmalig.
+ * Seit 28.10.2026 (Daria) auch das grammatische Geschlecht auf dieser Seite; der Schritt „Ansprache“ entfällt.
+ */
 export default function Deckname() {
   const router = useRouter();
   const goBack = useGoBack();
   const { profile, mode, dispatch } = useStore();
   const userId = useAuth().session?.user.id;
-  const [handle, setHandle] = useState(profile.handle || suggestions[0]);
+  const [handle, setHandle] = useState(profile.handle || '');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [gender, setGender] = useState<Gender>(profile.gender ?? 'person');
+
+  // Vorschläge erst zeigen, wenn klar ist, dass sie frei sind. Klappt die Prüfung nicht, gibt es keine Vorschläge.
+  useEffect(() => {
+    let active = true;
+    const pool = candidates(12);
+    (async () => {
+      const taken = mode === 'live' ? await takenHandles(pool) : new Set<string>();
+      if (!active || !taken) return;
+      const free = pool.filter((c) => !taken.has(c.toLowerCase())).slice(0, SHOWN);
+      setSuggestions(free);
+      setHandle((h) => h || free[0] || '');
+    })();
+    return () => {
+      active = false;
+    };
+  }, [mode]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const handleField = useNudge();
@@ -39,21 +72,21 @@ export default function Deckname() {
         return;
       }
     }
-    dispatch({ type: 'updateProfile', patch: { handle: handle.trim() } });
-    router.push('/onboarding/ansprache');
+    dispatch({ type: 'updateProfile', patch: { handle: handle.trim(), gender } });
+    router.push('/onboarding/kiez');
   };
 
   return (
     <SubScreen
       title="Deckname"
-      subtitle="Schritt 2 von 7"
+      subtitle="Schritt 2 von 5"
       navigation="back"
       onLeadingPress={() => (goBack())}
       actions={<Button busy={busy} label="Weiter" onPress={next} disabled={!handle.trim() || busy} whyDisabled={() => !busy && handleField.nudge('Wähle einen Decknamen.')} />}
     >
       <KaterBubble>Dein Rufname</KaterBubble>
       <TextField
-        label="Deckname" required
+        label="Deckname (Nickname)" required
         nudge={handleField}
         helperText="Öffentlich sichtbar."
         error={error}
@@ -65,12 +98,20 @@ export default function Deckname() {
         maxLength={30}
         autoCorrect={false}
       />
-      <Text style={styles.label}>Vorschläge</Text>
-      <ChipGroup>
-        {suggestions.map((s) => (
-          <Chip key={s} label={s} selected={handle === s} onPress={() => setHandle(s)} />
-        ))}
-      </ChipGroup>
+      {suggestions.length ? (
+        <>
+          <Text style={styles.label}>Vorschläge</Text>
+          <ChipGroup>
+            {suggestions.map((s) => (
+              <Chip key={s} label={s} selected={handle === s} onPress={() => {
+                setHandle(s);
+                setError(undefined);
+              }} />
+            ))}
+          </ChipGroup>
+        </>
+      ) : null}
+      <GenderChoice value={gender} onChange={setGender} />
     </SubScreen>
   );
 }
