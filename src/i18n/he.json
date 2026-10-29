@@ -1269,5 +1269,7 @@
   "Auf einen Umkreis von 5 km begrenzen": "להגביל לרדיוס של 5 ק״מ",
   "Dann sehen den Beitrag nur Menschen in Deinem Kiez, nicht in „Überall“. Wer den Link bekommt, kann ihn trotzdem öffnen.": "אז רק אנשים בשכונה שלך יראו את הפוסט, לא ב„בכל מקום“. מי שיש לו את הקישור עדיין יכול לפתוח אותו.",
   "Du bist mehr als 5 km entfernt. Du kannst anfragen, {firstName} entscheidet.": "את/ה במרחק של יותר מ־5 ק״מ. אפשר לשלוח בקשה, {firstName} מחליט/ה.",
-  "Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.": "בלי המיקום שלך האפליקציה לא יודעת אם את/ה בקרבת מקום. אפשר לשלוח בקשה, {firstName} מחליט/ה."
+  "Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.": "בלי המיקום שלך האפליקציה לא יודעת אם את/ה בקרבת מקום. אפשר לשלוח בקשה, {firstName} מחליט/ה.",
+  "Auch in „Überall“ zeigen": "להציג גם ב„בכל מקום“",
+  "Auf 5 km begrenzen": "להגביל ל־5 ק״מ"
 }

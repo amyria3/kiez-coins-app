@@ -77,7 +77,9 @@ button { font: inherit; color: inherit; }
   font: 500 15px/1 Inter, sans-serif; color: var(--muted); transition: color 300ms; }
 .rolle button[aria-checked="true"] { color: var(--bg); }
 .rolle button { white-space: nowrap; }
-@media (max-width: 480px) { .rolle button { padding: 11px 14px; font-size: 14px; } .szenarien button i { font-size: 12.5px; white-space: nowrap; } .szenarien { --sz-pad: 2px; } }
+/* Vier Modi passen auch auf 360 px breite Handys (Daria, 29.10.2026) */
+.rolle { max-width: 100%; }
+@media (max-width: 480px) { .rolle button { padding: 10px 9px; font-size: 13px; letter-spacing: -.01em; } .szenarien button i { font-size: 12.5px; white-space: nowrap; } .szenarien { --sz-pad: 2px; } }
 .szenarien { width: calc(100% + var(--sz-pad)); }
 .phone-spalte { grid-area: phone; align-self: center; }
 .hero h1 { font: 600 clamp(35px, 5.12vw, 64px)/1 var(--display); letter-spacing: -.035em; margin: 0 0 24px; max-width: 15ch; }
@@ -168,6 +170,7 @@ button { font: inherit; color: inherit; }
   color: var(--bg); font: 600 calc(var(--s) * .5)/1 var(--display); }
 .p-chip { position: absolute; top: 9px; inset-inline-start: 9px; padding: 4px 10px; border-radius: 999px; font-size: 10px; background: var(--glass); border: .5px solid; }
 .p-chip-accepted { color: var(--purple); }
+.p-chip-requested { color: var(--muted); }
 .p-chip-reported { color: var(--orange); }
 .p-chip-confirmed { color: var(--pink); }
 .p-chip-deadline { display: flex; align-items: center; gap: 4px; color: var(--text); border: 0; background: rgba(160,160,160,.28);
@@ -753,3 +756,6 @@ footer a { color: var(--muted); }
 }
 @media (max-width: 640px) { .js .leute .szene > .person, .js .leute.is-seen .szene > .person { translate: none; animation: none; } }
 @media (prefers-reduced-motion: reduce) { .js .leute .szene > .person, .js .leute.is-seen .szene > .person { translate: none; animation: none; } }
+
+/* Sehr schmale Handys: vier Modi in einer Zeile */
+@media (max-width: 359px) { .rolle button { padding: 9px 6px; font-size: 12px; } }

@@ -1269,5 +1269,7 @@
   "Auf einen Umkreis von 5 km begrenzen": "Обмежити радіусом 5 км",
   "Dann sehen den Beitrag nur Menschen in Deinem Kiez, nicht in „Überall“. Wer den Link bekommt, kann ihn trotzdem öffnen.": "Тоді допис побачать лише люди у твоєму районі, а не в «Усюди». Хто має посилання, все одно зможе його відкрити.",
   "Du bist mehr als 5 km entfernt. Du kannst anfragen, {firstName} entscheidet.": "Ти далі ніж за 5 км. Ти можеш надіслати запит, {firstName} вирішує.",
-  "Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.": "Без твого місцезнаходження застосунок не знає, чи ти поруч. Ти можеш надіслати запит, {firstName} вирішує."
+  "Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.": "Без твого місцезнаходження застосунок не знає, чи ти поруч. Ти можеш надіслати запит, {firstName} вирішує.",
+  "Auch in „Überall“ zeigen": "Показувати також в «Усюди»",
+  "Auf 5 km begrenzen": "Обмежити 5 км"
 }

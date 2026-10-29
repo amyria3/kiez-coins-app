@@ -1269,5 +1269,7 @@
   "Auf einen Umkreis von 5 km begrenzen": "قصر على دائرة 5 كم",
   "Dann sehen den Beitrag nur Menschen in Deinem Kiez, nicht in „Überall“. Wer den Link bekommt, kann ihn trotzdem öffnen.": "عندها يرى المنشور فقط من في حيّك، وليس في «في كل مكان». من لديه الرابط يمكنه فتحه رغم ذلك.",
   "Du bist mehr als 5 km entfernt. Du kannst anfragen, {firstName} entscheidet.": "أنت على بعد أكثر من 5 كم. يمكنك إرسال طلب، و{firstName} يقرر.",
-  "Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.": "بدون موقعك لا يعرف التطبيق إن كنت قريبًا. يمكنك إرسال طلب، و{firstName} يقرر."
+  "Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.": "بدون موقعك لا يعرف التطبيق إن كنت قريبًا. يمكنك إرسال طلب، و{firstName} يقرر.",
+  "Auch in „Überall“ zeigen": "اعرضه أيضًا في «في كل مكان»",
+  "Auf 5 km begrenzen": "قصر على 5 كم"
 }

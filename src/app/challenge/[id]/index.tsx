@@ -330,6 +330,16 @@ export default function ChallengeDetail() {
                 />
               </>
             ) : null}
+            {/* Umkreis-Begrenzung nachträglich ändern (Daria, 29.10.2026) */}
+            {!challenge.groupId && !challenge.private && challenge.status !== 'deleted' ? (
+              <MenuItem
+                label={challenge.localOnly ? 'Auch in „Überall“ zeigen' : 'Auf 5 km begrenzen'}
+                onPress={() => {
+                  setMenuOpen(false);
+                  dispatch({ type: 'setLocalOnly', id: challenge.id, localOnly: !challenge.localOnly });
+                }}
+              />
+            ) : null}
             <MenuItem
               label="Löschen"
               tone={canDelete ? 'error' : 'muted'}

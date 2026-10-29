@@ -331,6 +331,24 @@
     MODES = tr(MODES, MODES_EN);
   }
 
+  // Überall (Daria, 29.10.2026): wie Kiez, dazu Beiträge von weiter weg. Ab 5 km nur auf Anfrage mitmachen.
+  MODES.ueberall = clone(MODES.kiez);
+  (function (u) {
+    u.place = T('Überall', 'Everywhere');
+    u.countText = function (n) { return n === 1 ? T('1 We-Challenge überall', '1 We-Challenge everywhere') : T('{n} We-Challenges überall', '{n} We-Challenges everywhere', { n: n }); };
+    u.people.mo = u.people.mo || { name: 'Mo S.', short: 'Mo', color: '#FFC500' };
+    u.challenges.splice(1, 0, {
+      id: 'kisten', kind: 'we', far: true,
+      title: T('Bücherkisten zum Tauschregal tragen', 'Carry book boxes to the swap shelf'),
+      text: T('Drei Kisten Bücher aus dem Keller zum offenen Bücherregal am Markt. Mit Sackkarre geht es zu zweit in einer halben Stunde.', 'Three boxes of books from the cellar to the open bookshelf at the market. With a hand truck it takes two people half an hour.'),
+      author: 'mo', reward: 10, dist: '148 km', left: T('noch 5 Tage', '5 days left'), img: null, comments: 0, likes: 3,
+    });
+    u.scenarios = u.scenarios.map(function (s) {
+      return s[0] === 'feed' ? ['feed', 'Feed', T('Beiträge von überall, nicht nur aus Deinem Kiez. Wer weiter als 5 km entfernt ist, macht auf Anfrage mit.', 'Posts from everywhere, not just your neighborhood. If you’re more than 5 km away, you join on request.'), 'Feed'] : s;
+    });
+    u.create.published = T('Deine We-Challenge ist online. Sie erscheint im Kiez und in „Überall“.', 'Your We-Challenge is live. It shows in your neighborhood and in “Everywhere”.');
+  })(MODES.ueberall);
+
   var M, people, challenges, group, state;
   // Me-Challenge je Ort: „Nur ich“ hat eigene Beispieldaten, sonst gilt ME
   function meData() { return M.me || ME; }
@@ -391,6 +409,7 @@
     '    <button role="tab" data-tab="ich"></button>' +
     '    <button role="tab" data-tab="groups"></button>' +
     '    <button role="tab" data-tab="nearby"></button>' +
+    '    <button role="tab" data-tab="everywhere"></button>' +
     '  </div>' +
     '  <div class="p-content"></div>' +
     '</div>' +
@@ -425,7 +444,7 @@
   function statusChip(id) {
     var s = state.status[id];
     if (!s) return '';
-    var t = { accepted: T('Angenommen', 'Accepted'), reported: T('Erledigt gemeldet', 'Reported done'), confirmed: T('Bestätigt', 'Confirmed') }[s];
+    var t = { requested: T('Angefragt', 'Requested'), accepted: T('Angenommen', 'Accepted'), reported: T('Erledigt gemeldet', 'Reported done'), confirmed: T('Bestätigt', 'Confirmed') }[s];
     return '<span class="p-chip p-chip-' + s + '">' + t + '</span>';
   }
 
@@ -614,8 +633,8 @@
     if (!state.create && state.tab === 'pleasure') return null;
     return TAB_OF[state.mode];
   }
-  var TAB_OF = { ich: 'ich', gruppe: 'groups', kiez: 'nearby' };
-  var MODE_OF = { ich: 'ich', groups: 'gruppe', nearby: 'kiez' };
+  var TAB_OF = { ich: 'ich', gruppe: 'groups', kiez: 'nearby', ueberall: 'everywhere' };
+  var MODE_OF = { ich: 'ich', groups: 'gruppe', nearby: 'kiez', everywhere: 'ueberall' };
   var KIND_NAME = { me: 'Me-Challenge', we: 'We-Challenge', bild: T('Bild', 'Photo') };
   function syncSeg(animate) {
     var composing = state.create;
@@ -623,7 +642,7 @@
     var kind = KIND_NAME[state.draft.kind];
     $('.p-compose-line').textContent = kind + ' · ' + M.place;
     $$('[data-tab]', seg).forEach(function (b) {
-      b.textContent = { ich: T('Nur ich', 'Just me'), groups: T('Gruppen', 'Groups'), nearby: T('Kiez', 'Neighborhood') }[b.dataset.tab];
+      b.textContent = { ich: T('Nur ich', 'Just me'), groups: T('Gruppen', 'Groups'), nearby: T('Kiez', 'Neighborhood'), everywhere: T('Überall', 'Everywhere') }[b.dataset.tab];
       b.setAttribute('aria-selected', String(b.dataset.tab === segKey()));
     });
     placePill(animate);
@@ -737,6 +756,10 @@
     var who = people[c.author].short;
     var action;
     if (c.author === 'du') action = '<button type="button" class="p-btn p-btn-secondary" data-soon="' + T('Teilen', 'Sharing') + '">' + T('We-Challenge teilen', 'Share We-Challenge') + '</button>';
+    // Weiter als 5 km: nur auf Anfrage (Daria, 29.10.2026)
+    else if (!s && c.far) action = '<p class="p-help">' + T('Du bist mehr als 5 km entfernt. Du kannst anfragen, {who} entscheidet.', 'You’re more than 5 km away. You can send a request, {who} decides.', { who: who }) + '</p>' +
+      '<button type="button" class="p-btn" data-step="request">' + svg('hands', 20) + T('Anfrage senden', 'Send request') + '</button>';
+    else if (s === 'requested') action = '<button type="button" class="p-btn p-btn-wait" disabled>' + T('Anfrage bei {who}', 'Request with {who}', { who: who }) + '</button>';
     else if (!s) action = '<button type="button" class="p-btn" data-step="accept">' + svg('hands', 20) + T('We-Challenge annehmen', 'Accept We-Challenge') + '</button>';
     else if (s === 'accepted') action = '<button type="button" class="p-btn" data-step="report">' + T('Erledigt melden', 'Report done') + '</button>';
     else if (s === 'reported') action = '<button type="button" class="p-btn p-btn-wait" disabled>' + T('{who} prüft …', '{who} is checking …', { who: who }) + '</button>';
@@ -762,7 +785,19 @@
     var c = find(challenges, state.detail);
     var who = people[c.author].short;
     var mode = state.mode;
-    if (kind === 'accept') {
+    if (kind === 'request') {
+      state.status[c.id] = 'requested';
+      renderDetail();
+      say(T('Anfrage ist bei {who}. Du bekommst Bescheid.', 'Request sent to {who}. You’ll hear back.', { who: who }));
+      // Im Prototyp sagt Mo nach kurzer Zeit zu
+      setTimeout(function () {
+        if (state.mode !== mode || state.status[c.id] !== 'requested') return;
+        state.status[c.id] = 'accepted';
+        if (state.detail === c.id) renderDetail();
+        say(T('{who} hat zugesagt. Du bist dabei.', '{who} said yes. You’re in.', { who: who }), 'high');
+        render();
+      }, 2200);
+    } else if (kind === 'accept') {
       state.status[c.id] = 'accepted';
       renderDetail();
       say(T('{who} weiß Bescheid. Melde Dich, wenn es erledigt ist.', '{who} knows. Report back when it’s done.', { who: who }));
@@ -1529,7 +1564,7 @@
       screen.offsetWidth;
       screen.classList.add('p-flip');
     }
-    say(mode === 'gruppe' ? T('Du bist jetzt im Hof Kastanienallee.', 'You’re now in Hof Kastanienallee.') : mode === 'ich' ? T('Hier siehst nur Du, was Du postest.', 'Only you see what you post here.') : T('Du bist jetzt in Connewitz unterwegs.', 'You’re now out and about in Connewitz.'));
+    say(mode === 'gruppe' ? T('Du bist jetzt im Hof Kastanienallee.', 'You’re now in Hof Kastanienallee.') : mode === 'ueberall' ? T('Jetzt siehst Du Beiträge von überall.', 'Now you see posts from everywhere.') : mode === 'ich' ? T('Hier siehst nur Du, was Du postest.', 'Only you see what you post here.') : T('Du bist jetzt in Connewitz unterwegs.', 'You’re now out and about in Connewitz.'));
   }
   if (picker) {
     picker.addEventListener('pointerover', function (e) {
@@ -1557,7 +1592,7 @@
     roles.addEventListener('keydown', function (e) {
       if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].indexOf(e.key) < 0) return;
       e.preventDefault();
-      var order = ['ich', 'gruppe', 'kiez'];
+      var order = ['ich', 'gruppe', 'kiez', 'ueberall'];
       var step = e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 1;
       if (document.documentElement.dir === 'rtl' && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) step = -step;
       var next = order[(order.indexOf(state.mode) + step + order.length) % order.length];
