@@ -735,6 +735,10 @@ footer a { color: var(--muted); }
 /* Telefon und Tablet: ohne Unschärfe und fast deckend, sonst stockt das Scrollen (Daria, 29.10.2026) */
 @media (max-width: 900px), (pointer: coarse) {
   .fx-d .mehr, .fx-d .leute, .fx-d .wechsel, .fx-d .download { -webkit-backdrop-filter: none; backdrop-filter: none; will-change: auto; --a: 1; }
+  /* Kein Kartenstapel per sticky: Safari verschiebt sticky-Abschnitte, wenn die Adressleiste ein- und ausfährt,
+     dann springt die Seite (Daria, 29.10.2026). Die Abschnitte schieben sich nur noch mit runden Ecken leicht übereinander. */
+  .fx-d body > .wrap, .fx-d .mehr, .fx-d .leute, .fx-d .wechsel { position: relative; top: auto; }
+  .fx-d .mehr, .fx-d .leute, .fx-d .wechsel, .fx-d .download { margin-top: -36px; }
 }
 
 /* Überschrift: Wörter steigen nacheinander auf, „Gemeinschaft“ schwingt zuletzt nach */
