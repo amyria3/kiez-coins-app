@@ -16,7 +16,7 @@ import { GroupRanking } from '../components/GroupRanking';
 import { useModes, type Mode } from '../data/features';
 import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { anrede, formatBountyShort, formatHoursMinutes } from '../data/format';
-import { donePhoto, erfolge, quests } from '../data/erfolge';
+import { donePhoto, erfolge, groupProgress, quests } from '../data/erfolge';
 import { Quests } from '../components/Quests';
 import { useFriends } from '../data/friends';
 import { loadPraise } from '../data/remote';
@@ -73,7 +73,12 @@ function Reise() {
       (tab !== 'kiez' || isInKiez(e.challenge, here, profile.kiez, currentUserId)),
   );
   const friends = useFriends();
-  const goals = useMemo(() => quests(entries, friends?.friends.length ?? 0), [entries, friends]);
+  // Gruppen-Ziele nur, wenn Gruppen nicht ausgeschaltet sind (Daria, 29.10.2026)
+  const groupsOn = modes.isVisible('groups');
+  const goals = useMemo(
+    () => quests(entries, friends?.friends.length ?? 0, groupsOn ? groupProgress(groups, currentUserId) : undefined),
+    [entries, friends, groupsOn, groups, currentUserId],
+  );
   const groupEntries = entries.filter((e) => !!group && e.challenge.groupId === group.id);
   // Lob für Dich (Migration für Lob nötig, sonst keine Zahl)
   const [praise, setPraise] = useState<number | null>(null);
