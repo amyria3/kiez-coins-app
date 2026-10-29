@@ -444,6 +444,30 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
   </div>
 </div>
 
+<!-- Ab „Kann die App noch mehr?“ schwebt „Testen“ unten rechts und wackelt ab und zu (Daria, 29.10.2026). Am Download verschwindet es. -->
+<a class="testen-schwebend" href="#download" tabindex="-1" aria-hidden="true"><span class="lang">${t('Testversion laden', 'Get the beta')}</span><span class="kurz">${t('Testen', 'Try it')}</span></a>
+<script>
+  (function () {
+    var knopf = document.querySelector('.testen-schwebend');
+    var mehr = document.querySelector('.mehr');
+    var ziel = document.getElementById('download');
+    if (!knopf || !mehr || !ziel) return;
+    function pruefen() {
+      var h = window.innerHeight;
+      var ab = mehr.getBoundingClientRect().top < h * 0.8;
+      var dl = ziel.getBoundingClientRect();
+      var amZiel = dl.top < h * 0.9 && dl.bottom > 0;
+      var zeigen = ab && !amZiel;
+      knopf.classList.toggle('is-da', zeigen);
+      knopf.setAttribute('aria-hidden', String(!zeigen));
+      knopf.tabIndex = zeigen ? 0 : -1;
+    }
+    addEventListener('scroll', pruefen, { passive: true });
+    addEventListener('resize', pruefen);
+    pruefen();
+  })();
+</script>
+
 <script src="${P}prototyp/daten.js?v=${version(datenJs)}"></script>
 ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g, '\\u003c')};</script>` : ''}
 <script src="${P}prototyp/app.js?v=${version(appJs)}"></script>
