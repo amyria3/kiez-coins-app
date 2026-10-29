@@ -4,14 +4,14 @@ import { Text } from '../../components/T';
 import { useRouter } from 'expo-router';
 
 import { Avatar } from '../../components/AuthorRow';
-import { choosePhoto, RadioOption } from '../../components/Form';
+import { choosePhoto } from '../../components/Form';
 import { GearsLoader, SMALL_GEARS } from '../../components/GearsLoader';
 import { Icon } from '../../components/icons/Icon';
 import { FieldGroup } from '../../components/Content';
 import { EditableRow, NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { useAuth } from '../../data/auth';
-import { addressForms, anrede, genderLabel } from '../../data/format';
+import { genderLabel } from '../../data/format';
 import { errorText, loadProfileExtras, normalizeWebsite, saveAvatar, saveHandle, saveProfileExtras, type ProfileExtras } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
 import type { ImageSource } from '../../data/types';
@@ -112,22 +112,7 @@ export default function PersonalDetails() {
       </Pressable>
       <FieldGroup label="Profil">
         <EditableRow label="Deckname (Nickname)" value={profile.handle || me.name} maxLength={30} onSave={saveDeckname} />
-        {/* Nur Auswahl, keine eigene Bezeichnung mehr (Daria, 28.10.2026) */}
-        <EditableRow
-          label="Ansprache"
-          value={anrede(profile)}
-          onSave={(label) => {
-            const preset = addressForms.find((f) => t(f.label) === label || f.label === label);
-            if (preset) dispatch({ type: 'updateProfile', patch: { addressForm: preset.key, addressCustom: undefined } });
-          }}
-          renderEditor={(draft, setDraft) => (
-            <View style={{ gap: space[8] }}>
-              {addressForms.map((f) => (
-                <RadioOption key={f.key} label={t(f.label)} selected={draft === t(f.label)} onPress={() => setDraft(t(f.label))} />
-              ))}
-            </View>
-          )}
-        />
+        {/* Ansprache ausgeblendet (Daria, 29.10.2026). Gespeicherte Werte bleiben und gelten weiter, sonst „Pirat:in“. */}
         <NavRow
           label="Grammatisches Geschlecht"
           value={genderLabel(profile.gender)}
