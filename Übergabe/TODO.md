@@ -12,6 +12,11 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Kodex und Rechtstexte überarbeiten (Daria)
 - [ ] Anschrift (c/o) im Impressum, sobald die App öffentlich ist und ein Finanzierungskonzept steht
 
+## 29.10.2026 – Pflicht für Daria: Rückmeldung zur Tour
+
+- [ ] Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261029000300_tour_feedback.sql` ausführen (Branch `claude/tour-scroll`, PR #115). Erst danach mergen, sonst schlägt „Absenden“ auf der letzten Tour-Seite fehl.
+- [ ] Texte von Claude in der Tour prüfen: Titel „Einfach ein schönes Bild“, Text zur Sichtbarkeit, Titel und Text „Privat: nur für Dich“ (`src/data/tour.ts`).
+
 ## 29.10.2026 – Pflicht für Daria: Modus „Überall“ und 5-km-Umkreis
 
 - [x] (29.10.2026) Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261029000100_ueberall_umkreis.sql` ausführen (Branch `claude/modus-ueberall`). Erst danach den PR mergen, sonst schlägt Mitmachen mit Standort fehl.
