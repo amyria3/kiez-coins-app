@@ -395,7 +395,7 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
 
 <section class="download" id="download" aria-labelledby="download-titel">
   <div class="wrap">
-    <h2 id="download-titel">${t('So installierst Du die Testversion.', 'How to install the beta.')}</h2>
+    <h2 id="download-titel">${t('Überzeugt? Oder zumindest neugierig?', 'Convinced? Or at least curious?')}</h2>
     <p>${t('Kiez Coins ist in der Testphase. Android lädt die App direkt, das iPhone nutzt die Web-App.', 'Kiez Coins is in beta. Android downloads the app directly, the iPhone uses the web app.')}</p>
     <div class="karten">
       <div class="card" id="android">
