@@ -322,11 +322,12 @@ export default function FeedScreen() {
   // Eigene Vorher-Nachher-Timer, die gerade laufen: oben im Feed (Daria, 23.10.2026)
   const running = useMemo(() => runningBeforeAfter(challenges, currentUserId), [challenges, currentUserId]);
 
-  // Hinweis unter dem Umschalter: wer sieht, was Du hier postest (Daria, 27.10.2026)
+  // Hinweis unter dem Umschalter: wer sieht, was Du hier postest (Daria, 27.10.2026). In allen vier Reitern,
+  // auch in „Gruppe“ ohne Gruppe (Daria, 29.10.2026)
   const audience = MODE_OF_TAB[tab] ?? 'kiez';
   const [audienceHint, closeAudienceHint] = useAudienceHint(audience);
   const showAudience =
-    audienceHint && !composing && !loading && (tab === 'nearby' || tab === 'everywhere' || tab === 'private' || (tab === 'groups' && groups.length > 0));
+    audienceHint && !composing && !loading && (tab === 'nearby' || tab === 'everywhere' || tab === 'private' || tab === 'groups');
 
   const items: FeedItem[] = [];
   if (showAudience) items.push({ kind: 'audience' });
