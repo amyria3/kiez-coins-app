@@ -135,7 +135,8 @@ export default function UserProfile() {
         <Text noTranslate
           style={[styles.name, hidden && hiddenText]}
           accessibilityRole="header"
-          accessibilityLabel={hidden ? t('Name verdeckt, solange Dein Kiez fehlt') : undefined}
+          accessibilityElementsHidden={hidden}
+          importantForAccessibility={hidden ? 'no-hide-descendants' : 'auto'}
         >
           {user.name}
         </Text>
