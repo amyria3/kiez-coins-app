@@ -400,6 +400,7 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
     <div class="karten">
       <div class="card" id="android">
         <h3>Android</h3>
+        <p>${t('Auf Android lädst Du Kiez Coins als App direkt hier herunter, ohne Google Play.', 'On Android, you download Kiez Coins as an app right here, without Google Play.')}</p>
         <form method="post" action="${esc(config.functionUrl)}">
           <p class="error" id="fehler" hidden></p>
           <button type="submit">${t('App herunterladen', 'Download the app')}</button>
