@@ -1,6 +1,6 @@
 # Tour: neue Seiten und Rückmeldung
 
-Datum: 2026-10-29 · Status: umgesetzt im PR #115, Migration noch nicht eingespielt · Ziel in Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitt „Tour“), Datenbank-Doku (`tour_feedback`, `tour_feedback_results`)
+Datum: 2026-10-29 · Status: umgesetzt, Migration am 29.10.2026 eingespielt (von Claude geprüft), PR #115 gemergt; noch in die Doku übernehmen · Ziel in Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitt „Tour“), Datenbank-Doku (`tour_feedback`, `tour_feedback_results`)
 
 ## Entscheidungen von Daria (29.10.2026)
 

@@ -12,9 +12,21 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Kodex und Rechtstexte überarbeiten (Daria)
 - [ ] Anschrift (c/o) im Impressum, sobald die App öffentlich ist und ein Finanzierungskonzept steht
 
+## 29.10.2026 – Pflicht für Daria: Text auf dem Foto
+
+- [x] (29.10.2026, von Claude geprüft, PR #114 gemergt) Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261029000200_bild_text.sql` ausführen (Branch `claude/bild-text`). Erst danach den PR mergen, sonst schlägt Posten mit Text auf dem Foto fehl. Bilder ohne Text gehen auch ohne Migration.
+- [x] Claude Bescheid geben, dann prüft Claude die Datenbank.
+
+## 29.10.2026 – Was Du so machst: positive Bestärkung (PR #113)
+
+- [x] Ziele statt Meilensteine (Daria, 29.10.2026): erster Post, erste Me-/We-Challenge, je eine Me-/We-Challenge pro Monat, erste Einladung; Balken in Lila, Geschenk öffnet sich mit pinken Herzen (`src/components/Quests.tsx`)
+- [x] Ziele „Deine erste Gruppe“ und „Du hast 2 Menschen zu Deiner Gruppe eingeladen“ (Daria, 29.10.2026), nur wenn Gruppen nicht ausgeschaltet sind. Eingeladen zählt weitere Mitglieder in selbst gegründeten Gruppen, da die Datenbank nicht speichert, wer eingeladen hat.
+- [ ] „Danke von anderen“ erkennt Dank an Wörtern wie „Danke“, „super“, „toll“ oder Herzen im Kommentar. Später ggf. eigener Danke-Knopf.
+- [ ] Fashionable Look (`FashionProfile.tsx`) zeigt noch Erstellt/Angenommen statt der Geschafft-Wand
+
 ## 29.10.2026 – Pflicht für Daria: Rückmeldung zur Tour
 
-- [ ] Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261029000300_tour_feedback.sql` ausführen (Branch `claude/tour-scroll`, PR #115). Erst danach mergen, sonst schlägt „Absenden“ auf der letzten Tour-Seite fehl.
+- [x] (29.10.2026, von Claude geprüft, PR #115 gemergt) Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261029000300_tour_feedback.sql` ausführen (Branch `claude/tour-scroll`, PR #115). Erst danach mergen, sonst schlägt „Absenden“ auf der letzten Tour-Seite fehl.
 - [ ] Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261029000400_tour_feedback_ohne_konto.sql` ausführen (PR #116). Erst danach mergen, sonst schlägt „Absenden“ ohne Konto fehl.
 - [ ] Texte von Claude in der Tour prüfen: Titel „Einfach ein schönes Bild“, Text zur Sichtbarkeit, Titel und Text „Privat: nur für Dich“ (`src/data/tour.ts`).
 

@@ -72,7 +72,7 @@ export default function Account() {
       />
       <NavCard
         title="Was Du so machst"
-        description="Verlauf, Aufgaben und Gruppen"
+        description="Geschafft, Ziele und Gruppen"
         // Fashionable Look: Dein Bild wie oben im Feed (Regelwerk: Was Du so machst = Dein Profil)
         leading={isFashionable ? <Avatar user={me} diameter={28} /> : <CrownIcon height={30} />}
         onPress={() => router.push('/reise')}
