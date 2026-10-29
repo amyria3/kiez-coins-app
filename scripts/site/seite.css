@@ -774,3 +774,20 @@ footer a { color: var(--muted); }
 
 /* Sehr schmale Handys: vier Modi in einer Zeile */
 @media (max-width: 359px) { .rolle button { padding: 9px 6px; font-size: 12px; } }
+
+/* Schwebender Knopf „Testen“ ab „Kann die App noch mehr?“ (Daria, 29.10.2026): unten rechts, wackelt alle 7 s kurz */
+.testen-schwebend { position: fixed; z-index: 800; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); padding: 14px 24px; border-radius: 999px;
+  background: var(--purple); color: var(--bg); font: 500 16px/1 Inter, sans-serif; text-decoration: none; white-space: nowrap;
+  box-shadow: 0 10px 30px rgba(20, 16, 50, .25); opacity: 0; translate: 0 24px; pointer-events: none;
+  transition: opacity 300ms, translate 400ms var(--barrier); }
+.testen-schwebend .kurz { display: none; }
+.testen-schwebend.is-da { opacity: 1; translate: 0 0; pointer-events: auto; animation: testen-wackeln 7s ease-in-out 1.5s infinite; }
+@media (max-width: 640px) { .testen-schwebend .lang { display: none; } .testen-schwebend .kurz { display: inline; } }
+@keyframes testen-wackeln {
+  0%, 84%, 100% { rotate: 0deg; scale: 1; }
+  87% { rotate: -6deg; scale: 1.06; }
+  90% { rotate: 5deg; scale: 1.06; }
+  93% { rotate: -3deg; scale: 1.03; }
+  96% { rotate: 1deg; scale: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .testen-schwebend { transition: opacity 200ms; translate: none; } .testen-schwebend.is-da { animation: none; } }
