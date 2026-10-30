@@ -1068,7 +1068,6 @@
   "Im Profil einer Person tippst Du auf „Person blockieren“. Du siehst ihre Challenges und Kommentare dann nicht mehr und sie kann Deine Challenges weder annehmen noch kommentieren. Sie erfährt nicht den Grund. Unter „Dein Konto“ kannst Du die Blockierung wieder aufheben.": "В профиле человека нажми «Заблокировать человека». Тогда ты больше не видишь его челленджи и комментарии, а он не может ни принимать, ни комментировать твои челленджи. Причину он не узнает. В разделе «Твой аккаунт» можно снять блокировку.",
   "Wir prüfen Meldungen zeitnah. Bei Verstößen entfernen wir Inhalte, verwarnen, beschränken oder sperren das Konto, bei schweren Verstößen sofort und dauerhaft. Straftaten zeigen wir an.": "Мы оперативно проверяем жалобы. При нарушениях мы удаляем контент, выносим предупреждения, ограничиваем или блокируем аккаунт, а при серьёзных нарушениях сразу и навсегда. О преступлениях мы сообщаем в полицию.",
   "Let’s have fun & do some good": "Let’s have fun & do some good",
-  "Stand 27.10.2026": "По состоянию на 27.10.2026",
   "Wir begegnen allen Menschen mit Respekt, unabhängig von Herkunft, Hautfarbe, Religion, Geschlecht, sexueller Orientierung, geschlechtlicher Identität, Behinderung, Alter und sozialer Lage.": "Мы относимся ко всем людям с уважением независимо от происхождения, цвета кожи, религии, пола, сексуальной ориентации, гендерной идентичности, инвалидности, возраста и социального положения.",
   "Private Daten anderer (Adresse, Telefonnummer, Fotos) veröffentlichst Du nur mit deren explizitem Einverständnis. Ein Nein beendet den Kontakt.": "Личные данные других (адрес, номер телефона, фото) ты публикуешь только с их явного согласия. «Нет» означает конец контакта.",
   "Verboten sind Gewalt, Drohungen mit Gewalt, Aufrufe dazu und ihre Verherrlichung. Challenges dürfen niemanden gefährden, auch Dich selbst nicht.": "Запрещены насилие, угрозы насилием, призывы к нему и его прославление. Челленджи не должны никому угрожать, в том числе и тебе.",
@@ -1321,5 +1320,6 @@
   "{count} We-Challenges in der Gruppe": "We-Challenges в группе: {count}",
   "Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte We-Challenges aus Deinen Gruppen.": "Здесь позже появятся твои закрытые и удалённые челленджи и выполненные We-Challenges из твоих групп.",
   "We-Challenges im kleinen Kreis, mit Edensteinen": "We-Challenges в узком кругу, с камнями Эдема",
-  "Noch mal versuchen": "Попробовать ещё раз"
+  "Noch mal versuchen": "Попробовать ещё раз",
+  "Stand 30.10.2026": "По состоянию на 30.10.2026"
 }
