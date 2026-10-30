@@ -47,8 +47,7 @@ export function KaterBubble({ children }: { children: ReactNode }) {
 }
 
 /**
- * Sprechblase nach Duolingo-Vorbild: Blase links mit Rahmen und Spitze nach rechts,
- * der Kater rechts daneben im Kreis. Optional mit fetter Überschrift.
+ * Sprechblase: Text links, rechts auf der Blase der Kater im Kreis. Optional mit fetter Überschrift.
  */
 /** `mood` bleibt für die Aufrufe erhalten; das Icon im Kreis hat keine Stimmungen (Daria, 30.10.2026). */
 export function KaterCard({ children, title }: { children: ReactNode; title?: string; mood?: CatMood }) {
@@ -58,11 +57,11 @@ export function KaterCard({ children, title }: { children: ReactNode; title?: st
   if (typeof children === 'string') children = tx(children);
   if (title) title = tx(title);
   return (
-    <View style={styles.speech}>
-      <View style={styles.speechBubble}>
+    // Kater im Kreis sitzt auf der Blase, rechts neben dem Text (Daria, 30.10.2026)
+    <View style={styles.speechBubble}>
+      <View style={styles.speechTexts}>
         {title ? <Text style={styles.speechTitle}>{title}</Text> : null}
         <Text style={styles.speechText}>{children}</Text>
-        <View style={styles.speechTail} />
       </View>
       <KaterRund />
     </View>
@@ -71,10 +70,10 @@ export function KaterCard({ children, title }: { children: ReactNode; title?: st
 
 /**
  * Kater im Kreis (Daria, 30.10.2026): das Icon „cat“ in Textfarbe, unten vom Kreis angeschnitten, ohne Kachel.
- * Gläser, Nase und Mund sind ausgespart, dort scheint der Kreis durch. Kreis im Grau der Sprechblase.
+ * Gläser, Nase und Mund sind ausgespart, dort scheint der Kreis durch. Der Kreis sitzt auf der Sprechblase.
  */
-const RUND = 76;
-const RUND_KATER = 52;
+const RUND = 64;
+const RUND_KATER = 44;
 export function KaterRund() {
   const cat = iconSvgs.cat;
   return (
@@ -141,32 +140,23 @@ const styles = StyleSheet.create({
     backgroundColor: color.accent.signal,
   },
   tagText: { fontFamily: font.semiBold, fontSize: 11, lineHeight: 16, color: color.bg.screen },
-  speech: { flexDirection: 'row', alignItems: 'center', gap: space[16] },
   speechBubble: {
-    flex: 1,
-    gap: space[4],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[12],
     paddingVertical: space[12],
-    paddingHorizontal: space[16],
+    paddingLeft: space[16],
+    paddingRight: space[12],
     borderRadius: radius.xl,
     backgroundColor: color.bg.surface,
   },
-  // Spitze rechts zur Katze: gedrehtes Quadrat in der Farbe der Blase
-  speechTail: {
-    position: 'absolute',
-    right: -7,
-    top: '50%',
-    marginTop: -8,
-    width: 16,
-    height: 16,
-    borderRadius: 3,
-    backgroundColor: color.bg.surface,
-    transform: [{ rotate: '45deg' }],
-  },
+  speechTexts: { flex: 1, gap: space[4] },
   speechTitle: { ...text.cardTitle, fontSize: 17, lineHeight: 22, color: color.text.primary },
   speechText: { fontFamily: font.light, fontSize: 15, lineHeight: 21, color: color.text.primary },
-  rund: { width: RUND, height: RUND, borderRadius: RUND / 2, overflow: 'hidden', backgroundColor: color.bg.surface },
+  // Kreis im Grund der Seite, damit er sich von der Blase abhebt
+  rund: { width: RUND, height: RUND, borderRadius: RUND / 2, overflow: 'hidden', backgroundColor: color.bg.screen },
   // Unten 8 pt angeschnitten, über den Ohren gut ein Drittel Luft
-  rundKater: { position: 'absolute', left: 0, right: 0, bottom: -8, alignItems: 'center' },
+  rundKater: { position: 'absolute', left: 0, right: 0, bottom: -7, alignItems: 'center' },
   group: { gap: space[8] },
   groupLabel: { ...text.caption, color: color.text.secondary },
 });
