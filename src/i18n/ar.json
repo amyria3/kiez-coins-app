@@ -680,8 +680,9 @@
   "Challenges beschreiben kleine, sichere Hilfen in der Nachbarschaft. Aufgaben, die eine Erlaubnis, eine Ausbildung oder besondere Gefahr voraussetzen (zum Beispiel Arbeiten an Strom, Gas oder auf Dächern), gehören nicht in die App.": "تصف التحديات مساعدات صغيرة وآمنة في الحي. المهام التي تتطلب تصريحًا أو تدريبًا أو تنطوي على خطر خاص (مثل العمل على الكهرباء أو الغاز أو الأسطح) لا مكان لها في التطبيق.",
   "Für das Anzeigen in der App räumst Du uns ein einfaches, kostenloses Recht an Deinen Inhalten ein. Es endet, wenn Du den Inhalt oder Dein Konto löschst.": "لعرض المحتوى في التطبيق تمنحنا حقًا بسيطًا مجانيًا على محتواك، ينتهي عند حذفك المحتوى أو حسابك.",
   "4. Coins laufen direkt zwischen Euch": "4. المكافآت تجري بينكم مباشرة",
-  "Coins sind eine freiwillige Anerkennung zwischen zwei Personen. Kiez Coins ist nicht Vertragspartei, nimmt kein Geld an und zahlt keins aus. Das Geld fließt direkt per Überweisung oder PayPal. Barzahlung und Treffen zur Zahlung sind nicht vorgesehen.": "المكافأة تقدير طوعي بين شخصين. Kiez Coins ليست طرفًا في العقد ولا تستلم أموالًا ولا تدفعها. يتدفق المال مباشرة بالتحويل أو عبر PayPal. الدفع النقدي واللقاءات للدفع غير واردة.",
+  "Coins sind Versprechen von realem Geld. Das Konzept befindet sich in der Testphase. Kiez Coins ist nicht Vertragspartei, nimmt kein Geld an und zahlt keins aus. Das Geld fließt direkt per Überweisung oder PayPal. Barzahlung und Treffen zur Zahlung sind nicht vorgesehen.": "المكافأة وعد بمال حقيقي. الفكرة في مرحلة التجربة. Kiez Coins ليست طرفًا في العقد ولا تستلم أموالًا ولا تدفعها. يتدفق المال مباشرة بالتحويل أو عبر PayPal. الدفع النقدي واللقاءات للدفع غير واردة.",
   "Jede Person ist selbst dafür verantwortlich, eine Aufgabe sorgfältig zu erledigen, zugesagte Coins zu zahlen und Einnahmen gegebenenfalls zu versteuern. Eine Challenge begründet kein Arbeitsverhältnis.": "كل شخص مسؤول بنفسه عن إنجاز المهمة بعناية ودفع المكافأة الموعودة ودفع الضرائب على الدخل عند الاقتضاء. لا ينشئ التحدي علاقة عمل.",
+  "Edensteine sind eine ideelle Anerkennung. Sie lassen sich weder kaufen noch in Geld tauschen.": "أحجار عدن تقدير معنوي. لا يمكن شراؤها ولا مبادلتها بالمال.",
   "5. Melden und Moderation": "5. الإبلاغ والإشراف",
   "Über die Fahne an Challenges und Kommentaren, über „Person melden“ oder per E-Mail meldest Du Verstöße und rechtswidrige Inhalte. Wir prüfen jede Meldung und entfernen Inhalte, die gegen diese Bedingungen oder geltendes Recht verstoßen. Bei Verstößen können wir ein Konto sperren oder das Anbieten von Coins beschränken. Wir begründen solche Entscheidungen per E-Mail. Du kannst ihnen per E-Mail widersprechen.": "عبر العلم بجانب التحديات والتعليقات، أو عبر «الإبلاغ عن شخص»، أو بالبريد، تبلّغ عن المخالفات والمحتوى غير القانوني. نراجع كل بلاغ ونزيل المحتوى المخالف لهذه الشروط أو للقانون. عند المخالفة قد نحظر حسابًا أو نقيّد تقديم المكافآت، ونعلّل قراراتنا بالبريد، ويمكنك الاعتراض عليها بالبريد.",
   "6. Haftung": "6. المسؤولية",
@@ -1082,7 +1083,6 @@
   "Im Profil einer Person tippst Du auf „Person blockieren“. Du siehst ihre Challenges und Kommentare dann nicht mehr und sie kann Deine Challenges weder annehmen noch kommentieren. Sie erfährt nicht den Grund. Unter „Dein Konto“ kannst Du die Blockierung wieder aufheben.": "في الملف الشخصي لشخص ما اضغط على «حظر الشخص». بعدها لا ترى تحدياته وتعليقاته، ولا يستطيع قبول تحدياتك أو التعليق عليها. ولا يعرف السبب. يمكنك رفع الحظر من «حسابك».",
   "Wir prüfen Meldungen zeitnah. Bei Verstößen entfernen wir Inhalte, verwarnen, beschränken oder sperren das Konto, bei schweren Verstößen sofort und dauerhaft. Straftaten zeigen wir an.": "نراجع البلاغات بسرعة. عند المخالفات نحذف المحتوى أو نوجّه تحذيرًا أو نقيّد الحساب أو نحظره، وفي المخالفات الجسيمة فورًا وبشكل دائم. نبلغ السلطات عن الجرائم.",
   "Let’s have fun & do some good": "Let’s have fun & do some good",
-  "Stand 27.10.2026": "آخر تحديث 27‏/10‏/2026",
   "Wir begegnen allen Menschen mit Respekt, unabhängig von Herkunft, Hautfarbe, Religion, Geschlecht, sexueller Orientierung, geschlechtlicher Identität, Behinderung, Alter und sozialer Lage.": "نعامل جميع الناس باحترام بغضّ النظر عن الأصل ولون البشرة والدين والجنس والتوجه الجنسي والهوية الجندرية والإعاقة والعمر والوضع الاجتماعي.",
   "Private Daten anderer (Adresse, Telefonnummer, Fotos) veröffentlichst Du nur mit deren explizitem Einverständnis. Ein Nein beendet den Kontakt.": "لا تنشر البيانات الخاصة بالآخرين (العنوان، رقم الهاتف، الصور) إلا بموافقتهم الصريحة. كلمة «لا» تنهي التواصل.",
   "Verboten sind Gewalt, Drohungen mit Gewalt, Aufrufe dazu und ihre Verherrlichung. Challenges dürfen niemanden gefährden, auch Dich selbst nicht.": "يُحظر العنف والتهديد به والدعوة إليه وتمجيده. يجب ألا تعرّض التحديات أحدًا للخطر، بما في ذلك أنت.",
@@ -1334,5 +1334,6 @@
   "{count} We-Challenges in der Gruppe": "We-Challenges في المجموعة: {count}",
   "Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte We-Challenges aus Deinen Gruppen.": "ستظهر هنا لاحقًا تحدياتك المغلقة والمحذوفة وWe-Challenges المنجزة من مجموعاتك.",
   "We-Challenges im kleinen Kreis, mit Edensteinen": "We-Challenges في دائرة صغيرة، مع أحجار عدن",
-  "Noch mal versuchen": "حاول مرة أخرى"
+  "Noch mal versuchen": "حاول مرة أخرى",
+  "Stand 30.10.2026": "آخر تحديث 30‏/10‏/2026"
 }

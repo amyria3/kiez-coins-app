@@ -1,13 +1,13 @@
 /**
  * Rechtstexte für den Testbetrieb: Impressum, Datenschutzerklärung, Nutzungsbedingungen, Community-Regeln.
- * Angezeigt unter `rechtliches/[doc]`, verlinkt in `onboarding/welcome`, `onboarding/kodex` und `account`.
+ * Angezeigt unter `legal/[doc]`, verlinkt in `onboarding/welcome`, `onboarding/code-of-conduct` und `account`.
  *
  * Offene Angaben stehen als „[offen: …]“ im Text, bis Daria sie in `OPERATOR` einträgt.
  * Ändern sich Inhalte, bekommt `LEGAL_STAND` ein neues Datum.
  */
 
 /** Stand aller Texte (TT.MM.JJJJ). */
-export const LEGAL_STAND = '27.10.2026';
+export const LEGAL_STAND = '30.10.2026';
 
 /** Angaben zur Anbieterin. Leere Felder erscheinen in der App als „[offen: …]“. */
 export const OPERATOR = {
@@ -171,8 +171,9 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: '4. Coins laufen direkt zwischen Euch',
         paragraphs: [
-          'Coins sind eine freiwillige Anerkennung zwischen zwei Personen. Kiez Coins ist nicht Vertragspartei, nimmt kein Geld an und zahlt keins aus. Das Geld fließt direkt per Überweisung oder PayPal. Barzahlung und Treffen zur Zahlung sind nicht vorgesehen.',
+          'Coins sind Versprechen von realem Geld. Das Konzept befindet sich in der Testphase. Kiez Coins ist nicht Vertragspartei, nimmt kein Geld an und zahlt keins aus. Das Geld fließt direkt per Überweisung oder PayPal. Barzahlung und Treffen zur Zahlung sind nicht vorgesehen.',
           'Jede Person ist selbst dafür verantwortlich, eine Aufgabe sorgfältig zu erledigen, zugesagte Coins zu zahlen und Einnahmen gegebenenfalls zu versteuern. Eine Challenge begründet kein Arbeitsverhältnis.',
+          'Edensteine sind eine ideelle Anerkennung. Sie lassen sich weder kaufen noch in Geld tauschen.',
         ],
       },
       {
