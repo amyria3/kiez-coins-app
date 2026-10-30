@@ -63,7 +63,15 @@ function KiezPost({
   // Erledigte We-Challenge: Aufgabenfoto als Vorher, Erledigungsfoto als Nachher (Daria, 27.10.2026)
   const after = image ? weChallengeAfter(challenge) : undefined;
   const body = postText(challenge);
-  const state = closed ? 'geschlossen' : completed ? 'erledigt' : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
+  // Bild: Zeitstempel statt Restzeit, denn ein Bild läuft nicht ab (Daria, 30.10.2026)
+  const isPhoto = challenge.type === 'photo';
+  const state = closed
+    ? 'geschlossen'
+    : completed
+      ? 'erledigt'
+      : isPhoto
+        ? formatRelative(challenge.createdAt)
+        : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
   const hideName = useHideName(author);
   const router = useRouter();
   const meta = [distance, state, spotsText(challenge, active)].filter(Boolean).join(' · ');
@@ -317,7 +325,15 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
   // Erledigte We-Challenge: Aufgabenfoto als Vorher, Erledigungsfoto als Nachher (Daria, 27.10.2026)
   const after = image ? weChallengeAfter(challenge) : undefined;
   const body = postText(challenge);
-  const state = closed ? 'geschlossen' : completed ? 'erledigt' : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
+  // Bild: Zeitstempel statt Restzeit, denn ein Bild läuft nicht ab (Daria, 30.10.2026)
+  const isPhoto = challenge.type === 'photo';
+  const state = closed
+    ? 'geschlossen'
+    : completed
+      ? 'erledigt'
+      : isPhoto
+        ? formatRelative(challenge.createdAt)
+        : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
   const hideName = useHideName(author);
   const router = useRouter();
   const place = [challenge.kiez?.split(',')[0] ?? challenge.location, distance, spotsText(challenge, active)].filter(Boolean).join(' · ');
@@ -419,7 +435,8 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
           <Text style={fashion.captionTitle}>{challenge.title} </Text>
           {body ? <WithMentions value={body} /> : null}
         </Text>
-        <Text style={fashion.time}>{formatRelative(challenge.createdAt)}</Text>
+        {/* Beim Bild steht der Zeitstempel schon rechts neben den Knöpfen */}
+        {isPhoto ? null : <Text style={fashion.time}>{formatRelative(challenge.createdAt)}</Text>}
       </Pressable>
     </View>
   );
