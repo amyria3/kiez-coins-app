@@ -1,6 +1,6 @@
 # Entwürfe auch in Gruppen
 
-Datum: 2026-10-30 · Status: offen, bis die Migration eingespielt und der PR gemergt ist · Ziel in Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitte „Gruppen“ und „Challenges“), Datenbank-Doku (`publish_challenge`, Policy „Gruppenaufgabe erstellen“)
+Datum: 2026-10-30 · Status: umgesetzt, PR #135 gemergt, Migration eingespielt (Daria, 30.10.2026); offen bis zum Test am Telefon · Ziel in Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitte „Gruppen“ und „Challenges“), Datenbank-Doku (`publish_challenge`, Policy „Gruppenaufgabe erstellen“)
 
 ## Entscheidung von Daria (30.10.2026)
 
@@ -19,6 +19,7 @@ We-Challenge und Bild in einer Gruppe lassen sich als Entwurf speichern, wie im 
 
 ## Offene Punkte
 
-- [ ] Migration in Supabase einspielen.
+- [x] Migration in Supabase eingespielt (30.10.2026).
+- [ ] Am Telefon testen: Bild-Entwurf in der Gruppe speichern, öffnen, posten.
 - [ ] Android-Update nach dem Merge.
 - [ ] Entwürfe beim Posten vorschlagen (TODO „Zeitnah“), Vorschlag vom 30.10.2026: Zeile „Deine Entwürfe“ oben im Erstellen-Blatt.
