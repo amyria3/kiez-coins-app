@@ -36,7 +36,7 @@ export const tourSteps: TourStep[] = [
   {
     key: 'gruppen',
     title: 'Gruppen für WG, Familie und Verein',
-    text: 'Verteilt Aufgaben unter Euch und sammelt Edensteine. Sie gelten nur in Eurer Gruppe.',
+    text: 'Verteilt We-Challenges unter Euch und sammelt Edensteine. Sie gelten nur in Eurer Gruppe.',
   },
   // Ergänzt von Daria (29.10.2026). Titel von Claude, Text von Daria
   {

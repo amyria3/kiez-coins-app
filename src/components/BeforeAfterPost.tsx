@@ -74,7 +74,7 @@ export function BeforeAfterPair({ before, after, height, duration, overlay, onLo
           delayLongPress={350}
           accessibilityRole="button"
           accessibilityLabel={t('Vorher-Foto')}
-          accessibilityHint={single ? t('Öffnet den Beitrag') : t('Tippen vergrößert das Vorher-Foto, nochmal tippen stellt zurück.')}
+          accessibilityHint={single ? t('Öffnet den Beitrag') : t('Tippen vergrößert das Vorher-Foto, noch mal tippen stellt zurück.')}
         >
           {before ? <Image source={before} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
           {dimBefore ? <View style={styles.dim} /> : null}
@@ -90,7 +90,7 @@ export function BeforeAfterPair({ before, after, height, duration, overlay, onLo
             delayLongPress={350}
             accessibilityRole="button"
             accessibilityLabel={t('Nachher-Foto')}
-            accessibilityHint={t('Tippen vergrößert das Nachher-Foto, nochmal tippen stellt zurück.')}
+            accessibilityHint={t('Tippen vergrößert das Nachher-Foto, noch mal tippen stellt zurück.')}
           >
             <Image source={after} style={StyleSheet.absoluteFill} contentFit="cover" />
             {dimAfter ? <View style={styles.dim} /> : null}

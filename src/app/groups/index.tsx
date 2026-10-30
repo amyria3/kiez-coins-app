@@ -36,7 +36,7 @@ export default function Groups() {
     >
       {groups.length === 0 ? (
         <KaterCard title="Gemeinsam statt einsam">
-          In einer Gruppe verteilt Ihr Aufgaben unter Euch, etwa im Verein, in der Hausgemeinschaft, der WG oder der Familie.
+          In einer Gruppe verteilt Ihr We-Challenges unter Euch, etwa im Verein, in der Hausgemeinschaft, der WG oder der Familie.
         </KaterCard>
       ) : null}
       {groups.map((g) => (

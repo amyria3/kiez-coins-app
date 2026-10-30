@@ -83,7 +83,7 @@ export default function GroupDetail() {
     Alert.alert(
       alone ? 'Gruppe auflösen?' : 'Gruppe verlassen?',
       alone
-        ? 'Du bist allein in der Gruppe. Sie verschwindet samt Aufgaben. Das lässt sich nicht rückgängig machen.'
+        ? 'Du bist allein in der Gruppe. Sie verschwindet samt We-Challenges. Das lässt sich nicht rückgängig machen.'
         : 'Deine Edensteine bleiben im Verlauf der Gruppe erhalten.',
       [
         { text: 'Abbrechen', style: 'cancel' },

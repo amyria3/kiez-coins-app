@@ -1279,7 +1279,7 @@
       closeAll();
       return setTab(d.bar === 'pleasure' ? 'pleasure' : 'nearby');
     }
-    // Karte: einmal tippen zeigt, wer gepostet hat; nochmal tippen öffnet sie (wie in der App)
+    // Karte: einmal tippen zeigt, wer gepostet hat; noch mal tippen öffnet sie (wie in der App)
     if (d.open && t.classList.contains('p-card') && !t.classList.contains('is-who')) {
       $$('.p-card.is-who').forEach(function (el) { el.classList.remove('is-who'); });
       t.classList.add('is-who');
@@ -1298,7 +1298,7 @@
       return;
     }
     if (d.pair) {
-      // Vorher-Nachher-Karte: Hälfte vergrößern, nochmal tippen stellt zurück
+      // Vorher-Nachher-Karte: Hälfte vergrößern, noch mal tippen stellt zurück
       var pair = t.closest('.p-pair');
       pair.dataset.focus = pair.dataset.focus === 'none' ? d.pair : 'none';
       return;

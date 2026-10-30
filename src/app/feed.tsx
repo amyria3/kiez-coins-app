@@ -459,7 +459,7 @@ export default function FeedScreen() {
   };
   const composeTarget = tab === 'groups' ? groupId : tab === 'private' ? 'private' : 'public';
   // Kurz und gleich für jede Gruppe (Daria, 24.10.2026)
-  const composeLine = tab === 'groups' ? t('Aufgabe erstellen') : t('Challenge erstellen');
+  const composeLine = tab === 'groups' ? t('We-Challenge erstellen') : t('Challenge erstellen');
   const storiesStyle = {
     height: showStories && !composing
       ? progress.interpolate({ inputRange: [0, 1], outputRange: [0, storiesHeight], extrapolateLeft: 'clamp' })
