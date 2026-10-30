@@ -7,7 +7,7 @@ import { Platform } from 'react-native';
 
 export type Look = 'kiez' | 'fashionable';
 export const looks: { code: Look; name: string; description: string }[] = [
-  { code: 'kiez', name: 'Kiez', description: 'Lila, rund, Kiez Coins pur' },
+  { code: 'kiez', name: 'Kiez', description: 'Lila, rund, KiezCoins pur' },
   { code: 'fashionable', name: 'Fashionable', description: 'Hell, blau, Fotos über die ganze Breite' },
 ];
 

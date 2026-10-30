@@ -50,7 +50,7 @@ export default function PayoutSettings() {
       onLeadingPress={goBack}
       actions={<Button label="Speichern" onPress={save} />}
     >
-      <Notice message="Kiez Coins bewegt kein Geld. Deine Daten sieht nur, wem Du sie für eine Challenge freigibst." />
+      <Notice message="KiezCoins bewegt kein Geld. Deine Daten sieht nur, wem Du sie für eine Challenge freigibst." />
       <TextField
         label="Kontoinhaber:in" required
         helperText="So wie bei Deiner Bank hinterlegt."

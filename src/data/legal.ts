@@ -63,14 +63,14 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       },
       {
         heading: 'Testbetrieb',
-        paragraphs: ['Kiez Coins ist eine kostenlose Testversion. Es gelten die Nutzungsbedingungen für die Testphase.'],
+        paragraphs: ['KiezCoins ist eine kostenlose Testversion. Es gelten die Nutzungsbedingungen für die Testphase.'],
       },
     ],
   },
 
   datenschutz: {
     title: 'Datenschutz',
-    intro: 'Hier steht, welche Daten Kiez Coins verarbeitet, wozu und wie lange. Kiez Coins nutzt keine Werbung, kein Tracking und keine Analyse-Werkzeuge.',
+    intro: 'Hier steht, welche Daten KiezCoins verarbeitet, wozu und wie lange. KiezCoins nutzt keine Werbung, kein Tracking und keine Analyse-Werkzeuge.',
     sections: [
       {
         heading: 'Verantwortlich ist die Anbieterin',
@@ -95,7 +95,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'Dein Standort bleibt auf Deinem Gerät',
         paragraphs: [
-          'Gibst Du den Standort frei, ermittelt Dein Handy daraus Ortsteil, Postleitzahl und Straße. Dafür nutzt es den Ortsdienst des Betriebssystems (Apple bei iPhone, Google bei Android). Kiez Coins speichert Deinen genauen Standort nicht. Gespeichert wird nur der Kiez als Text und bei Challenges der gerundete Punkt. Entfernungen im Feed berechnet Dein Handy selbst.',
+          'Gibst Du den Standort frei, ermittelt Dein Handy daraus Ortsteil, Postleitzahl und Straße. Dafür nutzt es den Ortsdienst des Betriebssystems (Apple bei iPhone, Google bei Android). KiezCoins speichert Deinen genauen Standort nicht. Gespeichert wird nur der Kiez als Text und bei Challenges der gerundete Punkt. Entfernungen im Feed berechnet Dein Handy selbst.',
           'In der Web-App fragt Dein Browser Kiez und Straße bei OpenStreetMap ab (Dienst Nominatim der OpenStreetMap Foundation, Vereinigtes Königreich). Er schickt dafür nur den auf etwa 100 Meter gerundeten Punkt, technisch bedingt auch Deine IP-Adresse. Grundlage ist Deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO) und der Angemessenheitsbeschluss der EU für das Vereinigte Königreich.',
           'Die Freigabe ist freiwillig und lässt sich jederzeit in den Einstellungen Deines Handys oder Browsers zurücknehmen. Ohne Freigabe trägst Du Deinen Kiez von Hand ein.',
         ],
@@ -103,7 +103,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'Zahlungsdaten gibst Du gezielt frei',
         paragraphs: [
-          'Kontoinhaberin oder Kontoinhaber, IBAN und PayPal-Adresse speichern wir nur, wenn Du sie einträgst. Sie sind privat. Für Coins gibst Du sie genau der Person frei, die Dir die Coins zahlt. Kiez Coins wickelt keine Zahlungen ab.',
+          'Kontoinhaberin oder Kontoinhaber, IBAN und PayPal-Adresse speichern wir nur, wenn Du sie einträgst. Sie sind privat. Für Coins gibst Du sie genau der Person frei, die Dir die Coins zahlt. KiezCoins wickelt keine Zahlungen ab.',
           'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
         ],
       },
@@ -139,19 +139,19 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       },
       {
         heading: 'Alter',
-        paragraphs: ['Kiez Coins ist für Personen ab 18 Jahren. Wir verarbeiten keine Daten von Kindern.'],
+        paragraphs: ['KiezCoins ist für Personen ab 18 Jahren. Wir verarbeiten keine Daten von Kindern.'],
       },
     ],
   },
 
   bedingungen: {
     title: 'Nutzungsbedingungen',
-    intro: 'Diese Bedingungen gelten für die kostenlose Testphase von Kiez Coins.',
+    intro: 'Diese Bedingungen gelten für die kostenlose Testphase von KiezCoins.',
     sections: [
       {
         heading: '1. Anbieterin und Testbetrieb',
         paragraphs: [
-          `Kiez Coins betreibt ${name}${hasAddress ? ' (Anschrift im Impressum)' : `, erreichbar unter ${email}`}. Die App ist eine Testversion und kostenlos. Funktionen können sich ändern, ausfallen oder wegfallen. Am Ende der Testphase können wir Daten zurücksetzen und kündigen das vorher per E-Mail an.`,
+          `KiezCoins betreibt ${name}${hasAddress ? ' (Anschrift im Impressum)' : `, erreichbar unter ${email}`}. Die App ist eine Testversion und kostenlos. Funktionen können sich ändern, ausfallen oder wegfallen. Am Ende der Testphase können wir Daten zurücksetzen und kündigen das vorher per E-Mail an.`,
         ],
       },
       {
@@ -171,7 +171,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: '4. Coins laufen direkt zwischen Euch',
         paragraphs: [
-          'Coins sind Versprechen von realem Geld. Das Konzept befindet sich in der Testphase. Kiez Coins ist nicht Vertragspartei, nimmt kein Geld an und zahlt keins aus. Das Geld fließt direkt per Überweisung oder PayPal. Barzahlung und Treffen zur Zahlung sind nicht vorgesehen.',
+          'Coins sind Versprechen von realem Geld. Das Konzept befindet sich in der Testphase. KiezCoins ist nicht Vertragspartei, nimmt kein Geld an und zahlt keins aus. Das Geld fließt direkt per Überweisung oder PayPal. Barzahlung und Treffen zur Zahlung sind nicht vorgesehen.',
           'Jede Person ist selbst dafür verantwortlich, eine Aufgabe sorgfältig zu erledigen, zugesagte Coins zu zahlen und Einnahmen gegebenenfalls zu versteuern. Eine Challenge begründet kein Arbeitsverhältnis.',
           'Edensteine sind eine ideelle Anerkennung. Sie lassen sich weder kaufen noch in Geld tauschen.',
         ],
@@ -206,7 +206,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
   regeln: {
     title: 'Community-Regeln',
     intro:
-      'Die Idee hinter Kiez Coins ist, dass Menschen glücklicher und gesünder sind, wenn sie miteinander kooperieren und robuste soziale Netzwerke bilden. Das setzt gegenseitige Achtung voraus. Missbräuchliches Verhalten, Sexismus, Übergriffe, Antisemitismus, politischer oder religiöser Fundamentalismus, Rassismus und Behindertenfeindlichkeit werden nicht toleriert.',
+      'Die Idee hinter KiezCoins ist, dass Menschen glücklicher und gesünder sind, wenn sie miteinander kooperieren und robuste soziale Netzwerke bilden. Das setzt gegenseitige Achtung voraus. Missbräuchliches Verhalten, Sexismus, Übergriffe, Antisemitismus, politischer oder religiöser Fundamentalismus, Rassismus und Behindertenfeindlichkeit werden nicht toleriert.',
     sections: [
       {
         heading: 'Respekt gilt für alle',

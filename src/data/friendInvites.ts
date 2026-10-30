@@ -12,7 +12,7 @@ export const friendInviteLink = (code: string) => `${WEB_APP_URL}/freunde/einlad
 /** Text zum Teilen. Link und Code stehen je auf eigener Zeile wie bei den Gruppen. */
 export const friendInviteMessage = (code: string) =>
   [
-    t('Ahoi! Lass uns bei Kiez Coins befreundet sein. Mit diesem Link bist Du dabei:'),
+    t('Ahoi! Lass uns bei KiezCoins befreundet sein. Mit diesem Link bist Du dabei:'),
     friendInviteLink(code),
     '',
     t('Oder gib in der App unter „Freundschaften“ diesen Code ein:'),

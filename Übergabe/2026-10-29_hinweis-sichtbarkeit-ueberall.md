@@ -17,3 +17,13 @@ Der Hinweis unter dem Umschalter Privat / Gruppe / Kiez / Überall erscheint ein
 - „Was Du so machst“, Reiter Gruppe: Knopf „Feed ansehen“ statt „Aufgaben ansehen“.
 - Dein Konto: oben „Me“ (bisher „Was Du so machst“), „Meine Challenges“ (bisher „Deine Challenges“), „Meine Features“ (bisher „Deine Funktionen“), danach Gruppen, Freundschaften, Sprache usw. wie bisher. Die Seiten selbst heißen noch wie vorher; die anderen Einträge heißen weiter „Deine …“.
 - Ziele (`src/components/Quests.tsx`): Im Web erschien der Deckel als kleines zweites Geschenk, weil er keine eigene Größe hatte; behoben. Geschlossene Geschenke wackeln ab und zu, kräftiger je näher das Ziel, ohne Fortschritt ruhig, versetzt, nicht bei reduzierter Bewegung. Offenes Geschenk grün (Bestätigung), aufsteigende Herzen pink als normales Herz statt Doppelherz.
+
+## Neue Texte (Daria, 30.10.2026)
+
+Zwei Zeilen je Reiter (`MESSAGE` in `AudienceHint.tsx`), Übersetzungen von Claude, ungeprüft:
+
+- Privat: „Das ist Dein privater Space.“ / „Diese Posts siehst nur Du.“
+- Gruppe: „Was Du in einer Gruppe postest, sehen alle Gruppenmitglieder.“ / „Du kannst aber auch einen Post als Entwurf speichern.“
+- Kiez: „Deine Posts im Kiez sehen alle im Umkreis von 5 km.“ / „Du kannst aber auch einen Post als Entwurf speichern.“ (5 km = `KIEZ_RADIUS_METERS`)
+- Überall: „Deine Posts hier sehen alle Nutzer:innen von KiezCoins.“ / „Too much Publicity? Wähle aus Kiez, Gruppen oder Privat.“
+

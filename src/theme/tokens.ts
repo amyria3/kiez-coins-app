@@ -1,4 +1,4 @@
-// Design-Tokens aus Figma (Datei „Kiez Coins“, Variablen-Sammlungen und Text Styles).
+// Design-Tokens aus Figma (Datei „KiezCoins“, Variablen-Sammlungen und Text Styles).
 // Die Namen folgen den Figma-Variablen: `color/bg/screen` → `color.bg.screen`.
 // Nach Änderungen in Figma hier abgleichen (siehe README, Abschnitt „Figma abgleichen“).
 

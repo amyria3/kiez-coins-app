@@ -144,7 +144,7 @@ Kontext: `Übergabe/2026-10-27_offen_community-regeln.md`.
 
 - [ ] Nutzungsbedingungen (Abschnitt 2, „ab 18 Jahren“) und Datenschutz (Abschnitt „Alter“) an den Abschnitt „Kinder“ anpassen: Kinder nutzen die App über Eltern oder Lehrkräfte
 - [ ] Nutzungsbedingungen, Abschnitt 3: „Werbung“ als Verbot streichen oder in die Community-Regeln aufnehmen
-- [ ] Schreibweise „KiezCoins“ oder „Kiez Coins“ in den Regeln vereinheitlichen
+- [ ] Schreibweise „KiezCoins“ oder „KiezCoins“ in den Regeln vereinheitlichen
 - [ ] Migration `20261027000300_app_texts_community_regeln.sql` im Supabase-SQL-Editor ausführen (Texte-Editor)
 
 ## 27.10.2026 (4) – We-Challenge mit mehreren Personen (Daria)

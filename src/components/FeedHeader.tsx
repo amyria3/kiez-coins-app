@@ -33,7 +33,7 @@ export function AppHeader(props: AppHeaderProps) {
 }
 
 /**
- * Kopf im Look „Fashionable“ nach Darias Mockup (24.10.2026): Schriftzug „Kiez Coins“ als Text links,
+ * Kopf im Look „Fashionable“ nach Darias Mockup (24.10.2026): Schriftzug „KiezCoins“ als Text links,
  * Inter Tight halbfett 24/28, rechts die Sprechblase mit Zeilen (Chats). Dein Profilbild („Was Du so machst“) sitzt in der Leiste unten (Daria, 27.10.2026).
  * Abstände 4 oben, 12 rechts, 8 unten, 14 links.
  */
@@ -43,11 +43,11 @@ function FashionHeader({ onLogoLongPress }: AppHeaderProps) {
   return (
     <View style={styles.fashionHead}>
       <Pressable onLongPress={onLogoLongPress} accessibilityRole="header">
-        {/* Kater aus dem monochromen Logo (26) und Schriftzug „Kiez Coins“, 8 Abstand (Daria, 24.10.2026, Variante B) */}
-        <View style={styles.brand} accessible accessibilityLabel="Kiez Coins">
+        {/* Kater aus dem monochromen Logo (26) und Schriftzug „KiezCoins“, 8 Abstand (Daria, 24.10.2026, Variante B) */}
+        <View style={styles.brand} accessible accessibilityLabel="KiezCoins">
           <MonoCat height={26} />
           <Text noTranslate style={styles.wordmark}>
-            Kiez Coins
+            KiezCoins
           </Text>
         </View>
       </Pressable>
