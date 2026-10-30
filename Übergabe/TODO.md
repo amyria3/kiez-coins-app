@@ -4,6 +4,11 @@ Stand: 28.10.2026. Diese Liste ist die einzige To-do-Liste für KiezKoins. Beide
 
 Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coins/screenshots/`. Sie stehen absichtlich nicht im Repo, weil das Repo öffentlich ist und einige Bilder Adressen und Namen zeigen.
 
+## Dringend (Daria, 30.10.2026)
+
+- [ ] `node scripts/i18n.mjs --prune` reparieren: Es löscht genutzte Übersetzungen, weil `collectKeys()` in `scripts/text-keys.mjs` `src/data/kater-sprueche.json` und einzelne Wörter wie „Mitglied“, „er“, „sie“ nicht erfasst. Bis dahin nicht ausführen. Details: `2026-10-25_offen_konsistenz.md`.
+- [ ] ESLint einrichten: `AGENTS.md` verlangt `npx expo lint`, das Repo hat keine ESLint-Konfiguration.
+
 ## Außerhalb des Codes
 
 - [x] Mailversand über Brevo und kiezcoins.de (läuft seit 21.10.2026, Code-Mail um 09:55 angekommen, IP-Sperre in Brevo aus)

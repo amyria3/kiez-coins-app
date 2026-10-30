@@ -81,7 +81,7 @@ export default function UserReportScreen() {
       <AuthorRow user={user} location={challenge?.location ?? ''} />
       <View style={styles.group}>
         <Text style={styles.title}>Was ist passiert?</Text>
-        <Text style={styles.hint} onPress={() => router.push('/rechtliches/regeln')}>
+        <Text style={styles.hint} onPress={() => router.push('/legal/regeln')}>
           Community-Regeln lesen
         </Text>
         <NudgeArea nudge={reasonField}>

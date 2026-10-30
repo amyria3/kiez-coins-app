@@ -68,7 +68,7 @@ export default function Account() {
         description="Geschafft, Ziele und Gruppen"
         // Fashionable Look: Dein Bild wie oben im Feed (Regelwerk: Was Du so machst = Dein Profil)
         leading={isFashionable ? <Avatar user={me} diameter={28} /> : <CrownIcon height={30} />}
-        onPress={() => router.push('/reise')}
+        onPress={() => router.push('/me')}
       />
       <NavCard
         title="Meine Challenges"
@@ -81,14 +81,14 @@ export default function Account() {
         title="Meine Features"
         description={modesShown}
         leading={<Icon name="switch" size={size.icon} color={color.text.primary} />}
-        onPress={() => router.push('/account/funktionen')}
+        onPress={() => router.push('/account/features')}
       />
       {modes.isVisible('groups') ? (
       <NavCard
         title="Deine Gruppen"
         description={groups.length === 0 ? 'Gründen oder beitreten' : groups.length === 1 ? '1 Gruppe' : t('{groups} Gruppen', { groups: groups.length })}
         leading={<Icon name="behausung" size={size.icon} color={color.text.primary} />}
-        onPress={() => router.push('/gruppen')}
+        onPress={() => router.push('/groups')}
       />
       ) : null}
       {/* Freundschaften, Funktionen und Look mit Darias Icons (25.10.2026), Sprache mit Phosphor.
@@ -103,13 +103,13 @@ export default function Account() {
             : 'Freund:innen und Anfragen'
         }
         leading={<Icon name="friends" size={size.icon} color={color.text.primary} />}
-        onPress={() => router.push('/account/freunde')}
+        onPress={() => router.push('/account/friends')}
       />
       <NavCard
         title="Deine Sprache"
         description={languageName}
         leading={<PhIcon name="language" size={size.icon} />}
-        onPress={() => router.push('/account/sprache')}
+        onPress={() => router.push('/account/language')}
       />
       {lookSelectable ? (
         <NavCard
@@ -133,13 +133,13 @@ export default function Account() {
           )
         }
         leadingFill={!isFashionable}
-        onPress={() => router.push('/kater')}
+        onPress={() => router.push('/cat')}
       />
       <FieldGroup label="Einstellungen">
         <View style={styles.list}>
           <NavRow label="So geht Kiez Coins" value="Kurze Videos" onPress={() => router.push('/tour')} />
-          <NavRow label="Benachrichtigungen" value={profile.push ? 'Push an' : 'Push aus'} onPress={() => router.push('/settings/notifications')} />
-          <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/settings/payout')} />
+          <NavRow label="Benachrichtigungen" value={profile.push ? 'Push an' : 'Push aus'} onPress={() => router.push('/account/notifications')} />
+          <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/account/payout')} />
           <NavRow label="Umfrage" value="7 Fragen zur App" onPress={() => setSurvey(true)} />
           <NavRow label="Support" value="Frage oder Problem" onPress={() => router.push('/account/support')} />
           <NavRow
@@ -148,10 +148,10 @@ export default function Account() {
             onPress={() => router.push('/account/blocked')}
           />
           {/* Ob jemand aus dem Team Deine Daten abgerufen hat (Daria, 27.10.2026) */}
-          <NavRow label="Abrufe Deiner Daten" value="Durchs Team" onPress={() => router.push('/account/datenabrufe')} />
+          <NavRow label="Abrufe Deiner Daten" value="Durchs Team" onPress={() => router.push('/account/data-access')} />
           {moderator ? <NavRow label="Moderation" value="Meldungen prüfen" onPress={() => router.push('/moderation')} /> : null}
-          {moderator ? <NavRow label="Umfrage-Ergebnis" value="Antworten zählen" onPress={() => router.push('/account/umfrage/ergebnis')} /> : null}
-          {moderator ? <NavRow label="Texte" value="Buttons, Kater, Rechtstexte" onPress={() => router.push('/texte')} /> : null}
+          {moderator ? <NavRow label="Umfrage-Ergebnis" value="Antworten zählen" onPress={() => router.push('/account/survey/results')} /> : null}
+          {moderator ? <NavRow label="Texte" value="Buttons, Kater, Rechtstexte" onPress={() => router.push('/texts')} /> : null}
         </View>
       </FieldGroup>
       <FieldGroup label="Konto">
@@ -168,10 +168,10 @@ export default function Account() {
       </FieldGroup>
       <FieldGroup label="Rechtliches">
         <View style={styles.list}>
-          <NavRow label="Community-Regeln" onPress={() => router.push('/rechtliches/regeln')} />
-          <NavRow label="Impressum" onPress={() => router.push('/rechtliches/impressum')} />
-          <NavRow label="Datenschutz" onPress={() => router.push('/rechtliches/datenschutz')} />
-          <NavRow label="Nutzungsbedingungen" value="Testphase" onPress={() => router.push('/rechtliches/bedingungen')} />
+          <NavRow label="Community-Regeln" onPress={() => router.push('/legal/regeln')} />
+          <NavRow label="Impressum" onPress={() => router.push('/legal/impressum')} />
+          <NavRow label="Datenschutz" onPress={() => router.push('/legal/datenschutz')} />
+          <NavRow label="Nutzungsbedingungen" value="Testphase" onPress={() => router.push('/legal/bedingungen')} />
         </View>
       </FieldGroup>
       <SurveyOverlay visible={survey} onClose={() => setSurvey(false)} />

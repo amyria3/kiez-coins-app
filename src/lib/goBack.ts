@@ -6,10 +6,10 @@ const NO_PAGE: Record<string, string> = {
   '/user': '/feed',
   '/challenge': '/feed',
   '/challenge/create': '/feed',
-  '/vorher-nachher': '/feed',
-  '/account/umfrage': '/account',
-  '/settings': '/account',
-  '/rechtliches': '/account',
+  '/before-after': '/feed',
+  '/account/survey': '/account',
+  '/friends': '/account/friends',
+  '/legal': '/account',
   '/onboarding': '/onboarding/welcome',
 };
 

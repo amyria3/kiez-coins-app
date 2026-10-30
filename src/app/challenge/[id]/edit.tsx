@@ -190,7 +190,7 @@ export default function EditChallenge() {
 
   return (
     <SubScreen
-      title={isGroup ? 'Aufgabe bearbeiten' : 'Challenge bearbeiten'}
+      title={isGroup ? 'We-Challenge bearbeiten' : 'Challenge bearbeiten'}
       navigation="close"
       onLeadingPress={goBack}
       actions={

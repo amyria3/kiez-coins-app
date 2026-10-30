@@ -176,12 +176,12 @@ export default function ChallengeDetail() {
     ) : multi ? (
       <Button icon="wir-schaffen-das" label="Mitmachen" onPress={join} />
     ) : (
-      <Button icon="wir-schaffen-das" label={challenge.groupId ? 'Aufgabe annehmen' : 'Challenge annehmen'} onPress={join} />
+      <Button icon="wir-schaffen-das" label={challenge.groupId ? 'We-Challenge annehmen' : 'Challenge annehmen'} onPress={join} />
     );
   } else if (reportsForAll) {
     actions = (
       <>
-        <Button label="Erledigt melden" onPress={() => router.push(`/challenge/${challenge.id}/report`)} />
+        <Button label="Erledigt melden" onPress={() => router.push(`/challenge/${challenge.id}/complete`)} />
         <Button label={multi ? 'Aussteigen' : 'Challenge abgeben'} variant="secondary" onPress={giveBack} />
       </>
     );
@@ -192,7 +192,7 @@ export default function ChallengeDetail() {
   } else if (isAuthor && challenge.status === 'payment_open') {
     actions = <Button label="Coins bezahlen" onPress={() => router.push(`/challenge/${challenge.id}/pay`)} />;
   } else if (canConfirmReceived) {
-    actions = <Button label="Coins bestätigen" onPress={() => router.push(`/challenge/${challenge.id}/payment`)} />;
+    actions = <Button label="Coins bestätigen" onPress={() => router.push(`/challenge/${challenge.id}/received`)} />;
   }
 
   const openProfile = (userId: string) =>
@@ -299,7 +299,7 @@ export default function ChallengeDetail() {
               last
               onPress={() => {
                 setMenuOpen(false);
-                router.push(`/challenge/${challenge.id}/flag`);
+                router.push(`/challenge/${challenge.id}/report`);
               }}
             />
           </View>
@@ -495,7 +495,7 @@ export default function ChallengeDetail() {
           <Notice
             message={tAbout(author, 'Damit {firstName} Dir Deinen Anteil zahlen kann, gib Deine IBAN oder PayPal frei. {firstName} sieht sie erst nach der Bestätigung.', { firstName: author.firstName })}
           />
-          <Button label="Zahlungsdaten freigeben" variant="secondary" onPress={() => router.push(`/challenge/${challenge.id}/report/payout?nur=1`)} />
+          <Button label="Zahlungsdaten freigeben" variant="secondary" onPress={() => router.push(`/challenge/${challenge.id}/complete/payout?nur=1`)} />
         </View>
       ) : null}
       {challenge.bountyAmount && !isAuthor && sharedBounty ? (
@@ -542,7 +542,7 @@ export default function ChallengeDetail() {
   if (!image) {
     return (
       <SubScreen
-        title={challenge.groupId ? 'Gruppenaufgabe' : 'Challenge'}
+        title={challenge.groupId ? 'We-Challenge in der Gruppe' : 'Challenge'}
         navigation="back"
         onLeadingPress={goBack}
         actions={actions}
