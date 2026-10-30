@@ -11,7 +11,7 @@ import { useNudge } from '../../components/Nudge';
 import { FriendInviteQr } from '../../components/FriendInviteQr';
 import { SubScreen } from '../../components/Screen';
 import { FRIEND_CODE_LENGTH, friendInviteLink, friendInviteMessage, parseFriendCode } from '../../data/friendInvites';
-import { acceptFriend, acceptFriendInvite, errorText, loadFriends, myFriendInvite, removeFriend, type FriendLists } from '../../data/remote';
+import { acceptFriend, acceptFriendInvite, errorDetail, errorText, loadFriends, myFriendInvite, removeFriend, type FriendLists } from '../../data/remote';
 import { useStore } from '../../data/store';
 import type { User } from '../../data/types';
 import { color, space, text } from '../../theme/tokens';
@@ -35,6 +35,7 @@ export default function Friends() {
   const [lists, setLists] = useState<FriendLists | null | undefined>(undefined);
   // undefined: lädt, null: Migration fehlt
   const [inviteCode, setInviteCode] = useState<string | null | undefined>(undefined);
+  const [inviteError, setInviteError] = useState<string | null>(null);
 
   useEffect(() => {
     if (mode !== 'live') {
@@ -43,7 +44,10 @@ export default function Friends() {
     }
     myFriendInvite()
       .then(setInviteCode)
-      .catch(() => setInviteCode(null));
+      .catch((error) => {
+        setInviteCode(null);
+        setInviteError(errorDetail(error));
+      });
   }, [mode]);
 
   const renewCode = () =>
@@ -157,6 +161,7 @@ export default function Friends() {
           )}
         </FieldGroup>
       ) : null}
+      {inviteError ? <Notice message={`${t('Deine Einladung nicht geladen.')} (${inviteError})`} /> : null}
       {inviteCode ? (
         <FieldGroup label="Einladen">
           <Text style={styles.secondary}>Wer Deine Einladung annimmt, ist sofort mit Dir befreundet.</Text>

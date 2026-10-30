@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Alert } from 'react-native';
 import type { AuthError, Session } from '@supabase/supabase-js';
 
 import { supabase } from '../lib/supabase';
-import { ensureOwnProfile, loadOwnProfile, saveOwnProfile } from './remote';
+import { ensureOwnProfile, errorText, loadOwnProfile, saveOwnProfile } from './remote';
 import { useStore } from './store';
 import type { Profile } from './types';
 import { t } from './texts';
@@ -168,8 +169,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (next === lastSynced.current) return;
     const timer = setTimeout(() => {
       lastSynced.current = next;
-      saveOwnProfile(session.user.id, profile).catch(() => {
+      saveOwnProfile(session.user.id, profile).catch((error) => {
         lastSynced.current = ''; // beim nächsten Mal erneut versuchen
+        // Ohne Netz still; sonst sagen, dass die Änderung nicht angekommen ist, mit Grund (Daria, 30.10.2026)
+        if (!/fetch|network/i.test((error as Error)?.message ?? '')) Alert.alert(t('Profil nicht gespeichert'), errorText(error));
       });
     }, 500);
     return () => clearTimeout(timer);
