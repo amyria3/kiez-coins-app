@@ -11,7 +11,7 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 ## Zeitnah (Daria, 30.10.2026)
 
-- [ ] Beim Posten Zugriff auf die Entwürfe: Wer im Erstellen-Blatt ist, soll einen gespeicherten Entwurf öffnen können (heute nur über „Meine Challenges“ › Entwürfe).
+- [x] Beim Posten Zugriff auf die Entwürfe: Das Erstellen-Blatt zeigt oben „Deine Entwürfe“ mit Kacheln, passend zum Modus (Privat, Gruppe, Kiez/Überall). Ein Tipp öffnet den Entwurf (`src/components/compose/DraftStrip.tsx`, 30.10.2026).
 
 ## Außerhalb des Codes
 
