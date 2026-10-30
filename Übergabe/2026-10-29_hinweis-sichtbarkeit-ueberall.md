@@ -10,7 +10,7 @@ Der Hinweis unter dem Umschalter Privat / Gruppe / Kiez / Überall erscheint ein
 
 - Feed (`src/app/feed.tsx`): jetzt auch im Reiter „Gruppe“ ohne Gruppe.
 - „Was Du so machst“ (`src/app/reise.tsx`) und Profil im Fashionable-Look (`src/components/FashionProfile.tsx`): derselbe Hinweis unter dem Umschalter.
-- Das Kreuz blendet den Hinweis je Reiter dauerhaft auf diesem Gerät aus, für Feed und „Was Du so machst“ gemeinsam (`AudienceHint`).
+- Sichtbar in den ersten fünf Sitzungen, danach dauerhaft weg (Daria, 30.10.2026). Das Kreuz blendet den Hinweis je Reiter nur für die laufende Sitzung aus. Eine Sitzung beginnt mit dem Start der App (im Browser: Laden der Seite) oder wenn die App nach mindestens 30 Minuten im Hintergrund wieder nach vorn kommt. Zähler pro Gerät: `kiez-hinweis-sitzungen` (`AudienceHint.tsx`). Die alten Schlüssel `kiez-hinweis-sichtbarkeit-*` gelten nicht mehr; wer den Hinweis früher geschlossen hat, sieht ihn wieder fünf Sitzungen lang.
 
 ## Außerdem in PR #123 (Daria, 29./30.10.2026)
 
