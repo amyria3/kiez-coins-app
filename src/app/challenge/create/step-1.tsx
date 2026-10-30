@@ -42,7 +42,8 @@ export default function CreateStep1() {
       setShowErrors(true);
       return;
     }
-    router.push('/challenge/create/step-2');
+    // Privates Bild: kein Ort, kein Zeitraum, gleich zur Vorschau (Daria, 30.10.2026)
+    router.push(draft.private && draft.type === 'photo' ? '/challenge/create/preview' : '/challenge/create/step-2');
   };
 
   // Schließen mit Eingaben: als Entwurf behalten oder verwerfen
