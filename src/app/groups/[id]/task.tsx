@@ -12,25 +12,30 @@ import { useStore } from '../../../data/store';
 import { useGoBack } from '../../../lib/goBack';
 
 /**
- * Route `groups/[id]/task`: Gruppenaufgabe mit 1 bis 10 Edensteinen. Foto optional, kein Ort, kein Entwurf.
+ * Route `groups/[id]/task`: Gruppenaufgabe mit 1 bis 10 Edensteinen. Foto optional, kein Ort.
  * Der Schalter oben wechselt zur Me-Challenge oder zum Bild in dieser Gruppe (Daria, 27.10.2026), wie im Erstellen-Blatt über dem Feed.
  * Mit `copyOf` (aus „Deine Challenges“, „Kopie erstellen“) startet sie mit Foto, Titel, Text und Edensteinen einer alten Aufgabe.
+ * Mit `draftId` (aus „Deine Challenges“, Entwürfe) bearbeitet sie einen Entwurf dieser Gruppe (Daria, 30.10.2026).
+ * Dann gibt es nur We-Challenge und Bild: Vorher-Nachher hat einen eigenen Entwurf mit Timer.
  */
 export default function NewGroupTask() {
-  const { id, copyOf } = useLocalSearchParams<{ id: string; copyOf?: string }>();
+  const { id, copyOf, draftId } = useLocalSearchParams<{ id: string; copyOf?: string; draftId?: string }>();
   const router = useRouter();
   const goBack = useGoBack();
   const { groups, challenges } = useStore();
   const group = groups.find((g) => g.id === id);
-  const original = copyOf ? challenges.find((c) => c.id === copyOf) : undefined;
-  const options = GROUP_TYPES;
-  const [choice, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('task');
+  const draft = draftId ? challenges.find((c) => c.id === draftId && c.status === 'draft') : undefined;
+  const original = draft ?? (copyOf ? challenges.find((c) => c.id === copyOf) : undefined);
+  const options = draft ? GROUP_TYPES.filter((o) => o.key !== 'before_after') : GROUP_TYPES;
+  const [choice, setType] = useState<(typeof GROUP_TYPES)[number]['key']>(draft?.type === 'photo' ? 'photo' : 'task');
   const type = options.some((o) => o.key === choice) ? choice : 'task';
   // Foto, Titel und Text bleiben beim Wechsel des Typs erhalten
   const shared = useComposeContent({ photo: original?.image, title: original?.title, text: original?.text });
-  const task = useGroupTaskForm(id, { edensteine: original?.edensteine }, (taskId) => router.replace(`/challenge/${taskId}`), shared);
-  const photo = useGroupPhotoForm(id, (postId) => router.replace(`/challenge/${postId}`), shared);
-  const ba = useBeforeAfterStartForm(id, (draftId) => router.replace({ pathname: '/before-after/[id]', params: { id: draftId } }), shared);
+  const participation = draft?.maxParticipants ? { max: draft.maxParticipants, mode: draft.joinMode ?? 'open' } : undefined;
+  // Entwurf gespeichert: zurück, woher man kam
+  const task = useGroupTaskForm(id, { edensteine: original?.edensteine, participation }, (taskId) => router.replace(`/challenge/${taskId}`), shared, goBack, draft);
+  const photo = useGroupPhotoForm(id, (postId) => router.replace(`/challenge/${postId}`), shared, goBack, draft);
+  const ba = useBeforeAfterStartForm(id, (baId) => router.replace({ pathname: '/before-after/[id]', params: { id: baId } }), shared);
   const form = type === 'before_after' ? ba : type === 'photo' ? photo : task;
   return (
     <SubScreen
