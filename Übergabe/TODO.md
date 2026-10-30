@@ -163,7 +163,7 @@ Plan und Entscheidungen: `Übergabe/2026-10-27_we-challenge-mehrere-personen.md`
 - [ ] `/laden` und `/qr` am Telefon testen, danach die QR-Codes drucken (`Übergabe/2026-10-29_offen_website-laden-qr.md`)
 - [ ] Nach dem 01.11.2026 prüfen, ob der EAS-Workflow wieder startet
 - [ ] Texte von Claude in der Tour prüfen (`Übergabe/2026-10-29_offen_tour.md`)
-- [ ] Migration `20261029000500_app_texts_anlegen.sql` einspielen, falls noch nicht geschehen (Texte-Editor, `2026-10-29_offen_texte-editor-alle-texte.md`)
+- [x] Migration `20261029000500_app_texts_anlegen.sql` eingespielt (Daria, 30.10.2026; Texte-Editor, `2026-10-29_texte-editor-alle-texte.md`)
 - [ ] PR #16 („Download ohne Supabase-Secret“) ohne Merge schließen: überholt, der Download läuft schon über `download_settings` (Daria bestätigt, dass er funktioniert)
 - [ ] Notizen vom 29. und 30.10.2026 in Documentation übernehmen: Bild-Text, Tour, Modus „Überall“, Profil, Website, leere Reiter, Hinweis, Texte-Editor, Routen, Nutzungsbedingungen
 
