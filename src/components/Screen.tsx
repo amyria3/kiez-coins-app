@@ -101,7 +101,8 @@ type HeroScreenProps = {
   /** Weitere Fotos: Mit mehr als einem Foto lässt sich das Foto seitlich wischen. */
   moreImages?: ImageSourcePropType[];
   imageLabel?: string;
-  onBackPress: () => void;
+  /** Ohne: kein Zurück-Knopf, z. B. in der Vorschau beim Erstellen (dort zurück über „Bearbeiten“) */
+  onBackPress?: () => void;
   onSharePress?: () => void;
   /** Buttons für die ActionBar */
   actions?: ReactNode;
@@ -307,7 +308,7 @@ export function HeroScreen({
         </NudgeScrollProvider>
       </KeyboardAvoidingView>
       <View style={[styles.heroButtons, { top: insets.top + space[8] }]} pointerEvents="box-none">
-        <GlassIconButton icon="chevron-left" accessibilityLabel={t('Zurück')} onPress={onBackPress} />
+        {onBackPress ? <GlassIconButton icon="chevron-left" accessibilityLabel={t('Zurück')} onPress={onBackPress} /> : <View />}
         {onSharePress ? <GlassIconButton icon="send" accessibilityLabel={t('Teilen')} onPress={onSharePress} /> : null}
       </View>
     </Animated.View>
