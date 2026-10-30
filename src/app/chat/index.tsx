@@ -143,7 +143,7 @@ export default function Chats() {
         {data && data.conversations.length ? (
           <Text style={styles.hint}>Nachrichten verschwinden nach einem Monat.</Text>
         ) : null}
-        <Button label="Freundschaften verwalten" variant="ghost" onPress={() => router.push('/account/freunde')} />
+        <Button label="Freundschaften verwalten" variant="ghost" onPress={() => router.push('/account/friends')} />
       </ScrollView>
       <TabBar active="chat" onFeedPress={toFeed} onMenuPress={() => router.push('/account')} />
     </View>

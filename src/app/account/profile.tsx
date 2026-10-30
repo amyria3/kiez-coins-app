@@ -4,6 +4,7 @@ import { Text } from '../../components/T';
 import { useRouter } from 'expo-router';
 
 import { Avatar } from '../../components/AuthorRow';
+import { AvatarCropper } from '../../components/AvatarCropper';
 import { choosePhoto } from '../../components/Form';
 import { GearsLoader, SMALL_GEARS } from '../../components/GearsLoader';
 import { Icon } from '../../components/icons/Icon';
@@ -11,7 +12,7 @@ import { FieldGroup } from '../../components/Content';
 import { EditableRow, NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { useAuth } from '../../data/auth';
-import { addressForms, anrede, genderLabel } from '../../data/format';
+import { genderLabel } from '../../data/format';
 import { errorText, loadProfileExtras, normalizeWebsite, saveAvatar, saveHandle, saveProfileExtras, type ProfileExtras } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
 import type { ImageSource } from '../../data/types';
@@ -69,11 +70,15 @@ export default function PersonalDetails() {
       setUploading(false);
     }
   };
+  // Nach der Wahl den Ausschnitt im Kreis festlegen (Daria, 29.10.2026). Auch das jetzige Bild lässt sich neu zuschneiden.
+  const [cropUri, setCropUri] = useState<string>();
+  const uriOf = (photo?: ImageSource) =>
+    typeof photo === 'object' && photo && 'uri' in photo && typeof photo.uri === 'string' ? photo.uri : undefined;
   const pickAvatar = () =>
-    choosePhoto((photo) => setAvatar(photo), {
-      square: true,
+    choosePhoto((photo) => setCropUri(uriOf(photo)), {
       title: me.avatar ? 'Profilbild ändern' : 'Profilbild hinzufügen',
       onRemove: me.avatar ? () => setAvatar(null) : undefined,
+      extra: uriOf(me.avatar) ? { text: 'Ausschnitt ändern', onPress: () => setCropUri(uriOf(me.avatar)) } : undefined,
     });
 
   const saveDeckname = async (handle: string) => {
@@ -87,14 +92,6 @@ export default function PersonalDetails() {
     dispatch({ type: 'updateProfile', patch: { handle: handle.trim() } });
   };
 
-  const saveAnrede = (value: string) => {
-    // Auswahl erkennen, auch in der übersetzten Fassung („Pirate“)
-    const preset = addressForms.find((f) => f.label === value || t(f.label) === value);
-    dispatch({
-      type: 'updateProfile',
-      patch: preset ? { addressForm: preset.key, addressCustom: undefined } : { addressForm: 'custom', addressCustom: value },
-    });
-  };
 
   return (
     <SubScreen title="Persönliche Angaben" navigation="back" onLeadingPress={goBack}>
@@ -119,12 +116,12 @@ export default function PersonalDetails() {
         <Text style={styles.avatarLabel}>{me.avatar ? 'Profilbild ändern' : 'Profilbild hinzufügen'}</Text>
       </Pressable>
       <FieldGroup label="Profil">
-        <EditableRow label="Deckname" value={profile.handle || me.name} maxLength={30} onSave={saveDeckname} />
-        <EditableRow label="Ansprache" value={anrede(profile)} maxLength={30} onSave={saveAnrede} />
+        <EditableRow label="Deckname (Nickname)" value={profile.handle || me.name} maxLength={30} onSave={saveDeckname} />
+        {/* Ansprache ausgeblendet (Daria, 29.10.2026). Gespeicherte Werte bleiben und gelten weiter, sonst „Pirat:in“. */}
         <NavRow
           label="Grammatisches Geschlecht"
           value={genderLabel(profile.gender)}
-          onPress={() => router.push('/account/geschlecht')}
+          onPress={() => router.push('/account/gender')}
         />
         <NavRow
           label="Kiez"
@@ -159,6 +156,14 @@ export default function PersonalDetails() {
           <Text style={styles.secondary}>{profile.email}</Text>
         </FieldGroup>
       ) : null}
+      <AvatarCropper
+        uri={cropUri}
+        onCancel={() => setCropUri(undefined)}
+        onDone={(uri) => {
+          setCropUri(undefined);
+          setAvatar({ uri });
+        }}
+      />
     </SubScreen>
   );
 }

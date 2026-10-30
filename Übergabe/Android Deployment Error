@@ -1,0 +1,26 @@
+ Select environment: › preview
+[expo-cli] --non-interactive is not supported, use $CI=1 instead
+[expo-cli] Using src/app as the root directory for Expo Router.
+[expo-cli] Starting Metro Bundler
+[expo-cli] iOS Bundling failed 2407ms node_modules/expo-router/entry.js (1451 modules)
+[expo-cli] Error: Unable to resolve module expo-updates from /Users/arkadieff/kiez-coins-app/src/components/ErrorScreen.tsx: expo-updates could not be found within the project or in these directories:
+[expo-cli]   node_modules
+[expo-cli]   4 | import Constants from 'expo-constants';
+[expo-cli]   5 | import { router } from 'expo-router';
+[expo-cli] > 6 | import * as Updates from 'expo-updates';
+[expo-cli]     |                           ^
+[expo-cli]   7 |
+[expo-cli]   8 | import { buildErrorReport, mailErrorReport, sendErrorReport } from '../lib/errorReport';
+[expo-cli]   9 | import { color, font, radius, space, text } from '../theme/tokens';
+[expo-cli] 
+[expo-cli] Import stack:
+[expo-cli] 
+[expo-cli]  src/components/ErrorScreen.tsx
+[expo-cli]  | import "expo-updates"
+[expo-cli] 
+[expo-cli]  src/app/_layout.tsx
+[expo-cli]  | import "../components/ErrorScreen"
+[expo-cli] 
+[expo-cli]  src/app (require.context)
+✖ Export failed
+/Users/arkadieff/kiez-coins-app/node_modules/expo/bin/cli export --output-dir dist --experimental-bundle --non-interactive --dump-sourcemap --dump-assetmap --platform=all exited with non-zero code: 1

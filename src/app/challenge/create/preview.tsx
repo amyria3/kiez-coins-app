@@ -14,16 +14,18 @@ import { Button } from '../../../components/Button';
 import { DeadlineBadge } from '../../../components/Badges';
 import { markComposeDone } from '../../../components/compose/compose';
 import { celebratePost } from '../../../components/HeartBurst';
-import { CoinsIcon } from '../../../components/icons/Brand';
+import { CoinsIcon, LivingCrystal } from '../../../components/icons/Brand';
 import { Icon } from '../../../components/icons/Icon';
 import { HeroScreen } from '../../../components/Screen';
 import { formatBountyShort, formatRemainingShort } from '../../../data/format';
 import { useCurrentUser, useStore } from '../../../data/store';
 import { color, font, motion, radius, size, space, stroke, text } from '../../../theme/tokens';
 import { useAppDimensions } from '../../../theme/layout';
-import { useDraft } from './_layout';
+import { photoTextInput, useDraft } from './_layout';
 import { useGoBack } from '../../../lib/goBack';
 import { WithMentions } from '../../../components/WithMentions';
+import { participationText } from '../../../data/weChallenge';
+import { sharedBountyText } from '../../../data/coins';
 
 /** Breite des ausgeblurrten Rands links und rechts (schmal, Daria 22.10.2026) */
 const EDGE = space[8];
@@ -60,6 +62,7 @@ export default function CreatePreview() {
   const deadline = new Date(Date.now() + draft.durationDays * 24 * 60 * 60 * 1000).toISOString();
   const isPhoto = draft.type === 'photo';
   const bountyAmount = isPhoto ? undefined : draft.bountyAmount;
+  const edensteine = isPhoto || bountyAmount ? undefined : draft.edensteine;
   const bottom = Math.max(insets.bottom, space[16]);
   const top = insets.top + space[8];
   const { width: screenW, height: screenH } = useAppDimensions();
@@ -105,6 +108,9 @@ export default function CreatePreview() {
     });
   }, [shiftX, singlePhoto]);
 
+  // Mehrere Personen nur für We-Challenges (Daria, 27.10.2026)
+  const participation = draft.type === 'photo' ? undefined : draft.participation;
+
   const publish = async () => {
     if (!draft.photo || busy) return;
     if (bountyAmount && !canOfferBounties) {
@@ -125,10 +131,14 @@ export default function CreatePreview() {
               text: draft.text,
               location: draft.location,
               bountyAmount,
+              edensteine,
+              participation,
               photo: draft.imagePath ? undefined : draft.photo,
               imagePath: draft.imagePath,
               coords: draft.coords,
               extras: draft.extras,
+              localOnly: draft.localOnly,
+              photoText: photoTextInput(draft),
             },
             deadline,
           )
@@ -138,11 +148,15 @@ export default function CreatePreview() {
             text: draft.text.trim(),
             location: draft.location.trim(),
             bountyAmount,
+            edensteine,
+            participation,
             photo: draft.photo,
             deadline,
             coords: draft.coords,
             extras: draft.extras,
             private: draft.private,
+            localOnly: draft.localOnly,
+            photoText: photoTextInput(draft) ?? undefined,
           });
       markComposeDone();
       celebratePost();
@@ -166,6 +180,12 @@ export default function CreatePreview() {
         {draft.title.trim()}
       </Text>
       <View style={styles.metrics}>
+        {edensteine ? (
+          <View style={styles.metric}>
+            <LivingCrystal height={52} seed="neue-we-challenge" />
+            <Text style={[styles.metricValue, styles.eden]}>{edensteine}</Text>
+          </View>
+        ) : null}
         {bountyAmount ? (
           <View style={styles.metric}>
             <CoinsIcon height={28} />
@@ -179,6 +199,12 @@ export default function CreatePreview() {
           </View>
         )}
       </View>
+      {participation && participationText(participation.max, participation.mode) ? (
+        <Text style={styles.caption}>{participationText(participation.max, participation.mode)}</Text>
+      ) : null}
+      {participation && sharedBountyText(bountyAmount, participation.max) ? (
+        <Text style={styles.caption}>{sharedBountyText(bountyAmount, participation.max)}</Text>
+      ) : null}
     </>
   );
 
@@ -200,6 +226,7 @@ export default function CreatePreview() {
         image={draft.photo}
         moreImages={draft.extras.map((e) => e.photo)}
         imageLabel={draft.title}
+        photoText={isPhoto ? draft.photoText : undefined}
         onBackPress={() => goBack()}
         summary={summary}
       >
@@ -310,6 +337,7 @@ const styles = StyleSheet.create({
   deadline: { justifyContent: 'center', minHeight: size.touchTarget },
   metricValue: { ...text.metric, fontSize: 17, lineHeight: 22, color: color.text.primary },
   signal: { color: color.accent.signal },
+  eden: { color: color.accent.confirmation },
   description: { fontFamily: font.light, fontSize: 15, lineHeight: 22, color: color.text.secondary },
   authorBlock: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
 });

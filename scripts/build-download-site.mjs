@@ -10,6 +10,7 @@ import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync,
 import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import QRCode from 'qrcode';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const out = join(root, 'website');
@@ -59,15 +60,20 @@ button, .button { display:block; text-align:center; text-decoration:none; box-si
 footer { display:flex; flex-wrap:wrap; gap:16px; font-size:13px; margin-top:40px; padding-top:16px; border-top:1px solid var(--line); }
 footer a { color:var(--muted); }
 .updated { font-size:13px; }
+.zurueck { margin:0 0 24px; font-size:14px; }
+.zurueck a { color:var(--muted); text-decoration:none; }
+.zurueck a:hover { color:var(--text); text-decoration:underline; }
 `;
 
 const footer = `<footer>
-  <a href="./">Start</a>
-  <a href="impressum.html">Impressum</a>
-  <a href="datenschutz.html">Datenschutz</a>
-  <a href="nutzungsbedingungen.html">Nutzungsbedingungen</a>
-  <a href="community-regeln.html">Community-Regeln</a>
+  <a href="/">Start</a>
+  <a href="/impressum">Impressum</a>
+  <a href="/datenschutz">Datenschutz</a>
+  <a href="/nutzungsbedingungen">Nutzungsbedingungen</a>
+  <a href="/community-regeln">Community-Regeln</a>
 </footer>`;
+// Jede Unterseite führt oben sichtbar zurück zur Startseite (Daria, 28.10.2026)
+const zurueck = `<nav class="zurueck"><a href="/">← Zurück zur Startseite</a></nav>`;
 
 const page = (title, body) => `<!doctype html>
 <html lang="de">
@@ -81,6 +87,7 @@ const page = (title, body) => `<!doctype html>
 </head>
 <body>
 <main>
+${zurueck}
 ${body}
 ${footer}
 </main>
@@ -253,9 +260,15 @@ ${blumenTeile}
 </section>`;
 
 const leute = [
-  { figur: figuren.muetze, text: 'Besser als Doomscrolling', en: 'Better than doomscrolling' },
-  { figur: figuren.locken, text: 'Wie GitHub für den Alltag', en: 'Like GitHub for everyday life' },
-  { figur: figuren.nachbarin, text: 'Schon praktisch', en: 'Pretty handy' },
+  // Foto statt Zeichnung, freigestellt mit schmalem Rand (Daria, 28.10.2026)
+  { foto: 'frau3.webp', w: 446, h: 584, alt: 'Lachende Frau mit Brille', altEn: 'Laughing woman with glasses', text: 'Viel besser als Doomscrolling', en: 'Way better than doomscrolling' },
+  { foto: 'mann.webp', w: 558, h: 501, alt: 'Lachender Mann mit Brille', altEn: 'Laughing man with glasses', text: 'Wie GitHub für den Alltag', en: 'Like GitHub for everyday life' },
+  { foto: 'frau.webp', w: 484, h: 602, alt: 'Junge Frau in Jacke', altEn: 'Young woman in a jacket', text: 'Schon praktisch', en: 'Pretty handy' },
+  { foto: 'mann2.webp', w: 600, h: 442, alt: 'Lachender Mann mit Brille und Anzug', altEn: 'Laughing man with glasses and a suit', text: 'I like the idea', en: 'I like the idea' },
+  { foto: 'mann3.webp', w: 652, h: 498, alt: 'Lachender älterer Mann im Jeanshemd', altEn: 'Laughing older man in a denim shirt', text: 'Gemeinsam statt einsam', en: 'Together, not alone' },
+  { foto: 'frau4.webp', w: 551, h: 508, alt: 'Lachende Frau mit grauen Locken', altEn: 'Laughing woman with grey curls', text: 'Gut investierte Zeit', en: 'Time well spent' },
+  { foto: 'frau5.webp', w: 584, h: 504, alt: 'Junge Frau mit Baskenmütze und Kaffeebecher', altEn: 'Young woman with a beret and a coffee cup', text: 'Ganz fresh auf dem Markt und fast schon Avantgarde', en: 'Fresh on the market and almost avant-garde' },
+  { foto: 'frau6.webp', w: 575, h: 495, alt: 'Lachende junge Frau im gelben Pullover', altEn: 'Laughing young woman in a yellow sweater', text: 'Weniger Bullshit, mehr Leben', en: 'Less bullshit, more life' },
 ];
 
 const startseite = (L) => {
@@ -295,14 +308,17 @@ ${filterDefs}
   <div class="steuerung">
   <div class="rolle" id="rolle" role="radiogroup" aria-label="${t('Ort im Prototyp', 'Place in the prototype')}">
     <span class="szenario-mark" aria-hidden="true"></span>
-    <button type="button" role="radio" aria-checked="true" data-rolle="kiez" aria-controls="prototyp">${t('Mein Kiez', 'My neighborhood')}</button>
+    <button type="button" role="radio" aria-checked="false" data-rolle="ich" aria-controls="prototyp">${t('Nur ich', 'Just me')}</button>
     <button type="button" role="radio" aria-checked="false" data-rolle="gruppe" aria-controls="prototyp">${t('Meine Gruppen', 'My groups')}</button>
+    <button type="button" role="radio" aria-checked="true" data-rolle="kiez" aria-controls="prototyp">${t('Mein Kiez', 'My neighborhood')}</button>
+    <button type="button" role="radio" aria-checked="false" data-rolle="ueberall" aria-controls="prototyp">${t('Überall', 'Everywhere')}</button>
   </div>
   <div class="szenarien" id="szenarien" aria-label="${t('Prototyp steuern', 'Control the prototype')}">
     <span class="szenario-mark" aria-hidden="true"></span>
-    <button type="button" data-szenario="me" aria-pressed="true" aria-controls="prototyp"><b>Me-Challenge</b><i>Me-Challenge</i><span>${t('How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!', 'How do you feel today? Share a life hack or an especially kid- and budget-friendly recipe. Or challenge yourself and do something really nice for people or animals. Showing off and friendly competition are welcome!')}</span></button>
+    <button type="button" data-szenario="me" aria-pressed="false" aria-controls="prototyp"><b>Me-Challenge</b><i>Me-Challenge</i><span>${t('How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!', 'How do you feel today? Share a life hack or an especially kid- and budget-friendly recipe. Or challenge yourself and do something really nice for people or animals. Showing off and friendly competition are welcome!')}</span></button>
     <button type="button" data-szenario="we" aria-pressed="false" aria-controls="prototyp"><b>We-Challenge</b><i>We-Challenge</i><span>${t('Dir ist etwas aufgefallen, was getan werden müsste, was Du aber nicht selbst tun kannst? Poste eine We-Challenge in Deinem Kiez, setze eine Belohnung aus und lehn Dich erst mal zurück. Wir sind gespannt, was sich so alles bewegen lässt!', 'Noticed something that needs doing, but you can’t do it yourself? Post a We-Challenge in your neighborhood, set a reward and sit back for a while. We’re curious how much we can get moving!')}</span></button>
-    <button type="button" data-szenario="rangliste" aria-pressed="false" aria-controls="prototyp" hidden><b>${t('Rangliste', 'Leaderboard')}</b><i>${t('Rangliste', 'Leaderboard')}</i><span>${t('Du magst es kompetitiv? Schalte die Rangliste für Eure Gruppe ein oder aus. May the best win!', 'Like it competitive? Turn the leaderboard for your group on or off. May the best win!')}</span></button>
+    <button type="button" data-szenario="bild" aria-pressed="false" aria-controls="prototyp"><b>${t('Nur ein Bild', 'Just a photo')}</b><i>${t('Bild', 'Photo')}</i><span>${t('Teile mit Deinen Nachbar:innen besondere Momente, Orte oder Buchempfehlungen.', 'Share special moments, places or book tips with your neighbors.')}</span></button>
+    <button type="button" data-szenario="feed" aria-pressed="false" aria-controls="prototyp"><b>Feed</b><i>Feed</i><span>${t('Wie in jedem sozialen Netzwerk: sehen, was andere Menschen so posten. Hol Dir Inspiration, Tipps, Life Hacks & Satisfaction über erledigte Challenges.', 'Like any social network: see what other people post. Get inspiration, tips, life hacks & satisfaction from completed challenges.')}</span></button>
   </div>
   <p class="szenario-text" id="szenario-text" aria-hidden="true">${t('How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!', 'How do you feel today? Share a life hack or an especially kid- and budget-friendly recipe. Or challenge yourself and do something really nice for people or animals. Showing off and friendly competition are welcome!')}</p>
   </div>
@@ -321,12 +337,17 @@ ${filterDefs}
     <h2 id="mehr-titel">${t('Kann die App noch mehr?', 'Can the app do more?')}</h2>
     <p>${t('Klar. Tipp auf eine Karte und probier es aus.', 'Sure. Tap a card and try it out.')}</p>
     <div class="mehr-karten">
-      <button type="button" class="mehr-karte" data-mehr="wald" style="--c:${C.pink}">
-        <span class="mehr-icon">${sized(icon('camera', C.dark), 30)}</span>
-        <b>${t('Schöne Waldbilder posten', 'Post beautiful forest photos')}</b>
-        <span class="mehr-buehne mehr-wald" aria-hidden="true"><img src="${P}prototyp/fotos/wald.jpg?v=${version(readFileSync(join(fotoDir, 'wald.jpg')))}" alt="" loading="lazy" decoding="async"><span class="mehr-herz">${sized(icon('heart', C.pink), 14)}<i>0</i></span></span>
-        <span class="mehr-status" aria-live="polite">${t('Tipp und poste das Foto.', 'Tap to post the photo.')}</span>
-      </button>
+      <div class="mehr-karte mehr-karte-fest" data-mehr="rangliste" style="--c:${C.pink}">
+        <span class="mehr-icon">${sized({ ...kcSvg.crown, svg: crownSvg.svg(C.dark) }, 26)}</span>
+        <b>${t('Rangliste in der Gruppe', 'Leaderboard in your group')}</b>
+        <ol class="mehr-buehne mehr-rang" aria-hidden="true">
+          <li data-rang="peter" style="--a:#FFAD7E"><span class="mehr-avatar">P</span><span>Peter</span><b>18</b></li>
+          <li data-rang="lena" style="--a:#FFB2E5"><span class="mehr-avatar">L</span><span>Lena</span><b>14</b></li>
+          <li data-rang="du" class="is-ich" style="--a:#7E94FF"><span class="mehr-avatar">${t('D', 'Y')}</span><span>${t('Du', 'You')}</span><b>12</b></li>
+        </ol>
+        <button type="button" class="mehr-aktion">${t('Aufgabe erledigt?', 'Task done?')}</button>
+        <span class="mehr-status" aria-live="polite">${t('Du magst es kompetitiv? Jede erledigte Aufgabe bringt Dich nach oben.', 'Like it competitive? Every task you get done moves you up.')}</span>
+      </div>
       <button type="button" class="mehr-karte" data-mehr="freunde" style="--c:${C.green}">
         <span class="mehr-icon">${sized(icon('friends', C.dark), 30)}</span>
         <b>${t('Freunde hinzufügen', 'Add friends')}</b>
@@ -350,33 +371,54 @@ ${filterDefs}
     <h2 id="leute-titel">${t('Kiez Coins passt zwischen Briefkasten und Fahrradkeller.', 'Kiez Coins fits between the mailbox and the bike cellar.')}</h2>
     <p>${t('Aufgaben, die sonst liegen bleiben, erledigt jemand safe - als wäre es ein Spiel', 'Tasks that would otherwise pile up get done for sure – as if it were a game')}</p>
     <div class="szene">
-${leute.map((l) => `      <div class="person"><p class="blase">${esc(t(l.text, l.en))}</p>${l.figur}</div>`).join('\n')}
+${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" viewBox="0 0 40 40" aria-hidden="true"><path d="M14 14a10 10 0 0 1 12 0"/><path d="M9 8a17 17 0 0 1 22 0"/><path d="M22 22l8 -3"/><path d="M20 26l9 2"/></svg><p class="blase">${esc(t(l.text, l.en))}</p>${l.foto ? `<img class="figur figur-foto" src="${P}leute/${l.foto}?v=${version(readFileSync(join(siteDir, 'leute', l.foto)))}" alt="${esc(t(l.alt, l.altEn))}" width="${l.w}" height="${l.h}" loading="lazy" decoding="async">` : l.figur}</div>`).join('\n')}
     </div>
+  </div>
+</section>
+
+<!-- Texte von Daria (29.10.2026) -->
+<section class="wechsel" aria-labelledby="wechsel-titel">
+  <div class="wrap">
+    <h2 id="wechsel-titel">${t('Wieso Du einen Wechsel erwägen solltest:', 'Why you should consider switching:')}</h2>
+    <ul class="wechsel-liste">
+      <li>${t('Drin ist, was drauf steht - ein pro-soziales Netzwerk', 'What it says on the tin – a pro-social network')}</li>
+      <li>${t('Dich suchtartig an die App zu ketten - sowas machen wir nicht.', 'Chaining you to the app like an addiction – we don’t do that.')}</li>
+      <li>${t('Wir tolerieren keine Hassrede oder Inhalte, die Erkrankungen wie Bulimie fördern oder aus solchen Kapital schlagen.', 'We don’t tolerate hate speech or content that promotes illnesses like bulimia or profits from them.')}</li>
+      <li>${t('Deine Konto- und Inhaltsdaten liegen auf Servern in der EU: und hier bleiben sie auch.', 'Your account and content data are stored on servers in the EU – and that’s where they stay.')}</li>
+      <li>${t('Wir verkaufen Deine Daten nicht und nutzen sie nicht zu Trainingszwecken für die KI.', 'We don’t sell your data and don’t use it to train AI.')}</li>
+      <li>${t('Kiez Coins zeigt (noch) keine Werbung - wir können nicht ganz so weit in die Zukunft schauen, doch fürs Erste bleibt es so.', 'Kiez Coins shows no ads (yet) – we can’t see that far into the future, but for now it stays that way.')}</li>
+      <li>${t('Dein Feed sortiert nach Nähe und Zeit.', 'Your feed is sorted by proximity and time.')}</li>
+      <li>${t('Die Idee hinter der App: Selbstorganisation, Vernetzung und Synergieeffekte - wir fördern keine Parallelrealität.', 'The idea behind the app: self-organization, connection and synergies – we don’t foster a parallel reality.')}</li>
+      <li>${t('Du entscheidest: nutze die App für Dich, in Gruppen, im Kiez, landesweit - oder alles davon.', 'You decide: use the app for yourself, in groups, in your neighborhood, nationwide – or all of it.')}</li>
+    </ul>
   </div>
 </section>
 
 <section class="download" id="download" aria-labelledby="download-titel">
   <div class="wrap">
-    <h2 id="download-titel">${t('So installierst Du die Testversion.', 'How to install the beta.')}</h2>
-    <p>${t('Kiez Coins ist in der Testphase. Android lädt die App mit Einladungscode, das iPhone nutzt die Web-App.', 'Kiez Coins is in beta. Android downloads the app with an invitation code, the iPhone uses the web app.')}</p>
+    <h2 id="download-titel">${t('Überzeugt? Oder zumindest neugierig?', 'Convinced? Or at least curious?')}</h2>
+    <p>${t('Kiez Coins ist in der Testphase. Android lädt die App direkt, das iPhone nutzt die Web-App.', 'Kiez Coins is in beta. Android downloads the app directly, the iPhone uses the web app.')}</p>
     <div class="karten">
       <div class="card" id="android">
         <h3>Android</h3>
+        <p>${t('Auf Android lädst Du Kiez Coins als App direkt hier herunter, ohne Google Play.', 'On Android, you download Kiez Coins as an app right here, without Google Play.')}</p>
         <form method="post" action="${esc(config.functionUrl)}">
-          <label for="passwort">${t('Einladungscode', 'Invitation code')}</label>
-          <input id="passwort" name="passwort" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required>
           <p class="error" id="fehler" hidden></p>
           <button type="submit">${t('App herunterladen', 'Download the app')}</button>
         </form>
-        <a class="button button-zweit" href="${P}app/">${t('Direkt im Browser anmelden und ausprobieren', 'Sign in and try it right in the browser')}</a>
         <ol class="steps">
-          <li>${t('Einladungscode eingeben und „App herunterladen“ tippen.', 'Enter the invitation code and tap “Download the app”.')}</li>
+          <li>${t('„App herunterladen“ tippen.', 'Tap “Download the app”.')}</li>
           <li>${t('Die Datei <em>kiez-coins.apk</em> öffnen, wenn der Download fertig ist.', 'Open the file <em>kiez-coins.apk</em> when the download is finished.')}</li>
           <li>${t('Android fragt, ob Dein Browser Apps installieren darf. Erlauben und „Installieren“ tippen.', 'Android asks whether your browser may install apps. Allow it and tap “Install”.')}</li>
           <li>${t('Für ein Update lädst Du die neue Datei hier herunter und installierst sie genauso. Deine Daten bleiben erhalten.', 'To update, download the new file here and install it the same way. Your data stays.')}</li>
         </ol>
       </div>
       ${ios(L)}
+      <div class="card" id="browser">
+        <h3>${t('Im Browser', 'In the browser')}</h3>
+        <p>${t('Ohne Installation und direkt im Browser. Teste die App ohne ein Konto oder lege ein Konto an - wie es Dir besser gefällt.', 'No installation, right in the browser. Try the app without an account or create one – whichever you prefer.')}</p>
+        <a class="button" href="${P}app/">${t('Direkt im Browser ausprobieren', 'Try it right in the browser')}</a>
+      </div>
     </div>
     <footer>
       <a href="${P}impressum.html">${t('Impressum', 'Legal notice')}</a>
@@ -403,6 +445,30 @@ ${leute.map((l) => `      <div class="person"><p class="blase">${esc(t(l.text, l
   </div>
 </div>
 
+<!-- Ab „Kann die App noch mehr?“ schwebt „Testen“ unten rechts und wackelt ab und zu (Daria, 29.10.2026). Am Download verschwindet es. -->
+<a class="testen-schwebend" href="#download" tabindex="-1" aria-hidden="true"><span class="lang">${t('Testversion laden', 'Get the beta')}</span><span class="kurz">${t('Testen', 'Try it')}</span></a>
+<script>
+  (function () {
+    var knopf = document.querySelector('.testen-schwebend');
+    var mehr = document.querySelector('.mehr');
+    var ziel = document.getElementById('download');
+    if (!knopf || !mehr || !ziel) return;
+    function pruefen() {
+      var h = window.innerHeight;
+      var ab = mehr.getBoundingClientRect().top < h * 0.8;
+      var dl = ziel.getBoundingClientRect();
+      var amZiel = dl.top < h * 0.9 && dl.bottom > 0;
+      var zeigen = ab && !amZiel;
+      knopf.classList.toggle('is-da', zeigen);
+      knopf.setAttribute('aria-hidden', String(!zeigen));
+      knopf.tabIndex = zeigen ? 0 : -1;
+    }
+    addEventListener('scroll', pruefen, { passive: true });
+    addEventListener('resize', pruefen);
+    pruefen();
+  })();
+</script>
+
 <script src="${P}prototyp/daten.js?v=${version(datenJs)}"></script>
 ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g, '\\u003c')};</script>` : ''}
 <script src="${P}prototyp/app.js?v=${version(appJs)}"></script>
@@ -418,7 +484,7 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
   // Sprechblasen erscheinen, sobald die Leute im Bild sind. Tipp auf eine Figur lässt sie wackeln.
   var leute = document.querySelector('.leute');
   if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { leute.classList.add('is-seen'); io.disconnect(); } }, { threshold: 0.35 });
+    var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { leute.classList.add('is-seen'); io.disconnect(); } }, { threshold: 0.2 });
     io.observe(leute);
   } else leute.classList.add('is-seen');
   // Kater: Kopf schaut links herein, Klick zeigt den ganzen Kater mit zwei Wegen
@@ -445,13 +511,58 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
     if (!e.target.closest('.kater-bild, .kater-blase')) katerZu();
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !kater.hidden) katerZu(); });
+  // Die Leute sagen nur etwas bei Hover, Fokus oder Tipp. Ab und zu ruft eine Person, damit man mit der Maus hingeht (Daria, 28.10.2026).
+  var personen = [].slice.call(leute.querySelectorAll('.person'));
   leute.addEventListener('click', function (e) {
-    var fig = e.target.closest('.figur');
-    if (!fig) return;
+    var p = e.target.closest('.person');
+    if (!p) return;
+    var an = !p.classList.contains('is-on');
+    personen.forEach(function (x) { x.classList.remove('is-on'); });
+    if (an) p.classList.add('is-on');
+    var fig = p.querySelector('.figur');
     fig.classList.remove('is-wave'); void fig.getBoundingClientRect(); fig.classList.add('is-wave');
   });
+  leute.addEventListener('keydown', function (e) {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('person')) { e.preventDefault(); e.target.click(); }
+  });
+  // Telefon: Die Person in der Bildschirmmitte ist größer und sagt ihren Satz (Daria, 29.10.2026)
+  var schmal = matchMedia('(max-width: 640px)');
+  var mitteTick = false, mitteP = null;
+  function mitte() {
+    mitteTick = false;
+    var best = null;
+    if (schmal.matches) {
+      var m = innerHeight * 0.5, abstand = Infinity;
+      var lagen = personen.map(function (x) { return x.getBoundingClientRect(); });
+      lagen.forEach(function (r, i) {
+        if (r.bottom < 0 || r.top > innerHeight) return;
+        var d = Math.abs(r.top + r.height / 2 - m);
+        if (d < abstand) { abstand = d; best = personen[i]; }
+      });
+    }
+    if (best === mitteP) return;
+    if (mitteP) mitteP.classList.remove('is-mitte');
+    if (best) best.classList.add('is-mitte');
+    mitteP = best;
+  }
+  addEventListener('scroll', function () { if (!mitteTick) { mitteTick = true; requestAnimationFrame(mitte); } }, { passive: true });
+  addEventListener('resize', mitte);
+  mitte();
+  var rufTimer = null, letzte = -1;
+  function rufen() {
+    var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var frei = personen.filter(function (x, i) { return i !== letzte && !x.matches(':hover') && !x.classList.contains('is-on') && !x.classList.contains('is-mitte'); });
+    if (frei.length && !document.hidden && leute.classList.contains('is-seen') && !still) {
+      var p = frei[Math.floor(Math.random() * frei.length)];
+      letzte = personen.indexOf(p);
+      p.classList.remove('is-ruft'); void p.offsetWidth; p.classList.add('is-ruft');
+      setTimeout(function () { p.classList.remove('is-ruft'); }, 1600);
+    }
+    rufTimer = setTimeout(rufen, 2600 + Math.random() * 2600);
+  }
+  rufTimer = setTimeout(rufen, 1200);
   // Kann die App noch mehr? Jede Karte spielt bei jedem Tipp einen kleinen Schritt vor.
-  var mehr = { wald: 0, freunde: 0, nachrichten: 0 };
+  var mehr = { rangliste: 0, freunde: 0, nachrichten: 0 };
   var freunde = ['Lena', 'Peter', 'Mo'];
   var chat = [
     ['${t('Kommst Du Samstag mit in den Garten?', 'Coming to the garden on Saturday?')}', '${t('Klar! Ich bring Kaffee mit.', 'Sure! I’ll bring coffee.')}'],
@@ -468,23 +579,32 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
   document.querySelector('.mehr-karten').addEventListener('click', function (e) {
     var k = e.target.closest('[data-mehr]');
     if (!k) return;
+    if (k.dataset.mehr === 'rangliste' && !e.target.closest('.mehr-aktion')) return;
     var art = k.dataset.mehr, n = ++mehr[art], buehne = k.querySelector('.mehr-buehne'), status = k.querySelector('.mehr-status');
-    if (art === 'wald') {
-      buehne.classList.add('is-gepostet');
-      var herz = buehne.querySelector('.mehr-herz i');
-      herz.textContent = String(+herz.textContent + 3 + (n % 4));
-      var flug = document.createElement('span');
-      flug.className = 'mehr-flug';
-      flug.style.left = (20 + ((n * 37) % 60)) + '%';
-      flug.innerHTML = buehne.querySelector('.mehr-herz svg').outerHTML;
-      buehne.appendChild(flug);
-      setTimeout(function () { flug.remove(); }, 1200);
-      status.textContent = n === 1 ? '${t('Gepostet! Die ersten Herzen kommen.', 'Posted! The first hearts are coming in.')}' : '${t('{n} Herzen für Dein Waldbild.', '{n} hearts for your forest photo.')}'.replace('{n}', herz.textContent);
+    if (art === 'rangliste') {
+      // Jeder Tipp bringt Dir Edensteine; die Liste ordnet sich neu (FLIP). Nach Platz 1 startet sie neu.
+      var liste = buehne, du = liste.querySelector('[data-rang="du"]'), punkte = du.querySelector('b');
+      var reihen = Array.prototype.slice.call(liste.children);
+      var vorher = {};
+      reihen.forEach(function (li) { vorher[li.dataset.rang] = li.getBoundingClientRect().top; });
+      if (n > 3) { mehr.rangliste = 0; punkte.textContent = '12'; } else punkte.textContent = String(+punkte.textContent + [1, 3, 3][n - 1]);
+      reihen.sort(function (a, b) { return +b.querySelector('b').textContent - +a.querySelector('b').textContent; }).forEach(function (li) { liste.appendChild(li); });
+      reihen.forEach(function (li) {
+        var dy = vorher[li.dataset.rang] - li.getBoundingClientRect().top;
+        if (!dy) return;
+        li.style.transition = 'none'; li.style.transform = 'translateY(' + dy + 'px)';
+        li.offsetWidth; li.style.transition = ''; li.style.transform = '';
+      });
+      var platz = Array.prototype.indexOf.call(liste.children, du);
+      status.textContent = n > 3 ? '${t('Neue Woche, neues Glück.', 'New week, new luck.')}'
+        : platz === 0 ? '${t('Du führst! May the best win.', 'You’re in the lead! May the best win.')}'
+        : n === 1 ? '${t('1 Edenstein. Noch 2 bis Lena.', '1 Eden stone. 2 more to Lena.')}'
+        : '${t('Du überholst Lena.', 'You overtake Lena.')}';
     } else if (art === 'freunde') {
       var av = buehne.querySelectorAll('.mehr-avatar');
       if (n > av.length) { mehr.freunde = 0; av.forEach(function (a) { a.classList.remove('is-freund'); }); status.textContent = '${t('Tipp und füg Lena hinzu.', 'Tap to add Lena.')}'; return; }
       av[n - 1].classList.add('is-freund');
-      status.textContent = n < av.length ? '${t('{a} ist jetzt dabei. Tipp für {b}.', '{a} is in. Tap for {b}.')}'.replace('{a}', freunde[n - 1]).replace('{b}', freunde[n]) : '${t('Drei Freunde. Tipp, um neu zu starten.', 'Three friends. Tap to start over.')}';
+      status.textContent = n < av.length ? '${t('{a} ist jetzt dabei. Tipp für {b}.', '{a} is in. Tap for {b}.')}'.replace('{a}', freunde[n - 1]).replace('{b}', freunde[n]) : '${t('Einfach vernetzen mit QR-Code oder Link.', 'Connect easily with a QR code or link.')}';
     } else {
       var paar = chat[(n - 1) % chat.length];
       blase(buehne, paar[0], true);
@@ -503,6 +623,12 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
     if (still) return;
     // A: Abschnitte gleiten beim Erreichen von unten herein, Karten nacheinander
     if (root.classList.contains('fx-a') && 'IntersectionObserver' in window) {
+      // H2 steigen Wort für Wort auf, etwas ruhiger als die Seitenüberschrift (Daria, 28.10.2026)
+      document.querySelectorAll('.mehr h2, .leute h2, .wechsel h2, .download h2').forEach(function (h) {
+        var text = h.textContent;
+        h.setAttribute('aria-label', text);
+        h.innerHTML = text.split(' ').map(function (w, i) { return '<span class="h2-wort" aria-hidden="true" style="--i:' + i + '">' + w.replace(/</g, '&lt;') + '</span>'; }).join(' ');
+      });
       var els = document.querySelectorAll('.mehr h2, .mehr > .wrap > p, .mehr-karte, .leute h2, .leute > .wrap > p, .download h2, .download > .wrap > p, .download .card');
       var seh = new IntersectionObserver(function (es) {
         es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-da'); seh.unobserve(e.target); } });
@@ -517,11 +643,50 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
     // D: Jeder Abschnitt bleibt stehen, sobald sein Ende im Bild ist, der nächste schiebt sich darüber.
     // Dafür braucht jeder Abschnitt seine Höhe als --h (top: min(0, 100vh - Höhe) in seite.css).
     if (root.classList.contains('fx-d')) {
-      var stapel = document.querySelectorAll('body > .wrap, .mehr, .leute');
+      var stapel = document.querySelectorAll('body > .wrap, .mehr, .leute, .wechsel');
       var messen = function () { stapel.forEach(function (el) { el.style.setProperty('--h', el.offsetHeight + 'px'); }); };
       if ('ResizeObserver' in window) { var ro = new ResizeObserver(messen); stapel.forEach(function (el) { ro.observe(el); }); }
       addEventListener('resize', messen);
       messen();
+      // Das verzögerte Aufsteigen der Karten (28.10.2026) ist entfernt: Es wurde bei jedem Bild in JavaScript
+      // berechnet und lief dem Scrollen ein Bild hinterher, dadurch ruckelte und sprang die Seite (Daria, 29.10.2026).
+      // Das Stapeln selbst macht der Browser mit position: sticky, das bleibt flüssig.
+    }
+    // Wieso wechseln (Daria, 29.10.2026): Mit Maus steht die Karte unter dem Zeiger vorn. Auf dem Telefon die Karte,
+    // die der Mitte des Bildschirms am nächsten ist. Die anderen blassen je nach Abstand aus.
+    var liste = document.querySelector('.wechsel-liste');
+    var gruende = liste ? liste.querySelectorAll('li') : [];
+    if (gruende.length) {
+      var aktuell = null;
+      var setzen = function (best) {
+        if (best === aktuell) return;
+        aktuell = best;
+        var k = [].indexOf.call(gruende, best);
+        gruende.forEach(function (li, i) {
+          li.classList.toggle('is-vorn', li === best);
+          li.style.setProperty('--d', best ? Math.abs(i - k) : 0);
+        });
+        liste.classList.toggle('hat-vorn', !!best);
+      };
+      if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        liste.addEventListener('pointerover', function (e) { var li = e.target.closest('li'); if (li) setzen(li); });
+        liste.addEventListener('pointerleave', function () { setzen(null); });
+      } else {
+        var vornTick = false;
+        var vorn = function () {
+          vornTick = false;
+          var mitte = innerHeight * 0.5, best = null, abstand = Infinity;
+          var lagen = [].map.call(gruende, function (li) { return li.getBoundingClientRect(); });
+          lagen.forEach(function (r, i) {
+            if (r.bottom < 0 || r.top > innerHeight) return;
+            var d = Math.abs(r.top + r.height / 2 - mitte);
+            if (d < abstand) { abstand = d; best = gruende[i]; }
+          });
+          setzen(best);
+        };
+        addEventListener('scroll', function () { if (!vornTick) { vornTick = true; requestAnimationFrame(vorn); } }, { passive: true });
+        vorn();
+      }
     }
     // B und C hängen an der Scrollposition, ein Frame pro Bild
     var kopf = document.getElementById('kater-kopf'), tel = document.querySelector('.phone-spalte'), spur = document.querySelector('.fx-spur');
@@ -613,6 +778,263 @@ const einladung = `<!doctype html>
     document.getElementById('ohne-code').hidden = false;
     document.querySelector('#android button').disabled = true;
   }
+</script>
+</body>
+</html>
+`;
+
+// ---------- /laden: ein Link für alle Geräte (Daria, 29.10.2026) ----------
+// Erkennt das Gerät: Android startet den Download der APK sofort, das iPhone zeigt die Web-App und wie man sie auf
+// den Home-Bildschirm legt. In Instagram, Facebook & Co. erst der Hinweis, die Seite in Safari zu öffnen.
+// Am Computer: QR-Code zum Scannen mit dem Telefon. Ohne JavaScript stehen alle Wege untereinander.
+const ladenUrl = 'https://kiezcoins.vercel.app/laden';
+const ladenQr = await QRCode.toString(ladenUrl, { type: 'svg', margin: 1, color: { dark: '#1F2123', light: '#FFFFFF' } });
+const teilenSymbol = '<svg class="teilen-symbol" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const ladenSeite = `<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#FAFBEF">
+<title>Kiez Coins laden</title>
+<meta name="description" content="Kiez Coins auf Dein Telefon holen: Android lädt die App, das iPhone legt die Web-App auf den Home-Bildschirm.">
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="/seite.css?v=${version(seiteCss)}">
+<style>
+  .laden .card { margin-bottom: 16px; }
+  .laden [data-geraet] { display: none; }
+  .laden.ist-android [data-geraet~="android"], .laden.ist-iphone [data-geraet~="iphone"],
+  .laden.ist-app-browser [data-geraet~="app-browser"], .laden.ist-computer [data-geraet~="computer"],
+  .laden.ohne-js [data-geraet] { display: block; }
+  .laden .steps li strong { white-space: nowrap; }
+  .teilen-symbol { vertical-align: -3px; margin: 0 2px; }
+  .laden .qr { width: 200px; max-width: 60vw; margin: 8px 0 4px; background: #fff; border-radius: 16px; padding: 8px; }
+  .laden .qr svg { display: block; width: 100%; height: auto; }
+  /* Kleines Fenster unten: Download startet in 30 Sekunden, abbrechbar (Daria, 29.10.2026) */
+  .countdown { position: fixed; z-index: 900; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); max-width: 420px; margin: 0 auto;
+    display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 22px; background: var(--text); color: var(--bg);
+    box-shadow: 0 14px 36px -12px rgba(20, 16, 50, .45); transition: opacity 250ms, translate 350ms cubic-bezier(.2, .7, .2, 1); }
+  .countdown[hidden] { display: flex; opacity: 0; translate: 0 24px; pointer-events: none; }
+  .countdown .ring { position: relative; flex: none; width: 44px; height: 44px; }
+  .countdown .ring svg { width: 44px; height: 44px; rotate: -90deg; }
+  .countdown .ring circle { fill: none; stroke-width: 4; }
+  .countdown .ring .spur { stroke: rgba(255, 255, 255, .18); }
+  .countdown .ring .lauf { stroke: var(--purple); stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+  .countdown .ring b { position: absolute; inset: 0; display: grid; place-items: center; font: 600 15px/1 Inter, sans-serif; }
+  .countdown p { flex: 1; margin: 0; font-size: 15px; line-height: 1.3; color: inherit; }
+  .countdown button { flex: none; font: 500 14px/1 Inter, sans-serif; color: inherit; background: none; border: 1px solid rgba(255, 255, 255, .35);
+    border-radius: 999px; padding: 10px 14px; cursor: pointer; }
+  @media (prefers-reduced-motion: reduce) { .countdown, .countdown .ring .lauf { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+</header>
+<main>
+<section class="download einladung laden ohne-js" id="laden" aria-labelledby="laden-titel">
+  <h2 id="laden-titel">Kiez Coins auf Dein Telefon</h2>
+
+  <div class="card" data-geraet="android">
+    <h3>Android</h3>
+    <p id="android-text">Der Download startet gleich von selbst. Falls nicht, tippe auf „App herunterladen“.</p>
+    <a class="button" id="android-laden" href="${esc(config.functionUrl)}">App herunterladen</a>
+    <ol class="steps">
+      <li>Die Datei <em>kiez-coins.apk</em> öffnen, wenn der Download fertig ist.</li>
+      <li>Android fragt, ob Dein Browser Apps installieren darf. Erlauben und „Installieren“ tippen.</li>
+      <li>Kiez Coins über das neue Symbol starten. Updates kommen von selbst.</li>
+    </ol>
+    <a class="button button-zweit" href="/app/">Lieber direkt im Browser ausprobieren</a>
+  </div>
+
+  <div class="card" data-geraet="app-browser">
+    <h3>Erst in Safari öffnen</h3>
+    <p>Du hast den Link in einer anderen App geöffnet. Damit Kiez Coins auf Deinen Home-Bildschirm kommt, brauchst Du Safari:</p>
+    <ol class="steps">
+      <li>Oben oder unten auf <strong>···</strong> oder das Teilen-Symbol ${teilenSymbol} tippen.</li>
+      <li><strong>„In Safari öffnen“</strong> wählen (manchmal „Im Browser öffnen“).</li>
+    </ol>
+  </div>
+
+  <div class="card" data-geraet="iphone">
+    <h3>iPhone</h3>
+    <p>Auf dem iPhone läuft Kiez Coins als Web-App. Auf dem Home-Bildschirm startet sie wie jede andere App.</p>
+    <a class="button" href="/app/">Kiez Coins öffnen</a>
+    <ol class="steps">
+      <li><strong>„Kiez Coins öffnen“</strong> tippen.</li>
+      <li>Unten in der Leiste auf das Teilen-Symbol ${teilenSymbol} tippen. Siehst Du die Leiste nicht, tippe einmal unten auf den Bildschirm.</li>
+      <li>Nach unten scrollen, <strong>„Zum Home-Bildschirm“</strong> wählen und <strong>„Hinzufügen“</strong> tippen.</li>
+      <li>Kiez Coins ab jetzt über das neue Symbol starten und einmal anmelden.</li>
+    </ol>
+    <p class="klein">Kamera, Fotos und Standort fragt Safari beim ersten Mal ab. Updates kommen automatisch beim nächsten Start.</p>
+  </div>
+
+  <div class="card" data-geraet="computer">
+    <h3>Mit dem Telefon scannen</h3>
+    <p>Öffne die Kamera Deines Telefons und richte sie auf den Code. Das Telefon zeigt dann den passenden Weg.</p>
+    <div class="qr" role="img" aria-label="QR-Code zu ${ladenUrl}">${ladenQr}</div>
+    <p class="klein">Oder schick Dir diesen Link: <a href="/laden">${ladenUrl.replace('https://', '')}</a></p>
+    <a class="button button-zweit" href="/app/">Hier am Computer im Browser ausprobieren</a>
+  </div>
+
+  <footer>
+    <a href="/impressum">Impressum</a>
+    <a href="/datenschutz">Datenschutz</a>
+    <a href="/nutzungsbedingungen">Nutzungsbedingungen</a>
+    <a href="/community-regeln">Community-Regeln</a>
+  </footer>
+</section>
+</main>
+</div>
+<div class="countdown" id="countdown" role="status" aria-live="polite" hidden>
+  <div class="ring" aria-hidden="true"><svg viewBox="0 0 44 44"><circle class="spur" cx="22" cy="22" r="19"/><circle class="lauf" cx="22" cy="22" r="19" stroke-dasharray="119.4" stroke-dashoffset="0"/></svg><b id="countdown-zahl">30</b></div>
+  <p id="countdown-text">Download startet in 30 Sek.</p>
+  <button type="button" id="countdown-stopp">Download abbrechen</button>
+</div>
+<script>
+  (function () {
+    var ua = navigator.userAgent || '';
+    var seite = document.getElementById('laden');
+    var iphone = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    var android = /Android/i.test(ua);
+    // Eingebaute Browser in Apps: Dort fehlt „Zum Home-Bildschirm“
+    var appBrowser = /Instagram|FBAN|FBAV|FB_IAB|Line\\/|musical_ly|TikTok|LinkedInApp|Snapchat|Pinterest/i.test(ua);
+    seite.classList.remove('ohne-js');
+    // Schon als Web-App vom Home-Bildschirm gestartet: gleich in die App
+    if (iphone && (navigator.standalone || matchMedia('(display-mode: standalone)').matches)) { location.replace('/app/'); return; }
+    if (android) {
+      seite.classList.add('ist-android');
+      // Download nur einmal von selbst, nicht bei jedem Zurück
+      var schon = false;
+      try { schon = sessionStorage.getItem('kc-laden') === '1'; sessionStorage.setItem('kc-laden', '1'); } catch (e) {}
+      var knopf = document.getElementById('android-laden');
+      var hinweis = document.getElementById('android-text');
+      if (schon) { hinweis.textContent = 'Tippe auf „App herunterladen“, um die App noch einmal zu laden.'; return; }
+      // Fenster mit Countdown: nach 30 Sekunden startet der Download, „Download abbrechen“ hält ihn an
+      var fenster = document.getElementById('countdown');
+      var zahl = document.getElementById('countdown-zahl');
+      var satz = document.getElementById('countdown-text');
+      var lauf = fenster.querySelector('.lauf');
+      var GESAMT = 30, rest = GESAMT, uhr = null;
+      hinweis.textContent = 'Der Download startet in 30 Sekunden von selbst. Du kannst ihn auch gleich mit „App herunterladen“ starten.';
+      var zeigen = function () {
+        zahl.textContent = String(rest);
+        satz.textContent = rest === 1 ? 'Download startet in 1 Sek.' : 'Download startet in ' + rest + ' Sek.';
+        lauf.style.strokeDashoffset = String(119.4 * (1 - rest / GESAMT));
+      };
+      var stoppen = function () { clearInterval(uhr); uhr = null; fenster.hidden = true; };
+      fenster.hidden = false;
+      zeigen();
+      uhr = setInterval(function () {
+        rest -= 1;
+        if (rest <= 0) { stoppen(); location.href = knopf.href; return; }
+        zeigen();
+      }, 1000);
+      document.getElementById('countdown-stopp').addEventListener('click', function () {
+        stoppen();
+        hinweis.textContent = 'Download abgebrochen. Tippe auf „App herunterladen“, wenn Du es Dir anders überlegst.';
+      });
+      // Selbst getippt: Countdown aus, der Link lädt sofort
+      knopf.addEventListener('click', stoppen);
+    } else if (iphone) {
+      seite.classList.add(appBrowser ? 'ist-app-browser' : 'ist-iphone');
+      if (appBrowser) seite.classList.add('ist-iphone');
+    } else {
+      seite.classList.add('ist-computer');
+    }
+  })();
+</script>
+</body>
+</html>
+`;
+
+// ---------- /qr: QR-Codes zum Vorzeigen auf dem eigenen Telefon (Daria, 29.10.2026) ----------
+// Zwei Codes, hochkant übereinander und quer nebeneinander: Webseite und /laden. „Vollbild“ zeigt sie bildschirmfüllend, der Bildschirm bleibt an.
+// iPhone: Element-Vollbild gibt es dort nicht. Deshalb spielt die Seite den Code als kurzes Video in Schleife
+// (scripts/site/qr/*.mp4, online unter /qr-filme/) im Vollbild-Player ab; solange ein Video läuft, sperrt sich das iPhone nicht.
+// Android: echtes Vollbild der Seite. Dazu überall Screen Wake Lock, wo vorhanden, sonst ein stilles Video im Hintergrund.
+const qrCodes = [
+  { key: 'webseite', title: 'KiezCoins auschecken (zur Webseite)', url: 'https://kiezcoins.vercel.app' },
+  { key: 'laden', title: 'KiezCoins direkt runterladen', url: 'https://kiezcoins.vercel.app/laden' },
+];
+for (const c of qrCodes) c.svg = await QRCode.toString(c.url, { type: 'svg', margin: 0, errorCorrectionLevel: 'M', color: { dark: '#1F2123', light: '#FFFFFF' } });
+const qrSeite = `<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FFFFFF">
+<title>Kiez Coins QR-Codes</title>
+<link rel="icon" href="/favicon.png">
+<link rel="preload" href="/fonts/InterTight_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
+<style>
+  @font-face { font-family: 'Inter Tight'; src: url(/fonts/InterTight_600SemiBold.ttf) format('truetype'); font-weight: 600; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #fff; color: #1F2123; font-family: Inter, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+  body { display: flex; flex-direction: column; align-items: center; padding: max(16px, env(safe-area-inset-top)) 12px max(16px, env(safe-area-inset-bottom)); gap: 16px; }
+  /* Beide Codes mit flex-wrap (Daria, 29.10.2026): hochkant übereinander, quer und auf breiten Bildschirmen nebeneinander.
+     Abstand mindestens vier Kästchen breit, sonst liest die Kamera beide auf einmal. */
+  /* --q: Kantenlänge eines Codes. Hochkant passen zwei übereinander in die Höhe, quer zwei nebeneinander. */
+  .codes { --q: min(80vw, calc((100svh - 330px) / 2), 520px); flex: 1; display: flex; flex-wrap: wrap; align-items: center; align-content: space-evenly; justify-content: space-evenly; gap: 28px 40px; width: 100%; background: #fff; }
+  @media (orientation: landscape) { .codes { --q: min(40vw, calc(100svh - 190px), 520px); } }
+  /* Die Überschrift bricht innerhalb der Code-Breite um, damit quer beide nebeneinander bleiben */
+  .code { width: max(var(--q), 160px); align-self: stretch; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 10px; text-align: center; }
+  .code h1 { margin: 0; font: 600 clamp(16px, 1.6vw + 1.2vh, 36px)/1.15 'Inter Tight', Inter, sans-serif; text-wrap: balance; }
+  .code .q { width: var(--q); aspect-ratio: 1; }
+  .code .q svg { width: 100%; height: 100%; display: block; }
+  .code p { margin: 0; color: #666; font-size: clamp(11px, 1.2vw + 0.8vh, 16px); white-space: nowrap; }
+  .codes:fullscreen { padding: 24px; }
+  .knopf { width: 100%; max-width: 420px; border: 0; border-radius: 999px; padding: 16px; font: 500 17px/1 Inter, sans-serif; background: #5161DB; color: #fff; }
+  .an { font-size: 13px; color: #2E9E4F; min-height: 1em; margin: 0; }
+  .tipp { font-size: 13px; color: #666; margin: 0; text-align: center; max-width: 420px; }
+  video.film { position: fixed; width: 1px; height: 1px; opacity: 0; pointer-events: none; left: 0; top: 0; }
+</style>
+</head>
+<body>
+<div class="codes" id="codes">
+${qrCodes.map((c) => `  <div class="code"><h1>${c.title}</h1><div class="q" role="img" aria-label="QR-Code zu ${c.url}">${c.svg}</div><p>${c.url.replace('https://', '')}</p></div>`).join('\n')}
+</div>
+<button type="button" class="knopf" id="vollbild">Vollbild</button>
+<p class="an" id="an" aria-live="polite"></p>
+<video class="film" data-film="hoch" src="/qr-filme/qr-hoch.mp4" muted loop playsinline preload="auto"></video>
+<video class="film" data-film="quer" src="/qr-filme/qr-quer.mp4" muted loop playsinline preload="auto"></video>
+<script>
+  (function () {
+    var an = document.getElementById('an');
+    var codes = document.getElementById('codes');
+    // Film passend zur Haltung des Telefons: hochkant übereinander, quer nebeneinander
+    var filmFuer = function () { return document.querySelector('[data-film="' + (matchMedia('(orientation: landscape)').matches ? 'quer' : 'hoch') + '"]'); };
+    // Bildschirm anlassen: Wake Lock, sonst ein stilles Video in Schleife
+    var sperre = null;
+    function wachHalten() {
+      if ('wakeLock' in navigator) {
+        navigator.wakeLock.request('screen').then(function (s) {
+          sperre = s; an.textContent = 'Bildschirm bleibt an.';
+          s.addEventListener('release', function () { sperre = null; });
+        }).catch(function () { filmFuer().play().catch(function () {}); an.textContent = 'Bildschirm bleibt an.'; });
+      } else {
+        filmFuer().play().catch(function () {});
+        an.textContent = 'Bildschirm bleibt an.';
+      }
+    }
+    // Nach dem Zurückkehren zur Seite fällt die Sperre weg: neu anfordern
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && an.textContent && !sperre) wachHalten(); });
+    document.getElementById('vollbild').addEventListener('click', function () {
+      wachHalten();
+      if (codes.requestFullscreen) {
+        codes.requestFullscreen().then(function () {
+        }).catch(filmVollbild);
+      } else filmVollbild();
+    });
+    // iPhone: beide Codes als Film im Vollbild-Player zeigen
+    function filmVollbild() {
+      var film = filmFuer();
+      film.play().catch(function () {});
+      if (film.webkitEnterFullscreen) film.webkitEnterFullscreen();
+    }
+  })();
 </script>
 </body>
 </html>
@@ -814,6 +1236,10 @@ for (const { code } of sprachen.filter((l) => l.code !== 'de')) {
 }
 for (const [L, texte] of fehlend) console.warn(`Startseite ${L}: ${texte.size} Texte ohne Übersetzung, dort steht Englisch (scripts/site/sprachen/${L}.json)`);
 writeFileSync(join(out, 'einladung.html'), einladung);
+writeFileSync(join(out, 'laden.html'), ladenSeite);
+writeFileSync(join(out, 'qr.html'), qrSeite);
+mkdirSync(join(out, 'qr-filme'), { recursive: true });
+for (const f of readdirSync(join(siteDir, 'qr'))) copyFileSync(join(siteDir, 'qr', f), join(out, 'qr-filme', f));
 writeFileSync(join(out, 'spenden.html'), spendenSeite);
 if (katerSvg) writeFileSync(join(out, 'kater.html'), katerSeite);
 // Eigene 404-Seite für unbekannte Adressen.
@@ -842,6 +1268,8 @@ rmSync(join(out, 'blumen'), { recursive: true, force: true });
 mkdirSync(join(out, 'blumen'), { recursive: true });
 for (const t of blumen.teile) copyFileSync(join(blumenDir, t.datei), join(out, 'blumen', t.datei));
 for (const f of ['kater.png', 'kopf.png']) copyFileSync(join(siteDir, 'kater', f), join(out, 'kater', f));
+mkdirSync(join(out, 'leute'), { recursive: true });
+for (const f of readdirSync(join(siteDir, 'leute'))) copyFileSync(join(siteDir, 'leute', f), join(out, 'leute', f));
 mkdirSync(join(out, 'fonts'), { recursive: true });
 for (const [pkg, file] of [
   ['inter/300Light', 'Inter_300Light'],
@@ -857,6 +1285,8 @@ writeFileSync(
   JSON.stringify(
     {
       cleanUrls: true,
+      // Alte deutsche Pfade der Web-App auf die englischen (Daria, 30.10.2026). Geteilte Einladungslinks bleiben gültig.
+      redirects: JSON.parse(readFileSync(join(root, 'vercel.json'), 'utf8')).redirects ?? [],
       rewrites: [
         { source: '/app/:path*', destination: '/app/index' },
         { source: '/einladung/:code', destination: '/einladung' },
