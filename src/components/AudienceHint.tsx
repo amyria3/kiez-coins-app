@@ -14,11 +14,12 @@ import { color, isFashionable, radius, space, text } from '../theme/tokens';
  */
 export type Audience = 'private' | 'kiez' | 'groups' | 'everywhere';
 
-const MESSAGE: Record<Audience, string> = {
-  private: 'Was Du hier postest, siehst nur Du.',
-  kiez: 'Was Du hier postest, sehen alle Nutzer:innen in Deinem Kiez.',
-  groups: 'Was Du hier postest, sehen nur die Mitglieder in dieser Gruppe.',
-  everywhere: 'Hier siehst Du Beiträge von überall. Mitmachen geht ab 5 km Entfernung nur auf Anfrage.',
+/** Zwei Zeilen je Reiter (Texte von Daria, 30.10.2026) */
+const MESSAGE: Record<Audience, [string, string]> = {
+  private: ['Das ist Dein privater Space.', 'Diese Posts siehst nur Du.'],
+  groups: ['Was Du in einer Gruppe postest, sehen alle Gruppenmitglieder.', 'Du kannst aber auch einen Post als Entwurf speichern.'],
+  kiez: ['Deine Posts im Kiez sehen alle im Umkreis von 5 km.', 'Du kannst aber auch einen Post als Entwurf speichern.'],
+  everywhere: ['Deine Posts hier sehen alle Nutzer:innen von Kiez Coins.', 'Too much Publicity? Wähle aus Kiez, Gruppen oder Privat.'],
 };
 
 /**
@@ -86,7 +87,13 @@ export function AudienceHint({ audience, onClose }: { audience: Audience; onClos
   return (
     <View style={styles.wrap}>
       <View style={styles.hint}>
-        <Text style={styles.text}>{MESSAGE[audience]}</Text>
+        <View style={styles.texts}>
+          {MESSAGE[audience].map((line) => (
+            <Text key={line} style={styles.text}>
+              {line}
+            </Text>
+          ))}
+        </View>
         <IconButton icon="close" iconSize={14} iconColor={color.text.secondary} accessibilityLabel={t('Hinweis schließen')} onPress={onClose} />
       </View>
     </View>
@@ -107,5 +114,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     backgroundColor: color.bg.surface,
   },
-  text: { ...text.caption, color: color.text.primary, flex: 1 },
+  texts: { flex: 1, paddingVertical: space[4] },
+  text: { ...text.caption, color: color.text.primary },
 });
