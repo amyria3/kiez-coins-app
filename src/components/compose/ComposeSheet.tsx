@@ -117,8 +117,9 @@ function GroupBody({ groupId, onDone, shared }: { groupId: string; onDone: () =>
     onDone();
     router.push(`/challenge/${id}`);
   };
-  const task = useGroupTaskForm(groupId, {}, openPost, shared);
-  const photo = useGroupPhotoForm(groupId, openPost, shared);
+  // Entwurf gespeichert: Blatt zu, wie im Kiez
+  const task = useGroupTaskForm(groupId, {}, openPost, shared, onDone);
+  const photo = useGroupPhotoForm(groupId, openPost, shared, onDone);
   const ba = useBeforeAfterStartForm(groupId, useOpenTimer(onDone), shared);
   const form = type === 'before_after' ? ba : type === 'photo' ? photo : task;
   return (
