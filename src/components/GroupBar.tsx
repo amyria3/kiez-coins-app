@@ -138,7 +138,8 @@ export function GroupsEmpty({
 
 const styles = StyleSheet.create({
   wrap: { gap: space[8], paddingHorizontal: space[16] },
-  here: { flexDirection: 'row', alignItems: 'center', gap: space[4], paddingTop: space[4], paddingBottom: space[4] },
+  // Name und Pfeil auf einer Linie mit dem Text im Hinweis darüber und in der Liste darunter (Daria, 30.10.2026)
+  here: { flexDirection: 'row', alignItems: 'center', gap: space[4], paddingTop: space[4], paddingBottom: space[4], paddingHorizontal: space[16] },
   name: { flexShrink: 1, minHeight: size.touchTarget, justifyContent: 'center' },
   trigger: { flex: 1, minHeight: size.touchTarget, alignItems: 'flex-end', justifyContent: 'center' },
   caret: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
