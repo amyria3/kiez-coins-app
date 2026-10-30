@@ -21,7 +21,7 @@ export function LegalLinks() {
           key={link.doc}
           accessibilityRole="link"
           hitSlop={8}
-          onPress={() => router.push({ pathname: '/rechtliches/[doc]', params: { doc: link.doc } })}
+          onPress={() => router.push({ pathname: '/legal/[doc]', params: { doc: link.doc } })}
         >
           <Text style={styles.link}>{link.label}</Text>
         </Pressable>

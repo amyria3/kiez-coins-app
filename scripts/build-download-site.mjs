@@ -1285,6 +1285,8 @@ writeFileSync(
   JSON.stringify(
     {
       cleanUrls: true,
+      // Alte deutsche Pfade der Web-App auf die englischen (Daria, 30.10.2026). Geteilte Einladungslinks bleiben gültig.
+      redirects: JSON.parse(readFileSync(join(root, 'vercel.json'), 'utf8')).redirects ?? [],
       rewrites: [
         { source: '/app/:path*', destination: '/app/index' },
         { source: '/einladung/:code', destination: '/einladung' },

@@ -56,7 +56,7 @@ function FashionTabBar({ active, onFeedPress, onCreatePress }: TabBarProps) {
   const ICON_PT = useIconPt();
   const item = (on: boolean) => ({ pressed }: { pressed: boolean }) => [styles.itemFashionable, !on && styles.off, pressed && styles.pressed];
   return (
-    <View style={[styles.wrapFlat, { paddingBottom: insets.bottom }]} pointerEvents="box-none">
+    <View style={[styles.wrapFashionable, { paddingBottom: insets.bottom }]} pointerEvents="box-none">
       <View style={styles.barFashionable} accessibilityRole="tablist">
         <Pressable
           accessibilityRole="tab"
@@ -92,7 +92,7 @@ function FashionTabBar({ active, onFeedPress, onCreatePress }: TabBarProps) {
           accessibilityRole="tab"
           accessibilityLabel={hasTasks ? t('Was Du so machst, Du bist dran') : t('Was Du so machst')}
           accessibilityState={{ selected: active === 'reise' }}
-          onPress={() => active !== 'reise' && router.push('/reise')}
+          onPress={() => active !== 'reise' && router.push('/me')}
           style={item(true)}
         >
           <View style={[styles.me, active === 'reise' && styles.meActive]}>
@@ -115,10 +115,10 @@ function KiezTabBar({ active, onFeedPress, onMenuPress }: TabBarProps) {
   }, [currentUserId, mode]);
   return (
     <View
-      style={isFashionable ? [styles.wrapFlat, { paddingBottom: insets.bottom }] : [styles.wrap, { bottom: Math.max(insets.bottom, space[16]) }]}
+      style={[styles.wrap, { bottom: Math.max(insets.bottom, space[16]) }]}
       pointerEvents="box-none"
     >
-      <View style={isFashionable ? styles.barFlat : styles.bar} accessibilityRole="tablist">
+      <View style={styles.bar} accessibilityRole="tablist">
         <Pressable
           accessibilityRole="tab"
           accessibilityLabel={t('Feed')}
@@ -164,7 +164,7 @@ export function CameraButton({ onPress, inline = false }: { onPress: () => void;
       accessibilityLabel={t('Challenge erstellen')}
       onPress={onPress}
       hitSlop={4}
-      style={({ pressed }) => [styles.camera, isFashionable && styles.cameraFlat, inline ? styles.cameraInline : { top: insets.top + space[8] }, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.camera, isFashionable && styles.cameraFashionable, inline ? styles.cameraInline : { top: insets.top + space[8] }, pressed && styles.pressed]}
     >
       <Icon name="camera" size={24} color={isFashionable ? color.text.primary : color.bg.screen} />
     </Pressable>
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   cameraInline: { position: 'relative', right: 0 },
   pressed: { opacity: 0.7 },
   // Look „Fashionable“: Leiste über die ganze Breite am unteren Rand, Haarlinie oben, keine Pille
-  wrapFlat: {
+  wrapFashionable: {
     position: 'absolute',
     left: 0,
     right: 0,
@@ -220,9 +220,8 @@ const styles = StyleSheet.create({
     borderTopWidth: stroke.ultraThin,
     borderTopColor: color.line.hairline,
   },
-  barFlat: { flexDirection: 'row', justifyContent: 'space-around', paddingVertical: space[2] },
   // Erstellen als schlichtes Icon ohne Fläche
-  cameraFlat: { backgroundColor: 'transparent', width: 48 },
+  cameraFashionable: { backgroundColor: 'transparent', width: 48 },
   // Mockup: 72 hoch mit Home-Balken, Icons 12 unter der Haarlinie
   barFashionable: { flexDirection: 'row', height: 50 },
   off: { opacity: 0.55 },

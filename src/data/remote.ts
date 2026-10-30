@@ -1277,7 +1277,7 @@ export type AppTextRow = { original: string; text: string; ort: string | null; u
   Record<AppTextLang, string | null>
 >;
 
-/** Alle Texte des CMS für den Editor (Route `texte`), mit Übersetzungen, sofern die Migration 1400 gelaufen ist. */
+/** Alle Texte des CMS für den Editor (Route `texts`), mit Übersetzungen, sofern die Migration 1400 gelaufen ist. */
 export async function loadAppTexts(): Promise<AppTextRow[]> {
   // Alle Spalten: Fehlt eine Sprachspalte noch (Migration nicht gelaufen), bleibt sie einfach leer.
   const { data } = check(await supabase.from('app_texts').select('*'));

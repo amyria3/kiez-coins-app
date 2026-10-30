@@ -108,7 +108,7 @@ export default function Email() {
       router.replace(target);
       return;
     }
-    router.push('/onboarding/deckname');
+    router.push('/onboarding/handle');
   };
 
   const requestCode = async () => {
@@ -230,7 +230,7 @@ export default function Email() {
             <Button
               label="Ich möchte meine E-Mail nicht teilen"
               variant="ghost"
-              onPress={() => router.push('/onboarding/ohne-mail')}
+              onPress={() => router.push('/onboarding/no-email')}
               disabled={busy}
             />
           </Animated.View>
