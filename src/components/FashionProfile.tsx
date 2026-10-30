@@ -121,7 +121,7 @@ export function FashionProfile() {
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={t('Cat The Käptn Hallo sagen')}
-              onPress={() => router.push('/kater')}
+              onPress={() => router.push('/cat')}
               style={styles.note}
             >
               <Text style={styles.noteText} numberOfLines={3}>
@@ -149,8 +149,8 @@ export function FashionProfile() {
             </Text>
             <View style={styles.stats}>
               <Stat value={entries.length} label="Challenges" />
-              <Stat value={friends?.friends.length ?? 0} label="Freund:innen" onPress={() => router.push('/account/freunde')} />
-              <Stat value={groups.length} label="Gruppen" onPress={() => router.push('/gruppen')} />
+              <Stat value={friends?.friends.length ?? 0} label="Freund:innen" onPress={() => router.push('/account/friends')} />
+              <Stat value={groups.length} label="Gruppen" onPress={() => router.push('/groups')} />
             </View>
           </View>
         </View>
@@ -164,7 +164,7 @@ export function FashionProfile() {
 
         <View style={styles.buttons}>
           <ProfileButton label="Profil bearbeiten" onPress={() => router.push('/account/profile')} />
-          <ProfileButton label="Freundschaften" onPress={() => router.push('/account/freunde')} />
+          <ProfileButton label="Freundschaften" onPress={() => router.push('/account/friends')} />
         </View>
 
         {tasks.map((entry) => (
@@ -187,7 +187,7 @@ export function FashionProfile() {
 
         {/* Highlights: Deine Gruppen, vorn „Neu“ zum Gründen */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.highlights}>
-          <Pressable accessibilityRole="button" accessibilityLabel={t('Gruppe gründen')} onPress={() => router.push('/gruppen/neu')} style={styles.hl}>
+          <Pressable accessibilityRole="button" accessibilityLabel={t('Gruppe gründen')} onPress={() => router.push('/groups/new')} style={styles.hl}>
             <View style={styles.hlCircle}>
               <Icon name="plus" size={24} color={color.text.primary} />
             </View>
@@ -197,7 +197,7 @@ export function FashionProfile() {
             <Pressable
               key={g.id}
               accessibilityRole="button"
-              onPress={() => router.push(`/gruppen/${g.id}`)}
+              onPress={() => router.push(`/groups/${g.id}`)}
               style={styles.hl}
             >
               <View style={[styles.hlCircle, styles.hlGroup]}>
@@ -222,8 +222,8 @@ export function FashionProfile() {
                 groups={groups}
                 selectedId={group.id}
                 onSelect={setGroupChoice}
-                onOpen={(id) => router.push(`/gruppen/${id}`)}
-                onCreate={() => router.push('/gruppen/neu')}
+                onOpen={(id) => router.push(`/groups/${id}`)}
+                onCreate={() => router.push('/groups/new')}
               />
               <View style={styles.ranking}>
                 <GroupRanking group={group} />
@@ -231,7 +231,7 @@ export function FashionProfile() {
             </View>
           ) : (
             <View style={styles.groupBlock}>
-              <GroupsEmpty onCreate={() => router.push('/gruppen/neu')} onJoin={() => router.push('/gruppen/beitreten')} />
+              <GroupsEmpty onCreate={() => router.push('/groups/new')} onJoin={() => router.push('/groups/join')} />
             </View>
           )
         ) : null}

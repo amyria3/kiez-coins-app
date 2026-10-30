@@ -17,5 +17,5 @@ export default function Index() {
     if (modus) rememberLinkMode(modus);
   }, [modus]);
   if (!session) return <Redirect href="/onboarding/welcome" />;
-  return <Redirect href={profile.onboarded ? '/feed' : '/onboarding/deckname'} />;
+  return <Redirect href={profile.onboarded ? '/feed' : '/onboarding/handle'} />;
 }

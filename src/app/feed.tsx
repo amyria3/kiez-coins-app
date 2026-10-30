@@ -354,8 +354,8 @@ export default function FeedScreen() {
             variant="empty"
             body="Erstelle Deine erste Gruppe"
             action="Gruppe gründen"
-            onAction={() => router.push('/gruppen/neu')}
-            secondary={{ label: 'Mit Beitrittscode beitreten', onPress: () => router.push('/gruppen/beitreten') }}
+            onAction={() => router.push('/groups/new')}
+            secondary={{ label: 'Mit Beitrittscode beitreten', onPress: () => router.push('/groups/join') }}
           />
         );
       case 'privateEmpty':
@@ -368,8 +368,8 @@ export default function FeedScreen() {
             groups={groups}
             selectedId={groupId}
             onSelect={setGroupChoice}
-            onOpen={(id) => router.push(`/gruppen/${id}`)}
-            onCreate={() => router.push('/gruppen/neu')}
+            onOpen={(id) => router.push(`/groups/${id}`)}
+            onCreate={() => router.push('/groups/new')}
           />
         );
       case 'groupNoTasks':
@@ -378,7 +378,7 @@ export default function FeedScreen() {
         return (
           <RunningBeforeAfter
             challenge={item.challenge}
-            onPress={() => router.push({ pathname: '/vorher-nachher/[id]', params: { id: item.challenge.id } })}
+            onPress={() => router.push({ pathname: '/before-after/[id]', params: { id: item.challenge.id } })}
           />
         );
       case 'planned':
@@ -472,7 +472,7 @@ export default function FeedScreen() {
       <Animated.View style={[styles.clip, headerStyle]}>
         <View onLayout={(e) => !headerHeight && setHeaderHeight(e.nativeEvent.layout.height)}>
           <AppHeader
-            onLogoPress={() => router.push('/reise')}
+            onLogoPress={() => router.push('/me')}
             onLogoLongPress={() => router.push('/demo')}
             hasTasks={hasTasks}
           />

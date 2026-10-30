@@ -32,7 +32,7 @@ export default function Welcome() {
       Alert.alert('Klappt gerade nicht', failure);
       return;
     }
-    router.push('/onboarding/deckname');
+    router.push('/onboarding/handle');
   };
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
@@ -47,15 +47,15 @@ export default function Welcome() {
         </Text>
         <Text style={styles.legal}>
           Testversion ·{' '}
-          <Text style={styles.link} accessibilityRole="link" onPress={() => router.push('/rechtliches/impressum')}>
+          <Text style={styles.link} accessibilityRole="link" onPress={() => router.push('/legal/impressum')}>
             Impressum
           </Text>{' '}
           ·{' '}
-          <Text style={styles.link} accessibilityRole="link" onPress={() => router.push('/rechtliches/datenschutz')}>
+          <Text style={styles.link} accessibilityRole="link" onPress={() => router.push('/legal/datenschutz')}>
             Datenschutz
           </Text>{' '}
           ·{' '}
-          <Text style={styles.link} accessibilityRole="link" onPress={() => router.push('/rechtliches/bedingungen')}>
+          <Text style={styles.link} accessibilityRole="link" onPress={() => router.push('/legal/bedingungen')}>
             Bedingungen
           </Text>
         </Text>

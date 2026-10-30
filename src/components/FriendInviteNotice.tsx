@@ -34,7 +34,7 @@ export function FriendInviteNotice() {
             : t('{names} haben Deine Einladung angenommen. Ihr seid jetzt befreundet.', { names }),
           [
             { text: 'OK', style: 'cancel' },
-            { text: 'Ansehen', onPress: () => router.push('/account/freunde') },
+            { text: 'Ansehen', onPress: () => router.push('/account/friends') },
           ],
         );
       } catch {

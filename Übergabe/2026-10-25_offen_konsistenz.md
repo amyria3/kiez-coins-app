@@ -7,6 +7,8 @@
 
 ## Erledigt (auf `main`)
 
+- Routen und Look-Namen (Daria, 30.10.2026): siehe `2026-10-30_routen-englisch.md`.
+
 - Migration `20261022000500_messages.sql` heißt `20261022000600_messages.sql`, da die Nummer doppelt war. Im Supabase-Projekt ändert sich nichts.
 - Stilnamen für den Fashionable Look enden auf `Fashionable` (vorher `Insta`).
 - `MIN_PASSWORD` steht einmal in `src/data/auth.tsx`.
@@ -38,8 +40,6 @@ Die Übersetzungen in `src/i18n` sind mitgezogen. Daria hatte keine eigenen Fass
 - „noch mal“, „noch einmal“, „nochmal“: eine Form wählen.
 - „Lass uns …“ (`friendInvites.ts`) und „Mach’s gut“ (`account/delete/success.tsx`): Redewendung behalten oder ausschreiben.
 - „Nur Geduld, my friend!“ (`challenge/[id]/payment/index.tsx`): nur die er-Fassung ist deutsch („mein Freund“).
-- Routen: `challenge/[id]/flag` und `user/[id]/report` melden Verstöße, `challenge/[id]/report` meldet die Erledigung; `pay` und `payment`; `settings/` neben `account/`; deutsche und englische Ordnernamen gemischt.
-- Weitere Look-Suffixe `Flat` und `Mono` (`TabBar.tsx`, Kater-Sprechblase).
 
 ## Fehler im Werkzeug, nicht behoben
 

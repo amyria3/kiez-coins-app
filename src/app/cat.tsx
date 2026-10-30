@@ -1,0 +1,41 @@
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { Button } from '../components/Button';
+import { KaterStage } from '../components/KaterStage';
+import { NavigationBar } from '../components/NavigationBar';
+import { useKater } from '../components/useKater';
+import { useAppDimensions } from '../theme/layout';
+import { color, space } from '../theme/tokens';
+import { useGoBack } from '../lib/goBack';
+
+/** Route `cat`: dem Kater Hallo sagen. Er fegt, winkt, schiebt die Brille runter und klopft Sprüche. */
+export default function Kater() {
+  const goBack = useGoBack();
+  const insets = useSafeAreaInsets();
+  const { width } = useAppDimensions();
+  const kater = useKater(null);
+  return (
+    <View style={[styles.screen, { paddingTop: insets.top }]}>
+      <NavigationBar title="Cat The Käptn" variant="back" onLeadingPress={goBack} />
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + space[24] }]}>
+        <KaterStage
+          width={Math.min(width * 0.78, 340)}
+          spruch={kater.spruch ?? { text: 'Psst. Sage mal Hallo.', aktion: 'brille' }}
+          take={kater.take}
+          onPress={kater.noch}
+        />
+        <View style={styles.buttons}>
+          <Button label="Hallo sagen" icon="hallo" onPress={kater.hallo} />
+          <Button label="Noch ein Spruch" variant="secondary" onPress={kater.noch} />
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: color.bg.screen },
+  content: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', gap: space[24], paddingHorizontal: space[20] },
+  buttons: { alignSelf: 'stretch', gap: space[8] },
+});

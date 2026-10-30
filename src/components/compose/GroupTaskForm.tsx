@@ -29,7 +29,7 @@ type Initial = { photo?: ImageSource; title?: string; text?: string; edensteine?
 
 /**
  * Gruppenaufgabe mit 1 bis 10 Edensteinen: Felder und Button „Aufgabe veröffentlichen“.
- * Genutzt in der Route `gruppen/[id]/aufgabe` und im Erstellen-Blatt über dem Feed.
+ * Genutzt in der Route `groups/[id]/task` und im Erstellen-Blatt über dem Feed.
  */
 export function useGroupTaskForm(
   groupId: string | undefined,

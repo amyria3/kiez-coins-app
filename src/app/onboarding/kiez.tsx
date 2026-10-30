@@ -38,7 +38,7 @@ export default function Kiez() {
   const next = (kiez?: string) => {
     dispatch({ type: 'updateProfile', patch: { kiez } });
     if (from) goBack();
-    else router.push('/onboarding/kodex');
+    else router.push('/onboarding/code-of-conduct');
   };
 
   const locate = async () => {
