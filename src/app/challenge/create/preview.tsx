@@ -236,7 +236,7 @@ export default function CreatePreview() {
           </Text>
         ) : null}
         <View style={styles.authorBlock}>
-          <AuthorRow user={user} location={draft.location.trim()} />
+          <AuthorRow user={user} location={draft.private ? undefined : draft.location.trim()} />
         </View>
       </HeroScreen>
       </SafeAreaInsetsContext.Provider>
