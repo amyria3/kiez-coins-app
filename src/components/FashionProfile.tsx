@@ -275,7 +275,7 @@ export function FashionProfile() {
             {mode === 'private'
               ? 'Noch nichts für Dich.'
               : mode === 'groups'
-                ? 'Noch keine Gruppenaufgaben.'
+                ? 'Noch keine We-Challenges in der Gruppe.'
                 : tab === 'created'
                   ? 'Noch keine Challenge erstellt.'
                   : 'Noch keine Challenge angenommen.'}

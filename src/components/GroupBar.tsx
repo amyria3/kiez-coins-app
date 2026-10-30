@@ -118,7 +118,7 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onCreate }: Gro
 /** Reiter „Gruppen“ ohne Gruppe oder ohne Aufgaben */
 export function GroupsEmpty({
   title = 'Gruppen',
-  message = 'Verteilt Aufgaben in Eurem Verein, Eurer Hausgemeinschaft, WG oder Familie.',
+  message = 'Verteilt We-Challenges in Eurem Verein, Eurer Hausgemeinschaft, WG oder Familie.',
   onCreate,
   onJoin,
 }: {

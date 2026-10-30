@@ -7,7 +7,6 @@
   "{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.": "{firstName} {day} отметила {bountyAmount} как оплаченные. Проверь свой счёт или PayPal.",
   "{firstName} hat die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.": "{firstName} отметила {bountyAmount} как оплаченные. Проверь свой счёт или PayPal.",
   "{firstName} hat nicht als erledigt bestätigt: „{rejectionReason}“": "{firstName} не подтвердила выполнение: «{rejectionReason}»",
-  "Du bist allein in der Gruppe. Sie verschwindet samt Aufgaben. Das lässt sich nicht rückgängig machen.": "Ты одна в группе. Она исчезнет вместе с заданиями. Это нельзя отменить.",
   "Bitte begründe Deine Entscheidung nach bestem Wissen und Gewissen. Sei ermutigend und konstruktiv.": "Пожалуйста, объясни своё решение честно и добросовестно. Будь доброжелательной и конструктивной.",
   "Blockierte Personen sehen nicht, dass Du sie blockiert hast. Sie können Deine Challenges weder annehmen noch kommentieren.": "Заблокированные люди не видят, что ты их заблокировала. Они не могут ни брать, ни комментировать твои челленджи.",
   "Du hast niemanden blockiert.": "Ты никого не заблокировала.",
@@ -31,5 +30,6 @@
   "hat als bezahlt markiert": "отметила как оплачено",
   "hat bezahlt": "оплатила",
   "Nachbar:innen, die die Challenge sehen, können den Beitritt anfragen. Du musst den Beitritt aber gestatten.": "Соседи, которые видят челлендж, могут запросить участие. Ты должна одобрить каждый запрос.",
-  "Poste als Erste:r": "Опубликуй первой"
+  "Poste als Erste:r": "Опубликуй первой",
+  "Du bist allein in der Gruppe. Sie verschwindet samt We-Challenges. Das lässt sich nicht rückgängig machen.": "Ты одна в группе. Она исчезнет вместе с We-Challenges. Это нельзя отменить."
 }

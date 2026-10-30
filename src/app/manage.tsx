@@ -208,7 +208,7 @@ export default function ManageChallenges() {
           <View style={styles.empty}>
             <KaterCard>
               {tab === 'archive'
-                ? 'Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte Gruppenaufgaben.'
+                ? 'Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte We-Challenges aus Deinen Gruppen.'
                 : 'Du hast noch keine laufende Challenge. Fange mit einem Foto an.'}
             </KaterCard>
           </View>
@@ -499,7 +499,7 @@ function GroupDoneCard({
       <View style={styles.badges}>
         <StatusBadge status="confirmed" />
         <Text style={styles.caption}>
-          {challenges.length === 1 ? t('1 Gruppenaufgabe') : t('{count} Gruppenaufgaben', { count: challenges.length })}
+          {challenges.length === 1 ? t('1 We-Challenge in der Gruppe') : t('{count} We-Challenges in der Gruppe', { count: challenges.length })}
         </Text>
       </View>
       <ScrollView contentContainerStyle={styles.deletedList} showsVerticalScrollIndicator={false}>

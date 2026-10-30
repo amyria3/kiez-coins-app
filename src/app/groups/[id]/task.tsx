@@ -34,7 +34,7 @@ export default function NewGroupTask() {
   const form = type === 'before_after' ? ba : type === 'photo' ? photo : task;
   return (
     <SubScreen
-      title={type === 'photo' ? 'Bild posten' : 'Aufgabe erstellen'}
+      title={type === 'photo' ? 'Bild posten' : 'We-Challenge erstellen'}
       subtitle={group?.name}
       navigation="close"
       onLeadingPress={goBack}

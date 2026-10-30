@@ -176,7 +176,7 @@ export default function ChallengeDetail() {
     ) : multi ? (
       <Button icon="wir-schaffen-das" label="Mitmachen" onPress={join} />
     ) : (
-      <Button icon="wir-schaffen-das" label={challenge.groupId ? 'Aufgabe annehmen' : 'Challenge annehmen'} onPress={join} />
+      <Button icon="wir-schaffen-das" label={challenge.groupId ? 'We-Challenge annehmen' : 'Challenge annehmen'} onPress={join} />
     );
   } else if (reportsForAll) {
     actions = (
@@ -542,7 +542,7 @@ export default function ChallengeDetail() {
   if (!image) {
     return (
       <SubScreen
-        title={challenge.groupId ? 'Gruppenaufgabe' : 'Challenge'}
+        title={challenge.groupId ? 'We-Challenge in der Gruppe' : 'Challenge'}
         navigation="back"
         onLeadingPress={goBack}
         actions={actions}

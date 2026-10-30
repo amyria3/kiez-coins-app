@@ -69,7 +69,7 @@ function KiezPost({
   const meta = [distance, state, spotsText(challenge, active)].filter(Boolean).join(' · ');
   const commentCount = challenge.comments.length;
 
-  // Einmal tippen zeigt, wer gepostet hat. Nochmal tippen (auch doppelt) oder lange drücken öffnet den Post.
+  // Einmal tippen zeigt, wer gepostet hat. Noch mal tippen (auch doppelt) oder lange drücken öffnet den Post.
   const [who, setWho] = useState(false);
   const whoAnim = useRef(new Animated.Value(0)).current;
   const hideTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
