@@ -1,6 +1,6 @@
 # Entwurf speichern schlug fehl
 
-Datum: 2026-10-30 · Status: offen, bis die Migration eingespielt ist · Ziel in Documentation: Datenbank-Doku (Rechte auf `challenges`)
+Datum: 2026-10-30 · Status: umgesetzt, PR #134 gemergt, Migration eingespielt (Daria, 30.10.2026, mit 20261030000300); noch in die Doku übernehmen · Ziel in Documentation: Datenbank-Doku (Rechte auf `challenges`)
 
 ## Fehler (Daria, 30.10.2026)
 
@@ -23,5 +23,5 @@ Migration `20261030000200_entwurf_edensteine.sql`: `grant update (edensteine)`. 
 
 ## Offene Punkte
 
-- [ ] Migration in Supabase einspielen.
+- [x] Migration in Supabase eingespielt (30.10.2026).
 - [ ] Danach einen Entwurf zweimal speichern und veröffentlichen.
