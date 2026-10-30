@@ -180,13 +180,13 @@ function KiezPost({
         >
           {image ? <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
           {image && challenge.type === 'photo' ? <PhotoTextOverlay value={challenge.photoText} /> : null}
-          {rewards}
-          {closed ? (
+          {image ? rewards : null}
+          {image && closed ? (
             <View style={[styles.waveTag, styles.closedTag]}>
               <Text style={styles.closedText}>Geschlossen</Text>
             </View>
           ) : null}
-          {isWave ? (
+          {image && isWave ? (
             <View style={styles.waveTag}>
               <Text style={styles.waveText}>Wave</Text>
             </View>
@@ -224,10 +224,25 @@ function KiezPost({
               </View>
             </Pressable>
           </Animated.View>
-          <View style={[styles.info, image ? styles.infoOnPhoto : styles.infoPlain]}>
-            {image ? <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} /> : null}
-            {infoBar}
-          </View>
+          {image ? (
+            <View style={[styles.info, styles.infoOnPhoto]}>
+              <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+              {infoBar}
+            </View>
+          ) : (
+            // Ohne Foto (Daria, 30.10.2026): keine leere Fläche, Titel und Name links, Belohnung rechts daneben
+            <View style={styles.plainRow}>
+              <View style={[styles.info, styles.infoPlain, styles.plainInfo]}>
+                {closed || isWave ? (
+                  <View style={[styles.waveTag, styles.tagInline, closed && styles.closedTag]}>
+                    <Text style={closed ? styles.closedText : styles.waveText}>{closed ? 'Geschlossen' : 'Wave'}</Text>
+                  </View>
+                ) : null}
+                {infoBar}
+              </View>
+              <View style={styles.plainRewards}>{rewards}</View>
+            </View>
+          )}
         </Pressable>
       )}
       <View style={styles.actions}>
@@ -460,8 +475,12 @@ const styles = StyleSheet.create({
     // Glasleiste mit Abstand zum Kartenrand (Daria, 22.10.2026)
     padding: space[12],
   },
-  // Gruppenaufgabe ohne Foto: nur Glasleiste mit Titel
-  cardNoPhoto: { height: 150 },
+  // Ohne Foto: so hoch wie der Inhalt (Daria, 30.10.2026)
+  cardNoPhoto: { height: 'auto', justifyContent: 'center' },
+  plainRow: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
+  plainInfo: { flex: 1, alignItems: 'flex-start' },
+  plainRewards: { alignItems: 'flex-end', gap: space[8] },
+  tagInline: { position: 'relative', top: 0, left: 0, marginBottom: space[4] },
   eden: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
   // Ein großer Edenstein, der oben und unten über das Badge ragt
   edenCrystal: { width: 22, height: 20, alignItems: 'center' },
@@ -487,7 +506,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: 'rgba(31, 33, 35, 0.25)',
   },
-  plain: { paddingLeft: 0, paddingRight: 0 },
+  // Ohne Foto: im Fluss rechts neben dem Titel statt absolut oben rechts
+  plain: { paddingLeft: 0, paddingRight: 0, position: 'relative', top: 0, right: 0 },
   waveTag: {
     position: 'absolute',
     top: space[12],
