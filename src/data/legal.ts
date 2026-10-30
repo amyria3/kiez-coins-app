@@ -7,7 +7,7 @@
  */
 
 /** Stand aller Texte (TT.MM.JJJJ). */
-export const LEGAL_STAND = '30.10.2026';
+export const LEGAL_STAND = '31.10.2026';
 
 /** Angaben zur Anbieterin. Leere Felder erscheinen in der App als „[offen: …]“. */
 export const OPERATOR = {
@@ -111,6 +111,8 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         heading: 'Meldungen, Support und Sicherheit',
         paragraphs: [
           'Meldest Du eine Person oder Challenge oder schreibst Du dem Support, speichern wir Deine Nachricht, um sie zu bearbeiten. Die gemeldete Person erfährt nicht, wer gemeldet hat. Blockierst Du eine Person, speichern wir, wen Du blockiert hast. Zollst Du Lob, speichern wir, wen Du gelobt hast. Andere sehen nur die Anzahl, nicht wer gelobt hat. Zum Schutz vor Missbrauch speichert unser Hosting-Dienst technische Protokolle mit IP-Adresse und Zeitpunkt für kurze Zeit.',
+          // Anonyme Zählung, z. B. welcher Kamera-Knopf häufiger gedrückt wird (Daria, 31.10.2026)
+          'Wir behalten uns vor, anonymisiert Nutzerdaten zu erheben (wie beispielsweise Klicks).',
           'Rechtsgrundlage ist unser berechtigtes Interesse an einem sicheren, fairen Betrieb (Art. 6 Abs. 1 lit. f DSGVO) und die Bearbeitung von Meldungen nach dem Digital Services Act (Art. 6 Abs. 1 lit. c DSGVO).',
         ],
       },

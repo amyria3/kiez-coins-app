@@ -18,4 +18,4 @@ Pflichtaufgabe: Migration `20261031000100_knopf_zaehler.sql` in Supabase einspie
 ## Offene Punkte
 
 - [ ] Migration einspielen.
-- [ ] Datenschutzerklärung: Braucht die anonyme Zählung von Knopfdrücken einen Satz? Frage an Daria.
+- [x] Datenschutzerklärung, Abschnitt „Meldungen, Support und Sicherheit“, Satz von Daria (31.10.2026): „Wir behalten uns vor, anonymisiert Nutzerdaten zu erheben (wie beispielsweise Klicks).“ `LEGAL_STAND` 31.10.2026.
