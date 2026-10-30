@@ -54,7 +54,7 @@ export default function Code() {
       router.replace(target);
       return;
     }
-    router.push('/onboarding/deckname');
+    router.push('/onboarding/handle');
   };
 
   const resend = async () => {

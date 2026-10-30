@@ -127,12 +127,12 @@ export default function ManageChallenges() {
   // Vorher-Nachher: zurück zum Timer bzw. Nachher (Route vorher-nachher/[id])
   const openDraft = (c: Challenge) =>
     c.type === 'before_after'
-      ? router.push({ pathname: '/vorher-nachher/[id]', params: { id: c.id } })
+      ? router.push({ pathname: '/before-after/[id]', params: { id: c.id } })
       : requireKiez() && router.push({ pathname: '/challenge/create/step-1', params: { draftId: c.id } });
   // Kopie: neue Challenge mit Foto, Titel, Text, Ort und Bounty der alten. Gruppenaufgaben bleiben in ihrer Gruppe.
   const copy = (c: Challenge) =>
     c.groupId
-      ? router.push({ pathname: '/gruppen/[id]/aufgabe', params: { id: c.groupId, copyOf: c.id } })
+      ? router.push({ pathname: '/groups/[id]/task', params: { id: c.groupId, copyOf: c.id } })
       : requireKiez() && router.push({ pathname: '/challenge/create/step-1', params: { copyOf: c.id } });
 
   const close = (c: Challenge) =>
@@ -208,7 +208,7 @@ export default function ManageChallenges() {
           <View style={styles.empty}>
             <KaterCard>
               {tab === 'archive'
-                ? 'Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte Gruppenaufgaben.'
+                ? 'Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte We-Challenges aus Deinen Gruppen.'
                 : 'Du hast noch keine laufende Challenge. Fange mit einem Foto an.'}
             </KaterCard>
           </View>
@@ -499,7 +499,7 @@ function GroupDoneCard({
       <View style={styles.badges}>
         <StatusBadge status="confirmed" />
         <Text style={styles.caption}>
-          {challenges.length === 1 ? t('1 Gruppenaufgabe') : t('{count} Gruppenaufgaben', { count: challenges.length })}
+          {challenges.length === 1 ? t('1 We-Challenge in der Gruppe') : t('{count} We-Challenges in der Gruppe', { count: challenges.length })}
         </Text>
       </View>
       <ScrollView contentContainerStyle={styles.deletedList} showsVerticalScrollIndicator={false}>

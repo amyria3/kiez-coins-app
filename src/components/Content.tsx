@@ -62,7 +62,7 @@ export function KaterCard({ children, title, mood = 'default' }: { children: Rea
         <View style={styles.speechTail} />
       </View>
       <View
-        style={[styles.speechCat, isFashionable && styles.speechCatMono]}
+        style={[styles.speechCat, isFashionable && styles.speechCatFashionable]}
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
       >
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   },
   speechCatLift: { transform: [{ translateY: -6 }] },
   // Mehr Luft um den Kater (Daria, 24.10.2026): Kachel 68 pt, Kater bleibt 36 pt
-  speechCatMono: {
+  speechCatFashionable: {
     width: 68,
     height: 68,
     borderRadius: 24,

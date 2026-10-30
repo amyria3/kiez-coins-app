@@ -29,7 +29,7 @@ type Initial = { photo?: ImageSource; title?: string; text?: string; edensteine?
 
 /**
  * Gruppenaufgabe mit 1 bis 10 Edensteinen: Felder und Button „Aufgabe veröffentlichen“.
- * Genutzt in der Route `gruppen/[id]/aufgabe` und im Erstellen-Blatt über dem Feed.
+ * Genutzt in der Route `groups/[id]/task` und im Erstellen-Blatt über dem Feed.
  */
 export function useGroupTaskForm(
   groupId: string | undefined,
@@ -66,7 +66,7 @@ export function useGroupTaskForm(
       celebratePost();
       onCreated(taskId);
     } catch (error) {
-      Alert.alert('Aufgabe konnte nicht erstellt werden', (error as Error).message);
+      Alert.alert('We-Challenge konnte nicht erstellt werden', (error as Error).message);
     } finally {
       setBusy(false);
     }
@@ -101,7 +101,7 @@ export function useGroupTaskForm(
   const button = (
     <Button
       busy={busy}
-      label={busy ? 'Wird erstellt …' : 'Aufgabe veröffentlichen'}
+      label={busy ? 'Wird erstellt …' : 'We-Challenge veröffentlichen'}
       onPress={publish}
       disabled={busy || !group || !title.trim()}
       whyDisabled={() =>
@@ -109,7 +109,7 @@ export function useGroupTaskForm(
           ? undefined
           : !group
             ? explain('Gruppe nicht gefunden', 'Diese Gruppe gibt es nicht mehr, oder Du bist nicht mehr dabei.')
-            : titleField.nudge('Gib der Aufgabe einen Titel.')
+            : titleField.nudge('Gib der We-Challenge einen Titel.')
       }
     />
   );

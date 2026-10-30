@@ -1,4 +1,4 @@
-// Ordnet jeden Text der App einer Seite zu (für den Texte-Editor, Route `texte`).
+// Ordnet jeden Text der App einer Seite zu (für den Texte-Editor, Route `texts`).
 //   node scripts/text-pages.mjs   schreibt src/data/textSeiten.json
 // Steht ein Text auf mehreren Seiten, kommt er in die Gruppe „mehrere“. Bitte nach größeren Änderungen neu erzeugen.
 import { writeFileSync } from 'node:fs';
@@ -8,18 +8,18 @@ import { collectKeys } from './text-keys.mjs';
 
 const root = new URL('..', import.meta.url).pathname;
 const RULES = [
-  ['recht', /data\/legal\.ts|app\/rechtliches/],
+  ['recht', /data\/legal\.ts|app\/legal/],
   ['start', /app\/onboarding|app\/index/],
-  ['freunde', /app\/chat|app\/account\/freunde|app\/user|data\/chat/],
-  ['moderation', /app\/moderation|app\/texte|app\/account\/umfrage\/ergebnis/],
+  ['freunde', /app\/chat|app\/account\/friends|app\/friends|app\/user|data\/chat/],
+  ['moderation', /app\/moderation|app\/texts|app\/account\/survey/],
   ['erstellen', /app\/challenge\/create|components\/compose/],
   ['detail', /app\/challenge\/\[id\]|components\/(Comments|Badges)/],
   ['feed', /app\/feed|components\/(FeedHeader|ChallengePost|GroupBar|FeedStateMessage|TabBar|SurveyOverlay)/],
   ['verwalten', /app\/manage/],
-  ['gruppen', /app\/gruppen|data\/groups|components\/GroupCard/],
-  ['reise', /app\/reise|data\/reise/],
-  ['kater', /app\/tour|app\/kater|data\/(kater|tour)|components\/KaterStage/],
-  ['konto', /app\/account|app\/settings/],
+  ['gruppen', /app\/groups|data\/groups|components\/GroupCard/],
+  ['reise', /app\/me\.tsx|data\/reise/],
+  ['kater', /app\/tour|app\/cat\.tsx|data\/(kater|tour)|components\/KaterStage/],
+  ['konto', /app\/account/],
 ];
 const pageOf = (file) => RULES.find(([, re]) => re.test(file))?.[0] ?? 'allgemein';
 

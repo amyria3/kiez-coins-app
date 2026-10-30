@@ -96,7 +96,7 @@ export function TagTextField({
 
 /**
  * Schritt 1 von Vorher-Nachher im Erstellen-Blatt: Vorher-Foto, Überschrift, Erklärung.
- * „Vorher speichern“ legt den Entwurf an; danach geht es im Timer weiter (Route `vorher-nachher/[id]`).
+ * „Vorher speichern“ legt den Entwurf an; danach geht es im Timer weiter (Route `before-after/[id]`).
  */
 export function useBeforeAfterStartForm(
   groupId: string | undefined,

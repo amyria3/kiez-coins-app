@@ -121,7 +121,7 @@ export default function PersonalDetails() {
         <NavRow
           label="Grammatisches Geschlecht"
           value={genderLabel(profile.gender)}
-          onPress={() => router.push('/account/geschlecht')}
+          onPress={() => router.push('/account/gender')}
         />
         <NavRow
           label="Kiez"

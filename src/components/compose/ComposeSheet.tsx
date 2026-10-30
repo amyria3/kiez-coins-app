@@ -91,7 +91,7 @@ function useOpenTimer(onDone: () => void) {
   const router = useRouter();
   return (id: string) => {
     onDone();
-    router.push({ pathname: '/vorher-nachher/[id]', params: { id } });
+    router.push({ pathname: '/before-after/[id]', params: { id } });
   };
 }
 
@@ -133,7 +133,7 @@ function NoGroup() {
   const router = useRouter();
   return (
     <View style={styles.content}>
-      <GroupsEmpty onCreate={() => router.push('/gruppen/neu')} onJoin={() => router.push('/gruppen/beitreten')} />
+      <GroupsEmpty onCreate={() => router.push('/groups/new')} onJoin={() => router.push('/groups/join')} />
     </View>
   );
 }

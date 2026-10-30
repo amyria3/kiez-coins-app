@@ -37,7 +37,7 @@ export default function DemoMenu() {
     if (c.authorId === currentUserId && c.status === 'payment_open')
       tasks.push({ label: `Coins bezahlen: ${c.title}`, href: `/challenge/${c.id}/pay` });
     if (c.assigneeId === currentUserId && c.status === 'paid_marked')
-      tasks.push({ label: `Coins angekommen? ${c.title}`, href: `/challenge/${c.id}/payment` });
+      tasks.push({ label: `Coins angekommen? ${c.title}`, href: `/challenge/${c.id}/received` });
   }
 
   const open = (href: Href) => {
@@ -102,8 +102,8 @@ export default function DemoMenu() {
               router.replace('/onboarding/welcome');
             }}
           />
-          <Button variant="secondary" label="Was Du so machst" onPress={() => open('/reise')} />
-          <Button variant="secondary" label="Zahlungsdaten" onPress={() => open('/settings/payout')} />
+          <Button variant="secondary" label="Was Du so machst" onPress={() => open('/me')} />
+          <Button variant="secondary" label="Zahlungsdaten" onPress={() => open('/account/payout')} />
           {demo ? (
             <Button variant="secondary" label="Person melden" onPress={() => open('/user/peter/report')} />
           ) : null}

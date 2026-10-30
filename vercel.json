@@ -3,6 +3,138 @@
   "buildCommand": "npm run build:website",
   "outputDirectory": "website",
   "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/app/gruppen",
+      "destination": "/app/groups",
+      "permanent": true
+    },
+    {
+      "source": "/app/gruppen/neu",
+      "destination": "/app/groups/new",
+      "permanent": true
+    },
+    {
+      "source": "/app/gruppen/beitreten",
+      "destination": "/app/groups/join",
+      "permanent": true
+    },
+    {
+      "source": "/app/gruppen/:id/aufgabe",
+      "destination": "/app/groups/:id/task",
+      "permanent": true
+    },
+    {
+      "source": "/app/gruppen/:id",
+      "destination": "/app/groups/:id",
+      "permanent": true
+    },
+    {
+      "source": "/app/freunde/einladen",
+      "destination": "/app/friends/invite",
+      "permanent": true
+    },
+    {
+      "source": "/app/reise",
+      "destination": "/app/me",
+      "permanent": true
+    },
+    {
+      "source": "/app/kater",
+      "destination": "/app/cat",
+      "permanent": true
+    },
+    {
+      "source": "/app/texte",
+      "destination": "/app/texts",
+      "permanent": true
+    },
+    {
+      "source": "/app/rechtliches/:doc",
+      "destination": "/app/legal/:doc",
+      "permanent": true
+    },
+    {
+      "source": "/app/vorher-nachher/:id",
+      "destination": "/app/before-after/:id",
+      "permanent": true
+    },
+    {
+      "source": "/app/settings/:page",
+      "destination": "/app/account/:page",
+      "permanent": true
+    },
+    {
+      "source": "/app/account/datenabrufe",
+      "destination": "/app/account/data-access",
+      "permanent": true
+    },
+    {
+      "source": "/app/account/freunde",
+      "destination": "/app/account/friends",
+      "permanent": true
+    },
+    {
+      "source": "/app/account/funktionen",
+      "destination": "/app/account/features",
+      "permanent": true
+    },
+    {
+      "source": "/app/account/geschlecht",
+      "destination": "/app/account/gender",
+      "permanent": true
+    },
+    {
+      "source": "/app/account/sprache",
+      "destination": "/app/account/language",
+      "permanent": true
+    },
+    {
+      "source": "/app/account/umfrage/ergebnis",
+      "destination": "/app/account/survey/results",
+      "permanent": true
+    },
+    {
+      "source": "/app/onboarding/deckname",
+      "destination": "/app/onboarding/handle",
+      "permanent": true
+    },
+    {
+      "source": "/app/onboarding/funktionen",
+      "destination": "/app/onboarding/features",
+      "permanent": true
+    },
+    {
+      "source": "/app/onboarding/kodex",
+      "destination": "/app/onboarding/code-of-conduct",
+      "permanent": true
+    },
+    {
+      "source": "/app/onboarding/ohne-mail",
+      "destination": "/app/onboarding/no-email",
+      "permanent": true
+    },
+    {
+      "source": "/app/challenge/:id/flag",
+      "destination": "/app/challenge/:id/report",
+      "permanent": true
+    },
+    {
+      "source": "/app/challenge/:id/flag/success",
+      "destination": "/app/challenge/:id/report/success",
+      "permanent": true
+    },
+    {
+      "source": "/app/challenge/:id/payment",
+      "destination": "/app/challenge/:id/received",
+      "permanent": true
+    },
+    {
+      "source": "/app/challenge/:id/payment/success",
+      "destination": "/app/challenge/:id/received/success",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/app/:path((?!_expo/).*)",

@@ -37,7 +37,7 @@ function target(c: Challenge, role: ReiseEntry['role'], userId: string): { href:
   // Coins je Person (Migration 20261028000400): Dein Anteil ist als bezahlt markiert
   const line = c.payouts?.find((p) => p.userId === userId);
   if (role === 'assignee' && (line ? line.paidMarkedAt && !line.paidAt : c.status === 'paid_marked'))
-    return { href: `/challenge/${c.id}/payment`, needsAction: true };
+    return { href: `/challenge/${c.id}/received`, needsAction: true };
   // Angenommen, aber noch nicht erledigt gemeldet: Du bist dran.
   return { href: `/challenge/${c.id}`, needsAction: role === 'assignee' && c.status === 'accepted' };
 }
