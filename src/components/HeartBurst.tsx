@@ -6,9 +6,11 @@ import { color } from '../theme/tokens';
 import { iconSvgs } from './icons/svgs';
 
 /**
- * Herz-Animation nach dem Posten (Daria, 26.10.2026): Das Doppelherz aus der Leiste springt groß in die Mitte,
- * kleine Herzen steigen auf, dann schwebt alles nach oben weg. Liegt über allen Seiten und fängt keine Berührung ab.
+ * Herz-Animation nach dem Posten (Daria, 26.10.2026): Ein Herz springt groß auf, kleine Herzen steigen auf,
+ * dann schwebt alles nach oben weg. Liegt über allen Seiten und fängt keine Berührung ab.
  * Mit „Bewegung reduzieren“ blendet das Herz nur kurz ein und aus.
+ * Normales Herz statt Doppelherz, denn das Doppelherz steht für den Feed. Die Herzen starten im oberen Viertel,
+ * damit sie den Kater auf der Erfolgsseite nicht verdecken (Daria, 30.10.2026).
  */
 let fire: (() => void) | null = null;
 /** Nach einem erfolgreichen Posten aufrufen */
@@ -24,7 +26,7 @@ const SMALL = [
 ];
 const native = Platform.OS !== 'web';
 const heart = (h: number) => {
-  const icon = iconSvgs.feed;
+  const icon = iconSvgs.heart;
   return <SvgXml xml={icon.svg(color.accent.affection)} width={(icon.width / icon.height) * h} height={h} />;
 };
 
@@ -117,6 +119,7 @@ export function HeartBurst() {
 }
 
 const styles = StyleSheet.create({
-  layer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
+  // Mitte der Ebene bei einem Viertel der Höhe, über dem Kater der Erfolgsseite
+  layer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: '50%', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
   small: { position: 'absolute' },
 });
