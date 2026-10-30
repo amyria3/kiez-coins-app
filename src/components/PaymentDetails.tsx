@@ -25,7 +25,7 @@ type PaymentDetailsProps = {
 export function PaymentDetails({ challenge, recipient, noticeFirst, amountCents, share: shareFor }: PaymentDetailsProps) {
   const share = shareFor ?? (amountCents === undefined ? challenge.payoutShare : undefined);
   const notice = (
-    <Notice message="Überweise den Betrag direkt. Kiez Coins sieht und prüft keine Zahlungen, alles beruht auf Vertrauen." />
+    <Notice message="Überweise den Betrag direkt. KiezCoins sieht und prüft keine Zahlungen, alles beruht auf Vertrauen." />
   );
   return (
     <View style={styles.list}>
@@ -49,7 +49,7 @@ export function PaymentDetails({ challenge, recipient, noticeFirst, amountCents,
           message={tAbout(recipient, '{firstName} hat noch keine Zahlungsdaten freigegeben. Frage am besten in den Kommentaren nach.', { firstName: recipient.firstName })}
         />
       ) : null}
-      <CopyField label="Verwendungszweck" value={t('Kiez Coins: {title}', { title: challenge.title })} />
+      <CopyField label="Verwendungszweck" value={t('KiezCoins: {title}', { title: challenge.title })} />
       {noticeFirst ? null : notice}
     </View>
   );

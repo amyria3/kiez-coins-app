@@ -500,14 +500,14 @@ export default function ChallengeDetail() {
       ) : null}
       {challenge.bountyAmount && !isAuthor && sharedBounty ? (
         <Notice
-          message={tAbout(author, 'Die {amount} werden unter allen geteilt, die mitmachen. {firstName} zahlt jeder Person ihren Anteil direkt, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })}
+          message={tAbout(author, 'Die {amount} werden unter allen geteilt, die mitmachen. {firstName} zahlt jeder Person ihren Anteil direkt, zum Beispiel per Überweisung oder PayPal. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })}
         />
       ) : challenge.bountyAmount && !isAuthor ? (
         <Notice
           message={
             acceptedByMe
-              ? tAbout(author, '{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })
-              : tAbout(author, '{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName })
+              ? tAbout(author, '{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })
+              : tAbout(author, '{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName })
           }
         />
       ) : null}
@@ -563,7 +563,7 @@ export default function ChallengeDetail() {
       imageLabel={challenge.title}
       photoText={challenge.type === 'photo' && image === challenge.image ? challenge.photoText : undefined}
       onBackPress={() => goBack()}
-      onSharePress={() => shareText(t('{title} – Kiez Coins', { title: challenge.title }))}
+      onSharePress={() => shareText(t('{title} – KiezCoins', { title: challenge.title }))}
       imageOverlay={acceptedByMe && challenge.operationName ? <OperationTag name={challenge.operationName} /> : undefined}
       actions={actions}
       summary={summary}

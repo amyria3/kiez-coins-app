@@ -98,7 +98,7 @@ export default function PayScreen() {
           </View>
         );
       })}
-      <Notice message="Überweise jeden Anteil direkt. Kiez Coins sieht und prüft keine Zahlungen, alles beruht auf Vertrauen." />
+      <Notice message="Überweise jeden Anteil direkt. KiezCoins sieht und prüft keine Zahlungen, alles beruht auf Vertrauen." />
     </SubScreen>
   );
 }

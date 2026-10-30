@@ -6,7 +6,16 @@ Ergebnis gehört nach Documentation: `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt z
 
 Daria hat festgelegt: Die App heißt überall „KiezKoinz“.
 
-## Stand
+## Entscheidung von Daria (30.10.2026)
+
+Die App heißt überall „KiezCoins“, zusammengeschrieben, nie „Kiez Coins“. Im Code, in den Übersetzungen, auf der Website, in Rechtstexten und in der Übergabe ist das umgestellt (PR #127). Ausnahmen:
+
+- `app.json` (App-Name und Texte für Foto-, Kamera- und Standortzugriff): Eine Änderung dort ändert den nativen Fingerabdruck und braucht eine neue APK. Nachziehen, sobald der EAS-Workflow wieder läuft (ab 01.11.2026).
+- Alte Migrationen bleiben unverändert. Texte im Texte-CMS mit der alten Schreibweise sind verwaist; der Editor zeigt die neuen Texte aus dem Code.
+
+Offen bleibt, ob die App später „KiezKoinz“ heißt (siehe unten).
+
+## Stand (24.10.2026)
 
 Noch nichts umbenannt. Im Repo stehen (ohne `node_modules`, `package-lock.json`):
 

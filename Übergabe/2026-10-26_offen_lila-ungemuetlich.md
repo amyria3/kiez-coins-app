@@ -13,7 +13,7 @@
 Annahme von Claude, nicht mit Daria geklärt: Gemeint ist das Lila der App im Look „Kiez“ (Standard auf iOS und Android, im Web wählbar). Es steht in `src/theme/tokens.ts`:
 
 - `kiezPalette.purple: '#7E94FF'` (ein bläuliches Lila). Daraus werden `color.accent.primary` (Knöpfe, Aktionen) und `color.signature` (Logo und Kater).
-- Die Beschreibung des Looks in `src/theme/look.ts` lautet „Lila, rund, Kiez Coins pur“.
+- Die Beschreibung des Looks in `src/theme/look.ts` lautet „Lila, rund, KiezCoins pur“.
 - Grund ist dunkel: `black: '#1F2123'`, `graphite: '#2B2D31'`.
 
 Der Look „Fashionable“ nutzt kein Lila (Blau `#0095F6`, Signatur Schwarz). Ein Violett `#7B2FF7` hat Daria dort schon am 23.10.2026 verworfen.
@@ -29,4 +29,4 @@ Parallel bekommt die Landingpage ein helles Lila-Konzept (Farbkonzepte in den Pr
 ## Nächste Schritte
 
 - Daria beantwortet die Fragen.
-- Zwei oder drei Varianten als Vorschau zeigen (Feed und Erstellen-Blatt), dann `kiezPalette.purple` in `src/theme/tokens.ts` und in Figma (Variable `color/accent/primary`) gleichzeitig ändern. Texte wie „Lila, rund, Kiez Coins pur“ in `src/theme/look.ts` anpassen.
+- Zwei oder drei Varianten als Vorschau zeigen (Feed und Erstellen-Blatt), dann `kiezPalette.purple` in `src/theme/tokens.ts` und in Figma (Variable `color/accent/primary`) gleichzeitig ändern. Texte wie „Lila, rund, KiezCoins pur“ in `src/theme/look.ts` anpassen.
