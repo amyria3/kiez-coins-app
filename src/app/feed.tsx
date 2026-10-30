@@ -61,7 +61,7 @@ function matchesTab(challenge: Challenge, tab: FeedTab, groupId: string | undefi
 export default function FeedScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { challenges, users, feedState, mode, currentUserId, profile, dispatch, load, groups } = useStore();
+  const { challenges, users, feedState, feedError, mode, currentUserId, profile, dispatch, load, groups } = useStore();
   const requireKiez = useRequireKiez();
   const [surveyVisible, closeSurvey] = useSurveyPrompt();
   // `gruppe`: aus der Gruppenseite („Aufgaben ansehen“) direkt in den Reiter „Gruppen“
@@ -394,6 +394,7 @@ export default function FeedScreen() {
         return showState ? (
           <FeedStateMessage
             variant={showState}
+            detail={showState === 'error' ? feedError : undefined}
             onAction={() =>
               showState === 'empty'
                 ? createChallenge()
