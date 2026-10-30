@@ -21,17 +21,17 @@ import { IconButton } from '../components/IconButton';
 import { Text } from '../components/T';
 import { t } from '../data/texts';
 import { useAppDimensions } from '../theme/layout';
-import { AppHeader, FeedGreeting, PlannedHint, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
+import { AppHeader, FeedGreeting, MODE_OF_TAB, PlannedHint, TAB_OF_MODE, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
 import { FeedStateMessage } from '../components/FeedStateMessage';
-import { GroupBar, GroupsEmpty } from '../components/GroupBar';
+import { GroupBar } from '../components/GroupBar';
 import { AudienceHint, useAudienceHint } from '../components/AudienceHint';
 import { GearsLoader } from '../components/GearsLoader';
 import { SurveyOverlay, useSurveyPrompt } from '../components/SurveyOverlay';
 import { CAMERA_W, CameraButton, TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { useRequireKiez } from '../data/kiez';
-import { challengeTypes, isTypeActive, useFeatures } from '../data/features';
+import { challengeTypes, isTypeActive, useModes } from '../data/features';
 import { anrede } from '../data/format';
-import { coordsIfAllowed, distanceMeters, formatDistance, type Coords } from '../data/location';
+import { coordsIfAllowed, distanceMeters, formatDistance, KIEZ_RADIUS_METERS, type Coords } from '../data/location';
 import { reiseEntries } from '../data/reise';
 import { runningBeforeAfter, topChallenges as pickTopChallenges, useStore } from '../data/store';
 import { RunningBeforeAfter } from '../components/BeforeAfterTimer';
@@ -41,14 +41,19 @@ import { color, isFashionable, motion, space, text } from '../theme/tokens';
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
 // Abgeschaltete Typen bleiben sichtbar, wenn es sie in der Datenbank gibt.
-function matchesTab(challenge: Challenge, tab: FeedTab, groupId?: string) {
+function matchesTab(challenge: Challenge, tab: FeedTab, groupId: string | undefined, me: string) {
   // Entwürfe und gelöschte stehen nur in „Deine Challenges“. Geschlossene bleiben in der Timeline.
   if (challenge.status === 'draft' || challenge.status === 'deleted') return false;
+  // Privat: nur eigene private Beiträge, und die nur hier (Daria, 27.10.2026)
+  if (tab === 'private') return !!challenge.private && challenge.authorId === me;
+  if (challenge.private) return false;
   // Gruppenaufgaben nur im Reiter „Gruppen“, dort nur die der gewählten Gruppe
   if (tab === 'groups') return !!groupId && challenge.groupId === groupId;
   if (challenge.groupId) return false;
   if (tab === 'wave') return challenge.type === 'wave';
   if (tab === 'completed') return COMPLETED.has(challenge.status);
+  // Überall: alles Öffentliche außer „nur im Umkreis“, eigene Beiträge immer (Daria, 29.10.2026)
+  if (tab === 'everywhere') return !challenge.localOnly || challenge.authorId === me;
   return true;
 }
 
@@ -62,11 +67,14 @@ export default function FeedScreen() {
   // `gruppe`: aus der Gruppenseite („Aufgaben ansehen“) direkt in den Reiter „Gruppen“
   // `reiter=gruppen` und `erstellen=1`: aus der Leiste im Fashionable Look von anderen Seiten
   const { gruppe, reiter, erstellen } = useLocalSearchParams<{ gruppe?: string; reiter?: string; erstellen?: string }>();
-  const [chosenTab, setTab] = useState<FeedTab>(gruppe || reiter === 'gruppen' ? 'groups' : 'nearby');
-  // Gruppen abgeschaltet (Dein Konto › Funktionen): kein Reiter „Gruppen“
-  const groupsOn = useFeatures().groups;
-  const tab: FeedTab = chosenTab === 'groups' && !groupsOn ? 'nearby' : chosenTab;
-  const tabOrder = groupsOn ? TAB_ORDER : TAB_ORDER.filter((key) => key !== 'groups');
+  const [chosenTab, setTab] = useState<FeedTab | undefined>(gruppe || reiter === 'gruppen' ? 'groups' : undefined);
+  // Modi Privat, Gruppe, Kiez (Dein Konto › Funktionen, Daria, 27.10.2026): verborgene haben keinen Reiter,
+  // ohne eigene Wahl gilt der Standard
+  const modes = useModes();
+  const groupsOn = modes.isVisible('groups');
+  const tabOrder = TAB_ORDER.filter((key) => modes.visible.some((m) => TAB_OF_MODE[m] === key));
+  const standardTab = TAB_OF_MODE[modes.standard];
+  const tab: FeedTab = chosenTab && tabOrder.includes(chosenTab) ? chosenTab : standardTab;
   const tabOrderRef = useRef(tabOrder);
   tabOrderRef.current = tabOrder;
   const [groupChoice, setGroupChoice] = useState<string | undefined>(gruppe);
@@ -152,15 +160,23 @@ export default function FeedScreen() {
     [here],
   );
 
-  // „Im Kiez“: die nächsten zuerst, Challenges ohne Punkt danach in der bisherigen Reihenfolge.
+  // „Kiez“: nur bis 5 km (Daria, 29.10.2026), die nächsten zuerst, Challenges ohne Punkt danach.
+  // Ohne Standortfreigabe zählt der Kiez aus dem Profil. Eigene Beiträge stehen immer drin.
+  const myKiez = profile.kiez?.split(',')[0].trim().toLowerCase();
   const posts = useMemo(() => {
-    const list = challenges.filter((c) => matchesTab(c, tab, groupId));
-    if (tab !== 'nearby' || !here) return list;
+    const list = challenges.filter((c) => matchesTab(c, tab, groupId, currentUserId));
+    if (tab !== 'nearby') return list;
+    if (!here) {
+      return list.filter(
+        (c) => c.authorId === currentUserId || !myKiez || !c.kiez || c.kiez.split(',')[0].trim().toLowerCase() === myKiez,
+      );
+    }
     return list
       .map((c, i) => ({ c, i, d: distanceTo(c) }))
+      .filter((x) => x.c.authorId === currentUserId || x.d === undefined || x.d <= KIEZ_RADIUS_METERS)
       .sort((a, b) => (a.d ?? Infinity) - (b.d ?? Infinity) || a.i - b.i)
       .map((x) => x.c);
-  }, [challenges, tab, here, distanceTo, groupId]);
+  }, [challenges, tab, here, distanceTo, groupId, currentUserId, myKiez]);
   const topChallenges = useMemo(
     () => pickTopChallenges({ mode, challenges, currentUserId }),
     [mode, challenges, currentUserId],
@@ -183,7 +199,7 @@ export default function FeedScreen() {
   const sheetAnim = useRef(new Animated.Value(0)).current;
   const wasCollapsed = useRef(false);
   const createChallenge = () => {
-    if (tab === 'nearby' && !requireKiez()) return;
+    if ((tab === 'nearby' || tab === 'everywhere') && !requireKiez()) return;
     wasCollapsed.current = collapsed;
     setComposing(true);
     if (!collapsed) animateHeader(1);
@@ -306,11 +322,12 @@ export default function FeedScreen() {
   // Eigene Vorher-Nachher-Timer, die gerade laufen: oben im Feed (Daria, 23.10.2026)
   const running = useMemo(() => runningBeforeAfter(challenges, currentUserId), [challenges, currentUserId]);
 
-  // Hinweis unter dem Umschalter: wer sieht, was Du hier postest (Daria, 27.10.2026)
-  const audience = tab === 'groups' ? 'groups' : 'kiez';
+  // Hinweis unter dem Umschalter: wer sieht, was Du hier postest (Daria, 27.10.2026). In allen vier Reitern,
+  // auch in „Gruppe“ ohne Gruppe (Daria, 29.10.2026)
+  const audience = MODE_OF_TAB[tab] ?? 'kiez';
   const [audienceHint, closeAudienceHint] = useAudienceHint(audience);
   const showAudience =
-    audienceHint && !composing && !loading && (tab === 'nearby' || (tab === 'groups' && groups.length > 0));
+    audienceHint && !composing && !loading && (tab === 'nearby' || tab === 'everywhere' || tab === 'private' || tab === 'groups');
 
   const items: FeedItem[] = [];
   if (showAudience) items.push({ kind: 'audience' });
@@ -323,19 +340,26 @@ export default function FeedScreen() {
       if (posts.length === 0) items.push({ kind: 'groupNoTasks' });
       else posts.forEach((challenge) => items.push({ kind: 'post', challenge }));
     }
-  } else if (loading) items.push({ kind: 'loading' });
+  } else if (tab === 'private' && !loading && posts.length === 0) items.push({ kind: 'privateEmpty' });
+  else if (loading) items.push({ kind: 'loading' });
   else if (showState && !(planned && showState === 'empty')) items.push({ kind: 'state' });
   else posts.forEach((challenge) => items.push({ kind: 'post', challenge }));
 
   const renderItem = ({ item }: { item: FeedItem }) => {
     switch (item.kind) {
+      // Leere Reiter sehen aus wie Kiez und Überall (Daria, 29.10.2026)
       case 'groupsEmpty':
-        // Fashionable Look: Liste ohne Abstand oben, daher hier 16 pt unter den Reitern (Daria, 24.10.2026)
         return (
-          <View style={isFashionable ? styles.emptyTop : undefined}>
-            <GroupsEmpty onCreate={() => router.push('/gruppen/neu')} onJoin={() => router.push('/gruppen/beitreten')} />
-          </View>
+          <FeedStateMessage
+            variant="empty"
+            body="Erstelle Deine erste Gruppe"
+            action="Gruppe gründen"
+            onAction={() => router.push('/groups/new')}
+            secondary={{ label: 'Mit Beitrittscode beitreten', onPress: () => router.push('/groups/join') }}
+          />
         );
+      case 'privateEmpty':
+        return <FeedStateMessage variant="empty" body="Poste Deine erste Me-Challenge" onAction={createChallenge} />;
       case 'audience':
         return <AudienceHint audience={audience} onClose={closeAudienceHint} />;
       case 'groupBar':
@@ -344,22 +368,17 @@ export default function FeedScreen() {
             groups={groups}
             selectedId={groupId}
             onSelect={setGroupChoice}
-            onOpen={(id) => router.push(`/gruppen/${id}`)}
-            onCreate={() => router.push('/gruppen/neu')}
+            onOpen={(id) => router.push(`/groups/${id}`)}
+            onCreate={() => router.push('/groups/new')}
           />
         );
       case 'groupNoTasks':
-        return (
-          <GroupsEmpty
-            title="Noch keine Aufgaben"
-            message={isFashionable ? 'Tippe unten auf die Kamera und erstelle die erste We-Challenge für Eure Gruppe!' : 'Tippe oben rechts auf die Kamera und erstelle die erste We-Challenge für Eure Gruppe!'}
-          />
-        );
+        return <FeedStateMessage variant="empty" body="Poste die erste Challenge in Deiner Gruppe" onAction={createChallenge} />;
       case 'running':
         return (
           <RunningBeforeAfter
             challenge={item.challenge}
-            onPress={() => router.push({ pathname: '/vorher-nachher/[id]', params: { id: item.challenge.id } })}
+            onPress={() => router.push({ pathname: '/before-after/[id]', params: { id: item.challenge.id } })}
           />
         );
       case 'planned':
@@ -438,9 +457,9 @@ export default function FeedScreen() {
     opacity: composeAnim.interpolate({ inputRange: [0, 0.4, 1], outputRange: [0, 0, 1] }),
     transform: [{ translateY: composeAnim.interpolate({ inputRange: [0, 1], outputRange: [-16, 0] }) }],
   };
-  const composeTarget = tab === 'groups' ? groupId : 'public';
+  const composeTarget = tab === 'groups' ? groupId : tab === 'private' ? 'private' : 'public';
   // Kurz und gleich für jede Gruppe (Daria, 24.10.2026)
-  const composeLine = tab === 'groups' ? t('Aufgabe erstellen') : t('Challenge erstellen');
+  const composeLine = tab === 'groups' ? t('We-Challenge erstellen') : t('Challenge erstellen');
   const storiesStyle = {
     height: showStories && !composing
       ? progress.interpolate({ inputRange: [0, 1], outputRange: [0, storiesHeight], extrapolateLeft: 'clamp' })
@@ -453,7 +472,7 @@ export default function FeedScreen() {
       <Animated.View style={[styles.clip, headerStyle]}>
         <View onLayout={(e) => !headerHeight && setHeaderHeight(e.nativeEvent.layout.height)}>
           <AppHeader
-            onLogoPress={() => router.push('/reise')}
+            onLogoPress={() => router.push('/me')}
             onLogoLongPress={() => router.push('/demo')}
             hasTasks={hasTasks}
           />
@@ -469,7 +488,7 @@ export default function FeedScreen() {
         </View>
       </Animated.View>
       <Animated.View style={[styles.tabsRow, isFashionable && styles.tabsRowFashionable, { paddingRight: tabsPaddingRight }]}>
-        <TabsNavigation selectedKey={tab} onChange={switchTab} groups={groupsOn} />
+        <TabsNavigation selectedKey={tab} onChange={switchTab} visible={modes.visible} />
       </Animated.View>
       <Animated.View style={[styles.clip, storiesStyle]}>
         <View onLayout={(e) => setStoriesHeight(e.nativeEvent.layout.height)}>
@@ -509,7 +528,7 @@ export default function FeedScreen() {
       {composing || isFashionable ? null : <CameraButton onPress={createChallenge} />}
       {composing ? null : <TabBar
         active="feed"
-        onFeedPress={() => switchTab('nearby')}
+        onFeedPress={() => switchTab(standardTab)}
         onMenuPress={() => router.push('/account')}
         onCreatePress={createChallenge}
         onGroupsPress={groupsOn ? () => switchTab('groups') : undefined}
@@ -529,8 +548,8 @@ const HEADER_HIDE_MS = 3500;
 /** Höhe des schmalen Kopfs beim Erstellen */
 const COMPOSE_HEADER = 52;
 
-/** Reihenfolge der Reiter für das Wischen */
-const TAB_ORDER: FeedTab[] = ['nearby', 'groups'];
+/** Reihenfolge der Reiter, auch für das Wischen: Privat, Gruppe, Kiez, Überall (Daria, 27./29.10.2026) */
+const TAB_ORDER: FeedTab[] = ['private', 'groups', 'nearby', 'everywhere'];
 /** Mindestweg in Punkten, ab dem ein Wischen den Reiter wechselt */
 const SWIPE_DISTANCE = 64;
 
@@ -540,6 +559,7 @@ type FeedItem =
   | { kind: 'groupsEmpty' }
   | { kind: 'groupBar' }
   | { kind: 'groupNoTasks' }
+  | { kind: 'privateEmpty' }
   | { kind: 'loading' }
   | { kind: 'state' }
   | { kind: 'running'; challenge: Challenge }
@@ -553,7 +573,6 @@ const styles = StyleSheet.create({
   // Fashionable Look: Beiträge ohne Lücke, jeder Beitrag bringt 16 pt Abstand unten selbst mit
   list: { gap: isFashionable ? 0 : space[24] },
   listTop: { paddingTop: space[8] },
-  emptyTop: { paddingTop: space[16] },
   composeHeader: { height: COMPOSE_HEADER, flexDirection: 'row', alignItems: 'center', gap: space[4], paddingHorizontal: space[8] },
   composeLine: { ...text.title, flex: 1, color: color.text.primary },
   composeSheet: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },

@@ -10,13 +10,16 @@ import { formatRelative, formatRemainingShort } from '../data/format';
 import type { Challenge, User } from '../data/types';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
-import { BeforeAfterPost } from './BeforeAfterPost';
-import { WithMentions } from './WithMentions';
-import { BountyBadge } from './Badges';
+import { BeforeAfterPair, BeforeAfterPost } from './BeforeAfterPost';
+import { weChallengeAfter, joinedIds, maxParticipants, participationText } from '../data/weChallenge';
+import { useAppDimensions } from '../theme/layout';
+import { WithMentions, postText } from './WithMentions';
+import { BountyBadge, NameWithTestMark } from './Badges';
 import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 import { t } from '../data/texts';
+import { PhotoTextOverlay } from './PhotoText';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
@@ -57,13 +60,16 @@ function KiezPost({
   const closed = challenge.status === 'closed';
   const active = !closed && !completed;
   const image = isWave && completed && challenge.imageAfter ? challenge.imageAfter : challenge.image;
+  // Erledigte We-Challenge: Aufgabenfoto als Vorher, Erledigungsfoto als Nachher (Daria, 27.10.2026)
+  const after = image ? weChallengeAfter(challenge) : undefined;
+  const body = postText(challenge);
   const state = closed ? 'geschlossen' : completed ? 'erledigt' : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
   const hideName = useHideName(author);
   const router = useRouter();
-  const meta = [distance, state].filter(Boolean).join(' · ');
+  const meta = [distance, state, spotsText(challenge, active)].filter(Boolean).join(' · ');
   const commentCount = challenge.comments.length;
 
-  // Einmal tippen zeigt, wer gepostet hat. Nochmal tippen (auch doppelt) oder lange drücken öffnet den Post.
+  // Einmal tippen zeigt, wer gepostet hat. Noch mal tippen (auch doppelt) oder lange drücken öffnet den Post.
   const [who, setWho] = useState(false);
   const whoAnim = useRef(new Animated.Value(0)).current;
   const hideTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -84,102 +90,146 @@ function KiezPost({
     onPress();
   };
 
+  // Bounty und Edensteine oben rechts auf dem Foto
+  const rewards = (
+    <>
+      {!isWave && challenge.bountyAmount ? (
+        <View style={[styles.bounty, image ? styles.onPhoto : styles.plain]}>
+          {image ? (
+            <View style={styles.badgeBlur}>
+              <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+            </View>
+          ) : null}
+          <BountyBadge amount={challenge.bountyAmount} small />
+        </View>
+      ) : null}
+      {challenge.edensteine ? (
+        <View style={[styles.bounty, styles.eden, image ? styles.onPhoto : styles.plain]} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine: challenge.edensteine })}>
+          {image ? (
+            <View style={styles.badgeBlur}>
+              <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+            </View>
+          ) : null}
+          {/* Edenstein nur bei aktiven Aufgaben; geschlossen oder erledigt nur die Zahl in Grau */}
+          {active ? (
+            <View style={styles.edenCrystal}>
+              <View style={styles.edenCrystalFloat}>
+                <LivingCrystal height={40} seed={challenge.id} />
+              </View>
+            </View>
+          ) : null}
+          <Text style={[styles.edenText, active ? null : styles.edenTextDone]}>{challenge.edensteine}</Text>
+        </View>
+      ) : null}
+    </>
+  );
+
+  const infoBar = (
+    <>
+      <Text style={styles.title} numberOfLines={2}>
+        {challenge.title}
+      </Text>
+      <View style={styles.metaRow}>
+        <Text style={styles.meta} numberOfLines={1}>
+          <Text noTranslate style={hideName ? hiddenText : undefined}>{author.name}</Text>
+          {meta ? ` · ${meta}` : null}
+        </Text>
+      </View>
+    </>
+  );
+
   return (
     <View style={styles.post}>
-      <Pressable
-        onPress={tap}
-        onLongPress={open}
-        delayLongPress={350}
-        accessibilityRole="button"
-        accessibilityLabel={t('{title} öffnen', { title: challenge.title })}
-        accessibilityHint={t('Tippe einmal, um den Namen anzuzeigen, oder zweimal oder lange, um den Post zu öffnen.')}
-        accessibilityActions={[{ name: 'activate' }]}
-        onAccessibilityAction={open}
-        style={({ pressed }) => [styles.card, !image && styles.cardNoPhoto, pressed && styles.pressed]}
-      >
-        {image ? <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
-        {!isWave && challenge.bountyAmount ? (
-          <View style={[styles.bounty, image ? styles.onPhoto : styles.plain]}>
-            {image ? (
-              <View style={styles.badgeBlur}>
-                <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
-              </View>
-            ) : null}
-            <BountyBadge amount={challenge.bountyAmount} small />
-          </View>
-        ) : null}
-        {challenge.edensteine ? (
-          <View style={[styles.bounty, styles.eden, image ? styles.onPhoto : styles.plain]} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine: challenge.edensteine })}>
-            {image ? (
-              <View style={styles.badgeBlur}>
-                <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
-              </View>
-            ) : null}
-            {/* Edenstein nur bei aktiven Aufgaben; geschlossen oder erledigt nur die Zahl in Grau */}
-            {active ? (
-              <View style={styles.edenCrystal}>
-                <View style={styles.edenCrystalFloat}>
-                  <LivingCrystal height={40} seed={challenge.id} />
-                </View>
-              </View>
-            ) : null}
-            <Text style={[styles.edenText, active ? null : styles.edenTextDone]}>{challenge.edensteine}</Text>
-          </View>
-        ) : null}
-        {closed ? (
-          <View style={[styles.waveTag, styles.closedTag]}>
-            <Text style={styles.closedText}>Geschlossen</Text>
-          </View>
-        ) : null}
-        {isWave ? (
-          <View style={styles.waveTag}>
-            <Text style={styles.waveText}>Wave</Text>
-          </View>
-        ) : null}
-        {/* Wer hat gepostet: nach dem ersten Tippen oben links, Bild und Name wie bei großen Foto-Apps */}
-        <Animated.View
-          pointerEvents={who ? 'box-none' : 'none'}
-          style={[
-            styles.who,
-            {
-              opacity: whoAnim,
-              transform: [{ translateY: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [-12, 0] }) }],
-            },
-          ]}
-        >
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t('Profil von {name}', { name: author.name })}
-            onPress={() => {
-              setWho(false);
-              router.push({ pathname: '/user/[id]', params: { id: author.id, challengeId: challenge.id } });
-            }}
-            style={({ pressed }) => [styles.whoRow, pressed && styles.pressed]}
-          >
-            <Avatar user={author} diameter={40} />
-            <View style={styles.whoTexts}>
-              <Text noTranslate style={[styles.whoName, hideName ? hiddenText : null]} numberOfLines={1}>
-                {author.name}
-              </Text>
-              <Text style={styles.whoMeta} numberOfLines={1}>
-                {formatRelative(challenge.createdAt)}
-              </Text>
-            </View>
-          </Pressable>
-        </Animated.View>
-        <View style={[styles.info, image ? styles.infoOnPhoto : styles.infoPlain]}>
-          {image ? <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} /> : null}
-          <Text style={styles.title} numberOfLines={2}>
-            {challenge.title}
-          </Text>
-          <View style={styles.metaRow}>
-            <Text style={styles.meta} numberOfLines={1}>
-              <Text noTranslate style={hideName ? hiddenText : undefined}>{author.name}</Text>
-              {meta ? ` · ${meta}` : null}
-            </Text>
+      {after ? (
+        // Erledigte We-Challenge: Bildpaar wie bei der Me-Challenge, Glasleiste unten, Bounty und Edensteine oben rechts
+        <View>
+          <BeforeAfterPair
+            before={image}
+            after={after}
+            height={360}
+            rounded
+            onLongPress={open}
+            onPress={open}
+            overlay={
+              <Pressable
+                onPress={open}
+                accessibilityRole="button"
+                accessibilityLabel={t('{title} öffnen', { title: challenge.title })}
+                style={[styles.info, styles.infoOnPhoto]}
+              >
+                <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+                {infoBar}
+              </Pressable>
+            }
+          />
+          <View pointerEvents="none" style={styles.pairRewards}>
+            {rewards}
           </View>
         </View>
-      </Pressable>
+      ) : (
+        <Pressable
+          onPress={tap}
+          onLongPress={open}
+          delayLongPress={350}
+          accessibilityRole="button"
+          accessibilityLabel={t('{title} öffnen', { title: challenge.title })}
+          accessibilityHint={t('Tippe einmal, um den Namen anzuzeigen, oder zweimal oder lange, um den Post zu öffnen.')}
+          accessibilityActions={[{ name: 'activate' }]}
+          onAccessibilityAction={open}
+          style={({ pressed }) => [styles.card, !image && styles.cardNoPhoto, pressed && styles.pressed]}
+        >
+          {image ? <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
+          {image && challenge.type === 'photo' ? <PhotoTextOverlay value={challenge.photoText} /> : null}
+          {rewards}
+          {closed ? (
+            <View style={[styles.waveTag, styles.closedTag]}>
+              <Text style={styles.closedText}>Geschlossen</Text>
+            </View>
+          ) : null}
+          {isWave ? (
+            <View style={styles.waveTag}>
+              <Text style={styles.waveText}>Wave</Text>
+            </View>
+          ) : null}
+          {/* Wer hat gepostet: nach dem ersten Tippen oben links, Bild und Name wie bei großen Foto-Apps */}
+          <Animated.View
+            pointerEvents={who ? 'box-none' : 'none'}
+            style={[
+              styles.who,
+              {
+                opacity: whoAnim,
+                transform: [{ translateY: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [-12, 0] }) }],
+              },
+            ]}
+          >
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('Profil von {name}', { name: author.name })}
+              onPress={() => {
+                setWho(false);
+                router.push({ pathname: '/user/[id]', params: { id: author.id, challengeId: challenge.id } });
+              }}
+              style={({ pressed }) => [styles.whoRow, pressed && styles.pressed]}
+            >
+              <Avatar user={author} diameter={40} />
+              <View style={styles.whoTexts}>
+                <NameWithTestMark test={author.test}>
+                  <Text noTranslate style={[styles.whoName, hideName ? hiddenText : null]} numberOfLines={1}>
+                    {author.name}
+                  </Text>
+                </NameWithTestMark>
+                <Text style={styles.whoMeta} numberOfLines={1}>
+                  {formatRelative(challenge.createdAt)}
+                </Text>
+              </View>
+            </Pressable>
+          </Animated.View>
+          <View style={[styles.info, image ? styles.infoOnPhoto : styles.infoPlain]}>
+            {image ? <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} /> : null}
+            {infoBar}
+          </View>
+        </Pressable>
+      )}
       <View style={styles.actions}>
         <View style={styles.actionsLeft}>
           {/* Herz mit Anzahl; das Geschenk ist ausgeblendet (Daria, 22.10.2026) */}
@@ -222,15 +272,21 @@ function KiezPost({
           ) : null}
         </View>
       </View>
-      {challenge.text ? (
+      {body ? (
         <Pressable onPress={onPress} style={styles.textBlock}>
-          <Text style={styles.body} numberOfLines={2}>
-            <WithMentions value={challenge.text} />
+          <Text style={styles.body} numberOfLines={after ? 4 : 2}>
+            <WithMentions value={body} />
           </Text>
         </Pressable>
       ) : null}
     </View>
   );
+}
+
+/** Mehrere Personen: „2 von 5 dabei“, solange die Challenge läuft (Daria, 27.10.2026) */
+function spotsText(c: Challenge, active: boolean): string {
+  if (!active || c.type !== 'individual') return '';
+  return participationText(maxParticipants(c), c.joinMode, joinedIds(c).length);
 }
 
 /**
@@ -243,11 +299,15 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
   const closed = challenge.status === 'closed';
   const active = !closed && !completed;
   const image = isWave && completed && challenge.imageAfter ? challenge.imageAfter : challenge.image;
+  // Erledigte We-Challenge: Aufgabenfoto als Vorher, Erledigungsfoto als Nachher (Daria, 27.10.2026)
+  const after = image ? weChallengeAfter(challenge) : undefined;
+  const body = postText(challenge);
   const state = closed ? 'geschlossen' : completed ? 'erledigt' : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
   const hideName = useHideName(author);
   const router = useRouter();
-  const place = [challenge.kiez?.split(',')[0] ?? challenge.location, distance].filter(Boolean).join(' · ');
+  const place = [challenge.kiez?.split(',')[0] ?? challenge.location, distance, spotsText(challenge, active)].filter(Boolean).join(' · ');
   const commentCount = challenge.comments.length;
+  const { width } = useAppDimensions();
 
   return (
     <View style={fashion.post}>
@@ -260,9 +320,11 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
         >
           <Avatar user={author} diameter={32} />
           <View style={styles.whoTexts}>
-            <Text noTranslate style={[fashion.name, hideName ? hiddenText : null]} numberOfLines={1}>
-              {author.name}
-            </Text>
+            <NameWithTestMark test={author.test}>
+              <Text noTranslate style={[fashion.name, hideName ? hiddenText : null]} numberOfLines={1}>
+                {author.name}
+              </Text>
+            </NameWithTestMark>
             {place ? (
               <Text style={fashion.place} numberOfLines={1}>
                 {place}
@@ -286,7 +348,9 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
         </View>
       </View>
       {/* Ohne Foto keine Fläche: Der Titel steht fett im Text (Daria, 24.10.2026) */}
-      {image ? (
+      {after ? (
+        <BeforeAfterPair before={image} after={after} height={(width * 5) / 4} onLongPress={onPress} onPress={onPress} />
+      ) : image ? (
         <Pressable
           onPress={onPress}
           accessibilityRole="button"
@@ -294,6 +358,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
           style={fashion.photo}
         >
           <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" />
+          {challenge.type === 'photo' ? <PhotoTextOverlay value={challenge.photoText} /> : null}
           {isWave ? (
             <View style={styles.waveTag}>
               <Text style={styles.waveText}>Wave</Text>
@@ -335,9 +400,9 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
         </Text>
       </View>
       <Pressable onPress={onPress} style={fashion.caption}>
-        <Text style={fashion.captionText} numberOfLines={3}>
+        <Text style={fashion.captionText} numberOfLines={after ? 5 : 3}>
           <Text style={fashion.captionTitle}>{challenge.title} </Text>
-          {challenge.text ? <WithMentions value={challenge.text} /> : null}
+          {body ? <WithMentions value={body} /> : null}
         </Text>
         <Text style={fashion.time}>{formatRelative(challenge.createdAt)}</Text>
       </Pressable>
@@ -450,6 +515,8 @@ const styles = StyleSheet.create({
     borderColor: color.line.hairline,
   },
   manageText: { ...text.caption, color: color.text.primary },
+  // Über dem Bildpaar: Bounty und Edensteine liegen über beiden Fotos, ohne Tipps abzufangen
+  pairRewards: { position: 'absolute', top: 0, right: 0, left: 0, height: 64, zIndex: 4 },
   info: {
     gap: space[6],
     paddingVertical: space[12],

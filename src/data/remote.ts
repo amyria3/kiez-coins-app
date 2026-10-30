@@ -3,10 +3,12 @@ import type { SurveyAnswer, SurveyResults } from './survey';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 import { t } from './texts';
+import { bountyFits } from './coins';
 import type {
   Challenge,
   ChallengeReportReason,
   ChallengeStatus,
+  ChallengeType,
   ExtraPhoto,
   Gender,
   Group,
@@ -17,6 +19,10 @@ import type {
   Profile,
   User,
   ModerationReport,
+  JoinMode,
+  Participant,
+  PayoutLine,
+  PhotoText,
   UserReportReason,
 } from './types';
 
@@ -37,14 +43,22 @@ type ProfileRow = {
   is_group: boolean;
   can_offer_bounties: boolean;
   gender?: Gender | null;
+  is_test?: boolean | null;
 };
 
 const PROFILE_COLUMNS = 'id, handle, avatar_path, kiez, is_group, can_offer_bounties';
 /** false, sobald die Datenbank die Spalte `gender` nicht kennt (Migration 20261024000100 fehlt) */
 let hasGenderColumn = true;
+/** false, sobald die Datenbank die Spalte `is_test` nicht kennt (Migration 20261027000400 fehlt) */
+let hasTestColumn = true;
 
 /** Öffentliche Profile mit Geschlecht. Ohne die Migration geht es ohne Geschlecht weiter. */
 async function selectProfiles(ids: string[]) {
+  if (hasGenderColumn && hasTestColumn) {
+    const res = await supabase.from('profiles').select(`${PROFILE_COLUMNS}, gender, is_test`).in('id', ids);
+    if (!res.error) return res;
+    hasTestColumn = false;
+  }
   if (hasGenderColumn) {
     const res = await supabase.from('profiles').select(`${PROFILE_COLUMNS}, gender`).in('id', ids);
     if (!res.error) return res;
@@ -83,6 +97,17 @@ type ChallengeRow = {
   image_path: string | null;
   group_id?: string | null;
   edensteine?: number | null;
+  /** Mehrere Personen (Migration 20261028000300) */
+  max_participants?: number | null;
+  join_mode?: JoinMode | null;
+  /** Migration 20261028000100 */
+  visibility?: 'public' | 'private' | null;
+  /** Migration 20261029000100 */
+  local_only?: boolean | null;
+  /** Text auf dem Foto (Migration 20261029000200) */
+  photo_text?: string | null;
+  photo_text_x?: number | null;
+  photo_text_y?: number | null;
   extra_image_paths?: string[] | null;
   image_before_path: string | null;
   image_after_path: string | null;
@@ -104,12 +129,31 @@ type ChallengeRow = {
   comments: CommentRow[];
 };
 
+type ParticipantRow = {
+  challenge_id: string;
+  user_id: string;
+  status: Participant['status'];
+  requested_at: string;
+  joined_at: string | null;
+};
+
 type ShareRow = {
   challenge_id: string;
+  /** Ohne Spalte in älteren Abfragen leer */
+  user_id?: string;
   method: PayoutMethod;
   account_holder: string | null;
   iban: string | null;
   paypal: string | null;
+};
+
+/** Auszahlung je Person (Migration 20261028000400) */
+type PayoutLineRow = {
+  challenge_id: string;
+  user_id: string;
+  amount_cents: number;
+  paid_marked_at: string | null;
+  paid_at: string | null;
 };
 
 type PayoutRow = { account_holder: string | null; iban: string | null; paypal: string | null };
@@ -140,6 +184,7 @@ function toUser(row: ProfileRow, payout?: Payout): User {
     group: row.is_group,
     gender: row.gender ?? undefined,
     payout,
+    test: row.is_test ?? undefined,
   };
 }
 
@@ -148,9 +193,57 @@ function toShare(row: ShareRow | undefined): PayoutShare | undefined {
   return { method: row.method, payout: toPayout(row) };
 }
 
+/**
+ * Freigaben einer Challenge: die eigene (oder bei der Erstellerin die der ersten Person) und alle je Person.
+ */
+function toShares(row: ChallengeRow, shares: ShareRow[] | undefined, userId?: string) {
+  if (!shares?.length) return {};
+  const byUser: Record<string, PayoutShare> = {};
+  for (const s of shares) if (s.user_id) byUser[s.user_id] = toShare(s)!;
+  const own =
+    shares.find((s) => s.user_id && s.user_id === userId) ??
+    shares.find((s) => s.user_id && s.user_id === row.assignee_id) ??
+    shares[0];
+  return { payoutShare: toShare(own), payoutShares: Object.keys(byUser).length ? byUser : undefined };
+}
+
+const toPayoutLine = (r: PayoutLineRow): PayoutLine => ({
+  userId: r.user_id,
+  amountCents: r.amount_cents,
+  paidMarkedAt: r.paid_marked_at ?? undefined,
+  paidAt: r.paid_at ?? undefined,
+});
+
+/** Auszahlungen je Challenge (Migration 20261028000400). Ohne Migration leer. */
+async function loadPayoutLines(challengeIds: string[]): Promise<Map<string, PayoutLine[]>> {
+  const byChallenge = new Map<string, PayoutLine[]>();
+  if (!challengeIds.length) return byChallenge;
+  const { data, error } = await supabase
+    .from('challenge_payouts')
+    .select('challenge_id, user_id, amount_cents, paid_marked_at, paid_at')
+    .in('challenge_id', challengeIds);
+  if (error) return byChallenge;
+  for (const r of (data ?? []) as PayoutLineRow[]) {
+    const list = byChallenge.get(r.challenge_id) ?? [];
+    list.push(toPayoutLine(r));
+    byChallenge.set(r.challenge_id, list);
+  }
+  return byChallenge;
+}
+
+/** Status, in denen es Auszahlungen gibt */
+const PAYMENT_STATUSES = new Set<ChallengeStatus>(['payment_open', 'paid_marked', 'paid']);
+
 function toChallenge(
   row: ChallengeRow,
-  extra: { liked: boolean; operationName?: string; share?: ShareRow },
+  extra: {
+    liked: boolean;
+    operationName?: string;
+    shares?: ShareRow[];
+    participants?: Participant[];
+    payouts?: PayoutLine[];
+    userId?: string;
+  },
 ): Challenge {
   return {
     id: row.id,
@@ -160,6 +253,9 @@ function toChallenge(
     challengeText: row.challenge_text ?? undefined,
     authorId: row.author_id,
     assigneeId: row.assignee_id ?? undefined,
+    maxParticipants: row.max_participants ?? undefined,
+    joinMode: row.join_mode ?? undefined,
+    participants: extra.participants,
     location: row.location,
     coords: row.lat != null && row.lng != null ? { latitude: row.lat, longitude: row.lng } : undefined,
     kiez: row.kiez ?? undefined,
@@ -168,6 +264,11 @@ function toChallenge(
     image: photoUrl(row.image_path),
     imagePath: row.image_path ?? undefined,
     groupId: row.group_id ?? undefined,
+    private: row.visibility === 'private' || undefined,
+    localOnly: row.local_only || undefined,
+    photoText: row.photo_text?.trim()
+      ? { text: row.photo_text, x: row.photo_text_x ?? 0.5, y: row.photo_text_y ?? 0.5 }
+      : undefined,
     edensteine: row.edensteine ?? undefined,
     extraImages: (row.extra_image_paths ?? []).flatMap((path) => {
       const photo = photoUrl(path);
@@ -191,7 +292,8 @@ function toChallenge(
     report: row.report_photo_path
       ? { photo: photoUrl(row.report_photo_path)!, note: row.report_note ?? undefined }
       : undefined,
-    payoutShare: toShare(extra.share),
+    ...toShares(row, extra.shares, extra.userId),
+    payouts: extra.payouts,
     comments: [...(row.comments ?? [])]
       .sort((a, b) => a.created_at.localeCompare(b.created_at))
       .map((c) => ({
@@ -288,6 +390,23 @@ async function loadGroups(): Promise<Group[]> {
   }));
 }
 
+/** Teilnehmende und Anfragen je Challenge (Migration 20261028000300). Ohne Migration leer. */
+async function loadParticipants(challengeIds: string[]): Promise<Map<string, Participant[]>> {
+  const byChallenge = new Map<string, Participant[]>();
+  if (!challengeIds.length) return byChallenge;
+  const { data, error } = await supabase
+    .from('challenge_participants')
+    .select('challenge_id, user_id, status, requested_at, joined_at')
+    .in('challenge_id', challengeIds);
+  if (error) return byChallenge;
+  for (const r of (data ?? []) as ParticipantRow[]) {
+    const list = byChallenge.get(r.challenge_id) ?? [];
+    list.push({ userId: r.user_id, status: r.status, requestedAt: r.requested_at, joinedAt: r.joined_at ?? undefined });
+    byChallenge.set(r.challenge_id, list);
+  }
+  return byChallenge;
+}
+
 /** Anzahl Likes je Challenge (Funktion like_counts). Ohne Migration leer. */
 async function loadLikeCounts(ids: string[]): Promise<Map<string, number>> {
   if (!ids.length) return new Map();
@@ -302,7 +421,7 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
     supabase.from('challenges').select(CHALLENGE_COLUMNS).order('created_at', { ascending: false }).limit(200),
     supabase.from('likes').select('challenge_id').eq('user_id', userId),
     supabase.from('operation_names').select('challenge_id, name').eq('user_id', userId),
-    supabase.from('payout_shares').select('challenge_id, method, account_holder, iban, paypal'),
+    supabase.from('payout_shares').select('challenge_id, user_id, method, account_holder, iban, paypal'),
     supabase.from('payout_details').select('account_holder, iban, paypal').eq('user_id', userId).maybeSingle(),
     loadViewCounts(),
     loadGroups(),
@@ -314,13 +433,19 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
   const rows = hideBlocked((challengesRes.data ?? []) as unknown as ChallengeRow[], blocked);
   const liked = new Set((likesRes.data ?? []).map((l) => l.challenge_id as string));
   const names = new Map((namesRes.data ?? []).map((n) => [n.challenge_id as string, n.name as string]));
-  const shares = new Map(((sharesRes.data ?? []) as ShareRow[]).map((s) => [s.challenge_id, s]));
+  const shares = new Map<string, ShareRow[]>();
+  for (const s of (sharesRes.data ?? []) as ShareRow[]) shares.set(s.challenge_id, [...(shares.get(s.challenge_id) ?? []), s]);
+  const [participants, payoutLines] = await Promise.all([
+    loadParticipants(rows.filter((r) => r.type === 'individual').map((r) => r.id)),
+    loadPayoutLines(rows.filter((r) => r.bounty_amount && PAYMENT_STATUSES.has(r.status)).map((r) => r.id)),
+  ]);
 
   const ids = new Set<string>([userId]);
   for (const r of rows) {
     ids.add(r.author_id);
     if (r.assignee_id) ids.add(r.assignee_id);
     for (const c of r.comments ?? []) ids.add(c.author_id);
+    for (const p of participants.get(r.id) ?? []) ids.add(p.userId);
   }
   for (const g of groups) for (const m of g.members) ids.add(m.userId);
   const profilesRes = check(
@@ -337,7 +462,14 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
   return {
     users,
     challenges: rows.map((r) => ({
-      ...toChallenge(r, { liked: liked.has(r.id), operationName: names.get(r.id), share: shares.get(r.id) }),
+      ...toChallenge(r, {
+        liked: liked.has(r.id),
+        operationName: names.get(r.id),
+        shares: shares.get(r.id),
+        participants: participants.get(r.id),
+        payouts: payoutLines.get(r.id),
+        userId,
+      }),
       ...(r.author_id === userId && views ? { views: views.get(r.id) ?? 0 } : {}),
       ...(likeCounts.size ? { likeCount: likeCounts.get(r.id) ?? 0 } : {}),
     })),
@@ -358,15 +490,22 @@ export async function loadChallenge(
     supabase.from('operation_names').select('name').eq('challenge_id', id).eq('user_id', userId).maybeSingle(),
     supabase
       .from('payout_shares')
-      .select('challenge_id, method, account_holder, iban, paypal')
-      .eq('challenge_id', id)
-      .maybeSingle(),
+      .select('challenge_id, user_id, method, account_holder, iban, paypal')
+      .eq('challenge_id', id),
   ]);
   for (const res of [rowRes, likeRes, nameRes, shareRes]) check(res);
   if (!rowRes.data) return { challenge: null, users: [] };
   const [row] = hideBlocked([rowRes.data as unknown as ChallengeRow], await loadBlockedIds());
   if (!row) return { challenge: null, users: [] };
-  const ids = new Set([row.author_id, ...(row.assignee_id ? [row.assignee_id] : []), ...row.comments.map((c) => c.author_id)]);
+  const participants = row.type === 'individual' ? (await loadParticipants([row.id])).get(row.id) : undefined;
+  const payouts =
+    row.bounty_amount && PAYMENT_STATUSES.has(row.status) ? (await loadPayoutLines([row.id])).get(row.id) : undefined;
+  const ids = new Set([
+    row.author_id,
+    ...(row.assignee_id ? [row.assignee_id] : []),
+    ...row.comments.map((c) => c.author_id),
+    ...(participants ?? []).map((p) => p.userId),
+  ]);
   ids.delete(userId); // das eigene Profil samt Zahlungsdaten kennt die App schon
   const profilesRes = ids.size
     ? check(
@@ -379,7 +518,10 @@ export async function loadChallenge(
       ...toChallenge(row, {
         liked: !!likeRes.data,
         operationName: (nameRes.data?.name as string | undefined) ?? undefined,
-        share: (shareRes.data as ShareRow | null) ?? undefined,
+        shares: (shareRes.data as ShareRow[] | null) ?? undefined,
+        participants,
+        payouts,
+        userId,
       }),
       ...(likeCounts.size ? { likeCount: likeCounts.get(row.id) ?? 0 } : {}),
     },
@@ -472,6 +614,20 @@ export async function saveOwnProfile(userId: string, profile: Profile): Promise<
 }
 
 /** Deckname sofort speichern, damit „gibt es schon“ direkt beim Eingeben auffällt. Gibt eine Fehlermeldung zurück oder null. */
+/**
+ * Welche der Decknamen sind schon vergeben? Vergleich wie der eindeutige Index: ohne Groß-/Kleinschreibung
+ * und ohne Leerraum am Rand. Gibt die vergebenen Namen kleingeschrieben zurück, bei einem Fehler null.
+ */
+export async function takenHandles(candidates: string[]): Promise<Set<string> | null> {
+  const names = candidates.map((c) => c.trim()).filter(Boolean);
+  if (!names.length) return new Set();
+  // ilike ohne Platzhalter: % und _ maskieren, Anführungszeichen für den or-Filter maskieren
+  const filter = names.map((n) => `handle.ilike."${n.replace(/[\\%_]/g, '\\$&').replace(/"/g, '\\"')}"`).join(',');
+  const { data, error } = await supabase.from('profiles').select('handle').or(filter);
+  if (error) return null;
+  return new Set((data ?? []).map((r: { handle: string | null }) => (r.handle ?? '').trim().toLowerCase()));
+}
+
 export async function saveHandle(userId: string, handle: string): Promise<string | null> {
   const { error } = await supabase.from('profiles').update({ handle: handle.trim() }).eq('id', userId);
   return error ? errorText(error) : null;
@@ -529,10 +685,69 @@ export type NewChallenge = {
   /** Gerundeter Punkt (location.ts, roundCoords) */
   coords?: { latitude: number; longitude: number };
   bountyAmount?: number;
+  /** Edensteine statt Euro, 1 bis 10 (Migration 20261028000200) */
+  edensteine?: number;
   deadline: string;
   photo: ImageSource;
   extras?: ExtraPhoto[];
+  /** Modus „Privat“: nur Bild, ohne Coins (Migration 20261028000100) */
+  private?: boolean;
+  /** Nur im Umkreis von 5 km, nicht in „Überall“ (Migration 20261029000100) */
+  localOnly?: boolean;
+  /** Nur „Nur ein Bild“: Text auf dem Foto (Migration 20261029000200). `null` löscht ihn im Entwurf. */
+  photoText?: PhotoText | null;
+  participation?: Participation;
 };
+
+/**
+ * Mehrere Personen in einer We-Challenge (Daria, 27.10.2026, Migration 20261028000300): Höchstzahl und
+ * Art des Beitretens. Ohne Angabe bleibt es bei einer Person und „Offen“, wie vor der Migration.
+ */
+export type Participation = { max: number; mode: JoinMode };
+
+/** Nur nötig, wenn es von „1 Person, offen“ abweicht oder vorher abwich. */
+export const isDefaultParticipation = (p?: Participation) => !p || (p.max === 1 && p.mode === 'open');
+
+/** Höchstzahl und Art des Beitretens setzen. Die Datenbank prüft Rolle, Status und Euro-Bounty. */
+export const setParticipation = (id: string, p: Participation) =>
+  rpc('set_challenge_participation', { p_challenge_id: id, p_max: p.max, p_mode: p.mode });
+
+/**
+ * Teilnahme direkt beim Anlegen mitschicken, wenn sie vom Standard abweicht. So passt ein Betrag in Coins
+ * für mehrere Plätze schon beim Anlegen zur Regel (pro Platz 5 bis 50 €, Migration 20261028000400).
+ */
+const participationFields = (p?: Participation) =>
+  isDefaultParticipation(p) ? {} : { max_participants: p!.max, join_mode: p!.mode };
+
+/**
+ * Betrag und Teilnahme in einer Reihenfolge speichern, bei der die Regel „pro Platz 5 bis 50 €“ in jedem
+ * Schritt gilt: erst der Betrag, wenn er zu den bisherigen Plätzen passt, sonst erst die Plätze. Passt
+ * beides nicht, kommt der Betrag kurz weg und danach wieder dazu. `save(true)` speichert ohne Betrag.
+ */
+async function inRewardOrder(
+  id: string,
+  bounty: number | undefined,
+  p: Participation | undefined,
+  save: (withoutBounty: boolean) => Promise<void>,
+) {
+  if (!p) return save(false);
+  const { data } = check(
+    await supabase.from('challenges').select('bounty_amount, max_participants').eq('id', id).single(),
+  );
+  const row = data as { bounty_amount: number | null; max_participants: number | null };
+  const oldMax = row.max_participants ?? 1;
+  if (bountyFits(bounty, oldMax)) {
+    await save(false);
+    await setParticipation(id, p);
+  } else if (bountyFits(row.bounty_amount ?? undefined, p.max)) {
+    await setParticipation(id, p);
+    await save(false);
+  } else {
+    await save(true);
+    await setParticipation(id, p);
+    await save(false);
+  }
+}
 
 /** Spalten lat/lng (Migration 20261020000400). Ohne Punkt bleiben sie weg, damit es auch ohne Migration läuft. */
 const coordFields = (coords?: { latitude: number; longitude: number }) =>
@@ -563,6 +778,21 @@ async function retryWithoutCoords<T>(run: (withCoords: boolean) => Promise<T>): 
   }
 }
 
+/**
+ * Text auf dem Foto nur mitschicken, wenn gesetzt oder ausdrücklich gelöscht (`null`). So speichert die App auch
+ * ohne Migration 20261029000200 wie bisher. Nur bei „Nur ein Bild“.
+ */
+function photoTextFields(type: ChallengeType | undefined, value: PhotoText | null | undefined) {
+  if (value === undefined) return {};
+  const text = type === 'photo' ? value?.text.trim() : undefined;
+  if (!text) return { photo_text: null, photo_text_x: null, photo_text_y: null };
+  const round = (v: number) => Math.round(Math.min(1, Math.max(0, v)) * 1000) / 1000;
+  return { photo_text: text.slice(0, 80), photo_text_x: round(value!.x), photo_text_y: round(value!.y) };
+}
+
+/** Edensteine nur mitschicken, wenn es welche gibt. So legt die App ohne Edensteine weiter an wie bisher. */
+const edenField = (edensteine?: number) => (edensteine ? { edensteine } : {});
+
 /** Neue Challenge anlegen. Gibt die gespeicherte Challenge zurück. */
 export async function createChallenge(userId: string, draft: NewChallenge): Promise<Challenge> {
   const imagePath = await uploadPhoto(userId, draft.photo);
@@ -578,9 +808,15 @@ export async function createChallenge(userId: string, draft: NewChallenge): Prom
           body: draft.text,
           location: draft.location,
           bounty_amount: draft.bountyAmount ?? null,
+          ...edenField(draft.edensteine),
           ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}),
           deadline: draft.deadline,
           image_path: imagePath,
+          ...(draft.private ? { visibility: 'private' } : {}),
+          // Nur mitschicken, wenn gesetzt: So legt die App auch ohne Migration 20261029000100 an
+          ...(draft.localOnly && !draft.private ? { local_only: true } : {}),
+          ...photoTextFields(draft.type, draft.photoText),
+          ...(draft.type === 'photo' ? {} : participationFields(draft.participation)),
         })
         .select(CHALLENGE_COLUMNS)
         .single(),
@@ -608,23 +844,35 @@ export const groupActions = {
 
 export type NewGroupTask = {
   groupId: string;
+  /** `photo`: nur ein Bild für die Gruppe, ohne Edensteine (Migration 20261027000200) */
+  type?: 'individual' | 'photo';
   title: string;
   text: string;
-  edensteine: number;
+  /** Nur bei Aufgaben */
+  edensteine?: number;
   deadline: string;
   photo?: ImageSource;
+  /** Bis zu zwei weitere Fotos, nur bei Bildern */
+  extras?: ExtraPhoto[];
+  /** Nur bei Aufgaben */
+  participation?: Participation;
 };
 
-/** Gruppenaufgabe direkt veröffentlichen (ohne Entwurf, ohne Ort). */
+/** Gruppenaufgabe oder Gruppenbild direkt veröffentlichen (ohne Entwurf, ohne Ort). */
 export async function createGroupTask(userId: string, task: NewGroupTask): Promise<Challenge> {
+  const isPhoto = task.type === 'photo';
   const imagePath = task.photo ? await uploadPhoto(userId, task.photo) : null;
+  const extraPaths = isPhoto ? await uploadExtras(userId, task.extras) : undefined;
   const { data } = check(
     await supabase
       .from('challenges')
       .insert({
         author_id: userId,
         group_id: task.groupId,
-        edensteine: task.edensteine,
+        type: isPhoto ? 'photo' : 'individual',
+        edensteine: isPhoto ? null : task.edensteine,
+        ...(isPhoto ? {} : participationFields(task.participation)),
+        ...(extraPaths?.length ? { extra_image_paths: extraPaths } : {}),
         title: task.title.trim(),
         body: task.text.trim(),
         location: '',
@@ -642,12 +890,29 @@ export const challengeActions = {
   giveBack: (id: string) => rpc('give_back_challenge', { p_challenge_id: id }),
   report: (id: string, photoPath: string, note?: string) =>
     rpc('report_challenge', { p_challenge_id: id, p_photo_path: photoPath, p_note: note ?? null }),
-  confirm: (id: string) => rpc('confirm_challenge', { p_challenge_id: id }),
+  /** `userIds`: beim Bestätigen ausgewählt; ohne Angabe alle (Migration 20261028000400) */
+  confirm: (id: string, userIds?: string[]) =>
+    rpc('confirm_challenge', { p_challenge_id: id, ...(userIds ? { p_user_ids: userIds } : {}) }),
   undoConfirm: (id: string) => rpc('undo_confirm_challenge', { p_challenge_id: id }),
   reject: (id: string, reason: string) => rpc('reject_challenge', { p_challenge_id: id, p_reason: reason }),
   markPaid: (id: string) => rpc('mark_challenge_paid', { p_challenge_id: id }),
   unmarkPaid: (id: string) => rpc('unmark_challenge_paid', { p_challenge_id: id }),
   confirmReceived: (id: string) => rpc('confirm_bounty_received', { p_challenge_id: id }),
+  /** Eine Person als bezahlt bzw. unbezahlt markieren (Migration 20261028000400) */
+  markParticipantPaid: (id: string, userId: string, paid: boolean) =>
+    rpc('mark_participant_paid', { p_challenge_id: id, p_user_id: userId, p_paid: paid }),
+  /** Beitreten bzw. anfragen (Migration 20261028000300). Mit Standort: über 5 km nur Anfrage (Migration 20261029000100) */
+  join: (id: string, coords?: { latitude: number; longitude: number }) =>
+    rpc('join_challenge', { p_challenge_id: id, ...(coords ? { p_lat: coords.latitude, p_lng: coords.longitude } : {}) }),
+  /** Umkreis-Begrenzung nachträglich ändern (Migration 20261029000100) */
+  setLocalOnly: (id: string, localOnly: boolean) =>
+    rpc('set_challenge_local_only', { p_challenge_id: id, p_local_only: localOnly }),
+  /** Aussteigen oder Anfrage zurückziehen */
+  leave: (id: string) => rpc('leave_challenge', { p_challenge_id: id }),
+  answerRequest: (id: string, userId: string, accept: boolean) =>
+    rpc('answer_join_request', { p_challenge_id: id, p_user_id: userId, p_accept: accept }),
+  removeParticipant: (id: string, userId: string) =>
+    rpc('remove_participant', { p_challenge_id: id, p_user_id: userId }),
 };
 
 export type ChallengeEdit = {
@@ -655,24 +920,30 @@ export type ChallengeEdit = {
   text: string;
   location: string;
   bountyAmount?: number;
+  /** Nur Kiez-Challenges; Gruppenaufgaben behalten ihre Edensteine */
+  edensteine?: number;
   deadline: string;
   /** Neues Foto vom Gerät; ohne bleibt das bisherige */
   photo?: ImageSource;
+  /** Nur mitgeben, wenn sich etwas ändert */
+  participation?: Participation;
 };
+
 
 /**
  * Eigene offene Challenge bearbeiten (Migration 20261020000100_edit_open_challenge.sql).
  * Ein neues Foto wird hochgeladen und per set_challenge_image eingetragen (Migration 20261022000300).
  */
 export async function editChallenge(id: string, edit: ChallengeEdit, userId?: string) {
-  await rpc('edit_open_challenge', {
+  await inRewardOrder(id, edit.bountyAmount, edit.participation, (withoutBounty) => rpc('edit_open_challenge', {
     p_challenge_id: id,
     p_title: edit.title,
     p_body: edit.text,
     p_location: edit.location,
-    p_bounty_amount: edit.bountyAmount ?? null,
+    p_bounty_amount: withoutBounty ? null : (edit.bountyAmount ?? null),
     p_deadline: edit.deadline,
-  });
+    p_edensteine: edit.edensteine ?? null,
+  }));
   if (edit.photo && userId) {
     const path = await uploadPhoto(userId, edit.photo);
     await rpc('set_challenge_image', { p_challenge_id: id, p_image_path: path });
@@ -685,15 +956,16 @@ export async function editChallenge(id: string, edit: ChallengeEdit, userId?: st
  */
 export async function editDeletedChallenge(id: string, edit: ChallengeEdit, userId?: string) {
   const imagePath = edit.photo && userId ? await uploadPhoto(userId, edit.photo) : null;
-  await rpc('edit_deleted_challenge', {
+  await inRewardOrder(id, edit.bountyAmount, edit.participation, (withoutBounty) => rpc('edit_deleted_challenge', {
     p_challenge_id: id,
     p_title: edit.title,
     p_body: edit.text,
     p_location: edit.location,
-    p_bounty_amount: edit.bountyAmount ?? null,
+    p_bounty_amount: withoutBounty ? null : (edit.bountyAmount ?? null),
     p_deadline: edit.deadline,
     p_image_path: imagePath,
-  });
+    p_edensteine: edit.edensteine ?? null,
+  }));
 }
 
 /** Eigene offene Challenge schließen. Sie bleibt in der Timeline sichtbar (Migration 20261020000200). */
@@ -705,11 +977,20 @@ export type DraftInput = {
   text: string;
   location: string;
   bountyAmount?: number;
+  /** Edensteine statt Euro, 1 bis 10 */
+  edensteine?: number;
   coords?: { latitude: number; longitude: number };
   /** Neues Foto vom Gerät. Ohne neues Foto bleibt `imagePath`. */
   photo?: ImageSource;
   imagePath?: string;
   extras?: ExtraPhoto[];
+  /** Modus „Privat“, nur beim Anlegen (Migration 20261028000100) */
+  private?: boolean;
+  /** Nur im Umkreis von 5 km, nicht in „Überall“ (Migration 20261029000100) */
+  localOnly?: boolean;
+  /** Nur „Nur ein Bild“: Text auf dem Foto (Migration 20261029000200). `null` löscht ihn im Entwurf. */
+  photoText?: PhotoText | null;
+  participation?: Participation;
 };
 
 /** Entwurf anlegen (ohne id) oder aktualisieren. Lädt ein neues Foto hoch. Gibt den gespeicherten Entwurf zurück. */
@@ -722,16 +1003,42 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
     body: draft.text.trim(),
     location: draft.location.trim(),
     bounty_amount: draft.bountyAmount ?? null,
+    edensteine: draft.edensteine ?? null,
     image_path: imagePath,
   };
-  const { data } = await retryWithoutCoords(async (withCoords) => {
-    const all = { ...fields, ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}) };
-    const query = id
-      ? supabase.from('challenges').update(all).eq('id', id).eq('status', 'draft')
-      : supabase.from('challenges').insert({ ...all, author_id: userId, status: 'draft' });
-    return check(await query.select(CHALLENGE_COLUMNS).single());
+  const isTask = draft.type !== 'photo';
+  const write = async (withoutBounty: boolean) => {
+    const { data } = await retryWithoutCoords(async (withCoords) => {
+      const all = {
+        ...fields,
+        ...(withoutBounty ? { bounty_amount: null } : {}),
+        ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}),
+        // Nur mitschicken, wenn gewählt: So speichert die App auch ohne Migration 20261029000100
+        ...(draft.localOnly !== undefined && !draft.private ? { local_only: draft.localOnly } : {}),
+        ...photoTextFields(draft.type, draft.photoText),
+      };
+      const query = id
+        ? supabase.from('challenges').update(all).eq('id', id).eq('status', 'draft')
+        : supabase.from('challenges').insert({
+            ...all,
+            author_id: userId,
+            status: 'draft',
+            ...(draft.private ? { visibility: 'private' } : {}),
+            ...(isTask ? participationFields(draft.participation) : {}),
+          });
+      return check(await query.select(CHALLENGE_COLUMNS).single());
+    });
+    return toChallenge(data as unknown as ChallengeRow, { liked: false });
+  };
+  // Neuer Entwurf: Teilnahme steckt schon im Anlegen
+  if (!id) return write(false);
+  let saved: Challenge | undefined;
+  // Bestehender Entwurf: Betrag und Plätze in einer Reihenfolge, bei der die Regel für Coins immer gilt
+  await inRewardOrder(id, draft.bountyAmount, isTask ? draft.participation : undefined, async (withoutBounty) => {
+    saved = await write(withoutBounty);
   });
-  return toChallenge(data as unknown as ChallengeRow, { liked: false });
+  const p = isTask ? draft.participation : undefined;
+  return p ? { ...saved!, maxParticipants: p.max, joinMode: p.mode } : saved!;
 }
 
 // ---------------------------------------------------------------------------
@@ -746,6 +1053,10 @@ export const BEFORE_AFTER_TEXT_MAX = 240;
 export type NewBeforeAfter = {
   /** leer: öffentlich im Kiez */
   groupId?: string;
+  /** Modus „Privat“, nur ohne Gruppe (Migration 20261028000100) */
+  private?: boolean;
+  /** Nur im Umkreis von 5 km, nicht in „Überall“ (Migration 20261029000100) */
+  localOnly?: boolean;
   title: string;
   beforeText: string;
   photo: ImageSource;
@@ -771,6 +1082,12 @@ export async function startBeforeAfter(userId: string, input: NewBeforeAfter): P
       p_image_before_path: path,
     }),
   );
+  // Privat: Der Entwurf bekommt die Sichtbarkeit gleich nach dem Anlegen (Policy „Eigenen Entwurf bearbeiten“)
+  if (input.private && !input.groupId) {
+    check(await supabase.from('challenges').update({ visibility: 'private' }).eq('id', data as string).eq('status', 'draft'));
+  } else if (input.localOnly && !input.groupId) {
+    check(await supabase.from('challenges').update({ local_only: true }).eq('id', data as string).eq('status', 'draft'));
+  }
   const { challenge } = await loadChallenge(data as string, userId);
   if (!challenge) throw new Error(t('Der Entwurf ist nicht angekommen. Versuche es bitte noch mal.'));
   return challenge;
@@ -863,8 +1180,9 @@ export async function setLike(challengeId: string, userId: string, liked: boolea
   } else check(await supabase.from('likes').delete().eq('challenge_id', challengeId).eq('user_id', userId));
 }
 
-export async function sharePayout(challengeId: string, share: PayoutShare) {
-  check(await supabase.from('payout_shares').delete().eq('challenge_id', challengeId));
+export async function sharePayout(challengeId: string, share: PayoutShare, userId: string) {
+  // Nur die eigene Freigabe ersetzen; bei mehreren Personen hat jede ihre eigene (Migration 20261028000400)
+  check(await supabase.from('payout_shares').delete().eq('challenge_id', challengeId).eq('user_id', userId));
   check(
     await supabase.from('payout_shares').insert({
       challenge_id: challengeId,
@@ -876,8 +1194,8 @@ export async function sharePayout(challengeId: string, share: PayoutShare) {
   );
 }
 
-export async function revokeShare(challengeId: string) {
-  check(await supabase.from('payout_shares').delete().eq('challenge_id', challengeId));
+export async function revokeShare(challengeId: string, userId: string) {
+  check(await supabase.from('payout_shares').delete().eq('challenge_id', challengeId).eq('user_id', userId));
 }
 
 export async function savePayout(userId: string, payout: Payout) {
@@ -959,7 +1277,7 @@ export type AppTextRow = { original: string; text: string; ort: string | null; u
   Record<AppTextLang, string | null>
 >;
 
-/** Alle Texte des CMS für den Editor (Route `texte`), mit Übersetzungen, sofern die Migration 1400 gelaufen ist. */
+/** Alle Texte des CMS für den Editor (Route `texts`), mit Übersetzungen, sofern die Migration 1400 gelaufen ist. */
 export async function loadAppTexts(): Promise<AppTextRow[]> {
   // Alle Spalten: Fehlt eine Sprachspalte noch (Migration nicht gelaufen), bleibt sie einfach leer.
   const { data } = check(await supabase.from('app_texts').select('*'));
@@ -975,7 +1293,10 @@ export async function saveAppText(original: string, value: string, lang: 'de' | 
   const { data } = check(
     await supabase.from('app_texts').update({ [column]: value }).eq('original', original).select('original'),
   );
-  if (!data?.length) throw new Error(t('Keine Berechtigung zum Ändern der Texte.'));
+  if (data?.length) return;
+  // Text aus dem Code, der noch nicht in der Tabelle steht: Zeile anlegen (Migration 20261029000500)
+  const { error } = await supabase.from('app_texts').insert({ original, [column]: value });
+  if (error) throw new Error(t('Keine Berechtigung zum Ändern der Texte.'));
 }
 
 /** true, wenn die angemeldete Person in `moderators` steht. */
@@ -1114,6 +1435,43 @@ export async function saveSurveyAnswer(answer: SurveyAnswer) {
 export async function loadSurveyResults(): Promise<SurveyResults> {
   const { data } = check(await supabase.rpc('survey_results'));
   return data as SurveyResults;
+}
+
+// ---------------------------------------------------------------------------
+// Rückmeldung zur Tour (Migration 20261029000300_tour_feedback)
+// ---------------------------------------------------------------------------
+
+export type TourFeedbackChoice = 'helpful' | 'motivating' | 'cumbersome' | 'not_needed';
+export type TourFeedbackResults = {
+  total: number;
+  choices: Partial<Record<TourFeedbackChoice, number>>;
+  other: { text: string; at: string }[];
+};
+
+/**
+ * Antwort speichern. Mit Konto eine Antwort pro Person, erneutes Absenden ändert sie.
+ * Ohne Konto (Beispieldaten) eine neue Antwort ohne Person (Migration 20261029000400, Daria: alle sollen
+ * testen und Rückmeldung geben können).
+ */
+export async function saveTourFeedback(choices: TourFeedbackChoice[], other: string) {
+  const { data } = await supabase.auth.getSession();
+  const user = data.session?.user;
+  const answer = { choices, other: other.trim() || null };
+  if (!user) {
+    check(await supabase.from('tour_feedback').insert(answer));
+    return;
+  }
+  check(
+    await supabase
+      .from('tour_feedback')
+      .upsert({ user_id: user.id, ...answer, updated_at: new Date().toISOString() }, { onConflict: 'user_id' }),
+  );
+}
+
+/** Auswertung für die Moderation */
+export async function loadTourFeedbackResults(): Promise<TourFeedbackResults> {
+  const { data } = check(await supabase.rpc('tour_feedback_results'));
+  return data as TourFeedbackResults;
 }
 
 // ---------------------------------------------------------------------------

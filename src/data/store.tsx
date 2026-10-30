@@ -4,7 +4,9 @@ import { Alert } from 'react-native';
 import * as remote from './remote';
 import { setGender } from './texts';
 import { sampleChallenges, sampleGroups, sampleProfile, sampleUsers, topChallengeIds } from './sample';
-import { isPostOnly, type Challenge, type ChallengeReport, type ImageSource, type Comment, type FeedState, type Group, type Payout, type PayoutShare, type Profile, type User } from './types';
+import { joinedIds } from './weChallenge';
+import { splitCents } from './coins';
+import { isPostOnly, type Challenge, type Participant, type ParticipantStatus, type ChallengeReport, type ImageSource, type Comment, type FeedState, type Group, type Payout, type PayoutLine, type PayoutShare, type Profile, type User } from './types';
 
 // Zustand der App. Zwei Betriebsarten:
 // * live: Daten aus Supabase. Jede Aktion ändert sofort den lokalen Stand (damit die App flüssig bleibt)
@@ -33,12 +35,21 @@ type State = {
 type Action =
   | { type: 'accept'; id: string }
   | { type: 'giveBack'; id: string }
+  /** We-Challenge mit mehreren Personen (Migration 20261028000300) */
+  /** `coords`: eigener Standort, `far`: weiter als 5 km oder ohne Standort, dann nur Anfrage (Daria, 29.10.2026) */
+  | { type: 'join'; id: string; coords?: { latitude: number; longitude: number }; far?: boolean }
+  | { type: 'leave'; id: string }
+  /** Umkreis-Begrenzung an oder aus (Daria, 29.10.2026) */
+  | { type: 'setLocalOnly'; id: string; localOnly: boolean }
+  | { type: 'answerRequest'; id: string; userId: string; accept: boolean }
+  | { type: 'removeParticipant'; id: string; userId: string }
   | { type: 'report'; id: string; report: ChallengeReport }
   | { type: 'nameOperation'; id: string; name?: string }
   | { type: 'addComment'; id: string; body: string; replyToId?: string }
   | { type: 'sharePayout'; id: string; share: PayoutShare }
   | { type: 'revokeShare'; id: string }
-  | { type: 'confirm'; id: string }
+  /** `userIds`: Ausgewählte beim Bestätigen; Abgewählte werden 'unconfirmed' */
+  | { type: 'confirm'; id: string; userIds?: string[] }
   | { type: 'undoConfirm'; id: string }
   | { type: 'unmarkPaid'; id: string }
   | { type: 'updateProfile'; patch: Partial<Profile> }
@@ -48,6 +59,8 @@ type Action =
   | { type: 'deleteAccount' }
   | { type: 'reject'; id: string; reason: string }
   | { type: 'markPaid'; id: string }
+  /** Eine Person als bezahlt bzw. unbezahlt markieren (Migration 20261028000400) */
+  | { type: 'markParticipantPaid'; id: string; userId: string; paid: boolean }
   | { type: 'confirmReceived'; id: string }
   | { type: 'create'; challenge: Challenge }
   | { type: 'toggleLike'; id: string }
@@ -66,6 +79,46 @@ type Action =
   | { type: 'restore'; id: string; deadline?: string }
   | { type: 'setGroups'; groups: Group[] }
   | { type: 'block'; userId: string };
+
+/** Status einer Person in der Teilnehmenden-Liste setzen, dann die erste Person neu bestimmen (wie challenge_sync_first). */
+function setParticipant(c: Challenge, userId: string, status: ParticipantStatus): Partial<Challenge> {
+  const now = new Date().toISOString();
+  const list: Participant[] = [...(c.participants ?? [])];
+  // Alte Daten ohne Liste: die annehmende Person aufnehmen
+  if (c.assigneeId && !list.some((p) => p.userId === c.assigneeId)) {
+    list.push({ userId: c.assigneeId, status: 'joined', requestedAt: c.acceptedAt ?? now, joinedAt: c.acceptedAt ?? now });
+  }
+  const i = list.findIndex((p) => p.userId === userId);
+  const next: Participant = { userId, status, requestedAt: i >= 0 ? list[i].requestedAt : now, joinedAt: status === 'joined' ? now : undefined };
+  if (i >= 0) list[i] = next;
+  else list.push(next);
+  // Die erste Person bleibt, solange sie dabei ist
+  const stays = c.assigneeId && list.find((p) => p.userId === c.assigneeId)?.status === 'joined';
+  const updated = { ...c, participants: list, assigneeId: stays ? c.assigneeId : undefined };
+  const [first] = joinedIds(updated);
+  return {
+    participants: list,
+    assigneeId: first,
+    status: first ? 'accepted' : 'open',
+    acceptedAt: first ? (first === c.assigneeId ? c.acceptedAt : now) : undefined,
+  };
+}
+
+/**
+ * Status aus den Auszahlungen, wie challenge_sync_payment: alle markiert → paid_marked, alle erhalten → paid.
+ * Ohne Auszahlungen (alte Daten, Demo) bleibt `fallback`.
+ */
+function withPayouts(c: Challenge, payouts: PayoutLine[] | undefined, fallback: Partial<Challenge>): Partial<Challenge> {
+  if (!payouts?.length) return fallback;
+  const now = new Date().toISOString();
+  const allMarked = payouts.every((p) => p.paidMarkedAt);
+  const allPaid = payouts.every((p) => p.paidAt);
+  return {
+    payouts,
+    status: allPaid ? 'paid' : allMarked ? 'paid_marked' : 'payment_open',
+    paidMarkedAt: allMarked ? (c.paidMarkedAt ?? now) : undefined,
+  };
+}
 
 function updateChallenge(state: State, id: string, patch: (c: Challenge) => Partial<Challenge>): State {
   return {
@@ -90,11 +143,30 @@ function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'edit':
     case 'editDeleted': {
-      const { photo, ...rest } = action.edit;
-      return updateChallenge(state, action.id, () => ({ ...rest, ...(photo ? { image: photo } : {}) }));
+      const { photo, participation, ...rest } = action.edit;
+      return updateChallenge(state, action.id, () => ({
+        ...rest,
+        ...(photo ? { image: photo } : {}),
+        ...(participation ? { maxParticipants: participation.max, joinMode: participation.mode } : {}),
+      }));
     }
+    case 'join':
+      return updateChallenge(state, action.id, (c) =>
+        setParticipant(c, state.currentUserId, c.joinMode === 'approval' || action.far ? 'requested' : 'joined'),
+      );
+    case 'leave':
+      return updateChallenge(state, action.id, (c) => ({
+        ...setParticipant(c, state.currentUserId, 'left'),
+        operationName: undefined,
+      }));
+    case 'answerRequest':
+      return updateChallenge(state, action.id, (c) => setParticipant(c, action.userId, action.accept ? 'joined' : 'declined'));
+    case 'removeParticipant':
+      return updateChallenge(state, action.id, (c) => setParticipant(c, action.userId, 'removed'));
     case 'close':
       return updateChallenge(state, action.id, () => ({ status: 'closed', closedAt: new Date().toISOString() }));
+    case 'setLocalOnly':
+      return updateChallenge(state, action.id, () => ({ localOnly: action.localOnly || undefined }));
     case 'deleteDraft':
     case 'purge':
       return { ...state, challenges: state.challenges.filter((c) => c.id !== action.id) };
@@ -134,13 +206,28 @@ function reducer(state: State, action: Action): State {
       return updateChallenge(state, action.id, (c) => ({ comments: [...c.comments, comment] }));
     }
     case 'sharePayout':
-      return updateChallenge(state, action.id, () => ({ payoutShare: action.share }));
+      return updateChallenge(state, action.id, (c) => ({
+        payoutShare: action.share,
+        payoutShares: { ...c.payoutShares, [state.currentUserId]: action.share },
+      }));
     case 'revokeShare':
-      return updateChallenge(state, action.id, () => ({ payoutShare: undefined }));
+      return updateChallenge(state, action.id, (c) => {
+        const { [state.currentUserId]: _, ...rest } = c.payoutShares ?? {};
+        return { payoutShare: undefined, payoutShares: rest };
+      });
     case 'undoConfirm':
-      return updateChallenge(state, action.id, () => ({ status: 'reported' }));
+      return updateChallenge(state, action.id, (c) => ({
+        status: 'reported',
+        payouts: undefined,
+        participants: c.participants?.map((p) => (p.status === 'unconfirmed' ? { ...p, status: 'joined' as const } : p)),
+      }));
     case 'unmarkPaid':
-      return updateChallenge(state, action.id, () => ({ status: 'payment_open', paidMarkedAt: undefined }));
+      return updateChallenge(state, action.id, (c) =>
+        withPayouts(c, c.payouts?.map((p) => (p.paidAt ? p : { ...p, paidMarkedAt: undefined })), {
+          status: 'payment_open',
+          paidMarkedAt: undefined,
+        }),
+      );
     case 'updateProfile':
       return { ...state, profile: { ...state.profile, ...action.patch } };
     case 'signOut':
@@ -153,13 +240,51 @@ function reducer(state: State, action: Action): State {
         rejectionReason: undefined,
       }));
     case 'confirm':
-      return updateChallenge(state, action.id, (c) => ({ status: c.bountyAmount ? 'payment_open' : 'confirmed' }));
+      return updateChallenge(state, action.id, (c) => {
+        // Bestätigen je Person (Daria, 28.10.2026): Abgewählte bekommen nichts
+        const selected = action.userIds ? new Set(action.userIds) : undefined;
+        const participants = selected
+          ? c.participants?.map((p) => (p.status === 'joined' && !selected.has(p.userId) ? { ...p, status: 'unconfirmed' as const } : p))
+          : c.participants;
+        if (!c.bountyAmount) return { status: 'confirmed', participants };
+        // Coins geteilt unter den Ausgewählten
+        const ids = joinedIds({ ...c, participants });
+        const cents = splitCents(c.bountyAmount, ids.length || 1);
+        return { status: 'payment_open', participants, payouts: ids.map((userId, i) => ({ userId, amountCents: cents[i] })) };
+      });
     case 'reject':
       return updateChallenge(state, action.id, () => ({ status: 'accepted', rejectionReason: action.reason }));
-    case 'markPaid':
-      return updateChallenge(state, action.id, () => ({ status: 'paid_marked', paidMarkedAt: new Date().toISOString() }));
-    case 'confirmReceived':
-      return updateChallenge(state, action.id, () => ({ status: 'paid' }));
+    case 'markPaid': {
+      const now = new Date().toISOString();
+      return updateChallenge(state, action.id, (c) =>
+        withPayouts(c, c.payouts?.map((p) => ({ ...p, paidMarkedAt: p.paidMarkedAt ?? now })), {
+          status: 'paid_marked',
+          paidMarkedAt: now,
+        }),
+      );
+    }
+    case 'markParticipantPaid': {
+      const now = new Date().toISOString();
+      return updateChallenge(state, action.id, (c) =>
+        withPayouts(
+          c,
+          c.payouts?.map((p) =>
+            p.userId === action.userId && !p.paidAt ? { ...p, paidMarkedAt: action.paid ? (p.paidMarkedAt ?? now) : undefined } : p,
+          ),
+          {},
+        ),
+      );
+    }
+    case 'confirmReceived': {
+      const now = new Date().toISOString();
+      return updateChallenge(state, action.id, (c) =>
+        withPayouts(
+          c,
+          c.payouts?.map((p) => (p.userId === state.currentUserId && p.paidMarkedAt ? { ...p, paidAt: p.paidAt ?? now } : p)),
+          { status: 'paid' },
+        ),
+      );
+    }
     case 'create':
       return { ...state, challenges: [action.challenge, ...state.challenges.filter((c) => c.id !== action.challenge.id)] };
     case 'toggleLike':
@@ -239,6 +364,9 @@ async function persist(action: Action, before: State): Promise<string | null> {
     case 'close':
       await remote.closeChallenge(action.id);
       return action.id;
+    case 'setLocalOnly':
+      await remote.challengeActions.setLocalOnly(action.id, action.localOnly);
+      return action.id;
     case 'purge':
       await remote.purgeChallenge(action.id);
       return null;
@@ -257,6 +385,18 @@ async function persist(action: Action, before: State): Promise<string | null> {
     case 'giveBack':
       await remote.challengeActions.giveBack(action.id);
       return action.id;
+    case 'join':
+      await remote.challengeActions.join(action.id, action.coords);
+      return action.id;
+    case 'leave':
+      await remote.challengeActions.leave(action.id);
+      return action.id;
+    case 'answerRequest':
+      await remote.challengeActions.answerRequest(action.id, action.userId, action.accept);
+      return action.id;
+    case 'removeParticipant':
+      await remote.challengeActions.removeParticipant(action.id, action.userId);
+      return action.id;
     case 'report': {
       const path = await remote.uploadPhoto(userId, action.report.photo);
       await remote.challengeActions.report(action.id, path, action.report.note);
@@ -269,13 +409,13 @@ async function persist(action: Action, before: State): Promise<string | null> {
       await remote.addComment(action.id, action.body, action.replyToId);
       return action.id;
     case 'sharePayout':
-      await remote.sharePayout(action.id, action.share);
+      await remote.sharePayout(action.id, action.share, userId);
       return action.id;
     case 'revokeShare':
-      await remote.revokeShare(action.id);
+      await remote.revokeShare(action.id, userId);
       return action.id;
     case 'confirm':
-      await remote.challengeActions.confirm(action.id);
+      await remote.challengeActions.confirm(action.id, action.userIds);
       return action.id;
     case 'undoConfirm':
       await remote.challengeActions.undoConfirm(action.id);
@@ -285,6 +425,9 @@ async function persist(action: Action, before: State): Promise<string | null> {
       return action.id;
     case 'markPaid':
       await remote.challengeActions.markPaid(action.id);
+      return action.id;
+    case 'markParticipantPaid':
+      await remote.challengeActions.markParticipantPaid(action.id, action.userId, action.paid);
       return action.id;
     case 'unmarkPaid':
       await remote.challengeActions.unmarkPaid(action.id);
@@ -415,6 +558,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         authorId: s.currentUserId,
         location: draft.location,
         bountyAmount: draft.bountyAmount,
+        edensteine: draft.edensteine,
+        maxParticipants: draft.participation?.max,
+        joinMode: draft.participation?.mode,
         status: 'open',
         image: draft.photo,
         extraImages: draft.extras,
@@ -423,6 +569,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         createdAt: new Date().toISOString(),
         deadline: draft.deadline,
         coords: draft.coords,
+        private: draft.private,
+        localOnly: draft.localOnly,
+        photoText: draft.photoText ?? undefined,
       };
       localDispatch({ type: 'create', challenge });
       return challenge.id;
@@ -448,6 +597,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         authorId: s.currentUserId,
         location: draft.location.trim(),
         bountyAmount: draft.bountyAmount,
+        edensteine: draft.edensteine,
+        maxParticipants: draft.participation?.max ?? existing?.maxParticipants,
+        joinMode: draft.participation?.mode ?? existing?.joinMode,
         status: 'draft',
         image: draft.photo ?? existing?.image,
         extraImages: draft.extras ?? existing?.extraImages,
@@ -456,6 +608,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         createdAt: existing?.createdAt ?? new Date().toISOString(),
         deadline: '',
         coords: draft.coords ?? existing?.coords,
+        private: existing ? existing.private : draft.private,
+        photoText: draft.photoText === undefined ? existing?.photoText : (draft.photoText ?? undefined),
       };
       localDispatch(existing ? { type: 'challengeLoaded', id: challenge.id, challenge, users: [] } : { type: 'create', challenge });
       return challenge;
@@ -483,6 +637,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           authorId: s.currentUserId,
           location: draft.location.trim(),
           bountyAmount: draft.bountyAmount,
+          edensteine: draft.edensteine,
+          maxParticipants: draft.participation?.max ?? existing?.maxParticipants,
+          joinMode: draft.participation?.mode ?? existing?.joinMode,
           status: 'open',
           image: draft.photo ?? existing?.image,
           extraImages: draft.extras ?? existing?.extraImages,
@@ -491,6 +648,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           createdAt: new Date().toISOString(),
           deadline,
           coords: draft.coords ?? existing?.coords,
+          photoText: draft.photoText === undefined ? existing?.photoText : (draft.photoText ?? undefined),
         };
         localDispatch({ type: 'challengeLoaded', id, challenge, users: [] });
         return id;
@@ -584,9 +742,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
         const challenge: Challenge = {
           id: `task-${Date.now()}`,
-          type: 'individual',
+          type: task.type ?? 'individual',
           groupId: task.groupId,
-          edensteine: task.edensteine,
+          edensteine: task.type === 'photo' ? undefined : task.edensteine,
+          maxParticipants: task.type === 'photo' ? undefined : task.participation?.max,
+          joinMode: task.type === 'photo' ? undefined : task.participation?.mode,
+          extraImages: task.type === 'photo' ? task.extras : undefined,
           title: task.title.trim(),
           text: task.text.trim(),
           authorId: s.currentUserId,
@@ -667,6 +828,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           beforeText: input.beforeText.trim() || undefined,
           authorId: s.currentUserId,
           groupId: input.groupId,
+          private: !input.groupId && input.private ? true : undefined,
+          localOnly: !input.groupId && !input.private && input.localOnly ? true : undefined,
           location: '',
           status: 'draft',
           image: input.photo,
@@ -762,7 +925,8 @@ export function topChallenges(state: Pick<State, 'mode' | 'challenges' | 'curren
   const mine = challenges.filter(
     (c) =>
       (c.authorId === me && (c.status === 'reported' || c.status === 'payment_open')) ||
-      (c.assigneeId === me && (c.status === 'accepted' || c.status === 'paid_marked')),
+      (c.assigneeId === me && (c.status === 'accepted' || c.status === 'paid_marked')) ||
+      (c.status === 'accepted' && joinedIds(c).includes(me)),
   );
   const now = Date.now();
   const open = challenges

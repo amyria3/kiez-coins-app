@@ -43,7 +43,8 @@ export function TextField({
   const inputRef = useRef<TextInput>(null);
   const ownViewRef = useRef<View>(null);
   const viewRef = nudge?.ref ?? ownViewRef;
-  // Enter springt ins nächste Feld, sofern das Feld selbst nichts abschickt
+  // Enter springt ins nächste Feld, nach dem letzten zum Absende-Button, sofern das Feld selbst nichts abschickt.
+  // Mehrzeilige Felder (Beschreibung) behalten Enter für den Zeilenumbruch.
   const goNext = useNextField(inputRef, viewRef);
   const advances = !multiline && !onSubmitEditing && !!goNext;
   const hinted = !error && !!nudge?.hint;
@@ -334,7 +335,18 @@ type PhotoPickerProps = {
  */
 export function choosePhoto(
   onPicked: (photo: ImageSource) => void,
-  { square, onRemove, title = 'Foto hinzufügen' }: { square?: boolean; onRemove?: () => void; title?: string } = {},
+  {
+    square,
+    onRemove,
+    title = 'Foto hinzufügen',
+    extra,
+  }: {
+    square?: boolean;
+    onRemove?: () => void;
+    title?: string;
+    /** Weitere Wahl im Menü, z. B. „Ausschnitt ändern“ */
+    extra?: { text: string; onPress: () => void };
+  } = {},
 ) {
   async function pick(source: 'camera' | 'library') {
     const permission =
@@ -357,13 +369,14 @@ export function choosePhoto(
   // Web: Die Kamera-Option erscheint nur auf Touch-Geräten. Die Android-Fotoauswahl zeigt seit Android 14 keine Kamera mehr.
   const offersCamera =
     Platform.OS !== 'web' || (typeof window !== 'undefined' && !!window.matchMedia?.('(pointer: coarse)').matches);
-  if (!offersCamera && !onRemove) {
+  if (!offersCamera && !onRemove && !extra) {
     pick('library');
     return;
   }
   Alert.alert(title, undefined, [
     ...(offersCamera ? [{ text: 'Foto aufnehmen', onPress: () => pick('camera') }] : []),
     { text: 'Foto auswählen', onPress: () => pick('library') },
+    ...(extra ? [extra] : []),
     ...(onRemove ? [{ text: 'Foto entfernen', style: 'destructive' as const, onPress: onRemove }] : []),
     { text: 'Abbrechen', style: 'cancel' as const },
   ]);
@@ -431,6 +444,9 @@ export function PhotoPicker({ photo, hint, error, onChange, title }: PhotoPicker
   const [focused, setFocused] = useState(false);
   const ownRef = useRef<View>(null);
   const titleRef = title?.nudge?.ref ?? ownRef;
+  // „Fertig“ oder Enter im Titel springt ins nächste Feld (Nudge.tsx)
+  const titleInputRef = useRef<TextInput>(null);
+  const goNext = useNextField(titleInputRef, titleRef);
   const hinted = !title?.error && !!title?.nudge?.hint;
   const titleHelper = title?.error ?? title?.nudge?.hint;
   // Ohne Rahmen (Daria, 24.10.2026); nur ein Fehler zeigt einen roten Rand
@@ -472,6 +488,7 @@ export function PhotoPicker({ photo, hint, error, onChange, title }: PhotoPicker
         {title ? (
           <View ref={titleRef} style={[styles.photoTitle, { borderColor: titleBorder }]}>
             <TextInput
+              ref={titleInputRef}
               value={title.value}
               onChangeText={(v) => {
                 title.nudge?.clear();
@@ -485,8 +502,12 @@ export function PhotoPicker({ photo, hint, error, onChange, title }: PhotoPicker
               accessibilityHint={titleHelper}
               multiline
               scrollEnabled={false}
-              submitBehavior="blurAndSubmit"
-              returnKeyType="done"
+              // Mehrzeilig nur zum Umbrechen: Enter schreibt keinen Zeilenumbruch, sondern geht weiter.
+              // Der Browser kennt nur `blurOnSubmit` (react-native-web).
+              submitBehavior={goNext ? 'submit' : 'blurAndSubmit'}
+              {...(Platform.OS === 'web' ? ({ blurOnSubmit: true } as object) : null)}
+              returnKeyType={goNext ? 'next' : 'done'}
+              onSubmitEditing={() => goNext?.()}
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
               style={styles.photoTitleInput}

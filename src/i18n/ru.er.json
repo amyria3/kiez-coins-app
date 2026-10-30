@@ -7,7 +7,6 @@
   "{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.": "{firstName} {day} отметил {bountyAmount} как оплаченные. Проверь свой счёт или PayPal.",
   "{firstName} hat die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.": "{firstName} отметил {bountyAmount} как оплаченные. Проверь свой счёт или PayPal.",
   "{firstName} hat nicht als erledigt bestätigt: „{rejectionReason}“": "{firstName} не подтвердил выполнение: «{rejectionReason}»",
-  "Du bist allein in der Gruppe. Sie verschwindet samt Aufgaben. Das lässt sich nicht rückgängig machen.": "Ты один в группе. Она исчезнет вместе с заданиями. Это нельзя отменить.",
   "Bitte begründe Deine Entscheidung nach bestem Wissen und Gewissen. Sei ermutigend und konstruktiv.": "Пожалуйста, объясни своё решение честно и добросовестно. Будь доброжелательным и конструктивным.",
   "Blockierte Personen sehen nicht, dass Du sie blockiert hast. Sie können Deine Challenges weder annehmen noch kommentieren.": "Заблокированные люди не видят, что ты их заблокировал. Они не могут ни брать, ни комментировать твои челленджи.",
   "Du hast niemanden blockiert.": "Ты никого не заблокировал.",
@@ -23,5 +22,14 @@
   "Würde für diese App nicht bezahlen": "Не стал бы платить за это приложение",
   "Hab ich schon": "Уже порекомендовал",
   "Danke fürs Gießen 🌱": "Спасибо, что полил 🌱",
-  "Du hast angepackt, {anrede}. Ich schnurre.": "Ты взялся за дело, {anrede}. Я мурлычу."
+  "Du hast angepackt, {anrede}. Ich schnurre.": "Ты взялся за дело, {anrede}. Я мурлычу.",
+  "hat angenommen": "принял",
+  "hat's erledigt!": "выполнил!",
+  "hat bestätigt": "подтвердил",
+  "hat abgelehnt": "отклонил",
+  "hat als bezahlt markiert": "отметил как оплачено",
+  "hat bezahlt": "оплатил",
+  "Nachbar:innen, die die Challenge sehen, können den Beitritt anfragen. Du musst den Beitritt aber gestatten.": "Соседи, которые видят челлендж, могут запросить участие. Ты должен одобрить каждый запрос.",
+  "Poste als Erste:r": "Опубликуй первым",
+  "Du bist allein in der Gruppe. Sie verschwindet samt We-Challenges. Das lässt sich nicht rückgängig machen.": "Ты один в группе. Она исчезнет вместе с We-Challenges. Это нельзя отменить."
 }

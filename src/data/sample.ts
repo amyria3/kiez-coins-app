@@ -198,6 +198,24 @@ export const sampleChallenges: Challenge[] = [
     comments: [],
     paidMarkedAt: inPast(1 * DAY),
   },
+  // Modus „Privat“: nur die Beispielperson sieht dieses Bild (Daria, 27.10.2026)
+  {
+    id: 'privat-garten',
+    type: 'photo',
+    private: true,
+    title: 'Mein Balkon im Herbst',
+    text: 'Nur für mich: Wie weit die Kapuzinerkresse diesmal gekommen ist.',
+    authorId: 'gardeners',
+    location: '',
+    status: 'open',
+    image: images.garden,
+    // Text auf dem Foto (Daria, 29.10.2026)
+    photoText: { text: 'Herbst auf dem Balkon', x: 0.5, y: 0.22 },
+    likedByMe: false,
+    comments: [],
+    createdAt: inPast(2 * HOUR),
+    deadline: inFuture(7 * DAY),
+  },
   // Gruppenaufgaben der Beispielgruppe „Hof Kastanienallee“
   {
     id: 'gruppe-muell',

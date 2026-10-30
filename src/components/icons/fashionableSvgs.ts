@@ -45,11 +45,35 @@ export const PH = {
 const ph = (name: PhosphorName): Svg => ({ width: 24, height: 24, svg: (c, filled) => phXml(name, c, filled) });
 
 /**
+ * Doppelherz als Linie für den Feed (Daria, 27.10.2026): vorn das Phosphor-Herz, dahinter ein zweites,
+ * das eine Maske um das vordere Herz und rechts von dessen Mitte ausspart. Gleiche Linienstärke wie die übrigen Icons.
+ */
+const doubleHeartLine: Svg = {
+  width: 24,
+  height: 24,
+  svg: (c) => {
+    const [line] = phosphorRegular.heart;
+    const [fill] = phosphorFill.heart;
+    const back = 'translate(0 16) scale(0.88)';
+    const front = 'translate(31 16) scale(0.88)';
+    return (
+      `<svg width="24" height="24" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">` +
+      `<defs><mask id="kc-doppelherz-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="256" height="256">` +
+      `<rect width="256" height="256" fill="white"/><rect x="112" width="144" height="256" fill="black"/>` +
+      `<path d="${fill}" transform="${front}" fill="black" stroke="black" stroke-width="22" stroke-linejoin="round"/></mask></defs>` +
+      `<g mask="url(#kc-doppelherz-mask)"><path d="${line}" transform="${back}" fill="${c}"/></g>` +
+      `<path d="${line}" transform="${front}" fill="${c}"/></svg>`
+    );
+  },
+};
+
+/**
  * Regelwerk: jedes Icon eine Bedeutung. Kommentar = Sprechblase, Chats = zwei Sprechblasen,
- * Senden = Papierflieger, Ort = Stecknadel, Feed = Haus, Gruppen = Personen.
+ * Senden = Papierflieger, Ort = Stecknadel, Feed = Haus (Leiste) bzw. Doppelherz (Feed-Link der Gruppenkarte), Gruppen = Personen.
  */
 export const fashionableSvgs: Partial<Record<IconName, Svg>> = {
   heart: ph('heart'),
+  feed: doubleHeartLine,
   comment: ph('chat-circle'),
   send: ph('paper-plane-tilt'),
   camera: ph('camera'),
@@ -70,6 +94,7 @@ export const fashionableSvgs: Partial<Record<IconName, Svg>> = {
   flag: ph('flag'),
   copy: ph('copy'),
   eye: ph('eye'),
+  'eye-off': ph('eye-slash'),
   // Deine Challenges: Raster
   ship: ph('squares-four'),
   // Gruppen: Personen
