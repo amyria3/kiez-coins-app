@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../../data/store';
 import type { ImageSource, PhotoText } from '../../data/types';
 import { Button } from '../Button';
-import { PhotoTextEditor } from '../PhotoText';
+import { PhotoTextOnPhoto } from '../PhotoText';
 import { ExtraPhotos, PhotoPicker } from '../Form';
 import { Text } from '../T';
 import { PHOTO_TAG } from '../WithMentions';
@@ -93,7 +93,10 @@ export function usePublicComposeForm(
         hint={showErrors && missingPhoto ? 'Bitte ein Foto hinzufügen.' : isChallenge ? 'Zeige, wo geholfen werden soll.' : isPrivate ? 'Halte fest, was Dir gefällt.' : 'Zeige Deinem Kiez, was Dir gefällt.'}
         onChange={setPhoto}
         title={{ value: title, onChange: setTitle, error: showErrors && missingTitle ? 'Gib einen Titel ein.' : undefined }}
+        // Nur Bild: Text direkt auf dem Foto (Daria, 30.10.2026)
+        overlay={isChallenge ? undefined : <PhotoTextOnPhoto value={photoText} onChange={setPhotoText} />}
       />
+      {!isChallenge && photo ? <Text style={styles.hint}>Tippe aufs Foto, um Text darauf zu schreiben. Ziehe ihn mit dem Finger an seinen Platz.</Text> : null}
       {photo ? (
         <ExtraPhotos
           photos={extras}
@@ -101,7 +104,6 @@ export function usePublicComposeForm(
           onRemove={(index) => setExtras((all) => all.filter((_, i) => i !== index))}
         />
       ) : null}
-      {!isChallenge && photo ? <PhotoTextEditor photo={photo} value={photoText} onChange={setPhotoText} /> : null}
       {/* We-Challenge: Die Beschreibung ist das Vorher (Daria, 27.10.2026) */}
       {isChallenge ? (
         <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={text} onChangeText={setText} maxLength={500} />

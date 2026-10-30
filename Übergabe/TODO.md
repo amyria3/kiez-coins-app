@@ -9,6 +9,10 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] `node scripts/i18n.mjs --prune` reparieren: Es löscht genutzte Übersetzungen, weil `collectKeys()` in `scripts/text-keys.mjs` `src/data/kater-sprueche.json` und einzelne Wörter wie „Mitglied“, „er“, „sie“ nicht erfasst. Bis dahin nicht ausführen. Details: `2026-10-25_offen_konsistenz.md`.
 - [ ] ESLint einrichten: `AGENTS.md` verlangt `npx expo lint`, das Repo hat keine ESLint-Konfiguration.
 
+## Zeitnah (Daria, 30.10.2026)
+
+- [ ] Beim Posten Zugriff auf die Entwürfe: Wer im Erstellen-Blatt ist, soll einen gespeicherten Entwurf öffnen können (heute nur über „Meine Challenges“ › Entwürfe).
+
 ## Außerhalb des Codes
 
 - [x] Mailversand über Brevo und kiezcoins.de (läuft seit 21.10.2026, Code-Mail um 09:55 angekommen, IP-Sperre in Brevo aus)

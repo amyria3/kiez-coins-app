@@ -1347,5 +1347,8 @@
   "Dein Bild ist gespeichert": "تم حفظ صورتك",
   "Es liegt in Deinem privaten Space. Nur Du siehst es.": "إنها في مساحتك الخاصة. أنت وحدك تراها.",
   "Wir zeigen es den Nachbar:innen in Deinem Kiez.": "سنعرضها على الجيران في حيّك.",
-  "Bild ansehen": "عرض الصورة"
+  "Bild ansehen": "عرض الصورة",
+  "Text auf dem Foto hierhin verschieben": "نقل النص على الصورة إلى هنا",
+  "Text aufs Foto schreiben": "كتابة نص على الصورة",
+  "Tippe aufs Foto, um Text darauf zu schreiben. Ziehe ihn mit dem Finger an seinen Platz.": "المس الصورة لتكتب عليها نصًا. اسحبه بإصبعك إلى مكانه."
 }
