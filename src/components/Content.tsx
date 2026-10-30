@@ -6,6 +6,8 @@ import { color, font, isFashionable, radius, space, text } from '../theme/tokens
 import { useTexts } from '../data/texts';
 import { Cat, type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
+import { iconSvgs } from './icons/svgs';
+import { SvgXml } from 'react-native-svg';
 
 /** Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. */
 export function Notice({ message, variant = 'info' }: { message: string; variant?: 'info' | 'warning' }) {
@@ -45,32 +47,56 @@ export function KaterBubble({ children }: { children: ReactNode }) {
 }
 
 /**
- * Sprechblase nach Duolingo-Vorbild: Blase links mit Rahmen und Spitze nach rechts,
- * der Kater rechts daneben auf einer runden Kachel. Optional mit fetter Überschrift.
+ * Sprechblase: Text links, rechts auf der Blase der Kater im Kreis. Optional mit fetter Überschrift.
  */
+/** Kiez-Look: Icon „cat“ im Kreis ohne Stimmungen; Fashionable: Kater nach `mood` in der Kachel daneben. */
 export function KaterCard({ children, title, mood = 'default' }: { children: ReactNode; title?: string; mood?: CatMood }) {
   // Texte aus dem CMS (Tabelle app_texts). Nur reiner Text lässt sich ersetzen; Texte mit Namen
   // setzen die Screens selbst über t() mit Platzhaltern zusammen.
   const tx = useTexts();
   if (typeof children === 'string') children = tx(children);
   if (title) title = tx(title);
+  if (isFashionable) {
+    // Fashionable Look bleibt wie bisher: Blase mit Spitze, Kater in der Kachel daneben (Daria, 30.10.2026)
+    return (
+      <View style={styles.speech}>
+        <View style={[styles.speechBubble, styles.speechBubbleFashionable]}>
+          <View style={styles.speechTexts}>
+            {title ? <Text style={styles.speechTitle}>{title}</Text> : null}
+            <Text style={styles.speechText}>{children}</Text>
+          </View>
+          <View style={styles.speechTail} />
+        </View>
+        <View style={styles.speechCatFashionable} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          <Cat mood={mood} height={36} tint={color.text.primary} />
+        </View>
+      </View>
+    );
+  }
   return (
-    <View style={styles.speech}>
-      <View style={styles.speechBubble}>
+    // Kiez-Look: Kater im Kreis sitzt auf der Blase, rechts neben dem Text (Daria, 30.10.2026)
+    <View style={styles.speechBubble}>
+      <View style={styles.speechTexts}>
         {title ? <Text style={styles.speechTitle}>{title}</Text> : null}
         <Text style={styles.speechText}>{children}</Text>
-        <View style={styles.speechTail} />
       </View>
-      <View
-        style={[styles.speechCat, isFashionable && styles.speechCatFashionable]}
-        accessibilityElementsHidden
-        importantForAccessibility="no-hide-descendants"
-      >
-        {/* Fashionable Look: kleinere, rundere Kachel im Grau der Sprechblase, Kater in Textfarbe (Daria, 24.10.2026: hell neben schwarz klappt nicht) */}
-        {/* Kiez-Look: Kater etwas höher in der Kachel (Daria, 24.10.2026) */}
-        <View style={isFashionable ? undefined : styles.speechCatLift}>
-          <Cat mood={mood} height={isFashionable ? 36 : 52} tint={isFashionable ? color.text.primary : undefined} />
-        </View>
+      <KaterRund />
+    </View>
+  );
+}
+
+/**
+ * Kater im Kreis (Daria, 30.10.2026): das Icon „cat“ in Textfarbe, unten vom Kreis angeschnitten, ohne Kachel.
+ * Gläser, Nase und Mund sind ausgespart, dort scheint der Kreis durch. Der Kreis sitzt auf der Sprechblase.
+ */
+const RUND = 64;
+const RUND_KATER = 44;
+export function KaterRund() {
+  const cat = iconSvgs.cat;
+  return (
+    <View style={styles.rund} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <View style={styles.rundKater}>
+        <SvgXml xml={cat.svg(color.text.primary)} width={(cat.width / cat.height) * RUND_KATER} height={RUND_KATER} />
       </View>
     </View>
   );
@@ -131,16 +157,20 @@ const styles = StyleSheet.create({
     backgroundColor: color.accent.signal,
   },
   tagText: { fontFamily: font.semiBold, fontSize: 11, lineHeight: 16, color: color.bg.screen },
-  speech: { flexDirection: 'row', alignItems: 'center', gap: space[16] },
   speechBubble: {
-    flex: 1,
-    gap: space[4],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[12],
     paddingVertical: space[12],
-    paddingHorizontal: space[16],
+    paddingLeft: space[16],
+    paddingRight: space[12],
     borderRadius: radius.xl,
     backgroundColor: color.bg.surface,
   },
-  // Spitze rechts zur Katze: gedrehtes Quadrat in der Farbe der Blase
+  speechTexts: { flex: 1, gap: space[4] },
+  speech: { flexDirection: 'row', alignItems: 'center', gap: space[16] },
+  speechBubbleFashionable: { flex: 1, paddingRight: space[16] },
+  // Spitze rechts zur Katze: gedrehtes Quadrat in der Farbe der Blase (nur Fashionable)
   speechTail: {
     position: 'absolute',
     right: -7,
@@ -152,27 +182,21 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
     transform: [{ rotate: '45deg' }],
   },
-  speechTitle: { ...text.cardTitle, fontSize: 17, lineHeight: 22, color: color.text.primary },
-  speechText: { fontFamily: font.light, fontSize: 15, lineHeight: 21, color: color.text.primary },
-  speechCat: {
-    width: 76,
-    height: 76,
-    borderRadius: radius.xl,
-    borderWidth: 2,
-    borderColor: color.line.hairline,
-    backgroundColor: color.bg.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  speechCatLift: { transform: [{ translateY: -6 }] },
-  // Mehr Luft um den Kater (Daria, 24.10.2026): Kachel 68 pt, Kater bleibt 36 pt
+  // Fashionable: Kachel 68 pt, Kater 36 pt (Daria, 24.10.2026)
   speechCatFashionable: {
     width: 68,
     height: 68,
     borderRadius: 24,
-    borderWidth: 0,
     backgroundColor: color.bg.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+  speechTitle: { ...text.cardTitle, fontSize: 17, lineHeight: 22, color: color.text.primary },
+  speechText: { fontFamily: font.light, fontSize: 15, lineHeight: 21, color: color.text.primary },
+  // Kreis im Grund der Seite, damit er sich von der Blase abhebt
+  rund: { width: RUND, height: RUND, borderRadius: RUND / 2, overflow: 'hidden', backgroundColor: color.bg.screen },
+  // Unten 8 pt angeschnitten, über den Ohren gut ein Drittel Luft
+  rundKater: { position: 'absolute', left: 0, right: 0, bottom: -7, alignItems: 'center' },
   group: { gap: space[8] },
   groupLabel: { ...text.caption, color: color.text.secondary },
 });
