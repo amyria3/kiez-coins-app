@@ -62,7 +62,8 @@ export default function Account() {
         details={[anrede(profile), profile.kiez ?? 'Kiez noch nicht festgelegt']}
         onPress={() => router.push('/account/profile')}
       />
-      {/* Reihenfolge und Namen (Daria, 29.10.2026): Me, Meine Challenges, Meine Features, danach der Rest */}
+      {/* Reihenfolge und Namen (Daria, 30.10.2026): Me, Meine Gruppen, Meine Challenges, Meine Features,
+          Meine Freundschaften, Sprache, Look, danach der Rest */}
       <NavCard
         title="Me"
         description="Geschafft, Ziele und Gruppen"
@@ -70,6 +71,14 @@ export default function Account() {
         leading={isFashionable ? <Avatar user={me} diameter={28} /> : <CrownIcon height={30} />}
         onPress={() => router.push('/me')}
       />
+      {modes.isVisible('groups') ? (
+      <NavCard
+        title="Meine Gruppen"
+        description={groups.length === 0 ? 'Gründen oder beitreten' : groups.length === 1 ? '1 Gruppe' : t('{groups} Gruppen', { groups: groups.length })}
+        leading={<Icon name="behausung" size={size.icon} color={color.text.primary} />}
+        onPress={() => router.push('/groups')}
+      />
+      ) : null}
       <NavCard
         title="Meine Challenges"
         description="Entwürfe, offen, geschlossen"
@@ -83,18 +92,10 @@ export default function Account() {
         leading={<Icon name="switch" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/account/features')}
       />
-      {modes.isVisible('groups') ? (
-      <NavCard
-        title="Deine Gruppen"
-        description={groups.length === 0 ? 'Gründen oder beitreten' : groups.length === 1 ? '1 Gruppe' : t('{groups} Gruppen', { groups: groups.length })}
-        leading={<Icon name="behausung" size={size.icon} color={color.text.primary} />}
-        onPress={() => router.push('/groups')}
-      />
-      ) : null}
       {/* Freundschaften, Funktionen und Look mit Darias Icons (25.10.2026), Sprache mit Phosphor.
           Grammatisches Geschlecht steht nur noch unter Persönliche Angaben (Daria, 27.10.2026). */}
       <NavCard
-        title="Deine Freundschaften"
+        title="Meine Freundschaften"
         description={
           friendRequests
             ? t('{n, plural, one {# Anfrage} other {# Anfragen}}', {
@@ -106,7 +107,7 @@ export default function Account() {
         onPress={() => router.push('/account/friends')}
       />
       <NavCard
-        title="Deine Sprache"
+        title="Sprache"
         description={languageName}
         leading={<PhIcon name="language" size={size.icon} />}
         onPress={() => router.push('/account/language')}
