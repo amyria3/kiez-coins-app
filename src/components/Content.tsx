@@ -2,10 +2,12 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
-import { color, font, isFashionable, radius, space, text } from '../theme/tokens';
+import { color, font, radius, space, text } from '../theme/tokens';
 import { useTexts } from '../data/texts';
-import { Cat, type CatMood } from './icons/Brand';
+import type { CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
+import { iconSvgs } from './icons/svgs';
+import { SvgXml } from 'react-native-svg';
 
 /** Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. */
 export function Notice({ message, variant = 'info' }: { message: string; variant?: 'info' | 'warning' }) {
@@ -46,9 +48,10 @@ export function KaterBubble({ children }: { children: ReactNode }) {
 
 /**
  * Sprechblase nach Duolingo-Vorbild: Blase links mit Rahmen und Spitze nach rechts,
- * der Kater rechts daneben auf einer runden Kachel. Optional mit fetter Überschrift.
+ * der Kater rechts daneben im Kreis. Optional mit fetter Überschrift.
  */
-export function KaterCard({ children, title, mood = 'default' }: { children: ReactNode; title?: string; mood?: CatMood }) {
+/** `mood` bleibt für die Aufrufe erhalten; das Icon im Kreis hat keine Stimmungen (Daria, 30.10.2026). */
+export function KaterCard({ children, title }: { children: ReactNode; title?: string; mood?: CatMood }) {
   // Texte aus dem CMS (Tabelle app_texts). Nur reiner Text lässt sich ersetzen; Texte mit Namen
   // setzen die Screens selbst über t() mit Platzhaltern zusammen.
   const tx = useTexts();
@@ -61,15 +64,23 @@ export function KaterCard({ children, title, mood = 'default' }: { children: Rea
         <Text style={styles.speechText}>{children}</Text>
         <View style={styles.speechTail} />
       </View>
-      <View
-        style={[styles.speechCat, isFashionable && styles.speechCatFashionable]}
-        accessibilityElementsHidden
-        importantForAccessibility="no-hide-descendants"
-      >
-        {/* Runder Hintergrund im Grau der Sprechblase (Daria, 30.10.2026); im Fashionable Look Kater in Textfarbe */}
-        <View style={isFashionable ? undefined : styles.speechCatLift}>
-          <Cat mood={mood} height={isFashionable ? 36 : 52} tint={isFashionable ? color.text.primary : undefined} />
-        </View>
+      <KaterRund />
+    </View>
+  );
+}
+
+/**
+ * Kater im Kreis (Daria, 30.10.2026): das Icon „cat“ in Textfarbe, unten vom Kreis angeschnitten, ohne Kachel.
+ * Gläser, Nase und Mund sind ausgespart, dort scheint der Kreis durch. Kreis im Grau der Sprechblase.
+ */
+const RUND = 76;
+const RUND_KATER = 52;
+export function KaterRund() {
+  const cat = iconSvgs.cat;
+  return (
+    <View style={styles.rund} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <View style={styles.rundKater}>
+        <SvgXml xml={cat.svg(color.text.primary)} width={(cat.width / cat.height) * RUND_KATER} height={RUND_KATER} />
       </View>
     </View>
   );
@@ -153,22 +164,9 @@ const styles = StyleSheet.create({
   },
   speechTitle: { ...text.cardTitle, fontSize: 17, lineHeight: 22, color: color.text.primary },
   speechText: { fontFamily: font.light, fontSize: 15, lineHeight: 21, color: color.text.primary },
-  // Kater auf einem runden Hintergrund, ohne Kachel und ohne Rand (Daria, 30.10.2026)
-  speechCat: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    backgroundColor: color.bg.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  speechCatLift: { transform: [{ translateY: -4 }] },
-  // Fashionable: etwas kleiner, Kater in Textfarbe (Daria, 24.10.2026: hell neben schwarz klappt nicht)
-  speechCatFashionable: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-  },
+  rund: { width: RUND, height: RUND, borderRadius: RUND / 2, overflow: 'hidden', backgroundColor: color.bg.surface },
+  // Unten 8 pt angeschnitten, über den Ohren gut ein Drittel Luft
+  rundKater: { position: 'absolute', left: 0, right: 0, bottom: -8, alignItems: 'center' },
   group: { gap: space[8] },
   groupLabel: { ...text.caption, color: color.text.secondary },
 });
