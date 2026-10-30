@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { AppState, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Text } from './T';
@@ -9,12 +9,10 @@ import { color, isFashionable, radius, space, text } from '../theme/tokens';
 
 /**
  * Hinweis unter dem Umschalter „Privat / Gruppe / Kiez“ (UX-Audit, Daria, 27.10.2026): wer sieht, was Du hier postest.
- * Das Kreuz blendet ihn aus, je Reiter einmal und dauerhaft auf diesem Gerät.
+ * Sichtbar in den ersten fünf Sitzungen (siehe unten).
  * Texte von Daria (27.10.2026). Gruppe = nur Mitglieder laut Policy „Challenges lesen“.
  */
 export type Audience = 'private' | 'kiez' | 'groups' | 'everywhere';
-
-const KEY = (audience: Audience) => `kiez-hinweis-sichtbarkeit-${audience}`;
 
 const MESSAGE: Record<Audience, string> = {
   private: 'Was Du hier postest, siehst nur Du.',
@@ -23,23 +21,65 @@ const MESSAGE: Record<Audience, string> = {
   everywhere: 'Hier siehst Du Beiträge von überall. Mitmachen geht ab 5 km Entfernung nur auf Anfrage.',
 };
 
+/**
+ * Sichtbar in den ersten fünf Sitzungen, danach dauerhaft weg (Daria, 30.10.2026). Das Kreuz blendet den Hinweis
+ * nur für die laufende Sitzung aus. Eine Sitzung beginnt mit dem Start der App oder wenn sie nach mindestens
+ * 30 Minuten im Hintergrund wieder nach vorn kommt. Gezählt wird pro Gerät.
+ */
+const SESSIONS_SHOWN = 5;
+const NEW_SESSION_AFTER_MS = 30 * 60 * 1000;
+const SESSION_KEY = 'kiez-hinweis-sitzungen';
+
+let session = 0; // 0 = noch nicht gelesen
+let closed = new Set<Audience>();
+const listeners = new Set<() => void>();
+const notify = () => listeners.forEach((l) => l());
+
+async function startSession() {
+  let count = 0;
+  try {
+    count = Number(await AsyncStorage.getItem(SESSION_KEY)) || 0;
+  } catch {
+    // ohne Speicher: wie eine erste Sitzung
+  }
+  session = count + 1;
+  closed = new Set();
+  AsyncStorage.setItem(SESSION_KEY, String(session)).catch(() => {});
+  notify();
+}
+
+let started = false;
+let backgroundSince: number | null = null;
+function ensureStarted() {
+  if (started) return;
+  started = true;
+  startSession();
+  AppState.addEventListener('change', (state) => {
+    if (state === 'active') {
+      if (backgroundSince !== null && Date.now() - backgroundSince >= NEW_SESSION_AFTER_MS) startSession();
+      backgroundSince = null;
+    } else if (backgroundSince === null) {
+      backgroundSince = Date.now();
+    }
+  });
+}
+
 export function useAudienceHint(audience: Audience): [boolean, () => void] {
-  const [hidden, setHidden] = useState<Record<Audience, boolean>>({ private: true, kiez: true, groups: true, everywhere: true });
+  const [, rerender] = useState(0);
   useEffect(() => {
-    let alive = true;
-    const all = ['private', 'kiez', 'groups', 'everywhere'] as const;
-    Promise.all(all.map((a) => AsyncStorage.getItem(KEY(a)).catch(() => null))).then(([priv, kiez, groups, everywhere]) => {
-      if (alive) setHidden({ private: !!priv, kiez: !!kiez, groups: !!groups, everywhere: !!everywhere });
-    });
+    ensureStarted();
+    const listener = () => rerender((n) => n + 1);
+    listeners.add(listener);
     return () => {
-      alive = false;
+      listeners.delete(listener);
     };
   }, []);
+  const visible = session > 0 && session <= SESSIONS_SHOWN && !closed.has(audience);
   const dismiss = () => {
-    setHidden((h) => ({ ...h, [audience]: true }));
-    AsyncStorage.setItem(KEY(audience), '1').catch(() => {});
+    closed.add(audience);
+    notify();
   };
-  return [!hidden[audience], dismiss];
+  return [visible, dismiss];
 }
 
 export function AudienceHint({ audience, onClose }: { audience: Audience; onClose: () => void }) {
