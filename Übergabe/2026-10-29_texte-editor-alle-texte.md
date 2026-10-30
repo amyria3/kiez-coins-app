@@ -1,8 +1,6 @@
 # Texte-Editor findet alle Texte
 
-Datum: 2026-10-29 · Status: PR #122 gemergt (29.10.2026); offen, bis die Migration eingespielt ist (Stand 30.10.2026 nicht bestätigt) · Ziel in Documentation: Datenbank-Doku (`app_texts`, Policy „Texte anlegen“), `app/Stand_App.md` (Texte-Editor)
-
-Pflichtaufgabe: Migration `supabase/migrations/20261029000500_app_texts_anlegen.sql` im Supabase-SQL-Editor ausführen.
+Datum: 2026-10-29 · Status: umgesetzt, PR #122 gemergt, Migration eingespielt (Daria, 30.10.2026); noch in die Doku übernehmen · Ziel in Documentation: Datenbank-Doku (`app_texts`, Policy „Texte anlegen“), `app/Stand_App.md` (Texte-Editor)
 
 ## Fehler (Daria, 29.10.2026)
 
@@ -16,5 +14,4 @@ Die Suche im Texte-Editor fand „Was du hier“ nicht („0 von 906“). Die Su
 
 ## Offene Punkte
 
-- Ohne Migration findet die Suche alle Texte, Speichern eines neuen Texts scheitert aber mit „Keine Berechtigung zum Ändern der Texte.“
 - Neue Texte haben bis zum nächsten Lauf von `scripts/app-texts.mjs` keinen Ort (Spalte `ort`).
