@@ -8,7 +8,7 @@ import { TagTextField } from '../../../components/compose/BeforeAfterForm';
 import { HintWithInfo } from '../../../components/compose/HintWithInfo';
 import { PHOTO_TAG } from '../../../components/WithMentions';
 import { TypeSwitch } from '../../../components/compose/TypeSwitch';
-import { PhotoTextEditor } from '../../../components/PhotoText';
+import { PhotoTextOnPhoto } from '../../../components/PhotoText';
 import { Text } from '../../../components/T';
 import { color, text } from '../../../theme/tokens';
 import { SubScreen } from '../../../components/Screen';
@@ -97,6 +97,8 @@ export default function CreateStep1() {
           onChange: (title) => setDraft((d) => ({ ...d, title })),
           error: showErrors && missingTitle ? 'Gib einen Titel ein.' : undefined,
         }}
+        // Nur Bild: Text direkt auf dem Foto (Daria, 30.10.2026)
+        overlay={isChallenge ? undefined : <PhotoTextOnPhoto value={draft.photoText} onChange={(photoText) => setDraft((d) => ({ ...d, photoText }))} />}
       />
       {draft.photo ? (
         <ExtraPhotos
@@ -105,10 +107,7 @@ export default function CreateStep1() {
           onRemove={(index) => setDraft((d) => ({ ...d, extras: d.extras.filter((_, i) => i !== index) }))}
         />
       ) : null}
-      {/* Nur Bild: Text aufs Foto legen und verschieben (Daria, 29.10.2026) */}
-      {!isChallenge && draft.photo ? (
-        <PhotoTextEditor photo={draft.photo} value={draft.photoText} onChange={(photoText) => setDraft((d) => ({ ...d, photoText }))} />
-      ) : null}
+      {!isChallenge && draft.photo ? <Text style={styles.photoTextHint}>Tippe aufs Foto, um Text darauf zu schreiben. Ziehe ihn mit dem Finger an seinen Platz.</Text> : null}
       {/* We-Challenge: Die Beschreibung ist das Vorher (Daria, 27.10.2026). Bild: #InDiesemMoment */}
       <TagTextField
         label={isChallenge ? 'Beschreibung' : 'Dein Text'}
@@ -123,5 +122,6 @@ export default function CreateStep1() {
 }
 
 const styles = StyleSheet.create({
+  photoTextHint: { ...text.body, fontSize: 14, lineHeight: 19, color: color.text.secondary },
   hint: { ...text.body, fontSize: 14, lineHeight: 19, color: color.text.secondary },
 });

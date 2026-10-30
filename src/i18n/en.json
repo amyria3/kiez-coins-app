@@ -1347,5 +1347,8 @@
   "Dein Bild ist gespeichert": "Your photo is saved",
   "Es liegt in Deinem privaten Space. Nur Du siehst es.": "It’s in your private space. Only you can see it.",
   "Wir zeigen es den Nachbar:innen in Deinem Kiez.": "We’ll show it to the neighbours in your area.",
-  "Bild ansehen": "View photo"
+  "Bild ansehen": "View photo",
+  "Text auf dem Foto hierhin verschieben": "Move the text on the photo here",
+  "Text aufs Foto schreiben": "Write text on the photo",
+  "Tippe aufs Foto, um Text darauf zu schreiben. Ziehe ihn mit dem Finger an seinen Platz.": "Tap the photo to write text on it. Drag it into place with your finger."
 }

@@ -1347,5 +1347,8 @@
   "Dein Bild ist gespeichert": "Ta photo est enregistrée",
   "Es liegt in Deinem privaten Space. Nur Du siehst es.": "Elle est dans ton espace privé. Toi seul·e la vois.",
   "Wir zeigen es den Nachbar:innen in Deinem Kiez.": "Nous la montrons aux voisin·es de ton quartier.",
-  "Bild ansehen": "Voir la photo"
+  "Bild ansehen": "Voir la photo",
+  "Text auf dem Foto hierhin verschieben": "Déplacer le texte de la photo ici",
+  "Text aufs Foto schreiben": "Écrire un texte sur la photo",
+  "Tippe aufs Foto, um Text darauf zu schreiben. Ziehe ihn mit dem Finger an seinen Platz.": "Touche la photo pour y écrire un texte. Fais-le glisser du doigt à sa place."
 }
