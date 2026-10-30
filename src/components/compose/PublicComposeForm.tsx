@@ -51,8 +51,9 @@ export function usePublicComposeForm(
       return;
     }
     const extraUris = extras.map(uriOf).filter(Boolean);
+    // Privates Bild: kein Ort, kein Zeitraum, gleich zur Vorschau (Daria, 30.10.2026)
     router.push({
-      pathname: '/challenge/create/step-2',
+      pathname: type === 'photo' && isPrivate ? '/challenge/create/preview' : '/challenge/create/step-2',
       params: {
         from: 'feed',
         type,
