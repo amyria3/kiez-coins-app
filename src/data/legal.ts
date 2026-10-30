@@ -111,8 +111,6 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         heading: 'Meldungen, Support und Sicherheit',
         paragraphs: [
           'Meldest Du eine Person oder Challenge oder schreibst Du dem Support, speichern wir Deine Nachricht, um sie zu bearbeiten. Die gemeldete Person erfährt nicht, wer gemeldet hat. Blockierst Du eine Person, speichern wir, wen Du blockiert hast. Zollst Du Lob, speichern wir, wen Du gelobt hast. Andere sehen nur die Anzahl, nicht wer gelobt hat. Zum Schutz vor Missbrauch speichert unser Hosting-Dienst technische Protokolle mit IP-Adresse und Zeitpunkt für kurze Zeit.',
-          // Anonyme Zählung, z. B. welcher Kamera-Knopf häufiger gedrückt wird (Daria, 31.10.2026)
-          'Wir behalten uns vor, anonymisiert Nutzerdaten zu erheben (wie beispielsweise Klicks).',
           'Rechtsgrundlage ist unser berechtigtes Interesse an einem sicheren, fairen Betrieb (Art. 6 Abs. 1 lit. f DSGVO) und die Bearbeitung von Meldungen nach dem Digital Services Act (Art. 6 Abs. 1 lit. c DSGVO).',
         ],
       },
@@ -124,6 +122,11 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
           'Vercel Inc. (USA) liefert die Download-Seite und die Web-App aus und verarbeitet dafür Deine IP-Adresse. Grundlage sind das EU-US Data Privacy Framework und EU-Standardvertragsklauseln.',
           'Mit diesen Diensten besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO.',
         ],
+      },
+      // Anonyme Zählung, z. B. welcher Kamera-Knopf häufiger gedrückt wird (Daria, 31.10.2026)
+      {
+        heading: 'Erheben von Nutzungsdaten',
+        paragraphs: ['Wir behalten uns vor, anonymisiert Nutzerdaten zu erheben (wie beispielsweise Klicks).'],
       },
       {
         heading: 'So lange bleiben Deine Daten',
