@@ -10,7 +10,7 @@ import { KaterCard, Notice } from '../../components/Content';
 import { TAB_BAR_SPACE, TabBar } from '../../components/TabBar';
 import { loadConversations, subscribeMessages, type Conversation } from '../../data/chat';
 import { formatRelative } from '../../data/format';
-import { acceptFriend, errorText, removeFriend, type FriendLists } from '../../data/remote';
+import { acceptFriend, errorDetail, errorText, removeFriend, type FriendLists } from '../../data/remote';
 import { useStore } from '../../data/store';
 import type { User } from '../../data/types';
 import { color, font, radius, space, text } from '../../theme/tokens';
@@ -27,12 +27,21 @@ export default function Chats() {
   const live = mode === 'live';
   // undefined: lädt, null: Datenbank-Update fehlt
   const [data, setData] = useState<{ conversations: Conversation[]; lists: FriendLists } | null | undefined>(undefined);
+  // Grund, wenn das Laden scheitert. Nur fehlende Tabellen heißen „Update fehlt“ (Daria, 30.10.2026).
+  const [loadError, setLoadError] = useState<{ missing: boolean; detail: string } | null>(null);
 
   const refresh = useCallback(async () => {
     if (live && !currentUserId) return;
     // Demo ohne Anmeldung: zwei Beispielpersonen als Freund:innen
     const demoFriends = users.filter((u) => u.id !== currentUserId && !u.group).slice(0, 2);
-    setData(await loadConversations(currentUserId || 'ich', live, demoFriends).catch(() => null));
+    try {
+      setData(await loadConversations(currentUserId || 'ich', live, demoFriends));
+      setLoadError(null);
+    } catch (error) {
+      const code = (error as { code?: string })?.code;
+      setLoadError({ missing: code === '42P01' || code === 'PGRST205', detail: errorDetail(error) });
+      setData(null);
+    }
   }, [currentUserId, live, users]);
 
   useEffect(() => {
@@ -78,7 +87,13 @@ export default function Chats() {
         </Text>
 
         {data === null ? (
-          <Notice message="Chats sind noch nicht freigeschaltet. Die Datenbank braucht dafür ein Update." />
+          <Notice
+            message={
+              loadError && !loadError.missing
+                ? `${t('Chats nicht geladen.')} (${loadError.detail})`
+                : t('Chats sind noch nicht freigeschaltet. Die Datenbank braucht dafür ein Update.')
+            }
+          />
         ) : null}
 
         {data?.lists.incoming.length ? (
