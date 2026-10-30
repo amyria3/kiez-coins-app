@@ -48,7 +48,6 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-29_offen_modus-ueberall.md`: Modus „Überall“, Kiez nur bis 5 km, Mitmachen ab 5 km nur auf Anfrage, Schalter „Auf einen Umkreis von 5 km begrenzen“. Migration `20261029000100` eingespielt (29.10.2026).
 - `2026-10-29_offen_website-laden-qr.md`: Link `/laden` für alle Geräte, Seite `/qr` und Überarbeitung der Startseite. Live seit 29.10.2026; Test am Telefon und Druck der QR-Codes stehen aus.
 - `2026-10-29_profil-ansprache-bild-namen.md`: Notiz für die Doku. Ansprache ausgeblendet, Profilbild zuschneiden, Namensregel ohne Hinweistext.
-- `2026-10-29_texte-editor-alle-texte.md`: Notiz für die Doku. Texte-Editor findet alle Texte und legt neue an (PR #122, Migration `20261029000500` eingespielt).
 - `2026-10-29_leere-reiter.md`: Notiz für die Doku. Leere Reiter einheitlich mit „Cat The Käptn wartet“ (PR #121).
 - `2026-10-29_hinweis-sichtbarkeit-ueberall.md`: Notiz für die Doku. Hinweis unter dem Umschalter überall, Konto-Menü „Me“, „Feed ansehen“, Geschenk bei den Zielen (PR #123).
 - `2026-10-30_routen-englisch.md`: Notiz für die Doku. Routen auf Englisch mit Umleitungen, Look-Namen, „We-Challenge“ in Gruppen, „noch mal“ (PR #124).
