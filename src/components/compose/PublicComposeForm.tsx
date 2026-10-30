@@ -10,7 +10,6 @@ import { ExtraPhotos, PhotoPicker } from '../Form';
 import { Text } from '../T';
 import { PHOTO_TAG } from '../WithMentions';
 import { TagTextField } from './BeforeAfterForm';
-import { HintWithInfo } from './HintWithInfo';
 import { explain } from '../Nudge';
 import { useComposeContent, type ComposeContent } from './compose';
 import { color, text } from '../../theme/tokens';
@@ -82,8 +81,8 @@ export function usePublicComposeForm(
   const fields = (
     <>
       {isChallenge ? (
-        // Erklärung nur bei Bedarf hinter dem Info-Icon (Daria, 27.10.2026)
-        <HintWithInfo hint="Hier gibt es etwas zu tun! Dokumentiere die Ausgangslage und poste es im Kiez!" info="Deine Nachbar:innen sehen den Post und nehmen die We-Challenge an." />
+        // Ohne Info-Icon (Daria, 30.10.2026)
+        <Text style={styles.hint}>Hier gibt es etwas zu tun! Dokumentiere die Ausgangslage und poste es im Kiez!</Text>
       ) : (
         <Text style={styles.hint}>Hier ist nichts zu tun, nur ein schönes Bild.</Text>
       )}
