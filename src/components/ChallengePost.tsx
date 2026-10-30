@@ -257,7 +257,7 @@ function KiezPost({
             icon="send"
             iconSize={size.icon}
             accessibilityLabel={t('Teilen')}
-            onPress={() => shareText(t('{title} – Kiez Coins', { title: challenge.title }))}
+            onPress={() => shareText(t('{title} – KiezCoins', { title: challenge.title }))}
           />
         </View>
         <View style={styles.actionsRight}>
@@ -392,7 +392,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
           icon="send"
           iconSize={size.icon}
           accessibilityLabel={t('Teilen')}
-          onPress={() => shareText(t('{title} – Kiez Coins', { title: challenge.title }))}
+          onPress={() => shareText(t('{title} – KiezCoins', { title: challenge.title }))}
         />
         {/* Status rechts unter dem Bild, als Angabe in Grau (Daria, 24.10.2026) */}
         <Text style={[fashion.state, closed && fashion.stateClosed]} numberOfLines={1}>

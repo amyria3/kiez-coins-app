@@ -25,5 +25,5 @@ Zwei Zeilen je Reiter (`MESSAGE` in `AudienceHint.tsx`), Übersetzungen von Clau
 - Privat: „Das ist Dein privater Space.“ / „Diese Posts siehst nur Du.“
 - Gruppe: „Was Du in einer Gruppe postest, sehen alle Gruppenmitglieder.“ / „Du kannst aber auch einen Post als Entwurf speichern.“
 - Kiez: „Deine Posts im Kiez sehen alle im Umkreis von 5 km.“ / „Du kannst aber auch einen Post als Entwurf speichern.“ (5 km = `KIEZ_RADIUS_METERS`)
-- Überall: „Deine Posts hier sehen alle Nutzer:innen von Kiez Coins.“ / „Too much Publicity? Wähle aus Kiez, Gruppen oder Privat.“ (Daria schrieb „KiezCoins“; in der App steht „Kiez Coins“, siehe `2026-10-24_offen_umbenennung-kiezkoinz.md`)
+- Überall: „Deine Posts hier sehen alle Nutzer:innen von KiezCoins.“ / „Too much Publicity? Wähle aus Kiez, Gruppen oder Privat.“
 

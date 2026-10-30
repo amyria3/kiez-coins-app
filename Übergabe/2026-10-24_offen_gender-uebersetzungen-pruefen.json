@@ -95,14 +95,14 @@
   {
    "sprache": "ar",
    "geschlecht": "person",
-   "deutsch": "{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.",
-   "fassung": "يصلك مبلغ {amount} مباشرة من {firstName}. عند الإبلاغ بالإنجاز تُشارَك بيانات IBAN أو PayPal مع {firstName}. لا تحوّل Kiez Coins أي أموال، فكل شيء قائم على الثقة."
+   "deutsch": "{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.",
+   "fassung": "يصلك مبلغ {amount} مباشرة من {firstName}. عند الإبلاغ بالإنجاز تُشارَك بيانات IBAN أو PayPal مع {firstName}. لا تحوّل KiezCoins أي أموال، فكل شيء قائم على الثقة."
   },
   {
    "sprache": "ar",
    "geschlecht": "person",
-   "deutsch": "{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.",
-   "fassung": "تصلك المكافأة مباشرة من {firstName}، مثلًا بتحويل بنكي أو عبر PayPal. لا تحوّل Kiez Coins أي أموال، فكل شيء قائم على الثقة."
+   "deutsch": "{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.",
+   "fassung": "تصلك المكافأة مباشرة من {firstName}، مثلًا بتحويل بنكي أو عبر PayPal. لا تحوّل KiezCoins أي أموال، فكل شيء قائم على الثقة."
   },
   {
    "sprache": "ar",
@@ -335,14 +335,14 @@
   {
    "sprache": "ar",
    "geschlecht": "sie",
-   "deutsch": "{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.",
-   "fassung": "تدفع لك {firstName} مبلغ {amount} مباشرة. عند الإبلاغ بالإنجاز تشارك رقم IBAN أو PayPal مع {firstName}. لا تحوّل Kiez Coins أي أموال، فكل شيء قائم على الثقة."
+   "deutsch": "{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.",
+   "fassung": "تدفع لك {firstName} مبلغ {amount} مباشرة. عند الإبلاغ بالإنجاز تشارك رقم IBAN أو PayPal مع {firstName}. لا تحوّل KiezCoins أي أموال، فكل شيء قائم على الثقة."
   },
   {
    "sprache": "ar",
    "geschlecht": "sie",
-   "deutsch": "{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.",
-   "fassung": "تدفع لك {firstName} المكافأة مباشرة، مثلًا بتحويل بنكي أو عبر PayPal. لا تحوّل Kiez Coins أي أموال، فكل شيء قائم على الثقة."
+   "deutsch": "{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.",
+   "fassung": "تدفع لك {firstName} المكافأة مباشرة، مثلًا بتحويل بنكي أو عبر PayPal. لا تحوّل KiezCoins أي أموال، فكل شيء قائم على الثقة."
   },
   {
    "sprache": "ar",
@@ -701,14 +701,14 @@
   {
    "sprache": "he",
    "geschlecht": "person",
-   "deutsch": "{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.",
-   "fassung": "התשלום של {amount} מגיע אליך ישירות מ־{firstName}. בדיווח על ביצוע, ה־IBAN או ה־PayPal שלך משותפים עם {firstName}. Kiez Coins לא מעבירה כסף, הכול מבוסס על אמון."
+   "deutsch": "{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.",
+   "fassung": "התשלום של {amount} מגיע אליך ישירות מ־{firstName}. בדיווח על ביצוע, ה־IBAN או ה־PayPal שלך משותפים עם {firstName}. KiezCoins לא מעבירה כסף, הכול מבוסס על אמון."
   },
   {
    "sprache": "he",
    "geschlecht": "person",
-   "deutsch": "{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.",
-   "fassung": "הפרס מגיע אליך ישירות מ־{firstName}, למשל בהעברה בנקאית או ב־PayPal. Kiez Coins לא מעבירה כסף, הכול מבוסס על אמון."
+   "deutsch": "{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.",
+   "fassung": "הפרס מגיע אליך ישירות מ־{firstName}, למשל בהעברה בנקאית או ב־PayPal. KiezCoins לא מעבירה כסף, הכול מבוסס על אמון."
   },
   {
    "sprache": "he",
@@ -989,14 +989,14 @@
   {
    "sprache": "he",
    "geschlecht": "sie",
-   "deutsch": "{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.",
-   "fassung": "{firstName} משלמת לך את {amount} ישירות. כשאתה מדווח על ביצוע, אתה משתף עם {firstName} את ה־IBAN או ה־PayPal שלך. Kiez Coins לא מעבירה כסף, הכול מבוסס על אמון."
+   "deutsch": "{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.",
+   "fassung": "{firstName} משלמת לך את {amount} ישירות. כשאתה מדווח על ביצוע, אתה משתף עם {firstName} את ה־IBAN או ה־PayPal שלך. KiezCoins לא מעבירה כסף, הכול מבוסס על אמון."
   },
   {
    "sprache": "he",
    "geschlecht": "sie",
-   "deutsch": "{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.",
-   "fassung": "{firstName} משלמת לך את הפרס ישירות, למשל בהעברה בנקאית או ב־PayPal. Kiez Coins לא מעבירה כסף, הכול מבוסס על אמון."
+   "deutsch": "{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.",
+   "fassung": "{firstName} משלמת לך את הפרס ישירות, למשל בהעברה בנקאית או ב־PayPal. KiezCoins לא מעבירה כסף, הכול מבוסס על אמון."
   },
   {
    "sprache": "he",

@@ -200,18 +200,18 @@ const ios = (L) => {
   return config.testflightUrl
   ? `<div class="card" id="iphone">
   <h3>iPhone</h3>
-  <p>${t('Auf dem iPhone läuft Kiez Coins über TestFlight, Apples App für Testversionen.', 'On the iPhone, Kiez Coins runs via TestFlight, Apple’s app for beta versions.')}</p>
-  <a class="button" href="${esc(config.testflightUrl)}">${t('Kiez Coins in TestFlight öffnen', 'Open Kiez Coins in TestFlight')}</a>
+  <p>${t('Auf dem iPhone läuft KiezCoins über TestFlight, Apples App für Testversionen.', 'On the iPhone, KiezCoins runs via TestFlight, Apple’s app for beta versions.')}</p>
+  <a class="button" href="${esc(config.testflightUrl)}">${t('KiezCoins in TestFlight öffnen', 'Open KiezCoins in TestFlight')}</a>
 </div>`
   : `<div class="card" id="iphone">
   <h3>iPhone</h3>
-  <p>${t('Auf dem iPhone läuft Kiez Coins als Web-App in Safari. Auf dem Home-Bildschirm startet sie wie eine App.', 'On the iPhone, Kiez Coins runs as a web app in Safari. From the home screen it starts like an app.')}</p>
-  <a class="button" href="${P}app/">${t('Kiez Coins öffnen', 'Open Kiez Coins')}</a>
+  <p>${t('Auf dem iPhone läuft KiezCoins als Web-App in Safari. Auf dem Home-Bildschirm startet sie wie eine App.', 'On the iPhone, KiezCoins runs as a web app in Safari. From the home screen it starts like an app.')}</p>
+  <a class="button" href="${P}app/">${t('KiezCoins öffnen', 'Open KiezCoins')}</a>
   <ol class="steps">
-    <li>${t('Diese Seite in <strong>Safari</strong> öffnen und „Kiez Coins öffnen“ tippen.', 'Open this page in <strong>Safari</strong> and tap “Open Kiez Coins”.')}</li>
+    <li>${t('Diese Seite in <strong>Safari</strong> öffnen und „KiezCoins öffnen“ tippen.', 'Open this page in <strong>Safari</strong> and tap “Open KiezCoins”.')}</li>
     <li>${t('Unten in der Leiste auf das Teilen-Symbol tippen (Quadrat mit Pfeil nach oben).', 'Tap the share icon in the bottom bar (square with an arrow pointing up).')}</li>
     <li>${t('„Zum Home-Bildschirm“ wählen und „Hinzufügen“ tippen.', 'Choose “Add to Home Screen” and tap “Add”.')}</li>
-    <li>${t('Kiez Coins ab jetzt über das neue Symbol starten und einmal anmelden.', 'From now on, start Kiez Coins from the new icon and sign in once.')}</li>
+    <li>${t('KiezCoins ab jetzt über das neue Symbol starten und einmal anmelden.', 'From now on, start KiezCoins from the new icon and sign in once.')}</li>
   </ol>
   <p class="klein">${t('Kamera, Fotos und Standort fragt Safari beim ersten Mal ab. Push-Benachrichtigungen gibt es in der Web-App nicht. Updates kommen automatisch beim nächsten Start.', 'Safari asks for camera, photos and location the first time. The web app has no push notifications. Updates arrive automatically on the next start.')}</p>
 </div>`;
@@ -282,7 +282,7 @@ const startseite = (L) => {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#DCE1FF">
-<title>Kiez Coins – ${t('Kleine Challenges für mehr echte Gemeinschaft', 'Small challenges for more real community')}</title>
+<title>KiezCoins – ${t('Kleine Challenges für mehr echte Gemeinschaft', 'Small challenges for more real community')}</title>
 <meta name="description" content="${t('Kennst Du das? Irgendwas muss erledigt werden, doch wer in Gottes Namen soll das machen? KiezCoins bietet ein Interface, um Arbeit besser zu verteilen - zu Hause oder im Kiez. Zusammen sind wir stärker, gesünder, glücklicher, wohlhabender und bekommen sogar mehr gebacken!', 'Sound familiar? Something needs doing, but who on earth is going to do it? KiezCoins gives you an interface to share work better – at home or in your neighborhood. Together we’re stronger, healthier, happier, wealthier and we even get more done!')}">
 <link rel="icon" href="${P}favicon.png">
 ${sprachen.map((l) => `<link rel="alternate" hreflang="${l.code}" href="${pfad(l.code)}">`).join('\n')}
@@ -295,7 +295,7 @@ ${filterDefs}
 <div class="fx-spur" aria-hidden="true"></div>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="${L === 'de' ? './' : pfad(L)}" aria-label="${t('Kiez Coins, Startseite', 'Kiez Coins, home')}">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+  <a class="brand" href="${L === 'de' ? './' : pfad(L)}" aria-label="${t('KiezCoins, Startseite', 'KiezCoins, home')}">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
   <nav class="top-links"><a class="top-link" href="#download"><span class="lang">${t('Testversion laden', 'Get the beta')}</span><span class="kurz">${t('Testen', 'Try it')}</span></a>${sprachwahl(L)}</nav>
 </header>
 
@@ -323,7 +323,7 @@ ${filterDefs}
   <p class="szenario-text" id="szenario-text" aria-hidden="true">${t('How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!', 'How do you feel today? Share a life hack or an especially kid- and budget-friendly recipe. Or challenge yourself and do something really nice for people or animals. Showing off and friendly competition are welcome!')}</p>
   </div>
   <div class="phone-spalte">
-  <div class="phone" id="prototyp" role="region" aria-label="${t('Klickbarer Prototyp der App Kiez Coins', 'Clickable prototype of the Kiez Coins app')}">
+  <div class="phone" id="prototyp" role="region" aria-label="${t('Klickbarer Prototyp der App KiezCoins', 'Clickable prototype of the KiezCoins app')}">
     <div class="p-screen"></div>
   </div>
   <p class="hinweis">${t('Das Telefon ist klickbar. Alle Daten darin sind Beispiele.', 'The phone is clickable. All data in it are examples.')}</p>
@@ -368,7 +368,7 @@ ${filterDefs}
 
 <section class="leute" aria-labelledby="leute-titel">
   <div class="wrap">
-    <h2 id="leute-titel">${t('Kiez Coins passt zwischen Briefkasten und Fahrradkeller.', 'Kiez Coins fits between the mailbox and the bike cellar.')}</h2>
+    <h2 id="leute-titel">${t('KiezCoins passt zwischen Briefkasten und Fahrradkeller.', 'KiezCoins fits between the mailbox and the bike cellar.')}</h2>
     <p>${t('Aufgaben, die sonst liegen bleiben, erledigt jemand safe - als wäre es ein Spiel', 'Tasks that would otherwise pile up get done for sure – as if it were a game')}</p>
     <div class="szene">
 ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" viewBox="0 0 40 40" aria-hidden="true"><path d="M14 14a10 10 0 0 1 12 0"/><path d="M9 8a17 17 0 0 1 22 0"/><path d="M22 22l8 -3"/><path d="M20 26l9 2"/></svg><p class="blase">${esc(t(l.text, l.en))}</p>${l.foto ? `<img class="figur figur-foto" src="${P}leute/${l.foto}?v=${version(readFileSync(join(siteDir, 'leute', l.foto)))}" alt="${esc(t(l.alt, l.altEn))}" width="${l.w}" height="${l.h}" loading="lazy" decoding="async">` : l.figur}</div>`).join('\n')}
@@ -386,7 +386,7 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
       <li>${t('Wir tolerieren keine Hassrede oder Inhalte, die Erkrankungen wie Bulimie fördern oder aus solchen Kapital schlagen.', 'We don’t tolerate hate speech or content that promotes illnesses like bulimia or profits from them.')}</li>
       <li>${t('Deine Konto- und Inhaltsdaten liegen auf Servern in der EU: und hier bleiben sie auch.', 'Your account and content data are stored on servers in the EU – and that’s where they stay.')}</li>
       <li>${t('Wir verkaufen Deine Daten nicht und nutzen sie nicht zu Trainingszwecken für die KI.', 'We don’t sell your data and don’t use it to train AI.')}</li>
-      <li>${t('Kiez Coins zeigt (noch) keine Werbung - wir können nicht ganz so weit in die Zukunft schauen, doch fürs Erste bleibt es so.', 'Kiez Coins shows no ads (yet) – we can’t see that far into the future, but for now it stays that way.')}</li>
+      <li>${t('KiezCoins zeigt (noch) keine Werbung - wir können nicht ganz so weit in die Zukunft schauen, doch fürs Erste bleibt es so.', 'KiezCoins shows no ads (yet) – we can’t see that far into the future, but for now it stays that way.')}</li>
       <li>${t('Dein Feed sortiert nach Nähe und Zeit.', 'Your feed is sorted by proximity and time.')}</li>
       <li>${t('Die Idee hinter der App: Selbstorganisation, Vernetzung und Synergieeffekte - wir fördern keine Parallelrealität.', 'The idea behind the app: self-organization, connection and synergies – we don’t foster a parallel reality.')}</li>
       <li>${t('Du entscheidest: nutze die App für Dich, in Gruppen, im Kiez, landesweit - oder alles davon.', 'You decide: use the app for yourself, in groups, in your neighborhood, nationwide – or all of it.')}</li>
@@ -397,11 +397,11 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
 <section class="download" id="download" aria-labelledby="download-titel">
   <div class="wrap">
     <h2 id="download-titel">${t('Überzeugt? Oder zumindest neugierig?', 'Convinced? Or at least curious?')}</h2>
-    <p>${t('Kiez Coins ist in der Testphase. Android lädt die App direkt, das iPhone nutzt die Web-App.', 'Kiez Coins is in beta. Android downloads the app directly, the iPhone uses the web app.')}</p>
+    <p>${t('KiezCoins ist in der Testphase. Android lädt die App direkt, das iPhone nutzt die Web-App.', 'KiezCoins is in beta. Android downloads the app directly, the iPhone uses the web app.')}</p>
     <div class="karten">
       <div class="card" id="android">
         <h3>Android</h3>
-        <p>${t('Auf Android lädst Du Kiez Coins als App direkt hier herunter, ohne Google Play.', 'On Android, you download Kiez Coins as an app right here, without Google Play.')}</p>
+        <p>${t('Auf Android lädst Du KiezCoins als App direkt hier herunter, ohne Google Play.', 'On Android, you download KiezCoins as an app right here, without Google Play.')}</p>
         <form method="post" action="${esc(config.functionUrl)}">
           <p class="error" id="fehler" hidden></p>
           <button type="submit">${t('App herunterladen', 'Download the app')}</button>
@@ -728,19 +728,19 @@ const einladung = `<!doctype html>
 <meta name="robots" content="noindex">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#FAFBEF">
-<title>Einladung – Kiez Coins</title>
+<title>Einladung – KiezCoins</title>
 <link rel="icon" href="/favicon.png">
 <link rel="stylesheet" href="/seite.css?v=${version(seiteCss)}">
 </head>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
 </header>
 <main>
 <section class="download einladung" id="download" aria-labelledby="einladung-titel">
   <h2 id="einladung-titel">Du bist eingeladen.</h2>
-  <p>Kiez Coins ist in der Testphase. Dein Einladungscode steckt schon im Link, Du musst nichts eintippen.</p>
+  <p>KiezCoins ist in der Testphase. Dein Einladungscode steckt schon im Link, Du musst nichts eintippen.</p>
   <p class="error" id="ohne-code" hidden>In diesem Link fehlt der Einladungscode. Frage bei der Person nach, die ihn Dir geschickt hat.</p>
   <div class="karten">
     <div class="card" id="android">
@@ -796,8 +796,8 @@ const ladenSeite = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#FAFBEF">
-<title>Kiez Coins laden</title>
-<meta name="description" content="Kiez Coins auf Dein Telefon holen: Android lädt die App, das iPhone legt die Web-App auf den Home-Bildschirm.">
+<title>KiezCoins laden</title>
+<meta name="description" content="KiezCoins auf Dein Telefon holen: Android lädt die App, das iPhone legt die Web-App auf den Home-Bildschirm.">
 <link rel="icon" href="/favicon.png">
 <link rel="stylesheet" href="/seite.css?v=${version(seiteCss)}">
 <style>
@@ -830,11 +830,11 @@ const ladenSeite = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
 </header>
 <main>
 <section class="download einladung laden ohne-js" id="laden" aria-labelledby="laden-titel">
-  <h2 id="laden-titel">Kiez Coins auf Dein Telefon</h2>
+  <h2 id="laden-titel">KiezCoins auf Dein Telefon</h2>
 
   <div class="card" data-geraet="android">
     <h3>Android</h3>
@@ -843,14 +843,14 @@ const ladenSeite = `<!doctype html>
     <ol class="steps">
       <li>Die Datei <em>kiez-coins.apk</em> öffnen, wenn der Download fertig ist.</li>
       <li>Android fragt, ob Dein Browser Apps installieren darf. Erlauben und „Installieren“ tippen.</li>
-      <li>Kiez Coins über das neue Symbol starten. Updates kommen von selbst.</li>
+      <li>KiezCoins über das neue Symbol starten. Updates kommen von selbst.</li>
     </ol>
     <a class="button button-zweit" href="/app/">Lieber direkt im Browser ausprobieren</a>
   </div>
 
   <div class="card" data-geraet="app-browser">
     <h3>Erst in Safari öffnen</h3>
-    <p>Du hast den Link in einer anderen App geöffnet. Damit Kiez Coins auf Deinen Home-Bildschirm kommt, brauchst Du Safari:</p>
+    <p>Du hast den Link in einer anderen App geöffnet. Damit KiezCoins auf Deinen Home-Bildschirm kommt, brauchst Du Safari:</p>
     <ol class="steps">
       <li>Oben oder unten auf <strong>···</strong> oder das Teilen-Symbol ${teilenSymbol} tippen.</li>
       <li><strong>„In Safari öffnen“</strong> wählen (manchmal „Im Browser öffnen“).</li>
@@ -859,13 +859,13 @@ const ladenSeite = `<!doctype html>
 
   <div class="card" data-geraet="iphone">
     <h3>iPhone</h3>
-    <p>Auf dem iPhone läuft Kiez Coins als Web-App. Auf dem Home-Bildschirm startet sie wie jede andere App.</p>
-    <a class="button" href="/app/">Kiez Coins öffnen</a>
+    <p>Auf dem iPhone läuft KiezCoins als Web-App. Auf dem Home-Bildschirm startet sie wie jede andere App.</p>
+    <a class="button" href="/app/">KiezCoins öffnen</a>
     <ol class="steps">
-      <li><strong>„Kiez Coins öffnen“</strong> tippen.</li>
+      <li><strong>„KiezCoins öffnen“</strong> tippen.</li>
       <li>Unten in der Leiste auf das Teilen-Symbol ${teilenSymbol} tippen. Siehst Du die Leiste nicht, tippe einmal unten auf den Bildschirm.</li>
       <li>Nach unten scrollen, <strong>„Zum Home-Bildschirm“</strong> wählen und <strong>„Hinzufügen“</strong> tippen.</li>
-      <li>Kiez Coins ab jetzt über das neue Symbol starten und einmal anmelden.</li>
+      <li>KiezCoins ab jetzt über das neue Symbol starten und einmal anmelden.</li>
     </ol>
     <p class="klein">Kamera, Fotos und Standort fragt Safari beim ersten Mal ab. Updates kommen automatisch beim nächsten Start.</p>
   </div>
@@ -966,7 +966,7 @@ const qrSeite = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#FFFFFF">
-<title>Kiez Coins QR-Codes</title>
+<title>KiezCoins QR-Codes</title>
 <link rel="icon" href="/favicon.png">
 <link rel="preload" href="/fonts/InterTight_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
 <style>
@@ -1052,8 +1052,8 @@ const spendenSeite = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#FAFBEF">
-<title>Spendenaktion – Kiez Coins</title>
-<meta name="description" content="Damit Leipzig blüht, spende ich ${donation} € an den Ökolöwen, wenn ${goal} Menschen Kiez Coins testen und bewerten.">
+<title>Spendenaktion – KiezCoins</title>
+<meta name="description" content="Damit Leipzig blüht, spende ich ${donation} € an den Ökolöwen, wenn ${goal} Menschen KiezCoins testen und bewerten.">
 <link rel="icon" href="/favicon.png">
 <link rel="preload" href="/fonts/InterTight_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="stylesheet" href="/seite.css?v=${version(seiteCss)}">
@@ -1061,7 +1061,7 @@ const spendenSeite = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
   <a class="top-link" href="/#download">Testversion laden</a>
 </header>
 <main>
@@ -1116,14 +1116,14 @@ const katerSeite = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#FAFBEF">
-<title>Hallo, Cat The Käptn – Kiez Coins</title>
+<title>Hallo, Cat The Käptn – KiezCoins</title>
 <link rel="icon" href="/favicon.png">
 <link rel="stylesheet" href="/seite.css?v=${version(seiteCss)}">
 </head>
 <body class="kater-seite">
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="Kiez Coins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
   <a class="top-link" href="/#download">Testversion laden</a>
 </header>
 <main class="kater-buehne-seite">
@@ -1214,7 +1214,7 @@ const cmsScript = `<script>
         if (t) el.innerHTML = esc(t).replace(/\\n/g, '<br>');
       });
       var h = document.querySelector('h1[data-t]');
-      if (h) document.title = h.textContent + ' – Kiez Coins';
+      if (h) document.title = h.textContent + ' – KiezCoins';
     })
     .catch(function () {});
 })();
@@ -1225,7 +1225,7 @@ const legal = (id) => {
   const sections = doc.sections
     .map((s) => `${s.heading ? `${tag('h2', s.heading)}\n` : ''}${paragraphs(s.paragraphs)}`)
     .join('\n');
-  return page(`${doc.title} – Kiez Coins`, `${tag('h1', doc.title)}\n${tag('p', `Stand ${LEGAL_STAND}`, ' class="updated"')}\n${intro}\n${sections}\n${cmsScript}`);
+  return page(`${doc.title} – KiezCoins`, `${tag('h1', doc.title)}\n${tag('p', `Stand ${LEGAL_STAND}`, ' class="updated"')}\n${intro}\n${sections}\n${cmsScript}`);
 };
 
 mkdirSync(out, { recursive: true });
@@ -1245,7 +1245,7 @@ if (katerSvg) writeFileSync(join(out, 'kater.html'), katerSeite);
 // Eigene 404-Seite für unbekannte Adressen.
 writeFileSync(
   join(out, '404.html'),
-  page('Nicht gefunden – Kiez Coins', `<h1>Seite nicht gefunden</h1>\n<p><a href="/">Zur Startseite</a></p>`),
+  page('Nicht gefunden – KiezCoins', `<h1>Seite nicht gefunden</h1>\n<p><a href="/">Zur Startseite</a></p>`),
 );
 // Web-App: Vercel leitet unbekannte Adressen unter /app/ auf die App-Startseite um (vercel.json unten).
 // Eine Kopie der App-Startseite sorgt dafür, dass Neuladen auf einer Unterseite (/app/challenge/…) die App öffnet.

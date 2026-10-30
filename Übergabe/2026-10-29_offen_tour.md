@@ -5,7 +5,7 @@ Datum: 2026-10-29 · Status: umgesetzt, Migration am 29.10.2026 eingespielt (von
 ## Entscheidungen von Daria (29.10.2026)
 
 - Der Erklärungstext war auf dem iPhone abgeschnitten. Text bleibt jetzt ganz sichtbar; die Vorschau oben verkleinert sich.
-- Seite „Coins“: neuer Text von Daria („Wer beim Erstellen einer Challenge „Das ist mir bares Geld wert“ anklickt …“). Claude hat „beim Erstellen der App“ zu „einer Challenge“ und „KiezCoins“ zu „Kiez Coins“ geändert.
+- Seite „Coins“: neuer Text von Daria („Wer beim Erstellen einer Challenge „Das ist mir bares Geld wert“ anklickt …“). Claude hat „beim Erstellen der App“ zu „einer Challenge“ und „KiezCoins“ zu „KiezCoins“ geändert.
 - Neue Seiten nach „Gruppen“: einfach ein Bild posten (Text von Daria), Sichtbarkeit begrenzen (Titel von Daria), Modus „Privat“.
 - Letzte Seite: „Wie fandest Du diese Erklärung?“ mit Mehrfachauswahl („Hilfreich“, „Hat mir Lust auf die App gemacht“, „Umständlich“, „Hätte ich nicht gebraucht“) und freiem Feld „Anderes“. Danach „Danke, dass Du uns unterstützt! Denn ohne Dein Feedback tappen wir im Dunklen.“ Cat The Käptn gibt der Antwort ein Herz.
 

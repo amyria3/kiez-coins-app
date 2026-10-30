@@ -38,7 +38,7 @@ import { color, radius, space, text } from '../theme/tokens';
 
 /**
  * Route `tour`: Begrüßung mit kurzen Videos zu den Hauptfunktionen (Daria, 22.10.2026).
- * Etwa 5 Minuten nach dem Anheuern fragt die App, ob sie die Tour zeigen soll (TourOffer), sonst über Dein Konto › So geht Kiez Coins. `next`: Ziel danach.
+ * Etwa 5 Minuten nach dem Anheuern fragt die App, ob sie die Tour zeigen soll (TourOffer), sonst über Dein Konto › So geht KiezCoins. `next`: Ziel danach.
  * Wischen oder „Weiter“ blättert. Videos stehen in data/tour.ts.
  */
 export default function Tour() {

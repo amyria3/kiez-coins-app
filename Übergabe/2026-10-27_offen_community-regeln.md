@@ -14,5 +14,5 @@ Pflichtaufgabe: Migration `supabase/migrations/20261028000200_app_texts_communit
 ## Offene Fragen an Daria
 
 - Der Abschnitt „Kinder“ erlaubt Kindern die Nutzung über Eltern oder Lehrkräfte. Nutzungsbedingungen (Abschnitt 2, „ab 18 Jahren“) und Datenschutz (Abschnitt „Alter“: „ab 18 Jahren. Wir verarbeiten keine Daten von Kindern.“) sagen das Gegenteil. Beide Texte brauchen eine Anpassung, bevor die Regel gilt.
-- Die Überschrift schreibt „KiezCoins“, der Rest der App „Kiez Coins“. Siehe `2026-10-24_offen_umbenennung-kiezkoinz.md`.
+- Die Überschrift schreibt „KiezCoins“, der Rest der App „KiezCoins“. Siehe `2026-10-24_offen_umbenennung-kiezkoinz.md`.
 - Die Nutzungsbedingungen (Abschnitt 3) erwähnen noch „Werbung“ als verboten; die neuen Regeln nennen Werbung nicht mehr.

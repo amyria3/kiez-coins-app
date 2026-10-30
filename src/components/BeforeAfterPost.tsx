@@ -171,7 +171,7 @@ function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: 
         icon="send"
         iconSize={size.icon}
         accessibilityLabel={t('Teilen')}
-        onPress={() => shareText(t('{title} – Kiez Coins', { title: challenge.title }))}
+        onPress={() => shareText(t('{title} – KiezCoins', { title: challenge.title }))}
       />
       <View style={styles.flex} />
       {end}
