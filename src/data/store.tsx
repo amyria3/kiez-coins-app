@@ -609,6 +609,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         deadline: '',
         coords: draft.coords ?? existing?.coords,
         private: existing ? existing.private : draft.private,
+        groupId: existing ? existing.groupId : draft.groupId,
         photoText: draft.photoText === undefined ? existing?.photoText : (draft.photoText ?? undefined),
       };
       localDispatch(existing ? { type: 'challengeLoaded', id: challenge.id, challenge, users: [] } : { type: 'create', challenge });
@@ -648,6 +649,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           createdAt: new Date().toISOString(),
           deadline,
           coords: draft.coords ?? existing?.coords,
+          private: existing?.private,
+          groupId: existing?.groupId,
           photoText: draft.photoText === undefined ? existing?.photoText : (draft.photoText ?? undefined),
         };
         localDispatch({ type: 'challengeLoaded', id, challenge, users: [] });

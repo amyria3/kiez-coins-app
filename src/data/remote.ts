@@ -973,6 +973,8 @@ export const closeChallenge = (id: string) => rpc('close_challenge', { p_challen
 
 export type DraftInput = {
   type?: 'individual' | 'photo';
+  /** Entwurf in einer Gruppe, nur beim Anlegen (Migration 20261030000300) */
+  groupId?: string;
   title: string;
   text: string;
   location: string;
@@ -1023,6 +1025,7 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
             ...all,
             author_id: userId,
             status: 'draft',
+            ...(draft.groupId ? { group_id: draft.groupId } : {}),
             ...(draft.private ? { visibility: 'private' } : {}),
             ...(isTask ? participationFields(draft.participation) : {}),
           });
@@ -1119,7 +1122,7 @@ export async function updateBeforeAfter(userId: string, id: string, edit: Before
 /** 4. Posten. Die Datenbank setzt den Text aus #vorher und #nachher zusammen. */
 export const finishBeforeAfter = (id: string) => rpc('finish_before_after', { p_challenge_id: id });
 
-/** Entwurf veröffentlichen. Die Datenbank prüft Titel, Ort, Foto, Frist und Bounty. */
+/** Entwurf veröffentlichen. Die Datenbank prüft Titel, Ort (nur Kiez), Foto (nicht bei Gruppenaufgaben), Frist und Bounty. */
 export const publishDraft = (id: string, deadline: string) =>
   rpc('publish_challenge', { p_challenge_id: id, p_deadline: deadline });
 
