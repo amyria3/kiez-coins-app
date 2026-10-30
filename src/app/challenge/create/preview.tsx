@@ -227,7 +227,7 @@ export default function CreatePreview() {
         moreImages={draft.extras.map((e) => e.photo)}
         imageLabel={draft.title}
         photoText={isPhoto ? draft.photoText : undefined}
-        onBackPress={() => goBack()}
+        // Kein Zurück-Pfeil im Foto: Zurück geht über „Bearbeiten“, oben steht nur der Kater (Daria, 30.10.2026)
         summary={summary}
       >
         {draft.text.trim() ? (
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   window: { position: 'absolute', borderRadius: WINDOW_RADIUS, overflow: 'hidden' },
   // Rechts oben über der Vorschau, links bleibt der Zurück-Knopf frei
-  ask: { position: 'absolute', left: EDGE + space[48] + space[8], right: EDGE + space[8] },
+  ask: { position: 'absolute', left: EDGE + space[8], right: EDGE + space[8] },
   bar: {
     position: 'absolute',
     left: 0,
