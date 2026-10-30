@@ -1,13 +1,13 @@
 /**
  * Rechtstexte für den Testbetrieb: Impressum, Datenschutzerklärung, Nutzungsbedingungen, Community-Regeln.
- * Angezeigt unter `rechtliches/[doc]`, verlinkt in `onboarding/welcome`, `onboarding/kodex` und `account`.
+ * Angezeigt unter `legal/[doc]`, verlinkt in `onboarding/welcome`, `onboarding/code-of-conduct` und `account`.
  *
  * Offene Angaben stehen als „[offen: …]“ im Text, bis Daria sie in `OPERATOR` einträgt.
  * Ändern sich Inhalte, bekommt `LEGAL_STAND` ein neues Datum.
  */
 
 /** Stand aller Texte (TT.MM.JJJJ). */
-export const LEGAL_STAND = '27.10.2026';
+export const LEGAL_STAND = '30.10.2026';
 
 /** Angaben zur Anbieterin. Leere Felder erscheinen in der App als „[offen: …]“. */
 export const OPERATOR = {
