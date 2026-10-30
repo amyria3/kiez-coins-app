@@ -59,6 +59,8 @@ export type User = {
   /** Grammatisches Geschlecht für Texte über die Person; ohne Angabe unbestimmt */
   gender?: Gender;
   payout?: Payout;
+  /** Testkonto: Beiträge tragen die Marke „Testaccount“ (Daria, 27.10.2026) */
+  test?: boolean;
 };
 
 export type PayoutMethod = 'iban' | 'paypal';
@@ -70,6 +72,17 @@ export type PayoutMethod = 'iban' | 'paypal';
 export type PayoutShare = {
   method: PayoutMethod;
   payout: Payout;
+};
+
+/**
+ * Auszahlung an eine Person (Migration 20261028000400). Entsteht beim Bestätigen einer Challenge mit Coins:
+ * Der Betrag wird unter allen geteilt, die dabei sind (Daria, 28.10.2026).
+ */
+export type PayoutLine = {
+  userId: string;
+  amountCents: number;
+  paidMarkedAt?: string;
+  paidAt?: string;
 };
 
 export type ChallengeReport = {
@@ -87,6 +100,20 @@ export type Comment = {
   replyToId?: string;
 };
 
+/**
+ * Teilnahme an einer We-Challenge (Migration 20261028000300). `unconfirmed`: beim Bestätigen abgewählt,
+ * ohne Coins und Edensteine (Migration 20261028000400). `requested`: wartet auf die Erstellerin.
+ * `joined`: dabei. `declined`, `removed`, `left`: nicht mehr dabei (abgelehnt, ausgeschlossen, ausgestiegen).
+ */
+export type ParticipantStatus = 'requested' | 'joined' | 'declined' | 'removed' | 'left' | 'unconfirmed';
+export type Participant = { userId: string; status: ParticipantStatus; requestedAt: string; joinedAt?: string };
+
+/** `open`: Jede Person tritt direkt bei. `approval`: Die Erstellerin nimmt jede Anfrage an oder lehnt sie ab. */
+export type JoinMode = 'open' | 'approval';
+
+/** Text auf dem Foto, nur bei „Nur ein Bild“ (Daria, 29.10.2026). x, y: Mitte des Texts als Anteil der Fläche (0 bis 1). */
+export type PhotoText = { text: string; x: number; y: number };
+
 export type Challenge = {
   /** Grober Punkt (rund 100 m), wenn beim Erstellen der Standort freigegeben war */
   coords?: { latitude: number; longitude: number };
@@ -98,12 +125,21 @@ export type Challenge = {
   /** Nur bei Wave: Text der ursprünglichen Challenge */
   challengeText?: string;
   authorId: string;
+  /** Erste teilnehmende Person. Erledigt melden kann jede teilnehmende Person, für alle (Daria, 28.10.2026). */
   assigneeId?: string;
+  /** Höchstzahl an Teilnehmenden, 1 = eine Person (Daria, 27.10.2026). Ohne Migration 20261028000300 leer. */
+  maxParticipants?: number;
+  joinMode?: JoinMode;
+  /** Alle Teilnehmenden und Anfragen, die Du sehen darfst. Ohne Migration leer. */
+  participants?: Participant[];
   /** Straße bzw. Ort, PLZ */
   location: string;
   /** Stadtteil, z. B. „Schönefeld, Leipzig“ (unter dem Namen nach dem Annehmen) */
   kiez?: string;
-  /** Bounty in Euro, 5–50, ohne echte Zahlung im MVP */
+  /**
+   * Coins in Euro, ohne echte Zahlung in der App. Gesamtbetrag: pro Platz 5 bis 50 €, höchstens 10 Personen
+   * (Migration 20261028000400). Mehrere Personen teilen ihn.
+   */
   bountyAmount?: number;
   status: ChallengeStatus;
   image?: ImageSource;
@@ -112,8 +148,14 @@ export type Challenge = {
   /** Nur Gruppenaufgaben: Gruppe und Edensteine (1 bis 10) statt Bounty */
   groupId?: string;
   edensteine?: number;
+  /** Modus „Privat“: nur die Ersteller:in sieht den Beitrag (Migration 20261028000100) */
+  private?: boolean;
+  /** Nur im Umkreis von 5 km zeigen, nicht in „Überall“. Über einen Link bleibt der Beitrag erreichbar (Daria, 29.10.2026). */
+  localOnly?: boolean;
   /** Bis zu 2 weitere Fotos (Migration 20261020000700) */
   extraImages?: ExtraPhoto[];
+  /** Nur „Nur ein Bild“: Text auf dem ersten Foto (Migration 20261029000200) */
+  photoText?: PhotoText;
   imageBefore?: ImageSource;
   imageAfter?: ImageSource;
   /** Nur Vorher-Nachher: Texte ohne #vorher/#nachher, im Entwurf getrennt (nach dem Posten steht beides in `text`) */
@@ -138,7 +180,12 @@ export type Challenge = {
   /** Figma `acceptance.operation_name`: privat, nur für die annehmende Person. Leer = bewusst ohne Taufe */
   operationName?: string;
   report?: ChallengeReport;
+  /** Eigene Freigabe; bei der Erstellerin die der ersten Person */
   payoutShare?: PayoutShare;
+  /** Alle Freigaben, die Du sehen darfst, je Person (Erstellerin ab der Bestätigung) */
+  payoutShares?: Record<string, PayoutShare>;
+  /** Auszahlungen je Person, ab der Bestätigung (Migration 20261028000400) */
+  payouts?: PayoutLine[];
   comments: Comment[];
   /** Aufrufe durch andere, nur bei eigenen Challenges und nur mit Migration `challenge_views` */
   views?: number;

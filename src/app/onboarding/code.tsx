@@ -54,7 +54,7 @@ export default function Code() {
       router.replace(target);
       return;
     }
-    router.push('/onboarding/deckname');
+    router.push('/onboarding/handle');
   };
 
   const resend = async () => {
@@ -66,7 +66,7 @@ export default function Code() {
   return (
     <SubScreen
       title="Anmelden"
-      subtitle="Schritt 1 von 7"
+      subtitle="Schritt 1 von 5"
       navigation="back"
       onLeadingPress={goBack}
       actions={

@@ -14,6 +14,11 @@ export function formatEuroCents(amount: number): string {
   return `${amount.toLocaleString(localeTag(), { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
 }
 
+/** Betrag in Cent: ganze Euro ohne Nachkommastellen, sonst mit (6,67 €) */
+export function formatCents(cents: number): string {
+  return cents % 100 === 0 ? formatEuro(cents / 100) : formatEuroCents(cents / 100);
+}
+
 /** „12.10.“ */
 export function formatDayMonth(iso: string): string {
   const d = new Date(iso);
@@ -152,9 +157,12 @@ export const addressForms = [
   { key: 'the_pirat', label: 'The Pirat' },
 ] as const;
 
-/** Platzhalter `{anrede}` in Kater-Texten. Ohne Auswahl („Ist mir egal“) gilt „Pirat:in“. */
-export function anrede(profile: { addressForm?: string; addressCustom?: string }): string {
-  if (profile.addressForm === 'custom' && profile.addressCustom?.trim()) return profile.addressCustom.trim();
+/**
+ * Platzhalter `{anrede}` in Kater-Texten. Ohne Auswahl gilt „Pirat:in“.
+ * Die Ansprache steht nicht mehr im Onboarding, nur noch im Konto; die eigene, nicht öffentliche Bezeichnung
+ * ist entfernt (Daria, 28.10.2026). Ältere Profile mit eigener Bezeichnung bekommen „Pirat:in“.
+ */
+export function anrede(profile: { addressForm?: string }): string {
   return t(addressForms.find((f) => f.key === profile.addressForm)?.label ?? 'Pirat:in');
 }
 

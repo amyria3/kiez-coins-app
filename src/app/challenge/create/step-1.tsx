@@ -1,17 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Alert, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
-import { ExtraPhotos, PhotoPicker, TextField } from '../../../components/Form';
+import { ExtraPhotos, PhotoPicker } from '../../../components/Form';
+import { TagTextField } from '../../../components/compose/BeforeAfterForm';
+import { HintWithInfo } from '../../../components/compose/HintWithInfo';
+import { PHOTO_TAG } from '../../../components/WithMentions';
 import { TypeSwitch } from '../../../components/compose/TypeSwitch';
+import { PhotoTextEditor } from '../../../components/PhotoText';
 import { Text } from '../../../components/T';
 import { color, text } from '../../../theme/tokens';
 import { SubScreen } from '../../../components/Screen';
 import { hasContent, useDraft, useSaveDraft } from './_layout';
 import { explain } from '../../../components/Nudge';
 import { t } from '../../../data/texts';
-import { useFeatures } from '../../../data/features';
 import { useGoBack } from '../../../lib/goBack';
 
 /** Entwürfe aus „Deine Challenges“: Challenge oder Bild. Vorher-Nachher hat einen eigenen Ablauf. */
@@ -27,15 +30,8 @@ export default function CreateStep1() {
   const [draft, setDraft] = useDraft();
   const [showErrors, setShowErrors] = useState(false);
   const { save, busy } = useSaveDraft();
-  // Schalter aus „Dein Konto › Funktionen“; der Typ des Entwurfs bleibt immer wählbar
-  const on = useFeatures();
-  const types = TYPES.filter((o) => o.key === draft.type || (o.key === 'photo' ? on.photo : on.we));
-  // Neuer Entwurf: startet mit einem angeschalteten Typ
-  useEffect(() => {
-    if (draft.id) return;
-    if (draft.type === 'individual' && !on.we && on.photo) setDraft((d) => ({ ...d, type: 'photo', bountyAmount: undefined }));
-    if (draft.type === 'photo' && !on.photo && on.we) setDraft((d) => ({ ...d, type: 'individual' }));
-  }, [draft.id, draft.type, on.we, on.photo, setDraft]);
+  // We-Challenge und Bild sind immer wählbar (Daria, 27.10.2026), privat nur Bild
+  const types = draft.private ? TYPES.filter((o) => o.key === 'photo') : TYPES;
 
   const isChallenge = draft.type !== 'photo';
   const missingPhoto = !draft.photo;
@@ -82,11 +78,14 @@ export default function CreateStep1() {
       {types.length > 1 ? <TypeSwitch
         options={types}
         value={draft.type}
-        onChange={(type) => setDraft((d) => ({ ...d, type, bountyAmount: type === 'individual' ? d.bountyAmount : undefined }))}
+        onChange={(type) => setDraft((d) => ({ ...d, type, bountyAmount: type === 'individual' ? d.bountyAmount : undefined, edensteine: type === 'individual' ? d.edensteine : undefined }))}
       /> : null}
-      <Text style={styles.hint}>
-        {isChallenge ? 'Hier gibt es etwas zu tun! Zu den Spaten! Zu den Müllsäcken!' : 'Hier ist nichts zu tun, nur ein schönes Bild.'}
-      </Text>
+      {isChallenge ? (
+        // Erklärung nur bei Bedarf hinter dem Info-Icon (Daria, 27.10.2026)
+        <HintWithInfo hint="Hier gibt es etwas zu tun! Dokumentiere die Ausgangslage und poste es im Kiez!" info="Deine Nachbar:innen sehen den Post und nehmen die We-Challenge an." />
+      ) : (
+        <Text style={styles.hint}>Hier ist nichts zu tun, nur ein schönes Bild.</Text>
+      )}
       <PhotoPicker
         photo={draft.photo}
         error={showErrors && missingPhoto}
@@ -105,13 +104,18 @@ export default function CreateStep1() {
           onRemove={(index) => setDraft((d) => ({ ...d, extras: d.extras.filter((_, i) => i !== index) }))}
         />
       ) : null}
-      <TextField
-        label="Beschreibung"
-        helperText="Max. 500 Zeichen"
+      {/* Nur Bild: Text aufs Foto legen und verschieben (Daria, 29.10.2026) */}
+      {!isChallenge && draft.photo ? (
+        <PhotoTextEditor photo={draft.photo} value={draft.photoText} onChange={(photoText) => setDraft((d) => ({ ...d, photoText }))} />
+      ) : null}
+      {/* We-Challenge: Die Beschreibung ist das Vorher (Daria, 27.10.2026). Bild: #InDiesemMoment */}
+      <TagTextField
+        label={isChallenge ? 'Beschreibung' : 'Dein Text'}
+        tag={isChallenge ? '#vorher' : PHOTO_TAG}
+        placeholder={isChallenge ? 'Was ist hier zu tun?' : undefined}
         value={draft.text}
         onChangeText={(text) => setDraft((d) => ({ ...d, text }))}
         maxLength={500}
-        multiline
       />
     </SubScreen>
   );

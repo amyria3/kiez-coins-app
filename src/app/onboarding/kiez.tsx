@@ -38,7 +38,7 @@ export default function Kiez() {
   const next = (kiez?: string) => {
     dispatch({ type: 'updateProfile', patch: { kiez } });
     if (from) goBack();
-    else router.push('/onboarding/kodex');
+    else router.push('/onboarding/code-of-conduct');
   };
 
   const locate = async () => {
@@ -92,7 +92,7 @@ export default function Kiez() {
   return (
     <SubScreen
       title="Dein Kiez"
-      subtitle={from ? undefined : 'Schritt 4 von 7'}
+      subtitle={from ? undefined : 'Schritt 3 von 5'}
       navigation="back"
       onLeadingPress={goBack}
       actions={actions}

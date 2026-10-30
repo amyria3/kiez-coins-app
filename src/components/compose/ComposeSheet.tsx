@@ -7,33 +7,33 @@ import { ActionBar } from '../ActionBar';
 import { GroupsEmpty } from '../GroupBar';
 import { NudgeScrollProvider, useNudgeScroll } from '../Nudge';
 import { useGroupTaskForm } from './GroupTaskForm';
+import { useGroupPhotoForm } from './GroupPhotoForm';
 import { usePublicComposeForm } from './PublicComposeForm';
 import { useBeforeAfterStartForm } from './BeforeAfterForm';
 import { TypeSwitch } from './TypeSwitch';
 import { useComposeContent, type ComposeContent } from './compose';
-import { useFeatures, type FeatureState } from '../../data/features';
 
-/** Beitragstypen im Kiez, in dieser Reihenfolge (Daria, 23.10.2026) */
+/** Beitragstypen im Kiez, in dieser Reihenfolge (Daria, 23.10.2026). Alle immer an (Daria, 27.10.2026). */
 const PUBLIC_TYPES = [
   { key: 'individual', label: 'We-Challenge' },
   { key: 'before_after', label: 'Me-Challenge' },
   { key: 'photo', label: 'Bild' },
 ] as const;
-/** Schalter in „Dein Konto › Funktionen“ je Beitragstyp (Daria, 24.10.2026) */
-const FEATURE_OF: Record<'individual' | 'before_after' | 'photo', keyof FeatureState> = {
-  individual: 'we',
-  before_after: 'me',
-  photo: 'photo',
-};
-/** In Gruppen: Aufgabe mit Edensteinen (gehört zu Gruppen, immer da) oder Vorher-Nachher (Schalter Me-Challenge) */
+/** Privat: ohne We-Challenge, die braucht andere, die sie annehmen (Daria, 27.10.2026) */
+const PRIVATE_TYPES = [
+  { key: 'before_after', label: 'Me-Challenge' },
+  { key: 'photo', label: 'Bild' },
+] as const;
+/** In Gruppen: Aufgabe mit Edensteinen, Vorher-Nachher oder Bild (Daria, 27.10.2026) */
 export const GROUP_TYPES = [
   { key: 'task', label: 'We-Challenge' },
   { key: 'before_after', label: 'Me-Challenge' },
+  { key: 'photo', label: 'Bild' },
 ] as const;
 
 type Props = {
-  /** 'public' (Reiter „Im Kiez“) oder die gewählte Gruppe */
-  target: 'public' | string | undefined;
+  /** 'private' (Reiter „Privat“), 'public' (Reiter „Kiez“) oder die gewählte Gruppe */
+  target: 'private' | 'public' | string | undefined;
   onDone: () => void;
 };
 
@@ -46,11 +46,18 @@ export function ComposeSheet({ target, onDone }: Props) {
   const shared = useComposeContent();
   return (
     <View style={styles.sheet}>
+      <View style={[styles.flex, target === 'private' ? null : styles.hidden]}>
+        <PublicBody onDone={onDone} shared={shared} isPrivate />
+      </View>
       <View style={[styles.flex, target === 'public' ? null : styles.hidden]}>
         <PublicBody onDone={onDone} shared={shared} />
       </View>
-      <View style={[styles.flex, target === 'public' ? styles.hidden : null]}>
-        {target && target !== 'public' ? <GroupBody key={target} groupId={target} onDone={onDone} shared={shared} /> : <NoGroup />}
+      <View style={[styles.flex, target === 'public' || target === 'private' ? styles.hidden : null]}>
+        {target && target !== 'public' && target !== 'private' ? (
+          <GroupBody key={target} groupId={target} onDone={onDone} shared={shared} />
+        ) : (
+          <NoGroup />
+        )}
       </View>
     </View>
   );
@@ -73,8 +80,8 @@ function SheetScroll({ children, actions }: { children: React.ReactNode; actions
         >
           {children}
         </ScrollView>
+        <ActionBar>{actions}</ActionBar>
       </NudgeScrollProvider>
-      <ActionBar>{actions}</ActionBar>
     </KeyboardAvoidingView>
   );
 }
@@ -84,18 +91,15 @@ function useOpenTimer(onDone: () => void) {
   const router = useRouter();
   return (id: string) => {
     onDone();
-    router.push({ pathname: '/vorher-nachher/[id]', params: { id } });
+    router.push({ pathname: '/before-after/[id]', params: { id } });
   };
 }
 
-function PublicBody({ onDone, shared }: { onDone: () => void; shared: ComposeContent }) {
-  const on = useFeatures();
-  const options = PUBLIC_TYPES.filter((o) => on[FEATURE_OF[o.key]]);
-  const [choice, setType] = useState<(typeof PUBLIC_TYPES)[number]['key']>('individual');
-  // Abgeschalteter Typ: der erste angeschaltete springt ein
-  const type = options.some((o) => o.key === choice) ? choice : (options[0]?.key ?? 'before_after');
-  const post = usePublicComposeForm(onDone, type === 'photo' ? 'photo' : 'individual', shared);
-  const ba = useBeforeAfterStartForm(undefined, useOpenTimer(onDone), shared);
+function PublicBody({ onDone, shared, isPrivate = false }: { onDone: () => void; shared: ComposeContent; isPrivate?: boolean }) {
+  const options: readonly { key: (typeof PUBLIC_TYPES)[number]['key']; label: string }[] = isPrivate ? PRIVATE_TYPES : PUBLIC_TYPES;
+  const [type, setType] = useState<(typeof PUBLIC_TYPES)[number]['key']>(isPrivate ? 'before_after' : 'individual');
+  const post = usePublicComposeForm(onDone, type === 'photo' ? 'photo' : 'individual', shared, isPrivate);
+  const ba = useBeforeAfterStartForm(undefined, useOpenTimer(onDone), shared, isPrivate);
   const isBa = type === 'before_after';
   return (
     <SheetScroll actions={isBa ? ba.button : post.buttons}>
@@ -107,20 +111,20 @@ function PublicBody({ onDone, shared }: { onDone: () => void; shared: ComposeCon
 
 function GroupBody({ groupId, onDone, shared }: { groupId: string; onDone: () => void; shared: ComposeContent }) {
   const router = useRouter();
-  const on = useFeatures();
-  const options = GROUP_TYPES.filter((o) => o.key === 'task' || on.me);
-  const [choice, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('task');
-  const type = options.some((o) => o.key === choice) ? choice : 'task';
-  const task = useGroupTaskForm(groupId, {}, (taskId) => {
+  const options = GROUP_TYPES;
+  const [type, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('task');
+  const openPost = (id: string) => {
     onDone();
-    router.push(`/challenge/${taskId}`);
-  }, shared);
+    router.push(`/challenge/${id}`);
+  };
+  const task = useGroupTaskForm(groupId, {}, openPost, shared);
+  const photo = useGroupPhotoForm(groupId, openPost, shared);
   const ba = useBeforeAfterStartForm(groupId, useOpenTimer(onDone), shared);
-  const isBa = type === 'before_after';
+  const form = type === 'before_after' ? ba : type === 'photo' ? photo : task;
   return (
-    <SheetScroll actions={isBa ? ba.button : task.button}>
+    <SheetScroll actions={form.button}>
       {options.length > 1 ? <TypeSwitch options={options} value={type} onChange={setType} /> : null}
-      {isBa ? ba.fields : task.fields}
+      {form.fields}
     </SheetScroll>
   );
 }
@@ -129,7 +133,7 @@ function NoGroup() {
   const router = useRouter();
   return (
     <View style={styles.content}>
-      <GroupsEmpty onCreate={() => router.push('/gruppen/neu')} onJoin={() => router.push('/gruppen/beitreten')} />
+      <GroupsEmpty onCreate={() => router.push('/groups/new')} onJoin={() => router.push('/groups/join')} />
     </View>
   );
 }

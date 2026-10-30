@@ -1,3 +1,4 @@
+import { useEffect, useRef, type RefObject } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
@@ -6,6 +7,7 @@ import { useTexts } from '../data/texts';
 import { Glass, glassControls } from './Glass';
 import { GearsLoader, SMALL_GEARS } from './GearsLoader';
 import { Icon } from './icons/Icon';
+import { useSubmitTarget } from './Nudge';
 import type { IconName } from './icons/svgs';
 
 // Figma „Button“ (Primary, Secondary). Die übrigen Varianten sind Überschreibungen in Screens:
@@ -27,10 +29,14 @@ type ButtonProps = {
   busy?: boolean;
   /** Icon vor der Beschriftung, in der Farbe der Beschriftung */
   icon?: IconName;
+  /** Icon waagerecht spiegeln (Hand nach links für „Zurück zum Feed“) */
+  iconFlip?: boolean;
   style?: StyleProp<ViewStyle>;
+  /** Fokus beim Erscheinen auf diesen Button (Tastatur und Screenreader), z. B. „Weiter“ in der Tour */
+  autoFocus?: boolean;
 };
 
-export function Button({ label: original, onPress: press, variant = 'primary', disabled: off, whyDisabled, busy, icon, style }: ButtonProps) {
+export function Button({ label: original, onPress: press, variant = 'primary', disabled: off, whyDisabled, busy, icon, iconFlip, style, autoFocus }: ButtonProps) {
   // Mit Erklärung bleibt der Button tippbar, sieht aber deaktiviert aus
   const explains = !!off && !!whyDisabled;
   const disabled = (off && !explains) || !!busy;
@@ -38,8 +44,16 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
   const v = variants[variant];
   // Beschriftung aus dem CMS (Tabelle app_texts), sonst wie im Code
   const label = useTexts()(original);
+  // Ziel nach dem letzten Formularfeld (Nudge.tsx). Ghost-Buttons sind Nebenwege und zählen nicht.
+  const ref = useRef<View>(null);
+  useSubmitTarget(ref, variant !== 'ghost');
+  useEffect(() => {
+    if (!autoFocus) return;
+    const id = setTimeout(() => (ref.current as unknown as { focus?: () => void } | null)?.focus?.(), 50);
+    return () => clearTimeout(id);
+  }, [autoFocus]);
   // Versuch: Buttons aus Liquid Glass (iOS 26). Gefüllte Varianten bekommen ihre Farbe als Tönung.
-  if (isFashionable) return <FashionButton label={label} onPress={onPress} variant={variant} off={off} disabled={disabled} busy={busy} style={style} />;
+  if (isFashionable) return <FashionButton pressRef={ref} label={label} onPress={onPress} variant={variant} off={off} disabled={disabled} busy={busy} style={style} />;
   if (glassControls && variant !== 'ghost') {
     const g = glassVariants[variant];
     return (
@@ -50,6 +64,7 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
         style={[styles.glass, off && styles.disabled, style]}
       >
         <Pressable
+          ref={ref}
           accessibilityRole="button"
           accessibilityState={{ disabled: off }}
           disabled={disabled}
@@ -63,6 +78,7 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
   }
   return (
     <Pressable
+      ref={ref}
       accessibilityRole="button"
       accessibilityState={{ disabled: off, busy }}
       disabled={disabled}
@@ -70,7 +86,7 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
       style={({ pressed }) => [styles.base, v.container, pressed && styles.pressed, off && !busy && styles.disabled, style]}
     >
       <View style={styles.row}>
-        {busy ? <GearsLoader size={22} tint={v.label} only={SMALL_GEARS} /> : icon ? <Icon name={icon} size={22} color={v.label} /> : null}
+        {busy ? <GearsLoader size={22} tint={v.label} only={SMALL_GEARS} /> : icon ? <Icon name={icon} size={22} color={v.label} flip={iconFlip} /> : null}
         <Text style={[v.filled ? text.buttonDarkOnLight : text.buttonLightOnDark, { color: v.label }]}>{label}</Text>
       </View>
     </Pressable>
@@ -82,6 +98,7 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
  * Primary blau mit weißer Schrift; Secondary und die übrigen grau gefüllt, Danger mit roter Schrift; Ghost nur Text in Blau.
  */
 function FashionButton({
+  pressRef,
   label,
   onPress,
   variant,
@@ -90,6 +107,7 @@ function FashionButton({
   busy,
   style,
 }: {
+  pressRef: RefObject<View | null>;
   label: string;
   onPress?: () => void;
   variant: ButtonVariant;
@@ -101,6 +119,7 @@ function FashionButton({
   const v = fashionVariants[variant];
   return (
     <Pressable
+      ref={pressRef}
       accessibilityRole="button"
       accessibilityState={{ disabled: off, busy }}
       disabled={disabled}

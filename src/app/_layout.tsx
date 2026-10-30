@@ -11,6 +11,7 @@ import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
 import { InterTight_600SemiBold } from '@expo-google-fonts/inter-tight/600SemiBold';
 
 import { WebAlertHost } from '../components/WebAlert';
+import { TourOffer } from '../components/TourOffer';
 import { AuthProvider, useAuth } from '../data/auth';
 import { StoreProvider } from '../data/store';
 import { translateAlerts } from '../components/T';
@@ -116,18 +117,18 @@ function RootStack() {
               und die Vorschau nicht wie ein Overlay wirkt, dessen Wischen mit den Gesten der Vorschau konkurriert */}
           <Stack.Screen name="challenge/create" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
           <Stack.Screen name="challenge/[id]/edit" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="challenge/[id]/report/index" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="challenge/[id]/report/payout" options={{ presentation: 'modal', gestureEnabled: false }} />
+          <Stack.Screen name="challenge/[id]/complete/index" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="challenge/[id]/complete/payout" options={{ presentation: 'modal', gestureEnabled: false }} />
           <Stack.Screen name="challenge/[id]/review/reject" options={{ presentation: 'modal' }} />
           <Stack.Screen name="user/[id]/report/index" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="challenge/[id]/flag/index" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="challenge/[id]/report/index" options={{ presentation: 'modal' }} />
           <Stack.Screen name="demo" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="challenge/[id]/report/success" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="challenge/[id]/complete/success" options={{ gestureEnabled: false }} />
           <Stack.Screen name="challenge/[id]/review/success" options={{ gestureEnabled: false }} />
           <Stack.Screen name="challenge/[id]/pay/success" options={{ gestureEnabled: false }} />
-          <Stack.Screen name="challenge/[id]/payment/success" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="challenge/[id]/received/success" options={{ gestureEnabled: false }} />
           <Stack.Screen name="user/[id]/report/success" options={{ gestureEnabled: false }} />
-          <Stack.Screen name="challenge/[id]/flag/success" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="challenge/[id]/report/success" options={{ gestureEnabled: false }} />
           <Stack.Screen name="account/support/success" options={{ gestureEnabled: false }} />
           <Stack.Screen name="account/pause/success" options={{ gestureEnabled: false }} />
           <Stack.Screen name="account/delete/success" options={{ gestureEnabled: false }} />
@@ -135,6 +136,7 @@ function RootStack() {
           <InstallHint />
           <UpdateHint />
           <WebAlertHost />
+          <TourOffer />
           <HeartBurst />
         </>
       )}

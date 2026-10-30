@@ -15,10 +15,23 @@ import { CommentSection } from '../../../components/Comments';
 import { InfoRow, KaterBubble, Notice, OperationTag } from '../../../components/Content';
 import { TextField } from '../../../components/Form';
 import { HeroScreen, SubScreen } from '../../../components/Screen';
-import { beforeAfterDuration, formatBountyShort, formatDayMonthShort, formatEuro, formatHoursMinutes, formatRelative, formatRemainingShort } from '../../../data/format';
-import { WithMentions } from '../../../components/WithMentions';
+import { beforeAfterDuration, formatBountyShort, formatCents, formatDayMonthShort, formatEuro, formatHoursMinutes, formatRelative, formatRemainingShort } from '../../../data/format';
+import { WithMentions, postText } from '../../../components/WithMentions';
+import { isSharedBounty, payoutOf, shareCentsOf, sharedBountyText } from '../../../data/coins';
+import {
+  freeSpots,
+  isMultiPerson,
+  maxParticipants,
+  isParticipant,
+  joinRequests,
+  myParticipation,
+  participantsOpen,
+  weChallengeAfter,
+} from '../../../data/weChallenge';
+import { ParticipantsSection } from '../../../components/Participants';
 import { useRequireKiez } from '../../../data/kiez';
 import { recordView } from '../../../data/remote';
+import { coordsIfAllowed, distanceMeters, KIEZ_RADIUS_METERS, type Coords } from '../../../data/location';
 import { useChallenge, useStore } from '../../../data/store';
 import { isPostOnly, type ChallengeStatus } from '../../../data/types';
 import { color, font, radius, size, space, stroke, text } from '../../../theme/tokens';
@@ -50,6 +63,15 @@ export default function ChallengeDetail() {
   const needKiez = () => !!challenge?.groupId || requireKiezRaw();
   const requireKiezRaw = useRequireKiez();
   const [menuOpen, setMenuOpen] = useState(false);
+  // Eigener Standort für die 5-km-Regel (Daria, 29.10.2026). Ohne Freigabe: null, dann nur Anfrage.
+  const [here, setHere] = useState<Coords | null>(null);
+  useEffect(() => {
+    let active = true;
+    coordsIfAllowed().then((c) => active && setHere(c));
+    return () => {
+      active = false;
+    };
+  }, []);
   // Tipp irgendwo außerhalb schließt das Zahnrad-Menü (Daria, 22.10.2026). Der Tipp selbst geht normal weiter.
   const menuClosedAt = useRef(0);
   const menuRef = useRef<View>(null);
@@ -83,42 +105,94 @@ export default function ChallengeDetail() {
 
   const isAuthor = challenge.authorId === currentUserId;
   const isAssignee = challenge.assigneeId === currentUserId;
-  const acceptedByMe = challenge.status === 'accepted' && isAssignee;
+  // Mehrere Personen (Daria, 27.10.2026): Alle Teilnehmenden sehen „angenommen“-Inhalte, die erste Person meldet erledigt
+  const multi = isMultiPerson(challenge);
+  // Weiter als 5 km oder ohne Standort: nur auf Anfrage (wie Migration 20261029000100). Gruppenaufgaben und
+  // Challenges ohne Punkt wie bisher.
+  const far = !challenge.groupId && !!challenge.coords && (!here || distanceMeters(here, challenge.coords) > KIEZ_RADIUS_METERS);
+  const approval = challenge.joinMode === 'approval' || far;
+  const mine = myParticipation(challenge, currentUserId);
+  const acceptedByMe = challenge.status === 'accepted' && isParticipant(challenge, currentUserId);
+  // Erledigt melden: jede teilnehmende Person, für alle (Daria, 28.10.2026)
+  const reportsForAll = acceptedByMe;
   const named = challenge.operationName !== undefined;
   const isBeforeAfter = challenge.type === 'before_after';
   // Vorher-Nachher: erst das Vorher-, dann das Nachher-Foto in der Galerie
   const image = isBeforeAfter ? (challenge.imageBefore ?? challenge.image) : (challenge.image ?? challenge.imageAfter);
+  // Erledigte We-Challenge: das Erledigungsfoto als Nachher direkt nach dem Aufgabenfoto (Daria, 27.10.2026)
+  const weAfter = weChallengeAfter(challenge);
+  const extras = challenge.extraImages?.map((e) => e.photo);
   const moreImages = isBeforeAfter
     ? challenge.imageAfter && challenge.imageBefore
       ? [challenge.imageAfter]
       : undefined
-    : challenge.extraImages?.map((e) => e.photo);
+    : weAfter
+      ? [weAfter, ...(extras ?? [])]
+      : extras;
   const baDuration = isBeforeAfter ? beforeAfterDuration(challenge) : undefined;
 
   const giveBack = () =>
-    Alert.alert('Challenge abgeben?', 'Die Challenge wird dann wieder für alle offen sein.', [
-      { text: 'Abbrechen', style: 'cancel' },
-      { text: 'Abgeben', style: 'destructive', onPress: () => dispatch({ type: 'giveBack', id: challenge.id }) },
+    multi
+      ? Alert.alert(t('Aussteigen?'), t('Dein Platz wird frei. Ohne Teilnehmende ist die Challenge wieder für alle offen.'), [
+          { text: t('Abbrechen'), style: 'cancel' },
+          { text: t('Aussteigen'), style: 'destructive', onPress: () => dispatch({ type: 'leave', id: challenge.id }) },
+        ])
+      : Alert.alert('Challenge abgeben?', 'Die Challenge wird dann wieder für alle offen sein.', [
+          { text: 'Abbrechen', style: 'cancel' },
+          { text: 'Abgeben', style: 'destructive', onPress: () => dispatch({ type: 'giveBack', id: challenge.id }) },
+        ]);
+  const withdraw = () =>
+    Alert.alert(t('Anfrage zurückziehen?'), undefined, [
+      { text: t('Abbrechen'), style: 'cancel' },
+      { text: t('Zurückziehen'), style: 'destructive', onPress: () => dispatch({ type: 'leave', id: challenge.id }) },
     ]);
+
+  // Coins (Migration 20261028000400): jede Person bestätigt den Empfang ihres Anteils selbst
+  const myLine = payoutOf(challenge, currentUserId);
+  const canConfirmReceived = myLine
+    ? !!myLine.paidMarkedAt && !myLine.paidAt && (challenge.status === 'payment_open' || challenge.status === 'paid_marked')
+    : isAssignee && challenge.status === 'paid_marked';
+  const sharedBounty = isSharedBounty(challenge);
+  const takingPart = isParticipant(challenge, currentUserId) || !!myLine;
+  // Weitere Teilnehmende geben ihre Zahlungsdaten hier frei; die erste Person beim Erledigt-Melden
+  const needsShare =
+    !!challenge.bountyAmount &&
+    !isAuthor &&
+    takingPart &&
+    !challenge.payoutShare &&
+    !myLine?.paidMarkedAt &&
+    (challenge.status === 'reported' || challenge.status === 'payment_open' || (challenge.status === 'accepted' && !isAssignee));
 
   let actions: React.ReactNode = null;
   // Nur ein Bild oder Vorher-Nachher: nichts anzunehmen
   const isPhoto = isPostOnly(challenge.type);
-  if (challenge.status === 'open' && !isAuthor && !isPhoto) {
-    actions = <Button icon="wir-schaffen-das" label={challenge.groupId ? 'Aufgabe annehmen' : 'Challenge annehmen'} onPress={() => needKiez() && dispatch({ type: 'accept', id: challenge.id })} />;
-  } else if (acceptedByMe) {
+  const joinOpen = !isAuthor && !isPhoto && participantsOpen(challenge);
+  if (joinOpen && mine?.status === 'requested') {
+    actions = <Button label="Anfrage zurückziehen" variant="secondary" onPress={withdraw} />;
+  } else if (joinOpen && !mine && freeSpots(challenge) > 0 && (challenge.status === 'open' || multi)) {
+    const join = () => needKiez() && dispatch({ type: 'join', id: challenge.id, coords: here ?? undefined, far });
+    actions = approval ? (
+      <Button icon="wir-schaffen-das" label="Anfrage senden" onPress={join} />
+    ) : multi ? (
+      <Button icon="wir-schaffen-das" label="Mitmachen" onPress={join} />
+    ) : (
+      <Button icon="wir-schaffen-das" label={challenge.groupId ? 'We-Challenge annehmen' : 'Challenge annehmen'} onPress={join} />
+    );
+  } else if (reportsForAll) {
     actions = (
       <>
-        <Button label="Erledigt melden" onPress={() => router.push(`/challenge/${challenge.id}/report`)} />
-        <Button label="Challenge abgeben" variant="secondary" onPress={giveBack} />
+        <Button label="Erledigt melden" onPress={() => router.push(`/challenge/${challenge.id}/complete`)} />
+        <Button label={multi ? 'Aussteigen' : 'Challenge abgeben'} variant="secondary" onPress={giveBack} />
       </>
     );
+  } else if (acceptedByMe) {
+    actions = <Button label="Aussteigen" variant="secondary" onPress={giveBack} />;
   } else if (isAuthor && challenge.status === 'reported') {
     actions = <Button label="Erledigung prüfen" onPress={() => router.push(`/challenge/${challenge.id}/review`)} />;
   } else if (isAuthor && challenge.status === 'payment_open') {
     actions = <Button label="Coins bezahlen" onPress={() => router.push(`/challenge/${challenge.id}/pay`)} />;
-  } else if (isAssignee && challenge.status === 'paid_marked') {
-    actions = <Button label="Coins bestätigen" onPress={() => router.push(`/challenge/${challenge.id}/payment`)} />;
+  } else if (canConfirmReceived) {
+    actions = <Button label="Coins bestätigen" onPress={() => router.push(`/challenge/${challenge.id}/received`)} />;
   }
 
   const openProfile = (userId: string) =>
@@ -130,7 +204,7 @@ export default function ChallengeDetail() {
   const canManage = isAuthor && challenge.status === 'open' && !challenge.assigneeId && !isBeforeAfter;
   // Löschen bis jemand annimmt, auch geschlossene (Migration 20261021000300)
   const canDelete = isAuthor && (challenge.status === 'open' || challenge.status === 'closed') && !challenge.assigneeId;
-  const description = (challenge.type === 'wave' ? challenge.challengeText : challenge.text)?.trim();
+  const description = challenge.type === 'wave' ? challenge.challengeText?.trim() : postText(challenge);
 
   const closeChallenge = () =>
     Alert.alert(
@@ -190,7 +264,7 @@ export default function ChallengeDetail() {
     <>
       <View style={styles.statusWrap}>
         <View style={styles.statusRow}>
-          <StatusBadge status={challenge.status} photo={isPhoto && !isBeforeAfter} beforeAfter={isBeforeAfter} />
+          <StatusBadge status={challenge.status} challenge={challenge} photo={isPhoto && !isBeforeAfter} beforeAfter={isBeforeAfter} />
           <Text style={[styles.caption, styles.flex]}>{running ? formatRelative(challenge.createdAt) : ''}</Text>
           {isAuthor ? (
             <GlassIconButton
@@ -225,7 +299,7 @@ export default function ChallengeDetail() {
               last
               onPress={() => {
                 setMenuOpen(false);
-                router.push(`/challenge/${challenge.id}/flag`);
+                router.push(`/challenge/${challenge.id}/report`);
               }}
             />
           </View>
@@ -255,6 +329,16 @@ export default function ChallengeDetail() {
                   }}
                 />
               </>
+            ) : null}
+            {/* Umkreis-Begrenzung nachträglich ändern (Daria, 29.10.2026) */}
+            {!challenge.groupId && !challenge.private && challenge.status !== 'deleted' ? (
+              <MenuItem
+                label={challenge.localOnly ? 'Auch in „Überall“ zeigen' : 'Auf 5 km begrenzen'}
+                onPress={() => {
+                  setMenuOpen(false);
+                  dispatch({ type: 'setLocalOnly', id: challenge.id, localOnly: !challenge.localOnly });
+                }}
+              />
             ) : null}
             <MenuItem
               label="Löschen"
@@ -301,6 +385,13 @@ export default function ChallengeDetail() {
         ) : null}
       </View>
       ) : null}
+      {sharedBounty ? (
+        <Text style={styles.caption}>
+          {takingPart
+            ? t('Die Coins werden geteilt. Dein Anteil: {share}.', { share: formatCents(shareCentsOf(challenge, currentUserId)) })
+            : sharedBountyText(challenge.bountyAmount, maxParticipants(challenge))}
+        </Text>
+      ) : null}
     </>
   );
 
@@ -309,15 +400,24 @@ export default function ChallengeDetail() {
       {acceptedByMe ? (
         <>
           <KaterBubble>
-            {named
+            {!isAssignee && named
+              ? t('Danke, dass Du mitmachst! Jede teilnehmende Person kann erledigt melden, für alle. Wenn {author} bestätigt, bekommst Du eine Nachricht.', {
+                  author: author.firstName,
+                })
+              : named
               ? t('Danke, dass Du anpackst! Fotografiere am Ende das Ergebnis, und wir warten. Wenn {name} bestätigt, aktualisiert sich der Status automatisch. Du bekommst eine Nachricht.', {
                   name: author.firstName,
                 })
               : 'Danke, dass Du anpackst! Taufen wir das Baby, Baby? Ich hätte da eine Idee für einen Namen für Deine Operation.'}
           </KaterBubble>
           <InfoRow icon="map-pin" value={challenge.location} />
-          {challenge.acceptedAt ? (
-            <InfoRow icon="check" value={t('Von Dir angenommen am {acceptedAt}', { acceptedAt: formatDayMonthShort(challenge.acceptedAt) })} />
+          {(isAssignee ? challenge.acceptedAt : mine?.joinedAt) ? (
+            <InfoRow
+              icon="check"
+              value={t('Von Dir angenommen am {acceptedAt}', {
+                acceptedAt: formatDayMonthShort((isAssignee ? challenge.acceptedAt : mine?.joinedAt) ?? ''),
+              })}
+            />
           ) : null}
           {challenge.rejectionReason ? (
             <Notice
@@ -346,8 +446,42 @@ export default function ChallengeDetail() {
       {baDuration !== undefined ? (
         <InfoRow icon="clock" value={t('In {duration} geschafft', { duration: formatHoursMinutes(baDuration) })} />
       ) : null}
+      {!isAuthor && mine?.status === 'requested' ? (
+        <Notice message={tAbout(author, 'Deine Anfrage ist bei {firstName}. Du bekommst Bescheid, sobald {firstName} antwortet.', { firstName: author.firstName })} />
+      ) : null}
+      {!isAuthor && mine?.status === 'unconfirmed' ? (
+        <Notice variant="warning" message={tAbout(author, '{firstName} hat Dich beim Bestätigen nicht ausgewählt. Die Belohnung geht an die anderen.', { firstName: author.firstName })} />
+      ) : null}
+      {!isAuthor && (mine?.status === 'removed' || mine?.status === 'declined') ? (
+        <Notice variant="warning" message={mine.status === 'removed' ? t('Du bist bei dieser Challenge nicht mehr dabei.') : t('Deine Anfrage wurde abgelehnt.')} />
+      ) : null}
+      {joinOpen && !mine && far && challenge.joinMode !== 'approval' && freeSpots(challenge) > 0 ? (
+        <Notice
+          message={
+            here
+              ? tAbout(author, 'Du bist mehr als 5 km entfernt. Du kannst anfragen, {firstName} entscheidet.', { firstName: author.firstName })
+              : tAbout(author, 'Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.', { firstName: author.firstName })
+          }
+        />
+      ) : null}
+      {!isAuthor && !mine && multi && participantsOpen(challenge) && freeSpots(challenge) === 0 ? (
+        <Notice message={t('Alle Plätze sind vergeben.')} />
+      ) : null}
       {description ? (
-        <Text style={styles.description}>{isBeforeAfter ? <WithMentions value={description} /> : description}</Text>
+        <Text style={styles.description}>
+          {isBeforeAfter || challenge.type === 'photo' || challenge.type === 'individual' ? <WithMentions value={description} /> : description}
+        </Text>
+      ) : null}
+      {challenge.type === 'individual' && (multi || challenge.joinMode === 'approval' || joinRequests(challenge).length > 0 || (challenge.participants ?? []).length > 1) ? (
+        <ParticipantsSection
+          challenge={challenge}
+          users={users}
+          currentUserId={currentUserId}
+          isAuthor={isAuthor}
+          onOpenProfile={openProfile}
+          onAnswer={(userId, accept) => dispatch({ type: 'answerRequest', id: challenge.id, userId, accept })}
+          onRemove={(userId) => dispatch({ type: 'removeParticipant', id: challenge.id, userId })}
+        />
       ) : null}
       <View style={styles.authorBlock}>
         <AuthorRow
@@ -356,7 +490,19 @@ export default function ChallengeDetail() {
           onPress={() => openProfile(author.id)}
         />
       </View>
-      {challenge.bountyAmount && !isAuthor ? (
+      {needsShare ? (
+        <View style={styles.naming}>
+          <Notice
+            message={tAbout(author, 'Damit {firstName} Dir Deinen Anteil zahlen kann, gib Deine IBAN oder PayPal frei. {firstName} sieht sie erst nach der Bestätigung.', { firstName: author.firstName })}
+          />
+          <Button label="Zahlungsdaten freigeben" variant="secondary" onPress={() => router.push(`/challenge/${challenge.id}/complete/payout?nur=1`)} />
+        </View>
+      ) : null}
+      {challenge.bountyAmount && !isAuthor && sharedBounty ? (
+        <Notice
+          message={tAbout(author, 'Die {amount} werden unter allen geteilt, die mitmachen. {firstName} zahlt jeder Person ihren Anteil direkt, zum Beispiel per Überweisung oder PayPal. Kiez Coins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })}
+        />
+      ) : challenge.bountyAmount && !isAuthor ? (
         <Notice
           message={
             acceptedByMe
@@ -396,7 +542,7 @@ export default function ChallengeDetail() {
   if (!image) {
     return (
       <SubScreen
-        title={challenge.groupId ? 'Gruppenaufgabe' : 'Challenge'}
+        title={challenge.groupId ? 'We-Challenge in der Gruppe' : 'Challenge'}
         navigation="back"
         onLeadingPress={goBack}
         actions={actions}
@@ -415,6 +561,7 @@ export default function ChallengeDetail() {
       image={image}
       moreImages={moreImages}
       imageLabel={challenge.title}
+      photoText={challenge.type === 'photo' && image === challenge.image ? challenge.photoText : undefined}
       onBackPress={() => goBack()}
       onSharePress={() => shareText(t('{title} – Kiez Coins', { title: challenge.title }))}
       imageOverlay={acceptedByMe && challenge.operationName ? <OperationTag name={challenge.operationName} /> : undefined}

@@ -1,5 +1,6 @@
 import { t } from './texts';
 import type { Challenge, Group } from './types';
+import { joinedIds } from './weChallenge';
 
 // Gruppen: Rangliste und Grenzen (wie in Migration 20261021000100).
 
@@ -8,15 +9,20 @@ export const MAX_GROUPS = 10;
 
 export type RankEntry = { userId: string; edensteine: number; done: number };
 
-/** Edensteine pro Mitglied aus den bestätigten Gruppenaufgaben, absteigend sortiert. */
+/**
+ * Edensteine pro Mitglied aus den bestätigten Gruppenaufgaben, absteigend sortiert.
+ * Mehrere Personen: Jede bekommt die volle Zahl (Daria, 27.10.2026).
+ */
 export function leaderboard(group: Group, challenges: Challenge[]): RankEntry[] {
   const entries = new Map<string, RankEntry>(group.members.map((m) => [m.userId, { userId: m.userId, edensteine: 0, done: 0 }]));
   for (const c of challenges) {
-    if (c.groupId !== group.id || c.status !== 'confirmed' || !c.assigneeId) continue;
-    const entry = entries.get(c.assigneeId);
-    if (!entry) continue; // ausgetreten: bleibt im Verlauf, nicht in der Rangliste
-    entry.edensteine += c.edensteine ?? 0;
-    entry.done += 1;
+    if (c.groupId !== group.id || c.status !== 'confirmed') continue;
+    for (const userId of joinedIds(c)) {
+      const entry = entries.get(userId);
+      if (!entry) continue; // ausgetreten: bleibt im Verlauf, nicht in der Rangliste
+      entry.edensteine += c.edensteine ?? 0;
+      entry.done += 1;
+    }
   }
   return [...entries.values()].sort((a, b) => b.edensteine - a.edensteine || b.done - a.done);
 }

@@ -6,7 +6,7 @@ import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
 import { color, font, isFashionable, radius, space, stroke, text } from '../../theme/tokens';
 import { Button } from '../Button';
-import { PhotoPicker } from '../Form';
+import { PhotoPicker, SwitchRow } from '../Form';
 import { useNudge } from '../Nudge';
 import { useComposeContent, type ComposeContent } from './compose';
 import { Text } from '../T';
@@ -36,8 +36,10 @@ export function BeforeAfterSteps({ at }: { at: 0 | 1 | 2 }) {
 }
 
 /**
- * Erklärung mit fester Marke vorn (#vorher bzw. #nachher). Die Marke gehört nicht zum gespeicherten Text,
- * die Datenbank setzt sie beim Posten davor. Höchstens 240 Zeichen.
+ * Erklärung mit fester Marke vorn (#vorher, #nachher oder #InDiesemMoment). Die Marke gehört nicht zum gespeicherten Text.
+ * Me-Challenge: #vorher und #nachher setzt die Datenbank beim Posten davor.
+ * We-Challenge (#vorher, #nachher, `data/weChallenge.ts`) und Bild (#InDiesemMoment): Die App setzt sie beim Anzeigen davor.
+ * Höchstens 240 Zeichen, sofern `maxLength` nichts anderes sagt.
  */
 export function TagTextField({
   label,
@@ -46,14 +48,16 @@ export function TagTextField({
   onChangeText,
   placeholder,
   tooLong,
+  maxLength = BEFORE_AFTER_TEXT_MAX,
 }: {
   label: string;
-  tag: '#vorher' | '#nachher';
+  tag: string;
   value: string;
   onChangeText: (v: string) => void;
   placeholder?: string;
   /** Zu langer Text (aus einem anderen Formular übernommen): Rand und Zähler in der Fehlerfarbe */
   tooLong?: boolean;
+  maxLength?: number;
 }) {
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<TextInput>(null);
@@ -71,7 +75,7 @@ export function TagTextField({
           ref={inputRef}
           value={value}
           onChangeText={onChangeText}
-          maxLength={BEFORE_AFTER_TEXT_MAX}
+          maxLength={maxLength}
           multiline
           scrollEnabled={false}
           placeholder={placeholder ? t(placeholder) : undefined}
@@ -84,8 +88,7 @@ export function TagTextField({
         />
       </View>
       <View style={styles.help}>
-        <Text style={styles.helpText}>{t('{tag} steht automatisch vorn.', { tag })}</Text>
-        <Text style={[styles.helpText, tooLong ? { color: color.accent.error } : null]}>{`${value.length} / ${BEFORE_AFTER_TEXT_MAX}`}</Text>
+        <Text style={[styles.helpText, tooLong ? { color: color.accent.error } : null]}>{`${value.length} / ${maxLength}`}</Text>
       </View>
     </View>
   );
@@ -93,18 +96,22 @@ export function TagTextField({
 
 /**
  * Schritt 1 von Vorher-Nachher im Erstellen-Blatt: Vorher-Foto, Überschrift, Erklärung.
- * „Vorher speichern“ legt den Entwurf an; danach geht es im Timer weiter (Route `vorher-nachher/[id]`).
+ * „Vorher speichern“ legt den Entwurf an; danach geht es im Timer weiter (Route `before-after/[id]`).
  */
 export function useBeforeAfterStartForm(
   groupId: string | undefined,
   onStarted: (id: string) => void,
   shared?: ComposeContent,
+  /** Modus „Privat“, nur ohne Gruppe (Daria, 27.10.2026) */
+  isPrivate = false,
 ): { fields: ReactNode; button: ReactNode } {
   const { beforeAfter } = useStore();
   const own = useComposeContent();
   const { photo, setPhoto, title, setTitle, text: beforeText, setText: setBeforeText } = shared ?? own;
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState(false);
+  // Nur im Kiez, nicht in „Überall“ (Daria, 29.10.2026)
+  const [localOnly, setLocalOnly] = useState(false);
   const titleField = useNudge();
   const missingPhoto = !photo;
   const missingTitle = !title.trim();
@@ -118,7 +125,7 @@ export function useBeforeAfterStartForm(
     }
     setBusy(true);
     try {
-      const id = await beforeAfter.start({ groupId, title, beforeText, photo });
+      const id = await beforeAfter.start({ groupId, title, beforeText, photo, private: isPrivate, localOnly: !groupId && !isPrivate && localOnly });
       onStarted(id);
     } catch (error) {
       Alert.alert('Vorher nicht gespeichert', (error as Error).message);
@@ -130,7 +137,7 @@ export function useBeforeAfterStartForm(
   const fields = (
     <>
       <Text style={styles.hint}>
-        Halte fest, wie Du etwas reparierst, umbaust oder verschönerst. Zuerst das Vorher-Foto.
+        Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.
       </Text>
       <BeforeAfterSteps at={0} />
       <PhotoPicker
@@ -146,13 +153,21 @@ export function useBeforeAfterStartForm(
         }}
       />
       <TagTextField
-        label="Erklärung zum Vorher"
+        label="Beschreibung"
         tag="#vorher"
         value={beforeText}
         onChangeText={setBeforeText}
-        placeholder="Was ist das Problem?"
+        placeholder="Was ist die Aufgabe oder die Ausgangslage? Erkläre kurz, worin die Me-Challenge besteht."
         tooLong={showErrors && textTooLong}
       />
+      {!groupId && !isPrivate ? (
+        <SwitchRow
+          label="Auf einen Umkreis von 5 km begrenzen"
+          description="Dann sehen den Beitrag nur Menschen in Deinem Kiez, nicht in „Überall“. Wer den Link bekommt, kann ihn trotzdem öffnen."
+          value={localOnly}
+          onValueChange={setLocalOnly}
+        />
+      ) : null}
     </>
   );
 
@@ -211,6 +226,6 @@ const styles = StyleSheet.create({
   tag: { fontFamily: isFashionable ? font.semiBold : font.medium, fontSize: 14, lineHeight: 18, color: color.accent.signal },
   input: { ...text.body, color: color.text.primary, padding: 0, minHeight: 40, textAlignVertical: 'top' },
   inputWeb: { outlineStyle: 'none' } as object,
-  help: { flexDirection: 'row', justifyContent: 'space-between', gap: space[8] },
+  help: { flexDirection: 'row', justifyContent: 'flex-end', gap: space[8] },
   helpText: { ...text.caption, color: color.text.secondary, fontVariant: ['tabular-nums'] },
 });

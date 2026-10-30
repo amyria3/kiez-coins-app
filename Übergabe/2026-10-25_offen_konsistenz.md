@@ -7,6 +7,11 @@
 
 ## Erledigt (auf `main`)
 
+- Routen und Look-Namen (Daria, 30.10.2026): siehe `2026-10-30_routen-englisch.md`.
+- Gruppen sagen „We-Challenge“ statt „Aufgabe“ (Daria, 30.10.2026): Erstellen, Veröffentlichen, Titel-Hinweis, Fehlermeldung, Gruppenliste, leere Gruppe, Tour, Rangliste, Detail („We-Challenge annehmen“, Titel „We-Challenge in der Gruppe“), Bearbeiten, „Deine Challenges“, Funktionen. Übersetzungen mitgezogen (ungeprüft). Der Website-Prototyp sagt noch „Aufgabe“.
+- „nochmal“ heißt jetzt überall „noch mal“, „noch einmal“ bleibt (Daria, 30.10.2026).
+- Werkzeugfehler (`--prune`, ESLint) stehen als dringend in `TODO.md`.
+
 - Migration `20261022000500_messages.sql` heißt `20261022000600_messages.sql`, da die Nummer doppelt war. Im Supabase-Projekt ändert sich nichts.
 - Stilnamen für den Fashionable Look enden auf `Fashionable` (vorher `Insta`).
 - `MIN_PASSWORD` steht einmal in `src/data/auth.tsx`.
@@ -34,14 +39,10 @@ Die Übersetzungen in `src/i18n` sind mitgezogen. Daria hatte keine eigenen Fass
 ## Offen, braucht Darias Entscheidung
 
 - Icons mit zwei Bedeutungen: `send` (Teilen und Senden), `friends` (Freundschaften und Einladung teilen), `behausung` (Gruppen und „Was Du so machst“), `camera` (Erstellen und Foto-Platzhalter in `manage.tsx`).
-- Gruppen-Texte sagen „Aufgabe“, die Regel vom 24.10.2026 sagt „We-Challenge“ (`gruppen/[id]/index.tsx`, `feed.tsx`, `GroupTaskForm.tsx`, `GroupBar.tsx`, `tour.ts`). Übersetzungen müssen mit.
-- „noch mal“, „noch einmal“, „nochmal“: eine Form wählen.
 - „Lass uns …“ (`friendInvites.ts`) und „Mach’s gut“ (`account/delete/success.tsx`): Redewendung behalten oder ausschreiben.
 - „Nur Geduld, my friend!“ (`challenge/[id]/payment/index.tsx`): nur die er-Fassung ist deutsch („mein Freund“).
-- Routen: `challenge/[id]/flag` und `user/[id]/report` melden Verstöße, `challenge/[id]/report` meldet die Erledigung; `pay` und `payment`; `settings/` neben `account/`; deutsche und englische Ordnernamen gemischt.
-- Weitere Look-Suffixe `Flat` und `Mono` (`TabBar.tsx`, Kater-Sprechblase).
 
 ## Fehler im Werkzeug, nicht behoben
 
 - `node scripts/i18n.mjs --prune` löscht auch genutzte Übersetzungen, da `scripts/text-keys.mjs` `src/data/kater-sprueche.json` und einzelne Wörter wie „Mitglied“, „er“, „sie“ nicht erfasst. Nicht ausführen, bis `collectKeys()` diese Quellen kennt.
-- `AGENTS.md` verlangt `npx expo lint`, die Repo hat keine ESLint-Konfiguration.
+- `AGENTS.md` verlangt `npx expo lint`, das Repo hat keine ESLint-Konfiguration.

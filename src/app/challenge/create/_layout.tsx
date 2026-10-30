@@ -4,7 +4,8 @@ import { Stack, useGlobalSearchParams, useRouter } from 'expo-router';
 
 import { findPlace, roundCoords, type Coords } from '../../../data/location';
 import { useStore } from '../../../data/store';
-import type { Challenge, ExtraPhoto, ImageSource } from '../../../data/types';
+import type { Challenge, ExtraPhoto, ImageSource, PhotoText } from '../../../data/types';
+import type { Participation } from '../../../data/remote';
 import { color } from '../../../theme/tokens';
 
 // Entwurf einer neuen Challenge über beide Schritte und die Vorschau hinweg.
@@ -24,10 +25,29 @@ export type Draft = {
   text: string;
   location: string;
   bountyAmount?: number;
+  /** Edensteine statt Euro (Daria, 27.10.2026). Nie zusammen mit `bountyAmount`. */
+  edensteine?: number;
   durationDays: number;
   /** Auf rund 100 m gerundeter Punkt für Entfernungen im Feed */
   coords?: Coords;
+  /** Modus „Privat“: nur Bild, nur für Dich sichtbar (Daria, 27.10.2026) */
+  private?: boolean;
+  /** Mehrere Personen (Daria, 27.10.2026). Ohne Angabe eine Person, offen. */
+  participation?: Participation;
+  /** „Auf einen Umkreis von 5 km begrenzen“: nicht in „Überall“ (Daria, 29.10.2026) */
+  localOnly?: boolean;
+  /** Nur Bild: Text auf dem Foto, mit dem Finger verschoben (Daria, 29.10.2026) */
+  photoText?: PhotoText;
+  /** Der gespeicherte Entwurf hatte schon Text auf dem Foto: Leeren löscht ihn dann auch in der Datenbank. */
+  hadPhotoText?: boolean;
 };
+
+/**
+ * Text auf dem Foto zum Speichern: nur bei Bildern. `null` löscht gespeicherten Text, `undefined` schickt nichts
+ * (so speichert die App auch ohne Migration 20261029000200).
+ */
+export const photoTextInput = (d: Draft): PhotoText | null | undefined =>
+  d.type === 'photo' && d.photoText?.text.trim() ? d.photoText : d.hadPhotoText ? null : undefined;
 
 const emptyDraft = (kiez?: string): Draft => ({ type: 'individual', title: '', text: '', location: kiez ?? '', durationDays: 7, extras: [] });
 
@@ -42,8 +62,14 @@ function fromChallenge(c: Challenge): Draft {
     text: c.text,
     location: c.location,
     bountyAmount: c.bountyAmount,
+    edensteine: c.edensteine,
+    participation: c.maxParticipants ? { max: c.maxParticipants, mode: c.joinMode ?? 'open' } : undefined,
     durationDays: 7,
     coords: c.coords,
+    private: c.private,
+    localOnly: c.localOnly,
+    photoText: c.photoText,
+    hadPhotoText: !!c.photoText,
   };
 }
 
@@ -53,6 +79,7 @@ function copyOf(c: Challenge): Draft {
     ...fromChallenge(c),
     id: undefined,
     imagePath: undefined,
+    hadPhotoText: undefined,
     extras: (c.extraImages ?? []).map((e) => ({ photo: e.photo })),
   };
 }
@@ -75,12 +102,17 @@ export function useSaveDraft() {
         text: draft.text,
         location: draft.location,
         bountyAmount: draft.type === 'photo' ? undefined : draft.bountyAmount,
+        edensteine: draft.type === 'photo' ? undefined : draft.edensteine,
+        participation: draft.type === 'photo' ? undefined : draft.participation,
         photo: draft.imagePath ? undefined : draft.photo,
         imagePath: draft.imagePath,
         coords: draft.coords,
         extras: draft.extras,
+        private: draft.private,
+        localOnly: draft.localOnly,
+        photoText: photoTextInput(draft),
       });
-      setDraft((d) => ({ ...d, id: saved.id, imagePath: saved.imagePath, extras: saved.extraImages?.length ? saved.extraImages : d.extras }));
+      setDraft((d) => ({ ...d, id: saved.id, hadPhotoText: !!saved.photoText, imagePath: saved.imagePath, extras: saved.extraImages?.length ? saved.extraImages : d.extras }));
       router.dismissTo('/feed');
       router.push('/manage');
     } catch (error) {
@@ -104,7 +136,7 @@ export const unstable_settings = { initialRouteName: 'step-1' };
 
 /** Flow „Challenge erstellen“: als Modal geöffnet, darin Schritte als Push. */
 export default function CreateLayout() {
-  const { draftId, copyOf: copyId, title, text, photo, type, extras } = useGlobalSearchParams<{
+  const { draftId, copyOf: copyId, title, text, photo, type, extras, privat, bildtext } = useGlobalSearchParams<{
     draftId?: string;
     copyOf?: string;
     /** Aus dem Erstellen-Blatt über dem Feed mitgebracht (components/compose) */
@@ -114,6 +146,10 @@ export default function CreateLayout() {
     type?: string;
     /** JSON-Liste mit Adressen weiterer Fotos */
     extras?: string;
+    /** `1`: Modus „Privat“ */
+    privat?: string;
+    /** JSON: Text auf dem Foto ({ text, x, y }) */
+    bildtext?: string;
   }>();
   const { challenges, profile } = useStore();
   const draft = useState<Draft>(() => {
@@ -121,6 +157,12 @@ export default function CreateLayout() {
     if (saved) return fromChallenge(saved);
     const original = copyId ? challenges.find((c) => c.id === copyId) : undefined;
     if (original) return copyOf(original);
+    let photoText: PhotoText | undefined;
+    try {
+      photoText = bildtext ? (JSON.parse(bildtext) as PhotoText) : undefined;
+    } catch {
+      photoText = undefined;
+    }
     let extraUris: string[] = [];
     try {
       extraUris = extras ? (JSON.parse(extras) as string[]) : [];
@@ -129,11 +171,14 @@ export default function CreateLayout() {
     }
     return {
       ...emptyDraft(profile.kiez),
-      type: type === 'photo' ? 'photo' : 'individual',
+      // Privat gibt es nur als Bild
+      type: type === 'photo' || privat === '1' ? 'photo' : 'individual',
+      private: privat === '1' || undefined,
       title: title ?? '',
       text: text ?? '',
       ...(photo ? { photo: { uri: photo } } : {}),
       extras: extraUris.map((uri) => ({ photo: { uri } })),
+      ...(photoText?.text ? { photoText } : {}),
     };
   });
   const [, setDraft] = draft;

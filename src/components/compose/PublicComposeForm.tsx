@@ -3,10 +3,14 @@ import { Alert, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { useStore } from '../../data/store';
-import type { ImageSource } from '../../data/types';
+import type { ImageSource, PhotoText } from '../../data/types';
 import { Button } from '../Button';
-import { ExtraPhotos, PhotoPicker, TextField } from '../Form';
+import { PhotoTextEditor } from '../PhotoText';
+import { ExtraPhotos, PhotoPicker } from '../Form';
 import { Text } from '../T';
+import { PHOTO_TAG } from '../WithMentions';
+import { TagTextField } from './BeforeAfterForm';
+import { HintWithInfo } from './HintWithInfo';
 import { explain } from '../Nudge';
 import { useComposeContent, type ComposeContent } from './compose';
 import { color, text } from '../../theme/tokens';
@@ -23,12 +27,17 @@ export function usePublicComposeForm(
   onSaved: () => void,
   type: 'individual' | 'photo',
   shared?: ComposeContent,
+  /** Modus „Privat“: nur Bild, nur für Dich sichtbar (Daria, 27.10.2026) */
+  isPrivate = false,
 ): { fields: ReactNode; buttons: ReactNode } {
   const router = useRouter();
   const { saveDraft } = useStore();
   const own = useComposeContent();
   const { photo, setPhoto, title, setTitle, text, setText } = shared ?? own;
   const [extras, setExtras] = useState<ImageSource[]>([]);
+  // Nur Bild: Text auf dem Foto (Daria, 29.10.2026)
+  const [photoText, setPhotoText] = useState<PhotoText | undefined>();
+  const withPhotoText = type === 'photo' && photoText?.text.trim() ? photoText : undefined;
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState(false);
   const isChallenge = type !== 'photo';
@@ -50,7 +59,9 @@ export function usePublicComposeForm(
         title,
         text,
         photo: uriOf(photo) ?? '',
+        ...(isPrivate ? { privat: '1' } : {}),
         ...(extraUris.length ? { extras: JSON.stringify(extraUris) } : {}),
+        ...(withPhotoText ? { bildtext: JSON.stringify(withPhotoText) } : {}),
       },
     });
   };
@@ -58,7 +69,7 @@ export function usePublicComposeForm(
   const save = async () => {
     setBusy(true);
     try {
-      await saveDraft(undefined, { type, title, text, location: '', photo, extras: extras.map((p) => ({ photo: p })) });
+      await saveDraft(undefined, { type, title, text, location: '', photo, extras: extras.map((p) => ({ photo: p })), private: isPrivate, photoText: withPhotoText });
       onSaved();
     } catch (error) {
       Alert.alert('Entwurf nicht gespeichert', (error as Error).message);
@@ -69,13 +80,16 @@ export function usePublicComposeForm(
 
   const fields = (
     <>
-      <Text style={styles.hint}>
-        {isChallenge ? 'Hier gibt es etwas zu tun! Zu den Spaten! Zu den Müllsäcken!' : 'Hier ist nichts zu tun, nur ein schönes Bild.'}
-      </Text>
+      {isChallenge ? (
+        // Erklärung nur bei Bedarf hinter dem Info-Icon (Daria, 27.10.2026)
+        <HintWithInfo hint="Hier gibt es etwas zu tun! Dokumentiere die Ausgangslage und poste es im Kiez!" info="Deine Nachbar:innen sehen den Post und nehmen die We-Challenge an." />
+      ) : (
+        <Text style={styles.hint}>Hier ist nichts zu tun, nur ein schönes Bild.</Text>
+      )}
       <PhotoPicker
         photo={photo}
         error={showErrors && missingPhoto}
-        hint={showErrors && missingPhoto ? 'Bitte ein Foto hinzufügen.' : isChallenge ? 'Zeige, wo geholfen werden soll.' : 'Zeige Deinem Kiez, was Dir gefällt.'}
+        hint={showErrors && missingPhoto ? 'Bitte ein Foto hinzufügen.' : isChallenge ? 'Zeige, wo geholfen werden soll.' : isPrivate ? 'Halte fest, was Dir gefällt.' : 'Zeige Deinem Kiez, was Dir gefällt.'}
         onChange={setPhoto}
         title={{ value: title, onChange: setTitle, error: showErrors && missingTitle ? 'Gib einen Titel ein.' : undefined }}
       />
@@ -86,7 +100,13 @@ export function usePublicComposeForm(
           onRemove={(index) => setExtras((all) => all.filter((_, i) => i !== index))}
         />
       ) : null}
-      <TextField label="Beschreibung" helperText="Max. 500 Zeichen" value={text} onChangeText={setText} maxLength={500} multiline />
+      {!isChallenge && photo ? <PhotoTextEditor photo={photo} value={photoText} onChange={setPhotoText} /> : null}
+      {/* We-Challenge: Die Beschreibung ist das Vorher (Daria, 27.10.2026) */}
+      {isChallenge ? (
+        <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={text} onChangeText={setText} maxLength={500} />
+      ) : (
+        <TagTextField label="Dein Text" tag={PHOTO_TAG} value={text} onChangeText={setText} maxLength={500} />
+      )}
     </>
   );
 

@@ -52,7 +52,7 @@ export function GroupRanking({ group }: { group: Group }) {
                   {me ? t('Du') : user.name}
                 </Text>
                 <Text style={styles.meta}>
-                  {r.done === 1 ? t('1 Aufgabe erledigt') : t('{done} Aufgaben erledigt', { done: r.done })}
+                  {r.done === 1 ? t('1 We-Challenge erledigt') : t('{done} We-Challenges erledigt', { done: r.done })}
                 </Text>
               </View>
               <View style={styles.crystal}>

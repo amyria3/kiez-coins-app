@@ -23,6 +23,7 @@ export type IconName =
   | 'flag'
   | 'settings'
   | 'eye'
+  | 'eye-off'
   | 'behausung'
   | 'more'
   | 'wir-schaffen-das'
@@ -167,6 +168,13 @@ export const iconSvgs: Record<IconName, { width: number; height: number; svg: Sv
     height: 24,
     svg: (c) =>
       `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 12C4.4 7.6 8 5.5 12 5.5C16 5.5 19.6 7.6 22 12C19.6 16.4 16 18.5 12 18.5C8 18.5 4.4 16.4 2 12Z" stroke="${c}" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="${c}" stroke-width="2.2"/></svg>`,
+  },
+  // Auge durchgestrichen: Modus verborgen (Daria, 27.10.2026, noch nicht in Figma)
+  'eye-off': {
+    width: 24,
+    height: 24,
+    svg: (c) =>
+      `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 12C4.4 7.6 8 5.5 12 5.5C16 5.5 19.6 7.6 22 12C19.6 16.4 16 18.5 12 18.5C8 18.5 4.4 16.4 2 12Z" stroke="${c}" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="${c}" stroke-width="2.2"/><path d="M4 3.5L20 20.5" stroke="${c}" stroke-width="2.2" stroke-linecap="round"/></svg>`,
   },
   behausung: {
     width: 35,
