@@ -95,7 +95,7 @@ export default function CreateStep2() {
 
   return (
     <SubScreen
-      title="Challenge erstellen"
+      title={isChallenge ? 'Challenge erstellen' : 'Bild posten'}
       subtitle="Schritt 2 von 2"
       navigation="back"
       // Aus dem Blatt über dem Feed: zurück ins Blatt, das noch offen ist
@@ -153,18 +153,21 @@ export default function CreateStep2() {
       />
       </>
       ) : null}
-      <FieldGroup label="Zeitraum">
-        <ChipGroup>
-          {durations.map(({ days, label }) => (
-            <Chip
-              key={days}
-              label={label}
-              selected={draft.durationDays === days}
-              onPress={() => setDraft((d) => ({ ...d, durationDays: days }))}
-            />
-          ))}
-        </ChipGroup>
-      </FieldGroup>
+      {/* Ein Bild hat keinen Zeitraum, es ist keine Challenge (Daria, 30.10.2026) */}
+      {isChallenge ? (
+        <FieldGroup label="Zeitraum">
+          <ChipGroup>
+            {durations.map(({ days, label }) => (
+              <Chip
+                key={days}
+                label={label}
+                selected={draft.durationDays === days}
+                onPress={() => setDraft((d) => ({ ...d, durationDays: days }))}
+              />
+            ))}
+          </ChipGroup>
+        </FieldGroup>
+      ) : null}
     </SubScreen>
   );
 }
