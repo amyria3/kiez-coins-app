@@ -75,7 +75,7 @@ export function errorReportText(report: ErrorReport) {
 
 /** Öffnet das Mailprogramm mit dem Bericht an das Postfach aus dem Impressum */
 export async function mailErrorReport(report: ErrorReport) {
-  const subject = encodeURIComponent('Fehlerbericht Kiez Coins');
+  const subject = encodeURIComponent('Fehlerbericht KiezCoins');
   const body = encodeURIComponent(errorReportText(report));
   await Linking.openURL(`mailto:${OPERATOR.email}?subject=${subject}&body=${body}`);
 }

@@ -21,7 +21,7 @@ Ersetzt `2026-10-26_offen_sichtbarkeit-nur-ich.md` und `2026-10-26_offen_kiez-au
 
 ## Offene Punkte
 
-- Migration `20261028000100` ist im Supabase-Projekt „Kiez Coins Data“ eingespielt (27.10.2026, per MCP).
+- Migration `20261028000100` ist im Supabase-Projekt „KiezCoins Data“ eingespielt (27.10.2026, per MCP).
 - Sichtbarkeit nachträglich ändern (z. B. Privat → Kiez) gibt es noch nicht.
 - Onboarding fragt weiter nach dem Kiez, auch wenn jemand nur Privat nutzt.
 - Fashionable Look: Die Profilansicht (`FashionProfile.tsx`) hat denselben Umschalter. Privat und Gruppe zeigen ihr Raster, Gruppe dazu Auswahl und Rangliste, Kiez die Reiter Erstellt und Angenommen (Daria, 27.10.2026).

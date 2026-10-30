@@ -19,7 +19,7 @@ const MESSAGE: Record<Audience, [string, string]> = {
   private: ['Das ist Dein privater Space.', 'Diese Posts siehst nur Du.'],
   groups: ['Was Du in einer Gruppe postest, sehen alle Gruppenmitglieder.', 'Du kannst aber auch einen Post als Entwurf speichern.'],
   kiez: ['Deine Posts im Kiez sehen alle im Umkreis von 5 km.', 'Du kannst aber auch einen Post als Entwurf speichern.'],
-  everywhere: ['Deine Posts hier sehen alle Nutzer:innen von Kiez Coins.', 'Too much Publicity? Wähle aus Kiez, Gruppen oder Privat.'],
+  everywhere: ['Deine Posts hier sehen alle Nutzer:innen von KiezCoins.', 'Too much Publicity? Wähle aus Kiez, Gruppen oder Privat.'],
 };
 
 /**

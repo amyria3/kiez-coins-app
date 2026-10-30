@@ -24,7 +24,7 @@ export default function LookScreen() {
 
   return (
     <SubScreen title="Look" navigation="back" onLeadingPress={goBack}>
-      <KaterBubble>Wie soll Kiez Coins für Dich aussehen?</KaterBubble>
+      <KaterBubble>Wie soll KiezCoins für Dich aussehen?</KaterBubble>
       <View style={{ gap: space[8] }}>
         {looks.map((l) => (
           <RadioOption

@@ -2,7 +2,7 @@ import { AppState, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase-Projekt „Kiez Coins Data“. URL und Publishable Key sind öffentlich und dürfen in die App;
+// Supabase-Projekt „KiezCoins Data“. URL und Publishable Key sind öffentlich und dürfen in die App;
 // geschützt werden die Daten über Row Level Security. Für ein anderes Projekt in `.env.local` setzen:
 // EXPO_PUBLIC_SUPABASE_URL und EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY.
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://aqxzxpxrshizlaqyjplw.supabase.co';

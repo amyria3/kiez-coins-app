@@ -5,14 +5,14 @@
     <!-- viewport-fit=cover: Die App reicht bis unter Statusleiste und Home-Balken, die Abstände kommen aus useSafeAreaInsets. -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
     <meta name="robots" content="noindex" />
-    <title>Kiez Coins</title>
-    <!-- Web-App fürs iPhone: „Zum Home-Bildschirm“ in Safari startet Kiez Coins ohne Browserleiste. -->
+    <title>KiezCoins</title>
+    <!-- Web-App fürs iPhone: „Zum Home-Bildschirm“ in Safari startet KiezCoins ohne Browserleiste. -->
     <!-- Die Pfade beginnen mit /app/, passend zu experiments.baseUrl in app.json. -->
     <link rel="manifest" href="/app/manifest.json" />
     <link rel="apple-touch-icon" href="/app/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="Kiez Coins" />
+    <meta name="apple-mobile-web-app-title" content="KiezCoins" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="theme-color" content="#1F2123" />
     <meta name="format-detection" content="telephone=no" />
@@ -124,7 +124,7 @@
   </head>
 
   <body>
-    <noscript>Kiez Coins braucht JavaScript.</noscript>
+    <noscript>KiezCoins braucht JavaScript.</noscript>
     <div id="boot" aria-hidden="true"><img src="/app/gears.svg" alt="" /></div>
     <div id="root"></div>
     <script>
@@ -144,7 +144,7 @@
           shown = true;
           var box = document.createElement('div');
           box.setAttribute('style', 'position:fixed;inset:0;z-index:99;padding:64px 24px;background:#1f2123;color:#f0f0f0;font:15px/1.4 -apple-system,system-ui,sans-serif;overflow:auto');
-          box.innerHTML = '<p style="font-size:22px;font-weight:600;margin:0 0 12px">Kiez Coins startet nicht</p>' +
+          box.innerHTML = '<p style="font-size:22px;font-weight:600;margin:0 0 12px">KiezCoins startet nicht</p>' +
             '<p style="margin:0 0 16px;color:#a0a0a0">Schick uns den Fehlerbericht. So finden wir den Fehler schneller.</p>' +
             '<button type="button" data-send style="display:block;margin:0 0 12px;padding:12px 20px;border:0;border-radius:12px;background:#7e94ff;color:#1f2123;font:600 16px -apple-system,system-ui,sans-serif">Fehlerbericht senden</button>' +
             '<p data-status style="margin:0 0 12px"></p>' +
@@ -178,7 +178,7 @@
             }).catch(function () {
               send.remove();
               var body = encodeURIComponent(report.stack.slice(0, 1500) + '\n\nStart: ' + report.start_info + '\n' + report.platform);
-              status.innerHTML = 'Der Bericht ist nicht angekommen. <a style="color:#7e94ff" href="mailto:kiezkoins@protonmail.com?subject=' + encodeURIComponent('Fehlerbericht Kiez Coins') + '&body=' + body + '">Per E-Mail senden</a>';
+              status.innerHTML = 'Der Bericht ist nicht angekommen. <a style="color:#7e94ff" href="mailto:kiezkoins@protonmail.com?subject=' + encodeURIComponent('Fehlerbericht KiezCoins') + '&body=' + body + '">Per E-Mail senden</a>';
             });
           });
           document.body.appendChild(box);
