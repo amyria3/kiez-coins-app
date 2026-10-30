@@ -34,7 +34,7 @@ import { recordView } from '../../../data/remote';
 import { coordsIfAllowed, distanceMeters, KIEZ_RADIUS_METERS, type Coords } from '../../../data/location';
 import { useChallenge, useStore } from '../../../data/store';
 import { isPostOnly, type ChallengeStatus } from '../../../data/types';
-import { color, font, radius, size, space, stroke, text } from '../../../theme/tokens';
+import { color, font, isFashionable, radius, size, space, stroke, text } from '../../../theme/tokens';
 import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 
@@ -264,7 +264,10 @@ export default function ChallengeDetail() {
     <>
       <View style={styles.statusWrap}>
         <View style={styles.statusRow}>
-          <StatusBadge status={challenge.status} challenge={challenge} photo={isPhoto && !isBeforeAfter} beforeAfter={isBeforeAfter} />
+          {/* Fashionable Look: ohne Status-Blase (Daria, 30.10.2026) */}
+          {isFashionable ? null : (
+            <StatusBadge status={challenge.status} challenge={challenge} photo={isPhoto && !isBeforeAfter} beforeAfter={isBeforeAfter} />
+          )}
           <Text style={[styles.caption, styles.flex]}>{running ? formatRelative(challenge.createdAt) : ''}</Text>
           {isAuthor ? (
             <GlassIconButton
