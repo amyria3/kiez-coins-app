@@ -28,6 +28,15 @@ Quelle der Website: `scripts/build-download-site.mjs`, `scripts/site/`. Der Ordn
 
 ## Offene Punkte
 
-- [ ] Prüfen, ob `/laden` und `/qr` auf Vercel live sind (Push am 29.10.2026, Commit `04848db`). Am Telefon: `/laden` auf Android (Countdown, Abbrechen, Download), auf dem iPhone (Anleitung), in Instagram (Safari-Hinweis); `/qr` hochkant und quer, Vollbild, kein Ruhezustand.
-- [ ] Die QR-Codes erst drucken, wenn `/laden` live ist.
+- [x] `/laden` und `/qr` sind live (29.10.2026, per Abruf geprüft: Countdown und flex-wrap ausgeliefert).
+- [ ] Am Telefon testen: `/laden` auf Android (Countdown, Abbrechen, Download), auf dem iPhone (Anleitung), in Instagram (Safari-Hinweis); `/qr` hochkant und quer, Vollbild, kein Ruhezustand.
+- [ ] QR-Codes drucken (Daria). `/laden` ist live, die Druckvorlagen passen.
 - Am Rechner zeigt `/qr` die Codes nebeneinander, so groß es geht.
+
+## Nachgereicht (Daria, 29./30.10.2026, alles auf `main`)
+
+- Startseite am Desktop: Szenario-Texte („Me-Challenge“, „We-Challenge“ …) so breit wie der Umschalter „Nur ich · Meine Gruppen · Mein Kiez · Überall“.
+- Telefon-Prototyp: gewählter Reiter immer ganz lesbar, die anderen kürzen mit „…“ (auf Englisch ist „Neighborhood“ lang).
+- Große Abschnitte und Karten unten mit doppeltem Abstand (`seite.css`, Block am Ende).
+- Vercel leitet alte deutsche Pfade der Web-App auf die englischen um (`vercel.json`, siehe `2026-10-30_routen-englisch.md`).
+- Der Prototyp sagt in den Gruppen noch „Aufgabe“ statt „We-Challenge“.

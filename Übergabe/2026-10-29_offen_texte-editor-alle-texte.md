@@ -1,6 +1,6 @@
 # Texte-Editor findet alle Texte
 
-Datum: 2026-10-29 · Status: offen bis zur Migration · Ziel in Documentation: Datenbank-Doku (`app_texts`, Policy „Texte anlegen“), `app/Stand_App.md` (Texte-Editor)
+Datum: 2026-10-29 · Status: PR #122 gemergt (29.10.2026); offen, bis die Migration eingespielt ist (Stand 30.10.2026 nicht bestätigt) · Ziel in Documentation: Datenbank-Doku (`app_texts`, Policy „Texte anlegen“), `app/Stand_App.md` (Texte-Editor)
 
 Pflichtaufgabe: Migration `supabase/migrations/20261029000500_app_texts_anlegen.sql` im Supabase-SQL-Editor ausführen.
 

@@ -1,6 +1,6 @@
 # To-dos
 
-Stand: 28.10.2026. Diese Liste ist die einzige To-do-Liste für KiezKoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
+Stand: 30.10.2026. Diese Liste ist die einzige To-do-Liste für KiezKoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
 
 Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coins/screenshots/`. Sie stehen absichtlich nicht im Repo, weil das Repo öffentlich ist und einige Bilder Adressen und Namen zeigen.
 
@@ -158,9 +158,12 @@ Plan und Entscheidungen: `Übergabe/2026-10-27_we-challenge-mehrere-personen.md`
 ## 29.10.2026 – Offen nach dem Tag (Daria, Claude)
 
 - [x] PR #120 mergen: Namen ohne Kiez wieder verdecken, nur ohne Hinweistext (Daria, 29.10.2026)
-- [ ] Android-Update von Hand nach dem Merge (`Übergabe/2026-10-28_offen_android-updates-expo-minuten.md`, Abschnitt „Stand 29.10.2026“)
-- [ ] `/laden` und `/qr` live am Telefon prüfen, danach die QR-Codes drucken (`Übergabe/2026-10-29_offen_website-laden-qr.md`)
+- [ ] Android-Update von Hand: Stand 30.10.2026 fehlen #122, #123, #124, #79, #103 (`Übergabe/2026-10-28_offen_android-updates-expo-minuten.md`)
+- [x] `/laden` und `/qr` live (29.10.2026)
+- [ ] `/laden` und `/qr` am Telefon testen, danach die QR-Codes drucken (`Übergabe/2026-10-29_offen_website-laden-qr.md`)
 - [ ] Nach dem 01.11.2026 prüfen, ob der EAS-Workflow wieder startet
 - [ ] Texte von Claude in der Tour prüfen (`Übergabe/2026-10-29_offen_tour.md`)
-- [ ] Notizen vom 29.10.2026 in Documentation übernehmen: Bild-Text, Tour, Modus „Überall“, Profil, Website
+- [ ] Migration `20261029000500_app_texts_anlegen.sql` einspielen, falls noch nicht geschehen (Texte-Editor, `2026-10-29_offen_texte-editor-alle-texte.md`)
+- [ ] PR #16 („Download ohne Supabase-Secret“) ohne Merge schließen: überholt, der Download läuft schon über `download_settings` (Daria bestätigt, dass er funktioniert)
+- [ ] Notizen vom 29. und 30.10.2026 in Documentation übernehmen: Bild-Text, Tour, Modus „Überall“, Profil, Website, leere Reiter, Hinweis, Texte-Editor, Routen, Nutzungsbedingungen
 
