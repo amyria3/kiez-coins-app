@@ -5,7 +5,6 @@ import { useRouter } from 'expo-router';
 import { Button } from '../../../components/Button';
 import { ExtraPhotos, PhotoPicker } from '../../../components/Form';
 import { TagTextField } from '../../../components/compose/BeforeAfterForm';
-import { HintWithInfo } from '../../../components/compose/HintWithInfo';
 import { PHOTO_TAG } from '../../../components/WithMentions';
 import { TypeSwitch } from '../../../components/compose/TypeSwitch';
 import { PhotoTextOnPhoto } from '../../../components/PhotoText';
@@ -82,8 +81,8 @@ export default function CreateStep1() {
         onChange={(type) => setDraft((d) => ({ ...d, type, bountyAmount: type === 'individual' ? d.bountyAmount : undefined, edensteine: type === 'individual' ? d.edensteine : undefined }))}
       /> : null}
       {isChallenge ? (
-        // Erklärung nur bei Bedarf hinter dem Info-Icon (Daria, 27.10.2026)
-        <HintWithInfo hint="Hier gibt es etwas zu tun! Dokumentiere die Ausgangslage und poste es im Kiez!" info="Deine Nachbar:innen sehen den Post und nehmen die We-Challenge an." />
+        // Ohne Info-Icon (Daria, 30.10.2026)
+        <Text style={styles.hint}>Hier gibt es etwas zu tun! Dokumentiere die Ausgangslage und poste es im Kiez!</Text>
       ) : (
         <Text style={styles.hint}>Hier ist nichts zu tun, nur ein schönes Bild.</Text>
       )}
