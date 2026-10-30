@@ -11,7 +11,8 @@ import { color, radius, space, text } from '../theme/tokens';
 
 /**
  * Dein Platz in der Rangliste einer Gruppe, in „Was Du so machst“ unter „In Gruppen“ (UX-Audit, Daria, 27.10.2026).
- * Rangliste an: alle Mitglieder nach Edensteinen, Deine Zeile hervorgehoben. Aus: nur Deine eigenen Edensteine.
+ * Rangliste an: alle Mitglieder nach Edensteinen, Deine Zeile heißt „Du“ (ohne Rahmen, Daria, 30.10.2026).
+ * Aus: nur Deine eigenen Edensteine.
  */
 export function GroupRanking({ group }: { group: Group }) {
   const { challenges, users, currentUserId } = useStore();
@@ -43,7 +44,7 @@ export function GroupRanking({ group }: { group: Group }) {
                   ? t('Platz {index}, {name}, {edensteine} Edensteine', { index: rank, name: me ? t('Du') : user.name, edensteine: r.edensteine })
                   : t('Du, {edensteine} Edensteine', { edensteine: r.edensteine })
               }
-              style={[styles.row, me && styles.rowMe]}
+              style={styles.row}
             >
               {group.showLeaderboard ? <Text style={styles.rank}>{rank}</Text> : null}
               <Avatar user={user} diameter={32} />
@@ -83,7 +84,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     backgroundColor: color.bg.surface,
   },
-  rowMe: { borderWidth: 1, borderColor: color.accent.confirmation },
   rank: { ...text.metric, fontSize: 18, width: 22, textAlign: 'center', color: color.text.secondary },
   flex: { flex: 1, gap: space[2] },
   name: { ...text.title, fontSize: 16, color: color.text.primary },
