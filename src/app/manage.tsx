@@ -125,10 +125,13 @@ export default function ManageChallenges() {
 
   const create = () => requireKiez() && router.push('/challenge/create/step-1');
   // Vorher-Nachher: zurück zum Timer bzw. Nachher (Route vorher-nachher/[id])
+  // Entwurf in einer Gruppe: im Formular der Gruppe (Daria, 30.10.2026)
   const openDraft = (c: Challenge) =>
     c.type === 'before_after'
       ? router.push({ pathname: '/before-after/[id]', params: { id: c.id } })
-      : requireKiez() && router.push({ pathname: '/challenge/create/step-1', params: { draftId: c.id } });
+      : c.groupId
+        ? router.push({ pathname: '/groups/[id]/task', params: { id: c.groupId, draftId: c.id } })
+        : requireKiez() && router.push({ pathname: '/challenge/create/step-1', params: { draftId: c.id } });
   // Kopie: neue Challenge mit Foto, Titel, Text, Ort und Bounty der alten. Gruppenaufgaben bleiben in ihrer Gruppe.
   const copy = (c: Challenge) =>
     c.groupId

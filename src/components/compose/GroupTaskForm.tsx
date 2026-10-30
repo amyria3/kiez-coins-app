@@ -3,7 +3,7 @@ import { Alert, StyleSheet } from 'react-native';
 
 import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
-import type { ImageSource } from '../../data/types';
+import type { Challenge, ImageSource } from '../../data/types';
 import { color, text } from '../../theme/tokens';
 import { Button } from '../Button';
 import { FieldGroup } from '../Content';
@@ -25,50 +25,77 @@ const durations = [
   { days: 30, label: '1 Monat' },
 ];
 
-type Initial = { photo?: ImageSource; title?: string; text?: string; edensteine?: number };
+type Initial = { photo?: ImageSource; title?: string; text?: string; edensteine?: number; participation?: Participation };
+
+/** Foto eines Entwurfs: unverändert bleibt sein Pfad, ein neues lädt die App hoch. */
+export const draftPhoto = (photo: ImageSource | undefined, draft: Challenge | undefined) =>
+  photo && draft?.imagePath && photo === draft.image ? { imagePath: draft.imagePath } : { photo };
 
 /**
- * Gruppenaufgabe mit 1 bis 10 Edensteinen: Felder und Button „Aufgabe veröffentlichen“.
+ * Gruppenaufgabe mit 1 bis 10 Edensteinen: Felder, Button „We-Challenge veröffentlichen“ und „Als Entwurf speichern“.
  * Genutzt in der Route `groups/[id]/task` und im Erstellen-Blatt über dem Feed.
+ * Mit `draft` bearbeitet das Formular einen gespeicherten Entwurf (Daria, 30.10.2026, Migration 20261030000300).
  */
 export function useGroupTaskForm(
   groupId: string | undefined,
   initial: Initial,
   onCreated: (taskId: string) => void,
-  shared?: ComposeContent,
+  shared: ComposeContent | undefined,
+  onSaved: () => void,
+  draft?: Challenge,
 ): {
   fields: ReactNode;
   button: ReactNode;
 } {
-  const { groups, groupApi } = useStore();
+  const { groups, groupApi, saveDraft, publishDraft } = useStore();
   const group = groups.find((g) => g.id === groupId);
   const own = useComposeContent(initial);
   const { photo, setPhoto, title, setTitle, text: body, setText: setBody } = shared ?? own;
   const [edensteine, setEdensteine] = useState(initial.edensteine ?? 3);
   const [days, setDays] = useState(7);
-  const [participation, setParticipation] = useState<Participation>(DEFAULT_PARTICIPATION);
-  const [busy, setBusy] = useState(false);
+  const [participation, setParticipation] = useState<Participation>(initial.participation ?? DEFAULT_PARTICIPATION);
+  const [busy, setBusy] = useState<'publish' | 'save' | undefined>();
   const titleField = useNudge();
+  const hasContent = !!photo || !!title.trim() || !!body.trim();
+
+  const input = () => ({
+    groupId,
+    type: 'individual' as const,
+    title,
+    text: body,
+    location: '',
+    edensteine,
+    participation,
+    ...draftPhoto(photo, draft),
+  });
 
   const publish = async () => {
     if (!group) return;
-    setBusy(true);
+    setBusy('publish');
     try {
-      const taskId = await groupApi.createTask({
-        groupId: group.id,
-        title,
-        text: body,
-        edensteine,
-        participation,
-        deadline: new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString(),
-        photo,
-      });
+      const deadline = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+      const taskId = draft
+        ? await publishDraft(draft.id, input(), deadline)
+        : await groupApi.createTask({ groupId: group.id, title, text: body, edensteine, participation, deadline, photo });
       celebratePost();
       onCreated(taskId);
     } catch (error) {
       Alert.alert('We-Challenge konnte nicht erstellt werden', (error as Error).message);
     } finally {
-      setBusy(false);
+      setBusy(undefined);
+    }
+  };
+
+  const save = async () => {
+    if (!group) return;
+    setBusy('save');
+    try {
+      await saveDraft(draft?.id, input());
+      onSaved();
+    } catch (error) {
+      Alert.alert('Entwurf nicht gespeichert', (error as Error).message);
+    } finally {
+      setBusy(undefined);
     }
   };
 
@@ -99,22 +126,39 @@ export function useGroupTaskForm(
   );
 
   const button = (
-    <Button
-      busy={busy}
-      label={busy ? 'Wird erstellt …' : 'We-Challenge veröffentlichen'}
-      onPress={publish}
-      disabled={busy || !group || !title.trim()}
-      whyDisabled={() =>
-        busy
-          ? undefined
-          : !group
-            ? explain('Gruppe nicht gefunden', 'Diese Gruppe gibt es nicht mehr, oder Du bist nicht mehr dabei.')
-            : titleField.nudge('Gib der We-Challenge einen Titel.')
-      }
-    />
+    <>
+      <Button
+        busy={busy === 'publish'}
+        label={busy === 'publish' ? 'Wird erstellt …' : 'We-Challenge veröffentlichen'}
+        onPress={publish}
+        disabled={!!busy || !group || !title.trim()}
+        whyDisabled={() =>
+          busy
+            ? undefined
+            : !group
+              ? explain('Gruppe nicht gefunden', 'Diese Gruppe gibt es nicht mehr, oder Du bist nicht mehr dabei.')
+              : titleField.nudge('Gib der We-Challenge einen Titel.')
+        }
+      />
+      <GroupDraftButton busy={busy === 'save'} disabled={!!busy || !group || !hasContent} onPress={save} />
+    </>
   );
 
   return { fields, button };
+}
+
+/** „Als Entwurf speichern“ in Gruppen, wie im Kiez (PublicComposeForm) */
+export function GroupDraftButton({ busy, disabled, onPress }: { busy: boolean; disabled: boolean; onPress: () => void }) {
+  return (
+    <Button
+      busy={busy}
+      label={busy ? 'Wird gespeichert …' : 'Als Entwurf speichern'}
+      variant="ghost"
+      onPress={onPress}
+      disabled={disabled}
+      whyDisabled={() => !busy && explain('Noch nichts zu speichern', 'Füge ein Foto hinzu oder gib einen Titel ein, dann lässt sich der Entwurf speichern.')}
+    />
+  );
 }
 
 const styles = StyleSheet.create({
