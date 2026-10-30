@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Alert, Animated, Platform, Pressable, StyleSheet, Switch as NativeSwitch, TextInput, View, type TextInputProps } from 'react-native';
 import { Text } from './T';
 import * as Clipboard from 'expo-clipboard';
@@ -440,10 +440,24 @@ export type PhotoTitle = {
   maxLength?: number;
 };
 
+/** Blur im Browser: unscharf wird nur, was hinter dem Element liegt (Daria, 30.10.2026) */
+const webBlur = Platform.OS === 'web' ? ({ backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' } as object) : {};
+
 /** Eine Zeile Titel (`text.cardTitle`) */
 const TITLE_LINE = text.cardTitle.lineHeight;
 
-export function PhotoPicker({ photo, hint, error, onChange, title }: PhotoPickerProps & { title?: PhotoTitle }) {
+export function PhotoPicker({
+  photo,
+  hint,
+  error,
+  onChange,
+  title,
+  overlay,
+}: PhotoPickerProps & {
+  title?: PhotoTitle;
+  /** Ebene über dem Foto, z. B. Text direkt auf dem Foto (`PhotoTextOnPhoto`). Fängt Tippen aufs Foto ab. */
+  overlay?: ReactNode;
+}) {
   const choose = () => choosePhoto(onChange);
   const [focused, setFocused] = useState(false);
   // Höhe des Titels folgt dem Text (Daria, 30.10.2026); im Browser wäre das Feld sonst zwei Zeilen hoch
@@ -489,6 +503,7 @@ export function PhotoPicker({ photo, hint, error, onChange, title }: PhotoPicker
           {photo ? <Image source={photo} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
           {!photo && !title ? <View style={styles.photoEmptyText}>{emptyText}</View> : null}
         </Pressable>
+        {photo && overlay ? overlay : null}
         {/* Mit Titel liegt der Hinweis im Fluss über dem Titel, damit die Fläche nur so hoch ist wie nötig
             (Daria, 27.10.2026). Tippen geht durch ihn hindurch an die Fläche. */}
         {!photo && title ? <View style={styles.photoEmptyTextTitled}>{emptyText}</View> : null}
@@ -499,7 +514,7 @@ export function PhotoPicker({ photo, hint, error, onChange, title }: PhotoPicker
             onPress={choose}
             style={({ pressed }) => [styles.photoChange, pressed && styles.photoChangePressed]}
           >
-            <BlurView intensity={30} tint={scheme} style={StyleSheet.absoluteFill} />
+            {Platform.OS === 'web' ? null : <BlurView intensity={30} tint={scheme} style={StyleSheet.absoluteFill} />}
             <View style={styles.overBlur}>
               <Icon name="camera" size={18} />
             </View>
@@ -516,7 +531,8 @@ export function PhotoPicker({ photo, hint, error, onChange, title }: PhotoPicker
               return [styles.photoTitle, photo ? styles.photoTitleOnPhoto : null, photo && active ? styles.photoTitleActive : null, { borderColor: titleBorder }];
             }}
           >
-            {photo ? <BlurView intensity={30} tint={scheme} style={StyleSheet.absoluteFill} /> : null}
+            {/* Blur macht nur das Foto dahinter unscharf: im Browser per backdrop-filter am Feld selbst, sonst BlurView darunter */}
+            {photo && Platform.OS !== 'web' ? <BlurView intensity={30} tint={scheme} style={StyleSheet.absoluteFill} /> : null}
             <TextInput
               ref={titleInputRef}
               value={title.value}
@@ -693,7 +709,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   // Auf dem Foto: weniger dunkel, dafür Blur (Daria, 30.10.2026)
-  photoTitleOnPhoto: { backgroundColor: color.bg.sheet },
+  photoTitleOnPhoto: { backgroundColor: color.bg.sheet, ...webBlur },
   photoTitleActive: { backgroundColor: color.bg.glass },
   // Foto ändern: runder Knopf oben rechts, wenn Tippen aufs Foto den Titel öffnet
   photoChange: {
@@ -707,6 +723,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: color.bg.sheet,
+    ...webBlur,
   },
   photoChangePressed: { backgroundColor: color.bg.glass },
   // Über dem Blur: absolut liegende Flächen malen sonst über den Inhalt
