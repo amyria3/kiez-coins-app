@@ -173,7 +173,8 @@ function Gift({ open, seenKey, share, index }: { open: boolean; seenKey: string;
 
   // Offenes Geschenk grün (Ziel erreicht), Herzen pink (Daria, 30.10.2026: Geschenk und Herzen in verschiedenen Farben)
   const xml = iconSvgs.gift.svg(open ? color.accent.confirmation : color.text.secondary);
-  const heartIcon = iconSvgs.feed;
+  // Normales Herz wie beim Like, nicht das Doppelherz des Feeds (Daria, 30.10.2026)
+  const heartIcon = iconSvgs.heart;
   return (
     <Animated.View style={[styles.gift, wiggle]}>
       {burst
