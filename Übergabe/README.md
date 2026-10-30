@@ -53,6 +53,7 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-30_routen-englisch.md`: Notiz für die Doku. Routen auf Englisch mit Umleitungen, Look-Namen, „We-Challenge“ in Gruppen, „noch mal“ (PR #124).
 - `2026-10-30_nutzungsbedingungen-fotofeld.md`: Notiz für die Doku. Coins als Versprechen von realem Geld, Edensteine ideell (PR #103); Fotofeld beim Erstellen kleiner (PR #79).
 - `2026-10-30_offen_gruppen-entwuerfe.md`: Entwürfe für We-Challenge und Bild in Gruppen, `publish_challenge` ohne Ort für Gruppen und private Bilder (PR #135, Migration eingespielt). Offen: Test am Telefon.
+- `2026-10-30_offen_app-texts.sql`: Offen. Alle Texte aus dem Code für `app_texts` (erzeugt mit `node scripts/app-texts.mjs`), im SQL-Editor von Supabase ausführen. Danach löschen.
 - `2026-10-30_offen_entwurf-speichern.md`: Notiz für die Doku. Vorhandenen Entwurf speichern und veröffentlichen schlug fehl, da das Recht für `edensteine` fehlte (PR #134, Migration eingespielt).
 - `2026-10-24_offen_gruppen.md` und `2026-10-24_offen_gruppen-titelbild.md`: offene Punkte zum Feature „Gruppen“ und zum Gruppen-Titelbild.
 - `2026-10-24_offen_look-auf-allen-geraeten.md` und `2026-10-24_offen_web-und-mobile.md`: Abweichungen im Look und zwischen Web-App und Mobile.
