@@ -1,6 +1,6 @@
 # Routen auf Englisch, Look-Namen einheitlich
 
-Datum: 2026-10-30 · Status: umgesetzt (PR, siehe Commit); noch in die Doku übernehmen · Ziel in Documentation: `kiez-coins/app/Arbeitsstand_Code.md` (Struktur, Routen), `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitt „Code“)
+Datum: 2026-10-30 · Status: umgesetzt, PR #124 gemergt (30.10.2026); Umleitungen auf Vercel geprüft; noch in die Doku übernehmen · Ziel in Documentation: `kiez-coins/app/Arbeitsstand_Code.md` (Struktur, Routen), `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitt „Code“)
 
 ## Entscheidung von Daria (30.10.2026)
 

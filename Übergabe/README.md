@@ -43,11 +43,16 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-24_offen_features-aus-textkorrektur.md`: Features, Bugs und offene Fragen, die Daria am 24.10.2026 an den Rand des Text-Ausdrucks geschrieben hat.
 - `2026-10-24_offen_umbenennung-kiezkoinz.md`, `2026-10-24_offen_funktionen-sperre.md` und `2026-10-24_offen_coin-animation-me-challenge.md`: Darias To-do-Liste vom 24.10.2026.
 - `2026-10-24_offen_email-code-5-minuten.md`: Anmeldung per E-Mail-Code, jeder Code der letzten 5 Minuten gilt. Pflichtaufgabe: Migration für `login_codes`, zwei Edge Functions, Secrets und `pg_cron`-Job.
-- `2026-10-29_offen_bild-text.md`: Text auf dem Foto bei „Nur ein Bild“, verschiebbar wie bei Stories. Pflichtaufgabe: Migration `20261029000200` einspielen.
-- `2026-10-29_offen_tour.md`: Tour mit 8 Seiten, neuer Coins-Text, Rückmeldung „Wie fandest Du diese Erklärung?“. Pflichtaufgabe: Migration `20261029000300` einspielen.
-- `2026-10-29_offen_modus-ueberall.md`: Modus „Überall“, Kiez nur bis 5 km, Mitmachen ab 5 km nur auf Anfrage, Schalter „Auf einen Umkreis von 5 km begrenzen“. Pflichtaufgabe: Migration `20261029000100` einspielen.
-- `2026-10-29_offen_website-laden-qr.md`: Link `/laden` für alle Geräte, Seite `/qr` und Überarbeitung der Startseite. Live-Prüfung und Druck der QR-Codes stehen aus.
+- `2026-10-29_offen_bild-text.md`: Text auf dem Foto bei „Nur ein Bild“, verschiebbar wie bei Stories. Migration `20261029000200` eingespielt (29.10.2026), PR #114 gemergt; kleine offene Punkte.
+- `2026-10-29_offen_tour.md`: Tour mit 8 Seiten, neuer Coins-Text, Rückmeldung „Wie fandest Du diese Erklärung?“, auch ohne Konto. Migrationen `20261029000300` und `20261029000400` eingespielt (29.10.2026); Texte von Claude prüfen.
+- `2026-10-29_offen_modus-ueberall.md`: Modus „Überall“, Kiez nur bis 5 km, Mitmachen ab 5 km nur auf Anfrage, Schalter „Auf einen Umkreis von 5 km begrenzen“. Migration `20261029000100` eingespielt (29.10.2026).
+- `2026-10-29_offen_website-laden-qr.md`: Link `/laden` für alle Geräte, Seite `/qr` und Überarbeitung der Startseite. Live seit 29.10.2026; Test am Telefon und Druck der QR-Codes stehen aus.
 - `2026-10-29_profil-ansprache-bild-namen.md`: Notiz für die Doku. Ansprache ausgeblendet, Profilbild zuschneiden, Namensregel ohne Hinweistext.
+- `2026-10-29_offen_texte-editor-alle-texte.md`: Texte-Editor findet alle Texte (PR #122 gemergt). Pflichtaufgabe: Migration `20261029000500_app_texts_anlegen.sql` einspielen, falls noch nicht geschehen.
+- `2026-10-29_leere-reiter.md`: Notiz für die Doku. Leere Reiter einheitlich mit „Cat The Käptn wartet“ (PR #121).
+- `2026-10-29_hinweis-sichtbarkeit-ueberall.md`: Notiz für die Doku. Hinweis unter dem Umschalter überall, Konto-Menü „Me“, „Feed ansehen“, Geschenk bei den Zielen (PR #123).
+- `2026-10-30_routen-englisch.md`: Notiz für die Doku. Routen auf Englisch mit Umleitungen, Look-Namen, „We-Challenge“ in Gruppen, „noch mal“ (PR #124).
+- `2026-10-30_nutzungsbedingungen-fotofeld.md`: Notiz für die Doku. Coins als Versprechen von realem Geld, Edensteine ideell (PR #103); Fotofeld beim Erstellen kleiner (PR #79).
 - `2026-10-24_offen_gruppen.md` und `2026-10-24_offen_gruppen-titelbild.md`: offene Punkte zum Feature „Gruppen“ und zum Gruppen-Titelbild.
 - `2026-10-24_offen_look-auf-allen-geraeten.md` und `2026-10-24_offen_web-und-mobile.md`: Abweichungen im Look und zwischen Web-App und Mobile.
 - `2026-10-24_offen_figma-abgleich.md`: Figma an den Stand der App anpassen.
@@ -57,8 +62,6 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-25_offen_gruppe-beim-erstellen.md`: Beim Erstellen zeigt die App, in welcher Gruppe die Person ist (To-do, Daria).
 - `2026-10-25_offen_kopf-grosse-bildschirme.md`: Der Feed-Kopf verschwindet auf großen Bildschirmen scheinbar zufällig (To-do, Daria).
 - `2026-10-26_offen_umfrage-ergaenzungen.md`: Zwei neue Fragen und Kommentarfeld in der Umfrage. Migration `20261026000100_survey_frequency_comment.sql` ausgeführt (26.10.2026).
-- `2026-10-26_offen_sichtbarkeit-nur-ich.md`: Sichtbarkeit „Nur ich“ beim Posten, veröffentlicht, aber nur für die Ersteller:in sichtbar, kein Entwurf (To-do, Daria).
 - `2026-10-26_offen_russisch.md`: Russisch in der App, alle Sprachen auf der Website. Prüfung der Übersetzungen durch Muttersprachler:innen steht aus.
 - `2026-10-26_offen_lila-ungemuetlich.md`: Kritik „Farbe Lila, ungemütlich“, offene Fragen zu Ort und Ersatzfarbe (To-do, Daria).
-- `2026-10-26_offen_kiez-ausschalten.md`: Kiez als Funktion ausschalten, Modus „Erstmal nur ich“, hängt mit „Nur ich“ zusammen (To-do, Daria).
 - `2026-10-27_offen_chat-mitlesen-protokoll.md`: Protokoll, wer private Chats liest. Migration `20261027000100_chat_access_log.sql` ausgeführt (27.10.2026). Migration `20261027000200_my_data_access.sql` für „Abrufe Deiner Daten“ ausgeführt (27.10.2026).

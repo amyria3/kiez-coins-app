@@ -1,6 +1,6 @@
 # Android-Updates: Expo-Minuten aufgebraucht
 
-Stand: 29.10.2026. Status: offen, bis Android wieder auf dem Stand von `main` ist. Gehört nach: Documentation, `app/Stand_App.md`, Abschnitt „So bleiben Web, iPhone und Android auf demselben Stand“.
+Stand: 30.10.2026. Status: offen, bis Android wieder auf dem Stand von `main` ist. Gehört nach: Documentation, `app/Stand_App.md`, Abschnitt „So bleiben Web, iPhone und Android auf demselben Stand“.
 
 ## Der Workflow „Android-Updates“ startet nicht mehr
 
@@ -31,7 +31,7 @@ Die App lädt das Update beim nächsten Start und zeigt es beim Start danach. Ä
 
 ## Stand 29.10.2026
 
-Seit dem letzten Update von Hand fehlen auf Android: Profil ohne „Ansprache“ (#117), Profilbild zuschneiden (#118), Namensregel ohne Hinweistext (#120). Keine native Änderung, ein Update reicht. #120 ist gemergt (29.10.2026). Im Terminal auf dem Mac:
+Stand 29.10.2026 fehlten auf Android: Profil ohne „Ansprache“ (#117), Profilbild zuschneiden (#118), Namensregel ohne Hinweistext (#120). Keine native Änderung, ein Update reicht. #120 ist gemergt (29.10.2026). Im Terminal auf dem Mac:
 
 ```bash
 cd ~/KiezCoins-Fotos/repo
@@ -41,3 +41,10 @@ npx eas-cli@latest update --channel preview --platform android --environment pre
 ```
 
 - [ ] Update veröffentlichen (Daria)
+
+## Stand 30.10.2026
+
+Daria hat am 29.10.2026 abends ein Update von Hand veröffentlicht. Seitdem auf `main` und noch nicht auf Android: PR #122 (Texte-Editor), #123 (Hinweis, Konto-Menü, Ziele), #124 (Routen auf Englisch, We-Challenge in Gruppen), #79 (Fotofeld), #103 (Nutzungsbedingungen). Keine native Änderung, ein Update reicht (Befehle oben, Nachricht frei wählbar).
+
+- [ ] Update veröffentlichen (Daria)
+- [ ] Ab 01.11.2026 prüfen, ob der EAS-Workflow wieder von selbst startet

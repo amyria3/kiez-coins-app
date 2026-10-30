@@ -1,6 +1,6 @@
 # Leere Reiter einheitlich mit Cat The Käptn
 
-Datum: 2026-10-29 · Status: umgesetzt (PR, siehe Commit); noch in die Doku übernehmen · Ziel in Documentation: `kiez-coins/design/UX_UI_Regeln.md` (leere Zustände), `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitt „Feed“)
+Datum: 2026-10-29 · Status: umgesetzt, PR #121 gemergt (29.10.2026); noch in die Doku übernehmen · Ziel in Documentation: `kiez-coins/design/UX_UI_Regeln.md` (leere Zustände), `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitt „Feed“)
 
 ## Entscheidung von Daria (29.10.2026)
 
