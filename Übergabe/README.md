@@ -54,6 +54,7 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-30_routen-englisch.md`: Notiz für die Doku. Routen auf Englisch mit Umleitungen, Look-Namen, „We-Challenge“ in Gruppen, „noch mal“ (PR #124).
 - `2026-10-30_nutzungsbedingungen-fotofeld.md`: Notiz für die Doku. Coins als Versprechen von realem Geld, Edensteine ideell (PR #103); Fotofeld beim Erstellen kleiner (PR #79).
 - `2026-10-30_offen_gruppen-entwuerfe.md`: Offen. Entwürfe für We-Challenge und Bild in Gruppen, `publish_challenge` ohne Ort für Gruppen und private Bilder. Migration `20261030000300` einspielen.
+- `2026-10-30_offen_entwurf-speichern.md`: Offen. Vorhandenen Entwurf speichern und veröffentlichen schlug fehl, da das Recht für `edensteine` fehlte. Migration `20261030000200` einspielen.
 - `2026-10-24_offen_gruppen.md` und `2026-10-24_offen_gruppen-titelbild.md`: offene Punkte zum Feature „Gruppen“ und zum Gruppen-Titelbild.
 - `2026-10-24_offen_look-auf-allen-geraeten.md` und `2026-10-24_offen_web-und-mobile.md`: Abweichungen im Look und zwischen Web-App und Mobile.
 - `2026-10-24_offen_figma-abgleich.md`: Figma an den Stand der App anpassen.
