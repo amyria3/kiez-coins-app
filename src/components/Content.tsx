@@ -2,9 +2,9 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
-import { color, font, radius, space, text } from '../theme/tokens';
+import { color, font, isFashionable, radius, space, text } from '../theme/tokens';
 import { useTexts } from '../data/texts';
-import type { CatMood } from './icons/Brand';
+import { Cat, type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
 import { iconSvgs } from './icons/svgs';
 import { SvgXml } from 'react-native-svg';
@@ -49,15 +49,32 @@ export function KaterBubble({ children }: { children: ReactNode }) {
 /**
  * Sprechblase: Text links, rechts auf der Blase der Kater im Kreis. Optional mit fetter Überschrift.
  */
-/** `mood` bleibt für die Aufrufe erhalten; das Icon im Kreis hat keine Stimmungen (Daria, 30.10.2026). */
-export function KaterCard({ children, title }: { children: ReactNode; title?: string; mood?: CatMood }) {
+/** Kiez-Look: Icon „cat“ im Kreis ohne Stimmungen; Fashionable: Kater nach `mood` in der Kachel daneben. */
+export function KaterCard({ children, title, mood = 'default' }: { children: ReactNode; title?: string; mood?: CatMood }) {
   // Texte aus dem CMS (Tabelle app_texts). Nur reiner Text lässt sich ersetzen; Texte mit Namen
   // setzen die Screens selbst über t() mit Platzhaltern zusammen.
   const tx = useTexts();
   if (typeof children === 'string') children = tx(children);
   if (title) title = tx(title);
+  if (isFashionable) {
+    // Fashionable Look bleibt wie bisher: Blase mit Spitze, Kater in der Kachel daneben (Daria, 30.10.2026)
+    return (
+      <View style={styles.speech}>
+        <View style={[styles.speechBubble, styles.speechBubbleFashionable]}>
+          <View style={styles.speechTexts}>
+            {title ? <Text style={styles.speechTitle}>{title}</Text> : null}
+            <Text style={styles.speechText}>{children}</Text>
+          </View>
+          <View style={styles.speechTail} />
+        </View>
+        <View style={styles.speechCatFashionable} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          <Cat mood={mood} height={36} tint={color.text.primary} />
+        </View>
+      </View>
+    );
+  }
   return (
-    // Kater im Kreis sitzt auf der Blase, rechts neben dem Text (Daria, 30.10.2026)
+    // Kiez-Look: Kater im Kreis sitzt auf der Blase, rechts neben dem Text (Daria, 30.10.2026)
     <View style={styles.speechBubble}>
       <View style={styles.speechTexts}>
         {title ? <Text style={styles.speechTitle}>{title}</Text> : null}
@@ -151,6 +168,29 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
   },
   speechTexts: { flex: 1, gap: space[4] },
+  speech: { flexDirection: 'row', alignItems: 'center', gap: space[16] },
+  speechBubbleFashionable: { flex: 1, paddingRight: space[16] },
+  // Spitze rechts zur Katze: gedrehtes Quadrat in der Farbe der Blase (nur Fashionable)
+  speechTail: {
+    position: 'absolute',
+    right: -7,
+    top: '50%',
+    marginTop: -8,
+    width: 16,
+    height: 16,
+    borderRadius: 3,
+    backgroundColor: color.bg.surface,
+    transform: [{ rotate: '45deg' }],
+  },
+  // Fashionable: Kachel 68 pt, Kater 36 pt (Daria, 24.10.2026)
+  speechCatFashionable: {
+    width: 68,
+    height: 68,
+    borderRadius: 24,
+    backgroundColor: color.bg.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   speechTitle: { ...text.cardTitle, fontSize: 17, lineHeight: 22, color: color.text.primary },
   speechText: { fontFamily: font.light, fontSize: 15, lineHeight: 21, color: color.text.primary },
   // Kreis im Grund der Seite, damit er sich von der Blase abhebt
