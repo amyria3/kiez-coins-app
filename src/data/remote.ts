@@ -309,9 +309,31 @@ function toChallenge(
   };
 }
 
-/** Fehler aus Supabase als Satz, den man der Person zeigen kann. */
+/**
+ * Fehler, dessen Text schon für die Person formuliert ist (aus `errorText`). `errorText` gibt ihn unverändert
+ * weiter, statt ihn noch einmal als unbekannten Fehler einzupacken.
+ */
+export class ShownError extends Error {}
+
+/** Technischer Grund eines Fehlers, z. B. „42501: new row violates row-level security policy …“. Leer, wenn keiner da ist. */
+export function errorDetail(error: unknown): string {
+  const e = error as { message?: string; code?: string; details?: string } | null;
+  return [e?.code, e?.message, e?.details].filter(Boolean).join(': ').slice(0, 200);
+}
+
+/** Technischer Grund klein unter dem Satz, damit sich die Ursache finden lässt (Daria, 30.10.2026) */
+function withDetail(sentence: string, e: unknown) {
+  const detail = errorDetail(e);
+  return detail ? `${sentence}\n\n(${detail})` : sentence;
+}
+
+/**
+ * Fehler aus Supabase als Satz, den man der Person zeigen kann. Außer bei eigenen Meldungen der Datenbank
+ * (P0001) und bekannten Fällen hängt der technische Grund klein darunter, auch bei fehlenden Rechten.
+ */
 export function errorText(error: unknown): string {
-  const e = error as { message?: string; hint?: string; code?: string } | null;
+  if (error instanceof ShownError) return error.message;
+  const e = error as { message?: string; hint?: string; code?: string; details?: string } | null;
   if (e?.hint === 'invalid_transition') {
     return t('Das geht gerade nicht mehr. Jemand war schneller oder der Stand hat sich geändert. Ich lade neu.');
   }
@@ -320,11 +342,17 @@ export function errorText(error: unknown): string {
   if (e?.code === '23505' && /profiles_handle_unique/.test(e.message ?? '')) {
     return t('Diesen Decknamen gibt es schon. Suche Dir bitte einen anderen aus.');
   }
-  if (e?.code === '42501') return t('Das darfst Du gerade nicht. Hast Du schon Deinen Kiez festgelegt?');
+  // Fehlende Rechte: Policy (RLS) oder Spaltenrecht. Der Grund steht darunter, z. B. welche Tabelle.
+  // Die Frage nach dem Kiez nur bei Challenges, denn nur dort hängt das Recht am Kiez.
+  if (e?.code === '42501') {
+    const sentence = /challenges/.test(e.message ?? '')
+      ? t('Das darfst Du gerade nicht. Hast Du schon Deinen Kiez festgelegt?')
+      : t('Das darfst Du gerade nicht.');
+    return withDetail(sentence, e);
+  }
   if (/fetch|network/i.test(e?.message ?? '')) return t('Keine Verbindung. Prüfe Dein Internet und versuche es noch mal.');
-  // Unbekannter Fehler: technischen Grund klein anhängen, damit sich die Ursache finden lässt
-  const detail = [e?.code, e?.message].filter(Boolean).join(': ').slice(0, 160);
-  return `${t('Da ist etwas schiefgegangen. Versuche es bitte noch mal.')}${detail ? `\n\n(${detail})` : ''}`;
+  // Unbekannter Fehler
+  return withDetail(t('Da ist etwas schiefgegangen. Versuche es bitte noch mal.'), e);
 }
 
 function check<T extends { error: unknown }>(result: T): T {
@@ -1299,7 +1327,8 @@ export async function saveAppText(original: string, value: string, lang: 'de' | 
   if (data?.length) return;
   // Text aus dem Code, der noch nicht in der Tabelle steht: Zeile anlegen (Migration 20261029000500)
   const { error } = await supabase.from('app_texts').insert({ original, [column]: value });
-  if (error) throw new Error(t('Keine Berechtigung zum Ändern der Texte.'));
+  // Echten Grund weitergeben (errorText zeigt ihn), statt ihn zu verschlucken (Daria, 30.10.2026)
+  if (error) throw error;
 }
 
 /** true, wenn die angemeldete Person in `moderators` steht. */

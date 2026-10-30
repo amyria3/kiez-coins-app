@@ -23,6 +23,8 @@ type State = {
   /** Wer gerade die App benutzt. Live: die Supabase-Konto-ID. Demo: im Demo-Menü umschaltbar. */
   currentUserId: string;
   feedState: FeedState;
+  /** Grund, wenn der Feed nicht laden konnte (feedState 'error') */
+  feedError?: string;
   profile: Profile;
   /** false nach einer bestätigten Meldung „Coins nicht gezahlt“ */
   canOfferBounties: boolean;
@@ -66,7 +68,7 @@ type Action =
   | { type: 'toggleLike'; id: string }
   | { type: 'savePayout'; payout: Payout }
   | { type: 'setCurrentUser'; userId: string }
-  | { type: 'setFeedState'; feedState: FeedState }
+  | { type: 'setFeedState'; feedState: FeedState; error?: string }
   | { type: 'loaded'; userId: string; data: remote.LiveData }
   | { type: 'challengeLoaded'; id: string; challenge: Challenge | null; users: User[] }
   | { type: 'useSampleData' }
@@ -305,7 +307,7 @@ function reducer(state: State, action: Action): State {
         users: state.users.map((u) => (u.id === state.currentUserId ? { ...u, avatar: action.avatar } : u)),
       };
     case 'setFeedState':
-      return { ...state, feedState: action.feedState };
+      return { ...state, feedState: action.feedState, feedError: action.error };
     case 'setGroups':
       return { ...state, groups: action.groups };
     case 'block':
@@ -522,7 +524,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       localDispatch({ type: 'loaded', userId, data });
     } catch (error) {
       const offline = /fetch|network/i.test((error as Error)?.message ?? '');
-      localDispatch({ type: 'setFeedState', feedState: offline ? 'offline' : 'error' });
+      localDispatch({ type: 'setFeedState', feedState: offline ? 'offline' : 'error', error: offline ? undefined : remote.errorDetail(error) });
     }
   }, []);
 
@@ -581,7 +583,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       localDispatch({ type: 'create', challenge });
       return challenge.id;
     } catch (error) {
-      throw new Error(remote.errorText(error));
+      throw new remote.ShownError(remote.errorText(error));
     }
   }, []);
 
@@ -620,7 +622,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       localDispatch(id ? { type: 'challengeLoaded', id, challenge, users: [] } : { type: 'create', challenge });
       return challenge;
     } catch (error) {
-      throw new Error(remote.errorText(error));
+      throw new remote.ShownError(remote.errorText(error));
     }
   }, []);
 
@@ -662,7 +664,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         localDispatch({ type: 'challengeLoaded', id, challenge, users });
         return id;
       } catch (error) {
-        throw new Error(remote.errorText(error));
+        throw new remote.ShownError(remote.errorText(error));
       }
     },
     [saveDraft],
@@ -676,7 +678,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         await load(stateRef.current.currentUserId);
         return result;
       } catch (error) {
-        throw new Error(remote.errorText(error));
+        throw new remote.ShownError(remote.errorText(error));
       }
     };
     const setGroups = (change: (groups: Group[]) => Group[]) =>
@@ -740,7 +742,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             localDispatch({ type: 'create', challenge });
             return challenge.id;
           } catch (error) {
-            throw new Error(remote.errorText(error));
+            throw new remote.ShownError(remote.errorText(error));
           }
         }
         const challenge: Challenge = {
@@ -780,7 +782,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       try {
         await remote.unblockUser(userId);
       } catch (error) {
-        throw new Error(remote.errorText(error));
+        throw new remote.ShownError(remote.errorText(error));
       }
       await load(s.currentUserId);
     },
@@ -799,7 +801,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const { challenge, users } = await remote.loadChallenge(id, s.currentUserId);
         localDispatch({ type: 'challengeLoaded', id, challenge, users });
       } catch (error) {
-        throw new Error(remote.errorText(error));
+        throw new remote.ShownError(remote.errorText(error));
       }
     };
     const editDemo = (c: Challenge, edit: remote.BeforeAfterEdit): Challenge => ({
@@ -820,7 +822,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             localDispatch({ type: 'create', challenge });
             return challenge.id;
           } catch (error) {
-            throw new Error(remote.errorText(error));
+            throw new remote.ShownError(remote.errorText(error));
           }
         }
         const challenge: Challenge = {

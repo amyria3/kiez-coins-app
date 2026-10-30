@@ -35,6 +35,7 @@ export function FeedStateMessage({
   body,
   action,
   secondary,
+  detail,
 }: {
   variant: Exclude<FeedState, 'filled' | 'loading'>;
   onAction: () => void;
@@ -42,6 +43,8 @@ export function FeedStateMessage({
   action?: string;
   /** Zweiter Knopf darunter, z. B. „Mit Beitrittscode beitreten“ */
   secondary?: { label: string; onPress: () => void };
+  /** Technischer Grund, klein unter dem Text (nur bei Fehlern) */
+  detail?: string;
 }) {
   const m = messages[variant];
   return (
@@ -49,6 +52,11 @@ export function FeedStateMessage({
       <Cat height={86} />
       <Text style={styles.title}>{m.title}</Text>
       <Text style={styles.body}>{body ?? m.body}</Text>
+      {detail ? (
+        <Text style={styles.detail} selectable>
+          ({detail})
+        </Text>
+      ) : null}
       <View style={styles.actions}>
         <Button label={action ?? m.action} onPress={onAction} />
         {secondary ? <Button label={secondary.label} variant="secondary" onPress={secondary.onPress} /> : null}
@@ -61,5 +69,6 @@ const styles = StyleSheet.create({
   container: { alignItems: 'center', gap: space[12], paddingTop: space[48], paddingHorizontal: space[32] },
   title: { ...text.title, color: color.text.primary, textAlign: 'center' },
   body: { ...text.body, color: color.text.secondary, textAlign: 'center' },
+  detail: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
   actions: { alignSelf: 'stretch', alignItems: 'center', gap: space[8] },
 });

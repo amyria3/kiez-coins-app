@@ -50,7 +50,12 @@ export default function Kiez() {
       setStep('found');
     } catch (error) {
       // Ohne Freigabe kein Hinweis, nur das Feld (Daria, 24.10.2026)
-      setProblem(error instanceof LocationDenied ? null : 'Wir haben hier ein technisches Problem. Ich kann Deinen Kiez gerade nicht finden.');
+      // Technischer Grund klein dahinter, damit sich die Ursache finden lässt (Daria, 30.10.2026)
+      setProblem(
+        error instanceof LocationDenied
+          ? null
+          : `${t('Wir haben hier ein technisches Problem. Ich kann Deinen Kiez gerade nicht finden.')}${(error as Error)?.message ? ` (${(error as Error).message})` : ''}`,
+      );
       setStep('manual');
     }
   };
