@@ -44,14 +44,14 @@ export function Quests({ quests }: { quests: Quest[] }) {
   const shown = [...quests].sort((a, b) => rank(a) - rank(b)).slice(0, SHOWN);
   return (
     <View style={styles.list}>
-      {shown.map((q) => (
-        <QuestRow key={q.key} quest={q} />
+      {shown.map((q, i) => (
+        <QuestRow key={q.key} quest={q} index={i} />
       ))}
     </View>
   );
 }
 
-function QuestRow({ quest }: { quest: Quest }) {
+function QuestRow({ quest, index }: { quest: Quest; index: number }) {
   const done = quest.value >= quest.goal;
   const share = Math.min(1, quest.value / quest.goal);
   return (
@@ -67,7 +67,7 @@ function QuestRow({ quest }: { quest: Quest }) {
           </Text>
         </View>
       </View>
-      <Gift open={done} seenKey={quest.seenKey} />
+      <Gift open={done} seenKey={quest.seenKey} share={share} index={index} />
     </View>
   );
 }
@@ -80,7 +80,50 @@ const HEARTS = [
   { x: -24, delay: 500, size: 10 },
 ];
 
-function Gift({ open, seenKey }: { open: boolean; seenKey: string }) {
+/**
+ * Geschlossenes Geschenk (Daria, 29.10.2026): wackelt ab und zu, je näher das Ziel, desto kräftiger.
+ * Ohne Fortschritt bleibt es ruhig. Die Geschenke wackeln versetzt, nicht alle gleichzeitig.
+ */
+const WIGGLE_PAUSE = 5200;
+function useWiggle(active: boolean, share: number, index: number) {
+  const shake = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (!active || share <= 0) {
+      shake.setValue(0);
+      return;
+    }
+    let loop: Animated.CompositeAnimation | undefined;
+    let still = false;
+    const timer = setTimeout(async () => {
+      try {
+        still = await AccessibilityInfo.isReduceMotionEnabled();
+      } catch {
+        // dann wackeln
+      }
+      if (still) return;
+      const step = (toValue: number, duration: number) => Animated.timing(shake, { toValue, duration, easing: Easing.inOut(Easing.quad), useNativeDriver: native });
+      loop = Animated.loop(
+        Animated.sequence([step(1, 90), step(-1, 110), step(0.6, 100), step(-0.4, 90), step(0, 120), Animated.delay(WIGGLE_PAUSE)]),
+      );
+      loop.start();
+    }, 900 + index * 1400);
+    return () => {
+      clearTimeout(timer);
+      loop?.stop();
+    };
+  }, [active, share, index, shake]);
+  // Mehr Fortschritt, kräftiger: 4° bis 10°, dazu ein kleiner Hüpfer
+  const deg = 4 + 6 * Math.min(1, share);
+  return {
+    transform: [
+      { translateY: shake.interpolate({ inputRange: [-1, 0, 1], outputRange: [-2, 0, -3] }) },
+      { rotate: shake.interpolate({ inputRange: [-1, 1], outputRange: [`${-deg}deg`, `${deg}deg`] }) },
+    ],
+  };
+}
+
+function Gift({ open, seenKey, share, index }: { open: boolean; seenKey: string; share: number; index: number }) {
+  const wiggle = useWiggle(!open, share, index);
   // 0 = zu, 1 = offen
   const lid = useRef(new Animated.Value(0)).current;
   const rise = useRef(HEARTS.map(() => new Animated.Value(0))).current;
@@ -128,10 +171,12 @@ function Gift({ open, seenKey }: { open: boolean; seenKey: string }) {
     };
   }, [open, seenKey, lid, rise]);
 
-  const xml = iconSvgs.gift.svg(open ? color.accent.affection : color.text.secondary);
-  const heartIcon = iconSvgs.feed;
+  // Offenes Geschenk grün (Ziel erreicht), Herzen pink (Daria, 30.10.2026: Geschenk und Herzen in verschiedenen Farben)
+  const xml = iconSvgs.gift.svg(open ? color.accent.confirmation : color.text.secondary);
+  // Normales Herz wie beim Like, nicht das Doppelherz des Feeds (Daria, 30.10.2026)
+  const heartIcon = iconSvgs.heart;
   return (
-    <View style={styles.gift}>
+    <Animated.View style={[styles.gift, wiggle]}>
       {burst
         ? HEARTS.map((h, i) => (
             <Animated.View
@@ -155,7 +200,7 @@ function Gift({ open, seenKey }: { open: boolean; seenKey: string }) {
         : null}
       {/* Unterteil: das Geschenk ab der Fuge */}
       <View style={[styles.part, { top: LID, height: GIFT_H - LID }]}>
-        <View style={{ marginTop: -LID }}>
+        <View style={{ marginTop: -LID, width: GIFT_W, height: GIFT_H }}>
           <SvgXml xml={xml} width={GIFT_W} height={GIFT_H} />
         </View>
       </View>
@@ -173,9 +218,13 @@ function Gift({ open, seenKey }: { open: boolean; seenKey: string }) {
           },
         ]}
       >
-        <SvgXml xml={xml} width={GIFT_W} height={GIFT_H} />
+        {/* Eigene Größe wie beim Unterteil: Sonst passt das Web das ganze Geschenk in die Deckelhöhe ein
+            (kleines zweites Geschenk obendrauf, Daria, 29.10.2026) */}
+        <View style={{ width: GIFT_W, height: GIFT_H }}>
+          <SvgXml xml={xml} width={GIFT_W} height={GIFT_H} />
+        </View>
       </Animated.View>
-    </View>
+    </Animated.View>
   );
 }
 
