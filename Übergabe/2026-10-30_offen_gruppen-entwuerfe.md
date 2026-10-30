@@ -22,4 +22,4 @@ We-Challenge und Bild in einer Gruppe lassen sich als Entwurf speichern, wie im 
 - [x] Migration in Supabase eingespielt (30.10.2026).
 - [ ] Am Telefon testen: Bild-Entwurf in der Gruppe speichern, öffnen, posten.
 - [ ] Android-Update nach dem Merge.
-- [ ] Entwürfe beim Posten vorschlagen (TODO „Zeitnah“), Vorschlag vom 30.10.2026: Zeile „Deine Entwürfe“ oben im Erstellen-Blatt.
+- [x] Entwürfe beim Posten: Zeile „Deine Entwürfe“ oben im Erstellen-Blatt (`DraftStrip.tsx`, 30.10.2026).

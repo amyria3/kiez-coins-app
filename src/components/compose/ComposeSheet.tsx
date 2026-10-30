@@ -11,6 +11,7 @@ import { useGroupPhotoForm } from './GroupPhotoForm';
 import { usePublicComposeForm } from './PublicComposeForm';
 import { useBeforeAfterStartForm } from './BeforeAfterForm';
 import { TypeSwitch } from './TypeSwitch';
+import { DraftStrip } from './DraftStrip';
 import { useComposeContent, type ComposeContent } from './compose';
 
 /** Beitragstypen im Kiez, in dieser Reihenfolge (Daria, 23.10.2026). Alle immer an (Daria, 27.10.2026). */
@@ -103,6 +104,7 @@ function PublicBody({ onDone, shared, isPrivate = false }: { onDone: () => void;
   const isBa = type === 'before_after';
   return (
     <SheetScroll actions={isBa ? ba.button : post.buttons}>
+      <DraftStrip target={isPrivate ? 'private' : 'public'} onClose={onDone} />
       {options.length > 1 ? <TypeSwitch options={options} value={type} onChange={setType} /> : null}
       {isBa ? ba.fields : post.fields}
     </SheetScroll>
@@ -124,6 +126,7 @@ function GroupBody({ groupId, onDone, shared }: { groupId: string; onDone: () =>
   const form = type === 'before_after' ? ba : type === 'photo' ? photo : task;
   return (
     <SheetScroll actions={form.button}>
+      <DraftStrip target={groupId} onClose={onDone} />
       {options.length > 1 ? <TypeSwitch options={options} value={type} onChange={setType} /> : null}
       {form.fields}
     </SheetScroll>
