@@ -66,8 +66,7 @@ export function KaterCard({ children, title, mood = 'default' }: { children: Rea
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
       >
-        {/* Fashionable Look: kleinere, rundere Kachel im Grau der Sprechblase, Kater in Textfarbe (Daria, 24.10.2026: hell neben schwarz klappt nicht) */}
-        {/* Kiez-Look: Kater etwas höher in der Kachel (Daria, 24.10.2026) */}
+        {/* Runder Hintergrund im Grau der Sprechblase (Daria, 30.10.2026); im Fashionable Look Kater in Textfarbe */}
         <View style={isFashionable ? undefined : styles.speechCatLift}>
           <Cat mood={mood} height={isFashionable ? 36 : 52} tint={isFashionable ? color.text.primary : undefined} />
         </View>
@@ -154,24 +153,21 @@ const styles = StyleSheet.create({
   },
   speechTitle: { ...text.cardTitle, fontSize: 17, lineHeight: 22, color: color.text.primary },
   speechText: { fontFamily: font.light, fontSize: 15, lineHeight: 21, color: color.text.primary },
+  // Kater auf einem runden Hintergrund, ohne Kachel und ohne Rand (Daria, 30.10.2026)
   speechCat: {
     width: 76,
     height: 76,
-    borderRadius: radius.xl,
-    borderWidth: 2,
-    borderColor: color.line.hairline,
+    borderRadius: 38,
     backgroundColor: color.bg.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  speechCatLift: { transform: [{ translateY: -6 }] },
-  // Mehr Luft um den Kater (Daria, 24.10.2026): Kachel 68 pt, Kater bleibt 36 pt
+  speechCatLift: { transform: [{ translateY: -4 }] },
+  // Fashionable: etwas kleiner, Kater in Textfarbe (Daria, 24.10.2026: hell neben schwarz klappt nicht)
   speechCatFashionable: {
     width: 68,
     height: 68,
-    borderRadius: 24,
-    borderWidth: 0,
-    backgroundColor: color.bg.surface,
+    borderRadius: 34,
   },
   group: { gap: space[8] },
   groupLabel: { ...text.caption, color: color.text.secondary },
