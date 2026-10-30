@@ -12,6 +12,8 @@ export type TourStep = {
   text: string;
   /** require('…mp4') oder https-Adresse */
   video?: number | string;
+  /** `feedback`: letzte Seite mit der Frage, wie die Erklärung war (Daria, 29.10.2026) */
+  kind?: 'feedback';
 };
 
 export const tourSteps: TourStep[] = [
@@ -28,13 +30,53 @@ export const tourSteps: TourStep[] = [
   {
     key: 'coins',
     title: 'Coins direkt, Vertrauen zuerst',
-    text: 'Wer Coins verspricht, zahlt sie direkt an Dich, per Überweisung oder PayPal. Kiez Coins bewegt kein Geld.',
+    // Text von Daria (29.10.2026)
+    text: 'Wer beim Erstellen einer Challenge „Das ist mir bares Geld wert“ anklickt, verspricht eine materielle Belohnung. Solche Interaktionen basieren auf Vertrauen. Wir können leider nicht kontrollieren, ob das Versprechen eingehalten wird. Doch die Idee hinter Kiez Coins ist, dass Menschen mit Geld und Menschen mit Zeit zum Wohl der Gemeinschaft zusammenfinden. Ob das funktioniert, testen wir gerade.',
   },
   {
     key: 'gruppen',
     title: 'Gruppen für WG, Familie und Verein',
-    text: 'Verteilt Aufgaben unter Euch und sammelt Edensteine. Sie gelten nur in Eurer Gruppe.',
+    text: 'Verteilt We-Challenges unter Euch und sammelt Edensteine. Sie gelten nur in Eurer Gruppe.',
+  },
+  // Ergänzt von Daria (29.10.2026). Titel von Claude, Text von Daria
+  {
+    key: 'bild',
+    title: 'Einfach ein schönes Bild',
+    text: 'Ist Dir das alles ein wenig zu viel und zu kompliziert für den Anfang? Dann poste doch einfach ein nettes Bild oder Deine Lieblingsstelle im Wald. Share the Moment (aber nur, wenn Dir danach ist).',
+  },
+  // Titel von Daria, Text von Claude
+  {
+    key: 'sichtbarkeit',
+    title: 'Die Sichtbarkeit Deiner öffentlichen Posts kannst Du begrenzen',
+    text: 'Schalte beim Posten „Auf einen Umkreis von 5 km begrenzen“ ein. So sehen nur Menschen in Deinem Kiez den Beitrag, nicht in „Überall“. Ändern kannst Du das später im Menü des Beitrags.',
+  },
+  // Titel und Text von Claude
+  {
+    key: 'privat',
+    title: 'Privat: nur für Dich',
+    text: 'Im Modus „Privat“ siehst nur Du, was Du postest. Halte fest, was Dir gefällt, ganz ohne Publikum. Du findest den Modus oben im Umschalter.',
+  },
+  // Frage und Antworten von Daria
+  {
+    key: 'feedback',
+    kind: 'feedback',
+    title: 'Wie fandest Du diese Erklärung?',
+    text: 'Mehrere Antworten möglich',
   },
 ];
 
+/** Antworten auf der letzten Seite, Wortlaut von Daria (29.10.2026). Schlüssel wie in `tour_feedback.choices`. */
+export const tourFeedbackOptions = [
+  { key: 'helpful', label: 'Hilfreich' },
+  { key: 'motivating', label: 'Hat mir Lust auf die App gemacht' },
+  { key: 'cumbersome', label: 'Umständlich' },
+  { key: 'not_needed', label: 'Hätte ich nicht gebraucht' },
+] as const;
+export const TOUR_FEEDBACK_OTHER_MAX = 1000;
+
 export const TOUR_SEEN_KEY = 'tour_seen_v1';
+
+/** Wann die App anbietet, die Tour zu zeigen (Zeitstempel in ms). Gesetzt am Ende des Onboardings. */
+export const TOUR_OFFER_KEY = 'tour_offer_at_v1';
+/** Etwa 5 Minuten nach der Anmeldung fragt die App, ob sie die wichtigsten Funktionen zeigen soll (Daria, 28.10.2026). */
+export const TOUR_OFFER_DELAY_MS = 5 * 60 * 1000;

@@ -6,7 +6,7 @@ import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
 import { color, font, isFashionable, radius, space, stroke, text } from '../../theme/tokens';
 import { Button } from '../Button';
-import { PhotoPicker } from '../Form';
+import { PhotoPicker, SwitchRow } from '../Form';
 import { useNudge } from '../Nudge';
 import { useComposeContent, type ComposeContent } from './compose';
 import { Text } from '../T';
@@ -96,7 +96,7 @@ export function TagTextField({
 
 /**
  * Schritt 1 von Vorher-Nachher im Erstellen-Blatt: Vorher-Foto, Überschrift, Erklärung.
- * „Vorher speichern“ legt den Entwurf an; danach geht es im Timer weiter (Route `vorher-nachher/[id]`).
+ * „Vorher speichern“ legt den Entwurf an; danach geht es im Timer weiter (Route `before-after/[id]`).
  */
 export function useBeforeAfterStartForm(
   groupId: string | undefined,
@@ -110,6 +110,8 @@ export function useBeforeAfterStartForm(
   const { photo, setPhoto, title, setTitle, text: beforeText, setText: setBeforeText } = shared ?? own;
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState(false);
+  // Nur im Kiez, nicht in „Überall“ (Daria, 29.10.2026)
+  const [localOnly, setLocalOnly] = useState(false);
   const titleField = useNudge();
   const missingPhoto = !photo;
   const missingTitle = !title.trim();
@@ -123,7 +125,7 @@ export function useBeforeAfterStartForm(
     }
     setBusy(true);
     try {
-      const id = await beforeAfter.start({ groupId, title, beforeText, photo, private: isPrivate });
+      const id = await beforeAfter.start({ groupId, title, beforeText, photo, private: isPrivate, localOnly: !groupId && !isPrivate && localOnly });
       onStarted(id);
     } catch (error) {
       Alert.alert('Vorher nicht gespeichert', (error as Error).message);
@@ -135,7 +137,7 @@ export function useBeforeAfterStartForm(
   const fields = (
     <>
       <Text style={styles.hint}>
-        Halte fest, wie Du etwas reparierst, umbaust oder verschönerst. Zuerst das Vorher-Foto.
+        Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.
       </Text>
       <BeforeAfterSteps at={0} />
       <PhotoPicker
@@ -151,13 +153,21 @@ export function useBeforeAfterStartForm(
         }}
       />
       <TagTextField
-        label="Erklärung zum Vorher"
+        label="Beschreibung"
         tag="#vorher"
         value={beforeText}
         onChangeText={setBeforeText}
-        placeholder="Was hast Du Dir vorgenommen?"
+        placeholder="Was ist die Aufgabe oder die Ausgangslage? Erkläre kurz, worin die Me-Challenge besteht."
         tooLong={showErrors && textTooLong}
       />
+      {!groupId && !isPrivate ? (
+        <SwitchRow
+          label="Auf einen Umkreis von 5 km begrenzen"
+          description="Dann sehen den Beitrag nur Menschen in Deinem Kiez, nicht in „Überall“. Wer den Link bekommt, kann ihn trotzdem öffnen."
+          value={localOnly}
+          onValueChange={setLocalOnly}
+        />
+      ) : null}
     </>
   );
 

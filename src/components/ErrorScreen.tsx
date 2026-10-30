@@ -156,7 +156,7 @@ function ErrorContent({ error, retry }: Props) {
         <Text style={styles.secondaryText}>Zurück zum Start</Text>
       </Pressable>
       <Pressable style={styles.link} onPress={() => retry()} accessibilityRole="button">
-        <Text style={styles.linkText}>Nochmal versuchen</Text>
+        <Text style={styles.linkText}>Noch mal versuchen</Text>
       </Pressable>
       {look !== 'kiez' ? (
         <Pressable style={styles.link} onPress={() => setLook('kiez')} accessibilityRole="button">

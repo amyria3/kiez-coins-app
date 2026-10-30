@@ -21,6 +21,7 @@ import { useAppDimensions } from '../theme/layout';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { t } from '../data/texts';
 import { useGoBack } from '../lib/goBack';
+import { isParticipant } from '../data/weChallenge';
 
 /** Reihenfolge: zuerst, was noch änderbar ist, dann was läuft, dann Entwürfe, dann Erledigtes */
 const ORDER: Record<string, number> = {
@@ -113,7 +114,7 @@ export default function ManageChallenges() {
       .sort((a, b) => (b.deletedAt ?? '').localeCompare(a.deletedAt ?? ''));
     // Erledigte Gruppenaufgaben: selbst erstellt oder angenommen
     const groupDone = challenges
-      .filter((c) => isGroupDone(c) && (c.authorId === currentUserId || c.assigneeId === currentUserId))
+      .filter((c) => isGroupDone(c) && (c.authorId === currentUserId || isParticipant(c, currentUserId)))
       .sort((a, b) => (b.confirmedAt ?? '').localeCompare(a.confirmedAt ?? ''));
     const list: Page[] = [];
     if (groupDone.length) list.push({ kind: 'groupDone', challenges: groupDone });
@@ -126,12 +127,12 @@ export default function ManageChallenges() {
   // Vorher-Nachher: zurück zum Timer bzw. Nachher (Route vorher-nachher/[id])
   const openDraft = (c: Challenge) =>
     c.type === 'before_after'
-      ? router.push({ pathname: '/vorher-nachher/[id]', params: { id: c.id } })
+      ? router.push({ pathname: '/before-after/[id]', params: { id: c.id } })
       : requireKiez() && router.push({ pathname: '/challenge/create/step-1', params: { draftId: c.id } });
   // Kopie: neue Challenge mit Foto, Titel, Text, Ort und Bounty der alten. Gruppenaufgaben bleiben in ihrer Gruppe.
   const copy = (c: Challenge) =>
     c.groupId
-      ? router.push({ pathname: '/gruppen/[id]/aufgabe', params: { id: c.groupId, copyOf: c.id } })
+      ? router.push({ pathname: '/groups/[id]/task', params: { id: c.groupId, copyOf: c.id } })
       : requireKiez() && router.push({ pathname: '/challenge/create/step-1', params: { copyOf: c.id } });
 
   const close = (c: Challenge) =>
@@ -207,7 +208,7 @@ export default function ManageChallenges() {
           <View style={styles.empty}>
             <KaterCard>
               {tab === 'archive'
-                ? 'Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte Gruppenaufgaben.'
+                ? 'Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte We-Challenges aus Deinen Gruppen.'
                 : 'Du hast noch keine laufende Challenge. Fange mit einem Foto an.'}
             </KaterCard>
           </View>
@@ -498,7 +499,7 @@ function GroupDoneCard({
       <View style={styles.badges}>
         <StatusBadge status="confirmed" />
         <Text style={styles.caption}>
-          {challenges.length === 1 ? t('1 Gruppenaufgabe') : t('{count} Gruppenaufgaben', { count: challenges.length })}
+          {challenges.length === 1 ? t('1 We-Challenge in der Gruppe') : t('{count} We-Challenges in der Gruppe', { count: challenges.length })}
         </Text>
       </View>
       <ScrollView contentContainerStyle={styles.deletedList} showsVerticalScrollIndicator={false}>
@@ -605,6 +606,7 @@ function DeletedCard({
                       c.views === undefined ? null : `${c.views} ${c.views === 1 ? 'Ansicht' : 'Ansichten'}`,
                       `${c.comments.length} Kommentare`,
                       c.bountyAmount ? 'mit Coins' : null,
+                      c.edensteine ? 'mit Edensteinen' : null,
                     ]
                       .filter(Boolean)
                       .join(' · ')}

@@ -1,30 +1,32 @@
 import { useState } from 'react';
-import { Alert, StyleSheet } from 'react-native';
-import { Text } from '../../../components/T';
+import { Alert } from 'react-native';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
 import { FieldGroup, Notice } from '../../../components/Content';
-import { Chip, ChipGroup, TextField } from '../../../components/Form';
+import { Chip, ChipGroup, SwitchRow, TextField } from '../../../components/Form';
 import { t } from '../../../data/texts';
 import { SubScreen } from '../../../components/Screen';
-import { color, text } from '../../../theme/tokens';
 import { findPlace, roundCoords } from '../../../data/location';
 import { useDraft, useSaveDraft } from './_layout';
 import { useNudge } from '../../../components/Nudge';
 import { useGoBack } from '../../../lib/goBack';
+import { customAmountError, RewardField, rewardOf, type RewardValue } from '../../../components/compose/RewardField';
+import { bountyFits, bountyPresets, clampBounty } from '../../../data/coins';
+import { DEFAULT_PARTICIPATION, ParticipantsField } from '../../../components/compose/ParticipantsField';
+import type { Participation } from '../../../data/remote';
 
-const presets = [5, 15, 50];
 const durations = [
   { days: 1, label: '1 Tag' },
   { days: 3, label: '3 Tage' },
   { days: 7, label: '1 Woche' },
   { days: 30, label: '1 Monat' },
 ];
-const MIN_BOUNTY = 5;
-const MAX_BOUNTY = 50;
 
-/** Route `challenge/create/step-2`. Figma: `challenge/create/step-2`. Bounty 5–50 €, optional. Weiter zur Vorschau. */
+/**
+ * Route `challenge/create/step-2`. Figma: `challenge/create/step-2`.
+ * Belohnung optional: Edensteine oder Coins („Das ist mir bares Geld wert“), nie beides. Weiter zur Vorschau.
+ */
 export default function CreateStep2() {
   const router = useRouter();
   const goBack = useGoBack();
@@ -46,44 +48,48 @@ export default function CreateStep2() {
   };
   const [draft, setDraft] = useDraft();
   const { save, busy: saving } = useSaveDraft();
-  const [custom, setCustom] = useState(draft.bountyAmount !== undefined && !presets.includes(draft.bountyAmount));
-  const [customText, setCustomText] = useState(custom && draft.bountyAmount ? String(draft.bountyAmount) : '');
+  // Eigener Betrag als Text; undefined = einer der Vorschläge
+  const [customText, setCustomText] = useState<string | undefined>(
+    draft.bountyAmount !== undefined && !bountyPresets((draft.participation ?? DEFAULT_PARTICIPATION).max).includes(draft.bountyAmount)
+      ? String(draft.bountyAmount)
+      : undefined,
+  );
+  const [reward, setReward] = useState<RewardValue>({
+    reward: rewardOf(draft.edensteine, draft.bountyAmount),
+    edensteine: draft.edensteine,
+    bountyAmount: draft.bountyAmount,
+  });
+  const changeReward = (next: RewardValue) => {
+    setReward(next);
+    setDraft((d) => ({ ...d, bountyAmount: next.reward === 'euro' ? next.bountyAmount : undefined, edensteine: next.reward === 'eden' ? next.edensteine : undefined }));
+  };
 
-  const customAmount = Number(customText.replace(',', '.'));
-  // Nur Ziffern, Komma oder Punkt (Daria, 24.10.2026: Fehler nennt den Grund)
-  const badChars = /[^\d.,\s]/.test(customText) || !Number.isFinite(customAmount);
-  const customError = !custom || !customText
-    ? undefined
-    : badChars
-      ? 'Dieser Betrag enthält unerlaubte Zeichen.'
-      : customAmount > MAX_BOUNTY
-        ? 'Maximal 50 € möglich.'
-        : customAmount < MIN_BOUNTY
-          ? 'Mindestens 5 € möglich.'
-          : undefined;
-  const amountProblem = () =>
-    !customText
-      ? 'Mindestens 5 € möglich.'
-      : badChars
-        ? 'Dieser Betrag enthält unerlaubte Zeichen.'
-        : customAmount > MAX_BOUNTY
-          ? 'Dieser Betrag ist größer als erlaubt.'
-          : customError ?? 'Mindestens 5 € möglich.';
+  // Mehrere Personen: auch mit Coins, dann höchstens 10 und pro Platz 5 bis 50 € (Daria, 28.10.2026)
+  const participation = draft.participation ?? DEFAULT_PARTICIPATION;
+  const coins = reward.reward === 'euro';
+  const changeParticipation = (next: Participation) => {
+    setDraft((d) => ({ ...d, participation: next }));
+    // Betrag in den neuen Bereich holen, eigener Betrag wird zum Vorschlag
+    if (coins && reward.bountyAmount !== undefined && !bountyFits(reward.bountyAmount, next.max)) {
+      setCustomText(undefined);
+      changeReward({ ...reward, bountyAmount: clampBounty(reward.bountyAmount, next.max) });
+    }
+  };
+  const places = participation.max;
+
+  const customError = customText !== undefined ? customAmountError(customText, places) : undefined;
+  const amountProblem = () => customError ?? customAmountError('0', places) ?? t('Wähle einen Betrag.');
   // Nur ein Bild: keine Coins
   const isChallenge = draft.type !== 'photo';
-  const bountyAmount = !isChallenge
-    ? undefined
-    : custom
-      ? customText && !customError
-        ? Math.round(customAmount)
-        : undefined
-      : draft.bountyAmount;
-  const canPublish = draft.location.trim().length > 0 && !(isChallenge && custom && (customError || !customText));
+  const bountyAmount = isChallenge && coins ? reward.bountyAmount : undefined;
+  const edensteine = isChallenge && reward.reward === 'eden' ? reward.edensteine : undefined;
+  const amountOk = !isChallenge || !coins || (bountyAmount !== undefined && bountyFits(bountyAmount, places) && !customError);
+  const canPublish = draft.location.trim().length > 0 && amountOk;
 
   // Veröffentlicht wird erst in der Vorschau.
   const preview = () => {
     if (!canPublish || !draft.photo) return;
-    setDraft((d) => ({ ...d, bountyAmount }));
+    setDraft((d) => ({ ...d, bountyAmount, edensteine }));
     router.push('/challenge/create/preview');
   };
 
@@ -124,56 +130,27 @@ export default function CreateStep2() {
         disabled={locating}
       />
       <Notice message="Wähle einen öffentlich bekannten Ort, etwa einen Platz, eine Straßenecke oder ein Geschäft. Keine Wohnadresse. Sei sorgsam mit der Sicherheit anderer Menschen." />
+      {/* Nicht in „Überall“, nur im Kiez; ein Link öffnet den Beitrag trotzdem (Daria, 29.10.2026) */}
+      {draft.private ? null : (
+        <SwitchRow
+          label="Auf einen Umkreis von 5 km begrenzen"
+          description="Dann sehen den Beitrag nur Menschen in Deinem Kiez, nicht in „Überall“. Wer den Link bekommt, kann ihn trotzdem öffnen."
+          value={!!draft.localOnly}
+          onValueChange={(localOnly) => setDraft((d) => ({ ...d, localOnly }))}
+        />
+      )}
       {isChallenge ? (
       <>
-      <FieldGroup label="Coins (optional)">
-        <ChipGroup>
-          <Chip
-            label="Keine"
-            selected={!custom && draft.bountyAmount === undefined}
-            onPress={() => {
-              setCustom(false);
-              setDraft((d) => ({ ...d, bountyAmount: undefined }));
-            }}
-          />
-          {presets.map((amount) => (
-            <Chip
-              key={amount}
-              label={`${amount} €`}
-              selected={!custom && draft.bountyAmount === amount}
-              onPress={() => {
-                setCustom(false);
-                setDraft((d) => ({ ...d, bountyAmount: amount }));
-              }}
-            />
-          ))}
-          <Chip label="Eigener Betrag" selected={custom} onPress={() => setCustom(true)} />
-        </ChipGroup>
-        {custom ? (
-          <TextField
-            label="Betrag in €"
-        nudge={amountField}
-            keyboardType="number-pad"
-            value={customText}
-            onChangeText={(value) => {
-              setCustomText(value);
-              const n = Number(value.replace(',', '.'));
-              setDraft((d) => ({ ...d, bountyAmount: n >= MIN_BOUNTY && n <= MAX_BOUNTY ? Math.round(n) : undefined }));
-            }}
-            error={customError}
-            autoFocus
-          />
-        ) : null}
-        <Text style={styles.secondary}>
-          5 bis 50 €. Du zahlst die Coins selbst direkt an die Person, die die Challenge erledigt.
-        </Text>
-      </FieldGroup>
-      {bountyAmount ? (
-        <Notice
-          variant="warning"
-          message="Versprich nur, was Du zahlen kannst. Wer zugesagte Coins nicht zahlt, kann gemeldet und für Coins gesperrt werden."
-        />
-      ) : null}
+      <ParticipantsField value={participation} onChange={changeParticipation} coins={coins} />
+      <RewardField
+        value={reward}
+        onChange={changeReward}
+        places={places}
+        seed="neue-we-challenge"
+        customText={customText}
+        onCustomTextChange={setCustomText}
+        amountNudge={amountField}
+      />
       </>
       ) : null}
       <FieldGroup label="Zeitraum">
@@ -192,6 +169,3 @@ export default function CreateStep2() {
   );
 }
 
-const styles = StyleSheet.create({
-  secondary: { ...text.caption, color: color.text.secondary },
-});

@@ -17,7 +17,15 @@
 .phone, .kater { --bg: #1F2123; --surface: #2B2D31; --glass: rgba(31,33,35,.82); --text: #F0F0F0; --muted: #A0A0A0;
   --purple: #7E94FF; --red: #FF7E8B; --line: rgba(240,240,240,.12); --on-accent: #1F2123; color: var(--text); }
 * { box-sizing: border-box; }
-html { background: var(--bg) linear-gradient(180deg, var(--buehne) 0, #E9E5FF 640px, var(--bg) 900px) no-repeat; color: var(--text); -webkit-text-size-adjust: 100%; }
+/* Lila oben geht in gekrümmten, leicht gedrehten Bögen ins Grün über (Daria, 28.10.2026) */
+html { background-color: var(--bg); color: var(--text); -webkit-text-size-adjust: 100%;
+  background-image:
+    radial-gradient(ellipse 70% 32% at 88% 13%, rgba(233,229,255,.95) 0%, rgba(233,229,255,0) 70%),
+    radial-gradient(ellipse 60% 30% at 8% 55%, rgba(226,242,200,.85) 0%, rgba(226,242,200,0) 72%),
+    radial-gradient(ellipse 130% 50% at 25% -8%, var(--buehne) 0%, rgba(220,225,255,0) 78%),
+    linear-gradient(168deg, var(--buehne) 0%, #E9E5FF 30%, rgba(250,251,239,0) 62%);
+  /* Fläche hoch genug, damit alle Verläufe vor ihrem Ende ganz auslaufen: keine Kante beim Scrollen */
+  background-size: 100% 1500px; background-repeat: no-repeat; }
 body { margin: 0; font: 300 17px/1.55 Inter, system-ui, -apple-system, 'Segoe UI', sans-serif; }
 a { color: var(--text); }
 button { font: inherit; color: inherit; }
@@ -60,7 +68,7 @@ button { font: inherit; color: inherit; }
 
 /* Erster Bildschirm: Text und Szenarien links, Telefon rechts */
 .hero { display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: 'text phone' 'wahl phone';
-  grid-template-rows: auto 1fr; column-gap: 72px; padding: 40px 0 96px; }
+  grid-template-rows: auto 1fr; column-gap: 72px; padding: 40px 0 72px; }
 .hero-text { grid-area: text; align-self: end; }
 .steuerung { grid-area: wahl; display: grid; gap: 20px; justify-items: start; }
 .rolle { position: relative; display: inline-flex; padding: 3px; border-radius: 999px; border: 1px solid var(--line); }
@@ -68,21 +76,35 @@ button { font: inherit; color: inherit; }
 .rolle button { position: relative; background: none; border: 0; border-radius: 999px; padding: 11px 22px; cursor: pointer;
   font: 500 15px/1 Inter, sans-serif; color: var(--muted); transition: color 300ms; }
 .rolle button[aria-checked="true"] { color: var(--bg); }
-.szenarien { width: 100%; }
+.rolle button { white-space: nowrap; }
+/* Vier Modi passen auch auf 360 px breite Handys (Daria, 29.10.2026) */
+.rolle { max-width: 100%; }
+@media (max-width: 480px) { .rolle button { padding: 10px 9px; font-size: 13px; letter-spacing: -.01em; } .szenarien button i { font-size: 12.5px; white-space: nowrap; } .szenarien { --sz-pad: 2px; } }
+.szenarien { width: calc(100% + var(--sz-pad)); }
 .phone-spalte { grid-area: phone; align-self: center; }
-.hero h1 { font: 600 clamp(44px, 6.4vw, 80px)/1 var(--display); letter-spacing: -.035em; margin: 0 0 24px; max-width: 11ch; }
-.lede { color: var(--muted); font-size: 19px; max-width: 34ch; margin: 0 0 40px; }
-.szenarien { position: relative; display: grid; gap: 6px; max-width: 420px; }
+.hero h1 { font: 600 clamp(35px, 5.12vw, 64px)/1 var(--display); letter-spacing: -.035em; margin: 0 0 24px; max-width: 15ch; }
+.lede { color: var(--muted); font-size: 19px; max-width: 44ch; margin: 0 0 40px; }
+/* Text bündig links; Hover- und Auswahlfläche ragen nach links über den Rand (Daria, 28.10.2026) */
+.szenarien { --sz-pad: 20px; position: relative; display: grid; gap: 6px; max-width: calc(420px + var(--sz-pad)); margin-inline-start: calc(-1 * var(--sz-pad)); }
 .szenario-mark { position: absolute; left: 0; top: 0; border-radius: 22px; background: var(--surface); border: .5px solid var(--line); box-shadow: 0 10px 24px -16px var(--schatten);
   transition: transform 560ms var(--barrier), width 560ms var(--barrier), height 560ms var(--barrier); pointer-events: none; }
-.szenarien button { position: relative; display: grid; gap: 2px; text-align: start; background: none; border: 0; border-radius: 22px; padding: 16px 20px; cursor: pointer; }
+.szenarien button { position: relative; display: grid; gap: 2px; text-align: start; background: none; border: 0; border-radius: 22px; padding: 16px var(--sz-pad); cursor: pointer; }
 .szenarien button b { font: 600 22px/1.15 var(--display); letter-spacing: -.01em; }
 .szenarien button span { color: var(--muted); font-size: 15px; }
 .szenarien button span.is-neu { animation: satz-neu 560ms var(--barrier); }
 @keyframes satz-neu { from { opacity: 0; transform: translateY(8px); } }
 .szenarien button i { display: none; }
+/* Texte so breit wie der Umschalter darüber (Daria, 29.10.2026): Die Spalte richtet sich nach dem Umschalter,
+   die Szenarien tragen nichts zur Breite bei (width 0, min-width 100 %) und brechen innerhalb um. */
+@media (min-width: 901px) {
+  .steuerung { width: fit-content; max-width: 100%; }
+  .szenarien { width: 0; min-width: calc(100% + 2 * var(--sz-pad)); max-width: none; }
+}
 .szenarien button[aria-pressed="false"] b { color: var(--muted); }
 .szenarien button:hover b { color: var(--text); }
+/* Nicht gewählte Karten zeigen beim Darüberfahren eine helle Fläche, gleich für alle Szenarien */
+.szenarien button { transition: background-color 200ms; }
+@media (hover: hover) { .szenarien button[aria-pressed="false"]:hover { background: rgba(255,255,255,.55); } }
 .hinweis { color: var(--muted); font-size: 13px; margin: 16px 0 0; text-align: center; }
 
 /* Telefon */
@@ -108,6 +130,9 @@ button { font: inherit; color: inherit; }
 .p-seg { position: relative; display: flex; margin: 0 12px 12px; padding: 3px; border-radius: 999px; background: var(--surface); }
 .p-seg button { position: relative; z-index: 1; flex: 1; padding: 7px 0; font-size: 11.5px; color: var(--muted); transition: color 300ms; }
 .p-seg button[aria-selected="true"] { color: var(--bg); font-weight: 500; }
+/* Gewählter Reiter immer ganz lesbar, die anderen kürzen mit … (Daria, 29.10.2026; auf Englisch ist „Neighborhood“ lang) */
+.p-seg button { flex: 1 1 auto; min-width: 0; padding: 7px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.p-seg button[aria-selected="true"] { flex: 1 0 auto; padding-inline: 10px; }
 .p-seg-pill { position: absolute; z-index: 0; left: 0; top: 3px; bottom: 3px; border-radius: 999px; background: var(--text);
   transition: transform 620ms var(--barrier), width 620ms var(--barrier); }
 .p-flip { animation: p-flip 620ms var(--barrier); }
@@ -124,7 +149,8 @@ button { font: inherit; color: inherit; }
 .p-card:active { transform: scale(.985); }
 /* .p-screen button setzt padding auf 0 und ist spezifischer als .p-card. Ohne diese Zeile klebt der Titelkasten am Rand. */
 .p-screen .p-card { padding: 10px; }
-.p-card-text { height: 112px; }
+.p-card-text { height: 128px; }
+.p-body { margin: 0 0 8px; padding: 0 4px; color: var(--muted); font-size: 12.5px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .p-img, .p-hero { position: absolute; inset: 0; }
 .p-img img, .p-img svg, .p-hero img, .p-hero svg { width: 100%; height: 100%; object-fit: cover; display: block; }
 .p-bounty { position: absolute; top: 9px; inset-inline-end: 9px; display: flex; align-items: center; gap: 5px; padding: 4px 10px 4px 7px; border-radius: 999px;
@@ -153,6 +179,7 @@ button { font: inherit; color: inherit; }
   color: var(--bg); font: 600 calc(var(--s) * .5)/1 var(--display); }
 .p-chip { position: absolute; top: 9px; inset-inline-start: 9px; padding: 4px 10px; border-radius: 999px; font-size: 10px; background: var(--glass); border: .5px solid; }
 .p-chip-accepted { color: var(--purple); }
+.p-chip-requested { color: var(--muted); }
 .p-chip-reported { color: var(--orange); }
 .p-chip-confirmed { color: var(--pink); }
 .p-chip-deadline { display: flex; align-items: center; gap: 4px; color: var(--text); border: 0; background: rgba(160,160,160,.28);
@@ -245,7 +272,7 @@ button { font: inherit; color: inherit; }
 .p-hero { position: relative; height: 200px; border-radius: 30px 30px 0 0; overflow: hidden; }
 .p-sheet-body { position: relative; padding: 16px 16px 22px; }
 .p-sheet-body .p-chip { position: static; display: inline-block; margin-bottom: 8px; }
-.p-sheet-body h3 { font: 600 21px/1.12 var(--display); letter-spacing: -.02em; margin: 0 0 8px; }
+.p-sheet-body h3 { font: 600 21px/1.12 var(--display); letter-spacing: -.02em; margin: 0 0 8px; padding-inline-end: 40px; }
 .p-author { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 12px; }
 .p-text { color: var(--muted); margin: 0 0 14px; font-size: 12.5px; }
 .p-metrics-row { margin-bottom: 14px; }
@@ -273,10 +300,21 @@ button { font: inherit; color: inherit; }
 .p-photo-title { position: absolute; left: 10px; right: 10px; bottom: 10px; padding: 10px 14px; border-radius: 18px; background: var(--glass);
   border: .5px solid var(--line); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 .p-photo-title:focus-within { border-color: var(--purple); }
-.p-photo-title input { width: 100%; background: none; border: 0; padding: 0; color: var(--text); font: 600 15.5px/1.2 var(--display); letter-spacing: -.01em; }
-.p-photo-title input:focus { outline: none; }
-.p-photo-title input::placeholder, .p-field textarea::placeholder { color: var(--muted); }
+.p-photo-title textarea { display: block; width: 100%; resize: none; overflow: hidden; background: none; border: 0; padding: 0; color: var(--text); font: 600 15.5px/1.2 var(--display); letter-spacing: -.01em; }
+.p-photo-title textarea:focus { outline: none; }
+.p-photo-title textarea::placeholder, .p-field textarea::placeholder { color: var(--muted); }
 .p-field { display: grid; gap: 6px; }
+.p-tagbox { display: grid; gap: 2px; padding: 10px 12px 8px; border: 1px solid var(--line); border-radius: 14px; }
+.p-tagbox:focus-within { border-color: var(--purple); }
+.p-tagbox b { font: 500 12px/1.4 Inter, sans-serif; color: var(--purple); }
+.p-tagbox textarea { border: 0 !important; padding: 0 !important; min-height: 36px !important; background: none; }
+.p-steps { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+.p-step { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.p-step i { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--line); font: 500 9px/1 Inter, sans-serif; font-style: normal; }
+.p-step.is-on, .p-step.is-done { color: var(--text); }
+.p-step.is-on i { background: var(--purple); border-color: var(--purple); color: var(--on-accent); }
+.p-step.is-done i { background: var(--surface); border-color: var(--surface); }
+.p-step-bar { flex: 1; height: 1px; background: var(--line); }
 .p-field > span { color: var(--muted); font-size: 11px; }
 .p-field input { width: 100%; font: 400 15px/1.2 Inter, sans-serif; color: var(--text); background: var(--surface); border: 1px solid transparent; border-radius: 14px; padding: 12px; }
 .p-field input:focus { outline: none; border-color: var(--purple); }
@@ -291,14 +329,20 @@ button { font: inherit; color: inherit; }
 .p-choice button[aria-checked="true"] { background: var(--text) !important; color: var(--bg); font-weight: 500; }
 
 /* Kater-Hinweis */
-.p-nudge { position: absolute; z-index: 40; left: 12px; right: 12px; bottom: 72px; display: flex; align-items: flex-end; gap: 8px; pointer-events: none;
-  opacity: 0; transform: translateY(16px) scale(.96); transform-origin: left bottom; transition: opacity 300ms, transform 300ms; }
-.p-nudge.is-top { bottom: auto; top: 46px; flex-direction: row-reverse; transform-origin: right top; }
-.p-nudge.is-top p { margin: 14px 0 0; border-radius: 16px; }
-.p-nudge.is-top.is-on { z-index: 60; }
-.p-nudge.is-on { opacity: 1; transform: none; transition: opacity 200ms, transform 560ms var(--barrier); }
-.p-nudge p { position: relative; margin: 0 0 14px; padding: 10px 12px; border-radius: 16px; background: var(--text); color: var(--bg);
-  font-size: 12px; font-weight: 400; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+.p-nudge { position: absolute; z-index: 40; right: calc(100% + 18px); top: 50%; width: max-content; max-width: 250px; pointer-events: none;
+  opacity: 0; transform: translate(-12px, -50%) scale(.96); transform-origin: right center; transition: opacity 300ms, transform 300ms; }
+.p-nudge.is-on { opacity: 1; transform: translate(0, -50%); transition: opacity 200ms, transform 560ms var(--barrier); }
+.p-nudge p { position: relative; display: flex; align-items: center; gap: 8px; margin: 0; padding: 6px 14px 6px 6px; border-radius: 999px;
+  background: var(--text); color: var(--bg); font-size: 13px; line-height: 1.3; font-weight: 400; box-shadow: 0 10px 30px -8px rgba(0,0,0,.35); }
+.p-nudge p::after { content: ""; position: absolute; left: 100%; top: 50%; margin-top: -6px; border: 6px solid transparent; border-left-color: var(--text); }
+.p-nudge-cat { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--bg); }
+.p-nudge-cat svg { display: block; }
+/* Schmale Fenster: kein Platz neben dem Handy, die Pill sitzt unten im Screen */
+.p-nudge.is-innen { right: 22px; left: 22px; top: auto; bottom: 82px; width: auto; transform: translateY(16px) scale(.96); transform-origin: center bottom; }
+.p-nudge.is-innen.is-on { transform: none; }
+.p-nudge.is-innen.is-top { bottom: auto; top: 56px; z-index: 60; }
+.p-nudge.is-innen p { box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+.p-nudge.is-innen p::after { display: none; }
 
 /* Coins-Regen */
 .p-burst { position: absolute; inset: 0; z-index: 50; pointer-events: none; }
@@ -324,17 +368,6 @@ button { font: inherit; color: inherit; }
 .mehr-karte:hover .mehr-icon { transform: rotate(-8deg) scale(1.06); }
 .mehr-buehne { position: relative; display: block; height: 150px; border-radius: 18px; background: var(--flaeche-tief); overflow: hidden; }
 .mehr-status { color: var(--muted); font-size: 14px; min-height: 1.4em; }
-.mehr-wald img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 60%;
-  opacity: .25; filter: grayscale(1); transform: scale(1.08); transition: opacity 300ms, filter 300ms, transform 560ms var(--barrier); }
-.mehr-wald.is-gepostet img { opacity: 1; filter: none; transform: none; }
-.mehr-wald .mehr-herz { opacity: 0; transition: opacity 200ms; }
-.mehr-wald.is-gepostet .mehr-herz { opacity: 1; }
-.mehr-flug { position: absolute; z-index: 2; bottom: 10px; animation: mehr-flug 1100ms ease-out both; }
-.mehr-flug svg { width: 22px; height: auto; }
-@keyframes mehr-flug { from { transform: translateY(0) scale(.6); opacity: 1; } to { transform: translateY(-110px) scale(1.2); opacity: 0; } }
-.mehr-herz { position: absolute; z-index: 1; top: 10px; inset-inline-end: 10px; display: flex; align-items: center; gap: 5px; padding: 5px 10px;
-  border-radius: 999px; background: rgba(15,16,17,.8); font-size: 13px; }
-.mehr-herz i { font-style: normal; font-variant-numeric: tabular-nums; }
 .mehr-freunde { display: flex; align-items: center; justify-content: center; gap: 14px; }
 .mehr-avatar { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; border: 2px dashed rgba(38,35,58,.25);
   color: var(--muted); font: 600 20px/1 var(--display); position: relative;
@@ -347,12 +380,44 @@ button { font: inherit; color: inherit; }
   font-size: 13px; line-height: 1.3; animation: mehr-blase 400ms var(--barrier) both; }
 .mehr-blase.is-mein { align-self: flex-end; border-radius: 16px 16px 4px 16px; background: var(--purple); color: var(--on-accent); }
 @keyframes mehr-blase { from { transform: translateY(10px) scale(.9); opacity: 0; } }
+.mehr-karte-fest { cursor: default; grid-template-rows: auto auto 1fr auto auto; }
+.mehr-karte-fest:active { transform: none; }
+.mehr-aktion { justify-self: start; padding: 10px 18px; border: 0; border-radius: 999px; background: var(--text); color: var(--bg); font: 500 15px/1 Inter, sans-serif; cursor: pointer;
+  transition: transform 300ms var(--barrier); }
+.mehr-aktion:active { transform: scale(.96); }
+.mehr-rang { display: flex; flex-direction: column; justify-content: center; gap: 6px; margin: 0; padding: 10px 12px; list-style: none; }
+.mehr-rang li { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 14px; background: var(--bg); font-size: 14px;
+  transition: transform 560ms var(--barrier); }
+.mehr-rang li > span:nth-child(2) { flex: 1; }
+.mehr-rang li > b { font-variant-numeric: tabular-nums; }
+.mehr-rang .mehr-avatar { width: 28px; height: 28px; font-size: 13px; border: 0; background: var(--a); color: #1F2123; }
+.mehr-rang li.is-ich { outline: 1.5px solid var(--purple); }
 @media (max-width: 760px) { .mehr-karten { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .mehr-flug, .mehr-blase { animation: none; } }
 .leute { padding: 64px 0 40px; background: linear-gradient(160deg, #FFF1EA 0%, #FBEFF7 100%); }
-.mehr h2, .leute h2, .download h2 { font: 600 clamp(30px, 4vw, 44px)/1.05 var(--display); letter-spacing: -.025em; margin: 0 0 12px; max-width: 18ch; }
+.mehr h2, .leute h2, .wechsel h2, .download h2 { font: 600 clamp(30px, 4vw, 44px)/1.05 var(--display); letter-spacing: -.025em; margin: 0 0 12px; max-width: 18ch; }
 .leute > .wrap > p, .download > .wrap > p { color: var(--muted); margin: 0 0 40px; max-width: 46ch; }
-.szene { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: end; border-bottom: 2.5px solid var(--text); }
+.szene { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; row-gap: 48px; padding-top: 40px; }
+/* Organisch: jede Person eigene Größe, Höhe und leichte Überlappung (Daria, 28.10.2026) */
+.szene > .person { width: var(--w, 24%); margin: var(--m, 0); }
+.szene > .person:nth-child(1) { --r: -2.5deg; --w: 25%; --m: 0 -1% 24px 2%; }
+.szene > .person:nth-child(2) { --r: 1.8deg; --w: 21%; --m: 0 1% 0 0; }
+.szene > .person:nth-child(3) { --r: -1.2deg; --w: 24%; --m: 0 -2% 48px 0; }
+.szene > .person:nth-child(4) { --r: 2.6deg; --w: 20%; --m: 0 3% 8px 1%; }
+.szene > .person:nth-child(5) { --r: 1.5deg; --w: 22%; --m: -24px 0 16px -1%; }
+.szene > .person:nth-child(6) { --r: -2.2deg; --w: 24%; --m: -56px -2% 0 3%; }
+.szene > .person:nth-child(7) { --r: 2deg; --w: 21%; --m: -8px 2% 40px 0; }
+.szene > .person:nth-child(8) { --r: -1.6deg; --w: 23%; --m: -40px 0 4px -1%; }
+.szene .figur { max-width: none; rotate: var(--r, 0deg); }
+/* Alle Gesichter auf einen Bildschirm: Figuren richten sich nach der Fensterhöhe (Daria, 28.10.2026) */
+@media (min-width: 641px) {
+  .szene > .person { display: flex; justify-content: center; }
+  /* Breite aus dem Seitenverhältnis: „.person .figur { width: 100% }“ weiter unten stauchte die Fotos (29.10.2026) */
+  .szene .person .figur { width: auto; max-width: 100%; max-height: calc((100svh - 500px) / 2); min-height: 110px; margin-inline: auto; }
+  /* Desktop: alle ein Viertel größer, Überschneidungen erlaubt (Daria, 29.10.2026). Unter dem Zeiger liegt die Person oben. */
+  .szene .person .figur { max-width: none; max-height: calc((100svh - 500px) / 2 * 1.25); min-height: 140px; }
+  .szene > .person:hover, .szene > .person.is-on { z-index: 4; }
+}
 .person { display: grid; justify-items: center; gap: 4px; }
 .person:nth-child(2) { padding-bottom: 0; }
 .person .figur { width: 100%; max-width: 240px; height: auto; display: block; margin-bottom: -2px; transform-origin: 50% 100%; cursor: pointer; }
@@ -364,14 +429,38 @@ button { font: inherit; color: inherit; }
   border-radius: 0 0 6px 0; transform: rotate(45deg); }
 .person:nth-child(1) .blase { transform: rotate(-2deg); }
 .person:nth-child(3) .blase { transform: rotate(2deg); }
-.js .leute .blase { opacity: 0; scale: .6; }
-.js .leute.is-seen .blase { opacity: 1; scale: 1; transition: opacity 200ms, scale 560ms var(--barrier); }
-.js .leute.is-seen .person:nth-child(2) .blase { transition-delay: 260ms; }
-.js .leute.is-seen .person:nth-child(3) .blase { transition-delay: 520ms; }
+.person:nth-child(4) .blase { transform: rotate(-1.5deg); }
+.person:nth-child(5) .blase { transform: rotate(2deg); }
+.person:nth-child(6) .blase { transform: rotate(-2deg); }
+.person:nth-child(7) .blase { transform: rotate(1.5deg); }
+.person:nth-child(8) .blase { transform: rotate(-1deg); }
+.person { position: relative; cursor: pointer; outline-offset: 6px; }
+/* Blase schwebt über dem Kopf und nimmt keinen Platz weg */
+@media (min-width: 641px) { .szene .blase { position: absolute; z-index: 3; bottom: calc(100% - var(--kopf, 6%)); left: 0; right: 0; width: max-content; margin: 0 auto; } }
+/* Sprechblase nur bei Hover, Fokus oder Tipp */
+.leute .blase { opacity: 0; scale: .6; translate: 0 12px; transform-origin: 50% 100%; pointer-events: none;
+  transition: opacity 160ms, scale 220ms ease-in, translate 220ms ease-in; }
+.person:hover .blase, .person:focus-visible .blase, .person.is-on .blase, .person.is-mitte .blase { opacity: 1; scale: 1; translate: 0 0;
+  transition: opacity 200ms, scale 520ms var(--barrier), translate 520ms var(--barrier); }
+/* Ruf-Zeichen wie bei einer klingelnden Glocke: Bögen über dem Kopf, die Figur wackelt kurz */
+.ruf { position: absolute; z-index: 2; left: 64%; top: -64px; width: 72px; height: 72px; margin-left: -36px; fill: none; stroke: var(--purple, #7E94FF);
+  stroke-width: 3; stroke-linecap: round; opacity: 0; pointer-events: none; }
+.ruf path { stroke-dasharray: 30; stroke-dashoffset: 30; }
+.ruf path:nth-child(n+3) { display: none; }
+.person.is-ruft .ruf { animation: ruf-da 1.6s ease-out; }
+.person.is-ruft .ruf path { animation: ruf-bogen 1.6s ease-out; }
+.person.is-ruft .ruf path:nth-child(2) { animation-delay: 120ms; }
+.person.is-ruft .figur { animation: klingeln 900ms ease-in-out; }
+@keyframes ruf-da { 0% { opacity: 0; translate: 0 6px; } 15%, 70% { opacity: 1; translate: 0 0; } 100% { opacity: 0; translate: 0 -6px; } }
+@keyframes ruf-bogen { 0% { stroke-dashoffset: 30; } 35%, 100% { stroke-dashoffset: 0; } }
+@keyframes klingeln { 0%, 100% { transform: rotate(0); } 15% { transform: rotate(-5deg); } 30% { transform: rotate(4deg); } 45% { transform: rotate(-3deg); } 60% { transform: rotate(2deg); } 75% { transform: rotate(-1deg); } }
+.person:hover .ruf, .person.is-on .ruf { display: none; }
+@media (prefers-reduced-motion: reduce) { .leute .blase, .person:hover .blase { transition: none; } }
 
 /* Download */
 .download { padding: 80px 0 24px; background: linear-gradient(160deg, #ECEEFF 0%, #F6F4FF 60%, #FFFFFF 100%); }
-.karten { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.karten { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 1000px) { .karten { grid-template-columns: 1fr 1fr; } }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 28px; padding: 28px; box-shadow: 0 12px 30px -18px var(--schatten); }
 .card h3 { font: 600 24px/1.1 var(--display); margin: 0 0 8px; }
 .card p { color: var(--muted); margin: 0 0 12px; font-size: 15px; }
@@ -406,10 +495,20 @@ footer a { color: var(--muted); }
   .hinweis { display: none; }
   .karten { grid-template-columns: 1fr; }
 }
+/* Telefon und Tablet: Ort und Szenario wählt man nur im Telefon-Prototyp, der hat dieselben Umschalter.
+   Der Satz darunter (#szenario-text) beschreibt, was der Prototyp gerade zeigt (Daria, 29.10.2026). */
+@media (max-width: 900px) {
+  .rolle, .szenarien { display: none; }
+}
 @media (max-width: 640px) {
-  .szene { grid-template-columns: 1fr; gap: 0; border-bottom: 0; }
-  .person { grid-template-columns: 1fr 140px; align-items: end; justify-items: start; border-bottom: 2.5px solid var(--text); padding-top: 16px; }
-  .person:nth-child(even) { grid-template-columns: 140px 1fr; }
+  .szene { display: grid; grid-template-columns: 1fr; gap: 0; border-bottom: 0; }
+  .szene > .person { width: auto; margin: 0; }
+  .person { grid-template-columns: 1fr 160px; align-items: end; justify-items: start; border-bottom: 2.5px solid var(--text); padding-top: 16px; }
+  .person:nth-child(even) { grid-template-columns: 160px 1fr; }
+  /* Telefon: Die Person in der Bildschirmmitte ist ein Viertel größer und sagt ihren Satz (Daria, 29.10.2026) */
+  .szene .person .figur { transform-origin: 50% 100%; transition: scale 420ms cubic-bezier(.2, .7, .2, 1); }
+  .szene > .person.is-mitte { z-index: 2; }
+  .szene > .person.is-mitte .figur { scale: 1.25; }
   .person:nth-child(even) .blase { order: 2; justify-self: end; }
   .blase { margin-bottom: 40px; }
   .blase::after { left: auto; right: -6px; bottom: 18px; transform: rotate(-45deg); }
@@ -560,6 +659,18 @@ footer a { color: var(--muted); }
   transition: top 560ms var(--barrier); }
 .p-pair[data-focus="before"] .p-took { top: 83.333%; }
 .p-pair[data-focus="after"] .p-took { top: 16.667%; }
+.p-ziel { display: grid; gap: 10px; padding: 14px; margin-bottom: 14px; border-radius: 22px; background: var(--surface); border: .5px solid var(--line); }
+.p-ziel-kopf { display: grid; gap: 3px; }
+.p-ziel-kopf strong { font: 600 15.5px/1.15 var(--display); letter-spacing: -.01em; }
+.p-ziel-zahl { display: flex; align-items: baseline; gap: 4px; font-size: 12px; color: var(--muted); }
+.p-ziel-zahl b { font: 600 26px/1 var(--display); color: var(--text); }
+.p-ziel-serie { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 4px; color: var(--text); }
+.p-ziel-balken { display: block; height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.p-ziel-balken span { display: block; height: 100%; border-radius: inherit; background: var(--purple); transition: width 560ms var(--barrier); }
+.p-ziel-tage { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
+.p-ziel-tage i { aspect-ratio: 1; border-radius: 50%; background: var(--line); }
+.p-ziel-tage i.is-on { background: var(--purple); }
+.p-ziel .p-btn, .p-ziel .p-done { justify-self: start; }
 .p-pair .p-info { position: absolute; z-index: 2; left: 10px; right: 10px; bottom: 10px; pointer-events: none; transition: opacity 300ms; }
 .p-pair[data-focus="before"] .p-info { opacity: 0; }
 
@@ -621,6 +732,121 @@ footer a { color: var(--muted); }
   transform: scaleX(var(--p, 0)); transform-origin: left; border-radius: 0 4px 4px 0; }
 [dir="rtl"].fx-c .fx-spur::before { transform-origin: right; background: linear-gradient(-90deg, var(--purple), var(--pink), var(--orange)); }
 /* D: Kartenstapel. Jeder Abschnitt scrollt ganz durch, bleibt dann stehen, und der nächste schiebt sich mit runden Ecken darüber. */
-.fx-d body > .wrap, .fx-d .mehr, .fx-d .leute { position: sticky; top: min(0px, calc(100vh - var(--h, 100vh))); }
-.fx-d .mehr, .fx-d .leute, .fx-d .download { border-radius: 36px 36px 0 0; box-shadow: 0 -18px 40px -24px var(--schatten); }
+.fx-d body > .wrap, .fx-d .mehr, .fx-d .leute, .fx-d .wechsel { position: sticky; top: min(0px, calc(100vh - var(--h, 100vh))); }
+.fx-d .mehr, .fx-d .leute, .fx-d .wechsel, .fx-d .download { border-radius: 36px 36px 0 0; box-shadow: 0 -18px 40px -24px var(--schatten); }
 .fx-d .download { position: relative; }
+/* Karten durchscheinend mit Unschärfe: Was darunter liegt, bleibt zu ahnen (Daria, 28.10.2026) */
+/* Feste Deckkraft wie bisher im Ruhezustand; sie wechselt nicht mehr beim Scrollen (Daria, 29.10.2026) */
+.fx-d .mehr, .fx-d .leute, .fx-d .wechsel, .fx-d .download { --a: .4; }
+.fx-d .mehr { background: linear-gradient(135deg, rgba(244,247,226,var(--a,.6)) 0%, rgba(239,236,255,var(--a,.6)) 50%, rgba(255,237,227,var(--a,.6)) 100%); }
+.fx-d .wechsel { background: linear-gradient(160deg, rgba(239,248,240,var(--a,.6)) 0%, rgba(244,247,226,var(--a,.6)) 100%); }
+.fx-d .leute { background: linear-gradient(160deg, rgba(255,241,234,var(--a,.6)) 0%, rgba(251,239,247,var(--a,.6)) 100%); }
+.fx-d .download { background: linear-gradient(160deg, rgba(236,238,255,var(--a,.6)) 0%, rgba(246,244,255,var(--a,.6)) 60%, rgba(255,255,255,var(--a,.6)) 100%); }
+.fx-d .mehr, .fx-d .leute, .fx-d .wechsel, .fx-d .download { -webkit-backdrop-filter: blur(28px) saturate(1.2); backdrop-filter: blur(28px) saturate(1.2); }
+/* Telefon und Tablet: ohne Unschärfe und fast deckend, sonst stockt das Scrollen (Daria, 29.10.2026) */
+@media (max-width: 900px), (pointer: coarse) {
+  .fx-d .mehr, .fx-d .leute, .fx-d .wechsel, .fx-d .download { -webkit-backdrop-filter: none; backdrop-filter: none; will-change: auto; --a: 1; }
+  /* Kein Kartenstapel per sticky: Safari verschiebt sticky-Abschnitte, wenn die Adressleiste ein- und ausfährt,
+     dann springt die Seite (Daria, 29.10.2026). Die Abschnitte schieben sich nur noch mit runden Ecken leicht übereinander. */
+  .fx-d body > .wrap, .fx-d .mehr, .fx-d .leute, .fx-d .wechsel { position: relative; top: auto; }
+  .fx-d .mehr, .fx-d .leute, .fx-d .wechsel, .fx-d .download { margin-top: -36px; }
+}
+
+/* Überschrift: Wörter steigen nacheinander auf, „Gemeinschaft“ schwingt zuletzt nach */
+.h-wort { display: inline-block; animation: wort-auf 720ms var(--barrier) both; animation-delay: calc(var(--i) * 90ms + 150ms); }
+.h-wort:last-child { animation: wort-auf 720ms var(--barrier) both, wort-schwung 1.2s ease-in-out both; animation-delay: calc(var(--i) * 90ms + 150ms), calc(var(--i) * 90ms + 800ms); transform-origin: 0 100%; }
+@keyframes wort-auf { from { opacity: 0; transform: translateY(.45em) rotate(3deg); filter: blur(6px); } }
+@keyframes wort-schwung { 30% { transform: rotate(-2.5deg); } 60% { transform: rotate(1.2deg); } }
+@media (prefers-reduced-motion: reduce) { .h-wort, .h-wort:last-child { animation: none; } }
+
+/* H2: Wörter steigen nacheinander auf, ruhiger als die Seitenüberschrift */
+.fx-a h2.fx-zeigen { opacity: 1; translate: none; }
+.h2-wort { display: inline-block; }
+.fx-a h2.fx-zeigen .h2-wort { opacity: 0; transform: translateY(.3em); filter: blur(3px); }
+.fx-a h2.fx-zeigen.is-da .h2-wort { opacity: 1; transform: none; filter: none;
+  transition: opacity 500ms ease-out, transform 640ms var(--barrier), filter 500ms ease-out; transition-delay: calc(var(--i) * 60ms); }
+
+/* Leute fallen von oben (über den Titel) an ihren Platz, jede Person eigenes Tempo, mit Federn (Daria, 28.10.2026) */
+.leute .szene { position: relative; z-index: 2; }
+.szene > .person:nth-child(1) { --y0: -240px; --d: 1150ms; --v: 0ms; }
+.szene > .person:nth-child(2) { --y0: -300px; --d: 1500ms; --v: 120ms; }
+.szene > .person:nth-child(3) { --y0: -200px; --d: 950ms; --v: 60ms; }
+.szene > .person:nth-child(4) { --y0: -340px; --d: 1700ms; --v: 200ms; }
+.szene > .person:nth-child(5) { --y0: -380px; --d: 1350ms; --v: 260ms; }
+.szene > .person:nth-child(6) { --y0: -440px; --d: 1800ms; --v: 140ms; }
+.szene > .person:nth-child(7) { --y0: -360px; --d: 1250ms; --v: 320ms; }
+.szene > .person:nth-child(8) { --y0: -420px; --d: 1600ms; --v: 220ms; }
+.js .leute .szene > .person { translate: 0 var(--y0); }
+.js .leute.is-seen .szene > .person { translate: 0 0; animation: leute-fallen var(--d) linear var(--v) both; }
+@keyframes leute-fallen {
+  0% { translate: 0 var(--y0); opacity: 0; animation-timing-function: cubic-bezier(.45,0,.9,.6); }
+  20% { opacity: 1; }
+  55% { translate: 0 0; animation-timing-function: cubic-bezier(.2,.6,.4,1); }
+  70% { translate: 0 calc(var(--y0) * 0.08); animation-timing-function: cubic-bezier(.5,0,.8,.5); }
+  82% { translate: 0 0; animation-timing-function: cubic-bezier(.2,.6,.4,1); }
+  91% { translate: 0 calc(var(--y0) * 0.025); animation-timing-function: cubic-bezier(.5,0,.8,.5); }
+  100% { translate: 0 0; }
+}
+@media (max-width: 640px) { .js .leute .szene > .person, .js .leute.is-seen .szene > .person { translate: none; animation: none; } }
+@media (prefers-reduced-motion: reduce) { .js .leute .szene > .person, .js .leute.is-seen .szene > .person { translate: none; animation: none; } }
+
+/* Wieso wechseln (Daria, 29.10.2026) */
+.wechsel { padding: 72px 0 64px; background: linear-gradient(160deg, #EFF8F0 0%, #F4F7E2 100%); }
+.wechsel h2 { margin-bottom: 28px; }
+.wechsel-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; max-width: 46rem; }
+/* Karten wie ein Wiesental von oben (Daria, 29.10.2026): Sie überdecken einander ein wenig, leicht versetzt und gedreht.
+   Die Karte in der Mitte des Bildschirms steht vorn: größer, deckend, mit Schatten (Klasse is-vorn, Skript unten). */
+.wechsel-liste li { position: relative; z-index: 1; padding: 16px 20px 16px 52px; border-radius: 20px; background: rgba(255,255,255,.72); font-size: 17px; line-height: 1.45;
+  box-shadow: 0 6px 18px -10px rgba(20, 16, 50, .28); transform-origin: 50% 50%; will-change: transform, opacity;
+  /* Nur Verschiebung und Deckkraft animieren, ohne Nachfedern: das läuft flüssig (Daria, 29.10.2026: stockte) */
+  transition: transform 360ms cubic-bezier(.2, .7, .2, 1), opacity 260ms ease-out; }
+/* Schatten der vorderen Karte als eigene Ebene, die nur ein- und ausblendet */
+.wechsel-liste li::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: #fff;
+  box-shadow: 0 16px 36px -14px rgba(20, 16, 50, .35); opacity: 0; transition: opacity 260ms ease-out; }
+.wechsel-liste li + li { margin-top: -10px; }
+.wechsel-liste li:nth-child(odd) { transform: translateX(-6px) rotate(-.6deg); }
+.wechsel-liste li:nth-child(even) { transform: translateX(6px) rotate(.6deg); }
+.wechsel-liste li.is-vorn { z-index: 3; transform: scale(1.06); }
+.wechsel-liste li.is-vorn::after { opacity: 1; }
+.wechsel-liste li.is-vorn + li, .wechsel-liste li:has(+ li.is-vorn) { z-index: 2; }
+/* Steht eine Karte vorn, blassen die anderen aus, je weiter weg, desto mehr (--d: Abstand in Karten) */
+.wechsel-liste.hat-vorn li:not(.is-vorn) { opacity: calc(.82 - min(var(--d, 1), 4) * .12); }
+.wechsel-liste li::before { content: ''; position: absolute; left: 20px; top: 21px; width: 16px; height: 16px; border-radius: 50%; background: var(--green, #93F4A7); box-shadow: inset 0 0 0 4px rgba(255,255,255,.7); }
+@media (max-width: 640px) {
+  .wechsel-liste li { font-size: 16px; padding: 14px 16px 14px 44px; } .wechsel-liste li::before { left: 16px; top: 18px; }
+  /* Unten Platz, damit die letzte Karte über dem schwebenden „Testen“ steht */
+  .wechsel { padding-bottom: 120px; }
+}
+@media (prefers-reduced-motion: reduce) { .wechsel-liste li { transition: none; } }
+
+/* Sehr schmale Handys: vier Modi in einer Zeile */
+@media (max-width: 359px) { .rolle button { padding: 9px 6px; font-size: 12px; } }
+
+/* Schwebender Knopf „Testen“ ab „Kann die App noch mehr?“ (Daria, 29.10.2026): unten rechts, wackelt alle 7 s kurz */
+.testen-schwebend { position: fixed; z-index: 800; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); padding: 14px 24px; border-radius: 999px;
+  background: var(--purple); color: var(--bg); font: 500 16px/1 Inter, sans-serif; text-decoration: none; white-space: nowrap;
+  box-shadow: 0 10px 30px rgba(20, 16, 50, .25); opacity: 0; translate: 0 24px; pointer-events: none;
+  transition: opacity 300ms, translate 400ms var(--barrier); }
+.testen-schwebend .kurz { display: none; }
+.testen-schwebend.is-da { opacity: 1; translate: 0 0; pointer-events: auto; animation: testen-wackeln 7s ease-in-out 1.5s infinite; }
+@media (max-width: 640px) { .testen-schwebend .lang { display: none; } .testen-schwebend .kurz { display: inline; } }
+@keyframes testen-wackeln {
+  0%, 84%, 100% { rotate: 0deg; scale: 1; }
+  87% { rotate: -6deg; scale: 1.06; }
+  90% { rotate: 5deg; scale: 1.06; }
+  93% { rotate: -3deg; scale: 1.03; }
+  96% { rotate: 1deg; scale: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .testen-schwebend { transition: opacity 200ms; translate: none; } .testen-schwebend.is-da { animation: none; } }
+
+/* Große Abschnitte und Karten unten mit doppeltem Abstand (Daria, 29.10.2026) */
+.hero { padding-bottom: 144px; }
+.mehr { padding-bottom: 128px; }
+.mehr-karte { padding-bottom: 40px; }
+.leute { padding-bottom: 80px; }
+.wechsel { padding-bottom: 128px; }
+.download { padding-bottom: 48px; }
+.card { padding-bottom: 56px; }
+.spenden-text { padding-bottom: 64px; }
+@media (max-width: 900px) { .hero { padding-bottom: 144px; } .wechsel { padding-bottom: 128px; } }
+@media (max-width: 760px) { .spenden-text { padding-bottom: 44px; } }

@@ -32,5 +32,5 @@ export async function homeAfterOnboarding(): Promise<string> {
   const invite = await takeInvite();
   if (!invite) return '/feed';
   const code = encodeURIComponent(invite.code);
-  return invite.kind === 'friend' ? `/freunde/einladen?code=${code}` : `/gruppen/beitreten?code=${code}`;
+  return invite.kind === 'friend' ? `/friends/invite?code=${code}` : `/groups/join?code=${code}`;
 }

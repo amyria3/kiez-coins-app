@@ -3,6 +3,7 @@ import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
+import { NameWithTestMark } from './Badges';
 
 import { beforeAfterDuration, formatHoursMinutes, formatRelative } from '../data/format';
 import { t } from '../data/texts';
@@ -73,7 +74,7 @@ export function BeforeAfterPair({ before, after, height, duration, overlay, onLo
           delayLongPress={350}
           accessibilityRole="button"
           accessibilityLabel={t('Vorher-Foto')}
-          accessibilityHint={single ? t('Öffnet den Beitrag') : t('Tippen vergrößert das Vorher-Foto, nochmal tippen stellt zurück.')}
+          accessibilityHint={single ? t('Öffnet den Beitrag') : t('Tippen vergrößert das Vorher-Foto, noch mal tippen stellt zurück.')}
         >
           {before ? <Image source={before} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
           {dimBefore ? <View style={styles.dim} /> : null}
@@ -89,7 +90,7 @@ export function BeforeAfterPair({ before, after, height, duration, overlay, onLo
             delayLongPress={350}
             accessibilityRole="button"
             accessibilityLabel={t('Nachher-Foto')}
-            accessibilityHint={t('Tippen vergrößert das Nachher-Foto, nochmal tippen stellt zurück.')}
+            accessibilityHint={t('Tippen vergrößert das Nachher-Foto, noch mal tippen stellt zurück.')}
           >
             <Image source={after} style={StyleSheet.absoluteFill} contentFit="cover" />
             {dimAfter ? <View style={styles.dim} /> : null}
@@ -252,9 +253,11 @@ function FashionBeforeAfter(props: ChallengePostProps) {
         >
           <Avatar user={author} diameter={32} />
           <View style={styles.headTexts}>
-            <Text noTranslate style={[styles.name, hideName ? hiddenText : null]} numberOfLines={1}>
-              {author.name}
-            </Text>
+            <NameWithTestMark test={author.test}>
+              <Text noTranslate style={[styles.name, hideName ? hiddenText : null]} numberOfLines={1}>
+                {author.name}
+              </Text>
+            </NameWithTestMark>
             {place ? (
               <Text style={styles.place} numberOfLines={1}>
                 {place}

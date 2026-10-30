@@ -3,6 +3,7 @@ import type { Href } from 'expo-router';
 import type { CatMood } from '../components/icons/Brand';
 import type { Challenge } from './types';
 import { t } from './texts';
+import { isParticipant } from './weChallenge';
 
 // „Was Du so machst“ (früher „Was Du so machst“, „Deine Reise“ und „Deine Spur im Kiez“): alle Challenges, die Du erstellt oder angenommen hast,
 // als Karten. Regeln aus kiez-coins/konto/MVP_Konto.md.
@@ -30,10 +31,13 @@ function lastActivity(c: Challenge): string {
 }
 
 /** Wohin ein Tipp auf die Karte führt: zum aktuellen Schritt, sonst ins Detail. */
-function target(c: Challenge, role: ReiseEntry['role']): { href: Href; needsAction: boolean } {
+function target(c: Challenge, role: ReiseEntry['role'], userId: string): { href: Href; needsAction: boolean } {
   if (role === 'author' && c.status === 'reported') return { href: `/challenge/${c.id}/review`, needsAction: true };
   if (role === 'author' && c.status === 'payment_open') return { href: `/challenge/${c.id}/pay`, needsAction: true };
-  if (role === 'assignee' && c.status === 'paid_marked') return { href: `/challenge/${c.id}/payment`, needsAction: true };
+  // Coins je Person (Migration 20261028000400): Dein Anteil ist als bezahlt markiert
+  const line = c.payouts?.find((p) => p.userId === userId);
+  if (role === 'assignee' && (line ? line.paidMarkedAt && !line.paidAt : c.status === 'paid_marked'))
+    return { href: `/challenge/${c.id}/received`, needsAction: true };
   // Angenommen, aber noch nicht erledigt gemeldet: Du bist dran.
   return { href: `/challenge/${c.id}`, needsAction: role === 'assignee' && c.status === 'accepted' };
 }
@@ -43,9 +47,11 @@ export function reiseEntries(challenges: Challenge[], userId: string): ReiseEntr
   const entries: ReiseEntry[] = [];
   for (const c of challenges) {
     if (c.status === 'draft' || c.status === 'deleted') continue; // stehen in „Deine Challenges“
-    const role = c.authorId === userId ? 'author' : c.assigneeId === userId ? 'assignee' : null;
+    // Mehrere Personen: Alle Teilnehmenden sehen die Challenge auf ihrer Reise
+    const role =
+      c.authorId === userId ? 'author' : isParticipant(c, userId) || c.payouts?.some((p) => p.userId === userId) ? 'assignee' : null;
     if (!role) continue;
-    const { href, needsAction } = target(c, role);
+    const { href, needsAction } = target(c, role, userId);
     const label = role === 'assignee' && c.operationName ? c.operationName : c.title;
     entries.push({ challenge: c, role, needsAction, label, href, lastActivity: lastActivity(c) });
   }

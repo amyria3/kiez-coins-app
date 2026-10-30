@@ -108,7 +108,7 @@ export default function Email() {
       router.replace(target);
       return;
     }
-    router.push('/onboarding/deckname');
+    router.push('/onboarding/handle');
   };
 
   const requestCode = async () => {
@@ -180,7 +180,7 @@ export default function Email() {
   };
 
   return (
-    <SubScreen title="Anmelden" subtitle="Schritt 1 von 7" navigation="back" onLeadingPress={goBack}>
+    <SubScreen title="Anmelden" subtitle="Schritt 1 von 5" navigation="back" onLeadingPress={goBack}>
       <KaterBubble>
         Zuerst Deine Flaschenpost-Adresse. Du bekommst einen Code und legst Dein Passwort fest.
       </KaterBubble>
@@ -222,6 +222,15 @@ export default function Email() {
               label="Mit Passwort anmelden"
               variant="secondary"
               onPress={choosePassword}
+              disabled={busy}
+            />
+          </Animated.View>
+          {/* Konto mit Deckname und Passwort, ohne gespeicherte E-Mail (Daria, 27.10.2026) */}
+          <Animated.View style={out(-1)}>
+            <Button
+              label="Ich möchte meine E-Mail nicht teilen"
+              variant="ghost"
+              onPress={() => router.push('/onboarding/no-email')}
               disabled={busy}
             />
           </Animated.View>

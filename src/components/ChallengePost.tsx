@@ -11,14 +11,15 @@ import type { Challenge, User } from '../data/types';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BeforeAfterPair, BeforeAfterPost } from './BeforeAfterPost';
-import { weChallengeAfter } from '../data/weChallenge';
+import { weChallengeAfter, joinedIds, maxParticipants, participationText } from '../data/weChallenge';
 import { useAppDimensions } from '../theme/layout';
 import { WithMentions, postText } from './WithMentions';
-import { BountyBadge } from './Badges';
+import { BountyBadge, NameWithTestMark } from './Badges';
 import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 import { t } from '../data/texts';
+import { PhotoTextOverlay } from './PhotoText';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
@@ -65,10 +66,10 @@ function KiezPost({
   const state = closed ? 'geschlossen' : completed ? 'erledigt' : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
   const hideName = useHideName(author);
   const router = useRouter();
-  const meta = [distance, state].filter(Boolean).join(' · ');
+  const meta = [distance, state, spotsText(challenge, active)].filter(Boolean).join(' · ');
   const commentCount = challenge.comments.length;
 
-  // Einmal tippen zeigt, wer gepostet hat. Nochmal tippen (auch doppelt) oder lange drücken öffnet den Post.
+  // Einmal tippen zeigt, wer gepostet hat. Noch mal tippen (auch doppelt) oder lange drücken öffnet den Post.
   const [who, setWho] = useState(false);
   const whoAnim = useRef(new Animated.Value(0)).current;
   const hideTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -178,6 +179,7 @@ function KiezPost({
           style={({ pressed }) => [styles.card, !image && styles.cardNoPhoto, pressed && styles.pressed]}
         >
           {image ? <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
+          {image && challenge.type === 'photo' ? <PhotoTextOverlay value={challenge.photoText} /> : null}
           {rewards}
           {closed ? (
             <View style={[styles.waveTag, styles.closedTag]}>
@@ -211,9 +213,11 @@ function KiezPost({
             >
               <Avatar user={author} diameter={40} />
               <View style={styles.whoTexts}>
-                <Text noTranslate style={[styles.whoName, hideName ? hiddenText : null]} numberOfLines={1}>
-                  {author.name}
-                </Text>
+                <NameWithTestMark test={author.test}>
+                  <Text noTranslate style={[styles.whoName, hideName ? hiddenText : null]} numberOfLines={1}>
+                    {author.name}
+                  </Text>
+                </NameWithTestMark>
                 <Text style={styles.whoMeta} numberOfLines={1}>
                   {formatRelative(challenge.createdAt)}
                 </Text>
@@ -279,6 +283,12 @@ function KiezPost({
   );
 }
 
+/** Mehrere Personen: „2 von 5 dabei“, solange die Challenge läuft (Daria, 27.10.2026) */
+function spotsText(c: Challenge, active: boolean): string {
+  if (!active || c.type !== 'individual') return '';
+  return participationText(maxParticipants(c), c.joinMode, joinedIds(c).length);
+}
+
 /**
  * Look „Fashionable“ (Daria, 2026-10-23): Kopfzeile mit Bild, Name und Kiez über dem Foto, Foto quadratisch über die
  * ganze Breite, darunter Herz, Sprechblase, Teilen und der Text mit fettem Titel vorn. Ein Tipp aufs Foto öffnet den Post.
@@ -295,7 +305,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
   const state = closed ? 'geschlossen' : completed ? 'erledigt' : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
   const hideName = useHideName(author);
   const router = useRouter();
-  const place = [challenge.kiez?.split(',')[0] ?? challenge.location, distance].filter(Boolean).join(' · ');
+  const place = [challenge.kiez?.split(',')[0] ?? challenge.location, distance, spotsText(challenge, active)].filter(Boolean).join(' · ');
   const commentCount = challenge.comments.length;
   const { width } = useAppDimensions();
 
@@ -310,9 +320,11 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
         >
           <Avatar user={author} diameter={32} />
           <View style={styles.whoTexts}>
-            <Text noTranslate style={[fashion.name, hideName ? hiddenText : null]} numberOfLines={1}>
-              {author.name}
-            </Text>
+            <NameWithTestMark test={author.test}>
+              <Text noTranslate style={[fashion.name, hideName ? hiddenText : null]} numberOfLines={1}>
+                {author.name}
+              </Text>
+            </NameWithTestMark>
             {place ? (
               <Text style={fashion.place} numberOfLines={1}>
                 {place}
@@ -346,6 +358,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
           style={fashion.photo}
         >
           <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" />
+          {challenge.type === 'photo' ? <PhotoTextOverlay value={challenge.photoText} /> : null}
           {isWave ? (
             <View style={styles.waveTag}>
               <Text style={styles.waveText}>Wave</Text>

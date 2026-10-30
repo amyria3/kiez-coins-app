@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text } from './T';
 
@@ -113,8 +114,38 @@ export function BountyBadge({ amount, small }: { amount: number; small?: boolean
   );
 }
 
+/**
+ * Marke für Beiträge aus einem Testkonto (Daria, 27.10.2026). Steht neben dem Decknamen,
+ * nicht tippbar, wie ein Status getönt.
+ */
+export function TestAccountBadge() {
+  return (
+    <View style={[styles.status, styles.test, { backgroundColor: `${color.text.secondary}26` }]} accessible>
+      <Text style={[text.caption, { color: color.text.secondary }]} numberOfLines={1}>
+        Testaccount
+      </Text>
+    </View>
+  );
+}
+
+/** Deckname mit Marke „Testaccount“ dahinter, wenn die Person ein Testkonto nutzt. */
+export function NameWithTestMark({ test, children }: { test?: boolean; children: ReactNode }) {
+  if (!test) return <>{children}</>;
+  return (
+    <View style={styles.nameRow}>
+      <View style={styles.nameShrink}>{children}</View>
+      <TestAccountBadge />
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  test: { paddingVertical: space[2], alignSelf: 'auto', flexShrink: 0 },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
+  nameShrink: { flexShrink: 1, minWidth: 0 },
   status: {
+    // Darf schmaler werden, dann kürzt der Text mit „…“ statt über den Rand zu ragen
+    flexShrink: 1,
     borderRadius: radius.full,
     paddingHorizontal: space[8],
     paddingVertical: space[6],

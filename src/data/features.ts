@@ -49,23 +49,25 @@ export const isTypeActive = (type: ChallengeType) => challengeTypes[type].active
  * Start: Privat und Kiez sichtbar, Gruppe verborgen bis zur ersten Gruppe (wie bisher), Standard Kiez.
  * Gespeichert auf dem Gerät, pro Konto.
  */
-export type Mode = 'private' | 'groups' | 'kiez';
+export type Mode = 'private' | 'groups' | 'kiez' | 'everywhere';
 
 export const MODES: { key: Mode; label: string; description: string }[] = [
   { key: 'private', label: 'Privat', description: 'Was Du hier postest, siehst nur Du.' },
-  { key: 'groups', label: 'Deine Gruppen', description: 'Aufgaben im kleinen Kreis, mit Edensteinen' },
+  { key: 'groups', label: 'Deine Gruppen', description: 'We-Challenges im kleinen Kreis, mit Edensteinen' },
   { key: 'kiez', label: 'Dein Kiez', description: 'Was Du hier postest, sehen alle in Deinem Kiez.' },
+  // Überall (Daria, 29.10.2026): alle öffentlichen Beiträge, rechts im Umschalter. Kiez zeigt nur bis 5 km.
+  { key: 'everywhere', label: 'Überall', description: 'Alle öffentlichen Beiträge, auch außerhalb Deines Kiezes.' },
 ];
 
 /** Name des Modus in Links (`?modus=privat`) */
-export const MODE_SLUG: Record<Mode, string> = { private: 'privat', groups: 'gruppe', kiez: 'kiez' };
+export const MODE_SLUG: Record<Mode, string> = { private: 'privat', groups: 'gruppe', kiez: 'kiez', everywhere: 'ueberall' };
 export const modeFromSlug = (slug?: string | string[]): Mode | undefined => {
   const value = (Array.isArray(slug) ? slug[0] : slug)?.toLowerCase();
   return (Object.keys(MODE_SLUG) as Mode[]).find((m) => MODE_SLUG[m] === value);
 };
 
 export type ModeState = {
-  /** Sichtbare Modi in der Reihenfolge Privat, Gruppe, Kiez; nie leer */
+  /** Sichtbare Modi in der Reihenfolge Privat, Gruppe, Kiez, Überall; nie leer */
   visible: Mode[];
   isVisible: (mode: Mode) => boolean;
   /** Standard, immer einer der sichtbaren */
@@ -119,6 +121,7 @@ const hiddenOf = (s: Saved): Record<Mode, boolean> => ({
   private: s.hidden?.private ?? false,
   groups: s.hidden?.groups ?? !(s.groups ?? false),
   kiez: s.hidden?.kiez ?? false,
+  everywhere: s.hidden?.everywhere ?? false,
 });
 
 function stateOf(s: Saved): ModeState {
@@ -181,7 +184,7 @@ export function rememberLinkMode(slug?: string | string[]) {
 
 function applyLinkMode(userId: string, mode: Mode) {
   const hidden = LINK_HIDES_OTHERS
-    ? { private: mode !== 'private', groups: mode !== 'groups', kiez: mode !== 'kiez' }
+    ? { private: mode !== 'private', groups: mode !== 'groups', kiez: mode !== 'kiez', everywhere: mode !== 'everywhere' }
     : { ...hiddenOf(saved), [mode]: false };
   store(userId, { ...saved, standard: mode, hidden });
 }

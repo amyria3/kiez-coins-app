@@ -11,6 +11,8 @@ import { useGoBack } from '../../lib/goBack';
 
 /**
  * Route `onboarding/push`. Figma: `onboarding/push`. Optional.
+ * Ausgeblendet seit 28.10.2026 (Daria): `onboarding/funktionen` beendet das Onboarding. Zum Einblenden dort wieder
+ * auf diese Route weiterleiten und die Schrittzahlen auf „von 7“ setzen.
  * Später: Systemdialog von expo-notifications erst nach „Erlauben“.
  */
 export default function Push() {

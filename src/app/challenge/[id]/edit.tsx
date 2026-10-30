@@ -16,8 +16,12 @@ import { color, text } from '../../../theme/tokens';
 import { useNudge } from '../../../components/Nudge';
 import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
+import { RewardField, rewardOf, type RewardValue } from '../../../components/compose/RewardField';
+import { bountyFits, clampBounty } from '../../../data/coins';
+import { ParticipantsField } from '../../../components/compose/ParticipantsField';
+import { MAX_MEMBERS } from '../../../data/groups';
+import type { Participation } from '../../../data/remote';
 
-const presets = [5, 15, 50];
 const durations = [
   { days: 1, label: '1 Tag' },
   { days: 3, label: '3 Tage' },
@@ -45,8 +49,20 @@ export default function EditChallenge() {
   const [title, setTitle] = useState(challenge?.title ?? '');
   const [body, setBody] = useState(challenge?.text ?? '');
   const [location, setLocation] = useState(challenge?.location ?? '');
-  const [bounty, setBounty] = useState<number | undefined>(challenge?.bountyAmount);
+  // Kiez-We-Challenge: Edensteine oder Coins (Daria, 28.10.2026). Gruppenaufgaben behalten ihre Edensteine.
+  const [rewardValue, setRewardValue] = useState<RewardValue>(() => {
+    const eden = challenge?.groupId ? undefined : challenge?.edensteine;
+    return { reward: rewardOf(eden, challenge?.bountyAmount), edensteine: eden, bountyAmount: challenge?.bountyAmount };
+  });
+  const reward = rewardValue.reward;
+  const bounty = rewardValue.bountyAmount;
+  const eden = rewardValue.edensteine;
   const [durationDays, setDurationDays] = useState<number | null>(null);
+  // Mehrere Personen (Daria, 27.10.2026)
+  const [participation, setParticipation] = useState<Participation>({
+    max: challenge?.maxParticipants ?? 1,
+    mode: challenge?.joinMode ?? 'open',
+  });
   const [photo, setPhoto] = useState<ImageSource>();
   const titleField = useNudge();
   const locationField = useNudge();
@@ -67,7 +83,6 @@ export default function EditChallenge() {
     );
   }
 
-  const bountyOptions = bounty && !presets.includes(bounty) ? [...presets, bounty].sort((a, b) => a - b) : presets;
   const isGroup = !!challenge.groupId;
   const whyNot = () =>
     !title.trim() ? titleField.nudge('Gib einen Titel ein.') : locationField.nudge('Wo soll es stattfinden?');
@@ -79,26 +94,41 @@ export default function EditChallenge() {
     const original = new Date(challenge.deadline).getTime() - new Date(challenge.createdAt).getTime();
     return new Date(Date.now() + Math.max(original, DAY)).toISOString();
   };
+  const isTask = challenge.type === 'individual';
+  const participationChanged =
+    isTask && (participation.max !== (challenge.maxParticipants ?? 1) || participation.mode !== (challenge.joinMode ?? 'open'));
+  // Mit Coins: höchstens 10 Personen, pro Platz 5 bis 50 € (Daria, 28.10.2026)
+  const changeParticipation = (next: Participation) => {
+    setParticipation(next);
+    if (reward === 'euro' && bounty !== undefined && !bountyFits(bounty, next.max)) {
+      setRewardValue((r) => ({ ...r, bountyAmount: clampBounty(bounty, next.max) }));
+    }
+  };
   const editOf = () => ({
     title: title.trim(),
     text: body.trim(),
     location: location.trim(),
-    bountyAmount: bounty,
+    bountyAmount: reward === 'euro' ? bounty : undefined,
+    // Gruppenaufgabe: Edensteine nicht mitschicken, sonst wären sie in der App kurz weg
+    ...(isGroup ? {} : { edensteine: reward === 'eden' ? eden : undefined }),
     deadline: durationDays
       ? new Date(Date.now() + durationDays * DAY).toISOString()
       : expired
         ? renewed()
         : challenge.deadline,
     ...(photo ? { photo } : {}),
+    ...(participationChanged ? { participation } : {}),
   });
   const changed =
     title.trim() !== challenge.title ||
     body.trim() !== challenge.text ||
     location.trim() !== challenge.location ||
-    bounty !== challenge.bountyAmount ||
+    (reward === 'euro' ? bounty : undefined) !== challenge.bountyAmount ||
+    (!isGroup && (reward === 'eden' ? eden : undefined) !== challenge.edensteine) ||
     durationDays !== null ||
+    participationChanged ||
     !!photo;
-  const bountyBlocked = !!bounty && bounty > (challenge.bountyAmount ?? 0) && !canOfferBounties;
+  const bountyBlocked = reward === 'euro' && !!bounty && bounty > (challenge.bountyAmount ?? 0) && !canOfferBounties;
   const backToManage = () => {
     router.dismissTo('/feed');
     router.push('/manage');
@@ -107,8 +137,8 @@ export default function EditChallenge() {
   // Gelöschte Challenge veröffentlichen: zurückholen (mit gültiger Frist), dann die Änderungen speichern.
   const publish = () => {
     if (!canSave) return;
-    if (bounty && !canOfferBounties) {
-      Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Wähle bei Coins „Keine“.');
+    if (reward === 'euro' && bounty && !canOfferBounties) {
+      Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Schalte „Das ist mir bares Geld wert“ aus.');
       return;
     }
     const edit = editOf();
@@ -121,8 +151,8 @@ export default function EditChallenge() {
   const keepUnpublished = () => {
     if (!changed) return goBack();
     if (!canSave) return;
-    if (bounty && !canOfferBounties) {
-      Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Wähle bei Coins „Keine“.');
+    if (reward === 'euro' && bounty && !canOfferBounties) {
+      Alert.alert('Keine Coins möglich', 'Du kannst gerade keine Coins anbieten. Schalte „Das ist mir bares Geld wert“ aus.');
       return;
     }
     dispatch({ type: 'editDeleted', id: challenge.id, edit: editOf() });
@@ -160,7 +190,7 @@ export default function EditChallenge() {
 
   return (
     <SubScreen
-      title={isGroup ? 'Aufgabe bearbeiten' : 'Challenge bearbeiten'}
+      title={isGroup ? 'We-Challenge bearbeiten' : 'Challenge bearbeiten'}
       navigation="close"
       onLeadingPress={goBack}
       actions={
@@ -187,7 +217,7 @@ export default function EditChallenge() {
       {challenge.type === 'individual' ? (
         <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={body} onChangeText={setBody} maxLength={500} />
       ) : challenge.type === 'photo' ? (
-        <TagTextField label="Beschreibung" tag={PHOTO_TAG} value={body} onChangeText={setBody} maxLength={500} />
+        <TagTextField label="Dein Text" tag={PHOTO_TAG} value={body} onChangeText={setBody} maxLength={500} />
       ) : (
         <TextField label="Beschreibung" value={body} onChangeText={setBody} maxLength={500} multiline />
       )}
@@ -195,17 +225,18 @@ export default function EditChallenge() {
         <>
           <TextField label="Ort" required nudge={locationField} value={location} onChangeText={setLocation} maxLength={120} />
           {challenge.type === 'photo' ? null : (
-          <FieldGroup label="Coins">
-            <ChipGroup>
-              <Chip label="Keine" selected={bounty === undefined} onPress={() => setBounty(undefined)} />
-              {bountyOptions.map((amount) => (
-                <Chip key={amount} label={`${amount} €`} selected={bounty === amount} onPress={() => setBounty(amount)} />
-              ))}
-            </ChipGroup>
-          </FieldGroup>
+            <RewardField value={rewardValue} onChange={setRewardValue} places={participation.max} seed={challenge.id} />
           )}
         </>
       )}
+      {isTask ? (
+        <ParticipantsField
+          value={participation}
+          onChange={changeParticipation}
+          limit={isGroup ? MAX_MEMBERS - 1 : undefined}
+          coins={reward === 'euro'}
+        />
+      ) : null}
       <FieldGroup label="Zeitraum">
         <ChipGroup>
           <Chip label="Unverändert" selected={durationDays === null} onPress={() => setDurationDays(null)} />

@@ -189,7 +189,8 @@ export function NavCard({
     >
       {leading ? <View style={[styles.cardLeading, leadingFill && styles.cardLeadingFill]}>{leading}</View> : null}
       <View style={styles.texts}>
-        <Text style={styles.profileName} numberOfLines={1}>
+        {/* Zwei Zeilen statt abgeschnitten, z. B. „Deine Freundschaften“ auf 360 pt breiten Android-Handys (29.10.2026) */}
+        <Text style={styles.profileName} numberOfLines={2}>
           {title}
         </Text>
         {description ? (

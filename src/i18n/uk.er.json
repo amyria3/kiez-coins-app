@@ -7,7 +7,6 @@
   "{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.": "{firstName} {day} позначив {bountyAmount} як оплачені. Перевір свій рахунок або PayPal.",
   "{firstName} hat die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.": "{firstName} позначив {bountyAmount} як оплачені. Перевір свій рахунок або PayPal.",
   "{firstName} hat nicht als erledigt bestätigt: „{rejectionReason}“": "{firstName} не підтвердив виконання: «{rejectionReason}»",
-  "Du bist allein in der Gruppe. Sie verschwindet samt Aufgaben. Das lässt sich nicht rückgängig machen.": "Ти один у групі. Вона зникне разом із завданнями. Це не можна скасувати.",
   "Bitte begründe Deine Entscheidung nach bestem Wissen und Gewissen. Sei ermutigend und konstruktiv.": "Будь ласка, поясни своє рішення чесно й сумлінно. Будь доброзичливим і конструктивним.",
   "Blockierte Personen sehen nicht, dass Du sie blockiert hast. Sie können Deine Challenges weder annehmen noch kommentieren.": "Заблоковані люди не бачать, що ти їх заблокував. Вони не можуть ні брати, ні коментувати твої челенджі.",
   "Du hast niemanden blockiert.": "Ти нікого не заблокував.",
@@ -29,5 +28,7 @@
   "hat bestätigt": "підтвердив",
   "hat abgelehnt": "відхилив",
   "hat als bezahlt markiert": "позначив як оплачено",
-  "hat bezahlt": "оплатив"
+  "hat bezahlt": "оплатив",
+  "Poste als Erste:r": "Опублікуй першим",
+  "Du bist allein in der Gruppe. Sie verschwindet samt We-Challenges. Das lässt sich nicht rückgängig machen.": "Ти один у групі. Вона зникне разом із We-Challenges. Це не можна скасувати."
 }

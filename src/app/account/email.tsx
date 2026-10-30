@@ -6,7 +6,7 @@ import { Button } from '../../components/Button';
 import { KaterBubble } from '../../components/Content';
 import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
-import { useAuth } from '../../data/auth';
+import { useAuth, visibleEmail } from '../../data/auth';
 import { t } from '../../data/texts';
 import { useNudge } from '../../components/Nudge';
 import { useGoBack } from '../../lib/goBack';
@@ -84,7 +84,7 @@ export default function ChangeEmail() {
         {sentTo
           ? t('Der Code ist unterwegs an {adresse}. Schaue auch im Spam-Netz.', { adresse: sentTo })
           : t('Gerade nutzt Du {adresse}. An die neue schick ich Dir einen Code.', {
-              adresse: session?.user.email ?? 'keine Adresse',
+              adresse: visibleEmail(session?.user.email) || 'keine Adresse',
             })}
       </KaterBubble>
       {sentTo ? (
