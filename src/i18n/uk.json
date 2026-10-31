@@ -1376,5 +1376,12 @@
   "Gefällt Dir!": "Тобі подобається!",
   "Tippe auf das Herz unter dem Bild": "Торкнися серця під фото",
   "Nur Menschen in Deinem Kiez sehen den Beitrag. In „Überall“ erscheint er nicht.": "Лише люди з твого району бачать допис. У «Скрізь» він не з’являється.",
-  "Alle sehen den Beitrag, auch in „Überall“.": "Усі бачать допис, також у «Скрізь»."
+  "Alle sehen den Beitrag, auch in „Überall“.": "Усі бачать допис, також у «Скрізь».",
+  "{n, plural, one {# Challenge} other {# Challenges}}": "{n, plural, one {# челендж} few {# челенджі} many {# челенджів} other {# челенджу}}",
+  "{n, plural, one {# Me-Challenge} other {# Me-Challenges}}": "{n, plural, one {# Me-Challenge} few {# Me-Challenge} many {# Me-Challenge} other {# Me-Challenge}}",
+  "{n, plural, one {# Bild} other {# Bilder}}": "{n, plural, one {# фото} few {# фото} many {# фото} other {# фото}}",
+  "{a}, {b} und {c} in Deiner Nähe": "{a}, {b} і {c} поруч із тобою",
+  "{a} und {b} in Deiner Nähe": "{a} і {b} поруч із тобою",
+  "{a} in Deiner Nähe": "{a} поруч із тобою",
+  "Noch nichts in Deiner Nähe": "Поруч із тобою поки нічого"
 }

@@ -272,7 +272,15 @@ export default function FeedScreen() {
   };
 
   const loading = feedState === 'loading';
-  const openCount = useMemo(() => challenges.filter((c) => !c.groupId && c.status === 'open').length, [challenges]);
+  // Getrennt nach Art, ohne Gruppen und private Posts (Daria, 31.10.2026)
+  const openCounts = useMemo(() => {
+    const open = challenges.filter((c) => !c.groupId && !c.private && c.status === 'open');
+    return {
+      challenges: open.filter((c) => c.type === 'individual' || c.type === 'wave').length,
+      me: open.filter((c) => c.type === 'before_after').length,
+      photos: open.filter((c) => c.type === 'photo').length,
+    };
+  }, [challenges]);
   const kiezName = profile.kiez?.split(',')[0];
   const showState =
     feedState === 'filled' || feedState === 'loading' ? (posts.length === 0 ? 'empty' : null) : feedState;
@@ -490,7 +498,7 @@ export default function FeedScreen() {
             onLogoLongPress={() => router.push('/demo')}
             hasTasks={hasTasks}
           />
-          <FeedGreeting name={anrede(profile)} kiez={kiezName} count={openCount} />
+          <FeedGreeting name={anrede(profile)} kiez={kiezName} counts={feedState === 'loading' ? undefined : openCounts} />
         </View>
       </Animated.View>
       <Animated.View style={[styles.clip, composeHeaderStyle]}>
