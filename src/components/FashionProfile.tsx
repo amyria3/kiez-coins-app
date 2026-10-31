@@ -4,11 +4,11 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SvgXml } from 'react-native-svg';
 
 import { useModes, type Mode } from '../data/features';
 import { anrede, formatBountyShort } from '../data/format';
 import { useFriends } from '../data/friends';
+import { erfolge } from '../data/erfolge';
 import { reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
 import { useStore } from '../data/store';
 import { t } from '../data/texts';
@@ -17,22 +17,14 @@ import { color, font, radius, space, stroke } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
 import { Segments } from './FeedHeader';
 import { AudienceHint, useAudienceHint } from './AudienceHint';
+import { Geschafft, usePraise } from './Geschafft';
 import { GroupBar, GroupsEmpty } from './GroupBar';
 import { GroupRanking } from './GroupRanking';
 import { Cat } from './icons/Brand';
 import { Icon } from './icons/Icon';
-import { PH, phXml, useIconPt } from './icons/fashionableSvgs';
 import { TAB_BAR_SPACE, TabBar } from './TabBar';
 import { Text } from './T';
 import { useGoBack } from '../lib/goBack';
-
-type GridTab = 'created' | 'accepted';
-
-/** Im Kiez: erstellt oder angenommen. Gruppen haben jetzt einen eigenen Reiter (Daria, 27.10.2026). */
-const GRID_TABS: { key: GridTab; label: string; icon: (typeof PH)[keyof typeof PH] }[] = [
-  { key: 'created', label: 'Erstellt', icon: PH.created },
-  { key: 'accepted', label: 'Angenommen', icon: PH.accepted },
-];
 
 /** Umschalter wie im Feed: Privat, Gruppe, Kiez (Daria, 27.10.2026) */
 const MODE_TABS: { key: Mode; label: string }[] = [
@@ -57,7 +49,6 @@ export function FashionProfile() {
   const { width } = useAppDimensions();
   const { challenges, currentUserId, profile, groups, users } = useStore();
   const friends = useFriends();
-  const [tab, setTab] = useState<GridTab>('created');
   // Modus wie im Feed, ohne eigene Wahl der Standard (Daria, 27.10.2026)
   const modes = useModes();
   const [chosenMode, setMode] = useState<Mode>();
@@ -69,7 +60,6 @@ export function FashionProfile() {
   const here = useHere();
   const [groupChoice, setGroupChoice] = useState<string>();
   const group = groups.find((g) => g.id === groupChoice) ?? groups[0];
-  const ICON_PT = useIconPt();
   const entries = useMemo(() => reiseEntries(challenges, currentUserId), [challenges, currentUserId]);
   const mood = reiseMood(entries);
   const me = users.find((u) => u.id === currentUserId);
@@ -77,16 +67,16 @@ export function FashionProfile() {
   const earned = entries
     .filter((e) => e.role === 'assignee' && e.challenge.status === 'paid')
     .reduce((sum, e) => sum + (e.challenge.bountyAmount ?? 0), 0);
-  const grid = entries.filter((e) =>
+  // Kein Erstellt/Angenommen mehr: Das Raster zeigt, was geschafft ist (positive Bestärkung, Daria, 29.10.2026)
+  const scoped = entries.filter((e) =>
     mode === 'private'
       ? !!e.challenge.private
       : mode === 'groups'
         ? !!group && e.challenge.groupId === group.id
-        : !e.challenge.groupId &&
-          !e.challenge.private &&
-          e.role === (tab === 'created' ? 'author' : 'assignee') &&
-          (mode !== 'kiez' || isInKiez(e.challenge, here, profile.kiez, currentUserId)),
+        : !e.challenge.groupId && !e.challenge.private && (mode !== 'kiez' || isInKiez(e.challenge, here, profile.kiez, currentUserId)),
   );
+  const grid = useMemo(() => erfolge(scoped, currentUserId).done, [scoped, currentUserId]);
+  const praise = usePraise();
   const tile = (width - 2 * GUTTER) / 3;
   const handle = profile.handle || me?.name || anrede(profile);
   const kiez = profile.kiez?.split(',')[0];
@@ -236,25 +226,18 @@ export function FashionProfile() {
           )
         ) : null}
 
-        {mode === 'kiez' || mode === 'everywhere' ? (
-        <View style={styles.gridTabs} accessibilityRole="tablist">
-          {GRID_TABS.map((g) => {
-            const on = g.key === tab;
-            return (
-              <Pressable
-                key={g.key}
-                accessibilityRole="tab"
-                accessibilityLabel={t(g.label)}
-                accessibilityState={{ selected: on }}
-                onPress={() => setTab(g.key)}
-                style={[styles.gridTab, on && styles.gridTabOn]}
-              >
-                <SvgXml xml={phXml(g.icon, on ? color.text.primary : color.text.secondary)} width={ICON_PT} height={ICON_PT} />
-              </Pressable>
-            );
-          })}
-        </View>
-        ) : null}
+        {mode === 'groups' && !group ? null : (
+          <View style={styles.geschafft}>
+            <Geschafft
+              entries={scoped}
+              me={currentUserId}
+              praise={mode === 'kiez' || mode === 'everywhere' ? praise : null}
+              onOpen={(entry) => router.push(entry.href)}
+              wall={false}
+              gutter={space[16]}
+            />
+          </View>
+        )}
 
         {mode === 'groups' && !group ? null : grid.length ? (
           <View style={styles.grid}>
@@ -270,17 +253,7 @@ export function FashionProfile() {
               </Pressable>
             ))}
           </View>
-        ) : (
-          <Text style={styles.empty}>
-            {mode === 'private'
-              ? 'Noch nichts für Dich.'
-              : mode === 'groups'
-                ? 'Noch keine We-Challenges in der Gruppe.'
-                : tab === 'created'
-                  ? 'Noch keine Challenge erstellt.'
-                  : 'Noch keine Challenge angenommen.'}
-          </Text>
-        )}
+        ) : null}
       </ScrollView>
 
       <TabBar
@@ -344,6 +317,8 @@ const GUTTER = 2;
 const HL = 64;
 
 const styles = StyleSheet.create({
+  // Zahlen und Dank über dem Raster, seitlich 16 wie der Kopf
+  geschafft: { gap: space[16], paddingHorizontal: space[16], paddingTop: space[16], paddingBottom: space[8] },
   screen: { flex: 1, backgroundColor: color.bg.screen },
   pressed: { opacity: 0.6 },
   flex: { flex: 1, gap: space[2] },
@@ -424,9 +399,6 @@ const styles = StyleSheet.create({
   hlText: { fontFamily: font.regular, fontSize: 12, lineHeight: 16, color: color.text.primary, alignSelf: 'stretch', textAlign: 'center' },
   groupBlock: { paddingTop: space[8] },
   ranking: { paddingHorizontal: space[16], paddingTop: space[12] },
-  gridTabs: { flexDirection: 'row', borderBottomWidth: stroke.ultraThin, borderBottomColor: color.line.hairline },
-  gridTab: { flex: 1, height: 44, alignItems: 'center', justifyContent: 'center', borderBottomWidth: 1, borderBottomColor: 'transparent', marginBottom: -stroke.ultraThin },
-  gridTabOn: { borderBottomColor: color.text.primary },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: GUTTER, paddingTop: GUTTER },
   tile: { flex: 1, backgroundColor: color.bg.surface, overflow: 'hidden', justifyContent: 'center', padding: space[8] },
   tileEmpty: { backgroundColor: color.bg.surface },
@@ -442,5 +414,4 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#FFFFFF',
   },
-  empty: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.secondary, textAlign: 'center', paddingVertical: space[48] },
 });
