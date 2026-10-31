@@ -23,7 +23,7 @@ import { color, font, motion, radius, size, space, stroke, text } from '../../..
 import { useAppDimensions } from '../../../theme/layout';
 import { photoTextInput, useDraft } from './_layout';
 import { useGoBack } from '../../../lib/goBack';
-import { WithMentions } from '../../../components/WithMentions';
+import { PHOTO_TAG, WithMentions } from '../../../components/WithMentions';
 import { participationText } from '../../../data/weChallenge';
 import { sharedBountyText } from '../../../data/coins';
 
@@ -230,9 +230,12 @@ export default function CreatePreview() {
         // Kein Zurück-Pfeil im Foto: Zurück geht über „Bearbeiten“, oben steht nur der Kater (Daria, 30.10.2026)
         summary={summary}
       >
-        {draft.text.trim() ? (
+        {/* Hashtags wie im Feed: Bild mit #InDiesemMoment (auch ohne Text), We-Challenge mit #vorher (Daria, 31.10.2026) */}
+        {isPhoto || draft.text.trim() ? (
           <Text style={styles.description}>
-            {isPhoto ? draft.text.trim() : <WithMentions value={`#vorher ${draft.text.trim()}`} />}
+            <WithMentions
+              value={isPhoto ? [PHOTO_TAG, draft.text.trim()].filter(Boolean).join(' ') : `#vorher ${draft.text.trim()}`}
+            />
           </Text>
         ) : null}
         <View style={styles.authorBlock}>
