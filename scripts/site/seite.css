@@ -849,6 +849,8 @@ footer a { color: var(--muted); }
 .mehr { padding-bottom: 128px; }
 .mehr-karte { padding-bottom: 40px; }
 .leute { padding-bottom: 80px; }
+/* Desktop: unter den Leuten doppelt so viel Luft (Daria, 31.10.2026) */
+@media (min-width: 901px) { .leute { padding-bottom: 160px; } }
 .wechsel { padding-bottom: 128px; }
 .download { padding-bottom: 48px; }
 .card { padding-bottom: 56px; }
