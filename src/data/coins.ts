@@ -4,7 +4,7 @@ import { t } from './texts';
 import { joinedIds } from './weChallenge';
 
 // ---------------------------------------------------------------------------
-// Coins in We-Challenges (Daria, 28.10.2026, Migration 20261028000400)
+// Coins in We-Challenges (Daria, 28.10.2026, Migration 20261028000600_we_challenge_coins_geteilt.sql)
 // Coins sind die Alternative zu Edensteinen, in jeder We-Challenge im Kiez (nicht in Gruppen).
 // Mit Coins machen höchstens 10 Personen mit, pro Platz 5 bis 50 €. Der Betrag wird geteilt.
 // ---------------------------------------------------------------------------

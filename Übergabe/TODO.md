@@ -6,8 +6,8 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 ## Dringend (Daria, 30.10.2026)
 
-- [ ] `node scripts/i18n.mjs --prune` reparieren: Es löscht genutzte Übersetzungen, weil `collectKeys()` in `scripts/text-keys.mjs` `src/data/kater-sprueche.json` und einzelne Wörter wie „Mitglied“, „er“, „sie“ nicht erfasst. Bis dahin nicht ausführen. Details: `2026-10-25_offen_konsistenz.md`.
-- [ ] ESLint einrichten: `AGENTS.md` verlangt `npx expo lint`, das Repo hat keine ESLint-Konfiguration.
+- [x] (31.10.2026, Claude: Kater-Sprüche und `label`-Texte werden erfasst; Prune ausgeführt) `node scripts/i18n.mjs --prune` reparieren: Es löscht genutzte Übersetzungen, weil `collectKeys()` in `scripts/text-keys.mjs` `src/data/kater-sprueche.json` und einzelne Wörter wie „Mitglied“, „er“, „sie“ nicht erfasst. Bis dahin nicht ausführen. Details: `2026-10-25_offen_konsistenz.md`.
+- [x] (31.10.2026, Claude: ESLint 9 mit eslint-config-expo, 0 Fehler) ESLint einrichten: `AGENTS.md` verlangt `npx expo lint`, das Repo hat keine ESLint-Konfiguration.
 
 ## Zeitnah (Daria, 30.10.2026)
 
@@ -31,7 +31,7 @@ Daria hat am 2026-10-31 versehentlich im Arbeitsaccount gearbeitet. Der Chat wir
 - [ ] Frage an Daria: To-do „Gelbstich und KI-generiert“ (Daria, 2026-10-31) ist nicht erklärt. Was ist gemeint (Fotos mit Gelbstich, KI-generierte Bilder, wo in der App)?
 - [ ] Icon `cat`: Das Icon-Regelwerk gibt ihm im Kiez-Look die einzige Bedeutung „Auf eine Frotzerei“. Seit 2026-10-30 steht es auch in jeder Sprechblase des Katers. Frage an Daria: anderes Icon für eine der beiden Bedeutungen?
 - [ ] Datei `Übergabe/Android Deployment Error`: altes Fehlerprotokoll (expo-updates fehlte lokal), der Fehler ist behoben. Daria entscheidet, ob sie weg kann.
-- [ ] Kommentar oben in `src/data/coins.ts` nennt die Migration `20261028000400_we_challenge_coins_geteilt`; richtig ist `20261028000600_we_challenge_coins_geteilt.sql`. Beim nächsten App-PR mitkorrigieren.
+- [x] Kommentar oben in `src/data/coins.ts` nennt die Migration `20261028000400_we_challenge_coins_geteilt`; richtig ist `20261028000600_we_challenge_coins_geteilt.sql`. Beim nächsten App-PR mitkorrigieren.
 - [ ] Android-Update von Hand nach den Merges vom 2026-10-31 (#150 Tour einheitlich, Reiter-Pille und alle späteren Änderungen auf `main`): `cd ~/KiezCoins-Fotos/repo && git checkout main && git pull origin main && npm ci && npx eas-cli@latest update --channel preview --platform android --environment preview --message "…"`
 
 ## 2026-10-31: aus eingearbeiteten Notizen
@@ -45,10 +45,10 @@ Offene Punkte aus Notizen, deren Rest am 2026-10-31 in Documentation steht.
 - [ ] Frage an Daria: Die Wahl der Modi (verborgen, Standard) liegt auf dem Gerät. Soll sie geräteübergreifend gelten? Dann gehört sie ins Profil (Migration). (aus `2026-10-27_modi-privat-gruppe-kiez.md`)
 - [ ] Frage an Daria: Der abgeschaltete Typ `wave` („Gruppen und Vereine rufen den ganzen Kiez zu gemeinsamen Aktionen auf“, `src/data/features.ts`) überschneidet sich mit der We-Challenge für mehrere Personen. Geht Wave in der offenen We-Challenge ohne Höchstgrenze auf? (aus `2026-10-27_we-challenge-mehrere-personen.md`)
 - [ ] Übersetzungen von Claude prüfen lassen, ungeprüft: Status-Badges nach Geschlecht (gehört zu `2026-10-24_offen_gender-uebersetzungen-pruefen.json`), Hinweistexte unter dem Umschalter (`MESSAGE` in `src/components/AudienceHint.tsx`), leere Reiter (en, fr, uk, ru, he, ar, je mit Fassungen nach Geschlecht). (aus `2026-10-27_status-badges-deckname.md`, `2026-10-29_hinweis-sichtbarkeit-ueberall.md`, `2026-10-29_leere-reiter.md`)
-- [ ] Leere Zustände angleichen: „Was Du so machst“, das Profil im Fashionable Look und das Erstellen-Blatt ohne Gruppe zeigen weiter die Sprechblase (`GroupsEmpty`) statt Cat The Käptn mit Titel und Knopf. (aus `2026-10-29_leere-reiter.md`)
+- [x] Leere Zustände angleichen: „Was Du so machst“, das Profil im Fashionable Look und das Erstellen-Blatt ohne Gruppe zeigen weiter die Sprechblase (`GroupsEmpty`) statt Cat The Käptn mit Titel und Knopf. (aus `2026-10-29_leere-reiter.md`)
 - [ ] Frage an Daria: Update- und Installationshinweis (`UpdateHint.tsx`, `InstallHint.tsx`) zeigen einen kleinen farbigen Kater ohne Blase in einer Hinweiskarte. Sollen sie die Form „Kater im Kreis auf der Blase“ bekommen? (aus `2026-10-30_kater-sprechblase.md`)
 - [ ] Figma-Frames tragen noch die alten Routennamen (`challenge/report`, `challenge/payment`, `settings/payout`, `onboarding/kodex` …). Gehört zu `2026-10-24_offen_figma-abgleich.md`. (aus `2026-10-30_routen-englisch.md`)
-- [ ] Tour, Beispiel „Bild“: Der lila Ring umrahmt den ganzen Beitrag statt nur das Herz (`src/components/tour/TourDemo.tsx`). (aus `2026-10-31_tour-zum-ausprobieren.md`)
+- [x] Tour, Beispiel „Bild“: Der lila Ring umrahmt den ganzen Beitrag statt nur das Herz (`src/components/tour/TourDemo.tsx`). (aus `2026-10-31_tour-zum-ausprobieren.md`)
 - [ ] Prüfabfrage aus Documentation, `kiez-coins/DATENBANK.md` (Abschnitt „So prüfst Du, welche Migrationen laufen“), im SQL-Editor ausführen und Claude das Ergebnis geben. Die Bestätigung fehlt für alle Migrationen mit „prüfen“: `20261026000100_app_texts_code_per_mail`, `20261027000200_group_photo_posts`, `20261027000300_app_texts_community_regeln`, `20261028000200_kiez_edensteine`, `20261028000300_we_challenge_teilnehmende`, `20261028000600_we_challenge_coins_geteilt`, `20261028000700_report_any_participant`, `20261030000100_app_texts_coins_geld`. (aus `2026-10-27_offen_community-regeln.md`, `2026-10-28_offen_we-challenge-coins.md`)
 - [ ] We-Challenge mit Coins einmal durchspielen: mit Coins für 3 Personen erstellen, drei Konten treten bei, Erledigt melden, eine Person abwählen, je Person bezahlen und den Erhalt bestätigen. (aus `2026-10-28_offen_we-challenge-coins.md`)
 - [ ] Push an weitere Teilnehmende einer We-Challenge, wenn ihr Anteil bezahlt ist, gibt es noch nicht. (aus `2026-10-28_offen_we-challenge-coins.md`)
@@ -61,7 +61,7 @@ Offene Punkte aus Notizen, deren Rest am 2026-10-31 in Documentation steht.
 - [ ] Datenschutzerklärung und Kodex (Daria): Hinweis ergänzen, dass die Betreiberin private Nachrichten in begründeten Fällen (z. B. nach Meldungen) einsehen kann und jedes Einsehen protokolliert wird (`src/data/legal.ts`). (aus `2026-10-27_offen_chat-mitlesen-protokoll.md`)
 - [ ] Frage an Daria: Sollen Nutzer:innen aktiv erfahren, dass die Moderation ihren Chat eingesehen hat, z. B. „Dein Chat mit X wurde am … von der Moderation eingesehen“? Heute steht es nur unter „Abrufe Deiner Daten“. (aus `2026-10-27_offen_chat-mitlesen-protokoll.md`)
 - [ ] Frage an Daria: Die Datenschutzerklärung sagt in der Einleitung „KiezCoins nutzt keine Werbung, kein Tracking und keine Analyse-Werkzeuge.“ Der neue Abschnitt „Erheben von Nutzungsdaten“ behält sich anonymisierte Klicks vor. Passt die Einleitung so? (aus `2026-10-31_offen_kamera-leiste-zaehler.md`)
-- [ ] Tour: Die Seite „Gruppen“ erscheint auch, wenn der Modus Gruppe verborgen ist (`src/data/tour.ts`, `src/app/tour.tsx`). (aus `2026-10-29_offen_tour.md`)
+- [x] Tour: Die Seite „Gruppen“ erscheint auch, wenn der Modus Gruppe verborgen ist (`src/data/tour.ts`, `src/app/tour.tsx`). (aus `2026-10-29_offen_tour.md`)
 - [ ] Texte von Claude im Website-Prototyp prüfen: Modus „Überall“ mit der We-Challenge in 148 km Entfernung, „Anfrage senden“, Mo sagt zu (`scripts/site/prototyp.js`). (aus `2026-10-29_offen_modus-ueberall.md`)
 
 ## 29.10.2026 – Pflicht für Daria: Text auf dem Foto
@@ -74,7 +74,7 @@ Offene Punkte aus Notizen, deren Rest am 2026-10-31 in Documentation steht.
 - [x] Ziele statt Meilensteine (Daria, 29.10.2026): erster Post, erste Me-/We-Challenge, je eine Me-/We-Challenge pro Monat, erste Einladung; Balken in Lila, Geschenk öffnet sich mit pinken Herzen (`src/components/Quests.tsx`)
 - [x] Ziele „Deine erste Gruppe“ und „Du hast 2 Menschen zu Deiner Gruppe eingeladen“ (Daria, 29.10.2026), nur wenn Gruppen nicht ausgeschaltet sind. Eingeladen zählt weitere Mitglieder in selbst gegründeten Gruppen, da die Datenbank nicht speichert, wer eingeladen hat.
 - [ ] „Danke von anderen“ erkennt Dank an Wörtern wie „Danke“, „super“, „toll“ oder Herzen im Kommentar. Später ggf. eigener Danke-Knopf.
-- [ ] Fashionable Look (`FashionProfile.tsx`) zeigt noch Erstellt/Angenommen statt der Geschafft-Wand
+- [x] Fashionable Look (`FashionProfile.tsx`) zeigt noch Erstellt/Angenommen statt der Geschafft-Wand
 
 ## 29.10.2026 – Pflicht für Daria: Rückmeldung zur Tour
 
@@ -158,7 +158,7 @@ Offene Punkte aus Notizen, deren Rest am 2026-10-31 in Documentation steht.
 ## 21.10.2026 (5) – Feedback (Daria)
 
 - [ ] Das Badge „Open“ (Offen) sieht wie ein Button aus. Hängt mit „Badge ‚Offen‘ farblich betonen“ vom 20.10.2026 zusammen.
-- [ ] Das Zahnrad-Menü in der Gruppenaufgabe soll sich bei Klick außerhalb schließen. (Screenshot `2026-10-21_zahnrad-menue-gruppenaufgabe.png`: Gruppenaufgabe mit offenem Menü „Edit, Close, Delete, Manage all“)
+- [x] Das Zahnrad-Menü in der Gruppenaufgabe soll sich bei Klick außerhalb schließen. (Screenshot `2026-10-21_zahnrad-menue-gruppenaufgabe.png`: Gruppenaufgabe mit offenem Menü „Edit, Close, Delete, Manage all“)
 - [x] Bug: Der Name „Sof“ erschien als „Sofa“. Ursache: Die Übersetzung im Browser (Safari) übersetzte Namen mit. Behoben: Namen, Decknamen und Gruppennamen tragen `noTranslate` (`src/components/T.tsx`), im Web `translate="no"` und die Klasse `notranslate`.
 
 ## 22.10.2026 – Feedback (Daria)
@@ -209,10 +209,11 @@ Plan und Entscheidungen: `Übergabe/2026-10-27_we-challenge-mehrere-personen.md`
 - [ ] `/laden` und `/qr` am Telefon testen, danach die QR-Codes drucken (`Übergabe/2026-10-29_offen_website-laden-qr.md`)
 - [ ] Nach dem 01.11.2026 prüfen, ob der EAS-Workflow wieder startet
 - [x] Migration `20261029000500_app_texts_anlegen.sql` eingespielt (Daria, 30.10.2026; Texte-Editor, Doku: `kiez-coins/app/Anleitung_App.md`, Abschnitt „Texte ändern“)
-- [ ] PR #16 („Download ohne Supabase-Secret“) ohne Merge schließen: überholt, der Download läuft schon über `download_settings` (Daria bestätigt, dass er funktioniert)
+- [x] (war schon geschlossen) PR #16 („Download ohne Supabase-Secret“) ohne Merge schließen: überholt, der Download läuft schon über `download_settings` (Daria bestätigt, dass er funktioniert)
 - [ ] Notizen vom 29. und 30.10.2026 in Documentation übernehmen: nur noch die Website (`2026-10-29_offen_website-laden-qr.md`, nach dem Test am Telefon). Alles andere steht seit 2026-10-31 in Documentation.
 
 ## 2026-10-31
 
 - [x] „Flaschenpost“ als Wort für E-Mail überall gestrichen (App-Texte, Übersetzungen). Migration `20261031000200_flaschenpost_texte.sql` im SQL-Editor ausführen, danach die neuen Texte mit `node scripts/app-texts.mjs` eintragen.
 - [ ] Später: In der E-Mail selbst steht „Du hast Flaschenpost“, mit passender Illustration oder Animation. Sonst taucht „Flaschenpost“ für E-Mail nirgends auf.
+- [ ] ESLint: 31 Warnungen offen, vor allem ungenutzte Importe und drei fehlende Abhängigkeiten in `useEffect`/`useMemo` (`src/app/friends/invite.tsx`, `src/app/groups/join.tsx`, `src/app/texts.tsx`). Die Abhängigkeiten nur mit Test am Telefon ändern.
