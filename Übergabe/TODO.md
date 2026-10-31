@@ -23,6 +23,17 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Kodex und Rechtstexte überarbeiten (Daria)
 - [ ] Anschrift (c/o) im Impressum, sobald die App öffentlich ist und ein Finanzierungskonzept steht
 
+## 2026-10-31: Reste der Sitzung im Arbeitsaccount (Chat gelöscht)
+
+Daria hat am 2026-10-31 versehentlich im Arbeitsaccount gearbeitet. Der Chat wird gelöscht; alles Offene steht hier.
+
+- [ ] Branch `claude/fashion-ohne-status` (liegt auf GitHub, kein PR, nicht gemergt): entfernt im Challenge-Detail des Fashionable Look die Status-Blase über dem Bild. Daria hat „Stopp“ gesagt, da unklar war, welche Blase sie meint. Frage an Daria: Welche Blase soll raus? Danach Branch anpassen oder löschen.
+- [ ] Frage an Daria: To-do „Gelbstich und KI-generiert“ (Daria, 2026-10-31) ist nicht erklärt. Was ist gemeint (Fotos mit Gelbstich, KI-generierte Bilder, wo in der App)?
+- [ ] Icon `cat`: Das Icon-Regelwerk gibt ihm im Kiez-Look die einzige Bedeutung „Auf eine Frotzerei“. Seit 2026-10-30 steht es auch in jeder Sprechblase des Katers. Frage an Daria: anderes Icon für eine der beiden Bedeutungen?
+- [ ] Datei `Übergabe/Android Deployment Error`: altes Fehlerprotokoll (expo-updates fehlte lokal), der Fehler ist behoben. Daria entscheidet, ob sie weg kann.
+- [ ] Kommentar oben in `src/data/coins.ts` nennt die Migration `20261028000400_we_challenge_coins_geteilt`; richtig ist `20261028000600_we_challenge_coins_geteilt.sql`. Beim nächsten App-PR mitkorrigieren.
+- [ ] Android-Update von Hand nach den Merges vom 2026-10-31 (#150 Tour einheitlich, Reiter-Pille und alle späteren Änderungen auf `main`): `cd ~/KiezCoins-Fotos/repo && git checkout main && git pull origin main && npm ci && npx eas-cli@latest update --channel preview --platform android --environment preview --message "…"`
+
 ## 2026-10-31: aus eingearbeiteten Notizen
 
 Offene Punkte aus Notizen, deren Rest am 2026-10-31 in Documentation steht.
