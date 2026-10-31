@@ -687,7 +687,25 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
           });
           setzen(best);
         };
-        addEventListener('scroll', function () { if (!vornTick) { vornTick = true; requestAnimationFrame(vorn); } }, { passive: true });
+        // Ein Tipp auf eine Karte scrollt sie in die Mitte und holt sie sofort nach vorn (Daria, 31.10.2026).
+        // Solange die Seite dorthin scrollt, bleibt die Karte vorn; erst eigenes Scrollen gibt sie wieder frei.
+        var fest = null, auto = false, autoUhr = 0;
+        var autoAus = function () { auto = false; clearTimeout(autoUhr); };
+        liste.addEventListener('click', function (e) {
+          var li = e.target.closest('li');
+          if (!li) return;
+          fest = li; auto = true; setzen(li);
+          clearTimeout(autoUhr); autoUhr = setTimeout(autoAus, 900);
+          var r = li.getBoundingClientRect();
+          var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+          scrollTo({ top: scrollY + r.top + r.height / 2 - innerHeight / 2, behavior: still ? 'auto' : 'smooth' });
+        });
+        addEventListener('scrollend', function () { if (auto) autoAus(); });
+        addEventListener('scroll', function () {
+          if (auto) return;
+          fest = null;
+          if (!vornTick) { vornTick = true; requestAnimationFrame(vorn); }
+        }, { passive: true });
         vorn();
       }
     }
