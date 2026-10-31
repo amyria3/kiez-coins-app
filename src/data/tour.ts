@@ -6,6 +6,8 @@
  * Alternativ eine öffentliche Adresse, z. B. aus dem Supabase-Storage: `video: 'https://…/posten.mp4'`.
  * Ohne Video zeigt die Seite den Kater.
  */
+import type { Mode } from './features';
+
 export type TourStep = {
   key: string;
   title: string;
@@ -14,8 +16,11 @@ export type TourStep = {
   video?: number | string;
   /** `feedback`: letzte Seite mit der Frage, wie die Erklärung war (Daria, 29.10.2026) */
   kind?: 'feedback';
+  /** Seite erscheint nur, wenn dieser Modus sichtbar ist (Dein Konto › Funktionen) */
+  mode?: Mode;
 };
 
+/** Alle Seiten. Die Route `tour` blendet Seiten zu verborgenen Modi aus. */
 export const tourSteps: TourStep[] = [
   {
     key: 'posten',
@@ -55,6 +60,7 @@ export const tourSteps: TourStep[] = [
   },
   {
     key: 'gruppen',
+    mode: 'groups',
     // Titel und Text von Daria (31.10.2026)
     title: 'Gruppen: ein Feed für Deine WG, Deine Familie oder Deinen Verein',
     text: 'Verteilt We-Challenges unter Euch und sammelt Edensteine. May the best one win!',
@@ -68,6 +74,7 @@ export const tourSteps: TourStep[] = [
   // Titel und Text von Claude
   {
     key: 'privat',
+    mode: 'private',
     title: 'Privat: nur für Dich',
     text: 'Im Modus „Privat“ siehst nur Du, was Du postest. Halte fest, was Dir gefällt, ganz ohne Publikum. Du findest den Modus oben im Umschalter.',
   },

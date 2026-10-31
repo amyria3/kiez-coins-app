@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Alert, Animated, Pressable, StyleSheet, View } from 'react-native';
 import { shareText } from '../lib/share';
 import { Text } from './T';
@@ -34,6 +34,8 @@ export type ChallengePostProps = {
   onLike: () => void;
   /** Nur bei eigenen Challenges: führt zu „Deine Challenges“ */
   onManage?: () => void;
+  /** Umhüllt das Herz, z. B. mit dem lila Ring der Tour (TourDemo) */
+  wrapLike?: (heart: ReactNode) => ReactNode;
 };
 
 /**
@@ -54,6 +56,7 @@ function KiezPost({
   onCommentPress,
   onLike,
   onManage,
+  wrapLike = (heart) => heart,
 }: ChallengePostProps) {
   const isWave = challenge.type === 'wave';
   const completed = COMPLETED.has(challenge.status);
@@ -257,16 +260,18 @@ function KiezPost({
         <View style={styles.actionsLeft}>
           {/* Herz mit Anzahl; das Geschenk ist ausgeblendet (Daria, 22.10.2026) */}
           {/* Icon und Zahl als ein Knopf, Zahl mit festem Abstand rechts daneben (Daria, 22.10.2026) */}
-          <Pressable
-            accessibilityRole="button"
-            accessibilityState={{ selected: !!challenge.likedByMe }}
-            accessibilityLabel={challenge.likeCount ? t('Gefällt mir, {likeCount} Likes', { likeCount: challenge.likeCount }) : t('Gefällt mir')}
-            onPress={onLike}
-            style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
-          >
-            <Icon name="heart" size={size.icon} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
-            {challenge.likeCount ? <Text style={styles.count}>{challenge.likeCount}</Text> : null}
-          </Pressable>
+          {wrapLike(
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ selected: !!challenge.likedByMe }}
+              accessibilityLabel={challenge.likeCount ? t('Gefällt mir, {likeCount} Likes', { likeCount: challenge.likeCount }) : t('Gefällt mir')}
+              onPress={onLike}
+              style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
+            >
+              <Icon name="heart" size={size.icon} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
+              {challenge.likeCount ? <Text style={styles.count}>{challenge.likeCount}</Text> : null}
+            </Pressable>
+          )}
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={commentCount ? t('Kommentieren, {commentCount} Kommentare', { commentCount }) : t('Kommentieren')}
@@ -316,7 +321,7 @@ function spotsText(c: Challenge, active: boolean): string {
  * Look „Fashionable“ (Daria, 2026-10-23): Kopfzeile mit Bild, Name und Kiez über dem Foto, Foto quadratisch über die
  * ganze Breite, darunter Herz, Sprechblase, Teilen und der Text mit fettem Titel vorn. Ein Tipp aufs Foto öffnet den Post.
  */
-function FashionPost({ challenge, author, distance, onPress, onCommentPress, onLike, onManage }: ChallengePostProps) {
+function FashionPost({ challenge, author, distance, onPress, onCommentPress, onLike, onManage, wrapLike = (heart) => heart }: ChallengePostProps) {
   const isWave = challenge.type === 'wave';
   const completed = COMPLETED.has(challenge.status);
   const closed = challenge.status === 'closed';
@@ -400,16 +405,18 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
         <View style={fashion.noPhotoLine} />
       )}
       <View style={fashion.actions}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityState={{ selected: !!challenge.likedByMe }}
-          accessibilityLabel={challenge.likeCount ? t('Gefällt mir, {likeCount} Likes', { likeCount: challenge.likeCount }) : t('Gefällt mir')}
-          onPress={onLike}
-          style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
-        >
-          <Icon name="heart" size={size.icon} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
-          {challenge.likeCount ? <Text style={fashion.count}>{challenge.likeCount}</Text> : null}
-        </Pressable>
+        {wrapLike(
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: !!challenge.likedByMe }}
+            accessibilityLabel={challenge.likeCount ? t('Gefällt mir, {likeCount} Likes', { likeCount: challenge.likeCount }) : t('Gefällt mir')}
+            onPress={onLike}
+            style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
+          >
+            <Icon name="heart" size={size.icon} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
+            {challenge.likeCount ? <Text style={fashion.count}>{challenge.likeCount}</Text> : null}
+          </Pressable>
+        )}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={commentCount ? t('Kommentieren, {commentCount} Kommentare', { commentCount }) : t('Kommentieren')}

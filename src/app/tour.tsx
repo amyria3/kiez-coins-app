@@ -27,8 +27,9 @@ import { iconSvgs } from '../components/icons/svgs';
 import { errorText, saveTourFeedback, type TourFeedbackChoice } from '../data/remote';
 import { Text } from '../components/T';
 import { DemoCue, DemoFocus, TourDemo } from '../components/tour/TourDemo';
+import { useModes } from '../data/features';
 import { t } from '../data/texts';
-import { TOUR_FEEDBACK_OTHER_MAX, TOUR_SEEN_KEY, tourFeedbackOptions, tourSteps, type TourStep } from '../data/tour';
+import { TOUR_FEEDBACK_OTHER_MAX, TOUR_SEEN_KEY, tourFeedbackOptions, tourSteps as allTourSteps, type TourStep } from '../data/tour';
 import { useAppDimensions } from '../theme/layout';
 import { color, radius, space, text } from '../theme/tokens';
 
@@ -44,6 +45,9 @@ export default function Tour() {
   const { width } = useAppDimensions();
   const pager = useRef<ScrollView>(null);
   const [page, setPage] = useState(0);
+  // Seiten zu verborgenen Modi entfallen, z. B. „Gruppen“ bei verborgenem Modus Gruppe
+  const modes = useModes();
+  const tourSteps = allTourSteps.filter((s) => !s.mode || modes.isVisible(s.mode));
   // Höhe des Blätterbereichs: Jede Seite füllt sie, damit die Fläche oben den Rest neben Titel und Text nimmt
   const [pagerH, setPagerH] = useState(0);
   const last = page === tourSteps.length - 1;
