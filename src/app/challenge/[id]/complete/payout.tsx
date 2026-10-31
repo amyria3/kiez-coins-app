@@ -39,6 +39,9 @@ export default function PayoutShareScreen() {
   const [paypal, setPaypal] = useState('');
   const [saveToAccount, setSaveToAccount] = useState(true);
 
+  // Vor dem frühen return, da Hooks in jedem Durchlauf in derselben Reihenfolge laufen müssen
+  const ibanField = useNudge();
+
   if (!challenge || !author || !challenge.bountyAmount) return null;
   const name = author.firstName;
   // Mehrere Personen: Dein Anteil (geschätzt, bis die Erstellerin bestätigt)
@@ -48,7 +51,6 @@ export default function PayoutShareScreen() {
   const ibanOk = isValidIban(iban) && accountHolder.trim().length > 0;
   const paypalOk = isValidPaypal(paypal);
   const canShare = saved ? true : ibanOk || paypalOk;
-  const ibanField = useNudge();
 
   const share = () => {
     if (saved) {
