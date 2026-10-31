@@ -1369,6 +1369,58 @@
   var headline = document.querySelector('.hero h1');
   var lede = document.querySelector('.hero .lede');
   var pickText = document.getElementById('szenario-text');
+  var pickTitle = document.getElementById('szenario-titel');
+  var pickInfo = document.getElementById('szenario-info');
+  // Überschrift über dem Satz, passend zu Ort und Szene (Daria, 31.10.2026). „Überall“ nutzt die Texte aus dem Kiez,
+  // deshalb auch dessen Überschriften, außer beim Feed.
+  var HEADS = {
+    ich: {
+      me: T('Das ist Deine Me-Challenge, nur für Dich', 'This is your Me-Challenge, just for you'),
+      bild: T('Das ist Dein Bild, nur für Dich', 'This is your photo, just for you'),
+      feed: T('Das ist Dein privater Feed', 'This is your private feed'),
+    },
+    gruppe: {
+      me: T('Das ist Deine Me-Challenge in der Gruppe', 'This is your Me-Challenge in the group'),
+      we: T('Das ist eine We-Challenge in Deiner Gruppe', 'This is a We-Challenge in your group'),
+      bild: T('Das ist ein Bild für Deine Gruppe', 'This is a photo for your group'),
+      feed: T('Das ist der Feed Deiner Gruppe', 'This is your group’s feed'),
+    },
+    kiez: {
+      me: T('Das ist Deine Me-Challenge im Kiez', 'This is your Me-Challenge in the neighborhood'),
+      we: T('Das ist eine We-Challenge in Deinem Kiez', 'This is a We-Challenge in your neighborhood'),
+      bild: T('Das ist ein Bild für Deinen Kiez', 'This is a photo for your neighborhood'),
+      feed: T('Das ist der Feed Deines Kiezes', 'This is your neighborhood’s feed'),
+    },
+  };
+  function headOf(mode, kind) {
+    if (mode === 'ueberall') return kind === 'feed' ? T('Das ist der Feed für alle', 'This is the feed for everyone') : HEADS.kiez[kind];
+    return (HEADS[mode] || {})[kind];
+  }
+  // Telefon und Tablet: Beim Scrollen bleibt das Telefon zurück und schiebt sich über den Satz. Ein Tipp auf
+  // Überschrift oder Satz fährt Text und Satz darüber so weit nach oben, dass alles zu lesen ist; das Telefon bleibt
+  // (Daria, 31.10.2026). Noch ein Tipp oder Scrollen stellt zurück.
+  var lifted = 0;
+  function lift(px) {
+    lifted = px;
+    ['.hero-text', '.steuerung'].forEach(function (sel) {
+      var el = document.querySelector(sel);
+      if (el) el.style.translate = px ? '0 ' + -px + 'px' : '';
+    });
+  }
+  if (pickInfo) {
+    pickInfo.addEventListener('click', function () {
+      var phone = document.getElementById('prototyp');
+      if (!phone) return;
+      if (lifted) return lift(0);
+      var overlap = pickInfo.getBoundingClientRect().bottom - phone.getBoundingClientRect().top + 16;
+      if (overlap > 0) lift(overlap);
+    });
+    var liftY = window.scrollY;
+    window.addEventListener('scroll', function () {
+      if (lifted && Math.abs(window.scrollY - liftY) > 40) lift(0);
+      if (!lifted) liftY = window.scrollY;
+    }, { passive: true });
+  }
   function first() {
     return M.scenarios[0][0];
   }
@@ -1428,6 +1480,11 @@
       var line = M.scenarios.filter(function (k) { return k[0] === shown; })[0];
       if (line && pickText.textContent !== line[2]) pickText.textContent = line[2];
       pickText.style.display = line ? '' : 'none';
+      if (pickTitle) {
+        var head = line && headOf(state.mode, shown);
+        if (head && pickTitle.textContent !== head) pickTitle.textContent = head;
+        pickTitle.style.display = head ? '' : 'none';
+      }
     }
     if (lede) {
       var t = (M.ledes && M.ledes[current()]) || LEDE;

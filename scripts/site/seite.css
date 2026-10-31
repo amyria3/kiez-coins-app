@@ -694,10 +694,15 @@ footer a { color: var(--muted); }
   margin-bottom: 8px; border-radius: 16px; background: var(--surface) !important; border: .5px solid var(--line) !important; }
 .p-running strong { display: block; font: 600 13px/1.2 var(--display); margin-bottom: 3px; }
 .p-running i { font-style: normal; color: var(--purple); font-size: 10.5px; }
-.szenario-text { display: none; }
+.szenario-text, .szenario-info { display: none; }
 @media (max-width: 900px) {
+  /* Überschrift und Satz zum Prototyp; ein Tipp fährt beides über das Telefon (prototyp.js, Daria, 31.10.2026) */
+  .szenario-info { display: grid; justify-items: center; gap: 6px; cursor: pointer; }
+  .hero-text, .steuerung { transition: translate 450ms var(--barrier); }
+  .szenario-titel { margin: 0; max-width: 30ch; text-align: center; font: 600 18px/1.25 var(--display); letter-spacing: -.01em; color: var(--text); }
   .szenario-text { display: block; margin: 0; max-width: 34ch; text-align: center; color: var(--muted); font-size: 15px; line-height: 1.45; min-height: 4.35em; }
 }
+@media (max-width: 900px) and (prefers-reduced-motion: reduce) { .hero-text, .steuerung { transition: none; } }
 /* Herz-Animation nach dem Posten (wie src/components/HeartBurst.tsx) */
 .p-burst { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 50; }
 .p-burst-big { animation: p-burst-pop 1300ms var(--barrier) both; }
