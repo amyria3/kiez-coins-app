@@ -7,7 +7,7 @@
  */
 
 /** Stand aller Texte (TT.MM.JJJJ). */
-export const LEGAL_STAND = '30.10.2026';
+export const LEGAL_STAND = '31.10.2026';
 
 /** Angaben zur Anbieterin. Leere Felder erscheinen in der App als „[offen: …]“. */
 export const OPERATOR = {
@@ -122,6 +122,11 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
           'Vercel Inc. (USA) liefert die Download-Seite und die Web-App aus und verarbeitet dafür Deine IP-Adresse. Grundlage sind das EU-US Data Privacy Framework und EU-Standardvertragsklauseln.',
           'Mit diesen Diensten besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO.',
         ],
+      },
+      // Anonyme Zählung, z. B. welcher Kamera-Knopf häufiger gedrückt wird (Daria, 31.10.2026)
+      {
+        heading: 'Erheben von Nutzungsdaten',
+        paragraphs: ['Wir behalten uns vor, anonymisiert Nutzerdaten zu erheben (wie beispielsweise Klicks).'],
       },
       {
         heading: 'So lange bleiben Deine Daten',

@@ -1331,6 +1331,31 @@ export async function saveAppText(original: string, value: string, lang: 'de' | 
   if (error) throw error;
 }
 
+/**
+ * Knopf zählen (Migration 20261031000100): nur Knopf, Look und Zeitpunkt, ohne Person. Fehler stören niemanden
+ * (z. B. ohne Migration oder ohne Netz), deshalb still.
+ */
+export function countButton(button: string, look: string) {
+  supabase
+    .from('button_presses')
+    .insert({ button, look })
+    .then(
+      () => undefined,
+      () => undefined,
+    );
+}
+
+/** Wie oft jeder Knopf gedrückt wurde (nur Moderatorinnen). `null`, solange die Migration fehlt. */
+export async function loadButtonCounts(buttons: string[]): Promise<Record<string, number> | null> {
+  const counts: Record<string, number> = {};
+  for (const button of buttons) {
+    const { count, error } = await supabase.from('button_presses').select('id', { count: 'exact', head: true }).eq('button', button);
+    if (error) return null;
+    counts[button] = count ?? 0;
+  }
+  return counts;
+}
+
 /** true, wenn die angemeldete Person in `moderators` steht. */
 export async function isModerator(): Promise<boolean> {
   const { data, error } = await supabase.rpc('is_moderator');
