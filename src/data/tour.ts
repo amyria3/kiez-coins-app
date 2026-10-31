@@ -35,6 +35,13 @@ export const tourSteps: TourStep[] = [
     title: 'Was ist eine We-Challenge?',
     text: 'Hier gibt es etwas zu tun, und andere helfen mit. Du zeigst die Ausgangslage und setzt damit einen Impuls. Hier bei KiezCoins heißt das „We-Challenge“: Andere Nutzer:innen können die Challenge annehmen. Wenn sie erfolgreich sind, dokumentieren sie das Ergebnis ebenfalls mit einem Bild.',
   },
+  // Nach der We-Challenge (Daria, 31.10.2026)
+  // Ergänzt von Daria (29.10.2026). Titel von Claude, Text von Daria
+  {
+    key: 'bild',
+    title: 'Einfach ein schönes Bild',
+    text: 'Ist Dir das alles ein wenig zu viel und zu kompliziert für den Anfang? Dann poste doch einfach ein nettes Bild oder Deine Lieblingsstelle im Wald. Share the Moment (aber nur, wenn Dir danach ist).',
+  },
   {
     key: 'annehmen',
     title: 'Annehmen und anpacken',
@@ -50,12 +57,6 @@ export const tourSteps: TourStep[] = [
     key: 'gruppen',
     title: 'Gruppen für WG, Familie und Verein',
     text: 'Verteilt We-Challenges unter Euch und sammelt Edensteine. Sie gelten nur in Eurer Gruppe.',
-  },
-  // Ergänzt von Daria (29.10.2026). Titel von Claude, Text von Daria
-  {
-    key: 'bild',
-    title: 'Einfach ein schönes Bild',
-    text: 'Ist Dir das alles ein wenig zu viel und zu kompliziert für den Anfang? Dann poste doch einfach ein nettes Bild oder Deine Lieblingsstelle im Wald. Share the Moment (aber nur, wenn Dir danach ist).',
   },
   // Titel von Daria, Text von Claude
   {
