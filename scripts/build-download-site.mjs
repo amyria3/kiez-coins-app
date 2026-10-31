@@ -320,7 +320,10 @@ ${filterDefs}
     <button type="button" data-szenario="bild" aria-pressed="false" aria-controls="prototyp"><b>${t('Nur ein Bild', 'Just a photo')}</b><i>${t('Bild', 'Photo')}</i><span>${t('Teile mit Deinen Nachbar:innen besondere Momente, Orte oder Buchempfehlungen.', 'Share special moments, places or book tips with your neighbors.')}</span></button>
     <button type="button" data-szenario="feed" aria-pressed="false" aria-controls="prototyp"><b>Feed</b><i>Feed</i><span>${t('Wie in jedem sozialen Netzwerk: sehen, was andere Menschen so posten. Hol Dir Inspiration, Tipps, Life Hacks & Satisfaction über erledigte Challenges.', 'Like any social network: see what other people post. Get inspiration, tips, life hacks & satisfaction from completed challenges.')}</span></button>
   </div>
-  <p class="szenario-text" id="szenario-text" aria-hidden="true">${t('How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!', 'How do you feel today? Share a life hack or an especially kid- and budget-friendly recipe. Or challenge yourself and do something really nice for people or animals. Showing off and friendly competition are welcome!')}</p>
+  <div class="szenario-info" id="szenario-info" aria-hidden="true">
+  <h2 class="szenario-titel" id="szenario-titel">${t('Das ist der Feed Deines Kiezes', 'This is your neighborhood’s feed')}</h2>
+  <p class="szenario-text" id="szenario-text">${t('How do you feel today? Teile einen Life-Hack oder ein besonders kinder- und budgetfreundliches Rezept. Oder fordere Dich selbst heraus und tue etwas richtig Nettes für Mensch oder Tier. Angeben und freundschaftlicher Wettbewerb sind gewollt!', 'How do you feel today? Share a life hack or an especially kid- and budget-friendly recipe. Or challenge yourself and do something really nice for people or animals. Showing off and friendly competition are welcome!')}</p>
+  </div>
   </div>
   <div class="phone-spalte">
   <div class="phone" id="prototyp" role="region" aria-label="${t('Klickbarer Prototyp der App KiezCoins', 'Clickable prototype of the KiezCoins app')}">
