@@ -8,6 +8,7 @@ import {
   RefreshControl,
   StyleSheet,
   View,
+  type GestureResponderEvent,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
@@ -142,8 +143,20 @@ export default function FeedScreen() {
     const settled = Date.now() - collapsedAt.current > motion.barrier.duration + 200;
     nudgeCrystals(y - lastY.current);
     if (y > 8 && y > lastY.current) collapse();
-    else if (settled && ((y <= 0 && maxY.current > 120) || (dragging.current && y < -48))) expand();
+    else if (settled && ((y <= 0 && maxY.current > 120) || (dragging.current && y < -24))) expand();
     lastY.current = y;
+  };
+
+  // Ganz oben ein kleines Stück nach unten ziehen klappt den Kopf wieder auf (Daria, 31.10.2026).
+  // Im Browser (auch als Web-App auf dem iPhone) gibt es kein Zurückfedern unter 0, deshalb zählt hier die Fingerbewegung.
+  const pullStart = useRef<number | null>(null);
+  const onTouchStart = (e: GestureResponderEvent) => {
+    pullStart.current = lastY.current <= 0 ? e.nativeEvent.pageY : null;
+  };
+  const onTouchMove = (e: GestureResponderEvent) => {
+    if (pullStart.current === null || e.nativeEvent.pageY - pullStart.current < 24) return;
+    pullStart.current = null;
+    expand();
   };
 
   // Eigene Position nur, wenn der Standort schon freigegeben ist. Bleibt auf dem Gerät.
@@ -506,6 +519,9 @@ export default function FeedScreen() {
           }
           renderItem={renderItem}
           onScroll={onScroll}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={() => (pullStart.current = null)}
           onScrollBeginDrag={() => (dragging.current = true)}
           onScrollEndDrag={() => (dragging.current = false)}
           scrollEventThrottle={16}
