@@ -120,6 +120,13 @@ export default function Account() {
           onPress={() => router.push('/account/look')}
         />
       ) : null}
+      {/* Tour als große Karte mit Fragezeichen, Beispiele zum Ausprobieren (Daria, 31.10.2026) */}
+      <NavCard
+        title="Wie geht KiezCoins"
+        description="Beispiele zum Ausprobieren"
+        leading={<Icon name="questionmark" size={size.icon} color={color.text.primary} />}
+        onPress={() => router.push('/tour')}
+      />
       {/* Kater-Seite als große Karte unter Look (Daria, 25.10.2026); Kiez-Look: Darias Kater-Icon, Fashionable: Logo-Kater */}
       <NavCard
         title="Auf eine Frotzerei"
@@ -138,7 +145,6 @@ export default function Account() {
       />
       <FieldGroup label="Einstellungen">
         <View style={styles.list}>
-          <NavRow label="So geht KiezCoins" value="Kurze Videos" onPress={() => router.push('/tour')} />
           <NavRow label="Benachrichtigungen" value={profile.push ? 'Push an' : 'Push aus'} onPress={() => router.push('/account/notifications')} />
           <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/account/payout')} />
           <NavRow label="Umfrage" value="7 Fragen zur App" onPress={() => setSurvey(true)} />

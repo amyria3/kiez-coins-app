@@ -20,25 +20,21 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActionBar } from '../components/ActionBar';
 import { Button } from '../components/Button';
 import { Cat } from '../components/icons/Brand';
-import { ChallengePost } from '../components/ChallengePost';
-import { AudienceHint } from '../components/AudienceHint';
 import { KaterCard } from '../components/Content';
-import { Segments } from '../components/FeedHeader';
-import { CheckOption, SwitchRow, TextField } from '../components/Form';
+import { CheckOption, TextField } from '../components/Form';
 import { explain } from '../components/Nudge';
 import { iconSvgs } from '../components/icons/svgs';
 import { errorText, saveTourFeedback, type TourFeedbackChoice } from '../data/remote';
-import { CameraButton } from '../components/TabBar';
-import { sampleChallenges, sampleUsers } from '../data/sample';
 import { Text } from '../components/T';
+import { TourDemo } from '../components/tour/TourDemo';
 import { t } from '../data/texts';
 import { TOUR_FEEDBACK_OTHER_MAX, TOUR_SEEN_KEY, tourFeedbackOptions, tourSteps, type TourStep } from '../data/tour';
 import { useAppDimensions } from '../theme/layout';
 import { color, radius, space, text } from '../theme/tokens';
 
 /**
- * Route `tour`: Begrüßung mit kurzen Videos zu den Hauptfunktionen (Daria, 22.10.2026).
- * Etwa 5 Minuten nach dem Anheuern fragt die App, ob sie die Tour zeigen soll (TourOffer), sonst über Dein Konto › So geht KiezCoins. `next`: Ziel danach.
+ * Route `tour` („Wie geht KiezCoins“): Beispiele zum Ausprobieren für die Hauptfunktionen (Daria, 22./31.10.2026).
+ * Etwa 5 Minuten nach dem Anheuern fragt die App, ob sie die Tour zeigen soll (TourOffer), sonst über Dein Konto › Wie geht KiezCoins. `next`: Ziel danach.
  * Wischen oder „Weiter“ blättert. Videos stehen in data/tour.ts.
  */
 export default function Tour() {
@@ -287,106 +283,30 @@ const LIKE_HEARTS = [
 ];
 
 /**
- * Ohne Video zeigt jede Seite echte Elemente der App mit Beispieldaten, statt nur zu beschreiben (Daria, 28.10.2026):
- * posten = Beitrag mit Kamera-Knopf, annehmen = Beitrag mit „Challenge annehmen“, coins = Beitrag mit Coins,
- * gruppen = Gruppenaufgabe mit Edensteinen. Nur zum Ansehen, Tippen bewirkt nichts.
+ * Ohne Video zeigt jede Seite echte Elemente der App mit Beispieldaten zum Ausprobieren (Daria, 28./31.10.2026).
+ * Die Fläche passt sich dem Bildschirm an, der Text darunter bleibt ganz sichtbar (Daria, 29.10.2026).
+ * Deshalb misst die Vorschau Fläche und Inhalt und verkleinert den Inhalt, bis er hineinpasst.
  */
-type Preview = {
-  challenge?: string;
-  accept?: boolean;
-  camera?: boolean;
-  /** Bild öffentlich zeigen, auch wenn das Beispiel privat ist */
-  public?: boolean;
-  /** Umschalter mit „Privat“ und Hinweis darüber */
-  privateMode?: boolean;
-  /** Schalter „Auf einen Umkreis von 5 km begrenzen“, eingeschaltet */
-  radiusSwitch?: boolean;
-};
-const PREVIEW: Record<string, Preview> = {
-  posten: { challenge: 'igelnest', camera: true },
-  annehmen: { challenge: 'gruenstreifen-malibu', accept: true },
-  coins: { challenge: 'sommerfest' },
-  gruppen: { challenge: 'gruppe-muell' },
-  // Ergänzt am 29.10.2026 (Daria)
-  bild: { challenge: 'privat-garten', public: true },
-  sichtbarkeit: { radiusSwitch: true, challenge: 'igelnest' },
-  privat: { challenge: 'privat-garten', privateMode: true },
-};
-const PRIVATE_TABS = [
-  { key: 'private', label: 'Privat' },
-  { key: 'kiez', label: 'Kiez' },
-  { key: 'everywhere', label: 'Überall' },
-];
-
 function TourPreview({ stepKey }: { stepKey: string }) {
-  const p = PREVIEW[stepKey];
-  const found = p?.challenge ? sampleChallenges.find((c) => c.id === p.challenge) : undefined;
-  // Immer als offene Challenge zeigen, damit Frist, Coins und Edensteine wie im Feed aussehen
-  const challenge = found && {
-    ...found,
-    status: 'open' as const,
-    deadline: new Date(Date.now() + 3 * 86400000).toISOString(),
-    // Öffentliches Bild: ohne den Text „Nur für mich …“ des privaten Beispiels
-    ...(p?.public ? { private: undefined, text: '' } : {}),
-  };
-  const author = challenge && sampleUsers.find((u) => u.id === challenge.authorId);
-  // Die Fläche passt sich dem Bildschirm an, der Text darunter bleibt ganz sichtbar (Daria, 29.10.2026).
-  // Deshalb misst die Vorschau Fläche und Inhalt und verkleinert den Inhalt, bis er hineinpasst.
   const [box, setBox] = useState({ w: 0, h: 0 });
   const [contentH, setContentH] = useState(0);
-  if (!p || (!p.radiusSwitch && (!challenge || !author))) return <Cat mood="high" height={120} />;
-  const noop = () => undefined;
   const scale = box.h && contentH ? Math.min(1, box.h / contentH) : 1;
   return (
-    <View
-      style={StyleSheet.absoluteFill}
-      onLayout={(e) => setBox({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
-      pointerEvents="none"
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-    >
-    <View
-      style={[
-        styles.preview,
-        {
-          width: box.w,
-          top: (box.h - contentH) / 2,
-          opacity: box.w && contentH ? 1 : 0,
-          transform: [{ scale }],
-        },
-      ]}
-      onLayout={(e) => setContentH(e.nativeEvent.layout.height)}
-    >
-      {p.privateMode ? (
-        <View style={styles.previewMode}>
-          <Segments tabs={PRIVATE_TABS} selectedKey="private" onChange={noop} />
-          <AudienceHint audience="private" onClose={noop} />
-        </View>
-      ) : null}
-      {p.radiusSwitch ? (
-        <View style={styles.previewSwitch}>
-          <SwitchRow
-            label="Auf einen Umkreis von 5 km begrenzen"
-            description="Dann sehen den Beitrag nur Menschen in Deinem Kiez, nicht in „Überall“. Wer den Link bekommt, kann ihn trotzdem öffnen."
-            value
-            onValueChange={noop}
-          />
-        </View>
-      ) : null}
-      {challenge && author ? (
-        <ChallengePost challenge={challenge} author={author} distance={p.privateMode ? undefined : '300 m'} onPress={noop} onLike={noop} />
-      ) : null}
-      {p.accept ? (
-        <View style={styles.previewAction}>
-          <Button icon="wir-schaffen-das" label="Challenge annehmen" onPress={noop} />
-        </View>
-      ) : null}
-      {p.camera ? (
-        <View style={styles.previewCamera}>
-          <CameraButton onPress={noop} inline />
-        </View>
-      ) : null}
-    </View>
+    <View style={StyleSheet.absoluteFill} onLayout={(e) => setBox({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
+      <View
+        style={[
+          styles.preview,
+          {
+            width: box.w,
+            top: (box.h - contentH) / 2,
+            opacity: box.w && contentH ? 1 : 0,
+            transform: [{ scale }],
+          },
+        ]}
+        onLayout={(e) => setContentH(e.nativeEvent.layout.height)}
+      >
+        <TourDemo stepKey={stepKey} />
+      </View>
     </View>
   );
 }
@@ -396,7 +316,8 @@ function TourMedia({ step, active }: { step: TourStep; active: boolean }) {
   if (!step.video) {
     return (
       <View style={styles.media}>
-        <TourPreview stepKey={step.key} />
+        {/* Neuer key beim Zurückkommen: Das Beispiel fängt wieder von vorn an */}
+        <TourPreview key={active ? 'aktiv' : 'ruhig'} stepKey={step.key} />
       </View>
     );
   }
@@ -441,8 +362,6 @@ const styles = StyleSheet.create({
   video: { width: '100%', height: '100%' },
   // Verkleinert sich, bis Beitrag, Knopf und Kamera ganz in die Fläche passen (TourPreview)
   preview: { position: 'absolute', left: 0, paddingVertical: space[16] },
-  previewMode: { gap: space[8], paddingHorizontal: space[16], paddingBottom: space[12] },
-  previewSwitch: { paddingHorizontal: space[16], paddingBottom: space[12] },
   flex: { flex: 1 },
   topSpacer: { height: 44 },
   textBlock: { flexGrow: 0, flexShrink: 1 },
@@ -465,8 +384,6 @@ const styles = StyleSheet.create({
   like: { position: 'absolute', left: -12, bottom: -14, alignItems: 'center' },
   likeSmall: { position: 'absolute', top: 0 },
   liked: { ...text.caption, color: color.accent.affection, paddingRight: space[4] },
-  previewAction: { paddingHorizontal: space[16], paddingTop: space[8] },
-  previewCamera: { position: 'absolute', right: space[24], bottom: space[24] },
   title: { ...text.headline, color: color.text.primary },
   body: { ...text.body, fontSize: 16, lineHeight: 23, color: color.text.secondary },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: space[8], paddingVertical: space[12] },
