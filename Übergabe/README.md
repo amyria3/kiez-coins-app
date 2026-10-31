@@ -58,3 +58,4 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-26_offen_lila-ungemuetlich.md`: Kritik „Farbe Lila, ungemütlich“, offene Fragen zu Ort und Ersatzfarbe (To-do, Daria).
 - `2026-10-31_offen_abzeichen.md`: Abzeichen am Avatar. Pionier:in, Lots:in, Anführer:in, Anker (ab 50 Posts) und Macher:in, mit Bedingungen und Symbolen. Offene Fragen an Daria.
 - `2026-10-31_aufraeumen-todo.md`: Notiz für die Doku. Erledigte Punkte der To-do-Liste vom 31.10.2026 (i18n-Prune, ESLint, Tour, leere Gruppen, Geschafft im Fashionable Look, Zahnrad-Menü).
+- `2026-10-31_offen_timer-optional.md`: Offen. Timer der Me-Challenge optional (Knopf „Ohne Timer weiter“), Layout noch zu besprechen; Reihenfolge Bild, Me-Challenge, We-Challenge.
