@@ -1376,5 +1376,12 @@
   "Gefällt Dir!": "Tu aimes !",
   "Tippe auf das Herz unter dem Bild": "Touche le cœur sous la photo",
   "Nur Menschen in Deinem Kiez sehen den Beitrag. In „Überall“ erscheint er nicht.": "Seules les personnes de ton quartier voient la publication. Elle n’apparaît pas dans « Partout ».",
-  "Alle sehen den Beitrag, auch in „Überall“.": "Tout le monde voit la publication, aussi dans « Partout »."
+  "Alle sehen den Beitrag, auch in „Überall“.": "Tout le monde voit la publication, aussi dans « Partout ».",
+  "{n, plural, one {# Challenge} other {# Challenges}}": "{n, plural, one {# défi} other {# défis}}",
+  "{n, plural, one {# Me-Challenge} other {# Me-Challenges}}": "{n, plural, one {# Me-Challenge} other {# Me-Challenges}}",
+  "{n, plural, one {# Bild} other {# Bilder}}": "{n, plural, one {# photo} other {# photos}}",
+  "{a}, {b} und {c} in Deiner Nähe": "{a}, {b} et {c} près de chez toi",
+  "{a} und {b} in Deiner Nähe": "{a} et {b} près de chez toi",
+  "{a} in Deiner Nähe": "{a} près de chez toi",
+  "Noch nichts in Deiner Nähe": "Encore rien près de chez toi"
 }

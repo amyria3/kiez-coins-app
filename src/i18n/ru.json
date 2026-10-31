@@ -1362,5 +1362,12 @@
   "Gefällt Dir!": "Тебе нравится!",
   "Tippe auf das Herz unter dem Bild": "Нажми на сердце под фото",
   "Nur Menschen in Deinem Kiez sehen den Beitrag. In „Überall“ erscheint er nicht.": "Только люди из твоего района видят пост. В «Везде» он не появляется.",
-  "Alle sehen den Beitrag, auch in „Überall“.": "Все видят пост, также в «Везде»."
+  "Alle sehen den Beitrag, auch in „Überall“.": "Все видят пост, также в «Везде».",
+  "{n, plural, one {# Challenge} other {# Challenges}}": "{n, plural, one {# челлендж} few {# челленджа} many {# челленджей} other {# челленджа}}",
+  "{n, plural, one {# Me-Challenge} other {# Me-Challenges}}": "{n, plural, one {# Me-Challenge} few {# Me-Challenge} many {# Me-Challenge} other {# Me-Challenge}}",
+  "{n, plural, one {# Bild} other {# Bilder}}": "{n, plural, one {# фото} few {# фото} many {# фото} other {# фото}}",
+  "{a}, {b} und {c} in Deiner Nähe": "{a}, {b} и {c} рядом с тобой",
+  "{a} und {b} in Deiner Nähe": "{a} и {b} рядом с тобой",
+  "{a} in Deiner Nähe": "{a} рядом с тобой",
+  "Noch nichts in Deiner Nähe": "Рядом с тобой пока ничего"
 }

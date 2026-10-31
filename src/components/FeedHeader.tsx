@@ -87,19 +87,38 @@ function KiezHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) 
   );
 }
 
-/** Begrüßung über dem Feed: Tageszeit, Ansprache, Kiez und Anzahl offener Challenges. */
-export function FeedGreeting({ name, kiez, count }: { name: string; kiez?: string; count: number }) {
+/** Offene öffentliche Posts nach Art (ohne Gruppen und private Posts), für die Zeile unter der Begrüßung */
+export type FeedCounts = { challenges: number; me: number; photos: number };
+
+/** „2 Challenges, 1 Me-Challenge und 3 Bilder in Deiner Nähe“; Arten ohne Post fallen weg (Daria, 31.10.2026) */
+function countLine(counts: FeedCounts): string {
+  const parts = [
+    counts.challenges ? t('{n, plural, one {# Challenge} other {# Challenges}}', { n: counts.challenges }) : '',
+    counts.me ? t('{n, plural, one {# Me-Challenge} other {# Me-Challenges}}', { n: counts.me }) : '',
+    counts.photos ? t('{n, plural, one {# Bild} other {# Bilder}}', { n: counts.photos }) : '',
+  ].filter(Boolean);
+  if (parts.length === 3) return t('{a}, {b} und {c} in Deiner Nähe', { a: parts[0], b: parts[1], c: parts[2] });
+  if (parts.length === 2) return t('{a} und {b} in Deiner Nähe', { a: parts[0], b: parts[1] });
+  if (parts.length === 1) return t('{a} in Deiner Nähe', { a: parts[0] });
+  return t('Noch nichts in Deiner Nähe');
+}
+
+/**
+ * Begrüßung über dem Feed: Tageszeit, Ansprache, Kiez und was es in der Nähe gibt, getrennt nach Art.
+ * `counts` leer, solange der Feed lädt: Dann steht nur der Kiez da, nicht „Noch nichts“.
+ */
+export function FeedGreeting({ name, kiez, counts }: { name: string; kiez?: string; counts?: FeedCounts }) {
   // Fashionable Look: keine Begrüßung, der Schriftzug steht allein (Mockup)
   if (isFashionable) return null;
   const hour = new Date().getHours();
   const greeting = hour < 11 ? 'Guten Morgen' : hour < 18 ? 'Hallo' : 'Guten Abend';
-  const countText = count === 1 ? '1 Challenge in Deiner Nähe' : t('{count} Challenges in Deiner Nähe', { count });
+  const sub = [kiez, counts ? countLine(counts) : ''].filter(Boolean).join(' · ');
   return (
     <View style={styles.greeting}>
       <Text style={styles.greetingTitle} accessibilityRole="header">
         {greeting}, {name}
       </Text>
-      <Text style={styles.greetingSub}>{kiez ? `${kiez} · ${countText}` : countText}</Text>
+      {sub ? <Text style={styles.greetingSub}>{sub}</Text> : null}
     </View>
   );
 }
