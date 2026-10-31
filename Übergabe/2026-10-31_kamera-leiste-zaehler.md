@@ -1,8 +1,6 @@
 # Kamera auch in der Leiste, Knöpfe zählen
 
-Datum: 2026-10-31 · Status: offen, bis die Migration eingespielt ist · Ziel in Documentation: `kiez-coins/design/UX_UI_Regeln.md` (Leiste), `kiez-coins/DATENBANK.md` (`button_presses`)
-
-Pflichtaufgabe: Migration `20261031000100_knopf_zaehler.sql` in Supabase einspielen. Ohne sie zählt die App nicht (stört aber nichts).
+Datum: 2026-10-31 · Status: umgesetzt, Migration eingespielt (Daria, 31.10.2026); noch in die Doku übernehmen · Ziel in Documentation: `kiez-coins/design/UX_UI_Regeln.md` (Leiste), `kiez-coins/DATENBANK.md` (`button_presses`)
 
 ## Entscheidungen von Daria (30.10.2026)
 
@@ -17,5 +15,5 @@ Pflichtaufgabe: Migration `20261031000100_knopf_zaehler.sql` in Supabase einspie
 
 ## Offene Punkte
 
-- [ ] Migration einspielen.
+- [x] Migration eingespielt (Daria, 31.10.2026).
 - [x] Datenschutzerklärung, eigener Abschnitt „Erheben von Nutzungsdaten“ vor „So lange bleiben Deine Daten“, Satz von Daria (31.10.2026): „Wir behalten uns vor, anonymisiert Nutzerdaten zu erheben (wie beispielsweise Klicks).“ `LEGAL_STAND` 31.10.2026.
