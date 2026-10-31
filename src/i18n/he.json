@@ -1376,5 +1376,12 @@
   "Gefällt Dir!": "אהבת!",
   "Tippe auf das Herz unter dem Bild": "הקש על הלב מתחת לתמונה",
   "Nur Menschen in Deinem Kiez sehen den Beitrag. In „Überall“ erscheint er nicht.": "רק אנשים בשכונה שלך רואים את הפוסט. הוא לא מופיע ב„בכל מקום“.",
-  "Alle sehen den Beitrag, auch in „Überall“.": "כולם רואים את הפוסט, גם ב„בכל מקום“."
+  "Alle sehen den Beitrag, auch in „Überall“.": "כולם רואים את הפוסט, גם ב„בכל מקום“.",
+  "{n, plural, one {# Challenge} other {# Challenges}}": "{n, plural, one {אתגר אחד} other {# אתגרים}}",
+  "{n, plural, one {# Me-Challenge} other {# Me-Challenges}}": "{n, plural, one {# Me-Challenge} other {# Me-Challenges}}",
+  "{n, plural, one {# Bild} other {# Bilder}}": "{n, plural, one {תמונה אחת} other {# תמונות}}",
+  "{a}, {b} und {c} in Deiner Nähe": "{a}, {b} ו{c} בקרבתך",
+  "{a} und {b} in Deiner Nähe": "{a} ו{b} בקרבתך",
+  "{a} in Deiner Nähe": "{a} בקרבתך",
+  "Noch nichts in Deiner Nähe": "עדיין אין כלום בקרבתך"
 }

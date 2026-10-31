@@ -1376,5 +1376,12 @@
   "Gefällt Dir!": "أعجبك!",
   "Tippe auf das Herz unter dem Bild": "اضغط على القلب أسفل الصورة",
   "Nur Menschen in Deinem Kiez sehen den Beitrag. In „Überall“ erscheint er nicht.": "فقط الأشخاص في حيّك يرون المنشور. لا يظهر في „في كل مكان“.",
-  "Alle sehen den Beitrag, auch in „Überall“.": "الجميع يرى المنشور، أيضًا في „في كل مكان“."
+  "Alle sehen den Beitrag, auch in „Überall“.": "الجميع يرى المنشور، أيضًا في „في كل مكان“.",
+  "{n, plural, one {# Challenge} other {# Challenges}}": "{n, plural, zero {لا تحديات} one {تحدٍّ واحد} two {تحديان} few {# تحديات} many {# تحديًا} other {# تحدٍّ}}",
+  "{n, plural, one {# Me-Challenge} other {# Me-Challenges}}": "{n, plural, zero {# Me-Challenge} one {# Me-Challenge} two {# Me-Challenge} few {# Me-Challenge} many {# Me-Challenge} other {# Me-Challenge}}",
+  "{n, plural, one {# Bild} other {# Bilder}}": "{n, plural, zero {لا صور} one {صورة واحدة} two {صورتان} few {# صور} many {# صورة} other {# صورة}}",
+  "{a}, {b} und {c} in Deiner Nähe": "{a} و{b} و{c} بالقرب منك",
+  "{a} und {b} in Deiner Nähe": "{a} و{b} بالقرب منك",
+  "{a} in Deiner Nähe": "{a} بالقرب منك",
+  "Noch nichts in Deiner Nähe": "لا شيء بالقرب منك بعد"
 }
