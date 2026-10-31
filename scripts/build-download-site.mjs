@@ -655,12 +655,13 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
       // berechnet und lief dem Scrollen ein Bild hinterher, dadurch ruckelte und sprang die Seite (Daria, 29.10.2026).
       // Das Stapeln selbst macht der Browser mit position: sticky, das bleibt flüssig.
     }
-    // Wieso wechseln (Daria, 29.10.2026): Mit Maus steht die Karte unter dem Zeiger vorn. Auf dem Telefon die Karte,
-    // die der Mitte des Bildschirms am nächsten ist. Die anderen blassen je nach Abstand aus.
+    // Wieso wechseln (Daria, 29.10.2026): Die Karte, die der Mitte des Bildschirms am nächsten ist, steht vorn,
+    // seit 31.10.2026 auch auf dem Desktop. Mit Maus steht die Karte unter dem Zeiger vorn, solange er auf der Liste ist.
+    // Die anderen blassen je nach Abstand aus.
     var liste = document.querySelector('.wechsel-liste');
     var gruende = liste ? liste.querySelectorAll('li') : [];
     if (gruende.length) {
-      var aktuell = null;
+      var aktuell = null, zeiger = null, fein = matchMedia('(hover: hover) and (pointer: fine)').matches;
       var setzen = function (best) {
         if (best === aktuell) return;
         aktuell = best;
@@ -671,43 +672,56 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
         });
         liste.classList.toggle('hat-vorn', !!best);
       };
-      if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
-        liste.addEventListener('pointerover', function (e) { var li = e.target.closest('li'); if (li) setzen(li); });
-        liste.addEventListener('pointerleave', function () { setzen(null); });
+      var vornTick = false;
+      var vorn = function () {
+        vornTick = false;
+        if (zeiger) return setzen(zeiger);
+        // Desktop: Der Abschnitt bleibt per sticky stehen, die unteren Karten erreichen die Bildschirmmitte nie.
+        // Deshalb wandert die Auswahl mit dem Scrollfortschritt durch die Liste: Karte 1, sobald die Liste
+        // bei 80 % der Bildschirmhöhe steht, die letzte Karte, wenn der Abschnitt stehen bleibt.
+        if (fein) {
+          var box = liste.getBoundingClientRect(), wechsel = liste.closest('.wechsel');
+          var unten = wechsel ? parseFloat(getComputedStyle(wechsel).paddingBottom) || 0 : 0;
+          var start = innerHeight * 0.8, ende = innerHeight - unten - box.height - 24;
+          if (box.bottom < 0 || box.top > innerHeight) return setzen(null);
+          if (ende < start) {
+            var p = Math.max(0, Math.min(1, (start - box.top) / (start - ende)));
+            return setzen(gruende[Math.min(gruende.length - 1, Math.floor(p * gruende.length))]);
+          }
+        }
+        var mitte = innerHeight * 0.5, best = null, abstand = Infinity;
+        var lagen = [].map.call(gruende, function (li) { return li.getBoundingClientRect(); });
+        lagen.forEach(function (r, i) {
+          if (r.bottom < 0 || r.top > innerHeight) return;
+          var d = Math.abs(r.top + r.height / 2 - mitte);
+          if (d < abstand) { abstand = d; best = gruende[i]; }
+        });
+        setzen(best);
+      };
+      var auto = false, autoUhr = 0;
+      var autoAus = function () { auto = false; clearTimeout(autoUhr); };
+      if (fein) {
+        liste.addEventListener('pointerover', function (e) { var li = e.target.closest('li'); if (li) { zeiger = li; setzen(li); } });
+        liste.addEventListener('pointerleave', function () { zeiger = null; vorn(); });
       } else {
-        var vornTick = false;
-        var vorn = function () {
-          vornTick = false;
-          var mitte = innerHeight * 0.5, best = null, abstand = Infinity;
-          var lagen = [].map.call(gruende, function (li) { return li.getBoundingClientRect(); });
-          lagen.forEach(function (r, i) {
-            if (r.bottom < 0 || r.top > innerHeight) return;
-            var d = Math.abs(r.top + r.height / 2 - mitte);
-            if (d < abstand) { abstand = d; best = gruende[i]; }
-          });
-          setzen(best);
-        };
         // Ein Tipp auf eine Karte scrollt sie in die Mitte und holt sie sofort nach vorn (Daria, 31.10.2026).
         // Solange die Seite dorthin scrollt, bleibt die Karte vorn; erst eigenes Scrollen gibt sie wieder frei.
-        var fest = null, auto = false, autoUhr = 0;
-        var autoAus = function () { auto = false; clearTimeout(autoUhr); };
         liste.addEventListener('click', function (e) {
           var li = e.target.closest('li');
           if (!li) return;
-          fest = li; auto = true; setzen(li);
+          auto = true; setzen(li);
           clearTimeout(autoUhr); autoUhr = setTimeout(autoAus, 900);
           var r = li.getBoundingClientRect();
           var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
           scrollTo({ top: scrollY + r.top + r.height / 2 - innerHeight / 2, behavior: still ? 'auto' : 'smooth' });
         });
         addEventListener('scrollend', function () { if (auto) autoAus(); });
-        addEventListener('scroll', function () {
-          if (auto) return;
-          fest = null;
-          if (!vornTick) { vornTick = true; requestAnimationFrame(vorn); }
-        }, { passive: true });
-        vorn();
       }
+      addEventListener('scroll', function () {
+        if (auto) return;
+        if (!vornTick) { vornTick = true; requestAnimationFrame(vorn); }
+      }, { passive: true });
+      vorn();
     }
     // B und C hängen an der Scrollposition, ein Frame pro Bild
     var kopf = document.getElementById('kater-kopf'), tel = document.querySelector('.phone-spalte'), spur = document.querySelector('.fx-spur');
