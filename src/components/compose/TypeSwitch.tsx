@@ -14,11 +14,24 @@ export function TypeSwitch<K extends string>({
   options,
   value,
   onChange,
+  turn = true,
 }: {
   options: readonly { key: K; label: string }[];
   value: K;
   onChange: (key: K) => void;
+  /**
+   * Die Auswahl ist lila, solange die Person den Typ nicht berührt hat und `turn` gilt; danach schwarz-weiß
+   * wie der Ort darüber. So sieht man, was eingestellt ist (Daria, 2026-10-31). Im Erstellen-Blatt wird der Typ
+   * erst lila, wenn der Ort bestätigt ist.
+   */
+  turn?: boolean;
 }) {
+  const [touched, setTouched] = useState(false);
+  const accent = turn && !touched;
+  // Ist der Ort wieder offen (Blatt neu geöffnet), beginnt auch der Typ von vorn
+  useEffect(() => {
+    if (!turn) setTouched(false);
+  }, [turn]);
   const index = Math.max(0, options.findIndex((o) => o.key === value));
   // Jedes Feld so breit wie sein Begriff plus gleicher Anteil am Rest (Daria, 24.10.2026: kurze Begriffe
   // bekamen zu viel Platz). Die Markierung folgt den gemessenen Feldern.
@@ -41,7 +54,7 @@ export function TypeSwitch<K extends string>({
   return (
     <View style={styles.track} accessibilityRole="tablist">
       {box ? (
-        <Animated.View pointerEvents="none" style={[styles.indicator, { width: w, transform: [{ translateX: x }] }]} />
+        <Animated.View pointerEvents="none" style={[styles.indicator, accent && styles.indicatorAccent, { width: w, transform: [{ translateX: x }] }]} />
       ) : null}
       {options.map((o) => {
         const selected = o.key === value;
@@ -50,14 +63,17 @@ export function TypeSwitch<K extends string>({
             key={o.key}
             accessibilityRole="tab"
             accessibilityState={{ selected }}
-            onPress={() => onChange(o.key)}
+            onPress={() => {
+              setTouched(true);
+              onChange(o.key);
+            }}
             onLayout={(e) => {
               const { x: ox, width } = e.nativeEvent.layout;
               setBoxes((prev) => (prev[o.key]?.x === ox && prev[o.key]?.width === width ? prev : { ...prev, [o.key]: { x: ox, width } }));
             }}
             style={styles.option}
           >
-            <Text style={[styles.label, selected && styles.selected]} numberOfLines={1}>
+            <Text style={[styles.label, selected && styles.selected, selected && accent && styles.selectedAccent]} numberOfLines={1}>
               {t(o.label)}
             </Text>
           </Pressable>
@@ -81,12 +97,14 @@ const styles = StyleSheet.create({
         top: PAD,
         bottom: PAD,
         borderRadius: radius.full,
-        backgroundColor: `${color.accent.primary}2E`,
+        backgroundColor: color.text.primary,
       },
+  indicatorAccent: { backgroundColor: color.accent.primary },
   option: { flexGrow: 1, flexShrink: 1, flexBasis: 'auto', minHeight: isFashionable ? 44 : 38, alignItems: 'center', justifyContent: 'center', paddingHorizontal: isFashionable ? 8 : 10 },
   label: isFashionable
     ? // Drei Begriffe in Großbuchstaben passen auch auf 360 pt Breite
       { fontFamily: font.semiBold, fontSize: 11, lineHeight: 16, letterSpacing: 0.3, textTransform: 'uppercase', color: color.text.secondary }
     : { fontFamily: font.regular, fontSize: 13, lineHeight: 16, color: color.text.secondary },
-  selected: isFashionable ? { color: color.text.primary } : { color: color.accent.primary, fontFamily: font.medium },
+  selected: isFashionable ? { color: color.text.primary } : { color: color.bg.screen, fontFamily: font.medium },
+  selectedAccent: { color: isFashionable ? color.accent.primary : color.text.onAccent },
 });

@@ -36,26 +36,28 @@ type Props = {
   /** 'private' (Reiter „Privat“), 'public' (Reiter „Kiez“) oder die gewählte Gruppe */
   target: 'private' | 'public' | string | undefined;
   onDone: () => void;
+  /** Der Ort (Pille darüber) ist bestätigt: Jetzt wird der Typ lila, bis die Person ihn berührt (Daria, 2026-10-31) */
+  placeConfirmed?: boolean;
 };
 
 /**
  * Inhalt des Erstellen-Blatts über dem Feed. Beide Formulare bleiben geladen, damit ein Wechsel der Pille
  * nichts verliert. Die Bewegung (von unten, federnd) macht feed.tsx.
  */
-export function ComposeSheet({ target, onDone }: Props) {
+export function ComposeSheet({ target, onDone, placeConfirmed = true }: Props) {
   // Foto, Titel und Text gelten für alle Formulare im Blatt (Daria, 25.10.2026)
   const shared = useComposeContent();
   return (
     <View style={styles.sheet}>
       <View style={[styles.flex, target === 'private' ? null : styles.hidden]}>
-        <PublicBody onDone={onDone} shared={shared} isPrivate />
+        <PublicBody onDone={onDone} shared={shared} isPrivate turn={placeConfirmed} />
       </View>
       <View style={[styles.flex, target === 'public' ? null : styles.hidden]}>
-        <PublicBody onDone={onDone} shared={shared} />
+        <PublicBody onDone={onDone} shared={shared} turn={placeConfirmed} />
       </View>
       <View style={[styles.flex, target === 'public' || target === 'private' ? styles.hidden : null]}>
         {target && target !== 'public' && target !== 'private' ? (
-          <GroupBody key={target} groupId={target} onDone={onDone} shared={shared} />
+          <GroupBody key={target} groupId={target} onDone={onDone} shared={shared} turn={placeConfirmed} />
         ) : (
           <NoGroup />
         )}
@@ -96,7 +98,7 @@ function useOpenTimer(onDone: () => void) {
   };
 }
 
-function PublicBody({ onDone, shared, isPrivate = false }: { onDone: () => void; shared: ComposeContent; isPrivate?: boolean }) {
+function PublicBody({ onDone, shared, isPrivate = false, turn }: { onDone: () => void; shared: ComposeContent; isPrivate?: boolean; turn: boolean }) {
   const options: readonly { key: (typeof PUBLIC_TYPES)[number]['key']; label: string }[] = isPrivate ? PRIVATE_TYPES : PUBLIC_TYPES;
   const [type, setType] = useState<(typeof PUBLIC_TYPES)[number]['key']>(isPrivate ? 'before_after' : 'individual');
   const post = usePublicComposeForm(onDone, type === 'photo' ? 'photo' : 'individual', shared, isPrivate);
@@ -105,13 +107,13 @@ function PublicBody({ onDone, shared, isPrivate = false }: { onDone: () => void;
   return (
     <SheetScroll actions={isBa ? ba.button : post.buttons}>
       <DraftStrip target={isPrivate ? 'private' : 'public'} onClose={onDone} />
-      {options.length > 1 ? <TypeSwitch options={options} value={type} onChange={setType} /> : null}
+      {options.length > 1 ? <TypeSwitch options={options} value={type} onChange={setType} turn={turn} /> : null}
       {isBa ? ba.fields : post.fields}
     </SheetScroll>
   );
 }
 
-function GroupBody({ groupId, onDone, shared }: { groupId: string; onDone: () => void; shared: ComposeContent }) {
+function GroupBody({ groupId, onDone, shared, turn }: { groupId: string; onDone: () => void; shared: ComposeContent; turn: boolean }) {
   const router = useRouter();
   const options = GROUP_TYPES;
   const [type, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('task');
@@ -127,7 +129,7 @@ function GroupBody({ groupId, onDone, shared }: { groupId: string; onDone: () =>
   return (
     <SheetScroll actions={form.button}>
       <DraftStrip target={groupId} onClose={onDone} />
-      {options.length > 1 ? <TypeSwitch options={options} value={type} onChange={setType} /> : null}
+      {options.length > 1 ? <TypeSwitch options={options} value={type} onChange={setType} turn={turn} /> : null}
       {form.fields}
     </SheetScroll>
   );
@@ -153,5 +155,6 @@ const styles = StyleSheet.create({
   },
   flex: { flex: 1 },
   hidden: { display: 'none' },
-  content: { padding: space[16], gap: space[16], paddingBottom: space[24] },
+  // Oben wenig Luft, damit Ort und Typ als Paar lesen (Daria, 2026-10-31)
+  content: { padding: space[16], paddingTop: space[4], gap: space[16], paddingBottom: space[24] },
 });

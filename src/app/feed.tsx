@@ -208,12 +208,15 @@ export default function FeedScreen() {
   const { height: screenHeight } = useAppDimensions();
   const [composing, setComposing] = useState(false);
   const [composeKey, setComposeKey] = useState(0);
+  // Beim Erstellen: Ort lila, bis die Person die Pille berührt; danach der Typ (Daria, 2026-10-31)
+  const [placeTouched, setPlaceTouched] = useState(false);
   const composeAnim = useRef(new Animated.Value(0)).current;
   const sheetAnim = useRef(new Animated.Value(0)).current;
   const wasCollapsed = useRef(false);
   const createChallenge = () => {
     if ((tab === 'nearby' || tab === 'everywhere') && !requireKiez()) return;
     wasCollapsed.current = collapsed;
+    setPlaceTouched(false);
     setComposing(true);
     if (!collapsed) animateHeader(1);
     Animated.timing(composeAnim, {
@@ -510,7 +513,15 @@ export default function FeedScreen() {
         </View>
       </Animated.View>
       <Animated.View style={[styles.tabsRow, isFashionable && styles.tabsRowFashionable, { paddingRight: tabsPaddingRight }]}>
-        <TabsNavigation selectedKey={tab} onChange={switchTab} visible={modes.visible} />
+        <TabsNavigation
+          selectedKey={tab}
+          onChange={(key) => {
+            if (composing) setPlaceTouched(true);
+            switchTab(key);
+          }}
+          visible={modes.visible}
+          accent={composing && !placeTouched}
+        />
       </Animated.View>
       <Animated.View style={[styles.clip, storiesStyle]}>
         <View onLayout={(e) => setStoriesHeight(e.nativeEvent.layout.height)}>
@@ -546,7 +557,12 @@ export default function FeedScreen() {
               { transform: [{ translateY: sheetAnim.interpolate({ inputRange: [0, 1], outputRange: [screenHeight, 0] }) }] },
             ]}
           >
-            <ComposeSheet key={composeKey} target={composeTarget} onDone={() => closeCompose(true)} />
+            <ComposeSheet
+              key={composeKey}
+              target={composeTarget}
+              onDone={() => closeCompose(true)}
+              placeConfirmed={placeTouched || modes.visible.length < 2}
+            />
           </Animated.View>
         ) : null}
       </View>

@@ -188,6 +188,8 @@ const tabs: { key: FeedTab; label: string; planned?: boolean }[] = [
 type TabsNavigationProps = {
   selectedKey: FeedTab;
   onChange: (key: FeedTab) => void;
+  /** Auswahl lila hervorheben, bis die Person den Umschalter berührt (Erstellen, Daria, 2026-10-31) */
+  accent?: boolean;
   /** Sichtbare Modi (Auge in „Dein Konto › Funktionen“, Daria, 27.10.2026) */
   visible: Mode[];
 };
@@ -197,11 +199,11 @@ type TabsNavigationProps = {
  * Abgeschaltete Challenge-Typen (data/features.ts) sind gedimmt, lassen sich aber öffnen:
  * Der Feed zeigt dann einen Hinweis und vorhandene Challenges dieses Typs.
  */
-export function TabsNavigation({ selectedKey, onChange, visible }: TabsNavigationProps) {
+export function TabsNavigation({ selectedKey, onChange, visible, accent }: TabsNavigationProps) {
   const shown = tabs.filter((tab) => visible.some((mode) => TAB_OF_MODE[mode] === tab.key));
   // Nur ein Modus sichtbar: kein Umschalter
   if (shown.length < 2) return null;
-  return <Segments tabs={shown} selectedKey={selectedKey} onChange={onChange} />;
+  return <Segments tabs={shown} selectedKey={selectedKey} onChange={onChange} accent={accent} />;
 }
 
 type SegmentsProps<K extends string> = {
@@ -213,6 +215,8 @@ type SegmentsProps<K extends string> = {
    * Damit folgt die Pille dem Finger. Ohne: Die Pille gleitet nach dem Tippen zum Reiter.
    */
   progress?: Animated.Value | Animated.AnimatedInterpolation<number>;
+  /** Auswahl lila statt schwarz-weiß: zeigt, was eingestellt ist, solange niemand umgeschaltet hat */
+  accent?: boolean;
 };
 
 /** Segmente mit gleitender Pille, z. B. Feed-Reiter oder „Aktuell / Archiv“ in „Deine Challenges“. */
@@ -226,7 +230,7 @@ export function Segments<K extends string>(props: SegmentsProps<K>) {
  * ein schwarzer Strich, 1 pt stark und so breit wie das Feld; er gleitet mit „Schranke“ bzw. folgt dem Finger.
  * Darunter eine Haarlinie über die ganze Breite.
  */
-function UnderlineTabs<K extends string>({ tabs, selectedKey, onChange, progress }: SegmentsProps<K>) {
+function UnderlineTabs<K extends string>({ tabs, selectedKey, onChange, progress, accent = false }: SegmentsProps<K>) {
   const [width, setWidth] = useState(0);
   const index = Math.max(0, tabs.findIndex((tab) => tab.key === selectedKey));
   const x = useRef(new Animated.Value(index)).current;
@@ -254,7 +258,7 @@ function UnderlineTabs<K extends string>({ tabs, selectedKey, onChange, progress
             onPress={() => onChange(tab.key)}
             style={({ pressed }) => [styles.underTab, pressed && styles.underPressed]}
           >
-            <Text numberOfLines={1} style={[styles.underText, selected && styles.underTextSelected, tab.planned && !selected && styles.planned]}>
+            <Text numberOfLines={1} style={[styles.underText, selected && styles.underTextSelected, selected && accent && styles.accentText, tab.planned && !selected && styles.planned]}>
               {t(tab.label)}
             </Text>
           </Pressable>
@@ -265,6 +269,7 @@ function UnderlineTabs<K extends string>({ tabs, selectedKey, onChange, progress
           pointerEvents="none"
           style={[
             styles.underBar,
+            accent && styles.accentFill,
             { width: w, transform: [{ translateX: Animated.multiply(at, w) }] },
           ]}
         />
@@ -273,7 +278,7 @@ function UnderlineTabs<K extends string>({ tabs, selectedKey, onChange, progress
   );
 }
 
-function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress }: SegmentsProps<K>) {
+function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress, accent = false }: SegmentsProps<K>) {
   // Helle Pille gleitet zum gewählten Reiter (Bewegung „Schranke“, etwas langsamer).
   // Der gewählte Reiter bekommt seitlich mehr Polsterung; die Nachbarn rutschen mit (Daria, 31.10.2026).
   // Eine Lage `pos` (Index, auch Zwischenwerte) steuert Polsterung, Pille und Schriftfarbe gemeinsam.
@@ -321,7 +326,7 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress 
         setBarWidth((old) => (old === w ? old : w));
       }}
     >
-      {pill ? <Animated.View pointerEvents="none" style={[styles.pill, pill]} /> : null}
+      {pill ? <Animated.View pointerEvents="none" style={[styles.pill, accent && styles.accentFill, pill]} /> : null}
       {tabs.map((tab, i) => {
         const selected = tab.key === selectedKey;
         const w = weight(i);
@@ -349,7 +354,7 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress 
                   selected && styles.segmentTextSelected,
                   tab.planned && !selected && styles.planned,
                   // Schrift wird dunkel, während die Pille darübergleitet
-                  pill ? { color: labelColor(pos, i) } : null,
+                  pill ? { color: labelColor(pos, i, accent ? color.text.onAccent : color.bg.screen) } : null,
                 ]}
               >
                 {t(tab.label)}
@@ -388,10 +393,10 @@ function restLayouts(content: number[], barWidth: number) {
 }
 
 /** Farbe eines Reiters je nach Lage der Pille: dunkel darunter, grau daneben. */
-const labelColor = (pos: Animated.Value | Animated.AnimatedInterpolation<number>, i: number) =>
+const labelColor = (pos: Animated.Value | Animated.AnimatedInterpolation<number>, i: number, on: string) =>
   pos.interpolate({
     inputRange: [i - 0.6, i, i + 0.6],
-    outputRange: [color.text.secondary, color.bg.screen, color.text.secondary],
+    outputRange: [color.text.secondary, on, color.text.secondary],
     extrapolate: 'clamp',
   });
 
@@ -503,5 +508,8 @@ const styles = StyleSheet.create({
   underPressed: { opacity: 0.5 },
   underText: { fontFamily: font.semiBold, fontSize: 12, lineHeight: 16, letterSpacing: 0.5, textTransform: 'uppercase', color: color.text.secondary },
   underTextSelected: { color: color.text.primary },
+  // Lila Auswahl beim Erstellen, bis die Person umschaltet (Daria, 2026-10-31)
+  accentFill: { backgroundColor: color.accent.primary },
+  accentText: { color: color.accent.primary },
   underBar: { position: 'absolute', left: 0, bottom: -stroke.ultraThin, height: 1.5, backgroundColor: color.text.primary },
 });
