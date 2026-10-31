@@ -3,7 +3,7 @@ import { Alert, StyleSheet, View } from 'react-native';
 
 import { SubScreen } from '../../../components/Screen';
 import { Text } from '../../../components/T';
-import { errorText, loadSurveyResults, loadTourFeedbackResults, type TourFeedbackResults } from '../../../data/remote';
+import { errorText, loadButtonCounts, loadSurveyResults, loadTourFeedbackResults, type TourFeedbackResults } from '../../../data/remote';
 import { tourFeedbackOptions, tourSteps } from '../../../data/tour';
 import { surveyQuestions, type SurveyResults } from '../../../data/survey';
 import { formatRelative } from '../../../data/format';
@@ -21,6 +21,8 @@ export default function SurveyResultsScreen() {
   const [data, setData] = useState<SurveyResults>();
   // Rückmeldung zur Tour (Migration 20261029000300). Ohne Migration bleibt die Karte weg.
   const [tour, setTour] = useState<TourFeedbackResults | null>(null);
+  // Welcher Kamera-Knopf häufiger gedrückt wird (Migration 20261031000100). Ohne Migration bleibt die Karte weg.
+  const [buttons, setButtons] = useState<Record<string, number> | null>(null);
 
   useEffect(() => {
     loadSurveyResults()
@@ -29,6 +31,7 @@ export default function SurveyResultsScreen() {
     loadTourFeedbackResults()
       .then(setTour)
       .catch(() => setTour(null));
+    loadButtonCounts(CAMERA_BUTTONS.map((b) => b.key)).then(setButtons);
   }, []);
 
   const total = data?.total ?? 0;
@@ -101,6 +104,27 @@ export default function SurveyResultsScreen() {
           ))}
         </View>
       ) : null}
+      {buttons ? (
+        <View style={styles.card}>
+          <Text style={styles.title}>Kamera-Knopf: oben oder in der Leiste?</Text>
+          {CAMERA_BUTTONS.map((b) => {
+            const n = buttons[b.key] ?? 0;
+            const all = Object.values(buttons).reduce((sum, v) => sum + v, 0);
+            const share = all ? Math.round((n / all) * 100) : 0;
+            return (
+              <View key={b.key} style={styles.row}>
+                <View style={styles.rowText}>
+                  <Text style={styles.body}>{b.label}</Text>
+                  <Text style={styles.caption}>{`${n} · ${share} %`}</Text>
+                </View>
+                <View style={styles.track}>
+                  <View style={[styles.bar, { width: `${share}%` }]} />
+                </View>
+              </View>
+            );
+          })}
+        </View>
+      ) : null}
       <View style={styles.card}>
         <Text style={styles.title}>Kommentare</Text>
         {data && !data.comments?.length ? <Text style={styles.caption}>Noch keine Kommentare.</Text> : null}
@@ -114,6 +138,12 @@ export default function SurveyResultsScreen() {
     </SubScreen>
   );
 }
+
+/** Gezählte Kamera-Knöpfe (TabBar.tsx) */
+const CAMERA_BUTTONS = [
+  { key: 'kamera-oben', label: 'Oben rechts neben den Reitern' },
+  { key: 'kamera-leiste', label: 'Unten in der Leiste' },
+];
 
 const styles = StyleSheet.create({
   card: { gap: space[12], padding: space[16], borderRadius: radius.lg, backgroundColor: color.bg.surface },
