@@ -11,6 +11,7 @@ import { Segments } from '../FeedHeader';
 import { SwitchRow } from '../Form';
 import { Cat } from '../icons/Brand';
 import { CameraButton } from '../TabBar';
+import { RewardField, type RewardValue } from '../compose/RewardField';
 import { Text } from '../T';
 import { sampleChallenges, sampleUsers } from '../../data/sample';
 import { t } from '../../data/texts';
@@ -238,20 +239,53 @@ function AcceptDemo({ sampleId, group = false }: { sampleId: string; group?: boo
   );
 }
 
-/** Coins: Schalter „Das ist mir bares Geld wert“, dann erscheinen die Coins am Beitrag. */
+/**
+ * Coins wie beim Erstellen (Daria, 31.10.2026): Erstellen-Karte mit Foto und Titel, darunter die echte Belohnung
+ * (RewardField). „Mit Belohnung“, dann „Das ist mir bares Geld wert“, dann Betrag und „Posten“. Danach der Beitrag mit Coins.
+ */
 function CoinsDemo() {
-  const [on, setOn] = useState(false);
-  const base = sample('sommerfest');
+  const [value, setValue] = useState<RewardValue>({ reward: 'none' });
+  const [posted, setPosted] = useState(false);
+  const base = sample('sommerfest', { bountyAmount: undefined });
   if (!base) return null;
-  const c = { ...base, bountyAmount: on ? (base.bountyAmount ?? 15) : undefined };
-  return (
-    <View style={styles.stack}>
-      <View style={styles.pad}>
-        <NextStep on={!on}>
-          <SwitchRow label="Das ist mir bares Geld wert" description="Du versprichst Coins. Das Geld fließt direkt zwischen Euch." value={on} onValueChange={setOn} />
-        </NextStep>
+  if (posted) {
+    return (
+      <View style={styles.stack}>
+        <Post challenge={{ ...base, bountyAmount: value.bountyAmount }} />
+        <Done
+          onAgain={() => {
+            setValue({ reward: 'none' });
+            setPosted(false);
+          }}
+        >
+          Die Coins stehen jetzt am Beitrag. Das Geld fließt direkt zwischen Euch.
+        </Done>
       </View>
-      <Post challenge={c} />
+    );
+  }
+  const cue =
+    value.reward === 'none'
+      ? 'Tippe auf „Mit Belohnung“'
+      : value.reward === 'eden'
+        ? 'Lege den Schalter um: Aus Edensteinen werden Coins'
+        : 'Wähle einen Betrag und poste';
+  return (
+    <View style={styles.pad}>
+      <View style={styles.sheet}>
+        {base.image ? <Image source={base.image} style={styles.sheetPhotoSmall} contentFit="cover" /> : null}
+        <Text style={styles.sheetTitle}>{base.title}</Text>
+      </View>
+      <Text style={styles.cue}>{cue}</Text>
+      <NextStep on={value.reward !== 'euro'}>
+        <View style={styles.reward}>
+          <RewardField value={value} onChange={setValue} places={1} seed="tour-coins" />
+        </View>
+      </NextStep>
+      {value.reward === 'euro' ? (
+        <NextStep on>
+          <Button label="Posten" onPress={() => setPosted(true)} disabled={!value.bountyAmount} />
+        </NextStep>
+      ) : null}
     </View>
   );
 }
@@ -340,6 +374,8 @@ const styles = StyleSheet.create({
   done: { gap: space[8] },
   sheet: { gap: space[8], padding: space[12], borderRadius: radius.card, backgroundColor: color.bg.screen },
   sheetPhoto: { width: '100%', height: 140, borderRadius: radius.lg },
+  sheetPhotoSmall: { width: '100%', height: 90, borderRadius: radius.lg },
+  reward: { gap: space[12] },
   photoEmpty: { alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: color.line.hairline },
   sheetTitle: { ...text.cardTitle, color: color.text.primary },
   sheetText: { ...text.body, color: color.text.secondary },
