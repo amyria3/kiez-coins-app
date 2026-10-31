@@ -55,8 +55,9 @@ export const tourSteps: TourStep[] = [
   },
   {
     key: 'gruppen',
-    title: 'Gruppen für WG, Familie und Verein',
-    text: 'Verteilt We-Challenges unter Euch und sammelt Edensteine. Sie gelten nur in Eurer Gruppe.',
+    // Titel und Text von Daria (31.10.2026)
+    title: 'Gruppen: ein Feed für Deine WG, Deine Familie oder Deinen Verein',
+    text: 'Verteilt We-Challenges unter Euch und sammelt Edensteine. May the best one win!',
   },
   // Titel von Daria, Text von Claude
   {
