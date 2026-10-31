@@ -1,6 +1,6 @@
 # To-dos
 
-Stand: 30.10.2026. Diese Liste ist die einzige To-do-Liste für KiezCoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
+Stand: 2026-10-31. Diese Liste ist die einzige To-do-Liste für KiezCoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
 
 Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coins/screenshots/`. Sie stehen absichtlich nicht im Repo, weil das Repo öffentlich ist und einige Bilder Adressen und Namen zeigen.
 
@@ -22,6 +22,22 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Auftragsverarbeitungsvertrag Supabase unterschreiben (prüfen, ob es schon passiert ist)
 - [ ] Kodex und Rechtstexte überarbeiten (Daria)
 - [ ] Anschrift (c/o) im Impressum, sobald die App öffentlich ist und ein Finanzierungskonzept steht
+
+## 2026-10-31: aus eingearbeiteten Notizen
+
+Offene Punkte aus Notizen, deren Rest am 2026-10-31 in Documentation steht.
+
+- [ ] Edensteine aus dem Kiez zählen: In Gruppen rechnet die App sie aus den bestätigten Gruppenaufgaben (`src/data/groups.ts`, `leaderboard`). Für den Kiez fehlt ein Stand, zum Beispiel im Profil neben „verdient“ (`src/components/FashionProfile.tsx`, `src/app/me.tsx`). Frage an Daria: Wo sollen sie stehen? (aus `2026-10-27_kiez-edensteine.md`)
+- [ ] Me-Challenge: Warum der Timer-Screen bei Daria nach dem Vorher-Foto hing, ist nicht geklärt. Im Web (Demo-Daten) führte das X immer in den Feed. Tritt es wieder auf: Gerät (iPhone-Web oder Android-App) und Weg dorthin notieren. (aus `2026-10-27_me-challenge-timer-stoppen.md`)
+- [ ] Sichtbarkeit eines Beitrags nachträglich ändern (z. B. Privat → Kiez) gibt es noch nicht. (aus `2026-10-27_modi-privat-gruppe-kiez.md`)
+- [ ] Das Onboarding fragt nach dem Kiez, auch wenn jemand nur Privat nutzt. (aus `2026-10-27_modi-privat-gruppe-kiez.md`)
+- [ ] Frage an Daria: Die Wahl der Modi (verborgen, Standard) liegt auf dem Gerät. Soll sie geräteübergreifend gelten? Dann gehört sie ins Profil (Migration). (aus `2026-10-27_modi-privat-gruppe-kiez.md`)
+- [ ] Frage an Daria: Der abgeschaltete Typ `wave` („Gruppen und Vereine rufen den ganzen Kiez zu gemeinsamen Aktionen auf“, `src/data/features.ts`) überschneidet sich mit der We-Challenge für mehrere Personen. Geht Wave in der offenen We-Challenge ohne Höchstgrenze auf? (aus `2026-10-27_we-challenge-mehrere-personen.md`)
+- [ ] Übersetzungen von Claude prüfen lassen, ungeprüft: Status-Badges nach Geschlecht (gehört zu `2026-10-24_offen_gender-uebersetzungen-pruefen.json`), Hinweistexte unter dem Umschalter (`MESSAGE` in `src/components/AudienceHint.tsx`), leere Reiter (en, fr, uk, ru, he, ar, je mit Fassungen nach Geschlecht). (aus `2026-10-27_status-badges-deckname.md`, `2026-10-29_hinweis-sichtbarkeit-ueberall.md`, `2026-10-29_leere-reiter.md`)
+- [ ] Leere Zustände angleichen: „Was Du so machst“, das Profil im Fashionable Look und das Erstellen-Blatt ohne Gruppe zeigen weiter die Sprechblase (`GroupsEmpty`) statt Cat The Käptn mit Titel und Knopf. (aus `2026-10-29_leere-reiter.md`)
+- [ ] Frage an Daria: Update- und Installationshinweis (`UpdateHint.tsx`, `InstallHint.tsx`) zeigen einen kleinen farbigen Kater ohne Blase in einer Hinweiskarte. Sollen sie die Form „Kater im Kreis auf der Blase“ bekommen? (aus `2026-10-30_kater-sprechblase.md`)
+- [ ] Figma-Frames tragen noch die alten Routennamen (`challenge/report`, `challenge/payment`, `settings/payout`, `onboarding/kodex` …). Gehört zu `2026-10-24_offen_figma-abgleich.md`. (aus `2026-10-30_routen-englisch.md`)
+- [ ] Tour, Beispiel „Bild“: Der lila Ring umrahmt den ganzen Beitrag statt nur das Herz (`src/components/tour/TourDemo.tsx`). (aus `2026-10-31_tour-zum-ausprobieren.md`)
 
 ## 29.10.2026 – Pflicht für Daria: Text auf dem Foto
 
