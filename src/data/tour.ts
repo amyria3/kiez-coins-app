@@ -23,6 +23,18 @@ export const tourSteps: TourStep[] = [
     title: 'Fotos machen – Challenges und Bilder posten',
     text: 'Siehst Du etwas, das im Kiez zu tun ist? Oder etwas, das Du besonders magst (Sticker, Blumen, Vögel, schöne Orte)? Tippe auf die Kamera, gib einen Titel und den Ort an.',
   },
+  // Titel und Text von Daria (31.10.2026)
+  {
+    key: 'me-challenge',
+    title: 'Was ist eine Me-Challenge?',
+    text: 'Du packst gern an, gehst mit gutem Beispiel voran oder teilst Life-Hacks und Rezepte? Dann ist das Vorher-Nachher-Format wahrscheinlich genau das Richtige für Dich.\nZeige die Ausgangslage – schieß ein Foto von vorher und starte den Timer. Wenn Du fertig bist, folgt das „Nachher“-Foto. Dein Post zeigt beides.',
+  },
+  // Titel von Daria (31.10.2026), Text von Claude (Vorschlag, noch nicht bestätigt)
+  {
+    key: 'we-challenge',
+    title: 'Was ist eine We-Challenge?',
+    text: 'Hier gibt es etwas zu tun, und andere helfen mit. Du zeigst die Ausgangslage, jemand nimmt die Challenge an und meldet sie mit einem Foto als erledigt. Du kannst Coins oder Edensteine versprechen, musst aber nicht.',
+  },
   {
     key: 'annehmen',
     title: 'Annehmen und anpacken',
