@@ -3,6 +3,7 @@ import { AccessibilityInfo, Animated, Easing, Platform, Pressable, StyleSheet, V
 import { Image } from 'expo-image';
 
 import { AudienceHint } from '../AudienceHint';
+import { BeforeAfterPost } from '../BeforeAfterPost';
 import { Button } from '../Button';
 import { ChallengePost } from '../ChallengePost';
 import { KaterCard } from '../Content';
@@ -25,6 +26,10 @@ export function TourDemo({ stepKey }: { stepKey: string }) {
   switch (stepKey) {
     case 'posten':
       return <PostDemo />;
+    case 'me-challenge':
+      return <MeDemo />;
+    case 'we-challenge':
+      return <AcceptDemo sampleId="igelnest" />;
     case 'annehmen':
       return <AcceptDemo sampleId="gruenstreifen-malibu" />;
     case 'coins':
@@ -154,6 +159,50 @@ function PostDemo() {
     <View style={styles.stack}>
       <Post challenge={c} />
       <Done onAgain={() => setStep(0)}>Gepostet! Jetzt sieht Dein Kiez, was zu tun ist.</Done>
+    </View>
+  );
+}
+
+/** Me-Challenge: Vorher-Foto, Timer starten, Nachher-Foto, dann der Post mit beiden Fotos und der Zeit. */
+function MeDemo() {
+  const [step, setStep] = useState(0);
+  const c = sampleChallenges.find((x) => x.id === 'vorher-nachher-hof');
+  const author = c && authorOf(c);
+  if (!c || !author) return null;
+  if (step === 3) {
+    return (
+      <View style={styles.stack}>
+        <BeforeAfterPost challenge={c} author={author} distance="300 m" onPress={noop} onLike={noop} />
+        <Done onAgain={() => setStep(0)}>Geschafft! Dein Post zeigt Vorher und Nachher.</Done>
+      </View>
+    );
+  }
+  return (
+    <View style={styles.pad}>
+      <View style={styles.sheet}>
+        {step === 0 ? (
+          <View style={[styles.sheetPhoto, styles.photoEmpty]}>
+            <Text style={styles.cue}>Zeige die Ausgangslage</Text>
+          </View>
+        ) : (
+          <Image source={c.imageBefore} style={styles.sheetPhoto} contentFit="cover" />
+        )}
+        <Text style={styles.sheetTitle}>{c.title}</Text>
+        {step === 2 ? <Text style={styles.cue}>Timer läuft …</Text> : null}
+      </View>
+      {step === 0 ? (
+        <NextStep on>
+          <Button icon="camera" label="Vorher-Foto" onPress={() => setStep(1)} />
+        </NextStep>
+      ) : step === 1 ? (
+        <NextStep on>
+          <Button label="Timer starten" onPress={() => setStep(2)} />
+        </NextStep>
+      ) : (
+        <NextStep on>
+          <Button icon="camera" label="Nachher-Foto" onPress={() => setStep(3)} />
+        </NextStep>
+      )}
     </View>
   );
 }
@@ -291,6 +340,7 @@ const styles = StyleSheet.create({
   done: { gap: space[8] },
   sheet: { gap: space[8], padding: space[12], borderRadius: radius.card, backgroundColor: color.bg.screen },
   sheetPhoto: { width: '100%', height: 140, borderRadius: radius.lg },
+  photoEmpty: { alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: color.line.hairline },
   sheetTitle: { ...text.cardTitle, color: color.text.primary },
   sheetText: { ...text.body, color: color.text.secondary },
 });
