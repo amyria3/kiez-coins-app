@@ -539,17 +539,20 @@ export default function ChallengeDetail() {
     </>
   );
 
+  // Ohne Bild (z. B. Gruppenaufgabe): Auch hier schließt ein Tipp außerhalb das Zahnrad-Menü
   if (!image) {
     return (
-      <SubScreen
-        title={challenge.groupId ? 'We-Challenge in der Gruppe' : 'Challenge'}
-        navigation="back"
-        onLeadingPress={goBack}
-        actions={actions}
-      >
-        {summary}
-        {details}
-      </SubScreen>
+      <View style={styles.flex} onStartShouldSetResponderCapture={closeMenuOnTouch}>
+        <SubScreen
+          title={challenge.groupId ? 'We-Challenge in der Gruppe' : 'Challenge'}
+          navigation="back"
+          onLeadingPress={goBack}
+          actions={actions}
+        >
+          {summary}
+          {details}
+        </SubScreen>
+      </View>
     );
   }
 

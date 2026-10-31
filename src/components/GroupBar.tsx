@@ -5,8 +5,7 @@ import { Text } from './T';
 import { MAX_GROUPS } from '../data/groups';
 import type { Group } from '../data/types';
 import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
-import { Button } from './Button';
-import { KaterCard } from './Content';
+import { FeedStateMessage } from './FeedStateMessage';
 import { IconButton } from './IconButton';
 import { Icon } from './icons/Icon';
 import { isRtl, t } from '../data/texts';
@@ -115,24 +114,19 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onCreate }: Gro
   );
 }
 
-/** Reiter „Gruppen“ ohne Gruppe oder ohne Aufgaben */
-export function GroupsEmpty({
-  title = 'Gruppen',
-  message = 'Verteilt We-Challenges in Eurem Verein, Eurer Hausgemeinschaft, WG oder Familie.',
-  onCreate,
-  onJoin,
-}: {
-  title?: string;
-  message?: string;
-  onCreate?: () => void;
-  onJoin?: () => void;
-}) {
+/**
+ * Ohne Gruppe: Cat The Käptn mit Titel und Knöpfen, wie der leere Reiter „Gruppen“ im Feed (Daria, 29.10.2026).
+ * Genutzt in „Was Du so machst“, im Profil des Fashionable Look und im Erstellen-Blatt.
+ */
+export function GroupsEmpty({ onCreate, onJoin }: { onCreate: () => void; onJoin?: () => void }) {
   return (
-    <View style={styles.empty}>
-      <KaterCard title={title}>{message}</KaterCard>
-      {onCreate ? <Button label="Gruppe gründen" onPress={onCreate} /> : null}
-      {onJoin ? <Button label="Mit Beitrittscode beitreten" variant="secondary" onPress={onJoin} /> : null}
-    </View>
+    <FeedStateMessage
+      variant="empty"
+      body="Erstelle Deine erste Gruppe"
+      action="Gruppe gründen"
+      onAction={onCreate}
+      secondary={onJoin ? { label: 'Mit Beitrittscode beitreten', onPress: onJoin } : undefined}
+    />
   );
 }
 
@@ -151,5 +145,4 @@ const styles = StyleSheet.create({
   optionNameActive: { fontFamily: font.medium },
   flex: { flex: 1 },
   pressed: { opacity: 0.7 },
-  empty: { gap: space[12], paddingHorizontal: space[16] },
 });
