@@ -7,7 +7,7 @@
 ## Entwicklung
 
 - `scripts/text-keys.mjs` erfasst die Sprüche aus `src/data/kater-sprueche.json` und jeden Text in `label` (auch „er“, „sie“). `node scripts/i18n.mjs --prune` löscht damit keine genutzten Übersetzungen mehr. Prune lief am 31.10.2026 und entfernte nicht mehr genutzte Übersetzungen.
-- ESLint: `eslint.config.js` mit `eslint-config-expo` 58 und ESLint 9 (ESLint 10 bricht in `eslint-plugin-react` ab). Die Regeln für den React Compiler sind aus, da die App ihn nicht nutzt. `npx expo lint` oder `npm run lint`: 0 Fehler, 31 Warnungen.
+- ESLint: `eslint.config.js` mit `eslint-config-expo` 58 und ESLint 9 (ESLint 10 bricht in `eslint-plugin-react` ab). Die Regeln für den React Compiler sind aus, da die App ihn nicht nutzt. `npx expo lint`: 0 Fehler, 31 Warnungen.
 - Fehler behoben: `src/app/challenge/[id]/complete/payout.tsx` rief `useNudge()` nach einem frühen `return` auf.
 
 ## Tour
