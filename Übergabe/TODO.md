@@ -217,3 +217,13 @@ Plan und Entscheidungen: `Übergabe/2026-10-27_we-challenge-mehrere-personen.md`
 - [x] „Flaschenpost“ als Wort für E-Mail überall gestrichen (App-Texte, Übersetzungen). Ausgeführt am 2026-10-31. Migration `20261031000200_flaschenpost_texte.sql` im SQL-Editor ausführen, danach die neuen Texte mit `node scripts/app-texts.mjs` eintragen.
 - [ ] Später: In der E-Mail selbst steht „Du hast Flaschenpost“, mit passender Illustration oder Animation. Sonst taucht „Flaschenpost“ für E-Mail nirgends auf.
 - [ ] ESLint: 31 Warnungen offen, vor allem ungenutzte Importe und drei fehlende Abhängigkeiten in `useEffect`/`useMemo` (`src/app/friends/invite.tsx`, `src/app/groups/join.tsx`, `src/app/texts.tsx`). Die Abhängigkeiten nur mit Test am Telefon ändern.
+
+## 2026-11-01: Abzeichen
+
+- [ ] Pflicht (Daria): Migration `20261101000100_abzeichen.sql` im SQL-Editor ausführen: https://github.com/amyria3/kiez-coins-app/blob/main/supabase/migrations/20261101000100_abzeichen.sql
+- [ ] Frage an Daria: endgültiger Name für das Anker-Abzeichen (Arbeitstitel Seebär:in)
+- [ ] Frage an Daria: Farbe für Anführer:in; Lila trägt auch die Führung beim Erstellen
+- [ ] Frage an Daria: Zählt eine Einladung per Gruppen-Code für Lots:in und Anführer:in? Bisher nur der Freundes-Code
+- [ ] Frage an Daria: Abzeichen und Ninja-Maske (ohne Kiez) am selben Avatar; bisher zeigt der Avatar ohne Kiez kein Abzeichen
+- [ ] Darias gezeichnete Symbole für die fünf Abzeichen in `src/components/BadgeIcon.tsx` eintragen
+

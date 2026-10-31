@@ -21,6 +21,7 @@ import { StartKater } from '../components/StartKater';
 import { InstallHint } from '../components/InstallHint';
 import { WebSafeArea } from '../components/WebSafeArea';
 import { FriendInviteNotice } from '../components/FriendInviteNotice';
+import { BadgeNotice } from '../components/BadgeNotice';
 import { UpdateHint } from '../components/UpdateHint';
 import { color, scheme } from '../theme/tokens';
 import { ErrorScreen } from '../components/ErrorScreen';
@@ -112,6 +113,7 @@ function RootStack() {
         <>
         <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
         <FriendInviteNotice />
+        <BadgeNotice />
         <Stack key={language} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
           {/* Vollbild ohne Wegwischen: Schließen nur über das X, damit die Frage nach dem Entwurf kommt
               und die Vorschau nicht wie ein Overlay wirkt, dessen Wischen mit den Gesten der Vorschau konkurriert */}
@@ -123,6 +125,7 @@ function RootStack() {
           <Stack.Screen name="user/[id]/report/index" options={{ presentation: 'modal' }} />
           <Stack.Screen name="challenge/[id]/report/index" options={{ presentation: 'modal' }} />
           <Stack.Screen name="demo" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="badge/[kind]" options={{ presentation: 'modal' }} />
           <Stack.Screen name="challenge/[id]/complete/success" options={{ gestureEnabled: false }} />
           <Stack.Screen name="challenge/[id]/review/success" options={{ gestureEnabled: false }} />
           <Stack.Screen name="challenge/[id]/pay/success" options={{ gestureEnabled: false }} />
