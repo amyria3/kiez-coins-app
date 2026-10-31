@@ -182,7 +182,7 @@ export default function Email() {
   return (
     <SubScreen title="Anmelden" subtitle="Schritt 1 von 5" navigation="back" onLeadingPress={goBack}>
       <KaterBubble>
-        Zuerst Deine Flaschenpost-Adresse. Du bekommst einen Code und legst Dein Passwort fest.
+        Zuerst Deine E-Mail-Adresse. Du bekommst einen Code und legst Dein Passwort fest.
       </KaterBubble>
       <Animated.View style={{ height: lift }} />
       <TextField

@@ -179,7 +179,7 @@
   {
    "sprache": "ar",
    "geschlecht": "person",
-   "deutsch": "Zuerst Deine Flaschenpost-Adresse. Du bekommst einen Code und legst Dein Passwort fest.",
+   "deutsch": "Zuerst Deine E-Mail-Adresse. Du bekommst einen Code und legst Dein Passwort fest.",
    "fassung": "أولًا عنوان رسالتك في الزجاجة. بعدها يصل رمز ثم تُحدَّد كلمة المرور."
   },
   {
@@ -413,7 +413,7 @@
   {
    "sprache": "ar",
    "geschlecht": "sie",
-   "deutsch": "Zuerst Deine Flaschenpost-Adresse. Du bekommst einen Code und legst Dein Passwort fest.",
+   "deutsch": "Zuerst Deine E-Mail-Adresse. Du bekommst einen Code und legst Dein Passwort fest.",
    "fassung": "أولًا عنوان رسالتك في الزجاجة. ستحصلين على رمز وتضعين كلمة مرورك."
   },
   {
@@ -791,7 +791,7 @@
   {
    "sprache": "he",
    "geschlecht": "person",
-   "deutsch": "Zuerst Deine Flaschenpost-Adresse. Du bekommst einen Code und legst Dein Passwort fest.",
+   "deutsch": "Zuerst Deine E-Mail-Adresse. Du bekommst einen Code und legst Dein Passwort fest.",
    "fassung": "קודם כתובת הבקבוק בים. אחר כך מגיע קוד וקובעים סיסמה."
   },
   {
@@ -1079,7 +1079,7 @@
   {
    "sprache": "he",
    "geschlecht": "sie",
-   "deutsch": "Zuerst Deine Flaschenpost-Adresse. Du bekommst einen Code und legst Dein Passwort fest.",
+   "deutsch": "Zuerst Deine E-Mail-Adresse. Du bekommst einen Code und legst Dein Passwort fest.",
    "fassung": "קודם כתובת הבקבוק בים שלך. תקבלי קוד ותקבעי סיסמה."
   },
   {
