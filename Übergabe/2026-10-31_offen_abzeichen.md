@@ -25,6 +25,8 @@
 - Welches Abzeichen zeigt der Avatar, wenn eine Person mehrere hat (Rangfolge)?
 - Wie verträgt sich das Abzeichen mit der Ninja-Maske für Personen ohne Kiez?
 
+- „Flaschenpost“ steht in der App bereits für E-Mail (`src/app/onboarding/email.tsx`, `no-email.tsx`). Bleibt die Flaschenpost Symbol der Lots:in, oder bekommt eine der beiden Bedeutungen ein anderes Wort?
+
 ## Nächster Schritt
 
 - Daria testet die Flaschenpost bei 16 und 20 px in beiden Looks.
