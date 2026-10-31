@@ -11,6 +11,8 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 ## Zeitnah (Daria, 30.10.2026)
 
+- [ ] Übersetzungen automatisch mit DeepL (geplant für 01.11.2026): `2026-10-31_offen_deepl-uebersetzungen.md`. Vorher legt Daria den Schlüssel `DEEPL_API_KEY` in GitHub an.
+
 - [x] Beim Posten Zugriff auf die Entwürfe: Das Erstellen-Blatt zeigt oben „Deine Entwürfe“ mit Kacheln, passend zum Modus (Privat, Gruppe, Kiez/Überall). Ein Tipp öffnet den Entwurf (`src/components/compose/DraftStrip.tsx`, 30.10.2026).
 
 ## Außerhalb des Codes

@@ -56,6 +56,7 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-30_fehlermeldungen-mit-grund.md`: Notiz für die Doku. Fehlermeldungen zeigen den technischen Grund.
 - `2026-10-31_offen_kamera-leiste-zaehler.md`: Offen. Kamera auch unten in der Leiste (Kiez-Look), Zählung beider Knöpfe. Migration `20261031000100` einspielen.
 - `2026-10-31_tour-zum-ausprobieren.md`: Notiz für die Doku. „Wie geht KiezCoins“ als große Karte, Beispiele der Tour zum Antippen mit lila Ring.
+- `2026-10-31_offen_deepl-uebersetzungen.md`: Offen. Plan für automatische Übersetzungen mit DeepL (eigene Dateien `auto/`, Probelauf, dann Action bei jedem PR).
 - `2026-10-30_offen_app-texts.sql`: Offen. Alle Texte aus dem Code für `app_texts` (erzeugt mit `node scripts/app-texts.mjs`), im SQL-Editor von Supabase ausführen. Danach löschen.
 - `2026-10-30_offen_entwurf-speichern.md`: Notiz für die Doku. Vorhandenen Entwurf speichern und veröffentlichen schlug fehl, da das Recht für `edensteine` fehlte (PR #134, Migration eingespielt).
 - `2026-10-24_offen_gruppen.md` und `2026-10-24_offen_gruppen-titelbild.md`: offene Punkte zum Feature „Gruppen“ und zum Gruppen-Titelbild.
