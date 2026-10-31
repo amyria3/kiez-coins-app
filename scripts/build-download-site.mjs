@@ -597,7 +597,7 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
       });
       var platz = Array.prototype.indexOf.call(liste.children, du);
       status.textContent = n > 3 ? '${t('Neue Woche, neues Glück.', 'New week, new luck.')}'
-        : platz === 0 ? '${t('Du führst! May the best win.', 'You’re in the lead! May the best win.')}'
+        : platz === 0 ? '${t('Du führst! May the best one win.', 'You’re in the lead! May the best one win.')}'
         : n === 1 ? '${t('1 Edenstein. Noch 2 bis Lena.', '1 Eden stone. 2 more to Lena.')}'
         : '${t('Du überholst Lena.', 'You overtake Lena.')}';
     } else if (art === 'freunde') {
