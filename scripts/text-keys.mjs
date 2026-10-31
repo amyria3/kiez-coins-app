@@ -59,11 +59,20 @@ export async function collectKeys() {
           ts.isLiteralTypeNode(p) ||
           ts.isElementAccessExpression(p) ||
           ts.isCaseClause(p);
-        if (!skipped && looksText(n.text)) add(n.text, where);
+        // `label` ist immer sichtbarer Text, auch als einzelnes kleines Wort („er“, „sie“ in src/data/format.ts)
+        const isLabel = ts.isPropertyAssignment(p) && p.initializer === n && p.name.getText(sf) === 'label';
+        if (!skipped && (isLabel || looksText(n.text))) add(n.text, where);
       }
       ts.forEachChild(n, visit);
     };
     visit(sf);
+  }
+
+  // Sprüche des Katers (StartKater, Website /kater)
+  {
+    const file = 'src/data/kater-sprueche.json';
+    const data = JSON.parse(readFileSync(join(root, file), 'utf8'));
+    for (const [k, v] of Object.entries(data)) if (!k.startsWith('_') && Array.isArray(v)) for (const e of v) add(typeof e === 'string' ? e : e.text, file);
   }
 
   // Rechtstexte
