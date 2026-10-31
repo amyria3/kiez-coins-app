@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
   Alert,
@@ -26,7 +26,7 @@ import { explain } from '../components/Nudge';
 import { iconSvgs } from '../components/icons/svgs';
 import { errorText, saveTourFeedback, type TourFeedbackChoice } from '../data/remote';
 import { Text } from '../components/T';
-import { TourDemo } from '../components/tour/TourDemo';
+import { DemoCue, DemoFocus, TourDemo } from '../components/tour/TourDemo';
 import { t } from '../data/texts';
 import { TOUR_FEEDBACK_OTHER_MAX, TOUR_SEEN_KEY, tourFeedbackOptions, tourSteps, type TourStep } from '../data/tour';
 import { useAppDimensions } from '../theme/layout';
@@ -288,26 +288,67 @@ const LIKE_HEARTS = [
  * Deshalb misst die Vorschau Fläche und Inhalt und verkleinert den Inhalt, bis er hineinpasst.
  */
 function TourPreview({ stepKey }: { stepKey: string }) {
-  const [box, setBox] = useState({ w: 0, h: 0 });
-  const [contentH, setContentH] = useState(0);
-  const scale = box.h && contentH ? Math.min(1, box.h / contentH) : 1;
+  const scroll = useRef<ScrollView>(null);
+  const offset = useRef(0);
+  const [cue, setCue] = useState('');
+  // Volle Breite wie in der App (Daria, 31.10.2026). Der Hinweis steht fest oben. Ist ein Beispiel höher als
+  // die Fläche, scrollt sie von selbst so, dass der lila Ring in der Mitte steht.
+  // Element mit dem lila Ring (oder der Kater am Ende); nach einem neuen Hinweis scrollt die Fläche wieder hin
+  const target = useRef<View | null>(null);
+  const frame = useMemo(() => {
+    const center = (view: View) => {
+      const box = scroll.current as unknown as View | null;
+      if (!box) return;
+      view.measureInWindow((_x, viewY, _w, viewH) => {
+        box.measureInWindow((_bx, boxY, _bw, boxH) => {
+          // Passt das Ziel nicht ganz hinein, zählt sein Anfang (z. B. die Coins oben am Foto)
+          const delta = viewH > boxH - space[16] ? viewY - boxY - space[8] : viewY + viewH / 2 - (boxY + boxH / 2);
+          if (Math.abs(delta) < 8) return;
+          scroll.current?.scrollTo({ y: Math.max(0, offset.current + delta), animated: true });
+        });
+      });
+    };
+    return {
+      focus: (view: View | null) => {
+        target.current = view;
+        if (view) center(view);
+      },
+      blur: (view: View | null) => {
+        if (target.current === view) target.current = null;
+      },
+      // Neuer Schritt: erst nach oben, dann wieder zum Ziel, falls es geblieben ist
+      cue: (next: string) => {
+        setCue(next);
+        scroll.current?.scrollTo({ y: 0, animated: false });
+        setTimeout(() => {
+          if (target.current) center(target.current);
+        }, 120);
+      },
+    };
+  }, []);
   return (
-    <View style={StyleSheet.absoluteFill} onLayout={(e) => setBox({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
-      <View
-        style={[
-          styles.preview,
-          {
-            width: box.w,
-            top: (box.h - contentH) / 2,
-            opacity: box.w && contentH ? 1 : 0,
-            transform: [{ scale }],
-          },
-        ]}
-        onLayout={(e) => setContentH(e.nativeEvent.layout.height)}
-      >
-        <TourDemo stepKey={stepKey} />
+    <DemoFocus.Provider value={frame}>
+      <View style={styles.previewBox}>
+        {cue ? (
+          <View style={styles.previewCue}>
+            <DemoCue>{cue}</DemoCue>
+          </View>
+        ) : null}
+        <ScrollView
+          ref={scroll}
+          style={styles.flex}
+          contentContainerStyle={styles.preview}
+          showsVerticalScrollIndicator={false}
+          nestedScrollEnabled
+          scrollEventThrottle={16}
+          onScroll={(e: NativeSyntheticEvent<NativeScrollEvent>) => {
+            offset.current = e.nativeEvent.contentOffset.y;
+          }}
+        >
+          <TourDemo stepKey={stepKey} />
+        </ScrollView>
       </View>
-    </View>
+    </DemoFocus.Provider>
   );
 }
 
@@ -360,8 +401,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   video: { width: '100%', height: '100%' },
-  // Verkleinert sich, bis Beitrag, Knopf und Kamera ganz in die Fläche passen (TourPreview)
-  preview: { position: 'absolute', left: 0, paddingVertical: space[16] },
+  // Beispiel in voller Breite, mittig; zu hohe Beispiele scrollen (TourPreview)
+  preview: { flexGrow: 1, justifyContent: 'center', paddingVertical: space[16] },
+  previewBox: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+  previewCue: { paddingTop: space[16], paddingBottom: space[8] },
   flex: { flex: 1 },
   topSpacer: { height: 44 },
   textBlock: { flexGrow: 0, flexShrink: 1 },
