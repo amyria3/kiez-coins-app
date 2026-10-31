@@ -49,8 +49,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "build:website": "EXPO_WEB_BASE_URL=/app expo export -p web --output-dir website/app && node scripts/build-download-site.mjs",
-    "lint": "expo lint"
+    "build:website": "EXPO_WEB_BASE_URL=/app expo export -p web --output-dir website/app && node scripts/build-download-site.mjs"
   },
   "private": true
 }
