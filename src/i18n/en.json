@@ -1376,5 +1376,12 @@
   "Gefällt Dir!": "You like it!",
   "Tippe auf das Herz unter dem Bild": "Tap the heart below the photo",
   "Nur Menschen in Deinem Kiez sehen den Beitrag. In „Überall“ erscheint er nicht.": "Only people in your neighbourhood see the post. It doesn’t appear in “Everywhere”.",
-  "Alle sehen den Beitrag, auch in „Überall“.": "Everyone sees the post, also in “Everywhere”."
+  "Alle sehen den Beitrag, auch in „Überall“.": "Everyone sees the post, also in “Everywhere”.",
+  "{n, plural, one {# Challenge} other {# Challenges}}": "{n, plural, one {# challenge} other {# challenges}}",
+  "{n, plural, one {# Me-Challenge} other {# Me-Challenges}}": "{n, plural, one {# Me-Challenge} other {# Me-Challenges}}",
+  "{n, plural, one {# Bild} other {# Bilder}}": "{n, plural, one {# photo} other {# photos}}",
+  "{a}, {b} und {c} in Deiner Nähe": "{a}, {b} and {c} near you",
+  "{a} und {b} in Deiner Nähe": "{a} and {b} near you",
+  "{a} in Deiner Nähe": "{a} near you",
+  "Noch nichts in Deiner Nähe": "Nothing near you yet"
 }
