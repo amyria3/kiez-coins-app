@@ -64,4 +64,4 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-26_offen_russisch.md`: Russisch in der App, alle Sprachen auf der Website. Prüfung der Übersetzungen durch Muttersprachler:innen steht aus.
 - `2026-10-26_offen_lila-ungemuetlich.md`: Kritik „Farbe Lila, ungemütlich“, offene Fragen zu Ort und Ersatzfarbe (To-do, Daria).
 - `2026-10-27_offen_chat-mitlesen-protokoll.md`: Protokoll, wer private Chats liest. Migration `20261027000100_chat_access_log.sql` ausgeführt (27.10.2026). Migration `20261027000200_my_data_access.sql` für „Abrufe Deiner Daten“ ausgeführt (27.10.2026).
-- `2026-10-31_offen_abzeichen.md`: Abzeichen am Avatar. Fernrohr für Pionier:innen, „Erfahrene Lots:in“ ab 10 Einladungen (Flaschenpost, Optik offen), Anker für Personen, die viel posten. Offene Fragen an Daria.
+- `2026-10-31_offen_abzeichen.md`: Abzeichen am Avatar. Pionier:in, Lots:in, Anführer:in, Anker (ab 50 Posts) und Macher:in, mit Bedingungen und Symbolen. Offene Fragen an Daria.
