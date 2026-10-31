@@ -71,6 +71,8 @@ button { font: inherit; color: inherit; }
   grid-template-rows: auto 1fr; column-gap: 72px; padding: 40px 0 72px; }
 /* Desktop: Text und Telefon rücken zusammen und stehen mittig, links und rechts bleibt Luft (Daria, 31.10.2026) */
 @media (min-width: 901px) { .hero { grid-template-columns: minmax(0, 540px) 320px; justify-content: center; column-gap: 64px; } }
+/* Logo und Knöpfe oben stehen bündig mit Text und Telefon (Daria, 31.10.2026) */
+@media (min-width: 901px) { .top:has(~ main .hero) { max-width: 924px; margin-inline: auto; } }
 .hero-text { grid-area: text; align-self: end; }
 .steuerung { grid-area: wahl; display: grid; gap: 20px; justify-items: start; }
 .rolle { position: relative; display: inline-flex; padding: 3px; border-radius: 999px; border: 1px solid var(--line); }
