@@ -49,9 +49,9 @@ export const tourSteps: TourStep[] = [
   },
   {
     key: 'coins',
-    title: 'Coins direkt, Vertrauen zuerst',
-    // Text von Daria (29.10.2026)
-    text: 'Wer beim Erstellen einer Challenge „Das ist mir bares Geld wert“ anklickt, verspricht eine materielle Belohnung. Solche Interaktionen basieren auf Vertrauen. Wir können leider nicht kontrollieren, ob das Versprechen eingehalten wird. Doch die Idee hinter KiezCoins ist, dass Menschen mit Geld und Menschen mit Zeit zum Wohl der Gemeinschaft zusammenfinden. Ob das funktioniert, testen wir gerade.',
+    // Titel und erster Satz von Daria (31.10.2026), Rest von Daria (29.10.2026)
+    title: 'Was hat es mit den Coins auf sich?',
+    text: 'Coins sind eine finanzielle Belohnung, die Nutzer:innen für das Erledigen einer Aufgabe ausschreiben. Wer beim Erstellen einer Challenge „Das ist mir bares Geld wert“ anklickt, verspricht eine materielle Belohnung. Solche Interaktionen basieren auf Vertrauen. Wir können leider nicht kontrollieren, ob das Versprechen eingehalten wird. Doch die Idee hinter KiezCoins ist, dass Menschen mit Geld und Menschen mit Zeit zum Wohl der Gemeinschaft zusammenfinden. Ob das funktioniert, testen wir gerade.',
   },
   {
     key: 'gruppen',
