@@ -18,6 +18,7 @@ import { Avatar } from './AuthorRow';
 import { Segments } from './FeedHeader';
 import { AudienceHint, useAudienceHint } from './AudienceHint';
 import { Geschafft, usePraise } from './Geschafft';
+import { BadgeStrip } from './BadgeStrip';
 import { GroupBar, GroupsEmpty } from './GroupBar';
 import { GroupRanking } from './GroupRanking';
 import { Cat } from './icons/Brand';
@@ -151,6 +152,11 @@ export function FashionProfile() {
             <Text style={styles.bioText}>{t('{earned} verdient', { earned: formatBountyShort(earned) })}</Text>
           ) : null}
         </View>
+
+        {/* Eingeblendete Abzeichen (Daria, 2026-10-31) */}
+        <Pressable accessibilityRole="button" accessibilityLabel={t('Meine Abzeichen')} onPress={() => router.push('/account/badges')} style={styles.badges}>
+          <BadgeStrip userId={currentUserId} align="start" />
+        </Pressable>
 
         <View style={styles.buttons}>
           <ProfileButton label="Profil bearbeiten" onPress={() => router.push('/account/profile')} />
@@ -317,6 +323,7 @@ const GUTTER = 2;
 const HL = 64;
 
 const styles = StyleSheet.create({
+  badges: { paddingHorizontal: space[16], paddingBottom: space[12] },
   // Zahlen und Dank über dem Raster, seitlich 16 wie der Kopf
   geschafft: { gap: space[16], paddingHorizontal: space[16], paddingTop: space[16], paddingBottom: space[8] },
   screen: { flex: 1, backgroundColor: color.bg.screen },

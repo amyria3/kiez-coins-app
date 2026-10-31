@@ -20,6 +20,7 @@ import { anrede } from '../data/format';
 import { groupProgress, quests } from '../data/erfolge';
 import { Geschafft, usePraise } from '../components/Geschafft';
 import { Quests } from '../components/Quests';
+import { BadgeStrip } from '../components/BadgeStrip';
 import { useFriends } from '../data/friends';
 import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
 import { useStore } from '../data/store';
@@ -95,6 +96,11 @@ function Reise() {
         {/* Tipp auf den Kater: zu seiner Seite mit Sprüchen */}
         <Pressable accessibilityRole="button" accessibilityLabel={t('Cat The Käptn Hallo sagen')} onPress={() => router.push('/cat')}>
           <KaterCard mood={catVariant(mood)}>{reiseMoodText(mood, anrede(profile))}</KaterCard>
+        </Pressable>
+
+        {/* Eingeblendete Abzeichen (Daria, 2026-10-31); Tipp auf eins führt zu Meine Abzeichen */}
+        <Pressable accessibilityRole="button" accessibilityLabel={t('Meine Abzeichen')} onPress={() => router.push('/account/badges')}>
+          <BadgeStrip userId={currentUserId} align="start" />
         </Pressable>
 
         {tasks.length ? (

@@ -1,3 +1,5 @@
+import { BadgeIcon, BADGE_MIN } from './BadgeIcon';
+import { useAvatarBadge } from '../data/badges';
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from './T';
@@ -38,7 +40,28 @@ const AVATAR_GRADIENT =
   '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="avatar-verlauf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7E94FF"/><stop offset="1" stop-color="#FFB2E5"/></linearGradient></defs><rect width="100" height="100" fill="url(#avatar-verlauf)"/></svg>';
 
 /** Figma „Avatar“: 36×36 (oder `diameter`), ohne Bild Initialen auf color/accent/primary. */
-export function Avatar({ user, diameter }: { user: User; diameter?: number }) {
+/**
+ * Avatar mit Abzeichen unten rechts (Daria, 2026-10-31): ab 80 pt Durchmesser 32 pt, ab 36 pt 20 pt,
+ * darunter nur ein Farbpunkt. `badge={false}` zeigt keins, z. B. auf dem Bildschirm zum Abzeichen selbst.
+ */
+export function Avatar({ user, diameter, badge = true }: { user: User; diameter?: number; badge?: boolean }) {
+  const d = diameter ?? size.avatar;
+  const shown = useAvatarBadge(badge ? user.id : undefined);
+  const hidden = useHideName(user);
+  if (!shown || hidden) return <AvatarImage user={user} diameter={diameter} />;
+  const b = d >= 80 ? 32 : d >= 36 ? BADGE_MIN : Math.max(10, Math.round(d * 0.34));
+  const off = d >= 80 ? -4 : d >= 36 ? -4 : -2;
+  return (
+    <View style={{ width: d, height: d }}>
+      <AvatarImage user={user} diameter={diameter} />
+      <View style={{ position: 'absolute', right: off, bottom: off }} pointerEvents="none">
+        <BadgeIcon kind={shown.badge} number={shown.number} size={b} />
+      </View>
+    </View>
+  );
+}
+
+function AvatarImage({ user, diameter }: { user: User; diameter?: number }) {
   const hidden = useHideName(user);
   const sizeStyle = diameter ? { width: diameter, height: diameter } : null;
   if (user.avatar) {

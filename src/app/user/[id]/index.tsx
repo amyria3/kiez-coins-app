@@ -4,6 +4,7 @@ import { Text } from '../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Avatar, hiddenText, useHideName } from '../../../components/AuthorRow';
+import { BadgeStrip } from '../../../components/BadgeStrip';
 import { Button } from '../../../components/Button';
 import { Notice } from '../../../components/Content';
 import { Icon } from '../../../components/icons/Icon';
@@ -140,6 +141,7 @@ export default function UserProfile() {
         >
           {user.name}
         </Text>
+        {hidden ? null : <BadgeStrip userId={user.id} />}
         {user.location ? (
           <View style={styles.row}>
             <Icon name="map-pin" size={14} color={color.text.secondary} />
