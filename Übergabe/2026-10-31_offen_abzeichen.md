@@ -9,6 +9,7 @@
 - Das Abzeichen sitzt farbig neben dem Avatar.
 - Jede Person blendet ihre Abzeichen im eigenen Konto ein und aus (notwendige Funktion).
 - Bei mehreren Abzeichen wählt die Person eins aus. Das Profil zeigt alle eingeblendeten, der Avatar beim Posten nur das ausgewählte.
+- „Flaschenpost“ steht in der App nicht mehr für E-Mail (31.10.2026). Damit ist die Flaschenpost frei für die Lots:in.
 - Eine Einladung ist aktiv, sobald die eingeladene Person ihre erste Challenge oder ihren ersten Post erledigt (Vorschlag Claude, Daria spricht von „aktiven Einladungen“).
 
 ## Die Abzeichen
@@ -34,7 +35,6 @@
 - Name für das Anker-Abzeichen (ab 50 Posts).
 - Wie verträgt sich das Abzeichen mit der Ninja-Maske für Personen ohne Kiez?
 
-- „Flaschenpost“ steht in der App bereits für E-Mail (`src/app/onboarding/email.tsx`, `no-email.tsx`). Bleibt die Flaschenpost Symbol der Lots:in, oder bekommt eine der beiden Bedeutungen ein anderes Wort?
 
 ## Nächster Schritt
 

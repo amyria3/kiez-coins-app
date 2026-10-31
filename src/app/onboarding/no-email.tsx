@@ -73,7 +73,7 @@ export default function OhneMail() {
   return (
     <SubScreen title="Ohne E-Mail" subtitle="Schritt 1 von 5" navigation="back" onLeadingPress={goBack}>
       <KaterBubble>
-        Geht auch ohne Flaschenpost. Merk Dir Deckname und Passwort gut, ohne E-Mail kann ich Dir kein neues schicken.
+        Geht auch ohne E-Mail. Merke Dir Deckname und Passwort gut, da ich Dir sonst kein neues Passwort schicken kann.
       </KaterBubble>
       <View style={styles.fields}>
         <TextField

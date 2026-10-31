@@ -189,3 +189,7 @@ Plan und Entscheidungen: `Übergabe/2026-10-27_we-challenge-mehrere-personen.md`
 - [ ] PR #16 („Download ohne Supabase-Secret“) ohne Merge schließen: überholt, der Download läuft schon über `download_settings` (Daria bestätigt, dass er funktioniert)
 - [ ] Notizen vom 29. und 30.10.2026 in Documentation übernehmen: Bild-Text, Tour, Modus „Überall“, Profil, Website, leere Reiter, Hinweis, Texte-Editor, Routen, Nutzungsbedingungen
 
+## 2026-10-31
+
+- [x] „Flaschenpost“ als Wort für E-Mail überall gestrichen (App-Texte, Übersetzungen). Migration `20261031000200_flaschenpost_texte.sql` im SQL-Editor ausführen, danach die neuen Texte mit `node scripts/app-texts.mjs` eintragen.
+- [ ] Später: In der E-Mail selbst steht „Du hast Flaschenpost“, mit passender Illustration oder Animation. Sonst taucht „Flaschenpost“ für E-Mail nirgends auf.
