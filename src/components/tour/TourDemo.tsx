@@ -170,13 +170,13 @@ function Pad({ children }: { children: ReactNode }) {
 }
 
 /** Beitrag wie im Feed (Beiträge bringen ihren Rand selbst mit) */
-function Post({ challenge, onLike }: { challenge: Challenge; onLike?: () => void }) {
+function Post({ challenge, onLike, wrapLike }: { challenge: Challenge; onLike?: () => void; wrapLike?: (heart: ReactNode) => ReactNode }) {
   const author = authorOf(challenge);
   if (!author) return null;
   if (challenge.type === 'before_after') {
     return <BeforeAfterPost challenge={challenge} author={author} distance="300 m" onPress={noop} onLike={onLike ?? noop} />;
   }
-  return <ChallengePost challenge={challenge} author={author} distance={challenge.private ? undefined : '300 m'} onPress={noop} onLike={onLike ?? noop} />;
+  return <ChallengePost challenge={challenge} author={author} distance={challenge.private ? undefined : '300 m'} onPress={noop} onLike={onLike ?? noop} wrapLike={wrapLike} />;
 }
 
 /**
@@ -404,7 +404,7 @@ function CoinsDemo() {
   );
 }
 
-/** Bild: Herz antippen, die Zahl zählt hoch. */
+/** Bild: Herz antippen, die Zahl zählt hoch. Der Ring liegt nur um das Herz. */
 function LikeDemo() {
   const [liked, setLiked] = useState(false);
   const base = sample('privat-garten', { private: undefined, text: '' });
@@ -412,9 +412,15 @@ function LikeDemo() {
   const count = (base.likeCount ?? 0) + (liked ? 1 : 0);
   return (
     <Demo cue={liked ? 'Gefällt Dir!' : 'Tippe auf das Herz unter dem Bild'}>
-      <NextStep on={!liked} post>
-        <Post challenge={{ ...base, likedByMe: liked, likeCount: count }} onLike={() => setLiked((v) => !v)} />
-      </NextStep>
+      <Post
+        challenge={{ ...base, likedByMe: liked, likeCount: count }}
+        onLike={() => setLiked((v) => !v)}
+        wrapLike={(heart) => (
+          <NextStep on={!liked} round>
+            {heart}
+          </NextStep>
+        )}
+      />
     </Demo>
   );
 }
