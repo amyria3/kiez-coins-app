@@ -9,7 +9,7 @@ import { TOUR_OFFER_KEY, TOUR_SEEN_KEY } from '../data/tour';
  * Fragt etwa 5 Minuten nach der Anmeldung einmal: „Willst Du die wichtigsten Funktionen sehen?“ (Daria, 28.10.2026).
  * Die Tour kommt nicht mehr direkt nach dem Onboarding. Der Zeitpunkt steht in AsyncStorage, damit die Frage auch
  * nach einem Neustart der App kommt. Während des Onboardings und in der Tour selbst fragt die App nicht.
- * Nach jeder Antwort fragt sie nicht noch einmal; die Tour bleibt über Dein Konto › So geht KiezCoins erreichbar.
+ * Nach jeder Antwort fragt sie nicht noch einmal; die Tour bleibt über Dein Konto › Wie geht KiezCoins erreichbar.
  */
 export function TourOffer() {
   const router = useRouter();
@@ -36,7 +36,7 @@ export function TourOffer() {
       }
       const ask = () => {
         done();
-        Alert.alert('Willst Du die wichtigsten Funktionen sehen?', 'Ein paar kurze Videos. Du findest sie auch später in Deinem Konto unter „So geht KiezCoins“.', [
+        Alert.alert('Willst Du die wichtigsten Funktionen sehen?', 'Ein paar Beispiele zum Ausprobieren. Du findest sie auch später in Deinem Konto unter „Wie geht KiezCoins“.', [
           { text: 'Später', style: 'cancel' },
           { text: 'Zeigen', onPress: () => router.push('/tour') },
         ]);
