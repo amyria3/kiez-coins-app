@@ -14,22 +14,22 @@ import { TypeSwitch } from './TypeSwitch';
 import { DraftStrip } from './DraftStrip';
 import { useComposeContent, type ComposeContent } from './compose';
 
-/** Beitragstypen im Kiez, in dieser Reihenfolge (Daria, 23.10.2026). Alle immer an (Daria, 27.10.2026). */
+/** Beitragstypen im Kiez, in dieser Reihenfolge (Daria, 2026-10-31). Alle immer an (Daria, 27.10.2026). */
 const PUBLIC_TYPES = [
-  { key: 'individual', label: 'We-Challenge' },
-  { key: 'before_after', label: 'Me-Challenge' },
   { key: 'photo', label: 'Bild' },
+  { key: 'before_after', label: 'Me-Challenge' },
+  { key: 'individual', label: 'We-Challenge' },
 ] as const;
 /** Privat: ohne We-Challenge, die braucht andere, die sie annehmen (Daria, 27.10.2026) */
 const PRIVATE_TYPES = [
-  { key: 'before_after', label: 'Me-Challenge' },
   { key: 'photo', label: 'Bild' },
+  { key: 'before_after', label: 'Me-Challenge' },
 ] as const;
 /** In Gruppen: Aufgabe mit Edensteinen, Vorher-Nachher oder Bild (Daria, 27.10.2026) */
 export const GROUP_TYPES = [
-  { key: 'task', label: 'We-Challenge' },
-  { key: 'before_after', label: 'Me-Challenge' },
   { key: 'photo', label: 'Bild' },
+  { key: 'before_after', label: 'Me-Challenge' },
+  { key: 'task', label: 'We-Challenge' },
 ] as const;
 
 type Props = {
