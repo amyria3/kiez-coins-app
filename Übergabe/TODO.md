@@ -38,6 +38,20 @@ Offene Punkte aus Notizen, deren Rest am 2026-10-31 in Documentation steht.
 - [ ] Frage an Daria: Update- und Installationshinweis (`UpdateHint.tsx`, `InstallHint.tsx`) zeigen einen kleinen farbigen Kater ohne Blase in einer Hinweiskarte. Sollen sie die Form „Kater im Kreis auf der Blase“ bekommen? (aus `2026-10-30_kater-sprechblase.md`)
 - [ ] Figma-Frames tragen noch die alten Routennamen (`challenge/report`, `challenge/payment`, `settings/payout`, `onboarding/kodex` …). Gehört zu `2026-10-24_offen_figma-abgleich.md`. (aus `2026-10-30_routen-englisch.md`)
 - [ ] Tour, Beispiel „Bild“: Der lila Ring umrahmt den ganzen Beitrag statt nur das Herz (`src/components/tour/TourDemo.tsx`). (aus `2026-10-31_tour-zum-ausprobieren.md`)
+- [ ] Prüfabfrage aus Documentation, `kiez-coins/DATENBANK.md` (Abschnitt „So prüfst Du, welche Migrationen laufen“), im SQL-Editor ausführen und Claude das Ergebnis geben. Die Bestätigung fehlt für alle Migrationen mit „prüfen“: `20261026000100_app_texts_code_per_mail`, `20261027000200_group_photo_posts`, `20261027000300_app_texts_community_regeln`, `20261028000200_kiez_edensteine`, `20261028000300_we_challenge_teilnehmende`, `20261028000600_we_challenge_coins_geteilt`, `20261028000700_report_any_participant`, `20261030000100_app_texts_coins_geld`. (aus `2026-10-27_offen_community-regeln.md`, `2026-10-28_offen_we-challenge-coins.md`)
+- [ ] We-Challenge mit Coins einmal durchspielen: mit Coins für 3 Personen erstellen, drei Konten treten bei, Erledigt melden, eine Person abwählen, je Person bezahlen und den Erhalt bestätigen. (aus `2026-10-28_offen_we-challenge-coins.md`)
+- [ ] Push an weitere Teilnehmende einer We-Challenge, wenn ihr Anteil bezahlt ist, gibt es noch nicht. (aus `2026-10-28_offen_we-challenge-coins.md`)
+- [ ] Einen gespeicherten Entwurf im Kiez ein zweites Mal speichern und danach veröffentlichen. (aus `2026-10-30_offen_entwurf-speichern.md`)
+- [ ] Am Telefon testen: Bild-Entwurf in einer Gruppe speichern, in „Deine Challenges“ öffnen, posten. (aus `2026-10-30_offen_gruppen-entwuerfe.md`)
+- [ ] Konto ohne E-Mail: unter „Zugangsdaten“ eine E-Mail nachtragen und testen, ob die Anmeldung danach mit der echten Adresse geht. Ohne E-Mail kommt nicht mehr hinein, wer sein Passwort vergisst. (aus `2026-10-27_offen_anmeldung-ohne-mail-testkonto.md`)
+- [ ] Fotos gelöschter Testkonten bleiben im Bucket `photos` liegen. Bei Bedarf im Cron-Job `delete-old-test-accounts` mitlöschen. (aus `2026-10-27_offen_anmeldung-ohne-mail-testkonto.md`)
+- [ ] Fehlende Übersetzungen, darunter Konto ohne E-Mail, Testkonto und „Abrufe Deiner Daten“ (`node scripts/i18n.mjs --missing`; am 2026-10-31 fehlen 156 Texte je Sprache, in Russisch 171). Gehört zum DeepL-Plan oben. (aus `2026-10-27_offen_anmeldung-ohne-mail-testkonto.md`, `2026-10-27_offen_chat-mitlesen-protokoll.md`)
+- [ ] Protokoll der Chats prüfen: `select * from public.chat_access_log;` zeigt Einträge `automatisch` vom täglichen Löschen. Im Postgres-Log (*Logs › Postgres*, `AUDIT`) nachsehen, wie der Lauf dort erscheint. Einmal einen Chat in der Tabellenansicht des Dashboards öffnen und danach nach `AUDIT` suchen: Erfasst pgaudit diese Ansicht? (aus `2026-10-27_offen_chat-mitlesen-protokoll.md`)
+- [ ] Datenschutzerklärung und Kodex (Daria): Hinweis ergänzen, dass die Betreiberin private Nachrichten in begründeten Fällen (z. B. nach Meldungen) einsehen kann und jedes Einsehen protokolliert wird (`src/data/legal.ts`). (aus `2026-10-27_offen_chat-mitlesen-protokoll.md`)
+- [ ] Frage an Daria: Sollen Nutzer:innen aktiv erfahren, dass die Moderation ihren Chat eingesehen hat, z. B. „Dein Chat mit X wurde am … von der Moderation eingesehen“? Heute steht es nur unter „Abrufe Deiner Daten“. (aus `2026-10-27_offen_chat-mitlesen-protokoll.md`)
+- [ ] Frage an Daria: Die Datenschutzerklärung sagt in der Einleitung „KiezCoins nutzt keine Werbung, kein Tracking und keine Analyse-Werkzeuge.“ Der neue Abschnitt „Erheben von Nutzungsdaten“ behält sich anonymisierte Klicks vor. Passt die Einleitung so? (aus `2026-10-31_offen_kamera-leiste-zaehler.md`)
+- [ ] Tour: Die Seite „Gruppen“ erscheint auch, wenn der Modus Gruppe verborgen ist (`src/data/tour.ts`, `src/app/tour.tsx`). (aus `2026-10-29_offen_tour.md`)
+- [ ] Texte von Claude im Website-Prototyp prüfen: Modus „Überall“ mit der We-Challenge in 148 km Entfernung, „Anfrage senden“, Mo sagt zu (`scripts/site/prototyp.js`). (aus `2026-10-29_offen_modus-ueberall.md`)
 
 ## 29.10.2026 – Pflicht für Daria: Text auf dem Foto
 
@@ -61,7 +75,7 @@ Offene Punkte aus Notizen, deren Rest am 2026-10-31 in Documentation steht.
 
 - [x] (29.10.2026) Im Supabase-SQL-Editor den Inhalt von `supabase/migrations/20261029000100_ueberall_umkreis.sql` ausführen (Branch `claude/modus-ueberall`). Erst danach den PR mergen, sonst schlägt Mitmachen mit Standort fehl.
 - [x] (29.10.2026) Claude Bescheid geben, dann prüft Claude die Datenbank und merged den PR (#111).
-- Plan und offene Punkte: `Übergabe/2026-10-29_offen_modus-ueberall.md`
+- Entscheidungen und Umsetzung stehen seit 2026-10-31 in Documentation (`kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Challenges“), offene Punkte oben unter „2026-10-31: aus eingearbeiteten Notizen“.
 
 ## 28.10.2026 – Prio: animierte Coins (Daria)
 
@@ -145,7 +159,7 @@ Offene Punkte aus Notizen, deren Rest am 2026-10-31 in Documentation steht.
 - [ ] Diverse Codes: QR-Codes und Einladungscodes
 - [ ] Liste potenziell interessierter Leipziger Organisationen
 - [ ] Gazelle-Werbung je nach Modus, mit Codes, die eine Vorauswahl treffen
-- [x] Anmeldeprozess vereinfachen, erster Schritt: Anmeldung ohne E-Mail und Testkonto (PR #90, 28.10.2026; offene Punkte in `2026-10-27_offen_anmeldung-ohne-mail-testkonto.md`)
+- [x] Anmeldeprozess vereinfachen, erster Schritt: Anmeldung ohne E-Mail und Testkonto (PR #90, 28.10.2026; offene Punkte oben unter „2026-10-31: aus eingearbeiteten Notizen“)
 - [ ] E-Mail-Code: jeder Code der letzten 5 Minuten gilt, Sperre 30 Sekunden mit Countdown (Plan: `2026-10-24_offen_email-code-5-minuten.md`; Migration `login_codes`, Edge Functions `send-code` und `verify-code`, Brevo-Template, Secrets)
 - [ ] Übersetzungen der Anmeldetexte nachtragen (`node scripts/i18n.mjs --missing`)
 - [ ] Deckname-Vorschläge per KI erzeugen (z. B. Edge Function mit Sprachmodell, passend zu Ansprache und Kiez), nur freie Namen anzeigen. Bis dahin: feste Liste in `src/app/onboarding/deckname.tsx`, vergebene Namen werden ausgefiltert (Daria, 28.10.2026)
@@ -162,12 +176,11 @@ Offene Punkte aus Notizen, deren Rest am 2026-10-31 in Documentation steht.
 
 ## 27.10.2026 (3) – Rechtstexte nach den neuen Community-Regeln (Daria)
 
-Kontext: `Übergabe/2026-10-27_offen_community-regeln.md`.
+Kontext: Documentation, `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Moderation“ (neue Fassung der Community-Regeln vom 27.10.2026).
 
 - [ ] Nutzungsbedingungen (Abschnitt 2, „ab 18 Jahren“) und Datenschutz (Abschnitt „Alter“) an den Abschnitt „Kinder“ anpassen: Kinder nutzen die App über Eltern oder Lehrkräfte
 - [ ] Nutzungsbedingungen, Abschnitt 3: „Werbung“ als Verbot streichen oder in die Community-Regeln aufnehmen
 - [ ] Schreibweise „KiezCoins“ oder „KiezCoins“ in den Regeln vereinheitlichen
-- [ ] Migration `20261027000300_app_texts_community_regeln.sql` im Supabase-SQL-Editor ausführen (Texte-Editor)
 
 ## 27.10.2026 (4) – We-Challenge mit mehreren Personen (Daria)
 
@@ -180,14 +193,13 @@ Plan und Entscheidungen: `Übergabe/2026-10-27_we-challenge-mehrere-personen.md`
 ## 29.10.2026 – Offen nach dem Tag (Daria, Claude)
 
 - [x] PR #120 mergen: Namen ohne Kiez wieder verdecken, nur ohne Hinweistext (Daria, 29.10.2026)
-- [ ] Android-Update von Hand: Stand 30.10.2026 fehlen #122, #123, #124, #79, #103 (`Übergabe/2026-10-28_offen_android-updates-expo-minuten.md`)
+- [ ] Android-Update von Hand: Stand 30.10.2026 fehlen #122, #123, #124, #79, #103 (`Übergabe/2026-10-28_offen_android-updates-expo-minuten.md`), dazu #135 (Entwürfe in Gruppen)
 - [x] `/laden` und `/qr` live (29.10.2026)
 - [ ] `/laden` und `/qr` am Telefon testen, danach die QR-Codes drucken (`Übergabe/2026-10-29_offen_website-laden-qr.md`)
 - [ ] Nach dem 01.11.2026 prüfen, ob der EAS-Workflow wieder startet
-- [ ] Texte von Claude in der Tour prüfen (`Übergabe/2026-10-29_offen_tour.md`)
 - [x] Migration `20261029000500_app_texts_anlegen.sql` eingespielt (Daria, 30.10.2026; Texte-Editor, Doku: `kiez-coins/app/Anleitung_App.md`, Abschnitt „Texte ändern“)
 - [ ] PR #16 („Download ohne Supabase-Secret“) ohne Merge schließen: überholt, der Download läuft schon über `download_settings` (Daria bestätigt, dass er funktioniert)
-- [ ] Notizen vom 29. und 30.10.2026 in Documentation übernehmen: Bild-Text, Tour, Modus „Überall“, Profil, Website, leere Reiter, Hinweis, Texte-Editor, Routen, Nutzungsbedingungen
+- [ ] Notizen vom 29. und 30.10.2026 in Documentation übernehmen: nur noch die Website (`2026-10-29_offen_website-laden-qr.md`, nach dem Test am Telefon). Alles andere steht seit 2026-10-31 in Documentation.
 
 ## 2026-10-31
 

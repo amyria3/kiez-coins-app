@@ -41,17 +41,11 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-24_offen_gender-uebersetzungen-pruefen.json`: alle neuen Übersetzungen nach Geschlecht, ungeprüft, für Muttersprachler:innen.
 - `2026-10-24_offen_gendern.md`: konsistentes Gendern, alle Stellen mit grammatischem Geschlecht und offene Fragen an Daria.
 - `2026-10-24_offen_features-aus-textkorrektur.md`: Features, Bugs und offene Fragen, die Daria am 24.10.2026 an den Rand des Text-Ausdrucks geschrieben hat.
-- `2026-10-24_offen_umbenennung-kiezkoinz.md`, `2026-10-24_offen_funktionen-sperre.md` und `2026-10-24_offen_coin-animation-me-challenge.md`: Darias To-do-Liste vom 24.10.2026.
+- `2026-10-24_offen_umbenennung-kiezkoinz.md` und `2026-10-24_offen_coin-animation-me-challenge.md`: Darias To-do-Liste vom 24.10.2026.
 - `2026-10-24_offen_email-code-5-minuten.md`: Anmeldung per E-Mail-Code, jeder Code der letzten 5 Minuten gilt. Pflichtaufgabe: Migration für `login_codes`, zwei Edge Functions, Secrets und `pg_cron`-Job.
-- `2026-10-29_offen_bild-text.md`: Text auf dem Foto bei „Nur ein Bild“, verschiebbar wie bei Stories. Migration `20261029000200` eingespielt (29.10.2026), PR #114 gemergt; kleine offene Punkte.
-- `2026-10-29_offen_tour.md`: Tour mit 8 Seiten, neuer Coins-Text, Rückmeldung „Wie fandest Du diese Erklärung?“, auch ohne Konto. Migrationen `20261029000300` und `20261029000400` eingespielt (29.10.2026); Texte von Claude prüfen.
-- `2026-10-29_offen_modus-ueberall.md`: Modus „Überall“, Kiez nur bis 5 km, Mitmachen ab 5 km nur auf Anfrage, Schalter „Auf einen Umkreis von 5 km begrenzen“. Migration `20261029000100` eingespielt (29.10.2026).
 - `2026-10-29_offen_website-laden-qr.md`: Link `/laden` für alle Geräte, Seite `/qr` und Überarbeitung der Startseite. Live seit 29.10.2026; Test am Telefon und Druck der QR-Codes stehen aus.
-- `2026-10-30_offen_gruppen-entwuerfe.md`: Entwürfe für We-Challenge und Bild in Gruppen, `publish_challenge` ohne Ort für Gruppen und private Bilder (PR #135, Migration eingespielt). Offen: Test am Telefon.
-- `2026-10-31_offen_kamera-leiste-zaehler.md`: Offen. Kamera auch unten in der Leiste (Kiez-Look), Zählung beider Knöpfe. Migration `20261031000100` einspielen.
 - `2026-10-31_offen_deepl-uebersetzungen.md`: Offen. Plan für automatische Übersetzungen mit DeepL (eigene Dateien `auto/`, Probelauf, dann Action bei jedem PR).
 - `2026-10-30_offen_app-texts.sql`: Offen. Alle Texte aus dem Code für `app_texts` (erzeugt mit `node scripts/app-texts.mjs`), im SQL-Editor von Supabase ausführen. Danach löschen.
-- `2026-10-30_offen_entwurf-speichern.md`: Notiz für die Doku. Vorhandenen Entwurf speichern und veröffentlichen schlug fehl, da das Recht für `edensteine` fehlte (PR #134, Migration eingespielt).
 - `2026-10-24_offen_gruppen.md` und `2026-10-24_offen_gruppen-titelbild.md`: offene Punkte zum Feature „Gruppen“ und zum Gruppen-Titelbild.
 - `2026-10-24_offen_look-auf-allen-geraeten.md` und `2026-10-24_offen_web-und-mobile.md`: Abweichungen im Look und zwischen Web-App und Mobile.
 - `2026-10-24_offen_figma-abgleich.md`: Figma an den Stand der App anpassen.
@@ -60,8 +54,6 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-25_offen_konsistenz.md`: Konsistenzprüfung vom 25.10.2026, Korrekturen auf `main`, offene Entscheidungen und neue Textschlüssel.
 - `2026-10-25_offen_gruppe-beim-erstellen.md`: Beim Erstellen zeigt die App, in welcher Gruppe die Person ist (To-do, Daria).
 - `2026-10-25_offen_kopf-grosse-bildschirme.md`: Der Feed-Kopf verschwindet auf großen Bildschirmen scheinbar zufällig (To-do, Daria).
-- `2026-10-26_offen_umfrage-ergaenzungen.md`: Zwei neue Fragen und Kommentarfeld in der Umfrage. Migration `20261026000100_survey_frequency_comment.sql` ausgeführt (26.10.2026).
 - `2026-10-26_offen_russisch.md`: Russisch in der App, alle Sprachen auf der Website. Prüfung der Übersetzungen durch Muttersprachler:innen steht aus.
 - `2026-10-26_offen_lila-ungemuetlich.md`: Kritik „Farbe Lila, ungemütlich“, offene Fragen zu Ort und Ersatzfarbe (To-do, Daria).
-- `2026-10-27_offen_chat-mitlesen-protokoll.md`: Protokoll, wer private Chats liest. Migration `20261027000100_chat_access_log.sql` ausgeführt (27.10.2026). Migration `20261027000200_my_data_access.sql` für „Abrufe Deiner Daten“ ausgeführt (27.10.2026).
 - `2026-10-31_offen_abzeichen.md`: Abzeichen am Avatar. Pionier:in, Lots:in, Anführer:in, Anker (ab 50 Posts) und Macher:in, mit Bedingungen und Symbolen. Offene Fragen an Daria.
