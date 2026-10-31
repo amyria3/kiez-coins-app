@@ -1397,9 +1397,11 @@
     return (HEADS[mode] || {})[kind];
   }
   // Telefon und Tablet: Beim Scrollen bleibt das Telefon zurück und schiebt sich über den Satz. Ein Tipp auf
-  // Überschrift oder Satz fährt Text und Satz darüber so weit nach oben, dass alles zu lesen ist; das Telefon bleibt
-  // (Daria, 31.10.2026). Noch ein Tipp oder Scrollen stellt zurück.
-  var lifted = 0;
+  // Überschrift oder Satz fährt Text und Satz darüber nach oben, das Telefon bleibt (Daria, 31.10.2026).
+  // Der Weg ist doppelt so lang wie nötig, damit man die Bewegung sieht, und die Seite scrollt gleichzeitig so,
+  // dass der Erklärungstext ganz oben steht (Daria, 31.10.2026). Noch ein Tipp oder Scrollen stellt zurück.
+  var lifted = 0, autoScroll = false, autoTimer = 0;
+  var OBEN = 12, LUFT = 16;
   function lift(px) {
     lifted = px;
     ['.hero-text', '.steuerung'].forEach(function (sel) {
@@ -1407,16 +1409,43 @@
       if (el) el.style.translate = px ? '0 ' + -px + 'px' : '';
     });
   }
+  // Wie weit das Telefon bei Scrollposition y vorauseilt (Scrolleffekt B im Build-Skript: y * -.12 bis 1,2 Bildschirmhöhen)
+  function phoneShift(y) {
+    if (!document.documentElement.classList.contains('fx-b')) return 0;
+    return Math.min(y, innerHeight * 1.2) * -.12;
+  }
   if (pickInfo) {
     pickInfo.addEventListener('click', function () {
       var phone = document.getElementById('prototyp');
+      var spalte = document.querySelector('.phone-spalte');
       if (!phone) return;
       if (lifted) return lift(0);
-      var overlap = pickInfo.getBoundingClientRect().bottom - phone.getBoundingClientRect().top + 16;
-      if (overlap > 0) lift(overlap);
+      var y0 = window.scrollY, maxY = Math.max(0, document.documentElement.scrollHeight - innerHeight);
+      var info = pickInfo.getBoundingClientRect(), tel = phone.getBoundingClientRect();
+      var ty0 = spalte ? parseFloat(getComputedStyle(spalte).getPropertyValue('--ty')) || 0 : 0;
+      var infoTop = info.top + y0, phoneTop = tel.top + y0 - ty0;
+      function zielY(L) { return Math.max(0, Math.min(maxY, infoTop - L - OBEN)); }
+      // Überdeckung am Ziel, wenn der Text um L nach oben fährt
+      function overlap(L) {
+        var y = zielY(L);
+        return (infoTop + info.height - L - y) + LUFT - (phoneTop + phoneShift(y) - y);
+      }
+      var need = 0;
+      for (var i = 0; i < 8 && overlap(need) > .5; i++) need += overlap(need);
+      var L = Math.round(2 * Math.max(need, 16));
+      var y = zielY(L);
+      autoScroll = true;
+      clearTimeout(autoTimer);
+      autoTimer = setTimeout(endAuto, 900);
+      lift(L);
+      var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: y, behavior: still ? 'auto' : 'smooth' });
     });
     var liftY = window.scrollY;
+    function endAuto() { autoScroll = false; liftY = window.scrollY; }
+    window.addEventListener('scrollend', function () { if (autoScroll) { clearTimeout(autoTimer); endAuto(); } });
     window.addEventListener('scroll', function () {
+      if (autoScroll) return;
       if (lifted && Math.abs(window.scrollY - liftY) > 40) lift(0);
       if (!lifted) liftY = window.scrollY;
     }, { passive: true });
