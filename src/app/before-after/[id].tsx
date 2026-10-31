@@ -156,7 +156,8 @@ export default function BeforeAfterScreen() {
     router.dismissTo('/feed');
   };
 
-  if (stage === 'after' && running) {
+  // Nachher auch ohne laufenden Timer (Timer optional, Daria, 2026-10-31)
+  if (stage === 'after') {
     const preview = beforeAfterBody({ beforeText: challenge.beforeText, afterText: afterText.trim() || undefined, imageAfter: after });
     return (
       <SubScreen
@@ -237,6 +238,8 @@ export default function BeforeAfterScreen() {
         ) : (
           <>
             <Button busy={busy === 'start'} label={busy === 'start' ? 'Wird gestartet …' : 'Timer starten'} onPress={start} disabled={!!busy} />
+            {/* Timer optional (Daria, 2026-10-31): direkt zum Nachher, der Beitrag zeigt dann keine Dauer. Layout folgt. */}
+            <Button icon="camera" label="Ohne Timer weiter" variant="secondary" onPress={() => setStage('after')} disabled={!!busy} />
             <Button label="Später starten" variant="ghost" onPress={close} />
           </>
         )
