@@ -47,7 +47,7 @@ export default function Tour() {
   const [page, setPage] = useState(0);
   // Seiten zu verborgenen Modi entfallen, z. B. „Gruppen“ bei verborgenem Modus Gruppe
   const modes = useModes();
-  const tourSteps = allTourSteps.filter((s) => !s.mode || modes.isVisible(s.mode));
+  const tourSteps = allTourSteps.filter((s) => !s.hidden && (!s.mode || modes.isVisible(s.mode)));
   // Höhe des Blätterbereichs: Jede Seite füllt sie, damit die Fläche oben den Rest neben Titel und Text nimmt
   const [pagerH, setPagerH] = useState(0);
   const last = page === tourSteps.length - 1;

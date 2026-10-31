@@ -18,6 +18,8 @@ export type TourStep = {
   kind?: 'feedback';
   /** Seite erscheint nur, wenn dieser Modus sichtbar ist (Dein Konto › Funktionen) */
   mode?: Mode;
+  /** Ausgeblendet: Die Seite bleibt hier stehen, die Tour zeigt sie nicht */
+  hidden?: boolean;
 };
 
 /** Alle Seiten. Die Route `tour` blendet Seiten zu verborgenen Modi aus. */
@@ -49,6 +51,8 @@ export const tourSteps: TourStep[] = [
   },
   {
     key: 'annehmen',
+    // Erst mal raus (Daria, 2026-10-31)
+    hidden: true,
     title: 'Annehmen und anpacken',
     text: 'Nimm eine Challenge in Deiner Nähe an, erledige sie und zeige das Ergebnis mit einem Foto. Die Person bestätigt, dann ist es geschafft.',
   },
