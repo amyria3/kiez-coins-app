@@ -64,4 +64,5 @@ Follow `kiez-coins/design/UX_UI_Regeln.md`, `kiez-coins/design/Icon_Regelwerk.md
 - Finished tasks and decisions go into Documentation. Unclear points, aborted processes and open tasks go into `Übergabe/` (`YYYY-MM-DD_offen_topic.md`) with everything another account needs to take over: status, next step, open questions for Daria, affected files, SQL script or migration path, code suggestions (Daria, 2026-10-24). Rules in `Übergabe/README.md`.
 - No access to Documentation? Put finished results and decisions into `Übergabe/` as well, as described in `Übergabe/README.md`.
 - Before you change anything in Documentation, check `Übergabe/` here for new files, move their content into Documentation and delete them here in the same piece of work.
+- Whenever Daria has to run SQL (a migration, a check query, a script from `Übergabe/`), give her the GitHub link to the file or the full SQL text in the chat, every time (Daria, 2026-10-31).
 - When you add a migration or a database function in `supabase/migrations`, update the database doc in Documentation (or leave a note in `Übergabe/`). Its daily check fails otherwise.
