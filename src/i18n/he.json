@@ -1362,5 +1362,19 @@
   "Oben rechts neben den Reitern": "למעלה מימין ליד הלשוניות",
   "Unten in der Leiste": "למטה בסרגל",
   "Wir behalten uns vor, anonymisiert Nutzerdaten zu erheben (wie beispielsweise Klicks).": "אנו שומרים לעצמנו את הזכות לאסוף נתוני משתמשים באופן אנונימי (כגון לחיצות).",
-  "Erheben von Nutzungsdaten": "איסוף נתוני שימוש"
+  "Erheben von Nutzungsdaten": "איסוף נתוני שימוש",
+  "Wie geht KiezCoins": "איך KiezCoins עובד",
+  "Beispiele zum Ausprobieren": "דוגמאות לניסיון",
+  "Ein paar Beispiele zum Ausprobieren. Du findest sie auch später in Deinem Konto unter „Wie geht KiezCoins“.": "כמה דוגמאות לניסיון. אפשר למצוא אותן גם אחר כך בחשבון שלך תחת „איך KiezCoins עובד“.",
+  "Noch mal": "שוב",
+  "Tippe auf die Kamera": "הקש על המצלמה",
+  "Gepostet! Jetzt sieht Dein Kiez, was zu tun ist.": "פורסם! עכשיו השכונה שלך רואה מה צריך לעשות.",
+  "Angenommen. Jetzt anpacken und ein Foto vom Ergebnis machen.": "התקבל. עכשיו לעבודה, וצלם את התוצאה.",
+  "Geschafft! Jetzt bestätigt die Person, dann ist die Challenge erledigt.": "בוצע! עכשיו האדם מאשר, ואז האתגר הושלם.",
+  "Geschafft! Wenn die Gruppe bestätigt, bekommst Du {eden} Edensteine.": "בוצע! כשהקבוצה מאשרת, תקבל/י {eden} אבני עדן.",
+  "Du versprichst Coins. Das Geld fließt direkt zwischen Euch.": "את/ה מבטיח/ה מטבעות. הכסף עובר ישירות ביניכם.",
+  "Gefällt Dir!": "אהבת!",
+  "Tippe auf das Herz unter dem Bild": "הקש על הלב מתחת לתמונה",
+  "Nur Menschen in Deinem Kiez sehen den Beitrag. In „Überall“ erscheint er nicht.": "רק אנשים בשכונה שלך רואים את הפוסט. הוא לא מופיע ב„בכל מקום“.",
+  "Alle sehen den Beitrag, auch in „Überall“.": "כולם רואים את הפוסט, גם ב„בכל מקום“."
 }
