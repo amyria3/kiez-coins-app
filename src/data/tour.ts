@@ -19,8 +19,9 @@ export type TourStep = {
 export const tourSteps: TourStep[] = [
   {
     key: 'posten',
-    title: 'Foto machen, Challenge posten',
-    text: 'Siehst Du etwas, das im Kiez zu tun ist? Tippe auf die Kamera, gib einen Titel und den Ort an. Coins sind freiwillig. Oder teile einfach ein schönes Bild.',
+    // Titel und Text von Daria (31.10.2026)
+    title: 'Fotos machen – Challenges und Bilder posten',
+    text: 'Siehst Du etwas, das im Kiez zu tun ist? Oder etwas, das Du besonders magst (Sticker, Blumen, Vögel, schöne Orte)? Tippe auf die Kamera, gib einen Titel und den Ort an.',
   },
   {
     key: 'annehmen',
