@@ -274,62 +274,74 @@ function UnderlineTabs<K extends string>({ tabs, selectedKey, onChange, progress
 }
 
 function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress }: SegmentsProps<K>) {
-  // Helle Pille gleitet zum gewählten Reiter (Bewegung „Schranke“, etwas langsamer)
-  const [layouts, setLayouts] = useState<Partial<Record<K, { x: number; width: number }>>>({});
-  const pillX = useRef(new Animated.Value(0)).current;
-  const pillW = useRef(new Animated.Value(0)).current;
+  // Helle Pille gleitet zum gewählten Reiter (Bewegung „Schranke“, etwas langsamer).
+  // Der gewählte Reiter bekommt seitlich mehr Polsterung; die Nachbarn rutschen mit (Daria, 31.10.2026).
+  // Eine Lage `pos` (Index, auch Zwischenwerte) steuert Polsterung, Pille und Schriftfarbe gemeinsam.
+  const index = Math.max(0, tabs.findIndex((tab) => tab.key === selectedKey));
+  const [barWidth, setBarWidth] = useState(0);
+  const [content, setContent] = useState<Partial<Record<K, number>>>({});
+  const own = useRef(new Animated.Value(index)).current;
+  const pos = progress ?? own;
   const placed = useRef(false);
-  const target = layouts[selectedKey];
-  const all = tabs.map((t) => layouts[t.key]);
-  const measured = all.every(Boolean) ? (all as { x: number; width: number }[]) : undefined;
-  // Mit `progress`: Lage und Breite der Pille direkt aus der Wischbewegung
-  const follow =
-    progress && measured && measured.length > 1
-      ? {
-          left: progress.interpolate({ inputRange: measured.map((_, i) => i), outputRange: measured.map((l) => l.x), extrapolate: 'clamp' }),
-          width: progress.interpolate({ inputRange: measured.map((_, i) => i), outputRange: measured.map((l) => l.width), extrapolate: 'clamp' }),
-        }
-      : undefined;
   useEffect(() => {
-    if (!target || follow) return;
+    if (progress) return;
     if (!placed.current) {
-      pillX.setValue(target.x);
-      pillW.setValue(target.width);
+      own.setValue(index);
       placed.current = true;
       return;
     }
-    const timing = (value: Animated.Value, toValue: number) =>
-      Animated.timing(value, {
-        toValue,
-        duration: motion.tabSwitch.duration,
-        easing: Easing.bezier(...motion.barrier.bezier),
-        useNativeDriver: false,
-      });
-    Animated.parallel([timing(pillX, target.x), timing(pillW, target.width)]).start();
-  }, [target?.x, target?.width, pillX, pillW, follow]);
-  const left = follow?.left ?? pillX;
+    Animated.timing(own, {
+      toValue: index,
+      duration: motion.tabSwitch.duration,
+      easing: Easing.bezier(...motion.barrier.bezier),
+      useNativeDriver: false,
+    }).start();
+  }, [index, own, progress]);
+
+  const widths = tabs.map((tab) => content[tab.key]);
+  const rest = barWidth > 0 && widths.every((w) => w !== undefined) ? restLayouts(widths as number[], barWidth) : undefined;
+  const steps = tabs.map((_, i) => i);
+  const single = tabs.length < 2;
+  const pill = rest
+    ? {
+        left: single ? rest[0].x : pos.interpolate({ inputRange: steps, outputRange: rest.map((l) => l.x), extrapolate: 'clamp' }),
+        width: single ? rest[0].width : pos.interpolate({ inputRange: steps, outputRange: rest.map((l) => l.width), extrapolate: 'clamp' }),
+      }
+    : undefined;
+  // Wie stark ein Reiter gerade gewählt ist: 1 unter der Pille, 0 daneben
+  const weight = (i: number) =>
+    single ? 1 : pos.interpolate({ inputRange: [i - 1, i, i + 1], outputRange: [0, 1, 0], extrapolate: 'clamp' });
 
   return (
-    <View style={styles.segments} accessibilityRole="tablist">
-      {target ? (
-        <Animated.View pointerEvents="none" style={[styles.pill, { left, width: follow?.width ?? pillW }]} />
-      ) : null}
-      {tabs.map((tab) => {
+    <View
+      style={styles.segments}
+      accessibilityRole="tablist"
+      onLayout={(e) => {
+        const w = e.nativeEvent.layout.width;
+        setBarWidth((old) => (old === w ? old : w));
+      }}
+    >
+      {pill ? <Animated.View pointerEvents="none" style={[styles.pill, pill]} /> : null}
+      {tabs.map((tab, i) => {
         const selected = tab.key === selectedKey;
+        const w = weight(i);
+        const pad = typeof w === 'number' ? SEGMENT_PAD + PILL_EXTRA * w : w.interpolate({ inputRange: [0, 1], outputRange: [SEGMENT_PAD, SEGMENT_PAD + PILL_EXTRA] });
         return (
-          <Pressable
+          <AnimatedPressable
             key={tab.key}
             accessibilityRole="tab"
             accessibilityLabel={tab.planned ? t('{label}, kommt später', { label: tab.label }) : tab.label}
             accessibilityState={{ selected }}
             onPress={() => onChange(tab.key)}
-            onLayout={(e) => {
-              const { x, width } = e.nativeEvent.layout;
-              setLayouts((l) => (l[tab.key]?.x === x && l[tab.key]?.width === width ? l : { ...l, [tab.key]: { x, width } }));
-            }}
-            style={[styles.segment, !target && selected && styles.segmentSelected]}
+            style={[styles.segment, { paddingHorizontal: pad }, !pill && selected && styles.segmentSelected]}
           >
-            <View style={styles.segmentInner}>
+            <View
+              style={styles.segmentInner}
+              onLayout={(e) => {
+                const cw = e.nativeEvent.layout.width;
+                setContent((c) => (c[tab.key] === cw ? c : { ...c, [tab.key]: cw }));
+              }}
+            >
               <Animated.Text
                 numberOfLines={1}
                 style={[
@@ -337,23 +349,48 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress 
                   selected && styles.segmentTextSelected,
                   tab.planned && !selected && styles.planned,
                   // Schrift wird dunkel, während die Pille darübergleitet
-                  layouts[tab.key] ? { color: labelColor(left, layouts[tab.key]!) } : null,
+                  pill ? { color: labelColor(pos, i) } : null,
                 ]}
               >
                 {t(tab.label)}
               </Animated.Text>
             </View>
-          </Pressable>
+          </AnimatedPressable>
         );
       })}
     </View>
   );
 }
 
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+/** Seitliche Polsterung je Reiter und Zuschlag für den gewählten Reiter */
+const SEGMENT_PAD = space[8];
+const PILL_EXTRA = space[8];
+const BAR_PAD = space[4];
+
+/**
+ * Lage und Breite jedes Reiters, wenn er gewählt ist.
+ * Rechnet wie Flexbox: Grundbreite = Inhalt + Polsterung, freier Platz zu gleichen Teilen (flexGrow 1),
+ * fehlender Platz anteilig zur Grundbreite (flexShrink 1).
+ */
+function restLayouts(content: number[], barWidth: number) {
+  const inner = barWidth - 2 * BAR_PAD;
+  return content.map((_, k) => {
+    const basis = content.map((c, j) => c + 2 * SEGMENT_PAD + (j === k ? 2 * PILL_EXTRA : 0));
+    const sum = basis.reduce((a, b) => a + b, 0);
+    const free = inner - sum;
+    const width = (j: number) => (free >= 0 ? basis[j] + free / basis.length : basis[j] + (free * basis[j]) / sum);
+    let x = BAR_PAD;
+    for (let j = 0; j < k; j++) x += width(j);
+    return { x, width: width(k) };
+  });
+}
+
 /** Farbe eines Reiters je nach Lage der Pille: dunkel darunter, grau daneben. */
-const labelColor = (pillX: Animated.Value | Animated.AnimatedInterpolation<number>, l: { x: number; width: number }) =>
-  pillX.interpolate({
-    inputRange: [l.x - l.width * 0.6, l.x, l.x + l.width * 0.6],
+const labelColor = (pos: Animated.Value | Animated.AnimatedInterpolation<number>, i: number) =>
+  pos.interpolate({
+    inputRange: [i - 0.6, i, i + 0.6],
     outputRange: [color.text.secondary, color.bg.screen, color.text.secondary],
     extrapolate: 'clamp',
   });
@@ -427,7 +464,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.text.primary,
   },
   // Breite nach Inhalt, damit vier Reiter neben die Kamera passen
-  segment: { flexGrow: 1, flexShrink: 1, paddingHorizontal: space[8], minHeight: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
+  segment: { flexGrow: 1, flexShrink: 1, minHeight: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
   segmentSelected: { backgroundColor: color.text.primary },
   segmentText: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.secondary },
   segmentTextSelected: { fontFamily: font.medium, color: color.bg.screen },
