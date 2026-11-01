@@ -104,18 +104,19 @@ export default function PersonalDetails() {
         style={({ pressed }) => [styles.avatarBlock, pressed && styles.pressed]}
       >
         <View>
-          {/* Abzeichen links: Es zeigt, ob eins am Avatar eingeblendet ist; rechts sitzt die Kamera */}
-          <Avatar user={{ ...me, name: profile.handle || me.name }} diameter={AVATAR} badgeSide="left" />
+          {/* Abzeichen rechts und größer; es zeigt, ob eins am Avatar eingeblendet ist (Daria, 2026-11-01) */}
+          <Avatar user={{ ...me, name: profile.handle || me.name }} diameter={AVATAR} badgeSize={44} />
           {uploading ? (
             <View style={styles.uploading}>
               <GearsLoader size={40} only={SMALL_GEARS} />
             </View>
           ) : null}
-          <View style={styles.camera}>
-            <Icon name="camera" size={13} color={color.text.primary} />
-          </View>
         </View>
-        <Text style={styles.avatarLabel}>{me.avatar ? 'Profilbild ändern' : 'Profilbild hinzufügen'}</Text>
+        {/* Kamera und Text als dezente Pille unter dem Bild (Daria, 2026-11-01) */}
+        <View style={styles.avatarPill}>
+          <Icon name="camera" size={16} color={color.text.primary} />
+          <Text style={styles.avatarLabel}>{me.avatar ? 'Profilbild ändern' : 'Profilbild hinzufügen'}</Text>
+        </View>
       </Pressable>
       <FieldGroup label="Profil">
         <EditableRow label="Deckname (Nickname)" value={profile.handle || me.name} maxLength={30} onSave={saveDeckname} />
@@ -174,7 +175,7 @@ export default function PersonalDetails() {
 
 const styles = StyleSheet.create({
   secondary: { ...text.body, color: color.text.secondary },
-  avatarBlock: { alignItems: 'center', gap: space[24], paddingVertical: space[8] },
+  avatarBlock: { alignItems: 'center', gap: space[16], paddingVertical: space[8] },
   pressed: { opacity: 0.8 },
   uploading: {
     position: 'absolute',
@@ -187,18 +188,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // Kamera-Knopf unten rechts am Bild
-  camera: {
-    position: 'absolute',
-    // Diagonal außerhalb des Kreises, mit 4 pt Abstand zum Bild
-    right: -24,
-    bottom: -24,
-    width: 44,
-    height: 44,
+  avatarPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[8],
+    minHeight: 36,
+    paddingHorizontal: space[16],
     borderRadius: radius.full,
     backgroundColor: color.bg.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-  avatarLabel: { ...text.body, color: color.accent.primary },
+  avatarLabel: { ...text.body, color: color.text.primary },
 });
