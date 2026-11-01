@@ -56,6 +56,12 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-25_offen_kopf-grosse-bildschirme.md`: Der Feed-Kopf verschwindet auf großen Bildschirmen scheinbar zufällig (To-do, Daria).
 - `2026-10-26_offen_russisch.md`: Russisch in der App, alle Sprachen auf der Website. Prüfung der Übersetzungen durch Muttersprachler:innen steht aus.
 - `2026-10-26_offen_lila-ungemuetlich.md`: Kritik „Farbe Lila, ungemütlich“, offene Fragen zu Ort und Ersatzfarbe (To-do, Daria).
-- `2026-10-31_aufraeumen-todo.md`: Notiz für die Doku. Erledigte Punkte der To-do-Liste vom 31.10.2026 (i18n-Prune, ESLint, Tour, leere Gruppen, Geschafft im Fashionable Look, Zahnrad-Menü).
 - `2026-10-31_offen_timer-optional.md`: Offen. Timer der Me-Challenge optional (Knopf „Ohne Timer weiter“), Layout noch zu besprechen; Reihenfolge Bild, Me-Challenge, We-Challenge.
 - `2026-10-31_erstellen-lila-fuehrung.md`: Notiz für die Doku. Beim Erstellen werden Ort und Typ nacheinander lila, bis die Person sie berührt.
+- `2026-11-01_offen_abzeichen-hinweis.md`: Offen. Hinweis beim neuen Abzeichen nach Darias Entwürfen (`Abzeichen-Hinweis/`), Szenen in `Animationen/`.
+
+## Ordner
+
+- `Abzeichen-Icons/`: Darias Abzeichen-Icons (Small, Default, Animated). Die App nutzt sie über `src/components/icons/badgeSvgs.ts`. Steuerrad ist noch Claudes Entwurf.
+- `Animationen/`: Szenen für den Hinweis beim neuen Abzeichen und Darias Vorlage.
+- `Abzeichen-Hinweis/`: Darias Entwürfe für den Hinweis.
