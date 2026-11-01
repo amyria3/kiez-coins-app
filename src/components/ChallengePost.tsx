@@ -495,6 +495,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.card,
     overflow: 'hidden',
     backgroundColor: color.bg.surface,
+    borderWidth: stroke.thin,
+    borderColor: color.line.raised,
     justifyContent: 'flex-end',
     // Glasleiste mit Abstand zum Kartenrand (Daria, 22.10.2026)
     padding: space[12],

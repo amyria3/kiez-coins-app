@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
-import { color, font, isFashionable, radius, space, text } from '../theme/tokens';
+import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
 import { useTexts } from '../data/texts';
 import { Cat, type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
@@ -166,6 +166,8 @@ const styles = StyleSheet.create({
     paddingRight: space[12],
     borderRadius: radius.xl,
     backgroundColor: color.bg.surface,
+    borderWidth: stroke.thin,
+    borderColor: color.line.raised,
   },
   speechTexts: { flex: 1, gap: space[4] },
   speech: { flexDirection: 'row', alignItems: 'center', gap: space[16] },
