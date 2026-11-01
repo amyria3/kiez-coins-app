@@ -16,7 +16,6 @@ import { useAppDimensions } from '../theme/layout';
 import { color, font, radius, space, stroke } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
 import { Segments } from './FeedHeader';
-import { AudienceHint, useAudienceHint } from './AudienceHint';
 import { Geschafft, usePraise } from './Geschafft';
 import { BadgeOverview } from './BadgeOverview';
 import { GroupBar, GroupsEmpty } from './GroupBar';
@@ -55,8 +54,6 @@ export function FashionProfile() {
   const [chosenMode, setMode] = useState<Mode>();
   const mode: Mode = chosenMode && modes.isVisible(chosenMode) ? chosenMode : modes.standard;
   const modeTabs = MODE_TABS.filter((m) => modes.isVisible(m.key));
-  // Derselbe Hinweis wie im Feed unter dem Umschalter (Daria, 29.10.2026)
-  const [audienceHint, closeAudienceHint] = useAudienceHint(mode);
   // Kiez nur bis 5 km, Überall alles Öffentliche (Daria, 29.10.2026)
   const here = useHere();
   const [groupChoice, setGroupChoice] = useState<string>();
@@ -205,7 +202,6 @@ export function FashionProfile() {
         {modeTabs.length > 1 ? (
           <Segments tabs={modeTabs} selectedKey={mode} onChange={setMode} />
         ) : null}
-        {audienceHint ? <AudienceHint audience={mode} onClose={closeAudienceHint} /> : null}
 
         {mode === 'groups' ? (
           group ? (
