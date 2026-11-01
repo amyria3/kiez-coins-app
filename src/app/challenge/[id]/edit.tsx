@@ -164,7 +164,7 @@ export default function EditChallenge() {
   const toDraft = () =>
     Alert.alert(
       'Doch nicht veröffentlichen?',
-      'Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Deine Challenges“ unter „Archiv“.',
+      'Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Meine Posts“ unter „Archiv“.',
       [
         { text: 'Abbrechen', style: 'cancel' },
         {

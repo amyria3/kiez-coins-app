@@ -294,7 +294,7 @@ function KiezPost({
             <IconButton
               icon="settings"
               iconSize={size.icon}
-              accessibilityLabel={t('Deine Challenges verwalten')}
+              accessibilityLabel={t('Deine Posts verwalten')}
               onPress={onManage}
             />
           ) : null}
@@ -379,7 +379,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
           ) : null}
           {onManage ? (
             // Zahnrad wie im Mockup oben rechts am Beitrag
-            <IconButton icon="settings" iconSize={size.icon} accessibilityLabel={t('Deine Challenges verwalten')} onPress={onManage} />
+            <IconButton icon="settings" iconSize={size.icon} accessibilityLabel={t('Deine Posts verwalten')} onPress={onManage} />
           ) : null}
         </View>
       </View>
