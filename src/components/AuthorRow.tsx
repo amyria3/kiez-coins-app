@@ -49,18 +49,21 @@ export function Avatar({
   diameter,
   badge = true,
   badgeSide = 'right',
+  badgeSize,
 }: {
   user: User;
   diameter?: number;
   badge?: boolean;
   /** Unten links, wenn rechts unten schon etwas sitzt (z. B. der Kamera-Knopf in Persönliche Angaben) */
   badgeSide?: 'left' | 'right';
+  /** Eigene Größe des Abzeichens, z. B. größer in Persönliche Angaben */
+  badgeSize?: number;
 }) {
   const d = diameter ?? size.avatar;
   const shown = useAvatarBadge(badge ? user.id : undefined);
   const hidden = useHideName(user);
   if (!shown || hidden) return <AvatarImage user={user} diameter={diameter} />;
-  const b = d >= 80 ? 32 : d >= 36 ? BADGE_MIN : Math.max(10, Math.round(d * 0.34));
+  const b = badgeSize ?? (d >= 80 ? 32 : d >= 36 ? BADGE_MIN : Math.max(10, Math.round(d * 0.34)));
   const off = d >= 80 ? -4 : d >= 36 ? -4 : -2;
   return (
     <View style={{ width: d, height: d }}>
