@@ -104,7 +104,8 @@ export default function PersonalDetails() {
         style={({ pressed }) => [styles.avatarBlock, pressed && styles.pressed]}
       >
         <View>
-          <Avatar user={{ ...me, name: profile.handle || me.name }} diameter={AVATAR} />
+          {/* Abzeichen links: Es zeigt, ob eins am Avatar eingeblendet ist; rechts sitzt die Kamera */}
+          <Avatar user={{ ...me, name: profile.handle || me.name }} diameter={AVATAR} badgeSide="left" />
           {uploading ? (
             <View style={styles.uploading}>
               <GearsLoader size={40} only={SMALL_GEARS} />

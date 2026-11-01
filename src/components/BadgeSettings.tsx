@@ -4,18 +4,16 @@ import { BadgeIcon } from './BadgeIcon';
 import { FieldGroup } from './Content';
 import { SwitchRow } from './Form';
 import { Text } from './T';
-import { BADGES, badgeSteps, badgeTitle, useMyBadges } from '../data/badges';
-import { t } from '../data/texts';
+import { BADGES, badgeTitle, useMyBadges } from '../data/badges';
 import { color, font, radius, space, stroke, text } from '../theme/tokens';
 
 /**
  * Abzeichen in Dein Konto › Persönliche Angaben (Daria, 2026-11-01; vorher eigener Bildschirm):
- * erhaltene ein- und ausblenden und eins für den Avatar wählen. Darunter die offenen mit Fortschritt.
+ * erhaltene ein- und ausblenden und eins für den Avatar wählen. Erhaltene und offene zeigt „Me“ (BadgeOverview).
  */
 export function BadgeSettings() {
   const { mine, update } = useMyBadges();
   const earned = BADGES.map((meta) => ({ meta, own: mine?.badges.find((b) => b.badge === meta.kind) })).filter((x) => !!x.own);
-  const open = BADGES.filter((meta) => !mine?.badges.some((b) => b.badge === meta.kind) && meta.kind !== 'pionier');
 
   return (
     <>
@@ -60,36 +58,6 @@ export function BadgeSettings() {
         </FieldGroup>
       )}
 
-      {mine && open.length ? (
-        <FieldGroup label="Abzeichen, noch offen">
-          <View style={styles.list}>
-            {open.map((meta, i) => {
-              const steps = badgeSteps(meta.kind, mine.progress);
-              return (
-                <View key={meta.kind} style={[styles.row, i > 0 && styles.divider]}>
-                  <BadgeIcon kind={meta.kind} size={44} muted />
-                  <View style={[styles.flex, styles.openText]}>
-                    <View style={styles.openHead}>
-                      <Text style={styles.openName}>{meta.name}</Text>
-                      {steps ? (
-                        <Text noTranslate style={styles.count}>
-                          {t('{have} von {need}', steps)}
-                        </Text>
-                      ) : null}
-                    </View>
-                    {steps ? (
-                      <View style={styles.track}>
-                        <View style={[styles.bar, { width: `${Math.round((steps.have / steps.need) * 100)}%` }]} />
-                      </View>
-                    ) : null}
-                    <Text style={styles.rule}>{meta.rule}</Text>
-                  </View>
-                </View>
-              );
-            })}
-          </View>
-        </FieldGroup>
-      ) : null}
     </>
   );
 }
@@ -113,12 +81,5 @@ const styles = StyleSheet.create({
   pickText: { fontFamily: font.medium, fontSize: 13, lineHeight: 18, color: color.text.primary },
   pickTextOn: { color: color.bg.screen },
   pressed: { opacity: 0.7 },
-  openText: { gap: space[4] },
-  openHead: { flexDirection: 'row', justifyContent: 'space-between', gap: space[8] },
-  openName: { ...text.body, fontFamily: font.medium, color: color.text.secondary },
-  count: { ...text.caption, color: color.text.secondary },
-  track: { height: 6, borderRadius: 3, backgroundColor: color.line.hairline, overflow: 'hidden' },
-  bar: { height: 6, borderRadius: 3, backgroundColor: color.text.secondary },
-  rule: { ...text.caption, color: color.text.secondary },
   empty: { ...text.body, color: color.text.secondary },
 });

@@ -18,7 +18,7 @@ import { Avatar } from './AuthorRow';
 import { Segments } from './FeedHeader';
 import { AudienceHint, useAudienceHint } from './AudienceHint';
 import { Geschafft, usePraise } from './Geschafft';
-import { BadgeStrip } from './BadgeStrip';
+import { BadgeOverview } from './BadgeOverview';
 import { GroupBar, GroupsEmpty } from './GroupBar';
 import { GroupRanking } from './GroupRanking';
 import { Cat } from './icons/Brand';
@@ -153,10 +153,6 @@ export function FashionProfile() {
           ) : null}
         </View>
 
-        {/* Eingeblendete Abzeichen (Daria, 2026-10-31) */}
-        <Pressable accessibilityRole="button" accessibilityLabel={t('Abzeichen in Persönliche Angaben')} onPress={() => router.push('/account/profile')} style={styles.badges}>
-          <BadgeStrip userId={currentUserId} align="start" />
-        </Pressable>
 
         <View style={styles.buttons}>
           <ProfileButton label="Profil bearbeiten" onPress={() => router.push('/account/profile')} />
@@ -245,6 +241,11 @@ export function FashionProfile() {
           </View>
         )}
 
+        {/* Erhaltene und offene Abzeichen (Daria, 2026-11-01) */}
+        <View style={styles.badges}>
+          <BadgeOverview gutter={space[16]} />
+        </View>
+
         {mode === 'groups' && !group ? null : grid.length ? (
           <View style={styles.grid}>
             {grid.map((entry) => (
@@ -323,7 +324,7 @@ const GUTTER = 2;
 const HL = 64;
 
 const styles = StyleSheet.create({
-  badges: { paddingHorizontal: space[16], paddingBottom: space[12] },
+  badges: { paddingTop: space[24], paddingBottom: space[16] },
   // Zahlen und Dank über dem Raster, seitlich 16 wie der Kopf
   geschafft: { gap: space[16], paddingHorizontal: space[16], paddingTop: space[16], paddingBottom: space[8] },
   screen: { flex: 1, backgroundColor: color.bg.screen },

@@ -20,7 +20,7 @@ import { anrede } from '../data/format';
 import { groupProgress, quests } from '../data/erfolge';
 import { Geschafft, usePraise } from '../components/Geschafft';
 import { Quests } from '../components/Quests';
-import { BadgeStrip } from '../components/BadgeStrip';
+import { BadgeOverview } from '../components/BadgeOverview';
 import { useFriends } from '../data/friends';
 import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
 import { useStore } from '../data/store';
@@ -98,10 +98,6 @@ function Reise() {
           <KaterCard mood={catVariant(mood)}>{reiseMoodText(mood, anrede(profile))}</KaterCard>
         </Pressable>
 
-        {/* Eingeblendete Abzeichen (Daria, 2026-10-31); Tipp führt zu Persönliche Angaben */}
-        <Pressable accessibilityRole="button" accessibilityLabel={t('Abzeichen in Persönliche Angaben')} onPress={() => router.push('/account/profile')}>
-          <BadgeStrip userId={currentUserId} align="start" />
-        </Pressable>
 
         {tasks.length ? (
         <View style={styles.tasks}>
@@ -131,6 +127,9 @@ function Reise() {
 
         {/* Ziele mit Geschenk, für das ganze Konto (Daria, 29.10.2026) */}
         <Quests quests={goals} />
+
+        {/* Erhaltene und offene Abzeichen (Daria, 2026-11-01) */}
+        <BadgeOverview />
 
         {reiseTabs.length > 1 ? <Segments tabs={reiseTabs} selectedKey={tab} onChange={setTab} /> : null}
         {audienceHint ? (
