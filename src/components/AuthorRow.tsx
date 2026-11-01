@@ -44,7 +44,18 @@ const AVATAR_GRADIENT =
  * Avatar mit Abzeichen unten rechts (Daria, 2026-10-31): ab 80 pt Durchmesser 32 pt, ab 36 pt 20 pt,
  * darunter nur ein Farbpunkt. `badge={false}` zeigt keins, z. B. auf dem Bildschirm zum Abzeichen selbst.
  */
-export function Avatar({ user, diameter, badge = true }: { user: User; diameter?: number; badge?: boolean }) {
+export function Avatar({
+  user,
+  diameter,
+  badge = true,
+  badgeSide = 'right',
+}: {
+  user: User;
+  diameter?: number;
+  badge?: boolean;
+  /** Unten links, wenn rechts unten schon etwas sitzt (z. B. der Kamera-Knopf in Persönliche Angaben) */
+  badgeSide?: 'left' | 'right';
+}) {
   const d = diameter ?? size.avatar;
   const shown = useAvatarBadge(badge ? user.id : undefined);
   const hidden = useHideName(user);
@@ -54,7 +65,7 @@ export function Avatar({ user, diameter, badge = true }: { user: User; diameter?
   return (
     <View style={{ width: d, height: d }}>
       <AvatarImage user={user} diameter={diameter} />
-      <View style={{ position: 'absolute', right: off, bottom: off }} pointerEvents="none">
+      <View style={{ position: 'absolute', [badgeSide]: off, bottom: off }} pointerEvents="none">
         <BadgeIcon kind={shown.badge} number={shown.number} size={b} />
       </View>
     </View>
