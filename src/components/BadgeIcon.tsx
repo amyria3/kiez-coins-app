@@ -2,11 +2,13 @@ import { View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
 import { badgeMeta, badgeTitle, type BadgeKind } from '../data/badges';
-import { color } from '../theme/tokens';
+import { color, isFashionable } from '../theme/tokens';
+import { KIEZ_BADGE_SVGS } from './icons/badgeSvgs';
 
 /**
  * Abzeichen als runde Kachel in seiner Farbe, Symbol dunkel darauf (Daria, 2026-10-31).
- * Unter 20 pt zeigt die App nur einen Farbpunkt. Die Symbole sind Platzhalter, bis Darias Zeichnungen da sind.
+ * Unter 20 pt zeigt die App nur einen Farbpunkt. Im Kiez-Look zeigen Pionier:in, Lots:in und Seebär:in Darias
+ * Icons (Daria, 2026-11-01), die übrigen und der Fashionable Look noch die Platzhalter.
  * Jedes Symbol hat in der App nur diese eine Bedeutung.
  */
 const INK = '#1F2123';
@@ -52,6 +54,30 @@ export function BadgeIcon({
   muted?: boolean;
 }) {
   const meta = badgeMeta(kind);
+  const own = isFashionable ? undefined : KIEZ_BADGE_SVGS[kind];
+  if (own) {
+    // Darias Icon bringt Farbfläche und Symbol selbst mit; Small ragt unten rechts über die Fläche hinaus
+    if (size < BADGE_MIN) {
+      return (
+        <View
+          accessible
+          accessibilityRole="image"
+          accessibilityLabel={badgeTitle(kind, number)}
+          style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: muted ? color.bg.surface : own.color }}
+        />
+      );
+    }
+    return (
+      <View
+        accessible
+        accessibilityRole="image"
+        accessibilityLabel={badgeTitle(kind, number)}
+        style={{ width: size, height: size, opacity: muted ? 0.35 : 1 }}
+      >
+        <SvgXml xml={size >= 80 ? own.default : own.small} width={size} height={size} />
+      </View>
+    );
+  }
   const ring = size >= 40 ? Math.max(2, Math.round(size / 40)) : 2;
   const icon = Math.round(size * 0.62);
   return (
