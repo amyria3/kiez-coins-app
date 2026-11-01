@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 
 import { Avatar } from '../../components/AuthorRow';
 import { AvatarCropper } from '../../components/AvatarCropper';
+import { BadgeSettings } from '../../components/BadgeSettings';
 import { choosePhoto } from '../../components/Form';
 import { GearsLoader, SMALL_GEARS } from '../../components/GearsLoader';
 import { Icon } from '../../components/icons/Icon';
@@ -151,6 +152,8 @@ export default function PersonalDetails() {
           />
         </FieldGroup>
       ) : null}
+      {/* Abzeichen (Daria, 2026-11-01) */}
+      <BadgeSettings />
       {profile.email ? (
         <FieldGroup label="Anmeldung">
           <Text style={styles.secondary}>{profile.email}</Text>

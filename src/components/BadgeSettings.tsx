@@ -1,34 +1,31 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { BadgeIcon } from '../../components/BadgeIcon';
-import { KaterBubble } from '../../components/Content';
-import { SwitchRow } from '../../components/Form';
-import { SubScreen } from '../../components/Screen';
-import { Text } from '../../components/T';
-import { BADGES, badgeSteps, badgeTitle, useMyBadges } from '../../data/badges';
-import { t } from '../../data/texts';
-import { useGoBack } from '../../lib/goBack';
-import { color, font, radius, space, stroke, text } from '../../theme/tokens';
+import { BadgeIcon } from './BadgeIcon';
+import { FieldGroup } from './Content';
+import { SwitchRow } from './Form';
+import { Text } from './T';
+import { BADGES, badgeSteps, badgeTitle, useMyBadges } from '../data/badges';
+import { t } from '../data/texts';
+import { color, font, radius, space, stroke, text } from '../theme/tokens';
 
 /**
- * Route `account/badges` (Dein Konto › Meine Abzeichen, Daria, 2026-10-31): erhaltene Abzeichen ein- und ausblenden
- * und eins für den Avatar wählen. Darunter die offenen mit Fortschritt.
+ * Abzeichen in Dein Konto › Persönliche Angaben (Daria, 2026-11-01; vorher eigener Bildschirm):
+ * erhaltene ein- und ausblenden und eins für den Avatar wählen. Darunter die offenen mit Fortschritt.
  */
-export default function BadgesScreen() {
-  const goBack = useGoBack();
+export function BadgeSettings() {
   const { mine, update } = useMyBadges();
   const earned = BADGES.map((meta) => ({ meta, own: mine?.badges.find((b) => b.badge === meta.kind) })).filter((x) => !!x.own);
   const open = BADGES.filter((meta) => !mine?.badges.some((b) => b.badge === meta.kind) && meta.kind !== 'pionier');
 
   return (
-    <SubScreen title="Meine Abzeichen" navigation="back" onLeadingPress={goBack}>
-      <KaterBubble>Eingeblendete Abzeichen stehen in Deinem Profil. Eins wählst Du für Deinen Avatar.</KaterBubble>
-
+    <>
       {mine === null ? (
-        <Text style={styles.empty}>Abzeichen werden geladen …</Text>
+        <FieldGroup label="Abzeichen">
+          <Text style={styles.empty}>Abzeichen werden geladen …</Text>
+        </FieldGroup>
       ) : earned.length ? (
-        <View style={styles.block}>
-          <Text style={styles.label}>Erhalten</Text>
+        <FieldGroup label="Abzeichen">
+          <Text style={styles.hint}>Eingeblendete Abzeichen stehen in Deinem Profil. Eins wählst Du für Deinen Avatar.</Text>
           <View style={styles.list}>
             {earned.map(({ meta, own }, i) => (
               <View key={meta.kind} style={[styles.row, i > 0 && styles.divider]}>
@@ -56,14 +53,15 @@ export default function BadgesScreen() {
               </View>
             ))}
           </View>
-        </View>
+        </FieldGroup>
       ) : (
-        <Text style={styles.empty}>Noch kein Abzeichen. Lade Leute ein, poste und packt gemeinsam an.</Text>
+        <FieldGroup label="Abzeichen">
+          <Text style={styles.empty}>Noch kein Abzeichen. Lade Leute ein, poste und packt gemeinsam an.</Text>
+        </FieldGroup>
       )}
 
       {mine && open.length ? (
-        <View style={styles.block}>
-          <Text style={styles.label}>Noch offen</Text>
+        <FieldGroup label="Abzeichen, noch offen">
           <View style={styles.list}>
             {open.map((meta, i) => {
               const steps = badgeSteps(meta.kind, mine.progress);
@@ -90,15 +88,14 @@ export default function BadgesScreen() {
               );
             })}
           </View>
-        </View>
+        </FieldGroup>
       ) : null}
-    </SubScreen>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  block: { gap: space[8] },
-  label: { ...text.caption, letterSpacing: 1, textTransform: 'uppercase', color: color.text.secondary },
+  hint: { ...text.caption, color: color.text.secondary },
   list: { borderRadius: radius.xl + 2, backgroundColor: color.bg.surface, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12], paddingHorizontal: space[16] },
   divider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },

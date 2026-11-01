@@ -98,8 +98,8 @@ function Reise() {
           <KaterCard mood={catVariant(mood)}>{reiseMoodText(mood, anrede(profile))}</KaterCard>
         </Pressable>
 
-        {/* Eingeblendete Abzeichen (Daria, 2026-10-31); Tipp auf eins führt zu Meine Abzeichen */}
-        <Pressable accessibilityRole="button" accessibilityLabel={t('Meine Abzeichen')} onPress={() => router.push('/account/badges')}>
+        {/* Eingeblendete Abzeichen (Daria, 2026-10-31); Tipp führt zu Persönliche Angaben */}
+        <Pressable accessibilityRole="button" accessibilityLabel={t('Abzeichen in Persönliche Angaben')} onPress={() => router.push('/account/profile')}>
           <BadgeStrip userId={currentUserId} align="start" />
         </Pressable>
 

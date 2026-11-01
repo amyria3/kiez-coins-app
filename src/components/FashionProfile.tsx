@@ -154,7 +154,7 @@ export function FashionProfile() {
         </View>
 
         {/* Eingeblendete Abzeichen (Daria, 2026-10-31) */}
-        <Pressable accessibilityRole="button" accessibilityLabel={t('Meine Abzeichen')} onPress={() => router.push('/account/badges')} style={styles.badges}>
+        <Pressable accessibilityRole="button" accessibilityLabel={t('Abzeichen in Persönliche Angaben')} onPress={() => router.push('/account/profile')} style={styles.badges}>
           <BadgeStrip userId={currentUserId} align="start" />
         </Pressable>
 
