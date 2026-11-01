@@ -220,7 +220,7 @@ Plan und Entscheidungen: `Übergabe/2026-10-27_we-challenge-mehrere-personen.md`
 
 ## 2026-11-01: Abzeichen
 
-- [ ] Pflicht (Daria): Migration `20261101000100_abzeichen.sql` im SQL-Editor ausführen: https://github.com/amyria3/kiez-coins-app/blob/main/supabase/migrations/20261101000100_abzeichen.sql
+- [x] (2026-11-01 eingespielt) Pflicht (Daria): Migration `20261101000100_abzeichen.sql` im SQL-Editor ausführen: https://github.com/amyria3/kiez-coins-app/blob/main/supabase/migrations/20261101000100_abzeichen.sql
 - [ ] Frage an Daria: endgültiger Name für das Anker-Abzeichen (Arbeitstitel Seebär:in)
 - [ ] Frage an Daria: Farbe für Anführer:in; Lila trägt auch die Führung beim Erstellen
 - [ ] Frage an Daria: Zählt eine Einladung per Gruppen-Code für Lots:in und Anführer:in? Bisher nur der Freundes-Code
