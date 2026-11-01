@@ -12,16 +12,18 @@ export const isFashionable = fashionable;
 export const scheme: 'dark' | 'light' = fashionable ? 'light' : 'dark';
 
 // Primitives
+// Kiez-Look „Warm und tief“ (Daria, 2026-11-01): fast schwarzer Grund und Flächen mit warmem Unterton,
+// helle Schrift leicht warm, Nebenschrift mit mehr Kontrast. Vorher #1F2123, #F0F0F0, #A0A0A0, #2B2D31.
 const kiezPalette = {
-  black: '#1F2123',
-  white: '#F0F0F0',
-  grey: '#A0A0A0',
+  black: '#191716',
+  white: '#F3EEE8',
+  grey: '#B9B1A9',
   purple: '#7E94FF',
   orange: '#FFAD7E',
   green: '#93F4A7',
   red: '#FF7E8B',
   pink: '#FFB2E5',
-  graphite: '#2B2D31',
+  graphite: '#24211F',
 };
 
 /**
@@ -50,15 +52,17 @@ export const color = {
     screen: palette.black,
     surface: palette.graphite,
     /** Halbtransparente Fläche über Fotos (Bounty-Chip, Info-Leiste, Tab-Leiste) */
-    glass: fashionable ? 'rgba(255, 255, 255, 0.96)' : 'rgba(31, 33, 35, 0.82)',
+    glass: fashionable ? 'rgba(255, 255, 255, 0.96)' : 'rgba(25, 23, 22, 0.86)',
     /** Leichte Glasfläche, z. B. das eingeklappte Blatt im Challenge-Detail */
-    sheet: fashionable ? 'rgba(255, 255, 255, 0.82)' : 'rgba(31, 33, 35, 0.45)',
+    sheet: fashionable ? 'rgba(255, 255, 255, 0.82)' : 'rgba(25, 23, 22, 0.45)',
     /** Dunkle Glasfläche über Fotos, in beiden Looks dunkel */
     onPhoto: 'rgba(31, 33, 35, 0.3)',
   },
   /** Haarlinie auf dunklem Grund */
   line: {
-    hairline: fashionable ? '#DBDBDB' : 'rgba(240, 240, 240, 0.12)',
+    hairline: fashionable ? '#DBDBDB' : 'rgba(255, 240, 225, 0.12)',
+    /** Feiner warmer Rand um Karten und Sprechblase im Kiez-Look, damit sie sich vom Grund abheben (2026-11-01) */
+    raised: fashionable ? 'transparent' : 'rgba(255, 240, 225, 0.08)',
   },
   text: {
     primary: palette.white,
