@@ -63,7 +63,7 @@ export const BADGES: BadgeMeta[] = [
     color: '#FFB2E5',
     rule: 'Erledige 15 We-Challenges',
     earned: '15 We-Challenges erledigt',
-    kater: '15 We-Challenges geschafft. Du redest nicht lange, Du machst den Knoten fest.',
+    kater: '15 We-Challenges geschafft. Du redest nicht lange, Du packst an. We can do it!',
   },
 ];
 

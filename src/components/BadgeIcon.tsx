@@ -30,9 +30,9 @@ const ICONS: Record<BadgeKind, string> = {
   seebaer: svg(
     `<circle cx="12" cy="4.6" r="1.9"/><path d="M12 6.5V20.5"/><path d="M8 9.6h8"/><path d="M4.4 13.6c0.4 4.2 3.7 6.9 7.6 6.9s7.2-2.7 7.6-6.9"/><path d="M2.8 15.2l1.6-1.6l1.6 1.6M18 15.2l1.6-1.6l1.6 1.6"/>`,
   ),
-  // Seemannsknoten
+  // Angespannter Arm (Macher:in, Daria 2026-11-01): Faust oben, Bizeps, hochgekrempelter Ärmel rechts
   macher: svg(
-    `<path d="M12 12c-2.6-3.4-7.4-3.4-7.4 0s4.8 3.4 7.4 0s7.4-3.4 7.4 0s-4.8 3.4-7.4 0z"/><path d="M4.6 12c0 0-1.8 3.6-2.1 6.5M19.4 12c0 0 1.8-3.6 2.1-6.5"/>`,
+    `<path d="M6.5 4.5c1.6-.9 3.6-.6 4.4.9.6 1.1.2 2.4-.6 3.1l-.6 4.2c1-.9 2.5-1.6 4.2-1.4 1.8.2 3 1.1 3.6 2.2"/><path d="M6.5 4.5c-1 .8-1.4 2.2-.9 3.4l.7 1.6-.9 7.5c-.1 1.3.8 2.2 2 2.2h7.8"/><path d="M17.5 13.5v6.2h3v-6.4h-3"/><path d="M8 6.8h2.4"/>`,
   ),
 };
 
