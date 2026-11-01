@@ -48,7 +48,7 @@ export default function CreateStep1() {
   // Schließen mit Eingaben: als Entwurf behalten oder verwerfen
   const close = () => {
     if (!hasContent(draft)) return goBack();
-    Alert.alert('Als Entwurf speichern?', 'Du kannst die Challenge später in „Deine Challenges“ fertigstellen.', [
+    Alert.alert('Als Entwurf speichern?', 'Du kannst die Challenge später in „Meine Posts“ fertigstellen.', [
       { text: 'Abbrechen', style: 'cancel' },
       { text: 'Verwerfen', style: 'destructive', onPress: () => goBack() },
       { text: 'Speichern', onPress: save },

@@ -48,7 +48,7 @@ const deletable = (c: Challenge) =>
   c.status === 'draft' || ((c.status === 'open' || c.status === 'closed') && !c.assigneeId);
 
 /**
- * Route `manage` („Deine Challenges“). Erreichbar über „Verwalten“ an eigenen Posts im Feed und im Detail.
+ * Route `manage` („Meine Posts“, bis 2026-11-01 „Deine Challenges“). Erreichbar über „Verwalten“ an eigenen Posts im Feed und im Detail.
  * Jede eigene Challenge ist eine Karte fast in Bildschirmhöhe. Mehrere Karten wechselt man durch Wischen nach oben oder unten.
  * Der Switch oben zeigt statt der laufenden die geschlossenen und gelöschten Challenges, dort ohne „Neue Challenge“.
  */
@@ -100,10 +100,8 @@ export default function ManageChallenges() {
   }, [archiv, pageHeight, width]);
 
   const { activePages, archivePages } = useMemo(() => {
-    // „Deine Challenges“ zeigt keine Bild-Posts (Daria, 2026-11-01). Gelöschte Posts bleiben unter „Gelöscht“,
-    // damit sie sich wiederherstellen lassen.
-    const mine = challenges.filter((c) => c.authorId === currentUserId);
-    const own = mine.filter((c) => c.type !== 'photo');
+    // „Meine Posts“ zeigt alle eigenen Beiträge: Challenges und Bilder (Daria, 2026-11-02)
+    const own = challenges.filter((c) => c.authorId === currentUserId);
     const inArchive = (c: Challenge) => c.status === 'closed' || c.status === 'deleted' || isGroupDone(c);
     const active = own
       .filter((c) => !inArchive(c))
@@ -112,7 +110,7 @@ export default function ManageChallenges() {
     const closed = own
       .filter((c) => c.status === 'closed')
       .sort((a, b) => (b.closedAt ?? '').localeCompare(a.closedAt ?? ''));
-    const deleted = mine
+    const deleted = own
       .filter((c) => c.status === 'deleted')
       .sort((a, b) => (b.deletedAt ?? '').localeCompare(a.deletedAt ?? ''));
     // Erledigte Gruppenaufgaben: selbst erstellt oder angenommen
@@ -285,7 +283,7 @@ export default function ManageChallenges() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <NavigationBar
-        title="Deine Challenges"
+        title="Meine Posts"
         subtitle={pages.length > 1 ? t('{current} von {pages}', { current: current + 1, pages: pages.length }) : undefined}
         variant="back"
         onLeadingPress={() => (goBack())}

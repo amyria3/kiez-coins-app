@@ -176,7 +176,7 @@ function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: 
       <View style={styles.flex} />
       {end}
       {onManage && !isFashionable ? (
-        <IconButton icon="settings" iconSize={size.icon} accessibilityLabel={t('Deine Challenges verwalten')} onPress={onManage} />
+        <IconButton icon="settings" iconSize={size.icon} accessibilityLabel={t('Deine Posts verwalten')} onPress={onManage} />
       ) : null}
     </View>
   );
@@ -266,7 +266,7 @@ function FashionBeforeAfter(props: ChallengePostProps) {
           </View>
         </Pressable>
         {onManage ? (
-          <IconButton icon="settings" iconSize={size.icon} accessibilityLabel={t('Deine Challenges verwalten')} onPress={onManage} />
+          <IconButton icon="settings" iconSize={size.icon} accessibilityLabel={t('Deine Posts verwalten')} onPress={onManage} />
         ) : null}
       </View>
       <BeforeAfterPair

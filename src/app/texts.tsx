@@ -37,7 +37,7 @@ const pages: { key: Page; label: string }[] = [
   { key: 'feed', label: 'Feed' },
   { key: 'erstellen', label: 'Challenge erstellen' },
   { key: 'detail', label: 'Challenge-Detail' },
-  { key: 'verwalten', label: 'Deine Challenges' },
+  { key: 'verwalten', label: 'Meine Posts' },
   { key: 'gruppen', label: 'Gruppen' },
   { key: 'freunde', label: 'Freund:innen und Chats' },
   { key: 'reise', label: 'Was Du so machst' },
