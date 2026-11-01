@@ -100,7 +100,10 @@ export default function ManageChallenges() {
   }, [archiv, pageHeight, width]);
 
   const { activePages, archivePages } = useMemo(() => {
-    const own = challenges.filter((c) => c.authorId === currentUserId);
+    // „Deine Challenges“ zeigt keine Bild-Posts (Daria, 2026-11-01). Gelöschte Posts bleiben unter „Gelöscht“,
+    // damit sie sich wiederherstellen lassen.
+    const mine = challenges.filter((c) => c.authorId === currentUserId);
+    const own = mine.filter((c) => c.type !== 'photo');
     const inArchive = (c: Challenge) => c.status === 'closed' || c.status === 'deleted' || isGroupDone(c);
     const active = own
       .filter((c) => !inArchive(c))
@@ -109,7 +112,7 @@ export default function ManageChallenges() {
     const closed = own
       .filter((c) => c.status === 'closed')
       .sort((a, b) => (b.closedAt ?? '').localeCompare(a.closedAt ?? ''));
-    const deleted = own
+    const deleted = mine
       .filter((c) => c.status === 'deleted')
       .sort((a, b) => (b.deletedAt ?? '').localeCompare(a.deletedAt ?? ''));
     // Erledigte Gruppenaufgaben: selbst erstellt oder angenommen
@@ -247,6 +250,7 @@ export default function ManageChallenges() {
                       challenges={page.challenges}
                       onOpen={(c) => router.push(`/challenge/${c.id}`)}
                       onEdit={(c) => requireKiez() && router.push(`/challenge/${c.id}/edit`)}
+                      onRestore={(c) => (c.groupId || requireKiez()) && dispatch({ type: 'restore', id: c.id })}
                       onPurge={purge}
                     />
                   </View>
@@ -552,11 +556,14 @@ function DeletedCard({
   challenges,
   onOpen,
   onEdit,
+  onRestore,
   onPurge,
 }: {
   challenges: Challenge[];
   onOpen: (c: Challenge) => void;
   onEdit: (c: Challenge) => void;
+  /** Posts samt Likes und Kommentaren zurückholen (Daria, 2026-11-01) */
+  onRestore: (c: Challenge) => void;
   onPurge: (c: Challenge) => void;
 }) {
   const [expanded, setExpanded] = useState<string>();
@@ -591,7 +598,10 @@ function DeletedCard({
                   <Text style={styles.deletedTitle} numberOfLines={1}>
                     {c.title || 'Ohne Titel'}
                   </Text>
-                  <Text style={styles.caption}>{c.deletedAt ? t('Gelöscht am {date}', { date: formatDayMonthShort(c.deletedAt) }) : t('Gelöscht')}</Text>
+                  <Text style={styles.caption}>
+                    {c.type === 'photo' ? `${t('Post')} · ` : ''}
+                    {c.deletedAt ? t('Gelöscht am {date}', { date: formatDayMonthShort(c.deletedAt) }) : t('Gelöscht')}
+                  </Text>
                 </View>
                 <View style={open ? styles.chevronUp : styles.chevronDown}>
                   <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
@@ -614,7 +624,11 @@ function DeletedCard({
                       .filter(Boolean)
                       .join(' · ')}
                   </Text>
-                  <Button label="Bearbeiten" onPress={() => onEdit(c)} />
+                  {c.type === 'photo' ? (
+                    <Button label="Wiederherstellen" onPress={() => onRestore(c)} />
+                  ) : (
+                    <Button label="Bearbeiten" onPress={() => onEdit(c)} />
+                  )}
                   <Button label="Ansehen" variant="secondary" onPress={() => onOpen(c)} />
                   <Button label="Endgültig löschen" variant="danger" onPress={() => onPurge(c)} />
                 </View>

@@ -222,6 +222,17 @@ export default function ChallengeDetail() {
       ],
     );
 
+  // Wiederherstellen (Daria, 2026-11-01): Posts kommen samt Likes und Kommentaren zurück. Eine Challenge mit
+  // abgelaufener Frist braucht eine neue Frist und geht dafür ins Bearbeiten.
+  const restore = () => {
+    if (!isPhoto && new Date(challenge.deadline).getTime() <= Date.now()) {
+      if (needKiez()) router.push(`/challenge/${challenge.id}/edit`);
+      return;
+    }
+    if (!needKiez()) return;
+    dispatch({ type: 'restore', id: challenge.id });
+  };
+
   // Löschen: nur solange niemand angenommen hat. Sonst Hinweis mit Weg zum Kundenservice (wie in „Deine Challenges“).
   const deleteChallenge = () => {
     if (!canDelete) {
@@ -340,14 +351,24 @@ export default function ChallengeDetail() {
                 }}
               />
             ) : null}
-            <MenuItem
-              label="Löschen"
-              tone={canDelete ? 'error' : 'muted'}
-              onPress={() => {
-                setMenuOpen(false);
-                deleteChallenge();
-              }}
-            />
+            {challenge.status === 'deleted' ? (
+              <MenuItem
+                label="Wiederherstellen"
+                onPress={() => {
+                  setMenuOpen(false);
+                  restore();
+                }}
+              />
+            ) : (
+              <MenuItem
+                label="Löschen"
+                tone={canDelete ? 'error' : 'muted'}
+                onPress={() => {
+                  setMenuOpen(false);
+                  deleteChallenge();
+                }}
+              />
+            )}
             <MenuItem
               label="Alle verwalten"
               last
@@ -511,6 +532,9 @@ export default function ChallengeDetail() {
           }
         />
       ) : null}
+      {isAuthor && challenge.status === 'deleted' ? (
+        <Button label={isPhoto ? 'Post wiederherstellen' : 'Challenge wiederherstellen'} variant="secondary" onPress={restore} />
+      ) : null}
       {challenge.status !== 'draft' ? (
         <CommentSection
           comments={challenge.comments}
@@ -527,7 +551,9 @@ export default function ChallengeDetail() {
             challenge.status === 'closed'
               ? 'Die Challenge ist geschlossen. Neue Kommentare sind nicht mehr möglich.'
               : challenge.status === 'deleted'
-                ? 'Die Challenge ist gelöscht und nur für Dich sichtbar. Neue Kommentare sind nicht möglich.'
+                ? isPhoto
+                  ? 'Der Post ist gelöscht und nur für Dich sichtbar. Neue Kommentare sind nicht möglich.'
+                  : 'Die Challenge ist gelöscht und nur für Dich sichtbar. Neue Kommentare sind nicht möglich.'
                 : 'Lege in Deinem Konto Deinen Kiez fest, dann kannst Du mitschreiben.'
           }
           onAuthorPress={openProfile}
