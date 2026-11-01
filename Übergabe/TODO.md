@@ -225,5 +225,6 @@ Plan und Entscheidungen: `Übergabe/2026-10-27_we-challenge-mehrere-personen.md`
 - [ ] Frage an Daria: Farbe für Anführer:in; Lila trägt auch die Führung beim Erstellen
 - [ ] Frage an Daria: Zählt eine Einladung per Gruppen-Code für Lots:in und Anführer:in? Bisher nur der Freundes-Code
 - [ ] Frage an Daria: Abzeichen und Ninja-Maske (ohne Kiez) am selben Avatar; bisher zeigt der Avatar ohne Kiez kein Abzeichen
-- [ ] Darias gezeichnete Symbole für die fünf Abzeichen in `src/components/BadgeIcon.tsx` eintragen
+- [x] Darias Icons für Pionier:in, Lots:in, Seebär:in und Macher:in in der App, Kiez-Look (2026-11-01). Offen: Anführer:in und Fashionable Look
+- [ ] Hinweis beim neuen Abzeichen nach Darias Entwürfen, siehe `2026-11-01_offen_abzeichen-hinweis.md`
 
