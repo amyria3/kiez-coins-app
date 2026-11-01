@@ -18,8 +18,6 @@ import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
 import { look, looks, lookSelectable } from '../../theme/look';
 import { MODES, useModes } from '../../data/features';
 import { useGoBack } from '../../lib/goBack';
-import { BadgeIcon } from '../../components/BadgeIcon';
-import { useAvatarBadge } from '../../data/badges';
 
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
 export default function Account() {
@@ -27,7 +25,6 @@ export default function Account() {
   const goBack = useGoBack();
   const { profile, groups, mode, blockedIds } = useStore();
   const me = useCurrentUser();
-  const myBadge = useAvatarBadge(me.id);
   const { signOut, hasPassword } = useAuth();
   const modes = useModes();
   const modesShown = MODES.filter((m) => modes.isVisible(m.key)).map((m) => t(m.label)).join(', ');
@@ -87,13 +84,6 @@ export default function Account() {
         description="Entwürfe, offen, geschlossen"
         leading={<Icon name="ship" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/manage')}
-      />
-      {/* Abzeichen ein- und ausblenden, eins für den Avatar (Daria, 2026-10-31) */}
-      <NavCard
-        title="Meine Abzeichen"
-        description="Einblenden und für den Avatar wählen"
-        leading={<BadgeIcon kind={myBadge?.badge ?? 'pionier'} number={myBadge?.number} size={30} muted={!myBadge} />}
-        onPress={() => router.push('/account/badges')}
       />
       {/* Funktionen an- und abschalten (Daria, 24.10.2026) */}
       <NavCard
