@@ -4,14 +4,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import sprueche from '../data/kater-sprueche.json';
 import type { KaterSpruch } from '../data/kater';
-import { color, space } from '../theme/tokens';
+import { color, motion, space } from '../theme/tokens';
 import { GearsLoader } from './GearsLoader';
-import { KaterStage } from './KaterStage';
+import { KaterBrille } from './KaterBrille';
+import { KaterBlase } from './KaterStage';
 
-/** Fegen dauert in KaterStage rund 2 Sekunden. Die Sprechblase bleibt etwas länger, damit man sie lesen kann. */
-const FEGEN_MS = 3200;
+/** So lange steht der Kater mit Sprechblase da, damit man den Spruch lesen kann. */
+const KATER_MS = 3200;
 
-/** Ein Spruch zum Fegen aus src/data/kater-sprueche.json. Ohne passenden Spruch fegt er still. */
+/** Ein Spruch zum Fegen aus src/data/kater-sprueche.json. Ohne passenden Spruch bleibt die Blase weg. */
 function fegeSpruch(): KaterSpruch {
   const liste = (sprueche.sprueche as (string | KaterSpruch)[]).map((e) => (typeof e === 'string' ? { text: e } : e));
   const fegen = liste.filter((e) => e.aktion === 'fegen');
@@ -26,23 +27,26 @@ const EINBLENDEN_MS = 280;
 const ZUSAMMEN_MS = 1000;
 
 /**
- * Startbildschirm (Daria, 2026-10-24): Zuerst drehen sich die Zahnräder unten. Danach taucht der Kater in der Mitte auf,
- * fegt einmal und sagt einen Spruch. Die Zahnräder verschwinden, sobald alles geladen ist (`loaded`) und Kater und
+ * Startbildschirm (Daria, 2026-10-24): Zuerst drehen sich die Zahnräder unten. Danach taucht der Kater in der Mitte auf
+ * und sagt einen Spruch. Seit 2026-11-02 Darias Kater aus Figma vor gelbem Kreis mit schimmernder Brille (KaterBrille). Die Zahnräder verschwinden, sobald alles geladen ist (`loaded`) und Kater und
  * Zahnräder mindestens eine Sekunde zusammen zu sehen waren. Der Bildschirm blendet aus, wenn die Zahnräder weg sind
- * und der Kater fertig gefegt hat. Ein Tipp überspringt das Fegen, sobald die Zahnräder weg sind. Mit „Bewegung reduzieren“ steht der Kater nur kurz da.
+ * und der Kater seinen Spruch gesagt hat. Ein Tipp überspringt den Rest, sobald die Zahnräder weg sind. Mit „Bewegung reduzieren“ steht der Kater nur kurz da.
  */
 export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => void }) {
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
+  // Kater mit Kreis ist höher als breit (1300 × 1885): auf kleinen Handys schmaler, damit er die Zahnräder nicht berührt
+  const katerBreite = Math.round(Math.min(240, height * 0.28));
   // Zahnräder groß wie beim Start vorher (200), auf kleinen Handys etwas kleiner, damit sie den Kater nicht berühren
   const raederSize = Math.round(Math.min(200, height * 0.22));
   const [spruch] = useState(fegeSpruch);
   const [kater, setKater] = useState(false);
   const [zusammen, setZusammen] = useState(false);
   const [raederWeg, setRaederWeg] = useState(false);
-  const [gefegt, setGefegt] = useState(false);
+  const [gesagt, setGesagt] = useState(false);
   const sichtbar = useRef(new Animated.Value(1)).current;
   const katerSichtbar = useRef(new Animated.Value(0)).current;
+  const blase = useRef(new Animated.Value(0)).current;
   const raeder = useRef(new Animated.Value(1)).current;
   const fertig = useRef(false);
 
@@ -51,9 +55,9 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
     if (typeof document !== 'undefined') document.getElementById('boot')?.remove();
   }, []);
 
-  // Kater nach den Zahnrädern einblenden, dann fegen lassen
+  // Kater nach den Zahnrädern einblenden, dann den Spruch zeigen
   useEffect(() => {
-    let fegen: ReturnType<typeof setTimeout>;
+    let fertigGesagt: ReturnType<typeof setTimeout>;
     let gemeinsam: ReturnType<typeof setTimeout>;
     const auftritt = setTimeout(() => {
       setKater(true);
@@ -63,18 +67,19 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
         duration: EINBLENDEN_MS,
         useNativeDriver: true,
       }).start();
+      Animated.spring(blase, { toValue: 1, useNativeDriver: true, ...motion.barrierSpring }).start();
       AccessibilityInfo.isReduceMotionEnabled()
         .catch(() => false)
         .then((still) => {
-          fegen = setTimeout(() => setGefegt(true), still ? 800 : FEGEN_MS);
+          fertigGesagt = setTimeout(() => setGesagt(true), still ? 800 : KATER_MS);
         });
     }, KATER_NACH_MS);
     return () => {
       clearTimeout(auftritt);
       clearTimeout(gemeinsam);
-      clearTimeout(fegen);
+      clearTimeout(fertigGesagt);
     };
-  }, [katerSichtbar]);
+  }, [katerSichtbar, blase]);
 
   // Zahnräder ausblenden, sobald alles geladen ist und sie eine Sekunde mit dem Kater zu sehen waren
   useEffect(() => {
@@ -97,9 +102,9 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
   };
 
   useEffect(() => {
-    if (raederWeg && gefegt) weg();
+    if (raederWeg && gesagt) weg();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [raederWeg, gefegt]);
+  }, [raederWeg, gesagt]);
 
   return (
     <Animated.View style={[StyleSheet.absoluteFill, styles.screen, { opacity: sichtbar }]}>
@@ -110,8 +115,9 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
         accessibilityLabel="Weiter"
       >
         {kater ? (
-          <Animated.View style={{ opacity: katerSichtbar }}>
-            <KaterStage width={220} spruch={spruch} take={1} ohneBlase={!spruch.text} />
+          <Animated.View style={[styles.kater, { opacity: katerSichtbar }]}>
+            {spruch.text ? <KaterBlase text={spruch.text} sichtbar={blase} /> : null}
+            <KaterBrille width={katerBreite} />
           </Animated.View>
         ) : null}
       </Pressable>
@@ -128,5 +134,6 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
 const styles = StyleSheet.create({
   screen: { backgroundColor: color.bg.screen, zIndex: 10 },
   flaeche: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  kater: { alignItems: 'center', gap: space[12] },
   raeder: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
 });

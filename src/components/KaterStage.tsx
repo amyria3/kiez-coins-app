@@ -110,19 +110,7 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
   const layer = { position: 'absolute' as const, left: 0, top: 0, width, height };
   return (
     <View style={styles.wrap}>
-      {ohneBlase ? null : <Animated.View
-        style={[
-          styles.bubble,
-          {
-            opacity: blase,
-            transform: [{ scale: blase.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] }) }, { rotate: '-2deg' }],
-          },
-        ]}
-        accessibilityLiveRegion="polite"
-      >
-        <Text style={styles.bubbleText}>{spruch ? t(spruch.text) : ' '}</Text>
-        <View style={styles.tail} />
-      </Animated.View>}
+      {ohneBlase ? null : <KaterBlase text={spruch?.text} sichtbar={blase} />}
       <Pressable
         onPress={onPress}
         disabled={!onPress}
@@ -164,6 +152,25 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
     </View>
   );
 });
+
+/** Sprechblase des Katers; `sichtbar` läuft von 0 bis 1 und lässt sie aufploppen. */
+export function KaterBlase({ text, sichtbar }: { text?: string; sichtbar: Animated.Value }) {
+  return (
+    <Animated.View
+      style={[
+        styles.bubble,
+        {
+          opacity: sichtbar,
+          transform: [{ scale: sichtbar.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] }) }, { rotate: '-2deg' }],
+        },
+      ]}
+      accessibilityLiveRegion="polite"
+    >
+      <Text style={styles.bubbleText}>{text ? t(text) : ' '}</Text>
+      <View style={styles.tail} />
+    </Animated.View>
+  );
+}
 
 const styles = StyleSheet.create({
   wrap: { alignItems: 'center', gap: space[12] },
