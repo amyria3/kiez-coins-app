@@ -21,6 +21,16 @@ const KARTE: Partial<Record<BadgeKind, string[]>> = {
   anfuehrer: ['#6A5418', '#4E4A22', '#17414A', '#123056', '#1A1F52'],
 };
 
+// Heller Rahmen um die Szene (Entwurf „Szene und Kater“): Darias #C2C9ED für Lots:in, für die übrigen
+// dieselbe Helligkeit und Sättigung im Farbton des Wassers der jeweiligen Szene.
+const RAHMEN: Record<BadgeKind, string> = {
+  pionier: '#C2D5ED',
+  lotse: '#C2C9ED',
+  anfuehrer: '#E7EDC2',
+  seebaer: '#C2EDE4',
+  macher: '#EDDEC2',
+};
+
 /**
  * Route `badge/[kind]`: Hinweis bei einem neuen Abzeichen (Daria, 2026-10-31). Öffnet BadgeNotice.
  * Beim Öffnen gilt das Abzeichen als gesehen. Im Kiez-Look mit Darias animierter Szene (02.11.2026).
@@ -88,8 +98,8 @@ export default function NewBadgeScreen() {
   } else {
     inhalt = (
       <>
-        <View style={styles.szene} onLayout={(e) => setBreite(e.nativeEvent.layout.width)}>
-          {breite ? <BadgeScene kind={kind} width={breite} /> : null}
+        <View style={[styles.szene, { backgroundColor: RAHMEN[kind] }]} onLayout={(e) => setBreite(e.nativeEvent.layout.width)}>
+          {breite ? <BadgeScene kind={kind} width={Math.round(breite * 0.87)} /> : null}
         </View>
         <KaterBubble>{meta.kater}</KaterBubble>
       </>
@@ -116,7 +126,7 @@ export default function NewBadgeScreen() {
 const styles = StyleSheet.create({
   hero: { alignItems: 'center', gap: space[16], paddingTop: space[24], paddingBottom: space[8] },
   name: { ...text.title, fontSize: 26, lineHeight: 32, color: color.text.primary, textAlign: 'center' },
-  szene: { width: '100%', paddingTop: space[8] },
+  szene: { width: '100%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center' },
   karte: {
     alignItems: 'center',
     gap: space[8],
