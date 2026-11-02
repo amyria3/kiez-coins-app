@@ -14,4 +14,4 @@
 
 - `assets/icons/ship.svg` und `ship` in `src/components/icons/svgs.ts`: vier Striche aus der Krone, gedreht, als Aussparungen im Rumpf (`fill-rule="evenodd"`).
 - `src/components/SchiffWellen.tsx`: Schiffchen (38 pt breit) schaukelt (±1,5 pt, −4° bis 3°, 3,2 s), zwei Wellenlinien in Textfarbe laufen nach links (vorn 3,6 s, hinten 5,2 s, halb durchsichtig). Mit „Bewegung reduzieren“ steht alles still. Nur im Kiez-Look.
-- `src/app/me.tsx`: Titelzeile mit `SchiffWellen`, daneben `CrownIcon` (30 pt hoch), dann der Titel.
+- `src/app/me.tsx`: Titelzeile mit `CrownIcon`; das Schiffchen steht seit 2026-11-02 in der Community-Zeile unter den Zielen (siehe `2026-11-02_meine-posts-und-community.md`).
