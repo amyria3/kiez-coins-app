@@ -2,7 +2,7 @@ import { memo, useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import Svg, { Path } from 'react-native-svg';
+import { Herz } from './Herz';
 import { Text } from './T';
 
 import type { KaterAktion, KaterSpruch } from '../data/kater';
@@ -39,9 +39,6 @@ const PFOTE = { x: 985, y: 856 };
 const GLAS_L = { x: 523, y: 234 };
 const GLAS_R = { x: 707, y: 218 };
 const HERZ = 150;
-/** Herzen: Darias Herz, flach, kräftiges Rot mit weißem Rand, damit sie sich von den orangebraunen Gläsern und dem blauen Fell abheben */
-const HERZ_FARBE = '#FF1E56';
-const HERZ_RAND = '#FFFFFF';
 
 type Props = {
   /** Breite der Figur in pt; die Höhe folgt dem Bild */
@@ -274,20 +271,6 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
   );
 });
 
-function Herz({ size }: { size: number }) {
-  return (
-    // Darias Herz (assets/icons/heart.svg), flach, weißer Rand für den Kontrast
-    <Svg width={size} height={size} viewBox="-2 -2 39 40">
-      <Path
-        d="M5.12647 19.7975C4.69258 17.9806 4.68712 17.9851 4.6516 17.8263C3.48654 14.2976 3.44118 13.3646 3.29801 11.3288C3.04117 7.67041 2.66576 7.38825 3.586 4.2296C3.92043 3.0803 4.59859 2.43592 4.72209 2.31905C5.95764 1.14585 6.98444 -0.298527 9.12767 0.0540128C10.9621 0.355544 12.366 0.309702 14.3885 4.98827C15.2546 7.06929 15.1939 7.08801 15.8333 9.27621C15.8901 9.33497 16.4639 9.92835 16.6585 9.82504C16.8978 9.69784 18.2039 7.61553 19.1367 6.42038C19.9667 5.45962 20.0509 5.57713 20.8176 4.53759C22.0548 3.2217 22.6925 2.6393 24.4526 1.85481C26.6975 0.854653 28.1336 1.213 28.1844 1.22333C31.6343 1.91033 31.7649 4.45365 31.9976 6.18665C32.0425 9.57903 31.4424 11.0686 30.637 13.3911C30.0725 15.0189 29.9151 14.9059 29.2085 16.4471C28.1243 18.8135 28.015 18.7257 26.2226 21.2303C23.4034 25.0946 23.3974 25.0837 23.1586 25.4252C21.8313 27.3216 20.6651 28.3734 20.1968 28.979C18.9175 30.6307 18.7886 30.6726 17.3607 32.1351C16.647 32.7704 16.2442 33.1566 16.1492 33.2476C11.8343 37.3799 10.0638 33.123 9.41019 31.4849C7.0462 26.1729 7.43801 25.9786 5.12647 19.7975Z"
-        fill={HERZ_FARBE}
-        stroke={HERZ_RAND}
-        strokeWidth={2.2}
-        strokeLinejoin="round"
-      />
-    </Svg>
-  );
-}
 
 /** Sprechblase des Katers; `sichtbar` läuft von 0 bis 1 und lässt sie aufploppen. */
 export function KaterBlase({ text, sichtbar }: { text?: string; sichtbar: Animated.Value }) {
