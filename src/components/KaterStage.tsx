@@ -9,20 +9,24 @@ import type { KaterAktion, KaterSpruch } from '../data/kater';
 import { t } from '../data/texts';
 import { color, font, motion, radius, space } from '../theme/tokens';
 
-// Ebenen aus Darias Figma-Kater (Übergabe/KiezCoins Cat.svg, 02.11.2026), alle auf derselben Fläche 1300 × 1885.
+// Ebenen aus Darias Figma-Kater, alle auf derselben Fläche 1300 × 1885. Gebaut mit scripts/kater-ebenen.py (02.11.2026).
 // `oben` (Schürze, Kopf) hat an den Gläsern eine Aussparung: Darunter läuft das Video der schimmernden Gläser.
 const UNTEN = require('../../assets/kater/unten.png');
 const BESEN = require('../../assets/kater/besen.png');
 const STIEFEL = require('../../assets/kater/stiefel.png');
 const OBEN = require('../../assets/kater/oben.png');
 const OBEN_GANZ = require('../../assets/kater/oben-ganz.png');
+// Über die Brille schauen (Übergabe/KiezCoins Cat2.svg): weißes und schwarzes Auge, Brille tiefer und gekippt, mit Bügeln
+const DRUEBER = require('../../assets/kater/drueber.png');
+/** So weit sitzt die gekippte Brille tiefer als die normale */
+const BRILLE_TIEFER = 66;
 // Münder (Daria, 02.11.2026): sonst der Default-Mund, bei den Herzen lächelt er. Je mit und ohne Aussparung der Gläser.
 const MUND = require('../../assets/kater/mund.png');
 const MUND_GANZ = require('../../assets/kater/mund-ganz.png');
 const LAECHELN = require('../../assets/kater/mund-laecheln.png');
 const LAECHELN_GANZ = require('../../assets/kater/mund-laecheln-ganz.png');
 /** Ausschnitt der Mundbilder auf der Fläche */
-const MUND_BOX = { x: 560, y: 530, w: 120, h: 130 };
+const MUND_BOX = { x: 560, y: 530, w: 120, h: 140 };
 const GLAESER = require('../../assets/kater/glaeser.png');
 const VIDEO = require('../../assets/kater/glaeser.mp4');
 const W = 1300;
@@ -35,7 +39,7 @@ const PFOTE = { x: 985, y: 1150 };
 const GLAS_L = { x: 523, y: 528 };
 const GLAS_R = { x: 707, y: 512 };
 const HERZ = 150;
-/** Herzen: kräftiges Rot mit weißem Rand, damit sie sich von den orangebraunen Gläsern und dem blauen Fell abheben */
+/** Herzen: Darias Herz, flach, kräftiges Rot mit weißem Rand, damit sie sich von den orangebraunen Gläsern und dem blauen Fell abheben */
 const HERZ_FARBE = '#FF1E56';
 const HERZ_RAND = '#FFFFFF';
 
@@ -164,7 +168,10 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
   const layer = { position: 'absolute' as const, left: 0, top: 0, width, height };
   // Schiebt der Kater die Brille runter, liegt der ganze Kopf über dem Video und die stillen Gläser rutschen
   const brilleRunter = brilleY.interpolate({ inputRange: [0, 2], outputRange: [0, 1], extrapolate: 'clamp' });
-  const brilleVersatz = { transform: [{ translateY: Animated.multiply(brilleY, s) }] };
+  // Die normale Brille rutscht runter und geht in die gekippte über, darüber schauen die Augen
+  const rutschen = { transform: [{ translateY: Animated.multiply(brilleY, (s * BRILLE_TIEFER) / 54) }] };
+  const normalWeg = brilleY.interpolate({ inputRange: [24, 54], outputRange: [1, 0], extrapolate: 'clamp' });
+  const drueberDa = brilleY.interpolate({ inputRange: [24, 54], outputRange: [0, 1], extrapolate: 'clamp' });
   const herzGroesse = HERZ * s;
   const herzStil = (m: { x: number; y: number }) => ({
     position: 'absolute' as const,
@@ -247,11 +254,14 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
           <Animated.View style={[layer, { opacity: brilleRunter }]} pointerEvents="none">
             <Image source={OBEN_GANZ} style={flaeche} contentFit="contain" />
             {muender(MUND_GANZ, LAECHELN_GANZ)}
-            <Animated.View style={[layer, brilleVersatz]}>
+            <Animated.View style={[layer, rutschen, { opacity: normalWeg }]}>
               <Image source={GLAESER} style={flaeche} contentFit="contain" />
             </Animated.View>
+            <Animated.View style={[layer, { opacity: drueberDa }]}>
+              <Image source={DRUEBER} style={flaeche} contentFit="contain" />
+            </Animated.View>
           </Animated.View>
-          <Animated.View style={[layer, brilleVersatz]} pointerEvents="none">
+          <Animated.View style={[layer, rutschen]} pointerEvents="none">
             {[GLAS_L, GLAS_R].map((m) => (
               <Animated.View key={m.x} style={herzStil(m)}>
                 <Herz size={herzGroesse} />
@@ -266,15 +276,15 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
 
 function Herz({ size }: { size: number }) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 100 100">
+    // Darias Herz (assets/icons/heart.svg), flach, weißer Rand für den Kontrast
+    <Svg width={size} height={size} viewBox="-2 -2 39 40">
       <Path
-        d="M50 88 C20 66 6 50 6 32 C6 18 17 8 30 8 C39 8 46 13 50 21 C54 13 61 8 70 8 C83 8 94 18 94 32 C94 50 80 66 50 88 Z"
+        d="M5.12647 19.7975C4.69258 17.9806 4.68712 17.9851 4.6516 17.8263C3.48654 14.2976 3.44118 13.3646 3.29801 11.3288C3.04117 7.67041 2.66576 7.38825 3.586 4.2296C3.92043 3.0803 4.59859 2.43592 4.72209 2.31905C5.95764 1.14585 6.98444 -0.298527 9.12767 0.0540128C10.9621 0.355544 12.366 0.309702 14.3885 4.98827C15.2546 7.06929 15.1939 7.08801 15.8333 9.27621C15.8901 9.33497 16.4639 9.92835 16.6585 9.82504C16.8978 9.69784 18.2039 7.61553 19.1367 6.42038C19.9667 5.45962 20.0509 5.57713 20.8176 4.53759C22.0548 3.2217 22.6925 2.6393 24.4526 1.85481C26.6975 0.854653 28.1336 1.213 28.1844 1.22333C31.6343 1.91033 31.7649 4.45365 31.9976 6.18665C32.0425 9.57903 31.4424 11.0686 30.637 13.3911C30.0725 15.0189 29.9151 14.9059 29.2085 16.4471C28.1243 18.8135 28.015 18.7257 26.2226 21.2303C23.4034 25.0946 23.3974 25.0837 23.1586 25.4252C21.8313 27.3216 20.6651 28.3734 20.1968 28.979C18.9175 30.6307 18.7886 30.6726 17.3607 32.1351C16.647 32.7704 16.2442 33.1566 16.1492 33.2476C11.8343 37.3799 10.0638 33.123 9.41019 31.4849C7.0462 26.1729 7.43801 25.9786 5.12647 19.7975Z"
         fill={HERZ_FARBE}
         stroke={HERZ_RAND}
-        strokeWidth={7}
+        strokeWidth={2.2}
         strokeLinejoin="round"
       />
-      <Path d="M24 26 C27 20 33 18 38 20" stroke={HERZ_RAND} strokeWidth={6} strokeLinecap="round" fill="none" opacity={0.85} />
     </Svg>
   );
 }
