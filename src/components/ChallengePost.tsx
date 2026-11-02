@@ -20,6 +20,7 @@ import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 import { t } from '../data/texts';
 import { PhotoTextOverlay } from './PhotoText';
+import { ViewCount } from './ViewCount';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
@@ -287,6 +288,7 @@ function KiezPost({
             accessibilityLabel={t('Teilen')}
             onPress={() => shareText(t('{title} – KiezCoins', { title: challenge.title }))}
           />
+          <ViewCount views={challenge.views} />
         </View>
         <View style={styles.actionsRight}>
           {onManage ? (
@@ -432,6 +434,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
           accessibilityLabel={t('Teilen')}
           onPress={() => shareText(t('{title} – KiezCoins', { title: challenge.title }))}
         />
+        <ViewCount views={challenge.views} />
         {/* Status rechts unter dem Bild, als Angabe in Grau (Daria, 24.10.2026) */}
         <Text style={[fashion.state, closed && fashion.stateClosed]} numberOfLines={1}>
           {closed ? 'Geschlossen' : completed ? 'Erledigt' : state.replace(/^noch/, 'Noch')}

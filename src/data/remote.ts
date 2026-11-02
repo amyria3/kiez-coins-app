@@ -1178,6 +1178,17 @@ export async function recordView(challengeId: string) {
   await supabase.from('challenge_views').upsert({ challenge_id: challengeId }, { ignoreDuplicates: true });
 }
 
+/**
+ * Mehrere Aufrufe auf einmal zählen (gesehen im Feed). Nur fremde Posts übergeben: Ein eigener Post
+ * verletzt die RLS und lässt den ganzen Aufruf scheitern.
+ */
+export async function recordViews(challengeIds: string[]) {
+  if (!challengeIds.length) return;
+  await supabase
+    .from('challenge_views')
+    .upsert(challengeIds.map((challenge_id) => ({ challenge_id })), { ignoreDuplicates: true });
+}
+
 /** Gelöschte Challenge endgültig löschen (Migration 20261021000400). */
 export async function purgeChallenge(id: string) {
   const res = check(await supabase.from('challenges').delete().eq('id', id).eq('status', 'deleted').select('id'));
