@@ -4,7 +4,7 @@ import { useLocalSearchParams } from 'expo-router';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { BadgeIcon } from '../../components/BadgeIcon';
-import { BadgeScene } from '../../components/BadgeScene';
+import { BadgeScene, SCENE_FRAME } from '../../components/BadgeScene';
 import { Button } from '../../components/Button';
 import { KaterBubble } from '../../components/Content';
 import { SubScreen } from '../../components/Screen';
@@ -19,16 +19,6 @@ import { color, isFashionable, radius, space, text } from '../../theme/tokens';
 const KARTE: Partial<Record<BadgeKind, string[]>> = {
   lotse: ['#4B4A1F', '#3A4422', '#0C3236', '#0A1F4A', '#081457'],
   anfuehrer: ['#6A5418', '#4E4A22', '#17414A', '#123056', '#1A1F52'],
-};
-
-// Heller Rahmen um die Szene (Entwurf „Szene und Kater“): Darias #C2C9ED für Lots:in, für die übrigen
-// dieselbe Helligkeit und Sättigung im Farbton des Wassers der jeweiligen Szene.
-const RAHMEN: Record<BadgeKind, string> = {
-  pionier: '#C2D5ED',
-  lotse: '#C2C9ED',
-  anfuehrer: '#E7EDC2',
-  seebaer: '#C2EDE4',
-  macher: '#EDDEC2',
 };
 
 /**
@@ -98,7 +88,7 @@ export default function NewBadgeScreen() {
   } else {
     inhalt = (
       <>
-        <View style={[styles.szene, { backgroundColor: RAHMEN[kind] }]} onLayout={(e) => setBreite(e.nativeEvent.layout.width)}>
+        <View style={[styles.szene, { backgroundColor: SCENE_FRAME[kind] }]} onLayout={(e) => setBreite(e.nativeEvent.layout.width)}>
           {breite ? <BadgeScene kind={kind} width={Math.round(breite * 0.87)} /> : null}
         </View>
         <KaterBubble>{meta.kater}</KaterBubble>

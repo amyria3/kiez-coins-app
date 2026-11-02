@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { GlassView, isGlassEffectAPIAvailable, isLiquidGlassAvailable } from 'expo-glass-effect';
 
 import { color, radius, size, scheme } from '../theme/tokens';
@@ -78,7 +79,36 @@ export function GlassIconButton({
   );
 }
 
+/**
+ * Fläche für Overlays (Daria, 2026-11-02): der Grund dahinter unscharf, darüber ein leichter Stich aus
+ * Dunkel-Lila (color/bg/frost). `scrim` ist der Grund hinter Dialogen (color/bg/scrim).
+ */
+export function Frost({
+  children,
+  style,
+  contentStyle,
+  scrim,
+}: {
+  children?: ReactNode;
+  /** Außen: Größe, Lage, Radius, Rand */
+  style?: StyleProp<ViewStyle>;
+  /** Innen: Anordnung und Abstände des Inhalts */
+  contentStyle?: StyleProp<ViewStyle>;
+  scrim?: boolean;
+}) {
+  return (
+    <View style={[styles.frost, style]}>
+      <BlurView intensity={scrim ? 18 : 30} tint={scheme} style={StyleSheet.absoluteFill} />
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: scrim ? color.bg.scrim : color.bg.frost }]} pointerEvents="none" />
+      {/* Eigene Ebene: Sonst liegen Blur und Stich im Web über dem Inhalt und machen ihn unscharf */}
+      <View style={[styles.frostContent, contentStyle]}>{children}</View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  frost: { overflow: 'hidden' },
+  frostContent: { position: 'relative', flexGrow: 1 },
   clip: { overflow: 'hidden', borderRadius: radius.full },
   fallback: { backgroundColor: color.bg.glass },
   fill: { flex: 1, alignSelf: 'stretch' },

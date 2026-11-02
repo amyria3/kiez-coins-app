@@ -55,6 +55,10 @@ export const color = {
     glass: fashionable ? 'rgba(255, 255, 255, 0.96)' : 'rgba(25, 23, 22, 0.86)',
     /** Leichte Glasfläche, z. B. das eingeklappte Blatt im Challenge-Detail */
     sheet: fashionable ? 'rgba(255, 255, 255, 0.82)' : 'rgba(25, 23, 22, 0.45)',
+    /** Overlays (Hinweise, Dialoge, Umfrage): Blur mit leichtem Stich aus Dunkel-Lila (Daria, 2026-11-02) */
+    frost: fashionable ? 'rgba(255, 255, 255, 0.72)' : 'rgba(44, 26, 70, 0.5)',
+    /** Abgedunkelter, unscharfer Grund hinter Dialogen */
+    scrim: fashionable ? 'rgba(0, 0, 0, 0.2)' : 'rgba(30, 16, 50, 0.3)',
     /** Dunkle Glasfläche über Fotos, in beiden Looks dunkel */
     onPhoto: 'rgba(31, 33, 35, 0.3)',
   },

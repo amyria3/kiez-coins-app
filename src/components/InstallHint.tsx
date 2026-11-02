@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { usePathname } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Frost } from './Glass';
 import { Text } from './T';
 import { Cat } from './icons/Brand';
 import { Icon } from './icons/Icon';
@@ -54,7 +56,9 @@ export function InstallHint() {
     };
   }, []);
 
-  if (!mode) return null;
+  // Über den Abzeichen-Szenen bleibt der Hinweis weg, damit er die Animation nicht verdeckt (Daria, 2026-11-02)
+  const pathname = usePathname();
+  if (!mode || pathname.startsWith('/badge')) return null;
 
   const close = () => {
     try {
@@ -70,7 +74,7 @@ export function InstallHint() {
 
   return (
     <View style={[styles.wrap, { top: insets.top + space[8] }]} pointerEvents="box-none">
-      <View style={styles.card}>
+      <Frost style={styles.card} contentStyle={styles.cardContent}>
         <Cat height={34} />
         <View style={styles.body}>
           <Text style={styles.title}>Lege mich auf Deinen Home-Bildschirm!</Text>
@@ -85,7 +89,7 @@ export function InstallHint() {
         <Pressable onPress={close} hitSlop={12} accessibilityRole="button" accessibilityLabel="Hinweis schließen">
           <Icon name="close" size={16} color={color.text.secondary} />
         </Pressable>
-      </View>
+      </Frost>
     </View>
   );
 }
@@ -93,15 +97,11 @@ export function InstallHint() {
 const styles = StyleSheet.create({
   wrap: { position: 'absolute', left: space[16], right: space[16], zIndex: 20 },
   card: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: space[12],
-    padding: space[16],
     borderRadius: radius.lg,
-    backgroundColor: color.bg.surface,
     borderWidth: 1,
     borderColor: color.line.hairline,
   },
+  cardContent: { flexDirection: 'row', alignItems: 'flex-start', gap: space[12], padding: space[16] },
   body: { flex: 1, gap: space[6] },
   title: { ...text.title, fontSize: 16, lineHeight: 21, color: color.text.primary },
   steps: { ...text.body, color: color.text.secondary },

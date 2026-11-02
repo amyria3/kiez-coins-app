@@ -62,7 +62,7 @@ back = [L for L in layers[:first_illu] if L['welle']]
 front = [L for L in layers[first_illu:] if L['welle']]
 
 # kleine und große Illustration: In Darias Vorlagen steht die kleine zuerst, dann die große
-KLEIN = {'Ocular': 2, 'Steuerrad': 2, 'Anchor': 1, 'Bitseps': 0}[NAME]
+KLEIN = {'Ocular': 2, 'Steuerrad': 2, 'Anchor': 1, 'Bitseps': 0, 'Bottle': 1}[NAME]   # Bottle nur für „meer“
 small = illus[:KLEIN] or None; big = illus[KLEIN:]
 for L in illus: print('  Illustration', 'klein' if small and L in small else 'groß', [round(v) for v in L['bb']], len(L['els']))
 def gbb(g):
@@ -314,7 +314,11 @@ kommentar = ''
 if small: sP = punkte(small); sc_, sa, sl_ = pca(sP)
 if big: bP = punkte(big); bc, ba, bl = pca(bP)
 
-if MODE == 'owning' and small:
+if MODE == 'meer':
+    # Nur das Meer: Abzeichen noch nicht erhalten, die Illustration bleibt ausgeblendet (Daria, 2026-11-02)
+    kommentar = 'Meer: Himmel und endlose Wellen ohne Illustration, für offene Abzeichen.'
+
+elif MODE == 'owning' and small:
     # schwimmt herein, quert, kehrt zurück, bleibt an Darias Stelle (kleine Illustration) und bewegt sich nur noch auf und ab
     X0 = sc_[0]; T_A, T_B, T_C = 12.0, 6.0, 4.0; T1 = T_A + T_B + T_C
     def xb(t):
@@ -454,6 +458,6 @@ head = (f'<svg width="870" height="819" viewBox="0 0 870 819" fill="none" xmlns=
         f'<style>\n/* {NAME}, {kommentar} Nach Darias Vorlage (2026-11-02). Wellen periodisch und endlos, Farben stehen, nur die Form wandert. */\n' + '\n'.join(css) + '\n</style>\n')
 out = (head + defs + f'\n<defs><clipPath id="scheibe"><path d="{disc}"/></clipPath>{"".join(masks)}{extra_defs}</defs>\n' + sky['els'][0] + '\n<g clip-path="url(#scheibe)">\n'
        + ''.join(rects[id(L)] for L in back) + '\n' + mitte_inhalt + '\n' + ''.join(rects[id(L)] for L in front) + '\n</g>\n</svg>\n')
-titel = {'owning': 'Owning Badge', 'received': 'Badge Received'}[MODE]
+titel = {'owning': 'Owning Badge', 'received': 'Badge Received', 'meer': 'Meer'}[MODE]
 open(S + ('video/' if VIDEO else '') + f'{NAME} – {titel}.svg', 'w').write(out)
 print(NAME, titel, len(out) // 1024, 'KB')

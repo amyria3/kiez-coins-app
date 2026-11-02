@@ -114,7 +114,7 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={() => snooze('tomorrow')}>
-      <BlurView intensity={40} tint={scheme} style={StyleSheet.absoluteFill} />
+      <BlurView intensity={18} tint={scheme} style={StyleSheet.absoluteFill} />
       <View style={[styles.backdrop, { paddingTop: insets.top + space[16], paddingBottom: insets.bottom + space[16] }]}>
         <View style={styles.card} accessibilityViewIsModal>
           {done ? (
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: space[16],
     paddingHorizontal: space[16],
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    backgroundColor: color.bg.scrim,
   },
   card: {
     width: '100%',
@@ -257,7 +257,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     borderWidth: stroke.thin,
     borderColor: color.line.hairline,
-    backgroundColor: color.bg.screen,
+    // Der Grund dahinter ist schon unscharf, die Karte trägt nur den Stich aus Dunkel-Lila
+    backgroundColor: color.bg.frost,
   },
   head: { gap: space[8] },
   progress: { flexDirection: 'row', gap: space[4] },
