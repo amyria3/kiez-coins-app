@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { KaterCard } from '../components/Content';
-import { Cat } from '../components/icons/Brand';
+import { Cat, CrownIcon } from '../components/icons/Brand';
 import { Icon } from '../components/icons/Icon';
 import { Button } from '../components/Button';
 import { Segments } from '../components/FeedHeader';
@@ -88,9 +88,14 @@ function Reise() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}>
-        {/* Schiffchen auf Wellen links vor dem Titel (Daria, 02.11.2026) */}
+        {/* Schiffchen auf Wellen links vor dem Titel, daneben die Krone als Zeichen für „Was Du so machst“ (Daria, 02.11.2026) */}
         <View style={styles.titleRow}>
-          {isFashionable ? null : <SchiffWellen />}
+          {isFashionable ? null : (
+            <>
+              <SchiffWellen />
+              <CrownIcon height={30} />
+            </>
+          )}
           <Text style={[styles.title, styles.flex1]} accessibilityRole="header">
             Was Du so machst
           </Text>
