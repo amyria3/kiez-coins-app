@@ -20,13 +20,17 @@
 - Claudes frühere Varianten für Fernrohr, Anker und Arm auf der Nacht-Szene sind gelöscht (2026-11-02), da Darias Vorlagen sie ersetzen. Sie liegen in der Git-Geschichte.
 - Eine Szene ist 0,6 bis 2,4 MB groß, da das Himmelsbild als PNG eingebettet ist.
 
+## Stand 2026-11-02
+
+- Erledigt: Der Hinweis zeigt im Kiez-Look Darias Szene (`src/components/BadgeScene.tsx`, `src/app/badge/[kind].tsx`). Android spielt Videos mit `expo-video`, ausgeschnitten mit `MaskedView`, das Web die SVG. Damit ist keine WebView und keine neue APK nötig.
+- Die Karte zeigt noch keine Avatare und keine Namen der Eingeladenen, nur den Kater-Text.
+
 ## Nächster Schritt
 
-1. Szenen ausliefern: SVGs nach `public/animations/` legen. Im Web zeigt ein `<img>` die SVG mit laufender CSS-Animation. Auf iOS und Android braucht es eine WebView (`npx expo install react-native-webview`). Das ist eine native Abhängigkeit: Danach baut der EAS-Workflow eine neue APK, und die Tester:innen sehen den Update-Hinweis. Vorher mit Daria klären.
-2. Eingeladene laden: neue Funktion, z. B. `my_invitees()` (security definer), die für `auth.uid()` die aktiven Einladungen mit Name und Avatar liefert, nach derselben Regel wie `badge_progress`. Migration anlegen, in `DATENBANK.md` mit „noch nicht“ eintragen, Pflichtaufgabe in `Stand_App.md`.
-3. `src/app/badge/[kind].tsx` nach den Entwürfen umbauen. Ohne Migration zeigt die Karte den Satz ohne Namen.
+1. Eingeladene laden: neue Funktion, z. B. `my_invitees()` (security definer), die für `auth.uid()` die aktiven Einladungen mit Name und Avatar liefert, nach derselben Regel wie `badge_progress`. Migration anlegen, in `DATENBANK.md` mit „noch nicht“ eintragen, Pflichtaufgabe in `Stand_App.md`.
+2. In der Karte die Avatare und „Jule, Peter, Lena, Mo und Ali sind dabei, weil Du sie eingeladen hast“ zeigen.
+3. Auf Android prüfen: Übergang vom Einstieg in die Schleife, Kante der Maske.
 
 ## Offene Fragen an Daria
 
-- WebView in der App, also eine neue APK?
 - Farben der Karte: aus dem Entwurf messen (oben Oliv, unten Nachtblau) oder als neue Tokens?
