@@ -34,7 +34,7 @@ const ZUSAMMEN_MS = 1000;
 export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => void }) {
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
-  // Kater mit Kreis ist höher als breit (1300 × 1885): auf kleinen Handys schmaler, damit er die Zahnräder nicht berührt (2026-11-02)
+  // Kater mit Kreis ist höher als breit (1300 × 1696): auf kleinen Handys schmaler, damit er die Zahnräder nicht berührt (2026-11-02)
   const katerBreite = Math.round(Math.min(240, height * 0.28));
   // Zahnräder groß wie beim Start vorher (200), auf kleinen Handys etwas kleiner, damit sie den Kater nicht berühren
   const raederSize = Math.round(Math.min(200, height * 0.22));

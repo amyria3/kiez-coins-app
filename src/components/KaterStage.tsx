@@ -9,7 +9,7 @@ import type { KaterAktion, KaterSpruch } from '../data/kater';
 import { t } from '../data/texts';
 import { color, font, motion, radius, space } from '../theme/tokens';
 
-// Ebenen aus Darias Figma-Kater, alle auf derselben Fläche 1300 × 1885. Gebaut mit scripts/kater-ebenen.py (02.11.2026).
+// Ebenen aus Darias Figma-Kater, alle auf derselben Fläche 1300 × 1696 (Ausschnitt wie Übergabe/KiezCoins Cat2.svg). Gebaut mit scripts/kater-ebenen.py (02.11.2026).
 // `oben` (Schürze, Kopf) hat an den Gläsern eine Aussparung: Darunter läuft das Video der schimmernden Gläser.
 const UNTEN = require('../../assets/kater/unten.png');
 const BESEN = require('../../assets/kater/besen.png');
@@ -26,18 +26,18 @@ const MUND_GANZ = require('../../assets/kater/mund-ganz.png');
 const LAECHELN = require('../../assets/kater/mund-laecheln.png');
 const LAECHELN_GANZ = require('../../assets/kater/mund-laecheln-ganz.png');
 /** Ausschnitt der Mundbilder auf der Fläche */
-const MUND_BOX = { x: 560, y: 530, w: 120, h: 140 };
+const MUND_BOX = { x: 560, y: 236, w: 120, h: 140 };
 const GLAESER = require('../../assets/kater/glaeser.png');
 const VIDEO = require('../../assets/kater/glaeser.mp4');
 const W = 1300;
-const H = 1885;
+const H = 1696;
 /** Ausschnitt des Videos auf der Fläche. Es läuft vor und zurück, damit die Schleife ohne Sprung ist. */
-const CLIP = { x: 430, y: 423, w: 374, h: 188 };
+const CLIP = { x: 430, y: 129, w: 374, h: 188 };
 /** Pfote, die den Besen hält: Drehpunkt des Besens */
-const PFOTE = { x: 985, y: 1150 };
+const PFOTE = { x: 985, y: 856 };
 /** Mitte der Gläser, dort erscheinen die Herzen */
-const GLAS_L = { x: 523, y: 528 };
-const GLAS_R = { x: 707, y: 512 };
+const GLAS_L = { x: 523, y: 234 };
+const GLAS_R = { x: 707, y: 218 };
 const HERZ = 150;
 /** Herzen: Darias Herz, flach, kräftiges Rot mit weißem Rand, damit sie sich von den orangebraunen Gläsern und dem blauen Fell abheben */
 const HERZ_FARBE = '#FF1E56';
