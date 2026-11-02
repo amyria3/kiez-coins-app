@@ -16,7 +16,7 @@ export function BadgeStrip({ userId, align = 'center' }: { userId: string; align
     <View style={[styles.wrap, align === 'start' && styles.start]}>
       {badges.map((b) => (
         <View key={b.badge} style={styles.item}>
-          <BadgeIcon kind={b.badge} number={b.number} size={40} />
+          <BadgeIcon kind={b.badge} number={b.number} size={46} lines />
           <Text noTranslate style={styles.name} numberOfLines={2}>
             {badgeTitle(b.badge, b.number)}
           </Text>
@@ -29,6 +29,6 @@ export function BadgeStrip({ userId, align = 'center' }: { userId: string; align
 const styles = StyleSheet.create({
   wrap: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: space[16] },
   start: { justifyContent: 'flex-start' },
-  item: { width: 72, alignItems: 'center', gap: space[4] },
+  item: { width: 80, alignItems: 'center', gap: space[4] },
   name: { fontFamily: font.regular, fontSize: 12, lineHeight: 16, color: color.text.secondary, textAlign: 'center' },
 });
