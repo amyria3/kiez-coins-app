@@ -219,7 +219,7 @@ export default function BeforeAfterScreen() {
   return (
     <SubScreen
       title="Me-Challenge"
-      subtitle="Schritt 2 von 3 · Timer"
+      subtitle="Schritt 2 von 3 · Einstellungen"
       navigation="close"
       onLeadingPress={close}
       actions={
@@ -246,6 +246,12 @@ export default function BeforeAfterScreen() {
       }
     >
       <BeforeAfterSteps at={1} />
+      {/* Frage vor dem Start: Der Timer ist freiwillig (Daria, 2026-11-02) */}
+      {running ? null : (
+        <Text style={styles.question} accessibilityRole="header">
+          Willst Du Deine eigene Zeit nehmen?
+        </Text>
+      )}
       <KaterBubble>
         {running
           ? 'Ich halte die Zeit fest, auch wenn Du die App schließt. Viel Erfolg!'
@@ -280,6 +286,7 @@ export default function BeforeAfterScreen() {
 }
 
 const styles = StyleSheet.create({
+  question: { ...text.headline, color: color.text.primary },
   ringWrap: { alignItems: 'center', paddingVertical: space[8] },
   big: { fontFamily: font.display, fontSize: 44, lineHeight: 48, letterSpacing: -1, color: color.text.primary, fontVariant: ['tabular-nums'] },
   of: { ...text.caption, fontSize: 12, color: color.text.secondary },

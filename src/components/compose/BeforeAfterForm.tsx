@@ -11,9 +11,9 @@ import { useNudge } from '../Nudge';
 import { useComposeContent, type ComposeContent } from './compose';
 import { Text } from '../T';
 
-/** Fortschritt „1 Vorher, 2 Timer, 3 Nachher“ */
+/** Fortschritt „1 Vorher, 2 Einstellungen, 3 Nachher“ (Schritt 2 hieß bis 2026-11-02 „Timer“) */
 export function BeforeAfterSteps({ at }: { at: 0 | 1 | 2 }) {
-  const names = ['Vorher', 'Timer', 'Nachher'];
+  const names = ['Vorher', 'Einstellungen', 'Nachher'];
   return (
     <View
       style={styles.steps}
