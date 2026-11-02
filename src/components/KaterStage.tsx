@@ -10,12 +10,19 @@ import { t } from '../data/texts';
 import { color, font, motion, radius, space } from '../theme/tokens';
 
 // Ebenen aus Darias Figma-Kater (Übergabe/KiezCoins Cat.svg, 02.11.2026), alle auf derselben Fläche 1300 × 1885.
-// `oben` (Schürze, Kopf, Nase) hat an den Gläsern eine Aussparung: Darunter läuft das Video der schimmernden Gläser.
+// `oben` (Schürze, Kopf) hat an den Gläsern eine Aussparung: Darunter läuft das Video der schimmernden Gläser.
 const UNTEN = require('../../assets/kater/unten.png');
 const BESEN = require('../../assets/kater/besen.png');
 const STIEFEL = require('../../assets/kater/stiefel.png');
 const OBEN = require('../../assets/kater/oben.png');
 const OBEN_GANZ = require('../../assets/kater/oben-ganz.png');
+// Münder (Daria, 02.11.2026): sonst der Default-Mund, bei den Herzen lächelt er. Je mit und ohne Aussparung der Gläser.
+const MUND = require('../../assets/kater/mund.png');
+const MUND_GANZ = require('../../assets/kater/mund-ganz.png');
+const LAECHELN = require('../../assets/kater/mund-laecheln.png');
+const LAECHELN_GANZ = require('../../assets/kater/mund-laecheln-ganz.png');
+/** Ausschnitt der Mundbilder auf der Fläche */
+const MUND_BOX = { x: 560, y: 530, w: 120, h: 130 };
 const GLAESER = require('../../assets/kater/glaeser.png');
 const VIDEO = require('../../assets/kater/glaeser.mp4');
 const W = 1300;
@@ -49,7 +56,7 @@ type Props = {
  * Darias Kater mit Besen (Figma, 02.11.2026): atmet, die Gläser schimmern, und je Spruch eine Aktion:
  * fegen (Besen umdrehen, mit der Bürste hin und her), winken (Besen heben und schwenken),
  * brille (Sonnenbrille runter, drüber schauen), stampfen (Stiefel heben). Darüber die Sprechblase.
- * `herzen` lässt Herzen in den Gläsern pochen wie in alten Zeichentrickfilmen.
+ * `herzen` lässt Herzen in den Gläsern pochen wie in alten Zeichentrickfilmen, dabei lächelt er.
  */
 export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, onPress, ohneBlase, herzen = 0 }: Props) {
   const s = width / W;
@@ -168,6 +175,21 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
     opacity: herzSichtbar,
     transform: [{ scale: herz }],
   });
+  const mundStil = {
+    position: 'absolute' as const,
+    left: MUND_BOX.x * s,
+    top: MUND_BOX.y * s,
+    width: MUND_BOX.w * s,
+    height: MUND_BOX.h * s,
+  };
+  const laechelt = herzSichtbar;
+  const ernst = herzSichtbar.interpolate({ inputRange: [0, 1], outputRange: [1, 0] });
+  const muender = (mund: number, laecheln: number) => (
+    <>
+      <Animated.Image source={mund} style={[mundStil, { opacity: ernst }]} resizeMode="stretch" />
+      <Animated.Image source={laecheln} style={[mundStil, { opacity: laechelt }]} resizeMode="stretch" />
+    </>
+  );
   return (
     <View style={styles.wrap}>
       {ohneBlase ? null : <KaterBlase text={spruch?.text} sichtbar={blase} />}
@@ -221,8 +243,10 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
             />
           )}
           <Image source={OBEN} style={layer} contentFit="contain" />
+          {muender(MUND, LAECHELN)}
           <Animated.View style={[layer, { opacity: brilleRunter }]} pointerEvents="none">
             <Image source={OBEN_GANZ} style={flaeche} contentFit="contain" />
+            {muender(MUND_GANZ, LAECHELN_GANZ)}
             <Animated.View style={[layer, brilleVersatz]}>
               <Image source={GLAESER} style={flaeche} contentFit="contain" />
             </Animated.View>
