@@ -66,4 +66,4 @@ Diese `README.md` bleibt immer liegen.
 - `Animationen/`: fertige Animationen für alle fünf Abzeichen, je „Owning Badge“ und „Badge Received“ mit Vorschau; in `Vorlagen/` Darias Szenen je Abzeichen.
 - `Abzeichen-Hinweis/`: Darias Entwürfe für den Hinweis.
 - `2026-11-02_aufrufe-im-feed.md`: Notiz für die Doku. Aufrufe eigener Posts im Feed (Auge mit Zahl), Zählweise.
-- `2026-11-02_startbild-kater-brille.md`: Notiz für die Doku. Startbildschirm mit Darias Figma-Kater, die Gläser schimmern (Video unter dem Bild).
+- `2026-11-02_startbild-kater-brille.md`: Darias Figma-Kater in App und Website, animiert, Herzen in der Brille. Offen: der versteckte lächelnde Mund.
