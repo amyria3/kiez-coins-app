@@ -48,7 +48,7 @@ export default function BadgeDetailScreen() {
     >
       {isFashionable ? (
         <View style={styles.icon}>
-          <BadgeIcon kind={kind} number={own?.number} size={120} muted={!own} />
+          <BadgeIcon kind={kind} number={own?.number} size={138} muted={!own} />
         </View>
       ) : (
         <View style={[styles.szene, { backgroundColor: SCENE_FRAME[kind] }]} onLayout={(e) => setBreite(e.nativeEvent.layout.width)}>

@@ -51,7 +51,7 @@ export default function NewBadgeScreen() {
     inhalt = (
       <>
         <View style={styles.hero}>
-          <BadgeIcon kind={kind} number={own?.number} size={120} />
+          <BadgeIcon kind={kind} number={own?.number} size={138} />
           <Text noTranslate style={styles.name}>
             {titel}
           </Text>

@@ -45,7 +45,7 @@ export function BadgeOverview({ gutter = 0 }: { gutter?: number }) {
                 onPress={() => router.push({ pathname: '/badges/[kind]', params: { kind: meta.kind } })}
                 style={({ pressed }) => [styles.row, i > 0 && styles.divider, pressed && styles.pressed]}
               >
-                <BadgeIcon kind={meta.kind} number={own!.number} size={44} muted={!own!.visible} />
+                <BadgeIcon kind={meta.kind} number={own!.number} size={51} muted={!own!.visible} lines />
                 <View style={styles.flex}>
                   <Text noTranslate style={styles.name}>
                     {badgeTitle(meta.kind, own!.number)}
@@ -60,7 +60,7 @@ export function BadgeOverview({ gutter = 0 }: { gutter?: number }) {
       ) : null}
       {open.length ? (
         <View style={styles.block}>
-          <Text style={styles.label}>Noch offen</Text>
+          <Text style={styles.label}>Das gibt es zu gewinnen</Text>
           <View style={styles.list}>
             {open.map((meta, i) => {
               const steps = badgeSteps(meta.kind, mine.progress);
@@ -71,7 +71,7 @@ export function BadgeOverview({ gutter = 0 }: { gutter?: number }) {
                   onPress={() => router.push({ pathname: '/badges/[kind]', params: { kind: meta.kind } })}
                   style={({ pressed }) => [styles.row, i > 0 && styles.divider, pressed && styles.pressed]}
                 >
-                  <BadgeIcon kind={meta.kind} size={44} muted />
+                  <BadgeIcon kind={meta.kind} size={51} muted />
                   <View style={styles.flex}>
                     <View style={styles.head}>
                       <Text style={styles.openName}>{meta.name}</Text>

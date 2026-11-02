@@ -48,6 +48,18 @@ function grau(hex: string) {
   return `#${v}${v}${v}`;
 }
 
+/** Fassung Default mit den Linien, der helle Kreis in der Farbe des Abzeichens (Daria, 2026-11-02) */
+const farbig = new Map<string, string>();
+function mitFarbe(xml: string, fill: string) {
+  const key = fill + xml.length;
+  let out = farbig.get(key);
+  if (!out) {
+    out = xml.replaceAll('#F0F0F0', fill);
+    farbig.set(key, out);
+  }
+  return out;
+}
+
 /** Breite des Rings am Avatar */
 const RING = (size: number) => Math.max(2, Math.round(size * 0.07));
 
@@ -60,6 +72,7 @@ export function BadgeIcon({
   number,
   muted = false,
   ring = false,
+  lines = false,
 }: {
   kind: BadgeKind;
   size: number;
@@ -68,6 +81,8 @@ export function BadgeIcon({
   muted?: boolean;
   /** Schmaler Ring in der Farbe des Grunds um die Farbfläche, z. B. am Avatar (Daria, 2026-11-02) */
   ring?: boolean;
+  /** Erhalten, in Listen: Fassung Default mit den Linien auf der Farbe des Abzeichens */
+  lines?: boolean;
 }) {
   const meta = badgeMeta(kind);
   const own = isFashionable ? undefined : KIEZ_BADGE_SVGS[kind];
@@ -106,8 +121,8 @@ export function BadgeIcon({
         ) : null}
         {/* Eigene Ebene über dem Ring: Im Web malt der Browser absolut gesetzte Elemente über die übrigen */}
         <View style={{ position: 'absolute', left: 0, top: 0 }}>
-          {/* Noch offen oder ausgeblendet: Darias Fassung Default mit den Linien, hell und ohne Farbe (Daria, 2026-11-02) */}
-          <SvgXml xml={muted || size >= 80 ? own.default : own.small} width={size} height={size} />
+          {/* Offen oder ausgeblendet: Default mit Linien, hell. Erhalten in Listen: Default auf der Farbe des Abzeichens (Daria, 2026-11-02) */}
+          <SvgXml xml={muted ? own.default : lines ? mitFarbe(own.default, own.color) : size >= 80 ? own.default : own.small} width={size} height={size} />
         </View>
       </View>
     );

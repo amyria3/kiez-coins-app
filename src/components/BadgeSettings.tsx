@@ -49,7 +49,7 @@ export function BadgeSettings() {
                 hitSlop={8}
                 onPress={() => router.push({ pathname: '/badges/[kind]', params: { kind: meta.kind } })}
               >
-                <BadgeIcon kind={meta.kind} number={own!.number} size={40} muted={!own!.visible} />
+                <BadgeIcon kind={meta.kind} number={own!.number} size={46} muted={!own!.visible} lines />
               </Pressable>
               <View style={styles.flex}>
                 <SwitchRow
