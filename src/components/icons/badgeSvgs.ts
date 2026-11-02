@@ -1,5 +1,5 @@
 /**
- * Darias Abzeichen-Icons im Kiez-Look (Übergabe/Abzeichen-Icons, Stand 2026-11-02): Small für Avatar und Listen,
+ * Darias Abzeichen-Icons im Kiez-Look (design/abzeichen/icons, Stand 2026-11-02): Small für Avatar und Listen,
  * Default ab 80 pt. Erzeugt aus ihren SVG-Dateien, Inhalt unverändert.
  */
 import type { BadgeKind } from '../../data/badges';

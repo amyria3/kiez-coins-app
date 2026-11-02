@@ -13,7 +13,7 @@ import { BADGES, badgeMeta, badgeTitle, useMyBadges, type BadgeKind } from '../.
 import { useGoBack } from '../../lib/goBack';
 import { color, isFashionable, radius, space, text } from '../../theme/tokens';
 
-// Darias Entwürfe (Übergabe/Abzeichen-Hinweis, 01.11.2026): Lots:in und Anführer:in zeigen die Karte,
+// Darias Entwürfe (design/abzeichen/hinweis, 01.11.2026): Lots:in und Anführer:in zeigen die Karte,
 // in die die Szene hineinragt; die übrigen zeigen die Szene mit der Kater-Sprechblase.
 // Verlauf der Karte: oben die Farbe hinter der Szene, unten die Tiefe des Meeres.
 const KARTE: Partial<Record<BadgeKind, string[]>> = {

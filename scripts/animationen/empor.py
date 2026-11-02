@@ -11,7 +11,7 @@ import sys
 LICHT=sys.argv[1] if len(sys.argv)>1 else '#F3EEE8'   # Warmweiß der App (Daria, 2026-11-02)
 AUS=sys.argv[2] if len(sys.argv)>2 else 'Badge Received.svg'
 # --- Strahlen: Darias Bewegungsstriche aus der Flasche, je auf Länge 1 entlang -y gelegt, Fuß im Ursprung
-ICON=open(REPO + 'Übergabe/Abzeichen-Icons/Property 1=Default, Type=Bottle.svg').read()
+ICON=open(REPO + 'design/abzeichen/icons/Property 1=Default, Type=Bottle.svg').read()
 subs=parse_path(re.findall(r' d="([^"]+)"',ICON)[0]).continuous_subpaths()
 blades=[]
 for i in (11,12,13,14,15,3,4,6,7,8):

@@ -55,15 +55,15 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-25_offen_gruppe-beim-erstellen.md`: Beim Erstellen zeigt die App, in welcher Gruppe die Person ist (To-do, Daria).
 - `2026-10-25_offen_kopf-grosse-bildschirme.md`: Der Feed-Kopf verschwindet auf großen Bildschirmen scheinbar zufällig (To-do, Daria).
 - `2026-10-26_offen_russisch.md`: Russisch in der App, alle Sprachen auf der Website. Prüfung der Übersetzungen durch Muttersprachler:innen steht aus.
+- `2026-10-28_offen_android-updates-expo-minuten.md`: Workflow „Android-Updates“ startet nicht, da die Expo-Minuten aufgebraucht sind.
 - `2026-10-26_offen_lila-ungemuetlich.md`: Kritik „Farbe Lila, ungemütlich“, offene Fragen zu Ort und Ersatzfarbe (To-do, Daria).
 - `2026-10-31_offen_timer-optional.md`: Offen. Timer der Me-Challenge optional (Knopf „Ohne Timer weiter“), Layout noch zu besprechen; Reihenfolge Bild, Me-Challenge, We-Challenge.
-- `2026-10-31_erstellen-lila-fuehrung.md`: Notiz für die Doku. Beim Erstellen werden Ort und Typ nacheinander lila, bis die Person sie berührt.
-- `2026-11-01_offen_abzeichen-hinweis.md`: Offen. Hinweis beim neuen Abzeichen nach Darias Entwürfen (`Abzeichen-Hinweis/`), Szenen in `Animationen/`.
+- `2026-11-01_offen_abzeichen-hinweis.md`: Offen. Hinweis beim neuen Abzeichen: Szene ist in der App, Avatare und Namen der Eingeladenen fehlen noch.
 
-## Ordner
+## Notizen für die Doku
 
-- `Abzeichen-Icons/`: Darias Abzeichen-Icons (Small, Default, Animated) für alle fünf Abzeichen und `Auszeichnung.svg` als Übersicht. Die App nutzt Small und Default über `src/components/icons/badgeSvgs.ts`.
-- `Animationen/`: fertige Animationen für alle fünf Abzeichen, je „Owning Badge“ und „Badge Received“ mit Vorschau; in `Vorlagen/` Darias Szenen je Abzeichen.
-- `Abzeichen-Hinweis/`: Darias Entwürfe für den Hinweis.
-- `2026-11-02_aufrufe-im-feed.md`: Notiz für die Doku. Aufrufe eigener Posts im Feed (Auge mit Zahl), Zählweise.
 - `2026-11-02_startbild-kater-brille.md`: Darias Figma-Kater in App und Website, animiert, Herzen in der Brille, dabei lächelt er.
+
+## Fertiges Material liegt außerhalb der Übergabe
+
+Darias Quellen für Abzeichen liegen in `design/abzeichen/` im Repo: `icons/` (Small, Default, Animated), `vorlagen/` (Szenen je Abzeichen), `szenen/` (fertige Animationen mit Vorschau), `hinweis/` (Entwürfe für den Hinweis). Die Skripte dazu liegen in `scripts/animationen/`.

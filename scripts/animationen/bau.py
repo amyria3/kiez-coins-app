@@ -8,7 +8,7 @@ from PIL import Image
 from scipy.interpolate import CubicSpline
 from skimage import measure
 S = AUSORDNER
-src=open(REPO + 'Übergabe/Animationen/Vorlagen/Bottle.svg').read()
+src=open(REPO + 'design/abzeichen/vorlagen/Bottle.svg').read()
 K=json.load(open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'flasche-kontur.json')))
 # Periode und Richtung je Ebene (die Kopie liegt links: läuft nach rechts; rechts: läuft nach links)
 EB={'hinten':(997,-1,26,3,4.2),'mitte':(989,1,20,4,3.6),'vorn_verlauf':(889,1,25.6,5,3.2),'vorn':(853,-1,13,6,2.8)}
