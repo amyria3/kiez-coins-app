@@ -94,7 +94,10 @@ export function BadgeIcon({
             }}
           />
         ) : null}
-        <SvgXml xml={size >= 80 ? own.default : own.small} width={size} height={size} />
+        {/* Eigene Ebene über dem Ring: Im Web malt der Browser absolut gesetzte Elemente über die übrigen */}
+        <View style={{ position: 'absolute', left: 0, top: 0 }}>
+          <SvgXml xml={size >= 80 ? own.default : own.small} width={size} height={size} />
+        </View>
       </View>
     );
   }
