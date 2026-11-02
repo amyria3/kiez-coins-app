@@ -12,6 +12,9 @@ import { useAuth } from '../../data/auth';
 import { color, font, space, stroke, text } from '../../theme/tokens';
 import { useAppDimensions } from '../../theme/layout';
 
+/** So lange sind die Herzen zu sehen, bevor es weitergeht */
+const HERZ_MS = 900;
+
 /** Route `onboarding/welcome`. Figma: `onboarding/welcome`, Upgrade „Nachtschicht“. */
 export default function Welcome() {
   const router = useRouter();
@@ -22,11 +25,18 @@ export default function Welcome() {
   const kater = useKater('hallo', 10000);
   const { startTest } = useAuth();
   const [busy, setBusy] = useState(false);
+  // Ein Knopf lässt Herzen in der Brille aufgehen (Daria, 02.11.2026). Kurz warten, damit man sie sieht.
+  const [herzen, setHerzen] = useState(0);
+  const verliebt = (weiter: () => void) => {
+    setHerzen((n) => n + 1);
+    setTimeout(weiter, HERZ_MS);
+  };
 
   // Einmal testen ohne Anmeldung (Daria, 27.10.2026): Testkonto, danach normal weiter mit dem Decknamen.
   const test = async () => {
     setBusy(true);
-    const failure = await startTest();
+    setHerzen((n) => n + 1);
+    const [failure] = await Promise.all([startTest(), new Promise((r) => setTimeout(r, HERZ_MS))]);
     setBusy(false);
     if (failure) {
       Alert.alert('Klappt gerade nicht', failure);
@@ -37,7 +47,7 @@ export default function Welcome() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={[styles.content, compact && styles.contentCompact]}>
-        <KaterStage width={compact ? 130 : 190} spruch={kater.spruch} take={kater.take} onPress={kater.noch} />
+        <KaterStage width={compact ? 130 : 190} spruch={kater.spruch} take={kater.take} onPress={kater.noch} herzen={herzen} />
         <Text style={[styles.headline, compact && styles.headlineCompact]} accessibilityRole="header">
           Ahoi.{'\n'}
           <Text style={styles.headlineMuted}>Cat The Käptn sucht eine neue Crew für seinen Kiez.</Text>
@@ -62,7 +72,7 @@ export default function Welcome() {
       </ScrollView>
       <ActionBar>
         {/* Ein Weg für neue und bekannte Konten (Daria, 24.10.2026) */}
-        <Button label="Anheuern oder Einloggen" icon="this-way" onPress={() => router.push('/onboarding/email')} disabled={busy} />
+        <Button label="Anheuern oder Einloggen" icon="this-way" onPress={() => verliebt(() => router.push('/onboarding/email'))} disabled={busy} />
         <Button busy={busy} label="Ohne Anmeldung testen" variant="ghost" onPress={test} disabled={busy} />
         {/* Wann die Testdaten verschwinden, steht direkt unter dem Button (Daria, 28.10.2026) */}
         <Text style={styles.testHint}>
