@@ -62,6 +62,6 @@ Diese `README.md` bleibt immer liegen.
 
 ## Ordner
 
-- `Abzeichen-Icons/`: Darias Abzeichen-Icons (Small, Default, Animated). Die App nutzt sie über `src/components/icons/badgeSvgs.ts`. Steuerrad ist noch Claudes Entwurf.
-- `Animationen/`: Szenen für den Hinweis beim neuen Abzeichen und Darias Vorlage.
+- `Abzeichen-Icons/`: Darias Abzeichen-Icons (Small, Default, Animated) für alle fünf Abzeichen und `Auszeichnung.svg` als Übersicht. Die App nutzt Small und Default über `src/components/icons/badgeSvgs.ts`.
+- `Animationen/`: fertige Animationen für Lots:in (`Bottle Reward endlos`, `Badge Received`), in `Vorlagen/` Darias Szenen je Abzeichen.
 - `Abzeichen-Hinweis/`: Darias Entwürfe für den Hinweis.

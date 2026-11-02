@@ -222,9 +222,9 @@ Plan und Entscheidungen: `Übergabe/2026-10-27_we-challenge-mehrere-personen.md`
 
 - [x] (2026-11-01 eingespielt) Pflicht (Daria): Migration `20261101000100_abzeichen.sql` im SQL-Editor ausführen: https://github.com/amyria3/kiez-coins-app/blob/main/supabase/migrations/20261101000100_abzeichen.sql
 - [ ] Frage an Daria: endgültiger Name für das Anker-Abzeichen (Arbeitstitel Seebär:in)
-- [ ] Frage an Daria: Farbe für Anführer:in; Lila trägt auch die Führung beim Erstellen
+- [x] Farbe für Anführer:in: Darias Icon in Blauviolett `#6155F5` (2026-11-02)
 - [ ] Frage an Daria: Zählt eine Einladung per Gruppen-Code für Lots:in und Anführer:in? Bisher nur der Freundes-Code
 - [ ] Frage an Daria: Abzeichen und Ninja-Maske (ohne Kiez) am selben Avatar; bisher zeigt der Avatar ohne Kiez kein Abzeichen
-- [x] Darias Icons für Pionier:in, Lots:in, Seebär:in und Macher:in in der App, Kiez-Look (2026-11-01). Offen: Anführer:in und Fashionable Look
+- [x] Darias Icons für alle fünf Abzeichen in der App, Kiez-Look (2026-11-02). Offen: Fashionable Look
 - [ ] Hinweis beim neuen Abzeichen nach Darias Entwürfen, siehe `2026-11-01_offen_abzeichen-hinweis.md`
 

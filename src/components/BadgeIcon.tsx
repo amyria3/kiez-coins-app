@@ -7,8 +7,8 @@ import { KIEZ_BADGE_SVGS } from './icons/badgeSvgs';
 
 /**
  * Abzeichen als runde Kachel in seiner Farbe, Symbol dunkel darauf (Daria, 2026-10-31).
- * Unter 20 pt zeigt die App nur einen Farbpunkt. Im Kiez-Look zeigen Pionier:in, Lots:in, Seebär:in und Macher:in Darias
- * Icons (Daria, 2026-11-01), die übrigen und der Fashionable Look noch die Platzhalter.
+ * Unter 20 pt zeigt die App nur einen Farbpunkt. Im Kiez-Look zeigen alle fünf Abzeichen Darias
+ * Icons (Daria, 2026-11-02), der Fashionable Look noch die Platzhalter.
  * Jedes Symbol hat in der App nur diese eine Bedeutung.
  */
 const INK = '#1F2123';
