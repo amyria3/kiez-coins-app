@@ -14,7 +14,7 @@
 
 - Darias Szenen-Vorlagen je Abzeichen in `Animationen/Vorlagen/` (2026-11-02): `Ocular.svg` (Pionier:in), `Bottle.svg` (Lots:in), `Steuerrad.svg` (Anführer:in), `Anchor.svg` (Seebär:in), `Bitseps.svg` (Macher:in). Jede hat eigenen Himmel, eigene Farben und Wellen. Noch nicht animiert.
 - Fertig animiert für Lots:in:
-  - `Animationen/Bottle Reward endlos.svg`: Flasche schwimmt herein und bleibt auf den Wellen (Vorlage `Vorlagen/Bottle Nacht (Wellen verlängert).svg`).
+  - `Animationen/Bottle Reward endlos.svg`: Flasche schwimmt herein und bleibt auf den Wellen (Vorlage `Vorlagen/Bottle.svg`).
   - `Animationen/Badge Received.svg`: Flasche steigt aus dem Wasser, schwebt senkrecht und strahlt mit Darias Strichen.
   - Je mit Vorschau als MP4. Erzeugt mit Claudes Skripten: Wellen periodisch, Bewegungen vorberechnet als CSS-Keyframes, Strahlen als SMIL, keine Scripts in der SVG.
 - Claudes frühere Varianten für Fernrohr, Anker und Arm auf der Nacht-Szene sind gelöscht (2026-11-02), da Darias Vorlagen sie ersetzen. Sie liegen in der Git-Geschichte.
