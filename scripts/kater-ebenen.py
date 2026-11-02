@@ -21,9 +21,11 @@ import tempfile
 import numpy as np
 from PIL import Image, ImageChops
 
-W, H = 1300, 1885
-OUT_W, OUT_H = 900, 1305  # Ebenen der App
+W, H = 1300, 1885  # Fläche von Cat.svg; alle Koordinaten hier beziehen sich auf sie
 CAT2_DY = 294  # Cat2.svg liegt um so viel höher als Cat.svg
+# Ausschnitt der Ebenen wie in Cat2.svg: oben ab dem Kopf, unten bis zum tiefer gesetzten Kreis (Daria, 02.11.2026)
+FLAECHE = (0, CAT2_DY, 1300, 1696)
+OUT_W, OUT_H = 900, 1174  # Ebenen der App
 MUND_AN = (582.066, 266.995 + CAT2_DY)  # Lage des Default-Munds, wie in Cat2.svg
 MUND_BOX = (560, 530, 120, 140)  # Ausschnitt der Mundbilder auf der Fläche
 CLIP = (430, 423, 374, 188)  # Ausschnitt des Videos auf der Fläche
@@ -41,13 +43,13 @@ def elemente(datei):
     return re.findall(r'<(?:path|circle|image)[^>]*/>', s, re.S)
 
 
-def svg(body, box=(0, 0, W, H)):
+def svg(body, box=FLAECHE):
     x, y, w, h = box
     return (f'<svg width="{w}" height="{h}" viewBox="{x} {y} {w} {h}" xmlns="http://www.w3.org/2000/svg" '
             f'xmlns:xlink="http://www.w3.org/1999/xlink">{body}</svg>')
 
 
-def render(body, w=OUT_W, h=OUT_H, box=(0, 0, W, H)):
+def render(body, w=OUT_W, h=OUT_H, box=FLAECHE):
     p = os.path.join(tmp, 'x.svg')
     open(p, 'w').write(svg(body, box))
     q = os.path.join(tmp, 'x.png')
@@ -68,13 +70,14 @@ def speichern(im, name):
 
 c1 = elemente('KiezCoins Cat.svg')
 c2 = elemente('KiezCoins Cat2.svg')
-kreis, koerper = c1[0], c1[1]
+koerper = c1[1]
 besen = c1[2:5]
 stiefel = c1[5:7]
 kopf = c1[10]
 laecheln = c1[11]
 glaeser = c1[12] + c1[13]
 runter = lambda e: f'<g transform="translate(0 {CAT2_DY})">{e}</g>'
+kreis = runter(c2[0])  # Kreis tiefer, wie in Cat2.svg
 schuerze = runter(''.join(c2[8:11]))
 augen = runter(c2[12] + c2[11])  # weißes Auge, schwarzes Auge
 brille_unten = runter(c2[14] + c2[15] + c2[16] + c2[17])  # gekippte Gläser mit Bügeln
@@ -96,14 +99,14 @@ speichern(render(augen + brille_unten), 'drueber.png')
 
 # Münder: kleiner Ausschnitt, 1 px pro Einheit der Fläche
 mx, my, mw, mh = MUND_BOX
-glas_klein = render(glaeser, W, H).split()[3].crop((mx, my, mx + mw, my + mh))
+glas_klein = render(glaeser, W, H, (0, 0, W, H)).split()[3].crop((mx, my, mx + mw, my + mh))
 for name, body in (('mund', mund), ('mund-laecheln', laecheln)):
     m = render(body, mw, mh, MUND_BOX)
     speichern(m, f'{name}-ganz.png')
     speichern(ohne(m, glas_klein), f'{name}.png')
 
 # Website: der ganze Kater in Ruhe
-web = render(kreis + koerper + ''.join(besen) + ''.join(stiefel) + oben + mund + glaeser, 1120, 1624)
+web = render(kreis + koerper + ''.join(besen) + ''.join(stiefel) + oben + mund + glaeser, 1120, 1461)
 web.save(os.path.join(root, 'website', 'kater', 'kater.png'), optimize=True)
 
 # Video: Gläser ausschneiden, vor und zurück, grünen Lichtfleck nach unten ziehen
