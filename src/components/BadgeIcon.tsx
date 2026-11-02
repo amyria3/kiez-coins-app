@@ -48,17 +48,6 @@ function grau(hex: string) {
   return `#${v}${v}${v}`;
 }
 
-/** Schwarz-weiße Fassung eines Abzeichens: jede Farbe im SVG wird zum Grau gleicher Helligkeit (Daria, 2026-11-02) */
-const swCache = new Map<string, string>();
-function schwarzWeiss(xml: string) {
-  let sw = swCache.get(xml);
-  if (!sw) {
-    sw = xml.replace(/#[0-9A-Fa-f]{6}\b|#[0-9A-Fa-f]{3}\b/g, grau);
-    swCache.set(xml, sw);
-  }
-  return sw;
-}
-
 /** Breite des Rings am Avatar */
 const RING = (size: number) => Math.max(2, Math.round(size * 0.07));
 
@@ -75,7 +64,7 @@ export function BadgeIcon({
   kind: BadgeKind;
   size: number;
   number?: number | null;
-  /** Noch nicht erhalten oder ausgeblendet: Darias Icon in Schwarz-Weiß */
+  /** Noch nicht erhalten oder ausgeblendet: Darias Fassung Default mit den Linien */
   muted?: boolean;
   /** Schmaler Ring in der Farbe des Grunds um die Farbfläche, z. B. am Avatar (Daria, 2026-11-02) */
   ring?: boolean;
@@ -117,7 +106,8 @@ export function BadgeIcon({
         ) : null}
         {/* Eigene Ebene über dem Ring: Im Web malt der Browser absolut gesetzte Elemente über die übrigen */}
         <View style={{ position: 'absolute', left: 0, top: 0 }}>
-          <SvgXml xml={muted ? schwarzWeiss(size >= 80 ? own.default : own.small) : size >= 80 ? own.default : own.small} width={size} height={size} />
+          {/* Noch offen oder ausgeblendet: Darias Fassung Default mit den Linien, hell und ohne Farbe (Daria, 2026-11-02) */}
+          <SvgXml xml={muted || size >= 80 ? own.default : own.small} width={size} height={size} />
         </View>
       </View>
     );
