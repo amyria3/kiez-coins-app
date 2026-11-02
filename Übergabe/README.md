@@ -63,6 +63,6 @@ Diese `README.md` bleibt immer liegen.
 ## Ordner
 
 - `Abzeichen-Icons/`: Darias Abzeichen-Icons (Small, Default, Animated) für alle fünf Abzeichen und `Auszeichnung.svg` als Übersicht. Die App nutzt Small und Default über `src/components/icons/badgeSvgs.ts`.
-- `Animationen/`: fertige Animationen für Lots:in (`Bottle Reward endlos`, `Badge Received`), in `Vorlagen/` Darias Szenen je Abzeichen.
+- `Animationen/`: fertige Animationen für alle fünf Abzeichen, je „Owning Badge“ und „Badge Received“ mit Vorschau; in `Vorlagen/` Darias Szenen je Abzeichen.
 - `Abzeichen-Hinweis/`: Darias Entwürfe für den Hinweis.
 - `2026-11-02_aufrufe-im-feed.md`: Notiz für die Doku. Aufrufe eigener Posts im Feed (Auge mit Zahl), Zählweise.
