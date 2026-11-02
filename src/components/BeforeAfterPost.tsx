@@ -16,6 +16,7 @@ import type { ChallengePostProps } from './ChallengePost';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 import { Text } from './T';
+import { ViewCount } from './ViewCount';
 import { WithMentions } from './WithMentions';
 
 /** Anteil des Vorher-Fotos an der Höhe: im Ruhezustand 1/3, vergrößert 5/6 (Daria, 23.10.2026) */
@@ -173,6 +174,7 @@ function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: 
         accessibilityLabel={t('Teilen')}
         onPress={() => shareText(t('{title} – KiezCoins', { title: challenge.title }))}
       />
+      <ViewCount views={challenge.views} />
       <View style={styles.flex} />
       {end}
       {onManage && !isFashionable ? (

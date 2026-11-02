@@ -36,6 +36,7 @@ import { coordsIfAllowed, distanceMeters, formatDistance, KIEZ_RADIUS_METERS, ty
 import { reiseEntries } from '../data/reise';
 import { runningBeforeAfter, topChallenges as pickTopChallenges, useStore } from '../data/store';
 import { RunningBeforeAfter } from '../components/BeforeAfterTimer';
+import { useFeedViews } from '../data/seen';
 import type { Challenge } from '../data/types';
 import { color, isFashionable, motion, space, text } from '../theme/tokens';
 
@@ -87,6 +88,7 @@ export default function FeedScreen() {
   }, [gruppe]);
   const [refreshing, setRefreshing] = useState(false);
   const listRef = useRef<FlatList<FeedItem>>(null);
+  const feedViews = useFeedViews(mode === 'live', currentUserId);
 
   // Logo und Begrüßung gibt es nur bis zur ersten Interaktion (Reiter antippen oder scrollen).
   // Danach gleiten sie in einer Bewegung weg, die Segmente rücken nach oben neben die Kamera,
@@ -537,6 +539,8 @@ export default function FeedScreen() {
             item.kind === 'post' ? item.challenge.id : item.kind === 'running' ? `running-${item.challenge.id}` : item.kind
           }
           renderItem={renderItem}
+          viewabilityConfig={feedViews.viewabilityConfig}
+          onViewableItemsChanged={feedViews.onViewableItemsChanged}
           onScroll={onScroll}
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
