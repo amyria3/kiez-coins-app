@@ -7,7 +7,7 @@ import { elapsedMs, TimerRing, useNow } from '../../components/BeforeAfterTimer'
 import { Button } from '../../components/Button';
 import { BeforeAfterSteps, TagTextField } from '../../components/compose/BeforeAfterForm';
 import { KaterBubble } from '../../components/Content';
-import { PhotoPicker } from '../../components/Form';
+import { PhotoPicker, TextField } from '../../components/Form';
 import { Icon } from '../../components/icons/Icon';
 import { SubScreen } from '../../components/Screen';
 import { Text } from '../../components/T';
@@ -188,18 +188,20 @@ export default function BeforeAfterScreen() {
             </Text>
           </View>
         ) : null}
+        {/* Die Überschrift aus dem Vorher steht oben und bleibt änderbar (Daria, 2026-11-02) */}
+        <TextField
+          label="Überschrift"
+          value={title}
+          onChangeText={setTitle}
+          maxLength={60}
+          error={showErrors && !title.trim() ? 'Bitte gib eine Überschrift ein.' : undefined}
+        />
         <PhotoPicker
           photo={after}
           error={showErrors && !after}
           hint={showErrors && !after ? 'Bitte ein Nachher-Foto hinzufügen.' : 'So sieht es jetzt aus.'}
           onChange={setAfterPhoto}
-          title={{
-            value: title,
-            onChange: setTitle,
-            error: showErrors && !title.trim() ? 'Bitte gib eine Überschrift ein.' : undefined,
-          }}
         />
-        <Text style={styles.small}>Die Überschrift gilt für Vorher und Nachher.</Text>
         <TagTextField
           label="Erklärung zum Nachher"
           tag="#nachher"
