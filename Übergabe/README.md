@@ -68,3 +68,4 @@ Diese `README.md` bleibt immer liegen.
 
 Darias Quellen für Abzeichen liegen in `design/abzeichen/` im Repo: `icons/` (Small, Default, Animated), `vorlagen/` (Szenen je Abzeichen), `szenen/` (fertige Animationen mit Vorschau), `hinweis/` (Entwürfe für den Hinweis). Die Skripte dazu liegen in `scripts/animationen/`.
 - `2026-11-02_abzeichen-schwarz-weiss.md`: Notiz für die Doku. Offene Abzeichen in Schwarz-Weiß.
+- `2026-11-02_schiff-wellen.md`: Schiffchen mit Linien, auf Wellen vor „Was Du so machst“. Offen: Doppelbedeutung des Schiffs.

@@ -25,6 +25,7 @@ import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } f
 import { useStore } from '../data/store';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { FashionProfile } from '../components/FashionProfile';
+import { SchiffWellen } from '../components/SchiffWellen';
 import { t } from '../data/texts';
 import { useGoBack } from '../lib/goBack';
 
@@ -87,9 +88,13 @@ function Reise() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}>
-        <Text style={styles.title} accessibilityRole="header">
-          Was Du so machst
-        </Text>
+        {/* Schiffchen auf Wellen links vor dem Titel (Daria, 02.11.2026) */}
+        <View style={styles.titleRow}>
+          {isFashionable ? null : <SchiffWellen />}
+          <Text style={[styles.title, styles.flex1]} accessibilityRole="header">
+            Was Du so machst
+          </Text>
+        </View>
 
         {/* Tipp auf den Kater: zu seiner Seite mit Sprüchen */}
         <Pressable accessibilityRole="button" accessibilityLabel={t('Cat The Käptn Hallo sagen')} onPress={() => router.push('/cat')}>
@@ -200,6 +205,8 @@ const styles = StyleSheet.create({
   flex: { flex: 1, gap: space[2] },
   pressed: { opacity: 0.8 },
   title: { ...text.display, color: color.text.primary },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
+  flex1: { flex: 1 },
   task: {
     flexDirection: 'row',
     alignItems: 'center',
