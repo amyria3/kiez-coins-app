@@ -256,16 +256,9 @@ export default function BeforeAfterScreen() {
           <Text style={styles.small}>{t('Vorher gespeichert um {time} Uhr', { time: clock(challenge.createdAt) })}</Text>
         </View>
       </View>
-      {/* Frage vor dem Start: Der Timer ist freiwillig (Daria, 2026-11-02) */}
-      {running ? null : (
-        <Text style={styles.question} accessibilityRole="header">
-          Willst Du Deine eigene Zeit nehmen?
-        </Text>
-      )}
+      {/* Vor dem Start fragt der Kater, ob die Person ihre Zeit nehmen will; der Timer ist freiwillig (Daria, 2026-11-02) */}
       <KaterBubble>
-        {running
-          ? 'Ich halte die Zeit fest, auch wenn Du die App schließt. Viel Erfolg!'
-          : 'Bereit? Starte den Timer, sobald Du loslegst.'}
+        {running ? 'Ich halte die Zeit fest, auch wenn Du die App schließt. Viel Erfolg!' : 'Willst Du Deine eigene Zeit nehmen?'}
       </KaterBubble>
       <View style={styles.ringWrap}>
         <TimerRing diameter={236} width={10} progress={elapsed / BEFORE_AFTER_MAX_MS}>
@@ -273,21 +266,21 @@ export default function BeforeAfterScreen() {
           <Text style={styles.of}>{t('von {h} h', { h: 48 })}</Text>
         </TimerRing>
       </View>
-      <Text style={styles.note}>
-        {over
-          ? 'Die 48 Stunden sind um. Gleich postet die App den Beitrag, auch ohne Nachher-Foto.'
-          : running
-            ? t('Spätestens {when} Uhr postet die App den Beitrag, auch ohne Nachher-Foto.', { when: dayClock(end) }) +
+      {/* Vor dem Start folgen auf den Timer gleich die Knöpfe (Daria, 2026-11-02) */}
+      {over || running ? (
+        <Text style={styles.note}>
+          {over
+            ? 'Die 48 Stunden sind um. Gleich postet die App den Beitrag, auch ohne Nachher-Foto.'
+            : t('Spätestens {when} Uhr postet die App den Beitrag, auch ohne Nachher-Foto.', { when: dayClock(end) }) +
               ' ' +
-              t('Mit dem X oben nutzt Du die App normal weiter. Zurück zum Timer kommst Du oben im Feed.')
-            : 'Der Timer läuft auch im Hintergrund. Nach 48 h postet die App den Beitrag, auch ohne Nachher-Foto.'}
-      </Text>
+              t('Mit dem X oben nutzt Du die App normal weiter. Zurück zum Timer kommst Du oben im Feed.')}
+        </Text>
+      ) : null}
     </SubScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  question: { ...text.headline, color: color.text.primary },
   ringWrap: { alignItems: 'center', paddingVertical: space[8] },
   big: { fontFamily: font.display, fontSize: 44, lineHeight: 48, letterSpacing: -1, color: color.text.primary, fontVariant: ['tabular-nums'] },
   of: { ...text.caption, fontSize: 12, color: color.text.secondary },
