@@ -12,13 +12,13 @@
 
 ## Material
 
-- Darias Szenen-Vorlagen je Abzeichen in `Animationen/Vorlagen/` (2026-11-02): `Ocular.svg` (Pionier:in), `Bottle.svg` (Lots:in), `Steuerrad.svg` (Anführer:in), `Anchor.svg` (Seebär:in), `Bitseps.svg` (Macher:in). Jede hat eigenen Himmel, eigene Farben und Wellen. Noch nicht animiert.
-- Fertig animiert für Lots:in:
-  - `Animationen/Bottle Reward endlos.svg`: Flasche schwimmt herein und bleibt auf den Wellen (Vorlage `Vorlagen/Bottle.svg`).
-  - `Animationen/Badge Received.svg`: Flasche steigt aus dem Wasser, schwebt senkrecht und strahlt mit Darias Strichen.
-  - Je mit Vorschau als MP4. Erzeugt mit Claudes Skripten: Wellen periodisch, Bewegungen vorberechnet als CSS-Keyframes, Strahlen als SMIL, keine Scripts in der SVG.
+- Darias Szenen-Vorlagen je Abzeichen in `Animationen/Vorlagen/` (2026-11-02): `Ocular.svg` (Pionier:in), `Bottle.svg` (Lots:in), `Steuerrad.svg` (Anführer:in), `Anchor.svg` (Seebär:in), `Bitseps.svg` (Macher:in). Jede hat eigenen Himmel, eigene Farben und Wellen.
+- Fertig animiert für alle fünf (2026-11-02), je zwei Fassungen in `Animationen/`, Name `<Icon> – Owning Badge.svg` und `<Icon> – Badge Received.svg`, je mit Vorschau als MP4:
+  - Owning Badge: Die kleine Illustration schwimmt herein, quert das Bild, kehrt an ihre Stelle aus der Vorlage zurück und bewegt sich dann nur noch auf und ab. Bitseps schwimmt nicht: Der Arm steht an seiner Stelle, mit Lichtrand von Anfang an, schwebt ruhig und spannt alle 6,4 s kurz an.
+  - Badge Received: Die kleine Illustration holt Schwung, zögert, steigt auf und wird zur großen Illustration an deren Stelle aus der Vorlage. Lichtrand und Strahlen in Eisweiß, Tropfen fallen ab. Bitseps steigt aus dem Wasser, mit Lichtrand von Anfang an. Die Flasche schwebt senkrecht (eigene Fassung).
+  - Erzeugt mit Claudes Skripten: Wellen periodisch aus der Vorlage, Bewegungen vorberechnet als CSS-Keyframes, Strahlen als SMIL, keine Scripts in der SVG.
 - Claudes frühere Varianten für Fernrohr, Anker und Arm auf der Nacht-Szene sind gelöscht (2026-11-02), da Darias Vorlagen sie ersetzen. Sie liegen in der Git-Geschichte.
-- Eine Szene ist etwa 1 MB groß, da das Himmelsbild als PNG eingebettet ist.
+- Eine Szene ist 0,6 bis 2,4 MB groß, da das Himmelsbild als PNG eingebettet ist.
 
 ## Nächster Schritt
 
