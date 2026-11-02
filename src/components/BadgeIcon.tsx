@@ -38,6 +38,27 @@ const ICONS: Record<BadgeKind, string> = {
   ),
 };
 
+/** Farbe als Grau gleicher Helligkeit */
+function grau(hex: string) {
+  const h = hex.length === 4 ? hex.replace(/^#(.)(.)(.)$/, '#$1$1$2$2$3$3') : hex;
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const v = Math.round(0.299 * r + 0.587 * g + 0.114 * b)
+    .toString(16)
+    .padStart(2, '0');
+  return `#${v}${v}${v}`;
+}
+
+/** Schwarz-weiße Fassung eines Abzeichens: jede Farbe im SVG wird zum Grau gleicher Helligkeit (Daria, 2026-11-02) */
+const swCache = new Map<string, string>();
+function schwarzWeiss(xml: string) {
+  let sw = swCache.get(xml);
+  if (!sw) {
+    sw = xml.replace(/#[0-9A-Fa-f]{6}\b|#[0-9A-Fa-f]{3}\b/g, grau);
+    swCache.set(xml, sw);
+  }
+  return sw;
+}
+
 /** Breite des Rings am Avatar */
 const RING = (size: number) => Math.max(2, Math.round(size * 0.07));
 
@@ -54,7 +75,7 @@ export function BadgeIcon({
   kind: BadgeKind;
   size: number;
   number?: number | null;
-  /** Noch nicht erhalten: grau */
+  /** Noch nicht erhalten oder ausgeblendet: Darias Icon in Schwarz-Weiß */
   muted?: boolean;
   /** Schmaler Ring in der Farbe des Grunds um die Farbfläche, z. B. am Avatar (Daria, 2026-11-02) */
   ring?: boolean;
@@ -69,7 +90,7 @@ export function BadgeIcon({
           accessible
           accessibilityRole="image"
           accessibilityLabel={badgeTitle(kind, number)}
-          style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: muted ? color.bg.surface : own.color }}
+          style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: muted ? grau(own.color) : own.color }}
         />
       );
     }
@@ -78,7 +99,7 @@ export function BadgeIcon({
         accessible
         accessibilityRole="image"
         accessibilityLabel={badgeTitle(kind, number)}
-        style={{ width: size, height: size, opacity: muted ? 0.35 : 1 }}
+        style={{ width: size, height: size }}
       >
         {ring && size < 80 ? (
           // Farbfläche in Small: Ellipse mit Mitte (46,25 | 48,47) und Radien 46,25 × 48,47 im Rahmen 120
@@ -96,7 +117,7 @@ export function BadgeIcon({
         ) : null}
         {/* Eigene Ebene über dem Ring: Im Web malt der Browser absolut gesetzte Elemente über die übrigen */}
         <View style={{ position: 'absolute', left: 0, top: 0 }}>
-          <SvgXml xml={size >= 80 ? own.default : own.small} width={size} height={size} />
+          <SvgXml xml={muted ? schwarzWeiss(size >= 80 ? own.default : own.small) : size >= 80 ? own.default : own.small} width={size} height={size} />
         </View>
       </View>
     );
