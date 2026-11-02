@@ -204,7 +204,27 @@ def surf(x, t):
     return R['yy'][i] * (1 - fr) + R['yy'][j] * fr + heave(t)
 MEAN = float(R['yy'].mean())
 
-def inhalt(g): return '\n'.join(el for L in g for el in L['els'])
+def unterlage(g):
+    # Fernrohr (Daria, 2026-11-02): Unter dem größten Segment liegt eine Form ohne Aussparungen, damit Glas und Rohr
+    # nicht durchsichtig sind. Hell wie der Kreis in Darias Icon.
+    if NAME != 'Ocular' or not g: return ''
+    from shapely.ops import unary_union
+    L = max((L for L in g if L['d']), key=lambda L: (L['bb'][2] - L['bb'][0]) * (L['bb'][3] - L['bb'][1]))
+    polys = []
+    for sp in parse_path(L['d']).continuous_subpaths():
+        pts = [(z.real, z.imag) for z in (sp.point(t / 200) for t in range(200))]
+        if len(pts) > 3: polys.append(Polygon(pts).buffer(0))
+    U = unary_union(polys)
+    U = max(U.geoms, key=lambda p: p.area) if U.geom_type == 'MultiPolygon' else U
+    P = Polygon(U.exterior).buffer(-1.0).simplify(0.4)
+    d = 'M' + ' '.join(f'{x:.1f} {y:.1f}' for x, y in list(P.exterior.coords)[:-1]) + 'Z'
+    return f'<path d="{d}" fill="#F0F0F0"/>'
+
+def inhalt(g):
+    u = unterlage(g)
+    if not u: return '\n'.join(el for L in g for el in L['els'])
+    groesste = max((L for L in g if L['d']), key=lambda L: (L['bb'][2] - L['bb'][0]) * (L['bb'][3] - L['bb'][1]))
+    return '\n'.join((u + '\n' if L is groesste else '') + '\n'.join(L['els']) for L in g)
 
 # ---------------------------------------------------------------- Bewegung schwimmend (wie Bottle Reward)
 P = 25.6
