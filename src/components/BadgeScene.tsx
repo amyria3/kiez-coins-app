@@ -7,7 +7,7 @@ import { useVideoPlayer, VideoView } from 'expo-video';
 
 import type { BadgeKind } from '../data/badges';
 
-// Szenen „Badge Received“ nach Darias Vorlagen (Übergabe/Animationen, 02.11.2026), Fläche 870 × 819.
+// Szenen „Badge Received“ nach Darias Vorlagen (design/abzeichen/szenen, 02.11.2026), Fläche 870 × 819.
 // Native: zwei Videos (Einstieg einmal, dann nahtlose Schleife von 25,6 s), ausgeschnitten auf die Scheibe.
 // Web: die SVG selbst aus public/animations (online unter /app/animations), sie läuft im Browser und ist außerhalb der Scheibe durchsichtig.
 const W = 870;

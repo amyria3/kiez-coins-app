@@ -17,8 +17,8 @@ from skimage import measure
 from svgpathtools import parse_path, CubicBezier, Line, Path as SPath
 from shapely.geometry import Polygon, LineString
 
-VORL = REPO + 'Übergabe/Animationen/Vorlagen/'
-ICONS = REPO + 'Übergabe/Abzeichen-Icons/'
+VORL = REPO + 'design/abzeichen/vorlagen/'
+ICONS = REPO + 'design/abzeichen/icons/'
 S = AUSORDNER
 NAME, MODE = sys.argv[1], sys.argv[2]
 LICHT = '#F3EEE8'      # Warmweiß der App (Daria, 2026-11-02)
