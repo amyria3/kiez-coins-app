@@ -246,6 +246,16 @@ export default function BeforeAfterScreen() {
       }
     >
       <BeforeAfterSteps at={1} />
+      {/* Vorher-Foto gleich unter dem Fortschritt (Daria, 2026-11-02) */}
+      <View style={styles.mini}>
+        {before ? <Image source={before} style={styles.miniPhoto} contentFit="cover" /> : null}
+        <View style={styles.miniTexts}>
+          <Text style={styles.miniTitle} numberOfLines={2}>
+            {challenge.title}
+          </Text>
+          <Text style={styles.small}>{t('Vorher gespeichert um {time} Uhr', { time: clock(challenge.createdAt) })}</Text>
+        </View>
+      </View>
       {/* Frage vor dem Start: Der Timer ist freiwillig (Daria, 2026-11-02) */}
       {running ? null : (
         <Text style={styles.question} accessibilityRole="header">
@@ -262,15 +272,6 @@ export default function BeforeAfterScreen() {
           <Text style={styles.big}>{formatClock(elapsed)}</Text>
           <Text style={styles.of}>{t('von {h} h', { h: 48 })}</Text>
         </TimerRing>
-      </View>
-      <View style={styles.mini}>
-        {before ? <Image source={before} style={styles.miniPhoto} contentFit="cover" /> : null}
-        <View style={styles.miniTexts}>
-          <Text style={styles.miniTitle} numberOfLines={2}>
-            {challenge.title}
-          </Text>
-          <Text style={styles.small}>{t('Vorher gespeichert um {time} Uhr', { time: clock(challenge.createdAt) })}</Text>
-        </View>
       </View>
       <Text style={styles.note}>
         {over
