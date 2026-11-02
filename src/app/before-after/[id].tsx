@@ -179,12 +179,15 @@ export default function BeforeAfterScreen() {
         }
       >
         <BeforeAfterSteps at={2} />
-        <View style={styles.durationRow} accessible>
-          <Icon name="clock" size={15} color={color.text.secondary} />
-          <Text style={styles.durationText}>
-            {t('Dauer {duration}, stoppt beim Posten', { duration: formatHoursMinutes(elapsed) })}
-          </Text>
-        </View>
+        {/* Dauer nur mit laufendem Timer; ohne Timer zeigt der Beitrag keine Dauer (Daria, 2026-11-02) */}
+        {running ? (
+          <View style={styles.durationRow} accessible>
+            <Icon name="clock" size={15} color={color.text.secondary} />
+            <Text style={styles.durationText}>
+              {t('Dauer {duration}, stoppt beim Posten', { duration: formatHoursMinutes(elapsed) })}
+            </Text>
+          </View>
+        ) : null}
         <PhotoPicker
           photo={after}
           error={showErrors && !after}
