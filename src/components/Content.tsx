@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { AccessibilityInfo, Animated, Easing, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
 import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
@@ -8,6 +8,7 @@ import { Cat, type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
 import { iconSvgs } from './icons/svgs';
 import { SvgXml } from 'react-native-svg';
+import { Herz } from './Herz';
 
 /** Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. */
 export function Notice({ message, variant = 'info' }: { message: string; variant?: 'info' | 'warning' }) {
@@ -86,18 +87,93 @@ export function KaterCard({ children, title, mood = 'default' }: { children: Rea
 }
 
 /**
- * Kater im Kreis (Daria, 30.10.2026): das Icon „cat“ in Textfarbe, unten vom Kreis angeschnitten, ohne Kachel.
+ * Kater im Kreis (Daria, 30.10.2026): das Icon „cat“, unten vom Kreis angeschnitten, ohne Kachel.
  * Gläser, Nase und Mund sind ausgespart, dort scheint der Kreis durch. Der Kreis sitzt auf der Sprechblase.
+ * Seit 2026-11-02: lila Kater auf schwarzem Kreis; er fährt beim Erscheinen sanft von unten herein,
+ * und in seiner Brille blitzen in unregelmäßigen Abständen Herzen auf. Mit „Bewegung reduzieren“ sitzt er still.
  */
 const RUND = 64;
 const RUND_KATER = 44;
+const RUND_SCHWARZ = '#000000';
+/** Mitte der Gläser im Icon „cat“ (Fläche 30 × 35) */
+const RUND_GLAESER = [
+  { x: 9.2, y: 17.9 },
+  { x: 20.1, y: 16.2 },
+];
+const RUND_HERZ = 8.5;
 export function KaterRund() {
   const cat = iconSvgs.cat;
+  const k = RUND_KATER / cat.height;
+  const breite = cat.width * k;
+  const [still, setStill] = useState<boolean | null>(null);
+  const rein = useRef(new Animated.Value(0)).current;
+  const herz = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled()
+      .catch(() => false)
+      .then(setStill);
+  }, []);
+  // Von unten herein
+  useEffect(() => {
+    if (still === null) return;
+    if (still) {
+      rein.setValue(1);
+      return;
+    }
+    const a = Animated.timing(rein, { toValue: 1, duration: 750, delay: 120, easing: Easing.out(Easing.cubic), useNativeDriver: true });
+    a.start();
+    return () => a.stop();
+  }, [still, rein]);
+  // Herzen blitzen unregelmäßig: Pause 2,5 bis 9 s, manchmal zweimal kurz hintereinander
+  useEffect(() => {
+    if (still !== false) return;
+    let timer: ReturnType<typeof setTimeout>;
+    let laeuft: Animated.CompositeAnimation | undefined;
+    const blitz = () =>
+      Animated.sequence([
+        Animated.timing(herz, { toValue: 1, duration: 110, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+        Animated.delay(220 + Math.random() * 260),
+        Animated.timing(herz, { toValue: 0, duration: 180, easing: Easing.in(Easing.quad), useNativeDriver: true }),
+      ]);
+    const naechstes = () => {
+      timer = setTimeout(() => {
+        laeuft = Math.random() < 0.3 ? Animated.sequence([blitz(), Animated.delay(140), blitz()]) : blitz();
+        laeuft.start(naechstes);
+      }, 2500 + Math.random() * 6500);
+    };
+    naechstes();
+    return () => {
+      clearTimeout(timer);
+      laeuft?.stop();
+    };
+  }, [still, herz]);
+  const groesse = RUND_HERZ * k;
   return (
     <View style={styles.rund} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-      <View style={styles.rundKater}>
-        <SvgXml xml={cat.svg(color.text.primary)} width={(cat.width / cat.height) * RUND_KATER} height={RUND_KATER} />
-      </View>
+      <Animated.View
+        style={[
+          styles.rundKater,
+          { opacity: still === null ? 0 : 1, transform: [{ translateY: rein.interpolate({ inputRange: [0, 1], outputRange: [RUND, 0] }) }] },
+        ]}
+      >
+        <View style={{ width: breite, height: RUND_KATER }}>
+          <SvgXml xml={cat.svg(color.brand.signature)} width={breite} height={RUND_KATER} />
+          {RUND_GLAESER.map((g) => (
+            <Animated.View
+              key={g.x}
+              style={{
+                position: 'absolute',
+                left: g.x * k - groesse / 2,
+                top: g.y * k - groesse / 2,
+                opacity: herz,
+                transform: [{ scale: herz.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] }) }],
+              }}
+            >
+              <Herz size={groesse} />
+            </Animated.View>
+          ))}
+        </View>
+      </Animated.View>
     </View>
   );
 }
@@ -196,7 +272,7 @@ const styles = StyleSheet.create({
   speechTitle: { ...text.cardTitle, fontSize: 17, lineHeight: 22, color: color.text.primary },
   speechText: { fontFamily: font.light, fontSize: 15, lineHeight: 21, color: color.text.primary },
   // Kreis im Grund der Seite, damit er sich von der Blase abhebt
-  rund: { width: RUND, height: RUND, borderRadius: RUND / 2, overflow: 'hidden', backgroundColor: color.bg.screen },
+  rund: { width: RUND, height: RUND, borderRadius: RUND / 2, overflow: 'hidden', backgroundColor: RUND_SCHWARZ },
   // Unten 8 pt angeschnitten, über den Ohren gut ein Drittel Luft
   rundKater: { position: 'absolute', left: 0, right: 0, bottom: -7, alignItems: 'center' },
   group: { gap: space[8] },
