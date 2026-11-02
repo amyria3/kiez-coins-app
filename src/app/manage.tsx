@@ -200,10 +200,12 @@ export default function ManageChallenges() {
       ],
     );
 
+  // Karten kürzer als der Bildschirm, damit die nächste unten herausschaut (Daria, 2026-11-02)
+  const itemHeight = Math.round(pageHeight * 0.85);
   const renderList = (pages: Page[], tab: 'active' | 'archive') => {
     const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-      if (!pageHeight) return;
-      const next = Math.round(e.nativeEvent.contentOffset.y / pageHeight);
+      if (!itemHeight) return;
+      const next = Math.round(e.nativeEvent.contentOffset.y / itemHeight);
       if (next !== index[tab]) setIndex((all) => ({ ...all, [tab]: next }));
     };
     return (
@@ -220,18 +222,19 @@ export default function ManageChallenges() {
           <FlatList
             data={pages}
             keyExtractor={(p) => (p.kind === 'challenge' ? p.challenge.id : p.kind)}
-            pagingEnabled
-            snapToInterval={pageHeight}
+            snapToInterval={itemHeight}
+            snapToAlignment="start"
             decelerationRate="fast"
+            contentContainerStyle={{ paddingBottom: pageHeight - itemHeight }}
             showsVerticalScrollIndicator={false}
             onScroll={onScroll}
             scrollEventThrottle={32}
-            getItemLayout={(_, i) => ({ length: pageHeight, offset: pageHeight * i, index: i })}
+            getItemLayout={(_, i) => ({ length: itemHeight, offset: itemHeight * i, index: i })}
             renderItem={({ item: page, index: i }) => {
               const hasNext = i < pages.length - 1;
               if (page.kind === 'groupDone') {
                 return (
-                  <View style={[styles.page, { height: pageHeight }]}>
+                  <View style={[styles.page, { height: itemHeight }]}>
                     <GroupDoneCard
                       challenges={page.challenges}
                       userId={currentUserId}
@@ -243,7 +246,7 @@ export default function ManageChallenges() {
               }
               if (page.kind === 'deleted') {
                 return (
-                  <View style={[styles.page, { height: pageHeight }]}>
+                  <View style={[styles.page, { height: itemHeight }]}>
                     <DeletedCard
                       challenges={page.challenges}
                       onOpen={(c) => router.push(`/challenge/${c.id}`)}
@@ -256,7 +259,7 @@ export default function ManageChallenges() {
               }
               const item = page.challenge;
               return (
-                <View style={[styles.page, { height: pageHeight }]}>
+                <View style={[styles.page, { height: itemHeight }]}>
                   <ChallengeCard
                     challenge={item}
                     assignee={users.find((u) => u.id === item.assigneeId)}
@@ -430,6 +433,9 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
           Nur „Kommentare“ ist tippbar und trägt dafür einen Pfeil. */}
       <View style={styles.stats}>
         <Metric value={c.views === undefined ? '–' : String(c.views)} hint={c.views === 1 ? 'Ansicht' : 'Ansichten'} />
+        <View style={styles.statLine} />
+        {/* Likes (Daria, 2026-11-02) */}
+        <Metric value={isDraft ? '–' : String(c.likeCount ?? 0)} hint={c.likeCount === 1 ? 'Like' : 'Likes'} />
         <View style={styles.statLine} />
         <Metric
           value={String(c.comments.length)}
@@ -713,6 +719,7 @@ function FashionCard({
 
       <View style={[fashion.stats, side]}>
         <FashionMetric value={c.views === undefined ? '–' : String(c.views)} label={c.views === 1 ? 'Ansicht' : 'Ansichten'} />
+        <FashionMetric value={isDraft ? '–' : String(c.likeCount ?? 0)} label={c.likeCount === 1 ? 'Like' : 'Likes'} />
         <FashionMetric
           value={String(c.comments.length)}
           label={c.comments.length === 1 ? 'Kommentar' : 'Kommentare'}
@@ -848,7 +855,8 @@ const styles = StyleSheet.create({
   metric: { flex: 1, alignItems: 'center', gap: space[2], paddingVertical: space[4] },
   metricHint: { flexDirection: 'row', alignItems: 'center', gap: space[2] },
   link: { color: color.text.primary },
-  metricValue: { ...text.metric, color: color.text.primary },
+  // Etwas kleiner als text.metric (Daria, 2026-11-02)
+  metricValue: { ...text.metric, fontSize: 18, lineHeight: 22, color: color.text.primary },
   caption: { ...text.caption, color: color.text.secondary },
   actions: { gap: space[8] },
   quietBar: { flexDirection: 'row', borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
