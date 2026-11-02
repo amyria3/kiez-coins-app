@@ -26,7 +26,7 @@ import { useStore } from '../data/store';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { FashionProfile } from '../components/FashionProfile';
 import { SchiffWellen } from '../components/SchiffWellen';
-import { t } from '../data/texts';
+import { getLanguage, t } from '../data/texts';
 import { useGoBack } from '../lib/goBack';
 
 /** Was in der Karte „Du bist dran“ als Aufgabe steht. */
@@ -131,14 +131,30 @@ function Reise() {
         {/* Ziele mit Geschenk, für das ganze Konto (Daria, 29.10.2026) */}
         <Quests quests={goals} />
 
-        {/* Krone, Herz, Schiffchen auf Wellen, Daumen hoch, dann der Satz (Daria, 02.11.2026) */}
-        {isFashionable ? null : (
+        {/* Icons zwischen den Wörtern: Herz Diese Community Daumen braucht Schiffchen Dich Krone (Daria, 02.11.2026).
+            In anderen Sprachen stehen die Icons vor dem übersetzten Satz, da die Wortfolge dort eine andere ist. */}
+        {isFashionable ? null : getLanguage() === 'de' ? (
+          <View style={styles.community} accessible accessibilityLabel="Diese Community braucht Dich">
+            {/* Zwei Gruppen: Wird es zu eng, bricht die Zeile zwischen ihnen um */}
+            <View style={styles.communityIcons}>
+              <Icon name="heart" size={18} color={color.text.primary} />
+              <Text noTranslate style={styles.communityText}>Diese Community</Text>
+              <Icon name="thumbs-up" size={18} color={color.text.primary} />
+            </View>
+            <View style={styles.communityIcons}>
+              <Text noTranslate style={styles.communityText}>braucht</Text>
+              <SchiffWellen />
+              <Text noTranslate style={styles.communityText}>Dich</Text>
+              <CrownIcon height={26} />
+            </View>
+          </View>
+        ) : (
           <View style={styles.community}>
             <View style={styles.communityIcons}>
-              <CrownIcon height={26} />
               <Icon name="heart" size={18} color={color.text.primary} />
-              <SchiffWellen />
               <Icon name="thumbs-up" size={18} color={color.text.primary} />
+              <SchiffWellen />
+              <CrownIcon height={26} />
             </View>
             <Text style={styles.communityText}>Diese Community braucht Dich</Text>
           </View>
@@ -219,8 +235,8 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.8 },
   title: { ...text.display, color: color.text.primary },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
-  community: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: space[12], rowGap: space[8] },
-  communityIcons: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
+  community: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: space[6], rowGap: space[8] },
+  communityIcons: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
   communityText: { ...text.body, fontFamily: font.medium, color: color.text.primary, flexShrink: 1 },
   flex1: { flex: 1 },
   task: {
