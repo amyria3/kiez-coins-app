@@ -21,6 +21,8 @@ export type BadgeMeta = {
   earned: string;
   /** Sprechblase von Cat The Käptn beim Erhalt */
   kater: string;
+  /** Warum die Aufgabe wichtig ist, im Detail des Abzeichens (Daria, 2026-11-02) */
+  why: string;
 };
 
 // Reihenfolge im Konto
@@ -32,6 +34,7 @@ export const BADGES: BadgeMeta[] = [
     rule: 'Unter den ersten 200 an Bord',
     earned: 'Unter den ersten 200 an Bord',
     kater: 'Land in Sicht! Du warst eine:r der Ersten. Das Fernrohr gehört jetzt Dir.',
+    why: 'Die Ersten machen den Kiez lebendig, bevor er voll ist. Wer früh an Bord kommt, gibt allen danach einen Grund, mitzumachen.',
   },
   {
     kind: 'lotse',
@@ -40,6 +43,7 @@ export const BADGES: BadgeMeta[] = [
     rule: 'Hole 5 Menschen an Bord, die mitmachen',
     earned: '5 Menschen an Bord geholt',
     kater: 'Deine Flaschenposten sind angekommen. 5 Leute machen mit, weil Du sie eingeladen hast.',
+    why: 'Nachbarschaft wächst über Menschen, die sich kennen. Jede Einladung holt jemanden an Bord, der mit anpackt, und Dein Kiez wird größer.',
   },
   {
     kind: 'anfuehrer',
@@ -48,6 +52,7 @@ export const BADGES: BadgeMeta[] = [
     rule: 'Hole 5 Menschen an Bord und gründe eine Gruppe',
     earned: '5 Menschen an Bord geholt, eine Gruppe gegründet',
     kater: 'Du hast eine Crew zusammengestellt und hältst das Steuer. Käpt’n-Material, ich sag’s ja.',
+    why: 'Eine Gruppe macht aus Einzelnen eine Crew. Ihr plant gemeinsam, teilt Aufgaben und bleibt dran, auch wenn eine:r mal keine Zeit hat.',
   },
   {
     kind: 'seebaer',
@@ -56,6 +61,7 @@ export const BADGES: BadgeMeta[] = [
     rule: 'Poste 50 Mal, höchstens 3 Posts am Tag zählen',
     earned: '50 Posts',
     kater: '50 Posts! Du bist hier fest vor Anker. Ohne Dich wäre der Feed ziemlich leer.',
+    why: 'Posts halten den Feed am Leben. Jeder zeigt Deinen Nachbar:innen, was im Kiez passiert, und macht ihnen Mut, selbst etwas zu teilen. Drei am Tag zählen, damit es auf Dauer ankommt.',
   },
   {
     kind: 'macher',
@@ -64,6 +70,7 @@ export const BADGES: BadgeMeta[] = [
     rule: 'Erledige 15 We-Challenges',
     earned: '15 We-Challenges erledigt',
     kater: '15 We-Challenges geschafft. Du redest nicht lange, Du packst an. We can do it!',
+    why: 'We-Challenges lösen echte Aufgaben im Kiez. Jede erledigte zeigt, dass Nachbarschaft funktioniert, und macht die nächste leichter.',
   },
 ];
 

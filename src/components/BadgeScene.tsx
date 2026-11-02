@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { AccessibilityInfo, Platform } from 'react-native';
 import { Image } from 'expo-image';
 import MaskedView from '@react-native-masked-view/masked-view';
@@ -12,6 +12,26 @@ import type { BadgeKind } from '../data/badges';
 // Web: die SVG selbst aus public/animations (online unter /app/animations), sie läuft im Browser und ist außerhalb der Scheibe durchsichtig.
 const W = 870;
 const H = 819;
+
+// Detail eines Abzeichens (Daria, 2026-11-02): erhalten schwimmt die Illustration auf den Wellen, offen ist nur das Meer
+const SCHLEIFEN: Record<BadgeKind, { besitz: number; meer: number }> = {
+  pionier: { besitz: require('../../assets/abzeichen/pionier-besitz.mp4'), meer: require('../../assets/abzeichen/pionier-meer.mp4') },
+  lotse: { besitz: require('../../assets/abzeichen/lotse-besitz.mp4'), meer: require('../../assets/abzeichen/lotse-meer.mp4') },
+  anfuehrer: { besitz: require('../../assets/abzeichen/anfuehrer-besitz.mp4'), meer: require('../../assets/abzeichen/anfuehrer-meer.mp4') },
+  seebaer: { besitz: require('../../assets/abzeichen/seebaer-besitz.mp4'), meer: require('../../assets/abzeichen/seebaer-meer.mp4') },
+  macher: { besitz: require('../../assets/abzeichen/macher-besitz.mp4'), meer: require('../../assets/abzeichen/macher-meer.mp4') },
+};
+
+/** Heller Rahmen um die Szene (Entwurf „Szene und Kater“): Darias #C2C9ED für Lots:in, sonst der Farbton des Wassers */
+export const SCENE_FRAME: Record<BadgeKind, string> = {
+  pionier: '#C2D5ED',
+  lotse: '#C2C9ED',
+  anfuehrer: '#E7EDC2',
+  seebaer: '#C2EDE4',
+  macher: '#EDDEC2',
+};
+
+export type SceneVariant = 'received' | 'besitz' | 'meer';
 
 const VIDEOS: Record<BadgeKind, { einstieg: number; schleife: number }> = {
   pionier: { einstieg: require('../../assets/abzeichen/pionier-einstieg.mp4'), schleife: require('../../assets/abzeichen/pionier-schleife.mp4') },
@@ -35,19 +55,55 @@ const SCHEIBE: Record<BadgeKind, string> = {
     'M455 799 395 799 313 780 237 759 203 745 183 735 168 723 131 688 81 624 68 603 58 581 52 563 47 540 35 468 32 399 33 375 37 344 38 298 40 279 44 268 63 224 75 192 79 185 87 175 168 108 197 80 228 60 265 40 304 23 337 13 434 0 446 -0 476 0 500 2 545 10 588 23 628 40 647 52 667 67 716 108 744 134 760 155 784 192 799 223 808 246 818 280 832 408 830 453 828 470 822 498 810 537 802 556 778 604 756 637 737 660 705 688 676 716 664 727 633 748 610 761 580 775 553 784 536 788Z',
 };
 
-export function BadgeScene({ kind, width }: { kind: BadgeKind; width: number }) {
+export function BadgeScene({ kind, width, variant = 'received' }: { kind: BadgeKind; width: number; variant?: SceneVariant }) {
   const height = (width * H) / W;
   if (Platform.OS === 'web') {
     return (
       <Image
-        source={{ uri: `/app/animations/${kind}.svg` }}
+        source={{ uri: `/app/animations/${kind}${variant === 'received' ? '' : `-${variant}`}.svg` }}
         style={{ width, height }}
         contentFit="contain"
         accessibilityIgnoresInvertColors
       />
     );
   }
+  if (variant !== 'received') return <LoopVideo kind={kind} width={width} height={height} source={SCHLEIFEN[kind][variant]} />;
   return <SceneVideo kind={kind} width={width} height={height} />;
+}
+
+function Scheibe({ kind, width, height, children }: { kind: BadgeKind; width: number; height: number; children: ReactNode }) {
+  return (
+    <MaskedView
+      style={{ width, height }}
+      maskElement={
+        <Svg width={width} height={height} viewBox={`0 0 ${W} ${H}`}>
+          <Path d={SCHEIBE[kind]} fill="#000" />
+        </Svg>
+      }
+    >
+      {children}
+    </MaskedView>
+  );
+}
+
+function LoopVideo({ kind, width, height, source }: { kind: BadgeKind; width: number; height: number; source: number }) {
+  const [still, setStill] = useState(false);
+  const player = useVideoPlayer(source, (p) => {
+    p.loop = true;
+    p.muted = true;
+  });
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setStill).catch(() => {});
+  }, []);
+  useEffect(() => {
+    if (still) player.pause();
+    else player.play();
+  }, [still, player]);
+  return (
+    <Scheibe kind={kind} width={width} height={height}>
+      <VideoView player={player} style={{ width, height }} contentFit="fill" nativeControls={false} playsInline surfaceType="textureView" useExoShutter={false} allowsPictureInPicture={false} />
+    </Scheibe>
+  );
 }
 
 function SceneVideo({ kind, width, height }: { kind: BadgeKind; width: number; height: number }) {

@@ -7,9 +7,23 @@ import { color, font, radius, space, stroke, text } from '../theme/tokens';
 import { BadgeIcon } from './BadgeIcon';
 import { Text } from './T';
 
+/** Fortschritt eines offenen Abzeichens: „9 von 15“ und Balken */
+export function BadgeStepsBar({ steps }: { steps: { have: number; need: number } }) {
+  return (
+    <View style={styles.steps}>
+      <View style={styles.track}>
+        <View style={[styles.bar, { width: `${Math.round((steps.have / steps.need) * 100)}%` }]} />
+      </View>
+      <Text noTranslate style={styles.sub}>
+        {t('{have} von {need}', steps)}
+      </Text>
+    </View>
+  );
+}
+
 /**
- * Abzeichen in „Me“ (Daria, 2026-11-01): erhaltene und offene mit Fortschritt. Ein Tipp auf die erhaltenen
- * führt zu Persönliche Angaben, wo sie sich ein- und ausblenden und für den Avatar wählen lassen.
+ * Abzeichen in „Me“ (Daria, 2026-11-01): erhaltene und offene mit Fortschritt. Ein Tipp auf ein Abzeichen
+ * öffnet sein Detail (`badges/[kind]`, 2026-11-02).
  * `gutter`: seitlicher Rand der Seite, falls die Liste ihn selbst braucht (Fashionable-Profil).
  */
 export function BadgeOverview({ gutter = 0 }: { gutter?: number }) {
@@ -23,14 +37,14 @@ export function BadgeOverview({ gutter = 0 }: { gutter?: number }) {
       {earned.length ? (
         <View style={styles.block}>
           <Text style={styles.label}>Deine Abzeichen</Text>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t('Abzeichen einblenden und für den Avatar wählen')}
-            onPress={() => router.push('/account/profile')}
-            style={({ pressed }) => [styles.list, pressed && styles.pressed]}
-          >
+          <View style={styles.list}>
             {earned.map(({ meta, own }, i) => (
-              <View key={meta.kind} style={[styles.row, i > 0 && styles.divider]}>
+              <Pressable
+                key={meta.kind}
+                accessibilityRole="button"
+                onPress={() => router.push({ pathname: '/badges/[kind]', params: { kind: meta.kind } })}
+                style={({ pressed }) => [styles.row, i > 0 && styles.divider, pressed && styles.pressed]}
+              >
                 <BadgeIcon kind={meta.kind} number={own!.number} size={44} muted={!own!.visible} />
                 <View style={styles.flex}>
                   <Text noTranslate style={styles.name}>
@@ -39,9 +53,9 @@ export function BadgeOverview({ gutter = 0 }: { gutter?: number }) {
                   <Text style={styles.sub}>{own!.visible ? meta.earned : 'Ausgeblendet'}</Text>
                 </View>
                 {own!.selected ? <Text style={styles.tag}>Am Avatar</Text> : null}
-              </View>
+              </Pressable>
             ))}
-          </Pressable>
+          </View>
         </View>
       ) : null}
       {open.length ? (
@@ -51,7 +65,12 @@ export function BadgeOverview({ gutter = 0 }: { gutter?: number }) {
             {open.map((meta, i) => {
               const steps = badgeSteps(meta.kind, mine.progress);
               return (
-                <View key={meta.kind} style={[styles.row, i > 0 && styles.divider]}>
+                <Pressable
+                  key={meta.kind}
+                  accessibilityRole="button"
+                  onPress={() => router.push({ pathname: '/badges/[kind]', params: { kind: meta.kind } })}
+                  style={({ pressed }) => [styles.row, i > 0 && styles.divider, pressed && styles.pressed]}
+                >
                   <BadgeIcon kind={meta.kind} size={44} muted />
                   <View style={styles.flex}>
                     <View style={styles.head}>
@@ -69,7 +88,7 @@ export function BadgeOverview({ gutter = 0 }: { gutter?: number }) {
                     ) : null}
                     <Text style={styles.sub}>{meta.rule}</Text>
                   </View>
-                </View>
+                </Pressable>
               );
             })}
           </View>
@@ -95,4 +114,5 @@ const styles = StyleSheet.create({
   track: { height: 6, borderRadius: 3, backgroundColor: color.line.hairline, overflow: 'hidden' },
   bar: { height: 6, borderRadius: 3, backgroundColor: color.text.secondary },
   pressed: { opacity: 0.8 },
+  steps: { gap: space[4] },
 });
