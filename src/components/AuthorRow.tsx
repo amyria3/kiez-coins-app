@@ -64,12 +64,13 @@ export function Avatar({
   const hidden = useHideName(user);
   if (!shown || hidden) return <AvatarImage user={user} diameter={diameter} />;
   const b = badgeSize ?? (d >= 80 ? 32 : d >= 36 ? BADGE_MIN : Math.max(10, Math.round(d * 0.34)));
-  const off = d >= 80 ? -4 : d >= 36 ? -4 : -2;
+  // Eigene Größe (Persönliche Angaben): etwas weiter zur Seite gerückt (Daria, 2026-11-02)
+  const off = badgeSize ? -Math.round(badgeSize * 0.3) : d >= 80 ? -4 : d >= 36 ? -4 : -2;
   return (
     <View style={{ width: d, height: d }}>
       <AvatarImage user={user} diameter={diameter} />
       <View style={{ position: 'absolute', [badgeSide]: off, bottom: off }} pointerEvents="none">
-        <BadgeIcon kind={shown.badge} number={shown.number} size={b} />
+        <BadgeIcon kind={shown.badge} number={shown.number} size={b} ring />
       </View>
     </View>
   );

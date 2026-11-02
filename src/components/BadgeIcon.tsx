@@ -38,6 +38,9 @@ const ICONS: Record<BadgeKind, string> = {
   ),
 };
 
+/** Breite des Rings am Avatar */
+const RING = (size: number) => Math.max(2, Math.round(size * 0.07));
+
 /** Kleinste Größe mit Symbol; darunter nur ein Farbpunkt */
 export const BADGE_MIN = 20;
 
@@ -46,12 +49,15 @@ export function BadgeIcon({
   size,
   number,
   muted = false,
+  ring = false,
 }: {
   kind: BadgeKind;
   size: number;
   number?: number | null;
   /** Noch nicht erhalten: grau */
   muted?: boolean;
+  /** Schmaler Ring in der Farbe des Grunds um die Farbfläche, z. B. am Avatar (Daria, 2026-11-02) */
+  ring?: boolean;
 }) {
   const meta = badgeMeta(kind);
   const own = isFashionable ? undefined : KIEZ_BADGE_SVGS[kind];
@@ -74,11 +80,25 @@ export function BadgeIcon({
         accessibilityLabel={badgeTitle(kind, number)}
         style={{ width: size, height: size, opacity: muted ? 0.35 : 1 }}
       >
+        {ring && size < 80 ? (
+          // Farbfläche in Small: Ellipse mit Mitte (46,25 | 48,47) und Radien 46,25 × 48,47 im Rahmen 120
+          <View
+            style={{
+              position: 'absolute',
+              left: (size * 46.25) / 120 - (size * 48.47) / 120 - RING(size),
+              top: (size * 48.47) / 120 - (size * 48.47) / 120 - RING(size),
+              width: (size * 48.47 * 2) / 120 + RING(size) * 2,
+              height: (size * 48.47 * 2) / 120 + RING(size) * 2,
+              borderRadius: size,
+              backgroundColor: color.bg.screen,
+            }}
+          />
+        ) : null}
         <SvgXml xml={size >= 80 ? own.default : own.small} width={size} height={size} />
       </View>
     );
   }
-  const ring = size >= 40 ? Math.max(2, Math.round(size / 40)) : 2;
+  const tileRing = size >= 40 ? Math.max(2, Math.round(size / 40)) : 2;
   const icon = Math.round(size * 0.62);
   return (
     <View
@@ -90,7 +110,7 @@ export function BadgeIcon({
         height: size,
         borderRadius: size / 2,
         backgroundColor: muted ? color.bg.surface : meta.color,
-        borderWidth: ring,
+        borderWidth: tileRing,
         borderColor: color.bg.screen,
         alignItems: 'center',
         justifyContent: 'center',
