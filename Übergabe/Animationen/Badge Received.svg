@@ -88,284 +88,264 @@
 <rect x="0" y="380" width="870" height="460" fill="#1A008B" fill-opacity="0.7" mask="url(#m-hinten)"/>
 <rect x="0" y="380" width="870" height="460" fill="url(#paint0_linear_458_4156)" mask="url(#m-mitte)"/>
 
-<g class="strahlen"><g transform="translate(435 295) rotate(-3.3)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.49s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -204;0 -317;0 -423;0 -423" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.49s" repeatCount="indefinite"/>
-  <use href="#strich0" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.49s" repeatCount="indefinite"/></use>
- </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.49s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -204;0 -264;0 -262;0 -262" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.49s" repeatCount="indefinite"/>
-  <use href="#strich3" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.49s" repeatCount="indefinite"/></use>
- </g>
-</g>
-<g transform="translate(435 295) rotate(4.7)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.30s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -201;0 -320;0 -427;0 -427" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.30s" repeatCount="indefinite"/>
-  <use href="#strich1" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.30s" repeatCount="indefinite"/></use>
- </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.30s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -201;0 -261;0 -265;0 -265" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.30s" repeatCount="indefinite"/>
-  <use href="#strich4" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.30s" repeatCount="indefinite"/></use>
- </g>
-</g>
-<g transform="translate(435 295) rotate(17.7)">
+<g class="strahlen"><g transform="translate(435 295) rotate(2.4)">
  <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.51s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -203;0 -329;0 -439;0 -439" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.51s" repeatCount="indefinite"/>
-  <use href="#strich2" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.51s" repeatCount="indefinite"/></use>
+  <animateTransform attributeName="transform" type="translate" values="0 -182;0 -325;0 -433;0 -433" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.51s" repeatCount="indefinite"/>
+  <use href="#strich0" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.51s" repeatCount="indefinite"/></use>
  </g>
  <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.51s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -203;0 -263;0 -272;0 -272" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.51s" repeatCount="indefinite"/>
-  <use href="#strich5" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.51s" repeatCount="indefinite"/></use>
+  <animateTransform attributeName="transform" type="translate" values="0 -182;0 -242;0 -269;0 -269" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.51s" repeatCount="indefinite"/>
+  <use href="#strich3" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.51s" repeatCount="indefinite"/></use>
  </g>
 </g>
-<g transform="translate(435 295) rotate(40.2)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.32s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -204;0 -326;0 -435;0 -435" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.32s" repeatCount="indefinite"/>
-  <use href="#strich3" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.32s" repeatCount="indefinite"/></use>
+<g transform="translate(435 295) rotate(9.8)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.46s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -176;0 -335;0 -447;0 -447" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.46s" repeatCount="indefinite"/>
+  <use href="#strich1" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.46s" repeatCount="indefinite"/></use>
  </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.32s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -204;0 -264;0 -270;0 -270" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.32s" repeatCount="indefinite"/>
-  <use href="#strich6" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.32s" repeatCount="indefinite"/></use>
- </g>
-</g>
-<g transform="translate(435 295) rotate(41.9)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.53s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -192;0 -333;0 -444;0 -444" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.53s" repeatCount="indefinite"/>
-  <use href="#strich4" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.53s" repeatCount="indefinite"/></use>
- </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.53s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -192;0 -252;0 -275;0 -275" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.53s" repeatCount="indefinite"/>
-  <use href="#strich7" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.53s" repeatCount="indefinite"/></use>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.46s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -176;0 -236;0 -277;0 -277" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.46s" repeatCount="indefinite"/>
+  <use href="#strich4" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.46s" repeatCount="indefinite"/></use>
  </g>
 </g>
-<g transform="translate(435 295) rotate(61.0)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.28s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -199;0 -319;0 -425;0 -425" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.28s" repeatCount="indefinite"/>
-  <use href="#strich5" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.28s" repeatCount="indefinite"/></use>
- </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.28s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -199;0 -259;0 -264;0 -264" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.28s" repeatCount="indefinite"/>
-  <use href="#strich8" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.28s" repeatCount="indefinite"/></use>
- </g>
-</g>
-<g transform="translate(435 295) rotate(84.6)">
+<g transform="translate(435 295) rotate(21.4)">
  <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.45s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -197;0 -344;0 -458;0 -458" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.45s" repeatCount="indefinite"/>
-  <use href="#strich6" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.45s" repeatCount="indefinite"/></use>
+  <animateTransform attributeName="transform" type="translate" values="0 -159;0 -323;0 -431;0 -431" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.45s" repeatCount="indefinite"/>
+  <use href="#strich2" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.45s" repeatCount="indefinite"/></use>
  </g>
  <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.45s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -197;0 -257;0 -284;0 -284" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.45s" repeatCount="indefinite"/>
-  <use href="#strich9" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.45s" repeatCount="indefinite"/></use>
+  <animateTransform attributeName="transform" type="translate" values="0 -159;0 -219;0 -267;0 -267" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.45s" repeatCount="indefinite"/>
+  <use href="#strich5" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.45s" repeatCount="indefinite"/></use>
  </g>
 </g>
-<g transform="translate(435 295) rotate(93.9)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.24s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -197;0 -334;0 -446;0 -446" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.24s" repeatCount="indefinite"/>
-  <use href="#strich7" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.24s" repeatCount="indefinite"/></use>
- </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.24s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -197;0 -257;0 -276;0 -276" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.24s" repeatCount="indefinite"/>
-  <use href="#strich0" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.24s" repeatCount="indefinite"/></use>
- </g>
-</g>
-<g transform="translate(435 295) rotate(95.4)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.53s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -194;0 -343;0 -457;0 -457" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.53s" repeatCount="indefinite"/>
-  <use href="#strich8" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.53s" repeatCount="indefinite"/></use>
- </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.53s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -194;0 -254;0 -283;0 -283" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.53s" repeatCount="indefinite"/>
-  <use href="#strich1" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.53s" repeatCount="indefinite"/></use>
- </g>
-</g>
-<g transform="translate(435 295) rotate(120.5)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.27s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -197;0 -322;0 -429;0 -429" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.27s" repeatCount="indefinite"/>
-  <use href="#strich9" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.27s" repeatCount="indefinite"/></use>
- </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.27s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -197;0 -257;0 -266;0 -266" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.27s" repeatCount="indefinite"/>
-  <use href="#strich2" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.27s" repeatCount="indefinite"/></use>
- </g>
-</g>
-<g transform="translate(435 295) rotate(133.3)">
+<g transform="translate(435 295) rotate(28.7)">
  <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.49s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -193;0 -329;0 -438;0 -438" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.49s" repeatCount="indefinite"/>
-  <use href="#strich0" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.49s" repeatCount="indefinite"/></use>
+  <animateTransform attributeName="transform" type="translate" values="0 -146;0 -294;0 -392;0 -392" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.49s" repeatCount="indefinite"/>
+  <use href="#strich3" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.49s" repeatCount="indefinite"/></use>
  </g>
  <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.49s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -193;0 -253;0 -272;0 -272" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.49s" repeatCount="indefinite"/>
-  <use href="#strich3" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.49s" repeatCount="indefinite"/></use>
+  <animateTransform attributeName="transform" type="translate" values="0 -146;0 -206;0 -243;0 -243" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.49s" repeatCount="indefinite"/>
+  <use href="#strich6" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.49s" repeatCount="indefinite"/></use>
  </g>
 </g>
-<g transform="translate(435 295) rotate(137.9)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.28s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -193;0 -344;0 -459;0 -459" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.28s" repeatCount="indefinite"/>
-  <use href="#strich1" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.28s" repeatCount="indefinite"/></use>
+<g transform="translate(435 295) rotate(52.8)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.85s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -117;0 -267;0 -356;0 -356" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.85s" repeatCount="indefinite"/>
+  <use href="#strich4" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.85s" repeatCount="indefinite"/></use>
  </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.28s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -193;0 -253;0 -284;0 -284" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.28s" repeatCount="indefinite"/>
-  <use href="#strich4" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.28s" repeatCount="indefinite"/></use>
- </g>
-</g>
-<g transform="translate(435 295) rotate(153.1)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -200;0 -316;0 -422;0 -422" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/>
-  <use href="#strich2" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/></use>
- </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -200;0 -260;0 -261;0 -261" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/>
-  <use href="#strich5" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/></use>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.85s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -117;0 -177;0 -221;0 -221" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.85s" repeatCount="indefinite"/>
+  <use href="#strich7" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.85s" repeatCount="indefinite"/></use>
  </g>
 </g>
-<g transform="translate(435 295) rotate(165.7)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.31s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -201;0 -323;0 -431;0 -431" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.31s" repeatCount="indefinite"/>
-  <use href="#strich3" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.31s" repeatCount="indefinite"/></use>
+<g transform="translate(435 295) rotate(62.1)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.88s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -110;0 -283;0 -377;0 -377" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.88s" repeatCount="indefinite"/>
+  <use href="#strich5" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.88s" repeatCount="indefinite"/></use>
  </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.31s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -201;0 -261;0 -267;0 -267" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.31s" repeatCount="indefinite"/>
-  <use href="#strich6" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.31s" repeatCount="indefinite"/></use>
- </g>
-</g>
-<g transform="translate(435 295) rotate(180.1)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.52s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -204;0 -328;0 -437;0 -437" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.52s" repeatCount="indefinite"/>
-  <use href="#strich4" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.52s" repeatCount="indefinite"/></use>
- </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.52s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -204;0 -264;0 -271;0 -271" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.52s" repeatCount="indefinite"/>
-  <use href="#strich7" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.52s" repeatCount="indefinite"/></use>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.88s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -110;0 -170;0 -234;0 -234" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.88s" repeatCount="indefinite"/>
+  <use href="#strich8" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.88s" repeatCount="indefinite"/></use>
  </g>
 </g>
-<g transform="translate(435 295) rotate(191.1)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.31s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -194;0 -339;0 -452;0 -452" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.31s" repeatCount="indefinite"/>
-  <use href="#strich5" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.31s" repeatCount="indefinite"/></use>
+<g transform="translate(435 295) rotate(71.9)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.91s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -105;0 -275;0 -366;0 -366" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.91s" repeatCount="indefinite"/>
+  <use href="#strich6" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.91s" repeatCount="indefinite"/></use>
  </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.31s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -194;0 -254;0 -280;0 -280" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.31s" repeatCount="indefinite"/>
-  <use href="#strich8" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.31s" repeatCount="indefinite"/></use>
- </g>
-</g>
-<g transform="translate(435 295) rotate(211.0)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.51s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -202;0 -343;0 -457;0 -457" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.51s" repeatCount="indefinite"/>
-  <use href="#strich6" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.51s" repeatCount="indefinite"/></use>
- </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.51s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -202;0 -262;0 -283;0 -283" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.51s" repeatCount="indefinite"/>
-  <use href="#strich9" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.51s" repeatCount="indefinite"/></use>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.91s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -105;0 -165;0 -227;0 -227" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.91s" repeatCount="indefinite"/>
+  <use href="#strich9" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.91s" repeatCount="indefinite"/></use>
  </g>
 </g>
-<g transform="translate(435 295) rotate(213.6)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.34s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -201;0 -334;0 -445;0 -445" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.34s" repeatCount="indefinite"/>
-  <use href="#strich7" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.34s" repeatCount="indefinite"/></use>
+<g transform="translate(435 295) rotate(78.3)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.87s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -103;0 -262;0 -349;0 -349" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.87s" repeatCount="indefinite"/>
+  <use href="#strich7" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.87s" repeatCount="indefinite"/></use>
  </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.34s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -201;0 -261;0 -276;0 -276" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.34s" repeatCount="indefinite"/>
-  <use href="#strich0" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.34s" repeatCount="indefinite"/></use>
- </g>
-</g>
-<g transform="translate(435 295) rotate(241.7)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -191;0 -336;0 -448;0 -448" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/>
-  <use href="#strich8" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/></use>
- </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -191;0 -251;0 -278;0 -278" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/>
-  <use href="#strich1" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/></use>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.87s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -103;0 -163;0 -216;0 -216" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.87s" repeatCount="indefinite"/>
+  <use href="#strich0" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.87s" repeatCount="indefinite"/></use>
  </g>
 </g>
-<g transform="translate(435 295) rotate(242.6)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.33s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -191;0 -334;0 -446;0 -446" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.33s" repeatCount="indefinite"/>
-  <use href="#strich9" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.33s" repeatCount="indefinite"/></use>
- </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.33s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -191;0 -251;0 -276;0 -276" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.33s" repeatCount="indefinite"/>
-  <use href="#strich2" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.33s" repeatCount="indefinite"/></use>
- </g>
-</g>
-<g transform="translate(435 295) rotate(248.7)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.44s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -195;0 -334;0 -445;0 -445" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.44s" repeatCount="indefinite"/>
-  <use href="#strich0" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.44s" repeatCount="indefinite"/></use>
- </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.44s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -195;0 -255;0 -276;0 -276" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.44s" repeatCount="indefinite"/>
-  <use href="#strich3" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.44s" repeatCount="indefinite"/></use>
- </g>
-</g>
-<g transform="translate(435 295) rotate(274.0)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.37s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -191;0 -322;0 -429;0 -429" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.37s" repeatCount="indefinite"/>
-  <use href="#strich1" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.37s" repeatCount="indefinite"/></use>
- </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.37s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -191;0 -251;0 -266;0 -266" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.37s" repeatCount="indefinite"/>
-  <use href="#strich4" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.37s" repeatCount="indefinite"/></use>
- </g>
-</g>
-<g transform="translate(435 295) rotate(279.8)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -197;0 -318;0 -424;0 -424" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/>
-  <use href="#strich2" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/></use>
- </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -197;0 -257;0 -263;0 -263" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/>
-  <use href="#strich5" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/></use>
- </g>
-</g>
-<g transform="translate(435 295) rotate(291.8)">
+<g transform="translate(435 295) rotate(110.6)">
  <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.26s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -197;0 -333;0 -444;0 -444" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.26s" repeatCount="indefinite"/>
-  <use href="#strich3" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.26s" repeatCount="indefinite"/></use>
+  <animateTransform attributeName="transform" type="translate" values="0 -106;0 -272;0 -362;0 -362" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.26s" repeatCount="indefinite"/>
+  <use href="#strich8" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.26s" repeatCount="indefinite"/></use>
  </g>
  <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.26s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -197;0 -257;0 -275;0 -275" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.26s" repeatCount="indefinite"/>
-  <use href="#strich6" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.26s" repeatCount="indefinite"/></use>
+  <animateTransform attributeName="transform" type="translate" values="0 -106;0 -166;0 -225;0 -225" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.26s" repeatCount="indefinite"/>
+  <use href="#strich1" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.26s" repeatCount="indefinite"/></use>
  </g>
 </g>
-<g transform="translate(435 295) rotate(314.8)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -192;0 -336;0 -448;0 -448" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/>
-  <use href="#strich4" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/></use>
+<g transform="translate(435 295) rotate(117.7)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.23s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -110;0 -262;0 -349;0 -349" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.23s" repeatCount="indefinite"/>
+  <use href="#strich9" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.23s" repeatCount="indefinite"/></use>
  </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -192;0 -252;0 -278;0 -278" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/>
-  <use href="#strich7" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.50s" repeatCount="indefinite"/></use>
- </g>
-</g>
-<g transform="translate(435 295) rotate(324.0)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.30s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -197;0 -326;0 -435;0 -435" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.30s" repeatCount="indefinite"/>
-  <use href="#strich5" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.30s" repeatCount="indefinite"/></use>
- </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.30s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -197;0 -257;0 -270;0 -270" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.30s" repeatCount="indefinite"/>
-  <use href="#strich8" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.30s" repeatCount="indefinite"/></use>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.23s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -110;0 -170;0 -216;0 -216" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.23s" repeatCount="indefinite"/>
+  <use href="#strich2" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.23s" repeatCount="indefinite"/></use>
  </g>
 </g>
-<g transform="translate(435 295) rotate(339.7)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.52s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -194;0 -324;0 -432;0 -432" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.52s" repeatCount="indefinite"/>
-  <use href="#strich6" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.52s" repeatCount="indefinite"/></use>
+<g transform="translate(435 295) rotate(130.2)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.20s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -119;0 -288;0 -383;0 -383" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.20s" repeatCount="indefinite"/>
+  <use href="#strich0" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.20s" repeatCount="indefinite"/></use>
  </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.52s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -194;0 -254;0 -268;0 -268" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.52s" repeatCount="indefinite"/>
-  <use href="#strich9" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.52s" repeatCount="indefinite"/></use>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.20s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -119;0 -179;0 -238;0 -238" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.20s" repeatCount="indefinite"/>
+  <use href="#strich3" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.20s" repeatCount="indefinite"/></use>
  </g>
 </g>
-<g transform="translate(435 295) rotate(344.4)">
- <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.32s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -201;0 -340;0 -453;0 -453" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.32s" repeatCount="indefinite"/>
-  <use href="#strich7" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.32s" repeatCount="indefinite"/></use>
+<g transform="translate(435 295) rotate(140.4)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.24s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -131;0 -291;0 -388;0 -388" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.24s" repeatCount="indefinite"/>
+  <use href="#strich1" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.24s" repeatCount="indefinite"/></use>
  </g>
- <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.32s" repeatCount="indefinite"/>
-  <animateTransform attributeName="transform" type="translate" values="0 -201;0 -261;0 -281;0 -281" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.32s" repeatCount="indefinite"/>
-  <use href="#strich0" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.32s" repeatCount="indefinite"/></use>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.24s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -131;0 -191;0 -240;0 -240" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.24s" repeatCount="indefinite"/>
+  <use href="#strich4" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.24s" repeatCount="indefinite"/></use>
+ </g>
+</g>
+<g transform="translate(435 295) rotate(168.3)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.63s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -174;0 -328;0 -438;0 -438" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.63s" repeatCount="indefinite"/>
+  <use href="#strich2" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.63s" repeatCount="indefinite"/></use>
+ </g>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.63s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -174;0 -234;0 -271;0 -271" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.63s" repeatCount="indefinite"/>
+  <use href="#strich5" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.63s" repeatCount="indefinite"/></use>
+ </g>
+</g>
+<g transform="translate(435 295) rotate(174.3)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.59s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -180;0 -315;0 -419;0 -419" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.59s" repeatCount="indefinite"/>
+  <use href="#strich3" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.59s" repeatCount="indefinite"/></use>
+ </g>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.59s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -180;0 -240;0 -260;0 -260" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.59s" repeatCount="indefinite"/>
+  <use href="#strich6" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.59s" repeatCount="indefinite"/></use>
+ </g>
+</g>
+<g transform="translate(435 295) rotate(184.5)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.63s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -181;0 -332;0 -442;0 -442" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.63s" repeatCount="indefinite"/>
+  <use href="#strich4" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.63s" repeatCount="indefinite"/></use>
+ </g>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.63s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -181;0 -241;0 -274;0 -274" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.63s" repeatCount="indefinite"/>
+  <use href="#strich7" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.63s" repeatCount="indefinite"/></use>
+ </g>
+</g>
+<g transform="translate(435 295) rotate(212.0)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.96s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -141;0 -294;0 -392;0 -392" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.96s" repeatCount="indefinite"/>
+  <use href="#strich5" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.96s" repeatCount="indefinite"/></use>
+ </g>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.96s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -141;0 -201;0 -243;0 -243" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.96s" repeatCount="indefinite"/>
+  <use href="#strich8" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.96s" repeatCount="indefinite"/></use>
+ </g>
+</g>
+<g transform="translate(435 295) rotate(218.9)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.96s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -132;0 -291;0 -388;0 -388" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.96s" repeatCount="indefinite"/>
+  <use href="#strich6" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.96s" repeatCount="indefinite"/></use>
+ </g>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.96s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -132;0 -192;0 -240;0 -240" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.96s" repeatCount="indefinite"/>
+  <use href="#strich9" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.96s" repeatCount="indefinite"/></use>
+ </g>
+</g>
+<g transform="translate(435 295) rotate(227.9)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.97s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -121;0 -278;0 -371;0 -371" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.97s" repeatCount="indefinite"/>
+  <use href="#strich7" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.97s" repeatCount="indefinite"/></use>
+ </g>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.97s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -121;0 -181;0 -230;0 -230" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.97s" repeatCount="indefinite"/>
+  <use href="#strich0" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.97s" repeatCount="indefinite"/></use>
+ </g>
+</g>
+<g transform="translate(435 295) rotate(237.6)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="4.03s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -113;0 -281;0 -374;0 -374" keyTimes="0;.38;.62;1" dur="1.60s" begin="4.03s" repeatCount="indefinite"/>
+  <use href="#strich8" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="4.03s" repeatCount="indefinite"/></use>
+ </g>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="4.03s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -113;0 -173;0 -232;0 -232" keyTimes="0;.28;.62;1" dur="1.60s" begin="4.03s" repeatCount="indefinite"/>
+  <use href="#strich1" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="4.03s" repeatCount="indefinite"/></use>
+ </g>
+</g>
+<g transform="translate(435 295) rotate(261.4)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.74s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -103;0 -271;0 -361;0 -361" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.74s" repeatCount="indefinite"/>
+  <use href="#strich9" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.74s" repeatCount="indefinite"/></use>
+ </g>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.74s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -103;0 -163;0 -224;0 -224" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.74s" repeatCount="indefinite"/>
+  <use href="#strich2" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.74s" repeatCount="indefinite"/></use>
+ </g>
+</g>
+<g transform="translate(435 295) rotate(271.9)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.73s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -102;0 -272;0 -363;0 -363" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.73s" repeatCount="indefinite"/>
+  <use href="#strich0" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.73s" repeatCount="indefinite"/></use>
+ </g>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.73s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -102;0 -162;0 -225;0 -225" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.73s" repeatCount="indefinite"/>
+  <use href="#strich3" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.73s" repeatCount="indefinite"/></use>
+ </g>
+</g>
+<g transform="translate(435 295) rotate(279.6)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.75s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -103;0 -256;0 -341;0 -341" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.75s" repeatCount="indefinite"/>
+  <use href="#strich1" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.75s" repeatCount="indefinite"/></use>
+ </g>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.75s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -103;0 -163;0 -212;0 -212" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.75s" repeatCount="indefinite"/>
+  <use href="#strich4" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.75s" repeatCount="indefinite"/></use>
+ </g>
+</g>
+<g transform="translate(435 295) rotate(290.3)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="2.72s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -106;0 -263;0 -351;0 -351" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.72s" repeatCount="indefinite"/>
+  <use href="#strich2" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="2.72s" repeatCount="indefinite"/></use>
+ </g>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="2.72s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -106;0 -166;0 -218;0 -218" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.72s" repeatCount="indefinite"/>
+  <use href="#strich5" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="2.72s" repeatCount="indefinite"/></use>
+ </g>
+</g>
+<g transform="translate(435 295) rotate(321.2)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.11s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -132;0 -278;0 -371;0 -371" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.11s" repeatCount="indefinite"/>
+  <use href="#strich3" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.11s" repeatCount="indefinite"/></use>
+ </g>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.11s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -132;0 -192;0 -230;0 -230" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.11s" repeatCount="indefinite"/>
+  <use href="#strich6" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.11s" repeatCount="indefinite"/></use>
+ </g>
+</g>
+<g transform="translate(435 295) rotate(328.4)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.14s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -142;0 -295;0 -393;0 -393" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.14s" repeatCount="indefinite"/>
+  <use href="#strich4" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 22;62 95;62 110;62 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.14s" repeatCount="indefinite"/></use>
+ </g>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.14s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -142;0 -202;0 -244;0 -244" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.14s" repeatCount="indefinite"/>
+  <use href="#strich7" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="62 16;62 40;62 28;62 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.14s" repeatCount="indefinite"/></use>
+ </g>
+</g>
+<g transform="translate(435 295) rotate(338.1)">
+ <g opacity="0"><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.45;.62;1" dur="1.60s" begin="3.15s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -158;0 -310;0 -413;0 -413" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.15s" repeatCount="indefinite"/>
+  <use href="#strich5" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 22;50 95;50 110;50 110" keyTimes="0;.38;.62;1" dur="1.60s" begin="3.15s" repeatCount="indefinite"/></use>
+ </g>
+ <g opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.28;.38;.62;1" dur="1.60s" begin="3.15s" repeatCount="indefinite"/>
+  <animateTransform attributeName="transform" type="translate" values="0 -158;0 -218;0 -256;0 -256" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.15s" repeatCount="indefinite"/>
+  <use href="#strich8" fill="#FFF4C2"><animateTransform attributeName="transform" type="scale" values="50 16;50 40;50 28;50 28" keyTimes="0;.28;.62;1" dur="1.60s" begin="3.15s" repeatCount="indefinite"/></use>
  </g>
 </g></g>
 <g class="flasche"><g filter="url(#leuchten)">
