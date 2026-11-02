@@ -201,7 +201,8 @@ export default function ManageChallenges() {
     );
 
   // Karten kürzer als der Bildschirm, damit die nächste unten herausschaut (Daria, 2026-11-02)
-  const itemHeight = Math.round(pageHeight * 0.85);
+  // Karte nur so hoch wie ihr Inhalt braucht, höchstens 85 % der Seite (Daria, 2026-11-02)
+  const itemHeight = Math.round(Math.min(pageHeight * 0.85, 410));
   const renderList = (pages: Page[], tab: 'active' | 'archive') => {
     const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (!itemHeight) return;
@@ -431,19 +432,23 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
 
       {/* Zahlen als offene Leiste ohne Flächen, damit sie nicht wie Knöpfe aussehen (Daria, 22.10.2026).
           Nur „Kommentare“ ist tippbar und trägt dafür einen Pfeil. */}
-      <View style={styles.stats}>
-        <Metric value={c.views === undefined ? '–' : String(c.views)} hint={c.views === 1 ? 'Ansicht' : 'Ansichten'} />
-        <View style={styles.statLine} />
-        {/* Likes (Daria, 2026-11-02) */}
-        <Metric value={isDraft ? '–' : String(c.likeCount ?? 0)} hint={c.likeCount === 1 ? 'Like' : 'Likes'} />
-        <View style={styles.statLine} />
-        <Metric
-          value={String(c.comments.length)}
-          hint={c.comments.length === 1 ? 'Kommentar' : 'Kommentare'}
-          onPress={isDraft ? undefined : onComments}
-        />
-        <View style={styles.statLine} />
-        <Metric value={isDraft ? '–' : formatDurationSince(c.createdAt)} hint={isDraft ? 'Entwurf' : 'online'} />
+      {/* Zwei Zeilen mit je zwei Zahlen, damit nichts gedrängt steht (Daria, 2026-11-02) */}
+      <View style={styles.statsGrid}>
+        <View style={styles.stats}>
+          <Metric value={c.views === undefined ? '–' : String(c.views)} hint={c.views === 1 ? 'Ansicht' : 'Ansichten'} />
+          <View style={styles.statLine} />
+          {/* Likes (Daria, 2026-11-02) */}
+          <Metric value={isDraft ? '–' : String(c.likeCount ?? 0)} hint={c.likeCount === 1 ? 'Like' : 'Likes'} />
+        </View>
+        <View style={styles.stats}>
+          <Metric
+            value={String(c.comments.length)}
+            hint={c.comments.length === 1 ? 'Kommentar' : 'Kommentare'}
+            onPress={isDraft ? undefined : onComments}
+          />
+          <View style={styles.statLine} />
+          <Metric value={isDraft ? '–' : formatDurationSince(c.createdAt)} hint={isDraft ? 'Entwurf' : 'online'} />
+        </View>
       </View>
 
       <View style={styles.flex} />
@@ -850,7 +855,8 @@ const styles = StyleSheet.create({
   title: { ...text.cardTitle, color: color.text.primary },
   badges: { flexDirection: 'row', alignItems: 'center', gap: space[8], marginTop: space[8] },
   body: { ...text.body, color: color.text.secondary },
-  stats: { flexDirection: 'row', alignItems: 'stretch', paddingVertical: space[4] },
+  statsGrid: { gap: space[4] },
+  stats: { flexDirection: 'row', alignItems: 'stretch' },
   statLine: { width: stroke.thin, backgroundColor: color.line.hairline, marginVertical: space[4] },
   metric: { flex: 1, alignItems: 'center', gap: space[2], paddingVertical: space[4] },
   metricHint: { flexDirection: 'row', alignItems: 'center', gap: space[2] },

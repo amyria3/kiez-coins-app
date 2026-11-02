@@ -88,14 +88,9 @@ function Reise() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}>
-        {/* Schiffchen auf Wellen links vor dem Titel, daneben die Krone als Zeichen für „Was Du so machst“ (Daria, 02.11.2026) */}
+        {/* Krone als Zeichen für „Was Du so machst“ links vor dem Titel; für das Schiffchen reicht der Platz nicht (Daria, 02.11.2026) */}
         <View style={styles.titleRow}>
-          {isFashionable ? null : (
-            <>
-              <SchiffWellen />
-              <CrownIcon height={30} />
-            </>
-          )}
+          {isFashionable ? null : <CrownIcon height={30} />}
           <Text style={[styles.title, styles.flex1]} accessibilityRole="header">
             Was Du so machst
           </Text>
@@ -135,6 +130,19 @@ function Reise() {
 
         {/* Ziele mit Geschenk, für das ganze Konto (Daria, 29.10.2026) */}
         <Quests quests={goals} />
+
+        {/* Krone, Herz, Schiffchen auf Wellen, Daumen hoch, dann der Satz (Daria, 02.11.2026) */}
+        {isFashionable ? null : (
+          <View style={styles.community}>
+            <View style={styles.communityIcons}>
+              <CrownIcon height={26} />
+              <Icon name="heart" size={18} color={color.text.primary} />
+              <SchiffWellen />
+              <Icon name="thumbs-up" size={18} color={color.text.primary} />
+            </View>
+            <Text style={styles.communityText}>Diese Community braucht Dich</Text>
+          </View>
+        )}
 
         {/* Erhaltene und offene Abzeichen (Daria, 2026-11-01) */}
         <BadgeOverview />
@@ -211,6 +219,9 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.8 },
   title: { ...text.display, color: color.text.primary },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
+  community: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: space[12], rowGap: space[8] },
+  communityIcons: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
+  communityText: { ...text.body, fontFamily: font.medium, color: color.text.primary, flexShrink: 1 },
   flex1: { flex: 1 },
   task: {
     flexDirection: 'row',
