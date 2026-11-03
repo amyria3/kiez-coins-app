@@ -15,6 +15,10 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 - [x] Beim Posten Zugriff auf die Entwürfe: Das Erstellen-Blatt zeigt oben „Deine Entwürfe“ mit Kacheln, passend zum Modus (Privat, Gruppe, Kiez/Überall). Ein Tipp öffnet den Entwurf (`src/components/compose/DraftStrip.tsx`, 30.10.2026).
 
+## Offizielle Posts (Daria, 03.11.2026)
+
+- [ ] KiezCoins-Connector einrichten: ein Post auf KiezCoins, X, Bluesky und Instagram, für beide Claude-Accounts. Code auf Branch `social-connector`, Schritte für Daria: `2026-11-03_offen_social-connector.md`.
+
 ## Außerhalb des Codes
 
 - [x] Mailversand über Brevo und kiezcoins.de (läuft seit 21.10.2026, Code-Mail um 09:55 angekommen, IP-Sperre in Brevo aus)
