@@ -18,7 +18,18 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 ## Teilen (Daria, 03.11.2026)
 
 - [ ] Geteilte Posts mit öffentlicher Seite: Migration einspielen, Datenschutzerklärung ergänzen, Bildkarte für Instagram entwerfen. Details: `2026-11-03_offen_teilen.md`.
-- [ ] BlueSky-Cross-Posting: Posts aus KiezCoins zusätzlich auf BlueSky veröffentlichen (Daria, 03.11.2026).
+- [ ] Cross-Posting (Daria, 03.11.2026): Bilder aus KiezCoins mit einem Tipp auch auf Mastodon, BlueSky, Instagram/Facebook (Meta) und X veröffentlichen, mit „Gepostet via KiezCoins“. Ziel: Reichweite außerhalb der App, neue Mitglieder.
+   - Kosten laut Darias KI-Recherche (03.11.2026, von Claude nicht geprüft): BlueSky (AT-Protokoll) und Mastodon kosten keine API-Gebühren. Die Meta-Graph-API ist kostenlos, verlangt aber eine App-Prüfung durch Meta und ein verifiziertes Business-Konto; automatisch posten geht nur auf Business- oder Creator-Konten. X rechnet pro Post ab: 0,015 $ pro Post, 0,20 $ pro Post mit Link (laut Recherche auch mit Bild). Deshalb braucht X eine feste Obergrenze an Posts pro Monat.
+   - Zahlung laut Recherche: Stripe kostet bei Karten 1,4 % + 0,25 €, bei SEPA-Lastschrift 0,8 % + 0,20 €. Jahresabos oder Guthaben senken den Anteil der Gebühren. Gebühren dürfen nicht extra berechnet werden (§ 270a BGB).
+   - Preismodell, Ergebnis (Daria, wörtlich):
+      - kostenlos für Mastradon und BlueSky
+      - 0,99 im Jahr für Meta API
+      - billigstes Modell 1,99 im Jahr ohne X
+      - X Posts inkl. 5/Monat für 2,99 im Monat
+      - X Posts inkl. 10/Monat mit 24,99 im Jahr
+   - Frage an Daria: Was unterscheidet „0,99 im Jahr für Meta“ von „1,99 im Jahr ohne X“? Enthält das Modell für 1,99 € Meta und etwas dazu, oder ist eine der beiden Zahlen pro Monat gemeint?
+   - Frage an Daria: Sind 2,99 € im Monat (36 € im Jahr) für 5 X-Posts und 24,99 € im Jahr für 10 X-Posts so gewollt? Das Jahresabo wäre günstiger und enthielte doppelt so viele Posts.
+   - Frage an Daria: Ein Abo heißt, dass KiezCoins Geld annimmt. Die Nutzungsbedingungen sagen heute „KiezCoins … nimmt kein Geld an und zahlt keins aus“ (`src/data/legal.ts`), und Coins sind Versprechen von echtem Geld zwischen Mitgliedern. Die Recherche schlägt vor, Guthaben als Coins zu verkaufen. Das würde diese Regel berühren. Bezahlung lieber getrennt von den Coins halten?
 
 ## Außerhalb des Codes
 
