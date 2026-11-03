@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Community-Regeln – Kiez Coins</title>
+<title>Community-Regeln – KiezCoins</title>
 <link rel="icon" href="favicon.png">
 <style>
 :root { --bg:#FAFBEF; --surface:#FFFFFF; --text:#26233A; --muted:#4A465E; --accent:#5260E0; --error:#D6334A; --line:rgba(38,35,58,.10); }
@@ -28,13 +28,23 @@ button, .button { display:block; text-align:center; text-decoration:none; box-si
 footer { display:flex; flex-wrap:wrap; gap:16px; font-size:13px; margin-top:40px; padding-top:16px; border-top:1px solid var(--line); }
 footer a { color:var(--muted); }
 .updated { font-size:13px; }
+.zurueck { margin:0 0 24px; font-size:14px; }
+.zurueck a { color:var(--muted); text-decoration:none; }
+.zurueck a:hover { color:var(--text); text-decoration:underline; }
+h3 { font-size:16px; margin:20px 0 6px; font-weight:500; }
+.stelle-ul { padding-left:20px; color:var(--muted); margin:0 0 12px; }
+.stelle-ul li { margin-bottom:6px; }
+.stelle-dl { margin:0; color:var(--muted); }
+.stelle-dl dt { font-weight:500; color:var(--text); margin-top:12px; }
+.stelle-dl dd { margin:2px 0 0; }
 </style>
 </head>
 <body>
 <main>
+<nav class="zurueck"><a href="/">← Zurück zur Startseite</a></nav>
 <h1 data-t="Community-Regeln">Community-Regeln</h1>
-<p class="updated" data-t="Stand 27.10.2026">Stand 27.10.2026</p>
-<p data-t="Die Idee hinter Kiez Coins ist, dass Menschen glücklicher und gesünder sind, wenn sie miteinander kooperieren und robuste soziale Netzwerke bilden. Das setzt gegenseitige Achtung voraus. Missbräuchliches Verhalten, Sexismus, Übergriffe, Antisemitismus, politischer oder religiöser Fundamentalismus, Rassismus und Behindertenfeindlichkeit werden nicht toleriert.">Die Idee hinter Kiez Coins ist, dass Menschen glücklicher und gesünder sind, wenn sie miteinander kooperieren und robuste soziale Netzwerke bilden. Das setzt gegenseitige Achtung voraus. Missbräuchliches Verhalten, Sexismus, Übergriffe, Antisemitismus, politischer oder religiöser Fundamentalismus, Rassismus und Behindertenfeindlichkeit werden nicht toleriert.</p>
+<p class="updated" data-t="Stand 31.10.2026">Stand 31.10.2026</p>
+<p data-t="Die Idee hinter KiezCoins ist, dass Menschen glücklicher und gesünder sind, wenn sie miteinander kooperieren und robuste soziale Netzwerke bilden. Das setzt gegenseitige Achtung voraus. Missbräuchliches Verhalten, Sexismus, Übergriffe, Antisemitismus, politischer oder religiöser Fundamentalismus, Rassismus und Behindertenfeindlichkeit werden nicht toleriert.">Die Idee hinter KiezCoins ist, dass Menschen glücklicher und gesünder sind, wenn sie miteinander kooperieren und robuste soziale Netzwerke bilden. Das setzt gegenseitige Achtung voraus. Missbräuchliches Verhalten, Sexismus, Übergriffe, Antisemitismus, politischer oder religiöser Fundamentalismus, Rassismus und Behindertenfeindlichkeit werden nicht toleriert.</p>
 <h2 data-t="Respekt gilt für alle">Respekt gilt für alle</h2>
 <p data-t="Wir begegnen allen Menschen mit Respekt: unabhängig von Herkunft, Hautfarbe, Religion, Geschlecht, sexueller Orientierung, geschlechtlicher Identität, Behinderung, Alter und sozialer Lage.">Wir begegnen allen Menschen mit Respekt: unabhängig von Herkunft, Hautfarbe, Religion, Geschlecht, sexueller Orientierung, geschlechtlicher Identität, Behinderung, Alter und sozialer Lage.</p>
 <h2 data-t="Diskriminierung hat hier keinen Platz">Diskriminierung hat hier keinen Platz</h2>
@@ -80,17 +90,18 @@ footer a { color:var(--muted); }
         if (t) el.innerHTML = esc(t).replace(/\n/g, '<br>');
       });
       var h = document.querySelector('h1[data-t]');
-      if (h) document.title = h.textContent + ' – Kiez Coins';
+      if (h) document.title = h.textContent + ' – KiezCoins';
     })
     .catch(function () {});
 })();
 </script>
 <footer>
-  <a href="./">Start</a>
-  <a href="impressum.html">Impressum</a>
-  <a href="datenschutz.html">Datenschutz</a>
-  <a href="nutzungsbedingungen.html">Nutzungsbedingungen</a>
-  <a href="community-regeln.html">Community-Regeln</a>
+  <a href="/">Start</a>
+  <a href="/impressum">Impressum</a>
+  <a href="/datenschutz">Datenschutz</a>
+  <a href="/nutzungsbedingungen">Nutzungsbedingungen</a>
+  <a href="/community-regeln">Community-Regeln</a>
+  <a href="/co-founder">Co-Founder:in gesucht</a>
 </footer>
 </main>
 </body>

@@ -63,6 +63,12 @@ footer a { color:var(--muted); }
 .zurueck { margin:0 0 24px; font-size:14px; }
 .zurueck a { color:var(--muted); text-decoration:none; }
 .zurueck a:hover { color:var(--text); text-decoration:underline; }
+h3 { font-size:16px; margin:20px 0 6px; font-weight:500; }
+.stelle-ul { padding-left:20px; color:var(--muted); margin:0 0 12px; }
+.stelle-ul li { margin-bottom:6px; }
+.stelle-dl { margin:0; color:var(--muted); }
+.stelle-dl dt { font-weight:500; color:var(--text); margin-top:12px; }
+.stelle-dl dd { margin:2px 0 0; }
 `;
 
 const footer = `<footer>
@@ -71,6 +77,7 @@ const footer = `<footer>
   <a href="/datenschutz">Datenschutz</a>
   <a href="/nutzungsbedingungen">Nutzungsbedingungen</a>
   <a href="/community-regeln">Community-Regeln</a>
+  <a href="/co-founder">Co-Founder:in gesucht</a>
 </footer>`;
 // Jede Unterseite führt oben sichtbar zurück zur Startseite (Daria, 28.10.2026)
 const zurueck = `<nav class="zurueck"><a href="/">← Zurück zur Startseite</a></nav>`;
@@ -428,6 +435,7 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
       <a href="${P}datenschutz.html">${t('Datenschutz', 'Privacy')}</a>
       <a href="${P}nutzungsbedingungen.html">${t('Nutzungsbedingungen', 'Terms of use')}</a>
       <a href="${P}community-regeln.html">${t('Community-Regeln', 'Community rules')}</a>
+      <a href="/co-founder">${t('Co-Founder:in gesucht', 'Co-founder wanted')}</a>
       <a href="https://waldentdeckenberlin.org/voll-der-mist/" rel="noopener">${t('Bildquellen', 'Photo credits')}</a>
     </footer>
   </div>
@@ -1263,6 +1271,37 @@ const legal = (id) => {
   return page(`${doc.title} – KiezCoins`, `${tag('h1', doc.title)}\n${tag('p', `Stand ${LEGAL_STAND}`, ' class="updated"')}\n${intro}\n${sections}\n${cmsScript}`);
 };
 
+// ---------- Unterseite /co-founder: Stellenanzeige Co-Founder:in (Daria, 03.11.2026) ----------
+const { coFounder } = await import('./site/co-founder.mjs');
+const coFounderTeil = (L) => {
+  const d = coFounder[L];
+  const h = (n, s) => `<${n}>${esc(s)}</${n}>`;
+  const teile = d.sections.map((s) => [
+    h('h2', s.heading),
+    ...(s.p ?? []).map((p) => h('p', p)),
+    ...(s.dl ? [`<dl class="stelle-dl">${s.dl.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`] : []),
+    ...(s.lists ?? []).map(([t, items]) => `${h('h3', t)}\n<ul class="stelle-ul">${items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>`),
+  ].join('\n'));
+  return `<section lang="${L}" id="${L}">
+${h(L === 'de' ? 'h1' : 'h2', d.title)}
+${teile.join('\n')}
+<div class="card">
+<p><b>${esc(d.cta)}</b></p>
+<p>${esc(d.product)}: <a href="${coFounder.productUrl}">${esc(coFounder.productUrl.replace(/^https:\/\/|\/$/g, ''))}</a></p>
+<p>${esc(d.mail)} <a href="mailto:${coFounder.email}">${coFounder.email}</a></p>
+<a class="button" href="mailto:${coFounder.email}?subject=${encodeURIComponent(L === 'de' ? 'Bewerbung Co-Founder:in' : 'Application co-founder')}">${L === 'de' ? 'Jetzt bewerben' : 'Apply now'}</a>
+<p style="margin-top:16px">${esc(d.thanks)}</p>
+</div>
+</section>`;
+};
+const coFounderSeite = page(
+  'Co-Founder:in gesucht – KiezCoins',
+  `<p class="updated"><a href="#en" lang="en">English version below</a></p>
+${coFounderTeil('de')}
+<hr style="border:0;border-top:1px solid var(--line);margin:48px 0 0">
+${coFounderTeil('en')}`,
+);
+
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, 'index.html'), startseite('de'));
 for (const { code } of sprachen.filter((l) => l.code !== 'de')) {
@@ -1288,6 +1327,7 @@ const app = join(out, 'app');
 if (existsSync(join(app, 'index.html'))) copyFileSync(join(app, 'index.html'), join(app, '404.html'));
 else console.warn('Achtung: website/app/ fehlt. Die Web-App fürs iPhone baut `npm run build:website`.');
 for (const id of legalDocIds) writeFileSync(join(out, `${fileOf[id]}.html`), legal(id));
+writeFileSync(join(out, 'co-founder.html'), coFounderSeite);
 copyFileSync(join(root, 'assets/favicon.png'), join(out, 'favicon.png'));
 // Startseite: Stil, Prototyp, Beispielfoto und Schriften (lokal, ohne Google-Server)
 writeFileSync(join(out, 'seite.css'), seiteCss);
