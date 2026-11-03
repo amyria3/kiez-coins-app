@@ -8,7 +8,7 @@ import { NameWithTestMark } from './Badges';
 import { beforeAfterDuration, formatHoursMinutes, formatRelative } from '../data/format';
 import { t } from '../data/texts';
 import type { ImageSource } from '../data/types';
-import { shareText } from '../lib/share';
+import { useShareChallenge } from '../data/shareChallenge';
 import { useAppDimensions } from '../theme/layout';
 import { color, font, isFashionable, motion, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
@@ -144,6 +144,7 @@ function useParts({ challenge }: ChallengePostProps) {
 }
 
 function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: ChallengePostProps & { end?: ReactNode }) {
+  const share = useShareChallenge();
   const commentCount = challenge.comments.length;
   const countStyle = isFashionable ? styles.countFashionable : styles.count;
   return (
@@ -171,7 +172,7 @@ function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: 
         icon="send"
         iconSize={size.icon}
         accessibilityLabel={t('Teilen')}
-        onPress={() => shareText(t('{title} – KiezCoins', { title: challenge.title }))}
+        onPress={() => share(challenge)}
       />
       <View style={styles.flex} />
       {end}

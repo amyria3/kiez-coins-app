@@ -140,6 +140,10 @@
     {
       "source": "/einladung/:code",
       "destination": "/einladung"
+    },
+    {
+      "source": "/c/:id",
+      "destination": "/api/c?id=:id"
     }
   ]
 }

@@ -1,6 +1,6 @@
 import { memo, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Alert, Animated, Pressable, StyleSheet, View } from 'react-native';
-import { shareText } from '../lib/share';
+import { useShareChallenge } from '../data/shareChallenge';
 import { Text } from './T';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -58,6 +58,7 @@ function KiezPost({
   onManage,
   wrapLike = (heart) => heart,
 }: ChallengePostProps) {
+  const share = useShareChallenge();
   const isWave = challenge.type === 'wave';
   const completed = COMPLETED.has(challenge.status);
   const closed = challenge.status === 'closed';
@@ -285,7 +286,7 @@ function KiezPost({
             icon="send"
             iconSize={size.icon}
             accessibilityLabel={t('Teilen')}
-            onPress={() => shareText(t('{title} – KiezCoins', { title: challenge.title }))}
+            onPress={() => share(challenge)}
           />
         </View>
         <View style={styles.actionsRight}>
@@ -322,6 +323,7 @@ function spotsText(c: Challenge, active: boolean): string {
  * ganze Breite, darunter Herz, Sprechblase, Teilen und der Text mit fettem Titel vorn. Ein Tipp aufs Foto öffnet den Post.
  */
 function FashionPost({ challenge, author, distance, onPress, onCommentPress, onLike, onManage, wrapLike = (heart) => heart }: ChallengePostProps) {
+  const share = useShareChallenge();
   const isWave = challenge.type === 'wave';
   const completed = COMPLETED.has(challenge.status);
   const closed = challenge.status === 'closed';
@@ -430,7 +432,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
           icon="send"
           iconSize={size.icon}
           accessibilityLabel={t('Teilen')}
-          onPress={() => shareText(t('{title} – KiezCoins', { title: challenge.title }))}
+          onPress={() => share(challenge)}
         />
         {/* Status rechts unter dem Bild, als Angabe in Grau (Daria, 24.10.2026) */}
         <Text style={[fashion.state, closed && fashion.stateClosed]} numberOfLines={1}>

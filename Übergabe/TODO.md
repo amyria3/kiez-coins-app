@@ -15,6 +15,10 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 - [x] Beim Posten Zugriff auf die Entwürfe: Das Erstellen-Blatt zeigt oben „Deine Entwürfe“ mit Kacheln, passend zum Modus (Privat, Gruppe, Kiez/Überall). Ein Tipp öffnet den Entwurf (`src/components/compose/DraftStrip.tsx`, 30.10.2026).
 
+## Teilen (Daria, 03.11.2026)
+
+- [ ] Geteilte Posts mit öffentlicher Seite: Migration einspielen, Datenschutzerklärung ergänzen, Bildkarte für Instagram entwerfen. Details: `2026-11-03_offen_teilen.md`.
+
 ## Außerhalb des Codes
 
 - [x] Mailversand über Brevo und kiezcoins.de (läuft seit 21.10.2026, Code-Mail um 09:55 angekommen, IP-Sperre in Brevo aus)
