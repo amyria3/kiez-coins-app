@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View, type GestureResponderEvent } from 'react-native';
-import { shareText } from '../../../lib/share';
+import { useShareChallenge } from '../../../data/shareChallenge';
 import { Text } from '../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -54,6 +54,7 @@ export default function ChallengeDetail() {
   const { id, kommentare } = useLocalSearchParams<{ id: string; kommentare?: string }>();
   const router = useRouter();
   const goBack = useGoBack();
+  const share = useShareChallenge();
   const { currentUserId, users, dispatch, mode, profile } = useStore();
 
   const { challenge, author } = useChallenge(id);
@@ -592,7 +593,7 @@ export default function ChallengeDetail() {
       imageLabel={challenge.title}
       photoText={challenge.type === 'photo' && image === challenge.image ? challenge.photoText : undefined}
       onBackPress={() => goBack()}
-      onSharePress={() => shareText(t('{title} – KiezCoins', { title: challenge.title }))}
+      onSharePress={() => share(challenge)}
       imageOverlay={acceptedByMe && challenge.operationName ? <OperationTag name={challenge.operationName} /> : undefined}
       actions={actions}
       summary={summary}

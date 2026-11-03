@@ -759,6 +759,56 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
 `
 };
 
+// ---------- Geteilter Post: Vorlage für /c/<id> (Daria, 03.11.2026) ----------
+// Die Vercel-Funktion api/c.mjs lädt diese Vorlage, holt den Post aus Supabase und ersetzt die Platzhalter
+// <!--KOPF--> (Titel und Vorschau-Tags) und <!--POST--> (Foto, Titel, Text). Pfade sind absolut.
+const teilenVorlage = `<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FAFBEF">
+<!--KOPF-->
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="/seite.css?v=${version(seiteCss)}">
+<style>
+.geteilt { max-width: 560px; margin: 0 auto; }
+.geteilt .fotos { display: grid; gap: 8px; margin: 0 0 18px; }
+.geteilt .fotos.zwei { grid-template-columns: 1fr 1fr; }
+.geteilt figure { margin: 0; }
+.geteilt img { display: block; width: 100%; border-radius: 20px; aspect-ratio: 4 / 5; object-fit: cover; }
+.geteilt figcaption { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.geteilt .wer { font-size: 14px; color: var(--muted); margin: 0 0 6px; }
+.geteilt h1 { font: 600 28px/1.15 var(--display); margin: 0 0 10px; }
+.geteilt .text { white-space: pre-line; margin: 0 0 24px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="/?von=teilen" aria-label="KiezCoins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+</header>
+<main>
+<section class="geteilt">
+<!--POST-->
+  <div class="card">
+    <h3>Mach mit in Deinem Kiez.</h3>
+    <p>In KiezCoins stellen Menschen aus der Nachbarschaft kleine Aufgaben, und andere erledigen sie.</p>
+    <a class="button" href="/?von=teilen">KiezCoins kennenlernen</a>
+    <a class="button button-zweit" href="/app/?von=teilen">Direkt im Browser ausprobieren</a>
+  </div>
+  <footer>
+    <a href="/impressum">Impressum</a>
+    <a href="/datenschutz">Datenschutz</a>
+  </footer>
+</section>
+</main>
+</div>
+</body>
+</html>
+`;
+
 // ---------- Einladung: /einladung/<code> trägt den Einladungscode schon ein ----------
 // Vercel leitet /einladung/:code auf diese Seite (vercel.json unten). Das Skript liest den Code aus der Adresse
 // und setzt ihn ins versteckte Feld. Der Download startet erst nach dem Tipp (Daria, 22.10.2026).
@@ -1310,6 +1360,7 @@ for (const { code } of sprachen.filter((l) => l.code !== 'de')) {
 }
 for (const [L, texte] of fehlend) console.warn(`Startseite ${L}: ${texte.size} Texte ohne Übersetzung, dort steht Englisch (scripts/site/sprachen/${L}.json)`);
 writeFileSync(join(out, 'einladung.html'), einladung);
+writeFileSync(join(out, 'teilen-vorlage.html'), teilenVorlage);
 writeFileSync(join(out, 'laden.html'), ladenSeite);
 writeFileSync(join(out, 'qr.html'), qrSeite);
 mkdirSync(join(out, 'qr-filme'), { recursive: true });
@@ -1365,6 +1416,7 @@ writeFileSync(
       rewrites: [
         { source: '/app/:path*', destination: '/app/index' },
         { source: '/einladung/:code', destination: '/einladung' },
+        { source: '/c/:id', destination: '/api/c?id=:id' },
       ],
     },
     null,

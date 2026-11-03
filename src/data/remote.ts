@@ -1161,6 +1161,9 @@ export const deleteChallenge = (id: string) => rpc('delete_challenge', { p_chall
 export const restoreChallenge = (id: string, deadline?: string) =>
   rpc('restore_challenge', { p_challenge_id: id, p_deadline: deadline ?? null });
 
+/** Eigenen Post zum Teilen freigeben: Er bekommt die öffentliche Seite kiezcoins.de/c/<id> (Migration 20261103000200). */
+export const shareChallengePublicly = (id: string) => rpc('share_challenge', { p_challenge_id: id });
+
 /**
  * Aufrufe eigener Challenges (RLS liefert nur die eigenen).
  * `null`, solange die Migration `challenge_views` fehlt. Die App blendet die Zahl dann aus.
