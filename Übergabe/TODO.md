@@ -18,6 +18,7 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 ## Teilen (Daria, 03.11.2026)
 
 - [ ] Geteilte Posts mit öffentlicher Seite: Migration einspielen, Datenschutzerklärung ergänzen, Bildkarte für Instagram entwerfen. Details: `2026-11-03_offen_teilen.md`.
+- [ ] BlueSky-Cross-Posting: Posts aus KiezCoins zusätzlich auf BlueSky veröffentlichen (Daria, 03.11.2026).
 
 ## Außerhalb des Codes
 
