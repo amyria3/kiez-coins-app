@@ -35,6 +35,7 @@ import { coordsIfAllowed, distanceMeters, KIEZ_RADIUS_METERS, type Coords } from
 import { useChallenge, useStore } from '../../../data/store';
 import { isPostOnly, type ChallengeStatus } from '../../../data/types';
 import { color, font, radius, size, space, stroke, text } from '../../../theme/tokens';
+import { deleteMessage } from '../../../data/crosspost';
 import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 
@@ -256,17 +257,19 @@ export default function ChallengeDetail() {
       );
       return;
     }
-    Alert.alert('Challenge löschen?', 'Die Challenge verschwindet aus dem Feed.', [
-      { text: 'Abbrechen', style: 'cancel' },
-      {
-        text: 'Löschen',
-        style: 'destructive',
-        onPress: () => {
-          goBack();
-          dispatch({ type: 'delete', id: challenge.id });
+    deleteMessage(challenge.id).then((text) =>
+      Alert.alert('Challenge löschen?', text, [
+        { text: 'Abbrechen', style: 'cancel' },
+        {
+          text: 'Löschen',
+          style: 'destructive',
+          onPress: () => {
+            goBack();
+            dispatch({ type: 'delete', id: challenge.id });
+          },
         },
-      },
-    ]);
+      ]),
+    );
   };
 
   // Zeitangaben nur, solange die Challenge läuft

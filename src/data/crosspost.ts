@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../lib/supabase';
 import { look } from '../theme/look';
 import { countButton, isModerator } from './remote';
+import { t } from './texts';
 import { useStore } from './store';
 
 /**
@@ -132,6 +133,22 @@ export async function crosspostChallenge(challengeId: string, platforms: LivePla
     { body: { action: 'post', challengeId, platforms } },
   );
   return data?.results ?? {};
+}
+
+/**
+ * Text für den Löschen-Dialog: „Die Challenge verschwindet aus dem Feed.“ und, falls weitergepostet,
+ * auf welchen Plattformen sie mitgelöscht wird.
+ */
+export async function deleteMessage(challengeId: string): Promise<string> {
+  const base = t('Die Challenge verschwindet aus dem Feed.');
+  const { data, error } = await supabase
+    .from('crosspost_posts')
+    .select('platform')
+    .eq('challenge_id', challengeId)
+    .eq('status', 'ok');
+  if (error || !data?.length) return base;
+  const labels = data.map((d) => CROSSPOST_PLATFORMS.find((p) => p.key === d.platform)?.label ?? d.platform);
+  return `${base} ${t('Auf {platforms} wird sie auch gelöscht.', { platforms: labels.join(t(' und ')) })}`;
 }
 
 const SELECTION_KEY = 'crosspost_selection_v1';
