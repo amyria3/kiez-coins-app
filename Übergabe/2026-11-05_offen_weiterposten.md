@@ -1,6 +1,6 @@
 # Weiterposten auf BlueSky und Mastodon
 
-Pflichtaufgabe: Migration `supabase/migrations/20261105000100_weiterposten.sql` einspielen und Edge Function `weiterposten` deployen.
+Stand 05.11.2026: Migrationen `20261103000200_teilen.sql` und `20261105000100_weiterposten.sql` eingespielt, Edge Function `weiterposten` deployt (Version 1, mit Anmeldung). Offen: Test durch Daria.
 
 - Datum: 2026-11-05
 - Status: offen. Code auf `main` (PR #155), für alle ausgeschaltet, für Moderatorinnen zum Testen an

@@ -17,7 +17,7 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 ## Teilen (Daria, 03.11.2026)
 
-- [ ] Geteilte Posts mit öffentlicher Seite: Migration einspielen, Datenschutzerklärung ergänzen, Bildkarte für Instagram entwerfen. Details: `2026-11-03_offen_teilen.md`.
+- [ ] Geteilte Posts mit öffentlicher Seite: ~~Migration einspielen~~ (05.11.2026 eingespielt, von Claude geprüft), Datenschutzerklärung ergänzen, Bildkarte für Instagram entwerfen. Details: `2026-11-03_offen_teilen.md`.
 - [ ] Cross-Posting (Daria, 03.11.2026): Bilder aus KiezCoins mit einem Tipp auch auf Mastodon, BlueSky, Instagram/Facebook (Meta) und X veröffentlichen, mit „Gepostet via KiezCoins“. Ziel: Reichweite außerhalb der App, neue Mitglieder.
    - Kosten laut Darias KI-Recherche (03.11.2026, von Claude nicht geprüft): BlueSky (AT-Protokoll) und Mastodon kosten keine API-Gebühren. Die Meta-Graph-API ist kostenlos, verlangt aber eine App-Prüfung durch Meta und ein verifiziertes Business-Konto; automatisch posten geht nur auf Business- oder Creator-Konten. X rechnet pro Post ab: 0,015 $ pro Post, 0,20 $ pro Post mit Link (laut Recherche auch mit Bild). Deshalb braucht X eine feste Obergrenze an Posts pro Monat.
    - Zahlung laut Recherche: Stripe kostet bei Karten 1,4 % + 0,25 €, bei SEPA-Lastschrift 0,8 % + 0,20 €. Jahresabos oder Guthaben senken den Anteil der Gebühren. Gebühren dürfen nicht extra berechnet werden (§ 270a BGB).
@@ -30,7 +30,8 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
    - Optik (Daria, 05.11.2026): Entwurf passt. Die Auswahl der Plattformen steckt beim Posten hinter einer Zeile „Weiterposten“ mit Zahnrad und öffnet sich als Blatt. Entwurf: Claude-Projektordner `cross-posting/2026-11-05_vorschlag-optik-2.png`.
    - Entschieden (Daria, 05.11.2026): Die beiden Modelle für Meta und „ohne X“ sind eins: 0,99 € im Jahr ohne X, also Meta (Instagram und Facebook) unbegrenzt. Mastodon und BlueSky bleiben kostenlos.
    - Plan (Daria, 05.11.2026): Erst kein Geld nehmen. Weiterposten wird gebaut, aber noch nicht freigegeben (`CROSSPOST_ACTIVE` in `src/data/crosspost.ts`). Im Erstellen-Blatt zählt ein Knopf „Ich würde diese Funktion für Meta & X nutzen“ die Interessierten, einmal pro Gerät (`button_presses`, Knopf `weiterposten-meta-x`, Auswertung im Umfrage-Ergebnis). Bezahlen erst ab etwa 500.
-   - [ ] Pflicht (Daria): Migration `20261105000100_weiterposten.sql` einspielen und Edge Function `weiterposten` deployen, dann mit eigenem BlueSky- oder Mastodon-Konto testen. Details: `2026-11-05_offen_weiterposten.md`.
+   - [x] (05.11.2026) Migration `20261105000100_weiterposten.sql` eingespielt, Edge Function `weiterposten` von Claude deployt.
+   - [ ] Daria testet mit eigenem BlueSky- oder Mastodon-Konto. Details: `2026-11-05_offen_weiterposten.md`.
    - Frage an Daria: Sind 2,99 € im Monat (36 € im Jahr) für 5 X-Posts und 24,99 € im Jahr für 10 X-Posts so gewollt? Das Jahresabo wäre günstiger und enthielte doppelt so viele Posts.
    - Frage an Daria: Ein Abo heißt, dass KiezCoins Geld annimmt. Die Nutzungsbedingungen sagen heute „KiezCoins … nimmt kein Geld an und zahlt keins aus“ (`src/data/legal.ts`), und Coins sind Versprechen von echtem Geld zwischen Mitgliedern. Die Recherche schlägt vor, Guthaben als Coins zu verkaufen. Das würde diese Regel berühren. Bezahlung lieber getrennt von den Coins halten?
 
