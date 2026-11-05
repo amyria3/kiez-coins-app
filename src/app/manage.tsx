@@ -19,6 +19,7 @@ import { useStore } from '../data/store';
 import type { Challenge, User } from '../data/types';
 import { useAppDimensions } from '../theme/layout';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
+import { deleteMessage } from '../data/crosspost';
 import { t } from '../data/texts';
 import { useGoBack } from '../lib/goBack';
 import { isParticipant } from '../data/weChallenge';
@@ -174,11 +175,10 @@ export default function ManageChallenges() {
       return;
     }
     const isDraft = c.status === 'draft';
-    Alert.alert(
+    const message = isDraft ? Promise.resolve('Das lässt sich nicht rückgängig machen.') : deleteMessage(c.id);
+    message.then((text) => Alert.alert(
       isDraft ? 'Entwurf löschen?' : 'Challenge löschen?',
-      isDraft
-        ? 'Das lässt sich nicht rückgängig machen.'
-        : 'Die Challenge verschwindet aus dem Feed.',
+      text,
       [
         { text: 'Abbrechen', style: 'cancel' },
         {
@@ -187,7 +187,7 @@ export default function ManageChallenges() {
           onPress: () => dispatch({ type: isDraft ? 'deleteDraft' : 'delete', id: c.id }),
         },
       ],
-    );
+    ));
   };
 
   const purge = (c: Challenge) =>
