@@ -263,6 +263,8 @@ function KiezPost({
                 pointerEvents="none"
                 style={[styles.placeOnPhoto, { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
               >
+                {/* Ortsangabe mit Pin davor (Daria, 2026-11-05) */}
+                {placeOnPhoto ? <Icon name="map-pin" size={14} color={color.text.onPhoto} /> : null}
                 <Text style={styles.placeOnPhotoText} numberOfLines={1}>
                   {placeOnPhoto || challenge.title}
                 </Text>
@@ -620,8 +622,9 @@ const styles = StyleSheet.create({
   },
   infoPlain: { paddingHorizontal: space[4] },
   // Ort ohne Glasleiste: liegt unten links, Schatten statt Fläche
-  placeOnPhoto: { position: 'absolute', left: space[4], right: space[4], bottom: space[4] },
+  placeOnPhoto: { position: 'absolute', left: space[4], right: space[4], bottom: space[4], flexDirection: 'row', alignItems: 'center', gap: space[4] },
   placeOnPhotoText: {
+    flexShrink: 1,
     ...text.cardTitle,
     fontSize: 16,
     lineHeight: 20,
