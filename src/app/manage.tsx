@@ -19,7 +19,8 @@ import { useStore } from '../data/store';
 import type { Challenge, User } from '../data/types';
 import { useAppDimensions } from '../theme/layout';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
-import { deleteMessage } from '../data/crosspost';
+import { askCrosspost, restoreWithChoice } from '../components/CrosspostDialog';
+import { crosspostTargets } from '../data/crosspost';
 import { t } from '../data/texts';
 import { useGoBack } from '../lib/goBack';
 import { isParticipant } from '../data/weChallenge';
@@ -175,10 +176,11 @@ export default function ManageChallenges() {
       return;
     }
     const isDraft = c.status === 'draft';
-    const message = isDraft ? Promise.resolve('Das lässt sich nicht rückgängig machen.') : deleteMessage(c.id);
-    message.then((text) => Alert.alert(
+    const ask = () => Alert.alert(
       isDraft ? 'Entwurf löschen?' : 'Challenge löschen?',
-      text,
+      isDraft
+        ? 'Das lässt sich nicht rückgängig machen.'
+        : 'Die Challenge verschwindet aus dem Feed.',
       [
         { text: 'Abbrechen', style: 'cancel' },
         {
@@ -187,7 +189,13 @@ export default function ManageChallenges() {
           onPress: () => dispatch({ type: isDraft ? 'deleteDraft' : 'delete', id: c.id }),
         },
       ],
-    ));
+    );
+    if (isDraft) return ask();
+    // Weitergepostet: Rückfrage mit Schaltern pro Plattform
+    crosspostTargets(c.id, 'delete').then((targets) => {
+      if (!targets.length) return ask();
+      askCrosspost('delete', targets).then((crosspost) => crosspost && dispatch({ type: 'delete', id: c.id, crosspost }));
+    });
   };
 
   const purge = (c: Challenge) =>
@@ -252,7 +260,7 @@ export default function ManageChallenges() {
                       challenges={page.challenges}
                       onOpen={(c) => router.push(`/challenge/${c.id}`)}
                       onEdit={(c) => requireKiez() && router.push(`/challenge/${c.id}/edit`)}
-                      onRestore={(c) => (c.groupId || requireKiez()) && dispatch({ type: 'restore', id: c.id })}
+                      onRestore={(c) => (c.groupId || requireKiez()) && restoreWithChoice(c.id).then((crosspost) => crosspost && dispatch({ type: 'restore', id: c.id, crosspost }))}
                       onPurge={purge}
                     />
                   </View>
