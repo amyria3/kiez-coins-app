@@ -5,6 +5,7 @@ import type { AuthError, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { ensureOwnProfile, errorText, loadOwnProfile, saveOwnProfile } from './remote';
 import { useStore } from './store';
+import { readStartCache, saveCachedProfile } from './startCache';
 import type { Profile } from './types';
 import { t } from './texts';
 
@@ -118,11 +119,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const profileLoaded = useRef(false);
 
   useEffect(() => {
-    const apply = async (next: Session | null) => {
+    /**
+     * Profil und Feed laden. `onReady` kommt, sobald die App etwas zeigen kann: mit gespeichertem Stand
+     * sofort, sonst nach dem Profil. Der Feed lädt danach weiter und zeigt bis dahin seinen eigenen Ladezustand.
+     */
+    const apply = async (next: Session | null, onReady?: () => void) => {
       setSession(next);
       profileLoaded.current = false;
       if (!next) return;
       const userId = next.user.id;
+      const cached = await readStartCache(userId);
+      if (cached?.profile) {
+        dispatch({ type: 'updateProfile', patch: cached.profile });
+        if (cached.data) dispatch({ type: 'loaded', userId, data: cached.data });
+        onReady?.();
+      }
+      // Profil und Feed gleichzeitig laden statt nacheinander
+      const feed = load(userId);
       try {
         let fromDb = await loadOwnProfile(userId);
         // Kein Profil in der Datenbank (sollte der Trigger anlegen): nachholen, sonst speichert die App ins Leere.
@@ -133,15 +146,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const patch: Partial<Profile> = { email: visibleEmail(next.user.email), ...fromDb };
         dispatch({ type: 'updateProfile', patch });
         lastSynced.current = SKIP_ONCE;
+        if (fromDb) saveCachedProfile(userId, patch);
       } catch {
         // Ohne Verbindung bleibt der lokale Stand; der Feed zeigt dann „offline“.
       }
       profileLoaded.current = true;
-      await load(userId);
+      onReady?.();
+      await feed;
     };
 
     supabase.auth.getSession().then(async ({ data }) => {
-      await apply(data.session);
+      await apply(data.session, () => setLoading(false));
       setLoading(false);
     });
 
