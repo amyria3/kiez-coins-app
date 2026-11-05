@@ -30,7 +30,8 @@ const HOW_TO: Record<LivePlatform, string> = {
     '1. In Mastodon: Einstellungen › Entwicklung › Neue Anwendung. Name „KiezCoins“.\n' +
     '2. Bei den Befugnissen nur diese drei anhaken: profile, write:media und write:statuses. Alles andere abwählen, auch read und write.\n' +
     '3. Speichern, die Anwendung öffnen und „Dein Zugangs-Token“ kopieren. Client-Schlüssel und Client-Geheimnis brauchst Du nicht.\n' +
-    '4. Hast Du die Befugnisse nachträglich geändert, das Zugangs-Token neu erzeugen.',
+    '4. Hast Du die Befugnisse nachträglich geändert, das Zugangs-Token neu erzeugen.\n' +
+    '5. Instanz und Zugangs-Token unten eintragen. Die Instanz ist der Server Deines Kontos: Deine vollständige Adresse steht auf Deinem Profil unter dem Namen, z. B. @kiezkatz@mastodon.social. Die Instanz ist der Teil nach dem zweiten @, also mastodon.social.',
 };
 
 /**
@@ -95,7 +96,7 @@ function PlatformCard({
     setBusy(true);
     setError(undefined);
     try {
-      await connectCrosspost(platform, platform === 'bluesky' ? { handle: first, password: secret } : { instance: first, token: secret });
+      await connectCrosspost(platform, platform === 'bluesky' ? { handle: first, password: secret } : { instance: first.trim().replace(/^.*@/, ''), token: secret });
       setFirst('');
       setSecret('');
       onChange();
@@ -143,7 +144,7 @@ function PlatformCard({
         helperText={
           platform === 'bluesky'
             ? 'Steht in BlueSky auf Deinem Profil unter dem Namen. Ohne @, z. B. kiezkatz.bsky.social'
-            : 'Der Server Deines Kontos, z. B. mastodon.social'
+            : 'Teil Deiner Adresse nach dem zweiten @, ohne https://, z. B. mastodon.social'
         }
         autoCapitalize="none"
         autoCorrect={false}
