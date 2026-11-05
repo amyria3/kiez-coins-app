@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Animated, FlatList, Pressable, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { Alert, Animated, FlatList, Pressable, ScrollView, StyleSheet, View, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { Text } from '../components/T';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -65,6 +65,7 @@ export default function ManageChallenges() {
   const [pageHeight, setPageHeight] = useState(0);
   // Aktuelle Seite je Reiter, für „2 von 5“
   const [index, setIndex] = useState({ active: 0, archive: 0 });
+  const [heights, setHeights] = useState<Record<string, number>>({});
   // Archiv: geschlossene und gelöschte Challenges. Wischen nach links oder Tippen auf den Reiter wechselt.
   const [archive, setArchive] = useState(false);
   const archiveRef = useRef(false);
@@ -211,11 +212,22 @@ export default function ManageChallenges() {
   // Karten kürzer als der Bildschirm, damit die nächste unten herausschaut (Daria, 2026-11-02)
   // Karte nur so hoch wie ihr Inhalt braucht, höchstens 85 % der Seite (Daria, 2026-11-02)
   const itemHeight = Math.round(Math.min(pageHeight * 0.85, 410));
+  // Challenge-Karten sind so hoch wie ihr Inhalt, ohne Leerraum über den Knöpfen (Daria, 2026-11-05).
+  // Die Höhen messen wir, damit das Einrasten beim Wischen trotzdem genau am Kartenanfang landet.
+  const keyOf = (p: Page) => (p.kind === 'challenge' ? p.challenge.id : p.kind);
   const renderList = (pages: Page[], tab: 'active' | 'archive') => {
+    const heightOf = (p: Page) => (p.kind === 'challenge' ? (heights[keyOf(p)] ?? itemHeight) : itemHeight);
+    const offsets = pages.reduce<number[]>((all, p, i) => [...all, i === 0 ? 0 : all[i - 1] + heightOf(pages[i - 1])], []);
+    const lastHeight = pages.length ? heightOf(pages[pages.length - 1]) : itemHeight;
     const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (!itemHeight) return;
-      const next = Math.round(e.nativeEvent.contentOffset.y / itemHeight);
+      const y = e.nativeEvent.contentOffset.y;
+      const next = offsets.reduce((best, o, i) => (Math.abs(o - y) < Math.abs(offsets[best] - y) ? i : best), 0);
       if (next !== index[tab]) setIndex((all) => ({ ...all, [tab]: next }));
+    };
+    const measure = (key: string) => (e: LayoutChangeEvent) => {
+      const h = Math.round(e.nativeEvent.layout.height);
+      if (heights[key] !== h) setHeights((all) => ({ ...all, [key]: h }));
     };
     return (
       <View style={{ width, height: pageHeight }}>
@@ -230,15 +242,14 @@ export default function ManageChallenges() {
         ) : (
           <FlatList
             data={pages}
-            keyExtractor={(p) => (p.kind === 'challenge' ? p.challenge.id : p.kind)}
-            snapToInterval={itemHeight}
-            snapToAlignment="start"
+            keyExtractor={keyOf}
+            snapToOffsets={offsets}
             decelerationRate="fast"
-            contentContainerStyle={{ paddingBottom: pageHeight - itemHeight }}
+            contentContainerStyle={{ paddingBottom: Math.max(pageHeight - lastHeight, 0) }}
             showsVerticalScrollIndicator={false}
             onScroll={onScroll}
             scrollEventThrottle={32}
-            getItemLayout={(_, i) => ({ length: itemHeight, offset: itemHeight * i, index: i })}
+            getItemLayout={(_, i) => ({ length: heightOf(pages[i]), offset: offsets[i] ?? 0, index: i })}
             renderItem={({ item: page, index: i }) => {
               const hasNext = i < pages.length - 1;
               if (page.kind === 'groupDone') {
@@ -268,7 +279,7 @@ export default function ManageChallenges() {
               }
               const item = page.challenge;
               return (
-                <View style={[styles.page, { height: itemHeight }]}>
+                <View style={[styles.page, { maxHeight: itemHeight }]} onLayout={measure(item.id)}>
                   <ChallengeCard
                     challenge={item}
                     assignee={users.find((u) => u.id === item.assigneeId)}
@@ -401,7 +412,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
   }
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, styles.cardFit]}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={t('{title} öffnen', { title: c.title || t('Ohne Titel') })}
@@ -458,8 +469,6 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
           <Metric value={isDraft ? '–' : formatDurationSince(c.createdAt)} hint={isDraft ? 'Entwurf' : 'online'} />
         </View>
       </View>
-
-      <View style={styles.flex} />
 
       <View style={styles.actions}>
         {isDraft ? (
@@ -519,7 +528,7 @@ function GroupDoneCard({
   onOpen: (c: Challenge) => void;
 }) {
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, styles.flex]}>
       <View style={styles.badges}>
         <StatusBadge status="confirmed" />
         <Text style={styles.caption}>
@@ -586,7 +595,7 @@ function DeletedCard({
   const [expanded, setExpanded] = useState<string>();
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, styles.flex]}>
       <View style={styles.badges}>
         <StatusBadge status="deleted" />
         <Text style={styles.caption}>{t('{challenges}, nur für Dich sichtbar', { challenges: challenges.length === 1 ? t('1 Challenge') : t('{challenges} Challenges', { challenges: challenges.length }) })}</Text>
@@ -762,8 +771,6 @@ function FashionCard({
         <Text style={fashion.deleteText}>Challenge löschen</Text>
       </Pressable>
       <View style={fashion.line} />
-
-      <View style={styles.flex} />
       {hasNext ? <Text style={[styles.next, fashion.next]}>Nach oben wischen für die nächste</Text> : null}
     </View>
   );
@@ -789,7 +796,7 @@ function FashionMetric({ value, label, onPress }: { value: string; label: string
 }
 
 const fashion = StyleSheet.create({
-  card: { flex: 1 },
+  card: {},
   head: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingTop: 21, paddingBottom: 14 },
   thumb: { width: 56, height: 56, borderRadius: radius.md },
   thumbEmpty: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.bg.surface },
@@ -845,12 +852,13 @@ const styles = StyleSheet.create({
     ? { paddingBottom: space[12] }
     : { paddingHorizontal: space[16], paddingTop: space[8], paddingBottom: space[12] },
   card: {
-    flex: 1,
     gap: space[16],
     padding: space[16],
     borderRadius: radius.card,
     backgroundColor: color.bg.surface,
   },
+  // Challenge-Karte: so hoch wie ihr Inhalt, mit feinem Rand im Grün aus den Kater-Herzen (Daria, 2026-11-05)
+  cardFit: { borderWidth: stroke.thin, borderColor: color.line.confirmation },
   head: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   pressed: { opacity: 0.7 },
   thumb: { width: 72, height: 72, borderRadius: radius.xl },
@@ -865,17 +873,18 @@ const styles = StyleSheet.create({
   body: { ...text.body, color: color.text.secondary },
   statsGrid: { gap: space[4] },
   stats: { flexDirection: 'row', alignItems: 'stretch' },
-  statLine: { width: stroke.thin, backgroundColor: color.line.hairline, marginVertical: space[4] },
+  statLine: { width: stroke.thin, backgroundColor: color.line.confirmation, marginVertical: space[4] },
   metric: { flex: 1, alignItems: 'center', gap: space[2], paddingVertical: space[4] },
   metricHint: { flexDirection: 'row', alignItems: 'center', gap: space[2] },
   link: { color: color.text.primary },
   // Etwas kleiner als text.metric (Daria, 2026-11-02)
-  metricValue: { ...text.metric, fontSize: 18, lineHeight: 22, color: color.text.primary },
+  // Zahlen im Grün aus den Kater-Herzen (Daria, 2026-11-05)
+  metricValue: { ...text.metric, fontSize: 18, lineHeight: 22, color: color.accent.confirmation },
   caption: { ...text.caption, color: color.text.secondary },
   actions: { gap: space[8] },
-  quietBar: { flexDirection: 'row', borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
+  quietBar: { flexDirection: 'row', borderTopWidth: stroke.ultraThin, borderTopColor: color.line.confirmation },
   quietAction: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 48 },
-  quietDivider: { width: stroke.ultraThin, backgroundColor: color.line.hairline, marginVertical: space[12] },
+  quietDivider: { width: stroke.ultraThin, backgroundColor: color.line.confirmation, marginVertical: space[12] },
   quietLabel: { ...text.body, color: color.text.primary },
   quietDanger: { color: color.accent.error },
   row: { flexDirection: 'row', gap: space[8] },
