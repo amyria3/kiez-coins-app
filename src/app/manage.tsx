@@ -487,7 +487,6 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
           <QuietAction label="Löschen" danger muted={!canDelete} onPress={onDelete} />
         </View>
       </View>
-      {hasNext ? <Text style={styles.next}>Nach oben wischen für die nächste</Text> : null}
     </View>
   );
 }
@@ -766,7 +765,6 @@ function FashionCard({
         <Text style={fashion.deleteText}>Challenge löschen</Text>
       </Pressable>
       <View style={fashion.line} />
-      {hasNext ? <Text style={[styles.next, fashion.next]}>Nach oben wischen für die nächste</Text> : null}
     </View>
   );
 }
