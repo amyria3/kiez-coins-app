@@ -1337,7 +1337,7 @@ ${h(L === 'de' ? 'h1' : 'h2', d.title)}
 ${teile.join('\n')}
 <div class="card">
 <p><b>${esc(d.cta)}</b></p>
-<p>${esc(d.product)}: <a href="${coFounder.productUrl}">${esc(coFounder.productUrl.replace(/^https:\/\/|\/$/g, ''))}</a></p>
+<p>${esc(d.product)}: <a href="/">${esc(coFounder.productUrl.replace(/^https:\/\/|\/$/g, ''))}</a></p>
 <p>${esc(d.mail)} <a href="mailto:${coFounder.email}">${coFounder.email}</a></p>
 <a class="button" href="mailto:${coFounder.email}?subject=${encodeURIComponent(L === 'de' ? 'Bewerbung Co-Founder:in' : 'Application co-founder')}">${L === 'de' ? 'Jetzt bewerben' : 'Apply now'}</a>
 <p style="margin-top:16px">${esc(d.thanks)}</p>
