@@ -150,6 +150,24 @@ function KiezPost({
     </>
   );
 
+  // Ort auf dem Foto: Stadtteil, sonst Adresse (wie im Fashionable Look)
+  const placeOnPhoto = challenge.kiez?.split(',')[0] ?? challenge.location;
+  const posted = formatRelative(challenge.createdAt);
+  const tappedMeta = [posted, distance, isPhoto ? null : state, spotsText(challenge, active)].filter(Boolean).join(' · ');
+  const infoBarTapped = (
+    <>
+      <Text style={styles.title} numberOfLines={2}>
+        {challenge.title}
+      </Text>
+      <View style={styles.metaRow}>
+        <Text style={styles.meta} numberOfLines={1}>
+          <Text noTranslate style={hideName ? hiddenText : undefined}>{author.name}</Text>
+          {tappedMeta ? ` · ${tappedMeta}` : null}
+        </Text>
+      </View>
+    </>
+  );
+
   return (
     <View style={styles.post}>
       {after ? (
@@ -237,9 +255,31 @@ function KiezPost({
             </Pressable>
           </Animated.View>
           {image ? (
-            <View style={[styles.info, styles.infoOnPhoto]}>
-              <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
-              {infoBar}
+            // Erst nur der Ort auf dem Foto, ohne Glasleiste. Nach dem Tippen Glasleiste mit Titel,
+            // Name und wann gepostet (Daria, 2026-11-05).
+            <View>
+              <Animated.View
+                pointerEvents="none"
+                style={[styles.placeOnPhoto, { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
+              >
+                <Text style={styles.placeOnPhotoText} numberOfLines={1}>
+                  {placeOnPhoto || challenge.title}
+                </Text>
+              </Animated.View>
+              <Animated.View
+                pointerEvents="none"
+                style={[
+                  styles.info,
+                  styles.infoOnPhoto,
+                  {
+                    opacity: whoAnim,
+                    transform: [{ translateY: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }],
+                  },
+                ]}
+              >
+                <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+                {infoBarTapped}
+              </Animated.View>
             </View>
           ) : (
             // Ohne Foto (Daria, 30.10.2026): keine leere Fläche, Titel und Name links, Belohnung rechts daneben
@@ -578,6 +618,17 @@ const styles = StyleSheet.create({
     borderColor: color.line.hairline,
   },
   infoPlain: { paddingHorizontal: space[4] },
+  // Ort ohne Glasleiste: liegt unten links, Schatten statt Fläche
+  placeOnPhoto: { position: 'absolute', left: space[4], right: space[4], bottom: space[4] },
+  placeOnPhotoText: {
+    ...text.cardTitle,
+    fontSize: 16,
+    lineHeight: 20,
+    color: color.text.onPhoto,
+    textShadowColor: 'rgba(0,0,0,0.6)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 6,
+  },
   who: {
     position: 'absolute',
     top: space[12],

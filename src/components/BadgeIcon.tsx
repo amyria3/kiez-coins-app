@@ -66,6 +66,15 @@ function mitFarbe(kind: BadgeKind, xml: string, fill: string) {
   return out;
 }
 
+/** Runde Farbfläche im Small-Icon: Rahmen (w × h) sowie Mitte und Radius des Kreises, aus badgeSvgs gemessen */
+const FLAECHE_SMALL: Record<BadgeKind, { w: number; h: number; cx: number; cy: number; r: number }> = {
+  pionier: { w: 128, h: 120, cx: 68, cy: 60, r: 60 },
+  lotse: { w: 120, h: 120, cx: 55, cy: 55, r: 55 },
+  anfuehrer: { w: 120, h: 120, cx: 60, cy: 60, r: 60 },
+  seebaer: { w: 120, h: 120, cx: 60, cy: 60, r: 60 },
+  macher: { w: 120, h: 121, cx: 69, cy: 51, r: 51 },
+};
+
 /** Breite des Rings am Avatar */
 const RING = (size: number) => Math.max(2, Math.round(size * 0.07));
 
@@ -79,6 +88,7 @@ export function BadgeIcon({
   muted = false,
   ring = false,
   lines = false,
+  ringColor,
 }: {
   kind: BadgeKind;
   size: number;
@@ -89,6 +99,8 @@ export function BadgeIcon({
   ring?: boolean;
   /** Erhalten, in Listen: Fassung Default mit den Linien auf der Farbe des Abzeichens */
   lines?: boolean;
+  /** Farbe des Rings, wenn der Avatar nicht auf dem Grund liegt, z. B. auf einer Karte */
+  ringColor?: string;
 }) {
   const meta = badgeMeta(kind);
   const own = isFashionable ? undefined : KIEZ_BADGE_SVGS[kind];
@@ -111,20 +123,29 @@ export function BadgeIcon({
         accessibilityLabel={badgeTitle(kind, number)}
         style={{ width: size, height: size }}
       >
-        {ring && size < 80 ? (
-          // Farbfläche in Small: Ellipse mit Mitte (46,25 | 48,47) und Radien 46,25 × 48,47 im Rahmen 120
-          <View
-            style={{
-              position: 'absolute',
-              left: (size * 46.25) / 120 - (size * 48.47) / 120 - RING(size),
-              top: (size * 48.47) / 120 - (size * 48.47) / 120 - RING(size),
-              width: (size * 48.47 * 2) / 120 + RING(size) * 2,
-              height: (size * 48.47 * 2) / 120 + RING(size) * 2,
-              borderRadius: size,
-              backgroundColor: color.bg.screen,
-            }}
-          />
-        ) : null}
+        {ring && size < 80
+          ? (() => {
+              // Farbfläche in Small, je Abzeichen aus Darias Icon gemessen (Daria, 2026-11-05: Ring saß bei Pionier:in daneben)
+              const f = FLAECHE_SMALL[kind];
+              const scale = size / Math.max(f.w, f.h);
+              const offX = (size - f.w * scale) / 2;
+              const offY = (size - f.h * scale) / 2;
+              const r = RING(size);
+              return (
+                <View
+                  style={{
+                    position: 'absolute',
+                    left: offX + (f.cx - f.r) * scale - r,
+                    top: offY + (f.cy - f.r) * scale - r,
+                    width: f.r * 2 * scale + r * 2,
+                    height: f.r * 2 * scale + r * 2,
+                    borderRadius: size,
+                    backgroundColor: ringColor ?? color.bg.screen,
+                  }}
+                />
+              );
+            })()
+          : null}
         {/* Eigene Ebene über dem Ring: Im Web malt der Browser absolut gesetzte Elemente über die übrigen */}
         <View style={{ position: 'absolute', left: 0, top: 0 }}>
           {/* Offen oder ausgeblendet: Default mit Linien, hell. Erhalten in Listen: Default auf der Farbe des Abzeichens (Daria, 2026-11-02) */}
