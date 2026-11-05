@@ -190,7 +190,7 @@ export function NavCard({
       {leading ? <View style={[styles.cardLeading, leadingFill && styles.cardLeadingFill]}>{leading}</View> : null}
       <View style={styles.texts}>
         {/* Zwei Zeilen statt abgeschnitten, z. B. „Deine Freundschaften“ auf 360 pt breiten Android-Handys (29.10.2026) */}
-        <Text style={[styles.profileName, styles.navCardTitle]} numberOfLines={2}>
+        <Text style={styles.profileName} numberOfLines={2}>
           {title}
         </Text>
         {description ? (
@@ -226,9 +226,8 @@ const styles = StyleSheet.create({
   },
   navRow: { minHeight: 48 },
   profileCard: { padding: space[16], gap: space[16], borderRadius: radius.lg },
-  profileName: { ...text.cardTitle, color: color.text.primary },
-  /** Titel in der Farbe des Icons daneben, z. B. „Meine Features“ (Daria, 2026-11-05) */
-  navCardTitle: { color: color.icon.large },
+  /** Titel der Karten in der Farbe der großen Icons, auch der eigene Name (Daria, 2026-11-05) */
+  profileName: { ...text.cardTitle, color: color.icon.large },
   editing: { borderWidth: stroke.thin, borderColor: color.accent.primary, paddingVertical: space[4], paddingRight: space[4] },
   pressed: { opacity: 0.8 },
   texts: { flex: 1, gap: space[2] },
