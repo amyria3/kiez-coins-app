@@ -525,7 +525,7 @@ function Wallpaper() {
 /** Milchglas hinter den Karten, damit das Foto durchscheint (Daria, 2026-11-05) */
 function CardBlur() {
   if (isFashionable) return null;
-  return <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} />;
+  return <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill} />;
 }
 
 /** Leise Aktion: nur Text, gleich breit neben ihren Nachbarn */

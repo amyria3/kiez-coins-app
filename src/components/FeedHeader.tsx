@@ -329,7 +329,7 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
         setBarWidth((old) => (old === w ? old : w));
       }}
     >
-      {glass ? <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} /> : null}
+      {glass ? <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill} /> : null}
       {pill ? <Animated.View pointerEvents="none" style={[styles.pill, accent && styles.accentFill, pill]} /> : null}
       {tabs.map((tab, i) => {
         const selected = tab.key === selectedKey;
