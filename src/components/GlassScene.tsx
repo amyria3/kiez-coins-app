@@ -19,16 +19,50 @@ export const GLASS_FILL = 'rgba(36, 33, 31, 0.15)';
 /** Etwas dunkler für Kopf- und Fußleiste */
 export const GLASS_BAR_FILL = 'rgba(25, 23, 22, 0.15)';
 
-const GlassContext = createContext(false);
+/**
+ * Wo eine Fläche liegt: `cards` direkt auf dem Foto (wird selbst Glas), `inCard` in einer Glaskarte
+ * (nur leicht aufgehellt, kein Glas auf Glas), `off` ohne Foto.
+ */
+export type GlassLevel = 'off' | 'cards' | 'inCard';
 
-/** true, wenn die Fläche auf dem Foto liegt und Glas sein soll */
+const GlassContext = createContext<GlassLevel>('off');
+
+/** true, wenn die Fläche direkt auf dem Foto liegt und selbst Glas sein soll */
 export function useGlass() {
+  return useContext(GlassContext) === 'cards';
+}
+
+/** Ebene der Fläche, siehe GlassLevel */
+export function useGlassLevel() {
   return useContext(GlassContext);
 }
 
 /** Schaltet Glas für alles darin ein. Im Fashionable Look bleibt es aus. */
-export function GlassProvider({ children, enabled = true }: { children: ReactNode; enabled?: boolean }) {
-  return <GlassContext.Provider value={enabled && !isFashionable}>{children}</GlassContext.Provider>;
+export function GlassProvider({ children, enabled = true, level = 'cards' }: { children: ReactNode; enabled?: boolean; level?: GlassLevel }) {
+  return <GlassContext.Provider value={enabled && !isFashionable ? level : 'off'}>{children}</GlassContext.Provider>;
+}
+
+/** Leicht aufgehellte Zeile in einer Glaskarte */
+export const IN_CARD_FILL = 'rgba(255, 255, 255, 0.06)';
+
+/** Stil einer Fläche je nach Ebene: Glas auf dem Foto, aufgehellt in einer Glaskarte */
+export function surfaceFor(level: GlassLevel): StyleProp<ViewStyle> {
+  if (level === 'cards') return styles.surface;
+  if (level === 'inCard') return styles.inCard;
+  return null;
+}
+
+/**
+ * Glaskarte für einen Abschnitt einer Verwaltungsseite (Daria, 2026-11-05): Überschrift und Zeilen liegen in der Karte,
+ * die Zeilen darin sind nur leicht aufgehellt.
+ */
+export function GlassCard({ children }: { children: ReactNode }) {
+  return (
+    <View style={[styles.surface, styles.card]}>
+      <GlassFill radius={radii.card} />
+      <GlassProvider level="inCard">{children}</GlassProvider>
+    </View>
+  );
 }
 
 /** Foto als Hintergrund über die ganze Fläche */
@@ -81,5 +115,7 @@ const styles = StyleSheet.create({
   wallpaper: { overflow: 'hidden' },
   wallpaperDim: { backgroundColor: 'rgba(25, 23, 22, 0.1)' },
   surface: { overflow: 'hidden', backgroundColor: GLASS_FILL },
+  inCard: { backgroundColor: IN_CARD_FILL, borderColor: 'transparent' },
+  card: { gap: space[16], padding: space[16], borderRadius: radii.card },
   credit: { ...text.caption, fontSize: 11, lineHeight: 14, color: color.text.secondary, textAlign: 'center', paddingTop: space[2] },
 });

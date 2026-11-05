@@ -7,6 +7,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 import type { ImageSource } from '../data/types';
 import { color, isFashionable, radius, scheme, space, stroke, text } from '../theme/tokens';
+import { IN_CARD_FILL, useGlassLevel } from './GlassScene';
 import { BlurView } from 'expo-blur';
 import { Glass, glassControls } from './Glass';
 import { nudgeStyles, useNextField, type Nudge } from './Nudge';
@@ -271,12 +272,13 @@ function GlassSwitch({ label, value, onValueChange }: { label: string; value: bo
 
 /** Figma „RadioOption“ (Selected?) */
 export function RadioOption({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  const tint = useGlassLevel() === 'inCard' ? styles.inCardFill : null;
   return (
     <Pressable
       accessibilityRole="radio"
       accessibilityState={{ selected }}
       onPress={onPress}
-      style={[styles.radioOption, selected && styles.radioOptionSelected]}
+      style={[styles.radioOption, tint, selected && styles.radioOptionSelected]}
     >
       <View style={[styles.radio, selected && styles.radioSelected]}>{selected ? <View style={styles.dot} /> : null}</View>
       <Text style={[text.body, styles.flex, { color: color.text.primary }]}>{label}</Text>
@@ -286,12 +288,13 @@ export function RadioOption({ label, selected, onPress }: { label: string; selec
 
 /** Wie `RadioOption`, für Mehrfachauswahl: eckiges Kästchen mit Haken. */
 export function CheckOption({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  const tint = useGlassLevel() === 'inCard' ? styles.inCardFill : null;
   return (
     <Pressable
       accessibilityRole="checkbox"
       accessibilityState={{ checked: selected }}
       onPress={onPress}
-      style={[styles.radioOption, selected && styles.radioOptionSelected]}
+      style={[styles.radioOption, tint, selected && styles.radioOptionSelected]}
     >
       <View style={[styles.checkbox, selected && styles.checkboxSelected]}>
         {selected ? <Icon name="check" size={14} color={color.bg.screen} /> : null}
@@ -304,8 +307,9 @@ export function CheckOption({ label, selected, onPress }: { label: string; selec
 /** Figma „CopyField“: Wert mit Kopieren-Button. */
 export function CopyField({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false);
+  const tint = useGlassLevel() === 'inCard' ? styles.inCardFill : null;
   return (
-    <View style={styles.copyField}>
+    <View style={[styles.copyField, tint]}>
       <View style={styles.texts}>
         <Text style={[text.caption, { color: color.text.secondary }]}>{label}</Text>
         <Text style={[text.body, { color: color.text.primary }]} selectable>
@@ -658,6 +662,8 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     backgroundColor: color.bg.surface,
   },
+  // In einer Glaskarte nur leicht aufgehellt (Daria, 2026-11-05)
+  inCardFill: { backgroundColor: IN_CARD_FILL },
   radioOptionSelected: { borderColor: color.accent.primary },
   radio: {
     width: 20,

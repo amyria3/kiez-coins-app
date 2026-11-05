@@ -3,7 +3,7 @@ import { AccessibilityInfo, Animated, Easing, StyleSheet, View, type StyleProp, 
 import { Text } from './T';
 
 import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
-import { GLASS_FILL, GlassFill, useGlass } from './GlassScene';
+import { GLASS_FILL, GlassFill, surfaceFor, useGlassLevel } from './GlassScene';
 import { useTexts } from '../data/texts';
 import { Cat, type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
@@ -13,8 +13,9 @@ import { Herz } from './Herz';
 
 /** Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. */
 export function Notice({ message, variant = 'info' }: { message: string; variant?: 'info' | 'warning' }) {
+  const level = useGlassLevel();
   return (
-    <View style={styles.notice} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
+    <View style={[styles.notice, level === 'inCard' && surfaceFor(level)]} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
       <Icon name="info" color={variant === 'warning' ? color.accent.signal : color.text.primary} />
       <Text style={styles.noticeText}>{message}</Text>
     </View>
@@ -56,7 +57,8 @@ export function KaterCard({ children, title, mood = 'default' }: { children: Rea
   // Texte aus dem CMS (Tabelle app_texts). Nur reiner Text lässt sich ersetzen; Texte mit Namen
   // setzen die Screens selbst über t() mit Platzhaltern zusammen.
   const tx = useTexts();
-  const glass = useGlass();
+  const level = useGlassLevel();
+  const glass = level === 'cards';
   if (typeof children === 'string') children = tx(children);
   if (title) title = tx(title);
   if (isFashionable) {
@@ -78,7 +80,7 @@ export function KaterCard({ children, title, mood = 'default' }: { children: Rea
   }
   return (
     // Kiez-Look: Kater im Kreis sitzt auf der Blase, rechts neben dem Text (Daria, 30.10.2026)
-    <View style={[styles.speechBubble, glass && styles.speechBubbleGlass]}>
+    <View style={[styles.speechBubble, glass && styles.speechBubbleGlass, level === 'inCard' && [surfaceFor(level), styles.noBorder]]}>
       {glass ? <GlassFill radius={radius.xl} /> : null}
       <View style={styles.speechTexts}>
         {title ? <Text style={styles.speechTitle}>{title}</Text> : null}
@@ -236,6 +238,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.accent.signal,
   },
   tagText: { fontFamily: font.semiBold, fontSize: 11, lineHeight: 16, color: color.bg.screen },
+  noBorder: { borderWidth: 0 },
   speechBubbleGlass: { overflow: 'hidden', backgroundColor: GLASS_FILL, borderWidth: 0 },
   speechBubble: {
     flexDirection: 'row',

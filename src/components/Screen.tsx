@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { Children, Fragment, isValidElement, type ReactElement, type ReactNode } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, KeyboardAvoidingView, LayoutAnimation, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
 import { Text } from './T';
@@ -11,7 +11,10 @@ import { useAppDimensions } from '../theme/layout';
 import { ActionBar } from './ActionBar';
 import { Cat, type CatMood } from './icons/Brand';
 import { GlassIconButton } from './Glass';
-import { GLASS_FILL, GlassFill, GlassProvider, PhotoCredit, Wallpaper, glassStyles } from './GlassScene';
+import { GlassCard, GlassFill, GlassProvider, PhotoCredit, Wallpaper, glassStyles } from './GlassScene';
+import { FieldGroup, KaterCard } from './Content';
+import { NavCard, ProfileCard } from './Rows';
+import { GroupCard } from './GroupCard';
 import { NavigationBar } from './NavigationBar';
 import { NudgeScrollProvider, useNudgeScroll } from './Nudge';
 import { t } from '../data/texts';
@@ -30,11 +33,48 @@ type SubScreenProps = {
   header?: ReactNode;
   /**
    * Leichter Stil der Verwaltungsseiten: Foto im Hintergrund, Leisten aus Milchglas (Daria, 2026-11-05).
-   * `cards`: Jede Karte und Zeile ist selbst Glas, für Seiten nur aus Karten.
-   * `true`: Der ganze Inhalt liegt auf einer Glasfläche, damit Überschriften und Felder lesbar bleiben.
+   * `cards`: Der Inhalt besteht nur aus Karten, jede ist selbst Glas.
+   * `true`: Jeder Abschnitt (FieldGroup) wird eine Glaskarte, loser Inhalt dazwischen ebenfalls.
+   * Kein Text liegt direkt auf dem Foto, kein Glas liegt auf Glas (Daria, 2026-11-05).
    */
   glass?: boolean | 'cards';
 };
+
+/** Karten, die auf dem Foto selbst Glas werden und keine Glaskarte drumherum brauchen */
+const SELF_GLASS: unknown[] = [KaterCard, NavCard, ProfileCard, GroupCard];
+
+/** Fragmente auflösen, damit jedes sichtbare Element einzeln betrachtet wird */
+function flatten(children: ReactNode): ReactNode[] {
+  return Children.toArray(children).flatMap((child) =>
+    isValidElement(child) && child.type === Fragment ? flatten((child as ReactElement<{ children?: ReactNode }>).props.children) : [child],
+  );
+}
+
+/**
+ * Verteilt den Inhalt einer Verwaltungsseite auf Glaskarten: jeder Abschnitt (FieldGroup) eine Karte,
+ * aufeinanderfolgender loser Inhalt zusammen eine Karte. Karten, die selbst Glas sind, bleiben, wie sie sind.
+ */
+function groupIntoCards(children: ReactNode) {
+  const out: ReactNode[] = [];
+  let loose: ReactNode[] = [];
+  const flush = () => {
+    if (loose.length) out.push(<GlassCard key={`loose-${out.length}`}>{loose}</GlassCard>);
+    loose = [];
+  };
+  for (const child of flatten(children)) {
+    if (isValidElement(child) && SELF_GLASS.includes(child.type)) {
+      flush();
+      out.push(child);
+    } else if (isValidElement(child) && child.type === FieldGroup) {
+      flush();
+      out.push(<GlassCard key={`group-${out.length}`}>{child}</GlassCard>);
+    } else {
+      loose.push(child);
+    }
+  }
+  flush();
+  return out;
+}
 
 /**
  * Aufbau aller Unterseiten aus Figma: NavigationBar (fest), Inhalt in `scroll-y-auto`
@@ -49,7 +89,7 @@ export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions
   const cards = glassProp === 'cards';
   if (glass) {
     return (
-      <GlassProvider enabled={cards}>
+      <GlassProvider>
         <View style={styles.screen}>
           <Wallpaper />
           <View style={[glassStyles.bar, { paddingTop: insets.top }]}>
@@ -67,14 +107,7 @@ export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions
                 scrollEventThrottle={32}
                 onScroll={(e) => nudgeScroll.onScroll(e.nativeEvent.contentOffset.y)}
               >
-                {cards ? (
-                  children
-                ) : (
-                  <View style={styles.glassSheet}>
-                    <GlassFill radius={radius.card} />
-                    {children}
-                  </View>
-                )}
+                {cards ? children : groupIntoCards(children)}
               </ScrollView>
               <View style={[glassStyles.bar, glassStyles.footer]}>
                 <GlassFill />
@@ -382,7 +415,6 @@ const SWIPE = 48;
 
 const styles = StyleSheet.create({
   creditOnly: { paddingTop: space[8] },
-  glassSheet: { gap: space[16], padding: space[16], borderRadius: radius.card, overflow: 'hidden', backgroundColor: GLASS_FILL },
   dots: {
     position: 'absolute',
     bottom: space[48],
