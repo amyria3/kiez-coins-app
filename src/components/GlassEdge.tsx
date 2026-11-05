@@ -9,11 +9,11 @@ import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
 
 /** Heller Schein oben links, fast unsichtbar in der Mitte, ein Hauch Herz-Grün und unten rechts sanftes Lila */
 const EDGE_STOPS = [
-  { offset: 0, color: '#FFFFFF', opacity: 0.3 },
-  { offset: 0.4, color: '#FFFFFF', opacity: 0.04 },
-  { offset: 0.65, color: '#93F4A7', opacity: 0.08 },
+  { offset: 0, color: "#FFFFFF", opacity: 0.3 },
+  { offset: 0.4, color: "#FFFFFF", opacity: 0.04 },
+  { offset: 0.65, color: "#93F4A7", opacity: 0.08 },
   // Sanftes Lila aus der Signaturfarbe, deutlicher als das Grün (Daria, 2026-11-05)
-  { offset: 1, color: '#7E94FF', opacity: 0.38 },
+  { offset: 1, color: "#7E94FF", opacity: 0.38 },
 ];
 
 /** Linie, die zu beiden Enden ausläuft und in der Mitte am deutlichsten ist */
