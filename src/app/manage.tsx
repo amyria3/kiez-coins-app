@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Animated, FlatList, Linking, Pressable, ScrollView, StyleSheet, View, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent, type StyleProp, type ViewStyle } from 'react-native';
+import { Alert, Animated, FlatList, Pressable, ScrollView, StyleSheet, View, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { Text } from '../components/T';
-import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,7 +10,6 @@ import { BountyBadge, StatusBadge } from '../components/Badges';
 import { Button } from '../components/Button';
 import { KaterCard } from '../components/Content';
 import { Segments } from '../components/FeedHeader';
-import { GlassEdge, GradientLine } from '../components/GlassEdge';
 import { Icon } from '../components/icons/Icon';
 import { NavigationBar } from '../components/NavigationBar';
 import { formatDayMonthShort, formatDurationSince, formatRelative, formatRemainingShort, nameInText } from '../data/format';
@@ -26,9 +24,6 @@ import { crosspostTargets } from '../data/crosspost';
 import { t } from '../data/texts';
 import { useGoBack } from '../lib/goBack';
 import { isParticipant } from '../data/weChallenge';
-
-// Hintergrundfoto (Daria, 2026-11-05): Peter Fazekas, Pexels, https://www.pexels.com/de-de/@peterfazekas/
-const wallpaper = require('../../assets/wallpaper/berge-peter-fazekas.jpg');
 
 /** Reihenfolge: zuerst, was noch änderbar ist, dann was läuft, dann Entwürfe, dann Erledigtes */
 const ORDER: Record<string, number> = {
@@ -221,7 +216,7 @@ export default function ManageChallenges() {
   // Die Höhen messen wir, damit das Einrasten beim Wischen trotzdem genau am Kartenanfang landet.
   const keyOf = (p: Page) => (p.kind === 'challenge' ? p.challenge.id : p.kind);
   const renderList = (pages: Page[], tab: 'active' | 'archive') => {
-    const heightOf = (p: Page) => (p.kind === 'deleted' ? itemHeight : (heights[keyOf(p)] ?? itemHeight));
+    const heightOf = (p: Page) => (p.kind === 'challenge' ? (heights[keyOf(p)] ?? itemHeight) : itemHeight);
     const offsets = pages.reduce<number[]>((all, p, i) => [...all, i === 0 ? 0 : all[i - 1] + heightOf(pages[i - 1])], []);
     const lastHeight = pages.length ? heightOf(pages[pages.length - 1]) : itemHeight;
     const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -259,7 +254,7 @@ export default function ManageChallenges() {
               const hasNext = i < pages.length - 1;
               if (page.kind === 'groupDone') {
                 return (
-                  <View style={[styles.page, { maxHeight: itemHeight }]} onLayout={measure('groupDone')}>
+                  <View style={[styles.page, { height: itemHeight }]}>
                     <GroupDoneCard
                       challenges={page.challenges}
                       userId={currentUserId}
@@ -309,20 +304,13 @@ export default function ManageChallenges() {
   const current = Math.min(index[archive ? 'archive' : 'active'], Math.max(pages.length - 1, 0));
 
   return (
-    <View style={styles.screen}>
-      {/* Foto über den ganzen Bildschirm, Kopf- und Fußleiste aus Milchglas darüber (Daria, 2026-11-05) */}
-      {isFashionable ? null : <Wallpaper />}
-      <View style={[styles.glassBar, { paddingTop: insets.top }]}>
-        <CardBlur edge={false} />
-        <NavigationBar
-          title="Meine Posts"
-          subtitle={pages.length > 1 ? t('{current} von {pages}', { current: current + 1, pages: pages.length }) : undefined}
-          variant="back"
-          onLeadingPress={() => (goBack())}
-          transparent={!isFashionable}
-        />
-      </View>
-      <View style={styles.flex}>
+    <View style={[styles.screen, { paddingTop: insets.top }]}>
+      <NavigationBar
+        title="Meine Posts"
+        subtitle={pages.length > 1 ? t('{current} von {pages}', { current: current + 1, pages: pages.length }) : undefined}
+        variant="back"
+        onLeadingPress={() => (goBack())}
+      />
       <View style={styles.switch}>
         <Segments
           tabs={[
@@ -332,7 +320,6 @@ export default function ManageChallenges() {
           selectedKey={archive ? 'archive' : 'active'}
           onChange={showTab}
           progress={progress}
-          glass
         />
       </View>
       <View style={styles.flex} onLayout={(e) => setPageHeight(e.nativeEvent.layout.height)}>
@@ -351,22 +338,13 @@ export default function ManageChallenges() {
           </Animated.ScrollView>
         ) : null}
       </View>
-      {isFashionable ? null : (
-        <Text style={styles.photoCredit} accessibilityRole="link" onPress={() => Linking.openURL('https://www.pexels.com/de-de/@peterfazekas/')}>
-          Foto: Peter Fazekas, Pexels
-        </Text>
+      {archive ? (
+        <View style={{ height: insets.bottom }} />
+      ) : (
+        <ActionBar>
+          <Button label="Neue Challenge" onPress={create} />
+        </ActionBar>
       )}
-      </View>
-      <View style={[styles.glassBar, styles.footerRound]}>
-        <CardBlur edge={false} />
-        {archive ? (
-          <View style={{ height: insets.bottom }} />
-        ) : (
-          <ActionBar transparent={!isFashionable}>
-            <Button label="Neue Challenge" onPress={create} />
-          </ActionBar>
-        )}
-      </View>
     </View>
   );
 }
@@ -435,7 +413,6 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
 
   return (
     <View style={[styles.card, styles.cardFit]}>
-      <CardBlur />
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={t('{title} öffnen', { title: c.title || t('Ohne Titel') })}
@@ -478,7 +455,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
       <View style={styles.statsGrid}>
         <View style={styles.stats}>
           <Metric value={c.views === undefined ? '–' : String(c.views)} hint={c.views === 1 ? 'Ansicht' : 'Ansichten'} />
-          <Line vertical style={styles.statLine} />
+          <View style={styles.statLine} />
           {/* Likes (Daria, 2026-11-02) */}
           <Metric value={isDraft ? '–' : String(c.likeCount ?? 0)} hint={c.likeCount === 1 ? 'Like' : 'Likes'} />
         </View>
@@ -488,7 +465,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
             hint={c.comments.length === 1 ? 'Kommentar' : 'Kommentare'}
             onPress={isDraft ? undefined : onComments}
           />
-          <Line vertical style={styles.statLine} />
+          <View style={styles.statLine} />
           <Metric value={isDraft ? '–' : formatDurationSince(c.createdAt)} hint={isDraft ? 'Entwurf' : 'online'} />
         </View>
       </View>
@@ -501,54 +478,23 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
         ) : null}
         {/* Leise Aktionen als Leiste wie auf der Gruppenkarte, damit sie die Karte nicht beherrschen (Daria, 24.10.2026).
             Löschen bleibt ausgegraut tippbar: Die Meldung erklärt, warum es nicht geht. */}
-        <View>
-          {isFashionable ? null : <GradientLine />}
-          <View style={styles.quietBar}>
-            {isOpen ? (
-              <>
-                <QuietAction label="Bearbeiten" onPress={onEdit} />
-                <Line vertical style={styles.quietDivider} />
-                <QuietAction label="Schließen" onPress={onClose} />
-              </>
-            ) : isDraft ? null : (
-              <QuietAction label="Ansehen" onPress={onOpen} />
-            )}
-            {isDraft ? null : <Line vertical style={styles.quietDivider} />}
-            <QuietAction label="Löschen" danger muted={!canDelete} onPress={onDelete} />
-          </View>
+        <View style={styles.quietBar}>
+          {isOpen ? (
+            <>
+              <QuietAction label="Bearbeiten" onPress={onEdit} />
+              <View style={styles.quietDivider} />
+              <QuietAction label="Schließen" onPress={onClose} />
+            </>
+          ) : isDraft ? null : (
+            <QuietAction label="Ansehen" onPress={onOpen} />
+          )}
+          {isDraft ? null : <View style={styles.quietDivider} />}
+          <QuietAction label="Löschen" danger muted={!canDelete} onPress={onDelete} />
         </View>
       </View>
       {hasNext ? <Text style={styles.next}>Nach oben wischen für die nächste</Text> : null}
     </View>
   );
-}
-
-/** Foto als Hintergrund, füllt die Fläche unter der Navigationsleiste. Darunter der Bildnachweis. */
-function Wallpaper() {
-  return (
-    <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.wallpaper]}>
-      <Image source={wallpaper} style={StyleSheet.absoluteFill} contentFit="cover" />
-      <View style={[StyleSheet.absoluteFill, styles.wallpaperDim]} />
-    </View>
-  );
-}
-
-/** Milchglas hinter den Karten, damit das Foto durchscheint (Daria, 2026-11-05) */
-function CardBlur({ edge = true }: { edge?: boolean }) {
-  if (isFashionable) return null;
-  return (
-    <>
-      <BlurView intensity={80} tint="systemUltraThinMaterialDark" style={StyleSheet.absoluteFill} />
-      {/* Halbtransparenter Rand mit Verlauf wie bei superhuman.com (Daria, 2026-11-05) */}
-      {edge ? <GlassEdge radius={radius.card} /> : null}
-    </>
-  );
-}
-
-/** Trennlinie: im Kiez-Look mit Verlauf, im Fashionable Look wie bisher */
-function Line({ vertical, style }: { vertical?: boolean; style: StyleProp<ViewStyle> }) {
-  if (isFashionable) return <View style={style} />;
-  return <GradientLine vertical={vertical} style={style} />;
 }
 
 /** Leise Aktion: nur Text, gleich breit neben ihren Nachbarn */
@@ -582,15 +528,14 @@ function GroupDoneCard({
   onOpen: (c: Challenge) => void;
 }) {
   return (
-    <View style={[styles.card, styles.shrink]}>
-      <CardBlur />
+    <View style={[styles.card, styles.flex]}>
       <View style={styles.badges}>
         <StatusBadge status="confirmed" />
         <Text style={styles.caption}>
           {challenges.length === 1 ? t('1 We-Challenge in der Gruppe') : t('{count} We-Challenges in der Gruppe', { count: challenges.length })}
         </Text>
       </View>
-      <ScrollView style={styles.noGrow} contentContainerStyle={styles.deletedList} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.deletedList} showsVerticalScrollIndicator={false}>
         {challenges.map((c) => {
           const photo = c.image ?? c.imageAfter ?? c.report?.photo ?? c.imageBefore;
           const mine = c.authorId === userId;
@@ -651,7 +596,6 @@ function DeletedCard({
 
   return (
     <View style={[styles.card, styles.flex]}>
-      <CardBlur />
       <View style={styles.badges}>
         <StatusBadge status="deleted" />
         <Text style={styles.caption}>{t('{challenges}, nur für Dich sichtbar', { challenges: challenges.length === 1 ? t('1 Challenge') : t('{challenges} Challenges', { challenges: challenges.length }) })}</Text>
@@ -900,22 +844,10 @@ function Metric({ value, hint, onPress }: { value: string; hint?: string; onPres
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
-  wallpaper: { overflow: 'hidden' },
-  // Erledigte We-Challenges: Karte so hoch wie die Liste, lange Listen scrollen (2026-11-05)
-  shrink: { flexShrink: 1 },
-  noGrow: { flexGrow: 0 },
-  // Kopf- und Fußleiste: Milchglas wie die Karten
-  // Fußleiste oben gebogen statt einer Linie (Daria, 2026-11-05)
-  footerRound: isFashionable ? {} : { borderTopLeftRadius: radius.card, borderTopRightRadius: radius.card },
-  glassBar: isFashionable ? {} : { overflow: 'hidden', backgroundColor: 'rgba(25, 23, 22, 0.15)' },
-  // Leicht abgedunkelt, damit Reiter und Karten lesbar bleiben
-  wallpaperDim: { backgroundColor: 'rgba(25, 23, 22, 0.1)' },
-  photoCredit: { ...text.caption, fontSize: 11, color: color.text.onPhoto, opacity: 0.85, textShadowColor: 'rgba(0, 0, 0, 0.6)', textShadowRadius: 3, textAlign: 'right', paddingHorizontal: space[16], paddingBottom: space[4] },
   flex: { flex: 1 },
   empty: { padding: space[16] },
   // Fashionable Look: Unterstrich-Reiter über die ganze Breite
-  // Abstand zur Kopfleiste aus Milchglas (Daria, 2026-11-05)
-  switch: isFashionable ? {} : { paddingHorizontal: space[16], paddingTop: space[12], paddingBottom: space[8] },
+  switch: isFashionable ? {} : { paddingHorizontal: space[16], paddingBottom: space[8] },
   page: isFashionable
     ? { paddingBottom: space[12] }
     : { paddingHorizontal: space[16], paddingTop: space[8], paddingBottom: space[12] },
@@ -923,12 +855,10 @@ const styles = StyleSheet.create({
     gap: space[16],
     padding: space[16],
     borderRadius: radius.card,
-    overflow: 'hidden',
-    // Halbtransparent über dem Foto, darunter liegt CardBlur
-    backgroundColor: isFashionable ? color.bg.surface : 'rgba(36, 33, 31, 0.15)',
+    backgroundColor: color.bg.surface,
   },
-  // Challenge-Karte: so hoch wie ihr Inhalt, ohne Rand (Daria, 2026-11-05)
-  cardFit: {},
+  // Challenge-Karte: so hoch wie ihr Inhalt, mit feinem Rand im Grün aus den Kater-Herzen (Daria, 2026-11-05)
+  cardFit: { borderWidth: stroke.thin, borderColor: color.line.confirmation },
   head: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   pressed: { opacity: 0.7 },
   thumb: { width: 72, height: 72, borderRadius: radius.xl },
@@ -943,7 +873,7 @@ const styles = StyleSheet.create({
   body: { ...text.body, color: color.text.secondary },
   statsGrid: { gap: space[4] },
   stats: { flexDirection: 'row', alignItems: 'stretch' },
-  statLine: isFashionable ? { width: stroke.thin, backgroundColor: color.line.confirmation, marginVertical: space[4] } : { marginVertical: space[4] },
+  statLine: { width: stroke.thin, backgroundColor: color.line.confirmation, marginVertical: space[4] },
   metric: { flex: 1, alignItems: 'center', gap: space[2], paddingVertical: space[4] },
   metricHint: { flexDirection: 'row', alignItems: 'center', gap: space[2] },
   link: { color: color.text.primary },
@@ -952,9 +882,9 @@ const styles = StyleSheet.create({
   metricValue: { ...text.metric, fontSize: 18, lineHeight: 22, color: color.accent.confirmation },
   caption: { ...text.caption, color: color.text.secondary },
   actions: { gap: space[8] },
-  quietBar: isFashionable ? { flexDirection: 'row', borderTopWidth: stroke.ultraThin, borderTopColor: color.line.confirmation } : { flexDirection: 'row' },
+  quietBar: { flexDirection: 'row', borderTopWidth: stroke.ultraThin, borderTopColor: color.line.confirmation },
   quietAction: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 48 },
-  quietDivider: isFashionable ? { width: stroke.ultraThin, backgroundColor: color.line.confirmation, marginVertical: space[12] } : { marginVertical: space[12] },
+  quietDivider: { width: stroke.ultraThin, backgroundColor: color.line.confirmation, marginVertical: space[12] },
   quietLabel: { ...text.body, color: color.text.primary },
   quietDanger: { color: color.accent.error },
   row: { flexDirection: 'row', gap: space[8] },
@@ -965,8 +895,7 @@ const styles = StyleSheet.create({
     gap: space[12],
     padding: space[12],
     borderRadius: radius.xl,
-    // Auf dem Milchglas nur leicht dunkler, damit die Zeilen nicht wie Löcher wirken (2026-11-05)
-    backgroundColor: isFashionable ? color.bg.screen : 'rgba(25, 23, 22, 0.35)',
+    backgroundColor: color.bg.screen,
   },
   deletedTitle: { ...text.body, color: color.text.primary },
   deletedBody: { gap: space[12] },
