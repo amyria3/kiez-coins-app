@@ -44,7 +44,7 @@ export default function Password() {
   };
 
   return (
-    <SubScreen
+    <SubScreen glass
       title={hasPassword ? 'Passwort ändern' : 'Passwort hinterlegen'}
       navigation="back"
       onLeadingPress={goBack}

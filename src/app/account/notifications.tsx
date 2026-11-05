@@ -9,7 +9,7 @@ export default function Notifications() {
   const goBack = useGoBack();
   const { profile, dispatch } = useStore();
   return (
-    <SubScreen title="Benachrichtigungen" navigation="back" onLeadingPress={goBack}>
+    <SubScreen glass title="Benachrichtigungen" navigation="back" onLeadingPress={goBack}>
       <SwitchRow
         label="Push-Nachrichten"
         description="Kommentare, Antworten und Bestätigungen"

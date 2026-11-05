@@ -5,6 +5,7 @@ import { Text } from './T';
 import type { User } from '../data/types';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
+import { GlassFill, surfaceFor, useGlassLevel } from './GlassScene';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 import { t } from '../data/texts';
@@ -29,6 +30,8 @@ type EditableRowProps = {
  * Häkchen speichert, Verlassen ohne Speichern verwirft.
  */
 export function EditableRow({ label, value, onSave, renderEditor, maxLength, allowEmpty, placeholder, multiline, keyboardType }: EditableRowProps) {
+  const level = useGlassLevel();
+  const glass = level === 'cards';
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   // Speichern genau einmal: beim Häkchen oder beim Verlassen des Felds. Das Feld verliert den Fokus,
@@ -45,7 +48,7 @@ export function EditableRow({ label, value, onSave, renderEditor, maxLength, all
   if (!editing) {
     return (
       <Pressable
-        style={styles.row}
+        style={[styles.row, surfaceFor(level)]}
         accessibilityRole="button"
         accessibilityLabel={t('{label}: {value}. Ändern', { label, value })}
         onPress={() => {
@@ -54,6 +57,7 @@ export function EditableRow({ label, value, onSave, renderEditor, maxLength, all
           setEditing(true);
         }}
       >
+        {glass ? <GlassFill radius={radius.md} /> : null}
         <View style={styles.texts}>
           <Text style={styles.label}>{label}</Text>
           <Text style={[styles.value, !value && placeholder ? { color: color.text.secondary } : null]}>{value || placeholder}</Text>
@@ -115,13 +119,16 @@ type NavRowProps = {
 
 /** Figma „NavRow“ (Default, Danger): Zeile, die zu einem anderen Screen führt. */
 export function NavRow({ label, value, tone = 'default', onPress }: NavRowProps) {
+  const level = useGlassLevel();
+  const glass = level === 'cards';
   return (
     <Pressable
-      style={({ pressed }) => [styles.row, styles.navRow, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.row, styles.navRow, surfaceFor(level), pressed && styles.pressed]}
       accessibilityRole="button"
       accessibilityLabel={value ? `${label}, ${value}` : label}
       onPress={onPress}
     >
+      {glass ? <GlassFill radius={radius.md} /> : null}
       <Text style={[styles.value, styles.flex, tone === 'danger' && { color: color.accent.signal }]}>{label}</Text>
       {value ? <Text style={styles.label}>{value}</Text> : null}
       <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
@@ -138,13 +145,16 @@ type ProfileCardProps = {
 
 /** Große Karte im Stil der NavRow: Profilbild, Deckname und persönliche Angaben, führt zum Bearbeiten. */
 export function ProfileCard({ user, name, details, onPress }: ProfileCardProps) {
+  const level = useGlassLevel();
+  const glass = level === 'cards';
   return (
     <Pressable
-      style={({ pressed }) => [styles.row, styles.profileCard, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.row, styles.profileCard, surfaceFor(level), pressed && styles.pressed]}
       accessibilityRole="button"
       accessibilityLabel={t('Persönliche Angaben: {name}, {details}. Ändern', { name, details: details.join(', ') })}
       onPress={onPress}
     >
+      {glass ? <GlassFill radius={radius.lg} /> : null}
       <Avatar user={{ ...user, name }} diameter={56} />
       <View style={styles.texts}>
         <Text style={styles.profileName} numberOfLines={1}>
@@ -180,13 +190,16 @@ export function NavCard({
   leadingFill?: boolean;
   onPress: () => void;
 }) {
+  const level = useGlassLevel();
+  const glass = level === 'cards';
   return (
     <Pressable
-      style={({ pressed }) => [styles.row, styles.profileCard, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.row, styles.profileCard, surfaceFor(level), pressed && styles.pressed]}
       accessibilityRole="button"
       accessibilityLabel={description ? `${title}, ${description}` : title}
       onPress={onPress}
     >
+      {glass ? <GlassFill radius={radius.lg} /> : null}
       {leading ? <View style={[styles.cardLeading, leadingFill && styles.cardLeadingFill]}>{leading}</View> : null}
       <View style={styles.texts}>
         {/* Zwei Zeilen statt abgeschnitten, z. B. „Deine Freundschaften“ auf 360 pt breiten Android-Handys (29.10.2026) */}

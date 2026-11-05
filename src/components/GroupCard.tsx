@@ -8,6 +8,8 @@ import { t } from '../data/texts';
 import { color, radius, size, space, stroke, text } from '../theme/tokens';
 import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
+import { GlassFill, glassSurface, useGlass } from './GlassScene';
+import { GradientLine } from './GlassEdge';
 
 type GroupCardProps = {
   group: Group;
@@ -25,8 +27,10 @@ export function GroupCard({ group, meta, onFeed, onManage }: GroupCardProps) {
   const { challenges, currentUserId } = useStore();
   const members = group.members.length === 1 ? t('1 Mitglied') : t('{members} Mitglieder', { members: group.members.length });
   const line = meta ?? (group.founderId === currentUserId ? `${members} · ${t('Du hast sie gegründet')}` : members);
+  const glass = useGlass();
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, glassSurface(glass)]}>
+      {glass ? <GlassFill radius={radius.xl} /> : null}
       {/* Tipp auf Name und Zeile öffnet den Feed der Gruppe (Daria, 24.10.2026) */}
       <Pressable
         accessibilityRole="button"
@@ -51,7 +55,8 @@ export function GroupCard({ group, meta, onFeed, onManage }: GroupCardProps) {
           <Text style={styles.edenValue}>{myEdensteine(group, challenges, currentUserId)}</Text>
         </View>
       </Pressable>
-      <View style={styles.links}>
+      {glass ? <GradientLine /> : null}
+      <View style={[styles.links, glass && styles.linksGlass]}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('Feed von {name}', { name: group.name })}
@@ -64,7 +69,7 @@ export function GroupCard({ group, meta, onFeed, onManage }: GroupCardProps) {
           </View>
           <Text style={styles.linkText}>Feed</Text>
         </Pressable>
-        <View style={styles.divider} />
+        {glass ? <GradientLine vertical style={styles.dividerGlass} /> : <View style={styles.divider} />}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('{name} verwalten', { name: group.name })}
@@ -95,5 +100,7 @@ const styles = StyleSheet.create({
   feedIcons: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   linkText: { ...text.body, color: color.text.primary },
   divider: { width: stroke.ultraThin, backgroundColor: color.line.hairline, marginVertical: space[12] },
+  linksGlass: { borderTopWidth: 0 },
+  dividerGlass: { marginVertical: space[12] },
   pressed: { opacity: 0.7 },
 });

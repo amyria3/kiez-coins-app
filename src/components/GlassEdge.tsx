@@ -16,12 +16,6 @@ const EDGE_STOPS = [
   { offset: 1, color: "#7E94FF", opacity: 0.38 },
 ];
 
-/** Linie, die zu beiden Enden ausläuft und in der Mitte am deutlichsten ist */
-const LINE_STOPS = [
-  { offset: 0, color: "#93F4A7", opacity: 0 },
-  { offset: 0.5, color: "#93F4A7", opacity: 0.45 },
-  { offset: 1, color: "#93F4A7", opacity: 0 },
-];
 
 /** Rand aus Verlauf um eine Glasfläche. Als letztes Kind in eine Fläche mit `borderRadius` legen. */
 export function GlassEdge({
@@ -73,51 +67,13 @@ export function GlassEdge({
   );
 }
 
-/** Trennlinie mit Verlauf. `vertical` für Striche zwischen Spalten. */
-export function GradientLine({
-  vertical = false,
-  style,
-}: {
-  vertical?: boolean;
-  style?: StyleProp<ViewStyle>;
-}) {
-  const id = useId().replace(/:/g, "");
-  return (
-    <View
-      pointerEvents="none"
-      style={[vertical ? styles.vertical : styles.horizontal, style]}
-    >
-      <Svg
-        width="100%"
-        height="100%"
-        preserveAspectRatio="none"
-        style={StyleSheet.absoluteFill}
-      >
-        <Defs>
-          <LinearGradient
-            id={`line${id}`}
-            x1="0"
-            y1="0"
-            x2={vertical ? "0" : "1"}
-            y2={vertical ? "1" : "0"}
-          >
-            {LINE_STOPS.map((s) => (
-              <Stop
-                key={s.offset}
-                offset={s.offset}
-                stopColor={s.color}
-                stopOpacity={s.opacity}
-              />
-            ))}
-          </LinearGradient>
-        </Defs>
-        <Rect x="0" y="0" width="100%" height="100%" fill={`url(#line${id})`} />
-      </Svg>
-    </View>
-  );
+/** Feine, neutrale Trennlinie auf Glas. `vertical` für Striche zwischen Spalten. Die grüne Verlaufslinie hat Daria verworfen (2026-11-05). */
+export function GradientLine({ vertical = false, style }: { vertical?: boolean; style?: StyleProp<ViewStyle> }) {
+  return <View pointerEvents="none" style={[vertical ? styles.vertical : styles.horizontal, styles.line, style]} />;
 }
 
 const styles = StyleSheet.create({
   horizontal: { height: 1, alignSelf: "stretch" },
   vertical: { width: 1, alignSelf: "stretch" },
+  line: { backgroundColor: 'rgba(255, 255, 255, 0.12)' },
 });

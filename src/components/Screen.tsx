@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { Children, Fragment, isValidElement, type ReactElement, type ReactNode } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, KeyboardAvoidingView, LayoutAnimation, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
 import { Text } from './T';
@@ -6,11 +6,15 @@ import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { color, motion, radius, size, space, text, scheme } from '../theme/tokens';
+import { color, isFashionable, motion, radius, size, space, text, scheme } from '../theme/tokens';
 import { useAppDimensions } from '../theme/layout';
 import { ActionBar } from './ActionBar';
 import { Cat, type CatMood } from './icons/Brand';
 import { GlassIconButton } from './Glass';
+import { GlassCard, GlassFill, GlassProvider, PhotoCredit, Wallpaper, glassStyles } from './GlassScene';
+import { FieldGroup, KaterCard } from './Content';
+import { NavCard, ProfileCard } from './Rows';
+import { GroupCard } from './GroupCard';
 import { NavigationBar } from './NavigationBar';
 import { NudgeScrollProvider, useNudgeScroll } from './Nudge';
 import { t } from '../data/texts';
@@ -27,17 +31,103 @@ type SubScreenProps = {
   children: ReactNode;
   /** Eigener Kopf statt NavigationBar, z. B. ein eigener Kopf */
   header?: ReactNode;
+  /**
+   * Leichter Stil der Verwaltungsseiten: Foto im Hintergrund, Leisten aus Milchglas (Daria, 2026-11-05).
+   * `cards`: Der Inhalt besteht nur aus Karten, jede ist selbst Glas.
+   * `true`: Jeder Abschnitt (FieldGroup) wird eine Glaskarte, loser Inhalt dazwischen ebenfalls.
+   * Kein Text liegt direkt auf dem Foto, kein Glas liegt auf Glas (Daria, 2026-11-05).
+   */
+  glass?: boolean | 'cards';
 };
+
+/** Karten, die auf dem Foto selbst Glas werden und keine Glaskarte drumherum brauchen */
+const SELF_GLASS: unknown[] = [KaterCard, NavCard, ProfileCard, GroupCard];
+
+/** Fragmente auflösen, damit jedes sichtbare Element einzeln betrachtet wird */
+function flatten(children: ReactNode): ReactNode[] {
+  return Children.toArray(children).flatMap((child) =>
+    isValidElement(child) && child.type === Fragment ? flatten((child as ReactElement<{ children?: ReactNode }>).props.children) : [child],
+  );
+}
+
+/**
+ * Verteilt den Inhalt einer Verwaltungsseite auf Glaskarten: jeder Abschnitt (FieldGroup) eine Karte,
+ * aufeinanderfolgender loser Inhalt zusammen eine Karte. Karten, die selbst Glas sind, bleiben, wie sie sind.
+ */
+function groupIntoCards(children: ReactNode) {
+  const out: ReactNode[] = [];
+  let loose: ReactNode[] = [];
+  const flush = () => {
+    if (loose.length) out.push(<GlassCard key={`loose-${out.length}`}>{loose}</GlassCard>);
+    loose = [];
+  };
+  for (const child of flatten(children)) {
+    if (isValidElement(child) && SELF_GLASS.includes(child.type)) {
+      flush();
+      out.push(child);
+    } else if (isValidElement(child) && child.type === FieldGroup) {
+      flush();
+      out.push(<GlassCard key={`group-${out.length}`}>{child}</GlassCard>);
+    } else {
+      loose.push(child);
+    }
+  }
+  flush();
+  return out;
+}
 
 /**
  * Aufbau aller Unterseiten aus Figma: NavigationBar (fest), Inhalt in `scroll-y-auto`
  * (Abstand 16, unten 24) und ActionBar (fest, bleibt über der Tastatur).
  */
-export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions, children, header }: SubScreenProps) {
+export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions, children, header, glass: glassProp }: SubScreenProps) {
   const insets = useSafeAreaInsets();
   // Deaktivierte Buttons können zu dem Feld scrollen, das noch fehlt (Nudge.tsx)
   const scrollRef = useRef<ScrollView>(null);
   const nudgeScroll = useNudgeScroll(scrollRef);
+  const glass = !!glassProp && !isFashionable;
+  const cards = glassProp === 'cards';
+  if (glass) {
+    return (
+      <GlassProvider>
+        <View style={styles.screen}>
+          <Wallpaper />
+          <View style={[glassStyles.bar, { paddingTop: insets.top }]}>
+            <GlassFill />
+            {header ?? <NavigationBar title={title} subtitle={subtitle} variant={navigation} onLeadingPress={onLeadingPress} transparent />}
+          </View>
+          <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+            <NudgeScrollProvider value={nudgeScroll}>
+              <ScrollView
+                ref={scrollRef}
+                style={styles.flex}
+                contentContainerStyle={styles.content}
+                keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="interactive"
+                scrollEventThrottle={32}
+                onScroll={(e) => nudgeScroll.onScroll(e.nativeEvent.contentOffset.y)}
+              >
+                {cards ? children : groupIntoCards(children)}
+              </ScrollView>
+              <View style={[glassStyles.bar, glassStyles.footer]}>
+                <GlassFill />
+                {actions ? (
+                  <ActionBar transparent>
+                    {actions}
+                    <PhotoCredit />
+                  </ActionBar>
+                ) : (
+                  <View style={[styles.creditOnly, { paddingBottom: Math.max(insets.bottom, space[8]) }]}>
+                    <PhotoCredit />
+                  </View>
+                )}
+              </View>
+            </NudgeScrollProvider>
+          </KeyboardAvoidingView>
+        </View>
+      </GlassProvider>
+    );
+  }
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       {header ?? <NavigationBar title={title} subtitle={subtitle} variant={navigation} onLeadingPress={onLeadingPress} />}
@@ -324,6 +414,7 @@ const SHEET_PADDING = space[8] + space[16];
 const SWIPE = 48;
 
 const styles = StyleSheet.create({
+  creditOnly: { paddingTop: space[8] },
   dots: {
     position: 'absolute',
     bottom: space[48],

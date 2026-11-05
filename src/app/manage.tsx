@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Animated, FlatList, Linking, Pressable, ScrollView, StyleSheet, View, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent, type StyleProp, type ViewStyle } from 'react-native';
+import { Alert, Animated, FlatList, Pressable, ScrollView, StyleSheet, View, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from '../components/T';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
@@ -12,6 +12,7 @@ import { Button } from '../components/Button';
 import { KaterCard } from '../components/Content';
 import { Segments } from '../components/FeedHeader';
 import { GlassEdge, GradientLine } from '../components/GlassEdge';
+import { GlassProvider, PhotoCredit, Wallpaper } from '../components/GlassScene';
 import { Icon } from '../components/icons/Icon';
 import { NavigationBar } from '../components/NavigationBar';
 import { formatDayMonthShort, formatDurationSince, formatRelative, formatRemainingShort, nameInText } from '../data/format';
@@ -28,7 +29,6 @@ import { useGoBack } from '../lib/goBack';
 import { isParticipant } from '../data/weChallenge';
 
 // Hintergrundfoto (Daria, 2026-11-05): Peter Fazekas, Pexels, https://www.pexels.com/de-de/@peterfazekas/
-const wallpaper = require('../../assets/wallpaper/berge-peter-fazekas.jpg');
 
 /** Reihenfolge: zuerst, was noch änderbar ist, dann was läuft, dann Entwürfe, dann Erledigtes */
 const ORDER: Record<string, number> = {
@@ -309,9 +309,10 @@ export default function ManageChallenges() {
   const current = Math.min(index[archive ? 'archive' : 'active'], Math.max(pages.length - 1, 0));
 
   return (
+    <GlassProvider>
     <View style={styles.screen}>
       {/* Foto über den ganzen Bildschirm, Kopf- und Fußleiste aus Milchglas darüber (Daria, 2026-11-05) */}
-      {isFashionable ? null : <Wallpaper />}
+      <Wallpaper />
       <View style={[styles.glassBar, { paddingTop: insets.top }]}>
         <CardBlur edge={false} />
         <NavigationBar
@@ -351,23 +352,22 @@ export default function ManageChallenges() {
           </Animated.ScrollView>
         ) : null}
       </View>
-      {isFashionable ? null : (
-        <Text style={styles.photoCredit} accessibilityRole="link" onPress={() => Linking.openURL('https://www.pexels.com/de-de/@peterfazekas/')}>
-          Foto: Peter Fazekas, Pexels
-        </Text>
-      )}
       </View>
       <View style={[styles.glassBar, styles.footerRound]}>
         <CardBlur edge={false} />
         {archive ? (
-          <View style={{ height: insets.bottom }} />
+          <View style={{ paddingTop: isFashionable ? 0 : space[8], paddingBottom: Math.max(insets.bottom, isFashionable ? 0 : space[8]) }}>
+            <PhotoCredit />
+          </View>
         ) : (
           <ActionBar transparent={!isFashionable}>
             <Button label="Neue Challenge" onPress={create} />
+            <PhotoCredit />
           </ActionBar>
         )}
       </View>
     </View>
+    </GlassProvider>
   );
 }
 
@@ -519,16 +519,6 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
         </View>
       </View>
       {hasNext ? <Text style={styles.next}>Nach oben wischen für die nächste</Text> : null}
-    </View>
-  );
-}
-
-/** Foto als Hintergrund, füllt die Fläche unter der Navigationsleiste. Darunter der Bildnachweis. */
-function Wallpaper() {
-  return (
-    <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.wallpaper]}>
-      <Image source={wallpaper} style={StyleSheet.absoluteFill} contentFit="cover" />
-      <View style={[StyleSheet.absoluteFill, styles.wallpaperDim]} />
     </View>
   );
 }
@@ -900,7 +890,6 @@ function Metric({ value, hint, onPress }: { value: string; hint?: string; onPres
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
-  wallpaper: { overflow: 'hidden' },
   // Erledigte We-Challenges: Karte so hoch wie die Liste, lange Listen scrollen (2026-11-05)
   shrink: { flexShrink: 1 },
   noGrow: { flexGrow: 0 },
@@ -909,8 +898,6 @@ const styles = StyleSheet.create({
   footerRound: isFashionable ? {} : { borderTopLeftRadius: radius.card, borderTopRightRadius: radius.card },
   glassBar: isFashionable ? {} : { overflow: 'hidden', backgroundColor: 'rgba(25, 23, 22, 0.15)' },
   // Leicht abgedunkelt, damit Reiter und Karten lesbar bleiben
-  wallpaperDim: { backgroundColor: 'rgba(25, 23, 22, 0.1)' },
-  photoCredit: { ...text.caption, fontSize: 11, color: color.text.onPhoto, opacity: 0.85, textShadowColor: 'rgba(0, 0, 0, 0.6)', textShadowRadius: 3, textAlign: 'right', paddingHorizontal: space[16], paddingBottom: space[4] },
   flex: { flex: 1 },
   empty: { padding: space[16] },
   // Fashionable Look: Unterstrich-Reiter über die ganze Breite
