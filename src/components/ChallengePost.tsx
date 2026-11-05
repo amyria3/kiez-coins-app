@@ -2,6 +2,7 @@ import { memo, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Alert, Animated, Pressable, StyleSheet, View } from 'react-native';
 import { useShareChallenge } from '../data/shareChallenge';
 import { Text } from './T';
+import { LikeCount } from './LikeCount';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -150,6 +151,24 @@ function KiezPost({
     </>
   );
 
+  // Ort auf dem Foto: Stadtteil, sonst Adresse (wie im Fashionable Look)
+  const placeOnPhoto = challenge.kiez?.split(',')[0] ?? challenge.location;
+  const posted = formatRelative(challenge.createdAt);
+  const tappedMeta = [posted, distance, isPhoto ? null : state, spotsText(challenge, active)].filter(Boolean).join(' · ');
+  const infoBarTapped = (
+    <>
+      <Text style={styles.title} numberOfLines={2}>
+        {challenge.title}
+      </Text>
+      <View style={styles.metaRow}>
+        <Text style={styles.meta} numberOfLines={1}>
+          <Text noTranslate style={hideName ? hiddenText : undefined}>{author.name}</Text>
+          {tappedMeta ? ` · ${tappedMeta}` : null}
+        </Text>
+      </View>
+    </>
+  );
+
   return (
     <View style={styles.post}>
       {after ? (
@@ -237,9 +256,33 @@ function KiezPost({
             </Pressable>
           </Animated.View>
           {image ? (
-            <View style={[styles.info, styles.infoOnPhoto]}>
-              <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
-              {infoBar}
+            // Erst nur der Ort auf dem Foto, ohne Glasleiste. Nach dem Tippen Glasleiste mit Titel,
+            // Name und wann gepostet (Daria, 2026-11-05).
+            <View>
+              <Animated.View
+                pointerEvents="none"
+                style={[styles.placeOnPhoto, { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
+              >
+                {/* Ortsangabe mit Pin davor (Daria, 2026-11-05) */}
+                {placeOnPhoto ? <Icon name="map-pin" size={14} color={color.text.onPhoto} /> : null}
+                <Text style={styles.placeOnPhotoText} numberOfLines={1}>
+                  {placeOnPhoto || challenge.title}
+                </Text>
+              </Animated.View>
+              <Animated.View
+                pointerEvents="none"
+                style={[
+                  styles.info,
+                  styles.infoOnPhoto,
+                  {
+                    opacity: whoAnim,
+                    transform: [{ translateY: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }],
+                  },
+                ]}
+              >
+                <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+                {infoBarTapped}
+              </Animated.View>
             </View>
           ) : (
             // Ohne Foto (Daria, 30.10.2026): keine leere Fläche, Titel und Name links, Belohnung rechts daneben
@@ -260,7 +303,7 @@ function KiezPost({
       <View style={styles.actions}>
         <View style={styles.actionsLeft}>
           {/* Herz mit Anzahl; das Geschenk ist ausgeblendet (Daria, 22.10.2026) */}
-          {/* Icon und Zahl als ein Knopf, Zahl mit festem Abstand rechts daneben (Daria, 22.10.2026) */}
+          {/* Herz liked, die Zahl daneben zeigt, wer geliked hat (Daria, 2026-11-05) */}
           {wrapLike(
             <Pressable
               accessibilityRole="button"
@@ -270,9 +313,9 @@ function KiezPost({
               style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
             >
               <Icon name="heart" size={size.icon} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
-              {challenge.likeCount ? <Text style={styles.count}>{challenge.likeCount}</Text> : null}
             </Pressable>
           )}
+          <LikeCount challengeId={challenge.id} count={challenge.likeCount} style={styles.count} />
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={commentCount ? t('Kommentieren, {commentCount} Kommentare', { commentCount }) : t('Kommentieren')}
@@ -416,9 +459,9 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
             style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
           >
             <Icon name="heart" size={size.icon} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
-            {challenge.likeCount ? <Text style={fashion.count}>{challenge.likeCount}</Text> : null}
           </Pressable>
         )}
+        <LikeCount challengeId={challenge.id} count={challenge.likeCount} style={fashion.count} />
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={commentCount ? t('Kommentieren, {commentCount} Kommentare', { commentCount }) : t('Kommentieren')}
@@ -536,20 +579,20 @@ const styles = StyleSheet.create({
   },
   // Ohne Foto: im Fluss rechts neben dem Titel statt absolut oben rechts
   plain: { paddingLeft: 0, paddingRight: 0, position: 'relative', top: 0, right: 0 },
+  // Tags mit voller Fläche wie das lila, Pille 8/4/6 (Daria, 2026-11-05)
   waveTag: {
     position: 'absolute',
     top: space[12],
     left: space[12],
-    paddingVertical: space[4],
-    paddingHorizontal: space[12],
+    paddingTop: space[4],
+    paddingBottom: space[6],
+    paddingHorizontal: space[8],
     borderRadius: radius.full,
-    backgroundColor: color.bg.glass,
-    borderWidth: stroke.ultraThin,
-    borderColor: color.accent.affection,
+    backgroundColor: color.accent.affection,
   },
-  waveText: { ...text.caption, color: color.accent.affection },
-  closedTag: { borderColor: color.line.hairline },
-  closedText: { ...text.caption, color: color.text.primary },
+  waveText: { ...text.caption, color: color.bg.screen },
+  closedTag: { backgroundColor: color.text.secondary },
+  closedText: { ...text.caption, color: color.bg.screen },
   // Verwalten bleibt immer ganz sichtbar rechts
   actionsRight: { flexDirection: 'row', alignItems: 'center', gap: space[8], flexShrink: 0, marginLeft: space[8] },
   commentAction: { flexDirection: 'row', alignItems: 'center', paddingRight: space[8] },
@@ -578,6 +621,18 @@ const styles = StyleSheet.create({
     borderColor: color.line.hairline,
   },
   infoPlain: { paddingHorizontal: space[4] },
+  // Ort ohne Glasleiste: liegt unten links, Schatten statt Fläche
+  placeOnPhoto: { position: 'absolute', left: space[4], right: space[4], bottom: space[4], flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  placeOnPhotoText: {
+    flexShrink: 1,
+    ...text.cardTitle,
+    fontSize: 16,
+    lineHeight: 20,
+    color: color.text.onPhoto,
+    textShadowColor: 'rgba(0,0,0,0.6)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 6,
+  },
   who: {
     position: 'absolute',
     top: space[12],

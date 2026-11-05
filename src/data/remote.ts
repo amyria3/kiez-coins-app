@@ -443,6 +443,21 @@ async function loadLikeCounts(ids: string[]): Promise<Map<string, number>> {
   return new Map((data as { challenge_id: string; n: number }[]).map((r) => [r.challenge_id, Number(r.n)]));
 }
 
+/**
+ * Wer einen Post geliked hat, neueste zuerst (Funktion challenge_likers, Migration 20261105000300).
+ * Ohne Migration `null`, damit die App sagen kann, dass die Liste noch nicht geht.
+ */
+export async function loadLikers(challengeId: string): Promise<User[] | null> {
+  const { data, error } = await supabase.rpc('challenge_likers', { p_challenge_id: challengeId });
+  if (error || !data) return null;
+  const ids = (data as { user_id: string }[]).map((r) => r.user_id);
+  if (!ids.length) return [];
+  const res = await selectProfiles(ids);
+  if (res.error || !res.data) return null;
+  const byId = new Map((res.data as ProfileRow[]).map((r) => [r.id, toUser(r)]));
+  return ids.map((id) => byId.get(id)).filter((u): u is User => !!u);
+}
+
 /** Lädt Feed, eigene Likes, Operationsnamen, Freigaben und alle beteiligten Profile. */
 export async function loadLiveData(userId: string): Promise<LiveData> {
   const [challengesRes, likesRes, namesRes, sharesRes, payoutRes, views, groups] = await Promise.all([

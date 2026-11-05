@@ -13,8 +13,8 @@ import { t, tAbout } from '../data/texts';
 
 /**
  * Badge-Prinzip im Kiez-Look (Daria, 2026-11-05): Pille, innen 8 seitlich, 4 oben, 6 unten.
- * `filled`: volle Akzentfläche mit dunkler Schrift, für Status, bei denen gerade etwas läuft.
- * Sonst Kontur: feiner Rand und Schrift in der Statusfarbe, ohne Fläche.
+ * Seit 2026-11-05 haben alle Tags die volle Fläche in ihrer Statusfarbe mit dunkler Schrift, wie das lila.
+ * `filled` ist damit nur noch Doku, welche Status gerade etwas laufen haben.
  * Im Fashionable Look bleibt die getönte Fläche.
  */
 const statusStyles: Record<ChallengeStatus, { label: string; tint: string; filled?: boolean }> = {
@@ -32,10 +32,10 @@ const statusStyles: Record<ChallengeStatus, { label: string; tint: string; fille
 };
 
 /** Fläche, Rand und Schriftfarbe eines Badges nach dem Badge-Prinzip */
-function badgeLook(tint: string, filled?: boolean) {
+function badgeLook(tint: string) {
   if (isFashionable) return { box: { backgroundColor: `${tint}26` }, ink: tint };
-  if (filled) return { box: { backgroundColor: tint, borderColor: tint }, ink: color.bg.screen };
-  return { box: { borderColor: tint }, ink: tint };
+  // Alle Tags mit voller Fläche wie das lila (Daria, 2026-11-05)
+  return { box: { backgroundColor: tint, borderColor: tint }, ink: color.bg.screen };
 }
 
 /**
@@ -74,10 +74,10 @@ export function StatusBadge({
 }) {
   // Nur ein Bild oder Vorher-Nachher, keine Aufgabe: eigenes Badge, solange es online ist
   const postOnly = (photo || beforeAfter) && (status === 'open' || status === 'draft');
-  const { label, tint, filled } = postOnly
-    ? { label: beforeAfter ? 'Me-Challenge' : 'Nur ein Bild', tint: color.accent.affection, filled: false }
+  const { label, tint } = postOnly
+    ? { label: beforeAfter ? 'Me-Challenge' : 'Nur ein Bild', tint: color.accent.affection }
     : statusStyles[status];
-  const look = badgeLook(tint, filled);
+  const look = badgeLook(tint);
   const { users } = useStore();
   const by = postOnly ? undefined : statusActor[status];
   const actorId = by?.role === 'assignee' ? challenge?.assigneeId : by?.role === 'author' ? challenge?.authorId : undefined;
@@ -105,7 +105,7 @@ export function StatusBadge({
 /** Restzeit als Badge, nicht tippbar: Uhr und „Noch 6 Tage 23 Std.“ (Daria, 22.10.2026) */
 export function DeadlineBadge({ deadline }: { deadline: string }) {
   return (
-    <View style={[styles.status, styles.deadline, badgeLook(color.text.secondary).box]} accessible>
+    <View style={[styles.status, styles.deadline, { borderColor: color.text.secondary }]} accessible>
       <Icon name="clock" size={11} color={color.text.secondary} />
       <Text style={[text.caption, { color: color.text.primary }]} numberOfLines={1}>
         {formatRemainingShort(deadline)}
