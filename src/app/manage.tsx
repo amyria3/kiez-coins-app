@@ -849,8 +849,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.card,
     backgroundColor: color.bg.surface,
   },
-  // Challenge-Karte: so hoch wie ihr Inhalt, mit feinem gelb-grünen Rand (Daria, 2026-11-05)
-  cardFit: { borderWidth: stroke.thin, borderColor: color.line.highlight },
+  // Challenge-Karte: so hoch wie ihr Inhalt, mit feinem Rand im Grün aus den Kater-Herzen (Daria, 2026-11-05)
+  cardFit: { borderWidth: stroke.thin, borderColor: color.line.confirmation },
   head: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   pressed: { opacity: 0.7 },
   thumb: { width: 72, height: 72, borderRadius: radius.xl },
@@ -865,18 +865,18 @@ const styles = StyleSheet.create({
   body: { ...text.body, color: color.text.secondary },
   statsGrid: { gap: space[4] },
   stats: { flexDirection: 'row', alignItems: 'stretch' },
-  statLine: { width: stroke.thin, backgroundColor: color.line.highlight, marginVertical: space[4] },
+  statLine: { width: stroke.thin, backgroundColor: color.line.confirmation, marginVertical: space[4] },
   metric: { flex: 1, alignItems: 'center', gap: space[2], paddingVertical: space[4] },
   metricHint: { flexDirection: 'row', alignItems: 'center', gap: space[2] },
   link: { color: color.text.primary },
   // Etwas kleiner als text.metric (Daria, 2026-11-02)
-  // Zahlen im Gelb-Grün (Daria, 2026-11-05)
-  metricValue: { ...text.metric, fontSize: 18, lineHeight: 22, color: color.accent.highlight },
+  // Zahlen im Grün aus den Kater-Herzen (Daria, 2026-11-05)
+  metricValue: { ...text.metric, fontSize: 18, lineHeight: 22, color: color.accent.confirmation },
   caption: { ...text.caption, color: color.text.secondary },
   actions: { gap: space[8] },
-  quietBar: { flexDirection: 'row', borderTopWidth: stroke.ultraThin, borderTopColor: color.line.highlight },
+  quietBar: { flexDirection: 'row', borderTopWidth: stroke.ultraThin, borderTopColor: color.line.confirmation },
   quietAction: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 48 },
-  quietDivider: { width: stroke.ultraThin, backgroundColor: color.line.highlight, marginVertical: space[12] },
+  quietDivider: { width: stroke.ultraThin, backgroundColor: color.line.confirmation, marginVertical: space[12] },
   quietLabel: { ...text.body, color: color.text.primary },
   quietDanger: { color: color.accent.error },
   row: { flexDirection: 'row', gap: space[8] },

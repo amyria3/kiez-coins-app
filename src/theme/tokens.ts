@@ -67,8 +67,8 @@ export const color = {
     hairline: fashionable ? '#DBDBDB' : 'rgba(255, 240, 225, 0.12)',
     /** Feiner warmer Rand um Karten und Sprechblase im Kiez-Look, damit sie sich vom Grund abheben (2026-11-01) */
     raised: fashionable ? 'transparent' : 'rgba(255, 240, 225, 0.08)',
-    /** Feine Linie im Gelb-Grün, z. B. auf der Karte in „Meine Posts“ (Daria, 2026-11-05) */
-    highlight: fashionable ? '#DBDBDB' : 'rgba(228, 239, 101, 0.24)',
+    /** Feine Linie im Grün aus den Kater-Herzen (#93F4A7), z. B. auf der Karte in „Meine Posts“ (Daria, 2026-11-05) */
+    confirmation: fashionable ? '#DBDBDB' : 'rgba(147, 244, 167, 0.22)',
   },
   text: {
     primary: palette.white,
@@ -86,8 +86,6 @@ export const color = {
     primary: palette.purple,
     affection: palette.pink,
     confirmation: palette.green,
-    /** Gelb-Grün wie ein Textmarker, für Zahlen in „Meine Posts“ (Daria, 2026-11-05). Fashionable Look: Textfarbe. */
-    highlight: fashionable ? palette.white : '#E4EF65',
     signal: palette.orange,
     error: palette.red,
   },
