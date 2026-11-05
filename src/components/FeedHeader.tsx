@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from './T';
+import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 
 import { challengeTypes, isTypeActive } from '../data/features';
@@ -217,6 +218,8 @@ type SegmentsProps<K extends string> = {
   progress?: Animated.Value | Animated.AnimatedInterpolation<number>;
   /** Auswahl lila statt schwarz-weiß: zeigt, was eingestellt ist, solange niemand umgeschaltet hat */
   accent?: boolean;
+  /** Milchglas statt fester Fläche, für Umschalter über einem Foto (Daria, 2026-11-05) */
+  glass?: boolean;
 };
 
 /** Segmente mit gleitender Pille, z. B. Feed-Reiter oder „Aktuell / Archiv“ in „Deine Challenges“. */
@@ -278,7 +281,7 @@ function UnderlineTabs<K extends string>({ tabs, selectedKey, onChange, progress
   );
 }
 
-function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress, accent = false }: SegmentsProps<K>) {
+function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress, accent = false, glass = false }: SegmentsProps<K>) {
   // Helle Pille gleitet zum gewählten Reiter (Bewegung „Schranke“, etwas langsamer).
   // Der gewählte Reiter bekommt seitlich mehr Polsterung; die Nachbarn rutschen mit (Daria, 31.10.2026).
   // Eine Lage `pos` (Index, auch Zwischenwerte) steuert Polsterung, Pille und Schriftfarbe gemeinsam.
@@ -319,13 +322,14 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
 
   return (
     <View
-      style={styles.segments}
+      style={[styles.segments, glass && styles.segmentsGlass]}
       accessibilityRole="tablist"
       onLayout={(e) => {
         const w = e.nativeEvent.layout.width;
         setBarWidth((old) => (old === w ? old : w));
       }}
     >
+      {glass ? <BlurView intensity={80} tint="systemUltraThinMaterialDark" style={StyleSheet.absoluteFill} /> : null}
       {pill ? <Animated.View pointerEvents="none" style={[styles.pill, accent && styles.accentFill, pill]} /> : null}
       {tabs.map((tab, i) => {
         const selected = tab.key === selectedKey;
@@ -461,6 +465,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     backgroundColor: color.bg.surface,
   },
+  segmentsGlass: { overflow: 'hidden', backgroundColor: 'rgba(36, 33, 31, 0.15)' },
   pill: {
     position: 'absolute',
     top: space[4],

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Animated, FlatList, Pressable, ScrollView, StyleSheet, View, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { Alert, Animated, FlatList, Linking, Pressable, ScrollView, StyleSheet, View, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { Text } from '../components/T';
+import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -24,6 +25,9 @@ import { crosspostTargets } from '../data/crosspost';
 import { t } from '../data/texts';
 import { useGoBack } from '../lib/goBack';
 import { isParticipant } from '../data/weChallenge';
+
+// Hintergrundfoto (Daria, 2026-11-05): Peter Fazekas, Pexels, https://www.pexels.com/de-de/@peterfazekas/
+const wallpaper = require('../../assets/wallpaper/berge-peter-fazekas.jpg');
 
 /** Reihenfolge: zuerst, was noch änderbar ist, dann was läuft, dann Entwürfe, dann Erledigtes */
 const ORDER: Record<string, number> = {
@@ -311,6 +315,9 @@ export default function ManageChallenges() {
         variant="back"
         onLeadingPress={() => (goBack())}
       />
+      {/* Unter der Navigationsleiste: Foto hinter Reitern, Karten und Knopf (Daria, 2026-11-05) */}
+      <View style={styles.flex}>
+      {isFashionable ? null : <Wallpaper />}
       <View style={styles.switch}>
         <Segments
           tabs={[
@@ -320,6 +327,7 @@ export default function ManageChallenges() {
           selectedKey={archive ? 'archive' : 'active'}
           onChange={showTab}
           progress={progress}
+          glass
         />
       </View>
       <View style={styles.flex} onLayout={(e) => setPageHeight(e.nativeEvent.layout.height)}>
@@ -338,6 +346,11 @@ export default function ManageChallenges() {
           </Animated.ScrollView>
         ) : null}
       </View>
+      {isFashionable ? null : (
+        <Text style={styles.photoCredit} accessibilityRole="link" onPress={() => Linking.openURL('https://www.pexels.com/de-de/@peterfazekas/')}>
+          Foto: Peter Fazekas, Pexels
+        </Text>
+      )}
       {archive ? (
         <View style={{ height: insets.bottom }} />
       ) : (
@@ -345,6 +358,7 @@ export default function ManageChallenges() {
           <Button label="Neue Challenge" onPress={create} />
         </ActionBar>
       )}
+      </View>
     </View>
   );
 }
@@ -413,6 +427,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
 
   return (
     <View style={[styles.card, styles.cardFit]}>
+      <CardBlur />
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={t('{title} öffnen', { title: c.title || t('Ohne Titel') })}
@@ -497,6 +512,22 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
   );
 }
 
+/** Foto als Hintergrund, füllt die Fläche unter der Navigationsleiste. Darunter der Bildnachweis. */
+function Wallpaper() {
+  return (
+    <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.wallpaper]}>
+      <Image source={wallpaper} style={StyleSheet.absoluteFill} contentFit="cover" />
+      <View style={[StyleSheet.absoluteFill, styles.wallpaperDim]} />
+    </View>
+  );
+}
+
+/** Milchglas hinter den Karten, damit das Foto durchscheint (Daria, 2026-11-05) */
+function CardBlur() {
+  if (isFashionable) return null;
+  return <BlurView intensity={80} tint="systemUltraThinMaterialDark" style={StyleSheet.absoluteFill} />;
+}
+
 /** Leise Aktion: nur Text, gleich breit neben ihren Nachbarn */
 function QuietAction({ label, onPress, danger, muted }: { label: string; onPress: () => void; danger?: boolean; muted?: boolean }) {
   return (
@@ -529,6 +560,7 @@ function GroupDoneCard({
 }) {
   return (
     <View style={[styles.card, styles.flex]}>
+      <CardBlur />
       <View style={styles.badges}>
         <StatusBadge status="confirmed" />
         <Text style={styles.caption}>
@@ -596,6 +628,7 @@ function DeletedCard({
 
   return (
     <View style={[styles.card, styles.flex]}>
+      <CardBlur />
       <View style={styles.badges}>
         <StatusBadge status="deleted" />
         <Text style={styles.caption}>{t('{challenges}, nur für Dich sichtbar', { challenges: challenges.length === 1 ? t('1 Challenge') : t('{challenges} Challenges', { challenges: challenges.length }) })}</Text>
@@ -844,6 +877,10 @@ function Metric({ value, hint, onPress }: { value: string; hint?: string; onPres
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
+  wallpaper: { overflow: 'hidden' },
+  // Leicht abgedunkelt, damit Reiter und Karten lesbar bleiben
+  wallpaperDim: { backgroundColor: 'rgba(25, 23, 22, 0.1)' },
+  photoCredit: { ...text.caption, fontSize: 11, color: color.text.onPhoto, opacity: 0.85, textShadowColor: 'rgba(0, 0, 0, 0.6)', textShadowRadius: 3, textAlign: 'right', paddingHorizontal: space[16], paddingBottom: space[4] },
   flex: { flex: 1 },
   empty: { padding: space[16] },
   // Fashionable Look: Unterstrich-Reiter über die ganze Breite
@@ -855,10 +892,12 @@ const styles = StyleSheet.create({
     gap: space[16],
     padding: space[16],
     borderRadius: radius.card,
-    backgroundColor: color.bg.surface,
+    overflow: 'hidden',
+    // Halbtransparent über dem Foto, darunter liegt CardBlur
+    backgroundColor: isFashionable ? color.bg.surface : 'rgba(36, 33, 31, 0.15)',
   },
-  // Challenge-Karte: so hoch wie ihr Inhalt, mit feinem Rand im Grün aus den Kater-Herzen (Daria, 2026-11-05)
-  cardFit: { borderWidth: stroke.thin, borderColor: color.line.confirmation },
+  // Challenge-Karte: so hoch wie ihr Inhalt, ohne Rand (Daria, 2026-11-05)
+  cardFit: {},
   head: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   pressed: { opacity: 0.7 },
   thumb: { width: 72, height: 72, borderRadius: radius.xl },
