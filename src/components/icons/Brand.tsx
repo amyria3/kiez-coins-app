@@ -92,7 +92,8 @@ export const DiamondIcon = memo(function DiamondIcon({
 export const CrownIcon = memo(function CrownIcon({ height = 40 }: { height?: number }) {
   return (
     <SvgXml
-      xml={crownSvg.svg(color.text.primary)}
+      // Große Icons im Kiez-Look in color.icon.large (Daria, 2026-11-05: Krone im Konto)
+      xml={crownSvg.svg(height >= 18 ? color.icon.large : color.text.primary)}
       width={(crownSvg.width / crownSvg.height) * height}
       height={height}
     />

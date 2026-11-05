@@ -16,6 +16,7 @@ import type { ChallengePostProps } from './ChallengePost';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 import { Text } from './T';
+import { LikeCount } from './LikeCount';
 import { WithMentions } from './WithMentions';
 
 /** Anteil des Vorher-Fotos an der Höhe: im Ruhezustand 1/3, vergrößert 5/6 (Daria, 23.10.2026) */
@@ -157,8 +158,8 @@ function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: 
         style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
       >
         <Icon name="heart" size={size.icon} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
-        {challenge.likeCount ? <Text style={countStyle}>{challenge.likeCount}</Text> : null}
       </Pressable>
+      <LikeCount challengeId={challenge.id} count={challenge.likeCount} style={countStyle} />
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={commentCount ? t('Kommentieren, {commentCount} Kommentare', { commentCount }) : t('Kommentieren')}

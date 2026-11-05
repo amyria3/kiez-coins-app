@@ -66,6 +66,8 @@ export const Icon = memo(function Icon({ name, color = themeColor.text.primary, 
  */
 export const PhIcon = memo(function PhIcon({ name, color = themeColor.text.primary, size }: { name: keyof typeof PH; color?: string; size?: number }) {
   const iconPt = useIconPt();
+  // Wie bei Icon: große Symbole im Kiez-Look in color.icon.large (Daria, 2026-11-05: Sprache im Konto)
+  if (!isFashionable && color === themeColor.text.primary && (size ?? 20) >= LARGE_MIN) color = themeColor.icon.large;
   const h = Math.round(((size ?? 20) / 20) * iconPt);
   return <SvgXml xml={phXml(PH[name], color)} width={h} height={h} />;
 });
