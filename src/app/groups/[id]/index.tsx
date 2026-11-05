@@ -30,7 +30,7 @@ export default function GroupDetail() {
 
   if (!group) {
     return (
-      <SubScreen title="Gruppe" navigation="back" onLeadingPress={goBack}>
+      <SubScreen glass title="Gruppe" navigation="back" onLeadingPress={goBack}>
         <KaterCard>Diese Gruppe gibt es nicht mehr, oder Du bist nicht mehr dabei.</KaterCard>
       </SubScreen>
     );
@@ -101,7 +101,7 @@ export default function GroupDetail() {
   };
 
   return (
-    <SubScreen
+    <SubScreen glass
       title={group.name}
       subtitle={t('{members} von {MAX_MEMBERS} Mitgliedern', { members: group.members.length, MAX_MEMBERS })}
       navigation="back"

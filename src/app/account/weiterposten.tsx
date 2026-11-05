@@ -56,7 +56,7 @@ export default function CrosspostAccounts() {
   useEffect(reload, [reload]);
 
   return (
-    <SubScreen title="Verbundene Konten" navigation="back" onLeadingPress={goBack}>
+    <SubScreen glass title="Verbundene Konten" navigation="back" onLeadingPress={goBack}>
       <Notice message="Weiterposten teilt Deine öffentlichen Posts mit Foto und Link zu KiezCoins. Private Posts und Gruppen bleiben immer in der App." />
       <FieldGroup label="Kostenlos">
         {CROSSPOST_PLATFORMS.filter((p) => isLivePlatform(p.key)).map((p) => (

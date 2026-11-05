@@ -135,7 +135,7 @@ export default function Friends() {
   };
 
   return (
-    <SubScreen title="Freundschaften" navigation="back" onLeadingPress={goBack}>
+    <SubScreen glass title="Freundschaften" navigation="back" onLeadingPress={goBack}>
       {lists === null ? (
         <Notice message="Freundschaften sind noch nicht freigeschaltet. Die Datenbank braucht dafür ein Update." />
       ) : null}

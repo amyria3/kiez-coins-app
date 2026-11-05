@@ -15,7 +15,7 @@ export default function Credentials() {
   const { session, hasPassword, noEmail, isTest } = useAuth();
 
   return (
-    <SubScreen title="Zugangsdaten" navigation="back" onLeadingPress={goBack}>
+    <SubScreen glass title="Zugangsdaten" navigation="back" onLeadingPress={goBack}>
       <KaterBubble>
         {isTest
           ? 'Du nutzt ein Testkonto. Es verschwindet nach 7 Tagen oder beim Abmelden. Trage eine E-Mail ein, dann bleibt alles.'

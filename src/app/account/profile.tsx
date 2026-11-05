@@ -95,7 +95,7 @@ export default function PersonalDetails() {
 
 
   return (
-    <SubScreen title="Persönliche Angaben" navigation="back" onLeadingPress={goBack}>
+    <SubScreen glass title="Persönliche Angaben" navigation="back" onLeadingPress={goBack}>
       <Pressable
         onPress={pickAvatar}
         disabled={uploading}

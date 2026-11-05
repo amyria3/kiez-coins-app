@@ -43,7 +43,7 @@ export default function Support() {
   };
 
   return (
-    <SubScreen
+    <SubScreen glass
       title="Support"
       navigation="back"
       onLeadingPress={goBack}

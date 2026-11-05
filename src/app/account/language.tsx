@@ -43,7 +43,7 @@ export default function Sprache() {
   };
 
   return (
-    <SubScreen title="Sprache" navigation="back" onLeadingPress={goBack}>
+    <SubScreen glass title="Sprache" navigation="back" onLeadingPress={goBack}>
       <KaterBubble>In welcher Sprache soll ich mit Dir reden?</KaterBubble>
       <View style={{ gap: space[8] }}>
         <RadioOption label={t('Wie das Handy ({sprache})', { sprache: device })} selected={choice === 'auto'} onPress={() => choose('auto')} />

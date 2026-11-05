@@ -41,7 +41,7 @@ export default function SurveyResultsScreen() {
   const total = data?.total ?? 0;
 
   return (
-    <SubScreen
+    <SubScreen glass
       title="Umfrage-Ergebnis"
       subtitle={data ? t('{total} Antworten', { total }) : undefined}
       navigation="back"

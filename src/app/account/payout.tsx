@@ -44,7 +44,7 @@ export default function PayoutSettings() {
   };
 
   return (
-    <SubScreen
+    <SubScreen glass
       title="Zahlungsdaten"
       navigation="back"
       onLeadingPress={goBack}

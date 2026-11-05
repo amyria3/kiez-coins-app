@@ -37,7 +37,7 @@ export default function DataAccessScreen() {
   const automatic = entries?.find((e) => e.kind === 'automatisch');
 
   return (
-    <SubScreen title="Abrufe Deiner Daten" navigation="back" onLeadingPress={goBack}>
+    <SubScreen glass title="Abrufe Deiner Daten" navigation="back" onLeadingPress={goBack}>
       <Text style={styles.body}>
         Hier siehst Du, ob jemand aus dem Team Deine persönlichen Daten abgerufen hat. Protokolliert wird bisher jeder Abruf Deiner privaten Chats.
       </Text>
