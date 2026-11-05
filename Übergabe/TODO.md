@@ -35,6 +35,11 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
    - Frage an Daria: Sind 2,99 € im Monat (36 € im Jahr) für 5 X-Posts und 24,99 € im Jahr für 10 X-Posts so gewollt? Das Jahresabo wäre günstiger und enthielte doppelt so viele Posts.
    - Frage an Daria: Ein Abo heißt, dass KiezCoins Geld annimmt. Die Nutzungsbedingungen sagen heute „KiezCoins … nimmt kein Geld an und zahlt keins aus“ (`src/data/legal.ts`), und Coins sind Versprechen von echtem Geld zwischen Mitgliedern. Die Recherche schlägt vor, Guthaben als Coins zu verkaufen. Das würde diese Regel berühren. Bezahlung lieber getrennt von den Coins halten?
 
+## Domain und Sichtbarkeit (Daria, 05.11.2026)
+
+- [ ] Sauberes Routing für `kiezcoins.de`: Die Domain soll die Hauptadresse sein, nicht nur auf `kiezcoins.vercel.app` weiterleiten. In Vercel unter Settings → Domains `kiezcoins.de` als Hauptdomain ohne Weiterleitung eintragen, `kiezcoins.vercel.app` auf „Redirect to kiezcoins.de“ stellen. Danach Supabase-Site-URL und Redirect-Liste auf `kiezcoins.de` prüfen. Hintergrund: Eine Weiterleitung per `vercel.json` (#167) hat die Seite lahmgelegt und wurde zurückgenommen (#168). Links, QR-Codes und `/laden` zeigen schon auf `kiezcoins.de`.
+- [ ] Danach SEO für `kiezcoins.de`.
+
 ## Promo-Kampagnen (Daria, 05.11.2026)
 
 - [ ] Sticker „Cat The Käptn“ mit QR-Code. Ziel des QR-Codes vermutlich `kiezcoins.de` (noch offen, ob `kiezcoins.de` oder `kiezcoins.de/laden`, siehe `2026-10-29_offen_website-laden-qr.md`). Vorlagen für den Kater liegen hier in `Übergabe/` (`KiezCoins Cat.svg`, `KiezKatz Portrait Logo.svg`).
