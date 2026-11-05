@@ -6,7 +6,7 @@ import { color, font, isFashionable, radius, space, stroke, text } from '../them
 import { useTexts } from '../data/texts';
 import { Cat, type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
-import { iconSvgs } from './icons/svgs';
+import { brandArt } from './icons/brandArt';
 import { SvgXml } from 'react-native-svg';
 import { Herz } from './Herz';
 
@@ -95,14 +95,15 @@ export function KaterCard({ children, title, mood = 'default' }: { children: Rea
 const RUND = 64;
 const RUND_KATER = 44;
 const RUND_SCHWARZ = '#000000';
-/** Mitte der Gläser im Icon „cat“ (Fläche 30 × 35) */
+/** Mitte der Gläser im Kater „kater-normal“ (Fläche 38 × 40) */
 const RUND_GLAESER = [
-  { x: 9.2, y: 17.9 },
-  { x: 20.1, y: 16.2 },
+  { x: 12.8, y: 21 },
+  { x: 27.9, y: 20.4 },
 ];
 const RUND_HERZ = 8.5;
 export function KaterRund() {
-  const cat = iconSvgs.cat;
+  // Seit 2026-11-05 der Kater mit den orangen Gläsern (assets/brand/kater-normal.svg, Daria)
+  const cat = brandArt['kater-normal'];
   const k = RUND_KATER / cat.height;
   const breite = cat.width * k;
   const [still, setStill] = useState<boolean | null>(null);
@@ -157,7 +158,7 @@ export function KaterRund() {
         ]}
       >
         <View style={{ width: breite, height: RUND_KATER }}>
-          <SvgXml xml={cat.svg(color.brand.signature)} width={breite} height={RUND_KATER} />
+          <SvgXml xml={cat.svg} width={breite} height={RUND_KATER} />
           {RUND_GLAESER.map((g) => (
             <Animated.View
               key={g.x}
