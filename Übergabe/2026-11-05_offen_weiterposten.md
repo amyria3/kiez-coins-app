@@ -1,4 +1,4 @@
-# Weiterposten auf BlueSky und Mastodon
+# Weiterposten auf BlueSky, Mastodon und Instagram
 
 Stand 05.11.2026: Migrationen `20261103000200_teilen.sql` und `20261105000100_weiterposten.sql` eingespielt, Edge Function `weiterposten` deployt (Version 1, mit Anmeldung). Erster Test durch Daria geklappt (BlueSky und Mastodon, 05.11.2026). Löschen über KiezCoins ab Version 2 der Edge Function, neu Posten beim Wiederherstellen ab Version 3.
 
@@ -24,6 +24,15 @@ Stand 05.11.2026: Migrationen `20261103000200_teilen.sql` und `20261105000100_we
 6. **Rückfrage mit Schaltern** (Daria, 05.11.2026): Ist der Post weitergepostet, fragt `CrosspostDialog` (`src/components/CrosspostDialog.tsx`) beim Löschen und Wiederherstellen pro Plattform, alle vorausgewählt. Der Text nennt die gewählten Plattformen. Die Auswahl geht als `crosspost` mit der Store-Aktion `delete` bzw. `restore` an die Edge Function (`platforms` ab Version 4).
 
 BlueSky nimmt Fotos bis 1 MB. Größere Fotos gehen als Linkkarte ohne Bild raus.
+
+## Instagram (Daria, 05.11.2026)
+
+- Migration [20261105000200_weiterposten_instagram.sql](https://github.com/amyria3/kiez-coins-app/blob/main/supabase/migrations/20261105000200_weiterposten_instagram.sql) erlaubt `instagram` in beiden Tabellen. Edge Function ab Version 5.
+- Verbinden mit Zugangs-Token aus Meta for Developers (Instagram-API mit Instagram-Login, Recht `instagram_business_content_publish`). Konto muss Business oder Creator sein. Im Testmodus nur für Konten, die in der Meta-App als Tester eingetragen sind; für alle braucht es App-Prüfung und Unternehmensverifizierung.
+- Posten: Container `me/media` mit `image_url` (öffentliche Adresse im Bucket `photos`) und Bildunterschrift, warten bis `FINISHED`, dann `me/media_publish`. Nur mit Foto (sonst Fehler `no_photo`), nur JPEG. Der Link steht als Text in der Bildunterschrift.
+- In `crosspost_posts.url` steht der Permalink mit `#<media-id>` dahinter, damit das Löschen die Kennung findet.
+- Löschen: `DELETE /<media-id>`. Meta dokumentiert das für die Instagram-API mit Facebook-Login; ob es mit Instagram-Login geht, ist ungetestet. Klappt es nicht, steht der Fehler in `crosspost_posts`.
+- Offen: Der Token läuft nach 60 Tagen ab (verlängern über `refresh_access_token`), Anmeldung per OAuth statt Token.
 
 ## Nächste Schritte
 
