@@ -27,6 +27,7 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
       - billigstes Modell 1,99 im Jahr ohne X
       - X Posts inkl. 5/Monat für 2,99 im Monat
       - X Posts inkl. 10/Monat mit 24,99 im Jahr
+   - Optik (Daria, 05.11.2026): Entwurf passt. Die Auswahl der Plattformen steckt beim Posten hinter einer Zeile „Weiterposten“ mit Zahnrad und öffnet sich als Blatt. Entwurf: Claude-Projektordner `cross-posting/2026-11-05_vorschlag-optik-2.png`.
    - Frage an Daria: Was unterscheidet „0,99 im Jahr für Meta“ von „1,99 im Jahr ohne X“? Enthält das Modell für 1,99 € Meta und etwas dazu, oder ist eine der beiden Zahlen pro Monat gemeint?
    - Frage an Daria: Sind 2,99 € im Monat (36 € im Jahr) für 5 X-Posts und 24,99 € im Jahr für 10 X-Posts so gewollt? Das Jahresabo wäre günstiger und enthielte doppelt so viele Posts.
    - Frage an Daria: Ein Abo heißt, dass KiezCoins Geld annimmt. Die Nutzungsbedingungen sagen heute „KiezCoins … nimmt kein Geld an und zahlt keins aus“ (`src/data/legal.ts`), und Coins sind Versprechen von echtem Geld zwischen Mitgliedern. Die Recherche schlägt vor, Guthaben als Coins zu verkaufen. Das würde diese Regel berühren. Bezahlung lieber getrennt von den Coins halten?
