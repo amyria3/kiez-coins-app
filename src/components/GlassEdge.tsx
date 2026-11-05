@@ -11,16 +11,16 @@ import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
 const EDGE_STOPS = [
   { offset: 0, color: "#FFFFFF", opacity: 0.3 },
   { offset: 0.4, color: "#FFFFFF", opacity: 0.04 },
-  { offset: 0.65, color: "#93F4A7", opacity: 0.08 },
+  { offset: 0.65, color: "#89F269", opacity: 0.08 },
   // Sanftes Lila aus der Signaturfarbe, deutlicher als das Grün (Daria, 2026-11-05)
-  { offset: 1, color: "#7E94FF", opacity: 0.38 },
+  { offset: 1, color: "#8F90FA", opacity: 0.38 },
 ];
 
 /** Linie, die zu beiden Enden ausläuft und in der Mitte am deutlichsten ist */
 const LINE_STOPS = [
-  { offset: 0, color: "#93F4A7", opacity: 0 },
-  { offset: 0.5, color: "#93F4A7", opacity: 0.45 },
-  { offset: 1, color: "#93F4A7", opacity: 0 },
+  { offset: 0, color: "#89F269", opacity: 0 },
+  { offset: 0.5, color: "#89F269", opacity: 0.45 },
+  { offset: 1, color: "#89F269", opacity: 0 },
 ];
 
 /** Rand aus Verlauf um eine Glasfläche. Als letztes Kind in eine Fläche mit `borderRadius` legen. */

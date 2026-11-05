@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: space[8],
     borderRadius: isFashionable ? radius.sm : radius.full,
     overflow: 'hidden',
-    backgroundColor: 'rgba(31, 33, 35, 0.35)',
+    backgroundColor: 'rgba(35, 35, 38, 0.35)',
   },
   tagText: {
     fontFamily: isFashionable ? font.semiBold : font.medium,

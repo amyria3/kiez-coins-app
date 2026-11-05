@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
     : { ...text.display, color: color.text.primary },
   greetingSub: isFashionable
     ? { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.secondary }
-    : { fontFamily: font.light, fontSize: 15, lineHeight: 20, color: color.text.secondary },
+    : { fontFamily: font.text, fontSize: 15, lineHeight: 20, color: color.text.secondary },
   topBar: { paddingHorizontal: space[16], paddingTop: space[4], paddingBottom: space[4], gap: space[12] },
   topItem: { width: size.thumbnail, alignItems: 'center', gap: space[4] },
   thumbnail: {

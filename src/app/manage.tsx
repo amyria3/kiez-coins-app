@@ -907,9 +907,9 @@ const styles = StyleSheet.create({
   // Kopf- und Fußleiste: Milchglas wie die Karten
   // Fußleiste oben gebogen statt einer Linie (Daria, 2026-11-05)
   footerRound: isFashionable ? {} : { borderTopLeftRadius: radius.card, borderTopRightRadius: radius.card },
-  glassBar: isFashionable ? {} : { overflow: 'hidden', backgroundColor: 'rgba(25, 23, 22, 0.15)' },
+  glassBar: isFashionable ? {} : { overflow: 'hidden', backgroundColor: 'rgba(35, 35, 38, 0.15)' },
   // Leicht abgedunkelt, damit Reiter und Karten lesbar bleiben
-  wallpaperDim: { backgroundColor: 'rgba(25, 23, 22, 0.1)' },
+  wallpaperDim: { backgroundColor: 'rgba(35, 35, 38, 0.1)' },
   photoCredit: { ...text.caption, fontSize: 11, color: color.text.onPhoto, opacity: 0.85, textShadowColor: 'rgba(0, 0, 0, 0.6)', textShadowRadius: 3, textAlign: 'right', paddingHorizontal: space[16], paddingBottom: space[4] },
   flex: { flex: 1 },
   empty: { padding: space[16] },
@@ -966,7 +966,7 @@ const styles = StyleSheet.create({
     padding: space[12],
     borderRadius: radius.xl,
     // Auf dem Milchglas nur leicht dunkler, damit die Zeilen nicht wie Löcher wirken (2026-11-05)
-    backgroundColor: isFashionable ? color.bg.screen : 'rgba(25, 23, 22, 0.35)',
+    backgroundColor: isFashionable ? color.bg.screen : 'rgba(35, 35, 38, 0.35)',
   },
   deletedTitle: { ...text.body, color: color.text.primary },
   deletedBody: { gap: space[12] },
