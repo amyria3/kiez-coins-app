@@ -50,9 +50,12 @@ export function Avatar({
   badge = true,
   badgeSide = 'right',
   badgeSize,
+  ringColor,
 }: {
   user: User;
   diameter?: number;
+  /** Ring ums Abzeichen in der Farbe des Untergrunds, z. B. color.bg.surface auf Karten */
+  ringColor?: string;
   badge?: boolean;
   /** Unten links, wenn rechts unten schon etwas sitzt (z. B. der Kamera-Knopf in Persönliche Angaben) */
   badgeSide?: 'left' | 'right';
@@ -70,7 +73,7 @@ export function Avatar({
     <View style={{ width: d, height: d }}>
       <AvatarImage user={user} diameter={diameter} />
       <View style={{ position: 'absolute', [badgeSide]: off, bottom: off }} pointerEvents="none">
-        <BadgeIcon kind={shown.badge} number={shown.number} size={b} ring />
+        <BadgeIcon kind={shown.badge} number={shown.number} size={b} ring ringColor={ringColor} />
       </View>
     </View>
   );
