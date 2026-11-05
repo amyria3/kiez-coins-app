@@ -32,11 +32,18 @@ const HOW_TO: Record<LivePlatform, string> = {
     '3. Speichern, die Anwendung öffnen und „Dein Zugangs-Token“ kopieren. Client-Schlüssel und Client-Geheimnis brauchst Du nicht.\n' +
     '4. Hast Du die Befugnisse nachträglich geändert, das Zugangs-Token neu erzeugen.\n' +
     '5. Instanz und Zugangs-Token unten eintragen. Die Instanz ist der Server Deines Kontos: Deine vollständige Adresse steht auf Deinem Profil unter dem Namen, z. B. @kiezkatz@mastodon.social. Die Instanz ist der Teil nach dem zweiten @, also mastodon.social.',
+  instagram:
+    '1. In Instagram: Einstellungen › Kontotyp › auf Business- oder Creator-Konto umstellen.\n' +
+    '2. Auf developers.facebook.com eine App anlegen (Typ Business, Anwendungsfall Instagram-API mit Instagram-Login).\n' +
+    '3. In der App unter Rollen Dein Instagram-Konto als Tester eintragen und die Einladung in Instagram annehmen.\n' +
+    '4. Im App-Dashboard einen Zugangs-Token erzeugen, mit dem Recht instagram_business_content_publish, und unten eintragen.\n' +
+    'Instagram nimmt nur Posts mit Foto. Der Link steht als Text in der Bildunterschrift.',
 };
 
 /**
  * Route `account/weiterposten`: Verbundene Konten fürs Weiterposten (Daria, 05.11.2026).
- * BlueSky mit Handle und App-Passwort, Mastodon mit Instanz und Zugangs-Token. Meta und X kommen später.
+ * BlueSky mit Handle und App-Passwort, Mastodon mit Instanz und Zugangs-Token, Instagram mit Zugangs-Token.
+ * Facebook und X kommen später.
  */
 export default function CrosspostAccounts() {
   const goBack = useGoBack();
@@ -64,7 +71,7 @@ export default function CrosspostAccounts() {
       </FieldGroup>
       <FieldGroup label="Kommt bald">
         <View style={styles.card}>
-          <Text style={styles.body}>Instagram, Facebook und X</Text>
+          <Text style={styles.body}>Facebook und X</Text>
           {counted ? (
             <Text style={styles.thanks}>Danke! Wir zählen Dich mit.</Text>
           ) : (
@@ -96,7 +103,14 @@ function PlatformCard({
     setBusy(true);
     setError(undefined);
     try {
-      await connectCrosspost(platform, platform === 'bluesky' ? { handle: first, password: secret } : { instance: first.trim().replace(/^.*@/, ''), token: secret });
+      await connectCrosspost(
+        platform,
+        platform === 'bluesky'
+          ? { handle: first, password: secret }
+          : platform === 'mastodon'
+            ? { instance: first.trim().replace(/^.*@/, ''), token: secret }
+            : { token: secret },
+      );
       setFirst('');
       setSecret('');
       onChange();
@@ -136,6 +150,7 @@ function PlatformCard({
     <View style={styles.card}>
       <Text noTranslate style={styles.title}>{label}</Text>
       <Text style={styles.caption}>{HOW_TO[platform]}</Text>
+      {platform === 'instagram' ? null : (
       <TextField
         label={platform === 'bluesky' ? 'Handle' : 'Instanz'}
         placeholder={platform === 'bluesky' ? 'name.bsky.social' : 'mastodon.social'}
@@ -149,9 +164,16 @@ function PlatformCard({
         autoCapitalize="none"
         autoCorrect={false}
       />
+      )}
       <TextField
         label={platform === 'bluesky' ? 'App-Passwort' : 'Zugangs-Token'}
-        helperText={platform === 'bluesky' ? 'Nicht Dein normales Passwort' : '„Dein Zugangs-Token“ aus der Anwendung'}
+        helperText={
+          platform === 'bluesky'
+            ? 'Nicht Dein normales Passwort'
+            : platform === 'mastodon'
+              ? '„Dein Zugangs-Token“ aus der Anwendung'
+              : 'Aus dem App-Dashboard bei Meta for Developers'
+        }
         value={secret}
         onChangeText={setSecret}
         autoCapitalize="none"
@@ -163,7 +185,7 @@ function PlatformCard({
         busy={busy}
         label={busy ? 'Wird geprüft …' : 'Verbinden'}
         onPress={connect}
-        disabled={busy || !first.trim() || !secret.trim()}
+        disabled={busy || (platform !== 'instagram' && !first.trim()) || !secret.trim()}
       />
     </View>
   );
