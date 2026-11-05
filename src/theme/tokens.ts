@@ -67,6 +67,8 @@ export const color = {
     hairline: fashionable ? '#DBDBDB' : 'rgba(255, 240, 225, 0.12)',
     /** Feiner warmer Rand um Karten und Sprechblase im Kiez-Look, damit sie sich vom Grund abheben (2026-11-01) */
     raised: fashionable ? 'transparent' : 'rgba(255, 240, 225, 0.08)',
+    /** Feine Linie im Grün aus den Kater-Herzen (#93F4A7), z. B. auf der Karte in „Meine Posts“ (Daria, 2026-11-05) */
+    confirmation: fashionable ? '#DBDBDB' : 'rgba(147, 244, 167, 0.22)',
   },
   text: {
     primary: palette.white,
