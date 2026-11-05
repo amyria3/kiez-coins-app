@@ -2,8 +2,9 @@
 //
 // Anfragen (POST, mit Anmeldung der Person im Header Authorization):
 //   { action: 'connect', platform: 'bluesky', handle, password }      App-Passwort aus BlueSky › Einstellungen
-//   { action: 'connect', platform: 'mastodon', instance, token }      Zugangsschlüssel aus Mastodon › Entwicklung
+//   { action: 'connect', platform: 'mastodon', instance, token }      Zugangs-Token aus Mastodon › Entwicklung
 //   { action: 'post', challengeId, platforms: ['bluesky', 'mastodon'] }
+//   { action: 'delete', challengeId }                                Weiterposts dort wieder löschen
 // Antworten: { handle } bei connect, { results: { bluesky: { url } | { error } } } bei post, sonst { error }.
 //
 // Gepostet werden nur eigene Posts, die eine öffentliche Seite bekommen dürfen (share_challenge, Migration
@@ -156,6 +157,30 @@ async function postMastodon(account: Account, post: Post): Promise<string> {
 }
 
 // ---------------------------------------------------------------------------
+// Löschen: Der Link in crosspost_posts enthält die Kennung des Posts (letzter Teil des Pfads).
+// ---------------------------------------------------------------------------
+
+async function deleteBluesky(account: Account, link: string) {
+  const session = await blueskySession(account.instance, account.handle, account.secret);
+  const res = await fetch(`${account.instance}/xrpc/com.atproto.repo.deleteRecord`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${session.accessJwt}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ repo: session.did, collection: 'app.bsky.feed.post', rkey: link.split('/').pop() }),
+  });
+  if (!res.ok) throw new Error(`delete ${res.status}`);
+}
+
+async function deleteMastodon(account: Account, link: string) {
+  const id = new URL(link).pathname.split('/').pop();
+  const res = await fetch(`${account.instance}/api/v1/statuses/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${account.secret}` },
+  });
+  // 404: dort schon gelöscht
+  if (!res.ok && res.status !== 404) throw new Error(`delete ${res.status}`);
+}
+
+// ---------------------------------------------------------------------------
 
 async function loadPost(admin: SupabaseClient, challengeId: string, platform: Platform): Promise<Post> {
   const { data: c, error } = await admin
@@ -276,6 +301,41 @@ Deno.serve(async (req) => {
       } catch (e) {
         const message = clip((e as Error).message || 'error', 500);
         await admin.from('crosspost_posts').update({ status: 'error', error: message }).eq('challenge_id', challengeId).eq('platform', platform);
+        results[platform] = { error: message };
+      }
+    }
+    return reply({ results });
+  }
+
+  if (input.action === 'delete') {
+    // Weiterposts eines Posts dort wieder löschen. Nur die eigenen Zeilen; danach verschwindet die Zeile.
+    const challengeId = str('challengeId');
+    if (!challengeId) return reply({ error: 'input' }, 400);
+    const { data: posts } = await admin
+      .from('crosspost_posts')
+      .select('platform, url')
+      .eq('challenge_id', challengeId)
+      .eq('user_id', user.id)
+      .eq('status', 'ok');
+    const { data: accounts } = await admin
+      .from('crosspost_accounts')
+      .select('platform, handle, instance, secret')
+      .eq('user_id', user.id);
+    const results: Record<string, { deleted?: boolean; error?: string }> = {};
+    for (const { platform, url: link } of posts ?? []) {
+      const account = (accounts ?? []).find((a) => a.platform === platform) as Account | undefined;
+      if (!account || !link) {
+        results[platform] = { error: 'not_connected' };
+        continue;
+      }
+      try {
+        if (platform === 'bluesky') await deleteBluesky(account, link);
+        else await deleteMastodon(account, link);
+        await admin.from('crosspost_posts').delete().eq('challenge_id', challengeId).eq('platform', platform);
+        results[platform] = { deleted: true };
+      } catch (e) {
+        const message = clip((e as Error).message || 'error', 500);
+        await admin.from('crosspost_posts').update({ error: message }).eq('challenge_id', challengeId).eq('platform', platform);
         results[platform] = { error: message };
       }
     }
