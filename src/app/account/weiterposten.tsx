@@ -22,13 +22,20 @@ import { useGoBack } from '../../lib/goBack';
 import { color, radius, space, stroke, text } from '../../theme/tokens';
 
 const HOW_TO: Record<LivePlatform, string> = {
-  bluesky: 'In BlueSky unter Einstellungen › Datenschutz und Sicherheit › App-Passwörter ein neues App-Passwort anlegen. Dein normales Passwort brauchst Du hier nicht.',
-  mastodon: 'In Mastodon unter Einstellungen › Entwicklung › Neue Anwendung eine Anwendung „KiezCoins“ anlegen, Häkchen bei write:statuses, write:media und profile. Dann den Zugangsschlüssel kopieren.',
+  bluesky:
+    '1. In BlueSky: Einstellungen › Datenschutz und Sicherheit › App-Passwörter › App-Passwort hinzufügen. Name zum Beispiel „KiezCoins“.\n' +
+    '2. Das angezeigte App-Passwort kopieren (vier Blöcke, z. B. abcd-efgh-ijkl-mnop). Dein normales Passwort brauchst Du hier nicht.\n' +
+    '3. Handle und App-Passwort unten eintragen.',
+  mastodon:
+    '1. In Mastodon: Einstellungen › Entwicklung › Neue Anwendung. Name „KiezCoins“.\n' +
+    '2. Bei den Befugnissen nur diese drei anhaken: profile, write:media und write:statuses. Alles andere abwählen, auch read und write.\n' +
+    '3. Speichern, die Anwendung öffnen und „Dein Zugangs-Token“ kopieren. Client-Schlüssel und Client-Geheimnis brauchst Du nicht.\n' +
+    '4. Hast Du die Befugnisse nachträglich geändert, das Zugangs-Token neu erzeugen.',
 };
 
 /**
  * Route `account/weiterposten`: Verbundene Konten fürs Weiterposten (Daria, 05.11.2026).
- * BlueSky mit Handle und App-Passwort, Mastodon mit Instanz und Zugangsschlüssel. Meta und X kommen später.
+ * BlueSky mit Handle und App-Passwort, Mastodon mit Instanz und Zugangs-Token. Meta und X kommen später.
  */
 export default function CrosspostAccounts() {
   const goBack = useGoBack();
@@ -133,11 +140,17 @@ function PlatformCard({
         placeholder={platform === 'bluesky' ? 'name.bsky.social' : 'mastodon.social'}
         value={first}
         onChangeText={setFirst}
+        helperText={
+          platform === 'bluesky'
+            ? 'Steht in BlueSky auf Deinem Profil unter dem Namen. Ohne @, z. B. kiezkatz.bsky.social'
+            : 'Der Server Deines Kontos, z. B. mastodon.social'
+        }
         autoCapitalize="none"
         autoCorrect={false}
       />
       <TextField
-        label={platform === 'bluesky' ? 'App-Passwort' : 'Zugangsschlüssel'}
+        label={platform === 'bluesky' ? 'App-Passwort' : 'Zugangs-Token'}
+        helperText={platform === 'bluesky' ? 'Nicht Dein normales Passwort' : '„Dein Zugangs-Token“ aus der Anwendung'}
         value={secret}
         onChangeText={setSecret}
         autoCapitalize="none"
