@@ -1,9 +1,10 @@
-// Weiterposten auf BlueSky und Mastodon (Daria, 05.11.2026). Beide Schnittstellen kosten nichts.
+// Weiterposten auf BlueSky, Mastodon und Instagram (Daria, 05.11.2026). Alle drei Schnittstellen kosten nichts.
 //
 // Anfragen (POST, mit Anmeldung der Person im Header Authorization):
 //   { action: 'connect', platform: 'bluesky', handle, password }      App-Passwort aus BlueSky › Einstellungen
 //   { action: 'connect', platform: 'mastodon', instance, token }      Zugangs-Token aus Mastodon › Entwicklung
-//   { action: 'post', challengeId, platforms: ['bluesky', 'mastodon'] }
+//   { action: 'connect', platform: 'instagram', token }               Zugangs-Token aus Meta for Developers (Instagram-Login)
+//   { action: 'post', challengeId, platforms: ['bluesky', 'mastodon', 'instagram'] }
 //   { action: 'delete', challengeId, platforms? }                    Weiterposts dort wieder löschen (ohne platforms: alle)
 // Antworten: { handle } bei connect, { results: { bluesky: { url } | { error } } } bei post, sonst { error }.
 //
@@ -14,15 +15,21 @@
 // SUPABASE_URL, SUPABASE_ANON_KEY und SUPABASE_SERVICE_ROLE_KEY stellt Supabase selbst bereit. Keine weiteren Secrets.
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
-type Platform = 'bluesky' | 'mastodon';
+type Platform = 'bluesky' | 'mastodon' | 'instagram';
+const PLATFORMS: Platform[] = ['bluesky', 'mastodon', 'instagram'];
+const isPlatform = (p: unknown): p is Platform => PLATFORMS.includes(p as Platform);
 type Account = { platform: Platform; handle: string; instance: string; secret: string };
-type Post = { id: string; title: string; body: string; link: string; image?: { bytes: Uint8Array; type: string } };
+type Post = { id: string; title: string; body: string; link: string; image?: { bytes: Uint8Array; type: string }; imageUrl?: string };
 
 const BLUESKY = 'https://bsky.social';
 /** BlueSky nimmt Bilder bis 1 MB, Texte bis 300 Zeichen. Mastodon Texte bis 500 Zeichen. */
 const BLUESKY_IMAGE_MAX = 1_000_000;
 const BLUESKY_TEXT_MAX = 300;
 const MASTODON_TEXT_MAX = 500;
+/** Instagram: Bildunterschrift bis 2200 Zeichen, nur JPEG, Foto ist Pflicht. */
+const INSTAGRAM = 'https://graph.instagram.com';
+const INSTAGRAM_API = `${INSTAGRAM}/v21.0`;
+const INSTAGRAM_TEXT_MAX = 2200;
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -159,6 +166,54 @@ async function postMastodon(account: Account, post: Post): Promise<string> {
 }
 
 // ---------------------------------------------------------------------------
+// Instagram (Instagram-API mit Instagram-Login). Das Foto holt Instagram selbst über die öffentliche Adresse.
+// ---------------------------------------------------------------------------
+
+async function instagram(path: string, token: string, init?: { method?: string; params?: Record<string, string> }) {
+  const url = new URL(`${INSTAGRAM_API}/${path}`);
+  for (const [k, v] of Object.entries(init?.params ?? {})) url.searchParams.set(k, v);
+  url.searchParams.set('access_token', token);
+  const res = await fetch(url, { method: init?.method ?? 'GET' });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`instagram ${res.status} ${clip(body?.error?.message ?? '', 200)}`.trim());
+  return body as Record<string, unknown>;
+}
+
+async function instagramAccount(token: string) {
+  try {
+    const me = await instagram('me', token, { params: { fields: 'user_id,username' } });
+    return { username: String(me.username ?? '') };
+  } catch {
+    throw new Error('login');
+  }
+}
+
+async function postInstagram(account: Account, post: Post): Promise<string> {
+  // Instagram nimmt nur Posts mit Foto, und nur JPEG
+  if (!post.imageUrl || (post.image && !/jpe?g/.test(post.image.type))) throw new Error('no_photo');
+  const caption = `${clip([post.title, post.body].filter(Boolean).join('\n\n'), INSTAGRAM_TEXT_MAX - post.link.length - 4)}\n\n${post.link}`;
+  const container = await instagram('me/media', account.secret, { method: 'POST', params: { image_url: post.imageUrl, caption } });
+  const creationId = String(container.id);
+  // Instagram lädt das Foto erst herunter. Bis es fertig ist, kurz warten.
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const status = await instagram(creationId, account.secret, { params: { fields: 'status_code' } });
+    if (status.status_code === 'FINISHED') break;
+    if (status.status_code === 'ERROR' || status.status_code === 'EXPIRED') throw new Error(`media ${status.status_code}`);
+    await wait(2000);
+  }
+  const published = await instagram('me/media_publish', account.secret, { method: 'POST', params: { creation_id: creationId } });
+  const media = await instagram(String(published.id), account.secret, { params: { fields: 'permalink' } });
+  // Kennung vorne an den Link, damit das Löschen sie findet (Permalinks enthalten sie nicht)
+  return `${media.permalink ?? 'https://www.instagram.com/'}#${published.id}`;
+}
+
+async function deleteInstagram(account: Account, link: string) {
+  const id = link.split('#').pop();
+  if (!id) throw new Error('delete id');
+  await instagram(id, account.secret, { method: 'DELETE' });
+}
+
+// ---------------------------------------------------------------------------
 // Löschen: Der Link in crosspost_posts enthält die Kennung des Posts (letzter Teil des Pfads).
 // ---------------------------------------------------------------------------
 
@@ -193,6 +248,7 @@ async function loadPost(admin: SupabaseClient, challengeId: string, platform: Pl
   if (error || !c) throw new Error('challenge');
   const path = c.image_after_path ?? c.image_path ?? c.image_before_path;
   let image: Post['image'];
+  const imageUrl = path ? `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/photos/${path}` : undefined;
   if (path) {
     const { data } = await admin.storage.from('photos').download(path);
     if (data) image = { bytes: new Uint8Array(await data.arrayBuffer()), type: data.type || 'image/jpeg' };
@@ -203,6 +259,7 @@ async function loadPost(admin: SupabaseClient, challengeId: string, platform: Pl
     body: (c.body ?? '').trim(),
     link: `https://kiezcoins.de/c/${c.id}?von=${platform}`,
     image,
+    imageUrl,
   };
 }
 
@@ -245,6 +302,11 @@ Deno.serve(async (req) => {
         if (!instance || !token) return reply({ error: 'input' }, 400);
         const { acct } = await mastodonAccount(instance, token);
         account = { handle: acct.includes('@') ? acct : `${acct}@${new URL(instance).hostname}`, instance, secret: token };
+      } else if (platform === 'instagram') {
+        const token = str('token');
+        if (!token) return reply({ error: 'input' }, 400);
+        const { username } = await instagramAccount(token);
+        account = { handle: username || 'instagram', instance: INSTAGRAM, secret: token };
       } else {
         return reply({ error: 'platform' }, 400);
       }
@@ -260,9 +322,7 @@ Deno.serve(async (req) => {
 
   if (input.action === 'post') {
     const challengeId = str('challengeId');
-    const platforms = (Array.isArray(input.platforms) ? input.platforms : []).filter(
-      (p): p is Platform => p === 'bluesky' || p === 'mastodon',
-    );
+    const platforms = (Array.isArray(input.platforms) ? input.platforms : []).filter(isPlatform);
     if (!challengeId || !platforms.length) return reply({ error: 'input' }, 400);
 
     // Prüft Ersteller:in und ob der Post öffentlich sein darf; gibt ihn zugleich für die Seite kiezcoins.de/c/<id> frei
@@ -297,7 +357,12 @@ Deno.serve(async (req) => {
         .upsert({ challenge_id: challengeId, platform, user_id: user.id, status: 'running', url: null, error: null });
       try {
         const post = await loadPost(admin, challengeId, platform);
-        const link = platform === 'bluesky' ? await postBluesky(account, post) : await postMastodon(account, post);
+        const link =
+          platform === 'bluesky'
+            ? await postBluesky(account, post)
+            : platform === 'mastodon'
+              ? await postMastodon(account, post)
+              : await postInstagram(account, post);
         await admin.from('crosspost_posts').update({ status: 'ok', url: link }).eq('challenge_id', challengeId).eq('platform', platform);
         results[platform] = { url: link };
       } catch (e) {
@@ -334,7 +399,8 @@ Deno.serve(async (req) => {
       }
       try {
         if (platform === 'bluesky') await deleteBluesky(account, link);
-        else await deleteMastodon(account, link);
+        else if (platform === 'mastodon') await deleteMastodon(account, link);
+        else await deleteInstagram(account, link);
         await admin
           .from('crosspost_posts')
           .update({ status: 'error', error: 'deleted', url: null })
