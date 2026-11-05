@@ -18,6 +18,7 @@ import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
 import { look, looks, lookSelectable } from '../../theme/look';
 import { MODES, useModes } from '../../data/features';
 import { useGoBack } from '../../lib/goBack';
+import { useCrosspostEnabled } from '../../data/crosspost';
 
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
 export default function Account() {
@@ -31,6 +32,8 @@ export default function Account() {
   // „Moderation“ nur für Personen in der Tabelle `moderators`
   const [moderator, setModerator] = useState(false);
   const [survey, setSurvey] = useState(false);
+  // Weiterposten: für alle erst nach Freigabe, für Moderatorinnen schon zum Testen (Daria, 05.11.2026)
+  const crosspost = useCrosspostEnabled();
   // Offene Freundschaftsanfragen als Zahl an der Zeile
   const [friendRequests, setFriendRequests] = useState(0);
   useEffect(() => {
@@ -149,6 +152,7 @@ export default function Account() {
           <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/account/payout')} />
           <NavRow label="Umfrage" value="7 Fragen zur App" onPress={() => setSurvey(true)} />
           <NavRow label="Support" value="Frage oder Problem" onPress={() => router.push('/account/support')} />
+          {crosspost ? <NavRow label="Verbundene Konten" value="BlueSky, Mastodon" onPress={() => router.push('/account/weiterposten')} /> : null}
           <NavRow
             label="Blockierte Personen"
             value={blockedIds.length === 0 ? 'Niemand' : t('{blockedIds} blockiert', { blockedIds: blockedIds.length })}

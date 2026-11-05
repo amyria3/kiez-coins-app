@@ -10,6 +10,7 @@ import { ExtraPhotos, PhotoPicker } from '../Form';
 import { Text } from '../T';
 import { PHOTO_TAG } from '../WithMentions';
 import { TagTextField } from './BeforeAfterForm';
+import { CrosspostRow } from './CrosspostRow';
 import { explain } from '../Nudge';
 import { useComposeContent, type ComposeContent } from './compose';
 import { color, text } from '../../theme/tokens';
@@ -109,6 +110,8 @@ export function usePublicComposeForm(
       ) : (
         <TagTextField label="Dein Text" tag={PHOTO_TAG} value={text} onChangeText={setText} maxLength={500} />
       )}
+      {/* Weiterposten auf andere Plattformen, nur öffentliche Posts (Daria, 05.11.2026) */}
+      {isPrivate ? null : <CrosspostRow />}
     </>
   );
 

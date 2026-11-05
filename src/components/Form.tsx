@@ -178,23 +178,28 @@ export function SwitchRow({
           </Text>
         ) : null}
       </View>
-      {isFashionable ? (
-        <FashionSwitch label={label} value={value} onValueChange={onValueChange} />
-      ) : glassControls ? (
-        <GlassSwitch label={label} value={value} onValueChange={onValueChange} />
-      ) : (
-      <NativeSwitch
-        accessibilityLabel={label}
-        value={value}
-        onValueChange={onValueChange}
-        trackColor={{ false: color.text.secondary, true: color.accent.primary }}
-        thumbColor={color.text.primary}
-        ios_backgroundColor={color.text.secondary}
-        // Im Browser färbt react-native-web den Knopf im eingeschalteten Zustand sonst türkis.
-        {...(Platform.OS === 'web' ? ({ activeThumbColor: color.text.primary } as object) : null)}
-      />
-      )}
+      <Toggle label={label} value={value} onValueChange={onValueChange} />
     </View>
+  );
+}
+
+/** Der Schalter allein, ohne Zeile; die Bezeichnung dient dem Screenreader. */
+export function Toggle({ label, value, onValueChange }: { label: string; value: boolean; onValueChange: (value: boolean) => void }) {
+  return isFashionable ? (
+    <FashionSwitch label={label} value={value} onValueChange={onValueChange} />
+  ) : glassControls ? (
+    <GlassSwitch label={label} value={value} onValueChange={onValueChange} />
+  ) : (
+    <NativeSwitch
+      accessibilityLabel={label}
+      value={value}
+      onValueChange={onValueChange}
+      trackColor={{ false: color.text.secondary, true: color.accent.primary }}
+      thumbColor={color.text.primary}
+      ios_backgroundColor={color.text.secondary}
+      // Im Browser färbt react-native-web den Knopf im eingeschalteten Zustand sonst türkis.
+      {...(Platform.OS === 'web' ? ({ activeThumbColor: color.text.primary } as object) : null)}
+    />
   );
 }
 

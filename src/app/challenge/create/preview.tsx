@@ -26,6 +26,7 @@ import { useGoBack } from '../../../lib/goBack';
 import { PHOTO_TAG, WithMentions } from '../../../components/WithMentions';
 import { participationText } from '../../../data/weChallenge';
 import { sharedBountyText } from '../../../data/coins';
+import { crosspostChallenge, loadCrosspostSelection, useCrosspostEnabled } from '../../../data/crosspost';
 
 /** Breite des ausgeblurrten Rands links und rechts (schmal, Daria 22.10.2026) */
 const EDGE = space[8];
@@ -58,6 +59,7 @@ export default function CreatePreview() {
   const user = useCurrentUser();
   const { canOfferBounties, createChallenge, publishDraft } = useStore();
   const [busy, setBusy] = useState(false);
+  const crosspost = useCrosspostEnabled();
 
   const deadline = new Date(Date.now() + draft.durationDays * 24 * 60 * 60 * 1000).toISOString();
   const isPhoto = draft.type === 'photo';
@@ -158,6 +160,13 @@ export default function CreatePreview() {
             localOnly: draft.localOnly,
             photoText: photoTextInput(draft) ?? undefined,
           });
+      // Weiterposten (Daria, 05.11.2026): nur öffentliche Posts ohne 5-km-Grenze, im Hintergrund.
+      // Fehler stehen in crosspost_posts und stören das Veröffentlichen nicht.
+      if (crosspost && !draft.private && !draft.localOnly) {
+        loadCrosspostSelection()
+          .then((platforms) => crosspostChallenge(id, platforms))
+          .catch(() => undefined);
+      }
       markComposeDone();
       celebratePost();
       router.replace({ pathname: '/challenge/create/success', params: { id } });
