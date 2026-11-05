@@ -460,7 +460,8 @@ export async function loadLikers(challengeId: string): Promise<User[] | null> {
 
 /** Lädt Feed, eigene Likes, Operationsnamen, Freigaben und alle beteiligten Profile. */
 export async function loadLiveData(userId: string): Promise<LiveData> {
-  const [challengesRes, likesRes, namesRes, sharesRes, payoutRes, views, groups] = await Promise.all([
+  // Drei Runden statt sechs: alles, was nicht voneinander abhängt, geht gleichzeitig raus (2026-11-05)
+  const [challengesRes, likesRes, namesRes, sharesRes, payoutRes, views, groups, blocked] = await Promise.all([
     supabase.from('challenges').select(CHALLENGE_COLUMNS).order('created_at', { ascending: false }).limit(200),
     supabase.from('likes').select('challenge_id').eq('user_id', userId),
     supabase.from('operation_names').select('challenge_id, name').eq('user_id', userId),
@@ -468,8 +469,8 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
     supabase.from('payout_details').select('account_holder, iban, paypal').eq('user_id', userId).maybeSingle(),
     loadViewCounts(),
     loadGroups(),
+    loadBlockedIds(),
   ]);
-  const blocked = await loadBlockedIds();
   for (const res of [challengesRes, likesRes, namesRes, sharesRes, payoutRes]) check(res);
 
   // Blockierte Personen: ihre Challenges und Kommentare verschwinden für Dich
@@ -478,9 +479,10 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
   const names = new Map((namesRes.data ?? []).map((n) => [n.challenge_id as string, n.name as string]));
   const shares = new Map<string, ShareRow[]>();
   for (const s of (sharesRes.data ?? []) as ShareRow[]) shares.set(s.challenge_id, [...(shares.get(s.challenge_id) ?? []), s]);
-  const [participants, payoutLines] = await Promise.all([
+  const [participants, payoutLines, likeCounts] = await Promise.all([
     loadParticipants(rows.filter((r) => r.type === 'individual').map((r) => r.id)),
     loadPayoutLines(rows.filter((r) => r.bounty_amount && PAYMENT_STATUSES.has(r.status)).map((r) => r.id)),
+    loadLikeCounts(rows.map((r) => r.id)),
   ]);
 
   const ids = new Set<string>([userId]);
@@ -499,7 +501,6 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
   const me = profiles.find((p) => p.id === userId);
 
   const users = profiles.map((p) => toUser(p, p.id === userId ? myPayout : undefined));
-  const likeCounts = await loadLikeCounts(rows.map((r) => r.id));
   if (!me) users.push({ id: userId, name: FALLBACK_NAME, firstName: FALLBACK_NAME, payout: myPayout });
 
   return {

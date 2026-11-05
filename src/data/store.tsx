@@ -5,6 +5,7 @@ import * as remote from './remote';
 import { setGender } from './texts';
 import { sampleChallenges, sampleGroups, sampleProfile, sampleUsers, topChallengeIds } from './sample';
 import { joinedIds } from './weChallenge';
+import { clearStartCache, saveCachedFeed } from './startCache';
 import { splitCents } from './coins';
 import { isPostOnly, type Challenge, type Participant, type ParticipantStatus, type ChallengeReport, type ImageSource, type Comment, type FeedState, type Group, type Payout, type PayoutLine, type PayoutShare, type Profile, type User } from './types';
 
@@ -525,6 +526,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     try {
       const data = await remote.loadLiveData(userId);
       localDispatch({ type: 'loaded', userId, data });
+      saveCachedFeed(userId, data);
     } catch (error) {
       const offline = /fetch|network/i.test((error as Error)?.message ?? '');
       localDispatch({ type: 'setFeedState', feedState: offline ? 'offline' : 'error', error: offline ? undefined : remote.errorDetail(error) });
@@ -535,6 +537,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     (action: Action) => {
       const before = stateRef.current;
       localDispatch(action);
+      if (action.type === 'signOut' || action.type === 'deleteAccount') clearStartCache();
       if (before.mode !== 'live' || !before.currentUserId) return;
       queue.current = queue.current.then(async () => {
         try {
