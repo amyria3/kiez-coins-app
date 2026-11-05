@@ -142,11 +142,13 @@ async function postMastodon(account: Account, post: Post): Promise<string> {
   // Mastodon zählt jeden Link als 23 Zeichen
   const head = clip([post.title, post.body].filter(Boolean).join('\n\n'), MASTODON_TEXT_MAX - 25);
   const body = JSON.stringify({ status: head + tail, media_ids: mediaIds, visibility: 'public', language: 'de' });
+  // Ein Schlüssel pro Aufruf: schützt die Wiederholungen unten vor Doppelposts, erlaubt aber neues Posten nach dem Löschen
+  const idempotencyKey = `${post.id}-${crypto.randomUUID()}`;
   // Ein frisch hochgeladenes Foto ist manchmal noch in Arbeit (422). Dann kurz warten und noch einmal.
   for (let attempt = 0; attempt < 5; attempt++) {
     const res = await fetch(`${account.instance}/api/v1/statuses`, {
       method: 'POST',
-      headers: { ...auth, 'Content-Type': 'application/json', 'Idempotency-Key': post.id },
+      headers: { ...auth, 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey },
       body,
     });
     if (res.ok) return ((await res.json()) as { url: string }).url;
@@ -308,7 +310,8 @@ Deno.serve(async (req) => {
   }
 
   if (input.action === 'delete') {
-    // Weiterposts eines Posts dort wieder löschen. Nur die eigenen Zeilen; danach verschwindet die Zeile.
+    // Weiterposts eines Posts dort wieder löschen. Nur die eigenen Zeilen. Die Zeile bleibt mit Fehler 'deleted'
+    // stehen: Beim Wiederherstellen postet die App dorthin neu (post versucht Zeilen mit Fehler erneut).
     const challengeId = str('challengeId');
     if (!challengeId) return reply({ error: 'input' }, 400);
     const { data: posts } = await admin
@@ -331,7 +334,11 @@ Deno.serve(async (req) => {
       try {
         if (platform === 'bluesky') await deleteBluesky(account, link);
         else await deleteMastodon(account, link);
-        await admin.from('crosspost_posts').delete().eq('challenge_id', challengeId).eq('platform', platform);
+        await admin
+          .from('crosspost_posts')
+          .update({ status: 'error', error: 'deleted', url: null })
+          .eq('challenge_id', challengeId)
+          .eq('platform', platform);
         results[platform] = { deleted: true };
       } catch (e) {
         const message = clip((e as Error).message || 'error', 500);
