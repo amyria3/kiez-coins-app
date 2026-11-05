@@ -364,6 +364,7 @@ type CardProps = {
 };
 
 function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy, onDelete, onComments, hasNext }: CardProps) {
+  const router = useRouter();
   const isDraft = c.status === 'draft';
   // Vorher-Nachher hat nach dem Posten nichts zu bearbeiten oder zu schließen
   const isBeforeAfter = c.type === 'before_after';
@@ -446,7 +447,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
       </Pressable>
 
       {c.text ? (
-        <Text style={styles.body} numberOfLines={3}>
+        <Text style={[styles.body, styles.bodyCard]} numberOfLines={3}>
           {c.text}
         </Text>
       ) : null}
@@ -456,7 +457,12 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
       {showTimeBar ? <TimeBar createdAt={c.createdAt} deadline={c.deadline} /> : null}
       <View style={styles.iconStats}>
         <IconStat icon="eye" value={c.views === undefined ? '–' : String(c.views)} label={c.views === 1 ? 'Ansicht' : 'Ansichten'} />
-        <IconStat icon="heart" value={isDraft ? '–' : String(c.likeCount ?? 0)} label={c.likeCount === 1 ? 'Like' : 'Likes'} />
+        <IconStat
+          icon="heart"
+          value={isDraft ? '–' : String(c.likeCount ?? 0)}
+          label={c.likeCount === 1 ? 'Like' : 'Likes'}
+          onPress={!isDraft && c.likeCount ? () => router.push({ pathname: '/challenge/[id]/likes', params: { id: c.id } }) : undefined}
+        />
         <IconStat
           icon="comment"
           value={String(c.comments.length)}
@@ -871,13 +877,15 @@ const styles = StyleSheet.create({
   },
   // Challenge-Karte: so hoch wie ihr Inhalt, feiner neutraler Rand (Grün verworfen, Daria 2026-11-05)
   cardFit: { borderWidth: stroke.thin, borderColor: color.line.raised },
+  // Etwas mehr Luft über und unter dem Text (Daria, 2026-11-05)
+  bodyCard: { marginVertical: space[8] },
   timeBar: { gap: space[6] },
   timeTrack: { height: 6, borderRadius: 3, backgroundColor: 'rgba(143, 144, 250, 0.18)', overflow: 'hidden' },
   timeFill: { height: 6, borderRadius: 3, backgroundColor: color.accent.primary },
   timeLabels: { flexDirection: 'row', justifyContent: 'space-between', gap: space[8] },
   iconStats: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: space[4] },
   iconStat: { flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 32 },
-  iconStatValue: { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] },
+  iconStatValue: { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.icon.large, fontVariant: ['tabular-nums'] },
   head: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   pressed: { opacity: 0.7 },
   thumb: { width: 72, height: 72, borderRadius: radius.xl },

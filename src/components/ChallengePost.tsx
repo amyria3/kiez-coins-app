@@ -2,6 +2,7 @@ import { memo, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Alert, Animated, Pressable, StyleSheet, View } from 'react-native';
 import { useShareChallenge } from '../data/shareChallenge';
 import { Text } from './T';
+import { LikeCount } from './LikeCount';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -300,7 +301,7 @@ function KiezPost({
       <View style={styles.actions}>
         <View style={styles.actionsLeft}>
           {/* Herz mit Anzahl; das Geschenk ist ausgeblendet (Daria, 22.10.2026) */}
-          {/* Icon und Zahl als ein Knopf, Zahl mit festem Abstand rechts daneben (Daria, 22.10.2026) */}
+          {/* Herz liked, die Zahl daneben zeigt, wer geliked hat (Daria, 2026-11-05) */}
           {wrapLike(
             <Pressable
               accessibilityRole="button"
@@ -310,9 +311,9 @@ function KiezPost({
               style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
             >
               <Icon name="heart" size={size.icon} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
-              {challenge.likeCount ? <Text style={styles.count}>{challenge.likeCount}</Text> : null}
             </Pressable>
           )}
+          <LikeCount challengeId={challenge.id} count={challenge.likeCount} style={styles.count} />
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={commentCount ? t('Kommentieren, {commentCount} Kommentare', { commentCount }) : t('Kommentieren')}
@@ -456,9 +457,9 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
             style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
           >
             <Icon name="heart" size={size.icon} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
-            {challenge.likeCount ? <Text style={fashion.count}>{challenge.likeCount}</Text> : null}
           </Pressable>
         )}
+        <LikeCount challengeId={challenge.id} count={challenge.likeCount} style={fashion.count} />
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={commentCount ? t('Kommentieren, {commentCount} Kommentare', { commentCount }) : t('Kommentieren')}
