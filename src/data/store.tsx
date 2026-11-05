@@ -377,6 +377,7 @@ async function persist(action: Action, before: State): Promise<string | null> {
       return null;
     case 'delete':
       await remote.deleteChallenge(action.id);
+      remote.deleteCrossposts(action.id).catch(() => undefined);
       return action.id;
     case 'restore':
       await remote.restoreChallenge(action.id, action.deadline);
