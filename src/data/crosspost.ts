@@ -8,7 +8,7 @@ import { useStore } from './store';
 
 /**
  * Weiterposten (Daria, 05.11.2026): Öffentliche Posts lassen sich zusätzlich auf anderen Plattformen veröffentlichen.
- * BlueSky und Mastodon laufen über die Edge Function `weiterposten` (kostenlos). Meta und X kommen später.
+ * BlueSky, Mastodon und Instagram laufen über die Edge Function `weiterposten` (kostenlos). Facebook und X kommen später.
  * Noch nicht freigegeben: Solange `CROSSPOST_ACTIVE` false ist, sehen nur Moderatorinnen die echten Schalter.
  * Alle anderen sehen „Kommt bald“ und den Knopf, der Interesse an Meta und X zählt. Bezahlt wird erst ab etwa
  * 500 Interessierten. Plan und Preismodell: `Übergabe/TODO.md`, Abschnitt „Teilen“.
@@ -58,8 +58,8 @@ export function useCrosspostInterest(): [boolean, () => void] {
 }
 
 /** Plattformen, die die Edge Function schon kann */
-export type LivePlatform = 'bluesky' | 'mastodon';
-export const LIVE_PLATFORMS: LivePlatform[] = ['bluesky', 'mastodon'];
+export type LivePlatform = 'bluesky' | 'mastodon' | 'instagram';
+export const LIVE_PLATFORMS: LivePlatform[] = ['bluesky', 'mastodon', 'instagram'];
 export const isLivePlatform = (p: CrosspostPlatform): p is LivePlatform => (LIVE_PLATFORMS as string[]).includes(p);
 
 /** Echte Schalter sichtbar? Für alle erst mit `CROSSPOST_ACTIVE`, für Moderatorinnen schon zum Testen. */
@@ -114,10 +114,12 @@ export async function connectCrosspost(
     throw new Error(
       platform === 'bluesky'
         ? 'Anmeldung bei BlueSky hat nicht geklappt. Prüfe Handle und App-Passwort.'
-        : 'Anmeldung bei Mastodon hat nicht geklappt. Prüfe Instanz und Zugangs-Token.',
+        : platform === 'mastodon'
+          ? 'Anmeldung bei Mastodon hat nicht geklappt. Prüfe Instanz und Zugangs-Token.'
+          : 'Anmeldung bei Instagram hat nicht geklappt. Prüfe den Zugangs-Token.',
     );
   }
-  if (reason === 'input') throw new Error('Bitte fülle beide Felder aus.');
+  if (reason === 'input') throw new Error(platform === 'instagram' ? 'Bitte trage den Zugangs-Token ein.' : 'Bitte fülle beide Felder aus.');
   throw new Error('Da ist etwas schiefgegangen. Versuche es bitte noch mal.');
 }
 
