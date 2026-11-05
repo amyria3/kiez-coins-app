@@ -31,8 +31,8 @@ export function leaderboard(group: Group, challenges: Challenge[]): RankEntry[] 
 export const myEdensteine = (group: Group, challenges: Challenge[], userId: string) =>
   leaderboard(group, challenges).find((e) => e.userId === userId)?.edensteine ?? 0;
 
-/** Adresse der Web-App. Universal Links mit eigener Domain fehlen noch, deshalb öffnet der Link die Web-App. */
-export const WEB_APP_URL = 'https://kiezcoins.vercel.app/app';
+/** Adresse der Web-App. Universal Links fehlen noch, deshalb öffnet der Link die Web-App. */
+export const WEB_APP_URL = 'https://kiezcoins.de/app';
 
 /** Link, der „Gruppe beitreten“ mit vorausgefülltem Code öffnet */
 export const inviteLink = (code: string) => `${WEB_APP_URL}/gruppen/beitreten?code=${encodeURIComponent(code)}`;
