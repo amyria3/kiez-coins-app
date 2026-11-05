@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Animated, FlatList, Pressable, ScrollView, StyleSheet, View, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { Alert, Animated, FlatList, Linking, Pressable, ScrollView, StyleSheet, View, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { Text } from '../components/T';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
@@ -26,8 +26,8 @@ import { t } from '../data/texts';
 import { useGoBack } from '../lib/goBack';
 import { isParticipant } from '../data/weChallenge';
 
-// Zahnrad-Muster als Hintergrund, Kachel aus Darias Zahnrad-Zeichnung (2026-11-05). Quelle: assets/wallpaper/zahnraeder.svg
-const wallpaper = require('../../assets/wallpaper/zahnraeder.png');
+// Hintergrundfoto (Daria, 2026-11-05): Peter Fazekas, Pexels, https://www.pexels.com/de-de/@peterfazekas/
+const wallpaper = require('../../assets/wallpaper/berge-peter-fazekas.jpg');
 
 /** Reihenfolge: zuerst, was noch änderbar ist, dann was läuft, dann Entwürfe, dann Erledigtes */
 const ORDER: Record<string, number> = {
@@ -315,7 +315,7 @@ export default function ManageChallenges() {
         variant="back"
         onLeadingPress={() => (goBack())}
       />
-      {/* Unter der Navigationsleiste: Zahnrad-Muster hinter Reitern, Karten und Knopf (Daria, 2026-11-05) */}
+      {/* Unter der Navigationsleiste: Foto hinter Reitern, Karten und Knopf (Daria, 2026-11-05) */}
       <View style={styles.flex}>
       {isFashionable ? null : <Wallpaper />}
       <View style={styles.switch}>
@@ -345,6 +345,11 @@ export default function ManageChallenges() {
           </Animated.ScrollView>
         ) : null}
       </View>
+      {isFashionable ? null : (
+        <Text style={styles.photoCredit} accessibilityRole="link" onPress={() => Linking.openURL('https://www.pexels.com/de-de/@peterfazekas/')}>
+          Foto: Peter Fazekas, Pexels
+        </Text>
+      )}
       {archive ? (
         <View style={{ height: insets.bottom }} />
       ) : (
@@ -506,26 +511,17 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
   );
 }
 
-/** Kachel 198 × 136 pt, so oft nebeneinander gelegt, wie der Bildschirm braucht */
-const TILE = { width: 198, height: 136 };
+/** Foto als Hintergrund, füllt die Fläche unter der Navigationsleiste. Darunter der Bildnachweis. */
 function Wallpaper() {
-  const { width, height } = useAppDimensions();
-  const cols = Math.ceil(width / TILE.width);
-  const rows = Math.ceil(height / TILE.height);
   return (
     <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.wallpaper]}>
-      {Array.from({ length: rows * cols }, (_, i) => (
-        <Image
-          key={i}
-          source={wallpaper}
-          style={[TILE, { position: 'absolute', left: (i % cols) * TILE.width, top: Math.floor(i / cols) * TILE.height }]}
-        />
-      ))}
+      <Image source={wallpaper} style={StyleSheet.absoluteFill} contentFit="cover" />
+      <View style={[StyleSheet.absoluteFill, styles.wallpaperDim]} />
     </View>
   );
 }
 
-/** Milchglas hinter den Karten, damit das Zahnrad-Muster durchscheint (Daria, 2026-11-05) */
+/** Milchglas hinter den Karten, damit das Foto durchscheint (Daria, 2026-11-05) */
 function CardBlur() {
   if (isFashionable) return null;
   return <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} />;
@@ -881,6 +877,9 @@ function Metric({ value, hint, onPress }: { value: string; hint?: string; onPres
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   wallpaper: { overflow: 'hidden' },
+  // Leicht abgedunkelt, damit Reiter und Karten lesbar bleiben
+  wallpaperDim: { backgroundColor: 'rgba(25, 23, 22, 0.25)' },
+  photoCredit: { ...text.caption, fontSize: 11, color: color.text.onPhoto, opacity: 0.85, textShadowColor: 'rgba(0, 0, 0, 0.6)', textShadowRadius: 3, textAlign: 'right', paddingHorizontal: space[16], paddingBottom: space[4] },
   flex: { flex: 1 },
   empty: { padding: space[16] },
   // Fashionable Look: Unterstrich-Reiter über die ganze Breite
@@ -893,7 +892,7 @@ const styles = StyleSheet.create({
     padding: space[16],
     borderRadius: radius.card,
     overflow: 'hidden',
-    // Halbtransparent über dem Zahnrad-Muster, darunter liegt CardBlur
+    // Halbtransparent über dem Foto, darunter liegt CardBlur
     backgroundColor: isFashionable ? color.bg.surface : 'rgba(36, 33, 31, 0.55)',
   },
   // Challenge-Karte: so hoch wie ihr Inhalt, mit feinem Rand im Grün aus den Kater-Herzen (Daria, 2026-11-05)
