@@ -100,7 +100,8 @@ function useOpenTimer(onDone: () => void) {
 
 function PublicBody({ onDone, shared, isPrivate = false, turn }: { onDone: () => void; shared: ComposeContent; isPrivate?: boolean; turn: boolean }) {
   const options: readonly { key: (typeof PUBLIC_TYPES)[number]['key']; label: string }[] = isPrivate ? PRIVATE_TYPES : PUBLIC_TYPES;
-  const [type, setType] = useState<(typeof PUBLIC_TYPES)[number]['key']>(isPrivate ? 'before_after' : 'individual');
+  // Vorausgewählt ist überall der Post (Bild), privat wie im Kiez (Daria, 2026-11-05)
+  const [type, setType] = useState<(typeof PUBLIC_TYPES)[number]['key']>('photo');
   const post = usePublicComposeForm(onDone, type === 'photo' ? 'photo' : 'individual', shared, isPrivate);
   const ba = useBeforeAfterStartForm(undefined, useOpenTimer(onDone), shared, isPrivate);
   const isBa = type === 'before_after';
@@ -116,7 +117,7 @@ function PublicBody({ onDone, shared, isPrivate = false, turn }: { onDone: () =>
 function GroupBody({ groupId, onDone, shared, turn }: { groupId: string; onDone: () => void; shared: ComposeContent; turn: boolean }) {
   const router = useRouter();
   const options = GROUP_TYPES;
-  const [type, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('task');
+  const [type, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('photo');
   const openPost = (id: string) => {
     onDone();
     router.push(`/challenge/${id}`);
