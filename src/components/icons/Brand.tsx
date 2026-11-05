@@ -3,8 +3,9 @@ import { AccessibilityInfo, Animated, Easing, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
 import { color, isFashionable } from '../../theme/tokens';
-import { catSvg, coinsSvg, wordmarkSvg, type CatMood } from './brandSvgs';
+import { coinsSvg, wordmarkSvg, type CatMood } from './brandSvgs';
 import { brandArt } from './brandArt';
+import { iconSvgs } from './svgs';
 import { crownSvg } from './crownSvg';
 import { diamondSvgs, type DiamondVariant } from './diamondSvgs';
 import { ICON_SCALE } from './Icon';
@@ -21,14 +22,18 @@ type CatProps = {
   tint?: string;
 };
 
-/** Kater mit Sonnenbrille (Daria, 22.10.2026): normal, high (aufgeregt) und money (Dollar in den Gläsern). */
-const CAT_ART: Record<CatMood, string> = { default: 'kater-normal', high: 'kater-high', money: 'kater-money' };
+/**
+ * Im Einsatz sind nur noch das Icon „cat“ (lila, dunkle Gläser) und `kater-high` (Daria, 2026-11-05).
+ * Normal und money zeigen deshalb das Icon „cat“; `kater-normal` (orange Gläser) und `kater-money` sind raus.
+ */
+const CAT_ART: Partial<Record<CatMood, string>> = { high: 'kater-high' };
 export const Cat = memo(function Cat({ mood = 'default', height = 39, tint }: CatProps) {
   // Fashionable Look: überall der Kater aus dem monochromen Logo (Daria, 24.10.2026)
   if (isFashionable) return <MonoCat height={height} tint={tint} />;
-  const art = brandArt[CAT_ART[mood]];
+  const art = CAT_ART[mood] ? brandArt[CAT_ART[mood]!] : undefined;
   if (!art) {
-    return <SvgXml xml={catSvg(mood === 'money' ? 'high' : mood, color.brand.signature, color.text.primary)} width={(35 / 41) * height} height={height} />;
+    const icon = iconSvgs.cat;
+    return <SvgXml xml={icon.svg(color.brand.signature)} width={(icon.width / icon.height) * height} height={height} />;
   }
   return <SvgXml xml={signature(art.svg)} width={(art.width / art.height) * height} height={height} />;
 });
