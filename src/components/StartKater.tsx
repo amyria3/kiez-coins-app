@@ -107,7 +107,8 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
     <Animated.View style={[StyleSheet.absoluteFill, styles.screen, { opacity: sichtbar }]}>
       <Pressable
         onPress={() => raederWeg && weg()}
-        style={styles.flaeche}
+        // Kater mittig im Platz über den Zahnrädern, mit Luft dazwischen (Daria, 2026-11-05)
+        style={[styles.flaeche, { paddingBottom: insets.bottom + space[32] + raederSize + space[24] }]}
         accessibilityRole="button"
         accessibilityLabel="Weiter"
       >
