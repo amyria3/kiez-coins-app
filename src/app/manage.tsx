@@ -369,6 +369,8 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
   const isBeforeAfter = c.type === 'before_after';
   const isOpen = c.status === 'open' && !c.assigneeId && !isBeforeAfter;
   const canDelete = deletable(c);
+  // Zeitleiste nur bei Aufgaben mit Frist: Ein Foto läuft nicht ab (Daria, 2026-11-05)
+  const showTimeBar = isOpen && !isDraft && c.type !== 'photo';
 
   const state = isDraft
     ? {
@@ -451,7 +453,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
 
       {/* Kombi aus Vorschlag B und C (Daria, 2026-11-05): lila Zeitleiste für die Laufzeit,
           darunter die Zahlen mit den Icons aus dem Feed. Nur Kommentare ist tippbar. */}
-      {isOpen && !isDraft ? <TimeBar createdAt={c.createdAt} deadline={c.deadline} /> : null}
+      {showTimeBar ? <TimeBar createdAt={c.createdAt} deadline={c.deadline} /> : null}
       <View style={styles.iconStats}>
         <IconStat icon="eye" value={c.views === undefined ? '–' : String(c.views)} label={c.views === 1 ? 'Ansicht' : 'Ansichten'} />
         <IconStat icon="heart" value={isDraft ? '–' : String(c.likeCount ?? 0)} label={c.likeCount === 1 ? 'Like' : 'Likes'} />
@@ -462,7 +464,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
           onPress={isDraft ? undefined : onComments}
         />
         {/* Online-Zeit steht bei offenen Posts schon in der Zeitleiste */}
-        {isOpen || isDraft ? null : <IconStat icon="clock" value={formatDurationSince(c.createdAt)} label="online" />}
+        {showTimeBar || isDraft ? null : <IconStat icon="clock" value={formatDurationSince(c.createdAt)} label="online" />}
       </View>
 
       <View style={styles.actions}>

@@ -576,20 +576,20 @@ const styles = StyleSheet.create({
   },
   // Ohne Foto: im Fluss rechts neben dem Titel statt absolut oben rechts
   plain: { paddingLeft: 0, paddingRight: 0, position: 'relative', top: 0, right: 0 },
+  // Tags mit voller Fläche wie das lila, Pille 8/4/6 (Daria, 2026-11-05)
   waveTag: {
     position: 'absolute',
     top: space[12],
     left: space[12],
-    paddingVertical: space[4],
-    paddingHorizontal: space[12],
+    paddingTop: space[4],
+    paddingBottom: space[6],
+    paddingHorizontal: space[8],
     borderRadius: radius.full,
-    backgroundColor: color.bg.glass,
-    borderWidth: stroke.ultraThin,
-    borderColor: color.accent.affection,
+    backgroundColor: color.accent.affection,
   },
-  waveText: { ...text.caption, color: color.accent.affection },
-  closedTag: { borderColor: color.line.hairline },
-  closedText: { ...text.caption, color: color.text.primary },
+  waveText: { ...text.caption, color: color.bg.screen },
+  closedTag: { backgroundColor: color.text.secondary },
+  closedText: { ...text.caption, color: color.bg.screen },
   // Verwalten bleibt immer ganz sichtbar rechts
   actionsRight: { flexDirection: 'row', alignItems: 'center', gap: space[8], flexShrink: 0, marginLeft: space[8] },
   commentAction: { flexDirection: 'row', alignItems: 'center', paddingRight: space[8] },
