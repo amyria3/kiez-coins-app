@@ -21,6 +21,7 @@ Stand 05.11.2026: Migrationen `20261103000200_teilen.sql` und `20261105000100_we
 
 4. **Löschen**: Wird der Post in KiezCoins gelöscht, ruft der Store (`deleteCrossposts` in `src/data/remote.ts`) die Edge Function mit `action: 'delete'` auf. Sie löscht den Weiterpost auf BlueSky (`deleteRecord`) und Mastodon (`DELETE /api/v1/statuses/<id>`) und markiert die Zeile in `crosspost_posts` mit Fehler `deleted`. Klappt es nicht (z. B. Konto getrennt), steht dort der Fehler, und der Weiterpost bleibt stehen.
 5. **Wiederherstellen**: Der Store (`restoreCrossposts`) postet neu auf die Plattformen mit Fehler `deleted` (Daria, 05.11.2026).
+6. **Rückfrage mit Schaltern** (Daria, 05.11.2026): Ist der Post weitergepostet, fragt `CrosspostDialog` (`src/components/CrosspostDialog.tsx`) beim Löschen und Wiederherstellen pro Plattform, alle vorausgewählt. Der Text nennt die gewählten Plattformen. Die Auswahl geht als `crosspost` mit der Store-Aktion `delete` bzw. `restore` an die Edge Function (`platforms` ab Version 4).
 
 BlueSky nimmt Fotos bis 1 MB. Größere Fotos gehen als Linkkarte ohne Bild raus.
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Alert, StyleSheet } from 'react-native';
 import { Text } from '../../../components/T';
+import { restoreWithChoice } from '../../../components/CrosspostDialog';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
@@ -142,9 +143,12 @@ export default function EditChallenge() {
       return;
     }
     const edit = editOf();
-    dispatch({ type: 'restore', id: challenge.id, deadline: edit.deadline });
-    if (changed || expired) dispatch({ type: 'edit', id: challenge.id, edit });
-    goBack();
+    restoreWithChoice(challenge.id).then((crosspost) => {
+      if (!crosspost) return;
+      dispatch({ type: 'restore', id: challenge.id, deadline: edit.deadline, crosspost });
+      if (changed || expired) dispatch({ type: 'edit', id: challenge.id, edit });
+      goBack();
+    });
   };
 
   // Gelöschte Challenge bleibt unveröffentlicht: in einem Schritt ändern (edit_deleted_challenge).

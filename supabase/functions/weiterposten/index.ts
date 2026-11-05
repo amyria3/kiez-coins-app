@@ -4,7 +4,7 @@
 //   { action: 'connect', platform: 'bluesky', handle, password }      App-Passwort aus BlueSky › Einstellungen
 //   { action: 'connect', platform: 'mastodon', instance, token }      Zugangs-Token aus Mastodon › Entwicklung
 //   { action: 'post', challengeId, platforms: ['bluesky', 'mastodon'] }
-//   { action: 'delete', challengeId }                                Weiterposts dort wieder löschen
+//   { action: 'delete', challengeId, platforms? }                    Weiterposts dort wieder löschen (ohne platforms: alle)
 // Antworten: { handle } bei connect, { results: { bluesky: { url } | { error } } } bei post, sonst { error }.
 //
 // Gepostet werden nur eigene Posts, die eine öffentliche Seite bekommen dürfen (share_challenge, Migration
@@ -324,8 +324,9 @@ Deno.serve(async (req) => {
       .from('crosspost_accounts')
       .select('platform, handle, instance, secret')
       .eq('user_id', user.id);
+    const only = Array.isArray(input.platforms) ? (input.platforms as unknown[]) : null;
     const results: Record<string, { deleted?: boolean; error?: string }> = {};
-    for (const { platform, url: link } of posts ?? []) {
+    for (const { platform, url: link } of (posts ?? []).filter((p) => !only || only.includes(p.platform))) {
       const account = (accounts ?? []).find((a) => a.platform === platform) as Account | undefined;
       if (!account || !link) {
         results[platform] = { error: 'not_connected' };
