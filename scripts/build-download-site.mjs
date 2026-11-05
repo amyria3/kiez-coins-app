@@ -302,7 +302,7 @@ ${filterDefs}
 <div class="fx-spur" aria-hidden="true"></div>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="${L === 'de' ? './' : pfad(L)}" aria-label="${t('KiezCoins, Startseite', 'KiezCoins, home')}">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+  <a class="brand" href="${L === 'de' ? './' : pfad(L)}" aria-label="${t('KiezCoins, Startseite', 'KiezCoins, home')}">${sized(logoSeite, 34)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
   <nav class="top-links"><a class="top-link" href="#download"><span class="lang">${t('Testversion laden', 'Get the beta')}</span><span class="kurz">${t('Testen', 'Try it')}</span></a>${sprachwahl(L)}</nav>
 </header>
 
@@ -787,7 +787,7 @@ const teilenVorlage = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/?von=teilen" aria-label="KiezCoins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+  <a class="brand" href="/?von=teilen" aria-label="KiezCoins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
 </header>
 <main>
 <section class="geteilt">
@@ -828,7 +828,7 @@ const einladung = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
 </header>
 <main>
 <section class="download einladung" id="download" aria-labelledby="einladung-titel">
@@ -923,7 +923,7 @@ const ladenSeite = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
 </header>
 <main>
 <section class="download einladung laden ohne-js" id="laden" aria-labelledby="laden-titel">
@@ -1154,7 +1154,7 @@ const spendenSeite = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
   <a class="top-link" href="/#download">Testversion laden</a>
 </header>
 <main>
@@ -1216,7 +1216,7 @@ const katerSeite = `<!doctype html>
 <body class="kater-seite">
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The actually pro-social App</span></a>
+  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 34)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
   <a class="top-link" href="/#download">Testversion laden</a>
 </header>
 <main class="kater-buehne-seite">
