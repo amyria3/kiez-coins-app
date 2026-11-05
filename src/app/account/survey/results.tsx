@@ -5,6 +5,7 @@ import { SubScreen } from '../../../components/Screen';
 import { Text } from '../../../components/T';
 import { errorText, loadButtonCounts, loadSurveyResults, loadTourFeedbackResults, type TourFeedbackResults } from '../../../data/remote';
 import { tourFeedbackOptions, tourSteps } from '../../../data/tour';
+import { CROSSPOST_INTEREST_BUTTON } from '../../../data/crosspost';
 import { surveyQuestions, type SurveyResults } from '../../../data/survey';
 import { formatRelative } from '../../../data/format';
 import { t } from '../../../data/texts';
@@ -23,6 +24,8 @@ export default function SurveyResultsScreen() {
   const [tour, setTour] = useState<TourFeedbackResults | null>(null);
   // Welcher Kamera-Knopf häufiger gedrückt wird (Migration 20261031000100). Ohne Migration bleibt die Karte weg.
   const [buttons, setButtons] = useState<Record<string, number> | null>(null);
+  // Interesse am Weiterposten auf Meta und X, einmal pro Gerät gezählt (Daria, 05.11.2026)
+  const [crosspost, setCrosspost] = useState<number | null>(null);
 
   useEffect(() => {
     loadSurveyResults()
@@ -32,6 +35,7 @@ export default function SurveyResultsScreen() {
       .then(setTour)
       .catch(() => setTour(null));
     loadButtonCounts(CAMERA_BUTTONS.map((b) => b.key)).then(setButtons);
+    loadButtonCounts([CROSSPOST_INTEREST_BUTTON]).then((c) => setCrosspost(c ? c[CROSSPOST_INTEREST_BUTTON] ?? 0 : null));
   }, []);
 
   const total = data?.total ?? 0;
@@ -123,6 +127,13 @@ export default function SurveyResultsScreen() {
               </View>
             );
           })}
+        </View>
+      ) : null}
+      {crosspost !== null ? (
+        <View style={styles.card}>
+          <Text style={styles.title}>Weiterposten auf Meta und X</Text>
+          <Text style={styles.body}>{t('{n} Geräte würden die Funktion nutzen', { n: crosspost })}</Text>
+          <Text style={styles.caption}>Bezahlen lohnt sich ab etwa 500.</Text>
         </View>
       ) : null}
       <View style={styles.card}>
