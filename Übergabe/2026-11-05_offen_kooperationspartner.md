@@ -10,6 +10,8 @@
 | --- | --- | --- | --- |
 | Gut erzogene Asis | [Facebook-Reels](https://www.facebook.com/guterzogeneasis/reels/) | | 2026-11-05 |
 | Auenwald Tee | | Über Simons und Peters Figma | 2026-11-05 |
+| Dezentrale | | Vermutlich der Hackspace dezentrale in Leipzig, noch prüfen | 2026-11-05 |
+| Chaos Computer Club | [ccc.de](https://www.ccc.de) | Ortsgruppe noch offen | 2026-11-05 |
 
 ## Nächster Schritt
 
@@ -19,3 +21,5 @@
 ## Offene Fragen an Daria
 
 - Auenwald Tee: Gibt es einen Link oder Kontakt? Ist mit „Simons und Peters Figma“ ein Entwurf von Simon und Peter gemeint, in dem Auenwald Tee vorkommt?
+- Dezentrale: Ist der Hackspace dezentrale in Leipzig gemeint?
+- Chaos Computer Club: Der Verein insgesamt oder eine bestimmte Ortsgruppe?
