@@ -58,7 +58,7 @@ export default function ChangeEmail() {
   };
 
   return (
-    <SubScreen
+    <SubScreen glass
       title="E-Mail ändern"
       navigation="back"
       onLeadingPress={goBack}

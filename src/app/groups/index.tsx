@@ -23,7 +23,7 @@ export default function Groups() {
     explain('Gruppen voll', t('Du bist bereits in {MAX_GROUPS} Gruppen. Verlasse eine Gruppe, um einer neuen beizutreten oder eine neue zu gründen.', { MAX_GROUPS }));
 
   return (
-    <SubScreen
+    <SubScreen glass="cards"
       title="Deine Gruppen"
       navigation="back"
       onLeadingPress={() => (goBack())}

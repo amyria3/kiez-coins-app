@@ -28,7 +28,7 @@ export default function Pause() {
   };
 
   return (
-    <SubScreen
+    <SubScreen glass
       title="Konto pausieren"
       navigation="back"
       onLeadingPress={goBack}

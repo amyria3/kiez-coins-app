@@ -11,7 +11,7 @@ export default function Geschlecht() {
   const goBack = useGoBack();
   const { profile, dispatch } = useStore();
   return (
-    <SubScreen title="Grammatisches Geschlecht" navigation="back" onLeadingPress={goBack}>
+    <SubScreen glass title="Grammatisches Geschlecht" navigation="back" onLeadingPress={goBack}>
       <GenderChoice value={profile.gender ?? 'person'} onChange={(gender) => dispatch({ type: 'updateProfile', patch: { gender } })} />
     </SubScreen>
   );

@@ -46,7 +46,7 @@ export default function DeleteAccount() {
   };
 
   return (
-    <SubScreen
+    <SubScreen glass
       title="Konto löschen"
       navigation="back"
       onLeadingPress={goBack}

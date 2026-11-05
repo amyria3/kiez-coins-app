@@ -54,7 +54,7 @@ export default function BlockedUsers() {
     ]);
 
   return (
-    <SubScreen title="Blockierte Personen" navigation="back" onLeadingPress={goBack}>
+    <SubScreen glass title="Blockierte Personen" navigation="back" onLeadingPress={goBack}>
       <Notice message="Blockierte Personen sehen nicht, dass Du sie blockiert hast. Sie können Deine Challenges weder annehmen noch kommentieren." />
       {blocked && blocked.length === 0 ? <Text style={styles.secondary}>Du hast niemanden blockiert.</Text> : null}
       {blocked?.map((user) => (

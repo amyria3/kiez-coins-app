@@ -6,11 +6,12 @@ import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { color, motion, radius, size, space, text, scheme } from '../theme/tokens';
+import { color, isFashionable, motion, radius, size, space, text, scheme } from '../theme/tokens';
 import { useAppDimensions } from '../theme/layout';
 import { ActionBar } from './ActionBar';
 import { Cat, type CatMood } from './icons/Brand';
 import { GlassIconButton } from './Glass';
+import { GLASS_FILL, GlassFill, GlassProvider, PhotoCredit, Wallpaper, glassStyles } from './GlassScene';
 import { NavigationBar } from './NavigationBar';
 import { NudgeScrollProvider, useNudgeScroll } from './Nudge';
 import { t } from '../data/texts';
@@ -27,17 +28,73 @@ type SubScreenProps = {
   children: ReactNode;
   /** Eigener Kopf statt NavigationBar, z. B. ein eigener Kopf */
   header?: ReactNode;
+  /**
+   * Leichter Stil der Verwaltungsseiten: Foto im Hintergrund, Leisten aus Milchglas (Daria, 2026-11-05).
+   * `cards`: Jede Karte und Zeile ist selbst Glas, für Seiten nur aus Karten.
+   * `true`: Der ganze Inhalt liegt auf einer Glasfläche, damit Überschriften und Felder lesbar bleiben.
+   */
+  glass?: boolean | 'cards';
 };
 
 /**
  * Aufbau aller Unterseiten aus Figma: NavigationBar (fest), Inhalt in `scroll-y-auto`
  * (Abstand 16, unten 24) und ActionBar (fest, bleibt über der Tastatur).
  */
-export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions, children, header }: SubScreenProps) {
+export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions, children, header, glass: glassProp }: SubScreenProps) {
   const insets = useSafeAreaInsets();
   // Deaktivierte Buttons können zu dem Feld scrollen, das noch fehlt (Nudge.tsx)
   const scrollRef = useRef<ScrollView>(null);
   const nudgeScroll = useNudgeScroll(scrollRef);
+  const glass = !!glassProp && !isFashionable;
+  const cards = glassProp === 'cards';
+  if (glass) {
+    return (
+      <GlassProvider enabled={cards}>
+        <View style={styles.screen}>
+          <Wallpaper />
+          <View style={[glassStyles.bar, { paddingTop: insets.top }]}>
+            <GlassFill />
+            {header ?? <NavigationBar title={title} subtitle={subtitle} variant={navigation} onLeadingPress={onLeadingPress} transparent />}
+          </View>
+          <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+            <NudgeScrollProvider value={nudgeScroll}>
+              <ScrollView
+                ref={scrollRef}
+                style={styles.flex}
+                contentContainerStyle={styles.content}
+                keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="interactive"
+                scrollEventThrottle={32}
+                onScroll={(e) => nudgeScroll.onScroll(e.nativeEvent.contentOffset.y)}
+              >
+                {cards ? (
+                  children
+                ) : (
+                  <View style={styles.glassSheet}>
+                    <GlassFill radius={radius.card} />
+                    {children}
+                  </View>
+                )}
+              </ScrollView>
+              <View style={[glassStyles.bar, glassStyles.footer]}>
+                <GlassFill />
+                {actions ? (
+                  <ActionBar transparent>
+                    {actions}
+                    <PhotoCredit />
+                  </ActionBar>
+                ) : (
+                  <View style={[styles.creditOnly, { paddingBottom: Math.max(insets.bottom, space[8]) }]}>
+                    <PhotoCredit />
+                  </View>
+                )}
+              </View>
+            </NudgeScrollProvider>
+          </KeyboardAvoidingView>
+        </View>
+      </GlassProvider>
+    );
+  }
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       {header ?? <NavigationBar title={title} subtitle={subtitle} variant={navigation} onLeadingPress={onLeadingPress} />}
@@ -324,6 +381,8 @@ const SHEET_PADDING = space[8] + space[16];
 const SWIPE = 48;
 
 const styles = StyleSheet.create({
+  creditOnly: { paddingTop: space[8] },
+  glassSheet: { gap: space[16], padding: space[16], borderRadius: radius.card, overflow: 'hidden', backgroundColor: GLASS_FILL },
   dots: {
     position: 'absolute',
     bottom: space[48],
