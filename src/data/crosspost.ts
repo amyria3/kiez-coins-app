@@ -98,7 +98,7 @@ async function reasonOf(error: unknown, data: { error?: string } | null): Promis
 }
 
 /**
- * Konto verbinden. BlueSky: Handle und App-Passwort. Mastodon: Instanz und Zugangsschlüssel.
+ * Konto verbinden. BlueSky: Handle und App-Passwort. Mastodon: Instanz und Zugangs-Token.
  * Die Edge Function meldet sich zur Probe an und speichert den Zugang nur, wenn das klappt.
  */
 export async function connectCrosspost(
@@ -114,7 +114,7 @@ export async function connectCrosspost(
     throw new Error(
       platform === 'bluesky'
         ? 'Anmeldung bei BlueSky hat nicht geklappt. Prüfe Handle und App-Passwort.'
-        : 'Anmeldung bei Mastodon hat nicht geklappt. Prüfe Instanz und Zugangsschlüssel.',
+        : 'Anmeldung bei Mastodon hat nicht geklappt. Prüfe Instanz und Zugangs-Token.',
     );
   }
   if (reason === 'input') throw new Error('Bitte fülle beide Felder aus.');
