@@ -1157,6 +1157,16 @@ export const publishDraft = (id: string, deadline: string) =>
 /** Offene Challenge löschen (status deleted). Nach dem Annehmen lehnt die Datenbank ab. */
 export const deleteChallenge = (id: string) => rpc('delete_challenge', { p_challenge_id: id });
 
+/**
+ * Weiterposts (BlueSky, Mastodon) eines gelöschten Posts dort mitlöschen. Ruft die Edge Function `weiterposten`
+ * nur, wenn es eigene Weiterposts gibt. Fehler bleiben in `crosspost_posts` stehen.
+ */
+export async function deleteCrossposts(id: string) {
+  const { data, error } = await supabase.from('crosspost_posts').select('platform').eq('challenge_id', id).eq('status', 'ok');
+  if (error || !data?.length) return;
+  await supabase.functions.invoke('weiterposten', { body: { action: 'delete', challengeId: id } });
+}
+
 /** Gelöschte Challenge wieder veröffentlichen. `deadline` nur, wenn die alte Frist abgelaufen ist. */
 export const restoreChallenge = (id: string, deadline?: string) =>
   rpc('restore_challenge', { p_challenge_id: id, p_deadline: deadline ?? null });
