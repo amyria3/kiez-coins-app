@@ -896,7 +896,8 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   empty: { padding: space[16] },
   // Fashionable Look: Unterstrich-Reiter über die ganze Breite
-  switch: isFashionable ? {} : { paddingHorizontal: space[16], paddingBottom: space[8] },
+  // Abstand zur Kopfleiste aus Milchglas (Daria, 2026-11-05)
+  switch: isFashionable ? {} : { paddingHorizontal: space[16], paddingTop: space[12], paddingBottom: space[8] },
   page: isFashionable
     ? { paddingBottom: space[12] }
     : { paddingHorizontal: space[16], paddingTop: space[8], paddingBottom: space[12] },
