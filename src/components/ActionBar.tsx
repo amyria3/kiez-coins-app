@@ -6,11 +6,12 @@ import { color, space } from '../theme/tokens';
 import { FixedBarContext } from './Nudge';
 
 /** Figma „ActionBar“: feste Button-Leiste unten, Buttons volle Breite, Haupt-Button oben. */
-export function ActionBar({ children }: { children: ReactNode }) {
+/** `transparent`: ohne eigene Fläche, z. B. über einem Hintergrundfoto mit Milchglas dahinter */
+export function ActionBar({ children, transparent }: { children: ReactNode; transparent?: boolean }) {
   const insets = useSafeAreaInsets();
   return (
     <FixedBarContext.Provider value>
-      <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, space[16]) }]}>{children}</View>
+      <View style={[styles.bar, transparent && styles.transparent, { paddingBottom: Math.max(insets.bottom, space[16]) }]}>{children}</View>
     </FixedBarContext.Provider>
   );
 }
@@ -22,4 +23,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: space[16],
     gap: space[8],
   },
+  transparent: { backgroundColor: 'transparent' },
 });
