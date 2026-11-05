@@ -13,7 +13,7 @@ import { t, tAbout } from '../data/texts';
 
 /**
  * Badge-Prinzip im Kiez-Look (Daria, 2026-11-05): Pille, innen 8 seitlich, 4 oben, 6 unten.
- * Seit 2026-11-05 haben alle Tags die volle Fläche in ihrer Statusfarbe mit dunkler Schrift, wie das lila.
+ * Seit 2026-11-05 sind alle Tags getönt: zarte Fläche in der Statusfarbe (16 %), Schrift in der vollen Farbe.
  * `filled` ist damit nur noch Doku, welche Status gerade etwas laufen haben.
  * Im Fashionable Look bleibt die getönte Fläche.
  */
@@ -34,8 +34,8 @@ const statusStyles: Record<ChallengeStatus, { label: string; tint: string; fille
 /** Fläche, Rand und Schriftfarbe eines Badges nach dem Badge-Prinzip */
 function badgeLook(tint: string) {
   if (isFashionable) return { box: { backgroundColor: `${tint}26` }, ink: tint };
-  // Alle Tags mit voller Fläche wie das lila (Daria, 2026-11-05)
-  return { box: { backgroundColor: tint, borderColor: tint }, ink: color.bg.screen };
+  // Getönt (Daria, 2026-11-05, Variante B): zarte Fläche in der Statusfarbe, Schrift in der vollen Farbe, kein Rand
+  return { box: { backgroundColor: `${tint}29`, borderColor: 'transparent' }, ink: tint };
 }
 
 /**
