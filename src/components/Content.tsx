@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   speechTitle: { ...text.cardTitle, fontSize: 17, lineHeight: 22, color: color.text.primary },
-  speechText: { fontFamily: font.light, fontSize: 15, lineHeight: 21, color: color.text.primary },
+  speechText: { fontFamily: font.text, fontSize: 15, lineHeight: 21, color: color.text.primary },
   // Kreis im Grund der Seite, damit er sich von der Blase abhebt
   rund: { width: RUND, height: RUND, borderRadius: RUND / 2, overflow: 'hidden', backgroundColor: RUND_SCHWARZ },
   // Unten 8 pt angeschnitten, über den Ohren gut ein Drittel Luft

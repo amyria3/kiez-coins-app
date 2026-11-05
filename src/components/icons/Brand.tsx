@@ -33,8 +33,8 @@ export const Cat = memo(function Cat({ mood = 'default', height = 39, tint }: Ca
   return <SvgXml xml={signature(art.svg)} width={(art.width / art.height) * height} height={height} />;
 });
 
-/** Lila aus Figma (#7E94FF) gegen die Signaturfarbe des Looks tauschen. Im Kiez-Look bleibt alles, wie es ist. */
-const signature = (svg: string) => (isFashionable ? svg.replace(/#7E94FF/gi, color.brand.signature) : svg);
+/** Lila aus Figma (#8F90FA) gegen die Signaturfarbe des Looks tauschen. Im Kiez-Look bleibt alles, wie es ist. */
+const signature = (svg: string) => (isFashionable ? svg.replace(/#8F90FA/gi, color.brand.signature) : svg);
 
 /** Logo: Kater und Schriftzug „KiezCoins“ (assets/brand/logo.svg) */
 /** Kater aus dem monochromen Logo, quadratisch zugeschnitten, in Textfarbe (Fashionable Look, Daria 24.10.2026) */

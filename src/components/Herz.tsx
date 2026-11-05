@@ -1,7 +1,7 @@
 import Svg, { Path } from 'react-native-svg';
 
-/** Herzen: Darias Herz, flach, kräftiges Rot mit weißem Rand, damit sie sich von den orangebraunen Gläsern und dem blauen Fell abheben */
-const HERZ_FARBE = '#FF1E56';
+/** Herzen: Darias Herz, flach, mit weißem Rand. Immer in der zweiten Akzentfarbe Grün, in jedem Look (Daria, 2026-11-05; vorher Rot #FF1E56). */
+const HERZ_FARBE = '#89F269';
 const HERZ_RAND = '#FFFFFF';
 
 /** Darias Herz, flach, für Herzen in der Brille des Katers (KaterStage, KaterRund) */

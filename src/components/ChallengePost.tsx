@@ -532,7 +532,7 @@ const styles = StyleSheet.create({
     position: 'absolute', top: 0, right: 0, bottom: 0, left: 0,
     borderRadius: radius.full,
     overflow: 'hidden',
-    backgroundColor: 'rgba(31, 33, 35, 0.25)',
+    backgroundColor: 'rgba(35, 35, 38, 0.25)',
   },
   // Ohne Foto: im Fluss rechts neben dem Titel statt absolut oben rechts
   plain: { paddingLeft: 0, paddingRight: 0, position: 'relative', top: 0, right: 0 },
@@ -573,7 +573,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   infoOnPhoto: {
-    backgroundColor: 'rgba(31, 33, 35, 0.3)',
+    backgroundColor: 'rgba(35, 35, 38, 0.3)',
     borderWidth: stroke.ultraThin,
     borderColor: color.line.hairline,
   },
