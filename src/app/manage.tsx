@@ -220,7 +220,7 @@ export default function ManageChallenges() {
   // Die Höhen messen wir, damit das Einrasten beim Wischen trotzdem genau am Kartenanfang landet.
   const keyOf = (p: Page) => (p.kind === 'challenge' ? p.challenge.id : p.kind);
   const renderList = (pages: Page[], tab: 'active' | 'archive') => {
-    const heightOf = (p: Page) => (p.kind === 'challenge' ? (heights[keyOf(p)] ?? itemHeight) : itemHeight);
+    const heightOf = (p: Page) => (p.kind === 'deleted' ? itemHeight : (heights[keyOf(p)] ?? itemHeight));
     const offsets = pages.reduce<number[]>((all, p, i) => [...all, i === 0 ? 0 : all[i - 1] + heightOf(pages[i - 1])], []);
     const lastHeight = pages.length ? heightOf(pages[pages.length - 1]) : itemHeight;
     const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -258,7 +258,7 @@ export default function ManageChallenges() {
               const hasNext = i < pages.length - 1;
               if (page.kind === 'groupDone') {
                 return (
-                  <View style={[styles.page, { height: itemHeight }]}>
+                  <View style={[styles.page, { maxHeight: itemHeight }]} onLayout={measure('groupDone')}>
                     <GroupDoneCard
                       challenges={page.challenges}
                       userId={currentUserId}
@@ -308,16 +308,20 @@ export default function ManageChallenges() {
   const current = Math.min(index[archive ? 'archive' : 'active'], Math.max(pages.length - 1, 0));
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <NavigationBar
-        title="Meine Posts"
-        subtitle={pages.length > 1 ? t('{current} von {pages}', { current: current + 1, pages: pages.length }) : undefined}
-        variant="back"
-        onLeadingPress={() => (goBack())}
-      />
-      {/* Unter der Navigationsleiste: Foto hinter Reitern, Karten und Knopf (Daria, 2026-11-05) */}
-      <View style={styles.flex}>
+    <View style={styles.screen}>
+      {/* Foto über den ganzen Bildschirm, Kopf- und Fußleiste aus Milchglas darüber (Daria, 2026-11-05) */}
       {isFashionable ? null : <Wallpaper />}
+      <View style={[styles.glassBar, { paddingTop: insets.top }]}>
+        <CardBlur />
+        <NavigationBar
+          title="Meine Posts"
+          subtitle={pages.length > 1 ? t('{current} von {pages}', { current: current + 1, pages: pages.length }) : undefined}
+          variant="back"
+          onLeadingPress={() => (goBack())}
+          transparent={!isFashionable}
+        />
+      </View>
+      <View style={styles.flex}>
       <View style={styles.switch}>
         <Segments
           tabs={[
@@ -351,13 +355,16 @@ export default function ManageChallenges() {
           Foto: Peter Fazekas, Pexels
         </Text>
       )}
-      {archive ? (
-        <View style={{ height: insets.bottom }} />
-      ) : (
-        <ActionBar>
-          <Button label="Neue Challenge" onPress={create} />
-        </ActionBar>
-      )}
+      </View>
+      <View style={styles.glassBar}>
+        <CardBlur />
+        {archive ? (
+          <View style={{ height: insets.bottom }} />
+        ) : (
+          <ActionBar transparent={!isFashionable}>
+            <Button label="Neue Challenge" onPress={create} />
+          </ActionBar>
+        )}
       </View>
     </View>
   );
@@ -559,7 +566,7 @@ function GroupDoneCard({
   onOpen: (c: Challenge) => void;
 }) {
   return (
-    <View style={[styles.card, styles.flex]}>
+    <View style={[styles.card, styles.shrink]}>
       <CardBlur />
       <View style={styles.badges}>
         <StatusBadge status="confirmed" />
@@ -567,7 +574,7 @@ function GroupDoneCard({
           {challenges.length === 1 ? t('1 We-Challenge in der Gruppe') : t('{count} We-Challenges in der Gruppe', { count: challenges.length })}
         </Text>
       </View>
-      <ScrollView contentContainerStyle={styles.deletedList} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.noGrow} contentContainerStyle={styles.deletedList} showsVerticalScrollIndicator={false}>
         {challenges.map((c) => {
           const photo = c.image ?? c.imageAfter ?? c.report?.photo ?? c.imageBefore;
           const mine = c.authorId === userId;
@@ -878,13 +885,19 @@ function Metric({ value, hint, onPress }: { value: string; hint?: string; onPres
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   wallpaper: { overflow: 'hidden' },
+  // Erledigte We-Challenges: Karte so hoch wie die Liste, lange Listen scrollen (2026-11-05)
+  shrink: { flexShrink: 1 },
+  noGrow: { flexGrow: 0 },
+  // Kopf- und Fußleiste: Milchglas wie die Karten
+  glassBar: isFashionable ? {} : { overflow: 'hidden', backgroundColor: 'rgba(25, 23, 22, 0.15)' },
   // Leicht abgedunkelt, damit Reiter und Karten lesbar bleiben
   wallpaperDim: { backgroundColor: 'rgba(25, 23, 22, 0.1)' },
   photoCredit: { ...text.caption, fontSize: 11, color: color.text.onPhoto, opacity: 0.85, textShadowColor: 'rgba(0, 0, 0, 0.6)', textShadowRadius: 3, textAlign: 'right', paddingHorizontal: space[16], paddingBottom: space[4] },
   flex: { flex: 1 },
   empty: { padding: space[16] },
   // Fashionable Look: Unterstrich-Reiter über die ganze Breite
-  switch: isFashionable ? {} : { paddingHorizontal: space[16], paddingBottom: space[8] },
+  // Abstand zur Kopfleiste aus Milchglas (Daria, 2026-11-05)
+  switch: isFashionable ? {} : { paddingHorizontal: space[16], paddingTop: space[12], paddingBottom: space[8] },
   page: isFashionable
     ? { paddingBottom: space[12] }
     : { paddingHorizontal: space[16], paddingTop: space[8], paddingBottom: space[12] },
@@ -934,7 +947,8 @@ const styles = StyleSheet.create({
     gap: space[12],
     padding: space[12],
     borderRadius: radius.xl,
-    backgroundColor: color.bg.screen,
+    // Auf dem Milchglas nur leicht dunkler, damit die Zeilen nicht wie Löcher wirken (2026-11-05)
+    backgroundColor: isFashionable ? color.bg.screen : 'rgba(25, 23, 22, 0.35)',
   },
   deletedTitle: { ...text.body, color: color.text.primary },
   deletedBody: { gap: space[12] },
