@@ -880,7 +880,7 @@ const einladung = `<!doctype html>
 // Erkennt das Gerät: Android startet den Download der APK sofort, das iPhone zeigt die Web-App und wie man sie auf
 // den Home-Bildschirm legt. In Instagram, Facebook & Co. erst der Hinweis, die Seite in Safari zu öffnen.
 // Am Computer: QR-Code zum Scannen mit dem Telefon. Ohne JavaScript stehen alle Wege untereinander.
-const ladenUrl = 'https://kiezcoins.vercel.app/laden';
+const ladenUrl = 'https://kiezcoins.de/laden';
 const ladenQr = await QRCode.toString(ladenUrl, { type: 'svg', margin: 1, color: { dark: '#1F2123', light: '#FFFFFF' } });
 const teilenSymbol = '<svg class="teilen-symbol" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const ladenSeite = `<!doctype html>
@@ -1048,8 +1048,8 @@ const ladenSeite = `<!doctype html>
 // (scripts/site/qr/*.mp4, online unter /qr-filme/) im Vollbild-Player ab; solange ein Video läuft, sperrt sich das iPhone nicht.
 // Android: echtes Vollbild der Seite. Dazu überall Screen Wake Lock, wo vorhanden, sonst ein stilles Video im Hintergrund.
 const qrCodes = [
-  { key: 'webseite', title: 'KiezCoins auschecken (zur Webseite)', url: 'https://kiezcoins.vercel.app' },
-  { key: 'laden', title: 'KiezCoins direkt runterladen', url: 'https://kiezcoins.vercel.app/laden' },
+  { key: 'webseite', title: 'KiezCoins auschecken (zur Webseite)', url: 'https://kiezcoins.de' },
+  { key: 'laden', title: 'KiezCoins direkt runterladen', url: 'https://kiezcoins.de/laden' },
 ];
 for (const c of qrCodes) c.svg = await QRCode.toString(c.url, { type: 'svg', margin: 0, errorCorrectionLevel: 'M', color: { dark: '#1F2123', light: '#FFFFFF' } });
 const qrSeite = `<!doctype html>

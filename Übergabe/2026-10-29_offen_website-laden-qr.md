@@ -6,11 +6,11 @@ Quelle der Website: `scripts/build-download-site.mjs`, `scripts/site/`. Der Ordn
 
 ## Entscheidungen von Daria (29.10.2026)
 
-- Ein Link für alle Geräte: `kiezcoins.vercel.app/laden`.
+- Ein Link für alle Geräte: `kiezcoins.de/laden`.
     - Android: Fenster „Download startet in 30 Sek.“ mit Sekundärknopf „Download abbrechen“, danach startet die APK.
     - iPhone: zeigt die Web-App und erklärt, wie man sie auf den Home-Bildschirm legt. In App-Browsern (Instagram, TikTok …) Hinweis auf Safari.
     - Computer: QR-Code zu `/laden`.
-- Zwei QR-Codes mit klarer Überschrift: „KiezCoins auschecken (zur Webseite)“ → `kiezcoins.vercel.app`, „KiezCoins direkt runterladen“ → `kiezcoins.vercel.app/laden`.
+- Zwei QR-Codes mit klarer Überschrift: „KiezCoins auschecken (zur Webseite)“ → `kiezcoins.de`, „KiezCoins direkt runterladen“ → `kiezcoins.de/laden`.
 - Seite `/qr` zum Vorzeigen auf dem Handy: beide Codes mit flex-wrap, hochkant übereinander, quer nebeneinander. Knopf „Vollbild“; das Handy geht dabei nicht in den Ruhezustand.
 - Startseite:
     - Telefon: Ort-Umschalter und Szenario-Leiste ausgeblendet, Me-Challenge-Titel „Waschtag mit Aussicht“, Sätze passen zum Stand des Prototyps.
