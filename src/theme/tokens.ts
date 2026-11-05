@@ -21,7 +21,8 @@ const kiezPalette = {
   black: '#232326',
   /** Standard-Textfarbe (Daria, 2026-11-05), vorher #F3EEE8 */
   white: '#FFF8ED',
-  grey: '#B9B1A9',
+  /** Nebenschrift (Daria, 2026-11-05): #FFF8ED mit 60 % Deckkraft auf dem Grund #232326, als feste Farbe, vorher #B9B1A9 */
+  grey: '#A7A39D',
   purple: '#8F90FA',
   orange: '#FFAD7E',
   /** Zweite Akzentfarbe (Daria, 2026-11-05), vorher #93F4A7. Auch die Herzen in den Augen des Katers. */
