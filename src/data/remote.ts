@@ -1161,17 +1161,23 @@ export const deleteChallenge = (id: string) => rpc('delete_challenge', { p_chall
  * Weiterposts (BlueSky, Mastodon) eines gelöschten Posts dort mitlöschen. Ruft die Edge Function `weiterposten`
  * nur, wenn es eigene Weiterposts gibt. Fehler bleiben in `crosspost_posts` stehen.
  */
-export async function deleteCrossposts(id: string) {
+export async function deleteCrossposts(id: string, platforms?: string[]) {
+  if (platforms && !platforms.length) return;
   const { data, error } = await supabase.from('crosspost_posts').select('platform').eq('challenge_id', id).eq('status', 'ok');
   if (error || !data?.length) return;
-  await supabase.functions.invoke('weiterposten', { body: { action: 'delete', challengeId: id } });
+  await supabase.functions.invoke('weiterposten', { body: { action: 'delete', challengeId: id, platforms } });
 }
 
-/** Wiederhergestellter Post: dort neu weiterposten, wo er beim Löschen mitgelöscht wurde. */
-export async function restoreCrossposts(id: string) {
+/**
+ * Wiederhergestellter Post: dort neu weiterposten, wo er beim Löschen mitgelöscht wurde.
+ * `chosen`: Auswahl aus der Rückfrage; ohne Auswahl alle.
+ */
+export async function restoreCrossposts(id: string, chosen?: string[]) {
+  if (chosen && !chosen.length) return;
   const { data, error } = await supabase.from('crosspost_posts').select('platform').eq('challenge_id', id).eq('error', 'deleted');
   if (error || !data?.length) return;
-  const platforms = data.map((d) => d.platform as string);
+  const platforms = data.map((d) => d.platform as string).filter((p) => !chosen || chosen.includes(p));
+  if (!platforms.length) return;
   await supabase.functions.invoke('weiterposten', { body: { action: 'post', challengeId: id, platforms } });
 }
 

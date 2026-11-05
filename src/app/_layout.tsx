@@ -11,6 +11,7 @@ import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
 import { InterTight_600SemiBold } from '@expo-google-fonts/inter-tight/600SemiBold';
 
 import { WebAlertHost } from '../components/WebAlert';
+import { CrosspostDialogHost } from '../components/CrosspostDialog';
 import { TourOffer } from '../components/TourOffer';
 import { AuthProvider, useAuth } from '../data/auth';
 import { StoreProvider } from '../data/store';
@@ -139,6 +140,7 @@ function RootStack() {
           <InstallHint />
           <UpdateHint />
           <WebAlertHost />
+          <CrosspostDialogHost />
           <TourOffer />
           <HeartBurst />
         </>
