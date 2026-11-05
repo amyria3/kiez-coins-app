@@ -327,6 +327,7 @@ export default function ManageChallenges() {
           selectedKey={archive ? 'archive' : 'active'}
           onChange={showTab}
           progress={progress}
+          glass
         />
       </View>
       <View style={styles.flex} onLayout={(e) => setPageHeight(e.nativeEvent.layout.height)}>
@@ -895,8 +896,8 @@ const styles = StyleSheet.create({
     // Halbtransparent über dem Foto, darunter liegt CardBlur
     backgroundColor: isFashionable ? color.bg.surface : 'rgba(36, 33, 31, 0.55)',
   },
-  // Challenge-Karte: so hoch wie ihr Inhalt, mit feinem Rand im Grün aus den Kater-Herzen (Daria, 2026-11-05)
-  cardFit: { borderWidth: stroke.thin, borderColor: color.line.confirmation },
+  // Challenge-Karte: so hoch wie ihr Inhalt, ohne Rand (Daria, 2026-11-05)
+  cardFit: {},
   head: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   pressed: { opacity: 0.7 },
   thumb: { width: 72, height: 72, borderRadius: radius.xl },
