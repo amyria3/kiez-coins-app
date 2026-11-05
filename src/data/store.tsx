@@ -77,8 +77,9 @@ type Action =
   | { type: 'close'; id: string }
   | { type: 'deleteDraft'; id: string }
   | { type: 'purge'; id: string }
-  | { type: 'delete'; id: string }
-  | { type: 'restore'; id: string; deadline?: string }
+  /** crosspost: Plattformen, auf denen der Weiterpost mitgelöscht (delete) oder neu gepostet (restore) wird */
+  | { type: 'delete'; id: string; crosspost?: string[] }
+  | { type: 'restore'; id: string; deadline?: string; crosspost?: string[] }
   | { type: 'setGroups'; groups: Group[] }
   | { type: 'block'; userId: string };
 
@@ -377,11 +378,11 @@ async function persist(action: Action, before: State): Promise<string | null> {
       return null;
     case 'delete':
       await remote.deleteChallenge(action.id);
-      remote.deleteCrossposts(action.id).catch(() => undefined);
+      remote.deleteCrossposts(action.id, action.crosspost).catch(() => undefined);
       return action.id;
     case 'restore':
       await remote.restoreChallenge(action.id, action.deadline);
-      remote.restoreCrossposts(action.id).catch(() => undefined);
+      remote.restoreCrossposts(action.id, action.crosspost).catch(() => undefined);
       return action.id;
     case 'accept':
       await remote.challengeActions.accept(action.id);

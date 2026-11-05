@@ -35,7 +35,8 @@ import { coordsIfAllowed, distanceMeters, KIEZ_RADIUS_METERS, type Coords } from
 import { useChallenge, useStore } from '../../../data/store';
 import { isPostOnly, type ChallengeStatus } from '../../../data/types';
 import { color, font, radius, size, space, stroke, text } from '../../../theme/tokens';
-import { deleteMessage } from '../../../data/crosspost';
+import { askCrosspost, restoreWithChoice } from '../../../components/CrosspostDialog';
+import { crosspostTargets } from '../../../data/crosspost';
 import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 
@@ -232,7 +233,7 @@ export default function ChallengeDetail() {
       return;
     }
     if (!needKiez()) return;
-    dispatch({ type: 'restore', id: challenge.id });
+    restoreWithChoice(challenge.id).then((crosspost) => crosspost && dispatch({ type: 'restore', id: challenge.id, crosspost }));
   };
 
   // Löschen: nur solange niemand angenommen hat. Sonst Hinweis mit Weg zum Kundenservice (wie in „Deine Challenges“).
@@ -257,8 +258,17 @@ export default function ChallengeDetail() {
       );
       return;
     }
-    deleteMessage(challenge.id).then((text) =>
-      Alert.alert('Challenge löschen?', text, [
+    crosspostTargets(challenge.id, 'delete').then((targets) => {
+      // Weitergepostet: Rückfrage mit Schaltern pro Plattform
+      if (targets.length) {
+        askCrosspost('delete', targets).then((crosspost) => {
+          if (!crosspost) return;
+          goBack();
+          dispatch({ type: 'delete', id: challenge.id, crosspost });
+        });
+        return;
+      }
+      Alert.alert('Challenge löschen?', 'Die Challenge verschwindet aus dem Feed.', [
         { text: 'Abbrechen', style: 'cancel' },
         {
           text: 'Löschen',
@@ -268,8 +278,8 @@ export default function ChallengeDetail() {
             dispatch({ type: 'delete', id: challenge.id });
           },
         },
-      ]),
-    );
+      ]);
+    });
   };
 
   // Zeitangaben nur, solange die Challenge läuft
