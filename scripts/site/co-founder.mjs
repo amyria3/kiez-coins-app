@@ -119,5 +119,5 @@ export const coFounder = {
     thanks: 'We are looking forward to receiving your application!',
   },
   email: 'kiezkoins@protonmail.com',
-  productUrl: 'https://kiezcoins.vercel.app/',
+  productUrl: 'https://kiezcoins.de/',
 };
