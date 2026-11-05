@@ -329,7 +329,7 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
         setBarWidth((old) => (old === w ? old : w));
       }}
     >
-      {glass ? <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill} /> : null}
+      {glass ? <BlurView intensity={80} tint="systemUltraThinMaterialDark" style={StyleSheet.absoluteFill} /> : null}
       {pill ? <Animated.View pointerEvents="none" style={[styles.pill, accent && styles.accentFill, pill]} /> : null}
       {tabs.map((tab, i) => {
         const selected = tab.key === selectedKey;
@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     backgroundColor: color.bg.surface,
   },
-  segmentsGlass: { overflow: 'hidden', backgroundColor: 'rgba(36, 33, 31, 0.55)' },
+  segmentsGlass: { overflow: 'hidden', backgroundColor: 'rgba(36, 33, 31, 0.15)' },
   pill: {
     position: 'absolute',
     top: space[4],

@@ -525,7 +525,7 @@ function Wallpaper() {
 /** Milchglas hinter den Karten, damit das Foto durchscheint (Daria, 2026-11-05) */
 function CardBlur() {
   if (isFashionable) return null;
-  return <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill} />;
+  return <BlurView intensity={80} tint="systemUltraThinMaterialDark" style={StyleSheet.absoluteFill} />;
 }
 
 /** Leise Aktion: nur Text, gleich breit neben ihren Nachbarn */
@@ -879,7 +879,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   wallpaper: { overflow: 'hidden' },
   // Leicht abgedunkelt, damit Reiter und Karten lesbar bleiben
-  wallpaperDim: { backgroundColor: 'rgba(25, 23, 22, 0.25)' },
+  wallpaperDim: { backgroundColor: 'rgba(25, 23, 22, 0.1)' },
   photoCredit: { ...text.caption, fontSize: 11, color: color.text.onPhoto, opacity: 0.85, textShadowColor: 'rgba(0, 0, 0, 0.6)', textShadowRadius: 3, textAlign: 'right', paddingHorizontal: space[16], paddingBottom: space[4] },
   flex: { flex: 1 },
   empty: { padding: space[16] },
@@ -894,7 +894,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.card,
     overflow: 'hidden',
     // Halbtransparent über dem Foto, darunter liegt CardBlur
-    backgroundColor: isFashionable ? color.bg.surface : 'rgba(36, 33, 31, 0.55)',
+    backgroundColor: isFashionable ? color.bg.surface : 'rgba(36, 33, 31, 0.15)',
   },
   // Challenge-Karte: so hoch wie ihr Inhalt, ohne Rand (Daria, 2026-11-05)
   cardFit: {},
