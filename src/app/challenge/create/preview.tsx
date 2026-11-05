@@ -350,6 +350,6 @@ const styles = StyleSheet.create({
   metricValue: { ...text.metric, fontSize: 17, lineHeight: 22, color: color.text.primary },
   signal: { color: color.accent.signal },
   eden: { color: color.accent.confirmation },
-  description: { fontFamily: font.light, fontSize: 15, lineHeight: 22, color: color.text.secondary },
+  description: { fontFamily: font.text, fontSize: 15, lineHeight: 22, color: color.text.secondary },
   authorBlock: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
 });

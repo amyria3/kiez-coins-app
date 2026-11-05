@@ -11,19 +11,32 @@ import { color, font, isFashionable, radius, space, stroke, text } from '../them
 import { CoinsIcon } from './icons/Brand';
 import { t, tAbout } from '../data/texts';
 
-const statusStyles: Record<ChallengeStatus, { label: string; tint: string }> = {
+/**
+ * Badge-Prinzip im Kiez-Look (Daria, 2026-11-05): Pille, innen 8 seitlich, 4 oben, 6 unten.
+ * `filled`: volle Akzentfläche mit dunkler Schrift, für Status, bei denen gerade etwas läuft.
+ * Sonst Kontur: feiner Rand und Schrift in der Statusfarbe, ohne Fläche.
+ * Im Fashionable Look bleibt die getönte Fläche.
+ */
+const statusStyles: Record<ChallengeStatus, { label: string; tint: string; filled?: boolean }> = {
   draft: { label: 'Entwurf', tint: color.text.secondary },
   open: { label: 'Offen', tint: color.accent.confirmation },
-  accepted: { label: 'Angenommen', tint: color.accent.primary },
-  reported: { label: 'Yey, erledigt!', tint: color.accent.signal },
-  confirmed: { label: 'Bestätigt', tint: color.accent.affection },
+  accepted: { label: 'Angenommen', tint: color.accent.primary, filled: true },
+  reported: { label: 'Yey, erledigt!', tint: color.accent.confirmation },
+  confirmed: { label: 'Bestätigt', tint: color.accent.confirmation },
   rejected: { label: 'Abgelehnt', tint: color.text.secondary },
   payment_open: { label: 'Zahlung offen', tint: color.accent.signal },
-  paid_marked: { label: 'Als bezahlt markiert', tint: color.accent.primary },
-  paid: { label: 'Bezahlt', tint: color.accent.affection },
+  paid_marked: { label: 'Als bezahlt markiert', tint: color.accent.primary, filled: true },
+  paid: { label: 'Bezahlt', tint: color.accent.confirmation },
   closed: { label: 'Geschlossen', tint: color.text.secondary },
   deleted: { label: 'Gelöscht', tint: color.accent.signal },
 };
+
+/** Fläche, Rand und Schriftfarbe eines Badges nach dem Badge-Prinzip */
+function badgeLook(tint: string, filled?: boolean) {
+  if (isFashionable) return { box: { backgroundColor: `${tint}26` }, ink: tint };
+  if (filled) return { box: { backgroundColor: tint, borderColor: tint }, ink: color.bg.screen };
+  return { box: { borderColor: tint }, ink: tint };
+}
 
 /**
  * Wer den Status ausgelöst hat (Daria, 27.10.2026): Mit Person liest sich das Badge als Satz,
@@ -41,7 +54,7 @@ const statusActor: Partial<Record<ChallengeStatus, { role: 'assignee' | 'author'
 };
 
 /**
- * Figma „StatusBadge“. Getönte Fläche ohne Rahmen, damit es nicht wie ein Button aussieht.
+ * Figma „StatusBadge“, nach dem Badge-Prinzip oben (Kiez-Look: Fläche oder Kontur).
  * „Offen“ (grün) erscheint nur in der Vorschau beim Erstellen (`showOpen`), sonst ist offen der Normalfall (Daria, 22.10.2026).
  */
 export function StatusBadge({
@@ -61,18 +74,19 @@ export function StatusBadge({
 }) {
   // Nur ein Bild oder Vorher-Nachher, keine Aufgabe: eigenes Badge, solange es online ist
   const postOnly = (photo || beforeAfter) && (status === 'open' || status === 'draft');
-  const { label, tint } = postOnly
-    ? { label: beforeAfter ? 'Me-Challenge' : 'Nur ein Bild', tint: color.accent.affection }
+  const { label, tint, filled } = postOnly
+    ? { label: beforeAfter ? 'Me-Challenge' : 'Nur ein Bild', tint: color.accent.affection, filled: false }
     : statusStyles[status];
+  const look = badgeLook(tint, filled);
   const { users } = useStore();
   const by = postOnly ? undefined : statusActor[status];
   const actorId = by?.role === 'assignee' ? challenge?.assigneeId : by?.role === 'author' ? challenge?.authorId : undefined;
   const actor = actorId ? users.find((u) => u.id === actorId) : undefined;
   if (status === 'open' && !showOpen && !postOnly) return null;
   return (
-    <View style={[styles.status, { backgroundColor: `${tint}26` }]}>
+    <View style={[styles.status, look.box]}>
       {actor && by ? (
-        <Text noTranslate style={[text.caption, { color: tint }]} numberOfLines={1}>
+        <Text noTranslate style={[text.caption, { color: look.ink }]} numberOfLines={1}>
           {/* Isoliert links nach rechts, damit das @ auch auf Arabisch und Hebräisch vor dem Namen bleibt */}
           <Text noTranslate style={styles.actorName}>
             {`\u2066@${actor.name}\u2069`}
@@ -80,7 +94,7 @@ export function StatusBadge({
           {` » ${tAbout(actor, by.phrase)}`}
         </Text>
       ) : (
-        <Text style={[text.caption, { color: tint }]} numberOfLines={1}>
+        <Text style={[text.caption, { color: look.ink }]} numberOfLines={1}>
           {label}
         </Text>
       )}
@@ -91,7 +105,7 @@ export function StatusBadge({
 /** Restzeit als Badge, nicht tippbar: Uhr und „Noch 6 Tage 23 Std.“ (Daria, 22.10.2026) */
 export function DeadlineBadge({ deadline }: { deadline: string }) {
   return (
-    <View style={[styles.status, styles.deadline, { backgroundColor: `${color.text.secondary}26` }]} accessible>
+    <View style={[styles.status, styles.deadline, badgeLook(color.text.secondary).box]} accessible>
       <Icon name="clock" size={11} color={color.text.secondary} />
       <Text style={[text.caption, { color: color.text.primary }]} numberOfLines={1}>
         {formatRemainingShort(deadline)}
@@ -120,7 +134,7 @@ export function BountyBadge({ amount, small }: { amount: number; small?: boolean
  */
 export function TestAccountBadge() {
   return (
-    <View style={[styles.status, styles.test, { backgroundColor: `${color.text.secondary}26` }]} accessible>
+    <View style={[styles.status, styles.test, badgeLook(color.text.secondary).box]} accessible>
       <Text style={[text.caption, { color: color.text.secondary }]} numberOfLines={1}>
         Testaccount
       </Text>
@@ -140,7 +154,7 @@ export function NameWithTestMark({ test, children }: { test?: boolean; children:
 }
 
 const styles = StyleSheet.create({
-  test: { paddingVertical: space[2], alignSelf: 'auto', flexShrink: 0 },
+  test: { alignSelf: 'auto', flexShrink: 0 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
   nameShrink: { flexShrink: 1, minWidth: 0 },
   status: {
@@ -148,7 +162,10 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     borderRadius: radius.full,
     paddingHorizontal: space[8],
-    paddingVertical: space[6],
+    paddingTop: isFashionable ? space[6] : space[4],
+    paddingBottom: space[6],
+    borderWidth: isFashionable ? 0 : stroke.thin,
+    borderColor: 'transparent',
     alignSelf: 'center',
   },
   actorName: { fontFamily: font.semiBold },

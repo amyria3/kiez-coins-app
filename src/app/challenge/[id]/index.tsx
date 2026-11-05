@@ -696,7 +696,7 @@ const styles = StyleSheet.create({
   eden: { color: color.accent.confirmation },
   error: { color: color.accent.error },
   muted: { color: color.text.secondary, opacity: 0.6 },
-  description: { fontFamily: font.light, fontSize: 15, lineHeight: 22, color: color.text.secondary },
+  description: { fontFamily: font.text, fontSize: 15, lineHeight: 22, color: color.text.secondary },
   authorBlock: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   secondary: { ...text.body, color: color.text.secondary },
   naming: { gap: space[12] },

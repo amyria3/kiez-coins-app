@@ -14,16 +14,22 @@ export const scheme: 'dark' | 'light' = fashionable ? 'light' : 'dark';
 // Primitives
 // Kiez-Look „Warm und tief“ (Daria, 2026-11-01): fast schwarzer Grund und Flächen mit warmem Unterton,
 // helle Schrift leicht warm, Nebenschrift mit mehr Kontrast. Vorher #1F2123, #F0F0F0, #A0A0A0, #2B2D31.
+// Dark-UI-Überarbeitung (Daria, 2026-11-05): Lila #8F90FA statt #7E94FF (weniger gesättigt, wärmer, gleiche Helligkeit),
+// Grund #232326 (Daria, 2026-11-05, neutral statt warm, vorher #191716), Karten #303034 eine Stufe heller, damit sie sich ohne Rand abheben.
+// Zweite Akzentfarbe Grün #89F269 statt #93F4A7.
 const kiezPalette = {
-  black: '#191716',
-  white: '#F3EEE8',
-  grey: '#B9B1A9',
-  purple: '#7E94FF',
+  black: '#232326',
+  /** Standard-Textfarbe (Daria, 2026-11-05), vorher #F3EEE8 */
+  white: '#FFF8ED',
+  /** Nebenschrift (Daria, 2026-11-05): #FFF8ED mit 60 % Deckkraft auf dem Grund #232326, als feste Farbe, vorher #B9B1A9 */
+  grey: '#A7A39D',
+  purple: '#8F90FA',
   orange: '#FFAD7E',
-  green: '#93F4A7',
+  /** Zweite Akzentfarbe (Daria, 2026-11-05), vorher #93F4A7. Auch die Herzen in den Augen des Katers. */
+  green: '#89F269',
   red: '#FF7E8B',
   pink: '#FFB2E5',
-  graphite: '#24211F',
+  graphite: '#303034',
 };
 
 /**
@@ -52,23 +58,23 @@ export const color = {
     screen: palette.black,
     surface: palette.graphite,
     /** Halbtransparente Fläche über Fotos (Bounty-Chip, Info-Leiste, Tab-Leiste) */
-    glass: fashionable ? 'rgba(255, 255, 255, 0.96)' : 'rgba(25, 23, 22, 0.86)',
+    glass: fashionable ? 'rgba(255, 255, 255, 0.96)' : 'rgba(35, 35, 38, 0.86)',
     /** Leichte Glasfläche, z. B. das eingeklappte Blatt im Challenge-Detail */
-    sheet: fashionable ? 'rgba(255, 255, 255, 0.82)' : 'rgba(25, 23, 22, 0.45)',
+    sheet: fashionable ? 'rgba(255, 255, 255, 0.82)' : 'rgba(35, 35, 38, 0.45)',
     /** Overlays (Hinweise, Dialoge, Umfrage): Blur mit leichtem Stich aus Dunkel-Lila (Daria, 2026-11-02) */
     frost: fashionable ? 'rgba(255, 255, 255, 0.72)' : 'rgba(44, 26, 70, 0.5)',
     /** Abgedunkelter, unscharfer Grund hinter Dialogen */
     scrim: fashionable ? 'rgba(0, 0, 0, 0.2)' : 'rgba(30, 16, 50, 0.3)',
     /** Dunkle Glasfläche über Fotos, in beiden Looks dunkel */
-    onPhoto: 'rgba(31, 33, 35, 0.3)',
+    onPhoto: 'rgba(35, 35, 38, 0.3)',
   },
   /** Haarlinie auf dunklem Grund */
   line: {
     hairline: fashionable ? '#DBDBDB' : 'rgba(255, 240, 225, 0.12)',
     /** Feiner warmer Rand um Karten und Sprechblase im Kiez-Look, damit sie sich vom Grund abheben (2026-11-01) */
     raised: fashionable ? 'transparent' : 'rgba(255, 240, 225, 0.08)',
-    /** Feine Linie im Grün aus den Kater-Herzen (#93F4A7), z. B. auf der Karte in „Meine Posts“ (Daria, 2026-11-05) */
-    confirmation: fashionable ? '#DBDBDB' : 'rgba(147, 244, 167, 0.22)',
+    /** Feine Linie in der zweiten Akzentfarbe (#89F269), z. B. auf der Karte in „Meine Posts“ (Daria, 2026-11-05) */
+    confirmation: fashionable ? '#DBDBDB' : 'rgba(137, 242, 105, 0.22)',
   },
   text: {
     primary: palette.white,
@@ -77,6 +83,10 @@ export const color = {
     onAccent: fashionable ? '#FFFFFF' : palette.black,
     /** Schrift auf Fotos, in beiden Looks hell */
     onPhoto: '#F0F0F0',
+  },
+  /** Große Icons (Daria, 2026-11-05): etwas gedämpfter als die Schrift, damit Symbole nicht heller als Text wirken */
+  icon: {
+    large: fashionable ? palette.white : '#EEE0C9',
   },
   /** Signaturfarbe für Logo und Kater. Fashionable Look vorerst Schwarz: Das Violett #7B2FF7 hat Daria verworfen (23.10.2026), die neue Farbe steht noch aus. */
   brand: {
@@ -138,6 +148,8 @@ export const stroke = {
 // Schriften (Inter, geladen in src/app/_layout.tsx)
 export const font = {
   light: 'Inter_300Light',
+  /** Fließtext: im Kiez-Look Regular, da dünne Schrift auf dunklem Grund ausfranst (Dark UI, Daria, 2026-11-05). Im Fashionable Look Light. */
+  text: fashionable ? 'Inter_300Light' : 'Inter_400Regular',
   regular: 'Inter_400Regular',
   medium: 'Inter_500Medium',
   semiBold: 'Inter_600SemiBold',
@@ -156,9 +168,9 @@ export const text = {
   /** Kennzahlen (Bounty, Frist, Bilanz) */
   metric: { fontFamily: font.display, fontSize: 22, lineHeight: 26 },
   title: { fontFamily: font.regular, fontSize: 18, lineHeight: 24 },
-  body: { fontFamily: font.light, fontSize: 14, lineHeight: 18 },
+  body: { fontFamily: font.text, fontSize: 14, lineHeight: 18 },
   caption: { fontFamily: font.regular, fontSize: 11, lineHeight: 16 },
-  labelXs: { fontFamily: font.light, fontSize: 9, lineHeight: 11 },
+  labelXs: { fontFamily: font.text, fontSize: 9, lineHeight: 11 },
   /** `text/button/dark-on-light`: dunkle Schrift auf heller Fläche (Primary) */
   buttonDarkOnLight: { fontFamily: font.medium, fontSize: 16, lineHeight: 20 },
   /** `text/button/light-on-dark`: helle Schrift auf dunkler Fläche (Secondary) */
