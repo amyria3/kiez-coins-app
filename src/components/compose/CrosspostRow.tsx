@@ -1,11 +1,23 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { CROSSPOST_ACTIVE, CROSSPOST_PLATFORMS, useCrosspostInterest } from '../../data/crosspost';
+import {
+  CROSSPOST_PLATFORMS,
+  isLivePlatform,
+  loadCrosspostAccounts,
+  loadCrosspostSelection,
+  saveCrosspostSelection,
+  useCrosspostEnabled,
+  useCrosspostInterest,
+  type CrosspostAccount,
+  type LivePlatform,
+} from '../../data/crosspost';
 import { color, radius, scheme, size, space, stroke, text } from '../../theme/tokens';
 import { Button } from '../Button';
+import { Toggle } from '../Form';
 import { Icon } from '../icons/Icon';
 import { Text } from '../T';
 
@@ -13,11 +25,36 @@ import { Text } from '../T';
  * Zeile „Weiterposten“ im Erstellen-Blatt öffentlicher Posts (Entwurf Daria, 05.11.2026): Die Auswahl der
  * Plattformen steckt hinter dem Zahnrad und öffnet sich als Blatt. Noch nicht freigegeben (`CROSSPOST_ACTIVE`):
  * Alle Plattformen stehen als „Kommt bald“ da, darunter der Knopf, der Interesse an Meta und X zählt.
+ * Freigegeben (oder für Moderatorinnen): Schalter für verbundene Konten bei BlueSky und Mastodon. Die Wahl
+ * bleibt auf dem Gerät gespeichert; nach dem Veröffentlichen postet die Vorschau dorthin weiter.
  */
 export function CrosspostRow() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const insets = useSafeAreaInsets();
   const [counted, count] = useCrosspostInterest();
+  const enabled = useCrosspostEnabled();
+  const [accounts, setAccounts] = useState<CrosspostAccount[]>([]);
+  const [selected, setSelected] = useState<LivePlatform[]>([]);
+
+  useEffect(() => {
+    if (!enabled) return;
+    loadCrosspostAccounts().then(setAccounts);
+    loadCrosspostSelection().then(setSelected);
+  }, [enabled, open]);
+
+  const connected = (p: LivePlatform) => accounts.some((a) => a.platform === p);
+  const active = selected.filter(connected);
+  const toggle = (p: LivePlatform, on: boolean) => {
+    const next = on ? [...selected.filter((x) => x !== p), p] : selected.filter((x) => x !== p);
+    setSelected(next);
+    saveCrosspostSelection(next);
+  };
+  const summary = !enabled
+    ? 'Kommt bald'
+    : active.length
+      ? active.map((p) => CROSSPOST_PLATFORMS.find((x) => x.key === p)?.label).join(', ')
+      : 'Aus';
 
   return (
     <>
@@ -30,7 +67,7 @@ export function CrosspostRow() {
         <Icon name="settings" size={size.icon} color={color.text.secondary} />
         <View style={styles.flex}>
           <Text style={styles.label}>Weiterposten</Text>
-          <Text style={styles.caption}>{CROSSPOST_ACTIVE ? 'BlueSky, Mastodon' : 'Kommt bald'}</Text>
+          <Text style={styles.caption}>{summary}</Text>
         </View>
         <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
       </Pressable>
@@ -43,18 +80,42 @@ export function CrosspostRow() {
           <Text style={styles.title}>Weiterposten</Text>
           <Text style={styles.caption}>Deinen Post zusätzlich auf anderen Plattformen veröffentlichen, mit Link zurück zu KiezCoins.</Text>
           <View style={styles.card}>
-            {CROSSPOST_PLATFORMS.map((p, i) => (
+            {CROSSPOST_PLATFORMS.map((p, i) => {
+              const live = enabled && isLivePlatform(p.key);
+              const isConnected = live && connected(p.key as LivePlatform);
+              return (
               <View key={p.key} style={[styles.platform, i > 0 && styles.divider]}>
                 <View style={[styles.badge, { backgroundColor: p.tint }]}>
                   <Text noTranslate style={styles.letter}>{p.letter}</Text>
                 </View>
                 <View style={styles.flex}>
                   <Text noTranslate style={styles.label}>{p.label}</Text>
-                  <Text style={styles.caption}>{p.free ? 'Kostenlos' : 'Im Paket'}</Text>
+                  <Text noTranslate={isConnected} style={styles.caption}>
+                    {isConnected ? accounts.find((a) => a.platform === p.key)?.handle : p.free ? 'Kostenlos' : 'Im Paket'}
+                  </Text>
                 </View>
-                <Text style={styles.soon}>Kommt bald</Text>
+                {isConnected ? (
+                  <Toggle
+                    label={p.label}
+                    value={selected.includes(p.key as LivePlatform)}
+                    onValueChange={(on) => toggle(p.key as LivePlatform, on)}
+                  />
+                ) : live ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={() => {
+                      setOpen(false);
+                      router.push('/account/weiterposten');
+                    }}
+                  >
+                    <Text style={styles.connect}>Verbinden</Text>
+                  </Pressable>
+                ) : (
+                  <Text style={styles.soon}>Kommt bald</Text>
+                )}
               </View>
-            ))}
+              );
+            })}
           </View>
           {counted ? (
             <Text style={styles.thanks}>Danke! Wir zählen Dich mit.</Text>
@@ -110,5 +171,6 @@ const styles = StyleSheet.create({
   badge: { width: 32, height: 32, borderRadius: radius.md, borderWidth: stroke.thin, borderColor: color.line.hairline, alignItems: 'center', justifyContent: 'center' },
   letter: { ...text.title, fontSize: 15, color: '#FFFFFF' },
   soon: { ...text.caption, color: color.text.secondary },
+  connect: { ...text.caption, color: color.accent.primary },
   thanks: { ...text.body, color: color.accent.confirmation, textAlign: 'center' },
 });
