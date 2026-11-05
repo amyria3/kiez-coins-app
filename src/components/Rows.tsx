@@ -5,7 +5,7 @@ import { Text } from './T';
 import type { User } from '../data/types';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
-import { GlassFill, glassSurface, useGlass } from './GlassScene';
+import { GlassFill, surfaceFor, useGlassLevel } from './GlassScene';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 import { t } from '../data/texts';
@@ -30,7 +30,8 @@ type EditableRowProps = {
  * Häkchen speichert, Verlassen ohne Speichern verwirft.
  */
 export function EditableRow({ label, value, onSave, renderEditor, maxLength, allowEmpty, placeholder, multiline, keyboardType }: EditableRowProps) {
-  const glass = useGlass();
+  const level = useGlassLevel();
+  const glass = level === 'cards';
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   // Speichern genau einmal: beim Häkchen oder beim Verlassen des Felds. Das Feld verliert den Fokus,
@@ -47,7 +48,7 @@ export function EditableRow({ label, value, onSave, renderEditor, maxLength, all
   if (!editing) {
     return (
       <Pressable
-        style={[styles.row, glassSurface(glass)]}
+        style={[styles.row, surfaceFor(level)]}
         accessibilityRole="button"
         accessibilityLabel={t('{label}: {value}. Ändern', { label, value })}
         onPress={() => {
@@ -118,10 +119,11 @@ type NavRowProps = {
 
 /** Figma „NavRow“ (Default, Danger): Zeile, die zu einem anderen Screen führt. */
 export function NavRow({ label, value, tone = 'default', onPress }: NavRowProps) {
-  const glass = useGlass();
+  const level = useGlassLevel();
+  const glass = level === 'cards';
   return (
     <Pressable
-      style={({ pressed }) => [styles.row, styles.navRow, glassSurface(glass), pressed && styles.pressed]}
+      style={({ pressed }) => [styles.row, styles.navRow, surfaceFor(level), pressed && styles.pressed]}
       accessibilityRole="button"
       accessibilityLabel={value ? `${label}, ${value}` : label}
       onPress={onPress}
@@ -143,10 +145,11 @@ type ProfileCardProps = {
 
 /** Große Karte im Stil der NavRow: Profilbild, Deckname und persönliche Angaben, führt zum Bearbeiten. */
 export function ProfileCard({ user, name, details, onPress }: ProfileCardProps) {
-  const glass = useGlass();
+  const level = useGlassLevel();
+  const glass = level === 'cards';
   return (
     <Pressable
-      style={({ pressed }) => [styles.row, styles.profileCard, glassSurface(glass), pressed && styles.pressed]}
+      style={({ pressed }) => [styles.row, styles.profileCard, surfaceFor(level), pressed && styles.pressed]}
       accessibilityRole="button"
       accessibilityLabel={t('Persönliche Angaben: {name}, {details}. Ändern', { name, details: details.join(', ') })}
       onPress={onPress}
@@ -187,10 +190,11 @@ export function NavCard({
   leadingFill?: boolean;
   onPress: () => void;
 }) {
-  const glass = useGlass();
+  const level = useGlassLevel();
+  const glass = level === 'cards';
   return (
     <Pressable
-      style={({ pressed }) => [styles.row, styles.profileCard, glassSurface(glass), pressed && styles.pressed]}
+      style={({ pressed }) => [styles.row, styles.profileCard, surfaceFor(level), pressed && styles.pressed]}
       accessibilityRole="button"
       accessibilityLabel={description ? `${title}, ${description}` : title}
       onPress={onPress}
