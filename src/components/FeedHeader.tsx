@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from './T';
 import { BlurView } from 'expo-blur';
+import { GlassEdge } from './GlassEdge';
 import { Image } from 'expo-image';
 
 import { challengeTypes, isTypeActive } from '../data/features';
@@ -330,6 +331,7 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
       }}
     >
       {glass ? <BlurView intensity={80} tint="systemUltraThinMaterialDark" style={StyleSheet.absoluteFill} /> : null}
+      {glass ? <GlassEdge radius={radius.full} /> : null}
       {pill ? <Animated.View pointerEvents="none" style={[styles.pill, accent && styles.accentFill, pill]} /> : null}
       {tabs.map((tab, i) => {
         const selected = tab.key === selectedKey;

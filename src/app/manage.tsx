@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Animated, FlatList, Linking, Pressable, ScrollView, StyleSheet, View, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { Alert, Animated, FlatList, Linking, Pressable, ScrollView, StyleSheet, View, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from '../components/T';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
@@ -11,6 +11,7 @@ import { BountyBadge, StatusBadge } from '../components/Badges';
 import { Button } from '../components/Button';
 import { KaterCard } from '../components/Content';
 import { Segments } from '../components/FeedHeader';
+import { GlassEdge, GradientLine } from '../components/GlassEdge';
 import { Icon } from '../components/icons/Icon';
 import { NavigationBar } from '../components/NavigationBar';
 import { formatDayMonthShort, formatDurationSince, formatRelative, formatRemainingShort, nameInText } from '../data/format';
@@ -312,7 +313,7 @@ export default function ManageChallenges() {
       {/* Foto über den ganzen Bildschirm, Kopf- und Fußleiste aus Milchglas darüber (Daria, 2026-11-05) */}
       {isFashionable ? null : <Wallpaper />}
       <View style={[styles.glassBar, { paddingTop: insets.top }]}>
-        <CardBlur />
+        <CardBlur edge={false} />
         <NavigationBar
           title="Meine Posts"
           subtitle={pages.length > 1 ? t('{current} von {pages}', { current: current + 1, pages: pages.length }) : undefined}
@@ -356,8 +357,8 @@ export default function ManageChallenges() {
         </Text>
       )}
       </View>
-      <View style={styles.glassBar}>
-        <CardBlur />
+      <View style={[styles.glassBar, styles.footerRound]}>
+        <CardBlur edge={false} />
         {archive ? (
           <View style={{ height: insets.bottom }} />
         ) : (
@@ -477,7 +478,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
       <View style={styles.statsGrid}>
         <View style={styles.stats}>
           <Metric value={c.views === undefined ? '–' : String(c.views)} hint={c.views === 1 ? 'Ansicht' : 'Ansichten'} />
-          <View style={styles.statLine} />
+          <Line vertical style={styles.statLine} />
           {/* Likes (Daria, 2026-11-02) */}
           <Metric value={isDraft ? '–' : String(c.likeCount ?? 0)} hint={c.likeCount === 1 ? 'Like' : 'Likes'} />
         </View>
@@ -487,7 +488,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
             hint={c.comments.length === 1 ? 'Kommentar' : 'Kommentare'}
             onPress={isDraft ? undefined : onComments}
           />
-          <View style={styles.statLine} />
+          <Line vertical style={styles.statLine} />
           <Metric value={isDraft ? '–' : formatDurationSince(c.createdAt)} hint={isDraft ? 'Entwurf' : 'online'} />
         </View>
       </View>
@@ -500,18 +501,21 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
         ) : null}
         {/* Leise Aktionen als Leiste wie auf der Gruppenkarte, damit sie die Karte nicht beherrschen (Daria, 24.10.2026).
             Löschen bleibt ausgegraut tippbar: Die Meldung erklärt, warum es nicht geht. */}
-        <View style={styles.quietBar}>
-          {isOpen ? (
-            <>
-              <QuietAction label="Bearbeiten" onPress={onEdit} />
-              <View style={styles.quietDivider} />
-              <QuietAction label="Schließen" onPress={onClose} />
-            </>
-          ) : isDraft ? null : (
-            <QuietAction label="Ansehen" onPress={onOpen} />
-          )}
-          {isDraft ? null : <View style={styles.quietDivider} />}
-          <QuietAction label="Löschen" danger muted={!canDelete} onPress={onDelete} />
+        <View>
+          {isFashionable ? null : <GradientLine />}
+          <View style={styles.quietBar}>
+            {isOpen ? (
+              <>
+                <QuietAction label="Bearbeiten" onPress={onEdit} />
+                <Line vertical style={styles.quietDivider} />
+                <QuietAction label="Schließen" onPress={onClose} />
+              </>
+            ) : isDraft ? null : (
+              <QuietAction label="Ansehen" onPress={onOpen} />
+            )}
+            {isDraft ? null : <Line vertical style={styles.quietDivider} />}
+            <QuietAction label="Löschen" danger muted={!canDelete} onPress={onDelete} />
+          </View>
         </View>
       </View>
       {hasNext ? <Text style={styles.next}>Nach oben wischen für die nächste</Text> : null}
@@ -530,9 +534,21 @@ function Wallpaper() {
 }
 
 /** Milchglas hinter den Karten, damit das Foto durchscheint (Daria, 2026-11-05) */
-function CardBlur() {
+function CardBlur({ edge = true }: { edge?: boolean }) {
   if (isFashionable) return null;
-  return <BlurView intensity={80} tint="systemUltraThinMaterialDark" style={StyleSheet.absoluteFill} />;
+  return (
+    <>
+      <BlurView intensity={80} tint="systemUltraThinMaterialDark" style={StyleSheet.absoluteFill} />
+      {/* Halbtransparenter Rand mit Verlauf wie bei superhuman.com (Daria, 2026-11-05) */}
+      {edge ? <GlassEdge radius={radius.card} /> : null}
+    </>
+  );
+}
+
+/** Trennlinie: im Kiez-Look mit Verlauf, im Fashionable Look wie bisher */
+function Line({ vertical, style }: { vertical?: boolean; style: StyleProp<ViewStyle> }) {
+  if (isFashionable) return <View style={style} />;
+  return <GradientLine vertical={vertical} style={style} />;
 }
 
 /** Leise Aktion: nur Text, gleich breit neben ihren Nachbarn */
@@ -889,6 +905,8 @@ const styles = StyleSheet.create({
   shrink: { flexShrink: 1 },
   noGrow: { flexGrow: 0 },
   // Kopf- und Fußleiste: Milchglas wie die Karten
+  // Fußleiste oben gebogen statt einer Linie (Daria, 2026-11-05)
+  footerRound: isFashionable ? {} : { borderTopLeftRadius: radius.card, borderTopRightRadius: radius.card },
   glassBar: isFashionable ? {} : { overflow: 'hidden', backgroundColor: 'rgba(25, 23, 22, 0.15)' },
   // Leicht abgedunkelt, damit Reiter und Karten lesbar bleiben
   wallpaperDim: { backgroundColor: 'rgba(25, 23, 22, 0.1)' },
@@ -925,7 +943,7 @@ const styles = StyleSheet.create({
   body: { ...text.body, color: color.text.secondary },
   statsGrid: { gap: space[4] },
   stats: { flexDirection: 'row', alignItems: 'stretch' },
-  statLine: { width: stroke.thin, backgroundColor: color.line.confirmation, marginVertical: space[4] },
+  statLine: isFashionable ? { width: stroke.thin, backgroundColor: color.line.confirmation, marginVertical: space[4] } : { marginVertical: space[4] },
   metric: { flex: 1, alignItems: 'center', gap: space[2], paddingVertical: space[4] },
   metricHint: { flexDirection: 'row', alignItems: 'center', gap: space[2] },
   link: { color: color.text.primary },
@@ -934,9 +952,9 @@ const styles = StyleSheet.create({
   metricValue: { ...text.metric, fontSize: 18, lineHeight: 22, color: color.accent.confirmation },
   caption: { ...text.caption, color: color.text.secondary },
   actions: { gap: space[8] },
-  quietBar: { flexDirection: 'row', borderTopWidth: stroke.ultraThin, borderTopColor: color.line.confirmation },
+  quietBar: isFashionable ? { flexDirection: 'row', borderTopWidth: stroke.ultraThin, borderTopColor: color.line.confirmation } : { flexDirection: 'row' },
   quietAction: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 48 },
-  quietDivider: { width: stroke.ultraThin, backgroundColor: color.line.confirmation, marginVertical: space[12] },
+  quietDivider: isFashionable ? { width: stroke.ultraThin, backgroundColor: color.line.confirmation, marginVertical: space[12] } : { marginVertical: space[12] },
   quietLabel: { ...text.body, color: color.text.primary },
   quietDanger: { color: color.accent.error },
   row: { flexDirection: 'row', gap: space[8] },
