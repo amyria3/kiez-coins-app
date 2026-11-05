@@ -1,6 +1,6 @@
 # Weiterposten auf BlueSky und Mastodon
 
-Stand 05.11.2026: Migrationen `20261103000200_teilen.sql` und `20261105000100_weiterposten.sql` eingespielt, Edge Function `weiterposten` deployt (Version 1, mit Anmeldung). Erster Test durch Daria geklappt (BlueSky und Mastodon, 05.11.2026). Löschen über KiezCoins ab Version 2 der Edge Function.
+Stand 05.11.2026: Migrationen `20261103000200_teilen.sql` und `20261105000100_weiterposten.sql` eingespielt, Edge Function `weiterposten` deployt (Version 1, mit Anmeldung). Erster Test durch Daria geklappt (BlueSky und Mastodon, 05.11.2026). Löschen über KiezCoins ab Version 2 der Edge Function, neu Posten beim Wiederherstellen ab Version 3.
 
 - Datum: 2026-11-05
 - Status: offen. Code auf `main` (PR #155), für alle ausgeschaltet, für Moderatorinnen zum Testen an
@@ -19,7 +19,8 @@ Stand 05.11.2026: Migrationen `20261103000200_teilen.sql` und `20261105000100_we
 2. **Schalter** im Blatt „Weiterposten“: pro verbundenem Konto an oder aus, auf dem Gerät gespeichert.
 3. **Nach dem Veröffentlichen** ruft die Vorschau (`src/app/challenge/create/preview.tsx`) die Edge Function im Hintergrund auf. Nur öffentliche Posts ohne 5-km-Grenze. Die Funktion gibt den Post per `share_challenge` frei (Seite `kiezcoins.de/c/<id>`) und postet Titel, Text, Foto und Link. Ergebnis und Fehler stehen in `crosspost_posts`; jeder Post geht höchstens einmal pro Plattform raus.
 
-4. **Löschen**: Wird der Post in KiezCoins gelöscht, ruft der Store (`deleteCrossposts` in `src/data/remote.ts`) die Edge Function mit `action: 'delete'` auf. Sie löscht den Weiterpost auf BlueSky (`deleteRecord`) und Mastodon (`DELETE /api/v1/statuses/<id>`) und danach die Zeile in `crosspost_posts`. Klappt es nicht (z. B. Konto getrennt), bleibt die Zeile mit Fehler stehen. Wiederherstellen postet nicht neu.
+4. **Löschen**: Wird der Post in KiezCoins gelöscht, ruft der Store (`deleteCrossposts` in `src/data/remote.ts`) die Edge Function mit `action: 'delete'` auf. Sie löscht den Weiterpost auf BlueSky (`deleteRecord`) und Mastodon (`DELETE /api/v1/statuses/<id>`) und markiert die Zeile in `crosspost_posts` mit Fehler `deleted`. Klappt es nicht (z. B. Konto getrennt), steht dort der Fehler, und der Weiterpost bleibt stehen.
+5. **Wiederherstellen**: Der Store (`restoreCrossposts`) postet neu auf die Plattformen mit Fehler `deleted` (Daria, 05.11.2026).
 
 BlueSky nimmt Fotos bis 1 MB. Größere Fotos gehen als Linkkarte ohne Bild raus.
 

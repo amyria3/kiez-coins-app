@@ -381,6 +381,7 @@ async function persist(action: Action, before: State): Promise<string | null> {
       return action.id;
     case 'restore':
       await remote.restoreChallenge(action.id, action.deadline);
+      remote.restoreCrossposts(action.id).catch(() => undefined);
       return action.id;
     case 'accept':
       await remote.challengeActions.accept(action.id);

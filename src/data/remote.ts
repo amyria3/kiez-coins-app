@@ -1167,6 +1167,14 @@ export async function deleteCrossposts(id: string) {
   await supabase.functions.invoke('weiterposten', { body: { action: 'delete', challengeId: id } });
 }
 
+/** Wiederhergestellter Post: dort neu weiterposten, wo er beim Löschen mitgelöscht wurde. */
+export async function restoreCrossposts(id: string) {
+  const { data, error } = await supabase.from('crosspost_posts').select('platform').eq('challenge_id', id).eq('error', 'deleted');
+  if (error || !data?.length) return;
+  const platforms = data.map((d) => d.platform as string);
+  await supabase.functions.invoke('weiterposten', { body: { action: 'post', challengeId: id, platforms } });
+}
+
 /** Gelöschte Challenge wieder veröffentlichen. `deadline` nur, wenn die alte Frist abgelaufen ist. */
 export const restoreChallenge = (id: string, deadline?: string) =>
   rpc('restore_challenge', { p_challenge_id: id, p_deadline: deadline ?? null });
