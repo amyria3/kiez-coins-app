@@ -21,9 +21,13 @@ type NavigationBarProps =
       title?: undefined;
       subtitle?: undefined;
     };
+type BarLook = {
+  /** Ohne eigene Fläche, z. B. über einem Hintergrundfoto mit Milchglas dahinter */
+  transparent?: boolean;
+};
 
 /** Figma „NavigationBar“ (Back, Close, Feed): Kopfzeile von Unterseiten. */
-export function NavigationBar({ title, subtitle, variant, onLeadingPress }: NavigationBarProps) {
+export function NavigationBar({ title, subtitle, variant, onLeadingPress, transparent }: NavigationBarProps & BarLook) {
   if (variant === 'feed') {
     return (
       <Pressable
@@ -44,7 +48,7 @@ export function NavigationBar({ title, subtitle, variant, onLeadingPress }: Navi
     );
   }
   return (
-    <View style={styles.bar}>
+    <View style={[styles.bar, transparent && styles.transparent]}>
       <IconButton
         icon={variant === 'back' ? 'chevron-left' : 'close'}
         accessibilityLabel={variant === 'back' ? t('Zurück') : t('Schließen')}
@@ -73,6 +77,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: color.bg.screen,
   },
+  transparent: { backgroundColor: 'transparent' },
   titleBlock: { flex: 1, alignItems: 'center' },
   title: { ...text.title, color: color.text.primary, textAlign: 'center' },
   subtitle: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
