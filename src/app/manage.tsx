@@ -449,25 +449,20 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
         </Text>
       ) : null}
 
-      {/* Zahlen als offene Leiste ohne Flächen, damit sie nicht wie Knöpfe aussehen (Daria, 22.10.2026).
-          Nur „Kommentare“ ist tippbar und trägt dafür einen Pfeil. */}
-      {/* Zwei Zeilen mit je zwei Zahlen, damit nichts gedrängt steht (Daria, 2026-11-02) */}
-      <View style={styles.statsGrid}>
-        <View style={styles.stats}>
-          <Metric value={c.views === undefined ? '–' : String(c.views)} hint={c.views === 1 ? 'Ansicht' : 'Ansichten'} />
-          <View style={styles.statLine} />
-          {/* Likes (Daria, 2026-11-02) */}
-          <Metric value={isDraft ? '–' : String(c.likeCount ?? 0)} hint={c.likeCount === 1 ? 'Like' : 'Likes'} />
-        </View>
-        <View style={styles.stats}>
-          <Metric
-            value={String(c.comments.length)}
-            hint={c.comments.length === 1 ? 'Kommentar' : 'Kommentare'}
-            onPress={isDraft ? undefined : onComments}
-          />
-          <View style={styles.statLine} />
-          <Metric value={isDraft ? '–' : formatDurationSince(c.createdAt)} hint={isDraft ? 'Entwurf' : 'online'} />
-        </View>
+      {/* Kombi aus Vorschlag B und C (Daria, 2026-11-05): lila Zeitleiste für die Laufzeit,
+          darunter die Zahlen mit den Icons aus dem Feed. Nur Kommentare ist tippbar. */}
+      {isOpen && !isDraft ? <TimeBar createdAt={c.createdAt} deadline={c.deadline} /> : null}
+      <View style={styles.iconStats}>
+        <IconStat icon="eye" value={c.views === undefined ? '–' : String(c.views)} label={c.views === 1 ? 'Ansicht' : 'Ansichten'} />
+        <IconStat icon="heart" value={isDraft ? '–' : String(c.likeCount ?? 0)} label={c.likeCount === 1 ? 'Like' : 'Likes'} />
+        <IconStat
+          icon="comment"
+          value={String(c.comments.length)}
+          label={c.comments.length === 1 ? 'Kommentar' : 'Kommentare'}
+          onPress={isDraft ? undefined : onComments}
+        />
+        {/* Online-Zeit steht bei offenen Posts schon in der Zeitleiste */}
+        {isOpen || isDraft ? null : <IconStat icon="clock" value={formatDurationSince(c.createdAt)} label="online" />}
       </View>
 
       <View style={styles.actions}>
@@ -818,26 +813,43 @@ const fashion = StyleSheet.create({
   next: { fontSize: 12, lineHeight: 16 },
 });
 
-function Metric({ value, hint, onPress }: { value: string; hint?: string; onPress?: () => void }) {
+/** Lila Leiste: wie viel der Laufzeit schon vorbei ist, darunter seit wann online und wie lange noch */
+function TimeBar({ createdAt, deadline }: { createdAt: string; deadline: string }) {
+  const start = new Date(createdAt).getTime();
+  const end = new Date(deadline).getTime();
+  const share = end > start ? Math.min(1, Math.max(0.03, (Date.now() - start) / (end - start))) : 1;
+  return (
+    <View
+      style={styles.timeBar}
+      accessible
+      accessibilityLabel={t('Seit {seit} online, {noch}', { seit: formatDurationSince(createdAt), noch: formatRemainingShort(deadline) })}
+    >
+      <View style={styles.timeTrack}>
+        <View style={[styles.timeFill, { width: `${share * 100}%` }]} />
+      </View>
+      <View style={styles.timeLabels}>
+        <Text style={styles.caption}>{t('seit {seit} online', { seit: formatDurationSince(createdAt) })}</Text>
+        <Text style={styles.caption}>{formatRemainingShort(deadline).replace('Noch', 'noch')}</Text>
+      </View>
+    </View>
+  );
+}
+
+/** Zahl mit Icon wie unter den Posts im Feed */
+function IconStat({ icon, value, label, onPress }: { icon: 'eye' | 'heart' | 'comment' | 'clock'; value: string; label: string; onPress?: () => void }) {
   return (
     <Pressable
-      style={({ pressed }) => [styles.metric, pressed && onPress ? styles.pressed : null]}
+      style={({ pressed }) => [styles.iconStat, pressed && onPress ? styles.pressed : null]}
       disabled={!onPress}
       accessibilityRole={onPress ? 'button' : undefined}
-      accessibilityLabel={`${value}${hint ? ` ${hint}` : ''}`}
+      accessibilityLabel={`${value} ${label}`}
       onPress={onPress}
+      hitSlop={8}
     >
-      <Text style={styles.metricValue} numberOfLines={1}>
+      <Icon name={icon} size={16} color={color.icon.large} />
+      <Text style={styles.iconStatValue} numberOfLines={1}>
         {value}
       </Text>
-      {hint ? (
-        <View style={styles.metricHint}>
-          <Text style={[styles.caption, onPress ? styles.link : null]} numberOfLines={1}>
-            {hint}
-          </Text>
-          {onPress ? <Icon name="chevron-right" size={10} color={color.text.primary} /> : null}
-        </View>
-      ) : null}
     </Pressable>
   );
 }
@@ -857,8 +869,15 @@ const styles = StyleSheet.create({
     borderRadius: radius.card,
     backgroundColor: color.bg.surface,
   },
-  // Challenge-Karte: so hoch wie ihr Inhalt, mit feinem Rand im Grün aus den Kater-Herzen (Daria, 2026-11-05)
-  cardFit: { borderWidth: stroke.thin, borderColor: color.line.confirmation },
+  // Challenge-Karte: so hoch wie ihr Inhalt, feiner neutraler Rand (Grün verworfen, Daria 2026-11-05)
+  cardFit: { borderWidth: stroke.thin, borderColor: color.line.raised },
+  timeBar: { gap: space[6] },
+  timeTrack: { height: 6, borderRadius: 3, backgroundColor: 'rgba(143, 144, 250, 0.18)', overflow: 'hidden' },
+  timeFill: { height: 6, borderRadius: 3, backgroundColor: color.accent.primary },
+  timeLabels: { flexDirection: 'row', justifyContent: 'space-between', gap: space[8] },
+  iconStats: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: space[4] },
+  iconStat: { flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 32 },
+  iconStatValue: { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] },
   head: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   pressed: { opacity: 0.7 },
   thumb: { width: 72, height: 72, borderRadius: radius.xl },
@@ -882,9 +901,9 @@ const styles = StyleSheet.create({
   metricValue: { ...text.metric, fontSize: 18, lineHeight: 22, color: color.accent.confirmation },
   caption: { ...text.caption, color: color.text.secondary },
   actions: { gap: space[8] },
-  quietBar: { flexDirection: 'row', borderTopWidth: stroke.ultraThin, borderTopColor: color.line.confirmation },
+  quietBar: { flexDirection: 'row', borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   quietAction: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 48 },
-  quietDivider: { width: stroke.ultraThin, backgroundColor: color.line.confirmation, marginVertical: space[12] },
+  quietDivider: { width: stroke.ultraThin, backgroundColor: color.line.hairline, marginVertical: space[12] },
   quietLabel: { ...text.body, color: color.text.primary },
   quietDanger: { color: color.accent.error },
   row: { flexDirection: 'row', gap: space[8] },
