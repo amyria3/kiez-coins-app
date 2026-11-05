@@ -876,7 +876,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
   },
   // Challenge-Karte: so hoch wie ihr Inhalt, feiner neutraler Rand (Grün verworfen, Daria 2026-11-05)
-  cardFit: { borderWidth: stroke.thin, borderColor: color.line.raised },
+  cardFit: { borderWidth: 1.5, borderColor: color.line.hairline },
   // Etwas mehr Luft über und unter dem Text (Daria, 2026-11-05)
   bodyCard: { marginVertical: space[8] },
   timeBar: { gap: space[6] },
@@ -909,9 +909,10 @@ const styles = StyleSheet.create({
   metricValue: { ...text.metric, fontSize: 18, lineHeight: 22, color: color.accent.confirmation },
   caption: { ...text.caption, color: color.text.secondary },
   actions: { gap: space[8] },
-  quietBar: { flexDirection: 'row', borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
+  // Linien etwas kräftiger (Daria, 2026-11-05)
+  quietBar: { flexDirection: 'row', borderTopWidth: stroke.thin, borderTopColor: color.line.hairline },
   quietAction: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 48 },
-  quietDivider: { width: stroke.ultraThin, backgroundColor: color.line.hairline, marginVertical: space[12] },
+  quietDivider: { width: stroke.thin, backgroundColor: color.line.hairline, marginVertical: space[12] },
   quietLabel: { ...text.body, color: color.text.primary },
   quietDanger: { color: color.accent.error },
   row: { flexDirection: 'row', gap: space[8] },

@@ -16,7 +16,8 @@ export const SMALL_GEARS = [0];
 
 export function GearsLoader({
   size = 96,
-  tint = color.text.primary,
+  // Große Räder wie die Icons in #EEE0C9 (Daria, 2026-11-05: „falsches Weiß“)
+  tint = color.icon.large,
   only,
 }: {
   /** Breite in pt */
