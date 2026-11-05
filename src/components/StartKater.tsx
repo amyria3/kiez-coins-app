@@ -29,7 +29,7 @@ const ZUSAMMEN_MS = 1000;
  * Startbildschirm (Daria, 2026-10-24): Zuerst drehen sich die Zahnräder unten. Danach taucht der Kater in der Mitte auf,
  * fegt einmal und sagt einen Spruch. Die Zahnräder verschwinden, sobald alles geladen ist (`loaded`) und Kater und
  * Zahnräder mindestens eine Sekunde zusammen zu sehen waren. Der Bildschirm blendet aus, wenn die Zahnräder weg sind
- * und der Kater fertig gefegt hat. Ein Tipp überspringt das Fegen, sobald die Zahnräder weg sind. Mit „Bewegung reduzieren“ steht der Kater nur kurz da.
+ * und der Kater fertig gefegt hat. Ein Tipp überspringt den Kater jederzeit (Daria, 2026-11-05); lädt die App noch, drehen danach nur die Zahnräder weiter. Mit „Bewegung reduzieren“ steht der Kater nur kurz da.
  */
 export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => void }) {
   const insets = useSafeAreaInsets();
@@ -106,7 +106,7 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
   return (
     <Animated.View style={[StyleSheet.absoluteFill, styles.screen, { opacity: sichtbar }]}>
       <Pressable
-        onPress={() => raederWeg && weg()}
+        onPress={weg}
         // Kater mittig im Platz über den Zahnrädern, mit Luft dazwischen (Daria, 2026-11-05)
         style={[styles.flaeche, { paddingBottom: insets.bottom + space[32] + raederSize + space[24] }]}
         accessibilityRole="button"
