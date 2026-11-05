@@ -351,19 +351,17 @@ export default function ManageChallenges() {
           </Animated.ScrollView>
         ) : null}
       </View>
-      {isFashionable ? null : (
-        <Text style={styles.photoCredit} accessibilityRole="link" onPress={() => Linking.openURL('https://www.pexels.com/de-de/@peterfazekas/')}>
-          Foto: Peter Fazekas, Pexels
-        </Text>
-      )}
       </View>
       <View style={[styles.glassBar, styles.footerRound]}>
         <CardBlur edge={false} />
         {archive ? (
-          <View style={{ height: insets.bottom }} />
+          <View style={{ paddingTop: isFashionable ? 0 : space[8], paddingBottom: Math.max(insets.bottom, isFashionable ? 0 : space[8]) }}>
+            <PhotoCredit />
+          </View>
         ) : (
           <ActionBar transparent={!isFashionable}>
             <Button label="Neue Challenge" onPress={create} />
+            <PhotoCredit />
           </ActionBar>
         )}
       </View>
@@ -530,6 +528,16 @@ function Wallpaper() {
       <Image source={wallpaper} style={StyleSheet.absoluteFill} contentFit="cover" />
       <View style={[StyleSheet.absoluteFill, styles.wallpaperDim]} />
     </View>
+  );
+}
+
+/** Bildnachweis klein in der Fußleiste, nicht über dem Foto (Daria, 2026-11-05) */
+function PhotoCredit() {
+  if (isFashionable) return null;
+  return (
+    <Text style={styles.photoCredit} accessibilityRole="link" onPress={() => Linking.openURL('https://www.pexels.com/de-de/@peterfazekas/')}>
+      Foto: Peter Fazekas, Pexels
+    </Text>
   );
 }
 
@@ -910,7 +918,7 @@ const styles = StyleSheet.create({
   glassBar: isFashionable ? {} : { overflow: 'hidden', backgroundColor: 'rgba(25, 23, 22, 0.15)' },
   // Leicht abgedunkelt, damit Reiter und Karten lesbar bleiben
   wallpaperDim: { backgroundColor: 'rgba(25, 23, 22, 0.1)' },
-  photoCredit: { ...text.caption, fontSize: 11, color: color.text.onPhoto, opacity: 0.85, textShadowColor: 'rgba(0, 0, 0, 0.6)', textShadowRadius: 3, textAlign: 'right', paddingHorizontal: space[16], paddingBottom: space[4] },
+  photoCredit: { ...text.caption, fontSize: 11, lineHeight: 14, color: color.text.secondary, textAlign: 'center' },
   flex: { flex: 1 },
   empty: { padding: space[16] },
   // Fashionable Look: Unterstrich-Reiter über die ganze Breite
