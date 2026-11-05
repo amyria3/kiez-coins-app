@@ -35,6 +35,10 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
    - Frage an Daria: Sind 2,99 € im Monat (36 € im Jahr) für 5 X-Posts und 24,99 € im Jahr für 10 X-Posts so gewollt? Das Jahresabo wäre günstiger und enthielte doppelt so viele Posts.
    - Frage an Daria: Ein Abo heißt, dass KiezCoins Geld annimmt. Die Nutzungsbedingungen sagen heute „KiezCoins … nimmt kein Geld an und zahlt keins aus“ (`src/data/legal.ts`), und Coins sind Versprechen von echtem Geld zwischen Mitgliedern. Die Recherche schlägt vor, Guthaben als Coins zu verkaufen. Das würde diese Regel berühren. Bezahlung lieber getrennt von den Coins halten?
 
+## Promo-Kampagnen (Daria, 05.11.2026)
+
+- [ ] Sticker „Cat The Käptn“ mit QR-Code. Ziel des QR-Codes vermutlich `kiezcoins.de` (noch offen, ob `kiezcoins.de` oder `kiezcoins.de/laden`, siehe `2026-10-29_offen_website-laden-qr.md`). Vorlagen für den Kater liegen hier in `Übergabe/` (`KiezCoins Cat.svg`, `KiezKatz Portrait Logo.svg`).
+
 ## Außerhalb des Codes
 
 - [x] Mailversand über Brevo und kiezcoins.de (läuft seit 21.10.2026, Code-Mail um 09:55 angekommen, IP-Sperre in Brevo aus)
