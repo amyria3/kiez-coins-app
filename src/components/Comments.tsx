@@ -171,7 +171,7 @@ export function CommentSection({
         <Text style={styles.title} accessibilityRole="header">
           Fragen und Kommentare
         </Text>
-        <Text style={styles.time}>{audience ?? 'Öffentlich. Alle in der Nachbarschaft können mitlesen.'}</Text>
+        {audience ? <Text style={styles.time}>{audience}</Text> : null}
       </View>
       {roots.map((root) => (
         <View key={root.id} style={styles.thread}>
