@@ -34,7 +34,7 @@ async function ladePost(id, zaehlen) {
 
 function kopf(post, url) {
   if (!post) return '<title>Post nicht gefunden – KiezCoins</title>';
-  const titel = `${post.title} – KiezCoins`;
+  const titel = post.title?.trim() ? `${post.title} – KiezCoins` : 'KiezCoins';
   const beschreibung = kurz(post.body, 200) || 'Ein Post aus KiezCoins, der App für Deinen Kiez.';
   const bild = foto(post.image_after_path) ?? foto(post.image_path) ?? foto(post.image_before_path);
   return [
@@ -72,7 +72,7 @@ function inhalt(post) {
   const wer = [post.handle, post.kiez].filter(Boolean).map(esc).join(' · ');
   return `  ${fotos}
   ${wer ? `<p class="wer">${wer}</p>` : ''}
-  <h1>${esc(post.title)}</h1>
+  ${post.title?.trim() ? `<h1>${esc(post.title)}</h1>` : ''}
   ${post.body ? `<p class="text">${esc(post.body)}</p>` : ''}
   <p><a class="button" href="/app/challenge/${esc(post.id)}?von=teilen">Post in KiezCoins öffnen</a></p>`;
 }

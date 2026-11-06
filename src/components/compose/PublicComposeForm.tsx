@@ -42,7 +42,8 @@ export function usePublicComposeForm(
   const [busy, setBusy] = useState(false);
   const isChallenge = type !== 'photo';
   const missingPhoto = !photo;
-  const missingTitle = !title.trim();
+  // Nur Bild: Titel freiwillig (Daria, 06.11.2026)
+  const missingTitle = isChallenge && !title.trim();
   const hasContent = !!photo || extras.length > 0 || !!title.trim() || !!text.trim();
 
   const next = () => {
@@ -92,7 +93,7 @@ export function usePublicComposeForm(
         error={showErrors && missingPhoto}
         hint={showErrors && missingPhoto ? 'Bitte ein Foto hinzufügen.' : isChallenge ? 'Zeige, wo geholfen werden soll.' : isPrivate ? 'Halte fest, was Dir gefällt.' : 'Zeige Deinem Kiez, was Dir gefällt.'}
         onChange={setPhoto}
-        title={{ value: title, onChange: setTitle, error: showErrors && missingTitle ? 'Gib einen Titel ein.' : undefined }}
+        title={{ value: title, onChange: setTitle, optional: !isChallenge, error: showErrors && missingTitle ? 'Gib einen Titel ein.' : undefined }}
         // Nur Bild: Text direkt auf dem Foto (Daria, 30.10.2026)
         overlay={isChallenge ? undefined : <PhotoTextOnPhoto value={photoText} onChange={setPhotoText} />}
       />

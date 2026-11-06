@@ -42,14 +42,14 @@ export function useGroupPhotoForm(
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState<'publish' | 'save' | undefined>();
   const missingPhoto = !photo;
-  const missingTitle = !title.trim();
   const hasContent = !!photo || extras.length > 0 || !!title.trim() || !!body.trim();
 
   const input = () => ({ groupId, type: 'photo' as const, title, text: body, location: '', extras, ...draftPhoto(photo, draft) });
 
   const publish = async () => {
     if (!group) return;
-    if (missingPhoto || missingTitle) {
+    // Titel freiwillig (Daria, 06.11.2026)
+    if (missingPhoto) {
       setShowErrors(true);
       return;
     }
@@ -89,7 +89,7 @@ export function useGroupPhotoForm(
         error={showErrors && missingPhoto}
         hint={showErrors && missingPhoto ? 'Bitte ein Foto hinzufügen.' : 'Zeige Deiner Gruppe, was Dir gefällt.'}
         onChange={setPhoto}
-        title={{ value: title, onChange: setTitle, error: showErrors && missingTitle ? 'Gib einen Titel ein.' : undefined }}
+        title={{ value: title, onChange: setTitle, optional: true }}
       />
       {photo ? (
         <ExtraPhotos
