@@ -279,7 +279,8 @@ export function HeroScreen({
             {collapsed ? (
               <BlurView intensity={40} tint={scheme} style={StyleSheet.absoluteFill} />
             ) : null}
-            <View style={styles.sheetHead} onLayout={(e) => setHeadHeight(e.nativeEvent.layout.height)}>
+            {/* Über den Details, damit ein aufgeklapptes Menü (z. B. Zahnrad) nicht von ihnen überdeckt wird */}
+            <View style={[styles.sheetHead, styles.sheetHeadAbove]} onLayout={(e) => setHeadHeight(e.nativeEvent.layout.height)}>
             <Pressable
               onPress={toggle}
               accessibilityRole="button"
@@ -368,6 +369,7 @@ const styles = StyleSheet.create({
     paddingBottom: space[16],
     gap: space[12],
   },
+  sheetHeadAbove: { zIndex: 10 },
   sheetHead: { gap: space[12] },
   // Eingeklappt: durchscheinend wie Glas, das Foto liegt darunter
   sheetGlass: { backgroundColor: color.bg.sheet, overflow: 'hidden' },
