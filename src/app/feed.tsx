@@ -33,7 +33,9 @@ import { useRequireKiez } from '../data/kiez';
 import { challengeTypes, isTypeActive, useModes } from '../data/features';
 import { anrede } from '../data/format';
 import { coordsIfAllowed, distanceMeters, formatDistance, KIEZ_RADIUS_METERS, type Coords } from '../data/location';
+import { inviteMessage } from '../data/groups';
 import { reiseEntries } from '../data/reise';
+import { shareText } from '../lib/share';
 import { runningBeforeAfter, topChallenges as pickTopChallenges, useStore } from '../data/store';
 import { RunningBeforeAfter } from '../components/BeforeAfterTimer';
 import { useFeedViews } from '../data/seen';
@@ -398,8 +400,18 @@ export default function FeedScreen() {
             onCreate={() => router.push('/groups/new')}
           />
         );
-      case 'groupNoTasks':
-        return <FeedStateMessage variant="empty" body="Poste die erste Challenge in Deiner Gruppe" onAction={createChallenge} />;
+      case 'groupNoTasks': {
+        // Zweiter Knopf lädt in die leere Gruppe ein, wie „Einladung teilen“ auf der Gruppenseite (Daria, 07.11.2026)
+        const group = groups.find((g) => g.id === groupId);
+        return (
+          <FeedStateMessage
+            variant="empty"
+            body="Poste die erste Challenge in Deiner Gruppe"
+            onAction={createChallenge}
+            secondary={group ? { label: 'Freunde und Familie einladen', onPress: () => shareText(inviteMessage(group)) } : undefined}
+          />
+        );
+      }
       case 'running':
         return (
           <RunningBeforeAfter
