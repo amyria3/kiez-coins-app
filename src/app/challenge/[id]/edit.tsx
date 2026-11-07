@@ -22,6 +22,8 @@ import { bountyFits, clampBounty } from '../../../data/coins';
 import { ParticipantsField } from '../../../components/compose/ParticipantsField';
 import { MAX_MEMBERS } from '../../../data/groups';
 import type { Participation } from '../../../data/remote';
+import { cleanPages } from '../../../data/remote';
+import { SheetEditor, pagesText } from '../../../components/TextSheets';
 
 const durations = [
   { days: 1, label: '1 Tag' },
@@ -65,6 +67,9 @@ export default function EditChallenge() {
     mode: challenge?.joinMode ?? 'open',
   });
   const [photo, setPhoto] = useState<ImageSource>();
+  // Post nur mit Text: Blätter statt Foto (Daria, 07.11.2026)
+  const [pages, setPages] = useState<string[] | undefined>(challenge?.pages);
+  const [sheetFont, setSheetFont] = useState<string>(challenge?.sheetFont ?? 'inter');
   const titleField = useNudge();
   const locationField = useNudge();
 
@@ -85,11 +90,16 @@ export default function EditChallenge() {
   }
 
   const isGroup = !!challenge.groupId;
+  const isText = !!challenge.pages?.length;
+  const pagesChanged =
+    isText && (JSON.stringify(cleanPages(pages ?? [])) !== JSON.stringify(challenge.pages) || sheetFont !== (challenge.sheetFont ?? 'inter'));
+  const textMissing = isText && !pagesText(pages ?? []);
   // Nur Bild: Titel freiwillig (Daria, 06.11.2026)
   const titleOptional = challenge.type === 'photo';
   const whyNot = () =>
     !title.trim() && !titleOptional ? titleField.nudge('Gib einen Titel ein.') : locationField.nudge('Wo soll es stattfinden?');
-  const canSave = (titleOptional || title.trim().length > 0) && title.trim().length <= 60 && (isGroup || location.trim().length > 0);
+  const canSave =
+    (titleOptional || title.trim().length > 0) && title.trim().length <= 60 && (isGroup || location.trim().length > 0) && !textMissing;
 
   // Abgelaufene Frist einer gelöschten Challenge: läuft beim Veröffentlichen neu, so lang wie ursprünglich.
   const expired = new Date(challenge.deadline).getTime() <= Date.now();
@@ -120,9 +130,11 @@ export default function EditChallenge() {
         ? renewed()
         : challenge.deadline,
     ...(photo ? { photo } : {}),
+    ...(pagesChanged && pages ? { pages: cleanPages(pages), sheetFont } : {}),
     ...(participationChanged ? { participation } : {}),
   });
   const changed =
+    pagesChanged ||
     title.trim() !== challenge.title ||
     body.trim() !== challenge.text ||
     location.trim() !== challenge.location ||
@@ -196,7 +208,7 @@ export default function EditChallenge() {
 
   return (
     <SubScreen
-      title={isGroup ? 'We-Challenge bearbeiten' : 'Challenge bearbeiten'}
+      title={isText ? 'Text bearbeiten' : isGroup ? 'We-Challenge bearbeiten' : 'Challenge bearbeiten'}
       navigation="close"
       onLeadingPress={goBack}
       actions={
@@ -213,14 +225,19 @@ export default function EditChallenge() {
         )
       }
     >
+      {isText ? (
+        <SheetEditor title={title} onTitleChange={setTitle} pages={pages ?? ['']} onPagesChange={setPages} fontKey={sheetFont} onFontChange={setSheetFont} />
+      ) : null}
       {/* Foto ändern oder hinzufügen, Titel direkt auf dem Foto wie beim Erstellen */}
+      {isText ? null : (
       <PhotoPicker
         photo={photo ?? challenge.image}
         hint={isGroup ? 'Optional. Zeige, worum es geht.' : 'Zeige, wo geholfen werden soll.'}
         onChange={setPhoto}
         title={{ value: title, onChange: setTitle, nudge: titleField, optional: titleOptional }}
       />
-      {challenge.type === 'individual' ? (
+      )}
+      {isText ? null : challenge.type === 'individual' ? (
         <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={body} onChangeText={setBody} maxLength={500} />
       ) : challenge.type === 'photo' ? (
         <TagTextField label="Dein Text" tag={PHOTO_TAG} value={body} onChangeText={setBody} maxLength={500} />

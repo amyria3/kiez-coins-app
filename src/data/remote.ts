@@ -109,6 +109,9 @@ type ChallengeRow = {
   photo_text_x?: number | null;
   photo_text_y?: number | null;
   extra_image_paths?: string[] | null;
+  /** Post nur mit Text (Migration 20261107000100) */
+  pages?: string[] | null;
+  sheet_font?: string | null;
   image_before_path: string | null;
   image_after_path: string | null;
   /** Vorher-Nachher (Migration 20261023000300) */
@@ -270,6 +273,8 @@ function toChallenge(
       ? { text: row.photo_text, x: row.photo_text_x ?? 0.5, y: row.photo_text_y ?? 0.5 }
       : undefined,
     edensteine: row.edensteine ?? undefined,
+    pages: row.pages?.length ? row.pages : undefined,
+    sheetFont: row.pages?.length ? (row.sheet_font ?? undefined) : undefined,
     extraImages: (row.extra_image_paths ?? []).flatMap((path) => {
       const photo = photoUrl(path);
       return photo ? [{ photo, path }] : [];
@@ -732,8 +737,12 @@ export type NewChallenge = {
   /** Edensteine statt Euro, 1 bis 10 (Migration 20261028000200) */
   edensteine?: number;
   deadline: string;
-  photo: ImageSource;
+  /** Fehlt bei Posts nur mit Text (`pages`) */
+  photo?: ImageSource;
   extras?: ExtraPhoto[];
+  /** Post nur mit Text: Blätter statt Foto (Migration 20261107000100) */
+  pages?: string[];
+  sheetFont?: string;
   /** Modus „Privat“: nur Bild, ohne Coins (Migration 20261028000100) */
   private?: boolean;
   /** Nur im Umkreis von 5 km, nicht in „Überall“ (Migration 20261029000100) */
@@ -834,13 +843,24 @@ function photoTextFields(type: ChallengeType | undefined, value: PhotoText | nul
   return { photo_text: text.slice(0, 80), photo_text_x: round(value!.x), photo_text_y: round(value!.y) };
 }
 
+/** Blätter nur mitschicken, wenn es welche gibt. So speichert die App ohne Migration 20261107000100 wie bisher. */
+const pagesField = (pages?: string[], font?: string) =>
+  pages?.length ? { pages: cleanPages(pages), ...(font && font !== 'inter' ? { sheet_font: font } : { sheet_font: null }) } : {};
+
+/** Höchstens 10 Blätter, leere am Ende fallen weg, ein Blatt bleibt immer. */
+export function cleanPages(pages: string[]): string[] {
+  const all = pages.slice(0, 10).map((p) => p.replace(/\s+$/, ''));
+  while (all.length > 1 && !all[all.length - 1].trim()) all.pop();
+  return all;
+}
+
 /** Edensteine nur mitschicken, wenn es welche gibt. So legt die App ohne Edensteine weiter an wie bisher. */
 const edenField = (edensteine?: number) => (edensteine ? { edensteine } : {});
 
 /** Neue Challenge anlegen. Gibt die gespeicherte Challenge zurück. */
 export async function createChallenge(userId: string, draft: NewChallenge): Promise<Challenge> {
-  const imagePath = await uploadPhoto(userId, draft.photo);
-  const extraPaths = await uploadExtras(userId, draft.extras);
+  const imagePath = draft.photo ? await uploadPhoto(userId, draft.photo) : null;
+  const extraPaths = draft.photo ? await uploadExtras(userId, draft.extras) : undefined;
   const { data } = await retryWithoutCoords(async (withCoords) =>
     check(
       await supabase
@@ -856,6 +876,7 @@ export async function createChallenge(userId: string, draft: NewChallenge): Prom
           ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}),
           deadline: draft.deadline,
           image_path: imagePath,
+          ...pagesField(draft.pages, draft.sheetFont),
           ...(draft.private ? { visibility: 'private' } : {}),
           // Nur mitschicken, wenn gesetzt: So legt die App auch ohne Migration 20261029000100 an
           ...(draft.localOnly && !draft.private ? { local_only: true } : {}),
@@ -898,6 +919,9 @@ export type NewGroupTask = {
   photo?: ImageSource;
   /** Bis zu zwei weitere Fotos, nur bei Bildern */
   extras?: ExtraPhoto[];
+  /** Post nur mit Text (Migration 20261107000100) */
+  pages?: string[];
+  sheetFont?: string;
   /** Nur bei Aufgaben */
   participation?: Participation;
 };
@@ -922,12 +946,17 @@ export async function createGroupTask(userId: string, task: NewGroupTask): Promi
         location: '',
         deadline: task.deadline,
         image_path: imagePath,
+        ...(isPhoto ? pagesField(task.pages, task.sheetFont) : {}),
       })
       .select(CHALLENGE_COLUMNS)
       .single(),
   );
   return toChallenge(data as unknown as ChallengeRow, { liked: false });
 }
+
+/** Blätter eines eigenen offenen oder gelöschten Text-Posts ändern (Migration 20261107000100). */
+export const setChallengePages = (id: string, pages: string[], font?: string) =>
+  rpc('set_challenge_pages', { p_challenge_id: id, p_pages: cleanPages(pages), p_font: font ?? null });
 
 export const challengeActions = {
   accept: (id: string) => rpc('accept_challenge', { p_challenge_id: id }),
@@ -971,6 +1000,9 @@ export type ChallengeEdit = {
   photo?: ImageSource;
   /** Nur mitgeben, wenn sich etwas ändert */
   participation?: Participation;
+  /** Post nur mit Text: neue Blätter und Schrift (Migration 20261107000100) */
+  pages?: string[];
+  sheetFont?: string;
 };
 
 
@@ -992,6 +1024,7 @@ export async function editChallenge(id: string, edit: ChallengeEdit, userId?: st
     const path = await uploadPhoto(userId, edit.photo);
     await rpc('set_challenge_image', { p_challenge_id: id, p_image_path: path });
   }
+  if (edit.pages) await setChallengePages(id, edit.pages, edit.sheetFont);
 }
 
 /**
@@ -1010,6 +1043,7 @@ export async function editDeletedChallenge(id: string, edit: ChallengeEdit, user
     p_image_path: imagePath,
     p_edensteine: edit.edensteine ?? null,
   }));
+  if (edit.pages) await setChallengePages(id, edit.pages, edit.sheetFont);
 }
 
 /** Eigene offene Challenge schließen. Sie bleibt in der Timeline sichtbar (Migration 20261020000200). */
@@ -1036,6 +1070,9 @@ export type DraftInput = {
   localOnly?: boolean;
   /** Nur „Nur ein Bild“: Text auf dem Foto (Migration 20261029000200). `null` löscht ihn im Entwurf. */
   photoText?: PhotoText | null;
+  /** Post nur mit Text (Migration 20261107000100) */
+  pages?: string[];
+  sheetFont?: string;
   participation?: Participation;
 };
 
@@ -1062,6 +1099,7 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
         // Nur mitschicken, wenn gewählt: So speichert die App auch ohne Migration 20261029000100
         ...(draft.localOnly !== undefined && !draft.private ? { local_only: draft.localOnly } : {}),
         ...photoTextFields(draft.type, draft.photoText),
+        ...(draft.type === 'photo' ? pagesField(draft.pages, draft.sheetFont) : {}),
       };
       const query = id
         ? supabase.from('challenges').update(all).eq('id', id).eq('status', 'draft')

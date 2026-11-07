@@ -16,6 +16,7 @@ import { CommentSection } from '../../../components/Comments';
 import { InfoRow, KaterBubble, Notice, OperationTag } from '../../../components/Content';
 import { TextField } from '../../../components/Form';
 import { HeroScreen, SubScreen } from '../../../components/Screen';
+import { TextHero, isTextPost } from '../../../components/TextSheets';
 import { beforeAfterDuration, formatBountyShort, formatCents, formatDayMonthShort, formatEuro, formatHoursMinutes, formatRelative, formatRemainingShort } from '../../../data/format';
 import { WithMentions, postText } from '../../../components/WithMentions';
 import { isSharedBounty, payoutOf, shareCentsOf, sharedBountyText } from '../../../data/coins';
@@ -134,6 +135,8 @@ export default function ChallengeDetail() {
       ? [weAfter, ...(extras ?? [])]
       : extras;
   const baDuration = isBeforeAfter ? beforeAfterDuration(challenge) : undefined;
+  // Post nur mit Text: Blätter an der Stelle des Fotos (Daria, 07.11.2026)
+  const textPages = isTextPost(challenge) ? challenge.pages : undefined;
 
   const giveBack = () =>
     multi
@@ -290,7 +293,7 @@ export default function ChallengeDetail() {
     <>
       <View style={styles.statusWrap}>
         <View style={styles.statusRow}>
-          <StatusBadge status={challenge.status} challenge={challenge} photo={isPhoto && !isBeforeAfter} beforeAfter={isBeforeAfter} />
+          <StatusBadge status={challenge.status} challenge={challenge} photo={isPhoto && !isBeforeAfter} beforeAfter={isBeforeAfter} textOnly={!!textPages} />
           <Text style={[styles.caption, styles.flex]}>{running ? formatRelative(challenge.createdAt) : ''}</Text>
           {isAuthor ? (
             <GlassIconButton
@@ -397,8 +400,8 @@ export default function ChallengeDetail() {
           </View>
         ) : null}
       </View>
-      {/* Ohne Titel keine Zeile (Daria, 06.11.2026) */}
-      {challenge.title.trim() ? (
+      {/* Ohne Titel keine Zeile (Daria, 06.11.2026). Beim Text-Post steht er auf dem ersten Blatt. */}
+      {challenge.title.trim() && !textPages ? (
         <Text style={styles.headline} accessibilityRole="header">
           {challenge.title}
         </Text>
@@ -586,7 +589,7 @@ export default function ChallengeDetail() {
   );
 
   // Ohne Bild (z. B. Gruppenaufgabe): Auch hier schließt ein Tipp außerhalb das Zahnrad-Menü
-  if (!image) {
+  if (!image && !textPages) {
     return (
       <View style={styles.flex} onStartShouldSetResponderCapture={closeMenuOnTouch}>
         <SubScreen
@@ -608,6 +611,7 @@ export default function ChallengeDetail() {
       scrollToEndOnOpen={!!kommentare}
       slideIn
       image={image}
+      hero={textPages ? <TextHero pages={textPages} title={challenge.title} fontKey={challenge.sheetFont} /> : undefined}
       moreImages={moreImages}
       imageLabel={challenge.title.trim() || t('Foto')}
       photoText={challenge.type === 'photo' && image === challenge.image ? challenge.photoText : undefined}

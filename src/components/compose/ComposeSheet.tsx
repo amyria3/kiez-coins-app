@@ -17,17 +17,21 @@ import { useComposeContent, type ComposeContent } from './compose';
 /** Beitragstypen im Kiez, in dieser Reihenfolge (Daria, 2026-10-31). Alle immer an (Daria, 27.10.2026). */
 const PUBLIC_TYPES = [
   { key: 'photo', label: 'Bild' },
+  // Post nur mit Text auf Blättern (Daria, 07.11.2026)
+  { key: 'text', label: 'Text' },
   { key: 'before_after', label: 'Me-Challenge' },
   { key: 'individual', label: 'We-Challenge' },
 ] as const;
 /** Privat: ohne We-Challenge, die braucht andere, die sie annehmen (Daria, 27.10.2026) */
 const PRIVATE_TYPES = [
   { key: 'photo', label: 'Bild' },
+  { key: 'text', label: 'Text' },
   { key: 'before_after', label: 'Me-Challenge' },
 ] as const;
 /** In Gruppen: Aufgabe mit Edensteinen, Vorher-Nachher oder Bild (Daria, 27.10.2026) */
 export const GROUP_TYPES = [
   { key: 'photo', label: 'Bild' },
+  { key: 'text', label: 'Text' },
   { key: 'before_after', label: 'Me-Challenge' },
   { key: 'task', label: 'We-Challenge' },
 ] as const;
@@ -103,13 +107,15 @@ function PublicBody({ onDone, shared, isPrivate = false, turn }: { onDone: () =>
   // Vorausgewählt ist überall der Post (Bild), privat wie im Kiez (Daria, 2026-11-05)
   const [type, setType] = useState<(typeof PUBLIC_TYPES)[number]['key']>('photo');
   const post = usePublicComposeForm(onDone, type === 'photo' ? 'photo' : 'individual', shared, isPrivate);
+  const textPost = usePublicComposeForm(onDone, 'photo', shared, isPrivate, true);
   const ba = useBeforeAfterStartForm(undefined, useOpenTimer(onDone), shared, isPrivate);
   const isBa = type === 'before_after';
+  const form = type === 'text' ? textPost : post;
   return (
-    <SheetScroll actions={isBa ? ba.button : post.buttons}>
+    <SheetScroll actions={isBa ? ba.button : form.buttons}>
       <DraftStrip target={isPrivate ? 'private' : 'public'} onClose={onDone} />
       {options.length > 1 ? <TypeSwitch options={options} value={type} onChange={setType} turn={turn} /> : null}
-      {isBa ? ba.fields : post.fields}
+      {isBa ? ba.fields : form.fields}
     </SheetScroll>
   );
 }
@@ -125,8 +131,9 @@ function GroupBody({ groupId, onDone, shared, turn }: { groupId: string; onDone:
   // Entwurf gespeichert: Blatt zu, wie im Kiez
   const task = useGroupTaskForm(groupId, {}, openPost, shared, onDone);
   const photo = useGroupPhotoForm(groupId, openPost, shared, onDone);
+  const textPost = useGroupPhotoForm(groupId, openPost, shared, onDone, undefined, true);
   const ba = useBeforeAfterStartForm(groupId, useOpenTimer(onDone), shared);
-  const form = type === 'before_after' ? ba : type === 'photo' ? photo : task;
+  const form = type === 'before_after' ? ba : type === 'photo' ? photo : type === 'text' ? textPost : task;
   return (
     <SheetScroll actions={form.button}>
       <DraftStrip target={groupId} onClose={onDone} />

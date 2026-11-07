@@ -24,6 +24,7 @@ import { useAppDimensions } from '../../../theme/layout';
 import { photoTextInput, useDraft } from './_layout';
 import { useGoBack } from '../../../lib/goBack';
 import { PHOTO_TAG, WithMentions } from '../../../components/WithMentions';
+import { TextHero } from '../../../components/TextSheets';
 import { participationText } from '../../../data/weChallenge';
 import { sharedBountyText } from '../../../data/coins';
 import { crosspostChallenge, loadCrosspostSelection, useCrosspostEnabled } from '../../../data/crosspost';
@@ -64,6 +65,8 @@ export default function CreatePreview() {
 
   const deadline = new Date(Date.now() + draft.durationDays * 24 * 60 * 60 * 1000).toISOString();
   const isPhoto = draft.type === 'photo';
+  // Post nur mit Text: Blätter statt Foto (Daria, 07.11.2026)
+  const isText = isPhoto && !!draft.pages?.length;
   const bountyAmount = isPhoto ? undefined : draft.bountyAmount;
   const edensteine = isPhoto || bountyAmount ? undefined : draft.edensteine;
   const bottom = Math.max(insets.bottom, space[16]);
@@ -89,7 +92,7 @@ export default function CreatePreview() {
 
   // Innerhalb des Fensters lässt sich die Vorschau seitlich verschieben. Sie steht immer mittig und federt zurück.
   const shiftX = useRef(new Animated.Value(0)).current;
-  const singlePhoto = draft.extras.length === 0;
+  const singlePhoto = draft.extras.length === 0 && (draft.pages?.length ?? 0) < 2;
   const pan = useMemo(() => {
     const clamp = (v: number) => Math.max(-EDGE, Math.min(EDGE, v));
     const horizontal = (dx: number, dy: number) => Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) * 2;
@@ -115,7 +118,7 @@ export default function CreatePreview() {
   const participation = draft.type === 'photo' ? undefined : draft.participation;
 
   const publish = async () => {
-    if (!draft.photo || busy) return;
+    if ((!draft.photo && !isText) || busy) return;
     if (bountyAmount && !canOfferBounties) {
       Alert.alert(
         'Keine Coins möglich',
@@ -142,6 +145,8 @@ export default function CreatePreview() {
               extras: draft.extras,
               localOnly: draft.localOnly,
               photoText: photoTextInput(draft),
+              pages: draft.pages,
+              sheetFont: draft.sheetFont,
             },
             deadline,
           )
@@ -153,7 +158,9 @@ export default function CreatePreview() {
             bountyAmount,
             edensteine,
             participation,
-            photo: draft.photo,
+            photo: isText ? undefined : draft.photo,
+            pages: isText ? draft.pages : undefined,
+            sheetFont: isText ? draft.sheetFont : undefined,
             deadline,
             coords: draft.coords,
             extras: draft.extras,
@@ -163,7 +170,8 @@ export default function CreatePreview() {
           });
       // Weiterposten (Daria, 05.11.2026): nur öffentliche Posts ohne 5-km-Grenze, im Hintergrund.
       // Fehler stehen in crosspost_posts und stören das Veröffentlichen nicht.
-      if (crosspost && !draft.private && !draft.localOnly) {
+      // Text-Posts gehen noch nicht weiter (Export kommt in Teil 2)
+      if (crosspost && !draft.private && !draft.localOnly && !isText) {
         loadCrosspostSelection()
           .then((platforms) => crosspostChallenge(id, platforms))
           .catch(() => undefined);
@@ -178,16 +186,16 @@ export default function CreatePreview() {
     }
   };
 
-  if (!draft.photo) return null;
+  if (!draft.photo && !isText) return null;
 
   const summary = (
     <>
       <View style={styles.statusRow}>
-        <StatusBadge status="open" showOpen photo={isPhoto} />
+        <StatusBadge status="open" showOpen photo={isPhoto} textOnly={isText} />
         <Text style={styles.caption}>gerade eben</Text>
       </View>
-      {/* Ohne Titel keine Zeile (Daria, 06.11.2026) */}
-      {draft.title.trim() ? (
+      {/* Ohne Titel keine Zeile (Daria, 06.11.2026). Beim Text-Post steht er auf dem ersten Blatt. */}
+      {draft.title.trim() && !isText ? (
         <Text style={styles.headline} accessibilityRole="header">
           {draft.title.trim()}
         </Text>
@@ -237,6 +245,7 @@ export default function CreatePreview() {
       <SafeAreaInsetsContext.Provider value={NO_INSETS}>
       <HeroScreen
         image={draft.photo}
+        hero={isText ? <TextHero pages={draft.pages!} title={draft.title} fontKey={draft.sheetFont} /> : undefined}
         moreImages={draft.extras.map((e) => e.photo)}
         imageLabel={draft.title.trim() || t('Foto')}
         photoText={isPhoto ? draft.photoText : undefined}
@@ -244,7 +253,7 @@ export default function CreatePreview() {
         summary={summary}
       >
         {/* Hashtags wie im Feed: Bild mit #InDiesemMoment (auch ohne Text), We-Challenge mit #vorher (Daria, 31.10.2026) */}
-        {isPhoto || draft.text.trim() ? (
+        {(isPhoto && !isText) || draft.text.trim() ? (
           <Text style={styles.description}>
             <WithMentions
               value={isPhoto ? [PHOTO_TAG, draft.text.trim()].filter(Boolean).join(' ') : `#vorher ${draft.text.trim()}`}

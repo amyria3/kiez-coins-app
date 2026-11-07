@@ -21,6 +21,7 @@ import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 import { t } from '../data/texts';
 import { PhotoTextOverlay } from './PhotoText';
+import { SheetPager, isTextPost } from './TextSheets';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
@@ -68,6 +69,7 @@ function KiezPost({
   // Erledigte We-Challenge: Aufgabenfoto als Vorher, Erledigungsfoto als Nachher (Daria, 27.10.2026)
   const after = image ? weChallengeAfter(challenge) : undefined;
   const body = postText(challenge);
+  const textPages = isTextPost(challenge) ? challenge.pages : undefined;
   // Bild: Zeitstempel statt Restzeit, denn ein Bild läuft nicht ab (Daria, 30.10.2026)
   const isPhoto = challenge.type === 'photo';
   const state = closed
@@ -175,7 +177,20 @@ function KiezPost({
 
   return (
     <View style={styles.post}>
-      {after ? (
+      {textPages ? (
+        // Post nur mit Text: Blätter zum Wischen, darunter Name und wann gepostet (Daria, 07.11.2026)
+        <View>
+          <TextCard pages={textPages} title={challenge.title} fontKey={challenge.sheetFont} onPress={open} />
+          <View style={[styles.info, styles.infoPlain]}>
+            <View style={styles.metaRow}>
+              <Text style={styles.meta} numberOfLines={1}>
+                <Text noTranslate style={hideName ? hiddenText : undefined}>{author.name}</Text>
+                {tappedMeta ? ` · ${tappedMeta}` : null}
+              </Text>
+            </View>
+          </View>
+        </View>
+      ) : after ? (
         // Erledigte We-Challenge: Bildpaar wie bei der Me-Challenge, Glasleiste unten, Bounty und Edensteine oben rechts
         <View>
           <BeforeAfterPair
@@ -379,6 +394,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
   // Erledigte We-Challenge: Aufgabenfoto als Vorher, Erledigungsfoto als Nachher (Daria, 27.10.2026)
   const after = image ? weChallengeAfter(challenge) : undefined;
   const body = postText(challenge);
+  const textPages = isTextPost(challenge) ? challenge.pages : undefined;
   // Bild: Zeitstempel statt Restzeit, denn ein Bild läuft nicht ab (Daria, 30.10.2026)
   const isPhoto = challenge.type === 'photo';
   const state = closed
@@ -433,7 +449,9 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
         </View>
       </View>
       {/* Ohne Foto keine Fläche: Der Titel steht fett im Text (Daria, 24.10.2026) */}
-      {after ? (
+      {textPages ? (
+        <TextCard pages={textPages} title={challenge.title} fontKey={challenge.sheetFont} onPress={onPress} square />
+      ) : after ? (
         <BeforeAfterPair before={image} after={after} height={(width * 5) / 4} onLongPress={onPress} onPress={onPress} />
       ) : image ? (
         <Pressable
@@ -488,7 +506,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
       </View>
       <Pressable onPress={onPress} style={fashion.caption}>
         <Text style={fashion.captionText} numberOfLines={after ? 5 : 3}>
-          {challenge.title.trim() ? <Text style={fashion.captionTitle}>{challenge.title} </Text> : null}
+          {challenge.title.trim() && !textPages ? <Text style={fashion.captionTitle}>{challenge.title} </Text> : null}
           {body ? <WithMentions value={body} /> : null}
         </Text>
         {/* Beim Bild steht der Zeitstempel schon rechts neben den Knöpfen */}
@@ -537,8 +555,39 @@ const fashion = StyleSheet.create({
   edenText: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18, color: color.text.primary, fontVariant: ['tabular-nums'] },
 });
 
+/** Blätter eines Posts nur mit Text im Feed: so breit wie die Karte. Tippen öffnet den Post, Wischen blättert. */
+function TextCard({
+  pages,
+  title,
+  fontKey,
+  onPress,
+  square,
+}: {
+  pages: string[];
+  title?: string;
+  fontKey?: string;
+  onPress: () => void;
+  square?: boolean;
+}) {
+  const [w, setW] = useState(0);
+  return (
+    <View onLayout={(e) => setW(Math.floor(e.nativeEvent.layout.width))}>
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={t('{title} öffnen', { title: title?.trim() || t('Text') })}
+        style={({ pressed }) => [square ? null : styles.textCard, pressed && styles.pressed]}
+      >
+        {w ? <SheetPager pages={pages} title={title} width={w} fontKey={fontKey} /> : null}
+      </Pressable>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   post: { paddingHorizontal: space[16] },
+  // Blätter mit den runden Ecken der Karten (Daria, 07.11.2026)
+  textCard: { borderRadius: radius.card, overflow: 'hidden' },
   card: {
     height: 360,
     borderRadius: radius.card,
