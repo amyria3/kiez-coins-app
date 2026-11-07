@@ -23,7 +23,7 @@ export function postText(challenge: Challenge): string {
 
 const TAGS = ['#vorher', '#nachher', PHOTO_TAG];
 
-/** @-Namen und die Marken #vorher/#nachher/#InDiesemMoment in color/accent/signal hervorheben (verschachteltes Text). */
+/** @-Namen in color/accent/signal und die Marken #vorher/#nachher/#InDiesemMoment in color/accent/primary hervorheben (verschachteltes Text). */
 export function WithMentions({ value }: { value: string }) {
   const parts = value.split(/(@[\p{L}\p{N}_]+|#vorher\b|#nachher\b|#InDiesemMoment\b)/u);
   return (
@@ -34,7 +34,8 @@ export function WithMentions({ value }: { value: string }) {
             {part}
           </Text>
         ) : TAGS.includes(part) ? (
-          <Text key={i} noTranslate style={{ color: color.accent.signal, fontFamily: isFashionable ? font.semiBold : font.medium }}>
+          // Hashtags in Lila (Daria, 2026-11-07)
+          <Text key={i} noTranslate style={{ color: color.accent.primary, fontFamily: isFashionable ? font.semiBold : font.medium }}>
             {part}
           </Text>
         ) : (

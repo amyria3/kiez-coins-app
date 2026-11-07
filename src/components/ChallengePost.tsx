@@ -161,6 +161,7 @@ function KiezPost({
   const tappedMeta = [posted, distance, isPhoto ? null : state, spotsText(challenge, active)].filter(Boolean).join(' · ');
   // Oben nach dem Tippen: Ort vor der Zeit, dann der Rest (Daria, 2026-11-07)
   const whoMeta = [placeOnPhoto, tappedMeta].filter(Boolean).join(' · ');
+  const placeTop = !!placeOnPhoto && !challenge.bountyAmount && !challenge.edensteine;
 
   return (
     <View style={styles.post}>
@@ -268,20 +269,34 @@ function KiezPost({
               </View>
             </Pressable>
           </Animated.View>
+          {image && placeTop ? (
+            // Ort probeweise oben rechts, solange dort keine Belohnung liegt (Daria, 2026-11-07)
+            <Animated.View
+              pointerEvents="none"
+              style={[styles.placeOnPhoto, styles.placeTopRight, { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
+            >
+              <Icon name="map-pin" size={14} color={color.text.onPhoto} />
+              <Text style={styles.placeOnPhotoText} numberOfLines={1}>
+                {placeOnPhoto}
+              </Text>
+            </Animated.View>
+          ) : null}
           {image ? (
             // Erst nur der Ort auf dem Foto, ohne Glasleiste. Nach dem Tippen Glasleiste mit Titel,
             // Name und wann gepostet (Daria, 2026-11-05).
             <View>
-              <Animated.View
-                pointerEvents="none"
-                style={[styles.placeOnPhoto, { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
-              >
-                {/* Ortsangabe mit Pin davor (Daria, 2026-11-05) */}
-                {placeOnPhoto ? <Icon name="map-pin" size={14} color={color.text.onPhoto} /> : null}
-                <Text style={styles.placeOnPhotoText} numberOfLines={1}>
-                  {placeOnPhoto || challenge.title}
-                </Text>
-              </Animated.View>
+              {placeTop ? null : (
+                <Animated.View
+                  pointerEvents="none"
+                  style={[styles.placeOnPhoto, { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
+                >
+                  {/* Ortsangabe mit Pin davor (Daria, 2026-11-05) */}
+                  {placeOnPhoto ? <Icon name="map-pin" size={14} color={color.text.onPhoto} /> : null}
+                  <Text style={styles.placeOnPhotoText} numberOfLines={1}>
+                    {placeOnPhoto || challenge.title}
+                  </Text>
+                </Animated.View>
+              )}
               {/* Name und Zeit stehen nach dem Tippen nur noch oben; die Leiste unten bleibt nur für einen Titel (Daria, 2026-11-07) */}
               {challenge.title.trim() ? (
                 <Animated.View
@@ -675,6 +690,7 @@ const styles = StyleSheet.create({
   infoPlain: { paddingHorizontal: space[4] },
   // Ort ohne Glasleiste: liegt unten links, Schatten statt Fläche
   placeOnPhoto: { position: 'absolute', left: space[4], right: space[4], bottom: space[4], flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  placeTopRight: { top: space[16], right: space[16], left: space[16], bottom: undefined, justifyContent: 'flex-end' },
   // Ort deutlich leichter (Light statt SemiBold); weicher Schatten ohne Versatz liegt wie ein
   // leichter Blur in Form der Buchstaben hinter dem Text (Daria, 2026-11-07)
   placeOnPhotoText: {
