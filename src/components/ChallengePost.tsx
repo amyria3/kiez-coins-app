@@ -165,15 +165,20 @@ function KiezPost({
   return (
     <View style={styles.post}>
       {textPages ? (
-        // Post nur mit Text: Blätter zum Wischen, darunter Name und wann gepostet (Daria, 07.11.2026)
+        // Post nur mit Text: Blätter zum Wischen, darunter der Name. Ort und Zeit erst nach dem ersten
+        // Tippen, wie beim Foto; das zweite Tippen öffnet den Post (Daria, 2026-11-07)
         <View>
-          <TextCard pages={textPages} title={challenge.title} fontKey={challenge.sheetFont} onPress={open} />
+          <TextCard pages={textPages} title={challenge.title} fontKey={challenge.sheetFont} onPress={tap} />
           <View style={[styles.info, styles.infoPlain]}>
             <View style={styles.metaRow}>
-              <Text style={styles.meta} numberOfLines={1}>
-                <Text noTranslate style={hideName ? hiddenText : undefined}>{author.name}</Text>
-                {tappedMeta ? ` · ${tappedMeta}` : null}
+              <Text noTranslate style={[styles.textPostName, hideName ? hiddenText : null]} numberOfLines={1}>
+                {author.name}
               </Text>
+              {whoMeta ? (
+                <Animated.Text style={[styles.textPostMeta, { opacity: whoAnim }]} numberOfLines={1}>
+                  {`· ${whoMeta}`}
+                </Animated.Text>
+              ) : null}
             </View>
           </View>
         </View>
@@ -711,6 +716,8 @@ const styles = StyleSheet.create({
   title: { ...text.cardTitle, color: color.text.primary },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   meta: { ...text.caption, fontSize: 13, color: color.text.secondary, flex: 1 },
+  textPostName: { ...text.caption, fontSize: 13, color: color.text.primary, flexShrink: 0, maxWidth: '60%' },
+  textPostMeta: { ...text.caption, fontSize: 13, color: color.text.secondary, flex: 1 },
   actions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: space[4] },
   actionsLeft: { flexDirection: 'row', alignItems: 'center', flexShrink: 1 },
   count: { ...text.caption, fontSize: 15, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] },
