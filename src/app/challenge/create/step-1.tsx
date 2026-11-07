@@ -34,7 +34,8 @@ export default function CreateStep1() {
 
   const isChallenge = draft.type !== 'photo';
   const missingPhoto = !draft.photo;
-  const missingTitle = !draft.title.trim();
+  // Nur Bild: Titel freiwillig (Daria, 06.11.2026)
+  const missingTitle = isChallenge && !draft.title.trim();
 
   const next = () => {
     if (missingPhoto || missingTitle) {
@@ -94,6 +95,7 @@ export default function CreateStep1() {
         title={{
           value: draft.title,
           onChange: (title) => setDraft((d) => ({ ...d, title })),
+          optional: !isChallenge,
           error: showErrors && missingTitle ? 'Gib einen Titel ein.' : undefined,
         }}
         // Nur Bild: Text direkt auf dem Foto (Daria, 30.10.2026)

@@ -27,6 +27,7 @@ import { PHOTO_TAG, WithMentions } from '../../../components/WithMentions';
 import { participationText } from '../../../data/weChallenge';
 import { sharedBountyText } from '../../../data/coins';
 import { crosspostChallenge, loadCrosspostSelection, useCrosspostEnabled } from '../../../data/crosspost';
+import { t } from '../../../data/texts';
 
 /** Breite des ausgeblurrten Rands links und rechts (schmal, Daria 22.10.2026) */
 const EDGE = space[8];
@@ -185,9 +186,12 @@ export default function CreatePreview() {
         <StatusBadge status="open" showOpen photo={isPhoto} />
         <Text style={styles.caption}>gerade eben</Text>
       </View>
-      <Text style={styles.headline} accessibilityRole="header">
-        {draft.title.trim()}
-      </Text>
+      {/* Ohne Titel keine Zeile (Daria, 06.11.2026) */}
+      {draft.title.trim() ? (
+        <Text style={styles.headline} accessibilityRole="header">
+          {draft.title.trim()}
+        </Text>
+      ) : null}
       <View style={styles.metrics}>
         {edensteine ? (
           <View style={styles.metric}>
@@ -234,7 +238,7 @@ export default function CreatePreview() {
       <HeroScreen
         image={draft.photo}
         moreImages={draft.extras.map((e) => e.photo)}
-        imageLabel={draft.title}
+        imageLabel={draft.title.trim() || t('Foto')}
         photoText={isPhoto ? draft.photoText : undefined}
         // Kein Zurück-Pfeil im Foto: Zurück geht über „Bearbeiten“, oben steht nur der Kater (Daria, 30.10.2026)
         summary={summary}

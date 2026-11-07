@@ -139,9 +139,11 @@ function KiezPost({
 
   const infoBar = (
     <>
-      <Text style={styles.title} numberOfLines={2}>
-        {challenge.title}
-      </Text>
+      {challenge.title.trim() ? (
+        <Text style={styles.title} numberOfLines={2}>
+          {challenge.title}
+        </Text>
+      ) : null}
       <View style={styles.metaRow}>
         <Text style={styles.meta} numberOfLines={1}>
           <Text noTranslate style={hideName ? hiddenText : undefined}>{author.name}</Text>
@@ -157,9 +159,11 @@ function KiezPost({
   const tappedMeta = [posted, distance, isPhoto ? null : state, spotsText(challenge, active)].filter(Boolean).join(' · ');
   const infoBarTapped = (
     <>
-      <Text style={styles.title} numberOfLines={2}>
-        {challenge.title}
-      </Text>
+      {challenge.title.trim() ? (
+        <Text style={styles.title} numberOfLines={2}>
+          {challenge.title}
+        </Text>
+      ) : null}
       <View style={styles.metaRow}>
         <Text style={styles.meta} numberOfLines={1}>
           <Text noTranslate style={hideName ? hiddenText : undefined}>{author.name}</Text>
@@ -185,7 +189,7 @@ function KiezPost({
               <Pressable
                 onPress={open}
                 accessibilityRole="button"
-                accessibilityLabel={t('{title} öffnen', { title: challenge.title })}
+                accessibilityLabel={t('{title} öffnen', { title: challenge.title.trim() || t('Foto') })}
                 style={[styles.info, styles.infoOnPhoto]}
               >
                 <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
@@ -203,7 +207,7 @@ function KiezPost({
           onLongPress={open}
           delayLongPress={350}
           accessibilityRole="button"
-          accessibilityLabel={t('{title} öffnen', { title: challenge.title })}
+          accessibilityLabel={t('{title} öffnen', { title: challenge.title.trim() || t('Foto') })}
           accessibilityHint={t('Tippe einmal, um den Namen anzuzeigen, oder zweimal oder lange, um den Post zu öffnen.')}
           accessibilityActions={[{ name: 'activate' }]}
           onAccessibilityAction={open}
@@ -435,7 +439,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
         <Pressable
           onPress={onPress}
           accessibilityRole="button"
-          accessibilityLabel={t('{title} öffnen', { title: challenge.title })}
+          accessibilityLabel={t('{title} öffnen', { title: challenge.title.trim() || t('Foto') })}
           style={fashion.photo}
         >
           <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" />
@@ -484,7 +488,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
       </View>
       <Pressable onPress={onPress} style={fashion.caption}>
         <Text style={fashion.captionText} numberOfLines={after ? 5 : 3}>
-          <Text style={fashion.captionTitle}>{challenge.title} </Text>
+          {challenge.title.trim() ? <Text style={fashion.captionTitle}>{challenge.title} </Text> : null}
           {body ? <WithMentions value={body} /> : null}
         </Text>
         {/* Beim Bild steht der Zeitstempel schon rechts neben den Knöpfen */}
