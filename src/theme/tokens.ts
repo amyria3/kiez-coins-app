@@ -65,6 +65,8 @@ export const color = {
     frost: fashionable ? 'rgba(255, 255, 255, 0.72)' : 'rgba(44, 26, 70, 0.5)',
     /** Abgedunkelter, unscharfer Grund hinter Dialogen */
     scrim: fashionable ? 'rgba(0, 0, 0, 0.2)' : 'rgba(30, 16, 50, 0.3)',
+    /** Zahnrad-Menü (Daria, 2026-11-06): Kartenfarbe #303034 halbdurchsichtig über Blur, der Text dahinter verschwimmt */
+    menu: fashionable ? 'rgba(239, 239, 239, 0.78)' : 'rgba(48, 48, 52, 0.78)',
     /** Dunkle Glasfläche über Fotos, in beiden Looks dunkel */
     onPhoto: 'rgba(35, 35, 38, 0.3)',
   },
