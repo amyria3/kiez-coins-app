@@ -13,6 +13,7 @@ import { Unbounded_300Light } from '@expo-google-fonts/unbounded/300Light';
 import { Unbounded_500Medium } from '@expo-google-fonts/unbounded/500Medium';
 
 import { WebAlertHost } from '../components/WebAlert';
+import { ShareDialogHost } from '../components/ShareDialog';
 import { CrosspostDialogHost } from '../components/CrosspostDialog';
 import { TourOffer } from '../components/TourOffer';
 import { AuthProvider, useAuth } from '../data/auth';
@@ -148,6 +149,7 @@ function RootStack() {
         </Stack>
           <InstallHint />
           <UpdateHint />
+          <ShareDialogHost />
           <WebAlertHost />
           <CrosspostDialogHost />
           <TourOffer />
