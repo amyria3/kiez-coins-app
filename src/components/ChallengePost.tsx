@@ -273,7 +273,7 @@ function KiezPost({
             // Ort probeweise oben rechts, solange dort keine Belohnung liegt (Daria, 2026-11-07)
             <Animated.View
               pointerEvents="none"
-              style={[styles.placeOnPhoto, styles.placeTopRight, { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
+              style={[styles.placeTopRight, { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
             >
               <Icon name="map-pin" size={14} color={color.text.onPhoto} />
               <Text style={styles.placeOnPhotoText} numberOfLines={1}>
@@ -690,7 +690,9 @@ const styles = StyleSheet.create({
   infoPlain: { paddingHorizontal: space[4] },
   // Ort ohne Glasleiste: liegt unten links, Schatten statt Fläche
   placeOnPhoto: { position: 'absolute', left: space[4], right: space[4], bottom: space[4], flexDirection: 'row', alignItems: 'center', gap: space[4] },
-  placeTopRight: { top: space[16], right: space[16], left: space[16], bottom: undefined, justifyContent: 'flex-end' },
+  // Eigener Stil ohne bottom: mit top und bottom zugleich wurde die Zeile so hoch wie das Foto und
+  // der Ort stand mittig rechts statt oben rechts (Daria, 2026-11-07)
+  placeTopRight: { position: 'absolute', top: space[16], right: space[16], left: space[16], flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: space[4], zIndex: 3 },
   // Ort deutlich leichter (Light statt SemiBold); weicher Schatten ohne Versatz liegt wie ein
   // leichter Blur in Form der Buchstaben hinter dem Text (Daria, 2026-11-07)
   placeOnPhotoText: {
