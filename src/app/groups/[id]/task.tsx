@@ -27,7 +27,9 @@ export default function NewGroupTask() {
   const draft = draftId ? challenges.find((c) => c.id === draftId && c.status === 'draft') : undefined;
   const original = draft ?? (copyOf ? challenges.find((c) => c.id === copyOf) : undefined);
   const options = draft ? GROUP_TYPES.filter((o) => o.key !== 'before_after') : GROUP_TYPES;
-  const [choice, setType] = useState<(typeof GROUP_TYPES)[number]['key']>(draft?.type === 'photo' ? 'photo' : 'task');
+  const [choice, setType] = useState<(typeof GROUP_TYPES)[number]['key']>(
+    draft?.type === 'photo' ? (draft.pages?.length ? 'text' : 'photo') : 'task',
+  );
   const type = options.some((o) => o.key === choice) ? choice : 'task';
   // Foto, Titel und Text bleiben beim Wechsel des Typs erhalten
   const shared = useComposeContent({ photo: original?.image, title: original?.title, text: original?.text });
@@ -35,11 +37,12 @@ export default function NewGroupTask() {
   // Entwurf gespeichert: zurück, woher man kam
   const task = useGroupTaskForm(id, { edensteine: original?.edensteine, participation }, (taskId) => router.replace(`/challenge/${taskId}`), shared, goBack, draft);
   const photo = useGroupPhotoForm(id, (postId) => router.replace(`/challenge/${postId}`), shared, goBack, draft);
+  const textPost = useGroupPhotoForm(id, (postId) => router.replace(`/challenge/${postId}`), shared, goBack, draft?.pages ? draft : undefined, true);
   const ba = useBeforeAfterStartForm(id, (baId) => router.replace({ pathname: '/before-after/[id]', params: { id: baId } }), shared);
-  const form = type === 'before_after' ? ba : type === 'photo' ? photo : task;
+  const form = type === 'before_after' ? ba : type === 'photo' ? photo : type === 'text' ? textPost : task;
   return (
     <SubScreen
-      title={type === 'photo' ? 'Bild posten' : 'We-Challenge erstellen'}
+      title={type === 'photo' ? 'Bild posten' : type === 'text' ? 'Text posten' : 'We-Challenge erstellen'}
       subtitle={group?.name}
       navigation="close"
       onLeadingPress={goBack}

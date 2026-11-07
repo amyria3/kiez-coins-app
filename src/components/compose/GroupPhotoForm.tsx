@@ -10,6 +10,7 @@ import { Chip, ChipGroup, ExtraPhotos, PhotoPicker } from '../Form';
 import { celebratePost } from '../HeartBurst';
 import { explain } from '../Nudge';
 import { Text } from '../T';
+import { SheetEditor, pagesText } from '../TextSheets';
 import { PHOTO_TAG } from '../WithMentions';
 import { TagTextField } from './BeforeAfterForm';
 import { useComposeContent, type ComposeContent } from './compose';
@@ -33,6 +34,8 @@ export function useGroupPhotoForm(
   shared: ComposeContent | undefined,
   onSaved: () => void,
   draft?: Challenge,
+  /** Post nur mit Text: Blätter statt Foto (Daria, 07.11.2026) */
+  textOnly = false,
 ): { fields: ReactNode; button: ReactNode } {
   const { groups, groupApi, saveDraft, publishDraft } = useStore();
   const group = groups.find((g) => g.id === groupId);
@@ -43,10 +46,15 @@ export function useGroupPhotoForm(
   const [days, setDays] = useState(7);
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState<'publish' | 'save' | undefined>();
-  const missingPhoto = !photo;
-  const hasContent = !!photo || extras.length > 0 || !!title.trim() || !!body.trim();
+  const [pages, setPages] = useState<string[]>(draft?.pages ?? ['']);
+  const [sheetFont, setSheetFont] = useState<string>(draft?.sheetFont ?? 'inter');
+  const missingPhoto = textOnly ? !pagesText(pages) : !photo;
+  const hasContent = textOnly ? !!title.trim() || !!pagesText(pages) : !!photo || extras.length > 0 || !!title.trim() || !!body.trim();
 
-  const input = () => ({ groupId, type: 'photo' as const, title, text: body, location: '', extras, ...draftPhoto(photo, draft) });
+  const input = () =>
+    textOnly
+      ? { groupId, type: 'photo' as const, title, text: '', location: '', pages, sheetFont }
+      : { groupId, type: 'photo' as const, title, text: body, location: '', extras, ...draftPhoto(photo, draft) };
 
   const publish = async () => {
     if (!group) return;
@@ -60,11 +68,13 @@ export function useGroupPhotoForm(
       const deadline = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
       const id = draft
         ? await publishDraft(draft.id, input(), deadline)
-        : await groupApi.createTask({ groupId: group.id, type: 'photo', title, text: body, deadline, photo, extras });
+        : textOnly
+          ? await groupApi.createTask({ groupId: group.id, type: 'photo', title, text: '', deadline, pages, sheetFont })
+          : await groupApi.createTask({ groupId: group.id, type: 'photo', title, text: body, deadline, photo, extras });
       celebratePost();
       onCreated(id);
     } catch (error) {
-      Alert.alert('Bild nicht gepostet', (error as Error).message);
+      Alert.alert(textOnly ? 'Text nicht gepostet' : 'Bild nicht gepostet', (error as Error).message);
     } finally {
       setBusy(undefined);
     }
@@ -83,7 +93,20 @@ export function useGroupPhotoForm(
     }
   };
 
-  const fields = (
+  const fields = textOnly ? (
+    <>
+      <Text style={styles.hint}>Hier ist nichts zu tun, nur Dein Text für Eure Gruppe.</Text>
+      <SheetEditor title={title} onTitleChange={setTitle} pages={pages} onPagesChange={setPages} fontKey={sheetFont} onFontChange={setSheetFont} />
+      {showErrors && missingPhoto ? <Text style={styles.error}>Schreib etwas auf das Blatt.</Text> : null}
+      <FieldGroup label="Zeitraum">
+        <ChipGroup>
+          {durations.map((d) => (
+            <Chip key={d.days} label={d.label} selected={days === d.days} onPress={() => setDays(d.days)} />
+          ))}
+        </ChipGroup>
+      </FieldGroup>
+    </>
+  ) : (
     <>
       <Text style={styles.hint}>Hier ist nichts zu tun, nur ein schönes Bild für Eure Gruppe.</Text>
       <PhotoPicker
@@ -116,7 +139,7 @@ export function useGroupPhotoForm(
     <>
       <Button
         busy={busy === 'publish'}
-        label={busy === 'publish' ? 'Wird gepostet …' : 'Bild posten'}
+        label={busy === 'publish' ? 'Wird gepostet …' : textOnly ? 'Text posten' : 'Bild posten'}
         onPress={publish}
         disabled={!!busy || !group}
         whyDisabled={() =>
@@ -132,4 +155,5 @@ export function useGroupPhotoForm(
 
 const styles = StyleSheet.create({
   hint: { ...text.body, fontSize: 14, lineHeight: 19, color: color.text.secondary },
+  error: { ...text.body, fontSize: 14, lineHeight: 19, color: color.accent.error },
 });

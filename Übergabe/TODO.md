@@ -50,6 +50,12 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 - [ ] Sticker „Cat The Käptn“ mit QR-Code. Ziel des QR-Codes vermutlich `kiezcoins.de` (noch offen, ob `kiezcoins.de` oder `kiezcoins.de/laden`, siehe `2026-10-29_offen_website-laden-qr.md`). Vorlagen für den Kater liegen hier in `Übergabe/` (`KiezCoins Cat.svg`, `KiezKatz Portrait Logo.svg`).
 
+## Posts nur mit Text (Daria, 07.11.2026)
+
+- [ ] Pflicht für Daria vor dem Merge: Migration `supabase/migrations/20261107000100_text_posts.sql` im SQL-Editor ausführen. Details: `2026-11-07_offen_text-posts.md`.
+- [ ] Teil 2: Blätter exportieren, mit Profilbild und KiezCoins-Logo, als Slides für Instagram und als Thread auf BlueSky.
+- [ ] Schrift Poppins für die Blätter, damit man auch auf Hindi schreiben kann (Devanagari).
+
 ## Außerhalb des Codes
 
 - [x] Mailversand über Brevo und kiezcoins.de (läuft seit 21.10.2026, Code-Mail um 09:55 angekommen, IP-Sperre in Brevo aus)
