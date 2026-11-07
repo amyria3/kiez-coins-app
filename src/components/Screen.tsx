@@ -151,7 +151,9 @@ export function HeroScreen({
   const [headHeight, setHeadHeight] = useState(0);
   // Ausgeklappt: Foto füllt gut die Hälfte des Bildschirms, das Blatt beginnt darunter (Daria, 21.10.2026)
   const heroHeight = collapsed ? viewportHeight || height : Math.max(HERO_HEIGHT + insets.top, Math.round(height * HERO_SHARE));
-  const glassOffset = collapsed && headHeight ? { marginTop: -(headHeight + SHEET_PADDING) } : undefined;
+  // Ohne Knopfleiste läuft das Foto bis ganz nach unten; das Blatt hält Abstand zum Home-Balken (Daria, 2026-11-07)
+  const homeInset = actions ? 0 : insets.bottom;
+  const glassOffset = collapsed && headHeight ? { marginTop: -(headHeight + SHEET_PADDING + homeInset) } : undefined;
   const collapsedRef = useRef(collapsed);
   collapsedRef.current = collapsed;
   const setCollapsedAnimated = (next: boolean) => {
@@ -298,7 +300,7 @@ export function HeroScreen({
               </Animated.View>
             ) : null}
           </Pressable>
-          <Animated.View style={[styles.sheet, collapsed && styles.sheetGlass, glassOffset, chromeStyle]} pointerEvents={chromeTouch}>
+          <Animated.View style={[styles.sheet, homeInset ? { paddingBottom: space[16] + homeInset } : null, collapsed && styles.sheetGlass, glassOffset, chromeStyle]} pointerEvents={chromeTouch}>
             {collapsed ? (
               <BlurView intensity={40} tint={scheme} style={StyleSheet.absoluteFill} />
             ) : null}
@@ -327,7 +329,7 @@ export function HeroScreen({
           </Animated.View>
           </Animated.View>
         </ScrollView>
-        {chromeHidden ? null : actions ? <ActionBar>{actions}</ActionBar> : <View style={{ height: insets.bottom }} />}
+        {chromeHidden || !actions ? null : <ActionBar>{actions}</ActionBar>}
         </NudgeScrollProvider>
       </KeyboardAvoidingView>
       <Animated.View style={[styles.heroButtons, { top: insets.top + space[8] }, chromeStyle]} pointerEvents={chromeTouch}>
