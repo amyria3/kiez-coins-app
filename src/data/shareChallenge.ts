@@ -1,7 +1,8 @@
 import { Platform } from 'react-native';
 
 import { shareText } from '../lib/share';
-import { shareImageFiles, sheetImageFiles } from '../lib/sheetImages';
+import { openShareDialog, type SharePrepared } from '../components/ShareDialog';
+import { sheetImageFiles } from '../lib/sheetImages';
 import { WEB_APP_URL } from './groups';
 import { shareChallengePublicly } from './remote';
 import { useStore } from './store';
@@ -64,41 +65,52 @@ async function photoFiles(challenge: Challenge): Promise<File[]> {
   return files.filter((f): f is File => !!f);
 }
 
+/** Schon vorbereitete Bilder und Texte je Post, damit erneutes Teilen sofort geht */
+const prepared = new Map<string, Promise<SharePrepared>>();
+
 /**
- * Teilen-Knopf an einem Post: Bild und Link zusammen (Daria, 07.11.2026). Bilder sind die Fotos des Posts oder bei
- * einem Text-Post die Blätter als Slides. Einen Link gibt es bei eigenen öffentlichen Posts, er führt zur
- * öffentlichen Seite, damit Menschen ohne KiezCoins Foto und Text sehen. Sonst steht nur der Titel dabei.
- * Bilder gehen nur im Browser mit; in der App bleibt es bei Titel und Link.
+ * Teilen-Knopf an einem Post: Bild und Link (Daria, 07.11.2026). Bilder sind die Fotos des Posts oder bei einem
+ * Text-Post die Blätter als Slides. Der Link führt zur öffentlichen Seite, wenn der Post eine haben darf, sonst
+ * zum Post in der Web-App. Im Browser führt ein Dialog durchs Teilen (components/ShareDialog.tsx); in der App
+ * bleibt es bei Titel und Link.
  */
 export function useShareChallenge(): (challenge: Challenge) => Promise<void> {
   const { currentUserId, mode, users } = useStore();
   return async (challenge) => {
     const title = challenge.title.trim() ? t('{title} – KiezCoins', { title: challenge.title }) : 'KiezCoins';
-    // Blätter vor allem Warten zeichnen
-    const slides = challenge.pages?.length ? sheetImageFiles(
-          challenge.pages,
-          challenge.title,
-          challenge.sheetFont,
-          users.find((u) => u.id === challenge.authorId)?.name,
-        ) : null;
-    // Link zum Post immer dabei (Daria, 07.11.2026): öffentliche Seite, wenn es eine geben darf, sonst der Post in der
-    // Web-App (sehen kann ihn dort nur, wer ihn auch in der App sieht)
-    let message = mode === 'live' ? `${title}\n${WEB_APP_URL}/challenge/${challenge.id}` : title;
-    if (mode === 'live' && canSharePublicly(challenge, currentUserId)) {
-      try {
-        await shareChallengePublicly(challenge.id);
-        message = `${title}\n${sharePageUrl(challenge.id)}`;
-      } catch {
-        // Ohne Migration oder bei einem Fehler: Titel ohne Link teilen
+    const makeMessage = async () => {
+      if (mode === 'live' && canSharePublicly(challenge, currentUserId)) {
+        try {
+          await shareChallengePublicly(challenge.id);
+          return `${title}\n${sharePageUrl(challenge.id)}`;
+        } catch {
+          // Ohne Migration oder bei einem Fehler: Link in die Web-App
+        }
       }
+      return mode === 'live' ? `${title}\n${WEB_APP_URL}/challenge/${challenge.id}` : title;
+    };
+    if (Platform.OS !== 'web') return shareText(await makeMessage());
+
+    const key = [challenge.id, challenge.title, challenge.sheetFont, ...(challenge.pages ?? [])].join('\u0000');
+    let job = prepared.get(key);
+    if (!job) {
+      // Bilder und Link gleichzeitig vorbereiten
+      job = Promise.all([
+        challenge.pages?.length
+          ? Promise.resolve(
+              sheetImageFiles(
+                challenge.pages,
+                challenge.title,
+                challenge.sheetFont,
+                users.find((u) => u.id === challenge.authorId)?.name,
+              ) ?? [],
+            )
+          : photoFiles(challenge),
+        makeMessage(),
+      ]).then(([files, message]) => ({ files, message }));
+      prepared.set(key, job);
+      job.catch(() => prepared.delete(key));
     }
-    const files = slides ?? (await photoFiles(challenge));
-    if (files.length) {
-      const result = await shareImageFiles(files, message);
-      if (result === 'shared') return;
-      // Heruntergeladen (Browser ohne Teilen-Menü): Titel und Link zusätzlich in die Zwischenablage
-      if (result === 'downloaded') return shareText(message);
-    }
-    return shareText(message);
+    if (!openShareDialog(job, (message) => void shareText(message))) return shareText((await job).message);
   };
 }

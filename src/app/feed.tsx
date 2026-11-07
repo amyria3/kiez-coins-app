@@ -45,6 +45,9 @@ import { color, isFashionable, motion, space, text } from '../theme/tokens';
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
 // Abgeschaltete Typen bleiben sichtbar, wenn es sie in der Datenbank gibt.
+/** Reiter aus dem Parameter `reiter` */
+const TAB_OF_PARAM: Record<string, FeedTab> = { privat: 'private', kiez: 'nearby', ueberall: 'everywhere', gruppen: 'groups' };
+
 function matchesTab(challenge: Challenge, tab: FeedTab, groupId: string | undefined, me: string) {
   // Entwürfe und gelöschte stehen nur in „Deine Challenges“. Geschlossene bleiben in der Timeline.
   if (challenge.status === 'draft' || challenge.status === 'deleted') return false;
@@ -70,7 +73,13 @@ export default function FeedScreen() {
   const [surveyVisible, closeSurvey] = useSurveyPrompt();
   // `gruppe`: aus der Gruppenseite („Aufgaben ansehen“) direkt in den Reiter „Gruppen“
   // `reiter=gruppen` und `erstellen=1`: aus der Leiste im Fashionable Look von anderen Seiten
-  const { gruppe, reiter, erstellen } = useLocalSearchParams<{ gruppe?: string; reiter?: string; erstellen?: string }>();
+  // `reiter` und `neu`: nach dem Posten in den passenden Reiter (`neu` ist die Id des Posts, damit es jedes Mal greift)
+  const { gruppe, reiter, erstellen, neu } = useLocalSearchParams<{
+    gruppe?: string;
+    reiter?: string;
+    erstellen?: string;
+    neu?: string;
+  }>();
   const [chosenTab, setTab] = useState<FeedTab | undefined>(gruppe || reiter === 'gruppen' ? 'groups' : undefined);
   // Modi Privat, Gruppe, Kiez (Dein Konto › Funktionen, Daria, 27.10.2026): verborgene haben keinen Reiter,
   // ohne eigene Wahl gilt der Standard
@@ -88,6 +97,13 @@ export default function FeedScreen() {
     setTab('groups');
     setGroupChoice(gruppe);
   }, [gruppe]);
+  // Nach dem Posten (Daria, 07.11.2026): in den Reiter, in dem der neue Post steht, und nach oben
+  useEffect(() => {
+    const target = reiter ? TAB_OF_PARAM[reiter] : undefined;
+    if (!target) return;
+    setTab(target);
+    requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: 0, animated: false }));
+  }, [reiter, neu]);
   const [refreshing, setRefreshing] = useState(false);
   const listRef = useRef<FlatList<FeedItem>>(null);
   const feedViews = useFeedViews(mode === 'live', currentUserId);
