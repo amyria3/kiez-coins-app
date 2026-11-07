@@ -8,7 +8,7 @@ import { supabase } from '../lib/supabase';
  * Neue APK für Android (Daria, 2026-10-25).
  *
  * Code-Änderungen kommen per `expo-updates` von selbst. Eine neue APK braucht es nur bei Änderungen am nativen Teil.
- * Dann setzt der EAS-Workflow `.eas/workflows/android.yml` in `download_settings` die Nummer der neuen APK
+ * Dann setzt der Workflow `.github/workflows/android.yml` in `download_settings` die Nummer der neuen APK
  * (`latest_version_code`). Die App vergleicht sie mit ihrer eigenen Nummer (versionCode) und zeigt den Hinweis.
  */
 
