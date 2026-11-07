@@ -6,10 +6,12 @@ import type { Challenge, ExtraPhoto, ImageSource } from '../../data/types';
 import { color, text } from '../../theme/tokens';
 import { Button } from '../Button';
 import { FieldGroup } from '../Content';
-import { Chip, ChipGroup, ExtraPhotos, PhotoPicker, TextField } from '../Form';
+import { Chip, ChipGroup, ExtraPhotos, PhotoPicker } from '../Form';
 import { celebratePost } from '../HeartBurst';
 import { explain } from '../Nudge';
 import { Text } from '../T';
+import { PHOTO_TAG } from '../WithMentions';
+import { TagTextField } from './BeforeAfterForm';
 import { useComposeContent, type ComposeContent } from './compose';
 import { draftPhoto, GroupDraftButton } from './GroupTaskForm';
 
@@ -42,14 +44,14 @@ export function useGroupPhotoForm(
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState<'publish' | 'save' | undefined>();
   const missingPhoto = !photo;
-  const missingTitle = !title.trim();
   const hasContent = !!photo || extras.length > 0 || !!title.trim() || !!body.trim();
 
   const input = () => ({ groupId, type: 'photo' as const, title, text: body, location: '', extras, ...draftPhoto(photo, draft) });
 
   const publish = async () => {
     if (!group) return;
-    if (missingPhoto || missingTitle) {
+    // Titel freiwillig (Daria, 06.11.2026)
+    if (missingPhoto) {
       setShowErrors(true);
       return;
     }
@@ -89,7 +91,7 @@ export function useGroupPhotoForm(
         error={showErrors && missingPhoto}
         hint={showErrors && missingPhoto ? 'Bitte ein Foto hinzufügen.' : 'Zeige Deiner Gruppe, was Dir gefällt.'}
         onChange={setPhoto}
-        title={{ value: title, onChange: setTitle, error: showErrors && missingTitle ? 'Gib einen Titel ein.' : undefined }}
+        title={{ value: title, onChange: setTitle, optional: true }}
       />
       {photo ? (
         <ExtraPhotos
@@ -98,7 +100,8 @@ export function useGroupPhotoForm(
           onRemove={(index) => setExtras((all) => all.filter((_, i) => i !== index))}
         />
       ) : null}
-      <TextField label="Dein Text" helperText="Max. 500 Zeichen" value={body} onChangeText={setBody} maxLength={500} multiline />
+      {/* Wie beim Bild im Kiez: #InDiesemMoment fest vorn (Daria, 07.11.2026) */}
+      <TagTextField label="Dein Text" tag={PHOTO_TAG} value={body} onChangeText={setBody} maxLength={500} />
       <FieldGroup label="Zeitraum">
         <ChipGroup>
           {durations.map((d) => (
