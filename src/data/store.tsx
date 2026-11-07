@@ -44,6 +44,8 @@ type Action =
   | { type: 'leave'; id: string }
   /** Umkreis-Begrenzung an oder aus (Daria, 29.10.2026) */
   | { type: 'setLocalOnly'; id: string; localOnly: boolean }
+  /** Privat, Kiez oder Überall (Daria, 07.11.2026) */
+  | { type: 'setAudience'; id: string; private: boolean; localOnly: boolean }
   | { type: 'answerRequest'; id: string; userId: string; accept: boolean }
   | { type: 'removeParticipant'; id: string; userId: string }
   | { type: 'report'; id: string; report: ChallengeReport }
@@ -171,6 +173,11 @@ function reducer(state: State, action: Action): State {
       return updateChallenge(state, action.id, () => ({ status: 'closed', closedAt: new Date().toISOString() }));
     case 'setLocalOnly':
       return updateChallenge(state, action.id, () => ({ localOnly: action.localOnly || undefined }));
+    case 'setAudience':
+      return updateChallenge(state, action.id, () => ({
+        private: action.private || undefined,
+        localOnly: (!action.private && action.localOnly) || undefined,
+      }));
     case 'deleteDraft':
     case 'purge':
       return { ...state, challenges: state.challenges.filter((c) => c.id !== action.id) };
@@ -370,6 +377,9 @@ async function persist(action: Action, before: State): Promise<string | null> {
       return action.id;
     case 'setLocalOnly':
       await remote.challengeActions.setLocalOnly(action.id, action.localOnly);
+      return action.id;
+    case 'setAudience':
+      await remote.challengeActions.setAudience(action.id, action.private, action.localOnly);
       return action.id;
     case 'purge':
       await remote.purgeChallenge(action.id);

@@ -3,7 +3,7 @@ import { Alert, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { useStore } from '../../data/store';
-import type { ImageSource, PhotoText } from '../../data/types';
+import type { ExtraPhoto, ImageSource, PhotoText } from '../../data/types';
 import { Button } from '../Button';
 import { PhotoTextOnPhoto } from '../PhotoText';
 import { ExtraPhotos, PhotoPicker } from '../Form';
@@ -37,12 +37,22 @@ export function usePublicComposeForm(
   const { saveDraft } = useStore();
   const own = useComposeContent();
   const { photo, setPhoto, title, setTitle, text, setText } = shared ?? own;
-  const [extras, setExtras] = useState<ImageSource[]>([]);
+  // Im Blatt über dem Feed geteilt, damit ein Wechsel von Privat, Kiez oder Art nichts verliert (Daria, 07.11.2026)
+  const [ownExtras, setOwnExtras] = useState<ExtraPhoto[]>([]);
+  const extraPhotos = shared?.extras ?? ownExtras;
+  const setExtras = shared?.setExtras ?? setOwnExtras;
+  const extras = extraPhotos.map((e) => e.photo);
   // Nur Bild: Text auf dem Foto (Daria, 29.10.2026)
-  const [photoText, setPhotoText] = useState<PhotoText | undefined>();
+  const [ownPhotoText, setOwnPhotoText] = useState<PhotoText | undefined>();
+  const photoText = shared?.setPhotoText ? shared.photoText : ownPhotoText;
+  const setPhotoText = shared?.setPhotoText ?? setOwnPhotoText;
   const withPhotoText = type === 'photo' && photoText?.text.trim() ? photoText : undefined;
-  const [pages, setPages] = useState<string[]>(['']);
-  const [sheetFont, setSheetFont] = useState<string>('inter');
+  const [ownPages, setOwnPages] = useState<string[]>(['']);
+  const pages = shared?.pages ?? ownPages;
+  const setPages = shared?.setPages ?? setOwnPages;
+  const [ownFont, setOwnFont] = useState<string>('inter');
+  const sheetFont = shared?.sheetFont ?? ownFont;
+  const setSheetFont = shared?.setSheetFont ?? setOwnFont;
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState(false);
   const isChallenge = type !== 'photo';
@@ -92,7 +102,7 @@ export function usePublicComposeForm(
         undefined,
         textOnly
           ? { type: 'photo', title, text: '', location: '', pages, sheetFont, private: isPrivate }
-          : { type, title, text, location: '', photo, extras: extras.map((p) => ({ photo: p })), private: isPrivate, photoText: withPhotoText },
+          : { type, title, text, location: '', photo, extras: extraPhotos.map((e) => ({ photo: e.photo })), private: isPrivate, photoText: withPhotoText },
       );
       onSaved();
     } catch (error) {
@@ -129,7 +139,7 @@ export function usePublicComposeForm(
       {photo ? (
         <ExtraPhotos
           photos={extras}
-          onAdd={(p) => setExtras((all) => [...all, p].slice(0, 2))}
+          onAdd={(p) => setExtras((all) => [...all, { photo: p }].slice(0, 2))}
           onRemove={(index) => setExtras((all) => all.filter((_, i) => i !== index))}
         />
       ) : null}

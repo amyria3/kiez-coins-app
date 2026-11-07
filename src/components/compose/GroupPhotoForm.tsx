@@ -42,12 +42,19 @@ export function useGroupPhotoForm(
   const own = useComposeContent();
   const { photo, setPhoto, title, setTitle, text: body, setText: setBody } = shared ?? own;
   // Zusatzfotos eines Entwurfs behalten ihren Pfad
-  const [extras, setExtras] = useState<ExtraPhoto[]>(draft?.type === 'photo' ? (draft.extraImages ?? []) : []);
+  // Im Blatt über dem Feed geteilt (Daria, 07.11.2026); ein Entwurf hält sie selbst
+  const [ownExtras, setOwnExtras] = useState<ExtraPhoto[]>(draft?.type === 'photo' ? (draft.extraImages ?? []) : []);
+  const extras = (!draft && shared?.extras) || ownExtras;
+  const setExtras = (!draft && shared?.setExtras) || setOwnExtras;
   const [days, setDays] = useState(7);
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState<'publish' | 'save' | undefined>();
-  const [pages, setPages] = useState<string[]>(draft?.pages ?? ['']);
-  const [sheetFont, setSheetFont] = useState<string>(draft?.sheetFont ?? 'inter');
+  const [ownPages, setOwnPages] = useState<string[]>(draft?.pages ?? ['']);
+  const pages = (!draft && shared?.pages) || ownPages;
+  const setPages = (!draft && shared?.setPages) || setOwnPages;
+  const [ownFont, setOwnFont] = useState<string>(draft?.sheetFont ?? 'inter');
+  const sheetFont = (!draft && shared?.sheetFont) || ownFont;
+  const setSheetFont = (!draft && shared?.setSheetFont) || setOwnFont;
   const missingPhoto = textOnly ? !pagesText(pages) : !photo;
   const hasContent = textOnly ? !!title.trim() || !!pagesText(pages) : !!photo || extras.length > 0 || !!title.trim() || !!body.trim();
 
