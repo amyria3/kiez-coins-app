@@ -580,6 +580,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         private: draft.private,
         localOnly: draft.localOnly,
         photoText: draft.photoText ?? undefined,
+        pages: draft.pages?.length ? remote.cleanPages(draft.pages) : undefined,
+        sheetFont: draft.sheetFont,
       };
       localDispatch({ type: 'create', challenge });
       return challenge.id;
@@ -619,6 +621,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         private: existing ? existing.private : draft.private,
         groupId: existing ? existing.groupId : draft.groupId,
         photoText: draft.photoText === undefined ? existing?.photoText : (draft.photoText ?? undefined),
+        pages: draft.pages?.length ? remote.cleanPages(draft.pages) : existing?.pages,
+        sheetFont: draft.sheetFont ?? existing?.sheetFont,
       };
       localDispatch(existing ? { type: 'challengeLoaded', id: challenge.id, challenge, users: [] } : { type: 'create', challenge });
       return challenge;
@@ -660,6 +664,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           private: existing?.private,
           groupId: existing?.groupId,
           photoText: draft.photoText === undefined ? existing?.photoText : (draft.photoText ?? undefined),
+          pages: draft.pages?.length ? remote.cleanPages(draft.pages) : existing?.pages,
+        sheetFont: draft.sheetFont ?? existing?.sheetFont,
         };
         localDispatch({ type: 'challengeLoaded', id, challenge, users: [] });
         return id;
@@ -765,6 +771,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           location: '',
           status: 'open',
           image: task.photo,
+          pages: task.type === 'photo' && task.pages?.length ? remote.cleanPages(task.pages) : undefined,
+          sheetFont: task.sheetFont,
           likedByMe: false,
           comments: [],
           createdAt: new Date().toISOString(),

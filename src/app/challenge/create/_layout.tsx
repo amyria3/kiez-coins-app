@@ -40,6 +40,10 @@ export type Draft = {
   photoText?: PhotoText;
   /** Der gespeicherte Entwurf hatte schon Text auf dem Foto: Leeren löscht ihn dann auch in der Datenbank. */
   hadPhotoText?: boolean;
+  /** Post nur mit Text: Blätter statt Foto (Daria, 07.11.2026) */
+  pages?: string[];
+  /** Schrift der Blätter (data/sheetFonts.ts) */
+  sheetFont?: string;
 };
 
 /**
@@ -70,6 +74,8 @@ function fromChallenge(c: Challenge): Draft {
     localOnly: c.localOnly,
     photoText: c.photoText,
     hadPhotoText: !!c.photoText,
+    pages: c.pages,
+    sheetFont: c.sheetFont,
   };
 }
 
@@ -85,7 +91,8 @@ function copyOf(c: Challenge): Draft {
 }
 
 /** Hat die Person schon etwas eingegeben? Dann lohnt sich ein Entwurf. */
-export const hasContent = (d: Draft) => !!d.photo || d.extras.length > 0 || !!d.title.trim() || !!d.text.trim();
+export const hasContent = (d: Draft) =>
+  !!d.photo || d.extras.length > 0 || !!d.title.trim() || !!d.text.trim() || !!d.pages?.some((p) => p.trim());
 
 /** Speichert den Entwurf und schließt den Flow. */
 export function useSaveDraft() {
@@ -111,6 +118,8 @@ export function useSaveDraft() {
         private: draft.private,
         localOnly: draft.localOnly,
         photoText: photoTextInput(draft),
+        pages: draft.pages,
+        sheetFont: draft.sheetFont,
       });
       setDraft((d) => ({ ...d, id: saved.id, hadPhotoText: !!saved.photoText, imagePath: saved.imagePath, extras: saved.extraImages?.length ? saved.extraImages : d.extras }));
       router.dismissTo('/feed');
@@ -136,7 +145,7 @@ export const unstable_settings = { initialRouteName: 'step-1' };
 
 /** Flow „Challenge erstellen“: als Modal geöffnet, darin Schritte als Push. */
 export default function CreateLayout() {
-  const { draftId, copyOf: copyId, title, text, photo, type, extras, privat, bildtext } = useGlobalSearchParams<{
+  const { draftId, copyOf: copyId, title, text, photo, type, extras, privat, bildtext, seiten, schrift } = useGlobalSearchParams<{
     draftId?: string;
     copyOf?: string;
     /** Aus dem Erstellen-Blatt über dem Feed mitgebracht (components/compose) */
@@ -150,6 +159,10 @@ export default function CreateLayout() {
     privat?: string;
     /** JSON: Text auf dem Foto ({ text, x, y }) */
     bildtext?: string;
+    /** JSON-Liste: Blätter eines Posts nur mit Text */
+    seiten?: string;
+    /** Schrift der Blätter */
+    schrift?: string;
   }>();
   const { challenges, profile } = useStore();
   const draft = useState<Draft>(() => {
@@ -162,6 +175,13 @@ export default function CreateLayout() {
       photoText = bildtext ? (JSON.parse(bildtext) as PhotoText) : undefined;
     } catch {
       photoText = undefined;
+    }
+    let pages: string[] | undefined;
+    try {
+      const parsed = seiten ? (JSON.parse(seiten) as unknown) : undefined;
+      pages = Array.isArray(parsed) ? parsed.map(String) : undefined;
+    } catch {
+      pages = undefined;
     }
     let extraUris: string[] = [];
     try {
@@ -179,6 +199,7 @@ export default function CreateLayout() {
       ...(photo ? { photo: { uri: photo } } : {}),
       extras: extraUris.map((uri) => ({ photo: { uri } })),
       ...(photoText?.text ? { photoText } : {}),
+      ...(pages?.length ? { pages, type: 'photo' as const, sheetFont: schrift } : {}),
     };
   });
   const [, setDraft] = draft;

@@ -11,7 +11,16 @@ export default function CreateSuccess() {
   const { challenges } = useStore();
   const post = challenges.find((c) => c.id === id);
   const isPhoto = post?.type === 'photo';
-  const title = post?.private ? 'Dein Bild ist gespeichert' : isPhoto ? 'Dein Bild ist online' : 'Deine Challenge ist online';
+  const isText = !!post?.pages?.length;
+  const title = post?.private
+    ? isText
+      ? 'Dein Text ist gespeichert'
+      : 'Dein Bild ist gespeichert'
+    : isText
+      ? 'Dein Text ist online'
+      : isPhoto
+        ? 'Dein Bild ist online'
+        : 'Deine Challenge ist online';
   const message = post?.private
     ? 'Es liegt in Deinem privaten Space. Nur Du siehst es.'
     : isPhoto
@@ -26,7 +35,7 @@ export default function CreateSuccess() {
       onFeedPress={() => router.dismissTo('/feed')}
       actions={
         <Button
-          label={isPhoto ? 'Bild ansehen' : 'Challenge ansehen'}
+          label={isText ? 'Text ansehen' : isPhoto ? 'Bild ansehen' : 'Challenge ansehen'}
           onPress={() => {
             router.dismissTo('/feed');
             router.push(`/challenge/${id}`);

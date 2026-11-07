@@ -8,6 +8,7 @@ import { Button } from '../Button';
 import { PhotoTextOnPhoto } from '../PhotoText';
 import { ExtraPhotos, PhotoPicker } from '../Form';
 import { Text } from '../T';
+import { SheetEditor, pagesText } from '../TextSheets';
 import { PHOTO_TAG } from '../WithMentions';
 import { TagTextField } from './BeforeAfterForm';
 import { CrosspostRow } from './CrosspostRow';
@@ -29,6 +30,8 @@ export function usePublicComposeForm(
   shared?: ComposeContent,
   /** Modus „Privat“: nur Bild, nur für Dich sichtbar (Daria, 27.10.2026) */
   isPrivate = false,
+  /** Post nur mit Text: Blätter statt Foto (Daria, 07.11.2026) */
+  textOnly = false,
 ): { fields: ReactNode; buttons: ReactNode } {
   const router = useRouter();
   const { saveDraft } = useStore();
@@ -38,15 +41,29 @@ export function usePublicComposeForm(
   // Nur Bild: Text auf dem Foto (Daria, 29.10.2026)
   const [photoText, setPhotoText] = useState<PhotoText | undefined>();
   const withPhotoText = type === 'photo' && photoText?.text.trim() ? photoText : undefined;
+  const [pages, setPages] = useState<string[]>(['']);
+  const [sheetFont, setSheetFont] = useState<string>('inter');
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState(false);
   const isChallenge = type !== 'photo';
   const missingPhoto = !photo;
+  const missingText = !pagesText(pages);
   // Nur Bild: Titel freiwillig (Daria, 06.11.2026)
   const missingTitle = isChallenge && !title.trim();
-  const hasContent = !!photo || extras.length > 0 || !!title.trim() || !!text.trim();
+  const hasContent = textOnly ? !!title.trim() || !missingText : !!photo || extras.length > 0 || !!title.trim() || !!text.trim();
 
   const next = () => {
+    if (textOnly) {
+      if (missingText) {
+        setShowErrors(true);
+        return;
+      }
+      router.push({
+        pathname: isPrivate ? '/challenge/create/preview' : '/challenge/create/step-2',
+        params: { from: 'feed', type: 'photo', title, seiten: JSON.stringify(pages), schrift: sheetFont, ...(isPrivate ? { privat: '1' } : {}) },
+      });
+      return;
+    }
     if (missingPhoto || missingTitle) {
       setShowErrors(true);
       return;
@@ -71,7 +88,12 @@ export function usePublicComposeForm(
   const save = async () => {
     setBusy(true);
     try {
-      await saveDraft(undefined, { type, title, text, location: '', photo, extras: extras.map((p) => ({ photo: p })), private: isPrivate, photoText: withPhotoText });
+      await saveDraft(
+        undefined,
+        textOnly
+          ? { type: 'photo', title, text: '', location: '', pages, sheetFont, private: isPrivate }
+          : { type, title, text, location: '', photo, extras: extras.map((p) => ({ photo: p })), private: isPrivate, photoText: withPhotoText },
+      );
       onSaved();
     } catch (error) {
       Alert.alert('Entwurf nicht gespeichert', (error as Error).message);
@@ -80,7 +102,13 @@ export function usePublicComposeForm(
     }
   };
 
-  const fields = (
+  const fields = textOnly ? (
+    <>
+      <Text style={styles.hint}>Hier ist nichts zu tun, nur Dein Text. Ist ein Blatt voll, geht es auf dem nächsten weiter.</Text>
+      <SheetEditor title={title} onTitleChange={setTitle} pages={pages} onPagesChange={setPages} fontKey={sheetFont} onFontChange={setSheetFont} />
+      {showErrors && missingText ? <Text style={styles.error}>Schreib etwas auf das Blatt.</Text> : null}
+    </>
+  ) : (
     <>
       {isChallenge ? (
         // Ohne Info-Icon (Daria, 30.10.2026)
@@ -125,7 +153,13 @@ export function usePublicComposeForm(
         variant="ghost"
         onPress={save}
         disabled={busy || !hasContent}
-        whyDisabled={() => !busy && explain('Noch nichts zu speichern', 'Füge ein Foto hinzu oder gib einen Titel ein, dann lässt sich der Entwurf speichern.')}
+        whyDisabled={() =>
+          !busy &&
+          explain(
+            'Noch nichts zu speichern',
+            textOnly ? 'Schreib etwas auf das Blatt, dann lässt sich der Entwurf speichern.' : 'Füge ein Foto hinzu oder gib einen Titel ein, dann lässt sich der Entwurf speichern.',
+          )
+        }
       />
     </>
   );
@@ -135,4 +169,5 @@ export function usePublicComposeForm(
 
 const styles = StyleSheet.create({
   hint: { ...text.body, fontSize: 14, lineHeight: 19, color: color.text.secondary },
+  error: { ...text.body, fontSize: 14, lineHeight: 19, color: color.accent.error },
 });
