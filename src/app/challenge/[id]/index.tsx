@@ -3,6 +3,7 @@ import { Alert, Pressable, StyleSheet, View, type GestureResponderEvent } from '
 import { useShareChallenge } from '../../../data/shareChallenge';
 import { Text } from '../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { BlurView } from 'expo-blur';
 
 import { AuthorRow } from '../../../components/AuthorRow';
 import { DeadlineBadge, StatusBadge } from '../../../components/Badges';
@@ -35,7 +36,7 @@ import { recordView } from '../../../data/remote';
 import { coordsIfAllowed, distanceMeters, KIEZ_RADIUS_METERS, type Coords } from '../../../data/location';
 import { useChallenge, useStore } from '../../../data/store';
 import { isPostOnly, type ChallengeStatus } from '../../../data/types';
-import { color, font, radius, size, space, stroke, text } from '../../../theme/tokens';
+import { color, font, radius, scheme, size, space, stroke, text } from '../../../theme/tokens';
 import { askCrosspost, restoreWithChoice } from '../../../components/CrosspostDialog';
 import { crosspostTargets } from '../../../data/crosspost';
 import { t, tAbout } from '../../../data/texts';
@@ -321,6 +322,7 @@ export default function ChallengeDetail() {
             accessibilityRole="menu"
             onLayout={() => menuRef.current?.measureInWindow((x, y, w, h) => (menuRect.current = { x, y, w, h }))}
           >
+            <MenuBackdrop />
             <MenuItem
               label="Melden"
               tone="error"
@@ -339,6 +341,7 @@ export default function ChallengeDetail() {
             accessibilityRole="menu"
             onLayout={() => menuRef.current?.measureInWindow((x, y, w, h) => (menuRect.current = { x, y, w, h }))}
           >
+            <MenuBackdrop />
             {canManage ? (
               <>
                 <MenuItem
@@ -624,6 +627,16 @@ export default function ChallengeDetail() {
   );
 }
 
+/** Grund des Zahnrad-Menüs: Blur und halbdurchsichtige Kartenfarbe (Daria, 2026-11-06) */
+function MenuBackdrop() {
+  return (
+    <>
+      <BlurView intensity={40} tint={scheme} style={StyleSheet.absoluteFill} pointerEvents="none" />
+      <View style={[StyleSheet.absoluteFill, styles.menuTint]} pointerEvents="none" />
+    </>
+  );
+}
+
 /** Eintrag im Zahnrad-Menü der eigenen Challenge */
 function MenuItem({
   label,
@@ -669,7 +682,6 @@ const styles = StyleSheet.create({
     right: 0,
     minWidth: 200,
     borderRadius: radius.lg,
-    backgroundColor: color.bg.surface,
     borderWidth: stroke.ultraThin,
     borderColor: color.line.hairline,
     overflow: 'hidden',
@@ -679,7 +691,9 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
   },
-  menuItem: { minHeight: size.touchTarget, justifyContent: 'center', paddingHorizontal: space[16] },
+  menuTint: { backgroundColor: color.bg.menu },
+  // Eigene Ebene: Sonst liegen Blur und Tönung im Web über den Einträgen
+  menuItem: { position: 'relative', minHeight: size.touchTarget, justifyContent: 'center', paddingHorizontal: space[16] },
   menuDivider: { borderBottomWidth: stroke.ultraThin, borderBottomColor: color.line.hairline },
   menuText: { fontFamily: font.regular, fontSize: 15, lineHeight: 20, color: color.text.primary },
   caption: { ...text.caption, fontSize: 13, color: color.text.secondary },
