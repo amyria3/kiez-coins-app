@@ -15,8 +15,6 @@ type Ctx = CanvasRenderingContext2D;
 
 /** Grau für die Seitenzahl */
 const MARK = '#A1A1A6';
-/** Logo unten rechts: etwas weicher als Schwarz, aber nicht blass (Daria, 07.11.2026) */
-const LOGO_INK = '#4A4A4F';
 
 /** SVG als Bild vorbereiten, damit das Zeichnen beim Teilen nicht warten muss */
 function svgImage(xml: string): HTMLImageElement | null {
@@ -29,7 +27,7 @@ function svgImage(xml: string): HTMLImageElement | null {
 /** Kater wie in den Kater-Nachrichten (Icon „cat“, Daria, 07.11.2026) */
 const CAT = iconSvgs.cat;
 const catImage = svgImage(
-  CAT.svg(LOGO_INK).replace(/width="[^"]*" height="[^"]*"/, `width="${CAT.width * 4}" height="${CAT.height * 4}"`),
+  CAT.svg(INK).replace(/width="[^"]*" height="[^"]*"/, `width="${CAT.width * 4}" height="${CAT.height * 4}"`),
 );
 
 /** Wer den Post geschrieben hat: oben über dem Titel, Profilbild und Name (Daria, 07.11.2026) */
