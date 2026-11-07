@@ -47,9 +47,10 @@ export function sheetMetrics(width: number, fontKey?: string) {
   const pad = Math.round(width * 0.11);
   // Oben und unten deutlich mehr Luft als an den Seiten (Daria, 07.11.2026)
   const padY = Math.round(width * 0.19);
-  const fontSize = width * 0.064 * f.scale * style.size;
+  // 15 % kleiner (Daria, 07.11.2026)
+  const fontSize = width * 0.0544 * f.scale * style.size;
   const lineHeight = Math.round(fontSize * f.leading);
-  const titleSize = width * 0.084 * f.scale * style.size;
+  const titleSize = width * 0.0714 * f.scale * style.size;
   const titleLineHeight = Math.round(titleSize * Math.max(1.18, f.leading - 0.2));
   return {
     pad,
