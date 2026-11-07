@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 
 import { INK, INK_LINK, PAPER, RICH, SHEET_RATIO, sheetMetrics } from '../components/TextSheets';
 import { brandArt } from '../components/icons/brandArt';
+import { iconSvgs } from '../components/icons/svgs';
 import { font } from '../theme/tokens';
 
 /**
@@ -18,20 +19,30 @@ const MARK = '#A1A1A6';
 /** Logo unten rechts: etwas weicher als Schwarz, aber nicht blass (Daria, 07.11.2026) */
 const LOGO_INK = '#4A4A4F';
 
-/**
- * Logo unten rechts, Kater-Kopf mit „KiezCoins“ daneben (Daria, 07.11.2026). Wird beim Laden der App vorbereitet,
- * damit das Zeichnen beim Teilen nicht warten muss.
- */
-const logoImage: HTMLImageElement | null = (() => {
+/** SVG als Bild vorbereiten, damit das Zeichnen beim Teilen nicht warten muss */
+function svgImage(xml: string): HTMLImageElement | null {
   if (Platform.OS !== 'web' || typeof Image === 'undefined') return null;
-  const art = brandArt['logo-mono'];
-  const xml = art.svg
-    .replace(/#111111/gi, LOGO_INK)
-    .replace(/width="[^"]*" height="[^"]*"/, `width="${art.width * 4}" height="${art.height * 4}"`);
   const img = new Image();
   img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(xml)}`;
   return img;
-})();
+}
+
+/** Kater wie in den Kater-Nachrichten (Icon „cat“, Daria, 07.11.2026) */
+const CAT = iconSvgs.cat;
+const catImage = svgImage(
+  CAT.svg(LOGO_INK).replace(/width="[^"]*" height="[^"]*"/, `width="${CAT.width * 4}" height="${CAT.height * 4}"`),
+);
+
+/** Schriftzug „KiezCoins“ aus dem einfarbigen Logo, ohne dessen Kater-Kopf */
+const WORD_X = 40;
+const WORD = brandArt['logo-mono'];
+const WORD_W = WORD.width - WORD_X;
+const wordImage = svgImage(
+  WORD.svg
+    .replace(/#111111/gi, LOGO_INK)
+    .replace(/viewBox="[^"]*"/, `viewBox="${WORD_X} 0 ${WORD_W} ${WORD.height}"`)
+    .replace(/width="[^"]*" height="[^"]*"/, `width="${WORD_W * 4}" height="${WORD.height * 4}"`),
+);
 
 /** Wer den Post geschrieben hat: oben über dem Titel, Profilbild und Name (Daria, 07.11.2026) */
 export type SheetAuthor = { name: string; avatarUri?: string };
@@ -189,11 +200,16 @@ function drawSheet(
   // Unten: Seitenzahl links in Grau, Logo rechts (Daria, 07.11.2026)
   const markSize = W * 0.03;
   const bottom = H - Math.round(m.padY * 0.38);
-  if (logoImage?.complete && logoImage.naturalWidth) {
-    const art = brandArt['logo-mono'];
-    const lw = Math.round(W * 0.24);
-    const lh = Math.round((lw * art.height) / art.width);
-    ctx.drawImage(logoImage, W - m.pad - lw, bottom - lh, lw, lh);
+  const ready = (img: HTMLImageElement | null): img is HTMLImageElement => !!img?.complete && !!img.naturalWidth;
+  if (ready(catImage) && ready(wordImage)) {
+    // Unten rechts: Kater, daneben „KiezCoins“ (Daria, 07.11.2026)
+    const wh = Math.round(W * 0.05);
+    const ww = Math.round((wh * WORD_W) / WORD.height);
+    const ch = Math.round(wh * 1.25);
+    const cw = Math.round((ch * CAT.width) / CAT.height);
+    const gap = Math.round(wh * 0.2);
+    ctx.drawImage(wordImage, W - m.pad - ww, bottom - wh, ww, wh);
+    ctx.drawImage(catImage, W - m.pad - ww - gap - cw, bottom - ch, cw, ch);
   } else {
     ctx.font = `600 ${markSize * 1.2}px "${font.regular}"`;
     ctx.fillStyle = LOGO_INK;
