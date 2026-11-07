@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 
 import { INK, INK_LINK, PAPER, RICH, SHEET_RATIO, sheetMetrics } from '../components/TextSheets';
+import { brandArt } from '../components/icons/brandArt';
 import { font } from '../theme/tokens';
 
 /**
@@ -11,6 +12,24 @@ import { font } from '../theme/tokens';
 export const SLIDE_WIDTH = 1080;
 
 type Ctx = CanvasRenderingContext2D;
+
+/** Grau für Wasserzeichen und Seitenzahl */
+const MARK = '#A1A1A6';
+
+/**
+ * Kater aus dem einfarbigen Logo als Wasserzeichen (Daria, 07.11.2026). Wird beim Laden der App vorbereitet, damit
+ * das Zeichnen beim Teilen nicht warten muss.
+ */
+const catImage: HTMLImageElement | null = (() => {
+  if (Platform.OS !== 'web' || typeof Image === 'undefined') return null;
+  const xml = brandArt['logo-mono'].svg
+    .replace(/#111111/gi, MARK)
+    .replace(/viewBox="[^"]*"/, 'viewBox="0 1 34 34"')
+    .replace(/width="[^"]*" height="[^"]*"/, 'width="136" height="136"');
+  const img = new Image();
+  img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(xml)}`;
+  return img;
+})();
 
 /** Zeilen umbrechen wie im Blatt: an Leerzeichen, harte Umbrüche bleiben, zu lange Wörter werden geteilt */
 function wrap(ctx: Ctx, text: string, maxWidth: number): string[] {
@@ -54,7 +73,14 @@ function drawLine(ctx: Ctx, line: string, x: number, y: number, align: 'left' | 
   });
 }
 
-function drawSheet(text: string, title: string | undefined, index: number, count: number, fontKey?: string): HTMLCanvasElement {
+function drawSheet(
+  text: string,
+  title: string | undefined,
+  index: number,
+  count: number,
+  fontKey?: string,
+  author?: string,
+): HTMLCanvasElement {
   const W = SLIDE_WIDTH;
   const H = Math.round(W * SHEET_RATIO);
   const m = sheetMetrics(W, fontKey);
@@ -84,12 +110,25 @@ function drawSheet(text: string, title: string | undefined, index: number, count
     y += m.body.lineHeight;
   }
 
+  // Unten: Kater und Name als Wasserzeichen links, Seitenzahl rechts (Daria, 07.11.2026)
+  const markSize = W * 0.03;
+  const baseline = H - Math.round(m.padY * 0.4);
+  ctx.font = `${markSize}px "${font.regular}"`;
+  ctx.fillStyle = MARK;
+  ctx.textBaseline = 'bottom';
+  let x = m.pad;
+  const cat = Math.round(markSize * 1.9);
+  if (catImage?.complete && catImage.naturalWidth) {
+    ctx.drawImage(catImage, x, baseline - cat + Math.round(markSize * 0.25), cat, cat);
+    x += cat + Math.round(markSize * 0.5);
+  }
+  ctx.textAlign = 'left';
+  // Platz bis zur Seitenzahl; ein langer Name wird schmaler gezeichnet, statt sie zu überdecken
+  const room = W - m.pad - x - (count > 1 ? markSize * 4 : 0);
+  ctx.fillText(author?.trim() ? `${author.trim()} · KiezCoins` : 'KiezCoins', x, baseline, room);
   if (count > 1) {
-    ctx.font = `${W * 0.03}px "${font.regular}"`;
-    ctx.fillStyle = '#8E8E93';
     ctx.textAlign = 'right';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText(`${index + 1}/${count}`, W - m.pad, H - Math.round(m.padY * 0.4));
+    ctx.fillText(`${index + 1}/${count}`, W - m.pad, baseline);
   }
   return canvas;
 }
@@ -102,19 +141,19 @@ function canvasToFile(canvas: HTMLCanvasElement, name: string): File {
   return new File([buffer], name, { type: 'image/png' });
 }
 
-/** Alle Blätter als PNG-Dateien, `null` außerhalb des Browsers */
-export function sheetImageFiles(pages: string[], title?: string, fontKey?: string): File[] | null {
+/** Alle Blätter als PNG-Dateien, unten Name und Kater. `null` außerhalb des Browsers. */
+export function sheetImageFiles(pages: string[], title?: string, fontKey?: string, author?: string): File[] | null {
   if (Platform.OS !== 'web' || typeof document === 'undefined') return null;
   return pages.map((p, i) =>
-    canvasToFile(drawSheet(p, title, i, pages.length, fontKey), `kiezcoins-${String(i + 1).padStart(2, '0')}.png`),
+    canvasToFile(drawSheet(p, title, i, pages.length, fontKey, author), `kiezcoins-${String(i + 1).padStart(2, '0')}.png`),
   );
 }
 
 /**
- * Bilder teilen: über das Teilen-Menü, wenn der Browser Dateien teilen kann, sonst als Download.
- * Gibt `false` zurück, wenn beides nicht geht.
+ * Bilder teilen, mit Text (Titel und Link) dazu: über das Teilen-Menü, wenn der Browser Dateien teilen kann,
+ * sonst als Download. `false`, wenn beides nicht geht.
  */
-export async function shareImageFiles(files: File[], text?: string): Promise<boolean> {
+export async function shareImageFiles(files: File[], text?: string): Promise<'shared' | 'downloaded' | false> {
   const nav = navigator as Navigator & { canShare?: (data: ShareData) => boolean };
   if (typeof nav.share === 'function' && nav.canShare?.({ files })) {
     try {
@@ -122,7 +161,7 @@ export async function shareImageFiles(files: File[], text?: string): Promise<boo
     } catch {
       // Abgebrochen: nichts weiter tun
     }
-    return true;
+    return 'shared';
   }
   try {
     for (const file of files) {
@@ -135,7 +174,7 @@ export async function shareImageFiles(files: File[], text?: string): Promise<boo
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
-    return true;
+    return 'downloaded';
   } catch {
     return false;
   }
