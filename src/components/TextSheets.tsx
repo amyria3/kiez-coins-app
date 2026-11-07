@@ -38,7 +38,7 @@ export const SHEET_RATIO = 5 / 4;
 export const PAPER = '#FFFFFF';
 export const INK = '#232326';
 /** Links und @Namen: kräftiges Orange ohne Braunstich (Daria, 07.11.2026, vorher Lila #5B5CD6) */
-const INK_LINK = '#E8590C';
+export const INK_LINK = '#E8590C';
 
 export function sheetMetrics(width: number, fontKey?: string) {
   // fontKey: Schrift, dazu wahlweise Größe und Ausrichtung (data/sheetFonts.ts)
@@ -78,7 +78,7 @@ export const isTextPost = (c: { pages?: string[] }) => !!c.pages?.length;
 export const pagesText = (pages: string[]) => pages.join(' ').replace(/\s+/g, ' ').trim();
 
 // Links mit http(s) oder www, @Namen wie in den Kommentaren
-const RICH = /(https?:\/\/[^\s]+|www\.[^\s]+|@[\p{L}\p{N}_]+)/u;
+export const RICH = /(https?:\/\/[^\s]+|www\.[^\s]+|@[\p{L}\p{N}_]+)/u;
 const TRAILING = /[.,!?;:)\]»“"']+$/;
 
 /** Text eines Blatts: Links öffnen sich, @Namen führen zum Profil, wenn es die Person gibt. */
