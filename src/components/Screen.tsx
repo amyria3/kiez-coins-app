@@ -98,7 +98,10 @@ export function ResultScreen({ mood = 'default', badge, title, message, onFeedPr
 }
 
 type HeroScreenProps = {
-  image: ImageSourcePropType;
+  /** Fehlt bei Posts nur mit Text: Dann steht `hero` an der Stelle des Fotos */
+  image?: ImageSourcePropType;
+  /** Statt des Fotos, z. B. die Blätter eines Posts nur mit Text (Daria, 07.11.2026) */
+  hero?: ReactNode;
   /** Weitere Fotos: Mit mehr als einem Foto lässt sich das Foto seitlich wischen. */
   moreImages?: ImageSourcePropType[];
   imageLabel?: string;
@@ -127,6 +130,7 @@ type HeroScreenProps = {
  */
 export function HeroScreen({
   image,
+  hero,
   moreImages,
   imageLabel,
   onBackPress,
@@ -141,7 +145,7 @@ export function HeroScreen({
 }: HeroScreenProps) {
   const insets = useSafeAreaInsets();
   const { height, width } = useAppDimensions();
-  const images = [image, ...(moreImages ?? [])];
+  const images = image ? [image, ...(moreImages ?? [])] : [];
   const [page, setPage] = useState(0);
   // Eingeklappt: Das Foto bekommt den Platz, das Blatt zeigt nur noch die Zusammenfassung.
   // So startet die Detailansicht (Daria, 22.10.2026). Mit Sprung zu den Kommentaren startet sie ausgeklappt.
@@ -247,7 +251,9 @@ export function HeroScreen({
             accessibilityLabel={collapsed ? (chromeHidden ? t('Bedienelemente einblenden') : t('Bedienelemente ausblenden')) : t('Foto groß ansehen')}
             style={[styles.hero, { height: heroHeight }]}
           >
-            {images.length > 1 ? (
+            {hero ? (
+              <View style={[StyleSheet.absoluteFill, styles.heroCustom]}>{hero}</View>
+            ) : images.length > 1 ? (
               <>
                 <ScrollView
                   horizontal
@@ -379,6 +385,7 @@ const styles = StyleSheet.create({
   resultTitle: { ...text.title, color: color.text.primary, textAlign: 'center' },
   resultMessage: { ...text.body, color: color.text.secondary, textAlign: 'center' },
   hero: { backgroundColor: color.bg.surface },
+  heroCustom: { backgroundColor: color.bg.screen },
   heroOverlay: { position: 'absolute', left: space[16], bottom: space[48] },
   // Unten liegt das Blatt 32 px über dem Foto
   heroText: { position: 'absolute', left: 0, right: 0, top: 0, bottom: space[32] },

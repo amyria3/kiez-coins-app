@@ -16,7 +16,8 @@ export const PHOTO_TAG = '#InDiesemMoment';
 export function postText(challenge: Challenge): string {
   if (challenge.type === 'individual') return weChallengeText(challenge);
   const own = challenge.text?.trim() ?? '';
-  if (challenge.type !== 'photo') return own;
+  // Post nur mit Text: keine Marke, der Text steht auf den Blättern
+  if (challenge.type !== 'photo' || challenge.pages?.length) return own;
   return own ? `${PHOTO_TAG} ${own}` : PHOTO_TAG;
 }
 
