@@ -13,7 +13,16 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useStore } from '../data/store';
-import { SHEET_FONTS, sheetFont, useSheetFonts, type SheetFont } from '../data/sheetFonts';
+import {
+  SHEET_FONTS,
+  SHEET_SIZE_MAX,
+  SHEET_SIZE_MIN,
+  formatSheetStyle,
+  parseSheetStyle,
+  sheetFont,
+  useSheetFonts,
+  type SheetAlign,
+} from '../data/sheetFonts';
 import { color, font, space } from '../theme/tokens';
 import { Text } from './T';
 
@@ -32,21 +41,30 @@ export const INK = '#232326';
 const INK_LINK = '#E8590C';
 
 export function sheetMetrics(width: number, fontKey?: string) {
-  const f = sheetFont(fontKey);
+  // fontKey: Schrift, dazu wahlweise Größe und Ausrichtung (data/sheetFonts.ts)
+  const style = parseSheetStyle(fontKey);
+  const f = sheetFont(style.font);
   const pad = Math.round(width * 0.11);
   // Oben und unten deutlich mehr Luft als an den Seiten (Daria, 07.11.2026)
   const padY = Math.round(width * 0.19);
-  const fontSize = width * 0.064 * f.scale;
+  const fontSize = width * 0.064 * f.scale * style.size;
   const lineHeight = Math.round(fontSize * f.leading);
-  const titleSize = width * 0.084 * f.scale;
+  const titleSize = width * 0.084 * f.scale * style.size;
   const titleLineHeight = Math.round(titleSize * Math.max(1.18, f.leading - 0.2));
   return {
     pad,
     padY,
     innerWidth: width - 2 * pad,
     innerHeight: Math.round(width * SHEET_RATIO) - 2 * padY,
-    body: { fontFamily: f.body, fontSize, lineHeight, color: INK },
-    title: { fontFamily: f.title, fontSize: titleSize, lineHeight: titleLineHeight, color: INK, letterSpacing: f.key === 'inter' ? -0.3 : 0 },
+    body: { fontFamily: f.body, fontSize, lineHeight, color: INK, textAlign: style.align },
+    title: {
+      fontFamily: f.title,
+      fontSize: titleSize,
+      lineHeight: titleLineHeight,
+      color: INK,
+      letterSpacing: f.key === 'inter' ? -0.3 : 0,
+      textAlign: style.align,
+    },
     /** Abstand zwischen Titel und Text */
     titleGap: Math.round(lineHeight * 0.5),
     lineHeight,
@@ -245,9 +263,11 @@ export function SheetEditor({
   onPagesChange: (pages: string[]) => void;
   placeholder?: string;
   fontKey?: string;
-  onFontChange?: (font: SheetFont) => void;
+  /** Neue Schrift, Größe oder Ausrichtung, zusammen als ein Wert (data/sheetFonts.ts) */
+  onFontChange?: (font: string) => void;
 }) {
   const fontsReady = useSheetFonts();
+  const style = parseSheetStyle(fontKey);
   const [width, setWidth] = useState(0);
   const m = sheetMetrics(width || 320, fontKey);
   const inputs = useRef<(TextInput | null)[]>([]);
@@ -272,10 +292,10 @@ export function SheetEditor({
 
   const update = (next: string[]) => onPagesChange(next.slice(0, MAX_PAGES));
 
-  // Andere Schrift: alles neu messen, Wörter dürfen wieder nachrücken
+  // Andere Schrift oder Größe: Wörter dürfen wieder nachrücken. Die Höhen nicht löschen: Bleibt eine Höhe gleich,
+  // meldet die Messung sie nicht neu, und die Blätter blieben ungeprüft.
   useEffect(() => {
     noPull.current.clear();
-    setHeights({});
   }, [fontKey, fontsReady]);
 
   useEffect(() => {
@@ -390,11 +410,11 @@ export function SheetEditor({
       {onFontChange ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.fonts}>
           {SHEET_FONTS.map((f) => {
-            const selected = sheetFont(fontKey).key === f.key;
+            const selected = style.font === f.key;
             return (
               <Pressable
                 key={f.key}
-                onPress={() => onFontChange(f.key)}
+                onPress={() => onFontChange(formatSheetStyle({ ...style, font: f.key }))}
                 accessibilityRole="radio"
                 accessibilityState={{ selected }}
                 accessibilityLabel={`Schrift ${f.label}`}
@@ -407,6 +427,12 @@ export function SheetEditor({
             );
           })}
         </ScrollView>
+      ) : null}
+      {onFontChange ? (
+        <View style={styles.tools}>
+          <AlignChoice value={style.align} onChange={(align) => onFontChange(formatSheetStyle({ ...style, align }))} />
+          <SizeSlider value={style.size} onChange={(size) => onFontChange(formatSheetStyle({ ...style, size }))} />
+        </View>
       ) : null}
       {width ? (
         <ScrollView
@@ -438,6 +464,8 @@ export function SheetEditor({
                       accessibilityLabel="Titel"
                     />
                     <Text
+                      // Neu einhängen bei jeder Änderung: onLayout meldet sonst nur, wenn sich die Höhe ändert
+                      key={`${fontKey}|${title}`}
                       noTranslate
                       style={[m.title, styles.measure, { width: m.innerWidth }]}
                       onLayout={(e) => setTitleHeight(Math.ceil(e.nativeEvent.layout.height))}
@@ -473,6 +501,7 @@ export function SheetEditor({
                   accessibilityLabel={`Blatt ${k + 1}`}
                 />
                 <Text
+                  key={`${fontKey}|${value}`}
                   noTranslate
                   style={[m.body, styles.measure, { width: m.innerWidth }]}
                   onLayout={(e) => {
@@ -510,6 +539,82 @@ export function SheetEditor({
   );
 }
 
+/** Links oder mittig: zwei Knöpfe mit gezeichneten Zeilen */
+function AlignChoice({ value, onChange }: { value: SheetAlign; onChange: (align: SheetAlign) => void }) {
+  return (
+    <View style={styles.alignRow} accessibilityRole="radiogroup">
+      {(['left', 'center'] as const).map((a) => {
+        const selected = value === a;
+        return (
+          <Pressable
+            key={a}
+            onPress={() => onChange(a)}
+            accessibilityRole="radio"
+            accessibilityState={{ selected }}
+            accessibilityLabel={a === 'left' ? 'Linksbündig' : 'Zentriert'}
+            style={[styles.alignButton, selected && styles.fontChipSelected]}
+          >
+            {[16, 11, 16, 9].map((w, i) => (
+              <View
+                key={i}
+                style={[
+                  styles.alignLine,
+                  { width: w, alignSelf: a === 'left' ? 'flex-start' : 'center' },
+                  { backgroundColor: selected ? INK : color.text.primary },
+                ]}
+              />
+            ))}
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+/** Schriftgröße stufenlos von 90 % bis 130 % (Daria, 07.11.2026). Ziehen oder Tippen auf die Leiste. */
+function SizeSlider({ value, onChange }: { value: number; onChange: (size: number) => void }) {
+  const [trackW, setTrackW] = useState(0);
+  const start = useRef({ x: 0, value: 1 });
+  const range = SHEET_SIZE_MAX - SHEET_SIZE_MIN;
+  const clamp = (v: number) => Math.round(Math.min(SHEET_SIZE_MAX, Math.max(SHEET_SIZE_MIN, v)) * 100) / 100;
+  const ratio = (value - SHEET_SIZE_MIN) / range;
+  const KNOB = 22;
+  return (
+    <View style={styles.sizeRow}>
+      <Text style={[styles.sizeA, { fontSize: 13 }]}>A</Text>
+      <View
+        style={styles.track}
+        onLayout={(e) => setTrackW(e.nativeEvent.layout.width)}
+        onStartShouldSetResponder={() => true}
+        onMoveShouldSetResponder={() => true}
+        onResponderTerminationRequest={() => false}
+        onResponderGrant={(e) => {
+          const v = trackW ? clamp(SHEET_SIZE_MIN + ((e.nativeEvent.locationX - KNOB / 2) / (trackW - KNOB)) * range) : value;
+          start.current = { x: e.nativeEvent.pageX, value: v };
+          if (v !== value) onChange(v);
+        }}
+        onResponderMove={(e) => {
+          if (!trackW) return;
+          const v = clamp(start.current.value + ((e.nativeEvent.pageX - start.current.x) / (trackW - KNOB)) * range);
+          if (v !== value) onChange(v);
+        }}
+        accessibilityRole="adjustable"
+        accessibilityLabel="Schriftgröße"
+        accessibilityValue={{ text: `${Math.round(value * 100)} %` }}
+        accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+        onAccessibilityAction={(e) => onChange(clamp(value + (e.nativeEvent.actionName === 'increment' ? 0.05 : -0.05)))}
+      >
+        <View style={styles.trackLine} pointerEvents="none" />
+        <View
+          pointerEvents="none"
+          style={[styles.knob, { width: KNOB, height: KNOB, borderRadius: KNOB / 2, left: ratio * Math.max(0, trackW - KNOB) }]}
+        />
+      </View>
+      <Text style={[styles.sizeA, { fontSize: 20 }]}>A</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   editor: { gap: space[12] },
   fonts: { gap: space[8] },
@@ -521,6 +626,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: color.line.hairline,
   },
+  tools: { flexDirection: 'row', alignItems: 'center', gap: space[16] },
+  alignRow: { flexDirection: 'row', gap: space[8] },
+  alignButton: {
+    width: 44,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: color.line.hairline,
+    justifyContent: 'center',
+    paddingHorizontal: 13,
+    gap: 3,
+  },
+  alignLine: { height: 2, borderRadius: 1 },
+  sizeRow: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: space[8] },
+  sizeA: { fontFamily: font.regular, color: color.text.secondary },
+  track: { flex: 1, height: 36, justifyContent: 'center', cursor: 'pointer' } as object,
+  trackLine: { height: 2, borderRadius: 1, backgroundColor: color.line.hairline },
+  knob: { position: 'absolute', top: 7, backgroundColor: PAPER },
   fontChipSelected: { backgroundColor: PAPER, borderColor: PAPER },
   fontChipText: { fontSize: 15, color: color.text.primary },
   fontChipTextSelected: { color: INK },
