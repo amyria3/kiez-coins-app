@@ -48,6 +48,7 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 ## Geburtstage (Daria, 07.11.2026)
 
 - [ ] Idee: Geburtstag mit Aufgaben oder Challenges verbinden, zum Beispiel zum Geburtstag jemanden kennenlernen. Noch nicht bauen, erst ausarbeiten.
+- [ ] Weitere Idee (Daria, 07.11.2026): zum Geburtstag alles vom Buffet probieren.
 
 ## Domain und Sichtbarkeit (Daria, 05.11.2026)
 
