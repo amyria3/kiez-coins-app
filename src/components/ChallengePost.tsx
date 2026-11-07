@@ -607,8 +607,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.post,
     overflow: 'hidden',
     backgroundColor: color.bg.surface,
-    borderWidth: stroke.thin,
-    borderColor: color.line.raised,
+    // Ohne Rand um die Karte, nur die Rundung bleibt (Daria, 2026-11-07)
     justifyContent: 'flex-end',
     // Glasleiste mit Abstand zum Kartenrand (Daria, 22.10.2026)
     padding: space[12],
