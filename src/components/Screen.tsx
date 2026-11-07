@@ -198,11 +198,46 @@ export function HeroScreen({
   // Felder wie das Kommentarfeld können sich ins Bild scrollen (Nudge.tsx)
   const heroNudge = useNudgeScroll(scrollRef);
   const scrolledToEnd = useRef(false);
-  const slide = useRef(new Animated.Value(slideIn && Platform.OS === 'web' ? 1 : 0)).current;
+  // Im Browser liegt die Seite wie ein Blatt über dem Feed (presentation in _layout.tsx)
+  const overlay = !!slideIn && Platform.OS === 'web';
+  // 0 = Seite liegt ganz da, 1 = ganz nach rechts weggeschoben
+  const slide = useRef(new Animated.Value(overlay ? 1 : 0)).current;
   useEffect(() => {
-    if (!(slideIn && Platform.OS === 'web')) return;
+    if (!overlay) return;
     Animated.timing(slide, { toValue: 0, duration: 280, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
-  }, [slide, slideIn]);
+  }, [slide, overlay]);
+  const widthRef = useRef(width);
+  widthRef.current = width;
+  const backRef = useRef(onBackPress);
+  backRef.current = onBackPress;
+  // Seite nach rechts hinausgleiten lassen, danach zurück zum Feed
+  const leave = () => {
+    const back = backRef.current;
+    if (!back) return;
+    Animated.timing(slide, { toValue: 1, duration: 220, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start(
+      ({ finished }) => finished && back(),
+    );
+  };
+  const leaveRef = useRef(leave);
+  leaveRef.current = leave;
+  // Nach rechts wischen schiebt die Seite mit dem Finger weg, darunter erscheint der Feed. Zurückwischen bricht ab
+  // (Daria, 07.11.2026). Nur im Browser: In der App liegt der Feed nicht darunter, iOS hat dort das eigene Wischen.
+  const back = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponderCapture: (e, g) =>
+          g.dx > 14 && g.dx > Math.abs(g.dy) * 2 && !inScrolledRow(e.nativeEvent.target as unknown),
+        onPanResponderTerminationRequest: () => false,
+        onPanResponderMove: (_, g) => slide.setValue(Math.max(0, g.dx) / (widthRef.current || 1)),
+        onPanResponderRelease: (_, g) => {
+          if (g.dx > (widthRef.current || 1) * 0.35 || (g.vx > 0.5 && g.dx > 40)) leaveRef.current();
+          else Animated.spring(slide, { toValue: 0, useNativeDriver: true, ...motion.barrierSpring }).start();
+        },
+        onPanResponderTerminate: () =>
+          Animated.spring(slide, { toValue: 0, useNativeDriver: true, ...motion.barrierSpring }).start(),
+      }),
+    [slide],
+  );
   const drag = useRef(new Animated.Value(0)).current;
   const pan = useMemo(
     () =>
@@ -223,8 +258,21 @@ export function HeroScreen({
     [drag],
   );
   return (
+    <View style={styles.flex}>
+    {overlay ? (
+      // Der Feed darunter wird beim Wegwischen heller
+      <Animated.View
+        pointerEvents="none"
+        style={[StyleSheet.absoluteFill, styles.underDim, { opacity: slide.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0] }) }]}
+      />
+    ) : null}
     <Animated.View
-      style={[styles.screen, { transform: [{ translateX: slide.interpolate({ inputRange: [0, 1], outputRange: [0, width] }) }] }]}
+      {...(overlay && onBackPress ? back.panHandlers : null)}
+      style={[
+        styles.screen,
+        overlay && styles.screenEdge,
+        { transform: [{ translateX: slide.interpolate({ inputRange: [0, 1], outputRange: [0, width] }) }] },
+      ]}
     >
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <NudgeScrollProvider value={heroNudge}>
@@ -340,12 +388,26 @@ export function HeroScreen({
         </NudgeScrollProvider>
       </KeyboardAvoidingView>
       <Animated.View style={[styles.heroButtons, { top: insets.top + space[8] }, chromeStyle]} pointerEvents={chromeTouch}>
-        {onBackPress ? <GlassIconButton icon="chevron-left" accessibilityLabel={t('Zurück')} onPress={onBackPress} /> : <View />}
+        {onBackPress ? <GlassIconButton icon="chevron-left" accessibilityLabel={t('Zurück')} onPress={overlay ? leave : onBackPress} /> : <View />}
         {onSharePress ? <GlassIconButton icon="send" accessibilityLabel={t('Teilen')} onPress={onSharePress} /> : null}
       </Animated.View>
       {chromeHidden ? <StatusBar hidden animated /> : null}
     </Animated.View>
+    </View>
   );
+}
+
+/**
+ * Browser: Liegt der Finger in einer seitlich gewischten Reihe (weitere Fotos, Text-Blätter), wischt er dort
+ * erst zurück. Erst auf dem ersten Bild schließt Wischen nach rechts die Seite.
+ */
+function inScrolledRow(target: unknown): boolean {
+  let node = target as { scrollLeft?: number; parentElement?: unknown } | null;
+  while (node) {
+    if ((node.scrollLeft ?? 0) > 0) return true;
+    node = node.parentElement as typeof node;
+  }
+  return false;
 }
 
 const HERO_HEIGHT = 340;
@@ -367,6 +429,9 @@ const styles = StyleSheet.create({
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: 'rgba(240,240,240,0.45)' },
   dotActive: { backgroundColor: color.text.primary, width: 16 },
   screen: { flex: 1, backgroundColor: color.bg.screen },
+  // Kante links, wenn die Seite über dem Feed zur Seite gleitet
+  screenEdge: { boxShadow: '-8px 0 24px rgba(0,0,0,0.35)' },
+  underDim: { backgroundColor: '#000' },
   flex: { flex: 1 },
   content: {
     paddingTop: space[16],
