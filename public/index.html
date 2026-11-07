@@ -107,6 +107,42 @@
         width: 100%;
         height: auto;
       }
+      /* „Moment“ mit wandernden Punkten in der Mitte, bis der Kater kommt (Daria, 07.11.2026), wie in StartKater.tsx */
+      #boot-moment {
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: calc(env(safe-area-inset-bottom) + 32px + min(200px, 22vh) + 24px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 20;
+        pointer-events: none;
+        color: #fff8ed;
+        font: 18px/24px -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      }
+      #boot-moment i {
+        font-style: normal;
+        animation: boot-dot2 1.2s steps(1) infinite;
+      }
+      #boot-moment i:first-of-type {
+        animation: none;
+      }
+      #boot-moment i:last-of-type {
+        animation-name: boot-dot3;
+      }
+      @keyframes boot-dot2 {
+        0% { opacity: 0; }
+        33% { opacity: 1; }
+      }
+      @keyframes boot-dot3 {
+        0% { opacity: 0; }
+        66% { opacity: 1; }
+      }
+      html.fashionable #boot-moment {
+        color: #000000;
+      }
       html.fashionable body {
         background-color: #ffffff;
       }
@@ -126,6 +162,7 @@
   <body>
     <noscript>KiezCoins braucht JavaScript.</noscript>
     <div id="boot" aria-hidden="true"><img src="/app/gears.svg" alt="" /></div>
+    <div id="boot-moment" aria-hidden="true">Moment<i>.</i><i>.</i><i>.</i></div>
     <div id="root"></div>
     <script>
       // Safari kennt requestIdleCallback nicht. Expo Router ruft es an einer Stelle ohne Prüfung auf.
