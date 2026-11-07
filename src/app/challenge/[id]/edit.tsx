@@ -24,6 +24,17 @@ import { MAX_MEMBERS } from '../../../data/groups';
 import type { Participation } from '../../../data/remote';
 import { cleanPages } from '../../../data/remote';
 import { SheetEditor, pagesText } from '../../../components/TextSheets';
+import { TypeSwitch } from '../../../components/compose/TypeSwitch';
+
+/** Wer den Beitrag sieht, wie die Reiter im Feed (Daria, 07.11.2026) */
+type Audience = 'private' | 'nearby' | 'everywhere';
+const AUDIENCES: readonly { key: Audience; label: string }[] = [
+  { key: 'private', label: 'Privat' },
+  { key: 'nearby', label: 'Kiez' },
+  { key: 'everywhere', label: 'Überall' },
+];
+const audienceOf = (c?: { private?: boolean; localOnly?: boolean }): Audience =>
+  c?.private ? 'private' : c?.localOnly ? 'nearby' : 'everywhere';
 
 const durations = [
   { days: 1, label: '1 Tag' },
@@ -70,6 +81,8 @@ export default function EditChallenge() {
   // Post nur mit Text: Blätter statt Foto (Daria, 07.11.2026)
   const [pages, setPages] = useState<string[] | undefined>(challenge?.pages);
   const [sheetFont, setSheetFont] = useState<string>(challenge?.sheetFont ?? 'inter');
+  // Privat, Kiez oder Überall lässt sich auch hier ändern (Daria, 07.11.2026)
+  const [audience, setAudience] = useState<Audience>(() => audienceOf(challenge));
   const titleField = useNudge();
   const locationField = useNudge();
 
@@ -98,8 +111,18 @@ export default function EditChallenge() {
   const titleOptional = challenge.type === 'photo';
   const whyNot = () =>
     !title.trim() && !titleOptional ? titleField.nudge('Gib einen Titel ein.') : locationField.nudge('Wo soll es stattfinden?');
+  // Privat nur ohne Gruppe, nur Bild und Me-Challenge, ohne Coins (Check challenges_visibility)
+  const canBePrivate = (challenge.type === 'photo' || challenge.type === 'before_after') && !challenge.bountyAmount;
+  const audiences = canBePrivate ? AUDIENCES : AUDIENCES.filter((a) => a.key !== 'private');
+  const audienceChanged = !isGroup && audience !== audienceOf(challenge);
+  const isPrivate = audience === 'private';
+  // Private Beiträge haben keinen Ort
+  const needsLocation = !isGroup && !isPrivate;
   const canSave =
-    (titleOptional || title.trim().length > 0) && title.trim().length <= 60 && (isGroup || location.trim().length > 0) && !textMissing;
+    (titleOptional || title.trim().length > 0) && title.trim().length <= 60 && (!needsLocation || location.trim().length > 0) && !textMissing;
+  const saveAudience = () => {
+    if (audienceChanged) dispatch({ type: 'setAudience', id: challenge.id, private: isPrivate, localOnly: audience === 'nearby' });
+  };
 
   // Abgelaufene Frist einer gelöschten Challenge: läuft beim Veröffentlichen neu, so lang wie ursprünglich.
   const expired = new Date(challenge.deadline).getTime() <= Date.now();
@@ -134,6 +157,7 @@ export default function EditChallenge() {
     ...(participationChanged ? { participation } : {}),
   });
   const changed =
+    audienceChanged ||
     pagesChanged ||
     title.trim() !== challenge.title ||
     body.trim() !== challenge.text ||
@@ -161,6 +185,7 @@ export default function EditChallenge() {
       if (!crosspost) return;
       dispatch({ type: 'restore', id: challenge.id, deadline: edit.deadline, crosspost });
       if (changed || expired) dispatch({ type: 'edit', id: challenge.id, edit });
+      saveAudience();
       goBack();
     });
   };
@@ -174,6 +199,7 @@ export default function EditChallenge() {
       return;
     }
     dispatch({ type: 'editDeleted', id: challenge.id, edit: editOf() });
+    saveAudience();
     goBack();
   };
 
@@ -188,7 +214,10 @@ export default function EditChallenge() {
         {
           text: 'Nicht veröffentlichen',
           onPress: () => {
-            if (canSave) dispatch({ type: 'edit', id: challenge.id, edit: editOf() });
+            if (canSave) {
+              dispatch({ type: 'edit', id: challenge.id, edit: editOf() });
+              saveAudience();
+            }
             dispatch({ type: 'delete', id: challenge.id });
             backToManage();
           },
@@ -203,6 +232,7 @@ export default function EditChallenge() {
       return;
     }
     dispatch({ type: 'edit', id: challenge.id, edit: editOf() });
+    saveAudience();
     goBack();
   };
 
@@ -225,6 +255,7 @@ export default function EditChallenge() {
         )
       }
     >
+      {isGroup ? null : <TypeSwitch options={audiences} value={audience} onChange={setAudience} turn={false} />}
       {isText ? (
         <SheetEditor title={title} onTitleChange={setTitle} pages={pages ?? ['']} onPagesChange={setPages} fontKey={sheetFont} onFontChange={setSheetFont} />
       ) : null}
@@ -246,7 +277,7 @@ export default function EditChallenge() {
       )}
       {isGroup ? null : (
         <>
-          <TextField label="Ort" required nudge={locationField} value={location} onChangeText={setLocation} maxLength={120} />
+          {isPrivate ? null : <TextField label="Ort" required nudge={locationField} value={location} onChangeText={setLocation} maxLength={120} />}
           {challenge.type === 'photo' ? null : (
             <RewardField value={rewardValue} onChange={setRewardValue} places={participation.max} seed={challenge.id} />
           )}

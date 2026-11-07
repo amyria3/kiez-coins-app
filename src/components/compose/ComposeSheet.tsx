@@ -12,7 +12,7 @@ import { usePublicComposeForm } from './PublicComposeForm';
 import { useBeforeAfterStartForm } from './BeforeAfterForm';
 import { TypeSwitch } from './TypeSwitch';
 import { DraftStrip } from './DraftStrip';
-import { useComposeContent, type ComposeContent } from './compose';
+import { useComposeSheetContent, type ComposeContent } from './compose';
 
 /** Beitragstypen im Kiez, in dieser Reihenfolge (Daria, 2026-10-31). Alle immer an (Daria, 27.10.2026). */
 const PUBLIC_TYPES = [
@@ -36,6 +36,10 @@ export const GROUP_TYPES = [
   { key: 'task', label: 'We-Challenge' },
 ] as const;
 
+/** Gewählte Art, gleich für Privat, Kiez und Gruppen: Die We-Challenge heißt im Kiez `individual`, in Gruppen `task`. */
+type Kind = 'photo' | 'text' | 'before_after' | 'we';
+type KindProps = { kind: Kind; setKind: (kind: Kind) => void };
+
 type Props = {
   /** 'private' (Reiter „Privat“), 'public' (Reiter „Kiez“) oder die gewählte Gruppe */
   target: 'private' | 'public' | string | undefined;
@@ -49,19 +53,22 @@ type Props = {
  * nichts verliert. Die Bewegung (von unten, federnd) macht feed.tsx.
  */
 export function ComposeSheet({ target, onDone, placeConfirmed = true }: Props) {
-  // Foto, Titel und Text gelten für alle Formulare im Blatt (Daria, 25.10.2026)
-  const shared = useComposeContent();
+  // Foto, Titel und Text gelten für alle Formulare im Blatt (Daria, 25.10.2026),
+  // seit 07.11.2026 auch Blätter, Zusatzfotos, Text auf dem Foto und die gewählte Art
+  const shared = useComposeSheetContent();
+  // Vorausgewählt ist überall der Post (Bild), privat wie im Kiez (Daria, 2026-11-05)
+  const [kind, setKind] = useState<Kind>('photo');
   return (
     <View style={styles.sheet}>
       <View style={[styles.flex, target === 'private' ? null : styles.hidden]}>
-        <PublicBody onDone={onDone} shared={shared} isPrivate turn={placeConfirmed} />
+        <PublicBody onDone={onDone} shared={shared} isPrivate turn={placeConfirmed} kind={kind} setKind={setKind} />
       </View>
       <View style={[styles.flex, target === 'public' ? null : styles.hidden]}>
-        <PublicBody onDone={onDone} shared={shared} turn={placeConfirmed} />
+        <PublicBody onDone={onDone} shared={shared} turn={placeConfirmed} kind={kind} setKind={setKind} />
       </View>
       <View style={[styles.flex, target === 'public' || target === 'private' ? styles.hidden : null]}>
         {target && target !== 'public' && target !== 'private' ? (
-          <GroupBody key={target} groupId={target} onDone={onDone} shared={shared} turn={placeConfirmed} />
+          <GroupBody key={target} groupId={target} onDone={onDone} shared={shared} turn={placeConfirmed} kind={kind} setKind={setKind} />
         ) : (
           <NoGroup />
         )}
@@ -102,10 +109,11 @@ function useOpenTimer(onDone: () => void) {
   };
 }
 
-function PublicBody({ onDone, shared, isPrivate = false, turn }: { onDone: () => void; shared: ComposeContent; isPrivate?: boolean; turn: boolean }) {
+function PublicBody({ onDone, shared, isPrivate = false, turn, kind, setKind }: { onDone: () => void; shared: ComposeContent; isPrivate?: boolean; turn: boolean } & KindProps) {
   const options: readonly { key: (typeof PUBLIC_TYPES)[number]['key']; label: string }[] = isPrivate ? PRIVATE_TYPES : PUBLIC_TYPES;
-  // Vorausgewählt ist überall der Post (Bild), privat wie im Kiez (Daria, 2026-11-05)
-  const [type, setType] = useState<(typeof PUBLIC_TYPES)[number]['key']>('photo');
+  // Privat gibt es keine We-Challenge: dort zeigt das Blatt das Bild, im Kiez bleibt die We-Challenge gewählt
+  const type: (typeof PUBLIC_TYPES)[number]['key'] = kind === 'we' ? (isPrivate ? 'photo' : 'individual') : kind;
+  const setType = (key: (typeof PUBLIC_TYPES)[number]['key']) => setKind(key === 'individual' ? 'we' : key);
   const post = usePublicComposeForm(onDone, type === 'photo' ? 'photo' : 'individual', shared, isPrivate);
   const textPost = usePublicComposeForm(onDone, 'photo', shared, isPrivate, true);
   const ba = useBeforeAfterStartForm(undefined, useOpenTimer(onDone), shared, isPrivate);
@@ -120,10 +128,11 @@ function PublicBody({ onDone, shared, isPrivate = false, turn }: { onDone: () =>
   );
 }
 
-function GroupBody({ groupId, onDone, shared, turn }: { groupId: string; onDone: () => void; shared: ComposeContent; turn: boolean }) {
+function GroupBody({ groupId, onDone, shared, turn, kind, setKind }: { groupId: string; onDone: () => void; shared: ComposeContent; turn: boolean } & KindProps) {
   const router = useRouter();
   const options = GROUP_TYPES;
-  const [type, setType] = useState<(typeof GROUP_TYPES)[number]['key']>('photo');
+  const type: (typeof GROUP_TYPES)[number]['key'] = kind === 'we' ? 'task' : kind;
+  const setType = (key: (typeof GROUP_TYPES)[number]['key']) => setKind(key === 'task' ? 'we' : key);
   const openPost = (id: string) => {
     onDone();
     router.push(`/challenge/${id}`);

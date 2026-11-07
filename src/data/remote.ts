@@ -980,6 +980,9 @@ export const challengeActions = {
   /** Umkreis-Begrenzung nachträglich ändern (Migration 20261029000100) */
   setLocalOnly: (id: string, localOnly: boolean) =>
     rpc('set_challenge_local_only', { p_challenge_id: id, p_local_only: localOnly }),
+  /** Privat, Kiez oder Überall nachträglich ändern (Migration 20261107000300) */
+  setAudience: (id: string, isPrivate: boolean, localOnly: boolean) =>
+    rpc('set_challenge_audience', { p_challenge_id: id, p_private: isPrivate, p_local_only: localOnly }),
   /** Aussteigen oder Anfrage zurückziehen */
   leave: (id: string) => rpc('leave_challenge', { p_challenge_id: id }),
   answerRequest: (id: string, userId: string, accept: boolean) =>
