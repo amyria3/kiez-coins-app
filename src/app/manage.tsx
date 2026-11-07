@@ -422,13 +422,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
         onPress={onOpen}
         style={({ pressed }) => [styles.head, pressed && styles.pressed]}
       >
-        {photo ? (
-          <Image source={photo} style={styles.thumb} contentFit="cover" />
-        ) : (
-          <View style={[styles.thumb, styles.thumbEmpty]}>
-            <Icon name="camera" size={size.icon} color={color.text.secondary} />
-          </View>
-        )}
+        {photo ? <Image source={photo} style={styles.thumb} contentFit="cover" /> : null}
         <View style={styles.flex}>
           <Text style={styles.title} numberOfLines={2}>
             {c.title || 'Ohne Titel'}
@@ -550,13 +544,7 @@ function GroupDoneCard({
               onPress={() => onOpen(c)}
               style={({ pressed }) => [styles.deletedItem, styles.head, pressed && styles.pressed]}
             >
-              {photo ? (
-                <Image source={photo} style={styles.thumbSmall} contentFit="cover" />
-              ) : (
-                <View style={[styles.thumbSmall, styles.thumbEmpty]}>
-                  <Icon name="camera" size={size.icon} color={color.text.secondary} />
-                </View>
-              )}
+              {photo ? <Image source={photo} style={styles.thumbSmall} contentFit="cover" /> : null}
               <View style={styles.flex}>
                 <Text style={styles.deletedTitle} numberOfLines={1}>
                   {title}
@@ -615,13 +603,7 @@ function DeletedCard({
                 onPress={() => setExpanded(open ? undefined : c.id)}
                 style={({ pressed }) => [styles.head, pressed && styles.pressed]}
               >
-                {photo ? (
-                  <Image source={photo} style={[styles.thumbSmall, styles.dimmed]} contentFit="cover" />
-                ) : (
-                  <View style={[styles.thumbSmall, styles.thumbEmpty]}>
-                    <Icon name="camera" size={size.icon} color={color.text.secondary} />
-                  </View>
-                )}
+                {photo ? <Image source={photo} style={[styles.thumbSmall, styles.dimmed]} contentFit="cover" /> : null}
                 <View style={styles.flex}>
                   <Text style={styles.deletedTitle} numberOfLines={1}>
                     {c.title || 'Ohne Titel'}
@@ -721,13 +703,7 @@ function FashionCard({
         onPress={onOpen}
         style={({ pressed }) => [fashion.head, side, pressed && styles.pressed]}
       >
-        {photo ? (
-          <Image source={photo} style={fashion.thumb} contentFit="cover" />
-        ) : (
-          <View style={[fashion.thumb, fashion.thumbEmpty]}>
-            <Icon name="camera" size={14} color={color.text.secondary} />
-          </View>
-        )}
+        {photo ? <Image source={photo} style={fashion.thumb} contentFit="cover" /> : null}
         <View style={fashion.headText}>
           <Text style={fashion.title} numberOfLines={2}>
             {c.title || 'Ohne Titel'}
@@ -800,7 +776,6 @@ const fashion = StyleSheet.create({
   card: {},
   head: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingTop: 21, paddingBottom: 14 },
   thumb: { width: 56, height: 56, borderRadius: radius.md },
-  thumbEmpty: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.bg.surface },
   headText: { flex: 1, gap: space[2] },
   title: { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.text.primary },
   hint: { fontFamily: font.regular, fontSize: 13, lineHeight: 18, color: color.text.secondary },
@@ -889,12 +864,6 @@ const styles = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   pressed: { opacity: 0.7 },
   thumb: { width: 72, height: 72, borderRadius: radius.xl },
-  thumbEmpty: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: stroke.thin,
-    borderColor: color.line.hairline,
-  },
   title: { ...text.cardTitle, color: color.text.primary },
   badges: { flexDirection: 'row', alignItems: 'center', gap: space[8], marginTop: space[8] },
   body: { ...text.body, color: color.text.secondary },
