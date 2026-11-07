@@ -2,7 +2,7 @@
 
 Datum: 2026-11-07 · Status: erledigt (PR #204) · Gehört in Documentation: Datenbank-Doku (Funktionen) und `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Challenges“.
 
-Pflichtaufgabe: Migration `supabase/migrations/20261107000300_sichtbarkeit_aendern.sql` muss in Supabase laufen.
+Migration `supabase/migrations/20261107000300_sichtbarkeit_aendern.sql` ist gelaufen (Daria, 07.11.2026).
 
 ## Entscheidungen (Daria, 07.11.2026)
 
