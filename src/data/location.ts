@@ -107,3 +107,29 @@ export function formatDistance(meters: number): string {
 
 /** Postleitzahl aus einem Kiez-Text („Prenzlauer Berg, 10437 Berlin“ → „10437“) */
 export const postalCodeOf = (kiez?: string) => kiez?.match(/\b\d{5}\b/)?.[0];
+
+/** Teile eines Kiez-Texts: „Prenzlauer Berg, 10437 Berlin“ → Ortsteil, PLZ, Stadt (klein, ohne „Bezirk“) */
+function kiezParts(kiez: string) {
+  const clean = (s?: string) => s?.toLowerCase().replace(/^(bezirk|ortsteil|stadtteil)\s+/, '').trim() || undefined;
+  const [first, ...rest] = kiez.split(',');
+  const area = rest.length ? rest.join(',') : first;
+  return {
+    district: rest.length ? clean(first) : undefined,
+    postalCode: postalCodeOf(kiez),
+    city: clean(area.replace(/\b\d{5}\b/, '')),
+  };
+}
+
+/**
+ * Liegen zwei Kieze beieinander? Für den Reiter „Kiez“ ohne Standortfreigabe (Daria, 07.11.2026).
+ * Gleicher Ortsteil oder gleiche Postleitzahl reicht. Fehlt einer Seite der Ortsteil (die Adresssuche
+ * liefert ihn nicht immer), zählt die gleiche Stadt.
+ */
+export function sameKiez(a: string, b: string): boolean {
+  const x = kiezParts(a);
+  const y = kiezParts(b);
+  if (x.district && y.district && x.district === y.district) return true;
+  if (x.postalCode && x.postalCode === y.postalCode) return true;
+  if ((!x.district || !y.district) && x.city && x.city === y.city) return true;
+  return false;
+}

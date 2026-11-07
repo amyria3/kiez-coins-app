@@ -32,7 +32,7 @@ import { CAMERA_W, CameraButton, TAB_BAR_SPACE, TabBar } from '../components/Tab
 import { useRequireKiez } from '../data/kiez';
 import { challengeTypes, isTypeActive, useModes } from '../data/features';
 import { anrede } from '../data/format';
-import { coordsIfAllowed, distanceMeters, formatDistance, KIEZ_RADIUS_METERS, type Coords } from '../data/location';
+import { coordsIfAllowed, distanceMeters, formatDistance, KIEZ_RADIUS_METERS, sameKiez, type Coords } from '../data/location';
 import { inviteMessage } from '../data/groups';
 import { reiseEntries } from '../data/reise';
 import { shareText } from '../lib/share';
@@ -194,14 +194,15 @@ export default function FeedScreen() {
   );
 
   // „Kiez“: nur bis 5 km (Daria, 29.10.2026), die nächsten zuerst, Challenges ohne Punkt danach.
-  // Ohne Standortfreigabe zählt der Kiez aus dem Profil. Eigene Beiträge stehen immer drin.
-  const myKiez = profile.kiez?.split(',')[0].trim().toLowerCase();
+  // Ohne Standortfreigabe zählt der Kiez aus dem Profil (Ortsteil, PLZ oder Stadt, siehe sameKiez).
+  // Eigene Beiträge stehen immer drin.
+  const myKiez = profile.kiez;
   const posts = useMemo(() => {
     const list = challenges.filter((c) => matchesTab(c, tab, groupId, currentUserId));
     if (tab !== 'nearby') return list;
     if (!here) {
       return list.filter(
-        (c) => c.authorId === currentUserId || !myKiez || !c.kiez || c.kiez.split(',')[0].trim().toLowerCase() === myKiez,
+        (c) => c.authorId === currentUserId || !myKiez || !c.kiez || sameKiez(c.kiez, myKiez),
       );
     }
     return list
