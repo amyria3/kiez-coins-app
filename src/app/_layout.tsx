@@ -9,6 +9,8 @@ import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
 import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
 import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
 import { InterTight_600SemiBold } from '@expo-google-fonts/inter-tight/600SemiBold';
+import { Unbounded_300Light } from '@expo-google-fonts/unbounded/300Light';
+import { Unbounded_500Medium } from '@expo-google-fonts/unbounded/500Medium';
 
 import { WebAlertHost } from '../components/WebAlert';
 import { CrosspostDialogHost } from '../components/CrosspostDialog';
@@ -47,6 +49,8 @@ export default function RootLayout() {
     Inter_500Medium,
     Inter_600SemiBold,
     InterTight_600SemiBold,
+    Unbounded_300Light,
+    Unbounded_500Medium,
   });
 
   // Sprache (gespeicherte Wahl oder Handy), danach rendern
