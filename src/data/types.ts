@@ -156,6 +156,10 @@ export type Challenge = {
   extraImages?: ExtraPhoto[];
   /** Nur „Nur ein Bild“: Text auf dem ersten Foto (Migration 20261029000200) */
   photoText?: PhotoText;
+  /** Post nur mit Text: ein Eintrag je Blatt im Format 4:5, statt eines Fotos (Migration 20261107000100) */
+  pages?: string[];
+  /** Schrift der Blätter (data/sheetFonts.ts); ohne Angabe Inter */
+  sheetFont?: string;
   imageBefore?: ImageSource;
   imageAfter?: ImageSource;
   /** Nur Vorher-Nachher: Texte ohne #vorher/#nachher, im Entwurf getrennt (nach dem Posten steht beides in `text`) */

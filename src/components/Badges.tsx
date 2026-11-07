@@ -63,6 +63,7 @@ export function StatusBadge({
   photo,
   beforeAfter,
   challenge,
+  textOnly,
 }: {
   status: ChallengeStatus;
   /** Mit Challenge zeigt das Badge den Decknamen der Person, die den Status ausgelöst hat. */
@@ -71,11 +72,13 @@ export function StatusBadge({
   photo?: boolean;
   /** Vorher-Nachher: eigenes Badge wie beim Bild */
   beforeAfter?: boolean;
+  /** Post nur mit Text (Daria, 07.11.2026) */
+  textOnly?: boolean;
 }) {
   // Nur ein Bild oder Vorher-Nachher, keine Aufgabe: eigenes Badge, solange es online ist
   const postOnly = (photo || beforeAfter) && (status === 'open' || status === 'draft');
   const { label, tint } = postOnly
-    ? { label: beforeAfter ? 'Me-Challenge' : 'Nur ein Bild', tint: color.accent.affection }
+    ? { label: beforeAfter ? 'Me-Challenge' : textOnly ? 'Nur Text' : 'Nur ein Bild', tint: color.accent.affection }
     : statusStyles[status];
   const look = badgeLook(tint);
   const { users } = useStore();

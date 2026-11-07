@@ -88,14 +88,14 @@ export default function CreateStep2() {
 
   // Veröffentlicht wird erst in der Vorschau.
   const preview = () => {
-    if (!canPublish || !draft.photo) return;
+    if (!canPublish || (!draft.photo && !draft.pages?.length)) return;
     setDraft((d) => ({ ...d, bountyAmount, edensteine }));
     router.push('/challenge/create/preview');
   };
 
   return (
     <SubScreen
-      title={isChallenge ? 'Challenge erstellen' : 'Bild posten'}
+      title={isChallenge ? 'Challenge erstellen' : draft.pages?.length ? 'Text posten' : 'Bild posten'}
       subtitle="Schritt 2 von 2"
       navigation="back"
       // Aus dem Blatt über dem Feed: zurück ins Blatt, das noch offen ist

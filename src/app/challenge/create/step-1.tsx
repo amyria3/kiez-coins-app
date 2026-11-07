@@ -9,6 +9,7 @@ import { PHOTO_TAG } from '../../../components/WithMentions';
 import { TypeSwitch } from '../../../components/compose/TypeSwitch';
 import { PhotoTextOnPhoto } from '../../../components/PhotoText';
 import { Text } from '../../../components/T';
+import { SheetEditor, pagesText } from '../../../components/TextSheets';
 import { color, text } from '../../../theme/tokens';
 import { SubScreen } from '../../../components/Screen';
 import { hasContent, useDraft, useSaveDraft } from './_layout';
@@ -33,7 +34,9 @@ export default function CreateStep1() {
   const types = draft.private ? TYPES.filter((o) => o.key === 'photo') : TYPES;
 
   const isChallenge = draft.type !== 'photo';
-  const missingPhoto = !draft.photo;
+  // Entwurf eines Posts nur mit Text: Blätter statt Foto (Daria, 07.11.2026)
+  const isText = !isChallenge && !!draft.pages;
+  const missingPhoto = isText ? !pagesText(draft.pages ?? []) : !draft.photo;
   // Nur Bild: Titel freiwillig (Daria, 06.11.2026)
   const missingTitle = isChallenge && !draft.title.trim();
 
@@ -55,6 +58,37 @@ export default function CreateStep1() {
       { text: 'Speichern', onPress: save },
     ]);
   };
+
+  const buttons = (
+    <>
+      <Button label="Weiter" onPress={next} />
+      <Button
+        busy={busy}
+        label={busy ? 'Wird gespeichert …' : 'Als Entwurf speichern'}
+        variant="ghost"
+        onPress={save}
+        disabled={busy || !hasContent(draft)}
+        whyDisabled={() => !busy && explain('Noch nichts zu speichern', 'Schreib etwas auf das Blatt, dann lässt sich der Entwurf speichern.')}
+      />
+    </>
+  );
+
+  if (isText) {
+    return (
+      <SubScreen title={draft.id ? 'Entwurf bearbeiten' : 'Text posten'} subtitle="Schritt 1 von 2" navigation="close" onLeadingPress={close} actions={buttons}>
+        <Text style={styles.hint}>Hier ist nichts zu tun, nur Dein Text. Ist ein Blatt voll, geht es auf dem nächsten weiter.</Text>
+        <SheetEditor
+          title={draft.title}
+          onTitleChange={(title) => setDraft((d) => ({ ...d, title }))}
+          pages={draft.pages ?? ['']}
+          onPagesChange={(pages) => setDraft((d) => ({ ...d, pages }))}
+          fontKey={draft.sheetFont}
+          onFontChange={(sheetFont) => setDraft((d) => ({ ...d, sheetFont }))}
+        />
+        {showErrors && missingPhoto ? <Text style={styles.error}>Schreib etwas auf das Blatt.</Text> : null}
+      </SubScreen>
+    );
+  }
 
   return (
     <SubScreen
@@ -125,4 +159,5 @@ export default function CreateStep1() {
 const styles = StyleSheet.create({
   photoTextHint: { ...text.body, fontSize: 14, lineHeight: 19, color: color.text.secondary },
   hint: { ...text.body, fontSize: 14, lineHeight: 19, color: color.text.secondary },
+  error: { ...text.body, fontSize: 14, lineHeight: 19, color: color.accent.error },
 });
