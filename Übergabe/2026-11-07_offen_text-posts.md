@@ -29,3 +29,10 @@ Pflichtaufgabe: Migration [20261107000100_text_posts.sql](https://github.com/amy
 3. Im Feed-Kopf zählt ein Text-Post bei „Bild“ mit (`src/app/feed.tsx`, `photos`).
 4. Am Telefon testen: Tippen über mehrere Blätter (iOS-Web und Android), Zurück am Blattanfang, Einfügen von langem Text.
 5. Übersetzungen der neuen Texte (Reiter „Text“, Hinweise, „Nur Text“).
+
+## Nachtrag 07.11.2026: Schriftgröße und Zentrieren
+
+- Unter der Schriftauswahl: zwei Knöpfe für linksbündig und zentriert, daneben ein Regler für die Schriftgröße, stufenlos von 90 % bis 130 %.
+- Gespeichert wird beides mit der Schrift in `sheet_font`, z. B. `rubik|1.15|center`. Lesen und Schreiben: `parseSheetStyle` und `formatSheetStyle` in `src/data/sheetFonts.ts`.
+- Migration [20261107000200_text_posts_size_align.sql](https://github.com/amyria3/kiez-coins-app/blob/main/supabase/migrations/20261107000200_text_posts_size_align.sql) erlaubt diese Werte. Vor dem Merge ausführen.
+- Patrick Hand ist aus der Auswahl raus. Alte Posts damit zeigen die Standardschrift.
