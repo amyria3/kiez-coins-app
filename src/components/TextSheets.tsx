@@ -27,15 +27,15 @@ export const MAX_PAGES = 10;
 export const SHEET_RATIO = 5 / 4;
 export const PAPER = '#FFF8ED';
 export const INK = '#232326';
-/** Links und @Namen: Lila, dunkel genug für das helle Blatt */
-const INK_LINK = '#5B5CD6';
+/** Links und @Namen: dunkles Orange, gut lesbar auf dem hellen Blatt (Daria, 07.11.2026, vorher Lila #5B5CD6) */
+const INK_LINK = '#B84A12';
 
 export function sheetMetrics(width: number, fontKey?: string) {
   const f = sheetFont(fontKey);
-  const pad = Math.round(width * 0.08);
-  const fontSize = width * 0.056 * f.scale;
+  const pad = Math.round(width * 0.11);
+  const fontSize = width * 0.064 * f.scale;
   const lineHeight = Math.round(fontSize * f.leading);
-  const titleSize = width * 0.074 * f.scale;
+  const titleSize = width * 0.084 * f.scale;
   const titleLineHeight = Math.round(titleSize * Math.max(1.18, f.leading - 0.2));
   return {
     pad,
@@ -257,6 +257,14 @@ export function SheetEditor({
   const redirect = useRef<{ from: number; keep: string; to: number; pos: number } | null>(null);
   const [full, setFull] = useState(false);
   const list = pages.length ? pages : [''];
+  // Blätter liegen nebeneinander zum Wischen (Daria, 07.11.2026). `current` ist das Blatt mit dem Cursor,
+  // `shown` das Blatt, das gerade zu sehen ist.
+  const pager = useRef<ScrollView>(null);
+  const [current, setCurrent] = useState(0);
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    if (width && current < list.length) pager.current?.scrollTo({ x: current * width, animated: true });
+  }, [current, width, list.length]);
 
   const update = (next: string[]) => onPagesChange(next.slice(0, MAX_PAGES));
 
@@ -302,6 +310,7 @@ export function SheetEditor({
           const atEnd = f.pos >= text.length - 1;
           const pos = atEnd ? tail.length : Math.max(0, Math.min(tail.length, f.pos - (cut > 0 ? cut + 1 : target)));
           focus.current = { page: k + 1, pos };
+          setCurrent(k + 1);
           // Was noch auf diesem Blatt ankommt, bevor der Cursor drüben ist, gehört aufs nächste Blatt
           redirect.current = { from: k, keep, to: k + 1, pos };
           placeCursor(inputs.current[k + 1], pos);
@@ -361,6 +370,7 @@ export function SheetEditor({
       const next = list.filter((_, i) => i !== k);
       update(next);
       focus.current = { page: k - 1, pos: next[k - 1].length };
+      setCurrent(k - 1);
       placeCursor(inputs.current[k - 1], next[k - 1].length);
     } else if (f && f.page === k && f.pos === 0) {
       // Am Anfang eines Blatts löscht Zurück das letzte Zeichen des Blatts davor
@@ -394,8 +404,18 @@ export function SheetEditor({
           })}
         </ScrollView>
       ) : null}
-      {width
-        ? list.map((value, k) => {
+      {width ? (
+        <ScrollView
+          ref={pager}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          scrollEventThrottle={32}
+          onScroll={(e) => setShown(Math.round(e.nativeEvent.contentOffset.x / width))}
+          style={{ width }}
+        >
+          {list.map((value, k) => {
             const firstAvail = m.innerHeight - (title.trim() ? titleHeight + m.titleGap : 0);
             return (
               <View key={k} style={[styles.sheet, { width, height: Math.round(width * SHEET_RATIO), padding: m.pad }]}>
@@ -430,6 +450,7 @@ export function SheetEditor({
                   onChangeText={(v) => onChange(k, v)}
                   onKeyPress={onKeyPress(k)}
                   onFocus={() => {
+                    setCurrent(k);
                     if (redirect.current?.to === k) redirect.current = null;
                     if (focus.current?.page !== k) focus.current = { page: k, pos: value.length };
                   }}
@@ -462,8 +483,24 @@ export function SheetEditor({
                 </Text>
               </View>
             );
-          })
-        : null}
+          })}
+        </ScrollView>
+      ) : null}
+      {width && list.length > 1 ? (
+        <View style={styles.dots}>
+          {list.map((_, i) => (
+            <Pressable
+              key={i}
+              onPress={() => pager.current?.scrollTo({ x: i * width, animated: true })}
+              accessibilityRole="button"
+              accessibilityLabel={`Zu Blatt ${i + 1}`}
+              hitSlop={8}
+            >
+              <View style={[styles.dot, i === shown && styles.dotActive]} />
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
       {full ? <Text style={styles.full}>Mehr als 10 Blätter gehen nicht. Der Rest passt nicht mehr drauf.</Text> : null}
     </View>
   );
