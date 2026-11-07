@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 
 import { shareText } from '../lib/share';
 import { openShareDialog, type SharePrepared } from '../components/ShareDialog';
-import { sheetImageFiles } from '../lib/sheetImages';
+import { sheetImageFiles, type SheetAuthor } from '../lib/sheetImages';
 import { WEB_APP_URL } from './groups';
 import { shareChallengePublicly } from './remote';
 import { useStore } from './store';
@@ -35,6 +35,11 @@ function imageUri(source: unknown): string | null {
     return (source as { uri: string }).uri;
   }
   return null;
+}
+
+/** Name und Profilbild für den Kopf der Blätter */
+function sheetAuthor(user?: { name: string; avatar?: unknown }): SheetAuthor | undefined {
+  return user?.name ? { name: user.name, avatarUri: imageUri(user.avatar) ?? undefined } : undefined;
 }
 
 /** Fotos eines Posts als Dateien zum Teilen, nur im Browser. Fehlt eins oder dauert es zu lange, ohne dieses. */
@@ -91,19 +96,15 @@ export function useShareChallenge(): (challenge: Challenge) => Promise<void> {
     };
     if (Platform.OS !== 'web') return shareText(await makeMessage());
 
-    const key = [challenge.id, challenge.title, challenge.sheetFont, ...(challenge.pages ?? [])].join('\u0000');
+    const author = users.find((u) => u.id === challenge.authorId);
+    const key = [challenge.id, author?.name ?? '', imageUri(author?.avatar) ?? '', challenge.title, challenge.sheetFont, ...(challenge.pages ?? [])].join('\u0000');
     let job = prepared.get(key);
     if (!job) {
       // Bilder und Link gleichzeitig vorbereiten
       job = Promise.all([
         challenge.pages?.length
-          ? Promise.resolve(
-              sheetImageFiles(
-                challenge.pages,
-                challenge.title,
-                challenge.sheetFont,
-                users.find((u) => u.id === challenge.authorId)?.name,
-              ) ?? [],
+          ? sheetImageFiles(challenge.pages, challenge.title, challenge.sheetFont, sheetAuthor(author)).then(
+              (files) => files ?? [],
             )
           : photoFiles(challenge),
         makeMessage(),

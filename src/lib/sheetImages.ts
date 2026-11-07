@@ -13,23 +13,78 @@ export const SLIDE_WIDTH = 1080;
 
 type Ctx = CanvasRenderingContext2D;
 
-/** Grau für Wasserzeichen und Seitenzahl */
+/** Grau für die Seitenzahl */
 const MARK = '#A1A1A6';
+/** Logo unten rechts: etwas weicher als Schwarz, aber nicht blass (Daria, 07.11.2026) */
+const LOGO_INK = '#4A4A4F';
 
 /**
- * Kater aus dem einfarbigen Logo als Wasserzeichen (Daria, 07.11.2026). Wird beim Laden der App vorbereitet, damit
- * das Zeichnen beim Teilen nicht warten muss.
+ * Logo unten rechts, Kater-Kopf mit „KiezCoins“ daneben (Daria, 07.11.2026). Wird beim Laden der App vorbereitet,
+ * damit das Zeichnen beim Teilen nicht warten muss.
  */
-const catImage: HTMLImageElement | null = (() => {
+const logoImage: HTMLImageElement | null = (() => {
   if (Platform.OS !== 'web' || typeof Image === 'undefined') return null;
-  const xml = brandArt['logo-mono'].svg
-    .replace(/#111111/gi, MARK)
-    .replace(/viewBox="[^"]*"/, 'viewBox="0 1 34 34"')
-    .replace(/width="[^"]*" height="[^"]*"/, 'width="136" height="136"');
+  const art = brandArt['logo-mono'];
+  const xml = art.svg
+    .replace(/#111111/gi, LOGO_INK)
+    .replace(/width="[^"]*" height="[^"]*"/, `width="${art.width * 4}" height="${art.height * 4}"`);
   const img = new Image();
   img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(xml)}`;
   return img;
 })();
+
+/** Wer den Post geschrieben hat: oben über dem Titel, Profilbild und Name (Daria, 07.11.2026) */
+export type SheetAuthor = { name: string; avatarUri?: string };
+
+/** Profilbild laden, höchstens 3 Sekunden; ohne Bild oder bei Fehlern Initialen */
+function loadAvatar(uri?: string): Promise<HTMLImageElement | null> {
+  if (!uri || typeof Image === 'undefined') return Promise.resolve(null);
+  return new Promise((resolve) => {
+    const img = new Image();
+    // Ohne CORS dürfte das Canvas danach nicht mehr als Bild gespeichert werden
+    if (!uri.startsWith('data:') && !uri.startsWith('blob:')) img.crossOrigin = 'anonymous';
+    const timer = setTimeout(() => resolve(null), 3000);
+    img.onload = () => {
+      clearTimeout(timer);
+      resolve(img);
+    };
+    img.onerror = () => {
+      clearTimeout(timer);
+      resolve(null);
+    };
+    img.src = uri;
+  });
+}
+
+function drawAvatar(ctx: Ctx, img: HTMLImageElement | null, name: string, x: number, y: number, d: number) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x + d / 2, y + d / 2, d / 2, 0, Math.PI * 2);
+  ctx.clip();
+  if (img) {
+    // Quadratisch aus der Mitte zuschneiden
+    const side = Math.min(img.naturalWidth, img.naturalHeight);
+    ctx.drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, x, y, d, d);
+  } else {
+    const g = ctx.createLinearGradient(x, y, x + d, y + d);
+    g.addColorStop(0, '#7E94FF');
+    g.addColorStop(1, '#FFB2E5');
+    ctx.fillStyle = g;
+    ctx.fillRect(x, y, d, d);
+    const initials = name
+      .split(/[\s*]+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join('');
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = `600 ${Math.round(d * 0.4)}px "${font.regular}"`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(initials, x + d / 2, y + d / 2);
+  }
+  ctx.restore();
+}
 
 /** Zeilen umbrechen wie im Blatt: an Leerzeichen, harte Umbrüche bleiben, zu lange Wörter werden geteilt */
 function wrap(ctx: Ctx, text: string, maxWidth: number): string[] {
@@ -78,8 +133,9 @@ function drawSheet(
   title: string | undefined,
   index: number,
   count: number,
-  fontKey?: string,
-  author?: string,
+  fontKey: string | undefined,
+  author: SheetAuthor | undefined,
+  avatar: HTMLImageElement | null,
 ): HTMLCanvasElement {
   const W = SLIDE_WIDTH;
   const H = Math.round(W * SHEET_RATIO);
@@ -90,11 +146,31 @@ function drawSheet(
   const ctx = canvas.getContext('2d')!;
   ctx.fillStyle = PAPER;
   ctx.fillRect(0, 0, W, H);
-  ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
   const align = m.body.textAlign === 'center' ? 'center' : 'left';
   let y = m.padY;
 
+  // Oben: Profilbild und Name, der Text rückt dafür etwas nach unten (Daria, 07.11.2026)
+  const name = author?.name.trim();
+  if (name) {
+    const d = Math.round(W * 0.085);
+    const top = Math.round(m.padY * 0.42);
+    const nameSize = Math.round(W * 0.034);
+    ctx.font = `600 ${nameSize}px "${font.regular}"`;
+    const nameWidth = Math.min(ctx.measureText(name).width, m.innerWidth - d - nameSize * 0.6);
+    const rowWidth = d + Math.round(nameSize * 0.6) + nameWidth;
+    const x = align === 'center' ? Math.round((W - rowWidth) / 2) : m.pad;
+    drawAvatar(ctx, avatar, name, x, top, d);
+    ctx.font = `600 ${nameSize}px "${font.regular}"`;
+    ctx.fillStyle = INK;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(name, x + d + Math.round(nameSize * 0.6), top + d / 2, nameWidth);
+    y = Math.max(y, top + d + Math.round(W * 0.06));
+  }
+
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
   if (index === 0 && title?.trim()) {
     ctx.font = `${m.title.fontSize}px "${m.title.fontFamily}"`;
     for (const line of wrap(ctx, title.trim(), m.innerWidth)) {
@@ -110,25 +186,27 @@ function drawSheet(
     y += m.body.lineHeight;
   }
 
-  // Unten: Kater und Name als Wasserzeichen links, Seitenzahl rechts (Daria, 07.11.2026)
+  // Unten: Seitenzahl links in Grau, Logo rechts (Daria, 07.11.2026)
   const markSize = W * 0.03;
-  const baseline = H - Math.round(m.padY * 0.4);
-  ctx.font = `${markSize}px "${font.regular}"`;
-  ctx.fillStyle = MARK;
-  ctx.textBaseline = 'bottom';
-  let x = m.pad;
-  const cat = Math.round(markSize * 1.9);
-  if (catImage?.complete && catImage.naturalWidth) {
-    ctx.drawImage(catImage, x, baseline - cat + Math.round(markSize * 0.25), cat, cat);
-    x += cat + Math.round(markSize * 0.5);
-  }
-  ctx.textAlign = 'left';
-  // Platz bis zur Seitenzahl; ein langer Name wird schmaler gezeichnet, statt sie zu überdecken
-  const room = W - m.pad - x - (count > 1 ? markSize * 4 : 0);
-  ctx.fillText(author?.trim() ? `${author.trim()} · KiezCoins` : 'KiezCoins', x, baseline, room);
-  if (count > 1) {
+  const bottom = H - Math.round(m.padY * 0.38);
+  if (logoImage?.complete && logoImage.naturalWidth) {
+    const art = brandArt['logo-mono'];
+    const lw = Math.round(W * 0.24);
+    const lh = Math.round((lw * art.height) / art.width);
+    ctx.drawImage(logoImage, W - m.pad - lw, bottom - lh, lw, lh);
+  } else {
+    ctx.font = `600 ${markSize * 1.2}px "${font.regular}"`;
+    ctx.fillStyle = LOGO_INK;
     ctx.textAlign = 'right';
-    ctx.fillText(`${index + 1}/${count}`, W - m.pad, baseline);
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('KiezCoins', W - m.pad, bottom);
+  }
+  if (count > 1) {
+    ctx.font = `${markSize}px "${font.regular}"`;
+    ctx.fillStyle = MARK;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(`${index + 1}/${count}`, m.pad, bottom);
   }
   return canvas;
 }
@@ -141,12 +219,28 @@ function canvasToFile(canvas: HTMLCanvasElement, name: string): File {
   return new File([buffer], name, { type: 'image/png' });
 }
 
-/** Alle Blätter als PNG-Dateien, unten Name und Kater. `null` außerhalb des Browsers. */
-export function sheetImageFiles(pages: string[], title?: string, fontKey?: string, author?: string): File[] | null {
+/** Alle Blätter als PNG-Dateien, oben Profilbild und Name, unten das Logo. `null` außerhalb des Browsers. */
+export async function sheetImageFiles(
+  pages: string[],
+  title?: string,
+  fontKey?: string,
+  author?: SheetAuthor,
+): Promise<File[] | null> {
   if (Platform.OS !== 'web' || typeof document === 'undefined') return null;
-  return pages.map((p, i) =>
-    canvasToFile(drawSheet(p, title, i, pages.length, fontKey, author), `kiezcoins-${String(i + 1).padStart(2, '0')}.png`),
-  );
+  const avatar = await loadAvatar(author?.avatarUri);
+  const draw = (img: HTMLImageElement | null) =>
+    pages.map((p, i) =>
+      canvasToFile(
+        drawSheet(p, title, i, pages.length, fontKey, author, img),
+        `kiezcoins-${String(i + 1).padStart(2, '0')}.png`,
+      ),
+    );
+  try {
+    return draw(avatar);
+  } catch {
+    // Profilbild ohne Freigabe für Canvas: dann mit Initialen
+    return draw(null);
+  }
 }
 
 /**
