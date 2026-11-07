@@ -676,15 +676,17 @@ const styles = StyleSheet.create({
   infoPlain: { paddingHorizontal: space[4] },
   // Ort ohne Glasleiste: liegt unten links, Schatten statt Fläche
   placeOnPhoto: { position: 'absolute', left: space[4], right: space[4], bottom: space[4], flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  // Ort deutlich leichter (Light statt SemiBold); weicher Schatten ohne Versatz liegt wie ein
+  // leichter Blur in Form der Buchstaben hinter dem Text (Daria, 2026-11-07)
   placeOnPhotoText: {
     flexShrink: 1,
-    ...text.cardTitle,
+    fontFamily: font.light,
     fontSize: 16,
     lineHeight: 20,
     color: color.text.onPhoto,
-    textShadowColor: 'rgba(0,0,0,0.6)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 6,
+    textShadowColor: 'rgba(0,0,0,0.45)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
   },
   who: {
     position: 'absolute',
