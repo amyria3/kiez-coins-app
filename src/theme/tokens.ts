@@ -125,6 +125,8 @@ export const radius = {
   lg: fashionable ? 10 : 18,
   xl: fashionable ? 12 : 20,
   card: fashionable ? 6 : 28,
+  /** Posts im Feed: kleine Rundung wie die Blätter der Text-Posts (probeweise, Daria, 2026-11-07) */
+  post: 6,
   sheet: fashionable ? 16 : 32,
   full: 999,
 } as const;

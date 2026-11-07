@@ -34,7 +34,7 @@ import { t } from '../../../data/texts';
 const EDGE = space[8];
 const NO_INSETS = { top: 0, bottom: 0, left: 0, right: 0 };
 /** Rundung des scharfen Fensters innen */
-const WINDOW_RADIUS = radius.card;
+const WINDOW_RADIUS = radius.post;
 
 /** Rechteck mit abgerundetem Loch als SVG-Pfad (evenodd): außen der Bildschirm, innen das Fenster. */
 function framePath(w: number, h: number, x: number, y: number, iw: number, ih: number, r: number) {

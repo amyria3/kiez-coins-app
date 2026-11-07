@@ -585,11 +585,11 @@ function TextCard({
 
 const styles = StyleSheet.create({
   post: { paddingHorizontal: space[16] },
-  // Blätter mit den runden Ecken der Karten (Daria, 07.11.2026)
-  textCard: { borderRadius: radius.card, overflow: 'hidden' },
+  // Blätter und Karten mit kleiner Rundung (Daria, 07.11.2026)
+  textCard: { borderRadius: radius.post, overflow: 'hidden' },
   card: {
     height: 360,
-    borderRadius: radius.card,
+    borderRadius: radius.post,
     overflow: 'hidden',
     backgroundColor: color.bg.surface,
     borderWidth: stroke.thin,
