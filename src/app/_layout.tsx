@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -119,6 +119,11 @@ function RootStack() {
           {/* Vollbild ohne Wegwischen: Schließen nur über das X, damit die Frage nach dem Entwurf kommt
               und die Vorschau nicht wie ein Overlay wirkt, dessen Wischen mit den Gesten der Vorschau konkurriert */}
           <Stack.Screen name="challenge/create" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
+          {/* Browser: Der Feed bleibt unter der Detailseite sichtbar, damit Wischen nach rechts ihn zeigt (HeroScreen) */}
+          <Stack.Screen
+            name="challenge/[id]/index"
+            options={Platform.OS === 'web' ? { presentation: 'containedTransparentModal', contentStyle: { backgroundColor: 'transparent' } } : {}}
+          />
           <Stack.Screen name="challenge/[id]/edit" options={{ presentation: 'modal' }} />
           <Stack.Screen name="challenge/[id]/complete/index" options={{ presentation: 'modal' }} />
           <Stack.Screen name="challenge/[id]/complete/payout" options={{ presentation: 'modal', gestureEnabled: false }} />
