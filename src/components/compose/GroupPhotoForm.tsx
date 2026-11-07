@@ -6,10 +6,12 @@ import type { Challenge, ExtraPhoto, ImageSource } from '../../data/types';
 import { color, text } from '../../theme/tokens';
 import { Button } from '../Button';
 import { FieldGroup } from '../Content';
-import { Chip, ChipGroup, ExtraPhotos, PhotoPicker, TextField } from '../Form';
+import { Chip, ChipGroup, ExtraPhotos, PhotoPicker } from '../Form';
 import { celebratePost } from '../HeartBurst';
 import { explain } from '../Nudge';
 import { Text } from '../T';
+import { PHOTO_TAG } from '../WithMentions';
+import { TagTextField } from './BeforeAfterForm';
 import { useComposeContent, type ComposeContent } from './compose';
 import { draftPhoto, GroupDraftButton } from './GroupTaskForm';
 
@@ -98,7 +100,8 @@ export function useGroupPhotoForm(
           onRemove={(index) => setExtras((all) => all.filter((_, i) => i !== index))}
         />
       ) : null}
-      <TextField label="Dein Text" helperText="Max. 500 Zeichen" value={body} onChangeText={setBody} maxLength={500} multiline />
+      {/* Wie beim Bild im Kiez: #InDiesemMoment fest vorn (Daria, 07.11.2026) */}
+      <TagTextField label="Dein Text" tag={PHOTO_TAG} value={body} onChangeText={setBody} maxLength={500} />
       <FieldGroup label="Zeitraum">
         <ChipGroup>
           {durations.map((d) => (
