@@ -34,12 +34,19 @@ export default function CreateSuccess() {
       message={message}
       onFeedPress={() => router.dismissTo('/feed')}
       actions={
+        // In den Feed, in den Reiter mit dem neuen Post (Daria, 07.11.2026), nicht in die Einzelansicht
         <Button
-          label={isText ? 'Text ansehen' : isPhoto ? 'Bild ansehen' : 'Challenge ansehen'}
-          onPress={() => {
-            router.dismissTo('/feed');
-            router.push(`/challenge/${id}`);
-          }}
+          label="Im Feed ansehen"
+          onPress={() =>
+            router.dismissTo({
+              pathname: '/feed',
+              params: {
+                reiter: post?.private ? 'privat' : post?.groupId ? 'gruppen' : 'kiez',
+                ...(post?.groupId ? { gruppe: post.groupId } : {}),
+                neu: id,
+              },
+            })
+          }
         />
       }
     />

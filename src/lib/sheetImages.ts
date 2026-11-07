@@ -150,18 +150,21 @@ export function sheetImageFiles(pages: string[], title?: string, fontKey?: strin
 }
 
 /**
- * Bilder teilen, mit Text (Titel und Link) dazu: über das Teilen-Menü, wenn der Browser Dateien teilen kann,
- * sonst als Download. `false`, wenn beides nicht geht.
+ * Bilder teilen, wahlweise mit Text: über das Teilen-Menü, wenn der Browser Dateien teilen kann, sonst als Download.
+ * `false`, wenn beides nicht geht.
  */
-export async function shareImageFiles(files: File[], text?: string): Promise<'shared' | 'downloaded' | false> {
+export async function shareImageFiles(
+  files: File[],
+  text?: string,
+): Promise<'shared' | 'cancelled' | 'downloaded' | false> {
   const nav = navigator as Navigator & { canShare?: (data: ShareData) => boolean };
   if (typeof nav.share === 'function' && nav.canShare?.({ files })) {
     try {
       await nav.share(text ? { files, text } : { files });
+      return 'shared';
     } catch {
-      // Abgebrochen: nichts weiter tun
+      return 'cancelled';
     }
-    return 'shared';
   }
   try {
     for (const file of files) {
