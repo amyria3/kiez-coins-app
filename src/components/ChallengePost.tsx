@@ -161,6 +161,7 @@ function KiezPost({
   const tappedMeta = [posted, distance, isPhoto ? null : state, spotsText(challenge, active)].filter(Boolean).join(' · ');
   // Oben nach dem Tippen: Ort vor der Zeit, dann der Rest (Daria, 2026-11-07)
   const whoMeta = [placeOnPhoto, tappedMeta].filter(Boolean).join(' · ');
+  const placeTop = !!placeOnPhoto && !challenge.bountyAmount && !challenge.edensteine;
 
   return (
     <View style={styles.post}>
@@ -268,20 +269,34 @@ function KiezPost({
               </View>
             </Pressable>
           </Animated.View>
+          {image && placeTop ? (
+            // Ort probeweise oben rechts, solange dort keine Belohnung liegt (Daria, 2026-11-07)
+            <Animated.View
+              pointerEvents="none"
+              style={[styles.placeOnPhoto, styles.placeTopRight, { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
+            >
+              <Icon name="map-pin" size={14} color={color.text.onPhoto} />
+              <Text style={styles.placeOnPhotoText} numberOfLines={1}>
+                {placeOnPhoto}
+              </Text>
+            </Animated.View>
+          ) : null}
           {image ? (
             // Erst nur der Ort auf dem Foto, ohne Glasleiste. Nach dem Tippen Glasleiste mit Titel,
             // Name und wann gepostet (Daria, 2026-11-05).
             <View>
-              <Animated.View
-                pointerEvents="none"
-                style={[styles.placeOnPhoto, { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
-              >
-                {/* Ortsangabe mit Pin davor (Daria, 2026-11-05) */}
-                {placeOnPhoto ? <Icon name="map-pin" size={14} color={color.text.onPhoto} /> : null}
-                <Text style={styles.placeOnPhotoText} numberOfLines={1}>
-                  {placeOnPhoto || challenge.title}
-                </Text>
-              </Animated.View>
+              {placeTop ? null : (
+                <Animated.View
+                  pointerEvents="none"
+                  style={[styles.placeOnPhoto, { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
+                >
+                  {/* Ortsangabe mit Pin davor (Daria, 2026-11-05) */}
+                  {placeOnPhoto ? <Icon name="map-pin" size={14} color={color.text.onPhoto} /> : null}
+                  <Text style={styles.placeOnPhotoText} numberOfLines={1}>
+                    {placeOnPhoto || challenge.title}
+                  </Text>
+                </Animated.View>
+              )}
               {/* Name und Zeit stehen nach dem Tippen nur noch oben; die Leiste unten bleibt nur für einen Titel (Daria, 2026-11-07) */}
               {challenge.title.trim() ? (
                 <Animated.View
@@ -296,7 +311,7 @@ function KiezPost({
                   ]}
                 >
                   <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
-                  <Text style={styles.title} numberOfLines={2}>
+                  <Text style={styles.titleOnPhoto} numberOfLines={2}>
                     {challenge.title}
                   </Text>
                 </Animated.View>
@@ -585,11 +600,11 @@ function TextCard({
 
 const styles = StyleSheet.create({
   post: { paddingHorizontal: space[16] },
-  // Blätter mit den runden Ecken der Karten (Daria, 07.11.2026)
-  textCard: { borderRadius: radius.card, overflow: 'hidden' },
+  // Blätter und Karten mit kleiner Rundung (Daria, 07.11.2026)
+  textCard: { borderRadius: radius.post, overflow: 'hidden' },
   card: {
     height: 360,
-    borderRadius: radius.card,
+    borderRadius: radius.post,
     overflow: 'hidden',
     backgroundColor: color.bg.surface,
     borderWidth: stroke.thin,
@@ -675,12 +690,13 @@ const styles = StyleSheet.create({
   infoPlain: { paddingHorizontal: space[4] },
   // Ort ohne Glasleiste: liegt unten links, Schatten statt Fläche
   placeOnPhoto: { position: 'absolute', left: space[4], right: space[4], bottom: space[4], flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  placeTopRight: { top: space[16], right: space[16], left: space[16], bottom: undefined, justifyContent: 'flex-end' },
   // Ort deutlich leichter (Light statt SemiBold); weicher Schatten ohne Versatz liegt wie ein
   // leichter Blur in Form der Buchstaben hinter dem Text (Daria, 2026-11-07)
   placeOnPhotoText: {
     flexShrink: 1,
-    fontFamily: font.light,
-    fontSize: 16,
+    fontFamily: font.onPhotoLight,
+    fontSize: 14,
     lineHeight: 20,
     color: color.text.onPhoto,
     textShadowColor: 'rgba(0,0,0,0.45)',
@@ -711,9 +727,11 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' } as object) : {}),
   },
   // Leichter Schatten, damit Name und Zeit auf jedem Foto lesbar bleiben
-  whoName: { ...text.cardTitle, fontSize: 18, lineHeight: 22, color: color.text.primary, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
-  whoMeta: { ...text.caption, fontSize: 13, color: color.text.primary, opacity: 0.85, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
+  // Text über dem Foto in Unbounded (breit, Kontrast zur Inter), etwas kleiner, weil die Schrift breit läuft
+  whoName: { fontFamily: font.onPhoto, fontSize: 15, lineHeight: 20, color: color.text.primary, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
+  whoMeta: { fontFamily: font.onPhotoLight, fontSize: 11, lineHeight: 16, color: color.text.primary, opacity: 0.85, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
   title: { ...text.cardTitle, color: color.text.primary },
+  titleOnPhoto: { fontFamily: font.onPhoto, fontSize: 16, lineHeight: 21, color: color.text.primary },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   meta: { ...text.caption, fontSize: 13, color: color.text.secondary, flex: 1 },
   textPostName: { ...text.caption, fontSize: 13, color: color.text.primary, flexShrink: 0, maxWidth: '60%' },

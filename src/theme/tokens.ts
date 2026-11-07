@@ -125,6 +125,8 @@ export const radius = {
   lg: fashionable ? 10 : 18,
   xl: fashionable ? 12 : 20,
   card: fashionable ? 6 : 28,
+  /** Posts im Feed: kleine Rundung wie die Blätter der Text-Posts (probeweise, Daria, 2026-11-07) */
+  post: 6,
   sheet: fashionable ? 16 : 32,
   full: 999,
 } as const;
@@ -157,6 +159,9 @@ export const font = {
   semiBold: 'Inter_600SemiBold',
   /** Inter Tight für große Überschriften und Zahlen */
   display: 'InterTight_600SemiBold',
+  /** Text über dem Foto: breite Unbounded als Kontrast zur Inter der Oberfläche (Daria, 2026-11-07) */
+  onPhoto: 'Unbounded_500Medium',
+  onPhotoLight: 'Unbounded_300Light',
 } as const;
 
 // Text Styles
