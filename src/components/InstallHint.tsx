@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Frost } from './Glass';
 import { Text } from './T';
+import { t } from '../data/texts';
 import { Cat } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { color, radius, space, text } from '../theme/tokens';
@@ -86,7 +87,7 @@ export function InstallHint() {
             </Pressable>
           )}
         </View>
-        <Pressable onPress={close} hitSlop={12} accessibilityRole="button" accessibilityLabel="Hinweis schließen">
+        <Pressable onPress={close} hitSlop={12} accessibilityRole="button" accessibilityLabel={t('Hinweis schließen')}>
           <Icon name="close" size={16} color={color.text.secondary} />
         </Pressable>
       </Frost>

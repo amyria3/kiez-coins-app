@@ -310,7 +310,7 @@ export default function CreatePreview() {
             },
           ]}
         >
-          <Pressable accessibilityRole="button" accessibilityLabel="Hinweis schließen" onPress={() => setAsking(false)}>
+          <Pressable accessibilityRole="button" accessibilityLabel={t('Hinweis schließen')} onPress={() => setAsking(false)}>
             <KaterCard>Alle Infos drin?</KaterCard>
           </Pressable>
         </Animated.View>

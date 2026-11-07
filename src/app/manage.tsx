@@ -385,13 +385,13 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
       : c.assigneeId
         ? {
             value: 'Angenommen',
-            hint: [assignee ? `von ${nameInText(assignee)}` : null, c.acceptedAt ? `am ${formatDayMonthShort(c.acceptedAt)}` : null]
+            hint: [assignee ? t('von {name}', { name: nameInText(assignee) }) : null, c.acceptedAt ? t('am {date}', { date: formatDayMonthShort(c.acceptedAt) }) : null]
               .filter(Boolean)
               .join(' '),
           }
         : c.status === 'closed'
-          ? { value: 'Geschlossen', hint: c.closedAt ? `am ${formatDayMonthShort(c.closedAt)}` : '' }
-          : { value: 'Erledigt', hint: c.confirmedAt ? `am ${formatDayMonthShort(c.confirmedAt)}` : '' };
+          ? { value: 'Geschlossen', hint: c.closedAt ? t('am {date}', { date: formatDayMonthShort(c.closedAt) }) : '' }
+          : { value: 'Erledigt', hint: c.confirmedAt ? t('am {date}', { date: formatDayMonthShort(c.confirmedAt) }) : '' };
   const photo = c.image ?? c.imageAfter ?? c.imageBefore;
 
   if (isFashionable) {

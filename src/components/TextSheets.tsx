@@ -25,6 +25,7 @@ import {
 } from '../data/sheetFonts';
 import { color, font, space } from '../theme/tokens';
 import { Text } from './T';
+import { t } from '../data/texts';
 
 /**
  * Posts nur mit Text (Daria, 07.11.2026): Text auf Blättern in unserem gelblichen Weiß, im Format 4:5 wie
@@ -455,14 +456,14 @@ export function SheetEditor({
                     <TextInput
                       value={title}
                       onChangeText={onTitleChange}
-                      placeholder="Titel (freiwillig)"
+                      placeholder={t('Titel (freiwillig)')}
                       placeholderTextColor="rgba(35, 35, 38, 0.4)"
                       maxLength={60}
                       multiline
                       scrollEnabled={false}
                       submitBehavior="blurAndSubmit"
                       style={[m.title, styles.input, { height: (titleHeight || m.title.lineHeight) + 4, marginBottom: m.titleGap - 4 }]}
-                      accessibilityLabel="Titel"
+                      accessibilityLabel={t('Titel')}
                     />
                     <Text
                       // Neu einhängen bei jeder Änderung: onLayout meldet sonst nur, wenn sich die Höhe ändert
@@ -493,7 +494,7 @@ export function SheetEditor({
                   onBlur={() => {
                     if (focus.current?.page === k) focus.current = null;
                   }}
-                  placeholder={k === 0 ? placeholder : undefined}
+                  placeholder={k === 0 ? t(placeholder) : undefined}
                   placeholderTextColor="rgba(35, 35, 38, 0.4)"
                   multiline
                   scrollEnabled={false}
@@ -600,7 +601,7 @@ function SizeSlider({ value, onChange }: { value: number; onChange: (size: numbe
           if (v !== value) onChange(v);
         }}
         accessibilityRole="adjustable"
-        accessibilityLabel="Schriftgröße"
+        accessibilityLabel={t('Schriftgröße')}
         accessibilityValue={{ text: `${Math.round(value * 100)} %` }}
         accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
         onAccessibilityAction={(e) => onChange(clamp(value + (e.nativeEvent.actionName === 'increment' ? 0.05 : -0.05)))}

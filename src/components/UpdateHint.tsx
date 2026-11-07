@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Text } from './T';
+import { t } from '../data/texts';
 import { Cat } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { apkDownloadUrl, fetchRelease, installedVersionCode } from '../data/appRelease';
@@ -98,7 +99,7 @@ export function UpdateHint() {
           </Pressable>
         </View>
         {hint.required ? null : (
-          <Pressable onPress={close} hitSlop={12} accessibilityRole="button" accessibilityLabel="Hinweis schließen">
+          <Pressable onPress={close} hitSlop={12} accessibilityRole="button" accessibilityLabel={t('Hinweis schließen')}>
             <Icon name="close" size={16} color={color.text.secondary} />
           </Pressable>
         )}

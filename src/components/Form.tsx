@@ -62,12 +62,13 @@ export function TextField({
         returnKeyType={advances ? 'next' : undefined}
         submitBehavior={advances ? 'submit' : undefined}
         {...inputProps}
+        placeholder={inputProps.placeholder ? t(inputProps.placeholder) : inputProps.placeholder}
         onSubmitEditing={(e) => {
           if (onSubmitEditing) onSubmitEditing(e);
           else if (advances) goNext?.();
         }}
-        accessibilityLabel={required ? t('{label}, Pflichtfeld', { label }) : label}
-        accessibilityHint={helper}
+        accessibilityLabel={required ? t('{label}, Pflichtfeld', { label: t(label) }) : t(label)}
+        accessibilityHint={helper ? t(helper) : helper}
         multiline={multiline}
         scrollEnabled={multiline ? false : undefined}
         onContentSizeChange={
