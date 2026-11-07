@@ -3,7 +3,6 @@ import { Barriecito_400Regular } from '@expo-google-fonts/barriecito/400Regular'
 import { NothingYouCouldDo_400Regular } from '@expo-google-fonts/nothing-you-could-do/400Regular';
 import { NotoSansMono_400Regular } from '@expo-google-fonts/noto-sans-mono/400Regular';
 import { NotoSansMono_600SemiBold } from '@expo-google-fonts/noto-sans-mono/600SemiBold';
-import { PatrickHand_400Regular } from '@expo-google-fonts/patrick-hand/400Regular';
 import { PlaywriteNZ_400Regular } from '@expo-google-fonts/playwrite-nz/400Regular';
 import { Redaction35_400Regular } from '@expo-google-fonts/redaction-35/400Regular';
 import { Rubik_400Regular } from '@expo-google-fonts/rubik/400Regular';
@@ -21,7 +20,6 @@ export const SHEET_FONTS = [
   { key: 'barriecito', label: 'Barriecito', body: 'Barriecito_400Regular', title: 'Barriecito_400Regular', scale: 1.05, leading: 1.4 },
   { key: 'nothing', label: 'Nothing You Could Do', body: 'NothingYouCouldDo_400Regular', title: 'NothingYouCouldDo_400Regular', scale: 1, leading: 1.6 },
   { key: 'playwrite', label: 'Playwrite', body: 'PlaywriteNZ_400Regular', title: 'PlaywriteNZ_400Regular', scale: 0.86, leading: 1.75 },
-  { key: 'patrick', label: 'Patrick Hand', body: 'PatrickHand_400Regular', title: 'PatrickHand_400Regular', scale: 1.15, leading: 1.32 },
   { key: 'mono', label: 'Mono', body: 'NotoSansMono_400Regular', title: 'NotoSansMono_600SemiBold', scale: 0.92, leading: 1.45 },
 ] as const;
 
@@ -37,7 +35,6 @@ export function useSheetFonts(): boolean {
     NothingYouCouldDo_400Regular,
     NotoSansMono_400Regular,
     NotoSansMono_600SemiBold,
-    PatrickHand_400Regular,
     PlaywriteNZ_400Regular,
     Redaction35_400Regular,
     Rubik_400Regular,
