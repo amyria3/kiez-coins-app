@@ -1,4 +1,5 @@
 import { shareText } from '../lib/share';
+import { shareImageFiles, sheetImageFiles } from '../lib/sheetImages';
 import { shareChallengePublicly } from './remote';
 import { useStore } from './store';
 import { t } from './texts';
@@ -31,6 +32,9 @@ export function useShareChallenge(): (challenge: Challenge) => Promise<void> {
   const { currentUserId, mode } = useStore();
   return async (challenge) => {
     const title = challenge.title.trim() ? t('{title} – KiezCoins', { title: challenge.title }) : 'KiezCoins';
+    // Text-Post: die Blätter als Bilder teilen, nicht den Text (Daria, 07.11.2026). Vor allem Warten zeichnen.
+    const slides = challenge.pages?.length ? sheetImageFiles(challenge.pages, challenge.title, challenge.sheetFont) : null;
+    if (slides && (await shareImageFiles(slides))) return;
     if (mode === 'live' && canSharePublicly(challenge, currentUserId)) {
       try {
         await shareChallengePublicly(challenge.id);
