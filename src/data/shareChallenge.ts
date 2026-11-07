@@ -108,7 +108,7 @@ export function useShareChallenge(): (challenge: Challenge) => Promise<void> {
             )
           : photoFiles(challenge),
         makeMessage(),
-      ]).then(([files, message]) => ({ files, message }));
+      ]).then(([files, message]) => ({ files, message, slides: !!challenge.pages?.length }));
       prepared.set(key, job);
       job.catch(() => prepared.delete(key));
     }

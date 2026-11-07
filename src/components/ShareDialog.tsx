@@ -16,7 +16,8 @@ import { Text } from './T';
  * Die Bilder gehen ohne Text raus, denn WhatsApp legt mitgeschickten Text als festen Kasten aufs Bild. Den Link
  * kopiert man stattdessen mit „Link kopieren“ und fügt ihn in die Nachricht ein.
  */
-export type SharePrepared = { files: File[]; message: string };
+/** `slides`: Blätter eines Text-Posts, sonst Fotos */
+export type SharePrepared = { files: File[]; message: string; slides?: boolean };
 
 type State =
   | { phase: 'preparing' }
@@ -79,14 +80,19 @@ export function ShareDialogHost() {
   } else if (state.phase === 'ready') {
     const { prepared } = state;
     title = t('Dein Post ist bereit');
-    message =
-      prepared.files.length > 1
+    const n = prepared.files.length;
+    message = prepared.slides
+      ? n > 1
+        ? t('Teile die {count} Slides. Den Link kopierst Du danach für Deine Nachricht.', { count: n })
+        : t('Teile die Slide. Den Link kopierst Du danach für Deine Nachricht.')
+      : prepared.files.length > 1
         ? t('Teile die {count} Bilder. Den Link kopierst Du danach für Deine Nachricht.', { count: prepared.files.length })
         : t('Teile das Bild. Den Link kopierst Du danach für Deine Nachricht.');
     body = (
       <>
         <Button
-          label={t('Teilen')}
+          // „Als Slide teilen“ (Daria, 07.11.2026); bei Fotos passt „Slide“ nicht
+          label={prepared.slides ? t('Als Slide teilen') : prepared.files.length > 1 ? t('Bilder teilen') : t('Bild teilen')}
           onPress={() => {
             // Ohne await davor: Safari öffnet das Teilen-Menü nur direkt nach dem Tipp
             shareImageFiles(prepared.files).then((result) => {
