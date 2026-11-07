@@ -1,5 +1,5 @@
 import { memo, useEffect, useRef, useState, type ReactNode } from 'react';
-import { Alert, Animated, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Animated, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useShareChallenge } from '../data/shareChallenge';
 import { Text } from './T';
 import { LikeCount } from './LikeCount';
@@ -159,21 +159,8 @@ function KiezPost({
   const placeOnPhoto = challenge.kiez?.split(',')[0] ?? challenge.location;
   const posted = formatRelative(challenge.createdAt);
   const tappedMeta = [posted, distance, isPhoto ? null : state, spotsText(challenge, active)].filter(Boolean).join(' · ');
-  const infoBarTapped = (
-    <>
-      {challenge.title.trim() ? (
-        <Text style={styles.title} numberOfLines={2}>
-          {challenge.title}
-        </Text>
-      ) : null}
-      <View style={styles.metaRow}>
-        <Text style={styles.meta} numberOfLines={1}>
-          <Text noTranslate style={hideName ? hiddenText : undefined}>{author.name}</Text>
-          {tappedMeta ? ` · ${tappedMeta}` : null}
-        </Text>
-      </View>
-    </>
-  );
+  // Oben nach dem Tippen: Ort vor der Zeit, dann der Rest (Daria, 2026-11-07)
+  const whoMeta = [placeOnPhoto, tappedMeta].filter(Boolean).join(' · ');
 
   return (
     <View style={styles.post}>
@@ -259,9 +246,11 @@ function KiezPost({
                 setWho(false);
                 router.push({ pathname: '/user/[id]', params: { id: author.id, challengeId: challenge.id } });
               }}
-              style={({ pressed }) => [styles.whoRow, pressed && styles.pressed]}
+              style={({ pressed }) => [styles.whoRow, styles.whoBox, pressed && styles.pressed]}
             >
-              <Avatar user={author} diameter={40} />
+              {/* Abgerundete Fläche nur mit Blur, ohne Farbe (Daria, 2026-11-07) */}
+              {Platform.OS === 'web' ? null : <BlurView intensity={30} tint="default" style={StyleSheet.absoluteFill} />}
+              <Avatar user={author} diameter={48} />
               <View style={styles.whoTexts}>
                 <NameWithTestMark test={author.test}>
                   <Text noTranslate style={[styles.whoName, hideName ? hiddenText : null]} numberOfLines={1}>
@@ -269,7 +258,7 @@ function KiezPost({
                   </Text>
                 </NameWithTestMark>
                 <Text style={styles.whoMeta} numberOfLines={1}>
-                  {formatRelative(challenge.createdAt)}
+                  {whoMeta}
                 </Text>
               </View>
             </Pressable>
@@ -288,20 +277,25 @@ function KiezPost({
                   {placeOnPhoto || challenge.title}
                 </Text>
               </Animated.View>
-              <Animated.View
-                pointerEvents="none"
-                style={[
-                  styles.info,
-                  styles.infoOnPhoto,
-                  {
-                    opacity: whoAnim,
-                    transform: [{ translateY: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }],
-                  },
-                ]}
-              >
-                <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
-                {infoBarTapped}
-              </Animated.View>
+              {/* Name und Zeit stehen nach dem Tippen nur noch oben; die Leiste unten bleibt nur für einen Titel (Daria, 2026-11-07) */}
+              {challenge.title.trim() ? (
+                <Animated.View
+                  pointerEvents="none"
+                  style={[
+                    styles.info,
+                    styles.infoOnPhoto,
+                    {
+                      opacity: whoAnim,
+                      transform: [{ translateY: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }],
+                    },
+                  ]}
+                >
+                  <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+                  <Text style={styles.title} numberOfLines={2}>
+                    {challenge.title}
+                  </Text>
+                </Animated.View>
+              ) : null}
             </View>
           ) : (
             // Ohne Foto (Daria, 30.10.2026): keine leere Fläche, Titel und Name links, Belohnung rechts daneben
@@ -700,9 +694,20 @@ const styles = StyleSheet.create({
   },
   whoTexts: { flexShrink: 1 },
   whoRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
-  // Schatten statt Fläche, damit Name und Zeit auf jedem Foto lesbar bleiben
-  whoName: { ...text.cardTitle, fontSize: 16, lineHeight: 20, color: color.text.primary, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
-  whoMeta: { ...text.caption, fontSize: 12, color: color.text.primary, opacity: 0.85, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
+  // Abgerundete Fläche wie die Leiste unten, aber nur Blur, keine Farbe
+  whoBox: {
+    paddingVertical: space[8],
+    paddingLeft: space[8],
+    paddingRight: space[16],
+    borderRadius: radius.xl,
+    overflow: 'hidden',
+    borderWidth: stroke.ultraThin,
+    borderColor: color.line.hairline,
+    ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' } as object) : {}),
+  },
+  // Leichter Schatten, damit Name und Zeit auf jedem Foto lesbar bleiben
+  whoName: { ...text.cardTitle, fontSize: 18, lineHeight: 22, color: color.text.primary, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
+  whoMeta: { ...text.caption, fontSize: 13, color: color.text.primary, opacity: 0.85, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
   title: { ...text.cardTitle, color: color.text.primary },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   meta: { ...text.caption, fontSize: 13, color: color.text.secondary, flex: 1 },
