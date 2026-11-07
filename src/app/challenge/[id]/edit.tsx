@@ -85,9 +85,11 @@ export default function EditChallenge() {
   }
 
   const isGroup = !!challenge.groupId;
+  // Nur Bild: Titel freiwillig (Daria, 06.11.2026)
+  const titleOptional = challenge.type === 'photo';
   const whyNot = () =>
-    !title.trim() ? titleField.nudge('Gib einen Titel ein.') : locationField.nudge('Wo soll es stattfinden?');
-  const canSave = title.trim().length > 0 && title.trim().length <= 60 && (isGroup || location.trim().length > 0);
+    !title.trim() && !titleOptional ? titleField.nudge('Gib einen Titel ein.') : locationField.nudge('Wo soll es stattfinden?');
+  const canSave = (titleOptional || title.trim().length > 0) && title.trim().length <= 60 && (isGroup || location.trim().length > 0);
 
   // Abgelaufene Frist einer gelöschten Challenge: läuft beim Veröffentlichen neu, so lang wie ursprünglich.
   const expired = new Date(challenge.deadline).getTime() <= Date.now();
@@ -216,7 +218,7 @@ export default function EditChallenge() {
         photo={photo ?? challenge.image}
         hint={isGroup ? 'Optional. Zeige, worum es geht.' : 'Zeige, wo geholfen werden soll.'}
         onChange={setPhoto}
-        title={{ value: title, onChange: setTitle, nudge: titleField }}
+        title={{ value: title, onChange: setTitle, nudge: titleField, optional: titleOptional }}
       />
       {challenge.type === 'individual' ? (
         <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={body} onChangeText={setBody} maxLength={500} />

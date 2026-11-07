@@ -4,6 +4,7 @@ import { Animated, Easing, KeyboardAvoidingView, LayoutAnimation, PanResponder, 
 import { Text } from './T';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
+import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { color, motion, radius, size, space, text, scheme } from '../theme/tokens';
@@ -155,6 +156,8 @@ export function HeroScreen({
   collapsedRef.current = collapsed;
   const setCollapsedAnimated = (next: boolean) => {
     if (next === collapsedRef.current) return;
+    // Ausklappen zeigt die Bedienelemente immer wieder
+    if (!next) showChrome(true);
     // Bewegung „Schranke“ (tokens.ts, motion): federnd statt linear
     LayoutAnimation.configureNext({
       duration: motion.barrier.duration,
@@ -163,6 +166,22 @@ export function HeroScreen({
     setCollapsed(next);
   };
   const toggle = () => setCollapsedAnimated(!collapsedRef.current);
+  // Vollbild: Tippen aufs Foto blendet Knöpfe, Blatt und Leiste aus, nochmal Tippen zeigt sie wieder (Daria, 06.11.2026)
+  const [chromeHidden, setChromeHidden] = useState(false);
+  const chrome = useRef(new Animated.Value(1)).current;
+  const showChrome = (show: boolean) => {
+    setChromeHidden(!show);
+    Animated.timing(chrome, { toValue: show ? 1 : 0, duration: 200, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+  };
+  // Eingeklappt blendet ein Tipp aufs Foto alles aus oder wieder ein, ausgeklappt klappt er die Details zu
+  const onPhotoPress = () => {
+    if (!collapsedRef.current) return setCollapsedAnimated(true);
+    // Die Leiste unten verschwindet ganz, damit das Foto bis zum Rand reicht
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    showChrome(chromeHidden);
+  };
+  const chromeStyle = { opacity: chrome };
+  const chromeTouch = chromeHidden ? 'none' : 'box-none';
   const setRef = useRef(setCollapsedAnimated);
   setRef.current = setCollapsedAnimated;
 
@@ -221,11 +240,11 @@ export function HeroScreen({
           onLayout={(e) => setViewportHeight(e.nativeEvent.layout.height)}
         >
           <Animated.View {...pan.panHandlers} style={{ transform: [{ translateY: drag }] }}>
-          {/* Tippen aufs Foto klappt die Details zu oder auf */}
+          {/* Tippen aufs Foto: im Vollbild Bedienelemente aus- und einblenden, sonst Details zuklappen */}
           <Pressable
-            onPress={toggle}
+            onPress={onPhotoPress}
             accessibilityRole="button"
-            accessibilityLabel={collapsed ? t('Details ausklappen') : t('Foto groß ansehen')}
+            accessibilityLabel={collapsed ? (chromeHidden ? t('Bedienelemente einblenden') : t('Bedienelemente ausblenden')) : t('Foto groß ansehen')}
             style={[styles.hero, { height: heroHeight }]}
           >
             {images.length > 1 ? (
@@ -254,11 +273,11 @@ export function HeroScreen({
                     </View>
                   ))}
                 </ScrollView>
-                <View style={styles.dots} pointerEvents="none">
+                <Animated.View style={[styles.dots, chromeStyle]} pointerEvents="none">
                   {images.map((_, i) => (
                     <View key={i} style={[styles.dot, i === page && styles.dotActive]} />
                   ))}
-                </View>
+                </Animated.View>
               </>
             ) : (
               <Image
@@ -273,9 +292,13 @@ export function HeroScreen({
                 <PhotoTextOverlay value={photoText} size="hero" />
               </View>
             ) : null}
-            {imageOverlay ? <View style={styles.heroOverlay}>{imageOverlay}</View> : null}
+            {imageOverlay ? (
+              <Animated.View style={[styles.heroOverlay, chromeStyle]} pointerEvents={chromeTouch}>
+                {imageOverlay}
+              </Animated.View>
+            ) : null}
           </Pressable>
-          <View style={[styles.sheet, collapsed && styles.sheetGlass, glassOffset]}>
+          <Animated.View style={[styles.sheet, collapsed && styles.sheetGlass, glassOffset, chromeStyle]} pointerEvents={chromeTouch}>
             {collapsed ? (
               <BlurView intensity={40} tint={scheme} style={StyleSheet.absoluteFill} />
             ) : null}
@@ -301,16 +324,17 @@ export function HeroScreen({
             </Pressable>
             </View>
             {collapsed ? null : children}
-          </View>
+          </Animated.View>
           </Animated.View>
         </ScrollView>
-        {actions ? <ActionBar>{actions}</ActionBar> : <View style={{ height: insets.bottom }} />}
+        {chromeHidden ? null : actions ? <ActionBar>{actions}</ActionBar> : <View style={{ height: insets.bottom }} />}
         </NudgeScrollProvider>
       </KeyboardAvoidingView>
-      <View style={[styles.heroButtons, { top: insets.top + space[8] }]} pointerEvents="box-none">
+      <Animated.View style={[styles.heroButtons, { top: insets.top + space[8] }, chromeStyle]} pointerEvents={chromeTouch}>
         {onBackPress ? <GlassIconButton icon="chevron-left" accessibilityLabel={t('Zurück')} onPress={onBackPress} /> : <View />}
         {onSharePress ? <GlassIconButton icon="send" accessibilityLabel={t('Teilen')} onPress={onSharePress} /> : null}
-      </View>
+      </Animated.View>
+      {chromeHidden ? <StatusBar hidden animated /> : null}
     </Animated.View>
   );
 }
