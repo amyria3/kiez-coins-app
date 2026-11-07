@@ -25,22 +25,26 @@ import { Text } from './T';
 export const MAX_PAGES = 10;
 /** Höhe zu Breite */
 export const SHEET_RATIO = 5 / 4;
-export const PAPER = '#FFF8ED';
+/** Blatt: reines Weiß (Daria, 07.11.2026, vorher #FFF8ED) */
+export const PAPER = '#FFFFFF';
 export const INK = '#232326';
-/** Links und @Namen: dunkles Orange, gut lesbar auf dem hellen Blatt (Daria, 07.11.2026, vorher Lila #5B5CD6) */
-const INK_LINK = '#B84A12';
+/** Links und @Namen: kräftiges Orange ohne Braunstich (Daria, 07.11.2026, vorher Lila #5B5CD6) */
+const INK_LINK = '#E8590C';
 
 export function sheetMetrics(width: number, fontKey?: string) {
   const f = sheetFont(fontKey);
   const pad = Math.round(width * 0.11);
+  // Oben und unten deutlich mehr Luft als an den Seiten (Daria, 07.11.2026)
+  const padY = Math.round(width * 0.19);
   const fontSize = width * 0.064 * f.scale;
   const lineHeight = Math.round(fontSize * f.leading);
   const titleSize = width * 0.084 * f.scale;
   const titleLineHeight = Math.round(titleSize * Math.max(1.18, f.leading - 0.2));
   return {
     pad,
+    padY,
     innerWidth: width - 2 * pad,
-    innerHeight: Math.round(width * SHEET_RATIO) - 2 * pad,
+    innerHeight: Math.round(width * SHEET_RATIO) - 2 * padY,
     body: { fontFamily: f.body, fontSize, lineHeight, color: INK },
     title: { fontFamily: f.title, fontSize: titleSize, lineHeight: titleLineHeight, color: INK, letterSpacing: f.key === 'inter' ? -0.3 : 0 },
     /** Abstand zwischen Titel und Text */
@@ -121,7 +125,7 @@ export function Sheet({
   useSheetFonts();
   const m = sheetMetrics(width, fontKey);
   return (
-    <View style={[styles.sheet, { width, height: Math.round(width * SHEET_RATIO), padding: m.pad }]}>
+    <View style={[styles.sheet, { width, height: Math.round(width * SHEET_RATIO), paddingHorizontal: m.pad, paddingVertical: m.padY }]}>
       {index === 0 && title?.trim() ? (
         <Text noTranslate style={[m.title, { marginBottom: m.titleGap }]}>
           {title.trim()}
@@ -131,7 +135,7 @@ export function Sheet({
         <RichSheetText value={text} />
       </Text>
       {count > 1 ? (
-        <Text style={[styles.pageNo, { right: m.pad, bottom: Math.round(m.pad * 0.45), fontSize: width * 0.03 }]}>
+        <Text style={[styles.pageNo, { right: m.pad, bottom: Math.round(m.padY * 0.4), fontSize: width * 0.03 }]}>
           {`${index + 1}/${count}`}
         </Text>
       ) : null}
@@ -418,7 +422,7 @@ export function SheetEditor({
           {list.map((value, k) => {
             const firstAvail = m.innerHeight - (title.trim() ? titleHeight + m.titleGap : 0);
             return (
-              <View key={k} style={[styles.sheet, { width, height: Math.round(width * SHEET_RATIO), padding: m.pad }]}>
+              <View key={k} style={[styles.sheet, { width, height: Math.round(width * SHEET_RATIO), paddingHorizontal: m.pad, paddingVertical: m.padY }]}>
                 {k === 0 ? (
                   <>
                     <TextInput
@@ -478,7 +482,7 @@ export function SheetEditor({
                 >
                   {`${value}​`}
                 </Text>
-                <Text style={[styles.pageNo, { right: m.pad, bottom: Math.round(m.pad * 0.45), fontSize: width * 0.03 }]}>
+                <Text style={[styles.pageNo, { right: m.pad, bottom: Math.round(m.padY * 0.4), fontSize: width * 0.03 }]}>
                   {`${k + 1}/${list.length}`}
                 </Text>
               </View>
@@ -526,7 +530,7 @@ const styles = StyleSheet.create({
   measure: { position: 'absolute', opacity: 0, left: -10000, top: 0 },
   mention: { color: INK_LINK },
   link: { color: INK_LINK, textDecorationLine: 'underline' },
-  pageNo: { position: 'absolute', fontFamily: font.regular, color: 'rgba(35, 35, 38, 0.45)' },
+  pageNo: { position: 'absolute', fontFamily: font.regular, color: '#8E8E93' },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: space[6], paddingTop: space[8] },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: color.text.secondary, opacity: 0.4 },
   dotActive: { backgroundColor: color.text.primary },
