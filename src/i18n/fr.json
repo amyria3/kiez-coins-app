@@ -922,7 +922,6 @@
   "Zum Beispiel „Prenzlauer Berg, 10437 Berlin“. Die Postleitzahl ist notwendig.": "Par exemple « Prenzlauer Berg, 10437 Berlin ». Le code postal est obligatoire.",
   "{firstName} hat nicht als erledigt bestätigt: „{rejectionReason}“": "{firstName} n’a pas confirmé que c’était fait : « {rejectionReason} »",
   "Öffentlich sichtbar.": "Visible publiquement.",
-  "Öffentlich. Alle in der Nachbarschaft können mitlesen.": "Public. Tout le quartier peut lire.",
   "Nur Geduld, my friend! Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach immer noch fehlt.": "Patience, l’ami·e ! Les virements prennent jusqu’à 2 jours ouvrés. Ne nous contacte que si l’argent manque toujours après.",
   "Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und {name} sie bestätigt hat. Alles beruht auf Vertrauen.": "Sans coordonnées de paiement, {name} ne peut pas payer. {name} ne voit tes coordonnées qu’une fois le défi fait et confirmé par {name}. Tout repose sur la confiance.",
   "Initiator:in": "Initiateur·rice",
