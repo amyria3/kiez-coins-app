@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
+import { AccessibilityInfo, Animated, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import sprueche from '../data/kater-sprueche.json';
 import type { KaterSpruch } from '../data/kater';
-import { color, space } from '../theme/tokens';
+import { color, space, text } from '../theme/tokens';
+import { Text } from './T';
 import { GearsLoader } from './GearsLoader';
 import { KaterStage } from './KaterStage';
 
@@ -50,7 +51,9 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
 
   // Die Zahnräder aus public/index.html übernehmen: Ab hier drehen die eigenen an derselben Stelle
   useEffect(() => {
-    if (typeof document !== 'undefined') document.getElementById('boot')?.remove();
+    if (typeof document === 'undefined') return;
+    document.getElementById('boot')?.remove();
+    document.getElementById('boot-moment')?.remove();
   }, []);
 
   // Kater nach den Zahnrädern einblenden, dann fegen lassen
@@ -116,7 +119,9 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
           <Animated.View style={{ opacity: katerSichtbar }}>
             <KaterStage width={katerBreite} spruch={spruch} take={1} ohneBlase={!spruch.text} />
           </Animated.View>
-        ) : null}
+        ) : (
+          <Moment />
+        )}
       </Pressable>
       <Animated.View
         pointerEvents="none"
@@ -128,7 +133,30 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
   );
 }
 
+/**
+ * „Moment“ mit wandernden Punkten, bis der Kater auftaucht (Daria, 07.11.2026): . .. ... und wieder von vorn.
+ * Die fehlenden Punkte bleiben unsichtbar stehen, damit das Wort nicht hin und her rutscht.
+ */
+export function Moment() {
+  const [dots, setDots] = useState(1);
+  useEffect(() => {
+    const timer = setInterval(() => setDots((d) => (d % 3) + 1), 400);
+    return () => clearInterval(timer);
+  }, []);
+  return (
+    <View accessibilityRole="progressbar" accessibilityLabel="Moment">
+      <Text style={styles.moment}>
+        Moment
+        <Text>{'.'.repeat(dots)}</Text>
+        <Text style={styles.hidden}>{'.'.repeat(3 - dots)}</Text>
+      </Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  moment: { ...text.title, color: color.text.primary },
+  hidden: { color: 'transparent' },
   screen: { backgroundColor: color.bg.screen, zIndex: 10 },
   flaeche: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   raeder: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
