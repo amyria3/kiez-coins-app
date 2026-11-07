@@ -52,7 +52,8 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 ## Posts nur mit Text (Daria, 07.11.2026)
 
-- [ ] Pflicht für Daria vor dem Merge: Migration `supabase/migrations/20261107000100_text_posts.sql` im SQL-Editor ausführen. Details: `2026-11-07_offen_text-posts.md`.
+- [x] (Daria, 07.11.2026: „_text success“) Migration `supabase/migrations/20261107000100_text_posts.sql` im SQL-Editor ausführen. Details: `2026-11-07_offen_text-posts.md`.
+- [ ] Pflicht für Daria vor dem Merge: Migration [`20261107000200_text_posts_size_align.sql`](https://github.com/amyria3/kiez-coins-app/blob/claude/project-thread-q2ypog/supabase/migrations/20261107000200_text_posts_size_align.sql) im SQL-Editor ausführen. Ohne sie schlägt das Posten fehl, sobald jemand Größe oder Ausrichtung ändert.
 - [ ] Teil 2: Blätter exportieren, mit Profilbild und KiezCoins-Logo, als Slides für Instagram und als Thread auf BlueSky.
 - [ ] Schrift Poppins für die Blätter, damit man auch auf Hindi schreiben kann (Devanagari).
 

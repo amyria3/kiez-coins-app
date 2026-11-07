@@ -26,7 +26,11 @@ export const SHEET_FONTS = [
 export type SheetFont = (typeof SHEET_FONTS)[number]['key'];
 export const DEFAULT_SHEET_FONT: SheetFont = 'inter';
 
-export const sheetFont = (key?: string) => SHEET_FONTS.find((f) => f.key === key) ?? SHEET_FONTS[0];
+/** Schrift zu einem Schlüssel. Steht dahinter noch Größe und Ausrichtung (`rubik|1.15|center`), zählt nur die Schrift. */
+export const sheetFont = (key?: string) => {
+  const k = key?.split('|')[0];
+  return SHEET_FONTS.find((f) => f.key === k) ?? SHEET_FONTS[0];
+};
 
 /** Lädt die Schriften erst, wenn Blätter zu sehen sind. Inter ist schon beim Start geladen. */
 export function useSheetFonts(): boolean {
@@ -41,4 +45,29 @@ export function useSheetFonts(): boolean {
     Rubik_600SemiBold,
   });
   return loaded || !!error;
+}
+
+/**
+ * Schriftgröße und Ausrichtung der Blätter (Daria, 07.11.2026). Sie stehen mit der Schrift zusammen in der Spalte
+ * `sheet_font`, getrennt durch `|`, z. B. `rubik|1.15|center` (Migration 20261107000200). Ohne Größe und Ausrichtung
+ * steht dort nur die Schrift wie bisher.
+ */
+export const SHEET_SIZE_MIN = 0.9;
+export const SHEET_SIZE_MAX = 1.3;
+export type SheetAlign = 'left' | 'center';
+export type SheetStyle = { font: string; size: number; align: SheetAlign };
+
+export function parseSheetStyle(value?: string): SheetStyle {
+  const [font, size, align] = (value ?? '').split('|');
+  const n = Number(size);
+  return {
+    font: sheetFont(font).key,
+    size: Number.isFinite(n) && n > 0 ? Math.min(SHEET_SIZE_MAX, Math.max(SHEET_SIZE_MIN, n)) : 1,
+    align: align === 'center' ? 'center' : 'left',
+  };
+}
+
+export function formatSheetStyle({ font, size, align }: SheetStyle): string {
+  const s = Math.round(Math.min(SHEET_SIZE_MAX, Math.max(SHEET_SIZE_MIN, size)) * 100) / 100;
+  return s === 1 && align === 'left' ? font : `${font}|${s.toFixed(2)}|${align}`;
 }
