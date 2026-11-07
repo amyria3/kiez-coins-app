@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 
 import { shareText } from '../lib/share';
 import { openShareDialog, type SharePrepared } from '../components/ShareDialog';
-import { sheetImageFiles, type SheetAuthor } from '../lib/sheetImages';
+import { framePhotoFiles, sheetImageFiles, type SheetAuthor } from '../lib/sheetImages';
 import { WEB_APP_URL } from './groups';
 import { shareChallengePublicly } from './remote';
 import { useStore } from './store';
@@ -106,9 +106,9 @@ export function useShareChallenge(): (challenge: Challenge) => Promise<void> {
           ? sheetImageFiles(challenge.pages, challenge.title, challenge.sheetFont, sheetAuthor(author)).then(
               (files) => files ?? [],
             )
-          : photoFiles(challenge),
+          : photoFiles(challenge).then((files) => framePhotoFiles(files, sheetAuthor(author))),
         makeMessage(),
-      ]).then(([files, message]) => ({ files, message }));
+      ]).then(([files, message]) => ({ files, message, slides: !!challenge.pages?.length }));
       prepared.set(key, job);
       job.catch(() => prepared.delete(key));
     }

@@ -1,7 +1,6 @@
 import { Platform } from 'react-native';
 
 import { INK, INK_LINK, PAPER, RICH, SHEET_RATIO, sheetMetrics } from '../components/TextSheets';
-import { brandArt } from '../components/icons/brandArt';
 import { iconSvgs } from '../components/icons/svgs';
 import { font } from '../theme/tokens';
 
@@ -31,17 +30,6 @@ function svgImage(xml: string): HTMLImageElement | null {
 const CAT = iconSvgs.cat;
 const catImage = svgImage(
   CAT.svg(LOGO_INK).replace(/width="[^"]*" height="[^"]*"/, `width="${CAT.width * 4}" height="${CAT.height * 4}"`),
-);
-
-/** Schriftzug „KiezCoins“ aus dem einfarbigen Logo, ohne dessen Kater-Kopf */
-const WORD_X = 40;
-const WORD = brandArt['logo-mono'];
-const WORD_W = WORD.width - WORD_X;
-const wordImage = svgImage(
-  WORD.svg
-    .replace(/#111111/gi, LOGO_INK)
-    .replace(/viewBox="[^"]*"/, `viewBox="${WORD_X} 0 ${WORD_W} ${WORD.height}"`)
-    .replace(/width="[^"]*" height="[^"]*"/, `width="${WORD_W * 4}" height="${WORD.height * 4}"`),
 );
 
 /** Wer den Post geschrieben hat: oben über dem Titel, Profilbild und Name (Daria, 07.11.2026) */
@@ -139,6 +127,58 @@ function drawLine(ctx: Ctx, line: string, x: number, y: number, align: 'left' | 
   });
 }
 
+/** Profilbild und Name in einer Zeile ab `top`; gibt die Unterkante zurück */
+function drawAuthorRow(
+  ctx: Ctx,
+  name: string,
+  avatar: HTMLImageElement | null,
+  top: number,
+  pad: number,
+  innerWidth: number,
+  align: 'left' | 'center',
+): number {
+  const W = ctx.canvas.width;
+  const d = Math.round(SLIDE_WIDTH * 0.085);
+  const nameSize = Math.round(SLIDE_WIDTH * 0.034);
+  ctx.font = `600 ${nameSize}px "${font.regular}"`;
+  const nameWidth = Math.min(ctx.measureText(name).width, innerWidth - d - nameSize * 0.6);
+  const rowWidth = d + Math.round(nameSize * 0.6) + nameWidth;
+  const x = align === 'center' ? Math.round((W - rowWidth) / 2) : pad;
+  drawAvatar(ctx, avatar, name, x, top, d);
+  ctx.font = `600 ${nameSize}px "${font.regular}"`;
+  ctx.fillStyle = INK;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(name, x + d + Math.round(nameSize * 0.6), top + d / 2, nameWidth);
+  return top + d;
+}
+
+/** Unten: Seitenzahl links in Grau, rechts Kater und „KiezCoins“ (Daria, 07.11.2026). `bottom` ist die Unterkante. */
+function drawFooter(ctx: Ctx, bottom: number, pad: number, index: number, count: number) {
+  const W = ctx.canvas.width;
+  const markSize = SLIDE_WIDTH * 0.03;
+  // Kater, daneben „KiezCoins“ in der normalen Schrift und Farbe wie der Name (Daria, 07.11.2026)
+  const wordSize = Math.round(SLIDE_WIDTH * 0.034);
+  ctx.font = `600 ${wordSize}px "${font.regular}"`;
+  ctx.fillStyle = INK;
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText('KiezCoins', W - pad, bottom - Math.round(wordSize * 0.15));
+  if (catImage?.complete && catImage.naturalWidth) {
+    const ww = ctx.measureText('KiezCoins').width;
+    const ch = Math.round(wordSize * 1.6);
+    const cw = Math.round((ch * CAT.width) / CAT.height);
+    ctx.drawImage(catImage, W - pad - ww - Math.round(wordSize * 0.4) - cw, bottom - ch, cw, ch);
+  }
+  if (count > 1) {
+    ctx.font = `${markSize}px "${font.regular}"`;
+    ctx.fillStyle = MARK;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(`${index + 1}/${count}`, pad, bottom);
+  }
+}
+
 function drawSheet(
   text: string,
   title: string | undefined,
@@ -162,22 +202,10 @@ function drawSheet(
   let y = m.padY;
 
   // Oben: Profilbild und Name, der Text rückt dafür etwas nach unten (Daria, 07.11.2026)
-  const name = author?.name.trim();
-  if (name) {
-    const d = Math.round(W * 0.085);
+  if (author?.name.trim()) {
     const top = Math.round(m.padY * 0.42);
-    const nameSize = Math.round(W * 0.034);
-    ctx.font = `600 ${nameSize}px "${font.regular}"`;
-    const nameWidth = Math.min(ctx.measureText(name).width, m.innerWidth - d - nameSize * 0.6);
-    const rowWidth = d + Math.round(nameSize * 0.6) + nameWidth;
-    const x = align === 'center' ? Math.round((W - rowWidth) / 2) : m.pad;
-    drawAvatar(ctx, avatar, name, x, top, d);
-    ctx.font = `600 ${nameSize}px "${font.regular}"`;
-    ctx.fillStyle = INK;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(name, x + d + Math.round(nameSize * 0.6), top + d / 2, nameWidth);
-    y = Math.max(y, top + d + Math.round(W * 0.06));
+    const bottomOfRow = drawAuthorRow(ctx, author.name.trim(), avatar, top, m.pad, m.innerWidth, align);
+    y = Math.max(y, bottomOfRow + Math.round(W * 0.06));
   }
 
   ctx.textBaseline = 'middle';
@@ -198,41 +226,16 @@ function drawSheet(
   }
 
   // Unten: Seitenzahl links in Grau, Logo rechts (Daria, 07.11.2026)
-  const markSize = W * 0.03;
-  const bottom = H - Math.round(m.padY * 0.38);
-  const ready = (img: HTMLImageElement | null): img is HTMLImageElement => !!img?.complete && !!img.naturalWidth;
-  if (ready(catImage) && ready(wordImage)) {
-    // Unten rechts: Kater, daneben „KiezCoins“ (Daria, 07.11.2026)
-    const wh = Math.round(W * 0.05);
-    const ww = Math.round((wh * WORD_W) / WORD.height);
-    const ch = Math.round(wh * 1.25);
-    const cw = Math.round((ch * CAT.width) / CAT.height);
-    const gap = Math.round(wh * 0.2);
-    ctx.drawImage(wordImage, W - m.pad - ww, bottom - wh, ww, wh);
-    ctx.drawImage(catImage, W - m.pad - ww - gap - cw, bottom - ch, cw, ch);
-  } else {
-    ctx.font = `600 ${markSize * 1.2}px "${font.regular}"`;
-    ctx.fillStyle = LOGO_INK;
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText('KiezCoins', W - m.pad, bottom);
-  }
-  if (count > 1) {
-    ctx.font = `${markSize}px "${font.regular}"`;
-    ctx.fillStyle = MARK;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText(`${index + 1}/${count}`, m.pad, bottom);
-  }
+  drawFooter(ctx, H - Math.round(m.padY * 0.38), m.pad, index, count);
   return canvas;
 }
 
-function canvasToFile(canvas: HTMLCanvasElement, name: string): File {
-  const data = canvas.toDataURL('image/png');
+function canvasToFile(canvas: HTMLCanvasElement, name: string, type = 'image/png'): File {
+  const data = canvas.toDataURL(type, 0.92);
   const bytes = atob(data.split(',')[1]);
   const buffer = new Uint8Array(bytes.length);
   for (let i = 0; i < bytes.length; i++) buffer[i] = bytes.charCodeAt(i);
-  return new File([buffer], name, { type: 'image/png' });
+  return new File([buffer], name, { type });
 }
 
 /** Alle Blätter als PNG-Dateien, oben Profilbild und Name, unten das Logo. `null` außerhalb des Browsers. */
@@ -257,6 +260,68 @@ export async function sheetImageFiles(
     // Profilbild ohne Freigabe für Canvas: dann mit Initialen
     return draw(null);
   }
+}
+
+/** Bild aus einer Datei laden; `null` bei Fehlern */
+function loadBlobImage(blob: Blob): Promise<HTMLImageElement | null> {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
+/**
+ * Fotos eines Posts zum Teilen in einem weißen Rahmen (Daria, 07.11.2026): oben links Profilbild und Name, unten
+ * rechts Kater und „KiezCoins“, links und rechts etwas Rand. Lässt sich ein Foto nicht zeichnen, bleibt es, wie es ist.
+ */
+export async function framePhotoFiles(files: File[], author?: SheetAuthor): Promise<File[]> {
+  if (Platform.OS !== 'web' || typeof document === 'undefined') return files;
+  const avatar = await loadAvatar(author?.avatarUri);
+  const name = author?.name.trim();
+  return Promise.all(
+    files.map(async (file, i) => {
+      const photo = await loadBlobImage(file);
+      if (!photo?.naturalWidth) return file;
+      const W = SLIDE_WIDTH;
+      const side = Math.round(W * 0.06);
+      const inner = W - 2 * side;
+      // Seitenverhältnis bleibt zwischen 4:3 quer und 4:5 hoch; was darüber hinausgeht, wird mittig beschnitten
+      const ratio = Math.min(1.25, Math.max(0.75, photo.naturalHeight / photo.naturalWidth));
+      const ph = Math.round(inner * ratio);
+      const srcW = Math.min(photo.naturalWidth, photo.naturalHeight / ratio);
+      const srcH = srcW * ratio;
+      const headH = name ? Math.round(W * 0.17) : side;
+      const footH = Math.round(W * 0.15);
+      const canvas = document.createElement('canvas');
+      canvas.width = W;
+      canvas.height = headH + ph + footH;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = PAPER;
+      ctx.fillRect(0, 0, W, canvas.height);
+      if (name) {
+        const d = Math.round(W * 0.085);
+        drawAuthorRow(ctx, name, avatar, Math.round((headH - d) / 2), side, inner, 'left');
+      }
+      ctx.save();
+      ctx.beginPath();
+      const r = Math.round(W * 0.02);
+      ctx.roundRect(side, headH, inner, ph, r);
+      ctx.clip();
+      ctx.drawImage(photo, (photo.naturalWidth - srcW) / 2, (photo.naturalHeight - srcH) / 2, srcW, srcH, side, headH, inner, ph);
+      ctx.restore();
+      drawFooter(ctx, canvas.height - Math.round(footH * 0.36), side, i, files.length);
+      URL.revokeObjectURL(photo.src);
+      try {
+        return canvasToFile(canvas, `kiezcoins-${String(i + 1).padStart(2, '0')}.jpg`, 'image/jpeg');
+      } catch {
+        // Profilbild ohne Freigabe fürs Canvas: Foto ohne Rahmen
+        return file;
+      }
+    }),
+  );
 }
 
 /**
