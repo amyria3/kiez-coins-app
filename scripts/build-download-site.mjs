@@ -142,16 +142,9 @@ const kcSvg = {
   diamond3: { w: diamondSvgs[3].width, h: diamondSvgs[3].height, svg: diamondSvgs[3].svg(C.text) },
   cameraDark: icon('camera', C.dark),
 };
-// Logo für den Seitenkopf: Schriftzug wie in der App, die Katze vorne ersetzt durch Darias FatCat (scripts/site/fatcat.svg, 26.10.2026).
-// Die ersten acht Pfade im Logo sind die alte Katze. Die FatCat bekommt die Logo-Farbe, damit seite.css sie mit umfärbt.
-const logoSeite = (() => {
-  const pfade = kcSvg.logo.svg.match(/<path[\s\S]*?\/>/g);
-  const fat = readFileSync(join(root, 'scripts/site/fatcat.svg'), 'utf8').match(/<path[\s\S]*?\/>/)[0].replace(/fill="[^"]*"/, 'fill="#7E94FF"');
-  const katze = `<g transform="translate(0.5 1.5) scale(${(24 / 35).toFixed(4)})">${fat}</g>`;
-  let svg = kcSvg.logo.svg.replace(pfade[0], katze);
-  for (const alt of pfade.slice(1, 8)) svg = svg.replace(alt, '');
-  return { ...kcSvg.logo, svg };
-})();
+// Logo für den Seitenkopf: dasselbe wie in der App (assets/brand/logo.svg), Kater und Schriftzug (Daria, 2026-11-07).
+// seite.css färbt das Lila in die Textfarbe um.
+const logoSeite = kcSvg.logo;
 const sized = (d, h) => d.svg.replace(/width="[^"]*" height="[^"]*"/, `width="${Math.round((d.w / d.h) * h)}" height="${h}" aria-hidden="true"`);
 // Dateien mit Prüfsumme im Namen-Parameter, damit Browser nach einem Update die neue Fassung laden
 const version = (text) => createHash('sha1').update(text).digest('hex').slice(0, 8);
