@@ -20,6 +20,7 @@ import { Button } from '../Button';
 import { Toggle } from '../Form';
 import { Icon } from '../icons/Icon';
 import { Text } from '../T';
+import { t } from '../../data/texts';
 
 /**
  * Zeile „Weiterposten“ im Erstellen-Blatt öffentlicher Posts (Entwurf Daria, 05.11.2026): Die Auswahl der
@@ -61,7 +62,7 @@ export function CrosspostRow() {
       <Pressable
         style={({ pressed }) => [styles.row, pressed && styles.pressed]}
         accessibilityRole="button"
-        accessibilityLabel="Weiterposten"
+        accessibilityLabel={t('Weiterposten')}
         onPress={() => setOpen(true)}
       >
         <Icon name="settings" size={size.icon} color={color.text.secondary} />
@@ -74,7 +75,7 @@ export function CrosspostRow() {
 
       <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
         <BlurView intensity={18} tint={scheme} style={StyleSheet.absoluteFill} />
-        <Pressable style={styles.backdrop} accessibilityLabel="Schließen" onPress={() => setOpen(false)} />
+        <Pressable style={styles.backdrop} accessibilityLabel={t('Schließen')} onPress={() => setOpen(false)} />
         <View style={[styles.sheet, { paddingBottom: insets.bottom + space[20] }]} accessibilityViewIsModal>
           <View style={styles.handle} />
           <Text style={styles.title}>Weiterposten</Text>

@@ -15,6 +15,7 @@ import { useStore } from '../../data/store';
 import { color, text } from '../../theme/tokens';
 import { useNudge } from '../../components/Nudge';
 import { useGoBack } from '../../lib/goBack';
+import { t } from '../../data/texts';
 
 // Kater-Vorschläge aus zwei Wortlisten. Die App schlägt nur Namen vor, die noch frei sind (Daria, 28.10.2026).
 const NAMES = [
@@ -25,8 +26,9 @@ const NAMES = [
 ];
 const SHOWN = 3;
 
+/** Vorschläge in der Sprache der App, damit Feld und Auswahl denselben Namen zeigen */
 function candidates(count: number): string[] {
-  return [...NAMES].sort(() => Math.random() - 0.5).slice(0, count);
+  return NAMES.map((n) => t(n)).sort(() => Math.random() - 0.5).slice(0, count);
 }
 
 /**

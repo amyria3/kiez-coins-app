@@ -6,6 +6,7 @@ import sprueche from '../data/kater-sprueche.json';
 import type { KaterSpruch } from '../data/kater';
 import { color, space, text } from '../theme/tokens';
 import { Text } from './T';
+import { t } from '../data/texts';
 import { GearsLoader } from './GearsLoader';
 import { KaterStage } from './KaterStage';
 
@@ -113,7 +114,7 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
         // Kater mittig im Platz über den Zahnrädern, mit Luft dazwischen (Daria, 2026-11-05)
         style={[styles.flaeche, { paddingBottom: insets.bottom + space[32] + raederSize + space[24] }]}
         accessibilityRole="button"
-        accessibilityLabel="Weiter"
+        accessibilityLabel={t('Weiter')}
       >
         {kater ? (
           <Animated.View style={{ opacity: katerSichtbar }}>
@@ -144,7 +145,7 @@ export function Moment() {
     return () => clearInterval(timer);
   }, []);
   return (
-    <View accessibilityRole="progressbar" accessibilityLabel="Moment">
+    <View accessibilityRole="progressbar" accessibilityLabel={t('Moment')}>
       <Text style={styles.moment}>
         Moment
         <Text>{'.'.repeat(dots)}</Text>
