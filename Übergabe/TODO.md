@@ -1,6 +1,6 @@
 # To-dos
 
-Stand: 2026-10-31. Diese Liste ist die einzige To-do-Liste für KiezCoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
+Stand: 2026-11-07. Diese Liste ist die einzige To-do-Liste für KiezCoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
 
 Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coins/screenshots/`. Sie stehen absichtlich nicht im Repo, weil das Repo öffentlich ist und einige Bilder Adressen und Namen zeigen.
 
@@ -34,6 +34,12 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
    - [ ] Daria testet mit eigenem BlueSky- oder Mastodon-Konto. Details: `2026-11-05_offen_weiterposten.md`.
    - Frage an Daria: Sind 2,99 € im Monat (36 € im Jahr) für 5 X-Posts und 24,99 € im Jahr für 10 X-Posts so gewollt? Das Jahresabo wäre günstiger und enthielte doppelt so viele Posts.
    - Frage an Daria: Ein Abo heißt, dass KiezCoins Geld annimmt. Die Nutzungsbedingungen sagen heute „KiezCoins … nimmt kein Geld an und zahlt keins aus“ (`src/data/legal.ts`), und Coins sind Versprechen von echtem Geld zwischen Mitgliedern. Die Recherche schlägt vor, Guthaben als Coins zu verkaufen. Das würde diese Regel berühren. Bezahlung lieber getrennt von den Coins halten?
+
+## Erinnerungen (Daria, 07.11.2026)
+
+- [ ] Erinnerungen mit Kater-Nachrichten: eigener Reiter, verknüpft mit Post, Textpost oder Me-Challenge, Ziel nach Zeit oder x-mal pro Woche, erledigt in Gruppe, privat, Kiez oder überall posten. Noch nicht bauen, erst Rückfragen klären. Details: `2026-11-07_offen_erinnerungen.md`.
+- [ ] Später: einfache Animationen für die Erinnerungen.
+- [ ] Später: allgemein Animationen, ggf. mit dem Kater, der erklärt, was man machen kann oder soll. Ob es das braucht und in welcher Form, klärt der qualitative Test am 07.11.2026.
 
 ## Domain und Sichtbarkeit (Daria, 05.11.2026)
 
