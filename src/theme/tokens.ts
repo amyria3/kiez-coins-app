@@ -159,6 +159,9 @@ export const font = {
   semiBold: 'Inter_600SemiBold',
   /** Inter Tight für große Überschriften und Zahlen */
   display: 'InterTight_600SemiBold',
+  /** Text über dem Foto: breite Unbounded als Kontrast zur Inter der Oberfläche (Daria, 2026-11-07) */
+  onPhoto: 'Unbounded_500Medium',
+  onPhotoLight: 'Unbounded_300Light',
 } as const;
 
 // Text Styles
