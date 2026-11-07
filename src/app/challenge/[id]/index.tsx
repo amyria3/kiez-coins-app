@@ -251,7 +251,7 @@ export default function ChallengeDetail() {
             onPress: () =>
               router.push({
                 pathname: '/account/support',
-                params: { text: `Ich möchte meine Challenge „${challenge.title}“ löschen. Grund: ` },
+                params: { text: `Ich möchte meine Challenge „${challenge.title || 'Ohne Titel'}“ löschen. Grund: ` },
               }),
           },
         ],
@@ -394,9 +394,12 @@ export default function ChallengeDetail() {
           </View>
         ) : null}
       </View>
-      <Text style={styles.headline} accessibilityRole="header">
-        {challenge.title}
-      </Text>
+      {/* Ohne Titel keine Zeile (Daria, 06.11.2026) */}
+      {challenge.title.trim() ? (
+        <Text style={styles.headline} accessibilityRole="header">
+          {challenge.title}
+        </Text>
+      ) : null}
       {challenge.edensteine || challenge.bountyAmount || showDeadline ? (
       <View style={styles.metrics}>
         {challenge.edensteine ? (
@@ -603,7 +606,7 @@ export default function ChallengeDetail() {
       slideIn
       image={image}
       moreImages={moreImages}
-      imageLabel={challenge.title}
+      imageLabel={challenge.title.trim() || t('Foto')}
       photoText={challenge.type === 'photo' && image === challenge.image ? challenge.photoText : undefined}
       onBackPress={() => goBack()}
       onSharePress={() => share(challenge)}

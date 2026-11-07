@@ -30,7 +30,7 @@ export function canSharePublicly(challenge: Challenge, userId: string | undefine
 export function useShareChallenge(): (challenge: Challenge) => Promise<void> {
   const { currentUserId, mode } = useStore();
   return async (challenge) => {
-    const title = t('{title} – KiezCoins', { title: challenge.title });
+    const title = challenge.title.trim() ? t('{title} – KiezCoins', { title: challenge.title }) : 'KiezCoins';
     if (mode === 'live' && canSharePublicly(challenge, currentUserId)) {
       try {
         await shareChallengePublicly(challenge.id);

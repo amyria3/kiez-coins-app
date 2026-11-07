@@ -443,6 +443,8 @@ export type PhotoTitle = {
   error?: string;
   nudge?: Nudge;
   maxLength?: number;
+  /** Nur Bild: Titel ist freiwillig (Daria, 06.11.2026) */
+  optional?: boolean;
 };
 
 /** Blur im Browser: unscharf wird nur, was hinter dem Element liegt (Daria, 30.10.2026) */
@@ -546,10 +548,10 @@ export function PhotoPicker({
                 title.onChange(v);
               }}
               maxLength={title.maxLength ?? 60}
-              placeholder={t('Titel eingeben')}
+              placeholder={title.optional ? t('Titel (optional)') : t('Titel eingeben')}
               placeholderTextColor={color.text.secondary}
               selectionColor={color.accent.primary}
-              accessibilityLabel={t('{label}, Pflichtfeld', { label: t('Titel') })}
+              accessibilityLabel={title.optional ? t('Titel (optional)') : t('{label}, Pflichtfeld', { label: t('Titel') })}
               accessibilityHint={titleHelper}
               multiline
               scrollEnabled={false}
