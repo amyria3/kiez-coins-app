@@ -26,7 +26,7 @@ export default function NewGroup() {
     setBusy(true);
     try {
       const id = await groupApi.create(name.trim());
-      turnOnGroups(currentUserId);
+      await turnOnGroups(currentUserId);
       router.replace(`/groups/${id}`);
     } catch (error) {
       Alert.alert('Gruppe nicht gegründet', (error as Error).message);

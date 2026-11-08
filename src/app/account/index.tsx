@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Linking, Platform, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { FieldGroup, KaterBubble } from '../../components/Content';
@@ -11,7 +11,7 @@ import { SubScreen } from '../../components/Screen';
 import { SurveyOverlay } from '../../components/SurveyOverlay';
 import { anrede } from '../../data/format';
 import { useAuth } from '../../data/auth';
-import { isModerator, loadFriends } from '../../data/remote';
+import { financeLinkCode, isModerator, loadFriends } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
 import { color, isFashionable, size, space } from '../../theme/tokens';
 import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
@@ -19,6 +19,8 @@ import { look, looks, lookSelectable } from '../../theme/look';
 import { MODES, useModes } from '../../data/features';
 import { useGoBack } from '../../lib/goBack';
 import { useCrosspostEnabled } from '../../data/crosspost';
+
+const FINANCE_URL = 'https://kiezcoins.de/finanzierung';
 
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
 export default function Account() {
@@ -50,6 +52,16 @@ export default function Account() {
 
   const payoutValue = me.payout?.iban ? 'IBAN hinterlegt' : me.payout?.paypal ? 'PayPal hinterlegt' : 'Nicht hinterlegt';
 
+  // Finanzierung: Nur über diesen Link zeigt kiezcoins.de/finanzierung den eigenen Punkt (Daria, 08.11.2026).
+  // Der Code steht im Fragment (#), so erreicht er keinen Server.
+  const openFinance = async () => {
+    const code = mode === 'live' ? await financeLinkCode() : null;
+    const url = FINANCE_URL + (code ? `#ich=${code}` : '');
+    // Web: im selben Tab, da ein neues Fenster nach dem Warten auf den Code oft blockiert wird
+    if (Platform.OS === 'web') window.location.assign(url);
+    else Linking.openURL(url).catch(() => {});
+  };
+
   const toStart = async () => {
     await signOut();
     router.dismissAll();
@@ -65,7 +77,7 @@ export default function Account() {
         details={[anrede(profile), profile.kiez ?? 'Kiez noch nicht festgelegt']}
         onPress={() => router.push('/account/profile')}
       />
-      {/* Reihenfolge und Namen (Daria, 30.10.2026): Me, Meine Gruppen, Meine Posts (2026-11-02), Meine Features,
+      {/* Reihenfolge und Namen (Daria, 30.10.2026): Me, Finanzierung (2026-11-08), Meine Gruppen, Meine Posts (2026-11-02), Meine Features,
           Meine Freundschaften, Sprache, Look, danach der Rest */}
       <NavCard
         title="Me"
@@ -73,6 +85,13 @@ export default function Account() {
         // Fashionable Look: Dein Bild wie oben im Feed (Regelwerk: Was Du so machst = Dein Profil)
         leading={isFashionable ? <Avatar user={me} diameter={28} /> : <CrownIcon height={30} />}
         onPress={() => router.push('/me')}
+      />
+      {/* Finanzierung direkt unter Me (Daria, 08.11.2026) */}
+      <NavCard
+        title="Finanzierung"
+        description="Dein Punkt in der Community"
+        leading={<PhIcon name="finance" size={size.icon} />}
+        onPress={openFinance}
       />
       {modes.isVisible('groups') ? (
       <NavCard

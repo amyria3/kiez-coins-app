@@ -40,8 +40,9 @@ export default function JoinGroup() {
 
   // Schon Mitglied: Hinweis und direkt in die Gruppe. Die eigenen Gruppen kennen ihren Code.
   const memberOf = (value: string) => groups.find((g) => g.inviteCode === value);
-  const showMember = (group: { id: string; name: string }) => {
+  const showMember = async (group: { id: string; name: string }) => {
     Alert.alert('Schon dabei', t('Du bist schon Mitglied in „{name}“.', { name: group.name }));
+    await turnOnGroups(currentUserId);
     router.replace(`/groups/${group.id}`);
   };
 
@@ -77,7 +78,8 @@ export default function JoinGroup() {
       const mine = mode === 'live' ? await myGroupByCode(clean) : null;
       if (mine) return showMember(mine);
       const id = await groupApi.join(clean);
-      turnOnGroups(currentUserId);
+      // Nach dem Beitritt ist der Modus Gruppe an, auch wenn er vorher verborgen war (Daria, 07.11.2026)
+      await turnOnGroups(currentUserId);
       router.replace(`/groups/${id}`);
     } catch (error) {
       Alert.alert('Beitreten hat nicht geklappt', (error as Error).message);

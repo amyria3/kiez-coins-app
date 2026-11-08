@@ -45,6 +45,13 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 - [ ] In „Meine Posts“ (Archiv) per Wischen bearbeiten: nach links wischen löscht den Post, nach rechts wischen öffnet ihn zum Bearbeiten. Das Kamera-Icon dort entfällt. Noch nicht bauen.
 
+## Geburtstage (Daria, 07.11.2026)
+
+- [ ] Idee: Geburtstag mit Aufgaben oder Challenges verbinden, zum Beispiel zum Geburtstag jemanden kennenlernen. Noch nicht bauen, erst ausarbeiten.
+- [ ] Weitere Idee (Daria, 07.11.2026): zum Geburtstag alles vom Buffet probieren.
+- [ ] Weitere Idee (Daria, 07.11.2026): etwas Lustiges finden und sich selbst oder jemand anderem auf den Kopf setzen.
+- [ ] Weitere Idee (Daria, 07.11.2026): zum Späti gehen und Bier holen.
+
 ## Domain und Sichtbarkeit (Daria, 05.11.2026)
 
 - [ ] Sauberes Routing für `kiezcoins.de`: Die Domain soll die Hauptadresse sein, nicht nur auf `kiezcoins.vercel.app` weiterleiten. In Vercel unter Settings → Domains `kiezcoins.de` als Hauptdomain ohne Weiterleitung eintragen, `kiezcoins.vercel.app` auf „Redirect to kiezcoins.de“ stellen. Danach Supabase-Site-URL und Redirect-Liste auf `kiezcoins.de` prüfen. Hintergrund: Eine Weiterleitung per `vercel.json` (#167) hat die Seite lahmgelegt und wurde zurückgenommen (#168). Links, QR-Codes und `/laden` zeigen schon auf `kiezcoins.de`.

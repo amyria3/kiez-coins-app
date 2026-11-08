@@ -8,7 +8,7 @@ import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 
 import { formatRelative, formatRemainingShort } from '../data/format';
-import type { Challenge, User } from '../data/types';
+import { isPostOnly, type Challenge, type User } from '../data/types';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BeforeAfterPair, BeforeAfterPost } from './BeforeAfterPost';
@@ -162,6 +162,8 @@ function KiezPost({
   // Oben nach dem Tippen: Ort vor der Zeit, dann der Rest (Daria, 2026-11-07)
   const whoMeta = [placeOnPhoto, tappedMeta].filter(Boolean).join(' · ');
   const placeTop = !!placeOnPhoto && !challenge.bountyAmount && !challenge.edensteine;
+  // Challenges zeigen ihren Titel immer auf dem Foto, ohne Blur, nur mit weichem Schatten (Daria, 2026-11-07)
+  const titleAlways = !isPostOnly(challenge.type) && !!challenge.title.trim();
 
   return (
     <View style={styles.post}>
@@ -285,7 +287,24 @@ function KiezPost({
             // Erst nur der Ort auf dem Foto, ohne Glasleiste. Nach dem Tippen Glasleiste mit Titel,
             // Name und wann gepostet (Daria, 2026-11-05).
             <View>
-              {placeTop ? null : (
+              {titleAlways ? (
+                // Titel bleibt stehen; der Ort darunter blendet beim Tippen aus wie sonst
+                <View pointerEvents="none" style={styles.titleBlock}>
+                  <Text style={styles.titlePlainOnPhoto} numberOfLines={2}>
+                    {challenge.title}
+                  </Text>
+                  {placeTop || !placeOnPhoto ? null : (
+                    <Animated.View
+                      style={[styles.placeRow, { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
+                    >
+                      <Icon name="map-pin" size={14} color={color.text.onPhoto} />
+                      <Text style={styles.placeOnPhotoText} numberOfLines={1}>
+                        {placeOnPhoto}
+                      </Text>
+                    </Animated.View>
+                  )}
+                </View>
+              ) : placeTop ? null : (
                 <Animated.View
                   pointerEvents="none"
                   style={[styles.placeOnPhoto, { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}
@@ -298,7 +317,7 @@ function KiezPost({
                 </Animated.View>
               )}
               {/* Name und Zeit stehen nach dem Tippen nur noch oben; die Leiste unten bleibt nur für einen Titel (Daria, 2026-11-07) */}
-              {challenge.title.trim() ? (
+              {challenge.title.trim() && !titleAlways ? (
                 <Animated.View
                   pointerEvents="none"
                   style={[
@@ -689,6 +708,18 @@ const styles = StyleSheet.create({
   infoPlain: { paddingHorizontal: space[4] },
   // Ort ohne Glasleiste: liegt unten links, Schatten statt Fläche
   placeOnPhoto: { position: 'absolute', left: space[4], right: space[4], bottom: space[4], flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  // Challenge-Titel ohne Fläche unten links, Ort direkt darunter
+  titleBlock: { position: 'absolute', left: space[16], right: space[16], bottom: space[16], gap: space[4] },
+  placeRow: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  titlePlainOnPhoto: {
+    fontFamily: font.onPhoto,
+    fontSize: 16,
+    lineHeight: 21,
+    color: color.text.onPhoto,
+    textShadowColor: 'rgba(0,0,0,0.55)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
+  },
   // Eigener Stil ohne bottom: mit top und bottom zugleich wurde die Zeile so hoch wie das Foto und
   // der Ort stand mittig rechts statt oben rechts (Daria, 2026-11-07)
   placeTopRight: { position: 'absolute', top: space[16], right: space[16], left: space[16], flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: space[4], zIndex: 3 },
