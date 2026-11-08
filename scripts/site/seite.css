@@ -873,5 +873,5 @@ footer a { color: var(--muted); }
 .fk-balken { display: flex; gap: 3px; height: 10px; margin: 0 0 16px; }
 .fk-balken span { border-radius: 999px; }
 .fk-balken span:first-child { flex: 3; background: var(--text); }
-.fk-balken span:last-child { flex: 7; background: #2E9E57; }
+.fk-balken span:last-child { flex: 7; background: #5B5CD6; }
 @media (max-width: 480px) { .finanzierung-kurz { padding: 20px; border-radius: 22px; } }
