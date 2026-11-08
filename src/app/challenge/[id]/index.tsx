@@ -212,6 +212,8 @@ export default function ChallengeDetail() {
   // Löschen bis jemand annimmt, auch geschlossene (Migration 20261021000300)
   const canDelete = isAuthor && (challenge.status === 'open' || challenge.status === 'closed') && !challenge.assigneeId;
   const description = challenge.type === 'wave' ? challenge.challengeText?.trim() : postText(challenge);
+  const askWhy = joinOpen && !mine && far && challenge.joinMode !== 'approval' && freeSpots(challenge) > 0;
+  const askCoins = !!challenge.bountyAmount && !isAuthor;
   const authorLocation = acceptedByMe ? (challenge.kiez ?? challenge.location) : challenge.location;
   const descriptionText = description ? (
     <Text style={styles.description}>
@@ -505,16 +507,36 @@ export default function ChallengeDetail() {
       {!isAuthor && (mine?.status === 'removed' || mine?.status === 'declined') ? (
         <Notice variant="warning" message={mine.status === 'removed' ? t('Du bist bei dieser Challenge nicht mehr dabei.') : t('Deine Anfrage wurde abgelehnt.')} />
       ) : null}
-      {joinOpen && !mine && far && challenge.joinMode !== 'approval' && freeSpots(challenge) > 0 ? (
-        // Erklärungen als Frage mit Antwort zum Aufklappen (Daria, 2026-11-09)
-        <QuestionHint
-          question={t('Warum kann ich nur anfragen?')}
-          answer={
-            here
-              ? tAbout(author, 'Du bist mehr als 5 km entfernt. Du kannst anfragen, {firstName} entscheidet.', { firstName: author.firstName })
-              : tAbout(author, 'Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.', { firstName: author.firstName })
-          }
-        />
+      {/* Fragen untereinander (Daria, 2026-11-09) */}
+      {askWhy || askCoins ? (
+      <View style={styles.questions}>
+        {askWhy ? (
+          // Erklärungen als Frage mit Antwort zum Aufklappen (Daria, 2026-11-09)
+          <QuestionHint
+            question={t('Warum kann ich nur anfragen?')}
+            answer={
+              here
+                ? tAbout(author, 'Du bist mehr als 5 km entfernt. Du kannst anfragen, {firstName} entscheidet.', { firstName: author.firstName })
+                : tAbout(author, 'Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.', { firstName: author.firstName })
+            }
+          />
+        ) : null}
+        {askCoins && sharedBounty ? (
+          <QuestionHint
+            question={t('Wie funktioniert das mit den Coins?')}
+            answer={tAbout(author, 'Die {amount} werden unter allen geteilt, die mitmachen. {firstName} zahlt jeder Person ihren Anteil direkt, zum Beispiel per Überweisung oder PayPal. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })}
+          />
+        ) : askCoins ? (
+          <QuestionHint
+            question={t('Wie funktioniert das mit den Coins?')}
+            answer={
+              acceptedByMe
+                ? tAbout(author, '{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })
+                : tAbout(author, '{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName })
+            }
+          />
+        ) : null}
+      </View>
       ) : null}
       {!isAuthor && !mine && multi && participantsOpen(challenge) && freeSpots(challenge) === 0 ? (
         <Notice message={t('Alle Plätze sind vergeben.')} />
@@ -542,21 +564,6 @@ export default function ChallengeDetail() {
           />
           <Button label="Zahlungsdaten freigeben" variant="secondary" onPress={() => router.push(`/challenge/${challenge.id}/complete/payout?nur=1`)} />
         </View>
-      ) : null}
-      {challenge.bountyAmount && !isAuthor && sharedBounty ? (
-        <QuestionHint
-          question={t('Wie funktioniert das mit den Coins?')}
-          answer={tAbout(author, 'Die {amount} werden unter allen geteilt, die mitmachen. {firstName} zahlt jeder Person ihren Anteil direkt, zum Beispiel per Überweisung oder PayPal. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })}
-        />
-      ) : challenge.bountyAmount && !isAuthor ? (
-        <QuestionHint
-          question={t('Wie funktioniert das mit den Coins?')}
-          answer={
-            acceptedByMe
-              ? tAbout(author, '{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })
-              : tAbout(author, '{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName })
-          }
-        />
       ) : null}
       {isAuthor && challenge.status === 'deleted' ? (
         <Button label={isPhoto ? 'Post wiederherstellen' : 'Challenge wiederherstellen'} variant="secondary" onPress={restore} />
@@ -723,6 +730,7 @@ const styles = StyleSheet.create({
   muted: { color: color.text.secondary, opacity: 0.6 },
   description: { ...text.body, color: color.text.primary },
   authorAndText: { gap: space[12] },
+  questions: { gap: space[8] },
   secondary: { ...text.body, color: color.text.secondary },
   naming: { gap: space[12] },
 });
