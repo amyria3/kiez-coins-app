@@ -4,13 +4,18 @@ import { MODES, setModeHidden, setStandardMode, useModes, type Mode } from '../d
 import { useStore } from '../data/store';
 import { color, space, text } from '../theme/tokens';
 import { FieldGroup } from './Content';
-import { RadioOption, Toggle } from './Form';
+import { Segments } from './FeedHeader';
+import { Toggle } from './Form';
 import { Text } from './T';
 
 /**
  * Modi Privat, Gruppe, Kiez (Onboarding und Dein Konto › Funktionen, Daria, 27.10.2026): Der Schalter (vorher ein Auge,
- * Daria, 08.11.2026) blendet einen Modus aus; der letzte sichtbare bleibt an. Darunter der Standard, der im Umschalter oben vorausgewählt ist.
+ * Daria, 08.11.2026) blendet einen Modus aus; der letzte sichtbare bleibt an. Darunter der Standard, der im Umschalter oben vorausgewählt ist,
+ * als derselbe waagerechte Umschalter wie im Feed (vorher Radio-Liste, Daria, 08.11.2026).
  */
+
+// Kurze Namen wie im Umschalter oben im Feed, damit alle vier nebeneinander passen
+const SHORT: Record<Mode, string> = { private: 'Privat', groups: 'Gruppe', kiez: 'Kiez', everywhere: 'Überall' };
 export function FeatureSwitches() {
   const { currentUserId } = useStore();
   const modes = useModes();
@@ -42,12 +47,16 @@ export function FeatureSwitches() {
           );
         })}
       </FieldGroup>
-      <FieldGroup label="Standard">
-        <Text style={[text.caption, { color: color.text.secondary }]}>Dieser Modus ist oben im Umschalter vorausgewählt.</Text>
-        {MODES.filter((m) => modes.isVisible(m.key)).map((m) => (
-          <RadioOption key={m.key} label={m.label} selected={modes.standard === m.key} onPress={() => choose(m.key)} />
-        ))}
-      </FieldGroup>
+      {modes.visible.length > 1 ? (
+        <FieldGroup label="Standard">
+          <Text style={[text.caption, { color: color.text.secondary }]}>Dieser Modus ist oben im Umschalter vorausgewählt.</Text>
+          <Segments
+            tabs={MODES.filter((m) => modes.isVisible(m.key)).map((m) => ({ key: m.key, label: SHORT[m.key] }))}
+            selectedKey={modes.standard}
+            onChange={choose}
+          />
+        </FieldGroup>
+      ) : null}
     </View>
   );
 }

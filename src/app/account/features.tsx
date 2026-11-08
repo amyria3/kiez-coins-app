@@ -11,7 +11,7 @@ export default function FeaturesScreen() {
   const goBack = useGoBack();
   return (
     <SubScreen title="Funktionen" navigation="back" onLeadingPress={goBack}>
-      <KaterBubble>Verbirg, was Du gerade nicht brauchst. Mit dem Auge holst Du es Dir zurück, wann Du willst.</KaterBubble>
+      <KaterBubble>Verbirg, was Du gerade nicht brauchst. Mit dem Schalter holst Du es Dir zurück, wann Du willst.</KaterBubble>
       <FeatureSwitches />
     </SubScreen>
   );
