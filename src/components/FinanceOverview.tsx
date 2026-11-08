@@ -172,7 +172,8 @@ const styles = StyleSheet.create({
   bar: { flexDirection: 'row', height: 10, borderRadius: radius.full, overflow: 'hidden', gap: 2 },
   barPart: { height: '100%' },
   barDev: { flex: 3, backgroundColor: color.text.primary },
-  barCommunity: { flex: 7, backgroundColor: color.accent.confirmation },
+  // Community in Lila (Daria, 08.11.2026)
+  barCommunity: { flex: 7, backgroundColor: color.accent.primary },
   legend: { flexDirection: 'row', justifyContent: 'space-between' },
   legendText: { ...text.caption, color: color.text.secondary },
   caption: { ...text.caption, color: color.text.secondary },
