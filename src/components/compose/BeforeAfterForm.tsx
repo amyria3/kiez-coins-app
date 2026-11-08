@@ -223,7 +223,8 @@ const styles = StyleSheet.create({
     paddingTop: space[12] - (stroke.focus - stroke.thin),
     paddingBottom: space[8] - (stroke.focus - stroke.thin),
   },
-  tag: { fontFamily: isFashionable ? font.semiBold : font.medium, fontSize: 14, lineHeight: 18, color: color.accent.signal },
+  // Marke in der Schrift der Texte über dem Bild, wie im Feed (Daria, 2026-11-08)
+  tag: { fontFamily: font.onPhoto, fontSize: 14, lineHeight: 18, color: color.accent.signal },
   input: { ...text.body, color: color.text.primary, padding: 0, minHeight: 40, textAlignVertical: 'top' },
   inputWeb: { outlineStyle: 'none' } as object,
   help: { flexDirection: 'row', justifyContent: 'flex-end', gap: space[8] },
