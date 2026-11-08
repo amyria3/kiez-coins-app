@@ -23,6 +23,8 @@ import { t } from '../data/texts';
 import { PhotoTextOverlay } from './PhotoText';
 import { SheetPager, isTextPost } from './TextSheets';
 
+const isWeb = Platform.OS === 'web';
+
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
 export type ChallengePostProps = {
@@ -160,7 +162,12 @@ function KiezPost({
   const posted = formatRelative(challenge.createdAt);
   const tappedMeta = [posted, distance, isPhoto ? null : state, spotsText(challenge, active)].filter(Boolean).join(' · ');
   // Oben nach dem Tippen: Ort vor der Zeit, dann der Rest (Daria, 2026-11-07)
-  const whoMeta = [placeOnPhoto, tappedMeta].filter(Boolean).join(' · ');
+  const whoMeta = [placeOnPhoto, ...tappedMeta.split(' · ')]
+    .filter(Boolean)
+    .map((part) => part.replace(/ /g, '\u00A0'))
+    .join(' · ');
+  // Belohnung oben rechts: dann bleibt rechts Platz frei, sonst gleicher Rand links und rechts
+  const rewardsTop = !!image && ((!isWave && !!challenge.bountyAmount) || !!challenge.edensteine);
   const placeTop = !!placeOnPhoto && !challenge.bountyAmount && !challenge.edensteine;
   // Challenges zeigen ihren Titel immer auf dem Foto, ohne Blur, nur mit weichem Schatten (Daria, 2026-11-07)
   const titleAlways = !isPostOnly(challenge.type) && !!challenge.title.trim();
@@ -237,12 +244,16 @@ function KiezPost({
             </View>
           ) : null}
           {/* Wer hat gepostet: nach dem ersten Tippen oben links, Bild und Name wie bei großen Foto-Apps */}
+          {/* Im Web liegt keine Deckkraft über dem Blur: Safari zeichnet backdrop-filter unter einer
+              blendenden Deckkraft nicht und lässt die Fläche beim Erscheinen flackern. Dort blendet nur
+              der Inhalt, der Blur kommt per CSS-Übergang (Daria, 2026-11-08). */}
           <Animated.View
             pointerEvents={who ? 'box-none' : 'none'}
             style={[
               styles.who,
+              rewardsTop ? styles.whoBesideRewards : null,
               {
-                opacity: whoAnim,
+                opacity: isWeb ? 1 : whoAnim,
                 transform: [{ translateY: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [-12, 0] }) }],
               },
             ]}
@@ -254,21 +265,28 @@ function KiezPost({
                 setWho(false);
                 router.push({ pathname: '/user/[id]', params: { id: author.id, challengeId: challenge.id } });
               }}
-              style={({ pressed }) => [styles.whoRow, styles.whoBox, pressed && styles.pressed]}
+              style={({ pressed }) => [styles.whoBox, isWeb ? (who ? styles.whoBoxWebShown : styles.whoBoxWebHidden) : null, pressed && !isWeb && styles.pressed]}
             >
-              {/* Abgerundete Fläche nur mit Blur, ohne Farbe (Daria, 2026-11-07) */}
-              {Platform.OS === 'web' ? null : <BlurView intensity={30} tint="default" style={StyleSheet.absoluteFill} />}
-              <Avatar user={author} diameter={48} />
-              <View style={styles.whoTexts}>
-                <NameWithTestMark test={author.test}>
-                  <Text noTranslate style={[styles.whoName, hideName ? hiddenText : null]} numberOfLines={1}>
-                    {author.name}
-                  </Text>
-                </NameWithTestMark>
-                <Text style={styles.whoMeta} numberOfLines={1}>
-                  {whoMeta}
-                </Text>
-              </View>
+              {({ pressed }) => (
+                <>
+                  {/* Abgerundete Fläche nur mit Blur, ohne Farbe (Daria, 2026-11-07) */}
+                  {isWeb ? null : <BlurView intensity={30} tint="default" style={StyleSheet.absoluteFill} />}
+                  <Animated.View style={[styles.whoRow, isWeb ? { opacity: pressed ? 0.9 : whoAnim } : null]}>
+                    <Avatar user={author} diameter={48} />
+                    <View style={styles.whoTexts}>
+                      <NameWithTestMark test={author.test}>
+                        <Text noTranslate style={[styles.whoName, hideName ? hiddenText : null]} numberOfLines={1}>
+                          {author.name}
+                        </Text>
+                      </NameWithTestMark>
+                      {/* Zu lang für eine Zeile: Umbruch nur nach einem Punkt, nie mitten in „vor 4 Std.“ (Daria, 2026-11-08) */}
+                      <Text style={styles.whoMeta} numberOfLines={2}>
+                        {whoMeta}
+                      </Text>
+                    </View>
+                  </Animated.View>
+                </>
+              )}
             </Pressable>
           </Animated.View>
           {image && placeTop ? (
@@ -739,16 +757,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: space[12],
     left: space[12],
-    right: 96,
+    right: space[12],
     flexDirection: 'row',
     alignItems: 'center',
-    gap: space[8],
     zIndex: 2,
   },
+  whoBesideRewards: { right: 96 },
   whoTexts: { flexShrink: 1 },
   whoRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   // Abgerundete Fläche wie die Leiste unten, aber nur Blur, keine Farbe
   whoBox: {
+    flexShrink: 1,
     paddingVertical: space[8],
     paddingLeft: space[8],
     paddingRight: space[16],
@@ -756,8 +775,20 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: stroke.ultraThin,
     borderColor: color.line.hairline,
-    ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' } as object) : {}),
   },
+  whoBoxWebShown: {
+    backdropFilter: 'blur(14px)',
+    WebkitBackdropFilter: 'blur(14px)',
+    transitionProperty: 'backdrop-filter, -webkit-backdrop-filter, border-color',
+    transitionDuration: '220ms',
+  } as object,
+  whoBoxWebHidden: {
+    backdropFilter: 'blur(0px)',
+    WebkitBackdropFilter: 'blur(0px)',
+    borderColor: 'transparent',
+    transitionProperty: 'backdrop-filter, -webkit-backdrop-filter, border-color',
+    transitionDuration: '160ms',
+  } as object,
   // Leichter Schatten, damit Name und Zeit auf jedem Foto lesbar bleiben
   // Text über dem Foto in Unbounded (breit, Kontrast zur Inter), etwas kleiner, weil die Schrift breit läuft
   whoName: { fontFamily: font.onPhoto, fontSize: 15, lineHeight: 20, color: color.text.primary, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
