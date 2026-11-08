@@ -127,7 +127,8 @@ export default function ManageChallenges() {
     return { activePages, archivePages: list };
   }, [challenges, currentUserId]);
 
-  const create = () => requireKiez() && router.push('/challenge/create/step-1');
+  // Neu erstellen: dasselbe Blatt wie über dem Feed, mit allen Arten und Post vorausgewählt (Daria, 07.11.2026)
+  const create = () => router.dismissTo({ pathname: '/feed', params: { erstellen: '1' } });
   // Vorher-Nachher: zurück zum Timer bzw. Nachher (Route vorher-nachher/[id])
   // Entwurf in einer Gruppe: im Formular der Gruppe (Daria, 30.10.2026)
   const openDraft = (c: Challenge) =>
