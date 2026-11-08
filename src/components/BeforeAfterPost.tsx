@@ -166,7 +166,7 @@ function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: 
         onPress={onCommentPress ?? onPress}
         style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
       >
-        <Icon name="comment" size={size.icon} color={color.text.primary} />
+        <Icon name="comment-filled" size={size.icon} color={color.text.primary} />
         {commentCount > 0 ? <Text style={countStyle}>{commentCount}</Text> : null}
       </Pressable>
       <IconButton
