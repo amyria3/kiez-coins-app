@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 
+import { setFriendRequests } from './chat';
 import { loadFriends, type FriendLists } from './remote';
 import { useStore } from './store';
 
@@ -20,7 +21,9 @@ export function useFriends(): FriendLists | null | undefined {
     }
     if (!currentUserId) return;
     try {
-      setLists(await loadFriends(currentUserId));
+      const next = await loadFriends(currentUserId);
+      setLists(next);
+      if (next) setFriendRequests(next.incoming.length);
     } catch {
       setLists(null);
     }

@@ -61,6 +61,23 @@ export function useUnreadMessages(): number {
   );
 }
 
+// Offene Freundschaftsanfragen an mich: ebenfalls Punkt am Briefumschlag (Daria, 08.11.2026)
+let requests = 0;
+export function setFriendRequests(n: number) {
+  if (n === requests) return;
+  requests = n;
+  listeners.forEach((l) => l());
+}
+export function useFriendRequests(): number {
+  return useSyncExternalStore(
+    (l) => {
+      listeners.add(l);
+      return () => listeners.delete(l);
+    },
+    () => requests,
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Beispieldaten für den Demo-Modus: Nachrichten nur im Speicher
 // ---------------------------------------------------------------------------
@@ -121,6 +138,7 @@ export async function loadConversations(
   });
   conversations.sort((x, y) => (y.last?.createdAt ?? '').localeCompare(x.last?.createdAt ?? ''));
   setUnread(conversations.reduce((n, c) => n + c.unread, 0));
+  setFriendRequests(lists.incoming.length);
   return { conversations, lists };
 }
 
@@ -169,18 +187,18 @@ export async function markRead(meId: string, otherId: string, live: boolean) {
   }
 }
 
-/** Ungelesene neu zählen (Tab-Leiste) */
+/** Ungelesene und offene Freundschaftsanfragen neu zählen (Punkt am Briefumschlag) */
 export async function refreshUnread(meId: string, live: boolean) {
   if (!live) {
     setUnread(demo.filter((m) => m.recipientId === meId && !m.readAt).length);
     return;
   }
-  const { count, error } = await supabase
-    .from('messages')
-    .select('id', { count: 'exact', head: true })
-    .eq('recipient_id', meId)
-    .is('read_at', null);
-  if (!error) setUnread(count ?? 0);
+  const [messages, asks] = await Promise.all([
+    supabase.from('messages').select('id', { count: 'exact', head: true }).eq('recipient_id', meId).is('read_at', null),
+    supabase.from('friendships').select('requester_id', { count: 'exact', head: true }).eq('addressee_id', meId).eq('status', 'pending'),
+  ]);
+  if (!messages.error) setUnread(messages.count ?? 0);
+  if (!asks.error) setFriendRequests(asks.count ?? 0);
 }
 
 /** Neue Nachrichten an mich oder von mir in Echtzeit. Gibt die Abmeldung zurück. */
