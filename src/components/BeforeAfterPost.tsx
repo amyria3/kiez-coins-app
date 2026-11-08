@@ -107,7 +107,7 @@ export function BeforeAfterPair({ before, after, height, duration, overlay, onLo
           accessible
           accessibilityLabel={t('Dauer {duration}', { duration })}
         >
-          <Icon name="clock" size={12} color={color.text.primary} />
+          <Icon name="clock-filled" size={12} color={color.text.primary} />
           <Text style={styles.durationText}>{duration}</Text>
         </Animated.View>
       ) : null}

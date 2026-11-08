@@ -109,7 +109,7 @@ export function StatusBadge({
 export function DeadlineBadge({ deadline }: { deadline: string }) {
   return (
     <View style={[styles.status, styles.deadline, { borderColor: color.text.secondary }]} accessible>
-      <Icon name="clock" size={11} color={color.text.secondary} />
+      <Icon name="clock-filled" size={11} color={color.text.secondary} />
       <Text style={[text.caption, { color: color.text.primary }]} numberOfLines={1}>
         {formatRemainingShort(deadline)}
       </Text>
