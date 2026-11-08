@@ -193,6 +193,8 @@ const uebersetzer = (L) => (de, en) => {
   return v ?? en;
 };
 const pfad = (L) => (L === 'de' ? '/' : `/${L}/`);
+// Links zur Web-App tragen die Sprache der Seite, Deutsch nicht: Die deutsche Seite ist die Vorgabe, keine Wahl (Daria, 08.11.2026)
+const spracheParam = (L) => (L === 'de' ? '' : `?sprache=${L}`);
 
 const ios = (L) => {
   const t = uebersetzer(L);
@@ -206,7 +208,7 @@ const ios = (L) => {
   : `<div class="card" id="iphone">
   <h3>iPhone</h3>
   <p>${t('Auf dem iPhone läuft KiezCoins als Web-App in Safari. Auf dem Home-Bildschirm startet sie wie eine App.', 'On the iPhone, KiezCoins runs as a web app in Safari. From the home screen it starts like an app.')}</p>
-  <a class="button" href="${P}app/">${t('KiezCoins öffnen', 'Open KiezCoins')}</a>
+  <a class="button" href="${P}app/${spracheParam(L)}">${t('KiezCoins öffnen', 'Open KiezCoins')}</a>
   <ol class="steps">
     <li>${t('Diese Seite in <strong>Safari</strong> öffnen und „KiezCoins öffnen“ tippen.', 'Open this page in <strong>Safari</strong> and tap “Open KiezCoins”.')}</li>
     <li>${t('Unten in der Leiste auf das Teilen-Symbol tippen (Quadrat mit Pfeil nach oben).', 'Tap the share icon in the bottom bar (square with an arrow pointing up).')}</li>
@@ -412,7 +414,8 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
         <ol class="steps">
           <li>${t('„App herunterladen“ tippen.', 'Tap “Download the app”.')}</li>
           <li>${t('Die Datei <em>kiez-coins.apk</em> öffnen, wenn der Download fertig ist.', 'Open the file <em>kiez-coins.apk</em> when the download is finished.')}</li>
-          <li>${t('Android fragt, ob Dein Browser Apps installieren darf. Erlauben und „Installieren“ tippen.', 'Android asks whether your browser may install apps. Allow it and tap “Install”.')}</li>
+          <li>${t('Android fragt, ob Dein Browser Apps installieren darf. Erlauben und „Installieren“ tippen.', 'Android asks whether your browser may install apps. Allow it and tap “Install”.')}</li>${L === 'de' ? '' : `
+          <li>${t('Nach der Installation {link}. So startet die App in der Sprache dieser Seite.', 'After installing, {link}. This way the app starts in the language of this page.').replace('{link}', `<a href="kiezcoins:///?sprache=${L}">${t('KiezCoins hier öffnen', 'open KiezCoins here')}</a>`)}</li>`}
           <li>${t('Für ein Update lädst Du die neue Datei hier herunter und installierst sie genauso. Deine Daten bleiben erhalten.', 'To update, download the new file here and install it the same way. Your data stays.')}</li>
         </ol>
       </div>
@@ -420,7 +423,7 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
       <div class="card" id="browser">
         <h3>${t('Im Browser', 'In the browser')}</h3>
         <p>${t('Ohne Installation und direkt im Browser. Teste die App ohne ein Konto oder lege ein Konto an - wie es Dir besser gefällt.', 'No installation, right in the browser. Try the app without an account or create one – whichever you prefer.')}</p>
-        <a class="button" href="${P}app/">${t('Direkt im Browser ausprobieren', 'Try it right in the browser')}</a>
+        <a class="button" href="${P}app/${spracheParam(L)}">${t('Direkt im Browser ausprobieren', 'Try it right in the browser')}</a>
       </div>
     </div>
     <footer>
@@ -477,6 +480,11 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
 ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g, '\\u003c')};</script>` : ''}
 <script src="${P}prototyp/app.js?v=${version(appJs)}"></script>
 <script>
+  // Die App übernimmt die Sprache der Website (Daria, 08.11.2026): Fremdsprachige Seiten merken sich ihre Sprache,
+  // Deutsch nur bei ausdrücklicher Wahl im Sprachmenü. Die Web-App liest kc_website_sprache beim ersten Start.
+  function merkeSprache(l) { try { localStorage.setItem('kc_website_sprache', l); } catch (e) {} }
+  if ('${L}' !== 'de') merkeSprache('${L}');
+  document.querySelectorAll('.sprachwahl a[hreflang]').forEach(function (a) { a.addEventListener('click', function () { merkeSprache(a.getAttribute('hreflang')); }); });
   // Sprachmenü schließt beim Tipp daneben und mit Escape
   var sprache = document.querySelector('.sprachwahl');
   document.addEventListener('click', function (e) { if (sprache.open && !sprache.contains(e.target)) sprache.open = false; });
