@@ -12,7 +12,7 @@ import { shareText } from '../lib/share';
 import { color, text } from '../theme/tokens';
 
 /**
- * Gruppeneinladung in zwei Wegen (Daria, 08.11.2026): QR-Code zum Scannen vor Ort, darunter Link und Passcode
+ * Gruppeneinladung in zwei Wegen (Daria, 08.11.2026): Instant-Einladung (QR-Code) zum Scannen vor Ort, darunter Link und Passcode
  * zum Verschicken. Steht auf der Gruppenseite und auf `groups/[id]/invite` (Knopf „Freunde und Familie einladen“ im leeren Gruppenfeed).
  */
 export function GroupInvite({ group }: { group: Group }) {
@@ -22,9 +22,9 @@ export function GroupInvite({ group }: { group: Group }) {
   const link = inviteLink(group.inviteCode);
   return (
     <>
-      <FieldGroup label="Instant-Einladung per QR-Code">
-        <Text style={styles.meta}>Wer den QR-Code mit der Kamera scannt, kommt direkt zum Beitreten.</Text>
-        <InviteQr value={link} label={t('QR-Code mit dem Einladungslink der Gruppe')} />
+      <FieldGroup label="Instant-Einladung">
+        <Text style={styles.meta}>Wer den Code mit der Kamera scannt, kommt direkt zum Beitreten.</Text>
+        <InviteQr value={link} label={t('Instant-Einladung zum Scannen')} />
       </FieldGroup>
       <FieldGroup label="Einladung per Link und Passcode">
         <CopyField label="Einladungslink" value={link} />

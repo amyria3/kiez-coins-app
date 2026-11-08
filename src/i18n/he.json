@@ -1285,14 +1285,15 @@
   "Der Passcode hat 7 Zeichen.": "לקוד הגישה יש 7 תווים.",
   "Neuen Passcode erzeugen?": "ליצור קוד גישה חדש?",
   "Neuen Passcode erzeugen": "יצירת קוד גישה חדש",
-  "Der bisherige Link, QR-Code und Passcode funktionieren danach nicht mehr.": "הקישור, קוד ה-QR וקוד הגישה הנוכחיים יפסיקו לעבוד.",
-  "Noch niemand. Lade Leute per Link, QR-Code oder Passcode ein.": "עדיין אף אחד. אפשר להזמין אנשים בקישור, בקוד QR או בקוד גישה.",
   "Die App erstellt für Dich einen Passcode und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "האפליקציה יוצרת עבורך קוד גישה וקישור הזמנה. כך עוד {anzahl} אנשים יכולים להצטרף לקבוצה שלך.",
-  "Instant-Einladung per QR-Code": "הזמנה מיידית בקוד QR",
-  "Wer den QR-Code mit der Kamera scannt, kommt direkt zum Beitreten.": "מי שסורק את קוד ה-QR במצלמה מגיע ישר להצטרפות.",
-  "QR-Code mit dem Einladungslink der Gruppe": "קוד QR עם קישור ההזמנה של הקבוצה",
   "Einladung per Link und Passcode": "הזמנה בקישור ובקוד גישה",
   "Oder gib in der App unter „Freundschaften“ diesen Passcode ein:": "או הקלידו את קוד הגישה הזה באפליקציה תחת „חברויות“:",
   "Oder in der App unter „Gruppen“ mit diesem Passcode beitreten:": "או הצטרפו באפליקציה תחת „קבוצות“ עם קוד הגישה הזה:",
-  "Diesen Passcode gibt es nicht. Prüfe ihn noch einmal.": "קוד הגישה הזה לא קיים. כדאי לבדוק אותו שוב."
+  "Diesen Passcode gibt es nicht. Prüfe ihn noch einmal.": "קוד הגישה הזה לא קיים. כדאי לבדוק אותו שוב.",
+  "Der bisherige Link, die Instant-Verbindung und der Passcode funktionieren danach nicht mehr.": "הקישור, החיבור המיידי וקוד הגישה הנוכחיים יפסיקו לעבוד.",
+  "Noch niemand. Lade Leute per Instant-Verbindung, Link oder Passcode ein.": "עדיין אף אחד. אפשר להזמין אנשים בחיבור מיידי, בקישור או בקוד גישה.",
+  "Instant-Verbindung zum Scannen": "חיבור מיידי לסריקה",
+  "Instant-Einladung": "הזמנה מיידית",
+  "Wer den Code mit der Kamera scannt, kommt direkt zum Beitreten.": "מי שסורק את הקוד במצלמה מגיע ישר להצטרפות.",
+  "Instant-Einladung zum Scannen": "הזמנה מיידית לסריקה"
 }

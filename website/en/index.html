@@ -370,7 +370,7 @@
       var av = buehne.querySelectorAll('.mehr-avatar');
       if (n > av.length) { mehr.freunde = 0; av.forEach(function (a) { a.classList.remove('is-freund'); }); status.textContent = 'Tap to add Lena.'; return; }
       av[n - 1].classList.add('is-freund');
-      status.textContent = n < av.length ? '{a} is in. Tap for {b}.'.replace('{a}', freunde[n - 1]).replace('{b}', freunde[n]) : 'Connect easily with a QR code or link.';
+      status.textContent = n < av.length ? '{a} is in. Tap for {b}.'.replace('{a}', freunde[n - 1]).replace('{b}', freunde[n]) : 'Connect easily by instant connection or link.';
     } else {
       var paar = chat[(n - 1) % chat.length];
       blase(buehne, paar[0], true);

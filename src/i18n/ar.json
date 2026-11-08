@@ -1285,14 +1285,15 @@
   "Der Passcode hat 7 Zeichen.": "يتكون رمز المرور من 7 أحرف.",
   "Neuen Passcode erzeugen?": "إنشاء رمز مرور جديد؟",
   "Neuen Passcode erzeugen": "إنشاء رمز مرور جديد",
-  "Der bisherige Link, QR-Code und Passcode funktionieren danach nicht mehr.": "سيتوقف الرابط الحالي ورمز QR ورمز المرور عن العمل.",
-  "Noch niemand. Lade Leute per Link, QR-Code oder Passcode ein.": "لا أحد بعد. ادعُ الناس عبر رابط أو رمز QR أو رمز مرور.",
   "Die App erstellt für Dich einen Passcode und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "ينشئ التطبيق لك رمز مرور ورابط دعوة. هكذا يمكن لـ {anzahl} أشخاص آخرين الانضمام إلى مجموعتك.",
-  "Instant-Einladung per QR-Code": "دعوة فورية عبر رمز QR",
-  "Wer den QR-Code mit der Kamera scannt, kommt direkt zum Beitreten.": "من يمسح رمز QR بالكاميرا ينتقل مباشرة إلى الانضمام.",
-  "QR-Code mit dem Einladungslink der Gruppe": "رمز QR برابط دعوة المجموعة",
   "Einladung per Link und Passcode": "دعوة عبر رابط ورمز مرور",
   "Oder gib in der App unter „Freundschaften“ diesen Passcode ein:": "أو أدخل رمز المرور هذا في التطبيق ضمن „الصداقات“:",
   "Oder in der App unter „Gruppen“ mit diesem Passcode beitreten:": "أو انضم في التطبيق ضمن „المجموعات“ برمز المرور هذا:",
-  "Diesen Passcode gibt es nicht. Prüfe ihn noch einmal.": "رمز المرور هذا غير موجود. تحقق منه مرة أخرى."
+  "Diesen Passcode gibt es nicht. Prüfe ihn noch einmal.": "رمز المرور هذا غير موجود. تحقق منه مرة أخرى.",
+  "Der bisherige Link, die Instant-Verbindung und der Passcode funktionieren danach nicht mehr.": "سيتوقف الرابط الحالي والاتصال الفوري ورمز المرور عن العمل.",
+  "Noch niemand. Lade Leute per Instant-Verbindung, Link oder Passcode ein.": "لا أحد بعد. ادعُ الناس عبر اتصال فوري أو رابط أو رمز مرور.",
+  "Instant-Verbindung zum Scannen": "اتصال فوري للمسح",
+  "Instant-Einladung": "دعوة فورية",
+  "Wer den Code mit der Kamera scannt, kommt direkt zum Beitreten.": "من يمسح الرمز بالكاميرا ينتقل مباشرة إلى الانضمام.",
+  "Instant-Einladung zum Scannen": "دعوة فورية للمسح"
 }

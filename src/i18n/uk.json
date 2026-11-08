@@ -1285,14 +1285,15 @@
   "Der Passcode hat 7 Zeichen.": "Код доступу має 7 символів.",
   "Neuen Passcode erzeugen?": "Створити новий код доступу?",
   "Neuen Passcode erzeugen": "Створити новий код доступу",
-  "Der bisherige Link, QR-Code und Passcode funktionieren danach nicht mehr.": "Поточні посилання, QR-код і код доступу більше не працюватимуть.",
-  "Noch niemand. Lade Leute per Link, QR-Code oder Passcode ein.": "Поки нікого. Запроси людей посиланням, QR-кодом або кодом доступу.",
   "Die App erstellt für Dich einen Passcode und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "Застосунок створить для тебе код доступу та посилання-запрошення. Так ще {anzahl} людей зможуть приєднатися до твоєї групи.",
-  "Instant-Einladung per QR-Code": "Миттєве запрошення через QR-код",
-  "Wer den QR-Code mit der Kamera scannt, kommt direkt zum Beitreten.": "Хто сканує QR-код камерою, одразу переходить до приєднання.",
-  "QR-Code mit dem Einladungslink der Gruppe": "QR-код із посиланням-запрошенням до групи",
   "Einladung per Link und Passcode": "Запрошення посиланням і кодом доступу",
   "Oder gib in der App unter „Freundschaften“ diesen Passcode ein:": "Або введи цей код доступу в застосунку в розділі «Дружба»:",
   "Oder in der App unter „Gruppen“ mit diesem Passcode beitreten:": "Або приєднайся в застосунку в розділі «Групи» з цим кодом доступу:",
-  "Diesen Passcode gibt es nicht. Prüfe ihn noch einmal.": "Такого коду доступу немає. Перевір його ще раз."
+  "Diesen Passcode gibt es nicht. Prüfe ihn noch einmal.": "Такого коду доступу немає. Перевір його ще раз.",
+  "Der bisherige Link, die Instant-Verbindung und der Passcode funktionieren danach nicht mehr.": "Поточні посилання, миттєве з’єднання і код доступу більше не працюватимуть.",
+  "Noch niemand. Lade Leute per Instant-Verbindung, Link oder Passcode ein.": "Поки нікого. Запроси людей миттєвим з’єднанням, посиланням або кодом доступу.",
+  "Instant-Verbindung zum Scannen": "Миттєве з’єднання для сканування",
+  "Instant-Einladung": "Миттєве запрошення",
+  "Wer den Code mit der Kamera scannt, kommt direkt zum Beitreten.": "Хто сканує код камерою, одразу переходить до приєднання.",
+  "Instant-Einladung zum Scannen": "Миттєве запрошення для сканування"
 }
