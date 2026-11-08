@@ -9,8 +9,10 @@
 <link rel="icon" href="/favicon.png">
 <link rel="stylesheet" href="/seite.css">
 <style>
-.fin { --fix: #8C8A9C; --ust: #C9C7D4; --geb: #B3B0C2; --dev: #26233A; --com: #2E9E57;
-  --schwalbe: #5260E0; --storch: #D9468F; --dachs: #E07A3C; --aktiv: #9C9AAE; --inaktiv: #D9D8E2; --aktiv-regler: #6E6C82; --inaktiv-regler: #B4B2C4; padding-bottom: 24px; }
+.fin { --fix: #BDA273; --ust: #EEE0C9; --geb: #D9C49C; --dev: #26233A; --com: #2E9E57;
+  /* Farben aus der App (Daria, 08.11.2026): Schwalbe Rosa, Storch Lila, Dachs Grün wie die Augen des Katers */
+  --schwalbe: #FFB2E5; --storch: #8F90FA; --dachs: #89F269; --aktiv-regler: #BDA273; --inaktiv-regler: #D9C49C;
+  --feld-grund: #232326; --feld-tinte: #FFF8ED; --feld-neben: #A7A39D; --aktiv: #EEE0C9; --inaktiv: #6B665E; padding-bottom: 24px; }
 .fin h1 { font: 600 clamp(34px, 5vw, 56px)/1.02 var(--display); letter-spacing: -.035em; margin: 24px 0 16px; max-width: 16ch; }
 .fin h2 { font: 600 26px/1.15 var(--display); letter-spacing: -.02em; margin: 64px 0 20px; }
 .fin-kopf .lede { margin-bottom: 8px; }
@@ -32,8 +34,7 @@
 .regler input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--surface); border: 2px solid var(--farbe); }
 .schalter { grid-column: 1 / -1; display: flex !important; grid-auto-flow: column; align-items: center; gap: 10px !important; }
 .schalter input { width: 18px; height: 18px; accent-color: var(--text); }
-.punkt { width: 10px; height: 10px; border-radius: 50%; background: var(--farbe); flex: none; }
-.punkt.eckig { border-radius: 2px; }
+.punkt { width: 11px; height: 11px; flex: none; display: block; overflow: visible; }
 .leiste { display: flex; height: 18px; border-radius: 999px; overflow: hidden; background: var(--bg); margin-bottom: 20px; }
 .leiste span { height: 100%; transition: width 400ms var(--barrier); }
 .inhalt { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 28px; }
@@ -54,12 +55,19 @@
 .posten summary .zeile .n::after { content: ''; display: inline-block; width: 6px; height: 6px; margin: 0 0 2px 8px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); opacity: .6; }
 .posten details[open] summary .zeile .n::after { transform: rotate(-135deg); margin-bottom: -2px; }
 .posten .minus .w::before { content: '− '; color: var(--muted); }
-.feld { position: relative; display: grid; grid-template-rows: auto 1fr auto; gap: 10px; min-height: 300px;
-  background: color-mix(in srgb, var(--com) 7%, var(--bg)); border-radius: 20px; padding: 18px; }
+.feld { position: relative; display: grid; grid-template-rows: auto 1fr auto; gap: 10px; min-height: 300px; min-width: 0;
+  background: var(--feld-grund); color: var(--feld-tinte); border-radius: 20px; padding: 18px; }
 .feld h3 { margin: 0; font: 600 18px/1.2 var(--display); }
-.feld h3 b { color: var(--com); }
-.feld canvas { width: 100%; display: block; align-self: center; }
-.legende { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0; padding: 0; list-style: none; font-size: 13px; color: var(--muted); }
+.feld h3 b { color: var(--dachs); }
+/* Punktewolke: Mindestgröße je Punkt. Ist sie größer als der Rahmen, verschiebt man die Ansicht darin (Daria, 08.11.2026). */
+.fenster { position: relative; align-self: center; border-radius: 12px; }
+.fenster canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
+.fenster .scroller { position: absolute; inset: 0; overflow: hidden; z-index: 2; border-radius: 12px; outline-offset: 2px; }
+.fenster.ueber .scroller { overflow: auto; cursor: grab; scrollbar-width: thin; scrollbar-color: rgba(255,248,237,.25) transparent; }
+.fenster.ueber .scroller.zieht { cursor: grabbing; }
+.fenster.ueber::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; border-radius: 12px; box-shadow: inset 0 0 22px 14px var(--feld-grund); }
+.legende { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0; padding: 0; list-style: none; font-size: 13px; color: var(--feld-neben); }
+.legende .tipp { flex-basis: 100%; }
 .legende li { display: inline-flex; align-items: center; gap: 6px; }
 .defizit { color: var(--red); font-size: 13px; margin: 6px 0 0 22px; }
 .modell.klein { padding: 18px; border-radius: 22px; }
@@ -89,7 +97,7 @@
   .zeitleiste > li { padding-left: 0; padding-top: 34px; }
   .zeitleiste > li::before { display: none; }
 }
-@media (prefers-reduced-motion: reduce) { .leiste span { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .leiste span, .ansichten, .ansichten .spur, .umschalter .schiene .knopf { transition: none; } }
 @media (max-width: 480px) {
   .top .brand svg { height: 34px; width: auto; }
   .top .marke { font-size: 12px; }
@@ -97,11 +105,21 @@
 }
 .rechner-kopf { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; margin: 64px 0 20px; }
 .rechner-kopf h2 { margin: 0; }
-.umschalter { display: inline-flex; padding: 3px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
-.umschalter button { background: none; border: 0; border-radius: 999px; padding: 10px 20px; cursor: pointer; font: 500 15px/1 Inter, sans-serif; color: var(--muted); transition: background-color 200ms, color 200ms; }
-.umschalter button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
-.ist-hinweis { margin: -8px 0 16px; font-size: 14px; color: var(--muted); }
-.punkt.ring { background: none; border: 2px solid var(--text); width: 12px; height: 12px; }
+.umschalter { display: grid; grid-template-columns: auto auto; grid-template-rows: 1fr 1fr; column-gap: 12px; align-items: center; }
+.umschalter .wahl { grid-column: 1; justify-self: end; background: none; border: 0; padding: 4px 0; cursor: pointer; font: 500 15px/1 Inter, sans-serif; color: var(--muted); transition: color 200ms; }
+.umschalter .wahl[aria-pressed="true"] { color: var(--text); font-weight: 600; }
+/* Senkrechter Switch aus Darias Icon „Switch“: oben Modell, unten Ist-Zustand (Daria, 08.11.2026) */
+.umschalter .schiene { grid-column: 2; grid-row: 1 / span 2; width: 38px; height: 69px; padding: 0; border: 0; background: none; cursor: pointer; color: var(--text); }
+.umschalter .schiene svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.umschalter .schiene .knopf { fill: var(--bg); transition: transform 520ms var(--barrier); }
+.umschalter .schiene[aria-checked="true"] .knopf { transform: translateX(26px); }
+/* Modell und Ist-Zustand liegen nebeneinander; der Inhalt gleitet waagerecht (Daria, 08.11.2026) */
+.ansichten { overflow: hidden; margin: 0 -12px; transition: height 520ms cubic-bezier(.3,.7,.2,1); }
+.ansichten .spur { display: flex; align-items: flex-start; width: 200%; transition: transform 620ms cubic-bezier(.3,.7,.2,1); }
+.ansichten .spur.ist { transform: translateX(-50%); }
+.ansichten .seite { width: 50%; padding: 0 12px 28px; }
+.ist-hinweis { margin: 0 0 16px; font-size: 14px; color: var(--muted); }
+.modell.ist .feld { min-height: 0; }
 </style>
 </head>
 <body>
@@ -120,12 +138,17 @@
   <div class="rechner-kopf">
     <h2 id="rechner-titel">Stell die Zahl der Abos ein</h2>
     <div class="umschalter" role="group" aria-label="Ansicht">
-      <button type="button" data-ansicht="modell" aria-pressed="true">Modell</button>
-      <button type="button" data-ansicht="ist" aria-pressed="false">Ist-Zustand</button>
+      <button type="button" class="wahl" data-ansicht="modell" aria-pressed="true" style="grid-row: 1">Modell</button>
+      <button type="button" class="wahl" data-ansicht="ist" aria-pressed="false" style="grid-row: 2">Ist-Zustand</button>
+      <button type="button" class="schiene" role="switch" aria-checked="false" aria-label="Ist-Zustand zeigen"><svg viewBox="0 0 35 64" aria-hidden="true"><g transform="translate(35 0) rotate(90)"><path id="schiene-pfad" fill="currentColor" d="M60.51 28.35C59.29 29.49 56.84 31.34 55.48 31.91C54.76 32.22 54.35 32.41 53.43 32.85L53.43 32.86C53.19 32.97 52.91 33.10 52.58 33.26C51.40 33.82 51.21 33.88 50.66 34.06L50.66 34.06C50.49 34.11 50.29 34.17 50.03 34.26C49.49 34.43 49.09 34.45 48.73 34.45C48.30 34.47 47.92 34.48 47.43 34.75C45.31 34.89 43.12 34.50 41.18 34.55C38.41 34.64 38.53 34.77 35.93 34.98C33.79 34.92 33.84 34.90 32.86 34.86C31.84 34.90 31.88 34.92 29.62 34.98C26.88 34.77 27.00 34.64 24.07 34.55C22.02 34.50 19.70 34.89 17.47 34.75C16.95 34.48 16.54 34.47 16.09 34.45C15.71 34.45 15.28 34.43 14.72 34.26C14.44 34.17 14.23 34.11 14.06 34.06L14.06 34.06C13.47 33.88 13.27 33.82 12.02 33.26C11.67 33.10 11.38 32.97 11.12 32.85L11.12 32.85C10.15 32.41 9.72 32.22 8.96 31.91C7.52 31.34 4.94 29.49 3.65 28.35C2.52 27.35 1.00 23.43 0.62 22.37C0.27 21.38 0.07 19.68 0.11 18.31C0.15 17.35 0.37 16.34 0.60 15.34C0.71 14.86 0.82 14.38 0.90 13.91C1.18 12.39 2.44 10.52 3.51 9.08C4.61 7.61 5.67 6.28 7.27 5.12C8.25 4.42 9.38 3.75 10.34 3.18C10.84 2.88 11.30 2.61 11.66 2.38C12.19 2.04 15.79 0.42 18.17 0.23C20.87 0.02 21.37 0.07 22.33 0.16C22.48 0.17 22.63 0.19 22.81 0.20C24.37 0.34 25.55 0.36 28.01 0.16C28.76 0.28 29.91 0.34 31.27 0.41L34.37 0.41C35.66 0.34 36.74 0.28 37.46 0.16C39.78 0.36 40.90 0.34 42.37 0.20C42.54 0.19 42.69 0.17 42.83 0.16C43.74 0.07 44.21 0.02 46.76 0.23C49.01 0.42 52.42 2.04 52.92 2.38C53.26 2.61 53.70 2.88 54.17 3.18C55.08 3.75 56.15 4.42 57.07 5.12C58.59 6.28 59.59 7.61 60.63 9.08C61.65 10.52 62.84 12.39 63.10 13.91C63.18 14.38 63.28 14.86 63.39 15.34C63.60 16.34 63.82 17.35 63.85 18.31C63.89 19.68 63.70 21.38 63.37 22.37C63.01 23.43 61.57 27.35 60.51 28.35Z"/><path class="knopf" id="knopf-pfad" d="M9.09 9.95L9.64 9.50L9.68 9.47C10.49 8.83 10.50 8.82 11.25 8.10C11.51 7.91 12.59 7.12 14.90 6.19C16.73 5.63 16.80 5.62 19.75 5.17L20.09 5.12L20.09 5.12C20.49 5.10 22.40 5.01 24.57 5.68C24.71 5.73 24.86 5.77 25.00 5.83C25.16 5.88 25.32 5.94 25.47 6.01C25.64 6.07 25.81 6.15 25.98 6.23C26.04 6.25 26.10 6.28 26.16 6.30C26.50 6.43 26.92 6.58 28.19 7.63C30.29 9.36 30.36 9.47 31.08 10.53L31.19 10.69L31.57 11.24L31.66 11.42C32.04 12.13 32.07 12.18 32.38 13.05L32.67 14.06C32.69 14.16 32.87 17.22 32.86 17.40C32.84 17.74 32.83 18.00 32.82 18.21C32.79 18.96 32.78 19.21 32.47 20.32C32.10 21.58 31.95 21.87 31.56 22.60L31.56 22.60C31.43 22.85 31.27 23.15 31.07 23.55C30.14 25.05 29.67 25.42 29.13 25.86C28.87 26.06 28.59 26.28 28.23 26.65C27.47 27.42 27.10 27.65 26.61 27.95C26.29 28.15 25.92 28.38 25.35 28.81C24.21 29.69 23.90 29.75 23.36 29.85C23.22 29.88 23.06 29.91 22.87 29.96C19.58 31.19 17.73 31.33 14.44 30.95C13.59 30.76 13.00 30.66 12.54 30.59C11.59 30.44 11.17 30.37 10.09 29.72C9.83 29.57 9.63 29.47 9.47 29.38L9.47 29.38C9.02 29.13 8.83 29.03 8.18 28.52C7.60 28.07 7.43 27.82 7.32 27.66C7.29 27.61 7.26 27.57 7.23 27.53L7.22 27.52C7.14 27.38 6.79 26.80 6.42 26.25C5.08 23.18 5.03 23.03 5.25 19.02C5.33 18.47 5.38 18.10 5.42 17.82C5.51 17.20 5.53 17.05 5.65 16.56C5.69 16.40 5.74 16.25 5.79 16.10C5.90 15.77 6.03 15.40 6.14 14.66C6.25 13.97 6.35 13.77 6.54 13.41C6.63 13.25 6.73 13.05 6.87 12.75C7.00 12.45 7.09 12.21 7.16 12.01C7.36 11.43 7.45 11.19 8.29 10.62C8.39 10.54 8.42 10.51 8.66 10.31L9.09 9.95Z"/></g></svg></button>
     </div>
   </div>
-  <p class="ist-hinweis" id="ist-hinweis" hidden></p>
-  <div id="rechner"></div>
+  <div class="ansichten" id="ansichten">
+    <div class="spur" id="spur">
+      <div class="seite" data-seite="modell"><div id="rechner"></div></div>
+      <div class="seite" data-seite="ist" inert><p class="ist-hinweis" id="ist-hinweis"></p><div id="ist"></div></div>
+    </div>
+  </div>
 </section>
 
 <section class="fin-zeit" aria-labelledby="zeit-titel">
@@ -184,7 +207,7 @@
   ];
   var ABOS = [
     { key: 'schwalbe', name: 'Schwalbe', was: 'Crossposting-Feature', farbe: 'var(--schwalbe)', max: 2000, schritt: 10 },
-    { key: 'dachs', name: 'Dachs', was: 'Partnerläden', farbe: 'var(--dachs)', max: 500, schritt: 5, eckig: true },
+    { key: 'dachs', name: 'Dachs', was: 'Partnerläden', farbe: 'var(--dachs)', max: 500, schritt: 5 },
     { key: 'storch', name: 'Storch', was: 'Community-Sponsorin', farbe: 'var(--storch)', max: 1500, schritt: 10 },
     { key: 'aktive', name: 'Aktive', was: 'im Monat aktiv', farbe: 'var(--aktiv-regler)', max: 40000, schritt: 100 },
     { key: 'inaktive', name: 'Inaktive', was: 'nur angemeldet', farbe: 'var(--inaktiv-regler)', max: 80000, schritt: 100 }
@@ -214,16 +237,21 @@
   var zahl = function (n) { return n.toLocaleString('de-DE'); };
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
 
+  // Kleiner Punkt in derselben Form wie die Punkte der Wolke, für Legenden und Posten
+  function punkt(farbe) {
+    return '<svg class="punkt" viewBox="-1.1 -1.1 2.2 2.2" aria-hidden="true"><path d="' + KNOPF_PFAD + '" fill="' + farbe + '"/></svg>';
+  }
+
   // Ein Modell: links die Posten, rechts die Community als Punkte
   function modell(ziel, start, opt) {
     var v = opt.werte || Object.assign({}, start);
-    var box = el('div', 'modell' + (opt.interaktiv || opt.gross ? '' : ' klein'));
+    var box = el('div', 'modell' + (opt.interaktiv ? '' : ' klein'));
     if (opt.interaktiv) {
       var regler = el('div', 'regler');
       ABOS.forEach(function (a) {
         var l = el('label'); l.style.setProperty('--farbe', a.farbe);
         var k = el('span', 'kopf');
-        k.innerHTML = '<i><span class="punkt' + (a.eckig ? ' eckig' : '') + '" style="--farbe:' + a.farbe + '"></span>' + a.name + '</i>';
+        k.innerHTML = '<i>' + punkt(a.farbe) + a.name + '</i>';
         var b = el('b', null, zahl(v[a.key])); k.appendChild(b); k.appendChild(el('small', null, a.was));
         var r = el('input'); r.type = 'range'; r.min = 0; r.max = a.max; r.step = a.schritt; r.value = v[a.key];
         r.setAttribute('aria-label', a.name + ', ' + a.was);
@@ -239,10 +267,8 @@
       box.appendChild(regler);
     } else {
       var ed = el('ul', 'eckdaten');
-      ABOS.forEach(function (a) {
-        ed.appendChild(el('li', null, '<span class="punkt' + (a.eckig ? ' eckig' : '') + '" style="--farbe:' + a.farbe + '"></span>' + zahl(v[a.key]) + ' ' + a.name));
-      });
-      ed.appendChild(el('li', null, v.klein ? 'ohne Umsatzsteuer' : 'mit 19 % Umsatzsteuer'));
+      ABOS.forEach(function (a) { ed.appendChild(el('li', null, punkt(a.farbe) + zahl(v[a.key]) + ' ' + a.name)); });
+      ed.appendChild(el('li', null, v.klein ? 'ohne Umsatzsteuer' : 'mit 19 % Umsatzsteuer'));
       box.appendChild(ed);
     }
     var leiste = el('div', 'leiste'); leiste.setAttribute('aria-hidden', 'true');
@@ -252,53 +278,84 @@
     var dl = el('div', 'posten'); inhalt.appendChild(dl);
     var feld = el('div', 'feld');
     var fh = el('h3'); feld.appendChild(fh);
-    var canvas = el('canvas'); canvas.setAttribute('role', 'img'); feld.appendChild(canvas);
-    var leg = el('ul', 'legende'); feld.appendChild(leg);
     inhalt.appendChild(feld);
     box.appendChild(inhalt);
     ziel.appendChild(box);
+    var community = wolke(feld, { hoehe: opt.interaktiv ? 460 : 320 });
 
     function zeile(farbe, name, wert, cls) {
-      return '<div class="zeile ' + (cls || '') + '"><span class="punkt" style="--farbe:' + farbe + '"></span><span class="n">' + name + '</span><span class="w">' + euro(wert) + '</span></div>';
+      return '<div class="zeile ' + (cls || '') + '">' + (farbe ? punkt(farbe) : '<span></span>') + '<span class="n">' + name + '</span><span class="w">' + euro(wert) + '</span></div>';
     }
     function zeichne() {
       var r = rechne(v);
       var basis = Math.max(r.brutto, r.fixSumme, 1);
       [r.steuer, r.gebuehren, Math.min(r.fixSumme, r.brutto), r.dev, r.com].forEach(function (w, i) { teile[i].style.width = (w / basis * 100) + '%'; });
-      var h = zeile('transparent', 'Einnahmen brutto', r.brutto, 'gross');
+      var h = zeile(null, 'Einnahmen brutto', r.brutto, 'gross');
       if (r.steuer > 0.5) h += zeile('var(--ust)', 'Umsatzsteuer', r.steuer, 'minus');
       h += zeile('var(--geb)', 'Zahlungsgebühren', r.gebuehren, 'minus');
       var unter = r.fix.map(function (f) { return zeile('var(--fix)', f.name, f.wert, 'unter'); }).join('');
       h += '<details' + (opt.interaktiv ? ' open' : '') + '><summary>' + zeile('var(--fix)', 'Fixkosten', r.fixSumme, 'minus') + '</summary>' + unter + '</details>';
-      h += zeile('var(--dev)', 'Entwicklerin (30 %)', r.dev, 'gross summe');
+      h += zeile('var(--dev)', 'Entwicklerin (30 %)', r.dev, 'gross summe');
       if (r.rest < 0) h += '<p class="defizit">Es fehlen ' + euro(-r.rest) + ' im Monat für die Fixkosten.</p>';
-      h += zeile('var(--com)', 'Community (70 %)', r.com, 'gross');
+      h += zeile('var(--com)', 'Community (70 %)', r.com, 'gross');
       dl.innerHTML = h;
       fh.innerHTML = 'Stock der Community: <b>' + euro(r.com) + '</b> im Monat';
-      punkte(r);
+      community.setze(v);
     }
+    zeichne();
+  }
 
-    // Punkte: jede Person ein Punkt, als Scheibe. In der Mitte die bezahlten Accounts in drei Gruppen,
-    // darum die aktiven, außen die inaktiven Nutzer:innen. Form: der Knopf aus Darias Icon „Switch“,
-    // jeder Punkt leicht gedreht und verzogen, etwas aus dem Raster verschoben und mit eigenem Takt pulsierend.
-    var bild = null;
-    function punkte() {
+  // Ist-Zustand: nur die echten Zahlen und die Punkte, ohne Regler und ohne Rechnung (Daria, 08.11.2026)
+  function istAnsicht(ziel, d, mk) {
+    var aktiv = d.aktiv || 0, alle = d.registriert || 0, inaktiv = Math.max(0, alle - aktiv);
+    var box = el('div', 'modell ist');
+    var ed = el('ul', 'eckdaten');
+    ed.appendChild(el('li', null, punkt('var(--aktiv-regler)') + zahl(aktiv) + ' aktiv'));
+    ed.appendChild(el('li', null, punkt('var(--inaktiv-regler)') + zahl(inaktiv) + ' nur angemeldet'));
+    box.appendChild(ed);
+    var feld = el('div', 'feld');
+    feld.appendChild(el('h3', null, 'Die Community heute: <b>' + zahl(alle) + '</b> ' + (alle === 1 ? 'Person' : 'Personen')));
+    box.appendChild(feld);
+    ziel.appendChild(box);
+    wolke(feld, { hoehe: 460, anpassen: true, markiere: mk }).setze({ aktive: aktiv, inaktive: inaktiv, schwalbe: 0, dachs: 0, storch: 0 });
+  }
+
+  // Punkte: jede Person ein Punkt, als Scheibe. In der Mitte die bezahlten Accounts in drei Gruppen,
+  // darum die aktiven, außen die inaktiven Nutzer:innen. Form: der Knopf aus Darias Icon „Switch“,
+  // gedreht und gespiegelt, etwas aus dem Raster verschoben und mit eigenem Takt pulsierend.
+  // Jeder Punkt hat eine Mindestgröße, damit die Form erkennbar bleibt. Passt die Wolke dann nicht in den Rahmen,
+  // läuft sie darüber hinaus, und man verschiebt die Ansicht mit Ziehen, Wischen oder Scrollen (Daria, 08.11.2026).
+  var MIN_R = 5;
+  function mitAbo(bezahlt) { return bezahlt.some(function (g) { return g.n > 0; }); }
+  function wolke(feld, opt) {
+    var fenster = el('div', 'fenster');
+    var canvas = el('canvas'); canvas.setAttribute('aria-hidden', 'true');
+    var scroller = el('div', 'scroller'); scroller.setAttribute('role', 'img');
+    var raum = el('div'); scroller.appendChild(raum);
+    fenster.appendChild(canvas); fenster.appendChild(scroller);
+    var leg = el('ul', 'legende');
+    feld.appendChild(fenster); feld.appendChild(leg);
+    var KNOPF = new Path2D(KNOPF_PFAD);
+    var bild = null, v = null;
+
+    function setze(werte) {
+      v = werte;
       var bezahlt = [
         { n: v.schwalbe, farbe: '--schwalbe', name: 'Schwalbe' },
-        { n: v.dachs, farbe: '--dachs', name: 'Dachs', eckig: true },
+        { n: v.dachs, farbe: '--dachs', name: 'Dachs' },
         { n: v.storch, farbe: '--storch', name: 'Storch' }
       ];
       var aktivFrei = Math.max(0, v.aktive - v.schwalbe - v.storch);
       var gruppen = bezahlt.concat([
-        { n: aktivFrei, farbe: '--aktiv', name: 'Aktive ohne Abo' },
+        { n: aktivFrei, farbe: '--aktiv', name: mitAbo(bezahlt) ? 'Aktive ohne Abo' : 'Aktive' },
         { n: v.inaktive, farbe: '--inaktiv', name: 'Inaktive' }
       ]);
       var AKTIV = 3, INAKTIV = 4;
-      var cs = getComputedStyle(box);
+      var cs = getComputedStyle(feld);
       var farben = gruppen.map(function (g) { return cs.getPropertyValue(g.farbe).trim(); });
-      var w = canvas.clientWidth;
-      var hgt = Math.min(w, opt.interaktiv || opt.gross ? 460 : 320);
-      canvas.style.height = hgt + 'px';
+      var w = fenster.clientWidth;
+      if (!w) return;
+      var hgt = Math.min(w, opt.hoehe);
 
       var zahlBezahlt = bezahlt.reduce(function (s, g) { return s + g.n; }, 0);
       var mitGruppen = bezahlt.filter(function (g) { return g.n > 0; }).length;
@@ -308,8 +365,9 @@
       var N = zahlBezahlt + aktivFrei + v.inaktive;
       var art = new Uint8Array(N);
       var gold = Math.PI * (3 - Math.sqrt(5));
+      var i;
       if (kern) {
-        var idx = []; for (var i = 0; i < kern; i++) idx.push(i);
+        var idx = []; for (i = 0; i < kern; i++) idx.push(i);
         var winkel = function (k) { return (k * gold + Math.PI / 2) % (2 * Math.PI); };
         idx.sort(function (a, b) { return winkel(a) - winkel(b); });
         var pos = 0;
@@ -322,16 +380,24 @@
       var restAktiv = aktivFrei - luecke * mitGruppen;
       for (i = kern; i < N; i++) art[i] = (i - kern) < restAktiv ? AKTIV : INAKTIV;
 
-      var R = Math.min(Math.min(w, hgt) / 2 - 6, 9 * Math.sqrt(N / Math.PI) + 4);
+      // Erst in den Rahmen einpassen; wären die Punkte dann zu klein, gilt die Mindestgröße und die Wolke wird größer
+      var R = Math.min(Math.min(w, hgt) / 2 - 10, 16 * Math.sqrt(N / Math.PI) + 6);
       var abstand = N ? R * Math.sqrt(Math.PI / N) : 0;
-      var r = abstand < 2.5 ? abstand * 0.5 : abstand * 0.4;
-      // Grundpositionen: Sonnenblumen-Spirale, jeder Punkt etwas verschoben (fester Zufall je Punkt)
+      var r = abstand * 0.4;
+      if (N && r < MIN_R) { r = MIN_R; abstand = r / 0.4; R = abstand * Math.sqrt(N / Math.PI); }
+      var rand = abstand * 2 + 34;
+      // Ist-Zustand: kleine Community, kleiner Rahmen
+      if (opt.anpassen) hgt = Math.min(hgt, Math.max(220, Math.ceil(2 * R + 2 * rand)));
+      fenster.style.height = hgt + 'px';
+      var W = Math.max(w, Math.ceil(2 * R + 2 * rand)), H = Math.max(hgt, Math.ceil(2 * R + 2 * rand));
+      var ueber = W > w || H > hgt;
+
       var x = new Float32Array(N), y = new Float32Array(N), takt = new Float32Array(N * 4);
       for (i = 0; i < N; i++) {
         var z1 = zufall(i * 4 + 1), z2 = zufall(i * 4 + 2);
         var rr = R * Math.sqrt((i + 0.5) / N) + (z1 - 0.5) * abstand * 0.45;
         var a = i * gold + (z2 - 0.5) * (abstand / Math.max(rr, abstand)) * 0.9;
-        x[i] = w / 2 + rr * Math.cos(a); y[i] = hgt / 2 + rr * Math.sin(a);
+        x[i] = W / 2 + rr * Math.cos(a); y[i] = H / 2 + rr * Math.sin(a);
         takt[i * 4] = 0.55 + zufall(i * 4 + 3) * 0.9;            // Geschwindigkeit
         takt[i * 4 + 1] = zufall(i * 4 + 4) * Math.PI * 2;       // Phase
         takt[i * 4 + 2] = zufall(i * 4 + 5) * Math.PI * 2;       // Drehung
@@ -344,100 +410,123 @@
         var zaehler = -1;
         for (i = 0; i < N; i++) if (art[i] === gruppeIdx && ++zaehler === mk.rang) { ziel = i; break; }
       }
-      var start = bild && bild.ziel === ziel ? bild.start : performance.now();
-      bild = { N: N, art: art, x: x, y: y, takt: takt, r: r, abstand: abstand, w: w, h: hgt, farben: farben,
-        gruppen: gruppen, ziel: ziel, start: start, tinte: cs.getPropertyValue('--text').trim(), papier: cs.getPropertyValue('--surface').trim() };
+
+      // Ausschnitt: beim ersten Mal die Mitte oder der eigene Punkt, danach dieselbe Stelle im Verhältnis
+      var alt = bild, fx = 0.5, fy = 0.5;
+      if (alt && alt.W) { fx = (scroller.scrollLeft + alt.w / 2) / alt.W; fy = (scroller.scrollTop + alt.h / 2) / alt.H; }
+      else if (ziel >= 0) { fx = x[ziel] / W; fy = y[ziel] / H; }
+      fenster.classList.toggle('ueber', ueber);
+      raum.style.width = W + 'px'; raum.style.height = H + 'px';
+      scroller.tabIndex = ueber ? 0 : -1;
+      scroller.scrollLeft = fx * W - w / 2; scroller.scrollTop = fy * H - hgt / 2;
+
+      var start = alt && alt.ziel === ziel ? alt.start : performance.now();
+      bild = { N: N, art: art, x: x, y: y, takt: takt, r: r, abstand: abstand, w: w, h: hgt, W: W, H: H, farben: farben,
+        ziel: ziel, start: start, tinte: cs.getPropertyValue('--feld-tinte').trim(), papier: cs.getPropertyValue('--feld-grund').trim() };
       var dpr = window.devicePixelRatio || 1;
-      canvas.width = w * dpr; canvas.height = hgt * dpr;
+      canvas.width = Math.round(w * dpr); canvas.height = Math.round(hgt * dpr);
       male(performance.now());
       starteBewegung();
 
       leg.innerHTML = gruppen.filter(function (g) { return g.n > 0; }).map(function (g) {
-        return '<li><span class="punkt' + (g.eckig ? ' eckig' : '') + '" style="--farbe:var(' + g.farbe + ')"></span>' + zahl(g.n) + ' ' + g.name + '</li>';
-      }).join('') + (ziel >= 0 ? '<li><span class="punkt ring"></span>Du</li>' : '') + (N ? '<li>1 Punkt = 1 Person</li>' : '<li>Noch niemand</li>');
-      canvas.setAttribute('aria-label', 'Community: ' + gruppen.map(function (g) { return zahl(g.n) + ' ' + g.name; }).join(', '));
+        return '<li>' + punkt('var(' + g.farbe + ')') + zahl(g.n) + ' ' + g.name + '</li>';
+      }).join('') + (ziel >= 0 ? '<li>' + punkt('var(--feld-tinte)') + 'Du</li>' : '') + (N ? '<li>1 Punkt = 1 Person</li>' : '<li>Noch niemand</li>')
+        + (ueber ? '<li class="tipp">Die Community ist größer als der Rahmen. Verschiebe die Ansicht, um alle zu sehen.</li>' : '');
+      scroller.setAttribute('aria-label', 'Community: ' + gruppen.map(function (g) { return zahl(g.n) + ' ' + g.name; }).join(', '));
     }
 
-    // Ein Bild zum Zeitpunkt t. Kleine Mengen pulsieren; der eigene Punkt wächst, die Nachbarn weichen aus.
-    var KNOPF = new Path2D(KNOPF_PFAD);
+    // Ein Bild zum Zeitpunkt t, nur der sichtbare Ausschnitt. Die Punkte pulsieren; der eigene Punkt wächst, die Nachbarn weichen aus.
     function male(t) {
       var b = bild; if (!b) return;
       var ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, b.w, b.h);
       if (!b.N) return;
-      var lebt = bewegt(b), s = (t - b.start) / 1000;
+      var ox = scroller.scrollLeft, oy = scroller.scrollTop;
+      var lebt = !ruhig, s = (t - b.start) / 1000;
       // Wachsen mit leichtem Nachschwingen
       var p = b.ziel >= 0 ? (lebt ? 1 - Math.exp(-3.2 * s) * Math.cos(5 * s) : 1) : 0;
       var gross = Math.max(b.r * 2.4, 7), plus = (gross - b.r) * p;
       var zx = b.ziel >= 0 ? b.x[b.ziel] : 0, zy = b.ziel >= 0 ? b.y[b.ziel] : 0;
       var weite = Math.max(b.abstand * 3.2, gross * 2.5);
-      var form = b.r >= 1.6;
+      var m = b.abstand * 2, x0 = ox - m, x1 = ox + b.w + m, y0 = oy - m, y1 = oy + b.h + m;
       [4, 3, 0, 1, 2].forEach(function (gi) {
         ctx.fillStyle = b.farben[gi];
-        if (!form) ctx.beginPath();
         for (var i = 0; i < b.N; i++) {
           if (b.art[i] !== gi || i === b.ziel) continue;
-          var px = b.x[i], py = b.y[i], k = i * 4;
+          var px = b.x[i], py = b.y[i];
+          if (px < x0 || px > x1 || py < y0 || py > y1) continue;
+          var k = i * 4;
           if (plus > 0) {
             var dx = px - zx, dy = py - zy, d = Math.sqrt(dx * dx + dy * dy) || 1;
             var schub = plus * 1.15 * Math.exp(-(d * d) / (weite * weite));
             px += dx / d * schub; py += dy / d * schub;
           }
-          var puls = 1;
+          var puls = 1, dreh = b.takt[k + 2];
           if (lebt) {
+            // Etwas deutlicher als zuvor (Daria, 08.11.2026): größerer Puls, mehr Versatz, ein wenig Drehung
             var ph = s * b.takt[k] + b.takt[k + 1];
-            puls = 1 + 0.08 * Math.sin(ph) * Math.sin(ph * 0.37 + b.takt[k + 2]);
-            px += Math.sin(ph * 0.53 + b.takt[k + 2]) * b.abstand * 0.04;
-            py += Math.cos(ph * 0.47 + b.takt[k + 1]) * b.abstand * 0.04;
+            puls = 1 + 0.14 * Math.sin(ph) * Math.sin(ph * 0.37 + b.takt[k + 2]);
+            px += Math.sin(ph * 0.53 + b.takt[k + 2]) * b.abstand * 0.07;
+            py += Math.cos(ph * 0.47 + b.takt[k + 1]) * b.abstand * 0.07;
+            dreh += Math.sin(ph * 0.29) * 0.12;
           }
-          var rr = b.r * puls;
-          if (!form) { ctx.rect(px - rr, py - rr, rr * 2, rr * 2); continue; }
-          if (b.gruppen[gi].eckig) { ctx.save(); ctx.translate(px, py); ctx.rotate(b.takt[k + 2] * 0.15); ctx.fillRect(-rr * 0.9, -rr * 0.9, rr * 1.8, rr * 1.8); ctx.restore(); continue; }
           // Nicht verzerren: Die Unregelmäßigkeit kommt aus der gezeichneten Linie, nicht aus Stauchen (Daria, 08.11.2026)
-          var c = Math.cos(b.takt[k + 2]), sn = Math.sin(b.takt[k + 2]), sc = rr * b.takt[k + 3], fl = b.takt[k + 2] > Math.PI ? -1 : 1;
-          ctx.setTransform(dpr * c * sc * fl, dpr * sn * sc * fl, -dpr * sn * sc, dpr * c * sc, dpr * px, dpr * py);
+          var c = Math.cos(dreh), sn = Math.sin(dreh), sc = b.r * puls * b.takt[k + 3], fl = b.takt[k + 2] > Math.PI ? -1 : 1;
+          ctx.setTransform(dpr * c * sc * fl, dpr * sn * sc * fl, -dpr * sn * sc, dpr * c * sc, dpr * (px - ox), dpr * (py - oy));
           ctx.fill(KNOPF);
-          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         }
-        if (!form) ctx.fill();
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       });
       if (b.ziel >= 0) {
-        var gr = b.r + plus, kz = b.ziel * 4;
+        var gr = b.r + plus, kz = b.ziel * 4, ux = zx - ox, uy = zy - oy;
         var c2 = Math.cos(b.takt[kz + 2]), s2 = Math.sin(b.takt[kz + 2]);
         ctx.fillStyle = b.tinte;
-        ctx.setTransform(dpr * c2 * gr, dpr * s2 * gr, -dpr * s2 * gr, dpr * c2 * gr, dpr * zx, dpr * zy);
+        ctx.setTransform(dpr * c2 * gr, dpr * s2 * gr, -dpr * s2 * gr, dpr * c2 * gr, dpr * ux, dpr * uy);
         ctx.fill(KNOPF);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         if (p > 0.3) {
           ctx.globalAlpha = Math.min(1, (p - 0.3) / 0.4);
           ctx.font = '600 13px Inter, system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-          var ly = zy - gr - 6, tw = ctx.measureText('Du').width + 14;
+          var ly = uy - gr - 6, tw = ctx.measureText('Du').width + 14;
           ctx.beginPath();
-          if (ctx.roundRect) ctx.roundRect(zx - tw / 2, ly - 20, tw, 20, 10); else ctx.rect(zx - tw / 2, ly - 20, tw, 20);
+          if (ctx.roundRect) ctx.roundRect(ux - tw / 2, ly - 20, tw, 20, 10); else ctx.rect(ux - tw / 2, ly - 20, tw, 20);
           ctx.fill();
-          ctx.fillStyle = b.papier; ctx.fillText('Du', zx, ly - 3);
+          ctx.fillStyle = b.papier; ctx.fillText('Du', ux, ly - 3);
           ctx.globalAlpha = 1;
         }
       }
     }
-    // Bewegung nur bei bis zu 6.000 Punkten, nur sichtbar und nicht bei „Bewegung reduzieren“
-    var ruhig = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Bewegung nur, solange die Wolke sichtbar ist, und nicht bei „Bewegung reduzieren“
     var sichtbar = false, laeuft = false, zuletzt = 0;
-    function bewegt(b) { return !ruhig && b.N <= 6000; }
     function starteBewegung() {
-      if (laeuft || !bild || !bewegt(bild) || !sichtbar) return;
+      if (laeuft || !bild || ruhig || !sichtbar) return;
       laeuft = true;
       requestAnimationFrame(function schritt(t) {
-        if (!canvas.isConnected || !sichtbar || !bild || !bewegt(bild)) { laeuft = false; return; }
+        if (!canvas.isConnected || !sichtbar || !bild) { laeuft = false; return; }
         if (t - zuletzt > 32) { zuletzt = t; male(t); }
         requestAnimationFrame(schritt);
       });
     }
-    new IntersectionObserver(function (e) { sichtbar = e[0].isIntersecting; if (sichtbar) starteBewegung(); }).observe(canvas);
-    zeichne();
+    // Verschieben: Scrollen und Wischen macht der Browser, mit der Maus zieht man
+    scroller.addEventListener('scroll', function () { if (!laeuft) requestAnimationFrame(function (t) { male(t); }); }, { passive: true });
+    var zug = null;
+    scroller.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'mouse' || !fenster.classList.contains('ueber') || e.button !== 0) return;
+      zug = { x: e.clientX, y: e.clientY, l: scroller.scrollLeft, t: scroller.scrollTop };
+      scroller.setPointerCapture(e.pointerId); scroller.classList.add('zieht'); e.preventDefault();
+    });
+    scroller.addEventListener('pointermove', function (e) {
+      if (!zug) return;
+      scroller.scrollLeft = zug.l - (e.clientX - zug.x); scroller.scrollTop = zug.t - (e.clientY - zug.y);
+    });
+    function loslassen() { zug = null; scroller.classList.remove('zieht'); }
+    scroller.addEventListener('pointerup', loslassen); scroller.addEventListener('pointercancel', loslassen);
+    new IntersectionObserver(function (e) { sichtbar = e[0].isIntersecting; if (sichtbar) starteBewegung(); }).observe(fenster);
     var breite = 0;
-    new ResizeObserver(function () { if (canvas.clientWidth !== breite) { breite = canvas.clientWidth; punkte(); } }).observe(canvas);
+    new ResizeObserver(function () { if (v && fenster.clientWidth !== breite) { breite = fenster.clientWidth; setze(v); } }).observe(fenster);
+    return { setze: setze };
   }
+  var ruhig = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var M = [
     { m: 'M0', titel: 'Die Testphase zeigt, dass Nachbar:innen mitmachen', wann: 'bis Frühjahr 2027', text: 'Ein bis zwei Nachbarschaften in Leipzig testen die App. Noch gibt es kein Gewerbe und keine Abos, die Technik kostet etwa 50 € im Monat.',
@@ -473,38 +562,64 @@
       body: JSON.stringify(body || {})
     }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
   }
+  // Modell und Ist-Zustand liegen nebeneinander. Der Switch schiebt den Inhalt waagerecht: Ist-Zustand von rechts,
+  // zurück zum Modell nach links (Daria, 08.11.2026). Das Modell bleibt dabei stehen, die Regler behalten ihre Werte.
+  var spur = document.getElementById('spur');
+  var ansichten = document.getElementById('ansichten');
+  var seiten = { modell: spur.querySelector('[data-seite="modell"]'), ist: spur.querySelector('[data-seite="ist"]') };
+  var schiene = document.querySelector('.umschalter .schiene');
+  var istBox = document.getElementById('ist');
+  var jetzt = 'modell', istGezeigt = false;
+  function hoehe() { ansichten.style.height = seiten[jetzt].offsetHeight + 'px'; }
+  new ResizeObserver(hoehe).observe(seiten.modell);
+  new ResizeObserver(hoehe).observe(seiten.ist);
   function zeige(ansicht) {
-    document.querySelectorAll('.umschalter button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.ansicht === ansicht)); });
-    rechner.innerHTML = '';
-    if (ansicht === 'modell') {
-      titel.textContent = 'Stell die Zahl der Abos ein';
-      hinweis.hidden = true;
-      modell(rechner, modellWerte, { interaktiv: true, werte: modellWerte });
-      return;
-    }
-    titel.textContent = 'So steht KiezCoins heute';
-    hinweis.hidden = false;
+    jetzt = ansicht;
+    document.querySelectorAll('.umschalter .wahl').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.ansicht === ansicht)); });
+    schiene.setAttribute('aria-checked', String(ansicht === 'ist'));
+    schiene.setAttribute('aria-label', ansicht === 'ist' ? 'Modell zeigen' : 'Ist-Zustand zeigen');
+    spur.classList.toggle('ist', ansicht === 'ist');
+    seiten.modell.inert = ansicht !== 'modell';
+    seiten.ist.inert = ansicht !== 'ist';
+    titel.textContent = ansicht === 'ist' ? 'So steht KiezCoins heute' : 'Stell die Zahl der Abos ein';
+    hoehe();
+    if (ansicht === 'ist' && !istGezeigt) ladeIst();
+  }
+  function ladeIst() {
+    istGezeigt = true;
     hinweis.textContent = 'Lade die Zahlen aus der Datenbank …';
     holeIst().then(function (d) {
-      if (!document.querySelector('.umschalter [data-ansicht="ist"][aria-pressed="true"]')) return;
-      var aktiv = d.aktiv || 0, alle = d.registriert || 0;
       var satz = 'Stand ' + new Date(d.stand).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' }) + '. Aktiv heißt: in den letzten 30 Tagen etwas angesehen, gepostet, kommentiert oder geliked.';
       if (meinPunkt && meinPunkt.kategorie) satz += ' Der markierte Punkt bist du.';
       else if (meinPunkt) satz += ' Testkonten zählen nicht mit, deshalb hast du hier keinen Punkt.';
       else if (meinFehler) satz += ' Dein Link ist abgelaufen. Öffne die Seite noch einmal über „Dein Konto“ in der App.';
       hinweis.textContent = satz;
-      modell(rechner, { aktive: aktiv, inaktive: Math.max(0, alle - aktiv), schwalbe: 0, dachs: 0, storch: 0, klein: true, gegruendet: false }, { gross: true, markiere: meinPunkt });
+      istBox.innerHTML = '';
+      istAnsicht(istBox, d, meinPunkt);
+      hoehe();
     }).catch(function () {
+      istGezeigt = false;
       hinweis.textContent = 'Die Zahlen aus der Datenbank sind gerade nicht erreichbar.';
     });
   }
-  document.querySelectorAll('.umschalter button').forEach(function (b) { b.addEventListener('click', function () { zeige(b.dataset.ansicht); }); });
+  document.querySelectorAll('.umschalter .wahl').forEach(function (b) { b.addEventListener('click', function () { zeige(b.dataset.ansicht); }); });
+  schiene.addEventListener('click', function () { zeige(jetzt === 'ist' ? 'modell' : 'ist'); });
+  modell(rechner, modellWerte, { interaktiv: true, werte: modellWerte });
   if (meinCode) {
+    // Aus der App: gleich im Ist-Zustand, ohne Gleiten
+    spur.style.transition = 'none'; ansichten.style.transition = 'none';
+    istGezeigt = true;
+    hinweis.textContent = 'Lade die Zahlen aus der Datenbank …';
+    zeige('ist');
+    requestAnimationFrame(function () { requestAnimationFrame(function () { spur.style.transition = ''; ansichten.style.transition = ''; }); });
     rpc('finanzierung_mein_punkt', { p_code: meinCode })
       .then(function (d) { if (d) { meinPunkt = d; ist = d; } else meinFehler = true; })
       .catch(function () { meinFehler = true; })
-      .then(function () { zeige('ist'); });
-  } else zeige('modell');
+      .then(function () { istGezeigt = false; ladeIst(); });
+  } else {
+    zeige('modell');
+    holeIst().catch(function () {});
+  }
   var zl = document.getElementById('zeitleiste');
   M.forEach(function (m) {
     var li = el('li');
