@@ -426,6 +426,13 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
         <a class="button" href="${P}app/${spracheParam(L)}">${t('Direkt im Browser ausprobieren', 'Try it right in the browser')}</a>
       </div>
     </div>
+    <!-- Finanzierung kurz, mit Link auf die ganze Seite (Daria, 08.11.2026) -->
+    <div class="finanzierung-kurz">
+      <h3>${t('So finanziert sich KiezCoins', 'How KiezCoins is funded')}</h3>
+      <p>${t('Zuerst decken die Einnahmen die Fixkosten. Vom Rest bekommt die Entwicklerin 30 %, die Community 70 %.', 'First, the income covers the fixed costs. Of the rest, the developer gets 30 % and the community 70 %.')}</p>
+      <div class="fk-balken" aria-hidden="true"><span></span><span></span></div>
+      <a href="/finanzierung">${t('Zur ganzen Rechnung', 'See the full calculation')}</a>
+    </div>
     <footer>
       <a href="${P}impressum.html">${t('Impressum', 'Legal notice')}</a>
       <a href="${P}datenschutz.html">${t('Datenschutz', 'Privacy')}</a>

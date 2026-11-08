@@ -864,3 +864,14 @@ footer a { color: var(--muted); }
 .spenden-text { padding-bottom: 64px; }
 @media (max-width: 900px) { .hero { padding-bottom: 144px; } .wechsel { padding-bottom: 128px; } }
 @media (max-width: 760px) { .spenden-text { padding-bottom: 44px; } }
+
+/* Finanzierung kurz im Download-Abschnitt, Link auf /finanzierung (Daria, 08.11.2026) */
+.finanzierung-kurz { margin: 40px 0 8px; padding: 24px 28px; max-width: 640px; border-radius: 28px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 12px 30px -18px var(--schatten); }
+.finanzierung-kurz h3 { font: 600 24px/1.15 var(--display); letter-spacing: -.01em; margin: 0 0 8px; }
+.finanzierung-kurz p { color: var(--muted); margin: 0 0 16px; }
+.finanzierung-kurz a { font-weight: 500; }
+.fk-balken { display: flex; gap: 3px; height: 10px; margin: 0 0 16px; }
+.fk-balken span { border-radius: 999px; }
+.fk-balken span:first-child { flex: 3; background: var(--text); }
+.fk-balken span:last-child { flex: 7; background: #2E9E57; }
+@media (max-width: 480px) { .finanzierung-kurz { padding: 20px; border-radius: 22px; } }
