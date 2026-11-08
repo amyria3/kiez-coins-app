@@ -42,6 +42,7 @@
 .schalter { grid-column: 1 / -1; display: flex !important; grid-auto-flow: column; align-items: center; gap: 10px !important; }
 .schalter input { width: 18px; height: 18px; accent-color: var(--text); }
 .punkt { width: 11px; height: 11px; flex: none; display: block; overflow: visible; }
+.punkt.avatar { width: 14px; height: 14px; border-radius: 50%; object-fit: cover; }
 .leiste { display: flex; height: 18px; border-radius: 999px; overflow: hidden; background: var(--bg); margin-bottom: 20px; }
 .leiste span { height: 100%; transition: width 400ms var(--barrier); }
 .inhalt { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 28px; }
@@ -357,6 +358,12 @@
     feld.appendChild(fenster); feld.appendChild(leg);
     var KNOPF = new Path2D(KNOPF_PFAD);
     var bild = null, v = null;
+    var mk0 = opt.markiere || {}, kurz = mk0.kurz || '', avatar = null;
+    if (mk0.bild) {
+      avatar = new Image();
+      avatar.onload = function () { if (!laeuft) male(performance.now()); };
+      avatar.src = mk0.bild;
+    }
 
     function setze(werte) {
       v = werte;
@@ -450,7 +457,7 @@
 
       leg.innerHTML = gruppen.filter(function (g) { return g.n > 0; }).map(function (g) {
         return '<li>' + punkt('var(' + g.farbe + ')') + zahl(g.n) + ' ' + g.name + '</li>';
-      }).join('') + (ziel >= 0 ? '<li>' + punkt('var(--du)') + 'Du</li>' : '') + (N ? '<li>1 Punkt = 1 Person</li>' : '<li>Noch niemand</li>')
+      }).join('') + (ziel >= 0 ? '<li>' + (mk0.bild ? '<img class="punkt avatar" src="' + mk0.bild + '" alt="">' : punkt('var(--du)')) + 'Du</li>' : '') + (N ? '<li>1 Punkt = 1 Person</li>' : '<li>Noch niemand</li>')
         + (ueber ? '<li class="tipp">Die Community ist größer als der Rahmen. Verschiebe die Ansicht, um alle zu sehen.</li>' : '');
       scroller.setAttribute('aria-label', 'Community: ' + gruppen.map(function (g) { return zahl(g.n) + ' ' + g.name; }).join(', '));
     }
@@ -465,7 +472,7 @@
       var lebt = !ruhig, s = (t - b.start) / 1000;
       // Wachsen mit leichtem Nachschwingen
       var p = b.ziel >= 0 ? (lebt ? 1 - Math.exp(-3.2 * s) * Math.cos(5 * s) : 1) : 0;
-      var gross = Math.max(b.r * 2.4, 7), plus = (gross - b.r) * p;
+      var gross = Math.max(b.r * 3, 15), plus = (gross - b.r) * p;
       var zx = b.ziel >= 0 ? b.x[b.ziel] : 0, zy = b.ziel >= 0 ? b.y[b.ziel] : 0;
       var weite = Math.max(b.abstand * 3.2, gross * 2.5);
       var m = b.abstand * 2, x0 = ox - m, x1 = ox + b.w + m, y0 = oy - m, y1 = oy + b.h + m;
@@ -497,23 +504,23 @@
         }
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       });
+      // Eigener Punkt: der eigene Avatar als Kreis mit weißem Rand, ohne Bild die Initialen auf Orange (Daria, 08.11.2026)
       if (b.ziel >= 0) {
-        var gr = b.r + plus, kz = b.ziel * 4, ux = zx - ox, uy = zy - oy;
-        var c2 = Math.cos(b.takt[kz + 2]), s2 = Math.sin(b.takt[kz + 2]);
-        ctx.fillStyle = b.tinte;
-        ctx.setTransform(dpr * c2 * gr, dpr * s2 * gr, -dpr * s2 * gr, dpr * c2 * gr, dpr * ux, dpr * uy);
-        ctx.fill(KNOPF);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        if (p > 0.3) {
-          ctx.globalAlpha = Math.min(1, (p - 0.3) / 0.4);
-          ctx.font = '600 13px Inter, system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-          var ly = uy - gr - 6, tw = ctx.measureText('Du').width + 14;
-          ctx.beginPath();
-          if (ctx.roundRect) ctx.roundRect(ux - tw / 2, ly - 20, tw, 20, 10); else ctx.rect(ux - tw / 2, ly - 20, tw, 20);
-          ctx.fill();
-          ctx.fillStyle = b.papier; ctx.fillText('Du', ux, ly - 3);
-          ctx.globalAlpha = 1;
+        var gr = b.r + plus, ux = zx - ox, uy = zy - oy;
+        ctx.beginPath(); ctx.arc(ux, uy, gr + 2, 0, Math.PI * 2); ctx.fillStyle = '#FFFFFF'; ctx.fill();
+        ctx.save();
+        ctx.beginPath(); ctx.arc(ux, uy, gr, 0, Math.PI * 2); ctx.clip();
+        if (avatar && avatar.complete && avatar.naturalWidth) {
+          var aw = avatar.naturalWidth, ah = avatar.naturalHeight, seite = Math.min(aw, ah);
+          ctx.drawImage(avatar, (aw - seite) / 2, (ah - seite) / 2, seite, seite, ux - gr, uy - gr, gr * 2, gr * 2);
+        } else {
+          ctx.fillStyle = b.tinte; ctx.fillRect(ux - gr, uy - gr, gr * 2, gr * 2);
+          if (kurz && gr > 9) {
+            ctx.fillStyle = b.papier; ctx.font = '600 ' + Math.round(gr * 0.8) + 'px Inter, system-ui, sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(kurz, ux, uy + 1);
+          }
         }
+        ctx.restore();
       }
     }
     // Bewegung nur, solange die Wolke sichtbar ist, und nicht bei „Bewegung reduzieren“
@@ -571,8 +578,13 @@
     if (ist) return Promise.resolve(ist);
     return rpc('finanzierung_ist').then(function (d) { ist = d; return d; });
   }
-  // Link aus der App: #ich=<code>. Der Code gilt einmal; das Fragment verschwindet sofort aus der Adresse.
-  var meinCode = (location.hash.match(/^#ich=([0-9a-f]{16,})$/) || [])[1];
+  // Link aus der App: #ich=<code>&bild=<Avatar-Adresse>&kurz=<Initialen>. Der Code gilt einmal; das Fragment
+  // verschwindet sofort aus der Adresse. Das Bild kommt nur aus dem Speicher von KiezCoins.
+  var frag = new URLSearchParams(location.hash.slice(1));
+  var meinCode = /^[0-9a-f]{16,}$/.test(frag.get('ich') || '') ? frag.get('ich') : null;
+  var BILDER = 'https://aqxzxpxrshizlaqyjplw.supabase.co/storage/v1/object/public/photos/';
+  var meinBild = (frag.get('bild') || '').indexOf(BILDER) === 0 ? frag.get('bild') : '';
+  var meinKurz = (frag.get('kurz') || '').replace(/[^A-Za-zÄÖÜäöüß0-9]/g, '').slice(0, 2).toUpperCase();
   if (meinCode) history.replaceState(null, '', location.pathname + location.search);
   var meinPunkt = null, meinFehler = false;
   function rpc(name, body) {
@@ -633,7 +645,7 @@
     zeige('ist');
     requestAnimationFrame(function () { requestAnimationFrame(function () { spur.style.transition = ''; ansichten.style.transition = ''; }); });
     rpc('finanzierung_mein_punkt', { p_code: meinCode })
-      .then(function (d) { if (d) { meinPunkt = d; ist = d; } else meinFehler = true; })
+      .then(function (d) { if (d) { meinPunkt = Object.assign({}, d, { bild: meinBild, kurz: meinKurz }); ist = d; } else meinFehler = true; })
       .catch(function () { meinFehler = true; })
       .then(function () { istGezeigt = false; ladeIst(); });
   } else {

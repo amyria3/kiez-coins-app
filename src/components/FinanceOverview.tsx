@@ -1,16 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
-import Svg, { Path, Rect, Text as SvgText } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 
+import { Avatar } from './AuthorRow';
 import { Text } from './T';
 import { financeLinkCode, loadFinanceStand, type FinanceStand } from '../data/remote';
 import { useStore } from '../data/store';
 import { t } from '../data/texts';
+import type { User } from '../data/types';
 import { color, font, radius, space, text } from '../theme/tokens';
 
 /**
  * „So finanziert sich KiezCoins“ unten auf „Me“ (Daria, 08.11.2026): knapper Text, Balken 30/70 und die Community
- * als Punkte mit dem eigenen Punkt. Bleibt in der App; nur „Details auf der Website“ öffnet kiezcoins…/finanzierung.
+ * als Punkte, der eigene als Avatar. Bleibt in der App; nur „Details auf der Website“ öffnet kiezcoins…/finanzierung.
  * Ersetzt die Karte „Finanzierung“ unter „Dein Konto“.
  */
 
@@ -31,7 +33,8 @@ const siteUrl = () =>
   (Platform.OS === 'web' && typeof window !== 'undefined' ? window.location.origin : 'https://kiezcoins.vercel.app') + '/finanzierung';
 
 export function FinanceOverview() {
-  const { mode } = useStore();
+  const { mode, users, currentUserId } = useStore();
+  const me = users.find((u) => u.id === currentUserId);
   const [stand, setStand] = useState<FinanceStand | null>(null);
   const [fehler, setFehler] = useState(false);
   const [breite, setBreite] = useState(0);
@@ -50,7 +53,10 @@ export function FinanceOverview() {
 
   const openDetails = async () => {
     const code = mode === 'live' ? await financeLinkCode() : null;
-    const url = siteUrl() + (code ? `#ich=${code}` : '');
+    // Mit Avatar und Initialen, damit die Seite den eigenen Punkt als Avatar zeigt (Daria, 08.11.2026)
+    const bild = me?.avatar && typeof me.avatar === 'object' && 'uri' in me.avatar ? me.avatar.uri : '';
+    const kurz = (me?.name ?? '').split(/[\s*]+/).filter(Boolean).slice(0, 2).map((p) => p[0]).join('');
+    const url = siteUrl() + (code ? `#ich=${code}${bild ? `&bild=${encodeURIComponent(bild)}` : ''}${kurz ? `&kurz=${encodeURIComponent(kurz)}` : ''}` : '');
     if (Platform.OS === 'web') window.location.assign(url);
     else Linking.openURL(url).catch(() => {});
   };
@@ -75,7 +81,7 @@ export function FinanceOverview() {
       </View>
 
       <View onLayout={(e) => setBreite(e.nativeEvent.layout.width)}>
-        {stand && breite > 0 ? <Punkte breite={breite} aktiv={aktiv} inaktiv={inaktiv} stand={stand} /> : null}
+        {stand && breite > 0 ? <Punkte breite={breite} aktiv={aktiv} inaktiv={inaktiv} stand={stand} me={me} /> : null}
       </View>
       {stand ? (
         <Text style={styles.caption}>
@@ -96,8 +102,8 @@ export function FinanceOverview() {
 
 const proPunkt = (n: number) => Math.max(1, Math.ceil(n / MAX_PUNKTE));
 
-/** Scheibe aus Punkten: innen die Aktiven, außen die nur Angemeldeten; der eigene Punkt größer mit „Du“ */
-function Punkte({ breite, aktiv, inaktiv, stand }: { breite: number; aktiv: number; inaktiv: number; stand: FinanceStand }) {
+/** Scheibe aus Punkten: innen die Aktiven, außen die nur Angemeldeten; der eigene Punkt ist der eigene Avatar (Daria, 08.11.2026) */
+function Punkte({ breite, aktiv, inaktiv, stand, me }: { breite: number; aktiv: number; inaktiv: number; stand: FinanceStand; me?: User }) {
   const teiler = proPunkt(aktiv + inaktiv);
   const nAktiv = Math.ceil(aktiv / teiler);
   const n = nAktiv + Math.ceil(inaktiv / teiler);
@@ -126,30 +132,32 @@ function Punkte({ breite, aktiv, inaktiv, stand }: { breite: number; aktiv: numb
       ? (stand.kategorie === 'aktiv' ? 0 : nAktiv) + Math.min(Math.floor(stand.rang / teiler), (stand.kategorie === 'aktiv' ? nAktiv : n - nAktiv) - 1)
       : -1;
   const du = eigener >= 0 ? punkte[eigener] : undefined;
-  const duR = du ? Math.max(du.r * 2.4, 6) : 0;
+  const duD = du ? Math.round(Math.max(du.r * 6, 26)) : 0;
 
   return (
-    <Svg width={breite} height={hoehe} accessibilityLabel={t('{aktiv} aktiv, {inaktiv} nur angemeldet', { aktiv, inaktiv })}>
-      {punkte.map((p, i) =>
-        i === eigener ? null : (
-          <Path
-            key={i}
-            d={KNOPF}
-            fill={p.aktiv ? color.text.secondary : color.line.hairline}
-            transform={`translate(${p.x} ${p.y}) rotate(${p.dreh}) scale(${p.r * p.spiegel} ${p.r})`}
-          />
-        ),
-      )}
-      {du ? (
-        <>
-          <Path d={KNOPF} fill={color.text.primary} transform={`translate(${du.x} ${du.y}) rotate(${du.dreh}) scale(${duR})`} />
-          <Rect x={du.x - 15} y={du.y - duR - 24} width={30} height={18} rx={9} fill={color.text.primary} />
-          <SvgText x={du.x} y={du.y - duR - 11} fontSize={12} fontWeight="600" fill={color.bg.screen} textAnchor="middle">
-            {t('Du')}
-          </SvgText>
-        </>
+    <View style={{ width: breite, height: hoehe }}>
+      <Svg width={breite} height={hoehe} accessibilityLabel={t('{aktiv} aktiv, {inaktiv} nur angemeldet', { aktiv, inaktiv })}>
+        {punkte.map((p, i) =>
+          i === eigener ? null : (
+            <Path
+              key={i}
+              d={KNOPF}
+              fill={p.aktiv ? color.text.secondary : color.line.hairline}
+              transform={`translate(${p.x} ${p.y}) rotate(${p.dreh}) scale(${p.r * p.spiegel} ${p.r})`}
+            />
+          ),
+        )}
+      </Svg>
+      {du && me ? (
+        <View
+          style={[styles.du, { left: du.x - duD / 2 - 2, top: du.y - duD / 2 - 2, borderRadius: duD / 2 + 2 }]}
+          accessible
+          accessibilityLabel={t('Du')}
+        >
+          <Avatar user={me} diameter={duD} badge={false} />
+        </View>
       ) : null}
-    </Svg>
+    </View>
   );
 }
 
@@ -165,4 +173,5 @@ const styles = StyleSheet.create({
   legendText: { ...text.caption, color: color.text.secondary },
   caption: { ...text.caption, color: color.text.secondary },
   link: { ...text.body, fontFamily: font.medium, color: color.text.primary, textDecorationLine: 'underline' },
+  du: { position: 'absolute', padding: 2, backgroundColor: color.bg.surface },
 });
