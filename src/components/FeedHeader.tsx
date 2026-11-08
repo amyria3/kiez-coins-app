@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import Svg, { G, Path } from 'react-native-svg';
 import { Text } from './T';
+import { fitShape, SWITCH_KNOB, SWITCH_TRACK } from './handSwitch';
 import { Image } from 'expo-image';
 
 import { challengeTypes, isTypeActive } from '../data/features';
@@ -285,6 +287,7 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
   // Eine Lage `pos` (Index, auch Zwischenwerte) steuert Polsterung, Pille und Schriftfarbe gemeinsam.
   const index = Math.max(0, tabs.findIndex((tab) => tab.key === selectedKey));
   const [barWidth, setBarWidth] = useState(0);
+  const [barHeight, setBarHeight] = useState(0);
   const [content, setContent] = useState<Partial<Record<K, number>>>({});
   const own = useRef(new Animated.Value(index)).current;
   const pos = progress ?? own;
@@ -323,11 +326,20 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
       style={styles.segments}
       accessibilityRole="tablist"
       onLayout={(e) => {
-        const w = e.nativeEvent.layout.width;
+        const { width: w, height: h } = e.nativeEvent.layout;
         setBarWidth((old) => (old === w ? old : w));
+        setBarHeight((old) => (old === h ? old : h));
       }}
     >
-      {pill ? <Animated.View pointerEvents="none" style={[styles.pill, accent && styles.accentFill, pill]} /> : null}
+      {/* Spur und Knopf aus Darias Icon „Switch“, der Knopf 2° im Uhrzeigersinn geneigt (Daria, 08.11.2026) */}
+      {barWidth && barHeight ? (
+        <Svg width={barWidth} height={barHeight} style={StyleSheet.absoluteFill} pointerEvents="none">
+          <Path d={fitShape(SWITCH_TRACK, barWidth, barHeight)} fill={color.bg.surface} />
+        </Svg>
+      ) : null}
+      {rest && pill && barHeight ? (
+        <HandKnob pos={pos} rest={rest} single={single} height={barHeight - 2 * BAR_PAD} fill={accent ? color.accent.primary : color.text.primary} />
+      ) : null}
       {tabs.map((tab, i) => {
         const selected = tab.key === selectedKey;
         const w = weight(i);
@@ -369,6 +381,48 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+/** Gezeichneter Knopf unter dem gewählten Reiter. Folgt der Lage `pos` (auch beim Wischen) und passt seine Breite an. */
+function HandKnob({
+  pos,
+  rest,
+  single,
+  height,
+  fill,
+}: {
+  pos: Animated.Value | Animated.AnimatedInterpolation<number>;
+  rest: { x: number; width: number }[];
+  single: boolean;
+  height: number;
+  fill: string;
+}) {
+  const now = () => (pos as unknown as { __getValue?: () => number }).__getValue?.() ?? 0;
+  const [at, setAt] = useState(now);
+  useEffect(() => {
+    const id = pos.addListener(({ value }) => setAt(value));
+    setAt(now());
+    return () => pos.removeListener(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pos]);
+  const v = single ? 0 : Math.min(Math.max(at, 0), rest.length - 1);
+  const i = Math.min(Math.floor(v), rest.length - 2 < 0 ? 0 : rest.length - 2);
+  const f = single ? 0 : v - i;
+  const a = rest[i];
+  const b = rest[Math.min(i + 1, rest.length - 1)];
+  const left = a.x + (b.x - a.x) * f;
+  const width = Math.round(a.width + (b.width - a.width) * f);
+  const d = useMemo(() => fitShape(SWITCH_KNOB, width, height), [width, height]);
+  const m = 3;
+  return (
+    <View pointerEvents="none" style={{ position: 'absolute', left: left - m, top: BAR_PAD - m }}>
+      <Svg width={width + 2 * m} height={height + 2 * m}>
+        <G transform={`translate(${m} ${m}) rotate(2 ${width / 2} ${height / 2})`}>
+          <Path d={d} fill={fill} />
+        </G>
+      </Svg>
+    </View>
+  );
+}
 
 /** Seitliche Polsterung je Reiter und Zuschlag für den gewählten Reiter */
 const SEGMENT_PAD = space[8];
@@ -459,8 +513,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     padding: space[4],
-    borderRadius: radius.full,
-    backgroundColor: color.bg.surface,
   },
   pill: {
     position: 'absolute',

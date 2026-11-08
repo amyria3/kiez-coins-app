@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Alert, Animated, Platform, Pressable, StyleSheet, Switch as NativeSwitch, TextInput, View, type TextInputProps } from 'react-native';
+import { Alert, Animated, Platform, Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { Text } from './T';
 import * as Clipboard from 'expo-clipboard';
 import { Image } from 'expo-image';
@@ -9,6 +10,7 @@ import type { ImageSource } from '../data/types';
 import { color, isFashionable, radius, scheme, space, stroke, text } from '../theme/tokens';
 import { BlurView } from 'expo-blur';
 import { Glass, glassControls } from './Glass';
+import { fitShape, SWITCH_KNOB, SWITCH_TRACK } from './handSwitch';
 import { nudgeStyles, useNextField, type Nudge } from './Nudge';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
@@ -191,16 +193,7 @@ export function Toggle({ label, value, onValueChange }: { label: string; value: 
   ) : glassControls ? (
     <GlassSwitch label={label} value={value} onValueChange={onValueChange} />
   ) : (
-    <NativeSwitch
-      accessibilityLabel={label}
-      value={value}
-      onValueChange={onValueChange}
-      trackColor={{ false: color.text.secondary, true: color.accent.primary }}
-      thumbColor={color.text.primary}
-      ios_backgroundColor={color.text.secondary}
-      // Im Browser färbt react-native-web den Knopf im eingeschalteten Zustand sonst türkis.
-      {...(Platform.OS === 'web' ? ({ activeThumbColor: color.text.primary } as object) : null)}
-    />
+    <HandSwitch label={label} value={value} onValueChange={onValueChange} />
   );
 }
 
@@ -229,6 +222,56 @@ function FashionSwitch({ label, value, onValueChange }: { label: string; value: 
         ]}
       >
         <Animated.View style={[styles.fashionKnob, { transform: [{ translateX: x.interpolate({ inputRange: [0, 1], outputRange: [0, 20] }) }] }]} />
+      </Animated.View>
+    </Pressable>
+  );
+}
+
+/**
+ * Schalter im Kiez-Look aus Darias Icon „Switch“ (Daria, 08.11.2026): gezeichnete Spur 56 × 32, aus dunkles Lila,
+ * an Lila; der gezeichnete Knopf gleitet federnd hinüber.
+ */
+const HAND_W = 56;
+const HAND_H = 32;
+const HAND_KH = Math.round(HAND_H * 0.78);
+const HAND_KW = Math.round(HAND_KH * ((SWITCH_KNOB.x1 - SWITCH_KNOB.x0) / (SWITCH_KNOB.y1 - SWITCH_KNOB.y0)));
+const HAND_INSET = Math.round(HAND_H * 0.13);
+const HAND_TRACK = fitShape(SWITCH_TRACK, HAND_W, HAND_H);
+const HAND_KNOB = fitShape(SWITCH_KNOB, HAND_KW, HAND_KH);
+const HAND_OFF = '#45466F';
+
+function HandSwitch({ label, value, onValueChange }: { label: string; value: boolean; onValueChange: (v: boolean) => void }) {
+  const x = useRef(new Animated.Value(value ? 1 : 0)).current;
+  useEffect(() => {
+    Animated.spring(x, { toValue: value ? 1 : 0, useNativeDriver: true, friction: 7, tension: 90 }).start();
+  }, [value, x]);
+  return (
+    <Pressable
+      accessibilityRole="switch"
+      accessibilityLabel={label}
+      accessibilityState={{ checked: value }}
+      onPress={() => onValueChange(!value)}
+      hitSlop={8}
+      style={styles.handTrack}
+    >
+      <Svg width={HAND_W} height={HAND_H} style={StyleSheet.absoluteFill}>
+        <Path d={HAND_TRACK} fill={HAND_OFF} />
+      </Svg>
+      <Animated.View style={[StyleSheet.absoluteFill, { opacity: x }]} pointerEvents="none">
+        <Svg width={HAND_W} height={HAND_H}>
+          <Path d={HAND_TRACK} fill={color.accent.primary} />
+        </Svg>
+      </Animated.View>
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          styles.handKnob,
+          { transform: [{ translateX: x.interpolate({ inputRange: [0, 1], outputRange: [HAND_INSET, HAND_W - HAND_KW - HAND_INSET] }) }] },
+        ]}
+      >
+        <Svg width={HAND_KW} height={HAND_KH}>
+          <Path d={HAND_KNOB} fill={color.text.primary} />
+        </Svg>
       </Animated.View>
     </Pressable>
   );
@@ -578,6 +621,8 @@ export function PhotoPicker({
 
 const styles = StyleSheet.create({
   fashionTrackHit: { justifyContent: 'center' },
+  handTrack: { width: HAND_W, height: HAND_H },
+  handKnob: { position: 'absolute', left: 0, top: (HAND_H - HAND_KH) / 2 },
   fashionTrack: { width: 51, height: 31, borderRadius: 15.5, padding: 2 },
   fashionKnob: {
     width: 27,
