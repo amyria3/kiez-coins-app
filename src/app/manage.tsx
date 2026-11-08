@@ -451,7 +451,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
           darunter die Zahlen mit den Icons aus dem Feed. Nur Kommentare ist tippbar. */}
       {showTimeBar ? <TimeBar createdAt={c.createdAt} deadline={c.deadline} /> : null}
       <View style={styles.iconStats}>
-        <IconStat icon="eye" value={c.views === undefined ? '–' : String(c.views)} label={c.views === 1 ? 'Ansicht' : 'Ansichten'} />
+        <IconStat icon="eye-filled" value={c.views === undefined ? '–' : String(c.views)} label={c.views === 1 ? 'Ansicht' : 'Ansichten'} />
         <IconStat
           icon="heart"
           value={isDraft ? '–' : String(c.likeCount ?? 0)}
@@ -818,7 +818,7 @@ function TimeBar({ createdAt, deadline }: { createdAt: string; deadline: string 
 }
 
 /** Zahl mit Icon wie unter den Posts im Feed */
-function IconStat({ icon, value, label, onPress }: { icon: 'eye' | 'heart' | 'comment-filled' | 'clock-filled'; value: string; label: string; onPress?: () => void }) {
+function IconStat({ icon, value, label, onPress }: { icon: 'eye-filled' | 'heart' | 'comment-filled' | 'clock-filled'; value: string; label: string; onPress?: () => void }) {
   return (
     <Pressable
       style={({ pressed }) => [styles.iconStat, pressed && onPress ? styles.pressed : null]}
