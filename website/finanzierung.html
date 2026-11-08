@@ -101,6 +101,7 @@
 .umschalter button { background: none; border: 0; border-radius: 999px; padding: 10px 20px; cursor: pointer; font: 500 15px/1 Inter, sans-serif; color: var(--muted); transition: background-color 200ms, color 200ms; }
 .umschalter button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
 .ist-hinweis { margin: -8px 0 16px; font-size: 14px; color: var(--muted); }
+.punkt.ring { background: none; border: 2px solid var(--text); width: 12px; height: 12px; }
 </style>
 </head>
 <body>
@@ -335,10 +336,31 @@
           else { p.moveTo(x + r, y); p.arc(x, y, r, 0, Math.PI * 2); }
         }
         [INAKTIV, AKTIV, 0, 1, 2].forEach(function (gi) { ctx.fillStyle = farben[gi]; ctx.fill(pfade[gi]); });
+        // Eigener Punkt (nur über den Link aus der App): k-ter Punkt der eigenen Gruppe, mit Ring und „Du“
+        var mk = opt.markiere;
+        var gruppeIdx = mk && { schwalbe: 0, dachs: 1, storch: 2, aktiv: AKTIV, inaktiv: INAKTIV }[mk.kategorie];
+        if (gruppeIdx != null) {
+          var zaehler = -1, ziel = -1;
+          for (i = 0; i < N; i++) if (art[i] === gruppeIdx && ++zaehler === mk.rang) { ziel = i; break; }
+          if (ziel >= 0) {
+            var mr = R * Math.sqrt((ziel + 0.5) / N), ma = ziel * gold2;
+            var mx = cx + mr * Math.cos(ma), my = cy + mr * Math.sin(ma);
+            var tinte = cs.getPropertyValue('--text').trim();
+            ctx.fillStyle = tinte; ctx.beginPath(); ctx.arc(mx, my, Math.max(r, 2.5), 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = tinte; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(mx, my, Math.max(r * 2.6, 8), 0, Math.PI * 2); ctx.stroke();
+            ctx.font = '600 13px Inter, system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+            var ly = my - Math.max(r * 2.6, 8) - 6;
+            var tw = ctx.measureText('Du').width + 14;
+            ctx.fillStyle = tinte; ctx.beginPath();
+            if (ctx.roundRect) ctx.roundRect(mx - tw / 2, ly - 20, tw, 20, 10); else ctx.rect(mx - tw / 2, ly - 20, tw, 20);
+            ctx.fill();
+            ctx.fillStyle = cs.getPropertyValue('--surface').trim(); ctx.fillText('Du', mx, ly - 3);
+          }
+        }
       }
       leg.innerHTML = gruppen.filter(function (g) { return g.n > 0; }).map(function (g) {
         return '<li><span class="punkt' + (g.eckig ? ' eckig' : '') + '" style="--farbe:var(' + g.farbe + ')"></span>' + zahl(g.n) + ' ' + g.name + '</li>';
-      }).join('') + (N ? '<li>1 Punkt = 1 Person</li>' : '<li>Noch niemand</li>');
+      }).join('') + (opt.markiere && opt.markiere.kategorie ? '<li><span class="punkt ring"></span>Du</li>' : '') + (N ? '<li>1 Punkt = 1 Person</li>' : '<li>Noch niemand</li>');
       canvas.setAttribute('aria-label', 'Community: ' + gruppen.map(function (g) { return zahl(g.n) + ' ' + g.name; }).join(', '));
     }
     zeichne();
@@ -367,12 +389,18 @@
   var ist = null;
   function holeIst() {
     if (ist) return Promise.resolve(ist);
-    return fetch('https://aqxzxpxrshizlaqyjplw.supabase.co/rest/v1/rpc/finanzierung_ist', {
+    return rpc('finanzierung_ist').then(function (d) { ist = d; return d; });
+  }
+  // Link aus der App: #ich=<code>. Der Code gilt einmal; das Fragment verschwindet sofort aus der Adresse.
+  var meinCode = (location.hash.match(/^#ich=([0-9a-f]{16,})$/) || [])[1];
+  if (meinCode) history.replaceState(null, '', location.pathname + location.search);
+  var meinPunkt = null, meinFehler = false;
+  function rpc(name, body) {
+    return fetch('https://aqxzxpxrshizlaqyjplw.supabase.co/rest/v1/rpc/' + name, {
       method: 'POST',
       headers: { apikey: 'sb_publishable_WqrL7Y7Wm0l9cq4tHQpjAQ_iooAaNe0', 'Content-Type': 'application/json' },
-      body: '{}'
-    }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function (d) { ist = d; return d; });
+      body: JSON.stringify(body || {})
+    }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
   }
   function zeige(ansicht) {
     document.querySelectorAll('.umschalter button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.ansicht === ansicht)); });
@@ -389,14 +417,23 @@
     holeIst().then(function (d) {
       if (!document.querySelector('.umschalter [data-ansicht="ist"][aria-pressed="true"]')) return;
       var aktiv = d.aktiv || 0, alle = d.registriert || 0;
-      hinweis.textContent = 'Stand ' + new Date(d.stand).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' }) + '. Aktiv heißt: in den letzten 30 Tagen etwas angesehen, gepostet, kommentiert oder geliked.';
-      modell(rechner, { aktive: aktiv, inaktive: Math.max(0, alle - aktiv), schwalbe: 0, dachs: 0, storch: 0, klein: true, gegruendet: false }, { gross: true });
+      var satz = 'Stand ' + new Date(d.stand).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' }) + '. Aktiv heißt: in den letzten 30 Tagen etwas angesehen, gepostet, kommentiert oder geliked.';
+      if (meinPunkt && meinPunkt.kategorie) satz += ' Der markierte Punkt bist du.';
+      else if (meinPunkt) satz += ' Testkonten zählen nicht mit, deshalb hast du hier keinen Punkt.';
+      else if (meinFehler) satz += ' Dein Link ist abgelaufen. Öffne die Seite noch einmal über „Dein Konto“ in der App.';
+      hinweis.textContent = satz;
+      modell(rechner, { aktive: aktiv, inaktive: Math.max(0, alle - aktiv), schwalbe: 0, dachs: 0, storch: 0, klein: true, gegruendet: false }, { gross: true, markiere: meinPunkt });
     }).catch(function () {
       hinweis.textContent = 'Die Zahlen aus der Datenbank sind gerade nicht erreichbar.';
     });
   }
   document.querySelectorAll('.umschalter button').forEach(function (b) { b.addEventListener('click', function () { zeige(b.dataset.ansicht); }); });
-  zeige('modell');
+  if (meinCode) {
+    rpc('finanzierung_mein_punkt', { p_code: meinCode })
+      .then(function (d) { if (d) { meinPunkt = d; ist = d; } else meinFehler = true; })
+      .catch(function () { meinFehler = true; })
+      .then(function () { zeige('ist'); });
+  } else zeige('modell');
   var zl = document.getElementById('zeitleiste');
   M.forEach(function (m) {
     var li = el('li');
