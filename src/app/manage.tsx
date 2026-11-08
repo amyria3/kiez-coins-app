@@ -459,13 +459,13 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
           onPress={!isDraft && c.likeCount ? () => router.push({ pathname: '/challenge/[id]/likes', params: { id: c.id } }) : undefined}
         />
         <IconStat
-          icon="comment"
+          icon="comment-filled"
           value={String(c.comments.length)}
           label={c.comments.length === 1 ? 'Kommentar' : 'Kommentare'}
           onPress={isDraft ? undefined : onComments}
         />
         {/* Online-Zeit steht bei offenen Posts schon in der Zeitleiste */}
-        {showTimeBar || isDraft ? null : <IconStat icon="clock" value={formatDurationSince(c.createdAt)} label="online" />}
+        {showTimeBar || isDraft ? null : <IconStat icon="clock-filled" value={formatDurationSince(c.createdAt)} label="online" />}
       </View>
 
       <View style={styles.actions}>
@@ -818,7 +818,7 @@ function TimeBar({ createdAt, deadline }: { createdAt: string; deadline: string 
 }
 
 /** Zahl mit Icon wie unter den Posts im Feed */
-function IconStat({ icon, value, label, onPress }: { icon: 'eye' | 'heart' | 'comment' | 'clock'; value: string; label: string; onPress?: () => void }) {
+function IconStat({ icon, value, label, onPress }: { icon: 'eye' | 'heart' | 'comment-filled' | 'clock-filled'; value: string; label: string; onPress?: () => void }) {
   return (
     <Pressable
       style={({ pressed }) => [styles.iconStat, pressed && onPress ? styles.pressed : null]}
