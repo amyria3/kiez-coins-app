@@ -1270,14 +1270,15 @@
   "Der Passcode hat 7 Zeichen.": "Код доступа состоит из 7 символов.",
   "Neuen Passcode erzeugen?": "Создать новый код доступа?",
   "Neuen Passcode erzeugen": "Создать новый код доступа",
-  "Der bisherige Link, QR-Code und Passcode funktionieren danach nicht mehr.": "Текущие ссылка, QR-код и код доступа перестанут работать.",
-  "Noch niemand. Lade Leute per Link, QR-Code oder Passcode ein.": "Пока никого. Пригласи людей по ссылке, QR-коду или коду доступа.",
   "Die App erstellt für Dich einen Passcode und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "Приложение создаст для тебя код доступа и ссылку-приглашение. Так ещё {anzahl} человек смогут вступить в твою группу.",
-  "Instant-Einladung per QR-Code": "Мгновенное приглашение по QR-коду",
-  "Wer den QR-Code mit der Kamera scannt, kommt direkt zum Beitreten.": "Кто сканирует QR-код камерой, сразу переходит к вступлению.",
-  "QR-Code mit dem Einladungslink der Gruppe": "QR-код со ссылкой-приглашением в группу",
   "Einladung per Link und Passcode": "Приглашение по ссылке и коду доступа",
   "Oder gib in der App unter „Freundschaften“ diesen Passcode ein:": "Или введи этот код доступа в приложении в разделе «Дружба»:",
   "Oder in der App unter „Gruppen“ mit diesem Passcode beitreten:": "Или вступи в приложении в разделе «Группы» с этим кодом доступа:",
-  "Diesen Passcode gibt es nicht. Prüfe ihn noch einmal.": "Такого кода доступа нет. Проверь его ещё раз."
+  "Diesen Passcode gibt es nicht. Prüfe ihn noch einmal.": "Такого кода доступа нет. Проверь его ещё раз.",
+  "Der bisherige Link, die Instant-Verbindung und der Passcode funktionieren danach nicht mehr.": "Текущие ссылка, мгновенное соединение и код доступа перестанут работать.",
+  "Noch niemand. Lade Leute per Instant-Verbindung, Link oder Passcode ein.": "Пока никого. Пригласи людей мгновенным соединением, по ссылке или коду доступа.",
+  "Instant-Verbindung zum Scannen": "Мгновенное соединение для сканирования",
+  "Instant-Einladung": "Мгновенное приглашение",
+  "Wer den Code mit der Kamera scannt, kommt direkt zum Beitreten.": "Кто сканирует код камерой, сразу переходит к вступлению.",
+  "Instant-Einladung zum Scannen": "Мгновенное приглашение для сканирования"
 }

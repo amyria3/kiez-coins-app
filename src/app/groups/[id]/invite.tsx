@@ -8,7 +8,7 @@ import { useGoBack } from '../../../lib/goBack';
 
 /**
  * Route `groups/[id]/invite`: „Freunde und Familie einladen“ aus dem leeren Gruppenfeed (Daria, 08.11.2026).
- * Instant-Einladung per QR-Code oder Einladung per Link und Passcode.
+ * Instant-Einladung oder Einladung per Link und Passcode.
  */
 export default function GroupInviteScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

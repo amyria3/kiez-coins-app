@@ -5,10 +5,11 @@ import { radius, space } from '../theme/tokens';
 import { t } from '../data/texts';
 
 /**
- * QR-Code mit einem Einladungslink (Freundschaft oder Gruppe). Scanner lesen dunkle Module auf hellem Grund
+ * QR-Code mit einem Einladungslink (Freundschaft oder Gruppe). In der App heißt er immer „Instant-…“ (Instant-Verbindung,
+ * Instant-Einladung, Instant-Download; Daria, 08.11.2026), nie „QR-Code“. Scanner lesen dunkle Module auf hellem Grund
  * am sichersten, deshalb bleibt der Code in beiden Looks schwarz auf weiß.
  */
-export function InviteQr({ value, label = t('QR-Code mit Deinem Einladungslink'), size = 200 }: { value: string; label?: string; size?: number }) {
+export function InviteQr({ value, label = t('Instant-Verbindung zum Scannen'), size = 200 }: { value: string; label?: string; size?: number }) {
   return (
     <View style={styles.tile} accessibilityRole="image" accessibilityLabel={label}>
       <QRCode value={value} size={size} color="#000000" backgroundColor="#FFFFFF" ecl="M" />

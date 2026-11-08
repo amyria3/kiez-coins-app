@@ -51,7 +51,7 @@ export default function Friends() {
   }, [mode]);
 
   const renewCode = () =>
-    Alert.alert('Neuen Passcode erzeugen?', 'Der bisherige Link, QR-Code und Passcode funktionieren danach nicht mehr.', [
+    Alert.alert('Neuen Passcode erzeugen?', 'Der bisherige Link, die Instant-Verbindung und der Passcode funktionieren danach nicht mehr.', [
       { text: 'Abbrechen', style: 'cancel' },
       {
         text: 'Neu erzeugen',
@@ -157,7 +157,7 @@ export default function Friends() {
           {lists.friends.length ? (
             lists.friends.map((user) => <AuthorRow key={user.id} user={user} location={user.location} onPress={() => open(user)} />)
           ) : (
-            <Text style={styles.secondary}>Noch niemand. Lade Leute per Link, QR-Code oder Passcode ein.</Text>
+            <Text style={styles.secondary}>Noch niemand. Lade Leute per Instant-Verbindung, Link oder Passcode ein.</Text>
           )}
         </FieldGroup>
       ) : null}
@@ -165,7 +165,7 @@ export default function Friends() {
       {inviteCode ? (
         <FieldGroup label="Einladen">
           <Text style={styles.secondary}>Wer Deine Einladung annimmt, ist sofort mit Dir befreundet.</Text>
-          <InviteQr value={friendInviteLink(inviteCode)} />
+          <InviteQr value={friendInviteLink(inviteCode)} label={t('Instant-Verbindung zum Scannen')} />
           <CopyField label="Einladungslink" value={friendInviteLink(inviteCode)} />
           <CopyField label="Passcode" value={inviteCode} />
           <Button label="Einladung teilen" icon="friends" onPress={() => shareText(friendInviteMessage(inviteCode))} />

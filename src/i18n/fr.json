@@ -1285,14 +1285,15 @@
   "Der Passcode hat 7 Zeichen.": "Le code d’accès a 7 caractères.",
   "Neuen Passcode erzeugen?": "Créer un nouveau code d’accès ?",
   "Neuen Passcode erzeugen": "Créer un nouveau code d’accès",
-  "Der bisherige Link, QR-Code und Passcode funktionieren danach nicht mehr.": "Le lien, le QR code et le code d’accès actuels ne fonctionneront plus.",
-  "Noch niemand. Lade Leute per Link, QR-Code oder Passcode ein.": "Personne pour l’instant. Invite des gens par lien, QR code ou code d’accès.",
   "Die App erstellt für Dich einen Passcode und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.": "L’app crée pour toi un code d’accès et un lien d’invitation. Ainsi, {anzahl} autres personnes peuvent rejoindre ton groupe.",
-  "Instant-Einladung per QR-Code": "Invitation instantanée par QR code",
-  "Wer den QR-Code mit der Kamera scannt, kommt direkt zum Beitreten.": "En scannant le QR code avec l’appareil photo, on arrive directement à l’adhésion.",
-  "QR-Code mit dem Einladungslink der Gruppe": "QR code avec le lien d’invitation du groupe",
   "Einladung per Link und Passcode": "Invitation par lien et code d’accès",
   "Oder gib in der App unter „Freundschaften“ diesen Passcode ein:": "Ou saisis ce code d’accès dans l’app sous « Amitiés » :",
   "Oder in der App unter „Gruppen“ mit diesem Passcode beitreten:": "Ou rejoins dans l’app sous « Groupes » avec ce code d’accès :",
-  "Diesen Passcode gibt es nicht. Prüfe ihn noch einmal.": "Ce code d’accès n’existe pas. Vérifie-le encore une fois."
+  "Diesen Passcode gibt es nicht. Prüfe ihn noch einmal.": "Ce code d’accès n’existe pas. Vérifie-le encore une fois.",
+  "Der bisherige Link, die Instant-Verbindung und der Passcode funktionieren danach nicht mehr.": "Le lien, la connexion instantanée et le code d’accès actuels ne fonctionneront plus.",
+  "Noch niemand. Lade Leute per Instant-Verbindung, Link oder Passcode ein.": "Personne pour l’instant. Invite des gens par connexion instantanée, lien ou code d’accès.",
+  "Instant-Verbindung zum Scannen": "Connexion instantanée à scanner",
+  "Instant-Einladung": "Invitation instantanée",
+  "Wer den Code mit der Kamera scannt, kommt direkt zum Beitreten.": "En scannant le code avec l’appareil photo, on arrive directement à l’adhésion.",
+  "Instant-Einladung zum Scannen": "Invitation instantanée à scanner"
 }

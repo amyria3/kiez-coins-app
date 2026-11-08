@@ -623,7 +623,7 @@ ${woerter[L] ? `<script>window.KC_T = ${JSON.stringify(woerter[L]).replace(/</g,
       var av = buehne.querySelectorAll('.mehr-avatar');
       if (n > av.length) { mehr.freunde = 0; av.forEach(function (a) { a.classList.remove('is-freund'); }); status.textContent = '${t('Tipp und füg Lena hinzu.', 'Tap to add Lena.')}'; return; }
       av[n - 1].classList.add('is-freund');
-      status.textContent = n < av.length ? '${t('{a} ist jetzt dabei. Tipp für {b}.', '{a} is in. Tap for {b}.')}'.replace('{a}', freunde[n - 1]).replace('{b}', freunde[n]) : '${t('Einfach vernetzen mit QR-Code oder Link.', 'Connect easily with a QR code or link.')}';
+      status.textContent = n < av.length ? '${t('{a} ist jetzt dabei. Tipp für {b}.', '{a} is in. Tap for {b}.')}'.replace('{a}', freunde[n - 1]).replace('{b}', freunde[n]) : '${t('Einfach vernetzen per Instant-Verbindung oder Link.', 'Connect easily by instant connection or link.')}';
     } else {
       var paar = chat[(n - 1) % chat.length];
       blase(buehne, paar[0], true);
@@ -887,7 +887,7 @@ const einladung = `<!doctype html>
 // ---------- /laden: ein Link für alle Geräte (Daria, 29.10.2026) ----------
 // Erkennt das Gerät: Android startet den Download der APK sofort, das iPhone zeigt die Web-App und wie man sie auf
 // den Home-Bildschirm legt. In Instagram, Facebook & Co. erst der Hinweis, die Seite in Safari zu öffnen.
-// Am Computer: QR-Code zum Scannen mit dem Telefon. Ohne JavaScript stehen alle Wege untereinander.
+// Am Computer: Instant-Download (QR-Code) zum Scannen mit dem Telefon. Ohne JavaScript stehen alle Wege untereinander.
 const ladenUrl = 'https://kiezcoins.de/laden';
 const ladenQr = await QRCode.toString(ladenUrl, { type: 'svg', margin: 1, color: { dark: '#1F2123', light: '#FFFFFF' } });
 const teilenSymbol = '<svg class="teilen-symbol" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
@@ -972,9 +972,9 @@ const ladenSeite = `<!doctype html>
   </div>
 
   <div class="card" data-geraet="computer">
-    <h3>Mit dem Telefon scannen</h3>
+    <h3>Instant-Download</h3>
     <p>Öffne die Kamera Deines Telefons und richte sie auf den Code. Das Telefon zeigt dann den passenden Weg.</p>
-    <div class="qr" role="img" aria-label="QR-Code zu ${ladenUrl}">${ladenQr}</div>
+    <div class="qr" role="img" aria-label="Instant-Download: ${ladenUrl}">${ladenQr}</div>
     <p class="klein">Oder schick Dir diesen Link: <a href="/laden">${ladenUrl.replace('https://', '')}</a></p>
     <a class="button button-zweit" href="/app/">Hier am Computer im Browser ausprobieren</a>
   </div>
@@ -1067,7 +1067,7 @@ const qrSeite = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#FFFFFF">
-<title>KiezCoins QR-Codes</title>
+<title>KiezCoins Instant-Verbindung</title>
 <link rel="icon" href="/favicon.png">
 <link rel="preload" href="/fonts/InterTight_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
 <style>
@@ -1095,7 +1095,7 @@ const qrSeite = `<!doctype html>
 </head>
 <body>
 <div class="codes" id="codes">
-${qrCodes.map((c) => `  <div class="code"><h1>${c.title}</h1><div class="q" role="img" aria-label="QR-Code zu ${c.url}">${c.svg}</div><p>${c.url.replace('https://', '')}</p></div>`).join('\n')}
+${qrCodes.map((c) => `  <div class="code"><h1>${c.title}</h1><div class="q" role="img" aria-label="Instant-Verbindung: ${c.url}">${c.svg}</div><p>${c.url.replace('https://', '')}</p></div>`).join('\n')}
 </div>
 <button type="button" class="knopf" id="vollbild">Vollbild</button>
 <p class="an" id="an" aria-live="polite"></p>
