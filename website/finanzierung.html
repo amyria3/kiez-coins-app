@@ -206,6 +206,10 @@
       dev: plus * A.personal, com: plus * (1 - A.personal) };
   }
 
+  // Fester Zufall je Zahl: gleiche Werte ergeben immer dasselbe Bild
+  function zufall(n) { var s = Math.sin(n * 12.9898 + 78.233) * 43758.5453; return s - Math.floor(s); }
+  // Knopf aus Darias Icon „Switch“, auf -1 … 1 normiert
+  var KNOPF_PFAD = 'M -.708 -.591 L -.669 -.623 L -.666 -.625 C -.608 -.671 -.607 -.672 -.553 -.723 C -.534 -.737 -.457 -.794 -.291 -.861 C -.159 -.901 -.154 -.902 .057 -.934 L .082 -.937 L .082 -.937 C .111 -.939 .248 -.945 .404 -.897 C .414 -.894 .425 -.891 .435 -.886 C .446 -.883 .458 -.879 .468 -.874 C .481 -.869 .493 -.864 .505 -.858 C .509 -.856 .514 -.854 .518 -.853 C .542 -.843 .573 -.833 .664 -.757 C .815 -.633 .820 -.625 .871 -.549 L .879 -.537 L .907 -.498 L .913 -.485 C .940 -.434 .943 -.430 .965 -.368 L .986 -.295 C .987 -.288 1.000 -.068 .999 -.055 C .998 -.031 .997 -.012 .996 .003 C .994 .057 .994 .075 .971 .154 C .945 .245 .934 .266 .906 .318 L .906 .318 C .897 .336 .885 .358 .871 .386 C .804 .494 .770 .521 .731 .552 C .713 .567 .693 .583 .667 .609 C .612 .665 .585 .681 .550 .703 C .527 .717 .501 .733 .460 .764 C .378 .828 .356 .832 .317 .839 C .307 .841 .295 .843 .282 .847 C .045 .935 -.088 .945 -.324 .918 C -.385 .904 -.427 .897 -.460 .892 C -.529 .881 -.559 .876 -.636 .830 C -.655 .819 -.670 .812 -.681 .805 L -.681 .805 C -.713 .787 -.727 .780 -.774 .744 C -.815 .711 -.828 .693 -.835 .682 C -.838 .678 -.840 .675 -.842 .672 L -.843 .672 C -.848 .662 -.874 .620 -.900 .580 C -.996 .360 -1.000 .349 -.984 .061 C -.978 .022 -.975 -.005 -.972 -.025 C -.966 -.070 -.964 -.080 -.955 -.116 C -.953 -.127 -.949 -.138 -.945 -.149 C -.938 -.172 -.928 -.199 -.920 -.252 C -.912 -.302 -.905 -.316 -.892 -.342 C -.885 -.353 -.878 -.368 -.868 -.389 C -.858 -.411 -.852 -.428 -.847 -.443 C -.833 -.484 -.826 -.501 -.766 -.542 C -.759 -.548 -.756 -.550 -.739 -.565 L -.708 -.591 Z';
   var euro = function (n) { return n.toLocaleString('de-DE', { maximumFractionDigits: 0 }) + ' €'; };
   var zahl = function (n) { return n.toLocaleString('de-DE'); };
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
@@ -274,8 +278,10 @@
       punkte(r);
     }
 
-    // Punkte: jede Person ein Punkt, als Scheibe angeordnet. In der Mitte die bezahlten Accounts
-    // als drei Gruppen, darum die aktiven, außen die inaktiven Nutzer:innen.
+    // Punkte: jede Person ein Punkt, als Scheibe. In der Mitte die bezahlten Accounts in drei Gruppen,
+    // darum die aktiven, außen die inaktiven Nutzer:innen. Form: der Knopf aus Darias Icon „Switch“,
+    // jeder Punkt leicht gedreht und verzogen, etwas aus dem Raster verschoben und mit eigenem Takt pulsierend.
+    var bild = null;
     function punkte() {
       var bezahlt = [
         { n: v.schwalbe, farbe: '--schwalbe', name: 'Schwalbe' },
@@ -290,26 +296,21 @@
       var AKTIV = 3, INAKTIV = 4;
       var cs = getComputedStyle(box);
       var farben = gruppen.map(function (g) { return cs.getPropertyValue(g.farbe).trim(); });
-      var dpr = window.devicePixelRatio || 1;
       var w = canvas.clientWidth;
       var hgt = Math.min(w, opt.interaktiv || opt.gross ? 460 : 320);
       canvas.style.height = hgt + 'px';
-      canvas.width = w * dpr; canvas.height = hgt * dpr;
-      var ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, hgt);
 
       var zahlBezahlt = bezahlt.reduce(function (s, g) { return s + g.n; }, 0);
       var mitGruppen = bezahlt.filter(function (g) { return g.n > 0; }).length;
-      // schmale Lücken aus aktiven Punkten trennen die Gruppen in der Mitte
       var luecke = mitGruppen > 1 ? Math.round(Math.sqrt(zahlBezahlt) * 0.9) : 0;
       if (luecke * mitGruppen > aktivFrei) luecke = Math.floor(aktivFrei / Math.max(1, mitGruppen));
       var kern = zahlBezahlt + luecke * mitGruppen;
       var N = zahlBezahlt + aktivFrei + v.inaktive;
       var art = new Uint8Array(N);
+      var gold = Math.PI * (3 - Math.sqrt(5));
       if (kern) {
-        // Kern nach Winkel ordnen und in Tortenstücke teilen: Lücke, Gruppe, Lücke, Gruppe …
-        var gold = Math.PI * (3 - Math.sqrt(5));
         var idx = []; for (var i = 0; i < kern; i++) idx.push(i);
-        var winkel = function (k) { var a = (k * gold + Math.PI / 2) % (2 * Math.PI); return a; };
+        var winkel = function (k) { return (k * gold + Math.PI / 2) % (2 * Math.PI); };
         idx.sort(function (a, b) { return winkel(a) - winkel(b); });
         var pos = 0;
         bezahlt.forEach(function (g, gi) {
@@ -321,48 +322,117 @@
       var restAktiv = aktivFrei - luecke * mitGruppen;
       for (i = kern; i < N; i++) art[i] = (i - kern) < restAktiv ? AKTIV : INAKTIV;
 
-      if (N) {
-        // wenige Personen: Punkte bleiben klein, die Scheibe wird kleiner
-        var R = Math.min(Math.min(w, hgt) / 2 - 2, 9 * Math.sqrt(N / Math.PI) + 4), cx = w / 2, cy = hgt / 2;
-        var abstand = R * Math.sqrt(Math.PI / N);
-        var r = abstand < 2.5 ? abstand * 0.5 : abstand * 0.38;
-        var gold2 = Math.PI * (3 - Math.sqrt(5));
-        var pfade = gruppen.map(function () { return new Path2D(); });
-        for (i = 0; i < N; i++) {
-          var rr = R * Math.sqrt((i + 0.5) / N), a = i * gold2;
-          var x = cx + rr * Math.cos(a), y = cy + rr * Math.sin(a);
-          var p = pfade[art[i]];
-          if (gruppen[art[i]].eckig || r < 1.2) p.rect(x - r, y - r, r * 2, r * 2);
-          else { p.moveTo(x + r, y); p.arc(x, y, r, 0, Math.PI * 2); }
-        }
-        [INAKTIV, AKTIV, 0, 1, 2].forEach(function (gi) { ctx.fillStyle = farben[gi]; ctx.fill(pfade[gi]); });
-        // Eigener Punkt (nur über den Link aus der App): k-ter Punkt der eigenen Gruppe, mit Ring und „Du“
-        var mk = opt.markiere;
-        var gruppeIdx = mk && { schwalbe: 0, dachs: 1, storch: 2, aktiv: AKTIV, inaktiv: INAKTIV }[mk.kategorie];
-        if (gruppeIdx != null) {
-          var zaehler = -1, ziel = -1;
-          for (i = 0; i < N; i++) if (art[i] === gruppeIdx && ++zaehler === mk.rang) { ziel = i; break; }
-          if (ziel >= 0) {
-            var mr = R * Math.sqrt((ziel + 0.5) / N), ma = ziel * gold2;
-            var mx = cx + mr * Math.cos(ma), my = cy + mr * Math.sin(ma);
-            var tinte = cs.getPropertyValue('--text').trim();
-            ctx.fillStyle = tinte; ctx.beginPath(); ctx.arc(mx, my, Math.max(r, 2.5), 0, Math.PI * 2); ctx.fill();
-            ctx.strokeStyle = tinte; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(mx, my, Math.max(r * 2.6, 8), 0, Math.PI * 2); ctx.stroke();
-            ctx.font = '600 13px Inter, system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-            var ly = my - Math.max(r * 2.6, 8) - 6;
-            var tw = ctx.measureText('Du').width + 14;
-            ctx.fillStyle = tinte; ctx.beginPath();
-            if (ctx.roundRect) ctx.roundRect(mx - tw / 2, ly - 20, tw, 20, 10); else ctx.rect(mx - tw / 2, ly - 20, tw, 20);
-            ctx.fill();
-            ctx.fillStyle = cs.getPropertyValue('--surface').trim(); ctx.fillText('Du', mx, ly - 3);
-          }
-        }
+      var R = Math.min(Math.min(w, hgt) / 2 - 6, 9 * Math.sqrt(N / Math.PI) + 4);
+      var abstand = N ? R * Math.sqrt(Math.PI / N) : 0;
+      var r = abstand < 2.5 ? abstand * 0.5 : abstand * 0.4;
+      // Grundpositionen: Sonnenblumen-Spirale, jeder Punkt etwas verschoben (fester Zufall je Punkt)
+      var x = new Float32Array(N), y = new Float32Array(N), takt = new Float32Array(N * 4);
+      for (i = 0; i < N; i++) {
+        var z1 = zufall(i * 4 + 1), z2 = zufall(i * 4 + 2);
+        var rr = R * Math.sqrt((i + 0.5) / N) + (z1 - 0.5) * abstand * 0.45;
+        var a = i * gold + (z2 - 0.5) * (abstand / Math.max(rr, abstand)) * 0.9;
+        x[i] = w / 2 + rr * Math.cos(a); y[i] = hgt / 2 + rr * Math.sin(a);
+        takt[i * 4] = 0.55 + zufall(i * 4 + 3) * 0.9;            // Geschwindigkeit
+        takt[i * 4 + 1] = zufall(i * 4 + 4) * Math.PI * 2;       // Phase
+        takt[i * 4 + 2] = zufall(i * 4 + 5) * Math.PI * 2;       // Drehung
+        takt[i * 4 + 3] = 0.88 + zufall(i * 4 + 6) * 0.24;       // Verzug
       }
+      // Eigener Punkt: k-ter Punkt der eigenen Gruppe
+      var ziel = -1, mk = opt.markiere;
+      var gruppeIdx = mk && { schwalbe: 0, dachs: 1, storch: 2, aktiv: AKTIV, inaktiv: INAKTIV }[mk.kategorie];
+      if (gruppeIdx != null) {
+        var zaehler = -1;
+        for (i = 0; i < N; i++) if (art[i] === gruppeIdx && ++zaehler === mk.rang) { ziel = i; break; }
+      }
+      var start = bild && bild.ziel === ziel ? bild.start : performance.now();
+      bild = { N: N, art: art, x: x, y: y, takt: takt, r: r, abstand: abstand, w: w, h: hgt, farben: farben,
+        gruppen: gruppen, ziel: ziel, start: start, tinte: cs.getPropertyValue('--text').trim(), papier: cs.getPropertyValue('--surface').trim() };
+      var dpr = window.devicePixelRatio || 1;
+      canvas.width = w * dpr; canvas.height = hgt * dpr;
+      male(performance.now());
+      starteBewegung();
+
       leg.innerHTML = gruppen.filter(function (g) { return g.n > 0; }).map(function (g) {
         return '<li><span class="punkt' + (g.eckig ? ' eckig' : '') + '" style="--farbe:var(' + g.farbe + ')"></span>' + zahl(g.n) + ' ' + g.name + '</li>';
-      }).join('') + (opt.markiere && opt.markiere.kategorie ? '<li><span class="punkt ring"></span>Du</li>' : '') + (N ? '<li>1 Punkt = 1 Person</li>' : '<li>Noch niemand</li>');
+      }).join('') + (ziel >= 0 ? '<li><span class="punkt ring"></span>Du</li>' : '') + (N ? '<li>1 Punkt = 1 Person</li>' : '<li>Noch niemand</li>');
       canvas.setAttribute('aria-label', 'Community: ' + gruppen.map(function (g) { return zahl(g.n) + ' ' + g.name; }).join(', '));
     }
+
+    // Ein Bild zum Zeitpunkt t. Kleine Mengen pulsieren; der eigene Punkt wächst, die Nachbarn weichen aus.
+    var KNOPF = new Path2D(KNOPF_PFAD);
+    function male(t) {
+      var b = bild; if (!b) return;
+      var ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, b.w, b.h);
+      if (!b.N) return;
+      var lebt = bewegt(b), s = (t - b.start) / 1000;
+      // Wachsen mit leichtem Nachschwingen
+      var p = b.ziel >= 0 ? (lebt ? 1 - Math.exp(-3.2 * s) * Math.cos(5 * s) : 1) : 0;
+      var gross = Math.max(b.r * 2.4, 7), plus = (gross - b.r) * p;
+      var zx = b.ziel >= 0 ? b.x[b.ziel] : 0, zy = b.ziel >= 0 ? b.y[b.ziel] : 0;
+      var weite = Math.max(b.abstand * 3.2, gross * 2.5);
+      var form = b.r >= 1.6;
+      [4, 3, 0, 1, 2].forEach(function (gi) {
+        ctx.fillStyle = b.farben[gi];
+        if (!form) ctx.beginPath();
+        for (var i = 0; i < b.N; i++) {
+          if (b.art[i] !== gi || i === b.ziel) continue;
+          var px = b.x[i], py = b.y[i], k = i * 4;
+          if (plus > 0) {
+            var dx = px - zx, dy = py - zy, d = Math.sqrt(dx * dx + dy * dy) || 1;
+            var schub = plus * 1.15 * Math.exp(-(d * d) / (weite * weite));
+            px += dx / d * schub; py += dy / d * schub;
+          }
+          var puls = 1;
+          if (lebt) {
+            var ph = s * b.takt[k] + b.takt[k + 1];
+            puls = 1 + 0.08 * Math.sin(ph) * Math.sin(ph * 0.37 + b.takt[k + 2]);
+            px += Math.sin(ph * 0.53 + b.takt[k + 2]) * b.abstand * 0.04;
+            py += Math.cos(ph * 0.47 + b.takt[k + 1]) * b.abstand * 0.04;
+          }
+          var rr = b.r * puls;
+          if (!form) { ctx.rect(px - rr, py - rr, rr * 2, rr * 2); continue; }
+          if (b.gruppen[gi].eckig) { ctx.save(); ctx.translate(px, py); ctx.rotate(b.takt[k + 2] * 0.15); ctx.fillRect(-rr * 0.9, -rr * 0.9, rr * 1.8, rr * 1.8); ctx.restore(); continue; }
+          var c = Math.cos(b.takt[k + 2]), sn = Math.sin(b.takt[k + 2]), sx = rr * b.takt[k + 3], sy = rr * (2 - b.takt[k + 3]);
+          ctx.setTransform(dpr * c * sx, dpr * sn * sx, -dpr * sn * sy, dpr * c * sy, dpr * px, dpr * py);
+          ctx.fill(KNOPF);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        if (!form) ctx.fill();
+      });
+      if (b.ziel >= 0) {
+        var gr = b.r + plus, kz = b.ziel * 4;
+        var c2 = Math.cos(b.takt[kz + 2]), s2 = Math.sin(b.takt[kz + 2]);
+        ctx.fillStyle = b.tinte;
+        ctx.setTransform(dpr * c2 * gr, dpr * s2 * gr, -dpr * s2 * gr, dpr * c2 * gr, dpr * zx, dpr * zy);
+        ctx.fill(KNOPF);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        if (p > 0.3) {
+          ctx.globalAlpha = Math.min(1, (p - 0.3) / 0.4);
+          ctx.font = '600 13px Inter, system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+          var ly = zy - gr - 6, tw = ctx.measureText('Du').width + 14;
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(zx - tw / 2, ly - 20, tw, 20, 10); else ctx.rect(zx - tw / 2, ly - 20, tw, 20);
+          ctx.fill();
+          ctx.fillStyle = b.papier; ctx.fillText('Du', zx, ly - 3);
+          ctx.globalAlpha = 1;
+        }
+      }
+    }
+    // Bewegung nur bei bis zu 6.000 Punkten, nur sichtbar und nicht bei „Bewegung reduzieren“
+    var ruhig = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var sichtbar = false, laeuft = false, zuletzt = 0;
+    function bewegt(b) { return !ruhig && b.N <= 6000; }
+    function starteBewegung() {
+      if (laeuft || !bild || !bewegt(bild) || !sichtbar) return;
+      laeuft = true;
+      requestAnimationFrame(function schritt(t) {
+        if (!canvas.isConnected || !sichtbar || !bild || !bewegt(bild)) { laeuft = false; return; }
+        if (t - zuletzt > 32) { zuletzt = t; male(t); }
+        requestAnimationFrame(schritt);
+      });
+    }
+    new IntersectionObserver(function (e) { sichtbar = e[0].isIntersecting; if (sichtbar) starteBewegung(); }).observe(canvas);
     zeichne();
     var breite = 0;
     new ResizeObserver(function () { if (canvas.clientWidth !== breite) { breite = canvas.clientWidth; punkte(); } }).observe(canvas);
