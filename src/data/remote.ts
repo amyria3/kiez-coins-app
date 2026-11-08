@@ -448,6 +448,38 @@ async function loadLikeCounts(ids: string[]): Promise<Map<string, number>> {
   return new Map((data as { challenge_id: string; n: number }[]).map((r) => [r.challenge_id, Number(r.n)]));
 }
 
+type CommentLikes = Map<string, { n: number; mine: boolean }>;
+
+/**
+ * Likes je Kommentar (Tabelle comment_likes, Migration 20261109000100, Daria 2026-11-09).
+ * Ohne Migration `null`: Die Kommentare zeigen dann kein Herz. Likes blockierter Personen zählen nicht.
+ */
+async function loadCommentLikes(commentIds: string[], userId: string, blocked: Set<string>): Promise<CommentLikes | null> {
+  const likes: CommentLikes = new Map();
+  for (let i = 0; i < commentIds.length; i += 150) {
+    const { data, error } = await supabase
+      .from('comment_likes')
+      .select('comment_id, user_id')
+      .in('comment_id', commentIds.slice(i, i + 150));
+    if (error) return null;
+    for (const r of (data ?? []) as { comment_id: string; user_id: string }[]) {
+      if (blocked.has(r.user_id)) continue;
+      const l = likes.get(r.comment_id) ?? { n: 0, mine: false };
+      likes.set(r.comment_id, { n: l.n + 1, mine: l.mine || r.user_id === userId });
+    }
+  }
+  return likes;
+}
+
+/** Hängt Anzahl und eigenes Like an die Kommentare. Ohne Migration bleiben sie ohne. */
+function withCommentLikes(challenge: Challenge, likes: CommentLikes | null): Challenge {
+  if (!likes) return challenge;
+  return {
+    ...challenge,
+    comments: challenge.comments.map((c) => ({ ...c, likeCount: likes.get(c.id)?.n ?? 0, likedByMe: likes.get(c.id)?.mine ?? false })),
+  };
+}
+
 /**
  * Wer einen Post geliked hat, neueste zuerst (Funktion challenge_likers, Migration 20261105000300).
  * Ohne Migration `null`, damit die App sagen kann, dass die Liste noch nicht geht.
@@ -484,10 +516,11 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
   const names = new Map((namesRes.data ?? []).map((n) => [n.challenge_id as string, n.name as string]));
   const shares = new Map<string, ShareRow[]>();
   for (const s of (sharesRes.data ?? []) as ShareRow[]) shares.set(s.challenge_id, [...(shares.get(s.challenge_id) ?? []), s]);
-  const [participants, payoutLines, likeCounts] = await Promise.all([
+  const [participants, payoutLines, likeCounts, commentLikes] = await Promise.all([
     loadParticipants(rows.filter((r) => r.type === 'individual').map((r) => r.id)),
     loadPayoutLines(rows.filter((r) => r.bounty_amount && PAYMENT_STATUSES.has(r.status)).map((r) => r.id)),
     loadLikeCounts(rows.map((r) => r.id)),
+    loadCommentLikes(rows.flatMap((r) => (r.comments ?? []).map((c) => c.id)), userId, blocked),
   ]);
 
   const ids = new Set<string>([userId]);
@@ -511,14 +544,14 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
   return {
     users,
     challenges: rows.map((r) => ({
-      ...toChallenge(r, {
+      ...withCommentLikes(toChallenge(r, {
         liked: liked.has(r.id),
         operationName: names.get(r.id),
         shares: shares.get(r.id),
         participants: participants.get(r.id),
         payouts: payoutLines.get(r.id),
         userId,
-      }),
+      }), commentLikes),
       ...(r.author_id === userId && views ? { views: views.get(r.id) ?? 0 } : {}),
       ...(likeCounts.size ? { likeCount: likeCounts.get(r.id) ?? 0 } : {}),
     })),
@@ -544,7 +577,8 @@ export async function loadChallenge(
   ]);
   for (const res of [rowRes, likeRes, nameRes, shareRes]) check(res);
   if (!rowRes.data) return { challenge: null, users: [] };
-  const [row] = hideBlocked([rowRes.data as unknown as ChallengeRow], await loadBlockedIds());
+  const blocked = await loadBlockedIds();
+  const [row] = hideBlocked([rowRes.data as unknown as ChallengeRow], blocked);
   if (!row) return { challenge: null, users: [] };
   const participants = row.type === 'individual' ? (await loadParticipants([row.id])).get(row.id) : undefined;
   const payouts =
@@ -561,17 +595,20 @@ export async function loadChallenge(
         await selectProfiles([...ids]),
       )
     : { data: [] };
-  const likeCounts = await loadLikeCounts([row.id]);
+  const [likeCounts, commentLikes] = await Promise.all([
+    loadLikeCounts([row.id]),
+    loadCommentLikes(row.comments.map((c) => c.id), userId, blocked),
+  ]);
   return {
     challenge: {
-      ...toChallenge(row, {
+      ...withCommentLikes(toChallenge(row, {
         liked: !!likeRes.data,
         operationName: (nameRes.data?.name as string | undefined) ?? undefined,
         shares: (shareRes.data as ShareRow[] | null) ?? undefined,
         participants,
         payouts,
         userId,
-      }),
+      }), commentLikes),
       ...(likeCounts.size ? { likeCount: likeCounts.get(row.id) ?? 0 } : {}),
     },
     users: ((profilesRes.data ?? []) as ProfileRow[]).map((p) => toUser(p)),
@@ -1304,6 +1341,15 @@ export async function setLike(challengeId: string, userId: string, liked: boolea
     if ((res.error as { code?: string } | null)?.code === '23505') return;
     check(res);
   } else check(await supabase.from('likes').delete().eq('challenge_id', challengeId).eq('user_id', userId));
+}
+
+/** Kommentar liken oder Like zurücknehmen (Migration 20261109000100) */
+export async function setCommentLike(commentId: string, userId: string, liked: boolean) {
+  if (liked) {
+    const res = await supabase.from('comment_likes').insert({ comment_id: commentId });
+    if ((res.error as { code?: string } | null)?.code === '23505') return;
+    check(res);
+  } else check(await supabase.from('comment_likes').delete().eq('comment_id', commentId).eq('user_id', userId));
 }
 
 export async function sharePayout(challengeId: string, share: PayoutShare, userId: string) {

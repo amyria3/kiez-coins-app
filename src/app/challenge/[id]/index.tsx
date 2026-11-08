@@ -580,6 +580,7 @@ export default function ChallengeDetail() {
                 : 'Lege in Deinem Konto Deinen Kiez fest, dann kannst Du mitschreiben.'
           }
           onAuthorPress={openProfile}
+          onLike={(comment) => dispatch({ type: 'toggleCommentLike', id: challenge.id, commentId: comment.id })}
           onReport={(comment) =>
             router.push({ pathname: '/user/[id]/report', params: { id: comment.authorId, challengeId: challenge.id } })
           }
