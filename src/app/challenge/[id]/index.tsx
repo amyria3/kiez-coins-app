@@ -494,7 +494,7 @@ export default function ChallengeDetail() {
         </>
       ) : null}
       {baDuration !== undefined ? (
-        <InfoRow icon="clock" value={t('In {duration} geschafft', { duration: formatHoursMinutes(baDuration) })} />
+        <InfoRow icon="clock-filled" value={t('In {duration} geschafft', { duration: formatHoursMinutes(baDuration) })} />
       ) : null}
       {!isAuthor && mine?.status === 'requested' ? (
         <Notice message={tAbout(author, 'Deine Anfrage ist bei {firstName}. Du bekommst Bescheid, sobald {firstName} antwortet.', { firstName: author.firstName })} />

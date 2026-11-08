@@ -46,6 +46,10 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Später: einfache Animationen für die Erinnerungen.
 - [ ] Später: allgemein Animationen, ggf. mit dem Kater, der erklärt, was man machen kann oder soll. Ob es das braucht und in welcher Form, klärt der qualitative Test am 07.11.2026.
 
+## Icons (Daria, 09.11.2026)
+
+- [ ] Icon für Freundschaften neu zeichnen: zwei Katzen sitzen nebeneinander, Sicht von oben. Ersetzt `friends` (zwei Gesichter) im Kiez-Look. Im Fashionable Look bleibt `handshake`.
+
 ## Meine Posts (Daria, 07.11.2026)
 
 - [ ] In „Meine Posts“ (Archiv) per Wischen bearbeiten: nach links wischen löscht den Post, nach rechts wischen öffnet ihn zum Bearbeiten. Das Kamera-Icon dort entfällt. Noch nicht bauen.
