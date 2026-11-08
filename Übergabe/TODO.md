@@ -1,12 +1,13 @@
 # To-dos
 
-Stand: 2026-11-08. Diese Liste ist die einzige To-do-Liste für KiezCoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
+Stand: 2026-11-09. Diese Liste ist die einzige To-do-Liste für KiezCoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
 
 Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coins/screenshots/`. Sie stehen absichtlich nicht im Repo, weil das Repo öffentlich ist und einige Bilder Adressen und Namen zeigen.
 
 ## Pflicht (Daria, 08.11.2026)
 
 - [ ] **Pflichtaufgabe:** kiezcoins.de bei INWX auf Vercel umstellen. Bis dahin funktionieren Einladungslinks, Instant-Einladungen, Instant-Download und geteilte Posts nicht. Schritte: `2026-11-08_offen_domain-kiezcoins-de.md`.
+- [ ] **Pflichtaufgabe:** Migration `20261109000100_comment_likes.sql` im Supabase SQL Editor ausführen. Bis dahin zeigen Kommentare kein Herz. Details: `2026-11-09_offen_kommentare-liken.md`.
 
 ## Dringend (Daria, 30.10.2026)
 

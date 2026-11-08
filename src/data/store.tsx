@@ -69,6 +69,8 @@ type Action =
   | { type: 'confirmReceived'; id: string }
   | { type: 'create'; challenge: Challenge }
   | { type: 'toggleLike'; id: string }
+  /** Kommentar liken (Daria, 2026-11-09) */
+  | { type: 'toggleCommentLike'; id: string; commentId: string }
   | { type: 'savePayout'; payout: Payout }
   | { type: 'setCurrentUser'; userId: string }
   | { type: 'setFeedState'; feedState: FeedState; error?: string }
@@ -213,6 +215,8 @@ function reducer(state: State, action: Action): State {
         body: action.body,
         createdAt: new Date().toISOString(),
         replyToId: action.replyToId,
+        // Live: Herz erst, wenn der Kommentar mit echter ID neu geladen ist
+        ...(state.mode === 'live' ? {} : { likeCount: 0, likedByMe: false }),
       };
       return updateChallenge(state, action.id, (c) => ({ comments: [...c.comments, comment] }));
     }
@@ -302,6 +306,14 @@ function reducer(state: State, action: Action): State {
       return updateChallenge(state, action.id, (c) => ({
         likedByMe: !c.likedByMe,
         likeCount: c.likeCount === undefined ? undefined : Math.max(0, c.likeCount + (c.likedByMe ? -1 : 1)),
+      }));
+    case 'toggleCommentLike':
+      return updateChallenge(state, action.id, (c) => ({
+        comments: c.comments.map((m) =>
+          m.id === action.commentId
+            ? { ...m, likedByMe: !m.likedByMe, likeCount: Math.max(0, (m.likeCount ?? 0) + (m.likedByMe ? -1 : 1)) }
+            : m,
+        ),
       }));
     case 'savePayout':
       return {
@@ -454,6 +466,11 @@ async function persist(action: Action, before: State): Promise<string | null> {
     case 'toggleLike': {
       const liked = before.challenges.find((c) => c.id === action.id)?.likedByMe;
       await remote.setLike(action.id, userId, !liked);
+      return null;
+    }
+    case 'toggleCommentLike': {
+      const liked = before.challenges.find((c) => c.id === action.id)?.comments.find((m) => m.id === action.commentId)?.likedByMe;
+      await remote.setCommentLike(action.commentId, userId, !liked);
       return null;
     }
     case 'savePayout':

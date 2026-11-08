@@ -98,6 +98,9 @@ export type Comment = {
   createdAt: string;
   /** Antwort auf diesen Kommentar (eine Ebene) */
   replyToId?: string;
+  /** Likes (Migration 20261109000100); ohne Migration fehlt die Zahl und der Kommentar zeigt kein Herz */
+  likeCount?: number;
+  likedByMe?: boolean;
 };
 
 /**

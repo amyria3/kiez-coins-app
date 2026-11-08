@@ -91,6 +91,7 @@ export const fashionableSvgs: Partial<Record<IconName, Svg>> = {
   plus: ph('plus'),
   minus: ph('minus'),
   more: ph('dots-three'),
+  'more-vertical': ph('dots-three-vertical'),
   clock: ph('clock'),
   'clock-filled': ph('clock'),
   info: ph('info'),

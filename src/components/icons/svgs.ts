@@ -29,6 +29,7 @@ export type IconName =
   | 'eye-off'
   | 'behausung'
   | 'more'
+  | 'more-vertical'
   | 'wir-schaffen-das'
   | 'message'
   | 'link'
@@ -219,6 +220,13 @@ export const iconSvgs: Record<IconName, { width: number; height: number; svg: Sv
     height: 35,
     svg: (c) =>
       `<svg width="35" height="35" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="6.2" cy="17.8" r="3.6" fill="${c}"/><circle cx="17.5" cy="17.3" r="3.7" fill="${c}"/><circle cx="28.8" cy="17.7" r="3.5" fill="${c}"/></svg>`,
+  },
+  // Darias drei Punkte, senkrecht gestellt: Melden am Kommentar (Daria, 2026-11-09)
+  'more-vertical': {
+    width: 35,
+    height: 35,
+    svg: (c) =>
+      `<svg width="35" height="35" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="17.8" cy="6.2" r="3.6" fill="${c}"/><circle cx="17.3" cy="17.5" r="3.7" fill="${c}"/><circle cx="17.7" cy="28.8" r="3.5" fill="${c}"/></svg>`,
   },
   // Kettenglied: Webseite (Linie wie im Fashionable Look, auch im Kiez-Look)
   link: {
