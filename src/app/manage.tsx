@@ -416,7 +416,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
   }
 
   return (
-    <View style={[styles.card, styles.cardFit]}>
+    <View style={styles.card}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={t('{title} öffnen', { title: c.title || t('Ohne Titel') })}
@@ -845,14 +845,13 @@ const styles = StyleSheet.create({
   page: isFashionable
     ? { paddingBottom: space[12] }
     : { paddingHorizontal: space[16], paddingTop: space[8], paddingBottom: space[12] },
+  // Weniger Rundung, kein Rand (Daria, 2026-11-09): Die Karte hebt sich nur durch ihre Fläche ab
   card: {
     gap: space[16],
     padding: space[16],
-    borderRadius: radius.card,
+    borderRadius: radius.md,
     backgroundColor: color.bg.surface,
   },
-  // Challenge-Karte: so hoch wie ihr Inhalt, feiner neutraler Rand (Grün verworfen, Daria 2026-11-05)
-  cardFit: { borderWidth: 1.5, borderColor: color.line.hairline },
   // Etwas mehr Luft über und unter dem Text (Daria, 2026-11-05)
   bodyCard: { marginVertical: space[8] },
   timeBar: { gap: space[6] },
@@ -864,7 +863,8 @@ const styles = StyleSheet.create({
   iconStatValue: { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.icon.large, fontVariant: ['tabular-nums'] },
   head: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   pressed: { opacity: 0.7 },
-  thumb: { width: 72, height: 72, borderRadius: radius.xl },
+  // Rundung wie die Posts im Feed
+  thumb: { width: 72, height: 72, borderRadius: radius.post },
   title: { ...text.cardTitle, color: color.text.primary },
   badges: { flexDirection: 'row', alignItems: 'center', gap: space[8], marginTop: space[8] },
   body: { ...text.body, color: color.text.secondary },
@@ -892,12 +892,12 @@ const styles = StyleSheet.create({
   deletedItem: {
     gap: space[12],
     padding: space[12],
-    borderRadius: radius.xl,
+    borderRadius: radius.md,
     backgroundColor: color.bg.screen,
   },
   deletedTitle: { ...text.body, color: color.text.primary },
   deletedBody: { gap: space[12] },
-  thumbSmall: { width: 48, height: 48, borderRadius: radius.xl },
+  thumbSmall: { width: 48, height: 48, borderRadius: radius.post },
   dimmed: { opacity: 0.5 },
   chevronDown: { transform: [{ rotate: '90deg' }] },
   chevronUp: { transform: [{ rotate: '-90deg' }] },
