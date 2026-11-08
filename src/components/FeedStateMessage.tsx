@@ -41,8 +41,8 @@ export function FeedStateMessage({
   onAction: () => void;
   body?: string;
   action?: string;
-  /** Zweiter Knopf darunter, z. B. „Mit Passcode beitreten“ */
-  secondary?: { label: string; onPress: () => void };
+  /** Zweiter Knopf darunter, z. B. „Mit Passcode beitreten“; `hint` steht als Satz über ihm */
+  secondary?: { label: string; onPress: () => void; hint?: string };
   /** Technischer Grund, klein unter dem Text (nur bei Fehlern) */
   detail?: string;
 }) {
@@ -58,8 +58,10 @@ export function FeedStateMessage({
         </Text>
       ) : null}
       <View style={styles.actions}>
-        <Button label={action ?? m.action} onPress={onAction} />
-        {secondary ? <Button label={secondary.label} variant="secondary" onPress={secondary.onPress} /> : null}
+        {/* Beide Knöpfe gleich breit (Daria, 08.11.2026) */}
+        <Button label={action ?? m.action} onPress={onAction} style={styles.button} />
+        {secondary?.hint ? <Text style={[styles.body, styles.hint]}>{secondary.hint}</Text> : null}
+        {secondary ? <Button label={secondary.label} variant="secondary" onPress={secondary.onPress} style={styles.button} /> : null}
       </View>
     </View>
   );
@@ -71,4 +73,6 @@ const styles = StyleSheet.create({
   body: { ...text.body, color: color.text.secondary, textAlign: 'center' },
   detail: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
   actions: { alignSelf: 'stretch', alignItems: 'center', gap: space[8] },
+  button: { minWidth: 220 },
+  hint: { marginTop: space[16] },
 });
