@@ -5,9 +5,9 @@ import Svg, { Path, SvgXml } from 'react-native-svg';
 import { iconSvgs } from './icons/svgs';
 import { color } from '../theme/tokens';
 
-const B = 56; // Breite der Fläche
+const B = 42; // Breite der Fläche
 const HOEHE = 40;
-const SCHIFF_B = 38;
+const SCHIFF_B = 31;
 const SCHIFF_H = (SCHIFF_B * iconSvgs.ship.height) / iconSvgs.ship.width;
 const PERIODE = 14; // Länge einer Welle
 
@@ -20,7 +20,7 @@ function welle(y: number, a: number) {
   return d;
 }
 
-function Welle({ y, a, ms, deckkraft, still }: { y: number; a: number; ms: number; deckkraft: number; still: boolean }) {
+function Welle({ y, a, ms, deckkraft, still, farbe }: { y: number; a: number; ms: number; deckkraft: number; still: boolean; farbe: string }) {
   const x = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     if (still) return;
@@ -31,7 +31,7 @@ function Welle({ y, a, ms, deckkraft, still }: { y: number; a: number; ms: numbe
   return (
     <Animated.View style={{ position: 'absolute', left: 0, top: 0, transform: [{ translateX: x }] }}>
       <Svg width={B * 2 + PERIODE} height={HOEHE}>
-        <Path d={welle(y, a)} stroke={color.text.primary} strokeWidth={2} strokeLinecap="round" fill="none" opacity={deckkraft} />
+        <Path d={welle(y, a)} stroke={farbe} strokeWidth={2} strokeLinecap="round" fill="none" opacity={deckkraft} />
       </Svg>
     </Animated.View>
   );
@@ -41,7 +41,7 @@ function Welle({ y, a, ms, deckkraft, still }: { y: number; a: number; ms: numbe
  * Darias Schiffchen schaukelt auf ruhigen Wellen, schwarz-weiß (Daria, 2026-11-02). Steht links vor „Was Du so machst“.
  * Mit „Bewegung reduzieren“ steht alles still.
  */
-export function SchiffWellen() {
+export function SchiffWellen({ farbe = color.text.primary }: { farbe?: string }) {
   const [still, setStill] = useState(false);
   const t = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -61,7 +61,8 @@ export function SchiffWellen() {
   const wasser = HOEHE - 7;
   return (
     <View style={{ width: B, height: HOEHE, overflow: 'hidden' }} accessible={false} importantForAccessibility="no-hide-descendants">
-      <Welle y={wasser + 4} a={1.6} ms={5200} deckkraft={0.45} still={still} />
+      {/* Hintere Welle in derselben Farbe, voll deckend: eine Farbe für die ganze Zeile (Daria, 08.11.2026) */}
+      <Welle y={wasser + 4} a={1.6} ms={5200} deckkraft={1} still={still} farbe={farbe} />
       <Animated.View
         style={{
           position: 'absolute',
@@ -73,9 +74,9 @@ export function SchiffWellen() {
           ],
         }}
       >
-        <SvgXml xml={iconSvgs.ship.svg(color.text.primary)} width={SCHIFF_B} height={SCHIFF_H} />
+        <SvgXml xml={iconSvgs.ship.svg(farbe)} width={SCHIFF_B} height={SCHIFF_H} />
       </Animated.View>
-      <Welle y={wasser} a={2} ms={3600} deckkraft={1} still={still} />
+      <Welle y={wasser} a={2} ms={3600} deckkraft={1} still={still} farbe={farbe} />
     </View>
   );
 }
