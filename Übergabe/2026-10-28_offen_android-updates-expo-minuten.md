@@ -48,3 +48,12 @@ Daria hat am 29.10.2026 abends ein Update von Hand veröffentlicht. Seitdem auf 
 
 - [ ] Update veröffentlichen (Daria)
 - [ ] Ab 01.11.2026 prüfen, ob der EAS-Workflow wieder von selbst startet
+
+## Stand 07.11.2026: Workflow zieht zu GitHub um
+
+Die Minuten waren am 01.11.2026 abends schon wieder aufgebraucht (jeder Lauf rund 3 Minuten, viele Merges am Tag). Seitdem bekam Android nichts mehr, nächster Reset erst am 01.12.2026. Dazu hat sich der native Teil geändert (Hintergrundfarbe des App-Icons in `app.json`), deshalb reicht ein Update nicht, es braucht eine neue APK.
+
+- Neue APK (versionCode 3) von Hand bei EAS gebaut, Build `11cb74e1-aace-41d3-bd25-be823b11cb47` (07.11.2026).
+- Der Workflow läuft jetzt als GitHub Action: `.github/workflows/android.yml`. Der EAS-Workflow `.eas/workflows/android.yml` ist gelöscht. Bei GitHub kosten Updates keine Expo-Minuten, nur echte APK-Builds zählen gegen das Build-Kontingent.
+- [ ] Secrets im GitHub-Repo anlegen (Daria): `EXPO_TOKEN` (expo.dev › Konto kiezcoins › Settings › Access tokens) und `SUPABASE_SECRET_KEY` (Supabase › Project Settings › API Keys). Ort: GitHub › kiez-coins-app › Settings › Secrets and variables › Actions.
+- [ ] Danach einmal „Actions › Android-Updates › Run workflow“ starten und prüfen, dass er grün wird.

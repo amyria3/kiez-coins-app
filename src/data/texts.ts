@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { I18nManager, Platform } from 'react-native';
+import { I18nManager, Linking, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocales } from 'expo-localization';
 
@@ -142,13 +142,55 @@ export async function setLanguage(next: Lang | 'auto') {
   }
 }
 
-/** Beim Start: gespeicherte Wahl, sonst Handysprache */
-export async function loadLanguage() {
+/**
+ * Sprache der Website als Vorgabe (Daria, 08.11.2026): Wer auf kiezcoins.de eine Sprache wählt und danach die App
+ * öffnet, startet in dieser Sprache. Web: `?sprache=en` am Link zur Web-App oder die Wahl, die sich die Website im
+ * selben Browser gemerkt hat (`kc_website_sprache`). Android: der Link `kiezcoins:///?sprache=en` aus den Download-Schritten.
+ */
+const SITE_KEY = 'kc_website_sprache';
+const languageInUrl = (url?: string | null) => supported(url?.match(/[?&]sprache=([a-z]{2})\b/)?.[1]);
+
+async function websiteLanguage(): Promise<Lang | undefined> {
+  if (Platform.OS === 'web') {
+    if (typeof window === 'undefined') return undefined;
+    try {
+      return languageInUrl(window.location.search) ?? supported(window.localStorage.getItem(SITE_KEY));
+    } catch {
+      return undefined;
+    }
+  }
   try {
-    const saved = await AsyncStorage.getItem(LANG_KEY);
+    return languageInUrl(await Linking.getInitialURL());
+  } catch {
+    return undefined;
+  }
+}
+
+/** Beim Start: gespeicherte Wahl, sonst Sprache der Website, sonst Handysprache */
+export async function loadLanguage() {
+  let saved: string | null = null;
+  try {
+    saved = await AsyncStorage.getItem(LANG_KEY);
     choice = saved === 'auto' || !saved ? 'auto' : (supported(saved) ?? 'auto');
   } catch {
     choice = 'auto';
+  }
+  if (!saved) {
+    const site = await websiteLanguage();
+    if (site) {
+      choice = site;
+      AsyncStorage.setItem(LANG_KEY, site).catch(() => {});
+    } else if (Platform.OS !== 'web') {
+      // App lief schon ohne Wahl und wird jetzt über den Link aus den Download-Schritten geöffnet
+      const sub = Linking.addEventListener('url', ({ url }) => {
+        const l = languageInUrl(url);
+        if (!l) return;
+        sub.remove();
+        AsyncStorage.getItem(LANG_KEY)
+          .then((now) => (now ? undefined : setLanguage(l)))
+          .catch(() => {});
+      });
+    }
   }
   await loadGender();
   lang = choice === 'auto' ? deviceLanguage() : choice;

@@ -226,6 +226,11 @@
 
 <script src="prototyp/app.js?v=1d13e012"></script>
 <script>
+  // Die App übernimmt die Sprache der Website (Daria, 08.11.2026): Fremdsprachige Seiten merken sich ihre Sprache,
+  // Deutsch nur bei ausdrücklicher Wahl im Sprachmenü. Die Web-App liest kc_website_sprache beim ersten Start.
+  function merkeSprache(l) { try { localStorage.setItem('kc_website_sprache', l); } catch (e) {} }
+  if ('de' !== 'de') merkeSprache('de');
+  document.querySelectorAll('.sprachwahl a[hreflang]').forEach(function (a) { a.addEventListener('click', function () { merkeSprache(a.getAttribute('hreflang')); }); });
   // Sprachmenü schließt beim Tipp daneben und mit Escape
   var sprache = document.querySelector('.sprachwahl');
   document.addEventListener('click', function (e) { if (sprache.open && !sprache.contains(e.target)) sprache.open = false; });

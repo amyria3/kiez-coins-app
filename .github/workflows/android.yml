@@ -1,0 +1,107 @@
+# Android auf demselben Stand wie Web und iPhone (Daria, 2026-10-25, umgezogen 2026-11-07).
+#
+# Läuft bei jedem Push auf main bei GitHub, nicht mehr in der Expo-Cloud: Der EAS-Workflow hat die
+# 60 kostenlosen CI-Minuten im Monat nach wenigen Tagen aufgebraucht, danach bekam Android nichts mehr.
+# Hier kosten nur echte APK-Builds etwas (Build-Kontingent bei Expo), Updates nicht.
+#
+# - Der Fingerabdruck beschreibt den nativen Teil der App (Pakete mit nativem Code, app.json, Icons).
+# - Gibt es schon eine APK mit diesem Fingerabdruck, geht nur der neue Code als Update raus.
+#   Die installierten APKs laden ihn beim nächsten Start und zeigen ihn beim Start danach.
+# - Sonst baut EAS eine neue APK, sie landet als downloads/kiez-coins.apk in Supabase und
+#   download_settings.latest_version_code wird gesetzt. Die App zeigt dann den Hinweis „Neue Version da“.
+#
+# Braucht zwei Secrets im GitHub-Repo (Settings › Secrets and variables › Actions):
+#   EXPO_TOKEN           Zugriffstoken von expo.dev (Konto kiezcoins › Settings › Access tokens)
+#   SUPABASE_SECRET_KEY  Secret Key aus Supabase › Project Settings › API Keys
+# Von Hand starten: Reiter „Actions“ › „Android-Updates“ › „Run workflow“.
+
+name: Android-Updates
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Pushes kurz hintereinander: der neuere Lauf wartet, bis der ältere fertig ist.
+concurrency:
+  group: android-updates
+  cancel-in-progress: false
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      SUPABASE_URL: https://aqxzxpxrshizlaqyjplw.supabase.co
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Fingerabdruck und passende APK suchen
+        id: check
+        run: |
+          set -eu
+          if [ -z "${EXPO_TOKEN:-}" ]; then
+            echo "::error::Secret EXPO_TOKEN fehlt (GitHub › Settings › Secrets and variables › Actions)."
+            exit 1
+          fi
+          HASH=$(npx expo-updates fingerprint:generate --platform android | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).hash))')
+          echo "Fingerabdruck: $HASH"
+          COUNT=$(npx eas-cli@latest build:list --platform android --build-profile preview --status finished \
+            --runtime-version "$HASH" --limit 1 --json --non-interactive | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).length))')
+          # Läuft gerade schon ein Build mit diesem Fingerabdruck, zählt er mit (kein zweiter Build).
+          RUNNING=0
+          for STATUS in new in-queue in-progress; do
+            N=$(npx eas-cli@latest build:list --platform android --build-profile preview --status "$STATUS" \
+              --runtime-version "$HASH" --limit 1 --json --non-interactive | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).length))')
+            RUNNING=$((RUNNING + N))
+          done
+          if [ "$COUNT" -gt 0 ]; then echo "mode=update" >> "$GITHUB_OUTPUT"
+          elif [ "$RUNNING" -gt 0 ]; then echo "mode=wait" >> "$GITHUB_OUTPUT"
+          else echo "mode=build" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Update veröffentlichen
+        if: steps.check.outputs.mode == 'update'
+        run: |
+          npx eas-cli@latest update --channel preview --platform android --environment preview \
+            --message "$(git log -1 --format=%s)" --non-interactive
+
+      - name: Build läuft schon
+        if: steps.check.outputs.mode == 'wait'
+        run: echo "Eine APK mit diesem Fingerabdruck wird gerade gebaut. Der Lauf dazu lädt sie hoch."
+
+      - name: Neue APK bauen
+        id: build
+        if: steps.check.outputs.mode == 'build'
+        run: |
+          set -eu
+          npx eas-cli@latest build --platform android --profile preview --non-interactive --wait --json > build.json
+          node -e 'const b=JSON.parse(require("fs").readFileSync("build.json","utf8"))[0];console.log("url="+b.artifacts.buildUrl);console.log("version="+b.appBuildVersion)' >> "$GITHUB_OUTPUT"
+
+      - name: APK in Supabase hochladen und Versionsnummer setzen
+        if: steps.check.outputs.mode == 'build'
+        run: |
+          set -eu
+          if [ -z "${SUPABASE_SECRET_KEY:-}" ]; then
+            echo "::error::Secret SUPABASE_SECRET_KEY fehlt. Die APK liegt bei EAS: ${{ steps.build.outputs.url }}"
+            exit 1
+          fi
+          curl -sSfL -o kiez-coins.apk "${{ steps.build.outputs.url }}"
+          # Neue Schlüssel (sb_secret_…) reichen im Header apikey, alte JWT-Schlüssel brauchen zusätzlich Authorization.
+          set -- -H "apikey: $SUPABASE_SECRET_KEY"
+          case "$SUPABASE_SECRET_KEY" in eyJ*) set -- "$@" -H "Authorization: Bearer $SUPABASE_SECRET_KEY" ;; esac
+          curl --fail-with-body -sS -X POST "$SUPABASE_URL/storage/v1/object/downloads/kiez-coins.apk" "$@" \
+            -H "x-upsert: true" -H "Content-Type: application/vnd.android.package-archive" \
+            --data-binary "@kiez-coins.apk"
+          curl --fail-with-body -sS -X PATCH "$SUPABASE_URL/rest/v1/download_settings?id=eq.1" "$@" \
+            -H "Content-Type: application/json" -H "Prefer: return=minimal" \
+            -d "{\"latest_version_code\": ${{ steps.build.outputs.version }}, \"updated_at\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}"
+          echo "APK ${{ steps.build.outputs.version }} liegt in Supabase."

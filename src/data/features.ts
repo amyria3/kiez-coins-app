@@ -99,8 +99,16 @@ function store(userId: string, next: Saved) {
   AsyncStorage.setItem(KEY(userId), JSON.stringify(saved)).catch(() => {});
 }
 
-async function load(userId: string) {
-  if (loadedFor === userId) return;
+/** Läuft gerade ein Laden, wartet `turnOnGroups` darauf */
+let loading: Promise<void> = Promise.resolve();
+
+function load(userId: string): Promise<void> {
+  if (loadedFor === userId) return loading;
+  loading = readSaved(userId);
+  return loading;
+}
+
+async function readSaved(userId: string) {
   loadedFor = userId;
   saved = {};
   emit();
@@ -165,9 +173,16 @@ export function useModes(): ModeState {
   return stateOf(saved);
 }
 
-/** Gruppe gegründet oder beigetreten: Gruppe wird sichtbar, damit der Reiter im Feed erscheint */
-export function turnOnGroups(userId: string | undefined) {
-  if (!userId || loadedFor !== userId || !hiddenOf(saved).groups) return;
+/**
+ * Gruppe gegründet oder beigetreten: Gruppe wird sichtbar, damit der Reiter im Feed erscheint.
+ * Kommt jemand über einen Einladungslink direkt aus dem Onboarding, ist der Stand noch nicht geladen.
+ * Dann lädt die App ihn erst, sonst ginge das Einschalten verloren (Daria, 07.11.2026).
+ */
+export async function turnOnGroups(userId: string | undefined) {
+  if (!userId) return;
+  if (loadedFor !== userId) await load(userId);
+  else await loading;
+  if (loadedFor !== userId || !hiddenOf(saved).groups) return;
   store(userId, { ...saved, hidden: { ...hiddenOf(saved), groups: false } });
 }
 
