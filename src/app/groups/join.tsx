@@ -17,7 +17,7 @@ import { useNudge } from '../../components/Nudge';
 import { useGoBack } from '../../lib/goBack';
 
 /**
- * Route `groups/join`: Einladungscode eingeben.
+ * Route `groups/join`: Passcode eingeben.
  * Der Einladungslink öffnet die Seite mit `?code=…`. Ohne Anmeldung merkt sich die App den Code und
  * führt nach dem Onboarding hierher zurück.
  * Ist die Person schon Mitglied, meldet die App das und öffnet die Gruppe (Daria, 25.10.2026).
@@ -65,7 +65,7 @@ export default function JoinGroup() {
     const text = await Clipboard.getStringAsync().catch(() => '');
     const found = parseInviteCode(text);
     if (found) setCode(found);
-    else codeField.nudge('In der Zwischenablage steht kein Beitrittscode.');
+    else codeField.nudge('In der Zwischenablage steht kein Passcode.');
   };
 
   const join = async () => {
@@ -93,10 +93,10 @@ export default function JoinGroup() {
       title="Gruppe beitreten"
       navigation="back"
       onLeadingPress={() => (goBack())}
-      actions={<Button busy={busy} label={busy ? 'Trete bei …' : 'Beitreten'} onPress={join} disabled={busy || clean.length !== 6} whyDisabled={() => !busy && codeField.nudge('Der Code hat 6 Zeichen.')} />}
+      actions={<Button busy={busy} label={busy ? 'Trete bei …' : 'Beitreten'} onPress={join} disabled={busy || clean.length !== 6} whyDisabled={() => !busy && codeField.nudge('Der Passcode hat 6 Zeichen.')} />}
     >
       <TextField
-        label="Beitrittscode" required
+        label="Passcode" required
         nudge={codeField}
         helperText="6 Zeichen. Du kannst auch den ganzen Link oder die Nachricht einfügen."
         value={code}

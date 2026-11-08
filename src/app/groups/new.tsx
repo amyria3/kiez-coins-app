@@ -13,7 +13,7 @@ import { t } from '../../data/texts';
 import { useNudge } from '../../components/Nudge';
 import { useGoBack } from '../../lib/goBack';
 
-/** Route `groups/new`: Gruppe gründen. Danach geht es direkt zur Gruppe mit dem Einladungscode. */
+/** Route `groups/new`: Gruppe gründen. Danach geht es direkt zur Gruppe mit Passcode und QR-Code. */
 export default function NewGroup() {
   const router = useRouter();
   const goBack = useGoBack();
@@ -55,7 +55,7 @@ export default function NewGroup() {
       />
       <Notice
         message={t(
-          'Die App erstellt für Dich einen Code und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.',
+          'Die App erstellt für Dich einen Passcode und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.',
           { anzahl: MAX_MEMBERS - 1 },
         )}
       />

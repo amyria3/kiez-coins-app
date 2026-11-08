@@ -77,7 +77,7 @@ export default function AcceptFriendInvite() {
     const text = await Clipboard.getStringAsync().catch(() => '');
     const found = parseFriendCode(text);
     if (found) setCode(found);
-    else codeField.nudge('In der Zwischenablage steht kein Einladungscode.');
+    else codeField.nudge('In der Zwischenablage steht kein Passcode.');
   };
 
   return (
@@ -91,12 +91,12 @@ export default function AcceptFriendInvite() {
           label={busy ? 'Nehme an …' : 'Annehmen'}
           onPress={() => accept(clean)}
           disabled={busy || clean.length !== FRIEND_CODE_LENGTH}
-          whyDisabled={() => !busy && codeField.nudge('Der Code hat 7 Zeichen.')}
+          whyDisabled={() => !busy && codeField.nudge('Der Passcode hat 7 Zeichen.')}
         />
       }
     >
       <TextField
-        label="Einladungscode"
+        label="Passcode"
         required
         nudge={codeField}
         helperText="7 Zeichen. Du kannst auch den ganzen Link oder die Nachricht einfügen."

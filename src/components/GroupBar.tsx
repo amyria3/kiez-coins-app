@@ -125,7 +125,7 @@ export function GroupsEmpty({ onCreate, onJoin }: { onCreate: () => void; onJoin
       body="Erstelle Deine erste Gruppe"
       action="Gruppe gründen"
       onAction={onCreate}
-      secondary={onJoin ? { label: 'Mit Beitrittscode beitreten', onPress: onJoin } : undefined}
+      secondary={onJoin ? { label: 'Mit Passcode beitreten', onPress: onJoin } : undefined}
     />
   );
 }

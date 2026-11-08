@@ -15,7 +15,7 @@ export const friendInviteMessage = (code: string) =>
     t('Ahoi! Lass uns bei KiezCoins befreundet sein. Mit diesem Link bist Du dabei:'),
     friendInviteLink(code),
     '',
-    t('Oder gib in der App unter „Freundschaften“ diesen Code ein:'),
+    t('Oder gib in der App unter „Freundschaften“ diesen Passcode ein:'),
     code,
   ].join('\n');
 

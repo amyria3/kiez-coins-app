@@ -46,7 +46,7 @@ export const inviteMessage = (group: Group) =>
     t('Ahoi, Friend! Komme in unsere Gruppe „{name}“ bei KiezCoins. Mit diesem Link trittst Du bei:', { name: group.name }),
     inviteLink(group.inviteCode),
     '',
-    t('Oder in der App unter „Gruppen“ mit Beitrittscode beitreten:'),
+    t('Oder in der App unter „Gruppen“ mit diesem Passcode beitreten:'),
     group.inviteCode,
   ].join('\n');
 

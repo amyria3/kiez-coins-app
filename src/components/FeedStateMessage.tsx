@@ -41,7 +41,7 @@ export function FeedStateMessage({
   onAction: () => void;
   body?: string;
   action?: string;
-  /** Zweiter Knopf darunter, z. B. „Mit Beitrittscode beitreten“ */
+  /** Zweiter Knopf darunter, z. B. „Mit Passcode beitreten“ */
   secondary?: { label: string; onPress: () => void };
   /** Technischer Grund, klein unter dem Text (nur bei Fehlern) */
   detail?: string;
