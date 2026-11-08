@@ -10,9 +10,9 @@
 <link rel="stylesheet" href="/seite.css">
 <style>
 .fin { --fix: #BDA273; --ust: #EEE0C9; --geb: #D9C49C; --dev: #26233A; --com: #2E9E57;
-  /* Farben aus der App (Daria, 08.11.2026): Schwalbe Rosa, Storch Lila, Dachs Grün wie die Augen des Katers */
+  /* Farben aus der App (Daria, 08.11.2026): Schwalbe Rosa, Storch Lila, Dachs Grün wie die Augen des Katers, der eigene Punkt Orange */
   --schwalbe: #FFB2E5; --storch: #8F90FA; --dachs: #89F269; --aktiv-regler: #BDA273; --inaktiv-regler: #D9C49C;
-  --feld-grund: #232326; --feld-tinte: #FFF8ED; --feld-neben: #A7A39D; --aktiv: #EEE0C9; --inaktiv: #6B665E; padding-bottom: 24px; }
+  --feld-grund: #232326; --feld-tinte: #FFF8ED; --du: #FFAD7E; --feld-neben: #A7A39D; --aktiv: #EEE0C9; --inaktiv: #6B665E; padding-bottom: 24px; }
 .fin h1 { font: 600 clamp(34px, 5vw, 56px)/1.02 var(--display); letter-spacing: -.035em; margin: 24px 0 16px; max-width: 16ch; }
 .fin h2 { font: 600 26px/1.15 var(--display); letter-spacing: -.02em; margin: 64px 0 20px; }
 .fin-kopf .lede { margin-bottom: 8px; }
@@ -440,7 +440,7 @@
 
       var start = alt && alt.ziel === ziel ? alt.start : performance.now();
       bild = { N: N, art: art, x: x, y: y, takt: takt, r: r, abstand: abstand, w: w, h: hgt, W: W, H: H, farben: farben,
-        ziel: ziel, start: start, tinte: cs.getPropertyValue('--feld-tinte').trim(), papier: cs.getPropertyValue('--feld-grund').trim() };
+        ziel: ziel, start: start, tinte: cs.getPropertyValue('--du').trim(), papier: cs.getPropertyValue('--feld-grund').trim() };
       var dpr = window.devicePixelRatio || 1;
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(hgt * dpr);
       male(performance.now());
@@ -448,7 +448,7 @@
 
       leg.innerHTML = gruppen.filter(function (g) { return g.n > 0; }).map(function (g) {
         return '<li>' + punkt('var(' + g.farbe + ')') + zahl(g.n) + ' ' + g.name + '</li>';
-      }).join('') + (ziel >= 0 ? '<li>' + punkt('var(--feld-tinte)') + 'Du</li>' : '') + (N ? '<li>1 Punkt = 1 Person</li>' : '<li>Noch niemand</li>')
+      }).join('') + (ziel >= 0 ? '<li>' + punkt('var(--du)') + 'Du</li>' : '') + (N ? '<li>1 Punkt = 1 Person</li>' : '<li>Noch niemand</li>')
         + (ueber ? '<li class="tipp">Die Community ist größer als der Rahmen. Verschiebe die Ansicht, um alle zu sehen.</li>' : '');
       scroller.setAttribute('aria-label', 'Community: ' + gruppen.map(function (g) { return zahl(g.n) + ' ' + g.name; }).join(', '));
     }
