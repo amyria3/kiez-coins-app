@@ -9,12 +9,12 @@
 <link rel="icon" href="/favicon.png">
 <link rel="stylesheet" href="/seite.css">
 <style>
-/* Kosten im Balken als Stufen des App-Lila statt Beige-Braun (Daria, 08.11.2026) */
-.fin { --fix: #A9AAEE; --ust: #E4E5FB; --geb: #CBCCF5; --dev: #26233A; --com: #2E9E57;
+/* Kosten im Balken als Stufen des App-Orange, Lila bleibt bei Storch und Aktiven (Daria, 08.11.2026) */
+.fin { --fix: #FFAD7E; --ust: #FFE3D1; --geb: #FFCBAA; --dev: #26233A; --com: #2E9E57;
   /* Farben aus der App (Daria, 08.11.2026): Schwalbe gedämpftes Rosa, Storch Lila, Dachs Grün wie die Augen des Katers, der eigene Punkt Orange */
   --schwalbe: #F4C2E3; --storch: #8F90FA; --dachs: #89F269; --aktiv-regler: #B5B6F6; --inaktiv-regler: #A9CF9C;
   /* Feld helles Mint, Aktive blasses Lila, heller als der Storch (Daria, 08.11.2026) */
-  --feld-grund: #EEFBE6; --feld-tinte: #26233A; --du: #FFAD7E; --feld-neben: #4A465E; --aktiv: #C4C5FA; --inaktiv: #CFE2C6; padding-bottom: 24px; }
+  --feld-grund: #EEFBE6; --feld-tinte: #26233A; --du: #26233A; --feld-neben: #4A465E; --aktiv: #C4C5FA; --inaktiv: #CFE2C6; padding-bottom: 24px; }
 .fin h1 { font: 600 clamp(34px, 5vw, 56px)/1.02 var(--display); letter-spacing: -.035em; margin: 24px 0 16px; max-width: 16ch; }
 .fin h2 { font: 600 26px/1.15 var(--display); letter-spacing: -.02em; margin: 64px 0 20px; }
 .fin-kopf .lede { margin-bottom: 8px; }
@@ -449,7 +449,7 @@
 
       var start = alt && alt.ziel === ziel ? alt.start : performance.now();
       bild = { N: N, art: art, x: x, y: y, takt: takt, r: r, abstand: abstand, w: w, h: hgt, W: W, H: H, farben: farben,
-        ziel: ziel, start: start, tinte: cs.getPropertyValue('--du').trim(), papier: cs.getPropertyValue('--feld-tinte').trim() };
+        ziel: ziel, start: start, tinte: cs.getPropertyValue('--du').trim(), papier: '#FFFFFF' };
       var dpr = window.devicePixelRatio || 1;
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(hgt * dpr);
       male(performance.now());
@@ -504,7 +504,7 @@
         }
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       });
-      // Eigener Punkt: der eigene Avatar als Kreis mit weißem Rand, ohne Bild die Initialen auf Orange (Daria, 08.11.2026)
+      // Eigener Punkt: der eigene Avatar als Kreis mit weißem Rand, ohne Bild die Initialen auf Dunkelblau (Daria, 08.11.2026)
       if (b.ziel >= 0) {
         var gr = b.r + plus, ux = zx - ox, uy = zy - oy;
         ctx.beginPath(); ctx.arc(ux, uy, gr + 2, 0, Math.PI * 2); ctx.fillStyle = '#FFFFFF'; ctx.fill();
