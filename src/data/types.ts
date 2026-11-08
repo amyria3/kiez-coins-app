@@ -98,6 +98,9 @@ export type Comment = {
   createdAt: string;
   /** Antwort auf diesen Kommentar (eine Ebene) */
   replyToId?: string;
+  /** Likes (Migration 20261108000300); ohne Migration leer, dann zeigt die App keine Zahl */
+  likeCount?: number;
+  likedByMe?: boolean;
 };
 
 /**

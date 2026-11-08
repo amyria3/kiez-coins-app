@@ -8,6 +8,7 @@ import type { Comment as CommentData, User } from '../data/types';
 import { color, font, radius, size, space, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { IconButton } from './IconButton';
+import { Icon } from './icons/Icon';
 import { t } from '../data/texts';
 
 type CommentProps = {
@@ -20,11 +21,16 @@ type CommentProps = {
   isReply?: boolean;
   /** Tippen auf Bild oder Name öffnet das Profil */
   onAuthorPress?: () => void;
+  /** Herz: liken oder Like zurücknehmen (Daria, 2026-11-08). Ohne onLike kein Herz. */
+  onLike?: () => void;
+  /** Tipp auf die Zahl: wer den Kommentar geliked hat */
+  onLikesPress?: () => void;
 };
 
 /** Figma „Comment“: öffentlicher Kommentar. Die Fahne meldet den Kommentar. */
-export function Comment({ comment, author, onReport, onReply, isReply, onAuthorPress }: CommentProps) {
+export function Comment({ comment, author, onReport, onReply, isReply, onAuthorPress, onLike, onLikesPress }: CommentProps) {
   const hidden = useHideName(author);
+  const likes = comment.likeCount ?? 0;
   return (
     <View style={[styles.comment, isReply && styles.reply]}>
       <Pressable onPress={onAuthorPress} disabled={!onAuthorPress} accessibilityLabel={t('Profil von {name}', { name: author.name })}>
@@ -38,16 +44,53 @@ export function Comment({ comment, author, onReport, onReply, isReply, onAuthorP
           <Text style={styles.time}>{formatRelative(comment.createdAt)}</Text>
         </View>
         <Text style={styles.text}>{comment.body}</Text>
-        {onReply ? (
-          <Pressable
-            onPress={onReply}
-            accessibilityRole="button"
-            accessibilityLabel={t('{name} antworten', { name: author.name })}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            style={styles.replyButton}
-          >
-            <Text style={styles.replyText}>Antworten</Text>
-          </Pressable>
+        {onReply || onLike ? (
+          <View style={styles.commentActions}>
+            {onReply ? (
+              <Pressable
+                onPress={onReply}
+                accessibilityRole="button"
+                accessibilityLabel={t('{name} antworten', { name: author.name })}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                style={styles.replyButton}
+              >
+                <Text style={styles.replyText}>Antworten</Text>
+              </Pressable>
+            ) : null}
+            {onLike ? (
+              // Herz liked, die Zahl daneben zeigt, wer geliked hat (wie beim Post, Daria, 2026-11-08)
+              <View style={styles.likeGroup}>
+                <Pressable
+                  onPress={onLike}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: !!comment.likedByMe }}
+                  accessibilityLabel={
+                    likes ? t('Gefällt mir, {likeCount} Likes', { likeCount: likes }) : t('Gefällt mir')
+                  }
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 4 }}
+                  style={({ pressed }) => [styles.likeButton, pressed && styles.pressed]}
+                >
+                  <Icon
+                    name="heart"
+                    size={14}
+                    color={comment.likedByMe ? color.accent.affection : color.text.secondary}
+                  />
+                </Pressable>
+                {likes > 0 ? (
+                  <Pressable
+                    onPress={onLikesPress}
+                    disabled={!onLikesPress}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('{likeCount} Likes ansehen', { likeCount: likes })}
+                    hitSlop={{ top: 8, bottom: 8, left: 4, right: 8 }}
+                    style={({ pressed }) => [styles.likeButton, pressed && styles.pressed]}
+                  >
+                    <Text style={styles.replyText}>{likes}</Text>
+                  </Pressable>
+                ) : null}
+              </View>
+            ) : null}
+          </View>
         ) : null}
       </View>
       {onReport ? (
@@ -126,6 +169,10 @@ type CommentSectionProps = {
   onReport: (comment: CommentData) => void;
   /** Profil der Person öffnen */
   onAuthorPress?: (userId: string) => void;
+  /** Kommentar liken; ohne onLike kein Herz (z. B. bevor die Datenbank Kommentar-Likes kennt) */
+  onLike?: (comment: CommentData) => void;
+  /** Liste, wer den Kommentar geliked hat */
+  onLikesPress?: (comment: CommentData) => void;
 };
 
 /** Figma „CommentSection“: Fragen zur Challenge, öffentlich. Es gibt keinen privaten Chat. */
@@ -139,6 +186,8 @@ export function CommentSection({
   audience,
   onReport,
   onAuthorPress,
+  onLike,
+  onLikesPress,
 }: CommentSectionProps) {
   const [replyTo, setReplyTo] = useState<CommentData | null>(null);
   const nameOf = (id: string) => users.find((u) => u.id === id)?.name ?? '';
@@ -158,6 +207,9 @@ export function CommentSection({
         isReply={isReply}
         onAuthorPress={onAuthorPress ? () => onAuthorPress(c.authorId) : undefined}
         onReport={c.authorId === currentUserId ? undefined : () => onReport(c)}
+        // Gerade geschriebene Kommentare haben noch keine Kennung aus der Datenbank: erst nach dem Laden liken
+        onLike={onLike && !c.id.startsWith('comment-') ? () => onLike(c) : undefined}
+        onLikesPress={onLikesPress ? () => onLikesPress(c) : undefined}
         // Antworten auf eine Antwort hängen am selben Gespräch
         onReply={onSend ? () => setReplyTo({ ...c, id: rootId }) : undefined}
       />
@@ -203,7 +255,11 @@ const styles = StyleSheet.create({
   thread: { gap: space[8] },
   comment: { flexDirection: 'row', gap: space[12], alignItems: 'flex-start' },
   reply: { marginLeft: 48, gap: space[8] },
-  replyButton: { alignSelf: 'flex-start', paddingTop: space[4] },
+  commentActions: { flexDirection: 'row', alignItems: 'center', gap: space[16], paddingTop: space[4] },
+  replyButton: { alignSelf: 'flex-start' },
+  likeGroup: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  likeButton: { minHeight: 20, justifyContent: 'center' },
+  pressed: { opacity: 0.6 },
   replyText: { ...text.caption, fontFamily: font.medium, color: color.text.secondary },
   composerBlock: { gap: space[6] },
   replyBar: {
