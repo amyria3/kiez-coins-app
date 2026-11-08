@@ -14,6 +14,7 @@ import type { User } from '../../../data/types';
 import { color, radius, space, text } from '../../../theme/tokens';
 import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
+import { turnOnGroups } from '../../../data/features';
 
 /**
  * Route `groups/[id]`: Mitglieder, Einladungscode, unten „Zurück zum Feed“.
@@ -107,7 +108,19 @@ export default function GroupDetail() {
       navigation="back"
       onLeadingPress={() => (goBack())}
       // Daria, 27.10.2026: „Aufgabe erstellen“ und „Aufgaben ansehen“ entfallen, unten steht nur noch der Weg zurück zum Feed
-      actions={<Button label="Zurück zum Feed" variant="secondary" icon="this-way" iconFlip onPress={() => router.replace('/feed')} />}
+      // Daria, 07.11.2026: „Zurück zum Feed“ öffnet den Reiter Gruppen mit dieser Gruppe
+      actions={
+        <Button
+          label="Zurück zum Feed"
+          variant="secondary"
+          icon="this-way"
+          iconFlip
+          onPress={async () => {
+            await turnOnGroups(currentUserId);
+            router.dismissTo({ pathname: '/feed', params: { gruppe: group.id } });
+          }}
+        />
+      }
     >
       <FieldGroup label="Mitglieder">
         <View style={styles.list}>
