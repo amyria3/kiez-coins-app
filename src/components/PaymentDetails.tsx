@@ -4,7 +4,7 @@ import { Text } from './T';
 import { formatCents, formatEuroCents } from '../data/format';
 import type { Challenge, PayoutShare, User } from '../data/types';
 import { color, space, text } from '../theme/tokens';
-import { Notice } from './Content';
+import { Notice, QuestionHint } from './Content';
 import { CopyField } from './Form';
 import { t, tAbout } from '../data/texts';
 
@@ -25,7 +25,7 @@ type PaymentDetailsProps = {
 export function PaymentDetails({ challenge, recipient, noticeFirst, amountCents, share: shareFor }: PaymentDetailsProps) {
   const share = shareFor ?? (amountCents === undefined ? challenge.payoutShare : undefined);
   const notice = (
-    <Notice message="Überweise den Betrag direkt. KiezCoins sieht und prüft keine Zahlungen, alles beruht auf Vertrauen." />
+    <QuestionHint question="Wie läuft die Zahlung?" answer="Überweise den Betrag direkt. KiezCoins sieht und prüft keine Zahlungen, alles beruht auf Vertrauen." />
   );
   return (
     <View style={styles.list}>

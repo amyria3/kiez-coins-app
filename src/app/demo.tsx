@@ -3,7 +3,7 @@ import { Text } from '../components/T';
 import { useRouter, type Href } from 'expo-router';
 
 import { Button } from '../components/Button';
-import { FieldGroup, Notice } from '../components/Content';
+import { FieldGroup, QuestionHint } from '../components/Content';
 import { Chip, ChipGroup, RadioOption } from '../components/Form';
 import { SubScreen } from '../components/Screen';
 import { useAuth } from '../data/auth';
@@ -52,7 +52,7 @@ export default function DemoMenu() {
       navigation="close"
       onLeadingPress={goBack}
     >
-      <Notice message="Dieses Menü gibt es nur im Prototyp. Es ersetzt Benachrichtigungen und zeigt auf Wunsch Beispieldaten." />
+      <QuestionHint question="Was ist dieses Menü?" answer="Dieses Menü gibt es nur im Prototyp. Es ersetzt Benachrichtigungen und zeigt auf Wunsch Beispieldaten." />
       <FieldGroup label="Daten">
         <RadioOption
           label="Echte Daten (Supabase)"

@@ -4,7 +4,7 @@ import { Text } from '../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { InfoRow, KaterBubble, Notice } from '../../components/Content';
+import { InfoRow, KaterBubble, QuestionHint } from '../../components/Content';
 import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { anrede } from '../../data/format';
@@ -128,7 +128,7 @@ export default function Kiez() {
           />
         </>
       ) : null}
-      <Notice message="Wir speichern nur den Kiez, nicht Deinen genauen Standort. Ohne Kiez kannst Du lesen, Bilder und Me-Challenges posten. Für We-Challenges ist die Autorisierung Pflicht." />
+      <QuestionHint question="Was speichert KiezCoins von meinem Standort?" answer="Wir speichern nur den Kiez, nicht Deinen genauen Standort. Ohne Kiez kannst Du lesen, Bilder und Me-Challenges posten. Für We-Challenges ist die Autorisierung Pflicht." />
     </SubScreen>
   );
 }

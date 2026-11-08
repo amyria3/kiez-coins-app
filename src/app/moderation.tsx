@@ -4,7 +4,7 @@ import { Text } from '../components/T';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../components/Button';
-import { Notice } from '../components/Content';
+import { QuestionHint } from '../components/Content';
 import { NavRow } from '../components/Rows';
 import { SubScreen } from '../components/Screen';
 import { formatRelative } from '../data/format';
@@ -70,7 +70,7 @@ export default function Moderation() {
 
   return (
     <SubScreen title="Moderation" subtitle={t('{open} offen', { open })} navigation="back" onLeadingPress={goBack}>
-      <Notice message="Bestätigst Du eine Meldung, entfernst Du den Inhalt oder sperrst das Konto im Supabase-Dashboard und schreibst der Person per E-Mail, warum." />
+      <QuestionHint question="Was passiert nach dem Bestätigen?" answer="Bestätigst Du eine Meldung, entfernst Du den Inhalt oder sperrst das Konto im Supabase-Dashboard und schreibst der Person per E-Mail, warum." />
       <NavRow
         label={showDone ? 'Nur offene zeigen' : 'Auch erledigte zeigen'}
         onPress={() => setShowDone((v) => !v)}

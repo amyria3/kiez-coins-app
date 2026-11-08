@@ -4,7 +4,7 @@ import { Text } from '../../components/T';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { Notice } from '../../components/Content';
+import { QuestionHint } from '../../components/Content';
 import { SwitchRow, TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { isValidIban } from '../../data/format';
@@ -50,7 +50,7 @@ export default function PayoutSettings() {
       onLeadingPress={goBack}
       actions={<Button label="Speichern" onPress={save} />}
     >
-      <Notice message="KiezCoins bewegt kein Geld. Deine Daten sieht nur, wem Du sie für eine Challenge freigibst." />
+      <QuestionHint question="Wer sieht meine Zahlungsdaten?" answer="KiezCoins bewegt kein Geld. Deine Daten sieht nur, wem Du sie für eine Challenge freigibst." />
       <TextField
         label="Kontoinhaber:in" required
         helperText="So wie bei Deiner Bank hinterlegt."

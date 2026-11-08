@@ -7,7 +7,7 @@ import { isSharedBounty, shareCentsOf } from '../../../../data/coins';
 
 import { AuthorRow } from '../../../../components/AuthorRow';
 import { Button } from '../../../../components/Button';
-import { KaterBubble, Notice } from '../../../../components/Content';
+import { KaterBubble, QuestionHint } from '../../../../components/Content';
 import { RadioOption, SwitchRow, TextField } from '../../../../components/Form';
 import { SubScreen } from '../../../../components/Screen';
 import { formatCents, formatEuro, isValidIban, isValidPaypal, maskIbanShort } from '../../../../data/format';
@@ -108,8 +108,9 @@ export default function PayoutShareScreen() {
             ) : null}
           </View>
           <Button label="Zahlungsdaten bearbeiten" variant="secondary" onPress={() => router.push('/account/payout')} />
-          <Notice
-            message={
+          <QuestionHint
+            question="Warum brauche ich Zahlungsdaten?"
+            answer={
               author.group
                 ? t('Ohne Zahlungsdaten kann {name} nicht zahlen. {name} sieht Deine Daten erst, wenn Du die Challenge erledigt hast und sie sie bestätigt hat. Alles beruht auf Vertrauen.', { name })
                 : // Pronomen nach dem Geschlecht der Person (Daria, 24.10.2026), unbestimmt mit Namen
@@ -151,8 +152,9 @@ export default function PayoutShareScreen() {
             value={saveToAccount}
             onValueChange={setSaveToAccount}
           />
-          <Notice
-            message={tAbout(author, 'Ohne Zahlungsdaten kann {name} nicht zahlen, deshalb ist eine Methode Pflicht. {name} sieht sie erst nach der Bestätigung und nur für diese Challenge. Alles beruht auf Vertrauen.', { name })}
+          <QuestionHint
+            question="Warum brauche ich Zahlungsdaten?"
+            answer={tAbout(author, 'Ohne Zahlungsdaten kann {name} nicht zahlen, deshalb ist eine Methode Pflicht. {name} sieht sie erst nach der Bestätigung und nur für diese Challenge. Alles beruht auf Vertrauen.', { name })}
           />
         </>
       )}
