@@ -1452,6 +1452,15 @@ export async function loadButtonCounts(buttons: string[]): Promise<Record<string
 }
 
 /** true, wenn die angemeldete Person in `moderators` steht. */
+/**
+ * Einmaliger Code für den eigenen Punkt auf kiezcoins.de/finanzierung (Migration 20261108000200).
+ * Gilt 10 Minuten und nur einmal. Ohne Code zeigt die Seite keinen eigenen Punkt.
+ */
+export async function financeLinkCode(): Promise<string | null> {
+  const { data, error } = await supabase.rpc('finanzierung_link');
+  return error || typeof data !== 'string' ? null : data;
+}
+
 export async function isModerator(): Promise<boolean> {
   const { data, error } = await supabase.rpc('is_moderator');
   return !error && data === true;
