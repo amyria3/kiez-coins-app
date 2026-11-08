@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Text } from './T';
+import { t } from '../data/texts';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
@@ -127,7 +129,7 @@ function ErrorContent({ error, retry }: Props) {
             style={styles.field}
             value={comment}
             onChangeText={setComment}
-            placeholder="Was hast Du gerade gemacht? (freiwillig)"
+            placeholder={t('Was hast Du gerade gemacht? (freiwillig)')}
             placeholderTextColor={color.text.secondary}
             multiline
             maxLength={1000}

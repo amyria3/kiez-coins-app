@@ -28,3 +28,9 @@ Pflichtaufgabe (Daria): Konto bei DeepL API Free anlegen (500.000 Zeichen pro Mo
 
 - Der Schlüssel des Me-Challenge-Texts der Tour steht in den Sprachdateien noch mit Zeilenumbruch (`\n`), der Code liefert ein Leerzeichen. Deshalb zählt er als fehlend. Beim Probelauf mit korrigieren.
 - `ru.json` fehlen 15 Texte mehr als den anderen Sprachen (Umfrage, Ergebnis-Seite).
+
+## Stand 2026-11-07
+
+- Englisch ist vollständig (PR „Englisch vervollständigen“): 277 fehlende Texte von Claude übersetzt, auch der Tour-Text zur Me-Challenge. Was `node scripts/i18n.mjs` für `en` noch als fehlend zählt (rund 30), sind keine sichtbaren Texte: SVG, CSS, Schriftnamen, Markennamen, interne Stimmungsnamen.
+- Französisch, Ukrainisch, Russisch, Arabisch und Hebräisch fehlen weiter rund 280 Texte (bei `ru` etwas mehr). Der DeepL-Probelauf aus Schritt 2 deckt sie ab.
+- Neu übersetzt `t()` jetzt auch Platzhalter in Eingabefeldern (`TextField`, Textblätter, Fehlerseite) und mehrere Vorleser-Texte (`accessibilityLabel`), die vorher immer Deutsch blieben.
