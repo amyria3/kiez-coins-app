@@ -2,7 +2,7 @@ import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
-import { KaterBubble, Notice } from '../../../components/Content';
+import { KaterBubble, Notice, QuestionHint } from '../../../components/Content';
 import { SubScreen } from '../../../components/Screen';
 import { hasOpenWork } from '../../../data/openWork';
 import { useStore } from '../../../data/store';
@@ -40,7 +40,7 @@ export default function Pause() {
       }
     >
       <KaterBubble>Mal Landurlaub? Verständlich. Ich halt hier so lange die Stellung.</KaterBubble>
-      <Notice message="Für 3 Monate ist Dein Profil unsichtbar und Du bekommst keine Push-Nachrichten. Danach ist Dein Konto automatisch wieder aktiv. Früher zurück geht jederzeit, indem Du Dich anmeldest." />
+      <QuestionHint question="Was passiert beim Pausieren?" answer="Für 3 Monate ist Dein Profil unsichtbar und Du bekommst keine Push-Nachrichten. Danach ist Dein Konto automatisch wieder aktiv. Früher zurück geht jederzeit, indem Du Dich anmeldest." />
       <Notice variant="warning" message={OPEN_WORK} />
     </SubScreen>
   );

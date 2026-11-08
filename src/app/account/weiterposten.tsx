@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 
 import { Button } from '../../components/Button';
-import { FieldGroup, Notice } from '../../components/Content';
+import { FieldGroup, QuestionHint } from '../../components/Content';
 import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { Text } from '../../components/T';
@@ -57,7 +57,7 @@ export default function CrosspostAccounts() {
 
   return (
     <SubScreen title="Verbundene Konten" navigation="back" onLeadingPress={goBack}>
-      <Notice message="Weiterposten teilt Deine öffentlichen Posts mit Foto und Link zu KiezCoins. Private Posts und Gruppen bleiben immer in der App." />
+      <QuestionHint question="Was wird weitergepostet?" answer="Weiterposten teilt Deine öffentlichen Posts mit Foto und Link zu KiezCoins. Private Posts und Gruppen bleiben immer in der App." />
       <FieldGroup label="Kostenlos">
         {CROSSPOST_PLATFORMS.filter((p) => isLivePlatform(p.key)).map((p) => (
           <PlatformCard

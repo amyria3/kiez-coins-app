@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
-import { KaterBubble, Notice } from '../../../components/Content';
+import { KaterBubble, Notice, QuestionHint } from '../../../components/Content';
 import { TextField } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
 import { anrede } from '../../../data/format';
@@ -64,7 +64,7 @@ export default function DeleteAccount() {
         variant="warning"
         message="Dein Profil, Deine Fotos, Challenges, Kommentare und Zahlungsdaten werden gelöscht. Das lässt sich nicht rückgängig machen."
       />
-      <Notice message="Offene Coins musst Du vorher klären. Wenn Du nur eine Pause brauchst, kannst Du Dein Konto auch 3 Monate pausieren." />
+      <QuestionHint question="Was ist mit offenen Coins?" answer="Offene Coins musst Du vorher klären. Wenn Du nur eine Pause brauchst, kannst Du Dein Konto auch 3 Monate pausieren." />
       <TextField
         label="Zum Bestätigen LÖSCHEN eintippen" required
         nudge={confirmField}

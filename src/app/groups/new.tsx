@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { Notice } from '../../components/Content';
+import { QuestionHint } from '../../components/Content';
 import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { MAX_MEMBERS } from '../../data/groups';
@@ -53,8 +53,9 @@ export default function NewGroup() {
         maxLength={40}
         autoFocus
       />
-      <Notice
-        message={t(
+      <QuestionHint
+        question="Wie kommen andere in meine Gruppe?"
+        answer={t(
           'Die App erstellt für Dich einen Passcode und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.',
           { anzahl: MAX_MEMBERS - 1 },
         )}

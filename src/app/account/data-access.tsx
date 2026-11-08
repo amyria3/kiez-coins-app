@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text } from '../../components/T';
 
-import { FieldGroup, Notice } from '../../components/Content';
+import { FieldGroup, Notice, QuestionHint } from '../../components/Content';
 import { SubScreen } from '../../components/Screen';
 import { loadMyDataAccess, type DataAccess } from '../../data/dataAccess';
 import { formatDateLong } from '../../data/format';
@@ -42,7 +42,7 @@ export default function DataAccessScreen() {
         Hier siehst Du, ob jemand aus dem Team Deine persönlichen Daten abgerufen hat. Protokolliert wird bisher jeder Abruf Deiner privaten Chats.
       </Text>
       {/* 2 bis 3 Sätze zur Verschlüsselung (Daria, 27.10.2026) */}
-      <Notice message="Geplant ist Ende-zu-Ende-Verschlüsselung für Deine Nachrichten. Dann können nur autorisierte Nutzer:innen, also Du und die Person, mit der Du schreibst, sie lesen, auch das Team nicht. Im jetzigen Stadium der App ist das noch nicht umsetzbar, deshalb steht hier jeder Abruf." />
+      <QuestionHint question="Kann das Team meine Nachrichten lesen?" answer="Geplant ist Ende-zu-Ende-Verschlüsselung für Deine Nachrichten. Dann können nur autorisierte Nutzer:innen, also Du und die Person, mit der Du schreibst, sie lesen, auch das Team nicht. Im jetzigen Stadium der App ist das noch nicht umsetzbar, deshalb steht hier jeder Abruf." />
       {failed ? <Notice variant="warning" message={t('Protokoll nicht geladen: {error}', { error: failed })} /> : null}
       <FieldGroup label="Vom Team abgerufen">
         {entries && byTeam.length === 0 ? <Text style={styles.secondary}>Niemand aus dem Team hat Deine Chats abgerufen.</Text> : null}

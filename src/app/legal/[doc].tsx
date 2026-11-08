@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { getLanguage, useTexts } from '../../data/texts';
-import { Notice } from '../../components/Content';
+import { QuestionHint } from '../../components/Content';
 import { LEGAL_STAND, legalDocIds, legalDocs, type LegalDocId } from '../../data/legal';
 import { color, space, text } from '../../theme/tokens';
 import { useGoBack } from '../../lib/goBack';
@@ -25,7 +25,7 @@ export default function LegalScreen() {
 
   return (
     <SubScreen title={tx(current.title)} subtitle={tx(`Stand ${LEGAL_STAND}`)} navigation="back" onLeadingPress={goBack}>
-      {getLanguage() !== 'de' ? <Notice message="Übersetzung zur Orientierung. Verbindlich ist die deutsche Fassung." /> : null}
+      {getLanguage() !== 'de' ? <QuestionHint question="Welche Fassung gilt?" answer="Übersetzung zur Orientierung. Verbindlich ist die deutsche Fassung." /> : null}
       {current.intro ? <Text style={styles.intro}>{tx(current.intro)}</Text> : null}
       {current.sections.map((section, index) => (
         <View key={index} style={styles.section}>
