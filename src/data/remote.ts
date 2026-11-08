@@ -1461,6 +1461,21 @@ export async function financeLinkCode(): Promise<string | null> {
   return error || typeof data !== 'string' ? null : data;
 }
 
+export type FinanceStand = { registriert: number; aktiv: number; kategorie?: 'aktiv' | 'inaktiv' | null; rang?: number | null };
+
+/**
+ * Zahlen für den Abschnitt „So finanziert sich KiezCoins“ unten auf „Me“ (Daria, 08.11.2026).
+ * Angemeldet: mit eigenem Punkt (Code holen und gleich einlösen). Sonst nur die Zahlen.
+ */
+export async function loadFinanceStand(withOwnDot: boolean): Promise<FinanceStand | null> {
+  const code = withOwnDot ? await financeLinkCode() : null;
+  const { data, error } = code
+    ? await supabase.rpc('finanzierung_mein_punkt', { p_code: code })
+    : await supabase.rpc('finanzierung_ist');
+  if (error || !data || typeof data !== 'object') return null;
+  return data as FinanceStand;
+}
+
 export async function isModerator(): Promise<boolean> {
   const { data, error } = await supabase.rpc('is_moderator');
   return !error && data === true;

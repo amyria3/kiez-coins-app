@@ -40,8 +40,6 @@ export const PH = {
   coins: 'coins',
   features: 'toggle-right',
   grammar: 'text-aa',
-  // Finanzierung: Aufteilung zwischen Fixkosten, Entwicklerin und Community (Daria, 08.11.2026)
-  finance: 'chart-pie-slice',
 } satisfies Record<string, PhosphorName>;
 
 const ph = (name: PhosphorName): Svg => ({ width: 24, height: 24, svg: (c, filled) => phXml(name, c, filled) });

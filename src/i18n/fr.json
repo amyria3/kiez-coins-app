@@ -1276,6 +1276,14 @@
   "Bedienelemente ausblenden": "Masquer les commandes",
   "Bedienelemente einblenden": "Afficher les commandes",
   "Titel (optional)": "Titre (facultatif)",
-  "Finanzierung": "Financement",
-  "Dein Punkt in der Community": "Ton point dans la communauté"
+  "So finanziert sich KiezCoins": "Comment KiezCoins se finance",
+  "Zuerst deckt KiezCoins die Fixkosten. Vom Rest bekommt die Entwicklerin 30 %, die Community 70 %.": "KiezCoins couvre d’abord ses frais fixes. Du reste, la développeuse reçoit 30 % et la communauté 70 %.",
+  "Entwicklerin 30 %, Community 70 %": "Développeuse 30 %, communauté 70 %",
+  "Entwicklerin 30 %": "Développeuse 30 %",
+  "Community 70 %": "Communauté 70 %",
+  "{aktiv} aktiv, {inaktiv} nur angemeldet": "{aktiv} actifs, {inaktiv} seulement inscrits",
+  "1 Punkt = 1 Person": "1 point = 1 personne",
+  "1 Punkt = {n} Personen": "1 point = {n} personnes",
+  "Die Zahlen sind gerade nicht erreichbar.": "Les chiffres ne sont pas disponibles pour le moment.",
+  "Details auf der Website": "Détails sur le site"
 }

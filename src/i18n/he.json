@@ -1276,6 +1276,14 @@
   "Bedienelemente ausblenden": "הסתרת פקדים",
   "Bedienelemente einblenden": "הצגת פקדים",
   "Titel (optional)": "כותרת (רשות)",
-  "Finanzierung": "מימון",
-  "Dein Punkt in der Community": "הנקודה שלך בקהילה"
+  "So finanziert sich KiezCoins": "כך KiezCoins ממומנת",
+  "Zuerst deckt KiezCoins die Fixkosten. Vom Rest bekommt die Entwicklerin 30 %, die Community 70 %.": "קודם KiezCoins מכסה את העלויות הקבועות. מהשאר המפתחת מקבלת 30 % והקהילה 70 %.",
+  "Entwicklerin 30 %, Community 70 %": "מפתחת 30 %, קהילה 70 %",
+  "Entwicklerin 30 %": "מפתחת 30 %",
+  "Community 70 %": "קהילה 70 %",
+  "{aktiv} aktiv, {inaktiv} nur angemeldet": "{aktiv} פעילים, {inaktiv} רק רשומים",
+  "1 Punkt = 1 Person": "נקודה אחת = אדם אחד",
+  "1 Punkt = {n} Personen": "נקודה אחת = {n} אנשים",
+  "Die Zahlen sind gerade nicht erreichbar.": "המספרים לא זמינים כרגע.",
+  "Details auf der Website": "פרטים באתר"
 }

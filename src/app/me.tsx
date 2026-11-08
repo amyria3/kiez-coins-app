@@ -28,6 +28,7 @@ import { FashionProfile } from '../components/FashionProfile';
 import { SchiffWellen } from '../components/SchiffWellen';
 import { getLanguage, t } from '../data/texts';
 import { useGoBack } from '../lib/goBack';
+import { FinanceOverview } from '../components/FinanceOverview';
 
 /** Was in der Karte „Du bist dran“ als Aufgabe steht. */
 function taskLabel({ challenge, role }: ReiseEntry): string {
@@ -194,6 +195,9 @@ function Reise() {
             <GroupsEmpty onCreate={() => router.push('/groups/new')} onJoin={() => router.push('/groups/join')} />
           </View>
         )}
+
+        {/* Finanzierung ganz unten: Text, Balken, Punkte, Link für Details (Daria, 08.11.2026) */}
+        <FinanceOverview />
       </ScrollView>
       <TabBar
         active="reise"

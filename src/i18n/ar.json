@@ -1276,6 +1276,14 @@
   "Bedienelemente ausblenden": "إخفاء عناصر التحكم",
   "Bedienelemente einblenden": "إظهار عناصر التحكم",
   "Titel (optional)": "العنوان (اختياري)",
-  "Finanzierung": "التمويل",
-  "Dein Punkt in der Community": "نقطتك في المجتمع"
+  "So finanziert sich KiezCoins": "هكذا يُموَّل KiezCoins",
+  "Zuerst deckt KiezCoins die Fixkosten. Vom Rest bekommt die Entwicklerin 30 %, die Community 70 %.": "أولاً يغطي KiezCoins التكاليف الثابتة. ومن الباقي تحصل المطوِّرة على 30 % والمجتمع على 70 %.",
+  "Entwicklerin 30 %, Community 70 %": "المطوِّرة 30 %، المجتمع 70 %",
+  "Entwicklerin 30 %": "المطوِّرة 30 %",
+  "Community 70 %": "المجتمع 70 %",
+  "{aktiv} aktiv, {inaktiv} nur angemeldet": "{aktiv} نشطون، {inaktiv} مسجَّلون فقط",
+  "1 Punkt = 1 Person": "نقطة واحدة = شخص واحد",
+  "1 Punkt = {n} Personen": "نقطة واحدة = {n} أشخاص",
+  "Die Zahlen sind gerade nicht erreichbar.": "الأرقام غير متاحة الآن.",
+  "Details auf der Website": "التفاصيل على الموقع"
 }
