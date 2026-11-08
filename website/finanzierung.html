@@ -21,6 +21,11 @@
 .regler label { display: grid; gap: 6px; font-size: 14px; color: var(--muted); }
 .regler .kopf { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; column-gap: 8px; }
 .regler .kopf b { font: 600 20px/1 var(--display); color: var(--text); font-variant-numeric: tabular-nums; }
+/* Zahl antippen und eintippen (Daria, 08.11.2026) */
+.regler .kopf .zahl { font: 600 20px/1 var(--display); color: var(--text); font-variant-numeric: tabular-nums; text-align: right;
+  width: 6.5ch; field-sizing: content; min-width: 2ch; margin: -4px -6px -4px 0; padding: 4px 6px; border: 0; border-radius: 8px; background: transparent; cursor: text; }
+.regler .kopf .zahl:hover { background: var(--flaeche-tief); }
+.regler .kopf .zahl:focus { background: var(--flaeche-tief); outline: 2px solid var(--farbe); outline-offset: 0; }
 .regler .kopf i { font-style: normal; display: inline-flex; align-items: baseline; gap: 8px; color: var(--text); font-weight: 400; }
 .regler .kopf small { grid-column: 1 / -1; font-size: 13px; color: var(--muted); font-weight: 300; padding-left: 18px; white-space: nowrap; }
 .regler .kopf .punkt { transform: translateY(-1px); }
@@ -252,11 +257,24 @@
         var l = el('label'); l.style.setProperty('--farbe', a.farbe);
         var k = el('span', 'kopf');
         k.innerHTML = '<i>' + punkt(a.farbe) + a.name + '</i>';
-        var b = el('b', null, zahl(v[a.key])); k.appendChild(b); k.appendChild(el('small', null, a.was));
+        // Die Zahl ist ein Eingabefeld: antippen, Zahl eintippen. Gilt von 0 bis zum Ende des Reglers.
+        var b = el('input', 'zahl'); b.type = 'text'; b.inputMode = 'numeric'; b.autocomplete = 'off'; b.enterKeyHint = 'done';
+        b.value = zahl(v[a.key]); b.setAttribute('aria-label', a.name + ': Zahl eingeben, 0 bis ' + zahl(a.max));
+        k.appendChild(b); k.appendChild(el('small', null, a.was));
         var r = el('input'); r.type = 'range'; r.min = 0; r.max = a.max; r.step = a.schritt; r.value = v[a.key];
         r.setAttribute('aria-label', a.name + ', ' + a.was);
         var pct = function () { r.style.setProperty('--pct', (r.value / a.max * 100) + '%'); }; pct();
-        r.addEventListener('input', function () { pct(); v[a.key] = +r.value; b.textContent = zahl(v[a.key]); zeichne(); });
+        r.addEventListener('input', function () { pct(); v[a.key] = +r.value; b.value = zahl(v[a.key]); zeichne(); });
+        (function (a, b, r, pct) {
+          var lies = function () { var d = b.value.replace(/\D/g, ''); return d === '' ? null : Math.min(a.max, parseInt(d, 10)); };
+          b.addEventListener('focus', function () { b.value = String(v[a.key]); b.select(); });
+          b.addEventListener('input', function () {
+            var n = lies(); if (n == null || n === v[a.key]) return;
+            v[a.key] = n; r.value = n; pct(); zeichne();
+          });
+          b.addEventListener('keydown', function (e) { if (e.key === 'Enter') b.blur(); if (e.key === 'Escape') { b.value = String(v[a.key]); b.blur(); } });
+          b.addEventListener('blur', function () { var n = lies(); if (n != null && n !== v[a.key]) { v[a.key] = n; r.value = n; pct(); zeichne(); } b.value = zahl(v[a.key]); });
+        })(a, b, r, pct);
         l.appendChild(k); l.appendChild(r); regler.appendChild(l);
       });
       var s = el('label', 'schalter');
