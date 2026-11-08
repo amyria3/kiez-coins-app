@@ -463,6 +463,45 @@ export async function loadLikers(challengeId: string): Promise<User[] | null> {
   return ids.map((id) => byId.get(id)).filter((u): u is User => !!u);
 }
 
+type CommentLikes = Map<string, { n: number; mine: boolean }>;
+
+/** Likes je Kommentar der Challenges (Funktion comment_like_counts, Migration 20261108000300). Ohne Migration `null`. */
+async function loadCommentLikes(challengeIds: string[]): Promise<CommentLikes | null> {
+  if (!challengeIds.length) return new Map();
+  const { data, error } = await supabase.rpc('comment_like_counts', { p_challenge_ids: challengeIds });
+  if (error || !data) return null;
+  return new Map(
+    (data as { comment_id: string; n: number; mine: boolean }[]).map((r) => [r.comment_id, { n: Number(r.n), mine: !!r.mine }]),
+  );
+}
+
+/** Zahl und eigenes Like an die Kommentare hängen; ohne Migration bleibt alles, wie es war. */
+function withCommentLikes(challenge: Challenge, likes: CommentLikes | null): Challenge {
+  if (!likes || !challenge.comments.length) return challenge;
+  return {
+    ...challenge,
+    comments: challenge.comments.map((c) => {
+      const l = likes.get(c.id);
+      return { ...c, likeCount: l?.n ?? 0, likedByMe: l?.mine ?? false };
+    }),
+  };
+}
+
+/**
+ * Wer einen Kommentar geliked hat, neueste zuerst (Funktion comment_likers, Migration 20261108000300).
+ * Ohne Migration `null`.
+ */
+export async function loadCommentLikers(commentId: string): Promise<User[] | null> {
+  const { data, error } = await supabase.rpc('comment_likers', { p_comment_id: commentId });
+  if (error || !data) return null;
+  const ids = (data as { user_id: string }[]).map((r) => r.user_id);
+  if (!ids.length) return [];
+  const res = await selectProfiles(ids);
+  if (res.error || !res.data) return null;
+  const byId = new Map((res.data as ProfileRow[]).map((r) => [r.id, toUser(r)]));
+  return ids.map((id) => byId.get(id)).filter((u): u is User => !!u);
+}
+
 /** Lädt Feed, eigene Likes, Operationsnamen, Freigaben und alle beteiligten Profile. */
 export async function loadLiveData(userId: string): Promise<LiveData> {
   // Drei Runden statt sechs: alles, was nicht voneinander abhängt, geht gleichzeitig raus (2026-11-05)
@@ -484,10 +523,11 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
   const names = new Map((namesRes.data ?? []).map((n) => [n.challenge_id as string, n.name as string]));
   const shares = new Map<string, ShareRow[]>();
   for (const s of (sharesRes.data ?? []) as ShareRow[]) shares.set(s.challenge_id, [...(shares.get(s.challenge_id) ?? []), s]);
-  const [participants, payoutLines, likeCounts] = await Promise.all([
+  const [participants, payoutLines, likeCounts, commentLikes] = await Promise.all([
     loadParticipants(rows.filter((r) => r.type === 'individual').map((r) => r.id)),
     loadPayoutLines(rows.filter((r) => r.bounty_amount && PAYMENT_STATUSES.has(r.status)).map((r) => r.id)),
     loadLikeCounts(rows.map((r) => r.id)),
+    loadCommentLikes(rows.filter((r) => r.comments?.length).map((r) => r.id)),
   ]);
 
   const ids = new Set<string>([userId]);
@@ -511,14 +551,14 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
   return {
     users,
     challenges: rows.map((r) => ({
-      ...toChallenge(r, {
+      ...withCommentLikes(toChallenge(r, {
         liked: liked.has(r.id),
         operationName: names.get(r.id),
         shares: shares.get(r.id),
         participants: participants.get(r.id),
         payouts: payoutLines.get(r.id),
         userId,
-      }),
+      }), commentLikes),
       ...(r.author_id === userId && views ? { views: views.get(r.id) ?? 0 } : {}),
       ...(likeCounts.size ? { likeCount: likeCounts.get(r.id) ?? 0 } : {}),
     })),
@@ -561,17 +601,20 @@ export async function loadChallenge(
         await selectProfiles([...ids]),
       )
     : { data: [] };
-  const likeCounts = await loadLikeCounts([row.id]);
+  const [likeCounts, commentLikes] = await Promise.all([
+    loadLikeCounts([row.id]),
+    row.comments.length ? loadCommentLikes([row.id]) : Promise.resolve<CommentLikes | null>(new Map()),
+  ]);
   return {
     challenge: {
-      ...toChallenge(row, {
+      ...withCommentLikes(toChallenge(row, {
         liked: !!likeRes.data,
         operationName: (nameRes.data?.name as string | undefined) ?? undefined,
         shares: (shareRes.data as ShareRow[] | null) ?? undefined,
         participants,
         payouts,
         userId,
-      }),
+      }), commentLikes),
       ...(likeCounts.size ? { likeCount: likeCounts.get(row.id) ?? 0 } : {}),
     },
     users: ((profilesRes.data ?? []) as ProfileRow[]).map((p) => toUser(p)),
@@ -1304,6 +1347,15 @@ export async function setLike(challengeId: string, userId: string, liked: boolea
     if ((res.error as { code?: string } | null)?.code === '23505') return;
     check(res);
   } else check(await supabase.from('likes').delete().eq('challenge_id', challengeId).eq('user_id', userId));
+}
+
+export async function setCommentLike(commentId: string, userId: string, liked: boolean) {
+  if (liked) {
+    const res = await supabase.from('comment_likes').insert({ comment_id: commentId });
+    // Schon geliked (z. B. auf einem anderen Gerät): Ziel erreicht
+    if ((res.error as { code?: string } | null)?.code === '23505') return;
+    check(res);
+  } else check(await supabase.from('comment_likes').delete().eq('comment_id', commentId).eq('user_id', userId));
 }
 
 export async function sharePayout(challengeId: string, share: PayoutShare, userId: string) {

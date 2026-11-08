@@ -580,6 +580,15 @@ export default function ChallengeDetail() {
                 : 'Lege in Deinem Konto Deinen Kiez fest, dann kannst Du mitschreiben.'
           }
           onAuthorPress={openProfile}
+          // Kommentar-Likes erst, wenn die Datenbank sie kennt (Migration 20261108000300); im Demo immer
+          onLike={
+            mode === 'demo' || challenge.comments.some((c) => c.likeCount !== undefined)
+              ? (comment) => dispatch({ type: 'toggleCommentLike', id: challenge.id, commentId: comment.id })
+              : undefined
+          }
+          onLikesPress={(comment) =>
+            router.push({ pathname: '/challenge/[id]/likes', params: { id: challenge.id, kommentar: comment.id } })
+          }
           onReport={(comment) =>
             router.push({ pathname: '/user/[id]/report', params: { id: comment.authorId, challengeId: challenge.id } })
           }
