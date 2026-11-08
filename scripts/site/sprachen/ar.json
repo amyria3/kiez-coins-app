@@ -50,7 +50,7 @@
   "Datenschutz": "الخصوصية (بالألمانية)",
   "Nutzungsbedingungen": "شروط الاستخدام (بالألمانية)",
   "Community-Regeln": "قواعد المجتمع (بالألمانية)",
-"Co-Founder:in gesucht": "مطلوب شريك مؤسس (بالألمانية والإنجليزية)",
+  "Co-Founder:in gesucht": "مطلوب شريك مؤسس (بالألمانية والإنجليزية)",
   "Bildquellen": "مصادر الصور",
   "Cat The Käptn mit Sonnenbrille, Schürze und Besen": "Cat The Käptn بنظارة شمسية ومريلة ومكنسة",
   "Nach oben": "إلى الأعلى",
@@ -266,5 +266,7 @@
   "Das ist eine We-Challenge in Deinem Kiez": "هذا We-Challenge في حيّك",
   "Das ist ein Bild für Deinen Kiez": "هذه صورة لحيّك",
   "Das ist der Feed Deines Kiezes": "هذا موجز حيّك",
-  "Das ist der Feed für alle": "هذا موجز للجميع"
+  "Das ist der Feed für alle": "هذا موجز للجميع",
+  "Nach der Installation {link}. So startet die App in der Sprache dieser Seite.": "بعد التثبيت، {link}. هكذا يبدأ التطبيق بلغة هذه الصفحة.",
+  "KiezCoins hier öffnen": "افتح KiezCoins من هنا"
 }

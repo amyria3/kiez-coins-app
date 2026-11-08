@@ -50,7 +50,7 @@
   "Datenschutz": "Конфіденційність (нім.)",
   "Nutzungsbedingungen": "Умови використання (нім.)",
   "Community-Regeln": "Правила спільноти (нім.)",
-"Co-Founder:in gesucht": "Шукаємо співзасновника (нім./англ.)",
+  "Co-Founder:in gesucht": "Шукаємо співзасновника (нім./англ.)",
   "Bildquellen": "Джерела зображень",
   "Cat The Käptn mit Sonnenbrille, Schürze und Besen": "Cat The Käptn у сонцезахисних окулярах, фартуху й з мітлою",
   "Nach oben": "Нагору",
@@ -266,5 +266,7 @@
   "Das ist eine We-Challenge in Deinem Kiez": "Це We-Challenge у твоєму районі",
   "Das ist ein Bild für Deinen Kiez": "Це фото для твого району",
   "Das ist der Feed Deines Kiezes": "Це стрічка твого району",
-  "Das ist der Feed für alle": "Це стрічка для всіх"
+  "Das ist der Feed für alle": "Це стрічка для всіх",
+  "Nach der Installation {link}. So startet die App in der Sprache dieser Seite.": "Після встановлення {link}. Так застосунок запуститься мовою цієї сторінки.",
+  "KiezCoins hier öffnen": "відкрий KiezCoins тут"
 }
