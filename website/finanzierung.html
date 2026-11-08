@@ -335,7 +335,7 @@
         takt[i * 4] = 0.55 + zufall(i * 4 + 3) * 0.9;            // Geschwindigkeit
         takt[i * 4 + 1] = zufall(i * 4 + 4) * Math.PI * 2;       // Phase
         takt[i * 4 + 2] = zufall(i * 4 + 5) * Math.PI * 2;       // Drehung
-        takt[i * 4 + 3] = 0.88 + zufall(i * 4 + 6) * 0.24;       // Verzug
+        takt[i * 4 + 3] = 0.92 + zufall(i * 4 + 6) * 0.16;       // Größe; Form bleibt die gezeichnete, nur gedreht und gespiegelt
       }
       // Eigener Punkt: k-ter Punkt der eigenen Gruppe
       var ziel = -1, mk = opt.markiere;
@@ -393,8 +393,9 @@
           var rr = b.r * puls;
           if (!form) { ctx.rect(px - rr, py - rr, rr * 2, rr * 2); continue; }
           if (b.gruppen[gi].eckig) { ctx.save(); ctx.translate(px, py); ctx.rotate(b.takt[k + 2] * 0.15); ctx.fillRect(-rr * 0.9, -rr * 0.9, rr * 1.8, rr * 1.8); ctx.restore(); continue; }
-          var c = Math.cos(b.takt[k + 2]), sn = Math.sin(b.takt[k + 2]), sx = rr * b.takt[k + 3], sy = rr * (2 - b.takt[k + 3]);
-          ctx.setTransform(dpr * c * sx, dpr * sn * sx, -dpr * sn * sy, dpr * c * sy, dpr * px, dpr * py);
+          // Nicht verzerren: Die Unregelmäßigkeit kommt aus der gezeichneten Linie, nicht aus Stauchen (Daria, 08.11.2026)
+          var c = Math.cos(b.takt[k + 2]), sn = Math.sin(b.takt[k + 2]), sc = rr * b.takt[k + 3], fl = b.takt[k + 2] > Math.PI ? -1 : 1;
+          ctx.setTransform(dpr * c * sc * fl, dpr * sn * sc * fl, -dpr * sn * sc, dpr * c * sc, dpr * px, dpr * py);
           ctx.fill(KNOPF);
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         }
