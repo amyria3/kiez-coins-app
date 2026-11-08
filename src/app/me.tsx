@@ -136,26 +136,23 @@ function Reise() {
             In anderen Sprachen stehen die Icons vor dem übersetzten Satz, da die Wortfolge dort eine andere ist. */}
         {isFashionable ? null : getLanguage() === 'de' ? (
           <View style={styles.community} accessible accessibilityLabel="Diese Community braucht Dich">
-            {/* Zwei Gruppen: Wird es zu eng, bricht die Zeile zwischen ihnen um */}
-            <View style={styles.communityIcons}>
-              <Icon name="heart" size={18} color={color.text.primary} />
-              <Text noTranslate style={styles.communityText}>Diese Community</Text>
-              <Icon name="thumbs-up" size={18} color={color.text.primary} />
-            </View>
-            <View style={styles.communityIcons}>
-              <Text noTranslate style={styles.communityText}>braucht</Text>
-              <SchiffWellen />
-              <Text noTranslate style={styles.communityText}>Dich</Text>
-              <CrownIcon height={26} />
-            </View>
+            {/* Jedes Wort und Icon einzeln: Die Zeile bricht erst um, wenn wirklich kein Platz mehr ist (Daria, 08.11.2026) */}
+            <Icon name="heart" size={18} color={COMMUNITY} />
+            <Text noTranslate style={styles.communityText}>Diese</Text>
+            <Text noTranslate style={styles.communityText}>Community</Text>
+            <Icon name="thumbs-up" size={18} color={COMMUNITY} />
+            <Text noTranslate style={styles.communityText}>braucht</Text>
+            <SchiffWellen farbe={COMMUNITY} />
+            <Text noTranslate style={styles.communityText}>Dich</Text>
+            <CrownIcon height={21} />
           </View>
         ) : (
           <View style={styles.community}>
             <View style={styles.communityIcons}>
-              <Icon name="heart" size={18} color={color.text.primary} />
-              <Icon name="thumbs-up" size={18} color={color.text.primary} />
-              <SchiffWellen />
-              <CrownIcon height={26} />
+              <Icon name="heart" size={18} color={COMMUNITY} />
+              <Icon name="thumbs-up" size={18} color={COMMUNITY} />
+              <SchiffWellen farbe={COMMUNITY} />
+              <CrownIcon height={21} />
             </View>
             <Text style={styles.communityText}>Diese Community braucht Dich</Text>
           </View>
@@ -228,6 +225,9 @@ function Thumb({ entry, size: side }: { entry: ReiseEntry; size: number }) {
   );
 }
 
+/** „Diese Community braucht Dich“ in einer Farbe, Text wie Icons (Daria, 08.11.2026) */
+const COMMUNITY = color.icon.large;
+
 const styles = StyleSheet.create({
   // GroupBar und GroupsEmpty bringen 16 pt Rand mit; hier steht schon der Rand der Seite
   bleed: { marginHorizontal: -space[16] },
@@ -239,9 +239,9 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.8 },
   title: { ...text.display, color: color.text.primary },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
-  community: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: space[6], rowGap: space[8] },
+  community: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: 3, rowGap: space[8] },
   communityIcons: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
-  communityText: { ...text.body, fontFamily: font.medium, color: color.text.primary, flexShrink: 1 },
+  communityText: { ...text.body, fontFamily: font.medium, color: COMMUNITY },
   flex1: { flex: 1 },
   task: {
     flexDirection: 'row',
