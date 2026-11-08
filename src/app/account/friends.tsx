@@ -8,7 +8,7 @@ import { Button } from '../../components/Button';
 import { FieldGroup, Notice } from '../../components/Content';
 import { CopyField, TextField } from '../../components/Form';
 import { useNudge } from '../../components/Nudge';
-import { FriendInviteQr } from '../../components/FriendInviteQr';
+import { InviteQr } from '../../components/InviteQr';
 import { SubScreen } from '../../components/Screen';
 import { FRIEND_CODE_LENGTH, friendInviteLink, friendInviteMessage, parseFriendCode } from '../../data/friendInvites';
 import { acceptFriend, acceptFriendInvite, errorDetail, errorText, loadFriends, myFriendInvite, removeFriend, type FriendLists } from '../../data/remote';
@@ -51,7 +51,7 @@ export default function Friends() {
   }, [mode]);
 
   const renewCode = () =>
-    Alert.alert('Neuen Code erzeugen?', 'Der bisherige Link, QR-Code und Code funktionieren danach nicht mehr.', [
+    Alert.alert('Neuen Passcode erzeugen?', 'Der bisherige Link, QR-Code und Passcode funktionieren danach nicht mehr.', [
       { text: 'Abbrechen', style: 'cancel' },
       {
         text: 'Neu erzeugen',
@@ -107,7 +107,7 @@ export default function Friends() {
     run((l) => ({ ...l, outgoing: without(l.outgoing, user) }), () => removeFriend(currentUserId, user.id));
   const open = (user: User) => router.push({ pathname: '/user/[id]', params: { id: user.id } });
 
-  // Einladungscode gleich hier eintippen, ohne eigene Seite (UX-Audit, Daria, 27.10.2026)
+  // Passcode gleich hier eintippen, ohne eigene Seite (UX-Audit, Daria, 27.10.2026)
   const [code, setCode] = useState('');
   const [joining, setJoining] = useState(false);
   const codeField = useNudge();
@@ -157,7 +157,7 @@ export default function Friends() {
           {lists.friends.length ? (
             lists.friends.map((user) => <AuthorRow key={user.id} user={user} location={user.location} onPress={() => open(user)} />)
           ) : (
-            <Text style={styles.secondary}>Noch niemand. Lade Leute per Link, QR-Code oder Code ein.</Text>
+            <Text style={styles.secondary}>Noch niemand. Lade Leute per Link, QR-Code oder Passcode ein.</Text>
           )}
         </FieldGroup>
       ) : null}
@@ -165,16 +165,16 @@ export default function Friends() {
       {inviteCode ? (
         <FieldGroup label="Einladen">
           <Text style={styles.secondary}>Wer Deine Einladung annimmt, ist sofort mit Dir befreundet.</Text>
-          <FriendInviteQr value={friendInviteLink(inviteCode)} />
+          <InviteQr value={friendInviteLink(inviteCode)} />
           <CopyField label="Einladungslink" value={friendInviteLink(inviteCode)} />
-          <CopyField label="Einladungscode" value={inviteCode} />
+          <CopyField label="Passcode" value={inviteCode} />
           <Button label="Einladung teilen" icon="friends" onPress={() => shareText(friendInviteMessage(inviteCode))} />
-          <Button label="Neuen Code erzeugen" variant="secondary" onPress={renewCode} />
+          <Button label="Neuen Passcode erzeugen" variant="secondary" onPress={renewCode} />
         </FieldGroup>
       ) : null}
       <FieldGroup label="Einladung annehmen">
         <TextField
-          label="Einladungscode"
+          label="Passcode"
           nudge={codeField}
           helperText="7 Zeichen. Du kannst auch den ganzen Link oder die Nachricht einfügen."
           value={code}
@@ -190,7 +190,7 @@ export default function Friends() {
           variant="secondary"
           onPress={acceptInvite}
           disabled={joining || cleanCode.length !== FRIEND_CODE_LENGTH}
-          whyDisabled={() => !joining && codeField.nudge('Der Code hat 7 Zeichen.')}
+          whyDisabled={() => !joining && codeField.nudge('Der Passcode hat 7 Zeichen.')}
         />
       </FieldGroup>
       {lists && lists.outgoing.length ? (

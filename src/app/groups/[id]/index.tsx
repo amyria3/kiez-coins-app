@@ -1,14 +1,14 @@
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
-import { shareText } from '../../../lib/share';
 import { Text } from '../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Avatar } from '../../../components/AuthorRow';
 import { Button } from '../../../components/Button';
 import { FieldGroup, KaterCard } from '../../../components/Content';
-import { CopyField, SwitchRow } from '../../../components/Form';
+import { SwitchRow } from '../../../components/Form';
+import { GroupInvite } from '../../../components/GroupInvite';
 import { SubScreen } from '../../../components/Screen';
-import { inviteLink, inviteMessage, MAX_MEMBERS } from '../../../data/groups';
+import { MAX_MEMBERS } from '../../../data/groups';
 import { useStore } from '../../../data/store';
 import type { User } from '../../../data/types';
 import { color, radius, space, text } from '../../../theme/tokens';
@@ -17,7 +17,7 @@ import { useGoBack } from '../../../lib/goBack';
 import { turnOnGroups } from '../../../data/features';
 
 /**
- * Route `groups/[id]`: Mitglieder, Einladungscode, unten „Zurück zum Feed“.
+ * Route `groups/[id]`: Mitglieder, Einladung per QR-Code oder Link und Passcode, unten „Zurück zum Feed“.
  * Die Gründerin entfernt Mitglieder und überträgt ihre Rolle (Mitglied antippen).
  * In den Gruppeneinstellungen schaltet sie die Rangliste ein und aus. Die Rangliste selbst steht in
  * „Was Du so machst“ unter „In Gruppen“ (UX-Audit, Daria, 27.10.2026); hier stehen die Mitglieder nach Beitritt.
@@ -168,15 +168,7 @@ export default function GroupDetail() {
         </FieldGroup>
       ) : null}
 
-      {group.members.length < MAX_MEMBERS ? (
-        <FieldGroup label="Leute einladen">
-          <CopyField label="Beitrittscode" value={group.inviteCode} />
-          <CopyField label="Einladungslink" value={inviteLink(group.inviteCode)} />
-          <Button label="Einladung teilen" variant="secondary" icon="friends" onPress={() => shareText(inviteMessage(group))} />
-        </FieldGroup>
-      ) : (
-        <Text style={styles.meta}>{t('Die Gruppe ist voll. Mehr als {MAX_MEMBERS} Mitglieder geht nicht.', { MAX_MEMBERS })}</Text>
-      )}
+      <GroupInvite group={group} />
 
       <Button
         label={isFounder && group.members.length === 1 ? 'Gruppe auflösen' : 'Gruppe verlassen'}

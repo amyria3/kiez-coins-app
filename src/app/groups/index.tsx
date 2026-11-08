@@ -30,7 +30,7 @@ export default function Groups() {
       actions={
         <>
           <Button label="Gruppe gründen" onPress={() => router.push('/groups/new')} disabled={full} whyDisabled={tooMany} />
-          <Button label="Mit Beitrittscode beitreten" variant="ghost" onPress={() => router.push('/groups/join')} disabled={full} whyDisabled={tooMany} />
+          <Button label="Mit Passcode beitreten" variant="ghost" onPress={() => router.push('/groups/join')} disabled={full} whyDisabled={tooMany} />
         </>
       }
     >
