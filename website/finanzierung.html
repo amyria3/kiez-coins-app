@@ -95,6 +95,12 @@
   .top .marke { font-size: 12px; }
   .top-link { padding: 8px 12px; font-size: 13px; }
 }
+.rechner-kopf { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; margin: 64px 0 20px; }
+.rechner-kopf h2 { margin: 0; }
+.umschalter { display: inline-flex; padding: 3px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
+.umschalter button { background: none; border: 0; border-radius: 999px; padding: 10px 20px; cursor: pointer; font: 500 15px/1 Inter, sans-serif; color: var(--muted); transition: background-color 200ms, color 200ms; }
+.umschalter button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+.ist-hinweis { margin: -8px 0 16px; font-size: 14px; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -110,7 +116,14 @@
 </section>
 
 <section class="fin-rechner" aria-labelledby="rechner-titel">
-  <h2 id="rechner-titel">Stell die Zahl der Abos ein</h2>
+  <div class="rechner-kopf">
+    <h2 id="rechner-titel">Stell die Zahl der Abos ein</h2>
+    <div class="umschalter" role="group" aria-label="Ansicht">
+      <button type="button" data-ansicht="modell" aria-pressed="true">Modell</button>
+      <button type="button" data-ansicht="ist" aria-pressed="false">Ist-Zustand</button>
+    </div>
+  </div>
+  <p class="ist-hinweis" id="ist-hinweis" hidden></p>
   <div id="rechner"></div>
 </section>
 
@@ -126,6 +139,7 @@
     <li><b>Dachs</b> (Partnerladen): 19&nbsp;€ netto im Monat, jährlich per SEPA-Lastschrift.</li>
     <li><b>Storch</b> (Community-Sponsorin): 5&nbsp;€ im Monat per Karte (1,5&nbsp;% + 0,25&nbsp;€).</li>
     <li><b>Kleinunternehmerin:</b> ohne Umsatzsteuer. Danach gelten 19&nbsp;%.</li>
+    <li><b>Ist-Zustand:</b> echte Zahlen aus der Datenbank, ohne Testkonten und Gruppenprofile. Abos gibt es noch keine, die Fixkosten sind die der Testphase.</li>
     <li><b>Aktive:</b> Personen, die KiezCoins im Monat mindestens einmal öffnen. <b>Inaktive</b> haben ein Konto, öffnen die App im Monat aber nicht. Die Zeitleiste rechnet mit anderthalb Inaktiven pro aktiver Person.</li>
     <li><b>Speicher und E-Mails:</b> etwa 0,5&nbsp;Cent pro aktiver Person im Monat.</li>
     <li><b>Entwicklerin:</b> 3.000&nbsp;€ Personalkosten ergeben etwa 2.000&nbsp;€ netto.</li>
@@ -197,8 +211,8 @@
 
   // Ein Modell: links die Posten, rechts die Community als Punkte
   function modell(ziel, start, opt) {
-    var v = Object.assign({}, start);
-    var box = el('div', 'modell' + (opt.interaktiv ? '' : ' klein'));
+    var v = opt.werte || Object.assign({}, start);
+    var box = el('div', 'modell' + (opt.interaktiv || opt.gross ? '' : ' klein'));
     if (opt.interaktiv) {
       var regler = el('div', 'regler');
       ABOS.forEach(function (a) {
@@ -277,7 +291,7 @@
       var farben = gruppen.map(function (g) { return cs.getPropertyValue(g.farbe).trim(); });
       var dpr = window.devicePixelRatio || 1;
       var w = canvas.clientWidth;
-      var hgt = Math.min(w, opt.interaktiv ? 460 : 320);
+      var hgt = Math.min(w, opt.interaktiv || opt.gross ? 460 : 320);
       canvas.style.height = hgt + 'px';
       canvas.width = w * dpr; canvas.height = hgt * dpr;
       var ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, hgt);
@@ -307,7 +321,8 @@
       for (i = kern; i < N; i++) art[i] = (i - kern) < restAktiv ? AKTIV : INAKTIV;
 
       if (N) {
-        var R = Math.min(w, hgt) / 2 - 2, cx = w / 2, cy = hgt / 2;
+        // wenige Personen: Punkte bleiben klein, die Scheibe wird kleiner
+        var R = Math.min(Math.min(w, hgt) / 2 - 2, 9 * Math.sqrt(N / Math.PI) + 4), cx = w / 2, cy = hgt / 2;
         var abstand = R * Math.sqrt(Math.PI / N);
         var r = abstand < 2.5 ? abstand * 0.5 : abstand * 0.38;
         var gold2 = Math.PI * (3 - Math.sqrt(5));
@@ -344,7 +359,44 @@
       v: { aktive: 32000, inaktive: 48000, schwalbe: 1000, dachs: 350, storch: 800, klein: false, gegruendet: true } }
   ];
 
-  modell(document.getElementById('rechner'), M[1].v, { interaktiv: true });
+  // Umschalter: Modell mit Reglern oder Ist-Zustand aus der Datenbank
+  var rechner = document.getElementById('rechner');
+  var titel = document.getElementById('rechner-titel');
+  var hinweis = document.getElementById('ist-hinweis');
+  var modellWerte = Object.assign({}, M[1].v);
+  var ist = null;
+  function holeIst() {
+    if (ist) return Promise.resolve(ist);
+    return fetch('https://aqxzxpxrshizlaqyjplw.supabase.co/rest/v1/rpc/finanzierung_ist', {
+      method: 'POST',
+      headers: { apikey: 'sb_publishable_WqrL7Y7Wm0l9cq4tHQpjAQ_iooAaNe0', 'Content-Type': 'application/json' },
+      body: '{}'
+    }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (d) { ist = d; return d; });
+  }
+  function zeige(ansicht) {
+    document.querySelectorAll('.umschalter button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.ansicht === ansicht)); });
+    rechner.innerHTML = '';
+    if (ansicht === 'modell') {
+      titel.textContent = 'Stell die Zahl der Abos ein';
+      hinweis.hidden = true;
+      modell(rechner, modellWerte, { interaktiv: true, werte: modellWerte });
+      return;
+    }
+    titel.textContent = 'So steht KiezCoins heute';
+    hinweis.hidden = false;
+    hinweis.textContent = 'Lade die Zahlen aus der Datenbank …';
+    holeIst().then(function (d) {
+      if (!document.querySelector('.umschalter [data-ansicht="ist"][aria-pressed="true"]')) return;
+      var aktiv = d.aktiv || 0, alle = d.registriert || 0;
+      hinweis.textContent = 'Stand ' + new Date(d.stand).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' }) + '. Aktiv heißt: in den letzten 30 Tagen etwas angesehen, gepostet, kommentiert oder geliked.';
+      modell(rechner, { aktive: aktiv, inaktive: Math.max(0, alle - aktiv), schwalbe: 0, dachs: 0, storch: 0, klein: true, gegruendet: false }, { gross: true });
+    }).catch(function () {
+      hinweis.textContent = 'Die Zahlen aus der Datenbank sind gerade nicht erreichbar.';
+    });
+  }
+  document.querySelectorAll('.umschalter button').forEach(function (b) { b.addEventListener('click', function () { zeige(b.dataset.ansicht); }); });
+  zeige('modell');
   var zl = document.getElementById('zeitleiste');
   M.forEach(function (m) {
     var li = el('li');
