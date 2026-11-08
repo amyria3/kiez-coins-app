@@ -13,7 +13,7 @@ P=(psql -h "$DIR" -p "$PORT" -U postgres -d postgres -q -v ON_ERROR_STOP=1)
 "${P[@]}" -f supabase/tests/lokal/supabase-ersatz.sql
 for f in supabase/migrations/*.sql; do
   # pg_cron gibt es lokal nicht, cron.schedule ersetzt die Ersatzdatei
-  sed -E 's/^create extension if not exists pg_cron.*$//' "$f" | "${P[@]}" >/dev/null 2>&1 || { echo "FEHLER in $f"; sed -E 's/^create extension if not exists pg_cron.*$//' "$f" | "${P[@]}"; exit 1; }
+  sed -E 's/^create extension if not exists (pg_cron|pgaudit).*$//; s/^alter role .* set pgaudit.*$//' "$f" | "${P[@]}" >/dev/null 2>&1 || { echo "FEHLER in $f"; sed -E 's/^create extension if not exists (pg_cron|pgaudit).*$//; s/^alter role .* set pgaudit.*$//' "$f" | "${P[@]}"; exit 1; }
   echo "ok $f"
 done
 for t in supabase/tests/*.sql; do echo "== $t"; "${P[@]}" -f "$t"; done
