@@ -472,7 +472,7 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
     supabase.from('operation_names').select('challenge_id, name').eq('user_id', userId),
     supabase.from('payout_shares').select('challenge_id, user_id, method, account_holder, iban, paypal'),
     supabase.from('payout_details').select('account_holder, iban, paypal').eq('user_id', userId).maybeSingle(),
-    loadViewCounts(),
+    loadViewCounts(userId),
     loadGroups(),
     loadBlockedIds(),
   ]);
@@ -1246,11 +1246,12 @@ export const restoreChallenge = (id: string, deadline?: string) =>
 export const shareChallengePublicly = (id: string) => rpc('share_challenge', { p_challenge_id: id });
 
 /**
- * Aufrufe eigener Challenges (RLS liefert nur die eigenen).
+ * Aufrufe eigener Challenges. Die RLS liefert die Aufrufe der eigenen Challenges und die eigenen
+ * Aufrufe fremder Posts (Migration 20261108000300). Die eigenen fallen hier raus.
  * `null`, solange die Migration `challenge_views` fehlt. Die App blendet die Zahl dann aus.
  */
-async function loadViewCounts(): Promise<Map<string, number> | null> {
-  const { data, error } = await supabase.from('challenge_views').select('challenge_id').limit(10000);
+async function loadViewCounts(userId: string): Promise<Map<string, number> | null> {
+  const { data, error } = await supabase.from('challenge_views').select('challenge_id').neq('user_id', userId).limit(10000);
   if (error) return null;
   const counts = new Map<string, number>();
   for (const row of data ?? []) counts.set(row.challenge_id, (counts.get(row.challenge_id) ?? 0) + 1);
