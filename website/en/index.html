@@ -151,13 +151,14 @@
           <li>Tap “Download the app”.</li>
           <li>Open the file <em>kiez-coins.apk</em> when the download is finished.</li>
           <li>Android asks whether your browser may install apps. Allow it and tap “Install”.</li>
+          <li>After installing, <a href="kiezcoins:///?sprache=en">open KiezCoins here</a>. This way the app starts in the language of this page.</li>
           <li>To update, download the new file here and install it the same way. Your data stays.</li>
         </ol>
       </div>
       <div class="card" id="iphone">
   <h3>iPhone</h3>
   <p>On the iPhone, KiezCoins runs as a web app in Safari. From the home screen it starts like an app.</p>
-  <a class="button" href="/app/">Open KiezCoins</a>
+  <a class="button" href="/app/?sprache=en">Open KiezCoins</a>
   <ol class="steps">
     <li>Open this page in <strong>Safari</strong> and tap “Open KiezCoins”.</li>
     <li>Tap the share icon in the bottom bar (square with an arrow pointing up).</li>
@@ -169,7 +170,7 @@
       <div class="card" id="browser">
         <h3>In the browser</h3>
         <p>No installation, right in the browser. Try the app without an account or create one – whichever you prefer.</p>
-        <a class="button" href="/app/">Try it right in the browser</a>
+        <a class="button" href="/app/?sprache=en">Try it right in the browser</a>
       </div>
     </div>
     <footer>
@@ -226,6 +227,11 @@
 
 <script src="/prototyp/app.js?v=1d13e012"></script>
 <script>
+  // Die App übernimmt die Sprache der Website (Daria, 08.11.2026): Fremdsprachige Seiten merken sich ihre Sprache,
+  // Deutsch nur bei ausdrücklicher Wahl im Sprachmenü. Die Web-App liest kc_website_sprache beim ersten Start.
+  function merkeSprache(l) { try { localStorage.setItem('kc_website_sprache', l); } catch (e) {} }
+  if ('en' !== 'de') merkeSprache('en');
+  document.querySelectorAll('.sprachwahl a[hreflang]').forEach(function (a) { a.addEventListener('click', function () { merkeSprache(a.getAttribute('hreflang')); }); });
   // Sprachmenü schließt beim Tipp daneben und mit Escape
   var sprache = document.querySelector('.sprachwahl');
   document.addEventListener('click', function (e) { if (sprache.open && !sprache.contains(e.target)) sprache.open = false; });
