@@ -463,7 +463,8 @@ const styles = StyleSheet.create({
     borderTopRightRadius: radius.sheet,
     backgroundColor: color.bg.screen,
     paddingTop: space[8],
-    paddingHorizontal: space[20],
+    // Mehr Luft links und rechts (Daria, 2026-11-09)
+    paddingHorizontal: space[24],
     paddingBottom: space[16],
     gap: space[12],
   },
