@@ -2,16 +2,14 @@ import { StyleSheet, View } from 'react-native';
 
 import { MODES, setModeHidden, setStandardMode, useModes, type Mode } from '../data/features';
 import { useStore } from '../data/store';
-import { t } from '../data/texts';
 import { color, space, text } from '../theme/tokens';
 import { FieldGroup } from './Content';
-import { RadioOption } from './Form';
-import { IconButton } from './IconButton';
+import { RadioOption, Toggle } from './Form';
 import { Text } from './T';
 
 /**
- * Modi Privat, Gruppe, Kiez (Onboarding und Dein Konto › Funktionen, Daria, 27.10.2026): Das Auge verbirgt
- * einen Modus, der letzte sichtbare bleibt. Darunter der Standard, der im Umschalter oben vorausgewählt ist.
+ * Modi Privat, Gruppe, Kiez (Onboarding und Dein Konto › Funktionen, Daria, 27.10.2026): Der Schalter (vorher ein Auge,
+ * Daria, 08.11.2026) blendet einen Modus aus; der letzte sichtbare bleibt an. Darunter der Standard, der im Umschalter oben vorausgewählt ist.
  */
 export function FeatureSwitches() {
   const { currentUserId } = useStore();
@@ -37,12 +35,9 @@ export function FeatureSwitches() {
                 <Text style={[text.body, { color: color.text.primary }]}>{m.label}</Text>
                 <Text style={[text.caption, { color: color.text.secondary }]}>{m.description}</Text>
               </View>
-              <IconButton
-                icon={visible ? 'eye' : 'eye-off'}
-                accessibilityLabel={t(visible ? '{mode} verbergen' : '{mode} zeigen', { mode: t(m.label) })}
-                iconColor={locked ? color.text.secondary : color.text.primary}
-                onPress={locked ? undefined : () => toggle(m.key)}
-              />
+              <View style={locked && styles.locked} pointerEvents={locked ? 'none' : 'auto'}>
+                <Toggle label={m.label} value={visible} onValueChange={() => toggle(m.key)} />
+              </View>
             </View>
           );
         })}
@@ -62,4 +57,6 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[4] },
   texts: { flex: 1, gap: space[2] },
   dim: { opacity: 0.5 },
+  // Letzter sichtbarer Modus: bleibt an
+  locked: { opacity: 0.5 },
 });
