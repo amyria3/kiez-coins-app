@@ -81,7 +81,12 @@ type Saved = {
   groups?: boolean;
   /** Verborgene Modi aus einem alten Zielgruppen-Link sind zurückgeholt (08.11.2026) */
   linkOffen?: boolean;
+  /** In Kiez und Überall ausgeblendete Beitragsarten (Daria, 08.11.2026) */
+  feedHide?: Partial<FeedHide>;
 };
+
+/** Beitragsarten, die jemand in Kiez und Überall ausblendet: Bilder und Textposts. Eigene Beiträge bleiben sichtbar. */
+export type FeedHide = { photo: boolean; text: boolean };
 
 const START_STANDARD: Mode = 'kiez';
 const KEY = (userId: string) => `kiez-features:${userId}`;
@@ -170,6 +175,17 @@ export function setModeHidden(userId: string, mode: Mode, hide: boolean) {
 /** Standardmodus festlegen; ein verborgener Modus wird dabei wieder sichtbar */
 export function setStandardMode(userId: string, mode: Mode) {
   store(userId, { ...saved, standard: mode, hidden: { ...hiddenOf(saved), [mode]: false } });
+}
+
+/** Bilder oder Textposts in Kiez und Überall aus- oder einblenden */
+export function setFeedHide(userId: string, kind: keyof FeedHide, hide: boolean) {
+  store(userId, { ...saved, feedHide: { ...saved.feedHide, [kind]: hide } });
+}
+
+/** Was in Kiez und Überall ausgeblendet ist */
+export function useFeedHide(): FeedHide {
+  useModes();
+  return { photo: !!saved.feedHide?.photo, text: !!saved.feedHide?.text };
 }
 
 /** Aktueller Stand der Modi */
