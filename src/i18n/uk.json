@@ -1276,6 +1276,14 @@
   "Bedienelemente ausblenden": "Сховати елементи керування",
   "Bedienelemente einblenden": "Показати елементи керування",
   "Titel (optional)": "Назва (необовʼязково)",
-  "Finanzierung": "Фінансування",
-  "Dein Punkt in der Community": "Твоя крапка в спільноті"
+  "So finanziert sich KiezCoins": "Як фінансується KiezCoins",
+  "Zuerst deckt KiezCoins die Fixkosten. Vom Rest bekommt die Entwicklerin 30 %, die Community 70 %.": "Спершу KiezCoins покриває постійні витрати. З решти розробниця отримує 30 %, спільнота – 70 %.",
+  "Entwicklerin 30 %, Community 70 %": "Розробниця 30 %, спільнота 70 %",
+  "Entwicklerin 30 %": "Розробниця 30 %",
+  "Community 70 %": "Спільнота 70 %",
+  "{aktiv} aktiv, {inaktiv} nur angemeldet": "{aktiv} активних, {inaktiv} лише зареєстровані",
+  "1 Punkt = 1 Person": "1 крапка = 1 людина",
+  "1 Punkt = {n} Personen": "1 крапка = {n} людей",
+  "Die Zahlen sind gerade nicht erreichbar.": "Дані зараз недоступні.",
+  "Details auf der Website": "Деталі на сайті"
 }

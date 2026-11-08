@@ -1261,6 +1261,14 @@
   "Bedienelemente ausblenden": "Скрыть элементы управления",
   "Bedienelemente einblenden": "Показать элементы управления",
   "Titel (optional)": "Заголовок (необязательно)",
-  "Finanzierung": "Финансирование",
-  "Dein Punkt in der Community": "Твоя точка в сообществе"
+  "So finanziert sich KiezCoins": "Как финансируется KiezCoins",
+  "Zuerst deckt KiezCoins die Fixkosten. Vom Rest bekommt die Entwicklerin 30 %, die Community 70 %.": "Сначала KiezCoins покрывает постоянные расходы. Из остатка разработчица получает 30 %, сообщество – 70 %.",
+  "Entwicklerin 30 %, Community 70 %": "Разработчица 30 %, сообщество 70 %",
+  "Entwicklerin 30 %": "Разработчица 30 %",
+  "Community 70 %": "Сообщество 70 %",
+  "{aktiv} aktiv, {inaktiv} nur angemeldet": "{aktiv} активных, {inaktiv} только зарегистрированы",
+  "1 Punkt = 1 Person": "1 точка = 1 человек",
+  "1 Punkt = {n} Personen": "1 точка = {n} человек",
+  "Die Zahlen sind gerade nicht erreichbar.": "Данные сейчас недоступны.",
+  "Details auf der Website": "Подробнее на сайте"
 }
