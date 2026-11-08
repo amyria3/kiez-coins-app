@@ -7,7 +7,7 @@ import { color, radius, size, space, stroke, isFashionable } from '../theme/toke
 import { SvgXml } from 'react-native-svg';
 import { Icon } from './icons/Icon';
 import { t } from '../data/texts';
-import { refreshUnread, useUnreadMessages } from '../data/chat';
+import { refreshUnread, useFriendRequests, useUnreadMessages } from '../data/chat';
 import { useStore } from '../data/store';
 import { PH, phXml, useIconPt } from './icons/fashionableSvgs';
 import { Avatar } from './AuthorRow';
@@ -53,6 +53,7 @@ function FashionTabBar({ active, onFeedPress, onCreatePress }: TabBarProps) {
   const me = users.find((u) => u.id === currentUserId);
   const hasTasks = reiseEntries(challenges, currentUserId).some((e) => e.needsAction);
   const unread = useUnreadMessages();
+  const requests = useFriendRequests();
   useEffect(() => {
     if (currentUserId) refreshUnread(currentUserId, mode === 'live').catch(() => {});
   }, [currentUserId, mode]);
@@ -83,14 +84,14 @@ function FashionTabBar({ active, onFeedPress, onCreatePress }: TabBarProps) {
         </Pressable>
         <Pressable
           accessibilityRole="tab"
-          accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : t('Chats')}
+          accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : requests ? t('Chats, neue Freundschaftsanfrage') : t('Chats')}
           accessibilityState={{ selected: active === 'chat' }}
           onPress={() => active !== 'chat' && router.push('/chat')}
           style={item(active === 'chat')}
         >
           <View>
             <SvgXml xml={phXml(PH.chats, color.text.primary)} width={ICON_PT} height={ICON_PT} />
-            {unread ? <View style={styles.dotFashionable} /> : null}
+            {unread || requests ? <View style={styles.dotFashionable} /> : null}
           </View>
         </Pressable>
         {/* Dein Bild = Was Du so machst (Icon-Regelwerk). Das Menü liegt dort oben rechts. */}
@@ -116,6 +117,7 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarP
   const router = useRouter();
   const { mode, currentUserId } = useStore();
   const unread = useUnreadMessages();
+  const requests = useFriendRequests();
   useEffect(() => {
     if (currentUserId) refreshUnread(currentUserId, mode === 'live').catch(() => {});
   }, [currentUserId, mode]);
@@ -137,14 +139,14 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarP
         {/* Chat und Freund:innen (Daria, 22.10.2026) */}
         <Pressable
           accessibilityRole="tab"
-          accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : t('Chats')}
+          accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : requests ? t('Chats, neue Freundschaftsanfrage') : t('Chats')}
           accessibilityState={{ selected: active === 'chat' }}
           onPress={() => active !== 'chat' && router.push('/chat')}
           style={({ pressed }) => [styles.item, active === 'chat' && styles.itemActive, pressed && styles.pressed]}
         >
           <View>
             <Icon name="message" size={size.icon} color={active === 'chat' ? color.text.primary : color.text.secondary} />
-            {unread ? <View style={styles.dot} /> : null}
+            {unread || requests ? <View style={styles.dot} /> : null}
           </View>
         </Pressable>
         {/* Kamera auch in der Leiste, als blaue Pille wie oben rechts (Daria, 30.10.2026) */}

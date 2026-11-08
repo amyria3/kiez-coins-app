@@ -10,7 +10,7 @@ import { KaterCard } from './Content';
 import { Logo, MonoCat } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { useRouter } from 'expo-router';
-import { useUnreadMessages } from '../data/chat';
+import { useFriendRequests, useUnreadMessages } from '../data/chat';
 import { SkeletonTopItem } from './Skeleton';
 import { t } from '../data/texts';
 import type { Mode } from '../data/features';
@@ -40,6 +40,7 @@ export function AppHeader(props: AppHeaderProps) {
 function FashionHeader({ onLogoLongPress }: AppHeaderProps) {
   const router = useRouter();
   const unread = useUnreadMessages();
+  const requests = useFriendRequests();
   return (
     <View style={styles.fashionHead}>
       <Pressable onLongPress={onLogoLongPress} accessibilityRole="header">
@@ -54,12 +55,12 @@ function FashionHeader({ onLogoLongPress }: AppHeaderProps) {
       <View style={styles.headIcons}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : t('Chats')}
+          accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : requests ? t('Chats, neue Freundschaftsanfrage') : t('Chats')}
           onPress={() => router.push('/chat')}
           hitSlop={10}
         >
           <Icon name="message" size={size.icon} />
-          {unread ? <View style={styles.headDot} /> : null}
+          {unread || requests ? <View style={styles.headDot} /> : null}
         </Pressable>
       </View>
     </View>
