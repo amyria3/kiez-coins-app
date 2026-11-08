@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { AccessibilityInfo, Animated, Easing, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
 import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
@@ -16,6 +16,42 @@ export function Notice({ message, variant = 'info' }: { message: string; variant
     <View style={styles.notice} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
       <Icon name="info" color={variant === 'warning' ? color.accent.signal : color.text.primary} />
       <Text style={styles.noticeText}>{message}</Text>
+    </View>
+  );
+}
+
+/**
+ * Hinweis als Frage (Daria, 2026-11-09): blasse Chatnachricht rechts, wie selbst gefragt. Ein Tipp zeigt darunter
+ * links die Antwort als Chatnachricht, ein zweiter Tipp blendet sie wieder aus.
+ */
+export function QuestionHint({ question, answer }: { question: string; answer: string }) {
+  const [open, setOpen] = useState(false);
+  const shown = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (!open) return;
+    shown.setValue(0);
+    Animated.timing(shown, { toValue: 1, duration: 220, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+  }, [open, shown]);
+  return (
+    <View style={styles.qa}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ expanded: open }}
+        onPress={() => setOpen((o) => !o)}
+        style={({ pressed }) => [styles.question, pressed && styles.questionPressed]}
+      >
+        <Text style={styles.questionText}>{question}</Text>
+      </Pressable>
+      {open ? (
+        <Animated.View
+          style={[
+            styles.answer,
+            { opacity: shown, transform: [{ translateY: shown.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }] },
+          ]}
+        >
+          <Text style={styles.answerText}>{answer}</Text>
+        </Animated.View>
+      ) : null}
     </View>
   );
 }
@@ -201,6 +237,29 @@ export function FieldGroup({ label, children }: { label: string; children: React
 }
 
 const styles = StyleSheet.create({
+  qa: { gap: space[6] },
+  question: {
+    alignSelf: 'flex-end',
+    maxWidth: '85%',
+    paddingVertical: space[8],
+    paddingHorizontal: 14,
+    borderRadius: radius.xl,
+    borderBottomRightRadius: space[4],
+    borderWidth: stroke.ultraThin,
+    borderColor: color.line.hairline,
+  },
+  questionPressed: { opacity: 0.6 },
+  questionText: { ...text.body, color: color.text.secondary },
+  answer: {
+    alignSelf: 'flex-start',
+    maxWidth: '88%',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: radius.xl,
+    borderBottomLeftRadius: space[4],
+    backgroundColor: color.bg.surface,
+  },
+  answerText: { ...text.body, color: color.text.primary },
   notice: {
     flexDirection: 'row',
     gap: space[8],

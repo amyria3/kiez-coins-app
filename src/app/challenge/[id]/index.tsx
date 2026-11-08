@@ -13,7 +13,7 @@ import { GlassIconButton } from '../../../components/Glass';
 import { IconButton } from '../../../components/IconButton';
 import { Button } from '../../../components/Button';
 import { CommentSection } from '../../../components/Comments';
-import { InfoRow, KaterBubble, Notice, OperationTag } from '../../../components/Content';
+import { InfoRow, KaterBubble, Notice, QuestionHint, OperationTag } from '../../../components/Content';
 import { TextField } from '../../../components/Form';
 import { HeroScreen, SubScreen } from '../../../components/Screen';
 import { TextHero, isTextPost } from '../../../components/TextSheets';
@@ -212,6 +212,12 @@ export default function ChallengeDetail() {
   // Löschen bis jemand annimmt, auch geschlossene (Migration 20261021000300)
   const canDelete = isAuthor && (challenge.status === 'open' || challenge.status === 'closed') && !challenge.assigneeId;
   const description = challenge.type === 'wave' ? challenge.challengeText?.trim() : postText(challenge);
+  const authorLocation = acceptedByMe ? (challenge.kiez ?? challenge.location) : challenge.location;
+  const descriptionText = description ? (
+    <Text style={styles.description}>
+      {isBeforeAfter || challenge.type === 'photo' || challenge.type === 'individual' ? <WithMentions value={description} /> : description}
+    </Text>
+  ) : null;
 
   const closeChallenge = () =>
     Alert.alert(
@@ -500,8 +506,10 @@ export default function ChallengeDetail() {
         <Notice variant="warning" message={mine.status === 'removed' ? t('Du bist bei dieser Challenge nicht mehr dabei.') : t('Deine Anfrage wurde abgelehnt.')} />
       ) : null}
       {joinOpen && !mine && far && challenge.joinMode !== 'approval' && freeSpots(challenge) > 0 ? (
-        <Notice
-          message={
+        // Erklärungen als Frage mit Antwort zum Aufklappen (Daria, 2026-11-09)
+        <QuestionHint
+          question={t('Warum kann ich nur anfragen?')}
+          answer={
             here
               ? tAbout(author, 'Du bist mehr als 5 km entfernt. Du kannst anfragen, {firstName} entscheidet.', { firstName: author.firstName })
               : tAbout(author, 'Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.', { firstName: author.firstName })
@@ -511,11 +519,11 @@ export default function ChallengeDetail() {
       {!isAuthor && !mine && multi && participantsOpen(challenge) && freeSpots(challenge) === 0 ? (
         <Notice message={t('Alle Plätze sind vergeben.')} />
       ) : null}
-      {description ? (
-        <Text style={styles.description}>
-          {isBeforeAfter || challenge.type === 'photo' || challenge.type === 'individual' ? <WithMentions value={description} /> : description}
-        </Text>
-      ) : null}
+      {/* Erst die Person, dann ihr Text in Textfarbe, ohne Trennlinie (Daria, 2026-11-09, Versuch 2 von 3) */}
+      <View style={styles.authorAndText}>
+        <AuthorRow user={author} location={authorLocation} onPress={() => openProfile(author.id)} />
+        {descriptionText}
+      </View>
       {challenge.type === 'individual' && (multi || challenge.joinMode === 'approval' || joinRequests(challenge).length > 0 || (challenge.participants ?? []).length > 1) ? (
         <ParticipantsSection
           challenge={challenge}
@@ -527,13 +535,6 @@ export default function ChallengeDetail() {
           onRemove={(userId) => dispatch({ type: 'removeParticipant', id: challenge.id, userId })}
         />
       ) : null}
-      <View style={styles.authorBlock}>
-        <AuthorRow
-          user={author}
-          location={acceptedByMe ? (challenge.kiez ?? challenge.location) : challenge.location}
-          onPress={() => openProfile(author.id)}
-        />
-      </View>
       {needsShare ? (
         <View style={styles.naming}>
           <Notice
@@ -543,12 +544,14 @@ export default function ChallengeDetail() {
         </View>
       ) : null}
       {challenge.bountyAmount && !isAuthor && sharedBounty ? (
-        <Notice
-          message={tAbout(author, 'Die {amount} werden unter allen geteilt, die mitmachen. {firstName} zahlt jeder Person ihren Anteil direkt, zum Beispiel per Überweisung oder PayPal. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })}
+        <QuestionHint
+          question={t('Wie funktioniert das mit den Coins?')}
+          answer={tAbout(author, 'Die {amount} werden unter allen geteilt, die mitmachen. {firstName} zahlt jeder Person ihren Anteil direkt, zum Beispiel per Überweisung oder PayPal. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })}
         />
       ) : challenge.bountyAmount && !isAuthor ? (
-        <Notice
-          message={
+        <QuestionHint
+          question={t('Wie funktioniert das mit den Coins?')}
+          answer={
             acceptedByMe
               ? tAbout(author, '{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })
               : tAbout(author, '{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName })
@@ -718,8 +721,8 @@ const styles = StyleSheet.create({
   eden: { color: color.accent.confirmation },
   error: { color: color.accent.error },
   muted: { color: color.text.secondary, opacity: 0.6 },
-  description: { fontFamily: font.text, fontSize: 15, lineHeight: 22, color: color.text.secondary },
-  authorBlock: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
+  description: { ...text.body, color: color.text.primary },
+  authorAndText: { gap: space[12] },
   secondary: { ...text.body, color: color.text.secondary },
   naming: { gap: space[12] },
 });
