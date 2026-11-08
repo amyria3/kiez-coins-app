@@ -46,8 +46,8 @@ export const isTypeActive = (type: ChallengeType) => challengeTypes[type].active
  * „Was Du so machst“). We-Challenge, Me-Challenge und Bild lassen sich nicht mehr abschalten. Stattdessen
  * verbirgt jede Person einzelne Modi (Auge in „Dein Konto › Funktionen“) und legt einen als Standard fest,
  * der im Umschalter vorausgewählt ist. Ein Modus bleibt immer sichtbar.
- * Start: Privat und Kiez sichtbar, Gruppe verborgen bis zur ersten Gruppe (wie bisher), Standard Kiez.
- * Gespeichert auf dem Gerät, pro Konto.
+ * Start: alle Modi sichtbar, Standard Kiez. Kein Modus ist nach dem Download verborgen (Daria, 08.11.2026);
+ * vorher war Gruppe bis zur ersten Gruppe verborgen. Gespeichert auf dem Gerät, pro Konto.
  */
 export type Mode = 'private' | 'groups' | 'kiez' | 'everywhere';
 
@@ -77,16 +77,21 @@ export type ModeState = {
 type Saved = {
   hidden?: Partial<Record<Mode, boolean>>;
   standard?: Mode;
-  /** Alter Schalter „Gruppen“ (bis 27.10.2026) */
+  /** Alter Schalter „Gruppen“ (bis 27.10.2026), wird nicht mehr ausgewertet */
   groups?: boolean;
+  /** Verborgene Modi aus einem alten Zielgruppen-Link sind zurückgeholt (08.11.2026) */
+  linkOffen?: boolean;
 };
 
 const START_STANDARD: Mode = 'kiez';
 const KEY = (userId: string) => `kiez-features:${userId}`;
 /** Modus aus einem Link, gemerkt bis nach der Anmeldung */
 const LINK_KEY = 'kiez-modus-link';
-/** Ein Link verbirgt die anderen Modi (Daria, 27.10.2026); über das Auge kommen sie zurück */
-const LINK_HIDES_OTHERS = true;
+/**
+ * Ein Link setzt nur den Standard und verbirgt nichts (Daria, 08.11.2026). Vom 27.10. bis 08.11.2026 verbarg er
+ * alle anderen Modi; diese Geräte bekommen die Modi beim nächsten Laden zurück (`ausLinkVerborgen`).
+ */
+const LINK_HIDES_OTHERS = false;
 
 let loadedFor: string | undefined;
 let saved: Saved = {};
@@ -116,6 +121,10 @@ async function readSaved(userId: string) {
     const raw = await AsyncStorage.getItem(KEY(userId));
     if (loadedFor !== userId) return;
     saved = raw ? JSON.parse(raw) : {};
+    if (ausLinkVerborgen(saved)) {
+      saved = { ...saved, hidden: {}, linkOffen: true };
+      AsyncStorage.setItem(KEY(userId), JSON.stringify(saved)).catch(() => {});
+    }
     emit();
     const linked = modeFromSlug((await AsyncStorage.getItem(LINK_KEY)) ?? undefined);
     if (linked && loadedFor === userId) {
@@ -125,9 +134,16 @@ async function readSaved(userId: string) {
   } catch {}
 }
 
+/** Stand aus einem alten Zielgruppen-Link: genau ein Modus sichtbar, und das ist der Standard */
+function ausLinkVerborgen(s: Saved): boolean {
+  if (s.linkOffen || !s.hidden || !s.standard) return false;
+  const shown = MODES.map((m) => m.key).filter((m) => !s.hidden?.[m]);
+  return shown.length === 1 && shown[0] === s.standard;
+}
+
 const hiddenOf = (s: Saved): Record<Mode, boolean> => ({
   private: s.hidden?.private ?? false,
-  groups: s.hidden?.groups ?? !(s.groups ?? false),
+  groups: s.hidden?.groups ?? false,
   kiez: s.hidden?.kiez ?? false,
   everywhere: s.hidden?.everywhere ?? false,
 });
