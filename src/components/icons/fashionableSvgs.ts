@@ -76,6 +76,7 @@ export const fashionableSvgs: Partial<Record<IconName, Svg>> = {
   feed: doubleHeartLine,
   comment: ph('chat-circle'),
   'comment-filled': ph('chat-circle'),
+  'eye-filled': ph('eye'),
   send: ph('paper-plane-tilt'),
   camera: ph('camera'),
   'map-pin': ph('map-pin'),

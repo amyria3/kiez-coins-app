@@ -25,6 +25,7 @@ export type IconName =
   | 'flag'
   | 'settings'
   | 'eye'
+  | 'eye-filled'
   | 'eye-off'
   | 'behausung'
   | 'more'
@@ -186,6 +187,13 @@ export const iconSvgs: Record<IconName, { width: number; height: number; svg: Sv
       `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 12C4.4 7.6 8 5.5 12 5.5C16 5.5 19.6 7.6 22 12C19.6 16.4 16 18.5 12 18.5C8 18.5 4.4 16.4 2 12Z" stroke="${c}" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="${c}" stroke-width="2.2"/></svg>`,
   },
   // Auge durchgestrichen: Modus verborgen (Daria, 27.10.2026, noch nicht in Figma)
+  // Auge als Fläche ohne Linie, die Pupille ist ausgespart (Meine Posts, wie Kommentar und Uhr, Daria, 08.11.2026)
+  'eye-filled': {
+    width: 24,
+    height: 24,
+    svg: (c) =>
+      `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.25 12.15C3.85 7.15 7.75 4.45 12.15 4.4C16.6 4.4 20.4 7.0 22.85 11.65C22.98 11.9 22.98 12.2 22.85 12.45C20.3 17.05 16.45 19.6 12.0 19.6C7.55 19.6 3.7 17.1 1.25 12.65C1.15 12.48 1.15 12.32 1.25 12.15ZM12.15 8.35C14.15 8.38 15.65 9.92 15.6 11.95C15.58 13.95 14.0 15.5 12.0 15.45C10.0 15.42 8.48 13.88 8.52 11.88C8.58 9.9 10.12 8.33 12.15 8.35Z" fill-rule="evenodd" clip-rule="evenodd" fill="${c}"/></svg>`,
+  },
   'eye-off': {
     width: 24,
     height: 24,
