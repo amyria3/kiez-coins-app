@@ -431,7 +431,11 @@ export default function FeedScreen() {
             variant="empty"
             body="Poste die erste Challenge in Deiner Gruppe"
             onAction={createChallenge}
-            secondary={group ? { label: 'Freunde und Familie einladen', onPress: () => router.push(`/groups/${group.id}/invite`) } : undefined}
+            secondary={
+              group
+                ? { hint: 'Einsam hier? Lade Freunde und Familie zu Deiner Gruppe ein.', label: 'Einladen', onPress: () => router.push(`/groups/${group.id}/invite`) }
+                : undefined
+            }
           />
         );
       }
