@@ -498,7 +498,9 @@ const styles = StyleSheet.create({
     : { paddingHorizontal: space[16], paddingTop: space[12], paddingBottom: space[8], gap: space[4] },
   greetingTitle: isFashionable
     ? { fontFamily: font.semiBold, fontSize: 22, lineHeight: 28, letterSpacing: -0.3, color: color.text.primary }
-    : { ...text.display, color: color.text.primary },
+    : // Ganze Begrüßung in der Unbounded wie die Ansprache „Pirat:in“ (Daria, 2026-11-09). 26 statt 30, die Unbounded
+      // läuft breiter; so passt „Guten Morgen, Pirat:in“ in eine Zeile.
+      { ...text.display, fontFamily: font.onPhoto, fontSize: 26, lineHeight: 32, letterSpacing: 0, color: color.text.primary },
   // Ansprache in der Unbounded wie Namen und Hashtags über dem Foto (Daria, 09.11.2026)
   greetingName: { fontFamily: font.onPhoto, letterSpacing: 0 },
   greetingSub: isFashionable
