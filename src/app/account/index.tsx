@@ -16,7 +16,7 @@ import { useCurrentUser, useStore } from '../../data/store';
 import { color, isFashionable, size, space } from '../../theme/tokens';
 import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
 import { look, looks, lookSelectable } from '../../theme/look';
-import { MODES, useFeedHide, useModes } from '../../data/features';
+import { MODES, useModes } from '../../data/features';
 import { useGoBack } from '../../lib/goBack';
 import { useCrosspostEnabled } from '../../data/crosspost';
 
@@ -28,7 +28,6 @@ export default function Account() {
   const me = useCurrentUser();
   const { signOut, hasPassword } = useAuth();
   const modes = useModes();
-  const feedHide = useFeedHide();
   const modesShown = MODES.filter((m) => modes.isVisible(m.key)).map((m) => t(m.label)).join(', ');
   // „Moderation“ nur für Personen in der Tabelle `moderators`
   const [moderator, setModerator] = useState(false);
@@ -150,12 +149,6 @@ export default function Account() {
       <FieldGroup label="Einstellungen">
         <View style={styles.list}>
           <NavRow label="Benachrichtigungen" value={profile.push ? 'Push an' : 'Push aus'} onPress={() => router.push('/account/notifications')} />
-          {/* Bilder und Textposts in Kiez und Überall ausblenden (Daria, 08.11.2026) */}
-          <NavRow
-            label="Feed"
-            value={feedHide.photo && feedHide.text ? 'Nur Challenges' : feedHide.photo ? 'Ohne Bilder' : feedHide.text ? 'Ohne Textposts' : 'Alle Posts'}
-            onPress={() => router.push('/account/feed')}
-          />
           <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/account/payout')} />
           <NavRow label="Umfrage" value="7 Fragen zur App" onPress={() => setSurvey(true)} />
           <NavRow label="Support" value="Frage oder Problem" onPress={() => router.push('/account/support')} />
