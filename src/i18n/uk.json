@@ -1347,5 +1347,7 @@
   "Die Einrichtung umfasst 4 Schritte und setzt voraus, dass Du in Instagram angemeldet bist und ein Konto bei Meta for Developers hast. Möchtest Du jetzt loslegen?": "Налаштування складається з 4 кроків. Потрібно, щоб ти був(ла) авторизований(а) в Instagram і мав(ла) акаунт Meta for Developers. Почнемо?",
   "Die Einrichtung umfasst 4 Schritte und setzt voraus, dass Du in Facebook angemeldet bist und ein Konto bei Meta for Developers hast. Möchtest Du jetzt loslegen?": "Налаштування складається з 4 кроків. Потрібно, щоб ти був(ла) авторизований(а) у Facebook і мав(ла) акаунт Meta for Developers. Почнемо?",
   "Verstanden, weiter": "Зрозуміло, далі",
-  "{label} trennen": "Від’єднати {label}"
+  "{label} trennen": "Від’єднати {label}",
+  "{label}: Einstellungen": "{label}: налаштування",
+  "Verbunden": "Підключено"
 }
