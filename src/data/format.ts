@@ -66,7 +66,9 @@ export function nameInText(user: { firstName: string; name: string; group?: bool
 
 /** „Noch 5 Tage 12 Std.“ (kurze Form unter dem Kater nach dem Annehmen) */
 export function formatRemainingShort(deadlineIso: string, now = Date.now()): string {
-  const ms = Math.max(0, new Date(deadlineIso).getTime() - now);
+  const ms = new Date(deadlineIso).getTime() - now;
+  // Frist vorbei: nicht „Noch 0 Std.“ (Daria, 08.11.2026)
+  if (ms <= 0) return t('Abgelaufen');
   const days = Math.floor(ms / 86_400_000);
   const hours = Math.floor((ms % 86_400_000) / 3_600_000);
   const dayText = days === 1 ? t('1 Tag') : t('{n} Tage', { n: days });
