@@ -1,6 +1,6 @@
 import type { Challenge } from '../data/types';
 import { weChallengeText } from '../data/weChallenge';
-import { color, font } from '../theme/tokens';
+import { color, font, isFashionable } from '../theme/tokens';
 import { Text } from './T';
 
 /**
