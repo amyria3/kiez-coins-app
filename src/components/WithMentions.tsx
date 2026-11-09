@@ -23,14 +23,14 @@ export function postText(challenge: Challenge): string {
 
 const TAGS = ['#vorher', '#nachher', PHOTO_TAG];
 
-/** @-Namen in color/accent/signal und die Marken #vorher/#nachher/#InDiesemMoment in color/accent/primary hervorheben (verschachteltes Text). */
+/** @-Namen im Kiez-Look in Grün (color/accent/confirmation, Daria 2026-11-09), im Fashionable Look in color/accent/signal; die Marken #vorher/#nachher/#InDiesemMoment in color/accent/primary hervorheben (verschachteltes Text). */
 export function WithMentions({ value }: { value: string }) {
   const parts = value.split(/(@[\p{L}\p{N}_]+|#vorher\b|#nachher\b|#InDiesemMoment\b)/u);
   return (
     <>
       {parts.map((part, i) =>
         part.startsWith('@') ? (
-          <Text key={i} style={{ color: color.accent.signal }}>
+          <Text key={i} style={{ color: isFashionable ? color.accent.signal : color.accent.confirmation }}>
             {part}
           </Text>
         ) : TAGS.includes(part) ? (
