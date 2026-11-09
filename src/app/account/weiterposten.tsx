@@ -14,6 +14,7 @@ import {
   loadCrosspostAccounts,
   useCrosspostInterest,
   type CrosspostAccount,
+  tokenOnly,
   type LivePlatform,
 } from '../../data/crosspost';
 import { errorText } from '../../data/remote';
@@ -38,12 +39,19 @@ const HOW_TO: Record<LivePlatform, string> = {
     '3. In der App unter Rollen Dein Instagram-Konto als Tester eintragen und die Einladung in Instagram annehmen.\n' +
     '4. Im App-Dashboard einen Zugangs-Token erzeugen, mit dem Recht instagram_business_content_publish, und unten eintragen.\n' +
     'Instagram nimmt nur Posts mit Foto. Der Link steht als Text in der Bildunterschrift.',
+  facebook:
+    'Facebook erlaubt das Weiterposten nur auf eine Seite, nicht auf Dein privates Profil.\n' +
+    '1. Lege eine Facebook-Seite an, falls Du noch keine hast (Facebook › Seiten › Neue Seite).\n' +
+    '2. Auf developers.facebook.com eine App anlegen (Typ Business).\n' +
+    '3. Im Graph API Explorer diese App wählen, bei „Benutzer oder Seite“ Deine Seite auswählen und die Rechte pages_manage_posts und pages_read_engagement anhaken.\n' +
+    '4. „Generate Access Token“ antippen, bestätigen und den Seiten-Zugangs-Token unten eintragen.\n' +
+    'Mit Foto erscheint der Post als Foto, ohne Foto als Text mit Link.',
 };
 
 /**
  * Route `account/weiterposten`: Verbundene Konten fürs Weiterposten (Daria, 05.11.2026).
- * BlueSky mit Handle und App-Passwort, Mastodon mit Instanz und Zugangs-Token, Instagram mit Zugangs-Token.
- * Facebook und X kommen später.
+ * BlueSky mit Handle und App-Passwort, Mastodon mit Instanz und Zugangs-Token, Instagram mit Zugangs-Token,
+ * Facebook mit dem Zugangs-Token einer Seite (09.11.2026). X kommt später.
  */
 export default function CrosspostAccounts() {
   const goBack = useGoBack();
@@ -71,11 +79,11 @@ export default function CrosspostAccounts() {
       </FieldGroup>
       <FieldGroup label="Kommt bald">
         <View style={styles.card}>
-          <Text style={styles.body}>Facebook und X</Text>
+          <Text noTranslate style={styles.body}>X</Text>
           {counted ? (
             <Text style={styles.thanks}>Danke! Wir zählen Dich mit.</Text>
           ) : (
-            <Button label="Ich würde diese Funktion für Meta & X nutzen" variant="secondary" onPress={count} />
+            <Button label="Ich würde diese Funktion für X nutzen" variant="secondary" onPress={count} />
           )}
         </View>
       </FieldGroup>
@@ -150,7 +158,7 @@ function PlatformCard({
     <View style={styles.card}>
       <Text noTranslate style={styles.title}>{label}</Text>
       <Text style={styles.caption}>{HOW_TO[platform]}</Text>
-      {platform === 'instagram' ? null : (
+      {tokenOnly(platform) ? null : (
       <TextField
         label={platform === 'bluesky' ? 'Handle' : 'Instanz'}
         placeholder={platform === 'bluesky' ? 'name.bsky.social' : 'mastodon.social'}
@@ -172,7 +180,9 @@ function PlatformCard({
             ? 'Nicht Dein normales Passwort'
             : platform === 'mastodon'
               ? '„Dein Zugangs-Token“ aus der Anwendung'
-              : 'Aus dem App-Dashboard bei Meta for Developers'
+              : platform === 'instagram'
+                ? 'Aus dem App-Dashboard bei Meta for Developers'
+                : 'Seiten-Zugangs-Token aus dem Graph API Explorer'
         }
         value={secret}
         onChangeText={setSecret}
@@ -185,7 +195,7 @@ function PlatformCard({
         busy={busy}
         label={busy ? 'Wird geprüft …' : 'Verbinden'}
         onPress={connect}
-        disabled={busy || (platform !== 'instagram' && !first.trim()) || !secret.trim()}
+        disabled={busy || (!tokenOnly(platform) && !first.trim()) || !secret.trim()}
       />
     </View>
   );

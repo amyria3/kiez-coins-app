@@ -1,10 +1,12 @@
-// Weiterposten auf BlueSky, Mastodon und Instagram (Daria, 05.11.2026). Alle drei Schnittstellen kosten nichts.
+// Weiterposten auf BlueSky, Mastodon, Instagram und Facebook (Daria, 05.11.2026; Facebook 09.11.2026).
+// Alle vier Schnittstellen kosten nichts.
 //
 // Anfragen (POST, mit Anmeldung der Person im Header Authorization):
 //   { action: 'connect', platform: 'bluesky', handle, password }      App-Passwort aus BlueSky › Einstellungen
 //   { action: 'connect', platform: 'mastodon', instance, token }      Zugangs-Token aus Mastodon › Entwicklung
 //   { action: 'connect', platform: 'instagram', token }               Zugangs-Token aus Meta for Developers (Instagram-Login)
-//   { action: 'post', challengeId, platforms: ['bluesky', 'mastodon', 'instagram'] }
+//   { action: 'connect', platform: 'facebook', token }                Seiten-Zugangs-Token einer Facebook-Seite (pages_manage_posts)
+//   { action: 'post', challengeId, platforms: ['bluesky', 'mastodon', 'instagram', 'facebook'] }
 //   { action: 'delete', challengeId, platforms? }                    Weiterposts dort wieder löschen (ohne platforms: alle)
 // Antworten: { handle } bei connect, { results: { bluesky: { url } | { error } } } bei post, sonst { error }.
 //
@@ -15,8 +17,8 @@
 // SUPABASE_URL, SUPABASE_ANON_KEY und SUPABASE_SERVICE_ROLE_KEY stellt Supabase selbst bereit. Keine weiteren Secrets.
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
-type Platform = 'bluesky' | 'mastodon' | 'instagram';
-const PLATFORMS: Platform[] = ['bluesky', 'mastodon', 'instagram'];
+type Platform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook';
+const PLATFORMS: Platform[] = ['bluesky', 'mastodon', 'instagram', 'facebook'];
 const isPlatform = (p: unknown): p is Platform => PLATFORMS.includes(p as Platform);
 type Account = { platform: Platform; handle: string; instance: string; secret: string };
 type Post = { id: string; title: string; body: string; link: string; image?: { bytes: Uint8Array; type: string }; imageUrl?: string };
@@ -30,6 +32,9 @@ const MASTODON_TEXT_MAX = 500;
 const INSTAGRAM = 'https://graph.instagram.com';
 const INSTAGRAM_API = `${INSTAGRAM}/v21.0`;
 const INSTAGRAM_TEXT_MAX = 2200;
+/** Facebook: nur Seiten, keine privaten Profile (die Schnittstelle erlaubt das nicht). Foto ist freiwillig. */
+const FACEBOOK = 'https://graph.facebook.com';
+const FACEBOOK_API = `${FACEBOOK}/v21.0`;
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -214,6 +219,55 @@ async function deleteInstagram(account: Account, link: string) {
 }
 
 // ---------------------------------------------------------------------------
+// Facebook-Seite (Graph-API mit Seiten-Zugangs-Token). Das Foto holt Facebook selbst über die öffentliche Adresse.
+// ---------------------------------------------------------------------------
+
+async function facebook(path: string, token: string, init?: { method?: string; params?: Record<string, string> }) {
+  const url = new URL(`${FACEBOOK_API}/${path}`);
+  for (const [k, v] of Object.entries(init?.params ?? {})) url.searchParams.set(k, v);
+  url.searchParams.set('access_token', token);
+  const res = await fetch(url, { method: init?.method ?? 'GET' });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`facebook ${res.status} ${clip(body?.error?.message ?? '', 200)}`.trim());
+  return body as Record<string, unknown>;
+}
+
+/** Mit einem Seiten-Token liefert `me` die Seite selbst */
+async function facebookPage(token: string) {
+  try {
+    const me = await facebook('me', token, { params: { fields: 'id,name' } });
+    if (!me.id) throw new Error('login');
+    return { id: String(me.id), name: String(me.name ?? '') };
+  } catch {
+    throw new Error('login');
+  }
+}
+
+async function postFacebook(account: Account, post: Post): Promise<string> {
+  const message = [post.title, post.body, post.link].filter(Boolean).join('\n\n');
+  // instance enthält die Kennung der Seite
+  const page = account.instance.split('/').pop()!;
+  const created = post.imageUrl
+    ? await facebook(`${page}/photos`, account.secret, { method: 'POST', params: { url: post.imageUrl, caption: message } })
+    : await facebook(`${page}/feed`, account.secret, { method: 'POST', params: { message, link: post.link } });
+  const id = String(created.post_id ?? created.id);
+  const info = await facebook(id, account.secret, { params: { fields: 'permalink_url' } }).catch(() => ({}) as Record<string, unknown>);
+  // Kennung hinten an den Link, damit das Löschen sie findet
+  return `${info.permalink_url ?? `https://www.facebook.com/${id}`}#${id}`;
+}
+
+async function deleteFacebook(account: Account, link: string) {
+  const id = link.split('#').pop();
+  if (!id) throw new Error('delete id');
+  try {
+    await facebook(id, account.secret, { method: 'DELETE' });
+  } catch (e) {
+    // Dort schon gelöscht
+    if (!/facebook 404|does not exist/.test((e as Error).message)) throw e;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Löschen: Der Link in crosspost_posts enthält die Kennung des Posts (letzter Teil des Pfads).
 // ---------------------------------------------------------------------------
 
@@ -307,6 +361,11 @@ Deno.serve(async (req) => {
         if (!token) return reply({ error: 'input' }, 400);
         const { username } = await instagramAccount(token);
         account = { handle: username || 'instagram', instance: INSTAGRAM, secret: token };
+      } else if (platform === 'facebook') {
+        const token = str('token');
+        if (!token) return reply({ error: 'input' }, 400);
+        const page = await facebookPage(token);
+        account = { handle: page.name || 'Facebook-Seite', instance: `${FACEBOOK}/${page.id}`, secret: token };
       } else {
         return reply({ error: 'platform' }, 400);
       }
@@ -362,7 +421,9 @@ Deno.serve(async (req) => {
             ? await postBluesky(account, post)
             : platform === 'mastodon'
               ? await postMastodon(account, post)
-              : await postInstagram(account, post);
+              : platform === 'instagram'
+                ? await postInstagram(account, post)
+                : await postFacebook(account, post);
         await admin.from('crosspost_posts').update({ status: 'ok', url: link }).eq('challenge_id', challengeId).eq('platform', platform);
         results[platform] = { url: link };
       } catch (e) {
@@ -400,7 +461,8 @@ Deno.serve(async (req) => {
       try {
         if (platform === 'bluesky') await deleteBluesky(account, link);
         else if (platform === 'mastodon') await deleteMastodon(account, link);
-        else await deleteInstagram(account, link);
+        else if (platform === 'instagram') await deleteInstagram(account, link);
+        else await deleteFacebook(account, link);
         await admin
           .from('crosspost_posts')
           .update({ status: 'error', error: 'deleted', url: null })
