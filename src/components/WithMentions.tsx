@@ -11,6 +11,8 @@ import { Text } from './T';
  * Sie steht nicht im gespeicherten Text, die App setzt sie beim Anzeigen davor. So tragen auch ältere Bilder sie.
  */
 export const PHOTO_TAG = '#InDiesemMoment';
+/** #InDiesemMoment in Rosa, #vorher und #nachher bleiben lila (Daria, 2026-11-09) */
+export const tagColor = (tag: string) => (tag === PHOTO_TAG ? color.accent.affection : color.accent.primary);
 
 /**
  * Text eines Beitrags zum Anzeigen: bei „Bild“ mit #InDiesemMoment vorn, auch ohne eigenen Text.
@@ -26,7 +28,7 @@ export function postText(challenge: Challenge): string {
 
 const TAGS = ['#vorher', '#nachher', PHOTO_TAG];
 
-/** @-Namen in color/text/mention; die Marken #vorher/#nachher/#InDiesemMoment in color/accent/primary hervorheben (verschachteltes Text). */
+/** @-Namen in color/text/mention; die Marken #vorher/#nachher in color/accent/primary, #InDiesemMoment in color/accent/affection hervorheben (verschachteltes Text). */
 export function WithMentions({ value }: { value: string }) {
   const parts = value.split(/(@[\p{L}\p{N}_]+|#vorher\b|#nachher\b|#InDiesemMoment\b)/u);
   return (
@@ -38,7 +40,7 @@ export function WithMentions({ value }: { value: string }) {
           </Text>
         ) : TAGS.includes(part) ? (
           // Hashtags in Lila (Daria, 2026-11-07), in der Schrift der Texte über dem Bild wie Ort und Titel (Daria, 2026-11-08)
-          <Text key={i} noTranslate style={{ color: color.accent.primary, fontFamily: font.onPhoto }}>
+          <Text key={i} noTranslate style={{ color: tagColor(part), fontFamily: font.onPhoto }}>
             {part}
           </Text>
         ) : (

@@ -10,6 +10,7 @@ import { PhotoPicker, SwitchRow } from '../Form';
 import { useNudge } from '../Nudge';
 import { useComposeContent, type ComposeContent } from './compose';
 import { Text } from '../T';
+import { tagColor } from '../WithMentions';
 
 /** Fortschritt „1 Vorher, 2 Einstellungen, 3 Nachher“ (Schritt 2 hieß bis 2026-11-02 „Timer“) */
 export function BeforeAfterSteps({ at }: { at: 0 | 1 | 2 }) {
@@ -68,7 +69,7 @@ export function TagTextField({
         style={[styles.box, focused && styles.boxFocused, { borderColor: tooLong ? color.accent.error : focused ? color.accent.primary : isFashionable ? color.line.hairline : color.text.secondary }]}
         onTouchEnd={() => inputRef.current?.focus()}
       >
-        <Text style={styles.tag} noTranslate>
+        <Text style={[styles.tag, { color: tagColor(tag) }]} noTranslate>
           {tag}
         </Text>
         <TextInput
