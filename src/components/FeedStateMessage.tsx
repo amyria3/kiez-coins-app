@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { Text } from './T';
 
 import type { FeedState } from '../data/types';
-import { color, space, text } from '../theme/tokens';
+import { color, font, space, text } from '../theme/tokens';
 import { Button } from './Button';
 import { Cat } from './icons/Brand';
 
@@ -69,7 +69,8 @@ export function FeedStateMessage({
 
 const styles = StyleSheet.create({
   container: { alignItems: 'center', gap: space[12], paddingTop: space[48], paddingHorizontal: space[32] },
-  title: { ...text.title, color: color.text.primary, textAlign: 'center' },
+  // Überschrift in der Unbounded wie die Ansprache „Pirat:in“ (Daria, 09.11.2026)
+  title: { ...text.title, fontFamily: font.onPhoto, color: color.text.primary, textAlign: 'center' },
   body: { ...text.body, color: color.text.secondary, textAlign: 'center' },
   detail: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
   actions: { alignSelf: 'stretch', alignItems: 'center', gap: space[8] },
