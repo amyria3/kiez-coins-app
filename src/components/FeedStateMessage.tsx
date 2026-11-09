@@ -1,11 +1,10 @@
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
 import type { FeedState } from '../data/types';
-import { color, font, isFashionable, space, text } from '../theme/tokens';
+import { color, space, text } from '../theme/tokens';
 import { Button } from './Button';
-import { KaterRund } from './Content';
-import { Cat } from './icons/Brand';
+import { KATER_MESSAGE_GAP, KaterMessage } from './KaterMessage';
 
 const messages: Record<Exclude<FeedState, 'filled' | 'loading'>, { title: string; body: string; action: string }> = {
   // Leere Reiter einheitlich (Daria, 29.10.2026): Privat, Gruppe, Kiez und Überall
@@ -52,42 +51,33 @@ export function FeedStateMessage({
 }) {
   const m = messages[variant];
   return (
-    <View style={[styles.container, style]}>
-      {/* Kiez-Look: Kater im Kreis wie in den Nachrichten, fährt von unten herein; gleiches Bild wie die Abschluss-Screens (Daria, 2026-11-09) */}
-      {isFashionable ? <Cat height={86} /> : <KaterRund size={120} herzen={false} />}
-      {/* Abstände nach Zusammenhang (Daria, 09.11.2026): Die Überschrift gehört zum Bild der Katze (8). Text und
-          Knopf bilden je eine Gruppe (16), zwischen den Gruppen stehen 32. */}
-      <Text style={[styles.title, styles.afterCat]}>{m.title}</Text>
-      <Text style={[styles.body, styles.nextGroup]}>{body ?? m.body}</Text>
-      {detail ? (
-        <Text style={[styles.detail, styles.afterTitle]} selectable>
-          ({detail})
-        </Text>
-      ) : null}
-      {/* Beide Knöpfe gleich breit (Daria, 08.11.2026) */}
-      <Button label={action ?? m.action} onPress={onAction} style={[styles.button, styles.afterText]} />
-      {secondary?.hint ? <Text style={[styles.body, styles.nextGroup]}>{secondary.hint}</Text> : null}
-      {secondary ? (
-        <Button
-          label={secondary.label}
-          variant="secondary"
-          onPress={secondary.onPress}
-          style={[styles.button, secondary.hint ? styles.afterText : styles.nextGroup]}
-        />
-      ) : null}
-    </View>
+    <KaterMessage
+      style={[styles.top, style]}
+      title={m.title}
+      body={body ?? m.body}
+      detail={detail}
+      // Beide Knöpfe gleich breit (Daria, 08.11.2026)
+      action={<Button label={action ?? m.action} onPress={onAction} style={styles.button} />}
+      more={
+        secondary ? (
+          <>
+            {secondary.hint ? <Text style={styles.hint}>{secondary.hint}</Text> : null}
+            <Button
+              label={secondary.label}
+              variant="secondary"
+              onPress={secondary.onPress}
+              style={[styles.button, secondary.hint ? { marginTop: KATER_MESSAGE_GAP } : null]}
+            />
+          </>
+        ) : null
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: { alignItems: 'center', paddingTop: space[48], paddingHorizontal: space[32] },
-  afterCat: { marginTop: space[8] },
-  afterTitle: { marginTop: space[8] },
-  afterText: { marginTop: space[16] },
-  nextGroup: { marginTop: space[32] },
-  // Überschrift in der Unbounded wie die Ansprache „Pirat:in“ (Daria, 09.11.2026)
-  title: { ...text.title, fontFamily: font.onPhoto, color: color.text.primary, textAlign: 'center' },
-  body: { ...text.body, color: color.text.secondary, textAlign: 'center' },
-  detail: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
+  // Allein (z. B. in „Was Du so machst“) mit Luft oben; im Feed setzt die Liste den Zustand mittig
+  top: { paddingTop: space[48] },
+  hint: { ...text.body, color: color.text.secondary, textAlign: 'center' },
   button: { minWidth: 220 },
 });

@@ -106,7 +106,7 @@ export function CrosspostRow() {
                     accessibilityRole="button"
                     onPress={() => {
                       setOpen(false);
-                      router.push('/account/weiterposten');
+                      router.push('/account/features');
                     }}
                   >
                     <Text style={styles.connect}>Verbinden</Text>
@@ -119,7 +119,7 @@ export function CrosspostRow() {
             })}
           </View>
           {counted ? (
-            <Text style={styles.thanks}>Danke! Wir zählen Dich mit.</Text>
+            <Text style={styles.thanks}>Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.</Text>
           ) : (
             <Button label="Ich würde diese Funktion für X nutzen" variant="secondary" onPress={count} />
           )}

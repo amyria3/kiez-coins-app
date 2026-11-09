@@ -36,7 +36,8 @@ type CommentProps = {
 function CommentBody({ body, users, onMentionPress }: { body: string; users: User[]; onMentionPress?: (userId: string) => void }) {
   const parts = useMemo(() => splitMentions(body, users), [body, users]);
   return (
-    <Text style={styles.text}>
+    // Kommentare lassen sich kopieren (Daria, 2026-11-09)
+    <Text style={styles.text} selectable>
       {parts.map((part, i) =>
         part.user ? (
           <Text
