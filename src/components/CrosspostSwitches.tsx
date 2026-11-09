@@ -194,7 +194,7 @@ function PlatformSwitch({
           <Text noTranslate style={styles.label}>{label}</Text>
           {account ? (
             <View style={styles.connected}>
-              <Text noTranslate style={styles.caption}>
+              <Text noTranslate selectable style={styles.caption}>
                 {account.handle}
               </Text>
               <Pressable accessibilityRole="button" accessibilityLabel={t('{label} trennen', { label })} onPress={disconnect} hitSlop={8}>
