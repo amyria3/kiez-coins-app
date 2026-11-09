@@ -9,19 +9,35 @@ import { Icon, type IconName } from './icons/Icon';
 import { iconSvgs } from './icons/svgs';
 import { SvgXml } from 'react-native-svg';
 import { Herz } from './Herz';
+import { IconButton } from './IconButton';
 
 // Systemmeldungen als hellblaue Chatblase der App, wie die Antworten auf die Fragen; Icon dunkel wie der Text (Daria, 2026-11-09)
 const SKY_TEXT = '#1F2123';
 
-/** Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. */
-export function Notice({ message, variant = 'info' }: { message: string; variant?: 'info' | 'warning' }) {
+/** Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. Mit `onClose` ein Kreuz rechts. */
+export function Notice({ message, variant = 'info', onClose }: { message: string; variant?: 'info' | 'warning'; onClose?: () => void }) {
+  const t = useTexts();
   return (
     <View style={[styles.notice, !isFashionable && styles.noticeSky]} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
-      <Icon
-        name="info-filled"
-        color={isFashionable ? (variant === 'warning' ? color.accent.signal : color.text.primary) : SKY_TEXT}
-      />
+      {/* Feste Größe, sonst schrumpft das Icon neben langem Text */}
+      <View style={styles.noticeIcon}>
+        <Icon
+          name="info-filled"
+          size={isFashionable ? undefined : 17}
+          color={isFashionable ? (variant === 'warning' ? color.accent.signal : color.text.primary) : SKY_TEXT}
+        />
+      </View>
       <Text style={[styles.noticeText, !isFashionable && styles.noticeTextSky]}>{message}</Text>
+      {onClose ? (
+        <IconButton
+          icon="close"
+          iconSize={14}
+          iconColor={isFashionable ? color.text.secondary : SKY_TEXT}
+          accessibilityLabel={t('Hinweis schließen')}
+          onPress={onClose}
+          style={styles.noticeClose}
+        />
+      ) : null}
     </View>
   );
 }
@@ -289,6 +305,9 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: space[4],
     backgroundColor: '#A9DBFF',
   },
+  // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
+  noticeIcon: { flexShrink: 0 },
+  noticeClose: { marginVertical: -10, marginRight: -10, marginLeft: -4 },
   noticeTextSky: { ...text.body, color: SKY_TEXT, flexGrow: 0, flexShrink: 1, flexBasis: 'auto' },
   answerTextSky: { color: '#1F2123' },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 24 },
