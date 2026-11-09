@@ -261,8 +261,8 @@ export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply, m
           ))}
         </View>
       ) : null}
-    {/* Aktives Feld mit lila Rand (Daria, 2026-11-09) */}
-    <View style={[styles.composer, focused && styles.composerFocused]}>
+    {/* Aktives Feld mit lila Rand, auch solange Text darin steht und die Tastatur zu ist (Daria, 2026-11-09) */}
+    <View style={[styles.composer, (focused || hasText) && styles.composerFocused]}>
       <TextInput
         ref={inputRef}
         style={[styles.input, Platform.OS === 'web' && webHeight ? { height: Math.min(120, webHeight) } : null]}
