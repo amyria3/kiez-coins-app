@@ -68,6 +68,9 @@ export default function ChallengeDetail() {
   const needKiez = () => !!challenge?.groupId || requireKiezRaw();
   const requireKiezRaw = useRequireKiez();
   const [menuOpen, setMenuOpen] = useState(false);
+  // Steht Text im Kommentarfeld, schickt der Hauptknopf ihn ab statt z. B. „Erledigt melden“ (Daria, 2026-11-09)
+  const [writing, setWriting] = useState(false);
+  const sendComment = useRef<(() => void) | null>(null);
   // Eigener Standort für die 5-km-Regel (Daria, 29.10.2026). Ohne Freigabe: null, dann nur Anfrage.
   const [here, setHere] = useState<Coords | null>(null);
   useEffect(() => {
@@ -204,6 +207,8 @@ export default function ChallengeDetail() {
     // Offene Me-Challenge: weiter zum Timer oder Nachher (Daria, 2026-11-09)
     actions = <Button icon="camera" label="Nachher aufnehmen" onPress={() => router.push({ pathname: '/before-after/[id]', params: { id: challenge.id } })} />;
   }
+  // Beim Schreiben ersetzt „Nachricht abschicken“ alle Knöpfe, damit niemand versehentlich erledigt meldet oder aussteigt
+  if (writing && actions) actions = <Button label="Nachricht abschicken" onPress={() => sendComment.current?.()} />;
 
   const openProfile = (userId: string) =>
     router.push({ pathname: '/user/[id]', params: { id: userId, challengeId: challenge.id } });
@@ -603,6 +608,8 @@ export default function ChallengeDetail() {
             ...(challenge.participants ?? []).filter((p) => p.status === 'joined').map((p) => p.userId),
           ]}
           hiddenIds={blockedIds}
+          onDraftChange={setWriting}
+          sendRef={sendComment}
           onReport={(comment) =>
             router.push({ pathname: '/user/[id]/report', params: { id: comment.authorId, challengeId: challenge.id } })
           }

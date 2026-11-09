@@ -1,7 +1,7 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { BlurView } from 'expo-blur';
 import { Keyboard, Modal, Platform, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
-import { scrollIntoView } from './Nudge';
+import { holdInView, scrollIntoView } from './Nudge';
 import { Text } from './T';
 
 import { formatRelative } from '../data/format';
@@ -174,11 +174,25 @@ type CommentComposerProps = {
   onCancelReply?: () => void;
   /** Personen, die sich mit @ erwähnen lassen, die wichtigsten zuerst */
   mentionCandidates?: User[];
+} & ComposerLink;
+
+/**
+ * Für den Screen um das Feld (Daria, 2026-11-09): Steht Text im Feld, wird der Hauptknopf unten zu „Nachricht abschicken“.
+ * `onDraftChange` meldet, ob Text im Feld steht; über `sendRef` schickt der Knopf ab.
+ */
+type ComposerLink = {
+  onDraftChange?: (hasText: boolean) => void;
+  sendRef?: { current: (() => void) | null };
 };
 
 /** Figma „CommentComposer“: Eingabe für einen neuen Kommentar oder eine Antwort. */
-export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply, mentionCandidates = [] }: CommentComposerProps) {
+export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply, mentionCandidates = [], onDraftChange, sendRef }: CommentComposerProps) {
   const [value, setValue] = useState('');
+  const hasText = !!value.trim();
+  useEffect(() => {
+    onDraftChange?.(hasText);
+  }, [hasText, onDraftChange]);
+  useEffect(() => () => onDraftChange?.(false), [onDraftChange]);
   const [cursor, setCursor] = useState(0);
   // Nur direkt nach dem Einsetzen eines Namens gesetzt, damit der Cursor hinter dem Namen landet
   const [selection, setSelection] = useState<{ start: number; end: number } | undefined>();
@@ -200,10 +214,13 @@ export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply, m
   const send = () => {
     const body = value.trim();
     if (!body) return;
-    onSend(body);
+    // Feld sofort leeren; das Feld bleibt nach dem Abschicken an seiner Stelle, auch wenn der neue Kommentar
+    // darüber Platz braucht (Daria, 2026-11-09)
     setValue('');
     setCursor(0);
+    holdInView(boxRef.current, () => onSend(body));
   };
+  if (sendRef) sendRef.current = send;
   // Beim Tippen ins Feld: sobald die Tastatur steht, das Feld ins Bild scrollen (Daria, 22.10.2026)
   const boxRef = useRef<View>(null);
   const reveal = () => {
@@ -298,7 +315,7 @@ type CommentSectionProps = {
   threadPeople?: string[];
   /** Nicht vorschlagen, z. B. blockierte Personen */
   hiddenIds?: string[];
-};
+} & ComposerLink;
 
 /** Figma „CommentSection“: Fragen zur Challenge, öffentlich. Es gibt keinen privaten Chat. */
 export function CommentSection({
@@ -315,6 +332,8 @@ export function CommentSection({
   onLikesPress,
   threadPeople,
   hiddenIds,
+  onDraftChange,
+  sendRef,
 }: CommentSectionProps) {
   const [replyTo, setReplyTo] = useState<CommentData | null>(null);
   const nameOf = (id: string) => users.find((u) => u.id === id)?.name ?? '';
@@ -376,6 +395,8 @@ export function CommentSection({
           replyTo={replyTo ? nameOf(replyTo.authorId) : undefined}
           onCancelReply={() => setReplyTo(null)}
           mentionCandidates={mentionCandidates}
+          onDraftChange={onDraftChange}
+          sendRef={sendRef}
           onSend={(body) => {
             onSend(body, replyTo?.id);
             setReplyTo(null);

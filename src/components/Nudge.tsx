@@ -16,7 +16,11 @@ import { color, radius, space, stroke, text } from '../theme/tokens';
 
 /** `start`: Ansicht oben mit etwas Luft (Felder). `end`: nur so weit, dass die Ansicht unten ganz zu sehen ist (Buttons). */
 type ScrollAlign = 'start' | 'end';
-type ScrollTarget = { scrollToView: (view: View | null, align?: ScrollAlign) => void };
+type ScrollTarget = {
+  scrollToView: (view: View | null, align?: ScrollAlign) => void;
+  /** Führt `change` aus und hält die Ansicht dabei an ihrer Stelle auf dem Bildschirm. */
+  holdView: (view: View | null, change: () => void) => void;
+};
 
 /**
  * Scrollflächen der offenen Screens, die jüngste oben. Die Screen-Komponente ruft useNudge() außerhalb
@@ -47,10 +51,31 @@ export function useNudgeScroll(scrollRef: RefObject<ScrollView | null>) {
     },
     [scrollRef],
   );
+  const holdView = useCallback(
+    (view: View | null, change: () => void) => {
+      const scroll = scrollRef.current;
+      if (!view || !scroll) return change();
+      // Erst messen, dann ändern: Das Messen läuft nicht sofort, sonst stünde der neue Inhalt schon da
+      view.measureInWindow((_x, before) => {
+        change();
+        const restore = () =>
+          view.measureInWindow((_x2, after) => {
+            const delta = after - before;
+            if (Math.abs(delta) < 1) return;
+            offset.current = Math.max(0, offset.current + delta);
+            scroll.scrollTo({ y: offset.current, animated: false });
+          });
+        // Einmal gleich nach dem neuen Layout, einmal später, falls noch etwas nachlädt
+        setTimeout(restore, 50);
+        setTimeout(restore, 400);
+      });
+    },
+    [scrollRef],
+  );
   const onScroll = useCallback((y: number) => {
     offset.current = y;
   }, []);
-  return useMemo(() => ({ scrollToView, onScroll }), [scrollToView, onScroll]);
+  return useMemo(() => ({ scrollToView, holdView, onScroll }), [scrollToView, holdView, onScroll]);
 }
 
 /**
@@ -159,6 +184,16 @@ export function useSubmitTarget(view: RefObject<View | null>, enabled: boolean) 
 /** Ansicht ins Bild scrollen, z. B. das Kommentarfeld, sobald die Tastatur da ist. */
 export function scrollIntoView(view: View | null) {
   scrollTargets[scrollTargets.length - 1]?.scrollToView(view);
+}
+
+/**
+ * Ansicht an ihrer Stelle auf dem Bildschirm halten, während sich darüber etwas ändert, z. B. das Kommentarfeld
+ * nach dem Abschicken (Daria, 2026-11-09). `change` führt die Änderung aus.
+ */
+export function holdInView(view: View | null, change: () => void) {
+  const target = scrollTargets[scrollTargets.length - 1];
+  if (target) target.holdView(view, change);
+  else change();
 }
 
 /** Meldet die Scrollfläche eines Screens an, solange er offen ist. */
