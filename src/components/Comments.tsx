@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
   time: { ...text.caption, color: color.text.secondary },
   text: { ...text.body, color: color.text.primary },
   // Wie @-Namen in Beiträgen (WithMentions)
-  mention: { color: color.accent.signal },
+  mention: { color: color.text.mention },
   suggestions: {
     paddingVertical: space[4],
     borderRadius: radius.lg,

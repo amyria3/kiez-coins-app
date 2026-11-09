@@ -1,6 +1,6 @@
 import type { Challenge } from '../data/types';
 import { weChallengeText } from '../data/weChallenge';
-import { color, font, isFashionable } from '../theme/tokens';
+import { color, font } from '../theme/tokens';
 import { Text } from './T';
 
 /**
@@ -23,14 +23,14 @@ export function postText(challenge: Challenge): string {
 
 const TAGS = ['#vorher', '#nachher', PHOTO_TAG];
 
-/** @-Namen im Kiez-Look in Grün (color/accent/confirmation, Daria 2026-11-09), im Fashionable Look in color/accent/signal; die Marken #vorher/#nachher/#InDiesemMoment in color/accent/primary hervorheben (verschachteltes Text). */
+/** @-Namen in color/text/mention; die Marken #vorher/#nachher/#InDiesemMoment in color/accent/primary hervorheben (verschachteltes Text). */
 export function WithMentions({ value }: { value: string }) {
   const parts = value.split(/(@[\p{L}\p{N}_]+|#vorher\b|#nachher\b|#InDiesemMoment\b)/u);
   return (
     <>
       {parts.map((part, i) =>
         part.startsWith('@') ? (
-          <Text key={i} style={{ color: isFashionable ? color.accent.signal : color.accent.confirmation }}>
+          <Text key={i} style={{ color: color.text.mention }}>
             {part}
           </Text>
         ) : TAGS.includes(part) ? (
