@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { Button } from './Button';
 import { CHAT_GAP_CHANGE, CHAT_GAP_SAME, ChatReply, Notice, QuestionHint } from './Content';
@@ -11,6 +11,8 @@ import {
   disconnectCrosspost,
   isLivePlatform,
   loadCrosspostAccounts,
+  loadCrosspostSelection,
+  saveCrosspostSelection,
   useCrosspostInterest,
   type CrosspostAccount,
   tokenOnly,
@@ -61,18 +63,27 @@ const INTRO: Record<LivePlatform, string> = {
 
 /**
  * Weiterposten unter Dein Konto › Funktionen (Daria, 2026-11-09): je Plattform ein Schalter. An öffnet darunter die
- * Einrichtung, die Schritte stehen als Systemnachrichten, darunter die Felder. Aus trennt ein verbundenes Konto.
+ * Einrichtung, die Schritte stehen als Systemnachrichten, darunter die Felder. Bei einem verbundenen Konto schaltet der
+ * Schalter nur das Weiterposten an und aus, das Konto bleibt verbunden; „Trennen“ steht daneben (Daria, 2026-11-09).
  * BlueSky mit Handle und App-Passwort, Mastodon mit Instanz und Zugangs-Token, Instagram mit Zugangs-Token,
  * Facebook mit dem Zugangs-Token einer Seite. X kommt später.
  */
 export function CrosspostSwitches() {
   const [accounts, setAccounts] = useState<CrosspostAccount[]>([]);
   const [counted, count] = useCrosspostInterest();
+  // Plattformen, auf die weitergepostet wird; dieselbe Wahl wie beim Erstellen eines Posts
+  const [selected, setSelected] = useState<LivePlatform[]>([]);
 
   const reload = useCallback(() => {
     loadCrosspostAccounts().then(setAccounts);
+    loadCrosspostSelection().then(setSelected);
   }, []);
   useEffect(reload, [reload]);
+  const enable = (platform: LivePlatform, on: boolean) => {
+    const next = on ? [...selected.filter((p) => p !== platform), platform] : selected.filter((p) => p !== platform);
+    setSelected(next);
+    saveCrosspostSelection(next);
+  };
 
   return (
     <View style={styles.list}>
@@ -83,6 +94,8 @@ export function CrosspostSwitches() {
           platform={p.key as LivePlatform}
           label={p.label}
           account={accounts.find((a) => a.platform === p.key)}
+          enabled={selected.includes(p.key as LivePlatform)}
+          onEnable={(on) => enable(p.key as LivePlatform, on)}
           onChange={reload}
         />
       ))}
@@ -105,11 +118,16 @@ function PlatformSwitch({
   platform,
   label,
   account,
+  enabled,
+  onEnable,
   onChange,
 }: {
   platform: LivePlatform;
   label: string;
   account?: CrosspostAccount;
+  /** Weiterposten auf diese Plattform an */
+  enabled: boolean;
+  onEnable: (on: boolean) => void;
   onChange: () => void;
 }) {
   const [setup, setSetup] = useState(false);
@@ -135,6 +153,8 @@ function PlatformSwitch({
       setFirst('');
       setSecret('');
       setSetup(false);
+      // Frisch verbunden: Weiterposten gleich an
+      onEnable(true);
       onChange();
     } catch (e) {
       setError((e as Error).message);
@@ -165,19 +185,28 @@ function PlatformSwitch({
   const steps = lines.filter(isStep).map((line) => [line]);
   const started = shown > 0;
   const done = shown >= steps.length;
-  const on = !!account || setup;
+  const on = account ? enabled : setup;
 
   return (
     <View>
       <View style={styles.row}>
         <View style={styles.texts}>
           <Text noTranslate style={styles.label}>{label}</Text>
-          {account ? <Text noTranslate style={styles.caption}>{account.handle}</Text> : null}
+          {account ? (
+            <View style={styles.connected}>
+              <Text noTranslate style={styles.caption}>
+                {account.handle}
+              </Text>
+              <Pressable accessibilityRole="button" accessibilityLabel={t('{label} trennen', { label })} onPress={disconnect} hitSlop={8}>
+                <Text style={styles.disconnect}>Trennen</Text>
+              </Pressable>
+            </View>
+          ) : null}
         </View>
         <Toggle
           label={label}
           value={on}
-          onValueChange={(v) => (v ? setSetup(true) : account ? disconnect() : (setSetup(false), setShown(0)))}
+          onValueChange={(v) => (account ? onEnable(v) : v ? setSetup(true) : (setSetup(false), setShown(0)))}
         />
       </View>
       {on && !account ? (
@@ -267,6 +296,8 @@ const styles = StyleSheet.create({
   texts: { flex: 1, gap: space[2] },
   label: { ...text.body, color: color.text.primary },
   caption: { ...text.caption, color: color.text.secondary },
+  connected: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
+  disconnect: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },
   setup: { gap: space[12], paddingTop: space[8], paddingBottom: space[16] },
   steps: { gap: CHAT_GAP_SAME },
   // Die Einrichtung hat 12 Abstand; Wechsel zwischen App und eigener Antwort wie im Chat
