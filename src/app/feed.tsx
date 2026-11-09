@@ -395,12 +395,18 @@ export default function FeedScreen() {
   else if (showState && !(planned && showState === 'empty')) items.push({ kind: 'state' });
   else posts.forEach((challenge) => items.push({ kind: 'post', challenge }));
 
+  // Leerer Zustand steht unter der Liste und füllt den Rest bis zur Leiste, mittig. So verteilt sich der Platz
+  // oben und unten gleich (Daria, 2026-11-09).
+  const emptyItem = items.find((i) => EMPTY_KINDS.has(i.kind));
+  const listItems = emptyItem ? items.filter((i) => i !== emptyItem) : items;
+
   const renderItem = ({ item }: { item: FeedItem }) => {
     switch (item.kind) {
       // Leere Reiter sehen aus wie Kiez und Überall (Daria, 29.10.2026)
       case 'groupsEmpty':
         return (
           <FeedStateMessage
+            style={styles.emptyState}
             variant="empty"
             body="Erstelle Deine erste Gruppe"
             action="Gruppe gründen"
@@ -409,7 +415,7 @@ export default function FeedScreen() {
           />
         );
       case 'privateEmpty':
-        return <FeedStateMessage variant="empty" body="Poste Deine erste Me-Challenge" onAction={createChallenge} />;
+        return <FeedStateMessage style={styles.emptyState} variant="empty" body="Poste Deine erste Me-Challenge" onAction={createChallenge} />;
       case 'audience':
         return <AudienceHint audience={audience} onClose={closeAudienceHint} hidden={audienceHidden} onCloseLine={closeAudienceLine} />;
       case 'groupBar':
@@ -427,6 +433,7 @@ export default function FeedScreen() {
         const group = groups.find((g) => g.id === groupId);
         return (
           <FeedStateMessage
+            style={styles.emptyState}
             variant="empty"
             body="Poste die erste Challenge in Deiner Gruppe"
             onAction={createChallenge}
@@ -457,6 +464,7 @@ export default function FeedScreen() {
       case 'state':
         return showState ? (
           <FeedStateMessage
+            style={styles.emptyState}
             variant={showState}
             detail={showState === 'error' ? feedError : undefined}
             onAction={() =>
@@ -572,7 +580,7 @@ export default function FeedScreen() {
         <Animated.View style={[styles.flex, { transform: [{ translateX: swipeX }] }]} {...swipe.panHandlers}>
         <FlatList
           ref={listRef}
-          data={items}
+          data={listItems}
           keyExtractor={(item) =>
             item.kind === 'post' ? item.challenge.id : item.kind === 'running' ? `running-${item.challenge.id}` : item.kind
           }
@@ -586,7 +594,9 @@ export default function FeedScreen() {
           onScrollBeginDrag={() => (dragging.current = true)}
           onScrollEndDrag={() => (dragging.current = false)}
           scrollEventThrottle={16}
-          contentContainerStyle={[styles.list, isFashionable ? null : styles.listTop, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
+          contentContainerStyle={[styles.list, isFashionable ? null : styles.listTop, emptyItem && styles.listGrow, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
+          ListFooterComponent={emptyItem ? renderItem({ item: emptyItem }) : null}
+          ListFooterComponentStyle={emptyItem ? styles.emptyFooter : undefined}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={color.text.secondary} />
           }
@@ -636,6 +646,9 @@ const TAB_ORDER: FeedTab[] = ['private', 'groups', 'nearby', 'everywhere'];
 /** Mindestweg in Punkten, ab dem ein Wischen den Reiter wechselt */
 const SWIPE_DISTANCE = 64;
 
+/** Leere Zustände: stehen als Fuß der Liste, mittig im freien Platz */
+const EMPTY_KINDS = new Set<FeedItem['kind']>(['groupsEmpty', 'groupNoTasks', 'privateEmpty', 'state']);
+
 type FeedItem =
   | { kind: 'planned' }
   | { kind: 'audience' }
@@ -657,6 +670,10 @@ const styles = StyleSheet.create({
   // Etwas mehr Abstand zwischen den Posts (Daria, 2026-11-09)
   list: { gap: isFashionable ? 0 : space[32] },
   listTop: { paddingTop: space[8] },
+  listGrow: { flexGrow: 1 },
+  // Unten etwas Luft über der Leiste, oben trennt schon der Abstand der Liste
+  emptyFooter: { flex: 1, justifyContent: 'center', paddingBottom: space[12] },
+  emptyState: { paddingTop: 0 },
   composeHeader: { height: COMPOSE_HEADER, flexDirection: 'row', alignItems: 'center', gap: space[4], paddingHorizontal: space[8] },
   composeLine: { ...text.title, flex: 1, color: color.text.primary },
   composeSheet: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
