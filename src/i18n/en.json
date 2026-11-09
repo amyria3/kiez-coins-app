@@ -1601,5 +1601,14 @@
   "Wie kommen andere in meine Gruppe?": "How do others join my group?",
   "Abschließen und posten": "Finish and post",
   "Die gemessene Zeit verfällt. Dein Beitrag zeigt dann keine Dauer.": "The measured time is discarded. Your post won’t show a duration.",
-  "Willst Du Deine Zeit nehmen? Dann starte den Timer": "Want to time yourself? Then start the timer"
+  "Willst Du Deine Zeit nehmen? Dann starte den Timer": "Want to time yourself? Then start the timer",
+  "Vorher posten": "Post before",
+  "Me-Challenge löschen?": "Delete Me-Challenge?",
+  "Sie verschwindet aus dem Feed.": "It disappears from the feed.",
+  "Me-Challenge löschen": "Delete Me-Challenge",
+  "Spätestens {when} Uhr schließt die App die Me-Challenge ab, auch ohne Nachher-Foto.": "By {when} at the latest, the app completes the Me-Challenge, even without an after photo.",
+  "Ohne Nachher schließt die App die Me-Challenge {when} Uhr ab.": "Without an after, the app completes the Me-Challenge on {when}.",
+  "Läuft": "Running",
+  "Timer läuft": "Timer running",
+  "Vorher gepostet um {time} Uhr": "Before posted at {time}"
 }

@@ -100,7 +100,7 @@ function SheetScroll({ children, actions }: { children: React.ReactNode; actions
   );
 }
 
-/** Nach „Vorher speichern“: Blatt zu, weiter zum Timer */
+/** Nach „Vorher posten“: Blatt zu, weiter zum Timer */
 function useOpenTimer(onDone: () => void) {
   const router = useRouter();
   return (id: string) => {

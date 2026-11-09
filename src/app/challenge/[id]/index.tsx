@@ -17,7 +17,7 @@ import { InfoRow, KaterBubble, Notice, QuestionHint, OperationTag } from '../../
 import { TextField } from '../../../components/Form';
 import { HeroScreen, SubScreen } from '../../../components/Screen';
 import { TextHero, isTextPost } from '../../../components/TextSheets';
-import { beforeAfterDuration, formatBountyShort, formatCents, formatDayMonthShort, formatEuro, formatHoursMinutes, formatRelative, formatRemainingShort } from '../../../data/format';
+import { beforeAfterDuration, meInProgress, formatBountyShort, formatCents, formatDayMonthShort, formatEuro, formatHoursMinutes, formatRelative, formatRemainingShort } from '../../../data/format';
 import { WithMentions, postText } from '../../../components/WithMentions';
 import { isSharedBounty, payoutOf, shareCentsOf, sharedBountyText } from '../../../data/coins';
 import {
@@ -200,6 +200,9 @@ export default function ChallengeDetail() {
     actions = <Button label="Coins bezahlen" onPress={() => router.push(`/challenge/${challenge.id}/pay`)} />;
   } else if (canConfirmReceived) {
     actions = <Button label="Coins bestätigen" onPress={() => router.push(`/challenge/${challenge.id}/received`)} />;
+  } else if (isAuthor && meInProgress(challenge)) {
+    // Offene Me-Challenge: weiter zum Timer oder Nachher (Daria, 2026-11-09)
+    actions = <Button icon="camera" label="Nachher aufnehmen" onPress={() => router.push({ pathname: '/before-after/[id]', params: { id: challenge.id } })} />;
   }
 
   const openProfile = (userId: string) =>

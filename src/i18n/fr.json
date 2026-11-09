@@ -1331,5 +1331,14 @@
   "Wie kommen andere in meine Gruppe?": "Comment les autres rejoignent-ils mon groupe ?",
   "Abschließen und posten": "Terminer et publier",
   "Die gemessene Zeit verfällt. Dein Beitrag zeigt dann keine Dauer.": "Le temps mesuré est perdu. Ta publication n’affichera pas de durée.",
-  "Willst Du Deine Zeit nehmen? Dann starte den Timer": "Tu veux te chronométrer ? Alors lance le minuteur"
+  "Willst Du Deine Zeit nehmen? Dann starte den Timer": "Tu veux te chronométrer ? Alors lance le minuteur",
+  "Vorher posten": "Publier l’avant",
+  "Me-Challenge löschen?": "Supprimer le Me-Challenge ?",
+  "Sie verschwindet aus dem Feed.": "Il disparaît du fil.",
+  "Me-Challenge löschen": "Supprimer le Me-Challenge",
+  "Spätestens {when} Uhr schließt die App die Me-Challenge ab, auch ohne Nachher-Foto.": "Au plus tard {when}, l’app termine le Me-Challenge, même sans photo après.",
+  "Ohne Nachher schließt die App die Me-Challenge {when} Uhr ab.": "Sans après, l’app termine le Me-Challenge {when}.",
+  "Läuft": "En cours",
+  "Timer läuft": "Minuteur en cours",
+  "Vorher gepostet um {time} Uhr": "Avant publié à {time}"
 }
