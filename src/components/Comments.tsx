@@ -197,6 +197,9 @@ export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply, m
   // Nur direkt nach dem Einsetzen eines Namens gesetzt, damit der Cursor hinter dem Namen landet
   const [selection, setSelection] = useState<{ start: number; end: number } | undefined>();
   const [focused, setFocused] = useState(false);
+  // Browser: Das Textfeld wäre sonst zwei Zeilen hoch und der Platzhalter säße oben. Eine Zeile, dann wächst es mit
+  // dem Text, so steht der Platzhalter mittig (Daria, 2026-11-09).
+  const [webHeight, setWebHeight] = useState(0);
   const inputRef = useRef<TextInput>(null);
   const mention = activeMention(value, cursor);
   const suggestions = mention ? mentionSuggestions(mentionCandidates, mention.query) : [];
@@ -262,7 +265,7 @@ export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply, m
     <View style={[styles.composer, focused && styles.composerFocused]}>
       <TextInput
         ref={inputRef}
-        style={styles.input}
+        style={[styles.input, Platform.OS === 'web' && webHeight ? { height: Math.min(120, webHeight) } : null]}
         placeholder={placeholder}
         placeholderTextColor={color.text.secondary}
         value={value}
@@ -283,6 +286,15 @@ export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply, m
         onBlur={() => setFocused(false)}
         selectionColor={color.accent.primary}
         multiline
+        {...(Platform.OS === 'web' ? ({ rows: 1 } as object) : null)}
+        onContentSizeChange={
+          Platform.OS === 'web'
+            ? (e) => {
+                const next = Math.round(e.nativeEvent.contentSize.height);
+                setWebHeight((prev) => (Math.abs(next - prev) > 2 ? next : prev));
+              }
+            : undefined
+        }
         maxLength={500}
         accessibilityLabel={t('Kommentar schreiben')}
       />
@@ -376,13 +388,12 @@ export function CommentSection({
 
   return (
     <View style={styles.section}>
-      {/* Überschrift und Hinweis eng zusammen, danach mehr Luft bis zum ersten Kommentar (Daria, 22.10.2026) */}
-      <View style={styles.intro}>
-        <Text style={styles.title} accessibilityRole="header">
-          Fragen und Kommentare
-        </Text>
-        {audience ? <Text style={styles.time}>{audience}</Text> : null}
-      </View>
+      {/* Ohne Überschrift „Fragen und Kommentare“ (Daria, 2026-11-09); der Hinweis, wer mitliest, bleibt */}
+      {audience ? (
+        <View style={styles.intro}>
+          <Text style={styles.time}>{audience}</Text>
+        </View>
+      ) : null}
       {roots.map((root) => (
         <View key={root.id} style={styles.thread}>
           {renderComment(root, false, root.id)}
@@ -411,7 +422,6 @@ export function CommentSection({
 
 const styles = StyleSheet.create({
   section: { gap: space[12] },
-  title: { ...text.title, color: color.text.primary },
   intro: { gap: space[2], marginBottom: space[12] },
   thread: { gap: space[8] },
   comment: { flexDirection: 'row', gap: space[12], alignItems: 'flex-start' },
