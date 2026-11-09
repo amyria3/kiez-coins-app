@@ -18,7 +18,6 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 ## Zeitnah (Daria, 30.10.2026)
 
-
 - [x] Beim Posten Zugriff auf die Entwürfe: Das Erstellen-Blatt zeigt oben „Deine Entwürfe“ mit Kacheln, passend zum Modus (Privat, Gruppe, Kiez/Überall). Ein Tipp öffnet den Entwurf (`src/components/compose/DraftStrip.tsx`, 30.10.2026).
 
 ## Teilen (Daria, 03.11.2026)
