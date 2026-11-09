@@ -477,7 +477,8 @@ const styles = StyleSheet.create({
     gap: space[8],
     // Abstände abzüglich des Rands, damit das Feld so groß bleibt wie vorher
     paddingVertical: space[4] - stroke.focus,
-    paddingRight: space[4] - stroke.focus,
+    // Mehr Luft rechts neben dem Senden-Knopf (Daria, 2026-11-09)
+    paddingRight: space[12] - stroke.focus,
     paddingLeft: space[16] - stroke.focus,
     borderRadius: radius.full,
     backgroundColor: color.bg.surface,
