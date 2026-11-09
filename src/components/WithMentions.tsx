@@ -1,6 +1,6 @@
 import type { Challenge } from '../data/types';
 import { weChallengeText } from '../data/weChallenge';
-import { color, font, isFashionable } from '../theme/tokens';
+import { color, font } from '../theme/tokens';
 import { Text } from './T';
 
 /**
@@ -34,8 +34,8 @@ export function WithMentions({ value }: { value: string }) {
             {part}
           </Text>
         ) : TAGS.includes(part) ? (
-          // Hashtags in Lila (Daria, 2026-11-07)
-          <Text key={i} noTranslate style={{ color: color.accent.primary, fontFamily: isFashionable ? font.semiBold : font.medium }}>
+          // Hashtags in Lila (Daria, 2026-11-07), in der Schrift der Texte über dem Bild wie Ort und Titel (Daria, 2026-11-08)
+          <Text key={i} noTranslate style={{ color: color.accent.primary, fontFamily: font.onPhoto }}>
             {part}
           </Text>
         ) : (
