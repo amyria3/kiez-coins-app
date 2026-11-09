@@ -14,7 +14,7 @@ import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BeforeAfterPair, BeforeAfterPost } from './BeforeAfterPost';
 import { weChallengeAfter, joinedIds, maxParticipants, participationText } from '../data/weChallenge';
 import { useAppDimensions } from '../theme/layout';
-import { WithMentions, postText } from './WithMentions';
+import { PHOTO_TAG, WithMentions, postText } from './WithMentions';
 import { BountyBadge, NameWithTestMark } from './Badges';
 import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
@@ -70,10 +70,12 @@ function KiezPost({
   const image = isWave && completed && challenge.imageAfter ? challenge.imageAfter : challenge.image;
   // Erledigte We-Challenge: Aufgabenfoto als Vorher, Erledigungsfoto als Nachher (Daria, 27.10.2026)
   const after = image ? weChallengeAfter(challenge) : undefined;
-  const body = postText(challenge);
   const textPages = isTextPost(challenge) ? challenge.pages : undefined;
   // Bild: Zeitstempel statt Restzeit, denn ein Bild läuft nicht ab (Daria, 30.10.2026)
   const isPhoto = challenge.type === 'photo';
+  // Bild mit Foto: #InDiesemMoment steht unten links auf dem Foto, unter den Knöpfen nur der eigene Text (Daria, 2026-11-09)
+  const tagOnPhoto = isPhoto && !!image && !textPages;
+  const body = tagOnPhoto ? (challenge.text?.trim() ?? '') : postText(challenge);
   const state = closed
     ? 'geschlossen'
     : completed
@@ -305,6 +307,21 @@ function KiezPost({
             // Erst nur der Ort auf dem Foto, ohne Glasleiste. Nach dem Tippen Glasleiste mit Titel,
             // Name und wann gepostet (Daria, 2026-11-05).
             <View>
+              {tagOnPhoto ? (
+                // Marke unten links; steht dort schon der Ort, rückt sie darüber. Beim Tippen blendet sie aus wie der Ort.
+                <Animated.View
+                  pointerEvents="none"
+                  style={[
+                    styles.placeOnPhoto,
+                    placeTop ? null : styles.tagAbovePlace,
+                    { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) },
+                  ]}
+                >
+                  <Text noTranslate style={styles.tagOnPhotoText} numberOfLines={1}>
+                    {PHOTO_TAG}
+                  </Text>
+                </Animated.View>
+              ) : null}
               {titleAlways ? (
                 // Titel bleibt stehen; der Ort darunter blendet beim Tippen aus wie sonst
                 <View pointerEvents="none" style={styles.titleBlock}>
@@ -727,6 +744,19 @@ const styles = StyleSheet.create({
   infoPlain: { paddingHorizontal: space[4] },
   // Ort ohne Glasleiste: liegt unten links, Schatten statt Fläche
   placeOnPhoto: { position: 'absolute', left: space[4], right: space[4], bottom: space[4], flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  // #InDiesemMoment auf dem Foto: über dem Ort, wenn der unten links steht
+  tagAbovePlace: { bottom: space[4] + 24 },
+  // Wie die Marken im Text: Unbounded in color/accent/primary, mit weichem Schatten auf dem Foto (Daria, 2026-11-09)
+  tagOnPhotoText: {
+    flexShrink: 1,
+    fontFamily: font.onPhoto,
+    fontSize: 15,
+    lineHeight: 20,
+    color: color.accent.primary,
+    textShadowColor: 'rgba(0,0,0,0.55)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
   // Challenge-Titel ohne Fläche unten links, Ort direkt darunter
   titleBlock: { position: 'absolute', left: space[16], right: space[16], bottom: space[16], gap: space[4] },
   placeRow: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
