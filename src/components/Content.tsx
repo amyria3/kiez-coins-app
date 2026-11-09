@@ -16,6 +16,42 @@ const SKY_TEXT = '#1F2123';
 /** Fläche der Systemmeldungen im Kiez-Look: probeweise das Gelbgrün aus dem Kreis hinter dem Kater (Cat.svg, Startbild) statt Himmelblau #A9DBFF (Daria, 2026-11-09) */
 const SKY_BG = '#F0FFA6';
 
+/**
+ * Einblenden der Systemblasen im Kiez-Look (Daria, 2026-11-09): Die Fläche kommt mit 80 % Deckkraft, leuchtet kurz
+ * auf 100 % auf und bleibt bei 90 %. Die Blase wächst dabei leicht aus der Ecke beim Avatar. Bei „Bewegung reduzieren“
+ * steht sie gleich im Endzustand.
+ */
+const SKY_RGB = '240, 255, 166';
+function useSkyIn() {
+  const t = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .catch(() => false)
+      .then((reduce) => {
+        if (!alive) return;
+        if (reduce) {
+          t.setValue(2);
+          return;
+        }
+        Animated.sequence([
+          Animated.timing(t, { toValue: 1, duration: 260, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+          Animated.timing(t, { toValue: 2, duration: 520, easing: Easing.inOut(Easing.quad), useNativeDriver: false }),
+        ]).start();
+      });
+    return () => {
+      alive = false;
+    };
+  }, [t]);
+  return {
+    backgroundColor: t.interpolate({
+      inputRange: [0, 1, 2],
+      outputRange: [`rgba(${SKY_RGB}, 0.8)`, `rgba(${SKY_RGB}, 1)`, `rgba(${SKY_RGB}, 0.9)`],
+    }),
+    scale: t.interpolate({ inputRange: [0, 1, 2], outputRange: [0.96, 1.02, 1] }),
+  };
+}
+
 /** Adressen im Text: mit https:// oder als Domain wie developers.facebook.com, nicht Teil eines @-Handles */
 const LINK = /https?:\/\/[^\s]+|(?:[a-z0-9-]+\.)+(?:com|de|org|net|social|app|io|eu)(?:\/[^\s]*)?/gi;
 
@@ -103,9 +139,17 @@ export function Notice({
   tail?: boolean;
 }) {
   const t = useTexts();
+  const sky = useSkyIn();
   return (
     <FromSystem>
-    <View style={[styles.notice, !isFashionable && styles.noticeSky]} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
+    <Animated.View
+      style={[
+        styles.notice,
+        !isFashionable && styles.noticeSky,
+        !isFashionable && { backgroundColor: sky.backgroundColor, transform: [{ scale: sky.scale }] },
+      ]}
+      accessibilityRole={variant === 'warning' ? 'alert' : undefined}
+    >
       {/* Kiez-Look: Icon nur bei Warnungen, sonst sähen Warnung und Info gleich aus (Daria, 2026-11-09).
           Feste Größe, sonst schrumpft das Icon neben langem Text. */}
       {isFashionable || variant === 'warning' ? (
@@ -128,7 +172,7 @@ export function Notice({
           style={styles.noticeClose}
         />
       ) : null}
-    </View>
+    </Animated.View>
     </FromSystem>
   );
 }
@@ -154,7 +198,8 @@ export function QuestionHint({ question, answer, then }: { question: string; ans
   useEffect(() => {
     if (!open) return;
     shown.setValue(0);
-    Animated.timing(shown, { toValue: 1, duration: 220, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+    // Ohne Native Driver, da dieselbe Blase auch ihre Farbe animiert (SkyAnswer)
+    Animated.timing(shown, { toValue: 1, duration: 220, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
   }, [open, shown]);
   return (
     <View style={open ? styles.qaOpen : undefined}>
@@ -167,21 +212,44 @@ export function QuestionHint({ question, answer, then }: { question: string; ans
         <Text style={[styles.questionText, open && !isFashionable && styles.questionTextOpen]}>{question}</Text>
       </Pressable>
       {open ? (
-        <FromSystem style={styles.afterChange}>
-        <Animated.View
-          style={[
-            styles.answer,
-            isFashionable && styles.afterChange,
-            !isFashionable && styles.answerSky,
-            { opacity: shown, transform: [{ translateY: shown.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }] },
-          ]}
-        >
-          <LinkedText style={[styles.answerText, !isFashionable && styles.answerTextSky]} value={answer} />
-        </Animated.View>
-        </FromSystem>
+        isFashionable ? (
+          <Animated.View
+            style={[
+              styles.answer,
+              styles.afterChange,
+              { opacity: shown, transform: [{ translateY: shown.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }] },
+            ]}
+          >
+            <LinkedText style={styles.answerText} value={answer} />
+          </Animated.View>
+        ) : (
+          <FromSystem style={styles.afterChange}>
+            <SkyAnswer answer={answer} shown={shown} />
+          </FromSystem>
+        )
       ) : null}
       {then ? <View style={open ? styles.afterSame : styles.afterChange}>{then}</View> : null}
     </View>
+  );
+}
+
+/** Antwort im Kiez-Look: blendet ein und leuchtet auf wie die übrigen Systemblasen (useSkyIn) */
+function SkyAnswer({ answer, shown }: { answer: string; shown: Animated.Value }) {
+  const sky = useSkyIn();
+  return (
+    <Animated.View
+      style={[
+        styles.answer,
+        styles.answerSky,
+        {
+          opacity: shown,
+          backgroundColor: sky.backgroundColor,
+          transform: [{ translateY: shown.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }, { scale: sky.scale }],
+        },
+      ]}
+    >
+      <LinkedText style={[styles.answerText, styles.answerTextSky]} value={answer} />
+    </Animated.View>
   );
 }
 
@@ -434,9 +502,10 @@ const styles = StyleSheet.create({
   // Gestellte Frage lila wie eine eigene Nachricht, die Antwort der App helles Himmelblau (Daria, 2026-11-09)
   questionOpen: { backgroundColor: color.accent.primary, borderColor: color.accent.primary },
   questionTextOpen: { color: color.text.onAccent },
-  answerSky: { backgroundColor: SKY_BG, flexShrink: 1 },
+  answerSky: { backgroundColor: SKY_BG, flexShrink: 1, transformOrigin: 'left bottom' },
   noticeSky: {
     alignSelf: 'flex-start',
+    transformOrigin: 'left bottom',
     flexShrink: 1,
     maxWidth: '88%',
     alignItems: 'center',
