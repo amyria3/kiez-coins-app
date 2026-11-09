@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AuthorRow } from '../../../../components/AuthorRow';
 import { StatusBadge } from '../../../../components/Badges';
 import { Button } from '../../../../components/Button';
-import { Notice } from '../../../../components/Content';
+import { QuestionHint } from '../../../../components/Content';
 import { SubScreen } from '../../../../components/Screen';
 import { formatCents, formatDayMonth, formatEuro } from '../../../../data/format';
 import { payoutOf } from '../../../../data/coins';
@@ -58,7 +58,7 @@ export default function PaymentScreen() {
             ? tAbout(author, '{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.', { firstName: author.firstName, day, bountyAmount })
             : tAbout(author, '{firstName} hat die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.', { firstName: author.firstName, bountyAmount })}</Text>
       </View>
-      <Notice message="Nur Geduld, my friend! Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach immer noch fehlt." />
+      <QuestionHint question="Und wenn das Geld noch fehlt?" answer="Nur Geduld, my friend! Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach immer noch fehlt." />
     </SubScreen>
   );
 }

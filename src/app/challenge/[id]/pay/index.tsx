@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AuthorRow } from '../../../../components/AuthorRow';
 import { StatusBadge } from '../../../../components/Badges';
 import { Button } from '../../../../components/Button';
-import { Notice } from '../../../../components/Content';
+import { Notice, QuestionHint } from '../../../../components/Content';
 import { PaymentDetails } from '../../../../components/PaymentDetails';
 import { SubScreen } from '../../../../components/Screen';
 import { Text } from '../../../../components/T';
@@ -98,7 +98,7 @@ export default function PayScreen() {
           </View>
         );
       })}
-      <Notice message="Überweise jeden Anteil direkt. KiezCoins sieht und prüft keine Zahlungen, alles beruht auf Vertrauen." />
+      <QuestionHint question="Wie läuft die Zahlung?" answer="Überweise jeden Anteil direkt. KiezCoins sieht und prüft keine Zahlungen, alles beruht auf Vertrauen." />
     </SubScreen>
   );
 }

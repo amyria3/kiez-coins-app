@@ -12,7 +12,7 @@ import { Icon } from '../../components/icons/Icon';
 import { SubScreen } from '../../components/Screen';
 import { Text } from '../../components/T';
 import { WithMentions } from '../../components/WithMentions';
-import { formatClock, formatHoursMinutes } from '../../data/format';
+import { formatClock, formatHoursMinutes, meInProgress } from '../../data/format';
 import { BEFORE_AFTER_MAX_MS } from '../../data/remote';
 import { beforeAfterBody, useChallenge, useStore } from '../../data/store';
 import { localeTag, t } from '../../data/texts';
@@ -59,8 +59,8 @@ export default function BeforeAfterScreen() {
     if (loadedTitle) setTitle((v) => v || loadedTitle);
   }, [loadedTitle]);
 
-  // Inzwischen gepostet (Knopf oder Server nach 48 h): zum Beitrag
-  const posted = !!challenge && challenge.status !== 'draft';
+  // Inzwischen abgeschlossen (Knopf oder Server): zum Beitrag. Offen ohne Nachher läuft sie noch (Daria, 2026-11-09).
+  const posted = !!challenge && !meInProgress(challenge);
   useEffect(() => {
     if (posted && !busy) router.replace(`/challenge/${challenge.id}`);
   }, [posted, busy, challenge?.id, router]);
@@ -91,32 +91,43 @@ export default function BeforeAfterScreen() {
     setBusy(null);
   };
 
-  // Zu früh oder aus Versehen gestartet: wieder ein Entwurf, der nicht als gestartet gilt
-  const stop = () =>
-    Alert.alert('Timer stoppen?', 'Der Timer wird zurückgesetzt, aber Deine Challenge wird als Entwurf gespeichert.', [
+  // Auch mit laufendem Timer ohne Timer weiter: Der Timer stoppt, danach geht es zum Nachher und zum Posten (Daria, 2026-11-09)
+  const withoutTimer = () =>
+    Alert.alert('Timer stoppen?', 'Die gemessene Zeit verfällt. Dein Beitrag zeigt dann keine Dauer.', [
       { text: 'Abbrechen', style: 'cancel' },
       {
         text: 'Stoppen',
         onPress: async () => {
           setBusy('stop');
-          await beforeAfter.stopTimer(challenge.id).catch(fail('Timer nicht gestoppt'));
+          try {
+            await beforeAfter.stopTimer(challenge.id);
+            setStage('after');
+          } catch (error) {
+            fail('Timer nicht gestoppt')(error);
+          }
           setBusy(null);
         },
       },
     ]);
 
+  // Offen: wie jeder Beitrag löschen (wiederherstellbar), ein alter Entwurf endgültig
+  const isOpen = challenge.status === 'open';
   const remove = () =>
-    Alert.alert('Entwurf löschen?', 'Vorher-Foto, Texte und Timer sind dann weg.', [
-      { text: 'Abbrechen', style: 'cancel' },
-      {
-        text: 'Löschen',
-        style: 'destructive',
-        onPress: () => {
-          dispatch({ type: 'deleteDraft', id: challenge.id });
-          router.dismissTo('/feed');
+    Alert.alert(
+      isOpen ? 'Me-Challenge löschen?' : 'Entwurf löschen?',
+      isOpen ? 'Sie verschwindet aus dem Feed.' : 'Vorher-Foto, Texte und Timer sind dann weg.',
+      [
+        { text: 'Abbrechen', style: 'cancel' },
+        {
+          text: 'Löschen',
+          style: 'destructive',
+          onPress: () => {
+            dispatch(isOpen ? { type: 'delete', id: challenge.id } : { type: 'deleteDraft', id: challenge.id });
+            router.dismissTo('/feed');
+          },
         },
-      },
-    ]);
+      ],
+    );
 
   const edit = () => ({
     ...(afterPhoto ? { afterPhoto } : null),
@@ -167,10 +178,11 @@ export default function BeforeAfterScreen() {
         onLeadingPress={() => setStage('timer')}
         actions={
           <>
-            <Button busy={busy === 'post'} label={busy === 'post' ? 'Wird gepostet …' : 'Me-Challenge posten'} onPress={post} disabled={!!busy} />
+            {/* Klar benannt: Posten schließt die Me-Challenge ab, Speichern geht jederzeit vorher (Daria, 2026-11-09) */}
+            <Button busy={busy === 'post'} label={busy === 'post' ? 'Wird gepostet …' : 'Abschließen und posten'} onPress={post} disabled={!!busy} />
             <Button
               busy={busy === 'save'}
-              label={busy === 'save' ? 'Wird gespeichert …' : 'Später weitermachen'}
+              label={busy === 'save' ? 'Wird gespeichert …' : isOpen ? 'Speichern' : 'Als Entwurf speichern'}
               variant="ghost"
               onPress={later}
               disabled={!!busy}
@@ -182,7 +194,7 @@ export default function BeforeAfterScreen() {
         {/* Dauer nur mit laufendem Timer; ohne Timer zeigt der Beitrag keine Dauer (Daria, 2026-11-02) */}
         {running ? (
           <View style={styles.durationRow} accessible>
-            <Icon name="clock" size={15} color={color.text.secondary} />
+            <Icon name="clock-filled" size={15} color={color.text.secondary} />
             <Text style={styles.durationText}>
               {t('Dauer {duration}, stoppt beim Posten', { duration: formatHoursMinutes(elapsed) })}
             </Text>
@@ -233,12 +245,12 @@ export default function BeforeAfterScreen() {
             <Button icon="camera" label="Nachher aufnehmen" onPress={() => setStage('after')} disabled={!!busy} />
             <Button
               busy={busy === 'stop'}
-              label={busy === 'stop' ? 'Wird gestoppt …' : 'Timer stoppen, Entwurf behalten'}
+              label={busy === 'stop' ? 'Wird gestoppt …' : 'Ohne Timer weiter'}
               variant="ghost"
-              onPress={stop}
+              onPress={withoutTimer}
               disabled={!!busy}
             />
-            <Button label="Entwurf löschen" variant="ghost" onPress={remove} disabled={!!busy} />
+            <Button label={isOpen ? 'Me-Challenge löschen' : 'Entwurf löschen'} variant="ghost" onPress={remove} disabled={!!busy} />
           </>
         ) : (
           <>
@@ -258,7 +270,7 @@ export default function BeforeAfterScreen() {
           <Text style={styles.miniTitle} numberOfLines={2}>
             {challenge.title}
           </Text>
-          <Text style={styles.small}>{t('Vorher gespeichert um {time} Uhr', { time: clock(challenge.createdAt) })}</Text>
+          <Text style={styles.small}>{isOpen ? t('Vorher gepostet um {time} Uhr', { time: clock(challenge.createdAt) }) : t('Vorher gespeichert um {time} Uhr', { time: clock(challenge.createdAt) })}</Text>
         </View>
       </View>
       {/* Vor dem Start fragt der Kater, ob die Person ihre Zeit nehmen will; der Timer ist freiwillig (Daria, 2026-11-02) */}
@@ -276,9 +288,16 @@ export default function BeforeAfterScreen() {
         <Text style={styles.note}>
           {over
             ? 'Die 48 Stunden sind um. Gleich postet die App den Beitrag, auch ohne Nachher-Foto.'
-            : t('Spätestens {when} Uhr postet die App den Beitrag, auch ohne Nachher-Foto.', { when: dayClock(end) }) +
+            : (isOpen
+                ? t('Spätestens {when} Uhr schließt die App die Me-Challenge ab, auch ohne Nachher-Foto.', { when: dayClock(end) })
+                : t('Spätestens {when} Uhr postet die App den Beitrag, auch ohne Nachher-Foto.', { when: dayClock(end) })) +
               ' ' +
               t('Mit dem X oben nutzt Du die App normal weiter. Zurück zum Timer kommst Du oben im Feed.')}
+        </Text>
+      ) : isOpen && challenge.deadline ? (
+        // Ohne Timer: Frist von 7 Tagen (Daria, 2026-11-09)
+        <Text style={styles.note}>
+          {t('Ohne Nachher schließt die App die Me-Challenge {when} Uhr ab.', { when: dayClock(Date.parse(challenge.deadline)) })}
         </Text>
       ) : null}
     </SubScreen>

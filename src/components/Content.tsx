@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { AccessibilityInfo, Animated, Easing, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
 import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
@@ -9,13 +9,101 @@ import { Icon, type IconName } from './icons/Icon';
 import { iconSvgs } from './icons/svgs';
 import { SvgXml } from 'react-native-svg';
 import { Herz } from './Herz';
+import { IconButton } from './IconButton';
 
-/** Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. */
-export function Notice({ message, variant = 'info' }: { message: string; variant?: 'info' | 'warning' }) {
+// Systemmeldungen als hellblaue Chatblase der App, wie die Antworten auf die Fragen; Icon dunkel wie der Text, nur bei Warnungen (Daria, 2026-11-09)
+const SKY_TEXT = '#1F2123';
+
+/**
+ * Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. Mit `onClose` ein Kreuz rechts.
+ * `tail={false}` für Nachrichten über der letzten einer Folge: Wie im Chat hat nur die letzte die spitze Ecke.
+ */
+export function Notice({
+  message,
+  variant = 'info',
+  onClose,
+  tail = true,
+}: {
+  message: string;
+  variant?: 'info' | 'warning';
+  onClose?: () => void;
+  tail?: boolean;
+}) {
+  const t = useTexts();
   return (
-    <View style={styles.notice} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
-      <Icon name="info" color={variant === 'warning' ? color.accent.signal : color.text.primary} />
-      <Text style={styles.noticeText}>{message}</Text>
+    <View style={[styles.notice, !isFashionable && styles.noticeSky, !isFashionable && !tail && styles.noticeNoTail]} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
+      {/* Kiez-Look: Icon nur bei Warnungen, sonst sähen Warnung und Info gleich aus (Daria, 2026-11-09).
+          Feste Größe, sonst schrumpft das Icon neben langem Text. */}
+      {isFashionable || variant === 'warning' ? (
+        <View style={styles.noticeIcon}>
+          <Icon
+            name="info-filled"
+            size={isFashionable ? undefined : 17}
+            color={isFashionable ? (variant === 'warning' ? color.accent.signal : color.text.primary) : SKY_TEXT}
+          />
+        </View>
+      ) : null}
+      <Text style={[styles.noticeText, !isFashionable && styles.noticeTextSky]}>{message}</Text>
+      {onClose ? (
+        <IconButton
+          icon="close"
+          iconSize={14}
+          iconColor={isFashionable ? color.text.secondary : SKY_TEXT}
+          accessibilityLabel={t('Hinweis schließen')}
+          onPress={onClose}
+          style={styles.noticeClose}
+        />
+      ) : null}
+    </View>
+  );
+}
+
+/**
+ * Abstände im Chat (Daria, 2026-11-09): zwischen Nachrichten derselben Seite klein, beim Wechsel zwischen Frage
+ * und App größer.
+ */
+export const CHAT_GAP_SAME = space[4];
+export const CHAT_GAP_CHANGE = space[12];
+
+/**
+ * Hinweis als Frage (Daria, 2026-11-09): blasse Chatnachricht rechts, wie selbst gefragt. Ein Tipp zeigt darunter
+ * links die Antwort als Chatnachricht, ein zweiter Tipp blendet sie wieder aus.
+ * `then`: weitere Nachrichten der App (z. B. eine Warnung). Sie folgen dicht auf die Antwort, bei zugeklappter
+ * Frage mit dem größeren Abstand. Offen bekommt das Ganze unten Luft, da danach meist wieder eine Frage folgt.
+ */
+export function QuestionHint({ question, answer, then }: { question: string; answer: string; then?: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const shown = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (!open) return;
+    shown.setValue(0);
+    Animated.timing(shown, { toValue: 1, duration: 220, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+  }, [open, shown]);
+  return (
+    <View style={open ? styles.qaOpen : undefined}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ expanded: open }}
+        onPress={() => setOpen((o) => !o)}
+        style={({ pressed }) => [styles.question, open && !isFashionable && styles.questionOpen, pressed && styles.questionPressed]}
+      >
+        <Text style={[styles.questionText, open && !isFashionable && styles.questionTextOpen]}>{question}</Text>
+      </Pressable>
+      {open ? (
+        <Animated.View
+          style={[
+            styles.answer,
+            styles.afterChange,
+            !isFashionable && styles.answerSky,
+            // Folgt noch eine Nachricht der App, hat nur die letzte die spitze Ecke
+            then ? styles.answerNoTail : null,
+            { opacity: shown, transform: [{ translateY: shown.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }] },
+          ]}
+        >
+          <Text style={[styles.answerText, !isFashionable && styles.answerTextSky]}>{answer}</Text>
+        </Animated.View>
+      ) : null}
+      {then ? <View style={open ? styles.afterSame : styles.afterChange}>{then}</View> : null}
     </View>
   );
 }
@@ -201,6 +289,32 @@ export function FieldGroup({ label, children }: { label: string; children: React
 }
 
 const styles = StyleSheet.create({
+  qaOpen: { paddingBottom: CHAT_GAP_CHANGE - CHAT_GAP_SAME },
+  afterSame: { marginTop: CHAT_GAP_SAME },
+  answerNoTail: { borderBottomLeftRadius: radius.xl },
+  afterChange: { marginTop: CHAT_GAP_CHANGE },
+  question: {
+    alignSelf: 'flex-end',
+    maxWidth: '85%',
+    paddingVertical: space[8],
+    paddingHorizontal: 14,
+    borderRadius: radius.xl,
+    borderBottomRightRadius: space[4],
+    borderWidth: stroke.ultraThin,
+    borderColor: color.line.hairline,
+  },
+  questionPressed: { opacity: 0.6 },
+  questionText: { ...text.body, color: color.text.secondary },
+  answer: {
+    alignSelf: 'flex-start',
+    maxWidth: '88%',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: radius.xl,
+    borderBottomLeftRadius: space[4],
+    backgroundColor: color.bg.surface,
+  },
+  answerText: { ...text.body, color: color.text.primary },
   notice: {
     flexDirection: 'row',
     gap: space[8],
@@ -209,6 +323,26 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
   },
   noticeText: { ...text.caption, color: color.text.primary, flex: 1 },
+  // Gestellte Frage lila wie eine eigene Nachricht, die Antwort der App helles Himmelblau (Daria, 2026-11-09)
+  questionOpen: { backgroundColor: color.accent.primary, borderColor: color.accent.primary },
+  questionTextOpen: { color: color.text.onAccent },
+  answerSky: { backgroundColor: '#A9DBFF' },
+  noticeSky: {
+    alignSelf: 'flex-start',
+    maxWidth: '88%',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: radius.xl,
+    borderBottomLeftRadius: space[4],
+    backgroundColor: '#A9DBFF',
+  },
+  // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
+  noticeIcon: { flexShrink: 0 },
+  noticeNoTail: { borderBottomLeftRadius: radius.xl },
+  noticeClose: { marginVertical: -10, marginRight: -10, marginLeft: -4 },
+  noticeTextSky: { ...text.body, color: SKY_TEXT, flexGrow: 0, flexShrink: 1, flexBasis: 'auto' },
+  answerTextSky: { color: '#1F2123' },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 24 },
   iconBox: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
   infoText: { ...text.body, color: color.text.primary, flex: 1 },

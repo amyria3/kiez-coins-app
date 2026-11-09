@@ -131,6 +131,14 @@ export function formatClock(ms: number): string {
   return `${Math.floor(s / 3600)}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`;
 }
 
+/**
+ * Me-Challenge, die noch läuft: Entwurf (ältere Fassung) oder offen ohne Nachher (Migration 20261109000200).
+ * Fertig ist sie mit finished_at.
+ */
+export function meInProgress(c: { type: string; status: string; finishedAt?: string }): boolean {
+  return c.type === 'before_after' && (c.status === 'draft' || (c.status === 'open' && !c.finishedAt));
+}
+
 /** Dauer eines Vorher-Nachher-Beitrags vom Timerstart bis zum Posten, ohne Timer leer */
 export function beforeAfterDuration(c: { timerStartedAt?: string; finishedAt?: string }): number | undefined {
   if (!c.timerStartedAt || !c.finishedAt) return undefined;

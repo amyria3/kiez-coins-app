@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
-import { FieldGroup, Notice } from '../../../components/Content';
+import { FieldGroup, QuestionHint } from '../../../components/Content';
 import { Chip, ChipGroup, SwitchRow, TextField } from '../../../components/Form';
 import { t } from '../../../data/texts';
 import { SubScreen } from '../../../components/Screen';
@@ -129,7 +129,7 @@ export default function CreateStep2() {
         onPress={useLocation}
         disabled={locating}
       />
-      <Notice message="Wähle einen öffentlich bekannten Ort, etwa einen Platz, eine Straßenecke oder ein Geschäft. Keine Wohnadresse. Sei sorgsam mit der Sicherheit anderer Menschen." />
+      <QuestionHint question="Welchen Ort gebe ich an?" answer="Wähle einen öffentlich bekannten Ort, etwa einen Platz, eine Straßenecke oder ein Geschäft. Keine Wohnadresse. Sei sorgsam mit der Sicherheit anderer Menschen." />
       {/* Nicht in „Überall“, nur im Kiez; ein Link öffnet den Beitrag trotzdem (Daria, 29.10.2026) */}
       {draft.private ? null : (
         <SwitchRow
