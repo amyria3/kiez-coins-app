@@ -1323,5 +1323,7 @@
   "Bilder und Textposts": "Фото и текстовые посты",
   "Posts ohne Challenge. Deine eigenen siehst Du immer.": "Посты без челленджа. Свои ты видишь всегда.",
   "Nachricht abschicken": "Отправить сообщение",
-  "Frag mich was!": "Спроси меня!"
+  "Frag mich was!": "Спроси меня!",
+  "Coins: {amount} Euro, erledigt": "Coins: {amount} евро, выполнено",
+  "{edensteine} Edensteine, erledigt": "{edensteine, plural, one {# камень Эдема} few {# камня Эдема} many {# камней Эдема} other {# камня Эдема}}, выполнено"
 }

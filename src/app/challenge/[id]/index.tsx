@@ -6,7 +6,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 
 import { AuthorRow } from '../../../components/AuthorRow';
-import { DeadlineBadge, StatusBadge } from '../../../components/Badges';
+import { DeadlineBadge, DoneReward, StatusBadge } from '../../../components/Badges';
 import { CoinsIcon, LivingCrystal } from '../../../components/icons/Brand';
 import { Icon } from '../../../components/icons/Icon';
 import { GlassIconButton } from '../../../components/Glass';
@@ -41,6 +41,8 @@ import { askCrosspost, restoreWithChoice } from '../../../components/CrosspostDi
 import { crosspostTargets } from '../../../data/crosspost';
 import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
+
+const REWARD_DONE = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
 // Vorschläge des Katers für den Operationsnamen (später aus einer Wortliste)
 const operationNames = ['Operation Gießkanne', 'Operation Igelglück', 'Operation Besenstiel', 'Operation Sonnenschirm'];
@@ -305,6 +307,9 @@ export default function ChallengeDetail() {
   // Zeitangaben nur, solange die Challenge läuft
   const running = RUNNING.has(challenge.status);
   const showDeadline = running && !isPhoto;
+  // Belohnung: offen mit Kristall und Münzen, erledigt mit Haken, geschlossen gar nicht (wie im Feed)
+  const rewardsDone = REWARD_DONE.has(challenge.status);
+  const rewardsShown = challenge.status !== 'closed';
   const summary = (
     <>
       <View style={styles.statusWrap}>
@@ -422,21 +427,39 @@ export default function ChallengeDetail() {
           {challenge.title}
         </Text>
       ) : null}
-      {challenge.edensteine || challenge.bountyAmount || showDeadline ? (
+      {(rewardsShown && (challenge.edensteine || challenge.bountyAmount)) || showDeadline ? (
       <View style={styles.metrics}>
-        {challenge.edensteine ? (
-          <View style={styles.metric}>
-            {/* Ein einzelner, großer Kristall (Daria, 22.10.2026) */}
-            <LivingCrystal height={52} seed={challenge.id} />
-            <Text style={[styles.metricValue, styles.eden]}>{challenge.edensteine}</Text>
-          </View>
-        ) : null}
-        {challenge.bountyAmount ? (
-          <View style={styles.metric}>
-            <CoinsIcon height={28} />
-            <Text style={styles.metricLabel}>Coins</Text>
-            <Text style={[styles.metricValue, styles.signal]}>{formatBountyShort(challenge.bountyAmount)}</Text>
-          </View>
+        {rewardsDone ? (
+          // Erledigt: Haken und Zahl, schwarz-weiß, ohne Verlauf und Bewegung (Daria, 09.11.2026)
+          <>
+            {challenge.edensteine ? (
+              <View style={[styles.metric, styles.metricDone]}>
+                <DoneReward value={String(challenge.edensteine)} accessibilityLabel={t('{edensteine} Edensteine, erledigt', { edensteine: challenge.edensteine })} />
+              </View>
+            ) : null}
+            {challenge.bountyAmount ? (
+              <View style={[styles.metric, styles.metricDone]}>
+                <DoneReward label="Coins" value={formatBountyShort(challenge.bountyAmount)} accessibilityLabel={t('Coins: {amount} Euro, erledigt', { amount: challenge.bountyAmount })} />
+              </View>
+            ) : null}
+          </>
+        ) : rewardsShown ? (
+          <>
+            {challenge.edensteine ? (
+              <View style={styles.metric}>
+                {/* Ein einzelner, großer Kristall (Daria, 22.10.2026) */}
+                <LivingCrystal height={52} seed={challenge.id} />
+                <Text style={[styles.metricValue, styles.eden]}>{challenge.edensteine}</Text>
+              </View>
+            ) : null}
+            {challenge.bountyAmount ? (
+              <View style={styles.metric}>
+                <CoinsIcon height={28} />
+                <Text style={styles.metricLabel}>Coins</Text>
+                <Text style={[styles.metricValue, styles.signal]}>{formatBountyShort(challenge.bountyAmount)}</Text>
+              </View>
+            ) : null}
+          </>
         ) : null}
         {showDeadline ? (
           <View style={styles.deadline}>
@@ -740,6 +763,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     backgroundColor: color.bg.surface,
   },
+  // Erledigt etwas kleiner
+  metricDone: { minHeight: 36 },
   metricLabel: { ...text.meta, color: color.text.secondary },
   deadline: { justifyContent: 'center', minHeight: size.touchTarget },
   metricValue: { ...text.metric, fontSize: 17, lineHeight: 22, color: color.text.primary },
