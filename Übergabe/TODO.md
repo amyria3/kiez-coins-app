@@ -291,3 +291,7 @@ Plan und Entscheidungen: `Übergabe/2026-10-27_we-challenge-mehrere-personen.md`
 - [x] Darias Icons für alle fünf Abzeichen in der App, Kiez-Look (2026-11-02). Offen: Fashionable Look
 - [ ] Hinweis beim neuen Abzeichen nach Darias Entwürfen, siehe `2026-11-01_offen_abzeichen-hinweis.md`
 
+
+## 2026-11-09
+
+- [ ] Feature-Wunsch (Daria): Bei offenen Challenges nach links und rechts wischen. Vor dem Bauen mit Daria klären, was das Wischen auslöst.

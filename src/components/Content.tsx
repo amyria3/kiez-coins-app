@@ -13,6 +13,8 @@ import { IconButton } from './IconButton';
 
 // Systemmeldungen als hellblaue Chatblase der App, wie die Antworten auf die Fragen; Icon dunkel wie der Text, nur bei Warnungen (Daria, 2026-11-09)
 const SKY_TEXT = '#1F2123';
+/** Fläche der Systemmeldungen im Kiez-Look: probeweise das Gelbgrün aus dem Kreis hinter dem Kater (Cat.svg, Startbild) statt Himmelblau #A9DBFF (Daria, 2026-11-09) */
+const SKY_BG = '#F0FFA6';
 
 /**
  * Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. Mit `onClose` ein Kreuz rechts.
@@ -328,7 +330,7 @@ const styles = StyleSheet.create({
   // Gestellte Frage lila wie eine eigene Nachricht, die Antwort der App helles Himmelblau (Daria, 2026-11-09)
   questionOpen: { backgroundColor: color.accent.primary, borderColor: color.accent.primary },
   questionTextOpen: { color: color.text.onAccent },
-  answerSky: { backgroundColor: '#A9DBFF' },
+  answerSky: { backgroundColor: SKY_BG },
   noticeSky: {
     alignSelf: 'flex-start',
     maxWidth: '88%',
@@ -337,7 +339,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: CHAT_RADIUS,
     borderBottomLeftRadius: space[4],
-    backgroundColor: '#A9DBFF',
+    backgroundColor: SKY_BG,
   },
   // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
   noticeIcon: { flexShrink: 0 },

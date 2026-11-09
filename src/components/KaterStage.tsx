@@ -21,7 +21,7 @@ const DRUEBER = require('../../assets/kater/drueber.png');
 /** So weit sitzt die gekippte Brille tiefer als die normale */
 const BRILLE_TIEFER = 66;
 // Münder (Daria, 02.11.2026): sonst der Default-Mund, bei den Herzen und beim Blick über die Brille lächelt er
-// (Daria, 2026-11-09). Beide in Braun, Mund und Nase haben immer Farbe. Je mit und ohne Aussparung der Gläser.
+// (Daria, 2026-11-09). Mund und Nase immer schwarz, kein Braun (Daria, 2026-11-09). Je mit und ohne Aussparung der Gläser.
 const MUND = require('../../assets/kater/mund.png');
 const MUND_GANZ = require('../../assets/kater/mund-ganz.png');
 const LAECHELN = require('../../assets/kater/mund-laecheln.png');
@@ -44,6 +44,12 @@ const HERZ = 150;
 const DRUEBER_PAUSE = [5000, 10000] as const;
 /** So lange schaut er über die Brille */
 const DRUEBER_MS = 1300;
+/** Pause zwischen Aktion und Blick über die Brille (`danachDrueber`) */
+const DRUEBER_DANACH_PAUSE = 200;
+/** So lange dauert das Fegen; der Start der App wartet darauf (StartKater) */
+export const FEGEN_DAUER = 380 + 5 * 260 + 150 + 380;
+/** So lange dauert der Blick über die Brille nach einer Aktion */
+export const DRUEBER_DAUER = DRUEBER_DANACH_PAUSE + 420 + DRUEBER_MS + 380;
 
 type Props = {
   /** Breite der Figur in pt; die Höhe folgt dem Bild */
@@ -56,6 +62,8 @@ type Props = {
   ohneBlase?: boolean;
   /** Jede Erhöhung lässt Herzen in der Brille aufgehen (Knopf im Willkommensbildschirm) */
   herzen?: number;
+  /** Nach der Aktion einmal über die Brille schauen und lächeln (Start der App, Daria, 2026-11-09) */
+  danachDrueber?: boolean;
 };
 
 /**
@@ -64,7 +72,7 @@ type Props = {
  * brille (Sonnenbrille runter, drüber schauen), stampfen (Stiefel heben). Darüber die Sprechblase.
  * `herzen` lässt Herzen in den Gläsern pochen wie in alten Zeichentrickfilmen, dabei lächelt er.
  */
-export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, onPress, ohneBlase, herzen = 0 }: Props) {
+export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, onPress, ohneBlase, herzen = 0, danachDrueber }: Props) {
   const s = width / W;
   const height = H * s;
   const [still, setStill] = useState(false);
@@ -141,6 +149,15 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
     } else {
       const hoch = Animated.sequence([step(stiefelY, -42, 160), step(stiefelY, 0, 160)]);
       ablauf = Animated.sequence([hoch, Animated.delay(80), Animated.sequence([step(stiefelY, -32, 160), step(stiefelY, 0, 160)])]);
+    }
+    if (danachDrueber && aktion !== 'brille') {
+      ablauf = Animated.sequence([
+        ablauf,
+        Animated.delay(DRUEBER_DANACH_PAUSE),
+        step(brilleY, 54, 420),
+        Animated.delay(DRUEBER_MS),
+        step(brilleY, 0, 380),
+      ]);
     }
     beschaeftigt.current = true;
     ablauf.start(() => {

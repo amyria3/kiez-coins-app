@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import { StyleSheet, View, type StyleProp, type TextStyle } from 'react-native';
+
 import type { Challenge } from '../data/types';
 import { weChallengeText } from '../data/weChallenge';
 import { color, font } from '../theme/tokens';
@@ -43,5 +46,43 @@ export function WithMentions({ value }: { value: string }) {
         ),
       )}
     </>
+  );
+}
+
+/** Höchstens so viele Zeilen Text unter einer Me- oder We-Challenge im Feed, #vorher und #nachher zusammen (Daria, 2026-11-09) */
+const VORHER_NACHHER_ZEILEN = 3;
+
+/**
+ * Text unter einer Me- oder We-Challenge im Feed: #vorher mit Text und, sobald es ihn gibt, #nachher mit Text, zusammen
+ * höchstens drei Zeilen. #nachher beginnt immer auf einer eigenen Zeile und bleibt sichtbar: Der Vorher-Text bekommt
+ * eine oder zwei Zeilen, je nachdem wie lang er ist, der Nachher-Text den Rest.
+ */
+export function BeforeAfterText({ value, style }: { value: string; style: StyleProp<TextStyle> }) {
+  const [breite, setBreite] = useState(0);
+  const match = /(^|\s)#nachher\b/.exec(value);
+  const vorher = (match ? value.slice(0, match.index) : value).trim();
+  const nachher = match ? value.slice(match.index).trim() : '';
+  if (!nachher) {
+    return (
+      <Text style={style} numberOfLines={VORHER_NACHHER_ZEILEN}>
+        <WithMentions value={vorher} />
+      </Text>
+    );
+  }
+  // Grobe Schätzung der Zeilen für den Vorher-Text: Zeichen pro Zeile aus Breite und Schriftgröße
+  const schrift = StyleSheet.flatten(style)?.fontSize ?? 14;
+  const proZeile = breite ? Math.max(10, Math.floor(breite / (schrift * 0.52))) : 40;
+  const vorherZeilen = vorher ? Math.min(VORHER_NACHHER_ZEILEN - 1, Math.max(1, Math.ceil(vorher.length / proZeile))) : 0;
+  return (
+    <View onLayout={(e) => setBreite(e.nativeEvent.layout.width)}>
+      {vorher ? (
+        <Text style={style} numberOfLines={vorherZeilen}>
+          <WithMentions value={vorher} />
+        </Text>
+      ) : null}
+      <Text style={style} numberOfLines={VORHER_NACHHER_ZEILEN - vorherZeilen}>
+        <WithMentions value={nachher} />
+      </Text>
+    </View>
   );
 }

@@ -82,6 +82,9 @@ schuerze = runter(''.join(c2[8:11]))
 augen = runter(c2[12] + c2[11])  # weißes Auge, schwarzes Auge
 brille_unten = runter(c2[14] + c2[15] + c2[16] + c2[17])  # gekippte Gläser mit Bügeln
 mund_path = re.search(r'<path[^>]*/>', open(os.path.join(src, 'KiezCoins Cat Mund.svg')).read()).group(0)
+# Mund und Nase immer schwarz wie das Lächeln aus Cat.svg, kein Braun (Daria, 2026-11-09)
+MUND_FARBE = '#2C2C2C'
+mund_path = mund_path.replace('fill="#604500"', f'fill="{MUND_FARBE}"')
 mund = f'<g transform="translate({MUND_AN[0]} {MUND_AN[1]})">{mund_path}</g>'
 fell = laecheln.replace('fill="#2C2C2C"', f'fill="{FUELL}" stroke="{FUELL}" stroke-width="3"')  # füllt das Loch im Kopf, in dem das Lächeln sitzt
 
@@ -100,10 +103,7 @@ speichern(render(augen + brille_unten), 'drueber.png')
 # Münder: kleiner Ausschnitt, 1 px pro Einheit der Fläche
 mx, my, mw, mh = MUND_BOX
 glas_klein = render(glaeser, W, H, (0, 0, W, H)).split()[3].crop((mx, my, mx + mw, my + mh))
-# Mund und Nase haben immer Farbe: Das Lächeln aus Cat.svg bekommt das Braun des Default-Munds (Daria, 2026-11-09)
-MUND_FARBE = '#604500'
-laecheln_farbig = laecheln.replace('fill="#2C2C2C"', f'fill="{MUND_FARBE}"')
-for name, body in (('mund', mund), ('mund-laecheln', laecheln_farbig)):
+for name, body in (('mund', mund), ('mund-laecheln', laecheln)):
     m = render(body, mw, mh, MUND_BOX)
     speichern(m, f'{name}-ganz.png')
     speichern(ohne(m, glas_klein), f'{name}.png')
