@@ -1338,5 +1338,7 @@
   "Bilder und Textposts": "Фото й текстові пости",
   "Posts ohne Challenge. Deine eigenen siehst Du immer.": "Пости без челенджу. Свої ти бачиш завжди.",
   "Nachricht abschicken": "Надіслати повідомлення",
-  "Frag mich was!": "Запитай мене!"
+  "Frag mich was!": "Запитай мене!",
+  "Coins: {amount} Euro, erledigt": "Coins: {amount} євро, виконано",
+  "{edensteine} Edensteine, erledigt": "{edensteine, plural, one {# камінь Едему} few {# камені Едему} many {# каменів Едему} other {# каменя Едему}}, виконано"
 }

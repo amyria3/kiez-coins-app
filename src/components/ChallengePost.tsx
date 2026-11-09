@@ -7,7 +7,7 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 
-import { formatRelative, formatRemainingShort } from '../data/format';
+import { formatBountyShort, formatRelative, formatRemainingShort } from '../data/format';
 import { isPostOnly, type Challenge, type User } from '../data/types';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
@@ -15,7 +15,7 @@ import { BeforeAfterPair, BeforeAfterPost } from './BeforeAfterPost';
 import { weChallengeAfter, joinedIds, maxParticipants, participationText } from '../data/weChallenge';
 import { useAppDimensions } from '../theme/layout';
 import { BeforeAfterText, PHOTO_TAG, WithMentions, postText } from './WithMentions';
-import { BountyBadge, NameWithTestMark } from './Badges';
+import { BountyBadge, DoneReward, NameWithTestMark } from './Badges';
 import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
@@ -109,35 +109,45 @@ function KiezPost({
     onPress();
   };
 
-  // Bounty und Edensteine oben rechts auf dem Foto
-  const rewards = (
+  // Bounty und Edensteine oben rechts auf dem Foto. Erledigt: Haken statt Kristall oder Münze, ohne Verlauf und
+  // Bewegung, etwas kleiner (Daria, 2026-11-09). Geschlossen ohne Erledigung: keine Belohnung mehr.
+  const rewardBlur = image ? (
+    <View style={styles.badgeBlur}>
+      <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+    </View>
+  ) : null;
+  const rewards = completed ? (
+    <>
+      {!isWave && challenge.bountyAmount ? (
+        <View style={[styles.bounty, styles.rewardDone, image ? styles.onPhoto : styles.plain]}>
+          {rewardBlur}
+          <DoneReward value={formatBountyShort(challenge.bountyAmount)} accessibilityLabel={t('Coins: {amount} Euro, erledigt', { amount: challenge.bountyAmount })} />
+        </View>
+      ) : null}
+      {challenge.edensteine ? (
+        <View style={[styles.bounty, styles.eden, styles.rewardDone, image ? styles.onPhoto : styles.plain]}>
+          {rewardBlur}
+          <DoneReward value={String(challenge.edensteine)} accessibilityLabel={t('{edensteine} Edensteine, erledigt', { edensteine: challenge.edensteine })} />
+        </View>
+      ) : null}
+    </>
+  ) : closed ? null : (
     <>
       {!isWave && challenge.bountyAmount ? (
         <View style={[styles.bounty, image ? styles.onPhoto : styles.plain]}>
-          {image ? (
-            <View style={styles.badgeBlur}>
-              <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
-            </View>
-          ) : null}
+          {rewardBlur}
           <BountyBadge amount={challenge.bountyAmount} small />
         </View>
       ) : null}
       {challenge.edensteine ? (
         <View style={[styles.bounty, styles.eden, image ? styles.onPhoto : styles.plain]} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine: challenge.edensteine })}>
-          {image ? (
-            <View style={styles.badgeBlur}>
-              <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+          {rewardBlur}
+          <View style={styles.edenCrystal}>
+            <View style={styles.edenCrystalFloat}>
+              <LivingCrystal height={40} seed={challenge.id} />
             </View>
-          ) : null}
-          {/* Edenstein nur bei aktiven Aufgaben; geschlossen oder erledigt nur die Zahl in Grau */}
-          {active ? (
-            <View style={styles.edenCrystal}>
-              <View style={styles.edenCrystalFloat}>
-                <LivingCrystal height={40} seed={challenge.id} />
-              </View>
-            </View>
-          ) : null}
-          <Text style={[styles.edenText, active ? null : styles.edenTextDone]}>{challenge.edensteine}</Text>
+          </View>
+          <Text style={styles.edenText}>{challenge.edensteine}</Text>
         </View>
       ) : null}
     </>
@@ -509,14 +519,28 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
           </View>
         </Pressable>
         <View style={fashion.headRight}>
-          {!isWave && challenge.bountyAmount ? <BountyBadge amount={challenge.bountyAmount} small /> : null}
-          {challenge.edensteine ? (
-            // Angabe neben dem Namen, kein Knopf: Stein so hoch wie die Schrift, 4 pt bis zur Zahl, ohne Druckfläche
-            <View style={fashion.eden} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine: challenge.edensteine })}>
-              <LivingCrystal height={30} seed={challenge.id} calm={!active} />
-              <Text style={[fashion.edenText, active ? null : styles.edenTextDone]}>{challenge.edensteine}</Text>
-            </View>
-          ) : null}
+          {completed ? (
+            // Erledigt: Haken und Zahl, schwarz-weiß, ohne Verlauf und Bewegung (Daria, 09.11.2026)
+            <>
+              {!isWave && challenge.bountyAmount ? (
+                <DoneReward value={formatBountyShort(challenge.bountyAmount)} accessibilityLabel={t('Coins: {amount} Euro, erledigt', { amount: challenge.bountyAmount })} />
+              ) : null}
+              {challenge.edensteine ? (
+                <DoneReward value={String(challenge.edensteine)} accessibilityLabel={t('{edensteine} Edensteine, erledigt', { edensteine: challenge.edensteine })} />
+              ) : null}
+            </>
+          ) : closed ? null : (
+            <>
+              {!isWave && challenge.bountyAmount ? <BountyBadge amount={challenge.bountyAmount} small /> : null}
+              {challenge.edensteine ? (
+                // Angabe neben dem Namen, kein Knopf: Stein so hoch wie die Schrift, 4 pt bis zur Zahl, ohne Druckfläche
+                <View style={fashion.eden} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine: challenge.edensteine })}>
+                  <LivingCrystal height={30} seed={challenge.id} />
+                  <Text style={fashion.edenText}>{challenge.edensteine}</Text>
+                </View>
+              ) : null}
+            </>
+          )}
           {onManage ? (
             // Zahnrad wie im Mockup oben rechts am Beitrag
             <IconButton icon="settings" iconSize={size.icon} accessibilityLabel={t('Deine Posts verwalten')} onPress={onManage} />
@@ -684,7 +708,8 @@ const styles = StyleSheet.create({
   edenCrystal: { width: 22, height: 20, alignItems: 'center' },
   edenCrystalFloat: { position: 'absolute', top: (20 - 40) / 2 },
   edenText: { fontFamily: font.display, fontSize: 16, lineHeight: 20, color: color.accent.confirmation },
-  edenTextDone: { color: color.text.secondary },
+  // Erledigt: Pille etwas kleiner
+  rewardDone: { paddingVertical: space[2], paddingLeft: space[8], paddingRight: space[8] },
   pressed: { opacity: 0.9 },
   // Bounty rechts oben, Hinweise wie „Geschlossen“ links (Daria, 22.10.2026)
   bounty: {

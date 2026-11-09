@@ -1338,5 +1338,7 @@
   "Bilder und Textposts": "Photos et posts texte",
   "Posts ohne Challenge. Deine eigenen siehst Du immer.": "Posts sans challenge. Tu vois toujours les tiens.",
   "Nachricht abschicken": "Envoyer le message",
-  "Frag mich was!": "Pose-moi une question !"
+  "Frag mich was!": "Pose-moi une question !",
+  "Coins: {amount} Euro, erledigt": "Coins : {amount} euros, terminé",
+  "{edensteine} Edensteine, erledigt": "{edensteine} pierres d’Éden, terminé"
 }

@@ -1338,5 +1338,7 @@
   "Bilder und Textposts": "الصور والمنشورات النصية",
   "Posts ohne Challenge. Deine eigenen siehst Du immer.": "منشورات بدون تحدٍّ. منشوراتك تراها دائمًا.",
   "Nachricht abschicken": "إرسال الرسالة",
-  "Frag mich was!": "اسألني!"
+  "Frag mich was!": "اسألني!",
+  "Coins: {amount} Euro, erledigt": "Coins: {amount} يورو، تم",
+  "{edensteine} Edensteine, erledigt": "{edensteine, plural, zero {لا أحجار عدن} one {حجر عدن واحد} two {حجرا عدن} few {# أحجار عدن} many {# حجرًا من أحجار عدن} other {# حجر عدن}}، تم"
 }

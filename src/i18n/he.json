@@ -1338,5 +1338,7 @@
   "Bilder und Textposts": "תמונות ופוסטים של טקסט",
   "Posts ohne Challenge. Deine eigenen siehst Du immer.": "פוסטים בלי אתגר. את הפוסטים שלך רואים תמיד.",
   "Nachricht abschicken": "שליחת ההודעה",
-  "Frag mich was!": "שאלו אותי!"
+  "Frag mich was!": "שאלו אותי!",
+  "Coins: {amount} Euro, erledigt": "Coins: {amount} יורו, בוצע",
+  "{edensteine} Edensteine, erledigt": "{edensteine, plural, one {אבן עדן אחת} other {# אבני עדן}}, בוצע"
 }

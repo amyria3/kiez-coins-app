@@ -132,6 +132,21 @@ export function BountyBadge({ amount, small }: { amount: number; small?: boolean
 }
 
 /**
+ * Belohnung einer erledigten Challenge (Daria, 2026-11-09): Haken statt Kristall oder Münze, ohne Verlauf und ohne
+ * Bewegung, nur in den Weiß- und Grautönen der App, etwas kleiner als die Belohnung einer offenen Challenge.
+ * Gilt für Edensteine und Coins, im Feed und im Detail.
+ */
+export function DoneReward({ value, label, accessibilityLabel }: { value: string; label?: string; accessibilityLabel: string }) {
+  return (
+    <View style={styles.done} accessible accessibilityLabel={accessibilityLabel}>
+      <Icon name="check" size={14} color={color.text.primary} />
+      {label ? <Text style={styles.doneLabel}>{label}</Text> : null}
+      <Text style={styles.doneText}>{value}</Text>
+    </View>
+  );
+}
+
+/**
  * Marke für Beiträge aus einem Testkonto (Daria, 27.10.2026). Steht neben dem Decknamen,
  * nicht tippbar, wie ein Status getönt.
  */
@@ -179,4 +194,7 @@ const styles = StyleSheet.create({
     ? { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] }
     : { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.signal },
   bountyTextSmall: isFashionable ? { fontSize: 14, lineHeight: 18 } : { fontSize: 16, lineHeight: 20 },
+  done: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  doneLabel: { ...text.meta, color: color.text.secondary },
+  doneText: { fontFamily: isFashionable ? font.semiBold : font.display, fontSize: 14, lineHeight: 18, color: color.text.primary, fontVariant: ['tabular-nums'] },
 });
