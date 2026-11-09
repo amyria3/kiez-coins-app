@@ -1271,7 +1271,6 @@
   "Titel (optional)": "Title (optional)",
   "Abrufe Deiner Daten": "Access to your data",
   "Hier siehst Du, ob jemand aus dem Team Deine persönlichen Daten abgerufen hat. Protokolliert wird bisher jeder Abruf Deiner privaten Chats.": "Here you can see whether anyone from the team has accessed your personal data. So far, every access to your private chats is logged.",
-  "Geplant ist Ende-zu-Ende-Verschlüsselung für Deine Nachrichten. Dann können nur autorisierte Nutzer:innen, also Du und die Person, mit der Du schreibst, sie lesen, auch das Team nicht. Im jetzigen Stadium der App ist das noch nicht umsetzbar, deshalb steht hier jeder Abruf.": "End-to-end encryption for your messages is planned. Then only authorised users, meaning you and the person you’re writing with, can read them, not even the team. At the app’s current stage this isn’t possible yet, so every access is listed here.",
   "Protokoll nicht geladen: {error}": "Log not loaded: {error}",
   "Vom Team abgerufen": "Accessed by the team",
   "Niemand aus dem Team hat Deine Chats abgerufen.": "Nobody from the team has accessed your chats.",
@@ -1619,5 +1618,18 @@
   "Nachricht abschicken": "Send message",
   "Frag mich was!": "Ask me something!",
   "Coins: {amount} Euro, erledigt": "Coins: {amount} euros, done",
-  "{edensteine} Edensteine, erledigt": "{edensteine} Eden stones, done"
+  "{edensteine} Edensteine, erledigt": "{edensteine} Eden stones, done",
+  "Ja, los!": "Yes, let's go!",
+  "Die Einrichtung umfasst 3 Schritte und setzt voraus, dass Du in BlueSky angemeldet bist. Möchtest Du jetzt loslegen?": "Setup takes 3 steps and requires you to be logged in to BlueSky. Do you want to start now?",
+  "Die Einrichtung umfasst 5 Schritte und setzt voraus, dass Du in Mastodon angemeldet bist. Möchtest Du jetzt loslegen?": "Setup takes 5 steps and requires you to be logged in to Mastodon. Do you want to start now?",
+  "Die Einrichtung umfasst 4 Schritte und setzt voraus, dass Du in Instagram angemeldet bist und ein Konto bei Meta for Developers hast. Möchtest Du jetzt loslegen?": "Setup takes 4 steps and requires you to be logged in to Instagram and to have a Meta for Developers account. Do you want to start now?",
+  "Die Einrichtung umfasst 4 Schritte und setzt voraus, dass Du in Facebook angemeldet bist und ein Konto bei Meta for Developers hast. Möchtest Du jetzt loslegen?": "Setup takes 4 steps and requires you to be logged in to Facebook and to have a Meta for Developers account. Do you want to start now?",
+  "Verstanden, weiter": "Got it, next",
+  "{label} trennen": "Disconnect {label}",
+  "{label}: Einstellungen": "{label}: settings",
+  "Verbunden": "Connected",
+  "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "You voted that you'd use the API for X accounts. Thanks! We’re counting you in.",
+  "Geplant ist Ende-zu-Ende-Verschlüsselung für Deine Nachrichten. Dann können nur autorisierte Nutzer:innen, also Du und die Person, mit der Du schreibst, sie lesen. Dann wären Deine Unterhaltungen auch für das Team komplett unzugänglich. Im jetzigen Stadium der App ist das noch nicht umsetzbar, deshalb steht hier jeder Abruf.": "End-to-end encryption for your messages is planned. Then only authorised users, meaning you and the person you’re writing with, can read them. Your conversations would then be completely inaccessible to the team as well. At the app’s current stage this isn’t possible yet, so every access is listed here.",
+  "Was und wie kann ich mit dieser Funktion weiterposten?": "What can I repost with this feature, and how?",
+  "Neu verbinden": "Reconnect"
 }

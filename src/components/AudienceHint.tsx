@@ -108,13 +108,13 @@ export function AudienceHint({
   onCloseLine?: (line: number) => void;
 }) {
   // Kiez-Look: Systemmeldung als hellblaue Chatblasen, je Zeile eine Nachricht mit eigenem Kreuz (Daria, 2026-11-09).
-  // Die letzte sichtbare Blase trägt den Zipfel.
+  // Jede Blase trägt den Zipfel, da jede ihren Avatar hat.
   if (!isFashionable) {
     const shown = MESSAGE[audience].map((line, i) => ({ line, i })).filter(({ i }) => !hidden.includes(i));
     return (
       <View style={[styles.wrap, styles.bubbles]}>
-        {shown.map(({ line, i }, n) => (
-          <Notice key={line} message={line} onClose={onCloseLine ? () => onCloseLine(i) : onClose} tail={n === shown.length - 1} />
+        {shown.map(({ line, i }) => (
+          <Notice key={line} message={line} onClose={onCloseLine ? () => onCloseLine(i) : onClose} />
         ))}
       </View>
     );

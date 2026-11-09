@@ -1,17 +1,16 @@
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, KeyboardAvoidingView, LayoutAnimation, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
-import { Text } from './T';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { color, font, isFashionable, motion, radius, size, space, text, scheme } from '../theme/tokens';
+import { color, motion, radius, size, space, text, scheme } from '../theme/tokens';
 import { useAppDimensions } from '../theme/layout';
 import { ActionBar } from './ActionBar';
-import { Cat, type CatMood } from './icons/Brand';
-import { KaterRund } from './Content';
+import type { CatMood } from './icons/Brand';
+import { KaterMessage } from './KaterMessage';
 import { GlassIconButton } from './Glass';
 import { NavigationBar } from './NavigationBar';
 import { NudgeScrollProvider, useNudgeScroll } from './Nudge';
@@ -83,15 +82,8 @@ export function ResultScreen({ mood = 'default', badge, title, message, onFeedPr
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       {onFeedPress ? <NavigationBar variant="feed" onLeadingPress={onFeedPress} /> : null}
       <ScrollView style={styles.flex} contentContainerStyle={[styles.resultContent, children ? styles.resultTop : null]}>
-        <View style={styles.resultHead}>
-          {/* Kiez-Look: Kater im Kreis wie im leeren Feed, ohne Stimmungen (Daria, 2026-11-09) */}
-          {isFashionable ? <Cat mood={mood} height={86} /> : <KaterRund size={120} herzen={false} />}
-          {badge}
-          <Text style={styles.resultTitle} accessibilityRole="header">
-            {title}
-          </Text>
-          <Text style={styles.resultMessage}>{message}</Text>
-        </View>
+        {/* Dieselbe Komponente wie im leeren Feed, nur andere Argumente (Daria, 2026-11-09) */}
+        <KaterMessage style={styles.resultHead} mood={mood} badge={badge} title={title} body={message} />
         {children ? <View style={styles.resultChildren}>{children}</View> : null}
       </ScrollView>
       {actions ? <ActionBar>{actions}</ActionBar> : <View style={{ height: insets.bottom }} />}
@@ -450,11 +442,9 @@ const styles = StyleSheet.create({
     gap: space[16],
   },
   resultTop: { justifyContent: 'flex-start', paddingTop: space[8], alignItems: 'stretch' },
-  resultHead: { alignItems: 'center', gap: space[16] },
+  // Der Inhalt hat schon 24 seitlich, zusammen 48 wie im leeren Feed
+  resultHead: { paddingHorizontal: space[24], alignSelf: 'stretch' },
   resultChildren: { gap: space[12], alignSelf: 'stretch' },
-  // Überschrift in der Unbounded wie im leeren Feed („Cat The Käptn wartet“, Daria, 2026-11-09)
-  resultTitle: { ...text.title, fontFamily: font.onPhoto, color: color.text.primary, textAlign: 'center' },
-  resultMessage: { ...text.body, color: color.text.secondary, textAlign: 'center' },
   hero: { backgroundColor: color.bg.surface },
   heroCustom: { backgroundColor: color.bg.screen },
   heroOverlay: { position: 'absolute', left: space[16], bottom: space[48] },

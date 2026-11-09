@@ -1340,5 +1340,17 @@
   "Nachricht abschicken": "Надіслати повідомлення",
   "Frag mich was!": "Запитай мене!",
   "Coins: {amount} Euro, erledigt": "Coins: {amount} євро, виконано",
-  "{edensteine} Edensteine, erledigt": "{edensteine, plural, one {# камінь Едему} few {# камені Едему} many {# каменів Едему} other {# каменя Едему}}, виконано"
+  "{edensteine} Edensteine, erledigt": "{edensteine, plural, one {# камінь Едему} few {# камені Едему} many {# каменів Едему} other {# каменя Едему}}, виконано",
+  "Ja, los!": "Так, поїхали!",
+  "Die Einrichtung umfasst 3 Schritte und setzt voraus, dass Du in BlueSky angemeldet bist. Möchtest Du jetzt loslegen?": "Налаштування складається з 3 кроків. Потрібно, щоб ти був(ла) авторизований(а) в BlueSky. Почнемо?",
+  "Die Einrichtung umfasst 5 Schritte und setzt voraus, dass Du in Mastodon angemeldet bist. Möchtest Du jetzt loslegen?": "Налаштування складається з 5 кроків. Потрібно, щоб ти був(ла) авторизований(а) в Mastodon. Почнемо?",
+  "Die Einrichtung umfasst 4 Schritte und setzt voraus, dass Du in Instagram angemeldet bist und ein Konto bei Meta for Developers hast. Möchtest Du jetzt loslegen?": "Налаштування складається з 4 кроків. Потрібно, щоб ти був(ла) авторизований(а) в Instagram і мав(ла) акаунт Meta for Developers. Почнемо?",
+  "Die Einrichtung umfasst 4 Schritte und setzt voraus, dass Du in Facebook angemeldet bist und ein Konto bei Meta for Developers hast. Möchtest Du jetzt loslegen?": "Налаштування складається з 4 кроків. Потрібно, щоб ти був(ла) авторизований(а) у Facebook і мав(ла) акаунт Meta for Developers. Почнемо?",
+  "Verstanden, weiter": "Зрозуміло, далі",
+  "{label} trennen": "Від’єднати {label}",
+  "{label}: Einstellungen": "{label}: налаштування",
+  "Verbunden": "Підключено",
+  "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "Ти проголосував(ла), що користуватимешся API для акаунтів X. Дякуємо! Ми тебе врахували.",
+  "Was und wie kann ich mit dieser Funktion weiterposten?": "Що і як я можу репостити за допомогою цієї функції?",
+  "Neu verbinden": "Підключити знову"
 }

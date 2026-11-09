@@ -148,7 +148,7 @@ export default function UserProfile() {
             <Text style={styles.secondary}>{user.location}</Text>
           </View>
         ) : null}
-        {extras?.bio ? <Text style={styles.bio}>{extras.bio}</Text> : null}
+        {extras?.bio ? <Text style={styles.bio} selectable>{extras.bio}</Text> : null}
         {website ? (
           <Pressable
             accessibilityRole="link"

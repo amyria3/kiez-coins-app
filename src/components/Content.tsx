@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { AccessibilityInfo, Animated, Easing, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Linking, Pressable, StyleSheet, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
 import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
-import { useTexts } from '../data/texts';
+import { t as translate, useTexts } from '../data/texts';
 import { Cat, type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
 import { iconSvgs } from './icons/svgs';
@@ -16,15 +16,86 @@ const SKY_TEXT = '#1F2123';
 /** Fläche der Systemmeldungen im Kiez-Look: probeweise das Gelbgrün aus dem Kreis hinter dem Kater (Cat.svg, Startbild) statt Himmelblau #A9DBFF (Daria, 2026-11-09) */
 const SKY_BG = '#F0FFA6';
 
+/** Adressen im Text: mit https:// oder als Domain wie developers.facebook.com, nicht Teil eines @-Handles */
+const LINK = /https?:\/\/[^\s]+|(?:[a-z0-9-]+\.)+(?:com|de|org|net|social|app|io|eu)(?:\/[^\s]*)?/gi;
+
+function linkParts(value: string): (string | { label: string; url: string })[] {
+  const parts: (string | { label: string; url: string })[] = [];
+  let rest = 0;
+  for (const m of value.matchAll(LINK)) {
+    const start = m.index ?? 0;
+    const before = value[start - 1];
+    if (before === '@' || before === '.' || (before && /[\w/]/.test(before))) continue;
+    // Satzzeichen am Ende gehören nicht zur Adresse
+    const label = m[0].replace(/[.,;:!?)»“]+$/, '');
+    if (start > rest) parts.push(value.slice(rest, start));
+    parts.push({ label, url: /^https?:/i.test(label) ? label : `https://${label}` });
+    rest = start + label.length;
+  }
+  if (rest < value.length) parts.push(value.slice(rest));
+  return parts;
+}
+
+/**
+ * Text mit Adressen als Links (Daria, 2026-11-09): unterstrichen, ein Tipp öffnet sie. Ohne Adresse ganz normaler
+ * Text. Übersetzt wird vor dem Aufteilen, damit die Übersetzung den ganzen Satz findet.
+ */
+export function LinkedText({ value, style }: { value: string; style?: StyleProp<TextStyle> }) {
+  useTexts();
+  const text = translate(value);
+  const parts = linkParts(text);
+  // Systemnachrichten lassen sich kopieren, z. B. Namen und Befugnisse aus Anleitungen (Daria, 2026-11-09)
+  if (parts.length === 1 && typeof parts[0] === 'string') return <Text style={style} selectable>{value}</Text>;
+  return (
+    <Text style={style} noTranslate selectable>
+      {parts.map((part, i) =>
+        typeof part === 'string' ? (
+          part
+        ) : (
+          <Text key={i} noTranslate accessibilityRole="link" style={styles.link} onPress={() => Linking.openURL(part.url)}>
+            {part.label}
+          </Text>
+        ),
+      )}
+    </Text>
+  );
+}
+
+/**
+ * Rolle „System“ (Daria, 2026-11-09): Absender der gelbgrünen Systemnachrichten, Avatar 👾 im schwarzen Kreis
+ * links neben jeder Blase, wie ein Absender im Chat. Das Emoji kommt vom Gerät.
+ */
+export const SYSTEM_AVATAR = '👾';
+export function SystemAvatar() {
+  return (
+    <View style={styles.systemAvatar} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <Text noTranslate style={styles.systemAvatarText}>
+        {SYSTEM_AVATAR}
+      </Text>
+    </View>
+  );
+}
+
+/** Kiez-Look: Systemnachricht mit Avatar links, unten bündig wie im Chat */
+function FromSystem({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
+  if (isFashionable) return <>{children}</>;
+  return (
+    <View style={[styles.systemRow, style]}>
+      <SystemAvatar />
+      {children}
+    </View>
+  );
+}
+
 /**
  * Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. Mit `onClose` ein Kreuz rechts.
- * `tail={false}` für Nachrichten über der letzten einer Folge: Wie im Chat hat nur die letzte die spitze Ecke.
+ * Jede Blase hat unten links die spitze Ecke wie eine Sprechblase, da jede ihren Avatar hat (Daria, 2026-11-09).
+ * `tail` ist deshalb ohne Wirkung.
  */
 export function Notice({
   message,
   variant = 'info',
   onClose,
-  tail = true,
 }: {
   message: string;
   variant?: 'info' | 'warning';
@@ -33,7 +104,8 @@ export function Notice({
 }) {
   const t = useTexts();
   return (
-    <View style={[styles.notice, !isFashionable && styles.noticeSky, !isFashionable && !tail && styles.noticeNoTail]} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
+    <FromSystem>
+    <View style={[styles.notice, !isFashionable && styles.noticeSky]} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
       {/* Kiez-Look: Icon nur bei Warnungen, sonst sähen Warnung und Info gleich aus (Daria, 2026-11-09).
           Feste Größe, sonst schrumpft das Icon neben langem Text. */}
       {isFashionable || variant === 'warning' ? (
@@ -45,7 +117,7 @@ export function Notice({
           />
         </View>
       ) : null}
-      <Text style={[styles.noticeText, !isFashionable && styles.noticeTextSky]}>{message}</Text>
+      <LinkedText style={[styles.noticeText, !isFashionable && styles.noticeTextSky]} value={message} />
       {onClose ? (
         <IconButton
           icon="close"
@@ -57,6 +129,7 @@ export function Notice({
         />
       ) : null}
     </View>
+    </FromSystem>
   );
 }
 
@@ -94,21 +167,40 @@ export function QuestionHint({ question, answer, then }: { question: string; ans
         <Text style={[styles.questionText, open && !isFashionable && styles.questionTextOpen]}>{question}</Text>
       </Pressable>
       {open ? (
+        <FromSystem style={styles.afterChange}>
         <Animated.View
           style={[
             styles.answer,
-            styles.afterChange,
+            isFashionable && styles.afterChange,
             !isFashionable && styles.answerSky,
-            // Folgt noch eine Nachricht der App, hat nur die letzte die spitze Ecke
-            then ? styles.answerNoTail : null,
             { opacity: shown, transform: [{ translateY: shown.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }] },
           ]}
         >
-          <Text style={[styles.answerText, !isFashionable && styles.answerTextSky]}>{answer}</Text>
+          <LinkedText style={[styles.answerText, !isFashionable && styles.answerTextSky]} value={answer} />
         </Animated.View>
+        </FromSystem>
       ) : null}
       {then ? <View style={open ? styles.afterSame : styles.afterChange}>{then}</View> : null}
     </View>
+  );
+}
+
+/**
+ * Antwort zum Antippen (Daria, 2026-11-09): rechts wie eine eigene Nachricht, z. B. „Ja, los!“. Angetippt wird sie
+ * lila wie gesendet und bleibt so stehen.
+ */
+export function ChatReply({ label, sent, onPress }: { label: string; sent: boolean; onPress: () => void }) {
+  const tx = useTexts();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ disabled: sent }}
+      disabled={sent}
+      onPress={onPress}
+      style={({ pressed }) => [styles.question, sent && !isFashionable && styles.questionOpen, pressed && styles.questionPressed]}
+    >
+      <Text style={[styles.questionText, sent && !isFashionable && styles.questionTextOpen]}>{tx(label)}</Text>
+    </Pressable>
   );
 }
 
@@ -290,11 +382,16 @@ export function OperationTag({ name }: { name: string }) {
   );
 }
 
-/** Abschnitt mit kleiner Überschrift (z. B. „Coins (optional)“, „Notiz“) */
-export function FieldGroup({ label, children }: { label: string; children: ReactNode }) {
+/**
+ * Abschnitt mit kleiner Überschrift (z. B. „Coins (optional)“, „Notiz“). `large`: etwas größere Überschrift für
+ * Seiten aus mehreren Abschnitten, z. B. Funktionen (Daria, 2026-11-09).
+ */
+export function FieldGroup({ label, children, large }: { label: string; children: ReactNode; large?: boolean }) {
   return (
     <View style={styles.group}>
-      <Text style={styles.groupLabel}>{label}</Text>
+      <Text style={[styles.groupLabel, large && styles.groupLabelLarge]} accessibilityRole={large ? 'header' : undefined}>
+        {label}
+      </Text>
       {children}
     </View>
   );
@@ -303,7 +400,6 @@ export function FieldGroup({ label, children }: { label: string; children: React
 const styles = StyleSheet.create({
   qaOpen: { paddingBottom: CHAT_GAP_CHANGE - CHAT_GAP_SAME },
   afterSame: { marginTop: CHAT_GAP_SAME },
-  answerNoTail: { borderBottomLeftRadius: CHAT_RADIUS },
   afterChange: { marginTop: CHAT_GAP_CHANGE },
   question: {
     alignSelf: 'flex-end',
@@ -338,9 +434,10 @@ const styles = StyleSheet.create({
   // Gestellte Frage lila wie eine eigene Nachricht, die Antwort der App helles Himmelblau (Daria, 2026-11-09)
   questionOpen: { backgroundColor: color.accent.primary, borderColor: color.accent.primary },
   questionTextOpen: { color: color.text.onAccent },
-  answerSky: { backgroundColor: SKY_BG },
+  answerSky: { backgroundColor: SKY_BG, flexShrink: 1 },
   noticeSky: {
     alignSelf: 'flex-start',
+    flexShrink: 1,
     maxWidth: '88%',
     alignItems: 'center',
     paddingVertical: 10,
@@ -349,9 +446,21 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: space[4],
     backgroundColor: SKY_BG,
   },
+  // Avatar unten bündig mit der Blase, die Blase schrumpft um seine Breite
+  systemRow: { flexDirection: 'row', alignItems: 'flex-end', gap: space[8] },
+  systemAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#000000',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  systemAvatarText: { fontSize: 18, lineHeight: 22, textAlign: 'center' },
   // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
   noticeIcon: { flexShrink: 0 },
-  noticeNoTail: { borderBottomLeftRadius: CHAT_RADIUS },
+  link: { textDecorationLine: 'underline' },
   noticeClose: { marginVertical: -10, marginRight: -10, marginLeft: -4 },
   noticeTextSky: { ...text.body, color: SKY_TEXT, flexGrow: 0, flexShrink: 1, flexBasis: 'auto' },
   answerTextSky: { color: '#1F2123' },
@@ -424,4 +533,5 @@ const styles = StyleSheet.create({
   rundKater: { position: 'absolute', left: 0, right: 0, bottom: -7, alignItems: 'center' },
   group: { gap: space[8] },
   groupLabel: { ...text.caption, color: color.text.secondary },
+  groupLabelLarge: { fontFamily: font.semiBold, fontSize: 15, lineHeight: 20, marginBottom: space[4] },
 });

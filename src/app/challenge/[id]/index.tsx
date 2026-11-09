@@ -226,7 +226,7 @@ export default function ChallengeDetail() {
   const askCoins = !!challenge.bountyAmount && !isAuthor;
   const authorLocation = acceptedByMe ? (challenge.kiez ?? challenge.location) : challenge.location;
   const descriptionText = description ? (
-    <Text style={styles.description}>
+    <Text style={styles.description} selectable>
       {isBeforeAfter || challenge.type === 'photo' || challenge.type === 'individual' ? <WithMentions value={description} /> : description}
     </Text>
   ) : null;

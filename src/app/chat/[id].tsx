@@ -122,7 +122,9 @@ export default function ChatThread() {
             return (
               <View style={[styles.bubbleRow, mine ? styles.right : styles.left]}>
                 <View style={[styles.bubble, mine ? styles.bubbleMine : styles.bubbleTheirs]}>
-                  <Text style={[styles.body, mine ? styles.bodyMine : null]}>{item.body}</Text>
+                  <Text style={[styles.body, mine ? styles.bodyMine : null]} selectable>
+                    {item.body}
+                  </Text>
                   <Text style={[styles.time, mine ? styles.timeMine : null]}>{time(item.createdAt)}</Text>
                 </View>
               </View>
