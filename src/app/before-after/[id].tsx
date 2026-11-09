@@ -167,10 +167,11 @@ export default function BeforeAfterScreen() {
         onLeadingPress={() => setStage('timer')}
         actions={
           <>
-            <Button busy={busy === 'post'} label={busy === 'post' ? 'Wird gepostet …' : 'Me-Challenge posten'} onPress={post} disabled={!!busy} />
+            {/* Klar benannt: Posten schließt die Me-Challenge ab, Speichern geht jederzeit vorher (Daria, 2026-11-09) */}
+            <Button busy={busy === 'post'} label={busy === 'post' ? 'Wird gepostet …' : 'Abschließen und posten'} onPress={post} disabled={!!busy} />
             <Button
               busy={busy === 'save'}
-              label={busy === 'save' ? 'Wird gespeichert …' : 'Später weitermachen'}
+              label={busy === 'save' ? 'Wird gespeichert …' : 'Als Entwurf speichern'}
               variant="ghost"
               onPress={later}
               disabled={!!busy}
