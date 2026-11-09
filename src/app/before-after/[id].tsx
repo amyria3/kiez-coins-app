@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
   miniTexts: { flex: 1, gap: space[2] },
   miniTitle: { fontFamily: font.medium, fontSize: 15, lineHeight: 19, color: color.text.primary },
   small: { ...text.small, color: color.text.secondary },
-  note: { ...text.body, fontSize: 13, color: color.text.secondary },
+  note: { ...text.hint, color: color.text.secondary },
   durationRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   durationText: { ...text.body, fontSize: 13, color: color.text.secondary },
   previewWrap: { gap: space[6] },
