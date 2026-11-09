@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
 import type { FeedState } from '../data/types';
@@ -37,6 +37,7 @@ export function FeedStateMessage({
   action,
   secondary,
   detail,
+  style,
 }: {
   variant: Exclude<FeedState, 'filled' | 'loading'>;
   onAction: () => void;
@@ -46,10 +47,12 @@ export function FeedStateMessage({
   secondary?: { label: string; onPress: () => void; hint?: string };
   /** Technischer Grund, klein unter dem Text (nur bei Fehlern) */
   detail?: string;
+  /** Z. B. ohne Abstand oben, wenn der Feed den leeren Zustand mittig setzt */
+  style?: StyleProp<ViewStyle>;
 }) {
   const m = messages[variant];
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       {/* Kiez-Look: Kater im Kreis wie in den Nachrichten, fährt von unten herein; gleiches Bild wie die Abschluss-Screens (Daria, 2026-11-09) */}
       {isFashionable ? <Cat height={86} /> : <KaterRund size={120} herzen={false} />}
       {/* Abstände nach Zusammenhang (Daria, 09.11.2026): Die Überschrift gehört zum Bild der Katze (8). Text und
