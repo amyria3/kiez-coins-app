@@ -119,7 +119,10 @@ export function FeedGreeting({ name, kiez, counts }: { name: string; kiez?: stri
   return (
     <View style={styles.greeting}>
       <Text style={styles.greetingTitle} accessibilityRole="header">
-        {greeting}, {name}
+        {greeting},{' '}
+        <Text noTranslate style={styles.greetingName}>
+          {name}
+        </Text>
       </Text>
       {sub ? <Text style={styles.greetingSub}>{sub}</Text> : null}
     </View>
@@ -496,6 +499,8 @@ const styles = StyleSheet.create({
   greetingTitle: isFashionable
     ? { fontFamily: font.semiBold, fontSize: 22, lineHeight: 28, letterSpacing: -0.3, color: color.text.primary }
     : { ...text.display, color: color.text.primary },
+  // Ansprache in der Unbounded wie Namen und Hashtags über dem Foto (Daria, 09.11.2026)
+  greetingName: { fontFamily: font.onPhoto, letterSpacing: 0 },
   greetingSub: isFashionable
     ? { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.secondary }
     : { fontFamily: font.text, fontSize: 15, lineHeight: 20, color: color.text.secondary },
