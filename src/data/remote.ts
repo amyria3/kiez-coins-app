@@ -1531,7 +1531,7 @@ export async function financeLinkCode(): Promise<string | null> {
 export type FinanceStand = { registriert: number; aktiv: number; kategorie?: 'aktiv' | 'inaktiv' | null; rang?: number | null };
 
 /**
- * Zahlen für den Abschnitt „So finanziert sich KiezCoins“ unten auf „Me“ (Daria, 08.11.2026).
+ * Zahlen für den Abschnitt „Modell KiezCoins“ unten auf „Me“ (Daria, 08.11.2026).
  * Angemeldet: mit eigenem Punkt (Code holen und gleich einlösen). Sonst nur die Zahlen.
  */
 export async function loadFinanceStand(withOwnDot: boolean): Promise<FinanceStand | null> {
