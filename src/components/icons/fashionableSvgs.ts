@@ -95,6 +95,7 @@ export const fashionableSvgs: Partial<Record<IconName, Svg>> = {
   clock: ph('clock'),
   'clock-filled': ph('clock'),
   info: ph('info'),
+  'info-filled': ph('info'),
   flag: ph('flag'),
   copy: ph('copy'),
   eye: ph('eye'),
