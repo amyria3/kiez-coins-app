@@ -282,7 +282,7 @@ function MeDemo() {
   if (step === 2 || step === 3) {
     const running = { ...c, status: 'draft' as const, timerStartedAt: new Date(Date.now() - 25 * 60_000).toISOString(), finishedAt: undefined };
     return (
-      <Demo cue={step === 2 ? 'Starte den Timer, sobald Du loslegst' : 'Der Timer läuft, auch wenn Du die App schließt'}>
+      <Demo cue={step === 2 ? 'Willst Du Deine Zeit nehmen? Dann starte den Timer' : 'Der Timer läuft, auch wenn Du die App schließt'}>
         {step === 3 ? (
           <Pad>
             <RunningBeforeAfter challenge={running} onPress={noop} />

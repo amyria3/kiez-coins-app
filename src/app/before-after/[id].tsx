@@ -91,15 +91,20 @@ export default function BeforeAfterScreen() {
     setBusy(null);
   };
 
-  // Zu früh oder aus Versehen gestartet: wieder ein Entwurf, der nicht als gestartet gilt
-  const stop = () =>
-    Alert.alert('Timer stoppen?', 'Der Timer wird zurückgesetzt, aber Deine Challenge wird als Entwurf gespeichert.', [
+  // Auch mit laufendem Timer ohne Timer weiter: Der Timer stoppt, danach geht es zum Nachher und zum Posten (Daria, 2026-11-09)
+  const withoutTimer = () =>
+    Alert.alert('Timer stoppen?', 'Die gemessene Zeit verfällt. Dein Beitrag zeigt dann keine Dauer.', [
       { text: 'Abbrechen', style: 'cancel' },
       {
         text: 'Stoppen',
         onPress: async () => {
           setBusy('stop');
-          await beforeAfter.stopTimer(challenge.id).catch(fail('Timer nicht gestoppt'));
+          try {
+            await beforeAfter.stopTimer(challenge.id);
+            setStage('after');
+          } catch (error) {
+            fail('Timer nicht gestoppt')(error);
+          }
           setBusy(null);
         },
       },
@@ -234,9 +239,9 @@ export default function BeforeAfterScreen() {
             <Button icon="camera" label="Nachher aufnehmen" onPress={() => setStage('after')} disabled={!!busy} />
             <Button
               busy={busy === 'stop'}
-              label={busy === 'stop' ? 'Wird gestoppt …' : 'Timer stoppen, Entwurf behalten'}
+              label={busy === 'stop' ? 'Wird gestoppt …' : 'Ohne Timer weiter'}
               variant="ghost"
-              onPress={stop}
+              onPress={withoutTimer}
               disabled={!!busy}
             />
             <Button label="Entwurf löschen" variant="ghost" onPress={remove} disabled={!!busy} />
