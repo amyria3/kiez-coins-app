@@ -20,7 +20,8 @@ const OBEN_GANZ = require('../../assets/kater/oben-ganz.png');
 const DRUEBER = require('../../assets/kater/drueber.png');
 /** So weit sitzt die gekippte Brille tiefer als die normale */
 const BRILLE_TIEFER = 66;
-// Münder (Daria, 02.11.2026): sonst der Default-Mund, bei den Herzen lächelt er. Je mit und ohne Aussparung der Gläser.
+// Münder (Daria, 02.11.2026): sonst der Default-Mund, bei den Herzen und beim Blick über die Brille lächelt er
+// (Daria, 2026-11-09). Beide in Braun, Mund und Nase haben immer Farbe. Je mit und ohne Aussparung der Gläser.
 const MUND = require('../../assets/kater/mund.png');
 const MUND_GANZ = require('../../assets/kater/mund-ganz.png');
 const LAECHELN = require('../../assets/kater/mund-laecheln.png');
@@ -39,6 +40,10 @@ const PFOTE = { x: 985, y: 856 };
 const GLAS_L = { x: 523, y: 234 };
 const GLAS_R = { x: 707, y: 218 };
 const HERZ = 150;
+/** Ohne Aktion schaut er ab und zu über die Brille (Daria, 2026-11-09): Pause zufällig zwischen diesen Werten in ms */
+const DRUEBER_PAUSE = [5000, 10000] as const;
+/** So lange schaut er über die Brille */
+const DRUEBER_MS = 1300;
 
 type Props = {
   /** Breite der Figur in pt; die Höhe folgt dem Bild */
@@ -100,6 +105,9 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
     return () => loop.stop();
   }, [atem, still]);
 
+  // Läuft gerade eine Aktion oder gehen Herzen auf, wartet der Blick über die Brille
+  const beschaeftigt = useRef(false);
+
   // Aktion zum Spruch
   useEffect(() => {
     if (!spruch) return;
@@ -134,10 +142,38 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
       const hoch = Animated.sequence([step(stiefelY, -42, 160), step(stiefelY, 0, 160)]);
       ablauf = Animated.sequence([hoch, Animated.delay(80), Animated.sequence([step(stiefelY, -32, 160), step(stiefelY, 0, 160)])]);
     }
-    ablauf.start();
-    return () => ablauf.stop();
+    beschaeftigt.current = true;
+    ablauf.start(() => {
+      beschaeftigt.current = false;
+    });
+    return () => {
+      ablauf.stop();
+      beschaeftigt.current = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [take, spruch, still]);
+
+  // Zwischendurch über die Brille schauen und dabei lächeln
+  useEffect(() => {
+    if (still) return;
+    let timer: ReturnType<typeof setTimeout>;
+    let blick: Animated.CompositeAnimation | null = null;
+    const planen = () => {
+      const [min, max] = DRUEBER_PAUSE;
+      timer = setTimeout(() => {
+        if (beschaeftigt.current) return planen();
+        const step = (toValue: number, duration: number) =>
+          Animated.timing(brilleY, { toValue, duration, easing: Easing.inOut(Easing.quad), useNativeDriver: true });
+        blick = Animated.sequence([step(54, 420), Animated.delay(DRUEBER_MS), step(0, 380)]);
+        blick.start(() => planen());
+      }, min + Math.random() * (max - min));
+    };
+    planen();
+    return () => {
+      clearTimeout(timer);
+      blick?.stop();
+    };
+  }, [still, brilleY]);
 
   // Herzen: aufgehen, zweimal pochen, ausblenden
   useEffect(() => {
@@ -157,8 +193,14 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
           Animated.delay(450),
           Animated.timing(herzSichtbar, { toValue: 0, duration: 260, useNativeDriver: true }),
         ]);
-    ablauf.start();
-    return () => ablauf.stop();
+    beschaeftigt.current = true;
+    ablauf.start(() => {
+      beschaeftigt.current = false;
+    });
+    return () => {
+      ablauf.stop();
+      beschaeftigt.current = false;
+    };
   }, [herzen, herz, herzSichtbar, still]);
 
   const flaeche = { width, height };
@@ -186,8 +228,9 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
     width: MUND_BOX.w * s,
     height: MUND_BOX.h * s,
   };
-  const laechelt = herzSichtbar;
-  const ernst = herzSichtbar.interpolate({ inputRange: [0, 1], outputRange: [1, 0] });
+  // Lächeln bei den Herzen und beim Blick über die Brille
+  const laechelt = Animated.add(herzSichtbar, drueberDa).interpolate({ inputRange: [0, 1], outputRange: [0, 1], extrapolate: 'clamp' });
+  const ernst = laechelt.interpolate({ inputRange: [0, 1], outputRange: [1, 0] });
   const muender = (mund: number, laecheln: number) => (
     <>
       <Animated.Image source={mund} style={[mundStil, { opacity: ernst }]} resizeMode="stretch" />

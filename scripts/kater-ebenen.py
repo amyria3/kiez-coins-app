@@ -100,7 +100,10 @@ speichern(render(augen + brille_unten), 'drueber.png')
 # Münder: kleiner Ausschnitt, 1 px pro Einheit der Fläche
 mx, my, mw, mh = MUND_BOX
 glas_klein = render(glaeser, W, H, (0, 0, W, H)).split()[3].crop((mx, my, mx + mw, my + mh))
-for name, body in (('mund', mund), ('mund-laecheln', laecheln)):
+# Mund und Nase haben immer Farbe: Das Lächeln aus Cat.svg bekommt das Braun des Default-Munds (Daria, 2026-11-09)
+MUND_FARBE = '#604500'
+laecheln_farbig = laecheln.replace('fill="#2C2C2C"', f'fill="{MUND_FARBE}"')
+for name, body in (('mund', mund), ('mund-laecheln', laecheln_farbig)):
     m = render(body, mw, mh, MUND_BOX)
     speichern(m, f'{name}-ganz.png')
     speichern(ohne(m, glas_klein), f'{name}.png')
