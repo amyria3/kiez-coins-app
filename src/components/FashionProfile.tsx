@@ -364,7 +364,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headRight: { flex: 1, gap: space[8], paddingBottom: space[8] },
-  name: { fontFamily: font.semiBold, fontSize: 15, lineHeight: 20, color: color.text.primary },
+  // Ansprache in der Unbounded wie Namen und Hashtags über dem Foto (Daria, 09.11.2026)
+  name: { fontFamily: font.onPhoto, fontSize: 15, lineHeight: 20, color: color.text.primary },
   stats: { flexDirection: 'row', justifyContent: 'space-between' },
   stat: { alignItems: 'flex-start' },
   statValue: { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] },
