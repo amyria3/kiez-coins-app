@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from './T';
 
 import type { User } from '../data/types';
-import { color, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
@@ -227,7 +227,8 @@ const styles = StyleSheet.create({
   navRow: { minHeight: 48 },
   profileCard: { padding: space[16], gap: space[16], borderRadius: radius.lg },
   /** Titel der Karten in der Farbe der großen Icons, auch der eigene Name (Daria, 2026-11-05) */
-  profileName: { ...text.cardTitle, color: color.icon.large },
+  // Unbounded statt Inter Tight wie „Pirat:in“ (Daria, 09.11.2026). 17 statt 19, die Unbounded läuft breiter.
+  profileName: { fontFamily: font.onPhoto, fontSize: 17, lineHeight: 22, color: color.icon.large },
   editing: { borderWidth: stroke.thin, borderColor: color.accent.primary, paddingVertical: space[4], paddingRight: space[4] },
   pressed: { opacity: 0.8 },
   texts: { flex: 1, gap: space[2] },
