@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Text } from './T';
 import { IconButton } from './IconButton';
-import { Notice } from './Content';
+import { CHAT_GAP_SAME, Notice } from './Content';
 import { t } from '../data/texts';
 import { color, isFashionable, radius, space, text } from '../theme/tokens';
 
@@ -114,8 +114,8 @@ export function AudienceHint({ audience, onClose }: { audience: Audience; onClos
 const styles = StyleSheet.create({
   // Fashionable Look: Liste ohne Abstände, daher eigener Rand oben und unten
   wrap: { paddingHorizontal: space[16], paddingVertical: isFashionable ? space[8] : 0 },
-  // Abstand zwischen zwei Nachrichten wie bei Frage und Antwort
-  bubbles: { gap: space[6] },
+  // Zwei Nachrichten derselben Seite: kleiner Abstand (Daria, 2026-11-09)
+  bubbles: { gap: CHAT_GAP_SAME },
   hint: {
     flexDirection: 'row',
     alignItems: 'center',
