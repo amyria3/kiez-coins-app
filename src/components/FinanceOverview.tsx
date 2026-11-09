@@ -11,7 +11,7 @@ import type { User } from '../data/types';
 import { color, font, isFashionable, radius, space, text } from '../theme/tokens';
 
 /**
- * „So finanziert sich KiezCoins“ unten auf „Me“ (Daria, 08.11.2026): knapper Text, Balken 30/70 und die Community
+ * „Modell KiezCoins“ unten auf „Me“ (Daria, 08.11.2026; Überschrift seit 2026-11-09, vorher „So finanziert sich KiezCoins“): knapper Text, Balken 30/70 und die Community
  * als Punkte, der eigene als Avatar. Bleibt in der App; nur „Details auf der Website“ öffnet kiezcoins…/finanzierung.
  * Ersetzt die Karte „Finanzierung“ unter „Dein Konto“.
  */
@@ -71,7 +71,7 @@ export function FinanceOverview() {
   return (
     <View style={styles.box}>
       <Text style={styles.title} accessibilityRole="header">
-        So finanziert sich KiezCoins
+        Modell KiezCoins
       </Text>
       <Text style={styles.body}>Zuerst deckt KiezCoins die Fixkosten. Vom Rest bekommt die Entwicklerin 30 %, die Community 70 %.</Text>
 
