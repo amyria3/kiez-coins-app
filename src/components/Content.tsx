@@ -59,10 +59,19 @@ export function Notice({
 }
 
 /**
+ * Abstände im Chat (Daria, 2026-11-09): zwischen Nachrichten derselben Seite klein, beim Wechsel zwischen Frage
+ * und App größer.
+ */
+export const CHAT_GAP_SAME = space[4];
+export const CHAT_GAP_CHANGE = space[12];
+
+/**
  * Hinweis als Frage (Daria, 2026-11-09): blasse Chatnachricht rechts, wie selbst gefragt. Ein Tipp zeigt darunter
  * links die Antwort als Chatnachricht, ein zweiter Tipp blendet sie wieder aus.
+ * `then`: weitere Nachrichten der App (z. B. eine Warnung). Sie folgen dicht auf die Antwort, bei zugeklappter
+ * Frage mit dem größeren Abstand. Offen bekommt das Ganze unten Luft, da danach meist wieder eine Frage folgt.
  */
-export function QuestionHint({ question, answer }: { question: string; answer: string }) {
+export function QuestionHint({ question, answer, then }: { question: string; answer: string; then?: ReactNode }) {
   const [open, setOpen] = useState(false);
   const shown = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -71,7 +80,7 @@ export function QuestionHint({ question, answer }: { question: string; answer: s
     Animated.timing(shown, { toValue: 1, duration: 220, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
   }, [open, shown]);
   return (
-    <View style={styles.qa}>
+    <View style={open ? styles.qaOpen : undefined}>
       <Pressable
         accessibilityRole="button"
         accessibilityState={{ expanded: open }}
@@ -84,13 +93,17 @@ export function QuestionHint({ question, answer }: { question: string; answer: s
         <Animated.View
           style={[
             styles.answer,
+            styles.afterChange,
             !isFashionable && styles.answerSky,
+            // Folgt noch eine Nachricht der App, hat nur die letzte die spitze Ecke
+            then ? styles.answerNoTail : null,
             { opacity: shown, transform: [{ translateY: shown.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }] },
           ]}
         >
           <Text style={[styles.answerText, !isFashionable && styles.answerTextSky]}>{answer}</Text>
         </Animated.View>
       ) : null}
+      {then ? <View style={open ? styles.afterSame : styles.afterChange}>{then}</View> : null}
     </View>
   );
 }
@@ -276,7 +289,10 @@ export function FieldGroup({ label, children }: { label: string; children: React
 }
 
 const styles = StyleSheet.create({
-  qa: { gap: space[6] },
+  qaOpen: { paddingBottom: CHAT_GAP_CHANGE - CHAT_GAP_SAME },
+  afterSame: { marginTop: CHAT_GAP_SAME },
+  answerNoTail: { borderBottomLeftRadius: radius.xl },
+  afterChange: { marginTop: CHAT_GAP_CHANGE },
   question: {
     alignSelf: 'flex-end',
     maxWidth: '85%',

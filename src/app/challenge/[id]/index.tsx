@@ -13,7 +13,7 @@ import { GlassIconButton } from '../../../components/Glass';
 import { IconButton } from '../../../components/IconButton';
 import { Button } from '../../../components/Button';
 import { CommentSection } from '../../../components/Comments';
-import { InfoRow, KaterBubble, Notice, QuestionHint, OperationTag } from '../../../components/Content';
+import { CHAT_GAP_SAME, InfoRow, KaterBubble, Notice, QuestionHint, OperationTag } from '../../../components/Content';
 import { TextField } from '../../../components/Form';
 import { HeroScreen, SubScreen } from '../../../components/Screen';
 import { TextHero, isTextPost } from '../../../components/TextSheets';
@@ -733,7 +733,8 @@ const styles = StyleSheet.create({
   muted: { color: color.text.secondary, opacity: 0.6 },
   description: { ...text.body, color: color.text.primary },
   authorAndText: { gap: space[12] },
-  questions: { gap: space[8] },
+  // Fragen derselben Seite dicht untereinander; offen bringt QuestionHint selbst den größeren Abstand mit (Daria, 2026-11-09)
+  questions: { gap: CHAT_GAP_SAME },
   secondary: { ...text.body, color: color.text.secondary },
   naming: { gap: space[12] },
 });
