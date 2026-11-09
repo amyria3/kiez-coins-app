@@ -9,6 +9,7 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] **Pflichtaufgabe:** kiezcoins.de bei INWX auf Vercel umstellen. Bis dahin funktionieren Einladungslinks, Instant-Einladungen, Instant-Download und geteilte Posts nicht. Schritte: `2026-11-08_offen_domain-kiezcoins-de.md`.
 - [ ] **Pflichtaufgabe:** Migration `20261109000100_comment_likes.sql` im Supabase SQL Editor ausführen. Bis dahin zeigen Kommentare kein Herz. Details: `2026-11-09_offen_kommentare-liken.md`.
 - [ ] **Pflichtaufgabe:** Migration `20261109000200_me_challenge_offen.sql` im Supabase SQL Editor ausführen. Bis dahin bleibt eine neue Me-Challenge ein Entwurf. Details: `2026-11-09_offen_me-challenge-offen.md`.
+- [ ] **Pflichtaufgabe (Daria, 09.11.2026):** Übersetzungen automatisch mit DeepL. Vorher legt Daria den Schlüssel `DEEPL_API_KEY` in GitHub an. DeepL füllt nur Lücken, vorhandene Übersetzungen und Korrekturen im Texte-Editor bleiben. Plan: `2026-10-31_offen_deepl-uebersetzungen.md`.
 
 ## Dringend (Daria, 30.10.2026)
 
@@ -17,7 +18,6 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 ## Zeitnah (Daria, 30.10.2026)
 
-- [ ] Übersetzungen automatisch mit DeepL (geplant für 01.11.2026): `2026-10-31_offen_deepl-uebersetzungen.md`. Vorher legt Daria den Schlüssel `DEEPL_API_KEY` in GitHub an.
 
 - [x] Beim Posten Zugriff auf die Entwürfe: Das Erstellen-Blatt zeigt oben „Deine Entwürfe“ mit Kacheln, passend zum Modus (Privat, Gruppe, Kiez/Überall). Ein Tipp öffnet den Entwurf (`src/components/compose/DraftStrip.tsx`, 30.10.2026).
 
