@@ -25,6 +25,8 @@ type CommentProps = {
   onAuthorPress?: () => void;
   /** Herz unter dem Kommentar; fehlt, solange die Likes nicht geladen sind */
   onLike?: () => void;
+  /** Tipp auf die Zahl: wer den Kommentar geliked hat */
+  onLikesPress?: () => void;
   /** Bekannte Personen: „@Name“ im Text wird hervorgehoben und öffnet ihr Profil */
   users?: User[];
   onMentionPress?: (userId: string) => void;
@@ -59,7 +61,7 @@ function CommentBody({ body, users, onMentionPress }: { body: string; users: Use
  * Figma „Comment“: öffentlicher Kommentar. Melden steckt hinter drei senkrechten Punkten,
  * darunter Herz mit Anzahl und „Antworten“ (Daria, 2026-11-09).
  */
-export function Comment({ comment, author, onReport, onReply, isReply, onAuthorPress, onLike, users = [], onMentionPress }: CommentProps) {
+export function Comment({ comment, author, onReport, onReply, isReply, onAuthorPress, onLike, onLikesPress, users = [], onMentionPress }: CommentProps) {
   const hidden = useHideName(author);
   return (
     <View style={[styles.comment, isReply && styles.reply]}>
@@ -77,19 +79,33 @@ export function Comment({ comment, author, onReport, onReply, isReply, onAuthorP
         {onLike || onReply ? (
           <View style={styles.footer}>
             {onLike ? (
-              <Pressable
-                onPress={onLike}
-                accessibilityRole="button"
-                accessibilityState={{ selected: !!comment.likedByMe }}
-                accessibilityLabel={
-                  comment.likeCount ? t('Gefällt mir, {likeCount} Likes', { likeCount: comment.likeCount }) : t('Gefällt mir')
-                }
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                style={({ pressed }) => [styles.like, pressed && styles.pressed]}
-              >
-                <Icon name="heart" size={11} color={comment.likedByMe ? color.accent.affection : color.text.secondary} />
-                {comment.likeCount ? <Text style={styles.replyText}>{comment.likeCount}</Text> : null}
-              </Pressable>
+              // Herz liked, die Zahl daneben zeigt, wer geliked hat (wie beim Post, Daria, 2026-11-08)
+              <View style={styles.like}>
+                <Pressable
+                  onPress={onLike}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: !!comment.likedByMe }}
+                  accessibilityLabel={
+                    comment.likeCount ? t('Gefällt mir, {likeCount} Likes', { likeCount: comment.likeCount }) : t('Gefällt mir')
+                  }
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 4 }}
+                  style={({ pressed }) => pressed && styles.pressed}
+                >
+                  <Icon name="heart" size={11} color={comment.likedByMe ? color.accent.affection : color.text.secondary} />
+                </Pressable>
+                {comment.likeCount ? (
+                  <Pressable
+                    onPress={onLikesPress}
+                    disabled={!onLikesPress}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('{likeCount} Likes ansehen', { likeCount: comment.likeCount })}
+                    hitSlop={{ top: 8, bottom: 8, left: 4, right: 8 }}
+                    style={({ pressed }) => pressed && styles.pressed}
+                  >
+                    <Text style={styles.replyText}>{comment.likeCount}</Text>
+                  </Pressable>
+                ) : null}
+              </View>
             ) : null}
             {onReply ? (
               <Pressable
@@ -269,6 +285,8 @@ type CommentSectionProps = {
   onAuthorPress?: (userId: string) => void;
   /** Kommentar liken (Daria, 2026-11-09) */
   onLike?: (comment: CommentData) => void;
+  /** Liste, wer den Kommentar geliked hat (Daria, 2026-11-08) */
+  onLikesPress?: (comment: CommentData) => void;
   /** Personen am Beitrag (Erstellerin, Mitmachende), oben in den @-Vorschlägen */
   threadPeople?: string[];
   /** Nicht vorschlagen, z. B. blockierte Personen */
@@ -287,6 +305,7 @@ export function CommentSection({
   onReport,
   onAuthorPress,
   onLike,
+  onLikesPress,
   threadPeople,
   hiddenIds,
 }: CommentSectionProps) {
@@ -322,6 +341,7 @@ export function CommentSection({
         onMentionPress={onAuthorPress}
         onReport={c.authorId === currentUserId ? undefined : () => onReport(c)}
         onLike={onLike && c.likeCount !== undefined ? () => onLike(c) : undefined}
+        onLikesPress={onLikesPress ? () => onLikesPress(c) : undefined}
         // Antworten auf eine Antwort hängen am selben Gespräch
         onReply={onSend ? () => setReplyTo({ ...c, id: rootId }) : undefined}
       />
