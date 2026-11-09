@@ -17,38 +17,59 @@ const SKY_TEXT = '#1F2123';
 const SKY_BG = '#F0FFA6';
 
 /**
- * Einblenden der Systemblasen im Kiez-Look (Daria, 2026-11-09): Die Fläche kommt mit 80 % Deckkraft, leuchtet kurz
- * auf 100 % auf und bleibt bei 90 %. Die Blase wächst dabei leicht aus der Ecke beim Avatar. Bei „Bewegung reduzieren“
- * steht sie gleich im Endzustand.
+ * Einblenden der Nachrichten im Kiez-Look (Daria, 2026-11-09). Erscheinen mehrere zugleich, kommen sie nacheinander
+ * im Abstand von MESSAGE_STAGGER. Systemblasen kommen mit 70 % Deckkraft, leuchten kurz auf 100 % auf und bleiben
+ * bei 90 %. Dabei wachsen sie aus der Ecke beim Avatar. Bei „Bewegung reduzieren“ steht alles sofort im Endzustand.
  */
 const SKY_RGB = '240, 255, 166';
-function useSkyIn() {
-  const t = useRef(new Animated.Value(0)).current;
+const MESSAGE_STAGGER = 320;
+let nextMessageAt = 0;
+/** Reserviert den nächsten freien Zeitpunkt und gibt die Wartezeit bis dahin zurück */
+function messageDelay(): number {
+  const now = Date.now();
+  const start = Math.max(now, nextMessageAt);
+  nextMessageAt = start + MESSAGE_STAGGER;
+  return start - now;
+}
+
+function useMessageIn() {
+  const shown = useRef(new Animated.Value(isFashionable ? 1 : 0)).current;
+  const t = useRef(new Animated.Value(isFashionable ? 2 : 0)).current;
   useEffect(() => {
+    if (isFashionable) return;
     let alive = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     AccessibilityInfo.isReduceMotionEnabled()
       .catch(() => false)
       .then((reduce) => {
         if (!alive) return;
         if (reduce) {
+          shown.setValue(1);
           t.setValue(2);
           return;
         }
-        Animated.sequence([
-          Animated.timing(t, { toValue: 1, duration: 260, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
-          Animated.timing(t, { toValue: 2, duration: 520, easing: Easing.inOut(Easing.quad), useNativeDriver: false }),
-        ]).start();
+        timer = setTimeout(() => {
+          Animated.parallel([
+            Animated.timing(shown, { toValue: 1, duration: 140, easing: Easing.out(Easing.quad), useNativeDriver: false }),
+            Animated.sequence([
+              Animated.timing(t, { toValue: 1, duration: 200, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+              Animated.timing(t, { toValue: 2, duration: 460, easing: Easing.inOut(Easing.quad), useNativeDriver: false }),
+            ]),
+          ]).start();
+        }, messageDelay());
       });
     return () => {
       alive = false;
+      if (timer) clearTimeout(timer);
     };
-  }, [t]);
+  }, [shown, t]);
   return {
+    opacity: shown,
     backgroundColor: t.interpolate({
       inputRange: [0, 1, 2],
-      outputRange: [`rgba(${SKY_RGB}, 0.8)`, `rgba(${SKY_RGB}, 1)`, `rgba(${SKY_RGB}, 0.9)`],
+      outputRange: [`rgba(${SKY_RGB}, 0.7)`, `rgba(${SKY_RGB}, 1)`, `rgba(${SKY_RGB}, 0.9)`],
     }),
-    scale: t.interpolate({ inputRange: [0, 1, 2], outputRange: [0.96, 1.02, 1] }),
+    scale: t.interpolate({ inputRange: [0, 1, 2], outputRange: [0.9, 1.04, 1] }),
   };
 }
 
@@ -113,13 +134,22 @@ export function SystemAvatar() {
 }
 
 /** Kiez-Look: Systemnachricht mit Avatar links, unten bündig wie im Chat */
-function FromSystem({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
+function FromSystem({
+  children,
+  style,
+  opacity,
+}: {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+  /** Avatar und Blase erscheinen gemeinsam (useMessageIn) */
+  opacity?: Animated.Value;
+}) {
   if (isFashionable) return <>{children}</>;
   return (
-    <View style={[styles.systemRow, style]}>
+    <Animated.View style={[styles.systemRow, style, opacity ? { opacity } : null]}>
       <SystemAvatar />
       {children}
-    </View>
+    </Animated.View>
   );
 }
 
@@ -139,9 +169,9 @@ export function Notice({
   tail?: boolean;
 }) {
   const t = useTexts();
-  const sky = useSkyIn();
+  const sky = useMessageIn();
   return (
-    <FromSystem>
+    <FromSystem opacity={sky.opacity}>
     <Animated.View
       style={[
         styles.notice,
@@ -198,8 +228,8 @@ export function QuestionHint({ question, answer, then }: { question: string; ans
   useEffect(() => {
     if (!open) return;
     shown.setValue(0);
-    // Ohne Native Driver, da dieselbe Blase auch ihre Farbe animiert (SkyAnswer)
-    Animated.timing(shown, { toValue: 1, duration: 220, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
+    // Nur im Fashionable Look, im Kiez-Look blendet SkyAnswer selbst ein
+    Animated.timing(shown, { toValue: 1, duration: 220, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
   }, [open, shown]);
   return (
     <View style={open ? styles.qaOpen : undefined}>
@@ -223,9 +253,7 @@ export function QuestionHint({ question, answer, then }: { question: string; ans
             <LinkedText style={styles.answerText} value={answer} />
           </Animated.View>
         ) : (
-          <FromSystem style={styles.afterChange}>
-            <SkyAnswer answer={answer} shown={shown} />
-          </FromSystem>
+          <SkyAnswer answer={answer} />
         )
       ) : null}
       {then ? <View style={open ? styles.afterSame : styles.afterChange}>{then}</View> : null}
@@ -233,23 +261,17 @@ export function QuestionHint({ question, answer, then }: { question: string; ans
   );
 }
 
-/** Antwort im Kiez-Look: blendet ein und leuchtet auf wie die übrigen Systemblasen (useSkyIn) */
-function SkyAnswer({ answer, shown }: { answer: string; shown: Animated.Value }) {
-  const sky = useSkyIn();
+/** Antwort im Kiez-Look: blendet ein und leuchtet auf wie die übrigen Systemblasen (useMessageIn) */
+function SkyAnswer({ answer }: { answer: string }) {
+  const sky = useMessageIn();
   return (
-    <Animated.View
-      style={[
-        styles.answer,
-        styles.answerSky,
-        {
-          opacity: shown,
-          backgroundColor: sky.backgroundColor,
-          transform: [{ translateY: shown.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }, { scale: sky.scale }],
-        },
-      ]}
-    >
-      <LinkedText style={[styles.answerText, styles.answerTextSky]} value={answer} />
-    </Animated.View>
+    <FromSystem style={styles.afterChange} opacity={sky.opacity}>
+      <Animated.View
+        style={[styles.answer, styles.answerSky, { backgroundColor: sky.backgroundColor, transform: [{ scale: sky.scale }] }]}
+      >
+        <LinkedText style={[styles.answerText, styles.answerTextSky]} value={answer} />
+      </Animated.View>
+    </FromSystem>
   );
 }
 
@@ -259,7 +281,10 @@ function SkyAnswer({ answer, shown }: { answer: string; shown: Animated.Value })
  */
 export function ChatReply({ label, sent, onPress }: { label: string; sent: boolean; onPress: () => void }) {
   const tx = useTexts();
+  // Kommt nach den Systemnachrichten davor an die Reihe (useMessageIn)
+  const { opacity } = useMessageIn();
   return (
+    <Animated.View style={{ opacity }}>
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ disabled: sent }}
@@ -269,6 +294,7 @@ export function ChatReply({ label, sent, onPress }: { label: string; sent: boole
     >
       <Text style={[styles.questionText, sent && !isFashionable && styles.questionTextOpen]}>{tx(label)}</Text>
     </Pressable>
+    </Animated.View>
   );
 }
 
