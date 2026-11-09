@@ -81,12 +81,14 @@ type Saved = {
   groups?: boolean;
   /** Verborgene Modi aus einem alten Zielgruppen-Link sind zurückgeholt (08.11.2026) */
   linkOffen?: boolean;
-  /** In Kiez und Überall ausgeblendete Beitragsarten (Daria, 08.11.2026) */
-  feedHide?: Partial<FeedHide>;
+  /** Alter Stand aus „Einstellungen › Feed“ (08.11.2026): Bilder und Textposts getrennt, für Kiez und Überall zusammen */
+  feedHide?: { photo?: boolean; text?: boolean };
+  /** Feeds, in denen Bilder und Textposts ausgeblendet sind (Funktionen, Daria, 09.11.2026) */
+  postsHidden?: Partial<Record<PostFeed, boolean>>;
 };
 
-/** Beitragsarten, die jemand in Kiez und Überall ausblendet: Bilder und Textposts. Eigene Beiträge bleiben sichtbar. */
-export type FeedHide = { photo: boolean; text: boolean };
+/** Feeds, in denen sich Bilder und Textposts abschalten lassen */
+export type PostFeed = 'kiez' | 'everywhere';
 
 const START_STANDARD: Mode = 'kiez';
 const KEY = (userId: string) => `kiez-features:${userId}`;
@@ -177,15 +179,25 @@ export function setStandardMode(userId: string, mode: Mode) {
   store(userId, { ...saved, standard: mode, hidden: { ...hiddenOf(saved), [mode]: false } });
 }
 
-/** Bilder oder Textposts in Kiez und Überall aus- oder einblenden */
-export function setFeedHide(userId: string, kind: keyof FeedHide, hide: boolean) {
-  store(userId, { ...saved, feedHide: { ...saved.feedHide, [kind]: hide } });
+/**
+ * Bilder und Textposts (Posts ohne Challenge) im Kiez- und im Überall-Feed zeigen (Dein Konto › Funktionen, Daria, 09.11.2026).
+ * Standard: an. Eigene Beiträge bleiben immer sichtbar. Ersetzt „Einstellungen › Feed“ vom 08.11.2026: Wer dort Bilder und
+ * Textposts beide ausgeblendet hatte, hat sie jetzt in beiden Feeds aus.
+ */
+const postsHiddenOf = (s: Saved): Record<PostFeed, boolean> => {
+  const legacy = !!(s.feedHide?.photo && s.feedHide?.text);
+  return { kiez: s.postsHidden?.kiez ?? legacy, everywhere: s.postsHidden?.everywhere ?? legacy };
+};
+
+export function setPostsShown(userId: string, feed: PostFeed, show: boolean) {
+  store(userId, { ...saved, postsHidden: { ...postsHiddenOf(saved), [feed]: !show } });
 }
 
-/** Was in Kiez und Überall ausgeblendet ist */
-export function useFeedHide(): FeedHide {
+/** Ob Bilder und Textposts im Kiez- bzw. Überall-Feed zu sehen sind */
+export function usePostsShown(): Record<PostFeed, boolean> {
   useModes();
-  return { photo: !!saved.feedHide?.photo, text: !!saved.feedHide?.text };
+  const hidden = postsHiddenOf(saved);
+  return { kiez: !hidden.kiez, everywhere: !hidden.everywhere };
 }
 
 /** Aktueller Stand der Modi */
