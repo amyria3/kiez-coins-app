@@ -1331,5 +1331,14 @@
   "Wie kommen andere in meine Gruppe?": "كيف ينضم الآخرون إلى مجموعتي؟",
   "Abschließen und posten": "إنهاء ونشر",
   "Die gemessene Zeit verfällt. Dein Beitrag zeigt dann keine Dauer.": "سيضيع الوقت المُقاس. لن يعرض منشورك أي مدة.",
-  "Willst Du Deine Zeit nehmen? Dann starte den Timer": "هل تريد قياس وقتك؟ إذن شغّل المؤقت"
+  "Willst Du Deine Zeit nehmen? Dann starte den Timer": "هل تريد قياس وقتك؟ إذن شغّل المؤقت",
+  "Vorher posten": "نشر «قبل»",
+  "Me-Challenge löschen?": "حذف تحدي Me؟",
+  "Sie verschwindet aus dem Feed.": "سيختفي من الصفحة الرئيسية.",
+  "Me-Challenge löschen": "حذف تحدي Me",
+  "Spätestens {when} Uhr schließt die App die Me-Challenge ab, auch ohne Nachher-Foto.": "في موعد أقصاه {when} يُنهي التطبيق تحدي Me، حتى من دون صورة «بعد».",
+  "Ohne Nachher schließt die App die Me-Challenge {when} Uhr ab.": "من دون «بعد» يُنهي التطبيق تحدي Me في {when}.",
+  "Läuft": "جارٍ",
+  "Timer läuft": "المؤقت يعمل",
+  "Vorher gepostet um {time} Uhr": "نُشر «قبل» الساعة {time}"
 }

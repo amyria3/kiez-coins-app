@@ -1316,5 +1316,14 @@
   "Wie kommen andere in meine Gruppe?": "Как другие попадут в мою группу?",
   "Abschließen und posten": "Завершить и опубликовать",
   "Die gemessene Zeit verfällt. Dein Beitrag zeigt dann keine Dauer.": "Измеренное время пропадёт. Твой пост не будет показывать продолжительность.",
-  "Willst Du Deine Zeit nehmen? Dann starte den Timer": "Хочешь засечь время? Тогда запусти таймер"
+  "Willst Du Deine Zeit nehmen? Dann starte den Timer": "Хочешь засечь время? Тогда запусти таймер",
+  "Vorher posten": "Опубликовать «до»",
+  "Me-Challenge löschen?": "Удалить Me-Challenge?",
+  "Sie verschwindet aus dem Feed.": "Он исчезнет из ленты.",
+  "Me-Challenge löschen": "Удалить Me-Challenge",
+  "Spätestens {when} Uhr schließt die App die Me-Challenge ab, auch ohne Nachher-Foto.": "Не позднее {when} приложение завершит Me-Challenge, даже без фото «после».",
+  "Ohne Nachher schließt die App die Me-Challenge {when} Uhr ab.": "Без «после» приложение завершит Me-Challenge {when}.",
+  "Läuft": "Идёт",
+  "Timer läuft": "Таймер идёт",
+  "Vorher gepostet um {time} Uhr": "«До» опубликовано в {time}"
 }

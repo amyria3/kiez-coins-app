@@ -96,7 +96,8 @@ export function TagTextField({
 
 /**
  * Schritt 1 von Vorher-Nachher im Erstellen-Blatt: Vorher-Foto, Überschrift, Erklärung.
- * „Vorher speichern“ legt den Entwurf an; danach geht es im Timer weiter (Route `before-after/[id]`).
+ * „Vorher posten“ legt die Me-Challenge gleich offen an (Daria, 2026-11-09); danach geht es im Timer weiter
+ * (Route `before-after/[id]`).
  */
 export function useBeforeAfterStartForm(
   groupId: string | undefined,
@@ -174,7 +175,7 @@ export function useBeforeAfterStartForm(
   const button = (
     <Button
       busy={busy}
-      label={busy ? 'Wird gespeichert …' : 'Vorher speichern'}
+      label={busy ? 'Wird gepostet …' : 'Vorher posten'}
       onPress={save}
       disabled={busy}
     />

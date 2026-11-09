@@ -12,7 +12,7 @@ import { KaterCard } from '../components/Content';
 import { Segments } from '../components/FeedHeader';
 import { Icon } from '../components/icons/Icon';
 import { NavigationBar } from '../components/NavigationBar';
-import { formatDayMonthShort, formatDurationSince, formatRelative, formatRemainingShort, nameInText } from '../data/format';
+import { formatDayMonthShort, formatDurationSince, formatRelative, formatRemainingShort, nameInText, meInProgress } from '../data/format';
 import { useRequireKiez } from '../data/kiez';
 import { isGroupDone } from '../data/reise';
 import { useStore } from '../data/store';
@@ -285,7 +285,7 @@ export default function ManageChallenges() {
                     challenge={item}
                     assignee={users.find((u) => u.id === item.assigneeId)}
                     onOpen={() => (item.status === 'draft' ? openDraft(item) : router.push(`/challenge/${item.id}`))}
-                    onEdit={() => (item.status === 'draft' ? openDraft(item) : router.push(`/challenge/${item.id}/edit`))}
+                    onEdit={() => (item.status === 'draft' || meInProgress(item) ? openDraft(item) : router.push(`/challenge/${item.id}/edit`))}
                     onClose={() => close(item)}
                     onCopy={() => copy(item)}
                     onDelete={() => remove(item)}
@@ -379,6 +379,8 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
         value: 'Entwurf',
         hint: isBeforeAfter ? (c.timerStartedAt ? 'Me-Challenge, Timer läuft' : 'Me-Challenge, Timer noch nicht gestartet') : 'Nur für Dich sichtbar',
       }
+    : meInProgress(c)
+      ? { value: 'Läuft', hint: c.timerStartedAt ? t('Timer läuft') : formatRemainingShort(c.deadline) }
     : isBeforeAfter && c.status === 'open'
       ? { value: 'Gepostet', hint: formatRelative(c.createdAt) }
     : isOpen
@@ -471,6 +473,8 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
       <View style={styles.actions}>
         {isDraft ? (
           <Button label="Weiter bearbeiten" onPress={onEdit} />
+        ) : meInProgress(c) ? (
+          <Button icon="camera" label="Nachher aufnehmen" onPress={onEdit} />
         ) : c.status === 'closed' ? (
           <Button label="Kopie erstellen" onPress={onCopy} />
         ) : null}

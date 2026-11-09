@@ -251,7 +251,7 @@ function PostDemo() {
   );
 }
 
-/** Me-Challenge wie in der App: Vorher-Foto, „Vorher speichern“, „Timer starten“, „Nachher aufnehmen“, „Abschließen und posten“. */
+/** Me-Challenge wie in der App: Vorher-Foto, „Vorher posten“, „Timer starten“, „Nachher aufnehmen“, „Abschließen und posten“. */
 function MeDemo() {
   const [step, setStep] = useState(0);
   const c = sampleChallenges.find((x) => x.id === 'vorher-nachher-hof');
@@ -273,7 +273,7 @@ function MeDemo() {
         <Pad>
           <DemoPhoto photo={c.imageBefore} title={c.title} />
           <NextStep on>
-            <Button label="Vorher speichern" onPress={() => setStep(2)} />
+            <Button label="Vorher posten" onPress={() => setStep(2)} />
           </NextStep>
         </Pad>
       </Demo>

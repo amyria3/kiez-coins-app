@@ -8,6 +8,7 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 - [ ] **Pflichtaufgabe:** kiezcoins.de bei INWX auf Vercel umstellen. Bis dahin funktionieren Einladungslinks, Instant-Einladungen, Instant-Download und geteilte Posts nicht. Schritte: `2026-11-08_offen_domain-kiezcoins-de.md`.
 - [ ] **Pflichtaufgabe:** Migration `20261109000100_comment_likes.sql` im Supabase SQL Editor ausführen. Bis dahin zeigen Kommentare kein Herz. Details: `2026-11-09_offen_kommentare-liken.md`.
+- [ ] **Pflichtaufgabe:** Migration `20261109000200_me_challenge_offen.sql` im Supabase SQL Editor ausführen. Bis dahin bleibt eine neue Me-Challenge ein Entwurf. Details: `2026-11-09_offen_me-challenge-offen.md`.
 
 ## Dringend (Daria, 30.10.2026)
 
