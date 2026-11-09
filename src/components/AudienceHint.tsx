@@ -25,7 +25,7 @@ const MESSAGE: Record<Audience, [string, string]> = {
 
 /**
  * Sichtbar in den ersten fünf Sitzungen, danach dauerhaft weg (Daria, 30.10.2026). Das Kreuz blendet den Hinweis
- * nur für die laufende Sitzung aus. Eine Sitzung beginnt mit dem Start der App oder wenn sie nach mindestens
+ * nur für die laufende Sitzung aus. Im Kiez-Look hat jede Nachricht ein eigenes Kreuz (Daria, 2026-11-09). Eine Sitzung beginnt mit dem Start der App oder wenn sie nach mindestens
  * 30 Minuten im Hintergrund wieder nach vorn kommt. Gezählt wird pro Gerät.
  */
 const SESSIONS_SHOWN = 5;
@@ -33,7 +33,8 @@ const NEW_SESSION_AFTER_MS = 30 * 60 * 1000;
 const SESSION_KEY = 'kiez-hinweis-sitzungen';
 
 let session = 0; // 0 = noch nicht gelesen
-let closed = new Set<Audience>();
+/** Geschlossene Zeilen je Reiter, als `audience:index` */
+let closed = new Set<string>();
 const listeners = new Set<() => void>();
 const notify = () => listeners.forEach((l) => l());
 
@@ -66,7 +67,10 @@ function ensureStarted() {
   });
 }
 
-export function useAudienceHint(audience: Audience): [boolean, () => void] {
+const key = (audience: Audience, line: number) => `${audience}:${line}`;
+
+/** [sichtbar, alles schließen, geschlossene Zeilen, eine Zeile schließen] */
+export function useAudienceHint(audience: Audience): [boolean, () => void, number[], (line: number) => void] {
   const [, rerender] = useState(0);
   useEffect(() => {
     ensureStarted();
@@ -76,21 +80,41 @@ export function useAudienceHint(audience: Audience): [boolean, () => void] {
       listeners.delete(listener);
     };
   }, []);
-  const visible = session > 0 && session <= SESSIONS_SHOWN && !closed.has(audience);
-  const dismiss = () => {
-    closed.add(audience);
+  const lines = MESSAGE[audience].map((_, i) => i);
+  const hidden = lines.filter((i) => closed.has(key(audience, i)));
+  const visible = session > 0 && session <= SESSIONS_SHOWN && hidden.length < lines.length;
+  const dismissLine = (line: number) => {
+    closed.add(key(audience, line));
     notify();
   };
-  return [visible, dismiss];
+  const dismiss = () => {
+    lines.forEach((i) => closed.add(key(audience, i)));
+    notify();
+  };
+  return [visible, dismiss, hidden, dismissLine];
 }
 
-export function AudienceHint({ audience, onClose }: { audience: Audience; onClose: () => void }) {
-  // Kiez-Look: Systemmeldung als hellblaue Chatblasen, je Zeile eine Nachricht; das Kreuz an der ersten schließt beide (Daria, 2026-11-09)
+export function AudienceHint({
+  audience,
+  onClose,
+  hidden = [],
+  onCloseLine,
+}: {
+  audience: Audience;
+  onClose: () => void;
+  /** Bereits geschlossene Zeilen (Kiez-Look) */
+  hidden?: number[];
+  /** Schließt eine Zeile; ohne diese Funktion schließt jedes Kreuz den ganzen Hinweis */
+  onCloseLine?: (line: number) => void;
+}) {
+  // Kiez-Look: Systemmeldung als hellblaue Chatblasen, je Zeile eine Nachricht mit eigenem Kreuz (Daria, 2026-11-09).
+  // Die letzte sichtbare Blase trägt den Zipfel.
   if (!isFashionable) {
+    const shown = MESSAGE[audience].map((line, i) => ({ line, i })).filter(({ i }) => !hidden.includes(i));
     return (
       <View style={[styles.wrap, styles.bubbles]}>
-        {MESSAGE[audience].map((line, i) => (
-          <Notice key={line} message={line} onClose={i === 0 ? onClose : undefined} tail={i === MESSAGE[audience].length - 1} />
+        {shown.map(({ line, i }, n) => (
+          <Notice key={line} message={line} onClose={onCloseLine ? () => onCloseLine(i) : onClose} tail={n === shown.length - 1} />
         ))}
       </View>
     );
