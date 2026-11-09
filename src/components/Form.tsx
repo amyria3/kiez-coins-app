@@ -522,6 +522,8 @@ export function PhotoPicker({
   const titleHelper = title?.error ?? title?.nudge?.hint;
   // Ohne Rahmen (Daria, 24.10.2026); ein Fehler zeigt einen roten Rand, das aktive Feld einen lila (Daria, 2026-11-09)
   const titleBorder = title?.error ? color.accent.error : focused || hinted ? color.accent.primary : 'transparent';
+  // Leere Fläche: Solange der Finger drauf ist, lila Rahmen wie ein aktives Feld (Daria, 2026-11-09)
+  const [pressing, setPressing] = useState(false);
   const emptyText = (
     <>
       <Icon name="camera" />
@@ -541,6 +543,8 @@ export function PhotoPicker({
           !photo && error ? styles.photoPickerError : null,
           title ? styles.photoPickerTitled : null,
           title && !photo ? styles.photoPickerTitledEmpty : null,
+          !photo && pressing ? styles.photoPickerPressed : null,
+          !photo && pressing && title ? styles.photoPickerTitledEmptyPressed : null,
         ]}
       >
         {/* Mit Foto und Titel: Tippen aufs Foto schreibt den Titel, das Foto ändert der Knopf oben rechts (Daria, 30.10.2026) */}
@@ -549,6 +553,8 @@ export function PhotoPicker({
           accessibilityLabel={photo && title ? t('Titel eingeben') : photo ? t('Foto ändern') : t('Foto aufnehmen oder auswählen')}
           accessibilityHint={photo && title ? undefined : hint}
           onPress={photo && title ? () => titleInputRef.current?.focus() : choose}
+          onPressIn={() => setPressing(true)}
+          onPressOut={() => setPressing(false)}
           style={StyleSheet.absoluteFill}
         >
           {photo ? <Image source={photo} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
@@ -754,6 +760,12 @@ const styles = StyleSheet.create({
   },
   photoPickerEmpty: { borderWidth: stroke.thin, borderStyle: 'dashed', borderColor: color.text.secondary },
   photoPickerError: { borderColor: color.accent.error },
+  // Gedrückt: durchgezogener, kräftiger lila Rand; das Innere rückt um die Differenz ein, damit nichts springt
+  photoPickerPressed: { borderWidth: stroke.focus, borderStyle: 'solid', borderColor: color.accent.primary },
+  photoPickerTitledEmptyPressed: {
+    padding: space[12] - (stroke.focus - stroke.thin),
+    paddingTop: space[24] - (stroke.focus - stroke.thin),
+  },
   photoPickerTitled: { height: 300, justifyContent: 'flex-end', alignItems: 'stretch', padding: space[12] },
   photoEmptyText: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 72, alignItems: 'center', justifyContent: 'center', gap: space[8] },
   // Leere Fläche mit Titel: so hoch wie der Inhalt. Oben wenig Luft, zum Titel etwas weniger als vorher (Daria, 27.10.2026)
