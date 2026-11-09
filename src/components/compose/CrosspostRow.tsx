@@ -24,9 +24,9 @@ import { t } from '../../data/texts';
 
 /**
  * Zeile „Weiterposten“ im Erstellen-Blatt öffentlicher Posts (Entwurf Daria, 05.11.2026): Die Auswahl der
- * Plattformen steckt hinter dem Zahnrad und öffnet sich als Blatt. Noch nicht freigegeben (`CROSSPOST_ACTIVE`):
- * Alle Plattformen stehen als „Kommt bald“ da, darunter der Knopf, der Interesse an Meta und X zählt.
- * Freigegeben (oder für Moderatorinnen): Schalter für verbundene Konten bei BlueSky und Mastodon. Die Wahl
+ * Plattformen steckt hinter dem Zahnrad und öffnet sich als Blatt. Freigegeben für alle (`CROSSPOST_ACTIVE`, 09.11.2026):
+ * Schalter für verbundene Konten bei BlueSky, Mastodon, Instagram und Facebook. X steht als „Kommt bald“ da,
+ * darunter der Knopf, der Interesse an X zählt. Die Wahl
  * bleibt auf dem Gerät gespeichert; nach dem Veröffentlichen postet die Vorschau dorthin weiter.
  */
 export function CrosspostRow() {
@@ -121,7 +121,7 @@ export function CrosspostRow() {
           {counted ? (
             <Text style={styles.thanks}>Danke! Wir zählen Dich mit.</Text>
           ) : (
-            <Button label="Ich würde diese Funktion für Meta & X nutzen" variant="secondary" onPress={count} />
+            <Button label="Ich würde diese Funktion für X nutzen" variant="secondary" onPress={count} />
           )}
           <Button label="Fertig" onPress={() => setOpen(false)} />
         </View>

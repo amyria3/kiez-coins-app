@@ -1314,7 +1314,6 @@
   "Kostenlos": "Free",
   "Facebook und X": "Facebook and X",
   "Danke! Wir zählen Dich mit.": "Thanks! We’re counting you in.",
-  "Ich würde diese Funktion für Meta & X nutzen": "I would use this feature for Meta & X",
   "{label} trennen?": "Disconnect {label}?",
   "Deine bisherigen Weiterposts bleiben dort stehen.": "Your earlier cross-posts stay there.",
   "Trennen": "Disconnect",
@@ -1611,5 +1610,14 @@
   "Ohne Nachher schließt die App die Me-Challenge {when} Uhr ab.": "Without an after, the app completes the Me-Challenge on {when}.",
   "Läuft": "Running",
   "Timer läuft": "Timer running",
-  "Vorher gepostet um {time} Uhr": "Before posted at {time}"
+  "Vorher gepostet um {time} Uhr": "Before posted at {time}",
+  "Ich würde diese Funktion für X nutzen": "I would use this feature for X",
+  "Seiten-Zugangs-Token aus dem Graph API Explorer": "Page access token from the Graph API Explorer",
+  "Anmeldung bei Facebook hat nicht geklappt. Prüfe den Seiten-Zugangs-Token.": "Signing in to Facebook didn’t work. Check the page access token.",
+  "Facebook erlaubt das Weiterposten nur auf eine Seite, nicht auf Dein privates Profil.": "Facebook only allows reposting to a Page, not to your personal profile.",
+  "1. Lege eine Facebook-Seite an, falls Du noch keine hast (Facebook › Seiten › Neue Seite).": "1. Create a Facebook Page if you don’t have one yet (Facebook › Pages › Create new Page).",
+  "2. Auf developers.facebook.com eine App anlegen (Typ Business).": "2. Create an app on developers.facebook.com (type Business).",
+  "3. Im Graph API Explorer diese App wählen, bei „Benutzer oder Seite“ Deine Seite auswählen und die Rechte pages_manage_posts und pages_read_engagement anhaken.": "3. In the Graph API Explorer, pick this app, choose your Page under “User or Page” and tick the permissions pages_manage_posts and pages_read_engagement.",
+  "4. „Generate Access Token“ antippen, bestätigen und den Seiten-Zugangs-Token unten eintragen.": "4. Tap “Generate Access Token”, confirm, and enter the page access token below.",
+  "Mit Foto erscheint der Post als Foto, ohne Foto als Text mit Link.": "With a photo, the post appears as a photo; without one, as text with a link."
 }

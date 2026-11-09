@@ -8,12 +8,11 @@ import { useStore } from './store';
 
 /**
  * Weiterposten (Daria, 05.11.2026): Öffentliche Posts lassen sich zusätzlich auf anderen Plattformen veröffentlichen.
- * BlueSky, Mastodon und Instagram laufen über die Edge Function `weiterposten` (kostenlos). Facebook und X kommen später.
- * Noch nicht freigegeben: Solange `CROSSPOST_ACTIVE` false ist, sehen nur Moderatorinnen die echten Schalter.
- * Alle anderen sehen „Kommt bald“ und den Knopf, der Interesse an Meta und X zählt. Bezahlt wird erst ab etwa
- * 500 Interessierten. Plan und Preismodell: `Übergabe/TODO.md`, Abschnitt „Teilen“.
+ * BlueSky, Mastodon, Instagram und Facebook laufen über die Edge Function `weiterposten` (kostenlos). X kommt später.
+ * Freigegeben für alle (Daria, 09.11.2026, „alles außer X“). Mit `CROSSPOST_ACTIVE` false sähen nur Moderatorinnen
+ * die echten Schalter. Für X zählt ein Knopf das Interesse. Plan und Preismodell: `Übergabe/TODO.md`, Abschnitt „Teilen“.
  */
-export const CROSSPOST_ACTIVE = false;
+export const CROSSPOST_ACTIVE = true;
 
 export type CrosspostPlatform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook' | 'x';
 
@@ -28,8 +27,8 @@ export const CROSSPOST_PLATFORMS: {
 }[] = [
   { key: 'bluesky', label: 'BlueSky', free: true, letter: 'B', tint: '#1185FE' },
   { key: 'mastodon', label: 'Mastodon', free: true, letter: 'M', tint: '#6364FF' },
-  { key: 'instagram', label: 'Instagram', free: false, letter: 'I', tint: '#DD2A7B' },
-  { key: 'facebook', label: 'Facebook', free: false, letter: 'f', tint: '#1877F2' },
+  { key: 'instagram', label: 'Instagram', free: true, letter: 'I', tint: '#DD2A7B' },
+  { key: 'facebook', label: 'Facebook', free: true, letter: 'f', tint: '#1877F2' },
   { key: 'x', label: 'X', free: false, letter: 'X', tint: '#000000' },
 ];
 
@@ -58,9 +57,12 @@ export function useCrosspostInterest(): [boolean, () => void] {
 }
 
 /** Plattformen, die die Edge Function schon kann */
-export type LivePlatform = 'bluesky' | 'mastodon' | 'instagram';
-export const LIVE_PLATFORMS: LivePlatform[] = ['bluesky', 'mastodon', 'instagram'];
+export type LivePlatform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook';
+export const LIVE_PLATFORMS: LivePlatform[] = ['bluesky', 'mastodon', 'instagram', 'facebook'];
 export const isLivePlatform = (p: CrosspostPlatform): p is LivePlatform => (LIVE_PLATFORMS as string[]).includes(p);
+
+/** Instagram und Facebook brauchen nur einen Zugangs-Token, kein zweites Feld */
+export const tokenOnly = (p: LivePlatform) => p === 'instagram' || p === 'facebook';
 
 /** Echte Schalter sichtbar? Für alle erst mit `CROSSPOST_ACTIVE`, für Moderatorinnen schon zum Testen. */
 export function useCrosspostEnabled(): boolean {
@@ -116,10 +118,12 @@ export async function connectCrosspost(
         ? 'Anmeldung bei BlueSky hat nicht geklappt. Prüfe Handle und App-Passwort.'
         : platform === 'mastodon'
           ? 'Anmeldung bei Mastodon hat nicht geklappt. Prüfe Instanz und Zugangs-Token.'
-          : 'Anmeldung bei Instagram hat nicht geklappt. Prüfe den Zugangs-Token.',
+          : platform === 'instagram'
+            ? 'Anmeldung bei Instagram hat nicht geklappt. Prüfe den Zugangs-Token.'
+            : 'Anmeldung bei Facebook hat nicht geklappt. Prüfe den Seiten-Zugangs-Token.',
     );
   }
-  if (reason === 'input') throw new Error(platform === 'instagram' ? 'Bitte trage den Zugangs-Token ein.' : 'Bitte fülle beide Felder aus.');
+  if (reason === 'input') throw new Error(tokenOnly(platform) ? 'Bitte trage den Zugangs-Token ein.' : 'Bitte fülle beide Felder aus.');
   throw new Error('Da ist etwas schiefgegangen. Versuche es bitte noch mal.');
 }
 
