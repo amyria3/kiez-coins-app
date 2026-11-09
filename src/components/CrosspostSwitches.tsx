@@ -113,7 +113,8 @@ function PlatformSwitch({
   onChange: () => void;
 }) {
   const [setup, setSetup] = useState(false);
-  const [started, setStarted] = useState(false);
+  // Wie viele Schritte schon zu sehen sind; 0: noch nicht losgelegt
+  const [shown, setShown] = useState(0);
   const [first, setFirst] = useState('');
   const [secret, setSecret] = useState('');
   const [busy, setBusy] = useState(false);
@@ -156,7 +157,20 @@ function PlatformSwitch({
     ]);
 
   // Erst übersetzen, dann in Nachrichten teilen: Übersetzt ist die ganze Anleitung
-  const steps = t(HOW_TO[platform]).split('\n');
+  const lines = t(HOW_TO[platform]).split('\n');
+  // Je Schritt eine Gruppe: der nummerierte Satz, Hinweise ohne Nummer gehören zum Schritt davor (am Anfang zum ersten)
+  const steps: string[][] = [];
+  let before: string[] = [];
+  for (const line of lines) {
+    if (/^\d+\./.test(line)) {
+      steps.push([...before, line]);
+      before = [];
+    } else if (steps.length) steps[steps.length - 1].push(line);
+    else before.push(line);
+  }
+  if (before.length) steps.push(before);
+  const started = shown > 0;
+  const done = shown >= steps.length;
   const on = !!account || setup;
 
   return (
@@ -169,7 +183,7 @@ function PlatformSwitch({
         <Toggle
           label={label}
           value={on}
-          onValueChange={(v) => (v ? setSetup(true) : account ? disconnect() : (setSetup(false), setStarted(false)))}
+          onValueChange={(v) => (v ? setSetup(true) : account ? disconnect() : (setSetup(false), setShown(0)))}
         />
       </View>
       {on && !account ? (
@@ -177,16 +191,27 @@ function PlatformSwitch({
           {/* Wie im Chat: erst Umfang und Voraussetzungen mit Frage, dann „Ja, los!“, dann die Schritte */}
           <Notice message={INTRO[platform]} />
           <View style={styles.reply}>
-            <ChatReply label="Ja, los!" sent={started} onPress={() => setStarted(true)} />
+            <ChatReply label="Ja, los!" sent={started} onPress={() => setShown(1)} />
           </View>
           {started ? (
             <>
-          {/* Schritte als Systemnachrichten */}
-          <View style={[styles.steps, styles.afterReply]}>
-            {steps.map((step, i) => (
-              <Notice key={step} message={step} />
-            ))}
-          </View>
+          {/* Schritt für Schritt: nach jedem Schritt „Verstanden, weiter“, erst nach dem letzten die Felder (Daria, 2026-11-09) */}
+          {steps.slice(0, shown).map((group, i) => (
+            <View key={group.join()} style={styles.afterReply}>
+              <View style={styles.steps}>
+                {group.map((line) => (
+                  <Notice key={line} message={line} />
+                ))}
+              </View>
+              {i < steps.length - 1 ? (
+                <View style={styles.replyInGroup}>
+                  <ChatReply label="Verstanden, weiter" sent={i < shown - 1} onPress={() => setShown(i + 2)} />
+                </View>
+              ) : null}
+            </View>
+          ))}
+          {done ? (
+            <>
         {tokenOnly(platform) ? null : (
         <TextField
           label={platform === 'bluesky' ? 'Handle' : 'Instanz'}
@@ -228,6 +253,8 @@ function PlatformSwitch({
         />
             </>
           ) : null}
+            </>
+          ) : null}
         </View>
       ) : null}
     </View>
@@ -245,5 +272,6 @@ const styles = StyleSheet.create({
   // Die Einrichtung hat 12 Abstand; Wechsel zwischen App und eigener Antwort wie im Chat
   reply: { marginTop: CHAT_GAP_CHANGE - space[12] },
   afterReply: { marginTop: CHAT_GAP_CHANGE - space[12] },
+  replyInGroup: { marginTop: CHAT_GAP_CHANGE },
   thanks: { ...text.body, color: color.accent.confirmation, textAlign: 'center' },
 });
