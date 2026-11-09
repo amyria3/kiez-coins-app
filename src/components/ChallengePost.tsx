@@ -14,7 +14,7 @@ import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BeforeAfterPair, BeforeAfterPost } from './BeforeAfterPost';
 import { weChallengeAfter, joinedIds, maxParticipants, participationText } from '../data/weChallenge';
 import { useAppDimensions } from '../theme/layout';
-import { BeforeAfterText, PHOTO_TAG, WithMentions, postText } from './WithMentions';
+import { BeforeAfterText, PHOTO_TAG, WithMentions, postText, tagColor } from './WithMentions';
 import { BountyBadge, DoneReward, NameWithTestMark } from './Badges';
 import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
@@ -786,13 +786,13 @@ const styles = StyleSheet.create({
   placeOnPhoto: { position: 'absolute', left: space[4], right: space[4], bottom: space[4], flexDirection: 'row', alignItems: 'center', gap: space[4] },
   // #InDiesemMoment auf dem Foto: über dem Ort, wenn der unten links steht
   tagAbovePlace: { bottom: space[4] + 24 },
-  // Wie die Marken im Text: Unbounded in color/accent/primary, mit weichem Schatten auf dem Foto (Daria, 2026-11-09)
+  // Wie die Marken im Text: Unbounded in Rosa (color/accent/affection), mit weichem Schatten auf dem Foto (Daria, 2026-11-09)
   tagOnPhotoText: {
     flexShrink: 1,
     fontFamily: font.onPhoto,
     fontSize: 15,
     lineHeight: 20,
-    color: color.accent.primary,
+    color: tagColor(PHOTO_TAG),
     textShadowColor: 'rgba(0,0,0,0.55)',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
