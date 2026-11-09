@@ -515,7 +515,10 @@ export default function ChallengeDetail() {
       {!isAuthor && (mine?.status === 'removed' || mine?.status === 'declined') ? (
         <Notice variant="warning" message={mine.status === 'removed' ? t('Du bist bei dieser Challenge nicht mehr dabei.') : t('Deine Anfrage wurde abgelehnt.')} />
       ) : null}
-      {/* Fragen untereinander (Daria, 2026-11-09) */}
+      {!isAuthor && !mine && multi && participantsOpen(challenge) && freeSpots(challenge) === 0 ? (
+        <Notice message={t('Alle Plätze sind vergeben.')} />
+      ) : null}
+      {/* Wie im Chat: erst die Hinweise, dann die Fragen untereinander (Daria, 2026-11-09) */}
       {askWhy || askCoins ? (
       <View style={styles.questions}>
         {askWhy ? (
@@ -545,9 +548,6 @@ export default function ChallengeDetail() {
           />
         ) : null}
       </View>
-      ) : null}
-      {!isAuthor && !mine && multi && participantsOpen(challenge) && freeSpots(challenge) === 0 ? (
-        <Notice message={t('Alle Plätze sind vergeben.')} />
       ) : null}
       {/* Erst die Person, dann ihr Text in Textfarbe, ohne Trennlinie (Daria, 2026-11-09, Versuch 2 von 3) */}
       <View style={styles.authorAndText}>

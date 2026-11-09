@@ -40,10 +40,11 @@ export default function Pause() {
       }
     >
       <KaterBubble>Mal Landurlaub? Verständlich. Ich halt hier so lange die Stellung.</KaterBubble>
+      {/* Wie im Chat: erst der Hinweis, der immer dasteht, dann die Frage, dann die Antwort (Daria, 2026-11-09) */}
+      <Notice variant="warning" message={OPEN_WORK} />
       <QuestionHint
         question="Was passiert beim Pausieren?"
         answer="Für 3 Monate ist Dein Profil unsichtbar und Du bekommst keine Push-Nachrichten. Danach ist Dein Konto automatisch wieder aktiv. Früher zurück geht jederzeit, indem Du Dich anmeldest."
-        then={<Notice variant="warning" message={OPEN_WORK} />}
       />
     </SubScreen>
   );
