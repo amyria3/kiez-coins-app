@@ -158,17 +158,11 @@ function PlatformSwitch({
 
   // Erst übersetzen, dann in Nachrichten teilen: Übersetzt ist die ganze Anleitung
   const lines = t(HOW_TO[platform]).split('\n');
-  // Je Schritt eine Gruppe: der nummerierte Satz, Hinweise ohne Nummer gehören zum Schritt davor (am Anfang zum ersten)
-  const steps: string[][] = [];
-  let before: string[] = [];
-  for (const line of lines) {
-    if (/^\d+\./.test(line)) {
-      steps.push([...before, line]);
-      before = [];
-    } else if (steps.length) steps[steps.length - 1].push(line);
-    else before.push(line);
-  }
-  if (before.length) steps.push(before);
+  // Hinweise ohne Nummer klären den Umfang und stehen deshalb am Anfang, vor der Frage (Daria, 2026-11-09).
+  // Jeder nummerierte Schritt ist eine eigene Nachricht.
+  const isStep = (line: string) => /^\d+\./.test(line);
+  const scope = lines.filter((line) => !isStep(line));
+  const steps = lines.filter(isStep).map((line) => [line]);
   const started = shown > 0;
   const done = shown >= steps.length;
   const on = !!account || setup;
@@ -188,8 +182,14 @@ function PlatformSwitch({
       </View>
       {on && !account ? (
         <View style={styles.setup}>
-          {/* Wie im Chat: erst Umfang und Voraussetzungen mit Frage, dann „Ja, los!“, dann die Schritte */}
-          <Notice message={INTRO[platform]} />
+          {/* Wie im Chat: erst was weitergepostet wird, dann Umfang und Voraussetzungen mit Frage, dann „Ja, los!“,
+              dann die Schritte */}
+          <View style={styles.steps}>
+            {scope.map((line) => (
+              <Notice key={line} message={line} />
+            ))}
+            <Notice message={INTRO[platform]} />
+          </View>
           <View style={styles.reply}>
             <ChatReply label="Ja, los!" sent={started} onPress={() => setShown(1)} />
           </View>
