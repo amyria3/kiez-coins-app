@@ -11,7 +11,7 @@ import { loadThread, markRead, refreshUnread, sendMessage, subscribeMessages, ty
 import { errorText } from '../../data/remote';
 import { useStore } from '../../data/store';
 import type { User } from '../../data/types';
-import { color, font, radius, size, space, text } from '../../theme/tokens';
+import { color, font, radius, size, space, stroke, text } from '../../theme/tokens';
 import { localeTag, t } from '../../data/texts';
 import { useGoBack } from '../../lib/goBack';
 
@@ -36,6 +36,7 @@ export default function ChatThread() {
   const [messages, setMessages] = useState<ChatMessage[] | null>(null);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
+  const [focused, setFocused] = useState(false);
   const listRef = useRef<FlatList<ChatMessage>>(null);
 
   useEffect(() => {
@@ -128,7 +129,8 @@ export default function ChatThread() {
             );
           }}
         />
-        <View style={[styles.composer, { marginBottom: Math.max(insets.bottom, space[12]) }]}>
+        {/* Aktives Feld mit lila Rand (Daria, 2026-11-09) */}
+        <View style={[styles.composer, focused && styles.composerFocused, { marginBottom: Math.max(insets.bottom, space[12]) }]}>
           <TextInput
             style={styles.input}
             value={draft}
@@ -136,6 +138,8 @@ export default function ChatThread() {
             placeholder={t('Nachricht an {name}', { name: friend.name })}
             placeholderTextColor={color.text.secondary}
             selectionColor={color.accent.primary}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
             multiline
             maxLength={1000}
             accessibilityLabel={t('Nachricht schreiben')}
@@ -180,12 +184,16 @@ const styles = StyleSheet.create({
     gap: space[8],
     marginHorizontal: space[16],
     marginTop: space[4],
-    paddingVertical: space[4],
-    paddingLeft: space[16],
-    paddingRight: space[4],
+    // Abstände abzüglich des Rands, damit das Feld so groß bleibt wie vorher
+    paddingVertical: space[4] - stroke.focus,
+    paddingLeft: space[16] - stroke.focus,
+    paddingRight: space[4] - stroke.focus,
     borderRadius: radius.xl,
     backgroundColor: color.bg.surface,
+    borderWidth: stroke.focus,
+    borderColor: 'transparent',
   },
+  composerFocused: { borderColor: color.accent.primary },
   input: { ...text.body, flex: 1, color: color.text.primary, maxHeight: 120, paddingVertical: space[8] },
   send: {
     width: 40,

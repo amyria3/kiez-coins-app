@@ -520,8 +520,8 @@ export function PhotoPicker({
   const goNext = useNextField(titleInputRef, titleRef);
   const hinted = !title?.error && !!title?.nudge?.hint;
   const titleHelper = title?.error ?? title?.nudge?.hint;
-  // Ohne Rahmen (Daria, 24.10.2026); nur ein Fehler zeigt einen roten Rand
-  const titleBorder = title?.error ? color.accent.error : 'transparent';
+  // Ohne Rahmen (Daria, 24.10.2026); ein Fehler zeigt einen roten Rand, das aktive Feld einen lila (Daria, 2026-11-09)
+  const titleBorder = title?.error ? color.accent.error : focused || hinted ? color.accent.primary : 'transparent';
   const emptyText = (
     <>
       <Icon name="camera" />
@@ -579,7 +579,13 @@ export function PhotoPicker({
             style={(state) => {
               // Ruhig: heller und mit Blur; Tippen, Fahren mit der Maus oder Schreiben: dunkler (Daria, 30.10.2026)
               const active = focused || state.pressed || (state as { hovered?: boolean }).hovered;
-              return [styles.photoTitle, photo ? styles.photoTitleOnPhoto : null, photo && active ? styles.photoTitleActive : null, { borderColor: titleBorder }];
+              return [
+                styles.photoTitle,
+                photo ? styles.photoTitleOnPhoto : null,
+                photo && active ? styles.photoTitleActive : null,
+                focused || hinted ? styles.photoTitleFocused : null,
+                { borderColor: titleBorder },
+              ];
             }}
           >
             {/* Blur macht nur das Foto dahinter unscharf: im Browser per backdrop-filter am Feld selbst, sonst BlurView darunter */}
@@ -764,6 +770,12 @@ const styles = StyleSheet.create({
   // Auf dem Foto: weniger dunkel, dafür Blur (Daria, 30.10.2026)
   photoTitleOnPhoto: { backgroundColor: color.bg.sheet, ...webBlur },
   photoTitleActive: { backgroundColor: color.bg.glass },
+  // Aktives Feld mit kräftigerem lila Rand; das Innere rückt um die Differenz ein, damit nichts springt
+  photoTitleFocused: {
+    borderWidth: stroke.focus,
+    paddingVertical: space[12] - (stroke.focus - stroke.ultraThin),
+    paddingHorizontal: space[16] - (stroke.focus - stroke.ultraThin),
+  },
   // Foto ändern: runder Knopf oben rechts, wenn Tippen aufs Foto den Titel öffnet
   photoChange: {
     position: 'absolute',

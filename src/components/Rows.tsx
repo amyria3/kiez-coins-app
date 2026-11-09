@@ -229,7 +229,14 @@ const styles = StyleSheet.create({
   /** Titel der Karten in der Farbe der großen Icons, auch der eigene Name (Daria, 2026-11-05) */
   // Unbounded statt Inter Tight wie „Pirat:in“ (Daria, 09.11.2026). 17 statt 19, die Unbounded läuft breiter.
   profileName: { fontFamily: font.onPhoto, fontSize: 17, lineHeight: 22, color: color.icon.large },
-  editing: { borderWidth: stroke.thin, borderColor: color.accent.primary, paddingVertical: space[4], paddingRight: space[4] },
+  // Aktives Feld mit kräftigerem lila Rand wie alle Eingabefelder (stroke.focus, Daria, 2026-11-09); Abstände um die Differenz kleiner
+  editing: {
+    borderWidth: stroke.focus,
+    borderColor: color.accent.primary,
+    paddingVertical: space[4] - (stroke.focus - stroke.thin),
+    paddingRight: space[4] - (stroke.focus - stroke.thin),
+    paddingLeft: space[12] - (stroke.focus - stroke.thin),
+  },
   pressed: { opacity: 0.8 },
   texts: { flex: 1, gap: space[2] },
   flex: { flex: 1 },
