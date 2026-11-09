@@ -7,10 +7,11 @@ import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { color, motion, radius, size, space, text, scheme } from '../theme/tokens';
+import { color, isFashionable, motion, radius, size, space, text, scheme } from '../theme/tokens';
 import { useAppDimensions } from '../theme/layout';
 import { ActionBar } from './ActionBar';
 import { Cat, type CatMood } from './icons/Brand';
+import { KaterRund } from './Content';
 import { GlassIconButton } from './Glass';
 import { NavigationBar } from './NavigationBar';
 import { NudgeScrollProvider, useNudgeScroll } from './Nudge';
@@ -83,7 +84,8 @@ export function ResultScreen({ mood = 'default', badge, title, message, onFeedPr
       {onFeedPress ? <NavigationBar variant="feed" onLeadingPress={onFeedPress} /> : null}
       <ScrollView style={styles.flex} contentContainerStyle={[styles.resultContent, children ? styles.resultTop : null]}>
         <View style={styles.resultHead}>
-          <Cat mood={mood} height={86} />
+          {/* Kiez-Look: Kater im Kreis wie im leeren Feed, ohne Stimmungen (Daria, 2026-11-09) */}
+          {isFashionable ? <Cat mood={mood} height={86} /> : <KaterRund size={120} herzen={false} />}
           {badge}
           <Text style={styles.resultTitle} accessibilityRole="header">
             {title}

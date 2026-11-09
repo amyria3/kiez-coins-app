@@ -78,6 +78,15 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Teil 2: Blätter exportieren, mit Profilbild und KiezCoins-Logo, als Slides für Instagram und als Thread auf BlueSky.
 - [ ] Schrift Poppins für die Blätter, damit man auch auf Hindi schreiben kann (Devanagari).
 
+## Animationen, Gamification, Illustrationen (Daria, 09.11.2026)
+
+- [ ] Die dicke Katze mit der lila Brille (`kater-high`, heute noch auf der letzten Tour-Seite) sieht klasse aus, wir wollen sie benutzen. Vorher Mund und Nase schwarz statt braun.
+- [ ] Katze - unterschiedliche Gesichtsausdrücke nutzen (20.10.2026)
+- [ ] Animation (Farbe in der Sonnenbrille) (20.10.2026)
+- [ ] Animation "Katze auf Schiff" (20.10.2026)
+- [ ] Animation "Diamantenregen" (20.10.2026)
+- Animierte Coins stehen weiter unter „28.10.2026 – Prio: animierte Coins“.
+
 ## Außerhalb des Codes
 
 - [x] Mailversand über Brevo und kiezcoins.de (läuft seit 21.10.2026, Code-Mail um 09:55 angekommen, IP-Sperre in Brevo aus)
@@ -172,8 +181,6 @@ Offene Punkte aus Notizen, deren Rest am 2026-10-31 in Documentation steht.
 - [x] Deleted and Closed erreichbar über Switsch, "Neue Challenge" in dieser Ansicht nicht anzeigen.
 - [ ] Karte Unter "Deine Challenges" optimalerweise etwas kleiner als der Bildschirm, damit man die nächste schon sieht
 - [ ] Welche Icons kann und sollte ich durch Zeichnungen ersetzen - mindestens das Zahnrad, Diamanten
-- [ ] Katze - unterschiedliche Gesichtsausdrücke nutzen
-- [ ] Animation (Farbe in der Sonnenbrille)
 - [ ] Icons minimal größer
 - [ ] Glass-Effekt mit besserem 3D
 
@@ -181,8 +188,6 @@ Offene Punkte aus Notizen, deren Rest am 2026-10-31 in Documentation steht.
 
 - [x] Statt Frist "Noch"
 - [ ] Badge "Offen" Farblich betonen
-- [ ] Animation "Katze auf Schiff"
-- [ ] Animation "Diamantenregen"
 - [ ] Noch keine Aufgaben über "Meine Gruppe". "Meine Gruppe etwas größer, bis sich der Bildschirm füllt.
 - [x] "Deine Reise" umbenennen und den Namen "Pleasure" in Kommentare des Katers ummünzen
 - [ ] Das Foto in der Anfänglichen Ansicht einer Challenge doch größer Zeigen, als jetzt, die Details dazu im Verhältnis kleiner
