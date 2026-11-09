@@ -193,10 +193,13 @@ const RUND_GLAESER = [
   { x: 20.1, y: 16.2 },
 ];
 const RUND_HERZ = 8.5;
-export function KaterRund() {
+export function KaterRund({ size = RUND, herzen = true }: { size?: number; herzen?: boolean } = {}) {
   // Der kleine interaktive Kater bleibt das Icon „cat“, nicht der mit den orangen Gläsern (Daria, 2026-11-05)
   const cat = iconSvgs.cat;
-  const k = RUND_KATER / cat.height;
+  // Größere Kreise (leerer Feed, Abschluss-Screens) wachsen im selben Verhältnis (Daria, 2026-11-09)
+  const m = size / RUND;
+  const katerHoehe = RUND_KATER * m;
+  const k = katerHoehe / cat.height;
   const breite = cat.width * k;
   const [still, setStill] = useState<boolean | null>(null);
   const rein = useRef(new Animated.Value(0)).current;
@@ -219,7 +222,7 @@ export function KaterRund() {
   }, [still, rein]);
   // Herzen blitzen unregelmäßig: Pause 2,5 bis 9 s, manchmal zweimal kurz hintereinander
   useEffect(() => {
-    if (still !== false) return;
+    if (still !== false || !herzen) return;
     let timer: ReturnType<typeof setTimeout>;
     let laeuft: Animated.CompositeAnimation | undefined;
     const blitz = () =>
@@ -239,19 +242,24 @@ export function KaterRund() {
       clearTimeout(timer);
       laeuft?.stop();
     };
-  }, [still, herz]);
+  }, [still, herz, herzen]);
   const groesse = RUND_HERZ * k;
   return (
-    <View style={styles.rund} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+    <View
+      style={[styles.rund, m !== 1 && { width: size, height: size, borderRadius: size / 2 }]}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
       <Animated.View
         style={[
           styles.rundKater,
-          { opacity: still === null ? 0 : 1, transform: [{ translateY: rein.interpolate({ inputRange: [0, 1], outputRange: [RUND, 0] }) }] },
+          m !== 1 && { bottom: -7 * m },
+          { opacity: still === null ? 0 : 1, transform: [{ translateY: rein.interpolate({ inputRange: [0, 1], outputRange: [size, 0] }) }] },
         ]}
       >
-        <View style={{ width: breite, height: RUND_KATER }}>
-          <SvgXml xml={cat.svg(color.brand.signature)} width={breite} height={RUND_KATER} />
-          {RUND_GLAESER.map((g) => (
+        <View style={{ width: breite, height: katerHoehe }}>
+          <SvgXml xml={cat.svg(color.brand.signature)} width={breite} height={katerHoehe} />
+          {(herzen ? RUND_GLAESER : []).map((g) => (
             <Animated.View
               key={g.x}
               style={{

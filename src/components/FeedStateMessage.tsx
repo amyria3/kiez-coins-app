@@ -2,8 +2,9 @@ import { StyleSheet, View } from 'react-native';
 import { Text } from './T';
 
 import type { FeedState } from '../data/types';
-import { color, font, space, text } from '../theme/tokens';
+import { color, font, isFashionable, space, text } from '../theme/tokens';
 import { Button } from './Button';
+import { KaterRund } from './Content';
 import { Cat } from './icons/Brand';
 
 const messages: Record<Exclude<FeedState, 'filled' | 'loading'>, { title: string; body: string; action: string }> = {
@@ -49,7 +50,8 @@ export function FeedStateMessage({
   const m = messages[variant];
   return (
     <View style={styles.container}>
-      <Cat height={86} />
+      {/* Kiez-Look: Kater im Kreis wie in den Nachrichten, fährt von unten herein; gleiches Bild wie die Abschluss-Screens (Daria, 2026-11-09) */}
+      {isFashionable ? <Cat height={86} /> : <KaterRund size={120} herzen={false} />}
       {/* Abstände nach Zusammenhang (Daria, 09.11.2026): Die Überschrift gehört zum Bild der Katze (8). Text und
           Knopf bilden je eine Gruppe (16), zwischen den Gruppen stehen 32. */}
       <Text style={[styles.title, styles.afterCat]}>{m.title}</Text>
