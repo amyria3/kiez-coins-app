@@ -14,11 +14,24 @@ import { IconButton } from './IconButton';
 // Systemmeldungen als hellblaue Chatblase der App, wie die Antworten auf die Fragen; Icon dunkel wie der Text, nur bei Warnungen (Daria, 2026-11-09)
 const SKY_TEXT = '#1F2123';
 
-/** Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. Mit `onClose` ein Kreuz rechts. */
-export function Notice({ message, variant = 'info', onClose }: { message: string; variant?: 'info' | 'warning'; onClose?: () => void }) {
+/**
+ * Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. Mit `onClose` ein Kreuz rechts.
+ * `tail={false}` für Nachrichten über der letzten einer Folge: Wie im Chat hat nur die letzte die spitze Ecke.
+ */
+export function Notice({
+  message,
+  variant = 'info',
+  onClose,
+  tail = true,
+}: {
+  message: string;
+  variant?: 'info' | 'warning';
+  onClose?: () => void;
+  tail?: boolean;
+}) {
   const t = useTexts();
   return (
-    <View style={[styles.notice, !isFashionable && styles.noticeSky]} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
+    <View style={[styles.notice, !isFashionable && styles.noticeSky, !isFashionable && !tail && styles.noticeNoTail]} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
       {/* Kiez-Look: Icon nur bei Warnungen, sonst sähen Warnung und Info gleich aus (Daria, 2026-11-09).
           Feste Größe, sonst schrumpft das Icon neben langem Text. */}
       {isFashionable || variant === 'warning' ? (
@@ -310,6 +323,7 @@ const styles = StyleSheet.create({
   },
   // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
   noticeIcon: { flexShrink: 0 },
+  noticeNoTail: { borderBottomLeftRadius: radius.xl },
   noticeClose: { marginVertical: -10, marginRight: -10, marginLeft: -4 },
   noticeTextSky: { ...text.body, color: SKY_TEXT, flexGrow: 0, flexShrink: 1, flexBasis: 'auto' },
   answerTextSky: { color: '#1F2123' },
