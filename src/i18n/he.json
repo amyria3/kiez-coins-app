@@ -1350,5 +1350,7 @@
   "{label} trennen": "ניתוק {label}",
   "{label}: Einstellungen": "{label}: הגדרות",
   "Verbunden": "מחובר",
-  "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "הצבעת שתשתמש/י ב-API לחשבונות X. תודה! ספרנו אותך."
+  "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "הצבעת שתשתמש/י ב-API לחשבונות X. תודה! ספרנו אותך.",
+  "Was und wie kann ich mit dieser Funktion weiterposten?": "מה ואיך אפשר לפרסם מחדש עם הפונקציה הזו?",
+  "Neu verbinden": "חיבור מחדש"
 }

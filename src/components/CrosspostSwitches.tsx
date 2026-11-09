@@ -20,7 +20,7 @@ import {
 } from '../data/crosspost';
 import { errorText } from '../data/remote';
 import { t } from '../data/texts';
-import { color, space, text } from '../theme/tokens';
+import { color, radius, space, stroke, text } from '../theme/tokens';
 
 const HOW_TO: Record<LivePlatform, string> = {
   bluesky:
@@ -87,7 +87,7 @@ export function CrosspostSwitches() {
 
   return (
     <View style={styles.list}>
-      <QuestionHint question="Was wird weitergepostet?" answer="Weiterposten teilt Deine öffentlichen Posts mit Foto und Link zu KiezCoins. Private Posts und Gruppen bleiben immer in der App." />
+      <QuestionHint question="Was und wie kann ich mit dieser Funktion weiterposten?" answer="Weiterposten teilt Deine öffentlichen Posts mit Foto und Link zu KiezCoins. Private Posts und Gruppen bleiben immer in der App." />
       {CROSSPOST_PLATFORMS.filter((p) => isLivePlatform(p.key)).map((p) => (
         <PlatformSwitch
           key={p.key}
@@ -132,6 +132,8 @@ function PlatformSwitch({
 }) {
   // Einstellungen offen: verbunden mit grünem Punkt und Trennen, sonst die Einrichtung (Daria, 2026-11-09)
   const [open, setOpen] = useState(false);
+  // Verbundenes Konto neu verbinden: dieselbe Einrichtung, das neue Konto ersetzt das alte
+  const [reconnect, setReconnect] = useState(false);
   // Wie viele Schritte schon zu sehen sind; 0: noch nicht losgelegt
   const [shown, setShown] = useState(0);
   const [first, setFirst] = useState('');
@@ -154,6 +156,7 @@ function PlatformSwitch({
       setFirst('');
       setSecret('');
       setOpen(false);
+      setReconnect(false);
       // Frisch verbunden: Weiterposten gleich an
       onEnable(true);
       onChange();
@@ -200,7 +203,7 @@ function PlatformSwitch({
           accessibilityRole="button"
           accessibilityState={{ expanded: open }}
           accessibilityLabel={t('{label}: Einstellungen', { label })}
-          onPress={() => (open ? (setOpen(false), setShown(0)) : setOpen(true))}
+          onPress={() => (open ? (setOpen(false), setShown(0), setReconnect(false)) : setOpen(true))}
         >
           <Text noTranslate style={styles.label}>{label}</Text>
           {account ? (
@@ -216,15 +219,23 @@ function PlatformSwitch({
         />
       </View>
       {account && open ? (
-        <View style={styles.setup}>
-          <View style={styles.connected}>
-            <View style={styles.dot} />
-            <Text style={styles.connectedText}>Verbunden</Text>
-          </View>
-          <Button label="Trennen" variant="ghost" onPress={disconnect} />
+        // Status mit grünem Punkt, daneben Neu verbinden und Trennen als kleine Knöpfe (Daria, 2026-11-09)
+        <View style={[styles.setup, styles.connected]}>
+          <View style={styles.dot} />
+          <Text style={[styles.connectedText, styles.flex]}>Verbunden</Text>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => (setReconnect((r) => !r), setShown(0))}
+            style={({ pressed }) => [styles.chip, reconnect && styles.chipOn, pressed && styles.pressed]}
+          >
+            <Text style={[styles.chipText, reconnect && styles.chipTextOn]}>Neu verbinden</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" onPress={disconnect} style={({ pressed }) => [styles.chip, pressed && styles.pressed]}>
+            <Text style={styles.chipText}>Trennen</Text>
+          </Pressable>
         </View>
       ) : null}
-      {open && !account ? (
+      {open && (!account || reconnect) ? (
         <View style={styles.setup}>
           {/* Wie im Chat: erst was weitergepostet wird, dann Umfang und Voraussetzungen mit Frage, dann „Ja, los!“,
               dann die Schritte */}
@@ -315,6 +326,19 @@ const styles = StyleSheet.create({
   // Grüner Punkt: Konto verbunden
   dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: color.accent.confirmation },
   connectedText: { ...text.body, color: color.text.primary },
+  flex: { flex: 1 },
+  // Kleine Knöpfe mit Rand, damit sie als Knöpfe erkennbar sind
+  chip: {
+    minHeight: 32,
+    justifyContent: 'center',
+    paddingHorizontal: space[12],
+    borderRadius: radius.full,
+    borderWidth: stroke.thin,
+    borderColor: color.text.secondary,
+  },
+  chipOn: { backgroundColor: color.accent.primary, borderColor: color.accent.primary },
+  chipText: { ...text.caption, color: color.text.primary },
+  chipTextOn: { color: color.text.onAccent },
   pressed: { opacity: 0.7 },
   setup: { gap: space[12], paddingTop: space[8], paddingBottom: space[16] },
   steps: { gap: CHAT_GAP_SAME },
