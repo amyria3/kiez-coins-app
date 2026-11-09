@@ -63,6 +63,8 @@ export function Notice({
  * und App größer.
  */
 export const CHAT_GAP_SAME = space[4];
+/** Rundung der Chatblasen (Frage, Antwort, Systemmeldung): im Kiez-Look runder als radius.xl (Daria, 2026-11-09) */
+const CHAT_RADIUS = isFashionable ? radius.xl : 26;
 export const CHAT_GAP_CHANGE = space[12];
 
 /**
@@ -291,14 +293,14 @@ export function FieldGroup({ label, children }: { label: string; children: React
 const styles = StyleSheet.create({
   qaOpen: { paddingBottom: CHAT_GAP_CHANGE - CHAT_GAP_SAME },
   afterSame: { marginTop: CHAT_GAP_SAME },
-  answerNoTail: { borderBottomLeftRadius: radius.xl },
+  answerNoTail: { borderBottomLeftRadius: CHAT_RADIUS },
   afterChange: { marginTop: CHAT_GAP_CHANGE },
   question: {
     alignSelf: 'flex-end',
     maxWidth: '85%',
     paddingVertical: space[8],
     paddingHorizontal: 14,
-    borderRadius: radius.xl,
+    borderRadius: CHAT_RADIUS,
     borderBottomRightRadius: space[4],
     borderWidth: stroke.ultraThin,
     borderColor: color.line.hairline,
@@ -310,7 +312,7 @@ const styles = StyleSheet.create({
     maxWidth: '88%',
     paddingVertical: 10,
     paddingHorizontal: 14,
-    borderRadius: radius.xl,
+    borderRadius: CHAT_RADIUS,
     borderBottomLeftRadius: space[4],
     backgroundColor: color.bg.surface,
   },
@@ -333,13 +335,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 14,
-    borderRadius: radius.xl,
+    borderRadius: CHAT_RADIUS,
     borderBottomLeftRadius: space[4],
     backgroundColor: '#A9DBFF',
   },
   // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
   noticeIcon: { flexShrink: 0 },
-  noticeNoTail: { borderBottomLeftRadius: radius.xl },
+  noticeNoTail: { borderBottomLeftRadius: CHAT_RADIUS },
   noticeClose: { marginVertical: -10, marginRight: -10, marginLeft: -4 },
   noticeTextSky: { ...text.body, color: SKY_TEXT, flexGrow: 0, flexShrink: 1, flexBasis: 'auto' },
   answerTextSky: { color: '#1F2123' },
