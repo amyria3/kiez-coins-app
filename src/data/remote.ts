@@ -481,6 +481,24 @@ function withCommentLikes(challenge: Challenge, likes: CommentLikes | null): Cha
 }
 
 /**
+ * Wer einen Kommentar geliked hat, neueste zuerst, ohne blockierte Personen (Tabelle comment_likes,
+ * Migration 20261109000100). Ohne Migration `null`.
+ */
+export async function loadCommentLikers(commentId: string): Promise<User[] | null> {
+  const [{ data, error }, blocked] = await Promise.all([
+    supabase.from('comment_likes').select('user_id').eq('comment_id', commentId).order('created_at', { ascending: false }),
+    loadBlockedIds(),
+  ]);
+  if (error || !data) return null;
+  const ids = (data as { user_id: string }[]).map((r) => r.user_id).filter((id) => !blocked.has(id));
+  if (!ids.length) return [];
+  const res = await selectProfiles(ids);
+  if (res.error || !res.data) return null;
+  const byId = new Map((res.data as ProfileRow[]).map((r) => [r.id, toUser(r)]));
+  return ids.map((id) => byId.get(id)).filter((u): u is User => !!u);
+}
+
+/**
  * Wer einen Post geliked hat, neueste zuerst (Funktion challenge_likers, Migration 20261105000300).
  * Ohne Migration `null`, damit die App sagen kann, dass die Liste noch nicht geht.
  */
