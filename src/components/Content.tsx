@@ -38,18 +38,19 @@ export function QuestionHint({ question, answer }: { question: string; answer: s
         accessibilityRole="button"
         accessibilityState={{ expanded: open }}
         onPress={() => setOpen((o) => !o)}
-        style={({ pressed }) => [styles.question, pressed && styles.questionPressed]}
+        style={({ pressed }) => [styles.question, open && !isFashionable && styles.questionOpen, pressed && styles.questionPressed]}
       >
-        <Text style={styles.questionText}>{question}</Text>
+        <Text style={[styles.questionText, open && !isFashionable && styles.questionTextOpen]}>{question}</Text>
       </Pressable>
       {open ? (
         <Animated.View
           style={[
             styles.answer,
+            !isFashionable && styles.answerSky,
             { opacity: shown, transform: [{ translateY: shown.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }] },
           ]}
         >
-          <Text style={styles.answerText}>{answer}</Text>
+          <Text style={[styles.answerText, !isFashionable && styles.answerTextSky]}>{answer}</Text>
         </Animated.View>
       ) : null}
     </View>
@@ -268,6 +269,11 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
   },
   noticeText: { ...text.caption, color: color.text.primary, flex: 1 },
+  // Gestellte Frage lila wie eine eigene Nachricht, die Antwort der App helles Himmelblau (Daria, 2026-11-09)
+  questionOpen: { backgroundColor: color.accent.primary, borderColor: color.accent.primary },
+  questionTextOpen: { color: color.text.onAccent },
+  answerSky: { backgroundColor: '#A9DBFF' },
+  answerTextSky: { color: '#1F2123' },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 24 },
   iconBox: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
   infoText: { ...text.body, color: color.text.primary, flex: 1 },
