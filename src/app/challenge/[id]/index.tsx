@@ -581,7 +581,8 @@ export default function ChallengeDetail() {
           comments={challenge.comments}
           users={users}
           currentUserId={currentUserId}
-          composerPlaceholder={isAuthor ? 'Antworten oder ergänzen …' : t('Frage {firstName} …', { firstName: author.firstName })}
+          // „Frag mich was!“ statt „Frage {Name} …“ (Daria, 2026-11-09)
+          composerPlaceholder={isAuthor ? 'Antworten oder ergänzen …' : t('Frag mich was!')}
           onSend={
             challenge.status === 'closed' || challenge.status === 'deleted' || !canWrite
               ? undefined
