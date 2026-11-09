@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { MODES, setModeHidden, setPostsShown, setStandardMode, useModes, usePostsShown, type Mode, type PostFeed } from '../data/features';
@@ -23,7 +24,8 @@ const POST_SWITCHES: { feed: PostFeed; label: string; off: string }[] = [
   { feed: 'kiez', label: 'Bilder und Textposts im Kiez-Feed anzeigen', off: 'Geht nur, wenn „Dein Kiez“ an ist.' },
   { feed: 'everywhere', label: 'Bilder und Textposts überall anzeigen', off: 'Geht nur, wenn „Überall“ an ist.' },
 ];
-export function FeatureSwitches() {
+/** `children`: weitere Abschnitte im selben Abstand, z. B. Weiterposten unter Dein Konto › Funktionen */
+export function FeatureSwitches({ children }: { children?: ReactNode } = {}) {
   const { currentUserId } = useStore();
   const modes = useModes();
   const postsShown = usePostsShown();
@@ -39,7 +41,7 @@ export function FeatureSwitches() {
   return (
     <View style={styles.wrap}>
       {modes.visible.length > 1 ? (
-        <FieldGroup label="Standard">
+        <FieldGroup large label="Standard">
           <Text style={[text.caption, { color: color.text.secondary }]}>Dieser Modus ist oben im Umschalter vorausgewählt.</Text>
           <Segments
             tabs={MODES.filter((m) => modes.isVisible(m.key)).map((m) => ({ key: m.key, label: SHORT[m.key] }))}
@@ -48,7 +50,7 @@ export function FeatureSwitches() {
           />
         </FieldGroup>
       ) : null}
-      <FieldGroup label="Modi">
+      <FieldGroup large label="Modi">
         {MODES.map((m) => {
           const visible = modes.isVisible(m.key);
           const locked = visible && lastVisible;
@@ -65,7 +67,7 @@ export function FeatureSwitches() {
           );
         })}
       </FieldGroup>
-      <FieldGroup label="Bilder und Textposts">
+      <FieldGroup large label="Bilder und Textposts">
         {POST_SWITCHES.map((p) => {
           const usable = modes.isVisible(p.feed);
           return (
@@ -87,12 +89,14 @@ export function FeatureSwitches() {
           );
         })}
       </FieldGroup>
+      {children}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { gap: space[24] },
+  // Mehr Luft vor jedem Abschnitt, damit sie sich trennen (Daria, 2026-11-09)
+  wrap: { gap: space[32] + space[8] },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[4] },
   texts: { flex: 1, gap: space[2] },
   dim: { opacity: 0.5 },

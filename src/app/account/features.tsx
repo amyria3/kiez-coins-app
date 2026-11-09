@@ -1,7 +1,6 @@
-import { useRouter } from 'expo-router';
 import { FieldGroup, KaterBubble } from '../../components/Content';
+import { CrosspostSwitches } from '../../components/CrosspostSwitches';
 import { FeatureSwitches } from '../../components/FeatureSwitches';
-import { NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { useCrosspostEnabled } from '../../data/crosspost';
 import { useGoBack } from '../../lib/goBack';
@@ -12,18 +11,19 @@ import { useGoBack } from '../../lib/goBack';
  */
 export default function FeaturesScreen() {
   const goBack = useGoBack();
-  const router = useRouter();
   // Weiterposten: für alle erst nach Freigabe, für Moderatorinnen schon zum Testen (Daria, 05.11.2026)
   const crosspost = useCrosspostEnabled();
   return (
     <SubScreen title="Funktionen" navigation="back" onLeadingPress={goBack}>
       <KaterBubble>Verbirg, was Du gerade nicht brauchst. Mit dem Schalter holst Du es Dir zurück, wann Du willst.</KaterBubble>
-      <FeatureSwitches />
-      {crosspost ? (
-        <FieldGroup label="Weiterposten">
-          <NavRow label="Verbundene Konten" value="BlueSky, Mastodon" onPress={() => router.push('/account/weiterposten')} />
-        </FieldGroup>
-      ) : null}
+      <FeatureSwitches>
+        {/* Jede Plattform mit eigenem Schalter, die Einrichtung öffnet sich darunter (Daria, 2026-11-09) */}
+        {crosspost ? (
+          <FieldGroup large label="Weiterposten">
+            <CrosspostSwitches />
+          </FieldGroup>
+        ) : null}
+      </FeatureSwitches>
     </SubScreen>
   );
 }
