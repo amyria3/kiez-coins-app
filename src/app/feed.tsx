@@ -375,7 +375,7 @@ export default function FeedScreen() {
   // Hinweis unter dem Umschalter: wer sieht, was Du hier postest (Daria, 27.10.2026). In allen vier Reitern,
   // auch in „Gruppe“ ohne Gruppe (Daria, 29.10.2026)
   const audience = MODE_OF_TAB[tab] ?? 'kiez';
-  const [audienceHint, closeAudienceHint] = useAudienceHint(audience);
+  const [audienceHint, closeAudienceHint, audienceHidden, closeAudienceLine] = useAudienceHint(audience);
   const showAudience =
     audienceHint && !composing && !loading && (tab === 'nearby' || tab === 'everywhere' || tab === 'private' || tab === 'groups');
 
@@ -411,7 +411,7 @@ export default function FeedScreen() {
       case 'privateEmpty':
         return <FeedStateMessage variant="empty" body="Poste Deine erste Me-Challenge" onAction={createChallenge} />;
       case 'audience':
-        return <AudienceHint audience={audience} onClose={closeAudienceHint} />;
+        return <AudienceHint audience={audience} onClose={closeAudienceHint} hidden={audienceHidden} onCloseLine={closeAudienceLine} />;
       case 'groupBar':
         return (
           <GroupBar
