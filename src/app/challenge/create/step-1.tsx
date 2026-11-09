@@ -157,7 +157,7 @@ export default function CreateStep1() {
 }
 
 const styles = StyleSheet.create({
-  photoTextHint: { ...text.body, fontSize: 14, lineHeight: 19, color: color.text.secondary },
-  hint: { ...text.body, fontSize: 14, lineHeight: 19, color: color.text.secondary },
-  error: { ...text.body, fontSize: 14, lineHeight: 19, color: color.accent.error },
+  photoTextHint: { ...text.hint, color: color.text.secondary },
+  hint: { ...text.hint, color: color.text.secondary },
+  error: { ...text.hint, color: color.accent.error },
 });

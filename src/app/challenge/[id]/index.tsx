@@ -36,7 +36,7 @@ import { recordView } from '../../../data/remote';
 import { coordsIfAllowed, distanceMeters, KIEZ_RADIUS_METERS, type Coords } from '../../../data/location';
 import { useChallenge, useStore } from '../../../data/store';
 import { isPostOnly, type ChallengeStatus } from '../../../data/types';
-import { color, font, radius, scheme, size, space, stroke, text } from '../../../theme/tokens';
+import { color, radius, scheme, size, space, stroke, text } from '../../../theme/tokens';
 import { askCrosspost, restoreWithChoice } from '../../../components/CrosspostDialog';
 import { crosspostTargets } from '../../../data/crosspost';
 import { t, tAbout } from '../../../data/texts';
@@ -718,8 +718,8 @@ const styles = StyleSheet.create({
   // Eigene Ebene: Sonst liegen Blur und Tönung im Web über den Einträgen
   menuItem: { position: 'relative', minHeight: size.touchTarget, justifyContent: 'center', paddingHorizontal: space[16] },
   menuDivider: { borderBottomWidth: stroke.ultraThin, borderBottomColor: color.line.hairline },
-  menuText: { fontFamily: font.regular, fontSize: 15, lineHeight: 20, color: color.text.primary },
-  caption: { ...text.caption, fontSize: 13, color: color.text.secondary },
+  menuText: { ...text.bodyLarge, color: color.text.primary },
+  caption: { ...text.meta, color: color.text.secondary },
   headline: { ...text.headline, color: color.text.primary },
   metrics: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
   // Icon, Bezeichnung und Wert in einer Zeile
@@ -732,7 +732,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     backgroundColor: color.bg.surface,
   },
-  metricLabel: { ...text.caption, fontSize: 13, color: color.text.secondary },
+  metricLabel: { ...text.meta, color: color.text.secondary },
   deadline: { justifyContent: 'center', minHeight: size.touchTarget },
   metricValue: { ...text.metric, fontSize: 17, lineHeight: 22, color: color.text.primary },
   pressed: { opacity: 0.7 },

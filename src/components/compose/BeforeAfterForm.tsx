@@ -186,7 +186,7 @@ export function useBeforeAfterStartForm(
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  hint: { ...text.body, fontSize: 14, lineHeight: 19, color: color.text.secondary },
+  hint: { ...text.hint, color: color.text.secondary },
   steps: { flexDirection: 'row', alignItems: 'center' },
   stepWrap: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   step: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   stepDotDone: { backgroundColor: color.bg.surface, borderColor: color.bg.surface },
   stepNumber: { fontFamily: font.medium, fontSize: 10, lineHeight: 12, color: color.text.secondary },
   stepNumberOn: { color: color.text.onAccent },
-  stepName: { ...text.caption, fontSize: 12, color: color.text.secondary },
+  stepName: { ...text.small, color: color.text.secondary },
   stepNameOn: { color: color.text.primary },
   stepBar: { flex: 1, height: stroke.thin, backgroundColor: color.line.hairline, marginRight: space[8] },
   field: { gap: space[6] },

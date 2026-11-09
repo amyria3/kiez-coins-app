@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { badgeTitle, useUserBadges } from '../data/badges';
-import { color, font, space } from '../theme/tokens';
+import { color, space, text } from '../theme/tokens';
 import { BadgeIcon } from './BadgeIcon';
 import { Text } from './T';
 
@@ -30,5 +30,5 @@ const styles = StyleSheet.create({
   wrap: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: space[16] },
   start: { justifyContent: 'flex-start' },
   item: { width: 80, alignItems: 'center', gap: space[4] },
-  name: { fontFamily: font.regular, fontSize: 12, lineHeight: 16, color: color.text.secondary, textAlign: 'center' },
+  name: { ...text.small, color: color.text.secondary, textAlign: 'center' },
 });

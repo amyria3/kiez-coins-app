@@ -13,7 +13,7 @@ import { reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data
 import { useStore } from '../data/store';
 import { t } from '../data/texts';
 import { useAppDimensions } from '../theme/layout';
-import { color, font, radius, space, stroke } from '../theme/tokens';
+import { color, font, radius, space, stroke, text } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
 import { Segments } from './FeedHeader';
 import { Geschafft, usePraise } from './Geschafft';
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
   bioText: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.primary },
   buttons: { flexDirection: 'row', gap: space[8], paddingHorizontal: space[16], paddingTop: space[12] },
   button: { flex: 1, height: 34, borderRadius: radius.md, backgroundColor: color.bg.surface, alignItems: 'center', justifyContent: 'center' },
-  buttonText: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18, color: color.text.primary },
+  buttonText: { ...text.bodyStrong, color: color.text.primary },
   task: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
   },
   hlGroup: { backgroundColor: color.bg.surface },
   hlInitial: { fontFamily: font.semiBold, fontSize: 24, lineHeight: 28, color: color.brand.signature },
-  hlText: { fontFamily: font.regular, fontSize: 12, lineHeight: 16, color: color.text.primary, alignSelf: 'stretch', textAlign: 'center' },
+  hlText: { ...text.small, color: color.text.primary, alignSelf: 'stretch', textAlign: 'center' },
   groupBlock: { paddingTop: space[8] },
   ranking: { paddingHorizontal: space[16], paddingTop: space[12] },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: GUTTER, paddingTop: GUTTER },
