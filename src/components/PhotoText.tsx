@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   // Ebene auf dem Foto beim Erstellen: im Browser ohne Markieren und ohne Scrollen beim Ziehen
   layer: Platform.OS === 'web' ? ({ cursor: 'text', userSelect: 'none', touchAction: 'pan-y' } as object) : {},
   labelGrab: Platform.OS === 'web' ? ({ cursor: 'grab', touchAction: 'none' } as object) : {},
-  input: { padding: 0, minWidth: 40, outlineStyle: 'none' } as never,
+  input: { padding: 0, minWidth: 40, outlineStyle: 'none', caretColor: '#FFFFFF' } as never,
 });
 
 /**

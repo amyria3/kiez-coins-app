@@ -182,6 +182,7 @@ export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply, m
   const [cursor, setCursor] = useState(0);
   // Nur direkt nach dem Einsetzen eines Namens gesetzt, damit der Cursor hinter dem Namen landet
   const [selection, setSelection] = useState<{ start: number; end: number } | undefined>();
+  const [focused, setFocused] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const mention = activeMention(value, cursor);
   const suggestions = mention ? mentionSuggestions(mentionCandidates, mention.query) : [];
@@ -240,7 +241,8 @@ export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply, m
           ))}
         </View>
       ) : null}
-    <View style={styles.composer}>
+    {/* Aktives Feld mit lila Rand (Daria, 2026-11-09) */}
+    <View style={[styles.composer, focused && styles.composerFocused]}>
       <TextInput
         ref={inputRef}
         style={styles.input}
@@ -257,7 +259,12 @@ export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply, m
           setCursor(e.nativeEvent.selection.end);
           if (selection) setSelection(undefined);
         }}
-        onFocus={reveal}
+        onFocus={() => {
+          setFocused(true);
+          reveal();
+        }}
+        onBlur={() => setFocused(false)}
+        selectionColor={color.accent.primary}
         multiline
         maxLength={500}
         accessibilityLabel={t('Kommentar schreiben')}
@@ -437,11 +444,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: space[8],
-    paddingVertical: space[4],
-    paddingRight: space[4],
-    paddingLeft: space[16],
+    // Abstände abzüglich des Rands, damit das Feld so groß bleibt wie vorher
+    paddingVertical: space[4] - stroke.focus,
+    paddingRight: space[4] - stroke.focus,
+    paddingLeft: space[16] - stroke.focus,
     borderRadius: radius.full,
     backgroundColor: color.bg.surface,
+    // Rand immer da, nur unsichtbar: So springt beim Fokus nichts
+    borderWidth: stroke.focus,
+    borderColor: 'transparent',
   },
+  composerFocused: { borderColor: color.accent.primary },
   input: { ...text.body, flex: 1, color: color.text.primary, paddingVertical: space[8], maxHeight: 120 },
 });

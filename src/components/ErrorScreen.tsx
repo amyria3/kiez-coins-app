@@ -83,6 +83,7 @@ function ErrorContent({ error, retry }: Props) {
   const [comment, setComment] = useState('');
   const [state, setState] = useState<SendState>('idle');
   const [details, setDetails] = useState(false);
+  const [focused, setFocused] = useState(false);
   const [reloading] = useState(() => shouldReload(error));
   useEffect(() => {
     if (reloading) window.location.reload();
@@ -126,7 +127,11 @@ function ErrorContent({ error, retry }: Props) {
       ) : (
         <>
           <TextInput
-            style={styles.field}
+            // Aktives Feld mit lila Rand (Daria, 2026-11-09)
+            style={[styles.field, focused && styles.fieldFocused]}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            selectionColor={color.accent.primary}
             value={comment}
             onChangeText={setComment}
             placeholder={t('Was hast Du gerade gemacht? (freiwillig)')}
@@ -197,6 +202,8 @@ const styles = StyleSheet.create({
     marginTop: space[8],
     textAlignVertical: 'top',
   },
+  // Kräftigerer Rand; das Innere rückt um die Differenz ein, damit nichts springt
+  fieldFocused: { borderWidth: 2, borderColor: color.accent.primary, padding: space[12] - 1 },
   button: { borderRadius: radius.md, paddingVertical: space[12], paddingHorizontal: space[20], alignItems: 'center' },
   primary: { backgroundColor: color.accent.primary },
   busy: { opacity: 0.6 },
