@@ -167,9 +167,11 @@ function PlatformSwitch({
     }
   };
 
-  const disconnect = () =>
-    Alert.alert(t('{label} trennen?', { label }), 'Deine bisherigen Weiterposts bleiben dort stehen.', [
+  // Ein Knopf für beides: Neu verbinden öffnet die Einrichtung, Trennen löscht die Verbindung (Daria, 2026-11-09)
+  const manage = () =>
+    Alert.alert(t('{label} trennen oder neu verbinden?', { label }), 'Deine bisherigen Weiterposts bleiben dort stehen.', [
       { text: 'Abbrechen', style: 'cancel' },
+      { text: 'Neu verbinden', onPress: () => (setReconnect(true), setShown(0)) },
       {
         text: 'Trennen',
         style: 'destructive',
@@ -219,19 +221,17 @@ function PlatformSwitch({
         />
       </View>
       {account && open ? (
-        // Status mit grünem Punkt, daneben Neu verbinden und Trennen als kleine Knöpfe (Daria, 2026-11-09)
+        // Status mit grünem Punkt, daneben ein Knopf für Trennen oder neu verbinden (Daria, 2026-11-09).
+        // Ist die Einrichtung zum Neu-Verbinden offen, ist er lila und schließt sie wieder.
         <View style={[styles.setup, styles.connected]}>
           <View style={styles.dot} />
           <Text style={[styles.connectedText, styles.flex]}>Verbunden</Text>
           <Pressable
             accessibilityRole="button"
-            onPress={() => (setReconnect((r) => !r), setShown(0))}
+            onPress={() => (reconnect ? (setReconnect(false), setShown(0)) : manage())}
             style={({ pressed }) => [styles.chip, reconnect && styles.chipOn, pressed && styles.pressed]}
           >
-            <Text style={[styles.chipText, reconnect && styles.chipTextOn]}>Neu verbinden</Text>
-          </Pressable>
-          <Pressable accessibilityRole="button" onPress={disconnect} style={({ pressed }) => [styles.chip, pressed && styles.pressed]}>
-            <Text style={styles.chipText}>Trennen</Text>
+            <Text style={[styles.chipText, reconnect && styles.chipTextOn]}>Trennen oder neu verbinden</Text>
           </Pressable>
         </View>
       ) : null}

@@ -1337,5 +1337,7 @@
   "Verbunden": "Подключено",
   "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "Ты проголосовал(а) за то, что будешь пользоваться API для аккаунтов X. Спасибо! Мы тебя учли.",
   "Was und wie kann ich mit dieser Funktion weiterposten?": "Что и как я могу репостить с помощью этой функции?",
-  "Neu verbinden": "Подключить заново"
+  "Neu verbinden": "Подключить заново",
+  "Trennen oder neu verbinden": "Отключить или подключить заново",
+  "{label} trennen oder neu verbinden?": "Отключить или подключить {label} заново?"
 }

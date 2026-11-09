@@ -1631,5 +1631,7 @@
   "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "You voted that you'd use the API for X accounts. Thanks! We’re counting you in.",
   "Geplant ist Ende-zu-Ende-Verschlüsselung für Deine Nachrichten. Dann können nur autorisierte Nutzer:innen, also Du und die Person, mit der Du schreibst, sie lesen. Dann wären Deine Unterhaltungen auch für das Team komplett unzugänglich. Im jetzigen Stadium der App ist das noch nicht umsetzbar, deshalb steht hier jeder Abruf.": "End-to-end encryption for your messages is planned. Then only authorised users, meaning you and the person you’re writing with, can read them. Your conversations would then be completely inaccessible to the team as well. At the app’s current stage this isn’t possible yet, so every access is listed here.",
   "Was und wie kann ich mit dieser Funktion weiterposten?": "What can I repost with this feature, and how?",
-  "Neu verbinden": "Reconnect"
+  "Neu verbinden": "Reconnect",
+  "Trennen oder neu verbinden": "Disconnect or reconnect",
+  "{label} trennen oder neu verbinden?": "Disconnect or reconnect {label}?"
 }
