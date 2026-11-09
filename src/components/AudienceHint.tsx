@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Text } from './T';
 import { IconButton } from './IconButton';
+import { Notice } from './Content';
 import { t } from '../data/texts';
 import { color, isFashionable, radius, space, text } from '../theme/tokens';
 
@@ -84,6 +85,14 @@ export function useAudienceHint(audience: Audience): [boolean, () => void] {
 }
 
 export function AudienceHint({ audience, onClose }: { audience: Audience; onClose: () => void }) {
+  // Kiez-Look: Systemmeldung als hellblaue Chatblase mit Icon (Daria, 2026-11-09)
+  if (!isFashionable) {
+    return (
+      <View style={styles.wrap}>
+        <Notice message={MESSAGE[audience].map((line) => t(line)).join('\n')} onClose={onClose} />
+      </View>
+    );
+  }
   return (
     <View style={styles.wrap}>
       <View style={styles.hint}>
