@@ -1349,5 +1349,6 @@
   "Verstanden, weiter": "Зрозуміло, далі",
   "{label} trennen": "Від’єднати {label}",
   "{label}: Einstellungen": "{label}: налаштування",
-  "Verbunden": "Підключено"
+  "Verbunden": "Підключено",
+  "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "Ти проголосував(ла), що користуватимешся API для акаунтів X. Дякуємо! Ми тебе врахували."
 }

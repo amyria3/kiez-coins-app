@@ -1334,5 +1334,6 @@
   "Verstanden, weiter": "Понятно, дальше",
   "{label} trennen": "Отключить {label}",
   "{label}: Einstellungen": "{label}: настройки",
-  "Verbunden": "Подключено"
+  "Verbunden": "Подключено",
+  "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "Ты проголосовал(а) за то, что будешь пользоваться API для аккаунтов X. Спасибо! Мы тебя учли."
 }

@@ -1349,5 +1349,6 @@
   "Verstanden, weiter": "הבנתי, הלאה",
   "{label} trennen": "ניתוק {label}",
   "{label}: Einstellungen": "{label}: הגדרות",
-  "Verbunden": "מחובר"
+  "Verbunden": "מחובר",
+  "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "הצבעת שתשתמש/י ב-API לחשבונות X. תודה! ספרנו אותך."
 }

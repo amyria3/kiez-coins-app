@@ -1349,5 +1349,6 @@
   "Verstanden, weiter": "فهمت، التالي",
   "{label} trennen": "فصل {label}",
   "{label}: Einstellungen": "{label}: الإعدادات",
-  "Verbunden": "متصل"
+  "Verbunden": "متصل",
+  "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "لقد صوّتَ بأنك ستستخدم واجهة API لحسابات X. شكرًا! لقد احتسبناك."
 }
