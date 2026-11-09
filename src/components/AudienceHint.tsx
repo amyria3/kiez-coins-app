@@ -85,11 +85,13 @@ export function useAudienceHint(audience: Audience): [boolean, () => void] {
 }
 
 export function AudienceHint({ audience, onClose }: { audience: Audience; onClose: () => void }) {
-  // Kiez-Look: Systemmeldung als hellblaue Chatblase mit Icon (Daria, 2026-11-09)
+  // Kiez-Look: Systemmeldung als hellblaue Chatblasen, je Zeile eine Nachricht; das Kreuz an der ersten schließt beide (Daria, 2026-11-09)
   if (!isFashionable) {
     return (
-      <View style={styles.wrap}>
-        <Notice message={MESSAGE[audience].map((line) => t(line)).join('\n')} onClose={onClose} />
+      <View style={[styles.wrap, styles.bubbles]}>
+        {MESSAGE[audience].map((line, i) => (
+          <Notice key={line} message={line} onClose={i === 0 ? onClose : undefined} tail={i === MESSAGE[audience].length - 1} />
+        ))}
       </View>
     );
   }
@@ -112,6 +114,8 @@ export function AudienceHint({ audience, onClose }: { audience: Audience; onClos
 const styles = StyleSheet.create({
   // Fashionable Look: Liste ohne Abstände, daher eigener Rand oben und unten
   wrap: { paddingHorizontal: space[16], paddingVertical: isFashionable ? space[8] : 0 },
+  // Abstand zwischen zwei Nachrichten wie bei Frage und Antwort
+  bubbles: { gap: space[6] },
   hint: {
     flexDirection: 'row',
     alignItems: 'center',
