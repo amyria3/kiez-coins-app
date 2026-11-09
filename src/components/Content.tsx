@@ -14,7 +14,7 @@ import { Herz } from './Herz';
 export function Notice({ message, variant = 'info' }: { message: string; variant?: 'info' | 'warning' }) {
   return (
     <View style={styles.notice} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
-      <Icon name="info" color={variant === 'warning' ? color.accent.signal : color.text.primary} />
+      <Icon name="info-filled" color={variant === 'warning' ? color.accent.signal : color.text.primary} />
       <Text style={styles.noticeText}>{message}</Text>
     </View>
   );
