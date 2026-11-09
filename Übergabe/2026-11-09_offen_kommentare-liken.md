@@ -30,3 +30,11 @@ Daria hat am 2026-11-09 entschieden:
 ## Nächster Schritt
 
 Nach der Migration im Supabase SQL Editor prüfen: `select count(*) from public.comment_likes;` läuft ohne Fehler. Dann ein Kommentar-Like in der App setzen und zurücknehmen, Inhalt in Documentation übernehmen und diese Datei löschen.
+
+## Nachtrag 2026-11-09: Wer hat geliked, Aufräumen
+
+- Tipp auf die Zahl neben dem Herz öffnet `challenge/[id]/likes?kommentar=<id>`: wer den Kommentar geliked hat,
+  neueste zuerst, ohne blockierte Personen (`loadCommentLikers` in `src/data/remote.ts`, liest `comment_likes` direkt).
+- Im SQL Editor lief am 2026-11-09 versehentlich `20261108000300_kommentar_likes.sql` aus PR #226 statt 20261109000100.
+  Folge: Jede Person sieht nur ihre eigenen Kommentar-Likes. Abhilfe: erst `20261109000100_comment_likes.sql`, dann
+  `20261109000300_kommentar_likes_aufraeumen.sql` ausführen.
