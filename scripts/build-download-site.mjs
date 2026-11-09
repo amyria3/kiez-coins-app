@@ -116,7 +116,7 @@ const kcSvg = {
   heart: icon('heart', C.muted),
   heartOn: icon('heart', C.pink),
   gear: icon('settings', C.muted),
-  clock: icon('clock', C.text),
+  clock: icon('clock-filled', C.text),
   comment: icon('comment', C.muted),
   send: icon('send', C.muted),
   camera: icon('camera', C.text),
