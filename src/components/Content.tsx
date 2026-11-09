@@ -44,13 +44,13 @@ function FromSystem({ children, style }: { children: ReactNode; style?: StylePro
 
 /**
  * Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. Mit `onClose` ein Kreuz rechts.
- * `tail={false}` für Nachrichten über der letzten einer Folge: Wie im Chat hat nur die letzte die spitze Ecke.
+ * Jede Blase hat unten links die spitze Ecke wie eine Sprechblase, da jede ihren Avatar hat (Daria, 2026-11-09).
+ * `tail` ist deshalb ohne Wirkung.
  */
 export function Notice({
   message,
   variant = 'info',
   onClose,
-  tail = true,
 }: {
   message: string;
   variant?: 'info' | 'warning';
@@ -60,7 +60,7 @@ export function Notice({
   const t = useTexts();
   return (
     <FromSystem>
-    <View style={[styles.notice, !isFashionable && styles.noticeSky, !isFashionable && !tail && styles.noticeNoTail]} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
+    <View style={[styles.notice, !isFashionable && styles.noticeSky]} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
       {/* Kiez-Look: Icon nur bei Warnungen, sonst sähen Warnung und Info gleich aus (Daria, 2026-11-09).
           Feste Größe, sonst schrumpft das Icon neben langem Text. */}
       {isFashionable || variant === 'warning' ? (
@@ -128,8 +128,6 @@ export function QuestionHint({ question, answer, then }: { question: string; ans
             styles.answer,
             isFashionable && styles.afterChange,
             !isFashionable && styles.answerSky,
-            // Folgt noch eine Nachricht der App, hat nur die letzte die spitze Ecke
-            then ? styles.answerNoTail : null,
             { opacity: shown, transform: [{ translateY: shown.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }] },
           ]}
         >
@@ -139,6 +137,25 @@ export function QuestionHint({ question, answer, then }: { question: string; ans
       ) : null}
       {then ? <View style={open ? styles.afterSame : styles.afterChange}>{then}</View> : null}
     </View>
+  );
+}
+
+/**
+ * Antwort zum Antippen (Daria, 2026-11-09): rechts wie eine eigene Nachricht, z. B. „Ja, los!“. Angetippt wird sie
+ * lila wie gesendet und bleibt so stehen.
+ */
+export function ChatReply({ label, sent, onPress }: { label: string; sent: boolean; onPress: () => void }) {
+  const tx = useTexts();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ disabled: sent }}
+      disabled={sent}
+      onPress={onPress}
+      style={({ pressed }) => [styles.question, sent && !isFashionable && styles.questionOpen, pressed && styles.questionPressed]}
+    >
+      <Text style={[styles.questionText, sent && !isFashionable && styles.questionTextOpen]}>{tx(label)}</Text>
+    </Pressable>
   );
 }
 
@@ -338,7 +355,6 @@ export function FieldGroup({ label, children, large }: { label: string; children
 const styles = StyleSheet.create({
   qaOpen: { paddingBottom: CHAT_GAP_CHANGE - CHAT_GAP_SAME },
   afterSame: { marginTop: CHAT_GAP_SAME },
-  answerNoTail: { borderBottomLeftRadius: CHAT_RADIUS },
   afterChange: { marginTop: CHAT_GAP_CHANGE },
   question: {
     alignSelf: 'flex-end',
@@ -399,7 +415,6 @@ const styles = StyleSheet.create({
   systemAvatarText: { fontSize: 18, lineHeight: 22, textAlign: 'center' },
   // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
   noticeIcon: { flexShrink: 0 },
-  noticeNoTail: { borderBottomLeftRadius: CHAT_RADIUS },
   noticeClose: { marginVertical: -10, marginRight: -10, marginLeft: -4 },
   noticeTextSky: { ...text.body, color: SKY_TEXT, flexGrow: 0, flexShrink: 1, flexBasis: 'auto' },
   answerTextSky: { color: '#1F2123' },
