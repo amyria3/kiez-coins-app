@@ -73,15 +73,15 @@ export function FinanceOverview() {
       <Text style={styles.title} accessibilityRole="header">
         Modell KiezCoins
       </Text>
-      {/* Klarstellen, dass es noch keine Einnahmen gibt; Gewinne 30 / 70 (Daria, 2026-11-09) */}
-      <Text style={styles.body}>Noch verdient KiezCoins kein Geld. Sobald Einnahmen kommen, decken sie zuerst die Fixkosten. Die Gewinne verteilen sich 30 % / 70 % auf die Entwicklerin und die Community.</Text>
+      {/* Text von Daria (2026-11-09): Einnahmen zuerst in die Fixkosten, künftige Gewinne 30 / 70 auf Team und Community */}
+      <Text style={styles.body}>Einnahmen fließen zuerst in die Fixkosten. Die künftigen Gewinne verteilen sich auf das Team (30 %) und die Community (70 %).</Text>
 
-      <View style={styles.bar} accessible accessibilityLabel={t('Entwicklerin 30 %, Community 70 %')}>
+      <View style={styles.bar} accessible accessibilityLabel={t('Team 30 %, Community 70 %')}>
         <View style={[styles.barPart, styles.barDev]} />
         <View style={[styles.barPart, styles.barCommunity]} />
       </View>
       <View style={styles.legend}>
-        <Text style={styles.legendText}>Entwicklerin 30 %</Text>
+        <Text style={styles.legendText}>Team 30 %</Text>
         <Text style={styles.legendText}>Community 70 %</Text>
       </View>
 
