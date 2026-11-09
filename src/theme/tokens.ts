@@ -85,6 +85,8 @@ export const color = {
     onAccent: fashionable ? '#FFFFFF' : palette.black,
     /** Schrift auf Fotos, in beiden Looks hell */
     onPhoto: '#F0F0F0',
+    /** @-Namen in Beiträgen und Kommentaren: im Kiez-Look Grün (Daria, 2026-11-09), im Fashionable Look Pink wie bisher */
+    mention: fashionable ? palette.orange : palette.green,
   },
   /** Große Icons (Daria, 2026-11-05): etwas gedämpfter als die Schrift, damit Symbole nicht heller als Text wirken */
   icon: {
