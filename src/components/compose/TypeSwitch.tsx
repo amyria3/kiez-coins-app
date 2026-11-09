@@ -4,11 +4,12 @@ import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import { t } from '../../data/texts';
 import { color, font, isFashionable, motion, radius, stroke } from '../../theme/tokens';
 import { Text } from '../T';
+import { Segments } from '../FeedHeader';
 
 /**
- * Schalter für den Beitragstyp beim Erstellen (Daria, 23.10.2026): Challenge, Vorher-Nachher, Bild.
- * Look „Kiez“: Pille mit getönter Markierung. Look „Fashionable“: Reiter mit Strich darunter.
- * Die Markierung gleitet mit der Bewegung „Schranke“.
+ * Schalter für den Beitragstyp beim Erstellen (Daria, 23.10.2026): Text, Bild, Me-Challenge, We-Challenge.
+ * Look „Kiez“: derselbe gezeichnete Umschalter wie der Ort darüber (Privat / Gruppe / Kiez / Überall),
+ * also Spur und geneigter Knopf aus `Segments` (Daria, 09.11.2026). Look „Fashionable“: Reiter mit Strich darunter.
  */
 export function TypeSwitch<K extends string>({
   options,
@@ -32,6 +33,26 @@ export function TypeSwitch<K extends string>({
   useEffect(() => {
     if (!turn) setTouched(false);
   }, [turn]);
+  const pick = (key: K) => {
+    setTouched(true);
+    onChange(key);
+  };
+  if (!isFashionable) return <Segments tabs={options.map((o) => ({ key: o.key, label: o.label }))} selectedKey={value} onChange={pick} accent={accent} />;
+  return <UnderlineTypeSwitch options={options} value={value} onChange={pick} accent={accent} />;
+}
+
+/** Look „Fashionable“: drei bis vier Begriffe in Großbuchstaben, Strich gleitet mit „Schranke“ */
+function UnderlineTypeSwitch<K extends string>({
+  options,
+  value,
+  onChange,
+  accent,
+}: {
+  options: readonly { key: K; label: string }[];
+  value: K;
+  onChange: (key: K) => void;
+  accent: boolean;
+}) {
   const index = Math.max(0, options.findIndex((o) => o.key === value));
   // Jedes Feld so breit wie sein Begriff plus gleicher Anteil am Rest (Daria, 24.10.2026: kurze Begriffe
   // bekamen zu viel Platz). Die Markierung folgt den gemessenen Feldern.
@@ -63,10 +84,7 @@ export function TypeSwitch<K extends string>({
             key={o.key}
             accessibilityRole="tab"
             accessibilityState={{ selected }}
-            onPress={() => {
-              setTouched(true);
-              onChange(o.key);
-            }}
+            onPress={() => onChange(o.key)}
             onLayout={(e) => {
               const { x: ox, width } = e.nativeEvent.layout;
               setBoxes((prev) => (prev[o.key]?.x === ox && prev[o.key]?.width === width ? prev : { ...prev, [o.key]: { x: ox, width } }));
