@@ -205,5 +205,5 @@ const styles = StyleSheet.create({
   secondaryText: { ...text.buttonLightOnDark, color: color.text.primary },
   link: { alignSelf: 'flex-start', paddingVertical: space[8] },
   linkText: { fontFamily: font.regular, fontSize: 15, color: color.text.primary, textDecorationLine: 'underline' },
-  detail: { fontFamily: font.regular, fontSize: 12, lineHeight: 16, color: color.accent.error },
+  detail: { ...text.small, color: color.accent.error },
 });

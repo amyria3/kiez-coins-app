@@ -135,5 +135,5 @@ const styles = StyleSheet.create({
   thumb: { width: 38, height: 38, borderRadius: 19 },
   texts: { flex: 1, gap: space[2] },
   line1: { fontFamily: isFashionable ? font.semiBold : font.medium, fontSize: 14, lineHeight: 18, color: color.text.primary },
-  line2: { ...text.caption, fontSize: 12, color: color.text.secondary, fontVariant: ['tabular-nums'] },
+  line2: { ...text.small, color: color.text.secondary, fontVariant: ['tabular-nums'] },
 });

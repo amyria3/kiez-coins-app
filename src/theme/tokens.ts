@@ -178,6 +178,18 @@ export const text = {
   metric: { fontFamily: font.display, fontSize: 22, lineHeight: 26 },
   title: { fontFamily: font.regular, fontSize: 18, lineHeight: 24 },
   body: { fontFamily: font.text, fontSize: 14, lineHeight: 18 },
+  /** Fließtext halbfett, z. B. Name im Post, Text auf kleinen Buttons */
+  bodyStrong: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18 },
+  /** Größerer Fließtext, z. B. Menüeinträge, Zähler unter Posts */
+  bodyLarge: { fontFamily: font.regular, fontSize: 15, lineHeight: 20 },
+  /** Hinweise und Fehlermeldungen unter Formularfeldern */
+  hint: { fontFamily: font.text, fontSize: 14, lineHeight: 19 },
+  /** Name im Chat und kleine Titel in Sprechblasen */
+  cardTitleCompact: { fontFamily: font.display, fontSize: 17, lineHeight: 22, letterSpacing: -0.2 },
+  /** Zeile unter Posts und Kennzahl-Beschriftungen (13 px) */
+  meta: { fontFamily: font.regular, fontSize: 13, lineHeight: 16 },
+  /** Kleine Zusatzzeile (12 px), z. B. Ort, Untertitel, Abzeichen-Name */
+  small: { fontFamily: font.regular, fontSize: 12, lineHeight: 16 },
   caption: { fontFamily: font.regular, fontSize: 11, lineHeight: 16 },
   labelXs: { fontFamily: font.text, fontSize: 9, lineHeight: 11 },
   /** `text/button/dark-on-light`: dunkle Schrift auf heller Fläche (Primary) */

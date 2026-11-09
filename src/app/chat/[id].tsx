@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', gap: space[4], paddingHorizontal: space[8], paddingVertical: space[8] },
   who: { flexDirection: 'row', alignItems: 'center', gap: space[8], flexShrink: 1 },
   pressed: { opacity: 0.7 },
-  name: { ...text.cardTitle, fontSize: 17, lineHeight: 22, color: color.text.primary, flexShrink: 1 },
+  name: { ...text.cardTitleCompact, color: color.text.primary, flexShrink: 1 },
   list: { paddingHorizontal: space[16], paddingVertical: space[12], gap: space[6] },
   empty: { ...text.body, color: color.text.secondary, textAlign: 'center', paddingVertical: space[32], paddingHorizontal: space[16] },
   bubbleRow: { flexDirection: 'row' },

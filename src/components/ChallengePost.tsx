@@ -590,8 +590,8 @@ const fashion = StyleSheet.create({
   },
   headWho: { flexDirection: 'row', alignItems: 'center', gap: 10, flexShrink: 1 },
   headRight: { flexDirection: 'row', alignItems: 'center', gap: space[8], flexShrink: 0 },
-  name: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18, color: color.text.primary },
-  place: { ...text.caption, fontSize: 12, color: color.text.primary },
+  name: { ...text.bodyStrong, color: color.text.primary },
+  place: { ...text.small, color: color.text.primary },
   photo: { width: '100%', aspectRatio: 4 / 5, backgroundColor: color.bg.surface, overflow: 'hidden' },
   noPhotoLine: { height: stroke.ultraThin, backgroundColor: color.line.hairline, marginHorizontal: space[12] },
   state: { flex: 1, textAlign: 'right', paddingRight: space[8], fontFamily: font.regular, fontSize: 13, lineHeight: 18, color: color.text.secondary },
@@ -603,7 +603,7 @@ const fashion = StyleSheet.create({
   captionTitle: { fontFamily: font.semiBold },
   time: { ...text.caption, color: color.text.secondary },
   eden: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
-  edenText: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18, color: color.text.primary, fontVariant: ['tabular-nums'] },
+  edenText: { ...text.bodyStrong, color: color.text.primary, fontVariant: ['tabular-nums'] },
 });
 
 /** Blätter eines Posts nur mit Text im Feed: so breit wie die Karte. Tippen öffnet den Post, Wischen blättert. */
@@ -796,12 +796,12 @@ const styles = StyleSheet.create({
   title: { ...text.cardTitle, color: color.text.primary },
   titleOnPhoto: { fontFamily: font.onPhoto, fontSize: 16, lineHeight: 21, color: color.text.primary },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
-  meta: { ...text.caption, fontSize: 13, color: color.text.secondary, flex: 1 },
-  textPostName: { ...text.caption, fontSize: 13, color: color.text.primary, flexShrink: 0, maxWidth: '60%' },
-  textPostMeta: { ...text.caption, fontSize: 13, color: color.text.secondary, flex: 1 },
+  meta: { ...text.meta, color: color.text.secondary, flex: 1 },
+  textPostName: { ...text.meta, color: color.text.primary, flexShrink: 0, maxWidth: '60%' },
+  textPostMeta: { ...text.meta, color: color.text.secondary, flex: 1 },
   actions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: space[4] },
   actionsLeft: { flexDirection: 'row', alignItems: 'center', flexShrink: 1 },
-  count: { ...text.caption, fontSize: 15, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] },
+  count: { ...text.bodyLarge, color: color.text.primary, fontVariant: ['tabular-nums'] },
   countAction: {
     flexDirection: 'row',
     alignItems: 'center',

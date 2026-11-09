@@ -791,10 +791,10 @@ const fashion = StyleSheet.create({
   buttons: { flexDirection: 'row', gap: space[8] },
   button: { flex: 1, height: 34, borderRadius: radius.md, backgroundColor: color.bg.surface, alignItems: 'center', justifyContent: 'center' },
   buttonPrimary: { backgroundColor: color.accent.primary },
-  buttonText: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18, color: color.text.primary },
+  buttonText: { ...text.bodyStrong, color: color.text.primary },
   buttonTextPrimary: { color: color.text.onAccent },
   delete: { alignSelf: 'center', height: 44, marginTop: space[8], paddingHorizontal: space[16], justifyContent: 'center' },
-  deleteText: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18, color: color.accent.error },
+  deleteText: { ...text.bodyStrong, color: color.accent.error },
   line: { height: stroke.ultraThin, backgroundColor: color.line.hairline, marginTop: 15 },
   next: { fontSize: 12, lineHeight: 16 },
 });
