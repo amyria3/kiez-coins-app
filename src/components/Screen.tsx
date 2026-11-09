@@ -7,7 +7,7 @@ import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { color, isFashionable, motion, radius, size, space, text, scheme } from '../theme/tokens';
+import { color, font, isFashionable, motion, radius, size, space, text, scheme } from '../theme/tokens';
 import { useAppDimensions } from '../theme/layout';
 import { ActionBar } from './ActionBar';
 import { Cat, type CatMood } from './icons/Brand';
@@ -452,7 +452,8 @@ const styles = StyleSheet.create({
   resultTop: { justifyContent: 'flex-start', paddingTop: space[8], alignItems: 'stretch' },
   resultHead: { alignItems: 'center', gap: space[16] },
   resultChildren: { gap: space[12], alignSelf: 'stretch' },
-  resultTitle: { ...text.title, color: color.text.primary, textAlign: 'center' },
+  // Überschrift in der Unbounded wie im leeren Feed („Cat The Käptn wartet“, Daria, 2026-11-09)
+  resultTitle: { ...text.title, fontFamily: font.onPhoto, color: color.text.primary, textAlign: 'center' },
   resultMessage: { ...text.body, color: color.text.secondary, textAlign: 'center' },
   hero: { backgroundColor: color.bg.surface },
   heroCustom: { backgroundColor: color.bg.screen },

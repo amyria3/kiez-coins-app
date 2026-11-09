@@ -20,7 +20,7 @@ export default function CreateSuccess() {
       ? 'Dein Text ist online'
       : isPhoto
         ? 'Dein Bild ist online'
-        : 'Deine Challenge ist online';
+        : 'Nice, 1 Challenge gepostet!';
   const message = post?.private
     ? 'Es liegt in Deinem privaten Space. Nur Du siehst es.'
     : isPhoto
