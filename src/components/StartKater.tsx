@@ -8,10 +8,13 @@ import { color, space, text } from '../theme/tokens';
 import { Text } from './T';
 import { t } from '../data/texts';
 import { GearsLoader } from './GearsLoader';
-import { KaterStage } from './KaterStage';
+import { DRUEBER_DAUER, FEGEN_DAUER, KaterStage } from './KaterStage';
 
-/** Fegen dauert in KaterStage rund 2 Sekunden. Die Sprechblase bleibt etwas länger, damit man sie lesen kann. */
-const FEGEN_MS = 3200;
+/**
+ * Erst fegen, dann einmal über die Brille schauen und lächeln (Daria, 2026-11-09). Danach noch kurz stehen bleiben,
+ * damit man die Sprechblase lesen kann. Zusammen rund 4,8 Sekunden (vorher 3,2).
+ */
+const FEGEN_MS = FEGEN_DAUER + DRUEBER_DAUER + 300;
 
 /** Ein Spruch zum Fegen aus src/data/kater-sprueche.json. Ohne passenden Spruch fegt er still. */
 function fegeSpruch(): KaterSpruch {
@@ -118,7 +121,7 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
       >
         {kater ? (
           <Animated.View style={{ opacity: katerSichtbar }}>
-            <KaterStage width={katerBreite} spruch={spruch} take={1} ohneBlase={!spruch.text} />
+            <KaterStage width={katerBreite} spruch={spruch} take={1} ohneBlase={!spruch.text} danachDrueber />
           </Animated.View>
         ) : (
           <Moment />

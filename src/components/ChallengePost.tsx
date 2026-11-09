@@ -14,7 +14,7 @@ import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BeforeAfterPair, BeforeAfterPost } from './BeforeAfterPost';
 import { weChallengeAfter, joinedIds, maxParticipants, participationText } from '../data/weChallenge';
 import { useAppDimensions } from '../theme/layout';
-import { PHOTO_TAG, WithMentions, postText } from './WithMentions';
+import { BeforeAfterText, PHOTO_TAG, WithMentions, postText } from './WithMentions';
 import { BountyBadge, NameWithTestMark } from './Badges';
 import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
@@ -434,9 +434,15 @@ function KiezPost({
       </View>
       {body ? (
         <Pressable onPress={onPress} style={styles.textBlock}>
-          <Text style={styles.body} numberOfLines={after ? 4 : 2}>
-            <WithMentions value={body} />
-          </Text>
+          {challenge.type === 'individual' ? (
+            // We-Challenge: #vorher und #nachher zusammen höchstens drei Zeilen (Daria, 2026-11-09)
+            <BeforeAfterText value={body} style={styles.body} />
+          ) : (
+            // Bild und Text: Vorschau mit zwei Zeilen
+            <Text style={styles.body} numberOfLines={2}>
+              <WithMentions value={body} />
+            </Text>
+          )}
         </Pressable>
       ) : null}
     </View>

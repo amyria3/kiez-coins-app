@@ -654,7 +654,8 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   clip: { overflow: 'hidden' },
   // Fashionable Look: Beiträge ohne Lücke, jeder Beitrag bringt 16 pt Abstand unten selbst mit
-  list: { gap: isFashionable ? 0 : space[24] },
+  // Etwas mehr Abstand zwischen den Posts (Daria, 2026-11-09)
+  list: { gap: isFashionable ? 0 : space[32] },
   listTop: { paddingTop: space[8] },
   composeHeader: { height: COMPOSE_HEADER, flexDirection: 'row', alignItems: 'center', gap: space[4], paddingHorizontal: space[8] },
   composeLine: { ...text.title, flex: 1, color: color.text.primary },

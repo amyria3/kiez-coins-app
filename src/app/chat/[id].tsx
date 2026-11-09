@@ -129,8 +129,8 @@ export default function ChatThread() {
             );
           }}
         />
-        {/* Aktives Feld mit lila Rand, auch solange Text darin steht und die Tastatur zu ist (Daria, 2026-11-09) */}
-        <View style={[styles.composer, (focused || !!draft.trim()) && styles.composerFocused, { marginBottom: Math.max(insets.bottom, space[12]) }]}>
+        {/* Aktives Feld mit lila Rand wie alle Eingabefelder (Daria, 2026-11-09) */}
+        <View style={[styles.composer, focused && styles.composerFocused, { marginBottom: Math.max(insets.bottom, space[12]) }]}>
           <TextInput
             style={styles.input}
             value={draft}

@@ -17,7 +17,7 @@ import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 import { Text } from './T';
 import { LikeCount } from './LikeCount';
-import { WithMentions } from './WithMentions';
+import { BeforeAfterText, WithMentions } from './WithMentions';
 
 /** Anteil des Vorher-Fotos an der Höhe: im Ruhezustand 1/3, vergrößert 5/6 (Daria, 23.10.2026) */
 const SPLIT = { none: 1 / 3, before: 5 / 6, after: 1 / 6 } as const;
@@ -236,9 +236,8 @@ function KiezBeforeAfter(props: ChallengePostProps) {
       <Actions {...props} />
       {challenge.text ? (
         <Pressable onPress={onPress} style={styles.textBlock}>
-          <Text style={styles.body} numberOfLines={4}>
-            <WithMentions value={challenge.text} />
-          </Text>
+          {/* Me-Challenge: #vorher und #nachher zusammen höchstens drei Zeilen (Daria, 2026-11-09) */}
+          <BeforeAfterText value={challenge.text} style={styles.body} />
         </Pressable>
       ) : null}
     </View>
