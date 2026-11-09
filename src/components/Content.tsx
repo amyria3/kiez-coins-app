@@ -320,11 +320,16 @@ export function OperationTag({ name }: { name: string }) {
   );
 }
 
-/** Abschnitt mit kleiner Überschrift (z. B. „Coins (optional)“, „Notiz“) */
-export function FieldGroup({ label, children }: { label: string; children: ReactNode }) {
+/**
+ * Abschnitt mit kleiner Überschrift (z. B. „Coins (optional)“, „Notiz“). `large`: etwas größere Überschrift für
+ * Seiten aus mehreren Abschnitten, z. B. Funktionen (Daria, 2026-11-09).
+ */
+export function FieldGroup({ label, children, large }: { label: string; children: ReactNode; large?: boolean }) {
   return (
     <View style={styles.group}>
-      <Text style={styles.groupLabel}>{label}</Text>
+      <Text style={[styles.groupLabel, large && styles.groupLabelLarge]} accessibilityRole={large ? 'header' : undefined}>
+        {label}
+      </Text>
       {children}
     </View>
   );
@@ -467,4 +472,5 @@ const styles = StyleSheet.create({
   rundKater: { position: 'absolute', left: 0, right: 0, bottom: -7, alignItems: 'center' },
   group: { gap: space[8] },
   groupLabel: { ...text.caption, color: color.text.secondary },
+  groupLabelLarge: { fontFamily: font.semiBold, fontSize: 15, lineHeight: 20, marginBottom: space[4] },
 });
