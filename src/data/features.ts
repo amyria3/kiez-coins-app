@@ -51,12 +51,13 @@ export const isTypeActive = (type: ChallengeType) => challengeTypes[type].active
  */
 export type Mode = 'private' | 'groups' | 'kiez' | 'everywhere';
 
+// Erklärungen zu Privat, Kiez und Überall von Daria (2026-11-09)
 export const MODES: { key: Mode; label: string; description: string }[] = [
-  { key: 'private', label: 'Privat', description: 'Was Du hier postest, siehst nur Du.' },
+  { key: 'private', label: 'Privat', description: 'Privater Feed für visuelle Notizen und private Me-Challenges' },
   { key: 'groups', label: 'Deine Gruppen', description: 'We-Challenges im kleinen Kreis, mit Edensteinen' },
-  { key: 'kiez', label: 'Dein Kiez', description: 'Was Du hier postest, sehen alle in Deinem Kiez.' },
+  { key: 'kiez', label: 'Dein Kiez', description: 'Feed mit Beiträgen aus Deinem Kiez' },
   // Überall (Daria, 29.10.2026): alle öffentlichen Beiträge, rechts im Umschalter. Kiez zeigt nur bis 5 km.
-  { key: 'everywhere', label: 'Überall', description: 'Alle öffentlichen Beiträge, auch außerhalb Deines Kiezes.' },
+  { key: 'everywhere', label: 'Überall', description: 'Feed mit allen Beiträgen' },
 ];
 
 /** Name des Modus in Links (`?modus=privat`) */
