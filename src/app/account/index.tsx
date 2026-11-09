@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 
 import { FieldGroup, KaterBubble } from '../../components/Content';
 import { CrownIcon, MonoCat } from '../../components/icons/Brand';
-import { Icon, PhIcon } from '../../components/icons/Icon';
+import { Icon } from '../../components/icons/Icon';
 import { Avatar } from '../../components/AuthorRow';
 import { NavCard, NavRow, ProfileCard } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
@@ -113,7 +113,7 @@ export default function Account() {
       <NavCard
         title="Sprache"
         description={languageName}
-        leading={<PhIcon name="language" size={size.icon} />}
+        leading={<Icon name="language" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/account/language')}
       />
       {lookSelectable ? (

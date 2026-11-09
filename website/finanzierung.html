@@ -130,6 +130,12 @@
 .ansichten .seite { width: 50%; padding: 0 12px 28px; }
 .ist-hinweis { margin: 0 0 16px; font-size: 14px; color: var(--muted); }
 .modell.ist .feld { min-height: 0; }
+/* Im Ist-Zustand statt der Zeitleiste ein Knopf zurück zum Modell (Daria, 09.11.2026) */
+.fin [hidden] { display: none !important; }
+.fin-rechner { scroll-margin-top: 24px; }
+.zum-modell { margin: 40px 0 0; }
+.zum-modell button { font-size: 15px; padding: 12px 20px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; }
+.zum-modell button:hover { border-color: var(--text); }
 </style>
 </head>
 <body>
@@ -160,6 +166,8 @@
     </div>
   </div>
 </section>
+
+<p class="zum-modell" hidden><button type="button" id="zum-modell">← So könnte KiezCoins wachsen</button></p>
 
 <section class="fin-zeit" aria-labelledby="zeit-titel">
   <h2 id="zeit-titel">So könnte KiezCoins wachsen</h2>
@@ -604,6 +612,14 @@
   var schiene = document.querySelector('.umschalter .schiene');
   var istBox = document.getElementById('ist');
   var jetzt = 'modell', istGezeigt = false;
+  var zeit = document.querySelector('.fin-zeit');
+  var zumModell = document.querySelector('.zum-modell');
+  // Hoch zum Umschalter und zurück nach links zum Modell
+  document.getElementById('zum-modell').addEventListener('click', function () {
+    var ruhig = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelector('.fin-rechner').scrollIntoView({ behavior: ruhig ? 'auto' : 'smooth', block: 'start' });
+    zeige('modell');
+  });
   function hoehe() { ansichten.style.height = seiten[jetzt].offsetHeight + 'px'; }
   new ResizeObserver(hoehe).observe(seiten.modell);
   new ResizeObserver(hoehe).observe(seiten.ist);
@@ -616,6 +632,8 @@
     seiten.modell.inert = ansicht !== 'modell';
     seiten.ist.inert = ansicht !== 'ist';
     titel.textContent = ansicht === 'ist' ? 'So steht KiezCoins heute' : 'Stell die Zahl der Abos ein';
+    zeit.hidden = ansicht === 'ist';
+    zumModell.hidden = ansicht !== 'ist';
     hoehe();
     if (ansicht === 'ist' && !istGezeigt) ladeIst();
   }

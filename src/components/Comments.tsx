@@ -1,13 +1,15 @@
 import { useMemo, useRef, useState } from 'react';
-import { Keyboard, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { Keyboard, Modal, Platform, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { scrollIntoView } from './Nudge';
 import { Text } from './T';
 
 import { formatRelative } from '../data/format';
 import type { Comment as CommentData, User } from '../data/types';
-import { color, font, radius, size, space, text } from '../theme/tokens';
+import { color, font, radius, scheme, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { IconButton } from './IconButton';
+import { Icon } from './icons/Icon';
 import { t } from '../data/texts';
 import { activeMention, insertMention, mentionSuggestions, splitMentions } from '../lib/mentions';
 
@@ -21,6 +23,8 @@ type CommentProps = {
   isReply?: boolean;
   /** Tippen auf Bild oder Name öffnet das Profil */
   onAuthorPress?: () => void;
+  /** Herz unter dem Kommentar; fehlt, solange die Likes nicht geladen sind */
+  onLike?: () => void;
   /** Bekannte Personen: „@Name“ im Text wird hervorgehoben und öffnet ihr Profil */
   users?: User[];
   onMentionPress?: (userId: string) => void;
@@ -51,8 +55,11 @@ function CommentBody({ body, users, onMentionPress }: { body: string; users: Use
   );
 }
 
-/** Figma „Comment“: öffentlicher Kommentar. Die Fahne meldet den Kommentar. */
-export function Comment({ comment, author, onReport, onReply, isReply, onAuthorPress, users = [], onMentionPress }: CommentProps) {
+/**
+ * Figma „Comment“: öffentlicher Kommentar. Melden steckt hinter drei senkrechten Punkten,
+ * darunter Herz mit Anzahl und „Antworten“ (Daria, 2026-11-09).
+ */
+export function Comment({ comment, author, onReport, onReply, isReply, onAuthorPress, onLike, users = [], onMentionPress }: CommentProps) {
   const hidden = useHideName(author);
   return (
     <View style={[styles.comment, isReply && styles.reply]}>
@@ -67,22 +74,79 @@ export function Comment({ comment, author, onReport, onReply, isReply, onAuthorP
           <Text style={styles.time}>{formatRelative(comment.createdAt)}</Text>
         </View>
         <CommentBody body={comment.body} users={users} onMentionPress={onMentionPress} />
-        {onReply ? (
-          <Pressable
-            onPress={onReply}
-            accessibilityRole="button"
-            accessibilityLabel={t('{name} antworten', { name: author.name })}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            style={styles.replyButton}
-          >
-            <Text style={styles.replyText}>Antworten</Text>
-          </Pressable>
+        {onLike || onReply ? (
+          <View style={styles.footer}>
+            {onLike ? (
+              <Pressable
+                onPress={onLike}
+                accessibilityRole="button"
+                accessibilityState={{ selected: !!comment.likedByMe }}
+                accessibilityLabel={
+                  comment.likeCount ? t('Gefällt mir, {likeCount} Likes', { likeCount: comment.likeCount }) : t('Gefällt mir')
+                }
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                style={({ pressed }) => [styles.like, pressed && styles.pressed]}
+              >
+                <Icon name="heart" size={11} color={comment.likedByMe ? color.accent.affection : color.text.secondary} />
+                {comment.likeCount ? <Text style={styles.replyText}>{comment.likeCount}</Text> : null}
+              </Pressable>
+            ) : null}
+            {onReply ? (
+              <Pressable
+                onPress={onReply}
+                accessibilityRole="button"
+                accessibilityLabel={t('{name} antworten', { name: author.name })}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                style={({ pressed }) => pressed && styles.pressed}
+              >
+                <Text style={styles.replyText}>Antworten</Text>
+              </Pressable>
+            ) : null}
+          </View>
         ) : null}
       </View>
-      {onReport ? (
-        <IconButton icon="flag" accessibilityLabel={t('Kommentar von {name} melden', { name: author.name })} onPress={onReport} />
-      ) : null}
+      {onReport ? <CommentMenu authorName={author.name} onReport={onReport} /> : null}
     </View>
+  );
+}
+
+/** Drei senkrechte Punkte mit Menü darunter, wie „Weitere Aktionen“ an der Challenge */
+function CommentMenu({ authorName, onReport }: { authorName: string; onReport: () => void }) {
+  const button = useRef<View>(null);
+  const [anchor, setAnchor] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
+  const { width } = useWindowDimensions();
+  const close = () => setAnchor(null);
+  return (
+    <>
+      <View ref={button} collapsable={false}>
+        <IconButton
+          icon="more-vertical"
+          iconSize={14}
+          iconColor={color.text.secondary}
+          accessibilityLabel={t('Weitere Aktionen zum Kommentar von {name}', { name: authorName })}
+          onPress={() => button.current?.measureInWindow((x, y, w, h) => setAnchor({ x, y, w, h }))}
+        />
+      </View>
+      <Modal visible={!!anchor} transparent animationType="fade" statusBarTranslucent navigationBarTranslucent onRequestClose={close}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={close} accessibilityLabel={t('Menü schließen')} />
+        {anchor ? (
+          <View style={[styles.menu, { top: anchor.y + anchor.h, right: Math.max(space[8], width - anchor.x - anchor.w) }]} accessibilityRole="menu">
+            <BlurView intensity={40} tint={scheme} style={StyleSheet.absoluteFill} pointerEvents="none" />
+            <View style={[StyleSheet.absoluteFill, styles.menuTint]} pointerEvents="none" />
+            <Pressable
+              accessibilityRole="menuitem"
+              onPress={() => {
+                close();
+                onReport();
+              }}
+              style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}
+            >
+              <Text style={[styles.menuText, styles.error]}>Melden</Text>
+            </Pressable>
+          </View>
+        ) : null}
+      </Modal>
+    </>
   );
 }
 
@@ -203,6 +267,8 @@ type CommentSectionProps = {
   onReport: (comment: CommentData) => void;
   /** Profil der Person öffnen */
   onAuthorPress?: (userId: string) => void;
+  /** Kommentar liken (Daria, 2026-11-09) */
+  onLike?: (comment: CommentData) => void;
   /** Personen am Beitrag (Erstellerin, Mitmachende), oben in den @-Vorschlägen */
   threadPeople?: string[];
   /** Nicht vorschlagen, z. B. blockierte Personen */
@@ -220,6 +286,7 @@ export function CommentSection({
   audience,
   onReport,
   onAuthorPress,
+  onLike,
   threadPeople,
   hiddenIds,
 }: CommentSectionProps) {
@@ -254,6 +321,7 @@ export function CommentSection({
         users={users}
         onMentionPress={onAuthorPress}
         onReport={c.authorId === currentUserId ? undefined : () => onReport(c)}
+        onLike={onLike && c.likeCount !== undefined ? () => onLike(c) : undefined}
         // Antworten auf eine Antwort hängen am selben Gespräch
         onReply={onSend ? () => setReplyTo({ ...c, id: rootId }) : undefined}
       />
@@ -300,8 +368,27 @@ const styles = StyleSheet.create({
   thread: { gap: space[8] },
   comment: { flexDirection: 'row', gap: space[12], alignItems: 'flex-start' },
   reply: { marginLeft: 48, gap: space[8] },
-  replyButton: { alignSelf: 'flex-start', paddingTop: space[4] },
+  footer: { flexDirection: 'row', alignItems: 'center', gap: space[16], paddingTop: space[4] },
+  like: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  pressed: { opacity: 0.6 },
   replyText: { ...text.caption, fontFamily: font.medium, color: color.text.secondary },
+  menu: {
+    position: 'absolute',
+    minWidth: 200,
+    borderRadius: radius.lg,
+    borderWidth: stroke.ultraThin,
+    borderColor: color.line.hairline,
+    overflow: 'hidden',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+  },
+  menuTint: { backgroundColor: color.bg.menu },
+  menuItem: { position: 'relative', minHeight: size.touchTarget, justifyContent: 'center', paddingHorizontal: space[16] },
+  menuText: { fontFamily: font.regular, fontSize: 15, lineHeight: 20, color: color.text.primary },
+  error: { color: color.accent.error },
   composerBlock: { gap: space[6] },
   replyBar: {
     flexDirection: 'row',

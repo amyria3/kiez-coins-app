@@ -6,7 +6,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Avatar, hiddenText, useHideName } from '../../../components/AuthorRow';
 import { BadgeStrip } from '../../../components/BadgeStrip';
 import { Button } from '../../../components/Button';
-import { Notice } from '../../../components/Content';
+import { QuestionHint } from '../../../components/Content';
 import { Icon } from '../../../components/icons/Icon';
 import { NavRow } from '../../../components/Rows';
 import { SubScreen } from '../../../components/Screen';
@@ -171,7 +171,7 @@ export default function UserProfile() {
       </View>
 
       {isMe ? (
-        <Notice message="So sehen Dich die anderen. Foto, Deckname und Kiez änderst Du unter „Dein Konto“." />
+        <QuestionHint question="Wie ändere ich mein Profil?" answer="So sehen Dich die anderen. Foto, Deckname und Kiez änderst Du unter „Dein Konto“." />
       ) : (
         <>
           {friend === 'none' ? (

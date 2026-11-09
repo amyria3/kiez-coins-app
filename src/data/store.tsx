@@ -7,6 +7,7 @@ import { sampleChallenges, sampleGroups, sampleProfile, sampleUsers, topChalleng
 import { joinedIds } from './weChallenge';
 import { clearStartCache, saveCachedFeed } from './startCache';
 import { splitCents } from './coins';
+import { meInProgress } from './format';
 import { isPostOnly, type Challenge, type Participant, type ParticipantStatus, type ChallengeReport, type ImageSource, type Comment, type FeedState, type Group, type Payout, type PayoutLine, type PayoutShare, type Profile, type User } from './types';
 
 // Zustand der App. Zwei Betriebsarten:
@@ -69,6 +70,8 @@ type Action =
   | { type: 'confirmReceived'; id: string }
   | { type: 'create'; challenge: Challenge }
   | { type: 'toggleLike'; id: string }
+  /** Kommentar liken (Daria, 2026-11-09) */
+  | { type: 'toggleCommentLike'; id: string; commentId: string }
   | { type: 'savePayout'; payout: Payout }
   | { type: 'setCurrentUser'; userId: string }
   | { type: 'setFeedState'; feedState: FeedState; error?: string }
@@ -213,6 +216,8 @@ function reducer(state: State, action: Action): State {
         body: action.body,
         createdAt: new Date().toISOString(),
         replyToId: action.replyToId,
+        // Live: Herz erst, wenn der Kommentar mit echter ID neu geladen ist
+        ...(state.mode === 'live' ? {} : { likeCount: 0, likedByMe: false }),
       };
       return updateChallenge(state, action.id, (c) => ({ comments: [...c.comments, comment] }));
     }
@@ -302,6 +307,14 @@ function reducer(state: State, action: Action): State {
       return updateChallenge(state, action.id, (c) => ({
         likedByMe: !c.likedByMe,
         likeCount: c.likeCount === undefined ? undefined : Math.max(0, c.likeCount + (c.likedByMe ? -1 : 1)),
+      }));
+    case 'toggleCommentLike':
+      return updateChallenge(state, action.id, (c) => ({
+        comments: c.comments.map((m) =>
+          m.id === action.commentId
+            ? { ...m, likedByMe: !m.likedByMe, likeCount: Math.max(0, (m.likeCount ?? 0) + (m.likedByMe ? -1 : 1)) }
+            : m,
+        ),
       }));
     case 'savePayout':
       return {
@@ -454,6 +467,11 @@ async function persist(action: Action, before: State): Promise<string | null> {
     case 'toggleLike': {
       const liked = before.challenges.find((c) => c.id === action.id)?.likedByMe;
       await remote.setLike(action.id, userId, !liked);
+      return null;
+    }
+    case 'toggleCommentLike': {
+      const liked = before.challenges.find((c) => c.id === action.id)?.comments.find((m) => m.id === action.commentId)?.likedByMe;
+      await remote.setCommentLike(action.commentId, userId, !liked);
       return null;
     }
     case 'savePayout':
@@ -853,20 +871,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           id: `vorher-nachher-${Date.now()}`,
           type: 'before_after',
           title: input.title.trim().slice(0, 60),
-          text: '',
           beforeText: input.beforeText.trim() || undefined,
           authorId: s.currentUserId,
           groupId: input.groupId,
           private: !input.groupId && input.private ? true : undefined,
           localOnly: !input.groupId && !input.private && input.localOnly ? true : undefined,
           location: '',
-          status: 'draft',
+          // Gleich offen, die App schließt nach 7 Tagen ab (Daria, 2026-11-09)
+          status: 'open',
+          text: beforeAfterBody({ beforeText: input.beforeText.trim() || undefined }),
           image: input.photo,
           imageBefore: input.photo,
           likedByMe: false,
           comments: [],
           createdAt: new Date().toISOString(),
-          deadline: '',
+          deadline: new Date(Date.now() + 7 * 24 * 3600_000).toISOString(),
         };
         localDispatch({ type: 'create', challenge });
         return challenge.id;
@@ -874,12 +893,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       startTimer: async (id) => {
         if (!isDemo()) return live(id, () => remote.startBeforeAfterTimer(id));
         const c = find(id);
-        if (c && !c.timerStartedAt) put({ ...c, timerStartedAt: new Date().toISOString() });
+        if (c && !c.timerStartedAt) {
+          const start = new Date();
+          put({ ...c, timerStartedAt: start.toISOString(), ...(c.status === 'open' ? { deadline: new Date(start.getTime() + remote.BEFORE_AFTER_MAX_MS).toISOString() } : null) });
+        }
       },
       stopTimer: async (id) => {
         if (!isDemo()) return live(id, () => remote.stopBeforeAfterTimer(id));
         const c = find(id);
-        if (c) put({ ...c, timerStartedAt: undefined });
+        if (c)
+          put({
+            ...c,
+            timerStartedAt: undefined,
+            ...(c.status === 'open' ? { deadline: new Date(Math.max(Date.parse(c.createdAt) + 7 * 24 * 3600_000, Date.now())).toISOString() } : null),
+          });
       },
       update: async (id, edit) => {
         if (!isDemo()) return live(id, () => remote.updateBeforeAfter(stateRef.current.currentUserId, id, edit));
@@ -905,7 +932,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           text: beforeAfterBody(c),
           image: c.imageAfter ?? c.imageBefore,
           finishedAt: new Date(end).toISOString(),
-          createdAt: new Date(now).toISOString(),
+          // Offene Me-Challenge behält ihre Zeit, ein alter Entwurf bekommt die des Postens
+          createdAt: c.status === 'draft' ? new Date(now).toISOString() : c.createdAt,
           deadline: new Date(now).toISOString(),
         });
       },
@@ -972,8 +1000,7 @@ export function runningBeforeAfter(challenges: Challenge[], me: string, now = Da
   return challenges
     .filter(
       (c) =>
-        c.type === 'before_after' &&
-        c.status === 'draft' &&
+        meInProgress(c) &&
         c.authorId === me &&
         !!c.timerStartedAt &&
         now - Date.parse(c.timerStartedAt) < remote.BEFORE_AFTER_MAX_MS,

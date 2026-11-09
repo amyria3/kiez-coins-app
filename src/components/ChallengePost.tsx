@@ -374,7 +374,7 @@ function KiezPost({
             onPress={onCommentPress ?? onPress}
             style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
           >
-            <Icon name="comment" size={size.icon} color={color.text.primary} />
+            <Icon name="comment-filled" size={size.icon} color={color.text.primary} />
             {commentCount > 0 ? <Text style={styles.count}>{commentCount}</Text> : null}
           </Pressable>
           <IconButton
@@ -523,7 +523,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
           onPress={onCommentPress ?? onPress}
           style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
         >
-          <Icon name="comment" size={size.icon} color={color.text.primary} />
+          <Icon name="comment-filled" size={size.icon} color={color.text.primary} />
           {commentCount > 0 ? <Text style={fashion.count}>{commentCount}</Text> : null}
         </Pressable>
         <IconButton

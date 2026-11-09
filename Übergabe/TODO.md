@@ -1,12 +1,14 @@
 # To-dos
 
-Stand: 2026-11-08. Diese Liste ist die einzige To-do-Liste für KiezCoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
+Stand: 2026-11-09. Diese Liste ist die einzige To-do-Liste für KiezCoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
 
 Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coins/screenshots/`. Sie stehen absichtlich nicht im Repo, weil das Repo öffentlich ist und einige Bilder Adressen und Namen zeigen.
 
 ## Pflicht (Daria, 08.11.2026)
 
 - [ ] **Pflichtaufgabe:** kiezcoins.de bei INWX auf Vercel umstellen. Bis dahin funktionieren Einladungslinks, Instant-Einladungen, Instant-Download und geteilte Posts nicht. Schritte: `2026-11-08_offen_domain-kiezcoins-de.md`.
+- [ ] **Pflichtaufgabe:** Migration `20261109000100_comment_likes.sql` im Supabase SQL Editor ausführen. Bis dahin zeigen Kommentare kein Herz. Details: `2026-11-09_offen_kommentare-liken.md`.
+- [ ] **Pflichtaufgabe:** Migration `20261109000200_me_challenge_offen.sql` im Supabase SQL Editor ausführen. Bis dahin bleibt eine neue Me-Challenge ein Entwurf. Details: `2026-11-09_offen_me-challenge-offen.md`.
 
 ## Dringend (Daria, 30.10.2026)
 
@@ -44,6 +46,10 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Erinnerungen mit Kater-Nachrichten: eigener Reiter, verknüpft mit Post, Textpost oder Me-Challenge, Ziel nach Zeit oder x-mal pro Woche, erledigt in Gruppe, privat, Kiez oder überall posten. Noch nicht bauen, erst Rückfragen klären. Details: `2026-11-07_offen_erinnerungen.md`.
 - [ ] Später: einfache Animationen für die Erinnerungen.
 - [ ] Später: allgemein Animationen, ggf. mit dem Kater, der erklärt, was man machen kann oder soll. Ob es das braucht und in welcher Form, klärt der qualitative Test am 07.11.2026.
+
+## Icons (Daria, 09.11.2026)
+
+- [ ] Icon für Freundschaften neu zeichnen: zwei Katzen sitzen nebeneinander, Sicht von oben. Ersetzt `friends` (zwei Gesichter) im Kiez-Look. Im Fashionable Look bleibt `handshake`.
 
 ## Meine Posts (Daria, 07.11.2026)
 

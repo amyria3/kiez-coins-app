@@ -251,7 +251,7 @@ function PostDemo() {
   );
 }
 
-/** Me-Challenge wie in der App: Vorher-Foto, „Vorher speichern“, „Timer starten“, „Nachher aufnehmen“, „Me-Challenge posten“. */
+/** Me-Challenge wie in der App: Vorher-Foto, „Vorher posten“, „Timer starten“, „Nachher aufnehmen“, „Abschließen und posten“. */
 function MeDemo() {
   const [step, setStep] = useState(0);
   const c = sampleChallenges.find((x) => x.id === 'vorher-nachher-hof');
@@ -273,7 +273,7 @@ function MeDemo() {
         <Pad>
           <DemoPhoto photo={c.imageBefore} title={c.title} />
           <NextStep on>
-            <Button label="Vorher speichern" onPress={() => setStep(2)} />
+            <Button label="Vorher posten" onPress={() => setStep(2)} />
           </NextStep>
         </Pad>
       </Demo>
@@ -282,7 +282,7 @@ function MeDemo() {
   if (step === 2 || step === 3) {
     const running = { ...c, status: 'draft' as const, timerStartedAt: new Date(Date.now() - 25 * 60_000).toISOString(), finishedAt: undefined };
     return (
-      <Demo cue={step === 2 ? 'Starte den Timer, sobald Du loslegst' : 'Der Timer läuft, auch wenn Du die App schließt'}>
+      <Demo cue={step === 2 ? 'Willst Du Deine Zeit nehmen? Dann starte den Timer' : 'Der Timer läuft, auch wenn Du die App schließt'}>
         {step === 3 ? (
           <Pad>
             <RunningBeforeAfter challenge={running} onPress={noop} />
@@ -306,7 +306,7 @@ function MeDemo() {
         <Pad>
           <DemoPhoto photo={c.imageAfter} title={c.title} />
           <NextStep on>
-            <Button label="Me-Challenge posten" onPress={() => setStep(5)} />
+            <Button label="Abschließen und posten" onPress={() => setStep(5)} />
           </NextStep>
         </Pad>
       </Demo>

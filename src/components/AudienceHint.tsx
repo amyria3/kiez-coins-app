@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Text } from './T';
 import { IconButton } from './IconButton';
+import { CHAT_GAP_SAME, Notice } from './Content';
 import { t } from '../data/texts';
 import { color, isFashionable, radius, space, text } from '../theme/tokens';
 
@@ -84,6 +85,16 @@ export function useAudienceHint(audience: Audience): [boolean, () => void] {
 }
 
 export function AudienceHint({ audience, onClose }: { audience: Audience; onClose: () => void }) {
+  // Kiez-Look: Systemmeldung als hellblaue Chatblasen, je Zeile eine Nachricht; das Kreuz an der ersten schließt beide (Daria, 2026-11-09)
+  if (!isFashionable) {
+    return (
+      <View style={[styles.wrap, styles.bubbles]}>
+        {MESSAGE[audience].map((line, i) => (
+          <Notice key={line} message={line} onClose={i === 0 ? onClose : undefined} tail={i === MESSAGE[audience].length - 1} />
+        ))}
+      </View>
+    );
+  }
   return (
     <View style={styles.wrap}>
       <View style={styles.hint}>
@@ -103,6 +114,8 @@ export function AudienceHint({ audience, onClose }: { audience: Audience; onClos
 const styles = StyleSheet.create({
   // Fashionable Look: Liste ohne Abstände, daher eigener Rand oben und unten
   wrap: { paddingHorizontal: space[16], paddingVertical: isFashionable ? space[8] : 0 },
+  // Zwei Nachrichten derselben Seite: kleiner Abstand (Daria, 2026-11-09)
+  bubbles: { gap: CHAT_GAP_SAME },
   hint: {
     flexDirection: 'row',
     alignItems: 'center',

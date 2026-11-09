@@ -463,9 +463,11 @@ const styles = StyleSheet.create({
     borderTopRightRadius: radius.sheet,
     backgroundColor: color.bg.screen,
     paddingTop: space[8],
-    paddingHorizontal: space[20],
+    // Mehr Luft links und rechts (Daria, 2026-11-09)
+    paddingHorizontal: space[24],
     paddingBottom: space[16],
-    gap: space[12],
+    // Mehr Luft zwischen den Abschnitten (Daria, 2026-11-09)
+    gap: space[20],
   },
   sheetHeadAbove: { zIndex: 10 },
   sheetHead: { gap: space[12] },

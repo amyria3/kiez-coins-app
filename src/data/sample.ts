@@ -53,6 +53,8 @@ const gardenComments: Comment[] = [
     authorId: 'lena',
     body: 'Gibt es vor Ort Handschuhe oder soll ich eigene mitbringen?',
     createdAt: inPast(2 * HOUR),
+    likeCount: 1,
+    likedByMe: false,
   },
   {
     id: 'c2',
@@ -60,6 +62,8 @@ const gardenComments: Comment[] = [
     replyToId: 'c1',
     body: 'Handschuhe und Schaufeln sind da. Bring gern Wasser mit!',
     createdAt: inPast(1 * HOUR),
+    likeCount: 2,
+    likedByMe: false,
   },
 ];
 

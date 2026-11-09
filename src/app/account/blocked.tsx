@@ -4,7 +4,7 @@ import { Text } from '../../components/T';
 
 import { AuthorRow } from '../../components/AuthorRow';
 import { Button } from '../../components/Button';
-import { Notice } from '../../components/Content';
+import { QuestionHint } from '../../components/Content';
 import { SubScreen } from '../../components/Screen';
 import { nameInText } from '../../data/format';
 import { errorText, loadBlockedUsers } from '../../data/remote';
@@ -55,7 +55,7 @@ export default function BlockedUsers() {
 
   return (
     <SubScreen title="Blockierte Personen" navigation="back" onLeadingPress={goBack}>
-      <Notice message="Blockierte Personen sehen nicht, dass Du sie blockiert hast. Sie können Deine Challenges weder annehmen noch kommentieren." />
+      <QuestionHint question="Merken Blockierte etwas davon?" answer="Blockierte Personen sehen nicht, dass Du sie blockiert hast. Sie können Deine Challenges weder annehmen noch kommentieren." />
       {blocked && blocked.length === 0 ? <Text style={styles.secondary}>Du hast niemanden blockiert.</Text> : null}
       {blocked?.map((user) => (
         <View key={user.id} style={styles.item}>

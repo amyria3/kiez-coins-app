@@ -1,6 +1,6 @@
 // Icons für den Look „Fashionable“: Phosphor Icons, Gewicht Regular (Daria, 24.10.2026), bis Font Awesome Pro bezahlt ist.
 // Gefüllt (z. B. Herz bei „gefällt mir“) in Phosphor Fill. Lizenz: MIT (phosphoricons.com).
-// Im Kiez-Look erscheinen sie nur dort, wo es kein handgezeichnetes Icon gibt (PhIcon).
+// Im Kiez-Look zeigt die App nur Darias Icons und Icons aus ihren Vektoren (Daria, 2026-11-09).
 // Fehlt ein Name hier, zeigt Icon.tsx Darias Icon aus svgs.ts.
 import type { IconName } from './svgs';
 import { useAppDimensions } from '../../theme/layout';
@@ -91,13 +91,11 @@ export const fashionableSvgs: Partial<Record<IconName, Svg>> = {
   plus: ph('plus'),
   minus: ph('minus'),
   more: ph('dots-three'),
-  clock: ph('clock'),
+  'more-vertical': ph('dots-three-vertical'),
   'clock-filled': ph('clock'),
-  info: ph('info'),
-  flag: ph('flag'),
+  'info-filled': ph('info'),
   copy: ph('copy'),
-  eye: ph('eye'),
-  'eye-off': ph('eye-slash'),
+  language: ph('translate'),
   // Deine Challenges: Raster
   ship: ph('squares-four'),
   // Gruppen: Personen

@@ -13,11 +13,11 @@ import { GlassIconButton } from '../../../components/Glass';
 import { IconButton } from '../../../components/IconButton';
 import { Button } from '../../../components/Button';
 import { CommentSection } from '../../../components/Comments';
-import { InfoRow, KaterBubble, Notice, OperationTag } from '../../../components/Content';
+import { CHAT_GAP_SAME, InfoRow, KaterBubble, Notice, QuestionHint, OperationTag } from '../../../components/Content';
 import { TextField } from '../../../components/Form';
 import { HeroScreen, SubScreen } from '../../../components/Screen';
 import { TextHero, isTextPost } from '../../../components/TextSheets';
-import { beforeAfterDuration, formatBountyShort, formatCents, formatDayMonthShort, formatEuro, formatHoursMinutes, formatRelative, formatRemainingShort } from '../../../data/format';
+import { beforeAfterDuration, meInProgress, formatBountyShort, formatCents, formatDayMonthShort, formatEuro, formatHoursMinutes, formatRelative, formatRemainingShort } from '../../../data/format';
 import { WithMentions, postText } from '../../../components/WithMentions';
 import { isSharedBounty, payoutOf, shareCentsOf, sharedBountyText } from '../../../data/coins';
 import {
@@ -200,6 +200,9 @@ export default function ChallengeDetail() {
     actions = <Button label="Coins bezahlen" onPress={() => router.push(`/challenge/${challenge.id}/pay`)} />;
   } else if (canConfirmReceived) {
     actions = <Button label="Coins bestätigen" onPress={() => router.push(`/challenge/${challenge.id}/received`)} />;
+  } else if (isAuthor && meInProgress(challenge)) {
+    // Offene Me-Challenge: weiter zum Timer oder Nachher (Daria, 2026-11-09)
+    actions = <Button icon="camera" label="Nachher aufnehmen" onPress={() => router.push({ pathname: '/before-after/[id]', params: { id: challenge.id } })} />;
   }
 
   const openProfile = (userId: string) =>
@@ -212,6 +215,14 @@ export default function ChallengeDetail() {
   // Löschen bis jemand annimmt, auch geschlossene (Migration 20261021000300)
   const canDelete = isAuthor && (challenge.status === 'open' || challenge.status === 'closed') && !challenge.assigneeId;
   const description = challenge.type === 'wave' ? challenge.challengeText?.trim() : postText(challenge);
+  const askWhy = joinOpen && !mine && far && challenge.joinMode !== 'approval' && freeSpots(challenge) > 0;
+  const askCoins = !!challenge.bountyAmount && !isAuthor;
+  const authorLocation = acceptedByMe ? (challenge.kiez ?? challenge.location) : challenge.location;
+  const descriptionText = description ? (
+    <Text style={styles.description}>
+      {isBeforeAfter || challenge.type === 'photo' || challenge.type === 'individual' ? <WithMentions value={description} /> : description}
+    </Text>
+  ) : null;
 
   const closeChallenge = () =>
     Alert.alert(
@@ -488,7 +499,7 @@ export default function ChallengeDetail() {
         </>
       ) : null}
       {baDuration !== undefined ? (
-        <InfoRow icon="clock" value={t('In {duration} geschafft', { duration: formatHoursMinutes(baDuration) })} />
+        <InfoRow icon="clock-filled" value={t('In {duration} geschafft', { duration: formatHoursMinutes(baDuration) })} />
       ) : null}
       {!isAuthor && mine?.status === 'requested' ? (
         <Notice message={tAbout(author, 'Deine Anfrage ist bei {firstName}. Du bekommst Bescheid, sobald {firstName} antwortet.', { firstName: author.firstName })} />
@@ -499,23 +510,45 @@ export default function ChallengeDetail() {
       {!isAuthor && (mine?.status === 'removed' || mine?.status === 'declined') ? (
         <Notice variant="warning" message={mine.status === 'removed' ? t('Du bist bei dieser Challenge nicht mehr dabei.') : t('Deine Anfrage wurde abgelehnt.')} />
       ) : null}
-      {joinOpen && !mine && far && challenge.joinMode !== 'approval' && freeSpots(challenge) > 0 ? (
-        <Notice
-          message={
-            here
-              ? tAbout(author, 'Du bist mehr als 5 km entfernt. Du kannst anfragen, {firstName} entscheidet.', { firstName: author.firstName })
-              : tAbout(author, 'Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.', { firstName: author.firstName })
-          }
-        />
+      {/* Fragen untereinander (Daria, 2026-11-09) */}
+      {askWhy || askCoins ? (
+      <View style={styles.questions}>
+        {askWhy ? (
+          // Erklärungen als Frage mit Antwort zum Aufklappen (Daria, 2026-11-09)
+          <QuestionHint
+            question={t('Warum kann ich nur anfragen?')}
+            answer={
+              here
+                ? tAbout(author, 'Du bist mehr als 5 km entfernt. Du kannst anfragen, {firstName} entscheidet.', { firstName: author.firstName })
+                : tAbout(author, 'Ohne Deinen Standort weiß die App nicht, ob Du in der Nähe bist. Du kannst anfragen, {firstName} entscheidet.', { firstName: author.firstName })
+            }
+          />
+        ) : null}
+        {askCoins && sharedBounty ? (
+          <QuestionHint
+            question={t('Wie funktioniert das mit den Coins?')}
+            answer={tAbout(author, 'Die {amount} werden unter allen geteilt, die mitmachen. {firstName} zahlt jeder Person ihren Anteil direkt, zum Beispiel per Überweisung oder PayPal. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })}
+          />
+        ) : askCoins ? (
+          <QuestionHint
+            question={t('Wie funktioniert das mit den Coins?')}
+            answer={
+              acceptedByMe
+                ? tAbout(author, '{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })
+                : tAbout(author, '{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName })
+            }
+          />
+        ) : null}
+      </View>
       ) : null}
       {!isAuthor && !mine && multi && participantsOpen(challenge) && freeSpots(challenge) === 0 ? (
         <Notice message={t('Alle Plätze sind vergeben.')} />
       ) : null}
-      {description ? (
-        <Text style={styles.description}>
-          {isBeforeAfter || challenge.type === 'photo' || challenge.type === 'individual' ? <WithMentions value={description} /> : description}
-        </Text>
-      ) : null}
+      {/* Erst die Person, dann ihr Text in Textfarbe, ohne Trennlinie (Daria, 2026-11-09, Versuch 2 von 3) */}
+      <View style={styles.authorAndText}>
+        <AuthorRow user={author} location={authorLocation} onPress={() => openProfile(author.id)} />
+        {descriptionText}
+      </View>
       {challenge.type === 'individual' && (multi || challenge.joinMode === 'approval' || joinRequests(challenge).length > 0 || (challenge.participants ?? []).length > 1) ? (
         <ParticipantsSection
           challenge={challenge}
@@ -527,13 +560,6 @@ export default function ChallengeDetail() {
           onRemove={(userId) => dispatch({ type: 'removeParticipant', id: challenge.id, userId })}
         />
       ) : null}
-      <View style={styles.authorBlock}>
-        <AuthorRow
-          user={author}
-          location={acceptedByMe ? (challenge.kiez ?? challenge.location) : challenge.location}
-          onPress={() => openProfile(author.id)}
-        />
-      </View>
       {needsShare ? (
         <View style={styles.naming}>
           <Notice
@@ -541,19 +567,6 @@ export default function ChallengeDetail() {
           />
           <Button label="Zahlungsdaten freigeben" variant="secondary" onPress={() => router.push(`/challenge/${challenge.id}/complete/payout?nur=1`)} />
         </View>
-      ) : null}
-      {challenge.bountyAmount && !isAuthor && sharedBounty ? (
-        <Notice
-          message={tAbout(author, 'Die {amount} werden unter allen geteilt, die mitmachen. {firstName} zahlt jeder Person ihren Anteil direkt, zum Beispiel per Überweisung oder PayPal. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })}
-        />
-      ) : challenge.bountyAmount && !isAuthor ? (
-        <Notice
-          message={
-            acceptedByMe
-              ? tAbout(author, '{firstName} zahlt die {amount} direkt an Dich. Beim Erledigt-Melden gibst Du {firstName} dafür Deine IBAN oder PayPal frei. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName, amount })
-              : tAbout(author, '{firstName} zahlt die Coins direkt an Dich, zum Beispiel per Überweisung oder PayPal. KiezCoins bewegt kein Geld, alles beruht auf Vertrauen.', { firstName: author.firstName })
-          }
-        />
       ) : null}
       {isAuthor && challenge.status === 'deleted' ? (
         <Button label={isPhoto ? 'Post wiederherstellen' : 'Challenge wiederherstellen'} variant="secondary" onPress={restore} />
@@ -580,6 +593,7 @@ export default function ChallengeDetail() {
                 : 'Lege in Deinem Konto Deinen Kiez fest, dann kannst Du mitschreiben.'
           }
           onAuthorPress={openProfile}
+          onLike={(comment) => dispatch({ type: 'toggleCommentLike', id: challenge.id, commentId: comment.id })}
           threadPeople={[
             challenge.authorId,
             ...(challenge.assigneeId ? [challenge.assigneeId] : []),
@@ -723,8 +737,10 @@ const styles = StyleSheet.create({
   eden: { color: color.accent.confirmation },
   error: { color: color.accent.error },
   muted: { color: color.text.secondary, opacity: 0.6 },
-  description: { fontFamily: font.text, fontSize: 15, lineHeight: 22, color: color.text.secondary },
-  authorBlock: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
+  description: { ...text.body, color: color.text.primary },
+  authorAndText: { gap: space[12] },
+  // Fragen derselben Seite dicht untereinander; offen bringt QuestionHint selbst den größeren Abstand mit (Daria, 2026-11-09)
+  questions: { gap: CHAT_GAP_SAME },
   secondary: { ...text.body, color: color.text.secondary },
   naming: { gap: space[12] },
 });
