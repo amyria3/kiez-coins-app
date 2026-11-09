@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: space[16],
   },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
-  caption: { ...text.caption, fontSize: 13, color: color.text.secondary },
+  caption: { ...text.meta, color: color.text.secondary },
   headline: { ...text.headline, color: color.text.primary },
   metrics: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
   metric: {
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     backgroundColor: color.bg.surface,
   },
-  metricLabel: { ...text.caption, fontSize: 13, color: color.text.secondary },
+  metricLabel: { ...text.meta, color: color.text.secondary },
   deadline: { justifyContent: 'center', minHeight: size.touchTarget },
   metricValue: { ...text.metric, fontSize: 17, lineHeight: 22, color: color.text.primary },
   signal: { color: color.accent.signal },

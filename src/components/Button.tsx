@@ -2,7 +2,7 @@ import { useEffect, useRef, type RefObject } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
-import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
+import { color, isFashionable, radius, space, stroke, text } from '../theme/tokens';
 import { useTexts } from '../data/texts';
 import { Glass, glassControls } from './Glass';
 import { GearsLoader, SMALL_GEARS } from './GearsLoader';
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   fashion: { minHeight: 44, paddingHorizontal: space[16], borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
-  fashionLabel: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18 },
+  fashionLabel: { ...text.bodyStrong },
   pressed: { opacity: 0.8 },
   disabled: { opacity: 0.5 },
 });

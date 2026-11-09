@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
   },
   menuTint: { backgroundColor: color.bg.menu },
   menuItem: { position: 'relative', minHeight: size.touchTarget, justifyContent: 'center', paddingHorizontal: space[16] },
-  menuText: { fontFamily: font.regular, fontSize: 15, lineHeight: 20, color: color.text.primary },
+  menuText: { ...text.bodyLarge, color: color.text.primary },
   error: { color: color.accent.error },
   composerBlock: { gap: space[6] },
   replyBar: {

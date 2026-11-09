@@ -307,7 +307,7 @@ export default function BeforeAfterScreen() {
 const styles = StyleSheet.create({
   ringWrap: { alignItems: 'center', paddingVertical: space[8] },
   big: { fontFamily: font.display, fontSize: 44, lineHeight: 48, letterSpacing: -1, color: color.text.primary, fontVariant: ['tabular-nums'] },
-  of: { ...text.caption, fontSize: 12, color: color.text.secondary },
+  of: { ...text.small, color: color.text.secondary },
   mini: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
   miniPhoto: { width: 56, height: 56, borderRadius: radius.md },
   miniTexts: { flex: 1, gap: space[2] },
   miniTitle: { fontFamily: font.medium, fontSize: 15, lineHeight: 19, color: color.text.primary },
-  small: { ...text.caption, fontSize: 12, color: color.text.secondary },
+  small: { ...text.small, color: color.text.secondary },
   note: { ...text.body, fontSize: 13, color: color.text.secondary },
   durationRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   durationText: { ...text.body, fontSize: 13, color: color.text.secondary },
