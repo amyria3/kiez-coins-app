@@ -41,11 +41,12 @@ export default function DataAccessScreen() {
       <Text style={styles.body}>
         Hier siehst Du, ob jemand aus dem Team Deine persönlichen Daten abgerufen hat. Protokolliert wird bisher jeder Abruf Deiner privaten Chats.
       </Text>
+      {/* Wie im Chat: erst der Hinweis, dann die Frage, dann die Antwort (Daria, 2026-11-09) */}
+      {failed ? <Notice variant="warning" message={t('Protokoll nicht geladen: {error}', { error: failed })} /> : null}
       {/* 2 bis 3 Sätze zur Verschlüsselung (Daria, 27.10.2026) */}
       <QuestionHint
         question="Kann das Team meine Nachrichten lesen?"
         answer="Geplant ist Ende-zu-Ende-Verschlüsselung für Deine Nachrichten. Dann können nur autorisierte Nutzer:innen, also Du und die Person, mit der Du schreibst, sie lesen, auch das Team nicht. Im jetzigen Stadium der App ist das noch nicht umsetzbar, deshalb steht hier jeder Abruf."
-        then={failed ? <Notice variant="warning" message={t('Protokoll nicht geladen: {error}', { error: failed })} /> : undefined}
       />
       <FieldGroup label="Vom Team abgerufen">
         {entries && byTeam.length === 0 ? <Text style={styles.secondary}>Niemand aus dem Team hat Deine Chats abgerufen.</Text> : null}
