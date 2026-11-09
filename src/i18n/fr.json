@@ -1352,5 +1352,7 @@
   "Verbunden": "Connecté",
   "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "Tu as voté que tu utiliserais l’API pour les comptes X. Merci ! Nous te comptons.",
   "Was und wie kann ich mit dieser Funktion weiterposten?": "Que puis-je repartager avec cette fonction, et comment ?",
-  "Neu verbinden": "Reconnecter"
+  "Neu verbinden": "Reconnecter",
+  "Trennen oder neu verbinden": "Déconnecter ou reconnecter",
+  "{label} trennen oder neu verbinden?": "Déconnecter ou reconnecter {label} ?"
 }
