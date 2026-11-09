@@ -193,8 +193,11 @@ function Reise() {
           </View>
         )}
 
-        {/* Finanzierung ganz unten: Text, Balken, Punkte, Link für Details (Daria, 08.11.2026) */}
-        <FinanceOverview />
+        {/* Finanzierung ganz unten: Text, Balken, Punkte, Link für Details (Daria, 08.11.2026).
+            Doppelter Abstand davor, da sie nicht mehr zu den Reitern gehört (Daria, 2026-11-09) */}
+        <View style={styles.financeSection}>
+          <FinanceOverview />
+        </View>
       </ScrollView>
       <TabBar
         active="reise"
@@ -235,6 +238,8 @@ const styles = StyleSheet.create({
   // Mehr Luft zwischen den Abschnitten (Daria, 29.10.2026)
   content: { paddingTop: space[24], paddingHorizontal: space[20], gap: space[24] },
   tasks: { gap: space[8] },
+  // Mit dem gap der Seite 48 pt Abstand zum Inhalt der Reiter
+  financeSection: { marginTop: space[24] },
   flex: { flex: 1, gap: space[2] },
   pressed: { opacity: 0.8 },
   title: { ...text.display, color: color.text.primary },
