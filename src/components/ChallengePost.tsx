@@ -184,6 +184,56 @@ function KiezPost({
   // Challenges zeigen ihren Titel immer auf dem Foto, ohne Blur, nur mit weichem Schatten (Daria, 2026-11-07)
   const titleAlways = !isPostOnly(challenge.type) && !!challenge.title.trim();
 
+  // Knöpfe rechtsbündig, Verwalten links (Daria, 2026-11-09). Ohne Foto und ohne Textblätter stehen sie
+  // in der grauen Karte (Daria, 2026-11-09).
+  const inCard = !image && !textPages && !after;
+  const actionsBar = (
+    <View style={[styles.actions, inCard && styles.actionsInCard]}>
+      <View style={styles.actionsManage}>
+        {onManage ? (
+          // Zahnrad statt Text-Button (Daria, 22.10.2026)
+          <IconButton
+            icon="settings"
+            iconSize={size.icon}
+            accessibilityLabel={t('Deine Posts verwalten')}
+            onPress={onManage}
+          />
+        ) : null}
+      </View>
+      <View style={styles.actionsButtons}>
+        {/* Herz mit Anzahl; das Geschenk ist ausgeblendet (Daria, 22.10.2026) */}
+        {/* Herz liked, die Zahl daneben zeigt, wer geliked hat (Daria, 2026-11-05) */}
+        {wrapLike(
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: !!challenge.likedByMe }}
+            accessibilityLabel={challenge.likeCount ? t('Gefällt mir, {likeCount} Likes', { likeCount: challenge.likeCount }) : t('Gefällt mir')}
+            onPress={onLike}
+            style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
+          >
+            <Icon name="heart" size={size.icon} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
+          </Pressable>
+        )}
+        <LikeCount challengeId={challenge.id} count={challenge.likeCount} style={styles.count} />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={commentCount ? t('Kommentieren, {commentCount} Kommentare', { commentCount }) : t('Kommentieren')}
+          onPress={onCommentPress ?? onPress}
+          style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
+        >
+          <Icon name="comment-filled" size={size.icon} color={color.text.primary} />
+          {commentCount > 0 ? <Text style={styles.count}>{commentCount}</Text> : null}
+        </Pressable>
+        <IconButton
+          icon="send"
+          iconSize={size.icon}
+          accessibilityLabel={t('Teilen')}
+          onPress={() => share(challenge)}
+        />
+      </View>
+    </View>
+  );
+
   return (
     <View style={styles.post}>
       {textPages ? (
@@ -395,55 +445,12 @@ function KiezPost({
               <View style={styles.plainRewards}>{rewards}</View>
             </View>
           )}
+          {inCard ? actionsBar : null}
         </Pressable>
       )}
-      {/* Knöpfe rechtsbündig, Verwalten links (Daria, 2026-11-09) */}
-      <View style={styles.actions}>
-        <View style={styles.actionsManage}>
-          {onManage ? (
-            // Zahnrad statt Text-Button (Daria, 22.10.2026)
-            <IconButton
-              icon="settings"
-              iconSize={size.icon}
-              accessibilityLabel={t('Deine Posts verwalten')}
-              onPress={onManage}
-            />
-          ) : null}
-        </View>
-        <View style={styles.actionsButtons}>
-          {/* Herz mit Anzahl; das Geschenk ist ausgeblendet (Daria, 22.10.2026) */}
-          {/* Herz liked, die Zahl daneben zeigt, wer geliked hat (Daria, 2026-11-05) */}
-          {wrapLike(
-            <Pressable
-              accessibilityRole="button"
-              accessibilityState={{ selected: !!challenge.likedByMe }}
-              accessibilityLabel={challenge.likeCount ? t('Gefällt mir, {likeCount} Likes', { likeCount: challenge.likeCount }) : t('Gefällt mir')}
-              onPress={onLike}
-              style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
-            >
-              <Icon name="heart" size={size.icon} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
-            </Pressable>
-          )}
-          <LikeCount challengeId={challenge.id} count={challenge.likeCount} style={styles.count} />
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={commentCount ? t('Kommentieren, {commentCount} Kommentare', { commentCount }) : t('Kommentieren')}
-            onPress={onCommentPress ?? onPress}
-            style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
-          >
-            <Icon name="comment-filled" size={size.icon} color={color.text.primary} />
-            {commentCount > 0 ? <Text style={styles.count}>{commentCount}</Text> : null}
-          </Pressable>
-          <IconButton
-            icon="send"
-            iconSize={size.icon}
-            accessibilityLabel={t('Teilen')}
-            onPress={() => share(challenge)}
-          />
-        </View>
-      </View>
+      {inCard ? null : actionsBar}
       {body ? (
-        <Pressable onPress={onPress} style={styles.textBlock}>
+        <Pressable onPress={onPress} style={[styles.textBlock, inCard && styles.textBelowCard]}>
           {challenge.type === 'individual' ? (
             // We-Challenge: #vorher und #nachher zusammen höchstens drei Zeilen (Daria, 2026-11-09)
             <BeforeAfterText value={body} style={styles.body} />
@@ -747,6 +754,8 @@ const styles = StyleSheet.create({
   closedText: { ...text.caption, color: color.text.secondary },
   // Verwalten bleibt immer ganz sichtbar links, die Knöpfe stehen rechtsbündig (Daria, 2026-11-09)
   actionsManage: { flexDirection: 'row', alignItems: 'center', gap: space[8], flexShrink: 0, marginRight: space[8] },
+  // In der grauen Karte: ohne eigenen Seitenabstand, die Karte hat schon 12 pt
+  actionsInCard: { paddingHorizontal: 0 },
   commentAction: { flexDirection: 'row', alignItems: 'center', paddingRight: space[8] },
   commentIcon: { width: size.touchTarget, height: size.touchTarget, alignItems: 'center', justifyContent: 'center' },
   manage: {
@@ -873,5 +882,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: space[6],
   },
   textBlock: { paddingHorizontal: space[4], paddingBottom: space[8] },
+  // Unter der grauen Karte mit den Knöpfen: Abstand wie sonst unter der Knopfzeile
+  textBelowCard: { paddingTop: space[12] },
   body: { ...text.body, color: color.text.secondary },
 });
