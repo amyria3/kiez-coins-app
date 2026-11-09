@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 
 import { Button } from './Button';
-import { CHAT_GAP_SAME, Notice, QuestionHint } from './Content';
+import { CHAT_GAP_CHANGE, CHAT_GAP_SAME, ChatReply, Notice, QuestionHint } from './Content';
 import { TextField, Toggle } from './Form';
 import { Text } from './T';
 import {
@@ -44,6 +44,19 @@ const HOW_TO: Record<LivePlatform, string> = {
     '3. Im Graph API Explorer diese App wählen, bei „Benutzer oder Seite“ Deine Seite auswählen und die Rechte pages_manage_posts und pages_read_engagement anhaken.\n' +
     '4. „Generate Access Token“ antippen, bestätigen und den Seiten-Zugangs-Token unten eintragen.\n' +
     'Mit Foto erscheint der Post als Foto, ohne Foto als Text mit Link.',
+};
+
+/**
+ * Erste Nachricht der Einrichtung: wie viele Schritte und was vorausgesetzt ist, dann die Frage (Daria, 2026-11-09).
+ * Erst nach „Ja, los!“ folgen die Schritte und die Felder.
+ */
+const INTRO: Record<LivePlatform, string> = {
+  bluesky: 'Die Einrichtung umfasst 3 Schritte und setzt voraus, dass Du in BlueSky angemeldet bist. Möchtest Du jetzt loslegen?',
+  mastodon: 'Die Einrichtung umfasst 5 Schritte und setzt voraus, dass Du in Mastodon angemeldet bist. Möchtest Du jetzt loslegen?',
+  instagram:
+    'Die Einrichtung umfasst 4 Schritte und setzt voraus, dass Du in Instagram angemeldet bist und ein Konto bei Meta for Developers hast. Möchtest Du jetzt loslegen?',
+  facebook:
+    'Die Einrichtung umfasst 4 Schritte und setzt voraus, dass Du in Facebook angemeldet bist und ein Konto bei Meta for Developers hast. Möchtest Du jetzt loslegen?',
 };
 
 /**
@@ -100,6 +113,7 @@ function PlatformSwitch({
   onChange: () => void;
 }) {
   const [setup, setSetup] = useState(false);
+  const [started, setStarted] = useState(false);
   const [first, setFirst] = useState('');
   const [secret, setSecret] = useState('');
   const [busy, setBusy] = useState(false);
@@ -141,7 +155,8 @@ function PlatformSwitch({
       },
     ]);
 
-  const steps = HOW_TO[platform].split('\n');
+  // Erst übersetzen, dann in Nachrichten teilen: Übersetzt ist die ganze Anleitung
+  const steps = t(HOW_TO[platform]).split('\n');
   const on = !!account || setup;
 
   return (
@@ -154,15 +169,22 @@ function PlatformSwitch({
         <Toggle
           label={label}
           value={on}
-          onValueChange={(v) => (v ? setSetup(true) : account ? disconnect() : setSetup(false))}
+          onValueChange={(v) => (v ? setSetup(true) : account ? disconnect() : (setSetup(false), setStarted(false)))}
         />
       </View>
       {on && !account ? (
         <View style={styles.setup}>
-          {/* Schritte als Systemnachrichten, wie im Chat hat nur die letzte die spitze Ecke */}
-          <View style={styles.steps}>
+          {/* Wie im Chat: erst Umfang und Voraussetzungen mit Frage, dann „Ja, los!“, dann die Schritte */}
+          <Notice message={INTRO[platform]} />
+          <View style={styles.reply}>
+            <ChatReply label="Ja, los!" sent={started} onPress={() => setStarted(true)} />
+          </View>
+          {started ? (
+            <>
+          {/* Schritte als Systemnachrichten */}
+          <View style={[styles.steps, styles.afterReply]}>
             {steps.map((step, i) => (
-              <Notice key={step} message={step} tail={i === steps.length - 1} />
+              <Notice key={step} message={step} />
             ))}
           </View>
         {tokenOnly(platform) ? null : (
@@ -204,6 +226,8 @@ function PlatformSwitch({
           onPress={connect}
           disabled={busy || (!tokenOnly(platform) && !first.trim()) || !secret.trim()}
         />
+            </>
+          ) : null}
         </View>
       ) : null}
     </View>
@@ -218,5 +242,8 @@ const styles = StyleSheet.create({
   caption: { ...text.caption, color: color.text.secondary },
   setup: { gap: space[12], paddingTop: space[8], paddingBottom: space[16] },
   steps: { gap: CHAT_GAP_SAME },
+  // Die Einrichtung hat 12 Abstand; Wechsel zwischen App und eigener Antwort wie im Chat
+  reply: { marginTop: CHAT_GAP_CHANGE - space[12] },
+  afterReply: { marginTop: CHAT_GAP_CHANGE - space[12] },
   thanks: { ...text.body, color: color.accent.confirmation, textAlign: 'center' },
 });

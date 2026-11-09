@@ -1619,5 +1619,10 @@
   "Nachricht abschicken": "Send message",
   "Frag mich was!": "Ask me something!",
   "Coins: {amount} Euro, erledigt": "Coins: {amount} euros, done",
-  "{edensteine} Edensteine, erledigt": "{edensteine} Eden stones, done"
+  "{edensteine} Edensteine, erledigt": "{edensteine} Eden stones, done",
+  "Ja, los!": "Yes, let's go!",
+  "Die Einrichtung umfasst 3 Schritte und setzt voraus, dass Du in BlueSky angemeldet bist. Möchtest Du jetzt loslegen?": "Setup takes 3 steps and requires you to be logged in to BlueSky. Do you want to start now?",
+  "Die Einrichtung umfasst 5 Schritte und setzt voraus, dass Du in Mastodon angemeldet bist. Möchtest Du jetzt loslegen?": "Setup takes 5 steps and requires you to be logged in to Mastodon. Do you want to start now?",
+  "Die Einrichtung umfasst 4 Schritte und setzt voraus, dass Du in Instagram angemeldet bist und ein Konto bei Meta for Developers hast. Möchtest Du jetzt loslegen?": "Setup takes 4 steps and requires you to be logged in to Instagram and to have a Meta for Developers account. Do you want to start now?",
+  "Die Einrichtung umfasst 4 Schritte und setzt voraus, dass Du in Facebook angemeldet bist und ein Konto bei Meta for Developers hast. Möchtest Du jetzt loslegen?": "Setup takes 4 steps and requires you to be logged in to Facebook and to have a Meta for Developers account. Do you want to start now?"
 }
