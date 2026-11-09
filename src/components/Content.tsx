@@ -10,12 +10,18 @@ import { iconSvgs } from './icons/svgs';
 import { SvgXml } from 'react-native-svg';
 import { Herz } from './Herz';
 
+// Systemmeldungen als hellblaue Chatblase der App, wie die Antworten auf die Fragen; Icon dunkel wie der Text (Daria, 2026-11-09)
+const SKY_TEXT = '#1F2123';
+
 /** Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. */
 export function Notice({ message, variant = 'info' }: { message: string; variant?: 'info' | 'warning' }) {
   return (
-    <View style={styles.notice} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
-      <Icon name="info-filled" color={variant === 'warning' ? color.accent.signal : color.text.primary} />
-      <Text style={styles.noticeText}>{message}</Text>
+    <View style={[styles.notice, !isFashionable && styles.noticeSky]} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
+      <Icon
+        name="info-filled"
+        color={isFashionable ? (variant === 'warning' ? color.accent.signal : color.text.primary) : SKY_TEXT}
+      />
+      <Text style={[styles.noticeText, !isFashionable && styles.noticeTextSky]}>{message}</Text>
     </View>
   );
 }
@@ -273,6 +279,17 @@ const styles = StyleSheet.create({
   questionOpen: { backgroundColor: color.accent.primary, borderColor: color.accent.primary },
   questionTextOpen: { color: color.text.onAccent },
   answerSky: { backgroundColor: '#A9DBFF' },
+  noticeSky: {
+    alignSelf: 'flex-start',
+    maxWidth: '88%',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: radius.xl,
+    borderBottomLeftRadius: space[4],
+    backgroundColor: '#A9DBFF',
+  },
+  noticeTextSky: { ...text.body, color: SKY_TEXT, flexGrow: 0, flexShrink: 1, flexBasis: 'auto' },
   answerTextSky: { color: '#1F2123' },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 24 },
   iconBox: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
