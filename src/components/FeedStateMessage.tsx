@@ -50,10 +50,10 @@ export function FeedStateMessage({
   return (
     <View style={styles.container}>
       <Cat height={86} />
-      {/* Abstände nach Zusammenhang (Daria, 09.11.2026): Katze 24 bis zur Überschrift, Überschrift und Text 8,
-          Text bis zu seinem Knopf 16. Der zweite Satz mit Knopf ist eine eigene Gruppe, 32 darüber. */}
+      {/* Abstände nach Zusammenhang (Daria, 09.11.2026): Die Überschrift gehört zum Bild der Katze (8). Text und
+          Knopf bilden je eine Gruppe (16), zwischen den Gruppen stehen 32. */}
       <Text style={[styles.title, styles.afterCat]}>{m.title}</Text>
-      <Text style={[styles.body, styles.afterTitle]}>{body ?? m.body}</Text>
+      <Text style={[styles.body, styles.nextGroup]}>{body ?? m.body}</Text>
       {detail ? (
         <Text style={[styles.detail, styles.afterTitle]} selectable>
           ({detail})
@@ -76,7 +76,7 @@ export function FeedStateMessage({
 
 const styles = StyleSheet.create({
   container: { alignItems: 'center', paddingTop: space[48], paddingHorizontal: space[32] },
-  afterCat: { marginTop: space[24] },
+  afterCat: { marginTop: space[8] },
   afterTitle: { marginTop: space[8] },
   afterText: { marginTop: space[16] },
   nextGroup: { marginTop: space[32] },
