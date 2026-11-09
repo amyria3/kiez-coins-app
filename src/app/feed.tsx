@@ -30,8 +30,7 @@ import { GearsLoader } from '../components/GearsLoader';
 import { SurveyOverlay, useSurveyPrompt } from '../components/SurveyOverlay';
 import { CAMERA_W, CameraButton, TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { useRequireKiez } from '../data/kiez';
-import { challengeTypes, isTypeActive, useFeedHide, useModes } from '../data/features';
-import { isTextPost } from '../components/TextSheets';
+import { challengeTypes, isTypeActive, useModes, usePostsShown } from '../data/features';
 import { anrede } from '../data/format';
 import { coordsIfAllowed, distanceMeters, formatDistance, KIEZ_RADIUS_METERS, sameKiez, type Coords } from '../data/location';
 import { reiseEntries } from '../data/reise';
@@ -196,14 +195,14 @@ export default function FeedScreen() {
   // Ohne Standortfreigabe zählt der Kiez aus dem Profil (Ortsteil, PLZ oder Stadt, siehe sameKiez).
   // Eigene Beiträge stehen immer drin.
   const myKiez = profile.kiez;
-  const feedHide = useFeedHide();
+  const postsShown = usePostsShown();
   const posts = useMemo(() => {
-    // Kiez und Überall: Bilder oder Textposts ausblenden, wenn eingestellt (Dein Konto › Feed, Daria, 08.11.2026)
+    // Bilder und Textposts (Typ „photo“, mit oder ohne Foto) im Kiez- oder Überall-Feed ausblenden,
+    // wenn unter Dein Konto › Funktionen abgeschaltet (Daria, 09.11.2026). Eigene bleiben sichtbar.
     const hidden = (c: Challenge) =>
-      (tab === 'nearby' || tab === 'everywhere') &&
+      ((tab === 'nearby' && !postsShown.kiez) || (tab === 'everywhere' && !postsShown.everywhere)) &&
       c.authorId !== currentUserId &&
-      c.type === 'photo' &&
-      (isTextPost(c) ? feedHide.text : feedHide.photo);
+      c.type === 'photo';
     const list = challenges.filter((c) => matchesTab(c, tab, groupId, currentUserId) && !hidden(c));
     if (tab !== 'nearby') return list;
     if (!here) {
@@ -216,7 +215,7 @@ export default function FeedScreen() {
       .filter((x) => x.c.authorId === currentUserId || x.d === undefined || x.d <= KIEZ_RADIUS_METERS)
       .sort((a, b) => (a.d ?? Infinity) - (b.d ?? Infinity) || a.i - b.i)
       .map((x) => x.c);
-  }, [challenges, tab, here, distanceTo, groupId, currentUserId, myKiez, feedHide.photo, feedHide.text]);
+  }, [challenges, tab, here, distanceTo, groupId, currentUserId, myKiez, postsShown.kiez, postsShown.everywhere]);
   const topChallenges = useMemo(
     () => pickTopChallenges({ mode, challenges, currentUserId }),
     [mode, challenges, currentUserId],
