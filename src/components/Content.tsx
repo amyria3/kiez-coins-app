@@ -44,9 +44,10 @@ export function LinkedText({ value, style }: { value: string; style?: StyleProp<
   useTexts();
   const text = translate(value);
   const parts = linkParts(text);
-  if (parts.length === 1 && typeof parts[0] === 'string') return <Text style={style}>{value}</Text>;
+  // Systemnachrichten lassen sich kopieren, z. B. Namen und Befugnisse aus Anleitungen (Daria, 2026-11-09)
+  if (parts.length === 1 && typeof parts[0] === 'string') return <Text style={style} selectable>{value}</Text>;
   return (
-    <Text style={style} noTranslate>
+    <Text style={style} noTranslate selectable>
       {parts.map((part, i) =>
         typeof part === 'string' ? (
           part
