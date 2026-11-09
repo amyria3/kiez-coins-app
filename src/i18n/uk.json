@@ -1350,5 +1350,7 @@
   "{label} trennen": "Від’єднати {label}",
   "{label}: Einstellungen": "{label}: налаштування",
   "Verbunden": "Підключено",
-  "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "Ти проголосував(ла), що користуватимешся API для акаунтів X. Дякуємо! Ми тебе врахували."
+  "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "Ти проголосував(ла), що користуватимешся API для акаунтів X. Дякуємо! Ми тебе врахували.",
+  "Was und wie kann ich mit dieser Funktion weiterposten?": "Що і як я можу репостити за допомогою цієї функції?",
+  "Neu verbinden": "Підключити знову"
 }

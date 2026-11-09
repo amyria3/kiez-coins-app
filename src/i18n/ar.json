@@ -1350,5 +1350,7 @@
   "{label} trennen": "فصل {label}",
   "{label}: Einstellungen": "{label}: الإعدادات",
   "Verbunden": "متصل",
-  "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "لقد صوّتَ بأنك ستستخدم واجهة API لحسابات X. شكرًا! لقد احتسبناك."
+  "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "لقد صوّتَ بأنك ستستخدم واجهة API لحسابات X. شكرًا! لقد احتسبناك.",
+  "Was und wie kann ich mit dieser Funktion weiterposten?": "ماذا وكيف يمكنني إعادة النشر بهذه الميزة؟",
+  "Neu verbinden": "إعادة الربط"
 }

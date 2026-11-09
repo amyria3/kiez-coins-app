@@ -1335,5 +1335,7 @@
   "{label} trennen": "Отключить {label}",
   "{label}: Einstellungen": "{label}: настройки",
   "Verbunden": "Подключено",
-  "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "Ты проголосовал(а) за то, что будешь пользоваться API для аккаунтов X. Спасибо! Мы тебя учли."
+  "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "Ты проголосовал(а) за то, что будешь пользоваться API для аккаунтов X. Спасибо! Мы тебя учли.",
+  "Was und wie kann ich mit dieser Funktion weiterposten?": "Что и как я могу репостить с помощью этой функции?",
+  "Neu verbinden": "Подключить заново"
 }
