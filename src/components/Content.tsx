@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { AccessibilityInfo, Animated, Easing, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Linking, Pressable, StyleSheet, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
 import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
-import { useTexts } from '../data/texts';
+import { t as translate, useTexts } from '../data/texts';
 import { Cat, type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
 import { iconSvgs } from './icons/svgs';
@@ -15,6 +15,50 @@ import { IconButton } from './IconButton';
 const SKY_TEXT = '#1F2123';
 /** Fläche der Systemmeldungen im Kiez-Look: probeweise das Gelbgrün aus dem Kreis hinter dem Kater (Cat.svg, Startbild) statt Himmelblau #A9DBFF (Daria, 2026-11-09) */
 const SKY_BG = '#F0FFA6';
+
+/** Adressen im Text: mit https:// oder als Domain wie developers.facebook.com, nicht Teil eines @-Handles */
+const LINK = /https?:\/\/[^\s]+|(?:[a-z0-9-]+\.)+(?:com|de|org|net|social|app|io|eu)(?:\/[^\s]*)?/gi;
+
+function linkParts(value: string): (string | { label: string; url: string })[] {
+  const parts: (string | { label: string; url: string })[] = [];
+  let rest = 0;
+  for (const m of value.matchAll(LINK)) {
+    const start = m.index ?? 0;
+    const before = value[start - 1];
+    if (before === '@' || before === '.' || (before && /[\w/]/.test(before))) continue;
+    // Satzzeichen am Ende gehören nicht zur Adresse
+    const label = m[0].replace(/[.,;:!?)»“]+$/, '');
+    if (start > rest) parts.push(value.slice(rest, start));
+    parts.push({ label, url: /^https?:/i.test(label) ? label : `https://${label}` });
+    rest = start + label.length;
+  }
+  if (rest < value.length) parts.push(value.slice(rest));
+  return parts;
+}
+
+/**
+ * Text mit Adressen als Links (Daria, 2026-11-09): unterstrichen, ein Tipp öffnet sie. Ohne Adresse ganz normaler
+ * Text. Übersetzt wird vor dem Aufteilen, damit die Übersetzung den ganzen Satz findet.
+ */
+export function LinkedText({ value, style }: { value: string; style?: StyleProp<TextStyle> }) {
+  useTexts();
+  const text = translate(value);
+  const parts = linkParts(text);
+  if (parts.length === 1 && typeof parts[0] === 'string') return <Text style={style}>{value}</Text>;
+  return (
+    <Text style={style} noTranslate>
+      {parts.map((part, i) =>
+        typeof part === 'string' ? (
+          part
+        ) : (
+          <Text key={i} noTranslate accessibilityRole="link" style={styles.link} onPress={() => Linking.openURL(part.url)}>
+            {part.label}
+          </Text>
+        ),
+      )}
+    </Text>
+  );
+}
 
 /**
  * Rolle „System“ (Daria, 2026-11-09): Absender der gelbgrünen Systemnachrichten, Avatar 👾 im schwarzen Kreis
@@ -72,7 +116,7 @@ export function Notice({
           />
         </View>
       ) : null}
-      <Text style={[styles.noticeText, !isFashionable && styles.noticeTextSky]}>{message}</Text>
+      <LinkedText style={[styles.noticeText, !isFashionable && styles.noticeTextSky]} value={message} />
       {onClose ? (
         <IconButton
           icon="close"
@@ -131,7 +175,7 @@ export function QuestionHint({ question, answer, then }: { question: string; ans
             { opacity: shown, transform: [{ translateY: shown.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }] },
           ]}
         >
-          <Text style={[styles.answerText, !isFashionable && styles.answerTextSky]}>{answer}</Text>
+          <LinkedText style={[styles.answerText, !isFashionable && styles.answerTextSky]} value={answer} />
         </Animated.View>
         </FromSystem>
       ) : null}
@@ -415,6 +459,7 @@ const styles = StyleSheet.create({
   systemAvatarText: { fontSize: 18, lineHeight: 22, textAlign: 'center' },
   // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
   noticeIcon: { flexShrink: 0 },
+  link: { textDecorationLine: 'underline' },
   noticeClose: { marginVertical: -10, marginRight: -10, marginLeft: -4 },
   noticeTextSky: { ...text.body, color: SKY_TEXT, flexGrow: 0, flexShrink: 1, flexBasis: 'auto' },
   answerTextSky: { color: '#1F2123' },
