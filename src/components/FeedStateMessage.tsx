@@ -50,30 +50,39 @@ export function FeedStateMessage({
   return (
     <View style={styles.container}>
       <Cat height={86} />
-      <Text style={styles.title}>{m.title}</Text>
-      <Text style={styles.body}>{body ?? m.body}</Text>
+      {/* Abstände nach Zusammenhang (Daria, 09.11.2026): Katze 24 bis zur Überschrift, Überschrift und Text 8,
+          Text bis zu seinem Knopf 16. Der zweite Satz mit Knopf ist eine eigene Gruppe, 32 darüber. */}
+      <Text style={[styles.title, styles.afterCat]}>{m.title}</Text>
+      <Text style={[styles.body, styles.afterTitle]}>{body ?? m.body}</Text>
       {detail ? (
-        <Text style={styles.detail} selectable>
+        <Text style={[styles.detail, styles.afterTitle]} selectable>
           ({detail})
         </Text>
       ) : null}
-      <View style={styles.actions}>
-        {/* Beide Knöpfe gleich breit (Daria, 08.11.2026) */}
-        <Button label={action ?? m.action} onPress={onAction} style={styles.button} />
-        {secondary?.hint ? <Text style={[styles.body, styles.hint]}>{secondary.hint}</Text> : null}
-        {secondary ? <Button label={secondary.label} variant="secondary" onPress={secondary.onPress} style={styles.button} /> : null}
-      </View>
+      {/* Beide Knöpfe gleich breit (Daria, 08.11.2026) */}
+      <Button label={action ?? m.action} onPress={onAction} style={[styles.button, styles.afterText]} />
+      {secondary?.hint ? <Text style={[styles.body, styles.nextGroup]}>{secondary.hint}</Text> : null}
+      {secondary ? (
+        <Button
+          label={secondary.label}
+          variant="secondary"
+          onPress={secondary.onPress}
+          style={[styles.button, secondary.hint ? styles.afterText : styles.nextGroup]}
+        />
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { alignItems: 'center', gap: space[12], paddingTop: space[48], paddingHorizontal: space[32] },
+  container: { alignItems: 'center', paddingTop: space[48], paddingHorizontal: space[32] },
+  afterCat: { marginTop: space[24] },
+  afterTitle: { marginTop: space[8] },
+  afterText: { marginTop: space[16] },
+  nextGroup: { marginTop: space[32] },
   // Überschrift in der Unbounded wie die Ansprache „Pirat:in“ (Daria, 09.11.2026)
   title: { ...text.title, fontFamily: font.onPhoto, color: color.text.primary, textAlign: 'center' },
   body: { ...text.body, color: color.text.secondary, textAlign: 'center' },
   detail: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
-  actions: { alignSelf: 'stretch', alignItems: 'center', gap: space[8] },
   button: { minWidth: 220 },
-  hint: { marginTop: space[16] },
 });
