@@ -295,3 +295,4 @@ Plan und Entscheidungen: `Übergabe/2026-10-27_we-challenge-mehrere-personen.md`
 ## 2026-11-09
 
 - [ ] Feature-Wunsch (Daria): Bei offenen Challenges nach links und rechts wischen. Vor dem Bauen mit Daria klären, was das Wischen auslöst.
+- [ ] Feature-Wunsch (Daria): Teilt jemand Bilder weiter, z. B. zu Meta, tragen sie ein KiezCoins-Wasserzeichen. Wer es entfernen möchte, kauft die App (einmalig, für immer).
