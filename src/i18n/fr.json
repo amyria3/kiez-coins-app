@@ -1349,5 +1349,6 @@
   "Verstanden, weiter": "Compris, suivant",
   "{label} trennen": "Déconnecter {label}",
   "{label}: Einstellungen": "{label} : paramètres",
-  "Verbunden": "Connecté"
+  "Verbunden": "Connecté",
+  "Du hast abgestimmt, dass Du die API für X-Konten nutzen möchtest. Danke! Wir zählen Dich mit.": "Tu as voté que tu utiliserais l’API pour les comptes X. Merci ! Nous te comptons."
 }
