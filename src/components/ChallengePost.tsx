@@ -370,8 +370,20 @@ function KiezPost({
           )}
         </Pressable>
       )}
+      {/* Knöpfe rechtsbündig, Verwalten links (Daria, 2026-11-09) */}
       <View style={styles.actions}>
-        <View style={styles.actionsLeft}>
+        <View style={styles.actionsManage}>
+          {onManage ? (
+            // Zahnrad statt Text-Button (Daria, 22.10.2026)
+            <IconButton
+              icon="settings"
+              iconSize={size.icon}
+              accessibilityLabel={t('Deine Posts verwalten')}
+              onPress={onManage}
+            />
+          ) : null}
+        </View>
+        <View style={styles.actionsButtons}>
           {/* Herz mit Anzahl; das Geschenk ist ausgeblendet (Daria, 22.10.2026) */}
           {/* Herz liked, die Zahl daneben zeigt, wer geliked hat (Daria, 2026-11-05) */}
           {wrapLike(
@@ -401,17 +413,6 @@ function KiezPost({
             accessibilityLabel={t('Teilen')}
             onPress={() => share(challenge)}
           />
-        </View>
-        <View style={styles.actionsRight}>
-          {onManage ? (
-            // Zahnrad statt Text-Button (Daria, 22.10.2026)
-            <IconButton
-              icon="settings"
-              iconSize={size.icon}
-              accessibilityLabel={t('Deine Posts verwalten')}
-              onPress={onManage}
-            />
-          ) : null}
         </View>
       </View>
       {body ? (
@@ -696,8 +697,8 @@ const styles = StyleSheet.create({
   waveText: { ...text.caption, color: color.accent.affection },
   closedTag: {},
   closedText: { ...text.caption, color: color.text.secondary },
-  // Verwalten bleibt immer ganz sichtbar rechts
-  actionsRight: { flexDirection: 'row', alignItems: 'center', gap: space[8], flexShrink: 0, marginLeft: space[8] },
+  // Verwalten bleibt immer ganz sichtbar links, die Knöpfe stehen rechtsbündig (Daria, 2026-11-09)
+  actionsManage: { flexDirection: 'row', alignItems: 'center', gap: space[8], flexShrink: 0, marginRight: space[8] },
   commentAction: { flexDirection: 'row', alignItems: 'center', paddingRight: space[8] },
   commentIcon: { width: size.touchTarget, height: size.touchTarget, alignItems: 'center', justifyContent: 'center' },
   manage: {
@@ -800,7 +801,7 @@ const styles = StyleSheet.create({
   textPostName: { ...text.meta, color: color.text.primary, flexShrink: 0, maxWidth: '60%' },
   textPostMeta: { ...text.meta, color: color.text.secondary, flex: 1 },
   actions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: space[4] },
-  actionsLeft: { flexDirection: 'row', alignItems: 'center', flexShrink: 1 },
+  actionsButtons: { flexDirection: 'row', alignItems: 'center', flexShrink: 1 },
   count: { ...text.bodyLarge, color: color.text.primary, fontVariant: ['tabular-nums'] },
   countAction: {
     flexDirection: 'row',
