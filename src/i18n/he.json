@@ -1347,5 +1347,7 @@
   "Die Einrichtung umfasst 4 Schritte und setzt voraus, dass Du in Instagram angemeldet bist und ein Konto bei Meta for Developers hast. Möchtest Du jetzt loslegen?": "ההגדרה כוללת 4 שלבים ודורשת שתהיה מחובר/ת ל-Instagram ושיהיה לך חשבון Meta for Developers. רוצה להתחיל עכשיו?",
   "Die Einrichtung umfasst 4 Schritte und setzt voraus, dass Du in Facebook angemeldet bist und ein Konto bei Meta for Developers hast. Möchtest Du jetzt loslegen?": "ההגדרה כוללת 4 שלבים ודורשת שתהיה מחובר/ת ל-Facebook ושיהיה לך חשבון Meta for Developers. רוצה להתחיל עכשיו?",
   "Verstanden, weiter": "הבנתי, הלאה",
-  "{label} trennen": "ניתוק {label}"
+  "{label} trennen": "ניתוק {label}",
+  "{label}: Einstellungen": "{label}: הגדרות",
+  "Verbunden": "מחובר"
 }

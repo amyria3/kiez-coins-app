@@ -130,7 +130,8 @@ function PlatformSwitch({
   onEnable: (on: boolean) => void;
   onChange: () => void;
 }) {
-  const [setup, setSetup] = useState(false);
+  // Einstellungen offen: verbunden mit grünem Punkt und Trennen, sonst die Einrichtung (Daria, 2026-11-09)
+  const [open, setOpen] = useState(false);
   // Wie viele Schritte schon zu sehen sind; 0: noch nicht losgelegt
   const [shown, setShown] = useState(0);
   const [first, setFirst] = useState('');
@@ -152,7 +153,7 @@ function PlatformSwitch({
       );
       setFirst('');
       setSecret('');
-      setSetup(false);
+      setOpen(false);
       // Frisch verbunden: Weiterposten gleich an
       onEnable(true);
       onChange();
@@ -171,7 +172,10 @@ function PlatformSwitch({
         style: 'destructive',
         onPress: () =>
           disconnectCrosspost(platform)
-            .then(onChange)
+            .then(() => {
+              setOpen(false);
+              onChange();
+            })
             .catch((e) => Alert.alert('Hat nicht geklappt', errorText(e))),
       },
     ]);
@@ -185,31 +189,42 @@ function PlatformSwitch({
   const steps = lines.filter(isStep).map((line) => [line]);
   const started = shown > 0;
   const done = shown >= steps.length;
-  const on = account ? enabled : setup;
+  const on = account ? enabled : open;
 
   return (
     <View>
       <View style={styles.row}>
-        <View style={styles.texts}>
+        {/* Ein Tipp auf den Namen öffnet die Einstellungen; der Schalter schaltet nur das Weiterposten (Daria, 2026-11-09) */}
+        <Pressable
+          style={({ pressed }) => [styles.texts, pressed && styles.pressed]}
+          accessibilityRole="button"
+          accessibilityState={{ expanded: open }}
+          accessibilityLabel={t('{label}: Einstellungen', { label })}
+          onPress={() => (open ? (setOpen(false), setShown(0)) : setOpen(true))}
+        >
           <Text noTranslate style={styles.label}>{label}</Text>
           {account ? (
-            <View style={styles.connected}>
-              <Text noTranslate selectable style={styles.caption}>
-                {account.handle}
-              </Text>
-              <Pressable accessibilityRole="button" accessibilityLabel={t('{label} trennen', { label })} onPress={disconnect} hitSlop={8}>
-                <Text style={styles.disconnect}>Trennen</Text>
-              </Pressable>
-            </View>
+            <Text noTranslate style={styles.caption}>
+              {account.handle}
+            </Text>
           ) : null}
-        </View>
+        </Pressable>
         <Toggle
           label={label}
           value={on}
-          onValueChange={(v) => (account ? onEnable(v) : v ? setSetup(true) : (setSetup(false), setShown(0)))}
+          onValueChange={(v) => (account ? onEnable(v) : v ? setOpen(true) : (setOpen(false), setShown(0)))}
         />
       </View>
-      {on && !account ? (
+      {account && open ? (
+        <View style={styles.setup}>
+          <View style={styles.connected}>
+            <View style={styles.dot} />
+            <Text style={styles.connectedText}>Verbunden</Text>
+          </View>
+          <Button label="Trennen" variant="ghost" onPress={disconnect} />
+        </View>
+      ) : null}
+      {open && !account ? (
         <View style={styles.setup}>
           {/* Wie im Chat: erst was weitergepostet wird, dann Umfang und Voraussetzungen mit Frage, dann „Ja, los!“,
               dann die Schritte */}
@@ -297,7 +312,10 @@ const styles = StyleSheet.create({
   label: { ...text.body, color: color.text.primary },
   caption: { ...text.caption, color: color.text.secondary },
   connected: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
-  disconnect: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },
+  // Grüner Punkt: Konto verbunden
+  dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: color.accent.confirmation },
+  connectedText: { ...text.body, color: color.text.primary },
+  pressed: { opacity: 0.7 },
   setup: { gap: space[12], paddingTop: space[8], paddingBottom: space[16] },
   steps: { gap: CHAT_GAP_SAME },
   // Die Einrichtung hat 12 Abstand; Wechsel zwischen App und eigener Antwort wie im Chat

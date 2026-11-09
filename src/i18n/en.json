@@ -1626,5 +1626,7 @@
   "Die Einrichtung umfasst 4 Schritte und setzt voraus, dass Du in Instagram angemeldet bist und ein Konto bei Meta for Developers hast. Möchtest Du jetzt loslegen?": "Setup takes 4 steps and requires you to be logged in to Instagram and to have a Meta for Developers account. Do you want to start now?",
   "Die Einrichtung umfasst 4 Schritte und setzt voraus, dass Du in Facebook angemeldet bist und ein Konto bei Meta for Developers hast. Möchtest Du jetzt loslegen?": "Setup takes 4 steps and requires you to be logged in to Facebook and to have a Meta for Developers account. Do you want to start now?",
   "Verstanden, weiter": "Got it, next",
-  "{label} trennen": "Disconnect {label}"
+  "{label} trennen": "Disconnect {label}",
+  "{label}: Einstellungen": "{label}: settings",
+  "Verbunden": "Connected"
 }
