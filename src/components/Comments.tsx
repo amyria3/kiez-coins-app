@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { BlurView } from 'expo-blur';
 import { Keyboard, Modal, Platform, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { scrollIntoView } from './Nudge';
@@ -11,6 +11,7 @@ import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { IconButton } from './IconButton';
 import { Icon } from './icons/Icon';
 import { t } from '../data/texts';
+import { activeMention, insertMention, mentionSuggestions, splitMentions } from '../lib/mentions';
 
 type CommentProps = {
   comment: CommentData;
@@ -24,13 +25,41 @@ type CommentProps = {
   onAuthorPress?: () => void;
   /** Herz unter dem Kommentar; fehlt, solange die Likes nicht geladen sind */
   onLike?: () => void;
+  /** Bekannte Personen: „@Name“ im Text wird hervorgehoben und öffnet ihr Profil */
+  users?: User[];
+  onMentionPress?: (userId: string) => void;
 };
+
+/** Kommentartext mit hervorgehobenen @-Erwähnungen. Ein Tipp auf den Namen öffnet das Profil. */
+function CommentBody({ body, users, onMentionPress }: { body: string; users: User[]; onMentionPress?: (userId: string) => void }) {
+  const parts = useMemo(() => splitMentions(body, users), [body, users]);
+  return (
+    <Text style={styles.text}>
+      {parts.map((part, i) =>
+        part.user ? (
+          <Text
+            key={i}
+            noTranslate
+            style={styles.mention}
+            onPress={onMentionPress ? () => onMentionPress(part.user!.id) : undefined}
+            accessibilityRole={onMentionPress ? 'link' : undefined}
+            accessibilityLabel={onMentionPress ? t('Profil von {name}', { name: part.user.name }) : undefined}
+          >
+            {part.text}
+          </Text>
+        ) : (
+          part.text
+        ),
+      )}
+    </Text>
+  );
+}
 
 /**
  * Figma „Comment“: öffentlicher Kommentar. Melden steckt hinter drei senkrechten Punkten,
  * darunter Herz mit Anzahl und „Antworten“ (Daria, 2026-11-09).
  */
-export function Comment({ comment, author, onReport, onReply, isReply, onAuthorPress, onLike }: CommentProps) {
+export function Comment({ comment, author, onReport, onReply, isReply, onAuthorPress, onLike, users = [], onMentionPress }: CommentProps) {
   const hidden = useHideName(author);
   return (
     <View style={[styles.comment, isReply && styles.reply]}>
@@ -44,7 +73,7 @@ export function Comment({ comment, author, onReport, onReply, isReply, onAuthorP
           </Text>
           <Text style={styles.time}>{formatRelative(comment.createdAt)}</Text>
         </View>
-        <Text style={styles.text}>{comment.body}</Text>
+        <CommentBody body={comment.body} users={users} onMentionPress={onMentionPress} />
         {onLike || onReply ? (
           <View style={styles.footer}>
             {onLike ? (
@@ -127,16 +156,36 @@ type CommentComposerProps = {
   /** Name der Person, der geantwortet wird; ✕ hebt die Antwort auf */
   replyTo?: string;
   onCancelReply?: () => void;
+  /** Personen, die sich mit @ erwähnen lassen, die wichtigsten zuerst */
+  mentionCandidates?: User[];
 };
 
 /** Figma „CommentComposer“: Eingabe für einen neuen Kommentar oder eine Antwort. */
-export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply }: CommentComposerProps) {
+export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply, mentionCandidates = [] }: CommentComposerProps) {
   const [value, setValue] = useState('');
+  const [cursor, setCursor] = useState(0);
+  // Nur direkt nach dem Einsetzen eines Namens gesetzt, damit der Cursor hinter dem Namen landet
+  const [selection, setSelection] = useState<{ start: number; end: number } | undefined>();
+  const inputRef = useRef<TextInput>(null);
+  const mention = activeMention(value, cursor);
+  const suggestions = mention ? mentionSuggestions(mentionCandidates, mention.query) : [];
+  // Name schon ganz getippt: keine Liste mehr
+  const showSuggestions =
+    suggestions.length > 0 && !(suggestions.length === 1 && suggestions[0].name.toLocaleLowerCase() === mention?.query.toLocaleLowerCase());
+  const pick = (user: User) => {
+    if (!mention) return;
+    const next = insertMention(value, mention.start, cursor, user.name);
+    setValue(next.text);
+    setCursor(next.cursor);
+    setSelection({ start: next.cursor, end: next.cursor });
+    inputRef.current?.focus();
+  };
   const send = () => {
     const body = value.trim();
     if (!body) return;
     onSend(body);
     setValue('');
+    setCursor(0);
   };
   // Beim Tippen ins Feld: sobald die Tastatur steht, das Feld ins Bild scrollen (Daria, 22.10.2026)
   const boxRef = useRef<View>(null);
@@ -157,13 +206,41 @@ export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply }:
           <IconButton icon="close" iconSize={14} accessibilityLabel={t('Antwort aufheben')} onPress={onCancelReply} />
         </View>
       ) : null}
+      {showSuggestions ? (
+        <View style={styles.suggestions} accessibilityRole="menu">
+          {suggestions.map((user) => (
+            <Pressable
+              key={user.id}
+              onPress={() => pick(user)}
+              accessibilityRole="menuitem"
+              accessibilityLabel={t('{name} markieren', { name: user.name })}
+              style={({ pressed }) => [styles.suggestion, pressed && styles.suggestionPressed]}
+            >
+              <Avatar user={user} diameter={28} badge={false} />
+              <Text noTranslate style={styles.suggestionName} numberOfLines={1}>
+                {user.name}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
     <View style={styles.composer}>
       <TextInput
+        ref={inputRef}
         style={styles.input}
         placeholder={placeholder}
         placeholderTextColor={color.text.secondary}
         value={value}
-        onChangeText={setValue}
+        onChangeText={(next) => {
+          setValue(next);
+          // Beim Tippen steht der Cursor meist am Ende; onSelectionChange korrigiert das gleich danach
+          if (next.length !== value.length) setCursor((c) => Math.max(0, Math.min(next.length, c + next.length - value.length)));
+        }}
+        selection={selection}
+        onSelectionChange={(e) => {
+          setCursor(e.nativeEvent.selection.end);
+          if (selection) setSelection(undefined);
+        }}
         onFocus={reveal}
         multiline
         maxLength={500}
@@ -192,6 +269,10 @@ type CommentSectionProps = {
   onAuthorPress?: (userId: string) => void;
   /** Kommentar liken (Daria, 2026-11-09) */
   onLike?: (comment: CommentData) => void;
+  /** Personen am Beitrag (Erstellerin, Mitmachende), oben in den @-Vorschlägen */
+  threadPeople?: string[];
+  /** Nicht vorschlagen, z. B. blockierte Personen */
+  hiddenIds?: string[];
 };
 
 /** Figma „CommentSection“: Fragen zur Challenge, öffentlich. Es gibt keinen privaten Chat. */
@@ -206,9 +287,22 @@ export function CommentSection({
   onReport,
   onAuthorPress,
   onLike,
+  threadPeople,
+  hiddenIds,
 }: CommentSectionProps) {
   const [replyTo, setReplyTo] = useState<CommentData | null>(null);
   const nameOf = (id: string) => users.find((u) => u.id === id)?.name ?? '';
+  // Zum Markieren: zuerst wer hier schon schreibt oder mitmacht, dann alle anderen bekannten Personen
+  const mentionCandidates = useMemo(() => {
+    const first = [...(replyTo ? [replyTo.authorId] : []), ...(threadPeople ?? []), ...comments.map((c) => c.authorId).reverse()];
+    const rank = (id: string) => {
+      const i = first.indexOf(id);
+      return i < 0 ? first.length : i;
+    };
+    return users
+      .filter((u) => u.id !== currentUserId && !u.group && !(hiddenIds ?? []).includes(u.id))
+      .sort((a, b) => rank(a.id) - rank(b.id) || a.name.localeCompare(b.name));
+  }, [users, comments, replyTo, threadPeople, hiddenIds, currentUserId]);
   // Eine Ebene: Kommentare ohne gültigen Ausgangskommentar stehen oben, Antworten darunter eingerückt.
   const ids = new Set(comments.map((c) => c.id));
   const roots = comments.filter((c) => !c.replyToId || !ids.has(c.replyToId));
@@ -224,6 +318,8 @@ export function CommentSection({
         author={author}
         isReply={isReply}
         onAuthorPress={onAuthorPress ? () => onAuthorPress(c.authorId) : undefined}
+        users={users}
+        onMentionPress={onAuthorPress}
         onReport={c.authorId === currentUserId ? undefined : () => onReport(c)}
         onLike={onLike && c.likeCount !== undefined ? () => onLike(c) : undefined}
         // Antworten auf eine Antwort hängen am selben Gespräch
@@ -252,6 +348,7 @@ export function CommentSection({
           placeholder={replyTo ? t('{authorId} antworten …', { authorId: nameOf(replyTo.authorId) }) : composerPlaceholder}
           replyTo={replyTo ? nameOf(replyTo.authorId) : undefined}
           onCancelReply={() => setReplyTo(null)}
+          mentionCandidates={mentionCandidates}
           onSend={(body) => {
             onSend(body, replyTo?.id);
             setReplyTo(null);
@@ -306,6 +403,16 @@ const styles = StyleSheet.create({
   name: { fontFamily: font.semiBold, fontSize: 11, lineHeight: 16, color: color.text.primary },
   time: { ...text.caption, color: color.text.secondary },
   text: { ...text.body, color: color.text.primary },
+  // Wie @-Namen in Beiträgen (WithMentions)
+  mention: { color: color.accent.signal },
+  suggestions: {
+    paddingVertical: space[4],
+    borderRadius: radius.lg,
+    backgroundColor: color.bg.surface,
+  },
+  suggestion: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[6], paddingHorizontal: space[16] },
+  suggestionPressed: { opacity: 0.6 },
+  suggestionName: { ...text.body, color: color.text.primary, flex: 1 },
   composer: {
     flexDirection: 'row',
     alignItems: 'center',

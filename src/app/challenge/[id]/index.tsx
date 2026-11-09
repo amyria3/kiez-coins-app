@@ -59,7 +59,7 @@ export default function ChallengeDetail() {
   const router = useRouter();
   const goBack = useGoBack();
   const share = useShareChallenge();
-  const { currentUserId, users, dispatch, mode, profile } = useStore();
+  const { currentUserId, users, dispatch, mode, profile, blockedIds } = useStore();
 
   const { challenge, author } = useChallenge(id);
   // Schreiben nur mit Kiez (grobe Verortung); Beispieldaten und Gruppenaufgaben immer
@@ -594,6 +594,12 @@ export default function ChallengeDetail() {
           }
           onAuthorPress={openProfile}
           onLike={(comment) => dispatch({ type: 'toggleCommentLike', id: challenge.id, commentId: comment.id })}
+          threadPeople={[
+            challenge.authorId,
+            ...(challenge.assigneeId ? [challenge.assigneeId] : []),
+            ...(challenge.participants ?? []).filter((p) => p.status === 'joined').map((p) => p.userId),
+          ]}
+          hiddenIds={blockedIds}
           onReport={(comment) =>
             router.push({ pathname: '/user/[id]/report', params: { id: comment.authorId, challengeId: challenge.id } })
           }
