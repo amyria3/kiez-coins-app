@@ -11,7 +11,7 @@ import { SvgXml } from 'react-native-svg';
 import { Herz } from './Herz';
 import { IconButton } from './IconButton';
 
-// Systemmeldungen als hellblaue Chatblase der App, wie die Antworten auf die Fragen; Icon dunkel wie der Text (Daria, 2026-11-09)
+// Systemmeldungen als hellblaue Chatblase der App, wie die Antworten auf die Fragen; Icon dunkel wie der Text, nur bei Warnungen (Daria, 2026-11-09)
 const SKY_TEXT = '#1F2123';
 
 /** Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. Mit `onClose` ein Kreuz rechts. */
@@ -19,14 +19,17 @@ export function Notice({ message, variant = 'info', onClose }: { message: string
   const t = useTexts();
   return (
     <View style={[styles.notice, !isFashionable && styles.noticeSky]} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
-      {/* Feste Größe, sonst schrumpft das Icon neben langem Text */}
-      <View style={styles.noticeIcon}>
-        <Icon
-          name="info-filled"
-          size={isFashionable ? undefined : 17}
-          color={isFashionable ? (variant === 'warning' ? color.accent.signal : color.text.primary) : SKY_TEXT}
-        />
-      </View>
+      {/* Kiez-Look: Icon nur bei Warnungen, sonst sähen Warnung und Info gleich aus (Daria, 2026-11-09).
+          Feste Größe, sonst schrumpft das Icon neben langem Text. */}
+      {isFashionable || variant === 'warning' ? (
+        <View style={styles.noticeIcon}>
+          <Icon
+            name="info-filled"
+            size={isFashionable ? undefined : 17}
+            color={isFashionable ? (variant === 'warning' ? color.accent.signal : color.text.primary) : SKY_TEXT}
+          />
+        </View>
+      ) : null}
       <Text style={[styles.noticeText, !isFashionable && styles.noticeTextSky]}>{message}</Text>
       {onClose ? (
         <IconButton
