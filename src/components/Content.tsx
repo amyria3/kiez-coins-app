@@ -17,6 +17,32 @@ const SKY_TEXT = '#1F2123';
 const SKY_BG = '#F0FFA6';
 
 /**
+ * Rolle „System“ (Daria, 2026-11-09): Absender der gelbgrünen Systemnachrichten, Avatar 👾 im schwarzen Kreis
+ * links neben jeder Blase, wie ein Absender im Chat. Das Emoji kommt vom Gerät.
+ */
+export const SYSTEM_AVATAR = '👾';
+export function SystemAvatar() {
+  return (
+    <View style={styles.systemAvatar} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <Text noTranslate style={styles.systemAvatarText}>
+        {SYSTEM_AVATAR}
+      </Text>
+    </View>
+  );
+}
+
+/** Kiez-Look: Systemnachricht mit Avatar links, unten bündig wie im Chat */
+function FromSystem({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
+  if (isFashionable) return <>{children}</>;
+  return (
+    <View style={[styles.systemRow, style]}>
+      <SystemAvatar />
+      {children}
+    </View>
+  );
+}
+
+/**
  * Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. Mit `onClose` ein Kreuz rechts.
  * `tail={false}` für Nachrichten über der letzten einer Folge: Wie im Chat hat nur die letzte die spitze Ecke.
  */
@@ -33,6 +59,7 @@ export function Notice({
 }) {
   const t = useTexts();
   return (
+    <FromSystem>
     <View style={[styles.notice, !isFashionable && styles.noticeSky, !isFashionable && !tail && styles.noticeNoTail]} accessibilityRole={variant === 'warning' ? 'alert' : undefined}>
       {/* Kiez-Look: Icon nur bei Warnungen, sonst sähen Warnung und Info gleich aus (Daria, 2026-11-09).
           Feste Größe, sonst schrumpft das Icon neben langem Text. */}
@@ -57,6 +84,7 @@ export function Notice({
         />
       ) : null}
     </View>
+    </FromSystem>
   );
 }
 
@@ -94,10 +122,11 @@ export function QuestionHint({ question, answer, then }: { question: string; ans
         <Text style={[styles.questionText, open && !isFashionable && styles.questionTextOpen]}>{question}</Text>
       </Pressable>
       {open ? (
+        <FromSystem style={styles.afterChange}>
         <Animated.View
           style={[
             styles.answer,
-            styles.afterChange,
+            isFashionable && styles.afterChange,
             !isFashionable && styles.answerSky,
             // Folgt noch eine Nachricht der App, hat nur die letzte die spitze Ecke
             then ? styles.answerNoTail : null,
@@ -106,6 +135,7 @@ export function QuestionHint({ question, answer, then }: { question: string; ans
         >
           <Text style={[styles.answerText, !isFashionable && styles.answerTextSky]}>{answer}</Text>
         </Animated.View>
+        </FromSystem>
       ) : null}
       {then ? <View style={open ? styles.afterSame : styles.afterChange}>{then}</View> : null}
     </View>
@@ -338,9 +368,10 @@ const styles = StyleSheet.create({
   // Gestellte Frage lila wie eine eigene Nachricht, die Antwort der App helles Himmelblau (Daria, 2026-11-09)
   questionOpen: { backgroundColor: color.accent.primary, borderColor: color.accent.primary },
   questionTextOpen: { color: color.text.onAccent },
-  answerSky: { backgroundColor: SKY_BG },
+  answerSky: { backgroundColor: SKY_BG, flexShrink: 1 },
   noticeSky: {
     alignSelf: 'flex-start',
+    flexShrink: 1,
     maxWidth: '88%',
     alignItems: 'center',
     paddingVertical: 10,
@@ -349,6 +380,18 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: space[4],
     backgroundColor: SKY_BG,
   },
+  // Avatar unten bündig mit der Blase, die Blase schrumpft um seine Breite
+  systemRow: { flexDirection: 'row', alignItems: 'flex-end', gap: space[8] },
+  systemAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#000000',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  systemAvatarText: { fontSize: 18, lineHeight: 22, textAlign: 'center' },
   // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
   noticeIcon: { flexShrink: 0 },
   noticeNoTail: { borderBottomLeftRadius: CHAT_RADIUS },
