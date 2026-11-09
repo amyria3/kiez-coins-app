@@ -148,8 +148,19 @@ function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: 
   const share = useShareChallenge();
   const commentCount = challenge.comments.length;
   const countStyle = isFashionable ? styles.countFashionable : styles.count;
+  const manage = onManage && !isFashionable ? (
+    <IconButton icon="settings" iconSize={size.icon} accessibilityLabel={t('Deine Posts verwalten')} onPress={onManage} />
+  ) : null;
   return (
     <View style={isFashionable ? styles.actionsFashionable : styles.actions}>
+      {/* Kiez-Look: Knöpfe rechtsbündig, Verwalten links (Daria, 2026-11-09) */}
+      {isFashionable ? null : (
+        <>
+          {manage}
+          {end}
+          <View style={styles.flex} />
+        </>
+      )}
       <Pressable
         accessibilityRole="button"
         accessibilityState={{ selected: !!challenge.likedByMe }}
@@ -175,10 +186,11 @@ function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: 
         accessibilityLabel={t('Teilen')}
         onPress={() => share(challenge)}
       />
-      <View style={styles.flex} />
-      {end}
-      {onManage && !isFashionable ? (
-        <IconButton icon="settings" iconSize={size.icon} accessibilityLabel={t('Deine Posts verwalten')} onPress={onManage} />
+      {isFashionable ? (
+        <>
+          <View style={styles.flex} />
+          {end}
+        </>
       ) : null}
     </View>
   );
