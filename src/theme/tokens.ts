@@ -182,8 +182,8 @@ export const text = {
   bodyStrong: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18 },
   /** Größerer Fließtext, z. B. Menüeinträge, Zähler unter Posts */
   bodyLarge: { fontFamily: font.regular, fontSize: 15, lineHeight: 20 },
-  /** Hinweise und Fehlermeldungen unter Formularfeldern */
-  hint: { fontFamily: font.text, fontSize: 14, lineHeight: 19 },
+  /** Hinweise und Fehlermeldungen unter Formularfeldern, in beiden Looks Light (Daria, 2026-11-09) */
+  hint: { fontFamily: font.light, fontSize: 14, lineHeight: 19 },
   /** Name im Chat und kleine Titel in Sprechblasen */
   cardTitleCompact: { fontFamily: font.display, fontSize: 17, lineHeight: 22, letterSpacing: -0.2 },
   /** Zeile unter Posts und Kennzahl-Beschriftungen (13 px) */
