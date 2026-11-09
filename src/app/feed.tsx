@@ -22,13 +22,14 @@ import { IconButton } from '../components/IconButton';
 import { Text } from '../components/T';
 import { t } from '../data/texts';
 import { useAppDimensions } from '../theme/layout';
-import { AppHeader, FeedGreeting, MODE_OF_TAB, PlannedHint, TAB_OF_MODE, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
+import { AppHeader, FeedGreeting, MODE_OF_TAB, PlannedHint, RoutineButton, TAB_OF_MODE, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
 import { FeedStateMessage } from '../components/FeedStateMessage';
 import { GroupBar } from '../components/GroupBar';
 import { AudienceHint, useAudienceHint } from '../components/AudienceHint';
 import { GearsLoader } from '../components/GearsLoader';
 import { SurveyOverlay, useSurveyPrompt } from '../components/SurveyOverlay';
-import { CAMERA_W, CameraButton, TAB_BAR_SPACE, TabBar } from '../components/TabBar';
+import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
+import { useRoutineEnabled } from '../data/routine';
 import { useRequireKiez } from '../data/kiez';
 import { challengeTypes, isTypeActive, useModes, usePostsShown } from '../data/features';
 import { anrede } from '../data/format';
@@ -65,6 +66,7 @@ function matchesTab(challenge: Challenge, tab: FeedTab, groupId: string | undefi
 /** Route `feed` – Figma „FeedScreen“ (Filled, Loading, Empty, Error, Offline). */
 export default function FeedScreen() {
   const router = useRouter();
+  const routineOn = useRoutineEnabled();
   const insets = useSafeAreaInsets();
   const { challenges, users, feedState, feedError, mode, currentUserId, profile, dispatch, load, groups } = useStore();
   const requireKiez = useRequireKiez();
@@ -517,14 +519,9 @@ export default function FeedScreen() {
         transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) }],
       }
     : null;
-  // Beim Erstellen ist die Kamera weg, die Pille nutzt die volle Breite
+  // Die Kamera oben rechts ist weg (Daria, 2026-11-09), die Reiter nutzen die volle Breite.
   // Fashionable Look: Erstellen sitzt in der Leiste unten, die Reiter nutzen die volle Breite ohne Rand
-  const tabsPaddingRight = isFashionable
-    ? 0
-    : Animated.add(
-        progress.interpolate({ inputRange: [0, 1], outputRange: [space[16], space[16] + CAMERA_WIDTH + space[8]] }),
-        composeAnim.interpolate({ inputRange: [0, 1], outputRange: [0, -(CAMERA_WIDTH + space[8])] }),
-      );
+  const tabsPaddingRight = isFashionable ? 0 : space[16];
   const composeHeaderStyle = {
     height: composeAnim.interpolate({ inputRange: [0, 1], outputRange: [0, COMPOSE_HEADER] }),
     opacity: composeAnim.interpolate({ inputRange: [0, 0.4, 1], outputRange: [0, 0, 1] }),
@@ -561,6 +558,9 @@ export default function FeedScreen() {
         </View>
       </Animated.View>
       <Animated.View style={[styles.tabsRow, isFashionable && styles.tabsRowFashionable, { paddingRight: tabsPaddingRight }]}>
+        {/* Routine links neben den Reitern, vorerst nur für Moderatorinnen (Daria, 2026-11-09) */}
+        {routineOn && !composing && !isFashionable ? <RoutineButton onPress={() => router.push('/routine')} /> : null}
+        <View style={styles.flex}>
         <TabsNavigation
           selectedKey={tab}
           onChange={(key) => {
@@ -570,6 +570,7 @@ export default function FeedScreen() {
           visible={modes.visible}
           accent={composing && !placeTouched}
         />
+        </View>
       </Animated.View>
       <Animated.View style={[styles.clip, storiesStyle]}>
         <View onLayout={(e) => setStoriesHeight(e.nativeEvent.layout.height)}>
@@ -618,7 +619,6 @@ export default function FeedScreen() {
           </Animated.View>
         ) : null}
       </View>
-      {composing || isFashionable ? null : <CameraButton onPress={createChallenge} />}
       {composing ? null : <TabBar
         active="feed"
         onFeedPress={() => switchTab(standardTab)}
@@ -632,8 +632,6 @@ export default function FeedScreen() {
   );
 }
 
-/** Breite der Kamera oben rechts (TabBar.tsx, CameraButton) */
-const CAMERA_WIDTH = CAMERA_W;
 /** Stories-Leiste oben im Feed (Top-Challenges, später Videos) */
 const STORIES = false;
 /** Nach so vielen Millisekunden ohne Interaktion gleiten Logo und Begrüßung weg */
@@ -678,6 +676,9 @@ const styles = StyleSheet.create({
   composeLine: { ...text.title, flex: 1, color: color.text.primary },
   composeSheet: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
   tabsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[8],
     backgroundColor: color.bg.screen,
     paddingTop: space[8],
     paddingBottom: space[8],

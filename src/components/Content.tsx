@@ -73,6 +73,86 @@ function useMessageIn() {
   };
 }
 
+/** Eigene Nachricht wird lila (gefragt, „Ja, los!“): leuchtet wie die Systemblasen auf, 70 → 100 → 90 % (Daria, 2026-11-09) */
+const ACCENT_RGB = (() => {
+  const hex = color.accent.primary.replace('#', '');
+  return [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(', ');
+})();
+function useSentGlow(on: boolean) {
+  const t = useRef(new Animated.Value(on ? 2 : 0)).current;
+  const was = useRef(on);
+  useEffect(() => {
+    if (was.current === on) return;
+    was.current = on;
+    if (!on) {
+      t.setValue(0);
+      return;
+    }
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .catch(() => false)
+      .then((reduce) => {
+        if (!alive) return;
+        if (reduce) {
+          t.setValue(2);
+          return;
+        }
+        t.setValue(0);
+        Animated.sequence([
+          Animated.timing(t, { toValue: 1, duration: 200, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+          Animated.timing(t, { toValue: 2, duration: 460, easing: Easing.inOut(Easing.quad), useNativeDriver: false }),
+        ]).start();
+      });
+    return () => {
+      alive = false;
+    };
+  }, [on, t]);
+  return {
+    backgroundColor: t.interpolate({
+      inputRange: [0, 1, 2],
+      outputRange: [`rgba(${ACCENT_RGB}, 0.7)`, `rgba(${ACCENT_RGB}, 1)`, `rgba(${ACCENT_RGB}, 0.9)`],
+    }),
+    scale: t.interpolate({ inputRange: [0, 1, 2], outputRange: [0.9, 1.04, 1] }),
+  };
+}
+
+/** Eigene Nachricht rechts (Frage oder Antwort zum Antippen); `purple`: gefragt bzw. gesendet */
+function UserBubble({
+  children,
+  purple,
+  onPress,
+  disabled,
+  accessibilityState,
+}: {
+  children: string;
+  purple: boolean;
+  onPress: () => void;
+  disabled?: boolean;
+  accessibilityState?: { expanded?: boolean; disabled?: boolean };
+}) {
+  const on = purple && !isFashionable;
+  const glow = useSentGlow(on);
+  return (
+    <Animated.View
+      style={[
+        styles.question,
+        on && styles.questionOpen,
+        on && { backgroundColor: glow.backgroundColor, transform: [{ scale: glow.scale }] },
+      ]}
+    >
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={accessibilityState}
+        disabled={disabled}
+        onPress={onPress}
+        style={({ pressed }) => [styles.questionInner, pressed && styles.questionPressed]}
+      >
+        <Text style={[styles.questionText, on && styles.questionTextOpen]}>{children}</Text>
+      </Pressable>
+    </Animated.View>
+  );
+}
+
 /** Adressen im Text: mit https:// oder als Domain wie developers.facebook.com, nicht Teil eines @-Handles */
 const LINK = /https?:\/\/[^\s]+|(?:[a-z0-9-]+\.)+(?:com|de|org|net|social|app|io|eu)(?:\/[^\s]*)?/gi;
 
@@ -233,14 +313,9 @@ export function QuestionHint({ question, answer, then }: { question: string; ans
   }, [open, shown]);
   return (
     <View style={open ? styles.qaOpen : undefined}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityState={{ expanded: open }}
-        onPress={() => setOpen((o) => !o)}
-        style={({ pressed }) => [styles.question, open && !isFashionable && styles.questionOpen, pressed && styles.questionPressed]}
-      >
-        <Text style={[styles.questionText, open && !isFashionable && styles.questionTextOpen]}>{question}</Text>
-      </Pressable>
+      <UserBubble purple={open} accessibilityState={{ expanded: open }} onPress={() => setOpen((o) => !o)}>
+        {question}
+      </UserBubble>
       {open ? (
         isFashionable ? (
           <Animated.View
@@ -285,15 +360,9 @@ export function ChatReply({ label, sent, onPress }: { label: string; sent: boole
   const { opacity } = useMessageIn();
   return (
     <Animated.View style={{ opacity }}>
-    <Pressable
-      accessibilityRole="button"
-      accessibilityState={{ disabled: sent }}
-      disabled={sent}
-      onPress={onPress}
-      style={({ pressed }) => [styles.question, sent && !isFashionable && styles.questionOpen, pressed && styles.questionPressed]}
-    >
-      <Text style={[styles.questionText, sent && !isFashionable && styles.questionTextOpen]}>{tx(label)}</Text>
-    </Pressable>
+      <UserBubble purple={sent} accessibilityState={{ disabled: sent }} disabled={sent} onPress={onPress}>
+        {tx(label)}
+      </UserBubble>
     </Animated.View>
   );
 }
@@ -495,16 +564,17 @@ const styles = StyleSheet.create({
   qaOpen: { paddingBottom: CHAT_GAP_CHANGE - CHAT_GAP_SAME },
   afterSame: { marginTop: CHAT_GAP_SAME },
   afterChange: { marginTop: CHAT_GAP_CHANGE },
+  // Rahmen und Fläche außen, damit sie aufleuchten können; der Innenabstand gehört zur Tippfläche
   question: {
     alignSelf: 'flex-end',
     maxWidth: '85%',
-    paddingVertical: space[8],
-    paddingHorizontal: 14,
+    transformOrigin: 'right bottom',
     borderRadius: CHAT_RADIUS,
     borderBottomRightRadius: space[4],
     borderWidth: stroke.ultraThin,
     borderColor: color.line.hairline,
   },
+  questionInner: { paddingVertical: space[8], paddingHorizontal: 14 },
   questionPressed: { opacity: 0.6 },
   questionText: { ...text.body, color: color.text.secondary },
   answer: {

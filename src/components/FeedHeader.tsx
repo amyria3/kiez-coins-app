@@ -28,7 +28,7 @@ type AppHeaderProps = {
 
 /**
  * Figma „AppHeader“, Upgrade „Nachtschicht“: Logo mit Kater in der Mitte. Das Menü liegt in der Tab-Leiste,
- * die Kamera schwebt oben rechts (CameraButton). Der Kopf scrollt mit dem Feed weg.
+ * die Kamera oben rechts ist seit 2026-11-09 weg, Erstellen sitzt in der Leiste unten. Der Kopf scrollt mit dem Feed weg.
  */
 export function AppHeader(props: AppHeaderProps) {
   return isFashionable ? <FashionHeader {...props} /> : <KiezHeader {...props} />;
@@ -210,6 +210,32 @@ export function TabsNavigation({ selectedKey, onChange, visible, accent }: TabsN
   // Nur ein Modus sichtbar: kein Umschalter
   if (shown.length < 2) return null;
   return <Segments tabs={shown} selectedKey={selectedKey} onChange={onChange} accent={accent} />;
+}
+
+/**
+ * Knopf „Routine“ links neben den Reitern (Daria, 2026-11-09): führt zu den Erinnerungen. Gleiche Höhe und
+ * handgezeichnete Spur wie der Umschalter daneben.
+ */
+export function RoutineButton({ onPress }: { onPress: () => void }) {
+  const [box, setBox] = useState({ width: 0, height: 0 });
+  return (
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      onLayout={(e) => {
+        const { width: w, height: h } = e.nativeEvent.layout;
+        setBox((old) => (old.width === w && old.height === h ? old : { width: w, height: h }));
+      }}
+      style={({ pressed }) => [styles.routine, pressed && styles.routinePressed]}
+    >
+      {box.width && box.height ? (
+        <Svg width={box.width} height={box.height} style={StyleSheet.absoluteFill} pointerEvents="none">
+          <Path d={fitShape(SWITCH_TRACK, box.width, box.height)} fill={color.bg.surface} />
+        </Svg>
+      ) : null}
+      <Text style={styles.routineText}>{t('Routine')}</Text>
+    </Pressable>
+  );
 }
 
 type SegmentsProps<K extends string> = {
@@ -516,6 +542,14 @@ const styles = StyleSheet.create({
     borderColor: color.accent.signal,
   },
   topTitle: { ...text.labelXs, color: color.accent.signal, textAlign: 'center', alignSelf: 'stretch' },
+  routine: {
+    minHeight: 40 + 2 * space[4],
+    paddingHorizontal: space[16],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  routinePressed: { opacity: 0.7 },
+  routineText: { fontFamily: font.medium, fontSize: 14, lineHeight: 18, color: color.text.primary },
   segments: {
     flexDirection: 'row',
     width: '100%',
