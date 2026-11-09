@@ -16,13 +16,17 @@ import { useGoBack } from '../../../lib/goBack';
 /**
  * Route `challenge/[id]/likes`: wer den Post geliked hat, neueste zuerst. Sichtbar für alle, die den Post
  * sehen (Daria, 2026-11-05). Tipp auf eine Person öffnet ihr Profil.
+ * Mit `?kommentar=<id>`: wer diesen Kommentar geliked hat (Daria, 2026-11-08).
  */
 export default function LikesScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, kommentar } = useLocalSearchParams<{ id: string; kommentar?: string }>();
   const router = useRouter();
   const goBack = useGoBack();
   const { mode, users } = useStore();
   const { challenge } = useChallenge(id);
+  const comment = kommentar ? challenge?.comments.find((c) => c.id === kommentar) : undefined;
+  const likeCount = kommentar ? comment?.likeCount : challenge?.likeCount;
+  const ownerId = kommentar ? comment?.authorId : challenge?.authorId;
   // undefined: lädt, null: Datenbank kennt die Funktion noch nicht
   const [likers, setLikers] = useState<User[] | null | undefined>(undefined);
 
@@ -30,19 +34,25 @@ export default function LikesScreen() {
     if (!id) return;
     if (mode === 'demo') {
       // Beispieldaten: so viele Personen, wie der Post Likes hat
-      setLikers(users.filter((u) => u.id !== challenge?.authorId).slice(0, challenge?.likeCount ?? 0));
+      setLikers(users.filter((u) => u.id !== ownerId).slice(0, likeCount ?? 0));
       return;
     }
     let alive = true;
-    remote.loadLikers(id).then((list) => alive && setLikers(list));
+    (kommentar ? remote.loadCommentLikers(kommentar) : remote.loadLikers(id)).then((list) => alive && setLikers(list));
     return () => {
       alive = false;
     };
-  }, [id, mode, users, challenge?.authorId, challenge?.likeCount]);
+  }, [id, kommentar, mode, users, ownerId, likeCount]);
 
-  const count = likers?.length ?? challenge?.likeCount ?? 0;
+  const count = likers?.length ?? likeCount ?? 0;
+  const commentAuthor = comment ? users.find((u) => u.id === comment.authorId) : undefined;
   return (
-    <SubScreen title="Likes" subtitle={challenge?.title} navigation="back" onLeadingPress={goBack}>
+    <SubScreen
+      title="Likes"
+      subtitle={kommentar ? (commentAuthor ? t('Kommentar von {name}', { name: commentAuthor.name }) : t('Kommentar')) : challenge?.title}
+      navigation="back"
+      onLeadingPress={goBack}
+    >
       {likers === null ? (
         <Notice message={t('Die Liste der Likes ist gleich da. Bis dahin siehst Du nur die Zahl.')} />
       ) : likers === undefined ? null : likers.length === 0 ? (

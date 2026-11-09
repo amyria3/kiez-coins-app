@@ -594,6 +594,9 @@ export default function ChallengeDetail() {
           }
           onAuthorPress={openProfile}
           onLike={(comment) => dispatch({ type: 'toggleCommentLike', id: challenge.id, commentId: comment.id })}
+          onLikesPress={(comment) =>
+            router.push({ pathname: '/challenge/[id]/likes', params: { id: challenge.id, kommentar: comment.id } })
+          }
           threadPeople={[
             challenge.authorId,
             ...(challenge.assigneeId ? [challenge.assigneeId] : []),
