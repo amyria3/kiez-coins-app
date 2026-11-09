@@ -19,12 +19,12 @@ Daria hat am 2026-11-09 entschieden:
 | Weitere Aktionen | `more`, `more-vertical` | drei kleine Uhrkreise, jeder anders gedreht |
 | Kopieren | `copy` | zwei Blätter aus dem Brief (`message`) mit geschlossener Klappe, hinten versetzt, mit Spalt |
 | Webseite | `link` | zwei Kettenglieder aus dem Rahmen des Schalters (`switch`) |
-| Sprache | `language` | zwei Sprechblasen aus der Kommentar-Blase (`comment`), die hintere gespiegelt |
+| Sprache | `language` | zwei Sprechblasen aus der Kommentar-Blase (`comment`), die hintere gespiegelt; vorn das Zeichen 文 ausgespart, aus dem Strich vom Brief und Menü-Balken |
 
 ## Für das Icon-Regelwerk
 
 - Satz im Abschnitt „Kiez-Look“ ersetzen: „Wo es keins gibt, steht das Phosphor-Icon …“ wird zu „Fehlt ein Icon, entsteht es aus Vektoren von Darias Icons (2026-11-09).“
-- „Sprache behält Phosphor, bis es ein handgezeichnetes Icon gibt.“ streichen. Neue Zeile: `language` (zwei Sprechblasen) | Sprache | Dein Konto | `translate`.
+- „Sprache behält Phosphor, bis es ein handgezeichnetes Icon gibt.“ streichen. Neue Zeile: `language` (zwei Sprechblasen, vorn 文) | Sprache | Dein Konto | `translate`.
 - Fashionable Look: Zeilen `clock`, `info`, `eye` und `flag` zeigen auf `clock-filled`, `info-filled`, `eye-filled`. `flag` und `eye-off` sind gelöscht, da die App sie nicht nutzt.
 
 ## Code
