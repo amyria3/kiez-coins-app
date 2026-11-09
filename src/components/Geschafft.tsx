@@ -9,7 +9,7 @@ import { loadPraise } from '../data/remote';
 import { useStore } from '../data/store';
 import { t } from '../data/texts';
 import { useAppDimensions } from '../theme/layout';
-import { color, font, radius, space, stroke, text } from '../theme/tokens';
+import { color, radius, space, stroke, text } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
 import { Cat } from './icons/Brand';
 import { Text } from './T';
@@ -143,7 +143,7 @@ function Stat({ value, label, signal }: { value: string; label: string; signal?:
 const styles = StyleSheet.create({
   flex: { flex: 1, gap: space[2] },
   pressed: { opacity: 0.8 },
-  sub: { ...text.caption, fontSize: 12, color: color.text.secondary },
+  sub: { ...text.small, color: color.text.secondary },
   stats: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
   stat: { flexGrow: 1, flexBasis: '30%', gap: space[4], padding: space[12], borderRadius: radius.lg, backgroundColor: color.bg.surface },
   statValue: { ...text.metric, fontSize: 24, lineHeight: 28, color: color.text.primary },
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   list: { borderRadius: radius.xl + 2, backgroundColor: color.bg.surface, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12], paddingHorizontal: space[12] },
   rowDivider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
-  rowTitle: { fontFamily: font.regular, fontSize: 15, lineHeight: 20, color: color.text.primary },
+  rowTitle: { ...text.bodyLarge, color: color.text.primary },
   empty: { ...text.body, color: color.text.secondary },
   wall: { flexDirection: 'row', flexWrap: 'wrap', gap: space[4] },
   tile: { borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.bg.surface },

@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[4] },
   rowTop: { flexDirection: 'row', alignItems: 'baseline', gap: space[8] },
   pressed: { opacity: 0.7 },
-  name: { ...text.cardTitle, fontSize: 17, lineHeight: 22, color: color.text.primary, flexShrink: 1 },
+  name: { ...text.cardTitleCompact, color: color.text.primary, flexShrink: 1 },
   bold: { fontFamily: font.semiBold },
   time: { ...text.caption, color: color.text.secondary, marginLeft: 'auto' },
   preview: { ...text.body, color: color.text.secondary },

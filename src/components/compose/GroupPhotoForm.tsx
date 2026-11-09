@@ -161,6 +161,6 @@ export function useGroupPhotoForm(
 }
 
 const styles = StyleSheet.create({
-  hint: { ...text.body, fontSize: 14, lineHeight: 19, color: color.text.secondary },
-  error: { ...text.body, fontSize: 14, lineHeight: 19, color: color.accent.error },
+  hint: { ...text.hint, color: color.text.secondary },
+  error: { ...text.hint, color: color.accent.error },
 });

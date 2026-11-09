@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  speechTitle: { ...text.cardTitle, fontSize: 17, lineHeight: 22, color: color.text.primary },
+  speechTitle: { ...text.cardTitleCompact, color: color.text.primary },
   speechText: { fontFamily: font.text, fontSize: 15, lineHeight: 21, color: color.text.primary },
   // Kreis im Grund der Seite, damit er sich von der Blase abhebt
   rund: { width: RUND, height: RUND, borderRadius: RUND / 2, overflow: 'hidden', backgroundColor: RUND_SCHWARZ },
