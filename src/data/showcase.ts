@@ -474,3 +474,33 @@ export const asSingleEvent = (e: ShowcaseEvent, showcase?: string): SingleEvent 
   location: e.location,
   notes: [showcase, e.body].filter(Boolean).join('\n\n') || undefined,
 });
+
+// ---------- Schaufenster ohne die Social App (kiezcoins.de/schaufenster, Daria, 2026-11-10) ----------
+
+/** Schaufenster, die die Person pflegt: Gruppen, in denen sie Gründer:in ist oder posten darf */
+export async function myShowcases(userId: string): Promise<Showcase[]> {
+  const { data: members } = await supabase.from('group_members').select('group_id, role, can_post_showcase').eq('user_id', userId);
+  const ids = ((members ?? []) as { group_id: string; role: string; can_post_showcase: boolean }[])
+    .filter((m) => m.role === 'founder' || m.can_post_showcase)
+    .map((m) => m.group_id);
+  if (!ids.length) return [];
+  const { data } = await supabase.from('showcases').select(COLUMNS).in('group_id', ids).order('created_at');
+  return ((data ?? []) as unknown as Row[]).map(toShowcase);
+}
+
+/**
+ * Deckname für Konten, die nur ein Schaufenster pflegen: der Name des Schaufensters, bei Bedarf mit Kiez oder Zahl.
+ * So steht bei Posts im Feed der Name des Ladens. Ein vorhandener Deckname bleibt.
+ */
+export async function handleFromShowcase(userId: string, name: string, kiez?: string): Promise<string | null> {
+  const { data } = await supabase.from('profiles').select('handle').eq('id', userId).maybeSingle();
+  const current = (data as { handle: string | null } | null)?.handle;
+  if (current?.trim()) return current;
+  const base = name.trim().slice(0, 30);
+  const tries = [base, kiez ? `${base} ${kiez}`.slice(0, 30) : null, `${base.slice(0, 27)} 2`, `${base.slice(0, 27)} 3`].filter(Boolean) as string[];
+  for (const handle of tries) {
+    const { error } = await supabase.from('profiles').update({ handle }).eq('id', userId);
+    if (!error) return handle;
+  }
+  return null;
+}
