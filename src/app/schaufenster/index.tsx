@@ -131,6 +131,10 @@ function Login({ header }: { header: React.ReactNode }) {
         question="Brauche ich die KiezCoins App?"
         answer="Du musst die App nicht nutzen, weil Du Dein Schaufenster hier pflegen kannst. Du bist hiermit über Google auffindbar."
       />
+      <QuestionHint
+        question="Ich will die App vielleicht doch nutzen – wie kann ich beitreten?"
+        answer="Mit der Registrierung fürs Schaufenster entsteht automatisch ein Account, Deine Persona im Social Network KiezCoins. Du kannst Dich mit denselben Zugangsdaten in der App einloggen und mit anderen Nutzer:innen interagieren."
+      />
     </SubScreen>
   );
 }
