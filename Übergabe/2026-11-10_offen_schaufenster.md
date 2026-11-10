@@ -1,7 +1,7 @@
 # Schaufenster für Unternehmen, Vereine und Organisator:innen
 
 - Stand: 10.11.2026
-- Status: Teil 1 gebaut am 10.11.2026 (Auftrag Daria: „Machen wir jetzt das Schaufenster nach Plan?“), erstmal nur für Moderatorinnen sichtbar. Wartet auf die Migration `20261110000400_schaufenster`.
+- Status: Teil 1 gebaut am 10.11.2026 (Auftrag Daria: „Machen wir jetzt das Schaufenster nach Plan?“), erstmal nur für Moderatorinnen sichtbar. Migrationen `20261110000400` bis `20261110001000` am 10.11.2026 eingespielt (Daria, von Claude geprüft).
 - Ziel in Documentation: neue Datei `kiez-coins/konzept/Schaufenster.md`, Entscheidungen in `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Schaufenster“
 - Arbeitsteilung: Daria entscheidet später über Abo und Rechtstexte. Claude baut Migration, App-Code und öffentliche Seite, schreibt die Doku und meldet sich vor dem Merge mit der Migration.
 
