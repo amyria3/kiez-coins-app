@@ -5,7 +5,8 @@ import { supabase } from '../lib/supabase';
 /**
  * Erinnerungen (Routine, Daria, 2026-11-10). Antworten auf die Fragen: Übergabe/2026-11-07_offen_erinnerungen.md.
  * - „Ich will …“ plus Ergänzung (`want`), optional eine Beschreibung.
- * - Ziel x-mal pro Woche oder feste Wochentage mit Uhrzeit.
+ * - Ziel x-mal pro Woche, feste Wochentage mit Uhrzeit oder einmal an einem Tag („heute bis 18:00“, „morgen um 9:00“,
+ *   „morgen von 9:00 bis 11:00“, Migration 20261110000200).
  * - Der Kater meldet sich vorerst nur in der App, zwischen 8 und 20 Uhr höchstens dreimal am Tag.
  * Tabellen: Migration 20261110000100_erinnerungen.
  */
@@ -16,14 +17,26 @@ export type Reminder = {
   perWeek?: number;
   /** 1 = Montag … 7 = Sonntag */
   weekdays?: number[];
-  /** „HH:MM“ */
+  /** „HH:MM“: Uhrzeit bei festen Tagen, bei einmaligen „um“ bzw. „von“ */
   atTime?: string;
+  /** Einmalig: Tag als „JJJJ-MM-TT“ */
+  onDate?: string;
+  /** Einmalig: „bis HH:MM“ */
+  untilTime?: string;
   /** Erledigt in dieser Woche (ab Montag) */
   doneThisWeek: number;
   doneToday: boolean;
 };
 
-export type ReminderInput = { want: string; description?: string; perWeek?: number; weekdays?: number[]; atTime?: string };
+export type ReminderInput = {
+  want: string;
+  description?: string;
+  perWeek?: number;
+  weekdays?: number[];
+  atTime?: string;
+  onDate?: string;
+  untilTime?: string;
+};
 
 type Row = {
   id: string;
@@ -32,6 +45,8 @@ type Row = {
   per_week: number | null;
   weekdays: number[] | null;
   at_time: string | null;
+  on_date?: string | null;
+  until_time?: string | null;
 };
 
 /** Montag 0:00 dieser Woche, Ortszeit */
@@ -49,11 +64,21 @@ const dayStart = (now = new Date()) => {
 /** 1 = Montag … 7 = Sonntag */
 export const isoWeekday = (d = new Date()) => ((d.getDay() + 6) % 7) + 1;
 
-export const goalOf = (r: Pick<Reminder, 'perWeek' | 'weekdays'>) => r.perWeek ?? r.weekdays?.length ?? 1;
+export const goalOf = (r: Pick<Reminder, 'perWeek' | 'weekdays' | 'onDate'>) => (r.onDate ? 1 : r.perWeek ?? r.weekdays?.length ?? 1);
+
+/** Ortsdatum als „JJJJ-MM-TT“ */
+export const localDate = (d = new Date()) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+export const addDays = (n: number, from = new Date()) => {
+  const d = new Date(from);
+  d.setDate(d.getDate() + n);
+  return d;
+};
 
 /** Fällig heute: feste Tage, wenn heute einer ist; x-mal pro Woche, solange das Ziel nicht erreicht ist */
 export function dueToday(r: Reminder, now = new Date()): boolean {
   if (r.doneToday) return false;
+  if (r.onDate) return r.onDate === localDate(now) && r.doneThisWeek === 0;
   if (r.weekdays) return r.weekdays.includes(isoWeekday(now));
   return r.doneThisWeek < goalOf(r);
 }
@@ -62,11 +87,13 @@ export function dueToday(r: Reminder, now = new Date()): boolean {
 export async function loadReminders(): Promise<Reminder[] | null> {
   const { data, error } = await supabase
     .from('reminders')
-    .select('id, want, description, per_week, weekdays, at_time')
+    .select('*')
     .is('archived_at', null)
     .order('created_at');
   if (error || !data) return null;
-  const rows = data as Row[];
+  // Einmalige von gestern und früher fallen aus der Liste
+  const today0 = localDate();
+  const rows = (data as Row[]).filter((r) => !r.on_date || r.on_date >= today0);
   const since = weekStart();
   const today = dayStart();
   const { data: done } = rows.length
@@ -86,6 +113,8 @@ export async function loadReminders(): Promise<Reminder[] | null> {
       perWeek: r.per_week ?? undefined,
       weekdays: r.weekdays ?? undefined,
       atTime: r.at_time ? r.at_time.slice(0, 5) : undefined,
+      onDate: r.on_date ?? undefined,
+      untilTime: r.until_time ? r.until_time.slice(0, 5) : undefined,
       doneThisWeek: mine.length,
       doneToday: mine.some((d) => new Date(d.done_at) >= today),
     };
@@ -93,13 +122,17 @@ export async function loadReminders(): Promise<Reminder[] | null> {
 }
 
 export async function createReminder(input: ReminderInput): Promise<boolean> {
-  const { error } = await supabase.from('reminders').insert({
-    want: input.want.trim(),
-    description: input.description?.trim() || null,
-    per_week: input.weekdays?.length ? null : input.perWeek ?? 1,
-    weekdays: input.weekdays?.length ? [...input.weekdays].sort() : null,
-    at_time: input.weekdays?.length && input.atTime ? input.atTime : null,
-  });
+  const base = { want: input.want.trim(), description: input.description?.trim() || null };
+  const { error } = await supabase.from('reminders').insert(
+    input.onDate
+      ? { ...base, on_date: input.onDate, at_time: input.atTime ?? null, until_time: input.untilTime ?? null }
+      : {
+          ...base,
+          per_week: input.weekdays?.length ? null : input.perWeek ?? 1,
+          weekdays: input.weekdays?.length ? [...input.weekdays].sort() : null,
+          at_time: input.weekdays?.length && input.atTime ? input.atTime : null,
+        },
+  );
   return !error;
 }
 

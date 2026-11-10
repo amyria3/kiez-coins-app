@@ -56,4 +56,12 @@ Stand: 10.11.2026. Status: erste Fassung gebaut (Routine, nur für Moderatorinne
 - Feed: Kater-Hinweis oben, zwischen 8 und 20 Uhr höchstens dreimal am Tag, mindestens 3 Stunden Abstand.
 - Post: Pille `RoutinePill` mit Uhr-Icon, z. B. „Joggen gehen 2/4“.
 - Kater-Sätze in `src/data/katerRoutine.ts`, Vorschläge von Claude.
+- Einmalige Erinnerungen (Daria, 10.11.2026): heute, morgen oder anderer Tag, jeweils „bis“, „um“ oder „von … bis“. Migration `20261110000200_erinnerung_einmal.sql`.
 - Noch offen: Übersetzungen der neuen Texte, echte Push-Nachrichten, Sichtbarkeit für die Gruppe.
+
+## Idee: Kalendereintrag importieren (Daria, 10.11.2026, Frage)
+
+„Planen: importieren eines Kalendereintrags, indem man einen Screenshot oder eine Kalenderdatei an die App sendet?“
+- Kalenderdatei (.ics): in der App per Dateiauswahl gut machbar. Teilen aus der Kalender-App an KiezCoins braucht eine Share Extension (nur Android-App bzw. iOS-App, nicht die Web-App auf dem iPhone).
+- Screenshot: braucht Texterkennung, z. B. eine Edge Function mit einem Bildmodell. Machbar, aber mit Kosten pro Bild und Datenschutzfrage.
+- Status: offen, nicht gebaut.
