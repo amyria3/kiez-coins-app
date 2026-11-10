@@ -20,6 +20,35 @@ const kurz = (text, max) => {
   return t.length > max ? t.slice(0, max - 1).trimEnd() + '…' : t;
 };
 
+// Services: formatierbarer Text mit denselben Regeln wie in der App (src/data/richText.ts):
+// **fett**, *kursiv*, „- “ am Zeilenanfang für eine Liste, Leerzeile für einen neuen Absatz
+const inline = (line) =>
+  esc(line)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>');
+function richHtml(value) {
+  const out = [];
+  let list = null;
+  let para = null;
+  for (const line of String(value ?? '').replace(/\r\n?/g, '\n').split('\n')) {
+    if (!line.trim()) {
+      list = para = null;
+      continue;
+    }
+    const bullet = line.match(/^\s*[-•]\s+(.*)$/);
+    if (bullet) {
+      para = null;
+      if (!list) out.push((list = []));
+      list.push(`<li>${inline(bullet[1])}</li>`);
+    } else {
+      list = null;
+      if (!para) out.push((para = { lines: [] }));
+      para.lines.push(inline(line));
+    }
+  }
+  return out.map((b) => (Array.isArray(b) ? `<ul>${b.join('')}</ul>` : `<p>${b.lines.join('<br>')}</p>`)).join('');
+}
+
 // Darias Herz aus der App (src/components/icons/svgs.ts)
 const HERZ = '<svg width="22" height="22" aria-hidden="true" viewBox="0 0 35 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.13 19.80C4.69 17.98 4.69 17.99 4.65 17.83C3.49 14.30 3.44 13.36 3.30 11.33C3.04 7.67 2.67 7.39 3.59 4.23C3.92 3.08 4.60 2.44 4.72 2.32C5.96 1.15 6.98 -0.30 9.13 0.05C10.96 0.36 12.37 0.31 14.39 4.99C15.25 7.07 15.19 7.09 15.83 9.28C15.89 9.33 16.46 9.93 16.66 9.83C16.90 9.70 18.20 7.62 19.14 6.42C19.97 5.46 20.05 5.58 20.82 4.54C22.05 3.22 22.69 2.64 24.45 1.85C26.70 0.85 28.13 1.21 28.18 1.22C31.63 1.91 31.76 4.45 32.00 6.19C32.04 9.58 31.44 11.07 30.64 13.39C30.07 15.02 29.92 14.91 29.21 16.45C28.12 18.81 28.02 18.73 26.22 21.23C23.40 25.09 23.40 25.08 23.16 25.43C21.83 27.32 20.67 28.37 20.20 28.98C18.92 30.63 18.79 30.67 17.36 32.14C16.65 32.77 16.24 33.16 16.15 33.25C11.83 37.38 10.06 33.12 9.41 31.48C7.05 26.17 7.44 25.98 5.13 19.80Z M 19.91,20.47 C 18.90,19.97 18.22,20.78 19.16,21.92 C 19.56,22.40 20.56,23.58 21.84,23.72 C 22.47,23.78 22.41,23.13 22.37,23.03 C 22.34,22.94 22.32,22.89 21.59,22.01 C 21.48,21.87 20.61,20.82 19.91,20.47 M 17.38,22.29 C 17.05,22.52 16.36,23.45 17.95,24.71 C 17.97,24.74 17.98,24.72 18.29,24.95 C 18.58,25.18 18.56,25.19 18.82,25.44 C 18.90,25.51 18.94,25.59 19.02,25.67 C 20.09,26.68 21.24,25.72 20.23,24.35 C 19.85,23.83 18.82,22.62 18.39,22.40 C 17.86,22.11 17.42,22.25 17.38,22.29 M 20.97,17.81 C 20.20,18.15 21.16,19.04 21.17,19.06 C 22.09,20.04 22.26,20.16 22.38,20.22 C 23.72,21.10 24.26,20.67 23.97,20.03 C 23.53,19.10 23.47,19.13 23.37,19.03 C 22.74,18.48 22.78,18.44 22.14,17.90 C 21.69,17.51 21.05,17.78 20.97,17.81 M 14.44,25.29 C 14.11,25.88 15.07,26.21 16.07,27.58 C 16.13,27.68 16.47,28.14 17.20,28.41 C 17.81,28.63 18.45,27.85 18.12,26.91 C 17.78,25.91 17.09,25.72 16.94,25.45 C 16.84,25.25 16.82,25.06 16.71,24.87 C 16.66,24.81 16.54,24.80 16.51,24.74 C 16.45,24.88 16.42,24.86 16.37,24.99 C 16.31,25.17 16.35,25.19 16.34,25.19 C 16.28,25.21 16.23,25.09 16.16,25.06 C 16.09,25.02 16.01,25.04 15.94,25.02 C 15.88,24.99 15.83,24.94 15.76,24.91 C 14.85,24.58 14.50,25.20 14.44,25.29 M 23.08,15.69 C 22.20,15.15 21.70,15.48 22.15,16.28 C 22.63,17.10 22.93,18.11 24.17,18.03 C 24.66,18.00 24.90,17.90 24.69,17.31 C 24.35,16.42 23.80,16.20 23.31,15.84 C 23.23,15.80 23.16,15.74 23.08,15.69" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"/></svg>';
 
@@ -117,7 +146,13 @@ function inhalt(s) {
 .geteilt .sf-cover + .sf-wer { margin-top: 0; }
 .geteilt .sf-cover.sf-mit-logo + .sf-wer { margin-top: -36px; padding-left: 20px; }
 .geteilt .sf-logo { width: 72px; height: 72px; aspect-ratio: 1; border-radius: 50%; object-fit: cover; flex: none; }
-.geteilt .sf-wer h1 { margin: 0; padding-bottom: 4px; }
+/* Name und Abschnitte in der App-Schrift für große Überschriften (Daria, 2026-11-10) */
+@font-face { font-family: Unbounded; font-weight: 500; font-display: swap; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
+.geteilt .sf-wer h1 { margin: 0; padding-bottom: 4px; font: 500 26px/32px Unbounded, var(--display); letter-spacing: 0; }
+.geteilt h2.sf-abschnitt { font: 500 18px/24px Unbounded, var(--display); margin: 32px 0 12px; }
+.geteilt .sf-services p, .geteilt .sf-services ul { margin: 0 0 12px; }
+.geteilt .sf-services ul { padding-left: 20px; }
+.geteilt .sf-services li { margin: 0 0 4px; }
 .geteilt .sf-cover:not(.sf-mit-logo) + .sf-wer { margin-top: 12px; }
 .geteilt .sf-klein { font-size: 15px; color: var(--muted); margin: 0 0 4px; }
 .geteilt .sf-liste { display: grid; gap: 32px; margin: 24px 0; }
@@ -142,8 +177,9 @@ function inhalt(s) {
   ${s.kiez ? `<p class="wer">${esc(s.kiez)}</p>` : ''}
   ${s.about ? `<p class="text">${esc(s.about)}</p>` : ''}
   ${infos}${web}
+  ${s.services ? `<h2 class="sf-abschnitt">Services</h2><div class="sf-services">${richHtml(s.services)}</div>` : ''}
   <div class="sf-liste">${eintraege || '<p class="sf-klein">Hier ist noch nichts los.</p>'}</div>
-  ${s.imprint ? `<h2>Impressum</h2><p class="sf-klein" style="white-space: pre-line">${esc(s.imprint)}</p>` : ''}
+  ${s.imprint ? `<h2 class="sf-abschnitt">Impressum</h2><p class="sf-klein" style="white-space: pre-line">${esc(s.imprint)}</p>` : ''}
 <script>
 (() => {
   const URL_ = ${JSON.stringify(SUPABASE_URL)}, KEY = ${JSON.stringify(SUPABASE_KEY)}, MERK = 'kc-termin-herzen';

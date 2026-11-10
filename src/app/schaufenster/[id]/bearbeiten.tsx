@@ -6,6 +6,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Button } from '../../../components/Button';
 import { FieldGroup, KaterCard, Notice, QuestionHint } from '../../../components/Content';
 import { Chip, ChipGroup, choosePhoto, CopyField, SwitchRow, TextField } from '../../../components/Form';
+import { RichTextField } from '../../../components/RichText';
 import { SubScreen } from '../../../components/Screen';
 import { Text } from '../../../components/T';
 import {
@@ -40,7 +41,7 @@ export default function EditShowcase() {
   const { currentUserId, groups, users } = useStore();
   const [showcase, setShowcase] = useState<Showcase | null | undefined>(undefined);
   const [founder, setFounder] = useState(false);
-  const [form, setForm] = useState({ name: '', about: '', kiez: '', address: '', openingHours: '', imprint: '' });
+  const [form, setForm] = useState({ name: '', about: '', services: '', kiez: '', address: '', openingHours: '', imprint: '' });
   // Mehrere Links (Daria, 2026-11-10); immer mindestens ein Feld
   const [links, setLinks] = useState<string[]>(['']);
   const [visibility, setVisibility] = useState<Visibility>('public');
@@ -60,6 +61,7 @@ export default function EditShowcase() {
       setForm({
         name: s.name,
         about: s.about ?? '',
+        services: s.services ?? '',
         kiez: s.kiez ?? '',
         address: s.address ?? '',
         openingHours: s.openingHours ?? '',
@@ -153,6 +155,8 @@ export default function EditShowcase() {
       <FieldGroup label="Angaben">
         <TextField label="Name" required value={form.name} onChangeText={set('name')} maxLength={60} />
         <TextField label="Kurztext" multiline value={form.about} onChangeText={set('about')} maxLength={1000} placeholder="Wer seid Ihr, was gibt es bei Euch?" />
+        {/* Services als formatierbarer Text (Daria, 2026-11-10) */}
+        <RichTextField label="Services" value={form.services} onChange={set('services')} maxLength={4000} />
         <TextField label="Kiez" value={form.kiez} onChangeText={set('kiez')} maxLength={80} placeholder="Connewitz" />
         <TextField label="Adresse" value={form.address} onChangeText={set('address')} maxLength={160} />
         {links.map((l, i) => (
