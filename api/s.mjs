@@ -175,7 +175,7 @@ ${farbe(s.bg_color)}
 .geteilt .sf-cover.sf-mit-logo + .sf-wer { margin-top: -36px; padding-right: 20px; flex-direction: row-reverse; }
 /* Der Name beginnt unter dem Titelbild; bricht er um, wächst er nach unten statt ins Bild */
 .geteilt .sf-cover.sf-mit-logo + .sf-wer .sf-logo { align-self: flex-start; }
-.geteilt .sf-cover.sf-mit-logo + .sf-wer h1 { flex: 1; text-align: left; align-self: flex-start; margin-top: 36px; padding-bottom: 0; }
+.geteilt .sf-cover.sf-mit-logo + .sf-wer h1 { flex: 1; text-align: left; align-self: flex-start; margin-top: 48px; padding-bottom: 0; }
 .geteilt .sf-logo { width: 72px; height: 72px; aspect-ratio: 1; border-radius: 50%; object-fit: cover; flex: none; }
 /* Name und Abschnitte in der App-Schrift für große Überschriften (Daria, 2026-11-10) */
 @font-face { font-family: Unbounded; font-weight: 500; font-display: swap; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
