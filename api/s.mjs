@@ -161,7 +161,7 @@ ${farbe(s.bg_color)}
 /* Ecken rechteckig, der Übergang zum Ausschnitt ganz leicht abgerundet (Daria, 2026-11-10). Die Maske besteht aus drei
    Teilen: oben alles, unten links ein Streifen, unten rechts eine Kachel mit dem Ausschnitt und 6 px Rundung an den
    Übergängen (Kreis 44 px um die Mitte des Logos, 56 px vom rechten Rand, Unterkante).
-   Logo rechts, Name links daneben und rechtsbündig (Daria, 2026-11-10). */
+   Logo rechts, Name links daneben, probeweise linksbündig und größer (Daria, 2026-11-10). */
 .geteilt .sf-cover { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 0; object-fit: cover; margin: 0; }
 .geteilt .sf-cover.sf-mit-logo {
   -webkit-mask: linear-gradient(#000, #000) left top / 100% calc(100% - 49px) no-repeat,
@@ -173,11 +173,13 @@ ${farbe(s.bg_color)}
 .geteilt .sf-wer { display: flex; align-items: flex-end; gap: 12px; margin: 12px 0; }
 .geteilt .sf-cover + .sf-wer { margin-top: 0; }
 .geteilt .sf-cover.sf-mit-logo + .sf-wer { margin-top: -36px; padding-right: 20px; flex-direction: row-reverse; }
-.geteilt .sf-cover.sf-mit-logo + .sf-wer h1 { text-align: right; }
+/* Der Name beginnt unter dem Titelbild; bricht er um, wächst er nach unten statt ins Bild */
+.geteilt .sf-cover.sf-mit-logo + .sf-wer .sf-logo { align-self: flex-start; }
+.geteilt .sf-cover.sf-mit-logo + .sf-wer h1 { flex: 1; text-align: left; align-self: flex-start; margin-top: 36px; padding-bottom: 0; }
 .geteilt .sf-logo { width: 72px; height: 72px; aspect-ratio: 1; border-radius: 50%; object-fit: cover; flex: none; }
 /* Name und Abschnitte in der App-Schrift für große Überschriften (Daria, 2026-11-10) */
 @font-face { font-family: Unbounded; font-weight: 500; font-display: swap; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
-.geteilt .sf-wer h1 { margin: 0; padding-bottom: 4px; font: 500 26px/32px Unbounded, var(--display); letter-spacing: 0; }
+.geteilt .sf-wer h1 { margin: 0; padding-bottom: 4px; font: 500 32px/38px Unbounded, var(--display); letter-spacing: 0; }
 .geteilt h2.sf-abschnitt { font: 500 18px/24px Unbounded, var(--display); margin: 32px 0 12px; }
 .geteilt .sf-services p, .geteilt .sf-services ul { margin: 0 0 12px; }
 .geteilt .sf-services ul { padding-left: 20px; }

@@ -382,10 +382,11 @@ const styles = StyleSheet.create({
   previewBrand: { ...text.caption, fontSize: 9, lineHeight: 12, alignSelf: 'flex-end', fontFamily: font.semiBold },
   // Ecken rechteckig wie auf der öffentlichen Seite
   previewCover: { width: '100%', aspectRatio: 16 / 9 },
-  // Logo rechts, Name links daneben und rechtsbündig, wie auf der öffentlichen Seite
+  // Logo rechts, Name links daneben und linksbündig, wie auf der öffentlichen Seite
   previewHead: { flexDirection: 'row-reverse', alignItems: 'flex-end', gap: space[8], marginTop: -space[20], paddingRight: space[8] },
-  previewLogo: { width: 36, height: 36, borderRadius: 18, borderWidth: 3 },
-  previewName: { fontFamily: font.onPhoto, fontSize: 16, lineHeight: 20, flexShrink: 1, textAlign: 'right' },
+  previewLogo: { width: 36, height: 36, borderRadius: 18, borderWidth: 3, alignSelf: 'flex-start' },
+  // Beginnt unter dem Titelbild, damit ein langer Name nach unten umbricht
+  previewName: { fontFamily: font.onPhoto, fontSize: 19, lineHeight: 24, flex: 1, alignSelf: 'flex-start', marginTop: space[20] },
   previewSmall: { ...text.caption, fontSize: 11, lineHeight: 14 },
   previewText: { ...text.caption },
   previewCard: { padding: space[8], borderRadius: radius.post, gap: space[2], marginTop: space[4] },
