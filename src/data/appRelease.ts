@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import * as Application from 'expo-application';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
+import * as Updates from 'expo-updates';
 
 import { supabase } from '../lib/supabase';
 
@@ -35,4 +36,50 @@ export async function fetchRelease(): Promise<Release> {
 export async function apkDownloadUrl(): Promise<string> {
   const { data } = await supabase.storage.from('downloads').createSignedUrl(APK, 600, { download: APK });
   return data?.signedUrl ?? DOWNLOAD_PAGE;
+}
+
+/**
+ * Stand der App für „Dein Konto › App-Version“ (Daria, 2026-11-10).
+ * `apk`: Eine neuere APK liegt bereit (neuer nativer Teil), also herunterladen und installieren.
+ * `update`: Ein neues Code-Update (expo-updates) liegt bereit, also laden und neu starten.
+ * `current`: Nichts Neues. `web`: Der Browser holt beim Laden immer die neueste Version.
+ * `dev`: Expo Go oder Entwicklung, dort gibt es keine Updates.
+ */
+export type VersionState =
+  | { kind: 'apk'; latest: number }
+  | { kind: 'update' }
+  | { kind: 'current' }
+  | { kind: 'web' }
+  | { kind: 'dev' };
+
+/** Kurzer Name der installierten Version, z. B. „Version 3“. Ohne Netz, für die Zeile im Konto. */
+export function installedVersionLabel(): string {
+  if (Platform.OS === 'web') return 'Web-App';
+  const code = installedVersionCode();
+  return code === null ? 'Entwicklung' : `Version ${code}`;
+}
+
+/** Datum des laufenden Code-Stands: vom letzten Update, sonst vom Bau der APK. */
+export function installedSince(): Date | null {
+  return Updates.isEnabled ? Updates.createdAt : null;
+}
+
+/** Fragt erst nach einer neuen APK, dann nach einem Code-Update. Wirft bei fehlendem Netz. */
+export async function checkVersion(): Promise<VersionState> {
+  if (Platform.OS === 'web') return { kind: 'web' };
+  const installed = installedVersionCode();
+  if (Platform.OS === 'android') {
+    if (installed === null) return { kind: 'dev' };
+    const { latest } = await fetchRelease();
+    if (latest !== null && latest > installed) return { kind: 'apk', latest };
+  }
+  if (__DEV__ || !Updates.isEnabled) return { kind: Platform.OS === 'android' ? 'current' : 'dev' };
+  const result = await Updates.checkForUpdateAsync();
+  return result.isAvailable ? { kind: 'update' } : { kind: 'current' };
+}
+
+/** Lädt das Code-Update und startet die App damit neu. */
+export async function installUpdateAndRestart(): Promise<void> {
+  await Updates.fetchUpdateAsync();
+  await Updates.reloadAsync();
 }
