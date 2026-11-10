@@ -23,9 +23,28 @@ Jede Funktion außerhalb des Kerns hat einen Schlüssel und ist an oder aus. Ein
 |---|---|---|
 | `routine` | an | `useRoutineAvailable` fragte `is_moderator` |
 | `kalender` | an | neu (2026-11-10), Migration `20261110001200_feature_kalender.sql` |
-| `schaufenster` | an | `useShowcaseEnabled` fragte `is_moderator` |
+| `schaufenster` | an | `useShowcaseEnabled` fragte `is_moderator`. Seit 2026-11-10 schaltet es je Gruppe: aus = kein neues Schaufenster, ein bestehendes ist offline |
+| `schaufenster_posten` | an | neu (2026-11-10), Posts und Termine im Schaufenster |
+| `schaufenster_mehr` | an | neu (2026-11-10), alle Einträge statt der 30 neuesten |
 | `weiterposten` | an | `CROSSPOST_ACTIVE = true` |
 | `ohne_wasserzeichen` | an | neu (2026-11-10): Bildpost teilen ohne Kater und „KiezCoins“ im Rahmen oder ganz ohne Rahmen (beide Schalter hängen an dieser einen Funktion), Migration `20261110001500_feature_rahmen.sql` |
+
+## Schalter, die an der Gruppe hängen (2026-11-10)
+
+Die drei Schaufenster-Schlüssel fragt die Datenbank über `public.gruppen_feature(schluessel, gruppe)` ab, nicht über `feature_an`. Ein Schaufenster ist für alle offline oder für niemanden, egal wer gerade schaut. Reihenfolge: Freischaltung oder Sperre der Gruppe, dann der Gründer:in, dann der Standard. Moderatorinnen haben hier keine Ausnahme. Migration `20261110001600_schaufenster_schalter.sql`.
+
+```sql
+-- Schaufenster einer Gruppe offline nehmen (nichts wird gelöscht)
+insert into public.feature_grants (feature_key, group_id, enabled, note)
+values ('schaufenster', '<gruppen-id>', false, 'offline');
+
+-- Posten im Schaufenster sperren
+insert into public.feature_grants (feature_key, group_id, enabled, note)
+values ('schaufenster_posten', '<gruppen-id>', false, 'nur lesen');
+
+-- Für alle: nur die 30 neuesten Einträge zeigen, dann gezielt freischalten
+update public.features set default_on = false where key = 'schaufenster_mehr';
+```
 
 ## SQL für Daria
 
