@@ -1,3 +1,4 @@
+import { RoutinePill } from './RoutinePill';
 import { memo, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Alert, Animated, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useShareChallenge } from '../data/shareChallenge';
@@ -462,6 +463,11 @@ function KiezPost({
           )}
         </Pressable>
       ) : null}
+      {challenge.routineLabel ? (
+        <View style={[styles.textBlock, inCard && styles.textBelowCard]}>
+          <RoutinePill label={challenge.routineLabel} />
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -617,6 +623,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
         </Text>
         {/* Beim Bild steht der Zeitstempel schon rechts neben den Knöpfen */}
         {isPhoto ? null : <Text style={fashion.time}>{formatRelative(challenge.createdAt)}</Text>}
+        {challenge.routineLabel ? <RoutinePill label={challenge.routineLabel} /> : null}
       </Pressable>
     </View>
   );

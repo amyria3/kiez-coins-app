@@ -163,6 +163,8 @@ export type Challenge = {
   pages?: string[];
   /** Schrift der Blätter (data/sheetFonts.ts); ohne Angabe Inter */
   sheetFont?: string;
+  /** Markierung, wenn der Post aus einer Erinnerung entstand, z. B. „joggen gehen 2/4“ (Migration 20261110000100) */
+  routineLabel?: string;
   imageBefore?: ImageSource;
   imageAfter?: ImageSource;
   /** Nur Vorher-Nachher: Texte ohne #vorher/#nachher, im Entwurf getrennt (nach dem Posten steht beides in `text`) */
