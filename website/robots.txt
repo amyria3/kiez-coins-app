@@ -1,0 +1,6 @@
+# kiezcoins.de: Suchmaschinen dürfen alles lesen. Welche Seiten in den Suchergebnissen erscheinen, steuert jede Seite
+# selbst (meta robots). Bisher erscheinen nur die öffentlichen Schaufenster (/s/<kurzname>).
+User-agent: *
+Allow: /
+
+Sitemap: https://kiezcoins.de/sitemap.xml
