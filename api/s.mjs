@@ -8,6 +8,8 @@
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://aqxzxpxrshizlaqyjplw.supabase.co';
 const SUPABASE_KEY = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? 'sb_publishable_WqrL7Y7Wm0l9cq4tHQpjAQ_iooAaNe0';
 const SLUG = /^[a-z0-9][a-z0-9-]{2,39}$/;
+// Feste Adresse für Suchmaschinen (canonical, JSON-LD), auch wenn die Seite über kiezcoins.vercel.app aufgerufen wird
+const SITE = 'https://kiezcoins.de';
 
 const esc = (s) =>
   String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -90,14 +92,63 @@ function wann(e) {
   return `${tag(e.starts_at)} ${uhr(e.starts_at)} bis ${tag(e.ends_at)} ${uhr(e.ends_at)}`;
 }
 
+// Titel für Suchmaschinen: Name und Kiez, damit „Bäckerei Neukölln“ trifft (Daria, 2026-11-10: SEO für Kleingewerbe)
+const titelVon = (s) => `${s.name}${s.kiez ? ` in ${s.kiez}` : ''} – KiezCoins`;
+const beschreibungVon = (s) =>
+  kurz(s.about, 160) || `${s.name}${s.kiez ? ` in ${s.kiez}` : ''}: Termine, Neuigkeiten und Infos bei KiezCoins.`;
+
+// Strukturierte Daten (schema.org) für Google: das Geschäft als LocalBusiness, Termine als Event.
+// Öffnungszeiten stehen als freier Text in der App und passen nicht ins Format von schema.org, deshalb fehlen sie hier.
+function jsonLd(s, url) {
+  const bild = foto(s.cover_path) ?? foto(s.logo_path);
+  const links = (Array.isArray(s.links) && s.links.length ? s.links : s.website ? [s.website] : []).filter((l) =>
+    /^https:\/\//i.test(l),
+  );
+  const geschaeft = {
+    '@type': 'LocalBusiness',
+    '@id': `${url}#geschaeft`,
+    name: s.name,
+    url,
+    ...(s.about ? { description: kurz(s.about, 500) } : {}),
+    ...(bild ? { image: bild } : {}),
+    ...(foto(s.logo_path) ? { logo: foto(s.logo_path) } : {}),
+    ...(s.address ? { address: s.address } : {}),
+    ...(s.kiez ? { areaServed: s.kiez } : {}),
+    ...(links.length ? { sameAs: links } : {}),
+  };
+  const termine = (s.entries ?? [])
+    .filter((x) => x.kind === 'event' && x.starts_at)
+    .map((x) => ({
+      '@type': 'Event',
+      name: x.title,
+      startDate: x.starts_at,
+      ...(x.ends_at ? { endDate: x.ends_at } : {}),
+      ...(x.body ? { description: kurz(x.body, 500) } : {}),
+      ...(foto(x.image_path) ? { image: foto(x.image_path) } : {}),
+      eventStatus: x.cancelled ? 'https://schema.org/EventCancelled' : 'https://schema.org/EventScheduled',
+      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+      location: {
+        '@type': 'Place',
+        name: x.location || s.name,
+        address: x.location || s.address || s.kiez || s.name,
+      },
+      organizer: { '@id': `${url}#geschaeft` },
+      url,
+    }));
+  const daten = { '@context': 'https://schema.org', '@graph': [geschaeft, ...termine] };
+  // „<“ maskieren, damit kein Text aus dem Schaufenster das Script-Tag schließen kann
+  return `<script type="application/ld+json">${JSON.stringify(daten).replace(/</g, '\\u003c')}</script>`;
+}
+
 function kopf(s, url) {
   if (!s) return '<title>Schaufenster nicht gefunden – KiezCoins</title>';
-  const titel = `${s.name} – KiezCoins`;
-  const beschreibung = kurz(s.about, 200) || `${s.name} im Kiez, bei KiezCoins.`;
+  const titel = titelVon(s);
+  const beschreibung = beschreibungVon(s);
   const bild = foto(s.cover_path) ?? foto(s.logo_path);
   return [
     `<title>${esc(titel)}</title>`,
     `<meta name="description" content="${esc(beschreibung)}">`,
+    `<link rel="canonical" href="${esc(url)}">`,
     '<meta property="og:site_name" content="KiezCoins">',
     '<meta property="og:type" content="website">',
     '<meta property="og:locale" content="de_DE">',
@@ -106,6 +157,7 @@ function kopf(s, url) {
     `<meta property="og:url" content="${esc(url)}">`,
     bild ? `<meta property="og:image" content="${esc(bild)}">` : '',
     `<meta name="twitter:card" content="${bild ? 'summary_large_image' : 'summary'}">`,
+    jsonLd(s, url),
   ]
     .filter(Boolean)
     .join('\n');
@@ -113,7 +165,7 @@ function kopf(s, url) {
 
 function eintrag(x) {
   const bild = foto(x.image_path);
-  const img = bild ? `<img class="sf-bild" src="${esc(bild)}" alt="">` : '';
+  const img = bild ? `<img class="sf-bild" src="${esc(bild)}" alt="${esc(x.title ?? '')}" loading="lazy">` : '';
   if (x.kind === 'post') {
     const art = x.type === 'before_after' ? 'Us-Challenge' : x.type === 'individual' ? 'We-Challenge' : 'Post';
     return `<article class="sf-karte">${img}<div class="sf-inhalt">
@@ -208,8 +260,8 @@ ${farbe(s.bg_color)}
 .geteilt .sf-herz[aria-pressed="true"] span { color: var(--text); }
 .geteilt .sf-herz:disabled { cursor: default; opacity: .6; }
 </style>
-  ${cover ? `<img class="sf-cover${logo ? ' sf-mit-logo' : ''}" src="${esc(cover)}" alt="">` : ''}
-  <div class="sf-wer">${logo ? `<img class="sf-logo" src="${esc(logo)}" alt="">` : ''}<h1>${esc(s.name)}</h1></div>
+  ${cover ? `<img class="sf-cover${logo ? ' sf-mit-logo' : ''}" src="${esc(cover)}" alt="Titelbild von ${esc(s.name)}">` : ''}
+  <div class="sf-wer">${logo ? `<img class="sf-logo" src="${esc(logo)}" alt="Logo von ${esc(s.name)}">` : ''}<h1>${esc(s.name)}</h1></div>
   ${s.kiez ? `<p class="wer">${esc(s.kiez)}</p>` : ''}
   ${s.about ? `<p class="text">${esc(s.about)}</p>` : ''}
   ${infos}${web}
@@ -271,7 +323,11 @@ export async function GET(request) {
   const vorlage = await fetch(new URL('/teilen-vorlage', url.origin));
   if (!vorlage.ok) return new Response('Vorlage fehlt', { status: 500 });
   const seite = (await vorlage.text())
-    .replace('<!--KOPF-->', () => kopf(s, `${url.origin}/s/${slug}`))
+    // Öffentliche Schaufenster dürfen in Suchmaschinen erscheinen; die Vorlage sperrt das sonst (geteilte Posts, 404)
+    .replace('<meta name="robots" content="noindex">', () =>
+      s ? '<meta name="robots" content="index, follow, max-image-preview:large">' : '<meta name="robots" content="noindex">',
+    )
+    .replace('<!--KOPF-->', () => kopf(s, `${SITE}/s/${slug}`))
     .replace('<!--POST-->', () => inhalt(s));
 
   return new Response(seite, {
