@@ -86,10 +86,10 @@ const styles = StyleSheet.create({
   },
   rank: { ...text.metric, fontSize: 18, width: 22, textAlign: 'center', color: color.text.secondary },
   flex: { flex: 1, gap: space[2] },
-  name: { ...text.title, fontSize: 16, color: color.text.primary },
-  meta: { ...text.caption, color: color.text.secondary },
+  name: { ...text.bodyStrong, color: color.text.primary },
+  meta: { ...text.meta, color: color.text.secondary },
   // Einzelner Edenstein je Zeile, ragt über die Zeilenhöhe (Daria, 22.10.2026)
   crystal: { width: 24, height: 22, alignItems: 'center' },
   crystalFloat: { position: 'absolute', top: (22 - 36) / 2 },
-  eden: { ...text.metric, fontSize: 18, color: color.accent.confirmation, minWidth: 24, textAlign: 'right' },
+  eden: { ...text.metricSm, color: color.accent.confirmation, minWidth: 24, textAlign: 'right' },
 });
