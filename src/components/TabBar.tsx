@@ -33,7 +33,7 @@ type TabBarProps = {
 /**
  * Schwebende Tab-Leiste (Upgrade „Nachtschicht“): Doppelherz = Feed (Daria, 26.10.2026), Sprechblase = Chats,
  * Burger = Menü (Konto). Die Krone für „Was Du so machst“ ist raus, das Logo oben im Feed führt dorthin (UX-Audit, 27.10.2026). Die aktive Seite liegt auf einer dezenten, halbtransparenten Pille.
- * Challenge erstellen sitzt als CameraButton oben rechts und als blaue Pille in der Leiste zwischen Chats und Menü
+ * Challenge erstellen sitzt als CameraButton oben rechts und in der Leiste zwischen Feed und Chats (vorher zwischen Chats und Menü)
  * (Daria, 30.10.2026). Beide Knöpfe zählen mit (`button_presses`), damit sich zeigt, welcher häufiger genutzt wird.
  */
 export function TabBar(props: TabBarProps) {
@@ -136,22 +136,10 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarP
         >
           <Icon name="feed" size={size.icon} color={active === 'feed' ? color.text.primary : color.text.secondary} />
         </Pressable>
-        {/* Chat und Freund:innen (Daria, 22.10.2026) */}
-        <Pressable
-          accessibilityRole="tab"
-          accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : requests ? t('Chats, neue Freundschaftsanfrage') : t('Chats')}
-          accessibilityState={{ selected: active === 'chat' }}
-          onPress={() => active !== 'chat' && router.push('/chat')}
-          style={({ pressed }) => [styles.item, active === 'chat' && styles.itemActive, pressed && styles.pressed]}
-        >
-          <View>
-            <Icon name="message" size={size.icon} color={active === 'chat' ? color.text.primary : color.text.secondary} />
-            {unread || requests ? <View style={styles.dot} /> : null}
-          </View>
-        </Pressable>
         {/* Kamera auch in der Leiste, als blaue Pille wie oben rechts (Daria, 30.10.2026).
             Nur im Feed als blaue Pille, dort etwas größer. In Nachrichten und „Was Du so machst“ schlicht wie Feed und Menü daneben:
-            ohne Fläche, gleich breit, gedämpfte Farbe (Daria, 10.11.2026) */}
+            ohne Fläche, gleich breit, gedämpfte Farbe (Daria, 10.11.2026).
+            Sitzt zwischen Feed und Chats (Daria, 10.11.2026) */}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('Challenge erstellen')}
@@ -166,6 +154,19 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarP
             size={active === 'feed' ? CAMERA_ICON_FEED : size.icon}
             color={active === 'feed' ? color.bg.screen : color.text.secondary}
           />
+        </Pressable>
+        {/* Chat und Freund:innen (Daria, 22.10.2026) */}
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : requests ? t('Chats, neue Freundschaftsanfrage') : t('Chats')}
+          accessibilityState={{ selected: active === 'chat' }}
+          onPress={() => active !== 'chat' && router.push('/chat')}
+          style={({ pressed }) => [styles.item, active === 'chat' && styles.itemActive, pressed && styles.pressed]}
+        >
+          <View>
+            <Icon name="message" size={size.icon} color={active === 'chat' ? color.text.primary : color.text.secondary} />
+            {unread || requests ? <View style={styles.dot} /> : null}
+          </View>
         </Pressable>
         <Pressable
           accessibilityRole="button"
