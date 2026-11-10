@@ -119,7 +119,7 @@ export default function ShowcaseScreen() {
         <Button label={access.following ? 'Du folgst' : 'Folgen'} variant={access.following ? 'ghost' : 'secondary'} busy={busy} onPress={toggleFollow} />
       ) : (
         <View style={styles.buttons}>
-          <Notice message="Dieses Schaufenster ist nur für Eingeladene. Frag an, oder gib den Code ein, den Du bekommen hast." />
+          <Notice message="Dieses Schaufenster ist nur für eingeladene Personen. Du möchtest up to date bleiben? Frag einen Zugang für Dich an." />
           {access.request === 'requested' ? (
             <Text style={styles.meta}>Deine Anfrage ist unterwegs. Das Team meldet sich.</Text>
           ) : (
