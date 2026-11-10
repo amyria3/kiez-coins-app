@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { MODES, setModeHidden, setPostsShown, setStandardMode, useModes, usePostsShown, type Mode, type PostFeed } from '../data/features';
+import { MODES, setModeHidden, setPostsShown, setRoutineShown, setStandardMode, useModes, usePostsShown, useRoutineShown, type Mode, type PostFeed } from '../data/features';
+import { useRoutineAvailable } from '../data/routine';
 import { useStore } from '../data/store';
 import { color, space, text } from '../theme/tokens';
 import { FieldGroup } from './Content';
@@ -30,6 +31,8 @@ export function FeatureSwitches({ children }: { children?: ReactNode } = {}) {
   const modes = useModes();
   const postsShown = usePostsShown();
   const lastVisible = modes.visible.length === 1;
+  const routineAvailable = useRoutineAvailable();
+  const routineShown = useRoutineShown();
 
   const toggle = (mode: Mode) => {
     if (currentUserId) setModeHidden(currentUserId, mode, modes.isVisible(mode));
@@ -89,6 +92,18 @@ export function FeatureSwitches({ children }: { children?: ReactNode } = {}) {
           );
         })}
       </FieldGroup>
+      {/* Routine als Funktion, die sich ausblenden lässt; vorerst nur für Moderatorinnen (Daria, 2026-11-10) */}
+      {routineAvailable ? (
+        <FieldGroup large label="Routine">
+          <View style={styles.row}>
+            <View style={[styles.texts, !routineShown && styles.dim]}>
+              <Text style={[text.body, { color: color.text.primary }]}>Erinnerungen</Text>
+              <Text style={[text.caption, { color: color.text.secondary }]}>Knopf „Routine“ im Feed und der Kater, der Dich erinnert.</Text>
+            </View>
+            <Toggle label="Routine" value={routineShown} onValueChange={(v) => currentUserId && setRoutineShown(currentUserId, v)} />
+          </View>
+        </FieldGroup>
+      ) : null}
       {children}
     </View>
   );

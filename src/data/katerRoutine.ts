@@ -13,9 +13,15 @@ export function katerLine(r: Reminder, now = new Date()): string {
   if (r.onDate) {
     if (done) return t('Erledigt: {want}. Ich hab es mir aufgeschrieben, mit Sternchen.', { want });
     const when = whenText(r, now);
-    return r.onDate === localDate(now)
-      ? t('Miau! {when} wolltest Du {want}. Ich sitze hier und schaue auf die Uhr.', { when, want })
-      : t('{when} willst Du {want}. Ich stell schon mal den Wecker.', { when, want });
+    const today = r.onDate === localDate(now);
+    // Pflicht: Der Kater bleibt dran. Optional: Er stupst nur an (Daria, 2026-11-10).
+    if (r.required === false)
+      return today
+        ? t('{when} könntest Du {want}. Kein Muss, nur ein Schnurren in Deine Richtung.', { when, want })
+        : t('{when} könntest Du {want}. Wenn nicht, verrate ich es niemandem.', { when, want });
+    return today
+      ? t('Miau! {when} wolltest Du {want}. Das ist Pflicht, ich sitze hier und schaue auf die Uhr.', { when, want })
+      : t('{when} willst Du {want}. Pflichttermin, ich stell schon mal den Wecker.', { when, want });
   }
   if (r.weekdays) {
     if (r.doneToday) return t('Heute schon erledigt: {want}. Leg die Pfoten hoch.', { want });
@@ -32,7 +38,9 @@ export function katerLine(r: Reminder, now = new Date()): string {
 /** Die Erinnerung, um die sich der Kater gerade kümmert: zuerst fällige, dann die mit dem meisten Rückstand */
 export function katerFocus(list: Reminder[], now = new Date()): Reminder | undefined {
   const due = list.filter((r) => dueToday(r, now));
-  const pool = due.length ? due : list;
+  // Pflichttermine vor optionalen
+  const must = due.filter((r) => r.onDate && r.required !== false);
+  const pool = must.length ? must : due.length ? due : list;
   return [...pool].sort((a, b) => goalOf(b) - b.doneThisWeek - (goalOf(a) - a.doneThisWeek))[0];
 }
 
@@ -55,7 +63,7 @@ function dayName(date: string, now: Date): string {
 
 /** „4× pro Woche“, „Mo, Mi, Fr · 18:00“ oder „Morgen um 9:00“ */
 export function goalText(r: Reminder): string {
-  if (r.onDate) return whenText(r);
+  if (r.onDate) return `${whenText(r)} · ${r.required === false ? t('Optional') : t('Pflicht')}`;
   if (r.perWeek) return t('{n}× pro Woche', { n: r.perWeek });
   const days = (r.weekdays ?? []).map((d) => t(WEEKDAYS[d - 1])).join(', ');
   return r.atTime ? `${days} · ${r.atTime}` : days;

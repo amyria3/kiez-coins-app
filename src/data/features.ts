@@ -86,6 +86,8 @@ type Saved = {
   feedHide?: { photo?: boolean; text?: boolean };
   /** Feeds, in denen Bilder und Textposts ausgeblendet sind (Funktionen, Daria, 09.11.2026) */
   postsHidden?: Partial<Record<PostFeed, boolean>>;
+  /** Routine (Erinnerungen) ausgeblendet (Funktionen, Daria, 2026-11-10) */
+  routineHidden?: boolean;
 };
 
 /** Feeds, in denen sich Bilder und Textposts abschalten lassen */
@@ -199,6 +201,15 @@ export function usePostsShown(): Record<PostFeed, boolean> {
   useModes();
   const hidden = postsHiddenOf(saved);
   return { kiez: !hidden.kiez, everywhere: !hidden.everywhere };
+}
+
+/** Routine im Feed zeigen oder ausblenden (Dein Konto › Funktionen, Daria, 2026-11-10). Standard: an. */
+export function setRoutineShown(userId: string, show: boolean) {
+  store(userId, { ...saved, routineHidden: !show });
+}
+export function useRoutineShown(): boolean {
+  useModes();
+  return !saved.routineHidden;
 }
 
 /** Aktueller Stand der Modi */
