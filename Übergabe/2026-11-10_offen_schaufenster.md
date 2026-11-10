@@ -19,6 +19,7 @@ Entscheidungen (Daria, 10.11.2026, nach dem ersten Plan):
 - Die Posts des Schaufensters erscheinen im Kiez-Feed.
 - Posts aus dem Schaufenster lassen sich ebenfalls auf Instagram, Facebook und den anderen Plattformen weiterposten. Das ist wichtig.
 - Im Schaufenster posten und Termine anlegen dürfen die Gründer:in der Gruppe und die Mitglieder, die sie dafür freischaltet.
+- Ein Schaufenster nur für Eingeladene gibt es zusätzlich zum öffentlichen. Daria will damit halböffentliche Clubs und Ähnliches ermöglichen (Lesart von Claude für „Demo öffentliche Clubs“).
 
 Das Schaufenster ist damit die erste kommerzielle Fläche in KiezCoins. Es greift den Feature-Wunsch vom 09.11.2026 auf: „Feed, besonders für Kleinunternehmen und Vereine“ (`Übergabe/TODO.md`).
 
@@ -37,7 +38,7 @@ Das Schaufenster ist damit die erste kommerzielle Fläche in KiezCoins. Es greif
 - **Öffentlich:** Alle in der App finden das Schaufenster, zum Beispiel über den Kiez-Feed, Posts und eine Suche. Dazu eine öffentliche Webseite `kiezcoins.de/s/<name>` ohne Anmeldung, nach dem Muster der geteilten Posts (`kiezcoins.de/c/<id>`, `api/c.mjs`). Die Seite holt Menschen ohne KiezCoins in die App.
 - **Nur mit Einladung:** Das Schaufenster bekommt einen Einladungscode und einen Link, wie die Gruppen (`invite_code`, `/groups/join`). Nur wer eingeladen ist, sieht Posts und Termine. Beispiele: Mitgliederbereich eines Vereins, Stammkundschaft eines Ladens.
 - Die Gründer:in der Gruppe schaltet die Sichtbarkeit jederzeit um.
-- Daria nennt am 10.11.2026 das „öffentliche Schaufenster“. Ob es die Variante „nur mit Einladung“ noch braucht, klärt Frage 2 unten; die Gruppe selbst ist schon der Raum nur für Eingeladene.
+- Beide Varianten bleiben (Daria, 10.11.2026). Das Schaufenster nur für Eingeladene ist für halböffentliche Clubs gedacht: größer und offener als die Gruppe, aber nicht für den ganzen Kiez. Seine Posts erscheinen nicht im Kiez-Feed, nur bei den Eingeladenen.
 
 ### Posts erscheinen im Kiez-Feed
 
@@ -122,9 +123,9 @@ Gesammelt am 10.11.2026 aus `Übergabe/`, `website/`, `src/`, `supabase/` und de
 
 ## Offene Punkte
 
-Fragen an Daria, die Reihenfolge folgt der Wichtigkeit für den Bau. Beantwortet am 10.11.2026: wer ein Schaufenster anlegt (jede Gruppe), ob Posts im Kiez-Feed erscheinen (ja), Weiterposten (ja, wichtig), wer im Schaufenster postet (Gründer:in und freigeschaltete Mitglieder).
+Fragen an Daria, die Reihenfolge folgt der Wichtigkeit für den Bau. Beantwortet am 10.11.2026: wer ein Schaufenster anlegt (jede Gruppe), ob Posts im Kiez-Feed erscheinen (ja), Weiterposten (ja, wichtig), wer im Schaufenster postet (Gründer:in und freigeschaltete Mitglieder), Schaufenster nur für Eingeladene (ja, für halböffentliche Clubs).
 
-1. Braucht es neben dem öffentlichen Schaufenster noch eins „nur für Eingeladene“, oder reicht dafür die Gruppe?
+1. Wie kommen Menschen in ein Schaufenster nur für Eingeladene: per Code und Link wie bei Gruppen, per Anfrage mit Freigabe durch das Team, oder beides? Dürfen Eingeladene kommentieren und liken?
 2. „Alle dürfen sehen“: auch ohne Konto im Web unter `kiezcoins.de/s/<name>` (Vorschlag)?
 3. Was passiert mit dem elften Post: im Schaufenster ausblenden und im Archiv behalten (Vorschlag) oder löschen? Bleibt er im Kiez-Feed sichtbar? Zählen Termine mit?
 4. Ist das Abo der Dachs (19 € netto im Monat)? Was enthält es außer unbegrenzten Posts, zum Beispiel X beim Weiterposten, Bilderkennung, Weiterposten ohne Wasserzeichen, Statistik?
