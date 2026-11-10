@@ -11,6 +11,9 @@ const NO_PAGE: Record<string, string> = {
   '/friends': '/account/friends',
   '/legal': '/account',
   '/onboarding': '/onboarding/welcome',
+  // Abzeichen (Daria, 10.11.2026): Nach der Anmeldung gibt es keinen Verlauf, „Später“ landete auf der leeren Seite `/badge`
+  '/badge': '/feed',
+  '/badges': '/me',
 };
 
 /** Übergeordnete Seite eines Pfads, z. B. `/account/look` → `/account` */
