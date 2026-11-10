@@ -8,6 +8,7 @@ import { FieldGroup, KaterCard } from '../../../components/Content';
 import { SwitchRow } from '../../../components/Form';
 import { GroupInvite } from '../../../components/GroupInvite';
 import { SubScreen } from '../../../components/Screen';
+import { ShowcaseLink } from '../../../components/ShowcaseLink';
 import { MAX_MEMBERS } from '../../../data/groups';
 import { useStore } from '../../../data/store';
 import type { User } from '../../../data/types';
@@ -167,6 +168,9 @@ export default function GroupDetail() {
           />
         </FieldGroup>
       ) : null}
+
+      {/* Schaufenster, erstmal nur für Moderatorinnen (Daria, 2026-11-10) */}
+      <ShowcaseLink group={group} isFounder={isFounder} />
 
       <GroupInvite group={group} />
 

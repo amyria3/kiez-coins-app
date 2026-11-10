@@ -1,4 +1,5 @@
 import { attachRoutinePost } from './reminders';
+import { attachShowcasePost } from './showcase';
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from 'react';
 import { Alert } from 'react-native';
 
@@ -620,6 +621,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       localDispatch({ type: 'create', challenge });
       // Post aus einer Erinnerung: Markierung setzen (data/reminders.ts)
       void attachRoutinePost(challenge.id);
+      // Post aus einem Schaufenster (data/showcase.ts)
+      void attachShowcasePost(challenge.id);
       return challenge.id;
     } catch (error) {
       throw new remote.ShownError(remote.errorText(error));
@@ -866,6 +869,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             const challenge = await remote.startBeforeAfter(s.currentUserId, input);
             localDispatch({ type: 'create', challenge });
             void attachRoutinePost(challenge.id);
+            void attachShowcasePost(challenge.id);
             return challenge.id;
           } catch (error) {
             throw new remote.ShownError(remote.errorText(error));
