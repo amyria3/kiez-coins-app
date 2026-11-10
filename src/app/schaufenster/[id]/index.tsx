@@ -187,7 +187,8 @@ const styles = StyleSheet.create({
   identity: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   identityOnCover: { marginTop: -space[32] - space[8], paddingHorizontal: space[12], alignItems: 'flex-end' },
   logo: { width: 64, height: 64, borderRadius: 32, borderWidth: 3, borderColor: color.bg.screen, backgroundColor: color.bg.surface },
-  name: { ...text.title, flex: 1, color: color.text.primary, paddingBottom: space[4] },
+  // Name in der App-Schrift für große Überschriften (Kiez: Unbounded), nicht in Inter (Daria, 2026-11-10)
+  name: { ...text.display, flex: 1, color: color.text.primary, paddingBottom: space[4] },
   about: { ...text.body, color: color.text.primary },
   info: { gap: space[8] },
   buttons: { gap: space[8] },
