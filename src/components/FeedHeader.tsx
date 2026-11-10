@@ -329,7 +329,11 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
   const barWidth = main?.width ?? 0;
   const barHeight = main?.height ?? 0;
   const widths = tabs.map((tab) => content[tab.key]);
-  const rest = barWidth > 0 && widths.every((w) => w !== undefined) ? restLayouts(widths as number[], barWidth) : undefined;
+  const measured = barWidth > 0 && widths.every((w) => w !== undefined) ? (widths as number[]) : undefined;
+  const basePad = measured ? segmentPad(measured, barWidth) : SEGMENT_PAD;
+  const rest = measured ? restLayouts(measured, barWidth, basePad) : undefined;
+  // Höchstbreite der Beschriftung bei den nicht gewählten Reitern
+  const cap = measured ? labelCap(measured, index, barWidth, basePad) : Infinity;
   const single = tabs.length < 2;
   // Wie stark ein Reiter gerade gewählt ist: 1 unter der Pille, 0 daneben
   const weight = (i: number) =>
@@ -397,10 +401,28 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
           setMain((old) => (sameBox(old, box) ? old : box));
         }}
       >
+        {/* Unsichtbar: volle Breite jeder Beschriftung. Wird es eng, kürzen die sichtbaren Reiter mit „…“ (Daria, 2026-11-10). */}
+        {tabs.map((tab) => (
+          <View
+            key={`measure-${tab.key}`}
+            style={styles.measure}
+            pointerEvents="none"
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            onLayout={(e) => {
+              const cw = e.nativeEvent.layout.width;
+              setContent((c) => (c[tab.key] === cw ? c : { ...c, [tab.key]: cw }));
+            }}
+          >
+            <Text numberOfLines={1} style={[styles.segmentText, tab.key === selectedKey && !lead?.active && styles.segmentTextSelected]}>
+              {t(tab.label)}
+            </Text>
+          </View>
+        ))}
         {tabs.map((tab, i) => {
           const selected = tab.key === selectedKey && !lead?.active;
           const w = weight(i);
-          const pad = typeof w === 'number' ? SEGMENT_PAD + PILL_EXTRA * w : w.interpolate({ inputRange: [0, 1], outputRange: [SEGMENT_PAD, SEGMENT_PAD + PILL_EXTRA] });
+          const pad = typeof w === 'number' ? basePad + PILL_EXTRA * w : w.interpolate({ inputRange: [0, 1], outputRange: [basePad, basePad + PILL_EXTRA] });
           return (
             <AnimatedPressable
               key={tab.key}
@@ -408,19 +430,14 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
               accessibilityLabel={tab.planned ? t('{label}, kommt später', { label: tab.label }) : tab.label}
               accessibilityState={{ selected }}
               onPress={() => onChange(tab.key)}
-              style={[styles.segment, { paddingHorizontal: pad }, !ready && selected && styles.segmentSelected]}
+              style={[styles.segment, { paddingHorizontal: pad }, selected ? styles.noShrink : Number.isFinite(cap) && { maxWidth: Animated.add(Animated.multiply(pad, 2), cap) }, !ready && selected && styles.segmentSelected]}
             >
-              <View
-                style={styles.segmentInner}
-                onLayout={(e) => {
-                  const cw = e.nativeEvent.layout.width;
-                  setContent((c) => (c[tab.key] === cw ? c : { ...c, [tab.key]: cw }));
-                }}
-              >
+              <View style={styles.segmentInner}>
                 <Animated.Text
                   numberOfLines={1}
                   style={[
                     styles.segmentText,
+                    !selected && styles.shrink,
                     selected && styles.segmentTextSelected,
                     tab.planned && !selected && styles.planned,
                     // Schrift wird dunkel, während die Pille darübergleitet
@@ -517,18 +534,42 @@ const SEGMENT_PAD = space[8];
 const PILL_EXTRA = space[8];
 const BAR_PAD = space[4];
 
+/** Engere Polsterung der nicht gewählten Reiter, wenn sonst nicht alle Beschriftungen ganz passen */
+const TIGHT_PAD = space[4];
+
+/** Seitliche Polsterung der Reiter: normal, oder eng, wenn der Platz mit normaler Polsterung nicht reicht. */
+function segmentPad(content: number[], barWidth: number) {
+  const need = content.reduce((a, c) => a + c + 2 * SEGMENT_PAD, 2 * PILL_EXTRA);
+  return need > barWidth - 2 * BAR_PAD ? TIGHT_PAD : SEGMENT_PAD;
+}
+
+/**
+ * Größte Beschriftungsbreite der nicht gewählten Reiter, wenn der gewählte `k` ganz bleiben soll.
+ * Gekürzt werden nur die längsten, alle auf dieselbe Höchstbreite; kurze bleiben ganz (Daria, 2026-11-10).
+ */
+function labelCap(content: number[], k: number, barWidth: number, pad: number) {
+  const inner = barWidth - 2 * BAR_PAD;
+  let room = inner - content.length * 2 * pad - 2 * PILL_EXTRA - content[k];
+  const others = content.filter((_, j) => j !== k).sort((a, b) => a - b);
+  for (let i = 0; i < others.length; i++) {
+    const left = others.length - i;
+    if (others[i] * left > room) return Math.max(0, room / left);
+    room -= others[i];
+  }
+  return Infinity;
+}
+
 /**
  * Lage und Breite jedes Reiters, wenn er gewählt ist.
- * Rechnet wie Flexbox: Grundbreite = Inhalt + Polsterung, freier Platz zu gleichen Teilen (flexGrow 1),
- * fehlender Platz anteilig zur Grundbreite (flexShrink 1).
+ * Rechnet wie Flexbox: Grundbreite = Inhalt (höchstens `labelCap`) + Polsterung, freier Platz zu gleichen Teilen.
  */
-function restLayouts(content: number[], barWidth: number) {
+function restLayouts(content: number[], barWidth: number, pad: number) {
   const inner = barWidth - 2 * BAR_PAD;
   return content.map((_, k) => {
-    const basis = content.map((c, j) => c + 2 * SEGMENT_PAD + (j === k ? 2 * PILL_EXTRA : 0));
-    const sum = basis.reduce((a, b) => a + b, 0);
-    const free = inner - sum;
-    const width = (j: number) => (free >= 0 ? basis[j] + free / basis.length : basis[j] + (free * basis[j]) / sum);
+    const cap = labelCap(content, k, barWidth, pad);
+    const basis = content.map((c, j) => (j === k ? c + 2 * pad + 2 * PILL_EXTRA : Math.min(c, cap) + 2 * pad));
+    const free = Math.max(0, inner - basis.reduce((a, b) => a + b, 0));
+    const width = (j: number) => basis[j] + free / basis.length;
     let x = BAR_PAD;
     for (let j = 0; j < k; j++) x += width(j);
     return { x, width: width(k) };
@@ -619,11 +660,15 @@ const styles = StyleSheet.create({
     backgroundColor: color.text.primary,
   },
   // Breite nach Inhalt, damit vier Reiter neben die Kamera passen
-  segment: { flexGrow: 1, flexShrink: 1, minHeight: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
+  segment: { flexGrow: 1, flexShrink: 1, minWidth: 0, minHeight: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
   segmentSelected: { backgroundColor: color.text.primary },
   segmentText: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.secondary },
   segmentTextSelected: { fontFamily: font.medium, color: color.bg.screen },
-  segmentInner: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  segmentInner: { flexDirection: 'row', alignItems: 'center', gap: space[4], flexShrink: 1, minWidth: 0, maxWidth: '100%' },
+  shrink: { flexShrink: 1 },
+  // Der gewählte Reiter wird nie gekürzt (Daria, 2026-11-10)
+  noShrink: { flexShrink: 0 },
+  measure: { position: 'absolute', left: 0, top: 0, opacity: 0, flexDirection: 'row' },
   planned: { opacity: 0.6 },
   hint: { paddingHorizontal: space[16] },
   fashionHead: {
