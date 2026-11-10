@@ -179,7 +179,7 @@ ${farbe(s.bg_color)}
 .geteilt .sf-logo { width: 72px; height: 72px; aspect-ratio: 1; border-radius: 50%; object-fit: cover; flex: none; }
 /* Name und Abschnitte in der App-Schrift für große Überschriften (Daria, 2026-11-10) */
 @font-face { font-family: Unbounded; font-weight: 500; font-display: swap; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
-.geteilt .sf-wer h1 { margin: 0; padding-bottom: 4px; font: 500 32px/38px Unbounded, var(--display); letter-spacing: 0; }
+.geteilt .sf-wer h1 { margin: 0; padding-bottom: 4px; font: 500 32px/33px Unbounded, var(--display); letter-spacing: 0; }
 .geteilt h2.sf-abschnitt { font: 500 18px/24px Unbounded, var(--display); margin: 32px 0 12px; }
 .geteilt .sf-services p, .geteilt .sf-services ul { margin: 0 0 12px; }
 .geteilt .sf-services ul { padding-left: 20px; }
