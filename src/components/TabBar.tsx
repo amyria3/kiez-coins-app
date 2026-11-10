@@ -33,7 +33,7 @@ type TabBarProps = {
 /**
  * Schwebende Tab-Leiste (Upgrade „Nachtschicht“): Doppelherz = Feed (Daria, 26.10.2026), Sprechblase = Chats,
  * Burger = Menü (Konto). Die Krone für „Was Du so machst“ ist raus, das Logo oben im Feed führt dorthin (UX-Audit, 27.10.2026). Die aktive Seite liegt auf einer dezenten, halbtransparenten Pille.
- * Challenge erstellen sitzt als CameraButton oben rechts und als blaue Pille in der Leiste zwischen Chats und Menü
+ * Challenge erstellen sitzt als CameraButton oben rechts und in der Leiste zwischen Feed und Chats (vorher zwischen Chats und Menü)
  * (Daria, 30.10.2026). Beide Knöpfe zählen mit (`button_presses`), damit sich zeigt, welcher häufiger genutzt wird.
  */
 export function TabBar(props: TabBarProps) {
@@ -136,6 +136,25 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarP
         >
           <Icon name="feed" size={size.icon} color={active === 'feed' ? color.text.primary : color.text.secondary} />
         </Pressable>
+        {/* Kamera auch in der Leiste, als blaue Pille wie oben rechts (Daria, 30.10.2026).
+            Nur im Feed als blaue Pille, dort etwas größer. In Nachrichten und „Was Du so machst“ schlicht wie Feed und Menü daneben:
+            ohne Fläche, gleich breit, gedämpfte Farbe (Daria, 10.11.2026).
+            Sitzt zwischen Feed und Chats (Daria, 10.11.2026) */}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('Challenge erstellen')}
+          onPress={() => {
+            countButton('kamera-leiste', look);
+            (onCreatePress ?? (() => router.dismissTo({ pathname: '/feed', params: { erstellen: '1' } })))();
+          }}
+          style={({ pressed }) => [styles.item, active === 'feed' && styles.itemCamera, pressed && styles.pressed]}
+        >
+          <Icon
+            name="camera"
+            size={active === 'feed' ? CAMERA_ICON_FEED : size.icon}
+            color={active === 'feed' ? color.bg.screen : color.text.secondary}
+          />
+        </Pressable>
         {/* Chat und Freund:innen (Daria, 22.10.2026) */}
         <Pressable
           accessibilityRole="tab"
@@ -148,18 +167,6 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarP
             <Icon name="message" size={size.icon} color={active === 'chat' ? color.text.primary : color.text.secondary} />
             {unread || requests ? <View style={styles.dot} /> : null}
           </View>
-        </Pressable>
-        {/* Kamera auch in der Leiste, als blaue Pille wie oben rechts (Daria, 30.10.2026) */}
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('Challenge erstellen')}
-          onPress={() => {
-            countButton('kamera-leiste', look);
-            (onCreatePress ?? (() => router.dismissTo({ pathname: '/feed', params: { erstellen: '1' } })))();
-          }}
-          style={({ pressed }) => [styles.item, styles.itemCamera, pressed && styles.pressed]}
-        >
-          <Icon name="camera" size={size.icon} color={color.bg.screen} />
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -194,6 +201,9 @@ export function CameraButton({ onPress, inline = false }: { onPress: () => void;
   );
 }
 
+/** Kamera-Icon in der Pille im Feed, so groß wie die Kamera oben rechts */
+const CAMERA_ICON_FEED = 24;
+
 /** Platz unter Listen, damit die schwebende Leiste nichts verdeckt. */
 export const TAB_BAR_SPACE = 96;
 
@@ -218,7 +228,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  itemCamera: { width: 64, backgroundColor: color.accent.primary },
+  // Im Feed etwas größer als die Nachbarn (vorher 64 breit, Icon 20)
+  itemCamera: { width: 72, backgroundColor: color.accent.primary },
   // Aktive Seite: dezente helle Fläche, damit der Kater nicht auf Weiß liegt
   itemActive: { backgroundColor: isFashionable ? 'transparent' : 'rgba(240, 240, 240, 0.14)' },
   camera: {
