@@ -32,7 +32,8 @@ import {
 } from '../../../data/weChallenge';
 import { ParticipantsSection } from '../../../components/Participants';
 import { useRequireKiez } from '../../../data/kiez';
-import { recordView } from '../../../data/remote';
+import { isModerator, recordView } from '../../../data/remote';
+import { useFeature } from '../../../data/freischaltung';
 import { coordsIfAllowed, distanceMeters, KIEZ_RADIUS_METERS, type Coords } from '../../../data/location';
 import { useChallenge, useStore } from '../../../data/store';
 import { isPostOnly, type ChallengeStatus } from '../../../data/types';
@@ -73,6 +74,12 @@ export default function ChallengeDetail() {
   // Steht Text im Kommentarfeld, schickt der Hauptknopf ihn ab statt z. B. „Erledigt melden“ (Daria, 2026-11-09)
   const [writing, setWriting] = useState(false);
   const sendComment = useRef<(() => void) | null>(null);
+  // Bildkommentare (Daria, 2026-11-10): Bild-Knopf im Kommentarfeld, Moderation darf Kommentare löschen
+  const allowCommentImage = useFeature('bildkommentare', challenge?.groupId);
+  const [moderator, setModerator] = useState(false);
+  useEffect(() => {
+    if (mode === 'live') isModerator().then(setModerator);
+  }, [mode]);
   // Eigener Standort für die 5-km-Regel (Daria, 29.10.2026). Ohne Freigabe: null, dann nur Anfrage.
   const [here, setHere] = useState<Coords | null>(null);
   useEffect(() => {
@@ -609,7 +616,7 @@ export default function ChallengeDetail() {
           onSend={
             challenge.status === 'closed' || challenge.status === 'deleted' || !canWrite
               ? undefined
-              : (body, replyToId) => needKiez() && dispatch({ type: 'addComment', id: challenge.id, body, replyToId })
+              : (body, replyToId, photo) => needKiez() && dispatch({ type: 'addComment', id: challenge.id, body, replyToId, photo })
           }
           audience={challenge.groupId ? 'Nur Eure Gruppe kann hier mitlesen.' : undefined}
           closedHint={
@@ -634,6 +641,9 @@ export default function ChallengeDetail() {
           hiddenIds={blockedIds}
           onDraftChange={setWriting}
           sendRef={sendComment}
+          allowImage={allowCommentImage}
+          canModerate={moderator}
+          onDelete={(comment) => dispatch({ type: 'deleteComment', id: challenge.id, commentId: comment.id })}
           onReport={(comment) =>
             router.push({ pathname: '/user/[id]/report', params: { id: comment.authorId, challengeId: challenge.id } })
           }
