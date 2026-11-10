@@ -24,7 +24,7 @@ import { IconButton } from '../components/IconButton';
 import { Text } from '../components/T';
 import { t } from '../data/texts';
 import { useAppDimensions } from '../theme/layout';
-import { AppHeader, FeedGreeting, MODE_OF_TAB, PlannedHint, RoutineButton, TAB_OF_MODE, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
+import { AppHeader, FeedGreeting, MODE_OF_TAB, PlannedHint, TAB_OF_MODE, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
 import { FeedStateMessage } from '../components/FeedStateMessage';
 import { GroupBar } from '../components/GroupBar';
 import { AudienceHint, useAudienceHint } from '../components/AudienceHint';
@@ -374,6 +374,14 @@ export default function FeedScreen() {
     [swipeX, slideToTab],
   );
 
+  // Routine: Der helle Knopf gleitet erst hinüber, dann öffnet sich die Seite. Zurück im Feed gleitet er heim.
+  const [routineActive, setRoutineActive] = useState(false);
+  const openRoutine = () => {
+    setRoutineActive(true);
+    setTimeout(() => router.push('/routine'), motion.tabSwitch.duration * 0.8);
+  };
+  useFocusEffect(useCallback(() => setRoutineActive(false), []));
+
   // Tippen auf einen Reiter: dieselbe Bewegung wie beim Wischen, aus der Richtung des Reiters.
   const switchTab = (key: FeedTab) => {
     const from = tabOrder.indexOf(tab);
@@ -580,8 +588,6 @@ export default function FeedScreen() {
         </View>
       </Animated.View>
       <Animated.View style={[styles.tabsRow, isFashionable && styles.tabsRowFashionable, { paddingRight: tabsPaddingRight }]}>
-        {/* Routine links neben den Reitern, vorerst nur für Moderatorinnen (Daria, 2026-11-09) */}
-        {routineOn && !composing && !isFashionable ? <RoutineButton onPress={() => router.push('/routine')} /> : null}
         <View style={styles.flex}>
         <TabsNavigation
           selectedKey={tab}
@@ -591,6 +597,8 @@ export default function FeedScreen() {
           }}
           visible={modes.visible}
           accent={composing && !placeTouched}
+          // Routine links neben den Reitern, vorerst nur für Moderatorinnen (Daria, 2026-11-09)
+          lead={routineOn && !composing && !isFashionable ? { label: t('Routine'), active: routineActive, onPress: openRoutine } : undefined}
         />
         </View>
       </Animated.View>
