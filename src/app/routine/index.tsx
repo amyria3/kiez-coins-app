@@ -11,6 +11,7 @@ import { Text } from '../../components/T';
 import { eventDate, eventTime, upcomingCalendarEvents, type CalendarEvent } from '../../data/calendar';
 import { dayName, goalText, katerFocus, katerLine } from '../../data/katerRoutine';
 import { savedEvents, type ShowcaseEvent } from '../../data/showcase';
+import { useCalendarEnabled } from '../../data/routine';
 import { useStore } from '../../data/store';
 import { ShowcaseEventCard } from '../../components/ShowcaseEventCard';
 import { archiveReminder, capitalize, goalOf, kindOf, loadReminders, type Reminder } from '../../data/reminders';
@@ -33,12 +34,15 @@ export default function Routine() {
   // Gespeicherte Termine aus Schaufenstern (Daria, 2026-11-10); Änderungen und Absagen kommen hier an
   const [saved, setSaved] = useState<(ShowcaseEvent & { showcase: string })[]>([]);
   const { currentUserId } = useStore();
+  // Kalender aus (Einstellungen › Kalender, Daria, 2026-11-10): keine Termine aus Deinen Kalendern
+  const calendarOn = useCalendarEnabled();
 
   const reload = useCallback(() => {
     loadReminders().then(setList, () => setList(null));
-    upcomingCalendarEvents(7).then(setEvents, () => setEvents([]));
+    if (calendarOn) upcomingCalendarEvents(7).then(setEvents, () => setEvents([]));
+    else setEvents([]);
     savedEvents(currentUserId).then(setSaved, () => setSaved([]));
-  }, [currentUserId]);
+  }, [currentUserId, calendarOn]);
   // Neu laden, wenn man vom Anlegen oder Erledigen zurückkommt
   useFocusEffect(reload);
 
@@ -67,7 +71,7 @@ export default function Routine() {
             title="Was willst Du Dir angewöhnen?"
             body="Sag mir, was Du vorhast. Ich erinnere Dich, ganz ohne Druck. Na gut, mit ein bisschen."
             action={<Button label="Neue Erinnerung" icon="plus" onPress={() => router.push('/routine/new')} />}
-            more={<Button label="Kalender verbinden" variant="ghost" onPress={() => router.push('/routine/kalender')} />}
+            more={calendarOn ? <Button label="Kalender verbinden" variant="ghost" onPress={() => router.push('/account/kalender')} /> : undefined}
           />
         </View>
       ) : (
@@ -102,7 +106,7 @@ export default function Routine() {
           ) : null}
           <View style={styles.buttons}>
             <Button label="Neue Erinnerung" icon="plus" variant="secondary" onPress={() => router.push('/routine/new')} />
-            <Button label="Kalender" variant="ghost" onPress={() => router.push('/routine/kalender')} />
+            {calendarOn ? <Button label="Kalender" variant="ghost" onPress={() => router.push('/account/kalender')} /> : null}
           </View>
         </ScrollView>
       )}

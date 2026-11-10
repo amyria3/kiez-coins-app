@@ -19,7 +19,7 @@ export default function FeaturesScreen() {
       <FeatureSwitches>
         {/* Jede Plattform mit eigenem Schalter, die Einrichtung öffnet sich darunter (Daria, 2026-11-09) */}
         {crosspost ? (
-          <FieldGroup large label="Weiterposten">
+          <FieldGroup heading label="Weiterposten">
             <CrosspostSwitches />
           </FieldGroup>
         ) : null}
