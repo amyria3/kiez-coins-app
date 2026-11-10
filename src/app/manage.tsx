@@ -373,6 +373,8 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
   const canDelete = deletable(c);
   // Zeitleiste nur bei Aufgaben mit Frist: Ein Foto läuft nicht ab (Daria, 2026-11-05)
   const showTimeBar = isOpen && !isDraft && c.type !== 'photo';
+  // Bilder und Textposts laufen nicht ab und lassen sich nicht schließen (Daria, 2026-11-10)
+  const isPost = c.type === 'photo';
 
   const state = isDraft
     ? {
@@ -381,7 +383,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
       }
     : meInProgress(c)
       ? { value: 'Läuft', hint: c.timerStartedAt ? t('Timer läuft') : formatRemainingShort(c.deadline) }
-    : isBeforeAfter && c.status === 'open'
+    : (isBeforeAfter || isPost) && c.status === 'open'
       ? { value: 'Gepostet', hint: formatRelative(c.createdAt) }
     : isOpen
       ? { value: 'Offen', hint: formatRemainingShort(c.deadline) }
@@ -405,6 +407,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
         photo={photo}
         isDraft={isDraft}
         isOpen={isOpen}
+        isPost={isPost}
         canDelete={canDelete}
         onOpen={onOpen}
         onEdit={onEdit}
@@ -421,14 +424,14 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
     <View style={styles.card}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={t('{title} öffnen', { title: c.title || t('Ohne Titel') })}
+        accessibilityLabel={t('{title} öffnen', { title: t(cardTitle(c)) })}
         onPress={onOpen}
         style={({ pressed }) => [styles.head, pressed && styles.pressed]}
       >
         {photo ? <Image source={photo} style={styles.thumb} contentFit="cover" /> : null}
         <View style={styles.flex}>
           <Text style={styles.title} numberOfLines={2}>
-            {c.title || 'Ohne Titel'}
+            {cardTitle(c)}
           </Text>
           <View style={styles.badges}>
             <StatusBadge status={c.status} challenge={c} />
@@ -467,7 +470,8 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
           onPress={isDraft ? undefined : onComments}
         />
         {/* Online-Zeit steht bei offenen Posts schon in der Zeitleiste */}
-        {showTimeBar || isDraft ? null : <IconStat icon="clock-filled" value={formatDurationSince(c.createdAt)} label="online" />}
+        {/* Bei Bildern und Textposts steht „vor …“ schon unter dem Titel */}
+        {showTimeBar || isDraft || isPost ? null : <IconStat icon="clock-filled" value={formatDurationSince(c.createdAt)} label="online" />}
       </View>
 
       <View style={styles.actions}>
@@ -484,8 +488,12 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
           {isOpen ? (
             <>
               <QuietAction label="Bearbeiten" onPress={onEdit} />
-              <View style={styles.quietDivider} />
-              <QuietAction label="Schließen" onPress={onClose} />
+              {isPost ? null : (
+                <>
+                  <View style={styles.quietDivider} />
+                  <QuietAction label="Schließen" onPress={onClose} />
+                </>
+              )}
             </>
           ) : isDraft ? null : (
             <QuietAction label="Ansehen" onPress={onOpen} />
@@ -670,6 +678,7 @@ function FashionCard({
   photo,
   isDraft,
   isOpen,
+  isPost,
   canDelete,
   onOpen,
   onEdit,
@@ -683,6 +692,7 @@ function FashionCard({
   photo?: Challenge['image'];
   isDraft: boolean;
   isOpen: boolean;
+  isPost: boolean;
   canDelete: boolean;
 }) {
   const { width } = useAppDimensions();
@@ -690,10 +700,7 @@ function FashionCard({
   const buttons: { label: string; onPress: () => void; primary?: boolean }[] = isDraft
     ? [{ label: 'Weiter bearbeiten', onPress: onEdit, primary: true }]
     : isOpen
-      ? [
-          { label: 'Bearbeiten', onPress: onEdit },
-          { label: 'Schließen', onPress: onClose },
-        ]
+      ? [{ label: 'Bearbeiten', onPress: onEdit }, ...(isPost ? [] : [{ label: 'Schließen', onPress: onClose }])]
       : c.status === 'closed'
         ? [
             { label: 'Kopie erstellen', onPress: onCopy, primary: true },
@@ -704,14 +711,14 @@ function FashionCard({
     <View style={fashion.card}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={t('{title} öffnen', { title: c.title || t('Ohne Titel') })}
+        accessibilityLabel={t('{title} öffnen', { title: t(cardTitle(c)) })}
         onPress={onOpen}
         style={({ pressed }) => [fashion.head, side, pressed && styles.pressed]}
       >
         {photo ? <Image source={photo} style={fashion.thumb} contentFit="cover" /> : null}
         <View style={fashion.headText}>
           <Text style={fashion.title} numberOfLines={2}>
-            {c.title || 'Ohne Titel'}
+            {cardTitle(c)}
           </Text>
           {hint ? (
             <Text style={fashion.hint} numberOfLines={1}>
@@ -798,6 +805,13 @@ const fashion = StyleSheet.create({
   line: { height: stroke.ultraThin, backgroundColor: color.line.hairline, marginTop: 15 },
   next: { fontSize: 12, lineHeight: 16 },
 });
+
+/** Titel der Karte: Bilder und Textposts haben meist keinen, dann „Bild“ bzw. „Textpost“ statt „Ohne Titel“ (Daria, 2026-11-10) */
+function cardTitle(c: Challenge): string {
+  if (c.title.trim()) return c.title;
+  if (c.type === 'photo') return c.pages?.length ? 'Textpost' : 'Bild';
+  return 'Ohne Titel';
+}
 
 /** Lila Leiste: wie viel der Laufzeit schon vorbei ist, darunter seit wann online und wie lange noch */
 function TimeBar({ createdAt, deadline }: { createdAt: string; deadline: string }) {
