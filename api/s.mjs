@@ -108,10 +108,17 @@ function inhalt(s) {
     .join('');
   const eintraege = (s.entries ?? []).map(eintrag).join('\n');
   return `<style>
-.geteilt .sf-cover { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 20px; object-fit: cover; margin: 0 0 12px; }
-.geteilt .sf-wer { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; }
-.geteilt .sf-logo { width: 64px; height: 64px; aspect-ratio: 1; border-radius: 50%; object-fit: cover; }
-.geteilt .sf-wer h1 { margin: 0; }
+/* Titelbild folgt der Form des Logos: unten links ein runder Ausschnitt mit Abstand, in dem das Logo sitzt (Daria, 2026-11-10) */
+.geteilt .sf-cover { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 20px; object-fit: cover; margin: 0; }
+.geteilt .sf-cover.sf-mit-logo {
+  -webkit-mask-image: radial-gradient(circle 44px at 56px 100%, transparent 43.5px, #000 44px);
+  mask-image: radial-gradient(circle 44px at 56px 100%, transparent 43.5px, #000 44px); }
+.geteilt .sf-wer { display: flex; align-items: flex-end; gap: 12px; margin: 12px 0; }
+.geteilt .sf-cover + .sf-wer { margin-top: 0; }
+.geteilt .sf-cover.sf-mit-logo + .sf-wer { margin-top: -36px; padding-left: 20px; }
+.geteilt .sf-logo { width: 72px; height: 72px; aspect-ratio: 1; border-radius: 50%; object-fit: cover; flex: none; }
+.geteilt .sf-wer h1 { margin: 0; padding-bottom: 4px; }
+.geteilt .sf-cover:not(.sf-mit-logo) + .sf-wer { margin-top: 12px; }
 .geteilt .sf-klein { font-size: 15px; color: var(--muted); margin: 0 0 4px; }
 .geteilt .sf-liste { display: grid; gap: 32px; margin: 24px 0; }
 .geteilt .sf-karte { background: var(--surface); border-radius: 6px; overflow: hidden; }
@@ -130,7 +137,7 @@ function inhalt(s) {
 .geteilt .sf-herz[aria-pressed="true"] span { color: var(--text); }
 .geteilt .sf-herz:disabled { cursor: default; opacity: .6; }
 </style>
-  ${cover ? `<img class="sf-cover" src="${esc(cover)}" alt="">` : ''}
+  ${cover ? `<img class="sf-cover${logo ? ' sf-mit-logo' : ''}" src="${esc(cover)}" alt="">` : ''}
   <div class="sf-wer">${logo ? `<img class="sf-logo" src="${esc(logo)}" alt="">` : ''}<h1>${esc(s.name)}</h1></div>
   ${s.kiez ? `<p class="wer">${esc(s.kiez)}</p>` : ''}
   ${s.about ? `<p class="text">${esc(s.about)}</p>` : ''}
