@@ -44,7 +44,7 @@ export default function ShowcaseScreen() {
   const reload = useCallback(() => {
     loadShowcase(id, currentUserId).then((d) => {
       setData(d);
-      if (d?.access.canSee) loadEntries(id, currentUserId, d.showcase.paid).then(setEntries, () => setEntries([]));
+      if (d?.access.canSee) loadEntries(id, currentUserId, d.showcase.switches.mehr).then(setEntries, () => setEntries([]));
     });
   }, [id, currentUserId]);
   useFocusEffect(reload);
@@ -59,7 +59,7 @@ export default function ShowcaseScreen() {
   if (data === null) {
     return (
       <SubScreen title="Schaufenster" navigation="back" onLeadingPress={goBack}>
-        <KaterCard>Dieses Schaufenster gibt es nicht mehr.</KaterCard>
+        <KaterCard>Dieses Schaufenster gibt es nicht mehr, oder es ist gerade offline.</KaterCard>
       </SubScreen>
     );
   }
@@ -110,10 +110,20 @@ export default function ShowcaseScreen() {
         </View>
       </View>
 
+      {/* Schaufenster abgeschaltet (Feature `schaufenster`): Nur die Gruppe sieht es noch (Daria, 2026-11-10) */}
+      {!s.switches.online ? (
+        <Notice variant="warning" message="Dieses Schaufenster ist offline. Nur Eure Gruppe sieht es, im Feed und unter dem Link erscheint es nicht." />
+      ) : null}
+
       {access.team ? (
         <View style={styles.buttons}>
-          <Button label="Post erstellen" icon="plus" onPress={post} />
-          <Button label="Termin erstellen" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]/termin', params: { id: s.id } })} />
+          {/* Posten nur mit Feature `schaufenster_posten` (Daria, 2026-11-10) */}
+          {s.switches.posten ? (
+            <>
+              <Button label="Post erstellen" icon="plus" onPress={post} />
+              <Button label="Termin erstellen" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]/termin', params: { id: s.id } })} />
+            </>
+          ) : null}
           {access.founder ? (
             <Button label="Schaufenster bearbeiten" variant="ghost" onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id } })} />
           ) : null}
@@ -150,7 +160,7 @@ export default function ShowcaseScreen() {
                 ),
               )}
             </View>
-            {s.paid ? null : (
+            {s.switches.mehr || entries.length < VISIBLE_ENTRIES ? null : (
               <Text style={styles.meta}>{t('Hier stehen die {n} neuesten Posts und Termine.', { n: VISIBLE_ENTRIES })}</Text>
             )}
           </SectionBlock>

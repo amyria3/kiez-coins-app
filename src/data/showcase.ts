@@ -39,11 +39,22 @@ export type Showcase = {
   openingHours?: string;
   imprint?: string;
   visibility: Visibility;
-  /** Bezahlt: zeigt alle Einträge, die Grenze von 50 löscht nichts (plan_until in der Zukunft) */
+  /** Bezahlt: Die Grenze von 50 löscht nichts (plan_until in der Zukunft) */
   paid: boolean;
+  /** Schalter der Gruppe (Migration 20261110001600), aus `showcase_schalter`; ohne Migration alles an */
+  switches: ShowcaseSwitches;
   /** Nur für das Team (showcase_private); sonst leer */
   inviteCode: string;
 };
+
+/**
+ * Drei Schalter pro Gruppe (Daria, 2026-11-10), über die Feature-Freischaltung:
+ * `online` (Feature `schaufenster`): aus heißt offline, nur Mitglieder sehen es.
+ * `posten` (Feature `schaufenster_posten`): Posts und Termine anlegen.
+ * `mehr` (Feature `schaufenster_mehr`): alle Einträge statt der 30 neuesten.
+ */
+export type ShowcaseSwitches = { online: boolean; posten: boolean; mehr: boolean };
+const ALL_ON: ShowcaseSwitches = { online: true, posten: true, mehr: true };
 
 export type ShowcaseAccess = {
   /** Gründer:in der Gruppe */
@@ -76,13 +87,10 @@ export type ShowcasePost = { id: string; title: string; body: string; type: stri
 
 export type ShowcaseEntry = { kind: 'post'; post: ShowcasePost } | { kind: 'event'; event: ShowcaseEvent };
 
-/** Sichtbar sind die 10 neuesten Einträge (Posts und Termine zusammen) */
-export const VISIBLE_ENTRIES = 10;
-/**
- * Bezahlt alle Einträge. Erstmal läuft jedes Schaufenster als bezahlt (Daria, 2026-11-10: „wir bauen jetzt alles über
- * bezahlt“, Migration 20261110001000); die Obergrenze hier schützt nur die Abfrage.
- */
-export const PAID_ENTRIES = 200;
+/** Sichtbar sind die 30 neuesten Einträge, Posts und Termine zusammen (Daria, 2026-11-10) */
+export const VISIBLE_ENTRIES = 30;
+/** Mit „Mehr Posts zeigen“ (Schalter `mehr`) alle Einträge; die Obergrenze schützt nur die Abfrage. */
+export const ALL_ENTRIES = 200;
 
 type Row = {
   id: string;
@@ -128,8 +136,25 @@ const toShowcase = (r: Row): Showcase => ({
   imprint: r.imprint ?? undefined,
   visibility: r.visibility,
   paid: !!r.plan_until && (r.plan_until === 'infinity' || new Date(r.plan_until).getTime() > Date.now()),
+  switches: ALL_ON,
   inviteCode: '',
 });
+
+/** Schalter der Gruppe; fehlt die Migration 20261110001600, ist alles an wie vorher */
+export async function showcaseSwitches(id: string): Promise<ShowcaseSwitches> {
+  const { data, error } = await supabase.rpc('showcase_schalter', { p_showcase: id });
+  if (error || !data) return ALL_ON;
+  return { ...ALL_ON, ...(data as Partial<ShowcaseSwitches>) };
+}
+
+/**
+ * Darf diese Gruppe ein Schaufenster haben (Feature `schaufenster` der Gruppe, nicht der Person, die schaut)?
+ * Fehlt die Migration 20261110001600, gilt die Feature-Freischaltung wie vorher.
+ */
+export async function groupShowcaseOn(groupId: string): Promise<boolean | undefined> {
+  const { data, error } = await supabase.rpc('gruppen_feature', { p_key: 'schaufenster', p_group_id: groupId });
+  return error ? undefined : data === true;
+}
 
 /**
  * Feature `schaufenster` (freischaltung.ts), mit Gruppe für genau diese Gruppe oder diesen Verein.
@@ -161,7 +186,10 @@ export function slugify(name: string): string {
 export async function showcaseOfGroup(groupId: string): Promise<Showcase | undefined | null> {
   const { data, error } = await supabase.from('showcases').select(COLUMNS).eq('group_id', groupId).maybeSingle();
   if (error) return null;
-  return data ? toShowcase(data as Row) : undefined;
+  if (!data) return undefined;
+  const showcase = toShowcase(data as Row);
+  showcase.switches = await showcaseSwitches(showcase.id);
+  return showcase;
 }
 
 export async function loadShowcase(id: string, userId: string): Promise<{ showcase: Showcase; access: ShowcaseAccess } | null> {
@@ -171,6 +199,7 @@ export async function loadShowcase(id: string, userId: string): Promise<{ showca
   const { data: priv } = await supabase.rpc('showcase_private', { p_showcase: id });
   showcase.address = (priv as Private)?.address ?? undefined;
   showcase.inviteCode = (priv as Private)?.invite_code ?? '';
+  showcase.switches = await showcaseSwitches(id);
   const [member, group, guest, follow, see] = await Promise.all([
     supabase.from('group_members').select('role, can_post_showcase').eq('group_id', showcase.groupId).eq('user_id', userId).maybeSingle(),
     supabase.from('groups').select('founder_id').eq('id', showcase.groupId).maybeSingle(),
@@ -302,8 +331,8 @@ export async function setShowcasePoster(groupId: string, userId: string, allow: 
 
 // ---------- Einträge ----------
 
-export async function loadEntries(showcaseId: string, userId: string, paid = false): Promise<ShowcaseEntry[]> {
-  const max = paid ? PAID_ENTRIES : VISIBLE_ENTRIES;
+export async function loadEntries(showcaseId: string, userId: string, all = false): Promise<ShowcaseEntry[]> {
+  const max = all ? ALL_ENTRIES : VISIBLE_ENTRIES;
   const [posts, events] = await Promise.all([
     supabase
       .from('challenges')
@@ -544,7 +573,9 @@ export async function myShowcases(userId: string): Promise<Showcase[]> {
     .map((m) => m.group_id);
   if (!ids.length) return [];
   const { data } = await supabase.from('showcases').select(COLUMNS).in('group_id', ids).order('created_at');
-  return ((data ?? []) as unknown as Row[]).map(toShowcase);
+  const list = ((data ?? []) as unknown as Row[]).map(toShowcase);
+  await Promise.all(list.map(async (s) => (s.switches = await showcaseSwitches(s.id))));
+  return list;
 }
 
 /**
