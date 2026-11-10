@@ -159,19 +159,21 @@ ${farbe(s.bg_color)}
 .top .brand svg { height: 11px; width: auto; }
 .top .marke { display: none; }
 /* Ecken rechteckig, der Übergang zum Ausschnitt ganz leicht abgerundet (Daria, 2026-11-10). Die Maske besteht aus drei
-   Teilen: oben alles, unten rechts ein Streifen, unten links eine Kachel mit dem Ausschnitt und 6 px Rundung an den
-   Übergängen (Kreis 44 px um die Mitte des Logos bei 56 px, Unterkante). */
+   Teilen: oben alles, unten links ein Streifen, unten rechts eine Kachel mit dem Ausschnitt und 6 px Rundung an den
+   Übergängen (Kreis 44 px um die Mitte des Logos, 56 px vom rechten Rand, Unterkante).
+   Logo rechts, Name links daneben und rechtsbündig (Daria, 2026-11-10). */
 .geteilt .sf-cover { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 0; object-fit: cover; margin: 0; }
 .geteilt .sf-cover.sf-mit-logo {
   -webkit-mask: linear-gradient(#000, #000) left top / 100% calc(100% - 49px) no-repeat,
-    linear-gradient(#000, #000) right bottom / calc(100% - 119px) 50px no-repeat,
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='50' viewBox='0 0 120 50'%3E%3Cpath d='M0 0H120V50H105.64A6 6 0 0 1 99.68 44.72A44 44 0 0 0 12.32 44.72A6 6 0 0 1 6.36 50H0Z' fill='%23000'/%3E%3C/svg%3E") left bottom / 120px 50px no-repeat;
+    linear-gradient(#000, #000) left bottom / calc(100% - 119px) 50px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='50' viewBox='0 0 120 50'%3E%3Cpath d='M0 0H120V50H113.64A6 6 0 0 1 107.68 44.72A44 44 0 0 0 20.32 44.72A6 6 0 0 1 14.36 50H0Z' fill='%23000'/%3E%3C/svg%3E") right bottom / 120px 50px no-repeat;
   mask: linear-gradient(#000, #000) left top / 100% calc(100% - 49px) no-repeat,
-    linear-gradient(#000, #000) right bottom / calc(100% - 119px) 50px no-repeat,
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='50' viewBox='0 0 120 50'%3E%3Cpath d='M0 0H120V50H105.64A6 6 0 0 1 99.68 44.72A44 44 0 0 0 12.32 44.72A6 6 0 0 1 6.36 50H0Z' fill='%23000'/%3E%3C/svg%3E") left bottom / 120px 50px no-repeat; }
+    linear-gradient(#000, #000) left bottom / calc(100% - 119px) 50px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='50' viewBox='0 0 120 50'%3E%3Cpath d='M0 0H120V50H113.64A6 6 0 0 1 107.68 44.72A44 44 0 0 0 20.32 44.72A6 6 0 0 1 14.36 50H0Z' fill='%23000'/%3E%3C/svg%3E") right bottom / 120px 50px no-repeat; }
 .geteilt .sf-wer { display: flex; align-items: flex-end; gap: 12px; margin: 12px 0; }
 .geteilt .sf-cover + .sf-wer { margin-top: 0; }
-.geteilt .sf-cover.sf-mit-logo + .sf-wer { margin-top: -36px; padding-left: 20px; }
+.geteilt .sf-cover.sf-mit-logo + .sf-wer { margin-top: -36px; padding-right: 20px; flex-direction: row-reverse; }
+.geteilt .sf-cover.sf-mit-logo + .sf-wer h1 { text-align: right; }
 .geteilt .sf-logo { width: 72px; height: 72px; aspect-ratio: 1; border-radius: 50%; object-fit: cover; flex: none; }
 /* Name und Abschnitte in der App-Schrift für große Überschriften (Daria, 2026-11-10) */
 @font-face { font-family: Unbounded; font-weight: 500; font-display: swap; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
