@@ -192,7 +192,8 @@ const styles = StyleSheet.create({
   about: { ...text.body, color: color.text.primary },
   info: { gap: space[8] },
   buttons: { gap: space[8] },
-  list: { gap: space[12] },
+  // Deutlich Abstand zwischen den Karten (Daria, 2026-11-10)
+  list: { gap: space[32] },
   meta: { ...text.caption, color: color.text.secondary },
   card: { borderRadius: radius.xl, backgroundColor: color.bg.surface, overflow: 'hidden' },
   pressed: { opacity: 0.7 },

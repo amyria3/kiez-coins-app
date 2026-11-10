@@ -110,7 +110,7 @@ function inhalt(s) {
 .geteilt .sf-logo { width: 64px; height: 64px; aspect-ratio: 1; border-radius: 50%; object-fit: cover; }
 .geteilt .sf-wer h1 { margin: 0; }
 .geteilt .sf-klein { font-size: 15px; color: var(--muted); margin: 0 0 4px; }
-.geteilt .sf-liste { display: grid; gap: 16px; margin: 24px 0; }
+.geteilt .sf-liste { display: grid; gap: 32px; margin: 24px 0; }
 .geteilt .sf-karte { background: var(--surface); border-radius: 20px; overflow: hidden; }
 .geteilt .sf-bild { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 0; object-fit: cover; }
 .geteilt .sf-inhalt { padding: 16px; }
