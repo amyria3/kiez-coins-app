@@ -106,9 +106,16 @@ export function useShareChallenge(): (challenge: Challenge) => Promise<void> {
           ? sheetImageFiles(challenge.pages, challenge.title, challenge.sheetFont, sheetAuthor(author)).then(
               (files) => files ?? [],
             )
-          : photoFiles(challenge).then((files) => framePhotoFiles(files, sheetAuthor(author))),
+          : photoFiles(challenge).then(async (raw) => {
+              const by = sheetAuthor(author);
+              return { files: await framePhotoFiles(raw, by), photos: { raw, author: by } };
+            }),
         makeMessage(),
-      ]).then(([files, message]) => ({ files, message, slides: !!challenge.pages?.length }));
+      ]).then(([result, message]) =>
+        Array.isArray(result)
+          ? { files: result, message, slides: true }
+          : { files: result.files, message, slides: false, photos: result.photos },
+      );
       prepared.set(key, job);
       job.catch(() => prepared.delete(key));
     }
