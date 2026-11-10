@@ -32,7 +32,7 @@ import { AudienceHint, useAudienceHint } from '../components/AudienceHint';
 import { GearsLoader } from '../components/GearsLoader';
 import { SurveyOverlay, useSurveyPrompt } from '../components/SurveyOverlay';
 import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
-import { useRoutineEnabled } from '../data/routine';
+import { useRoutineEnabled, useRoutineIsStandard } from '../data/routine';
 import { useRequireKiez } from '../data/kiez';
 import { challengeTypes, isTypeActive, useModes, usePostsShown } from '../data/features';
 import { anrede } from '../data/format';
@@ -66,10 +66,14 @@ function matchesTab(challenge: Challenge, tab: FeedTab, groupId: string | undefi
   return true;
 }
 
+/** Beim Start schon entschieden, ob die Routine aufgeht; gilt einmal pro App-Start */
+let startChecked = false;
+
 /** Route `feed` – Figma „FeedScreen“ (Filled, Loading, Empty, Error, Offline). */
 export default function FeedScreen() {
   const router = useRouter();
   const routineOn = useRoutineEnabled();
+  const routineStandard = useRoutineIsStandard();
   const insets = useSafeAreaInsets();
   const { challenges, users, feedState, feedError, mode, currentUserId, profile, dispatch, load, groups } = useStore();
   const requireKiez = useRequireKiez();
@@ -375,6 +379,13 @@ export default function FeedScreen() {
     swipeX.setValue(0);
   }).current;
   useFocusEffect(onFeedFocus);
+  // Routine als Standard (Daria, 2026-11-10): Beim App-Start geht die Routine auf, zurück geht es in den Feed.
+  // Nicht, wenn der Feed mit einem Ziel geöffnet wurde (Reiter, Gruppe, Erstellen, neuer Post).
+  useEffect(() => {
+    if (startChecked || !modes.ready) return;
+    startChecked = true;
+    if (routineStandard && !gruppe && !reiter && !erstellen && !neu) openRoutine();
+  }, [modes.ready, routineStandard, gruppe, reiter, erstellen, neu, openRoutine]);
   const routineLeftRef = useRef(false);
   routineLeftRef.current = routineOn && !composing && !isFashionable;
 

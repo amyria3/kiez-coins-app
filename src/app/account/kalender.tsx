@@ -4,8 +4,9 @@ import { useFocusEffect } from 'expo-router';
 
 import { Button } from '../../components/Button';
 import { FieldGroup, Notice, QuestionHint } from '../../components/Content';
-import { Chip, ChipGroup, CopyField, TextField } from '../../components/Form';
+import { Chip, ChipGroup, CopyField, TextField, Toggle } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
+import { SetupSteps } from '../../components/SetupSteps';
 import { Text } from '../../components/T';
 import {
   addLinkedCalendar,
@@ -19,16 +20,34 @@ import {
   type DeviceCalendar,
   type LinkedCalendar,
 } from '../../data/calendar';
+import { setCalendarShown, useCalendarShown } from '../../data/features';
+import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
 import { useGoBack } from '../../lib/goBack';
 import { color, radius, space, text } from '../../theme/tokens';
 
 /**
- * Route `routine/kalender` (Daria, 2026-11-10): Termine aus Routine im eigenen Kalender abonnieren und Termine aus
- * eigenen Kalendern in Routine zeigen, als Link (überall) oder vom Handy (Android-App). Für alle mit Routine (Daria, 2026-11-10).
+ * Anleitung zum Abonnieren (Daria, 2026-11-10): erst Anzahl der Schritte und Voraussetzungen, dann Schritt für Schritt,
+ * wie beim Weiterposten.
  */
-export default function RoutineCalendar() {
+const SUBSCRIBE_INTRO =
+  'Das Abonnieren umfasst 3 Schritte und setzt voraus, dass Du in Deinem Kalender angemeldet bist, zum Beispiel bei Apple, Google oder Outlook. Möchtest Du jetzt loslegen?';
+const SUBSCRIBE_STEPS = [
+  '1. Auf iPhone und Mac tippst Du oben auf „Im Kalender abonnieren“. Die Kalender-App öffnet sich, und Du bist fertig. Alle anderen kopieren den Abo-Link.',
+  '2. Öffne Deinen Kalender. Google Kalender: Im Browser links bei „Weitere Kalender“ auf + tippen und „Per URL“ wählen. Outlook: „Kalender hinzufügen“, dann „Aus dem Internet abonnieren“.',
+  '3. Füge den Abo-Link ein und bestätige. Deine Termine erscheinen, sobald Dein Kalender den Link abruft. Je nach Kalender dauert das Minuten bis Stunden.',
+];
+
+/**
+ * Route `account/kalender` (Dein Konto › Einstellungen › Kalender, Daria, 2026-11-10; vorher `routine/kalender`):
+ * Termine aus Routine im eigenen Kalender abonnieren und Termine aus eigenen Kalendern in Routine zeigen, als Link
+ * (überall) oder vom Handy (Android-App). Oben ein Schalter für den ganzen Kalender, unabhängig von der Einrichtung:
+ * Aus blendet die Termine aus Deinen Kalendern in Routine aus, die Einrichtung bleibt erhalten (Daria, 2026-11-10).
+ */
+export default function CalendarSettings() {
   const goBack = useGoBack();
+  const { currentUserId } = useStore();
+  const on = useCalendarShown();
   const [feed, setFeed] = useState<{ https: string; webcal: string } | null | undefined>(undefined);
   const [linked, setLinked] = useState<LinkedCalendar[] | null>([]);
   const [name, setName] = useState('');
@@ -84,18 +103,26 @@ export default function RoutineCalendar() {
   return (
     <SubScreen title="Kalender" navigation="back" onLeadingPress={goBack}>
       <View style={styles.sections}>
-      <FieldGroup large label="In Deinen Kalender">
-        <Text style={styles.lead}>Deine Termine aus Routine erscheinen in Deinem Kalender und bleiben dort aktuell.</Text>
+      <View style={styles.switchRow}>
+        <View style={styles.flex}>
+          <Text style={styles.switchLabel}>Kalender</Text>
+          <Text style={styles.url}>{on ? 'Deine Einrichtung bleibt erhalten, wenn Du ihn ausschaltest.' : 'Aus. Deine Einrichtung bleibt erhalten.'}</Text>
+        </View>
+        <Toggle label="Kalender" value={on} onValueChange={(v) => currentUserId && setCalendarShown(currentUserId, v)} />
+      </View>
+      {on ? (
+      <>
+      <FieldGroup heading label="In Deinen Kalender">
+        <Text style={styles.lead}>
+          Deine festen Termine aus KiezCoins, also Termine mit einer konkreten Uhrzeit, erscheinen automatisch in Deinem Kalender. Dein Kalender bleibt synchron: Aktualisierst Du einen Termin bei KiezCoins, ruft er die Änderungen ab.
+        </Text>
         {feed === undefined ? null : feed === null ? (
           <Notice variant="warning" message="Der Link lädt gerade nicht. Fehlt noch die Migration 20261110000300_kalender?" />
         ) : (
           <>
             <Button label="Im Kalender abonnieren" onPress={() => Linking.openURL(feed.webcal).catch(() => {})} />
             <CopyField label="Abo-Link" value={feed.https} />
-            <QuestionHint
-              question="Wie abonniere ich den Link?"
-              answer="iPhone und Mac: „Im Kalender abonnieren“ öffnet die Kalender-App. Google Kalender: Im Browser links bei „Weitere Kalender“ auf + tippen, „Per URL“ wählen und den Abo-Link einfügen. Outlook: „Kalender hinzufügen“, dann „Aus dem Internet abonnieren“."
-            />
+            <SetupSteps intro={SUBSCRIBE_INTRO} steps={SUBSCRIBE_STEPS} />
             <QuestionHint
               question="Was kommt in den Kalender?"
               answer="Termine und Aufgaben an einem Tag und Erinnerungen an festen Wochentagen. „x-mal pro Woche“ hat keine feste Zeit und bleibt nur in Routine. Der Link ist geheim: Wer ihn hat, sieht Deine Termine."
@@ -105,7 +132,7 @@ export default function RoutineCalendar() {
         )}
       </FieldGroup>
 
-      <FieldGroup large label="Aus Deinen Kalendern">
+      <FieldGroup heading label="Aus Deinen Kalendern">
         <Text style={styles.lead}>Termine aus diesen Kalendern zeigt Routine als Termine, für die nächsten 7 Tage.</Text>
         {linked === null ? (
           <Notice variant="warning" message="Deine Kalender laden gerade nicht. Fehlt noch die Migration 20261110000300_kalender?" />
@@ -146,7 +173,7 @@ export default function RoutineCalendar() {
       </FieldGroup>
 
       {deviceCalendarsSupported ? (
-        <FieldGroup large label="Auf diesem Handy">
+        <FieldGroup heading label="Auf diesem Handy">
           {device === null ? (
             <>
               <Text style={styles.lead}>Routine kann Termine aus den Kalendern auf Deinem Handy zeigen. Sie verlassen Dein Handy nicht.</Text>
@@ -166,6 +193,8 @@ export default function RoutineCalendar() {
           )}
         </FieldGroup>
       ) : null}
+      </>
+      ) : null}
       </View>
     </SubScreen>
   );
@@ -183,6 +212,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     backgroundColor: color.bg.surface,
   },
+  // Schalter wie unter Funktionen
+  switchRow: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[4] },
+  switchLabel: { ...text.body, color: color.text.primary },
   flex: { flex: 1, gap: space[2] },
   name: { ...text.bodyStrong, color: color.text.primary },
   url: { ...text.caption, color: color.text.secondary },

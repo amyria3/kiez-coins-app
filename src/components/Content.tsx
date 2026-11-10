@@ -650,12 +650,26 @@ export function OperationTag({ name }: { name: string }) {
 
 /**
  * Abschnitt mit kleiner Überschrift (z. B. „Coins (optional)“, „Notiz“). `large`: etwas größere Überschrift für
- * Seiten aus mehreren Abschnitten, z. B. Funktionen (Daria, 2026-11-09).
+ * Seiten aus mehreren Abschnitten (Daria, 2026-11-09). `heading`: Abschnittsüberschrift auf Einstellungsseiten wie
+ * Funktionen und Kalender, deutlich größer und mit mehr Luft darüber (Daria, 2026-11-10).
  */
-export function FieldGroup({ label, children, large }: { label: string; children: ReactNode; large?: boolean }) {
+export function FieldGroup({
+  label,
+  children,
+  large,
+  heading,
+}: {
+  label: string;
+  children: ReactNode;
+  large?: boolean;
+  heading?: boolean;
+}) {
   return (
     <View style={styles.group}>
-      <Text style={[styles.groupLabel, large && styles.groupLabelLarge]} accessibilityRole={large ? 'header' : undefined}>
+      <Text
+        style={[styles.groupLabel, large && styles.groupLabelLarge, heading && styles.groupHeading]}
+        accessibilityRole={large || heading ? 'header' : undefined}
+      >
         {label}
       </Text>
       {children}
@@ -801,4 +815,6 @@ const styles = StyleSheet.create({
   group: { gap: space[8] },
   groupLabel: { ...text.caption, color: color.text.secondary },
   groupLabelLarge: { fontFamily: font.semiBold, fontSize: 15, lineHeight: 20, marginBottom: space[4] },
+  // 20 mehr Luft darüber: mit dem Abstand von 40 zwischen den Abschnitten 60, also 50 % mehr (Daria, 2026-11-10)
+  groupHeading: { ...text.settingsHeading, marginTop: space[20], marginBottom: space[4] },
 });
