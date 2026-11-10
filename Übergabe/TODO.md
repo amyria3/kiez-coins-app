@@ -1,6 +1,6 @@
 # To-dos
 
-Stand: 2026-11-09. Diese Liste ist die einzige To-do-Liste für KiezCoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
+Stand: 2026-11-10. Diese Liste ist die einzige To-do-Liste für KiezCoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
 
 Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coins/screenshots/`. Sie stehen absichtlich nicht im Repo, weil das Repo öffentlich ist und einige Bilder Adressen und Namen zeigen.
 
@@ -40,6 +40,10 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
    - [ ] Daria testet mit eigenem BlueSky- oder Mastodon-Konto. Details: `2026-11-05_offen_weiterposten.md`.
    - Frage an Daria: Sind 2,99 € im Monat (36 € im Jahr) für 5 X-Posts und 24,99 € im Jahr für 10 X-Posts so gewollt? Das Jahresabo wäre günstiger und enthielte doppelt so viele Posts.
    - Frage an Daria: Ein Abo heißt, dass KiezCoins Geld annimmt. Die Nutzungsbedingungen sagen heute „KiezCoins … nimmt kein Geld an und zahlt keins aus“ (`src/data/legal.ts`), und Coins sind Versprechen von echtem Geld zwischen Mitgliedern. Die Recherche schlägt vor, Guthaben als Coins zu verkaufen. Das würde diese Regel berühren. Bezahlung lieber getrennt von den Coins halten?
+
+## Schaufenster (Daria, 10.11.2026)
+
+- [ ] Schaufenster für Unternehmen, Vereine und Organisator:innen: öffentlich oder nur für Eingeladene, höchstens 10 Posts ohne Abo, Termine zum Speichern. Noch nicht bauen, erst die offenen Fragen klären. Plan: `2026-11-10_offen_schaufenster.md`. Ersetzt den Feature-Wunsch „Feed, besonders für Kleinunternehmen und Vereine“ vom 09.11.2026.
 
 ## Erinnerungen (Daria, 07.11.2026)
 
@@ -309,6 +313,6 @@ Plan und Entscheidungen: `Übergabe/2026-10-27_we-challenge-mehrere-personen.md`
 
 - [ ] Feature-Wunsch (Daria): Bei offenen Challenges nach links und rechts wischen. Vor dem Bauen mit Daria klären, was das Wischen auslöst.
 - [ ] Feature-Wunsch (Daria): Teilt jemand Bilder weiter, z. B. zu Meta, tragen sie ein KiezCoins-Wasserzeichen. Wer es entfernen möchte, kauft die App (einmalig, für immer).
-- [ ] Feature-Wunsch (Daria): Feed, besonders für Kleinunternehmen und Vereine. Vor dem Bauen mit Daria klären, was der Feed zeigt und wer darin postet.
+- [ ] Feature-Wunsch (Daria): Feed, besonders für Kleinunternehmen und Vereine. Vor dem Bauen mit Daria klären, was der Feed zeigt und wer darin postet. (10.11.2026: geht im Schaufenster auf, siehe oben)
 - [ ] Feature-Wunsch (Daria): Ansicht aller weitergeposteten Posts mit Angabe, wo sie weitergepostet wurden.
 - [ ] Werbung (Daria), mit diesem Text: „Du musst auf etablierten sozialen Netzwerken posten, bist Dir ja aber dessen bewusst, dass das ungesund ist, und fühlst Dich damit nicht wohl? Wir schirmen Dich ab.“
