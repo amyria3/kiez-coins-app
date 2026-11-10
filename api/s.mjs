@@ -100,9 +100,12 @@ function inhalt(s) {
   const cover = foto(s.cover_path);
   const logo = foto(s.logo_path);
   const infos = [s.address, s.opening_hours].filter(Boolean).map((t) => `<p class="sf-klein">${esc(t)}</p>`).join('');
-  const web = s.website
-    ? `<p class="sf-klein"><a href="${esc(s.website)}" rel="noopener nofollow">${esc(s.website.replace(/^https:\/\/(www\.)?/, '').replace(/\/$/, ''))}</a></p>`
-    : '';
+  // Mehrere Links (Migration 20261110000600); vorher nur die Webseite
+  const links = Array.isArray(s.links) && s.links.length ? s.links : s.website ? [s.website] : [];
+  const web = links
+    .filter((l) => /^https:\/\//i.test(l))
+    .map((l) => `<p class="sf-klein"><a href="${esc(l)}" rel="noopener nofollow">${esc(l.replace(/^https:\/\/(www\.)?/i, '').replace(/\/$/, ''))}</a></p>`)
+    .join('');
   const eintraege = (s.entries ?? []).map(eintrag).join('\n');
   return `<style>
 .geteilt .sf-cover { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 20px; object-fit: cover; margin: 0 0 12px; }

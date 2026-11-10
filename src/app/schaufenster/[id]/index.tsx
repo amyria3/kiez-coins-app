@@ -14,6 +14,7 @@ import {
   loadShowcase,
   requestAccess,
   setShowcasePost,
+  shortLink,
   VISIBLE_ENTRIES,
   type Showcase,
   type ShowcaseAccess,
@@ -99,11 +100,12 @@ export default function ShowcaseScreen() {
         <View style={styles.info}>
           {s.address ? <InfoRow icon="map-pin" value={s.address} /> : null}
           {s.openingHours ? <InfoRow icon="clock-filled" value={s.openingHours} /> : null}
-          {s.website ? (
-            <Pressable onPress={() => Linking.openURL(s.website!).catch(() => {})} accessibilityRole="link">
-              <InfoRow icon="link" value={s.website.replace(/^https:\/\/(www\.)?/, '').replace(/\/$/, '')} />
+          {/* Mehrere Links (Daria, 2026-11-10). Die Adresse steht nur bei Menschen mit Zugang (showcase_private). */}
+          {s.links.map((l) => (
+            <Pressable key={l} onPress={() => Linking.openURL(l).catch(() => {})} accessibilityRole="link">
+              <InfoRow icon="link" value={shortLink(l)} />
             </Pressable>
-          ) : null}
+          ))}
         </View>
       </View>
 

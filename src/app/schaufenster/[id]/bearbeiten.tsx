@@ -16,6 +16,7 @@ import {
   setShowcasePoster,
   showcaseInviteLink,
   showcasePublicLink,
+  MAX_LINKS,
   showcasePosters,
   updateShowcase,
   type Showcase,
@@ -39,7 +40,9 @@ export default function EditShowcase() {
   const { currentUserId, groups, users } = useStore();
   const [showcase, setShowcase] = useState<Showcase | null | undefined>(undefined);
   const [founder, setFounder] = useState(false);
-  const [form, setForm] = useState({ name: '', about: '', kiez: '', address: '', website: '', openingHours: '', imprint: '' });
+  const [form, setForm] = useState({ name: '', about: '', kiez: '', address: '', openingHours: '', imprint: '' });
+  // Mehrere Links (Daria, 2026-11-10); immer mindestens ein Feld
+  const [links, setLinks] = useState<string[]>(['']);
   const [visibility, setVisibility] = useState<Visibility>('public');
   const [logo, setLogo] = useState<ImageSource | undefined>();
   const [cover, setCover] = useState<ImageSource | undefined>();
@@ -59,10 +62,10 @@ export default function EditShowcase() {
         about: s.about ?? '',
         kiez: s.kiez ?? '',
         address: s.address ?? '',
-        website: s.website ?? '',
         openingHours: s.openingHours ?? '',
         imprint: s.imprint ?? '',
       });
+      setLinks(s.links.length ? s.links : ['']);
       setVisibility(s.visibility);
       setLogo(s.logo);
       setCover(s.cover);
@@ -92,14 +95,15 @@ export default function EditShowcase() {
 
   const group = groups.find((g) => g.id === showcase.groupId);
   const set = (key: keyof typeof form) => (value: string) => setForm((f) => ({ ...f, [key]: value }));
-  const website = form.website.trim();
-  const websiteOk = !website || /^https:\/\/\S+\.\S+$/i.test(website);
+  const linkOk = (l: string) => !l.trim() || /^https:\/\/\S+\.\S+$/i.test(l.trim());
+  const linksOk = links.every(linkOk);
+  const setLink = (i: number) => (value: string) => setLinks((all) => all.map((l, j) => (j === i ? value : l)));
 
   const save = async () => {
     setBusy(true);
     setFailed(null);
     try {
-      await updateShowcase(showcase.id, currentUserId, { ...form, website, visibility, logo, cover });
+      await updateShowcase(showcase.id, currentUserId, { ...form, links, visibility, logo, cover });
       goBack();
     } catch (error) {
       setFailed((error as Error).message);
@@ -137,7 +141,7 @@ export default function EditShowcase() {
       title="Schaufenster bearbeiten"
       navigation="back"
       onLeadingPress={goBack}
-      actions={<Button label="Speichern" busy={busy} disabled={!form.name.trim() || !websiteOk} onPress={save} />}
+      actions={<Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk} onPress={save} />}
     >
       <FieldGroup label="Bilder">
         <View style={styles.pictures}>
@@ -151,17 +155,23 @@ export default function EditShowcase() {
         <TextField label="Kurztext" multiline value={form.about} onChangeText={set('about')} maxLength={1000} placeholder="Wer seid Ihr, was gibt es bei Euch?" />
         <TextField label="Kiez" value={form.kiez} onChangeText={set('kiez')} maxLength={80} placeholder="Connewitz" />
         <TextField label="Adresse" value={form.address} onChangeText={set('address')} maxLength={160} />
-        <TextField
-          label="Webseite"
-          value={form.website}
-          onChangeText={set('website')}
-          maxLength={300}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="url"
-          placeholder="https://"
-          error={websiteOk ? undefined : 'Die Adresse beginnt mit https://'}
-        />
+        {links.map((l, i) => (
+          <TextField
+            key={i}
+            label={links.length > 1 ? t('Link {n}', { n: i + 1 }) : t('Link')}
+            value={l}
+            onChangeText={setLink(i)}
+            maxLength={300}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
+            placeholder={i === 0 ? 'https://kiezblick.de' : 'https://instagram.com/kiezblick'}
+            error={linkOk(l) ? undefined : 'Der Link beginnt mit https://'}
+          />
+        ))}
+        {links.length < MAX_LINKS ? (
+          <Button label="Weiteren Link hinzufügen" icon="plus" variant="ghost" onPress={() => setLinks((all) => [...all, ''])} />
+        ) : null}
         <TextField label="Öffnungszeiten" multiline value={form.openingHours} onChangeText={set('openingHours')} maxLength={400} placeholder="Mo–Fr 9–18 Uhr" />
         <TextField label="Impressum" multiline value={form.imprint} onChangeText={set('imprint')} maxLength={1000} />
         <QuestionHint
