@@ -1,6 +1,6 @@
 Pflichtaufgabe (Daria): kiezcoins.de bei INWX auf Vercel umstellen.
 
-Datum: 2026-11-08 · Status: offen · Ergebnis gehört nach Documentation `kiez-coins/BETRIEB.md` (Abschnitt „Domain“) oder an die passende Stelle nach dessen `AGENTS.md`.
+Datum: 2026-11-08 · Status: erledigt am 2026-11-10 (Vercel-Projekt heißt `kiezcoins`) · Ergebnis gehört nach Documentation `kiez-coins/BETRIEB.md` (Abschnitt „Domain“) oder an die passende Stelle nach dessen `AGENTS.md`.
 
 ## Warum
 
