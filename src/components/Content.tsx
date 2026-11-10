@@ -7,7 +7,7 @@ import { t as translate, useTexts } from '../data/texts';
 import { Cat, type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
 import { iconSvgs } from './icons/svgs';
-import { SvgXml } from 'react-native-svg';
+import Svg, { Rect, SvgXml } from 'react-native-svg';
 import { Herz } from './Herz';
 import { IconButton } from './IconButton';
 
@@ -260,16 +260,58 @@ export function LinkedText({ value, style }: { value: string; style?: StyleProp<
 }
 
 /**
- * Rolle „System“ (Daria, 2026-11-09): Absender der gelbgrünen Systemnachrichten, Avatar 👾 im schwarzen Kreis
- * links neben jeder Blase, wie ein Absender im Chat. Das Emoji kommt vom Gerät.
+ * Rolle „System“ (Daria, 2026-11-09): Absender der gelbgrünen Systemnachrichten, links neben jeder Blase wie ein Absender im Chat.
+ * Avatar als eigene Pixel-Krabbe im Sticker-Stil statt Emoji 👾 im schwarzen Kreis (Daria, 2026-11-10): Lila Körper,
+ * dunkle Kontur und helle Sticker-Kante, damit sie sich auf dem dunklen Grund abhebt. Ohne Kreis dahinter.
  */
-export const SYSTEM_AVATAR = '👾';
+// P = Körper, E = Auge. Die dunkle Kontur und die helle Kante entstehen darum herum (je ein Pixel, auch über Eck).
+const KRABBE = [
+  '.PP.......PP.',
+  'P.....P.....P',
+  'P...PPPPP...P',
+  'PP.PPPPPPP.PP',
+  '.PPPPPPPPPPP.',
+  '..PPEPPPEPP..',
+  '...PPPPPPP...',
+  '...P.P.P.P...',
+  '..PP.....PP..',
+];
+const KRABBE_PIXEL = (() => {
+  const h = KRABBE.length + 4;
+  const w = KRABBE[0].length + 4;
+  // 0 leer, 1 Kante, 2 Kontur, 3 Körper
+  const g = Array.from({ length: h }, () => Array<number>(w).fill(0));
+  KRABBE.forEach((row, y) => [...row].forEach((c, x) => (g[y + 2][x + 2] = c === 'P' ? 3 : c === 'E' ? 2 : 0)));
+  const ring = (from: number, value: number) => {
+    const add: [number, number][] = [];
+    for (let y = 0; y < h; y++)
+      for (let x = 0; x < w; x++) {
+        if (g[y][x]) continue;
+        for (let dy = -1; dy <= 1; dy++)
+          for (let dx = -1; dx <= 1; dx++) if ((g[y + dy]?.[x + dx] ?? 0) >= from) add.push([x, y]);
+      }
+    add.forEach(([x, y]) => (g[y][x] = value));
+  };
+  ring(2, 2);
+  ring(1, 1);
+  const pixels: { x: number; y: number; v: number }[] = [];
+  g.forEach((row, y) => row.forEach((v, x) => v && pixels.push({ x, y, v })));
+  return { w, h, pixels };
+})();
+/** Etwas kleiner als ein Profilbild (Daria, 2026-11-10) */
+const KRABBE_BREITE = 28;
+const KRABBE_FARBE: Record<number, string> = { 1: color.text.primary, 2: color.bg.screen, 3: color.brand.signature };
+
 export function SystemAvatar() {
+  const { w, h, pixels } = KRABBE_PIXEL;
   return (
     <View style={styles.systemAvatar} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-      <Text noTranslate style={styles.systemAvatarText}>
-        {SYSTEM_AVATAR}
-      </Text>
+      <Svg width={KRABBE_BREITE} height={(KRABBE_BREITE * h) / w} viewBox={`0 0 ${w} ${h}`}>
+        {pixels.map(({ x, y, v }) => (
+          // etwas überlappend, damit beim Skalieren keine Haarlinien zwischen den Pixeln entstehen
+          <Rect key={`${x}-${y}`} x={x} y={y} width={1.04} height={1.04} fill={KRABBE_FARBE[v]} />
+        ))}
+      </Svg>
     </View>
   );
 }
@@ -682,16 +724,7 @@ const styles = StyleSheet.create({
   },
   // Avatar unten bündig mit der Blase, die Blase schrumpft um seine Breite
   systemRow: { flexDirection: 'row', alignItems: 'flex-end', gap: space[8] },
-  systemAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#000000',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  systemAvatarText: { fontSize: 18, lineHeight: 22, textAlign: 'center' },
+  systemAvatar: { flexShrink: 0 },
   // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
   noticeIcon: { flexShrink: 0 },
   link: { textDecorationLine: 'underline' },

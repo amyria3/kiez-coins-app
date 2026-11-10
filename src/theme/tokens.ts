@@ -212,6 +212,6 @@ export const motion = {
   /** Feder für Dinge, die man mit dem Finger zieht und loslässt */
   barrierSpring: { friction: 5, tension: 70 },
   /** Reiterwechsel: etwas langsamer und schwerer, damit er sich greifbar anfühlt.
-   *  exit: so lange gleitet der alte Reiter hinaus, bevor der neue hereinkommt. */
-  tabSwitch: { duration: 620, offset: 72, exit: 120, spring: { friction: 6, tension: 38 } },
+   *  exit: so lange gleitet der alte Reiter ganz hinaus, bevor der neue von der Seite hereinkommt. */
+  tabSwitch: { duration: 620, offset: 72, exit: 180, spring: { friction: 6, tension: 38 } },
 } as const;
