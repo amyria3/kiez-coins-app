@@ -44,6 +44,7 @@ export default function EditShowcase() {
   const [form, setForm] = useState({ name: '', about: '', services: '', kiez: '', address: '', openingHours: '', imprint: '' });
   // Mehrere Links (Daria, 2026-11-10); immer mindestens ein Feld
   const [links, setLinks] = useState<string[]>(['']);
+  const [servicesCollapsed, setServicesCollapsed] = useState(false);
   const [visibility, setVisibility] = useState<Visibility>('public');
   const [logo, setLogo] = useState<ImageSource | undefined>();
   const [cover, setCover] = useState<ImageSource | undefined>();
@@ -68,6 +69,7 @@ export default function EditShowcase() {
         imprint: s.imprint ?? '',
       });
       setLinks(s.links.length ? s.links : ['']);
+      setServicesCollapsed(s.servicesCollapsed);
       setVisibility(s.visibility);
       setLogo(s.logo);
       setCover(s.cover);
@@ -105,7 +107,7 @@ export default function EditShowcase() {
     setBusy(true);
     setFailed(null);
     try {
-      await updateShowcase(showcase.id, currentUserId, { ...form, links, visibility, logo, cover });
+      await updateShowcase(showcase.id, currentUserId, { ...form, links, servicesCollapsed, visibility, logo, cover });
       goBack();
     } catch (error) {
       setFailed((error as Error).message);
@@ -157,6 +159,16 @@ export default function EditShowcase() {
         <TextField label="Kurztext" multiline value={form.about} onChangeText={set('about')} maxLength={1000} placeholder="Wer seid Ihr, was gibt es bei Euch?" />
         {/* Services als formatierbarer Text (Daria, 2026-11-10) */}
         <RichTextField label="Services" value={form.services} onChange={set('services')} maxLength={4000} />
+        <SwitchRow
+          label="Services einklappen"
+          description={
+            servicesCollapsed
+              ? 'Besucher sehen nur die Überschrift und klappen die Services mit einem Tipp auf.'
+              : 'Die Services stehen offen auf der Seite.'
+          }
+          value={servicesCollapsed}
+          onValueChange={setServicesCollapsed}
+        />
         <TextField label="Kiez" value={form.kiez} onChangeText={set('kiez')} maxLength={80} placeholder="Connewitz" />
         <TextField label="Adresse" value={form.address} onChangeText={set('address')} maxLength={160} />
         {links.map((l, i) => (

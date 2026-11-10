@@ -27,6 +27,8 @@ export type Showcase = {
   about?: string;
   /** Services als formatierbarer Text (data/richText.ts, Daria, 2026-11-10) */
   services?: string;
+  /** Services eingeklappt zeigen (Gründer:in entscheidet, Migration 20261110000800) */
+  servicesCollapsed: boolean;
   kiez?: string;
   /** Nur für Menschen mit Zugang (showcase_private); sonst leer */
   address?: string;
@@ -82,6 +84,7 @@ type Row = {
   cover_path: string | null;
   about: string | null;
   services: string | null;
+  services_collapsed: boolean | null;
   kiez: string | null;
   website: string | null;
   links: string[] | null;
@@ -94,7 +97,7 @@ type Row = {
  * Lesbare Spalten (Migration 20261110000600): Adresse, Ort und Einladungscode liefert nur showcase_private,
  * damit Menschen ohne Zugang sie nicht sehen.
  */
-const COLUMNS = 'id, group_id, name, slug, logo_path, cover_path, about, services, kiez, website, links, opening_hours, imprint, visibility';
+const COLUMNS = 'id, group_id, name, slug, logo_path, cover_path, about, services, services_collapsed, kiez, website, links, opening_hours, imprint, visibility';
 type Private = { address: string | null; invite_code: string | null } | null;
 
 const toShowcase = (r: Row): Showcase => ({
@@ -106,6 +109,7 @@ const toShowcase = (r: Row): Showcase => ({
   cover: photoUrl(r.cover_path),
   about: r.about ?? undefined,
   services: r.services ?? undefined,
+  servicesCollapsed: !!r.services_collapsed,
   kiez: r.kiez ?? undefined,
   links: r.links?.length ? r.links : r.website ? [r.website] : [],
   openingHours: r.opening_hours ?? undefined,
@@ -192,6 +196,7 @@ export type ShowcaseInput = {
   name: string;
   about?: string;
   services?: string;
+  servicesCollapsed: boolean;
   kiez?: string;
   address?: string;
   links: string[];
@@ -216,6 +221,7 @@ export async function updateShowcase(id: string, userId: string, input: Showcase
     name: input.name.trim(),
     about: nullIfEmpty(input.about),
     services: nullIfEmpty(input.services),
+    services_collapsed: input.servicesCollapsed,
     kiez: nullIfEmpty(input.kiez),
     address: nullIfEmpty(input.address),
     links: input.links.map((l) => l.trim()).filter(Boolean).slice(0, MAX_LINKS),

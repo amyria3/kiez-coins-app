@@ -188,6 +188,32 @@ export function SectionBlock({ label, children }: { label: string; children: Rea
   );
 }
 
+/**
+ * Abschnitt, der sich auf Wunsch einklappen lässt (Daria, 2026-11-10: Services im Schaufenster). Mit `collapsible`
+ * steht nur die Überschrift mit Pfeil da; ein Tipp klappt den Inhalt auf und wieder zu. Ohne wie `SectionBlock`.
+ */
+export function CollapsibleSection({ label, collapsible, children }: { label: string; collapsible: boolean; children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  if (!collapsible) return <SectionBlock label={label}>{children}</SectionBlock>;
+  return (
+    <View style={styles.sectionBlock}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ expanded: open }}
+        accessibilityLabel={translate(label)}
+        onPress={() => setOpen((o) => !o)}
+        style={({ pressed }) => [styles.collapseHead, pressed && { opacity: 0.6 }]}
+      >
+        <SectionLabel>{label}</SectionLabel>
+        <View style={[styles.collapseIcon, open && styles.collapseIconOpen]}>
+          <Icon name="chevron-right" size={20} color={color.text.primary} />
+        </View>
+      </Pressable>
+      {open ? children : null}
+    </View>
+  );
+}
+
 /** Adressen im Text: mit https:// oder als Domain wie developers.facebook.com, nicht Teil eines @-Handles */
 const LINK = /https?:\/\/[^\s]+|(?:[a-z0-9-]+\.)+(?:com|de|org|net|social|app|io|eu)(?:\/[^\s]*)?/gi;
 
@@ -601,6 +627,9 @@ const styles = StyleSheet.create({
     : // 16 zusätzlich über der Überschrift: mit dem üblichen Abstand von 24 trennen 40 die Abschnitte (Daria, 2026-11-10)
       { fontFamily: font.onPhoto, fontSize: 18, lineHeight: 24, color: color.text.primary, marginTop: space[16] },
   sectionBlock: { gap: isFashionable ? space[8] : space[12] },
+  collapseHead: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: space[12] },
+  collapseIcon: { paddingBottom: 2 },
+  collapseIconOpen: { transform: [{ rotate: '90deg' }] },
   qaOpen: { paddingBottom: CHAT_GAP_CHANGE - CHAT_GAP_SAME },
   afterSame: { marginTop: CHAT_GAP_SAME },
   afterChange: { marginTop: CHAT_GAP_CHANGE },

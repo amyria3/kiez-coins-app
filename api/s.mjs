@@ -153,6 +153,11 @@ function inhalt(s) {
 .geteilt .sf-services p, .geteilt .sf-services ul { margin: 0 0 12px; }
 .geteilt .sf-services ul { padding-left: 20px; }
 .geteilt .sf-services li { margin: 0 0 4px; }
+/* Services eingeklappt, wenn die Gründer:in das will (services_collapsed) */
+.geteilt .sf-klappe summary { list-style: none; cursor: pointer; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.geteilt .sf-klappe summary::-webkit-details-marker { display: none; }
+.geteilt .sf-klappe summary::after { content: '›'; font: 400 28px/24px Inter, sans-serif; margin: 0 0 12px; transition: transform 200ms; }
+.geteilt .sf-klappe[open] summary::after { transform: rotate(90deg); }
 .geteilt .sf-cover:not(.sf-mit-logo) + .sf-wer { margin-top: 12px; }
 .geteilt .sf-klein { font-size: 15px; color: var(--muted); margin: 0 0 4px; }
 .geteilt .sf-liste { display: grid; gap: 32px; margin: 24px 0; }
@@ -177,7 +182,13 @@ function inhalt(s) {
   ${s.kiez ? `<p class="wer">${esc(s.kiez)}</p>` : ''}
   ${s.about ? `<p class="text">${esc(s.about)}</p>` : ''}
   ${infos}${web}
-  ${s.services ? `<h2 class="sf-abschnitt">Services</h2><div class="sf-services">${richHtml(s.services)}</div>` : ''}
+  ${
+    !s.services
+      ? ''
+      : s.services_collapsed
+        ? `<details class="sf-klappe"><summary><h2 class="sf-abschnitt">Services</h2></summary><div class="sf-services">${richHtml(s.services)}</div></details>`
+        : `<h2 class="sf-abschnitt">Services</h2><div class="sf-services">${richHtml(s.services)}</div>`
+  }
   <div class="sf-liste">${eintraege || '<p class="sf-klein">Hier ist noch nichts los.</p>'}</div>
   ${s.imprint ? `<h2 class="sf-abschnitt">Impressum</h2><p class="sf-klein" style="white-space: pre-line">${esc(s.imprint)}</p>` : ''}
 <script>
