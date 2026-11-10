@@ -25,7 +25,7 @@ import { color, radius, space, text } from '../../theme/tokens';
 
 /**
  * Route `routine/kalender` (Daria, 2026-11-10): Termine aus Routine im eigenen Kalender abonnieren und Termine aus
- * eigenen Kalendern in Routine zeigen, als Link (überall) oder vom Handy (Android-App). Erstmal nur für Daria.
+ * eigenen Kalendern in Routine zeigen, als Link (überall) oder vom Handy (Android-App). Für alle mit Routine (Daria, 2026-11-10).
  */
 export default function RoutineCalendar() {
   const goBack = useGoBack();

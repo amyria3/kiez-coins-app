@@ -15,7 +15,7 @@ import { color, radius, space, text } from '../theme/tokens';
 
 /**
  * Schaufenster auf der Gruppenseite (Daria, 2026-11-10): Die Gründer:in legt es an, alle Mitglieder öffnen es.
- * Feature `schaufenster` für diese Gruppe; erstmal nur für Moderatorinnen (useShowcaseEnabled).
+ * Feature `schaufenster` für diese Gruppe, für alle an (useShowcaseEnabled).
  */
 export function ShowcaseLink({ group, isFounder }: { group: Group; isFounder: boolean }) {
   const enabled = useShowcaseEnabled(group.id);

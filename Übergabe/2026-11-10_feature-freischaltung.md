@@ -6,7 +6,7 @@ Pflichtaufgabe: Migration `supabase/migrations/20261110001100_feature_freischalt
 
 ## Entscheidung (Daria, 2026-11-10)
 
-Jede Funktion außerhalb des Kerns hat einen Schlüssel und ist an oder aus. Eine eigene Funktion entscheidet je Person, später auch je Gruppe oder Verein. Im Moment ist alles an; später werden bestimmte Funktionen nur für einzelne Menschen, Gruppen oder Vereine freigeschaltet.
+Jede Funktion außerhalb des Kerns hat einen Schlüssel und ist an oder aus. Eine eigene Funktion entscheidet je Person, später auch je Gruppe oder Verein. Im Moment ist alles an für alle (Daria, 2026-11-10: „Alles für alle freigeschaltet“); später werden bestimmte Funktionen nur für einzelne Menschen, Gruppen oder Vereine freigeschaltet.
 
 ## So funktioniert es
 
@@ -21,15 +21,15 @@ Jede Funktion außerhalb des Kerns hat einen Schlüssel und ist an oder aus. Ein
 
 | Schlüssel | Standard | Vorher |
 |---|---|---|
-| `routine` | aus, Moderatorinnen an | `useRoutineAvailable` fragte `is_moderator` |
-| `schaufenster` | aus, Moderatorinnen an | `useShowcaseEnabled` fragte `is_moderator` |
+| `routine` | an | `useRoutineAvailable` fragte `is_moderator` |
+| `schaufenster` | an | `useShowcaseEnabled` fragte `is_moderator` |
 | `weiterposten` | an | `CROSSPOST_ACTIVE = true` |
 
 ## SQL für Daria
 
 ```sql
--- Funktion für alle anschalten
-update public.features set default_on = true where key = 'routine';
+-- Funktion für alle abschalten (dann gelten nur noch Freischaltungen)
+update public.features set default_on = false where key = 'routine';
 
 -- Einer Person freischalten (Kurzname aus profiles.handle)
 insert into public.feature_grants (feature_key, user_id, note)

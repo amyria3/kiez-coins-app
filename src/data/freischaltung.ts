@@ -21,8 +21,8 @@ export type FeatureKey = 'routine' | 'schaufenster' | 'weiterposten';
  * passen. Moderatorinnen haben immer alles an.
  */
 export const FEATURE_DEFAULTS: Record<FeatureKey, { name: string; defaultOn: boolean }> = {
-  routine: { name: 'Routine', defaultOn: false }, // erst für Moderatorinnen (Daria, 2026-11-09)
-  schaufenster: { name: 'Schaufenster', defaultOn: false }, // erst für Moderatorinnen (Daria, 2026-11-10)
+  routine: { name: 'Routine', defaultOn: true }, // für alle (Daria, 2026-11-10)
+  schaufenster: { name: 'Schaufenster', defaultOn: true }, // für alle (Daria, 2026-11-10)
   weiterposten: { name: 'Weiterposten', defaultOn: true }, // für alle (Daria, 2026-11-09)
 };
 
