@@ -73,6 +73,8 @@ export type ModeState = {
   isVisible: (mode: Mode) => boolean;
   /** Standard, immer einer der sichtbaren */
   standard: Mode;
+  /** Gespeicherter Stand des Kontos ist geladen */
+  ready: boolean;
 };
 
 type Saved = {
@@ -88,6 +90,10 @@ type Saved = {
   postsHidden?: Partial<Record<PostFeed, boolean>>;
   /** Routine (Erinnerungen) ausgeblendet (Funktionen, Daria, 2026-11-10) */
   routineHidden?: boolean;
+  /** Routine ist der Standard: Die App öffnet beim Start die Routine statt des Feeds (Daria, 2026-11-10) */
+  routineStandard?: boolean;
+  /** Kalender ausgeschaltet, unabhängig davon, ob einer eingerichtet ist (Einstellungen › Kalender, Daria, 2026-11-10) */
+  calendarHidden?: boolean;
 };
 
 /** Feeds, in denen sich Bilder und Textposts abschalten lassen */
@@ -104,6 +110,8 @@ const LINK_KEY = 'kiez-modus-link';
 const LINK_HIDES_OTHERS = false;
 
 let loadedFor: string | undefined;
+/** Konto, dessen gespeicherter Stand fertig geladen ist */
+let readyFor: string | undefined;
 let saved: Saved = {};
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
@@ -131,6 +139,7 @@ async function readSaved(userId: string) {
     const raw = await AsyncStorage.getItem(KEY(userId));
     if (loadedFor !== userId) return;
     saved = raw ? JSON.parse(raw) : {};
+    readyFor = userId;
     if (ausLinkVerborgen(saved)) {
       saved = { ...saved, hidden: {}, linkOffen: true };
       AsyncStorage.setItem(KEY(userId), JSON.stringify(saved)).catch(() => {});
@@ -141,7 +150,12 @@ async function readSaved(userId: string) {
       await AsyncStorage.removeItem(LINK_KEY);
       applyLinkMode(userId, linked);
     }
-  } catch {}
+  } catch {
+    if (loadedFor === userId) {
+      readyFor = userId;
+      emit();
+    }
+  }
 }
 
 /** Stand aus einem alten Zielgruppen-Link: genau ein Modus sichtbar, und das ist der Standard */
@@ -167,6 +181,7 @@ function stateOf(s: Saved): ModeState {
     visible,
     isVisible: (mode) => visible.includes(mode),
     standard: visible.includes(wanted) ? wanted : visible[0],
+    ready: !!loadedFor && readyFor === loadedFor,
   };
 }
 
@@ -177,9 +192,31 @@ export function setModeHidden(userId: string, mode: Mode, hide: boolean) {
   store(userId, { ...saved, hidden });
 }
 
-/** Standardmodus festlegen; ein verborgener Modus wird dabei wieder sichtbar */
+/** Standardmodus festlegen; ein verborgener Modus wird dabei wieder sichtbar. Routine ist dann nicht mehr Standard. */
 export function setStandardMode(userId: string, mode: Mode) {
-  store(userId, { ...saved, standard: mode, hidden: { ...hiddenOf(saved), [mode]: false } });
+  store(userId, { ...saved, standard: mode, routineStandard: false, hidden: { ...hiddenOf(saved), [mode]: false } });
+}
+
+/**
+ * Routine als Standard (Daria, 2026-11-10): Die App öffnet beim Start die Routine. Der Modus, der vorher Standard war,
+ * bleibt im Feed vorausgewählt. Routine wird dabei wieder eingeblendet.
+ */
+export function setRoutineStandard(userId: string) {
+  store(userId, { ...saved, routineStandard: true, routineHidden: false });
+}
+/** Gespeichert ist Routine als Standard; ob Routine verfügbar ist, prüft `useRoutineIsStandard` in `routine.ts` */
+export function useRoutineStandardSaved(): boolean {
+  useModes();
+  return !!saved.routineStandard;
+}
+
+/** Kalender an oder aus (Einstellungen › Kalender, Daria, 2026-11-10). Standard: an. */
+export function setCalendarShown(userId: string, show: boolean) {
+  store(userId, { ...saved, calendarHidden: !show });
+}
+export function useCalendarShown(): boolean {
+  useModes();
+  return !saved.calendarHidden;
 }
 
 /**
@@ -257,7 +294,7 @@ function applyLinkMode(userId: string, mode: Mode) {
   const hidden = LINK_HIDES_OTHERS
     ? { private: mode !== 'private', groups: mode !== 'groups', kiez: mode !== 'kiez', everywhere: mode !== 'everywhere' }
     : { ...hiddenOf(saved), [mode]: false };
-  store(userId, { ...saved, standard: mode, hidden });
+  store(userId, { ...saved, standard: mode, routineStandard: false, hidden });
 }
 
 /** Link, der die App in diesem Modus öffnet */

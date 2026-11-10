@@ -14,7 +14,7 @@ import { useStore } from './store';
  * Unabhängig davon blendet jede Person Funktionen unter „Dein Konto › Funktionen“ für sich aus (`features.ts`).
  * Freigeschaltet heißt: Die Person darf die Funktion haben. Ausgeblendet heißt: Sie will sie gerade nicht sehen.
  */
-export type FeatureKey = 'routine' | 'schaufenster' | 'weiterposten';
+export type FeatureKey = 'routine' | 'kalender' | 'schaufenster' | 'weiterposten';
 
 /**
  * Standard, solange die Datenbank nichts liefert (Migration fehlt, offline). Muss zu `public.features.default_on`
@@ -22,6 +22,7 @@ export type FeatureKey = 'routine' | 'schaufenster' | 'weiterposten';
  */
 export const FEATURE_DEFAULTS: Record<FeatureKey, { name: string; defaultOn: boolean }> = {
   routine: { name: 'Routine', defaultOn: true }, // für alle (Daria, 2026-11-10)
+  kalender: { name: 'Kalender', defaultOn: true }, // für alle (Daria, 2026-11-10)
   schaufenster: { name: 'Schaufenster', defaultOn: true }, // für alle (Daria, 2026-11-10)
   weiterposten: { name: 'Weiterposten', defaultOn: true }, // für alle (Daria, 2026-11-09)
 };
