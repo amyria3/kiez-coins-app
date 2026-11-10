@@ -71,7 +71,7 @@ export default function Routine() {
             title="Was willst Du Dir angewöhnen?"
             body="Sag mir, was Du vorhast. Ich erinnere Dich, ganz ohne Druck. Na gut, mit ein bisschen."
             action={<Button label="Neue Erinnerung" icon="plus" onPress={() => router.push('/routine/new')} />}
-            more={calendarOn ? <Button label="Kalender verbinden" variant="ghost" onPress={() => router.push('/account/kalender')} /> : undefined}
+            more={calendarOn ? <Button label="Kalender verbinden" variant="ghost" onPress={() => router.push('/account/features')} /> : undefined}
           />
         </View>
       ) : (
@@ -106,7 +106,7 @@ export default function Routine() {
           ) : null}
           <View style={styles.buttons}>
             <Button label="Neue Erinnerung" icon="plus" variant="secondary" onPress={() => router.push('/routine/new')} />
-            {calendarOn ? <Button label="Kalender" variant="ghost" onPress={() => router.push('/account/kalender')} /> : null}
+            {calendarOn ? <Button label="Kalender" variant="ghost" onPress={() => router.push('/account/features')} /> : null}
           </View>
         </ScrollView>
       )}
