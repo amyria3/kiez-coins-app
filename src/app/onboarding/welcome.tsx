@@ -97,7 +97,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headline: { ...text.display, fontSize: 44, lineHeight: 46, letterSpacing: -1.2, color: color.text.primary },
+  // Bleibt in der Inter Tight: Die Unbounded wäre in 44 pt für den langen Satz zu breit
+  headline: { ...text.display, fontFamily: font.display, fontSize: 44, lineHeight: 46, letterSpacing: -1.2, color: color.text.primary },
   headlineCompact: { fontSize: 34, lineHeight: 36, letterSpacing: -0.9 },
   contentCompact: { gap: space[16], paddingVertical: space[16] },
   headlineMuted: { color: color.text.secondary },

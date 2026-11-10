@@ -168,8 +168,13 @@ export const font = {
 
 // Text Styles
 export const text = {
-  /** Große Überschrift, z. B. Begrüßung im Feed, „Was Du so machst“ */
-  display: { fontFamily: font.display, fontSize: 30, lineHeight: 34, letterSpacing: -0.6 },
+  /**
+   * Große Überschrift, z. B. „Chats“, „Was Du so machst“. Im Kiez-Look in der Unbounded wie die Begrüßung im Feed
+   * (Daria, 2026-11-10), 26 statt 30, da sie breiter läuft.
+   */
+  display: fashionable
+    ? { fontFamily: font.display, fontSize: 30, lineHeight: 34, letterSpacing: -0.6 }
+    : { fontFamily: font.onPhoto, fontSize: 26, lineHeight: 32, letterSpacing: 0 },
   /** Titel im Challenge-Detail */
   headline: { fontFamily: font.display, fontSize: 26, lineHeight: 30, letterSpacing: -0.5 },
   /** Titel auf Karten */

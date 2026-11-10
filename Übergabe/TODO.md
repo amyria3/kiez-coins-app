@@ -85,6 +85,7 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Animation (Farbe in der Sonnenbrille) (20.10.2026)
 - [ ] Animation "Katze auf Schiff" (20.10.2026)
 - [ ] Animation "Diamantenregen" (20.10.2026)
+- [ ] Hintergrund hinter der Katze an die Videos zu den Auszeichnungen anpassen (Daria, 2026-11-09). Videos: `assets/abzeichen/*.mp4`, Rahmenfarben in `BadgeScene.tsx`.
 - Animierte Coins stehen weiter unter „28.10.2026 – Prio: animierte Coins“.
 
 ## Außerhalb des Codes

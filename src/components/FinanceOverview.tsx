@@ -70,11 +70,8 @@ export function FinanceOverview() {
 
   return (
     <View style={styles.box}>
-      <Text style={styles.title} accessibilityRole="header">
-        Modell KiezCoins
-      </Text>
-      {/* Text von Daria (2026-11-09): Einnahmen zuerst in die Fixkosten, künftige Gewinne 30 / 70 auf Team und Community */}
-      <Text style={styles.body}>Einnahmen fließen zuerst in die Fixkosten. Die künftigen Gewinne verteilen sich auf das Team (30%) und die Community (70%).</Text>
+      {/* Text von Daria (2026-11-09, „werden … decken“ 2026-11-10): Einnahmen decken zuerst die Fixkosten, künftige Gewinne 30 / 70 auf Team und Community */}
+      <Text style={styles.body}>Einnahmen werden zuerst die Fixkosten decken. Die künftigen Gewinne verteilen sich auf das Team (30%) und die Community (70%).</Text>
 
       <View style={styles.bar} accessible accessibilityLabel={t('Team 30 %, Community 70 %')}>
         <View style={[styles.barPart, styles.barDev]} />
@@ -167,8 +164,8 @@ function Punkte({ breite, aktiv, inaktiv, stand, me }: { breite: number; aktiv: 
 }
 
 const styles = StyleSheet.create({
-  box: { gap: space[12], padding: space[16], borderRadius: radius.xl, backgroundColor: color.bg.surface, borderWidth: 1, borderColor: color.line.raised },
-  title: { ...text.cardTitle, color: color.text.primary },
+  // Ohne Karte: Die Überschrift „Modell KiezCoins“ steht wie bei den anderen Abschnitten darüber (Daria, 2026-11-10)
+  box: { gap: space[12] },
   body: { ...text.body, color: color.text.secondary },
   bar: { flexDirection: 'row', height: 10, borderRadius: radius.full, overflow: 'hidden', gap: 2 },
   barPart: { height: '100%' },
@@ -179,5 +176,5 @@ const styles = StyleSheet.create({
   legendText: { ...text.caption, color: color.text.secondary },
   caption: { ...text.caption, color: color.text.secondary },
   link: { ...text.body, fontFamily: font.medium, color: color.text.primary, textDecorationLine: 'underline' },
-  du: { position: 'absolute', padding: 2, backgroundColor: color.bg.surface },
+  du: { position: 'absolute', padding: 2, backgroundColor: color.bg.screen },
 });

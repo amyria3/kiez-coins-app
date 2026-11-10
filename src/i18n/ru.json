@@ -1254,7 +1254,7 @@
   "Bedienelemente einblenden": "Показать элементы управления",
   "Titel (optional)": "Заголовок (необязательно)",
   "Modell KiezCoins": "Модель KiezCoins",
-  "Einnahmen fließen zuerst in die Fixkosten. Die künftigen Gewinne verteilen sich auf das Team (30%) und die Community (70%).": "Доходы сначала идут на постоянные расходы. Будущая прибыль делится между командой (30 %) и сообществом (70 %).",
+  "Einnahmen werden zuerst die Fixkosten decken. Die künftigen Gewinne verteilen sich auf das Team (30%) und die Community (70%).": "Доходы сначала будут покрывать постоянные расходы. Будущая прибыль делится между командой (30 %) и сообществом (70 %).",
   "Team 30 %, Community 70 %": "Команда 30 %, сообщество 70 %",
   "Team 30 %": "Команда 30 %",
   "Community 70 %": "Сообщество 70 %",
@@ -1341,5 +1341,7 @@
   "Trennen oder neu verbinden": "Отключить или подключить заново",
   "{label} trennen oder neu verbinden?": "Отключить или подключить {label} заново?",
   "Routine": "Рутина",
-  "Hier entstehen Deine Erinnerungen": "Здесь появятся Твои напоминания"
+  "Hier entstehen Deine Erinnerungen": "Здесь появятся Твои напоминания",
+  "Deine Bilanz": "Твой итог",
+  "Deine Ziele": "Твои цели"
 }

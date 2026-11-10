@@ -1,3 +1,4 @@
+import { SectionLabel } from './Content';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
@@ -9,7 +10,7 @@ import { loadPraise } from '../data/remote';
 import { useStore } from '../data/store';
 import { t } from '../data/texts';
 import { useAppDimensions } from '../theme/layout';
-import { color, radius, space, stroke, text } from '../theme/tokens';
+import { color, isFashionable, radius, space, stroke, text } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
 import { Cat } from './icons/Brand';
 import { Text } from './T';
@@ -79,7 +80,7 @@ export function Geschafft({
       ) : null}
       {e.thanks.length ? (
         <View style={styles.block}>
-          <Text style={styles.sectionLabel}>{t('Danke von anderen')}</Text>
+          <SectionLabel>Danke von anderen</SectionLabel>
           <View style={styles.list}>
             {e.thanks.slice(0, 3).map(({ comment, challenge }, i) => {
               const author = users.find((u) => u.id === comment.authorId);
@@ -102,7 +103,7 @@ export function Geschafft({
       ) : null}
       {wall && e.done.length ? (
         <View style={styles.block}>
-          <Text style={styles.sectionLabel}>{t('Geschafft')}</Text>
+          <SectionLabel>Geschafft</SectionLabel>
           <View style={styles.wall}>
             {e.done.map((entry) => {
               const photo = donePhoto(entry.challenge);
@@ -149,8 +150,7 @@ const styles = StyleSheet.create({
   statValue: { ...text.metric, fontSize: 24, lineHeight: 28, color: color.text.primary },
   statLabel: { ...text.caption, color: color.text.secondary },
   signal: { color: color.accent.signal },
-  block: { gap: space[8] },
-  sectionLabel: { ...text.caption, letterSpacing: 1, textTransform: 'uppercase', color: color.text.secondary },
+  block: { gap: isFashionable ? space[8] : space[12] },
   list: { borderRadius: radius.xl + 2, backgroundColor: color.bg.surface, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12], paddingHorizontal: space[12] },
   rowDivider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },

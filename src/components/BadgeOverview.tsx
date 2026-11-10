@@ -1,9 +1,10 @@
+import { SectionLabel } from './Content';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { BADGES, badgeSteps, badgeTitle, useMyBadges } from '../data/badges';
 import { t } from '../data/texts';
-import { color, font, radius, space, stroke, text } from '../theme/tokens';
+import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
 import { BadgeIcon } from './BadgeIcon';
 import { Text } from './T';
 
@@ -36,7 +37,7 @@ export function BadgeOverview({ gutter = 0 }: { gutter?: number }) {
     <View style={[styles.wrap, { paddingHorizontal: gutter }]}>
       {earned.length ? (
         <View style={styles.block}>
-          <Text style={styles.label}>Deine Abzeichen</Text>
+          <SectionLabel>Deine Abzeichen</SectionLabel>
           <View style={styles.list}>
             {earned.map(({ meta, own }, i) => (
               <Pressable
@@ -60,7 +61,7 @@ export function BadgeOverview({ gutter = 0 }: { gutter?: number }) {
       ) : null}
       {open.length ? (
         <View style={styles.block}>
-          <Text style={styles.label}>Das gibt es zu gewinnen</Text>
+          <SectionLabel>Das gibt es zu gewinnen</SectionLabel>
           <View style={styles.list}>
             {open.map((meta, i) => {
               const steps = badgeSteps(meta.kind, mine.progress);
@@ -100,8 +101,7 @@ export function BadgeOverview({ gutter = 0 }: { gutter?: number }) {
 
 const styles = StyleSheet.create({
   wrap: { gap: space[24] },
-  block: { gap: space[8] },
-  label: { ...text.caption, letterSpacing: 1, textTransform: 'uppercase', color: color.text.secondary },
+  block: { gap: isFashionable ? space[8] : space[12] },
   list: { borderRadius: radius.xl + 2, backgroundColor: color.bg.surface, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12], paddingHorizontal: space[16] },
   divider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
