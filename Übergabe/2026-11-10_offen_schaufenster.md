@@ -79,6 +79,8 @@ Das Schaufenster ist die erste kommerzielle Fläche in KiezCoins. Es ersetzt den
 - Mehrere Links, bis zu 10 (Daria, 10.11.2026, Migration `20261110000600_schaufenster_links_adresse`). Die alte Spalte `website` bleibt der erste Link.
 - Adresse nur für Menschen mit Zugang (Daria, 10.11.2026): Angemeldete lesen `showcases` nur noch über Spaltenrechte ohne `address`, `lat`, `lng` und `invite_code`; diese liefert `showcase_private`. Dabei fiel auf: Mit Migration 400 konnte jede angemeldete Person den Einladungscode lesen und so jedem Schaufenster „nur für Eingeladene“ beitreten. Migration 600 behebt das.
 
+- Services als formatierbarer Text, auf Wunsch eingeklappt (Migrationen 700 und 800). Eigene Hintergrundfarbe nur für die öffentliche Seite, Palette und eigener Hex-Wert, Schrift automatisch hell oder dunkel (Migration 900, Daria, 10.11.2026).
+
 ### Schaufenster ohne die Social App
 
 Daria, 10.11.2026: „Die Leute sollten – ohne den Umweg über KiezCoins Social App – diese Seite anlegen und pflegen können. So biete ich de facto jedem Small Business eine kleine Webseite als Geschenk an.“
