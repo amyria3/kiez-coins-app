@@ -380,7 +380,8 @@ const styles = StyleSheet.create({
   link: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },
   preview: { gap: space[6], padding: space[12], borderRadius: radius.md, borderWidth: 1, borderColor: color.bg.surface },
   previewBrand: { ...text.caption, fontSize: 9, lineHeight: 12, alignSelf: 'flex-end', fontFamily: font.semiBold },
-  previewCover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.md },
+  // Ecken rechteckig wie auf der öffentlichen Seite
+  previewCover: { width: '100%', aspectRatio: 16 / 9 },
   previewHead: { flexDirection: 'row', alignItems: 'flex-end', gap: space[8], marginTop: -space[20], paddingLeft: space[8] },
   previewLogo: { width: 36, height: 36, borderRadius: 18, borderWidth: 3 },
   previewName: { fontFamily: font.onPhoto, fontSize: 16, lineHeight: 20, flexShrink: 1 },
