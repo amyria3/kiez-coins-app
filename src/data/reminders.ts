@@ -23,6 +23,8 @@ export type Reminder = {
   onDate?: string;
   /** Einmalig: „bis HH:MM“ */
   untilTime?: string;
+  /** Einmalig: Pflicht oder optional (Daria, 2026-11-10) */
+  required?: boolean;
   /** Erledigt in dieser Woche (ab Montag) */
   doneThisWeek: number;
   doneToday: boolean;
@@ -36,6 +38,7 @@ export type ReminderInput = {
   atTime?: string;
   onDate?: string;
   untilTime?: string;
+  required?: boolean;
 };
 
 type Row = {
@@ -47,6 +50,7 @@ type Row = {
   at_time: string | null;
   on_date?: string | null;
   until_time?: string | null;
+  required?: boolean | null;
 };
 
 /** Montag 0:00 dieser Woche, Ortszeit */
@@ -115,6 +119,7 @@ export async function loadReminders(): Promise<Reminder[] | null> {
       atTime: r.at_time ? r.at_time.slice(0, 5) : undefined,
       onDate: r.on_date ?? undefined,
       untilTime: r.until_time ? r.until_time.slice(0, 5) : undefined,
+      required: r.on_date ? r.required !== false : undefined,
       doneThisWeek: mine.length,
       doneToday: mine.some((d) => new Date(d.done_at) >= today),
     };
@@ -125,7 +130,13 @@ export async function createReminder(input: ReminderInput): Promise<boolean> {
   const base = { want: input.want.trim(), description: input.description?.trim() || null };
   const { error } = await supabase.from('reminders').insert(
     input.onDate
-      ? { ...base, on_date: input.onDate, at_time: input.atTime ?? null, until_time: input.untilTime ?? null }
+      ? {
+          ...base,
+          on_date: input.onDate,
+          at_time: input.atTime ?? null,
+          until_time: input.untilTime ?? null,
+          required: input.required ?? true,
+        }
       : {
           ...base,
           per_week: input.weekdays?.length ? null : input.perWeek ?? 1,

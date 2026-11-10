@@ -45,6 +45,8 @@ export default function NewReminder() {
   const [date, setDate] = useState('');
   const [timeKind, setTimeKind] = useState<'until' | 'at' | 'range'>('until');
   const [from, setFrom] = useState('');
+  // Termin an einem Tag: Pflicht oder optional (Daria, 2026-11-10)
+  const [required, setRequired] = useState(true);
   const [until, setUntil] = useState('');
   const [perWeek, setPerWeek] = useState(3);
   const [days, setDays] = useState<number[]>([]);
@@ -72,6 +74,7 @@ export default function NewReminder() {
       onDate: mode === 'once' ? onDate ?? undefined : undefined,
       atTime: mode === 'once' ? (timeKind !== 'until' ? hhmm(from) : undefined) : mode === 'days' && time.trim() ? hhmm(time) : undefined,
       untilTime: mode === 'once' && timeKind !== 'at' ? hhmm(until) : undefined,
+      required: mode === 'once' ? required : undefined,
       perWeek: mode === 'week' ? perWeek : undefined,
       weekdays: mode === 'days' ? days : undefined,
     });
@@ -116,7 +119,8 @@ export default function NewReminder() {
             <ChipGroup>
               <Chip label="Heute" selected={day === 'today'} onPress={() => setDay('today')} />
               <Chip label="Morgen" selected={day === 'tomorrow'} onPress={() => setDay('tomorrow')} />
-              <Chip label="Anderer Tag" selected={day === 'other'} onPress={() => setDay('other')} />
+              {/* „Oder an einem bestimmten Datum“ (Daria, 2026-11-10) */}
+              <Chip label="Datum" selected={day === 'other'} onPress={() => setDay('other')} />
             </ChipGroup>
           </FieldGroup>
           {day === 'other' ? (
@@ -163,6 +167,12 @@ export default function NewReminder() {
               </View>
             ) : null}
           </View>
+          <FieldGroup label="Wie verbindlich?">
+            <ChipGroup>
+              <Chip label="Pflicht" selected={required} onPress={() => setRequired(true)} />
+              <Chip label="Optional" selected={!required} onPress={() => setRequired(false)} />
+            </ChipGroup>
+          </FieldGroup>
         </>
       ) : mode === 'week' ? (
         <FieldGroup label="Mal pro Woche">

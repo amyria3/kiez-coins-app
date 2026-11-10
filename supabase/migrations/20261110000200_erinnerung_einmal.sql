@@ -3,6 +3,8 @@
 -- „um“ und „von“ stehen in at_time, „bis“ in until_time.
 alter table public.reminders add column if not exists on_date date;
 alter table public.reminders add column if not exists until_time time;
+-- Termin an einem Tag: Pflicht oder optional (Daria, 2026-11-10). Nur bei on_date von Bedeutung.
+alter table public.reminders add column if not exists required boolean not null default true;
 
 -- Genau eine Art: x-mal pro Woche, feste Wochentage oder ein bestimmter Tag
 alter table public.reminders drop constraint if exists reminders_check;
