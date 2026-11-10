@@ -1,6 +1,6 @@
 # Übersetzungen automatisch mit DeepL
 
-Datum: 2026-10-31 · Status: gebaut am 2026-11-10, wartet auf den Schlüssel `DEEPL_API_KEY` · Ziel in Documentation: `kiez-coins/app/Anleitung_App.md` (Abschnitt „Sprachen und Übersetzungen“)
+Datum: 2026-10-31 · Status: läuft seit 2026-11-10 (Altbestand in PR #256, rund 2.850 Texte); offen: Website · Ziel in Documentation: `kiez-coins/app/Anleitung_App.md` (Abschnitt „Sprachen und Übersetzungen“)
 
 Pflichtaufgabe (Daria): Konto bei DeepL API Free anlegen (500.000 Zeichen pro Monat kostenlos), Schlüssel in GitHub unter `amyria3/kiez-coins-app` › Settings › Secrets and variables › Actions als `DEEPL_API_KEY` speichern.
 
