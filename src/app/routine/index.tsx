@@ -9,7 +9,7 @@ import { KaterMessage } from '../../components/KaterMessage';
 import { NavigationBar } from '../../components/NavigationBar';
 import { Text } from '../../components/T';
 import { goalText, katerFocus, katerLine } from '../../data/katerRoutine';
-import { archiveReminder, capitalize, goalOf, loadReminders, type Reminder } from '../../data/reminders';
+import { archiveReminder, capitalize, goalOf, kindOf, loadReminders, type Reminder } from '../../data/reminders';
 import { t } from '../../data/texts';
 import { useGoBack } from '../../lib/goBack';
 import { color, font, radius, space, text } from '../../theme/tokens';
@@ -77,24 +77,32 @@ export default function Routine() {
 
 function ReminderCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDone: () => void; onEnd: () => void }) {
   const goal = goalOf(r);
+  // „um“: Termin ohne Zähler und Balken; „bis“ und „von … bis“: Aufgabe (Daria, 2026-11-10)
+  const kind = kindOf(r);
+  const counted = kind !== 'termin';
   return (
     <Pressable onLongPress={onEnd} accessibilityHint={t('Lange drücken zum Beenden')} style={styles.card}>
       <View style={styles.head}>
         <View style={styles.flex}>
+          {kind ? <Text style={[styles.kicker, kind === 'termin' ? styles.kickerTermin : styles.kickerAufgabe]}>{kind === 'termin' ? 'Termin' : 'Aufgabe'}</Text> : null}
           <Text noTranslate style={styles.title}>
             {capitalize(r.want)}
           </Text>
           <Text style={styles.sub}>{goalText(r)}</Text>
         </View>
-        <Text noTranslate style={[styles.count, r.doneThisWeek >= goal && styles.countDone]}>
-          {Math.min(r.doneThisWeek, goal)}/{goal}
-        </Text>
+        {counted ? (
+          <Text noTranslate style={[styles.count, r.doneThisWeek >= goal && styles.countDone]}>
+            {Math.min(r.doneThisWeek, goal)}/{goal}
+          </Text>
+        ) : null}
       </View>
-      <View style={styles.bar} accessible accessibilityLabel={t('{done} von {goal} diese Woche', { done: Math.min(r.doneThisWeek, goal), goal })}>
-        {Array.from({ length: goal }, (_, i) => (
-          <View key={i} style={[styles.segment, i < r.doneThisWeek && styles.segmentDone]} />
-        ))}
-      </View>
+      {counted ? (
+        <View style={styles.bar} accessible accessibilityLabel={t('{done} von {goal} diese Woche', { done: Math.min(r.doneThisWeek, goal), goal })}>
+          {Array.from({ length: goal }, (_, i) => (
+            <View key={i} style={[styles.segment, i < r.doneThisWeek && styles.segmentDone]} />
+          ))}
+        </View>
+      ) : null}
       <View style={styles.foot}>
         <Pressable onPress={onEnd} hitSlop={8} accessibilityRole="button">
           <Text style={styles.endText}>Beenden</Text>
@@ -118,6 +126,9 @@ const styles = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'flex-start', gap: space[12] },
   flex: { flex: 1, gap: space[4] },
   title: { ...text.cardTitle, color: color.text.primary },
+  kicker: { ...text.caption, fontFamily: font.medium },
+  kickerTermin: { color: color.accent.primary },
+  kickerAufgabe: { color: color.accent.signal },
   sub: { ...text.caption, color: color.text.secondary },
   count: { fontFamily: font.semiBold, fontSize: 15, lineHeight: 20, color: color.text.secondary },
   countDone: { color: color.accent.confirmation },
