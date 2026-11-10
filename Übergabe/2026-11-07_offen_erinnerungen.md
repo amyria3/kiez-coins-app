@@ -65,3 +65,10 @@ Stand: 10.11.2026. Status: erste Fassung gebaut (Routine, nur für Moderatorinne
 - Kalenderdatei (.ics): in der App per Dateiauswahl gut machbar. Teilen aus der Kalender-App an KiezCoins braucht eine Share Extension (nur Android-App bzw. iOS-App, nicht die Web-App auf dem iPhone).
 - Screenshot: braucht Texterkennung, z. B. eine Edge Function mit einem Bildmodell. Machbar, aber mit Kosten pro Bild und Datenschutzfrage.
 - Status: offen, nicht gebaut.
+
+## Kalender anbinden (Daria, 10.11.2026)
+
+- Wunsch: Termine aus der App in den eigenen Kalender bringen, und einige oder alle Termine aus dem Kalender in der App zeigen.
+- Entscheidung (Daria, 10.11.2026): Importierte Termine erscheinen in Routine als Termine, wie Erinnerungen mit „um“ (Markierung „Termin“, ohne Zähler).
+- Vorschlag Claude: Export als Kalender-Abo (persönlicher webcal-Link aus einer Edge Function), Import über den Gerätekalender in der nativen App (`expo-calendar`) und über einen abonnierten Kalender-Link (iCal-Adresse) für die Web-App. Später Google/Microsoft per Anmeldung.
+- Arten in Routine (Daria, 10.11.2026): „um“ = Termin ohne 0/1, „bis“ und „von … bis“ = Aufgabe.
