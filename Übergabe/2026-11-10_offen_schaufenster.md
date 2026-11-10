@@ -21,6 +21,7 @@ Entscheidungen (Daria, 10.11.2026, nach dem ersten Plan):
 - Im Schaufenster posten und Termine anlegen dürfen die Gründer:in der Gruppe und die Mitglieder, die sie dafür freischaltet.
 - Ein Schaufenster nur für Eingeladene gibt es zusätzlich zum öffentlichen. Daria will damit halböffentliche Clubs und Ähnliches ermöglichen (Lesart von Claude für „Demo öffentliche Clubs“).
 - Das Schaufenster wird erst ohne Geld gebaut. Kein Abo, keine Bezahlung.
+- In ein Schaufenster nur für Eingeladene kommt man auf zwei Wegen: per Code und Link wie bei Gruppen, oder per Anfrage, die das Team freigibt.
 
 Das Schaufenster ist damit die erste kommerzielle Fläche in KiezCoins. Es greift den Feature-Wunsch vom 09.11.2026 auf: „Feed, besonders für Kleinunternehmen und Vereine“ (`Übergabe/TODO.md`).
 
@@ -125,9 +126,9 @@ Gesammelt am 10.11.2026 aus `Übergabe/`, `website/`, `src/`, `supabase/` und de
 
 ## Offene Punkte
 
-Fragen an Daria, die Reihenfolge folgt der Wichtigkeit für den Bau. Beantwortet am 10.11.2026: wer ein Schaufenster anlegt (jede Gruppe), ob Posts im Kiez-Feed erscheinen (ja), Weiterposten (ja, wichtig), wer im Schaufenster postet (Gründer:in und freigeschaltete Mitglieder), Schaufenster nur für Eingeladene (ja, für halböffentliche Clubs), Geld (erst ohne; das Abo kommt später, Frage 4 hat Zeit).
+Fragen an Daria, die Reihenfolge folgt der Wichtigkeit für den Bau. Beantwortet am 10.11.2026: wer ein Schaufenster anlegt (jede Gruppe), ob Posts im Kiez-Feed erscheinen (ja), Weiterposten (ja, wichtig), wer im Schaufenster postet (Gründer:in und freigeschaltete Mitglieder), Schaufenster nur für Eingeladene (ja, für halböffentliche Clubs), Geld (erst ohne; das Abo kommt später, Frage 4 hat Zeit), Zugang für Eingeladene (Code und Link, dazu Anfrage mit Freigabe).
 
-1. Wie kommen Menschen in ein Schaufenster nur für Eingeladene: per Code und Link wie bei Gruppen, per Anfrage mit Freigabe durch das Team, oder beides? Dürfen Eingeladene kommentieren und liken?
+1. Dürfen Eingeladene in einem Schaufenster nur für Eingeladene kommentieren und liken, oder nur ansehen?
 2. „Alle dürfen sehen“: auch ohne Konto im Web unter `kiezcoins.de/s/<name>` (Vorschlag)?
 3. Was passiert mit dem elften Post: im Schaufenster ausblenden und im Archiv behalten (Vorschlag) oder löschen? Bleibt er im Kiez-Feed sichtbar? Zählen Termine mit?
 4. Später, nach dem Bau ohne Geld: Ist das Abo der Dachs (19 € netto im Monat)? Was enthält es außer unbegrenzten Posts, zum Beispiel X beim Weiterposten, Bilderkennung, Weiterposten ohne Wasserzeichen, Statistik?
