@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { supabase } from '../lib/supabase';
@@ -6,7 +5,8 @@ import { eventTime, type SingleEvent } from './calendar';
 import { WEB_APP_URL } from './groups';
 import { dayName } from './katerRoutine';
 import { localDate } from './reminders';
-import { isModerator, photoUrl, uploadPhoto } from './remote';
+import { useFeature } from './freischaltung';
+import { photoUrl, uploadPhoto } from './remote';
 import { useStore } from './store';
 import { t } from './texts';
 import type { ImageSource } from './types';
@@ -131,15 +131,14 @@ const toShowcase = (r: Row): Showcase => ({
   inviteCode: '',
 });
 
-/** Erstmal nur für Moderatorinnen (Daria, 2026-11-10: wie Routine) */
-export function useShowcaseEnabled(): boolean {
+/**
+ * Feature `schaufenster` (freischaltung.ts), mit Gruppe für genau diese Gruppe oder diesen Verein.
+ * Für alle an (Daria, 2026-11-10).
+ */
+export function useShowcaseEnabled(groupId?: string): boolean {
   const { mode } = useStore();
-  const [moderator, setModerator] = useState(false);
-  useEffect(() => {
-    if (mode !== 'live') return;
-    isModerator().then(setModerator).catch(() => undefined);
-  }, [mode]);
-  return mode === 'live' && moderator;
+  const on = useFeature('schaufenster', groupId);
+  return mode === 'live' && on;
 }
 
 /** „Café Kiezblick“ → „cafe-kiezblick“ */

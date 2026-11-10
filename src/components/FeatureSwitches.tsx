@@ -92,7 +92,7 @@ export function FeatureSwitches({ children }: { children?: ReactNode } = {}) {
           );
         })}
       </FieldGroup>
-      {/* Routine als Funktion, die sich ausblenden lässt; vorerst nur für Moderatorinnen (Daria, 2026-11-10) */}
+      {/* Routine als Funktion, die sich ausblenden lässt; Feature `routine` (Daria, 2026-11-10) */}
       {routineAvailable ? (
         <FieldGroup large label="Routine">
           <View style={styles.row}>
