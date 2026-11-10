@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   replyBarText: { ...text.caption, color: color.accent.primary, flex: 1 },
   body: { flex: 1, gap: space[2] },
   header: { flexDirection: 'row', gap: space[8], alignItems: 'center' },
-  name: { fontFamily: font.semiBold, fontSize: 11, lineHeight: 16, color: color.text.primary },
+  name: { ...text.bodyStrong, color: color.text.primary },
   time: { ...text.caption, color: color.text.secondary },
   text: { ...text.body, color: color.text.primary },
   // Wie @-Namen in Beiträgen (WithMentions)

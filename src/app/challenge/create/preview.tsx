@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
   },
   metricLabel: { ...text.meta, color: color.text.secondary },
   deadline: { justifyContent: 'center', minHeight: size.touchTarget },
-  metricValue: { ...text.metric, fontSize: 17, lineHeight: 22, color: color.text.primary },
+  metricValue: { ...text.metricSm, color: color.text.primary },
   signal: { color: color.accent.signal },
   eden: { color: color.accent.confirmation },
   description: { fontFamily: font.text, fontSize: 15, lineHeight: 22, color: color.text.secondary },

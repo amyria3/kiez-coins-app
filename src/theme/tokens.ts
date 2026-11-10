@@ -181,6 +181,8 @@ export const text = {
   cardTitle: { fontFamily: font.display, fontSize: 19, lineHeight: 23, letterSpacing: -0.2 },
   /** Kennzahlen (Bounty, Frist, Bilanz) */
   metric: { fontFamily: font.display, fontSize: 22, lineHeight: 26 },
+  /** Kleine Kennzahlen, z. B. Edensteine in Listen, Karten und Posts (Daria 2026-11-10) */
+  metricSm: { fontFamily: font.display, fontSize: 18, lineHeight: 22 },
   title: { fontFamily: font.regular, fontSize: 18, lineHeight: 24 },
   body: { fontFamily: font.text, fontSize: 14, lineHeight: 18 },
   /** Fließtext halbfett, z. B. Name im Post, Text auf kleinen Buttons */
@@ -191,8 +193,8 @@ export const text = {
   hint: { fontFamily: font.light, fontSize: 14, lineHeight: 19 },
   /** Name im Chat und kleine Titel in Sprechblasen */
   cardTitleCompact: { fontFamily: font.display, fontSize: 17, lineHeight: 22, letterSpacing: -0.2 },
-  /** Zeile unter Posts und Kennzahl-Beschriftungen (13 px) */
-  meta: { fontFamily: font.regular, fontSize: 13, lineHeight: 16 },
+  /** Zeile unter Posts, Gruppen und Kennzahl-Beschriftungen (13 px, Daria 2026-11-10) */
+  meta: { fontFamily: font.regular, fontSize: 13, lineHeight: 18 },
   /** Kleine Zusatzzeile (12 px), z. B. Ort, Untertitel, Abzeichen-Name */
   small: { fontFamily: font.regular, fontSize: 12, lineHeight: 16 },
   caption: { fontFamily: font.regular, fontSize: 11, lineHeight: 16 },

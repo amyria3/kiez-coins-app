@@ -790,11 +790,11 @@ const fashion = StyleSheet.create({
   thumb: { width: 56, height: 56, borderRadius: radius.md },
   headText: { flex: 1, gap: space[2] },
   title: { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.text.primary },
-  hint: { fontFamily: font.regular, fontSize: 13, lineHeight: 18, color: color.text.secondary },
+  hint: { ...text.meta, color: color.text.secondary },
   stats: { flexDirection: 'row', paddingTop: 10, paddingBottom: space[16] },
   metric: { flex: 1, alignItems: 'center' },
   metricValue: { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] },
-  metricLabel: { fontFamily: font.regular, fontSize: 13, lineHeight: 18, color: color.text.primary },
+  metricLabel: { ...text.meta, color: color.text.primary },
   buttons: { flexDirection: 'row', gap: space[8] },
   button: { flex: 1, height: 34, borderRadius: radius.md, backgroundColor: color.bg.surface, alignItems: 'center', justifyContent: 'center' },
   buttonPrimary: { backgroundColor: color.accent.primary },
@@ -894,7 +894,7 @@ const styles = StyleSheet.create({
   link: { color: color.text.primary },
   // Etwas kleiner als text.metric (Daria, 2026-11-02)
   // Zahlen im Grün aus den Kater-Herzen (Daria, 2026-11-05)
-  metricValue: { ...text.metric, fontSize: 18, lineHeight: 22, color: color.accent.confirmation },
+  metricValue: { ...text.metricSm, color: color.accent.confirmation },
   caption: { ...text.caption, color: color.text.secondary },
   actions: { gap: space[8] },
   // Linien etwas kräftiger (Daria, 2026-11-05)
