@@ -25,6 +25,8 @@ export type Showcase = {
   logo?: ImageSource;
   cover?: ImageSource;
   about?: string;
+  /** Services als formatierbarer Text (data/richText.ts, Daria, 2026-11-10) */
+  services?: string;
   kiez?: string;
   /** Nur für Menschen mit Zugang (showcase_private); sonst leer */
   address?: string;
@@ -79,6 +81,7 @@ type Row = {
   logo_path: string | null;
   cover_path: string | null;
   about: string | null;
+  services: string | null;
   kiez: string | null;
   website: string | null;
   links: string[] | null;
@@ -91,7 +94,7 @@ type Row = {
  * Lesbare Spalten (Migration 20261110000600): Adresse, Ort und Einladungscode liefert nur showcase_private,
  * damit Menschen ohne Zugang sie nicht sehen.
  */
-const COLUMNS = 'id, group_id, name, slug, logo_path, cover_path, about, kiez, website, links, opening_hours, imprint, visibility';
+const COLUMNS = 'id, group_id, name, slug, logo_path, cover_path, about, services, kiez, website, links, opening_hours, imprint, visibility';
 type Private = { address: string | null; invite_code: string | null } | null;
 
 const toShowcase = (r: Row): Showcase => ({
@@ -102,6 +105,7 @@ const toShowcase = (r: Row): Showcase => ({
   logo: photoUrl(r.logo_path),
   cover: photoUrl(r.cover_path),
   about: r.about ?? undefined,
+  services: r.services ?? undefined,
   kiez: r.kiez ?? undefined,
   links: r.links?.length ? r.links : r.website ? [r.website] : [],
   openingHours: r.opening_hours ?? undefined,
@@ -187,6 +191,7 @@ export async function createShowcase(groupId: string, name: string): Promise<str
 export type ShowcaseInput = {
   name: string;
   about?: string;
+  services?: string;
   kiez?: string;
   address?: string;
   links: string[];
@@ -210,6 +215,7 @@ export async function updateShowcase(id: string, userId: string, input: Showcase
   const fields: Record<string, unknown> = {
     name: input.name.trim(),
     about: nullIfEmpty(input.about),
+    services: nullIfEmpty(input.services),
     kiez: nullIfEmpty(input.kiez),
     address: nullIfEmpty(input.address),
     links: input.links.map((l) => l.trim()).filter(Boolean).slice(0, MAX_LINKS),
