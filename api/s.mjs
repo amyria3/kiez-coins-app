@@ -137,6 +137,11 @@ function inhalt(s) {
     .join('');
   const eintraege = (s.entries ?? []).map(eintrag).join('\n');
   return `<style>
+/* KiezCoins-Logo oben klein, das Schaufenster steht im Vordergrund (Daria, 2026-11-10) */
+.top { padding: 12px 0; }
+.top .brand { gap: 3px; }
+.top .brand svg { height: 22px; width: auto; }
+.top .marke { font-size: 10px; letter-spacing: 0; }
 /* Titelbild folgt der Form des Logos: unten links ein runder Ausschnitt mit Abstand, in dem das Logo sitzt (Daria, 2026-11-10) */
 .geteilt .sf-cover { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 20px; object-fit: cover; margin: 0; }
 .geteilt .sf-cover.sf-mit-logo {
