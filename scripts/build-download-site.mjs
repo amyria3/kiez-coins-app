@@ -1410,6 +1410,8 @@ for (const [pkg, file] of [
   ['inter/400Regular', 'Inter_400Regular'],
   ['inter/500Medium', 'Inter_500Medium'],
   ['inter-tight/600SemiBold', 'InterTight_600SemiBold'],
+  // Öffentliche Schaufenster-Seite (api/s.mjs): Name und Abschnitte wie in der App
+  ['unbounded/500Medium', 'Unbounded_500Medium'],
 ])
   copyFileSync(join(root, `node_modules/@expo-google-fonts/${pkg}/${file}.ttf`), join(out, `fonts/${file}.ttf`));
 // Hosting bei Vercel: Unterseiten der Web-App öffnen die App, Rechtstexte auch ohne .html.
@@ -1425,6 +1427,7 @@ writeFileSync(
         { source: '/app/:path*', destination: '/app/index' },
         { source: '/einladung/:code', destination: '/einladung' },
         { source: '/c/:id', destination: '/api/c?id=:id' },
+        { source: '/s/:slug', destination: '/api/s?slug=:slug' },
       ],
     },
     null,

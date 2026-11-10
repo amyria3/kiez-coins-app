@@ -25,6 +25,12 @@ export type Showcase = {
   logo?: ImageSource;
   cover?: ImageSource;
   about?: string;
+  /** Services als formatierbarer Text (data/richText.ts, Daria, 2026-11-10) */
+  services?: string;
+  /** Services eingeklappt zeigen (Gründer:in entscheidet, Migration 20261110000800) */
+  servicesCollapsed: boolean;
+  /** Hintergrund der öffentlichen Seite, „#RRGGBB“ (Migration 20261110000900) */
+  bgColor?: string;
   kiez?: string;
   /** Nur für Menschen mit Zugang (showcase_private); sonst leer */
   address?: string;
@@ -70,11 +76,11 @@ export type ShowcasePost = { id: string; title: string; body: string; type: stri
 
 export type ShowcaseEntry = { kind: 'post'; post: ShowcasePost } | { kind: 'event'; event: ShowcaseEvent };
 
-/** Unbezahlt sind die 10 neuesten Einträge (Posts und Termine zusammen) sichtbar */
+/** Sichtbar sind die 10 neuesten Einträge (Posts und Termine zusammen) */
 export const VISIBLE_ENTRIES = 10;
 /**
  * Bezahlt alle Einträge. Erstmal läuft jedes Schaufenster als bezahlt (Daria, 2026-11-10: „wir bauen jetzt alles über
- * bezahlt“, Migration 20261110000700); die Obergrenze hier schützt nur die Abfrage.
+ * bezahlt“, Migration 20261110001000); die Obergrenze hier schützt nur die Abfrage.
  */
 export const PAID_ENTRIES = 200;
 
@@ -86,6 +92,9 @@ type Row = {
   logo_path: string | null;
   cover_path: string | null;
   about: string | null;
+  services: string | null;
+  services_collapsed: boolean | null;
+  bg_color: string | null;
   kiez: string | null;
   website: string | null;
   links: string[] | null;
@@ -99,7 +108,7 @@ type Row = {
  * Lesbare Spalten (Migration 20261110000600): Adresse, Ort und Einladungscode liefert nur showcase_private,
  * damit Menschen ohne Zugang sie nicht sehen.
  */
-const COLUMNS = 'id, group_id, name, slug, logo_path, cover_path, about, kiez, website, links, opening_hours, imprint, visibility, plan_until';
+const COLUMNS = 'id, group_id, name, slug, logo_path, cover_path, about, services, services_collapsed, bg_color, kiez, website, links, opening_hours, imprint, visibility, plan_until';
 type Private = { address: string | null; invite_code: string | null } | null;
 
 const toShowcase = (r: Row): Showcase => ({
@@ -110,6 +119,9 @@ const toShowcase = (r: Row): Showcase => ({
   logo: photoUrl(r.logo_path),
   cover: photoUrl(r.cover_path),
   about: r.about ?? undefined,
+  services: r.services ?? undefined,
+  servicesCollapsed: !!r.services_collapsed,
+  bgColor: r.bg_color ?? undefined,
   kiez: r.kiez ?? undefined,
   links: r.links?.length ? r.links : r.website ? [r.website] : [],
   openingHours: r.opening_hours ?? undefined,
@@ -196,6 +208,9 @@ export async function createShowcase(groupId: string, name: string): Promise<str
 export type ShowcaseInput = {
   name: string;
   about?: string;
+  services?: string;
+  servicesCollapsed: boolean;
+  bgColor?: string;
   kiez?: string;
   address?: string;
   links: string[];
@@ -211,6 +226,38 @@ const isLocal = (img?: ImageSource) =>
   !!img && typeof img === 'object' && 'uri' in img && typeof img.uri === 'string' && !img.uri.startsWith('http');
 
 export const MAX_LINKS = 10;
+
+/** „#RRGGBB“ */
+export const HEX = /^#[0-9A-Fa-f]{6}$/;
+/**
+ * Vorschläge für den Hintergrund der öffentlichen Seite (Daria, 2026-11-10: Palette und eigene Farbe), aus den Farben
+ * der Website (website/seite.css) und der App (theme/tokens.ts). Die Seite wählt die Textfarbe selbst.
+ */
+/**
+ * Schrift- und Kartenfarben auf einem Hintergrund, wie auf der öffentlichen Seite (api/s.mjs, farbe()):
+ * ab einer relativen Helligkeit von 0,35 dunkle Schrift, sonst helle.
+ */
+export function readableOn(hex: string): { text: string; muted: string; surface: string; dark: boolean } {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const lin = (c: number) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const light = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b) > 0.35;
+  return light
+    ? { text: '#26233A', muted: '#4A465E', surface: '#FFFFFF', dark: false }
+    : { text: '#F0F0F0', muted: '#C8C8D0', surface: 'rgba(255,255,255,0.08)', dark: true };
+}
+
+export const BG_PALETTE: { hex: string; name: string }[] = [
+  { hex: '#DCE1FF', name: 'Lila hell' },
+  { hex: '#F4F7E2', name: 'Gelbgrün hell' },
+  { hex: '#DDF8E3', name: 'Mint' },
+  { hex: '#FFE6D6', name: 'Pfirsich' },
+  { hex: '#FFE3F4', name: 'Rosa' },
+  { hex: '#E4F1FF', name: 'Himmelblau' },
+  { hex: '#FFFFFF', name: 'Weiß' },
+  { hex: '#5260E0', name: 'Lila' },
+  { hex: '#26233A', name: 'Nacht' },
+  { hex: '#1F2123', name: 'Kiez dunkel' },
+];
 /** „https://www.kiezblick.de/“ → „kiezblick.de“, „https://instagram.com/kiezblick“ → „instagram.com/kiezblick“ */
 export const shortLink = (url: string) => url.replace(/^https:\/\/(www\.)?/i, '').replace(/\/$/, '');
 
@@ -219,6 +266,9 @@ export async function updateShowcase(id: string, userId: string, input: Showcase
   const fields: Record<string, unknown> = {
     name: input.name.trim(),
     about: nullIfEmpty(input.about),
+    services: nullIfEmpty(input.services),
+    services_collapsed: input.servicesCollapsed,
+    bg_color: input.bgColor && HEX.test(input.bgColor) ? input.bgColor.toUpperCase() : null,
     kiez: nullIfEmpty(input.kiez),
     address: nullIfEmpty(input.address),
     links: input.links.map((l) => l.trim()).filter(Boolean).slice(0, MAX_LINKS),
@@ -484,3 +534,33 @@ export const asSingleEvent = (e: ShowcaseEvent, showcase?: string): SingleEvent 
   location: e.location,
   notes: [showcase, e.body].filter(Boolean).join('\n\n') || undefined,
 });
+
+// ---------- Schaufenster ohne die Social App (kiezcoins.de/schaufenster, Daria, 2026-11-10) ----------
+
+/** Schaufenster, die die Person pflegt: Gruppen, in denen sie Gründer:in ist oder posten darf */
+export async function myShowcases(userId: string): Promise<Showcase[]> {
+  const { data: members } = await supabase.from('group_members').select('group_id, role, can_post_showcase').eq('user_id', userId);
+  const ids = ((members ?? []) as { group_id: string; role: string; can_post_showcase: boolean }[])
+    .filter((m) => m.role === 'founder' || m.can_post_showcase)
+    .map((m) => m.group_id);
+  if (!ids.length) return [];
+  const { data } = await supabase.from('showcases').select(COLUMNS).in('group_id', ids).order('created_at');
+  return ((data ?? []) as unknown as Row[]).map(toShowcase);
+}
+
+/**
+ * Deckname für Konten, die nur ein Schaufenster pflegen: der Name des Schaufensters, bei Bedarf mit Kiez oder Zahl.
+ * So steht bei Posts im Feed der Name des Ladens. Ein vorhandener Deckname bleibt.
+ */
+export async function handleFromShowcase(userId: string, name: string, kiez?: string): Promise<string | null> {
+  const { data } = await supabase.from('profiles').select('handle').eq('id', userId).maybeSingle();
+  const current = (data as { handle: string | null } | null)?.handle;
+  if (current?.trim()) return current;
+  const base = name.trim().slice(0, 30);
+  const tries = [base, kiez ? `${base} ${kiez}`.slice(0, 30) : null, `${base.slice(0, 27)} 2`, `${base.slice(0, 27)} 3`].filter(Boolean) as string[];
+  for (const handle of tries) {
+    const { error } = await supabase.from('profiles').update({ handle }).eq('id', userId);
+    if (!error) return handle;
+  }
+  return null;
+}

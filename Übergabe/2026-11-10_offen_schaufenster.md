@@ -40,7 +40,7 @@ Das Schaufenster ist die erste kommerzielle Fläche in KiezCoins. Es ersetzt den
 - Das Schaufenster zeigt die 10 neuesten Posts und Termine zusammen.
 - Gespeichert bleiben höchstens 50. Kommt der 51. Eintrag dazu, löscht die Datenbank den ältesten endgültig, auch aus dem Kiez-Feed.
 - Die Grenzen sitzen in der Datenbank (Trigger beim Einfügen, Abfrage und RLS), nicht nur in der App.
-- Erst ohne Geld: kein Abo, keine Bezahlung. Daria, 10.11.2026: „Wir bauen jetzt alles über bezahlt, unbezahlt machen wir uns später Sorgen. Berücksichtige es nur in der Datenbank.“ Deshalb läuft jedes Schaufenster als bezahlt (`plan_until = 'infinity'`, Migration `20261110000700_schaufenster_bezahlt`): Die Grenze löscht nichts, App und öffentliche Seite zeigen alle Einträge. Für ein unbezahltes Schaufenster setzt Daria `plan_until` auf leer oder ein Datum. Das Abo kommt später; auf der Finanzierungsseite heißt es schon **Dachs (Partnerladen): 19 € netto im Monat** (`website/finanzierung.html`). Bezahlen geht heute auch rechtlich nicht: Die Nutzungsbedingungen sagen „KiezCoins … nimmt kein Geld an und zahlt keins aus“ (`src/data/legal.ts`).
+- Erst ohne Geld: kein Abo, keine Bezahlung. Daria, 10.11.2026: „Wir bauen jetzt alles über bezahlt, unbezahlt machen wir uns später Sorgen. Berücksichtige es nur in der Datenbank.“ Deshalb läuft jedes Schaufenster als bezahlt (`plan_until = 'infinity'`, Migration `20261110001000_schaufenster_bezahlt`): Die Grenze löscht nichts, App und öffentliche Seite zeigen alle Einträge. Für ein unbezahltes Schaufenster setzt Daria `plan_until` auf leer oder ein Datum. Das Abo kommt später; auf der Finanzierungsseite heißt es schon **Dachs (Partnerladen): 19 € netto im Monat** (`website/finanzierung.html`). Bezahlen geht heute auch rechtlich nicht: Die Nutzungsbedingungen sagen „KiezCoins … nimmt kein Geld an und zahlt keins aus“ (`src/data/legal.ts`).
 
 ### Weiterposten an Instagram, Facebook und Co.
 
@@ -80,9 +80,20 @@ Das Schaufenster ist die erste kommerzielle Fläche in KiezCoins. Es ersetzt den
 - Mehrere Links, bis zu 10 (Daria, 10.11.2026, Migration `20261110000600_schaufenster_links_adresse`). Die alte Spalte `website` bleibt der erste Link.
 - Adresse nur für Menschen mit Zugang (Daria, 10.11.2026): Angemeldete lesen `showcases` nur noch über Spaltenrechte ohne `address`, `lat`, `lng` und `invite_code`; diese liefert `showcase_private`. Dabei fiel auf: Mit Migration 400 konnte jede angemeldete Person den Einladungscode lesen und so jedem Schaufenster „nur für Eingeladene“ beitreten. Migration 600 behebt das.
 
-### Schaufenster ohne die Social App, offen
+- Services als formatierbarer Text, auf Wunsch eingeklappt (Migrationen 700 und 800). Eigene Hintergrundfarbe nur für die öffentliche Seite, Palette und eigener Hex-Wert, Schrift automatisch hell oder dunkel (Migration 900, Daria, 10.11.2026).
 
-Daria, 10.11.2026: „Die Leute sollten – ohne den Umweg über KiezCoins Social App – diese Seite anlegen und pflegen können. So biete ich de facto jedem Small Business eine kleine Webseite als Geschenk an.“ Fragen dazu stehen im Chat vom 10.11.2026; noch nicht gebaut.
+### Schaufenster ohne die Social App
+
+Daria, 10.11.2026: „Die Leute sollten – ohne den Umweg über KiezCoins Social App – diese Seite anlegen und pflegen können. So biete ich de facto jedem Small Business eine kleine Webseite als Geschenk an.“
+
+Entscheidungen (Daria, 10.11.2026): Anmelden wie bei Konten in der App (Code per E-Mail, Passwort auf Wunsch). Es entsteht automatisch ein normales Konto; die Oberfläche zwingt nur nicht in die App. Das Schaufenster erscheint auf der Webseite und in der App. Ort: `kiezcoins.de/schaufenster`.
+
+Gebaut am 10.11.2026:
+- `kiezcoins.de/schaufenster` leitet auf `/app/schaufenster` (Route `src/app/schaufenster/index.tsx`): anmelden, zustimmen (18 Jahre, Nutzungsbedingungen, Community-Regeln, Datenschutz wie im Onboarding), Schaufenster anlegen (Name, Kiez), danach Übersicht mit „Post erstellen“, „Termin erstellen“, „Seite bearbeiten“, „Ansehen“, Link zur öffentlichen Seite.
+- Beim Anlegen entsteht intern eine Gruppe mit der Person als Gründer:in. Der Deckname wird der Name des Schaufensters (bei Bedarf mit Kiez oder Zahl), damit Posts im Feed den Namen des Ladens tragen.
+- `schaufenster/[id]/post`: Bild mit Titel und Text, ohne Feed. Der Post erscheint wie jeder Kiez-Post auch im Feed.
+- Öffnet die Person später die App, führt das Onboarding sie durch die fehlenden Schritte (Deckname vorbelegt).
+- Die Seite ist nicht auf Moderatorinnen beschränkt; wer den Link kennt, kann ein Schaufenster anlegen. Verlinkt ist sie noch nirgends.
 
 ### Teil 2, offen
 

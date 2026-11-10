@@ -3,11 +3,13 @@
 --
 -- plan_until = 'infinity' heißt bezahlt ohne Ende: Die Grenze von 50 Einträgen löscht nichts, und die App zeigt alle
 -- Einträge statt der 10 neuesten. Für ein unbezahltes Schaufenster setzt Daria plan_until auf null oder ein Datum.
+-- Läuft nach 20261110000400 bis 20261110000900.
 
 alter table public.showcases alter column plan_until set default 'infinity';
 update public.showcases set plan_until = 'infinity' where plan_until is null;
 
--- Öffentliche Seite kiezcoins.de/s/<kurzname>: bezahlt alle Einträge (Obergrenze 200 schützt nur die Abfrage)
+-- Öffentliche Seite kiezcoins.de/s/<kurzname>: bezahlt alle Einträge (Obergrenze 200 schützt nur die Abfrage).
+-- Sonst gleich wie 20261110000900_schaufenster_farbe.
 create or replace function public.public_showcase(p_slug text)
 returns jsonb language sql stable security definer set search_path = '' as $$
   select jsonb_build_object(
@@ -21,6 +23,9 @@ returns jsonb language sql stable security definer set search_path = '' as $$
     'address', s.address,
     'website', s.website,
     'links', to_jsonb(s.links),
+    'services', s.services,
+    'services_collapsed', s.services_collapsed,
+    'bg_color', s.bg_color,
     'opening_hours', s.opening_hours,
     'imprint', s.imprint,
     'entries', coalesce((

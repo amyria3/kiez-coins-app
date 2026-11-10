@@ -6,6 +6,8 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Button } from '../../../components/Button';
 import { FieldGroup, KaterCard, Notice, QuestionHint } from '../../../components/Content';
 import { Chip, ChipGroup, choosePhoto, CopyField, SwitchRow, TextField } from '../../../components/Form';
+import { ColorWheel } from '../../../components/ColorWheel';
+import { RichTextField } from '../../../components/RichText';
 import { SubScreen } from '../../../components/Screen';
 import { Text } from '../../../components/T';
 import {
@@ -16,6 +18,9 @@ import {
   setShowcasePoster,
   showcaseInviteLink,
   showcasePublicLink,
+  BG_PALETTE,
+  readableOn,
+  HEX,
   MAX_LINKS,
   showcasePosters,
   updateShowcase,
@@ -27,7 +32,7 @@ import { t } from '../../../data/texts';
 import type { ImageSource } from '../../../data/types';
 import { useGoBack } from '../../../lib/goBack';
 import { shareText } from '../../../lib/share';
-import { color, radius, space, text } from '../../../theme/tokens';
+import { color, font, radius, space, text } from '../../../theme/tokens';
 
 /**
  * Route `schaufenster/[id]/bearbeiten` (Daria, 2026-11-10): nur die Gründer:in. Angaben, Bilder, Sichtbarkeit,
@@ -40,9 +45,12 @@ export default function EditShowcase() {
   const { currentUserId, groups, users } = useStore();
   const [showcase, setShowcase] = useState<Showcase | null | undefined>(undefined);
   const [founder, setFounder] = useState(false);
-  const [form, setForm] = useState({ name: '', about: '', kiez: '', address: '', openingHours: '', imprint: '' });
+  const [form, setForm] = useState({ name: '', about: '', services: '', kiez: '', address: '', openingHours: '', imprint: '' });
   // Mehrere Links (Daria, 2026-11-10); immer mindestens ein Feld
   const [links, setLinks] = useState<string[]>(['']);
+  const [servicesCollapsed, setServicesCollapsed] = useState(false);
+  // Hintergrund der öffentlichen Seite (Daria, 2026-11-10); leer = Standard
+  const [bgColor, setBgColor] = useState('');
   const [visibility, setVisibility] = useState<Visibility>('public');
   const [logo, setLogo] = useState<ImageSource | undefined>();
   const [cover, setCover] = useState<ImageSource | undefined>();
@@ -60,12 +68,15 @@ export default function EditShowcase() {
       setForm({
         name: s.name,
         about: s.about ?? '',
+        services: s.services ?? '',
         kiez: s.kiez ?? '',
         address: s.address ?? '',
         openingHours: s.openingHours ?? '',
         imprint: s.imprint ?? '',
       });
       setLinks(s.links.length ? s.links : ['']);
+      setServicesCollapsed(s.servicesCollapsed);
+      setBgColor(s.bgColor ?? '');
       setVisibility(s.visibility);
       setLogo(s.logo);
       setCover(s.cover);
@@ -97,13 +108,14 @@ export default function EditShowcase() {
   const set = (key: keyof typeof form) => (value: string) => setForm((f) => ({ ...f, [key]: value }));
   const linkOk = (l: string) => !l.trim() || /^https:\/\/\S+\.\S+$/i.test(l.trim());
   const linksOk = links.every(linkOk);
+  const bgOk = !bgColor.trim() || HEX.test(bgColor.trim());
   const setLink = (i: number) => (value: string) => setLinks((all) => all.map((l, j) => (j === i ? value : l)));
 
   const save = async () => {
     setBusy(true);
     setFailed(null);
     try {
-      await updateShowcase(showcase.id, currentUserId, { ...form, links, visibility, logo, cover });
+      await updateShowcase(showcase.id, currentUserId, { ...form, links, servicesCollapsed, bgColor, visibility, logo, cover });
       goBack();
     } catch (error) {
       setFailed((error as Error).message);
@@ -141,7 +153,7 @@ export default function EditShowcase() {
       title="Schaufenster bearbeiten"
       navigation="back"
       onLeadingPress={goBack}
-      actions={<Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk} onPress={save} />}
+      actions={<Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !bgOk} onPress={save} />}
     >
       <FieldGroup label="Bilder">
         <View style={styles.pictures}>
@@ -153,6 +165,18 @@ export default function EditShowcase() {
       <FieldGroup label="Angaben">
         <TextField label="Name" required value={form.name} onChangeText={set('name')} maxLength={60} />
         <TextField label="Kurztext" multiline value={form.about} onChangeText={set('about')} maxLength={1000} placeholder="Wer seid Ihr, was gibt es bei Euch?" />
+        {/* Services als formatierbarer Text (Daria, 2026-11-10) */}
+        <RichTextField label="Services" value={form.services} onChange={set('services')} maxLength={4000} />
+        <SwitchRow
+          label="Services einklappen"
+          description={
+            servicesCollapsed
+              ? 'Besucher sehen nur die Überschrift und klappen die Services mit einem Tipp auf.'
+              : 'Die Services stehen offen auf der Seite.'
+          }
+          value={servicesCollapsed}
+          onValueChange={setServicesCollapsed}
+        />
         <TextField label="Kiez" value={form.kiez} onChangeText={set('kiez')} maxLength={80} placeholder="Connewitz" />
         <TextField label="Adresse" value={form.address} onChangeText={set('address')} maxLength={160} />
         {links.map((l, i) => (
@@ -178,6 +202,45 @@ export default function EditShowcase() {
           question="Brauche ich ein Impressum?"
           answer="Wer geschäftsmäßig auftritt, zum Beispiel als Laden oder mit Werbung, braucht ein Impressum mit Name und Anschrift (§ 5 Digitale-Dienste-Gesetz). Vereine und private Clubs oft auch. Im Zweifel: lieber eintragen."
         />
+      </FieldGroup>
+
+      <FieldGroup label="Farbe der öffentlichen Seite">
+        <Text style={styles.meta}>Hintergrund von kiezcoins.de/s/{showcase.slug}. Die Schrift wird automatisch hell oder dunkel. In der App bleibt das Schaufenster im App-Look.</Text>
+        <View style={styles.swatches}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: !bgColor }}
+            accessibilityLabel={t('Standard')}
+            onPress={() => setBgColor('')}
+            style={[styles.swatch, styles.swatchDefault, !bgColor && styles.swatchOn]}
+          >
+            <Text style={styles.swatchText}>Standard</Text>
+          </Pressable>
+          {BG_PALETTE.map((c) => (
+            <Pressable
+              key={c.hex}
+              accessibilityRole="button"
+              accessibilityState={{ selected: bgColor.toUpperCase() === c.hex }}
+              accessibilityLabel={t(c.name)}
+              onPress={() => setBgColor(c.hex)}
+              style={[styles.swatch, { backgroundColor: c.hex }, bgColor.toUpperCase() === c.hex && styles.swatchOn]}
+            />
+          ))}
+        </View>
+        <TextField
+          label="Eigene Farbe"
+          value={bgColor}
+          onChangeText={(v) => setBgColor(v.trim().startsWith('#') || !v.trim() ? v.trim() : `#${v.trim()}`)}
+          autoCapitalize="characters"
+          autoCorrect={false}
+          maxLength={7}
+          placeholder="#DCE1FF"
+          error={bgOk ? undefined : 'Bitte so: #DCE1FF'}
+        />
+        {/* HSL-Rad und Vorschau (Daria, 2026-11-10) */}
+        <ColorWheel value={bgColor || PAGE_DEFAULT} onChange={setBgColor} />
+        <Text style={styles.meta}>Vorschau</Text>
+        <PagePreview bg={bgOk && bgColor ? bgColor : PAGE_DEFAULT} name={form.name} about={form.about} kiez={form.kiez} cover={cover} logo={logo} />
       </FieldGroup>
 
       <FieldGroup label="Wer sieht das Schaufenster?">
@@ -257,6 +320,42 @@ export default function EditShowcase() {
   );
 }
 
+/** Standard-Hintergrund der öffentlichen Seite (website/seite.css, --bg) */
+const PAGE_DEFAULT = '#FAFBEF';
+
+/** Verkleinerte öffentliche Seite mit der gewählten Farbe; Schrift wie dort hell oder dunkel */
+function PagePreview({ bg, name, about, kiez, cover, logo }: { bg: string; name: string; about: string; kiez: string; cover?: ImageSource; logo?: ImageSource }) {
+  const c = readableOn(bg);
+  return (
+    <View style={[styles.preview, { backgroundColor: bg }]} accessibilityLabel={t('Vorschau der öffentlichen Seite')}>
+      <Text noTranslate style={[styles.previewBrand, { color: c.text }]}>
+        KiezCoins
+      </Text>
+      {cover ? <Image source={cover} style={styles.previewCover} contentFit="cover" /> : <View style={[styles.previewCover, { backgroundColor: c.surface }]} />}
+      <View style={styles.previewHead}>
+        {logo ? <Image source={logo} style={[styles.previewLogo, { borderColor: bg }]} contentFit="cover" /> : null}
+        <Text noTranslate style={[styles.previewName, { color: c.text }]} numberOfLines={1}>
+          {name || t('Dein Schaufenster')}
+        </Text>
+      </View>
+      {kiez ? (
+        <Text noTranslate style={[styles.previewSmall, { color: c.muted }]}>
+          {kiez}
+        </Text>
+      ) : null}
+      {about ? (
+        <Text noTranslate style={[styles.previewText, { color: c.text }]} numberOfLines={2}>
+          {about}
+        </Text>
+      ) : null}
+      <View style={[styles.previewCard, { backgroundColor: c.surface }]}>
+        <Text style={[styles.previewSmall, { color: c.dark ? '#A9B4FF' : '#5260E0' }]}>Termin</Text>
+        <Text style={[styles.previewText, { color: c.text, fontFamily: font.semiBold }]}>Flohmarkt im Hof</Text>
+      </View>
+    </View>
+  );
+}
+
 function ImageSlot({ label, image, round, onPress }: { label: string; image?: ImageSource; round?: boolean; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={t('{label} wählen', { label: t(label) })} style={styles.slot}>
@@ -279,4 +378,20 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   name: { ...text.body, flex: 1, color: color.text.primary },
   link: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },
+  preview: { gap: space[6], padding: space[12], borderRadius: radius.md, borderWidth: 1, borderColor: color.bg.surface },
+  previewBrand: { ...text.caption, fontSize: 9, lineHeight: 12, alignSelf: 'flex-end', fontFamily: font.semiBold },
+  // Ecken rechteckig wie auf der öffentlichen Seite
+  previewCover: { width: '100%', aspectRatio: 16 / 9 },
+  // Logo rechts, Name links daneben und rechtsbündig, wie auf der öffentlichen Seite
+  previewHead: { flexDirection: 'row-reverse', alignItems: 'flex-end', gap: space[8], marginTop: -space[20], paddingRight: space[8] },
+  previewLogo: { width: 36, height: 36, borderRadius: 18, borderWidth: 3 },
+  previewName: { fontFamily: font.onPhoto, fontSize: 16, lineHeight: 20, flexShrink: 1, textAlign: 'right' },
+  previewSmall: { ...text.caption, fontSize: 11, lineHeight: 14 },
+  previewText: { ...text.caption },
+  previewCard: { padding: space[8], borderRadius: radius.post, gap: space[2], marginTop: space[4] },
+  swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
+  swatch: { width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: color.text.secondary },
+  swatchDefault: { width: 'auto', paddingHorizontal: space[12], justifyContent: 'center', backgroundColor: color.bg.surface },
+  swatchOn: { borderWidth: 3, borderColor: color.accent.primary },
+  swatchText: { ...text.caption, color: color.text.primary },
 });

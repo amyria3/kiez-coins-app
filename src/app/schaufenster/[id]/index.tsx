@@ -4,7 +4,8 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
-import { InfoRow, KaterCard, Notice, SectionBlock } from '../../../components/Content';
+import { CollapsibleSection, InfoRow, KaterCard, Notice, SectionBlock } from '../../../components/Content';
+import { RichText } from '../../../components/RichText';
 import { SubScreen } from '../../../components/Screen';
 import { ShowcaseEventCard } from '../../../components/ShowcaseEventCard';
 import { Text } from '../../../components/T';
@@ -130,6 +131,12 @@ export default function ShowcaseScreen() {
           <Button label="Ich habe einen Code" variant="ghost" onPress={() => router.push('/schaufenster/beitreten')} />
         </View>
       )}
+
+      {s.services ? (
+        <CollapsibleSection label="Services" collapsible={s.servicesCollapsed}>
+          <RichText value={s.services} />
+        </CollapsibleSection>
+      ) : null}
 
       {access.canSee ? (
         entries.length ? (

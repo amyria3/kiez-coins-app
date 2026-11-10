@@ -10,7 +10,6 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] **Pflichtaufgabe:** Migration `20261109000100_comment_likes.sql` im Supabase SQL Editor ausführen. Bis dahin zeigen Kommentare kein Herz. Details: `2026-11-09_offen_kommentare-liken.md`.
 - [ ] **Pflichtaufgabe:** Migration `20261109000200_me_challenge_offen.sql` im Supabase SQL Editor ausführen. Bis dahin bleibt eine neue Me-Challenge ein Entwurf. Details: `2026-11-09_offen_me-challenge-offen.md`.
 - [ ] **Pflichtaufgabe (Daria, 09.11.2026):** Übersetzungen automatisch mit DeepL. Vorher legt Daria den Schlüssel `DEEPL_API_KEY` in GitHub an. DeepL füllt nur Lücken, vorhandene Übersetzungen und Korrekturen im Texte-Editor bleiben. Plan: `2026-10-31_offen_deepl-uebersetzungen.md`.
-- [ ] **Pflichtaufgabe (10.11.2026):** Migration `20261110000700_schaufenster_bezahlt.sql` im Supabase SQL Editor ausführen, nach `20261110000400` bis `20261110000600`. Bis dahin löscht ein Schaufenster ab dem 51. Eintrag den ältesten und zeigt nur die 10 neuesten. Details: `2026-11-10_offen_schaufenster.md`.
 
 ## Dringend (Daria, 30.10.2026)
 
@@ -44,7 +43,8 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 ## Schaufenster (Daria, 10.11.2026)
 
-- [ ] Schaufenster für Unternehmen, Vereine und Organisator:innen: öffentlich oder nur für Eingeladene, 10 neueste Posts und Termine sichtbar, höchstens 50 gespeichert, Termine zum Speichern, Us-Challenge, Weiterposten. Fragen beantwortet (10.11.2026), noch nicht bauen ohne Darias Auftrag. Plan: `2026-11-10_offen_schaufenster.md`. Ersetzt den Feature-Wunsch „Feed, besonders für Kleinunternehmen und Vereine“ vom 09.11.2026.
+- [ ] Schaufenster für Unternehmen, Vereine und Organisator:innen: öffentlich oder nur für Eingeladene, 10 neueste Posts und Termine sichtbar, höchstens 50 gespeichert, Termine zum Speichern, Us-Challenge, Weiterposten. Teil 1 gebaut am 10.11.2026 (nur Moderatorinnen), dazu `kiezcoins.de/schaufenster` ohne Social App und die öffentliche Seite `/s/<kurzname>`; Migrationen 400 bis 1000 stehen aus, in dieser Reihenfolge; 1000 (`20261110001000_schaufenster_bezahlt`) stellt alle Schaufenster auf bezahlt, sonst löscht ab dem 51. Eintrag der älteste. Stand und offene Punkte: `2026-11-10_offen_schaufenster.md`. Ersetzt den Feature-Wunsch „Feed, besonders für Kleinunternehmen und Vereine“ vom 09.11.2026.
+- [ ] Location (Daria, 10.11.2026): Ort des Schaufensters. Vor dem Bauen mit Daria klären, was dazugehört, z. B. Adresse antippen öffnet die Karten-App, kleine Karte im Schaufenster, Koordinaten (`showcases.lat`, `lng` gibt es schon) für die Liste im Kiez, den Umkreis und Suchmaschinen.
 
 ## Erinnerungen (Daria, 07.11.2026)
 
