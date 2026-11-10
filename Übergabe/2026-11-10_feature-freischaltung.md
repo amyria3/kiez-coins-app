@@ -25,8 +25,7 @@ Jede Funktion außerhalb des Kerns hat einen Schlüssel und ist an oder aus. Ein
 | `kalender` | an | neu (2026-11-10), Migration `20261110001200_feature_kalender.sql` |
 | `schaufenster` | an | `useShowcaseEnabled` fragte `is_moderator` |
 | `weiterposten` | an | `CROSSPOST_ACTIVE = true` |
-| `ohne_wasserzeichen` | an | neu (2026-11-10): Bildpost teilen ohne Kater und „KiezCoins“ im Rahmen, Migration `20261110001500_feature_rahmen.sql` |
-| `ohne_rahmen` | an | neu (2026-11-10): Bildpost teilen ohne weißen Rahmen, dieselbe Migration |
+| `ohne_wasserzeichen` | an | neu (2026-11-10): Bildpost teilen ohne Kater und „KiezCoins“ im Rahmen oder ganz ohne Rahmen (beide Schalter hängen an dieser einen Funktion), Migration `20261110001500_feature_rahmen.sql` |
 
 ## SQL für Daria
 
