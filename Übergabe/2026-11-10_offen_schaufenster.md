@@ -82,6 +82,15 @@ Das Schaufenster ist die erste kommerzielle Fläche in KiezCoins. Es ersetzt den
 
 - Services als formatierbarer Text, auf Wunsch eingeklappt (Migrationen 700 und 800). Eigene Hintergrundfarbe nur für die öffentliche Seite, Palette und eigener Hex-Wert, Schrift automatisch hell oder dunkel (Migration 900, Daria, 10.11.2026).
 
+### So sieht die öffentliche Seite aus (Daria, 10.11.2026)
+
+- Oben rechts steht das KiezCoins-Logo klein, ohne Slogan, mit 28 px Abstand darüber und 40 px darunter.
+- Das Titelbild hat eckige Ecken (16:9). Hat das Schaufenster ein Logo, schneidet eine Maske rechts unten eine runde Aussparung mit leicht gerundeten Übergängen aus. Das Logo sitzt in dieser Aussparung.
+- Der Name steht links neben dem Logo, linksbündig, in Unbounded 500 mit 32/33 px. Er beginnt 48 px unter dem Titelbild. In der Vorschau unter „Schaufenster bearbeiten“ gelten dieselben Verhältnisse verkleinert (19/20, Abstand 26).
+- Abschnittsüberschriften in Unbounded 18/24, Karten mit 6 px Rundung, 32 px Abstand zwischen den Karten.
+- Die Schrift Unbounded kopiert `scripts/build-download-site.mjs` nach `website/fonts`.
+- Testen: Seite mit `api/s.mjs` und Testdaten rendern; in Chromium sitzt das Logo in der Aussparung. Auf Darias Screenshot vom 10.11.2026 saß es darunter. Offen: Bildbearbeitung oder anderer Browser (Safari)?
+
 ### Schaufenster ohne die Social App
 
 Daria, 10.11.2026: „Die Leute sollten – ohne den Umweg über KiezCoins Social App – diese Seite anlegen und pflegen können. So biete ich de facto jedem Small Business eine kleine Webseite als Geschenk an.“
@@ -162,3 +171,10 @@ Gesammelt am 10.11.2026 aus `Übergabe/`, `website/`, `src/`, `supabase/` und de
 
 - Später, nach dem Bau ohne Geld: Ist das Abo der Dachs? Was enthält es, zum Beispiel mehr als 50 Einträge, X beim Weiterposten, Bilderkennung, Weiterposten ohne Wasserzeichen, Statistik?
 - Rechtstexte zur Werbung im Schaufenster (Daria).
+- Migrationen 400 bis 900 laufen lassen, in dieser Reihenfolge (Daria). Vorher Migration 300 und die Funktion `kalender`. Erst danach lässt sich das Schaufenster live testen.
+- Domain `kiezcoins.de` zeigt noch auf den alten Server; die Seite läuft unter `kiezcoins.vercel.app`.
+- Soll `kiezcoins.de/schaufenster` nur für Moderatorinnen offen sein? Heute ist es offen, aber nirgends verlinkt.
+- Bekommt das Schaufenster in der App dieselbe Form wie die öffentliche Seite (eckiges Titelbild, Aussparung, Logo rechts)?
+- Sitzt das Logo auf Darias Gerät unter der Aussparung? Siehe „So sieht die öffentliche Seite aus“.
+- SEO: Vorschlag von Claude, mit Indexierung für `/s/`, `robots.txt`, Sitemap, Seitentiteln und JSON-LD (LocalBusiness) zu beginnen. Noch nicht entschieden.
+- Location (Ort, Karte) steht in `TODO.md`; vor dem Bau klären.
