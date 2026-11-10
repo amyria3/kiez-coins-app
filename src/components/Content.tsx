@@ -260,8 +260,10 @@ export function LinkedText({ value, style }: { value: string; style?: StyleProp<
 }
 
 /**
- * Rolle „System“ (Daria, 2026-11-09): Absender der gelbgrünen Systemnachrichten, Avatar 👾 im schwarzen Kreis
+ * Rolle „System“ (Daria, 2026-11-09): Absender der gelbgrünen Systemnachrichten, Avatar 👾 im hellen Kreis
  * links neben jeder Blase, wie ein Absender im Chat. Das Emoji kommt vom Gerät.
+ * Kreis in der hellen Schriftfarbe statt Schwarz (Daria, 2026-11-10): Der schwarze Kreis verschwand auf dem dunklen Grund,
+ * und das lila Emoji hatte darauf zu wenig Kontrast.
  */
 export const SYSTEM_AVATAR = '👾';
 export function SystemAvatar() {
@@ -686,7 +688,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#000000',
+    backgroundColor: color.text.primary,
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
