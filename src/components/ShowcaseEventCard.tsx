@@ -142,7 +142,8 @@ export function ShowcaseEventCard({
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: radius.xl, backgroundColor: color.bg.surface, overflow: 'hidden' },
+  // Wenig Rundung wie die Posts im Feed (Daria, 2026-11-10)
+  card: { borderRadius: radius.post, backgroundColor: color.bg.surface, overflow: 'hidden' },
   image: { width: '100%', aspectRatio: 16 / 9 },
   body: { gap: space[4], padding: space[16], paddingBottom: space[12] },
   kicker: { ...text.caption, fontFamily: font.medium, color: color.accent.primary },
