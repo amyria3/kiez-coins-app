@@ -8,6 +8,9 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://aqxzxpxrshizlaqyjplw.supabase.co';
 const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? 'sb_publishable_WqrL7Y7Wm0l9cq4tHQpjAQ_iooAaNe0';
 
+/** Basis-URL des Projekts, z. B. für Edge Functions mit eigenem Link (Kalender-Abo) */
+export const SUPABASE_URL = supabaseUrl;
+
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     // Sitzung bleibt auf dem Gerät gespeichert, man bleibt also nach dem Neustart angemeldet.
