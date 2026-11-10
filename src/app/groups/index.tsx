@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.7 },
   flex: { flex: 1, gap: space[4] },
   name: { ...text.cardTitle, color: color.text.primary },
-  meta: { ...text.caption, color: color.text.secondary },
+  meta: { ...text.meta, color: color.text.secondary },
   eden: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
-  edenValue: { ...text.metric, fontSize: 18, color: color.text.primary },
+  edenValue: { ...text.metricSm, color: color.text.primary },
 });

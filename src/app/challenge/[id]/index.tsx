@@ -767,7 +767,7 @@ const styles = StyleSheet.create({
   metricDone: { minHeight: 36 },
   metricLabel: { ...text.meta, color: color.text.secondary },
   deadline: { justifyContent: 'center', minHeight: size.touchTarget },
-  metricValue: { ...text.metric, fontSize: 17, lineHeight: 22, color: color.text.primary },
+  metricValue: { ...text.metricSm, color: color.text.primary },
   pressed: { opacity: 0.7 },
   signal: { color: color.accent.signal },
   eden: { color: color.accent.confirmation },

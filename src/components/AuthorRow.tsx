@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     paddingBottom: space[12],
   },
   info: { flex: 1, gap: space[2] },
-  name: { ...text.body, color: color.text.primary },
+  name: { ...text.bodyStrong, color: color.text.primary },
   locationRow: { flexDirection: 'row', alignItems: 'center', gap: space[2] },
   location: { ...text.caption, color: color.text.secondary, flex: 1 },
 });
