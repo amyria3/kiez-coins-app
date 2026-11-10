@@ -176,6 +176,10 @@
     {
       "source": "/s/:slug",
       "destination": "/api/s?slug=:slug"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
     }
   ]
 }
