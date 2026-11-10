@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, FlatList, Pressable, StyleSheet, View } from 'react-native';
-import Svg, { G, Path } from 'react-native-svg';
+import Svg, { Defs, G, Mask, Path, Rect } from 'react-native-svg';
 import { Text } from './T';
 import { fitShape, SWITCH_KNOB, SWITCH_TRACK } from './handSwitch';
 import { Image } from 'expo-image';
@@ -198,6 +198,8 @@ type TabsNavigationProps = {
   accent?: boolean;
   /** Sichtbare Modi (Auge in „Dein Konto › Funktionen“, Daria, 27.10.2026) */
   visible: Mode[];
+  /** Eigene kleine Spur links neben den Reitern, z. B. „Routine“ */
+  lead?: SegmentLead;
 };
 
 /**
@@ -205,38 +207,19 @@ type TabsNavigationProps = {
  * Abgeschaltete Challenge-Typen (data/features.ts) sind gedimmt, lassen sich aber öffnen:
  * Der Feed zeigt dann einen Hinweis und vorhandene Challenges dieses Typs.
  */
-export function TabsNavigation({ selectedKey, onChange, visible, accent }: TabsNavigationProps) {
+export function TabsNavigation({ selectedKey, onChange, visible, accent, lead }: TabsNavigationProps) {
   const shown = tabs.filter((tab) => visible.some((mode) => TAB_OF_MODE[mode] === tab.key));
-  // Nur ein Modus sichtbar: kein Umschalter
-  if (shown.length < 2) return null;
-  return <Segments tabs={shown} selectedKey={selectedKey} onChange={onChange} accent={accent} />;
+  // Nur ein Modus sichtbar und nichts daneben: kein Umschalter
+  if (shown.length < 2 && !lead) return null;
+  return <Segments tabs={shown} selectedKey={selectedKey} onChange={onChange} accent={accent} lead={lead} />;
 }
 
 /**
- * Knopf „Routine“ links neben den Reitern (Daria, 2026-11-09): führt zu den Erinnerungen. Gleiche Höhe und
- * handgezeichnete Spur wie der Umschalter daneben.
+ * „Routine“ links neben den Reitern (Daria, 2026-11-09): eigene Spur wie ein zweiter Schalter, sieht aber aus
+ * wie ein nicht gewählter Reiter. Beim Tippen gleitet der helle Knopf hinüber, unter dem Bildschirm-Hintergrund
+ * zwischen den Spuren hindurch wie unter Papier (Daria, 2026-11-10).
  */
-export function RoutineButton({ onPress }: { onPress: () => void }) {
-  const [box, setBox] = useState({ width: 0, height: 0 });
-  return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={onPress}
-      onLayout={(e) => {
-        const { width: w, height: h } = e.nativeEvent.layout;
-        setBox((old) => (old.width === w && old.height === h ? old : { width: w, height: h }));
-      }}
-      style={({ pressed }) => [styles.routine, pressed && styles.routinePressed]}
-    >
-      {box.width && box.height ? (
-        <Svg width={box.width} height={box.height} style={StyleSheet.absoluteFill} pointerEvents="none">
-          <Path d={fitShape(SWITCH_TRACK, box.width, box.height)} fill={color.bg.surface} />
-        </Svg>
-      ) : null}
-      <Text style={styles.routineText}>{t('Routine')}</Text>
-    </Pressable>
-  );
-}
+export type SegmentLead = { label: string; active: boolean; onPress: () => void };
 
 type SegmentsProps<K extends string> = {
   tabs: { key: K; label: string; planned?: boolean }[];
@@ -249,6 +232,8 @@ type SegmentsProps<K extends string> = {
   progress?: Animated.Value | Animated.AnimatedInterpolation<number>;
   /** Auswahl lila statt schwarz-weiß: zeigt, was eingestellt ist, solange niemand umgeschaltet hat */
   accent?: boolean;
+  /** Eigene Spur links daneben; der Knopf gleitet hinüber, wenn sie aktiv ist (nur Pillen-Look) */
+  lead?: SegmentLead;
 };
 
 /** Segmente mit gleitender Pille, z. B. Feed-Reiter oder „Aktuell / Archiv“ in „Deine Challenges“. */
@@ -310,102 +295,173 @@ function UnderlineTabs<K extends string>({ tabs, selectedKey, onChange, progress
   );
 }
 
-function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress, accent = false }: SegmentsProps<K>) {
+type Box = { x: number; width: number; height: number };
+const sameBox = (a: Box | null, b: Box) => !!a && a.x === b.x && a.width === b.width && a.height === b.height;
+
+function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress, accent = false, lead }: SegmentsProps<K>) {
   // Helle Pille gleitet zum gewählten Reiter (Bewegung „Schranke“, etwas langsamer).
   // Der gewählte Reiter bekommt seitlich mehr Polsterung; die Nachbarn rutschen mit (Daria, 31.10.2026).
   // Eine Lage `pos` (Index, auch Zwischenwerte) steuert Polsterung, Pille und Schriftfarbe gemeinsam.
+  // Die eigene Spur links (`lead`) hat die Lage -1.
   const index = Math.max(0, tabs.findIndex((tab) => tab.key === selectedKey));
-  const [barWidth, setBarWidth] = useState(0);
-  const [barHeight, setBarHeight] = useState(0);
+  const target = lead?.active ? -1 : index;
+  const [main, setMain] = useState<Box | null>(null);
+  const [leadBox, setLeadBox] = useState<Box | null>(null);
   const [content, setContent] = useState<Partial<Record<K, number>>>({});
-  const own = useRef(new Animated.Value(index)).current;
+  const own = useRef(new Animated.Value(target)).current;
   const pos = progress ?? own;
   const placed = useRef(false);
   useEffect(() => {
     if (progress) return;
     if (!placed.current) {
-      own.setValue(index);
+      own.setValue(target);
       placed.current = true;
       return;
     }
     Animated.timing(own, {
-      toValue: index,
+      toValue: target,
       duration: motion.tabSwitch.duration,
       easing: Easing.bezier(...motion.barrier.bezier),
       useNativeDriver: false,
     }).start();
-  }, [index, own, progress]);
+  }, [target, own, progress]);
 
+  const barWidth = main?.width ?? 0;
+  const barHeight = main?.height ?? 0;
   const widths = tabs.map((tab) => content[tab.key]);
   const rest = barWidth > 0 && widths.every((w) => w !== undefined) ? restLayouts(widths as number[], barWidth) : undefined;
-  const steps = tabs.map((_, i) => i);
   const single = tabs.length < 2;
-  const pill = rest
-    ? {
-        left: single ? rest[0].x : pos.interpolate({ inputRange: steps, outputRange: rest.map((l) => l.x), extrapolate: 'clamp' }),
-        width: single ? rest[0].width : pos.interpolate({ inputRange: steps, outputRange: rest.map((l) => l.width), extrapolate: 'clamp' }),
-      }
-    : undefined;
   // Wie stark ein Reiter gerade gewählt ist: 1 unter der Pille, 0 daneben
   const weight = (i: number) =>
-    single ? 1 : pos.interpolate({ inputRange: [i - 1, i, i + 1], outputRange: [0, 1, 0], extrapolate: 'clamp' });
+    single && !lead ? 1 : pos.interpolate({ inputRange: [i - 1, i, i + 1], outputRange: [0, 1, 0], extrapolate: 'clamp' });
+
+  // Lagen des Knopfs in der ganzen Zeile: zuerst die eigene Spur, dann die Reiter
+  const withLead = !!lead;
+  const ready = !!rest && !!main && (!withLead || !!leadBox);
+  const knobRest = ready
+    ? [
+        ...(withLead && leadBox ? [{ x: leadBox.x + BAR_PAD, width: leadBox.width - 2 * BAR_PAD }] : []),
+        ...rest!.map((l) => ({ x: l.x + main!.x, width: l.width })),
+      ]
+    : undefined;
+  const on = accent ? color.text.onAccent : color.bg.screen;
+  const fill = accent ? color.accent.primary : color.text.primary;
+  const rowWidth = main ? main.x + main.width : 0;
 
   return (
-    <View
-      style={styles.segments}
-      accessibilityRole="tablist"
-      onLayout={(e) => {
-        const { width: w, height: h } = e.nativeEvent.layout;
-        setBarWidth((old) => (old === w ? old : w));
-        setBarHeight((old) => (old === h ? old : h));
-      }}
-    >
+    <View style={styles.segmentsRow}>
       {/* Spur und Knopf aus Darias Icon „Switch“, der Knopf 2° im Uhrzeigersinn geneigt (Daria, 08.11.2026) */}
-      {barWidth && barHeight ? (
-        <Svg width={barWidth} height={barHeight} style={StyleSheet.absoluteFill} pointerEvents="none">
-          <Path d={fitShape(SWITCH_TRACK, barWidth, barHeight)} fill={color.bg.surface} />
+      {main ? (
+        <Svg width={rowWidth} height={barHeight} style={StyleSheet.absoluteFill} pointerEvents="none">
+          {leadBox ? (
+            <G transform={`translate(${leadBox.x} 0)`}>
+              <Path d={fitShape(SWITCH_TRACK, leadBox.width, leadBox.height)} fill={color.bg.surface} />
+            </G>
+          ) : null}
+          <G transform={`translate(${main.x} 0)`}>
+            <Path d={fitShape(SWITCH_TRACK, main.width, main.height)} fill={color.bg.surface} />
+          </G>
         </Svg>
       ) : null}
-      {rest && pill && barHeight ? (
-        <HandKnob pos={pos} rest={rest} single={single} height={barHeight - 2 * BAR_PAD} fill={accent ? color.accent.primary : color.text.primary} />
+      {knobRest ? (
+        <HandKnob pos={pos} shift={withLead ? 1 : 0} rest={knobRest} single={knobRest.length < 2} height={barHeight - 2 * BAR_PAD} fill={fill} />
       ) : null}
-      {tabs.map((tab, i) => {
-        const selected = tab.key === selectedKey;
-        const w = weight(i);
-        const pad = typeof w === 'number' ? SEGMENT_PAD + PILL_EXTRA * w : w.interpolate({ inputRange: [0, 1], outputRange: [SEGMENT_PAD, SEGMENT_PAD + PILL_EXTRA] });
-        return (
-          <AnimatedPressable
-            key={tab.key}
-            accessibilityRole="tab"
-            accessibilityLabel={tab.planned ? t('{label}, kommt später', { label: tab.label }) : tab.label}
-            accessibilityState={{ selected }}
-            onPress={() => onChange(tab.key)}
-            style={[styles.segment, { paddingHorizontal: pad }, !pill && selected && styles.segmentSelected]}
+      {/* Zwischen den Spuren liegt der Bildschirm-Hintergrund wie Papier über dem Knopf */}
+      {main && leadBox ? <Paper lead={leadBox} main={main} /> : null}
+      {lead ? (
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityState={{ selected: lead.active }}
+          onPress={lead.onPress}
+          onLayout={(e) => {
+            const { x, width: w, height: h } = e.nativeEvent.layout;
+            const box = { x, width: w, height: h };
+            setLeadBox((old) => (sameBox(old, box) ? old : box));
+          }}
+          style={({ pressed }) => [styles.lead, pressed && styles.leadPressed]}
+        >
+          <Animated.Text
+            numberOfLines={1}
+            style={[styles.segmentText, lead.active && styles.segmentTextSelected, ready ? { color: labelColor(pos, -1, on) } : null]}
           >
-            <View
-              style={styles.segmentInner}
-              onLayout={(e) => {
-                const cw = e.nativeEvent.layout.width;
-                setContent((c) => (c[tab.key] === cw ? c : { ...c, [tab.key]: cw }));
-              }}
+            {lead.label}
+          </Animated.Text>
+        </Pressable>
+      ) : null}
+      <View
+        style={[styles.segments, withLead && styles.segmentsBeside]}
+        accessibilityRole="tablist"
+        onLayout={(e) => {
+          const { x, width: w, height: h } = e.nativeEvent.layout;
+          const box = { x, width: w, height: h };
+          setMain((old) => (sameBox(old, box) ? old : box));
+        }}
+      >
+        {tabs.map((tab, i) => {
+          const selected = tab.key === selectedKey && !lead?.active;
+          const w = weight(i);
+          const pad = typeof w === 'number' ? SEGMENT_PAD + PILL_EXTRA * w : w.interpolate({ inputRange: [0, 1], outputRange: [SEGMENT_PAD, SEGMENT_PAD + PILL_EXTRA] });
+          return (
+            <AnimatedPressable
+              key={tab.key}
+              accessibilityRole="tab"
+              accessibilityLabel={tab.planned ? t('{label}, kommt später', { label: tab.label }) : tab.label}
+              accessibilityState={{ selected }}
+              onPress={() => onChange(tab.key)}
+              style={[styles.segment, { paddingHorizontal: pad }, !ready && selected && styles.segmentSelected]}
             >
-              <Animated.Text
-                numberOfLines={1}
-                style={[
-                  styles.segmentText,
-                  selected && styles.segmentTextSelected,
-                  tab.planned && !selected && styles.planned,
-                  // Schrift wird dunkel, während die Pille darübergleitet
-                  pill ? { color: labelColor(pos, i, accent ? color.text.onAccent : color.bg.screen) } : null,
-                ]}
+              <View
+                style={styles.segmentInner}
+                onLayout={(e) => {
+                  const cw = e.nativeEvent.layout.width;
+                  setContent((c) => (c[tab.key] === cw ? c : { ...c, [tab.key]: cw }));
+                }}
               >
-                {t(tab.label)}
-              </Animated.Text>
-            </View>
-          </AnimatedPressable>
-        );
-      })}
+                <Animated.Text
+                  numberOfLines={1}
+                  style={[
+                    styles.segmentText,
+                    selected && styles.segmentTextSelected,
+                    tab.planned && !selected && styles.planned,
+                    // Schrift wird dunkel, während die Pille darübergleitet
+                    ready ? { color: labelColor(pos, i, on) } : null,
+                  ]}
+                >
+                  {t(tab.label)}
+                </Animated.Text>
+              </View>
+            </AnimatedPressable>
+          );
+        })}
+      </View>
     </View>
+  );
+}
+
+/**
+ * Bildschirm-Hintergrund im Spalt zwischen zwei Spuren, über dem Knopf: Der Knopf gleitet darunter hindurch
+ * und ist nur auf den Spuren zu sehen. Maske = Streifen um den Spalt ohne die beiden Spuren.
+ */
+function Paper({ lead, main }: { lead: Box; main: Box }) {
+  const width = main.x + main.width;
+  const height = main.height;
+  const from = lead.x + lead.width / 2;
+  const to = main.x + Math.min(main.width / 2, 40);
+  return (
+    <Svg width={width} height={height} style={StyleSheet.absoluteFill} pointerEvents="none">
+      <Defs>
+        <Mask id="segmentsPaper" maskUnits="userSpaceOnUse" x={0} y={0} width={width} height={height}>
+          <Rect x={from} y={-4} width={to - from} height={height + 8} fill="white" />
+          <G transform={`translate(${lead.x} 0)`}>
+            <Path d={fitShape(SWITCH_TRACK, lead.width, lead.height)} fill="black" />
+          </G>
+          <G transform={`translate(${main.x} 0)`}>
+            <Path d={fitShape(SWITCH_TRACK, main.width, main.height)} fill="black" />
+          </G>
+        </Mask>
+      </Defs>
+      <Rect x={0} y={0} width={width} height={height} fill={color.bg.screen} mask="url(#segmentsPaper)" />
+    </Svg>
   );
 }
 
@@ -414,12 +470,15 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 /** Gezeichneter Knopf unter dem gewählten Reiter. Folgt der Lage `pos` (auch beim Wischen) und passt seine Breite an. */
 function HandKnob({
   pos,
+  shift = 0,
   rest,
   single,
   height,
   fill,
 }: {
   pos: Animated.Value | Animated.AnimatedInterpolation<number>;
+  /** Wird zur Lage addiert, z. B. 1, wenn links eine eigene Spur mit Lage -1 liegt */
+  shift?: number;
   rest: { x: number; width: number }[];
   single: boolean;
   height: number;
@@ -433,7 +492,7 @@ function HandKnob({
     return () => pos.removeListener(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pos]);
-  const v = single ? 0 : Math.min(Math.max(at, 0), rest.length - 1);
+  const v = single ? 0 : Math.min(Math.max(at + shift, 0), rest.length - 1);
   const i = Math.min(Math.floor(v), rest.length - 2 < 0 ? 0 : rest.length - 2);
   const f = single ? 0 : v - i;
   const a = rest[i];
@@ -542,19 +601,16 @@ const styles = StyleSheet.create({
     borderColor: color.accent.signal,
   },
   topTitle: { ...text.labelXs, color: color.accent.signal, textAlign: 'center', alignSelf: 'stretch' },
-  routine: {
-    minHeight: 40 + 2 * space[4],
-    paddingHorizontal: space[16],
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  routinePressed: { opacity: 0.7 },
-  routineText: { fontFamily: font.medium, fontSize: 14, lineHeight: 18, color: color.text.primary },
+  segmentsRow: { flexDirection: 'row', alignItems: 'stretch', gap: space[8], width: '100%' },
+  // Eigene Spur links, gleich hoch wie der Umschalter daneben
+  lead: { minHeight: 40 + 2 * space[4], paddingHorizontal: space[16], alignItems: 'center', justifyContent: 'center' },
+  leadPressed: { opacity: 0.7 },
   segments: {
     flexDirection: 'row',
     width: '100%',
     padding: space[4],
   },
+  segmentsBeside: { width: undefined, flex: 1 },
   pill: {
     position: 'absolute',
     top: space[4],
