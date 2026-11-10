@@ -68,6 +68,14 @@ const dayStart = (now = new Date()) => {
 /** 1 = Montag … 7 = Sonntag */
 export const isoWeekday = (d = new Date()) => ((d.getDay() + 6) % 7) + 1;
 
+/**
+ * Art einer einmaligen Erinnerung (Daria, 2026-11-10): „um“ ist ein Termin, „bis“ und „von … bis“ sind eine Aufgabe.
+ * Wiederkehrende haben keine Art.
+ */
+export type ReminderKind = 'termin' | 'aufgabe';
+export const kindOf = (r: Pick<Reminder, 'onDate' | 'atTime' | 'untilTime'>): ReminderKind | undefined =>
+  !r.onDate ? undefined : r.atTime && !r.untilTime ? 'termin' : 'aufgabe';
+
 export const goalOf = (r: Pick<Reminder, 'perWeek' | 'weekdays' | 'onDate'>) => (r.onDate ? 1 : r.perWeek ?? r.weekdays?.length ?? 1);
 
 /** Ortsdatum als „JJJJ-MM-TT“ */
