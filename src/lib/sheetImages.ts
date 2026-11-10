@@ -151,22 +151,27 @@ function drawAuthorRow(
   return top + d;
 }
 
-/** Unten: Seitenzahl links in Grau, rechts Kater und „KiezCoins“ (Daria, 07.11.2026). `bottom` ist die Unterkante. */
-function drawFooter(ctx: Ctx, bottom: number, pad: number, index: number, count: number) {
+/**
+ * Unten: Seitenzahl links in Grau, rechts Kater und „KiezCoins“ (Daria, 07.11.2026). `bottom` ist die Unterkante.
+ * `logo: false` lässt Kater und „KiezCoins“ weg (Wasserzeichen entfernt, Daria, 2026-11-10).
+ */
+function drawFooter(ctx: Ctx, bottom: number, pad: number, index: number, count: number, logo = true) {
   const W = ctx.canvas.width;
   const markSize = SLIDE_WIDTH * 0.03;
   // Kater, daneben „KiezCoins“ in der normalen Schrift und Farbe wie der Name (Daria, 07.11.2026)
   const wordSize = Math.round(SLIDE_WIDTH * 0.034);
-  ctx.font = `600 ${wordSize}px "${font.regular}"`;
-  ctx.fillStyle = INK;
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'alphabetic';
-  ctx.fillText('KiezCoins', W - pad, bottom - Math.round(wordSize * 0.15));
-  if (catImage?.complete && catImage.naturalWidth) {
-    const ww = ctx.measureText('KiezCoins').width;
-    const ch = Math.round(wordSize * 1.6);
-    const cw = Math.round((ch * CAT.width) / CAT.height);
-    ctx.drawImage(catImage, W - pad - ww - Math.round(wordSize * 0.4) - cw, bottom - ch, cw, ch);
+  if (logo) {
+    ctx.font = `600 ${wordSize}px "${font.regular}"`;
+    ctx.fillStyle = INK;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText('KiezCoins', W - pad, bottom - Math.round(wordSize * 0.15));
+    if (catImage?.complete && catImage.naturalWidth) {
+      const ww = ctx.measureText('KiezCoins').width;
+      const ch = Math.round(wordSize * 1.6);
+      const cw = Math.round((ch * CAT.width) / CAT.height);
+      ctx.drawImage(catImage, W - pad - ww - Math.round(wordSize * 0.4) - cw, bottom - ch, cw, ch);
+    }
   }
   if (count > 1) {
     ctx.font = `${markSize}px "${font.regular}"`;
@@ -271,12 +276,18 @@ function loadBlobImage(blob: Blob): Promise<HTMLImageElement | null> {
   });
 }
 
+/** Wie die Fotos beim Teilen aussehen: mit Rahmen, mit Wasserzeichen (Kater und „KiezCoins“) im Rahmen */
+export type PhotoLook = { frame: boolean; watermark: boolean };
+export const FULL_LOOK: PhotoLook = { frame: true, watermark: true };
+
 /**
  * Fotos eines Posts zum Teilen in einem weißen Rahmen (Daria, 07.11.2026): oben links Profilbild und Name, unten
  * rechts Kater und „KiezCoins“, links und rechts etwas Rand. Lässt sich ein Foto nicht zeichnen, bleibt es, wie es ist.
+ * Ohne Rahmen gehen die Fotos unverändert raus; ohne Wasserzeichen fehlen Kater und „KiezCoins“ unten, der Rand
+ * unten wird dann so schmal wie an den Seiten, außer es steht eine Seitenzahl dort (Daria, 2026-11-10).
  */
-export async function framePhotoFiles(files: File[], author?: SheetAuthor): Promise<File[]> {
-  if (Platform.OS !== 'web' || typeof document === 'undefined') return files;
+export async function framePhotoFiles(files: File[], author?: SheetAuthor, look: PhotoLook = FULL_LOOK): Promise<File[]> {
+  if (Platform.OS !== 'web' || typeof document === 'undefined' || !look.frame) return files;
   const avatar = await loadAvatar(author?.avatarUri);
   const name = author?.name.trim();
   return Promise.all(
@@ -292,7 +303,7 @@ export async function framePhotoFiles(files: File[], author?: SheetAuthor): Prom
       const srcW = Math.min(photo.naturalWidth, photo.naturalHeight / ratio);
       const srcH = srcW * ratio;
       const headH = name ? Math.round(W * 0.17) : side;
-      const footH = Math.round(W * 0.15);
+      const footH = look.watermark || files.length > 1 ? Math.round(W * 0.15) : side;
       const canvas = document.createElement('canvas');
       canvas.width = W;
       canvas.height = headH + ph + footH;
@@ -310,7 +321,7 @@ export async function framePhotoFiles(files: File[], author?: SheetAuthor): Prom
       ctx.clip();
       ctx.drawImage(photo, (photo.naturalWidth - srcW) / 2, (photo.naturalHeight - srcH) / 2, srcW, srcH, side, headH, inner, ph);
       ctx.restore();
-      drawFooter(ctx, canvas.height - Math.round(footH * 0.36), side, i, files.length);
+      drawFooter(ctx, canvas.height - Math.round(footH * 0.36), side, i, files.length, look.watermark);
       URL.revokeObjectURL(photo.src);
       try {
         return canvasToFile(canvas, `kiezcoins-${String(i + 1).padStart(2, '0')}.jpg`, 'image/jpeg');
