@@ -40,7 +40,7 @@ Das Schaufenster ist die erste kommerzielle Fläche in KiezCoins. Es ersetzt den
 - Das Schaufenster zeigt die 10 neuesten Posts und Termine zusammen.
 - Gespeichert bleiben höchstens 50. Kommt der 51. Eintrag dazu, löscht die Datenbank den ältesten endgültig, auch aus dem Kiez-Feed.
 - Die Grenzen sitzen in der Datenbank (Trigger beim Einfügen, Abfrage und RLS), nicht nur in der App.
-- Erst ohne Geld: kein Abo, keine Bezahlung. Eine Ausnahme von der Grenze setzt Daria vorerst von Hand in der Datenbank (`plan_until`). Das Abo kommt später; auf der Finanzierungsseite heißt es schon **Dachs (Partnerladen): 19 € netto im Monat** (`website/finanzierung.html`). Bezahlen geht heute auch rechtlich nicht: Die Nutzungsbedingungen sagen „KiezCoins … nimmt kein Geld an und zahlt keins aus“ (`src/data/legal.ts`).
+- Erst ohne Geld: kein Abo, keine Bezahlung. Daria, 10.11.2026: „Wir bauen jetzt alles über bezahlt, unbezahlt machen wir uns später Sorgen. Berücksichtige es nur in der Datenbank.“ Deshalb läuft jedes Schaufenster als bezahlt (`plan_until = 'infinity'`, Migration `20261110000700_schaufenster_bezahlt`): Die Grenze löscht nichts, App und öffentliche Seite zeigen alle Einträge. Für ein unbezahltes Schaufenster setzt Daria `plan_until` auf leer oder ein Datum. Das Abo kommt später; auf der Finanzierungsseite heißt es schon **Dachs (Partnerladen): 19 € netto im Monat** (`website/finanzierung.html`). Bezahlen geht heute auch rechtlich nicht: Die Nutzungsbedingungen sagen „KiezCoins … nimmt kein Geld an und zahlt keins aus“ (`src/data/legal.ts`).
 
 ### Weiterposten an Instagram, Facebook und Co.
 
@@ -48,6 +48,7 @@ Das Schaufenster ist die erste kommerzielle Fläche in KiezCoins. Es ersetzt den
 - Weiterposten gibt es schon für Personen (`Übergabe/2026-11-05_offen_weiterposten.md`): BlueSky, Mastodon, Instagram und Facebook-Seiten, X ausgenommen.
 - Heute hängt ein verbundenes Konto an einer Person (`crosspost_accounts.user_id`). Das Schaufenster bekommt eigene verbundene Konten, zum Beispiel das Instagram-Business-Konto und die Facebook-Seite des Ladens: Spalte `crosspost_accounts.showcase_id`, die Edge Function `weiterposten` wählt beim Posten im Schaufenster dessen Konten.
 - Termine lassen sich ebenfalls weiterposten, als Bild mit Datum und Ort.
+- Löscht die Grenze einen Eintrag, bleiben seine Weiterposts auf Instagram, Facebook usw. stehen (Daria, 10.11.2026).
 
 ### Termine lassen sich speichern
 
@@ -148,6 +149,5 @@ Gesammelt am 10.11.2026 aus `Übergabe/`, `website/`, `src/`, `supabase/` und de
 
 ## Offene Punkte
 
-- Weiterposten beim Löschen des 51. Eintrags: Vorschlag Claude, die Weiterposts auf Instagram, Facebook usw. bleiben stehen. Daria bestätigt oder widerspricht.
 - Später, nach dem Bau ohne Geld: Ist das Abo der Dachs? Was enthält es, zum Beispiel mehr als 50 Einträge, X beim Weiterposten, Bilderkennung, Weiterposten ohne Wasserzeichen, Statistik?
 - Rechtstexte zur Werbung im Schaufenster (Daria).

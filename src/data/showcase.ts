@@ -33,6 +33,8 @@ export type Showcase = {
   openingHours?: string;
   imprint?: string;
   visibility: Visibility;
+  /** Bezahlt: zeigt alle Einträge, die Grenze von 50 löscht nichts (plan_until in der Zukunft) */
+  paid: boolean;
   /** Nur für das Team (showcase_private); sonst leer */
   inviteCode: string;
 };
@@ -68,8 +70,13 @@ export type ShowcasePost = { id: string; title: string; body: string; type: stri
 
 export type ShowcaseEntry = { kind: 'post'; post: ShowcasePost } | { kind: 'event'; event: ShowcaseEvent };
 
-/** Sichtbar sind die 10 neuesten Einträge (Posts und Termine zusammen) */
+/** Unbezahlt sind die 10 neuesten Einträge (Posts und Termine zusammen) sichtbar */
 export const VISIBLE_ENTRIES = 10;
+/**
+ * Bezahlt alle Einträge. Erstmal läuft jedes Schaufenster als bezahlt (Daria, 2026-11-10: „wir bauen jetzt alles über
+ * bezahlt“, Migration 20261110000700); die Obergrenze hier schützt nur die Abfrage.
+ */
+export const PAID_ENTRIES = 200;
 
 type Row = {
   id: string;
@@ -85,13 +92,14 @@ type Row = {
   opening_hours: string | null;
   imprint: string | null;
   visibility: Visibility;
+  plan_until: string | null;
 };
 
 /**
  * Lesbare Spalten (Migration 20261110000600): Adresse, Ort und Einladungscode liefert nur showcase_private,
  * damit Menschen ohne Zugang sie nicht sehen.
  */
-const COLUMNS = 'id, group_id, name, slug, logo_path, cover_path, about, kiez, website, links, opening_hours, imprint, visibility';
+const COLUMNS = 'id, group_id, name, slug, logo_path, cover_path, about, kiez, website, links, opening_hours, imprint, visibility, plan_until';
 type Private = { address: string | null; invite_code: string | null } | null;
 
 const toShowcase = (r: Row): Showcase => ({
@@ -107,6 +115,7 @@ const toShowcase = (r: Row): Showcase => ({
   openingHours: r.opening_hours ?? undefined,
   imprint: r.imprint ?? undefined,
   visibility: r.visibility,
+  paid: !!r.plan_until && (r.plan_until === 'infinity' || new Date(r.plan_until).getTime() > Date.now()),
   inviteCode: '',
 });
 
@@ -244,7 +253,8 @@ export async function setShowcasePoster(groupId: string, userId: string, allow: 
 
 // ---------- Einträge ----------
 
-export async function loadEntries(showcaseId: string, userId: string): Promise<ShowcaseEntry[]> {
+export async function loadEntries(showcaseId: string, userId: string, paid = false): Promise<ShowcaseEntry[]> {
+  const max = paid ? PAID_ENTRIES : VISIBLE_ENTRIES;
   const [posts, events] = await Promise.all([
     supabase
       .from('challenges')
@@ -253,13 +263,13 @@ export async function loadEntries(showcaseId: string, userId: string): Promise<S
       .neq('status', 'draft')
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
-      .limit(VISIBLE_ENTRIES),
+      .limit(max),
     supabase
       .from('showcase_events')
       .select('*')
       .eq('showcase_id', showcaseId)
       .order('created_at', { ascending: false })
-      .limit(VISIBLE_ENTRIES),
+      .limit(max),
   ]);
   const eventRows = (events.data ?? []) as {
     id: string;
@@ -304,7 +314,7 @@ export async function loadEntries(showcaseId: string, userId: string): Promise<S
     ),
   ];
   const at = (x: ShowcaseEntry) => (x.kind === 'post' ? x.post.createdAt : x.event.createdAt);
-  return entries.sort((a, b) => at(b).localeCompare(at(a))).slice(0, VISIBLE_ENTRIES);
+  return entries.sort((a, b) => at(b).localeCompare(at(a))).slice(0, max);
 }
 
 export type EventInput = { title: string; body?: string; image?: ImageSource; startsAt: Date; endsAt?: Date; location?: string };
