@@ -16,8 +16,7 @@ import { useCurrentUser, useStore } from '../../data/store';
 import { color, isFashionable, size, space } from '../../theme/tokens';
 import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
 import { look, looks, lookSelectable } from '../../theme/look';
-import { MODES, useCalendarShown, useModes } from '../../data/features';
-import { useCalendarAvailable } from '../../data/routine';
+import { MODES, useModes } from '../../data/features';
 import { useGoBack } from '../../lib/goBack';
 import { installedVersionLabel } from '../../data/appRelease';
 
@@ -29,9 +28,6 @@ export default function Account() {
   const me = useCurrentUser();
   const { signOut, hasPassword } = useAuth();
   const modes = useModes();
-  // Kalender unter Einstellungen (Daria, 2026-11-10), Feature `kalender`
-  const calendarAvailable = useCalendarAvailable();
-  const calendarShown = useCalendarShown();
   const modesShown = MODES.filter((m) => modes.isVisible(m.key)).map((m) => t(m.label)).join(', ');
   // „Moderation“ nur für Personen in der Tabelle `moderators`
   const [moderator, setModerator] = useState(false);
@@ -151,9 +147,6 @@ export default function Account() {
       <FieldGroup label="Einstellungen">
         <View style={styles.list}>
           <NavRow label="Benachrichtigungen" value={profile.push ? 'Push an' : 'Push aus'} onPress={() => router.push('/account/notifications')} />
-          {calendarAvailable ? (
-            <NavRow label="Kalender" value={calendarShown ? 'An' : 'Aus'} onPress={() => router.push('/account/kalender')} />
-          ) : null}
           <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/account/payout')} />
           <NavRow label="Umfrage" value="7 Fragen zur App" onPress={() => setSurvey(true)} />
           <NavRow label="Support" value="Frage oder Problem" onPress={() => router.push('/account/support')} />
