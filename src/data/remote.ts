@@ -112,6 +112,8 @@ type ChallengeRow = {
   /** Post nur mit Text (Migration 20261107000100) */
   pages?: string[] | null;
   sheet_font?: string | null;
+  /** Markierung aus einer Erinnerung (Migration 20261110000100) */
+  routine_label?: string | null;
   image_before_path: string | null;
   image_after_path: string | null;
   /** Vorher-Nachher (Migration 20261023000300) */
@@ -275,6 +277,7 @@ function toChallenge(
     edensteine: row.edensteine ?? undefined,
     pages: row.pages?.length ? row.pages : undefined,
     sheetFont: row.pages?.length ? (row.sheet_font ?? undefined) : undefined,
+    routineLabel: row.routine_label ?? undefined,
     extraImages: (row.extra_image_paths ?? []).flatMap((path) => {
       const photo = photoUrl(path);
       return photo ? [{ photo, path }] : [];

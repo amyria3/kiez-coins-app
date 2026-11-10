@@ -52,8 +52,8 @@ export function useComposeContent(initial: { photo?: ImageSource; title?: string
 }
 
 /** Wie `useComposeContent`, dazu Blätter, Schrift, Zusatzfotos und Text auf dem Foto: alles, was das Blatt über dem Feed teilt. */
-export function useComposeSheetContent(): ComposeContent {
-  const base = useComposeContent();
+export function useComposeSheetContent(initial: { title?: string; text?: string } = {}): ComposeContent {
+  const base = useComposeContent(initial);
   const [pages, setPages] = useState<string[]>(['']);
   const [sheetFont, setSheetFont] = useState('inter');
   const [extras, setExtras] = useState<ExtraPhoto[]>([]);

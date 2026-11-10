@@ -1,3 +1,5 @@
+import { RoutineNudge } from '../components/RoutineNudge';
+import { clearRoutinePost } from '../data/reminders';
 import { nudgeCrystals } from '../components/icons/Brand';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -257,6 +259,8 @@ export default function FeedScreen() {
     Animated.spring(sheetAnim, { toValue: 1, useNativeDriver: true, ...motion.barrierSpring }).start();
   };
   const closeCompose = (reset = false) => {
+    // Ohne Post verfällt ein Auftrag aus einer Erinnerung (data/reminders.ts)
+    clearRoutinePost();
     Animated.timing(sheetAnim, { toValue: 0, duration: 220, easing: Easing.in(Easing.cubic), useNativeDriver: true }).start(() => {
       setComposing(false);
       if (reset) setComposeKey((k) => k + 1);
@@ -596,6 +600,8 @@ export default function FeedScreen() {
           onScrollEndDrag={() => (dragging.current = false)}
           scrollEventThrottle={16}
           contentContainerStyle={[styles.list, isFashionable ? null : styles.listTop, emptyItem && styles.listGrow, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
+          // Kater erinnert an fällige Erinnerungen, vorerst nur mit Routine (Daria, 2026-11-10)
+          ListHeaderComponent={routineOn ? <RoutineNudge enabled /> : null}
           ListFooterComponent={emptyItem ? renderItem({ item: emptyItem }) : null}
           ListFooterComponentStyle={emptyItem ? styles.emptyFooter : undefined}
           refreshControl={

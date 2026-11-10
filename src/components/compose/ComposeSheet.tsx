@@ -1,3 +1,4 @@
+import { peekRoutinePost } from '../../data/reminders';
 import { useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -55,9 +56,11 @@ type Props = {
 export function ComposeSheet({ target, onDone, placeConfirmed = true }: Props) {
   // Foto, Titel und Text gelten für alle Formulare im Blatt (Daria, 25.10.2026),
   // seit 07.11.2026 auch Blätter, Zusatzfotos, Text auf dem Foto und die gewählte Art
-  const shared = useComposeSheetContent();
+  // Aus einer Erinnerung: Titel und Beschreibung als Me-Challenge vorbelegt (Daria, 2026-11-10)
+  const [routine] = useState(peekRoutinePost);
+  const shared = useComposeSheetContent(routine ? { title: routine.title, text: routine.text } : {});
   // Vorausgewählt ist überall der Post (Bild), privat wie im Kiez (Daria, 2026-11-05)
-  const [kind, setKind] = useState<Kind>('photo');
+  const [kind, setKind] = useState<Kind>(routine ? 'before_after' : 'photo');
   return (
     <View style={styles.sheet}>
       <View style={[styles.flex, target === 'private' ? null : styles.hidden]}>
