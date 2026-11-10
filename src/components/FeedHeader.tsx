@@ -397,6 +397,24 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
           setMain((old) => (sameBox(old, box) ? old : box));
         }}
       >
+        {/* Unsichtbar: volle Breite jeder Beschriftung. Wird es eng, kürzen die sichtbaren Reiter mit „…“ (Daria, 2026-11-10). */}
+        {tabs.map((tab) => (
+          <View
+            key={`measure-${tab.key}`}
+            style={styles.measure}
+            pointerEvents="none"
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            onLayout={(e) => {
+              const cw = e.nativeEvent.layout.width;
+              setContent((c) => (c[tab.key] === cw ? c : { ...c, [tab.key]: cw }));
+            }}
+          >
+            <Text numberOfLines={1} style={[styles.segmentText, tab.key === selectedKey && !lead?.active && styles.segmentTextSelected]}>
+              {t(tab.label)}
+            </Text>
+          </View>
+        ))}
         {tabs.map((tab, i) => {
           const selected = tab.key === selectedKey && !lead?.active;
           const w = weight(i);
@@ -410,17 +428,12 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
               onPress={() => onChange(tab.key)}
               style={[styles.segment, { paddingHorizontal: pad }, !ready && selected && styles.segmentSelected]}
             >
-              <View
-                style={styles.segmentInner}
-                onLayout={(e) => {
-                  const cw = e.nativeEvent.layout.width;
-                  setContent((c) => (c[tab.key] === cw ? c : { ...c, [tab.key]: cw }));
-                }}
-              >
+              <View style={styles.segmentInner}>
                 <Animated.Text
                   numberOfLines={1}
                   style={[
                     styles.segmentText,
+                    styles.shrink,
                     selected && styles.segmentTextSelected,
                     tab.planned && !selected && styles.planned,
                     // Schrift wird dunkel, während die Pille darübergleitet
@@ -619,11 +632,13 @@ const styles = StyleSheet.create({
     backgroundColor: color.text.primary,
   },
   // Breite nach Inhalt, damit vier Reiter neben die Kamera passen
-  segment: { flexGrow: 1, flexShrink: 1, minHeight: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
+  segment: { flexGrow: 1, flexShrink: 1, minWidth: 0, minHeight: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
   segmentSelected: { backgroundColor: color.text.primary },
   segmentText: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.secondary },
   segmentTextSelected: { fontFamily: font.medium, color: color.bg.screen },
-  segmentInner: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  segmentInner: { flexDirection: 'row', alignItems: 'center', gap: space[4], flexShrink: 1, minWidth: 0, maxWidth: '100%' },
+  shrink: { flexShrink: 1 },
+  measure: { position: 'absolute', left: 0, top: 0, opacity: 0, flexDirection: 'row' },
   planned: { opacity: 0.6 },
   hint: { paddingHorizontal: space[16] },
   fashionHead: {
