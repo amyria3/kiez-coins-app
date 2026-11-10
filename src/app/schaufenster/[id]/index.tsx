@@ -44,7 +44,7 @@ export default function ShowcaseScreen() {
   const reload = useCallback(() => {
     loadShowcase(id, currentUserId).then((d) => {
       setData(d);
-      if (d?.access.canSee) loadEntries(id, currentUserId).then(setEntries, () => setEntries([]));
+      if (d?.access.canSee) loadEntries(id, currentUserId, d.showcase.paid).then(setEntries, () => setEntries([]));
     });
   }, [id, currentUserId]);
   useFocusEffect(reload);
@@ -150,7 +150,9 @@ export default function ShowcaseScreen() {
                 ),
               )}
             </View>
-            <Text style={styles.meta}>{t('Hier stehen die {n} neuesten Posts und Termine.', { n: VISIBLE_ENTRIES })}</Text>
+            {s.paid ? null : (
+              <Text style={styles.meta}>{t('Hier stehen die {n} neuesten Posts und Termine.', { n: VISIBLE_ENTRIES })}</Text>
+            )}
           </SectionBlock>
         ) : (
           <Text style={styles.meta}>{access.team ? 'Noch leer. Erstelle den ersten Post oder Termin.' : 'Hier ist noch nichts los.'}</Text>
