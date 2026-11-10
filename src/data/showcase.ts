@@ -29,6 +29,8 @@ export type Showcase = {
   services?: string;
   /** Services eingeklappt zeigen (Gründer:in entscheidet, Migration 20261110000800) */
   servicesCollapsed: boolean;
+  /** Hintergrund der öffentlichen Seite, „#RRGGBB“ (Migration 20261110000900) */
+  bgColor?: string;
   kiez?: string;
   /** Nur für Menschen mit Zugang (showcase_private); sonst leer */
   address?: string;
@@ -85,6 +87,7 @@ type Row = {
   about: string | null;
   services: string | null;
   services_collapsed: boolean | null;
+  bg_color: string | null;
   kiez: string | null;
   website: string | null;
   links: string[] | null;
@@ -97,7 +100,7 @@ type Row = {
  * Lesbare Spalten (Migration 20261110000600): Adresse, Ort und Einladungscode liefert nur showcase_private,
  * damit Menschen ohne Zugang sie nicht sehen.
  */
-const COLUMNS = 'id, group_id, name, slug, logo_path, cover_path, about, services, services_collapsed, kiez, website, links, opening_hours, imprint, visibility';
+const COLUMNS = 'id, group_id, name, slug, logo_path, cover_path, about, services, services_collapsed, bg_color, kiez, website, links, opening_hours, imprint, visibility';
 type Private = { address: string | null; invite_code: string | null } | null;
 
 const toShowcase = (r: Row): Showcase => ({
@@ -110,6 +113,7 @@ const toShowcase = (r: Row): Showcase => ({
   about: r.about ?? undefined,
   services: r.services ?? undefined,
   servicesCollapsed: !!r.services_collapsed,
+  bgColor: r.bg_color ?? undefined,
   kiez: r.kiez ?? undefined,
   links: r.links?.length ? r.links : r.website ? [r.website] : [],
   openingHours: r.opening_hours ?? undefined,
@@ -197,6 +201,7 @@ export type ShowcaseInput = {
   about?: string;
   services?: string;
   servicesCollapsed: boolean;
+  bgColor?: string;
   kiez?: string;
   address?: string;
   links: string[];
@@ -212,6 +217,25 @@ const isLocal = (img?: ImageSource) =>
   !!img && typeof img === 'object' && 'uri' in img && typeof img.uri === 'string' && !img.uri.startsWith('http');
 
 export const MAX_LINKS = 10;
+
+/** „#RRGGBB“ */
+export const HEX = /^#[0-9A-Fa-f]{6}$/;
+/**
+ * Vorschläge für den Hintergrund der öffentlichen Seite (Daria, 2026-11-10: Palette und eigene Farbe), aus den Farben
+ * der Website (website/seite.css) und der App (theme/tokens.ts). Die Seite wählt die Textfarbe selbst.
+ */
+export const BG_PALETTE: { hex: string; name: string }[] = [
+  { hex: '#DCE1FF', name: 'Lila hell' },
+  { hex: '#F4F7E2', name: 'Gelbgrün hell' },
+  { hex: '#DDF8E3', name: 'Mint' },
+  { hex: '#FFE6D6', name: 'Pfirsich' },
+  { hex: '#FFE3F4', name: 'Rosa' },
+  { hex: '#E4F1FF', name: 'Himmelblau' },
+  { hex: '#FFFFFF', name: 'Weiß' },
+  { hex: '#5260E0', name: 'Lila' },
+  { hex: '#26233A', name: 'Nacht' },
+  { hex: '#1F2123', name: 'Kiez dunkel' },
+];
 /** „https://www.kiezblick.de/“ → „kiezblick.de“, „https://instagram.com/kiezblick“ → „instagram.com/kiezblick“ */
 export const shortLink = (url: string) => url.replace(/^https:\/\/(www\.)?/i, '').replace(/\/$/, '');
 
@@ -222,6 +246,7 @@ export async function updateShowcase(id: string, userId: string, input: Showcase
     about: nullIfEmpty(input.about),
     services: nullIfEmpty(input.services),
     services_collapsed: input.servicesCollapsed,
+    bg_color: input.bgColor && HEX.test(input.bgColor) ? input.bgColor.toUpperCase() : null,
     kiez: nullIfEmpty(input.kiez),
     address: nullIfEmpty(input.address),
     links: input.links.map((l) => l.trim()).filter(Boolean).slice(0, MAX_LINKS),

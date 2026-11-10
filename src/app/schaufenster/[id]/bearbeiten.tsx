@@ -17,6 +17,8 @@ import {
   setShowcasePoster,
   showcaseInviteLink,
   showcasePublicLink,
+  BG_PALETTE,
+  HEX,
   MAX_LINKS,
   showcasePosters,
   updateShowcase,
@@ -45,6 +47,8 @@ export default function EditShowcase() {
   // Mehrere Links (Daria, 2026-11-10); immer mindestens ein Feld
   const [links, setLinks] = useState<string[]>(['']);
   const [servicesCollapsed, setServicesCollapsed] = useState(false);
+  // Hintergrund der öffentlichen Seite (Daria, 2026-11-10); leer = Standard
+  const [bgColor, setBgColor] = useState('');
   const [visibility, setVisibility] = useState<Visibility>('public');
   const [logo, setLogo] = useState<ImageSource | undefined>();
   const [cover, setCover] = useState<ImageSource | undefined>();
@@ -70,6 +74,7 @@ export default function EditShowcase() {
       });
       setLinks(s.links.length ? s.links : ['']);
       setServicesCollapsed(s.servicesCollapsed);
+      setBgColor(s.bgColor ?? '');
       setVisibility(s.visibility);
       setLogo(s.logo);
       setCover(s.cover);
@@ -101,13 +106,14 @@ export default function EditShowcase() {
   const set = (key: keyof typeof form) => (value: string) => setForm((f) => ({ ...f, [key]: value }));
   const linkOk = (l: string) => !l.trim() || /^https:\/\/\S+\.\S+$/i.test(l.trim());
   const linksOk = links.every(linkOk);
+  const bgOk = !bgColor.trim() || HEX.test(bgColor.trim());
   const setLink = (i: number) => (value: string) => setLinks((all) => all.map((l, j) => (j === i ? value : l)));
 
   const save = async () => {
     setBusy(true);
     setFailed(null);
     try {
-      await updateShowcase(showcase.id, currentUserId, { ...form, links, servicesCollapsed, visibility, logo, cover });
+      await updateShowcase(showcase.id, currentUserId, { ...form, links, servicesCollapsed, bgColor, visibility, logo, cover });
       goBack();
     } catch (error) {
       setFailed((error as Error).message);
@@ -145,7 +151,7 @@ export default function EditShowcase() {
       title="Schaufenster bearbeiten"
       navigation="back"
       onLeadingPress={goBack}
-      actions={<Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk} onPress={save} />}
+      actions={<Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !bgOk} onPress={save} />}
     >
       <FieldGroup label="Bilder">
         <View style={styles.pictures}>
@@ -193,6 +199,41 @@ export default function EditShowcase() {
         <QuestionHint
           question="Brauche ich ein Impressum?"
           answer="Wer geschäftsmäßig auftritt, zum Beispiel als Laden oder mit Werbung, braucht ein Impressum mit Name und Anschrift (§ 5 Digitale-Dienste-Gesetz). Vereine und private Clubs oft auch. Im Zweifel: lieber eintragen."
+        />
+      </FieldGroup>
+
+      <FieldGroup label="Farbe der öffentlichen Seite">
+        <Text style={styles.meta}>Hintergrund von kiezcoins.de/s/{showcase.slug}. Die Schrift wird automatisch hell oder dunkel. In der App bleibt das Schaufenster im App-Look.</Text>
+        <View style={styles.swatches}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: !bgColor }}
+            accessibilityLabel={t('Standard')}
+            onPress={() => setBgColor('')}
+            style={[styles.swatch, styles.swatchDefault, !bgColor && styles.swatchOn]}
+          >
+            <Text style={styles.swatchText}>Standard</Text>
+          </Pressable>
+          {BG_PALETTE.map((c) => (
+            <Pressable
+              key={c.hex}
+              accessibilityRole="button"
+              accessibilityState={{ selected: bgColor.toUpperCase() === c.hex }}
+              accessibilityLabel={t(c.name)}
+              onPress={() => setBgColor(c.hex)}
+              style={[styles.swatch, { backgroundColor: c.hex }, bgColor.toUpperCase() === c.hex && styles.swatchOn]}
+            />
+          ))}
+        </View>
+        <TextField
+          label="Eigene Farbe"
+          value={bgColor}
+          onChangeText={(v) => setBgColor(v.trim().startsWith('#') || !v.trim() ? v.trim() : `#${v.trim()}`)}
+          autoCapitalize="characters"
+          autoCorrect={false}
+          maxLength={7}
+          placeholder="#DCE1FF"
+          error={bgOk ? undefined : 'Bitte so: #DCE1FF'}
         />
       </FieldGroup>
 
@@ -295,4 +336,9 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   name: { ...text.body, flex: 1, color: color.text.primary },
   link: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },
+  swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
+  swatch: { width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: color.text.secondary },
+  swatchDefault: { width: 'auto', paddingHorizontal: space[12], justifyContent: 'center', backgroundColor: color.bg.surface },
+  swatchOn: { borderWidth: 3, borderColor: color.accent.primary },
+  swatchText: { ...text.caption, color: color.text.primary },
 });
