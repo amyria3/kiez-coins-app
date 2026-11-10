@@ -78,6 +78,13 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] Teil 2: Blätter exportieren, mit Profilbild und KiezCoins-Logo, als Slides für Instagram und als Thread auf BlueSky.
 - [ ] Schrift Poppins für die Blätter, damit man auch auf Hindi schreiben kann (Devanagari).
 
+## Bilderkennung als Bonus für Zahlende (Daria, 10.11.2026)
+
+- [ ] Bilderkennung nur für zahlende Menschen, als Bonus.
+- [ ] Baum- und Vogelerkennung auf Fotos.
+- [ ] Terminerkennung, z. B. Termin aus einem Screenshot als Erinnerung übernehmen (siehe `2026-11-07_offen_erinnerungen.md`, Kalenderimport).
+- [ ] Vielleicht weitere Erkennungen, noch offen.
+
 ## Animationen, Gamification, Illustrationen (Daria, 09.11.2026)
 
 - [ ] Die dicke Katze mit der lila Brille (`kater-high`, heute noch auf der letzten Tour-Seite) sieht klasse aus, wir wollen sie benutzen. Vorher Mund und Nase schwarz statt braun.
