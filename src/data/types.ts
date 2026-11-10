@@ -101,6 +101,10 @@ export type Comment = {
   /** Likes (Migration 20261109000100); ohne Migration fehlt die Zahl und der Kommentar zeigt kein Herz */
   likeCount?: number;
   likedByMe?: boolean;
+  /** Bild am Kommentar (Migration 20261110001400); body darf dann leer sein */
+  image?: ImageSource;
+  /** Pfad im Speicher, zum Löschen */
+  imagePath?: string;
 };
 
 /**

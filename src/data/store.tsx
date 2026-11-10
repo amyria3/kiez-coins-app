@@ -53,7 +53,8 @@ type Action =
   | { type: 'removeParticipant'; id: string; userId: string }
   | { type: 'report'; id: string; report: ChallengeReport }
   | { type: 'nameOperation'; id: string; name?: string }
-  | { type: 'addComment'; id: string; body: string; replyToId?: string }
+  | { type: 'addComment'; id: string; body: string; replyToId?: string; photo?: ImageSource }
+  | { type: 'deleteComment'; id: string; commentId: string }
   | { type: 'sharePayout'; id: string; share: PayoutShare }
   | { type: 'revokeShare'; id: string }
   /** `userIds`: Ausgewählte beim Bestätigen; Abgewählte werden 'unconfirmed' */
@@ -218,11 +219,14 @@ function reducer(state: State, action: Action): State {
         body: action.body,
         createdAt: new Date().toISOString(),
         replyToId: action.replyToId,
+        image: action.photo,
         // Live: Herz erst, wenn der Kommentar mit echter ID neu geladen ist
         ...(state.mode === 'live' ? {} : { likeCount: 0, likedByMe: false }),
       };
       return updateChallenge(state, action.id, (c) => ({ comments: [...c.comments, comment] }));
     }
+    case 'deleteComment':
+      return updateChallenge(state, action.id, (c) => ({ comments: c.comments.filter((m) => m.id !== action.commentId) }));
     case 'sharePayout':
       return updateChallenge(state, action.id, (c) => ({
         payoutShare: action.share,
@@ -436,9 +440,16 @@ async function persist(action: Action, before: State): Promise<string | null> {
     case 'nameOperation':
       await remote.nameOperation(userId, action.id, action.name?.trim() ?? '');
       return action.id;
-    case 'addComment':
-      await remote.addComment(action.id, action.body, action.replyToId);
+    case 'addComment': {
+      const imagePath = action.photo ? await remote.uploadPhoto(userId, action.photo) : undefined;
+      await remote.addComment(action.id, action.body, action.replyToId, imagePath);
       return action.id;
+    }
+    case 'deleteComment': {
+      const comment = before.challenges.find((c) => c.id === action.id)?.comments.find((m) => m.id === action.commentId);
+      await remote.deleteComment(action.commentId, comment?.imagePath);
+      return action.id;
+    }
     case 'sharePayout':
       await remote.sharePayout(action.id, action.share, userId);
       return action.id;
