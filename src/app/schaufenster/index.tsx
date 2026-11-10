@@ -256,8 +256,13 @@ function Mine({ header }: { header: React.ReactNode }) {
         <FieldGroup key={s.id} label={s.name}>
           {s.cover ? <Image source={s.cover} style={styles.cover} contentFit="cover" /> : null}
           {s.visibility === 'public' ? <CopyField label="Deine Seite" value={showcasePublicLink(s.slug)} /> : null}
-          <Button label="Post erstellen" icon="plus" onPress={() => router.push({ pathname: '/schaufenster/[id]/post', params: { id: s.id } })} />
-          <Button label="Termin erstellen" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]/termin', params: { id: s.id } })} />
+          {!s.switches.online ? <Notice variant="warning" message="Dieses Schaufenster ist offline." /> : null}
+          {s.switches.posten ? (
+            <>
+              <Button label="Post erstellen" icon="plus" onPress={() => router.push({ pathname: '/schaufenster/[id]/post', params: { id: s.id } })} />
+              <Button label="Termin erstellen" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]/termin', params: { id: s.id } })} />
+            </>
+          ) : null}
           <Button label="Seite bearbeiten" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id } })} />
           <Button label="Ansehen" variant="ghost" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
         </FieldGroup>
