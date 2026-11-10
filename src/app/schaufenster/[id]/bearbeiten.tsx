@@ -6,6 +6,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Button } from '../../../components/Button';
 import { FieldGroup, KaterCard, Notice, QuestionHint } from '../../../components/Content';
 import { Chip, ChipGroup, choosePhoto, CopyField, SwitchRow, TextField } from '../../../components/Form';
+import { ColorWheel } from '../../../components/ColorWheel';
 import { RichTextField } from '../../../components/RichText';
 import { SubScreen } from '../../../components/Screen';
 import { Text } from '../../../components/T';
@@ -18,6 +19,7 @@ import {
   showcaseInviteLink,
   showcasePublicLink,
   BG_PALETTE,
+  readableOn,
   HEX,
   MAX_LINKS,
   showcasePosters,
@@ -30,7 +32,7 @@ import { t } from '../../../data/texts';
 import type { ImageSource } from '../../../data/types';
 import { useGoBack } from '../../../lib/goBack';
 import { shareText } from '../../../lib/share';
-import { color, radius, space, text } from '../../../theme/tokens';
+import { color, font, radius, space, text } from '../../../theme/tokens';
 
 /**
  * Route `schaufenster/[id]/bearbeiten` (Daria, 2026-11-10): nur die Gründer:in. Angaben, Bilder, Sichtbarkeit,
@@ -235,6 +237,10 @@ export default function EditShowcase() {
           placeholder="#DCE1FF"
           error={bgOk ? undefined : 'Bitte so: #DCE1FF'}
         />
+        {/* HSL-Rad und Vorschau (Daria, 2026-11-10) */}
+        <ColorWheel value={bgColor || PAGE_DEFAULT} onChange={setBgColor} />
+        <Text style={styles.meta}>Vorschau</Text>
+        <PagePreview bg={bgOk && bgColor ? bgColor : PAGE_DEFAULT} name={form.name} about={form.about} kiez={form.kiez} cover={cover} logo={logo} />
       </FieldGroup>
 
       <FieldGroup label="Wer sieht das Schaufenster?">
@@ -314,6 +320,42 @@ export default function EditShowcase() {
   );
 }
 
+/** Standard-Hintergrund der öffentlichen Seite (website/seite.css, --bg) */
+const PAGE_DEFAULT = '#FAFBEF';
+
+/** Verkleinerte öffentliche Seite mit der gewählten Farbe; Schrift wie dort hell oder dunkel */
+function PagePreview({ bg, name, about, kiez, cover, logo }: { bg: string; name: string; about: string; kiez: string; cover?: ImageSource; logo?: ImageSource }) {
+  const c = readableOn(bg);
+  return (
+    <View style={[styles.preview, { backgroundColor: bg }]} accessibilityLabel={t('Vorschau der öffentlichen Seite')}>
+      <Text noTranslate style={[styles.previewBrand, { color: c.text }]}>
+        KiezCoins
+      </Text>
+      {cover ? <Image source={cover} style={styles.previewCover} contentFit="cover" /> : <View style={[styles.previewCover, { backgroundColor: c.surface }]} />}
+      <View style={styles.previewHead}>
+        {logo ? <Image source={logo} style={[styles.previewLogo, { borderColor: bg }]} contentFit="cover" /> : null}
+        <Text noTranslate style={[styles.previewName, { color: c.text }]} numberOfLines={1}>
+          {name || t('Dein Schaufenster')}
+        </Text>
+      </View>
+      {kiez ? (
+        <Text noTranslate style={[styles.previewSmall, { color: c.muted }]}>
+          {kiez}
+        </Text>
+      ) : null}
+      {about ? (
+        <Text noTranslate style={[styles.previewText, { color: c.text }]} numberOfLines={2}>
+          {about}
+        </Text>
+      ) : null}
+      <View style={[styles.previewCard, { backgroundColor: c.surface }]}>
+        <Text style={[styles.previewSmall, { color: c.dark ? '#A9B4FF' : '#5260E0' }]}>Termin</Text>
+        <Text style={[styles.previewText, { color: c.text, fontFamily: font.semiBold }]}>Flohmarkt im Hof</Text>
+      </View>
+    </View>
+  );
+}
+
 function ImageSlot({ label, image, round, onPress }: { label: string; image?: ImageSource; round?: boolean; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={t('{label} wählen', { label: t(label) })} style={styles.slot}>
@@ -336,6 +378,15 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   name: { ...text.body, flex: 1, color: color.text.primary },
   link: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },
+  preview: { gap: space[6], padding: space[12], borderRadius: radius.md, borderWidth: 1, borderColor: color.bg.surface },
+  previewBrand: { ...text.caption, fontSize: 9, lineHeight: 12, alignSelf: 'flex-end', fontFamily: font.semiBold },
+  previewCover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.md },
+  previewHead: { flexDirection: 'row', alignItems: 'flex-end', gap: space[8], marginTop: -space[20], paddingLeft: space[8] },
+  previewLogo: { width: 36, height: 36, borderRadius: 18, borderWidth: 3 },
+  previewName: { fontFamily: font.onPhoto, fontSize: 16, lineHeight: 20, flexShrink: 1 },
+  previewSmall: { ...text.caption, fontSize: 11, lineHeight: 14 },
+  previewText: { ...text.caption },
+  previewCard: { padding: space[8], borderRadius: radius.post, gap: space[2], marginTop: space[4] },
   swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
   swatch: { width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: color.text.secondary },
   swatchDefault: { width: 'auto', paddingHorizontal: space[12], justifyContent: 'center', backgroundColor: color.bg.surface },
