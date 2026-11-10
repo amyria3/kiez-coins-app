@@ -24,7 +24,7 @@ import { IconButton } from '../components/IconButton';
 import { Text } from '../components/T';
 import { t } from '../data/texts';
 import { useAppDimensions } from '../theme/layout';
-import { AppHeader, FeedGreeting, MODE_OF_TAB, PlannedHint, RoutineButton, TAB_OF_MODE, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
+import { AppHeader, FeedGreeting, MODE_OF_TAB, PlannedHint, TAB_OF_MODE, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
 import { FeedStateMessage } from '../components/FeedStateMessage';
 import { GroupBar } from '../components/GroupBar';
 import { AudienceHint, useAudienceHint } from '../components/AudienceHint';
@@ -335,6 +335,23 @@ export default function FeedScreen() {
   tabRef.current = tab;
   const selectTabRef = useRef(selectTab);
   selectTabRef.current = selectTab;
+  // Wechsel wie beim Blättern: der alte Reiter gleitet zur Seite hinaus und blendet aus,
+  // der neue kommt von der Seite, auf der er in der Leiste liegt (Daria, 2026-11-10).
+  const swipeFade = useRef(new Animated.Value(1)).current;
+  const slideToTab = useRef((key: FeedTab, dir: 1 | -1) => {
+    const { offset, exit, spring } = motion.tabSwitch;
+    Animated.parallel([
+      Animated.timing(swipeX, { toValue: -dir * offset, duration: exit, easing: Easing.in(Easing.quad), useNativeDriver: false }),
+      Animated.timing(swipeFade, { toValue: 0, duration: exit, easing: Easing.in(Easing.quad), useNativeDriver: false }),
+    ]).start(() => {
+      selectTabRef.current(key);
+      swipeX.setValue(dir * offset);
+      Animated.parallel([
+        Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, ...spring }),
+        Animated.timing(swipeFade, { toValue: 1, duration: exit * 2, easing: Easing.out(Easing.quad), useNativeDriver: false }),
+      ]).start();
+    });
+  }).current;
   const swipe = useMemo(
     () =>
       PanResponder.create({
@@ -345,26 +362,35 @@ export default function FeedScreen() {
           const index = order.indexOf(tabRef.current);
           const next = g.dx < -SWIPE_DISTANCE || g.vx < -0.5 ? index + 1 : g.dx > SWIPE_DISTANCE || g.vx > 0.5 ? index - 1 : index;
           if (next !== index && next >= 0 && next < order.length) {
-            selectTabRef.current(order[next]);
-            // Neuer Reiter schwingt von der Seite herein, aus der gewischt wurde
-            swipeX.setValue(next > index ? motion.tabSwitch.offset : -motion.tabSwitch.offset);
+            // Nach links gewischt: der rechte Nachbar kommt von rechts herein, und umgekehrt
+            slideToTab(order[next], next > index ? 1 : -1);
+            return;
           }
           Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, ...motion.tabSwitch.spring }).start();
         },
         onPanResponderTerminate: () =>
           Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, ...motion.barrierSpring }).start(),
       }),
-    [swipeX],
+    [swipeX, slideToTab],
   );
+
+  // Routine: Der helle Knopf gleitet erst hinüber, dann öffnet sich die Seite. Zurück im Feed gleitet er heim.
+  const [routineActive, setRoutineActive] = useState(false);
+  const openRoutine = () => {
+    setRoutineActive(true);
+    setTimeout(() => router.push('/routine'), motion.tabSwitch.duration * 0.8);
+  };
+  useFocusEffect(useCallback(() => setRoutineActive(false), []));
 
   // Tippen auf einen Reiter: dieselbe Bewegung wie beim Wischen, aus der Richtung des Reiters.
   const switchTab = (key: FeedTab) => {
     const from = tabOrder.indexOf(tab);
     const to = tabOrder.indexOf(key);
-    selectTab(key);
-    if (to === from) return;
-    swipeX.setValue(to > from ? motion.tabSwitch.offset : -motion.tabSwitch.offset);
-    Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, ...motion.tabSwitch.spring }).start();
+    if (to === from) {
+      selectTab(key);
+      return;
+    }
+    slideToTab(key, to > from ? 1 : -1);
   };
 
   const typeOfTab = tab === 'wave' ? 'wave' : null;
@@ -562,8 +588,6 @@ export default function FeedScreen() {
         </View>
       </Animated.View>
       <Animated.View style={[styles.tabsRow, isFashionable && styles.tabsRowFashionable, { paddingRight: tabsPaddingRight }]}>
-        {/* Routine links neben den Reitern, vorerst nur für Moderatorinnen (Daria, 2026-11-09) */}
-        {routineOn && !composing && !isFashionable ? <RoutineButton onPress={() => router.push('/routine')} /> : null}
         <View style={styles.flex}>
         <TabsNavigation
           selectedKey={tab}
@@ -573,6 +597,8 @@ export default function FeedScreen() {
           }}
           visible={modes.visible}
           accent={composing && !placeTouched}
+          // Routine links neben den Reitern, vorerst nur für Moderatorinnen (Daria, 2026-11-09)
+          lead={routineOn && !composing && !isFashionable ? { label: t('Routine'), active: routineActive, onPress: openRoutine } : undefined}
         />
         </View>
       </Animated.View>
@@ -582,7 +608,7 @@ export default function FeedScreen() {
         </View>
       </Animated.View>
       <View style={styles.flex}>
-        <Animated.View style={[styles.flex, { transform: [{ translateX: swipeX }] }]} {...swipe.panHandlers}>
+        <Animated.View style={[styles.flex, { opacity: swipeFade, transform: [{ translateX: swipeX }] }]} {...swipe.panHandlers}>
         <FlatList
           ref={listRef}
           data={listItems}
