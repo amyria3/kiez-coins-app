@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Button } from './Button';
-import { FieldGroup, Notice } from './Content';
+import { FieldGroup, Notice, QuestionHint } from './Content';
 import { TextField } from './Form';
 import { Icon } from './icons/Icon';
 import { Text } from './T';
@@ -83,17 +83,22 @@ export function ShowcaseLink({ group, isFounder }: { group: Group; isFounder: bo
 
   return (
     <FieldGroup label="Schaufenster">
-      <Text style={styles.meta}>
-        Zeig Deinen Laden, Verein oder Club im Kiez: Posts, Termine, Öffnungszeiten. Jede Gruppe hat höchstens ein Schaufenster.
-      </Text>
-      <TextField label="Name" value={name} onChangeText={setName} maxLength={60} />
-      <Button label="Schaufenster anlegen" variant="secondary" busy={busy} disabled={!name.trim()} onPress={create} />
-      {failed ? <Notice variant="warning" message={failed} /> : null}
+      {/* Erklärung als Frage zum Aufklappen, Name und Knopf mit mehr Luft (Daria, 2026-11-10) */}
+      <QuestionHint
+        question="Was ist ein Schaufenster?"
+        answer="Die öffentliche Seite Eurer Gruppe, zum Beispiel für einen Laden, Verein oder Club. Ihr zeigt dort Posts, Termine, Öffnungszeiten und Adresse. Andere folgen Euch und speichern Eure Termine. Ihr bestimmt, ob alle es sehen oder nur Eingeladene. Jede Gruppe hat höchstens ein Schaufenster."
+      />
+      <View style={styles.form}>
+        <TextField label="Name" value={name} onChangeText={setName} maxLength={60} />
+        <Button label="Schaufenster anlegen" variant="secondary" busy={busy} disabled={!name.trim()} onPress={create} />
+        {failed ? <Notice variant="warning" message={failed} /> : null}
+      </View>
     </FieldGroup>
   );
 }
 
 const styles = StyleSheet.create({
+  form: { gap: space[16], marginTop: space[16] },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
