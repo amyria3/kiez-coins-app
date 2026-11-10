@@ -18,6 +18,7 @@ import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
 import { look, looks, lookSelectable } from '../../theme/look';
 import { MODES, useModes } from '../../data/features';
 import { useGoBack } from '../../lib/goBack';
+import { installedVersionLabel } from '../../data/appRelease';
 
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
 export default function Account() {
@@ -149,6 +150,8 @@ export default function Account() {
           <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/account/payout')} />
           <NavRow label="Umfrage" value="7 Fragen zur App" onPress={() => setSurvey(true)} />
           <NavRow label="Support" value="Frage oder Problem" onPress={() => router.push('/account/support')} />
+          {/* Installierte Version, Updates und neue APK (Daria, 2026-11-10) */}
+          <NavRow label="App-Version" value={installedVersionLabel()} onPress={() => router.push('/account/version')} />
           <NavRow
             label="Blockierte Personen"
             value={blockedIds.length === 0 ? 'Niemand' : t('{blockedIds} blockiert', { blockedIds: blockedIds.length })}
