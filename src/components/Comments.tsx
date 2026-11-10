@@ -1,22 +1,26 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BlurView } from 'expo-blur';
-import { Keyboard, Modal, Platform, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { Alert, Keyboard, Modal, Platform, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { Image } from 'expo-image';
 import { holdInView, scrollIntoView } from './Nudge';
 import { Text } from './T';
 
 import { formatRelative } from '../data/format';
-import type { Comment as CommentData, User } from '../data/types';
+import type { Comment as CommentData, ImageSource, User } from '../data/types';
 import { color, font, radius, scheme, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { IconButton } from './IconButton';
 import { Icon } from './icons/Icon';
 import { t } from '../data/texts';
+import { choosePhoto } from './Form';
 import { activeMention, insertMention, mentionSuggestions, splitMentions } from '../lib/mentions';
 
 type CommentProps = {
   comment: CommentData;
   author: User;
   onReport?: () => void;
+  /** Eigener Kommentar oder Moderation: „Löschen“ im Menü (Migration 20261110001400) */
+  onDelete?: () => void;
   /** „Antworten“ unter dem Kommentar */
   onReply?: () => void;
   /** Antwort: eingerückt, kleineres Profilbild */
@@ -62,7 +66,7 @@ function CommentBody({ body, users, onMentionPress }: { body: string; users: Use
  * Figma „Comment“: öffentlicher Kommentar. Melden steckt hinter drei senkrechten Punkten,
  * darunter Herz mit Anzahl und „Antworten“ (Daria, 2026-11-09).
  */
-export function Comment({ comment, author, onReport, onReply, isReply, onAuthorPress, onLike, onLikesPress, users = [], onMentionPress }: CommentProps) {
+export function Comment({ comment, author, onReport, onDelete, onReply, isReply, onAuthorPress, onLike, onLikesPress, users = [], onMentionPress }: CommentProps) {
   const hidden = useHideName(author);
   return (
     <View style={[styles.comment, isReply && styles.reply]}>
@@ -76,7 +80,8 @@ export function Comment({ comment, author, onReport, onReply, isReply, onAuthorP
           </Text>
           <Text style={styles.time}>{formatRelative(comment.createdAt)}</Text>
         </View>
-        <CommentBody body={comment.body} users={users} onMentionPress={onMentionPress} />
+        {comment.body.trim() ? <CommentBody body={comment.body} users={users} onMentionPress={onMentionPress} /> : null}
+        {comment.image ? <CommentImage image={comment.image} authorName={author.name} /> : null}
         {onLike || onReply ? (
           <View style={styles.footer}>
             {onLike ? (
@@ -122,13 +127,38 @@ export function Comment({ comment, author, onReport, onReply, isReply, onAuthorP
           </View>
         ) : null}
       </View>
-      {onReport ? <CommentMenu authorName={author.name} onReport={onReport} /> : null}
+      {onReport || onDelete ? <CommentMenu authorName={author.name} onReport={onReport} onDelete={onDelete} /> : null}
     </View>
   );
 }
 
+/** Bild am Kommentar: kleines Vorschaubild, ein Tipp zeigt es groß (Bildkommentare, Daria, 2026-11-10) */
+function CommentImage({ image, authorName }: { image: ImageSource; authorName: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Pressable
+        onPress={() => setOpen(true)}
+        accessibilityRole="imagebutton"
+        accessibilityLabel={t('Bild von {name} groß ansehen', { name: authorName })}
+        style={({ pressed }) => [styles.imageBox, pressed && styles.pressed]}
+      >
+        <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" transition={150} />
+      </Pressable>
+      <Modal visible={open} transparent animationType="fade" statusBarTranslucent navigationBarTranslucent onRequestClose={() => setOpen(false)}>
+        <Pressable style={styles.viewer} onPress={() => setOpen(false)} accessibilityLabel={t('Bild schließen')}>
+          <Image source={image} style={StyleSheet.absoluteFill} contentFit="contain" />
+        </Pressable>
+        <View style={styles.viewerClose}>
+          <IconButton icon="close" iconColor="#fff" accessibilityLabel={t('Bild schließen')} onPress={() => setOpen(false)} />
+        </View>
+      </Modal>
+    </>
+  );
+}
+
 /** Drei senkrechte Punkte mit Menü darunter, wie „Weitere Aktionen“ an der Challenge */
-function CommentMenu({ authorName, onReport }: { authorName: string; onReport: () => void }) {
+function CommentMenu({ authorName, onReport, onDelete }: { authorName: string; onReport?: () => void; onDelete?: () => void }) {
   const button = useRef<View>(null);
   const [anchor, setAnchor] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
   const { width } = useWindowDimensions();
@@ -150,16 +180,33 @@ function CommentMenu({ authorName, onReport }: { authorName: string; onReport: (
           <View style={[styles.menu, { top: anchor.y + anchor.h, right: Math.max(space[8], width - anchor.x - anchor.w) }]} accessibilityRole="menu">
             <BlurView intensity={40} tint={scheme} style={StyleSheet.absoluteFill} pointerEvents="none" />
             <View style={[StyleSheet.absoluteFill, styles.menuTint]} pointerEvents="none" />
-            <Pressable
-              accessibilityRole="menuitem"
-              onPress={() => {
-                close();
-                onReport();
-              }}
-              style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}
-            >
-              <Text style={[styles.menuText, styles.error]}>Melden</Text>
-            </Pressable>
+            {onDelete ? (
+              <Pressable
+                accessibilityRole="menuitem"
+                onPress={() => {
+                  close();
+                  Alert.alert(t('Kommentar löschen?'), undefined, [
+                    { text: t('Abbrechen'), style: 'cancel' },
+                    { text: t('Löschen'), style: 'destructive', onPress: onDelete },
+                  ]);
+                }}
+                style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}
+              >
+                <Text style={[styles.menuText, styles.error]}>Löschen</Text>
+              </Pressable>
+            ) : null}
+            {onReport ? (
+              <Pressable
+                accessibilityRole="menuitem"
+                onPress={() => {
+                  close();
+                  onReport();
+                }}
+                style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}
+              >
+                <Text style={[styles.menuText, styles.error]}>Melden</Text>
+              </Pressable>
+            ) : null}
           </View>
         ) : null}
       </Modal>
@@ -169,7 +216,9 @@ function CommentMenu({ authorName, onReport }: { authorName: string; onReport: (
 
 type CommentComposerProps = {
   placeholder: string;
-  onSend: (body: string) => void;
+  onSend: (body: string, photo?: ImageSource) => void;
+  /** Bild-Knopf im Feld (Funktion „bildkommentare“) */
+  allowImage?: boolean;
   /** Name der Person, der geantwortet wird; ✕ hebt die Antwort auf */
   replyTo?: string;
   onCancelReply?: () => void;
@@ -187,9 +236,11 @@ type ComposerLink = {
 };
 
 /** Figma „CommentComposer“: Eingabe für einen neuen Kommentar oder eine Antwort. */
-export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply, mentionCandidates = [], onDraftChange, sendRef }: CommentComposerProps) {
+export function CommentComposer({ placeholder, onSend, allowImage, replyTo, onCancelReply, mentionCandidates = [], onDraftChange, sendRef }: CommentComposerProps) {
   const [value, setValue] = useState('');
-  const hasText = !!value.trim();
+  const [photo, setPhoto] = useState<ImageSource | undefined>();
+  // Ein Bild allein reicht zum Abschicken
+  const hasText = !!value.trim() || !!photo;
   useEffect(() => {
     onDraftChange?.(hasText);
   }, [hasText, onDraftChange]);
@@ -217,12 +268,14 @@ export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply, m
   };
   const send = () => {
     const body = value.trim();
-    if (!body) return;
+    if (!body && !photo) return;
+    const picked = photo;
     // Feld sofort leeren; das Feld bleibt nach dem Abschicken an seiner Stelle, auch wenn der neue Kommentar
     // darüber Platz braucht (Daria, 2026-11-09)
     setValue('');
     setCursor(0);
-    holdInView(boxRef.current, () => onSend(body));
+    setPhoto(undefined);
+    holdInView(boxRef.current, () => onSend(body, picked));
   };
   if (sendRef) sendRef.current = send;
   // Beim Tippen ins Feld: sobald die Tastatur steht, das Feld ins Bild scrollen (Daria, 22.10.2026)
@@ -262,6 +315,14 @@ export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply, m
           ))}
         </View>
       ) : null}
+      {photo ? (
+        <View style={styles.draftImage}>
+          <Image source={photo} style={StyleSheet.absoluteFill} contentFit="cover" />
+          <View style={styles.draftImageRemove}>
+            <IconButton icon="close" iconSize={14} iconColor="#fff" accessibilityLabel={t('Bild entfernen')} onPress={() => setPhoto(undefined)} />
+          </View>
+        </View>
+      ) : null}
     {/* Aktives Feld mit lila Rand wie alle Eingabefelder (Daria, 2026-11-09) */}
     <View style={[styles.composer, focused && styles.composerFocused]}>
       <TextInput
@@ -299,6 +360,15 @@ export function CommentComposer({ placeholder, onSend, replyTo, onCancelReply, m
         maxLength={500}
         accessibilityLabel={t('Kommentar schreiben')}
       />
+      {allowImage ? (
+        <IconButton
+          icon="camera"
+          accessibilityLabel={photo ? t('Bild ändern') : t('Bild anhängen')}
+          onPress={() => choosePhoto(setPhoto, { title: t('Bild anhängen') })}
+          iconSize={size.icon}
+          iconColor={color.text.secondary}
+        />
+      ) : null}
       <IconButton icon="send" accessibilityLabel={t('Kommentar senden')} onPress={send} iconSize={size.icon} />
     </View>
     </View>
@@ -312,7 +382,12 @@ type CommentSectionProps = {
   /** Eigene Kommentare bekommen keinen Melden-Button */
   currentUserId: string;
   /** Ohne onSend kein Eingabefeld, z. B. bei geschlossenen Challenges. replyToId: Antwort auf diesen Kommentar */
-  onSend?: (body: string, replyToId?: string) => void;
+  onSend?: (body: string, replyToId?: string, photo?: ImageSource) => void;
+  /** Bilder in Kommentaren erlaubt (Funktion „bildkommentare“, Daria, 2026-11-10) */
+  allowImage?: boolean;
+  /** Kommentar löschen; eigene immer, fremde nur mit `canModerate` */
+  onDelete?: (comment: CommentData) => void;
+  canModerate?: boolean;
   /** Hinweis statt Eingabefeld */
   closedHint?: string;
   /** Wer mitlesen kann, z. B. bei Gruppenaufgaben nur die Gruppe */
@@ -340,6 +415,9 @@ export function CommentSection({
   closedHint,
   audience,
   onReport,
+  onDelete,
+  allowImage,
+  canModerate,
   onAuthorPress,
   onLike,
   onLikesPress,
@@ -379,6 +457,7 @@ export function CommentSection({
         users={users}
         onMentionPress={onAuthorPress}
         onReport={c.authorId === currentUserId ? undefined : () => onReport(c)}
+        onDelete={onDelete && (c.authorId === currentUserId || canModerate) ? () => onDelete(c) : undefined}
         onLike={onLike && c.likeCount !== undefined ? () => onLike(c) : undefined}
         onLikesPress={onLikesPress ? () => onLikesPress(c) : undefined}
         // Antworten auf eine Antwort hängen am selben Gespräch
@@ -409,8 +488,9 @@ export function CommentSection({
           mentionCandidates={mentionCandidates}
           onDraftChange={onDraftChange}
           sendRef={sendRef}
-          onSend={(body) => {
-            onSend(body, replyTo?.id);
+          allowImage={allowImage}
+          onSend={(body, photo) => {
+            onSend(body, replyTo?.id, photo);
             setReplyTo(null);
           }}
         />
@@ -449,6 +529,11 @@ const styles = StyleSheet.create({
   menuText: { ...text.bodyLarge, color: color.text.primary },
   error: { color: color.accent.error },
   composerBlock: { gap: space[6] },
+  imageBox: { width: 200, height: 150, marginTop: space[4], borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.bg.surface },
+  viewer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.92)' },
+  viewerClose: { position: 'absolute', top: space[16] + 24, right: space[16], borderRadius: radius.full, backgroundColor: 'rgba(0,0,0,0.4)' },
+  draftImage: { width: 96, height: 96, marginLeft: space[16], borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.bg.surface },
+  draftImageRemove: { position: 'absolute', top: 2, right: 2, borderRadius: radius.full, backgroundColor: 'rgba(0,0,0,0.5)' },
   replyBar: {
     flexDirection: 'row',
     alignItems: 'center',
