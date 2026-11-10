@@ -19,7 +19,7 @@ type CommentProps = {
   comment: CommentData;
   author: User;
   onReport?: () => void;
-  /** Eigener Kommentar oder Moderation: „Löschen“ im Menü (Migration 20261110001300) */
+  /** Eigener Kommentar oder Moderation: „Löschen“ im Menü (Migration 20261110001400) */
   onDelete?: () => void;
   /** „Antworten“ unter dem Kommentar */
   onReply?: () => void;

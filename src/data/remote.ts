@@ -84,7 +84,7 @@ type CommentRow = {
   body: string;
   created_at: string;
   reply_to_id?: string | null;
-  /** Bildkommentare (Migration 20261110001300) */
+  /** Bildkommentare (Migration 20261110001400) */
   image_path?: string | null;
 };
 
@@ -1360,7 +1360,7 @@ export async function nameOperation(userId: string, challengeId: string, name: s
   check(await supabase.from('operation_names').insert({ challenge_id: challengeId, user_id: userId, name }));
 }
 
-/** Kommentar schreiben. Mit Bild (Migration 20261110001300): erst hochladen, dann den Pfad mitschicken. */
+/** Kommentar schreiben. Mit Bild (Migration 20261110001400): erst hochladen, dann den Pfad mitschicken. */
 export async function addComment(challengeId: string, body: string, replyToId?: string, imagePath?: string) {
   check(
     await supabase.from('comments').insert({
@@ -1373,7 +1373,7 @@ export async function addComment(challengeId: string, body: string, replyToId?: 
 }
 
 /**
- * Kommentar löschen: eigener Kommentar oder als Moderatorin (Migration 20261110001300). Erst das Bild, dann den
+ * Kommentar löschen: eigener Kommentar oder als Moderatorin (Migration 20261110001400). Erst das Bild, dann den
  * Kommentar, weil die Moderation nur Bilder löschen darf, die noch an einem Kommentar hängen.
  */
 export async function deleteComment(commentId: string, imagePath?: string) {

@@ -2,7 +2,7 @@
 
 Datum: 2026-11-10 · Status: umgesetzt, Notiz für die Doku · Ziel in Documentation: Entscheidungen (Abschnitt „Kommentare“) und Datenbank-Doku (Tabelle `comments`, Speicher `photos`, Tabelle `features`)
 
-Pflichtaufgabe: Migration `supabase/migrations/20261110001300_bildkommentare.sql` im SQL-Editor ausführen. Ohne sie zeigt die App den Bild-Knopf, das Abschicken mit Bild schlägt aber fehl.
+Pflichtaufgabe: Migration `supabase/migrations/20261110001400_bildkommentare.sql` im SQL-Editor ausführen. Ohne sie zeigt die App den Bild-Knopf, das Abschicken mit Bild schlägt aber fehl.
 
 ## Entscheidung
 
