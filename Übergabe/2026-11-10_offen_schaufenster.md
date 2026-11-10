@@ -1,89 +1,81 @@
 # Schaufenster für Unternehmen, Vereine und Organisator:innen
 
 - Stand: 10.11.2026
-- Status: offen, Planung. Noch nicht bauen, erst die offenen Fragen unten klären.
+- Status: geplant, alle Fragen für den Bau ohne Geld beantwortet. Noch nicht gebaut; Claude baut erst auf Darias ausdrücklichen Auftrag.
 - Ziel in Documentation: neue Datei `kiez-coins/konzept/Schaufenster.md`, Entscheidungen in `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Schaufenster“
-- Arbeitsteilung: Daria beantwortet die offenen Fragen und entscheidet über Abo und Rechtstexte. Claude baut danach Migration, App-Code und öffentliche Seite und schreibt die Doku.
+- Arbeitsteilung: Daria entscheidet später über Abo und Rechtstexte. Claude baut Migration, App-Code und öffentliche Seite, schreibt die Doku und meldet sich vor dem Merge mit der Migration.
 
-## Das Schaufenster zeigt ein Unternehmen, einen Verein oder eine Organisator:in
+## Das Schaufenster ist die öffentliche Seite einer Gruppe
 
-Daria hat das Schaufenster am 10.11.2026 so beschrieben:
+Daria hat das Schaufenster am 10.11.2026 so beschrieben: Alle dürfen es sehen, oder nur eingeladene Personen. Es zeigt nur die neuesten Posts. Es erstellt Termine, und andere speichern Termine bei sich.
 
-1. Alle dürfen es sehen, oder nur eingeladene Personen.
-2. Es zeigt höchstens die 10 letzten Posts, außer man hat ein bezahltes Abo.
-3. Das Schaufenster erstellt Termine. Andere speichern Termine bei sich.
+Das Schaufenster ist die erste kommerzielle Fläche in KiezCoins. Es ersetzt den Feature-Wunsch vom 09.11.2026: „Feed, besonders für Kleinunternehmen und Vereine“ (`Übergabe/TODO.md`).
 
-Entscheidungen (Daria, 10.11.2026, nach dem ersten Plan):
+## Entscheidungen (Daria, 10.11.2026)
 
-- Jede Gruppe darf ein öffentliches Schaufenster anlegen.
-- Die Posts des Schaufensters erscheinen im Kiez-Feed.
-- Posts aus dem Schaufenster lassen sich ebenfalls auf Instagram, Facebook und den anderen Plattformen weiterposten. Das ist wichtig.
+### Wer ein Schaufenster hat und pflegt
+
+- Jede Gruppe darf ein Schaufenster anlegen, höchstens eins pro Gruppe.
 - Im Schaufenster posten und Termine anlegen dürfen die Gründer:in der Gruppe und die Mitglieder, die sie dafür freischaltet.
-- Ein Schaufenster nur für Eingeladene gibt es zusätzlich zum öffentlichen. Daria will damit halböffentliche Clubs und Ähnliches ermöglichen (Lesart von Claude für „Demo öffentliche Clubs“).
-- Das Schaufenster wird erst ohne Geld gebaut. Kein Abo, keine Bezahlung.
-- In ein Schaufenster nur für Eingeladene kommt man auf zwei Wegen: per Code und Link wie bei Gruppen, oder per Anfrage, die das Team freigibt.
+- Niemand prüft ein Schaufenster vorab. Meldungen laufen über die Moderation wie bei Posts.
+- Das Schaufenster zeigt Name, Logo, Titelbild, Kurztext, Kiez, Adresse, Webseite, Öffnungszeiten und Impressum.
 
-Das Schaufenster ist damit die erste kommerzielle Fläche in KiezCoins. Es greift den Feature-Wunsch vom 09.11.2026 auf: „Feed, besonders für Kleinunternehmen und Vereine“ (`Übergabe/TODO.md`).
+### Wer das Schaufenster sieht
 
-## Vorschlag für den Aufbau (Claude)
+- **Öffentlich:** alle in der App, dazu eine Webseite `kiezcoins.de/s/<name>` ohne Anmeldung, nach dem Muster der geteilten Posts (`kiezcoins.de/c/<id>`, `api/c.mjs`).
+- **Nur für Eingeladene:** für halböffentliche Clubs und Ähnliches (Lesart von Claude für Darias „Demo öffentliche Clubs“). Zugang per Code und Link wie bei Gruppen oder per Anfrage, die das Team freigibt. Eingeladene dürfen kommentieren und liken. Die Posts erscheinen nur bei den Eingeladenen, nicht im Kiez-Feed.
+- Die Gründer:in schaltet die Sichtbarkeit jederzeit um.
 
-### Ein Schaufenster gehört einer Gruppe
+### Was das Schaufenster postet
 
-- Jede Gruppe darf ein Schaufenster anlegen (Daria, 10.11.2026), höchstens eins pro Gruppe.
-- Das Schaufenster ist die öffentliche Seite der Gruppe: Name, Logo, Titelbild, Kurztext, Kiez, Adresse, Webseite, Öffnungszeiten und Impressum.
-- Die Gruppe bleibt der geschlossene Raum für die Mitglieder, das Schaufenster zeigt nach außen. Ein Verein nutzt die Gruppe intern und das Schaufenster für alle.
-- Das Team sind die Mitglieder der Gruppe (`group_members`, Rollen `founder`, `member`). Posten und Termine anlegen dürfen die Gründer:in und die Mitglieder, die sie freischaltet (Daria, 10.11.2026). Dafür bekommt `group_members` eine Rolle oder einen Schalter, zum Beispiel `can_post_showcase`.
-- Die Tabelle `profiles` hat seit der ersten Migration eine ungenutzte Spalte `is_group` („Gruppenprofile“, `supabase/migrations/20261019000100_tables.sql`). Die Finanzierungsseite zählt sie schon heraus. Ein Schaufenster als eigene Tabelle mit Verweis auf die Gruppe ist sauberer; `is_group` bleibt dann unberührt oder fällt weg.
+- Bild, Textpost, We-Challenge ohne Coins und Me-Challenge. Die Me-Challenge heißt im Schaufenster **Us-Challenge**.
+- Posts eines öffentlichen Schaufensters erscheinen im Kiez-Feed und im Feed „Überall“, mit Name und Logo des Schaufensters statt des Decknamens. Ein Tipp darauf öffnet das Schaufenster.
+- Menschen können einem Schaufenster folgen. Dann erreichen sie seine Posts auch außerhalb des eigenen Kiezes.
+- Werbung ist im Schaufenster und in seinen Posts erlaubt, im übrigen Feed weiter verboten. Daria passt danach Nutzungsbedingungen, Community-Regeln und Datenschutzerklärung an.
+- Wave wird noch nicht gebaut.
 
-### Sichtbarkeit: öffentlich oder nur mit Einladung
+### Höchstens 50 Einträge, die 10 neuesten sind sichtbar
 
-- **Öffentlich:** Alle in der App finden das Schaufenster, zum Beispiel über den Kiez-Feed, Posts und eine Suche. Dazu eine öffentliche Webseite `kiezcoins.de/s/<name>` ohne Anmeldung, nach dem Muster der geteilten Posts (`kiezcoins.de/c/<id>`, `api/c.mjs`). Die Seite holt Menschen ohne KiezCoins in die App.
-- **Nur mit Einladung:** Das Schaufenster bekommt einen Einladungscode und einen Link, wie die Gruppen (`invite_code`, `/groups/join`). Nur wer eingeladen ist, sieht Posts und Termine. Beispiele: Mitgliederbereich eines Vereins, Stammkundschaft eines Ladens.
-- Die Gründer:in der Gruppe schaltet die Sichtbarkeit jederzeit um.
-- Beide Varianten bleiben (Daria, 10.11.2026). Das Schaufenster nur für Eingeladene ist für halböffentliche Clubs gedacht: größer und offener als die Gruppe, aber nicht für den ganzen Kiez. Seine Posts erscheinen nicht im Kiez-Feed, nur bei den Eingeladenen.
+- Posts und Termine zählen gemeinsam.
+- Das Schaufenster zeigt die 10 neuesten Posts und Termine zusammen.
+- Gespeichert bleiben höchstens 50. Kommt der 51. Eintrag dazu, löscht die Datenbank den ältesten endgültig, auch aus dem Kiez-Feed.
+- Die Grenzen sitzen in der Datenbank (Trigger beim Einfügen, Abfrage und RLS), nicht nur in der App.
+- Erst ohne Geld: kein Abo, keine Bezahlung. Eine Ausnahme von der Grenze setzt Daria vorerst von Hand in der Datenbank (`plan_until`). Das Abo kommt später; auf der Finanzierungsseite heißt es schon **Dachs (Partnerladen): 19 € netto im Monat** (`website/finanzierung.html`). Bezahlen geht heute auch rechtlich nicht: Die Nutzungsbedingungen sagen „KiezCoins … nimmt kein Geld an und zahlt keins aus“ (`src/data/legal.ts`).
 
-### Posts erscheinen im Kiez-Feed
+### Weiterposten an Instagram, Facebook und Co.
 
-- Jeder Post eines öffentlichen Schaufensters erscheint im Kiez-Feed (Daria, 10.11.2026), bis 5 km wie alle Kiez-Posts, und im Feed „Überall“.
-- Im Feed trägt der Post Name und Logo des Schaufensters statt des Decknamens. Ein Tipp darauf öffnet das Schaufenster.
-- Der Post zählt zur Grenze von 10 Posts im Schaufenster. Ob ältere Posts auch aus dem Feed verschwinden, klärt Frage 3 unten.
-
-### Höchstens 10 Posts ohne Abo
-
-- Sichtbar sind die 10 neuesten Posts. Ältere Posts bleiben gespeichert und erscheinen für das Team im Archiv, für andere nicht.
-- Mit Abo sind alle Posts sichtbar. Endet das Abo, gilt wieder die Grenze. Nichts geht verloren.
-- Die Grenze sitzt in der Datenbank (Abfrage und RLS), nicht nur in der App. Sonst lesen andere Apps oder die Web-App die älteren Posts trotzdem.
-- Das Abo heißt auf der Finanzierungsseite schon **Dachs (Partnerladen): 19 € netto im Monat, jährlich per SEPA-Lastschrift** (`website/finanzierung.html`).
-- Erst ohne Geld (Daria, 10.11.2026). Die Grenze von 10 Posts wird gebaut, das Abo nicht. Freischalten für alle Posts setzt Daria von Hand in der Datenbank (`plan_until`).
-- Bezahlen geht heute auch rechtlich nicht: Die Nutzungsbedingungen sagen „KiezCoins … nimmt kein Geld an und zahlt keins aus“ (`src/data/legal.ts`). Vorschlag nach dem Muster vom Weiterposten (05.11.2026): erst kein Geld nehmen. Das Abo setzt Daria vorerst von Hand in der Datenbank, und ein Knopf „Ich würde das Abo nutzen“ zählt das Interesse.
-
-### Posts aus dem Schaufenster gehen weiter an Instagram, Facebook und Co.
-
-- Weiterposten gibt es schon für Personen (`Übergabe/2026-11-05_offen_weiterposten.md`): BlueSky, Mastodon, Instagram und Facebook-Seiten, freigegeben seit 09.11.2026, X ausgenommen.
-- Heute hängt ein verbundenes Konto an einer Person (`crosspost_accounts.user_id`). Das Schaufenster braucht eigene verbundene Konten, zum Beispiel das Instagram-Business-Konto und die Facebook-Seite des Ladens. Dafür bekommt `crosspost_accounts` eine Spalte `showcase_id`; die Edge Function `weiterposten` wählt beim Posten im Schaufenster dessen Konten.
-- Instagram und Facebook verlangen sowieso Business- oder Creator-Konten und Seiten. Unternehmen und Vereine haben diese meist schon.
-- Löschen und Wiederherstellen laufen wie bei Personen über `CrosspostDialog`.
+- Posts aus dem Schaufenster lassen sich auf Instagram, Facebook und die anderen Plattformen weiterposten. Das ist Daria wichtig.
+- Weiterposten gibt es schon für Personen (`Übergabe/2026-11-05_offen_weiterposten.md`): BlueSky, Mastodon, Instagram und Facebook-Seiten, X ausgenommen.
+- Heute hängt ein verbundenes Konto an einer Person (`crosspost_accounts.user_id`). Das Schaufenster bekommt eigene verbundene Konten, zum Beispiel das Instagram-Business-Konto und die Facebook-Seite des Ladens: Spalte `crosspost_accounts.showcase_id`, die Edge Function `weiterposten` wählt beim Posten im Schaufenster dessen Konten.
 - Termine lassen sich ebenfalls weiterposten, als Bild mit Datum und Ort.
 
 ### Termine lassen sich speichern
 
-- Das Team erstellt Termine mit Titel, Bild, Beginn, Ende, Ort und Text, optional wiederkehrend.
-- Termine stehen im Schaufenster und, je nach Sichtbarkeit, im Kiez-Feed.
-- „Speichern“ legt den Termin in Routine ab. Das passt zu Darias Entscheidung vom 10.11.2026: Importierte Termine erscheinen in Routine als Termine wie Erinnerungen mit „um“, Markierung „Termin“, ohne Zähler (`Übergabe/2026-11-07_offen_erinnerungen.md`). Der Kater erinnert vorher.
-- Zusätzlich „In meinen Kalender“: eine Kalenderdatei (.ics) pro Termin. Später ein persönlicher Kalender-Link (webcal) für alle gespeicherten Termine, wie für Routine vorgeschlagen.
-- Ändert oder streicht das Team einen Termin, sehen alle mit gespeichertem Termin die Änderung, in Routine sofort und im Kalender über den Link.
+- Das Team erstellt Termine mit Titel, Bild, Beginn, Ende, Ort und Text.
+- „Speichern“ legt den Termin in Routine ab, als Termin wie Erinnerungen mit „um“ (Entscheidung vom 10.11.2026, `Übergabe/2026-11-07_offen_erinnerungen.md`). Der Kater erinnert vorher.
+- Zusätzlich „In meinen Kalender“: eine Kalenderdatei (.ics) pro Termin.
+- Zusagen mit Teilnehmerzahl, wiederkehrende Termine und Tickets kommen später.
+- Ändert oder streicht das Team einen Termin, sehen alle mit gespeichertem Termin die Änderung in Routine.
 - Das Team sieht, wie viele Menschen einen Termin gespeichert haben, ohne Namen.
 
-### Skizze für die Datenbank
+### Wege ins Schaufenster
+
+- Über Posts im Feed, über die Gruppe und über eine Liste der Schaufenster im Kiez. Eine Karte kommt später.
+
+## Skizze für die Datenbank (Claude)
 
 | Tabelle | Inhalt |
 | --- | --- |
-| `showcases` | Gruppe (`group_id`, einmalig), Name, Kurzname für die Adresse, Logo, Titelbild, Text, Kiez, gerundeter Ort, Sichtbarkeit (`public`, `invite`), `invite_code`, Abo bis (`plan_until`) |
-| `showcase_guests` | Eingeladene Personen bei Sichtbarkeit `invite` |
+| `showcases` | Gruppe (`group_id`, einmalig), Name, Kurzname für die Adresse, Logo, Titelbild, Text, Kiez, gerundeter Ort, Adresse, Webseite, Öffnungszeiten, Impressum, Sichtbarkeit (`public`, `invite`), `invite_code`, Ausnahme von der Grenze bis (`plan_until`) |
+| `group_members.can_post_showcase` | Freischaltung durch die Gründer:in |
+| `showcase_guests` | Eingeladene und Anfragen (`requested`, `accepted`) bei Sichtbarkeit `invite` |
+| `showcase_follows` | Wer welchem Schaufenster folgt |
 | `challenges.showcase_id` | Posts gehören zu einem Schaufenster, wie heute `group_id` zu einer Gruppe |
-| `showcase_events` | Termine: Titel, Bild, Beginn, Ende, Ort, Text, Wiederholung, gestrichen am |
+| `showcase_events` | Termine: Titel, Bild, Beginn, Ende, Ort, Text, gestrichen am |
 | `event_saves` | Wer welchen Termin gespeichert hat; verknüpft mit `reminders` in Routine |
 | `crosspost_accounts.showcase_id` | Verbundene Konten des Schaufensters für das Weiterposten |
+
+Die Tabelle `profiles` hat seit der ersten Migration eine ungenutzte Spalte `is_group` (`supabase/migrations/20261019000100_tables.sql`). Sie bleibt unberührt.
 
 ## Vorhandene To-dos und Ideen zu Unternehmer-Accounts
 
@@ -126,16 +118,6 @@ Gesammelt am 10.11.2026 aus `Übergabe/`, `website/`, `src/`, `supabase/` und de
 
 ## Offene Punkte
 
-Fragen an Daria, die Reihenfolge folgt der Wichtigkeit für den Bau. Beantwortet am 10.11.2026: wer ein Schaufenster anlegt (jede Gruppe), ob Posts im Kiez-Feed erscheinen (ja), Weiterposten (ja, wichtig), wer im Schaufenster postet (Gründer:in und freigeschaltete Mitglieder), Schaufenster nur für Eingeladene (ja, für halböffentliche Clubs), Geld (erst ohne; das Abo kommt später, Frage 4 hat Zeit), Zugang für Eingeladene (Code und Link, dazu Anfrage mit Freigabe).
-
-1. Dürfen Eingeladene in einem Schaufenster nur für Eingeladene kommentieren und liken, oder nur ansehen?
-2. „Alle dürfen sehen“: auch ohne Konto im Web unter `kiezcoins.de/s/<name>` (Vorschlag)?
-3. Was passiert mit dem elften Post: im Schaufenster ausblenden und im Archiv behalten (Vorschlag) oder löschen? Bleibt er im Kiez-Feed sichtbar? Zählen Termine mit?
-4. Später, nach dem Bau ohne Geld: Ist das Abo der Dachs (19 € netto im Monat)? Was enthält es außer unbegrenzten Posts, zum Beispiel X beim Weiterposten, Bilderkennung, Weiterposten ohne Wasserzeichen, Statistik?
-5. Prüft jemand ein Schaufenster, bevor es öffentlich wird, zum Beispiel das Impressum?
-6. Welche Posts darf ein Schaufenster erstellen: Bild, Textpost, Me-Challenge, We-Challenge? Darf es Coins anbieten?
-7. Termine: Reicht „Speichern“ in Routine plus Kalenderdatei? Braucht es Zusagen mit Teilnehmerzahl, wiederkehrende Termine oder Tickets?
-8. Gibt es „Folgen“, damit Posts eines Schaufensters auch außerhalb des eigenen Kiezes ankommen?
-9. Geht Wave im Schaufenster auf, also ein Termin als Aufruf an den Kiez, gesponsert vom Schaufenster?
-10. Werbung: Ist sie im Schaufenster und in dessen Posts im Kiez-Feed erlaubt, im übrigen Feed weiter verboten? Danach passt Daria Nutzungsbedingungen, Community-Regeln und Datenschutzerklärung an.
-11. Wo führt die App ins Schaufenster: über Posts, über die Gruppe, über eine Liste im Kiez, über eine Karte?
+- Weiterposten beim Löschen des 51. Eintrags: Vorschlag Claude, die Weiterposts auf Instagram, Facebook usw. bleiben stehen. Daria bestätigt oder widerspricht.
+- Später, nach dem Bau ohne Geld: Ist das Abo der Dachs? Was enthält es, zum Beispiel mehr als 50 Einträge, X beim Weiterposten, Bilderkennung, Weiterposten ohne Wasserzeichen, Statistik?
+- Rechtstexte zur Werbung im Schaufenster (Daria).

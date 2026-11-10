@@ -43,7 +43,7 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 
 ## Schaufenster (Daria, 10.11.2026)
 
-- [ ] Schaufenster für Unternehmen, Vereine und Organisator:innen: öffentlich oder nur für Eingeladene, höchstens 10 Posts ohne Abo, Termine zum Speichern. Noch nicht bauen, erst die offenen Fragen klären. Plan: `2026-11-10_offen_schaufenster.md`. Ersetzt den Feature-Wunsch „Feed, besonders für Kleinunternehmen und Vereine“ vom 09.11.2026.
+- [ ] Schaufenster für Unternehmen, Vereine und Organisator:innen: öffentlich oder nur für Eingeladene, 10 neueste Posts und Termine sichtbar, höchstens 50 gespeichert, Termine zum Speichern, Us-Challenge, Weiterposten. Fragen beantwortet (10.11.2026), noch nicht bauen ohne Darias Auftrag. Plan: `2026-11-10_offen_schaufenster.md`. Ersetzt den Feature-Wunsch „Feed, besonders für Kleinunternehmen und Vereine“ vom 09.11.2026.
 
 ## Erinnerungen (Daria, 07.11.2026)
 
