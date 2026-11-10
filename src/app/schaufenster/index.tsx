@@ -220,13 +220,15 @@ function Mine({ header }: { header: React.ReactNode }) {
     setBusy(true);
     setFailed(null);
     try {
+      // Deckname = Name des Schaufensters; auch im Store, sonst überschreibt das nächste Speichern des Profils ihn.
+      // Zuerst, denn eine Gruppe anlegen geht nur mit Decknamen (create_group: „Leg zuerst Deinen Decknamen fest.“).
+      const handle = await handleFromShowcase(currentUserId, name, kiez.trim() || undefined);
+      if (!handle) throw new Error(t('Diesen Namen nutzt schon jemand bei KiezCoins. Probier einen anderen, zum Beispiel mit Deinem Kiez dahinter.'));
+      dispatch({ type: 'updateProfile', patch: { handle } });
       // Intern gehört jedes Schaufenster zu einer Gruppe; die Person ist ihre Gründer:in
       const groupId = await groupApi.create(name.trim());
       const id = await createShowcase(groupId, name.trim());
       if (kiez.trim()) await supabase.from('showcases').update({ kiez: kiez.trim() }).eq('id', id);
-      // Deckname = Name des Schaufensters; auch im Store, sonst überschreibt das nächste Speichern des Profils ihn
-      const handle = await handleFromShowcase(currentUserId, name, kiez.trim() || undefined);
-      if (handle) dispatch({ type: 'updateProfile', patch: { handle } });
       router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id } });
     } catch (error) {
       setFailed((error as Error).message);
