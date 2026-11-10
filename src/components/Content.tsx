@@ -32,6 +32,15 @@ function messageDelay(): number {
   return start - now;
 }
 
+/**
+ * Pause nach einer eigenen Nachricht (Daria, 2026-11-10: „Verzögerung bis zur nächsten Bubble grundsätzlich einbauen“):
+ * Fragt man etwas oder tippt „Ja, los!“, kommt die Antwort erst nach REPLY_PAUSE, wie wenn jemand tippt.
+ */
+const REPLY_PAUSE = 700;
+function pauseAfterOwnMessage() {
+  nextMessageAt = Math.max(nextMessageAt, Date.now() + REPLY_PAUSE);
+}
+
 function useMessageIn() {
   const shown = useRef(new Animated.Value(isFashionable ? 1 : 0)).current;
   const t = useRef(new Animated.Value(isFashionable ? 2 : 0)).current;
@@ -132,6 +141,10 @@ function UserBubble({
 }) {
   const on = purple && !isFashionable;
   const glow = useSentGlow(on);
+  // Läuft vor dem Einblenden der Antwort, die erst nach dem Prüfen von „Bewegung reduzieren“ ihren Platz bucht
+  useEffect(() => {
+    if (purple) pauseAfterOwnMessage();
+  }, [purple]);
   return (
     <Animated.View
       style={[
