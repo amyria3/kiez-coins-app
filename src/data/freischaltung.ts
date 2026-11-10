@@ -14,7 +14,7 @@ import { useStore } from './store';
  * Unabhängig davon blendet jede Person Funktionen unter „Dein Konto › Funktionen“ für sich aus (`features.ts`).
  * Freigeschaltet heißt: Die Person darf die Funktion haben. Ausgeblendet heißt: Sie will sie gerade nicht sehen.
  */
-export type FeatureKey = 'routine' | 'kalender' | 'schaufenster' | 'weiterposten';
+export type FeatureKey = 'routine' | 'kalender' | 'schaufenster' | 'weiterposten' | 'ohne_wasserzeichen' | 'ohne_rahmen';
 
 /**
  * Standard, solange die Datenbank nichts liefert (Migration fehlt, offline). Muss zu `public.features.default_on`
@@ -25,6 +25,9 @@ export const FEATURE_DEFAULTS: Record<FeatureKey, { name: string; defaultOn: boo
   kalender: { name: 'Kalender', defaultOn: true }, // für alle (Daria, 2026-11-10)
   schaufenster: { name: 'Schaufenster', defaultOn: true }, // für alle (Daria, 2026-11-10)
   weiterposten: { name: 'Weiterposten', defaultOn: true }, // für alle (Daria, 2026-11-09)
+  // Bildpost teilen: Wasserzeichen aus dem Rahmen entfernen und Rahmen entfernen, im Moment für alle (Daria, 2026-11-10)
+  ohne_wasserzeichen: { name: 'Wasserzeichen aus dem Rahmen entfernen', defaultOn: true },
+  ohne_rahmen: { name: 'Rahmen entfernen', defaultOn: true },
 };
 
 type FeatureMap = Partial<Record<FeatureKey, boolean>>;

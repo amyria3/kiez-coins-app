@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, StyleSheet, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 
+import { useFeature } from '../data/freischaltung';
 import { t } from '../data/texts';
-import { shareImageFiles } from '../lib/sheetImages';
+import { FULL_LOOK, framePhotoFiles, shareImageFiles, type PhotoLook, type SheetAuthor } from '../lib/sheetImages';
 import { color, radius, space, text } from '../theme/tokens';
 import { Button } from './Button';
+import { SwitchRow } from './Form';
 import { Frost } from './Glass';
 import { Text } from './T';
 
@@ -16,12 +18,29 @@ import { Text } from './T';
  * Die Bilder gehen ohne Text raus, denn WhatsApp legt mitgeschickten Text als festen Kasten aufs Bild. Den Link
  * kopiert man stattdessen mit „Link kopieren“ und fügt ihn in die Nachricht ein.
  */
-/** `slides`: Blätter eines Text-Posts, sonst Fotos */
-export type SharePrepared = { files: File[]; message: string; slides?: boolean };
+/**
+ * `slides`: Blätter eines Text-Posts, sonst Fotos. `photos`: die Fotos ohne Rahmen, damit der Dialog sie für
+ * „Rahmen“ und „Wasserzeichen“ neu zeichnen kann.
+ */
+export type SharePrepared = {
+  files: File[];
+  message: string;
+  slides?: boolean;
+  photos?: { raw: File[]; author?: SheetAuthor };
+};
+
+/**
+ * Zuletzt gewählter Look für geteilte Fotos, solange die App offen ist. Rahmen und Wasserzeichen lassen sich nur
+ * abschalten, wenn die Funktionen `ohne_rahmen` und `ohne_wasserzeichen` freigeschaltet sind (Daria, 2026-11-10).
+ */
+let lastLook: PhotoLook = FULL_LOOK;
+/** Gezeichnete Fotos des offenen Dialogs je Look, damit Hin- und Herschalten sofort geht */
+const looks = new Map<string, File[]>();
+const lookKey = (look: PhotoLook) => `${look.frame ? 1 : 0}${look.watermark ? 1 : 0}`;
 
 type State =
   | { phase: 'preparing' }
-  | { phase: 'ready'; prepared: SharePrepared }
+  | { phase: 'ready'; prepared: SharePrepared; look: PhotoLook; busy?: boolean }
   | { phase: 'done'; prepared: SharePrepared; copied: boolean }
   | { phase: 'failed' };
 
@@ -37,6 +56,37 @@ export function openShareDialog(job: Promise<SharePrepared>, fallback: (message:
 /** Einmal im Root-Layout einbinden. Rendert nur im Browser etwas. */
 export function ShareDialogHost() {
   const [state, setState] = useState<State | null>(null);
+  const canRemoveFrame = useFeature('ohne_rahmen');
+  const canRemoveWatermark = useFeature('ohne_wasserzeichen');
+
+  /** Erlaubter Look: Was nicht freigeschaltet ist, bleibt an */
+  const allowed = (look: PhotoLook): PhotoLook => ({
+    frame: look.frame || !canRemoveFrame,
+    watermark: look.watermark || !canRemoveWatermark,
+  });
+
+  /** Fotos im gewünschten Look zeichnen; der Teilen-Knopf wartet so lange */
+  const applyLook = (prepared: SharePrepared, wanted: PhotoLook) => {
+    const look = allowed(wanted);
+    lastLook = look;
+    const photos = prepared.photos;
+    const key = lookKey(look);
+    const known = looks.get(key);
+    if (!photos || known) {
+      setState({ phase: 'ready', prepared: known ? { ...prepared, files: known } : prepared, look });
+      return;
+    }
+    setState({ phase: 'ready', prepared, look, busy: true });
+    framePhotoFiles(photos.raw, photos.author, look)
+      .then((files) => {
+        looks.set(key, files);
+        setState((s) => (s?.phase === 'ready' && lookKey(s.look) === key ? { ...s, prepared: { ...s.prepared, files }, busy: false } : s));
+      })
+      .catch(() => setState((s) => (s?.phase === 'ready' ? { ...s, busy: false } : s)));
+  };
+  // Der Dialog wird einmal angemeldet; so sieht er trotzdem die aktuelle Freischaltung
+  const applyLookRef = useRef(applyLook);
+  applyLookRef.current = applyLook;
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
@@ -50,7 +100,11 @@ export function ShareDialogHost() {
           if (!prepared.files.length) {
             setState(null);
             fallback(prepared.message);
-          } else setState({ phase: 'ready', prepared });
+          } else {
+            looks.clear();
+            if (prepared.photos) looks.set(lookKey(FULL_LOOK), prepared.files);
+            applyLookRef.current(prepared, lastLook);
+          }
         })
         .catch(() => id === current && setState({ phase: 'failed' }));
     };
@@ -88,11 +142,35 @@ export function ShareDialogHost() {
       : prepared.files.length > 1
         ? t('Teile die {count} Bilder. Den Link kopierst Du danach für Deine Nachricht.', { count: prepared.files.length })
         : t('Teile das Bild. Den Link kopierst Du danach für Deine Nachricht.');
+    const { look, busy } = state;
+    const photos = !prepared.slides && prepared.photos?.raw.length ? prepared.photos : undefined;
     body = (
       <>
+        {/* Rahmen und Wasserzeichen im Bildpost abschalten, je nach Freischaltung (Daria, 2026-11-10) */}
+        {photos && (canRemoveFrame || canRemoveWatermark) ? (
+          <View style={styles.looks}>
+            {canRemoveFrame ? (
+              <SwitchRow
+                label={t('Rahmen')}
+                description={t('Weißer Rand mit Deinem Namen')}
+                value={look.frame}
+                onValueChange={(frame) => applyLook(prepared, { ...look, frame })}
+              />
+            ) : null}
+            {canRemoveWatermark && look.frame ? (
+              <SwitchRow
+                label={t('Wasserzeichen')}
+                description={t('Kater und KiezCoins unten im Rahmen')}
+                value={look.watermark}
+                onValueChange={(watermark) => applyLook(prepared, { ...look, watermark })}
+              />
+            ) : null}
+          </View>
+        ) : null}
         <Button
           // „Als Slide teilen“ (Daria, 07.11.2026); bei Fotos passt „Slide“ nicht
           label={prepared.slides ? t('Als Slide teilen') : prepared.files.length > 1 ? t('Bilder teilen') : t('Bild teilen')}
+          busy={busy}
           onPress={() => {
             // Ohne await davor: Safari öffnet das Teilen-Menü nur direkt nach dem Tipp
             shareImageFiles(prepared.files).then((result) => {
@@ -142,5 +220,6 @@ const styles = StyleSheet.create({
   title: { color: color.text.primary },
   message: { color: color.text.secondary },
   buttons: { marginTop: space[16], gap: space[8] },
+  looks: { gap: space[12], marginBottom: space[8] },
   spinner: { alignSelf: 'flex-start' },
 });
