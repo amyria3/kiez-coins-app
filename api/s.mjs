@@ -154,7 +154,7 @@ function inhalt(s) {
 ${farbe(s.bg_color)}
 /* KiezCoins-Logo oben klein, das Schaufenster steht im Vordergrund (Daria, 2026-11-10) */
 /* Klein, ohne Slogan, rechts, mit Abstand darunter (Daria, 2026-11-10) */
-.top { justify-content: flex-end; padding: 16px 0 0; margin-bottom: 40px; }
+.top { justify-content: flex-end; padding: 28px 0 0; margin-bottom: 40px; }
 .top .brand { align-items: flex-end; }
 .top .brand svg { height: 11px; width: auto; }
 .top .marke { display: none; }
