@@ -158,11 +158,17 @@ ${farbe(s.bg_color)}
 .top .brand { align-items: flex-end; }
 .top .brand svg { height: 11px; width: auto; }
 .top .marke { display: none; }
-/* Titelbild folgt der Form des Logos: unten links ein runder Ausschnitt mit Abstand, in dem das Logo sitzt (Daria, 2026-11-10) */
-.geteilt .sf-cover { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 20px; object-fit: cover; margin: 0; }
+/* Ecken rechteckig, der Übergang zum Ausschnitt ganz leicht abgerundet (Daria, 2026-11-10). Die Maske besteht aus drei
+   Teilen: oben alles, unten rechts ein Streifen, unten links eine Kachel mit dem Ausschnitt und 6 px Rundung an den
+   Übergängen (Kreis 44 px um die Mitte des Logos bei 56 px, Unterkante). */
+.geteilt .sf-cover { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 0; object-fit: cover; margin: 0; }
 .geteilt .sf-cover.sf-mit-logo {
-  -webkit-mask-image: radial-gradient(circle 44px at 56px 100%, transparent 43.5px, #000 44px);
-  mask-image: radial-gradient(circle 44px at 56px 100%, transparent 43.5px, #000 44px); }
+  -webkit-mask: linear-gradient(#000, #000) left top / 100% calc(100% - 49px) no-repeat,
+    linear-gradient(#000, #000) right bottom / calc(100% - 119px) 50px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='50' viewBox='0 0 120 50'%3E%3Cpath d='M0 0H120V50H105.64A6 6 0 0 1 99.68 44.72A44 44 0 0 0 12.32 44.72A6 6 0 0 1 6.36 50H0Z' fill='%23000'/%3E%3C/svg%3E") left bottom / 120px 50px no-repeat;
+  mask: linear-gradient(#000, #000) left top / 100% calc(100% - 49px) no-repeat,
+    linear-gradient(#000, #000) right bottom / calc(100% - 119px) 50px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='50' viewBox='0 0 120 50'%3E%3Cpath d='M0 0H120V50H105.64A6 6 0 0 1 99.68 44.72A44 44 0 0 0 12.32 44.72A6 6 0 0 1 6.36 50H0Z' fill='%23000'/%3E%3C/svg%3E") left bottom / 120px 50px no-repeat; }
 .geteilt .sf-wer { display: flex; align-items: flex-end; gap: 12px; margin: 12px 0; }
 .geteilt .sf-cover + .sf-wer { margin-top: 0; }
 .geteilt .sf-cover.sf-mit-logo + .sf-wer { margin-top: -36px; padding-left: 20px; }
