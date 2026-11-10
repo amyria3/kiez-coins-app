@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
-import { InfoRow, KaterCard, Notice, SectionBlock } from '../../../components/Content';
+import { CollapsibleSection, InfoRow, KaterCard, Notice, SectionBlock } from '../../../components/Content';
 import { RichText } from '../../../components/RichText';
 import { SubScreen } from '../../../components/Screen';
 import { ShowcaseEventCard } from '../../../components/ShowcaseEventCard';
@@ -133,9 +133,9 @@ export default function ShowcaseScreen() {
       )}
 
       {s.services ? (
-        <SectionBlock label="Services">
+        <CollapsibleSection label="Services" collapsible={s.servicesCollapsed}>
           <RichText value={s.services} />
-        </SectionBlock>
+        </CollapsibleSection>
       ) : null}
 
       {access.canSee ? (
