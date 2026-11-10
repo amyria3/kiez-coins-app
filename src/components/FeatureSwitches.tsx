@@ -38,7 +38,7 @@ type StandardKey = Mode | 'routine';
 
 const POST_SWITCHES: { feed: PostFeed; label: string; off: string }[] = [
   { feed: 'kiez', label: 'Bilder und Textposts im Kiez-Feed anzeigen', off: 'Geht nur, wenn „Dein Kiez“ an ist.' },
-  { feed: 'everywhere', label: 'Bilder und Textposts überall anzeigen', off: 'Geht nur, wenn „Überall“ an ist.' },
+  { feed: 'everywhere', label: 'Bilder und Textposts im „Überall“-Feed anzeigen', off: 'Geht nur, wenn „Überall“ an ist.' },
 ];
 /** `children`: weitere Abschnitte im selben Abstand, z. B. Weiterposten unter Dein Konto › Funktionen */
 export function FeatureSwitches({ children }: { children?: ReactNode } = {}) {
