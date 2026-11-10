@@ -70,11 +70,6 @@ export function RichTextField({ label, value, onChange, maxLength }: { label: st
   );
   return (
     <View style={styles.field}>
-      <View style={styles.tools}>
-        {tool('Fett', () => wrapSelection(value, sel, '**', t('fett')))}
-        {tool('Kursiv', () => wrapSelection(value, sel, '*', t('kursiv')))}
-        {tool('Liste', () => toggleBullets(value, sel))}
-      </View>
       <TextField
         label={label}
         multiline
@@ -82,8 +77,14 @@ export function RichTextField({ label, value, onChange, maxLength }: { label: st
         onChangeText={onChange}
         maxLength={maxLength}
         onSelectionChange={(e) => setSel(e.nativeEvent.selection)}
-        helperText="**fett**, *kursiv*, „- “ am Zeilenanfang für eine Liste"
       />
+      {/* Knöpfe unter dem Feld, zu dem sie gehören; über dem Feld wirkten sie wie ein Teil des Felds davor.
+          Ohne Hinweis zur Schreibweise, die Knöpfe erklären sich selbst (Daria, 2026-11-10: „inkonsistent“) */}
+      <View style={styles.tools}>
+        {tool('Fett', () => wrapSelection(value, sel, '**', t('fett')))}
+        {tool('Kursiv', () => wrapSelection(value, sel, '*', t('kursiv')))}
+        {tool('Liste', () => toggleBullets(value, sel))}
+      </View>
       {value.trim() ? (
         <View style={styles.preview}>
           <Text style={styles.previewLabel}>So sieht es aus</Text>
