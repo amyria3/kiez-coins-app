@@ -1269,7 +1269,7 @@
   "Bedienelemente einblenden": "إظهار عناصر التحكم",
   "Titel (optional)": "العنوان (اختياري)",
   "Modell KiezCoins": "نموذج KiezCoins",
-  "Einnahmen fließen zuerst in die Fixkosten. Die künftigen Gewinne verteilen sich auf das Team (30%) und die Community (70%).": "تذهب الإيرادات أولاً إلى التكاليف الثابتة. وتُوزَّع الأرباح المستقبلية بين الفريق (30 %) والمجتمع (70 %).",
+  "Einnahmen werden zuerst die Fixkosten decken. Die künftigen Gewinne verteilen sich auf das Team (30%) und die Community (70%).": "ستغطي الإيرادات أولاً التكاليف الثابتة. وتُوزَّع الأرباح المستقبلية بين الفريق (30 %) والمجتمع (70 %).",
   "Team 30 %, Community 70 %": "الفريق 30 %، المجتمع 70 %",
   "Team 30 %": "الفريق 30 %",
   "Community 70 %": "المجتمع 70 %",
@@ -1356,5 +1356,7 @@
   "Trennen oder neu verbinden": "فصل أو إعادة الربط",
   "{label} trennen oder neu verbinden?": "فصل {label} أو إعادة ربطه؟",
   "Routine": "الروتين",
-  "Hier entstehen Deine Erinnerungen": "هنا تتشكّل تذكيراتك"
+  "Hier entstehen Deine Erinnerungen": "هنا تتشكّل تذكيراتك",
+  "Deine Bilanz": "حصيلتك",
+  "Deine Ziele": "أهدافك"
 }

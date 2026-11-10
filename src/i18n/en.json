@@ -1538,7 +1538,7 @@
   "Unbekannter Fehler": "Unknown error",
   "Fehlerbericht KiezCoins": "KiezCoins error report",
   "Modell KiezCoins": "KiezCoins model",
-  "Einnahmen fließen zuerst in die Fixkosten. Die künftigen Gewinne verteilen sich auf das Team (30%) und die Community (70%).": "Income goes first towards the fixed costs. Future profits are shared between the team (30 %) and the community (70 %).",
+  "Einnahmen werden zuerst die Fixkosten decken. Die künftigen Gewinne verteilen sich auf das Team (30%) und die Community (70%).": "Income will first cover the fixed costs. Future profits are shared between the team (30 %) and the community (70 %).",
   "Team 30 %, Community 70 %": "Team 30 %, community 70 %",
   "Team 30 %": "Team 30 %",
   "Community 70 %": "Community 70 %",
@@ -1635,5 +1635,7 @@
   "Trennen oder neu verbinden": "Disconnect or reconnect",
   "{label} trennen oder neu verbinden?": "Disconnect or reconnect {label}?",
   "Routine": "Routine",
-  "Hier entstehen Deine Erinnerungen": "Your reminders are taking shape here"
+  "Hier entstehen Deine Erinnerungen": "Your reminders are taking shape here",
+  "Deine Bilanz": "Your track record",
+  "Deine Ziele": "Your goals"
 }

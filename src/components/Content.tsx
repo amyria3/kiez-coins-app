@@ -19,7 +19,7 @@ const SKY_BG = '#F0FFA6';
 /**
  * Einblenden der Nachrichten im Kiez-Look (Daria, 2026-11-09). Erscheinen mehrere zugleich, kommen sie nacheinander
  * im Abstand von MESSAGE_STAGGER. Systemblasen kommen mit 70 % Deckkraft, leuchten kurz auf 100 % auf und bleiben
- * bei 90 %. Dabei wachsen sie aus der Ecke beim Avatar. Bei „Bewegung reduzieren“ steht alles sofort im Endzustand.
+ * bei 80 %. Dabei wachsen sie aus der Ecke beim Avatar. Bei „Bewegung reduzieren“ steht alles sofort im Endzustand.
  */
 const SKY_RGB = '240, 255, 166';
 const MESSAGE_STAGGER = 320;
@@ -67,13 +67,13 @@ function useMessageIn() {
     opacity: shown,
     backgroundColor: t.interpolate({
       inputRange: [0, 1, 2],
-      outputRange: [`rgba(${SKY_RGB}, 0.7)`, `rgba(${SKY_RGB}, 1)`, `rgba(${SKY_RGB}, 0.9)`],
+      outputRange: [`rgba(${SKY_RGB}, 0.7)`, `rgba(${SKY_RGB}, 1)`, `rgba(${SKY_RGB}, 0.8)`],
     }),
     scale: t.interpolate({ inputRange: [0, 1, 2], outputRange: [0.9, 1.04, 1] }),
   };
 }
 
-/** Eigene Nachricht wird lila (gefragt, „Ja, los!“): leuchtet wie die Systemblasen auf, 70 → 100 → 90 % (Daria, 2026-11-09) */
+/** Eigene Nachricht wird lila (gefragt, „Ja, los!“): leuchtet wie die Systemblasen auf, 70 → 100 → 80 % (Daria, 2026-11-09) */
 const ACCENT_RGB = (() => {
   const hex = color.accent.primary.replace('#', '');
   return [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(', ');
@@ -110,7 +110,7 @@ function useSentGlow(on: boolean) {
   return {
     backgroundColor: t.interpolate({
       inputRange: [0, 1, 2],
-      outputRange: [`rgba(${ACCENT_RGB}, 0.7)`, `rgba(${ACCENT_RGB}, 1)`, `rgba(${ACCENT_RGB}, 0.9)`],
+      outputRange: [`rgba(${ACCENT_RGB}, 0.7)`, `rgba(${ACCENT_RGB}, 1)`, `rgba(${ACCENT_RGB}, 0.8)`],
     }),
     scale: t.interpolate({ inputRange: [0, 1, 2], outputRange: [0.9, 1.04, 1] }),
   };
@@ -150,6 +150,28 @@ function UserBubble({
         <Text style={[styles.questionText, on && styles.questionTextOpen]}>{children}</Text>
       </Pressable>
     </Animated.View>
+  );
+}
+
+/**
+ * Überschrift eines Abschnitts (Daria, 2026-11-10): feierlich statt technisch, daher im Kiez-Look in der Unbounded
+ * der großen Überschriften, 18 pt, hell. Steht 12 über dem Inhalt (`SectionBlock`).
+ */
+export function SectionLabel({ children }: { children: string }) {
+  return (
+    <Text style={styles.sectionLabel} accessibilityRole="header">
+      {children}
+    </Text>
+  );
+}
+
+/** Abschnitt mit Überschrift, 8 Abstand darunter */
+export function SectionBlock({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <View style={styles.sectionBlock}>
+      <SectionLabel>{label}</SectionLabel>
+      {children}
+    </View>
   );
 }
 
@@ -561,6 +583,11 @@ export function FieldGroup({ label, children, large }: { label: string; children
 }
 
 const styles = StyleSheet.create({
+  sectionLabel: isFashionable
+    ? { ...text.caption, letterSpacing: 1, textTransform: 'uppercase', color: color.text.secondary }
+    : // 16 zusätzlich über der Überschrift: mit dem üblichen Abstand von 24 trennen 40 die Abschnitte (Daria, 2026-11-10)
+      { fontFamily: font.onPhoto, fontSize: 18, lineHeight: 24, color: color.text.primary, marginTop: space[16] },
+  sectionBlock: { gap: isFashionable ? space[8] : space[12] },
   qaOpen: { paddingBottom: CHAT_GAP_CHANGE - CHAT_GAP_SAME },
   afterSame: { marginTop: CHAT_GAP_SAME },
   afterChange: { marginTop: CHAT_GAP_CHANGE },

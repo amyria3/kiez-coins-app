@@ -1269,7 +1269,7 @@
   "Bedienelemente einblenden": "Afficher les commandes",
   "Titel (optional)": "Titre (facultatif)",
   "Modell KiezCoins": "Modèle KiezCoins",
-  "Einnahmen fließen zuerst in die Fixkosten. Die künftigen Gewinne verteilen sich auf das Team (30%) und die Community (70%).": "Les recettes servent d’abord à couvrir les frais fixes. Les bénéfices futurs sont répartis entre l’équipe (30 %) et la communauté (70 %).",
+  "Einnahmen werden zuerst die Fixkosten decken. Die künftigen Gewinne verteilen sich auf das Team (30%) und die Community (70%).": "Les recettes couvriront d’abord les frais fixes. Les bénéfices futurs sont répartis entre l’équipe (30 %) et la communauté (70 %).",
   "Team 30 %, Community 70 %": "Équipe 30 %, communauté 70 %",
   "Team 30 %": "Équipe 30 %",
   "Community 70 %": "Communauté 70 %",
@@ -1356,5 +1356,7 @@
   "Trennen oder neu verbinden": "Déconnecter ou reconnecter",
   "{label} trennen oder neu verbinden?": "Déconnecter ou reconnecter {label} ?",
   "Routine": "Routine",
-  "Hier entstehen Deine Erinnerungen": "Tes rappels prennent forme ici"
+  "Hier entstehen Deine Erinnerungen": "Tes rappels prennent forme ici",
+  "Deine Bilanz": "Ton bilan",
+  "Deine Ziele": "Tes objectifs"
 }

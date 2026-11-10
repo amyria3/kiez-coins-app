@@ -6,7 +6,7 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { KaterCard } from '../components/Content';
+import { KaterCard, SectionBlock, SectionLabel } from '../components/Content';
 import { Cat, CrownIcon } from '../components/icons/Brand';
 import { Icon } from '../components/icons/Icon';
 import { Button } from '../components/Button';
@@ -103,7 +103,9 @@ function Reise() {
         </Pressable>
 
 
+        {/* Überschriften für die Abschnitte (Daria, 2026-11-10) */}
         {tasks.length ? (
+        <SectionBlock label="Du bist dran">
         <View style={styles.tasks}>
         {tasks.map((entry) => (
           <Pressable
@@ -127,10 +129,11 @@ function Reise() {
           </Pressable>
         ))}
         </View>
+        </SectionBlock>
         ) : null}
 
         {/* Ziele mit Geschenk, für das ganze Konto (Daria, 29.10.2026) */}
-        <Quests quests={goals} />
+        <Quests quests={goals} label="Deine Ziele" />
 
         {/* Icons zwischen den Wörtern: Herz Diese Community Daumen braucht Schiffchen Dich Krone (Daria, 02.11.2026).
             In anderen Sprachen stehen die Icons vor dem übersetzten Satz, da die Wortfolge dort eine andere ist. */}
@@ -161,7 +164,11 @@ function Reise() {
         {/* Erhaltene und offene Abzeichen (Daria, 2026-11-01) */}
         <BadgeOverview />
 
-        {reiseTabs.length > 1 ? <Segments tabs={reiseTabs} selectedKey={tab} onChange={setTab} /> : null}
+        <View style={styles.reiseHead}>
+          {/* Nicht „Geschafft“: So heißt schon die Fotoreihe darunter */}
+          <SectionLabel>Deine Bilanz</SectionLabel>
+          {reiseTabs.length > 1 ? <Segments tabs={reiseTabs} selectedKey={tab} onChange={setTab} /> : null}
+        </View>
 
         {/* Kein Verlauf mehr: Hier steht nur, was geschafft ist (Daria, 29.10.2026) */}
         {tab === 'private' ? (
@@ -193,11 +200,10 @@ function Reise() {
           </View>
         )}
 
-        {/* Finanzierung ganz unten: Text, Balken, Punkte, Link für Details (Daria, 08.11.2026).
-            Doppelter Abstand davor, da sie nicht mehr zu den Reitern gehört (Daria, 2026-11-09) */}
-        <View style={styles.financeSection}>
+        {/* Finanzierung ganz unten: Text, Balken, Punkte, Link für Details (Daria, 08.11.2026), ohne Karte unter eigener Überschrift (2026-11-10) */}
+        <SectionBlock label="Modell KiezCoins">
           <FinanceOverview />
-        </View>
+        </SectionBlock>
       </ScrollView>
       <TabBar
         active="reise"
@@ -238,8 +244,7 @@ const styles = StyleSheet.create({
   // Mehr Luft zwischen den Abschnitten (Daria, 29.10.2026)
   content: { paddingTop: space[24], paddingHorizontal: space[20], gap: space[24] },
   tasks: { gap: space[8] },
-  // Mit dem gap der Seite 48 pt Abstand zum Inhalt der Reiter
-  financeSection: { marginTop: space[24] },
+  reiseHead: { gap: space[8] },
   flex: { flex: 1, gap: space[2] },
   pressed: { opacity: 0.8 },
   title: { ...text.display, color: color.text.primary },

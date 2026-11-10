@@ -1,3 +1,4 @@
+import { SectionBlock } from './Content';
 import { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, Platform, StyleSheet, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
@@ -24,7 +25,8 @@ const SEEN = (key: string) => `kiez-ziel-geoeffnet:${key}`;
 /** Immer nur drei Ziele (Daria, 29.10.2026): neu erreichte zuerst (dann geht das Geschenk auf), dann offene, dann erreichte. */
 const SHOWN = 3;
 
-export function Quests({ quests }: { quests: Quest[] }) {
+/** `label`: Überschrift des Abschnitts, erscheint nur mit Zielen (Daria, 2026-11-10) */
+export function Quests({ quests, label }: { quests: Quest[]; label?: string }) {
   const [seen, setSeen] = useState<Record<string, boolean> | null>(null);
   const keys = quests.map((q) => q.seenKey).join('|');
   useEffect(() => {
@@ -42,13 +44,14 @@ export function Quests({ quests }: { quests: Quest[] }) {
   const done = (q: Quest) => q.value >= q.goal;
   const rank = (q: Quest) => (done(q) && !seen[q.seenKey] ? 0 : !done(q) ? 1 : 2);
   const shown = [...quests].sort((a, b) => rank(a) - rank(b)).slice(0, SHOWN);
-  return (
+  const list = (
     <View style={styles.list}>
       {shown.map((q, i) => (
         <QuestRow key={q.key} quest={q} index={i} />
       ))}
     </View>
   );
+  return label ? <SectionBlock label={label}>{list}</SectionBlock> : list;
 }
 
 function QuestRow({ quest, index }: { quest: Quest; index: number }) {
