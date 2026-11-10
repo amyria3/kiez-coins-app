@@ -34,7 +34,7 @@ const zufall = (n: number) => {
 
 // Website: auf dem Web dieselbe Adresse wie die App, sonst die Vercel-Adresse (kiezcoins.de zeigt noch nicht auf Vercel)
 const siteUrl = () =>
-  (Platform.OS === 'web' && typeof window !== 'undefined' ? window.location.origin : 'https://kiezcoins.vercel.app') + '/finanzierung';
+  (Platform.OS === 'web' && typeof window !== 'undefined' ? window.location.origin : 'https://kiezcoins.de') + '/finanzierung';
 
 export function FinanceOverview() {
   const { mode, users, currentUserId } = useStore();

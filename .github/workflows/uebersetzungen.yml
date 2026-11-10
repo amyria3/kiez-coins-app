@@ -1,0 +1,64 @@
+# Übersetzungen mit DeepL (Daria, 31.10.2026 und 10.11.2026)
+#
+# Bei jedem PR: übersetzt nur Texte, die noch keine Übersetzung haben, und hängt einen Commit
+# „Übersetzungen (DeepL)“ an den PR. Ergebnisse stehen nur in src/i18n/auto/<sprache>.json.
+# Übersetzungen von Hand (src/i18n/<sprache>.json, Geschlechter-Dateien, Texte-Editor) fasst DeepL nie an,
+# und sie gehen in der App immer vor. Details: scripts/i18n-auto.mjs.
+#
+# Von Hand starten (z. B. für den Altbestand): Reiter „Actions“ › „Übersetzungen (DeepL)“ › „Run workflow“.
+# Das Ergebnis landet dann auf dem Branch „uebersetzungen-deepl“, daraus wird ein PR zur Prüfung.
+#
+# Braucht das Secret DEEPL_API_KEY (Settings › Secrets and variables › Actions). Ohne Schlüssel passiert nichts.
+
+name: Übersetzungen (DeepL)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: uebersetzungen-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  uebersetzen:
+    # Nur PRs aus diesem Repo (Forks bekommen keine Secrets) und nicht auf dem eigenen Ergebnis-Branch
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.head.repo.full_name == github.repository && github.head_ref != 'uebersetzungen-deepl')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Das Skript braucht nur TypeScript (zum Lesen der Texte im Code)
+      - run: npm install --no-save --no-audit --no-fund --ignore-scripts typescript@$(node -p "require('./package.json').devDependencies.typescript")
+
+      - name: Fehlende Texte übersetzen
+        env:
+          DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
+        run: node scripts/i18n-auto.mjs
+
+      - name: Ergebnis committen
+        run: |
+          if git diff --quiet -- src/i18n/auto; then
+            echo "Keine neuen Übersetzungen."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/i18n/auto
+          git commit -m "Übersetzungen (DeepL)"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            git push --force origin HEAD:uebersetzungen-deepl
+            echo "Ergebnis auf Branch uebersetzungen-deepl. Daraus einen PR öffnen." >> "$GITHUB_STEP_SUMMARY"
+          else
+            git push origin HEAD:${{ github.head_ref }}
+          fi
