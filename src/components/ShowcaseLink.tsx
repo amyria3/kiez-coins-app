@@ -8,14 +8,15 @@ import { FieldGroup, Notice, QuestionHint } from './Content';
 import { TextField } from './Form';
 import { Icon } from './icons/Icon';
 import { Text } from './T';
-import { createShowcase, showcaseOfGroup, useShowcaseEnabled, type Showcase } from '../data/showcase';
+import { createShowcase, groupShowcaseOn, showcaseOfGroup, useShowcaseEnabled, type Showcase } from '../data/showcase';
 import type { Group } from '../data/types';
 import { t } from '../data/texts';
 import { color, radius, space, text } from '../theme/tokens';
 
 /**
  * Schaufenster auf der Gruppenseite (Daria, 2026-11-10): Die Gründer:in legt es an, alle Mitglieder öffnen es.
- * Feature `schaufenster` für diese Gruppe, für alle an (useShowcaseEnabled).
+ * Feature `schaufenster` für diese Gruppe, für alle an (useShowcaseEnabled). Ist es für die Gruppe aus, legt sie keins an,
+ * und ein bestehendes steht hier als „Offline“ (Daria, 2026-11-10).
  */
 export function ShowcaseLink({ group, isFounder }: { group: Group; isFounder: boolean }) {
   const enabled = useShowcaseEnabled(group.id);
@@ -23,6 +24,8 @@ export function ShowcaseLink({ group, isFounder }: { group: Group; isFounder: bo
   // undefined: lädt oder keins, null: Fehler (Migration fehlt)
   const [showcase, setShowcase] = useState<Showcase | undefined | null>(undefined);
   const [loaded, setLoaded] = useState(false);
+  // Schalter der Gruppe (Migration 20261110001600); undefined: Migration fehlt, dann gilt `enabled`
+  const [groupOn, setGroupOn] = useState<boolean | undefined>(undefined);
   const [name, setName] = useState(group.name);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
@@ -30,8 +33,9 @@ export function ShowcaseLink({ group, isFounder }: { group: Group; isFounder: bo
   useFocusEffect(
     useCallback(() => {
       if (!enabled) return;
-      showcaseOfGroup(group.id).then((s) => {
+      Promise.all([showcaseOfGroup(group.id), groupShowcaseOn(group.id)]).then(([s, on]) => {
         setShowcase(s);
+        setGroupOn(on);
         setLoaded(true);
       });
     }, [enabled, group.id]),
@@ -59,14 +63,16 @@ export function ShowcaseLink({ group, isFounder }: { group: Group; isFounder: bo
             <Text noTranslate style={styles.name} numberOfLines={1}>
               {showcase.name}
             </Text>
-            <Text style={styles.meta}>{showcase.visibility === 'public' ? 'Öffentlich' : 'Nur für Eingeladene'}</Text>
+            <Text style={styles.meta}>
+              {!showcase.switches.online ? 'Offline' : showcase.visibility === 'public' ? 'Öffentlich' : 'Nur für Eingeladene'}
+            </Text>
           </View>
           <Icon name="chevron-right" size={20} color={color.text.secondary} />
         </Pressable>
       </FieldGroup>
     );
   }
-  if (!isFounder) return null;
+  if (!isFounder || groupOn === false) return null;
 
   const create = async () => {
     setBusy(true);

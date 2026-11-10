@@ -38,6 +38,7 @@ Das Schaufenster ist die erste kommerzielle Fläche in KiezCoins. Es ersetzt den
 
 - Posts und Termine zählen gemeinsam.
 - Das Schaufenster zeigt die 10 neuesten Posts und Termine zusammen.
+- Seit 10.11.2026 abends: 30 neueste sichtbar, mit „Mehr Posts zeigen“ alle (siehe „Drei Schalter“).
 - Gespeichert bleiben höchstens 50. Kommt der 51. Eintrag dazu, löscht die Datenbank den ältesten endgültig, auch aus dem Kiez-Feed.
 - Die Grenzen sitzen in der Datenbank (Trigger beim Einfügen, Abfrage und RLS), nicht nur in der App.
 - Erst ohne Geld: kein Abo, keine Bezahlung. Daria, 10.11.2026: „Wir bauen jetzt alles über bezahlt, unbezahlt machen wir uns später Sorgen. Berücksichtige es nur in der Datenbank.“ Deshalb läuft jedes Schaufenster als bezahlt (`plan_until = 'infinity'`, Migration `20261110001000_schaufenster_bezahlt`): Die Grenze löscht nichts, App und öffentliche Seite zeigen alle Einträge. Für ein unbezahltes Schaufenster setzt Daria `plan_until` auf leer oder ein Datum. Das Abo kommt später; auf der Finanzierungsseite heißt es schon **Dachs (Partnerladen): 19 € netto im Monat** (`website/finanzierung.html`). Bezahlen geht heute auch rechtlich nicht: Die Nutzungsbedingungen sagen „KiezCoins … nimmt kein Geld an und zahlt keins aus“ (`src/data/legal.ts`).
@@ -103,6 +104,15 @@ Gebaut am 10.11.2026:
 - `schaufenster/[id]/post`: Bild mit Titel und Text, ohne Feed. Der Post erscheint wie jeder Kiez-Post auch im Feed.
 - Öffnet die Person später die App, führt das Onboarding sie durch die fehlenden Schritte (Deckname vorbelegt).
 - Die Seite ist nicht auf Moderatorinnen beschränkt; wer den Link kennt, kann ein Schaufenster anlegen. Verlinkt ist sie noch nirgends.
+
+### Drei Schalter, gebaut am 10.11.2026
+
+Daria, 10.11.2026: „Schaufenster an / aus – wenn abgewählt, kann eine Gruppe kein Schaufenster erstellen und das bestehende Schaufenster geht offline. Im Schaufenster posten. Mehr Posts zeigen (mehr als die jüngsten 30 Posts).“
+
+- Drei Funktionen in der Feature-Freischaltung: `schaufenster`, `schaufenster_posten`, `schaufenster_mehr`, alle für alle an. Sie hängen an der Gruppe (`public.gruppen_feature`), Migration `20261110001600_schaufenster_schalter.sql`. SQL zum Umschalten steht in `Übergabe/2026-11-10_feature-freischaltung.md`.
+- Offline: Kopf, Posts und Termine sehen nur noch Mitglieder der Gruppe; die Posts verschwinden aus dem Feed, `kiezcoins.de/s/<kurzname>` antwortet mit 404. Nichts wird gelöscht. Die Gruppe sieht einen Hinweis „offline“, auf der Gruppenseite steht „Offline“. Neu anlegen lehnt die Datenbank ab, die Gruppenseite bietet es nicht an.
+- Posten aus: Die Knöpfe „Post erstellen“ und „Termin erstellen“ fehlen; die Datenbank lehnt Posts und Termine ab.
+- Sichtbar sind jetzt die 30 neuesten Einträge statt 10, mit `schaufenster_mehr` alle (in der App und auf der öffentlichen Seite). Die Grenze von 50 gespeicherten Einträgen hängt weiter an `plan_until`.
 
 ### Teil 2, offen
 
