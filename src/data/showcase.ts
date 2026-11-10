@@ -224,6 +224,19 @@ export const HEX = /^#[0-9A-Fa-f]{6}$/;
  * Vorschläge für den Hintergrund der öffentlichen Seite (Daria, 2026-11-10: Palette und eigene Farbe), aus den Farben
  * der Website (website/seite.css) und der App (theme/tokens.ts). Die Seite wählt die Textfarbe selbst.
  */
+/**
+ * Schrift- und Kartenfarben auf einem Hintergrund, wie auf der öffentlichen Seite (api/s.mjs, farbe()):
+ * ab einer relativen Helligkeit von 0,35 dunkle Schrift, sonst helle.
+ */
+export function readableOn(hex: string): { text: string; muted: string; surface: string; dark: boolean } {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const lin = (c: number) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const light = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b) > 0.35;
+  return light
+    ? { text: '#26233A', muted: '#4A465E', surface: '#FFFFFF', dark: false }
+    : { text: '#F0F0F0', muted: '#C8C8D0', surface: 'rgba(255,255,255,0.08)', dark: true };
+}
+
 export const BG_PALETTE: { hex: string; name: string }[] = [
   { hex: '#DCE1FF', name: 'Lila hell' },
   { hex: '#F4F7E2', name: 'Gelbgrün hell' },
