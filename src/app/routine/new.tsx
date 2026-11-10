@@ -1,16 +1,13 @@
 import { useState } from 'react';
-import { StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { FieldGroup, Notice } from '../../components/Content';
+import { FieldGroup, Notice, QuestionHint } from '../../components/Content';
 import { Chip, ChipGroup, TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
-import { Text } from '../../components/T';
 import { WEEKDAYS } from '../../data/katerRoutine';
 import { createReminder } from '../../data/reminders';
 import { useGoBack } from '../../lib/goBack';
-import { color, text } from '../../theme/tokens';
 
 const TIME = /^([01]?\d|2[0-3]):[0-5]\d$/;
 
@@ -65,13 +62,11 @@ export default function NewReminder() {
       }
     >
       <TextField label="Ich will …" placeholder="joggen gehen" value={want} onChangeText={setWant} maxLength={60} required autoFocus />
-      <TextField
-        label="Beschreibung"
-        helperText="Optional. Postest Du nach dem Erledigen eine Me-Challenge, steht sie dort als Vorher-Text."
-        value={description}
-        onChangeText={setDescription}
-        maxLength={500}
-        multiline
+      <TextField label="Beschreibung" value={description} onChangeText={setDescription} maxLength={500} multiline />
+      {/* Erklärungen als Dialog mit Blasen statt als Hilfetext (Daria, 2026-11-10) */}
+      <QuestionHint
+        question="Wofür ist die Beschreibung?"
+        answer="Sie ist freiwillig. Postest Du nach dem Erledigen eine Me-Challenge, steht sie dort als Vorher-Text."
       />
       <FieldGroup label="Wie oft?">
         <ChipGroup>
@@ -98,7 +93,6 @@ export default function NewReminder() {
           </FieldGroup>
           <TextField
             label="Uhrzeit"
-            helperText="Optional, z. B. 18:00"
             placeholder="18:00"
             value={time}
             onChangeText={setTime}
@@ -109,12 +103,8 @@ export default function NewReminder() {
         </>
       )}
       {/* Sichtbarkeit: vorerst nur für Dich (Annahme zu Frage 5, Daria, 2026-11-10: „lustig wie bei Duolingo“) */}
-      <Text style={styles.private}>Nur Du und der Kater wissen davon. Er kann schweigen. Meistens.</Text>
+      <QuestionHint question="Wer sieht meine Erinnerungen?" answer="Nur Du und der Kater. Er kann schweigen. Meistens." />
       {failed ? <Notice variant="warning" message="Speichern hat nicht geklappt. Versuch es bitte noch einmal." /> : null}
     </SubScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  private: { ...text.caption, color: color.text.secondary },
-});
