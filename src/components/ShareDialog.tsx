@@ -31,7 +31,8 @@ export type SharePrepared = {
 
 /**
  * Zuletzt gewählter Look für geteilte Fotos, solange die App offen ist. Rahmen und Wasserzeichen lassen sich nur
- * abschalten, wenn die Funktionen `ohne_rahmen` und `ohne_wasserzeichen` freigeschaltet sind (Daria, 2026-11-10).
+ * abschalten, wenn die Funktion `ohne_wasserzeichen` freigeschaltet ist. Wer das Wasserzeichen abschalten darf, darf
+ * auch den ganzen Rahmen abschalten (Daria, 2026-11-10).
  */
 let lastLook: PhotoLook = FULL_LOOK;
 /** Gezeichnete Fotos des offenen Dialogs je Look, damit Hin- und Herschalten sofort geht */
@@ -56,8 +57,8 @@ export function openShareDialog(job: Promise<SharePrepared>, fallback: (message:
 /** Einmal im Root-Layout einbinden. Rendert nur im Browser etwas. */
 export function ShareDialogHost() {
   const [state, setState] = useState<State | null>(null);
-  const canRemoveFrame = useFeature('ohne_rahmen');
   const canRemoveWatermark = useFeature('ohne_wasserzeichen');
+  const canRemoveFrame = canRemoveWatermark;
 
   /** Erlaubter Look: Was nicht freigeschaltet ist, bleibt an */
   const allowed = (look: PhotoLook): PhotoLook => ({
@@ -147,7 +148,7 @@ export function ShareDialogHost() {
     body = (
       <>
         {/* Rahmen und Wasserzeichen im Bildpost abschalten, je nach Freischaltung (Daria, 2026-11-10) */}
-        {photos && (canRemoveFrame || canRemoveWatermark) ? (
+        {photos && canRemoveWatermark ? (
           <View style={styles.looks}>
             {canRemoveFrame ? (
               <SwitchRow
