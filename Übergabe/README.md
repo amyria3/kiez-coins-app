@@ -58,6 +58,7 @@ Diese `README.md` bleibt immer liegen.
 - `2026-10-28_offen_android-updates-expo-minuten.md`: Workflow „Android-Updates“ startet nicht, da die Expo-Minuten aufgebraucht sind.
 - `2026-10-26_offen_lila-ungemuetlich.md`: Kritik „Farbe Lila, ungemütlich“, offene Fragen zu Ort und Ersatzfarbe (To-do, Daria).
 - `2026-10-31_offen_timer-optional.md`: Offen. Timer der Me-Challenge optional (Knopf „Ohne Timer weiter“), Layout noch zu besprechen; Reihenfolge Bild, Me-Challenge, We-Challenge.
+- `2026-11-10_offen_schaufenster.md`: Offen. Plan für das Schaufenster (Unternehmen, Vereine, Organisator:innen) mit gesammelten Ideen und offenen Fragen an Daria.
 - `2026-11-01_offen_abzeichen-hinweis.md`: Offen. Hinweis beim neuen Abzeichen: Szene ist in der App, Avatare und Namen der Eingeladenen fehlen noch.
 
 ## Notizen für die Doku
