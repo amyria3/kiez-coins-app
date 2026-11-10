@@ -76,6 +76,13 @@ Das Schaufenster ist die erste kommerzielle Fläche in KiezCoins. Es ersetzt den
 - Herzen für Termine, auch ohne Konto (Daria, 10.11.2026, Migration `20261110000500_termin_herzen`): einfacher Zähler `showcase_events.likes`, die Datenbank speichert keine Kennung. Das Gerät merkt sich, welche Termine es geliked hat (App: AsyncStorage, Seite: localStorage). Der Zähler lässt sich daher leicht hochtreiben; Daria hat das so gewählt.
 - Öffentliche Seite `kiezcoins.de/s/<kurzname>` (`api/s.mjs`, Vorlage `/teilen-vorlage`): Kopf, die 10 neuesten Posts und Termine, Herzen an Terminen. Nur bei Sichtbarkeit „Alle“. Der Link steht unter „Schaufenster bearbeiten“.
 
+- Mehrere Links, bis zu 10 (Daria, 10.11.2026, Migration `20261110000600_schaufenster_links_adresse`). Die alte Spalte `website` bleibt der erste Link.
+- Adresse nur für Menschen mit Zugang (Daria, 10.11.2026): Angemeldete lesen `showcases` nur noch über Spaltenrechte ohne `address`, `lat`, `lng` und `invite_code`; diese liefert `showcase_private`. Dabei fiel auf: Mit Migration 400 konnte jede angemeldete Person den Einladungscode lesen und so jedem Schaufenster „nur für Eingeladene“ beitreten. Migration 600 behebt das.
+
+### Schaufenster ohne die Social App, offen
+
+Daria, 10.11.2026: „Die Leute sollten – ohne den Umweg über KiezCoins Social App – diese Seite anlegen und pflegen können. So biete ich de facto jedem Small Business eine kleine Webseite als Geschenk an.“ Fragen dazu stehen im Chat vom 10.11.2026; noch nicht gebaut.
+
 ### Teil 2, offen
 
 - Posts im Feed mit Name und Logo des Schaufensters statt des Decknamens; Tipp öffnet das Schaufenster.

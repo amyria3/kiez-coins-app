@@ -26,11 +26,14 @@ export type Showcase = {
   cover?: ImageSource;
   about?: string;
   kiez?: string;
+  /** Nur für Menschen mit Zugang (showcase_private); sonst leer */
   address?: string;
-  website?: string;
+  /** Bis zu 10 Links (Daria, 2026-11-10: „mehr Links“) */
+  links: string[];
   openingHours?: string;
   imprint?: string;
   visibility: Visibility;
+  /** Nur für das Team (showcase_private); sonst leer */
   inviteCode: string;
 };
 
@@ -77,13 +80,19 @@ type Row = {
   cover_path: string | null;
   about: string | null;
   kiez: string | null;
-  address: string | null;
   website: string | null;
+  links: string[] | null;
   opening_hours: string | null;
   imprint: string | null;
   visibility: Visibility;
-  invite_code: string;
 };
+
+/**
+ * Lesbare Spalten (Migration 20261110000600): Adresse, Ort und Einladungscode liefert nur showcase_private,
+ * damit Menschen ohne Zugang sie nicht sehen.
+ */
+const COLUMNS = 'id, group_id, name, slug, logo_path, cover_path, about, kiez, website, links, opening_hours, imprint, visibility';
+type Private = { address: string | null; invite_code: string | null } | null;
 
 const toShowcase = (r: Row): Showcase => ({
   id: r.id,
@@ -94,12 +103,11 @@ const toShowcase = (r: Row): Showcase => ({
   cover: photoUrl(r.cover_path),
   about: r.about ?? undefined,
   kiez: r.kiez ?? undefined,
-  address: r.address ?? undefined,
-  website: r.website ?? undefined,
+  links: r.links?.length ? r.links : r.website ? [r.website] : [],
   openingHours: r.opening_hours ?? undefined,
   imprint: r.imprint ?? undefined,
   visibility: r.visibility,
-  inviteCode: r.invite_code,
+  inviteCode: '',
 });
 
 /** Erstmal nur für Moderatorinnen (Daria, 2026-11-10: wie Routine) */
@@ -131,15 +139,18 @@ export function slugify(name: string): string {
 
 /** `undefined`: keins, `null`: Fehler (z. B. Migration fehlt) */
 export async function showcaseOfGroup(groupId: string): Promise<Showcase | undefined | null> {
-  const { data, error } = await supabase.from('showcases').select('*').eq('group_id', groupId).maybeSingle();
+  const { data, error } = await supabase.from('showcases').select(COLUMNS).eq('group_id', groupId).maybeSingle();
   if (error) return null;
   return data ? toShowcase(data as Row) : undefined;
 }
 
 export async function loadShowcase(id: string, userId: string): Promise<{ showcase: Showcase; access: ShowcaseAccess } | null> {
-  const { data, error } = await supabase.from('showcases').select('*').eq('id', id).maybeSingle();
+  const { data, error } = await supabase.from('showcases').select(COLUMNS).eq('id', id).maybeSingle();
   if (error || !data) return null;
   const showcase = toShowcase(data as Row);
+  const { data: priv } = await supabase.rpc('showcase_private', { p_showcase: id });
+  showcase.address = (priv as Private)?.address ?? undefined;
+  showcase.inviteCode = (priv as Private)?.invite_code ?? '';
   const [member, group, guest, follow, see] = await Promise.all([
     supabase.from('group_members').select('role, can_post_showcase').eq('group_id', showcase.groupId).eq('user_id', userId).maybeSingle(),
     supabase.from('groups').select('founder_id').eq('id', showcase.groupId).maybeSingle(),
@@ -178,7 +189,7 @@ export type ShowcaseInput = {
   about?: string;
   kiez?: string;
   address?: string;
-  website?: string;
+  links: string[];
   openingHours?: string;
   imprint?: string;
   visibility: Visibility;
@@ -190,6 +201,10 @@ export type ShowcaseInput = {
 const isLocal = (img?: ImageSource) =>
   !!img && typeof img === 'object' && 'uri' in img && typeof img.uri === 'string' && !img.uri.startsWith('http');
 
+export const MAX_LINKS = 10;
+/** „https://www.kiezblick.de/“ → „kiezblick.de“, „https://instagram.com/kiezblick“ → „instagram.com/kiezblick“ */
+export const shortLink = (url: string) => url.replace(/^https:\/\/(www\.)?/i, '').replace(/\/$/, '');
+
 export async function updateShowcase(id: string, userId: string, input: ShowcaseInput): Promise<void> {
   const nullIfEmpty = (s?: string) => (s && s.trim() ? s.trim() : null);
   const fields: Record<string, unknown> = {
@@ -197,7 +212,9 @@ export async function updateShowcase(id: string, userId: string, input: Showcase
     about: nullIfEmpty(input.about),
     kiez: nullIfEmpty(input.kiez),
     address: nullIfEmpty(input.address),
-    website: nullIfEmpty(input.website),
+    links: input.links.map((l) => l.trim()).filter(Boolean).slice(0, MAX_LINKS),
+    // Die alte Spalte bleibt der erste Link
+    website: input.links.map((l) => l.trim()).find(Boolean) ?? null,
     opening_hours: nullIfEmpty(input.openingHours),
     imprint: nullIfEmpty(input.imprint),
     visibility: input.visibility,
