@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   },
   cardContent: { flexDirection: 'row', alignItems: 'flex-start', gap: space[12], padding: space[16] },
   body: { flex: 1, gap: space[6] },
-  title: { ...text.title, fontSize: 16, lineHeight: 21, color: color.text.primary },
+  title: { ...text.cardTitleCompact, color: color.text.primary },
   steps: { ...text.body, color: color.text.secondary },
   button: {
     alignSelf: 'flex-start',

@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     borderColor: color.accent.signal,
   },
   taskKicker: { ...text.caption, fontFamily: font.medium, color: color.accent.signal },
-  taskTitle: { ...text.cardTitle, fontSize: 17, lineHeight: 21, color: color.text.primary },
+  taskTitle: { ...text.cardTitleCompact, color: color.text.primary },
   sub: { ...text.small, color: color.text.secondary },
   thumbFallback: { backgroundColor: color.bg.screen, alignItems: 'center', justifyContent: 'center' },
 });

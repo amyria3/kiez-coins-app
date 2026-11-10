@@ -197,6 +197,6 @@ const styles = StyleSheet.create({
   rowMe: { borderWidth: 1, borderColor: color.accent.confirmation },
   pressed: { opacity: 0.7 },
   flex: { flex: 1, gap: space[2] },
-  name: { ...text.title, fontSize: 16, color: color.text.primary },
-  meta: { ...text.caption, color: color.text.secondary },
+  name: { ...text.bodyStrong, color: color.text.primary },
+  meta: { ...text.meta, color: color.text.secondary },
 });

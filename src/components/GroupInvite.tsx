@@ -36,5 +36,5 @@ export function GroupInvite({ group }: { group: Group }) {
 }
 
 const styles = StyleSheet.create({
-  meta: { ...text.caption, color: color.text.secondary },
+  meta: { ...text.meta, color: color.text.secondary },
 });

@@ -656,7 +656,7 @@ const fashion = StyleSheet.create({
   place: { ...text.small, color: color.text.primary },
   photo: { width: '100%', aspectRatio: 4 / 5, backgroundColor: color.bg.surface, overflow: 'hidden' },
   noPhotoLine: { height: stroke.ultraThin, backgroundColor: color.line.hairline, marginHorizontal: space[12] },
-  state: { flex: 1, textAlign: 'right', paddingRight: space[8], fontFamily: font.regular, fontSize: 13, lineHeight: 18, color: color.text.secondary },
+  state: { flex: 1, textAlign: 'right', paddingRight: space[8], ...text.meta, color: color.text.secondary },
   stateClosed: { color: color.text.primary, fontFamily: font.semiBold },
   actions: { flexDirection: 'row', alignItems: 'center', height: 44, paddingHorizontal: space[4] },
   count: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] },
@@ -721,7 +721,7 @@ const styles = StyleSheet.create({
   // Ein großer Edenstein, der oben und unten über das Badge ragt
   edenCrystal: { width: 22, height: 20, alignItems: 'center' },
   edenCrystalFloat: { position: 'absolute', top: (20 - 40) / 2 },
-  edenText: { fontFamily: font.display, fontSize: 16, lineHeight: 20, color: color.accent.confirmation },
+  edenText: { ...text.metricSm, color: color.accent.confirmation },
   // Erledigt: Pille etwas kleiner
   rewardDone: { paddingVertical: space[2], paddingLeft: space[8], paddingRight: space[8] },
   pressed: { opacity: 0.9 },

@@ -11,7 +11,7 @@ import { loadThread, markRead, refreshUnread, sendMessage, subscribeMessages, ty
 import { errorText } from '../../data/remote';
 import { useStore } from '../../data/store';
 import type { User } from '../../data/types';
-import { color, font, radius, size, space, stroke, text } from '../../theme/tokens';
+import { color, radius, size, space, stroke, text } from '../../theme/tokens';
 import { localeTag, t } from '../../data/texts';
 import { useGoBack } from '../../lib/goBack';
 
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   bubbleTheirs: { backgroundColor: color.bg.surface, borderBottomLeftRadius: space[4] },
   body: { ...text.body, color: color.text.primary },
   bodyMine: { color: color.text.onAccent },
-  time: { fontFamily: font.regular, fontSize: 11, lineHeight: 14, color: color.text.secondary, alignSelf: 'flex-end' },
+  time: { ...text.caption, color: color.text.secondary, alignSelf: 'flex-end' },
   timeMine: { color: color.text.onAccent, opacity: 0.6 },
   composer: {
     flexDirection: 'row',
