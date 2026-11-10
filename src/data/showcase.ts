@@ -133,7 +133,7 @@ const toShowcase = (r: Row): Showcase => ({
 
 /**
  * Feature `schaufenster` (freischaltung.ts), mit Gruppe für genau diese Gruppe oder diesen Verein.
- * Erstmal nur für Moderatorinnen (Daria, 2026-11-10: wie Routine).
+ * Für alle an (Daria, 2026-11-10).
  */
 export function useShowcaseEnabled(groupId?: string): boolean {
   const { mode } = useStore();

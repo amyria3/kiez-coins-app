@@ -5,7 +5,7 @@ import { SUPABASE_URL, supabase } from '../lib/supabase';
 import { addDays, localDate } from './reminders';
 
 /**
- * Kalender für Routine (Daria, 2026-11-10), erstmal nur für Daria (useRoutineEnabled).
+ * Kalender für Routine (Daria, 2026-11-10), für alle mit Routine (useRoutineEnabled).
  * - Export: persönlicher Abo-Link, den Kalender-Apps abonnieren (Edge Function `kalender`, GET mit Token).
  * - Import über Link: geheime iCal-Adressen aus Google, iCloud oder Outlook (Tabelle routine_calendars). Die Edge
  *   Function holt sie, da Kalenderdienste den Abruf aus dem Browser verbieten.

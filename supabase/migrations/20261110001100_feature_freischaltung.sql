@@ -50,14 +50,14 @@ drop policy if exists feature_grants_moderation on public.feature_grants;
 create policy feature_grants_moderation on public.feature_grants for all to authenticated
   using ((select public.is_moderator())) with check ((select public.is_moderator()));
 
--- Die Funktionen außerhalb des Kerns. Stand 2026-11-10: alles an für alle, außer Routine und Schaufenster, die
--- Daria heute erst für Moderatorinnen freigegeben hat. Für alle freischalten:
---   update public.features set default_on = true where key in ('routine', 'schaufenster');
+-- Die Funktionen außerhalb des Kerns. Stand 2026-11-10: alles an für alle (Daria, 2026-11-10: „Alles für alle
+-- freigeschaltet“). Später einzeln abschalten und gezielt freischalten:
+--   update public.features set default_on = false where key = 'routine';
 insert into public.features (key, name, description, default_on, note) values
-  ('routine', 'Routine', 'Erinnerungen, Kalender und der Knopf „Routine“ im Feed', false, 'Erst für Moderatorinnen (Daria, 2026-11-09)'),
-  ('schaufenster', 'Schaufenster', 'Öffentliche Seite einer Gruppe oder eines Vereins', false, 'Erst für Moderatorinnen (Daria, 2026-11-10)'),
+  ('routine', 'Routine', 'Erinnerungen, Kalender und der Knopf „Routine“ im Feed', true, 'Für alle (Daria, 2026-11-10)'),
+  ('schaufenster', 'Schaufenster', 'Öffentliche Seite einer Gruppe oder eines Vereins', true, 'Für alle (Daria, 2026-11-10)'),
   ('weiterposten', 'Weiterposten', 'Öffentliche Posts auf BlueSky, Mastodon, Instagram und Facebook teilen', true, 'Für alle (Daria, 2026-11-09)')
-on conflict (key) do nothing;
+on conflict (key) do update set default_on = true, note = excluded.note;
 
 create or replace function public.feature_an(p_key text, p_group_id uuid default null)
 returns boolean language sql stable security definer set search_path = '' as $$
