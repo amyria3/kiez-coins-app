@@ -123,6 +123,8 @@ function RootStack() {
         <Stack key={language} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
           {/* Vollbild ohne Wegwischen: Schließen nur über das X, damit die Frage nach dem Entwurf kommt
               und die Vorschau nicht wie ein Overlay wirkt, dessen Wischen mit den Gesten der Vorschau konkurriert */}
+          {/* Routine liegt links neben den Reitern und kommt von links herein (Daria, 2026-11-10) */}
+          <Stack.Screen name="routine/index" options={{ animation: 'slide_from_left' }} />
           <Stack.Screen name="challenge/create" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
           {/* Browser: Der Feed bleibt unter der Detailseite sichtbar, damit Wischen nach rechts ihn zeigt (HeroScreen) */}
           <Stack.Screen
