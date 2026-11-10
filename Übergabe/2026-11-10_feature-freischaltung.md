@@ -22,6 +22,7 @@ Jede Funktion außerhalb des Kerns hat einen Schlüssel und ist an oder aus. Ein
 | Schlüssel | Standard | Vorher |
 |---|---|---|
 | `routine` | an | `useRoutineAvailable` fragte `is_moderator` |
+| `kalender` | an | neu (2026-11-10), Migration `20261110001200_feature_kalender.sql` |
 | `schaufenster` | an | `useShowcaseEnabled` fragte `is_moderator` |
 | `weiterposten` | an | `CROSSPOST_ACTIVE = true` |
 
@@ -45,5 +46,5 @@ delete from public.feature_grants where feature_key = 'schaufenster' and group_i
 
 ## Offen
 
-- Weitere Funktionen außerhalb des Kerns bekommen einen Schlüssel, sobald Daria sie benennt (Kandidaten: Kalender, Nachrichten, Wave).
+- Weitere Funktionen außerhalb des Kerns bekommen einen Schlüssel, sobald Daria sie benennt (Kandidaten: Nachrichten, Wave; Kalender hat seit 2026-11-10 einen).
 - Die Datenbank prüft die Freischaltung noch nicht selbst (z. B. beim Anlegen eines Schaufensters). Nötig, sobald etwas wirklich nur für Freigeschaltete gelten soll.

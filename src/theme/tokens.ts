@@ -184,6 +184,8 @@ export const text = {
   /** Kleine Kennzahlen, z. B. Edensteine in Listen, Karten und Posts (Daria 2026-11-10) */
   metricSm: { fontFamily: font.display, fontSize: 18, lineHeight: 22 },
   title: { fontFamily: font.regular, fontSize: 18, lineHeight: 24 },
+  /** Abschnittsüberschrift auf Einstellungsseiten aus mehreren Abschnitten, z. B. Funktionen (Daria, 2026-11-10) */
+  settingsHeading: { fontFamily: font.semiBold, fontSize: 20, lineHeight: 26 },
   body: { fontFamily: font.text, fontSize: 14, lineHeight: 18 },
   /** Fließtext halbfett, z. B. Name im Post, Text auf kleinen Buttons */
   bodyStrong: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18 },
