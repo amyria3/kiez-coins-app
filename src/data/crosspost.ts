@@ -3,17 +3,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { supabase } from '../lib/supabase';
 import { look } from '../theme/look';
-import { countButton, isModerator } from './remote';
+import { useFeature } from './freischaltung';
+import { countButton } from './remote';
 import { useStore } from './store';
 
 /**
  * Weiterposten (Daria, 05.11.2026): Öffentliche Posts lassen sich zusätzlich auf anderen Plattformen veröffentlichen.
  * BlueSky, Mastodon, Instagram und Facebook laufen über die Edge Function `weiterposten` (kostenlos). X kommt später.
- * Freigegeben für alle (Daria, 09.11.2026, „alles außer X“). Mit `CROSSPOST_ACTIVE` false sähen nur Moderatorinnen
- * die echten Schalter. Für X zählt ein Knopf das Interesse. Plan und Preismodell: `Übergabe/TODO.md`, Abschnitt „Teilen“.
+ * Freigegeben für alle (Daria, 09.11.2026, „alles außer X“). Wer die echten Schalter sieht, entscheidet das Feature
+ * `weiterposten` (freischaltung.ts). Für X zählt ein Knopf das Interesse. Plan und Preismodell: `Übergabe/TODO.md`, Abschnitt „Teilen“.
  */
-export const CROSSPOST_ACTIVE = true;
-
 export type CrosspostPlatform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook' | 'x';
 
 export const CROSSPOST_PLATFORMS: {
@@ -64,15 +63,11 @@ export const isLivePlatform = (p: CrosspostPlatform): p is LivePlatform => (LIVE
 /** Instagram und Facebook brauchen nur einen Zugangs-Token, kein zweites Feld */
 export const tokenOnly = (p: LivePlatform) => p === 'instagram' || p === 'facebook';
 
-/** Echte Schalter sichtbar? Für alle erst mit `CROSSPOST_ACTIVE`, für Moderatorinnen schon zum Testen. */
+/** Echte Schalter sichtbar? Feature `weiterposten` (freischaltung.ts), nur mit echten Daten. */
 export function useCrosspostEnabled(): boolean {
   const { mode } = useStore();
-  const [moderator, setModerator] = useState(false);
-  useEffect(() => {
-    if (CROSSPOST_ACTIVE || mode !== 'live') return;
-    isModerator().then(setModerator).catch(() => undefined);
-  }, [mode]);
-  return mode === 'live' && (CROSSPOST_ACTIVE || moderator);
+  const on = useFeature('weiterposten');
+  return mode === 'live' && on;
 }
 
 export type CrosspostAccount = { platform: LivePlatform; handle: string; instance: string };
