@@ -68,13 +68,14 @@ const DEVICE_KEY = 'routine-device-calendars';
 /** Kalender des Geräts lesen geht nur in der nativen Android-App, nicht im Web */
 export const deviceCalendarsSupported = Platform.OS === 'android';
 
-type ExpoCalendar = typeof import('expo-calendar');
+// Seit SDK 58 werfen die alten Funktionen in `expo-calendar` zur Laufzeit; sie stehen unter `expo-calendar/legacy`
+type ExpoCalendar = typeof import('expo-calendar/legacy');
 function expoCalendar(): ExpoCalendar | null {
   if (!deviceCalendarsSupported) return null;
   try {
     // Erst hier laden: Im Web und in alten APKs ohne das native Modul gibt es expo-calendar nicht
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    return require('expo-calendar') as ExpoCalendar;
+    return require('expo-calendar/legacy') as ExpoCalendar;
   } catch {
     return null;
   }
@@ -159,3 +160,67 @@ export const eventTime = (iso: string) => {
   const d = new Date(iso);
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 };
+
+// ---------- Ein Termin in den eigenen Kalender (Schaufenster, Daria, 2026-11-10) ----------
+
+export type SingleEvent = { id: string; title: string; start: Date; end?: Date; location?: string; notes?: string };
+
+const icsTime = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+const icsText = (s: string) => s.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/[,;]/g, (c) => `\\${c}`);
+
+/** Kalenderdatei (.ics) mit einem Termin; ohne Ende eine Stunde */
+export function eventIcs(e: SingleEvent): string {
+  const end = e.end ?? new Date(e.start.getTime() + 60 * 60 * 1000);
+  return [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//KiezCoins//Schaufenster//DE',
+    'BEGIN:VEVENT',
+    `UID:${e.id}@kiezcoins.de`,
+    `DTSTAMP:${icsTime(new Date())}`,
+    `DTSTART:${icsTime(e.start)}`,
+    `DTEND:${icsTime(end)}`,
+    `SUMMARY:${icsText(e.title)}`,
+    ...(e.location ? [`LOCATION:${icsText(e.location)}`] : []),
+    ...(e.notes ? [`DESCRIPTION:${icsText(e.notes)}`] : []),
+    'END:VEVENT',
+    'END:VCALENDAR',
+    '',
+  ].join('\r\n');
+}
+
+/**
+ * „In meinen Kalender“: Im Browser lädt das eine Kalenderdatei herunter, die Kalender-Apps öffnen.
+ * In der Android-App öffnet sich der Kalender des Handys mit dem fertigen Termin. `false`, wenn es nicht ging.
+ */
+export async function addToMyCalendar(e: SingleEvent): Promise<boolean> {
+  if (Platform.OS === 'web') {
+    try {
+      const url = URL.createObjectURL(new Blob([eventIcs(e)], { type: 'text/calendar' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${e.title.replace(/[^\p{L}\p{N} _-]/gu, '').trim().slice(0, 40) || 'Termin'}.ics`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  const Calendar = expoCalendar();
+  if (!Calendar) return false;
+  try {
+    await Calendar.createEventInCalendarAsync({
+      title: e.title,
+      startDate: e.start,
+      endDate: e.end ?? new Date(e.start.getTime() + 60 * 60 * 1000),
+      location: e.location,
+      notes: e.notes,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}

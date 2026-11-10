@@ -1,5 +1,6 @@
 import { RoutineNudge } from '../components/RoutineNudge';
 import { clearRoutinePost } from '../data/reminders';
+import { clearShowcasePost, peekShowcasePost } from '../data/showcase';
 import { nudgeCrystals } from '../components/icons/Brand';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -261,6 +262,7 @@ export default function FeedScreen() {
   const closeCompose = (reset = false) => {
     // Ohne Post verfällt ein Auftrag aus einer Erinnerung (data/reminders.ts)
     clearRoutinePost();
+    clearShowcasePost();
     Animated.timing(sheetAnim, { toValue: 0, duration: 220, easing: Easing.in(Easing.cubic), useNativeDriver: true }).start(() => {
       setComposing(false);
       if (reset) setComposeKey((k) => k + 1);
@@ -559,7 +561,13 @@ export default function FeedScreen() {
   };
   const composeTarget = tab === 'groups' ? groupId : tab === 'private' ? 'private' : 'public';
   // Kurz und gleich für jede Gruppe (Daria, 24.10.2026)
-  const composeLine = tab === 'groups' ? t('We-Challenge erstellen') : t('Challenge erstellen');
+  // Post für ein Schaufenster: Der Kopf nennt es (Daria, 2026-11-10)
+  const showcasePost = composing ? peekShowcasePost() : null;
+  const composeLine = showcasePost
+    ? t('Post für {name}', { name: showcasePost.name })
+    : tab === 'groups'
+      ? t('We-Challenge erstellen')
+      : t('Challenge erstellen');
   const storiesStyle = {
     height: showStories && !composing
       ? progress.interpolate({ inputRange: [0, 1], outputRange: [0, storiesHeight], extrapolateLeft: 'clamp' })

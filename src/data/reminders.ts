@@ -222,3 +222,23 @@ export async function nudgeAllowed(take: boolean, now = new Date()): Promise<boo
   if (take) await AsyncStorage.setItem(NUDGE_KEY, JSON.stringify([...times, now.getTime()])).catch(() => {});
   return true;
 }
+
+/** „9:00“ oder „18:30“ */
+export const TIME = /^([01]?\d|2[0-3]):[0-5]\d$/;
+
+/** „24.12.“ oder „24.12.2026“ → „2026-12-24“; ohne Jahr der nächste solche Tag ab heute */
+export function parseDate(value: string): string | null {
+  const m = value.trim().match(/^(\d{1,2})\.(\d{1,2})\.?(\d{4})?$/);
+  if (!m) return null;
+  const [d, mo] = [Number(m[1]), Number(m[2])];
+  const now = new Date();
+  let year = m[3] ? Number(m[3]) : now.getFullYear();
+  const make = () => new Date(year, mo - 1, d);
+  let candidate = make();
+  if (candidate.getMonth() !== mo - 1 || candidate.getDate() !== d) return null;
+  if (!m[3] && localDate(candidate) < localDate(now)) {
+    year += 1;
+    candidate = make();
+  }
+  return localDate(candidate) >= localDate(now) ? localDate(candidate) : null;
+}

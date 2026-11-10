@@ -7,28 +7,9 @@ import { FieldGroup, Notice, QuestionHint } from '../../components/Content';
 import { Chip, ChipGroup, TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { WEEKDAYS } from '../../data/katerRoutine';
-import { addDays, createReminder, localDate } from '../../data/reminders';
+import { addDays, createReminder, localDate, parseDate, TIME } from '../../data/reminders';
 import { useGoBack } from '../../lib/goBack';
 import { space } from '../../theme/tokens';
-
-const TIME = /^([01]?\d|2[0-3]):[0-5]\d$/;
-
-/** „24.12.“ oder „24.12.2026“ → „2026-12-24“; ohne Jahr der nächste solche Tag ab heute */
-function parseDate(value: string): string | null {
-  const m = value.trim().match(/^(\d{1,2})\.(\d{1,2})\.?(\d{4})?$/);
-  if (!m) return null;
-  const [d, mo] = [Number(m[1]), Number(m[2])];
-  const now = new Date();
-  let year = m[3] ? Number(m[3]) : now.getFullYear();
-  const make = () => new Date(year, mo - 1, d);
-  let candidate = make();
-  if (candidate.getMonth() !== mo - 1 || candidate.getDate() !== d) return null;
-  if (!m[3] && localDate(candidate) < localDate(now)) {
-    year += 1;
-    candidate = make();
-  }
-  return localDate(candidate) >= localDate(now) ? localDate(candidate) : null;
-}
 
 /**
  * Route `routine/new` (Daria, 2026-11-10): Erinnerung anlegen. Titel nach „Ich will …“, damit der Kater ihn in

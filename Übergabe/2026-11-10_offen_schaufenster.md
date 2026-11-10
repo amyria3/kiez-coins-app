@@ -1,7 +1,7 @@
 # Schaufenster für Unternehmen, Vereine und Organisator:innen
 
 - Stand: 10.11.2026
-- Status: geplant, alle Fragen für den Bau ohne Geld beantwortet. Noch nicht gebaut; Claude baut erst auf Darias ausdrücklichen Auftrag.
+- Status: Teil 1 gebaut am 10.11.2026 (Auftrag Daria: „Machen wir jetzt das Schaufenster nach Plan?“), erstmal nur für Moderatorinnen sichtbar. Wartet auf die Migration `20261110000400_schaufenster`.
 - Ziel in Documentation: neue Datei `kiez-coins/konzept/Schaufenster.md`, Entscheidungen in `kiez-coins/ENTSCHEIDUNGEN.md`, Abschnitt „Schaufenster“
 - Arbeitsteilung: Daria entscheidet später über Abo und Rechtstexte. Claude baut Migration, App-Code und öffentliche Seite, schreibt die Doku und meldet sich vor dem Merge mit der Migration.
 
@@ -61,6 +61,27 @@ Das Schaufenster ist die erste kommerzielle Fläche in KiezCoins. Es ersetzt den
 ### Wege ins Schaufenster
 
 - Über Posts im Feed, über die Gruppe und über eine Liste der Schaufenster im Kiez. Eine Karte kommt später.
+
+## Teil 1, gebaut am 10.11.2026
+
+- Migration `supabase/migrations/20261110000400_schaufenster.sql`: Tabellen aus der Skizze unten (ohne `crosspost_accounts.showcase_id`), Grenze von 50 Einträgen per Trigger, RLS. Posts in Schaufenstern „nur für Eingeladene“ sind per restriktiver Regel nur für Team und Eingeladene lesbar.
+- Gruppenseite: Abschnitt „Schaufenster“. Die Gründer:in legt es mit einem Namen an, alle Mitglieder öffnen es (`src/components/ShowcaseLink.tsx`).
+- `schaufenster/[id]`: Titelbild, Logo, Kurztext, Adresse, Öffnungszeiten, Webseite, Impressum, die 10 neuesten Posts und Termine. Team: „Post erstellen“, „Termin erstellen“; Gründer:in: „Schaufenster bearbeiten“. Andere: „Folgen“, bei „nur für Eingeladene“ „Zugang anfragen“ und „Ich habe einen Code“.
+- `schaufenster/[id]/bearbeiten`: Angaben, Logo und Titelbild, Sichtbarkeit, Link und Code zum Einladen, Anfragen annehmen oder ablehnen, wer posten darf, Schaufenster löschen.
+- `schaufenster/[id]/termin`: Titel, Bild, Heute/Morgen/Datum, Beginn, Ende, Ort, Text.
+- `schaufenster/beitreten?code=…`: Code für „nur für Eingeladene“.
+- „Post erstellen“ öffnet das Erstellen-Blatt im Reiter Kiez mit dem Kopf „Post für <Name>“; der nächste Post landet im Schaufenster (`attach_showcase_post`).
+- Termine: „Speichern“ legt sie in Routine unter „Gespeicherte Termine“ ab, Absagen erscheinen dort durchgestrichen. „In meinen Kalender“: im Browser eine .ics-Datei, in der Android-App der Kalender des Handys. Das Team sieht die Zahl der Speichernden und kann absagen.
+
+### Teil 2, offen
+
+- Posts im Feed mit Name und Logo des Schaufensters statt des Decknamens; Tipp öffnet das Schaufenster.
+- Gefolgte Schaufenster: Posts auch außerhalb des eigenen Kiezes im Feed.
+- Öffentliche Seite `kiezcoins.de/s/<name>` ohne Anmeldung.
+- Weiterposten mit eigenen Konten des Schaufensters (`crosspost_accounts.showcase_id`), Termine als Bild.
+- Liste der Schaufenster im Kiez; Me-Challenge heißt im Erstellen-Blatt „Us-Challenge“ (in der Schaufenster-Liste schon).
+- Der Kater erinnert vor gespeicherten Terminen.
+- Termin ändern (heute nur absagen).
 
 ## Skizze für die Datenbank (Claude)
 

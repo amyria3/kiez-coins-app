@@ -10,6 +10,9 @@ import { NavigationBar } from '../../components/NavigationBar';
 import { Text } from '../../components/T';
 import { eventDate, eventTime, upcomingCalendarEvents, type CalendarEvent } from '../../data/calendar';
 import { dayName, goalText, katerFocus, katerLine } from '../../data/katerRoutine';
+import { savedEvents, type ShowcaseEvent } from '../../data/showcase';
+import { useStore } from '../../data/store';
+import { ShowcaseEventCard } from '../../components/ShowcaseEventCard';
 import { archiveReminder, capitalize, goalOf, kindOf, loadReminders, type Reminder } from '../../data/reminders';
 import { t } from '../../data/texts';
 import { useGoBack } from '../../lib/goBack';
@@ -27,11 +30,15 @@ export default function Routine() {
   const [list, setList] = useState<Reminder[] | null | undefined>(undefined);
   // Termine aus verbundenen Kalendern, als Termine angezeigt (Daria, 2026-11-10)
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  // Gespeicherte Termine aus Schaufenstern (Daria, 2026-11-10); Änderungen und Absagen kommen hier an
+  const [saved, setSaved] = useState<(ShowcaseEvent & { showcase: string })[]>([]);
+  const { currentUserId } = useStore();
 
   const reload = useCallback(() => {
     loadReminders().then(setList, () => setList(null));
     upcomingCalendarEvents(7).then(setEvents, () => setEvents([]));
-  }, []);
+    savedEvents(currentUserId).then(setSaved, () => setSaved([]));
+  }, [currentUserId]);
   // Neu laden, wenn man vom Anlegen oder Erledigen zurückkommt
   useFocusEffect(reload);
 
@@ -54,7 +61,7 @@ export default function Routine() {
         <View style={styles.content}>
           <Notice variant="warning" message="Erinnerungen laden gerade nicht. Fehlt noch die Migration 20261110000100_erinnerungen?" />
         </View>
-      ) : list.length === 0 && events.length === 0 ? (
+      ) : list.length === 0 && events.length === 0 && saved.length === 0 ? (
         <View style={[styles.center, { paddingBottom: insets.bottom + space[24] }]}>
           <KaterMessage
             title="Was willst Du Dir angewöhnen?"
@@ -71,6 +78,15 @@ export default function Routine() {
               <View style={styles.list}>
                 {list.map((r) => (
                   <ReminderCard key={r.id} reminder={r} onDone={() => router.push({ pathname: '/routine/[id]', params: { id: r.id } })} onEnd={() => end(r)} />
+                ))}
+              </View>
+            </SectionBlock>
+          ) : null}
+          {saved.length ? (
+            <SectionBlock label="Gespeicherte Termine">
+              <View style={styles.list}>
+                {saved.map((e) => (
+                  <ShowcaseEventCard key={e.id} event={e} showcase={e.showcase} onChanged={reload} />
                 ))}
               </View>
             </SectionBlock>
