@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { AccessibilityInfo, Animated, Easing, Linking, Pressable, StyleSheet, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
-import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
 import { t as translate, useTexts } from '../data/texts';
 import { Cat, type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
@@ -298,13 +298,15 @@ const KRABBE_PIXEL = (() => {
   g.forEach((row, y) => row.forEach((v, x) => v && pixels.push({ x, y, v })));
   return { w, h, pixels };
 })();
+/** Etwas kleiner als ein Profilbild (Daria, 2026-11-10) */
+const KRABBE_BREITE = 28;
 const KRABBE_FARBE: Record<number, string> = { 1: color.text.primary, 2: color.bg.screen, 3: color.brand.signature };
 
 export function SystemAvatar() {
   const { w, h, pixels } = KRABBE_PIXEL;
   return (
     <View style={styles.systemAvatar} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-      <Svg width={size.avatar} height={(size.avatar * h) / w} viewBox={`0 0 ${w} ${h}`}>
+      <Svg width={KRABBE_BREITE} height={(KRABBE_BREITE * h) / w} viewBox={`0 0 ${w} ${h}`}>
         {pixels.map(({ x, y, v }) => (
           // etwas überlappend, damit beim Skalieren keine Haarlinien zwischen den Pixeln entstehen
           <Rect key={`${x}-${y}`} x={x} y={y} width={1.04} height={1.04} fill={KRABBE_FARBE[v]} />
