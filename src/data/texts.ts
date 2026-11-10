@@ -10,6 +10,12 @@ import fr from '../i18n/fr.json';
 import he from '../i18n/he.json';
 import ru from '../i18n/ru.json';
 import uk from '../i18n/uk.json';
+import autoAr from '../i18n/auto/ar.json';
+import autoEn from '../i18n/auto/en.json';
+import autoFr from '../i18n/auto/fr.json';
+import autoHe from '../i18n/auto/he.json';
+import autoRu from '../i18n/auto/ru.json';
+import autoUk from '../i18n/auto/uk.json';
 import { genderOverlays } from '../i18n/gender';
 import type { Gender } from './types';
 
@@ -19,7 +25,8 @@ import type { Gender } from './types';
  * Alle Texte stehen auf Deutsch im Code. `t(original)` liefert die Fassung in der gewählten Sprache:
  * - Deutsch: Darias Fassung aus der Tabelle `app_texts` (Spalte `text`), sonst das Original.
  * - Andere Sprachen: die Spalte der Sprache in `app_texts` (z. B. `en`), sonst die Übersetzung aus
- *   `src/i18n/<sprache>.json`, sonst das deutsche Original.
+ *   `src/i18n/<sprache>.json`, sonst die DeepL-Übersetzung aus `src/i18n/auto/<sprache>.json`
+ *   (`scripts/i18n-auto.mjs`, füllt nur Lücken), sonst das deutsche Original.
  *
  * Platzhalter in geschweiften Klammern, z. B. „Ahoi, {anrede}!“, setzt die App ein. Übersetzungen können
  * Mehrzahlformen enthalten: „{n, plural, one {# день} few {# дні} many {# днів} other {# дня}}“.
@@ -50,6 +57,8 @@ const RTL = new Set<Lang>(['ar', 'he']);
 export const isRtl = (l: Lang = lang) => RTL.has(l);
 
 const bundled: Record<OtherLang, Record<string, string>> = { en, fr, uk, ru, ar, he };
+// DeepL, nur wo es noch keine Übersetzung von Hand gibt
+const deeplTexts: Record<OtherLang, Record<string, string>> = { en: autoEn, fr: autoFr, uk: autoUk, ru: autoRu, ar: autoAr, he: autoHe };
 
 const CACHE_KEY = 'app_texts_v2';
 const LANG_KEY = 'app_language';
@@ -295,7 +304,7 @@ export function lookup(original: string, l: Lang = lang, g: Gender = gender): st
   const key = normalizeText(original);
   const byGender = genderOverlays[l]?.[g]?.[key];
   if (l === 'de') return overrides.get(key) ?? byGender ?? original;
-  return cms[l]?.get(key) ?? byGender ?? bundled[l][key] ?? overrides.get(key) ?? original;
+  return cms[l]?.get(key) ?? byGender ?? bundled[l][key] ?? deeplTexts[l][key] ?? overrides.get(key) ?? original;
 }
 
 /**

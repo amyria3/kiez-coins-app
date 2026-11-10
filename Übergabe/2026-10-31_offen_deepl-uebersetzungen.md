@@ -1,6 +1,6 @@
 # Übersetzungen automatisch mit DeepL
 
-Datum: 2026-10-31 · Status: offen, Umsetzung geplant für 2026-11-01 · Ziel in Documentation: `kiez-coins/app/Anleitung_App.md` (Abschnitt „Sprachen und Übersetzungen“)
+Datum: 2026-10-31 · Status: gebaut am 2026-11-10, wartet auf den Schlüssel `DEEPL_API_KEY` · Ziel in Documentation: `kiez-coins/app/Anleitung_App.md` (Abschnitt „Sprachen und Übersetzungen“)
 
 Pflichtaufgabe (Daria): Konto bei DeepL API Free anlegen (500.000 Zeichen pro Monat kostenlos), Schlüssel in GitHub unter `amyria3/kiez-coins-app` › Settings › Secrets and variables › Actions als `DEEPL_API_KEY` speichern.
 
@@ -34,3 +34,21 @@ Pflichtaufgabe (Daria): Konto bei DeepL API Free anlegen (500.000 Zeichen pro Mo
 - Englisch ist vollständig (PR „Englisch vervollständigen“): 277 fehlende Texte von Claude übersetzt, auch der Tour-Text zur Me-Challenge. Was `node scripts/i18n.mjs` für `en` noch als fehlend zählt (rund 30), sind keine sichtbaren Texte: SVG, CSS, Schriftnamen, Markennamen, interne Stimmungsnamen.
 - Französisch, Ukrainisch, Russisch, Arabisch und Hebräisch fehlen weiter rund 280 Texte (bei `ru` etwas mehr). Der DeepL-Probelauf aus Schritt 2 deckt sie ab.
 - Neu übersetzt `t()` jetzt auch Platzhalter in Eingabefeldern (`TextField`, Textblätter, Fehlerseite) und mehrere Vorleser-Texte (`accessibilityLabel`), die vorher immer Deutsch blieben.
+
+## Stand 2026-11-10: gebaut
+
+Daria (10.11.2026): „Wichtig, dass meine deutschen Übersetzungen von Hand nicht kaputt gehen oder spätere Korrekturen von Hand in anderen Sprachen.“
+
+- `scripts/i18n-auto.mjs` schreibt nur in `src/i18n/auto/<sprache>.json`. Es liest `src/i18n/<sprache>.json` und die Tabelle `app_texts` nur, um Lücken zu finden. Deutsch übersetzt es nie, die Geschlechter-Dateien fasst es nicht an.
+- Reihenfolge in `lookup()` (`src/data/texts.ts`): Texte-Editor → Geschlecht → `src/i18n/<sprache>.json` → DeepL → Deutsch. Jede Korrektur von Hand gewinnt, auch eine spätere.
+- Hat Daria einen deutschen Text im Texte-Editor geändert, übersetzt DeepL ihre Fassung.
+- Englisch läuft jetzt mit, weil seit dem 07.11. neue Texte dazugekommen sind (Routine, Schaufenster, rund 250).
+- Platzhalter und feste Namen (KiezCoins, Me-/We-Challenge) sind geschützt. Fehlt nach DeepL einer, wird der Text nicht übernommen und im Lauf gemeldet. Mehrzahlformen gehen nicht an DeepL.
+- Technische Strings (SVG, CSS, Schriftnamen, Marken, interne Stimmungsnamen) stehen als Ausnahmen im Skript.
+- Höchstens 150.000 Zeichen pro Lauf (`I18N_MAX_CHARS`). Der Altbestand braucht rund 100.000.
+- GitHub Action `.github/workflows/uebersetzungen.yml`: bei jedem PR ein Commit „Übersetzungen (DeepL)“. Von Hand gestartet landet das Ergebnis auf dem Branch `uebersetzungen-deepl` (Probelauf, Schritt 2 im Plan).
+- Website (`scripts/site/sprachen/`) ist noch nicht angeschlossen. Dort steht bei fehlenden Texten weiter Englisch.
+
+Nächste Schritte:
+1. Daria legt `DEEPL_API_KEY` an (siehe oben).
+2. Claude startet bzw. Daria startet „Actions › Übersetzungen (DeepL) › Run workflow“ und prüft den PR aus `uebersetzungen-deepl`.

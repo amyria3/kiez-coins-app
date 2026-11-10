@@ -9,7 +9,7 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [x] (10.11.2026, Daria mit Claude: INWX A `216.198.79.1`, www CNAME auf Vercel, Vercel zeigt beide gültig) **Pflichtaufgabe:** kiezcoins.de bei INWX auf Vercel umstellen. Bis dahin funktionieren Einladungslinks, Instant-Einladungen, Instant-Download und geteilte Posts nicht. Schritte: `2026-11-08_offen_domain-kiezcoins-de.md`.
 - [x] (10.11.2026, von Claude in der Datenbank geprüft) **Pflichtaufgabe:** Migration `20261109000100_comment_likes.sql` im Supabase SQL Editor ausführen. Bis dahin zeigen Kommentare kein Herz. Details: `2026-11-09_offen_kommentare-liken.md`.
 - [x] (10.11.2026, von Claude in der Datenbank geprüft) **Pflichtaufgabe:** Migration `20261109000200_me_challenge_offen.sql` im Supabase SQL Editor ausführen. Bis dahin bleibt eine neue Me-Challenge ein Entwurf. Details: `2026-11-09_offen_me-challenge-offen.md`.
-- [ ] **Pflichtaufgabe (Daria, 09.11.2026):** Übersetzungen automatisch mit DeepL. Vorher legt Daria den Schlüssel `DEEPL_API_KEY` in GitHub an. DeepL füllt nur Lücken, vorhandene Übersetzungen und Korrekturen im Texte-Editor bleiben. Plan: `2026-10-31_offen_deepl-uebersetzungen.md`.
+- [ ] **Pflichtaufgabe (Daria, 09.11.2026):** Übersetzungen automatisch mit DeepL. Vorher legt Daria den Schlüssel `DEEPL_API_KEY` in GitHub an. DeepL füllt nur Lücken, vorhandene Übersetzungen und Korrekturen im Texte-Editor bleiben. Plan: `2026-10-31_offen_deepl-uebersetzungen.md`. (10.11.2026: Skript und GitHub Action sind gebaut, es fehlt nur noch der Schlüssel.)
 
 ## Dringend (Daria, 30.10.2026)
 
