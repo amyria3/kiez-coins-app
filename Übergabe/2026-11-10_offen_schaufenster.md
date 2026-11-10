@@ -20,6 +20,8 @@ Entscheidungen (Daria, 10.11.2026, nach dem ersten Plan):
 - Posts aus dem Schaufenster lassen sich ebenfalls auf Instagram, Facebook und den anderen Plattformen weiterposten. Das ist wichtig.
 - Im Schaufenster posten und Termine anlegen dürfen die Gründer:in der Gruppe und die Mitglieder, die sie dafür freischaltet.
 - Ein Schaufenster nur für Eingeladene gibt es zusätzlich zum öffentlichen. Daria will damit halböffentliche Clubs und Ähnliches ermöglichen (Lesart von Claude für „Demo öffentliche Clubs“).
+- Das Schaufenster wird erst ohne Geld gebaut. Kein Abo, keine Bezahlung.
+- In ein Schaufenster nur für Eingeladene kommt man auf zwei Wegen: per Code und Link wie bei Gruppen, oder per Anfrage, die das Team freigibt.
 
 Das Schaufenster ist damit die erste kommerzielle Fläche in KiezCoins. Es greift den Feature-Wunsch vom 09.11.2026 auf: „Feed, besonders für Kleinunternehmen und Vereine“ (`Übergabe/TODO.md`).
 
@@ -52,7 +54,8 @@ Das Schaufenster ist damit die erste kommerzielle Fläche in KiezCoins. Es greif
 - Mit Abo sind alle Posts sichtbar. Endet das Abo, gilt wieder die Grenze. Nichts geht verloren.
 - Die Grenze sitzt in der Datenbank (Abfrage und RLS), nicht nur in der App. Sonst lesen andere Apps oder die Web-App die älteren Posts trotzdem.
 - Das Abo heißt auf der Finanzierungsseite schon **Dachs (Partnerladen): 19 € netto im Monat, jährlich per SEPA-Lastschrift** (`website/finanzierung.html`).
-- Bezahlen geht heute nicht: Die Nutzungsbedingungen sagen „KiezCoins … nimmt kein Geld an und zahlt keins aus“ (`src/data/legal.ts`). Vorschlag nach dem Muster vom Weiterposten (05.11.2026): erst kein Geld nehmen. Das Abo setzt Daria vorerst von Hand in der Datenbank, und ein Knopf „Ich würde das Abo nutzen“ zählt das Interesse.
+- Erst ohne Geld (Daria, 10.11.2026). Die Grenze von 10 Posts wird gebaut, das Abo nicht. Freischalten für alle Posts setzt Daria von Hand in der Datenbank (`plan_until`).
+- Bezahlen geht heute auch rechtlich nicht: Die Nutzungsbedingungen sagen „KiezCoins … nimmt kein Geld an und zahlt keins aus“ (`src/data/legal.ts`). Vorschlag nach dem Muster vom Weiterposten (05.11.2026): erst kein Geld nehmen. Das Abo setzt Daria vorerst von Hand in der Datenbank, und ein Knopf „Ich würde das Abo nutzen“ zählt das Interesse.
 
 ### Posts aus dem Schaufenster gehen weiter an Instagram, Facebook und Co.
 
@@ -123,12 +126,12 @@ Gesammelt am 10.11.2026 aus `Übergabe/`, `website/`, `src/`, `supabase/` und de
 
 ## Offene Punkte
 
-Fragen an Daria, die Reihenfolge folgt der Wichtigkeit für den Bau. Beantwortet am 10.11.2026: wer ein Schaufenster anlegt (jede Gruppe), ob Posts im Kiez-Feed erscheinen (ja), Weiterposten (ja, wichtig), wer im Schaufenster postet (Gründer:in und freigeschaltete Mitglieder), Schaufenster nur für Eingeladene (ja, für halböffentliche Clubs).
+Fragen an Daria, die Reihenfolge folgt der Wichtigkeit für den Bau. Beantwortet am 10.11.2026: wer ein Schaufenster anlegt (jede Gruppe), ob Posts im Kiez-Feed erscheinen (ja), Weiterposten (ja, wichtig), wer im Schaufenster postet (Gründer:in und freigeschaltete Mitglieder), Schaufenster nur für Eingeladene (ja, für halböffentliche Clubs), Geld (erst ohne; das Abo kommt später, Frage 4 hat Zeit), Zugang für Eingeladene (Code und Link, dazu Anfrage mit Freigabe).
 
-1. Wie kommen Menschen in ein Schaufenster nur für Eingeladene: per Code und Link wie bei Gruppen, per Anfrage mit Freigabe durch das Team, oder beides? Dürfen Eingeladene kommentieren und liken?
+1. Dürfen Eingeladene in einem Schaufenster nur für Eingeladene kommentieren und liken, oder nur ansehen?
 2. „Alle dürfen sehen“: auch ohne Konto im Web unter `kiezcoins.de/s/<name>` (Vorschlag)?
 3. Was passiert mit dem elften Post: im Schaufenster ausblenden und im Archiv behalten (Vorschlag) oder löschen? Bleibt er im Kiez-Feed sichtbar? Zählen Termine mit?
-4. Ist das Abo der Dachs (19 € netto im Monat)? Was enthält es außer unbegrenzten Posts, zum Beispiel X beim Weiterposten, Bilderkennung, Weiterposten ohne Wasserzeichen, Statistik?
+4. Später, nach dem Bau ohne Geld: Ist das Abo der Dachs (19 € netto im Monat)? Was enthält es außer unbegrenzten Posts, zum Beispiel X beim Weiterposten, Bilderkennung, Weiterposten ohne Wasserzeichen, Statistik?
 5. Prüft jemand ein Schaufenster, bevor es öffentlich wird, zum Beispiel das Impressum?
 6. Welche Posts darf ein Schaufenster erstellen: Bild, Textpost, Me-Challenge, We-Challenge? Darf es Coins anbieten?
 7. Termine: Reicht „Speichern“ in Routine plus Kalenderdatei? Braucht es Zusagen mit Teilnehmerzahl, wiederkehrende Termine oder Tickets?
