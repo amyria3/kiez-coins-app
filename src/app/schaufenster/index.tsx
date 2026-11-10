@@ -19,12 +19,24 @@ import { color, radius, space, text } from '../../theme/tokens';
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
 /**
+ * Pfeil zurück: Aus der App (z. B. „Dein Konto › Mein Schaufenster“) zurück dorthin. Wer die Seite direkt über
+ * kiezcoins.de/schaufenster öffnet, hat keinen Verlauf; dann bleibt der Pfeil ohne Wirkung wie vorher.
+ */
+function useBack() {
+  const router = useRouter();
+  return () => {
+    if (router.canGoBack()) router.back();
+  };
+}
+
+/**
  * Route `schaufenster` (kiezcoins.de/schaufenster, Daria, 2026-11-10): Läden, Vereine und Clubs legen ihr Schaufenster
  * an und pflegen es, ohne den Umweg über die Social App. Dabei entsteht ein normales KiezCoins-Konto; die Seite führt
  * nur nicht durch Deckname, Kiez und Feed. Anmelden wie in der App: Code per E-Mail oder Passwort.
  * Das Schaufenster gehört intern zu einer Gruppe, die beim Anlegen mit entsteht.
  */
 export default function ShowcaseHub() {
+  const back = useBack();
   const { session } = useAuth();
   const [consented, setConsented] = useState<boolean | undefined>(undefined);
 
@@ -45,7 +57,7 @@ export default function ShowcaseHub() {
   if (!session) return <Login header={header} />;
   if (consented === undefined) {
     return (
-      <SubScreen title="Dein Schaufenster" navigation="back" onLeadingPress={() => {}} header={header}>
+      <SubScreen title="Dein Schaufenster" navigation="back" onLeadingPress={back} header={header}>
         <ActivityIndicator color={color.text.secondary} />
       </SubScreen>
     );
@@ -57,6 +69,7 @@ export default function ShowcaseHub() {
 // ---------- Anmelden ----------
 
 function Login({ header }: { header: React.ReactNode }) {
+  const back = useBack();
   const { sendCode, verifyCode, signInOrUpWithPassword } = useAuth();
   const [email, setEmail] = useState('');
   const [mode, setMode] = useState<'email' | 'code' | 'password'>('email');
@@ -79,7 +92,7 @@ function Login({ header }: { header: React.ReactNode }) {
     <SubScreen
       title="Dein Schaufenster"
       navigation="back"
-      onLeadingPress={() => {}}
+      onLeadingPress={back}
       header={header}
       actions={
         mode === 'email' ? (
@@ -125,6 +138,7 @@ function Login({ header }: { header: React.ReactNode }) {
 // ---------- Zustimmung ----------
 
 function Consent({ header, onDone }: { header: React.ReactNode; onDone: () => void }) {
+  const back = useBack();
   const router = useRouter();
   const { dispatch } = useStore();
   const [age, setAge] = useState(false);
@@ -135,7 +149,7 @@ function Consent({ header, onDone }: { header: React.ReactNode; onDone: () => vo
     <SubScreen
       title="Dein Schaufenster"
       navigation="back"
-      onLeadingPress={() => {}}
+      onLeadingPress={back}
       header={header}
       actions={
         <Button
@@ -183,6 +197,7 @@ function Consent({ header, onDone }: { header: React.ReactNode; onDone: () => vo
 // ---------- Eigene Schaufenster ----------
 
 function Mine({ header }: { header: React.ReactNode }) {
+  const back = useBack();
   const router = useRouter();
   const { signOut } = useAuth();
   const { currentUserId, groupApi, dispatch } = useStore();
@@ -225,7 +240,7 @@ function Mine({ header }: { header: React.ReactNode }) {
 
   if (list === undefined) {
     return (
-      <SubScreen title="Dein Schaufenster" navigation="back" onLeadingPress={() => {}} header={header}>
+      <SubScreen title="Dein Schaufenster" navigation="back" onLeadingPress={back} header={header}>
         <ActivityIndicator color={color.text.secondary} />
       </SubScreen>
     );
@@ -236,7 +251,7 @@ function Mine({ header }: { header: React.ReactNode }) {
       <SubScreen
         title="Dein Schaufenster"
         navigation="back"
-        onLeadingPress={() => {}}
+        onLeadingPress={back}
         header={header}
         actions={<Button label="Schaufenster anlegen" busy={busy} disabled={!name.trim()} onPress={create} />}
       >
@@ -251,7 +266,7 @@ function Mine({ header }: { header: React.ReactNode }) {
   }
 
   return (
-    <SubScreen title="Dein Schaufenster" navigation="back" onLeadingPress={() => {}} header={header}>
+    <SubScreen title="Dein Schaufenster" navigation="back" onLeadingPress={back} header={header}>
       {list.map((s) => (
         <FieldGroup key={s.id} label={s.name}>
           {s.cover ? <Image source={s.cover} style={styles.cover} contentFit="cover" /> : null}

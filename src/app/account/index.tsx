@@ -18,6 +18,7 @@ import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
 import { look, looks, lookSelectable } from '../../theme/look';
 import { MODES, useModes } from '../../data/features';
 import { useGoBack } from '../../lib/goBack';
+import { useShowcaseEnabled } from '../../data/showcase';
 import { installedVersionLabel } from '../../data/appRelease';
 
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
@@ -28,6 +29,8 @@ export default function Account() {
   const me = useCurrentUser();
   const { signOut, hasPassword } = useAuth();
   const modes = useModes();
+  // „Mein Schaufenster“ unter Meine Gruppen, wenn Schaufenster für die Person freigeschaltet ist (Daria, 2026-11-10)
+  const showcase = useShowcaseEnabled();
   const modesShown = MODES.filter((m) => modes.isVisible(m.key)).map((m) => t(m.label)).join(', ');
   // „Moderation“ nur für Personen in der Tabelle `moderators`
   const [moderator, setModerator] = useState(false);
@@ -79,6 +82,14 @@ export default function Account() {
         leading={<Icon name="behausung" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/groups')}
       />
+      ) : null}
+      {showcase ? (
+        <NavCard
+          title="Mein Schaufenster"
+          description="Für Laden, Verein oder Club"
+          leading={<Icon name="village" size={size.icon} color={color.text.primary} />}
+          onPress={() => router.push('/schaufenster')}
+        />
       ) : null}
       <NavCard
         title="Meine Posts"
