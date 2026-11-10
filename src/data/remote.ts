@@ -78,7 +78,15 @@ type SettingsRow = {
   privacy_accepted_at: string | null;
 };
 
-type CommentRow = { id: string; author_id: string; body: string; created_at: string; reply_to_id?: string | null };
+type CommentRow = {
+  id: string;
+  author_id: string;
+  body: string;
+  created_at: string;
+  reply_to_id?: string | null;
+  /** Bildkommentare (Migration 20261110001300) */
+  image_path?: string | null;
+};
 
 type ChallengeRow = {
   id: string;
@@ -310,6 +318,8 @@ function toChallenge(
         body: c.body,
         createdAt: c.created_at,
         replyToId: c.reply_to_id ?? undefined,
+        image: photoUrl(c.image_path),
+        imagePath: c.image_path ?? undefined,
       })),
     rejectionReason: row.rejection_reason ?? undefined,
     confirmedAt: row.confirmed_at ?? undefined,
@@ -1350,12 +1360,31 @@ export async function nameOperation(userId: string, challengeId: string, name: s
   check(await supabase.from('operation_names').insert({ challenge_id: challengeId, user_id: userId, name }));
 }
 
-export async function addComment(challengeId: string, body: string, replyToId?: string) {
+/** Kommentar schreiben. Mit Bild (Migration 20261110001300): erst hochladen, dann den Pfad mitschicken. */
+export async function addComment(challengeId: string, body: string, replyToId?: string, imagePath?: string) {
   check(
-    await supabase
-      .from('comments')
-      .insert(replyToId ? { challenge_id: challengeId, body, reply_to_id: replyToId } : { challenge_id: challengeId, body }),
+    await supabase.from('comments').insert({
+      challenge_id: challengeId,
+      body,
+      ...(replyToId ? { reply_to_id: replyToId } : null),
+      ...(imagePath ? { image_path: imagePath } : null),
+    }),
   );
+}
+
+/**
+ * Kommentar löschen: eigener Kommentar oder als Moderatorin (Migration 20261110001300). Erst das Bild, dann den
+ * Kommentar, weil die Moderation nur Bilder löschen darf, die noch an einem Kommentar hängen.
+ */
+export async function deleteComment(commentId: string, imagePath?: string) {
+  if (imagePath) {
+    const { error } = await supabase.storage.from(PHOTO_BUCKET).remove([imagePath]);
+    // Bild weg oder nicht löschbar: Der Kommentar verschwindet trotzdem, ohne Kommentar ist das Bild nirgends zu sehen
+    if (error) console.warn('Kommentarbild nicht gelöscht', error.message);
+  }
+  const { data, error } = await supabase.from('comments').delete().eq('id', commentId).select('id');
+  if (error) throw error;
+  if (!data?.length) throw new ShownError(t('Der Kommentar ließ sich nicht löschen.'));
 }
 
 export async function setLike(challengeId: string, userId: string, liked: boolean) {
