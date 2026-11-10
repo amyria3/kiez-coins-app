@@ -167,6 +167,10 @@
     {
       "source": "/c/:id",
       "destination": "/api/c?id=:id"
+    },
+    {
+      "source": "/s/:slug",
+      "destination": "/api/s?slug=:slug"
     }
   ]
 }

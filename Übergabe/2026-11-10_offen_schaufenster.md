@@ -73,11 +73,13 @@ Das Schaufenster ist die erste kommerzielle Fläche in KiezCoins. Es ersetzt den
 - „Post erstellen“ öffnet das Erstellen-Blatt im Reiter Kiez mit dem Kopf „Post für <Name>“; der nächste Post landet im Schaufenster (`attach_showcase_post`).
 - Termine: „Speichern“ legt sie in Routine unter „Gespeicherte Termine“ ab, Absagen erscheinen dort durchgestrichen. „In meinen Kalender“: im Browser eine .ics-Datei, in der Android-App der Kalender des Handys. Das Team sieht die Zahl der Speichernden und kann absagen.
 
+- Herzen für Termine, auch ohne Konto (Daria, 10.11.2026, Migration `20261110000500_termin_herzen`): einfacher Zähler `showcase_events.likes`, die Datenbank speichert keine Kennung. Das Gerät merkt sich, welche Termine es geliked hat (App: AsyncStorage, Seite: localStorage). Der Zähler lässt sich daher leicht hochtreiben; Daria hat das so gewählt.
+- Öffentliche Seite `kiezcoins.de/s/<kurzname>` (`api/s.mjs`, Vorlage `/teilen-vorlage`): Kopf, die 10 neuesten Posts und Termine, Herzen an Terminen. Nur bei Sichtbarkeit „Alle“. Der Link steht unter „Schaufenster bearbeiten“.
+
 ### Teil 2, offen
 
 - Posts im Feed mit Name und Logo des Schaufensters statt des Decknamens; Tipp öffnet das Schaufenster.
 - Gefolgte Schaufenster: Posts auch außerhalb des eigenen Kiezes im Feed.
-- Öffentliche Seite `kiezcoins.de/s/<name>` ohne Anmeldung.
 - Weiterposten mit eigenen Konten des Schaufensters (`crosspost_accounts.showcase_id`), Termine als Bild.
 - Liste der Schaufenster im Kiez; Me-Challenge heißt im Erstellen-Blatt „Us-Challenge“ (in der Schaufenster-Liste schon).
 - Der Kater erinnert vor gespeicherten Terminen.

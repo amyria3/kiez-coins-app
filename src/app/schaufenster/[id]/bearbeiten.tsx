@@ -15,6 +15,7 @@ import {
   openRequests,
   setShowcasePoster,
   showcaseInviteLink,
+  showcasePublicLink,
   showcasePosters,
   updateShowcase,
   type Showcase,
@@ -176,9 +177,13 @@ export default function EditShowcase() {
         </ChipGroup>
         <Text style={styles.meta}>
           {visibility === 'public'
-            ? 'Alle in der App sehen Deine Posts und Termine.'
+            ? 'Alle in der App sehen Deine Posts und Termine, dazu alle im Internet auf der öffentlichen Seite.'
             : 'Name, Logo und Angaben sehen alle. Posts und Termine sehen nur Dein Team und Eingeladene.'}
         </Text>
+        {/* Öffentliche Seite ohne Anmeldung, dort lassen sich Termine auch ohne Konto liken (Daria, 2026-11-10) */}
+        {visibility === 'public' && showcase.visibility === 'public' ? (
+          <CopyField label="Öffentliche Seite" value={showcasePublicLink(showcase.slug)} />
+        ) : null}
         {visibility === 'invite' && showcase.visibility === 'invite' ? (
           <>
             <CopyField label="Einladungslink" value={link} />
