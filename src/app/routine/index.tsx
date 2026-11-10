@@ -8,7 +8,8 @@ import { KaterCard, Notice, SectionBlock } from '../../components/Content';
 import { KaterMessage } from '../../components/KaterMessage';
 import { NavigationBar } from '../../components/NavigationBar';
 import { Text } from '../../components/T';
-import { goalText, katerFocus, katerLine } from '../../data/katerRoutine';
+import { eventDate, eventTime, upcomingCalendarEvents, type CalendarEvent } from '../../data/calendar';
+import { dayName, goalText, katerFocus, katerLine } from '../../data/katerRoutine';
 import { archiveReminder, capitalize, goalOf, kindOf, loadReminders, type Reminder } from '../../data/reminders';
 import { t } from '../../data/texts';
 import { useGoBack } from '../../lib/goBack';
@@ -24,9 +25,12 @@ export default function Routine() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [list, setList] = useState<Reminder[] | null | undefined>(undefined);
+  // Termine aus verbundenen Kalendern, als Termine angezeigt (Daria, 2026-11-10)
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
 
   const reload = useCallback(() => {
     loadReminders().then(setList, () => setList(null));
+    upcomingCalendarEvents(7).then(setEvents, () => setEvents([]));
   }, []);
   // Neu laden, wenn man vom Anlegen oder Erledigen zurückkommt
   useFocusEffect(reload);
@@ -50,27 +54,58 @@ export default function Routine() {
         <View style={styles.content}>
           <Notice variant="warning" message="Erinnerungen laden gerade nicht. Fehlt noch die Migration 20261110000100_erinnerungen?" />
         </View>
-      ) : list.length === 0 ? (
+      ) : list.length === 0 && events.length === 0 ? (
         <View style={[styles.center, { paddingBottom: insets.bottom + space[24] }]}>
           <KaterMessage
             title="Was willst Du Dir angewöhnen?"
             body="Sag mir, was Du vorhast. Ich erinnere Dich, ganz ohne Druck. Na gut, mit ein bisschen."
             action={<Button label="Neue Erinnerung" icon="plus" onPress={() => router.push('/routine/new')} />}
+            more={<Button label="Kalender verbinden" variant="ghost" onPress={() => router.push('/routine/kalender')} />}
           />
         </View>
       ) : (
         <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + space[24] }]}>
           {focus ? <KaterCard>{katerLine(focus)}</KaterCard> : null}
-          <SectionBlock label="Deine Erinnerungen">
-            <View style={styles.list}>
-              {list.map((r) => (
-                <ReminderCard key={r.id} reminder={r} onDone={() => router.push({ pathname: '/routine/[id]', params: { id: r.id } })} onEnd={() => end(r)} />
-              ))}
-            </View>
-          </SectionBlock>
-          <Button label="Neue Erinnerung" icon="plus" variant="secondary" onPress={() => router.push('/routine/new')} />
+          {list.length ? (
+            <SectionBlock label="Deine Erinnerungen">
+              <View style={styles.list}>
+                {list.map((r) => (
+                  <ReminderCard key={r.id} reminder={r} onDone={() => router.push({ pathname: '/routine/[id]', params: { id: r.id } })} onEnd={() => end(r)} />
+                ))}
+              </View>
+            </SectionBlock>
+          ) : null}
+          {events.length ? (
+            <SectionBlock label="Aus Deinem Kalender">
+              <View style={styles.list}>
+                {events.slice(0, 20).map((e) => (
+                  <EventCard key={e.id} event={e} />
+                ))}
+              </View>
+            </SectionBlock>
+          ) : null}
+          <View style={styles.buttons}>
+            <Button label="Neue Erinnerung" icon="plus" variant="secondary" onPress={() => router.push('/routine/new')} />
+            <Button label="Kalender" variant="ghost" onPress={() => router.push('/routine/kalender')} />
+          </View>
         </ScrollView>
       )}
+    </View>
+  );
+}
+
+/** Termin aus einem verbundenen Kalender: wie ein Termin aus Routine, nur zum Ansehen */
+function EventCard({ event: e }: { event: CalendarEvent }) {
+  const when = `${dayName(eventDate(e))} ${e.allDay ? t('ganztägig') : t('um {time}', { time: eventTime(e.start) })}`;
+  return (
+    <View style={styles.card} accessible accessibilityLabel={`${t('Termin')}: ${e.title}, ${when}`}>
+      <View style={styles.flex}>
+        <Text style={[styles.kicker, styles.kickerTermin]}>Termin</Text>
+        <Text noTranslate style={styles.title}>
+          {e.title}
+        </Text>
+        <Text style={styles.sub}>{e.calendar ? `${when} · ${e.calendar}` : when}</Text>
+      </View>
     </View>
   );
 }
@@ -122,6 +157,7 @@ const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center' },
   content: { paddingHorizontal: space[20], paddingTop: space[16], gap: space[24] },
   list: { gap: space[12] },
+  buttons: { gap: space[8] },
   card: { gap: space[12], padding: space[16], borderRadius: radius.xl, backgroundColor: color.bg.surface },
   head: { flexDirection: 'row', alignItems: 'flex-start', gap: space[12] },
   flex: { flex: 1, gap: space[4] },

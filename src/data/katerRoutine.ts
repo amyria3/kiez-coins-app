@@ -53,7 +53,8 @@ export function whenText(r: Pick<Reminder, 'onDate' | 'atTime' | 'untilTime'>, n
   return day;
 }
 
-function dayName(date: string, now: Date): string {
+/** „Heute“, „Morgen“ oder „Do, 12.11.“ für ein Datum „JJJJ-MM-TT“ */
+export function dayName(date: string, now = new Date()): string {
   if (date === localDate(now)) return t('Heute');
   if (date === localDate(addDays(1, now))) return t('Morgen');
   const [y, m, d] = date.split('-').map(Number);

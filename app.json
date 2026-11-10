@@ -55,6 +55,12 @@
         }
       ],
       [
+        "expo-calendar",
+        {
+          "calendarPermission": "Kiez Coins zeigt Termine aus Deinen Kalendern in Routine, wenn Du sie dort auswählst. Die Termine verlassen Dein Handy nicht."
+        }
+      ],
+      [
         "expo-build-properties",
         {
           "android": {

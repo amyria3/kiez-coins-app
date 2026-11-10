@@ -72,3 +72,8 @@ Stand: 10.11.2026. Status: erste Fassung gebaut (Routine, nur für Moderatorinne
 - Entscheidung (Daria, 10.11.2026): Importierte Termine erscheinen in Routine als Termine, wie Erinnerungen mit „um“ (Markierung „Termin“, ohne Zähler).
 - Vorschlag Claude: Export als Kalender-Abo (persönlicher webcal-Link aus einer Edge Function), Import über den Gerätekalender in der nativen App (`expo-calendar`) und über einen abonnierten Kalender-Link (iCal-Adresse) für die Web-App. Später Google/Microsoft per Anmeldung.
 - Arten in Routine (Daria, 10.11.2026): „um“ = Termin ohne 0/1, „bis“ und „von … bis“ = Aufgabe.
+- Gebaut (Claude, 10.11.2026, Daria: „Alles :) Aber erstmal nur für mich sichtbar“), sichtbar nur mit Routine (Moderatorinnen):
+  - Migration `20261110000300_kalender.sql`: `routine_feeds` (Token für das Abo), Funktion `routine_feed_token`, `routine_calendars` (iCal-Adressen).
+  - Edge Function `supabase/functions/kalender`: GET `?abo=<token>` liefert den Kalender (einmalige Termine und feste Wochentage, Zeiten ohne Zeitzone), POST `events` holt die Termine aus den iCal-Adressen (Serien und Ausnahmen über ical.js). Deploy: `npx supabase functions deploy kalender --no-verify-jwt`.
+  - Route `/routine/kalender`: Abo-Link (abonnieren, kopieren, erneuern), iCal-Adressen hinzufügen und entfernen, auf Android Kalender des Handys auswählen (`expo-calendar`, neues natives Modul, daher neue APK).
+  - Routine zeigt „Aus Deinem Kalender“ mit den Terminen der nächsten 7 Tage, markiert als Termin, nur zum Ansehen.
