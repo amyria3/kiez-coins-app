@@ -9,7 +9,7 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [x] (10.11.2026, Daria mit Claude: INWX A `216.198.79.1`, www CNAME auf Vercel, Vercel zeigt beide gültig) **Pflichtaufgabe:** kiezcoins.de bei INWX auf Vercel umstellen. Bis dahin funktionieren Einladungslinks, Instant-Einladungen, Instant-Download und geteilte Posts nicht. Schritte: `2026-11-08_offen_domain-kiezcoins-de.md`.
 - [x] (10.11.2026, von Claude in der Datenbank geprüft) **Pflichtaufgabe:** Migration `20261109000100_comment_likes.sql` im Supabase SQL Editor ausführen. Bis dahin zeigen Kommentare kein Herz. Details: `2026-11-09_offen_kommentare-liken.md`.
 - [x] (10.11.2026, von Claude in der Datenbank geprüft) **Pflichtaufgabe:** Migration `20261109000200_me_challenge_offen.sql` im Supabase SQL Editor ausführen. Bis dahin bleibt eine neue Me-Challenge ein Entwurf. Details: `2026-11-09_offen_me-challenge-offen.md`.
-- [ ] **Pflichtaufgabe (Daria, 09.11.2026):** Übersetzungen automatisch mit DeepL. Vorher legt Daria den Schlüssel `DEEPL_API_KEY` in GitHub an. DeepL füllt nur Lücken, vorhandene Übersetzungen und Korrekturen im Texte-Editor bleiben. Plan: `2026-10-31_offen_deepl-uebersetzungen.md`. (10.11.2026: Skript und GitHub Action sind gebaut, es fehlt nur noch der Schlüssel.)
+- [x] (10.11.2026: Schlüssel angelegt, Action läuft bei jedem PR, Altbestand übersetzt in #256) **Pflichtaufgabe (Daria, 09.11.2026):** Übersetzungen automatisch mit DeepL. Vorher legt Daria den Schlüssel `DEEPL_API_KEY` in GitHub an. DeepL füllt nur Lücken, vorhandene Übersetzungen und Korrekturen im Texte-Editor bleiben. Plan: `2026-10-31_offen_deepl-uebersetzungen.md`. (10.11.2026: Skript und GitHub Action sind gebaut, es fehlt nur noch der Schlüssel.)
 
 ## Dringend (Daria, 30.10.2026)
 
@@ -70,7 +70,8 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 ## Domain und Sichtbarkeit (Daria, 05.11.2026)
 
 - [x] (10.11.2026) kiezcoins.de ist Hauptadresse in Vercel (ohne Weiterleitung, auf Wunsch von Daria auch `www` und `kiezcoins.vercel.app` ohne Weiterleitung). Supabase: Site-URL `https://kiezcoins.de`, Redirect-URLs `https://kiezcoins.de/**`, `https://kiezcoins.vercel.app/**`, `kiezcoins://**`. Link „Finanzierung“ in der App zeigt auf kiezcoins.de (#253). Ursprünglicher Punkt: Sauberes Routing für `kiezcoins.de`: Die Domain soll die Hauptadresse sein, nicht nur auf `kiezcoins.vercel.app` weiterleiten. In Vercel unter Settings → Domains `kiezcoins.de` als Hauptdomain ohne Weiterleitung eintragen, `kiezcoins.vercel.app` auf „Redirect to kiezcoins.de“ stellen. Danach Supabase-Site-URL und Redirect-Liste auf `kiezcoins.de` prüfen. Hintergrund: Eine Weiterleitung per `vercel.json` (#167) hat die Seite lahmgelegt und wurde zurückgenommen (#168). Links, QR-Codes und `/laden` zeigen schon auf `kiezcoins.de`.
-- [ ] Danach SEO für `kiezcoins.de`.
+- [ ] Danach SEO für `kiezcoins.de`. (10.11.2026: Domain läuft, SEO ist jetzt dran.)
+- [ ] DeepL auch für die Website (`scripts/site/sprachen/`), dort steht bei fehlenden Texten noch Englisch.
 
 ## Promo-Kampagnen (Daria, 05.11.2026)
 
