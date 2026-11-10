@@ -1,21 +1,15 @@
-import { useEffect, useState } from 'react';
-
 import { useRoutineShown } from './features';
-import { isModerator } from './remote';
+import { useFeature } from './freischaltung';
 import { useStore } from './store';
 
 /**
- * Darf diese Person Routine (Erinnerungen) überhaupt haben? Vorerst nur für Daria zum Testen (2026-11-09),
- * daher nur für Personen in der Tabelle `moderators` und nur mit echten Daten.
+ * Darf diese Person Routine (Erinnerungen) überhaupt haben? Feature `routine` (freischaltung.ts), nur mit echten Daten.
+ * Vorerst nur für Moderatorinnen zum Testen (Daria, 2026-11-09).
  */
 export function useRoutineAvailable(): boolean {
   const { mode } = useStore();
-  const [moderator, setModerator] = useState(false);
-  useEffect(() => {
-    if (mode !== 'live') return;
-    isModerator().then(setModerator).catch(() => undefined);
-  }, [mode]);
-  return mode === 'live' && moderator;
+  const on = useFeature('routine');
+  return mode === 'live' && on;
 }
 
 /** Knopf „Routine“ im Feed und Kater-Hinweise: verfügbar und unter Funktionen nicht ausgeblendet (Daria, 2026-11-10) */
