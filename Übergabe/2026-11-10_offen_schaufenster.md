@@ -79,9 +79,18 @@ Das Schaufenster ist die erste kommerzielle Fläche in KiezCoins. Es ersetzt den
 - Mehrere Links, bis zu 10 (Daria, 10.11.2026, Migration `20261110000600_schaufenster_links_adresse`). Die alte Spalte `website` bleibt der erste Link.
 - Adresse nur für Menschen mit Zugang (Daria, 10.11.2026): Angemeldete lesen `showcases` nur noch über Spaltenrechte ohne `address`, `lat`, `lng` und `invite_code`; diese liefert `showcase_private`. Dabei fiel auf: Mit Migration 400 konnte jede angemeldete Person den Einladungscode lesen und so jedem Schaufenster „nur für Eingeladene“ beitreten. Migration 600 behebt das.
 
-### Schaufenster ohne die Social App, offen
+### Schaufenster ohne die Social App
 
-Daria, 10.11.2026: „Die Leute sollten – ohne den Umweg über KiezCoins Social App – diese Seite anlegen und pflegen können. So biete ich de facto jedem Small Business eine kleine Webseite als Geschenk an.“ Fragen dazu stehen im Chat vom 10.11.2026; noch nicht gebaut.
+Daria, 10.11.2026: „Die Leute sollten – ohne den Umweg über KiezCoins Social App – diese Seite anlegen und pflegen können. So biete ich de facto jedem Small Business eine kleine Webseite als Geschenk an.“
+
+Entscheidungen (Daria, 10.11.2026): Anmelden wie bei Konten in der App (Code per E-Mail, Passwort auf Wunsch). Es entsteht automatisch ein normales Konto; die Oberfläche zwingt nur nicht in die App. Das Schaufenster erscheint auf der Webseite und in der App. Ort: `kiezcoins.de/schaufenster`.
+
+Gebaut am 10.11.2026:
+- `kiezcoins.de/schaufenster` leitet auf `/app/schaufenster` (Route `src/app/schaufenster/index.tsx`): anmelden, zustimmen (18 Jahre, Nutzungsbedingungen, Community-Regeln, Datenschutz wie im Onboarding), Schaufenster anlegen (Name, Kiez), danach Übersicht mit „Post erstellen“, „Termin erstellen“, „Seite bearbeiten“, „Ansehen“, Link zur öffentlichen Seite.
+- Beim Anlegen entsteht intern eine Gruppe mit der Person als Gründer:in. Der Deckname wird der Name des Schaufensters (bei Bedarf mit Kiez oder Zahl), damit Posts im Feed den Namen des Ladens tragen.
+- `schaufenster/[id]/post`: Bild mit Titel und Text, ohne Feed. Der Post erscheint wie jeder Kiez-Post auch im Feed.
+- Öffnet die Person später die App, führt das Onboarding sie durch die fehlenden Schritte (Deckname vorbelegt).
+- Die Seite ist nicht auf Moderatorinnen beschränkt; wer den Link kennt, kann ein Schaufenster anlegen. Verlinkt ist sie noch nirgends.
 
 ### Teil 2, offen
 

@@ -25,6 +25,11 @@
   ],
   "redirects": [
     {
+      "source": "/schaufenster",
+      "destination": "/app/schaufenster",
+      "permanent": false
+    },
+    {
       "source": "/app/gruppen",
       "destination": "/app/groups",
       "permanent": true
