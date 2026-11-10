@@ -3,11 +3,22 @@ import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 
 import { Button } from './Button';
+import { Icon } from './icons/Icon';
 import { Text } from './T';
 import { addToMyCalendar } from '../data/calendar';
-import { asSingleEvent, cancelEvent, eventSaveCount, eventWhen, saveEvent, type ShowcaseEvent } from '../data/showcase';
+import {
+  asSingleEvent,
+  cancelEvent,
+  eventSaveCount,
+  eventWhen,
+  likedEvents,
+  likeEvent,
+  rememberLike,
+  saveEvent,
+  type ShowcaseEvent,
+} from '../data/showcase';
 import { t } from '../data/texts';
-import { color, font, radius, space, text } from '../theme/tokens';
+import { color, font, radius, size, space, text } from '../theme/tokens';
 
 /**
  * Termin aus einem Schaufenster (Daria, 2026-11-10): „Speichern“ legt ihn in Routine ab, „In meinen Kalender“
@@ -29,6 +40,27 @@ export function ShowcaseEventCard({
   const [busy, setBusy] = useState(false);
   const [count, setCount] = useState<number | null>(null);
   useEffect(() => setSaved(e.saved), [e.saved]);
+  // Herz: einfacher Zähler, das Gerät merkt sich, ob es geliked hat (Daria, 2026-11-10)
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(e.likes);
+  useEffect(() => setLikes(e.likes), [e.likes]);
+  useEffect(() => {
+    likedEvents().then((set) => setLiked(set.has(e.id)));
+  }, [e.id]);
+
+  const like = async () => {
+    const on = !liked;
+    setLiked(on);
+    setLikes((n) => Math.max(0, n + (on ? 1 : -1)));
+    const count = await likeEvent(e.id, on);
+    if (count === null) {
+      setLiked(!on);
+      setLikes((n) => Math.max(0, n + (on ? -1 : 1)));
+      return;
+    }
+    setLikes(count);
+    rememberLike(e.id, on);
+  };
   useEffect(() => {
     if (team) eventSaveCount(e.id).then(setCount);
   }, [team, e.id]);
@@ -80,6 +112,20 @@ export function ShowcaseEventCard({
           <Text style={styles.sub}>{count === 1 ? t('1 Mensch hat den Termin gespeichert.') : t('{n} Menschen haben den Termin gespeichert.', { n: count })}</Text>
         ) : null}
       </View>
+      <View style={styles.likeRow}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ selected: liked, disabled: e.cancelled }}
+          accessibilityLabel={likes ? t('Gefällt mir, {likeCount} Likes', { likeCount: likes }) : t('Gefällt mir')}
+          disabled={e.cancelled}
+          onPress={like}
+          hitSlop={8}
+          style={({ pressed }) => [styles.like, pressed && styles.pressed]}
+        >
+          <Icon name="heart" size={size.icon} color={liked ? color.accent.affection : color.text.primary} />
+          {likes > 0 ? <Text style={styles.likeCount}>{likes}</Text> : null}
+        </Pressable>
+      </View>
       {!e.cancelled && !past ? (
         <View style={styles.actions}>
           <Button label={saved ? 'Gespeichert' : 'Speichern'} variant="secondary" icon={saved ? 'check' : undefined} busy={busy} onPress={toggle} />
@@ -105,6 +151,10 @@ const styles = StyleSheet.create({
   struck: { textDecorationLine: 'line-through', color: color.text.secondary },
   sub: { ...text.caption, color: color.text.secondary },
   text: { ...text.body, color: color.text.primary, marginTop: space[4] },
+  likeRow: { flexDirection: 'row', paddingHorizontal: space[16], paddingBottom: space[12] },
+  like: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
+  pressed: { opacity: 0.6 },
+  likeCount: { ...text.body, fontFamily: font.medium, color: color.text.primary },
   actions: { gap: space[8], paddingHorizontal: space[16], paddingBottom: space[16] },
   cancel: { alignSelf: 'center', paddingVertical: space[4] },
   cancelText: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },

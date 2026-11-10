@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { supabase } from '../lib/supabase';
 import { eventTime, type SingleEvent } from './calendar';
@@ -56,6 +57,8 @@ export type ShowcaseEvent = {
   cancelled: boolean;
   createdAt: string;
   saved: boolean;
+  /** Herzen, ein einfacher Zähler; auch ohne Konto (Migration 20261110000500_termin_herzen) */
+  likes: number;
 };
 
 export type ShowcasePost = { id: string; title: string; body: string; type: string; image?: ImageSource; createdAt: string };
@@ -236,7 +239,7 @@ export async function loadEntries(showcaseId: string, userId: string): Promise<S
       .limit(VISIBLE_ENTRIES),
     supabase
       .from('showcase_events')
-      .select('id, title, body, image_path, starts_at, ends_at, location, cancelled_at, created_at')
+      .select('*')
       .eq('showcase_id', showcaseId)
       .order('created_at', { ascending: false })
       .limit(VISIBLE_ENTRIES),
@@ -251,6 +254,7 @@ export async function loadEntries(showcaseId: string, userId: string): Promise<S
     location: string | null;
     cancelled_at: string | null;
     created_at: string;
+    likes?: number;
   }[];
   const { data: saves } = eventRows.length
     ? await supabase.from('event_saves').select('event_id').eq('user_id', userId).in('event_id', eventRows.map((e) => e.id))
@@ -277,6 +281,7 @@ export async function loadEntries(showcaseId: string, userId: string): Promise<S
           cancelled: !!e.cancelled_at,
           createdAt: e.created_at,
           saved: saved.has(e.id),
+          likes: e.likes ?? 0,
         },
       }),
     ),
@@ -313,6 +318,28 @@ export async function saveEvent(id: string, save: boolean): Promise<boolean> {
   return !error;
 }
 
+/** Herz für einen Termin setzen oder zurücknehmen; liefert die neue Zahl oder `null` */
+export async function likeEvent(id: string, on: boolean): Promise<number | null> {
+  const { data, error } = await supabase.rpc('like_event', { p_event_id: id, p_on: on });
+  return error || typeof data !== 'number' ? null : data;
+}
+
+/** Welche Termine dieses Gerät geliked hat; die Datenbank speichert das nicht (einfacher Zähler) */
+const LIKES_KEY = 'event-likes';
+export async function likedEvents(): Promise<Set<string>> {
+  try {
+    return new Set(JSON.parse((await AsyncStorage.getItem(LIKES_KEY)) ?? '[]') as string[]);
+  } catch {
+    return new Set();
+  }
+}
+export async function rememberLike(id: string, on: boolean): Promise<void> {
+  const set = await likedEvents();
+  if (on) set.add(id);
+  else set.delete(id);
+  await AsyncStorage.setItem(LIKES_KEY, JSON.stringify([...set])).catch(() => {});
+}
+
 export async function eventSaveCount(id: string): Promise<number | null> {
   const { data, error } = await supabase.rpc('event_save_count', { p_event_id: id });
   return error || data === null ? null : (data as number);
@@ -322,7 +349,7 @@ export async function eventSaveCount(id: string): Promise<number | null> {
 export async function savedEvents(userId: string): Promise<(ShowcaseEvent & { showcase: string })[]> {
   const { data, error } = await supabase
     .from('event_saves')
-    .select('event:showcase_events(id, title, body, image_path, starts_at, ends_at, location, cancelled_at, created_at, showcase:showcases(name))')
+    .select('event:showcase_events(*, showcase:showcases(name))')
     .eq('user_id', userId);
   if (error || !data) return [];
   const since = new Date();
@@ -341,12 +368,16 @@ export async function savedEvents(userId: string): Promise<(ShowcaseEvent & { sh
       cancelled: !!e.cancelled_at,
       createdAt: e.created_at as string,
       saved: true,
+      likes: (e.likes as number | undefined) ?? 0,
       showcase: ((e.showcase as { name: string } | null)?.name ?? '') as string,
     }))
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
 }
 
 // ---------- Folgen, Einladung ----------
+
+/** Öffentliche Seite ohne Anmeldung, nur bei Sichtbarkeit „Alle“ (api/s.mjs) */
+export const showcasePublicLink = (slug: string) => `https://kiezcoins.de/s/${slug}`;
 
 export const showcaseInviteLink = (code: string) => `${WEB_APP_URL}/schaufenster/beitreten?code=${encodeURIComponent(code)}`;
 
