@@ -39,7 +39,9 @@ import { color, font, radius, space, text } from '../../../theme/tokens';
  * Einladung und Anfragen bei „nur für Eingeladene“, wer posten darf, Schaufenster löschen.
  */
 export default function EditShowcase() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  // von=schaufenster: geöffnet über kiezcoins.de/schaufenster. Nach dem Löschen geht es dorthin zurück statt auf die
+  // interne Gruppe, die Läden ohne die Social App gar nicht kennen.
+  const { id, von } = useLocalSearchParams<{ id: string; von?: string }>();
   const router = useRouter();
   const goBack = useGoBack();
   const { currentUserId, groups, users } = useStore();
@@ -141,7 +143,9 @@ export default function EditShowcase() {
         text: t('Löschen'),
         style: 'destructive',
         onPress: async () => {
-          if (await deleteShowcase(showcase.id)) router.dismissTo({ pathname: '/groups/[id]', params: { id: showcase.groupId } });
+          if (!(await deleteShowcase(showcase.id))) return;
+          if (von === 'schaufenster') router.dismissTo('/schaufenster');
+          else router.dismissTo({ pathname: '/groups/[id]', params: { id: showcase.groupId } });
         },
       },
     ]);
@@ -200,7 +204,7 @@ export default function EditShowcase() {
         <TextField label="Impressum" multiline value={form.imprint} onChangeText={set('imprint')} maxLength={1000} />
         <QuestionHint
           question="Brauche ich ein Impressum?"
-          answer="Ja, wenn Ihr geschäftsmäßig auftretet, zum Beispiel als Laden oder mit Werbung. Dann braucht das Schaufenster ein Impressum mit Name und Anschrift (§ 5 Digitale-Dienste-Gesetz). Vereine und private Clubs brauchen es oft auch. Im Zweifel tragt es ein."
+          answer="Ja, wenn Ihr geschäftsmäßig auftretet, zum Beispiel als Laden, Verein oder mit Werbung (§ 5 Digitale-Dienste-Gesetz). Ins Impressum gehören Name, Anschrift und E-Mail-Adresse, dazu Rechtsform, vertretungsberechtigte Person, Registereintrag und Umsatzsteuer-ID, soweit vorhanden. Im Zweifel tragt es ein."
         />
       </FieldGroup>
 
