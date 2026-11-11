@@ -1,10 +1,12 @@
-import { useEffect, useRef, type RefObject } from 'react';
-import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { useEffect, useRef, useState, type RefObject } from 'react';
+import { Pressable, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { Text } from './T';
 
-import { color, isFashionable, radius, space, stroke, text } from '../theme/tokens';
+import { color, isFashionable, radius, space, text } from '../theme/tokens';
 import { useTexts } from '../data/texts';
 import { Glass, glassControls } from './Glass';
+import { handShapePath } from './handShape';
 import { GearsLoader, SMALL_GEARS } from './GearsLoader';
 import { Icon } from './icons/Icon';
 import { useSubmitTarget } from './Nudge';
@@ -42,6 +44,12 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
   const disabled = (off && !explains) || !!busy;
   const onPress = explains ? whyDisabled : press;
   const v = variants[variant];
+  // Größe für die handgezeichnete Form, siehe HandShape
+  const [box, setBox] = useState<{ w: number; h: number } | null>(null);
+  const onLayout = (e: LayoutChangeEvent) => {
+    const { width: w, height: h } = e.nativeEvent.layout;
+    setBox((b) => (b && b.w === w && b.h === h ? b : { w, h }));
+  };
   // Beschriftung aus dem CMS (Tabelle app_texts), sonst wie im Code
   const label = useTexts()(original);
   // Ziel nach dem letzten Formularfeld (Nudge.tsx). Ghost-Buttons sind Nebenwege und zählen nicht.
@@ -83,8 +91,10 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
       accessibilityState={{ disabled: off, busy }}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [styles.base, v.container, pressed && styles.pressed, off && !busy && styles.disabled, style]}
+      onLayout={onLayout}
+      style={({ pressed }) => [styles.base, pressed && styles.pressed, off && !busy && styles.disabled, style]}
     >
+      {box && (v.fill || v.line) ? <HandShape w={box.w} h={box.h} fill={v.fill} line={v.line} /> : null}
       <View style={styles.row}>
         {busy ? <GearsLoader size={22} tint={v.label} only={SMALL_GEARS} /> : icon ? <Icon name={icon} size={22} color={v.label} flip={iconFlip} /> : null}
         <Text style={[v.filled ? text.buttonDarkOnLight : text.buttonLightOnDark, { color: v.label }]}>{label}</Text>
@@ -143,21 +153,32 @@ const fashionVariants: Record<ButtonVariant, { bg: string; label: string }> = {
   danger: { bg: color.bg.surface, label: color.accent.error },
 };
 
-const variants: Record<ButtonVariant, { container: ViewStyle; label: string; filled?: boolean }> = {
-  primary: { container: { backgroundColor: color.accent.primary }, label: color.text.onAccent, filled: true },
-  secondary: {
-    container: { borderWidth: stroke.thin, borderColor: color.text.secondary },
-    label: color.text.primary,
-  },
+/**
+ * Kiez-Look: handgezeichnete Form statt Pille (Daria, 2026-11-11). Gefüllte Varianten als Fläche,
+ * die übrigen als Kontur derselben Form. Ghost bleibt reiner Text.
+ */
+const variants: Record<ButtonVariant, { fill?: string; line?: string; label: string; filled?: boolean }> = {
+  primary: { fill: color.accent.primary, label: color.text.onAccent, filled: true },
+  secondary: { line: color.text.secondary, label: color.text.primary },
   // Upgrade „Nachtschicht“: Text ohne Rahmen, für die zweite Wahl unter einem Primary
-  ghost: { container: {}, label: color.text.primary },
-  signal: { container: { backgroundColor: color.accent.signal }, label: color.bg.screen, filled: true },
-  signalOutline: {
-    container: { borderWidth: stroke.thin, borderColor: color.accent.signal },
-    label: color.accent.signal,
-  },
-  danger: { container: { borderWidth: stroke.thin, borderColor: color.accent.error }, label: color.accent.error },
+  ghost: { label: color.text.primary },
+  signal: { fill: color.accent.signal, label: color.bg.screen, filled: true },
+  signalOutline: { line: color.accent.signal, label: color.accent.signal },
+  danger: { line: color.accent.error, label: color.accent.error },
 };
+
+/** Konturbreite der Form: etwas kräftiger als die alte Haarlinie, damit die Zeichnung erkennbar bleibt */
+const SHAPE_LINE = 1.5;
+
+/** Die Form liegt hinter der Beschriftung und füllt den Button ganz aus. */
+function HandShape({ w, h, fill, line }: { w: number; h: number; fill?: string; line?: string }) {
+  const d = handShapePath(w, h, fill ? 0 : SHAPE_LINE / 2);
+  return (
+    <Svg width={w} height={h} style={StyleSheet.absoluteFill} pointerEvents="none">
+      <Path d={d} fill={fill ?? 'none'} stroke={line} strokeWidth={line ? SHAPE_LINE : 0} />
+    </Svg>
+  );
+}
 
 /** Glas-Buttons: Tönung statt Fläche, kein Rahmen. Die Kante zeichnet das Glas selbst. */
 const glassVariants: Record<Exclude<ButtonVariant, 'ghost'>, { tint?: string; label: string }> = {
