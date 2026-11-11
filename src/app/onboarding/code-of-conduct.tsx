@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { KaterBubble, QuestionHint } from '../../components/Content';
+import { Notice, QuestionHint } from '../../components/Content';
 import { SwitchRow } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { useStore } from '../../data/store';
@@ -58,7 +58,7 @@ export default function Kodex() {
         />
       }
     >
-      <KaterBubble>Noch das Kleingedruckte.</KaterBubble>
+      <Notice message="Noch das Kleingedruckte." />
       <QuestionHint question="Was heißt Testversion?" answer="Die KiezCoins App ist kostenlos und noch in der Testphase. Funktionen können sich ändern. Am Ende der Testphase setzen wir die Daten zurück und kündigen das vorher per E-Mail an." />
       <NudgeArea nudge={consent}>
       <SwitchRow required label="Ich bin mindestens 18 Jahre alt" value={age} onValueChange={setAge} />

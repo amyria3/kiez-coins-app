@@ -4,7 +4,7 @@ import { Text } from '../../components/T';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { KaterBubble } from '../../components/Content';
+import { Notice } from '../../components/Content';
 import { Chip, ChipGroup, TextField } from '../../components/Form';
 import { GenderChoice } from '../../components/GenderChoice';
 import type { Gender } from '../../data/types';
@@ -86,7 +86,7 @@ export default function Deckname() {
       onLeadingPress={() => (goBack())}
       actions={<Button busy={busy} label="Weiter" onPress={next} disabled={!handle.trim() || busy} whyDisabled={() => !busy && handleField.nudge('Wähle einen Decknamen.')} />}
     >
-      <KaterBubble>Dein Rufname</KaterBubble>
+      <Notice message="Welchen Decknamen möchtest Du?" />
       <TextField
         label="Deckname (Nickname)" required
         nudge={handleField}

@@ -7,7 +7,7 @@ import { isSharedBounty, shareCentsOf } from '../../../../data/coins';
 
 import { AuthorRow } from '../../../../components/AuthorRow';
 import { Button } from '../../../../components/Button';
-import { KaterBubble, QuestionHint } from '../../../../components/Content';
+import { Notice, QuestionHint } from '../../../../components/Content';
 import { RadioOption, SwitchRow, TextField } from '../../../../components/Form';
 import { SubScreen } from '../../../../components/Screen';
 import { formatCents, formatEuro, isValidIban, isValidPaypal, maskIbanShort } from '../../../../data/format';
@@ -77,14 +77,15 @@ export default function PayoutShareScreen() {
           whyDisabled={() => ibanField.nudge('Gib Deine IBAN mit Kontoinhaber:in oder Deine PayPal-Adresse an.')}
         />}
     >
-      <KaterBubble>
-        {onlyShare
-          ? tAbout(author, 'Wohin soll {name} Dir Deinen Anteil von {betrag} schicken?', { name, betrag: amount })
-          : shared
-            ? tAbout(author, 'Gemeldet! Wohin soll {name} Dir Deinen Anteil von {betrag} schicken?', { name, betrag: amount })
-            : tAbout(author, 'Gemeldet! Wohin soll {name} Dir die {betrag} schicken?', { name, betrag: amount })}
-        {saved ? '' : ` ${t('Gib mindestens Deine IBAN oder PayPal an.')}`}
-      </KaterBubble>
+      <Notice
+        message={`${
+          onlyShare
+            ? tAbout(author, 'Wohin soll {name} Dir Deinen Anteil von {betrag} schicken?', { name, betrag: amount })
+            : shared
+              ? tAbout(author, 'Gemeldet! Wohin soll {name} Dir Deinen Anteil von {betrag} schicken?', { name, betrag: amount })
+              : tAbout(author, 'Gemeldet! Wohin soll {name} Dir die {betrag} schicken?', { name, betrag: amount })
+        }${saved ? '' : ` ${t('Gib mindestens Deine IBAN oder PayPal an.')}`}`}
+      />
       <View style={styles.group}>
         <Text style={styles.label}>Zahlt Dir die Coins</Text>
         <AuthorRow user={author} location={challenge.location} />

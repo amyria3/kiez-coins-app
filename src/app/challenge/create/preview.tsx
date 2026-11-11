@@ -8,7 +8,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AuthorRow } from '../../../components/AuthorRow';
-import { KaterCard } from '../../../components/Content';
+import { Notice } from '../../../components/Content';
 import { StatusBadge } from '../../../components/Badges';
 import { Button } from '../../../components/Button';
 import { DeadlineBadge } from '../../../components/Badges';
@@ -311,7 +311,7 @@ export default function CreatePreview() {
           ]}
         >
           <Pressable accessibilityRole="button" accessibilityLabel={t('Hinweis schließen')} onPress={() => setAsking(false)}>
-            <KaterCard>Alle Infos drin?</KaterCard>
+            <Notice message="Alle Infos drin?" />
           </Pressable>
         </Animated.View>
       ) : null}

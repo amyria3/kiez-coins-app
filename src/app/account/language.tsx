@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Alert, DevSettings, View } from 'react-native';
 import { router as appRouter } from 'expo-router';
 
-import { KaterBubble } from '../../components/Content';
+import { Notice } from '../../components/Content';
 import { RadioOption } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import {
@@ -44,7 +44,7 @@ export default function Sprache() {
 
   return (
     <SubScreen title="Sprache" navigation="back" onLeadingPress={goBack}>
-      <KaterBubble>In welcher Sprache soll ich mit Dir reden?</KaterBubble>
+      <Notice message="Welche Sprache möchtest Du?" />
       <View style={{ gap: space[8] }}>
         <RadioOption label={t('Wie das Handy ({sprache})', { sprache: device })} selected={choice === 'auto'} onPress={() => choose('auto')} />
         {languages.map((l) => (
