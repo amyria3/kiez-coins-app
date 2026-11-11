@@ -4,7 +4,6 @@ import {
   Alert,
   Animated,
   Easing,
-  KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
@@ -32,6 +31,7 @@ import { t } from '../data/texts';
 import { TOUR_FEEDBACK_OTHER_MAX, TOUR_SEEN_KEY, tourFeedbackOptions, tourSteps as allTourSteps, type TourStep } from '../data/tour';
 import { useAppDimensions } from '../theme/layout';
 import { color, isFashionable, radius, space, text } from '../theme/tokens';
+import { KeyboardArea } from '../components/Keyboard';
 
 /**
  * Route `tour` („Wie geht KiezCoins“): Beispiele zum Ausprobieren für die Hauptfunktionen (Daria, 22./31.10.2026).
@@ -113,8 +113,7 @@ export default function Tour() {
     setChoices((all) => (all.includes(key) ? all.filter((k) => k !== key) : [...all, key]));
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    <KeyboardArea
       style={[styles.screen, { paddingTop: insets.top + space[16] }]}
     >
       <View style={styles.top}>
@@ -189,7 +188,7 @@ export default function Tour() {
           <Button autoFocus label={last ? 'Los geht’s' : 'Weiter'} icon="this-way" onPress={() => (last ? finish() : goTo(page + 1))} />
         )}
       </ActionBar>
-    </KeyboardAvoidingView>
+    </KeyboardArea>
   );
 }
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from '../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,6 +14,7 @@ import type { User } from '../../data/types';
 import { color, radius, size, space, stroke, text } from '../../theme/tokens';
 import { localeTag, t } from '../../data/texts';
 import { useGoBack } from '../../lib/goBack';
+import { KeyboardArea } from '../../components/Keyboard';
 
 /**
  * Route `chat/[id]`: Unterhaltung mit einer Freund:in. Eigene Nachrichten rechts in Lila, die der anderen links.
@@ -104,7 +105,7 @@ export default function ChatThread() {
           </Text>
         </Pressable>
       </View>
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardArea style={styles.flex}>
         <FlatList
           ref={listRef}
           inverted
@@ -156,7 +157,7 @@ export default function ChatThread() {
             <Icon name="send" size={size.icon * 0.8} color={color.text.onAccent} />
           </Pressable>
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardArea>
     </View>
   );
 }

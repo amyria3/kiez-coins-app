@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, KeyboardAvoidingView, LayoutAnimation, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
+import { Animated, Easing, LayoutAnimation, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
@@ -11,6 +11,7 @@ import { useAppDimensions } from '../theme/layout';
 import { ActionBar } from './ActionBar';
 import type { CatMood } from './icons/Brand';
 import { KaterMessage } from './KaterMessage';
+import { KeyboardArea } from './Keyboard';
 import { GlassIconButton } from './Glass';
 import { NavigationBar } from './NavigationBar';
 import { NudgeScrollProvider, useNudgeScroll } from './Nudge';
@@ -34,7 +35,7 @@ type SubScreenProps = {
 
 /**
  * Aufbau aller Unterseiten aus Figma: NavigationBar (fest), Inhalt in `scroll-y-auto`
- * (Abstand 16, unten 24) und ActionBar (fest, bleibt über der Tastatur).
+ * (Abstand 16, unten 24) und ActionBar (fest, bleibt über der Tastatur, Keyboard.tsx).
  */
 export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions, children, header, tabBar }: SubScreenProps) {
   const insets = useSafeAreaInsets();
@@ -44,7 +45,7 @@ export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       {header ?? <NavigationBar title={title} subtitle={subtitle} variant={navigation} onLeadingPress={onLeadingPress} />}
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardArea style={styles.flex}>
         <NudgeScrollProvider value={nudgeScroll}>
         <ScrollView
           ref={scrollRef}
@@ -60,7 +61,7 @@ export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions
         {/* Die ActionBar gehört dazu: Enter im letzten Feld springt zu ihrem Haupt-Button */}
         {actions ? <ActionBar>{actions}</ActionBar> : tabBar ? null : <View style={{ height: insets.bottom }} />}
         </NudgeScrollProvider>
-      </KeyboardAvoidingView>
+      </KeyboardArea>
       {tabBar}
     </View>
   );
@@ -271,7 +272,7 @@ export function HeroScreen({
         { transform: [{ translateX: slide.interpolate({ inputRange: [0, 1], outputRange: [0, width] }) }] },
       ]}
     >
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardArea style={styles.flex}>
         <NudgeScrollProvider value={heroNudge}>
         <ScrollView
           ref={scrollRef}
@@ -383,7 +384,7 @@ export function HeroScreen({
         </ScrollView>
         {chromeHidden || !actions ? null : <ActionBar>{actions}</ActionBar>}
         </NudgeScrollProvider>
-      </KeyboardAvoidingView>
+      </KeyboardArea>
       <Animated.View style={[styles.heroButtons, { top: insets.top + space[8] }, chromeStyle]} pointerEvents={chromeTouch}>
         {onBackPress ? <GlassIconButton icon="chevron-left" accessibilityLabel={t('Zurück')} onPress={overlay ? leave : onBackPress} /> : <View />}
         {onSharePress ? <GlassIconButton icon="send" accessibilityLabel={t('Teilen')} onPress={onSharePress} /> : null}
