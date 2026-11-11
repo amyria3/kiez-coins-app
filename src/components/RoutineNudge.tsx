@@ -12,7 +12,8 @@ import { space } from '../theme/tokens';
  * Kater erinnert im Feed (Daria, 2026-11-10): vorerst nur in der App, zwischen 8 und 20 Uhr höchstens dreimal am Tag
  * (data/reminders.ts, nudgeAllowed). Nur, wenn heute etwas fällig ist. Ein Tipp öffnet die Routine.
  */
-export function RoutineNudge({ enabled }: { enabled: boolean }) {
+/** `onOpen`: öffnet die Routine an Ort und Stelle, z. B. als Reiter im Feed; sonst die Seite `routine` */
+export function RoutineNudge({ enabled, onOpen }: { enabled: boolean; onOpen?: () => void }) {
   const router = useRouter();
   const [line, setLine] = useState<string | null>(null);
   useEffect(() => {
@@ -33,7 +34,7 @@ export function RoutineNudge({ enabled }: { enabled: boolean }) {
   return (
     // Als Sprechblase des Katers statt als Karte (Entwurf, Daria, 2026-11-11)
     <View style={styles.wrap}>
-      <KaterNachricht accessibilityHint={t('Öffnet Deine Routine')} onPress={() => router.push('/routine')} onClose={() => setLine(null)}>
+      <KaterNachricht accessibilityHint={t('Öffnet Deine Routine')} onPress={onOpen ?? (() => router.push('/routine'))} onClose={() => setLine(null)}>
         {line}
       </KaterNachricht>
     </View>
