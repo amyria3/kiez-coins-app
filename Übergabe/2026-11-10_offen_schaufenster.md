@@ -145,7 +145,7 @@ Gesammelt am 10.11.2026 aus `Übergabe/`, `website/`, `src/`, `supabase/` und de
 ### Geschäftsmodell und Abos
 
 - **Dachs (Partnerladen):** 19 € netto im Monat, jährlich per SEPA-Lastschrift. **Storch (Community-Sponsorin):** 5 € im Monat per Karte. **Schwalbe:** Weiterposten, 10,99 € im Jahr. Quelle: `website/finanzierung.html` (08.11.2026).
-- Einnahmen decken zuerst die Fixkosten; vom Rest gehen 30 % an die Entwicklerin, 70 % an die Community (Startseite, 08.11.2026).
+- Im Moment erzielt KiezCoins keine Gewinne. In Zukunft decken die Einnahmen zuerst die Fixkosten, der Gewinn verteilt sich dann auf das Team (30 %) und die Community (70 %) (Startseite und Finanzierungsseite, Text von Daria 11.11.2026).
 - Gruppen: geschlossene Gruppen ohne Bounties sehr billig; Gruppen mit Mitgliedern ab 18 kosten etwas, nach 30 Tagen Probezeit (Daria, 09.10.2026, `MEMORY.md`).
 - Bilderkennung als Bonus für Zahlende: Bäume, Vögel, Termine aus einem Screenshot (Daria, 10.11.2026, `TODO.md`). Terminerkennung passt direkt zu den Schaufenster-Terminen.
 - Wasserzeichen beim Weiterposten; wer es entfernen will, kauft die App einmalig (Daria, 09.11.2026, `TODO.md`).
