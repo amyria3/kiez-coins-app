@@ -22,6 +22,7 @@ import { color, radius, space, stroke, text, scheme } from '../theme/tokens';
 import { Button } from './Button';
 import { CheckOption, RadioOption, TextField } from './Form';
 import { Text } from './T';
+import { KeyboardArea } from './Keyboard';
 
 type Draft = Partial<Record<SurveyQuestion['key'], string[]>>;
 
@@ -115,6 +116,7 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={() => snooze('tomorrow')}>
       <BlurView intensity={18} tint={scheme} style={StyleSheet.absoluteFill} />
+      <KeyboardArea overlay style={styles.flex}>
       <View style={[styles.backdrop, { paddingTop: insets.top + space[16], paddingBottom: insets.bottom + space[16] }]}>
         <View style={styles.card} accessibilityViewIsModal>
           {done ? (
@@ -192,6 +194,7 @@ export function SurveyOverlay({ visible, onClose }: { visible: boolean; onClose:
           </View>
         )}
       </View>
+      </KeyboardArea>
     </Modal>
   );
 }
@@ -240,6 +243,7 @@ export function useSurveyPrompt(): [boolean, () => void] {
 }
 
 const styles = StyleSheet.create({
+  flex: { flex: 1 },
   backdrop: {
     flex: 1,
     justifyContent: 'center',
