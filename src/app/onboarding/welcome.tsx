@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   headlineCompact: isFashionable ? { fontSize: 34, lineHeight: 36, letterSpacing: -0.9 } : { fontSize: 26, lineHeight: 33, letterSpacing: -0.3 },
   contentCompact: { gap: space[16], paddingVertical: space[16] },
   headlineMuted: { color: color.text.secondary },
-  body: { fontFamily: font.text, fontSize: 16, lineHeight: 23, color: color.text.secondary },
+  body: { fontFamily: font.text, fontSize: isFashionable ? 16 : 17, lineHeight: isFashionable ? 23 : 22, color: color.text.secondary },
   legal: { ...text.caption, color: color.text.secondary },
   link: { textDecorationLine: 'underline' },
 });
