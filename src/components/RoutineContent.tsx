@@ -21,7 +21,8 @@ import { color, font, radius, space, text } from '../theme/tokens';
  * Steht im Feed als Reiter „Routine“ links neben den anderen und als eigene Seite `routine`.
  * Antworten auf die Fragen: Übergabe/2026-11-07_offen_erinnerungen.md.
  */
-export function RoutineContent({ bottomPad }: { bottomPad: number }) {
+/** `topPad`: Abstand oben, im Feed derselbe wie bei den anderen Reitern unter dem Umschalter */
+export function RoutineContent({ topPad = space[16], bottomPad }: { topPad?: number; bottomPad: number }) {
   const router = useRouter();
   const [list, setList] = useState<Reminder[] | null | undefined>(undefined);
   // Termine aus verbundenen Kalendern, als Termine angezeigt (Daria, 2026-11-10)
@@ -56,7 +57,7 @@ export function RoutineContent({ bottomPad }: { bottomPad: number }) {
           <ActivityIndicator color={color.text.secondary} />
         </View>
       ) : list === null ? (
-        <View style={styles.content}>
+        <View style={[styles.content, { paddingTop: topPad }]}>
           <Notice variant="warning" message="Erinnerungen laden gerade nicht. Fehlt noch die Migration 20261110000100_erinnerungen?" />
         </View>
       ) : list.length === 0 && events.length === 0 && saved.length === 0 ? (
@@ -69,7 +70,7 @@ export function RoutineContent({ bottomPad }: { bottomPad: number }) {
           />
         </View>
       ) : (
-        <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPad }]}>
+        <ScrollView contentContainerStyle={[styles.content, { paddingTop: topPad, paddingBottom: bottomPad }]}>
           {focus ? <KaterCard>{katerLine(focus)}</KaterCard> : null}
           {list.length ? (
             <SectionBlock label="Deine Erinnerungen">
