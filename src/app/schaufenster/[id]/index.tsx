@@ -85,15 +85,24 @@ export default function ShowcaseScreen() {
   };
 
   return (
-    <SubScreen title={s.name} subtitle={s.kiez} navigation="back" onLeadingPress={goBack}>
+    // Kopfzeile wie in „Dein Konto › Schaufenster“: „Dein Schaufenster“ neben dem Pfeil, der Name groß darunter. Vorher
+    // stand der Name doppelt, oben in Inter und unter dem Titelbild (Daria, 2026-11-11). Der Kiez steht unter dem Namen.
+    <SubScreen title={access.team ? 'Dein Schaufenster' : 'Schaufenster'} navigation="back" onLeadingPress={goBack}>
       {/* Leere Angaben zeigen Platzhalter: Verlauf, Kater-Logo, graue Zeilen (Daria, 2026-11-11) */}
       <View style={styles.head}>
         <ShowcaseCover image={s.cover} style={styles.cover} />
         <View style={[styles.identity, styles.identityOnCover]}>
           <ShowcaseLogo image={s.logo} size={64} style={styles.logo} />
-          <Text noTranslate style={styles.name}>
-            {s.name}
-          </Text>
+          <View style={styles.nameBlock}>
+            <Text noTranslate style={styles.name}>
+              {s.name}
+            </Text>
+            {s.kiez ? (
+              <Text noTranslate style={styles.meta}>
+                {s.kiez}
+              </Text>
+            ) : null}
+          </View>
         </View>
         {s.about ? (
           <Text noTranslate style={styles.about}>
@@ -250,7 +259,8 @@ const styles = StyleSheet.create({
   identityOnCover: { marginTop: -space[32] - space[8], paddingHorizontal: space[12], alignItems: 'flex-end' },
   logo: { borderWidth: 3, borderColor: color.bg.screen, backgroundColor: color.bg.surface },
   // Name in der App-Schrift für große Überschriften (Kiez: Unbounded), nicht in Inter (Daria, 2026-11-10)
-  name: { ...text.display, flex: 1, color: color.text.primary, paddingBottom: space[4] },
+  nameBlock: { flex: 1, paddingBottom: space[4] },
+  name: { ...text.display, color: color.text.primary },
   about: { ...text.body, color: color.text.primary },
   info: { gap: space[8] },
   buttons: { gap: space[8] },

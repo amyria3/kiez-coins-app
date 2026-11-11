@@ -51,17 +51,21 @@ export default function ShowcaseHub() {
 
   // Pfeil zurück in die App, wenn es einen Verlauf gibt (z. B. „Dein Konto › Mein Schaufenster“). Der eigene Kopf
   // ersetzt die NavigationBar, deshalb fehlte der Pfeil bisher ganz (Daria, 2026-11-10).
-  // Sobald es ein Schaufenster gibt, ist sein Name der Titel und „Dein Schaufenster“ steht klein darüber, in derselben
-  // Schrift (Daria, 2026-11-11). Ohne Schaufenster (Anmelden, Zustimmung, Anlegen) bleibt „Dein Schaufenster“ groß.
+  // Sobald es ein Schaufenster gibt, ist sein Name der Titel. „Dein Schaufenster“ steht dann aus der App in Inter in
+  // der Kopfzeile neben dem Pfeil, wie auf der Seite des Schaufensters selbst (Daria, 2026-11-11); ohne Verlauf
+  // (direkt über kiezcoins.de) klein darüber. Ohne Schaufenster (Anmelden, Zustimmung, Anlegen) bleibt es groß.
   const router = useRouter();
-  const makeHeader = (compact: boolean) => (
-    <View>
-      {router.canGoBack() ? <NavigationBar title="" variant="back" onLeadingPress={back} /> : null}
-      <View style={compact ? styles.headerCompact : styles.header}>
-        <Text style={compact ? styles.kicker : styles.headline}>Dein Schaufenster</Text>
+  const makeHeader = (compact: boolean) =>
+    compact && router.canGoBack() ? (
+      <NavigationBar title="Dein Schaufenster" variant="back" onLeadingPress={back} />
+    ) : (
+      <View>
+        {router.canGoBack() ? <NavigationBar title="" variant="back" onLeadingPress={back} /> : null}
+        <View style={compact ? styles.headerCompact : styles.header}>
+          <Text style={compact ? styles.kicker : styles.headline}>Dein Schaufenster</Text>
+        </View>
       </View>
-    </View>
-  );
+    );
   const header = makeHeader(false);
 
   if (!session) return <Login header={header} />;
@@ -296,7 +300,7 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
       {list.map((s) => (
         <View key={s.id} style={styles.showcase}>
           {/* Der Name ist der eigentliche Titel: groß, in der Display-Schrift (Daria, 2026-11-11) */}
-          <Text style={styles.showcaseName} accessibilityRole="header" noTranslate>
+          <Text style={[styles.showcaseName, !router.canGoBack() && styles.showcaseNameUnderKicker]} accessibilityRole="header" noTranslate>
             {s.name}
           </Text>
           {s.cover ? <Image source={s.cover} style={styles.cover} contentFit="cover" /> : null}
@@ -333,7 +337,8 @@ const styles = StyleSheet.create({
   headerCompact: { paddingHorizontal: space[16], paddingTop: space[4] },
   kicker: { fontFamily: text.display.fontFamily, fontSize: 15, lineHeight: 20, color: color.text.secondary },
   showcase: { gap: space[8] },
-  showcaseName: { ...text.display, color: color.text.primary, marginTop: -space[8], marginBottom: space[4] },
+  showcaseName: { ...text.display, color: color.text.primary, marginBottom: space[4] },
+  showcaseNameUnderKicker: { marginTop: -space[8] },
   meta: { ...text.caption, color: color.text.secondary },
   link: { ...text.caption, color: color.text.primary, textDecorationLine: 'underline' },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.xl },
