@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { KaterCard } from './Content';
-import { IconButton } from './IconButton';
+import { KaterNachricht } from './KaterNachricht';
 import { katerFocus, katerLine } from '../data/katerRoutine';
 import { dueToday, loadReminders, nudgeAllowed } from '../data/reminders';
 import { t } from '../data/texts';
-import { color, space } from '../theme/tokens';
+import { space } from '../theme/tokens';
 
 /**
  * Kater erinnert im Feed (Daria, 2026-11-10): vorerst nur in der App, zwischen 8 und 20 Uhr höchstens dreimal am Tag
@@ -32,16 +31,15 @@ export function RoutineNudge({ enabled }: { enabled: boolean }) {
   }, [enabled]);
   if (!line) return null;
   return (
+    // Als Sprechblase des Katers statt als Karte (Entwurf, Daria, 2026-11-11)
     <View style={styles.wrap}>
-      <Pressable accessibilityRole="button" accessibilityHint={t('Öffnet Deine Routine')} onPress={() => router.push('/routine')}>
-        <KaterCard>{line}</KaterCard>
-      </Pressable>
-      <IconButton icon="close" iconSize={14} iconColor={color.text.secondary} accessibilityLabel={t('Hinweis schließen')} onPress={() => setLine(null)} style={styles.close} />
+      <KaterNachricht accessibilityHint={t('Öffnet Deine Routine')} onPress={() => router.push('/routine')} onClose={() => setLine(null)}>
+        {line}
+      </KaterNachricht>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: { paddingHorizontal: space[16] },
-  close: { position: 'absolute', top: 0, right: space[16] },
 });
