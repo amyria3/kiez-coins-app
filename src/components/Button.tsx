@@ -159,9 +159,10 @@ const fashionVariants: Record<ButtonVariant, { bg: string; label: string }> = {
  */
 const variants: Record<ButtonVariant, { fill?: string; line?: string; label: string; filled?: boolean }> = {
   primary: { fill: color.accent.primary, label: color.text.onAccent, filled: true },
-  secondary: { line: color.text.secondary, label: color.text.primary },
+  // Secondary und Ghost in Lila (Daria, 2026-11-11), vorher Grau mit heller Schrift
+  secondary: { line: color.accent.primary, label: color.accent.primary },
   // Upgrade „Nachtschicht“: Text ohne Rahmen, für die zweite Wahl unter einem Primary
-  ghost: { label: color.text.primary },
+  ghost: { label: color.accent.primary },
   signal: { fill: color.accent.signal, label: color.bg.screen, filled: true },
   signalOutline: { line: color.accent.signal, label: color.accent.signal },
   danger: { line: color.accent.error, label: color.accent.error },
