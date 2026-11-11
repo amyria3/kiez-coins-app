@@ -89,9 +89,10 @@ function Reise() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}>
-        {/* Krone als Zeichen für „Was Du so machst“ links vor dem Titel; für das Schiffchen reicht der Platz nicht (Daria, 02.11.2026) */}
+        {/* Krone als Zeichen für „Was Du so machst“ links vor dem Titel; für das Schiffchen reicht der Platz nicht (Daria, 02.11.2026).
+            Krone in der Farbe des Titels (Daria, 11.11.2026) */}
         <View style={styles.titleRow}>
-          {isFashionable ? null : <CrownIcon height={30} />}
+          {isFashionable ? null : <CrownIcon height={30} fill={color.text.primary} />}
           <Text style={[styles.title, styles.flex1]} accessibilityRole="header">
             Was Du so machst
           </Text>
