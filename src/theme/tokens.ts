@@ -170,6 +170,13 @@ export const font = {
 } as const;
 
 // Text Styles
+/**
+ * Größe und Zeilenhöhe je Look. Die Karla läuft kleiner als die Inter: im Kiez-Look 1 px größer
+ * und etwas engerer Zeilenabstand (Daria, 2026-11-11).
+ */
+const k = (size: number, line: number, kiezSize: number, kiezLine: number) =>
+  fashionable ? { fontSize: size, lineHeight: line } : { fontSize: kiezSize, lineHeight: kiezLine };
+
 export const text = {
   /**
    * Große Überschrift, z. B. „Chats“, „Was Du so machst“. Im Kiez-Look in der Unbounded wie die Begrüßung im Feed
@@ -186,28 +193,28 @@ export const text = {
   metric: { fontFamily: font.display, fontSize: 22, lineHeight: 26 },
   /** Kleine Kennzahlen, z. B. Edensteine in Listen, Karten und Posts (Daria 2026-11-10) */
   metricSm: { fontFamily: font.display, fontSize: 18, lineHeight: 22 },
-  title: { fontFamily: font.regular, fontSize: 18, lineHeight: 24 },
+  title: { fontFamily: font.regular, ...k(18, 24, 19, 23) },
   /** Abschnittsüberschrift auf Einstellungsseiten aus mehreren Abschnitten, z. B. Funktionen (Daria, 2026-11-10) */
   settingsHeading: { fontFamily: font.semiBold, fontSize: 20, lineHeight: 26 },
-  body: { fontFamily: font.text, fontSize: 14, lineHeight: 18 },
+  body: { fontFamily: font.text, ...k(14, 18, 15, 19) },
   /** Fließtext halbfett, z. B. Name im Post, Text auf kleinen Buttons */
-  bodyStrong: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 18 },
+  bodyStrong: { fontFamily: font.semiBold, ...k(14, 18, 15, 19) },
   /** Größerer Fließtext, z. B. Menüeinträge, Zähler unter Posts */
-  bodyLarge: { fontFamily: font.regular, fontSize: 15, lineHeight: 20 },
+  bodyLarge: { fontFamily: font.regular, ...k(15, 20, 16, 20) },
   /** Hinweise und Fehlermeldungen unter Formularfeldern, in beiden Looks Light (Daria, 2026-11-09) */
-  hint: { fontFamily: font.light, fontSize: 14, lineHeight: 19 },
+  hint: { fontFamily: font.light, ...k(14, 19, 15, 19) },
   /** Name im Chat und kleine Titel in Sprechblasen */
   cardTitleCompact: { fontFamily: font.display, fontSize: 17, lineHeight: 22, letterSpacing: -0.2 },
   /** Zeile unter Posts, Gruppen und Kennzahl-Beschriftungen (13 px, Daria 2026-11-10) */
-  meta: { fontFamily: font.regular, fontSize: 13, lineHeight: 18 },
+  meta: { fontFamily: font.regular, ...k(13, 18, 14, 17) },
   /** Kleine Zusatzzeile (12 px), z. B. Ort, Untertitel, Abzeichen-Name */
-  small: { fontFamily: font.regular, fontSize: 12, lineHeight: 16 },
-  caption: { fontFamily: font.regular, fontSize: 11, lineHeight: 16 },
+  small: { fontFamily: font.regular, ...k(12, 16, 13, 16) },
+  caption: { fontFamily: font.regular, ...k(11, 16, 12, 15) },
   labelXs: { fontFamily: font.text, fontSize: 9, lineHeight: 11 },
   /** `text/button/dark-on-light`: dunkle Schrift auf heller Fläche (Primary) */
-  buttonDarkOnLight: { fontFamily: font.medium, fontSize: 16, lineHeight: 20 },
+  buttonDarkOnLight: { fontFamily: font.medium, ...k(16, 20, 17, 20) },
   /** `text/button/light-on-dark`: helle Schrift auf dunkler Fläche (Secondary) */
-  buttonLightOnDark: { fontFamily: font.regular, fontSize: 16, lineHeight: 20 },
+  buttonLightOnDark: { fontFamily: font.regular, ...k(16, 20, 17, 20) },
 } satisfies Record<string, TextStyle>;
 
 // Bewegung „Schranke“: holt am Anfang langsam und leicht federnd aus, kippt dann zügig und schwingt kurz nach.
