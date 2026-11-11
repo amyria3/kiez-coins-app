@@ -39,7 +39,9 @@ import { color, font, radius, space, text } from '../../../theme/tokens';
  * Einladung und Anfragen bei „nur für Eingeladene“, wer posten darf, Schaufenster löschen.
  */
 export default function EditShowcase() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  // von=schaufenster: geöffnet über kiezcoins.de/schaufenster. Nach dem Löschen geht es dorthin zurück statt auf die
+  // interne Gruppe, die Läden ohne die Social App gar nicht kennen.
+  const { id, von } = useLocalSearchParams<{ id: string; von?: string }>();
   const router = useRouter();
   const goBack = useGoBack();
   const { currentUserId, groups, users } = useStore();
@@ -141,7 +143,9 @@ export default function EditShowcase() {
         text: t('Löschen'),
         style: 'destructive',
         onPress: async () => {
-          if (await deleteShowcase(showcase.id)) router.dismissTo({ pathname: '/groups/[id]', params: { id: showcase.groupId } });
+          if (!(await deleteShowcase(showcase.id))) return;
+          if (von === 'schaufenster') router.dismissTo('/schaufenster');
+          else router.dismissTo({ pathname: '/groups/[id]', params: { id: showcase.groupId } });
         },
       },
     ]);
