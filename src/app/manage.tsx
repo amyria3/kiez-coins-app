@@ -16,7 +16,7 @@ import { formatDayMonthShort, formatDurationSince, formatRelative, formatRemaini
 import { useRequireKiez } from '../data/kiez';
 import { isGroupDone } from '../data/reise';
 import { useStore } from '../data/store';
-import type { Challenge, User } from '../data/types';
+import { OPERATIONSNAME_ZEIGEN, type Challenge, type User } from '../data/types';
 import { useAppDimensions } from '../theme/layout';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { askCrosspost, restoreWithChoice } from '../components/CrosspostDialog';
@@ -554,7 +554,7 @@ function GroupDoneCard({
         {challenges.map((c) => {
           const photo = c.image ?? c.imageAfter ?? c.report?.photo ?? c.imageBefore;
           const mine = c.authorId === userId;
-          const title = !mine && c.operationName ? c.operationName : c.title || t('Ohne Titel');
+          const title = OPERATIONSNAME_ZEIGEN && !mine && c.operationName ? c.operationName : c.title || t('Ohne Titel');
           return (
             <Pressable
               key={c.id}
