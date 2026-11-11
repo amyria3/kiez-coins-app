@@ -875,3 +875,38 @@ footer a { color: var(--muted); }
 .fk-balken span:first-child { flex: 3; background: var(--text); }
 .fk-balken span:last-child { flex: 7; background: #5B5CD6; }
 @media (max-width: 480px) { .finanzierung-kurz { padding: 20px; border-radius: 22px; } }
+
+/* Schaufenster bewerben: Knopf „Registriere Deinen Laden“ mit kleiner Vorschau (Daria, 11.11.2026) */
+.laden-werben { display: grid; grid-template-columns: 1fr 260px; gap: 28px; align-items: center; margin: 40px 0 0; padding: 28px; max-width: 760px;
+  border-radius: 28px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 12px 30px -18px var(--schatten); }
+.laden-werben h3 { font: 600 24px/1.15 var(--display); letter-spacing: -.01em; margin: 0 0 8px; }
+.laden-werben p { color: var(--muted); margin: 0 0 4px; font-size: 15px; }
+.laden-werben .button { display: inline-block; margin-top: 16px; text-align: center; text-decoration: none; font: 500 16px/1 Inter, sans-serif;
+  color: var(--on-accent); background: var(--purple); border-radius: 999px; padding: 17px 26px; }
+.laden-werben .button:hover { filter: brightness(1.08); }
+.lw-vorschau { margin: 0; }
+.lw-vorschau figcaption { margin-top: 8px; font-size: 12px; color: var(--muted); text-align: center; }
+/* Die Vorschau zeigt das Schaufenster dunkel wie in der App */
+.lw-fenster { --t: #F0F0F0; --m: #A0A0A0; background: #1F2123; color: var(--t); border-radius: 22px; padding: 0 0 12px; overflow: hidden;
+  font-size: 13px; line-height: 1.35; box-shadow: 0 18px 36px -20px rgba(20,16,50,.6); rotate: 1.5deg; }
+[dir="rtl"] .lw-fenster { rotate: -1.5deg; }
+.lw-cover { position: relative; height: 72px; background: linear-gradient(135deg, #FFAD7E 0%, #FFB2E5 55%, #7E94FF 100%); }
+.lw-markise { position: absolute; inset: 0 0 auto 0; height: 18px;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.85) 0 14px, rgba(255,255,255,0) 14px 28px);
+  -webkit-mask: radial-gradient(circle 7px at 7px 18px, transparent 6.5px, #000 7px) 0 0 / 14px 100% repeat-x;
+  mask: radial-gradient(circle 7px at 7px 18px, transparent 6.5px, #000 7px) 0 0 / 14px 100% repeat-x; }
+.lw-wer { position: relative; display: flex; align-items: flex-end; gap: 10px; margin: -22px 12px 2px; }
+.lw-wer b { font: 600 17px/1.15 var(--display); padding-bottom: 2px; }
+.lw-logo { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #93F4A7; color: #1F2123;
+  font: 600 20px/1 var(--display); border: 3px solid #1F2123; }
+.lw-fenster .lw-klein { display: block; margin: 0 12px; color: var(--m); font-size: 12px; }
+.lw-eintrag { display: grid; gap: 2px; margin: 10px 12px 0; padding: 10px 12px; border-radius: 14px; background: #2B2D31; }
+.lw-fenster .lw-eintrag .lw-klein { margin: 0; }
+.lw-art { justify-self: start; font-size: 11px; font-weight: 500; color: #1F2123; background: #FFB2E5; border-radius: 999px; padding: 2px 8px; }
+.lw-art.lw-termin { background: #7E94FF; }
+.lw-speichern { justify-self: start; margin-top: 6px; font-size: 12px; font-weight: 500; border: 1px solid rgba(240,240,240,.25); border-radius: 999px; padding: 4px 10px; }
+@media (max-width: 640px) {
+  .laden-werben { grid-template-columns: 1fr; padding: 22px; border-radius: 22px; }
+  .laden-werben .button { display: block; }
+  .lw-vorschau { max-width: 260px; justify-self: center; }
+}
