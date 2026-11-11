@@ -47,7 +47,7 @@ export default function EditShowcase() {
   const { currentUserId, groups, users } = useStore();
   const [showcase, setShowcase] = useState<Showcase | null | undefined>(undefined);
   const [founder, setFounder] = useState(false);
-  const [form, setForm] = useState({ name: '', about: '', services: '', kiez: '', address: '', openingHours: '', imprint: '' });
+  const [form, setForm] = useState({ name: '', about: '', services: '', kiez: '', address: '', openingHours: '', imprint: '', terms: '' });
   // Mehrere Links (Daria, 2026-11-10); immer mindestens ein Feld
   const [links, setLinks] = useState<string[]>(['']);
   const [servicesCollapsed, setServicesCollapsed] = useState(false);
@@ -75,6 +75,7 @@ export default function EditShowcase() {
         address: s.address ?? '',
         openingHours: s.openingHours ?? '',
         imprint: s.imprint ?? '',
+        terms: s.terms ?? '',
       });
       setLinks(s.links.length ? s.links : ['']);
       setServicesCollapsed(s.servicesCollapsed);
@@ -117,7 +118,11 @@ export default function EditShowcase() {
     setBusy(true);
     setFailed(null);
     try {
-      await updateShowcase(showcase.id, currentUserId, { ...form, links, servicesCollapsed, bgColor, visibility, logo, cover });
+      await updateShowcase(showcase.id, currentUserId, {
+        ...form,
+        // AGB nur speichern, wenn die Migration 20261111000100 gelaufen ist
+        terms: showcase.termsReady ? form.terms : undefined,
+        links, servicesCollapsed, bgColor, visibility, logo, cover });
       goBack();
     } catch (error) {
       setFailed((error as Error).message);
@@ -206,6 +211,8 @@ export default function EditShowcase() {
           question="Brauche ich ein Impressum?"
           answer="Ja, wenn Ihr geschäftsmäßig auftretet, zum Beispiel als Laden, Verein oder mit Werbung (§ 5 Digitale-Dienste-Gesetz). Ins Impressum gehören Name, Anschrift und E-Mail-Adresse, dazu Rechtsform, vertretungsberechtigte Person, Registereintrag und Umsatzsteuer-ID, soweit vorhanden. Im Zweifel tragt es ein."
         />
+        {/* AGB (Daria, 2026-11-11), freiwillig; Besucher sehen sie eingeklappt */}
+        {showcase.termsReady ? <RichTextField label="AGB" value={form.terms} onChange={set('terms')} maxLength={20000} /> : null}
       </FieldGroup>
 
       <FieldGroup label="Farbe der öffentlichen Seite">
