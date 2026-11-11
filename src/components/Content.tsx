@@ -522,6 +522,8 @@ export function InfoRow({ icon, value, placeholder }: { icon: IconName; value: s
 
 /** Lila hell in der Farbe des Katers, nicht grün wie die Systemblasen der Krabbe (Daria, 2026-11-11) */
 const KATER_BLASE = 'rgba(143, 144, 250, 0.22)';
+/** Derselbe Ton deckend, für Blasen, die über anderem Inhalt schweben (lila hell auf dem Grund #232326) */
+const KATER_BLASE_DECKEND = '#3B3B55';
 const KATER_KREUZ = '#C9C9FF';
 /** Etwas größer als ein Profilbild in der Liste (Daria, 2026-11-11) */
 const KATER_AVATAR = 44;
@@ -541,6 +543,7 @@ export function KaterCard({
   onPress,
   onClose,
   accessibilityHint,
+  floating,
 }: {
   children: ReactNode;
   title?: string;
@@ -548,6 +551,8 @@ export function KaterCard({
   onPress?: () => void;
   onClose?: () => void;
   accessibilityHint?: string;
+  /** Schwebt über anderem Inhalt: Blase deckend statt durchscheinend */
+  floating?: boolean;
 }) {
   // Texte aus dem CMS (Tabelle app_texts). Nur reiner Text lässt sich ersetzen; Texte mit Namen
   // setzen die Screens selbst über t() mit Platzhaltern zusammen.
@@ -574,7 +579,7 @@ export function KaterCard({
   return (
     <View style={styles.katerRow}>
       <KaterRund size={KATER_AVATAR} />
-      <Pressable accessibilityRole={role} accessibilityHint={accessibilityHint} onPress={onPress} disabled={!onPress} style={styles.katerBlase}>
+      <Pressable accessibilityRole={role} accessibilityHint={accessibilityHint} onPress={onPress} disabled={!onPress} style={[styles.katerBlase, floating && styles.katerBlaseDeckend]}>
         <View style={styles.speechTexts}>
           {title ? <Text style={styles.speechTitle}>{title}</Text> : null}
           <Text style={styles.katerText}>{children}</Text>
@@ -846,6 +851,7 @@ const styles = StyleSheet.create({
     backgroundColor: KATER_BLASE,
   },
   // Größer als der Fließtext, der Kater spricht laut (Daria, 2026-11-11)
+  katerBlaseDeckend: { backgroundColor: KATER_BLASE_DECKEND },
   katerText: { ...text.body, fontSize: 17, lineHeight: 23, color: color.text.primary, flexShrink: 1 },
   // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
   katerKreuz: { marginVertical: -10, marginRight: -10, marginLeft: space[4] },
