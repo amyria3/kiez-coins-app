@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: space[20], paddingTop: space[16], paddingBottom: space[8] },
   headline: { ...text.display, color: color.text.primary },
   showcase: { gap: space[8] },
-  showcaseName: { ...text.headline, color: color.text.primary, marginBottom: space[4] },
+  showcaseName: { ...text.settingsHeading, color: color.text.primary, marginBottom: space[4] },
   meta: { ...text.caption, color: color.text.secondary },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.xl },
   footer: { gap: space[8], marginTop: space[16] },
