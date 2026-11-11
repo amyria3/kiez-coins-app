@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Avatar } from '../../components/AuthorRow';
 import { Button } from '../../components/Button';
-import { KaterCard, Notice } from '../../components/Content';
+import { Explanation, Notice } from '../../components/Content';
 import { TAB_BAR_SPACE, TabBar } from '../../components/TabBar';
 import { loadConversations, subscribeMessages, type Conversation } from '../../data/chat';
 import { formatRelative } from '../../data/format';
@@ -122,9 +122,10 @@ export default function Chats() {
         ) : null}
 
         {data && data.conversations.length === 0 ? (
-          <KaterCard title="Noch keine Freund:innen">
-            Öffne das Profil einer Person aus Deinem Kiez und frage sie als Freund:in an. Dann könnt Ihr Euch hier schreiben.
-          </KaterCard>
+          <Explanation
+            question="Wie finde ich Freund:innen?"
+            answer="Öffne das Profil einer Person aus Deinem Kiez und frage sie als Freund:in an. Dann könnt Ihr Euch hier schreiben."
+          />
         ) : null}
 
         {data?.conversations.map(({ friend, last, unread }) => (
