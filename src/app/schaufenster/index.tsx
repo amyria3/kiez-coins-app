@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 
@@ -77,6 +77,7 @@ export default function ShowcaseHub() {
 
 function Login({ header }: { header: React.ReactNode }) {
   const back = useBack();
+  const router = useRouter();
   const { sendCode, verifyCode, signInOrUpWithPassword } = useAuth();
   const [email, setEmail] = useState('');
   const [mode, setMode] = useState<'email' | 'code' | 'password'>('email');
@@ -128,6 +129,11 @@ function Login({ header }: { header: React.ReactNode }) {
       {mode === 'password' ? (
         <TextField label="Passwort" value={password} onChangeText={setPassword} secureTextEntry autoComplete="password" helperText="Mindestens 8 Zeichen. Ohne Konto legt KiezCoins eins an." />
       ) : null}
+      {/* Datenschutzhinweis bei der Erhebung (Art. 13 DSGVO): Mit der E-Mail entsteht schon das Konto (Rechtsprüfung 11.11.2026) */}
+      <Text style={styles.meta}>Ohne Konto legt KiezCoins beim Anmelden eins an. Wie KiezCoins Deine Daten verarbeitet, steht in der Datenschutzerklärung.</Text>
+      <Pressable accessibilityRole="link" onPress={() => router.push('/legal/datenschutz')} hitSlop={8}>
+        <Text style={styles.link}>Datenschutz lesen</Text>
+      </Pressable>
       {error ? <Notice variant="warning" message={error} /> : null}
       {mode === 'password' ? (
         <Button label="Doch lieber Code per E-Mail" variant="ghost" onPress={() => setMode('email')} />
@@ -315,6 +321,7 @@ const styles = StyleSheet.create({
   showcase: { gap: space[8] },
   showcaseName: { ...text.settingsHeading, color: color.text.primary, marginBottom: space[4] },
   meta: { ...text.caption, color: color.text.secondary },
+  link: { ...text.caption, color: color.text.primary, textDecorationLine: 'underline' },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.xl },
   footer: { gap: space[8], marginTop: space[16] },
 });
