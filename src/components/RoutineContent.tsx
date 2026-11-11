@@ -12,9 +12,10 @@ import { savedEvents, type ShowcaseEvent } from '../data/showcase';
 import { useCalendarEnabled } from '../data/routine';
 import { useStore } from '../data/store';
 import { ShowcaseEventCard } from './ShowcaseEventCard';
+import { RoutineCardSurface, RoutineLamp } from './RoutineCardShape';
 import { archiveReminder, capitalize, goalOf, kindOf, loadReminders, type Reminder } from '../data/reminders';
 import { t } from '../data/texts';
-import { color, font, radius, space, text } from '../theme/tokens';
+import { color, font, isFashionable, radius, space, text } from '../theme/tokens';
 
 /**
  * Inhalt der Routine (Daria, 2026-11-09/10): Deine Erinnerungen mit Fortschritt der Woche, oben der Kater.
@@ -131,8 +132,9 @@ function ReminderCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDo
   // „um“: Termin ohne Zähler und Balken; „bis“ und „von … bis“: Aufgabe (Daria, 2026-11-10)
   const kind = kindOf(r);
   const counted = kind !== 'termin';
-  return (
-    <Pressable onLongPress={onEnd} accessibilityHint={t('Lange drücken zum Beenden')} style={styles.card}>
+  const done = Math.min(r.doneThisWeek, goal);
+  const body = (
+    <>
       <View style={styles.head}>
         <View style={styles.flex}>
           {kind ? <Text style={[styles.kicker, kind === 'termin' ? styles.kickerTermin : styles.kickerAufgabe]}>{kind === 'termin' ? 'Termin' : 'Aufgabe'}</Text> : null}
@@ -143,15 +145,20 @@ function ReminderCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDo
         </View>
         {counted ? (
           <Text noTranslate style={[styles.count, r.doneThisWeek >= goal && styles.countDone]}>
-            {Math.min(r.doneThisWeek, goal)}/{goal}
+            {/* Kiez-Look: die erledigte Zahl grün wie die Lampen (Daria, 2026-11-11) */}
+            {lamps && done > 0 ? <Text noTranslate style={styles.countDone}>{done}</Text> : done}/{goal}
           </Text>
         ) : null}
       </View>
       {counted ? (
-        <View style={styles.bar} accessible accessibilityLabel={t('{done} von {goal} diese Woche', { done: Math.min(r.doneThisWeek, goal), goal })}>
-          {Array.from({ length: goal }, (_, i) => (
-            <View key={i} style={[styles.segment, i < r.doneThisWeek && styles.segmentDone]} />
-          ))}
+        <View style={[styles.bar, lamps && styles.barLamps]} accessible accessibilityLabel={t('{done} von {goal} diese Woche', { done, goal })}>
+          {Array.from({ length: goal }, (_, i) =>
+            lamps && i < r.doneThisWeek ? (
+              <RoutineLamp key={i} />
+            ) : (
+              <View key={i} style={[styles.segment, lamps && styles.segmentGroove, i < r.doneThisWeek && styles.segmentDone]} />
+            ),
+          )}
         </View>
       ) : null}
       <View style={styles.foot}>
@@ -164,9 +171,24 @@ function ReminderCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDo
           <Button label="Erledigt" variant="secondary" onPress={onDone} />
         )}
       </View>
+    </>
+  );
+  // Kiez-Look: Karte im Stil der Abzeichen (Daria, 2026-11-11, Variante K). Fashionable bleibt flach.
+  if (lamps)
+    return (
+      <Pressable onLongPress={onEnd} accessibilityHint={t('Lange drücken zum Beenden')} style={styles.cardLift}>
+        <RoutineCardSurface style={styles.cardShaped}>{body}</RoutineCardSurface>
+      </Pressable>
+    );
+  return (
+    <Pressable onLongPress={onEnd} accessibilityHint={t('Lange drücken zum Beenden')} style={styles.card}>
+      {body}
     </Pressable>
   );
 }
+
+/** Lampen, Wellen und handgeschnittene Kante nur im Kiez-Look */
+const lamps = !isFashionable;
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
@@ -175,6 +197,9 @@ const styles = StyleSheet.create({
   list: { gap: space[12] },
   buttons: { gap: space[8] },
   card: { gap: space[12], padding: space[16], borderRadius: radius.xl, backgroundColor: color.bg.surface },
+  /** Platz für die harte Unterkante unter der Karte */
+  cardLift: { marginBottom: 3 },
+  cardShaped: { gap: space[12], padding: space[16], paddingBottom: space[20] },
   head: { flexDirection: 'row', alignItems: 'flex-start', gap: space[12] },
   flex: { flex: 1, gap: space[4] },
   title: { ...text.cardTitle, color: color.text.primary },
@@ -187,6 +212,9 @@ const styles = StyleSheet.create({
   bar: { flexDirection: 'row', gap: space[6] },
   segment: { flex: 1, height: 6, borderRadius: 3, backgroundColor: color.bg.screen },
   segmentDone: { backgroundColor: color.accent.confirmation },
+  /** Lampen sind 8 hoch, die offenen Tage als eingelassene Rille */
+  barLamps: { paddingBottom: 2 },
+  segmentGroove: { height: 8, borderRadius: 4, boxShadow: 'inset 0 2px 0 rgba(0, 0, 0, 0.25)' },
   foot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space[12] },
   endText: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },
   doneToday: { fontFamily: font.medium, fontSize: 15, lineHeight: 20, color: color.accent.confirmation },
