@@ -426,6 +426,32 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
         <a class="button" href="${P}app/${spracheParam(L)}">${t('Direkt im Browser ausprobieren', 'Try it right in the browser')}</a>
       </div>
     </div>
+    <!-- Schaufenster für Läden, Vereine und Clubs: Knopf zu kiezcoins.de/schaufenster mit kleiner Vorschau (Daria, 11.11.2026) -->
+    <div class="laden-werben">
+      <div class="lw-text">
+        <h3>${t('Du hast einen Laden, ein Café oder einen Verein?', 'Do you run a shop, a café or a club?')}</h3>
+        <p>${t('Mit einem Schaufenster zeigst Du Deinem Kiez, was bei Dir los ist: neue Posts, Termine und Öffnungszeiten. Nachbar:innen speichern Deine Termine mit einem Tipp.', 'With a shop window you show your neighborhood what’s going on at your place: new posts, events and opening hours. Neighbors save your events with one tap.')}</p>
+        <a class="button" href="/schaufenster${spracheParam(L)}">${t('Registriere Deinen Laden', 'Register your shop')}</a>
+      </div>
+      <figure class="lw-vorschau" aria-label="${t('Vorschau: So sieht ein Schaufenster aus', 'Preview: this is what a shop window looks like')}">
+        <div class="lw-fenster" aria-hidden="true">
+          <div class="lw-cover"><span class="lw-markise"></span></div>
+          <div class="lw-wer"><span class="lw-logo">K</span><b>${t('Café Kiezliebe', 'Café Kiezliebe')}</b></div>
+          <p class="lw-klein">${t('Neukölln · Mo–Sa 8–18 Uhr', 'Neukölln · Mon–Sat 8 am–6 pm')}</p>
+          <div class="lw-eintrag">
+            <span class="lw-art lw-termin">${t('Termin', 'Event')}</span>
+            <b>${t('Flohmarkt im Hof', 'Flea market in the courtyard')}</b>
+            <span class="lw-klein">${t('Sa, 14 Uhr', 'Sat, 2 pm')}</span>
+            <span class="lw-speichern">${t('Speichern', 'Save')}</span>
+          </div>
+          <div class="lw-eintrag">
+            <span class="lw-art">Post</span>
+            <b>${t('Frischer Zimtkuchen ist da!', 'Fresh cinnamon cake is here!')}</b>
+          </div>
+        </div>
+        <figcaption>${t('Beispiel', 'Example')}</figcaption>
+      </figure>
+    </div>
     <!-- Finanzierung kurz, mit Link auf die ganze Seite (Daria, 08.11.2026) -->
     <div class="finanzierung-kurz">
       <h3>${t('So finanziert sich KiezCoins', 'How KiezCoins is funded')}</h3>
