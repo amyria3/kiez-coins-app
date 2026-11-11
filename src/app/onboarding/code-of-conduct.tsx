@@ -59,7 +59,7 @@ export default function Kodex() {
       }
     >
       <KaterBubble>Noch das Kleingedruckte.</KaterBubble>
-      <QuestionHint question="Was heißt Testversion?" answer="Die KiezCoins App ist momentan eine kostenlose Testversion. Einige Funktionen können sich ändern. Am Ende der Testphase setzen wir Daten zurück. Das kündigen wir vorher per E-Mail an." />
+      <QuestionHint question="Was heißt Testversion?" answer="Die KiezCoins App ist kostenlos und noch in der Testphase. Funktionen können sich ändern. Am Ende der Testphase setzen wir die Daten zurück und kündigen das vorher per E-Mail an." />
       <NudgeArea nudge={consent}>
       <SwitchRow required label="Ich bin mindestens 18 Jahre alt" value={age} onValueChange={setAge} />
       <SwitchRow

@@ -128,7 +128,7 @@ export default function Kiez() {
           />
         </>
       ) : null}
-      <QuestionHint question="Was speichert KiezCoins von meinem Standort?" answer="Wir speichern nur den Kiez, nicht Deinen genauen Standort. Ohne Kiez kannst Du lesen, Bilder und Me-Challenges posten. Für We-Challenges ist die Autorisierung Pflicht." />
+      <QuestionHint question="Was speichert KiezCoins von meinem Standort?" answer="Nur Deinen Kiez, nie Deinen genauen Standort. Ohne Kiez liest Du mit und postest Bilder und Me-Challenges. Für We-Challenges braucht die App Deinen Kiez." />
     </SubScreen>
   );
 }

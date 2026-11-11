@@ -261,7 +261,7 @@ export function LinkedText({ value, style }: { value: string; style?: StyleProp<
 
 /**
  * Rolle „System“ (Daria, 2026-11-09): Absender der gelbgrünen Systemnachrichten, links neben jeder Blase wie ein Absender im Chat.
- * Avatar als eigene Pixel-Krabbe im Sticker-Stil statt Emoji 👾 im schwarzen Kreis (Daria, 2026-11-10): Lila Körper,
+ * Avatar als eigene Pixel-Krabbe im Sticker-Stil statt Emoji 👾 im schwarzen Kreis (Daria, 2026-11-10): Grüner Körper (seit 2026-11-11, vorher Lila),
  * dunkle Kontur und helle Sticker-Kante, damit sie sich auf dem dunklen Grund abhebt. Ohne Kreis dahinter.
  */
 // P = Körper, E = Auge. Die dunkle Kontur und die helle Kante entstehen darum herum (je ein Pixel, auch über Eck).
@@ -300,7 +300,8 @@ const KRABBE_PIXEL = (() => {
 })();
 /** Etwas kleiner als ein Profilbild (Daria, 2026-11-10) */
 const KRABBE_BREITE = 28;
-const KRABBE_FARBE: Record<number, string> = { 1: color.text.primary, 2: color.bg.screen, 3: color.brand.signature };
+/** Grüner Körper statt Lila (Daria, 2026-11-11): Lila tragen die eigenen Nachrichten, die Krabbe hebt sich davon ab */
+const KRABBE_FARBE: Record<number, string> = { 1: color.text.primary, 2: color.bg.screen, 3: color.accent.confirmation };
 
 export function SystemAvatar() {
   const { w, h, pixels } = KRABBE_PIXEL;
@@ -450,6 +451,18 @@ function SkyAnswer({ answer }: { answer: string }) {
         <LinkedText style={[styles.answerText, styles.answerTextSky]} value={answer} />
       </Animated.View>
     </FromSystem>
+  );
+}
+
+/**
+ * Frage, mit der eine Erklärung beginnt (Daria, 2026-11-11): rechts wie eine eigene, schon gestellte Nachricht, lila.
+ * Für Anleitungen, die die Person selbst geöffnet hat (`SetupSteps`, Weiterposten). Zum Aufklappen dient `QuestionHint`.
+ */
+export function AskedQuestion({ question }: { question: string }) {
+  return (
+    <UserBubble purple disabled accessibilityState={{ disabled: true }} onPress={() => {}}>
+      {question}
+    </UserBubble>
   );
 }
 
