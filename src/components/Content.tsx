@@ -401,12 +401,12 @@ export function Notice({
 
 /**
  * Abstände im Chat (Daria, 2026-11-09): zwischen Nachrichten derselben Seite klein, beim Wechsel zwischen Frage
- * und App größer.
+ * und App etwas größer. Wechsel von 12 auf 6 verringert (Daria, 2026-11-11: „reduce spacing between bubbles“).
  */
 export const CHAT_GAP_SAME = space[4];
 /** Rundung der Chatblasen (Frage, Antwort, Systemmeldung): im Kiez-Look runder als radius.xl (Daria, 2026-11-09) */
 const CHAT_RADIUS = isFashionable ? radius.xl : 26;
-export const CHAT_GAP_CHANGE = space[12];
+export const CHAT_GAP_CHANGE = space[6];
 
 /**
  * Hinweis als Frage (Daria, 2026-11-09): blasse Chatnachricht rechts, wie selbst gefragt. Ein Tipp zeigt darunter
@@ -463,29 +463,34 @@ function SkyAnswer({ answer }: { answer: string }) {
 }
 
 /**
- * Frage, mit der eine Erklärung beginnt (Daria, 2026-11-11): rechts wie eine eigene, schon gestellte Nachricht, lila.
- * Für Anleitungen, die die Person selbst geöffnet hat (`SetupSteps`, Weiterposten). Zum Aufklappen dient `QuestionHint`.
+ * Frage, mit der eine Erklärung beginnt (Daria, 2026-11-11): rechts wie eine eigene Nachricht. Erst blass, die
+ * Person stellt sie mit einem Tipp, dann wird sie lila wie gesendet und bleibt so stehen. Was danach kommt, zeigt der
+ * Aufrufer erst mit `asked` (Daria, 2026-11-11: „bei einer Frage immer auf den Tipp warten“).
+ * Für Anleitungen (`SetupSteps`, Weiterposten) und `Explanation`. Zum Auf- und Zuklappen dient `QuestionHint`.
  */
-export function AskedQuestion({ question }: { question: string }) {
+export function AskedQuestion({ question, asked, onAsk }: { question: string; asked: boolean; onAsk: () => void }) {
   return (
-    <UserBubble purple disabled accessibilityState={{ disabled: true }} onPress={() => {}}>
+    <UserBubble purple={asked} disabled={asked} accessibilityState={{ disabled: asked }} onPress={onAsk}>
       {question}
     </UserBubble>
   );
 }
 
 /**
- * Erklärung oben auf einem Screen (Daria, 2026-11-11): rechts die schon gestellte Frage, darunter links die Antwort
+ * Erklärung oben auf einem Screen (Daria, 2026-11-11): rechts die Frage, nach einem Tipp darauf links die Antwort
  * der App mit der Krabbe. Ersetzt die graue Kater-Karte überall dort, wo sie erklärt, was der Screen tut
  * (Designsystem › So schreibt die App Erklärungen, Regel 1).
  */
 export function Explanation({ question, answer }: { question: string; answer: string }) {
+  const [asked, setAsked] = useState(false);
   return (
     <View>
-      <AskedQuestion question={question} />
-      <View style={styles.afterChange}>
-        <Notice message={answer} />
-      </View>
+      <AskedQuestion question={question} asked={asked} onAsk={() => setAsked(true)} />
+      {asked ? (
+        <View style={styles.afterChange}>
+          <Notice message={answer} />
+        </View>
+      ) : null}
     </View>
   );
 }
