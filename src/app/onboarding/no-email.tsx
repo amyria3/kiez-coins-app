@@ -74,7 +74,7 @@ export default function OhneMail() {
     <SubScreen title="Ohne E-Mail" subtitle="Schritt 1 von 5" navigation="back" onLeadingPress={goBack}>
       <Explanation
         question="Brauche ich eine E-Mail?"
-        answer="Geht auch ohne E-Mail. Merke Dir Deckname und Passwort gut. Ohne E-Mail kann das System Dir kein neues Passwort schicken."
+        answer="Es geht auch ohne. Deine E-Mail ist nur nötig, damit das System Dir Bestätigungscodes senden kann und Du ein vergessenes Passwort wiederherstellen kannst. Merke Dir Deckname und Passwort deshalb gut."
       />
       <View style={styles.fields}>
         <TextField
