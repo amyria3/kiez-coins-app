@@ -38,6 +38,8 @@ export const SHEET_RATIO = 5 / 4;
 /** Blatt: reines Weiß (Daria, 07.11.2026, vorher #FFF8ED) */
 export const PAPER = '#FFFFFF';
 export const INK = '#232326';
+/** Gedämpfte Schrift auf dem Blatt (Seitenzahl, Platzhalter): dunkles Puder, Farbton 342° wie die Schrift der App, kein Grau (Daria, 2026-11-11). Vorher #8E8E93 */
+export const INK_MUTED = '#AB7C8A';
 /** Links und @Namen: kräftiges Orange ohne Braunstich (Daria, 07.11.2026, vorher Lila #5B5CD6) */
 export const INK_LINK = '#E8590C';
 
@@ -457,7 +459,7 @@ export function SheetEditor({
                       value={title}
                       onChangeText={onTitleChange}
                       placeholder={t('Titel (freiwillig)')}
-                      placeholderTextColor="rgba(35, 35, 38, 0.4)"
+                      placeholderTextColor={INK_MUTED}
                       maxLength={60}
                       multiline
                       scrollEnabled={false}
@@ -495,7 +497,7 @@ export function SheetEditor({
                     if (focus.current?.page === k) focus.current = null;
                   }}
                   placeholder={k === 0 ? t(placeholder) : undefined}
-                  placeholderTextColor="rgba(35, 35, 38, 0.4)"
+                  placeholderTextColor={INK_MUTED}
                   multiline
                   scrollEnabled={false}
                   textAlignVertical="top"
@@ -655,7 +657,7 @@ const styles = StyleSheet.create({
   measure: { position: 'absolute', opacity: 0, left: -10000, top: 0 },
   mention: { color: INK_LINK },
   link: { color: INK_LINK, textDecorationLine: 'underline' },
-  pageNo: { position: 'absolute', fontFamily: font.regular, color: '#8E8E93' },
+  pageNo: { position: 'absolute', fontFamily: font.regular, color: INK_MUTED },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: space[6], paddingTop: space[8] },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: color.text.secondary, opacity: 0.4 },
   dotActive: { backgroundColor: color.text.primary },
