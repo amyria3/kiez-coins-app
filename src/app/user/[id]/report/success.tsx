@@ -7,7 +7,7 @@ export default function UserReportSuccess() {
   const router = useRouter();
   return (
     <ResultScreen
-      title="Danke für Deine Meldung"
+      title="Danke, wir kümmern uns"
       message="Die Moderation prüft Deine Meldung und meldet sich bei Dir. Wer öfter mit falschen Versprechen lockt, darf keine Coins mehr anbieten."
       onFeedPress={() => router.dismissTo('/feed')}
     />
