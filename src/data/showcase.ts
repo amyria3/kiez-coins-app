@@ -42,6 +42,11 @@ export type Showcase = {
   terms?: string;
   /** Spalte terms gibt es schon (Migration 20261111000100 gelaufen) */
   termsReady: boolean;
+  /** Titel und Beschreibung für Suchmaschinen (Migration 20261111000200); leer erzeugt api/s.mjs beides selbst */
+  seoTitle?: string;
+  seoDescription?: string;
+  /** Spalten seo_title und seo_description gibt es schon (Migration 20261111000200 gelaufen) */
+  seoReady: boolean;
   visibility: Visibility;
   /** Bezahlt: Die Grenze von 50 löscht nichts (plan_until in der Zukunft) */
   paid: boolean;
@@ -143,6 +148,7 @@ const toShowcase = (r: Row): Showcase => ({
   switches: ALL_ON,
   inviteCode: '',
   termsReady: false,
+  seoReady: false,
 });
 
 /** AGB getrennt laden: Fehlt die Migration 20261111000100, bleibt das Schaufenster wie vorher, nur ohne AGB */
@@ -151,6 +157,16 @@ async function loadTerms(showcase: Showcase): Promise<void> {
   if (error) return;
   showcase.termsReady = true;
   showcase.terms = (data as { terms: string | null } | null)?.terms ?? undefined;
+}
+
+/** Titel und Beschreibung für Suchmaschinen getrennt laden: Fehlt die Migration 20261111000200, bleibt alles wie vorher */
+async function loadSeo(showcase: Showcase): Promise<void> {
+  const { data, error } = await supabase.from('showcases').select('seo_title, seo_description').eq('id', showcase.id).maybeSingle();
+  if (error) return;
+  const row = data as { seo_title: string | null; seo_description: string | null } | null;
+  showcase.seoReady = true;
+  showcase.seoTitle = row?.seo_title ?? undefined;
+  showcase.seoDescription = row?.seo_description ?? undefined;
 }
 
 /** Schalter der Gruppe; fehlt die Migration 20261110001600, ist alles an wie vorher */
@@ -213,7 +229,7 @@ export async function loadShowcase(id: string, userId: string): Promise<{ showca
   showcase.address = (priv as Private)?.address ?? undefined;
   showcase.inviteCode = (priv as Private)?.invite_code ?? '';
   showcase.switches = await showcaseSwitches(id);
-  await loadTerms(showcase);
+  await Promise.all([loadTerms(showcase), loadSeo(showcase)]);
   const [member, group, guest, follow, see] = await Promise.all([
     supabase.from('group_members').select('role, can_post_showcase').eq('group_id', showcase.groupId).eq('user_id', userId).maybeSingle(),
     supabase.from('groups').select('founder_id').eq('id', showcase.groupId).maybeSingle(),
@@ -246,7 +262,8 @@ export async function createShowcase(groupId: string, name: string): Promise<str
     const slug = !latin || i === 4 ? `${base.slice(0, 30)}-${random()}` : i ? `${base.slice(0, 36)}-${i + 1}` : base;
     const { data, error } = await supabase.rpc('create_showcase', { p_group_id: groupId, p_name: name, p_slug: slug });
     if (!error && data) return data as string;
-    if (error && !/slug|duplicate|unique/i.test(error.message)) throw new Error(error.message);
+    // Belegt, reserviert oder früher vergeben (Migration 20261111000200): nächster Versuch
+    if (error && !/slug|duplicate|unique|vergeben|reserviert/i.test(error.message)) throw new Error(error.message);
   }
   throw new Error('Kein freier Kurzname gefunden.');
 }
@@ -264,6 +281,11 @@ export type ShowcaseInput = {
   imprint?: string;
   /** Nur mitschicken, wenn die Spalte terms existiert (Showcase.termsReady) */
   terms?: string;
+  /** Eigener Kurzname für kiezcoins.de/s/<kurzname>; nur mitschicken, wenn er sich ändert */
+  slug?: string;
+  /** Nur mitschicken, wenn die Spalten existieren (Showcase.seoReady) */
+  seoTitle?: string;
+  seoDescription?: string;
   visibility: Visibility;
   /** Neues Bild (lokal) oder unverändert */
   logo?: ImageSource;
@@ -327,10 +349,49 @@ export async function updateShowcase(id: string, userId: string, input: Showcase
     visibility: input.visibility,
   };
   if (input.terms !== undefined) fields.terms = nullIfEmpty(input.terms);
+  if (input.slug !== undefined) fields.slug = input.slug.trim().toLowerCase();
+  if (input.seoTitle !== undefined) fields.seo_title = nullIfEmpty(input.seoTitle);
+  if (input.seoDescription !== undefined) fields.seo_description = nullIfEmpty(input.seoDescription);
   if (isLocal(input.logo)) fields.logo_path = await uploadPhoto(userId, input.logo!);
   if (isLocal(input.cover)) fields.cover_path = await uploadPhoto(userId, input.cover!);
   const { error } = await supabase.from('showcases').update(fields).eq('id', id);
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(slugError(error) ?? error.message);
+}
+
+// ---------- Eigene Adresse (Daria, 2026-11-11, Migration 20261111000200) ----------
+
+/** Wie in der Datenbank: a–z, 0–9 und Bindestrich, 3 bis 40 Zeichen, beginnt mit Buchstabe oder Zahl */
+export const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{2,39}$/;
+export const SLUG_MAX = 40;
+/** Länge für Suchmaschinen: Titel bis 70, Beschreibung bis 200 Zeichen (Datenbank); sichtbar sind meist 60 und 155 */
+export const SEO_TITLE_MAX = 70;
+export const SEO_DESCRIPTION_MAX = 200;
+
+export type SlugStatus = 'frei' | 'eigen' | 'vergeben' | 'reserviert' | 'ungueltig';
+
+/** Beim Tippen: Ist der Name frei? `undefined`, wenn die Migration fehlt oder keine Verbindung besteht */
+export async function slugStatus(slug: string, showcaseId: string): Promise<SlugStatus | undefined> {
+  if (!SLUG_PATTERN.test(slug.trim().toLowerCase())) return 'ungueltig';
+  const { data, error } = await supabase.rpc('showcase_slug_status', { p_slug: slug, p_showcase: showcaseId });
+  return error ? undefined : (data as SlugStatus);
+}
+
+/** Lesbare Meldung zu Fehlern beim Ändern des Kurznamens (Hinweise aus dem Trigger showcase_slug_change) */
+function slugError(error: { message: string; hint?: string | null; code?: string }): string | undefined {
+  if (error.hint === 'slug_reserved') return t('Diese Adresse ist reserviert. Bitte wähle eine andere.');
+  if (error.hint === 'slug_taken' || (error.code === '23505' && /slug/i.test(error.message)))
+    return t('Diese Adresse ist schon vergeben. Bitte wähle eine andere.');
+  if (error.hint === 'slug_too_often') return t('Du hast die Adresse gerade erst geändert. Versuche es in 10 Minuten noch einmal.');
+  if (/showcases_slug_check/i.test(error.message)) return t('Die Adresse hat 3 bis 40 Zeichen: Kleinbuchstaben, Zahlen und Bindestriche.');
+  return undefined;
+}
+
+/**
+ * Meldet Suchmaschinen wie Bing, dass sich ein öffentliches Schaufenster geändert hat (IndexNow, api/indexnow.mjs).
+ * Google liest weiter die Sitemap. Fehler sind egal, die Sitemap holt es später nach.
+ */
+export function notifySearchEngines(slug: string): void {
+  fetch(`https://kiezcoins.de/api/indexnow?slug=${encodeURIComponent(slug)}`, { method: 'POST' }).catch(() => {});
 }
 
 export async function deleteShowcase(id: string): Promise<boolean> {

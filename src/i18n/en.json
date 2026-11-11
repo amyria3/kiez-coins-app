@@ -1676,5 +1676,21 @@
   "Du musst die App nicht nutzen, weil Du Dein Schaufenster hier pflegen kannst. Du bist hiermit über Google auffindbar.": "You don't have to use the app, because you can manage your shop window here. This makes you findable on Google.",
   "Ich will die App vielleicht doch nutzen – wie kann ich beitreten?": "I might want to use the app after all – how can I join?",
   "Mit der Registrierung fürs Schaufenster entsteht automatisch ein Account – Deine Persona im Social Network KiezCoins. Du kannst Dich mit denselben Zugangsdaten in der App einloggen und mit anderen Nutzer:innen interagieren.": "Registering for the shop window automatically creates an account – your persona in the KiezCoins social network. You can log in to the app with the same credentials and interact with other users.",
-  "Das Abonnieren umfasst 3 Schritte und setzt voraus, dass Du in Deinem Kalender angemeldet bist, zum Beispiel bei Apple, Google oder Outlook. Möchtest Du jetzt loslegen?": "Subscribing takes 3 steps and requires you to be signed in to your calendar, for example with Apple, Google or Outlook. Do you want to get started now?"
+  "Das Abonnieren umfasst 3 Schritte und setzt voraus, dass Du in Deinem Kalender angemeldet bist, zum Beispiel bei Apple, Google oder Outlook. Möchtest Du jetzt loslegen?": "Subscribing takes 3 steps and requires you to be signed in to your calendar, for example with Apple, Google or Outlook. Do you want to get started now?",
+  "Die Adresse hat 3 bis 40 Zeichen: Kleinbuchstaben, Zahlen und Bindestriche.": "The address has 3 to 40 characters: lowercase letters, numbers and hyphens.",
+  "Diese Adresse ist schon vergeben. Bitte wähle eine andere.": "This address is already taken. Please choose another one.",
+  "Diese Adresse ist reserviert. Bitte wähle eine andere.": "This address is reserved. Please choose another one.",
+  "Adresse der öffentlichen Seite": "Address of the public page",
+  "Die Adresse ist frei.": "The address is available.",
+  "Kleinbuchstaben, Zahlen und Bindestriche, 3 bis 40 Zeichen.": "Lowercase letters, numbers and hyphens, 3 to 40 characters.",
+  "Was passiert mit meiner alten Adresse?": "What happens to my old address?",
+  "Die alte Adresse leitet auf die neue weiter. Geteilte Links und QR-Codes funktionieren weiter. Niemand sonst kann Deine alte Adresse übernehmen.": "The old address redirects to the new one. Shared links and QR codes keep working. Nobody else can take over your old address.",
+  "In Suchmaschinen": "In search engines",
+  "Seitentitel": "Page title",
+  "{n} von {max} Zeichen. Sichtbar sind meist die ersten 60.": "{n} of {max} characters. Usually the first 60 are visible.",
+  "{n} von {max} Zeichen. Sichtbar sind meist die ersten 155.": "{n} of {max} characters. Usually the first 155 are visible.",
+  "Wofür brauche ich Seitentitel und Beschreibung?": "What do I need a page title and description for?",
+  "Suchmaschinen wie Google, Bing oder Ecosia zeigen beides in ihren Ergebnissen. Ein guter Titel nennt, was Du anbietest und wo. Die Beschreibung macht in ein bis zwei Sätzen Lust auf einen Besuch. Leere Felder füllt die App aus Name, Kiez und Kurztext.": "Search engines like Google, Bing or Ecosia show both in their results. A good title says what you offer and where. The description makes people want to visit in one or two sentences. The app fills empty fields from name, neighbourhood and short text.",
+  "Vorschau in Suchmaschinen": "Preview in search engines",
+  "Du hast die Adresse gerade erst geändert. Versuche es in 10 Minuten noch einmal.": "You just changed the address. Try again in 10 minutes."
 }

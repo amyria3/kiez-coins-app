@@ -22,9 +22,15 @@ import {
   readableOn,
   HEX,
   MAX_LINKS,
+  notifySearchEngines,
+  SEO_DESCRIPTION_MAX,
+  SEO_TITLE_MAX,
   showcasePosters,
+  SLUG_MAX,
+  slugStatus,
   updateShowcase,
   type Showcase,
+  type SlugStatus,
   type Visibility,
 } from '../../../data/showcase';
 import { useStore } from '../../../data/store';
@@ -54,6 +60,11 @@ export default function EditShowcase() {
   // Hintergrund der öffentlichen Seite (Daria, 2026-11-10); leer = Standard
   const [bgColor, setBgColor] = useState('');
   const [visibility, setVisibility] = useState<Visibility>('public');
+  // Eigene Adresse und Angaben für Suchmaschinen (Daria, 2026-11-11, Migration 20261111000200)
+  const [slug, setSlug] = useState('');
+  const [slugState, setSlugState] = useState<SlugStatus | undefined>();
+  const [seoTitle, setSeoTitle] = useState('');
+  const [seoDescription, setSeoDescription] = useState('');
   const [logo, setLogo] = useState<ImageSource | undefined>();
   const [cover, setCover] = useState<ImageSource | undefined>();
   const [posters, setPosters] = useState<Record<string, boolean>>({});
@@ -81,11 +92,30 @@ export default function EditShowcase() {
       setServicesCollapsed(s.servicesCollapsed);
       setBgColor(s.bgColor ?? '');
       setVisibility(s.visibility);
+      setSlug(s.slug);
+      setSeoTitle(s.seoTitle ?? '');
+      setSeoDescription(s.seoDescription ?? '');
       setLogo(s.logo);
       setCover(s.cover);
       showcasePosters(s.groupId).then(setPosters);
     });
   }, [id, currentUserId]);
+
+  // Beim Tippen prüfen, ob die Adresse frei ist (kurz warten, bis die Person aufhört zu tippen)
+  useEffect(() => {
+    if (!showcase?.seoReady || !slug || slug === showcase.slug) {
+      setSlugState(undefined);
+      return;
+    }
+    let current = true;
+    const timer = setTimeout(() => {
+      slugStatus(slug, showcase.id).then((state) => current && setSlugState(state));
+    }, 400);
+    return () => {
+      current = false;
+      clearTimeout(timer);
+    };
+  }, [slug, showcase]);
 
   const loadRequests = useCallback(() => {
     openRequests(id).then(setRequests, () => setRequests([]));
@@ -113,6 +143,16 @@ export default function EditShowcase() {
   const linksOk = links.every(linkOk);
   const bgOk = !bgColor.trim() || HEX.test(bgColor.trim());
   const setLink = (i: number) => (value: string) => setLinks((all) => all.map((l, j) => (j === i ? value : l)));
+  const slugChanged = showcase.seoReady && slug !== showcase.slug;
+  const slugOk = !slugChanged || slugState === 'frei' || slugState === 'eigen';
+  const slugMessage =
+    slugState === 'ungueltig'
+      ? t('Die Adresse hat 3 bis 40 Zeichen: Kleinbuchstaben, Zahlen und Bindestriche.')
+      : slugState === 'vergeben'
+        ? t('Diese Adresse ist schon vergeben. Bitte wähle eine andere.')
+        : slugState === 'reserviert'
+          ? t('Diese Adresse ist reserviert. Bitte wähle eine andere.')
+          : undefined;
 
   const save = async () => {
     setBusy(true);
@@ -122,7 +162,12 @@ export default function EditShowcase() {
         ...form,
         // AGB nur speichern, wenn die Migration 20261111000100 gelaufen ist
         terms: showcase.termsReady ? form.terms : undefined,
+        // Adresse, Titel und Beschreibung nur mit Migration 20261111000200
+        slug: slugChanged ? slug : undefined,
+        seoTitle: showcase.seoReady ? seoTitle : undefined,
+        seoDescription: showcase.seoReady ? seoDescription : undefined,
         links, servicesCollapsed, bgColor, visibility, logo, cover });
+      if (visibility === 'public') notifySearchEngines(showcase.seoReady ? slug : showcase.slug);
       goBack();
     } catch (error) {
       setFailed((error as Error).message);
@@ -162,7 +207,7 @@ export default function EditShowcase() {
       title="Schaufenster bearbeiten"
       navigation="back"
       onLeadingPress={goBack}
-      actions={<Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !bgOk} onPress={save} />}
+      actions={<Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !bgOk || !slugOk} onPress={save} />}
     >
       <FieldGroup label="Bilder">
         <View style={styles.pictures}>
@@ -290,6 +335,65 @@ export default function EditShowcase() {
         ) : null}
       </FieldGroup>
 
+      {showcase.seoReady && visibility === 'public' ? (
+        <FieldGroup label="Adresse">
+          <TextField
+            label="Adresse der öffentlichen Seite"
+            value={slug}
+            // Kleinbuchstaben, Leerzeichen werden zu Bindestrichen
+            onChangeText={(v) => setSlug(v.toLowerCase().replace(/\s+/g, '-'))}
+            maxLength={SLUG_MAX}
+            autoCapitalize="none"
+            autoCorrect={false}
+            error={slugMessage}
+            helperText={
+              slugChanged && slugState === 'frei'
+                ? t('Die Adresse ist frei.')
+                : 'Kleinbuchstaben, Zahlen und Bindestriche, 3 bis 40 Zeichen.'
+            }
+          />
+          <Text noTranslate style={styles.address}>
+            kiezcoins.de/s/{slug || '…'}
+          </Text>
+          <QuestionHint
+            question="Was passiert mit meiner alten Adresse?"
+            answer="Die alte Adresse leitet auf die neue weiter. Geteilte Links und QR-Codes funktionieren weiter. Niemand sonst kann Deine alte Adresse übernehmen."
+          />
+        </FieldGroup>
+      ) : null}
+
+      {showcase.seoReady && visibility === 'public' ? (
+        <FieldGroup label="In Suchmaschinen">
+          <TextField
+            label="Seitentitel"
+            value={seoTitle}
+            onChangeText={setSeoTitle}
+            maxLength={SEO_TITLE_MAX}
+            placeholder={autoTitle(form.name, form.kiez)}
+            helperText={t('{n} von {max} Zeichen. Sichtbar sind meist die ersten 60.', { n: seoTitle.length, max: SEO_TITLE_MAX })}
+          />
+          <TextField
+            label="Beschreibung"
+            multiline
+            value={seoDescription}
+            onChangeText={setSeoDescription}
+            maxLength={SEO_DESCRIPTION_MAX}
+            placeholder={autoDescription(form.name, form.kiez, form.about)}
+            helperText={t('{n} von {max} Zeichen. Sichtbar sind meist die ersten 155.', { n: seoDescription.length, max: SEO_DESCRIPTION_MAX })}
+          />
+          <QuestionHint
+            question="Wofür brauche ich Seitentitel und Beschreibung?"
+            answer="Suchmaschinen wie Google, Bing oder Ecosia zeigen beides in ihren Ergebnissen. Ein guter Titel nennt, was Du anbietest und wo. Die Beschreibung macht in ein bis zwei Sätzen Lust auf einen Besuch. Leere Felder füllt die App aus Name, Kiez und Kurztext."
+          />
+          <Text style={styles.meta}>Vorschau</Text>
+          <SearchPreview
+            slug={slug || showcase.slug}
+            title={seoTitle.trim() || autoTitle(form.name, form.kiez)}
+            description={seoDescription.trim() || autoDescription(form.name, form.kiez, form.about)}
+          />
+        </FieldGroup>
+      ) : null}
+
       {requests.length ? (
         <FieldGroup label="Anfragen">
           {requests.map((r) => (
@@ -328,6 +432,32 @@ export default function EditShowcase() {
       {failed ? <Notice variant="warning" message={failed} /> : null}
       <Button label="Schaufenster löschen" variant="danger" onPress={remove} />
     </SubScreen>
+  );
+}
+
+/** Wie api/s.mjs (titelVon, beschreibungVon), damit die Vorschau zeigt, was ohne eigene Angaben erscheint */
+const autoTitle = (name: string, kiez: string) => `${name.trim() || t('Dein Schaufenster')}${kiez.trim() ? ` in ${kiez.trim()}` : ''} – KiezCoins`;
+function autoDescription(name: string, kiez: string, about: string): string {
+  const short = about.replace(/\s+/g, ' ').trim();
+  if (short) return short.length > 160 ? `${short.slice(0, 159).trimEnd()}…` : short;
+  return `${name.trim() || t('Dein Schaufenster')}${kiez.trim() ? ` in ${kiez.trim()}` : ''}: Termine, Neuigkeiten und Infos bei KiezCoins.`;
+}
+
+/** So ungefähr sieht der Eintrag in einer Suchmaschine aus; lange Texte werden wie dort abgeschnitten */
+function SearchPreview({ slug, title, description }: { slug: string; title: string; description: string }) {
+  const cut = (value: string, max: number) => (value.length > max ? `${value.slice(0, max - 1).trimEnd()}…` : value);
+  return (
+    <View style={styles.search} accessibilityLabel={t('Vorschau in Suchmaschinen')}>
+      <Text noTranslate style={styles.searchUrl}>
+        kiezcoins.de › s › {slug}
+      </Text>
+      <Text noTranslate style={styles.searchTitle} numberOfLines={1}>
+        {cut(title, 60)}
+      </Text>
+      <Text noTranslate style={styles.searchText} numberOfLines={2}>
+        {cut(description, 155)}
+      </Text>
+    </View>
   );
 }
 
@@ -406,4 +536,9 @@ const styles = StyleSheet.create({
   swatchDefault: { width: 'auto', paddingHorizontal: space[12], justifyContent: 'center', backgroundColor: color.bg.surface },
   swatchOn: { borderWidth: 3, borderColor: color.accent.primary },
   swatchText: { ...text.caption, color: color.text.primary },
+  address: { ...text.body, color: color.text.primary },
+  search: { gap: space[2], padding: space[12], borderRadius: radius.md, backgroundColor: color.bg.surface },
+  searchUrl: { ...text.caption, color: color.text.secondary },
+  searchTitle: { ...text.body, fontFamily: font.semiBold, color: color.accent.primary },
+  searchText: { ...text.caption, color: color.text.primary },
 });

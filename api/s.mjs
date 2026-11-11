@@ -74,6 +74,18 @@ const HERZ = '<svg width="22" height="22" aria-hidden="true" viewBox="0 0 35 36"
 const KATER = '<svg width="36" height="32" aria-hidden="true" viewBox="0 0 35 31" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M29.8389 4.32385C30.2718 4.51386 30.6554 4.74222 30.9434 5.01624C32.2062 6.21818 32.5338 6.31956 32.9248 6.68616C33.8973 7.59812 34.1006 9.62071 34.1006 11.3531C34.1006 15.5488 34.0681 14.3748 34.0869 16.9537C34.1004 18.81 34.1005 21.6209 31.6338 24.7985C23.8527 29.9038 21.9208 30.116 15.3193 30.0006L12.0439 29.8278C8.81613 29.0959 8.63087 29.6764 4.41895 26.6461C2.03591 24.282 2.1456 24.2364 1.42871 23.3541C-0.109269 20.2796 0.0537125 19.6386 0.0537109 14.9225C0.0536608 12.0929 -0.415933 9.49597 1.42871 7.37659L3.24023 5.79651L3.55273 1.68713L8.52539 2.83655C13.2778 1.69417 19.3517 2.45528 22.7344 2.99963L29.8389 0.0201416V4.32385ZM17.4287 19.9996V25.6403C17.0274 25.6499 14.9325 25.0144 14.4238 24.7799L13.5 26.4996C14.0792 26.7912 15.2601 27.3747 16.4121 27.6696C17.1297 27.8532 17.1206 27.7815 18.3096 27.6608C18.8564 27.4785 21.8033 27.0677 22.5 25.9996L21.5742 24.8951L18.3096 25.6403L18.1396 19.444L17.4287 19.9996ZM11.3252 10.5641C10.5048 10.504 8.81272 9.98065 7.48145 10.8131C6.65543 11.5079 6.67591 11.5295 6.4082 11.7975C5.70135 12.7796 5.67338 12.7945 5.48633 13.9449C5.2902 15.1509 6.00632 15.9637 6.16113 16.6969L14.1787 16.6276C14.892 15.7542 15.2723 15.579 15.0137 14.2301C14.1321 11.8204 13.5238 11.3916 12.0664 10.8131L11.3252 10.5641ZM26.8262 10.7799C25.6015 9.98107 24.0714 10.4465 23.3262 10.4908L22.6562 10.7135C21.34 11.2341 20.7935 11.6264 20.0312 13.8707C19.8182 15.1305 20.1677 15.3 20.8311 16.1285L28.125 16.3112C28.2536 15.6265 28.8918 14.8746 28.6934 13.7418C28.5043 12.6619 28.4786 12.6478 27.8193 11.7174C27.5714 11.4625 27.5892 11.4429 26.8262 10.7799Z" fill="#F0F0F0"/></svg>';
 const leer = (text) => `<p class="sf-klein sf-leer">${text}</p>`;
 
+// Alter Kurzname: aktueller Kurzname des Schaufensters (Migration 20261111000200), sonst null
+async function neuerKurzname(slug) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/public_showcase_redirect`, {
+    method: 'POST',
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ p_slug: slug }),
+  });
+  if (!res.ok) return null;
+  const neu = await res.json();
+  return typeof neu === 'string' && SLUG.test(neu) && neu !== slug ? neu : null;
+}
+
 async function ladeSchaufenster(slug) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/public_showcase`, {
     method: 'POST',
@@ -99,9 +111,13 @@ function wann(e) {
 }
 
 // Titel für Suchmaschinen: Name und Kiez, damit „Bäckerei Neukölln“ trifft (Daria, 2026-11-10: SEO für Kleingewerbe)
-const titelVon = (s) => `${s.name}${s.kiez ? ` in ${s.kiez}` : ''} – KiezCoins`;
+// Eigene Angaben aus dem Abschnitt „In Suchmaschinen“ gehen vor (seo_title, seo_description, Daria, 2026-11-11).
+// Die App zeigt im Editor dieselben automatischen Texte als Vorschau (bearbeiten.tsx, autoTitle, autoDescription).
+const titelVon = (s) => kurz(s.seo_title, 70) || `${s.name}${s.kiez ? ` in ${s.kiez}` : ''} – KiezCoins`;
 const beschreibungVon = (s) =>
-  kurz(s.about, 160) || `${s.name}${s.kiez ? ` in ${s.kiez}` : ''}: Termine, Neuigkeiten und Infos bei KiezCoins.`;
+  kurz(s.seo_description, 200) ||
+  kurz(s.about, 160) ||
+  `${s.name}${s.kiez ? ` in ${s.kiez}` : ''}: Termine, Neuigkeiten und Infos bei KiezCoins.`;
 
 // Strukturierte Daten (schema.org) für Google: das Geschäft als LocalBusiness, Termine als Event.
 // Öffnungszeiten stehen als freier Text in der App und passen nicht ins Format von schema.org, deshalb fehlen sie hier.
@@ -351,6 +367,13 @@ export async function GET(request) {
   const url = new URL(request.url);
   const slug = (url.searchParams.get('slug') ?? '').toLowerCase();
   const s = SLUG.test(slug) ? await ladeSchaufenster(slug) : null;
+
+  // Die Gründer:in hat die Adresse geändert: dauerhaft auf die neue weiterleiten, damit alte Links und QR-Codes
+  // funktionieren und Suchmaschinen die neue Adresse übernehmen
+  if (!s && SLUG.test(slug)) {
+    const neu = await neuerKurzname(slug);
+    if (neu) return Response.redirect(new URL(`/s/${neu}`, url.origin), 301);
+  }
 
   const vorlage = await fetch(new URL('/teilen-vorlage', url.origin));
   if (!vorlage.ok) return new Response('Vorlage fehlt', { status: 500 });
