@@ -28,6 +28,7 @@ import { LoadingScreen } from '../components/GearsLoader';
 import { StartKater } from '../components/StartKater';
 import { InstallHint } from '../components/InstallHint';
 import { WebSafeArea } from '../components/WebSafeArea';
+import { KeyboardProvider } from '../components/Keyboard';
 import { FriendInviteNotice } from '../components/FriendInviteNotice';
 import { BadgeNotice } from '../components/BadgeNotice';
 import { UpdateHint } from '../components/UpdateHint';
@@ -96,11 +97,14 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <WebSafeArea>
-        <StoreProvider>
-          <AuthProvider>
-            <RootStack />
-          </AuthProvider>
-        </StoreProvider>
+        {/* Seiten rücken über die Tastatur, auf allen Plattformen gleich (Keyboard.tsx) */}
+        <KeyboardProvider>
+          <StoreProvider>
+            <AuthProvider>
+              <RootStack />
+            </AuthProvider>
+          </StoreProvider>
+        </KeyboardProvider>
       </WebSafeArea>
     </SafeAreaProvider>
   );

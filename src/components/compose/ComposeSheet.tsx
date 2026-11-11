@@ -1,6 +1,6 @@
 import { peekRoutinePost } from '../../data/reminders';
 import { useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { isFashionable, color, radius, space } from '../../theme/tokens';
@@ -14,6 +14,7 @@ import { useBeforeAfterStartForm } from './BeforeAfterForm';
 import { TypeSwitch } from './TypeSwitch';
 import { DraftStrip } from './DraftStrip';
 import { useComposeSheetContent, type ComposeContent } from './compose';
+import { KeyboardArea } from '../Keyboard';
 
 /** Beitragstypen im Kiez, in dieser Reihenfolge (Daria, 2026-10-31). Alle immer an (Daria, 27.10.2026). */
 const PUBLIC_TYPES = [
@@ -84,7 +85,7 @@ function SheetScroll({ children, actions }: { children: React.ReactNode; actions
   const scrollRef = useRef<ScrollView>(null);
   const nudge = useNudgeScroll(scrollRef);
   return (
-    <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardArea style={styles.flex}>
       <NudgeScrollProvider value={nudge}>
         <ScrollView
           ref={scrollRef}
@@ -99,7 +100,7 @@ function SheetScroll({ children, actions }: { children: React.ReactNode; actions
         </ScrollView>
         <ActionBar>{actions}</ActionBar>
       </NudgeScrollProvider>
-    </KeyboardAvoidingView>
+    </KeyboardArea>
   );
 }
 

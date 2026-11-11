@@ -24,6 +24,11 @@
         background-color: #232326;
         color-scheme: dark;
       }
+      /* Offene Tastatur: Die Seite wird so hoch wie der sichtbare Teil darüber. --keyboard-inset setzt
+         src/components/Keyboard.tsx aus window.visualViewport (Daria, 2026-11-11). */
+      body {
+        height: calc(100% - var(--keyboard-inset, 0px));
+      }
       body {
         overflow: hidden;
         overscroll-behavior: none;
@@ -59,6 +64,8 @@
       input,
       textarea {
         caret-color: #8f90fa;
+        /* Luft zwischen aktivem Feld und Tastatur, wenn es sich ins Bild scrollt (Keyboard.tsx) */
+        scroll-margin: 24px;
       }
       /* Tastatur-Fokus auf Buttons und Links in der App-Farbe */
       :focus-visible {
@@ -83,7 +90,7 @@
           overflow: hidden;
         }
         body {
-          height: calc(100% + env(safe-area-inset-top));
+          height: calc(100% + env(safe-area-inset-top) - var(--keyboard-inset, 0px));
         }
       }
       /* Seitenränder neben der App im Desktop-Browser */
