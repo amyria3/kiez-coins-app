@@ -58,7 +58,7 @@ export default function PaymentScreen() {
             ? tAbout(author, '{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.', { firstName: author.firstName, day, bountyAmount })
             : tAbout(author, '{firstName} hat die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.', { firstName: author.firstName, bountyAmount })}</Text>
       </View>
-      <QuestionHint question="Und wenn das Geld noch fehlt?" answer="Nur Geduld, my friend! Überweisungen brauchen bis zu 2 Werktage. Melde Dich erst, wenn das Geld danach immer noch fehlt." />
+      <QuestionHint question="Was mache ich, wenn das Geld noch fehlt?" answer="Überweisungen brauchen bis zu 2 Werktage. Nur Geduld, my friend! Fehlt das Geld danach immer noch, melde Dich." />
     </SubScreen>
   );
 }

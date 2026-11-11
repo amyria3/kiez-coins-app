@@ -85,7 +85,7 @@ export default function NewReminder() {
       {/* Erklärungen als Dialog mit Blasen statt als Hilfetext (Daria, 2026-11-10) */}
       <QuestionHint
         question="Wofür ist die Beschreibung?"
-        answer="Sie ist freiwillig. Postest Du nach dem Erledigen eine Me-Challenge, steht sie dort als Vorher-Text."
+        answer="Für Deine Me-Challenge: Postest Du nach dem Erledigen eine, steht die Beschreibung dort als Vorher-Text. Das Feld ist freiwillig."
       />
       <FieldGroup label="Wie oft?">
         <ChipGroup>

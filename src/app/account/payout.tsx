@@ -50,7 +50,7 @@ export default function PayoutSettings() {
       onLeadingPress={goBack}
       actions={<Button label="Speichern" onPress={save} />}
     >
-      <QuestionHint question="Wer sieht meine Zahlungsdaten?" answer="KiezCoins bewegt kein Geld. Deine Daten sieht nur, wem Du sie für eine Challenge freigibst." />
+      <QuestionHint question="Wer sieht meine Zahlungsdaten?" answer="Nur wem Du sie für eine Challenge freigibst. KiezCoins bewegt kein Geld." />
       <TextField
         label="Kontoinhaber:in" required
         helperText="So wie bei Deiner Bank hinterlegt."
