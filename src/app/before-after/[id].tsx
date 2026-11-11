@@ -275,7 +275,7 @@ export default function BeforeAfterScreen() {
       </View>
       {/* Vor dem Start fragt die App, ob die Person ihre Zeit nehmen will; der Timer ist freiwillig (Daria, 2026-11-02).
           Systemtext, daher Krabbe statt Kater (Daria, 2026-11-11) */}
-      <Notice message={running ? 'Die Zeit läuft weiter, auch wenn Du die App schließt. Viel Erfolg!' : 'Willst Du Deine eigene Zeit nehmen?'} />
+      <Notice message={running ? 'Die Zeit läuft (auch wenn Du die App schließt).' : 'Willst Du Deine eigene Zeit nehmen?'} />
       <View style={styles.ringWrap}>
         <TimerRing diameter={236} width={10} progress={elapsed / BEFORE_AFTER_MAX_MS}>
           <Text style={styles.big}>{formatClock(elapsed)}</Text>
