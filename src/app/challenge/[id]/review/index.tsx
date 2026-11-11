@@ -7,7 +7,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AuthorRow } from '../../../../components/AuthorRow';
 import { StatusBadge } from '../../../../components/Badges';
 import { Button } from '../../../../components/Button';
-import { FieldGroup, KaterBubble } from '../../../../components/Content';
+import { Explanation, FieldGroup } from '../../../../components/Content';
 import { CheckOption } from '../../../../components/Form';
 import { splitCents } from '../../../../data/coins';
 import { SubScreen } from '../../../../components/Screen';
@@ -104,21 +104,23 @@ export default function ReviewScreen() {
         </FieldGroup>
       ) : null}
       {challenge.bountyAmount && people > 1 ? (
-        <KaterBubble>
-          {t('Sieht gut aus? Wenn Du bestätigst, teilst Du die {betrag} unter {n} Personen auf und zahlst jeder ihren Anteil direkt. Die Zahlungsdaten siehst Du danach.', {
+        <Explanation
+          question="Was passiert, wenn ich bestätige?"
+          answer={t('Sieht gut aus? Wenn Du bestätigst, teilst Du die {betrag} unter {n} Personen auf und zahlst jeder ihren Anteil direkt. Die Zahlungsdaten siehst Du danach.', {
             betrag: formatEuro(challenge.bountyAmount),
             n: people,
           })}
-        </KaterBubble>
+        />
       ) : challenge.bountyAmount ? (
-        <KaterBubble>
-          {t(
+        <Explanation
+          question="Was passiert, wenn ich bestätige?"
+          answer={t(
             assignee.group
               ? 'Sieht gut aus? Wenn Du bestätigst, zahlst Du die {betrag} direkt an {name}. Ihre Zahlungsdaten siehst Du danach.'
               : 'Sieht gut aus? Wenn Du bestätigst, zahlst Du die {betrag} direkt an {name}. Die Zahlungsdaten siehst Du danach.',
             { betrag: formatEuro(challenge.bountyAmount), name: nameInText(assignee) },
           )}
-        </KaterBubble>
+        />
       ) : null}
     </SubScreen>
   );

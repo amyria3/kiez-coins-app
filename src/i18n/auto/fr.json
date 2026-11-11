@@ -601,5 +601,18 @@
   "Überschrift": "Titre",
   "„Dein Zugangs-Token“ aus der Anwendung": "« Ton jeton d'accès » depuis l'application",
   "„Ich will {want}“ verschwindet aus der Liste. Was Du geschafft hast, bleibt.": "« Je veux {want} » disparaît de la liste. Ce que tu as réussi reste.",
-  "• Liste": "• Liste"
+  "• Liste": "• Liste",
+  "Brauche ich eine E-Mail?": "Est-ce que j'ai besoin d'une adresse e-mail ?",
+  "Was kann ich hier ändern?": "Qu'est-ce que je peux modifier ici ?",
+  "Was liegt im Archiv?": "Qu'est-ce qu'il y a dans les archives ?",
+  "Was passiert, wenn ich bestätige?": "Que se passe-t-il si je confirme ?",
+  "Welche Version habe ich?": "Quelle version j'ai ?",
+  "Wie finde ich Freund:innen?": "Comment je me fais des amis ?",
+  "Wie geht es jetzt weiter?": "Et maintenant, qu'est-ce qui va se passer ?",
+  "Wie melde ich mich an?": "Comment je m'inscris ?",
+  "Wie starte ich eine Challenge?": "Comment lancer un défi ?",
+  "Wie ändere ich mein Passwort?": "Comment changer mon mot de passe ?",
+  "Wie ändere ich meine E-Mail-Adresse?": "Comment changer mon adresse e-mail ?",
+  "Wo finde ich den Code?": "Où est-ce que je trouve le code ?",
+  "Wozu sind Gruppen?": "À quoi servent les groupes ?"
 }
