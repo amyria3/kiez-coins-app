@@ -300,8 +300,16 @@ const KRABBE_PIXEL = (() => {
 })();
 /** Etwas kleiner als ein Profilbild (Daria, 2026-11-10) */
 const KRABBE_BREITE = 28;
-/** Grüner Körper statt Lila (Daria, 2026-11-11): Lila tragen die eigenen Nachrichten, die Krabbe hebt sich davon ab */
-const KRABBE_FARBE: Record<number, string> = { 1: color.text.primary, 2: color.bg.screen, 3: color.accent.confirmation };
+/**
+ * Grüner Körper statt Lila (Daria, 2026-11-11): Lila tragen die eigenen Nachrichten, die Krabbe hebt sich davon ab.
+ * Derselbe Farbton wie die Systemblase (SKY_BG, Gelbgrün 70°), nur kräftiger (Daria, 2026-11-11: „gleiche Farbe, nur andere Intensität“).
+ */
+const KRABBE_GRUEN = '#DDFF33';
+const KRABBE_FARBE: Record<number, string> = {
+  1: color.text.primary,
+  2: color.bg.screen,
+  3: isFashionable ? color.accent.confirmation : KRABBE_GRUEN,
+};
 
 export function SystemAvatar() {
   const { w, h, pixels } = KRABBE_PIXEL;
