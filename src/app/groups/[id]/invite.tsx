@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 
-import { KaterCard } from '../../../components/Content';
+import { Notice } from '../../../components/Content';
 import { GroupInvite } from '../../../components/GroupInvite';
 import { SubScreen } from '../../../components/Screen';
 import { useStore } from '../../../data/store';
@@ -18,7 +18,7 @@ export default function GroupInviteScreen() {
 
   return (
     <SubScreen title="Freunde und Familie einladen" subtitle={group?.name} navigation="back" onLeadingPress={goBack}>
-      {group ? <GroupInvite group={group} /> : <KaterCard>Diese Gruppe gibt es nicht mehr, oder Du bist nicht mehr dabei.</KaterCard>}
+      {group ? <GroupInvite group={group} /> : <Notice message="Diese Gruppe gibt es nicht mehr, oder Du bist nicht mehr dabei." />}
     </SubScreen>
   );
 }

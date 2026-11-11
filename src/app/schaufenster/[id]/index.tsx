@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
-import { CollapsibleSection, InfoRow, KaterCard, Notice, SectionBlock } from '../../../components/Content';
+import { CollapsibleSection, InfoRow, Notice, SectionBlock } from '../../../components/Content';
 import { NavigationBar } from '../../../components/NavigationBar';
 import { RichText } from '../../../components/RichText';
 import { SubScreen } from '../../../components/Screen';
@@ -62,7 +62,7 @@ export default function ShowcaseScreen() {
   if (data === null) {
     return (
       <SubScreen title="Schaufenster" navigation="back" onLeadingPress={goBack}>
-        <KaterCard>Dieses Schaufenster gibt es nicht mehr, oder es ist gerade offline.</KaterCard>
+        <Notice message="Dieses Schaufenster gibt es nicht mehr, oder es ist gerade offline." />
       </SubScreen>
     );
   }

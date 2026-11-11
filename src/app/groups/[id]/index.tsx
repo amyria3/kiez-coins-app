@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Avatar } from '../../../components/AuthorRow';
 import { Button } from '../../../components/Button';
-import { FieldGroup, KaterCard } from '../../../components/Content';
+import { FieldGroup, Notice } from '../../../components/Content';
 import { SwitchRow } from '../../../components/Form';
 import { GroupInvite } from '../../../components/GroupInvite';
 import { SubScreen } from '../../../components/Screen';
@@ -33,7 +33,7 @@ export default function GroupDetail() {
   if (!group) {
     return (
       <SubScreen title="Gruppe" navigation="back" onLeadingPress={goBack}>
-        <KaterCard>Diese Gruppe gibt es nicht mehr, oder Du bist nicht mehr dabei.</KaterCard>
+        <Notice message="Diese Gruppe gibt es nicht mehr, oder Du bist nicht mehr dabei." />
       </SubScreen>
     );
   }

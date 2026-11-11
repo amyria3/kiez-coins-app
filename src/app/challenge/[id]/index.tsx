@@ -13,7 +13,7 @@ import { GlassIconButton } from '../../../components/Glass';
 import { IconButton } from '../../../components/IconButton';
 import { Button } from '../../../components/Button';
 import { CommentSection } from '../../../components/Comments';
-import { CHAT_GAP_SAME, InfoRow, KaterBubble, Notice, QuestionHint, OperationTag } from '../../../components/Content';
+import { CHAT_GAP_SAME, Explanation, InfoRow, KaterBubble, Notice, QuestionHint, OperationTag } from '../../../components/Content';
 import { TextField } from '../../../components/Form';
 import { HeroScreen, SubScreen } from '../../../components/Screen';
 import { TextHero, isTextPost } from '../../../components/TextSheets';
@@ -489,17 +489,23 @@ export default function ChallengeDetail() {
     <>
       {acceptedByMe ? (
         <>
-          <KaterBubble>
-            {!isAssignee && named
-              ? t('Danke, dass Du mitmachst! Jede teilnehmende Person kann erledigt melden, für alle. Wenn {author} bestätigt, bekommst Du eine Nachricht.', {
-                  author: author.firstName,
-                })
-              : named
-              ? t('Danke, dass Du anpackst! Fotografiere am Ende das Ergebnis, und wir warten. Wenn {name} bestätigt, aktualisiert sich der Status automatisch. Du bekommst eine Nachricht.', {
-                  name: author.firstName,
-                })
-              : 'Danke, dass Du anpackst! Taufen wir das Baby, Baby? Ich hätte da eine Idee für einen Namen für Deine Operation.'}
-          </KaterBubble>
+          {named ? (
+            <Explanation
+              question="Wie geht es jetzt weiter?"
+              answer={
+                !isAssignee
+                  ? t('Danke, dass Du mitmachst! Jede teilnehmende Person kann erledigt melden, für alle. Wenn {author} bestätigt, bekommst Du eine Nachricht.', {
+                      author: author.firstName,
+                    })
+                  : t('Danke, dass Du anpackst! Fotografiere am Ende das Ergebnis, und wir warten. Wenn {name} bestätigt, aktualisiert sich der Status automatisch. Du bekommst eine Nachricht.', {
+                      name: author.firstName,
+                    })
+              }
+            />
+          ) : (
+            // Kater mit Persönlichkeit, kein Systemtext
+            <KaterBubble>Danke, dass Du anpackst! Taufen wir das Baby, Baby? Ich hätte da eine Idee für einen Namen für Deine Operation.</KaterBubble>
+          )}
           <InfoRow icon="map-pin" value={challenge.location} />
           {(isAssignee ? challenge.acceptedAt : mine?.joinedAt) ? (
             <InfoRow

@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { KaterBubble } from '../../components/Content';
+import { Explanation } from '../../components/Content';
 import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { useAuth } from '../../data/auth';
@@ -81,7 +81,10 @@ export default function Code() {
         </>
       }
     >
-      <KaterBubble>Der Code ist unterwegs! Schaue in Dein Postfach.</KaterBubble>
+      <Explanation
+        question="Wo finde ich den Code?"
+        answer="Der Code ist unterwegs! Schaue in Dein Postfach."
+      />
       <TextField
         label="Code aus der E-Mail" required
         nudge={codeField}

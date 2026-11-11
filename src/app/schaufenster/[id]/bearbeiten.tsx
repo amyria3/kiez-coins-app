@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
-import { FieldGroup, KaterCard, Notice, QuestionHint } from '../../../components/Content';
+import { FieldGroup, Notice, QuestionHint } from '../../../components/Content';
 import { Chip, ChipGroup, choosePhoto, CopyField, SwitchRow, TextField } from '../../../components/Form';
 import { ColorWheel } from '../../../components/ColorWheel';
 import { RichTextField } from '../../../components/RichText';
@@ -132,7 +132,7 @@ export default function EditShowcase() {
   if (!showcase || !founder) {
     return (
       <SubScreen title="Schaufenster bearbeiten" navigation="back" onLeadingPress={goBack}>
-        <KaterCard>Nur die Gründer:in der Gruppe bearbeitet das Schaufenster.</KaterCard>
+        <Notice message="Nur die Gründer:in der Gruppe bearbeitet das Schaufenster." />
       </SubScreen>
     );
   }

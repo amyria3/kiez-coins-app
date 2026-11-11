@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Linking } from 'react-native';
 
 import { Button } from '../../components/Button';
-import { KaterBubble, Notice } from '../../components/Content';
+import { Explanation, Notice } from '../../components/Content';
 import { SubScreen } from '../../components/Screen';
 import {
   apkDownloadUrl,
@@ -95,7 +95,10 @@ export default function AppVersion() {
 
   return (
     <SubScreen title="App-Version" navigation="back" onLeadingPress={goBack} actions={action}>
-      <KaterBubble>{installed}</KaterBubble>
+      <Explanation
+        question="Welche Version habe ich?"
+        answer={installed}
+      />
       <Notice message={message} />
       {failed ? <Notice variant="warning" message="Das hat nicht geklappt. Versuch es noch einmal." /> : null}
     </SubScreen>
