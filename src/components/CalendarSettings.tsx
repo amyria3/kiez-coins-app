@@ -30,7 +30,7 @@ import { color, radius, space, text } from '../theme/tokens';
  */
 const SUBSCRIBE_QUESTION = 'Wie kommen meine Termine in meinen Kalender?';
 const SUBSCRIBE_INTRO =
-  'Das Abonnieren hat 3 Schritte. Du brauchst dafür ein Konto bei Deinem Kalender, zum Beispiel bei Apple, Google oder Outlook. Möchtest Du jetzt loslegen?';
+  'Das Abonnieren umfasst 3 Schritte und setzt voraus, dass Du in Deinem Kalender angemeldet bist, zum Beispiel bei Apple, Google oder Outlook. Möchtest Du jetzt loslegen?';
 const SUBSCRIBE_STEPS = [
   '1. Auf iPhone und Mac: Tippe oben auf „Im Kalender abonnieren“. Die Kalender-App öffnet sich, damit bist Du fertig. Auf allen anderen Geräten: Kopiere den Abo-Link.',
   '2. Öffne Deinen Kalender. Google Kalender: Tippe im Browser links bei „Weitere Kalender“ auf + und wähle „Per URL“. Outlook: Wähle „Kalender hinzufügen“ › „Aus dem Internet abonnieren“.',
