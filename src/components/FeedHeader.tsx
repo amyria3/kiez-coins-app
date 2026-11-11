@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Easing, FlatList, I18nManager, Platform, Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Defs, G, Mask, Path, Rect } from 'react-native-svg';
 import { Text } from './T';
 import { fitShape, SWITCH_KNOB, SWITCH_TRACK } from './handSwitch';
@@ -14,7 +14,7 @@ import { Icon } from './icons/Icon';
 import { useRouter } from 'expo-router';
 import { useFriendRequests, useUnreadMessages } from '../data/chat';
 import { SkeletonTopItem } from './Skeleton';
-import { t } from '../data/texts';
+import { isRtl, t } from '../data/texts';
 import type { Mode } from '../data/features';
 
 type AppHeaderProps = {
@@ -262,6 +262,8 @@ function UnderlineTabs<K extends string>({ tabs, selectedKey, onChange, progress
   }, [index, x, progress]);
   const at = progress ?? x;
   const w = tabs.length ? width / tabs.length : 0;
+  // Rechts nach links liegt der erste Reiter rechts
+  const slot = rtlLayout() ? Animated.subtract(tabs.length - 1, at) : at;
   return (
     <View style={styles.under} accessibilityRole="tablist" onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
       {tabs.map((tab) => {
@@ -270,7 +272,7 @@ function UnderlineTabs<K extends string>({ tabs, selectedKey, onChange, progress
           <Pressable
             key={tab.key}
             accessibilityRole="tab"
-            accessibilityLabel={tab.planned ? t('{label}, kommt später', { label: tab.label }) : tab.label}
+            accessibilityLabel={tab.planned ? t('{label}, kommt später', { label: t(tab.label) }) : t(tab.label)}
             accessibilityState={{ selected }}
             onPress={() => onChange(tab.key)}
             style={({ pressed }) => [styles.underTab, pressed && styles.underPressed]}
@@ -282,14 +284,16 @@ function UnderlineTabs<K extends string>({ tabs, selectedKey, onChange, progress
         );
       })}
       {w ? (
-        <Animated.View
-          pointerEvents="none"
-          style={[
-            styles.underBar,
-            accent && styles.accentFill,
-            { width: w, transform: [{ translateX: Animated.multiply(at, w) }] },
-          ]}
-        />
+        <View pointerEvents="none" style={styles.physical}>
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              styles.underBar,
+              accent && styles.accentFill,
+              { width: w, transform: [{ translateX: Animated.multiply(slot, w) }] },
+            ]}
+          />
+        </View>
       ) : null}
     </View>
   );
@@ -306,6 +310,7 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
   const index = Math.max(0, tabs.findIndex((tab) => tab.key === selectedKey));
   const target = lead?.active ? -1 : index;
   const [main, setMain] = useState<Box | null>(null);
+  const [rowWidth, setRowWidth] = useState(0);
   const [leadBox, setLeadBox] = useState<Box | null>(null);
   const [content, setContent] = useState<Partial<Record<K, number>>>({});
   const own = useRef(new Animated.Value(target)).current;
@@ -341,37 +346,49 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
 
   // Lagen des Knopfs in der ganzen Zeile: zuerst die eigene Spur, dann die Reiter
   const withLead = !!lead;
-  const ready = !!rest && !!main && (!withLead || !!leadBox);
+  const ready = !!rest && !!main && rowWidth > 0 && (!withLead || !!leadBox);
+  // `rest` zählt vom Anfang der Spur. Rechts nach links (Hebräisch, Arabisch) liegt der Anfang rechts;
+  // Spuren und Knopf werden aber von links gezeichnet (Daria, 2026-11-11).
+  const rtl = rtlLayout();
   const knobRest = ready
     ? [
         ...(withLead && leadBox ? [{ x: leadBox.x + BAR_PAD, width: leadBox.width - 2 * BAR_PAD }] : []),
-        ...rest!.map((l) => ({ x: l.x + main!.x, width: l.width })),
+        ...rest!.map((l) => ({ x: main!.x + (rtl ? main!.width - l.x - l.width : l.x), width: l.width })),
       ]
     : undefined;
   const on = accent ? color.text.onAccent : color.bg.screen;
   const fill = accent ? color.accent.primary : color.text.primary;
-  const rowWidth = main ? main.x + main.width : 0;
 
   return (
-    <View style={styles.segmentsRow}>
+    <View
+      style={styles.segmentsRow}
+      onLayout={(e) => {
+        const rw = e.nativeEvent.layout.width;
+        setRowWidth((old) => (old === rw ? old : rw));
+      }}
+    >
       {/* Spur und Knopf aus Darias Icon „Switch“, der Knopf 2° im Uhrzeigersinn geneigt (Daria, 08.11.2026) */}
-      {main ? (
-        <Svg width={rowWidth} height={barHeight} style={StyleSheet.absoluteFill} pointerEvents="none">
-          {leadBox ? (
-            <G transform={`translate(${leadBox.x} 0)`}>
-              <Path d={fitShape(SWITCH_TRACK, leadBox.width, leadBox.height)} fill={color.bg.surface} />
+      {main && rowWidth ? (
+        <View pointerEvents="none" style={styles.physical}>
+          <Svg width={rowWidth} height={barHeight}>
+            {leadBox ? (
+              <G transform={`translate(${leadBox.x} 0)`}>
+                <Path d={fitShape(SWITCH_TRACK, leadBox.width, leadBox.height)} fill={color.bg.surface} />
+              </G>
+            ) : null}
+            <G transform={`translate(${main.x} 0)`}>
+              <Path d={fitShape(SWITCH_TRACK, main.width, main.height)} fill={color.bg.surface} />
             </G>
-          ) : null}
-          <G transform={`translate(${main.x} 0)`}>
-            <Path d={fitShape(SWITCH_TRACK, main.width, main.height)} fill={color.bg.surface} />
-          </G>
-        </Svg>
+          </Svg>
+        </View>
       ) : null}
       {knobRest ? (
-        <HandKnob pos={pos} shift={withLead ? 1 : 0} rest={knobRest} single={knobRest.length < 2} height={barHeight - 2 * BAR_PAD} fill={fill} />
+        <View pointerEvents="none" style={styles.physical}>
+          <HandKnob pos={pos} shift={withLead ? 1 : 0} rest={knobRest} single={knobRest.length < 2} height={barHeight - 2 * BAR_PAD} fill={fill} />
+        </View>
       ) : null}
       {/* Zwischen den Spuren liegt der Bildschirm-Hintergrund wie Papier über dem Knopf */}
-      {main && leadBox ? <Paper lead={leadBox} main={main} /> : null}
+      {main && leadBox && rowWidth ? <Paper lead={leadBox} main={main} width={rowWidth} /> : null}
       {lead ? (
         <Pressable
           accessibilityRole="tab"
@@ -427,7 +444,7 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
             <AnimatedPressable
               key={tab.key}
               accessibilityRole="tab"
-              accessibilityLabel={tab.planned ? t('{label}, kommt später', { label: tab.label }) : tab.label}
+              accessibilityLabel={tab.planned ? t('{label}, kommt später', { label: t(tab.label) }) : t(tab.label)}
               accessibilityState={{ selected }}
               onPress={() => onChange(tab.key)}
               style={[styles.segment, { paddingHorizontal: pad }, selected ? styles.noShrink : Number.isFinite(cap) && { maxWidth: Animated.add(Animated.multiply(pad, 2), cap) }, !ready && selected && styles.segmentSelected]}
@@ -459,26 +476,30 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
  * Bildschirm-Hintergrund im Spalt zwischen zwei Spuren, über dem Knopf: Der Knopf gleitet darunter hindurch
  * und ist nur auf den Spuren zu sehen. Maske = Streifen um den Spalt ohne die beiden Spuren.
  */
-function Paper({ lead, main }: { lead: Box; main: Box }) {
-  const width = main.x + main.width;
+function Paper({ lead, main, width }: { lead: Box; main: Box; width: number }) {
   const height = main.height;
-  const from = lead.x + lead.width / 2;
-  const to = main.x + Math.min(main.width / 2, 40);
+  // Die eigene Spur liegt am Anfang der Zeile: links, bei Rechts nach links rechts
+  const leadFirst = lead.x < main.x;
+  const reach = Math.min(main.width / 2, 40);
+  const from = leadFirst ? lead.x + lead.width / 2 : main.x + main.width - reach;
+  const to = leadFirst ? main.x + reach : lead.x + lead.width / 2;
   return (
-    <Svg width={width} height={height} style={StyleSheet.absoluteFill} pointerEvents="none">
-      <Defs>
-        <Mask id="segmentsPaper" maskUnits="userSpaceOnUse" x={0} y={0} width={width} height={height}>
-          <Rect x={from} y={-4} width={to - from} height={height + 8} fill="white" />
-          <G transform={`translate(${lead.x} 0)`}>
-            <Path d={fitShape(SWITCH_TRACK, lead.width, lead.height)} fill="black" />
-          </G>
-          <G transform={`translate(${main.x} 0)`}>
-            <Path d={fitShape(SWITCH_TRACK, main.width, main.height)} fill="black" />
-          </G>
-        </Mask>
-      </Defs>
-      <Rect x={0} y={0} width={width} height={height} fill={color.bg.screen} mask="url(#segmentsPaper)" />
-    </Svg>
+    <View pointerEvents="none" style={styles.physical}>
+      <Svg width={width} height={height}>
+        <Defs>
+          <Mask id="segmentsPaper" maskUnits="userSpaceOnUse" x={0} y={0} width={width} height={height}>
+            <Rect x={from} y={-4} width={to - from} height={height + 8} fill="white" />
+            <G transform={`translate(${lead.x} 0)`}>
+              <Path d={fitShape(SWITCH_TRACK, lead.width, lead.height)} fill="black" />
+            </G>
+            <G transform={`translate(${main.x} 0)`}>
+              <Path d={fitShape(SWITCH_TRACK, main.width, main.height)} fill="black" />
+            </G>
+          </Mask>
+        </Defs>
+        <Rect x={0} y={0} width={width} height={height} fill={color.bg.screen} mask="url(#segmentsPaper)" />
+      </Svg>
+    </View>
   );
 }
 
@@ -576,6 +597,12 @@ function restLayouts(content: number[], barWidth: number, pad: number) {
   });
 }
 
+/**
+ * true, wenn Zeilen gerade von rechts nach links laufen. Web: Sprache der Seite; iOS/Android: Richtung der App
+ * (wechselt erst mit dem Neustart, siehe `needsRestartForDirection`).
+ */
+const rtlLayout = () => (Platform.OS === 'web' ? isRtl() : I18nManager.isRTL);
+
 /** Farbe eines Reiters je nach Lage der Pille: dunkel darunter, grau daneben. */
 const labelColor = (pos: Animated.Value | Animated.AnimatedInterpolation<number>, i: number, on: string) =>
   pos.interpolate({
@@ -643,6 +670,9 @@ const styles = StyleSheet.create({
   },
   topTitle: { ...text.labelXs, color: color.accent.signal, textAlign: 'center', alignSelf: 'stretch' },
   segmentsRow: { flexDirection: 'row', alignItems: 'stretch', gap: space[8], width: '100%' },
+  // Ebene für Spur, Knopf und Strich: Lagen zählen von links, auch bei Rechts nach links
+  // iOS/Android tauschen sonst links und rechts; im Browser zählt `left` ohnehin von links
+  physical: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, ...(Platform.OS === 'web' ? null : { direction: 'ltr' as const }) },
   // Eigene Spur links, gleich hoch wie der Umschalter daneben
   lead: { minHeight: 40 + 2 * space[4], paddingHorizontal: space[16], alignItems: 'center', justifyContent: 'center' },
   leadPressed: { opacity: 0.7 },
