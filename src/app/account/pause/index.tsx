@@ -2,7 +2,7 @@ import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
-import { KaterBubble, Notice, QuestionHint } from '../../../components/Content';
+import { KaterCard, Notice, QuestionHint } from '../../../components/Content';
 import { SubScreen } from '../../../components/Screen';
 import { hasOpenWork } from '../../../data/openWork';
 import { useStore } from '../../../data/store';
@@ -39,7 +39,7 @@ export default function Pause() {
         </>
       }
     >
-      <KaterBubble>Mal Landurlaub? Verständlich. Ich halt hier so lange die Stellung.</KaterBubble>
+      <KaterCard>Mal Landurlaub? Verständlich. Ich halt hier so lange die Stellung.</KaterCard>
       {/* Wie im Chat: erst der Hinweis, der immer dasteht, dann die Frage, dann die Antwort (Daria, 2026-11-09) */}
       <Notice variant="warning" message={OPEN_WORK} />
       <QuestionHint

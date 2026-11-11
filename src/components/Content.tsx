@@ -519,35 +519,43 @@ export function InfoRow({ icon, value, placeholder }: { icon: IconName; value: s
   );
 }
 
-/** Figma „SpeechBubble“: Sprechblase, Ecke oben links spitz. */
-export function SpeechBubble({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
-  return (
-    <View style={[styles.bubble, style]}>
-      <Text style={styles.bubbleText}>{children}</Text>
-    </View>
-  );
-}
-
-/** Figma „KaterBubble“ (Emotion=Happy): Kater mit Sprechblase. */
-export function KaterBubble({ children }: { children: ReactNode }) {
-  // Seit dem Upgrade „Nachtschicht“ überall die Sprechblase nach Duolingo-Vorbild
-  return <KaterCard>{children}</KaterCard>;
-}
+/** Lila hell in der Farbe des Katers, nicht grün wie die Systemblasen der Krabbe (Daria, 2026-11-11) */
+const KATER_BLASE = 'rgba(143, 144, 250, 0.22)';
+const KATER_KREUZ = '#C9C9FF';
+const KATER_AVATAR = 36;
 
 /**
- * Sprechblase: Text links, rechts auf der Blase der Kater im Kreis. Optional mit fetter Überschrift.
+ * Der Kater spricht (Daria, 2026-11-11). Eine Komponente für alles, was der Kater sagt.
+ * Kiez-Look: Sprechblase wie im Chat, lila hell, Kater im Kreis links unten bündig, die spitze Ecke unten links
+ * zeigt auf ihn. Optional mit fetter Überschrift. Ein Tipp auf die Blase führt weiter (`onPress`), das Kreuz
+ * schließt sie (`onClose`).
+ * Fashionable Look bleibt wie bisher: Blase mit Spitze, Kater nach `mood` in der Kachel daneben (Daria, 30.10.2026).
+ * Erklärungen, was ein Screen tut, schreibt nicht der Kater, sondern die Krabbe (`Explanation`, `Notice`).
  */
-/** Kiez-Look: Icon „cat“ im Kreis ohne Stimmungen; Fashionable: Kater nach `mood` in der Kachel daneben. */
-export function KaterCard({ children, title, mood = 'default' }: { children: ReactNode; title?: string; mood?: CatMood }) {
+export function KaterCard({
+  children,
+  title,
+  mood = 'default',
+  onPress,
+  onClose,
+  accessibilityHint,
+}: {
+  children: ReactNode;
+  title?: string;
+  mood?: CatMood;
+  onPress?: () => void;
+  onClose?: () => void;
+  accessibilityHint?: string;
+}) {
   // Texte aus dem CMS (Tabelle app_texts). Nur reiner Text lässt sich ersetzen; Texte mit Namen
   // setzen die Screens selbst über t() mit Platzhaltern zusammen.
   const tx = useTexts();
   if (typeof children === 'string') children = tx(children);
   if (title) title = tx(title);
+  const role = onPress ? ('button' as const) : undefined;
   if (isFashionable) {
-    // Fashionable Look bleibt wie bisher: Blase mit Spitze, Kater in der Kachel daneben (Daria, 30.10.2026)
     return (
-      <View style={styles.speech}>
+      <Pressable accessibilityRole={role} accessibilityHint={accessibilityHint} onPress={onPress} disabled={!onPress} style={styles.speech}>
         <View style={[styles.speechBubble, styles.speechBubbleFashionable]}>
           <View style={styles.speechTexts}>
             {title ? <Text style={styles.speechTitle}>{title}</Text> : null}
@@ -558,17 +566,28 @@ export function KaterCard({ children, title, mood = 'default' }: { children: Rea
         <View style={styles.speechCatFashionable} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
           <Cat mood={mood} height={36} tint={color.text.primary} />
         </View>
-      </View>
+      </Pressable>
     );
   }
   return (
-    // Kiez-Look: Kater im Kreis sitzt auf der Blase, rechts neben dem Text (Daria, 30.10.2026)
-    <View style={styles.speechBubble}>
-      <View style={styles.speechTexts}>
-        {title ? <Text style={styles.speechTitle}>{title}</Text> : null}
-        <Text style={styles.speechText}>{children}</Text>
-      </View>
-      <KaterRund />
+    <View style={styles.katerRow}>
+      <KaterRund size={KATER_AVATAR} />
+      <Pressable accessibilityRole={role} accessibilityHint={accessibilityHint} onPress={onPress} disabled={!onPress} style={styles.katerBlase}>
+        <View style={styles.speechTexts}>
+          {title ? <Text style={styles.speechTitle}>{title}</Text> : null}
+          <Text style={styles.katerText}>{children}</Text>
+        </View>
+        {onClose ? (
+          <IconButton
+            icon="close"
+            iconSize={14}
+            iconColor={KATER_KREUZ}
+            accessibilityLabel={tx('Hinweis schließen')}
+            onPress={onClose}
+            style={styles.katerKreuz}
+          />
+        ) : null}
+      </Pressable>
     </View>
   );
 }
@@ -747,17 +766,7 @@ const styles = StyleSheet.create({
   iconBox: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
   infoText: { ...text.body, color: color.text.primary, flex: 1 },
   infoPlaceholder: { color: color.text.secondary, fontStyle: 'italic' },
-  kater: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   flex: { flex: 1 },
-  bubble: {
-    padding: space[12],
-    backgroundColor: color.accent.primary,
-    borderTopLeftRadius: 2,
-    borderTopRightRadius: radius.md,
-    borderBottomRightRadius: radius.md,
-    borderBottomLeftRadius: radius.md,
-  },
-  bubbleText: { ...text.body, color: color.bg.screen },
   tag: {
     position: 'absolute',
     top: space[12],
@@ -782,6 +791,21 @@ const styles = StyleSheet.create({
     borderColor: color.line.raised,
   },
   speechTexts: { flex: 1, gap: space[4] },
+  katerRow: { flexDirection: 'row', alignItems: 'flex-end', gap: space[8] },
+  katerBlase: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexShrink: 1,
+    maxWidth: '88%',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: CHAT_RADIUS,
+    borderBottomLeftRadius: space[4],
+    backgroundColor: KATER_BLASE,
+  },
+  katerText: { ...text.body, color: color.text.primary, flexShrink: 1 },
+  // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
+  katerKreuz: { marginVertical: -10, marginRight: -10, marginLeft: space[4] },
   speech: { flexDirection: 'row', alignItems: 'center', gap: space[16] },
   speechBubbleFashionable: { flex: 1, paddingRight: space[16] },
   // Spitze rechts zur Katze: gedrehtes Quadrat in der Farbe der Blase (nur Fashionable)

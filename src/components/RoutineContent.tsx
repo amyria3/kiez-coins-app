@@ -3,8 +3,7 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } fro
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Button } from './Button';
-import { Notice, SectionBlock } from './Content';
-import { KaterNachricht } from './KaterNachricht';
+import { KaterCard, Notice, SectionBlock } from './Content';
 import { KaterMessage } from './KaterMessage';
 import { Text } from './T';
 import { eventDate, eventTime, upcomingCalendarEvents, type CalendarEvent } from '../data/calendar';
@@ -73,7 +72,7 @@ export function RoutineContent({ topPad = space[16], bottomPad }: { topPad?: num
       ) : (
         <ScrollView contentContainerStyle={[styles.content, { paddingTop: topPad, paddingBottom: bottomPad }]}>
           {/* Kater spricht wie im Feed als Sprechblase (Daria, 2026-11-11) */}
-          {focus ? <KaterNachricht>{katerLine(focus)}</KaterNachricht> : null}
+          {focus ? <KaterCard>{katerLine(focus)}</KaterCard> : null}
           {list.length ? (
             <SectionBlock label="Deine Erinnerungen">
               <View style={styles.list}>

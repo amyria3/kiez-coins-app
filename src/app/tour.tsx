@@ -20,7 +20,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActionBar } from '../components/ActionBar';
 import { Button } from '../components/Button';
 import { Cat } from '../components/icons/Brand';
-import { KaterCard } from '../components/Content';
+import { KaterCard, KaterRund } from '../components/Content';
 import { CheckOption, TextField } from '../components/Form';
 import { explain } from '../components/Nudge';
 import { iconSvgs } from '../components/icons/svgs';
@@ -31,7 +31,7 @@ import { useModes } from '../data/features';
 import { t } from '../data/texts';
 import { TOUR_FEEDBACK_OTHER_MAX, TOUR_SEEN_KEY, tourFeedbackOptions, tourSteps as allTourSteps, type TourStep } from '../data/tour';
 import { useAppDimensions } from '../theme/layout';
-import { color, radius, space, text } from '../theme/tokens';
+import { color, isFashionable, radius, space, text } from '../theme/tokens';
 
 /**
  * Route `tour` („Wie geht KiezCoins“): Beispiele zum Ausprobieren für die Hauptfunktionen (Daria, 22./31.10.2026).
@@ -138,7 +138,7 @@ export default function Tour() {
                 <CaptainLikes choices={choices} other={other} />
               ) : (
                 <ScrollView style={styles.flex} contentContainerStyle={styles.feedback} keyboardShouldPersistTaps="handled">
-                  <Cat mood="high" height={64} />
+                  {isFashionable ? <Cat mood="high" height={64} /> : <KaterRund size={64} />}
                   <Text style={styles.title} accessibilityRole="header">
                     {step.title}
                   </Text>
