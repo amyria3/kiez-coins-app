@@ -1,4 +1,4 @@
-import { FieldGroup, KaterBubble } from '../../components/Content';
+import { Explanation, FieldGroup } from '../../components/Content';
 import { CalendarSettings } from '../../components/CalendarSettings';
 import { CrosspostSwitches } from '../../components/CrosspostSwitches';
 import { FeatureSwitches } from '../../components/FeatureSwitches';
@@ -20,7 +20,10 @@ export default function FeaturesScreen() {
   const calendar = useCalendarAvailable();
   return (
     <SubScreen title="Funktionen" navigation="back" onLeadingPress={goBack}>
-      <KaterBubble>Verbirg, was Du gerade nicht brauchst. Mit dem Schalter holst Du es Dir zurück, wann Du willst.</KaterBubble>
+      <Explanation
+        question="Wozu sind die Schalter?"
+        answer="Verbirg, was Du gerade nicht brauchst. Mit dem Schalter holst Du es Dir zurück, wann Du willst."
+      />
       <FeatureSwitches>
         {/* Jede Plattform mit eigenem Schalter, die Einrichtung öffnet sich darunter (Daria, 2026-11-09) */}
         {crosspost ? (
