@@ -455,7 +455,7 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
     <!-- Finanzierung kurz, mit Link auf die ganze Seite (Daria, 08.11.2026) -->
     <div class="finanzierung-kurz">
       <h3>${t('So finanziert sich KiezCoins', 'How KiezCoins is funded')}</h3>
-      <p>${t('Zuerst decken die Einnahmen die Fixkosten. Vom Rest bekommt die Entwicklerin 30 %, die Community 70 %.', 'First, the income covers the fixed costs. Of the rest, the developer gets 30 % and the community 70 %.')}</p>
+      <p>${t('Im Moment erzielt KiezCoins keine Gewinne. In Zukunft decken die Einnahmen zuerst die Fixkosten. Der Gewinn verteilt sich dann auf das Team (30 %) und die Community (70 %).', 'KiezCoins doesn’t make a profit at the moment. In future, the income will first cover the fixed costs. The profit is then shared between the team (30 %) and the community (70 %).')}</p>
       <div class="fk-balken" aria-hidden="true"><span></span><span></span></div>
       <a href="/finanzierung">${t('Zur ganzen Rechnung', 'See the full calculation')}</a>
     </div>
