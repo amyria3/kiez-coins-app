@@ -522,7 +522,8 @@ export function InfoRow({ icon, value, placeholder }: { icon: IconName; value: s
 /** Lila hell in der Farbe des Katers, nicht grün wie die Systemblasen der Krabbe (Daria, 2026-11-11) */
 const KATER_BLASE = 'rgba(143, 144, 250, 0.22)';
 const KATER_KREUZ = '#C9C9FF';
-const KATER_AVATAR = 36;
+/** Etwas größer als ein Profilbild in der Liste (Daria, 2026-11-11) */
+const KATER_AVATAR = 44;
 
 /**
  * Der Kater spricht (Daria, 2026-11-11). Eine Komponente für alles, was der Kater sagt.
