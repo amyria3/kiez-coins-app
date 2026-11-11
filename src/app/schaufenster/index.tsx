@@ -51,15 +51,18 @@ export default function ShowcaseHub() {
 
   // Pfeil zurück in die App, wenn es einen Verlauf gibt (z. B. „Dein Konto › Mein Schaufenster“). Der eigene Kopf
   // ersetzt die NavigationBar, deshalb fehlte der Pfeil bisher ganz (Daria, 2026-11-10).
+  // Sobald es ein Schaufenster gibt, ist sein Name der Titel und „Dein Schaufenster“ steht klein darüber, in derselben
+  // Schrift (Daria, 2026-11-11). Ohne Schaufenster (Anmelden, Zustimmung, Anlegen) bleibt „Dein Schaufenster“ groß.
   const router = useRouter();
-  const header = (
+  const makeHeader = (compact: boolean) => (
     <View>
       {router.canGoBack() ? <NavigationBar title="" variant="back" onLeadingPress={back} /> : null}
-      <View style={styles.header}>
-        <Text style={styles.headline}>Dein Schaufenster</Text>
+      <View style={compact ? styles.headerCompact : styles.header}>
+        <Text style={compact ? styles.kicker : styles.headline}>Dein Schaufenster</Text>
       </View>
     </View>
   );
+  const header = makeHeader(false);
 
   if (!session) return <Login header={header} />;
   if (consented === undefined) {
@@ -70,7 +73,7 @@ export default function ShowcaseHub() {
     );
   }
   if (!consented) return <Consent header={header} onDone={() => setConsented(true)} />;
-  return <Mine header={header} />;
+  return <Mine header={header} compactHeader={makeHeader(true)} />;
 }
 
 // ---------- Anmelden ----------
@@ -213,7 +216,7 @@ function Consent({ header, onDone }: { header: React.ReactNode; onDone: () => vo
 
 // ---------- Eigene Schaufenster ----------
 
-function Mine({ header }: { header: React.ReactNode }) {
+function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeader: React.ReactNode }) {
   const back = useBack();
   const router = useRouter();
   const { signOut } = useAuth();
@@ -289,10 +292,10 @@ function Mine({ header }: { header: React.ReactNode }) {
   }
 
   return (
-    <SubScreen title="Dein Schaufenster" navigation="back" onLeadingPress={back} header={header}>
+    <SubScreen title="Dein Schaufenster" navigation="back" onLeadingPress={back} header={compactHeader}>
       {list.map((s) => (
         <View key={s.id} style={styles.showcase}>
-          {/* Name groß und hell, nicht als kleine graue Gruppenüberschrift (Daria, 2026-11-10: „geht unter“) */}
+          {/* Der Name ist der eigentliche Titel: groß, in der Display-Schrift (Daria, 2026-11-11) */}
           <Text style={styles.showcaseName} accessibilityRole="header" noTranslate>
             {s.name}
           </Text>
@@ -327,8 +330,10 @@ function Mine({ header }: { header: React.ReactNode }) {
 const styles = StyleSheet.create({
   header: { paddingHorizontal: space[20], paddingTop: space[16], paddingBottom: space[8] },
   headline: { ...text.display, color: color.text.primary },
+  headerCompact: { paddingHorizontal: space[16], paddingTop: space[4] },
+  kicker: { fontFamily: text.display.fontFamily, fontSize: 15, lineHeight: 20, color: color.text.secondary },
   showcase: { gap: space[8] },
-  showcaseName: { ...text.settingsHeading, color: color.text.primary, marginBottom: space[4] },
+  showcaseName: { ...text.display, color: color.text.primary, marginTop: -space[8], marginBottom: space[4] },
   meta: { ...text.caption, color: color.text.secondary },
   link: { ...text.caption, color: color.text.primary, textDecorationLine: 'underline' },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.xl },
