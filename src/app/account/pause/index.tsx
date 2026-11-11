@@ -44,7 +44,7 @@ export default function Pause() {
       <Notice variant="warning" message={OPEN_WORK} />
       <QuestionHint
         question="Was passiert beim Pausieren?"
-        answer="Für 3 Monate ist Dein Profil unsichtbar und Du bekommst keine Push-Nachrichten. Danach ist Dein Konto automatisch wieder aktiv. Früher zurück geht jederzeit, indem Du Dich anmeldest."
+        answer="Dein Profil ist 3 Monate lang unsichtbar, und Du bekommst keine Push-Nachrichten. Danach ist Dein Konto von selbst wieder aktiv. Meldest Du Dich vorher an, bist Du sofort zurück."
       />
     </SubScreen>
   );

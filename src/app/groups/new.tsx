@@ -56,7 +56,7 @@ export default function NewGroup() {
       <QuestionHint
         question="Wie kommen andere in meine Gruppe?"
         answer={t(
-          'Die App erstellt für Dich einen Passcode und einen Einladungslink. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.',
+          'Mit einem Passcode oder einem Einladungslink. Beides erstellt die App für Dich. So können {anzahl} weitere Menschen Deiner Gruppe beitreten.',
           { anzahl: MAX_MEMBERS - 1 },
         )}
       />

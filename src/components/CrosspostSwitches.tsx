@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { Button } from './Button';
-import { CHAT_GAP_CHANGE, CHAT_GAP_SAME, ChatReply, Notice, QuestionHint } from './Content';
+import { AskedQuestion, CHAT_GAP_CHANGE, CHAT_GAP_SAME, ChatReply, Notice, QuestionHint } from './Content';
 import { TextField, Toggle } from './Form';
 import { Text } from './T';
 import {
@@ -32,7 +32,7 @@ const HOW_TO: Record<LivePlatform, string> = {
     '2. Bei den Befugnissen nur diese drei anhaken: profile, write:media und write:statuses. Alles andere abwählen, auch read und write.\n' +
     '3. Speichern, die Anwendung öffnen und „Dein Zugangs-Token“ kopieren. Client-Schlüssel und Client-Geheimnis brauchst Du nicht.\n' +
     '4. Hast Du die Befugnisse nachträglich geändert, das Zugangs-Token neu erzeugen.\n' +
-    '5. Instanz und Zugangs-Token unten eintragen. Die Instanz ist der Server Deines Kontos: Deine vollständige Adresse steht auf Deinem Profil unter dem Namen, z. B. @kiezkatz@mastodon.social. Die Instanz ist der Teil nach dem zweiten @, also mastodon.social.',
+    '5. Instanz und Zugangs-Token unten eintragen. Die Instanz ist der Teil Deiner Adresse nach dem zweiten @: Aus @kiezkatz@mastodon.social wird mastodon.social. Die Adresse steht auf Deinem Profil unter dem Namen.',
   instagram:
     '1. In Instagram: Einstellungen › Kontotyp › auf Business- oder Creator-Konto umstellen.\n' +
     '2. Auf developers.facebook.com eine App anlegen (Typ Business, Anwendungsfall Instagram-API mit Instagram-Login).\n' +
@@ -41,7 +41,7 @@ const HOW_TO: Record<LivePlatform, string> = {
     'Instagram nimmt nur Posts mit Foto. Der Link steht als Text in der Bildunterschrift.',
   facebook:
     'Facebook erlaubt das Weiterposten nur auf eine Seite, nicht auf Dein privates Profil.\n' +
-    '1. Lege eine Facebook-Seite an, falls Du noch keine hast (Facebook › Seiten › Neue Seite).\n' +
+    '1. Eine Facebook-Seite anlegen oder eine vorhandene nutzen (Facebook › Seiten › Neue Seite).\n' +
     '2. Auf developers.facebook.com eine App anlegen (Typ Business).\n' +
     '3. Im Graph API Explorer diese App wählen, bei „Benutzer oder Seite“ Deine Seite auswählen und die Rechte pages_manage_posts und pages_read_engagement anhaken.\n' +
     '4. „Generate Access Token“ antippen, bestätigen und den Seiten-Zugangs-Token unten eintragen.\n' +
@@ -53,12 +53,12 @@ const HOW_TO: Record<LivePlatform, string> = {
  * Erst nach „Ja, los!“ folgen die Schritte und die Felder.
  */
 const INTRO: Record<LivePlatform, string> = {
-  bluesky: 'Die Einrichtung umfasst 3 Schritte und setzt voraus, dass Du in BlueSky angemeldet bist. Möchtest Du jetzt loslegen?',
-  mastodon: 'Die Einrichtung umfasst 5 Schritte und setzt voraus, dass Du in Mastodon angemeldet bist. Möchtest Du jetzt loslegen?',
+  bluesky: 'Das Verbinden hat 3 Schritte. Du brauchst dafür Dein BlueSky-Konto. Möchtest Du jetzt loslegen?',
+  mastodon: 'Das Verbinden hat 5 Schritte. Du brauchst dafür Dein Mastodon-Konto. Möchtest Du jetzt loslegen?',
   instagram:
-    'Die Einrichtung umfasst 4 Schritte und setzt voraus, dass Du in Instagram angemeldet bist und ein Konto bei Meta for Developers hast. Möchtest Du jetzt loslegen?',
+    'Das Verbinden hat 4 Schritte. Du brauchst dafür Dein Instagram-Konto und ein Konto bei Meta for Developers. Möchtest Du jetzt loslegen?',
   facebook:
-    'Die Einrichtung umfasst 4 Schritte und setzt voraus, dass Du in Facebook angemeldet bist und ein Konto bei Meta for Developers hast. Möchtest Du jetzt loslegen?',
+    'Das Verbinden hat 4 Schritte. Du brauchst dafür Dein Facebook-Konto und ein Konto bei Meta for Developers. Möchtest Du jetzt loslegen?',
 };
 
 /**
@@ -87,7 +87,7 @@ export function CrosspostSwitches() {
 
   return (
     <View style={styles.list}>
-      <QuestionHint question="Was und wie kann ich mit dieser Funktion weiterposten?" answer="Weiterposten teilt Deine öffentlichen Posts mit Foto und Link zu KiezCoins. Private Posts und Gruppen bleiben immer in der App." />
+      <QuestionHint question="Was postet KiezCoins für mich weiter?" answer="Deine öffentlichen Posts, mit Foto und einem Link zu KiezCoins. Private Posts und Posts in Gruppen bleiben in der App." />
       {CROSSPOST_PLATFORMS.filter((p) => isLivePlatform(p.key)).map((p) => (
         <PlatformSwitch
           key={p.key}
@@ -238,7 +238,8 @@ function PlatformSwitch({
       {open && (!account || reconnect) ? (
         <View style={styles.setup}>
           {/* Wie im Chat: erst was weitergepostet wird, dann Umfang und Voraussetzungen mit Frage, dann „Ja, los!“,
-              dann die Schritte */}
+              dann die Schritte. Davor die Frage, denn jede Erklärung beginnt mit einer Frage (Daria, 2026-11-11) */}
+          <AskedQuestion question={t('Wie verbinde ich {label}?', { label })} />
           <View style={styles.steps}>
             {scope.map((line) => (
               <Notice key={line} message={line} />

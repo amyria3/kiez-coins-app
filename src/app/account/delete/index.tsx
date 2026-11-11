@@ -64,7 +64,7 @@ export default function DeleteAccount() {
         variant="warning"
         message="Dein Profil, Deine Fotos, Challenges, Kommentare und Zahlungsdaten werden gelöscht. Das lässt sich nicht rückgängig machen."
       />
-      <QuestionHint question="Was ist mit offenen Coins?" answer="Offene Coins musst Du vorher klären. Wenn Du nur eine Pause brauchst, kannst Du Dein Konto auch 3 Monate pausieren." />
+      <QuestionHint question="Was passiert mit offenen Coins?" answer="Kläre offene Coins, bevor Du Dein Konto löschst. Brauchst Du nur eine Pause? Dann pausiere Dein Konto für 3 Monate." />
       <TextField
         label="Zum Bestätigen LÖSCHEN eintippen" required
         nudge={confirmField}

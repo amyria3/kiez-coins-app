@@ -171,7 +171,7 @@ export default function UserProfile() {
       </View>
 
       {isMe ? (
-        <QuestionHint question="Wie ändere ich mein Profil?" answer="So sehen Dich die anderen. Foto, Deckname und Kiez änderst Du unter „Dein Konto“." />
+        <QuestionHint question="Wie ändere ich mein Profil?" answer="Foto, Deckname und Kiez änderst Du unter „Dein Konto“. Hier siehst Du Dein Profil so, wie die anderen es sehen." />
       ) : (
         <>
           {friend === 'none' ? (
