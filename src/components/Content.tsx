@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { AccessibilityInfo, Animated, Easing, Linking, Pressable, StyleSheet, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
+import { Image } from 'expo-image';
 import { Text } from './T';
 
 import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
@@ -596,10 +597,12 @@ export function KaterCard({
 /**
  * Kater im Kreis: Darias Kater-Avatar (2026-11-11), lila Kater mit grünen Herzen in der Brille auf gelbem Kreis.
  * Er fährt beim Erscheinen sanft von unten in den Kreis herein. Der gelbe Kreis pulsiert langsam und unregelmäßig,
- * dabei scheint der Grund darunter durch. Die Herzen in der Brille blenden ab und zu ein und wieder aus
+ * dabei scheint darunter ein Farbverlauf durch. Die Herzen in der Brille blenden ab und zu ein und wieder aus
  * (Daria, 2026-11-11: „Puls weniger regelmäßig, weniger schnell“, „Herzen nicht ständig zeigen“).
  * Mit „Bewegung reduzieren“ sitzt der Kater still, der Kreis bleibt voll und die Herzen bleiben sichtbar.
  */
+/** Farbverlauf unter dem Gelb: scheint durch, wenn der Kreis beim Atmen durchsichtiger wird (Daria, 2026-11-11) */
+const RUND_GRUND = require('../../assets/kater/kater-avatar-grund.png');
 const RUND = 64;
 /** Zufallszahl zwischen a und b */
 const zwischen = (a: number, b: number) => a + Math.random() * (b - a);
@@ -676,6 +679,7 @@ export function KaterRund({ size = RUND }: { size?: number } = {}) {
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
+      <Image source={RUND_GRUND} style={StyleSheet.absoluteFill} contentFit="cover" />
       <Animated.View style={[StyleSheet.absoluteFill, styles.rundGrund, { opacity: puls }]} />
       <Animated.View
         style={{
