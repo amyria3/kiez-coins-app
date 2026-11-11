@@ -1347,5 +1347,8 @@
   "Termin": "פגישה",
   "Aufgabe": "משימה",
   "Mein Schaufenster": "חלון הראווה שלי",
-  "Für Laden, Verein oder Club": "לחנות, לעמותה או למועדון"
+  "Für Laden, Verein oder Club": "לחנות, לעמותה או למועדון",
+  "Mit Deinen Zugangsdaten vom Schaufenster. Mit der Registrierung ist automatisch Dein Konto bei KiezCoins entstanden. Damit meldest Du Dich in der App an und triffst andere Nutzer:innen.": "עם אותם פרטי כניסה של חלון הראווה. עם ההרשמה נוצר אוטומטית החשבון שלך ב-KiezCoins. איתו נכנסים לאפליקציה ופוגשים משתמשים ומשתמשות אחרים.",
+  "{n} Schaufenster": "{n, plural, one {חלון ראווה אחד} two {שני חלונות ראווה} other {# חלונות ראווה}}",
+  "ein Schaufenster": "חלון ראווה אחד"
 }

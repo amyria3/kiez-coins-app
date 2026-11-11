@@ -1332,5 +1332,10 @@
   "Termin": "Встреча",
   "Aufgabe": "Задача",
   "Mein Schaufenster": "Моя витрина",
-  "Für Laden, Verein oder Club": "Для магазина, объединения или клуба"
+  "Für Laden, Verein oder Club": "Для магазина, объединения или клуба",
+  "Mit Deinen Zugangsdaten vom Schaufenster. Mit der Registrierung ist automatisch Dein Konto bei KiezCoins entstanden. Damit meldest Du Dich in der App an und triffst andere Nutzer:innen.": "С теми же данными для входа, что и для витрины. При регистрации автоматически создан твой аккаунт в KiezCoins. С ним ты входишь в приложение и знакомишься с другими пользователями.",
+  "{n} Schaufenster": "{n, plural, one {# витриной} few {# витринами} many {# витринами} other {# витринами}}",
+  "ein Schaufenster": "одной витриной",
+  "Mindestens 8 Zeichen. Ohne Konto legt KiezCoins eins an.": "Не меньше 8 символов. Если у тебя нет аккаунта, KiezCoins создаст его.",
+  "Dieses Schaufenster ist offline.": "Эта витрина сейчас офлайн."
 }
