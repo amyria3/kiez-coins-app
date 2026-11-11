@@ -484,10 +484,11 @@ export function ChatReply({ label, sent, onPress }: { label: string; sent: boole
 }
 
 /** Figma „InfoRow“: Wert links, Icon rechts in einer 24er-Box. */
-export function InfoRow({ icon, value }: { icon: IconName; value: string }) {
+/** `placeholder`: graue, kursive Zeile für eine fehlende Angabe, z. B. im leeren Schaufenster (Daria, 2026-11-11) */
+export function InfoRow({ icon, value, placeholder }: { icon: IconName; value: string; placeholder?: boolean }) {
   return (
     <View style={styles.infoRow}>
-      <Text style={styles.infoText}>{value}</Text>
+      <Text style={[styles.infoText, placeholder && styles.infoPlaceholder]}>{value}</Text>
       <View style={styles.iconBox}>
         <Icon name={icon} size={icon === 'map-pin' ? 22 : 24} />
       </View>
@@ -761,6 +762,7 @@ const styles = StyleSheet.create({
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 24 },
   iconBox: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
   infoText: { ...text.body, color: color.text.primary, flex: 1 },
+  infoPlaceholder: { color: color.text.secondary, fontStyle: 'italic' },
   kater: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   flex: { flex: 1 },
   bubble: {

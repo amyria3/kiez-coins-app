@@ -68,6 +68,12 @@ function farbe(hex) {
 // Darias Herz aus der App (src/components/icons/svgs.ts)
 const HERZ = '<svg width="22" height="22" aria-hidden="true" viewBox="0 0 35 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.13 19.80C4.69 17.98 4.69 17.99 4.65 17.83C3.49 14.30 3.44 13.36 3.30 11.33C3.04 7.67 2.67 7.39 3.59 4.23C3.92 3.08 4.60 2.44 4.72 2.32C5.96 1.15 6.98 -0.30 9.13 0.05C10.96 0.36 12.37 0.31 14.39 4.99C15.25 7.07 15.19 7.09 15.83 9.28C15.89 9.33 16.46 9.93 16.66 9.83C16.90 9.70 18.20 7.62 19.14 6.42C19.97 5.46 20.05 5.58 20.82 4.54C22.05 3.22 22.69 2.64 24.45 1.85C26.70 0.85 28.13 1.21 28.18 1.22C31.63 1.91 31.76 4.45 32.00 6.19C32.04 9.58 31.44 11.07 30.64 13.39C30.07 15.02 29.92 14.91 29.21 16.45C28.12 18.81 28.02 18.73 26.22 21.23C23.40 25.09 23.40 25.08 23.16 25.43C21.83 27.32 20.67 28.37 20.20 28.98C18.92 30.63 18.79 30.67 17.36 32.14C16.65 32.77 16.24 33.16 16.15 33.25C11.83 37.38 10.06 33.12 9.41 31.48C7.05 26.17 7.44 25.98 5.13 19.80Z M 19.91,20.47 C 18.90,19.97 18.22,20.78 19.16,21.92 C 19.56,22.40 20.56,23.58 21.84,23.72 C 22.47,23.78 22.41,23.13 22.37,23.03 C 22.34,22.94 22.32,22.89 21.59,22.01 C 21.48,21.87 20.61,20.82 19.91,20.47 M 17.38,22.29 C 17.05,22.52 16.36,23.45 17.95,24.71 C 17.97,24.74 17.98,24.72 18.29,24.95 C 18.58,25.18 18.56,25.19 18.82,25.44 C 18.90,25.51 18.94,25.59 19.02,25.67 C 20.09,26.68 21.24,25.72 20.23,24.35 C 19.85,23.83 18.82,22.62 18.39,22.40 C 17.86,22.11 17.42,22.25 17.38,22.29 M 20.97,17.81 C 20.20,18.15 21.16,19.04 21.17,19.06 C 22.09,20.04 22.26,20.16 22.38,20.22 C 23.72,21.10 24.26,20.67 23.97,20.03 C 23.53,19.10 23.47,19.13 23.37,19.03 C 22.74,18.48 22.78,18.44 22.14,17.90 C 21.69,17.51 21.05,17.78 20.97,17.81 M 14.44,25.29 C 14.11,25.88 15.07,26.21 16.07,27.58 C 16.13,27.68 16.47,28.14 17.20,28.41 C 17.81,28.63 18.45,27.85 18.12,26.91 C 17.78,25.91 17.09,25.72 16.94,25.45 C 16.84,25.25 16.82,25.06 16.71,24.87 C 16.66,24.81 16.54,24.80 16.51,24.74 C 16.45,24.88 16.42,24.86 16.37,24.99 C 16.31,25.17 16.35,25.19 16.34,25.19 C 16.28,25.21 16.23,25.09 16.16,25.06 C 16.09,25.02 16.01,25.04 15.94,25.02 C 15.88,24.99 15.83,24.94 15.76,24.91 C 14.85,24.58 14.50,25.20 14.44,25.29 M 23.08,15.69 C 22.20,15.15 21.70,15.48 22.15,16.28 C 22.63,17.10 22.93,18.11 24.17,18.03 C 24.66,18.00 24.90,17.90 24.69,17.31 C 24.35,16.42 23.80,16.20 23.31,15.84 C 23.23,15.80 23.16,15.74 23.08,15.69" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"/></svg>';
 
+// Platzhalter für leere Schaufenster (Daria, 2026-11-11): Verlauf statt Titelbild, schwarzer Kreis mit Darias
+// Kater-Maske (Cat-Avatar-Mask.svg) statt Logo, graue Zeilen für fehlende Angaben, ein erster Post zum Ansehen.
+// Die App zeigt dasselbe (src/components/ShowcasePlaceholder.tsx).
+const KATER = '<svg width="36" height="32" aria-hidden="true" viewBox="0 0 35 31" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M29.8389 4.32385C30.2718 4.51386 30.6554 4.74222 30.9434 5.01624C32.2062 6.21818 32.5338 6.31956 32.9248 6.68616C33.8973 7.59812 34.1006 9.62071 34.1006 11.3531C34.1006 15.5488 34.0681 14.3748 34.0869 16.9537C34.1004 18.81 34.1005 21.6209 31.6338 24.7985C23.8527 29.9038 21.9208 30.116 15.3193 30.0006L12.0439 29.8278C8.81613 29.0959 8.63087 29.6764 4.41895 26.6461C2.03591 24.282 2.1456 24.2364 1.42871 23.3541C-0.109269 20.2796 0.0537125 19.6386 0.0537109 14.9225C0.0536608 12.0929 -0.415933 9.49597 1.42871 7.37659L3.24023 5.79651L3.55273 1.68713L8.52539 2.83655C13.2778 1.69417 19.3517 2.45528 22.7344 2.99963L29.8389 0.0201416V4.32385ZM17.4287 19.9996V25.6403C17.0274 25.6499 14.9325 25.0144 14.4238 24.7799L13.5 26.4996C14.0792 26.7912 15.2601 27.3747 16.4121 27.6696C17.1297 27.8532 17.1206 27.7815 18.3096 27.6608C18.8564 27.4785 21.8033 27.0677 22.5 25.9996L21.5742 24.8951L18.3096 25.6403L18.1396 19.444L17.4287 19.9996ZM11.3252 10.5641C10.5048 10.504 8.81272 9.98065 7.48145 10.8131C6.65543 11.5079 6.67591 11.5295 6.4082 11.7975C5.70135 12.7796 5.67338 12.7945 5.48633 13.9449C5.2902 15.1509 6.00632 15.9637 6.16113 16.6969L14.1787 16.6276C14.892 15.7542 15.2723 15.579 15.0137 14.2301C14.1321 11.8204 13.5238 11.3916 12.0664 10.8131L11.3252 10.5641ZM26.8262 10.7799C25.6015 9.98107 24.0714 10.4465 23.3262 10.4908L22.6562 10.7135C21.34 11.2341 20.7935 11.6264 20.0312 13.8707C19.8182 15.1305 20.1677 15.3 20.8311 16.1285L28.125 16.3112C28.2536 15.6265 28.8918 14.8746 28.6934 13.7418C28.5043 12.6619 28.4786 12.6478 27.8193 11.7174C27.5714 11.4625 27.5892 11.4429 26.8262 10.7799Z" fill="#F0F0F0"/></svg>';
+const leer = (text) => `<p class="sf-klein sf-leer">${text}</p>`;
+
 async function ladeSchaufenster(slug) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/public_showcase`, {
     method: 'POST',
@@ -194,14 +200,26 @@ function inhalt(s) {
   }
   const cover = foto(s.cover_path);
   const logo = foto(s.logo_path);
-  const infos = [s.address, s.opening_hours].filter(Boolean).map((t) => `<p class="sf-klein">${esc(t)}</p>`).join('');
+  const infos = [
+    s.address ? `<p class="sf-klein">${esc(s.address)}</p>` : leer('Noch keine Adresse'),
+    s.opening_hours ? `<p class="sf-klein">${esc(s.opening_hours)}</p>` : leer('Noch keine Öffnungszeiten'),
+  ].join('');
   // Mehrere Links (Migration 20261110000600); vorher nur die Webseite
   const links = Array.isArray(s.links) && s.links.length ? s.links : s.website ? [s.website] : [];
   const web = links
     .filter((l) => /^https:\/\//i.test(l))
     .map((l) => `<p class="sf-klein"><a href="${esc(l)}" rel="noopener nofollow">${esc(l.replace(/^https:\/\/(www\.)?/i, '').replace(/\/$/, ''))}</a></p>`)
-    .join('');
+    .join('') || leer('Noch keine Links');
   const eintraege = (s.entries ?? []).map(eintrag).join('\n');
+  // Noch nichts gepostet: Abschnitte für Termine und Posts mit einem ersten Post als Platzhalter
+  const ohneEintraege = `<h2 class="sf-abschnitt">Termine</h2>${leer('Noch keine Termine')}
+  <h2 class="sf-abschnitt">Posts</h2>
+  <div class="sf-liste"><article class="sf-karte sf-platzhalter" aria-label="Platzhalter">
+    <div class="sf-bild sf-verlauf" aria-hidden="true"></div><div class="sf-inhalt">
+      <p class="sf-art sf-post">Post</p>
+      <h2>Hier erscheint der erste Post</h2>
+      <p class="sf-text">Neuigkeiten, Angebote und Fotos aus dem Schaufenster.</p>
+    </div></article></div>`;
   return `<style>
 ${farbe(s.bg_color)}
 /* KiezCoins-Logo oben klein, das Schaufenster steht im Vordergrund (Daria, 2026-11-10) */
@@ -259,22 +277,35 @@ ${farbe(s.bg_color)}
 .geteilt .sf-herz[aria-pressed="true"] { color: color-mix(in srgb, var(--pink) 70%, var(--text)); }
 .geteilt .sf-herz[aria-pressed="true"] span { color: var(--text); }
 .geteilt .sf-herz:disabled { cursor: default; opacity: .6; }
+/* Platzhalter (Daria, 2026-11-11) */
+.geteilt .sf-verlauf { background: linear-gradient(135deg, #8F90FA 0%, #FFB2E5 55%, #FFAD7E 100%); }
+.geteilt .sf-kater { display: flex; align-items: center; justify-content: center; background: #000; }
+.geteilt .sf-ende { margin-bottom: 40px; }
+.geteilt .sf-leer { font-style: italic; opacity: .8; }
+.geteilt .sf-platzhalter { background: none; border: 1px dashed var(--muted); opacity: .75; }
+.geteilt .sf-platzhalter .sf-bild { opacity: .5; }
 </style>
-  ${cover ? `<img class="sf-cover${logo ? ' sf-mit-logo' : ''}" src="${esc(cover)}" alt="Titelbild von ${esc(s.name)}">` : ''}
-  <div class="sf-wer">${logo ? `<img class="sf-logo" src="${esc(logo)}" alt="Logo von ${esc(s.name)}">` : ''}<h1>${esc(s.name)}</h1></div>
+  ${cover ? `<img class="sf-cover sf-mit-logo" src="${esc(cover)}" alt="Titelbild von ${esc(s.name)}">` : '<div class="sf-cover sf-mit-logo sf-verlauf" aria-hidden="true"></div>'}
+  <div class="sf-wer">${logo ? `<img class="sf-logo" src="${esc(logo)}" alt="Logo von ${esc(s.name)}">` : `<span class="sf-logo sf-kater">${KATER}</span>`}<h1>${esc(s.name)}</h1></div>
   ${s.kiez ? `<p class="wer">${esc(s.kiez)}</p>` : ''}
-  ${s.about ? `<p class="text">${esc(s.about)}</p>` : ''}
+  ${s.about ? `<p class="text">${esc(s.about)}</p>` : leer('Noch keine Beschreibung')}
   ${infos}${web}
   ${s.imprint ? '<p class="sf-klein"><a href="#impressum">Impressum</a></p>' : ''}
   ${
     !s.services
-      ? ''
+      ? `<h2 class="sf-abschnitt">Services</h2>${leer('Noch keine Services')}`
       : s.services_collapsed
         ? `<details class="sf-klappe"><summary><h2 class="sf-abschnitt">Services</h2></summary><div class="sf-services">${richHtml(s.services)}</div></details>`
         : `<h2 class="sf-abschnitt">Services</h2><div class="sf-services">${richHtml(s.services)}</div>`
   }
-  <div class="sf-liste">${eintraege || '<p class="sf-klein">Hier ist noch nichts los.</p>'}</div>
-  ${s.imprint ? `<h2 class="sf-abschnitt" id="impressum">Impressum</h2><p class="sf-klein" style="white-space: pre-line">${esc(s.imprint)}</p>` : ''}
+  ${eintraege ? `<div class="sf-liste">${eintraege}</div>` : ohneEintraege}
+  ${
+    s.terms
+      ? `<details class="sf-klappe"><summary><h2 class="sf-abschnitt">AGB</h2></summary><div class="sf-services">${richHtml(s.terms)}</div></details>`
+      : `<h2 class="sf-abschnitt">AGB</h2>${leer('AGB noch nicht hinterlegt')}`
+  }
+  <h2 class="sf-abschnitt" id="impressum">Impressum</h2>
+  <div class="sf-ende">${s.imprint ? `<p class="sf-klein" style="white-space: pre-line">${esc(s.imprint)}</p>` : leer('Impressum noch nicht hinterlegt')}</div>
 <script>
 (() => {
   const URL_ = ${JSON.stringify(SUPABASE_URL)}, KEY = ${JSON.stringify(SUPABASE_KEY)}, MERK = 'kc-termin-herzen';
