@@ -126,7 +126,6 @@ function RootStack() {
       {loading ? null : (
         <>
         <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-        <FriendInviteNotice />
         <BadgeNotice />
         <Stack key={language} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
           {/* Vollbild ohne Wegwischen: Schließen nur über das X, damit die Frage nach dem Entwurf kommt
@@ -158,6 +157,7 @@ function RootStack() {
           <Stack.Screen name="account/delete/success" options={{ gestureEnabled: false }} />
         </Stack>
           <InstallHint />
+          <FriendInviteNotice />
           <UpdateHint />
           <ShareDialogHost />
           <WebAlertHost />
