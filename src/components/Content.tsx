@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { AccessibilityInfo, Animated, Easing, Linking, Pressable, StyleSheet, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
+import { Image } from 'expo-image';
 import { Text } from './T';
 
 import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
@@ -7,7 +8,7 @@ import { t as translate, useTexts } from '../data/texts';
 import { Cat, type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
 import Svg, { Rect, SvgXml } from 'react-native-svg';
-import { KATER_AVATAR_GELB, katerAvatarSvg } from './icons/katerAvatarSvg';
+import { KATER_AVATAR_GELB, katerAvatarSvg, katerHerzenSvg } from './icons/katerAvatarSvg';
 import { IconButton } from './IconButton';
 
 // Systemmeldungen als hellblaue Chatblase der App, wie die Antworten auf die Fragen; Icon dunkel wie der Text, nur bei Warnungen (Daria, 2026-11-09)
@@ -522,7 +523,8 @@ export function InfoRow({ icon, value, placeholder }: { icon: IconName; value: s
 /** Lila hell in der Farbe des Katers, nicht grün wie die Systemblasen der Krabbe (Daria, 2026-11-11) */
 const KATER_BLASE = 'rgba(143, 144, 250, 0.22)';
 const KATER_KREUZ = '#C9C9FF';
-const KATER_AVATAR = 36;
+/** Etwas größer als ein Profilbild in der Liste (Daria, 2026-11-11) */
+const KATER_AVATAR = 44;
 
 /**
  * Der Kater spricht (Daria, 2026-11-11). Eine Komponente für alles, was der Kater sagt.
@@ -594,16 +596,21 @@ export function KaterCard({
 
 /**
  * Kater im Kreis: Darias Kater-Avatar (2026-11-11), lila Kater mit grünen Herzen in der Brille auf gelbem Kreis.
- * Er fährt beim Erscheinen sanft von unten in den Kreis herein. Der gelbe Kreis pulsiert langsam, dabei scheint der
- * Grund darunter durch (Daria, 2026-11-11). Mit „Bewegung reduzieren“ sitzt der Kater still und der Kreis bleibt voll.
+ * Er fährt beim Erscheinen sanft von unten in den Kreis herein. Der gelbe Kreis pulsiert langsam und unregelmäßig,
+ * dabei scheint darunter ein Farbverlauf durch. Die Herzen in der Brille blenden ab und zu ein und wieder aus
+ * (Daria, 2026-11-11: „Puls weniger regelmäßig, weniger schnell“, „Herzen nicht ständig zeigen“).
+ * Mit „Bewegung reduzieren“ sitzt der Kater still, der Kreis bleibt voll und die Herzen bleiben sichtbar.
  */
+/** Farbverlauf unter dem Gelb: scheint durch, wenn der Kreis beim Atmen durchsichtiger wird (Daria, 2026-11-11) */
+const RUND_GRUND = require('../../assets/kater/kater-avatar-grund.png');
 const RUND = 64;
-/** Tiefster Punkt des Pulsierens: so viel Gelb bleibt stehen */
-const RUND_PULS = 0.35;
+/** Zufallszahl zwischen a und b */
+const zwischen = (a: number, b: number) => a + Math.random() * (b - a);
 export function KaterRund({ size = RUND }: { size?: number } = {}) {
   const [still, setStill] = useState<boolean | null>(null);
   const rein = useRef(new Animated.Value(0)).current;
   const puls = useRef(new Animated.Value(1)).current;
+  const herzen = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled()
       .catch(() => false)
@@ -620,27 +627,59 @@ export function KaterRund({ size = RUND }: { size?: number } = {}) {
     a.start();
     return () => a.stop();
   }, [still, rein]);
-  // Gelber Kreis pulsiert: voll, dann durchscheinend, in gut 3 Sekunden
+  // Gelber Kreis atmet: jeder Atemzug anders lang und anders tief, dazwischen kurze Ruhe
   useEffect(() => {
     if (still !== false) return;
-    const a = Animated.loop(
-      Animated.sequence([
-        Animated.timing(puls, { toValue: RUND_PULS, duration: 1600, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        Animated.timing(puls, { toValue: 1, duration: 1600, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-      ]),
-    );
-    a.start();
+    let aus = false;
+    let a: Animated.CompositeAnimation | null = null;
+    const atem = () => {
+      if (aus) return;
+      a = Animated.sequence([
+        Animated.timing(puls, { toValue: zwischen(0.35, 0.65), duration: zwischen(2400, 4200), easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(puls, { toValue: 1, duration: zwischen(2400, 4200), easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.delay(zwischen(400, 2600)),
+      ]);
+      a.start(({ finished }) => finished && atem());
+    };
+    atem();
     return () => {
-      a.stop();
+      aus = true;
+      a?.stop();
       puls.setValue(1);
     };
   }, [still, puls]);
+  // Herzen: nach einer Weile sanft einblenden, kurz stehen lassen, wieder ausblenden, dann länger Pause
+  useEffect(() => {
+    if (still === null) return;
+    if (still) {
+      herzen.setValue(1);
+      return;
+    }
+    let aus = false;
+    let a: Animated.CompositeAnimation | null = null;
+    const blinken = () => {
+      if (aus) return;
+      a = Animated.sequence([
+        Animated.delay(zwischen(2500, 7000)),
+        Animated.timing(herzen, { toValue: 1, duration: 700, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.delay(zwischen(1200, 2400)),
+        Animated.timing(herzen, { toValue: 0, duration: 900, easing: Easing.in(Easing.cubic), useNativeDriver: true }),
+      ]);
+      a.start(({ finished }) => finished && blinken());
+    };
+    blinken();
+    return () => {
+      aus = true;
+      a?.stop();
+    };
+  }, [still, herzen]);
   return (
     <View
       style={[styles.rund, { width: size, height: size, borderRadius: size / 2 }]}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
+      <Image source={RUND_GRUND} style={StyleSheet.absoluteFill} contentFit="cover" />
       <Animated.View style={[StyleSheet.absoluteFill, styles.rundGrund, { opacity: puls }]} />
       <Animated.View
         style={{
@@ -648,7 +687,10 @@ export function KaterRund({ size = RUND }: { size?: number } = {}) {
           transform: [{ translateY: rein.interpolate({ inputRange: [0, 1], outputRange: [size, 0] }) }],
         }}
       >
-        <SvgXml xml={katerAvatarSvg()} width={size} height={size} />
+        <SvgXml xml={katerAvatarSvg({ herzen: false })} width={size} height={size} />
+        <Animated.View style={[StyleSheet.absoluteFill, { opacity: herzen }]}>
+          <SvgXml xml={katerHerzenSvg()} width={size} height={size} />
+        </Animated.View>
       </Animated.View>
     </View>
   );
@@ -803,7 +845,8 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: space[4],
     backgroundColor: KATER_BLASE,
   },
-  katerText: { ...text.body, color: color.text.primary, flexShrink: 1 },
+  // Größer als der Fließtext, der Kater spricht laut (Daria, 2026-11-11)
+  katerText: { ...text.body, fontSize: 17, lineHeight: 23, color: color.text.primary, flexShrink: 1 },
   // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
   katerKreuz: { marginVertical: -10, marginRight: -10, marginLeft: space[4] },
   speech: { flexDirection: 'row', alignItems: 'center', gap: space[16] },
