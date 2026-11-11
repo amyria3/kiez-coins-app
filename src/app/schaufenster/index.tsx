@@ -136,11 +136,11 @@ function Login({ header }: { header: React.ReactNode }) {
       )}
       <QuestionHint
         question="Brauche ich die KiezCoins App?"
-        answer="Du musst die App nicht nutzen, weil Du Dein Schaufenster hier pflegen kannst. Du bist hiermit über Google auffindbar."
+        answer="Nein. Dein Schaufenster pflegst Du hier, und über Google finden Dich die Leute."
       />
       <QuestionHint
-        question="Ich will die App vielleicht doch nutzen – wie kann ich beitreten?"
-        answer="Mit der Registrierung fürs Schaufenster entsteht automatisch ein Account, Deine Persona im Social Network KiezCoins. Du kannst Dich mit denselben Zugangsdaten in der App einloggen und mit anderen Nutzer:innen interagieren."
+        question="Wie komme ich in die App?"
+        answer="Mit Deinen Zugangsdaten vom Schaufenster. Mit der Registrierung ist automatisch Dein Konto bei KiezCoins entstanden. Damit meldest Du Dich in der App an und triffst andere Nutzer:innen."
       />
     </SubScreen>
   );
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: space[20], paddingTop: space[16], paddingBottom: space[8] },
   headline: { ...text.display, color: color.text.primary },
   showcase: { gap: space[8] },
-  showcaseName: { ...text.headline, color: color.text.primary, marginBottom: space[4] },
+  showcaseName: { ...text.settingsHeading, color: color.text.primary, marginBottom: space[4] },
   meta: { ...text.caption, color: color.text.secondary },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.xl },
   footer: { gap: space[8], marginTop: space[16] },

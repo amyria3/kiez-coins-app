@@ -25,15 +25,16 @@ import { t } from '../data/texts';
 import { color, radius, space, text } from '../theme/tokens';
 
 /**
- * Anleitung zum Abonnieren (Daria, 2026-11-10): erst Anzahl der Schritte und Voraussetzungen, dann Schritt für Schritt,
- * wie beim Weiterposten.
+ * Anleitung zum Abonnieren (Daria, 2026-11-10): erst die Frage (2026-11-11), dann Anzahl der Schritte und
+ * Voraussetzungen, dann Schritt für Schritt, wie beim Weiterposten.
  */
+const SUBSCRIBE_QUESTION = 'Wie kommen meine Termine in meinen Kalender?';
 const SUBSCRIBE_INTRO =
-  'Das Abonnieren umfasst 3 Schritte und setzt voraus, dass Du in Deinem Kalender angemeldet bist, zum Beispiel bei Apple, Google oder Outlook. Möchtest Du jetzt loslegen?';
+  'Das Abonnieren hat 3 Schritte. Du brauchst dafür ein Konto bei Deinem Kalender, zum Beispiel bei Apple, Google oder Outlook. Möchtest Du jetzt loslegen?';
 const SUBSCRIBE_STEPS = [
-  '1. Auf iPhone und Mac tippst Du oben auf „Im Kalender abonnieren“. Die Kalender-App öffnet sich, und Du bist fertig. Alle anderen kopieren den Abo-Link.',
-  '2. Öffne Deinen Kalender. Google Kalender: Im Browser links bei „Weitere Kalender“ auf + tippen und „Per URL“ wählen. Outlook: „Kalender hinzufügen“, dann „Aus dem Internet abonnieren“.',
-  '3. Füge den Abo-Link ein und bestätige. Deine Termine erscheinen, sobald Dein Kalender den Link abruft. Je nach Kalender dauert das Minuten bis Stunden.',
+  '1. Auf iPhone und Mac: Tippe oben auf „Im Kalender abonnieren“. Die Kalender-App öffnet sich, damit bist Du fertig. Auf allen anderen Geräten: Kopiere den Abo-Link.',
+  '2. Öffne Deinen Kalender. Google Kalender: Tippe im Browser links bei „Weitere Kalender“ auf + und wähle „Per URL“. Outlook: Wähle „Kalender hinzufügen“ › „Aus dem Internet abonnieren“.',
+  '3. Füge den Abo-Link ein und bestätige. Deine Termine erscheinen, sobald Dein Kalender den Link abruft. Das dauert je nach Kalender Minuten bis Stunden.',
 ];
 
 /**
@@ -119,10 +120,10 @@ export function CalendarSettings() {
           <>
             <Button label="Im Kalender abonnieren" onPress={() => Linking.openURL(feed.webcal).catch(() => {})} />
             <CopyField label="Abo-Link" value={feed.https} />
-            <SetupSteps intro={SUBSCRIBE_INTRO} steps={SUBSCRIBE_STEPS} />
+            <SetupSteps question={SUBSCRIBE_QUESTION} intro={SUBSCRIBE_INTRO} steps={SUBSCRIBE_STEPS} />
             <QuestionHint
-              question="Was kommt in den Kalender?"
-              answer="Termine und Aufgaben an einem Tag und Erinnerungen an festen Wochentagen. „x-mal pro Woche“ hat keine feste Zeit und bleibt nur in Routine. Der Link ist geheim: Wer ihn hat, sieht Deine Termine."
+              question="Was erscheint in meinem Kalender?"
+              answer="Termine, Aufgaben mit Datum und Erinnerungen an festen Wochentagen. Erinnerungen mit „x-mal pro Woche“ haben keine feste Zeit und bleiben in Routine. Halte den Link geheim: Wer ihn hat, sieht Deine Termine."
             />
             <Button label="Neuen Link erstellen" variant="ghost" onPress={renew} />
           </>
@@ -163,7 +164,7 @@ export function CalendarSettings() {
         />
         <QuestionHint
           question="Wo finde ich die iCal-Adresse?"
-          answer="Google Kalender: Im Browser Einstellungen › Deinen Kalender wählen › „Privatadresse im iCal-Format“. iCloud: In der Kalender-App beim Kalender auf (i) tippen, „Öffentlicher Kalender“ einschalten und „Link teilen“. Outlook: Einstellungen › Freigegebene Kalender › „Kalender veröffentlichen“, ICS-Link."
+          answer="In den Einstellungen Deines Kalenders. Google Kalender: Im Browser Einstellungen › Deinen Kalender wählen › „Privatadresse im iCal-Format“. iCloud: In der Kalender-App beim Kalender auf (i) tippen, „Öffentlicher Kalender“ einschalten, dann „Link teilen“. Outlook: Einstellungen › Freigegebene Kalender › „Kalender veröffentlichen“, dort den ICS-Link kopieren."
         />
         <Button label="Kalender hinzufügen" variant="secondary" busy={adding} disabled={!url.trim() || !urlOk} onPress={add} />
         {addFailed ? <Notice variant="warning" message="Das hat nicht geklappt. Prüfe bitte die Adresse." /> : null}
