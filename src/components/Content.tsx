@@ -575,12 +575,16 @@ export function KaterCard({ children, title, mood = 'default' }: { children: Rea
 
 /**
  * Kater im Kreis: Darias Kater-Avatar (2026-11-11), lila Kater mit grünen Herzen in der Brille auf gelbem Kreis.
- * Er fährt beim Erscheinen sanft von unten in den Kreis herein. Mit „Bewegung reduzieren“ sitzt er still.
+ * Er fährt beim Erscheinen sanft von unten in den Kreis herein. Der gelbe Kreis pulsiert langsam, dabei scheint der
+ * Grund darunter durch (Daria, 2026-11-11). Mit „Bewegung reduzieren“ sitzt der Kater still und der Kreis bleibt voll.
  */
 const RUND = 64;
+/** Tiefster Punkt des Pulsierens: so viel Gelb bleibt stehen */
+const RUND_PULS = 0.35;
 export function KaterRund({ size = RUND }: { size?: number } = {}) {
   const [still, setStill] = useState<boolean | null>(null);
   const rein = useRef(new Animated.Value(0)).current;
+  const puls = useRef(new Animated.Value(1)).current;
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled()
       .catch(() => false)
@@ -597,12 +601,28 @@ export function KaterRund({ size = RUND }: { size?: number } = {}) {
     a.start();
     return () => a.stop();
   }, [still, rein]);
+  // Gelber Kreis pulsiert: voll, dann durchscheinend, in gut 3 Sekunden
+  useEffect(() => {
+    if (still !== false) return;
+    const a = Animated.loop(
+      Animated.sequence([
+        Animated.timing(puls, { toValue: RUND_PULS, duration: 1600, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(puls, { toValue: 1, duration: 1600, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ]),
+    );
+    a.start();
+    return () => {
+      a.stop();
+      puls.setValue(1);
+    };
+  }, [still, puls]);
   return (
     <View
       style={[styles.rund, { width: size, height: size, borderRadius: size / 2 }]}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
+      <Animated.View style={[StyleSheet.absoluteFill, styles.rundGrund, { opacity: puls }]} />
       <Animated.View
         style={{
           opacity: still === null ? 0 : 1,
@@ -787,7 +807,8 @@ const styles = StyleSheet.create({
   },
   speechTitle: { ...text.cardTitleCompact, color: color.text.primary },
   speechText: { fontFamily: font.text, fontSize: 15, lineHeight: 21, color: color.text.primary },
-  rund: { overflow: 'hidden', backgroundColor: KATER_AVATAR_GELB },
+  rund: { overflow: 'hidden' },
+  rundGrund: { backgroundColor: KATER_AVATAR_GELB },
   group: { gap: space[8] },
   groupLabel: { ...text.caption, color: color.text.secondary },
   groupLabelLarge: { fontFamily: font.semiBold, fontSize: 15, lineHeight: 20, marginBottom: space[4] },
