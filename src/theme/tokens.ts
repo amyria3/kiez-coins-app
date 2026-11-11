@@ -19,9 +19,11 @@ export const scheme: 'dark' | 'light' = fashionable ? 'light' : 'dark';
 // Zweite Akzentfarbe Grün #89F269 statt #93F4A7.
 const kiezPalette = {
   black: '#232326',
-  /** Standard-Textfarbe (Daria, 2026-11-05), vorher #F3EEE8 */
-  white: '#FFF8ED',
-  /** Nebenschrift: Puder, leicht gedämpft (Daria, 2026-11-11), auch für den gedämpften Teil großer Überschriften. Vorher #A7A39D, davor #B9B1A9 */
+  // Schrift in einem Ton (Daria, 2026-11-11): Puder, Farbton 342°. Haupt- und Nebenschrift unterscheiden sich nur
+  // in Helligkeit und Sättigung, nicht im Farbton.
+  /** Hauptschrift: helles Puder, H 342° S 60 % L 96 % (Daria, 2026-11-11). Vorher Creme #FFF8ED, davor #F3EEE8 */
+  white: '#FBEFF2',
+  /** Nebenschrift: Puder, runtergeregelt, H 342° S 27 % L 83 % (Daria, 2026-11-11), auch für den gedämpften Teil großer Überschriften. Vorher #A7A39D, davor #B9B1A9 */
   grey: '#E0C9D0',
   purple: '#8F90FA',
   orange: '#FFAD7E',
