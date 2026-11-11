@@ -136,9 +136,9 @@ function ReminderCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDo
   const body = (
     <>
       <View style={styles.head}>
-        <View style={styles.flex}>
+        <View style={[styles.flex, lamps && styles.flexShaped]}>
           {kind ? <Text style={[styles.kicker, kind === 'termin' ? styles.kickerTermin : styles.kickerAufgabe]}>{kind === 'termin' ? 'Termin' : 'Aufgabe'}</Text> : null}
-          <Text noTranslate style={styles.title}>
+          <Text noTranslate style={[styles.title, lamps && styles.titleShaped]}>
             {capitalize(r.want)}
           </Text>
           <Text style={styles.sub}>{goalText(r)}</Text>
@@ -199,9 +199,13 @@ const styles = StyleSheet.create({
   card: { gap: space[12], padding: space[16], borderRadius: radius.xl, backgroundColor: color.bg.surface },
   /** Platz für die harte Unterkante unter der Karte */
   cardLift: { marginBottom: 3 },
-  cardShaped: { gap: space[12], padding: space[16], paddingBottom: space[20] },
+  /** Mehr Luft in der Karte (Daria, 2026-11-11), unten Platz für die Wellen */
+  cardShaped: { gap: space[16], padding: space[20], paddingBottom: space[32] },
+  /** Titel der Karte in der Unbounded (Daria, 2026-11-11) */
+  titleShaped: { fontFamily: font.onPhoto, fontSize: 17, lineHeight: 23, letterSpacing: 0 },
   head: { flexDirection: 'row', alignItems: 'flex-start', gap: space[12] },
   flex: { flex: 1, gap: space[4] },
+  flexShaped: { gap: space[8] },
   title: { ...text.cardTitle, color: color.text.primary },
   kicker: { ...text.caption, fontFamily: font.medium },
   kickerTermin: { color: color.accent.primary },

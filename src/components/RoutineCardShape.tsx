@@ -1,6 +1,6 @@
 import { useId, useState, type ReactNode } from 'react';
 import { StyleSheet, View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from 'react-native';
-import Svg, { ClipPath, Defs, G, LinearGradient, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
+import Svg, { ClipPath, Defs, G, Image as SvgImage, LinearGradient, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 
 import { color, radius } from '../theme/tokens';
 
@@ -12,9 +12,15 @@ import { color, radius } from '../theme/tokens';
 /** Harte Unterkante unter der Karte, ohne Unschärfe */
 const LIP = '#1C1C1F';
 const LIP_OFFSET = 3;
-/** Wellen: Graphit, eine Stufe heller, und Graphit mit leichtem Lila */
-const WAVE_BACK = '#36363E';
-const WAVE_FRONT = '#3C3B4A';
+/**
+ * Grund: derselbe Farbverlauf wie unter dem Kater-Avatar (Daria, 2026-11-11), abgedunkelt mit Graphit,
+ * damit die helle Schrift lesbar bleibt.
+ */
+const GRUND = require('../../assets/kater/kater-avatar-grund.png');
+export const GRUND_DIM = 0.62;
+/** Wellen: dunkle, halbdurchsichtige Schichten über dem Verlauf */
+const WAVE_BACK = 'rgba(35, 35, 38, 0.35)';
+const WAVE_FRONT = 'rgba(35, 35, 38, 0.6)';
 
 /** Fester Startwert, damit jede Karte bei gleicher Größe dieselbe Kante hat */
 function wobblyPath(w: number, h: number, r: number, amp = 2, seed = 11): string {
@@ -65,7 +71,7 @@ function wavePath(w: number, h: number, count: number, top: number, base: number
 }
 
 /** Hintergrund der Routine-Karte. Der Inhalt liegt darüber. */
-export function RoutineCardSurface({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
+export function RoutineCardSurface({ children, style, dim }: { children: ReactNode; style?: StyleProp<ViewStyle>; dim?: number }) {
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
   const onLayout = (e: LayoutChangeEvent) => {
     const { width, height } = e.nativeEvent.layout;
@@ -84,8 +90,9 @@ export function RoutineCardSurface({ children, style }: { children: ReactNode; s
             </ClipPath>
           </Defs>
           <Path d={d} fill={LIP} transform={`translate(0 ${LIP_OFFSET})`} />
-          <Path d={d} fill={color.bg.surface} />
           <G clipPath={`url(#${clipId})`}>
+            <SvgImage href={GRUND} x={0} y={0} width={size.w} height={size.h} preserveAspectRatio="none" />
+            <Rect x={0} y={0} width={size.w} height={size.h} fill={color.bg.surface} opacity={dim ?? GRUND_DIM} />
             <Path d={wavePath(size.w, size.h, 8, size.h - 26, size.h - 20)} fill={WAVE_BACK} />
             <Path d={wavePath(size.w, size.h, 7, size.h - 18, size.h - 12)} fill={WAVE_FRONT} />
           </G>
