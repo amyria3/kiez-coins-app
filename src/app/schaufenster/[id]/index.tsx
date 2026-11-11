@@ -5,8 +5,10 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
 import { CollapsibleSection, InfoRow, KaterCard, Notice, SectionBlock } from '../../../components/Content';
+import { NavigationBar } from '../../../components/NavigationBar';
 import { RichText } from '../../../components/RichText';
 import { SubScreen } from '../../../components/Screen';
+import { ManageButton, type ManageItem } from '../../../components/ShowcaseManage';
 import { ShowcaseEventCard } from '../../../components/ShowcaseEventCard';
 import { PlaceholderPost, PlaceholderText, ShowcaseCover, ShowcaseLogo } from '../../../components/ShowcasePlaceholder';
 import { Text } from '../../../components/T';
@@ -84,10 +86,34 @@ export default function ShowcaseScreen() {
     router.dismissTo({ pathname: '/feed', params: { reiter: 'kiez', erstellen: '1' } });
   };
 
+  // Verwalten (Daria, 2026-11-11): Menü rechts in der Kopfzeile und ganz unten, „Post erstellen“ direkt vor dem Feed
+  const manage: ManageItem[] = access.team
+    ? [
+        ...(s.switches.posten
+          ? [
+              { label: 'Post erstellen', onPress: post },
+              { label: 'Termin erstellen', onPress: () => router.push({ pathname: '/schaufenster/[id]/termin', params: { id: s.id } }) },
+            ]
+          : []),
+        ...(access.founder
+          ? [{ label: 'Schaufenster bearbeiten', onPress: () => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id } }) }]
+          : []),
+      ]
+    : [];
+  const title = access.team ? 'Dein Schaufenster' : 'Schaufenster';
+
   return (
     // Kopfzeile wie in „Dein Konto › Schaufenster“: „Dein Schaufenster“ neben dem Pfeil, der Name groß darunter. Vorher
     // stand der Name doppelt, oben in Inter und unter dem Titelbild (Daria, 2026-11-11). Der Kiez steht unter dem Namen.
-    <SubScreen title={access.team ? 'Dein Schaufenster' : 'Schaufenster'} navigation="back" onLeadingPress={goBack}>
+    <SubScreen
+      title={title}
+      navigation="back"
+      onLeadingPress={goBack}
+      header={
+        <NavigationBar title={title} variant="back" onLeadingPress={goBack} trailing={manage.length ? <ManageButton items={manage} /> : undefined} />
+      }
+    >
+      <View style={styles.page}>
       {/* Leere Angaben zeigen Platzhalter: Verlauf, Kater-Logo, graue Zeilen (Daria, 2026-11-11) */}
       <View style={styles.head}>
         <ShowcaseCover image={s.cover} style={styles.cover} />
@@ -141,20 +167,7 @@ export default function ShowcaseScreen() {
         <Notice variant="warning" message="Dieses Schaufenster ist offline. Nur Eure Gruppe sieht es, im Feed und unter dem Link erscheint es nicht." />
       ) : null}
 
-      {access.team ? (
-        <View style={styles.buttons}>
-          {/* Posten nur mit Feature `schaufenster_posten` (Daria, 2026-11-10) */}
-          {s.switches.posten ? (
-            <>
-              <Button label="Post erstellen" icon="plus" onPress={post} />
-              <Button label="Termin erstellen" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]/termin', params: { id: s.id } })} />
-            </>
-          ) : null}
-          {access.founder ? (
-            <Button label="Schaufenster bearbeiten" variant="ghost" onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id } })} />
-          ) : null}
-        </View>
-      ) : access.canSee ? (
+      {access.team ? null : access.canSee ? (
         <Button label={access.following ? 'Du folgst' : 'Folgen'} variant={access.following ? 'ghost' : 'secondary'} busy={busy} onPress={toggleFollow} />
       ) : (
         <View style={styles.buttons}>
@@ -177,6 +190,9 @@ export default function ShowcaseScreen() {
           <PlaceholderText>Noch keine Services</PlaceholderText>
         </SectionBlock>
       )}
+
+      {/* Nur fürs Team: direkt vor dem Feed (Daria, 2026-11-11) */}
+      {access.team && s.switches.posten ? <Button label="Post erstellen" icon="plus" onPress={post} /> : null}
 
       {access.canSee ? (
         entries.length ? (
@@ -226,6 +242,9 @@ export default function ShowcaseScreen() {
           <PlaceholderText>Impressum noch nicht hinterlegt</PlaceholderText>
         )}
       </SectionBlock>
+
+      {manage.length ? <ManageButton items={manage} style={styles.manageBottom} /> : null}
+      </View>
     </SubScreen>
   );
 }
@@ -253,7 +272,10 @@ function PostCard({ post: p, onPress }: { post: ShowcasePost; onPress: () => voi
 }
 
 const styles = StyleSheet.create({
-  head: { gap: space[16] },
+  // Mehr Luft zwischen den Abschnitten (Daria, 2026-11-11)
+  page: { gap: space[32] },
+  head: { gap: space[20] },
+  manageBottom: { alignSelf: 'center' },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.xl },
   identity: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   identityOnCover: { marginTop: -space[32] - space[8], paddingHorizontal: space[12], alignItems: 'flex-end' },

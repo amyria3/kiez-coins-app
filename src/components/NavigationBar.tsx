@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from './T';
 
@@ -13,6 +14,8 @@ type NavigationBarProps =
       /** `back` = Push-Navigation (Pfeil), `close` = Modal schließen (X) */
       variant: 'back' | 'close';
       onLeadingPress: () => void;
+      /** Rechts statt des leeren Platzes, z. B. „Verwalten“ im Schaufenster */
+      trailing?: ReactNode;
     }
   | {
       /** `feed` = Abschluss-Screen: kein Zurück, rechts „Zum Feed“ */
@@ -20,10 +23,11 @@ type NavigationBarProps =
       onLeadingPress: () => void;
       title?: undefined;
       subtitle?: undefined;
+      trailing?: undefined;
     };
 
 /** Figma „NavigationBar“ (Back, Close, Feed): Kopfzeile von Unterseiten. */
-export function NavigationBar({ title, subtitle, variant, onLeadingPress }: NavigationBarProps) {
+export function NavigationBar({ title, subtitle, variant, onLeadingPress, trailing }: NavigationBarProps) {
   if (variant === 'feed') {
     return (
       <Pressable
@@ -60,7 +64,7 @@ export function NavigationBar({ title, subtitle, variant, onLeadingPress }: Navi
           </Text>
         ) : null}
       </View>
-      <View style={styles.trailingSpace} />
+      {trailing ?? <View style={styles.trailingSpace} />}
     </View>
   );
 }
