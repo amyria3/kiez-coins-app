@@ -1,5 +1,5 @@
 import { forwardRef, Children, useCallback, type ReactNode } from 'react';
-import { Alert, Platform, Text as RNText, type TextProps } from 'react-native';
+import { Alert, Platform, StyleSheet, Text as RNText, type TextProps } from 'react-native';
 
 import { tPadded, t, useTexts } from '../data/texts';
 
@@ -16,7 +16,15 @@ type Props = TextProps & {
   noTranslate?: boolean;
 };
 
-export const Text = forwardRef<RNText, Props>(function Text({ children, accessibilityLabel, noTranslate, ...props }, ref) {
+/** Karla läuft enger (Daria, 2026-11-11): −0,4 als Standard, wenn der Stil keinen eigenen Abstand setzt */
+const KARLA_SPACING = -0.4;
+function withKarlaSpacing(style: TextProps['style']): TextProps['style'] {
+  const flat = StyleSheet.flatten(style);
+  if (!flat?.fontFamily?.startsWith('Karla') || flat.letterSpacing != null) return style;
+  return [style, { letterSpacing: KARLA_SPACING }];
+}
+
+export const Text = forwardRef<RNText, Props>(function Text({ children, accessibilityLabel, noTranslate, style, ...props }, ref) {
   useTexts();
   const setRef = useCallback(
     (node: RNText | null) => {
@@ -31,7 +39,7 @@ export const Text = forwardRef<RNText, Props>(function Text({ children, accessib
     [ref, noTranslate],
   );
   return (
-    <RNText ref={setRef} accessibilityLabel={accessibilityLabel ? t(accessibilityLabel) : accessibilityLabel} {...props}>
+    <RNText ref={setRef} accessibilityLabel={accessibilityLabel ? t(accessibilityLabel) : accessibilityLabel} style={withKarlaSpacing(style)} {...props}>
       {noTranslate ? children : translateChildren(children)}
     </RNText>
   );
