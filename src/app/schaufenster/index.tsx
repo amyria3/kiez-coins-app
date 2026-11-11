@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { Explanation, KaterBubble, Notice, QuestionHint } from '../../components/Content';
+import { Explanation, Notice, QuestionHint } from '../../components/Content';
 import { CopyField, SwitchRow, TextField } from '../../components/Form';
 import { NavigationBar } from '../../components/NavigationBar';
 import { SubScreen } from '../../components/Screen';
@@ -191,7 +191,7 @@ function Consent({ header, onDone }: { header: React.ReactNode; onDone: () => vo
         />
       }
     >
-      <KaterBubble>Noch das Kleingedruckte.</KaterBubble>
+      <Notice message="Noch das Kleingedruckte." />
       <SwitchRow required label="Ich bin mindestens 18 Jahre alt" value={age} onValueChange={setAge} />
       <SwitchRow
         required
@@ -288,7 +288,7 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
         header={header}
         actions={<Button label="Schaufenster anlegen" busy={busy} disabled={!name.trim()} onPress={create} />}
       >
-        <KaterBubble>Wie heißt Dein Laden, Verein oder Club?</KaterBubble>
+        <Notice message="Wie heißt Dein Laden, Verein oder Club?" />
         <TextField label="Name" required value={name} onChangeText={setName} maxLength={40} placeholder="Café Kiezblick" />
         <TextField label="Kiez" value={kiez} onChangeText={setKiez} maxLength={80} placeholder="Connewitz" />
         <Text style={styles.meta}>Bilder, Adresse, Öffnungszeiten und Links ergänzt Du im nächsten Schritt.</Text>
