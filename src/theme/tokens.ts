@@ -21,8 +21,8 @@ const kiezPalette = {
   black: '#232326',
   /** Standard-Textfarbe (Daria, 2026-11-05), vorher #F3EEE8 */
   white: '#FFF8ED',
-  /** Nebenschrift (Daria, 2026-11-05): #FFF8ED mit 60 % Deckkraft auf dem Grund #232326, als feste Farbe, vorher #B9B1A9 */
-  grey: '#A7A39D',
+  /** Nebenschrift: Puder, leicht gedämpft (Daria, 2026-11-11), auch für den gedämpften Teil großer Überschriften. Vorher #A7A39D, davor #B9B1A9 */
+  grey: '#E0C9D0',
   purple: '#8F90FA',
   orange: '#FFAD7E',
   /** Zweite Akzentfarbe (Daria, 2026-11-05), vorher #93F4A7. Auch die Herzen in den Augen des Katers. */
@@ -151,14 +151,17 @@ export const stroke = {
   ring: 3,
 } as const;
 
-// Schriften (Inter, geladen in src/app/_layout.tsx)
+// Schriften (Inter, Karla, Inter Tight, Unbounded, geladen in src/app/_layout.tsx)
+// Kiez-Look: Karla statt Inter für Fließtext und Oberfläche (Daria, 2026-11-11), Fließtext in Light.
+// Die Inter wirkte leblos und technisch. Den engeren Buchstabenabstand der Karla setzt `Text` (components/T.tsx).
+// Fashionable bleibt bei der Inter.
 export const font = {
-  light: 'Inter_300Light',
-  /** Fließtext: im Kiez-Look Regular, da dünne Schrift auf dunklem Grund ausfranst (Dark UI, Daria, 2026-11-05). Im Fashionable Look Light. */
-  text: fashionable ? 'Inter_300Light' : 'Inter_400Regular',
-  regular: 'Inter_400Regular',
-  medium: 'Inter_500Medium',
-  semiBold: 'Inter_600SemiBold',
+  light: fashionable ? 'Inter_300Light' : 'Karla_300Light',
+  /** Fließtext: Kiez-Look Karla Light (Daria, 2026-11-11), Fashionable Inter Light */
+  text: fashionable ? 'Inter_300Light' : 'Karla_300Light',
+  regular: fashionable ? 'Inter_400Regular' : 'Karla_400Regular',
+  medium: fashionable ? 'Inter_500Medium' : 'Karla_500Medium',
+  semiBold: fashionable ? 'Inter_600SemiBold' : 'Karla_600SemiBold',
   /** Inter Tight für große Überschriften und Zahlen */
   display: 'InterTight_600SemiBold',
   /** Text über dem Foto: breite Unbounded als Kontrast zur Inter der Oberfläche (Daria, 2026-11-07) */
