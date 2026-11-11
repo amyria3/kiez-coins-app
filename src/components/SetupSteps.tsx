@@ -24,15 +24,21 @@ export function SetupSteps({
   // Wie viele Schritte schon zu sehen sind; 0: noch nicht losgelegt
   const [shown, setShown] = useState(0);
   const started = shown > 0;
+  // Erst nach dem Tipp auf die Frage geht es weiter (Daria, 2026-11-11)
+  const [asked, setAsked] = useState(false);
   return (
     <View style={styles.setup}>
-      <AskedQuestion question={question} />
-      <View style={styles.answer}>
-        <Notice message={intro} />
-      </View>
-      <View style={styles.reply}>
-        <ChatReply label="Ja, los!" sent={started} onPress={() => setShown(1)} />
-      </View>
+      <AskedQuestion question={question} asked={asked} onAsk={() => setAsked(true)} />
+      {asked ? (
+        <>
+          <View style={styles.answer}>
+            <Notice message={intro} />
+          </View>
+          <View style={styles.reply}>
+            <ChatReply label="Ja, los!" sent={started} onPress={() => setShown(1)} />
+          </View>
+        </>
+      ) : null}
       {steps.slice(0, shown).map((step, i) => (
         <View key={step} style={styles.afterReply}>
           <View style={styles.steps}>

@@ -193,6 +193,12 @@ function PlatformSwitch({
   const scope = lines.filter((line) => !isStep(line));
   const steps = lines.filter(isStep).map((line) => [line]);
   const started = shown > 0;
+  // Die Einrichtung im Chat wartet erst auf den Tipp auf die Frage (Daria, 2026-11-11); geschlossen beginnt sie neu
+  const setupOpen = open && (!account || reconnect);
+  const [asked, setAsked] = useState(false);
+  useEffect(() => {
+    if (!setupOpen) setAsked(false);
+  }, [setupOpen]);
   const done = shown >= steps.length;
   const on = account ? enabled : open;
 
@@ -235,20 +241,24 @@ function PlatformSwitch({
           </Pressable>
         </View>
       ) : null}
-      {open && (!account || reconnect) ? (
+      {setupOpen ? (
         <View style={styles.setup}>
           {/* Wie im Chat: erst was weitergepostet wird, dann Umfang und Voraussetzungen mit Frage, dann „Ja, los!“,
               dann die Schritte. Davor die Frage, denn jede Erklärung beginnt mit einer Frage (Daria, 2026-11-11) */}
-          <AskedQuestion question={t('Wie verbinde ich {label}?', { label })} />
-          <View style={styles.steps}>
-            {scope.map((line) => (
-              <Notice key={line} message={line} />
-            ))}
-            <Notice message={INTRO[platform]} />
-          </View>
-          <View style={styles.reply}>
-            <ChatReply label="Ja, los!" sent={started} onPress={() => setShown(1)} />
-          </View>
+          <AskedQuestion question={t('Wie verbinde ich {label}?', { label })} asked={asked} onAsk={() => setAsked(true)} />
+          {asked ? (
+            <>
+              <View style={styles.steps}>
+                {scope.map((line) => (
+                  <Notice key={line} message={line} />
+                ))}
+                <Notice message={INTRO[platform]} />
+              </View>
+              <View style={styles.reply}>
+                <ChatReply label="Ja, los!" sent={started} onPress={() => setShown(1)} />
+              </View>
+            </>
+          ) : null}
           {started ? (
             <>
           {/* Schritt für Schritt: nach jedem Schritt „Verstanden, weiter“, erst nach dem letzten die Felder (Daria, 2026-11-09) */}
