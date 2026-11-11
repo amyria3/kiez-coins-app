@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Explanation, FieldGroup } from '../../components/Content';
+import { FieldGroup } from '../../components/Content';
 import { CrownIcon, MonoCat } from '../../components/icons/Brand';
 import { Icon, ICON_SCALE } from '../../components/icons/Icon';
 import { Avatar } from '../../components/AuthorRow';
@@ -66,10 +66,6 @@ export default function Account() {
       // Untere Leiste bleibt sichtbar, das Menü ist markiert (Daria, 2026-11-11)
       tabBar={<TabBar active="menu" onFeedPress={() => router.dismissTo('/feed')} onMenuPress={() => {}} />}
     >
-      <Explanation
-        question="Was kann ich hier ändern?"
-        answer={t('Ahoi, {anrede}! Hier trimmst Du Dein Schiff. Tippe einfach auf das, was Du ändern willst.', { anrede: anrede(profile) })}
-      />
       <ProfileCard
         user={me}
         name={profile.handle || me.name}
