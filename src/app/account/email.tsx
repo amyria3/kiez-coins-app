@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { KaterBubble } from '../../components/Content';
+import { Explanation } from '../../components/Content';
 import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { useAuth, visibleEmail } from '../../data/auth';
@@ -80,13 +80,14 @@ export default function ChangeEmail() {
         )
       }
     >
-      <KaterBubble>
-        {sentTo
+      <Explanation
+        question="Wie ändere ich meine E-Mail-Adresse?"
+        answer={sentTo
           ? t('Der Code ist unterwegs an {adresse}. Schaue auch im Spam-Netz.', { adresse: sentTo })
           : t('Gerade nutzt Du {adresse}. An die neue schick ich Dir einen Code.', {
               adresse: visibleEmail(session?.user.email) || 'keine Adresse',
             })}
-      </KaterBubble>
+      />
       {sentTo ? (
         <TextField
           label="Code aus der E-Mail" required

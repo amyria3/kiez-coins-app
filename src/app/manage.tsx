@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ActionBar } from '../components/ActionBar';
 import { BountyBadge, StatusBadge } from '../components/Badges';
 import { Button } from '../components/Button';
-import { KaterCard } from '../components/Content';
+import { Explanation } from '../components/Content';
 import { Segments } from '../components/FeedHeader';
 import { Icon } from '../components/icons/Icon';
 import { NavigationBar } from '../components/NavigationBar';
@@ -234,11 +234,17 @@ export default function ManageChallenges() {
       <View style={{ width, height: pageHeight }}>
         {pages.length === 0 ? (
           <View style={styles.empty}>
-            <KaterCard>
-              {tab === 'archive'
-                ? 'Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte We-Challenges aus Deinen Gruppen.'
-                : 'Du hast noch keine laufende Challenge. Fange mit einem Foto an.'}
-            </KaterCard>
+            {tab === 'archive' ? (
+              <Explanation
+                question="Was liegt im Archiv?"
+                answer="Hier liegen später Deine geschlossenen und gelöschten Challenges und erledigte We-Challenges aus Deinen Gruppen."
+              />
+            ) : (
+              <Explanation
+                question="Wie starte ich eine Challenge?"
+                answer="Du hast noch keine laufende Challenge. Fange mit einem Foto an."
+              />
+            )}
           </View>
         ) : (
           <FlatList

@@ -3,7 +3,7 @@ import { Text } from '../../components/T';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { KaterCard } from '../../components/Content';
+import { Explanation } from '../../components/Content';
 import { GroupCard } from '../../components/GroupCard';
 import { SubScreen } from '../../components/Screen';
 import { MAX_GROUPS, myEdensteine } from '../../data/groups';
@@ -35,9 +35,10 @@ export default function Groups() {
       }
     >
       {groups.length === 0 ? (
-        <KaterCard title="Gemeinsam statt einsam">
-          In einer Gruppe verteilt Ihr We-Challenges unter Euch, etwa im Verein, in der Hausgemeinschaft, der WG oder der Familie.
-        </KaterCard>
+        <Explanation
+          question="Wozu sind Gruppen?"
+          answer="In einer Gruppe verteilt Ihr We-Challenges unter Euch, etwa im Verein, in der Hausgemeinschaft, der WG oder der Familie."
+        />
       ) : null}
       {groups.map((g) => (
         <GroupCard

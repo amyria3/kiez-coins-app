@@ -4,7 +4,7 @@ import { Text } from '../../components/T';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { KaterBubble } from '../../components/Content';
+import { Explanation } from '../../components/Content';
 import { TextField } from '../../components/Form';
 import { LegalLinks } from '../../components/LegalLinks';
 import { SubScreen } from '../../components/Screen';
@@ -181,9 +181,10 @@ export default function Email() {
 
   return (
     <SubScreen title="Anmelden" subtitle="Schritt 1 von 5" navigation="back" onLeadingPress={goBack}>
-      <KaterBubble>
-        Zuerst Deine E-Mail-Adresse. Du bekommst einen Code und legst Dein Passwort fest.
-      </KaterBubble>
+      <Explanation
+        question="Wie melde ich mich an?"
+        answer="Zuerst Deine E-Mail-Adresse. Du bekommst einen Code und legst Dein Passwort fest."
+      />
       <Animated.View style={{ height: lift }} />
       <TextField
         label="E-Mail" required

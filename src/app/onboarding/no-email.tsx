@@ -3,7 +3,7 @@ import { Alert, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { KaterBubble } from '../../components/Content';
+import { Explanation } from '../../components/Content';
 import { TextField } from '../../components/Form';
 import { LegalLinks } from '../../components/LegalLinks';
 import { SubScreen } from '../../components/Screen';
@@ -72,9 +72,10 @@ export default function OhneMail() {
 
   return (
     <SubScreen title="Ohne E-Mail" subtitle="Schritt 1 von 5" navigation="back" onLeadingPress={goBack}>
-      <KaterBubble>
-        Geht auch ohne E-Mail. Merke Dir Deckname und Passwort gut, da ich Dir sonst kein neues Passwort schicken kann.
-      </KaterBubble>
+      <Explanation
+        question="Brauche ich eine E-Mail?"
+        answer="Geht auch ohne E-Mail. Merke Dir Deckname und Passwort gut, da ich Dir sonst kein neues Passwort schicken kann."
+      />
       <View style={styles.fields}>
         <TextField
           label="Deckname"

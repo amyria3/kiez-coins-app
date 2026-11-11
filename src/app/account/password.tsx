@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { KaterBubble } from '../../components/Content';
+import { Explanation } from '../../components/Content';
 import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { MIN_PASSWORD, useAuth } from '../../data/auth';
@@ -59,11 +59,12 @@ export default function Password() {
           onPress={save}
         />}
     >
-      <KaterBubble>
-        {hasPassword
+      <Explanation
+        question="Wie ändere ich mein Passwort?"
+        answer={hasPassword
           ? 'Wähle ein neues Passwort. Das alte gilt danach nicht mehr.'
           : 'Lege ein Passwort fest, das nur Du kennst. Den Code per Mail kannst Du weiter nutzen.'}
-      </KaterBubble>
+      />
       <TextField
         label="Neues Passwort" required
         nudge={pwField}
