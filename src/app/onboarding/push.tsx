@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { KaterBubble } from '../../components/Content';
+import { KaterCard } from '../../components/Content';
 import { SwitchRow } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { useStore } from '../../data/store';
@@ -42,7 +42,7 @@ export default function Push() {
         </>
       }
     >
-      <KaterBubble>Haben wir einen Draht?!</KaterBubble>
+      <KaterCard>Haben wir einen Draht?!</KaterCard>
       <SwitchRow
         label="Push-Nachrichten"
         description="Ich möchte bei Kommentaren, Antworten und Bestätigungen benachrichtigt werden. Ich kann diese Einstellungen jederzeit ändern."

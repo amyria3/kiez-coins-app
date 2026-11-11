@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
-import { KaterBubble, Notice, QuestionHint } from '../../../components/Content';
+import { KaterCard, Notice, QuestionHint } from '../../../components/Content';
 import { TextField } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
 import { anrede } from '../../../data/format';
@@ -59,7 +59,7 @@ export default function DeleteAccount() {
         </>
       }
     >
-      <KaterBubble>{t('Du willst von Bord? Schade, {anrede}. Bevor Du gehst:', { anrede: anrede(profile) })}</KaterBubble>
+      <KaterCard>{t('Du willst von Bord? Schade, {anrede}. Bevor Du gehst:', { anrede: anrede(profile) })}</KaterCard>
       <Notice
         variant="warning"
         message="Dein Profil, Deine Fotos, Challenges, Kommentare und Zahlungsdaten werden gelöscht. Das lässt sich nicht rückgängig machen."

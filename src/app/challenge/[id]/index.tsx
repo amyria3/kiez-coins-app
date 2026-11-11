@@ -13,7 +13,7 @@ import { GlassIconButton } from '../../../components/Glass';
 import { IconButton } from '../../../components/IconButton';
 import { Button } from '../../../components/Button';
 import { CommentSection } from '../../../components/Comments';
-import { CHAT_GAP_SAME, Explanation, InfoRow, KaterBubble, Notice, QuestionHint, OperationTag } from '../../../components/Content';
+import { CHAT_GAP_SAME, Explanation, InfoRow, KaterCard, Notice, QuestionHint, OperationTag } from '../../../components/Content';
 import { TextField } from '../../../components/Form';
 import { HeroScreen, SubScreen } from '../../../components/Screen';
 import { TextHero, isTextPost } from '../../../components/TextSheets';
@@ -504,7 +504,7 @@ export default function ChallengeDetail() {
             />
           ) : (
             // Kater mit Persönlichkeit, kein Systemtext
-            <KaterBubble>Danke, dass Du anpackst! Taufen wir das Baby, Baby? Ich hätte da eine Idee für einen Namen für Deine Operation.</KaterBubble>
+            <KaterCard>Danke, dass Du anpackst! Taufen wir das Baby, Baby? Ich hätte da eine Idee für einen Namen für Deine Operation.</KaterCard>
           )}
           <InfoRow icon="map-pin" value={challenge.location} />
           {(isAssignee ? challenge.acceptedAt : mine?.joinedAt) ? (

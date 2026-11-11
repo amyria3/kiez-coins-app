@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { KaterNachricht } from './KaterNachricht';
+import { KaterCard } from './Content';
 import { katerFocus, katerLine } from '../data/katerRoutine';
 import { dueToday, loadReminders, nudgeAllowed } from '../data/reminders';
 import { t } from '../data/texts';
@@ -34,9 +34,9 @@ export function RoutineNudge({ enabled, onOpen }: { enabled: boolean; onOpen?: (
   return (
     // Als Sprechblase des Katers statt als Karte (Entwurf, Daria, 2026-11-11)
     <View style={styles.wrap}>
-      <KaterNachricht accessibilityHint={t('Öffnet Deine Routine')} onPress={onOpen ?? (() => router.push('/routine'))} onClose={() => setLine(null)}>
+      <KaterCard accessibilityHint={t('Öffnet Deine Routine')} onPress={onOpen ?? (() => router.push('/routine'))} onClose={() => setLine(null)}>
         {line}
-      </KaterNachricht>
+      </KaterCard>
     </View>
   );
 }

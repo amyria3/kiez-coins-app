@@ -4,7 +4,7 @@ import { Text } from '../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { InfoRow, KaterBubble, QuestionHint } from '../../components/Content';
+import { InfoRow, KaterCard, QuestionHint } from '../../components/Content';
 import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { anrede } from '../../data/format';
@@ -102,13 +102,13 @@ export default function Kiez() {
       onLeadingPress={goBack}
       actions={actions}
     >
-      <KaterBubble>
+      <KaterCard>
         {step === 'found'
           ? t('Ahoi, {anrede}! Ist das Dein Heimathafen?', { anrede: anrede(profile) })
           : t('Ahoi, {anrede}! Wo liegt Dein Heimathafen? Melde Dich, wenn Du zuhause bist.', {
               anrede: anrede(profile),
             })}
-      </KaterBubble>
+      </KaterCard>
       {from && profile.kiez ? <InfoRow icon="map-pin" value={t('Bisher: {kiez}', { kiez: profile.kiez })} /> : null}
       {step === 'found' ? <InfoRow icon="map-pin" value={found} /> : null}
       {step === 'manual' ? (

@@ -6,7 +6,7 @@ import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { BadgeIcon } from '../../components/BadgeIcon';
 import { BadgeScene, SCENE_FRAME } from '../../components/BadgeScene';
 import { Button } from '../../components/Button';
-import { KaterBubble } from '../../components/Content';
+import { KaterCard } from '../../components/Content';
 import { SubScreen } from '../../components/Screen';
 import { Text } from '../../components/T';
 import { BADGES, badgeMeta, badgeTitle, useMyBadges, type BadgeKind } from '../../data/badges';
@@ -56,7 +56,7 @@ export default function NewBadgeScreen() {
             {titel}
           </Text>
         </View>
-        <KaterBubble>{meta.kater}</KaterBubble>
+        <KaterCard>{meta.kater}</KaterCard>
       </>
     );
   } else if (karte) {
@@ -91,7 +91,7 @@ export default function NewBadgeScreen() {
         <View style={[styles.szene, { backgroundColor: SCENE_FRAME[kind] }]} onLayout={(e) => setBreite(e.nativeEvent.layout.width)}>
           {breite ? <BadgeScene kind={kind} width={Math.round(breite * 0.87)} /> : null}
         </View>
-        <KaterBubble>{meta.kater}</KaterBubble>
+        <KaterCard>{meta.kater}</KaterCard>
       </>
     );
   }
