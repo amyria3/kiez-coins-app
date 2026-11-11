@@ -104,7 +104,7 @@ export default function Deckname() {
         question="Was ist ein Deckname?"
         answer="Dein Name in der App. Alle in KiezCoins sehen ihn, zum Beispiel bei Deinen Challenges und Kommentaren."
       />
-      <QuestionHint question="Wo ändere ich meinen Decknamen?" answer="Später unter „Dein Konto“." />
+      <QuestionHint question="Wo ändere ich meinen Decknamen?" answer="Du änderst ihn später unter „Dein Konto“." />
       {suggestions.length ? (
         <>
           <Text style={styles.label}>Vorschläge</Text>
