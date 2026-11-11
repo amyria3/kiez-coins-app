@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 
@@ -306,7 +306,16 @@ function Mine({ header }: { header: React.ReactNode }) {
             </>
           ) : null}
           <Button label="Seite bearbeiten" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id, von: 'schaufenster' } })} />
-          <Button label="Ansehen" variant="ghost" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
+          {/* Öffentlich und online: die Webseite unter kiezcoins.de/s/…, so wie Kund:innen sie sehen (Daria, 2026-11-11). Sonst die App-Ansicht. */}
+          <Button
+            label="Ansehen"
+            variant="ghost"
+            onPress={() =>
+              s.visibility === 'public' && s.switches.online
+                ? Linking.openURL(showcasePublicLink(s.slug))
+                : router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })
+            }
+          />
         </View>
       ))}
       <Text style={styles.meta}>{t('Mit diesem Konto pflegst Du {n}.', { n: list.length === 1 ? t('ein Schaufenster') : t('{n} Schaufenster', { n: list.length }) })}</Text>
