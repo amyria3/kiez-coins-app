@@ -16,7 +16,8 @@ import {
 } from '../data/features';
 import { useRoutineAvailable, useRoutineIsStandard } from '../data/routine';
 import { useStore } from '../data/store';
-import { color, space, text } from '../theme/tokens';
+import { t } from '../data/texts';
+import { color, isFashionable, space, text } from '../theme/tokens';
 import { FieldGroup } from './Content';
 import { Segments } from './FeedHeader';
 import { Toggle } from './Form';
@@ -50,9 +51,11 @@ export function FeatureSwitches({ children }: { children?: ReactNode } = {}) {
   const routineShown = useRoutineShown();
   const routineStandard = useRoutineIsStandard();
   // Routine links wie im Feed, dann die sichtbaren Modi
+  const routineLead = routineAvailable && routineShown;
+  const modeTabs = MODES.filter((m) => modes.isVisible(m.key)).map((m) => ({ key: m.key, label: SHORT[m.key] }));
   const standardTabs: { key: StandardKey; label: string }[] = [
-    ...(routineAvailable && routineShown ? [{ key: 'routine' as const, label: 'Routine' }] : []),
-    ...MODES.filter((m) => modes.isVisible(m.key)).map((m) => ({ key: m.key, label: SHORT[m.key] })),
+    ...(routineLead ? [{ key: 'routine' as const, label: 'Routine' }] : []),
+    ...modeTabs,
   ];
 
   const toggle = (mode: Mode) => {
@@ -71,7 +74,17 @@ export function FeatureSwitches({ children }: { children?: ReactNode } = {}) {
           <Text style={[text.caption, { color: color.text.secondary }]}>
             {routineStandard ? 'Die App öffnet mit Deiner Routine.' : 'Dieser Modus ist oben im Umschalter vorausgewählt.'}
           </Text>
-          <Segments tabs={standardTabs} selectedKey={routineStandard ? 'routine' : modes.standard} onChange={choose} />
+          {/* Routine als eigene Pille links, wie im Feed (Daria, 2026-11-11); im Look „Fashionable“ ohne eigene Spur */}
+          {routineLead && !isFashionable ? (
+            <Segments
+              tabs={modeTabs}
+              selectedKey={modes.standard}
+              onChange={choose}
+              lead={{ label: t('Routine'), active: routineStandard, onPress: () => choose('routine') }}
+            />
+          ) : (
+            <Segments tabs={standardTabs} selectedKey={routineStandard ? 'routine' : modes.standard} onChange={choose} />
+          )}
         </FieldGroup>
       ) : null}
       <FieldGroup heading label="Feeds & Modi anzeigen oder ausblenden">
