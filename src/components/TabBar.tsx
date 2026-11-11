@@ -15,7 +15,8 @@ import { reiseEntries } from '../data/reise';
 import { countButton } from '../data/remote';
 import { look } from '../theme/look';
 
-export type TabKey = 'feed' | 'reise' | 'chat';
+/** `menu`: Dein Konto, dort ist der Burger markiert (Daria, 2026-11-11) */
+export type TabKey = 'feed' | 'reise' | 'chat' | 'menu';
 
 type TabBarProps = {
   active: TabKey;
@@ -169,12 +170,13 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarP
           </View>
         </Pressable>
         <Pressable
-          accessibilityRole="button"
+          accessibilityRole="tab"
           accessibilityLabel={t('Menü')}
-          onPress={onMenuPress}
-          style={({ pressed }) => [styles.item, pressed && styles.pressed]}
+          accessibilityState={{ selected: active === 'menu' }}
+          onPress={() => active !== 'menu' && onMenuPress()}
+          style={({ pressed }) => [styles.item, active === 'menu' && styles.itemActive, pressed && styles.pressed]}
         >
-          <Icon name="burger" size={size.icon} color={color.text.secondary} />
+          <Icon name="burger" size={size.icon} color={active === 'menu' ? color.text.primary : color.text.secondary} />
         </Pressable>
       </View>
     </View>
@@ -230,8 +232,8 @@ const styles = StyleSheet.create({
   },
   // Im Feed etwas größer als die Nachbarn (vorher 64 breit, Icon 20)
   itemCamera: { width: 72, backgroundColor: color.accent.primary },
-  // Aktive Seite: dezente helle Fläche, damit der Kater nicht auf Weiß liegt
-  itemActive: { backgroundColor: isFashionable ? 'transparent' : 'rgba(240, 240, 240, 0.14)' },
+  // Aktive Seite: transparentes Lila (Daria, 2026-11-11), vorher dezente helle Fläche. #8F90FA = accent.primary
+  itemActive: { backgroundColor: isFashionable ? 'transparent' : 'rgba(143, 144, 250, 0.28)' },
   camera: {
     position: 'absolute',
     right: space[16],

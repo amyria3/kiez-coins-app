@@ -28,13 +28,15 @@ type SubScreenProps = {
   children: ReactNode;
   /** Eigener Kopf statt NavigationBar, z. B. ein eigener Kopf */
   header?: ReactNode;
+  /** Schwebende untere Leiste (TabBar), z. B. auf „Dein Konto“. Der Inhalt bekommt unten Platz dafür. */
+  tabBar?: ReactNode;
 };
 
 /**
  * Aufbau aller Unterseiten aus Figma: NavigationBar (fest), Inhalt in `scroll-y-auto`
  * (Abstand 16, unten 24) und ActionBar (fest, bleibt über der Tastatur).
  */
-export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions, children, header }: SubScreenProps) {
+export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions, children, header, tabBar }: SubScreenProps) {
   const insets = useSafeAreaInsets();
   // Deaktivierte Buttons können zu dem Feld scrollen, das noch fehlt (Nudge.tsx)
   const scrollRef = useRef<ScrollView>(null);
@@ -47,7 +49,7 @@ export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions
         <ScrollView
           ref={scrollRef}
           style={styles.flex}
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, tabBar ? styles.contentTabBar : null]}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
           scrollEventThrottle={32}
@@ -56,9 +58,10 @@ export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions
           {children}
         </ScrollView>
         {/* Die ActionBar gehört dazu: Enter im letzten Feld springt zu ihrem Haupt-Button */}
-        {actions ? <ActionBar>{actions}</ActionBar> : <View style={{ height: insets.bottom }} />}
+        {actions ? <ActionBar>{actions}</ActionBar> : tabBar ? null : <View style={{ height: insets.bottom }} />}
         </NudgeScrollProvider>
       </KeyboardAvoidingView>
+      {tabBar}
     </View>
   );
 }
@@ -427,6 +430,8 @@ const styles = StyleSheet.create({
   screenEdge: { boxShadow: '-8px 0 24px rgba(0,0,0,0.35)' },
   underDim: { backgroundColor: '#000' },
   flex: { flex: 1 },
+  // Platz unter der schwebenden Leiste, wie TAB_BAR_SPACE in TabBar.tsx plus Home-Balken
+  contentTabBar: { paddingBottom: 96 + space[24] },
   content: {
     paddingTop: space[16],
     paddingHorizontal: space[16],
