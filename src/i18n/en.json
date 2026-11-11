@@ -1705,12 +1705,12 @@
   "Wo ändere ich meinen Decknamen?": "Where do I change my nickname?",
   "Du änderst ihn später unter „Dein Konto“.": "You can change it later under “Your account”.",
   "Der Code ist unterwegs an {adresse}. Schaue auch im Spam-Ordner.": "The code is on its way to {adresse}. Check your spam folder too.",
-  "Danke für Deine Meldung": "Thanks for your report",
   "Du meldest Dich mit Deckname und Passwort an. Trage eine E-Mail nach. Danach versendet das System bei einem vergessenen Passwort eine E-Mail mit einem Code an Dich.": "You sign in with your nickname and password. Add an email address. After that, if you forget your password, the system sends you an email with a code.",
   "Öffne das Profil einer Person aus Deinem Kiez und frage sie als Freund:in an. Danach könnt Ihr Euch hier schreiben.": "Open the profile of someone from your neighborhood and send a friend request. After that you can write to each other here.",
   "Du bekommst eine Nachricht, sobald {name} bestätigt hat. Danach sieht {name} Dein PayPal und zahlt Dir die {bountyAmount} direkt.": "You'll get a message as soon as {name} has confirmed. After that, {name} sees your PayPal and pays you the {bountyAmount} directly.",
   "Du bekommst eine Nachricht, sobald {name} bestätigt hat. Danach sieht {name} Deine IBAN und zahlt Dir die {bountyAmount} direkt.": "You'll get a message as soon as {name} has confirmed. After that, {name} sees your IBAN and pays you the {bountyAmount} directly.",
   "Du bekommst eine Nachricht, sobald {name} bestätigt hat.": "You'll get a message as soon as {name} has confirmed.",
   "Gerade nutzt Du {adresse}. Gib Deine neue Adresse ein. Danach versendet das System eine E-Mail mit einem Code dorthin.": "You are currently using {adresse}. Enter your new address. After that, the system sends an email with a code there.",
-  "Geht auch ohne E-Mail. Merke Dir Deckname und Passwort gut. Ohne E-Mail kann das System Dir kein neues Passwort schicken.": "It works without email too. Remember your nickname and password well. Without an email address, the system can't send you a new password."
+  "Geht auch ohne E-Mail. Merke Dir Deckname und Passwort gut. Ohne E-Mail kann das System Dir kein neues Passwort schicken.": "It works without email too. Remember your nickname and password well. Without an email address, the system can't send you a new password.",
+  "Danke, wir kümmern uns": "Thanks, we'll take care of it"
 }
