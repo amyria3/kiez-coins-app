@@ -211,9 +211,6 @@
   "In meinem Konto speichern": "Save in my account",
   "Dann musst Du sie nächstes Mal nicht neu eingeben.": "Then you won’t have to enter them again next time.",
   "Ohne Zahlungsdaten kann {name} nicht zahlen, deshalb ist eine Methode Pflicht. {name} sieht sie erst nach der Bestätigung und nur für diese Challenge. Alles beruht auf Vertrauen.": "Without payment details {name} can’t pay, so one method is required. {name} only sees it after confirming and only for this challenge. It all runs on trust.",
-  "Ich sag Dir Bescheid, sobald {name} bestätigt hat. Dann sieht {name} Dein PayPal und zahlt Dir die {bountyAmount} direkt.": "I’ll let you know as soon as {name} has confirmed. Then {name} sees your PayPal and pays you the {bountyAmount} directly.",
-  "Ich sag Dir Bescheid, sobald {name} bestätigt hat. Dann sieht {name} Deine IBAN und zahlt Dir die {bountyAmount} direkt.": "I’ll let you know as soon as {name} has confirmed. Then {name} sees your IBAN and pays you the {bountyAmount} directly.",
-  "Ich sag Dir Bescheid, sobald {name} bestätigt hat.": "I’ll let you know as soon as {name} has confirmed.",
   "Gemeldet!": "Reported!",
   "Ablehnen": "Reject",
   "Vorher": "Before",
@@ -845,7 +842,6 @@
   "{firstName} hat am {day} die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.": "{firstName} marked the {bountyAmount} as paid on {day}. Check your account or PayPal.",
   "{firstName} hat die {bountyAmount} als bezahlt markiert. Schaue auf Dein Konto oder in PayPal.": "{firstName} marked the {bountyAmount} as paid. Check your account or PayPal.",
   "{firstName} hat noch keine Zahlungsdaten freigegeben. Frage am besten in den Kommentaren nach.": "{firstName} hasn’t shared payment details yet. Best ask in the comments.",
-  "Öffne das Profil einer Person aus Deinem Kiez und frage sie als Freund:in an. Dann könnt Ihr Euch hier schreiben.": "Open the profile of someone from your neighborhood and send a friend request. Then you can write to each other here.",
   "Zeige, wo geholfen werden soll.": "Show where help is needed.",
   "1 bis 10. Edensteine gelten nur in dieser Gruppe und haben so viel ideellen Wert, wie Ihr ihnen zusprecht.": "1 to 10. Eden stones only count in this group and are worth as much as you all decide they are.",
   "Ahoi, Friend! Komme in unsere Gruppe „{name}“ bei KiezCoins. Mit diesem Link trittst Du bei:": "Ahoy, friend! Join our group “{name}” on KiezCoins. This link gets you in:",
@@ -1708,9 +1704,13 @@
   "Dein Name in der App. Alle in KiezCoins sehen ihn, zum Beispiel bei Deinen Challenges und Kommentaren.": "Your name in the app. Everyone on KiezCoins sees it, for example on your challenges and comments.",
   "Wo ändere ich meinen Decknamen?": "Where do I change my nickname?",
   "Du änderst ihn später unter „Dein Konto“.": "You can change it later under “Your account”.",
-  "Du meldest Dich mit Deckname und Passwort an. Trage eine E-Mail nach. Dann bekommst Du bei einem vergessenen Passwort einen Code.": "You sign in with your nickname and password. Add an email address. Then you get a code if you forget your password.",
   "Gerade nutzt Du {adresse}. Die neue Adresse bekommt einen Code.": "You are currently using {adresse}. The new address gets a code.",
   "Der Code ist unterwegs an {adresse}. Schaue auch im Spam-Ordner.": "The code is on its way to {adresse}. Check your spam folder too.",
   "Geht auch ohne E-Mail. Merke Dir Deckname und Passwort gut. Ohne E-Mail kann die App Dir kein neues Passwort schicken.": "It works without email too. Remember your nickname and password well. Without an email address, the app can't send you a new password.",
-  "Danke für Deine Meldung": "Thanks for your report"
+  "Danke für Deine Meldung": "Thanks for your report",
+  "Du meldest Dich mit Deckname und Passwort an. Trage eine E-Mail nach. Danach versendet das System bei einem vergessenen Passwort eine E-Mail mit einem Code an Dich.": "You sign in with your nickname and password. Add an email address. After that, if you forget your password, the system sends you an email with a code.",
+  "Öffne das Profil einer Person aus Deinem Kiez und frage sie als Freund:in an. Danach könnt Ihr Euch hier schreiben.": "Open the profile of someone from your neighborhood and send a friend request. After that you can write to each other here.",
+  "Du bekommst eine Nachricht, sobald {name} bestätigt hat. Danach sieht {name} Dein PayPal und zahlt Dir die {bountyAmount} direkt.": "You'll get a message as soon as {name} has confirmed. After that, {name} sees your PayPal and pays you the {bountyAmount} directly.",
+  "Du bekommst eine Nachricht, sobald {name} bestätigt hat. Danach sieht {name} Deine IBAN und zahlt Dir die {bountyAmount} direkt.": "You'll get a message as soon as {name} has confirmed. After that, {name} sees your IBAN and pays you the {bountyAmount} directly.",
+  "Du bekommst eine Nachricht, sobald {name} bestätigt hat.": "You'll get a message as soon as {name} has confirmed."
 }

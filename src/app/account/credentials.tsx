@@ -21,7 +21,7 @@ export default function Credentials() {
         answer={isTest
           ? 'Du nutzt ein Testkonto. Es verschwindet nach 7 Tagen oder beim Abmelden. Trage eine E-Mail ein, dann bleibt alles.'
           : noEmail
-          ? 'Du meldest Dich mit Deckname und Passwort an. Trage eine E-Mail nach. Dann bekommst Du bei einem vergessenen Passwort einen Code.'
+          ? 'Du meldest Dich mit Deckname und Passwort an. Trage eine E-Mail nach. Danach versendet das System bei einem vergessenen Passwort eine E-Mail mit einem Code an Dich.'
           : hasPassword
           ? 'Hier änderst Du Deine Adresse oder Dein Passwort. Den Code per Mail kannst Du immer nutzen.'
           : 'Du meldest Dich per Code an. Lege ein Passwort fest, dann geht es auch ohne Mail.'}
