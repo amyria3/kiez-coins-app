@@ -94,11 +94,11 @@ export const DiamondIcon = memo(function DiamondIcon({
 });
 
 /** Krone aus Figma (icon/crown) mit Verlauf. Export 43 × 40, Striche daneben in Textfarbe. */
-export const CrownIcon = memo(function CrownIcon({ height = 40 }: { height?: number }) {
+export const CrownIcon = memo(function CrownIcon({ height = 40, fill }: { height?: number; fill?: string }) {
   return (
     <SvgXml
-      // Große Icons im Kiez-Look in color.icon.large (Daria, 2026-11-05: Krone im Konto)
-      xml={crownSvg.svg(height >= 18 ? color.icon.large : color.text.primary)}
+      // Große Icons im Kiez-Look in color.icon.large (Daria, 2026-11-05: Krone im Konto); `fill` setzt eine eigene Farbe
+      xml={crownSvg.svg(fill ?? (height >= 18 ? color.icon.large : color.text.primary))}
       width={(crownSvg.width / crownSvg.height) * height}
       height={height}
     />
