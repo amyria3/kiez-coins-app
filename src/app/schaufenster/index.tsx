@@ -4,8 +4,9 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { FieldGroup, KaterBubble, Notice, QuestionHint } from '../../components/Content';
+import { KaterBubble, Notice, QuestionHint } from '../../components/Content';
 import { CopyField, SwitchRow, TextField } from '../../components/Form';
+import { NavigationBar } from '../../components/NavigationBar';
 import { SubScreen } from '../../components/Screen';
 import { Text } from '../../components/T';
 import { useAuth } from '../../data/auth';
@@ -48,9 +49,15 @@ export default function ShowcaseHub() {
     );
   }, [session]);
 
+  // Pfeil zurück in die App, wenn es einen Verlauf gibt (z. B. „Dein Konto › Mein Schaufenster“). Der eigene Kopf
+  // ersetzt die NavigationBar, deshalb fehlte der Pfeil bisher ganz (Daria, 2026-11-10).
+  const router = useRouter();
   const header = (
-    <View style={styles.header}>
-      <Text style={styles.headline}>Dein Schaufenster</Text>
+    <View>
+      {router.canGoBack() ? <NavigationBar title="" variant="back" onLeadingPress={back} /> : null}
+      <View style={styles.header}>
+        <Text style={styles.headline}>Dein Schaufenster</Text>
+      </View>
     </View>
   );
 
@@ -274,7 +281,11 @@ function Mine({ header }: { header: React.ReactNode }) {
   return (
     <SubScreen title="Dein Schaufenster" navigation="back" onLeadingPress={back} header={header}>
       {list.map((s) => (
-        <FieldGroup key={s.id} label={s.name}>
+        <View key={s.id} style={styles.showcase}>
+          {/* Name groß und hell, nicht als kleine graue Gruppenüberschrift (Daria, 2026-11-10: „geht unter“) */}
+          <Text style={styles.showcaseName} accessibilityRole="header" noTranslate>
+            {s.name}
+          </Text>
           {s.cover ? <Image source={s.cover} style={styles.cover} contentFit="cover" /> : null}
           {s.visibility === 'public' ? <CopyField label="Deine Seite" value={showcasePublicLink(s.slug)} /> : null}
           {!s.switches.online ? <Notice variant="warning" message="Dieses Schaufenster ist offline." /> : null}
@@ -286,7 +297,7 @@ function Mine({ header }: { header: React.ReactNode }) {
           ) : null}
           <Button label="Seite bearbeiten" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id } })} />
           <Button label="Ansehen" variant="ghost" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
-        </FieldGroup>
+        </View>
       ))}
       <Text style={styles.meta}>{t('Mit diesem Konto pflegst Du {n}.', { n: list.length === 1 ? t('ein Schaufenster') : t('{n} Schaufenster', { n: list.length }) })}</Text>
       {footer}
@@ -297,6 +308,8 @@ function Mine({ header }: { header: React.ReactNode }) {
 const styles = StyleSheet.create({
   header: { paddingHorizontal: space[20], paddingTop: space[16], paddingBottom: space[8] },
   headline: { ...text.display, color: color.text.primary },
+  showcase: { gap: space[8] },
+  showcaseName: { ...text.headline, color: color.text.primary, marginBottom: space[4] },
   meta: { ...text.caption, color: color.text.secondary },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.xl },
   footer: { gap: space[8], marginTop: space[16] },
