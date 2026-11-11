@@ -40,7 +40,7 @@ export function KaterMessage({
   return (
     <View style={[styles.container, style]}>
       {/* Kiez-Look: Kater im Kreis wie in den Nachrichten, fährt von unten herein (Daria, 2026-11-09) */}
-      {isFashionable ? <Cat mood={mood} height={86} /> : <KaterRund size={120} herzen={false} />}
+      {isFashionable ? <Cat mood={mood} height={86} /> : <KaterRund size={120} />}
       {badge ? <View style={styles.afterCat}>{badge}</View> : null}
       <Text style={[styles.title, styles.afterCat]} accessibilityRole="header">
         {title}
