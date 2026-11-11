@@ -85,8 +85,8 @@ export const color = {
     secondary: palette.grey,
     /** Schrift auf der Akzentfläche (Primary-Button, eigene Chatblase) */
     onAccent: fashionable ? '#FFFFFF' : palette.black,
-    /** Schrift auf Fotos, in beiden Looks hell */
-    onPhoto: '#F0F0F0',
+    /** Schrift auf Fotos, in beiden Looks hell. Im Kiez-Look helles Puder wie die Hauptschrift, kein Grau (Daria, 2026-11-11), vorher #F0F0F0 */
+    onPhoto: fashionable ? '#F0F0F0' : kiezPalette.white,
     /** @-Namen in Beiträgen und Kommentaren: im Kiez-Look Grün (Daria, 2026-11-09), im Fashionable Look Pink wie bisher */
     mention: fashionable ? palette.orange : palette.green,
   },
