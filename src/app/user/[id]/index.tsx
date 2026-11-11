@@ -114,8 +114,8 @@ export default function UserProfile() {
     Alert.alert(
       t('{name} blockieren?', { name: Name }),
       plural
-        ? t('Du siehst ihre Challenges und Kommentare nicht mehr. {name} können Deine Challenges weder annehmen noch kommentieren und erfahren nichts davon. Aufheben kannst Du das unter „Dein Konto“.', { name: Name })
-        : tAbout(user, 'Du siehst die Challenges und Kommentare nicht mehr. {name} kann Deine Challenges weder annehmen noch kommentieren und erfährt nichts davon. Aufheben kannst Du das unter „Dein Konto“.', { name: Name }),
+        ? t('Du siehst ihre Challenges und Kommentare nicht mehr. {name} können Deine Challenges weder annehmen noch kommentieren und erfahren nichts davon. Du kannst die Blockierung unter „Dein Konto“ aufheben.', { name: Name })
+        : tAbout(user, 'Du siehst die Challenges und Kommentare nicht mehr. {name} kann Deine Challenges weder annehmen noch kommentieren und erfährt nichts davon. Du kannst die Blockierung unter „Dein Konto“ aufheben.', { name: Name }),
       [
         { text: 'Abbrechen', style: 'cancel' },
         {

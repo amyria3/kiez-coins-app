@@ -632,7 +632,7 @@ export default function ChallengeDetail() {
                 ? isPhoto
                   ? 'Der Post ist gelöscht und nur für Dich sichtbar. Neue Kommentare sind nicht möglich.'
                   : 'Die Challenge ist gelöscht und nur für Dich sichtbar. Neue Kommentare sind nicht möglich.'
-                : 'Lege in Deinem Konto Deinen Kiez fest, dann kannst Du mitschreiben.'
+                : 'Um mitzuschreiben, lege in Deinem Konto Deinen Kiez fest.'
           }
           onAuthorPress={openProfile}
           onLike={(comment) => dispatch({ type: 'toggleCommentLike', id: challenge.id, commentId: comment.id })}
