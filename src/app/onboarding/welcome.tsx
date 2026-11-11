@@ -9,7 +9,7 @@ import { Button } from '../../components/Button';
 import { KaterStage } from '../../components/KaterStage';
 import { useKater } from '../../components/useKater';
 import { useAuth } from '../../data/auth';
-import { color, font, space, stroke, text } from '../../theme/tokens';
+import { color, font, isFashionable, space, stroke, text } from '../../theme/tokens';
 import { useAppDimensions } from '../../theme/layout';
 
 /** So lange sind die Herzen zu sehen, bevor es weitergeht */
@@ -97,9 +97,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // Bleibt in der Inter Tight: Die Unbounded wäre in 44 pt für den langen Satz zu breit
-  headline: { ...text.display, fontFamily: font.display, fontSize: 44, lineHeight: 46, letterSpacing: -1.2, color: color.text.primary },
-  headlineCompact: { fontSize: 34, lineHeight: 36, letterSpacing: -0.9 },
+  // Kiez-Look: Unbounded wie die übrigen großen Überschriften (Daria, 2026-11-11), kleiner, da sie breiter läuft.
+  // Fashionable bleibt in der Inter Tight.
+  headline: isFashionable
+    ? { ...text.display, fontSize: 44, lineHeight: 46, letterSpacing: -1.2, color: color.text.primary }
+    : { ...text.display, fontSize: 32, lineHeight: 40, letterSpacing: -0.4, color: color.text.primary },
+  headlineCompact: isFashionable ? { fontSize: 34, lineHeight: 36, letterSpacing: -0.9 } : { fontSize: 26, lineHeight: 33, letterSpacing: -0.3 },
   contentCompact: { gap: space[16], paddingVertical: space[16] },
   headlineMuted: { color: color.text.secondary },
   body: { fontFamily: font.text, fontSize: 16, lineHeight: 23, color: color.text.secondary },
