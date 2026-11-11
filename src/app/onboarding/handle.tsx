@@ -100,10 +100,8 @@ export default function Deckname() {
         maxLength={30}
         autoCorrect={false}
       />
-      <QuestionHint
-        question="Was ist ein Deckname?"
-        answer="Dein Deckname ist Dein Name in der App. Alle in KiezCoins sehen ihn, zum Beispiel bei Deinen Challenges und Kommentaren. Ändern kannst Du ihn später unter „Dein Konto“."
-      />
+      <QuestionHint question="Was ist ein Deckname?" answer="Dein Name in der App. Ändern kannst Du ihn später unter „Dein Konto“." />
+      <QuestionHint question="Wer sieht meinen Decknamen?" answer="Alle in KiezCoins, zum Beispiel bei Deinen Challenges und Kommentaren." />
       {suggestions.length ? (
         <>
           <Text style={styles.label}>Vorschläge</Text>
