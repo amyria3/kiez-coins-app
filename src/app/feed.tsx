@@ -1,10 +1,12 @@
 import { RoutineNudge } from '../components/RoutineNudge';
+import { RoutineContent } from '../components/RoutineContent';
 import { clearRoutinePost } from '../data/reminders';
 import { clearShowcasePost, peekShowcasePost } from '../data/showcase';
 import { nudgeCrystals } from '../components/icons/Brand';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
+  BackHandler,
   Easing,
   FlatList,
   PanResponder,
@@ -357,28 +359,34 @@ export default function FeedScreen() {
   // Der Schalter fährt sofort los, der Inhalt hinkt ein wenig hinterher: erst gleitet der alte Reiter hinaus,
   // dann fährt der neue sichtbar herein und federt am Ende nach (Daria, 2026-11-10).
   const [switchingTo, setSwitchingTo] = useState<FeedTab | null>(null);
+  const slideIn = (dir: 1 | -1) => {
+    swipeX.setValue(dir * widthRef.current);
+    Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, ...motion.tabSwitch.spring }).start();
+  };
+  // Routine ist ein Reiter links neben den anderen (Daria, 2026-11-11): dieselbe Bewegung wie zwischen den Reitern.
+  // `routineActive`: Der helle Knopf steht auf „Routine“. `routineShown`: Der Inhalt zeigt die Routine.
+  const [routineActive, setRoutineActive] = useState(false);
+  const [routineShown, setRoutineShown] = useState(false);
+  const routineShownRef = useRef(false);
+  routineShownRef.current = routineShown;
   const slideToTab = useRef((key: FeedTab, dir: 1 | -1) => {
     setSwitchingTo(key);
+    setRoutineActive(false);
     slideOut(dir, () => {
       selectTabRef.current(key);
       setSwitchingTo(null);
-      swipeX.setValue(dir * widthRef.current);
-      Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, ...motion.tabSwitch.spring }).start();
+      setRoutineShown(false);
+      slideIn(dir);
     });
   }).current;
-
-  // Routine: Der helle Knopf gleitet hinüber, der Feed wischt nach rechts weg, dann kommt die Routine von links.
-  // Zurück im Feed gleitet der Knopf heim.
-  const [routineActive, setRoutineActive] = useState(false);
+  // Routine: Der Knopf gleitet hinüber, der Feed gleitet nach rechts hinaus, die Routine kommt von links und federt ein.
   const openRoutine = useRef(() => {
     setRoutineActive(true);
-    slideOut(-1, () => router.push('/routine'));
+    slideOut(-1, () => {
+      setRoutineShown(true);
+      slideIn(-1);
+    });
   }).current;
-  const onFeedFocus = useRef(() => {
-    setRoutineActive(false);
-    swipeX.setValue(0);
-  }).current;
-  useFocusEffect(onFeedFocus);
   // Routine als Standard (Daria, 2026-11-10): Beim App-Start geht die Routine auf, zurück geht es in den Feed.
   // Nicht, wenn der Feed mit einem Ziel geöffnet wurde (Reiter, Gruppe, Erstellen, neuer Post).
   useEffect(() => {
@@ -386,6 +394,15 @@ export default function FeedScreen() {
     startChecked = true;
     if (routineStandard && !gruppe && !reiter && !erstellen && !neu) openRoutine();
   }, [modes.ready, routineStandard, gruppe, reiter, erstellen, neu, openRoutine]);
+  // Android: Zurück aus der Routine führt zum ersten Reiter, wie sonst zurück in den Feed
+  useEffect(() => {
+    if (!routineShown) return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      slideToTab(tabOrderRef.current[0], 1);
+      return true;
+    });
+    return () => sub.remove();
+  }, [routineShown, slideToTab]);
   const routineLeftRef = useRef(false);
   routineLeftRef.current = routineOn && !composing && !isFashionable;
 
@@ -397,13 +414,24 @@ export default function FeedScreen() {
         onPanResponderMove: (_, g) => {
           const order = tabOrderRef.current;
           const index = order.indexOf(tabRef.current);
-          const hasNext = g.dx < 0 ? index < order.length - 1 : index > 0 || routineLeftRef.current;
+          // In der Routine liegt rechts der erste Reiter, links nichts
+          const hasNext = routineShownRef.current
+            ? g.dx < 0
+            : g.dx < 0
+              ? index < order.length - 1
+              : index > 0 || routineLeftRef.current;
           swipeX.setValue(hasNext ? g.dx : g.dx * 0.25);
         },
         onPanResponderRelease: (_, g) => {
           const order = tabOrderRef.current;
           const index = order.indexOf(tabRef.current);
           const next = g.dx < -SWIPE_DISTANCE || g.vx < -0.5 ? index + 1 : g.dx > SWIPE_DISTANCE || g.vx > 0.5 ? index - 1 : index;
+          // Aus der Routine nach links gewischt: zum ersten Reiter
+          if (routineShownRef.current) {
+            if (next > index) slideToTab(order[0], 1);
+            else Animated.spring(swipeX, { toValue: 0, useNativeDriver: false, ...motion.tabSwitch.spring }).start();
+            return;
+          }
           if (next !== index && next >= 0 && next < order.length) {
             // Nach links gewischt: der rechte Nachbar kommt von rechts herein, und umgekehrt
             slideToTab(order[next], next > index ? 1 : -1);
@@ -424,6 +452,11 @@ export default function FeedScreen() {
 
   // Tippen auf einen Reiter: dieselbe Bewegung wie beim Wischen, aus der Richtung des Reiters.
   const switchTab = (key: FeedTab) => {
+    // Aus der Routine liegt jeder Reiter rechts
+    if (routineActive) {
+      slideToTab(key, 1);
+      return;
+    }
     const from = tabOrder.indexOf(tab);
     const to = tabOrder.indexOf(key);
     if (to === from) {
@@ -644,7 +677,7 @@ export default function FeedScreen() {
           visible={modes.visible}
           accent={composing && !placeTouched}
           // Routine links neben den Reitern, vorerst nur für Moderatorinnen (Daria, 2026-11-09)
-          lead={routineOn && !composing && !isFashionable ? { label: t('Routine'), active: routineActive, onPress: openRoutine } : undefined}
+          lead={routineOn && !composing && !isFashionable ? { label: t('Routine'), active: routineActive, onPress: () => !routineActive && openRoutine() } : undefined}
         />
         </View>
       </Animated.View>
@@ -655,6 +688,9 @@ export default function FeedScreen() {
       </Animated.View>
       <View style={styles.flex}>
         <Animated.View style={[styles.flex, { transform: [{ translateX: swipeX }] }]} {...swipe.panHandlers}>
+        {routineShown ? (
+          <RoutineContent bottomPad={insets.bottom + TAB_BAR_SPACE} />
+        ) : (
         <FlatList
           ref={listRef}
           data={listItems}
@@ -673,13 +709,14 @@ export default function FeedScreen() {
           scrollEventThrottle={16}
           contentContainerStyle={[styles.list, isFashionable ? null : styles.listTop, emptyItem && styles.listGrow, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
           // Kater erinnert an fällige Erinnerungen, vorerst nur mit Routine (Daria, 2026-11-10)
-          ListHeaderComponent={routineOn ? <RoutineNudge enabled /> : null}
+          ListHeaderComponent={routineOn ? <RoutineNudge enabled onOpen={routineOn && !composing && !isFashionable ? openRoutine : undefined} /> : null}
           ListFooterComponent={emptyItem ? renderItem({ item: emptyItem }) : null}
           ListFooterComponentStyle={emptyItem ? styles.emptyFooter : undefined}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={color.text.secondary} />
           }
         />
+        )}
         </Animated.View>
         {composing ? (
           <Animated.View
