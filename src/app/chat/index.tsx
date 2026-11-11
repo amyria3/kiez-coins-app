@@ -124,7 +124,7 @@ export default function Chats() {
         {data && data.conversations.length === 0 ? (
           <Explanation
             question="Wie finde ich Freund:innen?"
-            answer="Öffne das Profil einer Person aus Deinem Kiez und frage sie als Freund:in an. Dann könnt Ihr Euch hier schreiben."
+            answer="Öffne das Profil einer Person aus Deinem Kiez und frage sie als Freund:in an. Danach könnt Ihr Euch hier schreiben."
           />
         ) : null}
 
