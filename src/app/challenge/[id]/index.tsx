@@ -489,22 +489,23 @@ export default function ChallengeDetail() {
     <>
       {acceptedByMe ? (
         <>
+          {/* Erst feiert der Kater, dann erklärt die Krabbe den Ablauf (Daria, 2026-11-11) */}
+          <KaterCard>Cool, dass Du anpackst! Sowas lohnt sich im Leben safe.</KaterCard>
           {named ? (
             <Explanation
               question="Wie geht es jetzt weiter?"
               answer={
                 !isAssignee
-                  ? t('Danke, dass Du mitmachst! Jede teilnehmende Person kann erledigt melden, für alle. Wenn {author} bestätigt, bekommst Du eine Nachricht.', {
+                  ? t('Jede teilnehmende Person kann erledigt melden, für alle. Wenn {author} bestätigt, bekommst Du eine Nachricht.', {
                       author: author.firstName,
                     })
-                  : t('Danke, dass Du anpackst! Fotografiere am Ende das Ergebnis, und wir warten. Wenn {name} bestätigt, aktualisiert sich der Status automatisch. Du bekommst eine Nachricht.', {
+                  : t('Fotografiere am Ende das Ergebnis, und wir warten. Wenn {name} bestätigt, aktualisiert sich der Status automatisch. Du bekommst eine Nachricht.', {
                       name: author.firstName,
                     })
               }
             />
           ) : (
-            // Kater mit Persönlichkeit, kein Systemtext
-            <KaterCard>Danke, dass Du anpackst! Taufen wir das Baby, Baby? Ich hätte da eine Idee für einen Namen für Deine Operation.</KaterCard>
+            <KaterCard>Taufen wir das Baby, Baby? Ich hätte da eine Idee für einen Namen für Deine Operation.</KaterCard>
           )}
           <InfoRow icon="map-pin" value={challenge.location} />
           {(isAssignee ? challenge.acceptedAt : mine?.joinedAt) ? (
