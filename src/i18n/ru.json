@@ -1323,8 +1323,6 @@
   "Aufgabe": "Задача",
   "Mein Schaufenster": "Моя витрина",
   "Für Laden, Verein oder Club": "Для магазина, объединения или клуба",
-  "{n} Schaufenster": "{n, plural, one {# витриной} few {# витринами} many {# витринами} other {# витринами}}",
-  "ein Schaufenster": "одной витриной",
   "Mindestens 8 Zeichen. Ohne Konto legt KiezCoins eins an.": "Не меньше 8 символов. Если у тебя нет аккаунта, KiezCoins создаст его.",
   "Dieses Schaufenster ist offline.": "Эта витрина сейчас офлайн.",
   "Ja, wenn Ihr geschäftsmäßig auftretet, zum Beispiel als Laden, Verein oder mit Werbung (§ 5 Digitale-Dienste-Gesetz). Ins Impressum gehören Name, Anschrift und E-Mail-Adresse, dazu Rechtsform, vertretungsberechtigte Person, Registereintrag und Umsatzsteuer-ID, soweit vorhanden. Im Zweifel tragt es ein.": "Да, если вы действуете коммерчески, например как магазин, объединение или с рекламой (§ 5 немецкого Закона о цифровых услугах). В Impressum входят имя, адрес и электронная почта, а также правовая форма, уполномоченное лицо, запись в реестре и номер плательщика НДС, если они есть. Если сомневаетесь, добавьте его.",
