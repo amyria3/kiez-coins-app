@@ -1711,5 +1711,6 @@
   "Du meldest Dich mit Deckname und Passwort an. Trage eine E-Mail nach. Dann bekommst Du bei einem vergessenen Passwort einen Code.": "You sign in with your nickname and password. Add an email address. Then you get a code if you forget your password.",
   "Gerade nutzt Du {adresse}. Die neue Adresse bekommt einen Code.": "You are currently using {adresse}. The new address gets a code.",
   "Der Code ist unterwegs an {adresse}. Schaue auch im Spam-Ordner.": "The code is on its way to {adresse}. Check your spam folder too.",
-  "Geht auch ohne E-Mail. Merke Dir Deckname und Passwort gut. Ohne E-Mail kann die App Dir kein neues Passwort schicken.": "It works without email too. Remember your nickname and password well. Without an email address, the app can't send you a new password."
+  "Geht auch ohne E-Mail. Merke Dir Deckname und Passwort gut. Ohne E-Mail kann die App Dir kein neues Passwort schicken.": "It works without email too. Remember your nickname and password well. Without an email address, the app can't send you a new password.",
+  "Danke für Deine Meldung": "Thanks for your report"
 }

@@ -7,7 +7,7 @@ export default function ChallengeFlagSuccess() {
   const router = useRouter();
   return (
     <ResultScreen
-      title="Danke, ich kümmere mich"
+      title="Danke für Deine Meldung"
       message="Die Moderation prüft diese Challenge. Wenn sie gegen die Community-Regeln verstößt, verschwindet sie aus dem Feed."
       onFeedPress={() => router.dismissTo('/feed')}
     />
