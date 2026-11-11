@@ -403,6 +403,15 @@ export default function FeedScreen() {
     });
     return () => sub.remove();
   }, [routineShown, slideToTab]);
+  // `reiter=routine`: Die Seite `routine` leitet hierher, die Routine steht dann gleich da, ohne Bewegung
+  useEffect(() => {
+    if (reiter !== 'routine') return;
+    router.setParams({ reiter: undefined });
+    if (!routineOn || isFashionable) return;
+    swipeX.setValue(0);
+    setRoutineActive(true);
+    setRoutineShown(true);
+  }, [reiter, router, routineOn, swipeX]);
   const routineLeftRef = useRef(false);
   routineLeftRef.current = routineOn && !composing && !isFashionable;
 
@@ -689,7 +698,7 @@ export default function FeedScreen() {
       <View style={styles.flex}>
         <Animated.View style={[styles.flex, { transform: [{ translateX: swipeX }] }]} {...swipe.panHandlers}>
         {routineShown ? (
-          <RoutineContent bottomPad={insets.bottom + TAB_BAR_SPACE} />
+          <RoutineContent topPad={space[8]} bottomPad={insets.bottom + TAB_BAR_SPACE} />
         ) : (
         <FlatList
           ref={listRef}
