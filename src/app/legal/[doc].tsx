@@ -25,7 +25,7 @@ export default function LegalScreen() {
 
   return (
     <SubScreen title={tx(current.title)} subtitle={tx(`Stand ${LEGAL_STAND}`)} navigation="back" onLeadingPress={goBack}>
-      {getLanguage() !== 'de' ? <QuestionHint question="Welche Fassung gilt?" answer="Übersetzung zur Orientierung. Verbindlich ist die deutsche Fassung." /> : null}
+      {getLanguage() !== 'de' ? <QuestionHint question="Welche Fassung gilt?" answer="Die deutsche Fassung ist verbindlich. Die Übersetzung dient zur Orientierung." /> : null}
       {current.intro ? <Text style={styles.intro}>{tx(current.intro)}</Text> : null}
       {current.sections.map((section, index) => (
         <View key={index} style={styles.section}>

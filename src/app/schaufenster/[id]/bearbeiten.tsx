@@ -200,7 +200,7 @@ export default function EditShowcase() {
         <TextField label="Impressum" multiline value={form.imprint} onChangeText={set('imprint')} maxLength={1000} />
         <QuestionHint
           question="Brauche ich ein Impressum?"
-          answer="Wer geschäftsmäßig auftritt, zum Beispiel als Laden oder mit Werbung, braucht ein Impressum mit Name und Anschrift (§ 5 Digitale-Dienste-Gesetz). Vereine und private Clubs oft auch. Im Zweifel: lieber eintragen."
+          answer="Ja, wenn Ihr geschäftsmäßig auftretet, zum Beispiel als Laden oder mit Werbung. Dann braucht das Schaufenster ein Impressum mit Name und Anschrift (§ 5 Digitale-Dienste-Gesetz). Vereine und private Clubs brauchen es oft auch. Im Zweifel tragt es ein."
         />
       </FieldGroup>
 

@@ -129,7 +129,7 @@ export default function CreateStep2() {
         onPress={useLocation}
         disabled={locating}
       />
-      <QuestionHint question="Welchen Ort gebe ich an?" answer="Wähle einen öffentlich bekannten Ort, etwa einen Platz, eine Straßenecke oder ein Geschäft. Keine Wohnadresse. Sei sorgsam mit der Sicherheit anderer Menschen." />
+      <QuestionHint question="Welchen Ort gebe ich an?" answer="Einen öffentlichen Ort, den viele kennen, zum Beispiel einen Platz, eine Straßenecke oder ein Geschäft. Gib nie eine Wohnadresse an. Sei sorgsam mit der Sicherheit anderer Menschen." />
       {/* Nicht in „Überall“, nur im Kiez; ein Link öffnet den Beitrag trotzdem (Daria, 29.10.2026) */}
       {draft.private ? null : (
         <SwitchRow

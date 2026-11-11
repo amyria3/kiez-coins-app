@@ -46,7 +46,7 @@ export default function DataAccessScreen() {
       {/* 2 bis 3 Sätze zur Verschlüsselung (Daria, 27.10.2026) */}
       <QuestionHint
         question="Kann das Team meine Nachrichten lesen?"
-        answer="Geplant ist Ende-zu-Ende-Verschlüsselung für Deine Nachrichten. Dann können nur autorisierte Nutzer:innen, also Du und die Person, mit der Du schreibst, sie lesen. Dann wären Deine Unterhaltungen auch für das Team komplett unzugänglich. Im jetzigen Stadium der App ist das noch nicht umsetzbar, deshalb steht hier jeder Abruf."
+        answer="Ja, das Team kann Deine Nachrichten abrufen. Jeden Abruf siehst Du hier. Geplant ist eine Ende-zu-Ende-Verschlüsselung: Dann lesen nur Du und die Person, mit der Du schreibst, Eure Nachrichten."
       />
       <FieldGroup label="Vom Team abgerufen">
         {entries && byTeam.length === 0 ? <Text style={styles.secondary}>Niemand aus dem Team hat Deine Chats abgerufen.</Text> : null}
