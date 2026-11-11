@@ -1648,7 +1648,6 @@
   "Dieses Schaufenster ist offline. Nur Eure Gruppe sieht es, im Feed und unter dem Link erscheint es nicht.": "This shop window is offline. Only your group sees it; it does not appear in the feed or under the link.",
   "Schaufenster „{name}“ öffnen": "Open shop window “{name}”",
   "Zeig Deinen Laden, Verein oder Club im Kiez: Posts, Termine, Öffnungszeiten. Jede Gruppe hat höchstens ein Schaufenster.": "Show your shop, association or club in the neighborhood: posts, events, opening hours. Each group has at most one shop window.",
-  "{n} Schaufenster": "{n, plural, one {# shop window} other {# shop windows}}",
   "Zur KiezCoins App": "Go to the KiezCoins app",
   "Eine kleine Webseite für Deinen Laden, Verein oder Club im Kiez. Kostenlos, mit Posts und Terminen.": "A small website for your shop, association or club in the neighborhood. Free, with posts and events.",
   "Wie heißt Dein Laden, Verein oder Club?": "What’s the name of your shop, association or club?",

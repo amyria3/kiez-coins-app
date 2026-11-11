@@ -328,7 +328,6 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
           />
         </View>
       ))}
-      <Text style={styles.meta}>{t('Mit diesem Konto pflegst Du {n}.', { n: list.length === 1 ? t('ein Schaufenster') : t('{n} Schaufenster', { n: list.length }) })}</Text>
       {footer}
     </SubScreen>
   );
@@ -339,7 +338,8 @@ const styles = StyleSheet.create({
   headline: { ...text.display, color: color.text.primary },
   headerCompact: { paddingHorizontal: space[16], paddingTop: space[4] },
   kicker: { fontFamily: text.display.fontFamily, fontSize: 15, lineHeight: 20, color: color.text.secondary },
-  showcase: { gap: space[8] },
+  // Abstände wie auf den anderen Seiten (Inhalt hat gap 16), Daria 2026-11-11
+  showcase: { gap: space[16] },
   showcaseName: { ...text.display, color: color.text.primary, marginBottom: space[4] },
   showcaseNameUnderKicker: { marginTop: -space[8] },
   meta: { ...text.caption, color: color.text.secondary },

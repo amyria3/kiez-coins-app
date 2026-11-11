@@ -1338,8 +1338,6 @@
   "Aufgabe": "Завдання",
   "Mein Schaufenster": "Моя вітрина",
   "Für Laden, Verein oder Club": "Для крамниці, обʼєднання чи клубу",
-  "{n} Schaufenster": "{n, plural, one {# вітриною} few {# вітринами} many {# вітринами} other {# вітринами}}",
-  "ein Schaufenster": "однією вітриною",
   "Mindestens 8 Zeichen. Ohne Konto legt KiezCoins eins an.": "Щонайменше 8 символів. Якщо в тебе немає облікового запису, KiezCoins створить його.",
   "Nur die Gründer:in der Gruppe bearbeitet das Schaufenster.": "Редагувати вітрину може лише засновник або засновниця групи.",
   "Dieses Schaufenster ist offline.": "Ця вітрина зараз офлайн.",
