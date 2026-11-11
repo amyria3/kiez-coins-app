@@ -23,7 +23,7 @@ export default function Credentials() {
           : noEmail
           ? 'Du meldest Dich mit Deckname und Passwort an. Trage eine E-Mail nach. Danach versendet das System bei einem vergessenen Passwort eine E-Mail mit einem Code an Dich.'
           : hasPassword
-          ? 'Hier änderst Du Deine Adresse oder Dein Passwort. Den Code per Mail kannst Du immer nutzen.'
+          ? 'Hier änderst Du Deine Adresse oder Dein Passwort. Du kannst immer auch den Code per Mail nutzen.'
           : 'Du meldest Dich per Code an. Lege ein Passwort fest, dann geht es auch ohne Mail.'}
       />
       <View style={styles.list}>

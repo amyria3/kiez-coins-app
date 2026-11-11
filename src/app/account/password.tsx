@@ -63,7 +63,7 @@ export default function Password() {
         question="Wie ändere ich mein Passwort?"
         answer={hasPassword
           ? 'Wähle ein neues Passwort. Das alte gilt danach nicht mehr.'
-          : 'Lege ein Passwort fest, das nur Du kennst. Den Code per Mail kannst Du weiter nutzen.'}
+          : 'Lege ein Passwort fest, das nur Du kennst. Du kannst weiter auch den Code per Mail nutzen.'}
       />
       <TextField
         label="Neues Passwort" required
