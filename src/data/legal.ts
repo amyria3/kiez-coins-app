@@ -7,7 +7,7 @@
  */
 
 /** Stand aller Texte (TT.MM.JJJJ). */
-export const LEGAL_STAND = '31.10.2026';
+export const LEGAL_STAND = '11.11.2026';
 
 /** Angaben zur Anbieterin. Leere Felder erscheinen in der App als „[offen: …]“. */
 export const OPERATOR = {
@@ -70,7 +70,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
 
   datenschutz: {
     title: 'Datenschutz',
-    intro: 'Hier steht, welche Daten KiezCoins verarbeitet, wozu und wie lange. KiezCoins nutzt keine Werbung, kein Tracking und keine Analyse-Werkzeuge.',
+    intro: 'Hier steht, welche Daten KiezCoins verarbeitet, wozu und wie lange. KiezCoins schaltet selbst keine Werbung und nutzt kein Tracking und keine Analyse-Werkzeuge.',
     sections: [
       {
         heading: 'Verantwortlich ist die Anbieterin',
@@ -100,6 +100,16 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
           'Die Freigabe ist freiwillig und lässt sich jederzeit in den Einstellungen Deines Handys oder Browsers zurücknehmen. Ohne Freigabe trägst Du Deinen Kiez von Hand ein.',
         ],
       },
+      // Schaufenster für Läden, Vereine und Clubs (Rechtsprüfung 11.11.2026, Übergabe/2026-11-11_offen_schaufenster-recht.md)
+      {
+        heading: 'Schaufenster sind öffentlich',
+        paragraphs: [
+          'Für ein Schaufenster speichern wir Name, Kurzname, Logo, Titelbild, Kurztext, Services, Kiez, Adresse, Links, Öffnungszeiten, Impressum, Hintergrundfarbe, Sichtbarkeit, Posts und Termine. Dazu kommen, wer dem Schaufenster folgt, wer Zugang anfragt oder eingeladen ist und wer einen Termin gespeichert hat. Das Team sieht nur die Zahl der Speichernden, keine Namen.',
+          'Ein öffentliches Schaufenster sieht jede Person im Internet unter kiezcoins.de/s/, auch ohne Konto. Suchmaschinen wie Google dürfen die Seite aufnehmen. Das gilt auch für Namen und Anschrift im Impressum. Die Adresse des Schaufensters sehen in der App nur Personen mit Zugang. Ein Schaufenster „nur für Eingeladene“ zeigt Posts und Termine nur dem Team und den Eingeladenen.',
+          'Herzen an Terminen zählen wir ohne Kennung. Dein Browser merkt sich auf Deinem Gerät, welche Termine Du geliked hast. Das ist technisch nötig, damit das Herz gefüllt bleibt (§ 25 Abs. 2 Nr. 2 TDDDG).',
+          'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
+        ],
+      },
       {
         heading: 'Zahlungsdaten gibst Du gezielt frei',
         paragraphs: [
@@ -126,7 +136,9 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       // Anonyme Zählung, z. B. welcher Kamera-Knopf häufiger gedrückt wird (Daria, 31.10.2026)
       {
         heading: 'Erheben von Nutzungsdaten',
-        paragraphs: ['Wir behalten uns vor, anonymisiert Nutzerdaten zu erheben (wie beispielsweise Klicks).'],
+        paragraphs: [
+          'Heute erheben wir keine Nutzungsdaten. Führen wir eine anonyme Zählung ein, zum Beispiel welcher Knopf häufiger gedrückt wird, nennen wir hier vorher Zweck, Daten und Rechtsgrundlage.',
+        ],
       },
       {
         heading: 'So lange bleiben Deine Daten',
@@ -168,13 +180,21 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: '3. So gehen wir miteinander um',
         paragraphs: [
-          'Es gelten die Community-Regeln. Du stellst nur Challenges, Fotos und Kommentare ein, die Du einstellen darfst. Verboten sind rechtswidrige, beleidigende, diskriminierende oder gefährliche Inhalte, Werbung, Spam und Fotos von Menschen ohne deren explizites Einverständnis.',
+          'Es gelten die Community-Regeln. Du stellst nur Challenges, Fotos und Kommentare ein, die Du einstellen darfst. Verboten sind rechtswidrige, beleidigende, diskriminierende oder gefährliche Inhalte, Spam und Fotos von Menschen ohne deren explizites Einverständnis. Werbung ist nur im Schaufenster und in seinen Posts erlaubt.',
           'Challenges beschreiben kleine, sichere Hilfen in der Nachbarschaft. Aufgaben, die eine Erlaubnis, eine Ausbildung oder besondere Gefahr voraussetzen (zum Beispiel Arbeiten an Strom, Gas oder auf Dächern), gehören nicht in die App.',
-          'Für das Anzeigen in der App räumst Du uns ein einfaches, kostenloses Recht an Deinen Inhalten ein. Es endet, wenn Du den Inhalt oder Dein Konto löschst.',
+          'Für das Anzeigen in der App räumst Du uns ein einfaches, kostenloses Recht an Deinen Inhalten ein. Für Inhalte eines öffentlichen Schaufensters gilt dieses Recht auch für die Seite unter kiezcoins.de und für Suchmaschinen. Es endet, wenn Du den Inhalt oder Dein Konto löschst.',
         ],
       },
       {
-        heading: '4. Coins laufen direkt zwischen Euch',
+        heading: '4. Schaufenster für Läden, Vereine und Clubs',
+        paragraphs: [
+          'Mit einem Schaufenster stellen Läden, Vereine und Clubs sich, ihre Posts und Termine vor. Wer ein Schaufenster geschäftsmäßig betreibt, trägt ein eigenes Impressum ein (§ 5 Digitale-Dienste-Gesetz) und ist für Angaben, Angebote, Termine und Werbung selbst verantwortlich. Werbung muss als solche erkennbar sein.',
+          'Logos, Fotos und Texte stellst Du nur ein, wenn Du die Rechte daran hast. Verträge über Waren, Dienstleistungen oder Termine schließt Du direkt mit Deinen Kund:innen; KiezCoins ist nicht Vertragspartei.',
+          'Ein öffentliches Schaufenster ist ohne Anmeldung im Internet sichtbar und kann in Suchmaschinen erscheinen.',
+        ],
+      },
+      {
+        heading: '5. Coins laufen direkt zwischen Euch',
         paragraphs: [
           'Coins sind Versprechen von realem Geld. Das Konzept befindet sich in der Testphase. KiezCoins ist nicht Vertragspartei, nimmt kein Geld an und zahlt keins aus. Das Geld fließt direkt per Überweisung oder PayPal. Barzahlung und Treffen zur Zahlung sind nicht vorgesehen.',
           'Jede Person ist selbst dafür verantwortlich, eine Aufgabe sorgfältig zu erledigen, zugesagte Coins zu zahlen und Einnahmen gegebenenfalls zu versteuern. Eine Challenge begründet kein Arbeitsverhältnis.',
@@ -182,25 +202,25 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         ],
       },
       {
-        heading: '5. Melden und Moderation',
+        heading: '6. Melden und Moderation',
         paragraphs: [
           'Über die Fahne an Challenges und Kommentaren, über „Person melden“ oder per E-Mail meldest Du Verstöße und rechtswidrige Inhalte. Wir prüfen jede Meldung und entfernen Inhalte, die gegen diese Bedingungen oder geltendes Recht verstoßen. Bei Verstößen können wir ein Konto sperren oder das Anbieten von Coins beschränken. Wir begründen solche Entscheidungen per E-Mail. Du kannst ihnen per E-Mail widersprechen.',
         ],
       },
       {
-        heading: '6. Haftung',
+        heading: '7. Haftung',
         paragraphs: [
           'Wir haften unbeschränkt für Vorsatz und grobe Fahrlässigkeit sowie für Schäden an Leben, Körper und Gesundheit. Sonst haften wir für den kostenlosen Testbetrieb nicht. Für Absprachen, Aufgaben und Zahlungen zwischen Nutzer:innen haften die beteiligten Personen.',
         ],
       },
       {
-        heading: '7. Ende der Nutzung',
+        heading: '8. Ende der Nutzung',
         paragraphs: [
           'Du kannst Dein Konto jederzeit unter „Dein Konto“ löschen. Wir können die Testphase jederzeit beenden und kündigen das vorher per E-Mail an.',
         ],
       },
       {
-        heading: '8. Änderungen und Recht',
+        heading: '9. Änderungen und Recht',
         paragraphs: [
           'Ändern sich diese Bedingungen, informieren wir Dich in der App oder per E-Mail. Es gilt deutsches Recht. Zwingende Verbraucherschutzvorschriften Deines Wohnsitzlandes bleiben unberührt.',
         ],
