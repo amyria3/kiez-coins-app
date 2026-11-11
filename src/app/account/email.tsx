@@ -83,8 +83,8 @@ export default function ChangeEmail() {
       <Explanation
         question="Wie ändere ich meine E-Mail-Adresse?"
         answer={sentTo
-          ? t('Der Code ist unterwegs an {adresse}. Schaue auch im Spam-Netz.', { adresse: sentTo })
-          : t('Gerade nutzt Du {adresse}. An die neue schick ich Dir einen Code.', {
+          ? t('Der Code ist unterwegs an {adresse}. Schaue auch im Spam-Ordner.', { adresse: sentTo })
+          : t('Gerade nutzt Du {adresse}. Die neue Adresse bekommt einen Code.', {
               adresse: visibleEmail(session?.user.email) || 'keine Adresse',
             })}
       />
