@@ -475,6 +475,22 @@ export function AskedQuestion({ question }: { question: string }) {
 }
 
 /**
+ * Erklärung oben auf einem Screen (Daria, 2026-11-11): rechts die schon gestellte Frage, darunter links die Antwort
+ * der App mit der Krabbe. Ersetzt die graue Kater-Karte überall dort, wo sie erklärt, was der Screen tut
+ * (Designsystem › So schreibt die App Erklärungen, Regel 1).
+ */
+export function Explanation({ question, answer }: { question: string; answer: string }) {
+  return (
+    <View>
+      <AskedQuestion question={question} />
+      <View style={styles.afterChange}>
+        <Notice message={answer} />
+      </View>
+    </View>
+  );
+}
+
+/**
  * Antwort zum Antippen (Daria, 2026-11-09): rechts wie eine eigene Nachricht, z. B. „Ja, los!“. Angetippt wird sie
  * lila wie gesendet und bleibt so stehen.
  */

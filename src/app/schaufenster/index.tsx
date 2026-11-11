@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { KaterBubble, Notice, QuestionHint } from '../../components/Content';
+import { Explanation, KaterBubble, Notice, QuestionHint } from '../../components/Content';
 import { CopyField, SwitchRow, TextField } from '../../components/Form';
 import { NavigationBar } from '../../components/NavigationBar';
 import { SubScreen } from '../../components/Screen';
@@ -119,7 +119,10 @@ function Login({ header }: { header: React.ReactNode }) {
         )
       }
     >
-      <KaterBubble>Eine kleine Webseite für Deinen Laden, Verein oder Club im Kiez. Kostenlos, mit Posts und Terminen.</KaterBubble>
+      <Explanation
+        question="Was ist ein Schaufenster?"
+        answer="Eine kleine Webseite für Deinen Laden, Verein oder Club im Kiez. Kostenlos, mit Posts und Terminen."
+      />
       <TextField
         label="E-Mail"
         value={email}

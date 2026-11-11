@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { KaterBubble } from '../../components/Content';
+import { Explanation } from '../../components/Content';
 import { FeatureSwitches } from '../../components/FeatureSwitches';
 import { SubScreen } from '../../components/Screen';
 import { homeAfterOnboarding } from '../../data/pendingInvite';
@@ -40,7 +40,10 @@ export default function OnboardingFeatures() {
       onLeadingPress={goBack}
       actions={<Button label="Weiter" onPress={finish} />}
     >
-      <KaterBubble>Privat siehst nur Du, in der Gruppe nur Deine Gruppe, im Kiez alle in Deinem Kiez. Verbirg, was Du nicht brauchst. Das geht auch später in Deinem Konto.</KaterBubble>
+      <Explanation
+        question="Wozu sind die Schalter?"
+        answer="Privat siehst nur Du, in der Gruppe nur Deine Gruppe, im Kiez alle in Deinem Kiez. Verbirg, was Du nicht brauchst. Das geht auch später in Deinem Konto."
+      />
       <FeatureSwitches />
     </SubScreen>
   );
