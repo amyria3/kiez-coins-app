@@ -265,6 +265,7 @@ ${farbe(s.bg_color)}
   ${s.kiez ? `<p class="wer">${esc(s.kiez)}</p>` : ''}
   ${s.about ? `<p class="text">${esc(s.about)}</p>` : ''}
   ${infos}${web}
+  ${s.imprint ? '<p class="sf-klein"><a href="#impressum">Impressum</a></p>' : ''}
   ${
     !s.services
       ? ''
@@ -273,7 +274,7 @@ ${farbe(s.bg_color)}
         : `<h2 class="sf-abschnitt">Services</h2><div class="sf-services">${richHtml(s.services)}</div>`
   }
   <div class="sf-liste">${eintraege || '<p class="sf-klein">Hier ist noch nichts los.</p>'}</div>
-  ${s.imprint ? `<h2 class="sf-abschnitt">Impressum</h2><p class="sf-klein" style="white-space: pre-line">${esc(s.imprint)}</p>` : ''}
+  ${s.imprint ? `<h2 class="sf-abschnitt" id="impressum">Impressum</h2><p class="sf-klein" style="white-space: pre-line">${esc(s.imprint)}</p>` : ''}
 <script>
 (() => {
   const URL_ = ${JSON.stringify(SUPABASE_URL)}, KEY = ${JSON.stringify(SUPABASE_KEY)}, MERK = 'kc-termin-herzen';
@@ -328,7 +329,10 @@ export async function GET(request) {
       s ? '<meta name="robots" content="index, follow, max-image-preview:large">' : '<meta name="robots" content="noindex">',
     )
     .replace('<!--KOPF-->', () => kopf(s, `${SITE}/s/${slug}`))
-    .replace('<!--POST-->', () => inhalt(s));
+    .replace('<!--POST-->', () => inhalt(s))
+    // Das Impressum des Schaufensters steht oben verlinkt; die Fußzeile nennt deshalb ausdrücklich das von KiezCoins
+    // (Rechtsprüfung 11.11.2026)
+    .replace('<a href="/impressum">Impressum</a>', () => (s?.imprint ? '<a href="/impressum">Impressum KiezCoins</a>' : '<a href="/impressum">Impressum</a>'));
 
   return new Response(seite, {
     status: s ? 200 : 404,

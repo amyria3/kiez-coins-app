@@ -3,7 +3,8 @@
 - Zweck: Ergebnis der Rechtsprüfung des Schaufensters mit Textvorschlägen für Datenschutzerklärung und Nutzungsbedingungen.
 - Stand: 11.11.2026
 - Auftrag: Daria, 11.11.2026: „prüfe die Rechtskonformität (ignoriere die Tatsache, dass ich keine Adresse angegeben habe)“
-- Arbeitsteilung: Claude hat Code, Rechtstexte (`src/data/legal.ts`) und die öffentliche Seite (`api/s.mjs`) geprüft und schlägt Texte vor. Daria entscheidet und übernimmt die Texte. Die Prüfung ersetzt keine anwaltliche Beratung.
+- Arbeitsteilung: Claude hat Code, Rechtstexte (`src/data/legal.ts`) und die öffentliche Seite (`api/s.mjs`) geprüft und die Vorschläge umgesetzt. Daria hat entschieden. Die Prüfung ersetzt keine anwaltliche Beratung.
+- Umgesetzt am 11.11.2026 (Daria: „5 ist ok, den Rest beheben“): Nutzungsbedingungen und Datenschutzerklärung wie unten vorgeschlagen, in allen Sprachen, Stand 11.11.2026; Absatz „Erheben von Nutzungsdaten“ präzisiert; Datenschutzhinweis mit Link auf `kiezcoins.de/schaufenster`; Impressum-Link oben auf der öffentlichen Seite, Fußzeile „Impressum KiezCoins“. Bewusst nicht gebaut: Hinweis bei fehlendem Impressum (Punkt 5).
 - Ziel in Documentation: `kiez-coins/konzept/Schaufenster.md`, Abschnitt „Recht“
 
 ## Die Rechtstexte decken das Schaufenster nicht ab
@@ -70,7 +71,6 @@ Vorschlag für einen neuen Abschnitt „Schaufenster“:
 
 ## Offene Punkte
 
-- Daria: Textvorschläge für Nutzungsbedingungen und Datenschutzerklärung übernehmen oder ändern (`src/data/legal.ts`, ggf. Tabelle `app_texts`).
-- Daria: Absatz „Erheben von Nutzungsdaten“ präzisieren oder streichen.
-- Daria: Sollen Link zur Datenschutzerklärung auf der Anmeldeseite, Impressum-Link oben auf der öffentlichen Seite und Impressum-Hinweis gebaut werden? (Code, Claude)
+- Daria: Die Nutzungsbedingungen haben sich geändert (Abschnitt 9 verlangt, dass Nutzer:innen in der App oder per E-Mail davon erfahren).
+- Etikett „Schaufenster“ an Posts im Feed (Teil 2 in `2026-11-10_offen_schaufenster.md`).
 - Vor dem ersten Abo: neue Fassung der Nutzungsbedingungen (heute „nimmt kein Geld an“), Preisangaben netto nur gegenüber Unternehmen.
