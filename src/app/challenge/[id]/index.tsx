@@ -36,7 +36,7 @@ import { isModerator, recordView } from '../../../data/remote';
 import { useFeature } from '../../../data/freischaltung';
 import { coordsIfAllowed, distanceMeters, KIEZ_RADIUS_METERS, type Coords } from '../../../data/location';
 import { useChallenge, useStore } from '../../../data/store';
-import { isPostOnly, type ChallengeStatus } from '../../../data/types';
+import { isPostOnly, OPERATIONSNAME_ZEIGEN, type ChallengeStatus } from '../../../data/types';
 import { color, radius, scheme, size, space, stroke, text } from '../../../theme/tokens';
 import { askCrosspost, restoreWithChoice } from '../../../components/CrosspostDialog';
 import { crosspostTargets } from '../../../data/crosspost';
@@ -132,7 +132,8 @@ export default function ChallengeDetail() {
   const acceptedByMe = challenge.status === 'accepted' && isParticipant(challenge, currentUserId);
   // Erledigt melden: jede teilnehmende Person, für alle (Daria, 28.10.2026)
   const reportsForAll = acceptedByMe;
-  const named = challenge.operationName !== undefined;
+  // Ohne Operationsnamen gilt jede angenommene Challenge als getauft (OPERATIONSNAME_ZEIGEN)
+  const named = !OPERATIONSNAME_ZEIGEN || challenge.operationName !== undefined;
   const isBeforeAfter = challenge.type === 'before_after';
   // Vorher-Nachher: erst das Vorher-, dann das Nachher-Foto in der Galerie
   const image = isBeforeAfter ? (challenge.imageBefore ?? challenge.image) : (challenge.image ?? challenge.imageAfter);
@@ -687,7 +688,7 @@ export default function ChallengeDetail() {
       photoText={challenge.type === 'photo' && image === challenge.image ? challenge.photoText : undefined}
       onBackPress={() => goBack()}
       onSharePress={() => share(challenge)}
-      imageOverlay={acceptedByMe && challenge.operationName ? <OperationTag name={challenge.operationName} /> : undefined}
+      imageOverlay={OPERATIONSNAME_ZEIGEN && acceptedByMe && challenge.operationName ? <OperationTag name={challenge.operationName} /> : undefined}
       actions={actions}
       summary={summary}
     >

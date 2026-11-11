@@ -1,7 +1,7 @@
 import type { Href } from 'expo-router';
 
 import type { CatMood } from '../components/icons/Brand';
-import type { Challenge } from './types';
+import { OPERATIONSNAME_ZEIGEN, type Challenge } from './types';
 import { t } from './texts';
 import { isParticipant } from './weChallenge';
 
@@ -52,7 +52,7 @@ export function reiseEntries(challenges: Challenge[], userId: string): ReiseEntr
       c.authorId === userId ? 'author' : isParticipant(c, userId) || c.payouts?.some((p) => p.userId === userId) ? 'assignee' : null;
     if (!role) continue;
     const { href, needsAction } = target(c, role, userId);
-    const label = role === 'assignee' && c.operationName ? c.operationName : c.title;
+    const label = OPERATIONSNAME_ZEIGEN && role === 'assignee' && c.operationName ? c.operationName : c.title;
     entries.push({ challenge: c, role, needsAction, label, href, lastActivity: lastActivity(c) });
   }
   return entries.sort(
