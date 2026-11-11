@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 
 import { FieldGroup, KaterBubble } from '../../components/Content';
 import { CrownIcon, MonoCat } from '../../components/icons/Brand';
-import { Icon } from '../../components/icons/Icon';
+import { Icon, ICON_SCALE } from '../../components/icons/Icon';
 import { Avatar } from '../../components/AuthorRow';
 import { NavCard, NavRow, ProfileCard } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
@@ -87,7 +87,18 @@ export default function Account() {
         <NavCard
           title="Mein Schaufenster"
           description="Für Laden, Verein oder Club"
-          leading={<Icon name="village" size={size.icon} color={color.text.primary} />}
+          // Dorf groß und leicht nach rechts, der Kreis schneidet das rechte Haus und die Unterkante rund ab,
+          // der gerade Rand der Zeichnung liegt außerhalb (Daria, 2026-11-11)
+          leading={
+            isFashionable ? (
+              <Icon name="village" size={size.icon} color={color.text.primary} />
+            ) : (
+              <View style={styles.villageBleed}>
+                <Icon name="village" size={38 / ICON_SCALE} color={color.text.primary} />
+              </View>
+            )
+          }
+          leadingFill={!isFashionable}
           onPress={() => router.push('/schaufenster')}
         />
       ) : null}
@@ -204,4 +215,5 @@ const styles = StyleSheet.create({
   list: { gap: space[8] },
   // Kater ragt 2 pt über den Kreisrand hinaus, damit der Kreis seine Unterkante rund abschneidet
   catBleed: { marginBottom: -2 },
+  villageBleed: { marginBottom: 6, transform: [{ translateX: 4 }] },
 });
