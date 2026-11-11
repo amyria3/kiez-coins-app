@@ -14,7 +14,12 @@ const HERZEN = [
   '<path d="M23.7333 56.2221C23.5836 55.651 23.5818 55.6525 23.5695 55.6026C23.1678 54.4935 23.1521 54.2003 23.1028 53.5605C23.0142 52.4107 22.8847 52.322 23.2021 51.3293C23.3174 50.9681 23.5512 50.7656 23.5938 50.7288C24.0199 50.3601 24.3739 49.9062 25.113 50.017C25.7456 50.1117 26.2297 50.0973 26.9271 51.5677C27.2257 52.2218 27.2048 52.2277 27.4253 52.9154C27.4449 52.9338 27.6427 53.1203 27.7098 53.0879C27.7924 53.0479 28.2427 52.3935 28.5644 52.0178C28.8506 51.7159 28.8796 51.7528 29.144 51.4261C29.5706 51.0125 29.7905 50.8295 30.3975 50.5829C31.1716 50.2686 31.6668 50.3812 31.6843 50.3845C32.8739 50.6004 32.9189 51.3997 32.9992 51.9444C33.0147 53.0106 32.8077 53.4787 32.53 54.2086C32.3354 54.7202 32.2811 54.6847 32.0374 55.1691C31.6636 55.9128 31.6259 55.8852 31.0078 56.6724C30.0357 57.8869 30.0336 57.8835 29.9513 57.9908C29.4936 58.5868 29.0914 58.9174 28.9299 59.1077C28.4888 59.6268 28.4444 59.64 27.952 60.0996C27.7059 60.2993 27.567 60.4206 27.5342 60.4492C26.0463 61.748 25.4358 60.4101 25.2104 59.8953C24.3952 58.2258 24.5304 58.1647 23.7333 56.2221Z" fill-rule="evenodd" clip-rule="evenodd" fill="#89F269"/>',
 ].join('');
 
-/** Kater ohne Kreis */
-export function katerAvatarSvg(): string {
-  return `<svg viewBox="0 0 86 86" fill="none" xmlns="http://www.w3.org/2000/svg">${KATER}${HERZEN}</svg>`;
+/** Kater ohne Kreis. `herzen: false` lässt die Herzen weg, damit sie als eigene Ebene ein- und ausblenden können. */
+export function katerAvatarSvg({ herzen = true }: { herzen?: boolean } = {}): string {
+  return `<svg viewBox="0 0 86 86" fill="none" xmlns="http://www.w3.org/2000/svg">${KATER}${herzen ? HERZEN : ''}</svg>`;
+}
+
+/** Nur die grünen Herzen in der Brille, gleiche Fläche wie der Kater */
+export function katerHerzenSvg(): string {
+  return `<svg viewBox="0 0 86 86" fill="none" xmlns="http://www.w3.org/2000/svg">${HERZEN}</svg>`;
 }
