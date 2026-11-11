@@ -1347,5 +1347,11 @@
   "Termin": "Зустріч",
   "Aufgabe": "Завдання",
   "Mein Schaufenster": "Моя вітрина",
-  "Für Laden, Verein oder Club": "Для крамниці, обʼєднання чи клубу"
+  "Für Laden, Verein oder Club": "Для крамниці, обʼєднання чи клубу",
+  "Mit Deinen Zugangsdaten vom Schaufenster. Mit der Registrierung ist automatisch Dein Konto bei KiezCoins entstanden. Damit meldest Du Dich in der App an und triffst andere Nutzer:innen.": "З тими самими даними для входу, що й для вітрини. Під час реєстрації автоматично створено твій обліковий запис у KiezCoins. З ним ти входиш у застосунок і знайомишся з іншими користувачами.",
+  "{n} Schaufenster": "{n, plural, one {# вітриною} few {# вітринами} many {# вітринами} other {# вітринами}}",
+  "ein Schaufenster": "однією вітриною",
+  "Mindestens 8 Zeichen. Ohne Konto legt KiezCoins eins an.": "Щонайменше 8 символів. Якщо в тебе немає облікового запису, KiezCoins створить його.",
+  "Nur die Gründer:in der Gruppe bearbeitet das Schaufenster.": "Редагувати вітрину може лише засновник або засновниця групи.",
+  "Dieses Schaufenster ist offline.": "Ця вітрина зараз офлайн."
 }
