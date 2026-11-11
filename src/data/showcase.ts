@@ -223,9 +223,13 @@ export async function loadShowcase(id: string, userId: string): Promise<{ showca
 
 /** Legt das Schaufenster an; hängt bei belegtem Kurznamen eine Zahl an */
 export async function createShowcase(groupId: string, name: string): Promise<string> {
-  const base = slugify(name);
+  // Namen ohne lateinische Buchstaben (z. B. Arabisch, Kyrillisch) ergeben nur „kiez“; dann gleich mit Zufallsteil.
+  // Der letzte Versuch bekommt immer einen Zufallsteil, damit ein belegter Name nicht zum Abbruch führt.
+  const latin = /[a-z0-9]/i.test(name.normalize('NFKD').replace(/[\u0300-\u036f]/g, ''));
+  const base = latin ? slugify(name) : 'schaufenster';
+  const random = () => Math.random().toString(36).slice(2, 7);
   for (let i = 0; i < 5; i++) {
-    const slug = i ? `${base.slice(0, 36)}-${i + 1}` : base;
+    const slug = !latin || i === 4 ? `${base.slice(0, 30)}-${random()}` : i ? `${base.slice(0, 36)}-${i + 1}` : base;
     const { data, error } = await supabase.rpc('create_showcase', { p_group_id: groupId, p_name: name, p_slug: slug });
     if (!error && data) return data as string;
     if (error && !/slug|duplicate|unique/i.test(error.message)) throw new Error(error.message);

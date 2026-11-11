@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -217,6 +217,8 @@ function Mine({ header }: { header: React.ReactNode }) {
   const [kiez, setKiez] = useState('');
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
+  // Gruppe aus einem gescheiterten Versuch; ein zweiter Versuch legt keine weitere Gruppe an
+  const groupRef = useRef<string | null>(null);
 
   const reload = useCallback(() => {
     if (currentUserId) myShowcases(currentUserId).then(setList, () => setList([]));
@@ -233,10 +235,12 @@ function Mine({ header }: { header: React.ReactNode }) {
       if (!handle) throw new Error(t('Diesen Namen nutzt schon jemand bei KiezCoins. Probier einen anderen, zum Beispiel mit Deinem Kiez dahinter.'));
       dispatch({ type: 'updateProfile', patch: { handle } });
       // Intern gehört jedes Schaufenster zu einer Gruppe; die Person ist ihre Gründer:in
-      const groupId = await groupApi.create(name.trim());
+      const groupId = groupRef.current ?? (await groupApi.create(name.trim()));
+      groupRef.current = groupId;
       const id = await createShowcase(groupId, name.trim());
       if (kiez.trim()) await supabase.from('showcases').update({ kiez: kiez.trim() }).eq('id', id);
-      router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id } });
+      groupRef.current = null;
+      router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id, von: 'schaufenster' } });
     } catch (error) {
       setFailed((error as Error).message);
     } finally {
@@ -295,7 +299,7 @@ function Mine({ header }: { header: React.ReactNode }) {
               <Button label="Termin erstellen" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]/termin', params: { id: s.id } })} />
             </>
           ) : null}
-          <Button label="Seite bearbeiten" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id } })} />
+          <Button label="Seite bearbeiten" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id, von: 'schaufenster' } })} />
           <Button label="Ansehen" variant="ghost" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
         </View>
       ))}
