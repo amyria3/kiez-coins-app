@@ -147,7 +147,7 @@
 <main class="fin">
 <section class="fin-kopf">
   <h1>So finanziert sich KiezCoins</h1>
-  <p class="lede">Zuerst decken die Einnahmen die Fixkosten. Vom Rest bekommt die Entwicklerin 30&nbsp;%, die Community 70&nbsp;%.</p>
+  <p class="lede">Im Moment erzielt KiezCoins keine Gewinne. In Zukunft decken die Einnahmen zuerst die Fixkosten. Der Gewinn verteilt sich dann auf das Team (30&nbsp;%) und die Community (70&nbsp;%).</p>
 </section>
 
 <section class="fin-rechner" aria-labelledby="rechner-titel">
@@ -202,7 +202,7 @@
 (function () {
   // Annahmen. Hier ändern, alles andere rechnet sich neu.
   var A = {
-    personal: 0.30,               // Anteil Entwicklerin vom Rest nach Fixkosten
+    personal: 0.30,               // Anteil Team vom Rest nach Fixkosten
     ust: 0.19,
     schwalbeJahr: 10.99,          // brutto, Webseite
     schwalbeGebuehrJahr: 0.35,    // SEPA-Lastschrift, einmal im Jahr
@@ -326,7 +326,7 @@
       h += zeile('var(--geb)', 'Zahlungsgebühren', r.gebuehren, 'minus');
       var unter = r.fix.map(function (f) { return zeile('var(--fix)', f.name, f.wert, 'unter'); }).join('');
       h += '<details' + (opt.interaktiv ? ' open' : '') + '><summary>' + zeile('var(--fix)', 'Fixkosten', r.fixSumme, 'minus') + '</summary>' + unter + '</details>';
-      h += zeile('var(--dev)', 'Entwicklerin (30 %)', r.dev, 'gross summe');
+      h += zeile('var(--dev)', 'Team (30 %)', r.dev, 'gross summe');
       if (r.rest < 0) h += '<p class="defizit">Es fehlen ' + euro(-r.rest) + ' im Monat für die Fixkosten.</p>';
       h += zeile('var(--com)', 'Community (70 %)', r.com, 'gross');
       dl.innerHTML = h;
