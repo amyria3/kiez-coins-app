@@ -181,9 +181,12 @@ export function useSubmitTarget(view: RefObject<View | null>, enabled: boolean) 
   useEffect(() => (enabled ? registry?.addButton(entry) : undefined), [registry, entry, enabled]);
 }
 
-/** Ansicht ins Bild scrollen, z. B. das Kommentarfeld, sobald die Tastatur da ist. */
-export function scrollIntoView(view: View | null) {
-  scrollTargets[scrollTargets.length - 1]?.scrollToView(view);
+/**
+ * Ansicht ins Bild scrollen, z. B. das Kommentarfeld, sobald die Tastatur da ist.
+ * `end`: nur so weit, dass sie unten ganz zu sehen ist (Keyboard.tsx, aktives Feld über der Tastatur).
+ */
+export function scrollIntoView(view: View | null, align?: ScrollAlign) {
+  scrollTargets[scrollTargets.length - 1]?.scrollToView(view, align);
 }
 
 /**
