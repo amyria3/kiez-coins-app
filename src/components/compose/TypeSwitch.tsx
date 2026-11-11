@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Easing, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { t } from '../../data/texts';
 import { color, font, isFashionable, motion, radius, stroke } from '../../theme/tokens';
@@ -75,7 +75,10 @@ function UnderlineTypeSwitch<K extends string>({
   return (
     <View style={styles.track} accessibilityRole="tablist">
       {box ? (
-        <Animated.View pointerEvents="none" style={[styles.indicator, accent && styles.indicatorAccent, { width: w, transform: [{ translateX: x }] }]} />
+        // Gemessene Lagen zählen von links, auch bei Rechts nach links; die Ebene rechnet deshalb auch von links
+        <View pointerEvents="none" style={styles.physical}>
+          <Animated.View pointerEvents="none" style={[styles.indicator, accent && styles.indicatorAccent, { width: w, transform: [{ translateX: x }] }]} />
+        </View>
       ) : null}
       {options.map((o) => {
         const selected = o.key === value;
@@ -117,6 +120,8 @@ const styles = StyleSheet.create({
         borderRadius: radius.full,
         backgroundColor: color.text.primary,
       },
+  // iOS/Android tauschen sonst links und rechts; im Browser zählt `left` ohnehin von links
+  physical: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, ...(Platform.OS === 'web' ? null : { direction: 'ltr' as const }) },
   indicatorAccent: { backgroundColor: color.accent.primary },
   option: { flexGrow: 1, flexShrink: 1, flexBasis: 'auto', minHeight: isFashionable ? 44 : 38, alignItems: 'center', justifyContent: 'center', paddingHorizontal: isFashionable ? 8 : 10 },
   label: isFashionable
