@@ -445,7 +445,7 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
             <span class="lw-speichern">${t('Speichern', 'Save')}</span>
           </div>
           <div class="lw-eintrag">
-            <span class="lw-art">Post</span>
+            <span class="lw-art">${t('Post', 'Post')}</span>
             <b>${t('Frischer Zimtkuchen ist da!', 'Fresh cinnamon cake is here!')}</b>
           </div>
         </div>

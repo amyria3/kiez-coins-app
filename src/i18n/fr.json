@@ -1347,5 +1347,7 @@
   "Termin": "Rendez-vous",
   "Aufgabe": "Tâche",
   "Mein Schaufenster": "Ma vitrine",
-  "Für Laden, Verein oder Club": "Pour un magasin, une association ou un club"
+  "Für Laden, Verein oder Club": "Pour un magasin, une association ou un club",
+  "Mit Deinen Zugangsdaten vom Schaufenster. Mit der Registrierung ist automatisch Dein Konto bei KiezCoins entstanden. Damit meldest Du Dich in der App an und triffst andere Nutzer:innen.": "Avec les mêmes identifiants que pour ta vitrine. En t’inscrivant, ton compte KiezCoins a été créé automatiquement. Avec lui, tu te connectes à l’appli et tu rencontres d’autres utilisateur·ices.",
+  "{n} Schaufenster": "{n, plural, one {# vitrine} other {# vitrines}}"
 }
