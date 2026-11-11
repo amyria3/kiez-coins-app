@@ -44,7 +44,7 @@ export default function Sprache() {
 
   return (
     <SubScreen title="Sprache" navigation="back" onLeadingPress={goBack}>
-      <Notice message="Welche Sprache möchtest Du?" />
+      <Notice message="Welche Sprache möchtest Du für die App festlegen?" />
       <View style={{ gap: space[8] }}>
         <RadioOption label={t('Wie das Handy ({sprache})', { sprache: device })} selected={choice === 'auto'} onPress={() => choose('auto')} />
         {languages.map((l) => (

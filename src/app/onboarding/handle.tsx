@@ -4,7 +4,7 @@ import { Text } from '../../components/T';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { Notice } from '../../components/Content';
+import { Notice, QuestionHint } from '../../components/Content';
 import { Chip, ChipGroup, TextField } from '../../components/Form';
 import { GenderChoice } from '../../components/GenderChoice';
 import type { Gender } from '../../data/types';
@@ -100,6 +100,8 @@ export default function Deckname() {
         maxLength={30}
         autoCorrect={false}
       />
+      <QuestionHint question="Was ist ein Deckname?" answer="Dein Name in der App. Ändern kannst Du ihn später unter „Dein Konto“." />
+      <QuestionHint question="Wer sieht meinen Decknamen?" answer="Alle in KiezCoins, zum Beispiel bei Deinen Challenges und Kommentaren." />
       {suggestions.length ? (
         <>
           <Text style={styles.label}>Vorschläge</Text>

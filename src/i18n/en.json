@@ -1705,7 +1705,11 @@
   "Wie starte ich eine Challenge?": "How do I start a challenge?",
   "Wie finde ich Freund:innen?": "How do I find friends?",
   "Wozu sind Gruppen?": "What are groups for?",
-  "Welche Sprache möchtest Du?": "Which language would you like?",
+  "Welche Sprache möchtest Du für die App festlegen?": "Which language would you like to set for the app?",
   "Welchen Decknamen möchtest Du?": "Which nickname would you like?",
-  "Die Zeit läuft weiter, auch wenn Du die App schließt. Viel Erfolg!": "The time keeps running, even when you close the app. Good luck!"
+  "Die Zeit läuft (auch wenn Du die App schließt).": "The clock is running (even when you close the app).",
+  "Was ist ein Deckname?": "What is a nickname?",
+  "Dein Name in der App. Ändern kannst Du ihn später unter „Dein Konto“.": "Your name in the app. You can change it later under “Your account”.",
+  "Wer sieht meinen Decknamen?": "Who sees my nickname?",
+  "Alle in KiezCoins, zum Beispiel bei Deinen Challenges und Kommentaren.": "Everyone on KiezCoins, for example on your challenges and comments."
 }
