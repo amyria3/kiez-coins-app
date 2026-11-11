@@ -29,6 +29,10 @@ const LAECHELN_GANZ = require('../../assets/kater/mund-laecheln-ganz.png');
 /** Ausschnitt der Mundbilder auf der Fläche */
 const MUND_BOX = { x: 560, y: 236, w: 120, h: 140 };
 const GLAESER = require('../../assets/kater/glaeser.png');
+// Herzen als Augen (Daria, 2026-11-11): über den Augen, unter der Brille, das untere Drittel verdecken die Gläser.
+// `HERZEN_GANZ` zeigt sie ganz, wenn die Brille runterrutscht. Gebaut mit scripts/kater-herzaugen.py.
+const HERZEN = require('../../assets/kater/herzen.png');
+const HERZEN_GANZ = require('../../assets/kater/herzen-ganz.png');
 const VIDEO = require('../../assets/kater/glaeser.mp4');
 const W = 1300;
 const H = 1696;
@@ -307,10 +311,14 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
             />
           )}
           <Image source={OBEN} style={layer} contentFit="contain" />
+          <Image source={HERZEN} style={layer} contentFit="contain" />
           {muender(MUND, LAECHELN)}
           <Animated.View style={[layer, { opacity: brilleRunter }]} pointerEvents="none">
             <Image source={OBEN_GANZ} style={flaeche} contentFit="contain" />
             {muender(MUND_GANZ, LAECHELN_GANZ)}
+            <Animated.View style={[layer, { opacity: normalWeg }]}>
+              <Image source={HERZEN_GANZ} style={flaeche} contentFit="contain" />
+            </Animated.View>
             <Animated.View style={[layer, rutschen, { opacity: normalWeg }]}>
               <Image source={GLAESER} style={flaeche} contentFit="contain" />
             </Animated.View>
