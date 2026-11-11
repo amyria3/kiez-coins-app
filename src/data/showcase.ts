@@ -38,6 +38,10 @@ export type Showcase = {
   links: string[];
   openingHours?: string;
   imprint?: string;
+  /** AGB, formatierbarer Text (Migration 20261111000100); nur über loadShowcase geladen */
+  terms?: string;
+  /** Spalte terms gibt es schon (Migration 20261111000100 gelaufen) */
+  termsReady: boolean;
   visibility: Visibility;
   /** Bezahlt: Die Grenze von 50 löscht nichts (plan_until in der Zukunft) */
   paid: boolean;
@@ -138,7 +142,16 @@ const toShowcase = (r: Row): Showcase => ({
   paid: !!r.plan_until && (r.plan_until === 'infinity' || new Date(r.plan_until).getTime() > Date.now()),
   switches: ALL_ON,
   inviteCode: '',
+  termsReady: false,
 });
+
+/** AGB getrennt laden: Fehlt die Migration 20261111000100, bleibt das Schaufenster wie vorher, nur ohne AGB */
+async function loadTerms(showcase: Showcase): Promise<void> {
+  const { data, error } = await supabase.from('showcases').select('terms').eq('id', showcase.id).maybeSingle();
+  if (error) return;
+  showcase.termsReady = true;
+  showcase.terms = (data as { terms: string | null } | null)?.terms ?? undefined;
+}
 
 /** Schalter der Gruppe; fehlt die Migration 20261110001600, ist alles an wie vorher */
 export async function showcaseSwitches(id: string): Promise<ShowcaseSwitches> {
@@ -200,6 +213,7 @@ export async function loadShowcase(id: string, userId: string): Promise<{ showca
   showcase.address = (priv as Private)?.address ?? undefined;
   showcase.inviteCode = (priv as Private)?.invite_code ?? '';
   showcase.switches = await showcaseSwitches(id);
+  await loadTerms(showcase);
   const [member, group, guest, follow, see] = await Promise.all([
     supabase.from('group_members').select('role, can_post_showcase').eq('group_id', showcase.groupId).eq('user_id', userId).maybeSingle(),
     supabase.from('groups').select('founder_id').eq('id', showcase.groupId).maybeSingle(),
@@ -248,6 +262,8 @@ export type ShowcaseInput = {
   links: string[];
   openingHours?: string;
   imprint?: string;
+  /** Nur mitschicken, wenn die Spalte terms existiert (Showcase.termsReady) */
+  terms?: string;
   visibility: Visibility;
   /** Neues Bild (lokal) oder unverändert */
   logo?: ImageSource;
@@ -310,6 +326,7 @@ export async function updateShowcase(id: string, userId: string, input: Showcase
     imprint: nullIfEmpty(input.imprint),
     visibility: input.visibility,
   };
+  if (input.terms !== undefined) fields.terms = nullIfEmpty(input.terms);
   if (isLocal(input.logo)) fields.logo_path = await uploadPhoto(userId, input.logo!);
   if (isLocal(input.cover)) fields.cover_path = await uploadPhoto(userId, input.cover!);
   const { error } = await supabase.from('showcases').update(fields).eq('id', id);

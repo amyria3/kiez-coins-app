@@ -8,6 +8,7 @@ import { CollapsibleSection, InfoRow, KaterCard, Notice, SectionBlock } from '..
 import { RichText } from '../../../components/RichText';
 import { SubScreen } from '../../../components/Screen';
 import { ShowcaseEventCard } from '../../../components/ShowcaseEventCard';
+import { PlaceholderPost, PlaceholderText, ShowcaseCover, ShowcaseLogo } from '../../../components/ShowcasePlaceholder';
 import { Text } from '../../../components/T';
 import {
   follow,
@@ -85,10 +86,11 @@ export default function ShowcaseScreen() {
 
   return (
     <SubScreen title={s.name} subtitle={s.kiez} navigation="back" onLeadingPress={goBack}>
+      {/* Leere Angaben zeigen Platzhalter: Verlauf, Kater-Logo, graue Zeilen (Daria, 2026-11-11) */}
       <View style={styles.head}>
-        {s.cover ? <Image source={s.cover} style={styles.cover} contentFit="cover" accessibilityIgnoresInvertColors /> : null}
-        <View style={[styles.identity, s.cover ? styles.identityOnCover : null]}>
-          {s.logo ? <Image source={s.logo} style={styles.logo} contentFit="cover" /> : null}
+        <ShowcaseCover image={s.cover} style={styles.cover} />
+        <View style={[styles.identity, styles.identityOnCover]}>
+          <ShowcaseLogo image={s.logo} size={64} style={styles.logo} />
           <Text noTranslate style={styles.name}>
             {s.name}
           </Text>
@@ -97,16 +99,31 @@ export default function ShowcaseScreen() {
           <Text noTranslate style={styles.about}>
             {s.about}
           </Text>
-        ) : null}
+        ) : (
+          <PlaceholderText>Noch keine Beschreibung</PlaceholderText>
+        )}
         <View style={styles.info}>
-          {s.address ? <InfoRow icon="map-pin" value={s.address} /> : null}
-          {s.openingHours ? <InfoRow icon="clock-filled" value={s.openingHours} /> : null}
-          {/* Mehrere Links (Daria, 2026-11-10). Die Adresse steht nur bei Menschen mit Zugang (showcase_private). */}
-          {s.links.map((l) => (
-            <Pressable key={l} onPress={() => Linking.openURL(l).catch(() => {})} accessibilityRole="link">
-              <InfoRow icon="link" value={shortLink(l)} />
-            </Pressable>
-          ))}
+          {/* Die Adresse steht nur bei Menschen mit Zugang (showcase_private); ohne Zugang kein Platzhalter */}
+          {s.address ? (
+            <InfoRow icon="map-pin" value={s.address} />
+          ) : access.canSee ? (
+            <InfoRow icon="map-pin" value="Noch keine Adresse" placeholder />
+          ) : null}
+          {s.openingHours ? (
+            <InfoRow icon="clock-filled" value={s.openingHours} />
+          ) : (
+            <InfoRow icon="clock-filled" value="Noch keine Öffnungszeiten" placeholder />
+          )}
+          {/* Mehrere Links (Daria, 2026-11-10) */}
+          {s.links.length ? (
+            s.links.map((l) => (
+              <Pressable key={l} onPress={() => Linking.openURL(l).catch(() => {})} accessibilityRole="link">
+                <InfoRow icon="link" value={shortLink(l)} />
+              </Pressable>
+            ))
+          ) : (
+            <InfoRow icon="link" value="Noch keine Links" placeholder />
+          )}
         </View>
       </View>
 
@@ -146,7 +163,11 @@ export default function ShowcaseScreen() {
         <CollapsibleSection label="Services" collapsible={s.servicesCollapsed}>
           <RichText value={s.services} />
         </CollapsibleSection>
-      ) : null}
+      ) : (
+        <SectionBlock label="Services">
+          <PlaceholderText>Noch keine Services</PlaceholderText>
+        </SectionBlock>
+      )}
 
       {access.canSee ? (
         entries.length ? (
@@ -165,17 +186,37 @@ export default function ShowcaseScreen() {
             )}
           </SectionBlock>
         ) : (
-          <Text style={styles.meta}>{access.team ? 'Noch leer. Erstelle den ersten Post oder Termin.' : 'Hier ist noch nichts los.'}</Text>
+          <>
+            <SectionBlock label="Termine">
+              <PlaceholderText>Noch keine Termine</PlaceholderText>
+            </SectionBlock>
+            <SectionBlock label="Posts">
+              <PlaceholderPost />
+            </SectionBlock>
+          </>
         )
       ) : null}
 
-      {s.imprint ? (
-        <SectionBlock label="Impressum">
+      {/* AGB eingeklappt, sie sind meist lang (Daria, 2026-11-11) */}
+      {s.terms ? (
+        <CollapsibleSection label="AGB" collapsible>
+          <RichText value={s.terms} />
+        </CollapsibleSection>
+      ) : (
+        <SectionBlock label="AGB">
+          <PlaceholderText>AGB noch nicht hinterlegt</PlaceholderText>
+        </SectionBlock>
+      )}
+
+      <SectionBlock label="Impressum">
+        {s.imprint ? (
           <Text noTranslate style={styles.meta}>
             {s.imprint}
           </Text>
-        </SectionBlock>
-      ) : null}
+        ) : (
+          <PlaceholderText>Impressum noch nicht hinterlegt</PlaceholderText>
+        )}
+      </SectionBlock>
     </SubScreen>
   );
 }
@@ -207,7 +248,7 @@ const styles = StyleSheet.create({
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.xl },
   identity: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   identityOnCover: { marginTop: -space[32] - space[8], paddingHorizontal: space[12], alignItems: 'flex-end' },
-  logo: { width: 64, height: 64, borderRadius: 32, borderWidth: 3, borderColor: color.bg.screen, backgroundColor: color.bg.surface },
+  logo: { borderWidth: 3, borderColor: color.bg.screen, backgroundColor: color.bg.surface },
   // Name in der App-Schrift für große Überschriften (Kiez: Unbounded), nicht in Inter (Daria, 2026-11-10)
   name: { ...text.display, flex: 1, color: color.text.primary, paddingBottom: space[4] },
   about: { ...text.body, color: color.text.primary },
