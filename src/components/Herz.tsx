@@ -4,7 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 const HERZ_FARBE = '#89F269';
 const HERZ_RAND = '#FFFFFF';
 
-/** Darias Herz, flach, für Herzen in der Brille des Katers (KaterStage, KaterRund) */
+/** Darias Herz, flach, für Herzen in der Brille des Katers (KaterStage) */
 export function Herz({ size, rand = true }: { size: number; /** Ohne weißen Rand für die Herzaugen des Katers (Daria, 2026-11-11) */ rand?: boolean }) {
   return (
     // Darias Herz (assets/icons/heart.svg), flach, weißer Rand für den Kontrast

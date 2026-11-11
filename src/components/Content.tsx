@@ -6,9 +6,8 @@ import { color, font, isFashionable, radius, space, stroke, text } from '../them
 import { t as translate, useTexts } from '../data/texts';
 import { Cat, type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
-import { iconSvgs } from './icons/svgs';
 import Svg, { Rect, SvgXml } from 'react-native-svg';
-import { Herz } from './Herz';
+import { KATER_AVATAR_GELB, katerAvatarSvg } from './icons/katerAvatarSvg';
 import { IconButton } from './IconButton';
 
 // Systemmeldungen als hellblaue Chatblase der App, wie die Antworten auf die Fragen; Icon dunkel wie der Text, nur bei Warnungen (Daria, 2026-11-09)
@@ -575,31 +574,13 @@ export function KaterCard({ children, title, mood = 'default' }: { children: Rea
 }
 
 /**
- * Kater im Kreis (Daria, 30.10.2026): das Icon „cat“, unten vom Kreis angeschnitten, ohne Kachel.
- * Gläser, Nase und Mund sind ausgespart, dort scheint der Kreis durch. Der Kreis sitzt auf der Sprechblase.
- * Seit 2026-11-02: lila Kater auf schwarzem Kreis; er fährt beim Erscheinen sanft von unten herein,
- * und in seiner Brille blitzen in unregelmäßigen Abständen Herzen auf. Mit „Bewegung reduzieren“ sitzt er still.
+ * Kater im Kreis: Darias Kater-Avatar (2026-11-11), lila Kater mit grünen Herzen in der Brille auf gelbem Kreis.
+ * Er fährt beim Erscheinen sanft von unten in den Kreis herein. Mit „Bewegung reduzieren“ sitzt er still.
  */
 const RUND = 64;
-const RUND_KATER = 44;
-const RUND_SCHWARZ = '#000000';
-/** Mitte der Gläser im Icon „cat“ (Fläche 30 × 35) */
-const RUND_GLAESER = [
-  { x: 9.2, y: 17.9 },
-  { x: 20.1, y: 16.2 },
-];
-const RUND_HERZ = 8.5;
-export function KaterRund({ size = RUND, herzen = true }: { size?: number; herzen?: boolean } = {}) {
-  // Der kleine interaktive Kater bleibt das Icon „cat“, nicht der mit den orangen Gläsern (Daria, 2026-11-05)
-  const cat = iconSvgs.cat;
-  // Größere Kreise (leerer Feed, Abschluss-Screens) wachsen im selben Verhältnis (Daria, 2026-11-09)
-  const m = size / RUND;
-  const katerHoehe = RUND_KATER * m;
-  const k = katerHoehe / cat.height;
-  const breite = cat.width * k;
+export function KaterRund({ size = RUND }: { size?: number } = {}) {
   const [still, setStill] = useState<boolean | null>(null);
   const rein = useRef(new Animated.Value(0)).current;
-  const herz = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled()
       .catch(() => false)
@@ -616,60 +597,19 @@ export function KaterRund({ size = RUND, herzen = true }: { size?: number; herze
     a.start();
     return () => a.stop();
   }, [still, rein]);
-  // Herzen blitzen unregelmäßig: Pause 2,5 bis 9 s, manchmal zweimal kurz hintereinander
-  useEffect(() => {
-    if (still !== false || !herzen) return;
-    let timer: ReturnType<typeof setTimeout>;
-    let laeuft: Animated.CompositeAnimation | undefined;
-    const blitz = () =>
-      Animated.sequence([
-        Animated.timing(herz, { toValue: 1, duration: 110, easing: Easing.out(Easing.quad), useNativeDriver: true }),
-        Animated.delay(220 + Math.random() * 260),
-        Animated.timing(herz, { toValue: 0, duration: 180, easing: Easing.in(Easing.quad), useNativeDriver: true }),
-      ]);
-    const naechstes = () => {
-      timer = setTimeout(() => {
-        laeuft = Math.random() < 0.3 ? Animated.sequence([blitz(), Animated.delay(140), blitz()]) : blitz();
-        laeuft.start(naechstes);
-      }, 2500 + Math.random() * 6500);
-    };
-    naechstes();
-    return () => {
-      clearTimeout(timer);
-      laeuft?.stop();
-    };
-  }, [still, herz, herzen]);
-  const groesse = RUND_HERZ * k;
   return (
     <View
-      style={[styles.rund, m !== 1 && { width: size, height: size, borderRadius: size / 2 }]}
+      style={[styles.rund, { width: size, height: size, borderRadius: size / 2 }]}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
       <Animated.View
-        style={[
-          styles.rundKater,
-          m !== 1 && { bottom: -7 * m },
-          { opacity: still === null ? 0 : 1, transform: [{ translateY: rein.interpolate({ inputRange: [0, 1], outputRange: [size, 0] }) }] },
-        ]}
+        style={{
+          opacity: still === null ? 0 : 1,
+          transform: [{ translateY: rein.interpolate({ inputRange: [0, 1], outputRange: [size, 0] }) }],
+        }}
       >
-        <View style={{ width: breite, height: katerHoehe }}>
-          <SvgXml xml={cat.svg(color.brand.signature)} width={breite} height={katerHoehe} />
-          {(herzen ? RUND_GLAESER : []).map((g) => (
-            <Animated.View
-              key={g.x}
-              style={{
-                position: 'absolute',
-                left: g.x * k - groesse / 2,
-                top: g.y * k - groesse / 2,
-                opacity: herz,
-                transform: [{ scale: herz.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] }) }],
-              }}
-            >
-              <Herz size={groesse} />
-            </Animated.View>
-          ))}
-        </View>
+        <SvgXml xml={katerAvatarSvg()} width={size} height={size} />
       </Animated.View>
     </View>
   );
@@ -847,10 +787,7 @@ const styles = StyleSheet.create({
   },
   speechTitle: { ...text.cardTitleCompact, color: color.text.primary },
   speechText: { fontFamily: font.text, fontSize: 15, lineHeight: 21, color: color.text.primary },
-  // Kreis im Grund der Seite, damit er sich von der Blase abhebt
-  rund: { width: RUND, height: RUND, borderRadius: RUND / 2, overflow: 'hidden', backgroundColor: RUND_SCHWARZ },
-  // Unten 8 pt angeschnitten, über den Ohren gut ein Drittel Luft
-  rundKater: { position: 'absolute', left: 0, right: 0, bottom: -7, alignItems: 'center' },
+  rund: { overflow: 'hidden', backgroundColor: KATER_AVATAR_GELB },
   group: { gap: space[8] },
   groupLabel: { ...text.caption, color: color.text.secondary },
   groupLabelLarge: { fontFamily: font.semiBold, fontSize: 15, lineHeight: 20, marginBottom: space[4] },

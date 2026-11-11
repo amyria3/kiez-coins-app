@@ -72,4 +72,5 @@ Darias Quellen für Abzeichen liegen in `design/abzeichen/` im Repo: `icons/` (S
 - `2026-11-02_schiff-wellen.md`: Schiffchen mit Linien, auf Wellen vor „Was Du so machst“, daneben die Krone.
 - `2026-11-02_meine-posts-und-community.md`: Notiz für die Doku. Meine Posts kürzer, Zahlen in zwei Zeilen; Community-Zeile in „Was Du so machst“.
 - `2026-11-02_kater-rund.md`: Notiz für die Doku. Kater im Kreis lila auf Schwarz, fährt herein, Herzen blitzen.
+- `2026-11-11_kater-avatar.md`: Notiz für die Doku. Kater im Kreis ist jetzt Darias Avatar, lila Kater mit grünen Herzen auf Gelb.
 - `2026-11-03_app-icon.md`: Notiz für die Doku. App-Icon aus Darias neuem Logo, gebaut mit `scripts/app-icon.py`.
