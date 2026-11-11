@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import { KaterBubble } from '../../components/Content';
+import { Notice } from '../../components/Content';
 import { RadioOption } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
 import { t } from '../../data/texts';
@@ -24,7 +24,7 @@ export default function LookScreen() {
 
   return (
     <SubScreen title="Look" navigation="back" onLeadingPress={goBack}>
-      <KaterBubble>Wie soll KiezCoins für Dich aussehen?</KaterBubble>
+      <Notice message="Wie soll KiezCoins für Dich aussehen?" />
       <View style={{ gap: space[8] }}>
         {looks.map((l) => (
           <RadioOption

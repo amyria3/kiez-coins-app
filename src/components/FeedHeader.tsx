@@ -8,7 +8,7 @@ import { Image } from 'expo-image';
 import { challengeTypes, isTypeActive } from '../data/features';
 import type { Challenge } from '../data/types';
 import { color, font, isFashionable, motion, radius, size, space, stroke, text } from '../theme/tokens';
-import { KaterCard } from './Content';
+import { Notice } from './Content';
 import { Logo, MonoCat } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { useRouter } from 'expo-router';
@@ -584,11 +584,11 @@ const labelColor = (pos: Animated.Value | Animated.AnimatedInterpolation<number>
     extrapolate: 'clamp',
   });
 
-/** Inhalt eines geplanten Reiters: Kater mit Hinweis, dass das Feature später kommt. */
+/** Inhalt eines geplanten Reiters: Systemhinweis mit Krabbe, dass das Feature später kommt (Daria, 2026-11-11). */
 export function PlannedHint({ title, message }: { title: string; message: string }) {
   return (
     <View style={styles.hint}>
-      <KaterCard title={title}>{message}</KaterCard>
+      <Notice message={`${t(title)}. ${t(message)}`} />
     </View>
   );
 }

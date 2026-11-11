@@ -6,7 +6,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { elapsedMs, TimerRing, useNow } from '../../components/BeforeAfterTimer';
 import { Button } from '../../components/Button';
 import { BeforeAfterSteps, TagTextField } from '../../components/compose/BeforeAfterForm';
-import { KaterBubble } from '../../components/Content';
+import { Notice } from '../../components/Content';
 import { PhotoPicker, TextField } from '../../components/Form';
 import { Icon } from '../../components/icons/Icon';
 import { SubScreen } from '../../components/Screen';
@@ -273,10 +273,9 @@ export default function BeforeAfterScreen() {
           <Text style={styles.small}>{isOpen ? t('Vorher gepostet um {time} Uhr', { time: clock(challenge.createdAt) }) : t('Vorher gespeichert um {time} Uhr', { time: clock(challenge.createdAt) })}</Text>
         </View>
       </View>
-      {/* Vor dem Start fragt der Kater, ob die Person ihre Zeit nehmen will; der Timer ist freiwillig (Daria, 2026-11-02) */}
-      <KaterBubble>
-        {running ? 'Ich halte die Zeit fest, auch wenn Du die App schließt. Viel Erfolg!' : 'Willst Du Deine eigene Zeit nehmen?'}
-      </KaterBubble>
+      {/* Vor dem Start fragt die App, ob die Person ihre Zeit nehmen will; der Timer ist freiwillig (Daria, 2026-11-02).
+          Systemtext, daher Krabbe statt Kater (Daria, 2026-11-11) */}
+      <Notice message={running ? 'Die Zeit läuft weiter, auch wenn Du die App schließt. Viel Erfolg!' : 'Willst Du Deine eigene Zeit nehmen?'} />
       <View style={styles.ringWrap}>
         <TimerRing diameter={236} width={10} progress={elapsed / BEFORE_AFTER_MAX_MS}>
           <Text style={styles.big}>{formatClock(elapsed)}</Text>
