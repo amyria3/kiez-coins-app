@@ -29,10 +29,6 @@ const LAECHELN_GANZ = require('../../assets/kater/mund-laecheln-ganz.png');
 /** Ausschnitt der Mundbilder auf der Fläche */
 const MUND_BOX = { x: 560, y: 236, w: 120, h: 140 };
 const GLAESER = require('../../assets/kater/glaeser.png');
-// Herzen als Augen (Daria, 2026-11-11): über den Augen, unter der Brille, das untere Drittel verdecken die Gläser.
-// `HERZEN_GANZ` zeigt sie ganz, wenn die Brille runterrutscht. Gebaut mit scripts/kater-herzaugen.py.
-const HERZEN = require('../../assets/kater/herzen.png');
-const HERZEN_GANZ = require('../../assets/kater/herzen-ganz.png');
 const VIDEO = require('../../assets/kater/glaeser.mp4');
 const W = 1300;
 const H = 1696;
@@ -44,16 +40,34 @@ const PFOTE = { x: 985, y: 856 };
 const GLAS_L = { x: 523, y: 234 };
 const GLAS_R = { x: 707, y: 218 };
 const HERZ = 150;
+/** Augen beim Blick über die Brille (drueber.png): Dort flackern beim Start der App Herzen auf (Daria, 2026-11-11) */
+const AUGE_L = { x: 534, y: 200 };
+const AUGE_R = { x: 700, y: 186 };
+const HERZ_AUGE = 150;
 /** Ohne Aktion schaut er ab und zu über die Brille (Daria, 2026-11-09): Pause zufällig zwischen diesen Werten in ms */
 const DRUEBER_PAUSE = [5000, 10000] as const;
 /** So lange schaut er über die Brille */
 const DRUEBER_MS = 1300;
 /** Pause zwischen Aktion und Blick über die Brille (`danachDrueber`) */
 const DRUEBER_DANACH_PAUSE = 200;
+/**
+ * Herzaugen beim Start der App (Daria, 2026-11-11): Brille runter, die Augen sind eine Drittelsekunde zu sehen,
+ * dann erscheinen Herzen, flackern kurz und blenden aus. Erst danach geht die Brille wieder hoch.
+ */
+const HERZAUGEN_WARTEN = 330;
+const HERZAUGEN_EIN = 160;
+/** Flackern: so oft kurz dunkler und wieder voll, je Schritt so viele ms */
+const HERZAUGEN_FLACKERN = 3;
+const HERZAUGEN_FLACKER_MS = 110;
+const HERZAUGEN_HALTEN = 250;
+const HERZAUGEN_AUS = 260;
+const HERZAUGEN_DANACH = 150;
+const HERZAUGEN_MS =
+  HERZAUGEN_WARTEN + HERZAUGEN_EIN + HERZAUGEN_FLACKERN * 2 * HERZAUGEN_FLACKER_MS + HERZAUGEN_HALTEN + HERZAUGEN_AUS + HERZAUGEN_DANACH;
 /** So lange dauert das Fegen; der Start der App wartet darauf (StartKater) */
 export const FEGEN_DAUER = 380 + 5 * 260 + 150 + 380;
 /** So lange dauert der Blick über die Brille nach einer Aktion */
-export const DRUEBER_DAUER = DRUEBER_DANACH_PAUSE + 420 + DRUEBER_MS + 380;
+export const DRUEBER_DAUER = DRUEBER_DANACH_PAUSE + 420 + HERZAUGEN_MS + 380;
 
 type Props = {
   /** Breite der Figur in pt; die Höhe folgt dem Bild */
@@ -66,7 +80,7 @@ type Props = {
   ohneBlase?: boolean;
   /** Jede Erhöhung lässt Herzen in der Brille aufgehen (Knopf im Willkommensbildschirm) */
   herzen?: number;
-  /** Nach der Aktion einmal über die Brille schauen und lächeln (Start der App, Daria, 2026-11-09) */
+  /** Nach der Aktion einmal über die Brille schauen und lächeln, dabei flackern Herzaugen (Start der App, Daria, 2026-11-09 und 2026-11-11) */
   danachDrueber?: boolean;
 };
 
@@ -102,6 +116,7 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
   const stiefelY = useRef(new Animated.Value(0)).current;
   const herz = useRef(new Animated.Value(0)).current;
   const herzSichtbar = useRef(new Animated.Value(0)).current;
+  const herzAugen = useRef(new Animated.Value(0)).current;
   const blase = useRef(new Animated.Value(spruch ? 1 : 0)).current;
 
   // Atmen
@@ -155,11 +170,22 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
       ablauf = Animated.sequence([hoch, Animated.delay(80), Animated.sequence([step(stiefelY, -32, 160), step(stiefelY, 0, 160)])]);
     }
     if (danachDrueber && aktion !== 'brille') {
+      const herzAuge = (toValue: number, duration: number) =>
+        Animated.timing(herzAugen, { toValue, duration, easing: Easing.inOut(Easing.quad), useNativeDriver: true });
+      const flackern = Array.from({ length: HERZAUGEN_FLACKERN }, () => [
+        herzAuge(0.25, HERZAUGEN_FLACKER_MS),
+        herzAuge(1, HERZAUGEN_FLACKER_MS),
+      ]).flat();
       ablauf = Animated.sequence([
         ablauf,
         Animated.delay(DRUEBER_DANACH_PAUSE),
         step(brilleY, 54, 420),
-        Animated.delay(DRUEBER_MS),
+        Animated.delay(HERZAUGEN_WARTEN),
+        herzAuge(1, HERZAUGEN_EIN),
+        ...flackern,
+        Animated.delay(HERZAUGEN_HALTEN),
+        herzAuge(0, HERZAUGEN_AUS),
+        Animated.delay(HERZAUGEN_DANACH),
         step(brilleY, 0, 380),
       ]);
     }
@@ -169,6 +195,7 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
     });
     return () => {
       ablauf.stop();
+      herzAugen.setValue(0);
       beschaeftigt.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -311,14 +338,10 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
             />
           )}
           <Image source={OBEN} style={layer} contentFit="contain" />
-          <Image source={HERZEN} style={layer} contentFit="contain" />
           {muender(MUND, LAECHELN)}
           <Animated.View style={[layer, { opacity: brilleRunter }]} pointerEvents="none">
             <Image source={OBEN_GANZ} style={flaeche} contentFit="contain" />
             {muender(MUND_GANZ, LAECHELN_GANZ)}
-            <Animated.View style={[layer, { opacity: normalWeg }]}>
-              <Image source={HERZEN_GANZ} style={flaeche} contentFit="contain" />
-            </Animated.View>
             <Animated.View style={[layer, rutschen, { opacity: normalWeg }]}>
               <Image source={GLAESER} style={flaeche} contentFit="contain" />
             </Animated.View>
@@ -331,6 +354,14 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
               <Animated.View key={m.x} style={herzStil(m)}>
                 <Herz size={herzGroesse} />
               </Animated.View>
+            ))}
+          </Animated.View>
+          {/* Herzaugen über den Augen, nur solange die Brille unten ist (Start der App) */}
+          <Animated.View style={[layer, { opacity: herzAugen }]} pointerEvents="none">
+            {[AUGE_L, AUGE_R].map((m) => (
+              <View key={m.x} style={{ position: 'absolute', left: m.x * s - (HERZ_AUGE * s) / 2, top: m.y * s - (HERZ_AUGE * s) / 2 }}>
+                <Herz size={HERZ_AUGE * s} rand={false} />
+              </View>
             ))}
           </Animated.View>
         </Animated.View>
