@@ -616,7 +616,8 @@ const RUND_GRUND = require('../../assets/kater/kater-avatar-grund.png');
 const RUND = 64;
 /** Zufallszahl zwischen a und b */
 const zwischen = (a: number, b: number) => a + Math.random() * (b - a);
-export function KaterRund({ size = RUND }: { size?: number } = {}) {
+/** `bg`: feste Farbe statt Verlauf und Gelb, z. B. die Kartenfarbe in Routine (Daria, 2026-11-12) */
+export function KaterRund({ size = RUND, bg }: { size?: number; bg?: string } = {}) {
   const [still, setStill] = useState<boolean | null>(null);
   const rein = useRef(new Animated.Value(0)).current;
   const puls = useRef(new Animated.Value(1)).current;
@@ -689,8 +690,14 @@ export function KaterRund({ size = RUND }: { size?: number } = {}) {
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
-      <Image source={RUND_GRUND} style={StyleSheet.absoluteFill} contentFit="cover" />
-      <Animated.View style={[StyleSheet.absoluteFill, styles.rundGrund, { opacity: puls }]} />
+      {bg ? (
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: bg }]} />
+      ) : (
+        <>
+          <Image source={RUND_GRUND} style={StyleSheet.absoluteFill} contentFit="cover" />
+          <Animated.View style={[StyleSheet.absoluteFill, styles.rundGrund, { opacity: puls }]} />
+        </>
+      )}
       <Animated.View
         style={{
           opacity: still === null ? 0 : 1,

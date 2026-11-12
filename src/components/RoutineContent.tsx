@@ -12,7 +12,7 @@ import { savedEvents, type ShowcaseEvent } from '../data/showcase';
 import { useCalendarEnabled } from '../data/routine';
 import { useStore } from '../data/store';
 import { ShowcaseEventCard } from './ShowcaseEventCard';
-import { RoutineCardSurface, RoutineLamp } from './RoutineCardShape';
+import { RoutineList } from './RoutineList';
 import { archiveReminder, capitalize, goalOf, kindOf, loadReminders, type Reminder } from '../data/reminders';
 import { t } from '../data/texts';
 import { color, font, isFashionable, radius, space, text } from '../theme/tokens';
@@ -70,13 +70,25 @@ export function RoutineContent({ topPad = space[16], bottomPad }: { topPad?: num
             more={calendarOn ? <Button label="Kalender verbinden" variant="ghost" onPress={() => router.push('/account/features')} /> : undefined}
           />
         </View>
+      ) : flat ? (
+        <ScrollView contentContainerStyle={[styles.content, styles.contentFlat, { paddingTop: topPad, paddingBottom: bottomPad }]}>
+          <RoutineList
+            list={list}
+            events={events}
+            saved={saved}
+            onDone={(r) => router.push({ pathname: '/routine/[id]', params: { id: r.id } })}
+            onEnd={end}
+            onNew={() => router.push('/routine/new')}
+            onChanged={reload}
+          />
+        </ScrollView>
       ) : (
         <ScrollView contentContainerStyle={[styles.content, { paddingTop: topPad, paddingBottom: bottomPad }]}>
           {/* Kater spricht wie im Feed als Sprechblase (Daria, 2026-11-11) */}
           {focus ? <KaterCard>{katerLine(focus)}</KaterCard> : null}
           {list.length ? (
             <SectionBlock label="Deine Erinnerungen">
-              <View style={[styles.list, lamps && styles.listShaped]}>
+              <View style={styles.list}>
                 {list.map((r) => (
                   <ReminderCard key={r.id} reminder={r} onDone={() => router.push({ pathname: '/routine/[id]', params: { id: r.id } })} onEnd={() => end(r)} />
                 ))}
@@ -101,7 +113,7 @@ export function RoutineContent({ topPad = space[16], bottomPad }: { topPad?: num
               </View>
             </SectionBlock>
           ) : null}
-          <View style={[styles.buttons, lamps && styles.buttonsShaped]}>
+          <View style={styles.buttons}>
             <Button label="Neue Erinnerung" icon="plus" variant="secondary" onPress={() => router.push('/routine/new')} />
             {calendarOn ? <Button label="Kalender" variant="ghost" onPress={() => router.push('/account/features')} /> : null}
           </View>
@@ -133,34 +145,27 @@ function ReminderCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDo
   const kind = kindOf(r);
   const counted = kind !== 'termin';
   const done = Math.min(r.doneThisWeek, goal);
-  // Will heute noch etwas von Dir: nicht erledigt und das Wochenziel nicht erreicht
-  const needsAction = !r.doneToday && !(counted && r.doneThisWeek >= goal);
-  const body = (
-    <>
+  return (
+    <Pressable onLongPress={onEnd} accessibilityHint={t('Lange drücken zum Beenden')} style={styles.card}>
       <View style={styles.head}>
-        <View style={[styles.flex, lamps && styles.flexShaped]}>
+        <View style={styles.flex}>
           {kind ? <Text style={[styles.kicker, kind === 'termin' ? styles.kickerTermin : styles.kickerAufgabe]}>{kind === 'termin' ? 'Termin' : 'Aufgabe'}</Text> : null}
-          <Text noTranslate style={[styles.title, lamps && styles.titleShaped]}>
+          <Text noTranslate style={styles.title}>
             {capitalize(r.want)}
           </Text>
           <Text style={styles.sub}>{goalText(r)}</Text>
         </View>
         {counted ? (
           <Text noTranslate style={[styles.count, r.doneThisWeek >= goal && styles.countDone]}>
-            {/* Kiez-Look: die erledigte Zahl grün wie die Lampen (Daria, 2026-11-11) */}
-            {lamps && done > 0 ? <Text noTranslate style={styles.countDone}>{done}</Text> : done}/{goal}
+            {done}/{goal}
           </Text>
         ) : null}
       </View>
       {counted ? (
-        <View style={[styles.bar, lamps && styles.barLamps]} accessible accessibilityLabel={t('{done} von {goal} diese Woche', { done, goal })}>
-          {Array.from({ length: goal }, (_, i) =>
-            lamps && i < r.doneThisWeek ? (
-              <RoutineLamp key={i} />
-            ) : (
-              <View key={i} style={[styles.segment, lamps && styles.segmentGroove, i < r.doneThisWeek && styles.segmentDone]} />
-            ),
-          )}
+        <View style={styles.bar} accessible accessibilityLabel={t('{done} von {goal} diese Woche', { done, goal })}>
+          {Array.from({ length: goal }, (_, i) => (
+            <View key={i} style={[styles.segment, i < r.doneThisWeek && styles.segmentDone]} />
+          ))}
         </View>
       ) : null}
       <View style={styles.foot}>
@@ -173,26 +178,12 @@ function ReminderCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDo
           <Button label="Erledigt" variant="secondary" onPress={onDone} />
         )}
       </View>
-    </>
-  );
-  // Kiez-Look: Karte im Stil der Abzeichen (Daria, 2026-11-11, Variante K). Fashionable bleibt flach.
-  if (lamps)
-    return (
-      <Pressable onLongPress={onEnd} accessibilityHint={t('Lange drücken zum Beenden')} style={styles.cardLift}>
-        <RoutineCardSurface style={styles.cardShaped} alive={needsAction}>
-          {body}
-        </RoutineCardSurface>
-      </Pressable>
-    );
-  return (
-    <Pressable onLongPress={onEnd} accessibilityHint={t('Lange drücken zum Beenden')} style={styles.card}>
-      {body}
     </Pressable>
   );
 }
 
-/** Lampen, Wellen und handgeschnittene Kante nur im Kiez-Look */
-const lamps = !isFashionable;
+/** Kiez-Look: Kalender und farbige Karten in drei Gruppen (Daria, 2026-11-12). Fashionable behält die Liste. */
+const flat = !isFashionable;
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
@@ -200,19 +191,11 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: space[20], paddingTop: space[16], gap: space[24] },
   list: { gap: space[12] },
   buttons: { gap: space[8] },
-  /** Mehr Abstand zwischen den Routine-Karten und zum Button darunter (Daria, 2026-11-11) */
-  listShaped: { gap: space[24] },
-  buttonsShaped: { marginTop: space[12] },
+  /** Mehr Luft zwischen Kalender und Gruppen */
+  contentFlat: { gap: space[32] },
   card: { gap: space[12], padding: space[16], borderRadius: radius.xl, backgroundColor: color.bg.surface },
-  /** Platz für die harte Unterkante unter der Karte */
-  cardLift: { marginBottom: 4 },
-  /** Mehr Luft in der Karte (Daria, 2026-11-11, zweimal): rundum 24, unten 44 über den Wellen */
-  cardShaped: { gap: space[20], paddingHorizontal: space[24], paddingTop: space[24], paddingBottom: 44 },
-  /** Titel der Karte in der Unbounded (Daria, 2026-11-11) */
-  titleShaped: { fontFamily: font.onPhoto, fontSize: 17, lineHeight: 23, letterSpacing: 0 },
   head: { flexDirection: 'row', alignItems: 'flex-start', gap: space[12] },
   flex: { flex: 1, gap: space[4] },
-  flexShaped: { gap: space[8] },
   title: { ...text.cardTitle, color: color.text.primary },
   kicker: { ...text.caption, fontFamily: font.medium },
   kickerTermin: { color: color.accent.primary },
@@ -223,10 +206,6 @@ const styles = StyleSheet.create({
   bar: { flexDirection: 'row', gap: space[6] },
   segment: { flex: 1, height: 6, borderRadius: 3, backgroundColor: color.bg.screen },
   segmentDone: { backgroundColor: color.accent.confirmation },
-  /** Lampen sind 8 hoch, die offenen Tage als eingelassene Rille */
-  barLamps: { paddingBottom: 2 },
-  /** Offene Tage: flache Rille in der Linienfarbe des Katers */
-  segmentGroove: { height: 9, borderRadius: 4.5, backgroundColor: 'rgba(0, 0, 39, 0.55)' },
   foot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space[12] },
   endText: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },
   doneToday: { fontFamily: font.medium, fontSize: 15, lineHeight: 20, color: color.accent.confirmation },
