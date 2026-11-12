@@ -72,6 +72,12 @@ const HERZ = '<svg width="22" height="22" aria-hidden="true" viewBox="0 0 35 36"
 // Kater-Maske (Cat-Avatar-Mask.svg) statt Logo, graue Zeilen für fehlende Angaben, ein erster Post zum Ansehen.
 // Die App zeigt dasselbe (src/components/ShowcasePlaceholder.tsx).
 const KATER = '<svg width="36" height="32" aria-hidden="true" viewBox="0 0 35 31" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M29.8389 4.32385C30.2718 4.51386 30.6554 4.74222 30.9434 5.01624C32.2062 6.21818 32.5338 6.31956 32.9248 6.68616C33.8973 7.59812 34.1006 9.62071 34.1006 11.3531C34.1006 15.5488 34.0681 14.3748 34.0869 16.9537C34.1004 18.81 34.1005 21.6209 31.6338 24.7985C23.8527 29.9038 21.9208 30.116 15.3193 30.0006L12.0439 29.8278C8.81613 29.0959 8.63087 29.6764 4.41895 26.6461C2.03591 24.282 2.1456 24.2364 1.42871 23.3541C-0.109269 20.2796 0.0537125 19.6386 0.0537109 14.9225C0.0536608 12.0929 -0.415933 9.49597 1.42871 7.37659L3.24023 5.79651L3.55273 1.68713L8.52539 2.83655C13.2778 1.69417 19.3517 2.45528 22.7344 2.99963L29.8389 0.0201416V4.32385ZM17.4287 19.9996V25.6403C17.0274 25.6499 14.9325 25.0144 14.4238 24.7799L13.5 26.4996C14.0792 26.7912 15.2601 27.3747 16.4121 27.6696C17.1297 27.8532 17.1206 27.7815 18.3096 27.6608C18.8564 27.4785 21.8033 27.0677 22.5 25.9996L21.5742 24.8951L18.3096 25.6403L18.1396 19.444L17.4287 19.9996ZM11.3252 10.5641C10.5048 10.504 8.81272 9.98065 7.48145 10.8131C6.65543 11.5079 6.67591 11.5295 6.4082 11.7975C5.70135 12.7796 5.67338 12.7945 5.48633 13.9449C5.2902 15.1509 6.00632 15.9637 6.16113 16.6969L14.1787 16.6276C14.892 15.7542 15.2723 15.579 15.0137 14.2301C14.1321 11.8204 13.5238 11.3916 12.0664 10.8131L11.3252 10.5641ZM26.8262 10.7799C25.6015 9.98107 24.0714 10.4465 23.3262 10.4908L22.6562 10.7135C21.34 11.2341 20.7935 11.6264 20.0312 13.8707C19.8182 15.1305 20.1677 15.3 20.8311 16.1285L28.125 16.3112C28.2536 15.6265 28.8918 14.8746 28.6934 13.7418C28.5043 12.6619 28.4786 12.6478 27.8193 11.7174C27.5714 11.4625 27.5892 11.4429 26.8262 10.7799Z" fill="#F0F0F0"/></svg>';
+// Neutraler Look der öffentlichen Seite (Daria, 2026-11-12: „neutral, yet modern and a little bit elegant“):
+// warmes Weiß, fast schwarze Schrift, feine Linien, kleine Überschriften in Versalien, viel Luft.
+const NEUTRAL = `:root:root { --bg: #F7F7F4; --text: #161616; --muted: #6F6F6A; --surface: #FFFFFF; --line: rgba(22,22,22,.10);
+  --purple: #161616; background: #F7F7F4 !important; background-image: none !important; color: var(--text); }
+.geteilt .sf-verlauf { background: linear-gradient(135deg, #ECECE6 0%, #E1E1DA 100%) !important; }`;
+
 const leer = (text) => `<p class="sf-klein sf-leer">${text}</p>`;
 
 // Alter Kurzname: aktueller Kurzname des Schaufensters (Migration 20261111000200), sonst null
@@ -227,14 +233,15 @@ function visitenkarte(s, links) {
 @font-face { font-family: Unbounded_500Medium; font-display: block; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
 @font-face { font-family: Karla_400Regular; font-display: block; src: url(/fonts/Karla_400Regular.ttf) format('truetype'); }
 @font-face { font-family: Karla_500Medium; font-display: block; src: url(/fonts/Karla_500Medium.ttf) format('truetype'); }
-.geteilt .sf-vk { margin: 8px 0 48px; }
+.geteilt .sf-vk { margin: 0 0 56px; }
 .geteilt .sf-vk-bild { display: block; width: 100%; max-width: 420px; aspect-ratio: 85 / 55; border-radius: 10px; margin: 0 0 12px; }
 .geteilt .sf-vk-knoepfe { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
 .geteilt .sf-vk button { cursor: pointer; }
-.geteilt .sf-vk .sf-vk-haupt { border: 0; border-radius: 999px; padding: 12px 22px; background: #E4FF5F; color: #000027; font: 500 16px/1 Inter, sans-serif; }
+.geteilt .sf-vk .sf-vk-haupt { border: 0; border-radius: 999px; padding: 12px 22px; background: var(--text); color: var(--bg); font: 500 15px/1 Inter, sans-serif; letter-spacing: .01em; }
 .geteilt .sf-vk .sf-vk-neben { border: 0; background: none; padding: 8px 0; font: inherit; font-size: 15px; color: var(--text); text-decoration: underline; }
 .geteilt .sf-vk button:disabled { opacity: .5; cursor: default; }
 </style>
+  <h2 class="sf-abschnitt">Visitenkarte</h2>
   <section class="sf-vk" aria-label="Visitenkarte">
     <img class="sf-vk-bild" alt="Visitenkarte von ${esc(s.name)}" hidden>
     <div class="sf-vk-knoepfe">
@@ -274,16 +281,21 @@ function inhalt(s) {
   }
   const cover = foto(s.cover_path);
   const logo = foto(s.logo_path);
+  // Angaben mit kleinen Überschriften, Zeilenumbrüche bleiben (Daria, 2026-11-12)
+  const fakt = (label, html) => `<div class="sf-fakt"><dt>${label}</dt><dd>${html}</dd></div>`;
   const infos = [
-    s.address ? `<p class="sf-klein">${esc(s.address)}</p>` : leer('Noch keine Adresse'),
-    s.opening_hours ? `<p class="sf-klein">${esc(s.opening_hours)}</p>` : leer('Noch keine Öffnungszeiten'),
+    fakt('Adresse', s.address ? esc(s.address) : '<span class="sf-leer">Noch keine Adresse</span>'),
+    fakt('Öffnungszeiten', s.opening_hours ? esc(s.opening_hours) : '<span class="sf-leer">Noch keine Öffnungszeiten</span>'),
   ].join('');
   // Mehrere Links (Migration 20261110000600); vorher nur die Webseite
   const links = Array.isArray(s.links) && s.links.length ? s.links : s.website ? [s.website] : [];
-  const web = links
-    .filter((l) => /^https:\/\//i.test(l))
-    .map((l) => `<p class="sf-klein"><a href="${esc(l)}" rel="noopener nofollow">${esc(l.replace(/^https:\/\/(www\.)?/i, '').replace(/\/$/, ''))}</a></p>`)
-    .join('') || leer('Noch keine Links');
+  const web = fakt(
+    links.length > 1 ? 'Links' : 'Link',
+    links
+      .filter((l) => /^https:\/\//i.test(l))
+      .map((l) => `<a href="${esc(l)}" rel="noopener nofollow">${esc(l.replace(/^https:\/\/(www\.)?/i, '').replace(/\/$/, ''))}</a>`)
+      .join('<br>') || '<span class="sf-leer">Noch keine Links</span>',
+  );
   const eintraege = (s.entries ?? []).map(eintrag).join('\n');
   // Noch nichts gepostet: Abschnitte für Termine und Posts mit einem ersten Post als Platzhalter
   const ohneEintraege = `<h2 class="sf-abschnitt">Termine</h2>${leer('Noch keine Termine')}
@@ -296,10 +308,10 @@ function inhalt(s) {
     </div></article></div>`;
   return `<style>
 ${
-  // Ohne eigene Farbe: oben ein Hauch Kater-Gelbgrün statt des blassen Lilas der Website (Daria, 2026-11-12)
-  s.bg_color
-    ? farbe(s.bg_color)
-    : 'html { background-image: linear-gradient(170deg, #EEFF9E 0%, #F5FFC9 28%, rgba(250,251,239,0) 60%) !important; background-color: #FAFBEF !important; background-size: 100% 1500px; background-repeat: no-repeat; }'
+  // Ohne eigene Farbe: neutral, ruhig und etwas elegant statt des blassen Lilas der Website (Daria, 2026-11-12,
+  // Vorbild tubikstudio.com). Die Farbe kommt aus den Fotos und der Visitenkarte, nicht aus dem Hintergrund.
+  s.bg_color ? farbe(s.bg_color) : NEUTRAL
+}'
 }
 /* KiezCoins-Logo oben klein, das Schaufenster steht im Vordergrund (Daria, 2026-11-10) */
 /* Klein, ohne Slogan, rechts, mit Abstand darunter (Daria, 2026-11-10) */
@@ -329,7 +341,15 @@ ${
 /* Name und Abschnitte in der App-Schrift für große Überschriften (Daria, 2026-11-10) */
 @font-face { font-family: Unbounded; font-weight: 500; font-display: swap; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
 .geteilt .sf-wer h1 { margin: 0; padding-bottom: 4px; font: 500 32px/33px Unbounded, var(--display); letter-spacing: 0; }
-.geteilt h2.sf-abschnitt { font: 500 18px/24px Unbounded, var(--display); margin: 32px 0 12px; }
+/* Abschnitte klein in Versalien mit feiner Linie darüber, wie bei Studios (Daria, 2026-11-12) */
+.geteilt h2.sf-abschnitt { font: 500 12px/16px Inter, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 48px 0 16px; padding-top: 20px; border-top: 1px solid var(--line); }
+.geteilt .sf-klappe summary h2.sf-abschnitt { flex: 1; }
+.geteilt .sf-fakten { display: grid; gap: 16px; margin: 28px 0 8px; }
+@media (min-width: 560px) { .geteilt .sf-fakten { grid-template-columns: 1fr 1fr; gap: 20px 32px; } }
+.geteilt .sf-fakt dt { font: 500 12px/16px Inter, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+.geteilt .sf-fakt dd { margin: 0; font-size: 16px; line-height: 1.5; white-space: pre-line; }
+.geteilt .sf-fakt dd a { text-underline-offset: 3px; }
 .geteilt .sf-services p, .geteilt .sf-services ul { margin: 0 0 12px; }
 .geteilt .sf-services ul { padding-left: 20px; }
 .geteilt .sf-services li { margin: 0 0 4px; }
@@ -341,7 +361,7 @@ ${
 .geteilt .sf-cover:not(.sf-mit-logo) + .sf-wer { margin-top: 12px; }
 .geteilt .sf-klein { font-size: 15px; color: var(--muted); margin: 0 0 4px; }
 .geteilt .sf-liste { display: grid; gap: 32px; margin: 24px 0; }
-.geteilt .sf-karte { background: var(--surface); border-radius: 6px; overflow: hidden; }
+.geteilt .sf-karte { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
 .geteilt .sf-bild { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 0; object-fit: cover; }
 .geteilt .sf-inhalt { padding: 16px; }
 .geteilt .sf-inhalt h2 { font: 600 22px/1.2 var(--display); margin: 0 0 6px; }
@@ -368,7 +388,7 @@ ${
   <div class="sf-wer">${logo ? `<img class="sf-logo" src="${esc(logo)}" alt="Logo von ${esc(s.name)}">` : `<span class="sf-logo sf-kater">${KATER}</span>`}<h1>${esc(s.name)}</h1></div>
   ${s.kiez ? `<p class="wer">${esc(s.kiez)}</p>` : ''}
   ${s.about ? `<p class="text">${esc(s.about)}</p>` : leer('Noch keine Beschreibung')}
-  ${infos}${web}
+  <dl class="sf-fakten">${infos}${web}</dl>
   ${s.imprint ? '<p class="sf-klein"><a href="#impressum">Impressum</a></p>' : ''}
   ${
     !s.services
