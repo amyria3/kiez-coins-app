@@ -1320,7 +1320,6 @@
   "Textpost": "Текстовый пост",
   "Termin": "Встреча",
   "Aufgabe": "Задача",
-  "Mein Schaufenster": "Моя витрина",
   "Für Laden, Verein oder Club": "Для магазина, объединения или клуба",
   "Mindestens 8 Zeichen. Ohne Konto legt KiezCoins eins an.": "Не меньше 8 символов. Если у тебя нет аккаунта, KiezCoins создаст его.",
   "Dieses Schaufenster ist offline.": "Эта витрина сейчас офлайн.",
@@ -1343,5 +1342,6 @@
   "Logos, Fotos und Texte stellst Du nur ein, wenn Du die Rechte daran hast. Verträge über Waren, Dienstleistungen oder Termine schließt Du direkt mit Deinen Kund:innen; KiezCoins ist nicht Vertragspartei.": "Ты загружаешь логотипы, фото и тексты, только если у тебя есть на них права. Договоры о товарах, услугах или событиях ты заключаешь напрямую со своими клиентами; KiezCoins не является их стороной.",
   "Ein öffentliches Schaufenster ist ohne Anmeldung im Internet sichtbar und kann in Suchmaschinen erscheinen.": "Публичная витрина видна в интернете без входа и может появляться в поисковых системах.",
   "Ohne Konto legt KiezCoins beim Anmelden eins an. Wie KiezCoins Deine Daten verarbeitet, steht in der Datenschutzerklärung.": "Если у тебя ещё нет аккаунта, KiezCoins создаст его при входе. Как KiezCoins обрабатывает твои данные, описано в политике конфиденциальности.",
-  "Deine Erinnerungen": "Твои напоминания"
+  "Deine Erinnerungen": "Твои напоминания",
+  "{group} Schaufenster": "Витрина {group}"
 }
