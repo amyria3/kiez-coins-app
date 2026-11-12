@@ -14,6 +14,7 @@ import { Avatar } from './AuthorRow';
 import { reiseEntries } from '../data/reise';
 import { countButton } from '../data/remote';
 import { look } from '../theme/look';
+import { useRoutineEnabled } from '../data/routine';
 
 /** `menu`: Dein Konto, dort ist der Burger markiert (Daria, 2026-11-11) */
 export type TabKey = 'feed' | 'reise' | 'chat' | 'menu';
@@ -29,6 +30,10 @@ type TabBarProps = {
   onGroupsPress?: () => void;
   /** Fashionable Look: Reiter „Gruppen“ im Feed ist offen */
   groupsActive?: boolean;
+  /** Kiez-Look: Die Routine ist im Feed offen, dann ist der Kalender aktiv statt des Herzens */
+  routineActive?: boolean;
+  /** Kiez-Look: Kalender im Feed öffnet die Routine dort. Ohne: Der Feed öffnet mit der Routine. */
+  onRoutinePress?: () => void;
 };
 
 /**
@@ -113,10 +118,14 @@ function FashionTabBar({ active, onFeedPress, onCreatePress }: TabBarProps) {
   );
 }
 
-function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarProps) {
+function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineActive = false, onRoutinePress }: TabBarProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { mode, currentUserId } = useStore();
+  const routineOn = useRoutineEnabled();
+  const feedOn = active === 'feed' && !routineActive;
+  // Lila Pille im Feed wie üblich; in der Routine klein und ohne Fläche (Daria, 2026-11-12)
+  const cameraPill = feedOn;
   const unread = useUnreadMessages();
   const requests = useFriendRequests();
   useEffect(() => {
@@ -128,19 +137,24 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarP
       pointerEvents="box-none"
     >
       <View style={styles.bar} accessibilityRole="tablist">
-        <Pressable
-          accessibilityRole="tab"
-          accessibilityLabel={t('Feed')}
-          accessibilityState={{ selected: active === 'feed' }}
-          onPress={onFeedPress}
-          style={({ pressed }) => [styles.item, active === 'feed' && styles.itemActive, pressed && styles.pressed]}
-        >
-          <Icon name="feed" size={size.icon} color={active === 'feed' ? color.text.primary : color.text.secondary} />
-        </Pressable>
-        {/* Kamera auch in der Leiste, als blaue Pille wie oben rechts (Daria, 30.10.2026).
-            Nur im Feed als blaue Pille, dort etwas größer. In Nachrichten und „Was Du so machst“ schlicht wie Feed und Menü daneben:
+        {/* Kalender ganz links öffnet die Routine (Daria, 2026-11-12). Nur, wenn die Routine eingeschaltet ist. */}
+        {routineOn ? (
+          <Pressable
+            accessibilityRole="tab"
+            accessibilityLabel={t('Routine')}
+            accessibilityState={{ selected: routineActive }}
+            onPress={() => {
+              if (routineActive) return;
+              (onRoutinePress ?? (() => router.dismissTo({ pathname: '/feed', params: { reiter: 'routine' } })))();
+            }}
+            style={({ pressed }) => [styles.item, routineActive && styles.itemActive, pressed && styles.pressed]}
+          >
+            <Icon name="calendar" size={size.icon} color={routineActive ? color.nav.calendar : color.nav.icon} />
+          </Pressable>
+        ) : null}
+        {/* Kamera auch in der Leiste (Daria, 30.10.2026). Im Feed als lila Pille, dort etwas größer; in der Routine klein und schlicht (Daria, 2026-11-12). In Nachrichten und „Was Du so machst“ schlicht wie Feed und Menü daneben:
             ohne Fläche, gleich breit, gedämpfte Farbe (Daria, 10.11.2026).
-            Sitzt zwischen Feed und Chats (Daria, 10.11.2026) */}
+            Sitzt rechts neben dem Kalender, das Herz (Feed) kommt danach (Daria, 2026-11-12) */}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('Challenge erstellen')}
@@ -148,13 +162,22 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarP
             countButton('kamera-leiste', look);
             (onCreatePress ?? (() => router.dismissTo({ pathname: '/feed', params: { erstellen: '1' } })))();
           }}
-          style={({ pressed }) => [styles.item, active === 'feed' && styles.itemCamera, pressed && styles.pressed]}
+          style={({ pressed }) => [styles.item, cameraPill && styles.itemCamera, pressed && styles.pressed]}
         >
           <Icon
             name="camera"
-            size={active === 'feed' ? CAMERA_ICON_FEED : size.icon}
-            color={active === 'feed' ? color.bg.screen : color.text.secondary}
+            size={cameraPill ? CAMERA_ICON_FEED : CAMERA_ICON_PLAIN}
+            color={cameraPill ? color.nav.onCreate : color.nav.icon}
           />
+        </Pressable>
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityLabel={t('Feed')}
+          accessibilityState={{ selected: feedOn }}
+          onPress={onFeedPress}
+          style={({ pressed }) => [styles.item, feedOn && styles.itemActive, pressed && styles.pressed]}
+        >
+          <Icon name="feed" size={size.icon} color={feedOn ? color.nav.feed : color.nav.icon} />
         </Pressable>
         {/* Chat und Freund:innen (Daria, 22.10.2026) */}
         <Pressable
@@ -165,7 +188,7 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarP
           style={({ pressed }) => [styles.item, active === 'chat' && styles.itemActive, pressed && styles.pressed]}
         >
           <View>
-            <Icon name="message" size={size.icon} color={active === 'chat' ? color.text.primary : color.text.secondary} />
+            <Icon name="message" size={size.icon} color={active === 'chat' ? color.nav.chat : color.nav.icon} />
             {unread || requests ? <View style={styles.dot} /> : null}
           </View>
         </Pressable>
@@ -176,7 +199,7 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarP
           onPress={() => active !== 'menu' && onMenuPress()}
           style={({ pressed }) => [styles.item, active === 'menu' && styles.itemActive, pressed && styles.pressed]}
         >
-          <Icon name="burger" size={size.icon} color={active === 'menu' ? color.text.primary : color.text.secondary} />
+          <Icon name="burger" size={size.icon} color={active === 'menu' ? color.nav.menu : color.nav.icon} />
         </Pressable>
       </View>
     </View>
@@ -205,6 +228,8 @@ export function CameraButton({ onPress, inline = false }: { onPress: () => void;
 
 /** Kamera-Icon in der Pille im Feed, so groß wie die Kamera oben rechts */
 const CAMERA_ICON_FEED = 24;
+/** Kamera ohne Pille (Routine, Nachrichten, Menü): klein, nicht betont (Daria, 2026-11-12) */
+const CAMERA_ICON_PLAIN = 16;
 
 /** Platz unter Listen, damit die schwebende Leiste nichts verdeckt. */
 export const TAB_BAR_SPACE = 96;
@@ -219,7 +244,8 @@ const styles = StyleSheet.create({
     gap: space[6],
     padding: space[6],
     borderRadius: radius.full,
-    backgroundColor: color.bg.glass,
+    // Aubergine statt Grau (Daria, 2026-11-12), vorher color.bg.glass
+    backgroundColor: color.nav.bar,
     borderWidth: stroke.ultraThin,
     borderColor: color.line.hairline,
   },
@@ -231,9 +257,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   // Im Feed etwas größer als die Nachbarn (vorher 64 breit, Icon 20)
-  itemCamera: { width: 72, backgroundColor: color.accent.primary },
-  // Aktive Seite: transparentes Lila (Daria, 2026-11-11), vorher dezente helle Fläche. #8F90FA = accent.primary
-  itemActive: { backgroundColor: isFashionable ? 'transparent' : 'rgba(143, 144, 250, 0.28)' },
+  // Lila wie üblich (Daria, 2026-11-12, kurz Olive)
+  itemCamera: { width: 72, backgroundColor: color.nav.create },
+  // Aktive Seite: graue Blase #303034 (Daria, 2026-11-12), vorher transparentes Lila
+  itemActive: { backgroundColor: color.nav.bubble },
   camera: {
     position: 'absolute',
     right: space[16],
@@ -284,6 +311,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: color.accent.signal,
     borderWidth: stroke.thin,
-    borderColor: color.bg.screen,
+    borderColor: color.nav.bar,
   },
 });

@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Button } from './Button';
@@ -23,7 +23,16 @@ import { color, font, isFashionable, radius, space, text } from '../theme/tokens
  * Antworten auf die Fragen: Übergabe/2026-11-07_offen_erinnerungen.md.
  */
 /** `topPad`: Abstand oben, im Feed derselbe wie bei den anderen Reitern unter dem Umschalter */
-export function RoutineContent({ topPad = space[16], bottomPad }: { topPad?: number; bottomPad: number }) {
+export function RoutineContent({
+  topPad = space[16],
+  bottomPad,
+  onScroll,
+}: {
+  topPad?: number;
+  bottomPad: number;
+  /** Lage der Liste, z. B. damit der Feed erkennt, ob man ganz oben weiter nach oben zieht */
+  onScroll?: (e: NativeSyntheticEvent<NativeScrollEvent>) => void;
+}) {
   const router = useRouter();
   const [list, setList] = useState<Reminder[] | null | undefined>(undefined);
   // Termine aus verbundenen Kalendern, als Termine angezeigt (Daria, 2026-11-10)
@@ -71,7 +80,7 @@ export function RoutineContent({ topPad = space[16], bottomPad }: { topPad?: num
           />
         </View>
       ) : flat ? (
-        <ScrollView contentContainerStyle={[styles.content, styles.contentFlat, { paddingTop: topPad, paddingBottom: bottomPad }]}>
+        <ScrollView onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.content, styles.contentFlat, { paddingTop: topPad, paddingBottom: bottomPad }]}>
           <RoutineList
             list={list}
             events={events}
@@ -83,7 +92,7 @@ export function RoutineContent({ topPad = space[16], bottomPad }: { topPad?: num
           />
         </ScrollView>
       ) : (
-        <ScrollView contentContainerStyle={[styles.content, { paddingTop: topPad, paddingBottom: bottomPad }]}>
+        <ScrollView onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.content, { paddingTop: topPad, paddingBottom: bottomPad }]}>
           {/* Kater spricht wie im Feed als Sprechblase (Daria, 2026-11-11) */}
           {focus ? <KaterCard>{katerLine(focus)}</KaterCard> : null}
           {list.length ? (

@@ -201,10 +201,17 @@ export async function refreshUnread(meId: string, live: boolean) {
   if (!asks.error) setFriendRequests(asks.count ?? 0);
 }
 
+/** Zähler für eindeutige Kanalnamen, siehe subscribeMessages */
+let channelCount = 0;
+
 /** Neue Nachrichten an mich oder von mir in Echtzeit. Gibt die Abmeldung zurück. */
 export function subscribeMessages(meId: string, onMessage: (m: ChatMessage) => void, name = 'liste'): () => void {
+  // Jede Anmeldung bekommt einen eigenen Kanal. Supabase gibt bei gleichem Namen den
+  // alten Kanal zurück, solange dessen Abmeldung noch läuft, und `.on()` auf einem
+  // schon verbundenen Kanal wirft einen Fehler, der die ganze Web-App abstürzen lässt.
+  channelCount += 1;
   const channel = supabase
-    .channel(`messages-${meId}-${name}`)
+    .channel(`messages-${meId}-${name}-${channelCount}`)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
       const m = toMessage(payload.new as MessageRow);
       if (m.recipientId !== meId && m.senderId !== meId) return;

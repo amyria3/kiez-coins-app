@@ -9,7 +9,7 @@ import { challengeTypes, isTypeActive } from '../data/features';
 import type { Challenge } from '../data/types';
 import { color, font, isFashionable, motion, radius, size, space, stroke, text } from '../theme/tokens';
 import { Notice } from './Content';
-import { Logo, MonoCat } from './icons/Brand';
+import { Logo } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { useRouter } from 'expo-router';
 import { useFriendRequests, useUnreadMessages } from '../data/chat';
@@ -35,7 +35,7 @@ export function AppHeader(props: AppHeaderProps) {
 }
 
 /**
- * Kopf im Look „Fashionable“ nach Darias Mockup (24.10.2026): Schriftzug „KiezCoins“ als Text links,
+ * Kopf im Look „Fashionable“ nach Darias Mockup (24.10.2026): Logo mit Kater und Schriftzug links (seit 2026-11-12 das neue Logo),
  * Inter Tight halbfett 24/28, rechts die Sprechblase mit Zeilen (Chats). Dein Profilbild („Was Du so machst“) sitzt in der Leiste unten (Daria, 27.10.2026).
  * Abstände 4 oben, 12 rechts, 8 unten, 14 links.
  */
@@ -46,12 +46,9 @@ function FashionHeader({ onLogoLongPress }: AppHeaderProps) {
   return (
     <View style={styles.fashionHead}>
       <Pressable onLongPress={onLogoLongPress} accessibilityRole="header">
-        {/* Kater aus dem monochromen Logo (26) und Schriftzug „KiezCoins“, 8 Abstand (Daria, 24.10.2026, Variante B) */}
+        {/* Neues Logo mit Kater und Schriftzug, in Textfarbe (Daria, 2026-11-12) */}
         <View style={styles.brand} accessible accessibilityLabel="KiezCoins">
-          <MonoCat height={26} />
-          <Text noTranslate style={styles.wordmark}>
-            KiezCoins
-          </Text>
+          <Logo height={26} />
         </View>
       </Pressable>
       <View style={styles.headIcons}>
@@ -79,9 +76,9 @@ function KiezHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) 
         accessibilityLabel={hasTasks ? t('Was Du so machst, Du bist dran') : t('Was Du so machst')}
         style={styles.logo}
       >
-        {/* Neues Logo mit Kater links (Daria, 22.10.2026); der Punkt sitzt am Kater */}
+        {/* Logo mit Kater links (Daria, 2026-11-12: neues Logo); der Punkt sitzt am Kater */}
         <View>
-          <Logo height={isFashionable ? 28 : 30} />
+          <Logo height={28} />
           {hasTasks ? <View style={[styles.taskDot, styles.taskDotLogo]} /> : null}
         </View>
       </Pressable>
@@ -185,7 +182,7 @@ export const MODE_OF_TAB: Partial<Record<FeedTab, Mode>> = { private: 'private',
 // Reihenfolge Privat, Gruppe, Kiez (Daria, 27.10.2026)
 const tabs: { key: FeedTab; label: string; planned?: boolean }[] = [
   { key: 'private', label: 'Privat' },
-  { key: 'groups', label: 'Gruppe' },
+  { key: 'groups', label: 'Gruppen' },
   { key: 'nearby', label: 'Kiez' },
   // Rechts im Umschalter (Daria, 29.10.2026)
   { key: 'everywhere', label: 'Überall' },
@@ -219,7 +216,13 @@ export function TabsNavigation({ selectedKey, onChange, visible, accent, lead }:
  * wie ein nicht gewählter Reiter. Beim Tippen gleitet der helle Knopf hinüber, unter dem Bildschirm-Hintergrund
  * zwischen den Spuren hindurch wie unter Papier (Daria, 2026-11-10).
  */
-export type SegmentLead = { label: string; active: boolean; onPress: () => void };
+export type SegmentLead = {
+  label: string;
+  active: boolean;
+  onPress: () => void;
+  /** Die Spur ist „Privat“: gewählt gelb statt hell (Daria, 2026-11-12) */
+  private?: boolean;
+};
 
 type SegmentsProps<K extends string> = {
   tabs: { key: K; label: string; planned?: boolean }[];
@@ -238,7 +241,20 @@ type SegmentsProps<K extends string> = {
 
 /** Segmente mit gleitender Pille, z. B. Feed-Reiter oder „Aktuell / Archiv“ in „Deine Challenges“. */
 export function Segments<K extends string>(props: SegmentsProps<K>) {
-  return isFashionable ? <UnderlineTabs {...props} /> : <PillSegments {...props} />;
+  if (isFashionable) return <UnderlineTabs {...props} />;
+  const { tabs, lead, selectedKey, onChange } = props;
+  // „Privat“ steht vorn als eigene Spur, abgesetzt wie „Me & Myself“ (Daria, 2026-11-12)
+  const first = tabs[0];
+  if (!lead && tabs.length > 1 && first.key === 'private') {
+    return (
+      <PillSegments
+        {...props}
+        tabs={tabs.slice(1)}
+        lead={{ label: t(first.label), active: selectedKey === first.key, onPress: () => onChange(first.key), private: true }}
+      />
+    );
+  }
+  return <PillSegments {...props} />;
 }
 
 /**
@@ -356,9 +372,11 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
         ...rest!.map((l) => ({ x: main!.x + (rtl ? main!.width - l.x - l.width : l.x), width: l.width })),
       ]
     : undefined;
-  const on = accent ? color.text.onAccent : color.bg.screen;
+  // „Privat“ gewählt: Knopf gelb, in jedem Umschalter, auch beim Erstellen (Daria, 2026-11-12)
+  const privateOn = lead?.active ? !!lead.private : selectedKey === 'private';
+  const on = accent && !privateOn ? color.text.onAccent : color.bg.screen;
   /** Heller Knopf in der Farbe der großen Icons statt Puder-Weiß (Daria, 2026-11-12: Puder biss sich mit dem Feed) */
-  const fill = accent ? color.accent.primary : color.icon.large;
+  const fill = privateOn ? color.accent.private : accent ? color.accent.primary : color.icon.large;
 
   return (
     <View
@@ -622,7 +640,7 @@ export function PlannedHint({ title, message }: { title: string; message: string
 }
 
 const styles = StyleSheet.create({
-  taskDotLogo: { left: 28, right: undefined, top: -2 },
+  taskDotLogo: { left: 28, right: undefined, top: -4 },
   row: { flexDirection: 'row' },
   noGrow: { flexGrow: 0, flexShrink: 0 },
   // Logo links; rechts sitzt die schwebende Kamera
@@ -712,7 +730,6 @@ const styles = StyleSheet.create({
     paddingLeft: 14,
   },
   brand: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
-  wordmark: { fontFamily: font.display, fontSize: 24, lineHeight: 28, letterSpacing: -0.4, color: color.text.primary },
   headIcons: { flexDirection: 'row', alignItems: 'center', gap: 18 },
   headDot: {
     position: 'absolute',
