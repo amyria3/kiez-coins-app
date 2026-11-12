@@ -30,7 +30,7 @@ export default function Account() {
   const me = useCurrentUser();
   const { signOut, hasPassword } = useAuth();
   const modes = useModes();
-  // „Mein Schaufenster“ unter Meine Gruppen, wenn Schaufenster für die Person freigeschaltet ist (Daria, 2026-11-10)
+  // „Schaufenster“ unter Meine Gruppen (nicht „Mein“, es gehört zur Gruppe, Daria, 2026-11-12), wenn Schaufenster für die Person freigeschaltet ist (Daria, 2026-11-10)
   const showcase = useShowcaseEnabled();
   const modesShown = MODES.filter((m) => modes.isVisible(m.key)).map((m) => t(m.label)).join(', ');
   // „Moderation“ nur für Personen in der Tabelle `moderators`
@@ -91,7 +91,7 @@ export default function Account() {
       ) : null}
       {showcase ? (
         <NavCard
-          title="Mein Schaufenster"
+          title="Schaufenster"
           description="Für Laden, Verein oder Club"
           // Dorf groß und leicht nach rechts, der Kreis schneidet das rechte Haus und die Unterkante rund ab,
           // der gerade Rand der Zeichnung liegt außerhalb (Daria, 2026-11-11)

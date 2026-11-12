@@ -1335,7 +1335,6 @@
   "Textpost": "פוסט טקסט",
   "Termin": "פגישה",
   "Aufgabe": "משימה",
-  "Mein Schaufenster": "חלון הראווה שלי",
   "Für Laden, Verein oder Club": "לחנות, לעמותה או למועדון",
   "Ja, wenn Ihr geschäftsmäßig auftretet, zum Beispiel als Laden, Verein oder mit Werbung (§ 5 Digitale-Dienste-Gesetz). Ins Impressum gehören Name, Anschrift und E-Mail-Adresse, dazu Rechtsform, vertretungsberechtigte Person, Registereintrag und Umsatzsteuer-ID, soweit vorhanden. Im Zweifel tragt es ein.": "כן, אם אתם פועלים באופן עסקי, למשל כחנות, עמותה או עם פרסום (§ 5 לחוק השירותים הדיגיטליים הגרמני). ב-Impressum מופיעים שם, כתובת וכתובת דוא\"ל, וגם צורה משפטית, מורשה חתימה, רישום במרשם ומספר עוסק מורשה, אם יש. בספק, הוסיפו אותו.",
   "5. Coins laufen direkt zwischen Euch": "5. פרסים עוברים ישירות ביניכם",
@@ -1356,5 +1355,6 @@
   "Logos, Fotos und Texte stellst Du nur ein, wenn Du die Rechte daran hast. Verträge über Waren, Dienstleistungen oder Termine schließt Du direkt mit Deinen Kund:innen; KiezCoins ist nicht Vertragspartei.": "אתה מעלה לוגואים, תמונות וטקסטים רק אם יש לך זכויות בהם. חוזים על סחורות, שירותים או אירועים אתה כורת ישירות עם הלקוחות שלך; KiezCoins אינה צד להם.",
   "Ein öffentliches Schaufenster ist ohne Anmeldung im Internet sichtbar und kann in Suchmaschinen erscheinen.": "חלון ראווה ציבורי גלוי באינטרנט בלי התחברות ועשוי להופיע במנועי חיפוש.",
   "Ohne Konto legt KiezCoins beim Anmelden eins an. Wie KiezCoins Deine Daten verarbeitet, steht in der Datenschutzerklärung.": "אם אין לך עדיין חשבון, KiezCoins יוצרת אחד בעת ההתחברות. מדיניות הפרטיות מסבירה איך KiezCoins מעבדת את הנתונים שלך.",
-  "Deine Erinnerungen": "התזכורות שלך"
+  "Deine Erinnerungen": "התזכורות שלך",
+  "{group} Schaufenster": "חלון הראווה של {group}"
 }

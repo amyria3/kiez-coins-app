@@ -1335,7 +1335,6 @@
   "Textpost": "منشور نصي",
   "Termin": "موعد",
   "Aufgabe": "مهمة",
-  "Mein Schaufenster": "واجهة العرض الخاصة بي",
   "Für Laden, Verein oder Club": "لمتجر أو جمعية أو نادٍ",
   ". Die Schrift wird automatisch hell oder dunkel. In der App bleibt das Schaufenster im App-Look.": ". يصبح الخط فاتحًا أو داكنًا تلقائيًا. في التطبيق تبقى واجهة العرض بمظهر التطبيق.",
   "Alle Posts und Termine im Schaufenster verschwinden. Das lässt sich nicht rückgängig machen.": "ستختفي جميع المنشورات والمواعيد في واجهة العرض. لا يمكن التراجع عن ذلك.",
@@ -1381,5 +1380,6 @@
   "Logos, Fotos und Texte stellst Du nur ein, wenn Du die Rechte daran hast. Verträge über Waren, Dienstleistungen oder Termine schließt Du direkt mit Deinen Kund:innen; KiezCoins ist nicht Vertragspartei.": "لا ترفع شعارات وصورًا ونصوصًا إلا إذا كنت تملك حقوقها. العقود على السلع أو الخدمات أو المواعيد تبرمها مباشرة مع عملائك؛ وKiezCoins ليست طرفًا فيها.",
   "Ein öffentliches Schaufenster ist ohne Anmeldung im Internet sichtbar und kann in Suchmaschinen erscheinen.": "واجهة العرض العلنية مرئية على الإنترنت دون تسجيل دخول وقد تظهر في محركات البحث.",
   "Ohne Konto legt KiezCoins beim Anmelden eins an. Wie KiezCoins Deine Daten verarbeitet, steht in der Datenschutzerklärung.": "إن لم يكن لديك حساب بعد، ينشئ KiezCoins حسابًا لك عند تسجيل الدخول. توضّح سياسة الخصوصية كيف يعالج KiezCoins بياناتك.",
-  "Deine Erinnerungen": "تذكيراتك"
+  "Deine Erinnerungen": "تذكيراتك",
+  "{group} Schaufenster": "واجهة عرض {group}"
 }

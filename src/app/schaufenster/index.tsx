@@ -20,7 +20,7 @@ import { color, radius, space, text } from '../../theme/tokens';
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
 /**
- * Pfeil zurück: Aus der App (z. B. „Dein Konto › Mein Schaufenster“) zurück dorthin. Wer die Seite direkt über
+ * Pfeil zurück: Aus der App (z. B. „Dein Konto › Schaufenster“) zurück dorthin. Wer die Seite direkt über
  * kiezcoins.de/schaufenster öffnet, hat keinen Verlauf; dann bleibt der Pfeil ohne Wirkung wie vorher.
  */
 function useBack() {
@@ -49,20 +49,20 @@ export default function ShowcaseHub() {
     );
   }, [session]);
 
-  // Pfeil zurück in die App, wenn es einen Verlauf gibt (z. B. „Dein Konto › Mein Schaufenster“). Der eigene Kopf
+  // Pfeil zurück in die App, wenn es einen Verlauf gibt (z. B. „Dein Konto › Schaufenster“). Der eigene Kopf
   // ersetzt die NavigationBar, deshalb fehlte der Pfeil bisher ganz (Daria, 2026-11-10).
-  // Sobald es ein Schaufenster gibt, ist sein Name der Titel. „Dein Schaufenster“ steht dann aus der App in Inter in
+  // Sobald es ein Schaufenster gibt, ist sein Name der Titel. „Schaufenster“ (nicht „Dein“, es gehört zur Gruppe, Daria, 2026-11-12) steht dann aus der App in Inter in
   // der Kopfzeile neben dem Pfeil, wie auf der Seite des Schaufensters selbst (Daria, 2026-11-11); ohne Verlauf
   // (direkt über kiezcoins.de) klein darüber. Ohne Schaufenster (Anmelden, Zustimmung, Anlegen) bleibt es groß.
   const router = useRouter();
   const makeHeader = (compact: boolean) =>
     compact && router.canGoBack() ? (
-      <NavigationBar title="Dein Schaufenster" variant="back" onLeadingPress={back} />
+      <NavigationBar title="Schaufenster" variant="back" onLeadingPress={back} />
     ) : (
       <View>
         {router.canGoBack() ? <NavigationBar title="" variant="back" onLeadingPress={back} /> : null}
         <View style={compact ? styles.headerCompact : styles.header}>
-          <Text style={compact ? styles.kicker : styles.headline}>Dein Schaufenster</Text>
+          <Text style={compact ? styles.kicker : styles.headline}>Schaufenster</Text>
         </View>
       </View>
     );
@@ -71,7 +71,7 @@ export default function ShowcaseHub() {
   if (!session) return <Login header={header} />;
   if (consented === undefined) {
     return (
-      <SubScreen title="Dein Schaufenster" navigation="back" onLeadingPress={back} header={header}>
+      <SubScreen title="Schaufenster" navigation="back" onLeadingPress={back} header={header}>
         <ActivityIndicator color={color.text.secondary} />
       </SubScreen>
     );
@@ -105,7 +105,7 @@ function Login({ header }: { header: React.ReactNode }) {
 
   return (
     <SubScreen
-      title="Dein Schaufenster"
+      title="Schaufenster"
       navigation="back"
       onLeadingPress={back}
       header={header}
@@ -174,7 +174,7 @@ function Consent({ header, onDone }: { header: React.ReactNode; onDone: () => vo
   const [privacy, setPrivacy] = useState(false);
   return (
     <SubScreen
-      title="Dein Schaufenster"
+      title="Schaufenster"
       navigation="back"
       onLeadingPress={back}
       header={header}
@@ -278,7 +278,7 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
 
   if (list === undefined) {
     return (
-      <SubScreen title="Dein Schaufenster" navigation="back" onLeadingPress={back} header={header}>
+      <SubScreen title="Schaufenster" navigation="back" onLeadingPress={back} header={header}>
         <ActivityIndicator color={color.text.secondary} />
       </SubScreen>
     );
@@ -287,7 +287,7 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
   if (!list.length) {
     return (
       <SubScreen
-        title="Dein Schaufenster"
+        title="Schaufenster"
         navigation="back"
         onLeadingPress={back}
         header={header}
@@ -304,7 +304,7 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
   }
 
   return (
-    <SubScreen title="Dein Schaufenster" navigation="back" onLeadingPress={back} header={compactHeader}>
+    <SubScreen title="Schaufenster" navigation="back" onLeadingPress={back} header={compactHeader}>
       {list.map((s) => (
         <View key={s.id} style={styles.showcase}>
           {/* Der Name ist der eigentliche Titel: groß, in der Display-Schrift (Daria, 2026-11-11) */}
