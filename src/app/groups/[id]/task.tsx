@@ -12,7 +12,7 @@ import { useStore } from '../../../data/store';
 import { useGoBack } from '../../../lib/goBack';
 
 /**
- * Route `groups/[id]/task`: Gruppenaufgabe mit 1 bis 10 Edensteinen. Foto optional, kein Ort.
+ * Route `groups/[id]/task`: Gruppenaufgabe mit 1 bis 10 Edensteinen. Foto optional, Ort nur in öffentlichen Gruppen.
  * Der Schalter oben wechselt zur Me-Challenge oder zum Bild in dieser Gruppe (Daria, 27.10.2026), wie im Erstellen-Blatt über dem Feed.
  * Mit `copyOf` (aus „Deine Challenges“, „Kopie erstellen“) startet sie mit Foto, Titel, Text und Edensteinen einer alten Aufgabe.
  * Mit `draftId` (aus „Deine Challenges“, Entwürfe) bearbeitet sie einen Entwurf dieser Gruppe (Daria, 30.10.2026).
