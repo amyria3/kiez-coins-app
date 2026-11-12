@@ -1355,5 +1355,6 @@
   "Logos, Fotos und Texte stellst Du nur ein, wenn Du die Rechte daran hast. Verträge über Waren, Dienstleistungen oder Termine schließt Du direkt mit Deinen Kund:innen; KiezCoins ist nicht Vertragspartei.": "אתה מעלה לוגואים, תמונות וטקסטים רק אם יש לך זכויות בהם. חוזים על סחורות, שירותים או אירועים אתה כורת ישירות עם הלקוחות שלך; KiezCoins אינה צד להם.",
   "Ein öffentliches Schaufenster ist ohne Anmeldung im Internet sichtbar und kann in Suchmaschinen erscheinen.": "חלון ראווה ציבורי גלוי באינטרנט בלי התחברות ועשוי להופיע במנועי חיפוש.",
   "Ohne Konto legt KiezCoins beim Anmelden eins an. Wie KiezCoins Deine Daten verarbeitet, steht in der Datenschutzerklärung.": "אם אין לך עדיין חשבון, KiezCoins יוצרת אחד בעת ההתחברות. מדיניות הפרטיות מסבירה איך KiezCoins מעבדת את הנתונים שלך.",
-  "Deine Erinnerungen": "התזכורות שלך"
+  "Deine Erinnerungen": "התזכורות שלך",
+  "{group} Schaufenster": "חלון הראווה של {group}"
 }
