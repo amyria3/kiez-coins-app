@@ -208,14 +208,14 @@ export function RoutineCardSurface({ children, style, alive }: { children: React
   );
 }
 
-/** Lampe für einen erledigten Tag: flaches Grün mit Kontur, harter Schatten und Glanzstrich wie gezeichnet */
+/** Lampe für einen erledigten Tag: flaches Gelbgrün mit Kontur, harter Schatten und Glanzstrich wie gezeichnet */
 export function RoutineLamp() {
   const [w, setW] = useState(0);
   return (
     <View style={styles.lamp} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
       {w ? (
         <Svg width={w} height={LAMP_H} style={StyleSheet.absoluteFill} pointerEvents="none">
-          <Rect x={0.75} y={0.75} width={w - 1.5} height={LAMP_H - 1.5} rx={(LAMP_H - 1.5) / 2} fill={color.accent.confirmation} stroke={INK} strokeWidth={1.5} />
+          <Rect x={0.75} y={0.75} width={w - 1.5} height={LAMP_H - 1.5} rx={(LAMP_H - 1.5) / 2} fill={LAMP_FILL} stroke={INK} strokeWidth={1.5} />
           <Rect x={5} y={2.5} width={Math.max(0, Math.min(w * 0.55 - 5, 24))} height={2} rx={1} fill="rgba(255,255,255,0.7)" />
         </Svg>
       ) : null}
@@ -224,6 +224,8 @@ export function RoutineLamp() {
 }
 
 const LAMP_H = 9;
+/** Gelbgrün des Kater-Avatars (Daria, 2026-11-12), vorher das Grün #89F269 */
+const LAMP_FILL = '#E4FF5F';
 
 const styles = StyleSheet.create({
   wrap: { position: 'relative', transformOrigin: 'top center' },
