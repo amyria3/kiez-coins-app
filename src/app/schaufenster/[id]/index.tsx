@@ -39,7 +39,7 @@ export default function ShowcaseScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const goBack = useGoBack();
-  const { currentUserId } = useStore();
+  const { currentUserId, groups } = useStore();
   const [data, setData] = useState<{ showcase: Showcase; access: ShowcaseAccess } | null | undefined>(undefined);
   const [entries, setEntries] = useState<ShowcaseEntry[]>([]);
   const [busy, setBusy] = useState(false);
@@ -102,10 +102,12 @@ export default function ShowcaseScreen() {
         { label: 'Visitenkarte exportieren', onPress: () => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id: s.id } }) },
       ]
     : [];
-  const title = access.team ? 'Dein Schaufenster' : 'Schaufenster';
+  // Fürs Team „<Gruppenname> Schaufenster“ statt „Dein Schaufenster“: Es gehört zur Gruppe, nicht zur Person (Daria, 2026-11-12)
+  const groupName = groups.find((g) => g.id === s.groupId)?.name;
+  const title = access.team && groupName ? t('{group} Schaufenster', { group: groupName }) : 'Schaufenster';
 
   return (
-    // Kopfzeile wie in „Dein Konto › Schaufenster“: „Dein Schaufenster“ neben dem Pfeil, der Name groß darunter. Vorher
+    // Kopfzeile wie in „Dein Konto › Schaufenster“: der Titel neben dem Pfeil, der Name groß darunter. Vorher
     // stand der Name doppelt, oben in Inter und unter dem Titelbild (Daria, 2026-11-11). Der Kiez steht unter dem Namen.
     <SubScreen
       title={title}

@@ -1335,7 +1335,6 @@
   "Textpost": "Post texte",
   "Termin": "Rendez-vous",
   "Aufgabe": "Tâche",
-  "Mein Schaufenster": "Ma vitrine",
   "Für Laden, Verein oder Club": "Pour un magasin, une association ou un club",
   "Ja, wenn Ihr geschäftsmäßig auftretet, zum Beispiel als Laden, Verein oder mit Werbung (§ 5 Digitale-Dienste-Gesetz). Ins Impressum gehören Name, Anschrift und E-Mail-Adresse, dazu Rechtsform, vertretungsberechtigte Person, Registereintrag und Umsatzsteuer-ID, soweit vorhanden. Im Zweifel tragt es ein.": "Oui, si vous agissez à titre commercial, par exemple en tant que boutique, association ou avec de la publicité (§ 5 de la loi allemande sur les services numériques). Les mentions légales (Impressum) contiennent le nom, l’adresse et l’adresse e-mail, ainsi que la forme juridique, la personne habilitée à représenter, l’inscription au registre et le numéro de TVA, le cas échéant. En cas de doute, ajoutez-les.",
   "5. Coins laufen direkt zwischen Euch": "5. Les primes se règlent directement entre vous",
@@ -1356,5 +1355,6 @@
   "Logos, Fotos und Texte stellst Du nur ein, wenn Du die Rechte daran hast. Verträge über Waren, Dienstleistungen oder Termine schließt Du direkt mit Deinen Kund:innen; KiezCoins ist nicht Vertragspartei.": "Tu ne publies des logos, photos et textes que si tu en détiens les droits. Les contrats portant sur des biens, services ou événements sont conclus directement avec tes client·es ; KiezCoins n’y est pas partie.",
   "Ein öffentliches Schaufenster ist ohne Anmeldung im Internet sichtbar und kann in Suchmaschinen erscheinen.": "Une vitrine publique est visible sur Internet sans connexion et peut apparaître dans les moteurs de recherche.",
   "Ohne Konto legt KiezCoins beim Anmelden eins an. Wie KiezCoins Deine Daten verarbeitet, steht in der Datenschutzerklärung.": "Si tu n’as pas encore de compte, KiezCoins en crée un à la connexion. La politique de confidentialité explique comment KiezCoins traite tes données.",
-  "Deine Erinnerungen": "Tes rappels"
+  "Deine Erinnerungen": "Tes rappels",
+  "{group} Schaufenster": "Vitrine de {group}"
 }
