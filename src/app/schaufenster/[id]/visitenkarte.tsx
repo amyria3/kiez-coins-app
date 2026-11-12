@@ -89,7 +89,7 @@ export default function ShowcaseBusinessCard() {
   const share = async () => {
     if (!sides) return;
     setBusy(true);
-    const r = await shareCard(sides, showcase.name);
+    const r = await shareCard(sides, cardData(showcase));
     setBusy(false);
     setNote(r === 'downloaded' ? t('Beide Seiten liegen jetzt in Deinen Downloads.') : null);
   };
