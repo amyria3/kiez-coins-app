@@ -282,23 +282,30 @@ function mitmachen() {
 .geteilt .sf-mit { margin: 8px 0 40px; padding-top: 24px; border-top: 1px solid var(--line); }
 .geteilt .sf-mit h2 { font: 500 24px/1.2 Unbounded, var(--display); letter-spacing: 0; margin: 0 0 16px; }
 .geteilt .sf-mit h3 { font: 500 18px/1.25 Unbounded, var(--display); letter-spacing: 0; margin: 0 0 12px; }
-.geteilt .sf-mit-zeile { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; }
 .geteilt .sf-mit-block { margin: 0 0 32px; }
 .geteilt .sf-mit a.sf-mit-knopf { display: inline-block; border-radius: 999px; padding: 12px 22px; background: var(--text); color: var(--bg);
   font: 500 15px/1 Inter, sans-serif; letter-spacing: .01em; text-decoration: none; }
 .geteilt .sf-mit a.sf-mit-zweit { background: none; color: var(--text); box-shadow: inset 0 0 0 1px var(--text); }
-.geteilt .sf-mit-vorteile { display: flex; gap: 6px; flex-wrap: wrap; }
-.geteilt .sf-mit-vorteile span { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase;
-  padding: 6px 10px; border-radius: 999px; background: #E4FF5F; color: #161616; }
+.geteilt .sf-mit h2 { position: relative; display: inline-block; padding-top: 22px; }
+/* Sticker schräg wie aufgeklebt (Daria, 2026-11-12): „Komplett kostenlos“ über dem Ende der Frage, „Super schnell“ links unter dem Knopf */
+.geteilt .sf-mit-sticker { display: inline-block; font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase;
+  padding: 6px 10px; border-radius: 999px; background: #E4FF5F; color: #161616; white-space: nowrap; }
+.geteilt .sf-mit h2 .sf-mit-sticker { position: absolute; right: -6px; top: -10px; --dreh: 5deg; }
+.geteilt .sf-mit-schnell { margin: 10px 0 0 10px; --dreh: -4deg; animation-delay: -1.6s !important; }
+/* Leichtes Wippen; wer weniger Bewegung eingestellt hat, sieht sie still */
+.geteilt .sf-mit-sticker { transform: rotate(var(--dreh, 0deg)); animation: sf-wippen 3.2s ease-in-out infinite; }
+@keyframes sf-wippen {
+  0%, 100% { transform: rotate(var(--dreh, 0deg)) translateY(0); }
+  50% { transform: rotate(calc(var(--dreh, 0deg) * -0.4)) translateY(-2px); }
+}
+@media (prefers-reduced-motion: reduce) { .geteilt .sf-mit-sticker { animation: none; } }
 .geteilt .sf-mit a.sf-mit-mehr { color: var(--text); text-decoration: underline; font-size: 15px; }
 </style>
   <section class="sf-mit" aria-labelledby="sf-mit-titel">
     <div class="sf-mit-block">
-      <h2 id="sf-mit-titel">Willst Du auch so eine Seite?</h2>
-      <div class="sf-mit-zeile">
-        <a class="sf-mit-knopf" href="/schaufenster?von=schaufenster">Verein, Laden oder Café registrieren</a>
-        <span class="sf-mit-vorteile"><span>Komplett kostenlos</span><span>Super schnell</span></span>
-      </div>
+      <h2 id="sf-mit-titel">Willst Du auch so eine Seite? <span class="sf-mit-sticker">Komplett kostenlos</span></h2>
+      <a class="sf-mit-knopf" href="/schaufenster?von=schaufenster">Verein, Laden oder Café registrieren</a>
+      <div><span class="sf-mit-sticker sf-mit-schnell">Super schnell</span></div>
     </div>
     <div class="sf-mit-block">
       <h3>Mach mit in Deinem Kiez.</h3>
