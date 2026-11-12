@@ -12,21 +12,24 @@ import { KATER_AVATAR_GELB, katerAvatarSvg, katerHerzenSvg } from './icons/kater
 import { IconButton } from './IconButton';
 
 // Systemmeldungen als hellblaue Chatblase der App, wie die Antworten auf die Fragen; Icon dunkel wie der Text, nur bei Warnungen (Daria, 2026-11-09)
+const SKY_TEXT = '#1F2123';
+/** Fläche der Systemmeldungen im Kiez-Look: probeweise das Gelbgrün aus dem Kreis hinter dem Kater (Cat.svg, Startbild) statt Himmelblau #A9DBFF (Daria, 2026-11-09) */
+const SKY_BG = '#F0FFA6';
 /**
- * Fläche der Systemmeldungen im Kiez-Look: grau in der Kartenfarbe, ohne Rand, helle Schrift (Daria, 2026-11-12).
- * Vorher Gelbgrün #F0FFA6 mit 80 % Deckkraft: Auf dem dunklen Grund wurde daraus Olive, fast wie die Olive-Routinekarte,
- * und es biss sich mit dem hellen Switch. Gelbgrün bleibt der Bedienung vorbehalten und steckt nur noch in der Krabbe.
+ * Nur Hinweise im Feed: grau in der Kartenfarbe, ohne Rand, helle Schrift (Daria, 2026-11-12). Das Gelbgrün mit 80 %
+ * wurde dort neben dem hellen Switch zu Olive. Alle übrigen Systemblasen bleiben gelbgrün.
  */
-const SKY_TEXT = color.text.primary;
-const SKY_BG = color.bg.surface;
+const FEED_TEXT = color.text.primary;
+const FEED_BG = color.bg.surface;
 
 /**
  * Einblenden der Nachrichten im Kiez-Look (Daria, 2026-11-09). Erscheinen mehrere zugleich, kommen sie nacheinander
- * im Abstand von MESSAGE_STAGGER. Systemblasen kommen mit 70 % Deckkraft, werden dann voll
- * deckend (seit 2026-11-12 grau, vorher Endstand 80 %). Dabei wachsen sie aus der Ecke beim Avatar. Bei „Bewegung reduzieren“ steht alles sofort im Endzustand.
+ * im Abstand von MESSAGE_STAGGER. Systemblasen kommen mit 70 % Deckkraft, leuchten kurz auf 100 % auf und bleiben
+ * bei 80 %, die grauen im Feed bleiben bei 100 %. Dabei wachsen sie aus der Ecke beim Avatar. Bei „Bewegung reduzieren“ steht alles sofort im Endzustand.
  */
-const SKY_RGB = (() => {
-  const hex = SKY_BG.replace('#', '');
+const SKY_RGB = '240, 255, 166';
+const FEED_RGB = (() => {
+  const hex = FEED_BG.replace('#', '');
   return [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(', ');
 })();
 const MESSAGE_STAGGER = 320;
@@ -48,7 +51,7 @@ function pauseAfterOwnMessage() {
   nextMessageAt = Math.max(nextMessageAt, Date.now() + REPLY_PAUSE);
 }
 
-function useMessageIn() {
+function useMessageIn(feed = false) {
   const shown = useRef(new Animated.Value(isFashionable ? 1 : 0)).current;
   const t = useRef(new Animated.Value(isFashionable ? 2 : 0)).current;
   useEffect(() => {
@@ -83,7 +86,9 @@ function useMessageIn() {
     opacity: shown,
     backgroundColor: t.interpolate({
       inputRange: [0, 1, 2],
-      outputRange: [`rgba(${SKY_RGB}, 0.7)`, `rgba(${SKY_RGB}, 1)`, `rgba(${SKY_RGB}, 1)`],
+      outputRange: feed
+        ? [`rgba(${FEED_RGB}, 0.7)`, `rgba(${FEED_RGB}, 1)`, `rgba(${FEED_RGB}, 1)`]
+        : [`rgba(${SKY_RGB}, 0.7)`, `rgba(${SKY_RGB}, 1)`, `rgba(${SKY_RGB}, 0.8)`],
     }),
     scale: t.interpolate({ inputRange: [0, 1, 2], outputRange: [0.9, 1.04, 1] }),
   };
@@ -355,20 +360,23 @@ function FromSystem({
 /**
  * Figma „Notice“: `info` für Erklärungen, `warning` für Dinge mit Folgen. Mit `onClose` ein Kreuz rechts.
  * Jede Blase hat unten links die spitze Ecke wie eine Sprechblase, da jede ihren Avatar hat (Daria, 2026-11-09).
- * `tail` ist deshalb ohne Wirkung.
+ * `tail` ist deshalb ohne Wirkung. `feed` macht die Blase grau statt gelbgrün, nur für Hinweise im Feed (Daria, 2026-11-12).
  */
 export function Notice({
   message,
   variant = 'info',
   onClose,
+  feed = false,
 }: {
   message: string;
   variant?: 'info' | 'warning';
   onClose?: () => void;
   tail?: boolean;
+  feed?: boolean;
 }) {
   const t = useTexts();
-  const sky = useMessageIn();
+  const sky = useMessageIn(feed);
+  const ink = feed ? FEED_TEXT : SKY_TEXT;
   return (
     <FromSystem opacity={sky.opacity}>
     <Animated.View
@@ -386,16 +394,16 @@ export function Notice({
           <Icon
             name="info-filled"
             size={isFashionable ? undefined : 17}
-            color={isFashionable ? (variant === 'warning' ? color.accent.signal : color.text.primary) : SKY_TEXT}
+            color={isFashionable ? (variant === 'warning' ? color.accent.signal : color.text.primary) : ink}
           />
         </View>
       ) : null}
-      <LinkedText style={[styles.noticeText, !isFashionable && styles.noticeTextSky]} value={message} />
+      <LinkedText style={[styles.noticeText, !isFashionable && styles.noticeTextSky, !isFashionable && feed && { color: ink }]} value={message} />
       {onClose ? (
         <IconButton
           icon="close"
           iconSize={14}
-          iconColor={isFashionable ? color.text.secondary : SKY_TEXT}
+          iconColor={isFashionable ? color.text.secondary : ink}
           accessibilityLabel={t('Hinweis schließen')}
           onPress={onClose}
           style={styles.noticeClose}
@@ -827,7 +835,7 @@ const styles = StyleSheet.create({
   link: { textDecorationLine: 'underline' },
   noticeClose: { marginVertical: -10, marginRight: -10, marginLeft: -4 },
   noticeTextSky: { ...text.body, color: SKY_TEXT, flexGrow: 0, flexShrink: 1, flexBasis: 'auto' },
-  answerTextSky: { color: SKY_TEXT },
+  answerTextSky: { color: '#1F2123' },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 24 },
   iconBox: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
   infoText: { ...text.body, color: color.text.primary, flex: 1 },

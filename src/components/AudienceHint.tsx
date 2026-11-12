@@ -114,7 +114,7 @@ export function AudienceHint({
     return (
       <View style={[styles.wrap, styles.bubbles]}>
         {shown.map(({ line, i }) => (
-          <Notice key={line} message={line} onClose={onCloseLine ? () => onCloseLine(i) : onClose} />
+          <Notice key={line} feed message={line} onClose={onCloseLine ? () => onCloseLine(i) : onClose} />
         ))}
       </View>
     );
