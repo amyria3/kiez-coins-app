@@ -117,6 +117,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const lastSynced = useRef<string>('');
   /** Erst schreiben, wenn das Profil aus der Datenbank gelesen ist, sonst überschreibt der leere Startstand es. */
   const profileLoaded = useRef(false);
+  /** Person, für die Profil und Feed schon geladen sind (oder gerade laden). */
+  const appliedUserId = useRef<string | null>(null);
 
   useEffect(() => {
     /**
@@ -125,6 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
      */
     const apply = async (next: Session | null, onReady?: () => void) => {
       setSession(next);
+      appliedUserId.current = next?.user.id ?? null;
       profileLoaded.current = false;
       if (!next) return;
       const userId = next.user.id;
@@ -163,9 +166,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data } = supabase.auth.onAuthStateChange((event, next) => {
       // Nur bei echten Wechseln neu laden, nicht bei jedem Token-Refresh.
       // Supabase empfiehlt, im Callback nichts abzuwarten, daher setTimeout.
-      if (event === 'SIGNED_IN') setTimeout(() => apply(next), 0);
+      // Im Browser meldet Supabase bei jedem Zurückwechseln in den Tab erneut SIGNED_IN (auth-js
+      // `_recoverAndRefresh`), z. B. nach Kamera, Fotoauswahl oder Teilen. Für dieselbe Person nicht neu
+      // laden: Sonst setzt der gespeicherte Startstand den Feed zurück, und die App wirkt wie neu geladen.
+      if (event === 'SIGNED_IN' && next?.user.id !== appliedUserId.current) setTimeout(() => apply(next), 0);
       else setSession(next);
-      if (event === 'SIGNED_OUT') dispatch({ type: 'signOut' });
+      if (event === 'SIGNED_OUT') {
+        appliedUserId.current = null;
+        dispatch({ type: 'signOut' });
+      }
     });
     return () => data.subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
