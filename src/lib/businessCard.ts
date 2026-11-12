@@ -23,6 +23,8 @@ export const CARD_H = CARD_MM.h * PX_PER_MM;
 const INK = '#000027';
 const GELB = KATER_AVATAR_GELB;
 const WHITE = '#FFFFFF';
+/** Rückseite: weicher als die reine Linienfarbe (Daria, 2026-11-12: „Hintergrund etwas runterregeln“) */
+const BACK = '#2B2B57';
 /** Grau auf dunklem Grund für leere Angaben */
 const MUTED = 'rgba(255, 255, 255, 0.55)';
 
@@ -266,37 +268,39 @@ function drawBack(d: CardData, a: Assets): HTMLCanvasElement {
   canvas.width = CARD_W;
   canvas.height = CARD_H;
   const ctx = canvas.getContext('2d')!;
-  ctx.fillStyle = INK;
+  ctx.fillStyle = BACK;
   ctx.fillRect(0, 0, CARD_W, CARD_H);
   ctx.textBaseline = 'alphabetic';
   ctx.textAlign = 'left';
 
-  const gap = 56;
+  // Mehr Luft und größere Schrift (Daria, 2026-11-12)
+  const gap = 72;
   const colW = (CARD_W - PAD * 2 - gap) / 2;
-  const footerH = 90;
+  const footerH = 84;
   const maxY = CARD_H - PAD - footerH;
-  const bodySize = 30;
-  const bodyLine = 38;
+  const bodySize = 36;
+  const bodyLine = 46;
+  const top = PAD + 30;
 
   const services = servicesPlain(d.services);
   const left: { label: string; value?: string; max: number }[] = [
     { label: t('Adresse'), value: d.address, max: 3 },
-    { label: t('Öffnungszeiten'), value: d.openingHours, max: 6 },
+    { label: t('Öffnungszeiten'), value: d.openingHours, max: 5 },
   ];
   const right: { label: string; value?: string; max: number }[] = [
-    { label: t('Services'), value: services.join('\n'), max: d.links.length ? 5 : 9 },
+    { label: t('Services'), value: services.join('\n'), max: d.links.length ? 4 : 8 },
     { label: d.links.length > 1 ? t('Links') : t('Link'), value: d.links.map(shortLink).join('\n'), max: 3 },
   ];
 
   const column = (items: typeof left, x: number) => {
-    let y = PAD + 20;
+    let y = top;
     for (const it of items) {
       if (!it.value?.trim()) continue;
       if (y > maxY - bodyLine) break;
-      ctx.font = `22px "${LABEL_FONT}"`;
+      ctx.font = `25px "${LABEL_FONT}"`;
       ctx.fillStyle = GELB;
       ctx.fillText(it.label.toUpperCase(), x, y);
-      y += 14 + bodyLine;
+      y += 20 + bodyLine;
       ctx.font = `${bodySize}px "${BODY_FONT}"`;
       ctx.fillStyle = WHITE;
       const room = Math.max(1, Math.floor((maxY - y + bodyLine) / bodyLine));
@@ -304,13 +308,13 @@ function drawBack(d: CardData, a: Assets): HTMLCanvasElement {
         ctx.fillText(l, x, y);
         y += bodyLine;
       }
-      y += 30;
+      y += 44;
     }
     return y;
   };
   const usedLeft = column(left, PAD);
   const usedRight = column(right, PAD + colW + gap);
-  if (usedLeft === PAD + 20 && usedRight === PAD + 20) {
+  if (usedLeft === top && usedRight === top) {
     ctx.font = `${bodySize}px "${BODY_FONT}"`;
     ctx.fillStyle = MUTED;
     ctx.fillText(t('Noch keine Angaben im Schaufenster'), PAD, PAD + 40);
@@ -320,7 +324,7 @@ function drawBack(d: CardData, a: Assets): HTMLCanvasElement {
   const fy = CARD_H - PAD - footerH + 20;
   ctx.fillStyle = 'rgba(228, 255, 95, 0.35)';
   ctx.fillRect(PAD, fy, CARD_W - PAD * 2, 2);
-  const kd = 64;
+  const kd = 58;
   drawKater(ctx, a.kater, PAD, fy + 16, kd, GELB);
   ctx.font = `30px "${BODY_MEDIUM}"`;
   ctx.fillStyle = GELB;
@@ -389,15 +393,24 @@ function download(file: File) {
 }
 
 /**
- * Als Bilder teilen (Teilen-Menü des Handys) oder, wo das nicht geht, beide Seiten herunterladen.
- * `'shared'`, `'downloaded'` oder `'cancelled'`.
+ * Text, der mit dem Bild mitgeht: Name, Adresse und Link zum Schaufenster (Daria, 2026-11-12: „Wenn ich das Bild
+ * verschicke, Adresse mitsenden“). So lässt sich die Adresse in Messengern antippen und kopieren.
  */
-export async function shareCard(sides: CardSides, name: string): Promise<'shared' | 'downloaded' | 'cancelled'> {
+export function cardMessage(d: CardData): string {
+  return [d.name, d.address?.trim(), d.url].filter(Boolean).join('\n');
+}
+
+/**
+ * Als Bilder teilen (Teilen-Menü des Handys), mit Name, Adresse und Link als Text. Wo das nicht geht, beide Seiten
+ * herunterladen. `'shared'`, `'downloaded'` oder `'cancelled'`.
+ */
+export async function shareCard(sides: CardSides, d: CardData): Promise<'shared' | 'downloaded' | 'cancelled'> {
+  const name = d.name;
   const files = cardFiles(sides, name);
   const nav = navigator as Navigator & { canShare?: (d: { files: File[] }) => boolean };
   if (typeof nav.share === 'function' && nav.canShare?.({ files })) {
     try {
-      await nav.share({ files, title: name });
+      await nav.share({ files, title: name, text: cardMessage(d) });
       return 'shared';
     } catch (e) {
       if ((e as Error)?.name === 'AbortError') return 'cancelled';
