@@ -98,6 +98,8 @@ export default function ShowcaseScreen() {
         ...(access.founder
           ? [{ label: 'Schaufenster bearbeiten', onPress: () => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id } }) }]
           : []),
+        // Visitenkarte zum Teilen und Drucken (Daria, 2026-11-12)
+        { label: 'Visitenkarte exportieren', onPress: () => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id: s.id } }) },
       ]
     : [];
   const title = access.team ? 'Dein Schaufenster' : 'Schaufenster';
