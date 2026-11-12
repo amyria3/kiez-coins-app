@@ -5,6 +5,7 @@ import { BEFORE_AFTER_TEXT_MAX } from '../../data/remote';
 import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
 import { color, font, isFashionable, radius, space, stroke, text } from '../../theme/tokens';
+import { useAccentColor } from '../../theme/signal';
 import { Button } from '../Button';
 import { PhotoPicker, SwitchRow } from '../Form';
 import { useNudge } from '../Nudge';
@@ -61,12 +62,13 @@ export function TagTextField({
   maxLength?: number;
 }) {
   const [focused, setFocused] = useState(false);
+  const accent = useAccentColor();
   const inputRef = useRef<TextInput>(null);
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{t(label)}</Text>
       <View
-        style={[styles.box, focused && styles.boxFocused, { borderColor: tooLong ? color.accent.error : focused ? color.accent.primary : isFashionable ? color.line.hairline : color.text.secondary }]}
+        style={[styles.box, focused && styles.boxFocused, { borderColor: tooLong ? color.accent.error : focused ? accent : isFashionable ? color.line.hairline : color.text.secondary }]}
         onTouchEnd={() => inputRef.current?.focus()}
       >
         <Text style={[styles.tag, { color: tagColor(tag) }]} noTranslate>
@@ -81,7 +83,7 @@ export function TagTextField({
           scrollEnabled={false}
           placeholder={placeholder ? t(placeholder) : undefined}
           placeholderTextColor={color.text.secondary}
-          selectionColor={color.accent.primary}
+          selectionColor={accent}
           accessibilityLabel={t('{label}, beginnt mit {tag}', { label: t(label), tag })}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
