@@ -42,6 +42,8 @@ button { font: inherit; color: inherit; }
 /* Logo deutlich größer (Daria, 2026-11-07): 52 statt 34 pt hoch, auf dem Handy 34 statt 27 */
 /* Logo im Seitenkopf ganz in einer Farbe: Kater und Schriftzug in Tinte statt Lila (nur Website, im Telefon bleibt es lila; Daria, 2026-11-05) */
 .brand svg [fill="#7E94FF"], .brand svg [fill="#8F90FA"] { fill: var(--text); }
+/* Neues Logo (Daria, 2026-11-12): die Brille im Grund, sonst verschwindet sie im einfarbigen Kater */
+.brand svg [fill="#0F100E"] { fill: var(--bg); }
 .top-link { font-size: 15px; font-weight: 400; text-decoration: none; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
 .top-link:hover { border-color: var(--muted); }
 .top-links { display: flex; gap: 8px; }
@@ -61,11 +63,11 @@ button { font: inherit; color: inherit; }
 @media (max-width: 480px) {
   .top-links { gap: 6px; }
   .top-links .top-link { padding: 8px 12px; font-size: 13px; }
-  .top:has(.top-links) .brand svg { height: 34px; width: auto; }
+  .top:has(.top-links) .brand svg { height: 31px; width: auto; }
   .top-links .lang { display: none; } .top-links .kurz { display: inline; }
   .sprachwahl summary { padding: 8px 10px; font-size: 12px; }
 }
-@media (max-width: 360px) { .top-links { gap: 4px; } .top-links .top-link { padding: 8px 10px; } .top:has(.top-links) .brand svg { height: 28px; } }
+@media (max-width: 360px) { .top-links { gap: 4px; } .top-links .top-link { padding: 8px 10px; } .top:has(.top-links) .brand svg { height: 26px; } }
 
 /* Erster Bildschirm: Text und Szenarien links, Telefon rechts */
 .hero { display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: 'text phone' 'wahl phone';

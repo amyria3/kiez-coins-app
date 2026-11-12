@@ -9,7 +9,7 @@ import { challengeTypes, isTypeActive } from '../data/features';
 import type { Challenge } from '../data/types';
 import { color, font, isFashionable, motion, radius, size, space, stroke, text } from '../theme/tokens';
 import { Notice } from './Content';
-import { Logo, MonoCat } from './icons/Brand';
+import { Logo } from './icons/Brand';
 import { Icon } from './icons/Icon';
 import { useRouter } from 'expo-router';
 import { useFriendRequests, useUnreadMessages } from '../data/chat';
@@ -35,7 +35,7 @@ export function AppHeader(props: AppHeaderProps) {
 }
 
 /**
- * Kopf im Look „Fashionable“ nach Darias Mockup (24.10.2026): Schriftzug „KiezCoins“ als Text links,
+ * Kopf im Look „Fashionable“ nach Darias Mockup (24.10.2026): Logo mit Kater und Schriftzug links (seit 2026-11-12 das neue Logo),
  * Inter Tight halbfett 24/28, rechts die Sprechblase mit Zeilen (Chats). Dein Profilbild („Was Du so machst“) sitzt in der Leiste unten (Daria, 27.10.2026).
  * Abstände 4 oben, 12 rechts, 8 unten, 14 links.
  */
@@ -46,12 +46,9 @@ function FashionHeader({ onLogoLongPress }: AppHeaderProps) {
   return (
     <View style={styles.fashionHead}>
       <Pressable onLongPress={onLogoLongPress} accessibilityRole="header">
-        {/* Kater aus dem monochromen Logo (26) und Schriftzug „KiezCoins“, 8 Abstand (Daria, 24.10.2026, Variante B) */}
+        {/* Neues Logo mit Kater und Schriftzug, in Textfarbe (Daria, 2026-11-12) */}
         <View style={styles.brand} accessible accessibilityLabel="KiezCoins">
-          <MonoCat height={26} />
-          <Text noTranslate style={styles.wordmark}>
-            KiezCoins
-          </Text>
+          <Logo height={26} />
         </View>
       </Pressable>
       <View style={styles.headIcons}>
@@ -79,9 +76,9 @@ function KiezHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) 
         accessibilityLabel={hasTasks ? t('Was Du so machst, Du bist dran') : t('Was Du so machst')}
         style={styles.logo}
       >
-        {/* Neues Logo mit Kater links (Daria, 22.10.2026); der Punkt sitzt am Kater */}
+        {/* Logo mit Kater links (Daria, 2026-11-12: neues Logo); der Punkt sitzt am Kater */}
         <View>
-          <Logo height={isFashionable ? 28 : 30} />
+          <Logo height={28} />
           {hasTasks ? <View style={[styles.taskDot, styles.taskDotLogo]} /> : null}
         </View>
       </Pressable>
@@ -622,7 +619,7 @@ export function PlannedHint({ title, message }: { title: string; message: string
 }
 
 const styles = StyleSheet.create({
-  taskDotLogo: { left: 28, right: undefined, top: -2 },
+  taskDotLogo: { left: 28, right: undefined, top: -4 },
   row: { flexDirection: 'row' },
   noGrow: { flexGrow: 0, flexShrink: 0 },
   // Logo links; rechts sitzt die schwebende Kamera
@@ -712,7 +709,6 @@ const styles = StyleSheet.create({
     paddingLeft: 14,
   },
   brand: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
-  wordmark: { fontFamily: font.display, fontSize: 24, lineHeight: 28, letterSpacing: -0.4, color: color.text.primary },
   headIcons: { flexDirection: 'row', alignItems: 'center', gap: 18 },
   headDot: {
     position: 'absolute',
