@@ -342,16 +342,16 @@ ${
 @font-face { font-family: Unbounded; font-weight: 500; font-display: swap; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
 .geteilt .sf-wer h1 { margin: 0; padding-bottom: 4px; font: 500 32px/33px Unbounded, var(--display); letter-spacing: 0; }
 /* Abschnitte klein in Versalien mit feiner Linie darüber, wie bei Studios (Daria, 2026-11-12) */
-.geteilt h2.sf-abschnitt { font: 500 12px/16px Inter, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+.geteilt h2.sf-abschnitt { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; color: var(--text);
   margin: 48px 0 16px; padding-top: 20px; border-top: 1px solid var(--line); }
 .geteilt .sf-klappe summary h2.sf-abschnitt { flex: 1; }
 /* Kiez unter dem Namen als kleine Zeile in Versalien, dunkel statt grau (Daria, 2026-11-12) */
-.geteilt p.wer { font: 500 12px/16px Inter, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--text); margin: 10px 0 20px; }
+.geteilt p.wer { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; color: var(--text); margin: 10px 0 20px; }
 /* Fließtext enger gesetzt, vorher 1.55 aus seite.css (Daria, 2026-11-12) */
 .geteilt p.text, .geteilt .sf-services, .geteilt .sf-text { line-height: 1.38; }
 .geteilt .sf-fakten { display: grid; gap: 16px; margin: 28px 0 8px; }
 @media (min-width: 560px) { .geteilt .sf-fakten { grid-template-columns: 1fr 1fr; gap: 20px 32px; } }
-.geteilt .sf-fakt dt { font: 500 12px/16px Inter, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+.geteilt .sf-fakt dt { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; color: var(--text); margin: 0 0 6px; }
 .geteilt .sf-fakt dd { margin: 0; font-size: 16px; line-height: 1.4; white-space: pre-line; }
 .geteilt .sf-fakt dd a { text-underline-offset: 3px; }
 .geteilt .sf-services p, .geteilt .sf-services ul { margin: 0 0 12px; }
