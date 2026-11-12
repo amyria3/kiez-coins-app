@@ -134,6 +134,46 @@ export async function loadReminders(): Promise<Reminder[] | null> {
   });
 }
 
+/**
+ * Kalender in Routine (Daria, 2026-11-12): pro Tag, ob Du etwas erledigt hast und ob etwas ausgefallen ist.
+ * Ausgefallen: Ein fester Wochentag einer Erinnerung ist vorbei, ohne dass sie an dem Tag erledigt wurde.
+ * Zählt erst ab dem Tag, an dem die Erinnerung angelegt wurde, und nur bis sie beendet wurde.
+ */
+export type RoutineDays = { done: Set<string>; missed: Set<string> };
+export async function loadRoutineDays(from: Date, to: Date, now = new Date()): Promise<RoutineDays> {
+  const empty: RoutineDays = { done: new Set(), missed: new Set() };
+  const { data, error } = await supabase.from('reminders').select('id, weekdays, created_at, archived_at');
+  if (error || !data?.length) return empty;
+  const rows = data as { id: string; weekdays: number[] | null; created_at: string; archived_at: string | null }[];
+  const end = addDays(1, dayStart(to));
+  const { data: doneRows } = await supabase
+    .from('reminder_done')
+    .select('reminder_id, done_at')
+    .in('reminder_id', rows.map((r) => r.id))
+    .gte('done_at', dayStart(from).toISOString())
+    .lt('done_at', end.toISOString());
+  const done = new Set<string>();
+  const doneBy = new Set<string>();
+  for (const d of (doneRows ?? []) as { reminder_id: string; done_at: string }[]) {
+    const day = localDate(new Date(d.done_at));
+    done.add(day);
+    doneBy.add(`${d.reminder_id} ${day}`);
+  }
+  const missed = new Set<string>();
+  const today = localDate(now);
+  for (const r of rows) {
+    if (!r.weekdays?.length) continue;
+    const first = localDate(new Date(r.created_at));
+    const last = r.archived_at ? localDate(new Date(r.archived_at)) : today;
+    for (let d = dayStart(from); d < end; d = addDays(1, d)) {
+      const day = localDate(d);
+      if (day < first || day >= last || day >= today) continue;
+      if (r.weekdays.includes(isoWeekday(d)) && !doneBy.has(`${r.id} ${day}`)) missed.add(day);
+    }
+  }
+  return { done, missed };
+}
+
 export async function createReminder(input: ReminderInput): Promise<boolean> {
   const base = { want: input.want.trim(), description: input.description?.trim() || null };
   const { error } = await supabase.from('reminders').insert(
