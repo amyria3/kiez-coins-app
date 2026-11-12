@@ -143,7 +143,7 @@ const kcSvg = {
   cameraDark: icon('camera', C.dark),
 };
 // Logo für den Seitenkopf: dasselbe wie in der App (assets/brand/logo.svg), Kater und Schriftzug (Daria, 2026-11-07).
-// seite.css färbt das Lila in die Textfarbe um.
+// seite.css färbt das Lila in die Textfarbe um. Neues Logo seit 2026-11-12: 48 hoch, der Kater ist so groß wie vorher bei 52.
 const logoSeite = kcSvg.logo;
 const sized = (d, h) => d.svg.replace(/width="[^"]*" height="[^"]*"/, `width="${Math.round((d.w / d.h) * h)}" height="${h}" aria-hidden="true"`);
 // Dateien mit Prüfsumme im Namen-Parameter, damit Browser nach einem Update die neue Fassung laden
@@ -297,7 +297,7 @@ ${filterDefs}
 <div class="fx-spur" aria-hidden="true"></div>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="${L === 'de' ? './' : pfad(L)}" aria-label="${t('KiezCoins, Startseite', 'KiezCoins, home')}">${sized(logoSeite, 52)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
+  <a class="brand" href="${L === 'de' ? './' : pfad(L)}" aria-label="${t('KiezCoins, Startseite', 'KiezCoins, home')}">${sized(logoSeite, 48)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
   <nav class="top-links"><a class="top-link" href="#download"><span class="lang">${t('Testversion laden', 'Get the beta')}</span><span class="kurz">${t('Testen', 'Try it')}</span></a>${sprachwahl(L)}</nav>
 </header>
 
@@ -821,7 +821,7 @@ const teilenVorlage = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/?von=teilen" aria-label="KiezCoins, Startseite">${sized(logoSeite, 52)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
+  <a class="brand" href="/?von=teilen" aria-label="KiezCoins, Startseite">${sized(logoSeite, 48)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
 </header>
 <main>
 <section class="geteilt">
@@ -862,7 +862,7 @@ const einladung = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 52)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
+  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 48)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
 </header>
 <main>
 <section class="download einladung" id="download" aria-labelledby="einladung-titel">
@@ -957,7 +957,7 @@ const ladenSeite = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 52)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
+  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 48)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
 </header>
 <main>
 <section class="download einladung laden ohne-js" id="laden" aria-labelledby="laden-titel">
@@ -1188,7 +1188,7 @@ const spendenSeite = `<!doctype html>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 52)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
+  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 48)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
   <a class="top-link" href="/#download">Testversion laden</a>
 </header>
 <main>
@@ -1250,7 +1250,7 @@ const katerSeite = `<!doctype html>
 <body class="kater-seite">
 <div class="wrap">
 <header class="top">
-  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 52)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
+  <a class="brand" href="/" aria-label="KiezCoins, Startseite">${sized(logoSeite, 48)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
   <a class="top-link" href="/#download">Testversion laden</a>
 </header>
 <main class="kater-buehne-seite">
