@@ -216,7 +216,13 @@ export function TabsNavigation({ selectedKey, onChange, visible, accent, lead }:
  * wie ein nicht gewählter Reiter. Beim Tippen gleitet der helle Knopf hinüber, unter dem Bildschirm-Hintergrund
  * zwischen den Spuren hindurch wie unter Papier (Daria, 2026-11-10).
  */
-export type SegmentLead = { label: string; active: boolean; onPress: () => void };
+export type SegmentLead = {
+  label: string;
+  active: boolean;
+  onPress: () => void;
+  /** Die Spur ist „Privat“: gewählt gelb statt hell (Daria, 2026-11-12) */
+  private?: boolean;
+};
 
 type SegmentsProps<K extends string> = {
   tabs: { key: K; label: string; planned?: boolean }[];
@@ -235,7 +241,20 @@ type SegmentsProps<K extends string> = {
 
 /** Segmente mit gleitender Pille, z. B. Feed-Reiter oder „Aktuell / Archiv“ in „Deine Challenges“. */
 export function Segments<K extends string>(props: SegmentsProps<K>) {
-  return isFashionable ? <UnderlineTabs {...props} /> : <PillSegments {...props} />;
+  if (isFashionable) return <UnderlineTabs {...props} />;
+  const { tabs, lead, selectedKey, onChange } = props;
+  // „Privat“ steht vorn als eigene Spur, abgesetzt wie „Me & Myself“ (Daria, 2026-11-12)
+  const first = tabs[0];
+  if (!lead && tabs.length > 1 && first.key === 'private') {
+    return (
+      <PillSegments
+        {...props}
+        tabs={tabs.slice(1)}
+        lead={{ label: t(first.label), active: selectedKey === first.key, onPress: () => onChange(first.key), private: true }}
+      />
+    );
+  }
+  return <PillSegments {...props} />;
 }
 
 /**
@@ -353,9 +372,11 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
         ...rest!.map((l) => ({ x: main!.x + (rtl ? main!.width - l.x - l.width : l.x), width: l.width })),
       ]
     : undefined;
-  const on = accent ? color.text.onAccent : color.bg.screen;
+  // „Privat“ gewählt: Knopf gelb, in jedem Umschalter, auch beim Erstellen (Daria, 2026-11-12)
+  const privateOn = lead?.active ? !!lead.private : selectedKey === 'private';
+  const on = accent && !privateOn ? color.text.onAccent : color.bg.screen;
   /** Heller Knopf in der Farbe der großen Icons statt Puder-Weiß (Daria, 2026-11-12: Puder biss sich mit dem Feed) */
-  const fill = accent ? color.accent.primary : color.icon.large;
+  const fill = privateOn ? color.accent.private : accent ? color.accent.primary : color.icon.large;
 
   return (
     <View
