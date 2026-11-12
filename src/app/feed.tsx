@@ -194,7 +194,7 @@ export default function FeedScreen() {
     pullStart.current = null;
     reveal();
   };
-  // Ganz oben weiter nach oben ziehen: Kopf zurück, in „Me & Myself“ auch der große Umschalter (Daria, 2026-11-12)
+  // Ganz oben weiter nach oben ziehen: Kopf zurück, in „My Structure“ auch der große Umschalter (2026-11-12)
   const revealRef = useRef(() => {});
   const reveal = () => {
     expand();
@@ -383,21 +383,23 @@ export default function FeedScreen() {
   const routineShownRef = useRef(false);
   routineShownRef.current = routineShown;
   // „Me & Myself“ (Daria, 2026-11-12) ersetzt „Routine“ links im Umschalter. Darin „My Structure“ (Routine) und
-  // „My Feed“ (Privat), umzuschalten über einen kleinen eigenen Umschalter. Der große Umschalter verschwindet in
-  // „My Feed“ und kommt erst zurück, wenn man ganz oben weiter nach oben zieht oder in „Gruppe“ wischt.
+  // „My Feed“ (Privat), umzuschalten über einen kleinen eigenen Umschalter. Der große Umschalter verschwindet nur in
+  // „My Structure“ und kommt zurück, wenn man ganz oben weiter nach oben zieht oder zu „My Feed“ wechselt.
   const privateOn = tabOrder.includes('private');
   const meOn = !isFashionable && !composing && (routineOn || privateOn);
   const meActive = meOn && (routineActive || (switchingTo ?? tab) === 'private');
   const meBoth = meOn && routineOn && privateOn;
   const [meSwitchOpen, setMeSwitchOpen] = useState(false);
   useEffect(() => {
-    if (meActive) setMeSwitchOpen(false);
-  }, [meActive]);
-  const meActiveRef = useRef(meActive);
-  meActiveRef.current = meActive;
-  revealRef.current = () => meActiveRef.current && setMeSwitchOpen(true);
-  // Nur in „My Feed“ (Privat) verschwindet der große Umschalter, in „My Structure“ bleibt er (Daria, 2026-11-12)
-  const bigSwitchShown = !meActive || !meBoth || meSwitchOpen || routineActive;
+    if (routineActive) setMeSwitchOpen(false);
+  }, [routineActive]);
+  const routineActiveRef = useRef(routineActive);
+  routineActiveRef.current = routineActive;
+  revealRef.current = () => routineActiveRef.current && setMeSwitchOpen(true);
+  // Nur in „My Structure“ (Routine) verschwindet der große Umschalter. In „My Feed“ und allen anderen Feeds
+  // (Gruppe, Kiez, Überall) bleibt er sichtbar (Entscheidung 12.11.2026, ersetzt die frühere Regel „nur in My Feed“).
+  // Ohne kleinen Umschalter (nur Routine, kein Privat) bleibt er, sonst gäbe es keinen sichtbaren Weg zurück.
+  const bigSwitchShown = !routineActive || !meBoth || meSwitchOpen;
   const slideToTab = useRef((key: FeedTab, dir: 1 | -1) => {
     setSwitchingTo(key);
     setRoutineActive(false);
