@@ -1714,5 +1714,10 @@
   "Es geht auch ohne. Deine E-Mail ist nur nötig, damit das System Dir Bestätigungscodes senden kann und Du ein vergessenes Passwort wiederherstellen kannst. Merke Dir Deckname und Passwort deshalb gut.": "It works without one too. You only need your email so the system can send you confirmation codes and you can recover a forgotten password. So remember your nickname and password well.",
   "Danke, wir kümmern uns": "Thanks, we'll take care of it",
   "Deine Erinnerungen": "Your reminders",
+  "Hier pflegst Du Deine Seite. Was Du postest, sehen Leute im Web und in der KiezCoins App.": "This is where you look after your page. What you post shows up on the web and in the KiezCoins app.",
+  "In der App ansehen": "View in app",
+  "Im Web ansehen": "View on the web",
+  "Im Web erscheint Dein Schaufenster erst, wenn es öffentlich ist. Das stellst Du unter „Seite bearbeiten“ ein.": "Your shop window appears on the web only once it is public. You can set this under “Edit page”.",
+  "Solange Dein Schaufenster offline ist, gibt es keine Webseite dazu.": "While your shop window is offline, it has no web page.",
   "{group} Schaufenster": "{group} shop window"
 }
