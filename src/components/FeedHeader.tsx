@@ -357,7 +357,8 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
       ]
     : undefined;
   const on = accent ? color.text.onAccent : color.bg.screen;
-  const fill = accent ? color.accent.primary : color.text.primary;
+  /** Heller Knopf in der Farbe der großen Icons statt Puder-Weiß (Daria, 2026-11-12: Puder biss sich mit dem Feed) */
+  const fill = accent ? color.accent.primary : color.icon.large;
 
   return (
     <View
@@ -687,11 +688,11 @@ const styles = StyleSheet.create({
     top: space[4],
     bottom: space[4],
     borderRadius: radius.full,
-    backgroundColor: color.text.primary,
+    backgroundColor: color.icon.large,
   },
   // Breite nach Inhalt, damit vier Reiter neben die Kamera passen
   segment: { flexGrow: 1, flexShrink: 1, minWidth: 0, minHeight: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
-  segmentSelected: { backgroundColor: color.text.primary },
+  segmentSelected: { backgroundColor: color.icon.large },
   segmentText: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.secondary },
   segmentTextSelected: { fontFamily: font.medium, color: color.bg.screen },
   segmentInner: { flexDirection: 'row', alignItems: 'center', gap: space[4], flexShrink: 1, minWidth: 0, maxWidth: '100%' },
