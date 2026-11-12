@@ -12,9 +12,18 @@ import { useCurrentUser, useStore } from '../../data/store';
 import type { PayoutMethod } from '../../data/types';
 import { color, space, text } from '../../theme/tokens';
 import { useGoBack } from '../../lib/goBack';
+import { WaitForData } from '../../components/WaitForData';
 
 /** Route `account/payout` (Push). Figma: `settings/payout`, Flow „Bounty auf Vertrauen“. */
 export default function PayoutSettings() {
+  return (
+    <WaitForData title="Zahlungsdaten" navigation="back">
+      <PayoutForm />
+    </WaitForData>
+  );
+}
+
+function PayoutForm() {
   const router = useRouter();
   const goBack = useGoBack();
   const { dispatch } = useStore();

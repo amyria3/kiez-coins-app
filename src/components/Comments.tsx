@@ -216,7 +216,8 @@ function CommentMenu({ authorName, onReport, onDelete }: { authorName: string; o
 
 type CommentComposerProps = {
   placeholder: string;
-  onSend: (body: string, photo?: ImageSource) => void;
+  /** Gibt `false` (oder ein Promise mit `false`) zurück, wenn nicht gesendet wurde; dann kommt der Text zurück ins Feld */
+  onSend: (body: string, photo?: ImageSource) => unknown;
   /** Bild-Knopf im Feld (Funktion „bildkommentare“) */
   allowImage?: boolean;
   /** Name der Person, der geantwortet wird; ✕ hebt die Antwort auf */
@@ -275,7 +276,15 @@ export function CommentComposer({ placeholder, onSend, allowImage, replyTo, onCa
     setValue('');
     setCursor(0);
     setPhoto(undefined);
-    holdInView(boxRef.current, () => onSend(body, picked));
+    holdInView(boxRef.current, () => {
+      // Nicht angekommen (offline, Fehler, kein Kiez): Text und Bild zurück ins Feld statt sie zu verlieren
+      // (Prüfung 12.11.2026). Hat die Person inzwischen weitergetippt, bleibt ihr neuer Text.
+      Promise.resolve(onSend(body, picked)).then((sent) => {
+        if (sent !== false) return;
+        setValue((v) => v || body);
+        setPhoto((p) => p ?? picked);
+      });
+    });
   };
   if (sendRef) sendRef.current = send;
   // Beim Tippen ins Feld: sobald die Tastatur steht, das Feld ins Bild scrollen (Daria, 22.10.2026)
@@ -382,7 +391,7 @@ type CommentSectionProps = {
   /** Eigene Kommentare bekommen keinen Melden-Button */
   currentUserId: string;
   /** Ohne onSend kein Eingabefeld, z. B. bei geschlossenen Challenges. replyToId: Antwort auf diesen Kommentar */
-  onSend?: (body: string, replyToId?: string, photo?: ImageSource) => void;
+  onSend?: (body: string, replyToId?: string, photo?: ImageSource) => unknown;
   /** Bilder in Kommentaren erlaubt (Funktion „bildkommentare“, Daria, 2026-11-10) */
   allowImage?: boolean;
   /** Kommentar löschen; eigene immer, fremde nur mit `canModerate` */
@@ -447,6 +456,9 @@ export function CommentSection({
   const renderComment = (c: CommentData, isReply: boolean, rootId: string) => {
     const author = users.find((u) => u.id === c.authorId);
     if (!author) return null;
+    // Gerade gesendet (live): Der Kommentar hat noch eine vorläufige ID. Löschen oder Antworten gingen damit an die
+    // Datenbank und schlügen fehl, also erst, wenn er mit echter ID neu geladen ist (Prüfung 12.11.2026).
+    const pending = c.id.startsWith('comment-') && c.likeCount === undefined;
     return (
       <Comment
         key={c.id}
@@ -457,11 +469,11 @@ export function CommentSection({
         users={users}
         onMentionPress={onAuthorPress}
         onReport={c.authorId === currentUserId ? undefined : () => onReport(c)}
-        onDelete={onDelete && (c.authorId === currentUserId || canModerate) ? () => onDelete(c) : undefined}
+        onDelete={onDelete && !pending && (c.authorId === currentUserId || canModerate) ? () => onDelete(c) : undefined}
         onLike={onLike && c.likeCount !== undefined ? () => onLike(c) : undefined}
         onLikesPress={onLikesPress ? () => onLikesPress(c) : undefined}
         // Antworten auf eine Antwort hängen am selben Gespräch
-        onReply={onSend ? () => setReplyTo({ ...c, id: rootId }) : undefined}
+        onReply={onSend && !pending ? () => setReplyTo({ ...c, id: rootId }) : undefined}
       />
     );
   };
@@ -490,8 +502,9 @@ export function CommentSection({
           sendRef={sendRef}
           allowImage={allowImage}
           onSend={(body, photo) => {
-            onSend(body, replyTo?.id, photo);
+            const sent = onSend(body, replyTo?.id, photo);
             setReplyTo(null);
+            return sent;
           }}
         />
       ) : closedHint ? (

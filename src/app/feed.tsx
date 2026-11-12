@@ -46,6 +46,7 @@ import { useFeedViews } from '../data/seen';
 import type { Challenge } from '../data/types';
 import { color, isFashionable, motion, space, text } from '../theme/tokens';
 import { cardSwipe, resetCardSwipe } from '../lib/cardSwipe';
+import { useIntroDone } from '../lib/intro';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
@@ -102,18 +103,29 @@ export default function FeedScreen() {
   tabOrderRef.current = tabOrder;
   const [groupChoice, setGroupChoice] = useState<string | undefined>(gruppe);
   const groupId = groups.find((g) => g.id === groupChoice)?.id ?? groups[0]?.id;
+  // Mit Ziel geöffnet (Gruppe, Reiter, Erstellen, neuer Post): Die Routine weicht, sonst landet man in
+  // „My Structure“ statt im Ziel. Wird unten gesetzt, wo der Zustand der Routine steht.
+  const leaveRoutineRef = useRef(() => {});
+  // Beim ersten Öffnen mit Ziel startet die Routine nicht von selbst, auch wenn die Parameter schon geleert sind
+  const openedWithTarget = useRef(!!(gruppe || reiter || erstellen || neu)).current;
   useEffect(() => {
     if (!gruppe) return;
+    leaveRoutineRef.current();
     setTab('groups');
     setGroupChoice(gruppe);
-  }, [gruppe]);
+    // Parameter leeren, damit „Aufgaben ansehen“ derselben Gruppe auch beim nächsten Mal greift
+    router.setParams({ gruppe: undefined });
+  }, [gruppe, router]);
   // Nach dem Posten (Daria, 07.11.2026): in den Reiter, in dem der neue Post steht, und nach oben
   useEffect(() => {
     const target = reiter ? TAB_OF_PARAM[reiter] : undefined;
     if (!target) return;
+    leaveRoutineRef.current();
     setTab(target);
+    // Parameter leeren, damit derselbe Reiter beim nächsten Mal wieder greift (z. B. „Post erstellen“ im Schaufenster)
+    router.setParams({ reiter: undefined, neu: undefined });
     requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: 0, animated: false }));
-  }, [reiter, neu]);
+  }, [reiter, neu, router]);
   const [refreshing, setRefreshing] = useState(false);
   const listRef = useRef<FlatList<FeedItem>>(null);
   const feedViews = useFeedViews(mode === 'live', currentUserId);
@@ -154,11 +166,13 @@ export default function FeedScreen() {
   const autoHide = useRef<ReturnType<typeof setTimeout>>(undefined);
   const collapseRef = useRef(collapse);
   collapseRef.current = collapse;
+  // Die Uhr läuft erst nach dem Startbildschirm, sonst ist der Kopf schon weg, bevor man ihn sieht
+  const introDone = useIntroDone();
   useEffect(() => {
-    if (collapsed) return;
+    if (collapsed || !introDone) return;
     autoHide.current = setTimeout(() => collapseRef.current(), HEADER_HIDE_MS);
     return () => clearTimeout(autoHide.current);
-  }, [collapsed]);
+  }, [collapsed, introDone]);
 
   // Ausblenden: nach unten scrollen. Einblenden nur durch echtes Zurückscrollen nach oben
   // (vorher mehr als 120 Punkte weit unten) oder Herunterziehen ganz oben.
@@ -263,8 +277,9 @@ export default function FeedScreen() {
   const composeAnim = useRef(new Animated.Value(0)).current;
   const sheetAnim = useRef(new Animated.Value(0)).current;
   const wasCollapsed = useRef(false);
-  const createChallenge = () => {
-    if ((tab === 'nearby' || tab === 'everywhere') && !requireKiez()) return;
+  // `target`: Reiter, der gerade erst gesetzt wird (z. B. `reiter=kiez` zusammen mit `erstellen=1`)
+  const startCompose = (target: FeedTab) => {
+    if ((target === 'nearby' || target === 'everywhere') && !requireKiez()) return;
     wasCollapsed.current = collapsed;
     setPlaceTouched(false);
     setComposing(true);
@@ -294,9 +309,10 @@ export default function FeedScreen() {
     }).start();
     if (!wasCollapsed.current) animateHeader(0);
   };
+  const createChallenge = () => startCompose(tab);
   // Aus der Leiste einer anderen Seite: Reiter „Gruppen“ oder Erstellen öffnen
-  const createRef = useRef(createChallenge);
-  createRef.current = createChallenge;
+  const createRef = useRef(startCompose);
+  createRef.current = startCompose;
   useEffect(() => {
     if (reiter === 'gruppen') {
       setTab('groups');
@@ -306,7 +322,9 @@ export default function FeedScreen() {
   useEffect(() => {
     if (erstellen !== '1') return;
     router.setParams({ erstellen: undefined });
-    createRef.current();
+    leaveRoutineRef.current();
+    createRef.current((reiter && TAB_OF_PARAM[reiter]) || tab);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [erstellen, router]);
   // Nach dem Veröffentlichen zurück im Feed: Blatt zu und leer
   useFocusEffect(
@@ -382,6 +400,13 @@ export default function FeedScreen() {
   const [routineShown, setRoutineShown] = useState(false);
   const routineShownRef = useRef(false);
   routineShownRef.current = routineShown;
+  leaveRoutineRef.current = () => {
+    if (!routineShownRef.current && !routineActive) return;
+    swipeX.setValue(0);
+    setSwitchingTo(null);
+    setRoutineActive(false);
+    setRoutineShown(false);
+  };
   // „Me & Myself“ (Daria, 2026-11-12) ersetzt „Routine“ links im Umschalter. Darin „My Structure“ (Routine) und
   // „My Feed“ (Privat), umzuschalten über einen kleinen eigenen Umschalter. Der große Umschalter verschwindet nur in
   // „My Structure“ und kommt zurück, wenn man ganz oben weiter nach oben zieht oder zu „My Feed“ wechselt.
@@ -424,23 +449,28 @@ export default function FeedScreen() {
   useEffect(() => {
     if (startChecked || !modes.ready) return;
     startChecked = true;
-    if (routineStandard && !gruppe && !reiter && !erstellen && !neu) openRoutine();
-  }, [modes.ready, routineStandard, gruppe, reiter, erstellen, neu, openRoutine]);
-  // Android: Zurück aus der Routine führt zum ersten Reiter, wie sonst zurück in den Feed
-  useEffect(() => {
-    if (!routineShown) return;
-    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
-      slideToTab(tabOrderRef.current[0], 1);
-      return true;
-    });
-    return () => sub.remove();
-  }, [routineShown, slideToTab]);
+    if (routineStandard && !openedWithTarget && !gruppe && !reiter && !erstellen && !neu) openRoutine();
+  }, [modes.ready, routineStandard, openedWithTarget, gruppe, reiter, erstellen, neu, openRoutine]);
+  // Android: Zurück aus der Routine führt zum ersten Reiter, wie sonst zurück in den Feed.
+  // Nur solange der Feed vorn ist: Sonst schluckte der Feed das Zurück einer darüber geöffneten Seite.
+  useFocusEffect(
+    useCallback(() => {
+      if (!routineShown) return;
+      const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+        slideToTab(tabOrderRef.current[0], 1);
+        return true;
+      });
+      return () => sub.remove();
+    }, [routineShown, slideToTab]),
+  );
   // `reiter=routine`: Die Seite `routine` leitet hierher, die Routine steht dann gleich da, ohne Bewegung
   useEffect(() => {
     if (reiter !== 'routine') return;
     router.setParams({ reiter: undefined });
     if (!routineOn || isFashionable) return;
     swipeX.setValue(0);
+    // Oben in der Routine: Ziehen nach unten holt den großen Umschalter, auch wenn der Feed weit unten stand
+    lastY.current = 0;
     setRoutineActive(true);
     setRoutineShown(true);
   }, [reiter, router, routineOn, swipeX]);
@@ -694,7 +724,8 @@ export default function FeedScreen() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <Animated.View style={[styles.clip, headerStyle]}>
-        <View onLayout={(e) => !headerHeight && setHeaderHeight(e.nativeEvent.layout.height)}>
+        {/* Höhe folgt dem Inhalt, z. B. wenn nach dem Laden die Zeile mit den Zahlen dazukommt */}
+        <View onLayout={(e) => { const next = e.nativeEvent.layout.height; setHeaderHeight((h) => (h === next ? h : next)); }}>
           <AppHeader
             onLogoPress={() => router.push('/me')}
             onLogoLongPress={() => router.push('/demo')}

@@ -52,16 +52,25 @@ let hasGenderColumn = true;
 /** false, sobald die Datenbank die Spalte `is_test` nicht kennt (Migration 20261027000400 fehlt) */
 let hasTestColumn = true;
 
+/**
+ * Fehler „Spalte gibt es nicht“ (Migration fehlt). Nur dann schaltet die App eine Spalte ab; ein Netzfehler oder
+ * eine kurze Störung darf das nicht, sonst bleibt z. B. das Geschlecht bis zum Neustart aus (Prüfung 12.11.2026).
+ */
+function isMissingColumn(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false;
+  return error.code === '42703' || error.code === 'PGRST204' || /column .* does not exist|could not find .* column/i.test(error.message ?? '');
+}
+
 /** Öffentliche Profile mit Geschlecht. Ohne die Migration geht es ohne Geschlecht weiter. */
 async function selectProfiles(ids: string[]) {
   if (hasGenderColumn && hasTestColumn) {
     const res = await supabase.from('profiles').select(`${PROFILE_COLUMNS}, gender, is_test`).in('id', ids);
-    if (!res.error) return res;
+    if (!res.error || !isMissingColumn(res.error)) return res;
     hasTestColumn = false;
   }
   if (hasGenderColumn) {
     const res = await supabase.from('profiles').select(`${PROFILE_COLUMNS}, gender`).in('id', ids);
-    if (!res.error) return res;
+    if (!res.error || !isMissingColumn(res.error)) return res;
     hasGenderColumn = false;
   }
   return supabase.from('profiles').select(PROFILE_COLUMNS).in('id', ids);
@@ -653,6 +662,7 @@ async function selectOwnPublic(userId: string) {
   if (hasGenderColumn) {
     const res = await supabase.from('profiles').select('handle, kiez, gender').eq('id', userId).maybeSingle();
     if (!res.error) return { data: res.data as OwnPublicRow | null, error: null };
+    if (!isMissingColumn(res.error)) return { data: null, error: res.error };
     hasGenderColumn = false;
   }
   const res = await supabase.from('profiles').select('handle, kiez').eq('id', userId).maybeSingle();
@@ -710,7 +720,8 @@ export async function saveOwnProfile(userId: string, profile: Profile): Promise<
   // Geschlecht getrennt, damit das Speichern ohne die Migration 20261024000100 nicht scheitert
   if (hasGenderColumn && profile.gender) {
     const { error } = await supabase.from('profiles').update({ gender: profile.gender }).eq('id', userId);
-    if (error) hasGenderColumn = false;
+    if (error && isMissingColumn(error)) hasGenderColumn = false;
+    else if (error) throw error;
   }
   check(
     await supabase
