@@ -12,16 +12,23 @@ import { KATER_AVATAR_GELB, katerAvatarSvg, katerHerzenSvg } from './icons/kater
 import { IconButton } from './IconButton';
 
 // Systemmeldungen als hellblaue Chatblase der App, wie die Antworten auf die Fragen; Icon dunkel wie der Text, nur bei Warnungen (Daria, 2026-11-09)
-const SKY_TEXT = '#1F2123';
-/** Fläche der Systemmeldungen im Kiez-Look: probeweise das Gelbgrün aus dem Kreis hinter dem Kater (Cat.svg, Startbild) statt Himmelblau #A9DBFF (Daria, 2026-11-09) */
-const SKY_BG = '#F0FFA6';
+/**
+ * Fläche der Systemmeldungen im Kiez-Look: grau in der Kartenfarbe, ohne Rand, helle Schrift (Daria, 2026-11-12).
+ * Vorher Gelbgrün #F0FFA6 mit 80 % Deckkraft: Auf dem dunklen Grund wurde daraus Olive, fast wie die Olive-Routinekarte,
+ * und es biss sich mit dem hellen Switch. Gelbgrün bleibt der Bedienung vorbehalten und steckt nur noch in der Krabbe.
+ */
+const SKY_TEXT = color.text.primary;
+const SKY_BG = color.bg.surface;
 
 /**
  * Einblenden der Nachrichten im Kiez-Look (Daria, 2026-11-09). Erscheinen mehrere zugleich, kommen sie nacheinander
- * im Abstand von MESSAGE_STAGGER. Systemblasen kommen mit 70 % Deckkraft, leuchten kurz auf 100 % auf und bleiben
- * bei 80 %. Dabei wachsen sie aus der Ecke beim Avatar. Bei „Bewegung reduzieren“ steht alles sofort im Endzustand.
+ * im Abstand von MESSAGE_STAGGER. Systemblasen kommen mit 70 % Deckkraft, werden dann voll
+ * deckend (seit 2026-11-12 grau, vorher Endstand 80 %). Dabei wachsen sie aus der Ecke beim Avatar. Bei „Bewegung reduzieren“ steht alles sofort im Endzustand.
  */
-const SKY_RGB = '240, 255, 166';
+const SKY_RGB = (() => {
+  const hex = SKY_BG.replace('#', '');
+  return [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(', ');
+})();
 const MESSAGE_STAGGER = 320;
 let nextMessageAt = 0;
 /** Reserviert den nächsten freien Zeitpunkt und gibt die Wartezeit bis dahin zurück */
@@ -76,7 +83,7 @@ function useMessageIn() {
     opacity: shown,
     backgroundColor: t.interpolate({
       inputRange: [0, 1, 2],
-      outputRange: [`rgba(${SKY_RGB}, 0.7)`, `rgba(${SKY_RGB}, 1)`, `rgba(${SKY_RGB}, 0.8)`],
+      outputRange: [`rgba(${SKY_RGB}, 0.7)`, `rgba(${SKY_RGB}, 1)`, `rgba(${SKY_RGB}, 1)`],
     }),
     scale: t.interpolate({ inputRange: [0, 1, 2], outputRange: [0.9, 1.04, 1] }),
   };
@@ -820,7 +827,7 @@ const styles = StyleSheet.create({
   link: { textDecorationLine: 'underline' },
   noticeClose: { marginVertical: -10, marginRight: -10, marginLeft: -4 },
   noticeTextSky: { ...text.body, color: SKY_TEXT, flexGrow: 0, flexShrink: 1, flexBasis: 'auto' },
-  answerTextSky: { color: '#1F2123' },
+  answerTextSky: { color: SKY_TEXT },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 24 },
   iconBox: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
   infoText: { ...text.body, color: color.text.primary, flex: 1 },
