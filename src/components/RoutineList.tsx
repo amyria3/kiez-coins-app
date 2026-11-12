@@ -143,28 +143,44 @@ function Group({ title, count, children }: { title: string; count: number; child
 type Mood = KaterMood;
 const moodOf = (r: Reminder) => katerMood(r);
 
-function Card({ bg, mood, children, onLongPress }: { bg: string; mood: Mood; children: ReactNode; onLongPress?: () => void }) {
+/** Ab dieser Kartenbreite steht der Kater neben Titel und Wochentagen (Daria, 2026-11-12) */
+const SIDE_BY_SIDE = 340;
+
+function Card({ bg, mood, head, children, onLongPress }: { bg: string; mood: Mood; head: ReactNode; children?: ReactNode; onLongPress?: () => void }) {
+  const [wide, setWide] = useState(false);
+  const kater = (
+    // Ring in der Farbe des Grunds (Daria, 2026-11-12)
+    <View style={wide && styles.katerSide}>
+      <View style={styles.katerRing}>
+        <KaterRund size={60} bg={bg} />
+      </View>
+      {/* Stimmung klebt schräg am Kater wie ein Sticker (Daria, 2026-11-12) */}
+      <View style={styles.chip} pointerEvents="none">
+        <Text style={styles.chipText} numberOfLines={1}>
+          {mood}
+        </Text>
+      </View>
+    </View>
+  );
   return (
     <Pressable
       onLongPress={onLongPress}
+      onLayout={(e) => setWide(e.nativeEvent.layout.width >= SIDE_BY_SIDE)}
       accessibilityHint={onLongPress ? t('Lange drücken zum Beenden') : undefined}
-      style={[styles.card, { backgroundColor: bg }]}
+      style={[styles.card, !wide && styles.cardTall, { backgroundColor: bg }]}
     >
-      <View style={styles.cardTop}>
-        {/* Ring in der Farbe des Grunds (Daria, 2026-11-12) */}
-        <View>
-          <View style={styles.katerRing}>
-            <KaterRund size={60} bg={bg} />
+      {wide ? null : <View style={styles.cardTop}>{kater}</View>}
+      <View style={styles.cardBody}>
+        {wide ? (
+          <View style={styles.headRow}>
+            <View style={styles.head}>{head}</View>
+            {kater}
           </View>
-          {/* Stimmung klebt schräg am Kater wie ein Sticker (Daria, 2026-11-12) */}
-          <View style={styles.chip} pointerEvents="none">
-            <Text style={styles.chipText} numberOfLines={1}>
-              {mood}
-            </Text>
-          </View>
-        </View>
+        ) : (
+          head
+        )}
+        {children}
       </View>
-      <View style={styles.cardBody}>{children}</View>
     </Pressable>
   );
 }
@@ -178,11 +194,15 @@ function TaskCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDone: 
       bg={SENF}
       mood={moodOf(r)}
       onLongPress={onEnd}
+      head={
+        <>
+          <Text style={styles.meta}>{r.onDate ? whenText(r) : goalText(r)}</Text>
+          <Text noTranslate style={styles.title} numberOfLines={2}>
+            {capitalize(r.want)}
+          </Text>
+        </>
+      }
     >
-      <Text style={styles.meta}>{r.onDate ? whenText(r) : goalText(r)}</Text>
-      <Text noTranslate style={styles.title} numberOfLines={2}>
-        {capitalize(r.want)}
-      </Text>
       {goal > 1 ? <Text style={styles.sub}>{t('{done} von {goal} diese Woche', { done, goal })}</Text> : null}
       {goal > 1 ? (
         <View
@@ -205,11 +225,19 @@ function TaskCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDone: 
 
 function TerminCard({ reminder: r, bg, onDone, onEnd }: { reminder: Reminder; bg: string; onDone: () => void; onEnd: () => void }) {
   return (
-    <Card bg={bg} mood={moodOf(r)} onLongPress={onEnd}>
-      <Text style={styles.meta}>{whenText(r)}</Text>
-      <Text noTranslate style={styles.title} numberOfLines={2}>
-        {capitalize(r.want)}
-      </Text>
+    <Card
+      bg={bg}
+      mood={moodOf(r)}
+      onLongPress={onEnd}
+      head={
+        <>
+          <Text style={styles.meta}>{whenText(r)}</Text>
+          <Text noTranslate style={styles.title} numberOfLines={2}>
+            {capitalize(r.want)}
+          </Text>
+        </>
+      }
+    >
       {r.doneToday ? <Text style={styles.state}>Erledigt</Text> : <Actions bg={bg} onDone={onDone} onEnd={onEnd} />}
     </Card>
   );
@@ -219,11 +247,18 @@ function TerminCard({ reminder: r, bg, onDone, onEnd }: { reminder: Reminder; bg
 function CalendarCard({ event: e }: { event: CalendarEvent }) {
   const when = `${dayName(eventDate(e))} ${e.allDay ? t('ganztägig') : t('um {time}', { time: eventTime(e.start) })}`;
   return (
-    <Card bg={OLIVE} mood="chillig">
-      <Text style={styles.meta}>{when}</Text>
-      <Text noTranslate style={styles.title} numberOfLines={2}>
-        {e.title}
-      </Text>
+    <Card
+      bg={OLIVE}
+      mood="chillig"
+      head={
+        <>
+          <Text style={styles.meta}>{when}</Text>
+          <Text noTranslate style={styles.title} numberOfLines={2}>
+            {e.title}
+          </Text>
+        </>
+      }
+    >
       <Text noTranslate style={styles.state}>
         {e.calendar || t('Aus Deinem Kalender')}
       </Text>
@@ -245,11 +280,18 @@ function SavedCard({ event: e, onChanged }: { event: Saved; onChanged: () => voi
     if (!ok) Alert.alert(t('Hat nicht geklappt'), t('Der Kalender ließ sich gerade nicht öffnen.'));
   };
   return (
-    <Card bg={PUDER} mood={e.cancelled ? 'enttäuscht' : 'neugierig'}>
-      <Text style={styles.meta}>{e.cancelled ? t('Abgesagt') : eventWhen(e)}</Text>
-      <Text noTranslate style={[styles.title, e.cancelled && styles.struck]} numberOfLines={2}>
-        {e.title}
-      </Text>
+    <Card
+      bg={PUDER}
+      mood={e.cancelled ? 'enttäuscht' : 'neugierig'}
+      head={
+        <>
+          <Text style={styles.meta}>{e.cancelled ? t('Abgesagt') : eventWhen(e)}</Text>
+          <Text noTranslate style={[styles.title, e.cancelled && styles.struck]} numberOfLines={2}>
+            {e.title}
+          </Text>
+        </>
+      }
+    >
       <Text noTranslate style={styles.sub} numberOfLines={1}>
         {e.location ? `${e.showcase} · ${e.location}` : e.showcase}
       </Text>
@@ -391,19 +433,7 @@ function RoutineCalendar({ list, events, saved }: { list: Reminder[]; events: Ca
   );
 }
 
-function CalDay({
-  date,
-  today,
-  days,
-  picked,
-  onPress,
-}: {
-  date: Date;
-  today: string;
-  days: RoutineDays | null;
-  picked: boolean;
-  onPress: () => void;
-}) {
+function CalDay({ date, today, days, picked, onPress }: { date: Date; today: string; days: RoutineDays | null; picked: boolean; onPress: () => void }) {
   const [size, setSize] = useState(0);
   const d = localDate(date);
   const done = days?.done.has(d);
@@ -455,10 +485,7 @@ function DayBar({
 }) {
   const [y, m, d] = day.split('-').map(Number);
   const date = new Date(y, m - 1, d);
-  const label =
-    day === today
-      ? t('Heute')
-      : new Intl.DateTimeFormat(localeTag(), { weekday: 'short', day: 'numeric', month: 'numeric' }).format(date);
+  const label = day === today ? t('Heute') : new Intl.DateTimeFormat(localeTag(), { weekday: 'short', day: 'numeric', month: 'numeric' }).format(date);
   const done = days?.doneBy.get(day) ?? [];
   const missed = days?.missedBy.get(day) ?? [];
   // Mit Uhrzeit zuerst, nach Zeit sortiert
@@ -511,7 +538,6 @@ const styles = StyleSheet.create({
   row: { paddingHorizontal: GUTTER, gap: space[12] },
   card: {
     flex: 1,
-    minHeight: 260,
     // Weniger rund (Daria, 2026-11-12): vorher 30, dann 16
     borderRadius: 10,
     padding: 18,
@@ -523,6 +549,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   cardBody: { flex: 1, justifyContent: 'flex-end', gap: space[8] },
+  // Neben dem Kater braucht die Karte oben keinen Platz mehr
+  cardTall: { minHeight: 260 },
+  headRow: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
+  head: { flex: 1, gap: space[8] },
+  // Platz für den Sticker, der links unter dem Kater herausragt
+  katerSide: { marginLeft: 56, marginBottom: 8 },
   chip: {
     position: 'absolute',
     right: 30,
