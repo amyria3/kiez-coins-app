@@ -1380,5 +1380,6 @@
   "Logos, Fotos und Texte stellst Du nur ein, wenn Du die Rechte daran hast. Verträge über Waren, Dienstleistungen oder Termine schließt Du direkt mit Deinen Kund:innen; KiezCoins ist nicht Vertragspartei.": "لا ترفع شعارات وصورًا ونصوصًا إلا إذا كنت تملك حقوقها. العقود على السلع أو الخدمات أو المواعيد تبرمها مباشرة مع عملائك؛ وKiezCoins ليست طرفًا فيها.",
   "Ein öffentliches Schaufenster ist ohne Anmeldung im Internet sichtbar und kann in Suchmaschinen erscheinen.": "واجهة العرض العلنية مرئية على الإنترنت دون تسجيل دخول وقد تظهر في محركات البحث.",
   "Ohne Konto legt KiezCoins beim Anmelden eins an. Wie KiezCoins Deine Daten verarbeitet, steht in der Datenschutzerklärung.": "إن لم يكن لديك حساب بعد، ينشئ KiezCoins حسابًا لك عند تسجيل الدخول. توضّح سياسة الخصوصية كيف يعالج KiezCoins بياناتك.",
-  "Deine Erinnerungen": "تذكيراتك"
+  "Deine Erinnerungen": "تذكيراتك",
+  "{group} Schaufenster": "واجهة عرض {group}"
 }

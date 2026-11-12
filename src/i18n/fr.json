@@ -1355,5 +1355,6 @@
   "Logos, Fotos und Texte stellst Du nur ein, wenn Du die Rechte daran hast. Verträge über Waren, Dienstleistungen oder Termine schließt Du direkt mit Deinen Kund:innen; KiezCoins ist nicht Vertragspartei.": "Tu ne publies des logos, photos et textes que si tu en détiens les droits. Les contrats portant sur des biens, services ou événements sont conclus directement avec tes client·es ; KiezCoins n’y est pas partie.",
   "Ein öffentliches Schaufenster ist ohne Anmeldung im Internet sichtbar und kann in Suchmaschinen erscheinen.": "Une vitrine publique est visible sur Internet sans connexion et peut apparaître dans les moteurs de recherche.",
   "Ohne Konto legt KiezCoins beim Anmelden eins an. Wie KiezCoins Deine Daten verarbeitet, steht in der Datenschutzerklärung.": "Si tu n’as pas encore de compte, KiezCoins en crée un à la connexion. La politique de confidentialité explique comment KiezCoins traite tes données.",
-  "Deine Erinnerungen": "Tes rappels"
+  "Deine Erinnerungen": "Tes rappels",
+  "{group} Schaufenster": "Vitrine de {group}"
 }
