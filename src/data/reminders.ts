@@ -283,19 +283,25 @@ export async function nudgeAllowed(take: boolean, now = new Date()): Promise<boo
 /** „9:00“ oder „18:30“ */
 export const TIME = /^([01]?\d|2[0-3]):[0-5]\d$/;
 
-/** „24.12.“ oder „24.12.2026“ → „2026-12-24“; ohne Jahr der nächste solche Tag ab heute */
-export function parseDate(value: string): string | null {
-  const m = value.trim().match(/^(\d{1,2})\.(\d{1,2})\.?(\d{4})?$/);
+/** „24.12“, „24.12.“, „24.12.26“ oder „24.12.2026“ → „2026-12-24“; ohne Jahr der nächste solche Tag ab heute */
+export function parseDate(value: string, now = new Date()): string | null {
+  const m = value.trim().match(/^(\d{1,2})\.(\d{1,2})(?:\.(\d{2}|\d{4})?)?$/);
   if (!m) return null;
   const [d, mo] = [Number(m[1]), Number(m[2])];
-  const now = new Date();
-  let year = m[3] ? Number(m[3]) : now.getFullYear();
-  const make = () => new Date(year, mo - 1, d);
-  let candidate = make();
-  if (candidate.getMonth() !== mo - 1 || candidate.getDate() !== d) return null;
-  if (!m[3] && localDate(candidate) < localDate(now)) {
-    year += 1;
-    candidate = make();
+  const today = localDate(now);
+  const valid = (year: number) => {
+    const c = new Date(year, mo - 1, d);
+    return c.getMonth() === mo - 1 && c.getDate() === d ? localDate(c) : null;
+  };
+  if (m[3]) {
+    const year = m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3]);
+    const date = valid(year);
+    return date && date >= today ? date : null;
   }
-  return localDate(candidate) >= localDate(now) ? localDate(candidate) : null;
+  // Ohne Jahr: dieses Jahr, sonst nächstes, sonst bis zum nächsten Schaltjahr (29.02.)
+  for (let year = now.getFullYear(); year <= now.getFullYear() + 4; year++) {
+    const date = valid(year);
+    if (date && date >= today) return date;
+  }
+  return null;
 }

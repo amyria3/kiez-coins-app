@@ -107,12 +107,12 @@ export default function NewReminder() {
           {day === 'other' ? (
             <TextField
               label="Datum"
-              placeholder="24.12."
+              placeholder="Datum im Format 01.01. oder 01.01.2001"
               value={date}
               onChangeText={setDate}
               keyboardType="numbers-and-punctuation"
               maxLength={10}
-              error={!date.trim() || parseDate(date) ? undefined : 'Bitte so: 24.12.'}
+              error={!date.trim() || parseDate(date) ? undefined : 'Bitte so: 01.01. oder 01.01.2001'}
             />
           ) : null}
           <ChipGroup>
