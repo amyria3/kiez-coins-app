@@ -209,6 +209,64 @@ function eintrag(x) {
     </div></article>`;
 }
 
+// Visitenkarte zum Teilen und Drucken (Daria, 2026-11-12: „kann die Visitenkarte nicht teilen“). Dieselbe Karte wie in
+// der App unter Verwalten › Visitenkarte exportieren: website/visitenkarte.js aus src/lib/businessCardCanvas.ts.
+// Beim Teilen gehen Name, Adresse und Link als Text mit. Schriften unter den Namen, die die Zeichnung erwartet.
+function visitenkarte(s, links) {
+  const daten = {
+    name: s.name,
+    kiez: s.kiez || undefined,
+    address: s.address || undefined,
+    openingHours: s.opening_hours || undefined,
+    services: s.services || undefined,
+    links: links.filter((l) => /^https:\/\//i.test(l)),
+    url: `${SITE}/s/${s.slug}`,
+    logoUri: foto(s.logo_path) ?? undefined,
+  };
+  return `<style>
+@font-face { font-family: Unbounded_500Medium; font-display: block; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
+@font-face { font-family: Karla_400Regular; font-display: block; src: url(/fonts/Karla_400Regular.ttf) format('truetype'); }
+@font-face { font-family: Karla_500Medium; font-display: block; src: url(/fonts/Karla_500Medium.ttf) format('truetype'); }
+.geteilt .sf-vk { margin: 24px 0 8px; }
+.geteilt .sf-vk-bild { display: block; width: 100%; max-width: 420px; aspect-ratio: 85 / 55; border-radius: 10px; margin: 0 0 12px; }
+.geteilt .sf-vk-knoepfe { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.geteilt .sf-vk button { cursor: pointer; }
+.geteilt .sf-vk .sf-vk-haupt { border: 0; border-radius: 999px; padding: 12px 22px; background: #E4FF5F; color: #000027; font: 500 16px/1 Inter, sans-serif; }
+.geteilt .sf-vk .sf-vk-neben { border: 0; background: none; padding: 8px 0; font: inherit; font-size: 15px; color: var(--text); text-decoration: underline; }
+.geteilt .sf-vk button:disabled { opacity: .5; cursor: default; }
+</style>
+  <section class="sf-vk" aria-label="Visitenkarte">
+    <img class="sf-vk-bild" alt="Visitenkarte von ${esc(s.name)}" hidden>
+    <div class="sf-vk-knoepfe">
+      <button type="button" class="sf-vk-haupt" data-vk="teilen" disabled>Visitenkarte teilen</button>
+      <button type="button" class="sf-vk-neben" data-vk="drucken" disabled>Drucken oder als PDF</button>
+    </div>
+    <p class="sf-klein sf-vk-hinweis" hidden></p>
+  </section>
+<script src="/visitenkarte.js" defer></script>
+<script>
+addEventListener('DOMContentLoaded', async () => {
+  const VK = window.KiezVisitenkarte;
+  const box = document.querySelector('.sf-vk');
+  if (!VK || !box) { box && (box.hidden = true); return; }
+  const d = ${JSON.stringify(daten).replace(/</g, '\\u003c')};
+  const seiten = await VK.drawBusinessCard(d);
+  if (!seiten) { box.hidden = true; return; }
+  const bild = box.querySelector('.sf-vk-bild');
+  bild.src = seiten.front.toDataURL('image/png');
+  bild.hidden = false;
+  const hinweis = box.querySelector('.sf-vk-hinweis');
+  for (const b of box.querySelectorAll('button')) b.disabled = false;
+  box.querySelector('[data-vk="teilen"]').addEventListener('click', async () => {
+    const r = await VK.shareCard(seiten, d);
+    hinweis.hidden = r !== 'downloaded';
+    hinweis.textContent = 'Beide Seiten liegen jetzt in Deinen Downloads.';
+  });
+  box.querySelector('[data-vk="drucken"]').addEventListener('click', () => VK.printCard(seiten, d.name));
+});
+</script>`;
+}
+
 function inhalt(s) {
   if (!s) {
     return `  <h1>Dieses Schaufenster gibt es nicht, oder es ist nicht öffentlich.</h1>
@@ -307,6 +365,7 @@ ${farbe(s.bg_color)}
   ${s.about ? `<p class="text">${esc(s.about)}</p>` : leer('Noch keine Beschreibung')}
   ${infos}${web}
   ${s.imprint ? '<p class="sf-klein"><a href="#impressum">Impressum</a></p>' : ''}
+  ${visitenkarte(s, links)}
   ${
     !s.services
       ? `<h2 class="sf-abschnitt">Services</h2>${leer('Noch keine Services')}`
