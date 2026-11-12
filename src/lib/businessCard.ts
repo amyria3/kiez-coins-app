@@ -274,62 +274,64 @@ function drawBack(d: CardData, a: Assets): HTMLCanvasElement {
   ctx.textAlign = 'left';
 
   // Mehr Luft und größere Schrift (Daria, 2026-11-12)
-  const gap = 72;
-  const colW = (CARD_W - PAD * 2 - gap) / 2;
-  const footerH = 84;
-  const maxY = CARD_H - PAD - footerH;
-  const bodySize = 36;
-  const bodyLine = 46;
-  const top = PAD + 30;
+  // Mehr Luft und größere Schrift (Daria, 2026-11-12). Die Webadresse steht schon vorne, hinten bleibt nur ein
+  // kleiner Kater unten rechts. Links die kurzen Angaben, rechts die längeren in der breiteren Spalte.
+  const gap = 80;
+  const inner = CARD_W - PAD * 2 - gap;
+  const leftW = Math.round(inner * 0.4);
+  const rightW = inner - leftW;
+  const kd = 56;
+  const bodySize = 41;
+  const bodyLine = 53;
+  const top = PAD + 34;
 
   const services = servicesPlain(d.services);
-  const left: { label: string; value?: string; max: number }[] = [
+  type Item = { label: string; value?: string; max: number; fit?: boolean };
+  const left: Item[] = [
     { label: t('Adresse'), value: d.address, max: 3 },
     { label: t('Öffnungszeiten'), value: d.openingHours, max: 5 },
   ];
-  const right: { label: string; value?: string; max: number }[] = [
+  const right: Item[] = [
     { label: t('Services'), value: services.join('\n'), max: d.links.length ? 4 : 8 },
-    { label: d.links.length > 1 ? t('Links') : t('Link'), value: d.links.map(shortLink).join('\n'), max: 3 },
+    // Links nicht umbrechen: lieber etwas kleiner, damit sie lesbar bleiben
+    { label: d.links.length > 1 ? t('Links') : t('Link'), value: d.links.map(shortLink).join('\n'), max: 3, fit: true },
   ];
 
-  const column = (items: typeof left, x: number) => {
+  const column = (items: Item[], x: number, colW: number, maxY: number) => {
     let y = top;
     for (const it of items) {
       if (!it.value?.trim()) continue;
       if (y > maxY - bodyLine) break;
-      ctx.font = `25px "${LABEL_FONT}"`;
+      ctx.font = `28px "${LABEL_FONT}"`;
       ctx.fillStyle = GELB;
       ctx.fillText(it.label.toUpperCase(), x, y);
-      y += 20 + bodyLine;
-      ctx.font = `${bodySize}px "${BODY_FONT}"`;
+      y += 26 + bodyLine;
+      let size = bodySize;
+      ctx.font = `${size}px "${BODY_FONT}"`;
+      if (it.fit) {
+        const widest = Math.max(...it.value.split('\n').map((l) => ctx.measureText(l).width));
+        if (widest > colW) size = Math.max(30, Math.floor((bodySize * colW) / widest));
+        ctx.font = `${size}px "${BODY_FONT}"`;
+      }
       ctx.fillStyle = WHITE;
       const room = Math.max(1, Math.floor((maxY - y + bodyLine) / bodyLine));
       for (const l of clamp(ctx, wrap(ctx, it.value, colW), Math.min(it.max, room), colW)) {
         ctx.fillText(l, x, y);
         y += bodyLine;
       }
-      y += 44;
+      y += 58;
     }
     return y;
   };
-  const usedLeft = column(left, PAD);
-  const usedRight = column(right, PAD + colW + gap);
+  const usedLeft = column(left, PAD, leftW, CARD_H - PAD);
+  const usedRight = column(right, PAD + leftW + gap, rightW, CARD_H - PAD - kd - 10);
   if (usedLeft === top && usedRight === top) {
     ctx.font = `${bodySize}px "${BODY_FONT}"`;
     ctx.fillStyle = MUTED;
     ctx.fillText(t('Noch keine Angaben im Schaufenster'), PAD, PAD + 40);
   }
 
-  // Fußzeile: Trennlinie, Kater und Webadresse
-  const fy = CARD_H - PAD - footerH + 20;
-  ctx.fillStyle = 'rgba(228, 255, 95, 0.35)';
-  ctx.fillRect(PAD, fy, CARD_W - PAD * 2, 2);
-  const kd = 58;
-  drawKater(ctx, a.kater, PAD, fy + 16, kd, GELB);
-  ctx.font = `30px "${BODY_MEDIUM}"`;
-  ctx.fillStyle = GELB;
-  const web = clamp(ctx, wrap(ctx, shortLink(d.url), CARD_W - PAD * 2 - kd - 24), 1, CARD_W - PAD * 2 - kd - 24)[0] ?? '';
-  ctx.fillText(web, PAD + kd + 24, fy + 16 + kd / 2 + 11);
+  drawKater(ctx, a.kater, CARD_W - PAD - kd, CARD_H - PAD - kd, kd, GELB);
   return canvas;
 }
 
