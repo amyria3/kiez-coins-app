@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
+import { markCardSwipe } from '../lib/cardSwipe';
 import Svg, { Defs, Line, Path, Pattern, Rect } from 'react-native-svg';
 
 import { Button } from './Button';
@@ -121,6 +122,8 @@ function Group({ title, count, children }: { title: string; count: number; child
           {count}
         </Text>
       </View>
+      {/* Seitliches Wischen hier bewegt nur die Karten, nicht die Reiter im Feed (Daria, 2026-11-12) */}
+      <View onStartShouldSetResponderCapture={markCardSwipe}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -135,6 +138,7 @@ function Group({ title, count, children }: { title: string; count: number; child
           </View>
         ))}
       </ScrollView>
+      </View>
     </View>
   );
 }
