@@ -264,11 +264,11 @@ addEventListener('DOMContentLoaded', async () => {
   bild.hidden = false;
   const hinweis = box.querySelector('.sf-vk-hinweis');
   for (const b of box.querySelectorAll('button')) b.disabled = false;
+  if (!VK.canShareImages()) box.querySelector('[data-vk="teilen"]').textContent = 'Visitenkarte herunterladen';
   box.querySelector('[data-vk="teilen"]').addEventListener('click', async () => {
     const r = await VK.shareCard(seiten, d);
-    const t = VK.shareNote(r);
-    hinweis.hidden = !t;
-    hinweis.textContent = t || '';
+    hinweis.hidden = r !== 'downloaded';
+    hinweis.textContent = 'Beide Seiten liegen jetzt in Deinen Downloads.';
   });
   box.querySelector('[data-vk="drucken"]').addEventListener('click', () => VK.printCard(seiten, d.name));
 });
