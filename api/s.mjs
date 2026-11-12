@@ -345,6 +345,8 @@ ${
 .geteilt h2.sf-abschnitt { font: 500 12px/16px Inter, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
   margin: 48px 0 16px; padding-top: 20px; border-top: 1px solid var(--line); }
 .geteilt .sf-klappe summary h2.sf-abschnitt { flex: 1; }
+/* Kiez unter dem Namen als kleine Zeile in Versalien, dunkel statt grau (Daria, 2026-11-12) */
+.geteilt p.wer { font: 500 12px/16px Inter, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--text); margin: 10px 0 20px; }
 .geteilt .sf-fakten { display: grid; gap: 16px; margin: 28px 0 8px; }
 @media (min-width: 560px) { .geteilt .sf-fakten { grid-template-columns: 1fr 1fr; gap: 20px 32px; } }
 .geteilt .sf-fakt dt { font: 500 12px/16px Inter, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
