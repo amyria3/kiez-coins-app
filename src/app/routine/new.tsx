@@ -6,7 +6,7 @@ import { Button } from '../../components/Button';
 import { FieldGroup, Notice, QuestionHint } from '../../components/Content';
 import { Chip, ChipGroup, TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
-import { WEEKDAYS } from '../../data/katerRoutine';
+import { WEEKDAYS, weekdayShort } from '../../data/katerRoutine';
 import { addDays, createReminder, localDate, parseDate, TIME } from '../../data/reminders';
 import { useGoBack } from '../../lib/goBack';
 import { space } from '../../theme/tokens';
@@ -168,7 +168,7 @@ export default function NewReminder() {
           <FieldGroup label="An welchen Tagen?">
             <ChipGroup>
               {WEEKDAYS.map((d, i) => (
-                <Chip key={d} label={d} selected={days.includes(i + 1)} onPress={() => toggleDay(i + 1)} />
+                <Chip key={d} label={weekdayShort(i + 1)} selected={days.includes(i + 1)} onPress={() => toggleDay(i + 1)} />
               ))}
             </ChipGroup>
           </FieldGroup>
