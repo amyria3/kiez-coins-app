@@ -7,7 +7,7 @@ import { KaterCard, KaterRund } from './Content';
 import { handShapePath } from './handShape';
 import { Text } from './T';
 import { addToMyCalendar, eventDate, eventTime, type CalendarEvent } from '../data/calendar';
-import { dayName, goalText, katerFocus, katerLine, weekdayShort, whenText } from '../data/katerRoutine';
+import { dayName, goalText, katerFocus, katerLine, katerMood, weekdayShort, whenText, type KaterMood } from '../data/katerRoutine';
 import { addDays, capitalize, goalOf, isoWeekday, kindOf, loadRoutineDays, localDate, weekStart, type Reminder, type RoutineDays } from '../data/reminders';
 import { asSingleEvent, eventWhen, saveEvent, type ShowcaseEvent } from '../data/showcase';
 import { localeTag, t, useTexts } from '../data/texts';
@@ -30,11 +30,11 @@ const PUDER = '#E6D6C0';
 const INK = '#1A1A1A';
 const INK_SOFT = 'rgba(26, 26, 26, 0.68)';
 const INK_TRACK = 'rgba(26, 26, 26, 0.16)';
-const CHIP = 'rgba(26, 26, 26, 0.1)';
 /** Kalender: Tage ohne Eintrag und die Schraffur für ausgefallene */
 const DAY = 'rgba(251, 239, 242, 0.08)';
 const HATCH = 'rgba(251, 239, 242, 0.16)';
-const CARD_MAX = 292;
+const CARD_MIN = 260;
+const CARD_MAX = 480;
 const GUTTER = space[20];
 
 type Saved = ShowcaseEvent & { showcase: string };
@@ -105,11 +105,13 @@ export function RoutineList({
 
 /** Überschrift mit Anzahl, darunter die Karten nebeneinander zum Wischen */
 function Group({ title, count, children }: { title: string; count: number; children: ReactNode }) {
-  const { width } = useWindowDimensions();
-  // Die nächste Karte schaut rechts ein Stück herein
-  const cardWidth = Math.min(CARD_MAX, width - GUTTER * 2 - 48);
+  const { width: screen } = useWindowDimensions();
+  // Breite der Spalte; im Browser ist die App schmaler als das Fenster
+  const [width, setWidth] = useState(screen - GUTTER * 2);
+  // Länglich, so breit es geht (Daria, 2026-11-12); die nächste Karte schaut rechts ein Stück herein
+  const cardWidth = Math.max(CARD_MIN, Math.min(CARD_MAX, width - 36));
   return (
-    <View style={styles.group}>
+    <View style={styles.group} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
       <View style={styles.groupHead}>
         <Text style={styles.groupTitle} accessibilityRole="header">
           {title}
@@ -136,20 +138,9 @@ function Group({ title, count, children }: { title: string; count: number; child
   );
 }
 
-/** Stand des Katers auf der Karte, bis die Videos da sind als Wort neben dem Avatar */
-type Mood = 'wartet' | 'freut sich' | 'sauer' | 'neugierig' | 'entspannt';
-
-function moodOf(r: Reminder, now = new Date()): Mood {
-  const goal = goalOf(r);
-  if (r.doneToday || r.doneThisWeek >= goal) return 'freut sich';
-  if (kindOf(r) === 'termin') return r.required === false ? 'neugierig' : 'wartet';
-  if (r.onDate) return 'wartet';
-  // Wiederkehrend: Reicht die Woche noch für das Ziel?
-  const daysLeft = 8 - isoWeekday(now);
-  const left = r.weekdays ? r.weekdays.filter((d) => d >= isoWeekday(now)).length : daysLeft;
-  if (goal - r.doneThisWeek > left) return 'sauer';
-  return r.weekdays && !r.weekdays.includes(isoWeekday(now)) ? 'entspannt' : 'wartet';
-}
+/** Stand des Katers auf der Karte, bis die Videos da sind als Wort am Avatar */
+type Mood = KaterMood;
+const moodOf = (r: Reminder) => katerMood(r);
 
 function Card({ bg, mood, share, children, onLongPress }: { bg: string; mood: Mood; share: string; children: ReactNode; onLongPress?: () => void }) {
   return (
@@ -159,17 +150,22 @@ function Card({ bg, mood, share, children, onLongPress }: { bg: string; mood: Mo
       style={[styles.card, { backgroundColor: bg }]}
     >
       <View style={styles.cardTop}>
-        <View style={styles.chip}>
-          <Text style={styles.chipText}>{mood}</Text>
-        </View>
         {/* Teilen über das Menü des Systems (Daria, 2026-11-12) */}
         <Pressable onPress={() => shareText(share)} accessibilityRole="button" hitSlop={8} style={({ pressed }) => [styles.share, pressed && styles.pressed]}>
           <Text style={styles.shareText}>Teilen</Text>
         </Pressable>
         <View style={styles.grow} />
         {/* Ring in der Farbe des Grunds (Daria, 2026-11-12) */}
-        <View style={styles.katerRing}>
-          <KaterRund size={60} />
+        <View>
+          <View style={styles.katerRing}>
+            <KaterRund size={60} bg={bg} />
+          </View>
+          {/* Stimmung klebt schräg am Kater wie ein Sticker (Daria, 2026-11-12) */}
+          <View style={styles.chip} pointerEvents="none">
+            <Text style={styles.chipText} numberOfLines={1}>
+              {mood}
+            </Text>
+          </View>
         </View>
       </View>
       <View style={styles.cardBody}>{children}</View>
@@ -228,7 +224,7 @@ function TerminCard({ reminder: r, bg, onDone, onEnd }: { reminder: Reminder; bg
 function CalendarCard({ event: e }: { event: CalendarEvent }) {
   const when = `${dayName(eventDate(e))} ${e.allDay ? t('ganztägig') : t('um {time}', { time: eventTime(e.start) })}`;
   return (
-    <Card bg={OLIVE} mood="entspannt" share={`${e.title}, ${when}`}>
+    <Card bg={OLIVE} mood="chillig" share={`${e.title}, ${when}`}>
       <Text style={styles.meta}>{when}</Text>
       <Text noTranslate style={styles.title} numberOfLines={2}>
         {e.title}
@@ -254,7 +250,7 @@ function SavedCard({ event: e, onChanged }: { event: Saved; onChanged: () => voi
     if (!ok) Alert.alert(t('Hat nicht geklappt'), t('Der Kalender ließ sich gerade nicht öffnen.'));
   };
   return (
-    <Card bg={PUDER} mood={e.cancelled ? 'sauer' : 'neugierig'} share={[e.title, eventWhen(e), e.showcase, e.location].filter(Boolean).join(', ')}>
+    <Card bg={PUDER} mood={e.cancelled ? 'enttäuscht' : 'neugierig'} share={[e.title, eventWhen(e), e.showcase, e.location].filter(Boolean).join(', ')}>
       <Text style={styles.meta}>{e.cancelled ? t('Abgesagt') : eventWhen(e)}</Text>
       <Text noTranslate style={[styles.title, e.cancelled && styles.struck]} numberOfLines={2}>
         {e.title}
@@ -535,7 +531,7 @@ const styles = StyleSheet.create({
   row: { paddingHorizontal: GUTTER, gap: space[12] },
   card: {
     flex: 1,
-    minHeight: 300,
+    minHeight: 260,
     borderRadius: 16,
     padding: 18,
     gap: space[8],
@@ -547,17 +543,20 @@ const styles = StyleSheet.create({
   },
   cardBody: { flex: 1, justifyContent: 'flex-end', gap: space[8] },
   chip: {
-    backgroundColor: CHIP,
+    position: 'absolute',
+    right: 30,
+    bottom: -8,
+    backgroundColor: color.bg.screen,
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    marginTop: 4,
+    transform: [{ rotate: '-8deg' }],
   },
   chipText: {
     fontFamily: font.medium,
     fontSize: 13,
     lineHeight: 17,
-    color: INK,
+    color: color.text.primary,
   },
   katerRing: {
     borderRadius: 33,

@@ -25,6 +25,8 @@ export type Reminder = {
   untilTime?: string;
   /** Einmalig: Pflicht oder optional (Daria, 2026-11-10) */
   required?: boolean;
+  /** Angelegt am (ISO), für die Stimmung des Katers */
+  createdAt?: string;
   /** Erledigt in dieser Woche (ab Montag) */
   doneThisWeek: number;
   doneToday: boolean;
@@ -51,6 +53,7 @@ type Row = {
   on_date?: string | null;
   until_time?: string | null;
   required?: boolean | null;
+  created_at?: string | null;
 };
 
 /** Montag 0:00 dieser Woche, Ortszeit */
@@ -128,6 +131,7 @@ export async function loadReminders(): Promise<Reminder[] | null> {
       onDate: r.on_date ?? undefined,
       untilTime: r.until_time ? r.until_time.slice(0, 5) : undefined,
       required: r.on_date ? r.required !== false : undefined,
+      createdAt: r.created_at ?? undefined,
       doneThisWeek: mine.length,
       doneToday: mine.some((d) => new Date(d.done_at) >= today),
     };
