@@ -119,6 +119,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const profileLoaded = useRef(false);
   /** Person, für die Profil und Feed schon geladen sind (oder gerade laden). */
   const appliedUserId = useRef<string | null>(null);
+  /** true, sobald getSession die gespeicherte Sitzung übernommen hat. Vorher kümmert sich nur getSession ums Laden. */
+  const started = useRef(false);
 
   useEffect(() => {
     /**
@@ -159,6 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     supabase.auth.getSession().then(async ({ data }) => {
+      started.current = true;
       await apply(data.session, () => setLoading(false));
       setLoading(false);
     });
@@ -169,7 +172,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Im Browser meldet Supabase bei jedem Zurückwechseln in den Tab erneut SIGNED_IN (auth-js
       // `_recoverAndRefresh`), z. B. nach Kamera, Fotoauswahl oder Teilen. Für dieselbe Person nicht neu
       // laden: Sonst setzt der gespeicherte Startstand den Feed zurück, und die App wirkt wie neu geladen.
-      if (event === 'SIGNED_IN' && next?.user.id !== appliedUserId.current) setTimeout(() => apply(next), 0);
+      // Auch beim Start kommt SIGNED_IN für die gespeicherte Sitzung; die lädt getSession, sonst lädt alles doppelt.
+      if (event === 'SIGNED_IN' && started.current && next?.user.id !== appliedUserId.current) setTimeout(() => apply(next), 0);
       else setSession(next);
       if (event === 'SIGNED_OUT') {
         appliedUserId.current = null;
