@@ -14,6 +14,7 @@ import { Avatar } from './AuthorRow';
 import { reiseEntries } from '../data/reise';
 import { countButton } from '../data/remote';
 import { look } from '../theme/look';
+import { useRoutineEnabled } from '../data/routine';
 
 /** `menu`: Dein Konto, dort ist der Burger markiert (Daria, 2026-11-11) */
 export type TabKey = 'feed' | 'reise' | 'chat' | 'menu';
@@ -29,6 +30,10 @@ type TabBarProps = {
   onGroupsPress?: () => void;
   /** Fashionable Look: Reiter „Gruppen“ im Feed ist offen */
   groupsActive?: boolean;
+  /** Kiez-Look: Die Routine ist im Feed offen, dann ist der Kalender aktiv statt des Herzens */
+  routineActive?: boolean;
+  /** Kiez-Look: Kalender im Feed öffnet die Routine dort. Ohne: Der Feed öffnet mit der Routine. */
+  onRoutinePress?: () => void;
 };
 
 /**
@@ -113,10 +118,12 @@ function FashionTabBar({ active, onFeedPress, onCreatePress }: TabBarProps) {
   );
 }
 
-function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarProps) {
+function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineActive = false, onRoutinePress }: TabBarProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { mode, currentUserId } = useStore();
+  const routineOn = useRoutineEnabled();
+  const feedOn = active === 'feed' && !routineActive;
   const unread = useUnreadMessages();
   const requests = useFriendRequests();
   useEffect(() => {
@@ -128,6 +135,21 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarP
       pointerEvents="box-none"
     >
       <View style={styles.bar} accessibilityRole="tablist">
+        {/* Kalender ganz links öffnet die Routine (Daria, 2026-11-12). Nur, wenn die Routine eingeschaltet ist. */}
+        {routineOn ? (
+          <Pressable
+            accessibilityRole="tab"
+            accessibilityLabel={t('Routine')}
+            accessibilityState={{ selected: routineActive }}
+            onPress={() => {
+              if (routineActive) return;
+              (onRoutinePress ?? (() => router.dismissTo({ pathname: '/feed', params: { reiter: 'routine' } })))();
+            }}
+            style={({ pressed }) => [styles.item, routineActive && styles.itemActive, pressed && styles.pressed]}
+          >
+            <Icon name="calendar" size={size.icon} color={iconColor(routineActive)} />
+          </Pressable>
+        ) : null}
         {/* Kamera auch in der Leiste (Daria, 30.10.2026). Nur im Feed als Pille in hellem Olive (Daria, 2026-11-12, vorher Lila), dort etwas größer. In Nachrichten und „Was Du so machst“ schlicht wie Feed und Menü daneben:
             ohne Fläche, gleich breit, gedämpfte Farbe (Daria, 10.11.2026).
             Sitzt ganz vorn, das Herz (Feed) kommt danach (Daria, 2026-11-12; vorher zwischen Feed und Chats) */}
@@ -149,11 +171,11 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarP
         <Pressable
           accessibilityRole="tab"
           accessibilityLabel={t('Feed')}
-          accessibilityState={{ selected: active === 'feed' }}
+          accessibilityState={{ selected: feedOn }}
           onPress={onFeedPress}
-          style={({ pressed }) => [styles.item, active === 'feed' && styles.itemActive, pressed && styles.pressed]}
+          style={({ pressed }) => [styles.item, feedOn && styles.itemActive, pressed && styles.pressed]}
         >
-          <Icon name="feed" size={size.icon} color={iconColor(active === 'feed')} />
+          <Icon name="feed" size={size.icon} color={iconColor(feedOn)} />
         </Pressable>
         {/* Chat und Freund:innen (Daria, 22.10.2026) */}
         <Pressable

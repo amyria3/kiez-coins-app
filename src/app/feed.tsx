@@ -750,6 +750,8 @@ export default function FeedScreen() {
         onCreatePress={createChallenge}
         onGroupsPress={groupsOn ? () => switchTab('groups') : undefined}
         groupsActive={tab === 'groups'}
+        routineActive={routineActive}
+        onRoutinePress={openRoutine}
       />}
       <SurveyOverlay visible={surveyVisible} onClose={closeSurvey} />
     </View>
