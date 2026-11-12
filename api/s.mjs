@@ -295,7 +295,12 @@ function inhalt(s) {
       <p class="sf-text">Neuigkeiten, Angebote und Fotos aus dem Schaufenster.</p>
     </div></article></div>`;
   return `<style>
-${farbe(s.bg_color)}
+${
+  // Ohne eigene Farbe: oben ein Hauch Kater-Gelbgrün statt des blassen Lilas der Website (Daria, 2026-11-12)
+  s.bg_color
+    ? farbe(s.bg_color)
+    : 'html { background-image: linear-gradient(170deg, #EEFF9E 0%, #F5FFC9 28%, rgba(250,251,239,0) 60%) !important; background-color: #FAFBEF !important; background-size: 100% 1500px; background-repeat: no-repeat; }'
+}
 /* KiezCoins-Logo oben klein, das Schaufenster steht im Vordergrund (Daria, 2026-11-10) */
 /* Klein, ohne Slogan, rechts, mit Abstand darunter (Daria, 2026-11-10) */
 .top { justify-content: flex-end; padding: 28px 0 0; margin-bottom: 40px; }
