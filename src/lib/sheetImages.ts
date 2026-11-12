@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 
 import { INK, INK_LINK, PAPER, RICH, SHEET_RATIO, sheetMetrics } from '../components/TextSheets';
-import { iconSvgs } from '../components/icons/svgs';
+import { brandArt } from '../components/icons/brandArt';
 import { font } from '../theme/tokens';
 
 /**
@@ -24,10 +24,13 @@ function svgImage(xml: string): HTMLImageElement | null {
   return img;
 }
 
-/** Kater wie in den Kater-Nachrichten (Icon „cat“, Daria, 07.11.2026) */
-const CAT = iconSvgs.cat;
-const catImage = svgImage(
-  CAT.svg(INK).replace(/width="[^"]*" height="[^"]*"/, `width="${CAT.width * 4}" height="${CAT.height * 4}"`),
+/** Logo mit Kater und Schriftzug (Daria, 2026-11-12), in der Farbe des Namens, die Brille im Papierweiß */
+const LOGO = brandArt.logo;
+const logoImage = svgImage(
+  LOGO.svg
+    .replace(/#7E94FF/gi, INK)
+    .replace(/#0F100E/gi, PAPER)
+    .replace(/width="[^"]*" height="[^"]*"/, `width="${LOGO.width * 8}" height="${LOGO.height * 8}"`),
 );
 
 /** Wer den Post geschrieben hat: oben über dem Titel, Profilbild und Name (Daria, 07.11.2026) */
@@ -152,26 +155,17 @@ function drawAuthorRow(
 }
 
 /**
- * Unten: Seitenzahl links in Grau, rechts Kater und „KiezCoins“ (Daria, 07.11.2026). `bottom` ist die Unterkante.
- * `logo: false` lässt Kater und „KiezCoins“ weg (Wasserzeichen entfernt, Daria, 2026-11-10).
+ * Unten: Seitenzahl links in Grau, rechts das Logo (Daria, 07.11.2026; seit 2026-11-12 das neue Logo mit Kater und Schriftzug).
+ * `bottom` ist die Unterkante. `logo: false` lässt das Logo weg (Wasserzeichen entfernt, Daria, 2026-11-10).
  */
 function drawFooter(ctx: Ctx, bottom: number, pad: number, index: number, count: number, logo = true) {
   const W = ctx.canvas.width;
   const markSize = SLIDE_WIDTH * 0.03;
-  // Kater, daneben „KiezCoins“ in der normalen Schrift und Farbe wie der Name (Daria, 07.11.2026)
-  const wordSize = Math.round(SLIDE_WIDTH * 0.034);
-  if (logo) {
-    ctx.font = `600 ${wordSize}px "${font.regular}"`;
-    ctx.fillStyle = INK;
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'alphabetic';
-    ctx.fillText('KiezCoins', W - pad, bottom - Math.round(wordSize * 0.15));
-    if (catImage?.complete && catImage.naturalWidth) {
-      const ww = ctx.measureText('KiezCoins').width;
-      const ch = Math.round(wordSize * 1.6);
-      const cw = Math.round((ch * CAT.width) / CAT.height);
-      ctx.drawImage(catImage, W - pad - ww - Math.round(wordSize * 0.4) - cw, bottom - ch, cw, ch);
-    }
+  // So hoch wie vorher der Kater neben „KiezCoins“
+  const logoH = Math.round(SLIDE_WIDTH * 0.034 * 1.7);
+  if (logo && logoImage?.complete && logoImage.naturalWidth) {
+    const lw = Math.round((logoH * LOGO.width) / LOGO.height);
+    ctx.drawImage(logoImage, W - pad - lw, bottom - logoH, lw, logoH);
   }
   if (count > 1) {
     ctx.font = `${markSize}px "${font.regular}"`;
