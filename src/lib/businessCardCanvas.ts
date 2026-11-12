@@ -396,7 +396,22 @@ export function cardMessage(d: CardData): string {
 }
 
 /**
- * Als Bilder teilen (Teilen-Menü des Handys), mit Name, Adresse und Link als Text. Wo das nicht geht, beide Seiten
+ * Kann dieser Browser Bilder ins Teilen-Fenster geben? Viele Desktop-Browser (Firefox, Chrome unter Linux, ältere
+ * Chrome-Versionen) können das nicht. Dort heißt der Knopf „Visitenkarte herunterladen“ (Daria, 2026-11-12:
+ * „in diesem Fall sollte der Button entsprechend Download heißen“).
+ */
+export function canShareImages(): boolean {
+  if (typeof navigator === 'undefined' || typeof File === 'undefined') return false;
+  const nav = navigator as Navigator & { canShare?: (d: { files: File[] }) => boolean };
+  try {
+    return typeof nav.share === 'function' && !!nav.canShare?.({ files: [new File([''], 'karte.png', { type: 'image/png' })] });
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Als Bilder teilen (Teilen-Menü des Geräts), mit Name, Adresse und Link als Text. Wo das nicht geht, beide Seiten
  * herunterladen. `'shared'`, `'downloaded'` oder `'cancelled'`.
  */
 export async function shareCard(sides: CardSides, d: CardData): Promise<'shared' | 'downloaded' | 'cancelled'> {
