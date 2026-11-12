@@ -96,17 +96,20 @@ export const color = {
     large: fashionable ? palette.white : '#EEE0C9',
   },
   /**
-   * Untere Leiste im Kiez-Look (Daria, 2026-11-12): Aubergine statt Grau, Icons in Creme statt Puder. Die aktive Seite
-   * sitzt auf einer grauen Blase, ihr Icon ist Senf. Die Kamera im Feed ist helles Olive. Gelbgrün und Lila bleiben
-   * den Funktionen der App vorbehalten, deshalb nicht in der Leiste.
+   * Untere Leiste im Kiez-Look (Daria, 2026-11-12): Aubergine statt Grau, Icons in Beige statt Puder. Die aktive Seite
+   * sitzt auf einer grauen Blase, ihr Icon hat je Seite eine eigene Farbe: Kalender Senf, Feed Rosa, Nachrichten
+   * Schneeweiß, Menü Gelbgrün. Die Kamera bleibt die lila Pille, außer in der Routine (dort klein und schlicht).
    */
   nav: {
     bar: fashionable ? 'rgba(255, 255, 255, 0.96)' : 'rgba(59, 47, 60, 0.94)',
     icon: fashionable ? palette.white : '#EEE0C9',
     bubble: fashionable ? 'transparent' : '#303034',
-    active: fashionable ? palette.white : '#ECCF55',
-    create: fashionable ? 'transparent' : '#C6D195',
-    onCreate: fashionable ? palette.white : '#3B2F3C',
+    calendar: fashionable ? palette.white : '#ECCF55',
+    feed: fashionable ? palette.white : palette.pink,
+    chat: fashionable ? palette.white : '#FFFAF3',
+    menu: fashionable ? palette.white : '#E4FF5F',
+    create: fashionable ? 'transparent' : palette.purple,
+    onCreate: fashionable ? palette.white : palette.black,
   },
   /** Signaturfarbe für Logo und Kater. Fashionable Look vorerst Schwarz: Das Violett #7B2FF7 hat Daria verworfen (23.10.2026), die neue Farbe steht noch aus. */
   brand: {
