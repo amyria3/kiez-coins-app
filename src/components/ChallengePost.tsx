@@ -170,8 +170,8 @@ function KiezPost({
     </>
   );
 
-  // Ort auf dem Foto: Stadtteil, sonst Adresse (wie im Fashionable Look)
-  const placeOnPhoto = challenge.kiez?.split(',')[0] ?? challenge.location;
+  // Ort auf dem Foto: Stadtteil, sonst Adresse (wie im Fashionable Look). In Gruppen der Ort, falls angegeben
+  const placeOnPhoto = placeOf(challenge);
   const posted = formatRelative(challenge.createdAt);
   const tappedMeta = [posted, distance, isPhoto ? null : state, spotsText(challenge, active)].filter(Boolean).join(' · ');
   // Oben nach dem Tippen: Ort vor der Zeit, dann der Rest (Daria, 2026-11-07)
@@ -504,7 +504,7 @@ function FashionPost({ challenge, author, distance, onPress, onCommentPress, onL
         : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
   const hideName = useHideName(author);
   const router = useRouter();
-  const place = [challenge.kiez?.split(',')[0] ?? challenge.location, distance, spotsText(challenge, active)].filter(Boolean).join(' · ');
+  const place = [placeOf(challenge), distance, spotsText(challenge, active)].filter(Boolean).join(' · ');
   const commentCount = challenge.comments.length;
   const { width } = useAppDimensions();
 
@@ -893,3 +893,6 @@ const styles = StyleSheet.create({
   textBelowCard: { paddingTop: space[12] },
   body: { ...text.body, color: color.text.secondary },
 });
+
+/** Stadtteil, sonst Adresse. Posts in öffentlichen Gruppen zeigen ihren Ort, falls angegeben (Daria, 2026-11-12). */
+const placeOf = (c: Challenge) => (c.groupId && c.location.trim() ? c.location : (c.kiez?.split(',')[0] ?? c.location));
