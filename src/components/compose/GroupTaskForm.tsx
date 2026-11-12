@@ -17,6 +17,7 @@ import { DEFAULT_PARTICIPATION, ParticipantsField } from './ParticipantsField';
 import { MAX_MEMBERS } from '../../data/groups';
 import type { Participation } from '../../data/remote';
 import { celebratePost } from '../HeartBurst';
+import { useGroupPlace } from './GroupPlaceField';
 
 const durations = [
   { days: 1, label: '1 Tag' },
@@ -56,6 +57,7 @@ export function useGroupTaskForm(
   const [participation, setParticipation] = useState<Participation>(initial.participation ?? DEFAULT_PARTICIPATION);
   const [busy, setBusy] = useState<'publish' | 'save' | undefined>();
   const titleField = useNudge();
+  const place = useGroupPlace(groupId, draft);
   const hasContent = !!photo || !!title.trim() || !!body.trim();
 
   const input = () => ({
@@ -63,7 +65,8 @@ export function useGroupTaskForm(
     type: 'individual' as const,
     title,
     text: body,
-    location: '',
+    location: place.location,
+    coords: place.coords,
     edensteine,
     participation,
     ...draftPhoto(photo, draft),
@@ -76,7 +79,7 @@ export function useGroupTaskForm(
       const deadline = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
       const taskId = draft
         ? await publishDraft(draft.id, input(), deadline)
-        : await groupApi.createTask({ groupId: group.id, title, text: body, edensteine, participation, deadline, photo });
+        : await groupApi.createTask({ groupId: group.id, title, text: body, edensteine, participation, deadline, photo, location: place.location, coords: place.coords });
       celebratePost();
       onCreated(taskId);
     } catch (error) {
@@ -109,6 +112,7 @@ export function useGroupTaskForm(
         title={{ value: title, onChange: setTitle, nudge: titleField }}
       />
       <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={body} onChangeText={setBody} maxLength={500} />
+      {place.field}
       <FieldGroup label="Edensteine">
         <EdensteinStepper value={edensteine} onChange={setEdensteine} seed="neue-aufgabe" />
         <Text style={styles.hint}>1 bis 10. Edensteine gelten nur in dieser Gruppe und haben so viel ideellen Wert, wie Ihr ihnen zusprecht.</Text>
