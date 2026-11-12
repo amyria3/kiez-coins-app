@@ -1,6 +1,6 @@
 # To-dos
 
-Stand: 2026-11-10. Diese Liste ist die einzige To-do-Liste für KiezCoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
+Stand: 2026-11-12. Diese Liste ist die einzige To-do-Liste für KiezCoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
 
 Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coins/screenshots/`. Sie stehen absichtlich nicht im Repo, weil das Repo öffentlich ist und einige Bilder Adressen und Namen zeigen.
 
@@ -13,7 +13,34 @@ Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coin
 - [ ] **Pflichtaufgabe (Daria, 10.11.2026): EU Cyber Resilience Act (CRA, Verordnung (EU) 2024/2847).** Gemeint ist der CRA, nicht der Cybersecurity Act (EU) 2019/881: Der regelt nur freiwillige Zertifikate. Der CRA gilt für Software, die in der EU im Rahmen einer geschäftlichen Tätigkeit angeboten wird. Die KiezCoins-App (Android, iPhone) fällt sehr wahrscheinlich darunter, sobald sie Geld bringt (Kauf, Werbung, Abo). Eine reine Web-Anwendung ohne App fällt eher nicht darunter (NIS2 gilt erst für mittlere und große Unternehmen). Das ist von Claude eingeordnet und keine Rechtsberatung, bitte vor dem Verkaufsstart prüfen lassen.
   - Seit **11.09.2026**: Meldepflicht. Eine aktiv ausgenutzte Sicherheitslücke oder einen schweren Sicherheitsvorfall innerhalb von 24 Stunden als Frühwarnung melden, nach 72 Stunden ausführlich, über die Meldeplattform von ENISA (in Deutschland zuständig: BSI).
   - Ab **11.12.2027**: alle Pflichten. Sicher voreingestellt, Sicherheitsupdates für die Supportdauer (in der Regel mindestens 5 Jahre), Liste der verwendeten Pakete (SBOM), Risikobewertung, Kontakt für Sicherheitsmeldungen, technische Doku, Konformitätserklärung und CE-Kennzeichnung (für normale Apps per Selbstbewertung).
-  - Erste Schritte: Kontakt für Sicherheitsmeldungen auf kiezcoins.de (`/.well-known/security.txt`), Ablauf für Meldungen innerhalb von 24 Stunden festhalten, Pakete automatisch auf Lücken prüfen lassen (z. B. Dependabot), SBOM erzeugen.
+  - Stand 12.11.2026: Code geprüft, Risikobewertung und SBOM liegen im Claude-Projektordner `cra/`, `SECURITY.md` steht. Einstufung: Standardkategorie mit Selbstbewertung. Die einzelnen Schritte stehen unten unter „CRA-Pflichtaufgaben“. Details: `2026-11-12_offen_cra-konformitaet.md`.
+
+## CRA-Pflichtaufgaben (Daria, 12.11.2026)
+
+Alle Punkte erledigt Daria selbst. Hintergrund und Fristen: `2026-11-12_offen_cra-konformitaet.md`.
+
+Sofort:
+
+- [ ] Einordnung rechtlich prüfen lassen: Fällt KiezCoins unter den CRA, ab welchem Zeitpunkt, und zählen Web-App und Backend mit.
+- [ ] Postfach für Sicherheitsmeldungen bestätigen (`SECURITY.md` nennt die Adresse aus dem Impressum) und täglich lesen.
+- [ ] GitHub: Settings › Code security › „Private vulnerability reporting“ einschalten.
+- [ ] Zwei-Faktor-Anmeldung einschalten bei GitHub, Expo, Supabase, Vercel, Brevo und INWX.
+- [ ] Supabase: Authentication › Schutz vor geleakten Passwörtern einschalten.
+- [ ] GitHub: Settings › Code security › CodeQL „Default setup“ und Dependabot alerts einschalten.
+- [ ] PR mit Dependabot und `security.txt` freigeben.
+- [ ] Maßnahmen aus der Risikobewertung entscheiden (Claude-Projektordner `cra/2026-11-12_risikobewertung-und-befunde.md`). Claude setzt sie danach um.
+
+Vor dem ersten bezahlten Angebot:
+
+- [ ] Zugang zur CRA-Meldeplattform von ENISA einrichten (zuständig in Deutschland: BSI) und den Ablauf 24 Stunden, 72 Stunden, 14 Tage ablegen.
+- [ ] Supportdauer festlegen und mit Enddatum auf der Website nennen (Regel: mindestens fünf Jahre).
+- [ ] Herstellerangaben vervollständigen: Postanschrift im Impressum.
+
+Bis 11.12.2027:
+
+- [ ] Technische Dokumentation abnehmen (Claude schreibt sie) und zehn Jahre aufbewahren.
+- [ ] Sicherheitshinweise für Nutzer:innen abnehmen (Kontakt, Supportdauer, sichere Nutzung).
+- [ ] EU-Konformitätserklärung unterschreiben, CE-Kennzeichen auf Website und Erklärung anbringen.
 
 ## Dringend (Daria, 30.10.2026)
 
