@@ -343,7 +343,7 @@ ${
 .geteilt .sf-wer h1 { margin: 0; padding-bottom: 4px; font: 500 32px/33px Unbounded, var(--display); letter-spacing: 0; }
 /* Abschnitte klein in Versalien mit feiner Linie darüber, wie bei Studios (Daria, 2026-11-12) */
 .geteilt h2.sf-abschnitt { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; color: var(--text);
-  margin: 48px 0 16px; padding-top: 20px; border-top: 1px solid var(--line); }
+  margin: 48px 0 12px; padding-top: 24px; border-top: 1px solid var(--line); }
 .geteilt .sf-klappe summary h2.sf-abschnitt { flex: 1; }
 /* Kiez unter dem Namen als kleine Zeile in Versalien, dunkel statt grau. Dicht am Namen, mit deutlich Abstand zur
    Beschreibung, damit klar ist, wozu sie gehört (Daria, 2026-11-12) */
@@ -402,7 +402,7 @@ ${
         ? `<details class="sf-klappe"><summary><h2 class="sf-abschnitt">Services</h2></summary><div class="sf-services">${richHtml(s.services)}</div></details>`
         : `<h2 class="sf-abschnitt">Services</h2><div class="sf-services">${richHtml(s.services)}</div>`
   }
-  ${eintraege ? `<div class="sf-liste">${eintraege}</div>` : ohneEintraege}
+  ${eintraege ? `<h2 class="sf-abschnitt">Neu im Schaufenster</h2><div class="sf-liste">${eintraege}</div>` : ohneEintraege}
   ${
     s.terms
       ? `<details class="sf-klappe"><summary><h2 class="sf-abschnitt">AGB</h2></summary><div class="sf-services">${richHtml(s.terms)}</div></details>`
