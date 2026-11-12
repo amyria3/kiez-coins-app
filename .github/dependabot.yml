@@ -1,0 +1,16 @@
+# Dependabot (Daria, 2026-11-12, für den EU Cyber Resilience Act): meldet Pakete mit bekannten Sicherheitslücken
+# und öffnet dafür einen PR. `open-pull-requests-limit: 0` schaltet reine Versions-Updates aus, damit die
+# Expo-Pakete zur SDK-Version passen (die pflegt `npx expo install --fix`). Sicherheits-Updates kommen trotzdem.
+# Braucht in GitHub: Settings › Code security › „Dependabot alerts“ und „Dependabot security updates“.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 0
