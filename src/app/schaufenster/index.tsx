@@ -311,8 +311,17 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
           <Text style={[styles.showcaseName, !router.canGoBack() && styles.showcaseNameUnderKicker]} accessibilityRole="header" noTranslate>
             {s.name}
           </Text>
-          {/* Luft unter dem Namen und ein Satz der Krabbe, was hier passiert (Daria, 2026-11-12) */}
-          <Notice message="Hier pflegst Du Deine Seite. Was Du postest, sehen Leute im Web und in der KiezCoins App." />
+          {/* Luft unter dem Namen und ein Satz der Krabbe, was hier passiert. Je nach Status, denn bei „Nur Eingeladene“
+              oder offline erscheint im Web nichts (Daria, 2026-11-12). */}
+          <Notice
+            message={
+              !s.switches.online
+                ? 'Hier pflegst Du Deine Seite. Sie ist gerade offline, deshalb sieht nur Deine Gruppe, was Du postest.'
+                : s.visibility === 'public'
+                  ? 'Hier pflegst Du Deine Seite. Was Du postest, sehen alle im Web und in der KiezCoins App.'
+                  : 'Hier pflegst Du Deine Seite. Name und Angaben sehen alle. Was Du postest, sehen nur Dein Team und Eingeladene in der KiezCoins App.'
+            }
+          />
           {s.cover ? <Image source={s.cover} style={styles.cover} contentFit="cover" /> : null}
           {s.visibility === 'public' ? <CopyField label="Deine Seite" value={showcasePublicLink(s.slug)} /> : null}
           {!s.switches.online ? <Notice variant="warning" message="Dieses Schaufenster ist offline." /> : null}
