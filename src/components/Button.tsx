@@ -10,6 +10,7 @@ import { handShapePath } from './handShape';
 import { GearsLoader, SMALL_GEARS } from './GearsLoader';
 import { Icon } from './icons/Icon';
 import { useSubmitTarget } from './Nudge';
+import { useAccentColor } from '../theme/signal';
 import type { IconName } from './icons/svgs';
 
 // Figma „Button“ (Primary, Secondary). Die übrigen Varianten sind Überschreibungen in Screens:
@@ -43,7 +44,9 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
   const explains = !!off && !!whyDisabled;
   const disabled = (off && !explains) || !!busy;
   const onPress = explains ? whyDisabled : press;
-  const v = variants[variant];
+  // Unter „Privat“ / „Me & Myself“ gelb statt lila (Daria, 2026-11-12)
+  const accent = useAccentColor();
+  const v = recolor(variants[variant], accent);
   // Größe für die handgezeichnete Form, siehe HandShape
   const [box, setBox] = useState<{ w: number; h: number } | null>(null);
   const onLayout = (e: LayoutChangeEvent) => {
@@ -63,7 +66,7 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
   // Versuch: Buttons aus Liquid Glass (iOS 26). Gefüllte Varianten bekommen ihre Farbe als Tönung.
   if (isFashionable) return <FashionButton pressRef={ref} label={label} onPress={onPress} variant={variant} off={off} disabled={disabled} busy={busy} style={style} />;
   if (glassControls && variant !== 'ghost') {
-    const g = glassVariants[variant];
+    const g = recolor(glassVariants[variant], accent);
     return (
       <Glass
         variant="regular"
@@ -167,6 +170,14 @@ const variants: Record<ButtonVariant, { fill?: string; line?: string; label: str
   signalOutline: { line: color.accent.signal, label: color.accent.signal },
   danger: { line: color.accent.error, label: color.accent.error },
 };
+
+/** Ersetzt Lila durch die Akzentfarbe an dieser Stelle */
+function recolor<T extends Record<string, string | boolean | undefined>>(v: T, accent: string): T {
+  if (accent === color.accent.primary) return v;
+  const out: Record<string, unknown> = {};
+  for (const [k, x] of Object.entries(v)) out[k] = x === color.accent.primary ? accent : x;
+  return out as T;
+}
 
 /** Konturbreite der Form: etwas kräftiger als die alte Haarlinie, damit die Zeichnung erkennbar bleibt */
 const SHAPE_LINE = 1.5;

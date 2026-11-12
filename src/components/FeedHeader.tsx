@@ -8,6 +8,7 @@ import { Image } from 'expo-image';
 import { challengeTypes, isTypeActive } from '../data/features';
 import type { Challenge } from '../data/types';
 import { color, font, isFashionable, motion, radius, size, space, stroke, text } from '../theme/tokens';
+import { usePrivateSignal } from '../theme/signal';
 import { Notice } from './Content';
 import { Logo } from './icons/Brand';
 import { Icon } from './icons/Icon';
@@ -319,6 +320,7 @@ type Box = { x: number; width: number; height: number };
 const sameBox = (a: Box | null, b: Box) => !!a && a.x === b.x && a.width === b.width && a.height === b.height;
 
 function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress, accent = false, lead }: SegmentsProps<K>) {
+  const signal = usePrivateSignal();
   // Helle Pille gleitet zum gewählten Reiter (Bewegung „Schranke“, etwas langsamer).
   // Der gewählte Reiter bekommt seitlich mehr Polsterung; die Nachbarn rutschen mit (Daria, 31.10.2026).
   // Eine Lage `pos` (Index, auch Zwischenwerte) steuert Polsterung, Pille und Schriftfarbe gemeinsam.
@@ -373,7 +375,8 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
       ]
     : undefined;
   // „Privat“ gewählt: Knopf gelb, in jedem Umschalter, auch beim Erstellen (Daria, 2026-11-12)
-  const privateOn = lead?.active ? !!lead.private : selectedKey === 'private';
+  // In „Me & Myself“ und beim Erstellen unter „Privat“ ist jeder gewählte Knopf gelb (Daria, 2026-11-12)
+  const privateOn = (lead?.active ? !!lead.private : selectedKey === 'private') || (signal && accent);
   const on = accent && !privateOn ? color.text.onAccent : color.bg.screen;
   /** Heller Knopf in der Farbe der großen Icons statt Puder-Weiß (Daria, 2026-11-12: Puder biss sich mit dem Feed) */
   const fill = privateOn ? color.accent.private : accent ? color.accent.primary : color.icon.large;

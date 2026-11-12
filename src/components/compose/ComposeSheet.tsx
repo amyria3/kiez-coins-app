@@ -15,6 +15,7 @@ import { TypeSwitch } from './TypeSwitch';
 import { DraftStrip } from './DraftStrip';
 import { useComposeSheetContent, type ComposeContent } from './compose';
 import { KeyboardArea } from '../Keyboard';
+import { PrivateSignalProvider } from '../../theme/signal';
 
 /** Beitragstypen im Kiez, in dieser Reihenfolge (Daria, 2026-10-31). Alle immer an (Daria, 27.10.2026). */
 const PUBLIC_TYPES = [
@@ -65,7 +66,10 @@ export function ComposeSheet({ target, onDone, placeConfirmed = true }: Props) {
   return (
     <View style={styles.sheet}>
       <View style={[styles.flex, target === 'private' ? null : styles.hidden]}>
-        <PublicBody onDone={onDone} shared={shared} isPrivate turn={placeConfirmed} kind={kind} setKind={setKind} />
+        {/* Unter „Privat“ ist Gelb die Signalfarbe statt Lila (Daria, 2026-11-12) */}
+        <PrivateSignalProvider value>
+          <PublicBody onDone={onDone} shared={shared} isPrivate turn={placeConfirmed} kind={kind} setKind={setKind} />
+        </PrivateSignalProvider>
       </View>
       <View style={[styles.flex, target === 'public' ? null : styles.hidden]}>
         <PublicBody onDone={onDone} shared={shared} turn={placeConfirmed} kind={kind} setKind={setKind} />
