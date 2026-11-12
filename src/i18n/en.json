@@ -1604,7 +1604,6 @@
   "Textpost": "Text post",
   "Termin": "Appointment",
   "Aufgabe": "Task",
-  "Mein Schaufenster": "My shop window",
   "Für Laden, Verein oder Club": "For a shop, club or association",
   "1. Auf iPhone und Mac: Tippe oben auf „Im Kalender abonnieren“. Die Kalender-App öffnet sich, damit bist Du fertig. Auf allen anderen Geräten: Kopiere den Abo-Link.": "1. On iPhone and Mac: Tap “Subscribe to the calendar” at the top. Your calendar app opens, and you’re done. On all other devices: Copy the subscription link.",
   "1. Eine Facebook-Seite anlegen oder eine vorhandene nutzen (Facebook › Seiten › Neue Seite).": "1. Create a Facebook Page or use an existing one (Facebook › Pages › Create new Page).",
@@ -1714,5 +1713,11 @@
   "Gerade nutzt Du {adresse}. Gib Deine neue Adresse ein. Danach versendet das System eine E-Mail mit einem Code dorthin.": "You are currently using {adresse}. Enter your new address. After that, the system sends an email with a code there.",
   "Es geht auch ohne. Deine E-Mail ist nur nötig, damit das System Dir Bestätigungscodes senden kann und Du ein vergessenes Passwort wiederherstellen kannst. Merke Dir Deckname und Passwort deshalb gut.": "It works without one too. You only need your email so the system can send you confirmation codes and you can recover a forgotten password. So remember your nickname and password well.",
   "Danke, wir kümmern uns": "Thanks, we'll take care of it",
-  "Deine Erinnerungen": "Your reminders"
+  "Deine Erinnerungen": "Your reminders",
+  "Hier pflegst Du Deine Seite. Was Du postest, sehen Leute im Web und in der KiezCoins App.": "This is where you look after your page. What you post shows up on the web and in the KiezCoins app.",
+  "In der App ansehen": "View in app",
+  "Im Web ansehen": "View on the web",
+  "Im Web erscheint Dein Schaufenster erst, wenn es öffentlich ist. Das stellst Du unter „Seite bearbeiten“ ein.": "Your shop window appears on the web only once it is public. You can set this under “Edit page”.",
+  "Solange Dein Schaufenster offline ist, gibt es keine Webseite dazu.": "While your shop window is offline, it has no web page.",
+  "{group} Schaufenster": "{group} shop window"
 }
