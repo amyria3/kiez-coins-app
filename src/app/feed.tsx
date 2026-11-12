@@ -383,8 +383,8 @@ export default function FeedScreen() {
   const routineShownRef = useRef(false);
   routineShownRef.current = routineShown;
   // „Me & Myself“ (Daria, 2026-11-12) ersetzt „Routine“ links im Umschalter. Darin „My Structure“ (Routine) und
-  // „My Feed“ (Privat), umzuschalten über einen kleinen eigenen Umschalter. Der große Umschalter verschwindet dort und
-  // kommt erst zurück, wenn man ganz oben weiter nach oben zieht oder in „Gruppe“ wischt.
+  // „My Feed“ (Privat), umzuschalten über einen kleinen eigenen Umschalter. Der große Umschalter verschwindet in
+  // „My Feed“ und kommt erst zurück, wenn man ganz oben weiter nach oben zieht oder in „Gruppe“ wischt.
   const privateOn = tabOrder.includes('private');
   const meOn = !isFashionable && !composing && (routineOn || privateOn);
   const meActive = meOn && (routineActive || (switchingTo ?? tab) === 'private');
@@ -396,7 +396,8 @@ export default function FeedScreen() {
   const meActiveRef = useRef(meActive);
   meActiveRef.current = meActive;
   revealRef.current = () => meActiveRef.current && setMeSwitchOpen(true);
-  const bigSwitchShown = !meActive || !meBoth || meSwitchOpen;
+  // Nur in „My Feed“ (Privat) verschwindet der große Umschalter, in „My Structure“ bleibt er (Daria, 2026-11-12)
+  const bigSwitchShown = !meActive || !meBoth || meSwitchOpen || routineActive;
   const slideToTab = useRef((key: FeedTab, dir: 1 | -1) => {
     setSwitchingTo(key);
     setRoutineActive(false);
