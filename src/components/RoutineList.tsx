@@ -391,7 +391,7 @@ function RoutineCalendar({ list, events, saved }: { list: Reminder[]; events: Ca
           ),
         )}
       </View>
-      {picked ? <DayPanel day={picked} today={today} days={days} list={list} events={events} saved={saved} /> : null}
+      <DayBar day={picked ?? today} today={today} days={days} list={list} events={events} saved={saved} />
     </View>
   );
 }
@@ -439,8 +439,11 @@ function CalDay({
   );
 }
 
-/** Was an einem Tag war: geschafft, ausgefallen, Termine */
-function DayPanel({
+/**
+ * Schmale Textleiste unter dem Kalender (Daria, 2026-11-12): nur Text, z. B. „Heute · 13:00 Zahnarzt · Klavier
+ * spielen“. Gibt einen Überblick über den gewählten Tag, ohne die Karten darunter zu doppeln. Ohne Auswahl: heute.
+ */
+function DayBar({
   day,
   today,
   days,
@@ -457,45 +460,34 @@ function DayPanel({
 }) {
   const [y, m, d] = day.split('-').map(Number);
   const date = new Date(y, m - 1, d);
-  const title = day === today ? t('Heute') : new Intl.DateTimeFormat(localeTag(), { weekday: 'long', day: 'numeric', month: 'long' }).format(date);
+  const label =
+    day === today
+      ? t('Heute')
+      : new Intl.DateTimeFormat(localeTag(), { weekday: 'short', day: 'numeric', month: 'numeric' }).format(date);
   const done = days?.doneBy.get(day) ?? [];
   const missed = days?.missedBy.get(day) ?? [];
-  // Fällig an dem Tag, noch offen: feste Wochentage ab heute, einmalige an ihrem Tag
-  const open =
-    day >= today
-      ? list.filter((r) => !done.includes(r.want) && (r.onDate ? r.onDate === day : r.weekdays?.includes(isoWeekday(date)))).map((r) => capitalize(r.want))
-      : [];
-  const termine = [
-    ...events.filter((e) => eventDate(e) === day).map((e) => (e.allDay ? e.title : `${eventTime(e.start)} ${e.title}`)),
-    ...saved.filter((e) => localDate(new Date(e.startsAt)) === day).map((e) => `${eventTime(e.startsAt)} ${e.title}`),
-  ];
-  const rows: [string, string[]][] = [
-    ['Geschafft', done.map(capitalize)],
-    ['Ausgefallen', missed.map(capitalize)],
-    ['Steht an', open],
-    ['Termine', termine],
-  ];
-  const any = rows.some(([, items]) => items.length);
+  // Mit Uhrzeit zuerst, nach Zeit sortiert
+  const timed: [string, string][] = [
+    ...list.filter((r) => r.onDate === day && (r.atTime || r.untilTime)).map((r): [string, string] => [r.atTime ?? r.untilTime ?? '', capitalize(r.want)]),
+    ...list.filter((r) => !r.onDate && r.atTime && r.weekdays?.includes(isoWeekday(date))).map((r): [string, string] => [r.atTime ?? '', capitalize(r.want)]),
+    ...events.filter((e) => eventDate(e) === day && !e.allDay).map((e): [string, string] => [eventTime(e.start), e.title]),
+    ...saved.filter((e) => localDate(new Date(e.startsAt)) === day).map((e): [string, string] => [eventTime(e.startsAt), e.title]),
+  ].sort((a, b) => a[0].localeCompare(b[0]));
+  const timedNames = new Set(timed.map(([, n]) => n));
+  // Ohne Uhrzeit: fällige Aufgaben ab heute, sonst was geschafft oder ausgefallen ist
+  const untimed = [
+    ...events.filter((e) => eventDate(e) === day && e.allDay).map((e) => e.title),
+    ...(day >= today
+      ? list
+          .filter((r) => (r.onDate ? r.onDate === day : r.weekdays ? r.weekdays.includes(isoWeekday(date)) : day === today))
+          .map((r) => capitalize(r.want) + (done.includes(r.want) ? ' ✓' : ''))
+      : [...done.map((w) => `${capitalize(w)} ✓`), ...missed.map((w) => `${capitalize(w)} ✗`)]),
+  ].filter((n) => !timedNames.has(n.replace(/ [✓✗]$/, '')));
+  const items = [...timed.map(([time, name]) => `${time} ${name}`), ...untimed];
   return (
-    <View style={styles.dayPanel} accessibilityLiveRegion="polite">
-      <Text noTranslate style={styles.dayTitle}>
-        {title}
-      </Text>
-      {any ? (
-        rows.map(([label, items]) =>
-          items.length ? (
-            <View key={label} style={styles.dayRow}>
-              <Text style={styles.dayLabel}>{label}</Text>
-              <Text noTranslate style={styles.dayItems}>
-                {items.join(', ')}
-              </Text>
-            </View>
-          ) : null,
-        )
-      ) : (
-        <Text style={styles.dayItems}>An diesem Tag steht nichts an.</Text>
-      )}
-    </View>
+    <Text noTranslate style={styles.dayBar} numberOfLines={2} accessibilityLiveRegion="polite">
+      {items.length ? [label, ...items].join(' · ') : `${label} · ${t('nichts geplant')}`}
+    </Text>
   );
 }
 
@@ -503,11 +495,7 @@ const styles = StyleSheet.create({
   grow: { flex: 1 },
   share: { borderRadius: 20, borderWidth: 1, borderColor: INK_TRACK, paddingHorizontal: 10, paddingVertical: 3, marginTop: 4, marginLeft: space[6] },
   shareText: { fontFamily: font.medium, fontSize: 13, lineHeight: 17, color: INK },
-  dayPanel: { marginTop: space[8], padding: space[16], borderRadius: 16, backgroundColor: DAY, gap: space[8] },
-  dayTitle: { fontFamily: font.medium, fontSize: 17, lineHeight: 22, color: color.text.primary },
-  dayRow: { gap: 2 },
-  dayLabel: { fontFamily: font.medium, fontSize: 13, lineHeight: 18, color: color.text.secondary },
-  dayItems: { fontFamily: font.regular, fontSize: 15, lineHeight: 20, color: color.text.primary },
+  dayBar: { marginTop: space[4], fontFamily: font.regular, fontSize: 14, lineHeight: 19, color: color.text.secondary },
   group: { gap: space[12] },
   groupHead: {
     flexDirection: 'row',
