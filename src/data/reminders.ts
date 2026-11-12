@@ -25,6 +25,8 @@ export type Reminder = {
   untilTime?: string;
   /** Einmalig: Pflicht oder optional (Daria, 2026-11-10) */
   required?: boolean;
+  /** Angelegt am (ISO), für die Stimmung des Katers */
+  createdAt?: string;
   /** Erledigt in dieser Woche (ab Montag) */
   doneThisWeek: number;
   doneToday: boolean;
@@ -51,6 +53,7 @@ type Row = {
   on_date?: string | null;
   until_time?: string | null;
   required?: boolean | null;
+  created_at?: string | null;
 };
 
 /** Montag 0:00 dieser Woche, Ortszeit */
@@ -128,6 +131,7 @@ export async function loadReminders(): Promise<Reminder[] | null> {
       onDate: r.on_date ?? undefined,
       untilTime: r.until_time ? r.until_time.slice(0, 5) : undefined,
       required: r.on_date ? r.required !== false : undefined,
+      createdAt: r.created_at ?? undefined,
       doneThisWeek: mine.length,
       doneToday: mine.some((d) => new Date(d.done_at) >= today),
     };
@@ -139,12 +143,13 @@ export async function loadReminders(): Promise<Reminder[] | null> {
  * Ausgefallen: Ein fester Wochentag einer Erinnerung ist vorbei, ohne dass sie an dem Tag erledigt wurde.
  * Zählt erst ab dem Tag, an dem die Erinnerung angelegt wurde, und nur bis sie beendet wurde.
  */
-export type RoutineDays = { done: Set<string>; missed: Set<string> };
+/** `doneBy`/`missedBy`: je Tag die Namen („want“) der Erinnerungen */
+export type RoutineDays = { done: Set<string>; missed: Set<string>; doneBy: Map<string, string[]>; missedBy: Map<string, string[]> };
 export async function loadRoutineDays(from: Date, to: Date, now = new Date()): Promise<RoutineDays> {
-  const empty: RoutineDays = { done: new Set(), missed: new Set() };
-  const { data, error } = await supabase.from('reminders').select('id, weekdays, created_at, archived_at');
+  const empty: RoutineDays = { done: new Set(), missed: new Set(), doneBy: new Map(), missedBy: new Map() };
+  const { data, error } = await supabase.from('reminders').select('id, want, weekdays, created_at, archived_at');
   if (error || !data?.length) return empty;
-  const rows = data as { id: string; weekdays: number[] | null; created_at: string; archived_at: string | null }[];
+  const rows = data as { id: string; want: string; weekdays: number[] | null; created_at: string; archived_at: string | null }[];
   const end = addDays(1, dayStart(to));
   const { data: doneRows } = await supabase
     .from('reminder_done')
@@ -154,10 +159,19 @@ export async function loadRoutineDays(from: Date, to: Date, now = new Date()): P
     .lt('done_at', end.toISOString());
   const done = new Set<string>();
   const doneBy = new Set<string>();
+  const wantOf = new Map(rows.map((r) => [r.id, r.want]));
+  const byDay = (map: Map<string, string[]>, day: string, want: string | undefined) => {
+    if (!want) return;
+    const list = map.get(day) ?? [];
+    if (!list.includes(want)) map.set(day, [...list, want]);
+  };
+  const doneNames = new Map<string, string[]>();
+  const missedNames = new Map<string, string[]>();
   for (const d of (doneRows ?? []) as { reminder_id: string; done_at: string }[]) {
     const day = localDate(new Date(d.done_at));
     done.add(day);
     doneBy.add(`${d.reminder_id} ${day}`);
+    byDay(doneNames, day, wantOf.get(d.reminder_id));
   }
   const missed = new Set<string>();
   const today = localDate(now);
@@ -168,10 +182,13 @@ export async function loadRoutineDays(from: Date, to: Date, now = new Date()): P
     for (let d = dayStart(from); d < end; d = addDays(1, d)) {
       const day = localDate(d);
       if (day < first || day >= last || day >= today) continue;
-      if (r.weekdays.includes(isoWeekday(d)) && !doneBy.has(`${r.id} ${day}`)) missed.add(day);
+      if (r.weekdays.includes(isoWeekday(d)) && !doneBy.has(`${r.id} ${day}`)) {
+        missed.add(day);
+        byDay(missedNames, day, r.want);
+      }
     }
   }
-  return { done, missed };
+  return { done, missed, doneBy: doneNames, missedBy: missedNames };
 }
 
 export async function createReminder(input: ReminderInput): Promise<boolean> {
