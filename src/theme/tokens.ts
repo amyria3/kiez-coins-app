@@ -120,7 +120,11 @@ export const color = {
     affection: palette.pink,
     confirmation: palette.green,
     signal: palette.orange,
-    error: palette.red,
+    /**
+     * Fehler und Pflichtfeld-Hinweise: im Kiez-Look Orange wie die Signalfarbe (Daria, 2026-11-12). Das alte Korallrot
+     * #FF7E8B lag zu nah am Herz-Rosa #FFB2E5. Fashionable bleibt Rot.
+     */
+    error: fashionable ? palette.red : palette.orange,
   },
 } as const;
 
