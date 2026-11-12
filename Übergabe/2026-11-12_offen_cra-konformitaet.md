@@ -33,7 +33,7 @@ Daria hat am 12.11.2026 eine KI-Zusammenfassung mit fünf Schritten eingefügt. 
 - Risikobewertung mit allen Befunden geschrieben. Sie nennt konkrete Schwachstellen und liegt deshalb nur im Claude-Projektordner: `cra/2026-11-12_risikobewertung-und-befunde.md`. Sie gehört nach Documentation, nicht in dieses Repo.
 - SBOM erzeugt (CycloneDX 1.7, 558 Komponenten): Claude-Projektordner `cra/2026-11-12_sbom-cyclonedx.json`. Neu erzeugen: `npx @cyclonedx/cyclonedx-npm --package-lock-only --omit dev --output-file sbom.json`.
 - `SECURITY.md` angelegt: Meldeweg für Sicherheitslücken.
-- Vorbereitet in einem eigenen PR: Dependabot (`.github/dependabot.yml`) und `website/.well-known/security.txt`.
+- Dependabot (`.github/dependabot.yml`) und `website/.well-known/security.txt` angelegt (PR #352, von Daria am 12.11.2026 gemergt).
 - Nicht gelaufen: die statische Analyse mit Semgrep, weil die Regeln aus der Cloud-Sitzung nicht ladbar sind. Ersatz ist CodeQL in GitHub (Pflichtaufgabe 6).
 
 ## Pflichtaufgaben für Daria
@@ -46,7 +46,7 @@ Sofort:
 4. Zwei-Faktor-Anmeldung einschalten bei GitHub, Expo, Supabase, Vercel, Brevo und INWX.
 5. In Supabase einschalten: Authentication › Schutz vor geleakten Passwörtern („Leaked password protection“).
 6. In GitHub einschalten: Settings › Code security › CodeQL „Default setup“ und Dependabot alerts.
-7. Den PR mit Dependabot und `security.txt` freigeben.
+7. Erledigt am 12.11.2026: PR #352 mit Dependabot und `security.txt` ist gemergt. Im Browser prüfen, dass `https://kiezcoins.de/.well-known/security.txt` lädt.
 8. Die Maßnahmen aus der Risikobewertung entscheiden (drei mit hoher Dringlichkeit). Claude setzt sie danach um.
 
 Vor dem ersten bezahlten Angebot:
