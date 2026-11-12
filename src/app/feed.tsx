@@ -22,6 +22,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ChallengePost } from '../components/ChallengePost';
 import { ComposeSheet } from '../components/compose/ComposeSheet';
+import { PrivateSignalProvider } from '../theme/signal';
 import { takeComposeDone } from '../components/compose/compose';
 import { IconButton } from '../components/IconButton';
 import { Text } from '../components/T';
@@ -727,7 +728,7 @@ export default function FeedScreen() {
           // („My Structure“), ohne Routine „My Feed“.
           lead={
             meOn
-              ? { label: t('Me & Myself'), active: meActive, onPress: () => !meActive && (routineOn ? openRoutine() : switchTab('private')) }
+              ? { label: t('Me & Myself'), active: meActive, private: true, onPress: () => !meActive && (routineOn ? openRoutine() : switchTab('private')) }
               : routineOn && !composing && !isFashionable
                 ? { label: t('Routine'), active: routineActive, onPress: () => !routineActive && openRoutine() }
                 : undefined
@@ -740,6 +741,8 @@ export default function FeedScreen() {
         <View style={[styles.tabsRow, { paddingRight: tabsPaddingRight }]}>
           <View style={styles.flex}>
             <Segments
+              // Gewählt immer gelb, auch „My Structure“ (Daria, 2026-11-12)
+              accent
               tabs={ME_TABS}
               selectedKey={routineActive ? 'structure' : 'private'}
               onChange={(key) => {
@@ -755,6 +758,8 @@ export default function FeedScreen() {
           <TopChallengeBar items={topChallenges} onItemPress={openChallenge} />
         </View>
       </Animated.View>
+      {/* In „Me & Myself“ ist Gelb die Signalfarbe (Daria, 2026-11-12) */}
+      <PrivateSignalProvider value={meActive}>
       <View style={styles.flex}>
         <Animated.View style={[styles.flex, { transform: [{ translateX: swipeX }] }]} {...swipe.panHandlers}>
         {routineShown ? (
@@ -814,6 +819,7 @@ export default function FeedScreen() {
           </Animated.View>
         ) : null}
       </View>
+      </PrivateSignalProvider>
       {composing ? null : <TabBar
         active="feed"
         onFeedPress={() => switchTab(standardTab)}

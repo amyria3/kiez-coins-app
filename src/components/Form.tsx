@@ -8,6 +8,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 import type { ImageSource } from '../data/types';
 import { color, isFashionable, radius, scheme, space, stroke, text } from '../theme/tokens';
+import { useAccentColor } from '../theme/signal';
 import { BlurView } from 'expo-blur';
 import { Glass, glassControls } from './Glass';
 import { fitShape, SWITCH_KNOB, SWITCH_TRACK } from './handSwitch';
@@ -51,7 +52,8 @@ export function TextField({
   const goNext = useNextField(inputRef, viewRef);
   const advances = !multiline && !onSubmitEditing && !!goNext;
   const hinted = !error && !!nudge?.hint;
-  const borderColor = error ? color.accent.error : focused || hinted ? color.accent.primary : color.text.secondary;
+  const accent = useAccentColor();
+  const borderColor = error ? color.accent.error : focused || hinted ? accent : color.text.secondary;
   const helper = error ?? nudge?.hint ?? helperText;
   return (
     <View style={styles.field} ref={viewRef}>
@@ -84,7 +86,7 @@ export function TextField({
             : undefined
         }
         placeholderTextColor={color.text.secondary}
-        selectionColor={color.accent.primary}
+        selectionColor={accent}
         onChangeText={(v) => {
           nudge?.clear();
           onChangeText?.(v);
@@ -521,7 +523,8 @@ export function PhotoPicker({
   const hinted = !title?.error && !!title?.nudge?.hint;
   const titleHelper = title?.error ?? title?.nudge?.hint;
   // Ohne Rahmen (Daria, 24.10.2026); ein Fehler zeigt einen roten Rand, das aktive Feld einen lila (Daria, 2026-11-09)
-  const titleBorder = title?.error ? color.accent.error : focused || hinted ? color.accent.primary : 'transparent';
+  const accent = useAccentColor();
+  const titleBorder = title?.error ? color.accent.error : focused || hinted ? accent : 'transparent';
   // Leere Fläche: Solange der Finger drauf ist, lila Rahmen wie ein aktives Feld (Daria, 2026-11-09)
   const [pressing, setPressing] = useState(false);
   const emptyText = (
@@ -544,7 +547,7 @@ export function PhotoPicker({
           title ? styles.photoPickerTitled : null,
           title && !photo ? styles.photoPickerTitledEmpty : null,
           !photo && error && title ? styles.photoPickerTitledEmptyPressed : null,
-          !photo && pressing ? styles.photoPickerPressed : null,
+          !photo && pressing ? [styles.photoPickerPressed, { borderColor: accent }] : null,
           !photo && pressing && title ? styles.photoPickerTitledEmptyPressed : null,
         ]}
       >
@@ -607,7 +610,7 @@ export function PhotoPicker({
               maxLength={title.maxLength ?? 60}
               placeholder={title.optional ? t('Titel (optional)') : t('Titel eingeben')}
               placeholderTextColor={color.text.secondary}
-              selectionColor={color.accent.primary}
+              selectionColor={accent}
               accessibilityLabel={title.optional ? t('Titel (optional)') : t('{label}, Pflichtfeld', { label: t('Titel') })}
               accessibilityHint={titleHelper}
               multiline
