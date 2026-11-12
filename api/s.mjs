@@ -266,8 +266,9 @@ addEventListener('DOMContentLoaded', async () => {
   for (const b of box.querySelectorAll('button')) b.disabled = false;
   box.querySelector('[data-vk="teilen"]').addEventListener('click', async () => {
     const r = await VK.shareCard(seiten, d);
-    hinweis.hidden = r !== 'downloaded';
-    hinweis.textContent = 'Beide Seiten liegen jetzt in Deinen Downloads.';
+    const t = VK.shareNote(r);
+    hinweis.hidden = !t;
+    hinweis.textContent = t || '';
   });
   box.querySelector('[data-vk="drucken"]').addEventListener('click', () => VK.printCard(seiten, d.name));
 });
@@ -340,14 +341,14 @@ ${
 .geteilt .sf-logo { width: 72px; height: 72px; aspect-ratio: 1; border-radius: 50%; object-fit: cover; flex: none; }
 /* Name und Abschnitte in der App-Schrift für große Überschriften (Daria, 2026-11-10) */
 @font-face { font-family: Unbounded; font-weight: 500; font-display: swap; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
-.geteilt .sf-wer h1 { margin: 0; padding-bottom: 4px; font: 500 32px/33px Unbounded, var(--display); letter-spacing: 0; }
+.geteilt .sf-wer h1 { margin: 0; padding-bottom: 0; font: 500 32px/33px Unbounded, var(--display); letter-spacing: 0; }
 /* Abschnitte klein in Versalien mit feiner Linie darüber, wie bei Studios (Daria, 2026-11-12) */
 .geteilt h2.sf-abschnitt { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; color: var(--text);
   margin: 48px 0 12px; padding-top: 24px; border-top: 1px solid var(--line); }
 .geteilt .sf-klappe summary h2.sf-abschnitt { flex: 1; }
 /* Kiez unter dem Namen als kleine Zeile in Versalien, dunkel statt grau. Dicht am Namen, mit deutlich Abstand zur
    Beschreibung, damit klar ist, wozu sie gehört (Daria, 2026-11-12) */
-.geteilt p.wer { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; color: var(--text); margin: 6px 0 32px; }
+.geteilt p.wer { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; color: var(--text); margin: 4px 0 32px; }
 /* Fließtext enger gesetzt, vorher 1.55 aus seite.css (Daria, 2026-11-12) */
 .geteilt p.text, .geteilt .sf-services, .geteilt .sf-text { line-height: 1.38; }
 .geteilt .sf-fakten { display: grid; gap: 28px; margin: 28px 0 8px; }
