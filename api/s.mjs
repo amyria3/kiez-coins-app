@@ -345,8 +345,9 @@ ${
 .geteilt h2.sf-abschnitt { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; color: var(--text);
   margin: 48px 0 16px; padding-top: 20px; border-top: 1px solid var(--line); }
 .geteilt .sf-klappe summary h2.sf-abschnitt { flex: 1; }
-/* Kiez unter dem Namen als kleine Zeile in Versalien, dunkel statt grau (Daria, 2026-11-12) */
-.geteilt p.wer { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; color: var(--text); margin: 10px 0 20px; }
+/* Kiez unter dem Namen als kleine Zeile in Versalien, dunkel statt grau. Dicht am Namen, mit deutlich Abstand zur
+   Beschreibung, damit klar ist, wozu sie gehört (Daria, 2026-11-12) */
+.geteilt p.wer { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; color: var(--text); margin: 6px 0 32px; }
 /* Fließtext enger gesetzt, vorher 1.55 aus seite.css (Daria, 2026-11-12) */
 .geteilt p.text, .geteilt .sf-services, .geteilt .sf-text { line-height: 1.38; }
 .geteilt .sf-fakten { display: grid; gap: 28px; margin: 28px 0 8px; }
