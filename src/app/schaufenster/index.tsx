@@ -233,6 +233,8 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
   const [kiez, setKiez] = useState('');
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
+  // Schaufenster, bei dem jemand auf das ausgegraute „Im Web ansehen“ getippt hat
+  const [webHint, setWebHint] = useState<string | null>(null);
   // Gruppe aus einem gescheiterten Versuch; ein zweiter Versuch legt keine weitere Gruppe an
   const groupRef = useRef<string | null>(null);
 
@@ -264,7 +266,10 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
     }
   };
 
-  const footer = (
+  // Nur wer die Seite direkt über kiezcoins.de/schaufenster öffnet (ohne Verlauf), braucht den Weg in die App und
+  // das Abmelden, z. B. am Rechner im Laden. Aus der App heraus hätte „Abmelden“ die ganze App abgemeldet
+  // (Daria, 2026-11-12: „Wieso Log Out?“).
+  const footer = router.canGoBack() ? null : (
     <View style={styles.footer}>
       <Button label="Zur KiezCoins App" variant="ghost" onPress={() => router.push('/')} />
       <Button label="Abmelden" variant="ghost" onPress={() => signOut()} />
@@ -306,6 +311,8 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
           <Text style={[styles.showcaseName, !router.canGoBack() && styles.showcaseNameUnderKicker]} accessibilityRole="header" noTranslate>
             {s.name}
           </Text>
+          {/* Luft unter dem Namen und ein Satz der Krabbe, was hier passiert (Daria, 2026-11-12) */}
+          <Notice message="Hier pflegst Du Deine Seite. Was Du postest, sehen Leute im Web und in der KiezCoins App." />
           {s.cover ? <Image source={s.cover} style={styles.cover} contentFit="cover" /> : null}
           {s.visibility === 'public' ? <CopyField label="Deine Seite" value={showcasePublicLink(s.slug)} /> : null}
           {!s.switches.online ? <Notice variant="warning" message="Dieses Schaufenster ist offline." /> : null}
@@ -316,16 +323,28 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
             </>
           ) : null}
           <Button label="Seite bearbeiten" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id, von: 'schaufenster' } })} />
-          {/* Öffentlich und online: die Webseite unter kiezcoins.de/s/…, so wie Kund:innen sie sehen (Daria, 2026-11-11). Sonst die App-Ansicht. */}
-          <Button
-            label="Ansehen"
-            variant="ghost"
-            onPress={() =>
-              s.visibility === 'public' && s.switches.online
-                ? Linking.openURL(showcasePublicLink(s.slug))
-                : router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })
-            }
-          />
+          {/* Zwei Ansichten (Daria, 2026-11-12): in der App wie ein KiezCoins-Mitglied, im Web wie jede Besucher:in
+              unter kiezcoins.de/s/…. Die Webseite gibt es nur öffentlich und online. */}
+          <View style={styles.viewButtons}>
+            <Button label="In der App ansehen" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
+            <Button
+              label="Im Web ansehen"
+              variant="secondary"
+              disabled={!(s.visibility === 'public' && s.switches.online)}
+              whyDisabled={() => setWebHint(s.id)}
+              onPress={() => Linking.openURL(showcasePublicLink(s.slug))}
+            />
+          </View>
+          {webHint === s.id ? (
+            <Notice
+              message={
+                s.switches.online
+                  ? 'Im Web erscheint Dein Schaufenster erst, wenn es öffentlich ist. Das stellst Du unter „Seite bearbeiten“ ein.'
+                  : 'Solange Dein Schaufenster offline ist, gibt es keine Webseite dazu.'
+              }
+              onClose={() => setWebHint(null)}
+            />
+          ) : null}
         </View>
       ))}
       {footer}
@@ -340,10 +359,11 @@ const styles = StyleSheet.create({
   kicker: { fontFamily: text.display.fontFamily, fontSize: 15, lineHeight: 20, color: color.text.secondary },
   // Abstände wie auf den anderen Seiten (Inhalt hat gap 16), Daria 2026-11-11
   showcase: { gap: space[16] },
-  showcaseName: { ...text.display, color: color.text.primary, marginBottom: space[4] },
+  showcaseName: { ...text.display, color: color.text.primary, marginBottom: space[8] },
   showcaseNameUnderKicker: { marginTop: -space[8] },
   meta: { ...text.caption, color: color.text.secondary },
   link: { ...text.caption, color: color.text.primary, textDecorationLine: 'underline' },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.xl },
+  viewButtons: { gap: space[8] },
   footer: { gap: space[8], marginTop: space[16] },
 });
