@@ -543,6 +543,7 @@ export function PhotoPicker({
           !photo && error ? styles.photoPickerError : null,
           title ? styles.photoPickerTitled : null,
           title && !photo ? styles.photoPickerTitledEmpty : null,
+          !photo && error && title ? styles.photoPickerTitledEmptyPressed : null,
           !photo && pressing ? styles.photoPickerPressed : null,
           !photo && pressing && title ? styles.photoPickerTitledEmptyPressed : null,
         ]}
@@ -759,7 +760,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   photoPickerEmpty: { borderWidth: stroke.thin, borderStyle: 'dashed', borderColor: color.text.secondary },
-  photoPickerError: { borderColor: color.accent.error },
+  // Fehler: durchgezogener, kräftiger Rand wie beim aktiven Feld, nur in der Fehlerfarbe (Daria, 2026-11-12)
+  photoPickerError: { borderWidth: stroke.focus, borderStyle: 'solid', borderColor: color.accent.error },
   // Gedrückt: durchgezogener, kräftiger lila Rand; das Innere rückt um die Differenz ein, damit nichts springt
   photoPickerPressed: { borderWidth: stroke.focus, borderStyle: 'solid', borderColor: color.accent.primary },
   photoPickerTitledEmptyPressed: {
