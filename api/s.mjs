@@ -227,7 +227,7 @@ function visitenkarte(s, links) {
 @font-face { font-family: Unbounded_500Medium; font-display: block; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
 @font-face { font-family: Karla_400Regular; font-display: block; src: url(/fonts/Karla_400Regular.ttf) format('truetype'); }
 @font-face { font-family: Karla_500Medium; font-display: block; src: url(/fonts/Karla_500Medium.ttf) format('truetype'); }
-.geteilt .sf-vk { margin: 24px 0 8px; }
+.geteilt .sf-vk { margin: 8px 0 48px; }
 .geteilt .sf-vk-bild { display: block; width: 100%; max-width: 420px; aspect-ratio: 85 / 55; border-radius: 10px; margin: 0 0 12px; }
 .geteilt .sf-vk-knoepfe { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
 .geteilt .sf-vk button { cursor: pointer; }
@@ -365,7 +365,6 @@ ${farbe(s.bg_color)}
   ${s.about ? `<p class="text">${esc(s.about)}</p>` : leer('Noch keine Beschreibung')}
   ${infos}${web}
   ${s.imprint ? '<p class="sf-klein"><a href="#impressum">Impressum</a></p>' : ''}
-  ${visitenkarte(s, links)}
   ${
     !s.services
       ? `<h2 class="sf-abschnitt">Services</h2>${leer('Noch keine Services')}`
@@ -381,6 +380,7 @@ ${farbe(s.bg_color)}
   }
   <h2 class="sf-abschnitt" id="impressum">Impressum</h2>
   <div class="sf-ende">${s.imprint ? `<p class="sf-klein" style="white-space: pre-line">${esc(s.imprint)}</p>` : leer('Impressum noch nicht hinterlegt')}</div>
+  ${/* Visitenkarte am Schluss der Seite (Daria, 2026-11-12) */ visitenkarte(s, links)}
 <script>
 (() => {
   const URL_ = ${JSON.stringify(SUPABASE_URL)}, KEY = ${JSON.stringify(SUPABASE_KEY)}, MERK = 'kc-termin-herzen';
