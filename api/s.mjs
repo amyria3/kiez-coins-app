@@ -349,8 +349,8 @@ ${
 .geteilt p.wer { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; color: var(--text); margin: 10px 0 20px; }
 /* Fließtext enger gesetzt, vorher 1.55 aus seite.css (Daria, 2026-11-12) */
 .geteilt p.text, .geteilt .sf-services, .geteilt .sf-text { line-height: 1.38; }
-.geteilt .sf-fakten { display: grid; gap: 16px; margin: 28px 0 8px; }
-@media (min-width: 560px) { .geteilt .sf-fakten { grid-template-columns: 1fr 1fr; gap: 20px 32px; } }
+.geteilt .sf-fakten { display: grid; gap: 28px; margin: 28px 0 8px; }
+@media (min-width: 560px) { .geteilt .sf-fakten { grid-template-columns: 1fr 1fr; gap: 28px 32px; } }
 .geteilt .sf-fakt dt { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; color: var(--text); margin: 0 0 6px; }
 .geteilt .sf-fakt dd { margin: 0; font-size: 16px; line-height: 1.4; white-space: pre-line; }
 .geteilt .sf-fakt dd a { text-underline-offset: 3px; }
