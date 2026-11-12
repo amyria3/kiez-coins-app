@@ -90,9 +90,9 @@ export default function NewShowcaseEvent() {
             label="Datum"
             value={date}
             onChangeText={setDate}
-            placeholder="24.12."
+            placeholder="Datum im Format 01.01. oder 01.01.2001"
             keyboardType="numbers-and-punctuation"
-            error={!date.trim() || parseDate(date) ? undefined : 'Bitte so: 24.12.'}
+            error={!date.trim() || parseDate(date) ? undefined : 'Bitte so: 01.01. oder 01.01.2001'}
           />
         ) : null}
         <View style={styles.times}>
