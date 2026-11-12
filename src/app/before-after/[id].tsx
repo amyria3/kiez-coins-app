@@ -20,6 +20,7 @@ import type { ImageSource } from '../../data/types';
 import { useGoBack } from '../../lib/goBack';
 import { color, font, isFashionable, radius, space, stroke, text } from '../../theme/tokens';
 import { celebratePost } from '../../components/HeartBurst';
+import { WaitForData } from '../../components/WaitForData';
 
 const clock = (iso: string) =>
   new Date(iso).toLocaleTimeString(localeTag(), { hour: '2-digit', minute: '2-digit' });
@@ -31,6 +32,14 @@ const dayClock = (ms: number) =>
  * Der Timer läuft auf dem Server. Spätestens 48 h nach dem Start postet der Server den Beitrag, auch ohne Nachher-Foto.
  */
 export default function BeforeAfterScreen() {
+  return (
+    <WaitForData title="Me-Challenge">
+      <BeforeAfterForm />
+    </WaitForData>
+  );
+}
+
+function BeforeAfterForm() {
   const { id, schritt } = useLocalSearchParams<{ id: string; schritt?: string }>();
   const router = useRouter();
   const goBack = useGoBack();

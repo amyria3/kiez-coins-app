@@ -36,6 +36,7 @@ import { color, scheme } from '../theme/tokens';
 import { ErrorScreen } from '../components/ErrorScreen';
 import { setLastScreen } from '../lib/errorReport';
 import { HeartBurst } from '../components/HeartBurst';
+import { markIntroDone } from '../lib/intro';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -130,7 +131,8 @@ function RootStack() {
       {loading ? null : (
         <>
         <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-        <BadgeNotice />
+        {/* Hinweise erst nach dem Startbildschirm, sonst liegen sie über ihm oder laufen ungesehen darunter ab */}
+        {intro ? null : <BadgeNotice />}
         <Stack key={language} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
           {/* Vollbild ohne Wegwischen: Schließen nur über das X, damit die Frage nach dem Entwurf kommt
               und die Vorschau nicht wie ein Overlay wirkt, dessen Wischen mit den Gesten der Vorschau konkurriert */}
@@ -160,17 +162,29 @@ function RootStack() {
           <Stack.Screen name="account/pause/success" options={{ gestureEnabled: false }} />
           <Stack.Screen name="account/delete/success" options={{ gestureEnabled: false }} />
         </Stack>
-          <InstallHint />
-          <FriendInviteNotice />
-          <UpdateHint />
+          {intro ? null : (
+            <>
+              <InstallHint />
+              <FriendInviteNotice />
+              <UpdateHint />
+            </>
+          )}
           <ShareDialogHost />
           <WebAlertHost />
           <CrosspostDialogHost />
-          <TourOffer />
+          {intro ? null : <TourOffer />}
           <HeartBurst />
         </>
       )}
-      {intro ? <StartKater loaded={!loading} onDone={() => setIntro(false)} /> : null}
+      {intro ? (
+        <StartKater
+          loaded={!loading}
+          onDone={() => {
+            markIntroDone();
+            setIntro(false);
+          }}
+        />
+      ) : null}
     </>
   );
 }

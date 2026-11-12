@@ -257,6 +257,7 @@ export function useMyBadges() {
         notify();
         return;
       }
+      const before = mine;
       if (mine) setMine(apply(mine));
       const { error } = await supabase.rpc('set_badge', {
         p_badge: kind,
@@ -265,7 +266,11 @@ export function useMyBadges() {
         p_seen: change.seen ?? null,
       });
       if (error) {
-        await checkMyBadges();
+        // Stand vom Server holen; geht auch das nicht (offline), die Änderung zurücknehmen statt sie stehen zu lassen
+        const changed = mine;
+        const fromServer = await checkMyBadges();
+        // Gleiches Objekt zurück heißt: Server nicht erreicht (checkMyBadges gibt dann den Stand unverändert zurück)
+        if (fromServer === changed && changed !== before) setMine(before);
         throw error;
       }
       forgetAvatarBadge(currentUserId);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
@@ -34,8 +34,13 @@ export default function NewBadgeScreen() {
   const meta = badgeMeta(kind);
   const [breite, setBreite] = useState(0);
 
+  // Nur einmal versuchen: Scheitert das Speichern, lädt `update` den Stand neu (wieder ungesehen, neues Objekt),
+  // und ohne diese Sperre ginge es endlos hin und her (Prüfung 12.11.2026)
+  const markedSeen = useRef(false);
   useEffect(() => {
-    if (own && !own.seen) update(kind, { seen: true }).catch(() => undefined);
+    if (!own || own.seen || markedSeen.current) return;
+    markedSeen.current = true;
+    update(kind, { seen: true }).catch(() => undefined);
   }, [own, kind, update]);
 
   const choose = async () => {

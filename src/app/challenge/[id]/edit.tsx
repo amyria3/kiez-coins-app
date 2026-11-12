@@ -25,6 +25,7 @@ import type { Participation } from '../../../data/remote';
 import { cleanPages } from '../../../data/remote';
 import { SheetEditor, pagesText } from '../../../components/TextSheets';
 import { TypeSwitch } from '../../../components/compose/TypeSwitch';
+import { WaitForData } from '../../../components/WaitForData';
 
 /** Wer den Beitrag sieht, wie die Reiter im Feed (Daria, 07.11.2026) */
 type Audience = 'private' | 'nearby' | 'everywhere';
@@ -54,6 +55,14 @@ const DAY = 24 * 60 * 60 * 1000;
  * zurück, „Nicht veröffentlichen, Entwurf“ speichert nur die Änderungen.
  */
 export default function EditChallenge() {
+  return (
+    <WaitForData title="Bearbeiten">
+      <EditChallengeForm />
+    </WaitForData>
+  );
+}
+
+function EditChallengeForm() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const goBack = useGoBack();

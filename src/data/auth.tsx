@@ -136,8 +136,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const cached = await readStartCache(userId);
       if (cached?.profile) {
         dispatch({ type: 'updateProfile', patch: cached.profile });
-        if (cached.data) dispatch({ type: 'loaded', userId, data: cached.data });
-        onReady?.();
+        if (cached.data) dispatch({ type: 'loaded', userId, data: cached.data, fromCache: true });
+        // Nur mit fertigem Onboarding sofort starten. Sonst entscheidet der Start (src/app/index.tsx) nach einem
+        // veralteten Stand und schickt Leute ins Onboarding zurück; dann lieber auf die Datenbank warten.
+        if (cached.profile.onboarded) onReady?.();
       }
       // Profil und Feed gleichzeitig laden statt nacheinander
       const feed = load(userId);
@@ -173,7 +175,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // `_recoverAndRefresh`), z. B. nach Kamera, Fotoauswahl oder Teilen. Für dieselbe Person nicht neu
       // laden: Sonst setzt der gespeicherte Startstand den Feed zurück, und die App wirkt wie neu geladen.
       // Auch beim Start kommt SIGNED_IN für die gespeicherte Sitzung; die lädt getSession, sonst lädt alles doppelt.
-      if (event === 'SIGNED_IN' && started.current && next?.user.id !== appliedUserId.current) setTimeout(() => apply(next), 0);
+      // Jede Sitzung einer anderen Person lädt, egal mit welchem Ereignis: Startet die App offline mit abgelaufenem
+      // Token, kommt die Sitzung erst mit TOKEN_REFRESHED zurück, und ohne Laden blieben Profil und Feed leer.
+      if (next && started.current && next.user.id !== appliedUserId.current) setTimeout(() => apply(next), 0);
       else setSession(next);
       if (event === 'SIGNED_OUT') {
         appliedUserId.current = null;
@@ -197,7 +201,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (next === lastSynced.current) return;
     const timer = setTimeout(() => {
       lastSynced.current = next;
-      saveOwnProfile(session.user.id, profile).catch((error) => {
+      saveOwnProfile(session.user.id, profile)
+        // Startspeicher mitziehen, sonst startet die App beim nächsten Mal mit dem alten Profil (z. B. Onboarding offen)
+        .then(() => saveCachedProfile(session.user.id, profile))
+        .catch((error) => {
         lastSynced.current = ''; // beim nächsten Mal erneut versuchen
         // Ohne Netz still; sonst sagen, dass die Änderung nicht angekommen ist, mit Grund (Daria, 30.10.2026)
         if (!/fetch|network/i.test((error as Error)?.message ?? '')) Alert.alert(t('Profil nicht gespeichert'), errorText(error));
