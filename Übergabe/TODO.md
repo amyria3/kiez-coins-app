@@ -27,7 +27,7 @@ Sofort:
 - [ ] Zwei-Faktor-Anmeldung einschalten bei GitHub, Expo, Supabase, Vercel, Brevo und INWX.
 - [ ] Supabase: Authentication › Schutz vor geleakten Passwörtern einschalten.
 - [ ] GitHub: Settings › Code security › CodeQL „Default setup“ und Dependabot alerts einschalten.
-- [ ] PR mit Dependabot und `security.txt` freigeben.
+- [x] (12.11.2026, Daria hat PR #352 gemergt) PR mit Dependabot und `security.txt` freigeben. Noch im Browser prüfen: `https://kiezcoins.de/.well-known/security.txt` lädt.
 - [ ] Maßnahmen aus der Risikobewertung entscheiden (Claude-Projektordner `cra/2026-11-12_risikobewertung-und-befunde.md`). Claude setzt sie danach um.
 
 Vor dem ersten bezahlten Angebot:
