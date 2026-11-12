@@ -118,6 +118,8 @@ export const color = {
   accent: {
     primary: palette.purple,
     affection: palette.pink,
+    /** „Privat“ gewählt, in jedem Umschalter: Senf wie der Kalender in der Leiste (Daria, 2026-11-12) */
+    private: fashionable ? palette.purple : '#ECCF55',
     confirmation: palette.green,
     signal: palette.orange,
     error: palette.red,
