@@ -275,6 +275,39 @@ addEventListener('DOMContentLoaded', async () => {
 </script>`;
 }
 
+// Fuß der Schaufenster-Seite (Daria, 2026-11-12): Wer die Seite sieht, kann selbst eine anlegen oder die App laden.
+// Ersetzt die Karte „Mach mit in Deinem Kiez.“ der gemeinsamen Vorlage, die geteilte Posts weiter zeigen.
+function mitmachen() {
+  return `<style>
+.geteilt .sf-mit { margin: 8px 0 40px; padding-top: 24px; border-top: 1px solid var(--line); }
+.geteilt .sf-mit h2 { font: 500 24px/1.2 Unbounded, var(--display); letter-spacing: 0; margin: 0 0 16px; }
+.geteilt .sf-mit h3 { font: 500 18px/1.25 Unbounded, var(--display); letter-spacing: 0; margin: 0 0 12px; }
+.geteilt .sf-mit-zeile { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; }
+.geteilt .sf-mit-block { margin: 0 0 32px; }
+.geteilt .sf-mit a.sf-mit-knopf { display: inline-block; border-radius: 999px; padding: 12px 22px; background: var(--text); color: var(--bg);
+  font: 500 15px/1 Inter, sans-serif; letter-spacing: .01em; text-decoration: none; }
+.geteilt .sf-mit a.sf-mit-zweit { background: none; color: var(--text); box-shadow: inset 0 0 0 1px var(--text); }
+.geteilt .sf-mit-vorteile { display: flex; gap: 6px; flex-wrap: wrap; }
+.geteilt .sf-mit-vorteile span { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase;
+  padding: 6px 10px; border-radius: 999px; background: #E4FF5F; color: #161616; }
+.geteilt .sf-mit a.sf-mit-mehr { color: var(--text); text-decoration: underline; font-size: 15px; }
+</style>
+  <section class="sf-mit" aria-labelledby="sf-mit-titel">
+    <div class="sf-mit-block">
+      <h2 id="sf-mit-titel">Willst Du auch so eine Seite?</h2>
+      <div class="sf-mit-zeile">
+        <a class="sf-mit-knopf" href="/schaufenster?von=schaufenster">Verein, Laden oder Café registrieren</a>
+        <span class="sf-mit-vorteile"><span>Komplett kostenlos</span><span>Super schnell</span></span>
+      </div>
+    </div>
+    <div class="sf-mit-block">
+      <h3>Mach mit in Deinem Kiez.</h3>
+      <a class="sf-mit-knopf sf-mit-zweit" href="/laden?von=schaufenster">KiezCoins runterladen</a>
+    </div>
+    <a class="sf-mit-mehr" href="/?von=schaufenster">Mehr über KiezCoins erfahren</a>
+  </section>`;
+}
+
 function inhalt(s) {
   if (!s) {
     return `  <h1>Dieses Schaufenster gibt es nicht, oder es ist nicht öffentlich.</h1>
@@ -474,6 +507,7 @@ export async function GET(request) {
     )
     .replace('<!--KOPF-->', () => kopf(s, `${SITE}/s/${slug}`))
     .replace('<!--POST-->', () => inhalt(s))
+    .replace(/<div class="card">\s*<h3>Mach mit in Deinem Kiez\.<\/h3>[\s\S]*?<\/div>/, (karte) => (s ? mitmachen() : karte))
     // Das Impressum des Schaufensters steht oben verlinkt; die Fußzeile nennt deshalb ausdrücklich das von KiezCoins
     // (Rechtsprüfung 11.11.2026)
     .replace('<a href="/impressum">Impressum</a>', () => (s?.imprint ? '<a href="/impressum">Impressum KiezCoins</a>' : '<a href="/impressum">Impressum</a>'));
