@@ -95,6 +95,22 @@ export const color = {
   icon: {
     large: fashionable ? palette.white : '#EEE0C9',
   },
+  /**
+   * Untere Leiste im Kiez-Look (Daria, 2026-11-12): Aubergine statt Grau, Icons in Beige statt Puder. Die aktive Seite
+   * sitzt auf einer grauen Blase, ihr Icon hat je Seite eine eigene Farbe: Kalender Senf, Feed Rosa, Nachrichten
+   * Schneeweiß, Menü Gelbgrün. Die Kamera bleibt die lila Pille, außer in der Routine (dort klein und schlicht).
+   */
+  nav: {
+    bar: fashionable ? 'rgba(255, 255, 255, 0.96)' : 'rgba(59, 47, 60, 0.94)',
+    icon: fashionable ? palette.white : '#EEE0C9',
+    bubble: fashionable ? 'transparent' : '#303034',
+    calendar: fashionable ? palette.white : '#ECCF55',
+    feed: fashionable ? palette.white : palette.pink,
+    chat: fashionable ? palette.white : '#FFFAF3',
+    menu: fashionable ? palette.white : '#E4FF5F',
+    create: fashionable ? 'transparent' : palette.purple,
+    onCreate: fashionable ? palette.white : palette.black,
+  },
   /** Signaturfarbe für Logo und Kater. Fashionable Look vorerst Schwarz: Das Violett #7B2FF7 hat Daria verworfen (23.10.2026), die neue Farbe steht noch aus. */
   brand: {
     signature: fashionable ? '#000000' : palette.purple,
@@ -102,9 +118,15 @@ export const color = {
   accent: {
     primary: palette.purple,
     affection: palette.pink,
+    /** „Privat“ gewählt, in jedem Umschalter: Senf wie der Kalender in der Leiste (Daria, 2026-11-12) */
+    private: fashionable ? palette.purple : '#ECCF55',
     confirmation: palette.green,
     signal: palette.orange,
-    error: palette.red,
+    /**
+     * Fehler und Pflichtfeld-Hinweise: im Kiez-Look Orange wie die Signalfarbe (Daria, 2026-11-12). Das alte Korallrot
+     * #FF7E8B lag zu nah am Herz-Rosa #FFB2E5. Fashionable bleibt Rot.
+     */
+    error: fashionable ? palette.red : palette.orange,
   },
 } as const;
 

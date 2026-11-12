@@ -27,7 +27,7 @@ import { IconButton } from '../components/IconButton';
 import { Text } from '../components/T';
 import { t } from '../data/texts';
 import { useAppDimensions } from '../theme/layout';
-import { AppHeader, FeedGreeting, MODE_OF_TAB, PlannedHint, TAB_OF_MODE, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
+import { AppHeader, FeedGreeting, MODE_OF_TAB, PlannedHint, Segments, TAB_OF_MODE, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
 import { FeedStateMessage } from '../components/FeedStateMessage';
 import { GroupBar } from '../components/GroupBar';
 import { AudienceHint, useAudienceHint } from '../components/AudienceHint';
@@ -45,6 +45,7 @@ import { RunningBeforeAfter } from '../components/BeforeAfterTimer';
 import { useFeedViews } from '../data/seen';
 import type { Challenge } from '../data/types';
 import { color, isFashionable, motion, space, text } from '../theme/tokens';
+import { cardSwipe, resetCardSwipe } from '../lib/cardSwipe';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
 
@@ -172,20 +173,32 @@ export default function FeedScreen() {
     const settled = Date.now() - collapsedAt.current > motion.barrier.duration + 200;
     nudgeCrystals(y - lastY.current);
     if (y > 8 && y > lastY.current) collapse();
-    else if (settled && ((y <= 0 && maxY.current > 120) || (dragging.current && y < -24))) expand();
+    else if (settled && y <= 0 && maxY.current > 120) expand();
+    else if (settled && dragging.current && y < -24) reveal();
     lastY.current = y;
   };
 
   // Ganz oben ein kleines Stück nach unten ziehen klappt den Kopf wieder auf (Daria, 31.10.2026).
   // Im Browser (auch als Web-App auf dem iPhone) gibt es kein Zurückfedern unter 0, deshalb zählt hier die Fingerbewegung.
-  const pullStart = useRef<number | null>(null);
+  // Nur ein Zug nach unten zählt, kein seitliches Wischen zwischen den Reitern (Daria, 2026-11-12)
+  const pullStart = useRef<{ x: number; y: number } | null>(null);
   const onTouchStart = (e: GestureResponderEvent) => {
-    pullStart.current = lastY.current <= 0 ? e.nativeEvent.pageY : null;
+    pullStart.current = lastY.current <= 0 ? touchPoint(e) : null;
   };
   const onTouchMove = (e: GestureResponderEvent) => {
-    if (pullStart.current === null || e.nativeEvent.pageY - pullStart.current < 24) return;
+    if (pullStart.current === null) return;
+    const now = touchPoint(e);
+    const dy = now.y - pullStart.current.y;
+    const dx = now.x - pullStart.current.x;
+    if (!(dy >= 24 && dy > Math.abs(dx) * 1.5)) return;
     pullStart.current = null;
+    reveal();
+  };
+  // Ganz oben weiter nach oben ziehen: Kopf zurück, in „My Structure“ auch der große Umschalter (2026-11-12)
+  const revealRef = useRef(() => {});
+  const reveal = () => {
     expand();
+    revealRef.current();
   };
 
   // Eigene Position nur, wenn der Standort schon freigegeben ist. Bleibt auf dem Gerät.
@@ -369,6 +382,24 @@ export default function FeedScreen() {
   const [routineShown, setRoutineShown] = useState(false);
   const routineShownRef = useRef(false);
   routineShownRef.current = routineShown;
+  // „Me & Myself“ (Daria, 2026-11-12) ersetzt „Routine“ links im Umschalter. Darin „My Structure“ (Routine) und
+  // „My Feed“ (Privat), umzuschalten über einen kleinen eigenen Umschalter. Der große Umschalter verschwindet nur in
+  // „My Structure“ und kommt zurück, wenn man ganz oben weiter nach oben zieht oder zu „My Feed“ wechselt.
+  const privateOn = tabOrder.includes('private');
+  const meOn = !isFashionable && !composing && (routineOn || privateOn);
+  const meActive = meOn && (routineActive || (switchingTo ?? tab) === 'private');
+  const meBoth = meOn && routineOn && privateOn;
+  const [meSwitchOpen, setMeSwitchOpen] = useState(false);
+  useEffect(() => {
+    if (routineActive) setMeSwitchOpen(false);
+  }, [routineActive]);
+  const routineActiveRef = useRef(routineActive);
+  routineActiveRef.current = routineActive;
+  revealRef.current = () => routineActiveRef.current && setMeSwitchOpen(true);
+  // Nur in „My Structure“ (Routine) verschwindet der große Umschalter. In „My Feed“ und allen anderen Feeds
+  // (Gruppe, Kiez, Überall) bleibt er sichtbar (Entscheidung 12.11.2026, ersetzt die frühere Regel „nur in My Feed“).
+  // Ohne kleinen Umschalter (nur Routine, kein Privat) bleibt er, sonst gäbe es keinen sichtbaren Weg zurück.
+  const bigSwitchShown = !routineActive || !meBoth || meSwitchOpen;
   const slideToTab = useRef((key: FeedTab, dir: 1 | -1) => {
     setSwitchingTo(key);
     setRoutineActive(false);
@@ -383,6 +414,7 @@ export default function FeedScreen() {
   const openRoutine = useRef(() => {
     setRoutineActive(true);
     slideOut(-1, () => {
+      lastY.current = 0;
       setRoutineShown(true);
       slideIn(-1);
     });
@@ -418,7 +450,11 @@ export default function FeedScreen() {
   const swipe = useMemo(
     () =>
       PanResponder.create({
-        onMoveShouldSetPanResponderCapture: (_, g) => Math.abs(g.dx) > 16 && Math.abs(g.dx) > Math.abs(g.dy) * 2,
+        // Neue Berührung: Ob sie auf wischbaren Karten liegt, setzen die Karten danach selbst (lib/cardSwipe.ts)
+        onStartShouldSetPanResponderCapture: resetCardSwipe,
+        // Auf Karten, die man seitlich wischt (Routine), wechselt das Wischen nicht den Reiter (Daria, 2026-11-12)
+        onMoveShouldSetPanResponderCapture: (_, g) =>
+          !cardSwipe.active && Math.abs(g.dx) > 16 && Math.abs(g.dx) > Math.abs(g.dy) * 2,
         onPanResponderGrant: () => swipeX.stopAnimation(),
         onPanResponderMove: (_, g) => {
           const order = tabOrderRef.current;
@@ -675,6 +711,7 @@ export default function FeedScreen() {
           </Text>
         </View>
       </Animated.View>
+      {bigSwitchShown ? (
       <Animated.View style={[styles.tabsRow, isFashionable && styles.tabsRowFashionable, { paddingRight: tabsPaddingRight }]}>
         <View style={styles.flex}>
         <TabsNavigation
@@ -683,13 +720,36 @@ export default function FeedScreen() {
             if (composing) setPlaceTouched(true);
             switchTab(key);
           }}
-          visible={modes.visible}
+          // „Privat“ steckt in „Me & Myself“ (Daria, 2026-11-12); beim Erstellen bleibt es als Ziel wählbar
+          visible={meOn ? modes.visible.filter((m) => m !== 'private') : modes.visible}
           accent={composing && !placeTouched}
-          // Routine links neben den Reitern, vorerst nur für Moderatorinnen (Daria, 2026-11-09)
-          lead={routineOn && !composing && !isFashionable ? { label: t('Routine'), active: routineActive, onPress: () => !routineActive && openRoutine() } : undefined}
+          // „Me & Myself“ links neben den Reitern, wie vorher „Routine“ (Daria, 2026-11-12). Öffnet die Routine
+          // („My Structure“), ohne Routine „My Feed“.
+          lead={
+            meOn
+              ? { label: t('Me & Myself'), active: meActive, onPress: () => !meActive && (routineOn ? openRoutine() : switchTab('private')) }
+              : routineOn && !composing && !isFashionable
+                ? { label: t('Routine'), active: routineActive, onPress: () => !routineActive && openRoutine() }
+                : undefined
+          }
         />
         </View>
       </Animated.View>
+      ) : null}
+      {meActive && meBoth ? (
+        <View style={[styles.tabsRow, { paddingRight: tabsPaddingRight }]}>
+          <View style={styles.flex}>
+            <Segments
+              tabs={ME_TABS}
+              selectedKey={routineActive ? 'structure' : 'private'}
+              onChange={(key) => {
+                if (key === 'structure') !routineActive && openRoutine();
+                else if (routineActive) switchTab('private');
+              }}
+            />
+          </View>
+        </View>
+      ) : null}
       <Animated.View style={[styles.clip, storiesStyle]}>
         <View onLayout={(e) => setStoriesHeight(e.nativeEvent.layout.height)}>
           <TopChallengeBar items={topChallenges} onItemPress={openChallenge} />
@@ -698,7 +758,18 @@ export default function FeedScreen() {
       <View style={styles.flex}>
         <Animated.View style={[styles.flex, { transform: [{ translateX: swipeX }] }]} {...swipe.panHandlers}>
         {routineShown ? (
-          <RoutineContent topPad={space[8]} bottomPad={insets.bottom + TAB_BAR_SPACE} />
+          <View
+            style={styles.flex}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={() => (pullStart.current = null)}
+          >
+            <RoutineContent
+              topPad={space[8]}
+              bottomPad={insets.bottom + TAB_BAR_SPACE}
+              onScroll={(e) => (lastY.current = e.nativeEvent.contentOffset.y)}
+            />
+          </View>
         ) : (
         <FlatList
           ref={listRef}
@@ -750,10 +821,18 @@ export default function FeedScreen() {
         onCreatePress={createChallenge}
         onGroupsPress={groupsOn ? () => switchTab('groups') : undefined}
         groupsActive={tab === 'groups'}
+        routineActive={routineActive}
+        onRoutinePress={openRoutine}
       />}
       <SurveyOverlay visible={surveyVisible} onClose={closeSurvey} />
     </View>
   );
+}
+
+/** Fingerposition; im Browser steht sie nur in `touches`, nicht direkt im Ereignis */
+function touchPoint(e: GestureResponderEvent) {
+  const t = e.nativeEvent.touches?.[0] ?? e.nativeEvent;
+  return { x: t.pageX, y: t.pageY };
 }
 
 /** Stories-Leiste oben im Feed (Top-Challenges, später Videos) */
@@ -765,6 +844,11 @@ const COMPOSE_HEADER = 52;
 
 /** Reihenfolge der Reiter, auch für das Wischen: Privat, Gruppe, Kiez, Überall (Daria, 27./29.10.2026) */
 const TAB_ORDER: FeedTab[] = ['private', 'groups', 'nearby', 'everywhere'];
+/** Umschalter in „Me & Myself“: links „My Structure“ (Routine), rechts „My Feed“ (Privat), Daria, 2026-11-12 */
+const ME_TABS: { key: 'structure' | 'private'; label: string }[] = [
+  { key: 'structure', label: 'Meine Struktur' },
+  { key: 'private', label: 'Mein Feed' },
+];
 /** Mindestweg in Punkten, ab dem ein Wischen den Reiter wechselt */
 const SWIPE_DISTANCE = 64;
 

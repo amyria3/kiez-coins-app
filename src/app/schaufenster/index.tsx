@@ -20,7 +20,7 @@ import { color, radius, space, text } from '../../theme/tokens';
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
 /**
- * Pfeil zurück: Aus der App (z. B. „Dein Konto › Mein Schaufenster“) zurück dorthin. Wer die Seite direkt über
+ * Pfeil zurück: Aus der App (z. B. „Dein Konto › Schaufenster“) zurück dorthin. Wer die Seite direkt über
  * kiezcoins.de/schaufenster öffnet, hat keinen Verlauf; dann bleibt der Pfeil ohne Wirkung wie vorher.
  */
 function useBack() {
@@ -49,20 +49,20 @@ export default function ShowcaseHub() {
     );
   }, [session]);
 
-  // Pfeil zurück in die App, wenn es einen Verlauf gibt (z. B. „Dein Konto › Mein Schaufenster“). Der eigene Kopf
+  // Pfeil zurück in die App, wenn es einen Verlauf gibt (z. B. „Dein Konto › Schaufenster“). Der eigene Kopf
   // ersetzt die NavigationBar, deshalb fehlte der Pfeil bisher ganz (Daria, 2026-11-10).
-  // Sobald es ein Schaufenster gibt, ist sein Name der Titel. „Dein Schaufenster“ steht dann aus der App in Inter in
+  // Sobald es ein Schaufenster gibt, ist sein Name der Titel. „Schaufenster“ (nicht „Dein“, es gehört zur Gruppe, Daria, 2026-11-12) steht dann aus der App in Inter in
   // der Kopfzeile neben dem Pfeil, wie auf der Seite des Schaufensters selbst (Daria, 2026-11-11); ohne Verlauf
   // (direkt über kiezcoins.de) klein darüber. Ohne Schaufenster (Anmelden, Zustimmung, Anlegen) bleibt es groß.
   const router = useRouter();
   const makeHeader = (compact: boolean) =>
     compact && router.canGoBack() ? (
-      <NavigationBar title="Dein Schaufenster" variant="back" onLeadingPress={back} />
+      <NavigationBar title="Schaufenster" variant="back" onLeadingPress={back} />
     ) : (
       <View>
         {router.canGoBack() ? <NavigationBar title="" variant="back" onLeadingPress={back} /> : null}
         <View style={compact ? styles.headerCompact : styles.header}>
-          <Text style={compact ? styles.kicker : styles.headline}>Dein Schaufenster</Text>
+          <Text style={compact ? styles.kicker : styles.headline}>Schaufenster</Text>
         </View>
       </View>
     );
@@ -71,7 +71,7 @@ export default function ShowcaseHub() {
   if (!session) return <Login header={header} />;
   if (consented === undefined) {
     return (
-      <SubScreen title="Dein Schaufenster" navigation="back" onLeadingPress={back} header={header}>
+      <SubScreen title="Schaufenster" navigation="back" onLeadingPress={back} header={header}>
         <ActivityIndicator color={color.text.secondary} />
       </SubScreen>
     );
@@ -105,7 +105,7 @@ function Login({ header }: { header: React.ReactNode }) {
 
   return (
     <SubScreen
-      title="Dein Schaufenster"
+      title="Schaufenster"
       navigation="back"
       onLeadingPress={back}
       header={header}
@@ -174,7 +174,7 @@ function Consent({ header, onDone }: { header: React.ReactNode; onDone: () => vo
   const [privacy, setPrivacy] = useState(false);
   return (
     <SubScreen
-      title="Dein Schaufenster"
+      title="Schaufenster"
       navigation="back"
       onLeadingPress={back}
       header={header}
@@ -233,6 +233,8 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
   const [kiez, setKiez] = useState('');
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
+  // Schaufenster, bei dem jemand auf das ausgegraute „Im Web ansehen“ getippt hat
+  const [webHint, setWebHint] = useState<string | null>(null);
   // Gruppe aus einem gescheiterten Versuch; ein zweiter Versuch legt keine weitere Gruppe an
   const groupRef = useRef<string | null>(null);
 
@@ -264,7 +266,10 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
     }
   };
 
-  const footer = (
+  // Nur wer die Seite direkt über kiezcoins.de/schaufenster öffnet (ohne Verlauf), braucht den Weg in die App und
+  // das Abmelden, z. B. am Rechner im Laden. Aus der App heraus hätte „Abmelden“ die ganze App abgemeldet
+  // (Daria, 2026-11-12: „Wieso Log Out?“).
+  const footer = router.canGoBack() ? null : (
     <View style={styles.footer}>
       <Button label="Zur KiezCoins App" variant="ghost" onPress={() => router.push('/')} />
       <Button label="Abmelden" variant="ghost" onPress={() => signOut()} />
@@ -273,7 +278,7 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
 
   if (list === undefined) {
     return (
-      <SubScreen title="Dein Schaufenster" navigation="back" onLeadingPress={back} header={header}>
+      <SubScreen title="Schaufenster" navigation="back" onLeadingPress={back} header={header}>
         <ActivityIndicator color={color.text.secondary} />
       </SubScreen>
     );
@@ -282,7 +287,7 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
   if (!list.length) {
     return (
       <SubScreen
-        title="Dein Schaufenster"
+        title="Schaufenster"
         navigation="back"
         onLeadingPress={back}
         header={header}
@@ -299,13 +304,24 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
   }
 
   return (
-    <SubScreen title="Dein Schaufenster" navigation="back" onLeadingPress={back} header={compactHeader}>
+    <SubScreen title="Schaufenster" navigation="back" onLeadingPress={back} header={compactHeader}>
       {list.map((s) => (
         <View key={s.id} style={styles.showcase}>
           {/* Der Name ist der eigentliche Titel: groß, in der Display-Schrift (Daria, 2026-11-11) */}
           <Text style={[styles.showcaseName, !router.canGoBack() && styles.showcaseNameUnderKicker]} accessibilityRole="header" noTranslate>
             {s.name}
           </Text>
+          {/* Luft unter dem Namen und ein Satz der Krabbe, was hier passiert. Je nach Status, denn bei „Nur Eingeladene“
+              oder offline erscheint im Web nichts (Daria, 2026-11-12). */}
+          <Notice
+            message={
+              !s.switches.online
+                ? 'Hier pflegst Du Deine Seite. Sie ist gerade offline, deshalb sieht nur Deine Gruppe, was Du postest.'
+                : s.visibility === 'public'
+                  ? 'Hier pflegst Du Deine Seite. Was Du postest, sehen alle im Web und in der KiezCoins App.'
+                  : 'Hier pflegst Du Deine Seite. Name und Angaben sehen alle. Was Du postest, sehen nur Dein Team und Eingeladene in der KiezCoins App.'
+            }
+          />
           {s.cover ? <Image source={s.cover} style={styles.cover} contentFit="cover" /> : null}
           {s.visibility === 'public' ? <CopyField label="Deine Seite" value={showcasePublicLink(s.slug)} /> : null}
           {!s.switches.online ? <Notice variant="warning" message="Dieses Schaufenster ist offline." /> : null}
@@ -316,16 +332,28 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
             </>
           ) : null}
           <Button label="Seite bearbeiten" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id, von: 'schaufenster' } })} />
-          {/* Öffentlich und online: die Webseite unter kiezcoins.de/s/…, so wie Kund:innen sie sehen (Daria, 2026-11-11). Sonst die App-Ansicht. */}
-          <Button
-            label="Ansehen"
-            variant="ghost"
-            onPress={() =>
-              s.visibility === 'public' && s.switches.online
-                ? Linking.openURL(showcasePublicLink(s.slug))
-                : router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })
-            }
-          />
+          {/* Zwei Ansichten (Daria, 2026-11-12): in der App wie ein KiezCoins-Mitglied, im Web wie jede Besucher:in
+              unter kiezcoins.de/s/…. Die Webseite gibt es nur öffentlich und online. */}
+          <View style={styles.viewButtons}>
+            <Button label="In der App ansehen" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
+            <Button
+              label="Im Web ansehen"
+              variant="secondary"
+              disabled={!(s.visibility === 'public' && s.switches.online)}
+              whyDisabled={() => setWebHint(s.id)}
+              onPress={() => Linking.openURL(showcasePublicLink(s.slug))}
+            />
+          </View>
+          {webHint === s.id ? (
+            <Notice
+              message={
+                s.switches.online
+                  ? 'Im Web erscheint Dein Schaufenster erst, wenn es öffentlich ist. Das stellst Du unter „Seite bearbeiten“ ein.'
+                  : 'Solange Dein Schaufenster offline ist, gibt es keine Webseite dazu.'
+              }
+              onClose={() => setWebHint(null)}
+            />
+          ) : null}
         </View>
       ))}
       {footer}
@@ -340,10 +368,11 @@ const styles = StyleSheet.create({
   kicker: { fontFamily: text.display.fontFamily, fontSize: 15, lineHeight: 20, color: color.text.secondary },
   // Abstände wie auf den anderen Seiten (Inhalt hat gap 16), Daria 2026-11-11
   showcase: { gap: space[16] },
-  showcaseName: { ...text.display, color: color.text.primary, marginBottom: space[4] },
+  showcaseName: { ...text.display, color: color.text.primary, marginBottom: space[8] },
   showcaseNameUnderKicker: { marginTop: -space[8] },
   meta: { ...text.caption, color: color.text.secondary },
   link: { ...text.caption, color: color.text.primary, textDecorationLine: 'underline' },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.xl },
+  viewButtons: { gap: space[8] },
   footer: { gap: space[8], marginTop: space[16] },
 });

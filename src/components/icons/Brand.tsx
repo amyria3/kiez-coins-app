@@ -41,7 +41,6 @@ export const Cat = memo(function Cat({ mood = 'default', height = 39, tint }: Ca
 /** Lila aus Figma (#8F90FA) gegen die Signaturfarbe des Looks tauschen. Im Kiez-Look bleibt alles, wie es ist. */
 const signature = (svg: string) => (isFashionable ? svg.replace(/#8F90FA/gi, color.brand.signature) : svg);
 
-/** Logo: Kater und Schriftzug „KiezCoins“ (assets/brand/logo.svg) */
 /** Kater aus dem monochromen Logo, quadratisch zugeschnitten, in Textfarbe (Fashionable Look, Daria 24.10.2026) */
 export const MonoCat = memo(function MonoCat({ height = 26, tint = color.text.primary }: { height?: number; tint?: string }) {
   const mono = brandArt['logo-mono'];
@@ -53,17 +52,18 @@ export const MonoCat = memo(function MonoCat({ height = 26, tint = color.text.pr
 });
 
 /**
- * Logo (Daria, 24.10.2026): Kiez-Look `assets/brand/logo.svg`, Lila mit Kater; Fashionable Look
- * `assets/brand/logo-mono.svg`, Kater mit Brille und Wortmarke einfarbig in Textfarbe.
+ * Logo: Kater und Schriftzug „KiezCoins“ (`assets/brand/logo.svg`, Daria 2026-11-12), in allen Looks.
+ * Kiez-Look: Lila #7E94FF mit dunkler Brille, auf dem dunklen Grund gut lesbar.
+ * Fashionable Look (heller Grund): Lila zu wenig Kontrast, daher Kater und Schrift in Textfarbe, die Brille im Grund.
+ * `tint`: eigene Farbe für Kater und Schrift; `glasses`: Farbe der Brille dazu.
  */
-export const Logo = memo(function Logo({ height = 26 }: { height?: number }) {
-  if (isFashionable) {
-    const mono = brandArt['logo-mono'];
-    const xml = mono.svg.replace(/#111111/gi, color.text.primary);
-    return <SvgXml xml={xml} width={(mono.width / mono.height) * height} height={height} />;
-  }
+export const Logo = memo(function Logo({ height = 24, tint, glasses }: { height?: number; tint?: string; glasses?: string }) {
   const art = brandArt.logo;
-  return <SvgXml xml={art.svg} width={(art.width / art.height) * height} height={height} />;
+  const ink = tint ?? (isFashionable ? color.text.primary : undefined);
+  const xml = ink
+    ? art.svg.replace(/#7E94FF/gi, ink).replace(/#0F100E/gi, glasses ?? color.bg.screen)
+    : art.svg;
+  return <SvgXml xml={xml} width={(art.width / art.height) * height} height={height} />;
 });
 
 /** Schriftzug „KIEZ COINS“ (alt, für Stellen ohne Kater) */
