@@ -1,4 +1,4 @@
-import { t } from './texts';
+import { getLanguage, localeTag, t } from './texts';
 import { addDays, dueToday, goalOf, isoWeekday, localDate, type Reminder } from './reminders';
 
 /**
@@ -59,15 +59,30 @@ export function dayName(date: string, now = new Date()): string {
   if (date === localDate(addDays(1, now))) return t('Morgen');
   const [y, m, d] = date.split('-').map(Number);
   const wd = isoWeekday(new Date(y, m - 1, d));
-  return `${t(WEEKDAYS[wd - 1])}, ${String(d).padStart(2, '0')}.${String(m).padStart(2, '0')}.`;
+  return `${weekdayShort(wd)}, ${String(d).padStart(2, '0')}.${String(m).padStart(2, '0')}.`;
 }
 
 /** „4× pro Woche“, „Mo, Mi, Fr · 18:00“ oder „Morgen um 9:00“ */
 export function goalText(r: Reminder): string {
   if (r.onDate) return `${whenText(r)} · ${r.required === false ? t('Optional') : t('Pflicht')}`;
   if (r.perWeek) return t('{n}× pro Woche', { n: r.perWeek });
-  const days = (r.weekdays ?? []).map((d) => t(WEEKDAYS[d - 1])).join(', ');
+  const days = (r.weekdays ?? []).map(weekdayShort).join(', ');
   return r.atTime ? `${days} · ${r.atTime}` : days;
 }
 
 export const WEEKDAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+
+/**
+ * Kurzer Tagesname, 1 = Montag … 7 = Sonntag. Deutsch aus WEEKDAYS, andere Sprachen vom System (Intl).
+ * Die Kürzel taugen nicht als Übersetzungsschlüssel: „So“ und „Sa“ sind auch normale Wörter und kamen
+ * als „So“, „Comme ça“ oder „Итак“ zurück (Daria, 2026-11-11).
+ */
+export function weekdayShort(day: number): string {
+  if (getLanguage() === 'de') return WEEKDAYS[day - 1];
+  try {
+    // 2024-01-01 war ein Montag
+    return new Intl.DateTimeFormat(localeTag(), { weekday: 'short' }).format(new Date(2024, 0, day));
+  } catch {
+    return WEEKDAYS[day - 1];
+  }
+}

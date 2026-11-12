@@ -76,7 +76,7 @@ export function RoutineContent({ topPad = space[16], bottomPad }: { topPad?: num
           {focus ? <KaterCard>{katerLine(focus)}</KaterCard> : null}
           {list.length ? (
             <SectionBlock label="Deine Erinnerungen">
-              <View style={styles.list}>
+              <View style={[styles.list, lamps && styles.listShaped]}>
                 {list.map((r) => (
                   <ReminderCard key={r.id} reminder={r} onDone={() => router.push({ pathname: '/routine/[id]', params: { id: r.id } })} onEnd={() => end(r)} />
                 ))}
@@ -101,7 +101,7 @@ export function RoutineContent({ topPad = space[16], bottomPad }: { topPad?: num
               </View>
             </SectionBlock>
           ) : null}
-          <View style={styles.buttons}>
+          <View style={[styles.buttons, lamps && styles.buttonsShaped]}>
             <Button label="Neue Erinnerung" icon="plus" variant="secondary" onPress={() => router.push('/routine/new')} />
             {calendarOn ? <Button label="Kalender" variant="ghost" onPress={() => router.push('/account/features')} /> : null}
           </View>
@@ -133,12 +133,14 @@ function ReminderCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDo
   const kind = kindOf(r);
   const counted = kind !== 'termin';
   const done = Math.min(r.doneThisWeek, goal);
+  // Will heute noch etwas von Dir: nicht erledigt und das Wochenziel nicht erreicht
+  const needsAction = !r.doneToday && !(counted && r.doneThisWeek >= goal);
   const body = (
     <>
       <View style={styles.head}>
-        <View style={styles.flex}>
+        <View style={[styles.flex, lamps && styles.flexShaped]}>
           {kind ? <Text style={[styles.kicker, kind === 'termin' ? styles.kickerTermin : styles.kickerAufgabe]}>{kind === 'termin' ? 'Termin' : 'Aufgabe'}</Text> : null}
-          <Text noTranslate style={styles.title}>
+          <Text noTranslate style={[styles.title, lamps && styles.titleShaped]}>
             {capitalize(r.want)}
           </Text>
           <Text style={styles.sub}>{goalText(r)}</Text>
@@ -177,7 +179,9 @@ function ReminderCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDo
   if (lamps)
     return (
       <Pressable onLongPress={onEnd} accessibilityHint={t('Lange drücken zum Beenden')} style={styles.cardLift}>
-        <RoutineCardSurface style={styles.cardShaped}>{body}</RoutineCardSurface>
+        <RoutineCardSurface style={styles.cardShaped} alive={needsAction}>
+          {body}
+        </RoutineCardSurface>
       </Pressable>
     );
   return (
@@ -196,12 +200,19 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: space[20], paddingTop: space[16], gap: space[24] },
   list: { gap: space[12] },
   buttons: { gap: space[8] },
+  /** Mehr Abstand zwischen den Routine-Karten und zum Button darunter (Daria, 2026-11-11) */
+  listShaped: { gap: space[24] },
+  buttonsShaped: { marginTop: space[12] },
   card: { gap: space[12], padding: space[16], borderRadius: radius.xl, backgroundColor: color.bg.surface },
   /** Platz für die harte Unterkante unter der Karte */
-  cardLift: { marginBottom: 3 },
-  cardShaped: { gap: space[12], padding: space[16], paddingBottom: space[20] },
+  cardLift: { marginBottom: 4 },
+  /** Mehr Luft in der Karte (Daria, 2026-11-11, zweimal): rundum 24, unten 44 über den Wellen */
+  cardShaped: { gap: space[20], paddingHorizontal: space[24], paddingTop: space[24], paddingBottom: 44 },
+  /** Titel der Karte in der Unbounded (Daria, 2026-11-11) */
+  titleShaped: { fontFamily: font.onPhoto, fontSize: 17, lineHeight: 23, letterSpacing: 0 },
   head: { flexDirection: 'row', alignItems: 'flex-start', gap: space[12] },
   flex: { flex: 1, gap: space[4] },
+  flexShaped: { gap: space[8] },
   title: { ...text.cardTitle, color: color.text.primary },
   kicker: { ...text.caption, fontFamily: font.medium },
   kickerTermin: { color: color.accent.primary },
@@ -214,7 +225,8 @@ const styles = StyleSheet.create({
   segmentDone: { backgroundColor: color.accent.confirmation },
   /** Lampen sind 8 hoch, die offenen Tage als eingelassene Rille */
   barLamps: { paddingBottom: 2 },
-  segmentGroove: { height: 8, borderRadius: 4, boxShadow: 'inset 0 2px 0 rgba(0, 0, 0, 0.25)' },
+  /** Offene Tage: flache Rille in der Linienfarbe des Katers */
+  segmentGroove: { height: 9, borderRadius: 4.5, backgroundColor: 'rgba(0, 0, 39, 0.55)' },
   foot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space[12] },
   endText: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },
   doneToday: { fontFamily: font.medium, fontSize: 15, lineHeight: 20, color: color.accent.confirmation },
