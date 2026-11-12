@@ -347,10 +347,12 @@ ${
 .geteilt .sf-klappe summary h2.sf-abschnitt { flex: 1; }
 /* Kiez unter dem Namen als kleine Zeile in Versalien, dunkel statt grau (Daria, 2026-11-12) */
 .geteilt p.wer { font: 500 12px/16px Inter, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--text); margin: 10px 0 20px; }
+/* Fließtext enger gesetzt, vorher 1.55 aus seite.css (Daria, 2026-11-12) */
+.geteilt p.text, .geteilt .sf-services, .geteilt .sf-text { line-height: 1.38; }
 .geteilt .sf-fakten { display: grid; gap: 16px; margin: 28px 0 8px; }
 @media (min-width: 560px) { .geteilt .sf-fakten { grid-template-columns: 1fr 1fr; gap: 20px 32px; } }
 .geteilt .sf-fakt dt { font: 500 12px/16px Inter, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
-.geteilt .sf-fakt dd { margin: 0; font-size: 16px; line-height: 1.5; white-space: pre-line; }
+.geteilt .sf-fakt dd { margin: 0; font-size: 16px; line-height: 1.4; white-space: pre-line; }
 .geteilt .sf-fakt dd a { text-underline-offset: 3px; }
 .geteilt .sf-services p, .geteilt .sf-services ul { margin: 0 0 12px; }
 .geteilt .sf-services ul { padding-left: 20px; }
