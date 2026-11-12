@@ -396,23 +396,45 @@ export function cardMessage(d: CardData): string {
 }
 
 /**
- * Als Bilder teilen (Teilen-Menü des Handys), mit Name, Adresse und Link als Text. Wo das nicht geht, beide Seiten
- * herunterladen. `'shared'`, `'downloaded'` oder `'cancelled'`.
+ * Als Bilder teilen (Teilen-Menü des Geräts), mit Name, Adresse und Link als Text. Viele Desktop-Browser (Firefox,
+ * Chrome unter Linux, ältere Chrome-Versionen) können keine Dateien teilen (Daria, 2026-11-12: „Wieso öffnet nicht das
+ * Teilen-Fenster?“). Dann landen beide Seiten in den Downloads, und wenn der Browser wenigstens Text teilen kann,
+ * öffnet sich das Teilen-Fenster mit Name, Adresse und Link. `'shared'`, `'downloaded'`, `'downloaded-link'`
+ * (heruntergeladen, Link geteilt) oder `'cancelled'`.
  */
-export async function shareCard(sides: CardSides, d: CardData): Promise<'shared' | 'downloaded' | 'cancelled'> {
+export async function shareCard(
+  sides: CardSides,
+  d: CardData,
+): Promise<'shared' | 'downloaded' | 'downloaded-link' | 'cancelled'> {
   const name = d.name;
   const files = cardFiles(sides, name);
   const nav = navigator as Navigator & { canShare?: (d: { files: File[] }) => boolean };
+  const text = cardMessage(d);
   if (typeof nav.share === 'function' && nav.canShare?.({ files })) {
     try {
-      await nav.share({ files, title: name, text: cardMessage(d) });
+      await nav.share({ files, title: name, text });
       return 'shared';
     } catch (e) {
       if ((e as Error)?.name === 'AbortError') return 'cancelled';
     }
   }
   files.forEach(download);
+  if (typeof nav.share === 'function') {
+    try {
+      await nav.share({ title: name, text });
+      return 'downloaded-link';
+    } catch {
+      // abgebrochen oder ohne Nutzergeste: Die Bilder sind trotzdem da
+    }
+  }
   return 'downloaded';
+}
+
+/** Hinweis nach dem Teilen, oder null, wenn nichts zu sagen ist. */
+export function shareNote(r: 'shared' | 'downloaded' | 'downloaded-link' | 'cancelled'): string | null {
+  if (r === 'downloaded-link') return 'Dieser Browser kann keine Bilder teilen. Beide Seiten liegen in Deinen Downloads, geteilt hast Du Name, Adresse und Link.';
+  if (r === 'downloaded') return 'Dieser Browser kann nicht teilen. Beide Seiten liegen jetzt in Deinen Downloads. Auf dem Handy öffnet sich das Teilen-Fenster.';
+  return null;
 }
 
 export function downloadCard(sides: CardSides, name: string): void {
