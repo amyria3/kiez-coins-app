@@ -1438,8 +1438,22 @@ for (const [pkg, file] of [
   ['inter-tight/600SemiBold', 'InterTight_600SemiBold'],
   // Öffentliche Schaufenster-Seite (api/s.mjs): Name und Abschnitte wie in der App
   ['unbounded/500Medium', 'Unbounded_500Medium'],
+  // Visitenkarte auf der öffentlichen Schaufenster-Seite (Daria, 2026-11-12)
+  ['karla/400Regular', 'Karla_400Regular'],
+  ['karla/500Medium', 'Karla_500Medium'],
 ])
   copyFileSync(join(root, `node_modules/@expo-google-fonts/${pkg}/${file}.ttf`), join(out, `fonts/${file}.ttf`));
+// Visitenkarte für die öffentliche Schaufenster-Seite (api/s.mjs): dieselbe Zeichnung wie in der App
+// (src/lib/businessCardCanvas.ts), als ein Skript ohne weitere Abhängigkeiten (Daria, 2026-11-12)
+await (await import('esbuild')).build({
+  entryPoints: [join(root, 'src/lib/businessCardWeb.ts')],
+  bundle: true,
+  minify: true,
+  format: 'iife',
+  target: 'es2020',
+  outfile: join(out, 'visitenkarte.js'),
+  logLevel: 'warning',
+});
 // Hosting bei Vercel: Unterseiten der Web-App öffnen die App, Rechtstexte auch ohne .html.
 // Mit cleanUrls bekommt Vercel keine Ziele mit .html, sonst endet jede Umleitung auf der 404-Seite.
 writeFileSync(
