@@ -185,7 +185,7 @@ export const MODE_OF_TAB: Partial<Record<FeedTab, Mode>> = { private: 'private',
 // Reihenfolge Privat, Gruppe, Kiez (Daria, 27.10.2026)
 const tabs: { key: FeedTab; label: string; planned?: boolean }[] = [
   { key: 'private', label: 'Privat' },
-  { key: 'groups', label: 'Gruppe' },
+  { key: 'groups', label: 'Gruppen' },
   { key: 'nearby', label: 'Kiez' },
   // Rechts im Umschalter (Daria, 29.10.2026)
   { key: 'everywhere', label: 'Überall' },
