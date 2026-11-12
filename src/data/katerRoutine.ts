@@ -1,5 +1,5 @@
 import { getLanguage, localeTag, t } from './texts';
-import { addDays, dueToday, goalOf, isoWeekday, localDate, type Reminder } from './reminders';
+import { addDays, dueToday, goalOf, isoWeekday, localDate, weekStart, type Reminder } from './reminders';
 
 /**
  * Was der Kater zu einer Erinnerung sagt (Daria, 2026-11-10): lustig wie bei Duolingo, nicht zu sachlich.
@@ -85,4 +85,84 @@ export function weekdayShort(day: number): string {
   } catch {
     return WEEKDAYS[day - 1];
   }
+}
+
+/**
+ * Stimmung des Katers auf der Routine-Karte (Daria, 2026-11-12), später als kurzes Video. Abgestuft statt gleich
+ * „sauer“: Er wird erst unruhig, besorgt oder enttäuscht, wenn wirklich Tage verstrichen sind. Zählt erst ab dem
+ * Tag, an dem die Erinnerung angelegt wurde.
+ */
+export type KaterMood =
+  | 'freut sich'
+  | 'zufrieden'
+  | 'optimistisch'
+  | 'chillig'
+  | 'entspannt'
+  | 'gelangweilt'
+  | 'neugierig'
+  | 'ungeduldig'
+  | 'unruhig'
+  | 'etwas besorgt'
+  | 'sauer'
+  | 'enttäuscht'
+  | 'verzweifelt';
+
+const minutesOf = (hhmm: string) => {
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
+};
+
+export function katerMood(r: Reminder, now = new Date()): KaterMood {
+  const goal = goalOf(r);
+  if (r.doneToday) return 'freut sich';
+  if (r.doneThisWeek >= goal) return 'zufrieden';
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const today = localDate(now);
+
+  // Einmalig: Termin „um“ oder Aufgabe „bis“
+  if (r.onDate) {
+    if (r.onDate > today) return r.required === false ? 'neugierig' : 'chillig';
+    const at = r.untilTime ?? r.atTime;
+    if (!at) return nowMin < 14 * 60 ? 'entspannt' : 'ungeduldig';
+    const left = minutesOf(at) - nowMin;
+    if (left < 0) return r.required === false ? 'gelangweilt' : 'enttäuscht';
+    if (r.required === false) return 'neugierig';
+    if (left <= 60) return 'unruhig';
+    if (left <= 180) return 'ungeduldig';
+    return 'entspannt';
+  }
+
+  // Wiederkehrend: erst ab Anlegen zählen
+  const week0 = weekStart(now);
+  const created = r.createdAt ? new Date(r.createdAt) : week0;
+  const from = created > week0 ? created : week0;
+  const fromDay = isoWeekday(from);
+  const todayDay = isoWeekday(now);
+  const doneBefore = r.doneThisWeek; // heute ist noch nichts erledigt (oben abgefangen)
+
+  if (r.weekdays?.length) {
+    const passed = r.weekdays.filter((d) => d >= fromDay && d < todayDay).length;
+    const missed = Math.max(0, passed - doneBefore);
+    const dueToday = r.weekdays.includes(todayDay);
+    if (missed >= 4) return 'verzweifelt';
+    if (missed === 3) return 'enttäuscht';
+    if (missed === 2) return dueToday ? 'sauer' : 'enttäuscht';
+    if (missed === 1) return 'etwas besorgt';
+    if (!dueToday) return doneBefore > 0 ? 'optimistisch' : 'chillig';
+    if (nowMin >= 20 * 60) return 'unruhig';
+    if (nowMin >= 15 * 60) return 'ungeduldig';
+    return doneBefore > 0 ? 'optimistisch' : 'entspannt';
+  }
+
+  // x-mal pro Woche: Wie viel Luft bleibt bis Sonntag?
+  const daysLeft = 8 - todayDay;
+  const possible = 8 - Math.max(fromDay, 1);
+  const remaining = Math.min(goal, possible) - doneBefore;
+  const slack = daysLeft - remaining;
+  if (slack < 0) return remaining - daysLeft >= 2 ? 'verzweifelt' : 'enttäuscht';
+  if (slack === 0) return nowMin >= 18 * 60 ? 'unruhig' : 'ungeduldig';
+  if (doneBefore > 0) return 'optimistisch';
+  if (slack >= 4) return 'gelangweilt';
+  if (slack >= 2) return 'chillig';
+  return 'entspannt';
 }

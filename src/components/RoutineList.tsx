@@ -7,10 +7,11 @@ import { KaterCard, KaterRund } from './Content';
 import { handShapePath } from './handShape';
 import { Text } from './T';
 import { addToMyCalendar, eventDate, eventTime, type CalendarEvent } from '../data/calendar';
-import { dayName, goalText, katerFocus, katerLine, weekdayShort, whenText } from '../data/katerRoutine';
+import { dayName, goalText, katerFocus, katerLine, katerMood, weekdayShort, whenText, type KaterMood } from '../data/katerRoutine';
 import { addDays, capitalize, goalOf, isoWeekday, kindOf, loadRoutineDays, localDate, weekStart, type Reminder, type RoutineDays } from '../data/reminders';
 import { asSingleEvent, eventWhen, saveEvent, type ShowcaseEvent } from '../data/showcase';
 import { localeTag, t, useTexts } from '../data/texts';
+import { shareText } from '../lib/share';
 import { color, font, space } from '../theme/tokens';
 
 /**
@@ -29,11 +30,11 @@ const PUDER = '#E6D6C0';
 const INK = '#1A1A1A';
 const INK_SOFT = 'rgba(26, 26, 26, 0.68)';
 const INK_TRACK = 'rgba(26, 26, 26, 0.16)';
-const CHIP = 'rgba(26, 26, 26, 0.1)';
 /** Kalender: Tage ohne Eintrag und die Schraffur für ausgefallene */
 const DAY = 'rgba(251, 239, 242, 0.08)';
 const HATCH = 'rgba(251, 239, 242, 0.16)';
-const CARD_MAX = 292;
+const CARD_MIN = 260;
+const CARD_MAX = 480;
 const GUTTER = space[20];
 
 type Saved = ShowcaseEvent & { showcase: string };
@@ -67,7 +68,7 @@ export function RoutineList({
     <>
       {/* Kater spricht wie im Feed als Sprechblase (Daria, 2026-11-11) */}
       {focus ? <KaterCard>{katerLine(focus)}</KaterCard> : null}
-      <RoutineCalendar list={list} />
+      <RoutineCalendar list={list} events={events} saved={saved} />
       {tasks.length ? (
         <Group title="Aufgaben" count={tasks.length}>
           {tasks.map((r) => (
@@ -104,11 +105,13 @@ export function RoutineList({
 
 /** Überschrift mit Anzahl, darunter die Karten nebeneinander zum Wischen */
 function Group({ title, count, children }: { title: string; count: number; children: ReactNode }) {
-  const { width } = useWindowDimensions();
-  // Die nächste Karte schaut rechts ein Stück herein
-  const cardWidth = Math.min(CARD_MAX, width - GUTTER * 2 - 48);
+  const { width: screen } = useWindowDimensions();
+  // Breite der Spalte; im Browser ist die App schmaler als das Fenster
+  const [width, setWidth] = useState(screen - GUTTER * 2);
+  // Länglich, so breit es geht (Daria, 2026-11-12); die nächste Karte schaut rechts ein Stück herein
+  const cardWidth = Math.max(CARD_MIN, Math.min(CARD_MAX, width - 36));
   return (
-    <View style={styles.group}>
+    <View style={styles.group} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
       <View style={styles.groupHead}>
         <Text style={styles.groupTitle} accessibilityRole="header">
           {title}
@@ -135,22 +138,11 @@ function Group({ title, count, children }: { title: string; count: number; child
   );
 }
 
-/** Stand des Katers auf der Karte, bis die Videos da sind als Wort neben dem Avatar */
-type Mood = 'wartet' | 'freut sich' | 'sauer' | 'neugierig' | 'entspannt';
+/** Stand des Katers auf der Karte, bis die Videos da sind als Wort am Avatar */
+type Mood = KaterMood;
+const moodOf = (r: Reminder) => katerMood(r);
 
-function moodOf(r: Reminder, now = new Date()): Mood {
-  const goal = goalOf(r);
-  if (r.doneToday || r.doneThisWeek >= goal) return 'freut sich';
-  if (kindOf(r) === 'termin') return r.required === false ? 'neugierig' : 'wartet';
-  if (r.onDate) return 'wartet';
-  // Wiederkehrend: Reicht die Woche noch für das Ziel?
-  const daysLeft = 8 - isoWeekday(now);
-  const left = r.weekdays ? r.weekdays.filter((d) => d >= isoWeekday(now)).length : daysLeft;
-  if (goal - r.doneThisWeek > left) return 'sauer';
-  return r.weekdays && !r.weekdays.includes(isoWeekday(now)) ? 'entspannt' : 'wartet';
-}
-
-function Card({ bg, mood, children, onLongPress }: { bg: string; mood: Mood; children: ReactNode; onLongPress?: () => void }) {
+function Card({ bg, mood, share, children, onLongPress }: { bg: string; mood: Mood; share: string; children: ReactNode; onLongPress?: () => void }) {
   return (
     <Pressable
       onLongPress={onLongPress}
@@ -158,12 +150,22 @@ function Card({ bg, mood, children, onLongPress }: { bg: string; mood: Mood; chi
       style={[styles.card, { backgroundColor: bg }]}
     >
       <View style={styles.cardTop}>
-        <View style={styles.chip}>
-          <Text style={styles.chipText}>{mood}</Text>
-        </View>
+        {/* Teilen über das Menü des Systems (Daria, 2026-11-12) */}
+        <Pressable onPress={() => shareText(share)} accessibilityRole="button" hitSlop={8} style={({ pressed }) => [styles.share, pressed && styles.pressed]}>
+          <Text style={styles.shareText}>Teilen</Text>
+        </Pressable>
+        <View style={styles.grow} />
         {/* Ring in der Farbe des Grunds (Daria, 2026-11-12) */}
-        <View style={styles.katerRing}>
-          <KaterRund size={60} />
+        <View>
+          <View style={styles.katerRing}>
+            <KaterRund size={60} bg={bg} />
+          </View>
+          {/* Stimmung klebt schräg am Kater wie ein Sticker (Daria, 2026-11-12) */}
+          <View style={styles.chip} pointerEvents="none">
+            <Text style={styles.chipText} numberOfLines={1}>
+              {mood}
+            </Text>
+          </View>
         </View>
       </View>
       <View style={styles.cardBody}>{children}</View>
@@ -176,7 +178,12 @@ function TaskCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDone: 
   const done = Math.min(r.doneThisWeek, goal);
   const resting = r.doneToday || r.doneThisWeek >= goal;
   return (
-    <Card bg={SENF} mood={moodOf(r)} onLongPress={onEnd}>
+    <Card
+      bg={SENF}
+      mood={moodOf(r)}
+      onLongPress={onEnd}
+      share={goal > 1 ? t('Ich will {want}. Diese Woche: {done} von {goal}.', { want: r.want, done, goal }) : t('Ich will {want}.', { want: r.want })}
+    >
       <Text style={styles.meta}>{r.onDate ? whenText(r) : goalText(r)}</Text>
       <Text noTranslate style={styles.title} numberOfLines={2}>
         {capitalize(r.want)}
@@ -203,7 +210,7 @@ function TaskCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDone: 
 
 function TerminCard({ reminder: r, bg, onDone, onEnd }: { reminder: Reminder; bg: string; onDone: () => void; onEnd: () => void }) {
   return (
-    <Card bg={bg} mood={moodOf(r)} onLongPress={onEnd}>
+    <Card bg={bg} mood={moodOf(r)} onLongPress={onEnd} share={`${capitalize(r.want)}, ${whenText(r)}`}>
       <Text style={styles.meta}>{whenText(r)}</Text>
       <Text noTranslate style={styles.title} numberOfLines={2}>
         {capitalize(r.want)}
@@ -217,7 +224,7 @@ function TerminCard({ reminder: r, bg, onDone, onEnd }: { reminder: Reminder; bg
 function CalendarCard({ event: e }: { event: CalendarEvent }) {
   const when = `${dayName(eventDate(e))} ${e.allDay ? t('ganztägig') : t('um {time}', { time: eventTime(e.start) })}`;
   return (
-    <Card bg={OLIVE} mood="entspannt">
+    <Card bg={OLIVE} mood="chillig" share={`${e.title}, ${when}`}>
       <Text style={styles.meta}>{when}</Text>
       <Text noTranslate style={styles.title} numberOfLines={2}>
         {e.title}
@@ -243,7 +250,7 @@ function SavedCard({ event: e, onChanged }: { event: Saved; onChanged: () => voi
     if (!ok) Alert.alert(t('Hat nicht geklappt'), t('Der Kalender ließ sich gerade nicht öffnen.'));
   };
   return (
-    <Card bg={PUDER} mood={e.cancelled ? 'sauer' : 'neugierig'}>
+    <Card bg={PUDER} mood={e.cancelled ? 'enttäuscht' : 'neugierig'} share={[e.title, eventWhen(e), e.showcase, e.location].filter(Boolean).join(', ')}>
       <Text style={styles.meta}>{e.cancelled ? t('Abgesagt') : eventWhen(e)}</Text>
       <Text noTranslate style={[styles.title, e.cancelled && styles.struck]} numberOfLines={2}>
         {e.title}
@@ -314,8 +321,10 @@ function HandButton({
  * Kalender (Daria, 2026-11-12, nach Vorlage): runde Tage, erledigte in Senf, ausgefallene schraffiert, heute mit Ring.
  * Standardmäßig eingeklappt auf die laufende Woche; ein Tipp auf den Monat klappt ihn auf.
  */
-function RoutineCalendar({ list }: { list: Reminder[] }) {
+function RoutineCalendar({ list, events, saved }: { list: Reminder[]; events: CalendarEvent[]; saved: Saved[] }) {
   const [open, setOpen] = useState(false);
+  // Gewählter Tag (Daria, 2026-11-12): darunter steht, was an dem Tag war
+  const [picked, setPicked] = useState<string | null>(null);
   const [days, setDays] = useState<RoutineDays | null>(null);
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -367,13 +376,39 @@ function RoutineCalendar({ list }: { list: Reminder[] }) {
             {weekdayShort(d)}
           </Text>
         ))}
-        {cells.map((d, i) => (d ? <CalDay key={localDate(d)} date={d} today={today} days={days} /> : <View key={`e${i}`} style={styles.calCell} />))}
+        {cells.map((d, i) =>
+          d ? (
+            <CalDay
+              key={localDate(d)}
+              date={d}
+              today={today}
+              days={days}
+              picked={picked === localDate(d)}
+              onPress={() => setPicked(picked === localDate(d) ? null : localDate(d))}
+            />
+          ) : (
+            <View key={`e${i}`} style={styles.calCell} />
+          ),
+        )}
       </View>
+      {picked ? <DayPanel day={picked} today={today} days={days} list={list} events={events} saved={saved} /> : null}
     </View>
   );
 }
 
-function CalDay({ date, today, days }: { date: Date; today: string; days: RoutineDays | null }) {
+function CalDay({
+  date,
+  today,
+  days,
+  picked,
+  onPress,
+}: {
+  date: Date;
+  today: string;
+  days: RoutineDays | null;
+  picked: boolean;
+  onPress: () => void;
+}) {
   const [size, setSize] = useState(0);
   const d = localDate(date);
   const done = days?.done.has(d);
@@ -381,8 +416,11 @@ function CalDay({ date, today, days }: { date: Date; today: string; days: Routin
   const isToday = d === today;
   const label = `${date.getDate()}${done ? `, ${t('geschafft')}` : missed ? `, ${t('ausgefallen')}` : ''}${isToday ? `, ${t('heute')}` : ''}`;
   return (
-    <View style={styles.calCell} accessible accessibilityLabel={label}>
-      <View onLayout={(e) => setSize(e.nativeEvent.layout.width)} style={[styles.calDay, done && styles.calDayDone, isToday && !done && styles.calDayToday]}>
+    <Pressable style={styles.calCell} onPress={onPress} accessibilityRole="button" accessibilityState={{ selected: picked }} accessibilityLabel={label}>
+      <View
+        onLayout={(e) => setSize(e.nativeEvent.layout.width)}
+        style={[styles.calDay, done && styles.calDayDone, isToday && !done && styles.calDayToday, picked && styles.calDayPicked]}
+      >
         {missed && size ? (
           <Svg width={size} height={size} style={StyleSheet.absoluteFill} pointerEvents="none">
             <Defs>
@@ -397,11 +435,79 @@ function CalDay({ date, today, days }: { date: Date; today: string; days: Routin
           {date.getDate()}
         </Text>
       </View>
+    </Pressable>
+  );
+}
+
+/** Was an einem Tag war: geschafft, ausgefallen, Termine */
+function DayPanel({
+  day,
+  today,
+  days,
+  list,
+  events,
+  saved,
+}: {
+  day: string;
+  today: string;
+  days: RoutineDays | null;
+  list: Reminder[];
+  events: CalendarEvent[];
+  saved: Saved[];
+}) {
+  const [y, m, d] = day.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  const title = day === today ? t('Heute') : new Intl.DateTimeFormat(localeTag(), { weekday: 'long', day: 'numeric', month: 'long' }).format(date);
+  const done = days?.doneBy.get(day) ?? [];
+  const missed = days?.missedBy.get(day) ?? [];
+  // Fällig an dem Tag, noch offen: feste Wochentage ab heute, einmalige an ihrem Tag
+  const open =
+    day >= today
+      ? list.filter((r) => !done.includes(r.want) && (r.onDate ? r.onDate === day : r.weekdays?.includes(isoWeekday(date)))).map((r) => capitalize(r.want))
+      : [];
+  const termine = [
+    ...events.filter((e) => eventDate(e) === day).map((e) => (e.allDay ? e.title : `${eventTime(e.start)} ${e.title}`)),
+    ...saved.filter((e) => localDate(new Date(e.startsAt)) === day).map((e) => `${eventTime(e.startsAt)} ${e.title}`),
+  ];
+  const rows: [string, string[]][] = [
+    ['Geschafft', done.map(capitalize)],
+    ['Ausgefallen', missed.map(capitalize)],
+    ['Steht an', open],
+    ['Termine', termine],
+  ];
+  const any = rows.some(([, items]) => items.length);
+  return (
+    <View style={styles.dayPanel} accessibilityLiveRegion="polite">
+      <Text noTranslate style={styles.dayTitle}>
+        {title}
+      </Text>
+      {any ? (
+        rows.map(([label, items]) =>
+          items.length ? (
+            <View key={label} style={styles.dayRow}>
+              <Text style={styles.dayLabel}>{label}</Text>
+              <Text noTranslate style={styles.dayItems}>
+                {items.join(', ')}
+              </Text>
+            </View>
+          ) : null,
+        )
+      ) : (
+        <Text style={styles.dayItems}>An diesem Tag steht nichts an.</Text>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  grow: { flex: 1 },
+  share: { borderRadius: 20, borderWidth: 1, borderColor: INK_TRACK, paddingHorizontal: 10, paddingVertical: 3, marginTop: 4, marginLeft: space[6] },
+  shareText: { fontFamily: font.medium, fontSize: 13, lineHeight: 17, color: INK },
+  dayPanel: { marginTop: space[8], padding: space[16], borderRadius: 16, backgroundColor: DAY, gap: space[8] },
+  dayTitle: { fontFamily: font.medium, fontSize: 17, lineHeight: 22, color: color.text.primary },
+  dayRow: { gap: 2 },
+  dayLabel: { fontFamily: font.medium, fontSize: 13, lineHeight: 18, color: color.text.secondary },
+  dayItems: { fontFamily: font.regular, fontSize: 15, lineHeight: 20, color: color.text.primary },
   group: { gap: space[12] },
   groupHead: {
     flexDirection: 'row',
@@ -425,7 +531,7 @@ const styles = StyleSheet.create({
   row: { paddingHorizontal: GUTTER, gap: space[12] },
   card: {
     flex: 1,
-    minHeight: 300,
+    minHeight: 260,
     borderRadius: 16,
     padding: 18,
     gap: space[8],
@@ -437,17 +543,20 @@ const styles = StyleSheet.create({
   },
   cardBody: { flex: 1, justifyContent: 'flex-end', gap: space[8] },
   chip: {
-    backgroundColor: CHIP,
+    position: 'absolute',
+    right: 30,
+    bottom: -8,
+    backgroundColor: color.bg.screen,
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    marginTop: 4,
+    transform: [{ rotate: '-8deg' }],
   },
   chipText: {
     fontFamily: font.medium,
     fontSize: 13,
     lineHeight: 17,
-    color: INK,
+    color: color.text.primary,
   },
   katerRing: {
     borderRadius: 33,
@@ -529,6 +638,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   calDayDone: { backgroundColor: SENF },
+  calDayPicked: { borderWidth: 2, borderColor: color.accent.primary },
   calDayToday: { borderWidth: 1.5, borderColor: color.text.primary },
   calNum: {
     fontFamily: font.regular,
