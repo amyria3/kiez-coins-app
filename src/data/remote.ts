@@ -992,9 +992,12 @@ export type NewGroupTask = {
   sheetFont?: string;
   /** Nur bei Aufgaben */
   participation?: Participation;
+  /** Nur in öffentlichen Gruppen (GroupPlaceField), freiwillig */
+  location?: string;
+  coords?: { latitude: number; longitude: number };
 };
 
-/** Gruppenaufgabe oder Gruppenbild direkt veröffentlichen (ohne Entwurf, ohne Ort). */
+/** Gruppenaufgabe oder Gruppenbild direkt veröffentlichen (ohne Entwurf). Ort nur in öffentlichen Gruppen. */
 export async function createGroupTask(userId: string, task: NewGroupTask): Promise<Challenge> {
   const isPhoto = task.type === 'photo';
   const imagePath = task.photo ? await uploadPhoto(userId, task.photo) : null;
@@ -1011,7 +1014,8 @@ export async function createGroupTask(userId: string, task: NewGroupTask): Promi
         ...(extraPaths?.length ? { extra_image_paths: extraPaths } : {}),
         title: task.title.trim(),
         body: task.text.trim(),
-        location: '',
+        location: task.location?.trim() ?? '',
+        ...(task.coords ? { lat: task.coords.latitude, lng: task.coords.longitude } : {}),
         deadline: task.deadline,
         image_path: imagePath,
         ...(isPhoto ? pagesField(task.pages, task.sheetFont) : {}),

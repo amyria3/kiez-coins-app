@@ -15,6 +15,7 @@ import { PHOTO_TAG } from '../WithMentions';
 import { TagTextField } from './BeforeAfterForm';
 import { useComposeContent, type ComposeContent } from './compose';
 import { draftPhoto, GroupDraftButton } from './GroupTaskForm';
+import { useGroupPlace } from './GroupPlaceField';
 
 const durations = [
   { days: 1, label: '1 Tag' },
@@ -24,7 +25,8 @@ const durations = [
 ];
 
 /**
- * Bild in einer Gruppe (Daria, 27.10.2026): ein schönes Bild ohne Aufgabe, ohne Edensteine, ohne Ort.
+ * Bild in einer Gruppe (Daria, 27.10.2026): ein schönes Bild ohne Aufgabe, ohne Edensteine. Einen Ort gibt es nur in
+ * öffentlichen Gruppen (Daria, 12.11.2026, GroupPlaceField).
  * Nur die Mitglieder der Gruppe sehen es (Policy „Challenges lesen“).
  * Lässt sich als Entwurf speichern; mit `draft` bearbeitet das Formular einen Entwurf (Daria, 30.10.2026).
  */
@@ -47,6 +49,7 @@ export function useGroupPhotoForm(
   const extras = (!draft && shared?.extras) || ownExtras;
   const setExtras = (!draft && shared?.setExtras) || setOwnExtras;
   const [days, setDays] = useState(7);
+  const place = useGroupPlace(groupId, draft);
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState<'publish' | 'save' | undefined>();
   const [ownPages, setOwnPages] = useState<string[]>(draft?.pages ?? ['']);
@@ -60,8 +63,8 @@ export function useGroupPhotoForm(
 
   const input = () =>
     textOnly
-      ? { groupId, type: 'photo' as const, title, text: '', location: '', pages, sheetFont }
-      : { groupId, type: 'photo' as const, title, text: body, location: '', extras, ...draftPhoto(photo, draft) };
+      ? { groupId, type: 'photo' as const, title, text: '', location: place.location, coords: place.coords, pages, sheetFont }
+      : { groupId, type: 'photo' as const, title, text: body, location: place.location, coords: place.coords, extras, ...draftPhoto(photo, draft) };
 
   const publish = async () => {
     if (!group) return;
@@ -76,8 +79,8 @@ export function useGroupPhotoForm(
       const id = draft
         ? await publishDraft(draft.id, input(), deadline)
         : textOnly
-          ? await groupApi.createTask({ groupId: group.id, type: 'photo', title, text: '', deadline, pages, sheetFont })
-          : await groupApi.createTask({ groupId: group.id, type: 'photo', title, text: body, deadline, photo, extras });
+          ? await groupApi.createTask({ groupId: group.id, type: 'photo', title, text: '', deadline, pages, sheetFont, location: place.location, coords: place.coords })
+          : await groupApi.createTask({ groupId: group.id, type: 'photo', title, text: body, deadline, photo, extras, location: place.location, coords: place.coords });
       celebratePost();
       onCreated(id);
     } catch (error) {
@@ -105,6 +108,7 @@ export function useGroupPhotoForm(
       <Text style={styles.hint}>Hier ist nichts zu tun, nur Dein Text für Eure Gruppe.</Text>
       <SheetEditor title={title} onTitleChange={setTitle} pages={pages} onPagesChange={setPages} fontKey={sheetFont} onFontChange={setSheetFont} />
       {showErrors && missingPhoto ? <Text style={styles.error}>Schreib etwas auf das Blatt.</Text> : null}
+      {place.field}
       <FieldGroup label="Zeitraum">
         <ChipGroup>
           {durations.map((d) => (
@@ -132,6 +136,7 @@ export function useGroupPhotoForm(
       ) : null}
       {/* Wie beim Bild im Kiez: #InDiesemMoment fest vorn (Daria, 07.11.2026) */}
       <TagTextField label="Dein Text" tag={PHOTO_TAG} value={body} onChangeText={setBody} maxLength={500} />
+      {place.field}
       <FieldGroup label="Zeitraum">
         <ChipGroup>
           {durations.map((d) => (
