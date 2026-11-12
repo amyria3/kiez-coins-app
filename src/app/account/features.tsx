@@ -1,3 +1,4 @@
+import { Abschnitt } from '../../components/Abschnitt';
 import { Explanation, FieldGroup } from '../../components/Content';
 import { CalendarSettings } from '../../components/CalendarSettings';
 import { CrosspostSwitches } from '../../components/CrosspostSwitches';
@@ -11,6 +12,7 @@ import { useGoBack } from '../../lib/goBack';
  * Route `account/features` (Dein Konto › Funktionen): Modi Privat, Gruppe und Kiez verbergen und einen
  * als Standard festlegen (Daria, 27.10.2026). Darunter die verbundenen Konten fürs Weiterposten (Daria, 09.11.2026)
  * und der Kalender (Daria, 2026-11-10, vorher unter Einstellungen).
+ * Sprungziele `?abschnitt=weiterposten` und `?abschnitt=kalender` (Abschnitt.tsx).
  */
 export default function FeaturesScreen() {
   const goBack = useGoBack();
@@ -27,14 +29,18 @@ export default function FeaturesScreen() {
       <FeatureSwitches>
         {/* Jede Plattform mit eigenem Schalter, die Einrichtung öffnet sich darunter (Daria, 2026-11-09) */}
         {crosspost ? (
-          <FieldGroup heading label="Weiterposten">
-            <CrosspostSwitches />
-          </FieldGroup>
+          <Abschnitt id="weiterposten">
+            <FieldGroup heading label="Weiterposten">
+              <CrosspostSwitches />
+            </FieldGroup>
+          </Abschnitt>
         ) : null}
         {calendar ? (
-          <FieldGroup heading label="Kalender">
-            <CalendarSettings />
-          </FieldGroup>
+          <Abschnitt id="kalender">
+            <FieldGroup heading label="Kalender">
+              <CalendarSettings />
+            </FieldGroup>
+          </Abschnitt>
         ) : null}
       </FeatureSwitches>
     </SubScreen>
