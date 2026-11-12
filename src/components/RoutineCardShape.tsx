@@ -16,6 +16,8 @@ import { color, radius } from '../theme/tokens';
 
 /** Linienfarbe des Kater-Avatars: Kontur, Schatten, Rillen */
 export const INK = '#000027';
+/** Kontur und Schatten: dunkles Aubergine aus dem Verlauf statt Schwarzblau, weicher zur Karte (Daria, 2026-11-12) */
+const LINE = '#3B2F3C';
 const SHADOW_X = 2;
 const SHADOW_Y = 4;
 /** Grund: derselbe Farbverlauf wie unter dem Kater-Avatar (Daria, 2026-11-11) */
@@ -166,7 +168,7 @@ export function RoutineCardSurface({ children, style, alive }: { children: React
         <>
           {/* Harter Schatten: derselbe Umriss, versetzt, in der Linienfarbe */}
           <Svg width={size.w + SHADOW_X} height={size.h + SHADOW_Y} style={styles.bg} pointerEvents="none">
-            <Path d={d} fill={INK} transform={`translate(${SHADOW_X} ${SHADOW_Y})`} />
+            <Path d={d} fill={LINE} transform={`translate(${SHADOW_X} ${SHADOW_Y})`} />
           </Svg>
           <View style={[styles.clip, { width: size.w, height: size.h }]} pointerEvents="none">
             <Animated.View
@@ -199,7 +201,7 @@ export function RoutineCardSurface({ children, style, alive }: { children: React
               <Path d={wavePath(size.w, size.h, 7, size.h - 20, size.h - 13)} fill={WAVE_FRONT} />
             </G>
             {/* Kontur wie beim Kater */}
-            <Path d={d} fill="none" stroke={INK} strokeWidth={2.5} />
+            <Path d={d} fill="none" stroke={LINE} strokeWidth={2.5} />
           </Svg>
         </>
       ) : null}
@@ -208,14 +210,14 @@ export function RoutineCardSurface({ children, style, alive }: { children: React
   );
 }
 
-/** Lampe für einen erledigten Tag: flaches Grün mit Kontur, harter Schatten und Glanzstrich wie gezeichnet */
+/** Lampe für einen erledigten Tag: flaches Gelbgrün mit Kontur, harter Schatten und Glanzstrich wie gezeichnet */
 export function RoutineLamp() {
   const [w, setW] = useState(0);
   return (
     <View style={styles.lamp} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
       {w ? (
         <Svg width={w} height={LAMP_H} style={StyleSheet.absoluteFill} pointerEvents="none">
-          <Rect x={0.75} y={0.75} width={w - 1.5} height={LAMP_H - 1.5} rx={(LAMP_H - 1.5) / 2} fill={color.accent.confirmation} stroke={INK} strokeWidth={1.5} />
+          <Rect x={0.75} y={0.75} width={w - 1.5} height={LAMP_H - 1.5} rx={(LAMP_H - 1.5) / 2} fill={LAMP_FILL} stroke={LINE} strokeWidth={1.5} />
           <Rect x={5} y={2.5} width={Math.max(0, Math.min(w * 0.55 - 5, 24))} height={2} rx={1} fill="rgba(255,255,255,0.7)" />
         </Svg>
       ) : null}
@@ -224,6 +226,8 @@ export function RoutineLamp() {
 }
 
 const LAMP_H = 9;
+/** Gelbgrün des Kater-Avatars (Daria, 2026-11-12), vorher das Grün #89F269 */
+const LAMP_FILL = '#E4FF5F';
 
 const styles = StyleSheet.create({
   wrap: { position: 'relative', transformOrigin: 'top center' },
@@ -234,6 +238,6 @@ const styles = StyleSheet.create({
     height: LAMP_H,
     borderRadius: LAMP_H / 2,
     // Harter Schatten in der Linienfarbe, ohne Unschärfe
-    boxShadow: `0 2px 0 ${INK}`,
+    boxShadow: `0 2px 0 ${LINE}`,
   },
 });
