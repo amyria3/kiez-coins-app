@@ -106,7 +106,7 @@ export function CrosspostRow() {
                     accessibilityRole="button"
                     onPress={() => {
                       setOpen(false);
-                      router.push('/account/features');
+                      router.push({ pathname: '/account/features', params: { abschnitt: 'weiterposten' } });
                     }}
                   >
                     <Text style={styles.connect}>Verbinden</Text>
