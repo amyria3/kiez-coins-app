@@ -7,6 +7,7 @@ import { useStore } from '../../../data/store';
 import type { Challenge, ExtraPhoto, ImageSource, PhotoText } from '../../../data/types';
 import type { Participation } from '../../../data/remote';
 import { color } from '../../../theme/tokens';
+import { WaitForData } from '../../../components/WaitForData';
 
 // Entwurf einer neuen Challenge über beide Schritte und die Vorschau hinweg.
 // Mit `draftId` (z. B. aus „Deine Challenges“) startet der Flow mit einem gespeicherten Entwurf.
@@ -145,6 +146,16 @@ export const unstable_settings = { initialRouteName: 'step-1' };
 
 /** Flow „Challenge erstellen“: als Modal geöffnet, darin Schritte als Push. */
 export default function CreateLayout() {
+  const { draftId, copyOf } = useGlobalSearchParams<{ draftId?: string; copyOf?: string }>();
+  // Nur Entwurf oder Kopie brauchen geladene Daten, sonst startete ein Entwurf leer und Speichern legte ihn doppelt an
+  return (
+    <WaitForData title="Challenge erstellen" skip={!draftId && !copyOf}>
+      <CreateFlow />
+    </WaitForData>
+  );
+}
+
+function CreateFlow() {
   const { draftId, copyOf: copyId, title, text, photo, type, extras, privat, bildtext, seiten, schrift } = useGlobalSearchParams<{
     draftId?: string;
     copyOf?: string;

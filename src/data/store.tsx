@@ -36,6 +36,8 @@ type State = {
   groups: Group[];
   /** Von Dir blockierte Personen: ihre Challenges und Kommentare sind ausgeblendet */
   blockedIds: string[];
+  /** true, sobald die Daten frisch vom Server kommen (nicht nur aus dem Startspeicher). Formulare warten darauf. */
+  fresh: boolean;
 };
 
 type Action =
@@ -78,7 +80,8 @@ type Action =
   | { type: 'savePayout'; payout: Payout }
   | { type: 'setCurrentUser'; userId: string }
   | { type: 'setFeedState'; feedState: FeedState; error?: string }
-  | { type: 'loaded'; userId: string; data: remote.LiveData }
+  /** `fromCache`: Stand aus dem Startspeicher (data/startCache.ts), kann veraltet sein */
+  | { type: 'loaded'; userId: string; data: remote.LiveData; fromCache?: boolean }
   | { type: 'challengeLoaded'; id: string; challenge: Challenge | null; users: User[] }
   | { type: 'useSampleData' }
   | { type: 'edit'; id: string; edit: remote.ChallengeEdit }
@@ -149,6 +152,7 @@ const emptyLive = (profile: Profile): State => ({
   canOfferBounties: true,
   groups: [],
   blockedIds: [],
+  fresh: false,
 });
 
 function reducer(state: State, action: Action): State {
@@ -357,6 +361,7 @@ function reducer(state: State, action: Action): State {
         groups: action.data.groups,
         blockedIds: action.data.blockedIds,
         feedState: 'filled',
+        fresh: !action.fromCache,
       };
     case 'challengeLoaded': {
       const known = new Set(action.users.map((u) => u.id));
@@ -377,6 +382,7 @@ function reducer(state: State, action: Action): State {
         canOfferBounties: true,
         groups: sampleGroups,
         blockedIds: [],
+        fresh: true,
       };
   }
 }
@@ -499,7 +505,8 @@ async function persist(action: Action, before: State): Promise<string | null> {
 }
 
 type Store = State & {
-  dispatch: (action: Action) => void;
+  /** Ergebnis: true, wenn die Änderung gespeichert ist (Demo: sofort), false bei Fehler */
+  dispatch: (action: Action) => Promise<boolean>;
   /** Alles aus Supabase neu laden (live). */
   load: (userId: string) => Promise<void>;
   /** Neue Challenge anlegen. Gibt die ID zurück oder wirft mit einer lesbaren Meldung. */
@@ -551,8 +558,20 @@ const demoCode = () =>
 
 const StoreContext = createContext<Store | null>(null);
 
+/** Aktionen, die keine Feed-Daten ändern oder selbst frische Daten bringen. Alle anderen zählen als Änderung. */
+const PASSIVE_ACTIONS = new Set<Action['type']>(['loaded', 'setFeedState', 'challengeLoaded', 'updateProfile', 'setCurrentUser', 'useSampleData']);
+
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [state, localDispatch] = useReducer(reducer, sampleProfile, emptyLive);
+  const [state, rawDispatch] = useReducer(reducer, sampleProfile, emptyLive);
+  /** Zählt Änderungen an Feed-Daten. Ein laufendes Laden erkennt daran, dass sein Stand inzwischen veraltet ist. */
+  const changes = useRef(0);
+  /** Steigt beim Abmelden. Ergebnisse, die davor begonnen haben, gelten nicht mehr (auch nicht für den Startspeicher). */
+  const generation = useRef(0);
+  const localDispatch = useCallback((action: Action) => {
+    if (action.type === 'signOut' || action.type === 'deleteAccount') generation.current += 1;
+    else if (!PASSIVE_ACTIONS.has(action.type)) changes.current += 1;
+    rawDispatch(action);
+  }, []);
   const stateRef = useRef(state);
   stateRef.current = state;
   // Geschlecht aus dem Profil steuert die Texte an Dich (src/data/texts.ts)
@@ -563,37 +582,60 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   /** Warteschlange, damit z. B. „Erledigt melden“ vor „Zahlungsdaten freigeben“ ankommt. */
   const queue = useRef<Promise<void>>(Promise.resolve());
 
+  // Veraltete Ergebnisse verwerfen (Prüfung 12.11.2026): Ein Laden, das länger dauert als ein neueres, das über ein
+  // Abmelden hinweg läuft oder während dessen etwas geändert wurde (Herz, Blockieren, neuer Post), würde sonst einen
+  // älteren Stand über den neueren legen. Im letzten Fall lädt die App nach, sobald die Änderungen gespeichert sind.
+  const loadSeq = useRef(0);
+  const loadRef = useRef<(userId: string) => Promise<void>>(async () => {});
   const load = useCallback(async (userId: string) => {
+    const mine = ++loadSeq.current;
+    const gen = generation.current;
+    const changesBefore = changes.current;
+    const current = () => mine === loadSeq.current && gen === generation.current;
     try {
       const data = await remote.loadLiveData(userId);
+      if (!current()) return;
+      if (changes.current !== changesBefore) {
+        void queue.current.then(() => (current() ? loadRef.current(userId) : undefined));
+        return;
+      }
       localDispatch({ type: 'loaded', userId, data });
       saveCachedFeed(userId, data);
     } catch (error) {
+      if (!current()) return;
       const offline = /fetch|network/i.test((error as Error)?.message ?? '');
       localDispatch({ type: 'setFeedState', feedState: offline ? 'offline' : 'error', error: offline ? undefined : remote.errorDetail(error) });
     }
-  }, []);
+  }, [localDispatch]);
+  loadRef.current = load;
 
   const dispatch = useCallback(
     (action: Action) => {
       const before = stateRef.current;
       localDispatch(action);
       if (action.type === 'signOut' || action.type === 'deleteAccount') clearStartCache();
-      if (before.mode !== 'live' || !before.currentUserId) return;
-      queue.current = queue.current.then(async () => {
+      if (before.mode !== 'live' || !before.currentUserId) return Promise.resolve(true);
+      const gen = generation.current;
+      const done = queue.current.then(async () => {
         try {
           const changedId = await persist(action, before);
           if (changedId) {
             const { challenge, users } = await remote.loadChallenge(changedId, before.currentUserId);
             localDispatch({ type: 'challengeLoaded', id: changedId, challenge, users });
           }
+          return true;
         } catch (error) {
+          // Inzwischen abgemeldet: nichts mehr anzeigen und nicht die Daten der vorigen Person zurückholen
+          if (gen !== generation.current) return false;
           Alert.alert('Hat nicht geklappt', remote.errorText(error));
           await load(before.currentUserId);
+          return false;
         }
       });
+      queue.current = done.then(() => undefined);
+      return done;
     },
-    [load],
+    [load, localDispatch],
   );
 
   const createChallenge = useCallback(async (draft: remote.NewChallenge) => {
@@ -638,7 +680,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       throw new remote.ShownError(remote.errorText(error));
     }
-  }, []);
+  }, [localDispatch]);
 
   const saveDraft = useCallback(async (id: string | undefined, draft: remote.DraftInput) => {
     const s = stateRef.current;
@@ -679,7 +721,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       throw new remote.ShownError(remote.errorText(error));
     }
-  }, []);
+  }, [localDispatch]);
 
   const publishDraft = useCallback(
     async (id: string, draft: remote.DraftInput, deadline: string) => {
@@ -724,7 +766,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         throw new remote.ShownError(remote.errorText(error));
       }
     },
-    [saveDraft],
+    [saveDraft, localDispatch],
   );
 
   const groupApi = useMemo<GroupApi>(() => {
@@ -828,7 +870,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         return challenge.id;
       },
     };
-  }, [load]);
+  }, [load, localDispatch]);
 
   const unblock = useCallback(
     async (userId: string) => {
@@ -846,7 +888,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }
       await load(s.currentUserId);
     },
-    [load],
+    [load, localDispatch],
   );
 
   const beforeAfter = useMemo<BeforeAfterApi>(() => {
@@ -958,7 +1000,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         });
       },
     };
-  }, []);
+  }, [localDispatch]);
 
   const value = useMemo(
     () => ({ ...state, dispatch, load, createChallenge, saveDraft, publishDraft, groupApi, unblock, beforeAfter }),

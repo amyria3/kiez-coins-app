@@ -10,6 +10,7 @@ import { TypeSwitch } from '../../../components/compose/TypeSwitch';
 import { SubScreen } from '../../../components/Screen';
 import { useStore } from '../../../data/store';
 import { useGoBack } from '../../../lib/goBack';
+import { WaitForData } from '../../../components/WaitForData';
 
 /**
  * Route `groups/[id]/task`: Gruppenaufgabe mit 1 bis 10 Edensteinen. Foto optional, Ort nur in öffentlichen Gruppen.
@@ -19,6 +20,16 @@ import { useGoBack } from '../../../lib/goBack';
  * Dann gibt es nur We-Challenge und Bild: Vorher-Nachher hat einen eigenen Entwurf mit Timer.
  */
 export default function NewGroupTask() {
+  const { copyOf, draftId } = useLocalSearchParams<{ copyOf?: string; draftId?: string }>();
+  // Nur Entwurf oder Kopie brauchen geladene Daten, eine neue Aufgabe nicht
+  return (
+    <WaitForData title="We-Challenge erstellen" skip={!draftId && !copyOf}>
+      <NewGroupTaskForm />
+    </WaitForData>
+  );
+}
+
+function NewGroupTaskForm() {
   const { id, copyOf, draftId } = useLocalSearchParams<{ id: string; copyOf?: string; draftId?: string }>();
   const router = useRouter();
   const goBack = useGoBack();
