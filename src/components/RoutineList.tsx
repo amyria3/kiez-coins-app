@@ -11,7 +11,6 @@ import { dayName, goalText, katerFocus, katerLine, katerMood, weekdayShort, when
 import { addDays, capitalize, goalOf, isoWeekday, kindOf, loadRoutineDays, localDate, weekStart, type Reminder, type RoutineDays } from '../data/reminders';
 import { asSingleEvent, eventWhen, saveEvent, type ShowcaseEvent } from '../data/showcase';
 import { localeTag, t, useTexts } from '../data/texts';
-import { shareText } from '../lib/share';
 import { color, font, space } from '../theme/tokens';
 
 /**
@@ -144,7 +143,7 @@ function Group({ title, count, children }: { title: string; count: number; child
 type Mood = KaterMood;
 const moodOf = (r: Reminder) => katerMood(r);
 
-function Card({ bg, mood, share, children, onLongPress }: { bg: string; mood: Mood; share: string; children: ReactNode; onLongPress?: () => void }) {
+function Card({ bg, mood, children, onLongPress }: { bg: string; mood: Mood; children: ReactNode; onLongPress?: () => void }) {
   return (
     <Pressable
       onLongPress={onLongPress}
@@ -152,11 +151,6 @@ function Card({ bg, mood, share, children, onLongPress }: { bg: string; mood: Mo
       style={[styles.card, { backgroundColor: bg }]}
     >
       <View style={styles.cardTop}>
-        {/* Teilen über das Menü des Systems (Daria, 2026-11-12) */}
-        <Pressable onPress={() => shareText(share)} accessibilityRole="button" hitSlop={8} style={({ pressed }) => [styles.share, pressed && styles.pressed]}>
-          <Text style={styles.shareText}>Teilen</Text>
-        </Pressable>
-        <View style={styles.grow} />
         {/* Ring in der Farbe des Grunds (Daria, 2026-11-12) */}
         <View>
           <View style={styles.katerRing}>
@@ -184,7 +178,6 @@ function TaskCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDone: 
       bg={SENF}
       mood={moodOf(r)}
       onLongPress={onEnd}
-      share={goal > 1 ? t('Ich will {want}. Diese Woche: {done} von {goal}.', { want: r.want, done, goal }) : t('Ich will {want}.', { want: r.want })}
     >
       <Text style={styles.meta}>{r.onDate ? whenText(r) : goalText(r)}</Text>
       <Text noTranslate style={styles.title} numberOfLines={2}>
@@ -212,7 +205,7 @@ function TaskCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDone: 
 
 function TerminCard({ reminder: r, bg, onDone, onEnd }: { reminder: Reminder; bg: string; onDone: () => void; onEnd: () => void }) {
   return (
-    <Card bg={bg} mood={moodOf(r)} onLongPress={onEnd} share={`${capitalize(r.want)}, ${whenText(r)}`}>
+    <Card bg={bg} mood={moodOf(r)} onLongPress={onEnd}>
       <Text style={styles.meta}>{whenText(r)}</Text>
       <Text noTranslate style={styles.title} numberOfLines={2}>
         {capitalize(r.want)}
@@ -226,7 +219,7 @@ function TerminCard({ reminder: r, bg, onDone, onEnd }: { reminder: Reminder; bg
 function CalendarCard({ event: e }: { event: CalendarEvent }) {
   const when = `${dayName(eventDate(e))} ${e.allDay ? t('ganztägig') : t('um {time}', { time: eventTime(e.start) })}`;
   return (
-    <Card bg={OLIVE} mood="chillig" share={`${e.title}, ${when}`}>
+    <Card bg={OLIVE} mood="chillig">
       <Text style={styles.meta}>{when}</Text>
       <Text noTranslate style={styles.title} numberOfLines={2}>
         {e.title}
@@ -252,7 +245,7 @@ function SavedCard({ event: e, onChanged }: { event: Saved; onChanged: () => voi
     if (!ok) Alert.alert(t('Hat nicht geklappt'), t('Der Kalender ließ sich gerade nicht öffnen.'));
   };
   return (
-    <Card bg={PUDER} mood={e.cancelled ? 'enttäuscht' : 'neugierig'} share={[e.title, eventWhen(e), e.showcase, e.location].filter(Boolean).join(', ')}>
+    <Card bg={PUDER} mood={e.cancelled ? 'enttäuscht' : 'neugierig'}>
       <Text style={styles.meta}>{e.cancelled ? t('Abgesagt') : eventWhen(e)}</Text>
       <Text noTranslate style={[styles.title, e.cancelled && styles.struck]} numberOfLines={2}>
         {e.title}
@@ -494,9 +487,6 @@ function DayBar({
 }
 
 const styles = StyleSheet.create({
-  grow: { flex: 1 },
-  share: { borderRadius: 20, borderWidth: 1, borderColor: INK_TRACK, paddingHorizontal: 10, paddingVertical: 3, marginTop: 4, marginLeft: space[6] },
-  shareText: { fontFamily: font.medium, fontSize: 13, lineHeight: 17, color: INK },
   dayBar: { marginTop: space[4], fontFamily: font.regular, fontSize: 14, lineHeight: 19, color: color.text.secondary },
   group: { gap: space[12] },
   groupHead: {
@@ -529,7 +519,7 @@ const styles = StyleSheet.create({
   },
   cardTop: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'flex-start',
   },
   cardBody: { flex: 1, justifyContent: 'flex-end', gap: space[8] },
