@@ -18,7 +18,8 @@ export const scheme: 'dark' | 'light' = fashionable ? 'light' : 'dark';
 // Grund #232326 (Daria, 2026-11-05, neutral statt warm, vorher #191716), Karten #303034 eine Stufe heller, damit sie sich ohne Rand abheben.
 // Zweite Akzentfarbe Grün #89F269 statt #93F4A7.
 const kiezPalette = {
-  black: '#232326',
+  /** Grund: Grau mit leichtem Aubergine-Ton, passend zur Routine-Karte (Daria, 2026-11-12), vorher neutral #232326 */
+  black: '#252025',
   // Schrift in einem Ton (Daria, 2026-11-11): Puder, Farbton 342°. Haupt- und Nebenschrift unterscheiden sich nur
   // in Helligkeit und Sättigung, nicht im Farbton.
   /** Hauptschrift: helles Puder, H 342° S 60 % L 96 % (Daria, 2026-11-11). Vorher Creme #FFF8ED, davor #F3EEE8 */
