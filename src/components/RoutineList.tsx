@@ -109,7 +109,9 @@ function Group({ title, count, children }: { title: string; count: number; child
   // Breite der Spalte; im Browser ist die App schmaler als das Fenster
   const [width, setWidth] = useState(screen - GUTTER * 2);
   // Länglich, so breit es geht (Daria, 2026-11-12); die nächste Karte schaut rechts ein Stück herein
-  const cardWidth = Math.max(CARD_MIN, Math.min(CARD_MAX, width - 36));
+  const cards = (Array.isArray(children) ? children.flat() : [children]).filter(Boolean);
+  // Nur eine Karte: über die ganze Breite (Daria, 2026-11-12)
+  const cardWidth = cards.length === 1 ? width : Math.max(CARD_MIN, Math.min(CARD_MAX, width - 36));
   return (
     <View style={styles.group} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
       <View style={styles.groupHead}>
@@ -128,7 +130,7 @@ function Group({ title, count, children }: { title: string; count: number; child
         style={styles.rowScroll}
         contentContainerStyle={styles.row}
       >
-        {(Array.isArray(children) ? children.flat() : [children]).filter(Boolean).map((c, i) => (
+        {cards.map((c, i) => (
           <View key={i} style={{ width: cardWidth }}>
             {c}
           </View>
@@ -520,7 +522,8 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     minHeight: 260,
-    borderRadius: 16,
+    // Weniger rund (Daria, 2026-11-12): vorher 30, dann 16
+    borderRadius: 10,
     padding: 18,
     gap: space[8],
   },
