@@ -128,19 +128,9 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarP
       pointerEvents="box-none"
     >
       <View style={styles.bar} accessibilityRole="tablist">
-        <Pressable
-          accessibilityRole="tab"
-          accessibilityLabel={t('Feed')}
-          accessibilityState={{ selected: active === 'feed' }}
-          onPress={onFeedPress}
-          style={({ pressed }) => [styles.item, active === 'feed' && styles.itemActive, pressed && styles.pressed]}
-        >
-          <Icon name="feed" size={size.icon} color={active === 'feed' ? color.text.primary : color.text.secondary} />
-        </Pressable>
-        {/* Kamera auch in der Leiste, als blaue Pille wie oben rechts (Daria, 30.10.2026).
-            Nur im Feed als blaue Pille, dort etwas größer. In Nachrichten und „Was Du so machst“ schlicht wie Feed und Menü daneben:
+        {/* Kamera auch in der Leiste (Daria, 30.10.2026). Nur im Feed als Pille in hellem Olive (Daria, 2026-11-12, vorher Lila), dort etwas größer. In Nachrichten und „Was Du so machst“ schlicht wie Feed und Menü daneben:
             ohne Fläche, gleich breit, gedämpfte Farbe (Daria, 10.11.2026).
-            Sitzt zwischen Feed und Chats (Daria, 10.11.2026) */}
+            Sitzt ganz vorn, das Herz (Feed) kommt danach (Daria, 2026-11-12; vorher zwischen Feed und Chats) */}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('Challenge erstellen')}
@@ -153,8 +143,17 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarP
           <Icon
             name="camera"
             size={active === 'feed' ? CAMERA_ICON_FEED : size.icon}
-            color={active === 'feed' ? color.bg.screen : color.text.secondary}
+            color={active === 'feed' ? color.nav.onCreate : color.nav.icon}
           />
+        </Pressable>
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityLabel={t('Feed')}
+          accessibilityState={{ selected: active === 'feed' }}
+          onPress={onFeedPress}
+          style={({ pressed }) => [styles.item, active === 'feed' && styles.itemActive, pressed && styles.pressed]}
+        >
+          <Icon name="feed" size={size.icon} color={iconColor(active === 'feed')} />
         </Pressable>
         {/* Chat und Freund:innen (Daria, 22.10.2026) */}
         <Pressable
@@ -165,7 +164,7 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarP
           style={({ pressed }) => [styles.item, active === 'chat' && styles.itemActive, pressed && styles.pressed]}
         >
           <View>
-            <Icon name="message" size={size.icon} color={active === 'chat' ? color.text.primary : color.text.secondary} />
+            <Icon name="message" size={size.icon} color={iconColor(active === 'chat')} />
             {unread || requests ? <View style={styles.dot} /> : null}
           </View>
         </Pressable>
@@ -176,12 +175,15 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress }: TabBarP
           onPress={() => active !== 'menu' && onMenuPress()}
           style={({ pressed }) => [styles.item, active === 'menu' && styles.itemActive, pressed && styles.pressed]}
         >
-          <Icon name="burger" size={size.icon} color={active === 'menu' ? color.text.primary : color.text.secondary} />
+          <Icon name="burger" size={size.icon} color={iconColor(active === 'menu')} />
         </Pressable>
       </View>
     </View>
   );
 }
+
+/** Icons der Leiste im Kiez-Look: Creme, die aktive Seite Senf (Daria, 2026-11-12, vorher Puder und Grau-Puder) */
+const iconColor = (on: boolean) => (on ? color.nav.active : color.nav.icon);
 
 /** Kamera oben rechts: bleibt beim Scrollen stehen und erstellt eine Challenge. */
 /** `inline`: im Fluss statt oben rechts angeheftet, z. B. in der Vorschau der Tour */
@@ -219,7 +221,8 @@ const styles = StyleSheet.create({
     gap: space[6],
     padding: space[6],
     borderRadius: radius.full,
-    backgroundColor: color.bg.glass,
+    // Aubergine statt Grau (Daria, 2026-11-12), vorher color.bg.glass
+    backgroundColor: color.nav.bar,
     borderWidth: stroke.ultraThin,
     borderColor: color.line.hairline,
   },
@@ -231,9 +234,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   // Im Feed etwas größer als die Nachbarn (vorher 64 breit, Icon 20)
-  itemCamera: { width: 72, backgroundColor: color.accent.primary },
-  // Aktive Seite: transparentes Lila (Daria, 2026-11-11), vorher dezente helle Fläche. #8F90FA = accent.primary
-  itemActive: { backgroundColor: isFashionable ? 'transparent' : 'rgba(143, 144, 250, 0.28)' },
+  // Helles Olive statt Lila (Daria, 2026-11-12): Lila bleibt den Funktionen der App vorbehalten
+  itemCamera: { width: 72, backgroundColor: color.nav.create },
+  // Aktive Seite: graue Blase #303034 (Daria, 2026-11-12), vorher transparentes Lila
+  itemActive: { backgroundColor: color.nav.bubble },
   camera: {
     position: 'absolute',
     right: space[16],
@@ -284,6 +288,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: color.accent.signal,
     borderWidth: stroke.thin,
-    borderColor: color.bg.screen,
+    borderColor: color.nav.bar,
   },
 });
