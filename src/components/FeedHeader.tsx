@@ -634,7 +634,7 @@ const labelColor = (pos: Animated.Value | Animated.AnimatedInterpolation<number>
 export function PlannedHint({ title, message }: { title: string; message: string }) {
   return (
     <View style={styles.hint}>
-      <Notice message={`${t(title)}. ${t(message)}`} />
+      <Notice feed message={`${t(title)}. ${t(message)}`} />
     </View>
   );
 }
