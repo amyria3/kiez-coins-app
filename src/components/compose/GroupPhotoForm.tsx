@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Alert, StyleSheet } from 'react-native';
 
 import { useStore } from '../../data/store';
-import type { Challenge, ExtraPhoto, ImageSource } from '../../data/types';
+import type { Challenge, ExtraPhoto } from '../../data/types';
 import { color, text } from '../../theme/tokens';
 import { Button } from '../Button';
 import { FieldGroup } from '../Content';

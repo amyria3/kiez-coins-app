@@ -10,7 +10,6 @@ import { useStore } from '../data/store';
 import type { User } from '../data/types';
 import { color, font, radius, size, space, text, isFashionable } from '../theme/tokens';
 import { Icon } from './icons/Icon';
-import { t } from '../data/texts';
 
 /**
  * Ohne Kiez (keine grobe Verortung) bleiben Namen und Profilbilder anderer Personen verdeckt.

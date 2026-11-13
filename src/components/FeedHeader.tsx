@@ -5,7 +5,6 @@ import { Text } from './T';
 import { fitShape, SWITCH_KNOB, SWITCH_TRACK } from './handSwitch';
 import { Image } from 'expo-image';
 
-import { challengeTypes, isTypeActive } from '../data/features';
 import type { Challenge } from '../data/types';
 import { color, font, isFashionable, motion, radius, size, space, stroke, text } from '../theme/tokens';
 import { usePrivateSignal } from '../theme/signal';
