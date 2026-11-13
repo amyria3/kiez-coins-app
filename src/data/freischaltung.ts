@@ -20,6 +20,7 @@ export type FeatureKey =
   | 'schaufenster'
   | 'schaufenster_posten'
   | 'schaufenster_mehr'
+  | 'schaufenster_suche'
   | 'weiterposten'
   | 'bildkommentare'
   | 'ohne_wasserzeichen'
@@ -37,6 +38,8 @@ export const FEATURE_DEFAULTS: Record<FeatureKey, { name: string; defaultOn: boo
   // Hängen an der Gruppe, nicht an der Person (public.gruppen_feature, Migration 20261110001600); für alle an (Daria, 2026-11-10)
   schaufenster_posten: { name: 'Im Schaufenster posten', defaultOn: true },
   schaufenster_mehr: { name: 'Mehr Posts im Schaufenster', defaultOn: true },
+  // Suchfeld im Kiez- und Überall-Feed, findet öffentliche Schaufenster; für alle an (Daria, 2026-11-13)
+  schaufenster_suche: { name: 'Schaufenster suchen', defaultOn: true },
   weiterposten: { name: 'Weiterposten', defaultOn: true }, // für alle (Daria, 2026-11-09)
   bildkommentare: { name: 'Bildkommentare', defaultOn: true }, // für alle (Daria, 2026-11-10)
   // Bildpost teilen ohne Wasserzeichen und, wer das darf, auch ganz ohne Rahmen; im Moment für alle (Daria, 2026-11-10)
