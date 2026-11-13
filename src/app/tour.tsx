@@ -173,7 +173,7 @@ export default function Tour() {
                 </Text>
                 <SwitchRow
                   label="Bilder und Textposts"
-                  description="Posts ohne Challenge im Kiez-Feed und in „Überall“. Deine eigenen siehst Du immer."
+                  description="Posts ohne Challenge im Kiez-Feed und in „Überall“. Posten kannst Du Bilder und Texte trotzdem."
                   value={postsShown.kiez || postsShown.everywhere}
                   onValueChange={(v) => {
                     if (!currentUserId) return;
