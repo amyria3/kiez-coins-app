@@ -76,6 +76,9 @@ Bis 11.12.2027:
 
 - [ ] Schaufenster für Unternehmen, Vereine und Organisator:innen: öffentlich oder nur für Eingeladene, 10 neueste Posts und Termine sichtbar, höchstens 50 gespeichert, Termine zum Speichern, Us-Challenge, Weiterposten. Teil 1 gebaut am 10.11.2026 (nur Moderatorinnen), dazu `kiezcoins.de/schaufenster` ohne Social App und die öffentliche Seite `/s/<kurzname>`; Migrationen 400 bis 1000 eingespielt (Daria, 10.11.2026, von Claude geprüft); alle Schaufenster laufen erstmal als bezahlt (`20261110001000_schaufenster_bezahlt`). Stand und offene Punkte: `2026-11-10_offen_schaufenster.md`. Ersetzt den Feature-Wunsch „Feed, besonders für Kleinunternehmen und Vereine“ vom 09.11.2026.
 - [ ] Location (Daria, 10.11.2026): Ort des Schaufensters. Vor dem Bauen mit Daria klären, was dazugehört, z. B. Adresse antippen öffnet die Karten-App, kleine Karte im Schaufenster, Koordinaten (`showcases.lat`, `lng` gibt es schon) für die Liste im Kiez, den Umkreis und Suchmaschinen.
+- [ ] **Pflicht für Daria:** Migration `supabase/migrations/20261113000400_schaufenster_suche.sql` im Supabase SQL Editor ausführen (Schaufenster-Suche im Feed, 13.11.2026). Bis dahin sucht die App direkt in den Kopfdaten: Der Kiez-Feed findet dann nur über den Kiez-Namen, nicht über die 5 km.
+- [ ] Später (Daria, 13.11.2026): Schaufenster-Suche im Überall-Feed nach Entfernung sortieren (im Moment nach Name).
+- [ ] Später (Daria, 13.11.2026): Schaufenster in anderen Gegenden suchen (eigene Funktion, Gebiet wählen).
 
 ## Erinnerungen (Daria, 07.11.2026)
 
