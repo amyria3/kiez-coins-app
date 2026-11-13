@@ -92,7 +92,7 @@ export const tourSteps: TourStep[] = [
     key: 'kalender',
     feature: 'routine',
     title: 'Routine: Dein Kalender mit Aufgaben und Terminen',
-    text: 'Trag ein, was Du vorhast, einmalig oder jede Woche. Der Kater erinnert Dich. Geschafft? Tippe auf „Erledigt“ oder wische die Karte nach rechts. Klappt es nicht, tippe auf „Aufgeben“. Wischen nach links bricht ab. Alles zählt im Kalender. Du findest die Routine links im Umschalter unter „Me & Myself“.',
+    text: 'Trag ein, was Du vorhast, einmalig oder jede Woche. Der Kater erinnert Dich. Geschafft? Tippe auf „Erledigt“ oder halte die Karte und zieh sie nach rechts. Klappt es nicht, tippe auf „Aufgeben“. Nach links ziehen bricht ab, nach oben schiebt sie auf später. Alles zählt im Kalender. Du findest die Routine links im Umschalter unter „Me & Myself“.',
   },
   {
     key: 'schaufenster',

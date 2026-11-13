@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-import { Alert, Animated, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { AccessibilityInfo, Alert, Animated, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { markCardSwipe } from '../lib/cardSwipe';
 import Svg, { Defs, Line, Path, Pattern, Rect } from 'react-native-svg';
 
@@ -11,7 +12,7 @@ import { ManageButton } from './ShowcaseManage';
 import { Text } from './T';
 import { addToMyCalendar, eventDate, eventTime, type CalendarEvent } from '../data/calendar';
 import { dayName, goalText, katerFocus, katerLine, katerMood, weekdayShort, whenText, type KaterMood } from '../data/katerRoutine';
-import { addDays, capitalize, goalOf, isoWeekday, kindOf, loadRoutineDays, localDate, weekStart, type Reminder, type ReminderEnd, type RoutineDays } from '../data/reminders';
+import { addDays, capitalize, dueAt, goalOf, isoWeekday, kindOf, loadRoutineDays, localDate, weekStart, type Reminder, type ReminderEnd, type RoutineDays } from '../data/reminders';
 import { asSingleEvent, eventWhen, saveEvent, type ShowcaseEvent } from '../data/showcase';
 import { localeTag, t, useTexts } from '../data/texts';
 import { color, font, radius, space, text } from '../theme/tokens';
@@ -51,6 +52,7 @@ export function RoutineList({
   onEdit,
   onCopy,
   onChanged,
+  onDragLock,
 }: {
   list: Reminder[];
   events: CalendarEvent[];
@@ -64,31 +66,38 @@ export function RoutineList({
   /** Kopie über „Neue Erinnerung“, vorausgefüllt (Daria, 2026-11-13) */
   onCopy: (r: Reminder) => void;
   onChanged: () => void;
+  /** Karte angehoben: Seite nicht scrollen (Daria, 2026-11-13) */
+  onDragLock?: (on: boolean) => void;
 }) {
   const focus = list.length ? katerFocus(list) : undefined;
+  const now = useNow();
+  const { later, snooze } = useLater();
+  // Sortiert nach Dringlichkeit (Daria, 2026-11-13): fällige nach Uhrzeit, dann ohne Uhrzeit, dann „später“, Erledigte zuletzt
+  const sorted = sortByUrgency(list, now, later);
+  const urgentOf = (r: Reminder) => isUrgent(r, now, later);
   // Aufgaben: wiederkehrende und einmalige „bis“; Termine: einmalige „um“ (Daria, 2026-11-10)
-  const tasks = list.filter((r) => kindOf(r) !== 'termin');
-  const termine = list.filter((r) => kindOf(r) === 'termin');
+  const tasks = sorted.filter((r) => kindOf(r) !== 'termin');
+  const termine = sorted.filter((r) => kindOf(r) === 'termin');
   const fixed = termine.filter((r) => r.required !== false);
   const optional = termine.filter((r) => r.required === false);
   const calendar = events.slice(0, 20);
 
   return (
-    <>
+    <PageLock.Provider value={onDragLock ?? noLock}>
       {/* Kater spricht wie im Feed als Sprechblase (Daria, 2026-11-11) */}
       {focus ? <KaterCard>{katerLine(focus)}</KaterCard> : null}
       <RoutineCalendar list={list} events={events} saved={saved} />
       {tasks.length ? (
         <Group title="Aufgaben" count={tasks.length}>
           {tasks.map((r) => (
-            <TaskCard key={r.id} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} />
+            <TaskCard key={r.id} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} />
           ))}
         </Group>
       ) : null}
       {fixed.length || calendar.length ? (
         <Group title="Feste Termine" count={fixed.length + calendar.length}>
           {fixed.map((r) => (
-            <TerminCard key={r.id} reminder={r} bg={OLIVE} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} />
+            <TerminCard key={r.id} reminder={r} bg={OLIVE} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} />
           ))}
           {calendar.map((e) => (
             <CalendarCard key={e.id} event={e} />
@@ -98,7 +107,7 @@ export function RoutineList({
       {optional.length || saved.length ? (
         <Group title="Das hast Du Dir vorgemerkt" count={optional.length + saved.length}>
           {optional.map((r) => (
-            <TerminCard key={r.id} reminder={r} bg={PUDER} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} />
+            <TerminCard key={r.id} reminder={r} bg={PUDER} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} />
           ))}
           {saved.map((e) => (
             <SavedCard key={e.id} event={e} onChanged={onChanged} />
@@ -108,21 +117,104 @@ export function RoutineList({
       <View style={styles.create}>
         <Button label="Neue Erinnerung" icon="plus" onPress={onNew} />
       </View>
-    </>
+    </PageLock.Provider>
   );
 }
 
+const noLock = () => {};
+
+/** Uhrzeit für Dringlichkeit und Sortierung; jede Minute neu */
+function useNow(): Date {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+  return now;
+}
+
 /**
- * Wischen auf der Karte (Daria, 2026-11-13): nach rechts erledigt, nach links abbrechen. Geht nur, wenn die Gruppe
- * eine einzige Karte hat. Bei mehreren Karten blättert seitliches Wischen durch die Karten (Daria, 2026-11-12).
+ * „Später“ (Daria, 2026-11-13): Karte nach oben ziehen schiebt sie für eine Stunde ans Ende ihrer Gruppe, und sie
+ * wackelt so lange nicht. Gilt nur auf diesem Gerät.
  */
-const SWIPE_AT = 88;
-/** Einzige Karte ihrer Gruppe: Dann gehört seitliches Wischen der Karte */
-const Alone = createContext(false);
+const LATER_KEY = 'routine-spaeter';
+const LATER_MS = 60 * 60 * 1000;
+function useLater() {
+  const [later, setLater] = useState<Record<string, number>>({});
+  useEffect(() => {
+    AsyncStorage.getItem(LATER_KEY).then(
+      (v) => v && setLater(JSON.parse(v) as Record<string, number>),
+      () => {},
+    );
+  }, []);
+  const snooze = (id: string) =>
+    setLater((all) => {
+      const next = Object.fromEntries(Object.entries(all).filter(([, until]) => until > Date.now()));
+      next[id] = Date.now() + LATER_MS;
+      AsyncStorage.setItem(LATER_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  return { later, snooze };
+}
+
+const restingOf = (r: Reminder) => r.doneToday || (!r.onDate && r.doneThisWeek >= goalOf(r));
+const isLater = (r: Reminder, now: Date, later: Record<string, number>) => (later[r.id] ?? 0) > now.getTime();
+
+/** Dringend (Daria, 2026-11-13): offen, nicht „später“ und in höchstens einer Stunde fällig oder schon vorbei */
+function isUrgent(r: Reminder, now: Date, later: Record<string, number>): boolean {
+  if (restingOf(r) || isLater(r, now, later)) return false;
+  const due = dueAt(r, now);
+  return !!due && due.getTime() - now.getTime() <= 60 * 60 * 1000;
+}
+
+function sortByUrgency(list: Reminder[], now: Date, later: Record<string, number>): Reminder[] {
+  const rank = (r: Reminder) => (restingOf(r) ? 3 : isLater(r, now, later) ? 2 : dueAt(r, now) ? 0 : 1);
+  const time = (r: Reminder) => dueAt(r, now)?.getTime() ?? 0;
+  return [...list].sort((a, b) => rank(a) - rank(b) || time(a) - time(b));
+}
+
+/**
+ * Karten anheben und ziehen (Daria, 2026-11-13): Kurz halten hebt die Karte an wie einen Zettel. Dann nach rechts
+ * ziehen erledigt, nach links abbrechen, nach oben später. Normales Wischen blättert weiter durch die Karten.
+ * Vorher ging Wischen nur bei der einzigen Karte einer Gruppe, und langes Drücken brach ab.
+ */
+const DRAG_AT = 88;
+const LIFT_MS = 350;
+/** Solange eine Karte angehoben ist, scrollen weder die Reihe noch die Seite */
+const DragLock = createContext<(on: boolean) => void>(() => {});
+const PageLock = createContext<(on: boolean) => void>(() => {});
+
+/** Leichte, unregelmäßige Schräge je Karte (Daria, 2026-11-13); fest an der id, damit nichts springt */
+const TILTS = [-1.4, 0.9, -0.5, 1.6, -1.1, 0.4, 1.2, -0.8];
+function tiltOf(key: string): number {
+  let h = 0;
+  for (const c of key) h = (h * 31 + c.charCodeAt(0)) | 0;
+  return TILTS[Math.abs(h) % TILTS.length];
+}
+
+/** Wer in den Systemeinstellungen weniger Bewegung wählt, bekommt kein Wackeln */
+function useReduceMotion(): boolean {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduce, () => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => sub.remove();
+  }, []);
+  return reduce;
+}
 
 /** Überschrift mit Anzahl, darunter die Karten nebeneinander zum Wischen */
 function Group({ title, count, children }: { title: string; count: number; children: ReactNode }) {
   const { width: screen } = useWindowDimensions();
+  const page = useContext(PageLock);
+  const [locked, setLocked] = useState(false);
+  const lock = useCallback(
+    (on: boolean) => {
+      setLocked(on);
+      page(on);
+    },
+    [page],
+  );
   // Breite der Spalte; im Browser ist die App schmaler als das Fenster
   const [width, setWidth] = useState(screen - GUTTER * 2);
   // Länglich, so breit es geht (Daria, 2026-11-12); die nächste Karte schaut rechts ein Stück herein
@@ -141,21 +233,23 @@ function Group({ title, count, children }: { title: string; count: number; child
       </View>
       {/* Seitliches Wischen hier bewegt nur die Karten, nicht die Reiter im Feed (Daria, 2026-11-12) */}
       <View onStartShouldSetResponderCapture={markCardSwipe}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        scrollEnabled={cards.length > 1}
-        snapToInterval={cardWidth + space[12]}
-        decelerationRate="fast"
-        style={styles.rowScroll}
-        contentContainerStyle={styles.row}
-      >
-        {cards.map((c, i) => (
-          <View key={i} style={{ width: cardWidth }}>
-            <Alone.Provider value={cards.length === 1}>{c}</Alone.Provider>
-          </View>
-        ))}
-      </ScrollView>
+        <DragLock.Provider value={lock}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            scrollEnabled={cards.length > 1 && !locked}
+            snapToInterval={cardWidth + space[12]}
+            decelerationRate="fast"
+            style={styles.rowScroll}
+            contentContainerStyle={styles.row}
+          >
+            {cards.map((c, i) => (
+              <View key={i} style={{ width: cardWidth }}>
+                {c}
+              </View>
+            ))}
+          </ScrollView>
+        </DragLock.Provider>
       </View>
     </View>
   );
@@ -171,33 +265,88 @@ const moodOf = (r: Reminder) => katerMood(r);
  */
 const SIDE_BY_SIDE = 0;
 
-/** Karte folgt dem Finger; ab `SWIPE_AT` löst das Loslassen aus. Nur für die einzige Karte einer Gruppe. */
-function useSwipe(onRight?: () => void, onLeft?: () => void) {
-  const alone = useContext(Alone);
-  const x = useRef(new Animated.Value(0)).current;
-  const now = useRef({ on: false, onRight, onLeft });
+type DragActions = { right?: () => void; left?: () => void; up?: () => void };
+
+/** Anheben nach kurzem Halten, dann folgt die Karte dem Finger; ab `DRAG_AT` löst das Loslassen aus */
+function useLiftDrag(actions: DragActions) {
+  const lock = useContext(DragLock);
+  const native = Platform.OS !== 'web';
+  const pos = useRef(new Animated.ValueXY()).current;
+  const lift = useRef(new Animated.Value(0)).current;
+  const [lifted, setLifted] = useState(false);
+  const state = useRef({ lifted: false, dragging: false, skipPress: false, timer: null as ReturnType<typeof setTimeout> | null });
+  const now = useRef(actions);
   useEffect(() => {
-    now.current = { on: alone && !!(onRight || onLeft), onRight, onLeft };
+    now.current = actions;
   });
+  const on = !!(actions.right || actions.left || actions.up);
+
+  const drop = () => {
+    state.current.lifted = false;
+    setLifted(false);
+    lock(false);
+    Animated.parallel([
+      Animated.spring(pos, { toValue: { x: 0, y: 0 }, useNativeDriver: native, bounciness: 4 }),
+      Animated.spring(lift, { toValue: 0, useNativeDriver: native, bounciness: 4 }),
+    ]).start();
+  };
+  const pressIn = () => {
+    if (!on) return;
+    state.current.timer = setTimeout(() => {
+      state.current.lifted = true;
+      setLifted(true);
+      lock(true);
+      Animated.spring(lift, { toValue: 1, useNativeDriver: native, bounciness: 6 }).start();
+    }, LIFT_MS);
+  };
+  const pressOut = () => {
+    if (state.current.timer) clearTimeout(state.current.timer);
+    state.current.timer = null;
+    // Angehoben und ohne Ziehen losgelassen: wieder ablegen, ohne dass das Tippen zählt
+    if (state.current.lifted && !state.current.dragging) {
+      state.current.skipPress = true;
+      drop();
+    }
+  };
+  /** Tippen nach dem Ablegen nicht als Tippen werten */
+  const press = (onPress?: () => void) => () => {
+    if (state.current.skipPress) {
+      state.current.skipPress = false;
+      return;
+    }
+    onPress?.();
+  };
   const pan = useRef(
     PanResponder.create({
-      onMoveShouldSetPanResponder: (_e, g) => now.current.on && Math.abs(g.dx) > 12 && Math.abs(g.dx) > Math.abs(g.dy) * 2,
+      onMoveShouldSetPanResponderCapture: () => {
+        if (!state.current.lifted) return false;
+        state.current.dragging = true;
+        return true;
+      },
+      onPanResponderTerminationRequest: () => false,
       onPanResponderMove: (_e, g) => {
-        // Ohne Ziel in dieser Richtung gibt die Karte nur wenig nach
-        const free = g.dx > 0 ? now.current.onRight : now.current.onLeft;
-        x.setValue(free ? g.dx : g.dx / 6);
+        const a = now.current;
+        // Ohne Ziel in dieser Richtung gibt die Karte nur wenig nach; nach oben nur ein Stück, sonst schneidet die Reihe ab
+        const x = (g.dx > 0 ? a.right : a.left) ? g.dx : g.dx / 6;
+        const y = g.dy < 0 && a.up ? g.dy * 0.4 : g.dy / 6;
+        pos.setValue({ x, y });
       },
       onPanResponderRelease: (_e, g) => {
-        Animated.spring(x, { toValue: 0, useNativeDriver: Platform.OS !== 'web', bounciness: 4 }).start();
-        if (g.dx >= SWIPE_AT) now.current.onRight?.();
-        else if (g.dx <= -SWIPE_AT) now.current.onLeft?.();
+        state.current.dragging = false;
+        const a = now.current;
+        drop();
+        const across = Math.abs(g.dx) >= Math.abs(g.dy);
+        if (across && g.dx >= DRAG_AT) a.right?.();
+        else if (across && g.dx <= -DRAG_AT) a.left?.();
+        else if (!across && g.dy <= -DRAG_AT) a.up?.();
       },
       onPanResponderTerminate: () => {
-        Animated.spring(x, { toValue: 0, useNativeDriver: Platform.OS !== 'web', bounciness: 4 }).start();
+        state.current.dragging = false;
+        drop();
       },
     }),
   ).current;
-  return { x, handlers: pan.panHandlers, on: alone && !!(onRight || onLeft) };
+  return { on, pos, lift, lifted, pressIn, pressOut, press, handlers: pan.panHandlers };
 }
 
 function Card({
@@ -205,28 +354,54 @@ function Card({
   mood,
   head,
   children,
+  tiltKey,
+  urgent = false,
   onPress,
   pressHint,
-  onLongPress,
-  longPressHint = 'Lange drücken zum Beenden',
-  onSwipeRight,
-  onSwipeLeft,
+  onDragRight,
+  onDragLeft,
+  onDragUp,
 }: {
   bg: string;
   mood: Mood;
   head: ReactNode;
   children?: ReactNode;
+  /** Für die feste Schräge, meist die id */
+  tiltKey: string;
+  /** Dringend (fällig in einer Stunde oder vorbei): wackelt alle paar Sekunden kurz (Daria, 2026-11-13) */
+  urgent?: boolean;
   /** Tippen auf die Karte, z. B. erledigte Karte öffnet ihr Menü (Daria, 2026-11-13) */
   onPress?: () => void;
   pressHint?: string;
-  onLongPress?: () => void;
-  longPressHint?: string;
-  /** Wischen nach rechts: erledigt; nach links: abbrechen (Daria, 2026-11-13) */
-  onSwipeRight?: () => void;
-  onSwipeLeft?: () => void;
+  /** Angehoben ziehen: rechts erledigt, links abbrechen, oben später (Daria, 2026-11-13) */
+  onDragRight?: () => void;
+  onDragLeft?: () => void;
+  onDragUp?: () => void;
 }) {
   const [wide, setWide] = useState(false);
-  const swipe = useSwipe(onSwipeRight, onSwipeLeft);
+  const drag = useLiftDrag({ right: onDragRight, left: onDragLeft, up: onDragUp });
+  const reduce = useReduceMotion();
+  const native = Platform.OS !== 'web';
+  const wobble = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (!urgent || reduce) return;
+    const to = (v: number) => Animated.timing(wobble, { toValue: v, duration: 70, useNativeDriver: native });
+    const loop = Animated.loop(Animated.sequence([to(1), to(-1), to(0.7), to(-0.5), to(0), Animated.delay(2800)]));
+    loop.start();
+    return () => {
+      loop.stop();
+      wobble.setValue(0);
+    };
+  }, [urgent, reduce, native, wobble]);
+  const tilt = tiltOf(tiltKey);
+  // Schräge, beim Anheben etwas mehr, beim Wackeln ±2,5°, beim Ziehen neigt sie sich mit
+  const degrees = Animated.add(
+    drag.lift.interpolate({ inputRange: [0, 1], outputRange: [tilt, tilt + (tilt >= 0 ? 1.5 : -1.5)] }),
+    Animated.add(Animated.multiply(wobble, 2.5), Animated.multiply(drag.pos.x, 0.04)),
+  );
+  const rotate = degrees.interpolate({ inputRange: [-90, 90], outputRange: ['-90deg', '90deg'] });
+  const scale = drag.lift.interpolate({ inputRange: [0, 1], outputRange: [1, 1.04] });
+
   const kater = (
     // Ring in der Farbe des Grunds (Daria, 2026-11-12)
     <View style={wide && styles.katerSide}>
@@ -243,11 +418,12 @@ function Card({
   );
   const card = (
     <Pressable
-      onPress={onPress}
-      onLongPress={onLongPress}
+      onPress={drag.press(onPress)}
+      onPressIn={drag.pressIn}
+      onPressOut={drag.pressOut}
       onLayout={(e) => setWide(e.nativeEvent.layout.width >= SIDE_BY_SIDE)}
-      accessibilityHint={pressHint ? t(pressHint) : onLongPress ? t(longPressHint) : undefined}
-      style={[styles.card, !wide && styles.cardTall, { backgroundColor: bg }]}
+      accessibilityHint={pressHint ? t(pressHint) : drag.on ? t('Halten und ziehen: rechts erledigt, links abbrechen, oben später') : undefined}
+      style={[styles.card, !wide && styles.cardTall, drag.lifted && styles.cardLifted, { backgroundColor: bg }]}
     >
       {wide ? null : <View style={styles.cardTop}>{kater}</View>}
       <View style={styles.cardBody}>
@@ -263,32 +439,35 @@ function Card({
       </View>
     </Pressable>
   );
-  if (!swipe.on) return card;
   return (
-    <View style={styles.swipe}>
-      {/* Was das Wischen auslöst, steht hinter der Karte und erscheint beim Ziehen */}
-      <View style={styles.swipeHints} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        <Animated.View style={{ opacity: swipe.x.interpolate({ inputRange: [0, SWIPE_AT], outputRange: [0, 1], extrapolate: 'clamp' }) }}>
-          {onSwipeRight ? <Text style={styles.swipeHint}>Erledigt</Text> : null}
-        </Animated.View>
-        <Animated.View style={{ opacity: swipe.x.interpolate({ inputRange: [-SWIPE_AT, 0], outputRange: [1, 0], extrapolate: 'clamp' }) }}>
-          {onSwipeLeft ? <Text style={styles.swipeHint}>Abbrechen</Text> : null}
-        </Animated.View>
-      </View>
-      <Animated.View style={[styles.swipe, { transform: [{ translateX: swipe.x }] }]} {...swipe.handlers}>
+    <View style={[styles.swipe, drag.lifted && styles.swipeLifted]}>
+      {/* Was das Ziehen auslöst, steht hinter der Karte und erscheint beim Ziehen */}
+      {drag.on ? (
+        <View style={styles.swipeHints} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          <Animated.View style={{ opacity: drag.pos.x.interpolate({ inputRange: [0, DRAG_AT], outputRange: [0, 1], extrapolate: 'clamp' }) }}>
+            {onDragRight ? <Text style={styles.swipeHint}>Erledigt</Text> : null}
+          </Animated.View>
+          <Animated.View style={[styles.swipeHintUp, { opacity: drag.pos.y.interpolate({ inputRange: [-DRAG_AT * 0.4, 0], outputRange: [1, 0], extrapolate: 'clamp' }) }]}>
+            {onDragUp ? <Text style={styles.swipeHint}>Später</Text> : null}
+          </Animated.View>
+          <Animated.View style={{ opacity: drag.pos.x.interpolate({ inputRange: [-DRAG_AT, 0], outputRange: [1, 0], extrapolate: 'clamp' }) }}>
+            {onDragLeft ? <Text style={styles.swipeHint}>Abbrechen</Text> : null}
+          </Animated.View>
+        </View>
+      ) : null}
+      <Animated.View
+        style={[styles.swipe, { transform: [{ translateX: drag.pos.x }, { translateY: drag.pos.y }, { rotate }, { scale }] }]}
+        {...drag.handlers}
+      >
         {card}
       </Animated.View>
     </View>
   );
 }
 
-/** Auch in der Tour (TourDemo), dort mit Beispieldaten und als einzelne Karte zum Wischen */
+/** Auch in der Tour (TourDemo), dort mit Beispieldaten */
 export function DemoTaskCard(props: { reminder: Reminder; onDone: () => void; onGiveUp: () => void; onCancel: () => void; onEdit?: () => void }) {
-  return (
-    <Alone.Provider value>
-      <TaskCard {...props} />
-    </Alone.Provider>
-  );
+  return <TaskCard {...props} />;
 }
 
 function TaskCard({
@@ -299,6 +478,8 @@ function TaskCard({
   onEdit,
   onCopy,
   onDelete,
+  onLater,
+  urgent,
 }: {
   reminder: Reminder;
   onDone: () => void;
@@ -307,6 +488,8 @@ function TaskCard({
   onEdit?: () => void;
   onCopy?: () => void;
   onDelete?: () => void;
+  onLater?: () => void;
+  urgent?: boolean;
 }) {
   const goal = goalOf(r);
   const done = Math.min(r.doneThisWeek, goal);
@@ -322,10 +505,11 @@ function TaskCard({
       mood={moodOf(r)}
       onPress={resting ? () => menu.current?.() : undefined}
       pressHint={resting ? 'Öffnet das Menü' : undefined}
-      onLongPress={onCancel}
-      longPressHint="Lange drücken zum Abbrechen"
-      onSwipeRight={resting ? undefined : onDone}
-      onSwipeLeft={onCancel}
+      tiltKey={r.id}
+      urgent={urgent}
+      onDragRight={resting ? undefined : onDone}
+      onDragLeft={onCancel}
+      onDragUp={resting ? undefined : onLater}
       head={<CardHead meta={r.onDate ? whenText(r) : goalText(r)} title={capitalize(r.want)} onEdit={onEdit} />}
     >
       <ReminderExtrasRow place={r.place} phone={r.phone} link={r.link} ink={INK} />
@@ -376,6 +560,8 @@ function TerminCard({
   onEdit,
   onCopy,
   onDelete,
+  onLater,
+  urgent,
 }: {
   reminder: Reminder;
   bg: string;
@@ -384,6 +570,8 @@ function TerminCard({
   onEdit: () => void;
   onCopy?: () => void;
   onDelete?: () => void;
+  onLater?: () => void;
+  urgent?: boolean;
 }) {
   // Jede Karte mit „•••“ und „Bearbeiten“, auch feste Termine (Daria, 2026-11-13); erledigt auch Kopie und Löschen
   const closed = r.doneToday ? closedItems(onCopy, onDelete) : { copy: [], remove: [] };
@@ -403,7 +591,11 @@ function TerminCard({
       mood={moodOf(r)}
       onPress={r.doneToday ? () => menu.current?.() : undefined}
       pressHint={r.doneToday ? 'Öffnet das Menü' : undefined}
-      onLongPress={onEnd}
+      tiltKey={r.id}
+      urgent={urgent}
+      onDragRight={r.doneToday ? undefined : onDone}
+      onDragLeft={onEnd}
+      onDragUp={r.doneToday ? undefined : onLater}
       head={<CardHead meta={whenText(r)} title={capitalize(r.want)} onEdit={onEdit} />}>
       <ReminderExtrasRow place={r.place} phone={r.phone} link={r.link} ink={INK} />
       {r.doneToday ? (
@@ -454,6 +646,7 @@ function CalendarCard({ event: e }: { event: CalendarEvent }) {
   return (
     <Card
       bg={OLIVE}
+      tiltKey={e.id}
       mood="chillig"
       head={
         <>
@@ -487,6 +680,7 @@ function SavedCard({ event: e, onChanged }: { event: Saved; onChanged: () => voi
   return (
     <Card
       bg={PUDER}
+      tiltKey={`s${e.id}`}
       mood={e.cancelled ? 'enttäuscht' : 'neugierig'}
       head={
         <>
@@ -741,8 +935,9 @@ const styles = StyleSheet.create({
     ...text.bodyLarge,
     color: color.text.secondary,
   },
-  rowScroll: { marginHorizontal: -GUTTER },
-  row: { paddingHorizontal: GUTTER, gap: space[12] },
+  // Platz für Schräge und Anheben: Reihe bekommt oben und unten Luft, ohne dass sich der Abstand ändert
+  rowScroll: { marginHorizontal: -GUTTER, marginVertical: -space[12], overflow: 'visible' },
+  row: { paddingHorizontal: GUTTER, paddingVertical: space[12], gap: space[12] },
   card: {
     flex: 1,
     // Weniger rund (Daria, 2026-11-12): vorher 30, dann 16, jetzt Maß aller Karten (2026-11-13)
@@ -814,6 +1009,16 @@ const styles = StyleSheet.create({
   more: { marginLeft: 'auto' },
   // Im Browser markiert Ziehen mit der Maus sonst den Text, und die Karte bleibt stehen
   swipe: { flex: 1, userSelect: 'none' },
+  // Angehoben liegt die Karte über den anderen
+  swipeLifted: { zIndex: 2, elevation: 8 },
+  cardLifted: {
+    shadowColor: '#000',
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 8,
+  },
+  swipeHintUp: { position: 'absolute', left: 0, right: 0, bottom: space[12], alignItems: 'center' },
   swipeHints: {
     position: 'absolute',
     top: 0,

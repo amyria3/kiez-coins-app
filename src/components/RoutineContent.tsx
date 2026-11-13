@@ -40,6 +40,8 @@ export function RoutineContent({
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   // Gespeicherte Termine aus Schaufenstern (Daria, 2026-11-10); Änderungen und Absagen kommen hier an
   const [saved, setSaved] = useState<(ShowcaseEvent & { showcase: string })[]>([]);
+  // Angehobene Karte: Die Seite scrollt nicht, damit Ziehen nach oben „später“ bedeutet (Daria, 2026-11-13)
+  const [dragging, setDragging] = useState(false);
   const { currentUserId } = useStore();
   // Kalender aus (Einstellungen › Kalender, Daria, 2026-11-10): keine Termine aus Deinen Kalendern
   const calendarOn = useCalendarEnabled();
@@ -95,7 +97,11 @@ export function RoutineContent({
           />
         </ScrollView>
       ) : flat ? (
-        <ScrollView onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.content, styles.contentFlat, { paddingTop: topPad, paddingBottom: 0 }]}>
+        <ScrollView
+          scrollEnabled={!dragging}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+          contentContainerStyle={[styles.content, styles.contentFlat, { paddingTop: topPad, paddingBottom: 0 }]}>
           <RoutineList
             list={list}
             events={events}
@@ -106,6 +112,7 @@ export function RoutineContent({
             onEdit={(r) => router.push({ pathname: '/routine/bearbeiten', params: { id: r.id } })}
             onCopy={(r) => router.push({ pathname: '/routine/new', params: { von: r.id } })}
             onChanged={reload}
+            onDragLock={setDragging}
           />
           {/* Platz unter „Neue Erinnerung“ als eigenes Element statt Polsterung: Safari ließ die Polsterung unten in
               der scrollbaren Fläche weg, der Button lag hinter der Leiste (Daria, 2026-11-13) */}
