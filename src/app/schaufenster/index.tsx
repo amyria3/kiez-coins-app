@@ -4,9 +4,10 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { Explanation, Notice, QuestionHint } from '../../components/Content';
+import { Explanation, FieldGroup, Notice, QuestionHint } from '../../components/Content';
 import { CopyField, SwitchRow, TextField } from '../../components/Form';
 import { NavigationBar } from '../../components/NavigationBar';
+import { NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { Text } from '../../components/T';
 import { useAuth } from '../../data/auth';
@@ -323,37 +324,45 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
             }
           />
           {s.cover ? <Image source={s.cover} style={styles.cover} contentFit="cover" /> : null}
-          {s.visibility === 'public' ? <CopyField label="Deine Seite" value={showcasePublicLink(s.slug)} /> : null}
           {!s.switches.online ? <Notice variant="warning" message="Dieses Schaufenster ist offline." /> : null}
+          {/* Zwei Abschnitte wie in „Dein Konto“, damit klar ist, was wozu gehört (Daria, 2026-11-13: „zerfällt“):
+              oben, was man postet, darunter alles zur Seite selbst. */}
           {s.switches.posten ? (
-            <>
-              <Button label="Post erstellen" icon="plus" onPress={() => router.push({ pathname: '/schaufenster/[id]/post', params: { id: s.id } })} />
-              <Button label="Termin erstellen" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]/termin', params: { id: s.id } })} />
-            </>
+            <FieldGroup heading label="Posten">
+              <View style={styles.list}>
+                <Button label="Post erstellen" icon="plus" onPress={() => router.push({ pathname: '/schaufenster/[id]/post', params: { id: s.id } })} />
+                <Button label="Termin erstellen" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]/termin', params: { id: s.id } })} />
+              </View>
+            </FieldGroup>
           ) : null}
-          <Button label="Seite bearbeiten" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id, von: 'schaufenster' } })} />
-          {/* Zwei Ansichten (Daria, 2026-11-12): in der App wie ein KiezCoins-Mitglied, im Web wie jede Besucher:in
-              unter kiezcoins.de/s/…. Die Webseite gibt es nur öffentlich und online. */}
-          <View style={styles.viewButtons}>
-            <Button label="In der App ansehen" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
-            <Button
-              label="Im Web ansehen"
-              variant="secondary"
-              disabled={!(s.visibility === 'public' && s.switches.online)}
-              whyDisabled={() => setWebHint(s.id)}
-              onPress={() => Linking.openURL(showcasePublicLink(s.slug))}
-            />
-          </View>
-          {webHint === s.id ? (
-            <Notice
-              message={
-                s.switches.online
-                  ? 'Im Web erscheint Dein Schaufenster erst, wenn es öffentlich ist. Das stellst Du unter „Seite bearbeiten“ ein.'
-                  : 'Solange Dein Schaufenster offline ist, gibt es keine Webseite dazu.'
-              }
-              onClose={() => setWebHint(null)}
-            />
-          ) : null}
+          <FieldGroup heading label="Deine Seite">
+            {/* Zwei Ansichten (Daria, 2026-11-12): in der App wie ein KiezCoins-Mitglied, im Web wie jede Besucher:in
+                unter kiezcoins.de/s/…. Die Webseite gibt es nur öffentlich und online; sonst erklärt ein Hinweis, warum. */}
+            <View style={styles.list}>
+              <NavRow
+                label="Seite bearbeiten"
+                value="Bilder, Angaben, Sichtbarkeit"
+                onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id, von: 'schaufenster' } })}
+              />
+              <NavRow label="In der App ansehen" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
+              <NavRow
+                label="Im Web ansehen"
+                value={s.visibility === 'public' && s.switches.online ? undefined : s.switches.online ? 'Nicht öffentlich' : 'Offline'}
+                onPress={() => (s.visibility === 'public' && s.switches.online ? Linking.openURL(showcasePublicLink(s.slug)) : setWebHint(s.id))}
+              />
+            </View>
+            {s.visibility === 'public' ? <CopyField label="Link zu Deiner Seite" value={showcasePublicLink(s.slug)} /> : null}
+            {webHint === s.id ? (
+              <Notice
+                message={
+                  s.switches.online
+                    ? 'Im Web erscheint Dein Schaufenster erst, wenn es öffentlich ist. Das stellst Du unter „Seite bearbeiten“ ein.'
+                    : 'Solange Dein Schaufenster offline ist, gibt es keine Webseite dazu.'
+                }
+                onClose={() => setWebHint(null)}
+              />
+            ) : null}
+          </FieldGroup>
         </View>
       ))}
       {footer}
@@ -373,6 +382,6 @@ const styles = StyleSheet.create({
   meta: { ...text.caption, color: color.text.secondary },
   link: { ...text.caption, color: color.text.primary, textDecorationLine: 'underline' },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.md },
-  viewButtons: { gap: space[8] },
+  list: { gap: space[8] },
   footer: { gap: space[8], marginTop: space[16] },
 });
