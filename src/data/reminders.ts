@@ -109,6 +109,33 @@ export function dueToday(r: Reminder, now = new Date()): boolean {
   return r.doneThisWeek < goalOf(r);
 }
 
+/**
+ * Wann eine Erinnerung fällig ist (Daria, 2026-11-13): einmalige zum „bis“ oder „um“, feste Tage zur Uhrzeit am
+ * nächsten dieser Tage (heute nur, wenn noch nicht erledigt). Ohne Uhrzeit und bei x-mal pro Woche `null`.
+ */
+export function dueAt(r: Reminder, now = new Date()): Date | null {
+  const at = (day: Date, hhmm: string) => {
+    const [h, m] = hhmm.split(':').map(Number);
+    const d = new Date(day);
+    d.setHours(h, m, 0, 0);
+    return d;
+  };
+  if (r.onDate) {
+    const time = r.untilTime ?? r.atTime;
+    if (!time) return null;
+    const [y, mo, d] = r.onDate.split('-').map(Number);
+    return at(new Date(y, mo - 1, d), time);
+  }
+  if (r.weekdays?.length && r.atTime) {
+    for (let i = 0; i < 8; i++) {
+      if (i === 0 && r.doneToday) continue;
+      const day = addDays(i, now);
+      if (r.weekdays.includes(isoWeekday(day))) return at(day, r.atTime);
+    }
+  }
+  return null;
+}
+
 /** Lädt die eigenen Erinnerungen. `null`, wenn die Migration fehlt oder etwas schiefgeht. */
 export async function loadReminders(): Promise<Reminder[] | null> {
   const { data, error } = await supabase

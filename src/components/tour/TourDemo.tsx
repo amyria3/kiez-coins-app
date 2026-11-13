@@ -482,8 +482,8 @@ function PrivateDemo() {
 }
 
 /**
- * Routine: Aufgaben-Karte wie in der App. „Erledigt“ oder „Aufgeben“ antippen oder die Karte wischen (nach rechts
- * erledigt, nach links abbrechen), der Hinweis sagt, was passiert ist.
+ * Routine: Aufgaben-Karte wie in der App. „Erledigt“ oder „Aufgeben“ antippen oder die Karte halten und ziehen
+ * (nach rechts erledigt, nach links abbrechen), der Hinweis sagt, was passiert ist.
  */
 function RoutineDemo() {
   const frame = useContext(DemoFocus);
@@ -491,7 +491,7 @@ function RoutineDemo() {
   const task: Reminder = { id: 'tour', want: 'Larisa anrufen', perWeek: 1, doneThisWeek: state === 'done' ? 1 : 0, doneToday: state === 'done' };
   const cue =
     state === 'open'
-      ? 'Tippe auf „Erledigt“ oder wische die Karte nach rechts'
+      ? 'Tippe auf „Erledigt“ oder halte die Karte und zieh sie nach rechts'
       : state === 'done'
         ? 'Erledigt. Der Tag ist im Kalender markiert.'
         : state === 'given_up'
