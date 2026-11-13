@@ -613,7 +613,24 @@ function HandKnob({
     const id = glow.addListener(({ value }) => setLit(value));
     return () => glow.removeListener(id);
   }, [glow]);
-  const shown = lit > 0 ? mixHex(fill, color.accent.primary, lit) : fill;
+  // Wechselt der Bereich (z. B. Gelb in „Me & Myself“, Lila beim Erstellen), geht die Farbe einmal weich über
+  // statt zu springen (Daria, 2026-11-13)
+  const [fade, setFade] = useState<{ from: string; t: number }>({ from: fill, t: 1 });
+  const last = useRef(fill);
+  useEffect(() => {
+    if (last.current === fill) return;
+    const from = last.current;
+    last.current = fill;
+    const v = new Animated.Value(0);
+    const id = v.addListener(({ value }) => setFade({ from, t: value }));
+    Animated.timing(v, { toValue: 1, duration: FILL_FADE, easing: Easing.out(Easing.quad), useNativeDriver: false }).start(() => {
+      v.removeListener(id);
+      setFade({ from: fill, t: 1 });
+    });
+    return () => v.removeListener(id);
+  }, [fill]);
+  const base = fade.t < 1 ? mixHex(fade.from, fill, fade.t) : fill;
+  const shown = lit > 0 ? mixHex(base, color.accent.primary, lit) : base;
   const now = () => (pos as unknown as { __getValue?: () => number }).__getValue?.() ?? 0;
   const [at, setAt] = useState(now);
   useEffect(() => {
@@ -645,6 +662,8 @@ function HandKnob({
 /** Lila bleibt kurz stehen, während der Knopf noch gleitet, dann geht er zurück zu Papier */
 const GLOW_HOLD = 250;
 const GLOW_FADE = 550;
+/** Weicher Übergang, wenn der Bereich die Farbe des Knopfs ändert */
+const FILL_FADE = 260;
 
 /** Mischt zwei Farben „#RRGGBB“, `t` = 0 ergibt `a`, 1 ergibt `b` */
 function mixHex(a: string, b: string, t: number): string {
