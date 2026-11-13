@@ -755,11 +755,11 @@ export default function FeedScreen() {
           // „Privat“ steckt in „Me & Myself“ (Daria, 2026-11-12); beim Erstellen bleibt es als Ziel wählbar
           visible={meOn ? modes.visible.filter((m) => m !== 'private') : modes.visible}
           accent={composing && !placeTouched}
-          // „Me & Myself“ links neben den Reitern, wie vorher „Routine“ (Daria, 2026-11-12). Öffnet die Routine
-          // („My Structure“), ohne Routine „My Feed“.
+          // „Me & Myself“ links neben den Reitern, wie vorher „Routine“ (Daria, 2026-11-12). Öffnet „My Feed“
+          // (Daria, 2026-11-13), ohne privaten Feed die Routine („My Structure“).
           lead={
             meOn
-              ? { label: t('Me & Myself'), active: meActive, private: true, onPress: () => !meActive && (routineOn ? openRoutine() : switchTab('private')) }
+              ? { label: t('Me & Myself'), active: meActive, private: true, onPress: () => !meActive && (privateOn ? switchTab('private') : openRoutine()) }
               : routineOn && !composing && !isFashionable
                 ? { label: t('Routine'), active: routineActive, onPress: () => !routineActive && openRoutine() }
                 : undefined
