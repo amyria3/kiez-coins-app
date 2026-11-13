@@ -269,8 +269,16 @@ function Card({
   );
 }
 
-/** Auch in der Tour (TourDemo), dort mit Beispieldaten */
-export function TaskCard({ reminder: r, onDone, onGiveUp, onCancel }: { reminder: Reminder; onDone: () => void; onGiveUp: () => void; onCancel: () => void }) {
+/** Auch in der Tour (TourDemo), dort mit Beispieldaten und als einzelne Karte zum Wischen */
+export function DemoTaskCard(props: { reminder: Reminder; onDone: () => void; onGiveUp: () => void; onCancel: () => void }) {
+  return (
+    <Alone.Provider value>
+      <TaskCard {...props} />
+    </Alone.Provider>
+  );
+}
+
+function TaskCard({ reminder: r, onDone, onGiveUp, onCancel }: { reminder: Reminder; onDone: () => void; onGiveUp: () => void; onCancel: () => void }) {
   const goal = goalOf(r);
   const done = Math.min(r.doneThisWeek, goal);
   const resting = r.doneToday || r.doneThisWeek >= goal;
@@ -731,7 +739,8 @@ const styles = StyleSheet.create({
     marginTop: space[4],
   },
   actionsEnd: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
-  swipe: { flex: 1 },
+  // Im Browser markiert Ziehen mit der Maus sonst den Text, und die Karte bleibt stehen
+  swipe: { flex: 1, userSelect: 'none' },
   swipeHints: {
     position: 'absolute',
     top: 0,

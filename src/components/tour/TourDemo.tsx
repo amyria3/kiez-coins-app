@@ -13,7 +13,7 @@ import { TagTextField } from '../compose/BeforeAfterForm';
 import { Cat } from '../icons/Brand';
 import { CameraButton } from '../TabBar';
 import { RewardField, type RewardValue } from '../compose/RewardField';
-import { TaskCard } from '../RoutineList';
+import { DemoTaskCard } from '../RoutineList';
 import { Text } from '../T';
 import { sampleChallenges, sampleUsers } from '../../data/sample';
 import { t } from '../../data/texts';
@@ -71,6 +71,8 @@ export const DemoFocus = createContext<{
   focus: (view: View | null) => void;
   blur: (view: View | null) => void;
   cue: (text: string) => void;
+  /** Finger liegt auf einer Karte zum Wischen: Solange blättert die Tour nicht (Daria, 2026-11-13) */
+  lock?: (on: boolean) => void;
 } | null>(null);
 
 /** Scrollt zum Element, solange `on` gilt (auch nach einem neuen Hinweis, der die Fläche nach oben setzt) */
@@ -479,13 +481,17 @@ function PrivateDemo() {
   );
 }
 
-/** Routine: Aufgaben-Karte wie in der App. „Erledigt“ oder „Aufgeben“ antippen, der Hinweis sagt, was passiert ist. */
+/**
+ * Routine: Aufgaben-Karte wie in der App. „Erledigt“ oder „Aufgeben“ antippen oder die Karte wischen (nach rechts
+ * erledigt, nach links abbrechen), der Hinweis sagt, was passiert ist.
+ */
 function RoutineDemo() {
+  const frame = useContext(DemoFocus);
   const [state, setState] = useState<'open' | 'done' | 'given_up' | 'cancelled'>('open');
   const task: Reminder = { id: 'tour', want: 'Larisa anrufen', perWeek: 1, doneThisWeek: state === 'done' ? 1 : 0, doneToday: state === 'done' };
   const cue =
     state === 'open'
-      ? 'Tippe auf „Erledigt“ oder „Aufgeben“'
+      ? 'Tippe auf „Erledigt“ oder wische die Karte nach rechts'
       : state === 'done'
         ? 'Erledigt. Der Tag ist im Kalender markiert.'
         : state === 'given_up'
@@ -496,7 +502,17 @@ function RoutineDemo() {
       {state === 'given_up' || state === 'cancelled' ? null : (
         <Pad>
           <NextStep on={state === 'open'}>
-            <TaskCard reminder={task} onDone={() => setState('done')} onGiveUp={() => setState('given_up')} onCancel={() => setState('cancelled')} />
+            <View onTouchStart={() => frame?.lock?.(true)} onTouchEnd={() => frame?.lock?.(false)} onTouchCancel={() => frame?.lock?.(false)}>
+              <DemoTaskCard
+                reminder={task}
+                onDone={() => setState('done')}
+                onGiveUp={() => setState('given_up')}
+                onCancel={() => {
+                  frame?.lock?.(false);
+                  setState('cancelled');
+                }}
+              />
+            </View>
           </NextStep>
         </Pad>
       )}

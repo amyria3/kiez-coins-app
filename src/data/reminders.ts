@@ -156,7 +156,7 @@ export type RoutineDays = {
 export async function loadRoutineDays(from: Date, to: Date, now = new Date()): Promise<RoutineDays> {
   const empty: RoutineDays = { done: new Set(), missed: new Set(), doneBy: new Map(), missedBy: new Map(), givenUpBy: new Map(), cancelledBy: new Map() };
   const columns = 'id, want, weekdays, created_at, archived_at';
-  // Ohne die Migration 20261113000200 fehlt `ended_as`: dann ohne die Spalte laden
+  // Ohne die Migration 20261113000400 fehlt `ended_as`: dann ohne die Spalte laden
   let { data, error } = await supabase.from('reminders').select(`${columns}, ended_as`);
   if (error) ({ data, error } = await supabase.from('reminders').select(columns));
   if (error || !data?.length) return empty;
@@ -249,7 +249,7 @@ export type ReminderEnd = 'given_up' | 'cancelled';
 
 /**
  * Erinnerung beenden: Sie verschwindet aus der Liste, Erledigungen bleiben erhalten. `how` steht in `ended_as`
- * (Migration 20261113000200_erinnerung_ausgang). Fehlt die Migration noch, endet die Erinnerung ohne Angabe.
+ * (Migration 20261113000400_erinnerung_ausgang). Fehlt die Migration noch, endet die Erinnerung ohne Angabe.
  */
 export async function archiveReminder(id: string, how: ReminderEnd = 'cancelled'): Promise<boolean> {
   const archived_at = new Date().toISOString();
