@@ -786,10 +786,10 @@
   "kiezcoins.de › s ›": "kiezcoins.de › s ›",
   "kiezcoins.de/s/": "kiezcoins.de/s/",
   "kursiv": "курсивом",
-  "links {what}": "слева {what}",
+  "links {what}": "влево — {what}",
   "nichts geplant": "ничего не запланировано",
-  "oben später": "потом, как уже говорил",
-  "rechts erledigt": "справа — готово",
+  "oben später": "вверх — позже",
+  "rechts erledigt": "вправо — выполнено",
   "seit {seit} online": "онлайн с момента появления {seit}",
   "seit {since} · noch {left} h": "с момента {since} · осталось {left} ч",
   "top center": "вверху по центру",
@@ -853,7 +853,7 @@
   "„Ich will {want}“ verschwindet aus der Liste. Was Du geschafft hast, bleibt.": "«Я хочу {want}» исчезнет из списка. А то, что ты уже сделал, останется.",
   "„{name}“ ist verbunden. Seine Termine der nächsten 7 Tage erscheinen in Routine.": "«{name}» подключено. Его встречи на ближайшие 7 дней отображаются в «Расписании».",
   "„{name}“ trennen?": "«{name}» разделить?",
-  "„{want}“ verschwindet aus der Liste und zählt als abgesagt.": "«{want}» исчезает из списка и считается отмеченным.",
+  "„{want}“ verschwindet aus der Liste und zählt als abgesagt.": "«{want}» исчезает из списка и считается отменённым.",
   "„{want}“ verschwindet aus der Liste. Im Kalender bleibt er als erledigt stehen.": "«{want}» исчезает из списка. В календаре он остаётся отмеченным как выполненное.",
   "• Liste": "• Список"
 }
