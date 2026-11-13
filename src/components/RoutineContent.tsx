@@ -95,6 +95,7 @@ export function RoutineContent({
             onDone={(r) => router.push({ pathname: '/routine/[id]', params: { id: r.id } })}
             onEnd={end}
             onNew={() => router.push('/routine/new')}
+            onEdit={(r) => router.push({ pathname: '/routine/bearbeiten', params: { id: r.id } })}
             onChanged={reload}
           />
         </ScrollView>
@@ -106,7 +107,14 @@ export function RoutineContent({
             <SectionBlock label="Deine Erinnerungen">
               <View style={styles.list}>
                 {list.map((r) => (
-                  <ReminderCard key={r.id} reminder={r} onDone={() => router.push({ pathname: '/routine/[id]', params: { id: r.id } })} onGiveUp={() => end(r, 'given_up')} onCancel={() => end(r, 'cancelled')} />
+                  <ReminderCard
+                    key={r.id}
+                    reminder={r}
+                    onDone={() => router.push({ pathname: '/routine/[id]', params: { id: r.id } })}
+                    onGiveUp={() => end(r, 'given_up')}
+                    onCancel={() => end(r, 'cancelled')}
+                    onEdit={() => router.push({ pathname: '/routine/bearbeiten', params: { id: r.id } })}
+                  />
                 ))}
               </View>
             </SectionBlock>
@@ -155,7 +163,19 @@ function EventCard({ event: e }: { event: CalendarEvent }) {
   );
 }
 
-function ReminderCard({ reminder: r, onDone, onGiveUp, onCancel }: { reminder: Reminder; onDone: () => void; onGiveUp: () => void; onCancel: () => void }) {
+function ReminderCard({
+  reminder: r,
+  onDone,
+  onGiveUp,
+  onCancel,
+  onEdit,
+}: {
+  reminder: Reminder;
+  onDone: () => void;
+  onGiveUp: () => void;
+  onCancel: () => void;
+  onEdit: () => void;
+}) {
   const goal = goalOf(r);
   // „um“: Termin ohne Zähler und Balken; „bis“ und „von … bis“: Aufgabe (Daria, 2026-11-10)
   const kind = kindOf(r);
@@ -187,6 +207,10 @@ function ReminderCard({ reminder: r, onDone, onGiveUp, onCancel }: { reminder: R
       <View style={styles.foot}>
         {/* Aufgeben und abbrechen zählen beide (Daria, 2026-11-13); Termine lassen sich nur abbrechen */}
         <View style={styles.ends}>
+          {/* Jede Karte lässt sich bearbeiten (Daria, 2026-11-13) */}
+          <Pressable onPress={onEdit} hitSlop={8} accessibilityRole="button">
+            <Text style={styles.endText}>Bearbeiten</Text>
+          </Pressable>
           {kind === 'termin' ? null : (
             <Pressable onPress={onGiveUp} hitSlop={8} accessibilityRole="button">
               <Text style={styles.endText}>Aufgeben</Text>
