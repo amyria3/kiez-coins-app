@@ -102,7 +102,7 @@ export function BadgeOverview({ gutter = 0 }: { gutter?: number }) {
 const styles = StyleSheet.create({
   wrap: { gap: space[24] },
   block: { gap: space[12] },
-  list: { borderRadius: radius.xl + 2, backgroundColor: color.bg.surface, overflow: 'hidden' },
+  list: { borderRadius: radius.md, backgroundColor: color.bg.surface, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12], paddingHorizontal: space[16] },
   divider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   flex: { flex: 1, gap: space[4] },

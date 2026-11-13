@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
     flex: 1,
     maxHeight: 460,
     minHeight: 160,
-    borderRadius: radius.card,
+    borderRadius: radius.xl,
     backgroundColor: color.bg.surface,
     alignItems: 'center',
     justifyContent: 'center',

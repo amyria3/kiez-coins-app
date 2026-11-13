@@ -420,8 +420,8 @@ export function Notice({
  * und App etwas größer. Wechsel von 12 auf 6 verringert (Daria, 2026-11-11: „reduce spacing between bubbles“).
  */
 export const CHAT_GAP_SAME = space[4];
-/** Rundung der Chatblasen (Frage, Antwort, Systemmeldung): im Kiez-Look runder als radius.xl (Daria, 2026-11-09) */
-const CHAT_RADIUS = 26;
+/** Rundung der Chatblasen (Frage, Antwort, Systemmeldung): so rund wie Dialoge (Daria, 2026-11-13, vorher 26) */
+const CHAT_RADIUS = radius.xl;
 export const CHAT_GAP_CHANGE = space[6];
 
 /**
@@ -832,7 +832,7 @@ const styles = StyleSheet.create({
     paddingVertical: space[12],
     paddingLeft: space[16],
     paddingRight: space[12],
-    borderRadius: radius.xl,
+    borderRadius: radius.md,
     backgroundColor: color.bg.surface,
     borderWidth: stroke.thin,
     borderColor: color.line.raised,

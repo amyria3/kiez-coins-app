@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   page: { gap: space[32] },
   head: { gap: space[20] },
   manageBottom: { alignSelf: 'center' },
-  cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.xl },
+  cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.md },
   identity: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   // Nur das Logo ragt ins Titelbild, der Name steht darunter und läuft nie übers Foto (Daria, 2026-11-13)
   identityOnCover: { marginTop: -COVER_OVERLAP, paddingHorizontal: space[12], alignItems: 'flex-start' },

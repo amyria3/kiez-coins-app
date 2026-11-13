@@ -738,7 +738,7 @@ const styles = StyleSheet.create({
   photoTitle: {
     paddingVertical: space[12],
     paddingHorizontal: space[16],
-    borderRadius: radius.xl,
+    borderRadius: radius.md,
     backgroundColor: color.bg.glass,
     borderWidth: stroke.ultraThin,
     overflow: 'hidden',

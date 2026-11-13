@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: space[12],
     padding: space[12],
-    borderRadius: radius.xl + 4,
+    borderRadius: radius.md,
     // Ohne orangen Rahmen (Daria, 2026-11-13)
     backgroundColor: color.bg.surface,
   },

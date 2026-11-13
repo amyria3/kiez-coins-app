@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   title: { ...text.display, color: color.text.primary },
   section: { gap: space[12] },
   label: { ...text.caption, color: color.text.secondary },
-  request: { gap: space[12], padding: space[16], borderRadius: radius.xl, backgroundColor: color.bg.surface },
+  request: { gap: space[12], padding: space[16], borderRadius: radius.md, backgroundColor: color.bg.surface },
   requestWho: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   requestButtons: { flexDirection: 'row', gap: space[8] },
   flex: { flex: 1, gap: space[2] },

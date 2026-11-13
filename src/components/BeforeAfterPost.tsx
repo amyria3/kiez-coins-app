@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     gap: space[6],
     paddingVertical: space[12],
     paddingHorizontal: space[16],
-    borderRadius: radius.xl,
+    borderRadius: radius.md,
     overflow: 'hidden',
     backgroundColor: color.bg.onPhoto,
     borderWidth: stroke.ultraThin,

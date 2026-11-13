@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     gap: space[12],
     paddingVertical: space[12],
     paddingHorizontal: space[12],
-    borderRadius: radius.xl,
+    borderRadius: radius.md,
     backgroundColor: color.bg.surface,
   },
   rowMe: { borderWidth: 1, borderColor: color.accent.confirmation },

@@ -173,8 +173,8 @@ const styles = StyleSheet.create({
   sheet: {
     flex: 1,
     backgroundColor: color.bg.screen,
-    borderTopLeftRadius: radius.sheet,
-    borderTopRightRadius: radius.sheet,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
     overflow: 'hidden',
   },
   flex: { flex: 1 },
