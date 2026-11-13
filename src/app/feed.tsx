@@ -142,13 +142,35 @@ export default function FeedScreen() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [storiesHeight, setStoriesHeight] = useState(0);
 
+  // Weich ohne Nachschwingen (Daria, 2026-11-13: „needs to be smoother“), vorher die Kurve „Schranke“
   const animateHeader = (toValue: 0 | 1) =>
     Animated.timing(progress, {
       toValue,
       duration: motion.barrier.duration,
-      easing: Easing.bezier(...motion.barrier.bezier),
+      easing: Easing.bezier(0.4, 0, 0.2, 1),
       useNativeDriver: false,
     }).start();
+
+  /**
+   * Suchfeld unter dem Umschalter (Daria, 2026-11-13): Beim Ausblenden geht erst der Kopf, das Suchfeld folgt
+   * verzögert. Beim Aufziehen kommt erst das Suchfeld; der Kopf mit „Hallo“ erst, wenn man weiterzieht oder bei
+   * offenem Suchfeld noch einmal von oben herunterzieht. Weiche Kurve ohne Nachschwingen.
+   */
+  const searchAnim = useRef(new Animated.Value(1)).current;
+  const [searchHidden, setSearchHidden] = useState(false);
+  const searchHiddenRef = useRef(false);
+  const animateSearch = (show: boolean, delay = 0) => {
+    searchHiddenRef.current = !show;
+    setSearchHidden(!show);
+    searchAnim.stopAnimation();
+    Animated.timing(searchAnim, {
+      toValue: show ? 1 : 0,
+      duration: SEARCH_FADE_MS,
+      delay,
+      easing: Easing.bezier(0.4, 0, 0.2, 1),
+      useNativeDriver: false,
+    }).start();
+  };
 
   const collapse = () => {
     clearTimeout(autoHide.current);
@@ -157,10 +179,13 @@ export default function FeedScreen() {
     maxY.current = 0;
     setCollapsed(true);
     animateHeader(1);
+    // Kopf zuerst, das Suchfeld folgt, wenn der Kopf fast weg ist
+    animateSearch(false, Math.round(motion.barrier.duration * 0.6));
   };
 
   // Ganz oben angekommen (oder dort nach unten gezogen): Logo und Begrüßung kommen zurück.
   const expand = () => {
+    if (searchHiddenRef.current) animateSearch(true);
     if (!collapsed) return;
     setCollapsed(false);
     animateHeader(0);
@@ -191,26 +216,39 @@ export default function FeedScreen() {
     const settled = Date.now() - collapsedAt.current > motion.barrier.duration + 200;
     nudgeCrystals(y - lastY.current);
     if (y > 8 && y > lastY.current) collapse();
-    else if (settled && y <= 0 && maxY.current > 120) expand();
-    else if (settled && dragging.current && y < -24) reveal();
+    // Zurück nach oben: erst nur das Suchfeld
+    else if (settled && y <= 0 && maxY.current > 120) revealSearch();
+    else if (settled && dragging.current && y < -PULL_HEADER) reveal();
+    else if (settled && dragging.current && y < -PULL_SEARCH) revealSearch();
     lastY.current = y;
   };
 
   // Ganz oben ein kleines Stück nach unten ziehen klappt den Kopf wieder auf (Daria, 31.10.2026).
   // Im Browser (auch als Web-App auf dem iPhone) gibt es kein Zurückfedern unter 0, deshalb zählt hier die Fingerbewegung.
   // Nur ein Zug nach unten zählt, kein seitliches Wischen zwischen den Reitern (Daria, 2026-11-12)
-  const pullStart = useRef<{ x: number; y: number } | null>(null);
+  // Erst das Suchfeld; wer weiterzieht (oder bei offenem Suchfeld erneut zieht), holt den Kopf (Daria, 2026-11-13)
+  const pullStart = useRef<{ x: number; y: number; search: boolean } | null>(null);
   const onTouchStart = (e: GestureResponderEvent) => {
-    pullStart.current = lastY.current <= 0 ? touchPoint(e) : null;
+    pullStart.current = lastY.current <= 0 ? { ...touchPoint(e), search: false } : null;
   };
   const onTouchMove = (e: GestureResponderEvent) => {
-    if (pullStart.current === null) return;
+    const start = pullStart.current;
+    if (start === null) return;
     const now = touchPoint(e);
-    const dy = now.y - pullStart.current.y;
-    const dx = now.x - pullStart.current.x;
-    if (!(dy >= 24 && dy > Math.abs(dx) * 1.5)) return;
+    const dy = now.y - start.y;
+    const dx = now.x - start.x;
+    if (!(dy >= PULL_SEARCH && dy > Math.abs(dx) * 1.5)) return;
+    if (searchHiddenRef.current && !start.search) {
+      start.search = true;
+      revealSearch();
+      return;
+    }
+    if (start.search && dy < PULL_HEADER) return;
     pullStart.current = null;
     reveal();
+  };
+  const revealSearch = () => {
+    if (searchHiddenRef.current) animateSearch(true);
   };
   // Ganz oben weiter nach oben ziehen: Kopf zurück, in „My Structure“ auch der große Umschalter (2026-11-12)
   const revealRef = useRef(() => {});
@@ -282,6 +320,7 @@ export default function FeedScreen() {
   const searchTab = tab === 'nearby' || tab === 'everywhere';
   const [query, setQuery] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
+  const [searchHeight, setSearchHeight] = useState(0);
   const [hits, setHits] = useState<ShowcaseHit[] | null | undefined>(undefined);
   const searching = searchOn && searchTab && query.trim().length >= SEARCH_MIN;
   useEffect(() => {
@@ -320,6 +359,7 @@ export default function FeedScreen() {
     if (wasSearching.current && !searching) {
       setCollapsed(false);
       animateHeader(0);
+      if (searchHiddenRef.current) animateSearch(true);
     }
     wasSearching.current = searching;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -860,8 +900,23 @@ export default function FeedScreen() {
         </View>
       </Animated.View>
       ) : null}
-      {searchOn && searchTab && !composing && !routineActive && (searching || searchFocused || !!query || !collapsed || isFashionable) ? (
-        <ShowcaseSearchField value={query} onChangeText={setQuery} onClear={clearSearch} onFocusChange={setSearchFocused} />
+      {searchOn && searchTab && !composing && !routineActive ? (
+        <Animated.View
+          style={[
+            styles.clip,
+            searching || searchFocused || !!query || isFashionable || !searchHeight
+              ? null
+              : {
+                  height: searchAnim.interpolate({ inputRange: [0, 1], outputRange: [0, searchHeight] }),
+                  opacity: searchAnim.interpolate({ inputRange: [0, 0.4, 1], outputRange: [0, 0.2, 1] }),
+                },
+          ]}
+          pointerEvents={searchHidden && !searching && !searchFocused && !query ? 'none' : 'auto'}
+        >
+          <View onLayout={(e) => { const next = e.nativeEvent.layout.height; setSearchHeight((h) => (h === next ? h : next)); }}>
+            <ShowcaseSearchField value={query} onChangeText={setQuery} onClear={clearSearch} onFocusChange={setSearchFocused} />
+          </View>
+        </Animated.View>
       ) : null}
       {meActive && meBoth ? (
         <View style={[styles.tabsRow, { paddingRight: tabsPaddingRight }]}>
@@ -982,6 +1037,11 @@ function touchPoint(e: GestureResponderEvent) {
 const STORIES = false;
 /** Nach so vielen Millisekunden ohne Interaktion gleiten Logo und Begrüßung weg */
 const HEADER_HIDE_MS = 3500;
+/** Suchfeld ein- und ausblenden */
+const SEARCH_FADE_MS = 380;
+/** Zug nach unten ganz oben: ab hier kommt das Suchfeld, ab `PULL_HEADER` der Kopf (Daria, 2026-11-13) */
+const PULL_SEARCH = 24;
+const PULL_HEADER = 96;
 /** Höhe des schmalen Kopfs beim Erstellen */
 const COMPOSE_HEADER = 52;
 
