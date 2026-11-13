@@ -55,6 +55,36 @@ const fashionablePalette: typeof kiezPalette = {
 
 export const palette = Object.freeze(fashionable ? fashionablePalette : kiezPalette);
 
+/**
+ * Weitere Grundfarben des Kiez-Looks (Daria, 2026-11-13). Hier steht jede Farbe genau einmal als Wert. Komponenten
+ * nutzen sie nie direkt, sondern über eine semantische Rolle in `color` unten. Teilen sich zwei Rollen eine Farbe
+ * (z. B. Fokus und Menü-Icon), zeigen beide auf dieselbe Grundfarbe und lassen sich später einzeln umstellen.
+ */
+const swatch = {
+  /** Senf: Me & Myself, Kalender, Aufgaben-Karten, „Du bist dran“ */
+  senf: '#ECCF55',
+  /** Gelbgrün: Fokus, eingeschaltete Schalter, Menü-Icon */
+  gelbgruen: '#E4FF5F',
+  /** Beige: große Icons, Leisten-Icons, papierweißer Knopf im Umschalter */
+  beige: '#EEE0C9',
+  /** Schneeweiß: aktives Nachrichten-Icon */
+  schnee: '#FFFAF3',
+  /** Olive hell: feste Termine in der Routine */
+  olive: '#C6D195',
+  /** Puder: vorgemerkte Termine in der Routine */
+  puder: '#E6D6C0',
+  /** Tinte auf hellen Karten */
+  tinte: '#1A1A1A',
+  /** Aus-Zustand der An/Aus-Schalter */
+  schalterAus: '#45466F',
+} as const;
+
+/** Farbe „#RRGGBB“ mit Deckkraft `a` (0 … 1) als rgba */
+export function withAlpha(hex: string, a: number): string {
+  const n = parseInt(hex.slice(1, 7), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+}
+
 // Theme (semantische Farben, nur diese in Komponenten verwenden)
 export const color = {
   bg: {
@@ -95,7 +125,7 @@ export const color = {
   },
   /** Große Icons (Daria, 2026-11-05): etwas gedämpfter als die Schrift, damit Symbole nicht heller als Text wirken */
   icon: {
-    large: fashionable ? palette.white : '#EEE0C9',
+    large: fashionable ? palette.white : swatch.beige,
   },
   /**
    * Untere Leiste im Kiez-Look (Daria, 2026-11-12): Aubergine statt Grau, Icons in Beige statt Puder. Die aktive Seite
@@ -104,12 +134,15 @@ export const color = {
    */
   nav: {
     bar: fashionable ? 'rgba(255, 255, 255, 0.96)' : 'rgba(59, 47, 60, 0.94)',
-    icon: fashionable ? palette.white : '#EEE0C9',
-    bubble: fashionable ? 'transparent' : '#303034',
-    calendar: fashionable ? palette.white : '#ECCF55',
+    icon: fashionable ? palette.white : swatch.beige,
+    bubble: fashionable ? 'transparent' : palette.graphite,
+    /** Kalender = Me & Myself, dieselbe Grundfarbe wie accent.private */
+    calendar: fashionable ? palette.white : swatch.senf,
+    /** Feed = Herz, dieselbe Grundfarbe wie accent.affection (Daria, 2026-11-13: zwei Rollen, ein Ziel) */
     feed: fashionable ? palette.white : palette.pink,
-    chat: fashionable ? palette.white : '#FFFAF3',
-    menu: fashionable ? palette.white : '#E4FF5F',
+    chat: fashionable ? palette.white : swatch.schnee,
+    /** Menü = Einstellungen. Dieselbe Grundfarbe wie accent.focus, eigene Rolle (Daria, 2026-11-13) */
+    menu: fashionable ? palette.white : swatch.gelbgruen,
     create: fashionable ? 'transparent' : palette.purple,
     onCreate: fashionable ? palette.white : palette.black,
   },
@@ -121,16 +154,45 @@ export const color = {
     primary: palette.purple,
     affection: palette.pink,
     /** „Privat“ gewählt, in jedem Umschalter: Senf wie der Kalender in der Leiste (Daria, 2026-11-12) */
-    private: fashionable ? palette.purple : '#ECCF55',
+    private: fashionable ? palette.purple : swatch.senf,
+    /**
+     * „Du bist dran“ (Daria, 2026-11-13): Gelb wie Me & Myself statt Orange. Orange bleibt Fehlern und Warnungen.
+     * Im Fashionable Look wie bisher die Signalfarbe.
+     */
+    turn: fashionable ? palette.orange : swatch.senf,
     confirmation: palette.green,
     /** Fokus (Rahmen und Cursor im aktiven Feld) und eingeschaltete Schalter: Gelbgrün, überall gleich (Daria, 2026-11-13) */
-    focus: fashionable ? palette.purple : '#E4FF5F',
+    focus: fashionable ? palette.purple : swatch.gelbgruen,
     signal: palette.orange,
     /**
      * Fehler und Pflichtfeld-Hinweise: im Kiez-Look Orange wie die Signalfarbe (Daria, 2026-11-12). Das alte Korallrot
      * #FF7E8B lag zu nah am Herz-Rosa #FFB2E5. Fashionable bleibt Rot.
      */
     error: fashionable ? palette.red : palette.orange,
+  },
+  /** Routine-Karten (Daria, 2026-11-12): eigene Kartenfarben, Lila und Gelbgrün bleiben der Bedienung vorbehalten */
+  routine: {
+    task: swatch.senf,
+    fixed: swatch.olive,
+    saved: swatch.puder,
+    ink: swatch.tinte,
+    inkSoft: withAlpha(swatch.tinte, 0.68),
+    inkTrack: withAlpha(swatch.tinte, 0.16),
+    /** Kalendertage ohne Eintrag und die Schraffur ausgefallener Tage */
+    day: withAlpha(kiezPalette.white, 0.08),
+    hatch: withAlpha(kiezPalette.white, 0.16),
+  },
+  /** An/Aus-Schalter im Kiez-Look */
+  toggle: {
+    off: swatch.schalterAus,
+  },
+  /** Abdunklung über Fotos, damit helle Schrift darauf lesbar bleibt (Grundfarbe des Kiez-Looks, verschieden stark) */
+  overlay: {
+    light: withAlpha(kiezPalette.black, 0.25),
+    soft: withAlpha(kiezPalette.black, 0.3),
+    medium: withAlpha(kiezPalette.black, 0.35),
+    strong: withAlpha(kiezPalette.black, 0.6),
+    heavy: withAlpha(kiezPalette.black, 0.72),
   },
 } as const;
 
