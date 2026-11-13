@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   name: { flexShrink: 1, minHeight: size.touchTarget, justifyContent: 'center' },
   trigger: { flex: 1, minHeight: size.touchTarget, alignItems: 'flex-end', justifyContent: 'center' },
   caret: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
-  hereName: { ...text.title, fontSize: 22, lineHeight: 28, color: color.text.primary, flexShrink: 1 },
+  hereName: { ...text.titleLarge, color: color.text.primary, flexShrink: 1 },
   menu: { borderRadius: radius.xl, backgroundColor: color.bg.surface, overflow: 'hidden' },
   option: { flexDirection: 'row', alignItems: 'center', gap: space[12], minHeight: 52, paddingVertical: space[8], paddingHorizontal: space[16] },
   optionDivider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },

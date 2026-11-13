@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     minHeight: 32,
   },
-  toggleText: { ...text.body, fontSize: 13, lineHeight: 18, color: color.text.secondary },
+  toggleText: { ...text.small, color: color.text.secondary },
   chevronDown: { transform: [{ rotate: "90deg" }] },
   chevronUp: { transform: [{ rotate: "-90deg" }] },
   // Kacheln laufen bis an den Rand des Blatts

@@ -8,7 +8,7 @@ import { financeLinkCode, loadFinanceStand, type FinanceStand } from '../data/re
 import { useStore } from '../data/store';
 import { t } from '../data/texts';
 import type { User } from '../data/types';
-import { color, font, radius, space, text } from '../theme/tokens';
+import { color, radius, space, text } from '../theme/tokens';
 
 /**
  * „Modell KiezCoins“ unten auf „Me“ (Daria, 08.11.2026; Überschrift seit 2026-11-09, vorher „So finanziert sich KiezCoins“): knapper Text, Balken 30/70 und die Community
@@ -176,6 +176,6 @@ const styles = StyleSheet.create({
   legend: { flexDirection: 'row', justifyContent: 'space-between' },
   legendText: { ...text.caption, color: color.text.secondary },
   caption: { ...text.caption, color: color.text.secondary },
-  link: { ...text.body, fontFamily: font.medium, color: color.text.primary, textDecorationLine: 'underline' },
+  link: { ...text.label, color: color.text.primary, textDecorationLine: 'underline' },
   du: { position: 'absolute', padding: 2, backgroundColor: color.bg.screen },
 });

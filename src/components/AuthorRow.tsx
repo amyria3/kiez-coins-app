@@ -150,6 +150,8 @@ export function AuthorRow({ user, location, trailing, onPress }: AuthorRowProps)
 const styles = StyleSheet.create({
   avatar: { width: size.avatar, height: size.avatar, borderRadius: radius.full },
   fallback: { backgroundColor: color.accent.primary, alignItems: 'center', justifyContent: 'center' },
+  // Ausnahme: Initialen passen sich der Größe des Kreises an, keine Textrolle
+  // eslint-disable-next-line no-restricted-syntax
   initials: { fontFamily: font.semiBold, fontSize: 14, color: color.bg.screen },
   row: {
     flexDirection: 'row',

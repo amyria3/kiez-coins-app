@@ -3,7 +3,7 @@ import { BlurView } from 'expo-blur';
 import { Modal, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 
 import { t } from '../data/texts';
-import { color, font, radius, scheme, size, space, stroke, text } from '../theme/tokens';
+import { color, radius, scheme, size, space, stroke, text } from '../theme/tokens';
 import { Icon } from './icons/Icon';
 import { Text } from './T';
 
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: space[12],
   },
   dots: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center' },
-  label: { ...text.caption, fontFamily: font.medium, color: color.text.primary, textDecorationLine: 'underline' },
+  label: { ...text.captionStrong, color: color.text.primary, textDecorationLine: 'underline' },
   pressed: { opacity: 0.6 },
   menu: {
     position: 'absolute',

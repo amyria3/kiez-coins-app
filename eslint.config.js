@@ -15,4 +15,23 @@ module.exports = defineConfig([
       'react-hooks/purity': 'off',
     },
   },
+  {
+    // Typografie gebunden (Daria, 2026-11-13): Schriftgröße, Zeilenhöhe und Schrift kommen aus den Rollen in `text`
+    // (src/theme/tokens.ts). Erlaubt bleibt die Hervorhebung über `font.*`, etwa fett im Fließtext.
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/theme/tokens.ts'],
+    rules: {
+      'no-restricted-syntax': [
+        'warn',
+        {
+          selector: "Property[key.name=/^(fontSize|lineHeight)$/][value.type='Literal']",
+          message: 'Schriftgröße und Zeilenhöhe über eine Rolle aus `text` setzen (src/theme/tokens.ts).',
+        },
+        {
+          selector: "Property[key.name='fontFamily'][value.type='Literal']",
+          message: 'Schrift über `text.*` oder `font.*` setzen, nicht als Name.',
+        },
+      ],
+    },
+  },
 ]);

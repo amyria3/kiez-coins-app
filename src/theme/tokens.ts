@@ -269,6 +269,47 @@ export const text = {
   small: { fontFamily: font.regular, fontSize: 13, lineHeight: 16 },
   caption: { fontFamily: font.regular, fontSize: 12, lineHeight: 15 },
   labelXs: { fontFamily: font.text, fontSize: 9, lineHeight: 11 },
+  // Ab hier: Rollen aus „Typografie sauber binden“ (Daria, 2026-11-13). Jeder Text nimmt eine Rolle.
+  // Im Code danach nur noch Farbe, Ausrichtung und Hervorhebung über font.* (fett im Fließtext, ausgewählt).
+  /** Beschriftung halbfett-leicht, z. B. Zustand auf Karten, Zähler, Links in Listen */
+  label: { fontFamily: font.medium, fontSize: 15, lineHeight: 20 },
+  /** Kleine Beschriftung, z. B. Zeile unter Erinnerungen, gewählter Reiter im Umschalter, Pillen */
+  labelSm: { fontFamily: font.medium, fontSize: 14, lineHeight: 18 },
+  /** Kleiner Fließtext, z. B. Untertitel, Reiter im Umschalter, Bildunterschrift */
+  bodySm: { fontFamily: font.regular, fontSize: 14, lineHeight: 18 },
+  /** Kleine Überzeile und Chips, z. B. „Termin“, „Aufgabe“ */
+  captionStrong: { fontFamily: font.medium, fontSize: 12, lineHeight: 15 },
+  /** Kleinste Marke: Zähler in Abzeichen, Tags, Schrittnummern */
+  tag: { fontFamily: font.semiBold, fontSize: 11, lineHeight: 15 },
+  /** Lesetext mit mehr Zeilenabstand, z. B. Beschreibungen, Sprechblasen */
+  reading: { fontFamily: font.text, fontSize: 15, lineHeight: 22 },
+  /** Größerer Lesetext, z. B. Tour, Willkommen, Kater */
+  readingLarge: { fontFamily: font.text, fontSize: 16, lineHeight: 22 },
+  /** Großer Name in der Leiste, z. B. Gruppe oben */
+  titleLarge: { fontFamily: font.regular, fontSize: 22, lineHeight: 28 },
+  /** Titel auf Erinnerungskarten */
+  listTitle: { fontFamily: font.medium, fontSize: 20, lineHeight: 24, letterSpacing: -0.2 },
+  /** Kleine Überschrift in der Unbounded, z. B. Abschnitte im Inhalt, Kater-Nachricht */
+  displaySm: { fontFamily: font.onPhoto, fontSize: 18, lineHeight: 24 },
+  /** Sehr große Überschrift, z. B. Willkommen */
+  displayLarge: { fontFamily: font.onPhoto, fontSize: 32, lineHeight: 40, letterSpacing: -0.4 },
+  /** Sehr großer Titel in Inter Tight, z. B. Abzeichen-Karte */
+  headlineLarge: { fontFamily: font.display, fontSize: 32, lineHeight: 38, letterSpacing: -0.5 },
+  /** Sehr große Zahl, z. B. Vorher-Nachher-Zähler */
+  metricHero: { fontFamily: font.display, fontSize: 44, lineHeight: 48, letterSpacing: -1 },
+  /** Kleinste Kennzahl, z. B. erledigt, kleine Bounty */
+  metricXs: { fontFamily: font.display, fontSize: 15, lineHeight: 19 },
+  /** Auf dem Foto: Titel */
+  photoTitle: { fontFamily: font.onPhoto, fontSize: 16, lineHeight: 21 },
+  /** Auf dem Foto: Name, Tag, Überzeile */
+  photoLabel: { fontFamily: font.onPhoto, fontSize: 15, lineHeight: 20 },
+  /** Auf dem Foto: Ort */
+  photoMeta: { fontFamily: font.onPhotoLight, fontSize: 14, lineHeight: 20 },
+  /** Auf dem Foto: kleine Zusatzzeile */
+  photoMetaSm: { fontFamily: font.onPhotoLight, fontSize: 11, lineHeight: 16 },
+  /** Text, den man selbst aufs Foto legt */
+  photoText: { fontFamily: font.semiBold, fontSize: 18, lineHeight: 22 },
+  photoTextHero: { fontFamily: font.semiBold, fontSize: 24, lineHeight: 29 },
   /** `text/button/dark-on-light`: dunkle Schrift auf heller Fläche (Primary) */
   buttonDarkOnLight: { fontFamily: font.medium, fontSize: 17, lineHeight: 20 },
   /** `text/button/light-on-dark`: helle Schrift auf dunkler Fläche (Secondary) */

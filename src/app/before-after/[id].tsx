@@ -18,7 +18,7 @@ import { beforeAfterBody, useChallenge, useStore } from '../../data/store';
 import { localeTag, t } from '../../data/texts';
 import type { ImageSource } from '../../data/types';
 import { useGoBack } from '../../lib/goBack';
-import { color, font, radius, space, text } from '../../theme/tokens';
+import { color, radius, space, text } from '../../theme/tokens';
 import { celebratePost } from '../../components/HeartBurst';
 import { WaitForData } from '../../components/WaitForData';
 
@@ -314,7 +314,7 @@ function BeforeAfterForm() {
 
 const styles = StyleSheet.create({
   ringWrap: { alignItems: 'center', paddingVertical: space[8] },
-  big: { fontFamily: font.display, fontSize: 44, lineHeight: 48, letterSpacing: -1, color: color.text.primary, fontVariant: ['tabular-nums'] },
+  big: { ...text.metricHero, color: color.text.primary, fontVariant: ['tabular-nums'] },
   of: { ...text.small, color: color.text.secondary },
   mini: {
     flexDirection: 'row',
@@ -326,11 +326,11 @@ const styles = StyleSheet.create({
   },
   miniPhoto: { width: 56, height: 56, borderRadius: radius.md },
   miniTexts: { flex: 1, gap: space[2] },
-  miniTitle: { fontFamily: font.medium, fontSize: 15, lineHeight: 19, color: color.text.primary },
+  miniTitle: { ...text.label, color: color.text.primary },
   small: { ...text.small, color: color.text.secondary },
   note: { ...text.hint, color: color.text.secondary },
   durationRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
-  durationText: { ...text.body, fontSize: 13, color: color.text.secondary },
+  durationText: { ...text.small, color: color.text.secondary },
   previewWrap: { gap: space[6] },
   preview: { borderLeftWidth: 2, borderLeftColor: color.line.hairline, paddingLeft: space[12], paddingVertical: space[2] },
   previewText: { ...text.body, color: color.text.primary },

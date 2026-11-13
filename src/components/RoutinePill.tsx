@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Icon } from './icons/Icon';
 import { Text } from './T';
-import { color, font, radius, space, withAlpha } from '../theme/tokens';
+import { color, radius, space, withAlpha, text } from '../theme/tokens';
 
 /**
  * Markierung eines Posts aus einer Erinnerung (Daria, 2026-11-10): Pille mit Zeichen, Text und Fortschritt,
@@ -32,5 +32,5 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     backgroundColor: withAlpha(color.accent.primary, 0.18),
   },
-  text: { fontFamily: font.semiBold, fontSize: 13, lineHeight: 18, color: TINT },
+  text: { ...text.labelSm, color: TINT },
 });

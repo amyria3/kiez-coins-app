@@ -8,7 +8,7 @@ import { router } from 'expo-router';
 import * as Updates from 'expo-updates';
 
 import { buildErrorReport, mailErrorReport, sendErrorReport } from '../lib/errorReport';
-import { color, font, radius, space, text } from '../theme/tokens';
+import { color, radius, space, text } from '../theme/tokens';
 
 type Props = { error: unknown; retry: () => void | Promise<void> };
 
@@ -181,12 +181,11 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   content: { paddingHorizontal: space[24], gap: space[12], width: '100%', maxWidth: 480, alignSelf: 'center' },
   title: { ...text.headline, color: color.text.primary },
-  body: { ...text.body, fontSize: 15, lineHeight: 20, color: color.text.secondary },
+  body: { ...text.body, color: color.text.secondary },
   confirmation: { color: color.accent.confirmation, marginTop: space[8] },
   error: { color: color.accent.error },
   field: {
     ...text.body,
-    fontSize: 15,
     color: color.text.primary,
     borderWidth: 1,
     borderColor: color.line.hairline,
@@ -205,6 +204,6 @@ const styles = StyleSheet.create({
   secondary: { borderWidth: 1, borderColor: color.line.hairline },
   secondaryText: { ...text.buttonLightOnDark, color: color.text.primary },
   link: { alignSelf: 'flex-start', paddingVertical: space[8] },
-  linkText: { fontFamily: font.regular, fontSize: 15, color: color.text.primary, textDecorationLine: 'underline' },
+  linkText: { ...text.body, color: color.text.primary, textDecorationLine: 'underline' },
   detail: { ...text.small, color: color.accent.error },
 });

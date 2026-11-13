@@ -675,10 +675,10 @@ const styles = StyleSheet.create({
     borderColor: color.bg.screen,
   },
   greeting: { paddingHorizontal: space[16], paddingTop: space[12], paddingBottom: space[8], gap: space[4] },
-  greetingTitle: { ...text.display, fontFamily: font.onPhoto, fontSize: 26, lineHeight: 32, letterSpacing: 0, color: color.text.primary },
+  greetingTitle: { ...text.display, color: color.text.primary },
   // Ansprache in der Unbounded wie Namen und Hashtags über dem Foto (Daria, 09.11.2026)
   greetingName: { fontFamily: font.onPhoto, letterSpacing: 0 },
-  greetingSub: { fontFamily: font.text, fontSize: 15, lineHeight: 20, color: color.text.secondary },
+  greetingSub: { ...text.body, color: color.text.secondary },
   topBar: { paddingHorizontal: space[16], paddingTop: space[4], paddingBottom: space[4], gap: space[12] },
   topItem: { width: size.thumbnail, alignItems: 'center', gap: space[4] },
   thumbnail: {
@@ -712,8 +712,8 @@ const styles = StyleSheet.create({
   // Breite nach Inhalt, damit vier Reiter neben die Kamera passen
   segment: { flexGrow: 1, flexShrink: 1, minWidth: 0, minHeight: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
   segmentSelected: { backgroundColor: color.icon.large },
-  segmentText: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.secondary },
-  segmentTextSelected: { fontFamily: font.medium, color: color.bg.screen },
+  segmentText: { ...text.bodySm, color: color.text.secondary },
+  segmentTextSelected: { ...text.labelSm, color: color.bg.screen },
   segmentInner: { flexDirection: 'row', alignItems: 'center', gap: space[4], flexShrink: 1, minWidth: 0, maxWidth: '100%' },
   shrink: { flexShrink: 1 },
   // Der gewählte Reiter wird nie gekürzt (Daria, 2026-11-10)
@@ -741,7 +741,7 @@ const styles = StyleSheet.create({
   // Mockup: Großbuchstaben halbfett 12, 0,5 Laufweite, 12 oben und 11 unten, Strich 1,5
   underTab: { flex: 1, paddingTop: 12, paddingBottom: 11, alignItems: 'center', justifyContent: 'center' },
   underPressed: { opacity: 0.5 },
-  underText: { fontFamily: font.semiBold, fontSize: 12, lineHeight: 16, letterSpacing: 0.5, textTransform: 'uppercase', color: color.text.secondary },
+  underText: { ...text.tag, letterSpacing: 0.5, textTransform: 'uppercase', color: color.text.secondary },
   underTextSelected: { color: color.text.primary },
   // Lila Auswahl beim Erstellen, bis die Person umschaltet (Daria, 2026-10-31)
   accentFill: { backgroundColor: color.accent.primary },

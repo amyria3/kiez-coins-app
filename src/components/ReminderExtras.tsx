@@ -5,7 +5,7 @@ import { Icon } from './icons/Icon';
 import { Text } from './T';
 import { t } from '../data/texts';
 import { callPhone, openInMaps, openLink, shortLinkText } from '../lib/places';
-import { font, space } from '../theme/tokens';
+import { space, text } from '../theme/tokens';
 
 export type Extras = { place: string; phone: string; link: string };
 
@@ -99,7 +99,7 @@ export function ReminderExtrasRow({ place, phone, link, ink }: { place?: string;
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', flexWrap: 'wrap', columnGap: space[16], rowGap: space[4] },
   item: { flexDirection: 'row', alignItems: 'center', gap: space[4], maxWidth: '100%', flexShrink: 1 },
-  text: { fontFamily: font.medium, fontSize: 14, lineHeight: 18, flexShrink: 1 },
+  text: { ...text.labelSm, flexShrink: 1 },
   underline: { textDecorationLine: 'underline' },
   pressed: { opacity: 0.6 },
 });

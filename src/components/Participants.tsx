@@ -3,7 +3,7 @@ import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { t, tAbout } from '../data/texts';
 import type { Challenge, User } from '../data/types';
 import { joinedIds, joinRequests, participantsOpen, participationText, maxParticipants } from '../data/weChallenge';
-import { color, font, space, stroke, text } from '../theme/tokens';
+import { color, space, stroke, text } from '../theme/tokens';
 import { AuthorRow } from './AuthorRow';
 import { Text } from './T';
 
@@ -105,13 +105,13 @@ function SmallAction({ label, tone, onPress }: { label: string; tone: 'error' | 
 const styles = StyleSheet.create({
   section: { gap: space[4], borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline, paddingTop: space[12] },
   header: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: space[8] },
-  title: { ...text.body, fontFamily: font.regular, color: color.text.primary },
+  title: { ...text.body, color: color.text.primary },
   subtitle: { ...text.caption, color: color.text.secondary, marginTop: space[8] },
   count: { ...text.caption, color: color.text.secondary },
   empty: { ...text.caption, color: color.text.secondary },
   actions: { flexDirection: 'row', gap: space[12] },
   small: { minHeight: 44, justifyContent: 'center', paddingHorizontal: space[4] },
-  smallText: { ...text.caption, fontSize: 14, color: color.text.secondary },
+  smallText: { ...text.bodySm, color: color.text.secondary },
   error: { color: color.accent.error },
   confirm: { color: color.accent.confirmation },
   pressed: { opacity: 0.7 },

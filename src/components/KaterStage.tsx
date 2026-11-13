@@ -7,7 +7,7 @@ import { Text } from './T';
 
 import type { KaterAktion, KaterSpruch } from '../data/kater';
 import { t } from '../data/texts';
-import { color, font, motion, radius, space } from '../theme/tokens';
+import { color, motion, radius, space, text } from '../theme/tokens';
 
 // Ebenen aus Darias Figma-Kater, alle auf derselben Fläche 1300 × 1696 (Ausschnitt wie Übergabe/KiezCoins Cat2.svg). Gebaut mit scripts/kater-ebenen.py (02.11.2026).
 // `oben` (Schürze, Kopf) hat an den Gläsern eine Aussparung: Darunter läuft das Video der schimmernden Gläser.
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     backgroundColor: color.text.primary,
   },
-  bubbleText: { fontFamily: font.display, fontSize: 18, lineHeight: 23, color: color.bg.screen, textAlign: 'center' },
+  bubbleText: { ...text.cardTitle, color: color.bg.screen, textAlign: 'center' },
   tail: {
     position: 'absolute',
     bottom: -7,

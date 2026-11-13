@@ -520,15 +520,15 @@ const styles = StyleSheet.create({
   name: { ...text.body, flex: 1, color: color.text.primary },
   link: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },
   preview: { gap: space[6], padding: space[12], borderRadius: radius.md, borderWidth: 1, borderColor: color.bg.surface },
-  previewBrand: { ...text.caption, fontSize: 9, lineHeight: 12, alignSelf: 'flex-end', fontFamily: font.semiBold },
+  previewBrand: { ...text.labelXs, alignSelf: 'flex-end' },
   // Ecken rechteckig wie auf der öffentlichen Seite
   previewCover: { width: '100%', aspectRatio: 16 / 9 },
   // Logo rechts, Name links daneben und linksbündig, wie auf der öffentlichen Seite
   previewHead: { flexDirection: 'row-reverse', alignItems: 'flex-end', gap: space[8], marginTop: -space[20], paddingRight: space[8] },
   previewLogo: { width: 36, height: 36, borderRadius: 18, borderWidth: 3, alignSelf: 'flex-start' },
   // Beginnt unter dem Titelbild, damit ein langer Name nach unten umbricht
-  previewName: { fontFamily: font.onPhoto, fontSize: 19, lineHeight: 20, flex: 1, alignSelf: 'flex-start', marginTop: space[20] + space[6] },
-  previewSmall: { ...text.caption, fontSize: 11, lineHeight: 14 },
+  previewName: { ...text.photoTitle, flex: 1, alignSelf: 'flex-start', marginTop: space[20] + space[6] },
+  previewSmall: { ...text.tag },
   previewText: { ...text.caption },
   previewCard: { padding: space[8], borderRadius: radius.post, gap: space[2], marginTop: space[4] },
   swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
@@ -539,6 +539,6 @@ const styles = StyleSheet.create({
   address: { ...text.body, color: color.text.primary },
   search: { gap: space[2], padding: space[12], borderRadius: radius.md, backgroundColor: color.bg.surface },
   searchUrl: { ...text.caption, color: color.text.secondary },
-  searchTitle: { ...text.body, fontFamily: font.semiBold, color: color.accent.primary },
+  searchTitle: { ...text.bodyStrong, color: color.accent.primary },
   searchText: { ...text.caption, color: color.text.primary },
 });

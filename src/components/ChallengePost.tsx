@@ -10,7 +10,7 @@ import { BlurView } from 'expo-blur';
 
 import { formatBountyShort, formatRelative, formatRemainingShort } from '../data/format';
 import { isPostOnly, type Challenge, type User } from '../data/types';
-import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BeforeAfterPair, BeforeAfterPost } from './BeforeAfterPost';
 import { weChallengeAfter, joinedIds, maxParticipants, participationText } from '../data/weChallenge';
@@ -609,10 +609,8 @@ const styles = StyleSheet.create({
   tagAbovePlace: { bottom: space[4] + 24 },
   // Wie die Marken im Text: Unbounded in Rosa (color/accent/affection), mit weichem Schatten auf dem Foto (Daria, 2026-11-09)
   tagOnPhotoText: {
+    ...text.photoLabel,
     flexShrink: 1,
-    fontFamily: font.onPhoto,
-    fontSize: 15,
-    lineHeight: 20,
     color: tagColor(PHOTO_TAG),
     textShadowColor: 'rgba(0,0,0,0.55)',
     textShadowOffset: { width: 0, height: 0 },
@@ -622,9 +620,7 @@ const styles = StyleSheet.create({
   titleBlock: { position: 'absolute', left: space[16], right: space[16], bottom: space[16], gap: space[4] },
   placeRow: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   titlePlainOnPhoto: {
-    fontFamily: font.onPhoto,
-    fontSize: 16,
-    lineHeight: 21,
+    ...text.photoTitle,
     color: color.text.onPhoto,
     textShadowColor: 'rgba(0,0,0,0.55)',
     textShadowOffset: { width: 0, height: 0 },
@@ -636,10 +632,8 @@ const styles = StyleSheet.create({
   // Ort deutlich leichter (Light statt SemiBold); weicher Schatten ohne Versatz liegt wie ein
   // leichter Blur in Form der Buchstaben hinter dem Text (Daria, 2026-11-07)
   placeOnPhotoText: {
+    ...text.photoMeta,
     flexShrink: 1,
-    fontFamily: font.onPhotoLight,
-    fontSize: 14,
-    lineHeight: 20,
     color: color.text.onPhoto,
     textShadowColor: 'rgba(0,0,0,0.45)',
     textShadowOffset: { width: 0, height: 0 },
@@ -683,10 +677,10 @@ const styles = StyleSheet.create({
   } as object,
   // Leichter Schatten, damit Name und Zeit auf jedem Foto lesbar bleiben
   // Text über dem Foto in Unbounded (breit, Kontrast zur Inter), etwas kleiner, weil die Schrift breit läuft
-  whoName: { fontFamily: font.onPhoto, fontSize: 15, lineHeight: 20, color: color.text.primary, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
-  whoMeta: { fontFamily: font.onPhotoLight, fontSize: 11, lineHeight: 16, color: color.text.primary, opacity: 0.85, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
+  whoName: { ...text.photoLabel, color: color.text.primary, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
+  whoMeta: { ...text.photoMetaSm, color: color.text.primary, opacity: 0.85, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
   title: { ...text.cardTitle, color: color.text.primary },
-  titleOnPhoto: { fontFamily: font.onPhoto, fontSize: 16, lineHeight: 21, color: color.text.primary },
+  titleOnPhoto: { ...text.photoTitle, color: color.text.primary },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   meta: { ...text.meta, color: color.text.secondary, flex: 1 },
   textPostName: { ...text.meta, color: color.text.primary, flexShrink: 0, maxWidth: '60%' },

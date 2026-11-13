@@ -107,7 +107,7 @@ export default function NewBadgeScreen() {
 
 const styles = StyleSheet.create({
   hero: { alignItems: 'center', gap: space[16], paddingTop: space[24], paddingBottom: space[8] },
-  name: { ...text.title, fontSize: 26, lineHeight: 32, color: color.text.primary, textAlign: 'center' },
+  name: { ...text.display, color: color.text.primary, textAlign: 'center' },
   szene: { width: '100%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center' },
   karte: {
     alignItems: 'center',
@@ -117,6 +117,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.sheet,
   },
   ueber: { ...text.body, color: color.text.secondary, textAlign: 'center', marginTop: space[8] },
-  kartenName: { ...text.headline, fontSize: 32, lineHeight: 38, color: color.text.primary, textAlign: 'center' },
-  kartenText: { ...text.body, fontSize: 15, lineHeight: 21, color: color.text.primary, textAlign: 'center', opacity: 0.85 },
+  kartenName: { ...text.headlineLarge, color: color.text.primary, textAlign: 'center' },
+  kartenText: { ...text.reading, color: color.text.primary, textAlign: 'center', opacity: 0.85 },
 });

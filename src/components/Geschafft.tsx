@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   sub: { ...text.small, color: color.text.secondary },
   stats: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
   stat: { flexGrow: 1, flexBasis: '30%', gap: space[4], padding: space[12], borderRadius: radius.lg, backgroundColor: color.bg.surface },
-  statValue: { ...text.metric, fontSize: 24, lineHeight: 28, color: color.text.primary },
+  statValue: { ...text.metric, color: color.text.primary },
   statLabel: { ...text.caption, color: color.text.secondary },
   signal: { color: color.accent.signal },
   block: { gap: space[12] },

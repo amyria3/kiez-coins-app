@@ -187,9 +187,9 @@ const styles = StyleSheet.create({
   actorName: { fontFamily: font.semiBold },
   deadline: { flexDirection: 'row', alignItems: 'center', gap: space[6], alignSelf: 'flex-start' },
   bounty: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
-  bountyText: { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.signal },
-  bountyTextSmall: { fontSize: 16, lineHeight: 20 },
+  bountyText: { ...text.metricSm, color: color.accent.signal },
+  bountyTextSmall: { ...text.metricXs },
   done: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   doneLabel: { ...text.meta, color: color.text.secondary },
-  doneText: { fontFamily: font.display, fontSize: 14, lineHeight: 18, color: color.text.primary, fontVariant: ['tabular-nums'] },
+  doneText: { ...text.metricXs, color: color.text.primary, fontVariant: ['tabular-nums'] },
 });

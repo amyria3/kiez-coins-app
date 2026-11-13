@@ -23,7 +23,7 @@ import { BadgeOverview } from '../components/BadgeOverview';
 import { useFriends } from '../data/friends';
 import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
 import { useStore } from '../data/store';
-import { color, font, radius, size, space, text } from '../theme/tokens';
+import { color, radius, size, space, text } from '../theme/tokens';
 import { SchiffWellen } from '../components/SchiffWellen';
 import { getLanguage, t } from '../data/texts';
 import { useGoBack } from '../lib/goBack';
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   community: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: 3, rowGap: space[8] },
   communityIcons: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
-  communityText: { ...text.body, fontFamily: font.medium, color: COMMUNITY },
+  communityText: { ...text.label, color: COMMUNITY },
   flex1: { flex: 1 },
   task: {
     flexDirection: 'row',
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
   },
   // „Du bist dran“ in Gelb (color.accent.turn, Daria, 2026-11-13)
-  taskKicker: { ...text.caption, fontFamily: font.medium, color: color.accent.turn },
+  taskKicker: { ...text.captionStrong, color: color.accent.turn },
   taskTitle: { ...text.cardTitleCompact, color: color.text.primary },
   sub: { ...text.small, color: color.text.secondary },
   thumbFallback: { backgroundColor: color.bg.screen, alignItems: 'center', justifyContent: 'center' },

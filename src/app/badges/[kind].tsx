@@ -9,7 +9,7 @@ import { SubScreen } from '../../components/Screen';
 import { Text } from '../../components/T';
 import { BADGES, badgeMeta, badgeSteps, badgeTitle, useMyBadges, type BadgeKind } from '../../data/badges';
 import { useGoBack } from '../../lib/goBack';
-import { color, font, space, text } from '../../theme/tokens';
+import { color, space, text } from '../../theme/tokens';
 
 /**
  * Route `badges/[kind]`: ein Abzeichen im Detail, aus „Me“ (Daria, 2026-11-02).
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   szene: { width: '100%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center' },
   block: { gap: space[8] },
   status: { ...text.title, color: color.text.primary },
-  hint: { ...text.caption, fontFamily: font.medium, color: color.text.secondary },
+  hint: { ...text.captionStrong, color: color.text.secondary },
   label: { ...text.caption, letterSpacing: 1, textTransform: 'uppercase', color: color.text.secondary },
-  why: { ...text.body, fontSize: 15, lineHeight: 22, color: color.text.primary },
+  why: { ...text.reading, color: color.text.primary },
 });

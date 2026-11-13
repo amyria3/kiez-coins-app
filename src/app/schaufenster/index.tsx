@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: space[20], paddingTop: space[16], paddingBottom: space[8] },
   headline: { ...text.display, color: color.text.primary },
   headerCompact: { paddingHorizontal: space[16], paddingTop: space[4] },
-  kicker: { fontFamily: text.display.fontFamily, fontSize: 15, lineHeight: 20, color: color.text.secondary },
+  kicker: { ...text.photoLabel, color: color.text.secondary },
   // Abstände wie auf den anderen Seiten (Inhalt hat gap 16), Daria 2026-11-11
   showcase: { gap: space[16] },
   showcaseName: { ...text.display, color: color.text.primary, marginBottom: space[8] },

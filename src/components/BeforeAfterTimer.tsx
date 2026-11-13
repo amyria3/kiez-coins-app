@@ -7,7 +7,7 @@ import { formatClock } from '../data/format';
 import { BEFORE_AFTER_MAX_MS } from '../data/remote';
 import { t } from '../data/texts';
 import type { Challenge } from '../data/types';
-import { color, font, radius, space, stroke, text } from '../theme/tokens';
+import { color, radius, space, stroke, text } from '../theme/tokens';
 import { Text } from './T';
 
 /** Aktuelle Zeit, jede `everyMs` neu. Ohne `active` steht die Uhr. */
@@ -123,6 +123,6 @@ const styles = StyleSheet.create({
       },
   thumb: { width: 38, height: 38, borderRadius: 19 },
   texts: { flex: 1, gap: space[2] },
-  line1: { fontFamily: font.medium, fontSize: 14, lineHeight: 18, color: color.text.primary },
+  line1: { ...text.labelSm, color: color.text.primary },
   line2: { ...text.small, color: color.text.secondary, fontVariant: ['tabular-nums'] },
 });

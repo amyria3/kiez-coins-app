@@ -4,7 +4,7 @@ import { AccessibilityInfo, Animated, Easing, Platform, StyleSheet, View } from 
 import { SvgXml } from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { color, font, radius, space, text } from '../theme/tokens';
+import { color, radius, space, text } from '../theme/tokens';
 import { iconSvgs } from './icons/svgs';
 import { Text } from './T';
 import { t } from '../data/texts';
@@ -246,12 +246,12 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
   },
   texts: { flex: 1, gap: space[6] },
-  title: { ...text.cardTitle, fontSize: 15, lineHeight: 19, color: color.text.primary },
+  title: { ...text.cardTitleCompact, color: color.text.primary },
   bar: { height: 18, borderRadius: 6, backgroundColor: color.bg.screen, overflow: 'hidden', justifyContent: 'center' },
   fill: { position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 6, backgroundColor: color.accent.primary },
   // Heller Streifen oben im Balken wie im Vorbild
   shine: { position: 'absolute', left: 6, right: 6, top: 3, height: 3, borderRadius: 2, backgroundColor: 'rgba(255,255,255,.28)' },
-  count: { textAlign: 'center', fontFamily: font.semiBold, fontSize: 11, lineHeight: 14, color: color.text.primary },
+  count: { ...text.tag, textAlign: 'center', color: color.text.primary },
   gift: { width: GIFT_W + 8, height: GIFT_H, alignItems: 'center' },
   part: { position: 'absolute', left: 4, width: GIFT_W, overflow: 'hidden' },
   heart: { position: 'absolute', top: GIFT_H * 0.3, left: GIFT_W / 2 - 4 },

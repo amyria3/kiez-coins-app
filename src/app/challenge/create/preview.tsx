@@ -19,7 +19,7 @@ import { Icon } from '../../../components/icons/Icon';
 import { HeroScreen } from '../../../components/Screen';
 import { formatBountyShort, formatRemainingShort } from '../../../data/format';
 import { useCurrentUser, useStore } from '../../../data/store';
-import { color, font, motion, radius, size, space, stroke, text } from '../../../theme/tokens';
+import { color, motion, radius, size, space, stroke, text } from '../../../theme/tokens';
 import { useAppDimensions } from '../../../theme/layout';
 import { photoTextInput, useDraft } from './_layout';
 import { useGoBack } from '../../../lib/goBack';
@@ -364,6 +364,6 @@ const styles = StyleSheet.create({
   metricValue: { ...text.metricSm, color: color.text.primary },
   signal: { color: color.accent.signal },
   eden: { color: color.accent.confirmation },
-  description: { fontFamily: font.text, fontSize: 15, lineHeight: 22, color: color.text.secondary },
+  description: { ...text.reading, color: color.text.secondary },
   authorBlock: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
 });

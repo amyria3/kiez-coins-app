@@ -193,6 +193,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  badgeText: { fontFamily: font.semiBold, fontSize: 12, lineHeight: 16, color: color.bg.screen },
+  badgeText: { ...text.tag, color: color.bg.screen },
   hint: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
 });

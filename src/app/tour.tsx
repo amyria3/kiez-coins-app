@@ -460,7 +460,7 @@ const styles = StyleSheet.create({
   likeSmall: { position: 'absolute', top: 0 },
   liked: { ...text.caption, color: color.accent.affection, paddingRight: space[4] },
   title: { ...text.headline, color: color.text.primary },
-  body: { ...text.body, fontSize: 16, lineHeight: 23, color: color.text.secondary },
+  body: { ...text.readingLarge, color: color.text.secondary },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: space[8], paddingVertical: space[12] },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: color.line.hairline },
   dotActive: { width: 18, backgroundColor: color.accent.primary },
