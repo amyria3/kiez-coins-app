@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -28,7 +28,7 @@ import {
 import { useStore } from '../../../data/store';
 import { t } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
-import { placeActions } from '../../../lib/places';
+import { openLink, placeActions } from '../../../lib/places';
 import { color, font, radius, space, text } from '../../../theme/tokens';
 
 /**
@@ -160,7 +160,7 @@ export default function ShowcaseScreen() {
           {/* Mehrere Links (Daria, 2026-11-10) */}
           {s.links.length ? (
             s.links.map((l) => (
-              <Pressable key={l} onPress={() => Linking.openURL(l).catch(() => {})} accessibilityRole="link">
+              <Pressable key={l} onPress={() => openLink(l)} accessibilityRole="link">
                 <InfoRow icon="link" value={shortLink(l)} />
               </Pressable>
             ))

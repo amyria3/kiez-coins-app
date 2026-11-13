@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -27,6 +27,7 @@ import { useStore } from '../../../data/store';
 import { color, radius, space, text } from '../../../theme/tokens';
 import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
+import { openLink } from '../../../lib/places';
 
 /**
  * Route `user/[id]` (Push). Einfache Ansicht einer anderen Person: Foto, Name, Kiez, Lob.
@@ -153,7 +154,7 @@ export default function UserProfile() {
           <Pressable
             accessibilityRole="link"
             accessibilityLabel={t('Webseite öffnen: {website}', { website })}
-            onPress={() => Linking.openURL(website).catch(() => {})}
+            onPress={() => openLink(website)}
             style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}
           >
             <Icon name="link" size={13} color={color.accent.primary} />
