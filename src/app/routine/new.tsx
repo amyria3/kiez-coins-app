@@ -6,6 +6,7 @@ import { Button } from '../../components/Button';
 import { FieldGroup, Notice, QuestionHint } from '../../components/Content';
 import { Chip, ChipGroup, TextField } from '../../components/Form';
 import { NudgeArea, useNudge } from '../../components/Nudge';
+import { ReminderExtrasFields, type Extras } from '../../components/ReminderExtras';
 import { SubScreen } from '../../components/Screen';
 import { WEEKDAYS, weekdayShort } from '../../data/katerRoutine';
 import { addDays, createReminder, localDate, parseDate, TIME } from '../../data/reminders';
@@ -22,6 +23,8 @@ export default function NewReminder() {
   const router = useRouter();
   const [want, setWant] = useState('');
   const [description, setDescription] = useState('');
+  // Ort, Telefon, Link (Daria, 2026-11-13)
+  const [extras, setExtras] = useState<Extras>({ place: '', phone: '', link: '' });
   const [mode, setMode] = useState<'once' | 'week' | 'days'>('once');
   const [day, setDay] = useState<'today' | 'tomorrow' | 'other'>('today');
   const [date, setDate] = useState('');
@@ -60,6 +63,7 @@ export default function NewReminder() {
     const ok = await createReminder({
       want: want.trim().replace(/^ich will\s+/i, ''),
       description,
+      ...extras,
       onDate: mode === 'once' ? onDate ?? undefined : undefined,
       atTime: mode === 'once' ? (timeKind !== 'until' ? hhmm(from) : undefined) : mode === 'days' && time.trim() ? hhmm(time) : undefined,
       untilTime: mode === 'once' && timeKind !== 'at' ? hhmm(until) : undefined,
@@ -108,6 +112,7 @@ export default function NewReminder() {
     >
       <TextField label="Ich will …" placeholder="joggen gehen" value={want} onChangeText={setWant} maxLength={60} required autoFocus nudge={wantField} />
       <TextField label="Beschreibung" value={description} onChangeText={setDescription} maxLength={500} multiline />
+      <ReminderExtrasFields value={extras} onChange={setExtras} />
       {/* Erklärungen als Dialog mit Blasen statt als Hilfetext (Daria, 2026-11-10) */}
       <QuestionHint
         question="Wofür ist die Beschreibung?"

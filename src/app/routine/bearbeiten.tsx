@@ -6,6 +6,7 @@ import { Button } from '../../components/Button';
 import { Notice } from '../../components/Content';
 import { Chip, ChipGroup, TextField } from '../../components/Form';
 import { useNudge } from '../../components/Nudge';
+import { ReminderExtrasFields, type Extras } from '../../components/ReminderExtras';
 import { SubScreen } from '../../components/Screen';
 import { loadReminders, parseDate, TIME, updateReminder, type Reminder } from '../../data/reminders';
 import { useGoBack } from '../../lib/goBack';
@@ -19,7 +20,7 @@ const hhmm = (v: string) => v.trim().padStart(5, '0');
 
 /**
  * Route `routine/bearbeiten?id=…` (Daria, 2026-11-13): Erinnerung bearbeiten. Öffnet über „•••“ › „Bearbeiten“ und
- * über ein Tippen auf Titel oder Zeit der Karte. Titel, Beschreibung, Tag und Zeit mit „bis“ (to), „um“ (around)
+ * über ein Tippen auf Titel oder Zeit der Karte. Titel, Beschreibung, Ort, Telefon, Link, Tag und Zeit mit „bis“ (to), „um“ (around)
  * oder „von … bis“. Feste Tage ändern nur die Uhrzeit, x-mal pro Woche hat keine.
  */
 export default function EditReminder() {
@@ -29,6 +30,7 @@ export default function EditReminder() {
   const [reminder, setReminder] = useState<Reminder | null | undefined>(undefined);
   const [want, setWant] = useState('');
   const [description, setDescription] = useState('');
+  const [extras, setExtras] = useState<Extras>({ place: '', phone: '', link: '' });
   const [date, setDate] = useState('');
   const [timeKind, setTimeKind] = useState<TimeKind>('until');
   const [from, setFrom] = useState('');
@@ -50,6 +52,7 @@ export default function EditReminder() {
         if (!r) return;
         setWant(r.want);
         setDescription(r.description ?? '');
+        setExtras({ place: r.place ?? '', phone: r.phone ?? '', link: r.link ?? '' });
         if (r.onDate) {
           setDate(dotted(r.onDate));
           setTimeKind(r.atTime && r.untilTime ? 'range' : r.atTime ? 'at' : 'until');
@@ -79,6 +82,7 @@ export default function EditReminder() {
     const ok = await updateReminder(reminder, {
       want: want.trim().replace(/^ich will\s+/i, ''),
       description,
+      ...extras,
       onDate: onDate ?? undefined,
       atTime: once ? (timeKind !== 'until' ? hhmm(from) : undefined) : fixedDays && time.trim() ? hhmm(time) : undefined,
       untilTime: once && timeKind !== 'at' ? hhmm(until) : undefined,
@@ -113,6 +117,7 @@ export default function EditReminder() {
         <>
           <TextField label="Ich will …" placeholder="joggen gehen" value={want} onChangeText={setWant} maxLength={60} required nudge={wantField} />
           <TextField label="Beschreibung" value={description} onChangeText={setDescription} maxLength={500} multiline />
+          <ReminderExtrasFields value={extras} onChange={setExtras} />
           {once ? (
             <>
               <TextField
