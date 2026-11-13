@@ -47,6 +47,7 @@ export function RoutineList({
   onDone,
   onEnd,
   onNew,
+  onEdit,
   onChanged,
 }: {
   list: Reminder[];
@@ -56,6 +57,8 @@ export function RoutineList({
   /** Aufgeben oder abbrechen, mit Rückfrage (Daria, 2026-11-13) */
   onEnd: (r: Reminder, how: ReminderEnd) => void;
   onNew: () => void;
+  /** Bearbeiten über „•••“ oder Tippen auf Titel oder Zeit (Daria, 2026-11-13) */
+  onEdit: (r: Reminder) => void;
   onChanged: () => void;
 }) {
   const focus = list.length ? katerFocus(list) : undefined;
@@ -74,14 +77,14 @@ export function RoutineList({
       {tasks.length ? (
         <Group title="Aufgaben" count={tasks.length}>
           {tasks.map((r) => (
-            <TaskCard key={r.id} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} />
+            <TaskCard key={r.id} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} />
           ))}
         </Group>
       ) : null}
       {fixed.length || calendar.length ? (
         <Group title="Feste Termine" count={fixed.length + calendar.length}>
           {fixed.map((r) => (
-            <TerminCard key={r.id} reminder={r} bg={OLIVE} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} />
+            <TerminCard key={r.id} reminder={r} bg={OLIVE} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} />
           ))}
           {calendar.map((e) => (
             <CalendarCard key={e.id} event={e} />
@@ -91,7 +94,7 @@ export function RoutineList({
       {optional.length || saved.length ? (
         <Group title="Das hast Du Dir vorgemerkt" count={optional.length + saved.length}>
           {optional.map((r) => (
-            <TerminCard key={r.id} reminder={r} bg={PUDER} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} />
+            <TerminCard key={r.id} reminder={r} bg={PUDER} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} />
           ))}
           {saved.map((e) => (
             <SavedCard key={e.id} event={e} onChanged={onChanged} />
@@ -270,7 +273,7 @@ function Card({
 }
 
 /** Auch in der Tour (TourDemo), dort mit Beispieldaten und als einzelne Karte zum Wischen */
-export function DemoTaskCard(props: { reminder: Reminder; onDone: () => void; onGiveUp: () => void; onCancel: () => void }) {
+export function DemoTaskCard(props: { reminder: Reminder; onDone: () => void; onGiveUp: () => void; onCancel: () => void; onEdit?: () => void }) {
   return (
     <Alone.Provider value>
       <TaskCard {...props} />
@@ -278,11 +281,24 @@ export function DemoTaskCard(props: { reminder: Reminder; onDone: () => void; on
   );
 }
 
-function TaskCard({ reminder: r, onDone, onGiveUp, onCancel }: { reminder: Reminder; onDone: () => void; onGiveUp: () => void; onCancel: () => void }) {
+function TaskCard({
+  reminder: r,
+  onDone,
+  onGiveUp,
+  onCancel,
+  onEdit,
+}: {
+  reminder: Reminder;
+  onDone: () => void;
+  onGiveUp: () => void;
+  onCancel: () => void;
+  onEdit?: () => void;
+}) {
   const goal = goalOf(r);
   const done = Math.min(r.doneThisWeek, goal);
   const resting = r.doneToday || r.doneThisWeek >= goal;
   const cancel = { label: 'Das hier abbrechen', onPress: onCancel };
+  const edit = onEdit ? [{ label: 'Bearbeiten', onPress: onEdit }] : [];
   return (
     <Card
       bg={SENF}
@@ -291,14 +307,7 @@ function TaskCard({ reminder: r, onDone, onGiveUp, onCancel }: { reminder: Remin
       longPressHint="Lange drücken zum Abbrechen"
       onSwipeRight={resting ? undefined : onDone}
       onSwipeLeft={onCancel}
-      head={
-        <>
-          <Text style={styles.meta}>{r.onDate ? whenText(r) : goalText(r)}</Text>
-          <Text noTranslate style={styles.title} numberOfLines={2}>
-            {capitalize(r.want)}
-          </Text>
-        </>
-      }
+      head={<CardHead meta={r.onDate ? whenText(r) : goalText(r)} title={capitalize(r.want)} onEdit={onEdit} />}
     >
       {goal > 1 ? <Text style={styles.sub}>{t('{done} von {goal} diese Woche', { done, goal })}</Text> : null}
       {goal > 1 ? (
@@ -315,42 +324,60 @@ function TaskCard({ reminder: r, onDone, onGiveUp, onCancel }: { reminder: Remin
           ))}
         </View>
       ) : null}
-      {/* Erledigt, Aufgeben und im Menü „Das hier abbrechen“ (Daria, 2026-11-13); alle drei zählen im Kalender */}
+      {/* Erledigt, Aufgeben und im Menü „Das hier abbrechen“ (Daria, 2026-11-13); alle drei zählen im Kalender.
+          Buttons mit festem Abstand beieinander, nur „•••“ rechts (Daria, 2026-11-13) */}
       {resting ? (
         <View style={styles.actions}>
           <Text style={styles.state}>{r.doneToday ? 'Heute erledigt' : 'Ziel erreicht'}</Text>
-          <ManageButton dots={INK} label="Mehr zu dieser Aufgabe" items={[{ label: 'Aufgeben', onPress: onGiveUp }, cancel]} />
+          <ManageButton dots={INK} style={styles.more} label="Mehr zu dieser Aufgabe" items={[...edit, { label: 'Aufgeben', onPress: onGiveUp }, cancel]} />
         </View>
       ) : (
         <View style={styles.actions}>
           <HandButton label="Aufgeben" onPress={onGiveUp} />
-          <View style={styles.actionsEnd}>
-            <HandButton label="Erledigt" onPress={onDone} filled bg={SENF} />
-            <ManageButton dots={INK} label="Mehr zu dieser Aufgabe" items={[cancel]} />
-          </View>
+          <HandButton label="Erledigt" onPress={onDone} filled bg={SENF} />
+          <ManageButton dots={INK} style={styles.more} label="Mehr zu dieser Aufgabe" items={[...edit, cancel]} />
         </View>
       )}
     </Card>
   );
 }
 
-function TerminCard({ reminder: r, bg, onDone, onEnd }: { reminder: Reminder; bg: string; onDone: () => void; onEnd: () => void }) {
+function TerminCard({ reminder: r, bg, onDone, onEnd, onEdit }: { reminder: Reminder; bg: string; onDone: () => void; onEnd: () => void; onEdit: () => void }) {
+  // Jede Karte mit „•••“ und „Bearbeiten“, auch feste Termine (Daria, 2026-11-13)
+  const more = <ManageButton dots={INK} style={styles.more} label="Mehr zu diesem Termin" items={[{ label: 'Bearbeiten', onPress: onEdit }]} />;
   return (
-    <Card
-      bg={bg}
-      mood={moodOf(r)}
-      onLongPress={onEnd}
-      head={
-        <>
-          <Text style={styles.meta}>{whenText(r)}</Text>
-          <Text noTranslate style={styles.title} numberOfLines={2}>
-            {capitalize(r.want)}
-          </Text>
-        </>
-      }
-    >
-      {r.doneToday ? <Text style={styles.state}>Erledigt</Text> : <Actions bg={bg} onDone={onDone} onEnd={onEnd} />}
+    <Card bg={bg} mood={moodOf(r)} onLongPress={onEnd} head={<CardHead meta={whenText(r)} title={capitalize(r.want)} onEdit={onEdit} />}>
+      {r.doneToday ? (
+        <View style={styles.actions}>
+          <Text style={styles.state}>Erledigt</Text>
+          {more}
+        </View>
+      ) : (
+        <View style={styles.actions}>
+          <HandButton label="Beenden" onPress={onEnd} />
+          <HandButton label="Erledigt" onPress={onDone} filled bg={bg} />
+          {more}
+        </View>
+      )}
     </Card>
+  );
+}
+
+/** Zeit und Titel einer Karte. Mit `onEdit` öffnet ein Tippen darauf das Bearbeiten (Daria, 2026-11-13). */
+function CardHead({ meta, title, onEdit }: { meta: string; title: string; onEdit?: () => void }) {
+  const content = (
+    <>
+      <Text style={styles.meta}>{meta}</Text>
+      <Text noTranslate style={styles.title} numberOfLines={2}>
+        {title}
+      </Text>
+    </>
+  );
+  if (!onEdit) return content;
+  return (
+    <Pressable onPress={onEdit} accessibilityRole="button" accessibilityHint={t('Öffnet das Bearbeiten')} style={({ pressed }) => [styles.headPress, pressed && styles.pressed]}>
+      {content}
+    </Pressable>
   );
 }
 
@@ -411,15 +438,6 @@ function SavedCard({ event: e, onChanged }: { event: Saved; onChanged: () => voi
         {e.cancelled ? null : <HandButton label="Kalender" onPress={toCalendar} filled bg={PUDER} />}
       </View>
     </Card>
-  );
-}
-
-function Actions({ bg, onDone, onEnd }: { bg: string; onDone: () => void; onEnd: () => void }) {
-  return (
-    <View style={styles.actions}>
-      <HandButton label="Beenden" onPress={onEnd} />
-      <HandButton label="Erledigt" onPress={onDone} filled bg={bg} />
-    </View>
   );
 }
 
@@ -677,6 +695,7 @@ const styles = StyleSheet.create({
   cardTall: { minHeight: 260 },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   head: { flex: 1, gap: 2 },
+  headPress: { gap: 2 },
   // Platz für den Sticker, der links unter dem Kater herausragt
   katerSide: { marginLeft: 28, marginBottom: 8, alignSelf: 'flex-start' },
   chip: {
@@ -731,14 +750,14 @@ const styles = StyleSheet.create({
   bar: { flexDirection: 'row', gap: space[4], marginVertical: 2 },
   segment: { flex: 1, height: 5, borderRadius: 3, backgroundColor: INK_TRACK },
   segmentDone: { backgroundColor: INK },
+  // Buttons mit festem Abstand beieinander; nur „•••“ rückt nach rechts (Daria, 2026-11-13)
   actions: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     gap: space[8],
     marginTop: space[4],
   },
-  actionsEnd: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  more: { marginLeft: 'auto' },
   // Im Browser markiert Ziehen mit der Maus sonst den Text, und die Karte bleibt stehen
   swipe: { flex: 1, userSelect: 'none' },
   swipeHints: {

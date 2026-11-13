@@ -242,6 +242,26 @@ export async function createReminder(input: ReminderInput): Promise<boolean> {
 }
 
 /**
+ * Erinnerung bearbeiten (Daria, 2026-11-13): Titel, Beschreibung, Tag und Uhrzeit mit „bis“, „um“ oder
+ * „von … bis“. Die Art bleibt: Einmalige bleiben einmalig, feste Tage bleiben feste Tage (nur die Uhrzeit ändert
+ * sich), x-mal pro Woche hat keine Uhrzeit.
+ */
+export async function updateReminder(r: Reminder, input: Pick<ReminderInput, 'want' | 'description' | 'onDate' | 'atTime' | 'untilTime'>): Promise<boolean> {
+  const base = { want: input.want.trim(), description: input.description?.trim() || null };
+  const { error } = await supabase
+    .from('reminders')
+    .update(
+      r.onDate
+        ? { ...base, on_date: input.onDate ?? r.onDate, at_time: input.atTime ?? null, until_time: input.untilTime ?? null }
+        : r.weekdays?.length
+          ? { ...base, at_time: input.atTime ?? null }
+          : base,
+    )
+    .eq('id', r.id);
+  return !error;
+}
+
+/**
  * Wie eine Erinnerung endet (Daria, 2026-11-13): aufgegeben („Give up“) oder abgebrochen („Cancel this“).
  * Erledigt steht in `reminder_done`. Alle drei zählen im Kalender der Routine.
  */
