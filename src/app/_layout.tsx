@@ -28,6 +28,7 @@ import { LoadingScreen } from '../components/GearsLoader';
 import { StartKater } from '../components/StartKater';
 import { InstallHint } from '../components/InstallHint';
 import { WebSafeArea } from '../components/WebSafeArea';
+import { FrontSpaceProvider } from '../theme/signal';
 import { KeyboardProvider } from '../components/Keyboard';
 import { FriendInviteNotice } from '../components/FriendInviteNotice';
 import { BadgeNotice } from '../components/BadgeNotice';
@@ -170,9 +171,12 @@ function RootStack() {
               <UpdateHint />
             </>
           )}
-          <ShareDialogHost />
-          <WebAlertHost />
-          <CrosspostDialogHost />
+          {/* Dialoge über der App in der Farbe der vorderen Seite, z. B. gelb in „Me & Myself“ (Daria, 2026-11-13) */}
+          <FrontSpaceProvider>
+            <ShareDialogHost />
+            <WebAlertHost />
+            <CrosspostDialogHost />
+          </FrontSpaceProvider>
           {intro ? null : <TourOffer />}
           <HeartBurst />
         </>

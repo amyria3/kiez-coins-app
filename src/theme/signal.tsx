@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, useContext, useSyncExternalStore, type ReactNode } from 'react';
 
 import { color, isFashionable } from './tokens';
 
@@ -41,6 +41,33 @@ export function useAccentColor(): string {
 /** Fokus und eingeschaltete Schalter: Gelbgrün, in „Me & Myself“ Gelb (Daria, 2026-11-13) */
 export function useFocusColor(): string {
   return spaceColors(useSpace()).focus;
+}
+
+/**
+ * Bereich der Seite, die gerade vorn ist (Daria, 2026-11-13). Für alles, was über der ganzen App liegt und deshalb
+ * außerhalb des Feeds gezeichnet wird: Dialoge („Foto hinzufügen“), Teilen, Weiterposten. Der Feed setzt ihn,
+ * solange er vorn ist; sonst gilt `public`.
+ */
+let frontSpace: Space = 'public';
+const frontListeners = new Set<() => void>();
+export function setFrontSpace(next: Space) {
+  if (next === frontSpace) return;
+  frontSpace = next;
+  frontListeners.forEach((l) => l());
+}
+export function useFrontSpace(): Space {
+  return useSyncExternalStore(
+    (l) => {
+      frontListeners.add(l);
+      return () => frontListeners.delete(l);
+    },
+    () => frontSpace,
+    () => frontSpace,
+  );
+}
+/** Gibt den Bereich der vorderen Seite an Overlays weiter, die über der App liegen */
+export function FrontSpaceProvider({ children }: { children: ReactNode }) {
+  return <SpaceContext.Provider value={useFrontSpace()}>{children}</SpaceContext.Provider>;
 }
 
 /** true, wenn hier Gelb statt Lila gilt */
