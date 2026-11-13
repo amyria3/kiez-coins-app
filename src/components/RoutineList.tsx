@@ -147,8 +147,11 @@ function Group({ title, count, children }: { title: string; count: number; child
 type Mood = KaterMood;
 const moodOf = (r: Reminder) => katerMood(r);
 
-/** Ab dieser Kartenbreite steht der Kater neben Titel und Wochentagen (Daria, 2026-11-12) */
-const SIDE_BY_SIDE = 340;
+/**
+ * Ab dieser Kartenbreite steht der Kater neben Titel und Wochentagen (Daria, 2026-11-12).
+ * Seit 2026-11-13 immer daneben, damit die Karten deutlich flacher sind (Daria).
+ */
+const SIDE_BY_SIDE = 0;
 
 function Card({ bg, mood, head, children, onLongPress }: { bg: string; mood: Mood; head: ReactNode; children?: ReactNode; onLongPress?: () => void }) {
   const [wide, setWide] = useState(false);
@@ -156,7 +159,7 @@ function Card({ bg, mood, head, children, onLongPress }: { bg: string; mood: Moo
     // Ring in der Farbe des Grunds (Daria, 2026-11-12)
     <View style={wide && styles.katerSide}>
       <View style={styles.katerRing}>
-        <KaterRund size={60} bg={bg} />
+        <KaterRund size={40} bg={bg} />
       </View>
       {/* Stimmung klebt schräg am Kater wie ein Sticker (Daria, 2026-11-12) */}
       <View style={styles.chip} pointerEvents="none">
@@ -544,25 +547,25 @@ const styles = StyleSheet.create({
     flex: 1,
     // Weniger rund (Daria, 2026-11-12): vorher 30, dann 16
     borderRadius: 10,
-    padding: 18,
-    gap: space[8],
+    padding: 14,
+    gap: 6,
   },
   cardTop: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'flex-start',
   },
-  cardBody: { flex: 1, justifyContent: 'flex-end', gap: space[8] },
+  cardBody: { flex: 1, justifyContent: 'flex-end', gap: 6 },
   // Neben dem Kater braucht die Karte oben keinen Platz mehr
   cardTall: { minHeight: 260 },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
-  head: { flex: 1, gap: space[8] },
+  head: { flex: 1, gap: 2 },
   // Platz für den Sticker, der links unter dem Kater herausragt
-  katerSide: { marginLeft: 56, marginBottom: 8 },
+  katerSide: { marginLeft: 28, marginBottom: 8, alignSelf: 'flex-start' },
   chip: {
     position: 'absolute',
-    right: 30,
-    bottom: -8,
+    right: 4,
+    bottom: -10,
     backgroundColor: color.bg.screen,
     borderRadius: 20,
     paddingHorizontal: 10,
@@ -571,12 +574,12 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontFamily: font.medium,
-    fontSize: 13,
-    lineHeight: 17,
+    fontSize: 12,
+    lineHeight: 15,
     color: color.text.primary,
   },
   katerRing: {
-    borderRadius: 33,
+    borderRadius: 23,
     borderWidth: 3,
     borderColor: color.bg.screen,
     overflow: 'hidden',
@@ -589,9 +592,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: font.medium,
-    fontSize: 28,
-    lineHeight: 32,
-    letterSpacing: -0.4,
+    fontSize: 20,
+    lineHeight: 24,
+    letterSpacing: -0.2,
     color: INK,
   },
   struck: { textDecorationLine: 'line-through' },
@@ -619,7 +622,7 @@ const styles = StyleSheet.create({
     marginTop: space[4],
   },
   hand: {
-    height: 42,
+    height: 34,
     minWidth: 96,
     alignItems: 'center',
     justifyContent: 'center',
