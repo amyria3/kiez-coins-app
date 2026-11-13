@@ -144,12 +144,30 @@ export async function loadReminders(): Promise<Reminder[] | null> {
  * Zählt erst ab dem Tag, an dem die Erinnerung angelegt wurde, und nur bis sie beendet wurde.
  */
 /** `doneBy`/`missedBy`: je Tag die Namen („want“) der Erinnerungen */
-export type RoutineDays = { done: Set<string>; missed: Set<string>; doneBy: Map<string, string[]>; missedBy: Map<string, string[]> };
+export type RoutineDays = {
+  done: Set<string>;
+  missed: Set<string>;
+  doneBy: Map<string, string[]>;
+  missedBy: Map<string, string[]>;
+  /** Je Tag die Namen der Erinnerungen, die an dem Tag aufgegeben bzw. abgebrochen wurden (Daria, 2026-11-13) */
+  givenUpBy: Map<string, string[]>;
+  cancelledBy: Map<string, string[]>;
+};
 export async function loadRoutineDays(from: Date, to: Date, now = new Date()): Promise<RoutineDays> {
-  const empty: RoutineDays = { done: new Set(), missed: new Set(), doneBy: new Map(), missedBy: new Map() };
-  const { data, error } = await supabase.from('reminders').select('id, want, weekdays, created_at, archived_at');
+  const empty: RoutineDays = { done: new Set(), missed: new Set(), doneBy: new Map(), missedBy: new Map(), givenUpBy: new Map(), cancelledBy: new Map() };
+  const columns = 'id, want, weekdays, created_at, archived_at';
+  // Ohne die Migration 20261113000200 fehlt `ended_as`: dann ohne die Spalte laden
+  let { data, error } = await supabase.from('reminders').select(`${columns}, ended_as`);
+  if (error) ({ data, error } = await supabase.from('reminders').select(columns));
   if (error || !data?.length) return empty;
-  const rows = data as { id: string; want: string; weekdays: number[] | null; created_at: string; archived_at: string | null }[];
+  const rows = data as unknown as {
+    id: string;
+    want: string;
+    weekdays: number[] | null;
+    created_at: string;
+    archived_at: string | null;
+    ended_as?: ReminderEnd | null;
+  }[];
   const end = addDays(1, dayStart(to));
   const { data: doneRows } = await supabase
     .from('reminder_done')
@@ -188,7 +206,18 @@ export async function loadRoutineDays(from: Date, to: Date, now = new Date()): P
       }
     }
   }
-  return { done, missed, doneBy: doneNames, missedBy: missedNames };
+  // Aufgegeben und abgebrochen zählen an dem Tag, an dem es passiert ist
+  const givenUpBy = new Map<string, string[]>();
+  const cancelledBy = new Map<string, string[]>();
+  const first = localDate(dayStart(from));
+  const last = localDate(dayStart(to));
+  for (const r of rows) {
+    if (!r.archived_at || !r.ended_as) continue;
+    const day = localDate(new Date(r.archived_at));
+    if (day < first || day > last) continue;
+    byDay(r.ended_as === 'given_up' ? givenUpBy : cancelledBy, day, r.want);
+  }
+  return { done, missed, doneBy: doneNames, missedBy: missedNames, givenUpBy, cancelledBy };
 }
 
 export async function createReminder(input: ReminderInput): Promise<boolean> {
@@ -212,10 +241,22 @@ export async function createReminder(input: ReminderInput): Promise<boolean> {
   return !error;
 }
 
-/** Erinnerung beenden: Sie verschwindet aus der Liste, Erledigungen bleiben erhalten */
-export async function archiveReminder(id: string): Promise<boolean> {
-  const { error } = await supabase.from('reminders').update({ archived_at: new Date().toISOString() }).eq('id', id);
-  return !error;
+/**
+ * Wie eine Erinnerung endet (Daria, 2026-11-13): aufgegeben („Give up“) oder abgebrochen („Cancel this“).
+ * Erledigt steht in `reminder_done`. Alle drei zählen im Kalender der Routine.
+ */
+export type ReminderEnd = 'given_up' | 'cancelled';
+
+/**
+ * Erinnerung beenden: Sie verschwindet aus der Liste, Erledigungen bleiben erhalten. `how` steht in `ended_as`
+ * (Migration 20261113000200_erinnerung_ausgang). Fehlt die Migration noch, endet die Erinnerung ohne Angabe.
+ */
+export async function archiveReminder(id: string, how: ReminderEnd = 'cancelled'): Promise<boolean> {
+  const archived_at = new Date().toISOString();
+  const { error } = await supabase.from('reminders').update({ archived_at, ended_as: how }).eq('id', id);
+  if (!error) return true;
+  const { error: plain } = await supabase.from('reminders').update({ archived_at }).eq('id', id);
+  return !plain;
 }
 
 /** Hakt die Erinnerung für jetzt ab. Gibt die id der Erledigung zurück, `null` bei Fehlern. */

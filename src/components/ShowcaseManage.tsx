@@ -4,6 +4,7 @@ import { Modal, Pressable, StyleSheet, View, useWindowDimensions } from 'react-n
 
 import { t } from '../data/texts';
 import { color, font, radius, scheme, size, space, stroke, text } from '../theme/tokens';
+import { Icon } from './icons/Icon';
 import { Text } from './T';
 
 export type ManageItem = { label: string; onPress: () => void };
@@ -13,7 +14,8 @@ export type ManageItem = { label: string; onPress: () => void };
  * erstellen und Schaufenster bearbeiten. Steht rechts in der Kopfzeile und ganz unten auf der Seite. Unten in der
  * Hälfte des Bildschirms klappt das Menü nach oben auf.
  */
-export function ManageButton({ items, style }: { items: ManageItem[]; style?: object }) {
+/** `dots`: drei Punkte statt „Verwalten“, z. B. auf den Aufgaben-Karten der Routine (Daria, 2026-11-13); Farbe der Punkte */
+export function ManageButton({ items, style, dots, label = 'Schaufenster verwalten' }: { items: ManageItem[]; style?: object; dots?: string; label?: string }) {
   const button = useRef<View>(null);
   const [anchor, setAnchor] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
   const { width, height } = useWindowDimensions();
@@ -25,12 +27,12 @@ export function ManageButton({ items, style }: { items: ManageItem[]; style?: ob
       <View ref={button} collapsable={false} style={style}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={t('Schaufenster verwalten')}
+          accessibilityLabel={t(label)}
           hitSlop={8}
           onPress={() => button.current?.measureInWindow((x, y, w, h) => setAnchor({ x, y, w, h }))}
-          style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+          style={({ pressed }) => [dots ? styles.dots : styles.button, pressed && styles.pressed]}
         >
-          <Text style={styles.label}>Verwalten</Text>
+          {dots ? <Icon name="more" color={dots} size={14} /> : <Text style={styles.label}>Verwalten</Text>}
         </Pressable>
       </View>
       <Modal visible={!!anchor} transparent animationType="fade" statusBarTranslucent navigationBarTranslucent onRequestClose={close}>
@@ -72,6 +74,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: space[12],
   },
+  dots: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center' },
   label: { ...text.caption, fontFamily: font.medium, color: color.text.primary, textDecorationLine: 'underline' },
   pressed: { opacity: 0.6 },
   menu: {

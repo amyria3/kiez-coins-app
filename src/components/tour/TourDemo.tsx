@@ -13,10 +13,12 @@ import { TagTextField } from '../compose/BeforeAfterForm';
 import { Cat } from '../icons/Brand';
 import { CameraButton } from '../TabBar';
 import { RewardField, type RewardValue } from '../compose/RewardField';
+import { TaskCard } from '../RoutineList';
 import { Text } from '../T';
 import { sampleChallenges, sampleUsers } from '../../data/sample';
 import { t } from '../../data/texts';
 import type { Challenge } from '../../data/types';
+import type { Reminder } from '../../data/reminders';
 import { color, radius, space, text } from '../../theme/tokens';
 
 /**
@@ -48,6 +50,10 @@ export function TourDemo({ stepKey }: { stepKey: string }) {
       return <RadiusDemo />;
     case 'privat':
       return <PrivateDemo />;
+    case 'kalender':
+      return <RoutineDemo />;
+    case 'schaufenster':
+      return <ShowcaseDemo />;
     default:
       return <Cat mood="high" height={120} />;
   }
@@ -473,7 +479,66 @@ function PrivateDemo() {
   );
 }
 
+/** Routine: Aufgaben-Karte wie in der App. „Erledigt“ oder „Aufgeben“ antippen, der Hinweis sagt, was passiert ist. */
+function RoutineDemo() {
+  const [state, setState] = useState<'open' | 'done' | 'given_up' | 'cancelled'>('open');
+  const task: Reminder = { id: 'tour', want: 'Larisa anrufen', perWeek: 1, doneThisWeek: state === 'done' ? 1 : 0, doneToday: state === 'done' };
+  const cue =
+    state === 'open'
+      ? 'Tippe auf „Erledigt“ oder „Aufgeben“'
+      : state === 'done'
+        ? 'Erledigt. Der Tag ist im Kalender markiert.'
+        : state === 'given_up'
+          ? 'Aufgegeben. Auch das zählt im Kalender.'
+          : 'Abgebrochen. Auch das zählt im Kalender.';
+  return (
+    <Demo cue={cue}>
+      {state === 'given_up' || state === 'cancelled' ? null : (
+        <Pad>
+          <NextStep on={state === 'open'}>
+            <TaskCard reminder={task} onDone={() => setState('done')} onGiveUp={() => setState('given_up')} onCancel={() => setState('cancelled')} />
+          </NextStep>
+        </Pad>
+      )}
+      {state === 'open' ? null : (
+        <Done onAgain={() => setState('open')} focus={false}>
+          Ich erinnere Dich, ganz ohne Druck. Na gut, mit ein bisschen.
+        </Done>
+      )}
+    </Demo>
+  );
+}
+
+/** Schaufenster: Kopf eines Ladens und ein Termin. „Speichern“ legt den Termin in die Routine. */
+function ShowcaseDemo() {
+  const [saved, setSaved] = useState(false);
+  return (
+    <Demo cue={saved ? 'Gespeichert. Der Termin steht jetzt in Deiner Routine.' : 'Tippe auf „Speichern“'}>
+      <Pad>
+        <View style={styles.shop}>
+          <Text noTranslate style={styles.shopName}>
+            Café Kiezblick
+          </Text>
+          <Text style={styles.shopSub}>Schaufenster · Kaffee, Kuchen und Kiezgespräche</Text>
+        </View>
+        <View style={styles.shopEvent}>
+          <Text style={styles.shopSub}>Samstag um 15:00</Text>
+          <Text style={styles.shopTitle}>Offener Spielenachmittag</Text>
+          <NextStep on={!saved}>
+            <Button label={saved ? 'Gespeichert' : 'Speichern'} variant={saved ? 'secondary' : 'primary'} onPress={() => setSaved(!saved)} />
+          </NextStep>
+        </View>
+      </Pad>
+    </Demo>
+  );
+}
+
 const styles = StyleSheet.create({
+  shop: { gap: space[4] },
+  shopName: { ...text.headline, color: color.text.primary },
+  shopSub: { ...text.caption, color: color.text.secondary },
+  shopTitle: { ...text.cardTitle, color: color.text.primary },
+  shopEvent: { gap: space[8], padding: space[16], borderRadius: radius.lg, backgroundColor: color.bg.screen },
   ring: {
     position: 'absolute',
     top: -5,

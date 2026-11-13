@@ -123,7 +123,7 @@ export function FeatureSwitches({ children }: { children?: ReactNode } = {}) {
               <View style={[styles.texts, !usable && styles.dim]}>
                 <Text style={[text.body, { color: color.text.primary }]}>{p.label}</Text>
                 <Text style={[text.caption, { color: color.text.secondary }]}>
-                  {usable ? 'Posts ohne Challenge. Deine eigenen siehst Du immer.' : p.off}
+                  {usable ? 'Posts ohne Challenge. Posten kannst Du Bilder und Texte trotzdem.' : p.off}
                 </Text>
               </View>
               <View style={!usable && styles.locked} pointerEvents={usable ? 'auto' : 'none'}>
