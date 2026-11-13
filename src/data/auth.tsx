@@ -178,7 +178,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Jede Sitzung einer anderen Person lädt, egal mit welchem Ereignis: Startet die App offline mit abgelaufenem
       // Token, kommt die Sitzung erst mit TOKEN_REFRESHED zurück, und ohne Laden blieben Profil und Feed leer.
       if (next && started.current && next.user.id !== appliedUserId.current) setTimeout(() => apply(next), 0);
-      else setSession(next);
+      // Dieselbe Sitzung mit demselben Token behält ihr Objekt (Daria, 2026-11-13). Sonst liefen bei jedem
+      // Zurückwechseln alle Effekte neu, die an `session` hängen, und Seiten luden ihre Daten neu.
+      else setSession((prev) => (prev && next && prev.user.id === next.user.id && prev.access_token === next.access_token ? prev : next));
       if (event === 'SIGNED_OUT') {
         appliedUserId.current = null;
         dispatch({ type: 'signOut' });

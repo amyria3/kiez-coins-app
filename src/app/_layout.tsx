@@ -23,7 +23,7 @@ import { TourOffer } from '../components/TourOffer';
 import { AuthProvider, useAuth } from '../data/auth';
 import { StoreProvider } from '../data/store';
 import { translateAlerts } from '../components/T';
-import { loadLanguage, loadTexts, useTexts, getLanguage } from '../data/texts';
+import { getLanguageChanges, loadLanguage, loadTexts, useTexts } from '../data/texts';
 import { LoadingScreen } from '../components/GearsLoader';
 import { StartKater } from '../components/StartKater';
 import { InstallHint } from '../components/InstallHint';
@@ -113,9 +113,10 @@ export default function RootLayout() {
 
 function RootStack() {
   const { loading } = useAuth();
-  // Neue Sprache: Navigation neu aufbauen, damit jeder Screen die neuen Texte zeigt
+  // Neue Sprache: Navigation neu aufbauen, damit jeder Screen die neuen Texte zeigt. Nur bei einem Wechsel durch
+  // Dich, nicht beim Laden der gespeicherten Sprache (getLanguageChanges, Daria, 2026-11-13).
   useTexts();
-  const language = getLanguage();
+  const languageChanges = getLanguageChanges();
   // Startbildschirm: Zahnräder unten, dann der Kater mit dem Besen (Daria, 2026-10-24)
   const [intro, setIntro] = useState(true);
   // Aktueller Screen für den Fehlerbericht
@@ -133,7 +134,7 @@ function RootStack() {
         <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
         {/* Hinweise erst nach dem Startbildschirm, sonst liegen sie über ihm oder laufen ungesehen darunter ab */}
         {intro ? null : <BadgeNotice />}
-        <Stack key={language} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
+        <Stack key={languageChanges} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
           {/* Vollbild ohne Wegwischen: Schließen nur über das X, damit die Frage nach dem Entwurf kommt
               und die Vorschau nicht wie ein Overlay wirkt, dessen Wischen mit den Gesten der Vorschau konkurriert */}
           {/* Routine liegt links neben den Reitern und kommt von links herein (Daria, 2026-11-10) */}
