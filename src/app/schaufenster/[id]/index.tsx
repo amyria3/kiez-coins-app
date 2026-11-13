@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -12,7 +12,9 @@ import { ManageButton, type ManageItem } from '../../../components/ShowcaseManag
 import { ShowcaseEventCard } from '../../../components/ShowcaseEventCard';
 import { PlaceholderPost, PlaceholderText, ShowcaseCover, ShowcaseLogo } from '../../../components/ShowcasePlaceholder';
 import { Text } from '../../../components/T';
+import { addAllToMyCalendar } from '../../../data/calendar';
 import {
+  asSingleEvent,
   follow,
   loadEntries,
   loadShowcase,
@@ -80,6 +82,14 @@ export default function ShowcaseScreen() {
     await requestAccess(s.id);
     setBusy(false);
     reload();
+  };
+  // Alle kommenden Termine dieses Schaufensters, dasselbe Fenster wie beim einzelnen Termin (Daria, 2026-11-13)
+  const upcoming = entries
+    .flatMap((e) => (e.kind === 'event' && !e.event.cancelled && new Date(e.event.endsAt ?? e.event.startsAt).getTime() >= Date.now() ? [e.event] : []))
+    .map((e) => asSingleEvent(e, s.name));
+  const toCalendars = async () => {
+    const ok = await addAllToMyCalendar(upcoming, s.name);
+    if (!ok) Alert.alert(t('Hat nicht geklappt'), t('Der Kalender ließ sich gerade nicht öffnen.'));
   };
   const post = () => {
     setShowcasePost({ id: s.id, name: s.name });
@@ -172,7 +182,16 @@ export default function ShowcaseScreen() {
       ) : null}
 
       {access.team ? null : access.canSee ? (
-        <Button label={access.following ? 'Du folgst' : 'Folgen'} variant={access.following ? 'ghost' : 'secondary'} busy={busy} onPress={toggleFollow} />
+        // Zwei Buttons statt „Folgen“ (Daria, 2026-11-13); der Kalender nur, wenn Termine anstehen
+        <View style={styles.buttons}>
+          {upcoming.length ? <Button label="In meine anderen Kalender" variant="secondary" onPress={toCalendars} /> : null}
+          <Button
+            label={access.following ? t('Du folgst {name}', { name: s.name }) : t('{name} folgen', { name: s.name })}
+            variant={access.following ? 'ghost' : 'secondary'}
+            busy={busy}
+            onPress={toggleFollow}
+          />
+        </View>
       ) : (
         <View style={styles.buttons}>
           <Notice message="Dieses Schaufenster ist nur für eingeladene Personen. Du möchtest up to date bleiben? Frag einen Zugang für Dich an." />
@@ -275,6 +294,9 @@ function PostCard({ post: p, onPress }: { post: ShowcasePost; onPress: () => voi
   );
 }
 
+/** So weit ragt das Logo ins Titelbild */
+const COVER_OVERLAP = space[32] + space[8];
+
 const styles = StyleSheet.create({
   // Mehr Luft zwischen den Abschnitten (Daria, 2026-11-11)
   page: { gap: space[32] },
@@ -282,10 +304,11 @@ const styles = StyleSheet.create({
   manageBottom: { alignSelf: 'center' },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.xl },
   identity: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
-  identityOnCover: { marginTop: -space[32] - space[8], paddingHorizontal: space[12], alignItems: 'flex-end' },
+  // Nur das Logo ragt ins Titelbild, der Name steht darunter und läuft nie übers Foto (Daria, 2026-11-13)
+  identityOnCover: { marginTop: -COVER_OVERLAP, paddingHorizontal: space[12], alignItems: 'flex-start' },
   logo: { borderWidth: 3, borderColor: color.bg.screen, backgroundColor: color.bg.surface },
   // Name in der App-Schrift für große Überschriften (Kiez: Unbounded), nicht in Inter (Daria, 2026-11-10)
-  nameBlock: { flex: 1, paddingBottom: space[4] },
+  nameBlock: { flex: 1, paddingTop: COVER_OVERLAP + space[8] },
   name: { ...text.display, color: color.text.primary },
   about: { ...text.body, color: color.text.primary },
   info: { gap: space[8] },

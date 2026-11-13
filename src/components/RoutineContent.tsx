@@ -78,14 +78,15 @@ export function RoutineContent({
           <Notice variant="warning" message="Erinnerungen laden gerade nicht. Fehlt noch die Migration 20261110000100_erinnerungen?" />
         </View>
       ) : list.length === 0 && events.length === 0 && saved.length === 0 ? (
-        <View style={[styles.center, { paddingBottom: bottomPad }]}>
+        // Scrollbar, damit „Neue Erinnerung“ auf kleinen Bildschirmen nicht hinter der Leiste liegt (Daria, 2026-11-13)
+        <ScrollView onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.centerScroll, { paddingTop: topPad, paddingBottom: bottomPad }]}>
           <KaterMessage
             title="Was willst Du Dir angewöhnen?"
             body="Sag mir, was Du vorhast. Ich erinnere Dich, ganz ohne Druck. Na gut, mit ein bisschen."
             action={<Button label="Neue Erinnerung" icon="plus" onPress={() => router.push('/routine/new')} />}
             more={calendarOn ? <Button label="Kalender verbinden" variant="ghost" onPress={() => router.push({ pathname: '/account/features', params: { abschnitt: 'kalender' } })} /> : undefined}
           />
-        </View>
+        </ScrollView>
       ) : flat ? (
         <ScrollView onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.content, styles.contentFlat, { paddingTop: topPad, paddingBottom: bottomPad }]}>
           <RoutineList
@@ -95,6 +96,7 @@ export function RoutineContent({
             onDone={(r) => router.push({ pathname: '/routine/[id]', params: { id: r.id } })}
             onEnd={end}
             onNew={() => router.push('/routine/new')}
+            onEdit={(r) => router.push({ pathname: '/routine/bearbeiten', params: { id: r.id } })}
             onChanged={reload}
           />
         </ScrollView>
@@ -106,7 +108,14 @@ export function RoutineContent({
             <SectionBlock label="Deine Erinnerungen">
               <View style={styles.list}>
                 {list.map((r) => (
-                  <ReminderCard key={r.id} reminder={r} onDone={() => router.push({ pathname: '/routine/[id]', params: { id: r.id } })} onGiveUp={() => end(r, 'given_up')} onCancel={() => end(r, 'cancelled')} />
+                  <ReminderCard
+                    key={r.id}
+                    reminder={r}
+                    onDone={() => router.push({ pathname: '/routine/[id]', params: { id: r.id } })}
+                    onGiveUp={() => end(r, 'given_up')}
+                    onCancel={() => end(r, 'cancelled')}
+                    onEdit={() => router.push({ pathname: '/routine/bearbeiten', params: { id: r.id } })}
+                  />
                 ))}
               </View>
             </SectionBlock>
@@ -155,7 +164,19 @@ function EventCard({ event: e }: { event: CalendarEvent }) {
   );
 }
 
-function ReminderCard({ reminder: r, onDone, onGiveUp, onCancel }: { reminder: Reminder; onDone: () => void; onGiveUp: () => void; onCancel: () => void }) {
+function ReminderCard({
+  reminder: r,
+  onDone,
+  onGiveUp,
+  onCancel,
+  onEdit,
+}: {
+  reminder: Reminder;
+  onDone: () => void;
+  onGiveUp: () => void;
+  onCancel: () => void;
+  onEdit: () => void;
+}) {
   const goal = goalOf(r);
   // „um“: Termin ohne Zähler und Balken; „bis“ und „von … bis“: Aufgabe (Daria, 2026-11-10)
   const kind = kindOf(r);
@@ -187,6 +208,10 @@ function ReminderCard({ reminder: r, onDone, onGiveUp, onCancel }: { reminder: R
       <View style={styles.foot}>
         {/* Aufgeben und abbrechen zählen beide (Daria, 2026-11-13); Termine lassen sich nur abbrechen */}
         <View style={styles.ends}>
+          {/* Jede Karte lässt sich bearbeiten (Daria, 2026-11-13) */}
+          <Pressable onPress={onEdit} hitSlop={8} accessibilityRole="button">
+            <Text style={styles.endText}>Bearbeiten</Text>
+          </Pressable>
           {kind === 'termin' ? null : (
             <Pressable onPress={onGiveUp} hitSlop={8} accessibilityRole="button">
               <Text style={styles.endText}>Aufgeben</Text>
@@ -212,6 +237,7 @@ const flat = !isFashionable;
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   center: { flex: 1, justifyContent: 'center' },
+  centerScroll: { flexGrow: 1, justifyContent: 'center' },
   content: { paddingHorizontal: space[20], paddingTop: space[16], gap: space[24] },
   list: { gap: space[12] },
   buttons: { gap: space[8] },

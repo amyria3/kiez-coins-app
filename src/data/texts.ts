@@ -114,6 +114,14 @@ function applyDirection() {
 export const needsRestartForDirection = () => Platform.OS !== 'web' && I18nManager.isRTL !== isRtl();
 
 export const getLanguage = () => lang;
+
+/**
+ * Zählt Sprachwechsel durch `setLanguage`, nicht das Laden beim Start. Die Navigation baut sich nur bei einem
+ * echten Wechsel neu auf. Startete die App nach dem Zeitlimit, bevor die gespeicherte Sprache geladen war, warf
+ * deren Ankunft sonst jede offene Seite weg, und die App wirkte wie neu geladen (Daria, 2026-11-13).
+ */
+let languageChanges = 0;
+export const getLanguageChanges = () => languageChanges;
 export const getGender = () => gender;
 
 /** Geschlecht für Texte an Dich. Kommt aus dem Profil und liegt zusätzlich auf dem Gerät. */
@@ -140,6 +148,7 @@ export const getLanguageChoice = () => choice;
 
 /** Sprache wählen. 'auto' folgt dem Handy. */
 export async function setLanguage(next: Lang | 'auto') {
+  languageChanges += 1;
   choice = next;
   lang = next === 'auto' ? deviceLanguage() : next;
   applyDirection();
