@@ -12,6 +12,7 @@ import { savedEvents, type ShowcaseEvent } from '../data/showcase';
 import { useCalendarEnabled } from '../data/routine';
 import { useStore } from '../data/store';
 import { ShowcaseEventCard } from './ShowcaseEventCard';
+import { ReminderExtrasRow } from './ReminderExtras';
 import { RoutineList } from './RoutineList';
 import { archiveReminder, capitalize, goalOf, kindOf, loadReminders, type Reminder, type ReminderEnd } from '../data/reminders';
 import { t } from '../data/texts';
@@ -88,7 +89,7 @@ export function RoutineContent({
           />
         </ScrollView>
       ) : flat ? (
-        <ScrollView onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.content, styles.contentFlat, { paddingTop: topPad, paddingBottom: bottomPad }]}>
+        <ScrollView onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.content, styles.contentFlat, { paddingTop: topPad, paddingBottom: 0 }]}>
           <RoutineList
             list={list}
             events={events}
@@ -99,6 +100,9 @@ export function RoutineContent({
             onEdit={(r) => router.push({ pathname: '/routine/bearbeiten', params: { id: r.id } })}
             onChanged={reload}
           />
+          {/* Platz unter „Neue Erinnerung“ als eigenes Element statt Polsterung: Safari ließ die Polsterung unten in
+              der scrollbaren Fläche weg, der Button lag hinter der Leiste (Daria, 2026-11-13) */}
+          <View style={{ height: Math.max(0, bottomPad - space[32]) }} />
         </ScrollView>
       ) : (
         <ScrollView onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.content, { paddingTop: topPad, paddingBottom: bottomPad }]}>
@@ -191,6 +195,7 @@ function ReminderCard({
             {capitalize(r.want)}
           </Text>
           <Text style={styles.sub}>{goalText(r)}</Text>
+          <ReminderExtrasRow place={r.place} phone={r.phone} link={r.link} ink={color.text.secondary} />
         </View>
         {counted ? (
           <Text noTranslate style={[styles.count, r.doneThisWeek >= goal && styles.countDone]}>
