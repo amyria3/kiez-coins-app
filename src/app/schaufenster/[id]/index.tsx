@@ -28,6 +28,7 @@ import {
 import { useStore } from '../../../data/store';
 import { t } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
+import { placeActions } from '../../../lib/places';
 import { color, font, radius, space, text } from '../../../theme/tokens';
 
 /**
@@ -144,7 +145,10 @@ export default function ShowcaseScreen() {
         <View style={styles.info}>
           {/* Die Adresse steht nur bei Menschen mit Zugang (showcase_private); ohne Zugang kein Platzhalter */}
           {s.address ? (
-            <InfoRow icon="map-pin" value={s.address} />
+            // Antippen: in der Karten-App öffnen oder den Ort teilen (Daria, 2026-11-13)
+            <Pressable onPress={() => placeActions(s.address!, s.name)} accessibilityRole="button" accessibilityHint={t('In Karten öffnen oder teilen')}>
+              <InfoRow icon="map-pin" value={s.address} />
+            </Pressable>
           ) : access.canSee ? (
             <InfoRow icon="map-pin" value="Noch keine Adresse" placeholder />
           ) : null}

@@ -1746,5 +1746,15 @@
   "Um": "At",
   "Von": "From",
   "ICS exportieren": "Export ICS",
-  "In Handykalender": "To phone calendar"
+  "In Handykalender": "To phone calendar",
+  "Adresse oder Name des Orts": "Address or name of the place",
+  "Telefon": "Phone",
+  "Link": "Link",
+  "z. B. auentee.de": "e.g. auentee.de",
+  "Öffnet die Karten-App": "Opens the maps app",
+  "{phone} anrufen": "Call {phone}",
+  "In Karten öffnen": "Open in Maps",
+  "Ort teilen": "Share place",
+  "In Karten öffnen oder teilen": "Open in Maps or share",
+  "Das ließ sich gerade nicht öffnen.": "That couldn't be opened right now."
 }

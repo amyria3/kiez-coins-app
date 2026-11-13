@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { normalizeLink } from '../lib/places';
 import { supabase } from '../lib/supabase';
 
 /**
@@ -27,6 +28,10 @@ export type Reminder = {
   required?: boolean;
   /** Angelegt am (ISO), für die Stimmung des Katers */
   createdAt?: string;
+  /** Ort, Telefon und Link (Daria, 2026-11-13, Migration 20261113000600) */
+  place?: string;
+  phone?: string;
+  link?: string;
   /** Erledigt in dieser Woche (ab Montag) */
   doneThisWeek: number;
   doneToday: boolean;
@@ -41,6 +46,9 @@ export type ReminderInput = {
   onDate?: string;
   untilTime?: string;
   required?: boolean;
+  place?: string;
+  phone?: string;
+  link?: string;
 };
 
 type Row = {
@@ -54,6 +62,9 @@ type Row = {
   until_time?: string | null;
   required?: boolean | null;
   created_at?: string | null;
+  place?: string | null;
+  phone?: string | null;
+  link?: string | null;
 };
 
 /** Montag 0:00 dieser Woche, Ortszeit */
@@ -132,6 +143,9 @@ export async function loadReminders(): Promise<Reminder[] | null> {
       untilTime: r.until_time ? r.until_time.slice(0, 5) : undefined,
       required: r.on_date ? r.required !== false : undefined,
       createdAt: r.created_at ?? undefined,
+      place: r.place || undefined,
+      phone: r.phone || undefined,
+      link: r.link || undefined,
       doneThisWeek: mine.length,
       doneToday: mine.some((d) => new Date(d.done_at) >= today),
     };
@@ -220,9 +234,35 @@ export async function loadRoutineDays(from: Date, to: Date, now = new Date()): P
   return { done, missed, doneBy: doneNames, missedBy: missedNames, givenUpBy, cancelledBy };
 }
 
+/** Ort, Telefon und Link als Spalten; leer bleibt leer */
+const extrasOf = (input: Pick<ReminderInput, 'place' | 'phone' | 'link'>) => ({
+  place: input.place?.trim() || null,
+  phone: input.phone?.trim() || null,
+  link: input.link?.trim() ? normalizeLink(input.link) : null,
+});
+
+/**
+ * Speichert mit Ort, Telefon und Link. Fehlt die Migration 20261113000600 noch, speichert es ohne die drei,
+ * damit die Erinnerung nicht verloren geht.
+ */
+async function withExtras(
+  write: (extras: ReturnType<typeof extrasOf> | Record<string, never>) => PromiseLike<{ error: { message: string } | null }>,
+  extras: ReturnType<typeof extrasOf>,
+): Promise<boolean> {
+  const { error } = await write(extras);
+  if (!error) return true;
+  if (!/place|phone|link/.test(error.message)) return false;
+  const { error: plain } = await write({});
+  return !plain;
+}
+
 export async function createReminder(input: ReminderInput): Promise<boolean> {
   const base = { want: input.want.trim(), description: input.description?.trim() || null };
-  const { error } = await supabase.from('reminders').insert(
+  return withExtras((extras) => supabase.from('reminders').insert({ ...rowOf(input, base), ...extras }), extrasOf(input));
+}
+
+function rowOf(input: ReminderInput, base: { want: string; description: string | null }) {
+  return (
     input.onDate
       ? {
           ...base,
@@ -236,9 +276,8 @@ export async function createReminder(input: ReminderInput): Promise<boolean> {
           per_week: input.weekdays?.length ? null : input.perWeek ?? 1,
           weekdays: input.weekdays?.length ? [...input.weekdays].sort() : null,
           at_time: input.weekdays?.length && input.atTime ? input.atTime : null,
-        },
+        }
   );
-  return !error;
 }
 
 /**
@@ -246,19 +285,17 @@ export async function createReminder(input: ReminderInput): Promise<boolean> {
  * „von … bis“. Die Art bleibt: Einmalige bleiben einmalig, feste Tage bleiben feste Tage (nur die Uhrzeit ändert
  * sich), x-mal pro Woche hat keine Uhrzeit.
  */
-export async function updateReminder(r: Reminder, input: Pick<ReminderInput, 'want' | 'description' | 'onDate' | 'atTime' | 'untilTime'>): Promise<boolean> {
+export async function updateReminder(
+  r: Reminder,
+  input: Pick<ReminderInput, 'want' | 'description' | 'onDate' | 'atTime' | 'untilTime' | 'place' | 'phone' | 'link'>,
+): Promise<boolean> {
   const base = { want: input.want.trim(), description: input.description?.trim() || null };
-  const { error } = await supabase
-    .from('reminders')
-    .update(
-      r.onDate
-        ? { ...base, on_date: input.onDate ?? r.onDate, at_time: input.atTime ?? null, until_time: input.untilTime ?? null }
-        : r.weekdays?.length
-          ? { ...base, at_time: input.atTime ?? null }
-          : base,
-    )
-    .eq('id', r.id);
-  return !error;
+  const row = r.onDate
+    ? { ...base, on_date: input.onDate ?? r.onDate, at_time: input.atTime ?? null, until_time: input.untilTime ?? null }
+    : r.weekdays?.length
+      ? { ...base, at_time: input.atTime ?? null }
+      : base;
+  return withExtras((extras) => supabase.from('reminders').update({ ...row, ...extras }).eq('id', r.id), extrasOf(input));
 }
 
 /**

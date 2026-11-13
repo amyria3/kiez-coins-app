@@ -6,6 +6,7 @@ import Svg, { Defs, Line, Path, Pattern, Rect } from 'react-native-svg';
 import { Button } from './Button';
 import { KaterCard, KaterRund } from './Content';
 import { handShapePath } from './handShape';
+import { ReminderExtrasRow } from './ReminderExtras';
 import { ManageButton } from './ShowcaseManage';
 import { Text } from './T';
 import { addToMyCalendar, eventDate, eventTime, type CalendarEvent } from '../data/calendar';
@@ -309,6 +310,7 @@ function TaskCard({
       onSwipeLeft={onCancel}
       head={<CardHead meta={r.onDate ? whenText(r) : goalText(r)} title={capitalize(r.want)} onEdit={onEdit} />}
     >
+      <ReminderExtrasRow place={r.place} phone={r.phone} link={r.link} ink={INK} />
       {goal > 1 ? <Text style={styles.sub}>{t('{done} von {goal} diese Woche', { done, goal })}</Text> : null}
       {goal > 1 ? (
         <View
@@ -347,6 +349,7 @@ function TerminCard({ reminder: r, bg, onDone, onEnd, onEdit }: { reminder: Remi
   const more = <ManageButton dots={INK} style={styles.more} label="Mehr zu diesem Termin" items={[{ label: 'Bearbeiten', onPress: onEdit }]} />;
   return (
     <Card bg={bg} mood={moodOf(r)} onLongPress={onEnd} head={<CardHead meta={whenText(r)} title={capitalize(r.want)} onEdit={onEdit} />}>
+      <ReminderExtrasRow place={r.place} phone={r.phone} link={r.link} ink={INK} />
       {r.doneToday ? (
         <View style={styles.actions}>
           <Text style={styles.state}>Erledigt</Text>
