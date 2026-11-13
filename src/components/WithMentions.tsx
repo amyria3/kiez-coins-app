@@ -5,6 +5,7 @@ import type { Challenge } from '../data/types';
 import { weChallengeText } from '../data/weChallenge';
 import { color, font } from '../theme/tokens';
 import { Text } from './T';
+import { usePrivateSignal } from '../theme/signal';
 
 /**
  * Feste Marke vor jedem Beitrag „Bild“ (Daria, 27.10.2026). Wie #vorher und #nachher in allen Sprachen gleich.
@@ -13,6 +14,11 @@ import { Text } from './T';
 export const PHOTO_TAG = '#InDiesemMoment';
 /** #InDiesemMoment in Rosa, #vorher und #nachher bleiben lila (Daria, 2026-11-09) */
 export const tagColor = (tag: string) => (tag === PHOTO_TAG ? color.accent.affection : color.accent.primary);
+/** Wie `tagColor`, unter „Privat“ / „Me & Myself“ aber alle Marken gelb (Daria, 2026-11-13) */
+export function useTagColor(): (tag: string) => string {
+  const signal = usePrivateSignal();
+  return signal ? () => color.accent.private : tagColor;
+}
 
 /**
  * Text eines Beitrags zum Anzeigen: bei „Bild“ mit #InDiesemMoment vorn, auch ohne eigenen Text.
@@ -30,6 +36,7 @@ const TAGS = ['#vorher', '#nachher', PHOTO_TAG];
 
 /** @-Namen in color/text/mention; die Marken #vorher/#nachher in color/accent/primary, #InDiesemMoment in color/accent/affection hervorheben (verschachteltes Text). */
 export function WithMentions({ value }: { value: string }) {
+  const tagColor = useTagColor();
   const parts = value.split(/(@[\p{L}\p{N}_]+|#vorher\b|#nachher\b|#InDiesemMoment\b)/u);
   return (
     <>
