@@ -4,7 +4,7 @@ import { SvgXml } from 'react-native-svg';
 
 import type { ShowcaseHit } from '../data/showcase';
 import { t } from '../data/texts';
-import { useAccentColor } from '../theme/signal';
+import { useFocusColor } from '../theme/signal';
 import { color, radius, space, stroke, text } from '../theme/tokens';
 import { IconButton } from './IconButton';
 import { phXml } from './icons/fashionableSvgs';
@@ -28,7 +28,8 @@ export function ShowcaseSearchField({
   onFocusChange?: (focused: boolean) => void;
 }) {
   const [focused, setFocused] = useState(false);
-  const accent = useAccentColor();
+  // Fokus wie in allen Eingabefeldern (useFocusColor), nicht die Akzentfarbe (Daria, 2026-11-13)
+  const accent = useFocusColor();
   return (
     <View style={[styles.field, focused && { borderColor: accent }]}>
       <SvgXml xml={phXml('magnifying-glass', color.text.secondary)} width={SEARCH_ICON} height={SEARCH_ICON} accessible={false} />
