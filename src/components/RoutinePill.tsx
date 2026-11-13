@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Icon } from './icons/Icon';
 import { Text } from './T';
-import { color, font, isFashionable, radius, space } from '../theme/tokens';
+import { color, font, isFashionable, radius, space, withAlpha } from '../theme/tokens';
 
 /**
  * Markierung eines Posts aus einer Erinnerung (Daria, 2026-11-10): Pille mit Zeichen, Text und Fortschritt,
@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     minHeight: 28,
     paddingHorizontal: space[12],
     borderRadius: radius.full,
-    backgroundColor: isFashionable ? color.bg.surface : 'rgba(143, 144, 250, 0.18)',
+    backgroundColor: isFashionable ? color.bg.surface : withAlpha(color.accent.primary, 0.18),
   },
   text: { fontFamily: font.semiBold, fontSize: 13, lineHeight: 18, color: isFashionable ? color.text.primary : TINT },
 });

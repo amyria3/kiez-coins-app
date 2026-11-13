@@ -24,17 +24,17 @@ import { color, font, space } from '../theme/tokens';
  * Entwürfe: Projektordner routine-karte/2026-11-12_*.png
  */
 
-/** Kartenfarben (Daria, 2026-11-12): Senf, Olive hell, Puder */
-const SENF = '#ECCF55';
-const OLIVE = '#C6D195';
-const PUDER = '#E6D6C0';
+/** Kartenfarben (Daria, 2026-11-12): Senf, Olive hell, Puder, als Rollen in tokens.ts (color.routine) */
+const SENF = color.routine.task;
+const OLIVE = color.routine.fixed;
+const PUDER = color.routine.saved;
 /** Schrift und Buttons auf den Karten */
-const INK = '#1A1A1A';
-const INK_SOFT = 'rgba(26, 26, 26, 0.68)';
-const INK_TRACK = 'rgba(26, 26, 26, 0.16)';
+const INK = color.routine.ink;
+const INK_SOFT = color.routine.inkSoft;
+const INK_TRACK = color.routine.inkTrack;
 /** Kalender: Tage ohne Eintrag und die Schraffur für ausgefallene */
-const DAY = 'rgba(251, 239, 242, 0.08)';
-const HATCH = 'rgba(251, 239, 242, 0.16)';
+const DAY = color.routine.day;
+const HATCH = color.routine.hatch;
 const CARD_MIN = 260;
 const CARD_MAX = 480;
 const GUTTER = space[20];

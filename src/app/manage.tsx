@@ -18,7 +18,7 @@ import { isGroupDone } from '../data/reise';
 import { useStore } from '../data/store';
 import { OPERATIONSNAME_ZEIGEN, type Challenge, type User } from '../data/types';
 import { useAppDimensions } from '../theme/layout';
-import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isFashionable, radius, size, space, stroke, text, withAlpha } from '../theme/tokens';
 import { askCrosspost, restoreWithChoice } from '../components/CrosspostDialog';
 import { crosspostTargets } from '../data/crosspost';
 import { t } from '../data/texts';
@@ -879,7 +879,7 @@ const styles = StyleSheet.create({
   // Etwas mehr Luft über und unter dem Text (Daria, 2026-11-05)
   bodyCard: { marginVertical: space[8] },
   timeBar: { gap: space[6] },
-  timeTrack: { height: 6, borderRadius: 3, backgroundColor: 'rgba(143, 144, 250, 0.18)', overflow: 'hidden' },
+  timeTrack: { height: 6, borderRadius: 3, backgroundColor: withAlpha(color.accent.primary, 0.18), overflow: 'hidden' },
   timeFill: { height: 6, borderRadius: 3, backgroundColor: color.accent.primary },
   timeLabels: { flexDirection: 'row', justifyContent: 'space-between', gap: space[8] },
   iconStats: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: space[4] },

@@ -3,7 +3,7 @@ import { AccessibilityInfo, Animated, Easing, Pressable, StyleSheet, View, type 
 import { Image } from 'expo-image';
 import { Text } from './T';
 
-import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
+import { color, font, isFashionable, radius, space, stroke, text, withAlpha } from '../theme/tokens';
 import { t as translate, useTexts } from '../data/texts';
 import { openLink } from '../lib/places';
 import { Cat, type CatMood } from './icons/Brand';
@@ -542,7 +542,7 @@ export function InfoRow({ icon, value, placeholder }: { icon: IconName; value: s
 }
 
 /** Lila hell in der Farbe des Katers, nicht grün wie die Systemblasen der Krabbe (Daria, 2026-11-11) */
-const KATER_BLASE = 'rgba(143, 144, 250, 0.22)';
+const KATER_BLASE = withAlpha(color.accent.primary, 0.22);
 /** Derselbe Ton deckend, für Blasen, die über anderem Inhalt schweben (lila hell auf dem Grund #232326) */
 const KATER_BLASE_DECKEND = '#3B3B55';
 const KATER_KREUZ = '#C9C9FF';
