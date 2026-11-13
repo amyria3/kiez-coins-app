@@ -193,10 +193,12 @@ export type RoutineDays = {
   /** Je Tag die Namen der Erinnerungen, die an dem Tag aufgegeben bzw. abgebrochen wurden (Daria, 2026-11-13) */
   givenUpBy: Map<string, string[]>;
   cancelledBy: Map<string, string[]>;
+  /** Abgesagte Termine (Daria, 2026-11-13): wie abgebrochen, nur mit eigenem Wort */
+  calledOffBy: Map<string, string[]>;
 };
 export async function loadRoutineDays(from: Date, to: Date, now = new Date()): Promise<RoutineDays> {
-  const empty: RoutineDays = { done: new Set(), missed: new Set(), doneBy: new Map(), missedBy: new Map(), givenUpBy: new Map(), cancelledBy: new Map() };
-  const columns = 'id, want, weekdays, created_at, archived_at';
+  const empty: RoutineDays = { done: new Set(), missed: new Set(), doneBy: new Map(), missedBy: new Map(), givenUpBy: new Map(), cancelledBy: new Map(), calledOffBy: new Map() };
+  const columns = 'id, want, weekdays, created_at, archived_at, on_date, at_time, until_time';
   // Ohne die Migration 20261113000400 fehlt `ended_as`: dann ohne die Spalte laden
   let { data, error } = await supabase.from('reminders').select(`${columns}, ended_as`);
   if (error) ({ data, error } = await supabase.from('reminders').select(columns));
@@ -207,6 +209,9 @@ export async function loadRoutineDays(from: Date, to: Date, now = new Date()): P
     weekdays: number[] | null;
     created_at: string;
     archived_at: string | null;
+    on_date?: string | null;
+    at_time?: string | null;
+    until_time?: string | null;
     ended_as?: ReminderEnd | null;
   }[];
   const end = addDays(1, dayStart(to));
@@ -250,15 +255,17 @@ export async function loadRoutineDays(from: Date, to: Date, now = new Date()): P
   // Aufgegeben und abgebrochen zählen an dem Tag, an dem es passiert ist
   const givenUpBy = new Map<string, string[]>();
   const cancelledBy = new Map<string, string[]>();
+  const calledOffBy = new Map<string, string[]>();
   const first = localDate(dayStart(from));
   const last = localDate(dayStart(to));
   for (const r of rows) {
     if (!r.archived_at || !r.ended_as || r.ended_as === 'deleted') continue;
     const day = localDate(new Date(r.archived_at));
     if (day < first || day > last) continue;
-    byDay(r.ended_as === 'given_up' ? givenUpBy : cancelledBy, day, r.want);
+    const termin = kindOf({ onDate: r.on_date ?? undefined, atTime: r.at_time ?? undefined, untilTime: r.until_time ?? undefined }) === 'termin';
+    byDay(r.ended_as === 'given_up' ? givenUpBy : termin ? calledOffBy : cancelledBy, day, r.want);
   }
-  return { done, missed, doneBy: doneNames, missedBy: missedNames, givenUpBy, cancelledBy };
+  return { done, missed, doneBy: doneNames, missedBy: missedNames, givenUpBy, cancelledBy, calledOffBy };
 }
 
 /** Ort, Telefon und Link als Spalten; leer bleibt leer */

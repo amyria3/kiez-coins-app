@@ -58,23 +58,30 @@ export function RoutineContent({
   const focus = list?.length ? katerFocus(list) : undefined;
 
   // Aufgeben oder abbrechen (Daria, 2026-11-13): beides beendet die Erinnerung und zählt, mit Rückfrage
-  const end = (r: Reminder, how: ReminderEnd) =>
+  const end = (r: Reminder, how: ReminderEnd) => {
+    // Termine sagt man ab (Daria, 2026-11-13); der rote Knopf heißt nie nur „Abbrechen“, das klänge nach „Dialog schließen“
+    const termin = kindOf(r) === 'termin' && how === 'cancelled';
     Alert.alert(
-      how === 'given_up' ? t('Aufgeben?') : how === 'deleted' ? t('Löschen?') : t('Das hier abbrechen?'),
+      how === 'given_up' ? t('Aufgeben?') : how === 'deleted' ? t('Löschen?') : termin ? t('Termin absagen?') : t('Das hier abbrechen?'),
       how === 'given_up'
         ? t('„Ich will {want}“ verschwindet aus der Liste und zählt als aufgegeben. Was Du geschafft hast, bleibt.', { want: r.want })
         : how === 'deleted'
-          ? t('„Ich will {want}“ verschwindet aus der Liste. Was Du erledigt hast, bleibt im Kalender.', { want: r.want })
-          : t('„Ich will {want}“ verschwindet aus der Liste und zählt als abgebrochen. Was Du geschafft hast, bleibt.', { want: r.want }),
+          ? kindOf(r) === 'termin'
+            ? t('„{want}“ verschwindet aus der Liste. Im Kalender bleibt er als erledigt stehen.', { want: capitalize(r.want) })
+            : t('„Ich will {want}“ verschwindet aus der Liste. Was Du erledigt hast, bleibt im Kalender.', { want: r.want })
+          : termin
+            ? t('„{want}“ verschwindet aus der Liste und zählt als abgesagt.', { want: capitalize(r.want) })
+            : t('„Ich will {want}“ verschwindet aus der Liste und zählt als abgebrochen. Was Du geschafft hast, bleibt.', { want: r.want }),
       [
         { text: t('Zurück'), style: 'cancel' },
         {
-          text: how === 'given_up' ? t('Aufgeben') : how === 'deleted' ? t('Löschen') : t('Abbrechen'),
+          text: how === 'given_up' ? t('Aufgeben') : how === 'deleted' ? t('Löschen') : termin ? t('Absagen') : t('Ja, abbrechen'),
           style: 'destructive',
           onPress: () => archiveReminder(r.id, how).then(reload),
         },
       ],
     );
+  };
 
   return (
     <View style={styles.screen}>
