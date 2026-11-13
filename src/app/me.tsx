@@ -263,7 +263,8 @@ const styles = StyleSheet.create({
     // Ohne orangen Rahmen (Daria, 2026-11-13)
     backgroundColor: color.bg.surface,
   },
-  taskKicker: { ...text.caption, fontFamily: font.medium, color: color.accent.signal },
+  // „Du bist dran“ in Gelb (color.accent.turn, Daria, 2026-11-13)
+  taskKicker: { ...text.caption, fontFamily: font.medium, color: color.accent.turn },
   taskTitle: { ...text.cardTitleCompact, color: color.text.primary },
   sub: { ...text.small, color: color.text.secondary },
   thumbFallback: { backgroundColor: color.bg.screen, alignItems: 'center', justifyContent: 'center' },
