@@ -20,13 +20,15 @@ import { ActionBar } from '../components/ActionBar';
 import { Button } from '../components/Button';
 import { Cat } from '../components/icons/Brand';
 import { KaterCard, KaterRund } from '../components/Content';
-import { CheckOption, TextField } from '../components/Form';
+import { CheckOption, SwitchRow, TextField } from '../components/Form';
 import { explain } from '../components/Nudge';
 import { iconSvgs } from '../components/icons/svgs';
 import { errorText, saveTourFeedback, type TourFeedbackChoice } from '../data/remote';
 import { Text } from '../components/T';
 import { DemoCue, DemoFocus, TourDemo } from '../components/tour/TourDemo';
-import { useModes } from '../data/features';
+import { setPostsShown, setRoutineShown, useModes, usePostsShown, useRoutineShown } from '../data/features';
+import { useFeature } from '../data/freischaltung';
+import { useStore } from '../data/store';
 import { t } from '../data/texts';
 import { TOUR_FEEDBACK_OTHER_MAX, TOUR_SEEN_KEY, tourFeedbackOptions, tourSteps as allTourSteps, type TourStep } from '../data/tour';
 import { useAppDimensions } from '../theme/layout';
@@ -47,7 +49,15 @@ export default function Tour() {
   const [page, setPage] = useState(0);
   // Seiten zu verborgenen Modi entfallen, z. B. „Gruppen“ bei verborgenem Modus Gruppe
   const modes = useModes();
-  const tourSteps = allTourSteps.filter((s) => !s.hidden && (!s.mode || modes.isVisible(s.mode)));
+  // Kalender und Schaufenster nur, wenn sie freigeschaltet sind; die Schalter am Schluss brauchen ein Konto
+  const { currentUserId } = useStore();
+  const available = { routine: useFeature('routine'), schaufenster: useFeature('schaufenster') };
+  const tourSteps = allTourSteps.filter(
+    (s) => !s.hidden && (!s.mode || modes.isVisible(s.mode)) && (!s.feature || available[s.feature]) && (s.kind !== 'features' || !!currentUserId),
+  );
+  // Schalter am Schluss (Daria, 2026-11-13): derselbe Stand wie unter Dein Konto › Meine Features
+  const postsShown = usePostsShown();
+  const routineShown = useRoutineShown();
   // Höhe des Blätterbereichs: Jede Seite füllt sie, damit die Fläche oben den Rest neben Titel und Text nimmt
   const [pagerH, setPagerH] = useState(0);
   const last = page === tourSteps.length - 1;
@@ -155,6 +165,32 @@ export default function Tour() {
                   />
                 </ScrollView>
               )
+            ) : step.kind === 'features' ? (
+              <ScrollView style={styles.flex} contentContainerStyle={styles.feedback}>
+                {isFashionable ? <Cat mood="high" height={64} /> : <KaterRund size={64} />}
+                <Text style={styles.title} accessibilityRole="header">
+                  {step.title}
+                </Text>
+                <SwitchRow
+                  label="Bilder und Textposts"
+                  description="Posts ohne Challenge im Kiez-Feed und in „Überall“. Deine eigenen siehst Du immer."
+                  value={postsShown.kiez || postsShown.everywhere}
+                  onValueChange={(v) => {
+                    if (!currentUserId) return;
+                    setPostsShown(currentUserId, 'kiez', v);
+                    setPostsShown(currentUserId, 'everywhere', v);
+                  }}
+                />
+                {available.routine ? (
+                  <SwitchRow
+                    label="Routine"
+                    description="Kalender, Erinnerungen und Termine."
+                    value={routineShown}
+                    onValueChange={(v) => currentUserId && setRoutineShown(currentUserId, v)}
+                  />
+                ) : null}
+                <Text style={styles.body}>{step.text}</Text>
+              </ScrollView>
             ) : (
               <>
                 <TourMedia step={step} active={i === page} />
