@@ -131,7 +131,7 @@ function ErrorContent({ error, retry }: Props) {
             style={[styles.field, focused && styles.fieldFocused]}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
-            selectionColor={color.accent.primary}
+            selectionColor={color.accent.focus}
             value={comment}
             onChangeText={setComment}
             placeholder={t('Was hast Du gerade gemacht? (freiwillig)')}
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   // Kräftigerer Rand; das Innere rückt um die Differenz ein, damit nichts springt
-  fieldFocused: { borderWidth: 2, borderColor: color.accent.primary, padding: space[12] - 1 },
+  fieldFocused: { borderWidth: 2, borderColor: color.accent.focus, padding: space[12] - 1 },
   button: { borderRadius: radius.md, paddingVertical: space[12], paddingHorizontal: space[20], alignItems: 'center' },
   primary: { backgroundColor: color.accent.primary },
   busy: { opacity: 0.6 },

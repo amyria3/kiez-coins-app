@@ -8,7 +8,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 import type { ImageSource } from '../data/types';
 import { color, isFashionable, radius, scheme, space, stroke, text } from '../theme/tokens';
-import { useAccentColor } from '../theme/signal';
+import { useFocusColor } from '../theme/signal';
 import { BlurView } from 'expo-blur';
 import { Glass, glassControls } from './Glass';
 import { fitShape, SWITCH_KNOB, SWITCH_TRACK } from './handSwitch';
@@ -52,7 +52,7 @@ export function TextField({
   const goNext = useNextField(inputRef, viewRef);
   const advances = !multiline && !onSubmitEditing && !!goNext;
   const hinted = !error && !!nudge?.hint;
-  const accent = useAccentColor();
+  const accent = useFocusColor();
   const borderColor = error || hinted ? color.accent.error : focused ? accent : color.text.secondary;
   const helper = error ?? nudge?.hint ?? helperText;
   return (
@@ -243,6 +243,8 @@ const HAND_KNOB = fitShape(SWITCH_KNOB, HAND_KW, HAND_KH);
 const HAND_OFF = '#45466F';
 
 function HandSwitch({ label, value, onValueChange }: { label: string; value: boolean; onValueChange: (v: boolean) => void }) {
+  // An: Gelbgrün statt Lila (Daria, 2026-11-13)
+  const on = useFocusColor();
   const x = useRef(new Animated.Value(value ? 1 : 0)).current;
   useEffect(() => {
     Animated.spring(x, { toValue: value ? 1 : 0, useNativeDriver: true, friction: 7, tension: 90 }).start();
@@ -261,7 +263,7 @@ function HandSwitch({ label, value, onValueChange }: { label: string; value: boo
       </Svg>
       <Animated.View style={[StyleSheet.absoluteFill, { opacity: x }]} pointerEvents="none">
         <Svg width={HAND_W} height={HAND_H}>
-          <Path d={HAND_TRACK} fill={color.accent.primary} />
+          <Path d={HAND_TRACK} fill={on} />
         </Svg>
       </Animated.View>
       <Animated.View
@@ -523,7 +525,7 @@ export function PhotoPicker({
   const hinted = !title?.error && !!title?.nudge?.hint;
   const titleHelper = title?.error ?? title?.nudge?.hint;
   // Ohne Rahmen (Daria, 24.10.2026); ein Fehler zeigt einen roten Rand, das aktive Feld einen lila (Daria, 2026-11-09)
-  const accent = useAccentColor();
+  const accent = useFocusColor();
   const titleBorder = title?.error || hinted ? color.accent.error : focused ? accent : 'transparent';
   // Leere Fläche: Solange der Finger drauf ist, lila Rahmen wie ein aktives Feld (Daria, 2026-11-09)
   const [pressing, setPressing] = useState(false);
@@ -766,7 +768,7 @@ const styles = StyleSheet.create({
   // Fehler: durchgezogener, kräftiger Rand wie beim aktiven Feld, nur in der Fehlerfarbe (Daria, 2026-11-12)
   photoPickerError: { borderWidth: stroke.focus, borderStyle: 'solid', borderColor: color.accent.error },
   // Gedrückt: durchgezogener, kräftiger lila Rand; das Innere rückt um die Differenz ein, damit nichts springt
-  photoPickerPressed: { borderWidth: stroke.focus, borderStyle: 'solid', borderColor: color.accent.primary },
+  photoPickerPressed: { borderWidth: stroke.focus, borderStyle: 'solid', borderColor: color.accent.focus },
   photoPickerTitledEmptyPressed: {
     padding: space[12] - (stroke.focus - stroke.thin),
     paddingTop: space[24] - (stroke.focus - stroke.thin),
