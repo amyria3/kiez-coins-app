@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 
@@ -38,6 +38,13 @@ export function RoutineContent({
   const [saved, setSaved] = useState<(ShowcaseEvent & { showcase: string })[]>([]);
   // Angehobene Karte: Die Seite scrollt nicht, damit Ziehen nach oben „später“ bedeutet (Daria, 2026-11-13)
   const [dragging, setDragging] = useState(false);
+  // Nur bei echter Änderung neu rendern; jedes Loslassen ruft die Sperre auf (Daria, 2026-11-13: „flackert“)
+  const draggingNow = useRef(false);
+  const lockPage = useCallback((on: boolean) => {
+    if (draggingNow.current === on) return;
+    draggingNow.current = on;
+    setDragging(on);
+  }, []);
   const { currentUserId } = useStore();
   // Kalender aus (Einstellungen › Kalender, Daria, 2026-11-10): keine Termine aus Deinen Kalendern
   const calendarOn = useCalendarEnabled();
@@ -53,7 +60,7 @@ export function RoutineContent({
 
 
   // Aufgeben oder abbrechen (Daria, 2026-11-13): beides beendet die Erinnerung und zählt, mit Rückfrage
-  const end = (r: Reminder, how: ReminderEnd, confirm = true) => {
+  const end = useCallback((r: Reminder, how: ReminderEnd, confirm = true) => {
     // Beim Ziehen ohne Rückfrage: Die Karte hat schon gezeigt, was passiert (Daria, 2026-11-13)
     if (!confirm) {
       archiveReminder(r.id, how).then(reload);
@@ -81,7 +88,12 @@ export function RoutineContent({
         },
       ],
     );
-  };
+  }, [reload]);
+  // Gleichbleibende Funktionen, damit RoutineList (memo) beim Sperren der Seite nicht neu rendert
+  const onDone = useCallback((r: Reminder) => router.push({ pathname: '/routine/[id]', params: { id: r.id } }), [router]);
+  const onNew = useCallback(() => router.push('/routine/new'), [router]);
+  const onEdit = useCallback((r: Reminder) => router.push({ pathname: '/routine/bearbeiten', params: { id: r.id } }), [router]);
+  const onCopy = useCallback((r: Reminder) => router.push({ pathname: '/routine/new', params: { von: r.id } }), [router]);
 
   return (
     <View style={styles.screen}>
@@ -107,8 +119,8 @@ export function RoutineContent({
         <ScrollView
           scrollEnabled={!dragging}
           // Sicherung: Mit dem Finger endet die Sperre immer, damit die Seite nie stehen bleibt (Daria, 2026-11-13)
-          onTouchEnd={() => setDragging(false)}
-          onTouchCancel={() => setDragging(false)}
+          onTouchEnd={() => lockPage(false)}
+          onTouchCancel={() => lockPage(false)}
           onScroll={onScroll}
           scrollEventThrottle={16}
           contentContainerStyle={[styles.content, styles.contentFlat, { paddingTop: topPad, paddingBottom: 0 }]}>
@@ -116,13 +128,13 @@ export function RoutineContent({
             list={list}
             events={events}
             saved={saved}
-            onDone={(r) => router.push({ pathname: '/routine/[id]', params: { id: r.id } })}
+            onDone={onDone}
             onEnd={end}
-            onNew={() => router.push('/routine/new')}
-            onEdit={(r) => router.push({ pathname: '/routine/bearbeiten', params: { id: r.id } })}
-            onCopy={(r) => router.push({ pathname: '/routine/new', params: { von: r.id } })}
+            onNew={onNew}
+            onEdit={onEdit}
+            onCopy={onCopy}
             onChanged={reload}
-            onDragLock={setDragging}
+            onDragLock={lockPage}
           />
           {/* Platz unter „Neue Erinnerung“ als eigenes Element statt Polsterung: Safari ließ die Polsterung unten in
               der scrollbaren Fläche weg, der Button lag hinter der Leiste (Daria, 2026-11-13) */}
