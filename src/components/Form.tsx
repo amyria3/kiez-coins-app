@@ -7,8 +7,8 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 
 import type { ImageSource } from '../data/types';
-import { color, isFashionable, radius, scheme, space, stroke, text } from '../theme/tokens';
-import { useFocusColor } from '../theme/signal';
+import { color, radius, scheme, space, stroke, text } from '../theme/tokens';
+import { useAccentColor, useFocusColor } from '../theme/signal';
 import { BlurView } from 'expo-blur';
 import { Glass, glassControls } from './Glass';
 import { fitShape, SWITCH_KNOB, SWITCH_TRACK } from './handSwitch';
@@ -118,12 +118,14 @@ export function TextField({
 
 /** Figma „Chip“ (Selected?) */
 export function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  // Gewählt in der Akzentfarbe des Bereichs: lila, in „Me & Myself“ gelb (Daria, 2026-11-13)
+  const accent = useAccentColor();
   return (
     <Pressable
       accessibilityRole="radio"
       accessibilityState={{ selected }}
       onPress={onPress}
-      style={[styles.chip, selected && styles.chipSelected]}
+      style={[styles.chip, selected && { backgroundColor: accent, borderColor: accent }]}
     >
       <Text style={[text.body, { color: selected ? color.bg.screen : color.text.primary }]}>{label}</Text>
     </Pressable>
@@ -190,42 +192,10 @@ export function SwitchRow({
 
 /** Der Schalter allein, ohne Zeile; die Bezeichnung dient dem Screenreader. */
 export function Toggle({ label, value, onValueChange }: { label: string; value: boolean; onValueChange: (value: boolean) => void }) {
-  return isFashionable ? (
-    <FashionSwitch label={label} value={value} onValueChange={onValueChange} />
-  ) : glassControls ? (
+  return glassControls ? (
     <GlassSwitch label={label} value={value} onValueChange={onValueChange} />
   ) : (
     <HandSwitch label={label} value={value} onValueChange={onValueChange} />
-  );
-}
-
-/**
- * Schalter im Look „Fashionable“ (Daria, 24.10.2026), nach dem iOS-Muster: Spur 51 × 31,
- * weißer Knopf 27 mit leichtem Schatten. Aus hellgrau #E5E5E5, an Blau #0095F6. Der Knopf gleitet in 200 ms.
- */
-function FashionSwitch({ label, value, onValueChange }: { label: string; value: boolean; onValueChange: (v: boolean) => void }) {
-  const x = useRef(new Animated.Value(value ? 1 : 0)).current;
-  useEffect(() => {
-    Animated.timing(x, { toValue: value ? 1 : 0, duration: 200, useNativeDriver: false }).start();
-  }, [value, x]);
-  return (
-    <Pressable
-      accessibilityRole="switch"
-      accessibilityLabel={label}
-      accessibilityState={{ checked: value }}
-      onPress={() => onValueChange(!value)}
-      hitSlop={8}
-      style={styles.fashionTrackHit}
-    >
-      <Animated.View
-        style={[
-          styles.fashionTrack,
-          { backgroundColor: x.interpolate({ inputRange: [0, 1], outputRange: ['#E5E5E5', color.accent.primary] }) },
-        ]}
-      >
-        <Animated.View style={[styles.fashionKnob, { transform: [{ translateX: x.interpolate({ inputRange: [0, 1], outputRange: [0, 20] }) }] }]} />
-      </Animated.View>
-    </Pressable>
   );
 }
 
@@ -639,21 +609,8 @@ export function PhotoPicker({
 }
 
 const styles = StyleSheet.create({
-  fashionTrackHit: { justifyContent: 'center' },
   handTrack: { width: HAND_W, height: HAND_H },
   handKnob: { position: 'absolute', left: 0, top: (HAND_H - HAND_KH) / 2 },
-  fashionTrack: { width: 51, height: 31, borderRadius: 15.5, padding: 2 },
-  fashionKnob: {
-    width: 27,
-    height: 27,
-    borderRadius: 13.5,
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000000',
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
   flex: { flex: 1 },
   link: { textDecorationLine: 'underline', color: color.text.primary },
   field: { gap: space[6] },
@@ -708,7 +665,6 @@ const styles = StyleSheet.create({
     borderColor: color.text.secondary,
     justifyContent: 'center',
   },
-  chipSelected: { backgroundColor: color.accent.primary, borderColor: color.accent.primary },
   glassTrack: { width: SWITCH_W, height: SWITCH_H, borderRadius: SWITCH_H / 2, justifyContent: 'center' },
   glassKnobWrap: { position: 'absolute', left: 3, top: (SWITCH_H - KNOB) / 2 },
   glassKnob: { width: KNOB, height: KNOB, borderRadius: KNOB / 2 },

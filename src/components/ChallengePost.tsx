@@ -10,11 +10,11 @@ import { BlurView } from 'expo-blur';
 
 import { formatBountyShort, formatRelative, formatRemainingShort } from '../data/format';
 import { isPostOnly, type Challenge, type User } from '../data/types';
-import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BeforeAfterPair, BeforeAfterPost } from './BeforeAfterPost';
 import { weChallengeAfter, joinedIds, maxParticipants, participationText } from '../data/weChallenge';
-import { useAppDimensions } from '../theme/layout';
+
 import { BeforeAfterText, PHOTO_TAG, WithMentions, postText, tagColor, useTagColor } from './WithMentions';
 import { BountyBadge, DoneReward, NameWithTestMark } from './Badges';
 import { LivingCrystal } from './icons/Brand';
@@ -49,7 +49,7 @@ export type ChallengePostProps = {
  */
 export const ChallengePost = memo(function ChallengePost(props: ChallengePostProps) {
   if (props.challenge.type === 'before_after') return <BeforeAfterPost {...props} />;
-  return isFashionable ? <FashionPost {...props} /> : <KiezPost {...props} />;
+  return <KiezPost {...props} />;
 });
 
 /** Look „Kiez“ */
@@ -171,7 +171,6 @@ function KiezPost({
     </>
   );
 
-  // Ort auf dem Foto: Stadtteil, sonst Adresse (wie im Fashionable Look). In Gruppen der Ort, falls angegeben
   const placeOnPhoto = placeOf(challenge);
   const posted = formatRelative(challenge.createdAt);
   const tappedMeta = [posted, distance, isPhoto ? null : state, spotsText(challenge, active)].filter(Boolean).join(' · ');
@@ -479,195 +478,9 @@ function spotsText(c: Challenge, active: boolean): string {
   return participationText(maxParticipants(c), c.joinMode, joinedIds(c).length);
 }
 
-/**
- * Look „Fashionable“ (Daria, 2026-10-23): Kopfzeile mit Bild, Name und Kiez über dem Foto, Foto quadratisch über die
- * ganze Breite, darunter Herz, Sprechblase, Teilen und der Text mit fettem Titel vorn. Ein Tipp aufs Foto öffnet den Post.
- */
-function FashionPost({ challenge, author, distance, onPress, onCommentPress, onLike, onManage, wrapLike = (heart) => heart }: ChallengePostProps) {
-  const share = useShareChallenge();
-  const isWave = challenge.type === 'wave';
-  const completed = COMPLETED.has(challenge.status);
-  const closed = challenge.status === 'closed';
-  const active = !closed && !completed;
-  const image = isWave && completed && challenge.imageAfter ? challenge.imageAfter : challenge.image;
-  // Erledigte We-Challenge: Aufgabenfoto als Vorher, Erledigungsfoto als Nachher (Daria, 27.10.2026)
-  const after = image ? weChallengeAfter(challenge) : undefined;
-  const body = postText(challenge);
-  const textPages = isTextPost(challenge) ? challenge.pages : undefined;
-  // Bild: Zeitstempel statt Restzeit, denn ein Bild läuft nicht ab (Daria, 30.10.2026)
-  const isPhoto = challenge.type === 'photo';
-  const state = closed
-    ? 'geschlossen'
-    : completed
-      ? 'erledigt'
-      : isPhoto
-        ? formatRelative(challenge.createdAt)
-        : formatRemainingShort(challenge.deadline).replace('Noch', 'noch');
-  const hideName = useHideName(author);
-  const router = useRouter();
-  const place = [placeOf(challenge), distance, spotsText(challenge, active)].filter(Boolean).join(' · ');
-  const commentCount = challenge.comments.length;
-  const { width } = useAppDimensions();
-
-  return (
-    <View style={fashion.post}>
-      <View style={fashion.head}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('Profil von {name}', { name: author.name })}
-          onPress={() => router.push({ pathname: '/user/[id]', params: { id: author.id, challengeId: challenge.id } })}
-          style={({ pressed }) => [fashion.headWho, pressed && styles.pressed]}
-        >
-          <Avatar user={author} diameter={32} />
-          <View style={styles.whoTexts}>
-            <NameWithTestMark test={author.test}>
-              <Text noTranslate style={[fashion.name, hideName ? hiddenText : null]} numberOfLines={1}>
-                {author.name}
-              </Text>
-            </NameWithTestMark>
-            {place ? (
-              <Text style={fashion.place} numberOfLines={1}>
-                {place}
-              </Text>
-            ) : null}
-          </View>
-        </Pressable>
-        <View style={fashion.headRight}>
-          {completed ? (
-            // Erledigt: Haken und Zahl, schwarz-weiß, ohne Verlauf und Bewegung (Daria, 09.11.2026)
-            <>
-              {!isWave && challenge.bountyAmount ? (
-                <DoneReward value={formatBountyShort(challenge.bountyAmount)} accessibilityLabel={t('Coins: {amount} Euro, erledigt', { amount: challenge.bountyAmount })} />
-              ) : null}
-              {challenge.edensteine ? (
-                <DoneReward value={String(challenge.edensteine)} accessibilityLabel={t('{edensteine} Edensteine, erledigt', { edensteine: challenge.edensteine })} />
-              ) : null}
-            </>
-          ) : closed ? null : (
-            <>
-              {!isWave && challenge.bountyAmount ? <BountyBadge amount={challenge.bountyAmount} small /> : null}
-              {challenge.edensteine ? (
-                // Angabe neben dem Namen, kein Knopf: Stein so hoch wie die Schrift, 4 pt bis zur Zahl, ohne Druckfläche
-                <View style={fashion.eden} accessible accessibilityLabel={t('{edensteine} Edensteine', { edensteine: challenge.edensteine })}>
-                  <LivingCrystal height={30} seed={challenge.id} />
-                  <Text style={fashion.edenText}>{challenge.edensteine}</Text>
-                </View>
-              ) : null}
-            </>
-          )}
-          {onManage ? (
-            // Zahnrad wie im Mockup oben rechts am Beitrag
-            <IconButton icon="settings" iconSize={size.icon} accessibilityLabel={t('Deine Posts verwalten')} onPress={onManage} />
-          ) : null}
-        </View>
-      </View>
-      {/* Ohne Foto keine Fläche: Der Titel steht fett im Text (Daria, 24.10.2026) */}
-      {textPages ? (
-        <TextCard pages={textPages} title={challenge.title} fontKey={challenge.sheetFont} onPress={onPress} square />
-      ) : after ? (
-        <BeforeAfterPair before={image} after={after} height={(width * 5) / 4} onLongPress={onPress} onPress={onPress} />
-      ) : image ? (
-        <Pressable
-          onPress={onPress}
-          accessibilityRole="button"
-          accessibilityLabel={t('{title} öffnen', { title: challenge.title.trim() || t('Foto') })}
-          style={fashion.photo}
-        >
-          <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" />
-          {challenge.type === 'photo' ? <PhotoTextOverlay value={challenge.photoText} /> : null}
-          {isWave ? (
-            <View style={styles.waveTag}>
-              <Text style={styles.waveText}>Wave</Text>
-            </View>
-          ) : null}
-        </Pressable>
-      ) : (
-        <View style={fashion.noPhotoLine} />
-      )}
-      <View style={fashion.actions}>
-        {wrapLike(
-          <Pressable
-            accessibilityRole="button"
-            accessibilityState={{ selected: !!challenge.likedByMe }}
-            accessibilityLabel={challenge.likeCount ? t('Gefällt mir, {likeCount} Likes', { likeCount: challenge.likeCount }) : t('Gefällt mir')}
-            onPress={onLike}
-            style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
-          >
-            <Icon name="heart" size={size.icon} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
-          </Pressable>
-        )}
-        <LikeCount challengeId={challenge.id} count={challenge.likeCount} style={fashion.count} />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={commentCount ? t('Kommentieren, {commentCount} Kommentare', { commentCount }) : t('Kommentieren')}
-          onPress={onCommentPress ?? onPress}
-          style={({ pressed }) => [styles.countAction, pressed && styles.pressed]}
-        >
-          <Icon name="comment-filled" size={size.icon} color={color.text.primary} />
-          {commentCount > 0 ? <Text style={fashion.count}>{commentCount}</Text> : null}
-        </Pressable>
-        <IconButton
-          icon="send"
-          iconSize={size.icon}
-          accessibilityLabel={t('Teilen')}
-          onPress={() => share(challenge)}
-        />
-        {/* Status rechts unter dem Bild, als Angabe in Grau (Daria, 24.10.2026) */}
-        <Text style={[fashion.state, closed && fashion.stateClosed]} numberOfLines={1}>
-          {closed ? 'Geschlossen' : completed ? 'Erledigt' : state.replace(/^noch/, 'Noch')}
-        </Text>
-      </View>
-      <Pressable onPress={onPress} style={fashion.caption}>
-        <Text style={fashion.captionText} numberOfLines={after ? 5 : 3}>
-          {challenge.title.trim() && !textPages ? <Text style={fashion.captionTitle}>{challenge.title} </Text> : null}
-          {body ? <WithMentions value={body} /> : null}
-        </Text>
-        {/* Beim Bild steht der Zeitstempel schon rechts neben den Knöpfen */}
-        {isPhoto ? null : <Text style={fashion.time}>{formatRelative(challenge.createdAt)}</Text>}
-        {challenge.routineLabel ? <RoutinePill label={challenge.routineLabel} /> : null}
-      </Pressable>
-    </View>
-  );
-}
-
 function comingSoon() {
   Alert.alert('Kommt bald', 'Geschenke folgen nach dem MVP.');
 }
-
-/**
- * Maße im Look „Fashionable“ (Daria, 23.10.2026), in pt:
- * Kopf 54 hoch: links 12, rechts 4 (das Zahnrad bringt 44 Fläche mit), Bild 32, 10 bis zum Namen.
- * Foto über die ganze Breite im Hochformat 4:5 wie große Foto-Apps, ohne Foto 4:3 mit Titel.
- * Aktionen 44 hoch, links 4, Icons 24. Text links und rechts 12, 4 zwischen den Zeilen, 16 bis zum nächsten Beitrag.
- */
-const fashion = StyleSheet.create({
-  post: { paddingBottom: space[16] },
-  head: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    height: 54,
-    paddingLeft: space[12],
-    paddingRight: space[4],
-    gap: space[8],
-  },
-  headWho: { flexDirection: 'row', alignItems: 'center', gap: 10, flexShrink: 1 },
-  headRight: { flexDirection: 'row', alignItems: 'center', gap: space[8], flexShrink: 0 },
-  name: { ...text.bodyStrong, color: color.text.primary },
-  place: { ...text.small, color: color.text.primary },
-  photo: { width: '100%', aspectRatio: 4 / 5, backgroundColor: color.bg.surface, overflow: 'hidden' },
-  noPhotoLine: { height: stroke.ultraThin, backgroundColor: color.line.hairline, marginHorizontal: space[12] },
-  state: { flex: 1, textAlign: 'right', paddingRight: space[8], ...text.meta, color: color.text.secondary },
-  stateClosed: { color: color.text.primary, fontFamily: font.semiBold },
-  actions: { flexDirection: 'row', alignItems: 'center', height: 44, paddingHorizontal: space[4] },
-  count: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] },
-  caption: { paddingHorizontal: space[12], gap: space[4] },
-  captionText: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.primary },
-  captionTitle: { fontFamily: font.semiBold },
-  time: { ...text.caption, color: color.text.secondary },
-  eden: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
-  edenText: { ...text.bodyStrong, color: color.text.primary, fontVariant: ['tabular-nums'] },
-});
 
 /** Blätter eines Posts nur mit Text im Feed: so breit wie die Karte. Tippen öffnet den Post, Wischen blättert. */
 function TextCard({

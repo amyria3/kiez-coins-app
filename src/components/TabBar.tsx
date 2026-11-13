@@ -3,15 +3,13 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { color, radius, size, space, stroke, isFashionable } from '../theme/tokens';
-import { SvgXml } from 'react-native-svg';
+import { color, radius, size, space, stroke } from '../theme/tokens';
+
 import { Icon } from './icons/Icon';
 import { t } from '../data/texts';
 import { refreshUnread, useFriendRequests, useUnreadMessages } from '../data/chat';
 import { useStore } from '../data/store';
-import { PH, phXml, useIconPt } from './icons/fashionableSvgs';
-import { Avatar } from './AuthorRow';
-import { reiseEntries } from '../data/reise';
+
 import { countButton } from '../data/remote';
 import { look } from '../theme/look';
 import { useRoutineEnabled } from '../data/routine';
@@ -43,79 +41,7 @@ type TabBarProps = {
  * (Daria, 30.10.2026). Beide Knöpfe zählen mit (`button_presses`), damit sich zeigt, welcher häufiger genutzt wird.
  */
 export function TabBar(props: TabBarProps) {
-  return isFashionable ? <FashionTabBar {...props} /> : <KiezTabBar {...props} />;
-}
-
-/**
- * Leiste im Look „Fashionable“ nach Darias Mockup „Vorher-Nachher“ (24.10.2026): vier gleich breite Felder,
- * Haus = Feed, Kamera = Beitrag erstellen, Sprechblase mit Zeilen = Chats, Burger = Menü (Icon-Regelwerk, 24.10.2026).
- * Icons in Icon-Größe mit derselben Linie; inaktiv mit 55 % Deckkraft, aktiv voll. „Was Du so machst“ öffnet
- * das Herz oben im Feed.
- */
-function FashionTabBar({ active, onFeedPress, onCreatePress }: TabBarProps) {
-  const insets = useSafeAreaInsets();
-  const router = useRouter();
-  const { mode, currentUserId, users, challenges } = useStore();
-  const me = users.find((u) => u.id === currentUserId);
-  const hasTasks = reiseEntries(challenges, currentUserId).some((e) => e.needsAction);
-  const unread = useUnreadMessages();
-  const requests = useFriendRequests();
-  useEffect(() => {
-    if (currentUserId) refreshUnread(currentUserId, mode === 'live').catch(() => {});
-  }, [currentUserId, mode]);
-  const ICON_PT = useIconPt();
-  const item = (on: boolean) => ({ pressed }: { pressed: boolean }) => [styles.itemFashionable, !on && styles.off, pressed && styles.pressed];
-  return (
-    <View style={[styles.wrapFashionable, { paddingBottom: insets.bottom }]} pointerEvents="box-none">
-      <View style={styles.barFashionable} accessibilityRole="tablist">
-        <Pressable
-          accessibilityRole="tab"
-          accessibilityLabel={t('Feed')}
-          accessibilityState={{ selected: active === 'feed' }}
-          onPress={onFeedPress}
-          style={item(active === 'feed')}
-        >
-          <SvgXml xml={phXml(PH.home, color.text.primary)} width={ICON_PT} height={ICON_PT} />
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('Challenge erstellen')}
-          onPress={() => {
-            countButton('kamera-leiste', look);
-            (onCreatePress ?? (() => router.dismissTo({ pathname: '/feed', params: { erstellen: '1' } })))();
-          }}
-          style={item(false)}
-        >
-          <SvgXml xml={phXml(PH.create, color.text.primary)} width={ICON_PT} height={ICON_PT} />
-        </Pressable>
-        <Pressable
-          accessibilityRole="tab"
-          accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : requests ? t('Chats, neue Freundschaftsanfrage') : t('Chats')}
-          accessibilityState={{ selected: active === 'chat' }}
-          onPress={() => active !== 'chat' && router.push('/chat')}
-          style={item(active === 'chat')}
-        >
-          <View>
-            <SvgXml xml={phXml(PH.chats, color.text.primary)} width={ICON_PT} height={ICON_PT} />
-            {unread || requests ? <View style={styles.dotFashionable} /> : null}
-          </View>
-        </Pressable>
-        {/* Dein Bild = Was Du so machst (Icon-Regelwerk). Das Menü liegt dort oben rechts. */}
-        <Pressable
-          accessibilityRole="tab"
-          accessibilityLabel={hasTasks ? t('Was Du so machst, Du bist dran') : t('Was Du so machst')}
-          accessibilityState={{ selected: active === 'reise' }}
-          onPress={() => active !== 'reise' && router.push('/me')}
-          style={item(true)}
-        >
-          <View style={[styles.me, active === 'reise' && styles.meActive]}>
-            {me ? <Avatar user={me} diameter={ICON_PT} /> : <SvgXml xml={phXml(PH.menu, color.text.primary)} width={ICON_PT} height={ICON_PT} />}
-            {hasTasks ? <View style={styles.dotFashionable} /> : null}
-          </View>
-        </Pressable>
-      </View>
-    </View>
-  );
+  return <KiezTabBar {...props} />;
 }
 
 function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineActive = false, onRoutinePress }: TabBarProps) {
@@ -219,9 +145,9 @@ export function CameraButton({ onPress, inline = false }: { onPress: () => void;
         onPress();
       }}
       hitSlop={4}
-      style={({ pressed }) => [styles.camera, isFashionable && styles.cameraFashionable, inline ? styles.cameraInline : { top: insets.top + space[8] }, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.camera, inline ? styles.cameraInline : { top: insets.top + space[8] }, pressed && styles.pressed]}
     >
-      <Icon name="camera" size={24} color={isFashionable ? color.text.primary : color.bg.screen} />
+      <Icon name="camera" size={24} color={color.bg.screen} />
     </Pressable>
   );
 }
@@ -286,34 +212,10 @@ const styles = StyleSheet.create({
   },
   cameraInline: { position: 'relative', right: 0 },
   pressed: { opacity: 0.7 },
-  // Look „Fashionable“: Leiste über die ganze Breite am unteren Rand, Haarlinie oben, keine Pille
-  wrapFashionable: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: color.bg.screen,
-    borderTopWidth: stroke.ultraThin,
-    borderTopColor: color.line.hairline,
-  },
-  // Erstellen als schlichtes Icon ohne Fläche
-  cameraFashionable: { backgroundColor: 'transparent', width: 48 },
-  // Mockup: 72 hoch mit Home-Balken, Icons 12 unter der Haarlinie
-  barFashionable: { flexDirection: 'row', height: 50 },
   off: { opacity: 0.55 },
   // Dein Bild in der Leiste: aktiv mit dunklem Ring
   me: { borderRadius: 999, padding: 1.5, borderWidth: 1.5, borderColor: 'transparent' },
   meActive: { borderColor: color.text.primary },
-  itemFashionable: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  dotFashionable: {
-    position: 'absolute',
-    top: -2,
-    right: -4,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: color.accent.affection,
-  },
   dot: {
     position: 'absolute',
     top: -2,

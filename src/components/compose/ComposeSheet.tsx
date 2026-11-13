@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { isFashionable, color, radius, space } from '../../theme/tokens';
+import { color, radius, space } from '../../theme/tokens';
 import { ActionBar } from '../ActionBar';
 import { GroupsEmpty } from '../GroupBar';
 import { NudgeScrollProvider, useNudgeScroll } from '../Nudge';
@@ -173,9 +173,8 @@ const styles = StyleSheet.create({
   sheet: {
     flex: 1,
     backgroundColor: color.bg.screen,
-    // Fashionable Look: bündig unter den Reitern, ohne runde Ecken, durch die sonst der Feed scheint
-    borderTopLeftRadius: isFashionable ? 0 : radius.sheet,
-    borderTopRightRadius: isFashionable ? 0 : radius.sheet,
+    borderTopLeftRadius: radius.sheet,
+    borderTopRightRadius: radius.sheet,
     overflow: 'hidden',
   },
   flex: { flex: 1 },

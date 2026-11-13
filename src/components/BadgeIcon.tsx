@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
 import { badgeMeta, badgeTitle, type BadgeKind } from '../data/badges';
-import { color, isFashionable } from '../theme/tokens';
+import { color } from '../theme/tokens';
 import { KIEZ_BADGE_SVGS } from './icons/badgeSvgs';
 
 /**
@@ -103,7 +103,7 @@ export function BadgeIcon({
   ringColor?: string;
 }) {
   const meta = badgeMeta(kind);
-  const own = isFashionable ? undefined : KIEZ_BADGE_SVGS[kind];
+  const own = KIEZ_BADGE_SVGS[kind];
   if (own) {
     // Darias Icon bringt Farbfläche und Symbol selbst mit; Small ragt unten rechts über die Fläche hinaus
     if (size < BADGE_MIN) {

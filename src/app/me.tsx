@@ -23,8 +23,7 @@ import { BadgeOverview } from '../components/BadgeOverview';
 import { useFriends } from '../data/friends';
 import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
 import { useStore } from '../data/store';
-import { color, font, isFashionable, radius, size, space, text } from '../theme/tokens';
-import { FashionProfile } from '../components/FashionProfile';
+import { color, font, radius, size, space, text } from '../theme/tokens';
 import { SchiffWellen } from '../components/SchiffWellen';
 import { getLanguage, t } from '../data/texts';
 import { useGoBack } from '../lib/goBack';
@@ -45,8 +44,7 @@ function taskLabel({ challenge, role }: ReiseEntry): string {
  * Dein Platz in der Rangliste und der Verlauf der gewählten Gruppe.
  */
 export default function ReiseRoute() {
-  // Fashionable Look: Profilansicht wie bei großen Foto-Apps (Daria, 23.10.2026)
-  return isFashionable ? <FashionProfile /> : <Reise />;
+  return <Reise />;
 }
 
 function Reise() {
@@ -92,7 +90,7 @@ function Reise() {
         {/* Krone als Zeichen für „Was Du so machst“ links vor dem Titel; für das Schiffchen reicht der Platz nicht (Daria, 02.11.2026).
             Krone in der Farbe des Titels (Daria, 11.11.2026) */}
         <View style={styles.titleRow}>
-          {isFashionable ? null : <CrownIcon height={30} fill={color.text.primary} />}
+          {<CrownIcon height={30} fill={color.text.primary} />}
           <Text style={[styles.title, styles.flex1]} accessibilityRole="header">
             Was Du so machst
           </Text>
@@ -102,7 +100,6 @@ function Reise() {
         <Pressable accessibilityRole="button" accessibilityLabel={t('Cat The Käptn Hallo sagen')} onPress={() => router.push('/cat')}>
           <KaterCard mood={catVariant(mood)}>{reiseMoodText(mood, anrede(profile))}</KaterCard>
         </Pressable>
-
 
         {/* Überschriften für die Abschnitte (Daria, 2026-11-10) */}
         {tasks.length ? (
@@ -138,7 +135,7 @@ function Reise() {
 
         {/* Icons zwischen den Wörtern: Herz Diese Community Daumen braucht Schiffchen Dich Krone (Daria, 02.11.2026).
             In anderen Sprachen stehen die Icons vor dem übersetzten Satz, da die Wortfolge dort eine andere ist. */}
-        {isFashionable ? null : getLanguage() === 'de' ? (
+        {getLanguage() === 'de' ? (
           <View style={styles.community} accessible accessibilityLabel="Diese Community braucht Dich">
             {/* Jedes Wort und Icon einzeln: Die Zeile bricht erst um, wenn wirklich kein Platz mehr ist (Daria, 08.11.2026) */}
             <Icon name="heart" size={18} color={COMMUNITY} />

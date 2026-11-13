@@ -1,16 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  AccessibilityInfo,
-  Alert,
-  Animated,
-  Easing,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
-} from 'react-native';
+import { AccessibilityInfo, Alert, Animated, Easing, Platform, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { ActionBar } from '../components/ActionBar';
 import { Button } from '../components/Button';
-import { Cat } from '../components/icons/Brand';
+
 import { KaterCard, KaterRund } from '../components/Content';
 import { CheckOption, SwitchRow, TextField } from '../components/Form';
 import { explain } from '../components/Nudge';
@@ -32,7 +21,7 @@ import { useStore } from '../data/store';
 import { t } from '../data/texts';
 import { TOUR_FEEDBACK_OTHER_MAX, TOUR_SEEN_KEY, tourFeedbackOptions, tourSteps as allTourSteps, type TourStep } from '../data/tour';
 import { useAppDimensions } from '../theme/layout';
-import { color, isFashionable, radius, space, text } from '../theme/tokens';
+import { color, radius, space, text } from '../theme/tokens';
 import { KeyboardArea } from '../components/Keyboard';
 
 /**
@@ -150,7 +139,7 @@ export default function Tour() {
                 <CaptainLikes choices={choices} other={other} />
               ) : (
                 <ScrollView style={styles.flex} contentContainerStyle={styles.feedback} keyboardShouldPersistTaps="handled">
-                  {isFashionable ? <Cat mood="high" height={64} /> : <KaterRund size={64} />}
+                  {<KaterRund size={64} />}
                   <Text style={styles.title} accessibilityRole="header">
                     {step.title}
                   </Text>
@@ -170,7 +159,7 @@ export default function Tour() {
               )
             ) : step.kind === 'features' ? (
               <ScrollView style={styles.flex} contentContainerStyle={styles.feedback}>
-                {isFashionable ? <Cat mood="high" height={64} /> : <KaterRund size={64} />}
+                {<KaterRund size={64} />}
                 <Text style={styles.title} accessibilityRole="header">
                   {step.title}
                 </Text>

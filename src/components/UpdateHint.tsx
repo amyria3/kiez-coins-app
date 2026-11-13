@@ -5,12 +5,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Text } from './T';
 import { t } from '../data/texts';
-import { Cat } from './icons/Brand';
+
 import { Icon } from './icons/Icon';
 import { apkDownloadUrl, fetchRelease, installedVersionCode } from '../data/appRelease';
 import { useAuth } from '../data/auth';
 import { useStore } from '../data/store';
-import { color, isFashionable, radius, space, text } from '../theme/tokens';
+import { color, radius, space, text } from '../theme/tokens';
 import { KaterRund } from './Content';
 
 /**
@@ -91,7 +91,7 @@ export function UpdateHint() {
       pointerEvents={hint.required ? 'auto' : 'box-none'}
     >
       <View style={[styles.card, hint.required && { marginTop: insets.top + space[8] }]}>
-        {isFashionable ? <Cat height={34} /> : <KaterRund size={36} />}
+        {<KaterRund size={36} />}
         <View style={styles.body}>
           <Text style={styles.title}>{hint.required ? 'Diese Version ist zu alt.' : 'Jo, meine Friends haben eine neue Version für Dich!'}</Text>
           <Text style={styles.steps}>Lade sie herunter und installiere sie über die alte. Deine Daten bleiben.</Text>

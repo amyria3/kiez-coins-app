@@ -6,9 +6,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Frost } from './Glass';
 import { Text } from './T';
 import { t } from '../data/texts';
-import { Cat } from './icons/Brand';
+
 import { Icon } from './icons/Icon';
-import { color, isFashionable, radius, space, text } from '../theme/tokens';
+import { color, radius, space, text } from '../theme/tokens';
 import { KaterRund } from './Content';
 
 /**
@@ -77,7 +77,7 @@ export function InstallHint() {
   return (
     <View style={[styles.wrap, { top: insets.top + space[8] }]} pointerEvents="box-none">
       <Frost style={styles.card} contentStyle={styles.cardContent}>
-        {isFashionable ? <Cat height={34} /> : <KaterRund size={36} />}
+        {<KaterRund size={36} />}
         <View style={styles.body}>
           <Text style={styles.title}>Lege mich auf Deinen Home-Bildschirm!</Text>
           {mode === 'ios' ? (

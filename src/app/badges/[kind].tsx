@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
-import { BadgeIcon } from '../../components/BadgeIcon';
 import { BadgeStepsBar } from '../../components/BadgeOverview';
 import { BadgeScene, SCENE_FRAME } from '../../components/BadgeScene';
 import { Button } from '../../components/Button';
@@ -10,7 +9,7 @@ import { SubScreen } from '../../components/Screen';
 import { Text } from '../../components/T';
 import { BADGES, badgeMeta, badgeSteps, badgeTitle, useMyBadges, type BadgeKind } from '../../data/badges';
 import { useGoBack } from '../../lib/goBack';
-import { color, font, isFashionable, space, text } from '../../theme/tokens';
+import { color, font, space, text } from '../../theme/tokens';
 
 /**
  * Route `badges/[kind]`: ein Abzeichen im Detail, aus „Me“ (Daria, 2026-11-02).
@@ -46,11 +45,7 @@ export default function BadgeDetailScreen() {
         ) : undefined
       }
     >
-      {isFashionable ? (
-        <View style={styles.icon}>
-          <BadgeIcon kind={kind} number={own?.number} size={138} muted={!own} />
-        </View>
-      ) : (
+      {(
         <View style={[styles.szene, { backgroundColor: SCENE_FRAME[kind] }]} onLayout={(e) => setBreite(e.nativeEvent.layout.width)}>
           {breite ? <BadgeScene kind={kind} width={Math.round(breite * 0.87)} variant={own ? 'besitz' : 'meer'} /> : null}
         </View>

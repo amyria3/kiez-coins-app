@@ -9,7 +9,6 @@ import * as Updates from 'expo-updates';
 
 import { buildErrorReport, mailErrorReport, sendErrorReport } from '../lib/errorReport';
 import { color, font, radius, space, text } from '../theme/tokens';
-import { look, setLook } from '../theme/look';
 
 type Props = { error: unknown; retry: () => void | Promise<void> };
 
@@ -165,11 +164,6 @@ function ErrorContent({ error, retry }: Props) {
       <Pressable style={styles.link} onPress={() => retry()} accessibilityRole="button">
         <Text style={styles.linkText}>Noch mal versuchen</Text>
       </Pressable>
-      {look !== 'kiez' ? (
-        <Pressable style={styles.link} onPress={() => setLook('kiez')} accessibilityRole="button">
-          <Text style={styles.linkText}>Zurück zum Kiez-Look</Text>
-        </Pressable>
-      ) : null}
 
       <Pressable style={styles.link} onPress={() => setDetails(!details)} accessibilityRole="button">
         <Text style={styles.linkText}>{details ? 'Details ausblenden' : 'Details anzeigen'}</Text>

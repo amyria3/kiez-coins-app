@@ -4,8 +4,7 @@ import { SvgXml } from 'react-native-svg';
 
 import { isRtl } from '../../data/texts';
 
-import { color as themeColor, isFashionable } from '../../theme/tokens';
-import { fashionableSvgs, useIconPt } from './fashionableSvgs';
+import { color as themeColor } from '../../theme/tokens';
 import { iconSvgs, type IconName } from './svgs';
 
 type IconProps = {
@@ -30,22 +29,10 @@ const MIRRORED = new Set<IconName>(['chevron-left', 'chevron-right', 'send', 'th
 const LARGE_MIN = 18;
 const GLYPHS = new Set<IconName>(['chevron-left', 'chevron-right', 'plus', 'minus', 'close']);
 
-
 export const Icon = memo(function Icon({ name, color = themeColor.text.primary, size, flip }: IconProps) {
-  const iconPt = useIconPt();
   const mirror = (MIRRORED.has(name) && isRtl()) !== !!flip;
-  const line = isFashionable ? fashionableSvgs[name] : undefined;
-  if (line) {
-    // size.icon (20) ist die Größe der Hauptsymbole; kleinere Angaben im selben Verhältnis
-    const h = Math.round(((size ?? 20) / 20) * iconPt);
-    // Herz gefüllt, sobald es in der Herzfarbe erscheint (gefällt mir)
-    const xml = line.svg(color, name === 'heart' && color === themeColor.accent.affection);
-    const el = <SvgXml xml={xml} width={h} height={h} />;
-    if (mirror) return <View style={{ transform: [{ scaleX: -1 }] }}>{el}</View>;
-    return el;
-  }
   const icon = iconSvgs[name];
-  if (!isFashionable && color === themeColor.text.primary && !GLYPHS.has(name) && (size ?? icon.height) >= LARGE_MIN) {
+  if (color === themeColor.text.primary && !GLYPHS.has(name) && (size ?? icon.height) >= LARGE_MIN) {
     color = themeColor.icon.large;
   }
   const height = Math.round((size ?? icon.height) * (name === 'camera' ? CAMERA_SCALE : ICON_SCALE) * (OPTICAL[name] ?? 1));

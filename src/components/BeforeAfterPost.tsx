@@ -2,22 +2,20 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
-import { NameWithTestMark } from './Badges';
 
 import { beforeAfterDuration, formatHoursMinutes, formatRelative } from '../data/format';
 import { t } from '../data/texts';
 import type { ImageSource } from '../data/types';
 import { useShareChallenge } from '../data/shareChallenge';
-import { useAppDimensions } from '../theme/layout';
-import { color, font, isFashionable, motion, radius, size, space, stroke, text } from '../theme/tokens';
-import { Avatar, hiddenText, useHideName } from './AuthorRow';
+
+import { color, font, motion, radius, size, space, stroke, text } from '../theme/tokens';
+import { hiddenText, useHideName } from './AuthorRow';
 import type { ChallengePostProps } from './ChallengePost';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 import { Text } from './T';
 import { LikeCount } from './LikeCount';
-import { BeforeAfterText, WithMentions } from './WithMentions';
+import { BeforeAfterText } from './WithMentions';
 
 /** Anteil des Vorher-Fotos an der Höhe: im Ruhezustand 1/3, vergrößert 5/6 (Daria, 23.10.2026) */
 const SPLIT = { none: 1 / 3, before: 5 / 6, after: 1 / 6 } as const;
@@ -131,7 +129,7 @@ function Tag({ label }: { label: string }) {
 
 /** Feed-Karte eines Vorher-Nachher-Beitrags in beiden Looks */
 export function BeforeAfterPost(props: ChallengePostProps) {
-  return isFashionable ? <FashionBeforeAfter {...props} /> : <KiezBeforeAfter {...props} />;
+  return <KiezBeforeAfter {...props} />;
 }
 
 function useParts({ challenge }: ChallengePostProps) {
@@ -147,14 +145,14 @@ function useParts({ challenge }: ChallengePostProps) {
 function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: ChallengePostProps & { end?: ReactNode }) {
   const share = useShareChallenge();
   const commentCount = challenge.comments.length;
-  const countStyle = isFashionable ? styles.countFashionable : styles.count;
-  const manage = onManage && !isFashionable ? (
+  const countStyle = styles.count;
+  const manage = onManage && true ? (
     <IconButton icon="settings" iconSize={size.icon} accessibilityLabel={t('Deine Posts verwalten')} onPress={onManage} />
   ) : null;
   return (
-    <View style={isFashionable ? styles.actionsFashionable : styles.actions}>
+    <View style={styles.actions}>
       {/* Kiez-Look: Knöpfe rechtsbündig, Verwalten links (Daria, 2026-11-09) */}
-      {isFashionable ? null : (
+      {(
         <>
           {manage}
           {end}
@@ -186,12 +184,7 @@ function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: 
         accessibilityLabel={t('Teilen')}
         onPress={() => share(challenge)}
       />
-      {isFashionable ? (
-        <>
-          <View style={styles.flex} />
-          {end}
-        </>
-      ) : null}
+
     </View>
   );
 }
@@ -244,64 +237,6 @@ function KiezBeforeAfter(props: ChallengePostProps) {
   );
 }
 
-/** Look „Fashionable“: Kopfzeile, Bildpaar über die ganze Breite im Hochformat 4:5, Text mit fettem Titel */
-function FashionBeforeAfter(props: ChallengePostProps) {
-  const { challenge, author, distance, onPress, onManage } = props;
-  const { before, after, duration } = useParts(props);
-  const hideName = useHideName(author);
-  const router = useRouter();
-  const { width } = useAppDimensions();
-  const place = [challenge.kiez?.split(',')[0] ?? challenge.location, distance].filter(Boolean).join(' · ');
-  const time = [formatRelative(challenge.createdAt), duration ? t('in {duration} geschafft', { duration }) : '']
-    .filter(Boolean)
-    .join(' · ');
-  return (
-    <View style={styles.postFashionable}>
-      <View style={styles.head}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('Profil von {name}', { name: author.name })}
-          onPress={() => router.push({ pathname: '/user/[id]', params: { id: author.id, challengeId: challenge.id } })}
-          style={({ pressed }) => [styles.headWho, pressed && styles.pressed]}
-        >
-          <Avatar user={author} diameter={32} />
-          <View style={styles.headTexts}>
-            <NameWithTestMark test={author.test}>
-              <Text noTranslate style={[styles.name, hideName ? hiddenText : null]} numberOfLines={1}>
-                {author.name}
-              </Text>
-            </NameWithTestMark>
-            {place ? (
-              <Text style={styles.place} numberOfLines={1}>
-                {place}
-              </Text>
-            ) : null}
-          </View>
-        </Pressable>
-        {onManage ? (
-          <IconButton icon="settings" iconSize={size.icon} accessibilityLabel={t('Deine Posts verwalten')} onPress={onManage} />
-        ) : null}
-      </View>
-      <BeforeAfterPair
-        before={before}
-        after={after}
-        height={(width * 5) / 4}
-        duration={duration}
-        onLongPress={onPress}
-        onPress={onPress}
-      />
-      <Actions {...props} />
-      <Pressable onPress={onPress} style={styles.caption}>
-        <Text style={styles.captionText} numberOfLines={5}>
-          <Text style={styles.captionTitle}>{challenge.title} </Text>
-          {challenge.text ? <WithMentions value={challenge.text} /> : null}
-        </Text>
-        <Text style={styles.time}>{time}</Text>
-      </Pressable>
-    </View>
-  );
-}
-
 /** Höhe der Karte im Look „Kiez“, wie die anderen Beiträge */
 const KIEZ_HEIGHT = 360;
 
@@ -320,16 +255,16 @@ const styles = StyleSheet.create({
     left: space[12],
     paddingVertical: space[4],
     paddingHorizontal: space[8],
-    borderRadius: isFashionable ? radius.sm : radius.full,
+    borderRadius: radius.full,
     overflow: 'hidden',
     backgroundColor: color.overlay.medium,
   },
   tagText: {
-    fontFamily: isFashionable ? font.semiBold : font.medium,
+    fontFamily: font.medium,
     fontSize: 11,
     lineHeight: 14,
-    letterSpacing: isFashionable ? 0.6 : 0.4,
-    textTransform: isFashionable ? 'uppercase' : 'none',
+    letterSpacing: 0.4,
+    textTransform: 'none',
     color: color.text.onPhoto,
   },
   // Dauer an der Naht, rechts, halb über beiden Fotos
@@ -343,7 +278,7 @@ const styles = StyleSheet.create({
     gap: space[6],
     paddingLeft: space[8],
     paddingRight: space[12],
-    borderRadius: isFashionable ? radius.sm : radius.full,
+    borderRadius: radius.full,
     backgroundColor: color.bg.screen,
     zIndex: 2,
   },
@@ -377,8 +312,6 @@ const styles = StyleSheet.create({
   },
   textBlock: { paddingHorizontal: space[4], paddingBottom: space[8] },
   body: { ...text.body, color: color.text.secondary },
-  // Look „Fashionable“
-  postFashionable: { paddingBottom: space[16] },
   head: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -392,8 +325,6 @@ const styles = StyleSheet.create({
   headTexts: { flexShrink: 1 },
   name: { ...text.bodyStrong, color: color.text.primary },
   place: { ...text.small, color: color.text.primary },
-  actionsFashionable: { flexDirection: 'row', alignItems: 'center', height: 44, paddingHorizontal: space[4] },
-  countFashionable: { fontFamily: font.semiBold, fontSize: 14, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] },
   caption: { paddingHorizontal: space[12], gap: space[4] },
   captionText: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.primary },
   captionTitle: { fontFamily: font.semiBold },

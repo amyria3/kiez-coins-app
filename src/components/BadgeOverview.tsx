@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 
 import { BADGES, badgeSteps, badgeTitle, useMyBadges } from '../data/badges';
 import { t } from '../data/texts';
-import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
+import { color, font, radius, space, stroke, text } from '../theme/tokens';
 import { BadgeIcon } from './BadgeIcon';
 import { Text } from './T';
 
@@ -101,7 +101,7 @@ export function BadgeOverview({ gutter = 0 }: { gutter?: number }) {
 
 const styles = StyleSheet.create({
   wrap: { gap: space[24] },
-  block: { gap: isFashionable ? space[8] : space[12] },
+  block: { gap: space[12] },
   list: { borderRadius: radius.xl + 2, backgroundColor: color.bg.surface, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12], paddingHorizontal: space[16] },
   divider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },

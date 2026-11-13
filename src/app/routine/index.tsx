@@ -7,7 +7,7 @@ import { NavigationBar } from '../../components/NavigationBar';
 import { RoutineContent } from '../../components/RoutineContent';
 import { useRoutineEnabled } from '../../data/routine';
 import { useGoBack } from '../../lib/goBack';
-import { color, isFashionable, space } from '../../theme/tokens';
+import { color, space } from '../../theme/tokens';
 
 /**
  * Route `routine`. Die Routine ist ein Reiter im Feed (Daria, 2026-11-11): Oben steht der Umschalter, keine eigene
@@ -18,7 +18,7 @@ export default function Routine() {
   const goBack = useGoBack();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const inFeed = useRoutineEnabled() && !isFashionable;
+  const inFeed = useRoutineEnabled() && true;
   useEffect(() => {
     if (inFeed) router.dismissTo({ pathname: '/feed', params: { reiter: 'routine' } });
   }, [inFeed, router]);

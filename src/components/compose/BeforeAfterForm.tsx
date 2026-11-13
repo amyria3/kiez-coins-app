@@ -4,7 +4,7 @@ import { Alert, Platform, StyleSheet, TextInput, View } from 'react-native';
 import { BEFORE_AFTER_TEXT_MAX } from '../../data/remote';
 import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
-import { color, font, isFashionable, radius, space, stroke, text } from '../../theme/tokens';
+import { color, font, radius, space, stroke, text } from '../../theme/tokens';
 import { useFocusColor } from '../../theme/signal';
 import { Button } from '../Button';
 import { PhotoPicker, SwitchRow } from '../Form';
@@ -69,7 +69,7 @@ export function TagTextField({
     <View style={styles.field}>
       <Text style={styles.label}>{t(label)}</Text>
       <View
-        style={[styles.box, focused && styles.boxFocused, { borderColor: tooLong ? color.accent.error : focused ? accent : isFashionable ? color.line.hairline : color.text.secondary }]}
+        style={[styles.box, focused && styles.boxFocused, { borderColor: tooLong ? color.accent.error : focused ? accent : color.text.secondary }]}
         onTouchEnd={() => inputRef.current?.focus()}
       >
         <Text style={[styles.tag, { color: tagColor(tag) }]} noTranslate>

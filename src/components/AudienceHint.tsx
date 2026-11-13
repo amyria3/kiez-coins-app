@@ -2,11 +2,10 @@ import { useEffect, useState } from 'react';
 import { AppState, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { Text } from './T';
-import { IconButton } from './IconButton';
+
 import { CHAT_GAP_SAME, Notice } from './Content';
-import { t } from '../data/texts';
-import { color, isFashionable, radius, space, text } from '../theme/tokens';
+
+import { color, radius, space, text } from '../theme/tokens';
 
 /**
  * Hinweis unter dem Umschalter „Privat / Gruppe / Kiez“ (UX-Audit, Daria, 27.10.2026): wer sieht, was Du hier postest.
@@ -109,35 +108,18 @@ export function AudienceHint({
 }) {
   // Kiez-Look: Systemmeldung als hellblaue Chatblasen, je Zeile eine Nachricht mit eigenem Kreuz (Daria, 2026-11-09).
   // Jede Blase trägt den Zipfel, da jede ihren Avatar hat.
-  if (!isFashionable) {
-    const shown = MESSAGE[audience].map((line, i) => ({ line, i })).filter(({ i }) => !hidden.includes(i));
-    return (
-      <View style={[styles.wrap, styles.bubbles]}>
-        {shown.map(({ line, i }) => (
-          <Notice key={line} feed message={line} onClose={onCloseLine ? () => onCloseLine(i) : onClose} />
-        ))}
-      </View>
-    );
-  }
+  const shown = MESSAGE[audience].map((line, i) => ({ line, i })).filter(({ i }) => !hidden.includes(i));
   return (
-    <View style={styles.wrap}>
-      <View style={styles.hint}>
-        <View style={styles.texts}>
-          {MESSAGE[audience].map((line) => (
-            <Text key={line} style={styles.text}>
-              {line}
-            </Text>
-          ))}
-        </View>
-        <IconButton icon="close" iconSize={14} iconColor={color.text.secondary} accessibilityLabel={t('Hinweis schließen')} onPress={onClose} />
-      </View>
+    <View style={[styles.wrap, styles.bubbles]}>
+      {shown.map(({ line, i }) => (
+        <Notice key={line} feed message={line} onClose={onCloseLine ? () => onCloseLine(i) : onClose} />
+      ))}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // Fashionable Look: Liste ohne Abstände, daher eigener Rand oben und unten
-  wrap: { paddingHorizontal: space[16], paddingVertical: isFashionable ? space[8] : 0 },
+  wrap: { paddingHorizontal: space[16], paddingVertical: 0 },
   // Zwei Nachrichten derselben Seite: kleiner Abstand (Daria, 2026-11-09)
   bubbles: { gap: CHAT_GAP_SAME },
   hint: {

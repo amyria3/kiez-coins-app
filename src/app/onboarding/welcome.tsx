@@ -9,7 +9,7 @@ import { Button } from '../../components/Button';
 import { KaterStage } from '../../components/KaterStage';
 import { useKater } from '../../components/useKater';
 import { useAuth } from '../../data/auth';
-import { color, font, isFashionable, space, stroke, text } from '../../theme/tokens';
+import { color, font, space, stroke, text } from '../../theme/tokens';
 import { useAppDimensions } from '../../theme/layout';
 
 /** So lange sind die Herzen zu sehen, bevor es weitergeht */
@@ -98,14 +98,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   // Kiez-Look: Unbounded wie die übrigen großen Überschriften (Daria, 2026-11-11), kleiner, da sie breiter läuft.
-  // Fashionable bleibt in der Inter Tight.
-  headline: isFashionable
-    ? { ...text.display, fontSize: 44, lineHeight: 46, letterSpacing: -1.2, color: color.text.primary }
-    : { ...text.display, fontSize: 32, lineHeight: 40, letterSpacing: -0.4, color: color.text.primary },
-  headlineCompact: isFashionable ? { fontSize: 34, lineHeight: 36, letterSpacing: -0.9 } : { fontSize: 26, lineHeight: 33, letterSpacing: -0.3 },
+  headline: { ...text.display, fontSize: 32, lineHeight: 40, letterSpacing: -0.4, color: color.text.primary },
+  headlineCompact: { fontSize: 26, lineHeight: 33, letterSpacing: -0.3 },
   contentCompact: { gap: space[16], paddingVertical: space[16] },
   headlineMuted: { color: color.text.secondary },
-  body: { fontFamily: font.text, fontSize: isFashionable ? 16 : 17, lineHeight: isFashionable ? 23 : 22, color: color.text.secondary },
+  body: { fontFamily: font.text, fontSize: 17, lineHeight: 22, color: color.text.secondary },
   legal: { ...text.caption, color: color.text.secondary },
   link: { textDecorationLine: 'underline' },
 });

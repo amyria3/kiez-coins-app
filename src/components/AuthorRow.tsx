@@ -4,11 +4,10 @@ import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from './T';
 import { Image } from 'expo-image';
-import { SvgXml } from 'react-native-svg';
 
 import { useStore } from '../data/store';
 import type { User } from '../data/types';
-import { color, font, radius, size, space, text, isFashionable } from '../theme/tokens';
+import { color, font, radius, size, space, text } from '../theme/tokens';
 import { Icon } from './icons/Icon';
 
 /**
@@ -30,13 +29,10 @@ export function useHideName(user: Pick<User, 'id'>): boolean {
 /** Verdeckter Text: nur ein unscharfer Schatten der Buchstaben bleibt sichtbar. */
 export const hiddenText = {
   color: 'transparent',
-  textShadowColor: isFashionable ? 'rgba(0, 0, 0, 0.55)' : 'rgba(240, 240, 240, 0.85)',
+  textShadowColor: 'rgba(240, 240, 240, 0.85)',
   textShadowOffset: { width: 0, height: 0 },
   textShadowRadius: 10,
 } as const;
-
-const AVATAR_GRADIENT =
-  '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="avatar-verlauf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7E94FF"/><stop offset="1" stop-color="#FFB2E5"/></linearGradient></defs><rect width="100" height="100" fill="url(#avatar-verlauf)"/></svg>';
 
 /** Figma „Avatar“: 36×36 (oder `diameter`), ohne Bild Initialen auf color/accent/primary. */
 /**
@@ -100,17 +96,10 @@ function AvatarImage({ user, diameter }: { user: User; diameter?: number }) {
     .join('');
   const d = diameter ?? size.avatar;
   return (
-    <View style={[styles.avatar, styles.fallback, isFashionable && styles.fallbackFashionable, sizeStyle]}>
+    <View style={[styles.avatar, styles.fallback, sizeStyle]}>
       {/* Fashionable Look: Verlauf wie im Mockup, 135° von Kiez-Lila #7E94FF nach Rosa #FFB2E5 (Daria, 24.10.2026) */}
-      {isFashionable ? (
-        <SvgXml
-          xml={AVATAR_GRADIENT}
-          width={d}
-          height={d}
-          style={StyleSheet.absoluteFill}
-        />
-      ) : null}
-      <Text style={[styles.initials, isFashionable && styles.initialsFashionable, { fontSize: Math.round(d * 0.4) }]}>{initials}</Text>
+
+      <Text style={[styles.initials, { fontSize: Math.round(d * 0.4) }]}>{initials}</Text>
     </View>
   );
 }
@@ -162,9 +151,6 @@ const styles = StyleSheet.create({
   avatar: { width: size.avatar, height: size.avatar, borderRadius: radius.full },
   fallback: { backgroundColor: color.accent.primary, alignItems: 'center', justifyContent: 'center' },
   initials: { fontFamily: font.semiBold, fontSize: 14, color: color.bg.screen },
-  fallbackFashionable: { backgroundColor: 'transparent', overflow: 'hidden' },
-  /** Dunkle Schrift auf dem hellen Verlauf, wie im Mockup */
-  initialsFashionable: { color: '#1F2123' },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

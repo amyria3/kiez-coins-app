@@ -6,8 +6,7 @@ import { formatBountyShort, formatRemainingShort } from '../data/format';
 import { Icon } from './icons/Icon';
 import type { Challenge, ChallengeStatus } from '../data/types';
 import { useStore } from '../data/store';
-import { useIconPt } from './icons/fashionableSvgs';
-import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
+import { color, font, radius, space, stroke, text } from '../theme/tokens';
 import { CoinsIcon } from './icons/Brand';
 import { t, tAbout } from '../data/texts';
 
@@ -33,7 +32,7 @@ const statusStyles: Record<ChallengeStatus, { label: string; tint: string; fille
 
 /** Fläche, Rand und Schriftfarbe eines Badges nach dem Badge-Prinzip */
 function badgeLook(tint: string) {
-  if (isFashionable) return { box: { backgroundColor: `${tint}26` }, ink: tint };
+
   // Getönt (Daria, 2026-11-05, Variante B): zarte Fläche in der Statusfarbe, Schrift in der vollen Farbe, kein Rand
   return { box: { backgroundColor: `${tint}29`, borderColor: 'transparent' }, ink: tint };
 }
@@ -122,10 +121,9 @@ export function DeadlineBadge({ deadline }: { deadline: string }) {
  * Die Handschrift „BROWN NOW TWO“ ist noch nicht eingebunden (Lizenz für Apps offen), bis dahin Inter.
  */
 export function BountyBadge({ amount, small }: { amount: number; small?: boolean }) {
-  const iconPt = useIconPt();
   return (
     <View style={styles.bounty} accessible accessibilityLabel={t('Coins: {amount} Euro', { amount })}>
-      <CoinsIcon height={isFashionable ? iconPt : small ? 22 : 26} />
+      <CoinsIcon height={small ? 22 : 26} />
       <Text style={[styles.bountyText, small ? styles.bountyTextSmall : null]}>{formatBountyShort(amount)}</Text>
     </View>
   );
@@ -180,21 +178,18 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     borderRadius: radius.full,
     paddingHorizontal: space[8],
-    paddingTop: isFashionable ? space[6] : space[4],
+    paddingTop: space[4],
     paddingBottom: space[6],
-    borderWidth: isFashionable ? 0 : stroke.thin,
+    borderWidth: stroke.thin,
     borderColor: 'transparent',
     alignSelf: 'center',
   },
   actorName: { fontFamily: font.semiBold },
   deadline: { flexDirection: 'row', alignItems: 'center', gap: space[6], alignSelf: 'flex-start' },
-  bounty: { flexDirection: 'row', alignItems: 'center', gap: isFashionable ? space[4] : space[6] },
-  // Fashionable Look: Betrag halbfett in Textfarbe wie die Zahlen großer Foto-Apps
-  bountyText: isFashionable
-    ? { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.text.primary, fontVariant: ['tabular-nums'] }
-    : { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.signal },
-  bountyTextSmall: isFashionable ? { fontSize: 14, lineHeight: 18 } : { fontSize: 16, lineHeight: 20 },
+  bounty: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
+  bountyText: { fontFamily: font.display, fontSize: 18, lineHeight: 22, color: color.accent.signal },
+  bountyTextSmall: { fontSize: 16, lineHeight: 20 },
   done: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   doneLabel: { ...text.meta, color: color.text.secondary },
-  doneText: { fontFamily: isFashionable ? font.semiBold : font.display, fontSize: 14, lineHeight: 18, color: color.text.primary, fontVariant: ['tabular-nums'] },
+  doneText: { fontFamily: font.display, fontSize: 14, lineHeight: 18, color: color.text.primary, fontVariant: ['tabular-nums'] },
 });

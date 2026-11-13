@@ -18,7 +18,7 @@ import { beforeAfterBody, useChallenge, useStore } from '../../data/store';
 import { localeTag, t } from '../../data/texts';
 import type { ImageSource } from '../../data/types';
 import { useGoBack } from '../../lib/goBack';
-import { color, font, isFashionable, radius, space, stroke, text } from '../../theme/tokens';
+import { color, font, radius, space, text } from '../../theme/tokens';
 import { celebratePost } from '../../components/HeartBurst';
 import { WaitForData } from '../../components/WaitForData';
 
@@ -322,9 +322,7 @@ const styles = StyleSheet.create({
     gap: space[12],
     padding: space[8],
     borderRadius: radius.lg,
-    ...(isFashionable
-      ? { borderWidth: stroke.thin, borderColor: color.line.hairline }
-      : { backgroundColor: color.bg.surface }),
+    ...({ backgroundColor: color.bg.surface }),
   },
   miniPhoto: { width: 56, height: 56, borderRadius: radius.md },
   miniTexts: { flex: 1, gap: space[2] },
