@@ -11,6 +11,7 @@ import { handShapePath } from './handShape';
 import { ReminderExtrasRow } from './ReminderExtras';
 import { ManageButton } from './ShowcaseManage';
 import { Text } from './T';
+import { useCardMotion } from '../data/features';
 import { addToMyCalendar, eventDate, eventTime, type CalendarEvent } from '../data/calendar';
 import { dayName, goalText, katerFocus, katerLine, katerMood, weekdayShort, whenText, type KaterMood } from '../data/katerRoutine';
 import { addDays, capitalize, dueAt, goalOf, isoWeekday, kindOf, loadRoutineDays, localDate, weekStart, type Reminder, type ReminderEnd, type RoutineDays } from '../data/reminders';
@@ -76,6 +77,7 @@ export const RoutineList = memo(function RoutineList({
   onDragLock?: (on: boolean) => void;
 }) {
   const focus = list.length ? katerFocus(list) : undefined;
+  const motion = useCardMotion();
   const now = useNow();
   const { later, snooze } = useLater();
   // Sortiert nach Dringlichkeit (Daria, 2026-11-13): fällige nach Uhrzeit, dann ohne Uhrzeit, dann „später“, Erledigte zuletzt
@@ -89,6 +91,7 @@ export const RoutineList = memo(function RoutineList({
   const calendar = events.slice(0, 20);
 
   return (
+    <Motion.Provider value={motion}>
     <PageLock.Provider value={onDragLock ?? noLock}>
       {/* Kater spricht wie im Feed als Sprechblase (Daria, 2026-11-11) */}
       {focus ? <KaterCard>{katerLine(focus)}</KaterCard> : null}
@@ -124,6 +127,7 @@ export const RoutineList = memo(function RoutineList({
         <Button label="Neue Erinnerung" icon="plus" onPress={onNew} />
       </View>
     </PageLock.Provider>
+    </Motion.Provider>
   );
 });
 
@@ -190,9 +194,13 @@ function sortByUrgency(list: Reminder[], now: Date, later: Record<string, number
 const DRAG_AT = 88;
 /** Nach oben folgt die Karte nur zu diesem Teil dem Finger */
 const UP_FACTOR = 0.4;
+/** Platz über der Reihe, in den die Karte beim Anheben und Hochziehen ragen darf, ohne abgeschnitten zu werden */
+const UP_ROOM = 52;
 const LIFT_MS = 350;
 /** Solange eine Karte angehoben ist, scrollen weder die Reihe noch die Seite */
 const DragLock = createContext<(on: boolean) => void>(() => {});
+/** Bewegte Karten an (Dein Konto › Funktionen): Schräge, Wackeln, Halten und Ziehen (Daria, 2026-11-13) */
+const Motion = createContext(true);
 const PageLock = createContext<(on: boolean) => void>(() => {});
 
 /** Leichte, unregelmäßige Schräge je Karte (Daria, 2026-11-13); fest an der id, damit nichts springt */
@@ -299,6 +307,14 @@ function useLiftDrag(actions: DragActions) {
     now.current = actions;
   });
   const on = !!(actions.right || actions.left || actions.up);
+  // Im Browser zählt für das Scrollen nur, was beim Aufsetzen des Fingers galt. Solange die Karte angehoben ist, hält
+  // deshalb ein eigener Zuhörer jede Fingerbewegung vom Scrollen ab (Daria, 2026-11-13: „Seite scrollt mit“).
+  useEffect(() => {
+    if (!lifted || Platform.OS !== 'web' || typeof document === 'undefined') return;
+    const stop = (e: Event) => e.preventDefault();
+    document.addEventListener('touchmove', stop, { passive: false });
+    return () => document.removeEventListener('touchmove', stop);
+  }, [lifted]);
 
   const drop = () => {
     state.current.lifted = false;
@@ -366,7 +382,7 @@ function useLiftDrag(actions: DragActions) {
         // wenig nach; nach oben nur ein Stück, sonst schneidet die Reihe ab.
         const across = Math.abs(g.dx) >= Math.abs(g.dy);
         const x = across && (g.dx > 0 ? a.right : a.left) ? g.dx : g.dx / 6;
-        const y = !across && g.dy < 0 && a.up ? g.dy * UP_FACTOR : g.dy / 6;
+        const y = !across && g.dy < 0 && a.up ? Math.max(g.dy * UP_FACTOR, -UP_ROOM + 8) : g.dy / 6;
         pos.setValue({ x, y });
       },
       onPanResponderRelease: (_e, g) => {
@@ -422,12 +438,13 @@ function Card({
   leftTone?: 'end' | 'delete';
 }) {
   const [wide, setWide] = useState(false);
-  const drag = useLiftDrag({ right: onDragRight, left: onDragLeft, up: onDragUp });
+  const motion = useContext(Motion);
+  const drag = useLiftDrag(motion ? { right: onDragRight, left: onDragLeft, up: onDragUp } : {});
   const reduce = useReduceMotion();
   const native = Platform.OS !== 'web';
   const wobble = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    if (!urgent || reduce) return;
+    if (!urgent || reduce || !motion) return;
     const to = (v: number) => Animated.timing(wobble, { toValue: v, duration: 70, useNativeDriver: native });
     const loop = Animated.loop(Animated.sequence([to(1), to(-1), to(0.7), to(-0.5), to(0), Animated.delay(2800)]));
     loop.start();
@@ -435,8 +452,8 @@ function Card({
       loop.stop();
       wobble.setValue(0);
     };
-  }, [urgent, reduce, native, wobble]);
-  const tilt = tiltOf(tiltKey);
+  }, [urgent, reduce, motion, native, wobble]);
+  const tilt = motion ? tiltOf(tiltKey) : 0;
   // Schräge, beim Anheben etwas mehr, beim Wackeln ±2,5°, beim Ziehen neigt sie sich mit.
   // Einmal anlegen, nicht bei jedem Rendern: Neue Animationsknoten setzen die Karte für ein Bild zurück, das flackert
   // beim Tippen und Halten (Daria, 2026-11-13).
@@ -476,7 +493,7 @@ function Card({
         onPress ? t(pressHint ?? 'Tippen öffnet das Menü') : '',
         drag.on
           ? t('Halten und ziehen: {moves}', {
-              moves: [onDragRight && t('rechts erledigt'), onDragLeft && t('links {what}', { what: t(leftLabel).toLowerCase() }), onDragUp && t('oben später')]
+              moves: [drag.on && onDragRight && t('rechts erledigt'), drag.on && onDragLeft && t('links {what}', { what: t(leftLabel).toLowerCase() }), drag.on && onDragUp && t('oben später')]
                 .filter(Boolean)
                 .join(', '),
             })
@@ -502,8 +519,8 @@ function Card({
           ändert sich). Bis zur Schwelle schimmert die Farbe nur, ab der Schwelle deckt sie und das Wort wird größer. */}
       {drag.on ? (
         <View style={styles.dragFace} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          {onDragRight ? <DragFace value={drag.pos.x} sign={1} at={DRAG_AT} bg={color.accent.confirmation} ink={INK} icon="check" label="Erledigt" align="flex-start" /> : null}
-          {onDragLeft ? (
+          {drag.on && onDragRight ? <DragFace value={drag.pos.x} sign={1} at={DRAG_AT} bg={color.accent.confirmation} ink={INK} icon="check" label="Erledigt" align="flex-start" /> : null}
+          {drag.on && onDragLeft ? (
             <DragFace
               value={drag.pos.x}
               sign={-1}
@@ -515,7 +532,7 @@ function Card({
               align="flex-end"
             />
           ) : null}
-          {onDragUp ? <DragFace value={drag.pos.y} sign={-1} at={DRAG_AT * UP_FACTOR} bg={INK_SOFT} ink={color.text.primary} icon="clock-filled" label="Später" align="center" /> : null}
+          {drag.on && onDragUp ? <DragFace value={drag.pos.y} sign={-1} at={DRAG_AT * UP_FACTOR} bg={INK_SOFT} ink={color.text.primary} icon="clock-filled" label="Später" align="center" /> : null}
         </View>
       ) : null}
     </Pressable>
@@ -1081,9 +1098,10 @@ const styles = StyleSheet.create({
     ...text.bodyLarge,
     color: color.text.secondary,
   },
-  // Platz für Schräge und Anheben: Reihe bekommt oben und unten Luft, ohne dass sich der Abstand ändert
-  rowScroll: { marginHorizontal: -GUTTER, marginVertical: -space[12], overflow: 'visible' },
-  row: { paddingHorizontal: GUTTER, paddingVertical: space[12], gap: space[12] },
+  // Platz für Schräge, Anheben und Hochziehen: Die Reihe reicht oben unter die Überschrift und unten etwas weiter,
+  // ohne dass sich die Abstände ändern. Eine scrollbare Reihe schneidet sonst ab (Daria, 2026-11-13: „overflow sichtbar“).
+  rowScroll: { marginHorizontal: -GUTTER, marginTop: -UP_ROOM, marginBottom: -space[12], overflow: 'visible' },
+  row: { paddingHorizontal: GUTTER, paddingTop: UP_ROOM, paddingBottom: space[12], gap: space[12] },
   card: {
     flex: 1,
     // Weniger rund (Daria, 2026-11-12): vorher 30, dann 16, jetzt Maß aller Karten (2026-11-13)

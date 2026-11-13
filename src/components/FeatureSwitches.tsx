@@ -5,11 +5,13 @@ import {
   MODES,
   setModeHidden,
   setPostsShown,
+  setCardMotion,
   setRoutineShown,
   setRoutineStandard,
   setStandardMode,
   useModes,
   usePostsShown,
+  useCardMotion,
   useRoutineShown,
   type Mode,
   type PostFeed,
@@ -49,6 +51,7 @@ export function FeatureSwitches({ children }: { children?: ReactNode } = {}) {
   const lastVisible = modes.visible.length === 1;
   const routineAvailable = useRoutineAvailable();
   const routineShown = useRoutineShown();
+  const cardMotion = useCardMotion();
   const routineStandard = useRoutineIsStandard();
   // Routine links wie im Feed, dann die sichtbaren Modi
   const routineLead = routineAvailable && routineShown;
@@ -97,6 +100,20 @@ export function FeatureSwitches({ children }: { children?: ReactNode } = {}) {
               <Text style={[text.caption, { color: color.text.secondary }]}>Erinnerungen, Termine und der Kater, der Dich erinnert.</Text>
             </View>
             <Toggle label="Routine" value={routineShown} onValueChange={(v) => currentUserId && setRoutineShown(currentUserId, v)} />
+          </View>
+        ) : null}
+        {/* Bewegte Karten als ein Paket (Daria, 2026-11-13); nur bei sichtbarer Routine bedienbar */}
+        {routineAvailable ? (
+          <View style={styles.row}>
+            <View style={[styles.texts, !(routineShown && cardMotion) && styles.dim]}>
+              <Text style={[text.body, { color: color.text.primary }]}>Bewegte Karten</Text>
+              <Text style={[text.caption, { color: color.text.secondary }]}>
+                Karten liegen schräg, Dringendes wackelt. Halten und ziehen: rechts erledigt, links abbrechen, oben später.
+              </Text>
+            </View>
+            <View style={!routineShown && styles.locked} pointerEvents={routineShown ? 'auto' : 'none'}>
+              <Toggle label="Bewegte Karten" value={cardMotion} onValueChange={(v) => currentUserId && setCardMotion(currentUserId, v)} />
+            </View>
           </View>
         ) : null}
         {MODES.map((m) => {

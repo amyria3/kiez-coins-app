@@ -92,6 +92,8 @@ type Saved = {
   routineHidden?: boolean;
   /** Routine ist der Standard: Die App öffnet beim Start die Routine statt des Feeds (Daria, 2026-11-10) */
   routineStandard?: boolean;
+  /** Bewegte Routine-Karten aus: keine Schräge, kein Wackeln, kein Halten und Ziehen (Daria, 2026-11-13) */
+  cardMotionOff?: boolean;
   /** Bis 2026-11-13: Kalender ausgeschaltet. Ersetzt durch einen Schalter je Kalender und für den Export (Server). */
   calendarHidden?: boolean;
 };
@@ -235,6 +237,18 @@ export function usePostsShown(): Record<PostFeed, boolean> {
 export function setRoutineShown(userId: string, show: boolean) {
   store(userId, { ...saved, routineHidden: !show });
 }
+/**
+ * Bewegte Karten in der Routine (Dein Konto › Funktionen, Daria, 2026-11-13): Schräge, Wackeln bei Dringendem und
+ * Halten und Ziehen als ein Paket. Standard: an. Gespeichert auf dem Gerät, pro Konto.
+ */
+export function setCardMotion(userId: string, on: boolean) {
+  store(userId, { ...saved, cardMotionOff: !on });
+}
+export function useCardMotion(): boolean {
+  useModes();
+  return !saved.cardMotionOff;
+}
+
 export function useRoutineShown(): boolean {
   useModes();
   return !saved.routineHidden;
