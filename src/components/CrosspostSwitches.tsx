@@ -3,7 +3,7 @@ import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { Button } from './Button';
 import { AskedQuestion, CHAT_GAP_CHANGE, CHAT_GAP_SAME, ChatReply, Notice, QuestionHint } from './Content';
-import { TextField, Toggle } from './Form';
+import { SwitchRow, TextField, Toggle } from './Form';
 import { Text } from './T';
 import {
   connectCrosspost,
@@ -18,6 +18,8 @@ import {
   tokenOnly,
   type LivePlatform,
 } from '../data/crosspost';
+import { FULL_CROSSPOST_LOOK, loadCrosspostLook, saveCrosspostLook, type CrosspostLook } from '../data/crosspostLook';
+import { useFeature } from '../data/freischaltung';
 import { errorText } from '../data/remote';
 import { t } from '../data/texts';
 import { color, radius, space, stroke, text } from '../theme/tokens';
@@ -74,9 +76,19 @@ export function CrosspostSwitches() {
   // Plattformen, auf die weitergepostet wird; dieselbe Wahl wie beim Erstellen eines Posts
   const [selected, setSelected] = useState<LivePlatform[]>([]);
 
+  // Mit oder ohne Rahmen, mit oder ohne Logo (Daria, 13.11.2026). Abschalten nur mit Freischaltung `ohne_wasserzeichen`,
+  // wie beim Teilen
+  const canRemoveLook = useFeature('ohne_wasserzeichen');
+  const [look, setLook] = useState<CrosspostLook>(FULL_CROSSPOST_LOOK);
+  const changeLook = (next: CrosspostLook) => {
+    setLook(next);
+    saveCrosspostLook(next);
+  };
+
   const reload = useCallback(() => {
     loadCrosspostAccounts().then(setAccounts);
     loadCrosspostSelection().then(setSelected);
+    loadCrosspostLook().then(setLook);
   }, []);
   useEffect(reload, [reload]);
   const enable = (platform: LivePlatform, on: boolean) => {
@@ -99,6 +111,24 @@ export function CrosspostSwitches() {
           onChange={reload}
         />
       ))}
+      {canRemoveLook ? (
+        <View style={styles.look}>
+          <SwitchRow
+            label="Rahmen"
+            description="Weißer Rand mit Deinem Namen, wie beim Teilen"
+            value={look.frame}
+            onValueChange={(frame) => changeLook({ ...look, frame })}
+          />
+          {look.frame ? (
+            <SwitchRow
+              label="KiezCoins-Logo im Rahmen"
+              description="Kater und KiezCoins unten im Rahmen"
+              value={look.watermark}
+              onValueChange={(watermark) => changeLook({ ...look, watermark })}
+            />
+          ) : null}
+        </View>
+      ) : null}
       <View style={styles.row}>
         <View style={styles.texts}>
           <Text noTranslate style={styles.label}>X</Text>
@@ -329,6 +359,8 @@ function PlatformSwitch({
 
 const styles = StyleSheet.create({
   list: { gap: space[8] },
+  // Rahmen und Logo gelten für alle Plattformen: abgesetzt unter den Plattformen
+  look: { gap: space[8], paddingTop: space[8], borderTopWidth: stroke.thin, borderTopColor: color.line.hairline },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[4] },
   texts: { flex: 1, gap: space[2] },
   label: { ...text.body, color: color.text.primary },

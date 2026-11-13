@@ -6,7 +6,8 @@
 //   { action: 'connect', platform: 'mastodon', instance, token }      Zugangs-Token aus Mastodon › Entwicklung
 //   { action: 'connect', platform: 'instagram', token }               Zugangs-Token aus Meta for Developers (Instagram-Login)
 //   { action: 'connect', platform: 'facebook', token }                Seiten-Zugangs-Token einer Facebook-Seite (pages_manage_posts)
-//   { action: 'post', challengeId, platforms: ['bluesky', 'mastodon', 'instagram', 'facebook'] }
+//   { action: 'post', challengeId, platforms: ['bluesky', 'mastodon', 'instagram', 'facebook'], look?: { frame, watermark } }
+//                                                                    look: Foto im Rahmen, mit Logo; ohne Angabe beides an
 //   { action: 'delete', challengeId, platforms? }                    Weiterposts dort wieder löschen (ohne platforms: alle)
 // Antworten: { handle } bei connect, { results: { bluesky: { url } | { error } } } bei post, sonst { error }.
 //
@@ -18,11 +19,20 @@
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { Image } from 'npm:imagescript@1.3.0';
 
+import { FULL_LOOK, framePhoto, type Look } from './rahmen.ts';
+
 type Platform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook';
 const PLATFORMS: Platform[] = ['bluesky', 'mastodon', 'instagram', 'facebook'];
 const isPlatform = (p: unknown): p is Platform => PLATFORMS.includes(p as Platform);
 type Account = { platform: Platform; handle: string; instance: string; secret: string };
-type Post = { id: string; title: string; body: string; link: string; image?: { bytes: Uint8Array; type: string }; imageUrl?: string };
+type Post = {
+  id: string;
+  title: string;
+  body: string;
+  link: string;
+  image?: { bytes: Uint8Array; type: string; width?: number; height?: number };
+  imageUrl?: string;
+};
 
 const BLUESKY = 'https://bsky.social';
 /** BlueSky nimmt Bilder bis 1 MB, Texte bis 300 Zeichen. Mastodon Texte bis 500 Zeichen. */
@@ -90,6 +100,7 @@ function clipGraphemes(value: string, max: number) {
  * Gibt auch die Maße zurück, damit BlueSky das Foto im richtigen Seitenverhältnis zeigt.
  */
 async function blueskyPhoto(image: NonNullable<Post['image']>) {
+  if (image.bytes.length <= BLUESKY_IMAGE_MAX && image.width && image.height) return image;
   if (image.bytes.length <= BLUESKY_IMAGE_MAX) {
     const size = await Image.decode(image.bytes).then((d) => ({ width: d.width, height: d.height })).catch(() => ({}));
     return { ...image, ...size } as typeof image & { width?: number; height?: number };
@@ -323,29 +334,56 @@ async function deleteMastodon(account: Account, link: string) {
 
 // ---------------------------------------------------------------------------
 
-async function loadPost(admin: SupabaseClient, challengeId: string, platform: Platform): Promise<Post> {
+/** Post einmal pro Anfrage laden; das Foto kommt im gewählten Look (Rahmen, Logo) */
+async function loadPost(admin: SupabaseClient, challengeId: string, look: Look): Promise<Omit<Post, 'link'>> {
   const { data: c, error } = await admin
     .from('challenges')
-    .select('id, title, body, image_path, image_after_path, image_before_path')
+    .select('id, title, body, author_id, image_path, image_after_path, image_before_path')
     .eq('id', challengeId)
     .single();
   if (error || !c) throw new Error('challenge');
   const path = c.image_after_path ?? c.image_path ?? c.image_before_path;
   let image: Post['image'];
-  const imageUrl = path ? `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/photos/${path}` : undefined;
+  let imageUrl = path ? `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/photos/${path}` : undefined;
   if (path) {
     const { data } = await admin.storage.from('photos').download(path);
     if (data) image = { bytes: new Uint8Array(await data.arrayBuffer()), type: data.type || 'image/jpeg' };
   }
-  return {
-    id: c.id,
-    title: (c.title ?? '').trim(),
-    body: (c.body ?? '').trim(),
-    link: `https://kiezcoins.de/c/${c.id}?von=${platform}`,
-    image,
-    imageUrl,
-  };
+  if (image && look.frame) {
+    try {
+      const framed = await framePhoto(image.bytes, await loadAuthor(admin, c.author_id), look);
+      image = { bytes: framed.bytes, type: 'image/jpeg', width: framed.width, height: framed.height };
+      // Instagram und Facebook holen das Foto über eine öffentliche Adresse
+      const framedPath = `weiterposten/${c.id}.jpg`;
+      const { error: uploadError } = await admin.storage
+        .from('photos')
+        .upload(framedPath, framed.bytes, { contentType: 'image/jpeg', upsert: true });
+      if (!uploadError) imageUrl = `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/photos/${framedPath}?v=${Date.now()}`;
+    } catch (e) {
+      // Rahmen gescheitert: Foto ohne Rahmen
+      console.error('rahmen', (e as Error).message);
+    }
+  }
+  return { id: c.id, title: (c.title ?? '').trim(), body: (c.body ?? '').trim(), image, imageUrl };
 }
+
+/** Name und Profilbild für den Rahmen */
+async function loadAuthor(admin: SupabaseClient, authorId: string | null) {
+  if (!authorId) return undefined;
+  const { data: p } = await admin.from('profiles').select('handle, avatar_path').eq('id', authorId).maybeSingle();
+  if (!p?.handle) return undefined;
+  let avatar: Uint8Array | undefined;
+  if (p.avatar_path) {
+    const { data } = await admin.storage.from('photos').download(p.avatar_path);
+    if (data) avatar = new Uint8Array(await data.arrayBuffer());
+  }
+  return { name: String(p.handle), avatar };
+}
+
+const parseLook = (value: unknown): Look => {
+  const v = (value ?? {}) as Partial<Look>;
+  return { frame: v.frame !== false, watermark: v.watermark !== false };
+};
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
@@ -429,6 +467,9 @@ Deno.serve(async (req) => {
       .eq('challenge_id', challengeId);
 
     const results: Record<string, { url?: string; error?: string }> = {};
+    const look = input.look === undefined ? FULL_LOOK : parseLook(input.look);
+    // Das Foto (mit Rahmen) einmal für alle Plattformen vorbereiten
+    let base: Promise<Omit<Post, 'link'>> | undefined;
     for (const platform of platforms) {
       const account = (accounts ?? []).find((a) => a.platform === platform) as Account | undefined;
       if (!account) {
@@ -445,7 +486,8 @@ Deno.serve(async (req) => {
         .from('crosspost_posts')
         .upsert({ challenge_id: challengeId, platform, user_id: user.id, status: 'running', url: null, error: null });
       try {
-        const post = await loadPost(admin, challengeId, platform);
+        base ??= loadPost(admin, challengeId, look);
+        const post: Post = { ...(await base), link: `https://kiezcoins.de/c/${challengeId}?von=${platform}` };
         const link =
           platform === 'bluesky'
             ? await postBluesky(account, post)

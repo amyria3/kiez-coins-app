@@ -3,6 +3,7 @@ import type { SurveyAnswer, SurveyResults } from './survey';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 import { t } from './texts';
+import { loadCrosspostLook } from './crosspostLook';
 import { bountyFits } from './coins';
 import type {
   Challenge,
@@ -1320,7 +1321,8 @@ export async function restoreCrossposts(id: string, chosen?: string[]) {
   if (error || !data?.length) return;
   const platforms = data.map((d) => d.platform as string).filter((p) => !chosen || chosen.includes(p));
   if (!platforms.length) return;
-  await supabase.functions.invoke('weiterposten', { body: { action: 'post', challengeId: id, platforms } });
+  const look = await loadCrosspostLook();
+  await supabase.functions.invoke('weiterposten', { body: { action: 'post', challengeId: id, platforms, look } });
 }
 
 /** Gelöschte Challenge wieder veröffentlichen. `deadline` nur, wenn die alte Frist abgelaufen ist. */
