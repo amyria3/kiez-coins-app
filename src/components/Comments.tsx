@@ -338,7 +338,7 @@ export function CommentComposer({ placeholder, onSend, allowImage, replyTo, onCa
         ref={inputRef}
         style={[styles.input, Platform.OS === 'web' && webHeight ? { height: Math.min(120, webHeight) } : null]}
         placeholder={placeholder}
-        placeholderTextColor={color.text.secondary}
+        placeholderTextColor={color.text.placeholder}
         value={value}
         onChangeText={(next) => {
           setValue(next);

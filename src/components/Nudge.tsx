@@ -248,12 +248,13 @@ export function NudgeArea({ nudge, children }: { nudge: Nudge; children: ReactNo
   );
 }
 
+// Fehlende Pflichtangaben in der Fehlerfarbe (Daria, 2026-11-12 und 13.11.: „Fehlermeldung“), nicht mehr im Lila
 export const nudgeStyles = StyleSheet.create({
-  hint: { ...text.caption, color: color.accent.primary },
+  hint: { ...text.caption, color: color.accent.error },
 });
 
 const styles = StyleSheet.create({
   area: { gap: space[8], borderRadius: radius.md, borderWidth: stroke.thin, borderColor: 'transparent', margin: -space[8], padding: space[8] },
-  areaActive: { borderColor: color.accent.primary },
+  areaActive: { borderColor: color.accent.error },
   hint: nudgeStyles.hint,
 });

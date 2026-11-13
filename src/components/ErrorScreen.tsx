@@ -135,7 +135,7 @@ function ErrorContent({ error, retry }: Props) {
             value={comment}
             onChangeText={setComment}
             placeholder={t('Was hast Du gerade gemacht? (freiwillig)')}
-            placeholderTextColor={color.text.secondary}
+            placeholderTextColor={color.text.placeholder}
             multiline
             maxLength={1000}
             editable={state !== 'sending'}

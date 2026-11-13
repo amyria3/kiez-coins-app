@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { Button } from '../../components/Button';
 import { FieldGroup, Notice, QuestionHint } from '../../components/Content';
 import { Chip, ChipGroup, TextField } from '../../components/Form';
+import { NudgeArea, useNudge } from '../../components/Nudge';
 import { SubScreen } from '../../components/Screen';
 import { WEEKDAYS, weekdayShort } from '../../data/katerRoutine';
 import { addDays, createReminder, localDate, parseDate, TIME } from '../../data/reminders';
@@ -34,6 +35,13 @@ export default function NewReminder() {
   const [time, setTime] = useState('');
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
+  // Grauer Speichern-Button zeigt aufs erste Feld, das noch fehlt (Daria, 2026-11-13: sonst passiert beim Tippen nichts)
+  const wantField = useNudge();
+  const dateField = useNudge();
+  const fromField = useNudge();
+  const untilField = useNudge();
+  const daysField = useNudge();
+  const timeField = useNudge();
 
   const timeOk = !time.trim() || TIME.test(time.trim());
   const fromOk = !from.trim() || TIME.test(from.trim());
@@ -64,7 +72,24 @@ export default function NewReminder() {
     else setFailed(true);
   };
 
-  const toggleDay = (d: number) => setDays((all) => (all.includes(d) ? all.filter((x) => x !== d) : [...all, d]));
+  const whyDisabled = () => {
+    if (busy) return;
+    if (!want.trim()) return wantField.nudge('Schreib, was Du vorhast.');
+    if (mode === 'once') {
+      if (!onDate) return dateField.nudge('Gib ein Datum ein, z. B. 24.12.');
+      if (timeKind !== 'until' && !TIME.test(from.trim())) return fromField.nudge('Gib eine Uhrzeit ein, z. B. 9:00.');
+      if (timeKind !== 'at' && !TIME.test(until.trim())) return untilField.nudge('Gib eine Uhrzeit ein, z. B. 18:00.');
+    }
+    if (mode === 'days') {
+      if (!days.length) return daysField.nudge('Wähl mindestens einen Tag.');
+      if (!timeOk) return timeField.nudge('Bitte so: 18:00');
+    }
+  };
+
+  const toggleDay = (d: number) => {
+    daysField.clear();
+    setDays((all) => (all.includes(d) ? all.filter((x) => x !== d) : [...all, d]));
+  };
 
   return (
     <SubScreen
@@ -77,10 +102,11 @@ export default function NewReminder() {
           onPress={save}
           busy={busy}
           disabled={!ready}
+          whyDisabled={whyDisabled}
         />
       }
     >
-      <TextField label="Ich will …" placeholder="joggen gehen" value={want} onChangeText={setWant} maxLength={60} required autoFocus />
+      <TextField label="Ich will …" placeholder="joggen gehen" value={want} onChangeText={setWant} maxLength={60} required autoFocus nudge={wantField} />
       <TextField label="Beschreibung" value={description} onChangeText={setDescription} maxLength={500} multiline />
       {/* Erklärungen als Dialog mit Blasen statt als Hilfetext (Daria, 2026-11-10) */}
       <QuestionHint
@@ -112,6 +138,7 @@ export default function NewReminder() {
               onChangeText={setDate}
               keyboardType="numbers-and-punctuation"
               maxLength={10}
+              nudge={dateField}
               error={!date.trim() || parseDate(date) ? undefined : 'Bitte so: 01.01. oder 01.01.2001'}
             />
           ) : null}
@@ -125,11 +152,12 @@ export default function NewReminder() {
               <View style={styles.time}>
                 <TextField
                   label={timeKind === 'at' ? 'Um' : 'Von'}
-                  placeholder="9:00"
+                  placeholder="Format 9:00"
                   value={from}
                   onChangeText={setFrom}
                   keyboardType="numbers-and-punctuation"
                   maxLength={5}
+                  nudge={fromField}
                   error={fromOk ? undefined : 'Bitte so: 9:00'}
                 />
               </View>
@@ -138,11 +166,12 @@ export default function NewReminder() {
               <View style={styles.time}>
                 <TextField
                   label="Bis"
-                  placeholder="18:00"
+                  placeholder="Format 18:00"
                   value={until}
                   onChangeText={setUntil}
                   keyboardType="numbers-and-punctuation"
                   maxLength={5}
+                  nudge={untilField}
                   error={untilOk ? undefined : 'Bitte so: 18:00'}
                 />
               </View>
@@ -165,20 +194,23 @@ export default function NewReminder() {
         </FieldGroup>
       ) : (
         <>
-          <FieldGroup label="An welchen Tagen?">
-            <ChipGroup>
-              {WEEKDAYS.map((d, i) => (
-                <Chip key={d} label={weekdayShort(i + 1)} selected={days.includes(i + 1)} onPress={() => toggleDay(i + 1)} />
-              ))}
-            </ChipGroup>
-          </FieldGroup>
+          <NudgeArea nudge={daysField}>
+            <FieldGroup label="An welchen Tagen?">
+              <ChipGroup>
+                {WEEKDAYS.map((d, i) => (
+                  <Chip key={d} label={weekdayShort(i + 1)} selected={days.includes(i + 1)} onPress={() => toggleDay(i + 1)} />
+                ))}
+              </ChipGroup>
+            </FieldGroup>
+          </NudgeArea>
           <TextField
             label="Uhrzeit"
-            placeholder="18:00"
+            placeholder="Uhrzeit im Format 18:00 (optional)"
             value={time}
             onChangeText={setTime}
             keyboardType="numbers-and-punctuation"
             maxLength={5}
+            nudge={timeField}
             error={timeOk ? undefined : 'Bitte so: 18:00'}
           />
         </>
