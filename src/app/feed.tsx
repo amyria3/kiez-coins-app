@@ -25,7 +25,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ChallengePost } from '../components/ChallengePost';
 import { ComposeSheet } from '../components/compose/ComposeSheet';
-import { PrivateSignalProvider } from '../theme/signal';
+import { PrivateSignalProvider, SpaceProvider, type Space } from '../theme/signal';
 import { takeComposeDone } from '../components/compose/compose';
 import { IconButton } from '../components/IconButton';
 import { Text } from '../components/T';
@@ -104,6 +104,8 @@ export default function FeedScreen() {
   const standardTab = TAB_OF_MODE[modes.standard];
   const tab: FeedTab = chosenTab && tabOrder.includes(chosenTab) ? chosenTab : standardTab;
   const tabOrderRef = useRef(tabOrder);
+  // „Me & Myself“ aktiv, für die Kamera (createChallenge)
+  const meActiveRef = useRef(false);
   tabOrderRef.current = tabOrder;
   const [groupChoice, setGroupChoice] = useState<string | undefined>(gruppe);
   const groupId = groups.find((g) => g.id === groupChoice)?.id ?? groups[0]?.id;
@@ -418,7 +420,13 @@ export default function FeedScreen() {
     }).start();
     if (!wasCollapsed.current) animateHeader(0);
   };
-  const createChallenge = () => startCompose(tab);
+  // Kamera in „Me & Myself“: Der Post geht standardmäßig in My Feed, alles bleibt gelb (Daria, 2026-11-13)
+  const createChallenge = () => {
+    if (meActiveRef.current && tabOrder.includes('private')) {
+      setTab('private');
+      startCompose('private');
+    } else startCompose(tab);
+  };
   // Aus der Leiste einer anderen Seite: Reiter „Gruppen“ oder Erstellen öffnen
   const createRef = useRef(startCompose);
   createRef.current = startCompose;
@@ -522,6 +530,7 @@ export default function FeedScreen() {
   const privateOn = tabOrder.includes('private');
   const meOn = !isFashionable && !composing && (routineOn || privateOn);
   const meActive = meOn && (routineActive || (switchingTo ?? tab) === 'private');
+  meActiveRef.current = meActive;
   const meBoth = meOn && routineOn && privateOn;
   const [meSwitchOpen, setMeSwitchOpen] = useState(false);
   useEffect(() => {
@@ -835,6 +844,18 @@ export default function FeedScreen() {
     transform: [{ translateY: composeAnim.interpolate({ inputRange: [0, 1], outputRange: [-16, 0] }) }],
   };
   const composeTarget = tab === 'groups' ? groupId : tab === 'private' ? 'private' : 'public';
+  // Ein Bereich für alle Farben (theme/signal.tsx, Daria, 2026-11-13). Beim Erstellen zählt das Ziel des Posts.
+  const area: Space = composing
+    ? composeTarget === 'private'
+      ? 'me'
+      : composeTarget === 'public'
+        ? 'public'
+        : 'group'
+    : meActive
+      ? 'me'
+      : tab === 'groups'
+        ? 'group'
+        : 'public';
   // Kurz und gleich für jede Gruppe (Daria, 24.10.2026)
   // Post für ein Schaufenster: Der Kopf nennt es (Daria, 2026-11-10)
   const showcasePost = composing ? peekShowcasePost() : null;
@@ -851,6 +872,7 @@ export default function FeedScreen() {
   };
 
   return (
+    <SpaceProvider value={area}>
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       {searching ? null : (
       <Animated.View style={[styles.clip, headerStyle]}>
@@ -942,7 +964,7 @@ export default function FeedScreen() {
         </View>
       </Animated.View>
       {/* In „Me & Myself“ ist Gelb die Signalfarbe (Daria, 2026-11-12) */}
-      <PrivateSignalProvider value={meActive}>
+      <>
       <View style={styles.flex}>
         <Animated.View style={[styles.flex, { transform: [{ translateX: swipeX }] }]} {...swipe.panHandlers}>
         {routineShown ? (
@@ -1008,7 +1030,7 @@ export default function FeedScreen() {
           </Animated.View>
         ) : null}
       </View>
-      </PrivateSignalProvider>
+      </>
       {composing ? null : <TabBar
         active="feed"
         onFeedPress={() => {
@@ -1024,6 +1046,7 @@ export default function FeedScreen() {
       />}
       <SurveyOverlay visible={surveyVisible} onClose={closeSurvey} />
     </View>
+    </SpaceProvider>
   );
 }
 
