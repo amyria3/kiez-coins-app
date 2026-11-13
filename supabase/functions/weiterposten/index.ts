@@ -17,7 +17,7 @@
 //
 // SUPABASE_URL, SUPABASE_ANON_KEY und SUPABASE_SERVICE_ROLE_KEY stellt Supabase selbst bereit. Keine weiteren Secrets.
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
-import { Image } from 'npm:imagescript@1.3.0';
+import { Image } from 'https://deno.land/x/imagescript@1.3.0/mod.ts';
 
 import { FULL_LOOK, framePhoto, type Look } from './rahmen.ts';
 
@@ -467,7 +467,17 @@ Deno.serve(async (req) => {
       .eq('challenge_id', challengeId);
 
     const results: Record<string, { url?: string; error?: string }> = {};
-    const look = input.look === undefined ? FULL_LOOK : parseLook(input.look);
+    // Rahmen und Logo, wie unter Funktionen gewählt; erlaubt ist, was die Freischaltung hergibt (Daria, 2026-11-13):
+    // Rahmen ist eine Funktion für alle, Logo entfernen nur mit Freischaltung
+    const wanted = input.look === undefined ? FULL_LOOK : parseLook(input.look);
+    const feature = async (key: string, fallback: boolean) => {
+      const { data, error } = await asUser.rpc('feature_an', { p_key: key });
+      return error || typeof data !== 'boolean' ? fallback : data;
+    };
+    const look: Look = {
+      frame: wanted.frame && (await feature('weiterposten_rahmen', true)),
+      watermark: wanted.watermark || !(await feature('weiterposten_ohne_logo', false)),
+    };
     // Das Foto (mit Rahmen) einmal für alle Plattformen vorbereiten
     let base: Promise<Omit<Post, 'link'>> | undefined;
     for (const platform of platforms) {
