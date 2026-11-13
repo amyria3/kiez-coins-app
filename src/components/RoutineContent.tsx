@@ -58,7 +58,12 @@ export function RoutineContent({
   const focus = list?.length ? katerFocus(list) : undefined;
 
   // Aufgeben oder abbrechen (Daria, 2026-11-13): beides beendet die Erinnerung und zählt, mit Rückfrage
-  const end = (r: Reminder, how: ReminderEnd) => {
+  const end = (r: Reminder, how: ReminderEnd, confirm = true) => {
+    // Beim Ziehen ohne Rückfrage: Die Karte hat schon gezeigt, was passiert (Daria, 2026-11-13)
+    if (!confirm) {
+      archiveReminder(r.id, how).then(reload);
+      return;
+    }
     // Termine sagt man ab (Daria, 2026-11-13); der rote Knopf heißt nie nur „Abbrechen“, das klänge nach „Dialog schließen“
     const termin = kindOf(r) === 'termin' && how === 'cancelled';
     Alert.alert(
