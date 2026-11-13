@@ -6,6 +6,7 @@ import { findPlace, roundCoords, type Coords } from '../../../data/location';
 import { useStore } from '../../../data/store';
 import type { Challenge, ExtraPhoto, ImageSource, PhotoText } from '../../../data/types';
 import type { Participation } from '../../../data/remote';
+import { LIVE_PLATFORMS, type LivePlatform } from '../../../data/crosspost';
 import { color } from '../../../theme/tokens';
 import { WaitForData } from '../../../components/WaitForData';
 
@@ -45,6 +46,8 @@ export type Draft = {
   pages?: string[];
   /** Schrift der Blätter (data/sheetFonts.ts) */
   sheetFont?: string;
+  /** Weiterposten: im Erstellen-Blatt für diesen Post abgewählte Plattformen (Daria, 13.11.2026) */
+  crosspostOff?: LivePlatform[];
 };
 
 /**
@@ -156,7 +159,7 @@ export default function CreateLayout() {
 }
 
 function CreateFlow() {
-  const { draftId, copyOf: copyId, title, text, photo, type, extras, privat, bildtext, seiten, schrift } = useGlobalSearchParams<{
+  const { draftId, copyOf: copyId, title, text, photo, type, extras, privat, bildtext, seiten, schrift, ohne } = useGlobalSearchParams<{
     draftId?: string;
     copyOf?: string;
     /** Aus dem Erstellen-Blatt über dem Feed mitgebracht (components/compose) */
@@ -174,6 +177,8 @@ function CreateFlow() {
     seiten?: string;
     /** Schrift der Blätter */
     schrift?: string;
+    /** JSON-Liste: Plattformen, auf die dieser Post nicht weitergeht */
+    ohne?: string;
   }>();
   const { challenges, profile } = useStore();
   const draft = useState<Draft>(() => {
@@ -194,6 +199,13 @@ function CreateFlow() {
     } catch {
       pages = undefined;
     }
+    let crosspostOff: LivePlatform[] | undefined;
+    try {
+      const parsed = ohne ? (JSON.parse(ohne) as unknown) : undefined;
+      crosspostOff = Array.isArray(parsed) ? parsed.filter((p): p is LivePlatform => LIVE_PLATFORMS.includes(p)) : undefined;
+    } catch {
+      crosspostOff = undefined;
+    }
     let extraUris: string[] = [];
     try {
       extraUris = extras ? (JSON.parse(extras) as string[]) : [];
@@ -211,6 +223,7 @@ function CreateFlow() {
       extras: extraUris.map((uri) => ({ photo: { uri } })),
       ...(photoText?.text ? { photoText } : {}),
       ...(pages?.length ? { pages, type: 'photo' as const, sheetFont: schrift } : {}),
+      ...(crosspostOff?.length ? { crosspostOff } : {}),
     };
   });
   const [, setDraft] = draft;

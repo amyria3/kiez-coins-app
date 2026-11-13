@@ -16,6 +16,7 @@
 //
 // SUPABASE_URL, SUPABASE_ANON_KEY und SUPABASE_SERVICE_ROLE_KEY stellt Supabase selbst bereit. Keine weiteren Secrets.
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
+import { Image } from 'npm:imagescript@1.3.0';
 
 type Platform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook';
 const PLATFORMS: Platform[] = ['bluesky', 'mastodon', 'instagram', 'facebook'];
@@ -26,6 +27,8 @@ type Post = { id: string; title: string; body: string; link: string; image?: { b
 const BLUESKY = 'https://bsky.social';
 /** BlueSky nimmt Bilder bis 1 MB, Texte bis 300 Zeichen. Mastodon Texte bis 500 Zeichen. */
 const BLUESKY_IMAGE_MAX = 1_000_000;
+/** Kantenlängen und JPEG-Qualitäten, mit denen ein zu großes Foto für BlueSky verkleinert wird, der Reihe nach */
+const BLUESKY_SHRINK: [number, number][] = [[2000, 85], [1600, 80], [1600, 70], [1200, 70], [1000, 60]];
 const BLUESKY_TEXT_MAX = 300;
 const MASTODON_TEXT_MAX = 500;
 /** Instagram: Bildunterschrift bis 2200 Zeichen, nur JPEG, Foto ist Pflicht. */
@@ -82,6 +85,28 @@ function clipGraphemes(value: string, max: number) {
   return parts.length <= max ? value : `${parts.slice(0, Math.max(0, max - 1)).join('').trimEnd()}…`;
 }
 
+/**
+ * Foto für BlueSky: unverändert, wenn es klein genug ist, sonst als JPEG verkleinert, bis es unter 1 MB liegt.
+ * Gibt auch die Maße zurück, damit BlueSky das Foto im richtigen Seitenverhältnis zeigt.
+ */
+async function blueskyPhoto(image: NonNullable<Post['image']>) {
+  if (image.bytes.length <= BLUESKY_IMAGE_MAX) {
+    const size = await Image.decode(image.bytes).then((d) => ({ width: d.width, height: d.height })).catch(() => ({}));
+    return { ...image, ...size } as typeof image & { width?: number; height?: number };
+  }
+  const decoded = await Image.decode(image.bytes);
+  for (const [edge, quality] of BLUESKY_SHRINK) {
+    const scaled = decoded.clone();
+    if (Math.max(scaled.width, scaled.height) > edge) {
+      if (scaled.width >= scaled.height) scaled.resize(edge, Image.RESIZE_AUTO);
+      else scaled.resize(Image.RESIZE_AUTO, edge);
+    }
+    const bytes = await scaled.encodeJPEG(quality);
+    if (bytes.length <= BLUESKY_IMAGE_MAX) return { bytes, type: 'image/jpeg', width: scaled.width, height: scaled.height };
+  }
+  return undefined;
+}
+
 async function postBluesky(account: Account, post: Post): Promise<string> {
   const session = await blueskySession(account.instance, account.handle, account.secret);
   const auth = { Authorization: `Bearer ${session.accessJwt}` };
@@ -100,18 +125,23 @@ async function postBluesky(account: Account, post: Post): Promise<string> {
   ];
 
   let embed: Record<string, unknown> | undefined;
-  if (post.image && post.image.bytes.length <= BLUESKY_IMAGE_MAX) {
+  // Fotos aus der App haben oft 1 bis 2,5 MB, BlueSky nimmt nur bis 1 MB: dann erst verkleinern (Daria, 13.11.2026)
+  const photo = post.image ? await blueskyPhoto(post.image).catch(() => undefined) : undefined;
+  if (photo) {
     const upload = await fetch(`${account.instance}/xrpc/com.atproto.repo.uploadBlob`, {
       method: 'POST',
-      headers: { ...auth, 'Content-Type': post.image.type },
-      body: post.image.bytes,
+      headers: { ...auth, 'Content-Type': photo.type },
+      body: photo.bytes,
     });
     if (upload.ok) {
       const { blob } = await upload.json();
-      embed = { $type: 'app.bsky.embed.images', images: [{ alt: post.title, image: blob }] };
+      const aspectRatio = photo.width && photo.height ? { width: photo.width, height: photo.height } : undefined;
+      embed = { $type: 'app.bsky.embed.images', images: [{ alt: post.title, image: blob, aspectRatio }] };
+    } else {
+      console.error('bluesky uploadBlob', upload.status, await upload.text().catch(() => ''));
     }
   }
-  // Foto zu groß oder Upload gescheitert: Linkkarte ohne Bild
+  // Verkleinern oder Upload gescheitert: Linkkarte ohne Bild
   embed ??= { $type: 'app.bsky.embed.external', external: { uri: post.link, title: post.title, description: clip(post.body, 300) } };
 
   const res = await fetch(`${account.instance}/xrpc/com.atproto.repo.createRecord`, {
