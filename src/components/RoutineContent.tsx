@@ -9,7 +9,7 @@ import { Text } from './T';
 import { eventDate, eventTime, upcomingCalendarEvents, type CalendarEvent } from '../data/calendar';
 import { dayName, goalText, katerFocus, katerLine } from '../data/katerRoutine';
 import { savedEvents, type ShowcaseEvent } from '../data/showcase';
-import { useCalendarEnabled } from '../data/routine';
+import { useCalendarAvailable, useCalendarEnabled } from '../data/routine';
 import { useStore } from '../data/store';
 import { ShowcaseEventCard } from './ShowcaseEventCard';
 import { RoutineList } from './RoutineList';
@@ -42,6 +42,8 @@ export function RoutineContent({
   const { currentUserId } = useStore();
   // Kalender aus (Einstellungen › Kalender, Daria, 2026-11-10): keine Termine aus Deinen Kalendern
   const calendarOn = useCalendarEnabled();
+  // Der Knopf zur Einrichtung zeigt sich auch, wenn beide Kalender-Schalter aus sind (Daria, 2026-11-13)
+  const calendarAvailable = useCalendarAvailable();
 
   const reload = useCallback(() => {
     loadReminders().then(setList, () => setList(null));
@@ -76,7 +78,7 @@ export function RoutineContent({
             title="Was willst Du Dir angewöhnen?"
             body="Sag mir, was Du vorhast. Ich erinnere Dich, ganz ohne Druck. Na gut, mit ein bisschen."
             action={<Button label="Neue Erinnerung" icon="plus" onPress={() => router.push('/routine/new')} />}
-            more={calendarOn ? <Button label="Kalender verbinden" variant="ghost" onPress={() => router.push({ pathname: '/account/features', params: { abschnitt: 'kalender' } })} /> : undefined}
+            more={calendarAvailable ? <Button label="Kalender verbinden" variant="ghost" onPress={() => router.push({ pathname: '/account/features', params: { abschnitt: 'kalender' } })} /> : undefined}
           />
         </View>
       ) : flat ? (
@@ -124,7 +126,7 @@ export function RoutineContent({
           ) : null}
           <View style={styles.buttons}>
             <Button label="Neue Erinnerung" icon="plus" variant="secondary" onPress={() => router.push('/routine/new')} />
-            {calendarOn ? <Button label="Kalender" variant="ghost" onPress={() => router.push({ pathname: '/account/features', params: { abschnitt: 'kalender' } })} /> : null}
+            {calendarAvailable ? <Button label="Kalender" variant="ghost" onPress={() => router.push({ pathname: '/account/features', params: { abschnitt: 'kalender' } })} /> : null}
           </View>
         </ScrollView>
       )}
