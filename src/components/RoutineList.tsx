@@ -63,7 +63,7 @@ export function RoutineList({
   /** `confirm` false beim Ziehen: Die Karte hat die Bedeutung schon gezeigt (Daria, 2026-11-13) */
   onEnd: (r: Reminder, how: ReminderEnd, confirm?: boolean) => void;
   onNew: () => void;
-  /** Bearbeiten über „•••“ oder Tippen auf Titel oder Zeit (Daria, 2026-11-13) */
+  /** Bearbeiten über das Menü: „•••“ oder Tippen auf die Karte (Daria, 2026-11-13) */
   onEdit: (r: Reminder) => void;
   /** Kopie über „Neue Erinnerung“, vorausgefüllt (Daria, 2026-11-13) */
   onCopy: (r: Reminder) => void;
@@ -92,7 +92,7 @@ export function RoutineList({
       {tasks.length ? (
         <Group title="Aufgaben" count={tasks.length}>
           {tasks.map((r) => (
-            <TaskCard key={r.id} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} />
+            <TaskCard key={r.id} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} />
           ))}
         </Group>
       ) : null}
@@ -450,7 +450,18 @@ function Card({
       onPressIn={drag.pressIn}
       onPressOut={drag.pressOut}
       onLayout={(e) => setWide(e.nativeEvent.layout.width >= SIDE_BY_SIDE)}
-      accessibilityHint={pressHint ? t(pressHint) : drag.on ? t('Halten und ziehen: rechts erledigt, links abbrechen, oben später') : undefined}
+      accessibilityHint={[
+        onPress ? t(pressHint ?? 'Tippen öffnet das Menü') : '',
+        drag.on
+          ? t('Halten und ziehen: {moves}', {
+              moves: [onDragRight && t('rechts erledigt'), onDragLeft && t('links {what}', { what: t(leftLabel).toLowerCase() }), onDragUp && t('oben später')]
+                .filter(Boolean)
+                .join(', '),
+            })
+          : '',
+      ]
+        .filter(Boolean)
+        .join('. ')}
       style={[styles.card, !wide && styles.cardTall, drag.lifted && styles.cardLifted, { backgroundColor: bg }]}
     >
       {wide ? null : <View style={styles.cardTop}>{kater}</View>}
@@ -559,6 +570,7 @@ function TaskCard({
   onLater,
   urgent,
   onDragCancel,
+  onDragDelete,
 }: {
   reminder: Reminder;
   onDone: () => void;
@@ -571,27 +583,35 @@ function TaskCard({
   urgent?: boolean;
   /** Beim Ziehen: ohne Rückfrage */
   onDragCancel?: () => void;
+  onDragDelete?: () => void;
 }) {
   const goal = goalOf(r);
   const done = Math.min(r.doneThisWeek, goal);
   const resting = r.doneToday || r.doneThisWeek >= goal;
-  const cancel = { label: 'Das hier abbrechen', onPress: onCancel };
-  const edit = onEdit ? [{ label: 'Bearbeiten', onPress: onEdit }] : [];
-  // Erledigte Karte (Daria, 2026-11-13): Tippen öffnet das Menü, dort auch Kopie und Löschen
-  const closed = closedItems(onCopy, onDelete);
+  // Einmalig und erledigt: kommt nicht wieder, also löschen statt abbrechen oder aufgeben (Daria, 2026-11-13)
+  const finished = resting && !!r.onDate;
   const menu = useRef<(() => void) | null>(null);
+  const items = menuItems({
+    edit: onEdit,
+    copy: onCopy,
+    later: resting ? undefined : onLater,
+    giveUp: resting && !finished ? onGiveUp : undefined,
+    end: finished ? undefined : { label: 'Das hier abbrechen', run: onCancel },
+    remove: resting ? onDelete : undefined,
+  });
   return (
     <Card
       bg={SENF}
       mood={moodOf(r)}
-      onPress={resting ? () => menu.current?.() : undefined}
-      pressHint={resting ? 'Öffnet das Menü' : undefined}
+      onPress={() => menu.current?.()}
       tiltKey={r.id}
       urgent={urgent}
       onDragRight={resting ? undefined : onDone}
-      onDragLeft={onDragCancel ?? onCancel}
+      onDragLeft={finished ? (onDragDelete ?? onDelete) : (onDragCancel ?? onCancel)}
+      leftLabel={finished ? 'Löschen' : 'Abbrechen'}
+      leftTone={finished ? 'delete' : 'end'}
       onDragUp={resting ? undefined : onLater}
-      head={<CardHead meta={r.onDate ? whenText(r) : goalText(r)} title={capitalize(r.want)} onEdit={onEdit} />}
+      head={<CardHead meta={r.onDate ? whenText(r) : goalText(r)} title={capitalize(r.want)} />}
     >
       <ReminderExtrasRow place={r.place} phone={r.phone} link={r.link} ink={INK} />
       {goal > 1 ? <Text style={styles.sub}>{t('{done} von {goal} diese Woche', { done, goal })}</Text> : null}
@@ -614,19 +634,13 @@ function TaskCard({
       {resting ? (
         <View style={styles.actions}>
           <Text style={styles.state}>{r.doneToday ? 'Heute erledigt' : 'Ziel erreicht'}</Text>
-          <ManageButton
-            dots={INK}
-            style={styles.more}
-            label="Mehr zu dieser Aufgabe"
-            openRef={menu}
-            items={[...edit, ...closed.copy, { label: 'Aufgeben', onPress: onGiveUp }, cancel, ...closed.remove]}
-          />
+          <ManageButton dots={INK} style={styles.more} label="Mehr zu dieser Aufgabe" openRef={menu} items={items} />
         </View>
       ) : (
         <View style={styles.actions}>
           <HandButton label="Aufgeben" onPress={onGiveUp} />
           <HandButton label="Erledigt" onPress={onDone} filled bg={SENF} />
-          <ManageButton dots={INK} style={styles.more} label="Mehr zu dieser Aufgabe" items={[...edit, cancel]} />
+          <ManageButton dots={INK} style={styles.more} label="Mehr zu dieser Aufgabe" openRef={menu} items={items} />
         </View>
       )}
     </Card>
@@ -659,24 +673,21 @@ function TerminCard({
   onDragCancel?: () => void;
   onDragDelete?: () => void;
 }) {
-  // Jede Karte mit „•••“ und „Bearbeiten“, auch feste Termine (Daria, 2026-11-13); erledigt auch Kopie und Löschen
-  const closed = r.doneToday ? closedItems(onCopy, onDelete) : { copy: [], remove: [] };
+  // Jede Karte mit „•••“ (Daria, 2026-11-13); dasselbe Menü öffnet ein Tippen auf die Karte
   const menu = useRef<(() => void) | null>(null);
-  const more = (
-    <ManageButton
-      dots={INK}
-      style={styles.more}
-      label="Mehr zu diesem Termin"
-      openRef={menu}
-      items={[{ label: 'Bearbeiten', onPress: onEdit }, ...closed.copy, ...closed.remove]}
-    />
-  );
+  const items = menuItems({
+    edit: onEdit,
+    copy: onCopy,
+    later: r.doneToday ? undefined : onLater,
+    end: r.doneToday ? undefined : { label: 'Absagen', run: onEnd },
+    remove: r.doneToday ? onDelete : undefined,
+  });
+  const more = <ManageButton dots={INK} style={styles.more} label="Mehr zu diesem Termin" openRef={menu} items={items} />;
   return (
     <Card
       bg={bg}
       mood={moodOf(r)}
-      onPress={r.doneToday ? () => menu.current?.() : undefined}
-      pressHint={r.doneToday ? 'Öffnet das Menü' : undefined}
+      onPress={() => menu.current?.()}
       tiltKey={r.id}
       urgent={urgent}
       onDragRight={r.doneToday ? undefined : onDone}
@@ -685,7 +696,7 @@ function TerminCard({
       leftLabel={r.doneToday ? 'Löschen' : 'Absagen'}
       leftTone={r.doneToday ? 'delete' : 'end'}
       onDragUp={r.doneToday ? undefined : onLater}
-      head={<CardHead meta={whenText(r)} title={capitalize(r.want)} onEdit={onEdit} />}>
+      head={<CardHead meta={whenText(r)} title={capitalize(r.want)} />}>
       <ReminderExtrasRow place={r.place} phone={r.phone} link={r.link} ink={INK} />
       {r.doneToday ? (
         <View style={styles.actions}>
@@ -704,29 +715,41 @@ function TerminCard({
   );
 }
 
-/** Menüpunkte nur für erledigte Karten: Kopie oben, Löschen ganz unten (Daria, 2026-11-13) */
-function closedItems(onCopy?: () => void, onDelete?: () => void) {
-  return {
-    copy: onCopy ? [{ label: 'Kopie erstellen', onPress: onCopy }] : [],
-    remove: onDelete ? [{ label: 'Löschen', onPress: onDelete }] : [],
-  };
+/**
+ * Menü jeder eigenen Karte in fester Reihenfolge (Daria, 2026-11-13, „Check consistency“): Bearbeiten, Kopie
+ * erstellen, Später, Aufgeben, Abbrechen bzw. Absagen, Löschen. Es steht nur, was zum Zustand passt: Später nur
+ * offen, Löschen nur erledigt, Aufgeben nur bei wiederkehrenden.
+ */
+function menuItems(a: {
+  edit?: () => void;
+  copy?: () => void;
+  later?: () => void;
+  giveUp?: () => void;
+  end?: { label: string; run: () => void };
+  remove?: () => void;
+}) {
+  return [
+    a.edit && { label: 'Bearbeiten', onPress: a.edit },
+    a.copy && { label: 'Kopie erstellen', onPress: a.copy },
+    a.later && { label: 'Später', onPress: a.later },
+    a.giveUp && { label: 'Aufgeben', onPress: a.giveUp },
+    a.end && { label: a.end.label, onPress: a.end.run },
+    a.remove && { label: 'Löschen', onPress: a.remove },
+  ].filter((x): x is { label: string; onPress: () => void } => !!x);
 }
 
-/** Zeit und Titel einer Karte. Mit `onEdit` öffnet ein Tippen darauf das Bearbeiten (Daria, 2026-11-13). */
-function CardHead({ meta, title, onEdit }: { meta: string; title: string; onEdit?: () => void }) {
-  const content = (
+/**
+ * Zeit und Titel einer Karte. Kein eigenes Tippziel mehr (Daria, 2026-11-13): Halten hebt die Karte an, auch auf dem
+ * Titel; Tippen öffnet das Menü, dort steht „Bearbeiten“.
+ */
+function CardHead({ meta, title }: { meta: string; title: string }) {
+  return (
     <>
       <Text style={styles.meta}>{meta}</Text>
       <Text noTranslate style={styles.title} numberOfLines={2}>
         {title}
       </Text>
     </>
-  );
-  if (!onEdit) return content;
-  return (
-    <Pressable onPress={onEdit} accessibilityRole="button" accessibilityHint={t('Öffnet das Bearbeiten')} style={({ pressed }) => [styles.headPress, pressed && styles.pressed]}>
-      {content}
-    </Pressable>
   );
 }
 
@@ -1054,7 +1077,6 @@ const styles = StyleSheet.create({
   cardTall: { minHeight: 260 },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   head: { flex: 1, gap: 2 },
-  headPress: { gap: 2 },
   // Platz für den Sticker, der links unter dem Kater herausragt
   katerSide: { marginLeft: 28, marginBottom: 8, alignSelf: 'flex-start' },
   chip: {
