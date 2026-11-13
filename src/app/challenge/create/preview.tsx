@@ -173,7 +173,8 @@ export default function CreatePreview() {
       // Text-Posts gehen noch nicht weiter (Export kommt in Teil 2)
       if (crosspost && !draft.private && !draft.localOnly && !isText) {
         loadCrosspostSelection()
-          .then((platforms) => crosspostChallenge(id, platforms))
+          // Im Erstellen-Blatt abgewählte Plattformen bleiben bei diesem Post aus (Daria, 13.11.2026)
+          .then((platforms) => crosspostChallenge(id, platforms.filter((p) => !draft.crosspostOff?.includes(p))))
           .catch(() => undefined);
       }
       markComposeDone();
