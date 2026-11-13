@@ -2,7 +2,6 @@ import { useState, type ReactNode } from 'react';
 import { Alert, StyleSheet } from 'react-native';
 
 import { useStore } from '../../data/store';
-import { t } from '../../data/texts';
 import type { Challenge, ImageSource } from '../../data/types';
 import { color, text } from '../../theme/tokens';
 import { Button } from '../Button';

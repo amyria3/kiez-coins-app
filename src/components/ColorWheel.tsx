@@ -68,6 +68,8 @@ export function ColorWheel({ value, onChange, size = 240 }: { value: string; onC
   };
 
   const r = size / 2;
+  // Die Helligkeit des Rads folgt der gewählten, in Grenzen und in Stufen von 5, damit der Farbton erkennbar bleibt
+  const wheelL = Math.round(Math.min(Math.max(hsl.l, 15), 85) / 5) * 5;
   const segments = useMemo(() => {
     const out: { d: string; fill: string }[] = [];
     for (let i = 0; i < HUES; i++) {
@@ -76,13 +78,12 @@ export function ColorWheel({ value, onChange, size = 240 }: { value: string; onC
       for (let j = 0; j < RINGS; j++) {
         out.push({
           d: sector(r, r, (j / RINGS) * r, ((j + 1.02) / RINGS) * r, a0, a1),
-          fill: css({ h: ((i + 0.5) / HUES) * 360, s: ((j + 0.5) / RINGS) * 100, l: Math.min(Math.max(hsl.l, 15), 85) }),
+          fill: css({ h: ((i + 0.5) / HUES) * 360, s: ((j + 0.5) / RINGS) * 100, l: wheelL }),
         });
       }
     }
     return out;
-    // Die Helligkeit des Rads folgt der gewählten, in Grenzen, damit der Farbton erkennbar bleibt
-  }, [r, Math.round(hsl.l / 5)]);
+  }, [r, wheelL]);
 
   const pick = (e: GestureResponderEvent) => {
     const { locationX, locationY } = e.nativeEvent;
