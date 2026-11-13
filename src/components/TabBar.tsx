@@ -149,7 +149,7 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
             }}
             style={({ pressed }) => [styles.item, routineActive && styles.itemActive, pressed && styles.pressed]}
           >
-            <Icon name="calendar" size={size.icon} color={routineActive ? color.nav.calendar : color.nav.icon} />
+            <Icon name="calendar" size={navSize(size.icon, routineActive)} color={routineActive ? color.nav.calendar : color.nav.icon} />
           </Pressable>
         ) : null}
         {/* Kamera auch in der Leiste (Daria, 30.10.2026). Im Feed als lila Pille, dort etwas größer; in der Routine klein und schlicht (Daria, 2026-11-12). In Nachrichten und „Was Du so machst“ schlicht wie Feed und Menü daneben:
@@ -166,7 +166,7 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
         >
           <Icon
             name="camera"
-            size={cameraPill ? CAMERA_ICON_FEED : CAMERA_ICON_PLAIN}
+            size={cameraPill ? CAMERA_ICON_FEED : navSize(CAMERA_ICON_PLAIN, false)}
             color={cameraPill ? color.nav.onCreate : color.nav.icon}
           />
         </Pressable>
@@ -177,7 +177,7 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
           onPress={onFeedPress}
           style={({ pressed }) => [styles.item, feedOn && styles.itemActive, pressed && styles.pressed]}
         >
-          <Icon name="feed" size={size.icon} color={feedOn ? color.nav.feed : color.nav.icon} />
+          <Icon name="feed" size={navSize(size.icon, feedOn)} color={feedOn ? color.nav.feed : color.nav.icon} />
         </Pressable>
         {/* Chat und Freund:innen (Daria, 22.10.2026) */}
         <Pressable
@@ -188,7 +188,7 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
           style={({ pressed }) => [styles.item, active === 'chat' && styles.itemActive, pressed && styles.pressed]}
         >
           <View>
-            <Icon name="message" size={NAV_ICON.message} color={active === 'chat' ? color.nav.chat : color.nav.icon} />
+            <Icon name="message" size={navSize(NAV_ICON.message, active === 'chat')} color={active === 'chat' ? color.nav.chat : color.nav.icon} />
             {unread || requests ? <View style={styles.dot} /> : null}
           </View>
         </Pressable>
@@ -199,7 +199,7 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
           onPress={() => active !== 'menu' && onMenuPress()}
           style={({ pressed }) => [styles.item, active === 'menu' && styles.itemActive, pressed && styles.pressed]}
         >
-          <Icon name="burger" size={NAV_ICON.burger} color={active === 'menu' ? color.nav.menu : color.nav.icon} />
+          <Icon name="burger" size={navSize(NAV_ICON.burger, active === 'menu')} color={active === 'menu' ? color.nav.menu : color.nav.icon} />
         </Pressable>
       </View>
     </View>
@@ -239,6 +239,9 @@ const NAV_ICON = {
 const CAMERA_ICON_PLAIN = 25;
 /** Nur im Feed größer, in der lila Pille (Daria, 2026-11-13) */
 const CAMERA_ICON_FEED = 30;
+/** Nicht gewählte Icons kleiner, das gewählte behält die volle Höhe (Daria, 2026-11-13) */
+const NAV_IDLE = 0.8;
+const navSize = (full: number, selected: boolean) => (selected ? full : Math.round(full * NAV_IDLE * 10) / 10);
 
 /** Platz unter Listen, damit die schwebende Leiste nichts verdeckt. */
 export const TAB_BAR_SPACE = 96;
