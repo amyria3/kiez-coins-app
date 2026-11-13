@@ -82,7 +82,7 @@ export function TagTextField({
           multiline
           scrollEnabled={false}
           placeholder={placeholder ? t(placeholder) : undefined}
-          placeholderTextColor={color.text.secondary}
+          placeholderTextColor={color.text.placeholder}
           selectionColor={accent}
           accessibilityLabel={t('{label}, beginnt mit {tag}', { label: t(label), tag })}
           onFocus={() => setFocused(true)}

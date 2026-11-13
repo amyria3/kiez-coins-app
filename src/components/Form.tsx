@@ -53,7 +53,7 @@ export function TextField({
   const advances = !multiline && !onSubmitEditing && !!goNext;
   const hinted = !error && !!nudge?.hint;
   const accent = useAccentColor();
-  const borderColor = error ? color.accent.error : focused || hinted ? accent : color.text.secondary;
+  const borderColor = error || hinted ? color.accent.error : focused ? accent : color.text.secondary;
   const helper = error ?? nudge?.hint ?? helperText;
   return (
     <View style={styles.field} ref={viewRef}>
@@ -85,7 +85,7 @@ export function TextField({
               }
             : undefined
         }
-        placeholderTextColor={color.text.secondary}
+        placeholderTextColor={color.text.placeholder}
         selectionColor={accent}
         onChangeText={(v) => {
           nudge?.clear();
@@ -524,7 +524,7 @@ export function PhotoPicker({
   const titleHelper = title?.error ?? title?.nudge?.hint;
   // Ohne Rahmen (Daria, 24.10.2026); ein Fehler zeigt einen roten Rand, das aktive Feld einen lila (Daria, 2026-11-09)
   const accent = useAccentColor();
-  const titleBorder = title?.error ? color.accent.error : focused || hinted ? accent : 'transparent';
+  const titleBorder = title?.error || hinted ? color.accent.error : focused ? accent : 'transparent';
   // Leere Fläche: Solange der Finger drauf ist, lila Rahmen wie ein aktives Feld (Daria, 2026-11-09)
   const [pressing, setPressing] = useState(false);
   const emptyText = (
@@ -609,7 +609,7 @@ export function PhotoPicker({
               }}
               maxLength={title.maxLength ?? 60}
               placeholder={title.optional ? t('Titel (optional)') : t('Titel eingeben')}
-              placeholderTextColor={color.text.secondary}
+              placeholderTextColor={color.text.placeholder}
               selectionColor={accent}
               accessibilityLabel={title.optional ? t('Titel (optional)') : t('{label}, Pflichtfeld', { label: t('Titel') })}
               accessibilityHint={titleHelper}
