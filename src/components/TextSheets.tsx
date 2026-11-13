@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -26,6 +25,7 @@ import {
 import { color, font, space } from '../theme/tokens';
 import { Text } from './T';
 import { t } from '../data/texts';
+import { openLink } from '../lib/places';
 
 /**
  * Posts nur mit Text (Daria, 07.11.2026): Text auf Blättern in unserem gelblichen Weiß, im Format 4:5 wie
@@ -116,7 +116,7 @@ export function RichSheetText({ value, linkStyle }: { value: string; linkStyle?:
               noTranslate
               style={[styles.link, linkStyle]}
               accessibilityRole="link"
-              onPress={() => Linking.openURL(link.startsWith('http') ? link : `https://${link}`).catch(() => undefined)}
+              onPress={() => openLink(link)}
             >
               {link}
             </Text>

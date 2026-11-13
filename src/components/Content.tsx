@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { AccessibilityInfo, Animated, Easing, Linking, Pressable, StyleSheet, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Pressable, StyleSheet, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
 import { Image } from 'expo-image';
 import { Text } from './T';
 
 import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
 import { t as translate, useTexts } from '../data/texts';
+import { openLink } from '../lib/places';
 import { Cat, type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
 import Svg, { Rect, SvgXml } from 'react-native-svg';
@@ -262,7 +263,7 @@ export function LinkedText({ value, style }: { value: string; style?: StyleProp<
         typeof part === 'string' ? (
           part
         ) : (
-          <Text key={i} noTranslate accessibilityRole="link" style={styles.link} onPress={() => Linking.openURL(part.url)}>
+          <Text key={i} noTranslate accessibilityRole="link" style={styles.link} onPress={() => openLink(part.url)}>
             {part.label}
           </Text>
         ),

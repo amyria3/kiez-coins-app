@@ -51,8 +51,20 @@ export const normalizeLink = (link: string) => {
   return !v || /^[a-z][a-z0-9+.-]*:/i.test(v) ? v : `https://${v}`;
 };
 
+/**
+ * Nur Webseiten, Mail und Telefon (Sicherheit, 2026-11-13): Links aus Profilen, Schaufenstern und Posts schreiben
+ * andere Menschen. Ein Link wie `javascript:…` oder `data:…` öffnet sich deshalb nie, auch wenn er an der App
+ * vorbei in die Datenbank kam.
+ */
+export function safeUrl(link: string): string | null {
+  const url = normalizeLink(link);
+  return /^(https?:\/\/|mailto:|tel:)/i.test(url) ? url : null;
+}
+
 export function openLink(link: string) {
-  Linking.openURL(normalizeLink(link)).catch(fail);
+  const url = safeUrl(link);
+  if (!url) return fail();
+  Linking.openURL(url).catch(fail);
 }
 
 /** „https://www.auentee.de/shop“ → „auentee.de/shop“ */
