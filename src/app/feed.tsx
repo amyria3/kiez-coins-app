@@ -771,6 +771,7 @@ export default function FeedScreen() {
       {meActive && meBoth ? (
         <View style={[styles.tabsRow, { paddingRight: tabsPaddingRight }]}>
           <View style={styles.flex}>
+            <PrivateSignalProvider value>
             <Segments
               // Gewählt immer gelb, auch „My Structure“ (Daria, 2026-11-12)
               accent
@@ -781,6 +782,7 @@ export default function FeedScreen() {
                 else if (routineActive) switchTab('private');
               }}
             />
+            </PrivateSignalProvider>
           </View>
         </View>
       ) : null}
