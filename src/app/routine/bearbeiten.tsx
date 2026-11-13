@@ -20,8 +20,8 @@ const dotted = (iso: string) => iso.split('-').reverse().join('.');
 const hhmm = (v: string) => v.trim().padStart(5, '0');
 
 /**
- * Route `routine/bearbeiten?id=…` (Daria, 2026-11-13): Erinnerung bearbeiten. Öffnet über „•••“ › „Bearbeiten“ und
- * über ein Tippen auf Titel oder Zeit der Karte. Titel, Beschreibung, Ort, Telefon, Link, Tag und Zeit mit „bis“ (to), „um“ (around)
+ * Route `routine/bearbeiten?id=…` (Daria, 2026-11-13): Erinnerung bearbeiten. Öffnet über das Menü der Karte („•••“
+ * oder Tippen auf die Karte) › „Bearbeiten“. Titel, Beschreibung, Ort, Telefon, Link, Tag und Zeit mit „bis“ (to), „um“ (around)
  * oder „von … bis“. Feste Tage ändern nur die Uhrzeit, x-mal pro Woche hat keine.
  */
 /** Gehört zu „Me & Myself“: gelb wie die Routine (Daria, 2026-11-13) */
