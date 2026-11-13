@@ -1740,5 +1740,9 @@
   "Folgen": "Follow",
   "Erinnerung bearbeiten": "Edit reminder",
   "Öffnet das Bearbeiten": "Opens editing",
-  "Mehr zu diesem Termin": "More about this appointment"
+  "Mehr zu diesem Termin": "More about this appointment",
+  "bis": "to",
+  "um": "around",
+  "Um": "At",
+  "Von": "From"
 }
