@@ -5,6 +5,7 @@ import { t } from '../../data/texts';
 import { color, font, isFashionable, motion, radius, stroke } from '../../theme/tokens';
 import { Text } from '../T';
 import { Segments } from '../FeedHeader';
+import { usePrivateSignal } from '../../theme/signal';
 
 /**
  * Schalter für den Beitragstyp beim Erstellen (Daria, 23.10.2026): Text, Bild, Me-Challenge, We-Challenge.
@@ -28,7 +29,9 @@ export function TypeSwitch<K extends string>({
   turn?: boolean;
 }) {
   const [touched, setTouched] = useState(false);
-  const accent = turn && !touched;
+  // Unter „Privat“ bleibt die Auswahl gelb, auch nach dem Berühren (Daria, 2026-11-13)
+  const signal = usePrivateSignal();
+  const accent = signal || (turn && !touched);
   // Ist der Ort wieder offen (Blatt neu geöffnet), beginnt auch der Typ von vorn
   useEffect(() => {
     if (!turn) setTouched(false);
