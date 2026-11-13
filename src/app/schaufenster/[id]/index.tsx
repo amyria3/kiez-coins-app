@@ -275,6 +275,9 @@ function PostCard({ post: p, onPress }: { post: ShowcasePost; onPress: () => voi
   );
 }
 
+/** So weit ragt das Logo ins Titelbild */
+const COVER_OVERLAP = space[32] + space[8];
+
 const styles = StyleSheet.create({
   // Mehr Luft zwischen den Abschnitten (Daria, 2026-11-11)
   page: { gap: space[32] },
@@ -282,10 +285,11 @@ const styles = StyleSheet.create({
   manageBottom: { alignSelf: 'center' },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.xl },
   identity: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
-  identityOnCover: { marginTop: -space[32] - space[8], paddingHorizontal: space[12], alignItems: 'flex-end' },
+  // Nur das Logo ragt ins Titelbild, der Name steht darunter und läuft nie übers Foto (Daria, 2026-11-13)
+  identityOnCover: { marginTop: -COVER_OVERLAP, paddingHorizontal: space[12], alignItems: 'flex-start' },
   logo: { borderWidth: 3, borderColor: color.bg.screen, backgroundColor: color.bg.surface },
   // Name in der App-Schrift für große Überschriften (Kiez: Unbounded), nicht in Inter (Daria, 2026-11-10)
-  nameBlock: { flex: 1, paddingBottom: space[4] },
+  nameBlock: { flex: 1, paddingTop: COVER_OVERLAP + space[8] },
   name: { ...text.display, color: color.text.primary },
   about: { ...text.body, color: color.text.primary },
   info: { gap: space[8] },
