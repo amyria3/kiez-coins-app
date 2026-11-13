@@ -188,7 +188,7 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
           style={({ pressed }) => [styles.item, active === 'chat' && styles.itemActive, pressed && styles.pressed]}
         >
           <View>
-            <Icon name="message" size={size.icon} color={active === 'chat' ? color.nav.chat : color.nav.icon} />
+            <Icon name="message" size={NAV_ICON.message} color={active === 'chat' ? color.nav.chat : color.nav.icon} />
             {unread || requests ? <View style={styles.dot} /> : null}
           </View>
         </Pressable>
@@ -199,7 +199,7 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
           onPress={() => active !== 'menu' && onMenuPress()}
           style={({ pressed }) => [styles.item, active === 'menu' && styles.itemActive, pressed && styles.pressed]}
         >
-          <Icon name="burger" size={size.icon} color={active === 'menu' ? color.nav.menu : color.nav.icon} />
+          <Icon name="burger" size={NAV_ICON.burger} color={active === 'menu' ? color.nav.menu : color.nav.icon} />
         </Pressable>
       </View>
     </View>
@@ -226,10 +226,19 @@ export function CameraButton({ onPress, inline = false }: { onPress: () => void;
   );
 }
 
-/** Kamera-Icon in der Pille im Feed, so groß wie die Kamera oben rechts */
-const CAMERA_ICON_FEED = 24;
-/** Kamera ohne Pille (Routine, Nachrichten, Menü): klein, nicht betont (Daria, 2026-11-12) */
-const CAMERA_ICON_PLAIN = 16;
+/**
+ * Alle Icons der Leiste gleich hoch, gemessen an der sichtbaren Form (Daria, 2026-11-13). Kalender und Feed füllen
+ * ihre Fläche ganz aus und sind der Maßstab (size.icon). Die Sprechblase füllt 30,3 von 35, die drei Striche 21,5
+ * von 35; sie bekommen so viel mehr Größe, dass ihre Form genauso hoch ist.
+ */
+const NAV_ICON = {
+  message: Math.round(((size.icon * 35) / 30.3) * 10) / 10,
+  burger: Math.round(((size.icon * 35) / 21.5) * 10) / 10,
+};
+/** Kamera mit eigenem Maßstab (Icon.tsx, CAMERA_SCALE 1,2 statt 1,5): ohne Pille so hoch wie die anderen Icons */
+const CAMERA_ICON_PLAIN = 25;
+/** Nur im Feed größer, in der lila Pille (Daria, 2026-11-13) */
+const CAMERA_ICON_FEED = 30;
 
 /** Platz unter Listen, damit die schwebende Leiste nichts verdeckt. */
 export const TAB_BAR_SPACE = 96;
