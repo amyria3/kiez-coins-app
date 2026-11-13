@@ -611,7 +611,8 @@ function TerminCard({
       tiltKey={r.id}
       urgent={urgent}
       onDragRight={r.doneToday ? undefined : onDone}
-      onDragLeft={onEnd}
+      // Links: absagen; erledigt: löschen (Daria, 2026-11-13)
+      onDragLeft={r.doneToday ? onDelete : onEnd}
       onDragUp={r.doneToday ? undefined : onLater}
       head={<CardHead meta={whenText(r)} title={capitalize(r.want)} onEdit={onEdit} />}>
       <ReminderExtrasRow place={r.place} phone={r.phone} link={r.link} ink={INK} />
@@ -622,7 +623,8 @@ function TerminCard({
         </View>
       ) : (
         <View style={styles.actions}>
-          <HandButton label="Beenden" onPress={onEnd} />
+          {/* „Absagen“ statt „Beenden“: Ein Termin findet nicht statt, er läuft nicht aus (Daria, 2026-11-13) */}
+          <HandButton label="Absagen" onPress={onEnd} />
           <HandButton label="Erledigt" onPress={onDone} filled bg={bg} />
           {more}
         </View>
@@ -794,6 +796,7 @@ function RoutineCalendar({ list, events, saved }: { list: Reminder[]; events: Ca
   const countIn = (by?: Map<string, string[]>) => (by ? [...by].filter(([d]) => inMonth(d)).reduce((n, [, names]) => n + names.length, 0) : 0);
   const givenUpCount = countIn(days?.givenUpBy);
   const cancelledCount = countIn(days?.cancelledBy);
+  const calledOffCount = countIn(days?.calledOffBy);
   const month = new Intl.DateTimeFormat(localeTag(), { month: 'long' }).format(now);
 
   const cells: (Date | null)[] = open
@@ -841,8 +844,15 @@ function RoutineCalendar({ list, events, saved }: { list: Reminder[]; events: Ca
           ),
         )}
       </View>
-      {givenUpCount || cancelledCount ? (
-        <Text style={styles.calEnded}>{t('{givenUp} aufgegeben · {cancelled} abgebrochen', { givenUp: givenUpCount, cancelled: cancelledCount })}</Text>
+      {givenUpCount || cancelledCount || calledOffCount ? (
+        <Text style={styles.calEnded}>
+          {[
+            givenUpCount || cancelledCount ? t('{givenUp} aufgegeben · {cancelled} abgebrochen', { givenUp: givenUpCount, cancelled: cancelledCount }) : '',
+            calledOffCount ? t('{n} abgesagt', { n: calledOffCount }) : '',
+          ]
+            .filter(Boolean)
+            .join(' · ')}
+        </Text>
       ) : null}
       <DayBar day={picked ?? today} today={today} days={days} list={list} events={events} saved={saved} />
     </View>
@@ -908,6 +918,7 @@ function DayBar({
   const ended = [
     ...(days?.givenUpBy.get(day) ?? []).map((w) => `${capitalize(w)} (${t('aufgegeben')})`),
     ...(days?.cancelledBy.get(day) ?? []).map((w) => `${capitalize(w)} (${t('abgebrochen')})`),
+    ...(days?.calledOffBy.get(day) ?? []).map((w) => `${capitalize(w)} (${t('abgesagt')})`),
   ];
   // Mit Uhrzeit zuerst, nach Zeit sortiert
   const timed: [string, string][] = [
