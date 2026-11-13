@@ -15,8 +15,9 @@
   --com: #5B5CD6;
   /* Farben aus der App (Daria, 08.11.2026): Schwalbe gedämpftes Rosa, Storch Lila, Dachs Grün wie die Augen des Katers, der eigene Punkt Orange */
   --schwalbe: #F4C2E3; --storch: #8F90FA; --dachs: #89F269; --aktiv-regler: #B5B6F6; --inaktiv-regler: #A9CF9C;
-  /* Feld helles Mint, Aktive blasses Lila, heller als der Storch (Daria, 08.11.2026) */
-  --feld-grund: #EEFBE6; --feld-tinte: #26233A; --du: #26233A; --feld-neben: #4A465E; --aktiv: #C4C5FA; --inaktiv: #CFE2C6; padding-bottom: 24px; }
+  /* Feld helles Mint, Aktive im normalen Lila der App (Daria, 2026-11-13; vorher blasses Lila #C4C5FA).
+     Der eigene Punkt ist gelb wie „Me & Myself“, aus ihm wächst das eigene Foto. */
+  --feld-grund: #EEFBE6; --feld-tinte: #26233A; --du: #26233A; --du-punkt: #ECCF55; --feld-neben: #4A465E; --aktiv: #8F90FA; --inaktiv: #CFE2C6; padding-bottom: 24px; }
 .fin h1 { font: 600 clamp(34px, 5vw, 56px)/1.02 var(--display); letter-spacing: -.035em; margin: 24px 0 16px; max-width: 16ch; }
 .fin h2 { font: 600 26px/1.15 var(--display); letter-spacing: -.02em; margin: 64px 0 20px; }
 .fin-kopf .lede { margin-bottom: 8px; }
@@ -249,15 +250,13 @@
 
   // Fester Zufall je Zahl: gleiche Werte ergeben immer dasselbe Bild
   function zufall(n) { var s = Math.sin(n * 12.9898 + 78.233) * 43758.5453; return s - Math.floor(s); }
-  // Knopf aus Darias Icon „Switch“, auf -1 … 1 normiert
-  var KNOPF_PFAD = 'M -.708 -.591 L -.669 -.623 L -.666 -.625 C -.608 -.671 -.607 -.672 -.553 -.723 C -.534 -.737 -.457 -.794 -.291 -.861 C -.159 -.901 -.154 -.902 .057 -.934 L .082 -.937 L .082 -.937 C .111 -.939 .248 -.945 .404 -.897 C .414 -.894 .425 -.891 .435 -.886 C .446 -.883 .458 -.879 .468 -.874 C .481 -.869 .493 -.864 .505 -.858 C .509 -.856 .514 -.854 .518 -.853 C .542 -.843 .573 -.833 .664 -.757 C .815 -.633 .820 -.625 .871 -.549 L .879 -.537 L .907 -.498 L .913 -.485 C .940 -.434 .943 -.430 .965 -.368 L .986 -.295 C .987 -.288 1.000 -.068 .999 -.055 C .998 -.031 .997 -.012 .996 .003 C .994 .057 .994 .075 .971 .154 C .945 .245 .934 .266 .906 .318 L .906 .318 C .897 .336 .885 .358 .871 .386 C .804 .494 .770 .521 .731 .552 C .713 .567 .693 .583 .667 .609 C .612 .665 .585 .681 .550 .703 C .527 .717 .501 .733 .460 .764 C .378 .828 .356 .832 .317 .839 C .307 .841 .295 .843 .282 .847 C .045 .935 -.088 .945 -.324 .918 C -.385 .904 -.427 .897 -.460 .892 C -.529 .881 -.559 .876 -.636 .830 C -.655 .819 -.670 .812 -.681 .805 L -.681 .805 C -.713 .787 -.727 .780 -.774 .744 C -.815 .711 -.828 .693 -.835 .682 C -.838 .678 -.840 .675 -.842 .672 L -.843 .672 C -.848 .662 -.874 .620 -.900 .580 C -.996 .360 -1.000 .349 -.984 .061 C -.978 .022 -.975 -.005 -.972 -.025 C -.966 -.070 -.964 -.080 -.955 -.116 C -.953 -.127 -.949 -.138 -.945 -.149 C -.938 -.172 -.928 -.199 -.920 -.252 C -.912 -.302 -.905 -.316 -.892 -.342 C -.885 -.353 -.878 -.368 -.868 -.389 C -.858 -.411 -.852 -.428 -.847 -.443 C -.833 -.484 -.826 -.501 -.766 -.542 C -.759 -.548 -.756 -.550 -.739 -.565 L -.708 -.591 Z';
   var euro = function (n) { return n.toLocaleString('de-DE', { maximumFractionDigits: 0 }) + ' €'; };
   var zahl = function (n) { return n.toLocaleString('de-DE'); };
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
 
-  // Kleiner Punkt in derselben Form wie die Punkte der Wolke, für Legenden und Posten
+  // Kleiner Kreis wie die Punkte der Wolke, für Legenden und Posten
   function punkt(farbe) {
-    return '<svg class="punkt" viewBox="-1.1 -1.1 2.2 2.2" aria-hidden="true"><path d="' + KNOPF_PFAD + '" fill="' + farbe + '"/></svg>';
+    return '<svg class="punkt" viewBox="-1.1 -1.1 2.2 2.2" aria-hidden="true"><circle r="1" fill="' + farbe + '"/></svg>';
   }
 
   // Ein Modell: links die Posten, rechts die Community als Punkte
@@ -366,7 +365,6 @@
     fenster.appendChild(canvas); fenster.appendChild(scroller);
     var leg = el('ul', 'legende');
     feld.appendChild(fenster); feld.appendChild(leg);
-    var KNOPF = new Path2D(KNOPF_PFAD);
     var bild = null, v = null;
     var mk0 = opt.markiere || {}, kurz = mk0.kurz || '', avatar = null;
     if (mk0.bild) {
@@ -459,7 +457,7 @@
 
       var start = alt && alt.ziel === ziel ? alt.start : performance.now();
       bild = { N: N, art: art, x: x, y: y, takt: takt, r: r, abstand: abstand, w: w, h: hgt, W: W, H: H, farben: farben,
-        ziel: ziel, start: start, tinte: cs.getPropertyValue('--du').trim(), papier: '#FFFFFF' };
+        ziel: ziel, start: start, tinte: cs.getPropertyValue('--du').trim(), duPunkt: cs.getPropertyValue('--du-punkt').trim(), papier: '#FFFFFF' };
       var dpr = window.devicePixelRatio || 1;
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(hgt * dpr);
       male(performance.now());
@@ -467,7 +465,7 @@
 
       leg.innerHTML = gruppen.filter(function (g) { return g.n > 0; }).map(function (g) {
         return '<li>' + punkt('var(' + g.farbe + ')') + zahl(g.n) + ' ' + g.name + '</li>';
-      }).join('') + (ziel >= 0 ? '<li>' + (mk0.bild ? '<img class="punkt avatar" src="' + mk0.bild + '" alt="">' : punkt('var(--du)')) + 'Du</li>' : '') + (N ? '<li>1 Punkt = 1 Person</li>' : '<li>Noch niemand</li>')
+      }).join('') + (ziel >= 0 ? '<li>' + (mk0.bild ? '<img class="punkt avatar" src="' + mk0.bild + '" alt="">' : punkt('var(--du-punkt)')) + 'Du</li>' : '') + (N ? '<li>1 Punkt = 1 Person</li>' : '<li>Noch niemand</li>')
         + (ueber ? '<li class="tipp">Die Community ist größer als der Rahmen. Verschiebe die Ansicht, um alle zu sehen.</li>' : '');
       scroller.setAttribute('aria-label', 'Community: ' + gruppen.map(function (g) { return zahl(g.n) + ' ' + g.name; }).join(', '));
     }
@@ -480,8 +478,12 @@
       if (!b.N) return;
       var ox = scroller.scrollLeft, oy = scroller.scrollTop;
       var lebt = !ruhig, s = (t - b.start) / 1000;
-      // Wachsen mit leichtem Nachschwingen
-      var p = b.ziel >= 0 ? (lebt ? 1 - Math.exp(-3.2 * s) * Math.cos(5 * s) : 1) : 0;
+      // Erst der gelbe Punkt, dann wächst er mit leichtem Nachschwingen, und das Foto geht aus seiner Mitte auf
+      // (Daria, 2026-11-13). Bei „Bewegung reduzieren“ steht gleich das fertige Bild.
+      var sw = Math.max(0, s - 0.5);
+      var p = b.ziel >= 0 ? (lebt ? 1 - Math.exp(-3.2 * sw) * Math.cos(5 * sw) : 1) : 0;
+      var auf = lebt ? Math.min(1, Math.max(0, (s - 0.8) / 0.7)) : 1;
+      var q = 1 - Math.pow(1 - auf, 3);
       var gross = Math.max(b.r * 3, 15), plus = (gross - b.r) * p;
       var zx = b.ziel >= 0 ? b.x[b.ziel] : 0, zy = b.ziel >= 0 ? b.y[b.ziel] : 0;
       var weite = Math.max(b.abstand * 3.2, gross * 2.5);
@@ -507,18 +509,21 @@
             py += Math.cos(ph * 0.47 + b.takt[k + 1]) * b.abstand * 0.07;
             dreh += Math.sin(ph * 0.29) * 0.12;
           }
-          // Nicht verzerren: Die Unregelmäßigkeit kommt aus der gezeichneten Linie, nicht aus Stauchen (Daria, 08.11.2026)
-          var c = Math.cos(dreh), sn = Math.sin(dreh), sc = b.r * puls * b.takt[k + 3], fl = b.takt[k + 2] > Math.PI ? -1 : 1;
-          ctx.setTransform(dpr * c * sc * fl, dpr * sn * sc * fl, -dpr * sn * sc, dpr * c * sc, dpr * (px - ox), dpr * (py - oy));
-          ctx.fill(KNOPF);
+          // Kreise statt der gezeichneten Knopf-Form (Daria, 2026-11-13: „more like circles“); Größe und Puls bleiben
+          var sc = b.r * puls * b.takt[k + 3];
+          ctx.beginPath(); ctx.arc(px - ox, py - oy, sc, 0, Math.PI * 2); ctx.fill();
         }
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       });
       // Eigener Punkt: der eigene Avatar als Kreis mit weißem Rand, ohne Bild die Initialen auf Dunkelblau (Daria, 08.11.2026)
       if (b.ziel >= 0) {
         var gr = b.r + plus, ux = zx - ox, uy = zy - oy;
-        ctx.beginPath(); ctx.arc(ux, uy, gr + 2, 0, Math.PI * 2); ctx.fillStyle = '#FFFFFF'; ctx.fill();
+        // Gelber Punkt, später der Rand ums Foto
+        ctx.beginPath(); ctx.arc(ux, uy, gr + 2, 0, Math.PI * 2); ctx.fillStyle = b.duPunkt || '#ECCF55'; ctx.fill();
+        if (q <= 0) return;
+        gr = gr * q;
         ctx.save();
+        ctx.globalAlpha = Math.min(1, q * 1.4);
         ctx.beginPath(); ctx.arc(ux, uy, gr, 0, Math.PI * 2); ctx.clip();
         if (avatar && avatar.complete && avatar.naturalWidth) {
           var aw = avatar.naturalWidth, ah = avatar.naturalHeight, seite = Math.min(aw, ah);
