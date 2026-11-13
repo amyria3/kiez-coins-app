@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
 import { FieldGroup, Notice, QuestionHint } from '../../components/Content';
@@ -9,7 +9,7 @@ import { NudgeArea, useNudge } from '../../components/Nudge';
 import { ReminderExtrasFields, type Extras } from '../../components/ReminderExtras';
 import { SubScreen } from '../../components/Screen';
 import { WEEKDAYS, weekdayShort } from '../../data/katerRoutine';
-import { addDays, createReminder, localDate, parseDate, TIME } from '../../data/reminders';
+import { addDays, createReminder, loadReminders, localDate, parseDate, TIME } from '../../data/reminders';
 import { useGoBack } from '../../lib/goBack';
 import { space } from '../../theme/tokens';
 import { MeSpaceScreen } from '../../theme/signal';
@@ -55,6 +55,47 @@ function NewReminder() {
   const untilField = useNudge();
   const daysField = useNudge();
   const timeField = useNudge();
+
+  // Kopie einer Karte (Daria, 2026-11-13): `von` ist die id; das Formular übernimmt Titel, Beschreibung, Zeit,
+  // Ort, Telefon und Link. Liegt der Tag in der Vergangenheit, steht „Heute“ da.
+  const { von } = useLocalSearchParams<{ von?: string }>();
+  useEffect(() => {
+    if (!von) return;
+    let live = true;
+    loadReminders().then((list) => {
+      const r = list?.find((x) => x.id === von);
+      if (!live || !r) return;
+      setWant(r.want);
+      setDescription(r.description ?? '');
+      setExtras({ place: r.place ?? '', phone: r.phone ?? '', link: r.link ?? '' });
+      if (r.onDate) {
+        setMode('once');
+        const today = localDate();
+        const tomorrow = localDate(addDays(1));
+        if (r.onDate <= today) setDay('today');
+        else if (r.onDate === tomorrow) setDay('tomorrow');
+        else {
+          const [y, m, d] = r.onDate.split('-');
+          setDay('other');
+          setDate(`${d}.${m}.${y}`);
+        }
+        setTimeKind(r.atTime && r.untilTime ? 'range' : r.atTime ? 'at' : 'until');
+        setFrom(r.atTime ?? '');
+        setUntil(r.untilTime ?? '');
+        setRequired(r.required !== false);
+      } else if (r.weekdays?.length) {
+        setMode('days');
+        setDays(r.weekdays);
+        setTime(r.atTime ?? '');
+      } else {
+        setMode('week');
+        setPerWeek(r.perWeek ?? 1);
+      }
+    });
+    return () => {
+      live = false;
+    };
+  }, [von]);
 
   const timeOk = !time.trim() || TIME.test(time.trim());
   const fromOk = !from.trim() || TIME.test(from.trim());

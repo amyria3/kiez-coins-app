@@ -15,9 +15,24 @@ export type ManageItem = { label: string; onPress: () => void };
  * Hälfte des Bildschirms klappt das Menü nach oben auf.
  */
 /** `dots`: drei Punkte statt „Verwalten“, z. B. auf den Aufgaben-Karten der Routine (Daria, 2026-11-13); Farbe der Punkte */
-export function ManageButton({ items, style, dots, label = 'Schaufenster verwalten' }: { items: ManageItem[]; style?: object; dots?: string; label?: string }) {
+export function ManageButton({
+  items,
+  style,
+  dots,
+  label = 'Schaufenster verwalten',
+  openRef,
+}: {
+  items: ManageItem[];
+  style?: object;
+  dots?: string;
+  label?: string;
+  /** Öffnet das Menü von außen, z. B. beim Tippen auf eine erledigte Karte (Daria, 2026-11-13) */
+  openRef?: { current: (() => void) | null };
+}) {
   const button = useRef<View>(null);
   const [anchor, setAnchor] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
+  const open = () => button.current?.measureInWindow((x, y, w, h) => setAnchor({ x, y, w, h }));
+  if (openRef) openRef.current = open;
   const { width, height } = useWindowDimensions();
   const close = () => setAnchor(null);
   if (!items.length) return null;
@@ -29,7 +44,7 @@ export function ManageButton({ items, style, dots, label = 'Schaufenster verwalt
           accessibilityRole="button"
           accessibilityLabel={t(label)}
           hitSlop={8}
-          onPress={() => button.current?.measureInWindow((x, y, w, h) => setAnchor({ x, y, w, h }))}
+          onPress={open}
           style={({ pressed }) => [dots ? styles.dots : styles.button, pressed && styles.pressed]}
         >
           {dots ? <Icon name="more" color={dots} size={14} /> : <Text style={styles.label}>Verwalten</Text>}

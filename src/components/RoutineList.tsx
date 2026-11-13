@@ -49,6 +49,7 @@ export function RoutineList({
   onEnd,
   onNew,
   onEdit,
+  onCopy,
   onChanged,
 }: {
   list: Reminder[];
@@ -60,6 +61,8 @@ export function RoutineList({
   onNew: () => void;
   /** Bearbeiten über „•••“ oder Tippen auf Titel oder Zeit (Daria, 2026-11-13) */
   onEdit: (r: Reminder) => void;
+  /** Kopie über „Neue Erinnerung“, vorausgefüllt (Daria, 2026-11-13) */
+  onCopy: (r: Reminder) => void;
   onChanged: () => void;
 }) {
   const focus = list.length ? katerFocus(list) : undefined;
@@ -78,14 +81,14 @@ export function RoutineList({
       {tasks.length ? (
         <Group title="Aufgaben" count={tasks.length}>
           {tasks.map((r) => (
-            <TaskCard key={r.id} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} />
+            <TaskCard key={r.id} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} />
           ))}
         </Group>
       ) : null}
       {fixed.length || calendar.length ? (
         <Group title="Feste Termine" count={fixed.length + calendar.length}>
           {fixed.map((r) => (
-            <TerminCard key={r.id} reminder={r} bg={OLIVE} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} />
+            <TerminCard key={r.id} reminder={r} bg={OLIVE} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} />
           ))}
           {calendar.map((e) => (
             <CalendarCard key={e.id} event={e} />
@@ -95,7 +98,7 @@ export function RoutineList({
       {optional.length || saved.length ? (
         <Group title="Das hast Du Dir vorgemerkt" count={optional.length + saved.length}>
           {optional.map((r) => (
-            <TerminCard key={r.id} reminder={r} bg={PUDER} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} />
+            <TerminCard key={r.id} reminder={r} bg={PUDER} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} />
           ))}
           {saved.map((e) => (
             <SavedCard key={e.id} event={e} onChanged={onChanged} />
@@ -202,6 +205,8 @@ function Card({
   mood,
   head,
   children,
+  onPress,
+  pressHint,
   onLongPress,
   longPressHint = 'Lange drücken zum Beenden',
   onSwipeRight,
@@ -211,6 +216,9 @@ function Card({
   mood: Mood;
   head: ReactNode;
   children?: ReactNode;
+  /** Tippen auf die Karte, z. B. erledigte Karte öffnet ihr Menü (Daria, 2026-11-13) */
+  onPress?: () => void;
+  pressHint?: string;
   onLongPress?: () => void;
   longPressHint?: string;
   /** Wischen nach rechts: erledigt; nach links: abbrechen (Daria, 2026-11-13) */
@@ -235,9 +243,10 @@ function Card({
   );
   const card = (
     <Pressable
+      onPress={onPress}
       onLongPress={onLongPress}
       onLayout={(e) => setWide(e.nativeEvent.layout.width >= SIDE_BY_SIDE)}
-      accessibilityHint={onLongPress ? t(longPressHint) : undefined}
+      accessibilityHint={pressHint ? t(pressHint) : onLongPress ? t(longPressHint) : undefined}
       style={[styles.card, !wide && styles.cardTall, { backgroundColor: bg }]}
     >
       {wide ? null : <View style={styles.cardTop}>{kater}</View>}
@@ -288,22 +297,31 @@ function TaskCard({
   onGiveUp,
   onCancel,
   onEdit,
+  onCopy,
+  onDelete,
 }: {
   reminder: Reminder;
   onDone: () => void;
   onGiveUp: () => void;
   onCancel: () => void;
   onEdit?: () => void;
+  onCopy?: () => void;
+  onDelete?: () => void;
 }) {
   const goal = goalOf(r);
   const done = Math.min(r.doneThisWeek, goal);
   const resting = r.doneToday || r.doneThisWeek >= goal;
   const cancel = { label: 'Das hier abbrechen', onPress: onCancel };
   const edit = onEdit ? [{ label: 'Bearbeiten', onPress: onEdit }] : [];
+  // Erledigte Karte (Daria, 2026-11-13): Tippen öffnet das Menü, dort auch Kopie und Löschen
+  const closed = closedItems(onCopy, onDelete);
+  const menu = useRef<(() => void) | null>(null);
   return (
     <Card
       bg={SENF}
       mood={moodOf(r)}
+      onPress={resting ? () => menu.current?.() : undefined}
+      pressHint={resting ? 'Öffnet das Menü' : undefined}
       onLongPress={onCancel}
       longPressHint="Lange drücken zum Abbrechen"
       onSwipeRight={resting ? undefined : onDone}
@@ -331,7 +349,13 @@ function TaskCard({
       {resting ? (
         <View style={styles.actions}>
           <Text style={styles.state}>{r.doneToday ? 'Heute erledigt' : 'Ziel erreicht'}</Text>
-          <ManageButton dots={INK} style={styles.more} label="Mehr zu dieser Aufgabe" items={[...edit, { label: 'Aufgeben', onPress: onGiveUp }, cancel]} />
+          <ManageButton
+            dots={INK}
+            style={styles.more}
+            label="Mehr zu dieser Aufgabe"
+            openRef={menu}
+            items={[...edit, ...closed.copy, { label: 'Aufgeben', onPress: onGiveUp }, cancel, ...closed.remove]}
+          />
         </View>
       ) : (
         <View style={styles.actions}>
@@ -344,11 +368,43 @@ function TaskCard({
   );
 }
 
-function TerminCard({ reminder: r, bg, onDone, onEnd, onEdit }: { reminder: Reminder; bg: string; onDone: () => void; onEnd: () => void; onEdit: () => void }) {
-  // Jede Karte mit „•••“ und „Bearbeiten“, auch feste Termine (Daria, 2026-11-13)
-  const more = <ManageButton dots={INK} style={styles.more} label="Mehr zu diesem Termin" items={[{ label: 'Bearbeiten', onPress: onEdit }]} />;
+function TerminCard({
+  reminder: r,
+  bg,
+  onDone,
+  onEnd,
+  onEdit,
+  onCopy,
+  onDelete,
+}: {
+  reminder: Reminder;
+  bg: string;
+  onDone: () => void;
+  onEnd: () => void;
+  onEdit: () => void;
+  onCopy?: () => void;
+  onDelete?: () => void;
+}) {
+  // Jede Karte mit „•••“ und „Bearbeiten“, auch feste Termine (Daria, 2026-11-13); erledigt auch Kopie und Löschen
+  const closed = r.doneToday ? closedItems(onCopy, onDelete) : { copy: [], remove: [] };
+  const menu = useRef<(() => void) | null>(null);
+  const more = (
+    <ManageButton
+      dots={INK}
+      style={styles.more}
+      label="Mehr zu diesem Termin"
+      openRef={menu}
+      items={[{ label: 'Bearbeiten', onPress: onEdit }, ...closed.copy, ...closed.remove]}
+    />
+  );
   return (
-    <Card bg={bg} mood={moodOf(r)} onLongPress={onEnd} head={<CardHead meta={whenText(r)} title={capitalize(r.want)} onEdit={onEdit} />}>
+    <Card
+      bg={bg}
+      mood={moodOf(r)}
+      onPress={r.doneToday ? () => menu.current?.() : undefined}
+      pressHint={r.doneToday ? 'Öffnet das Menü' : undefined}
+      onLongPress={onEnd}
+      head={<CardHead meta={whenText(r)} title={capitalize(r.want)} onEdit={onEdit} />}>
       <ReminderExtrasRow place={r.place} phone={r.phone} link={r.link} ink={INK} />
       {r.doneToday ? (
         <View style={styles.actions}>
@@ -364,6 +420,14 @@ function TerminCard({ reminder: r, bg, onDone, onEnd, onEdit }: { reminder: Remi
       )}
     </Card>
   );
+}
+
+/** Menüpunkte nur für erledigte Karten: Kopie oben, Löschen ganz unten (Daria, 2026-11-13) */
+function closedItems(onCopy?: () => void, onDelete?: () => void) {
+  return {
+    copy: onCopy ? [{ label: 'Kopie erstellen', onPress: onCopy }] : [],
+    remove: onDelete ? [{ label: 'Löschen', onPress: onDelete }] : [],
+  };
 }
 
 /** Zeit und Titel einer Karte. Mit `onEdit` öffnet ein Tippen darauf das Bearbeiten (Daria, 2026-11-13). */
