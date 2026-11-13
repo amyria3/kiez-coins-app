@@ -119,7 +119,7 @@ export default function PersonalDetails() {
           <Text style={styles.avatarLabel}>{me.avatar ? 'Profilbild ändern' : 'Profilbild hinzufügen'}</Text>
         </View>
       </Pressable>
-      <FieldGroup label="Profil">
+      <FieldGroup heading label="Profil">
         <EditableRow label="Deckname (Nickname)" value={profile.handle || me.name} maxLength={30} onSave={saveDeckname} />
         {/* Ansprache ausgeblendet (Daria, 29.10.2026). Gespeicherte Werte bleiben und gelten weiter, sonst „Pirat:in“. */}
         <NavRow
@@ -134,7 +134,7 @@ export default function PersonalDetails() {
         />
       </FieldGroup>
       {extras ? (
-        <FieldGroup label="Über Dich">
+        <FieldGroup heading label="Über Dich">
           <EditableRow
             label="Kurze Bio"
             value={extras.bio}
@@ -160,7 +160,7 @@ export default function PersonalDetails() {
         <BadgeSettings />
       </Abschnitt>
       {profile.email ? (
-        <FieldGroup label="Anmeldung">
+        <FieldGroup heading label="Anmeldung">
           <Text style={styles.secondary}>{profile.email}</Text>
         </FieldGroup>
       ) : null}

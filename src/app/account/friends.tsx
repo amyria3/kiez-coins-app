@@ -140,7 +140,7 @@ export default function Friends() {
         <Notice message="Freundschaften sind noch nicht freigeschaltet. Die Datenbank braucht dafür ein Update." />
       ) : null}
       {lists && lists.incoming.length ? (
-        <FieldGroup label="Anfragen">
+        <FieldGroup heading label="Anfragen">
           {lists.incoming.map((user) => (
             <View key={user.id} style={styles.item}>
               <AuthorRow user={user} location={user.location} onPress={() => open(user)} />
@@ -153,7 +153,7 @@ export default function Friends() {
         </FieldGroup>
       ) : null}
       {lists ? (
-        <FieldGroup label="Freund:innen">
+        <FieldGroup heading label="Freund:innen">
           {lists.friends.length ? (
             lists.friends.map((user) => <AuthorRow key={user.id} user={user} location={user.location} onPress={() => open(user)} />)
           ) : (
@@ -163,7 +163,7 @@ export default function Friends() {
       ) : null}
       {inviteError ? <Notice message={`${t('Deine Einladung nicht geladen.')} (${inviteError})`} /> : null}
       {inviteCode ? (
-        <FieldGroup label="Einladen">
+        <FieldGroup heading label="Einladen">
           <Text style={styles.secondary}>Wer Deine Einladung annimmt, ist sofort mit Dir befreundet.</Text>
           <InviteQr value={friendInviteLink(inviteCode)} label={t('Instant-Verbindung zum Scannen')} />
           <CopyField label="Einladungslink" value={friendInviteLink(inviteCode)} />
@@ -172,7 +172,7 @@ export default function Friends() {
           <Button label="Neuen Passcode erzeugen" variant="secondary" onPress={renewCode} />
         </FieldGroup>
       ) : null}
-      <FieldGroup label="Einladung annehmen">
+      <FieldGroup heading label="Einladung annehmen">
         <TextField
           label="Passcode"
           nudge={codeField}
@@ -194,7 +194,7 @@ export default function Friends() {
         />
       </FieldGroup>
       {lists && lists.outgoing.length ? (
-        <FieldGroup label="Gesendet">
+        <FieldGroup heading label="Gesendet">
           {lists.outgoing.map((user) => (
             <View key={user.id} style={styles.item}>
               <AuthorRow user={user} location={user.location} onPress={() => open(user)} />
