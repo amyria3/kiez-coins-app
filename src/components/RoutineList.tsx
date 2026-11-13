@@ -1,15 +1,16 @@
-import { useEffect, useState, type ReactNode } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { Alert, Animated, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
 import { markCardSwipe } from '../lib/cardSwipe';
 import Svg, { Defs, Line, Path, Pattern, Rect } from 'react-native-svg';
 
 import { Button } from './Button';
 import { KaterCard, KaterRund } from './Content';
 import { handShapePath } from './handShape';
+import { ManageButton } from './ShowcaseManage';
 import { Text } from './T';
 import { addToMyCalendar, eventDate, eventTime, type CalendarEvent } from '../data/calendar';
 import { dayName, goalText, katerFocus, katerLine, katerMood, weekdayShort, whenText, type KaterMood } from '../data/katerRoutine';
-import { addDays, capitalize, goalOf, isoWeekday, kindOf, loadRoutineDays, localDate, weekStart, type Reminder, type RoutineDays } from '../data/reminders';
+import { addDays, capitalize, goalOf, isoWeekday, kindOf, loadRoutineDays, localDate, weekStart, type Reminder, type ReminderEnd, type RoutineDays } from '../data/reminders';
 import { asSingleEvent, eventWhen, saveEvent, type ShowcaseEvent } from '../data/showcase';
 import { localeTag, t, useTexts } from '../data/texts';
 import { color, font, space } from '../theme/tokens';
@@ -52,7 +53,8 @@ export function RoutineList({
   events: CalendarEvent[];
   saved: Saved[];
   onDone: (r: Reminder) => void;
-  onEnd: (r: Reminder) => void;
+  /** Aufgeben oder abbrechen, mit Rückfrage (Daria, 2026-11-13) */
+  onEnd: (r: Reminder, how: ReminderEnd) => void;
   onNew: () => void;
   onChanged: () => void;
 }) {
@@ -72,14 +74,14 @@ export function RoutineList({
       {tasks.length ? (
         <Group title="Aufgaben" count={tasks.length}>
           {tasks.map((r) => (
-            <TaskCard key={r.id} reminder={r} onDone={() => onDone(r)} onEnd={() => onEnd(r)} />
+            <TaskCard key={r.id} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} />
           ))}
         </Group>
       ) : null}
       {fixed.length || calendar.length ? (
         <Group title="Feste Termine" count={fixed.length + calendar.length}>
           {fixed.map((r) => (
-            <TerminCard key={r.id} reminder={r} bg={OLIVE} onDone={() => onDone(r)} onEnd={() => onEnd(r)} />
+            <TerminCard key={r.id} reminder={r} bg={OLIVE} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} />
           ))}
           {calendar.map((e) => (
             <CalendarCard key={e.id} event={e} />
@@ -89,7 +91,7 @@ export function RoutineList({
       {optional.length || saved.length ? (
         <Group title="Das hast Du Dir vorgemerkt" count={optional.length + saved.length}>
           {optional.map((r) => (
-            <TerminCard key={r.id} reminder={r} bg={PUDER} onDone={() => onDone(r)} onEnd={() => onEnd(r)} />
+            <TerminCard key={r.id} reminder={r} bg={PUDER} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} />
           ))}
           {saved.map((e) => (
             <SavedCard key={e.id} event={e} onChanged={onChanged} />
@@ -102,6 +104,14 @@ export function RoutineList({
     </>
   );
 }
+
+/**
+ * Wischen auf der Karte (Daria, 2026-11-13): nach rechts erledigt, nach links abbrechen. Geht nur, wenn die Gruppe
+ * eine einzige Karte hat. Bei mehreren Karten blättert seitliches Wischen durch die Karten (Daria, 2026-11-12).
+ */
+const SWIPE_AT = 88;
+/** Einzige Karte ihrer Gruppe: Dann gehört seitliches Wischen der Karte */
+const Alone = createContext(false);
 
 /** Überschrift mit Anzahl, darunter die Karten nebeneinander zum Wischen */
 function Group({ title, count, children }: { title: string; count: number; children: ReactNode }) {
@@ -127,6 +137,7 @@ function Group({ title, count, children }: { title: string; count: number; child
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        scrollEnabled={cards.length > 1}
         snapToInterval={cardWidth + space[12]}
         decelerationRate="fast"
         style={styles.rowScroll}
@@ -134,7 +145,7 @@ function Group({ title, count, children }: { title: string; count: number; child
       >
         {cards.map((c, i) => (
           <View key={i} style={{ width: cardWidth }}>
-            {c}
+            <Alone.Provider value={cards.length === 1}>{c}</Alone.Provider>
           </View>
         ))}
       </ScrollView>
@@ -153,8 +164,57 @@ const moodOf = (r: Reminder) => katerMood(r);
  */
 const SIDE_BY_SIDE = 0;
 
-function Card({ bg, mood, head, children, onLongPress }: { bg: string; mood: Mood; head: ReactNode; children?: ReactNode; onLongPress?: () => void }) {
+/** Karte folgt dem Finger; ab `SWIPE_AT` löst das Loslassen aus. Nur für die einzige Karte einer Gruppe. */
+function useSwipe(onRight?: () => void, onLeft?: () => void) {
+  const alone = useContext(Alone);
+  const x = useRef(new Animated.Value(0)).current;
+  const now = useRef({ on: false, onRight, onLeft });
+  useEffect(() => {
+    now.current = { on: alone && !!(onRight || onLeft), onRight, onLeft };
+  });
+  const pan = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_e, g) => now.current.on && Math.abs(g.dx) > 12 && Math.abs(g.dx) > Math.abs(g.dy) * 2,
+      onPanResponderMove: (_e, g) => {
+        // Ohne Ziel in dieser Richtung gibt die Karte nur wenig nach
+        const free = g.dx > 0 ? now.current.onRight : now.current.onLeft;
+        x.setValue(free ? g.dx : g.dx / 6);
+      },
+      onPanResponderRelease: (_e, g) => {
+        Animated.spring(x, { toValue: 0, useNativeDriver: Platform.OS !== 'web', bounciness: 4 }).start();
+        if (g.dx >= SWIPE_AT) now.current.onRight?.();
+        else if (g.dx <= -SWIPE_AT) now.current.onLeft?.();
+      },
+      onPanResponderTerminate: () => {
+        Animated.spring(x, { toValue: 0, useNativeDriver: Platform.OS !== 'web', bounciness: 4 }).start();
+      },
+    }),
+  ).current;
+  return { x, handlers: pan.panHandlers, on: alone && !!(onRight || onLeft) };
+}
+
+function Card({
+  bg,
+  mood,
+  head,
+  children,
+  onLongPress,
+  longPressHint = 'Lange drücken zum Beenden',
+  onSwipeRight,
+  onSwipeLeft,
+}: {
+  bg: string;
+  mood: Mood;
+  head: ReactNode;
+  children?: ReactNode;
+  onLongPress?: () => void;
+  longPressHint?: string;
+  /** Wischen nach rechts: erledigt; nach links: abbrechen (Daria, 2026-11-13) */
+  onSwipeRight?: () => void;
+  onSwipeLeft?: () => void;
+}) {
   const [wide, setWide] = useState(false);
+  const swipe = useSwipe(onSwipeRight, onSwipeLeft);
   const kater = (
     // Ring in der Farbe des Grunds (Daria, 2026-11-12)
     <View style={wide && styles.katerSide}>
@@ -169,11 +229,11 @@ function Card({ bg, mood, head, children, onLongPress }: { bg: string; mood: Moo
       </View>
     </View>
   );
-  return (
+  const card = (
     <Pressable
       onLongPress={onLongPress}
       onLayout={(e) => setWide(e.nativeEvent.layout.width >= SIDE_BY_SIDE)}
-      accessibilityHint={onLongPress ? t('Lange drücken zum Beenden') : undefined}
+      accessibilityHint={onLongPress ? t(longPressHint) : undefined}
       style={[styles.card, !wide && styles.cardTall, { backgroundColor: bg }]}
     >
       {wide ? null : <View style={styles.cardTop}>{kater}</View>}
@@ -190,17 +250,39 @@ function Card({ bg, mood, head, children, onLongPress }: { bg: string; mood: Moo
       </View>
     </Pressable>
   );
+  if (!swipe.on) return card;
+  return (
+    <View style={styles.swipe}>
+      {/* Was das Wischen auslöst, steht hinter der Karte und erscheint beim Ziehen */}
+      <View style={styles.swipeHints} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+        <Animated.View style={{ opacity: swipe.x.interpolate({ inputRange: [0, SWIPE_AT], outputRange: [0, 1], extrapolate: 'clamp' }) }}>
+          {onSwipeRight ? <Text style={styles.swipeHint}>Erledigt</Text> : null}
+        </Animated.View>
+        <Animated.View style={{ opacity: swipe.x.interpolate({ inputRange: [-SWIPE_AT, 0], outputRange: [1, 0], extrapolate: 'clamp' }) }}>
+          {onSwipeLeft ? <Text style={styles.swipeHint}>Abbrechen</Text> : null}
+        </Animated.View>
+      </View>
+      <Animated.View style={[styles.swipe, { transform: [{ translateX: swipe.x }] }]} {...swipe.handlers}>
+        {card}
+      </Animated.View>
+    </View>
+  );
 }
 
-function TaskCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDone: () => void; onEnd: () => void }) {
+/** Auch in der Tour (TourDemo), dort mit Beispieldaten */
+export function TaskCard({ reminder: r, onDone, onGiveUp, onCancel }: { reminder: Reminder; onDone: () => void; onGiveUp: () => void; onCancel: () => void }) {
   const goal = goalOf(r);
   const done = Math.min(r.doneThisWeek, goal);
   const resting = r.doneToday || r.doneThisWeek >= goal;
+  const cancel = { label: 'Das hier abbrechen', onPress: onCancel };
   return (
     <Card
       bg={SENF}
       mood={moodOf(r)}
-      onLongPress={onEnd}
+      onLongPress={onCancel}
+      longPressHint="Lange drücken zum Abbrechen"
+      onSwipeRight={resting ? undefined : onDone}
+      onSwipeLeft={onCancel}
       head={
         <>
           <Text style={styles.meta}>{r.onDate ? whenText(r) : goalText(r)}</Text>
@@ -225,7 +307,21 @@ function TaskCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDone: 
           ))}
         </View>
       ) : null}
-      {resting ? <Text style={styles.state}>{r.doneToday ? 'Heute erledigt' : 'Ziel erreicht'}</Text> : <Actions bg={SENF} onDone={onDone} onEnd={onEnd} />}
+      {/* Erledigt, Aufgeben und im Menü „Das hier abbrechen“ (Daria, 2026-11-13); alle drei zählen im Kalender */}
+      {resting ? (
+        <View style={styles.actions}>
+          <Text style={styles.state}>{r.doneToday ? 'Heute erledigt' : 'Ziel erreicht'}</Text>
+          <ManageButton dots={INK} label="Mehr zu dieser Aufgabe" items={[{ label: 'Aufgeben', onPress: onGiveUp }, cancel]} />
+        </View>
+      ) : (
+        <View style={styles.actions}>
+          <HandButton label="Aufgeben" onPress={onGiveUp} />
+          <View style={styles.actionsEnd}>
+            <HandButton label="Erledigt" onPress={onDone} filled bg={SENF} />
+            <ManageButton dots={INK} label="Mehr zu dieser Aufgabe" items={[cancel]} />
+          </View>
+        </View>
+      )}
     </Card>
   );
 }
@@ -388,6 +484,10 @@ function RoutineCalendar({ list, events, saved }: { list: Reminder[]; events: Ca
   const inMonth = (d: string) => d.slice(0, 7) === today.slice(0, 7);
   const doneCount = days ? [...days.done].filter(inMonth).length : 0;
   const missedCount = days ? [...days.missed].filter(inMonth).length : 0;
+  // Aufgegeben und abgebrochen zählen wie geschafft (Daria, 2026-11-13)
+  const countIn = (by?: Map<string, string[]>) => (by ? [...by].filter(([d]) => inMonth(d)).reduce((n, [, names]) => n + names.length, 0) : 0);
+  const givenUpCount = countIn(days?.givenUpBy);
+  const cancelledCount = countIn(days?.cancelledBy);
   const month = new Intl.DateTimeFormat(localeTag(), { month: 'long' }).format(now);
 
   const cells: (Date | null)[] = open
@@ -435,6 +535,9 @@ function RoutineCalendar({ list, events, saved }: { list: Reminder[]; events: Ca
           ),
         )}
       </View>
+      {givenUpCount || cancelledCount ? (
+        <Text style={styles.calEnded}>{t('{givenUp} aufgegeben · {cancelled} abgebrochen', { givenUp: givenUpCount, cancelled: cancelledCount })}</Text>
+      ) : null}
       <DayBar day={picked ?? today} today={today} days={days} list={list} events={events} saved={saved} />
     </View>
   );
@@ -495,6 +598,11 @@ function DayBar({
   const label = day === today ? t('Heute') : new Intl.DateTimeFormat(localeTag(), { weekday: 'short', day: 'numeric', month: 'numeric' }).format(date);
   const done = days?.doneBy.get(day) ?? [];
   const missed = days?.missedBy.get(day) ?? [];
+  // Beendete stehen nicht mehr in der Liste: aufgegeben und abgebrochen mit Wort dahinter
+  const ended = [
+    ...(days?.givenUpBy.get(day) ?? []).map((w) => `${capitalize(w)} (${t('aufgegeben')})`),
+    ...(days?.cancelledBy.get(day) ?? []).map((w) => `${capitalize(w)} (${t('abgebrochen')})`),
+  ];
   // Mit Uhrzeit zuerst, nach Zeit sortiert
   const timed: [string, string][] = [
     ...list.filter((r) => r.onDate === day && (r.atTime || r.untilTime)).map((r): [string, string] => [r.atTime ?? r.untilTime ?? '', capitalize(r.want)]),
@@ -512,7 +620,7 @@ function DayBar({
           .map((r) => capitalize(r.want) + (done.includes(r.want) ? ' ✓' : ''))
       : [...done.map((w) => `${capitalize(w)} ✓`), ...missed.map((w) => `${capitalize(w)} ✗`)]),
   ].filter((n) => !timedNames.has(n.replace(/ [✓✗]$/, '')));
-  const items = [...timed.map(([time, name]) => `${time} ${name}`), ...untimed];
+  const items = [...timed.map(([time, name]) => `${time} ${name}`), ...untimed, ...ended];
   return (
     <Text noTranslate style={styles.dayBar} numberOfLines={2} accessibilityLiveRegion="polite">
       {items.length ? [label, ...items].join(' · ') : `${label} · ${t('nichts geplant')}`}
@@ -521,6 +629,7 @@ function DayBar({
 }
 
 const styles = StyleSheet.create({
+  calEnded: { fontFamily: font.regular, fontSize: 14, lineHeight: 19, color: color.text.secondary, textAlign: 'right' },
   dayBar: { marginTop: space[4], fontFamily: font.regular, fontSize: 14, lineHeight: 19, color: color.text.secondary },
   group: { gap: space[12] },
   groupHead: {
@@ -621,6 +730,20 @@ const styles = StyleSheet.create({
     gap: space[8],
     marginTop: space[4],
   },
+  actionsEnd: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  swipe: { flex: 1 },
+  swipeHints: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: space[8],
+  },
+  swipeHint: { fontFamily: font.medium, fontSize: 15, lineHeight: 20, color: color.text.primary },
   hand: {
     height: 34,
     minWidth: 96,
@@ -628,7 +751,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: space[16],
   },
-  handFilled: { minWidth: 124 },
+  // Schmaler als vorher (124), damit die drei Punkte daneben passen
+  handFilled: { minWidth: 108 },
   handLabel: { fontFamily: font.medium, fontSize: 16, lineHeight: 20 },
   pressed: { opacity: 0.7 },
   create: { marginTop: space[8] },

@@ -13,7 +13,7 @@ import { useCalendarEnabled } from '../data/routine';
 import { useStore } from '../data/store';
 import { ShowcaseEventCard } from './ShowcaseEventCard';
 import { RoutineList } from './RoutineList';
-import { archiveReminder, capitalize, goalOf, kindOf, loadReminders, type Reminder } from '../data/reminders';
+import { archiveReminder, capitalize, goalOf, kindOf, loadReminders, type Reminder, type ReminderEnd } from '../data/reminders';
 import { t } from '../data/texts';
 import { color, font, isFashionable, radius, space, text } from '../theme/tokens';
 
@@ -54,11 +54,18 @@ export function RoutineContent({
 
   const focus = list?.length ? katerFocus(list) : undefined;
 
-  const end = (r: Reminder) =>
-    Alert.alert(t('Erinnerung beenden?'), t('„Ich will {want}“ verschwindet aus der Liste. Was Du geschafft hast, bleibt.', { want: r.want }), [
-      { text: t('Abbrechen'), style: 'cancel' },
-      { text: t('Beenden'), style: 'destructive', onPress: () => archiveReminder(r.id).then(reload) },
-    ]);
+  // Aufgeben oder abbrechen (Daria, 2026-11-13): beides beendet die Erinnerung und zählt, mit Rückfrage
+  const end = (r: Reminder, how: ReminderEnd) =>
+    Alert.alert(
+      how === 'given_up' ? t('Aufgeben?') : t('Das hier abbrechen?'),
+      how === 'given_up'
+        ? t('„Ich will {want}“ verschwindet aus der Liste und zählt als aufgegeben. Was Du geschafft hast, bleibt.', { want: r.want })
+        : t('„Ich will {want}“ verschwindet aus der Liste und zählt als abgebrochen. Was Du geschafft hast, bleibt.', { want: r.want }),
+      [
+        { text: t('Zurück'), style: 'cancel' },
+        { text: how === 'given_up' ? t('Aufgeben') : t('Abbrechen'), style: 'destructive', onPress: () => archiveReminder(r.id, how).then(reload) },
+      ],
+    );
 
   return (
     <View style={styles.screen}>
@@ -99,7 +106,7 @@ export function RoutineContent({
             <SectionBlock label="Deine Erinnerungen">
               <View style={styles.list}>
                 {list.map((r) => (
-                  <ReminderCard key={r.id} reminder={r} onDone={() => router.push({ pathname: '/routine/[id]', params: { id: r.id } })} onEnd={() => end(r)} />
+                  <ReminderCard key={r.id} reminder={r} onDone={() => router.push({ pathname: '/routine/[id]', params: { id: r.id } })} onGiveUp={() => end(r, 'given_up')} onCancel={() => end(r, 'cancelled')} />
                 ))}
               </View>
             </SectionBlock>
@@ -148,14 +155,14 @@ function EventCard({ event: e }: { event: CalendarEvent }) {
   );
 }
 
-function ReminderCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDone: () => void; onEnd: () => void }) {
+function ReminderCard({ reminder: r, onDone, onGiveUp, onCancel }: { reminder: Reminder; onDone: () => void; onGiveUp: () => void; onCancel: () => void }) {
   const goal = goalOf(r);
   // „um“: Termin ohne Zähler und Balken; „bis“ und „von … bis“: Aufgabe (Daria, 2026-11-10)
   const kind = kindOf(r);
   const counted = kind !== 'termin';
   const done = Math.min(r.doneThisWeek, goal);
   return (
-    <Pressable onLongPress={onEnd} accessibilityHint={t('Lange drücken zum Beenden')} style={styles.card}>
+    <Pressable onLongPress={onCancel} accessibilityHint={t('Lange drücken zum Abbrechen')} style={styles.card}>
       <View style={styles.head}>
         <View style={styles.flex}>
           {kind ? <Text style={[styles.kicker, kind === 'termin' ? styles.kickerTermin : styles.kickerAufgabe]}>{kind === 'termin' ? 'Termin' : 'Aufgabe'}</Text> : null}
@@ -178,9 +185,17 @@ function ReminderCard({ reminder: r, onDone, onEnd }: { reminder: Reminder; onDo
         </View>
       ) : null}
       <View style={styles.foot}>
-        <Pressable onPress={onEnd} hitSlop={8} accessibilityRole="button">
-          <Text style={styles.endText}>Beenden</Text>
-        </Pressable>
+        {/* Aufgeben und abbrechen zählen beide (Daria, 2026-11-13); Termine lassen sich nur abbrechen */}
+        <View style={styles.ends}>
+          {kind === 'termin' ? null : (
+            <Pressable onPress={onGiveUp} hitSlop={8} accessibilityRole="button">
+              <Text style={styles.endText}>Aufgeben</Text>
+            </Pressable>
+          )}
+          <Pressable onPress={onCancel} hitSlop={8} accessibilityRole="button">
+            <Text style={styles.endText}>Das hier abbrechen</Text>
+          </Pressable>
+        </View>
         {r.doneToday ? (
           <Text style={styles.doneToday}>Heute erledigt</Text>
         ) : (
@@ -216,6 +231,7 @@ const styles = StyleSheet.create({
   segment: { flex: 1, height: 6, borderRadius: 3, backgroundColor: color.bg.screen },
   segmentDone: { backgroundColor: color.accent.confirmation },
   foot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space[12] },
+  ends: { flexDirection: 'row', flexWrap: 'wrap', gap: space[16], flexShrink: 1 },
   endText: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },
   doneToday: { fontFamily: font.medium, fontSize: 15, lineHeight: 20, color: color.accent.confirmation },
 });
