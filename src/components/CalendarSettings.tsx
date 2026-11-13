@@ -66,39 +66,65 @@ const OPENED_HINT: Record<Provider, string> = {
   outlook: 'Melde Dich bei Outlook an und bestätige mit „Importieren“. Outlook ruft den Link alle paar Stunden ab, Deine Termine erscheinen spätestens nach einem Tag.',
 };
 
-/** Name eines neuen Kalenders, wenn keiner eingetragen ist: der Dienst aus der Adresse („Termine aus Google anzeigen“) */
-function nameFromUrl(url: string): string {
-  const host = url.trim().replace(/^[a-z]+:\/\//i, '').split('/')[0].toLowerCase();
-  if (host.includes('google')) return 'Google';
-  if (host.includes('icloud') || host.includes('apple')) return 'iCloud';
-  if (host.includes('outlook') || host.includes('live.com') || host.includes('office')) return 'Outlook';
-  return 'Kalender';
+/** Dienste mit fester Zeile, wie die Plattformen beim Weiterposten (Daria, 2026-11-13) */
+type Source = 'google' | 'icloud' | 'outlook';
+const SOURCES: { key: Source; label: string; placeholder: string; howTo: string }[] = [
+  {
+    key: 'google',
+    label: 'Google',
+    placeholder: 'https://calendar.google.com/…/basic.ics',
+    howTo: 'Im Browser: Google Kalender › Einstellungen › Deinen Kalender wählen › „Privatadresse im iCal-Format“ kopieren.',
+  },
+  {
+    key: 'icloud',
+    label: 'iCloud',
+    placeholder: 'webcal://p…-caldav.icloud.com/…',
+    howTo: 'In der Kalender-App beim Kalender auf (i) tippen, „Öffentlicher Kalender“ einschalten, dann „Link teilen“ und kopieren.',
+  },
+  {
+    key: 'outlook',
+    label: 'Outlook',
+    placeholder: 'https://outlook.live.com/owa/calendar/…/calendar.ics',
+    howTo: 'Im Browser: Outlook › Einstellungen › Kalender › Freigegebene Kalender › „Kalender veröffentlichen“, dann den ICS-Link kopieren.',
+  },
+];
+
+/** Dienst einer iCal-Adresse; `null` für andere Kalender */
+function sourceOf(url: string): Source | null {
+  const host = hostOf(url).toLowerCase();
+  if (host.includes('google')) return 'google';
+  if (host.includes('icloud') || host.includes('apple')) return 'icloud';
+  if (host.includes('outlook') || host.includes('live.com') || host.includes('office')) return 'outlook';
+  return null;
 }
-const hostOf = (url: string) => url.replace(/^[a-z]+:\/\//i, '').split('/')[0];
+const hostOf = (url: string) => url.trim().replace(/^[a-z]+:\/\//i, '').split('/')[0];
+const SAVE_FAILED = 'Das hat nicht geklappt. Bitte versuch es noch einmal.';
 
 /**
  * Kalender unter Dein Konto › Funktionen, nach dem Muster vom Weiterposten (Daria, 2026-11-13): je Funktion ein
- * Schalter. „Termine aus KiezCoins exportieren“ und für jeden verbundenen Kalender „Termine aus … anzeigen“. Der
- * Schalter schaltet nur an und aus, die Einrichtung bleibt. Ein Tipp auf den Namen öffnet die Einstellungen; dort
- * steht das Zurücksetzen (neuer Link, Trennen) als eigener Knopf. Routine als Ganzes schaltet der Schalter „Routine“
- * oben unter Funktionen.
- * Vorher (2026-11-10 bis 2026-11-13) ein Schalter für den ganzen Kalender mit Abschnitten darunter.
+ * Schalter. „Termine aus KiezCoins exportieren“ und feste Zeilen „Termine aus Google/iCloud/Outlook anzeigen“, dazu
+ * weitere verbundene Kalender und auf Android die Kalender des Handys. Ohne Verbindung öffnet der Schalter darunter die
+ * Einrichtung; verbunden schaltet er nur an und aus. Ein Tipp auf den Namen öffnet die Einstellungen; dort steht das
+ * Zurücksetzen (Link kopieren und neuer Link, Trennen) als eigener Knopf. Scheitert das Speichern, springt der
+ * Schalter zurück und eine Meldung erscheint. Routine als Ganzes schaltet der Schalter „Routine“ oben unter Funktionen.
  */
 export function CalendarSettings() {
   const [feed, setFeed] = useState<{ https: string; webcal: string } | null | undefined>(undefined);
   const [exported, setExported] = useState(true);
   const [exportOpen, setExportOpen] = useState(false);
   const [linked, setLinked] = useState<LinkedCalendar[] | null>([]);
-  const [openId, setOpenId] = useState<string | null>(null);
-  const [adding, setAdding] = useState(false);
+  // Offene Zeile: id eines verbundenen Kalenders, ein Dienst ohne Verbindung oder „other“ für einen anderen Kalender
+  const [openKey, setOpenKey] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [busy, setBusy] = useState(false);
   const [addFailed, setAddFailed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [device, setDevice] = useState<DeviceCalendar[] | null>(null);
   const [chosen, setChosen] = useState<string[]>([]);
   // Zuletzt gewählter Kalender fürs Abo und ob er sich öffnen ließ
   const [opened, setOpened] = useState<{ provider: Provider; failed: boolean } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const reload = useCallback(() => {
     feedLinks().then(setFeed, () => setFeed(null));
@@ -114,11 +140,14 @@ export function CalendarSettings() {
   }, []);
 
   const exportSwitch = (on: boolean) => {
+    setError(null);
     setExported(on);
     // Frisch eingeschaltet: Einstellungen gleich offen, wie beim Verbinden einer Plattform
     setExportOpen(on);
     setFeedExported(on).then((ok) => {
-      if (!ok) setExported(!on);
+      if (ok) return;
+      setExported(!on);
+      setError(SAVE_FAILED);
     });
   };
 
@@ -128,7 +157,6 @@ export function CalendarSettings() {
       { text: t('Neuer Link'), style: 'destructive', onPress: () => feedLinks(true).then(setFeed) },
     ]);
 
-  const [copied, setCopied] = useState(false);
   const copyLink = async () => {
     if (!feed) return;
     await Clipboard.setStringAsync(feed.https);
@@ -145,9 +173,12 @@ export function CalendarSettings() {
   };
 
   const showLinked = (c: LinkedCalendar, shown: boolean) => {
+    setError(null);
     setLinked((list) => list && list.map((x) => (x.id === c.id ? { ...x, shown } : x)));
     setLinkedCalendarShown(c.id, shown).then((ok) => {
-      if (!ok) loadLinkedCalendars().then(setLinked);
+      if (ok) return;
+      setError(SAVE_FAILED);
+      loadLinkedCalendars().then(setLinked);
     });
   };
 
@@ -157,19 +188,25 @@ export function CalendarSettings() {
       {
         text: t('Trennen'),
         style: 'destructive',
-        onPress: () => removeLinkedCalendar(c.id).then(() => (setOpenId(null), loadLinkedCalendars().then(setLinked))),
+        onPress: () => removeLinkedCalendar(c.id).then(() => (setOpenKey(null), loadLinkedCalendars().then(setLinked))),
       },
     ]);
 
-  const add = async () => {
+  // Einrichtung öffnen oder schließen; Felder beginnen jedes Mal leer
+  const toggleOpen = (key: string, open: boolean) => {
+    setOpenKey(open ? key : null);
+    setUrl('');
+    setName('');
+    setAddFailed(false);
+  };
+
+  const add = async (label: string) => {
     setBusy(true);
     setAddFailed(false);
-    const ok = await addLinkedCalendar(name.trim() || nameFromUrl(url), url);
+    const ok = await addLinkedCalendar(name.trim() || label, url);
     setBusy(false);
     if (!ok) return setAddFailed(true);
-    setName('');
-    setUrl('');
-    setAdding(false);
+    toggleOpen('', false);
     loadLinkedCalendars().then(setLinked);
   };
 
@@ -181,12 +218,61 @@ export function CalendarSettings() {
 
   const urlOk = !url.trim() || /^(https|webcal):\/\/\S+$/i.test(url.trim());
 
+  /** Einrichtung wie bei BlueSky: Adresse, Hinweis, wo sie steht, und „Verbinden“ */
+  const setupFields = (label: string, question: string, placeholder: string, howTo: string, withName: boolean) => (
+    <View style={styles.setup}>
+      <QuestionHint question={question} answer={howTo} />
+      <TextField
+        label="iCal-Adresse"
+        placeholder={placeholder}
+        value={url}
+        onChangeText={setUrl}
+        autoCapitalize="none"
+        autoCorrect={false}
+        keyboardType="url"
+        error={urlOk ? undefined : 'Die Adresse beginnt mit https:// oder webcal://'}
+      />
+      {withName ? <TextField label="Name" placeholder="Privat" value={name} onChangeText={setName} maxLength={40} /> : null}
+      <Button label="Verbinden" busy={busy} disabled={busy || !url.trim() || !urlOk} onPress={() => add(withName ? 'Kalender' : label)} />
+      {addFailed ? <Notice variant="warning" message="Das hat nicht geklappt. Prüfe bitte die Adresse." /> : null}
+    </View>
+  );
+
+  /** Zeile eines verbundenen Kalenders: Schalter fürs Anzeigen, Tipp auf den Namen zeigt „Verbunden“ und „Trennen“ */
+  const linkedRow = (c: LinkedCalendar, label: string) => (
+    <View key={c.id}>
+      <SettingRow
+        label={t('Termine aus {name} anzeigen', { name: label })}
+        caption={c.shown ? hostOf(c.url) : t('Aus. {name} bleibt verbunden.', { name: label })}
+        value={c.shown}
+        open={openKey === c.id}
+        onPressLabel={() => setOpenKey((k) => (k === c.id ? null : c.id))}
+        onToggle={(v) => showLinked(c, v)}
+      />
+      {openKey === c.id ? (
+        <View style={styles.setup}>
+          <Status label="Verbunden" action="Trennen" onPress={() => disconnect(c)} />
+        </View>
+      ) : null}
+    </View>
+  );
+
+  const list = linked ?? [];
+  // Erster Kalender je Dienst gehört in dessen feste Zeile, alle übrigen stehen darunter mit eigenem Namen
+  const firstOf = new Map<Source, LinkedCalendar>();
+  for (const c of list) {
+    const src = sourceOf(c.url);
+    if (src && !firstOf.has(src)) firstOf.set(src, c);
+  }
+  const others = list.filter((c) => !Array.from(firstOf.values()).includes(c));
+
   return (
     <View style={styles.list}>
       <QuestionHint
         question="Was kann der Kalender?"
         answer="Deine Termine aus KiezCoins erscheinen in Deinem Kalender, und Termine aus Deinen Kalendern erscheinen in Routine. Jede Richtung und jeder Kalender hat einen eigenen Schalter."
       />
+      {error ? <Notice variant="warning" message={error} onClose={() => setError(null)} /> : null}
 
       {/* Export */}
       <SettingRow
@@ -227,28 +313,30 @@ export function CalendarSettings() {
         </View>
       ) : null}
 
-      {/* Verbundene Kalender, je einer mit eigenem Schalter */}
-      {linked === null ? (
-        <Notice variant="warning" message="Deine Kalender laden gerade nicht. Versuch es bitte gleich noch einmal." />
-      ) : (
-        linked.map((c) => (
-          <View key={c.id}>
+      {linked === null ? <Notice variant="warning" message="Deine Kalender laden gerade nicht. Versuch es bitte gleich noch einmal." /> : null}
+
+      {/* Feste Zeilen je Dienst: verbunden mit Schalter fürs Anzeigen, sonst öffnet der Schalter die Einrichtung */}
+      {SOURCES.map((src) => {
+        const c = firstOf.get(src.key);
+        if (c) return linkedRow(c, src.label);
+        const open = openKey === src.key;
+        return (
+          <View key={src.key}>
             <SettingRow
-              label={t('Termine aus {name} anzeigen', { name: c.name })}
-              caption={hostOf(c.url)}
-              value={c.shown}
-              open={openId === c.id}
-              onPressLabel={() => setOpenId((id) => (id === c.id ? null : c.id))}
-              onToggle={(v) => showLinked(c, v)}
+              label={t('Termine aus {name} anzeigen', { name: src.label })}
+              caption="Nicht verbunden"
+              value={open}
+              open={open}
+              onPressLabel={() => toggleOpen(src.key, !open)}
+              onToggle={(v) => toggleOpen(src.key, v)}
             />
-            {openId === c.id ? (
-              <View style={styles.setup}>
-                <Status label="Verbunden" action="Trennen" onPress={() => disconnect(c)} />
-              </View>
-            ) : null}
+            {open ? setupFields(src.label, t('Wo finde ich die iCal-Adresse von {name}?', { name: src.label }), src.placeholder, src.howTo, false) : null}
           </View>
-        ))
-      )}
+        );
+      })}
+
+      {/* Weitere verbundene Kalender mit eigenem Namen */}
+      {others.map((c) => linkedRow(c, c.name))}
 
       {/* Kalender auf dem Handy (Android-App), je einer mit eigenem Schalter */}
       {deviceCalendarsSupported ? (
@@ -270,33 +358,18 @@ export function CalendarSettings() {
         )
       ) : null}
 
-      {/* Weiteren Kalender verbinden */}
-      {adding ? (
-        <View style={styles.setup}>
-          <TextField
-            label="iCal-Adresse"
-            placeholder="https://calendar.google.com/…/basic.ics"
-            value={url}
-            onChangeText={setUrl}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="url"
-            error={urlOk ? undefined : 'Die Adresse beginnt mit https:// oder webcal://'}
-          />
-          <QuestionHint
-            question="Wo finde ich die iCal-Adresse?"
-            answer="In den Einstellungen Deines Kalenders. Google Kalender: Im Browser Einstellungen › Deinen Kalender wählen › „Privatadresse im iCal-Format“. iCloud: In der Kalender-App beim Kalender auf (i) tippen, „Öffentlicher Kalender“ einschalten, dann „Link teilen“. Outlook: Einstellungen › Freigegebene Kalender › „Kalender veröffentlichen“, dort den ICS-Link kopieren."
-          />
-          <TextField label="Name" placeholder={url.trim() ? nameFromUrl(url) : 'Google'} value={name} onChangeText={setName} maxLength={40} />
-          <Button label="Verbinden" busy={busy} disabled={busy || !url.trim() || !urlOk} onPress={add} />
-          {addFailed ? <Notice variant="warning" message="Das hat nicht geklappt. Prüfe bitte die Adresse." /> : null}
-        </View>
-      ) : null}
-      <Button
-        label={adding ? 'Abbrechen' : 'Kalender verbinden'}
-        variant="ghost"
-        onPress={() => (setAdding((a) => !a), setAddFailed(false))}
+      {/* Anderer Kalender, z. B. von einem Verein oder einer Schule */}
+      <SettingRow
+        label="Termine aus einem anderen Kalender anzeigen"
+        caption="Mit iCal-Adresse"
+        value={openKey === 'other'}
+        open={openKey === 'other'}
+        onPressLabel={() => toggleOpen('other', openKey !== 'other')}
+        onToggle={(v) => toggleOpen('other', v)}
       />
+      {openKey === 'other'
+        ? setupFields('Kalender', t('Wo finde ich die iCal-Adresse?'), 'https://…/kalender.ics', 'In den Einstellungen Deines Kalenders, oft unter „Teilen“, „Veröffentlichen“ oder „iCal“.', true)
+        : null}
     </View>
   );
 }
@@ -327,12 +400,9 @@ function SettingRow({
         accessibilityLabel={onPressLabel ? t('{label}: Einstellungen', { label }) : undefined}
         onPress={onPressLabel}
       >
-        <Text noTranslate style={styles.label}>
-          {label}
-        </Text>
-        <Text noTranslate style={styles.caption}>
-          {caption}
-        </Text>
+        {/* Texte mit Platzhalter kommen schon übersetzt an; die Suche nach ihnen findet nichts und lässt sie stehen */}
+        <Text style={styles.label}>{label}</Text>
+        <Text style={styles.caption}>{caption}</Text>
       </Pressable>
       <Toggle label={label} value={value} onValueChange={onToggle} />
     </View>
