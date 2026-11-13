@@ -25,7 +25,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ChallengePost } from '../components/ChallengePost';
 import { ComposeSheet } from '../components/compose/ComposeSheet';
-import { PrivateSignalProvider, setFrontSpace, SpaceProvider, type Space } from '../theme/signal';
+import { PrivateSignalProvider, pushFrontSpace, SpaceProvider, type Space } from '../theme/signal';
 import { takeComposeDone } from '../components/compose/compose';
 import { IconButton } from '../components/IconButton';
 import { Text } from '../components/T';
@@ -858,10 +858,7 @@ export default function FeedScreen() {
         : 'public';
   // Dialoge über der App (z. B. „Foto hinzufügen“) bekommen dieselbe Farbe, solange der Feed vorn ist
   useFocusEffect(
-    useCallback(() => {
-      setFrontSpace(area);
-      return () => setFrontSpace('public');
-    }, [area]),
+    useCallback(() => pushFrontSpace(area), [area]),
   );
   // Kurz und gleich für jede Gruppe (Daria, 24.10.2026)
   // Post für ein Schaufenster: Der Kopf nennt es (Daria, 2026-11-10)
