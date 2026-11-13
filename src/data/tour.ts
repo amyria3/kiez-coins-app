@@ -14,8 +14,13 @@ export type TourStep = {
   text: string;
   /** require('…mp4') oder https-Adresse */
   video?: number | string;
-  /** `feedback`: letzte Seite mit der Frage, wie die Erklärung war (Daria, 29.10.2026) */
-  kind?: 'feedback';
+  /**
+   * `feedback`: letzte Seite mit der Frage, wie die Erklärung war (Daria, 29.10.2026).
+   * `features`: Seite davor mit Schaltern für Bilder und Textposts und die Routine (Daria, 2026-11-13).
+   */
+  kind?: 'feedback' | 'features';
+  /** Seite erscheint nur, wenn dieses Feature freigeschaltet ist (freischaltung.ts) */
+  feature?: 'routine' | 'schaufenster';
   /** Seite erscheint nur, wenn dieser Modus sichtbar ist (Dein Konto › Funktionen) */
   mode?: Mode;
   /** Ausgeblendet: Die Seite bleibt hier stehen, die Tour zeigt sie nicht */
@@ -81,6 +86,27 @@ export const tourSteps: TourStep[] = [
     mode: 'private',
     title: 'Privat: nur für Dich',
     text: 'Im Modus „Privat“ siehst nur Du, was Du postest. Halte fest, was Dir gefällt, ganz ohne Publikum. Du findest den Modus oben im Umschalter.',
+  },
+  // Kalender und Schaufenster (Daria, 2026-11-13). Titel und Texte von Claude
+  {
+    key: 'kalender',
+    feature: 'routine',
+    title: 'Routine: Dein Kalender mit Aufgaben und Terminen',
+    text: 'Trag ein, was Du vorhast, einmalig oder jede Woche. Der Kater erinnert Dich. Geschafft? Tippe auf „Erledigt“. Klappt es nicht, tippe auf „Aufgeben“. Beides zählt im Kalender. Du findest die Routine links im Umschalter unter „Me & Myself“.',
+  },
+  {
+    key: 'schaufenster',
+    feature: 'schaufenster',
+    title: 'Schaufenster: Läden, Vereine und Gruppen aus Deinem Kiez',
+    text: 'Im Schaufenster zeigen Läden, Vereine und Gruppen ihre neuesten Posts und Termine. Speichere einen Termin, dann steht er in Deiner Routine. Du findest die Schaufenster in Deinem Konto.',
+  },
+  // Am Schluss (Daria, 2026-11-13): Bilder und Textposts und die Routine sind an und lassen sich hier ausschalten.
+  // Dazu der Hinweis auf Dein Konto › Meine Features. Titel und Text von Claude
+  {
+    key: 'funktionen',
+    kind: 'features',
+    title: 'Nutze KiezCoins so, wie es für Dich passt',
+    text: 'Beides ist an. Brauchst Du etwas nicht, schalte es hier aus. Einschalten kannst Du es jederzeit wieder unter Dein Konto › Meine Features. Dort gibt es noch mehr: Weiterposten einrichten, Termine aus anderen Kalendern importieren und Feeds ein- und ausschalten.',
   },
   // Frage und Antworten von Daria
   {
