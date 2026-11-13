@@ -676,3 +676,43 @@ export async function handleFromShowcase(userId: string, name: string, kiez?: st
   }
   return null;
 }
+
+/** Treffer der Schaufenster-Suche im Feed (Daria, 2026-11-13) */
+export type ShowcaseHit = { id: string; name: string; slug: string; logo?: ImageSource; kiez?: string; about?: string; coords?: { latitude: number; longitude: number } };
+
+type HitRow = { id: string; name: string; slug: string; logo_path: string | null; kiez: string | null; about: string | null; lat?: number | null; lng?: number | null };
+
+const toHit = (r: HitRow): ShowcaseHit => ({
+  id: r.id,
+  name: r.name,
+  slug: r.slug,
+  logo: photoUrl(r.logo_path),
+  kiez: r.kiez ?? undefined,
+  about: r.about ?? undefined,
+  coords: r.lat != null && r.lng != null ? { latitude: r.lat, longitude: r.lng } : undefined,
+});
+
+/** Ab so vielen Zeichen sucht der Feed */
+export const SEARCH_MIN = 2;
+
+/**
+ * Öffentliche Schaufenster finden (Daria, 2026-11-13): Name, Kiez und „Über uns“, nur `public` und online.
+ * Über `schaufenster_suche` (Migration 20261113000500). Fehlt sie, liest die App die Kopfdaten direkt; dann fehlt der
+ * Ort, und ein offline geschaltetes Schaufenster der eigenen Gruppe könnte mit auftauchen.
+ */
+export async function searchShowcases(query: string): Promise<ShowcaseHit[]> {
+  const q = query.trim();
+  if (q.length < SEARCH_MIN) return [];
+  const { data, error } = await supabase.rpc('schaufenster_suche', { p_query: q, p_limit: 50 });
+  if (!error) return ((data ?? []) as HitRow[]).map(toHit);
+  const pattern = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`).replace(/[,()]/g, ' ')}%`;
+  const { data: rows, error: fallbackError } = await supabase
+    .from('showcases')
+    .select('id, name, slug, logo_path, kiez, about')
+    .eq('visibility', 'public')
+    .or(`name.ilike.${pattern},kiez.ilike.${pattern},about.ilike.${pattern}`)
+    .order('name')
+    .limit(50);
+  if (fallbackError) throw fallbackError;
+  return ((rows ?? []) as HitRow[]).map(toHit);
+}
