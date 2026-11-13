@@ -92,7 +92,7 @@ type Saved = {
   routineHidden?: boolean;
   /** Routine ist der Standard: Die App öffnet beim Start die Routine statt des Feeds (Daria, 2026-11-10) */
   routineStandard?: boolean;
-  /** Kalender ausgeschaltet, unabhängig davon, ob einer eingerichtet ist (Einstellungen › Kalender, Daria, 2026-11-10) */
+  /** Bis 2026-11-13: Kalender ausgeschaltet. Ersetzt durch einen Schalter je Kalender und für den Export (Server). */
   calendarHidden?: boolean;
 };
 
@@ -208,15 +208,6 @@ export function setRoutineStandard(userId: string) {
 export function useRoutineStandardSaved(): boolean {
   useModes();
   return !!saved.routineStandard;
-}
-
-/** Kalender an oder aus (Einstellungen › Kalender, Daria, 2026-11-10). Standard: an. */
-export function setCalendarShown(userId: string, show: boolean) {
-  store(userId, { ...saved, calendarHidden: !show });
-}
-export function useCalendarShown(): boolean {
-  useModes();
-  return !saved.calendarHidden;
 }
 
 /**

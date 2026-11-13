@@ -23,7 +23,8 @@ export type CalendarEvent = {
   calendar: string;
 };
 
-export type LinkedCalendar = { id: string; name: string; url: string };
+/** `shown`: eigener Schalter je Kalender, aus blendet seine Termine in Routine aus (Daria, 2026-11-13) */
+export type LinkedCalendar = { id: string; name: string; url: string; shown: boolean };
 
 // ---------- Export ----------
 
@@ -35,10 +36,23 @@ export async function feedLinks(renew = false): Promise<{ https: string; webcal:
   return { https, webcal: https.replace(/^https:\/\//, 'webcal://') };
 }
 
+/**
+ * Export an oder aus (Daria, 2026-11-13). Aus: Der Abo-Link liefert einen leeren Kalender, die Termine verschwinden
+ * beim nächsten Abruf aus dem abonnierten Kalender. Das Abo und der Link bleiben. Migration 20261113000100.
+ */
+export async function feedExported(): Promise<boolean> {
+  const { data, error } = await supabase.rpc('routine_feed_paused');
+  return error ? true : !data;
+}
+export async function setFeedExported(on: boolean): Promise<boolean> {
+  const { error } = await supabase.rpc('routine_feed_set_paused', { p_paused: !on });
+  return !error;
+}
+
 // ---------- Import über Link ----------
 
 export async function loadLinkedCalendars(): Promise<LinkedCalendar[] | null> {
-  const { data, error } = await supabase.from('routine_calendars').select('id, name, url').order('created_at');
+  const { data, error } = await supabase.from('routine_calendars').select('id, name, url, shown').order('created_at');
   return error || !data ? null : (data as LinkedCalendar[]);
 }
 
@@ -47,6 +61,12 @@ export async function addLinkedCalendar(name: string, url: string): Promise<bool
   const clean = url.trim().replace(/^webcal:\/\//i, 'https://');
   if (!/^https:\/\/[^\s]+$/i.test(clean)) return false;
   const { error } = await supabase.from('routine_calendars').insert({ name: name.trim() || 'Kalender', url: clean });
+  return !error;
+}
+
+/** Termine dieses Kalenders in Routine zeigen oder ausblenden; die Verbindung bleibt */
+export async function setLinkedCalendarShown(id: string, shown: boolean): Promise<boolean> {
+  const { error } = await supabase.from('routine_calendars').update({ shown }).eq('id', id);
   return !error;
 }
 
