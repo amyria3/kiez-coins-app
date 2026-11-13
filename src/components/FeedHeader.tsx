@@ -376,6 +376,27 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
   const rest = measured ? restLayouts(measured, barWidth, basePad) : undefined;
   // Höchstbreite der Beschriftung bei den nicht gewählten Reitern
   const cap = measured ? labelCap(measured, index, barWidth, basePad) : Infinity;
+  /**
+   * Breite jedes Reiters folgt der Lage des Knopfs (Daria, 2026-11-13): Vorher sprangen Kürzung und volle Breite
+   * beim Tippen sofort auf das Ziel, der Knopf glitt aber noch. Die Schrift ragte dann über den Knopf hinaus.
+   * Jetzt wird die gekürzte Beschriftung im selben Tempo länger, in dem der Knopf kommt.
+   */
+  const maxWidthOf = (i: number) => {
+    if (!measured || single) return undefined;
+    const states = tabs.map((_, k) => k);
+    const capAt = (k: number) => labelCap(measured, k, barWidth, basePad);
+    const label = (k: number) => (k === i ? measured[i] : Math.min(measured[i], capAt(k)));
+    const inputRange = lead ? [-1, ...states] : states;
+    const labels = inputRange.map((k) => (k < 0 ? Math.min(measured[i], capAt(index)) : label(k)));
+    // Nie gekürzt: keine Höchstbreite, damit freier Platz wie bisher verteilt wird
+    if (labels.every((w) => w >= measured[i] - 0.5)) return undefined;
+    if (inputRange.length < 2) return undefined;
+    return pos.interpolate({
+      inputRange,
+      outputRange: inputRange.map((k, n) => labels[n] + 2 * basePad + (k === i ? 2 * PILL_EXTRA : 0)),
+      extrapolate: 'clamp',
+    });
+  };
   const single = tabs.length < 2;
   // Wie stark ein Reiter gerade gewählt ist: 1 unter der Pille, 0 daneben
   const weight = (i: number) =>
@@ -482,7 +503,9 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
               setContent((c) => (c[tab.key] === cw ? c : { ...c, [tab.key]: cw }));
             }}
           >
-            <Text numberOfLines={1} style={[styles.segmentText, tab.key === selectedKey && !lead?.active && styles.segmentTextSelected]}>
+            {/* Immer in der Schrift des gewählten Reiters messen: Sonst änderten sich die Breiten beim Umschalten, und
+                Knopf und Schrift sprangen mitten in der Bewegung (Daria, 2026-11-13) */}
+            <Text numberOfLines={1} style={[styles.segmentText, styles.segmentTextSelected]}>
               {t(tab.label)}
             </Text>
           </View>
@@ -490,6 +513,7 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
         {tabs.map((tab, i) => {
           const selected = tab.key === selectedKey && !lead?.active;
           const w = weight(i);
+          const maxWidth = maxWidthOf(i);
           const pad = typeof w === 'number' ? basePad + PILL_EXTRA * w : w.interpolate({ inputRange: [0, 1], outputRange: [basePad, basePad + PILL_EXTRA] });
           return (
             <AnimatedPressable
@@ -500,14 +524,19 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
               onPress={() => onChange(tab.key)}
               onPressIn={pressIn}
               onPressOut={pressOut}
-              style={[styles.segment, { paddingHorizontal: pad }, selected ? styles.noShrink : Number.isFinite(cap) && { maxWidth: Animated.add(Animated.multiply(pad, 2), cap) }, !ready && selected && styles.segmentSelected]}
+              style={[
+                styles.segment,
+                { paddingHorizontal: pad },
+                maxWidth ? { maxWidth } : selected ? styles.noShrink : Number.isFinite(cap) && { maxWidth: Animated.add(Animated.multiply(pad, 2), cap) },
+                !ready && selected && styles.segmentSelected,
+              ]}
             >
               <View style={styles.segmentInner}>
                 <Animated.Text
                   numberOfLines={1}
                   style={[
                     styles.segmentText,
-                    !selected && styles.shrink,
+                    (!selected || maxWidth) && styles.shrink,
                     selected && styles.segmentTextSelected,
                     tab.planned && !selected && styles.planned,
                     // Schrift wird dunkel, während die Pille darübergleitet
