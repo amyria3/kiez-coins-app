@@ -51,14 +51,16 @@ const PROVIDER_LABEL: Record<Provider, string> = {
 const PROVIDER_ORDER: Provider[] = Platform.OS === 'ios' ? ['apple', 'google', 'outlook'] : ['google', 'apple', 'outlook'];
 function subscribeUrl(provider: Provider, feed: { https: string; webcal: string }) {
   if (provider === 'apple') return feed.webcal;
-  if (provider === 'google') return `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(feed.webcal)}`;
+  // Erst die Kontoauswahl von Google, sonst abonniert das gerade aktive Konto (Daria, 2026-11-13)
+  if (provider === 'google')
+    return `https://accounts.google.com/AccountChooser?continue=${encodeURIComponent(`https://calendar.google.com/calendar/render?cid=${encodeURIComponent(feed.webcal)}`)}`;
   return `https://outlook.live.com/calendar/0/addfromweb?url=${encodeURIComponent(feed.https)}&name=KiezCoins`;
 }
 /** Rückmeldung nach dem Tippen auf einen Kalender: Was jetzt dort zu tun ist und wann die Termine kommen */
 const OPENED_HINT: Record<Provider, string> = {
   apple: 'Bestätige das Abo in der Kalender-App. Deine Termine erscheinen nach wenigen Minuten. Öffnet sich nichts, kopiere den Abo-Link unten.',
   google:
-    'Bestätige im Google Kalender mit „Hinzufügen“. Google ruft den Link nur alle paar Stunden ab, Deine Termine erscheinen spätestens nach einem Tag. Öffnet sich auf dem Handy nur die App, öffne den Link am Computer im Browser.',
+    'Wähle Dein Google-Konto und bestätige im Google Kalender mit „Hinzufügen“. Google ruft den Link nur alle paar Stunden ab, Deine Termine erscheinen spätestens nach einem Tag. Öffnet sich auf dem Handy nur die App, öffne den Link am Computer im Browser.',
   outlook: 'Melde Dich bei Outlook an und bestätige mit „Importieren“. Outlook ruft den Link alle paar Stunden ab, Deine Termine erscheinen spätestens nach einem Tag.',
 };
 
