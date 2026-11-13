@@ -23,7 +23,7 @@ import { BadgeOverview } from '../components/BadgeOverview';
 import { useFriends } from '../data/friends';
 import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
 import { useStore } from '../data/store';
-import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, isFashionable, radius, size, space, text } from '../theme/tokens';
 import { FashionProfile } from '../components/FashionProfile';
 import { SchiffWellen } from '../components/SchiffWellen';
 import { getLanguage, t } from '../data/texts';
@@ -260,9 +260,8 @@ const styles = StyleSheet.create({
     gap: space[12],
     padding: space[12],
     borderRadius: radius.xl + 4,
+    // Ohne orangen Rahmen (Daria, 2026-11-13)
     backgroundColor: color.bg.surface,
-    borderWidth: stroke.thin,
-    borderColor: color.accent.signal,
   },
   taskKicker: { ...text.caption, fontFamily: font.medium, color: color.accent.signal },
   taskTitle: { ...text.cardTitleCompact, color: color.text.primary },
