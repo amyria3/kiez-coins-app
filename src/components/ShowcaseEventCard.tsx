@@ -18,7 +18,7 @@ import {
   type ShowcaseEvent,
 } from '../data/showcase';
 import { t } from '../data/texts';
-import { color, font, radius, size, space, text } from '../theme/tokens';
+import { color, radius, size, space, text } from '../theme/tokens';
 
 /**
  * Termin aus einem Schaufenster (Daria, 2026-11-10): „Speichern“ legt ihn in Routine ab, „In meine anderen Kalender“
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   card: { borderRadius: radius.post, backgroundColor: color.bg.surface, overflow: 'hidden' },
   image: { width: '100%', aspectRatio: 16 / 9 },
   body: { gap: space[4], padding: space[16], paddingBottom: space[12] },
-  kicker: { ...text.caption, fontFamily: font.medium, color: color.accent.primary },
+  kicker: { ...text.captionStrong, color: color.accent.primary },
   kickerCancelled: { color: color.accent.error },
   title: { ...text.cardTitle, color: color.text.primary },
   struck: { textDecorationLine: 'line-through', color: color.text.secondary },
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   likeRow: { flexDirection: 'row', paddingHorizontal: space[16], paddingBottom: space[12] },
   like: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
   pressed: { opacity: 0.6 },
-  likeCount: { ...text.body, fontFamily: font.medium, color: color.text.primary },
+  likeCount: { ...text.label, color: color.text.primary },
   actions: { gap: space[8], paddingHorizontal: space[16], paddingBottom: space[16] },
   cancel: { alignSelf: 'center', paddingVertical: space[4] },
   cancelText: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },

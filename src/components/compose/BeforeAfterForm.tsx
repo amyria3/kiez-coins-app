@@ -4,7 +4,7 @@ import { Alert, Platform, StyleSheet, TextInput, View } from 'react-native';
 import { BEFORE_AFTER_TEXT_MAX } from '../../data/remote';
 import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
-import { color, font, radius, space, stroke, text } from '../../theme/tokens';
+import { color, radius, space, stroke, text } from '../../theme/tokens';
 import { useFocusColor } from '../../theme/signal';
 import { Button } from '../Button';
 import { PhotoPicker, SwitchRow } from '../Form';
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   },
   stepDotOn: { backgroundColor: color.accent.primary, borderColor: color.accent.primary },
   stepDotDone: { backgroundColor: color.bg.surface, borderColor: color.bg.surface },
-  stepNumber: { fontFamily: font.medium, fontSize: 10, lineHeight: 12, color: color.text.secondary },
+  stepNumber: { ...text.tag, color: color.text.secondary },
   stepNumberOn: { color: color.text.onAccent },
   stepName: { ...text.small, color: color.text.secondary },
   stepNameOn: { color: color.text.primary },
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     paddingBottom: space[8] - (stroke.focus - stroke.thin),
   },
   // Marke in der Schrift der Texte über dem Bild und in Lila, wie im Feed (Daria, 2026-11-08 und 2026-11-09)
-  tag: { fontFamily: font.onPhoto, fontSize: 14, lineHeight: 18, color: color.accent.primary },
+  tag: { ...text.photoLabel, color: color.accent.primary },
   input: { ...text.body, color: color.text.primary, padding: 0, minHeight: 40, textAlignVertical: 'top' },
   inputWeb: { outlineStyle: 'none' } as object,
   help: { flexDirection: 'row', justifyContent: 'flex-end', gap: space[8] },

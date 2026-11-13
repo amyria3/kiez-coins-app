@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     backgroundColor: color.bg.surface,
   },
-  rank: { ...text.metric, fontSize: 18, width: 22, textAlign: 'center', color: color.text.secondary },
+  rank: { ...text.metricSm, width: 22, textAlign: 'center', color: color.text.secondary },
   flex: { flex: 1, gap: space[2] },
   name: { ...text.bodyStrong, color: color.text.primary },
   meta: { ...text.meta, color: color.text.secondary },

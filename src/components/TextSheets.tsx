@@ -22,7 +22,7 @@ import {
   useSheetFonts,
   type SheetAlign,
 } from '../data/sheetFonts';
-import { color, font, space } from '../theme/tokens';
+import { color, font, space, text } from '../theme/tokens';
 import { Text } from './T';
 import { t } from '../data/texts';
 import { openLink } from '../lib/places';
@@ -585,6 +585,8 @@ function SizeSlider({ value, onChange }: { value: number; onChange: (size: numbe
   const KNOB = 22;
   return (
     <View style={styles.sizeRow}>
+      {/* Ausnahme: kleines und großes „A“ zeigen die Spanne des Reglers, sie sind Bild statt Text */}
+      {/* eslint-disable-next-line no-restricted-syntax */}
       <Text style={[styles.sizeA, { fontSize: 13 }]}>A</Text>
       <View
         style={styles.track}
@@ -614,6 +616,8 @@ function SizeSlider({ value, onChange }: { value: number; onChange: (size: numbe
           style={[styles.knob, { width: KNOB, height: KNOB, borderRadius: KNOB / 2, left: ratio * Math.max(0, trackW - KNOB) }]}
         />
       </View>
+      {/* Ausnahme: kleines und großes „A“ zeigen die Spanne des Reglers, sie sind Bild statt Text */}
+      {/* eslint-disable-next-line no-restricted-syntax */}
       <Text style={[styles.sizeA, { fontSize: 20 }]}>A</Text>
     </View>
   );
@@ -649,7 +653,7 @@ const styles = StyleSheet.create({
   trackLine: { height: 2, borderRadius: 1, backgroundColor: color.line.hairline },
   knob: { position: 'absolute', top: 7, backgroundColor: PAPER },
   fontChipSelected: { backgroundColor: PAPER, borderColor: PAPER },
-  fontChipText: { fontSize: 15, color: color.text.primary },
+  fontChipText: { ...text.body, color: color.text.primary },
   fontChipTextSelected: { color: INK },
   hero: { alignItems: 'center', justifyContent: 'center' },
   sheet: { backgroundColor: PAPER, borderRadius: 6, overflow: 'hidden' },
@@ -661,5 +665,5 @@ const styles = StyleSheet.create({
   dots: { flexDirection: 'row', justifyContent: 'center', gap: space[6], paddingTop: space[8] },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: color.text.secondary, opacity: 0.4 },
   dotActive: { backgroundColor: color.text.primary },
-  full: { fontFamily: font.regular, fontSize: 14, lineHeight: 19, color: color.accent.error },
+  full: { ...text.bodySm, color: color.accent.error },
 });

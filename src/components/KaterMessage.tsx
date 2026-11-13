@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
-import { color, font, space, text } from '../theme/tokens';
+import { color, space, text } from '../theme/tokens';
 import { KaterRund } from './Content';
 import { type CatMood } from './icons/Brand';
 
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   afterText: { marginTop: space[16] },
   nextGroup: { marginTop: space[32] },
   // Überschrift in der Unbounded wie die Ansprache „Pirat:in“ (Daria, 09.11.2026)
-  title: { ...text.title, fontFamily: font.onPhoto, color: color.text.primary, textAlign: 'center' },
+  title: { ...text.displaySm, color: color.text.primary, textAlign: 'center' },
   body: { ...text.body, color: color.text.secondary, textAlign: 'center' },
   detail: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
 });

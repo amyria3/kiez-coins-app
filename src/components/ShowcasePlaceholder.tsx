@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 
 import type { ImageSource } from '../data/types';
-import { color, font, radius, space, text } from '../theme/tokens';
+import { color, radius, space, text } from '../theme/tokens';
 import { Text } from './T';
 
 /**
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   },
   postImage: { width: '100%', aspectRatio: 16 / 9, opacity: 0.5 },
   postBody: { gap: space[4], padding: space[16] },
-  kicker: { ...text.caption, fontFamily: font.medium, color: color.accent.signal },
+  kicker: { ...text.captionStrong, color: color.accent.signal },
   title: { ...text.cardTitle, color: color.text.primary },
   sub: { ...text.caption, color: color.text.secondary },
   leer: { ...text.caption, color: color.text.secondary, fontStyle: 'italic' },

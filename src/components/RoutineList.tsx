@@ -14,7 +14,7 @@ import { dayName, goalText, katerFocus, katerLine, katerMood, weekdayShort, when
 import { addDays, capitalize, goalOf, isoWeekday, kindOf, loadRoutineDays, localDate, weekStart, type Reminder, type ReminderEnd, type RoutineDays } from '../data/reminders';
 import { asSingleEvent, eventWhen, saveEvent, type ShowcaseEvent } from '../data/showcase';
 import { localeTag, t, useTexts } from '../data/texts';
-import { color, font, space } from '../theme/tokens';
+import { color, font, space, text } from '../theme/tokens';
 
 /**
  * Routine im Kiez-Look (Daria, 2026-11-12), nach der Vorlage „ListEasy“: oben der Kalender, darunter drei Gruppen
@@ -660,8 +660,8 @@ function DayBar({
 }
 
 const styles = StyleSheet.create({
-  calEnded: { fontFamily: font.regular, fontSize: 14, lineHeight: 19, color: color.text.secondary, textAlign: 'right' },
-  dayBar: { marginTop: space[4], fontFamily: font.regular, fontSize: 14, lineHeight: 19, color: color.text.secondary },
+  calEnded: { ...text.bodySm, color: color.text.secondary, textAlign: 'right' },
+  dayBar: { ...text.bodySm, marginTop: space[4], color: color.text.secondary },
   group: { gap: space[12] },
   groupHead: {
     flexDirection: 'row',
@@ -670,15 +670,11 @@ const styles = StyleSheet.create({
     gap: space[12],
   },
   groupTitle: {
-    fontFamily: font.medium,
-    fontSize: 20,
-    lineHeight: 26,
+    ...text.settingsHeading,
     color: color.text.primary,
   },
   groupCount: {
-    fontFamily: font.regular,
-    fontSize: 15,
-    lineHeight: 20,
+    ...text.bodyLarge,
     color: color.text.secondary,
   },
   rowScroll: { marginHorizontal: -GUTTER },
@@ -714,9 +710,7 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '-8deg' }],
   },
   chipText: {
-    fontFamily: font.medium,
-    fontSize: 12,
-    lineHeight: 15,
+    ...text.captionStrong,
     color: color.text.primary,
   },
   katerRing: {
@@ -726,29 +720,20 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   meta: {
-    fontFamily: font.medium,
-    fontSize: 14,
-    lineHeight: 18,
+    ...text.labelSm,
     color: INK_SOFT,
   },
   title: {
-    fontFamily: font.medium,
-    fontSize: 20,
-    lineHeight: 24,
-    letterSpacing: -0.2,
+    ...text.listTitle,
     color: INK,
   },
   struck: { textDecorationLine: 'line-through' },
   sub: {
-    fontFamily: font.regular,
-    fontSize: 14,
-    lineHeight: 18,
+    ...text.bodySm,
     color: INK_SOFT,
   },
   state: {
-    fontFamily: font.medium,
-    fontSize: 15,
-    lineHeight: 20,
+    ...text.label,
     color: INK_SOFT,
     paddingVertical: 11,
   },
@@ -776,7 +761,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: space[8],
   },
-  swipeHint: { fontFamily: font.medium, fontSize: 15, lineHeight: 20, color: color.text.primary },
+  swipeHint: { ...text.label, color: color.text.primary },
   hand: {
     height: 34,
     minWidth: 96,
@@ -786,7 +771,7 @@ const styles = StyleSheet.create({
   },
   // Schmaler als vorher (124), damit die drei Punkte daneben passen
   handFilled: { minWidth: 108 },
-  handLabel: { fontFamily: font.medium, fontSize: 16, lineHeight: 20 },
+  handLabel: { ...text.label },
   pressed: { opacity: 0.7 },
   create: { marginTop: space[8] },
   cal: { gap: space[8] },
@@ -798,11 +783,9 @@ const styles = StyleSheet.create({
   },
   calGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: space[6] },
   calWeekday: {
+    ...text.small,
     width: `${100 / 7}%`,
     textAlign: 'center',
-    fontFamily: font.regular,
-    fontSize: 13,
-    lineHeight: 18,
     color: color.text.secondary,
   },
   calCell: { width: `${100 / 7}%`, alignItems: 'center' },
@@ -818,9 +801,7 @@ const styles = StyleSheet.create({
   calDayPicked: { borderWidth: 2, borderColor: color.accent.primary },
   calDayToday: { borderWidth: 1.5, borderColor: color.text.primary },
   calNum: {
-    fontFamily: font.regular,
-    fontSize: 15,
-    lineHeight: 20,
+    ...text.bodyLarge,
     color: color.text.primary,
   },
   calNumDone: { color: INK, fontFamily: font.medium },

@@ -117,6 +117,6 @@ const styles = StyleSheet.create({
   logo: { width: 40, height: 40, borderRadius: 20 },
   logoEmpty: { backgroundColor: color.bg.screen },
   flex: { flex: 1, gap: space[2] },
-  name: { ...text.title, fontSize: 16, color: color.text.primary },
+  name: { ...text.bodyLarge, color: color.text.primary },
   meta: { ...text.caption, color: color.text.secondary },
 });

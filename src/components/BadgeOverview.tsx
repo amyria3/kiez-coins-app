@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 
 import { BADGES, badgeSteps, badgeTitle, useMyBadges } from '../data/badges';
 import { t } from '../data/texts';
-import { color, font, radius, space, stroke, text } from '../theme/tokens';
+import { color, radius, space, stroke, text } from '../theme/tokens';
 import { BadgeIcon } from './BadgeIcon';
 import { Text } from './T';
 
@@ -107,10 +107,10 @@ const styles = StyleSheet.create({
   divider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   flex: { flex: 1, gap: space[4] },
   head: { flexDirection: 'row', justifyContent: 'space-between', gap: space[8] },
-  name: { ...text.body, fontFamily: font.medium, color: color.text.primary },
-  openName: { ...text.body, fontFamily: font.medium, color: color.text.secondary },
+  name: { ...text.label, color: color.text.primary },
+  openName: { ...text.label, color: color.text.secondary },
   sub: { ...text.caption, color: color.text.secondary },
-  tag: { ...text.caption, fontFamily: font.medium, color: color.text.primary },
+  tag: { ...text.captionStrong, color: color.text.primary },
   track: { height: 6, borderRadius: 3, backgroundColor: color.line.hairline, overflow: 'hidden' },
   bar: { height: 6, borderRadius: 3, backgroundColor: color.text.secondary },
   pressed: { opacity: 0.8 },

@@ -18,7 +18,7 @@ import { isGroupDone } from '../data/reise';
 import { useStore } from '../data/store';
 import { OPERATIONSNAME_ZEIGEN, type Challenge, type User } from '../data/types';
 import { useAppDimensions } from '../theme/layout';
-import { color, font, radius, size, space, stroke, text, withAlpha } from '../theme/tokens';
+import { color, radius, size, space, stroke, text, withAlpha } from '../theme/tokens';
 import { askCrosspost, restoreWithChoice } from '../components/CrosspostDialog';
 import { crosspostTargets } from '../data/crosspost';
 import { t } from '../data/texts';
@@ -718,7 +718,7 @@ const styles = StyleSheet.create({
   timeLabels: { flexDirection: 'row', justifyContent: 'space-between', gap: space[8] },
   iconStats: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: space[4] },
   iconStat: { flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 32 },
-  iconStatValue: { fontFamily: font.semiBold, fontSize: 16, lineHeight: 20, color: color.icon.large, fontVariant: ['tabular-nums'] },
+  iconStatValue: { ...text.label, color: color.icon.large, fontVariant: ['tabular-nums'] },
   head: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   pressed: { opacity: 0.7 },
   // Rundung wie die Posts im Feed

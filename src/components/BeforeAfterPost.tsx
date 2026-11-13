@@ -260,9 +260,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.overlay.medium,
   },
   tagText: {
-    fontFamily: font.medium,
-    fontSize: 11,
-    lineHeight: 14,
+    ...text.tag,
     letterSpacing: 0.4,
     textTransform: 'none',
     color: color.text.onPhoto,
@@ -284,7 +282,7 @@ const styles = StyleSheet.create({
   },
   // Ohne Nachher-Foto: oben rechts
   durationBottom: { top: space[12], marginTop: 0 },
-  durationText: { fontFamily: font.medium, fontSize: 12, lineHeight: 14, color: color.text.primary, fontVariant: ['tabular-nums'] },
+  durationText: { ...text.captionStrong, color: color.text.primary, fontVariant: ['tabular-nums'] },
   overlay: { position: 'absolute', left: space[12], right: space[12], bottom: space[12], zIndex: 3 },
   info: {
     gap: space[6],
@@ -326,7 +324,7 @@ const styles = StyleSheet.create({
   name: { ...text.bodyStrong, color: color.text.primary },
   place: { ...text.small, color: color.text.primary },
   caption: { paddingHorizontal: space[12], gap: space[4] },
-  captionText: { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.primary },
+  captionText: { ...text.bodySm, color: color.text.primary },
   captionTitle: { fontFamily: font.semiBold },
   time: { ...text.caption, color: color.text.secondary },
 });

@@ -4,7 +4,7 @@ import { Text } from './T';
 
 import type { User } from '../data/types';
 import { useFocusColor } from '../theme/signal';
-import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   profileCard: { padding: space[16], gap: space[16], borderRadius: radius.lg },
   /** Titel der Karten in der Farbe der großen Icons, auch der eigene Name (Daria, 2026-11-05) */
   // Unbounded statt Inter Tight wie „Pirat:in“ (Daria, 09.11.2026). 17 statt 19, die Unbounded läuft breiter.
-  profileName: { fontFamily: font.onPhoto, fontSize: 17, lineHeight: 22, color: color.icon.large },
+  profileName: { ...text.photoTitle, color: color.icon.large },
   // Aktives Feld mit kräftigerem lila Rand wie alle Eingabefelder (stroke.focus, Daria, 2026-11-09); Abstände um die Differenz kleiner
   editing: {
     borderWidth: stroke.focus,

@@ -3,7 +3,7 @@ import { AccessibilityInfo, Animated, Easing, Pressable, StyleSheet, View, type 
 import { Image } from 'expo-image';
 import { Text } from './T';
 
-import { color, font, radius, space, stroke, text, withAlpha } from '../theme/tokens';
+import { color, radius, space, stroke, text, withAlpha } from '../theme/tokens';
 import { t as translate, useTexts } from '../data/texts';
 import { openLink } from '../lib/places';
 import { type CatMood } from './icons/Brand';
@@ -745,7 +745,7 @@ export function FieldGroup({
 }
 
 const styles = StyleSheet.create({
-  sectionLabel: { fontFamily: font.onPhoto, fontSize: 18, lineHeight: 24, color: color.text.primary, marginTop: space[16] },
+  sectionLabel: { ...text.displaySm, color: color.text.primary, marginTop: space[16] },
   sectionBlock: { gap: space[12] },
   collapseHead: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: space[12] },
   collapseIcon: { paddingBottom: 2 },
@@ -824,7 +824,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     backgroundColor: color.accent.signal,
   },
-  tagText: { fontFamily: font.semiBold, fontSize: 11, lineHeight: 16, color: color.bg.screen },
+  tagText: { ...text.tag, color: color.bg.screen },
   speechBubble: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -852,7 +852,7 @@ const styles = StyleSheet.create({
   },
   // Größer als der Fließtext, der Kater spricht laut (Daria, 2026-11-11)
   katerBlaseDeckend: { backgroundColor: KATER_BLASE_DECKEND },
-  katerText: { ...text.body, fontSize: 17, lineHeight: 23, color: color.text.primary, flexShrink: 1 },
+  katerText: { ...text.readingLarge, color: color.text.primary, flexShrink: 1 },
   // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
   katerKreuz: { marginVertical: -10, marginRight: -10, marginLeft: space[4] },
   speech: { flexDirection: 'row', alignItems: 'center', gap: space[16] },
@@ -868,12 +868,12 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '45deg' }],
   },
   speechTitle: { ...text.cardTitleCompact, color: color.text.primary },
-  speechText: { fontFamily: font.text, fontSize: 15, lineHeight: 21, color: color.text.primary },
+  speechText: { ...text.reading, color: color.text.primary },
   rund: { overflow: 'hidden' },
   rundGrund: { backgroundColor: KATER_AVATAR_GELB },
   group: { gap: space[8] },
   groupLabel: { ...text.caption, color: color.text.secondary },
-  groupLabelLarge: { fontFamily: font.semiBold, fontSize: 15, lineHeight: 20, marginBottom: space[4] },
+  groupLabelLarge: { ...text.label, marginBottom: space[4] },
   // 20 mehr Luft darüber: mit dem Abstand von 40 zwischen den Abschnitten 60, also 50 % mehr (Daria, 2026-11-10)
   groupHeading: { ...text.settingsHeading, marginTop: space[20], marginBottom: space[4] },
 });

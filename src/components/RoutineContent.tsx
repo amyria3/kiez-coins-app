@@ -16,7 +16,7 @@ import { ReminderExtrasRow } from './ReminderExtras';
 import { RoutineList } from './RoutineList';
 import { archiveReminder, capitalize, goalOf, kindOf, loadReminders, type Reminder, type ReminderEnd } from '../data/reminders';
 import { t } from '../data/texts';
-import { color, font, radius, space, text } from '../theme/tokens';
+import { color, radius, space, text } from '../theme/tokens';
 
 /**
  * Inhalt der Routine (Daria, 2026-11-09/10): Deine Erinnerungen mit Fortschritt der Woche, oben der Kater.
@@ -252,11 +252,11 @@ const styles = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'flex-start', gap: space[12] },
   flex: { flex: 1, gap: space[4] },
   title: { ...text.cardTitle, color: color.text.primary },
-  kicker: { ...text.caption, fontFamily: font.medium },
+  kicker: { ...text.captionStrong },
   kickerTermin: { color: color.accent.primary },
   kickerAufgabe: { color: color.accent.signal },
   sub: { ...text.caption, color: color.text.secondary },
-  count: { fontFamily: font.semiBold, fontSize: 15, lineHeight: 20, color: color.text.secondary },
+  count: { ...text.label, color: color.text.secondary },
   countDone: { color: color.accent.confirmation },
   bar: { flexDirection: 'row', gap: space[6] },
   segment: { flex: 1, height: 6, borderRadius: 3, backgroundColor: color.bg.screen },
@@ -264,5 +264,5 @@ const styles = StyleSheet.create({
   foot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space[12] },
   ends: { flexDirection: 'row', flexWrap: 'wrap', gap: space[16], flexShrink: 1 },
   endText: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },
-  doneToday: { fontFamily: font.medium, fontSize: 15, lineHeight: 20, color: color.accent.confirmation },
+  doneToday: { ...text.label, color: color.accent.confirmation },
 });

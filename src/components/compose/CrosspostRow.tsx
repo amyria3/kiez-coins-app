@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
   },
   head: { gap: space[2], paddingBottom: space[8] },
-  title: { ...text.body, fontSize: 15, color: color.text.primary },
+  title: { ...text.body, color: color.text.primary },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[8] },
   divider: { borderTopWidth: stroke.thin, borderTopColor: color.line.hairline },
   texts: { flex: 1, gap: space[2] },

@@ -3,7 +3,7 @@ import { PanResponder, Platform, StyleSheet, TextInput, View } from 'react-nativ
 
 import type { PhotoText as PhotoTextValue } from '../data/types';
 import { t } from '../data/texts';
-import { font, radius, space } from '../theme/tokens';
+import { radius, space, text } from '../theme/tokens';
 import { Text } from './T';
 
 /**
@@ -43,16 +43,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.35)',
   },
   text: {
-    fontFamily: font.semiBold,
-    fontSize: 18,
-    lineHeight: 22,
+    ...text.photoText,
     color: '#FFFFFF',
     textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.5)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
   },
-  textHero: { fontSize: 24, lineHeight: 29 },
+  textHero: { ...text.photoTextHero },
   // Ebene auf dem Foto beim Erstellen: im Browser ohne Markieren und ohne Scrollen beim Ziehen
   layer: Platform.OS === 'web' ? ({ cursor: 'text', userSelect: 'none', touchAction: 'pan-y' } as object) : {},
   labelGrab: Platform.OS === 'web' ? ({ cursor: 'grab', touchAction: 'none' } as object) : {},

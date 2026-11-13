@@ -29,7 +29,7 @@ import { useStore } from '../../../data/store';
 import { t } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 import { openLink, placeActions } from '../../../lib/places';
-import { color, font, radius, space, text } from '../../../theme/tokens';
+import { color, radius, space, text } from '../../../theme/tokens';
 
 /**
  * Route `schaufenster/[id]` (Daria, 2026-11-10): Kopf mit Titelbild, Logo und Angaben, darunter die 10 neuesten Posts
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.7 },
   image: { width: '100%', aspectRatio: 4 / 3 },
   cardBody: { gap: space[4], padding: space[16] },
-  kicker: { ...text.caption, fontFamily: font.medium, color: color.accent.signal },
+  kicker: { ...text.captionStrong, color: color.accent.signal },
   title: { ...text.cardTitle, color: color.text.primary },
   sub: { ...text.caption, color: color.text.secondary },
 });

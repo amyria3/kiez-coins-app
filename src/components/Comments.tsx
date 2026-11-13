@@ -8,7 +8,7 @@ import { Text } from './T';
 import { formatRelative } from '../data/format';
 import type { Comment as CommentData, ImageSource, User } from '../data/types';
 import { useFocusColor } from '../theme/signal';
-import { color, font, radius, scheme, size, space, stroke, text } from '../theme/tokens';
+import { color, radius, scheme, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { IconButton } from './IconButton';
 import { Icon } from './icons/Icon';
@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
   footer: { flexDirection: 'row', alignItems: 'center', gap: space[16], paddingTop: space[4] },
   like: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   pressed: { opacity: 0.6 },
-  replyText: { ...text.caption, fontFamily: font.medium, color: color.text.secondary },
+  replyText: { ...text.captionStrong, color: color.text.secondary },
   menu: {
     position: 'absolute',
     minWidth: 200,

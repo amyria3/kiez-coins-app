@@ -9,7 +9,7 @@ import { Button } from '../../components/Button';
 import { KaterStage } from '../../components/KaterStage';
 import { useKater } from '../../components/useKater';
 import { useAuth } from '../../data/auth';
-import { color, font, space, stroke, text } from '../../theme/tokens';
+import { color, space, stroke, text } from '../../theme/tokens';
 import { useAppDimensions } from '../../theme/layout';
 
 /** So lange sind die Herzen zu sehen, bevor es weitergeht */
@@ -98,11 +98,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   // Kiez-Look: Unbounded wie die übrigen großen Überschriften (Daria, 2026-11-11), kleiner, da sie breiter läuft.
-  headline: { ...text.display, fontSize: 32, lineHeight: 40, letterSpacing: -0.4, color: color.text.primary },
-  headlineCompact: { fontSize: 26, lineHeight: 33, letterSpacing: -0.3 },
+  headline: { ...text.displayLarge, color: color.text.primary },
+  headlineCompact: { ...text.display },
   contentCompact: { gap: space[16], paddingVertical: space[16] },
   headlineMuted: { color: color.text.secondary },
-  body: { fontFamily: font.text, fontSize: 17, lineHeight: 22, color: color.text.secondary },
+  body: { ...text.readingLarge, color: color.text.secondary },
   legal: { ...text.caption, color: color.text.secondary },
   link: { textDecorationLine: 'underline' },
 });
