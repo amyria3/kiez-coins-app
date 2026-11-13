@@ -435,7 +435,9 @@ function SavedCard({ event: e, onChanged }: { event: Saved; onChanged: () => voi
       </Text>
       <View style={styles.actions}>
         <HandButton label="Entfernen" onPress={remove} disabled={busy} />
-        {e.cancelled ? null : <HandButton label="Kalender" onPress={toCalendar} filled bg={PUDER} />}
+        {/* Genau sagen, was passiert (Daria, 2026-11-13, vorher „Kalender“): im Browser eine Kalenderdatei, in der
+            Android-App der Kalender des Handys */}
+        {e.cancelled ? null : <HandButton label={Platform.OS === 'web' ? 'ICS exportieren' : 'In Handykalender'} onPress={toCalendar} filled bg={PUDER} />}
       </View>
     </Card>
   );
