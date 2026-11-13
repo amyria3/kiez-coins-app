@@ -16,6 +16,12 @@ export function useAccentColor(): string {
   return on && !isFashionable ? color.accent.private : color.accent.primary;
 }
 
+/** Fokus und eingeschaltete Schalter: Gelbgrün, unter „Privat“ / „Me & Myself“ Gelb (Daria, 2026-11-13) */
+export function useFocusColor(): string {
+  const on = useContext(PrivateSignal);
+  return on && !isFashionable ? color.accent.private : color.accent.focus;
+}
+
 /** true, wenn hier Gelb statt Lila gilt */
 export function usePrivateSignal(): boolean {
   return useContext(PrivateSignal) && !isFashionable;

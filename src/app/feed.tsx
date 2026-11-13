@@ -754,7 +754,8 @@ export default function FeedScreen() {
           }}
           // „Privat“ steckt in „Me & Myself“ (Daria, 2026-11-12); beim Erstellen bleibt es als Ziel wählbar
           visible={meOn ? modes.visible.filter((m) => m !== 'private') : modes.visible}
-          accent={composing && !placeTouched}
+          // Kiez-Look: Groups, Kiez und Everywhere gewählt immer lila, „Me & Myself“ / „Private“ gelb (Daria, 2026-11-13)
+          accent={!isFashionable || (composing && !placeTouched)}
           // „Me & Myself“ links neben den Reitern, wie vorher „Routine“ (Daria, 2026-11-12). Öffnet „My Feed“
           // (Daria, 2026-11-13), ohne privaten Feed die Routine („My Structure“).
           lead={

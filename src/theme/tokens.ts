@@ -123,6 +123,8 @@ export const color = {
     /** „Privat“ gewählt, in jedem Umschalter: Senf wie der Kalender in der Leiste (Daria, 2026-11-12) */
     private: fashionable ? palette.purple : '#ECCF55',
     confirmation: palette.green,
+    /** Fokus (Rahmen und Cursor im aktiven Feld) und eingeschaltete Schalter: Gelbgrün, überall gleich (Daria, 2026-11-13) */
+    focus: fashionable ? palette.purple : '#E4FF5F',
     signal: palette.orange,
     /**
      * Fehler und Pflichtfeld-Hinweise: im Kiez-Look Orange wie die Signalfarbe (Daria, 2026-11-12). Das alte Korallrot

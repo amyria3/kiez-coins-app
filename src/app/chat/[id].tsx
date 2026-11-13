@@ -140,7 +140,7 @@ export default function ChatThread() {
             onChangeText={setDraft}
             placeholder={t('Nachricht an {name}', { name: friend.name })}
             placeholderTextColor={color.text.placeholder}
-            selectionColor={color.accent.primary}
+            selectionColor={color.accent.focus}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             multiline
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     borderWidth: stroke.focus,
     borderColor: 'transparent',
   },
-  composerFocused: { borderColor: color.accent.primary },
+  composerFocused: { borderColor: color.accent.focus },
   input: { ...text.body, flex: 1, color: color.text.primary, maxHeight: 120, paddingVertical: space[8] },
   send: {
     width: 40,
