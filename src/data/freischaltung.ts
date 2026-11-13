@@ -43,8 +43,9 @@ export const FEATURE_DEFAULTS: Record<FeatureKey, { name: string; defaultOn: boo
   ohne_wasserzeichen: { name: 'Wasserzeichen und Rahmen entfernen', defaultOn: true },
   // Weiterposten mit weißem Rahmen und Namen, für alle (Daria, 2026-11-13)
   weiterposten_rahmen: { name: 'Weiterposten mit Rahmen', defaultOn: true },
-  // Logo aus dem Rahmen entfernen: nur mit Freischaltung (Daria, 2026-11-13: „a feature to turn on“)
-  weiterposten_ohne_logo: { name: 'Logo im Rahmen entfernen', defaultOn: false },
+  // Logo aus dem Rahmen entfernen: eigene Funktion, im Moment wie alle bezahlten Funktionen für alle an (Daria,
+  // 2026-11-13). Später sperren: default_on in public.features auf false
+  weiterposten_ohne_logo: { name: 'Logo im Rahmen entfernen', defaultOn: true },
 };
 
 type FeatureMap = Partial<Record<FeatureKey, boolean>>;

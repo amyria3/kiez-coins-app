@@ -468,7 +468,7 @@ Deno.serve(async (req) => {
 
     const results: Record<string, { url?: string; error?: string }> = {};
     // Rahmen und Logo, wie unter Funktionen gewählt; erlaubt ist, was die Freischaltung hergibt (Daria, 2026-11-13):
-    // Rahmen ist eine Funktion für alle, Logo entfernen nur mit Freischaltung
+    // beides eigene Funktionen, im Moment für alle an; gesperrt wird später über public.features.default_on
     const wanted = input.look === undefined ? FULL_LOOK : parseLook(input.look);
     const feature = async (key: string, fallback: boolean) => {
       const { data, error } = await asUser.rpc('feature_an', { p_key: key });
@@ -476,7 +476,7 @@ Deno.serve(async (req) => {
     };
     const look: Look = {
       frame: wanted.frame && (await feature('weiterposten_rahmen', true)),
-      watermark: wanted.watermark || !(await feature('weiterposten_ohne_logo', false)),
+      watermark: wanted.watermark || !(await feature('weiterposten_ohne_logo', true)),
     };
     // Das Foto (mit Rahmen) einmal für alle Plattformen vorbereiten
     let base: Promise<Omit<Post, 'link'>> | undefined;
