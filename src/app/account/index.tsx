@@ -172,7 +172,7 @@ export default function Account() {
         leadingFill={!isFashionable}
         onPress={() => router.push('/cat')}
       />
-      <FieldGroup label="Einstellungen">
+      <FieldGroup heading label="Einstellungen">
         <View style={styles.list}>
           <NavRow label="Benachrichtigungen" value={profile.push ? 'Push an' : 'Push aus'} onPress={() => router.push('/account/notifications')} />
           <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/account/payout')} />
@@ -192,7 +192,7 @@ export default function Account() {
           {moderator ? <NavRow label="Texte" value="Buttons, Kater, Rechtstexte" onPress={() => router.push('/texts')} /> : null}
         </View>
       </FieldGroup>
-      <FieldGroup label="Konto">
+      <FieldGroup heading label="Konto">
         <View style={styles.list}>
           <NavRow
             label="Zugangsdaten"
@@ -204,7 +204,7 @@ export default function Account() {
           <NavRow label="Konto löschen" tone="danger" onPress={() => router.push('/account/delete')} />
         </View>
       </FieldGroup>
-      <FieldGroup label="Rechtliches">
+      <FieldGroup heading label="Rechtliches">
         <View style={styles.list}>
           <NavRow label="Community-Regeln" onPress={() => router.push('/legal/regeln')} />
           <NavRow label="Impressum" onPress={() => router.push('/legal/impressum')} />

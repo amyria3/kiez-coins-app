@@ -48,14 +48,14 @@ export default function DataAccessScreen() {
         question="Kann das Team meine Nachrichten lesen?"
         answer="Ja, das Team kann Deine Nachrichten abrufen. Jeden Abruf siehst Du hier. Geplant ist eine Ende-zu-Ende-Verschlüsselung: Dann lesen nur Du und die Person, mit der Du schreibst, Eure Nachrichten."
       />
-      <FieldGroup label="Vom Team abgerufen">
+      <FieldGroup heading label="Vom Team abgerufen">
         {entries && byTeam.length === 0 ? <Text style={styles.secondary}>Niemand aus dem Team hat Deine Chats abgerufen.</Text> : null}
         {byTeam.map((e) => (
           <Entry key={e.createdAt + e.actor} entry={e} />
         ))}
       </FieldGroup>
       {automatic ? (
-        <FieldGroup label="Automatisch">
+        <FieldGroup heading label="Automatisch">
           <Entry entry={automatic} />
         </FieldGroup>
       ) : null}
