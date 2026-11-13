@@ -245,21 +245,29 @@ function Group({ title, count, children }: { title: string; count: number; child
       {/* Seitliches Wischen hier bewegt nur die Karten, nicht die Reiter im Feed (Daria, 2026-11-12) */}
       <View onStartShouldSetResponderCapture={markCardSwipe} onTouchEnd={() => locked && lock(false)} onTouchCancel={() => locked && lock(false)}>
         <DragLock.Provider value={lock}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            scrollEnabled={cards.length > 1 && !locked}
-            snapToInterval={cardWidth + space[12]}
-            decelerationRate="fast"
-            style={styles.rowScroll}
-            contentContainerStyle={styles.row}
-          >
-            {cards.map((c, i) => (
-              <View key={i} style={{ width: cardWidth }}>
-                {c}
-              </View>
-            ))}
-          </ScrollView>
+          {/* Eine Karte: keine Reihe zum Scrollen. Ein abgeschalteter ScrollView sperrt im Browser jede Berührung
+              (touch-action: none), dann scrollt die Seite nicht, wenn der Finger auf der Karte startet (Daria, 2026-11-13). */}
+          {cards.length === 1 ? (
+            <View style={[styles.rowScroll, styles.row]}>
+              <View style={{ width: cardWidth }}>{cards[0]}</View>
+            </View>
+          ) : (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              scrollEnabled={!locked}
+              snapToInterval={cardWidth + space[12]}
+              decelerationRate="fast"
+              style={styles.rowScroll}
+              contentContainerStyle={styles.row}
+            >
+              {cards.map((c, i) => (
+                <View key={i} style={{ width: cardWidth }}>
+                  {c}
+                </View>
+              ))}
+            </ScrollView>
+          )}
         </DragLock.Provider>
       </View>
     </View>
