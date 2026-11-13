@@ -76,7 +76,7 @@ export function RoutineContent({
             title="Was willst Du Dir angewöhnen?"
             body="Sag mir, was Du vorhast. Ich erinnere Dich, ganz ohne Druck. Na gut, mit ein bisschen."
             action={<Button label="Neue Erinnerung" icon="plus" onPress={() => router.push('/routine/new')} />}
-            more={calendarOn ? <Button label="Kalender verbinden" variant="ghost" onPress={() => router.push('/account/features')} /> : undefined}
+            more={calendarOn ? <Button label="Kalender verbinden" variant="ghost" onPress={() => router.push({ pathname: '/account/features', params: { abschnitt: 'kalender' } })} /> : undefined}
           />
         </View>
       ) : flat ? (
@@ -124,7 +124,7 @@ export function RoutineContent({
           ) : null}
           <View style={styles.buttons}>
             <Button label="Neue Erinnerung" icon="plus" variant="secondary" onPress={() => router.push('/routine/new')} />
-            {calendarOn ? <Button label="Kalender" variant="ghost" onPress={() => router.push('/account/features')} /> : null}
+            {calendarOn ? <Button label="Kalender" variant="ghost" onPress={() => router.push({ pathname: '/account/features', params: { abschnitt: 'kalender' } })} /> : null}
           </View>
         </ScrollView>
       )}
