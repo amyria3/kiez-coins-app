@@ -1744,5 +1744,7 @@
   "bis": "to",
   "um": "around",
   "Um": "At",
-  "Von": "From"
+  "Von": "From",
+  "ICS exportieren": "Export ICS",
+  "In Handykalender": "To phone calendar"
 }
