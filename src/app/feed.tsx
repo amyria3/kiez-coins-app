@@ -1,7 +1,9 @@
 import { RoutineNudge } from '../components/RoutineNudge';
 import { RoutineContent } from '../components/RoutineContent';
 import { clearRoutinePost } from '../data/reminders';
-import { clearShowcasePost, peekShowcasePost } from '../data/showcase';
+import { clearShowcasePost, peekShowcasePost, SEARCH_MIN, searchShowcases, type ShowcaseHit } from '../data/showcase';
+import { useFeature } from '../data/freischaltung';
+import { ShowcaseHitRow, ShowcaseSearchField } from '../components/ShowcaseSearch';
 import { nudgeCrystals } from '../components/icons/Brand';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -9,6 +11,7 @@ import {
   BackHandler,
   Easing,
   FlatList,
+  Keyboard,
   PanResponder,
   RefreshControl,
   StyleSheet,
@@ -255,6 +258,7 @@ export default function FeedScreen() {
       .sort((a, b) => (a.d ?? Infinity) - (b.d ?? Infinity) || a.i - b.i)
       .map((x) => x.c);
   }, [challenges, tab, here, distanceTo, groupId, currentUserId, myKiez, postsShown.kiez, postsShown.everywhere]);
+
   const topChallenges = useMemo(
     () => pickTopChallenges({ mode, challenges, currentUserId }),
     [mode, challenges, currentUserId],
@@ -267,6 +271,70 @@ export default function FeedScreen() {
 
   const openChallenge = useCallback((id: string) => router.push(`/challenge/${id}`), [router]);
   const openManage = useCallback(() => router.push('/manage'), [router]);
+
+  // Schaufenster-Suche (Daria, 2026-11-13): Im Kiez- und Überall-Feed steht unter dem Umschalter ein Suchfeld, solange
+  // der Kopf aufgeklappt ist. Mit einer Suche gehen Kopf und Umschalter weg, das Feld bleibt, darunter die Treffer
+  // statt der Posts. Ein Treffer öffnet das Schaufenster; „Zurück“ führt wieder zu den Treffern, das Feed-Icon unten
+  // oder das Kreuz im Feld zurück in den Feed. Nur öffentliche, online geschaltete Schaufenster (Migration
+  // 20261113000500). Kiez: im Umkreis von 5 km oder im selben Kiez wie die Posts. Überall: alle, nach Name.
+  // Später (Übergabe/TODO.md): Überall nach Entfernung sortieren, in anderen Gegenden suchen.
+  const searchOn = useFeature('schaufenster_suche') && mode === 'live';
+  const searchTab = tab === 'nearby' || tab === 'everywhere';
+  const [query, setQuery] = useState('');
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [hits, setHits] = useState<ShowcaseHit[] | null | undefined>(undefined);
+  const searching = searchOn && searchTab && query.trim().length >= SEARCH_MIN;
+  useEffect(() => {
+    if (!searching) return setHits(undefined);
+    let active = true;
+    setHits(undefined);
+    const timer = setTimeout(() => {
+      searchShowcases(query).then(
+        (found) => active && setHits(found),
+        () => active && setHits(null),
+      );
+    }, 300);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [searching, query]);
+  const clearSearch = useCallback(() => {
+    setQuery('');
+    Keyboard.dismiss();
+  }, []);
+
+  // Treffer im Kiez: wie die Posts im Umkreis von 5 km, ohne Ort im selben Kiez wie im Profil
+  const shownHits = useMemo(() => {
+    if (!hits || tab !== 'nearby') return hits;
+    return hits.filter(
+      (h) =>
+        (here && h.coords && distanceMeters(here, h.coords) <= KIEZ_RADIUS_METERS) ||
+        (!!myKiez && !!h.kiez && sameKiez(h.kiez, myKiez)),
+    );
+  }, [hits, tab, here, myKiez]);
+
+  // Suche geleert: Kopf und Umschalter kommen zurück
+  const wasSearching = useRef(false);
+  useEffect(() => {
+    if (wasSearching.current && !searching) {
+      setCollapsed(false);
+      animateHeader(0);
+    }
+    wasSearching.current = searching;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searching]);
+  // Android-Zurück während der Suche leert sie
+  useFocusEffect(
+    useCallback(() => {
+      if (!searching) return;
+      const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+        clearSearch();
+        return true;
+      });
+      return () => sub.remove();
+    }, [searching, clearSearch]),
+  );
   // Erstellen über dem Feed (Daria, 22.10.2026): Logo und Begrüßung gleiten weg wie beim Scrollen, ein schmaler
   // Kopf mit „Challenge erstellen“ erscheint, die Pille bleibt, und das Blatt kommt federnd von unten.
   // Die Pille wechselt im Blatt zwischen öffentlicher Challenge und Gruppenaufgabe.
@@ -575,6 +643,13 @@ export default function FeedScreen() {
   else if (loading) items.push({ kind: 'loading' });
   else if (showState && !(planned && showState === 'empty')) items.push({ kind: 'state' });
   else posts.forEach((challenge) => items.push({ kind: 'post', challenge }));
+  if (searching && !composing) {
+    items.length = 0;
+    if (shownHits === undefined) items.push({ kind: 'loading' });
+    else if (shownHits === null) items.push({ kind: 'searchError' });
+    else if (shownHits.length === 0) items.push({ kind: 'searchEmpty' });
+    else shownHits.forEach((hit) => items.push({ kind: 'showcase', hit }));
+  }
 
   // Leerer Zustand steht unter der Liste und füllt den Rest bis zur Leiste, mittig. So verteilt sich der Platz
   // oben und unten gleich (Daria, 2026-11-09).
@@ -657,6 +732,19 @@ export default function FeedScreen() {
             }
           />
         ) : null;
+      case 'showcase':
+        return <ShowcaseHitRow hit={item.hit} onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: item.hit.id } })} />;
+      case 'searchEmpty':
+      case 'searchError':
+        return (
+          <Text style={styles.searchNote}>
+            {item.kind === 'searchError'
+              ? t('Die Suche hat gerade nicht geklappt. Versuch es gleich noch einmal.')
+              : tab === 'nearby'
+                ? t('Kein öffentliches Schaufenster in Deinem Kiez passt dazu. Im Überall-Feed suchst Du überall.')
+                : t('Kein öffentliches Schaufenster passt dazu.')}
+          </Text>
+        );
       case 'post': {
         const author = users.find((u) => u.id === item.challenge.authorId);
         if (!author) return null;
@@ -724,6 +812,7 @@ export default function FeedScreen() {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
+      {searching ? null : (
       <Animated.View style={[styles.clip, headerStyle]}>
         {/* Höhe folgt dem Inhalt, z. B. wenn nach dem Laden die Zeile mit den Zahlen dazukommt */}
         <View onLayout={(e) => { const next = e.nativeEvent.layout.height; setHeaderHeight((h) => (h === next ? h : next)); }}>
@@ -735,6 +824,7 @@ export default function FeedScreen() {
           <FeedGreeting name={anrede(profile)} kiez={kiezName} counts={feedState === 'loading' ? undefined : openCounts} />
         </View>
       </Animated.View>
+      )}
       <Animated.View style={[styles.clip, composeHeaderStyle]}>
         <View style={styles.composeHeader}>
           <IconButton icon="close" accessibilityLabel={t('Schließen')} onPress={() => closeCompose()} />
@@ -743,7 +833,7 @@ export default function FeedScreen() {
           </Text>
         </View>
       </Animated.View>
-      {bigSwitchShown ? (
+      {bigSwitchShown && !searching ? (
       <Animated.View style={[styles.tabsRow, isFashionable && styles.tabsRowFashionable, { paddingRight: tabsPaddingRight }]}>
         <View style={styles.flex}>
         <TabsNavigation
@@ -768,6 +858,9 @@ export default function FeedScreen() {
         />
         </View>
       </Animated.View>
+      ) : null}
+      {searchOn && searchTab && !composing && !routineActive && (searching || searchFocused || !!query || !collapsed || isFashionable) ? (
+        <ShowcaseSearchField value={query} onChangeText={setQuery} onClear={clearSearch} onFocusChange={setSearchFocused} />
       ) : null}
       {meActive && meBoth ? (
         <View style={[styles.tabsRow, { paddingRight: tabsPaddingRight }]}>
@@ -814,7 +907,13 @@ export default function FeedScreen() {
           ref={listRef}
           data={listItems}
           keyExtractor={(item) =>
-            item.kind === 'post' ? item.challenge.id : item.kind === 'running' ? `running-${item.challenge.id}` : item.kind
+            item.kind === 'post'
+              ? item.challenge.id
+              : item.kind === 'running'
+                ? `running-${item.challenge.id}`
+                : item.kind === 'showcase'
+                  ? `showcase-${item.hit.id}`
+                  : item.kind
           }
           renderItem={renderItem}
           viewabilityConfig={feedViews.viewabilityConfig}
@@ -856,7 +955,10 @@ export default function FeedScreen() {
       </PrivateSignalProvider>
       {composing ? null : <TabBar
         active="feed"
-        onFeedPress={() => switchTab(standardTab)}
+        onFeedPress={() => {
+          clearSearch();
+          switchTab(standardTab);
+        }}
         onMenuPress={() => router.push('/account')}
         onCreatePress={createChallenge}
         onGroupsPress={groupsOn ? () => switchTab('groups') : undefined}
@@ -905,7 +1007,10 @@ type FeedItem =
   | { kind: 'loading' }
   | { kind: 'state' }
   | { kind: 'running'; challenge: Challenge }
-  | { kind: 'post'; challenge: Challenge };
+  | { kind: 'post'; challenge: Challenge }
+  | { kind: 'showcase'; hit: ShowcaseHit }
+  | { kind: 'searchEmpty' }
+  | { kind: 'searchError' };
 
 const styles = StyleSheet.create({
   loading: { alignItems: 'center', paddingVertical: space[48] },
@@ -920,6 +1025,7 @@ const styles = StyleSheet.create({
   // Unten etwas Luft über der Leiste, oben trennt schon der Abstand der Liste
   emptyFooter: { flex: 1, justifyContent: 'center', paddingBottom: space[12] },
   emptyState: { paddingTop: 0 },
+  searchNote: { ...text.body, color: color.text.secondary, paddingHorizontal: space[16], paddingTop: space[8] },
   composeHeader: { height: COMPOSE_HEADER, flexDirection: 'row', alignItems: 'center', gap: space[4], paddingHorizontal: space[8] },
   composeLine: { ...text.title, flex: 1, color: color.text.primary },
   composeSheet: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
