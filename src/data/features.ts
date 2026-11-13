@@ -92,13 +92,8 @@ type Saved = {
   routineHidden?: boolean;
   /** Routine ist der Standard: Die App öffnet beim Start die Routine statt des Feeds (Daria, 2026-11-10) */
   routineStandard?: boolean;
-  /**
-   * Termine aus eigenen Kalendern in Routine ausgeschaltet (Einstellungen › Kalender, Daria, 2026-11-10). Bis 2026-11-13
-   * galt der Schalter für den ganzen Kalender; seitdem gilt er nur für diese Richtung.
-   */
+  /** Bis 2026-11-13: Kalender ausgeschaltet. Ersetzt durch einen Schalter je Kalender und für den Export (Server). */
   calendarHidden?: boolean;
-  /** Abo der KiezCoins-Termine in anderen Kalendern ausgeschaltet (eigener Schalter, Daria, 2026-11-13) */
-  calendarExportHidden?: boolean;
 };
 
 /** Feeds, in denen sich Bilder und Textposts abschalten lassen */
@@ -213,24 +208,6 @@ export function setRoutineStandard(userId: string) {
 export function useRoutineStandardSaved(): boolean {
   useModes();
   return !!saved.routineStandard;
-}
-
-/** Termine aus eigenen Kalendern in Routine an oder aus (Funktionen › Kalender, Daria, 2026-11-10). Standard: an. */
-export function setCalendarShown(userId: string, show: boolean) {
-  store(userId, { ...saved, calendarHidden: !show });
-}
-export function useCalendarShown(): boolean {
-  useModes();
-  return !saved.calendarHidden;
-}
-
-/** KiezCoins-Termine in anderen Kalendern an oder aus (Funktionen › Kalender, Daria, 2026-11-13). Standard: an. */
-export function setCalendarExportShown(userId: string, show: boolean) {
-  store(userId, { ...saved, calendarExportHidden: !show });
-}
-export function useCalendarExportShown(): boolean {
-  useModes();
-  return !saved.calendarExportHidden;
 }
 
 /**

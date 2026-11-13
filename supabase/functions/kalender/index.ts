@@ -8,7 +8,7 @@
 // 2. Import aus eigenen Kalendern, mit Anmeldung der Person im Header Authorization:
 //      POST { action: 'events', days?: number }  → { events: [{ id, title, start, end, allDay, calendar }] }
 //    Liest die iCal-Adressen aus routine_calendars (nur die eigenen, RLS) und gibt die Termine der nächsten
-//    `days` Tage zurück (Standard 14, höchstens 60). Der Abruf läuft hier, weil Google und iCloud dem Browser
+//    `days` Tage zurück, nur von Kalendern mit Schalter an (Spalte shown, Migration 20261113000100) (Standard 14, höchstens 60). Der Abruf läuft hier, weil Google und iCloud dem Browser
 //    den Abruf verbieten (CORS).
 //
 // Deploy ohne JWT-Prüfung, da das Abo ohne Anmeldung kommt; POST prüft die Anmeldung selbst:
@@ -119,9 +119,10 @@ function toEvent(r: Reminder, stamp: string): string[] | null {
 async function feed(token: string): Promise<Response> {
   if (!/^[0-9a-f-]{36}$/i.test(token)) return new Response('Not found', { status: 404 });
   const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
-  const { data: owner } = await admin.from('routine_feeds').select('user_id').eq('token', token).maybeSingle();
+  const { data: owner } = await admin.from('routine_feeds').select('user_id, paused').eq('token', token).maybeSingle();
   if (!owner) return new Response('Not found', { status: 404 });
-  const { data } = await admin
+  // Export aus (Daria, 2026-11-13): leerer Kalender, damit das Abo gültig bleibt und die Termine verschwinden
+  const { data } = owner.paused ? { data: [] } : await admin
     .from('reminders')
     .select('id, want, description, per_week, weekdays, at_time, on_date, until_time, required, created_at')
     .eq('user_id', owner.user_id)
@@ -243,7 +244,8 @@ Deno.serve(async (req) => {
   from.setUTCDate(from.getUTCDate() - 1);
   const to = new Date(Date.now() + days * 24 * 3600_000);
 
-  const { data: calendars } = await asUser.from('routine_calendars').select('id, name, url');
+  // Nur Kalender, deren Schalter an ist (Daria, 2026-11-13)
+  const { data: calendars } = await asUser.from('routine_calendars').select('id, name, url').eq('shown', true);
   const results = await Promise.all(
     ((calendars ?? []) as { id: string; name: string; url: string }[]).map(async (c) => {
       const url = safeUrl(c.url);
