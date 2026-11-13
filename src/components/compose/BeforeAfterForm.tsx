@@ -5,7 +5,7 @@ import { BEFORE_AFTER_TEXT_MAX } from '../../data/remote';
 import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
 import { color, font, isFashionable, radius, space, stroke, text } from '../../theme/tokens';
-import { useAccentColor } from '../../theme/signal';
+import { useFocusColor } from '../../theme/signal';
 import { Button } from '../Button';
 import { PhotoPicker, SwitchRow } from '../Form';
 import { useNudge } from '../Nudge';
@@ -62,7 +62,7 @@ export function TagTextField({
   maxLength?: number;
 }) {
   const [focused, setFocused] = useState(false);
-  const accent = useAccentColor();
+  const accent = useFocusColor();
   const tagColor = useTagColor();
   const inputRef = useRef<TextInput>(null);
   return (

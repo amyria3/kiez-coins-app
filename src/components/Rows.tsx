@@ -86,7 +86,7 @@ export function EditableRow({ label, value, onSave, renderEditor, maxLength, all
             placeholder={placeholder}
             placeholderTextColor={color.text.placeholder}
             accessibilityLabel={label}
-            selectionColor={color.accent.primary}
+            selectionColor={color.accent.focus}
           />
         )}
       </View>
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   // Aktives Feld mit kräftigerem lila Rand wie alle Eingabefelder (stroke.focus, Daria, 2026-11-09); Abstände um die Differenz kleiner
   editing: {
     borderWidth: stroke.focus,
-    borderColor: color.accent.primary,
+    borderColor: color.accent.focus,
     paddingVertical: space[4] - (stroke.focus - stroke.thin),
     paddingRight: space[4] - (stroke.focus - stroke.thin),
     paddingLeft: space[12] - (stroke.focus - stroke.thin),
