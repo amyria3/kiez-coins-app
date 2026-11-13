@@ -41,7 +41,7 @@ export default function BadgeDetailScreen() {
         own ? (
           <>
             {own.selected ? null : <Button label="Am Avatar zeigen" onPress={choose} />}
-            <Button label="Ein- und ausblenden" variant="ghost" onPress={() => router.push('/account/profile')} />
+            <Button label="Ein- und ausblenden" variant="ghost" onPress={() => router.push({ pathname: '/account/profile', params: { abschnitt: 'abzeichen' } })} />
           </>
         ) : undefined
       }
