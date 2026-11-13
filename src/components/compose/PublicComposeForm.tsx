@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Alert, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
+import type { LivePlatform } from '../../data/crosspost';
 import { useStore } from '../../data/store';
 import type { ExtraPhoto, ImageSource, PhotoText } from '../../data/types';
 import { Button } from '../Button';
@@ -53,6 +54,8 @@ export function usePublicComposeForm(
   const [ownFont, setOwnFont] = useState<string>('inter');
   const sheetFont = shared?.sheetFont ?? ownFont;
   const setSheetFont = shared?.setSheetFont ?? setOwnFont;
+  // Weiterposten: für diesen Post abgewählte Plattformen (Daria, 13.11.2026)
+  const [crosspostOff, setCrosspostOff] = useState<LivePlatform[]>([]);
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState(false);
   const isChallenge = type !== 'photo';
@@ -91,6 +94,7 @@ export function usePublicComposeForm(
         ...(isPrivate ? { privat: '1' } : {}),
         ...(extraUris.length ? { extras: JSON.stringify(extraUris) } : {}),
         ...(withPhotoText ? { bildtext: JSON.stringify(withPhotoText) } : {}),
+        ...(crosspostOff.length && !isPrivate ? { ohne: JSON.stringify(crosspostOff) } : {}),
       },
     });
   };
@@ -149,8 +153,8 @@ export function usePublicComposeForm(
       ) : (
         <TagTextField label="Dein Text" tag={PHOTO_TAG} value={text} onChangeText={setText} maxLength={500} />
       )}
-      {/* Weiterposten auf andere Plattformen, nur öffentliche Posts (Daria, 05.11.2026) */}
-      {isPrivate ? null : <CrosspostRow />}
+      {/* Weiterposten auf andere Plattformen, nur öffentliche Posts (Daria, 05.11.2026), je Plattform abwählbar (13.11.2026) */}
+      {isPrivate ? null : <CrosspostRow off={crosspostOff} onChange={setCrosspostOff} />}
     </>
   );
 
