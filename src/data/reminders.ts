@@ -226,7 +226,7 @@ export async function loadRoutineDays(from: Date, to: Date, now = new Date()): P
   const first = localDate(dayStart(from));
   const last = localDate(dayStart(to));
   for (const r of rows) {
-    if (!r.archived_at || !r.ended_as) continue;
+    if (!r.archived_at || !r.ended_as || r.ended_as === 'deleted') continue;
     const day = localDate(new Date(r.archived_at));
     if (day < first || day > last) continue;
     byDay(r.ended_as === 'given_up' ? givenUpBy : cancelledBy, day, r.want);
@@ -301,8 +301,9 @@ export async function updateReminder(
 /**
  * Wie eine Erinnerung endet (Daria, 2026-11-13): aufgegeben („Give up“) oder abgebrochen („Cancel this“).
  * Erledigt steht in `reminder_done`. Alle drei zählen im Kalender der Routine.
+ * Gelöscht (Daria, 2026-11-13, Migration 20261113000700): verschwindet aus der Liste, zählt nicht; Erledigtes bleibt.
  */
-export type ReminderEnd = 'given_up' | 'cancelled';
+export type ReminderEnd = 'given_up' | 'cancelled' | 'deleted';
 
 /**
  * Erinnerung beenden: Sie verschwindet aus der Liste, Erledigungen bleiben erhalten. `how` steht in `ended_as`

@@ -58,13 +58,19 @@ export function RoutineContent({
   // Aufgeben oder abbrechen (Daria, 2026-11-13): beides beendet die Erinnerung und zählt, mit Rückfrage
   const end = (r: Reminder, how: ReminderEnd) =>
     Alert.alert(
-      how === 'given_up' ? t('Aufgeben?') : t('Das hier abbrechen?'),
+      how === 'given_up' ? t('Aufgeben?') : how === 'deleted' ? t('Löschen?') : t('Das hier abbrechen?'),
       how === 'given_up'
         ? t('„Ich will {want}“ verschwindet aus der Liste und zählt als aufgegeben. Was Du geschafft hast, bleibt.', { want: r.want })
-        : t('„Ich will {want}“ verschwindet aus der Liste und zählt als abgebrochen. Was Du geschafft hast, bleibt.', { want: r.want }),
+        : how === 'deleted'
+          ? t('„Ich will {want}“ verschwindet aus der Liste. Was Du erledigt hast, bleibt im Kalender.', { want: r.want })
+          : t('„Ich will {want}“ verschwindet aus der Liste und zählt als abgebrochen. Was Du geschafft hast, bleibt.', { want: r.want }),
       [
         { text: t('Zurück'), style: 'cancel' },
-        { text: how === 'given_up' ? t('Aufgeben') : t('Abbrechen'), style: 'destructive', onPress: () => archiveReminder(r.id, how).then(reload) },
+        {
+          text: how === 'given_up' ? t('Aufgeben') : how === 'deleted' ? t('Löschen') : t('Abbrechen'),
+          style: 'destructive',
+          onPress: () => archiveReminder(r.id, how).then(reload),
+        },
       ],
     );
 
@@ -98,6 +104,7 @@ export function RoutineContent({
             onEnd={end}
             onNew={() => router.push('/routine/new')}
             onEdit={(r) => router.push({ pathname: '/routine/bearbeiten', params: { id: r.id } })}
+            onCopy={(r) => router.push({ pathname: '/routine/new', params: { von: r.id } })}
             onChanged={reload}
           />
           {/* Platz unter „Neue Erinnerung“ als eigenes Element statt Polsterung: Safari ließ die Polsterung unten in
