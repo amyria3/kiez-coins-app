@@ -274,7 +274,8 @@ function HandSwitch({ label, value, onValueChange }: { label: string; value: boo
         ]}
       >
         <Svg width={HAND_KW} height={HAND_KH}>
-          <Path d={HAND_KNOB} fill={color.text.primary} />
+          {/* Dunkler Knopf in der Farbe des Hintergrunds (Daria, 2026-11-13), vorher hell */}
+          <Path d={HAND_KNOB} fill={color.bg.screen} />
         </Svg>
       </Animated.View>
     </Pressable>

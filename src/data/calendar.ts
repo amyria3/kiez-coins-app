@@ -188,13 +188,21 @@ export type SingleEvent = { id: string; title: string; start: Date; end?: Date; 
 const icsTime = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 const icsText = (s: string) => s.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/[,;]/g, (c) => `\\${c}`);
 
-/** Kalenderdatei (.ics) mit einem Termin; ohne Ende eine Stunde */
-export function eventIcs(e: SingleEvent): string {
-  const end = e.end ?? new Date(e.start.getTime() + 60 * 60 * 1000);
+/** Kalenderdatei (.ics) mit einem oder mehreren Terminen; ohne Ende je eine Stunde */
+export function eventIcs(e: SingleEvent | SingleEvent[]): string {
   return [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     'PRODID:-//KiezCoins//Schaufenster//DE',
+    ...(Array.isArray(e) ? e : [e]).flatMap(veventLines),
+    'END:VCALENDAR',
+    '',
+  ].join('\r\n');
+}
+
+function veventLines(e: SingleEvent): string[] {
+  const end = e.end ?? new Date(e.start.getTime() + 60 * 60 * 1000);
+  return [
     'BEGIN:VEVENT',
     `UID:${e.id}@kiezcoins.de`,
     `DTSTAMP:${icsTime(new Date())}`,
@@ -204,22 +212,29 @@ export function eventIcs(e: SingleEvent): string {
     ...(e.location ? [`LOCATION:${icsText(e.location)}`] : []),
     ...(e.notes ? [`DESCRIPTION:${icsText(e.notes)}`] : []),
     'END:VEVENT',
-    'END:VCALENDAR',
-    '',
-  ].join('\r\n');
+  ];
 }
 
 /**
- * „In meinen Kalender“: Im Browser lädt das eine Kalenderdatei herunter, die Kalender-Apps öffnen.
+ * „In meine anderen Kalender“ (vorher „In meinen Kalender“, Daria, 2026-11-13: klang nach dem Kalender in KiezCoins): Im Browser lädt das eine Kalenderdatei herunter, die Kalender-Apps öffnen.
  * In der Android-App öffnet sich der Kalender des Handys mit dem fertigen Termin. `false`, wenn es nicht ging.
  */
 export async function addToMyCalendar(e: SingleEvent): Promise<boolean> {
+  return addAllToMyCalendar([e], e.title);
+}
+
+/**
+ * „In meine anderen Kalender“ für alle kommenden Termine eines Schaufensters (Daria, 2026-11-13): Im Browser eine
+ * Kalenderdatei mit allen Terminen, in der Android-App nacheinander der Kalender des Handys für jeden Termin.
+ */
+export async function addAllToMyCalendar(events: SingleEvent[], name: string): Promise<boolean> {
+  if (!events.length) return false;
   if (Platform.OS === 'web') {
     try {
-      const url = URL.createObjectURL(new Blob([eventIcs(e)], { type: 'text/calendar' }));
+      const url = URL.createObjectURL(new Blob([eventIcs(events)], { type: 'text/calendar' }));
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${e.title.replace(/[^\p{L}\p{N} _-]/gu, '').trim().slice(0, 40) || 'Termin'}.ics`;
+      a.download = `${name.replace(/[^\p{L}\p{N} _-]/gu, '').trim().slice(0, 40) || 'Termin'}.ics`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -232,13 +247,15 @@ export async function addToMyCalendar(e: SingleEvent): Promise<boolean> {
   const Calendar = expoCalendar();
   if (!Calendar) return false;
   try {
-    await Calendar.createEventInCalendarAsync({
-      title: e.title,
-      startDate: e.start,
-      endDate: e.end ?? new Date(e.start.getTime() + 60 * 60 * 1000),
-      location: e.location,
-      notes: e.notes,
-    });
+    for (const e of events) {
+      await Calendar.createEventInCalendarAsync({
+        title: e.title,
+        startDate: e.start,
+        endDate: e.end ?? new Date(e.start.getTime() + 60 * 60 * 1000),
+        location: e.location,
+        notes: e.notes,
+      });
+    }
     return true;
   } catch {
     return false;

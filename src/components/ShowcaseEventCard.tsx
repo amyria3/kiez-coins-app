@@ -21,7 +21,7 @@ import { t } from '../data/texts';
 import { color, font, radius, size, space, text } from '../theme/tokens';
 
 /**
- * Termin aus einem Schaufenster (Daria, 2026-11-10): „Speichern“ legt ihn in Routine ab, „In meinen Kalender“
+ * Termin aus einem Schaufenster (Daria, 2026-11-10): „Speichern“ legt ihn in Routine ab, „In meine anderen Kalender“
  * gibt eine Kalenderdatei. Das Team sieht, wie viele ihn gespeichert haben (ohne Namen), und kann ihn absagen.
  */
 export function ShowcaseEventCard({
@@ -129,7 +129,7 @@ export function ShowcaseEventCard({
       {!e.cancelled && !past ? (
         <View style={styles.actions}>
           <Button label={saved ? 'Gespeichert' : 'Speichern'} variant="secondary" icon={saved ? 'check' : undefined} busy={busy} onPress={toggle} />
-          <Button label="In meinen Kalender" variant="ghost" onPress={toCalendar} />
+          <Button label="In meine anderen Kalender" variant="ghost" onPress={toCalendar} />
           {team ? (
             <Pressable onPress={cancel} hitSlop={8} accessibilityRole="button" style={styles.cancel}>
               <Text style={styles.cancelText}>Termin absagen</Text>

@@ -334,6 +334,25 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
   const own = useRef(new Animated.Value(target)).current;
   const pos = progress ?? own;
   const placed = useRef(false);
+  /**
+   * Berührung (Daria, 2026-11-13): Der gewählte Knopf ist papierweiß. Beim Tippen wird er sofort lila und geht nach
+   * dem Loslassen in gut einer halben Sekunde sichtbar zurück zu Papier. Vorher lief der Übergang über Sekunden und
+   * war erst am Ende zu sehen.
+   */
+  const glow = useRef(new Animated.Value(0)).current;
+  const pressIn = () => {
+    glow.stopAnimation();
+    glow.setValue(1);
+  };
+  const pressOut = () => {
+    Animated.timing(glow, {
+      toValue: 0,
+      duration: GLOW_FADE,
+      delay: GLOW_HOLD,
+      easing: Easing.out(Easing.quad),
+      useNativeDriver: false,
+    }).start();
+  };
   useEffect(() => {
     if (progress) return;
     if (!placed.current) {
@@ -406,7 +425,15 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
       ) : null}
       {knobRest ? (
         <View pointerEvents="none" style={styles.physical}>
-          <HandKnob pos={pos} shift={withLead ? 1 : 0} rest={knobRest} single={knobRest.length < 2} height={barHeight - 2 * BAR_PAD} fill={fill} />
+          <HandKnob
+            pos={pos}
+            shift={withLead ? 1 : 0}
+            rest={knobRest}
+            single={knobRest.length < 2}
+            height={barHeight - 2 * BAR_PAD}
+            fill={fill}
+            glow={privateOn || accent ? undefined : glow}
+          />
         </View>
       ) : null}
       {/* Zwischen den Spuren liegt der Bildschirm-Hintergrund wie Papier über dem Knopf */}
@@ -416,6 +443,8 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
           accessibilityRole="tab"
           accessibilityState={{ selected: lead.active }}
           onPress={lead.onPress}
+          onPressIn={pressIn}
+          onPressOut={pressOut}
           onLayout={(e) => {
             const { x, width: w, height: h } = e.nativeEvent.layout;
             const box = { x, width: w, height: h };
@@ -469,6 +498,8 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
               accessibilityLabel={tab.planned ? t('{label}, kommt später', { label: t(tab.label) }) : t(tab.label)}
               accessibilityState={{ selected }}
               onPress={() => onChange(tab.key)}
+              onPressIn={pressIn}
+              onPressOut={pressOut}
               style={[styles.segment, { paddingHorizontal: pad }, selected ? styles.noShrink : Number.isFinite(cap) && { maxWidth: Animated.add(Animated.multiply(pad, 2), cap) }, !ready && selected && styles.segmentSelected]}
             >
               <View style={styles.segmentInner}>
@@ -535,6 +566,7 @@ function HandKnob({
   single,
   height,
   fill,
+  glow,
 }: {
   pos: Animated.Value | Animated.AnimatedInterpolation<number>;
   /** Wird zur Lage addiert, z. B. 1, wenn links eine eigene Spur mit Lage -1 liegt */
@@ -543,7 +575,16 @@ function HandKnob({
   single: boolean;
   height: number;
   fill: string;
+  /** 1 = lila (berührt), 0 = `fill`; ohne `glow` bleibt der Knopf in `fill` */
+  glow?: Animated.Value;
 }) {
+  const [lit, setLit] = useState(0);
+  useEffect(() => {
+    if (!glow) return setLit(0);
+    const id = glow.addListener(({ value }) => setLit(value));
+    return () => glow.removeListener(id);
+  }, [glow]);
+  const shown = lit > 0 ? mixHex(fill, color.accent.primary, lit) : fill;
   const now = () => (pos as unknown as { __getValue?: () => number }).__getValue?.() ?? 0;
   const [at, setAt] = useState(now);
   useEffect(() => {
@@ -565,11 +606,23 @@ function HandKnob({
     <View pointerEvents="none" style={{ position: 'absolute', left: left - m, top: BAR_PAD - m }}>
       <Svg width={width + 2 * m} height={height + 2 * m}>
         <G transform={`translate(${m} ${m}) rotate(2 ${width / 2} ${height / 2})`}>
-          <Path d={d} fill={fill} />
+          <Path d={d} fill={shown} />
         </G>
       </Svg>
     </View>
   );
+}
+
+/** Lila bleibt kurz stehen, während der Knopf noch gleitet, dann geht er zurück zu Papier */
+const GLOW_HOLD = 250;
+const GLOW_FADE = 550;
+
+/** Mischt zwei Farben „#RRGGBB“, `t` = 0 ergibt `a`, 1 ergibt `b` */
+function mixHex(a: string, b: string, t: number): string {
+  const p = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  if (!/^#[0-9a-f]{6}$/i.test(a) || !/^#[0-9a-f]{6}$/i.test(b)) return t < 0.5 ? a : b;
+  const [x, y] = [p(a), p(b)];
+  return `#${x.map((v, i) => Math.round(v + (y[i] - v) * t).toString(16).padStart(2, '0')).join('')}`;
 }
 
 /** Seitliche Polsterung je Reiter und Zuschlag für den gewählten Reiter */

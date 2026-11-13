@@ -1,18 +1,20 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { SvgXml } from 'react-native-svg';
 
 import type { ShowcaseHit } from '../data/showcase';
 import { t } from '../data/texts';
 import { useAccentColor } from '../theme/signal';
 import { color, radius, space, stroke, text } from '../theme/tokens';
 import { IconButton } from './IconButton';
+import { phXml } from './icons/fashionableSvgs';
 import { ShowcaseLogo } from './ShowcasePlaceholder';
 import { Text } from './T';
 
 /**
  * Suchfeld im Kiez- und Überall-Feed, unter dem Umschalter (Daria, 2026-11-13). Sucht öffentliche Schaufenster.
- * Ohne Lupe: Es gibt kein Such-Icon im Icon-Regelwerk, der Platzhalter sagt, was das Feld tut. Das Kreuz leert die
- * Suche und bringt den Feed zurück.
+ * Fläche wie der Umschalter darüber, Rand nur im aktiven Feld, Lupe vorn (Daria, 2026-11-13). Die Lupe kommt aus
+ * Phosphor, bis es ein eigenes Such-Icon gibt. Das Kreuz leert die Suche und bringt den Feed zurück.
  */
 export function ShowcaseSearchField({
   value,
@@ -28,7 +30,8 @@ export function ShowcaseSearchField({
   const [focused, setFocused] = useState(false);
   const accent = useAccentColor();
   return (
-    <View style={[styles.field, { borderColor: focused ? accent : color.text.secondary }, focused && styles.fieldFocused]}>
+    <View style={[styles.field, focused && { borderColor: accent }]}>
+      <SvgXml xml={phXml('magnifying-glass', color.text.secondary)} width={SEARCH_ICON} height={SEARCH_ICON} accessible={false} />
       <TextInput
         value={value}
         onChangeText={onChangeText}
@@ -77,20 +80,26 @@ export function ShowcaseHitRow({ hit, onPress }: { hit: ShowcaseHit; onPress: ()
   );
 }
 
+const SEARCH_ICON = 18;
+
 const styles = StyleSheet.create({
   field: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: space[8],
     minHeight: 44,
     marginHorizontal: space[16],
+    // Etwas mehr Abstand zum Umschalter (Daria, 2026-11-13)
+    marginTop: space[4],
     marginBottom: space[8],
-    paddingLeft: space[12],
-    paddingRight: space[4],
-    borderWidth: stroke.thin,
+    // Abzüglich des Rands, der immer da ist und nur im aktiven Feld Farbe bekommt; so springt nichts
+    paddingLeft: space[12] - stroke.focus,
+    paddingRight: space[4] - stroke.focus,
+    borderWidth: stroke.focus,
+    borderColor: 'transparent',
     borderRadius: radius.sm,
+    backgroundColor: color.bg.surface,
   },
-  // Aktives Feld mit kräftigerem Rand; das Innere rückt um die Differenz ein, damit nichts springt
-  fieldFocused: { borderWidth: stroke.focus, paddingLeft: space[12] - (stroke.focus - stroke.thin) },
   input: { ...text.body, flex: 1, color: color.text.primary, paddingVertical: space[8] },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingHorizontal: space[16] },
   pressed: { opacity: 0.6 },
