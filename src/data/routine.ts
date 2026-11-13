@@ -1,4 +1,4 @@
-import { useCalendarShown, useRoutineShown, useRoutineStandardSaved } from './features';
+import { useRoutineShown, useRoutineStandardSaved } from './features';
 import { useFeature } from './freischaltung';
 import { useStore } from './store';
 
@@ -37,12 +37,11 @@ export function useCalendarAvailable(): boolean {
 }
 
 /**
- * Kalender an: verfügbar, Routine nicht ausgeblendet und unter Einstellungen › Kalender nicht ausgeschaltet. Der Schalter
- * gilt unabhängig davon, ob ein Kalender eingerichtet ist (Daria, 2026-11-10).
+ * Kalender an: verfügbar und Routine nicht ausgeblendet. Seit 2026-11-13 hat jeder Kalender und der Export einen
+ * eigenen Schalter unter Funktionen › Kalender (Daria); einen Schalter für den ganzen Kalender gibt es nicht mehr.
  */
 export function useCalendarEnabled(): boolean {
   const available = useCalendarAvailable();
   const routine = useRoutineShown();
-  const shown = useCalendarShown();
-  return available && routine && shown;
+  return available && routine;
 }
