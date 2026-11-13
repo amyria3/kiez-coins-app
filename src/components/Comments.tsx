@@ -7,6 +7,7 @@ import { Text } from './T';
 
 import { formatRelative } from '../data/format';
 import type { Comment as CommentData, ImageSource, User } from '../data/types';
+import { useFocusColor } from '../theme/signal';
 import { color, font, radius, scheme, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { IconButton } from './IconButton';
@@ -250,6 +251,7 @@ export function CommentComposer({ placeholder, onSend, allowImage, replyTo, onCa
   // Nur direkt nach dem Einsetzen eines Namens gesetzt, damit der Cursor hinter dem Namen landet
   const [selection, setSelection] = useState<{ start: number; end: number } | undefined>();
   const [focused, setFocused] = useState(false);
+  const focusColor = useFocusColor();
   // Browser: Das Textfeld wäre sonst zwei Zeilen hoch und der Platzhalter säße oben. Eine Zeile, dann wächst es mit
   // dem Text, so steht der Platzhalter mittig (Daria, 2026-11-09).
   const [webHeight, setWebHeight] = useState(0);
@@ -333,7 +335,7 @@ export function CommentComposer({ placeholder, onSend, allowImage, replyTo, onCa
         </View>
       ) : null}
     {/* Aktives Feld mit lila Rand wie alle Eingabefelder (Daria, 2026-11-09) */}
-    <View style={[styles.composer, focused && styles.composerFocused]}>
+    <View style={[styles.composer, focused && { borderColor: focusColor }]}>
       <TextInput
         ref={inputRef}
         style={[styles.input, Platform.OS === 'web' && webHeight ? { height: Math.min(120, webHeight) } : null]}
@@ -355,7 +357,7 @@ export function CommentComposer({ placeholder, onSend, allowImage, replyTo, onCa
           reveal();
         }}
         onBlur={() => setFocused(false)}
-        selectionColor={color.accent.focus}
+        selectionColor={focusColor}
         multiline
         {...(Platform.OS === 'web' ? ({ rows: 1 } as object) : null)}
         onContentSizeChange={
@@ -585,6 +587,5 @@ const styles = StyleSheet.create({
     borderWidth: stroke.focus,
     borderColor: 'transparent',
   },
-  composerFocused: { borderColor: color.accent.focus },
   input: { ...text.body, flex: 1, color: color.text.primary, paddingVertical: space[8], maxHeight: 120 },
 });

@@ -11,6 +11,7 @@ import { loadThread, markRead, refreshUnread, sendMessage, subscribeMessages, ty
 import { errorText } from '../../data/remote';
 import { useStore } from '../../data/store';
 import type { User } from '../../data/types';
+import { useFocusColor } from '../../theme/signal';
 import { color, radius, size, space, stroke, text } from '../../theme/tokens';
 import { localeTag, t } from '../../data/texts';
 import { useGoBack } from '../../lib/goBack';
@@ -38,6 +39,7 @@ export default function ChatThread() {
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [focused, setFocused] = useState(false);
+  const focusColor = useFocusColor();
   const listRef = useRef<FlatList<ChatMessage>>(null);
 
   useEffect(() => {
@@ -133,14 +135,14 @@ export default function ChatThread() {
           }}
         />
         {/* Aktives Feld mit lila Rand wie alle Eingabefelder (Daria, 2026-11-09) */}
-        <View style={[styles.composer, focused && styles.composerFocused, { marginBottom: Math.max(insets.bottom, space[12]) }]}>
+        <View style={[styles.composer, focused && { borderColor: focusColor }, { marginBottom: Math.max(insets.bottom, space[12]) }]}>
           <TextInput
             style={styles.input}
             value={draft}
             onChangeText={setDraft}
             placeholder={t('Nachricht an {name}', { name: friend.name })}
             placeholderTextColor={color.text.placeholder}
-            selectionColor={color.accent.focus}
+            selectionColor={focusColor}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             multiline
@@ -196,7 +198,6 @@ const styles = StyleSheet.create({
     borderWidth: stroke.focus,
     borderColor: 'transparent',
   },
-  composerFocused: { borderColor: color.accent.focus },
   input: { ...text.body, flex: 1, color: color.text.primary, maxHeight: 120, paddingVertical: space[8] },
   send: {
     width: 40,

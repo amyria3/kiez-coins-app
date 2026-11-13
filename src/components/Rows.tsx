@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from './T';
 
 import type { User } from '../data/types';
+import { useFocusColor } from '../theme/signal';
 import { color, font, isFashionable, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
 import { Icon } from './icons/Icon';
@@ -30,6 +31,7 @@ type EditableRowProps = {
  */
 export function EditableRow({ label, value, onSave, renderEditor, maxLength, allowEmpty, placeholder, multiline, keyboardType }: EditableRowProps) {
   const [editing, setEditing] = useState(false);
+  const focusColor = useFocusColor();
   const [draft, setDraft] = useState(value);
   // Speichern genau einmal: beim Häkchen oder beim Verlassen des Felds. Das Feld verliert den Fokus,
   // bevor das Häkchen den Tipp bekommt, deshalb speichert schon onBlur.
@@ -63,7 +65,7 @@ export function EditableRow({ label, value, onSave, renderEditor, maxLength, all
   }
 
   return (
-    <View style={[styles.row, styles.editing]}>
+    <View style={[styles.row, styles.editing, { borderColor: focusColor }]}>
       <View style={styles.texts}>
         <Text style={styles.label}>{label}</Text>
         {renderEditor ? (
@@ -86,7 +88,7 @@ export function EditableRow({ label, value, onSave, renderEditor, maxLength, all
             placeholder={placeholder}
             placeholderTextColor={color.text.placeholder}
             accessibilityLabel={label}
-            selectionColor={color.accent.focus}
+            selectionColor={focusColor}
           />
         )}
       </View>
@@ -232,7 +234,6 @@ const styles = StyleSheet.create({
   // Aktives Feld mit kräftigerem lila Rand wie alle Eingabefelder (stroke.focus, Daria, 2026-11-09); Abstände um die Differenz kleiner
   editing: {
     borderWidth: stroke.focus,
-    borderColor: color.accent.focus,
     paddingVertical: space[4] - (stroke.focus - stroke.thin),
     paddingRight: space[4] - (stroke.focus - stroke.thin),
     paddingLeft: space[12] - (stroke.focus - stroke.thin),
