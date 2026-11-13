@@ -47,6 +47,8 @@ export default function Tour() {
   const { width } = useAppDimensions();
   const pager = useRef<ScrollView>(null);
   const [page, setPage] = useState(0);
+  // Finger auf einer Karte zum Wischen (Routine): Solange blättert die Tour nicht
+  const [locked, setLocked] = useState(false);
   // Seiten zu verborgenen Modi entfallen, z. B. „Gruppen“ bei verborgenem Modus Gruppe
   const modes = useModes();
   // Kalender und Schaufenster nur, wenn sie freigeschaltet sind; die Schalter am Schluss brauchen ein Konto
@@ -134,6 +136,7 @@ export default function Tour() {
         ref={pager}
         horizontal
         pagingEnabled
+        scrollEnabled={!locked}
         showsHorizontalScrollIndicator={false}
         onScroll={onScroll}
         scrollEventThrottle={32}
@@ -193,7 +196,7 @@ export default function Tour() {
               </ScrollView>
             ) : (
               <>
-                <TourMedia step={step} active={i === page} />
+                <TourMedia step={step} active={i === page} onLock={setLocked} />
                 {/* Langer Text auf kleinen Bildschirmen: Er lässt sich scrollen, statt abgeschnitten zu werden */}
                 <ScrollView style={styles.textBlock} contentContainerStyle={styles.textContent} showsVerticalScrollIndicator={false}>
                   <Text style={styles.title} accessibilityRole="header">
@@ -326,7 +329,7 @@ const LIKE_HEARTS = [
  * Die Fläche passt sich dem Bildschirm an, der Text darunter bleibt ganz sichtbar (Daria, 29.10.2026).
  * Deshalb misst die Vorschau Fläche und Inhalt und verkleinert den Inhalt, bis er hineinpasst.
  */
-function TourPreview({ stepKey }: { stepKey: string }) {
+function TourPreview({ stepKey, onLock }: { stepKey: string; onLock: (on: boolean) => void }) {
   const scroll = useRef<ScrollView>(null);
   const offset = useRef(0);
   const [cue, setCue] = useState('');
@@ -355,6 +358,7 @@ function TourPreview({ stepKey }: { stepKey: string }) {
       blur: (view: View | null) => {
         if (target.current === view) target.current = null;
       },
+      lock: onLock,
       // Neuer Schritt: erst nach oben, dann wieder zum Ziel, falls es geblieben ist
       cue: (next: string) => {
         setCue(next);
@@ -364,7 +368,7 @@ function TourPreview({ stepKey }: { stepKey: string }) {
         }, 120);
       },
     };
-  }, []);
+  }, [onLock]);
   return (
     <DemoFocus.Provider value={frame}>
       <View style={styles.previewBox}>
@@ -392,12 +396,12 @@ function TourPreview({ stepKey }: { stepKey: string }) {
 }
 
 /** Video der Seite, läuft nur, solange die Seite zu sehen ist. Ohne Video echte Elemente der App. */
-function TourMedia({ step, active }: { step: TourStep; active: boolean }) {
+function TourMedia({ step, active, onLock }: { step: TourStep; active: boolean; onLock: (on: boolean) => void }) {
   if (!step.video) {
     return (
       <View style={styles.media}>
         {/* Neuer key beim Zurückkommen: Das Beispiel fängt wieder von vorn an */}
-        <TourPreview key={active ? 'aktiv' : 'ruhig'} stepKey={step.key} />
+        <TourPreview key={active ? 'aktiv' : 'ruhig'} stepKey={step.key} onLock={onLock} />
       </View>
     );
   }

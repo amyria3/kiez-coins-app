@@ -1,6 +1,6 @@
 # Aufgaben: Erledigt, Aufgeben, Abbrechen. Schaufenster weiterposten. Tutorial
 
-Pflichtaufgabe: Migration `supabase/migrations/20261113000200_erinnerung_ausgang.sql` im Supabase SQL Editor einspielen (nach `20261110000100_erinnerungen`). Ohne sie enden Erinnerungen weiter, aber „aufgegeben“ und „abgebrochen“ werden nicht gezählt.
+Pflichtaufgabe: Migration `supabase/migrations/20261113000400_erinnerung_ausgang.sql` im Supabase SQL Editor einspielen (nach `20261110000100_erinnerungen`). Ohne sie enden Erinnerungen weiter, aber „aufgegeben“ und „abgebrochen“ werden nicht gezählt.
 
 - Datum: 2026-11-13
 - Status: offen, bis die Migration eingespielt ist. Code im PR „Aufgaben-Knöpfe, Schaufenster weiterposten, Tutorial“.
@@ -24,6 +24,8 @@ Pflichtaufgabe: Migration `supabase/migrations/20261113000200_erinnerung_ausgang
 - Termin-Karten behalten „Beenden“ und „Erledigt“. „Beenden“ zählt als abgebrochen.
 - Look „Fashionable“ (Liste): Links „Aufgeben“ und „Das hier abbrechen“ statt „Beenden“.
 - Schaufenster: Posts über das Erstellen-Blatt gingen schon weiter. Neu ist das Formular `schaufenster/[id]/post` (Knopf „Post erstellen“ in der Schaufenster-Übersicht): Es zeigt die Karte „Weiterposten“ und postet nach dem Veröffentlichen weiter. Keine Änderung an der Edge Function.
+- Tutorial, Seite zur Routine: Die Karte lässt sich dort wischen (nach rechts erledigt, nach links abbrechen), Hinweis und Text nennen es (Daria, 2026-11-13). Solange der Finger auf der Karte liegt, blättert die Tour nicht.
+- Die Migration heißt `20261113000400`, weil main die Nummer `000200` am selben Tag auch für Weiterposten vergeben hat.
 - Tutorial: Seiten `kalender`, `schaufenster`, `funktionen` in `src/data/tour.ts`, Beispiele in `src/components/tour/TourDemo.tsx`. Kalender und Schaufenster erscheinen nur, wenn die Features `routine` und `schaufenster` freigeschaltet sind. Die Seite mit den Schaltern erscheint nur mit Konto.
 
 ## Offene Fragen an Daria
@@ -34,4 +36,4 @@ Pflichtaufgabe: Migration `supabase/migrations/20261113000200_erinnerung_ausgang
 
 ## Betroffene Dateien
 
-`src/components/RoutineList.tsx`, `src/components/RoutineContent.tsx`, `src/components/ShowcaseManage.tsx`, `src/data/reminders.ts`, `src/app/schaufenster/[id]/post.tsx`, `src/app/tour.tsx`, `src/data/tour.ts`, `src/components/tour/TourDemo.tsx`, `src/i18n/en.json`, `supabase/migrations/20261113000200_erinnerung_ausgang.sql`
+`src/components/RoutineList.tsx`, `src/components/RoutineContent.tsx`, `src/components/ShowcaseManage.tsx`, `src/data/reminders.ts`, `src/app/schaufenster/[id]/post.tsx`, `src/app/tour.tsx`, `src/data/tour.ts`, `src/components/tour/TourDemo.tsx`, `src/i18n/en.json`, `supabase/migrations/20261113000400_erinnerung_ausgang.sql`
