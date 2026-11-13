@@ -6,6 +6,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { Button } from '../../../components/Button';
 import { FieldGroup, Notice } from '../../../components/Content';
 import { Chip, ChipGroup, choosePhoto, TextField } from '../../../components/Form';
+import { useNudge } from '../../../components/Nudge';
 import { SubScreen } from '../../../components/Screen';
 import { Text } from '../../../components/T';
 import { Icon } from '../../../components/icons/Icon';
@@ -53,6 +54,18 @@ export default function NewShowcaseEvent() {
     return e <= start ? addDays(1, e) : e;
   })() : undefined;
   const ready = !!title.trim() && !!start && untilOk;
+  // Grauer Button zeigt aufs erste Feld, das noch fehlt (Daria, 2026-11-13)
+  const titleField = useNudge();
+  const dateField = useNudge();
+  const fromField = useNudge();
+  const untilField = useNudge();
+  const whyDisabled = () => {
+    if (busy) return;
+    if (!title.trim()) return titleField.nudge('Gib einen Titel ein.');
+    if (!onDate) return dateField.nudge('Gib ein Datum ein, z. B. 24.12.');
+    if (!fromOk) return fromField.nudge('Gib eine Uhrzeit ein, z. B. 19:00.');
+    if (!untilOk) return untilField.nudge('Bitte so: 22:00');
+  };
 
   const save = async () => {
     if (!start) return;
@@ -69,7 +82,7 @@ export default function NewShowcaseEvent() {
   };
 
   return (
-    <SubScreen title="Termin erstellen" navigation="back" onLeadingPress={goBack} actions={<Button label="Termin erstellen" busy={busy} disabled={!ready} onPress={save} />}>
+    <SubScreen title="Termin erstellen" navigation="back" onLeadingPress={goBack} actions={<Button label="Termin erstellen" busy={busy} disabled={!ready} whyDisabled={whyDisabled} onPress={save} />}>
       <Pressable onPress={() => choosePhoto(setImage, { title: 'Bild zum Termin' })} accessibilityRole="button" accessibilityLabel={t('Bild wählen')} style={styles.image}>
         {image ? <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" /> : (
           <>
@@ -78,7 +91,7 @@ export default function NewShowcaseEvent() {
           </>
         )}
       </Pressable>
-      <TextField label="Titel" required value={title} onChangeText={setTitle} maxLength={80} placeholder="Flohmarkt im Hof" />
+      <TextField label="Titel" required value={title} onChangeText={setTitle} maxLength={80} placeholder="Flohmarkt im Hof" nudge={titleField} />
       <FieldGroup label="Wann?">
         <ChipGroup>
           <Chip label="Heute" selected={day === 'today'} onPress={() => setDay('today')} />
@@ -92,6 +105,7 @@ export default function NewShowcaseEvent() {
             onChangeText={setDate}
             placeholder="Datum im Format 01.01. oder 01.01.2001"
             keyboardType="numbers-and-punctuation"
+            nudge={dateField}
             error={!date.trim() || parseDate(date) ? undefined : 'Bitte so: 01.01. oder 01.01.2001'}
           />
         ) : null}
@@ -102,8 +116,9 @@ export default function NewShowcaseEvent() {
               required
               value={from}
               onChangeText={setFrom}
-              placeholder="19:00"
+              placeholder="Format 19:00"
               keyboardType="numbers-and-punctuation"
+              nudge={fromField}
               error={!from.trim() || fromOk ? undefined : 'Bitte so: 19:00'}
             />
           </View>
@@ -112,8 +127,9 @@ export default function NewShowcaseEvent() {
               label="Ende"
               value={until}
               onChangeText={setUntil}
-              placeholder="22:00"
+              placeholder="Format 22:00"
               keyboardType="numbers-and-punctuation"
+              nudge={untilField}
               error={untilOk ? undefined : 'Bitte so: 22:00'}
             />
           </View>

@@ -84,7 +84,7 @@ export function EditableRow({ label, value, onSave, renderEditor, maxLength, all
             autoCapitalize={keyboardType === 'url' ? 'none' : undefined}
             autoCorrect={keyboardType === 'url' ? false : undefined}
             placeholder={placeholder}
-            placeholderTextColor={color.text.secondary}
+            placeholderTextColor={color.text.placeholder}
             accessibilityLabel={label}
             selectionColor={color.accent.primary}
           />
