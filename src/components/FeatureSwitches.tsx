@@ -92,8 +92,9 @@ export function FeatureSwitches({ children }: { children?: ReactNode } = {}) {
         {routineAvailable ? (
           <View style={styles.row}>
             <View style={[styles.texts, !routineShown && styles.dim]}>
-              <Text style={[text.body, { color: color.text.primary }]}>Erinnerungen</Text>
-              <Text style={[text.caption, { color: color.text.secondary }]}>Knopf „Routine“ im Feed und der Kater, der Dich erinnert.</Text>
+              {/* Routine als Ganzes, darin Erinnerungen und Kalender (Daria, 2026-11-13; vorher „Erinnerungen“) */}
+              <Text style={[text.body, { color: color.text.primary }]}>Routine</Text>
+              <Text style={[text.caption, { color: color.text.secondary }]}>Erinnerungen, Termine und der Kater, der Dich erinnert.</Text>
             </View>
             <Toggle label="Routine" value={routineShown} onValueChange={(v) => currentUserId && setRoutineShown(currentUserId, v)} />
           </View>
