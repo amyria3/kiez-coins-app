@@ -240,7 +240,7 @@ const HAND_KW = Math.round(HAND_KH * ((SWITCH_KNOB.x1 - SWITCH_KNOB.x0) / (SWITC
 const HAND_INSET = Math.round(HAND_H * 0.13);
 const HAND_TRACK = fitShape(SWITCH_TRACK, HAND_W, HAND_H);
 const HAND_KNOB = fitShape(SWITCH_KNOB, HAND_KW, HAND_KH);
-const HAND_OFF = '#45466F';
+const HAND_OFF = color.toggle.off;
 
 function HandSwitch({ label, value, onValueChange }: { label: string; value: boolean; onValueChange: (v: boolean) => void }) {
   // An: Gelbgrün statt Lila (Daria, 2026-11-13)

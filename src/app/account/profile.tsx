@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     borderRadius: radius.full,
-    backgroundColor: 'rgba(35, 35, 38, 0.6)',
+    backgroundColor: color.overlay.strong,
     alignItems: 'center',
     justifyContent: 'center',
   },
