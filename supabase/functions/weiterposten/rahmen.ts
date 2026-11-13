@@ -1,7 +1,9 @@
 // Rahmen für Weiterposts (Daria, 13.11.2026): dasselbe Bild wie beim Teilen im Browser (src/lib/sheetImages.ts,
 // framePhotoFiles), hier auf dem Server gezeichnet, damit es auf allen Geräten gleich aussieht.
 // Weißer Rand, oben links Profilbild und Name, unten rechts das Logo (abschaltbar), Foto mit runden Ecken.
-import { Image, TextLayout } from 'npm:imagescript@1.3.0';
+// Die Deno-Fassung: Die npm-Fassung braucht eine native Datei, die es im Supabase-Edge-Runtime nicht gibt
+// (Absturz beim Start, 13.11.2026).
+import { Image, TextLayout } from 'https://deno.land/x/imagescript@1.3.0/mod.ts';
 import { decodeBase64 } from 'jsr:@std/encoding@1/base64';
 
 import { LOGO_PNG } from './logo.ts';

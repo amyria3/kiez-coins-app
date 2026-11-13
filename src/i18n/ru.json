@@ -1343,5 +1343,7 @@
   "Ein öffentliches Schaufenster ist ohne Anmeldung im Internet sichtbar und kann in Suchmaschinen erscheinen.": "Публичная витрина видна в интернете без входа и может появляться в поисковых системах.",
   "Ohne Konto legt KiezCoins beim Anmelden eins an. Wie KiezCoins Deine Daten verarbeitet, steht in der Datenschutzerklärung.": "Если у тебя ещё нет аккаунта, KiezCoins создаст его при входе. Как KiezCoins обрабатывает твои данные, описано в политике конфиденциальности.",
   "Deine Erinnerungen": "Твои напоминания",
-  "{group} Schaufenster": "Витрина {group}"
+  "{group} Schaufenster": "Витрина {group}",
+  "KiezCoins-Logo im Rahmen": "Логотип KiezCoins в рамке",
+  "Mit Rahmen und Namen": "С рамкой и именем"
 }
