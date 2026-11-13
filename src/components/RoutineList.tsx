@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, memo, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { AccessibilityInfo, Alert, Animated, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { markCardSwipe } from '../lib/cardSwipe';
@@ -43,7 +43,11 @@ const GUTTER = space[20];
 
 type Saved = ShowcaseEvent & { showcase: string };
 
-export function RoutineList({
+/**
+ * `memo`: Die Seite rendert neu, wenn eine Karte angehoben wird (Scrollen sperren). Die Karten sollen dabei nicht
+ * neu rendern (Daria, 2026-11-13: „die App flackert“).
+ */
+export const RoutineList = memo(function RoutineList({
   list,
   events,
   saved,
@@ -121,7 +125,7 @@ export function RoutineList({
       </View>
     </PageLock.Provider>
   );
-}
+});
 
 const noLock = () => {};
 
@@ -149,13 +153,16 @@ function useLater() {
       () => {},
     );
   }, []);
-  const snooze = (id: string) =>
-    setLater((all) => {
-      const next = Object.fromEntries(Object.entries(all).filter(([, until]) => until > Date.now()));
-      next[id] = Date.now() + LATER_MS;
-      AsyncStorage.setItem(LATER_KEY, JSON.stringify(next)).catch(() => {});
-      return next;
-    });
+  const snooze = useCallback(
+    (id: string) =>
+      setLater((all) => {
+        const next = Object.fromEntries(Object.entries(all).filter(([, until]) => until > Date.now()));
+        next[id] = Date.now() + LATER_MS;
+        AsyncStorage.setItem(LATER_KEY, JSON.stringify(next)).catch(() => {});
+        return next;
+      }),
+    [],
+  );
   return { later, snooze };
 }
 
@@ -422,13 +429,20 @@ function Card({
     };
   }, [urgent, reduce, native, wobble]);
   const tilt = tiltOf(tiltKey);
-  // Schräge, beim Anheben etwas mehr, beim Wackeln ±2,5°, beim Ziehen neigt sie sich mit
-  const degrees = Animated.add(
-    drag.lift.interpolate({ inputRange: [0, 1], outputRange: [tilt, tilt + (tilt >= 0 ? 1.5 : -1.5)] }),
-    Animated.add(Animated.multiply(wobble, 2.5), Animated.multiply(drag.pos.x, 0.04)),
-  );
-  const rotate = degrees.interpolate({ inputRange: [-90, 90], outputRange: ['-90deg', '90deg'] });
-  const scale = drag.lift.interpolate({ inputRange: [0, 1], outputRange: [1, 1.04] });
+  // Schräge, beim Anheben etwas mehr, beim Wackeln ±2,5°, beim Ziehen neigt sie sich mit.
+  // Einmal anlegen, nicht bei jedem Rendern: Neue Animationsknoten setzen die Karte für ein Bild zurück, das flackert
+  // beim Tippen und Halten (Daria, 2026-11-13).
+  const { rotate, scale } = useMemo(() => {
+    const degrees = Animated.add(
+      drag.lift.interpolate({ inputRange: [0, 1], outputRange: [tilt, tilt + (tilt >= 0 ? 1.5 : -1.5)] }),
+      Animated.add(Animated.multiply(wobble, 2.5), Animated.multiply(drag.pos.x, 0.04)),
+    );
+    return {
+      rotate: degrees.interpolate({ inputRange: [-90, 90], outputRange: ['-90deg', '90deg'] }),
+      scale: drag.lift.interpolate({ inputRange: [0, 1], outputRange: [1, 1.04] }),
+    };
+  }, [tilt, drag.lift, drag.pos, wobble]);
+  const transform = useMemo(() => [{ translateX: drag.pos.x }, { translateY: drag.pos.y }, { rotate }, { scale }], [drag.pos, rotate, scale]);
 
   const kater = (
     // Ring in der Farbe des Grunds (Daria, 2026-11-12)
@@ -501,7 +515,7 @@ function Card({
   return (
     <View style={[styles.swipe, drag.lifted && styles.swipeLifted]} onTouchEnd={drag.touchEnd} onTouchCancel={drag.touchEnd}>
       <Animated.View
-        style={[styles.swipe, { transform: [{ translateX: drag.pos.x }, { translateY: drag.pos.y }, { rotate }, { scale }] }]}
+        style={[styles.swipe, { transform }]}
         {...drag.handlers}
       >
         {card}
@@ -533,20 +547,22 @@ function DragFace({
   label: string;
   align: 'flex-start' | 'flex-end' | 'center';
 }) {
-  // Stufen: 0 – halbe Schwelle – kurz vor der Schwelle – Schwelle
-  const range = (a: number, b: number, c: number, d: number) => ({
-    inputRange: sign > 0 ? [0, at / 2, at - 1, at] : [-at, -at + 1, -at / 2, 0],
-    outputRange: sign > 0 ? [a, b, c, d] : [d, c, b, a],
-    extrapolate: 'clamp' as const,
-  });
+  // Stufen: 0 – halbe Schwelle – kurz vor der Schwelle – Schwelle. Einmal anlegen, siehe Card.
+  const anim = useMemo(() => {
+    const range = (a: number, b: number, c: number, d: number) => ({
+      inputRange: sign > 0 ? [0, at / 2, at - 1, at] : [-at, -at + 1, -at / 2, 0],
+      outputRange: sign > 0 ? [a, b, c, d] : [d, c, b, a],
+      extrapolate: 'clamp' as const,
+    });
+    return {
+      face: value.interpolate(range(0, 0.25, 0.5, 0.96)),
+      label: value.interpolate(range(0, 0, 0.6, 1)),
+      scale: [{ scale: value.interpolate(range(0.85, 0.85, 0.92, 1.08)) }],
+    };
+  }, [value, sign, at]);
   return (
-    <Animated.View style={[styles.dragFaceLayer, { backgroundColor: bg, alignItems: align, opacity: value.interpolate(range(0, 0.25, 0.5, 0.96)) }]}>
-      <Animated.View
-        style={[
-          styles.dragFaceLabel,
-          { opacity: value.interpolate(range(0, 0, 0.6, 1)), transform: [{ scale: value.interpolate(range(0.85, 0.85, 0.92, 1.08)) }] },
-        ]}
-      >
+    <Animated.View style={[styles.dragFaceLayer, { backgroundColor: bg, alignItems: align, opacity: anim.face }]}>
+      <Animated.View style={[styles.dragFaceLabel, { opacity: anim.label, transform: anim.scale }]}>
         <Icon name={icon} size={28} color={ink} />
         <Text style={[styles.dragFaceText, { color: ink }]}>{label}</Text>
       </Animated.View>
