@@ -11,12 +11,22 @@ import { capitalize, goalOf, loadReminders, markReminderDone, routineLabel, setR
 import { t } from '../../data/texts';
 import { useGoBack } from '../../lib/goBack';
 import { color, space } from '../../theme/tokens';
+import { MeSpaceScreen } from '../../theme/signal';
 
 /**
  * Route `routine/[id]` (Daria, 2026-11-10): Erledigt melden. Standard ist das Posten als Me-Challenge mit Titel
  * und Beschreibung als Vorher-Text, die Markierung kommt als Pille dazu. Abhaken ohne Post geht auch.
  */
-export default function ReminderDone() {
+/** Gehört zu „Me & Myself“: gelb wie die Routine (Daria, 2026-11-13) */
+export default function ReminderDoneScreen() {
+  return (
+    <MeSpaceScreen>
+      <ReminderDone />
+    </MeSpaceScreen>
+  );
+}
+
+function ReminderDone() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const goBack = useGoBack();
   const router = useRouter();

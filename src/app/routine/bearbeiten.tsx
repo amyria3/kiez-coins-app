@@ -11,6 +11,7 @@ import { SubScreen } from '../../components/Screen';
 import { loadReminders, parseDate, TIME, updateReminder, type Reminder } from '../../data/reminders';
 import { useGoBack } from '../../lib/goBack';
 import { color, space } from '../../theme/tokens';
+import { MeSpaceScreen } from '../../theme/signal';
 
 type TimeKind = 'until' | 'at' | 'range';
 
@@ -23,7 +24,16 @@ const hhmm = (v: string) => v.trim().padStart(5, '0');
  * über ein Tippen auf Titel oder Zeit der Karte. Titel, Beschreibung, Ort, Telefon, Link, Tag und Zeit mit „bis“ (to), „um“ (around)
  * oder „von … bis“. Feste Tage ändern nur die Uhrzeit, x-mal pro Woche hat keine.
  */
-export default function EditReminder() {
+/** Gehört zu „Me & Myself“: gelb wie die Routine (Daria, 2026-11-13) */
+export default function EditReminderScreen() {
+  return (
+    <MeSpaceScreen>
+      <EditReminder />
+    </MeSpaceScreen>
+  );
+}
+
+function EditReminder() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const goBack = useGoBack();
   const router = useRouter();

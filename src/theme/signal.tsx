@@ -1,4 +1,5 @@
-import { createContext, useContext, useSyncExternalStore, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useSyncExternalStore, type ReactNode } from 'react';
+import { useFocusEffect } from 'expo-router';
 
 import { color, isFashionable } from './tokens';
 
@@ -50,10 +51,34 @@ export function useFocusColor(): string {
  */
 let frontSpace: Space = 'public';
 const frontListeners = new Set<() => void>();
-export function setFrontSpace(next: Space) {
+/** Jede Seite im Vordergrund legt ihren Bereich ab und nimmt ihn beim Verlassen wieder weg; es gilt der zuletzt abgelegte */
+const frontStack: { id: number; space: Space }[] = [];
+let frontSeq = 0;
+function updateFront() {
+  const next = frontStack.length ? frontStack[frontStack.length - 1].space : 'public';
   if (next === frontSpace) return;
   frontSpace = next;
   frontListeners.forEach((l) => l());
+}
+/** Bereich der vorderen Seite setzen. Gibt die Funktion zurück, die ihn wieder entfernt (für useFocusEffect). */
+export function pushFrontSpace(space: Space): () => void {
+  const id = ++frontSeq;
+  frontStack.push({ id, space });
+  updateFront();
+  return () => {
+    const i = frontStack.findIndex((e) => e.id === id);
+    if (i >= 0) frontStack.splice(i, 1);
+    updateFront();
+  };
+}
+
+/**
+ * Seite, die zu „Me & Myself“ gehört, z. B. Neue Erinnerung, Bearbeiten, Erledigt (Daria, 2026-11-13): gelb wie die
+ * Routine, auch in Dialogen über der Seite.
+ */
+export function MeSpaceScreen({ children }: { children: ReactNode }) {
+  useFocusEffect(useCallback(() => pushFrontSpace('me'), []));
+  return <SpaceContext.Provider value="me">{children}</SpaceContext.Provider>;
 }
 export function useFrontSpace(): Space {
   return useSyncExternalStore(

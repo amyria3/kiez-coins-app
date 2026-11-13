@@ -12,13 +12,23 @@ import { WEEKDAYS, weekdayShort } from '../../data/katerRoutine';
 import { addDays, createReminder, localDate, parseDate, TIME } from '../../data/reminders';
 import { useGoBack } from '../../lib/goBack';
 import { space } from '../../theme/tokens';
+import { MeSpaceScreen } from '../../theme/signal';
 
 /**
  * Route `routine/new` (Daria, 2026-11-10): Erinnerung anlegen. Titel nach „Ich will …“, damit der Kater ihn in
  * seine Sätze einbauen kann. Ziel einmal an einem Tag (Daria, 2026-11-10: „heute bis …“, „morgen um …“,
  * „morgen von … bis …“), x-mal pro Woche oder an festen Tagen, optional mit Uhrzeit.
  */
-export default function NewReminder() {
+/** Gehört zu „Me & Myself“: gelb wie die Routine (Daria, 2026-11-13) */
+export default function NewReminderScreen() {
+  return (
+    <MeSpaceScreen>
+      <NewReminder />
+    </MeSpaceScreen>
+  );
+}
+
+function NewReminder() {
   const goBack = useGoBack();
   const router = useRouter();
   const [want, setWant] = useState('');
