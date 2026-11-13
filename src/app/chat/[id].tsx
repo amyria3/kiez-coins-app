@@ -139,7 +139,7 @@ export default function ChatThread() {
             value={draft}
             onChangeText={setDraft}
             placeholder={t('Nachricht an {name}', { name: friend.name })}
-            placeholderTextColor={color.text.secondary}
+            placeholderTextColor={color.text.placeholder}
             selectionColor={color.accent.primary}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
