@@ -232,7 +232,7 @@ function Group({ title, count, children }: { title: string; count: number; child
         </Text>
       </View>
       {/* Seitliches Wischen hier bewegt nur die Karten, nicht die Reiter im Feed (Daria, 2026-11-12) */}
-      <View onStartShouldSetResponderCapture={markCardSwipe}>
+      <View onStartShouldSetResponderCapture={markCardSwipe} onTouchEnd={() => locked && lock(false)} onTouchCancel={() => locked && lock(false)}>
         <DragLock.Provider value={lock}>
           <ScrollView
             horizontal
@@ -290,8 +290,18 @@ function useLiftDrag(actions: DragActions) {
       Animated.spring(lift, { toValue: 0, useNativeDriver: native, bounciness: 4 }),
     ]).start();
   };
+  // Nie mit gesperrter Seite zurückbleiben, auch wenn die Karte verschwindet
+  useEffect(
+    () => () => {
+      if (state.current.timer) clearTimeout(state.current.timer);
+      if (state.current.lifted) lock(false);
+    },
+    [lock],
+  );
   const pressIn = () => {
+    state.current.skipPress = false;
     if (!on) return;
+    if (state.current.timer) clearTimeout(state.current.timer);
     state.current.timer = setTimeout(() => {
       state.current.lifted = true;
       setLifted(true);
@@ -302,11 +312,19 @@ function useLiftDrag(actions: DragActions) {
   const pressOut = () => {
     if (state.current.timer) clearTimeout(state.current.timer);
     state.current.timer = null;
-    // Angehoben und ohne Ziehen losgelassen: wieder ablegen, ohne dass das Tippen zählt
-    if (state.current.lifted && !state.current.dragging) {
-      state.current.skipPress = true;
-      drop();
-    }
+    if (!state.current.lifted) return;
+    // Angehoben: Das Tippen zählt nicht. Ohne Ziehen wieder ablegen. Erst nach dem Ereignis prüfen, denn beim
+    // Ziehen endet das Tippen, bevor das Ziehen beginnt.
+    state.current.skipPress = true;
+    setTimeout(() => {
+      if (state.current.lifted && !state.current.dragging) drop();
+    }, 0);
+  };
+  /** Finger weg, egal wo: Zeitgeber stoppen und eine angehobene, nicht gezogene Karte ablegen (Sicherung, Daria 2026-11-13) */
+  const touchEnd = () => {
+    if (state.current.timer) clearTimeout(state.current.timer);
+    state.current.timer = null;
+    if (state.current.lifted && !state.current.dragging) drop();
   };
   /** Tippen nach dem Ablegen nicht als Tippen werten */
   const press = (onPress?: () => void) => () => {
@@ -318,10 +336,9 @@ function useLiftDrag(actions: DragActions) {
   };
   const pan = useRef(
     PanResponder.create({
-      onMoveShouldSetPanResponderCapture: () => {
-        if (!state.current.lifted) return false;
+      onMoveShouldSetPanResponderCapture: () => state.current.lifted,
+      onPanResponderGrant: () => {
         state.current.dragging = true;
-        return true;
       },
       onPanResponderTerminationRequest: () => false,
       onPanResponderMove: (_e, g) => {
@@ -346,7 +363,7 @@ function useLiftDrag(actions: DragActions) {
       },
     }),
   ).current;
-  return { on, pos, lift, lifted, pressIn, pressOut, press, handlers: pan.panHandlers };
+  return { on, pos, lift, lifted, pressIn, pressOut, press, touchEnd, handlers: pan.panHandlers };
 }
 
 function Card({
@@ -440,7 +457,7 @@ function Card({
     </Pressable>
   );
   return (
-    <View style={[styles.swipe, drag.lifted && styles.swipeLifted]}>
+    <View style={[styles.swipe, drag.lifted && styles.swipeLifted]} onTouchEnd={drag.touchEnd} onTouchCancel={drag.touchEnd}>
       {/* Was das Ziehen auslöst, steht hinter der Karte und erscheint beim Ziehen */}
       {drag.on ? (
         <View style={styles.swipeHints} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">

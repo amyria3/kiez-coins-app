@@ -99,6 +99,9 @@ export function RoutineContent({
       ) : flat ? (
         <ScrollView
           scrollEnabled={!dragging}
+          // Sicherung: Mit dem Finger endet die Sperre immer, damit die Seite nie stehen bleibt (Daria, 2026-11-13)
+          onTouchEnd={() => setDragging(false)}
+          onTouchCancel={() => setDragging(false)}
           onScroll={onScroll}
           scrollEventThrottle={16}
           contentContainerStyle={[styles.content, styles.contentFlat, { paddingTop: topPad, paddingBottom: 0 }]}>
