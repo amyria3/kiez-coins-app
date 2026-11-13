@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../lib/supabase';
 import { look } from '../theme/look';
 import { useFeature } from './freischaltung';
+import { loadCrosspostLook } from './crosspostLook';
 import { countButton } from './remote';
 import { useStore } from './store';
 
@@ -128,9 +129,11 @@ export async function connectCrosspost(
  */
 export async function crosspostChallenge(challengeId: string, platforms: LivePlatform[]) {
   if (!platforms.length) return {};
+  // Rahmen und Logo wie unter Funktionen gewählt (Daria, 13.11.2026)
+  const look = await loadCrosspostLook();
   const { data } = await supabase.functions.invoke<{ results?: Record<string, { url?: string; error?: string }> }>(
     'weiterposten',
-    { body: { action: 'post', challengeId, platforms } },
+    { body: { action: 'post', challengeId, platforms, look } },
   );
   return data?.results ?? {};
 }
