@@ -697,7 +697,7 @@ export const SEARCH_MIN = 2;
 
 /**
  * Öffentliche Schaufenster finden (Daria, 2026-11-13): Name, Kiez und „Über uns“, nur `public` und online.
- * Über `schaufenster_suche` (Migration 20261113000400). Fehlt sie, liest die App die Kopfdaten direkt; dann fehlt der
+ * Über `schaufenster_suche` (Migration 20261113000500). Fehlt sie, liest die App die Kopfdaten direkt; dann fehlt der
  * Ort, und ein offline geschaltetes Schaufenster der eigenen Gruppe könnte mit auftauchen.
  */
 export async function searchShowcases(query: string): Promise<ShowcaseHit[]> {
