@@ -78,14 +78,15 @@ export function RoutineContent({
           <Notice variant="warning" message="Erinnerungen laden gerade nicht. Fehlt noch die Migration 20261110000100_erinnerungen?" />
         </View>
       ) : list.length === 0 && events.length === 0 && saved.length === 0 ? (
-        <View style={[styles.center, { paddingBottom: bottomPad }]}>
+        // Scrollbar, damit „Neue Erinnerung“ auf kleinen Bildschirmen nicht hinter der Leiste liegt (Daria, 2026-11-13)
+        <ScrollView onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.centerScroll, { paddingTop: topPad, paddingBottom: bottomPad }]}>
           <KaterMessage
             title="Was willst Du Dir angewöhnen?"
             body="Sag mir, was Du vorhast. Ich erinnere Dich, ganz ohne Druck. Na gut, mit ein bisschen."
             action={<Button label="Neue Erinnerung" icon="plus" onPress={() => router.push('/routine/new')} />}
             more={calendarOn ? <Button label="Kalender verbinden" variant="ghost" onPress={() => router.push({ pathname: '/account/features', params: { abschnitt: 'kalender' } })} /> : undefined}
           />
-        </View>
+        </ScrollView>
       ) : flat ? (
         <ScrollView onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={[styles.content, styles.contentFlat, { paddingTop: topPad, paddingBottom: bottomPad }]}>
           <RoutineList
@@ -236,6 +237,7 @@ const flat = !isFashionable;
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   center: { flex: 1, justifyContent: 'center' },
+  centerScroll: { flexGrow: 1, justifyContent: 'center' },
   content: { paddingHorizontal: space[20], paddingTop: space[16], gap: space[24] },
   list: { gap: space[12] },
   buttons: { gap: space[8] },
