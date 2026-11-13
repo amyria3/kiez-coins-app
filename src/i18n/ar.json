@@ -1381,5 +1381,7 @@
   "Ein öffentliches Schaufenster ist ohne Anmeldung im Internet sichtbar und kann in Suchmaschinen erscheinen.": "واجهة العرض العلنية مرئية على الإنترنت دون تسجيل دخول وقد تظهر في محركات البحث.",
   "Ohne Konto legt KiezCoins beim Anmelden eins an. Wie KiezCoins Deine Daten verarbeitet, steht in der Datenschutzerklärung.": "إن لم يكن لديك حساب بعد، ينشئ KiezCoins حسابًا لك عند تسجيل الدخول. توضّح سياسة الخصوصية كيف يعالج KiezCoins بياناتك.",
   "Deine Erinnerungen": "تذكيراتك",
-  "{group} Schaufenster": "واجهة عرض {group}"
+  "{group} Schaufenster": "واجهة عرض {group}",
+  "KiezCoins-Logo im Rahmen": "شعار KiezCoins في الإطار",
+  "Mit Rahmen und Namen": "مع إطار واسم"
 }

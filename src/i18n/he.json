@@ -1356,5 +1356,7 @@
   "Ein öffentliches Schaufenster ist ohne Anmeldung im Internet sichtbar und kann in Suchmaschinen erscheinen.": "חלון ראווה ציבורי גלוי באינטרנט בלי התחברות ועשוי להופיע במנועי חיפוש.",
   "Ohne Konto legt KiezCoins beim Anmelden eins an. Wie KiezCoins Deine Daten verarbeitet, steht in der Datenschutzerklärung.": "אם אין לך עדיין חשבון, KiezCoins יוצרת אחד בעת ההתחברות. מדיניות הפרטיות מסבירה איך KiezCoins מעבדת את הנתונים שלך.",
   "Deine Erinnerungen": "התזכורות שלך",
-  "{group} Schaufenster": "חלון הראווה של {group}"
+  "{group} Schaufenster": "חלון הראווה של {group}",
+  "KiezCoins-Logo im Rahmen": "הלוגו של KiezCoins במסגרת",
+  "Mit Rahmen und Namen": "עם מסגרת ושם"
 }

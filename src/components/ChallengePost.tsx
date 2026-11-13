@@ -15,7 +15,7 @@ import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { BeforeAfterPair, BeforeAfterPost } from './BeforeAfterPost';
 import { weChallengeAfter, joinedIds, maxParticipants, participationText } from '../data/weChallenge';
 import { useAppDimensions } from '../theme/layout';
-import { BeforeAfterText, PHOTO_TAG, WithMentions, postText, tagColor } from './WithMentions';
+import { BeforeAfterText, PHOTO_TAG, WithMentions, postText, tagColor, useTagColor } from './WithMentions';
 import { BountyBadge, DoneReward, NameWithTestMark } from './Badges';
 import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
@@ -75,6 +75,7 @@ function KiezPost({
   // Bild: Zeitstempel statt Restzeit, denn ein Bild läuft nicht ab (Daria, 30.10.2026)
   const isPhoto = challenge.type === 'photo';
   // Bild mit Foto: #InDiesemMoment steht unten links auf dem Foto, unter den Knöpfen nur der eigene Text (Daria, 2026-11-09)
+  const tagColorHere = useTagColor();
   const tagOnPhoto = isPhoto && !!image && !textPages;
   const body = tagOnPhoto ? (challenge.text?.trim() ?? '') : postText(challenge);
   const state = closed
@@ -378,7 +379,7 @@ function KiezPost({
                     { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) },
                   ]}
                 >
-                  <Text noTranslate style={styles.tagOnPhotoText} numberOfLines={1}>
+                  <Text noTranslate style={[styles.tagOnPhotoText, { color: tagColorHere(PHOTO_TAG) }]} numberOfLines={1}>
                     {PHOTO_TAG}
                   </Text>
                 </Animated.View>

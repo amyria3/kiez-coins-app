@@ -22,7 +22,9 @@ export type FeatureKey =
   | 'schaufenster_mehr'
   | 'weiterposten'
   | 'bildkommentare'
-  | 'ohne_wasserzeichen';
+  | 'ohne_wasserzeichen'
+  | 'weiterposten_rahmen'
+  | 'weiterposten_ohne_logo';
 
 /**
  * Standard, solange die Datenbank nichts liefert (Migration fehlt, offline). Muss zu `public.features.default_on`
@@ -39,6 +41,11 @@ export const FEATURE_DEFAULTS: Record<FeatureKey, { name: string; defaultOn: boo
   bildkommentare: { name: 'Bildkommentare', defaultOn: true }, // für alle (Daria, 2026-11-10)
   // Bildpost teilen ohne Wasserzeichen und, wer das darf, auch ganz ohne Rahmen; im Moment für alle (Daria, 2026-11-10)
   ohne_wasserzeichen: { name: 'Wasserzeichen und Rahmen entfernen', defaultOn: true },
+  // Weiterposten mit weißem Rahmen und Namen, für alle (Daria, 2026-11-13)
+  weiterposten_rahmen: { name: 'Weiterposten mit Rahmen', defaultOn: true },
+  // Logo aus dem Rahmen entfernen: eigene Funktion, im Moment wie alle bezahlten Funktionen für alle an (Daria,
+  // 2026-11-13). Später sperren: default_on in public.features auf false
+  weiterposten_ohne_logo: { name: 'Logo im Rahmen entfernen', defaultOn: true },
 };
 
 type FeatureMap = Partial<Record<FeatureKey, boolean>>;
