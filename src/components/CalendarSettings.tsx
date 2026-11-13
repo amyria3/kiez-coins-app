@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
+import * as Clipboard from 'expo-clipboard';
 
 import { Button } from './Button';
 import { Notice, QuestionHint } from './Content';
-import { CopyField, TextField, Toggle } from './Form';
+import { TextField, Toggle } from './Form';
 import { SetupSteps } from './SetupSteps';
 import { Text } from './T';
 import {
@@ -59,7 +60,7 @@ function subscribeUrl(provider: Provider, feed: { https: string; webcal: string 
 }
 /** Rückmeldung nach dem Tippen auf einen Kalender: Was jetzt dort zu tun ist und wann die Termine kommen */
 const OPENED_HINT: Record<Provider, string> = {
-  apple: 'Bestätige das Abo in der Kalender-App. Deine Termine erscheinen nach wenigen Minuten. Öffnet sich nichts, kopiere den Abo-Link unten.',
+  apple: 'Bestätige das Abo in der Kalender-App. Deine Termine erscheinen nach wenigen Minuten. Öffnet sich nichts, kopiere den Abo-Link oben mit „Link kopieren“.',
   google:
     'Wähle Dein Google-Konto und bestätige im Google Kalender mit „Hinzufügen“. Google ruft den Link nur alle paar Stunden ab, Deine Termine erscheinen spätestens nach einem Tag. Öffnet sich auf dem Handy nur die App, öffne den Link am Computer im Browser.',
   outlook: 'Melde Dich bei Outlook an und bestätige mit „Importieren“. Outlook ruft den Link alle paar Stunden ab, Deine Termine erscheinen spätestens nach einem Tag.',
@@ -126,6 +127,14 @@ export function CalendarSettings() {
       { text: t('Abbrechen'), style: 'cancel' },
       { text: t('Neuer Link'), style: 'destructive', onPress: () => feedLinks(true).then(setFeed) },
     ]);
+
+  const [copied, setCopied] = useState(false);
+  const copyLink = async () => {
+    if (!feed) return;
+    await Clipboard.setStringAsync(feed.https);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
 
   const subscribe = (provider: Provider) => {
     if (!feed) return;
@@ -194,7 +203,8 @@ export function CalendarSettings() {
             <Notice variant="warning" message="Der Link lädt gerade nicht. Versuch es bitte gleich noch einmal." />
           ) : (
             <>
-              <Status label="Abo-Link aktiv" action="Neuen Link erstellen" onPress={renew} />
+              {/* Kopieren neben dem Zustand, der neue Link steht als Zurücksetzen unten (Daria, 2026-11-13) */}
+              <Status label="Abo-Link aktiv" action={copied ? 'Kopiert' : 'Link kopieren'} onPress={copyLink} />
               <Text style={styles.lead}>Wähle Deinen Kalender:</Text>
               {PROVIDER_ORDER.map((p, i) => (
                 <Button key={p} label={PROVIDER_LABEL[p]} variant={i === 0 ? 'primary' : 'secondary'} onPress={() => subscribe(p)} />
@@ -206,12 +216,12 @@ export function CalendarSettings() {
                   onClose={() => setOpened(null)}
                 />
               ) : null}
-              <CopyField label="Abo-Link für andere Kalender" value={feed.https} />
               <SetupSteps question={SUBSCRIBE_QUESTION} intro={SUBSCRIBE_INTRO} steps={SUBSCRIBE_STEPS} />
               <QuestionHint
                 question="Was erscheint in meinem Kalender?"
                 answer="Termine, Aufgaben mit Datum und Erinnerungen an festen Wochentagen. Erinnerungen mit „x-mal pro Woche“ haben keine feste Zeit und bleiben in Routine. Halte den Link geheim: Wer ihn hat, sieht Deine Termine."
               />
+              <Button label="Neuen Link erstellen" variant="ghost" onPress={renew} />
             </>
           )}
         </View>
