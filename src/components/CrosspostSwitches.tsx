@@ -76,9 +76,8 @@ export function CrosspostSwitches() {
   // Plattformen, auf die weitergepostet wird; dieselbe Wahl wie beim Erstellen eines Posts
   const [selected, setSelected] = useState<LivePlatform[]>([]);
 
-  // Mit oder ohne Rahmen, mit oder ohne Logo (Daria, 13.11.2026). Der Rahmen ist eine Funktion für alle
-  // (`weiterposten_rahmen`), das Logo entfernen nur mit Freischaltung (`weiterposten_ohne_logo`). Die Edge Function
-  // prüft beides noch einmal.
+  // Mit oder ohne Rahmen, mit oder ohne Logo (Daria, 13.11.2026). Zwei Funktionen (`weiterposten_rahmen`,
+  // `weiterposten_ohne_logo`), im Moment für alle an. Die Edge Function prüft beides noch einmal.
   const canFrame = useFeature('weiterposten_rahmen');
   const canRemoveLogo = useFeature('weiterposten_ohne_logo');
   const [look, setLook] = useState<CrosspostLook>(FULL_CROSSPOST_LOOK);
