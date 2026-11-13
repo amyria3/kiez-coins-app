@@ -3,7 +3,6 @@ import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
-import { BadgeIcon } from '../../components/BadgeIcon';
 import { BadgeScene, SCENE_FRAME } from '../../components/BadgeScene';
 import { Button } from '../../components/Button';
 import { KaterCard } from '../../components/Content';
@@ -11,7 +10,7 @@ import { SubScreen } from '../../components/Screen';
 import { Text } from '../../components/T';
 import { BADGES, badgeMeta, badgeTitle, useMyBadges, type BadgeKind } from '../../data/badges';
 import { useGoBack } from '../../lib/goBack';
-import { color, isFashionable, radius, space, text } from '../../theme/tokens';
+import { color, radius, space, text } from '../../theme/tokens';
 
 // Darias Entwürfe (design/abzeichen/hinweis, 01.11.2026): Lots:in und Anführer:in zeigen die Karte,
 // in die die Szene hineinragt; die übrigen zeigen die Szene mit der Kater-Sprechblase.
@@ -52,19 +51,7 @@ export default function NewBadgeScreen() {
   const karte = KARTE[kind];
 
   let inhalt;
-  if (isFashionable) {
-    inhalt = (
-      <>
-        <View style={styles.hero}>
-          <BadgeIcon kind={kind} number={own?.number} size={138} />
-          <Text noTranslate style={styles.name}>
-            {titel}
-          </Text>
-        </View>
-        <KaterCard>{meta.kater}</KaterCard>
-      </>
-    );
-  } else if (karte) {
+  if (karte) {
     const szene = Math.round(breite * 0.86);
     inhalt = (
       <View style={[styles.karte, { marginTop: Math.round(szene * 0.5) }]} onLayout={(e) => setBreite(e.nativeEvent.layout.width)}>

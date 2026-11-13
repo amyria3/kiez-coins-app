@@ -152,23 +152,7 @@
         0% { opacity: 0; }
         66% { opacity: 1; }
       }
-      html.fashionable #boot-moment {
-        color: #000000;
-      }
-      html.fashionable body {
-        background-color: #ffffff;
-      }
-      html.fashionable #boot img {
-        filter: brightness(0);
-      }
     </style>
-    <script>
-      // Look vor dem Start lesen, damit Grund und Zahnräder gleich in den richtigen Farben erscheinen (src/theme/look.ts)
-      try {
-        var look = new URLSearchParams(location.search).get('look') || localStorage.getItem('kiez-look');
-        if (look === 'fashionable') document.documentElement.classList.add('fashionable');
-      } catch (e) {}
-    </script>
   </head>
 
   <body>
@@ -207,7 +191,7 @@
             stack: String(text).slice(0, 8000),
             screen: (location.pathname + location.search).slice(0, 300),
             platform: ('web, ' + navigator.userAgent).slice(0, 300),
-            look: document.documentElement.classList.contains('fashionable') ? 'fashionable' : 'kiez',
+            look: 'kiez',
             start_info: String(start).slice(0, 300)
           };
           var status = box.querySelector('[data-status]');

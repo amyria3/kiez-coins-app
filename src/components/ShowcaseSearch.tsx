@@ -7,7 +7,7 @@ import { t } from '../data/texts';
 import { useFocusColor } from '../theme/signal';
 import { color, radius, space, stroke, text } from '../theme/tokens';
 import { IconButton } from './IconButton';
-import { phXml } from './icons/fashionableSvgs';
+import { phXml } from './icons/phosphor';
 import { ShowcaseLogo } from './ShowcasePlaceholder';
 import { Text } from './T';
 

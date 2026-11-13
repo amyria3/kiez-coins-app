@@ -3,10 +3,10 @@ import { AccessibilityInfo, Animated, Easing, Pressable, StyleSheet, View, type 
 import { Image } from 'expo-image';
 import { Text } from './T';
 
-import { color, font, isFashionable, radius, space, stroke, text, withAlpha } from '../theme/tokens';
+import { color, font, radius, space, stroke, text, withAlpha } from '../theme/tokens';
 import { t as translate, useTexts } from '../data/texts';
 import { openLink } from '../lib/places';
-import { Cat, type CatMood } from './icons/Brand';
+import { type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
 import Svg, { Rect, SvgXml } from 'react-native-svg';
 import { KATER_AVATAR_GELB, katerAvatarSvg, katerHerzenSvg } from './icons/katerAvatarSvg';
@@ -53,10 +53,10 @@ function pauseAfterOwnMessage() {
 }
 
 function useMessageIn(feed = false) {
-  const shown = useRef(new Animated.Value(isFashionable ? 1 : 0)).current;
-  const t = useRef(new Animated.Value(isFashionable ? 2 : 0)).current;
+  const shown = useRef(new Animated.Value(0)).current;
+  const t = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    if (isFashionable) return;
+
     let alive = true;
     let timer: ReturnType<typeof setTimeout> | undefined;
     AccessibilityInfo.isReduceMotionEnabled()
@@ -152,7 +152,7 @@ function UserBubble({
   disabled?: boolean;
   accessibilityState?: { expanded?: boolean; disabled?: boolean };
 }) {
-  const on = purple && !isFashionable;
+  const on = purple && true;
   const glow = useSentGlow(on);
   // Läuft vor dem Einblenden der Antwort, die erst nach dem Prüfen von „Bewegung reduzieren“ ihren Platz bucht
   useEffect(() => {
@@ -321,7 +321,7 @@ const KRABBE_GRUEN = '#DDFF33';
 const KRABBE_FARBE: Record<number, string> = {
   1: color.text.primary,
   2: color.bg.screen,
-  3: isFashionable ? color.accent.confirmation : KRABBE_GRUEN,
+  3: KRABBE_GRUEN,
 };
 
 export function SystemAvatar() {
@@ -349,7 +349,7 @@ function FromSystem({
   /** Avatar und Blase erscheinen gemeinsam (useMessageIn) */
   opacity?: Animated.Value;
 }) {
-  if (isFashionable) return <>{children}</>;
+
   return (
     <Animated.View style={[styles.systemRow, style, opacity ? { opacity } : null]}>
       <SystemAvatar />
@@ -383,28 +383,28 @@ export function Notice({
     <Animated.View
       style={[
         styles.notice,
-        !isFashionable && styles.noticeSky,
-        !isFashionable && { backgroundColor: sky.backgroundColor, transform: [{ scale: sky.scale }] },
+        styles.noticeSky,
+        { backgroundColor: sky.backgroundColor, transform: [{ scale: sky.scale }] },
       ]}
       accessibilityRole={variant === 'warning' ? 'alert' : undefined}
     >
       {/* Kiez-Look: Icon nur bei Warnungen, sonst sähen Warnung und Info gleich aus (Daria, 2026-11-09).
           Feste Größe, sonst schrumpft das Icon neben langem Text. */}
-      {isFashionable || variant === 'warning' ? (
+      {variant === 'warning' ? (
         <View style={styles.noticeIcon}>
           <Icon
             name="info-filled"
-            size={isFashionable ? undefined : 17}
-            color={isFashionable ? (variant === 'warning' ? color.accent.signal : color.text.primary) : ink}
+            size={17}
+            color={ink}
           />
         </View>
       ) : null}
-      <LinkedText style={[styles.noticeText, !isFashionable && styles.noticeTextSky, !isFashionable && feed && { color: ink }]} value={message} />
+      <LinkedText style={[styles.noticeText, styles.noticeTextSky, feed && { color: ink }]} value={message} />
       {onClose ? (
         <IconButton
           icon="close"
           iconSize={14}
-          iconColor={isFashionable ? color.text.secondary : ink}
+          iconColor={ink}
           accessibilityLabel={t('Hinweis schließen')}
           onPress={onClose}
           style={styles.noticeClose}
@@ -421,7 +421,7 @@ export function Notice({
  */
 export const CHAT_GAP_SAME = space[4];
 /** Rundung der Chatblasen (Frage, Antwort, Systemmeldung): im Kiez-Look runder als radius.xl (Daria, 2026-11-09) */
-const CHAT_RADIUS = isFashionable ? radius.xl : 26;
+const CHAT_RADIUS = 26;
 export const CHAT_GAP_CHANGE = space[6];
 
 /**
@@ -445,17 +445,7 @@ export function QuestionHint({ question, answer, then }: { question: string; ans
         {question}
       </UserBubble>
       {open ? (
-        isFashionable ? (
-          <Animated.View
-            style={[
-              styles.answer,
-              styles.afterChange,
-              { opacity: shown, transform: [{ translateY: shown.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }] },
-            ]}
-          >
-            <LinkedText style={styles.answerText} value={answer} />
-          </Animated.View>
-        ) : (
+        (
           <SkyAnswer answer={answer} />
         )
       ) : null}
@@ -581,22 +571,7 @@ export function KaterCard({
   if (typeof children === 'string') children = tx(children);
   if (title) title = tx(title);
   const role = onPress ? ('button' as const) : undefined;
-  if (isFashionable) {
-    return (
-      <Pressable accessibilityRole={role} accessibilityHint={accessibilityHint} onPress={onPress} disabled={!onPress} style={styles.speech}>
-        <View style={[styles.speechBubble, styles.speechBubbleFashionable]}>
-          <View style={styles.speechTexts}>
-            {title ? <Text style={styles.speechTitle}>{title}</Text> : null}
-            <Text style={styles.speechText}>{children}</Text>
-          </View>
-          <View style={styles.speechTail} />
-        </View>
-        <View style={styles.speechCatFashionable} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          <Cat mood={mood} height={36} tint={color.text.primary} />
-        </View>
-      </Pressable>
-    );
-  }
+
   return (
     <View style={styles.katerRow}>
       <KaterRund size={KATER_AVATAR} />
@@ -770,11 +745,8 @@ export function FieldGroup({
 }
 
 const styles = StyleSheet.create({
-  sectionLabel: isFashionable
-    ? { ...text.caption, letterSpacing: 1, textTransform: 'uppercase', color: color.text.secondary }
-    : // 16 zusätzlich über der Überschrift: mit dem üblichen Abstand von 24 trennen 40 die Abschnitte (Daria, 2026-11-10)
-      { fontFamily: font.onPhoto, fontSize: 18, lineHeight: 24, color: color.text.primary, marginTop: space[16] },
-  sectionBlock: { gap: isFashionable ? space[8] : space[12] },
+  sectionLabel: { fontFamily: font.onPhoto, fontSize: 18, lineHeight: 24, color: color.text.primary, marginTop: space[16] },
+  sectionBlock: { gap: space[12] },
   collapseHead: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: space[12] },
   collapseIcon: { paddingBottom: 2 },
   collapseIconOpen: { transform: [{ rotate: '90deg' }] },
@@ -884,8 +856,6 @@ const styles = StyleSheet.create({
   // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
   katerKreuz: { marginVertical: -10, marginRight: -10, marginLeft: space[4] },
   speech: { flexDirection: 'row', alignItems: 'center', gap: space[16] },
-  speechBubbleFashionable: { flex: 1, paddingRight: space[16] },
-  // Spitze rechts zur Katze: gedrehtes Quadrat in der Farbe der Blase (nur Fashionable)
   speechTail: {
     position: 'absolute',
     right: -7,
@@ -896,15 +866,6 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: color.bg.surface,
     transform: [{ rotate: '45deg' }],
-  },
-  // Fashionable: Kachel 68 pt, Kater 36 pt (Daria, 24.10.2026)
-  speechCatFashionable: {
-    width: 68,
-    height: 68,
-    borderRadius: 24,
-    backgroundColor: color.bg.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   speechTitle: { ...text.cardTitleCompact, color: color.text.primary },
   speechText: { fontFamily: font.text, fontSize: 15, lineHeight: 21, color: color.text.primary },

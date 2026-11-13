@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useSyncExternalStore, type ReactNode } from 'react';
 import { useFocusEffect } from 'expo-router';
 
-import { color, isFashionable } from './tokens';
+import { color } from './tokens';
 
 /**
  * Bereich, in dem man gerade ist (Daria, 2026-11-13): eine Quelle für die Signalfarben statt mehrerer Schalter.
@@ -24,7 +24,7 @@ export function useSpace(): Space {
 
 /** Farben eines Bereichs: Akzent (gewählte Knöpfe, Hauptbuttons) und Fokus (Rahmen, Cursor, eingeschaltete Schalter) */
 export function spaceColors(space: Space): { accent: string; focus: string } {
-  const me = space === 'me' && !isFashionable;
+  const me = space === 'me' && true;
   return { accent: me ? color.accent.private : color.accent.primary, focus: me ? color.accent.private : color.accent.focus };
 }
 
@@ -97,5 +97,5 @@ export function FrontSpaceProvider({ children }: { children: ReactNode }) {
 
 /** true, wenn hier Gelb statt Lila gilt */
 export function usePrivateSignal(): boolean {
-  return useSpace() === 'me' && !isFashionable;
+  return useSpace() === 'me' && true;
 }

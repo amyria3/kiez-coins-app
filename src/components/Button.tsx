@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Text } from './T';
 
-import { color, isFashionable, radius, space, text } from '../theme/tokens';
+import { color, radius, space, text } from '../theme/tokens';
 import { useTexts } from '../data/texts';
 import { Glass, glassControls } from './Glass';
 import { handShapePath } from './handShape';
@@ -64,7 +64,7 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
     return () => clearTimeout(id);
   }, [autoFocus]);
   // Versuch: Buttons aus Liquid Glass (iOS 26). Gefüllte Varianten bekommen ihre Farbe als Tönung.
-  if (isFashionable) return <FashionButton pressRef={ref} label={label} onPress={onPress} variant={variant} off={off} disabled={disabled} busy={busy} style={style} />;
+
   if (glassControls && variant !== 'ghost') {
     const g = recolor(glassVariants[variant], accent);
     return (
@@ -105,56 +105,6 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
     </Pressable>
   );
 }
-
-/**
- * Knopf im Look „Fashionable“ (Daria, 24.10.2026), überall gleich: 44 hoch, Radius 8, halbfett 14, ohne Icon.
- * Primary blau mit weißer Schrift; Secondary und die übrigen grau gefüllt, Danger mit roter Schrift; Ghost nur Text in Blau.
- */
-function FashionButton({
-  pressRef,
-  label,
-  onPress,
-  variant,
-  off,
-  disabled,
-  busy,
-  style,
-}: {
-  pressRef: RefObject<View | null>;
-  label: string;
-  onPress?: () => void;
-  variant: ButtonVariant;
-  off?: boolean;
-  disabled: boolean;
-  busy?: boolean;
-  style?: StyleProp<ViewStyle>;
-}) {
-  const v = fashionVariants[variant];
-  return (
-    <Pressable
-      ref={pressRef}
-      accessibilityRole="button"
-      accessibilityState={{ disabled: off, busy }}
-      disabled={disabled}
-      onPress={onPress}
-      style={({ pressed }) => [styles.fashion, { backgroundColor: v.bg }, pressed && styles.pressed, off && !busy && styles.disabled, style]}
-    >
-      <View style={styles.row}>
-        {busy ? <GearsLoader size={18} tint={v.label} only={SMALL_GEARS} /> : null}
-        <Text style={[styles.fashionLabel, { color: v.label }]}>{label}</Text>
-      </View>
-    </Pressable>
-  );
-}
-
-const fashionVariants: Record<ButtonVariant, { bg: string; label: string }> = {
-  primary: { bg: color.accent.primary, label: color.text.onAccent },
-  secondary: { bg: color.bg.surface, label: color.text.primary },
-  ghost: { bg: 'transparent', label: color.accent.primary },
-  signal: { bg: color.accent.primary, label: color.text.onAccent },
-  signalOutline: { bg: color.bg.surface, label: color.text.primary },
-  danger: { bg: color.bg.surface, label: color.accent.error },
-};
 
 /**
  * Kiez-Look: handgezeichnete Form statt Pille (Daria, 2026-11-11). Gefüllte Varianten als Fläche,
@@ -220,8 +170,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
-  fashion: { minHeight: 44, paddingHorizontal: space[16], borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
-  fashionLabel: { ...text.bodyStrong },
   pressed: { opacity: 0.8 },
   disabled: { opacity: 0.5 },
 });

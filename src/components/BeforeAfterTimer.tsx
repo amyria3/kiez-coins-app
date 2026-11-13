@@ -7,7 +7,7 @@ import { formatClock } from '../data/format';
 import { BEFORE_AFTER_MAX_MS } from '../data/remote';
 import { t } from '../data/texts';
 import type { Challenge } from '../data/types';
-import { color, font, isFashionable, radius, space, stroke, text } from '../theme/tokens';
+import { color, font, radius, space, stroke, text } from '../theme/tokens';
 import { Text } from './T';
 
 /** Aktuelle Zeit, jede `everyMs` neu. Ohne `active` steht die Uhr. */
@@ -47,7 +47,7 @@ export function TimerRing({
   return (
     <View style={{ width: diameter, height: diameter }}>
       <Svg width={diameter} height={diameter} style={styles.rotate}>
-        <Circle cx={diameter / 2} cy={diameter / 2} r={r} stroke={isFashionable ? color.line.hairline : color.bg.surface} strokeWidth={width} fill="none" />
+        <Circle cx={diameter / 2} cy={diameter / 2} r={r} stroke={color.bg.surface} strokeWidth={width} fill="none" />
         <Circle
           cx={diameter / 2}
           cy={diameter / 2}
@@ -80,7 +80,7 @@ export function RunningBeforeAfter({ challenge, onPress }: { challenge: Challeng
   const elapsed = elapsedMs(challenge, now);
   const left = Math.max(1, Math.ceil((BEFORE_AFTER_MAX_MS - elapsed) / 3_600_000));
   const photo = challenge.imageBefore ?? challenge.image;
-  const tint = isFashionable ? color.accent.primary : color.accent.signal;
+  const tint = color.accent.signal;
   return (
     <Pressable
       onPress={onPress}
@@ -110,18 +110,7 @@ const styles = StyleSheet.create({
   rotate: { transform: [{ rotate: '-90deg' }] },
   center: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center' },
   pressed: { opacity: 0.8 },
-  banner: isFashionable
-    ? {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: space[12],
-        paddingVertical: space[8],
-        paddingHorizontal: space[12],
-        borderBottomWidth: stroke.thin,
-        borderBottomColor: color.line.hairline,
-        marginBottom: space[4],
-      }
-    : {
+  banner: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: space[12],
@@ -134,6 +123,6 @@ const styles = StyleSheet.create({
       },
   thumb: { width: 38, height: 38, borderRadius: 19 },
   texts: { flex: 1, gap: space[2] },
-  line1: { fontFamily: isFashionable ? font.semiBold : font.medium, fontSize: 14, lineHeight: 18, color: color.text.primary },
+  line1: { fontFamily: font.medium, fontSize: 14, lineHeight: 18, color: color.text.primary },
   line2: { ...text.small, color: color.text.secondary, fontVariant: ['tabular-nums'] },
 });

@@ -3,9 +3,9 @@ import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { FieldGroup } from '../../components/Content';
-import { CrownIcon, MonoCat } from '../../components/icons/Brand';
+import { CrownIcon } from '../../components/icons/Brand';
 import { Icon, ICON_SCALE } from '../../components/icons/Icon';
-import { Avatar } from '../../components/AuthorRow';
+
 import { NavCard, NavRow, ProfileCard } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { TabBar } from '../../components/TabBar';
@@ -14,9 +14,8 @@ import { anrede } from '../../data/format';
 import { useAuth } from '../../data/auth';
 import { isModerator, loadFriends } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
-import { color, isFashionable, size, space } from '../../theme/tokens';
+import { color, size, space } from '../../theme/tokens';
 import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
-import { look, looks, lookSelectable } from '../../theme/look';
 import { MODES, useModes } from '../../data/features';
 import { useGoBack } from '../../lib/goBack';
 import { useShowcaseEnabled } from '../../data/showcase';
@@ -77,8 +76,7 @@ export default function Account() {
       <NavCard
         title="Me"
         description="Geschafft, Ziele und Gruppen"
-        // Fashionable Look: Dein Bild wie oben im Feed (Regelwerk: Was Du so machst = Dein Profil)
-        leading={isFashionable ? <Avatar user={me} diameter={28} /> : <CrownIcon height={30} />}
+        leading={<CrownIcon height={30} />}
         onPress={() => router.push('/me')}
       />
       {modes.isVisible('groups') ? (
@@ -96,15 +94,13 @@ export default function Account() {
           // Dorf groß und leicht nach rechts, der Kreis schneidet das rechte Haus und die Unterkante rund ab,
           // der gerade Rand der Zeichnung liegt außerhalb (Daria, 2026-11-11)
           leading={
-            isFashionable ? (
-              <Icon name="village" size={size.icon} color={color.text.primary} />
-            ) : (
+            (
               <View style={styles.villageBleed}>
                 <Icon name="village" size={38 / ICON_SCALE} color={color.text.primary} />
               </View>
             )
           }
-          leadingFill={!isFashionable}
+          leadingFill={true}
           onPress={() => router.push('/schaufenster')}
         />
       ) : null}
@@ -141,14 +137,6 @@ export default function Account() {
         leading={<Icon name="language" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/account/language')}
       />
-      {lookSelectable ? (
-        <NavCard
-          title="Look"
-          description={looks.find((l) => l.code === look)?.name}
-          leading={<Icon name="look" size={size.icon} color={color.text.primary} />}
-          onPress={() => router.push('/account/look')}
-        />
-      ) : null}
       {/* Tour als große Karte mit Fragezeichen, Beispiele zum Ausprobieren (Daria, 31.10.2026) */}
       <NavCard
         title="Wie geht KiezCoins"
@@ -161,15 +149,13 @@ export default function Account() {
         title="Auf eine Frotzerei"
         description="Sprüche"
         leading={
-          isFashionable ? (
-            <MonoCat height={size.icon} />
-          ) : (
+          (
             <View style={styles.catBleed}>
               <Icon name="cat" size={26} color={color.text.primary} />
             </View>
           )
         }
-        leadingFill={!isFashionable}
+        leadingFill={true}
         onPress={() => router.push('/cat')}
       />
       <FieldGroup heading label="Einstellungen">

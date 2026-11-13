@@ -4,12 +4,8 @@
 
 import type { TextStyle } from 'react-native';
 
-import { look } from './look';
-
-const fashionable = look === 'fashionable';
-/** Im Fashionable Look hell: für BlurView, Systemglas und Statusleiste */
-export const isFashionable = fashionable;
-export const scheme: 'dark' | 'light' = fashionable ? 'light' : 'dark';
+/** Dunkel: für BlurView, Systemglas und Statusleiste. Den hellen Look „Fashionable“ gibt es seit 2026-11-13 nicht mehr. */
+export const scheme: 'dark' | 'light' = 'dark';
 
 // Primitives
 // Kiez-Look „Warm und tief“ (Daria, 2026-11-01): fast schwarzer Grund und Flächen mit warmem Unterton,
@@ -35,25 +31,7 @@ const kiezPalette = {
   graphite: '#303034',
 };
 
-/**
- * Look „Fashionable“, hell (Daria, 2026-10-23): weißer Grund, schwarze Schrift, Grau #737373,
- * Blau #0095F6 für Aktionen, Rot #FF3040 fürs Herz. `black` ist hier der Grund und `white` die Schrift,
- * damit die Namen der Kiez-Palette in beiden Looks dieselbe Rolle haben.
- */
-const fashionablePalette: typeof kiezPalette = {
-  black: '#FFFFFF',
-  white: '#000000',
-  grey: '#737373',
-  purple: '#0095F6',
-  orange: '#E1306C',
-  // Kein Grün im Fashionable Look (Daria, 24.10.2026): Edensteine, „Offen“ und gewählte Chips in Textfarbe
-  green: '#000000',
-  red: '#ED4956',
-  pink: '#FF3040',
-  graphite: '#EFEFEF',
-};
-
-export const palette = Object.freeze(fashionable ? fashionablePalette : kiezPalette);
+export const palette = Object.freeze(kiezPalette);
 
 /**
  * Weitere Grundfarben des Kiez-Looks (Daria, 2026-11-13). Hier steht jede Farbe genau einmal als Wert. Komponenten
@@ -91,41 +69,41 @@ export const color = {
     screen: palette.black,
     surface: palette.graphite,
     /** Halbtransparente Fläche über Fotos (Bounty-Chip, Info-Leiste, Tab-Leiste) */
-    glass: fashionable ? 'rgba(255, 255, 255, 0.96)' : 'rgba(35, 35, 38, 0.86)',
+    glass: 'rgba(35, 35, 38, 0.86)',
     /** Leichte Glasfläche, z. B. das eingeklappte Blatt im Challenge-Detail */
-    sheet: fashionable ? 'rgba(255, 255, 255, 0.82)' : 'rgba(35, 35, 38, 0.45)',
+    sheet: 'rgba(35, 35, 38, 0.45)',
     /** Overlays (Hinweise, Dialoge, Umfrage): Blur mit leichtem Stich aus Dunkel-Lila (Daria, 2026-11-02) */
-    frost: fashionable ? 'rgba(255, 255, 255, 0.72)' : 'rgba(44, 26, 70, 0.5)',
+    frost: 'rgba(44, 26, 70, 0.5)',
     /** Abgedunkelter, unscharfer Grund hinter Dialogen */
-    scrim: fashionable ? 'rgba(0, 0, 0, 0.2)' : 'rgba(30, 16, 50, 0.3)',
+    scrim: 'rgba(30, 16, 50, 0.3)',
     /** Zahnrad-Menü (Daria, 2026-11-06): Kartenfarbe #303034 halbdurchsichtig über Blur, der Text dahinter verschwimmt */
-    menu: fashionable ? 'rgba(239, 239, 239, 0.78)' : 'rgba(48, 48, 52, 0.78)',
+    menu: 'rgba(48, 48, 52, 0.78)',
     /** Dunkle Glasfläche über Fotos, in beiden Looks dunkel */
     onPhoto: 'rgba(35, 35, 38, 0.3)',
   },
   /** Haarlinie auf dunklem Grund */
   line: {
-    hairline: fashionable ? '#DBDBDB' : 'rgba(255, 240, 225, 0.12)',
+    hairline: 'rgba(255, 240, 225, 0.12)',
     /** Feiner warmer Rand um Karten und Sprechblase im Kiez-Look, damit sie sich vom Grund abheben (2026-11-01) */
-    raised: fashionable ? 'transparent' : 'rgba(255, 240, 225, 0.08)',
+    raised: 'rgba(255, 240, 225, 0.08)',
     /** Feine Linie in der zweiten Akzentfarbe (#89F269), z. B. auf der Karte in „Meine Posts“ (Daria, 2026-11-05) */
-    confirmation: fashionable ? '#DBDBDB' : 'rgba(137, 242, 105, 0.22)',
+    confirmation: 'rgba(137, 242, 105, 0.22)',
   },
   text: {
     primary: palette.white,
     secondary: palette.grey,
     /** Platzhalter in Eingabefeldern: deutlich blasser als eingegebener Text, damit ein Beispiel nicht wie ein Wert aussieht (Daria, 2026-11-13) */
-    placeholder: fashionable ? '#ABABAB' : 'rgba(224, 201, 208, 0.45)',
+    placeholder: 'rgba(224, 201, 208, 0.45)',
     /** Schrift auf der Akzentfläche (Primary-Button, eigene Chatblase) */
-    onAccent: fashionable ? '#FFFFFF' : palette.black,
+    onAccent: palette.black,
     /** Schrift auf Fotos, in beiden Looks hell. Im Kiez-Look helles Puder wie die Hauptschrift, kein Grau (Daria, 2026-11-11), vorher #F0F0F0 */
-    onPhoto: fashionable ? '#F0F0F0' : kiezPalette.white,
+    onPhoto: kiezPalette.white,
     /** @-Namen in Beiträgen und Kommentaren: im Kiez-Look Grün (Daria, 2026-11-09), im Fashionable Look Pink wie bisher */
-    mention: fashionable ? palette.orange : palette.green,
+    mention: palette.green,
   },
   /** Große Icons (Daria, 2026-11-05): etwas gedämpfter als die Schrift, damit Symbole nicht heller als Text wirken */
   icon: {
-    large: fashionable ? palette.white : swatch.beige,
+    large: swatch.beige,
   },
   /**
    * Untere Leiste im Kiez-Look (Daria, 2026-11-12): Aubergine statt Grau, Icons in Beige statt Puder. Die aktive Seite
@@ -133,42 +111,42 @@ export const color = {
    * Schneeweiß, Menü Gelbgrün. Die Kamera bleibt die lila Pille, außer in der Routine (dort klein und schlicht).
    */
   nav: {
-    bar: fashionable ? 'rgba(255, 255, 255, 0.96)' : 'rgba(59, 47, 60, 0.94)',
-    icon: fashionable ? palette.white : swatch.beige,
-    bubble: fashionable ? 'transparent' : palette.graphite,
+    bar: 'rgba(59, 47, 60, 0.94)',
+    icon: swatch.beige,
+    bubble: palette.graphite,
     /** Kalender = Me & Myself, dieselbe Grundfarbe wie accent.private */
-    calendar: fashionable ? palette.white : swatch.senf,
+    calendar: swatch.senf,
     /** Feed = Herz, dieselbe Grundfarbe wie accent.affection (Daria, 2026-11-13: zwei Rollen, ein Ziel) */
-    feed: fashionable ? palette.white : palette.pink,
-    chat: fashionable ? palette.white : swatch.schnee,
+    feed: palette.pink,
+    chat: swatch.schnee,
     /** Menü = Einstellungen. Dieselbe Grundfarbe wie accent.focus, eigene Rolle (Daria, 2026-11-13) */
-    menu: fashionable ? palette.white : swatch.gelbgruen,
-    create: fashionable ? 'transparent' : palette.purple,
-    onCreate: fashionable ? palette.white : palette.black,
+    menu: swatch.gelbgruen,
+    create: palette.purple,
+    onCreate: palette.black,
   },
   /** Signaturfarbe für Logo und Kater. Fashionable Look vorerst Schwarz: Das Violett #7B2FF7 hat Daria verworfen (23.10.2026), die neue Farbe steht noch aus. */
   brand: {
-    signature: fashionable ? '#000000' : palette.purple,
+    signature: palette.purple,
   },
   accent: {
     primary: palette.purple,
     affection: palette.pink,
     /** „Privat“ gewählt, in jedem Umschalter: Senf wie der Kalender in der Leiste (Daria, 2026-11-12) */
-    private: fashionable ? palette.purple : swatch.senf,
+    private: swatch.senf,
     /**
      * „Du bist dran“ (Daria, 2026-11-13): Gelb wie Me & Myself statt Orange. Orange bleibt Fehlern und Warnungen.
      * Im Fashionable Look wie bisher die Signalfarbe.
      */
-    turn: fashionable ? palette.orange : swatch.senf,
+    turn: swatch.senf,
     confirmation: palette.green,
     /** Fokus (Rahmen und Cursor im aktiven Feld) und eingeschaltete Schalter: Gelbgrün, überall gleich (Daria, 2026-11-13) */
-    focus: fashionable ? palette.purple : swatch.gelbgruen,
+    focus: swatch.gelbgruen,
     signal: palette.orange,
     /**
      * Fehler und Pflichtfeld-Hinweise: im Kiez-Look Orange wie die Signalfarbe (Daria, 2026-11-12). Das alte Korallrot
      * #FF7E8B lag zu nah am Herz-Rosa #FFB2E5. Fashionable bleibt Rot.
      */
-    error: fashionable ? palette.red : palette.orange,
+    error: palette.orange,
   },
   /** Routine-Karten (Daria, 2026-11-12): eigene Kartenfarben, Lila und Gelbgrün bleiben der Bedienung vorbehalten */
   routine: {
@@ -211,16 +189,15 @@ export const space = {
   48: 48,
 } as const;
 
-// Radius (Look „Fashionable“: eckiger)
 export const radius = {
-  sm: fashionable ? 4 : 5,
-  md: fashionable ? 8 : 12,
-  lg: fashionable ? 10 : 18,
-  xl: fashionable ? 12 : 20,
-  card: fashionable ? 6 : 28,
+  sm: 5,
+  md: 12,
+  lg: 18,
+  xl: 20,
+  card: 28,
   /** Posts im Feed: kleine Rundung wie die Blätter der Text-Posts (probeweise, Daria, 2026-11-07) */
   post: 6,
-  sheet: fashionable ? 16 : 32,
+  sheet: 32,
   full: 999,
 } as const;
 
@@ -245,14 +222,13 @@ export const stroke = {
 // Schriften (Inter, Karla, Inter Tight, Unbounded, geladen in src/app/_layout.tsx)
 // Kiez-Look: Karla statt Inter für Fließtext und Oberfläche (Daria, 2026-11-11), Fließtext in Light.
 // Die Inter wirkte leblos und technisch. Den engeren Buchstabenabstand der Karla setzt `Text` (components/T.tsx).
-// Fashionable bleibt bei der Inter.
 export const font = {
-  light: fashionable ? 'Inter_300Light' : 'Karla_300Light',
+  light: 'Karla_300Light',
   /** Fließtext: Kiez-Look Karla Light (Daria, 2026-11-11), Fashionable Inter Light */
-  text: fashionable ? 'Inter_300Light' : 'Karla_300Light',
-  regular: fashionable ? 'Inter_400Regular' : 'Karla_400Regular',
-  medium: fashionable ? 'Inter_500Medium' : 'Karla_500Medium',
-  semiBold: fashionable ? 'Inter_600SemiBold' : 'Karla_600SemiBold',
+  text: 'Karla_300Light',
+  regular: 'Karla_400Regular',
+  medium: 'Karla_500Medium',
+  semiBold: 'Karla_600SemiBold',
   /** Inter Tight für große Überschriften und Zahlen */
   display: 'InterTight_600SemiBold',
   /** Text über dem Foto: breite Unbounded als Kontrast zur Inter der Oberfläche (Daria, 2026-11-07) */
@@ -261,21 +237,12 @@ export const font = {
 } as const;
 
 // Text Styles
-/**
- * Größe und Zeilenhöhe je Look. Die Karla läuft kleiner als die Inter: im Kiez-Look 1 px größer
- * und etwas engerer Zeilenabstand (Daria, 2026-11-11).
- */
-const k = (size: number, line: number, kiezSize: number, kiezLine: number) =>
-  fashionable ? { fontSize: size, lineHeight: line } : { fontSize: kiezSize, lineHeight: kiezLine };
-
 export const text = {
   /**
    * Große Überschrift, z. B. „Chats“, „Was Du so machst“. Im Kiez-Look in der Unbounded wie die Begrüßung im Feed
    * (Daria, 2026-11-10), 26 statt 30, da sie breiter läuft.
    */
-  display: fashionable
-    ? { fontFamily: font.display, fontSize: 30, lineHeight: 34, letterSpacing: -0.6 }
-    : { fontFamily: font.onPhoto, fontSize: 26, lineHeight: 32, letterSpacing: 0 },
+  display: { fontFamily: font.onPhoto, fontSize: 26, lineHeight: 32, letterSpacing: 0 },
   /** Titel im Challenge-Detail */
   headline: { fontFamily: font.display, fontSize: 26, lineHeight: 30, letterSpacing: -0.5 },
   /** Titel auf Karten */
@@ -284,28 +251,28 @@ export const text = {
   metric: { fontFamily: font.display, fontSize: 22, lineHeight: 26 },
   /** Kleine Kennzahlen, z. B. Edensteine in Listen, Karten und Posts (Daria 2026-11-10) */
   metricSm: { fontFamily: font.display, fontSize: 18, lineHeight: 22 },
-  title: { fontFamily: font.regular, ...k(18, 24, 19, 23) },
+  title: { fontFamily: font.regular, fontSize: 19, lineHeight: 23 },
   /** Abschnittsüberschrift auf Einstellungsseiten aus mehreren Abschnitten, z. B. Funktionen (Daria, 2026-11-10) */
   settingsHeading: { fontFamily: font.semiBold, fontSize: 20, lineHeight: 26 },
-  body: { fontFamily: font.text, ...k(14, 18, 15, 19) },
+  body: { fontFamily: font.text, fontSize: 15, lineHeight: 19 },
   /** Fließtext halbfett, z. B. Name im Post, Text auf kleinen Buttons */
-  bodyStrong: { fontFamily: font.semiBold, ...k(14, 18, 15, 19) },
+  bodyStrong: { fontFamily: font.semiBold, fontSize: 15, lineHeight: 19 },
   /** Größerer Fließtext, z. B. Menüeinträge, Zähler unter Posts */
-  bodyLarge: { fontFamily: font.regular, ...k(15, 20, 16, 20) },
+  bodyLarge: { fontFamily: font.regular, fontSize: 16, lineHeight: 20 },
   /** Hinweise und Fehlermeldungen unter Formularfeldern, in beiden Looks Light (Daria, 2026-11-09) */
-  hint: { fontFamily: font.light, ...k(14, 19, 15, 19) },
+  hint: { fontFamily: font.light, fontSize: 15, lineHeight: 19 },
   /** Name im Chat und kleine Titel in Sprechblasen */
   cardTitleCompact: { fontFamily: font.display, fontSize: 17, lineHeight: 22, letterSpacing: -0.2 },
   /** Zeile unter Posts, Gruppen und Kennzahl-Beschriftungen (13 px, Daria 2026-11-10) */
-  meta: { fontFamily: font.regular, ...k(13, 18, 14, 17) },
+  meta: { fontFamily: font.regular, fontSize: 14, lineHeight: 17 },
   /** Kleine Zusatzzeile (12 px), z. B. Ort, Untertitel, Abzeichen-Name */
-  small: { fontFamily: font.regular, ...k(12, 16, 13, 16) },
-  caption: { fontFamily: font.regular, ...k(11, 16, 12, 15) },
+  small: { fontFamily: font.regular, fontSize: 13, lineHeight: 16 },
+  caption: { fontFamily: font.regular, fontSize: 12, lineHeight: 15 },
   labelXs: { fontFamily: font.text, fontSize: 9, lineHeight: 11 },
   /** `text/button/dark-on-light`: dunkle Schrift auf heller Fläche (Primary) */
-  buttonDarkOnLight: { fontFamily: font.medium, ...k(16, 20, 17, 20) },
+  buttonDarkOnLight: { fontFamily: font.medium, fontSize: 17, lineHeight: 20 },
   /** `text/button/light-on-dark`: helle Schrift auf dunkler Fläche (Secondary) */
-  buttonLightOnDark: { fontFamily: font.regular, ...k(16, 20, 17, 20) },
+  buttonLightOnDark: { fontFamily: font.regular, fontSize: 17, lineHeight: 20 },
 } satisfies Record<string, TextStyle>;
 
 // Bewegung „Schranke“: holt am Anfang langsam und leicht federnd aus, kippt dann zügig und schwingt kurz nach.

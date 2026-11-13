@@ -6,13 +6,11 @@ import { fitShape, SWITCH_KNOB, SWITCH_TRACK } from './handSwitch';
 import { Image } from 'expo-image';
 
 import type { Challenge } from '../data/types';
-import { color, font, isFashionable, motion, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, motion, radius, size, space, stroke, text } from '../theme/tokens';
 import { usePrivateSignal } from '../theme/signal';
 import { Notice } from './Content';
 import { Logo } from './icons/Brand';
-import { Icon } from './icons/Icon';
-import { useRouter } from 'expo-router';
-import { useFriendRequests, useUnreadMessages } from '../data/chat';
+
 import { SkeletonTopItem } from './Skeleton';
 import { isRtl, t } from '../data/texts';
 import type { Mode } from '../data/features';
@@ -31,39 +29,7 @@ type AppHeaderProps = {
  * die Kamera oben rechts ist seit 2026-11-09 weg, Erstellen sitzt in der Leiste unten. Der Kopf scrollt mit dem Feed weg.
  */
 export function AppHeader(props: AppHeaderProps) {
-  return isFashionable ? <FashionHeader {...props} /> : <KiezHeader {...props} />;
-}
-
-/**
- * Kopf im Look „Fashionable“ nach Darias Mockup (24.10.2026): Logo mit Kater und Schriftzug links (seit 2026-11-12 das neue Logo),
- * Inter Tight halbfett 24/28, rechts die Sprechblase mit Zeilen (Chats). Dein Profilbild („Was Du so machst“) sitzt in der Leiste unten (Daria, 27.10.2026).
- * Abstände 4 oben, 12 rechts, 8 unten, 14 links.
- */
-function FashionHeader({ onLogoLongPress }: AppHeaderProps) {
-  const router = useRouter();
-  const unread = useUnreadMessages();
-  const requests = useFriendRequests();
-  return (
-    <View style={styles.fashionHead}>
-      <Pressable onLongPress={onLogoLongPress} accessibilityRole="header">
-        {/* Neues Logo mit Kater und Schriftzug, in Textfarbe (Daria, 2026-11-12) */}
-        <View style={styles.brand} accessible accessibilityLabel="KiezCoins">
-          <Logo height={26} />
-        </View>
-      </Pressable>
-      <View style={styles.headIcons}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : requests ? t('Chats, neue Freundschaftsanfrage') : t('Chats')}
-          onPress={() => router.push('/chat')}
-          hitSlop={10}
-        >
-          <Icon name="message" size={size.icon} />
-          {unread || requests ? <View style={styles.headDot} /> : null}
-        </Pressable>
-      </View>
-    </View>
-  );
+  return <KiezHeader {...props} />;
 }
 
 function KiezHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) {
@@ -108,8 +74,7 @@ function countLine(counts: FeedCounts): string {
  * `counts` leer, solange der Feed lädt: Dann steht nur der Kiez da, nicht „Noch nichts“.
  */
 export function FeedGreeting({ name, kiez, counts }: { name: string; kiez?: string; counts?: FeedCounts }) {
-  // Fashionable Look: keine Begrüßung, der Schriftzug steht allein (Mockup)
-  if (isFashionable) return null;
+
   const hour = new Date().getHours();
   const greeting = hour < 11 ? 'Guten Morgen' : hour < 18 ? 'Hallo' : 'Guten Abend';
   const sub = [kiez, counts ? countLine(counts) : ''].filter(Boolean).join(' · ');
@@ -241,7 +206,7 @@ type SegmentsProps<K extends string> = {
 
 /** Segmente mit gleitender Pille, z. B. Feed-Reiter oder „Aktuell / Archiv“ in „Deine Challenges“. */
 export function Segments<K extends string>(props: SegmentsProps<K>) {
-  if (isFashionable) return <UnderlineTabs {...props} />;
+
   const { tabs, lead, selectedKey, onChange } = props;
   // „Privat“ steht vorn als eigene Spur, abgesetzt wie „Me & Myself“ (Daria, 2026-11-12)
   const first = tabs[0];
@@ -255,64 +220,6 @@ export function Segments<K extends string>(props: SegmentsProps<K>) {
     );
   }
   return <PillSegments {...props} />;
-}
-
-/**
- * Umschalter im Look „Fashionable“ (Daria, 23.10.2026), wie die Reiter in Profilen großer Foto-Apps: gleich breite Felder,
- * 44 pt hoch, Schrift 15 pt. Aktiv schwarz und halbfett, sonst Grau #737373. Unter dem aktiven Reiter liegt
- * ein schwarzer Strich, 1 pt stark und so breit wie das Feld; er gleitet mit „Schranke“ bzw. folgt dem Finger.
- * Darunter eine Haarlinie über die ganze Breite.
- */
-function UnderlineTabs<K extends string>({ tabs, selectedKey, onChange, progress, accent = false }: SegmentsProps<K>) {
-  const [width, setWidth] = useState(0);
-  const index = Math.max(0, tabs.findIndex((tab) => tab.key === selectedKey));
-  const x = useRef(new Animated.Value(index)).current;
-  useEffect(() => {
-    if (progress) return;
-    Animated.timing(x, {
-      toValue: index,
-      duration: motion.tabSwitch.duration,
-      easing: Easing.bezier(...motion.barrier.bezier),
-      useNativeDriver: true,
-    }).start();
-  }, [index, x, progress]);
-  const at = progress ?? x;
-  const w = tabs.length ? width / tabs.length : 0;
-  // Rechts nach links liegt der erste Reiter rechts
-  const slot = rtlLayout() ? Animated.subtract(tabs.length - 1, at) : at;
-  return (
-    <View style={styles.under} accessibilityRole="tablist" onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
-      {tabs.map((tab) => {
-        const selected = tab.key === selectedKey;
-        return (
-          <Pressable
-            key={tab.key}
-            accessibilityRole="tab"
-            accessibilityLabel={tab.planned ? t('{label}, kommt später', { label: t(tab.label) }) : t(tab.label)}
-            accessibilityState={{ selected }}
-            onPress={() => onChange(tab.key)}
-            style={({ pressed }) => [styles.underTab, pressed && styles.underPressed]}
-          >
-            <Text numberOfLines={1} style={[styles.underText, selected && styles.underTextSelected, selected && accent && styles.accentText, tab.planned && !selected && styles.planned]}>
-              {t(tab.label)}
-            </Text>
-          </Pressable>
-        );
-      })}
-      {w ? (
-        <View pointerEvents="none" style={styles.physical}>
-          <Animated.View
-            pointerEvents="none"
-            style={[
-              styles.underBar,
-              accent && styles.accentFill,
-              { width: w, transform: [{ translateX: Animated.multiply(slot, w) }] },
-            ]}
-          />
-        </View>
-      ) : null}
-    </View>
-  );
 }
 
 type Box = { x: number; width: number; height: number };
@@ -752,7 +659,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: space[16],
-    paddingVertical: isFashionable ? 0 : space[8],
+    paddingVertical: space[8],
   },
   spacer: { width: size.touchTarget, height: size.touchTarget },
   logo: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
@@ -767,20 +674,11 @@ const styles = StyleSheet.create({
     borderWidth: stroke.thin,
     borderColor: color.bg.screen,
   },
-  // Fashionable Look: Kopf 44 hoch, Begrüßung kleiner und halbfett, 16 seitlich, 4 oben, 12 unten bis zum Umschalter
-  greeting: isFashionable
-    ? { paddingHorizontal: space[16], paddingTop: space[4], paddingBottom: space[12], gap: space[2] }
-    : { paddingHorizontal: space[16], paddingTop: space[12], paddingBottom: space[8], gap: space[4] },
-  greetingTitle: isFashionable
-    ? { fontFamily: font.semiBold, fontSize: 22, lineHeight: 28, letterSpacing: -0.3, color: color.text.primary }
-    : // Ganze Begrüßung in der Unbounded wie die Ansprache „Pirat:in“ (Daria, 2026-11-09). 26 statt 30, die Unbounded
-      // läuft breiter; so passt „Guten Morgen, Pirat:in“ in eine Zeile.
-      { ...text.display, fontFamily: font.onPhoto, fontSize: 26, lineHeight: 32, letterSpacing: 0, color: color.text.primary },
+  greeting: { paddingHorizontal: space[16], paddingTop: space[12], paddingBottom: space[8], gap: space[4] },
+  greetingTitle: { ...text.display, fontFamily: font.onPhoto, fontSize: 26, lineHeight: 32, letterSpacing: 0, color: color.text.primary },
   // Ansprache in der Unbounded wie Namen und Hashtags über dem Foto (Daria, 09.11.2026)
   greetingName: { fontFamily: font.onPhoto, letterSpacing: 0 },
-  greetingSub: isFashionable
-    ? { fontFamily: font.regular, fontSize: 14, lineHeight: 18, color: color.text.secondary }
-    : { fontFamily: font.text, fontSize: 15, lineHeight: 20, color: color.text.secondary },
+  greetingSub: { fontFamily: font.text, fontSize: 15, lineHeight: 20, color: color.text.secondary },
   topBar: { paddingHorizontal: space[16], paddingTop: space[4], paddingBottom: space[4], gap: space[12] },
   topItem: { width: size.thumbnail, alignItems: 'center', gap: space[4] },
   thumbnail: {
@@ -823,15 +721,6 @@ const styles = StyleSheet.create({
   measure: { position: 'absolute', left: 0, top: 0, opacity: 0, flexDirection: 'row' },
   planned: { opacity: 0.6 },
   hint: { paddingHorizontal: space[16] },
-  fashionHead: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: space[4],
-    paddingRight: space[12],
-    paddingBottom: space[8],
-    paddingLeft: 14,
-  },
   brand: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
   headIcons: { flexDirection: 'row', alignItems: 'center', gap: 18 },
   headDot: {

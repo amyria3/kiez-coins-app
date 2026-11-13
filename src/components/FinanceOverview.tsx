@@ -8,7 +8,7 @@ import { financeLinkCode, loadFinanceStand, type FinanceStand } from '../data/re
 import { useStore } from '../data/store';
 import { t } from '../data/texts';
 import type { User } from '../data/types';
-import { color, font, isFashionable, radius, space, text } from '../theme/tokens';
+import { color, font, radius, space, text } from '../theme/tokens';
 
 /**
  * „Modell KiezCoins“ unten auf „Me“ (Daria, 08.11.2026; Überschrift seit 2026-11-09, vorher „So finanziert sich KiezCoins“): knapper Text, Balken 30/70 und die Community
@@ -23,7 +23,7 @@ const KNOPF =
 // Farben wie auf kiezcoins…/finanzierung, kein Grau (Daria, 08.11.2026): Aktive blasses Lila, nur Angemeldete gedecktes Grün
 // Aktive im normalen Lila wie auf der Finanzierungsseite (Daria, 2026-11-13)
 const PUNKT_AKTIV = color.accent.primary;
-const PUNKT_INAKTIV = isFashionable ? '#CFE2C6' : '#547E49';
+const PUNKT_INAKTIV = '#547E49';
 
 /** Höchstens so viele Punkte; darüber steht ein Punkt für mehrere Personen */
 const MAX_PUNKTE = 600;

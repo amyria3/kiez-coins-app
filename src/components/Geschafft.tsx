@@ -10,7 +10,7 @@ import { loadPraise } from '../data/remote';
 import { useStore } from '../data/store';
 import { t } from '../data/texts';
 import { useAppDimensions } from '../theme/layout';
-import { color, isFashionable, radius, space, stroke, text } from '../theme/tokens';
+import { color, radius, space, stroke, text } from '../theme/tokens';
 import { Avatar } from './AuthorRow';
 import { Cat } from './icons/Brand';
 import { Text } from './T';
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   statValue: { ...text.metric, fontSize: 24, lineHeight: 28, color: color.text.primary },
   statLabel: { ...text.caption, color: color.text.secondary },
   signal: { color: color.accent.signal },
-  block: { gap: isFashionable ? space[8] : space[12] },
+  block: { gap: space[12] },
   list: { borderRadius: radius.xl + 2, backgroundColor: color.bg.surface, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12], paddingHorizontal: space[12] },
   rowDivider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },

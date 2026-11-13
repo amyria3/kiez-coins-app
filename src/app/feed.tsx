@@ -48,7 +48,7 @@ import { runningBeforeAfter, topChallenges as pickTopChallenges, useStore } from
 import { RunningBeforeAfter } from '../components/BeforeAfterTimer';
 import { useFeedViews } from '../data/seen';
 import type { Challenge } from '../data/types';
-import { color, isFashionable, motion, space, text } from '../theme/tokens';
+import { color, motion, space, text } from '../theme/tokens';
 import { cardSwipe, resetCardSwipe } from '../lib/cardSwipe';
 import { useIntroDone } from '../lib/intro';
 
@@ -87,7 +87,6 @@ export default function FeedScreen() {
   const requireKiez = useRequireKiez();
   const [surveyVisible, closeSurvey] = useSurveyPrompt();
   // `gruppe`: aus der Gruppenseite („Aufgaben ansehen“) direkt in den Reiter „Gruppen“
-  // `reiter=gruppen` und `erstellen=1`: aus der Leiste im Fashionable Look von anderen Seiten
   // `reiter` und `neu`: nach dem Posten in den passenden Reiter (`neu` ist die Id des Posts, damit es jedes Mal greift)
   const { gruppe, reiter, erstellen, neu } = useLocalSearchParams<{
     gruppe?: string;
@@ -528,7 +527,7 @@ export default function FeedScreen() {
   // „My Feed“ (Privat), umzuschalten über einen kleinen eigenen Umschalter. Der große Umschalter verschwindet nur in
   // „My Structure“ und kommt zurück, wenn man ganz oben weiter nach oben zieht oder zu „My Feed“ wechselt.
   const privateOn = tabOrder.includes('private');
-  const meOn = !isFashionable && !composing && (routineOn || privateOn);
+  const meOn = !composing && (routineOn || privateOn);
   const meActive = meOn && (routineActive || (switchingTo ?? tab) === 'private');
   meActiveRef.current = meActive;
   const meBoth = meOn && routineOn && privateOn;
@@ -585,7 +584,7 @@ export default function FeedScreen() {
   useEffect(() => {
     if (reiter !== 'routine') return;
     router.setParams({ reiter: undefined });
-    if (!routineOn || isFashionable) return;
+    if (!routineOn) return;
     swipeX.setValue(0);
     // Oben in der Routine: Ziehen nach unten holt den großen Umschalter, auch wenn der Feed weit unten stand
     lastY.current = 0;
@@ -593,7 +592,7 @@ export default function FeedScreen() {
     setRoutineShown(true);
   }, [reiter, router, routineOn, swipeX]);
   const routineLeftRef = useRef(false);
-  routineLeftRef.current = routineOn && !composing && !isFashionable;
+  routineLeftRef.current = routineOn && !composing && true;
 
   const swipe = useMemo(
     () =>
@@ -814,13 +813,7 @@ export default function FeedScreen() {
   };
 
   // Kopf: Höhe und Deckkraft gehen auf 0. Segmente: rechts Platz für die Kamera, sobald der Kopf weg ist.
-  // Fashionable Look: Der Kopf trägt Profil und Chats und bleibt stehen (Daria, 24.10.2026). Nur beim Erstellen geht er weg.
-  const headerStyle = headerHeight && isFashionable
-    ? {
-        height: composeAnim.interpolate({ inputRange: [0, 1], outputRange: [headerHeight, 0] }),
-        opacity: composeAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0, 0] }),
-      }
-    : headerHeight
+  const headerStyle = headerHeight
     ? {
         // Nachschwingen über 1 hinaus: Höhe bleibt bei 0, nur die Verschiebung schwingt mit
         // Beim Erstellen immer weg, egal wo der Feed gerade steht
@@ -836,8 +829,7 @@ export default function FeedScreen() {
       }
     : null;
   // Die Kamera oben rechts ist weg (Daria, 2026-11-09), die Reiter nutzen die volle Breite.
-  // Fashionable Look: Erstellen sitzt in der Leiste unten, die Reiter nutzen die volle Breite ohne Rand
-  const tabsPaddingRight = isFashionable ? 0 : space[16];
+  const tabsPaddingRight = space[16];
   const composeHeaderStyle = {
     height: composeAnim.interpolate({ inputRange: [0, 1], outputRange: [0, COMPOSE_HEADER] }),
     opacity: composeAnim.interpolate({ inputRange: [0, 0.4, 1], outputRange: [0, 0, 1] }),
@@ -900,7 +892,7 @@ export default function FeedScreen() {
         </View>
       </Animated.View>
       {bigSwitchShown && !searching ? (
-      <Animated.View style={[styles.tabsRow, isFashionable && styles.tabsRowFashionable, { paddingRight: tabsPaddingRight }]}>
+      <Animated.View style={[styles.tabsRow, { paddingRight: tabsPaddingRight }]}>
         <View style={styles.flex}>
         <TabsNavigation
           selectedKey={switchingTo ?? tab}
@@ -918,7 +910,7 @@ export default function FeedScreen() {
           lead={
             meOn
               ? { label: t('Me & Myself'), active: meActive, private: true, onPress: () => !meActive && (privateOn ? switchTab('private') : openRoutine()) }
-              : routineOn && !composing && !isFashionable
+              : routineOn && !composing && true
                 ? { label: t('Routine'), active: routineActive, onPress: () => !routineActive && openRoutine() }
                 : undefined
           }
@@ -930,7 +922,7 @@ export default function FeedScreen() {
         <Animated.View
           style={[
             styles.clip,
-            searching || searchFocused || !!query || isFashionable || !searchHeight
+            searching || searchFocused || !!query || !searchHeight
               ? null
               : {
                   height: searchAnim.interpolate({ inputRange: [0, 1], outputRange: [0, searchHeight] }),
@@ -1007,9 +999,9 @@ export default function FeedScreen() {
           onScrollBeginDrag={() => (dragging.current = true)}
           onScrollEndDrag={() => (dragging.current = false)}
           scrollEventThrottle={16}
-          contentContainerStyle={[styles.list, isFashionable ? null : styles.listTop, emptyItem && styles.listGrow, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
+          contentContainerStyle={[styles.list, styles.listTop, emptyItem && styles.listGrow, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
           // Kater erinnert an fällige Erinnerungen, vorerst nur mit Routine (Daria, 2026-11-10)
-          ListHeaderComponent={routineOn ? <RoutineNudge enabled onOpen={routineOn && !composing && !isFashionable ? openRoutine : undefined} /> : null}
+          ListHeaderComponent={routineOn ? <RoutineNudge enabled onOpen={routineOn && !composing && true ? openRoutine : undefined} /> : null}
           ListFooterComponent={emptyItem ? renderItem({ item: emptyItem }) : null}
           ListFooterComponentStyle={emptyItem ? styles.emptyFooter : undefined}
           refreshControl={
@@ -1105,9 +1097,8 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   flex: { flex: 1 },
   clip: { overflow: 'hidden' },
-  // Fashionable Look: Beiträge ohne Lücke, jeder Beitrag bringt 16 pt Abstand unten selbst mit
   // Etwas mehr Abstand zwischen den Posts (Daria, 2026-11-09)
-  list: { gap: isFashionable ? 0 : space[32] },
+  list: { gap: space[32] },
   listTop: { paddingTop: space[8] },
   listGrow: { flexGrow: 1 },
   // Unten etwas Luft über der Leiste, oben trennt schon der Abstand der Liste
@@ -1126,6 +1117,4 @@ const styles = StyleSheet.create({
     paddingBottom: space[8],
     paddingLeft: space[16],
   },
-  // Unterstrich-Reiter über die ganze Breite, Haarlinie unten schließt an den ersten Beitrag an
-  tabsRowFashionable: { paddingTop: 0, paddingBottom: 0, paddingLeft: 0 },
 });

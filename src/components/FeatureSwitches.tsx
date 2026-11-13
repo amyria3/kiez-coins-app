@@ -17,7 +17,7 @@ import {
 import { useRoutineAvailable, useRoutineIsStandard } from '../data/routine';
 import { useStore } from '../data/store';
 import { t } from '../data/texts';
-import { color, isFashionable, space, text } from '../theme/tokens';
+import { color, space, text } from '../theme/tokens';
 import { FieldGroup } from './Content';
 import { Segments } from './FeedHeader';
 import { Toggle } from './Form';
@@ -75,7 +75,7 @@ export function FeatureSwitches({ children }: { children?: ReactNode } = {}) {
             {routineStandard ? 'Die App öffnet mit Deiner Routine.' : 'Dieser Modus ist oben im Umschalter vorausgewählt.'}
           </Text>
           {/* Routine als eigene Pille links, wie im Feed (Daria, 2026-11-11); im Look „Fashionable“ ohne eigene Spur */}
-          {routineLead && !isFashionable ? (
+          {routineLead && true ? (
             <Segments
               tabs={modeTabs}
               selectedKey={modes.standard}

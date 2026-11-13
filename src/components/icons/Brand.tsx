@@ -2,16 +2,15 @@ import { memo, useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
-import { color, isFashionable } from '../../theme/tokens';
+import { color } from '../../theme/tokens';
 import { coinsSvg, wordmarkSvg, type CatMood } from './brandSvgs';
 import { brandArt } from './brandArt';
 import { iconSvgs } from './svgs';
 import { crownSvg } from './crownSvg';
 import { diamondSvgs, type DiamondVariant } from './diamondSvgs';
 import { ICON_SCALE } from './Icon';
-import { PH, phXml } from './fashionableSvgs';
 // Edenstein: Phosphor hat keinen Edelstein, daher bleibt Font Awesome Free „gem“ (CC BY 4.0)
-import { faGem } from '@fortawesome/free-regular-svg-icons/faGem';
+
 import { t } from '../../data/texts';
 
 type CatProps = {
@@ -28,8 +27,7 @@ type CatProps = {
  */
 const CAT_ART: Partial<Record<CatMood, string>> = { high: 'kater-high' };
 export const Cat = memo(function Cat({ mood = 'default', height = 39, tint }: CatProps) {
-  // Fashionable Look: überall der Kater aus dem monochromen Logo (Daria, 24.10.2026)
-  if (isFashionable) return <MonoCat height={height} tint={tint} />;
+
   const art = CAT_ART[mood] ? brandArt[CAT_ART[mood]!] : undefined;
   if (!art) {
     const icon = iconSvgs.cat;
@@ -39,17 +37,7 @@ export const Cat = memo(function Cat({ mood = 'default', height = 39, tint }: Ca
 });
 
 /** Lila aus Figma (#8F90FA) gegen die Signaturfarbe des Looks tauschen. Im Kiez-Look bleibt alles, wie es ist. */
-const signature = (svg: string) => (isFashionable ? svg.replace(/#8F90FA/gi, color.brand.signature) : svg);
-
-/** Kater aus dem monochromen Logo, quadratisch zugeschnitten, in Textfarbe (Fashionable Look, Daria 24.10.2026) */
-export const MonoCat = memo(function MonoCat({ height = 26, tint = color.text.primary }: { height?: number; tint?: string }) {
-  const mono = brandArt['logo-mono'];
-  const xml = mono.svg
-    .replace(/#111111/gi, tint)
-    .replace(/viewBox="[^"]*"/, 'viewBox="0 1 34 34"')
-    .replace(/width="[^"]*" height="[^"]*"/, '');
-  return <SvgXml xml={xml} width={height} height={height} />;
-});
+const signature = (svg: string) => svg;
 
 /**
  * Logo: Kater und Schriftzug „KiezCoins“ (`assets/brand/logo.svg`, Daria 2026-11-12), in allen Looks.
@@ -59,7 +47,7 @@ export const MonoCat = memo(function MonoCat({ height = 26, tint = color.text.pr
  */
 export const Logo = memo(function Logo({ height = 24, tint, glasses }: { height?: number; tint?: string; glasses?: string }) {
   const art = brandArt.logo;
-  const ink = tint ?? (isFashionable ? color.text.primary : undefined);
+  const ink = tint;
   const xml = ink
     ? art.svg.replace(/#7E94FF/gi, ink).replace(/#0F100E/gi, glasses ?? color.bg.screen)
     : art.svg;
@@ -74,8 +62,7 @@ export const Wordmark = memo(function Wordmark() {
 /** Zwei Münzen hintereinander: vorn ein ganzer Kreis, hinten nur der Bogen, der hervorschaut */
 /** icon/coins mit Verlauf, Standardgröße wie im BountyBadge (19×22) */
 export const CoinsIcon = memo(function CoinsIcon({ height = 22 }: { height?: number }) {
-  // Fashionable Look: zwei Münzen als Kontur, Linie 2 mit runden Enden, in Textfarbe (Daria, 23.10.2026)
-  if (isFashionable) return <SvgXml xml={phXml(PH.coins, color.text.primary)} width={height} height={height} />;
+
   return <SvgXml xml={coinsSvg} width={(30 / 35) * height} height={height} />;
 });
 
@@ -87,8 +74,7 @@ export const DiamondIcon = memo(function DiamondIcon({
   variant?: DiamondVariant;
   height?: number;
 }) {
-  // Fashionable Look: glatter Stein ohne Striche, etwas kleiner, da die Striche als Rahmen fehlen
-  if (isFashionable) return <SvgXml xml={GEM_SVG(height * 0.8)} width={gem.ratio * height * 0.8} height={height * 0.8} />;
+
   const d = diamondSvgs[variant];
   return <SvgXml xml={d.svg(color.text.primary)} width={(d.width / d.height) * height} height={height} />;
 });
@@ -124,30 +110,8 @@ const crystalSvgs = ([1, 2, 3] as DiamondVariant[]).map((v) => {
       .replace(/width="[^"]*" height="[^"]*"/, ''),
   };
 });
-
-/**
- * Edenstein im Look „Fashionable“ (Daria, 24.10.2026): Font Awesome „gem“ in Textfarbe wie alle Icons.
- * Ab und zu blitzt der Verlauf Amethyst auf (FashionGem).
- * Er steht als Angabe neben seiner Zahl: kleiner als die Aktions-Icons, ohne Bewegung und ohne Druckfläche,
- * damit er nicht wie ein Knopf wirkt.
- */
-/** Font Awesome „gem“ (Regular), Rahmen auf den Stein zugeschnitten (Daria, 24.10.2026: Font Awesome im Fashionable Look) */
-const GEM_BOX = { x: 0, y: 24, w: 512, h: 456 };
-const GEM_PATH = faGem.icon[4] as string;
-/** Verlauf, der aufblitzt */
-const GEM_FLASH = ['#F783AC', '#7048E8'] as const;
-/** Stein als Fläche: `fill` Farbe oder Verlauf. `_px` bleibt für die Aufrufer, die Größe regelt das SvgXml. */
-const GEM_SVG = (_px: number, fill: string = color.text.primary, defs = '') =>
-  `<svg viewBox="${GEM_BOX.x} ${GEM_BOX.y} ${GEM_BOX.w} ${GEM_BOX.h}" xmlns="http://www.w3.org/2000/svg" fill="${fill}">${defs}<path d="${GEM_PATH}"/></svg>`;
-const GEM_GRADIENT_SVG = (px: number, id: string) =>
-  GEM_SVG(
-    px,
-    `url(#${id})`,
-    `<defs><linearGradient id="${id}" x1="0" y1="24" x2="512" y2="480" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${GEM_FLASH[0]}"/><stop offset="1" stop-color="${GEM_FLASH[1]}"/></linearGradient></defs>`,
-  );
-const gem = { ratio: GEM_BOX.w / GEM_BOX.h, svg: GEM_SVG(GEM_BOX.h) };
 /** Kristall je Typ: im Fashionable Look immer der glatte Stein */
-const stoneOf = (type: number) => (isFashionable ? gem : crystalSvgs[type]);
+const stoneOf = (type: number) => crystalSvgs[type];
 
 /**
  * Lage der Kristalle im Haufen, in Kristallbreiten (x) und -höhen (y), in der Reihenfolge, wie sie dazukommen:
@@ -200,10 +164,10 @@ export const EdensteinPile = memo(function EdensteinPile({ amount, height = 24 }
               top: (p.y - minY) * height + (height - h),
               opacity: p.z === 0 && n > 2 ? 0.85 : 1,
               // Glatter Stein liegt gerade, damit der Haufen ruhig und symmetrisch wirkt
-              transform: [{ rotate: `${isFashionable ? 0 : p.rot}deg` }],
+              transform: [{ rotate: `${p.rot}deg` }],
             }}
           >
-            <SvgXml xml={isFashionable ? GEM_SVG(h) : crystal.svg} width={cw} height={h} />
+            <SvgXml xml={crystal.svg} width={cw} height={h} />
           </View>
         );
       })}
@@ -304,50 +268,8 @@ function hashSeed(seed: string) {
  */
 /** `calm`: ruht, ohne Bewegung und Funkeln (z. B. wenn es nichts zu holen gibt) */
 export const LivingCrystal = memo(function LivingCrystal(props: { height?: number; amount?: number; seed?: string; calm?: boolean }) {
-  return isFashionable ? <FashionGem {...props} /> : <KiezCrystal {...props} />;
+  return <KiezCrystal {...props} />;
 });
-
-/**
- * Edenstein im Fashionable Look: steht still, 46 % von `height` hoch (Daria, 24.10.2026: 55 % war zu groß),
- * und blitzt alle 6 bis 14 Sekunden im Verlauf auf: 350 ms einblenden, 500 ms halten, 650 ms ausblenden.
- * `calm` und „Bewegung reduzieren“: kein Aufblitzen.
- */
-function FashionGem({ height = 48, seed, calm }: { height?: number; seed?: string; calm?: boolean }) {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    AccessibilityInfo.isReduceMotionEnabled().then(setReduced).catch(() => {});
-  }, []);
-  const flash = useRef(new Animated.Value(0)).current;
-  const id = useRef(`gem-${seed ? hashSeed(seed) : Math.floor(Math.random() * 1e9)}-${Math.floor(Math.random() * 1e6)}`).current;
-  useEffect(() => {
-    if (reduced || calm) return;
-    let timer: ReturnType<typeof setTimeout>;
-    const next = () => {
-      timer = setTimeout(() => {
-        Animated.sequence([
-          Animated.timing(flash, { toValue: 1, duration: 350, easing: Easing.out(Easing.quad), useNativeDriver: true }),
-          Animated.delay(500),
-          Animated.timing(flash, { toValue: 0, duration: 650, easing: Easing.in(Easing.quad), useNativeDriver: true }),
-        ]).start(({ finished }) => finished && next());
-      }, 6000 + Math.random() * 8000);
-    };
-    next();
-    return () => {
-      clearTimeout(timer);
-      flash.stopAnimation();
-    };
-  }, [flash, reduced, calm]);
-  const gemH = Math.round(height * 0.46);
-  const w = gemH * gem.ratio;
-  return (
-    <View style={{ width: w, height, justifyContent: 'center' }}>
-      <SvgXml xml={GEM_SVG(gemH)} width={w} height={gemH} />
-      <Animated.View pointerEvents="none" style={{ position: 'absolute', left: 0, top: (height - gemH) / 2, opacity: flash }}>
-        <SvgXml xml={GEM_GRADIENT_SVG(gemH, id)} width={w} height={gemH} />
-      </Animated.View>
-    </View>
-  );
-}
 
 const KiezCrystal = memo(function KiezCrystal({
   height = 48,
@@ -385,11 +307,11 @@ const KiezCrystal = memo(function KiezCrystal({
   }, [flash, still]);
   const crystal = stoneOf(look % 3);
   // Glatter Stein: nie gespiegelt oder schief, er schwebt nur und funkelt
-  const mirror = !isFashionable && (look >> 3) % 2 === 1;
-  const lean = isFashionable ? 0 : (((look >> 5) % 13) - 6) * 1.5;
-  const tiltRange = isFashionable ? ['0deg', '0deg'] : ['-22deg', '22deg'];
+  const mirror = (look >> 3) % 2 === 1;
+  const lean = (((look >> 5) % 13) - 6) * 1.5;
+  const tiltRange = ['-22deg', '22deg'];
   // Glatter Stein ist breiter als hoch: auf 55 % der Höhe gezeichnet, damit er so breit ist wie der Kristall
-  const gemH = isFashionable ? height * 0.55 : height;
+  const gemH = height;
   const w = gemH * crystal.ratio;
   const star = height * 0.42;
   return (
@@ -419,7 +341,7 @@ const KiezCrystal = memo(function KiezCrystal({
         ],
       }}
     >
-      <SvgXml xml={isFashionable ? GEM_SVG(gemH) : crystal.svg} width={w} height={gemH} />
+      <SvgXml xml={crystal.svg} width={w} height={gemH} />
       <Animated.View
         pointerEvents="none"
         style={{

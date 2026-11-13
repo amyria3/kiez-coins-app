@@ -16,7 +16,7 @@ import { ReminderExtrasRow } from './ReminderExtras';
 import { RoutineList } from './RoutineList';
 import { archiveReminder, capitalize, goalOf, kindOf, loadReminders, type Reminder, type ReminderEnd } from '../data/reminders';
 import { t } from '../data/texts';
-import { color, font, isFashionable, radius, space, text } from '../theme/tokens';
+import { color, font, radius, space, text } from '../theme/tokens';
 
 /**
  * Inhalt der Routine (Daria, 2026-11-09/10): Deine Erinnerungen mit Fortschritt der Woche, oben der Kater.
@@ -237,7 +237,7 @@ function ReminderCard({
 }
 
 /** Kiez-Look: Kalender und farbige Karten in drei Gruppen (Daria, 2026-11-12). Fashionable behält die Liste. */
-const flat = !isFashionable;
+const flat = true;
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
