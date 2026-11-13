@@ -5,6 +5,7 @@ import { markCardSwipe } from '../lib/cardSwipe';
 import Svg, { Defs, Line, Path, Pattern, Rect } from 'react-native-svg';
 
 import { Button } from './Button';
+import { Icon } from './icons/Icon';
 import { KaterCard, KaterRund } from './Content';
 import { handShapePath } from './handShape';
 import { ReminderExtrasRow } from './ReminderExtras';
@@ -59,7 +60,8 @@ export function RoutineList({
   saved: Saved[];
   onDone: (r: Reminder) => void;
   /** Aufgeben oder abbrechen, mit Rückfrage (Daria, 2026-11-13) */
-  onEnd: (r: Reminder, how: ReminderEnd) => void;
+  /** `confirm` false beim Ziehen: Die Karte hat die Bedeutung schon gezeigt (Daria, 2026-11-13) */
+  onEnd: (r: Reminder, how: ReminderEnd, confirm?: boolean) => void;
   onNew: () => void;
   /** Bearbeiten über „•••“ oder Tippen auf Titel oder Zeit (Daria, 2026-11-13) */
   onEdit: (r: Reminder) => void;
@@ -90,14 +92,14 @@ export function RoutineList({
       {tasks.length ? (
         <Group title="Aufgaben" count={tasks.length}>
           {tasks.map((r) => (
-            <TaskCard key={r.id} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} />
+            <TaskCard key={r.id} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} />
           ))}
         </Group>
       ) : null}
       {fixed.length || calendar.length ? (
         <Group title="Feste Termine" count={fixed.length + calendar.length}>
           {fixed.map((r) => (
-            <TerminCard key={r.id} reminder={r} bg={OLIVE} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} />
+            <TerminCard key={r.id} reminder={r} bg={OLIVE} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} />
           ))}
           {calendar.map((e) => (
             <CalendarCard key={e.id} event={e} />
@@ -107,7 +109,7 @@ export function RoutineList({
       {optional.length || saved.length ? (
         <Group title="Das hast Du Dir vorgemerkt" count={optional.length + saved.length}>
           {optional.map((r) => (
-            <TerminCard key={r.id} reminder={r} bg={PUDER} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} />
+            <TerminCard key={r.id} reminder={r} bg={PUDER} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} />
           ))}
           {saved.map((e) => (
             <SavedCard key={e.id} event={e} onChanged={onChanged} />
@@ -179,6 +181,8 @@ function sortByUrgency(list: Reminder[], now: Date, later: Record<string, number
  * Vorher ging Wischen nur bei der einzigen Karte einer Gruppe, und langes Drücken brach ab.
  */
 const DRAG_AT = 88;
+/** Nach oben folgt die Karte nur zu diesem Teil dem Finger */
+const UP_FACTOR = 0.4;
 const LIFT_MS = 350;
 /** Solange eine Karte angehoben ist, scrollen weder die Reihe noch die Seite */
 const DragLock = createContext<(on: boolean) => void>(() => {});
@@ -343,9 +347,11 @@ function useLiftDrag(actions: DragActions) {
       onPanResponderTerminationRequest: () => false,
       onPanResponderMove: (_e, g) => {
         const a = now.current;
-        // Ohne Ziel in dieser Richtung gibt die Karte nur wenig nach; nach oben nur ein Stück, sonst schneidet die Reihe ab
-        const x = (g.dx > 0 ? a.right : a.left) ? g.dx : g.dx / 6;
-        const y = g.dy < 0 && a.up ? g.dy * 0.4 : g.dy / 6;
+        // Eine Richtung zur Zeit, damit die Karte nur eine Bedeutung zeigt. Ohne Ziel in dieser Richtung gibt sie nur
+        // wenig nach; nach oben nur ein Stück, sonst schneidet die Reihe ab.
+        const across = Math.abs(g.dx) >= Math.abs(g.dy);
+        const x = across && (g.dx > 0 ? a.right : a.left) ? g.dx : g.dx / 6;
+        const y = !across && g.dy < 0 && a.up ? g.dy * UP_FACTOR : g.dy / 6;
         pos.setValue({ x, y });
       },
       onPanResponderRelease: (_e, g) => {
@@ -378,6 +384,8 @@ function Card({
   onDragRight,
   onDragLeft,
   onDragUp,
+  leftLabel = 'Abbrechen',
+  leftTone = 'end',
 }: {
   bg: string;
   mood: Mood;
@@ -394,6 +402,9 @@ function Card({
   onDragRight?: () => void;
   onDragLeft?: () => void;
   onDragUp?: () => void;
+  /** Was nach links ziehen bedeutet: „Abbrechen“, „Absagen“ oder „Löschen“ (Daria, 2026-11-13) */
+  leftLabel?: string;
+  leftTone?: 'end' | 'delete';
 }) {
   const [wide, setWide] = useState(false);
   const drag = useLiftDrag({ right: onDragRight, left: onDragLeft, up: onDragUp });
@@ -454,24 +465,30 @@ function Card({
         )}
         {children}
       </View>
+      {/* Beim Ziehen zeigt die Karte selbst, was das Loslassen auslöst (Daria, 2026-11-13: keine Rückfrage, die Karte
+          ändert sich). Bis zur Schwelle schimmert die Farbe nur, ab der Schwelle deckt sie und das Wort wird größer. */}
+      {drag.on ? (
+        <View style={styles.dragFace} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          {onDragRight ? <DragFace value={drag.pos.x} sign={1} at={DRAG_AT} bg={color.accent.confirmation} ink={INK} icon="check" label="Erledigt" align="flex-start" /> : null}
+          {onDragLeft ? (
+            <DragFace
+              value={drag.pos.x}
+              sign={-1}
+              at={DRAG_AT}
+              bg={leftTone === 'delete' ? color.accent.error : INK}
+              ink={leftTone === 'delete' ? INK : color.text.primary}
+              icon="close"
+              label={leftLabel}
+              align="flex-end"
+            />
+          ) : null}
+          {onDragUp ? <DragFace value={drag.pos.y} sign={-1} at={DRAG_AT * UP_FACTOR} bg={INK_SOFT} ink={color.text.primary} icon="clock-filled" label="Später" align="center" /> : null}
+        </View>
+      ) : null}
     </Pressable>
   );
   return (
     <View style={[styles.swipe, drag.lifted && styles.swipeLifted]} onTouchEnd={drag.touchEnd} onTouchCancel={drag.touchEnd}>
-      {/* Was das Ziehen auslöst, steht hinter der Karte und erscheint beim Ziehen */}
-      {drag.on ? (
-        <View style={styles.swipeHints} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          <Animated.View style={{ opacity: drag.pos.x.interpolate({ inputRange: [0, DRAG_AT], outputRange: [0, 1], extrapolate: 'clamp' }) }}>
-            {onDragRight ? <Text style={styles.swipeHint}>Erledigt</Text> : null}
-          </Animated.View>
-          <Animated.View style={[styles.swipeHintUp, { opacity: drag.pos.y.interpolate({ inputRange: [-DRAG_AT * 0.4, 0], outputRange: [1, 0], extrapolate: 'clamp' }) }]}>
-            {onDragUp ? <Text style={styles.swipeHint}>Später</Text> : null}
-          </Animated.View>
-          <Animated.View style={{ opacity: drag.pos.x.interpolate({ inputRange: [-DRAG_AT, 0], outputRange: [1, 0], extrapolate: 'clamp' }) }}>
-            {onDragLeft ? <Text style={styles.swipeHint}>Abbrechen</Text> : null}
-          </Animated.View>
-        </View>
-      ) : null}
       <Animated.View
         style={[styles.swipe, { transform: [{ translateX: drag.pos.x }, { translateY: drag.pos.y }, { rotate }, { scale }] }]}
         {...drag.handlers}
@@ -479,6 +496,50 @@ function Card({
         {card}
       </Animated.View>
     </View>
+  );
+}
+
+/**
+ * Fläche auf der Karte für eine Richtung: Farbe, Icon und Wort. `sign` 1 heißt positive Werte (rechts), −1 negative
+ * (links, oben). Die Fläche springt an der Schwelle von halb auf ganz, damit klar ist: Loslassen löst jetzt aus.
+ */
+function DragFace({
+  value,
+  sign,
+  at,
+  bg,
+  ink,
+  icon,
+  label,
+  align,
+}: {
+  value: Animated.Value;
+  sign: 1 | -1;
+  at: number;
+  bg: string;
+  ink: string;
+  icon: 'check' | 'close' | 'clock-filled';
+  label: string;
+  align: 'flex-start' | 'flex-end' | 'center';
+}) {
+  // Stufen: 0 – halbe Schwelle – kurz vor der Schwelle – Schwelle
+  const range = (a: number, b: number, c: number, d: number) => ({
+    inputRange: sign > 0 ? [0, at / 2, at - 1, at] : [-at, -at + 1, -at / 2, 0],
+    outputRange: sign > 0 ? [a, b, c, d] : [d, c, b, a],
+    extrapolate: 'clamp' as const,
+  });
+  return (
+    <Animated.View style={[styles.dragFaceLayer, { backgroundColor: bg, alignItems: align, opacity: value.interpolate(range(0, 0.25, 0.5, 0.96)) }]}>
+      <Animated.View
+        style={[
+          styles.dragFaceLabel,
+          { opacity: value.interpolate(range(0, 0, 0.6, 1)), transform: [{ scale: value.interpolate(range(0.85, 0.85, 0.92, 1.08)) }] },
+        ]}
+      >
+        <Icon name={icon} size={28} color={ink} />
+        <Text style={[styles.dragFaceText, { color: ink }]}>{label}</Text>
+      </Animated.View>
+    </Animated.View>
   );
 }
 
@@ -497,6 +558,7 @@ function TaskCard({
   onDelete,
   onLater,
   urgent,
+  onDragCancel,
 }: {
   reminder: Reminder;
   onDone: () => void;
@@ -507,6 +569,8 @@ function TaskCard({
   onDelete?: () => void;
   onLater?: () => void;
   urgent?: boolean;
+  /** Beim Ziehen: ohne Rückfrage */
+  onDragCancel?: () => void;
 }) {
   const goal = goalOf(r);
   const done = Math.min(r.doneThisWeek, goal);
@@ -525,7 +589,7 @@ function TaskCard({
       tiltKey={r.id}
       urgent={urgent}
       onDragRight={resting ? undefined : onDone}
-      onDragLeft={onCancel}
+      onDragLeft={onDragCancel ?? onCancel}
       onDragUp={resting ? undefined : onLater}
       head={<CardHead meta={r.onDate ? whenText(r) : goalText(r)} title={capitalize(r.want)} onEdit={onEdit} />}
     >
@@ -579,6 +643,8 @@ function TerminCard({
   onDelete,
   onLater,
   urgent,
+  onDragCancel,
+  onDragDelete,
 }: {
   reminder: Reminder;
   bg: string;
@@ -589,6 +655,9 @@ function TerminCard({
   onDelete?: () => void;
   onLater?: () => void;
   urgent?: boolean;
+  /** Beim Ziehen: ohne Rückfrage */
+  onDragCancel?: () => void;
+  onDragDelete?: () => void;
 }) {
   // Jede Karte mit „•••“ und „Bearbeiten“, auch feste Termine (Daria, 2026-11-13); erledigt auch Kopie und Löschen
   const closed = r.doneToday ? closedItems(onCopy, onDelete) : { copy: [], remove: [] };
@@ -611,8 +680,10 @@ function TerminCard({
       tiltKey={r.id}
       urgent={urgent}
       onDragRight={r.doneToday ? undefined : onDone}
-      // Links: absagen; erledigt: löschen (Daria, 2026-11-13)
-      onDragLeft={r.doneToday ? onDelete : onEnd}
+      // Links: absagen; erledigt: löschen (Daria, 2026-11-13). Beim Ziehen ohne Rückfrage, die Karte zeigt es an.
+      onDragLeft={r.doneToday ? (onDragDelete ?? onDelete) : (onDragCancel ?? onEnd)}
+      leftLabel={r.doneToday ? 'Löschen' : 'Absagen'}
+      leftTone={r.doneToday ? 'delete' : 'end'}
       onDragUp={r.doneToday ? undefined : onLater}
       head={<CardHead meta={whenText(r)} title={capitalize(r.want)} onEdit={onEdit} />}>
       <ReminderExtrasRow place={r.place} phone={r.phone} link={r.link} ink={INK} />
@@ -1039,6 +1110,10 @@ const styles = StyleSheet.create({
   swipe: { flex: 1, userSelect: 'none' },
   // Angehoben liegt die Karte über den anderen
   swipeLifted: { zIndex: 2, elevation: 8 },
+  dragFace: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, borderRadius: radius.md, overflow: 'hidden' },
+  dragFaceLayer: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, justifyContent: 'center', paddingHorizontal: space[24] },
+  dragFaceLabel: { alignItems: 'center', gap: space[4] },
+  dragFaceText: { ...text.listTitle },
   cardLifted: {
     shadowColor: '#000',
     shadowOpacity: 0.35,
@@ -1046,19 +1121,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 10 },
     elevation: 8,
   },
-  swipeHintUp: { position: 'absolute', left: 0, right: 0, bottom: space[12], alignItems: 'center' },
-  swipeHints: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: space[8],
-  },
-  swipeHint: { ...text.label, color: color.text.primary },
+
   hand: {
     height: 34,
     minWidth: 96,
