@@ -19,7 +19,7 @@ import {
   type DeviceCalendar,
   type LinkedCalendar,
 } from '../data/calendar';
-import { setCalendarShown, useCalendarShown } from '../data/features';
+import { setCalendarExportShown, setCalendarShown, useCalendarExportShown, useCalendarShown } from '../data/features';
 import { useStore } from '../data/store';
 import { t } from '../data/texts';
 import { color, radius, space, text } from '../theme/tokens';
@@ -65,6 +65,9 @@ const OPENED_HINT: Record<Provider, string> = {
 };
 
 /**
+ * Zwei getrennte Funktionen mit je eigenem Schalter (Daria, 2026-11-13): KiezCoins-Termine in anderen Kalendern (Abo)
+ * und Termine aus anderen Kalendern in Routine. Die Einrichtung öffnet sich jeweils darunter.
+ *
  * Kalender unter Dein Konto › Funktionen, wie Weiterposten (Daria, 2026-11-10; vorher eigene Seite
  * `account/kalender` unter Einstellungen, davor `routine/kalender`): Termine aus Routine im eigenen Kalender abonnieren
  * und Termine aus eigenen Kalendern in Routine zeigen, als Link (überall) oder vom Handy (Android-App). Oben ein
@@ -73,7 +76,10 @@ const OPENED_HINT: Record<Provider, string> = {
  */
 export function CalendarSettings() {
   const { currentUserId } = useStore();
-  const on = useCalendarShown();
+  // Termine aus Deinen Kalendern in Routine
+  const importOn = useCalendarShown();
+  // KiezCoins-Termine in Deinem Kalender
+  const exportOn = useCalendarExportShown();
   const [feed, setFeed] = useState<{ https: string; webcal: string } | null | undefined>(undefined);
   const [linked, setLinked] = useState<LinkedCalendar[] | null>([]);
   const [name, setName] = useState('');
@@ -142,16 +148,14 @@ export function CalendarSettings() {
 
   return (
       <View style={styles.sections}>
-      <View style={styles.switchRow}>
-        <View style={styles.flex}>
-          <Text style={styles.switchLabel}>Kalender verbinden</Text>
-          <Text style={styles.url}>{on ? 'Termine aus KiezCoins in Deinem Kalender und Termine aus Deinem Kalender in Routine.' : 'Aus. Deine Einrichtung bleibt erhalten.'}</Text>
-        </View>
-        <Toggle label="Kalender" value={on} onValueChange={(v) => currentUserId && setCalendarShown(currentUserId, v)} />
-      </View>
-      {on ? (
-      <>
-      <FieldGroup label="KiezCoins in Deinem Kalender">
+      <SwitchRow
+        label="KiezCoins-Termine in Deinem Kalender"
+        hint={exportOn ? 'Dein Kalender abonniert Deine Termine aus KiezCoins.' : 'Aus. Ein bestehendes Abo kündigst Du in Deinem Kalender.'}
+        value={exportOn}
+        onChange={(v) => currentUserId && setCalendarExportShown(currentUserId, v)}
+      />
+      {exportOn ? (
+      <View style={styles.setup}>
         <Text style={styles.lead}>
           Deine festen Termine aus KiezCoins, also Termine mit einer konkreten Uhrzeit, erscheinen automatisch in Deinem Kalender. Dein Kalender bleibt synchron: Aktualisierst Du einen Termin bei KiezCoins, ruft er die Änderungen ab.
         </Text>
@@ -179,9 +183,18 @@ export function CalendarSettings() {
             <Button label="Neuen Link erstellen" variant="ghost" onPress={renew} />
           </>
         )}
-      </FieldGroup>
+      </View>
+      ) : null}
 
-      <FieldGroup label="Deine Kalender in KiezCoins">
+      <SwitchRow
+        label="Termine aus Deinen Kalendern"
+        hint={importOn ? 'Routine zeigt Termine aus Deinen Kalendern.' : 'Aus. Deine Einrichtung bleibt erhalten.'}
+        value={importOn}
+        onChange={(v) => currentUserId && setCalendarShown(currentUserId, v)}
+      />
+      {importOn ? (
+      <>
+      <View style={styles.setup}>
         <Text style={styles.lead}>Termine aus diesen Kalendern zeigt Routine als Termine, für die nächsten 7 Tage.</Text>
         {linked === null ? (
           <Notice variant="warning" message="Deine Kalender laden gerade nicht. Fehlt noch die Migration 20261110000300_kalender?" />
@@ -220,7 +233,7 @@ export function CalendarSettings() {
         <Button label="Kalender hinzufügen" variant="secondary" busy={adding} disabled={!url.trim() || !urlOk} onPress={add} />
         {added ? <Notice message={t('„{name}“ ist verbunden. Seine Termine der nächsten 7 Tage erscheinen in Routine.', { name: added })} onClose={() => setAdded(null)} /> : null}
         {addFailed ? <Notice variant="warning" message="Das hat nicht geklappt. Prüfe bitte die Adresse." /> : null}
-      </FieldGroup>
+      </View>
 
       {deviceCalendarsSupported ? (
         <FieldGroup label="Auf diesem Handy">
@@ -249,9 +262,24 @@ export function CalendarSettings() {
   );
 }
 
+/** Schalter wie unter Funktionen, mit Zustand darunter */
+function SwitchRow({ label, hint, value, onChange }: { label: string; hint: string; value: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <View style={styles.switchRow}>
+      <View style={styles.flex}>
+        <Text style={styles.switchLabel}>{label}</Text>
+        <Text style={styles.url}>{hint}</Text>
+      </View>
+      <Toggle label={label} value={value} onValueChange={onChange} />
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   // Schalter und Teile der Einrichtung, enger als die Abschnitte unter Funktionen
   sections: { gap: space[24] },
+  // Einrichtung unter einem Schalter
+  setup: { gap: space[12] },
   lead: { ...text.body, color: color.text.secondary },
   row: {
     flexDirection: 'row',
