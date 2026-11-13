@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   statLabel: { ...text.caption, color: color.text.secondary },
   signal: { color: color.accent.signal },
   block: { gap: space[12] },
-  list: { borderRadius: radius.xl + 2, backgroundColor: color.bg.surface, overflow: 'hidden' },
+  list: { borderRadius: radius.md, backgroundColor: color.bg.surface, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12], paddingHorizontal: space[12] },
   rowDivider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   rowTitle: { ...text.bodyLarge, color: color.text.primary },

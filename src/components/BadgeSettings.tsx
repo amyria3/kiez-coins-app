@@ -80,7 +80,7 @@ export function BadgeSettings() {
 }
 
 const styles = StyleSheet.create({
-  list: { borderRadius: radius.xl + 2, backgroundColor: color.bg.surface, overflow: 'hidden' },
+  list: { borderRadius: radius.md, backgroundColor: color.bg.surface, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[8], paddingHorizontal: space[16] },
   divider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   flex: { flex: 1 },

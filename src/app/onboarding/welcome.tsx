@@ -9,7 +9,7 @@ import { Button } from '../../components/Button';
 import { KaterStage } from '../../components/KaterStage';
 import { useKater } from '../../components/useKater';
 import { useAuth } from '../../data/auth';
-import { color, space, stroke, text } from '../../theme/tokens';
+import { color, radius, space, stroke, text } from '../../theme/tokens';
 import { useAppDimensions } from '../../theme/layout';
 
 /** So lange sind die Herzen zu sehen, bevor es weitergeht */
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   tile: {
     width: 180,
     height: 180,
-    borderRadius: 48,
+    borderRadius: radius.xl,
     backgroundColor: color.bg.surface,
     borderWidth: stroke.ultraThin,
     borderColor: color.line.hairline,

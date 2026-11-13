@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: space[12],
     padding: space[12],
-    borderRadius: radius.xl,
+    borderRadius: radius.md,
     backgroundColor: color.bg.surface,
   },
   pressed: { opacity: 0.7 },

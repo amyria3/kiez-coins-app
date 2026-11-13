@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   buttons: { gap: space[8] },
   /** Mehr Luft zwischen Kalender und Gruppen */
   contentFlat: { gap: space[32] },
-  card: { gap: space[12], padding: space[16], borderRadius: radius.xl, backgroundColor: color.bg.surface },
+  card: { gap: space[12], padding: space[16], borderRadius: radius.md, backgroundColor: color.bg.surface },
   head: { flexDirection: 'row', alignItems: 'flex-start', gap: space[12] },
   flex: { flex: 1, gap: space[4] },
   title: { ...text.cardTitle, color: color.text.primary },

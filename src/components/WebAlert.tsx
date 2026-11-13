@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   card: {
     width: '100%',
     maxWidth: 360,
-    borderRadius: radius.card,
+    borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: color.line.hairline,
   },

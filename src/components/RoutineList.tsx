@@ -14,7 +14,7 @@ import { dayName, goalText, katerFocus, katerLine, katerMood, weekdayShort, when
 import { addDays, capitalize, goalOf, isoWeekday, kindOf, loadRoutineDays, localDate, weekStart, type Reminder, type ReminderEnd, type RoutineDays } from '../data/reminders';
 import { asSingleEvent, eventWhen, saveEvent, type ShowcaseEvent } from '../data/showcase';
 import { localeTag, t, useTexts } from '../data/texts';
-import { color, font, space, text } from '../theme/tokens';
+import { color, font, radius, space, text } from '../theme/tokens';
 
 /**
  * Routine im Kiez-Look (Daria, 2026-11-12), nach der Vorlage „ListEasy“: oben der Kalender, darunter drei Gruppen
@@ -681,8 +681,8 @@ const styles = StyleSheet.create({
   row: { paddingHorizontal: GUTTER, gap: space[12] },
   card: {
     flex: 1,
-    // Weniger rund (Daria, 2026-11-12): vorher 30, dann 16
-    borderRadius: 10,
+    // Weniger rund (Daria, 2026-11-12): vorher 30, dann 16, jetzt Maß aller Karten (2026-11-13)
+    borderRadius: radius.md,
     padding: 14,
     gap: 6,
   },

@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
   showcaseNameUnderKicker: { marginTop: -space[8] },
   meta: { ...text.caption, color: color.text.secondary },
   link: { ...text.caption, color: color.text.primary, textDecorationLine: 'underline' },
-  cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.xl },
+  cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.md },
   viewButtons: { gap: space[8] },
   footer: { gap: space[8], marginTop: space[16] },
 });

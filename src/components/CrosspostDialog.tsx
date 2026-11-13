@@ -108,7 +108,7 @@ export function CrosspostDialogHost() {
 const styles = StyleSheet.create({
   backdrop: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, zIndex: 1000 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: space[24] },
-  card: { width: '100%', maxWidth: 360, borderRadius: radius.card, borderWidth: 1, borderColor: color.line.hairline },
+  card: { width: '100%', maxWidth: 360, borderRadius: radius.xl, borderWidth: 1, borderColor: color.line.hairline },
   inner: { padding: space[24] },
   alert: { gap: space[8] },
   title: { color: color.text.primary },

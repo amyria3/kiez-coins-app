@@ -458,8 +458,8 @@ const styles = StyleSheet.create({
   heroText: { position: 'absolute', left: 0, right: 0, top: 0, bottom: space[32] },
   sheet: {
     marginTop: -space[32],
-    borderTopLeftRadius: radius.sheet,
-    borderTopRightRadius: radius.sheet,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
     backgroundColor: color.bg.screen,
     paddingTop: space[8],
     // Mehr Luft links und rechts (Daria, 2026-11-09)

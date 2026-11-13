@@ -80,7 +80,7 @@ export function GroupCard({ group, meta, onFeed, onManage }: GroupCardProps) {
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: radius.xl, backgroundColor: color.bg.surface },
+  card: { borderRadius: radius.md, backgroundColor: color.bg.surface },
   // Mehr Raum, die Karte ist höher (Daria, 24.10.2026)
   top: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingHorizontal: space[20], paddingVertical: space[32] },
   flex: { flex: 1, gap: space[6] },

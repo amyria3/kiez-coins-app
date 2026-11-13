@@ -55,7 +55,7 @@ export default function Groups() {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: radius.xl,
+    borderRadius: radius.md,
     backgroundColor: color.bg.surface,
   },
   top: { flexDirection: 'row', alignItems: 'center', gap: space[12], padding: space[16] },

@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     aspectRatio: 16 / 9,
-    borderRadius: radius.xl,
+    borderRadius: radius.md,
     overflow: 'hidden',
     backgroundColor: color.bg.surface,
     alignItems: 'center',

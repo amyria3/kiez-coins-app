@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     paddingVertical: space[4] - stroke.focus,
     paddingLeft: space[16] - stroke.focus,
     paddingRight: space[4] - stroke.focus,
-    borderRadius: radius.xl,
+    borderRadius: radius.sm,
     backgroundColor: color.bg.surface,
     borderWidth: stroke.focus,
     borderColor: 'transparent',

@@ -190,14 +190,18 @@ export const space = {
 } as const;
 
 export const radius = {
-  sm: 5,
-  md: 12,
-  lg: 18,
-  xl: 20,
-  card: 28,
-  /** Posts im Feed: kleine Rundung wie die Blätter der Text-Posts (probeweise, Daria, 2026-11-07) */
+  // Flacher (Daria, 2026-11-13): Post 6, Eingabe 8, Karten wie die To-dos 10, große Flächen höchstens 16.
+  // Pillen und Kreise bleiben rund (`full`). Vorher sm 5, md 12, lg 18, xl 20, card 28, sheet 32.
+  /** Eingabefelder, Suchfeld, kleine Flächen wie Vorschaubilder */
+  sm: 8,
+  /** Karten, Kacheln, Zeilen, Menüs, Fotos in Listen; Maß sind die To-dos */
+  md: 10,
+  /** Etwas größere Kästen, z. B. Hinweise und Vorschauen */
+  lg: 12,
+  /** Große Flächen: Dialoge, Blätter von unten, Sprechblasen */
+  xl: 16,
+  /** Posts im Feed und Karten im Schaufenster: kleine Rundung wie die Blätter der Text-Posts (Daria, 2026-11-07) */
   post: 6,
-  sheet: 32,
   full: 999,
 } as const;
 

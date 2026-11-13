@@ -594,7 +594,7 @@ const styles = StyleSheet.create({
     gap: space[6],
     paddingVertical: space[12],
     paddingHorizontal: space[16],
-    borderRadius: radius.xl,
+    borderRadius: radius.md,
     overflow: 'hidden',
   },
   infoOnPhoto: {
@@ -657,7 +657,7 @@ const styles = StyleSheet.create({
     paddingVertical: space[8],
     paddingLeft: space[8],
     paddingRight: space[16],
-    borderRadius: radius.xl,
+    borderRadius: radius.md,
     overflow: 'hidden',
     borderWidth: stroke.ultraThin,
     borderColor: color.line.hairline,

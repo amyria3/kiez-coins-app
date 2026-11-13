@@ -63,7 +63,7 @@ export default function NewBadgeScreen() {
               ))}
             </LinearGradient>
           </Defs>
-          <Rect x="0" y="0" width="100%" height="100%" rx={radius.sheet} fill="url(#karte)" />
+          <Rect x="0" y="0" width="100%" height="100%" rx={radius.xl} fill="url(#karte)" />
         </Svg>
         {breite ? (
           <View style={{ marginTop: -Math.round(szene * 0.5) }}>
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     gap: space[8],
     paddingHorizontal: space[24],
     paddingBottom: space[32],
-    borderRadius: radius.sheet,
+    borderRadius: radius.xl,
   },
   ueber: { ...text.body, color: color.text.secondary, textAlign: 'center', marginTop: space[8] },
   kartenName: { ...text.headlineLarge, color: color.text.primary, textAlign: 'center' },
