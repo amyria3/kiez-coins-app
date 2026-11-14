@@ -3,7 +3,7 @@
 Pflichtaufgabe: Migration `supabase/migrations/20261103000200_teilen.sql` einspielen.
 
 - Datum: 2026-11-03
-- Status: offen, Bausteine 1, 2 und 4 auf `main`, Baustein 3 wartet auf Darias Entwurf
+- Status: offen, Bausteine 1, 2 und 4 auf `main`, Migration eingespielt (05.11.2026), Datenschutz ergänzt (14.11.2026). Offen: Baustein 3 (Bildkarte), wartet auf Darias Entwurf
 - Ziel in Documentation: `kiez-coins/ENTSCHEIDUNGEN.md`, neuer Abschnitt „Teilen“, und die Datenbank-Doku (Tabellen `challenge_shares`, `share_visits`, Funktionen `can_have_share_page`, `share_challenge`, `shared_post`)
 
 ## So funktioniert das Teilen
@@ -28,7 +28,7 @@ select c.title, count(v.*) as besuche
 ## Nächste Schritte
 
 1. Daria spielt die Migration ein: [20261103000200_teilen.sql](https://github.com/amyria3/kiez-coins-app/blob/main/supabase/migrations/20261103000200_teilen.sql)
-2. Daria ergänzt die Datenschutzerklärung: Geteilte Posts stehen mit Foto, Deckname und Kiez öffentlich im Web, solange der Post öffentlich ist.
+2. ~~Daria ergänzt die Datenschutzerklärung~~ erledigt (Claude, 2026-11-14, `src/data/legal.ts`, Abschnitt „Dein Profil und Deine Beiträge“).
 3. Daria entwirft die Bildkarte für Instagram in Figma: Foto, Logo, `kiezcoins.de`. Danach baut Claude sie mit `react-native-view-shot` und `expo-sharing`. Das ändert den nativen Fingerabdruck, also entsteht eine neue APK.
 4. Später: Anmeldungen über `?von=teilen` zählen. Die App liest den Parameter heute nicht aus.
 5. Später: Schalter im Konto „Andere dürfen meine Posts teilen“, damit auch fremde Posts eine Seite bekommen.

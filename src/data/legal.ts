@@ -89,6 +89,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
           'Wir speichern Deinen Decknamen, Dein Profilbild, Deine Ansprache, Deinen Kiez (als Text, zum Beispiel „Prenzlauer Berg, 10435 Berlin“), Deine Einstellungen und die Zeitpunkte Deiner Zustimmung zu diesen Bedingungen.',
           'Zu Challenges speichern wir Titel, Text, Fotos, Ort als Text, Frist, Coins, Status und einen auf rund 100 Meter gerundeten Punkt. Dazu kommen Kommentare, Likes, private Operationsnamen und Gruppen samt Mitgliedschaft.',
           'Andere angemeldete Personen sehen Deinen Decknamen, Dein Profilbild, Deinen Kiez, Deine Challenges und Kommentare. Challenges in Gruppen sehen nur die Mitglieder der Gruppe. Fotos liegen unter einer öffentlichen Adresse. Wer diese Adresse kennt, kann das Foto auch ohne Konto öffnen.',
+          'Teilst Du einen eigenen öffentlichen Post, steht er mit Foto, Deckname, Kiez, Titel und Text unter kiezcoins.de/c/ im Internet, auch für Menschen ohne Konto, solange der Post öffentlich ist. Suchmaschinen nehmen diese Seite nicht auf. Messenger zeigen beim Teilen eine Vorschau. Besuche der Seite zählen wir ohne Kennung.',
           'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
         ],
       },
