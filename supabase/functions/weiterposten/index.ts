@@ -13,7 +13,8 @@
 //
 // Gepostet werden nur eigene Posts, die eine öffentliche Seite bekommen dürfen (share_challenge, Migration
 // 20261103000200_teilen). Der Weiterpost enthält Titel, Text, das Foto und den Link kiezcoins.de/c/<id>.
-// Zugänge stehen in crosspost_accounts (Migration 20261105000100_weiterposten), lesbar nur mit dem Service-Schlüssel.
+// Zugänge stehen verschlüsselt in Supabase Vault (Migration 20261114000100_weiterposten_vault). Schreiben über
+// crosspost_save, Lesen über crosspost_accounts_of, beide nur mit dem Service-Schlüssel.
 //
 // SUPABASE_URL, SUPABASE_ANON_KEY und SUPABASE_SERVICE_ROLE_KEY stellt Supabase selbst bereit. Keine weiteren Secrets.
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
@@ -440,9 +441,13 @@ Deno.serve(async (req) => {
     } catch {
       return reply({ error: 'login' }, 400);
     }
-    const { error } = await admin
-      .from('crosspost_accounts')
-      .upsert({ user_id: user.id, platform, ...account }, { onConflict: 'user_id,platform' });
+    const { error } = await admin.rpc('crosspost_save', {
+      p_user: user.id,
+      p_platform: platform,
+      p_handle: account.handle,
+      p_instance: account.instance,
+      p_secret: account.secret,
+    });
     if (error) return reply({ error: 'save' }, 500);
     return reply({ handle: account.handle });
   }
@@ -456,11 +461,8 @@ Deno.serve(async (req) => {
     const { error: shareError } = await asUser.rpc('share_challenge', { p_challenge_id: challengeId });
     if (shareError) return reply({ error: 'not_shareable' }, 403);
 
-    const { data: accounts } = await admin
-      .from('crosspost_accounts')
-      .select('platform, handle, instance, secret')
-      .eq('user_id', user.id)
-      .in('platform', platforms);
+    const { data: all } = await admin.rpc('crosspost_accounts_of', { p_user: user.id });
+    const accounts = ((all ?? []) as Account[]).filter((a) => platforms.includes(a.platform));
     const { data: done } = await admin
       .from('crosspost_posts')
       .select('platform, status, url')
@@ -528,10 +530,7 @@ Deno.serve(async (req) => {
       .eq('challenge_id', challengeId)
       .eq('user_id', user.id)
       .eq('status', 'ok');
-    const { data: accounts } = await admin
-      .from('crosspost_accounts')
-      .select('platform, handle, instance, secret')
-      .eq('user_id', user.id);
+    const { data: accounts } = await admin.rpc('crosspost_accounts_of', { p_user: user.id });
     const only = Array.isArray(input.platforms) ? (input.platforms as unknown[]) : null;
     const results: Record<string, { deleted?: boolean; error?: string }> = {};
     for (const { platform, url: link } of (posts ?? []).filter((p) => !only || only.includes(p.platform))) {
