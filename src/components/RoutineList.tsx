@@ -958,10 +958,42 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
   // Gewählter Tag (Daria, 2026-11-12): darunter steht, was an dem Tag war
   const [picked, setPicked] = useState<string | null>(null);
   const [days, setDays] = useState<RoutineDays | null>(null);
+  // Blättern (Daria, 2026-11-14): nach links wischen zeigt den nächsten Monat bzw. die nächste Woche, nach rechts den
+  // vorigen. Wechsel zwischen Woche und Monat springt zurück zu heute.
+  const [shift, setShift] = useState(0);
+  useEffect(() => setShift(0), [open]);
+  const slide = useRef(new Animated.Value(0)).current;
+  const go = useCallback(
+    (dir: 1 | -1) => {
+      setShift((n) => n + dir);
+      setPicked(null);
+      slide.setValue(dir);
+      Animated.timing(slide, { toValue: 0, duration: 260, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }).start();
+    },
+    [slide],
+  );
+  const goRef = useRef(go);
+  goRef.current = go;
+  const pan = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponderCapture: (_e, g) => Math.abs(g.dx) > 16 && Math.abs(g.dx) > Math.abs(g.dy) * 1.5,
+      onPanResponderRelease: (_e, g) => {
+        if (g.dx < -40) goRef.current(1);
+        else if (g.dx > 40) goRef.current(-1);
+      },
+    }),
+  ).current;
+  const slideStyle = useMemo(
+    () => ({
+      opacity: slide.interpolate({ inputRange: [-1, 0, 1], outputRange: [0.3, 1, 0.3] }),
+      transform: [{ translateX: slide.interpolate({ inputRange: [-1, 1], outputRange: [-40, 40] }) }],
+    }),
+    [slide],
+  );
   const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  const week = weekStart(now);
+  const week = addDays(open ? 0 : shift * 7, weekStart(now));
+  const monthStart = open ? new Date(now.getFullYear(), now.getMonth() + shift, 1) : new Date(week.getFullYear(), week.getMonth(), 1);
+  const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
   // Laden ab dem früheren von Monatsanfang und Wochenanfang, bis zum späteren Ende
   const from = week < monthStart ? week : monthStart;
   const weekEnd = addDays(6, week);
@@ -973,7 +1005,8 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
   }, [key]);
 
   const today = localDate(now);
-  const inMonth = (d: string) => d.slice(0, 7) === today.slice(0, 7);
+  const shownMonth = localDate(monthStart).slice(0, 7);
+  const inMonth = (d: string) => d.slice(0, 7) === shownMonth;
   const doneCount = days ? [...days.done].filter(inMonth).length : 0;
   const missedCount = days ? [...days.missed].filter(inMonth).length : 0;
   // Aufgegeben und abgebrochen zählen wie geschafft (Daria, 2026-11-13)
@@ -981,7 +1014,11 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
   const givenUpCount = countIn(days?.givenUpBy);
   const cancelledCount = countIn(days?.cancelledBy);
   const calledOffCount = countIn(days?.calledOffBy);
-  const month = new Intl.DateTimeFormat(localeTag(), { month: 'long' }).format(now);
+  const month = new Intl.DateTimeFormat(localeTag(), monthStart.getFullYear() === now.getFullYear() ? { month: 'long' } : { month: 'long', year: 'numeric' }).format(monthStart);
+  // Ohne gewählten Tag: heute, wenn es im gezeigten Zeitraum liegt, sonst der erste Tag
+  const first = open ? monthStart : week;
+  const last = open ? monthEnd : addDays(6, week);
+  const shownDay = picked ?? (today >= localDate(first) && today <= localDate(last) ? today : localDate(first));
 
   const cells: (Date | null)[] = open
     ? [...Array.from({ length: isoWeekday(monthStart) - 1 }, () => null), ...Array.from({ length: monthEnd.getDate() }, (_, i) => addDays(i, monthStart))]
@@ -1007,7 +1044,16 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
           })}
         </Text>
       </Pressable>
-      <View style={styles.calGrid}>
+      <Animated.View
+        style={[styles.calGrid, slideStyle]}
+        {...pan.panHandlers}
+        accessible={false}
+        accessibilityActions={[
+          { name: 'increment', label: t(open ? 'Nächster Monat' : 'Nächste Woche') },
+          { name: 'decrement', label: t(open ? 'Voriger Monat' : 'Vorige Woche') },
+        ]}
+        onAccessibilityAction={(e) => go(e.nativeEvent.actionName === 'increment' ? 1 : -1)}
+      >
         {[1, 2, 3, 4, 5, 6, 7].map((d) => (
           <Text key={`h${d}`} noTranslate style={styles.calWeekday}>
             {weekdayShort(d)}
@@ -1027,7 +1073,7 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
             <View key={`e${i}`} style={styles.calCell} />
           ),
         )}
-      </View>
+      </Animated.View>
       {givenUpCount || cancelledCount || calledOffCount ? (
         <Text style={styles.calEnded}>
           {[
@@ -1038,7 +1084,7 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
             .join(' · ')}
         </Text>
       ) : null}
-      <DayBar day={picked ?? today} today={today} days={days} list={list} events={events} saved={saved} />
+      <DayBar day={shownDay} today={today} days={days} list={list} events={events} saved={saved} />
     </View>
   );
 }
