@@ -1,0 +1,10 @@
+{
+  "_hinweis": "Glossar für DeepL (Daria, 2026-11-14). Je deutscher Begriff die Übersetzung pro Sprache. Gilt nur für neue Übersetzungen; vorhandene Texte in src/i18n/auto bleiben. Ein Glossar legt nur Wörter fest, keine Grammatik: Dass der Kater männlich ist, muss weiter von Hand geprüft werden.",
+  "Karte": { "en": "card", "fr": "carte", "ru": "карточка", "uk": "картка", "ar": "بطاقة", "he": "כרטיס" },
+  "Karten": { "en": "cards", "fr": "cartes", "ru": "карточки", "uk": "картки", "ar": "بطاقات", "he": "כרטיסים" },
+  "Bewegte Karten": { "en": "Moving cards", "fr": "Cartes animées", "ru": "Подвижные карточки", "uk": "Рухомі картки", "ar": "بطاقات متحركة", "he": "כרטיסים זזים" },
+  "Kater": { "en": "cat", "fr": "chat", "ru": "кот", "uk": "кіт", "ar": "القط", "he": "החתול" },
+  "Termin": { "en": "event", "fr": "rendez-vous", "ru": "событие", "uk": "подія", "ar": "موعد", "he": "אירוע" },
+  "Termine": { "en": "events", "fr": "rendez-vous", "ru": "события", "uk": "події", "ar": "مواعيد", "he": "אירועים" },
+  "Erinnerung": { "en": "reminder", "fr": "rappel", "ru": "напоминание", "uk": "нагадування", "ar": "تذكير", "he": "תזכורת" }
+}

@@ -14,6 +14,10 @@
 // - Texte mit Mehrzahlformen gehen nicht an DeepL. Platzhalter wie {name} und feste Namen (KiezCoins,
 //   Me-Challenge, We-Challenge) werden geschützt; fehlt danach einer, wird der Text nicht übernommen.
 //
+// Glossar (Daria, 2026-11-14): src/i18n/glossar.json legt Begriffe je Sprache fest (Karten = cards, nicht maps).
+// Das Skript legt daraus je Sprache ein DeepL-Glossar an, sofern DeepL das Sprachpaar kennt, und ersetzt es, wenn
+// sich die Datei ändert. Ohne Glossar-Unterstützung übersetzt es wie bisher.
+//
 // Rückweg: den Ordner src/i18n/auto leeren (Dateien mit {} stehen lassen).
 import { existsSync, readFileSync, writeFileSync, appendFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -89,9 +93,72 @@ function restore(text, kept, tags) {
   return out;
 }
 
-async function deepl(texts, target) {
+const host = KEY.endsWith(':fx') ? 'https://api-free.deepl.com' : 'https://api.deepl.com';
+const auth = { Authorization: `DeepL-Auth-Key ${KEY}` };
+
+/** Glossar-Einträge je Sprache aus src/i18n/glossar.json als TSV (DeepL-Format) */
+function glossaryTsv(lang) {
+  const all = readJson(join(root, 'src/i18n/glossar.json'));
+  return Object.entries(all)
+    .filter(([term, v]) => !term.startsWith('_') && v && typeof v === 'object' && v[lang]?.trim())
+    .map(([term, v]) => `${term.replace(/\t/g, ' ')}\t${v[lang].replace(/\t/g, ' ')}`)
+    .join('\n');
+}
+const hashOf = (s) => {
+  let h = 5381;
+  for (const c of s) h = (h * 33 + c.charCodeAt(0)) | 0;
+  return (h >>> 0).toString(36);
+};
+
+/**
+ * id des DeepL-Glossars für eine Sprache, `undefined` ohne Einträge oder ohne Unterstützung. Der Name enthält eine
+ * Prüfsumme der Einträge: Ändert sich glossar.json, entsteht ein neues Glossar und das alte wird gelöscht.
+ */
+let glossaryList = null;
+let glossaryPairs = null;
+async function glossaryFor(lang) {
+  const tsv = glossaryTsv(lang);
+  if (!tsv) return undefined;
+  try {
+    if (!glossaryPairs) {
+      const res = await fetch(`${host}/v2/glossary-language-pairs`, { headers: auth });
+      glossaryPairs = res.ok ? (await res.json()).supported_languages ?? [] : [];
+    }
+    if (!glossaryPairs.some((p) => p.source_lang === 'de' && p.target_lang === lang)) {
+      say(`${lang}: DeepL kennt für diese Sprache kein Glossar, übersetzt ohne.`);
+      return undefined;
+    }
+    if (!glossaryList) {
+      const res = await fetch(`${host}/v2/glossaries`, { headers: auth });
+      glossaryList = res.ok ? (await res.json()).glossaries ?? [] : [];
+    }
+    const prefix = `KiezCoins ${lang} `;
+    const name = prefix + hashOf(tsv);
+    const found = glossaryList.find((g) => g.name === name);
+    for (const old of glossaryList.filter((g) => g.name.startsWith(prefix) && g.name !== name)) {
+      await fetch(`${host}/v2/glossaries/${old.glossary_id}`, { method: 'DELETE', headers: auth }).catch(() => {});
+    }
+    if (found) return found.glossary_id;
+    const res = await fetch(`${host}/v2/glossaries`, {
+      method: 'POST',
+      headers: { ...auth, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, source_lang: 'de', target_lang: lang, entries: tsv, entries_format: 'tsv' }),
+    });
+    if (!res.ok) {
+      say(`${lang}: Glossar ließ sich nicht anlegen (${res.status}), übersetzt ohne.`);
+      return undefined;
+    }
+    const id = (await res.json()).glossary_id;
+    say(`${lang}: Glossar angelegt (${tsv.split('\n').length} Begriffe).`);
+    return id;
+  } catch {
+    say(`${lang}: Glossar nicht erreichbar, übersetzt ohne.`);
+    return undefined;
+  }
+}
+
+async function deepl(texts, target, glossaryId) {
   const tags = target !== 'HE';
-  const host = KEY.endsWith(':fx') ? 'https://api-free.deepl.com' : 'https://api.deepl.com';
   const body = {
     text: texts,
     source_lang: 'DE',
@@ -99,11 +166,12 @@ async function deepl(texts, target) {
     formality: 'prefer_less', // Du-Form, wo es die Sprache kennt
     preserve_formatting: true,
     ...(tags ? { tag_handling: 'xml', ignore_tags: ['x'] } : {}),
+    ...(glossaryId ? { glossary_id: glossaryId } : {}),
   };
   for (let attempt = 0; ; attempt++) {
     const res = await fetch(`${host}/v2/translate`, {
       method: 'POST',
-      headers: { Authorization: `DeepL-Auth-Key ${KEY}`, 'Content-Type': 'application/json' },
+      headers: { ...auth, 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
     if (res.ok) return (await res.json()).translations.map((t) => t.text);
@@ -151,9 +219,11 @@ for (const [lang, target] of Object.entries(LANGS)) {
   }
   let added = 0;
   const lost = [];
+  // Auch ohne neue Texte: So legt der erste Lauf nach einer Änderung an glossar.json das Glossar gleich an
+  const glossaryId = await glossaryFor(lang);
   for (let i = 0; i < batch.length; i += 50) {
     const part = batch.slice(i, i + 50);
-    const result = await deepl(part.map((p) => p.out), target);
+    const result = await deepl(part.map((p) => p.out), target, glossaryId);
     part.forEach((p, j) => {
       const text = restore(result[j], p.kept, tags);
       if (text == null) lost.push(p.key);
