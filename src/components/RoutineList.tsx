@@ -1,5 +1,5 @@
 import { createContext, memo, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { AccessibilityInfo, Alert, Animated, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
+import { AccessibilityInfo, Alert, Animated, Easing, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { markCardSwipe } from '../lib/cardSwipe';
 import Svg, { Defs, Line, Path, Pattern, Rect } from 'react-native-svg';
@@ -12,7 +12,7 @@ import { ReminderExtrasRow } from './ReminderExtras';
 import { ManageButton } from './ShowcaseManage';
 import { Text } from './T';
 import { useCardMotion } from '../data/features';
-import { useRoutineData } from '../data/routineView';
+import { useCalendarShown, useRoutineData } from '../data/routineView';
 import { addToMyCalendar, eventDate, eventTime, type CalendarEvent } from '../data/calendar';
 import { dayName, goalText, katerFocus, katerLine, katerMood, weekdayShort, whenText, type KaterMood } from '../data/katerRoutine';
 import { addDays, capitalize, dueAt, goalOf, isoWeekday, kindOf, loadRoutineDays, localDate, weekStart, type Reminder, type ReminderEnd, type RoutineDays } from '../data/reminders';
@@ -98,7 +98,11 @@ export const RoutineList = memo(function RoutineList({
     <Motion.Provider value={motion}>
     <PageLock.Provider value={onDragLock ?? noLock}>
       {/* Kater spricht wie im Feed als Sprechblase (Daria, 2026-11-11) */}
-      {focus ? <KaterCard>{katerLine(focus)}</KaterCard> : null}
+      {focus ? (
+        <AsideWhenCalendar>
+          <KaterCard>{katerLine(focus)}</KaterCard>
+        </AsideWhenCalendar>
+      ) : null}
       {showCalendar ? <RoutineCalendar list={list} events={events} saved={saved} /> : null}
       {tasks.length ? (
         <Group title="Aufgaben" count={tasks.length}>
@@ -136,6 +140,38 @@ export const RoutineList = memo(function RoutineList({
 });
 
 const noLock = () => {};
+
+/**
+ * Ist der Kalender oben offen, tritt der Kater zur Seite (Daria, 2026-11-14): Er gleitet nach links hinaus, die Zeile
+ * schrumpft, danach ist er ganz weg (sonst bliebe der Abstand der Liste stehen). Klappt der Kalender zu, kommt er zurück.
+ */
+function AsideWhenCalendar({ children }: { children: ReactNode }) {
+  const shown = !useCalendarShown();
+  const [mounted, setMounted] = useState(shown);
+  const [height, setHeight] = useState(0);
+  const anim = useRef(new Animated.Value(shown ? 1 : 0)).current;
+  useEffect(() => {
+    if (shown) setMounted(true);
+    anim.stopAnimation();
+    Animated.timing(anim, { toValue: shown ? 1 : 0, duration: 380, easing: Easing.bezier(0.4, 0, 0.2, 1), useNativeDriver: false }).start(({ finished }) => {
+      if (finished && !shown) setMounted(false);
+    });
+  }, [shown, anim]);
+  const style = useMemo(
+    () => ({
+      opacity: anim,
+      height: height ? anim.interpolate({ inputRange: [0, 1], outputRange: [0, height] }) : undefined,
+      transform: [{ translateX: anim.interpolate({ inputRange: [0, 1], outputRange: [-80, 0] }) }],
+    }),
+    [anim, height],
+  );
+  if (!mounted) return null;
+  return (
+    <Animated.View style={[styles.aside, style]}>
+      <View onLayout={(e) => setHeight((h) => (h === e.nativeEvent.layout.height ? h : e.nativeEvent.layout.height))}>{children}</View>
+    </Animated.View>
+  );
+}
 
 /** Uhrzeit für Dringlichkeit und Sortierung; jede Minute neu */
 function useNow(): Date {
@@ -1185,6 +1221,7 @@ const styles = StyleSheet.create({
   swipe: { flex: 1, userSelect: 'none' },
   // Angehoben liegt die Karte über den anderen
   swipeLifted: { zIndex: 2, elevation: 8 },
+  aside: { overflow: 'hidden' },
   dragFace: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, borderRadius: radius.md, overflow: 'hidden' },
   dragFaceLayer: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, justifyContent: 'center', paddingHorizontal: space[24] },
   dragFaceLabel: { alignItems: 'center', gap: space[4] },
