@@ -8,7 +8,6 @@ import { BlurView } from 'expo-blur';
 import { AuthorRow } from '../../../components/AuthorRow';
 import { DeadlineBadge, DoneReward, StatusBadge } from '../../../components/Badges';
 import { CoinsIcon, LivingCrystal } from '../../../components/icons/Brand';
-import { Icon } from '../../../components/icons/Icon';
 import { GlassIconButton } from '../../../components/Glass';
 import { IconButton } from '../../../components/IconButton';
 import { Button } from '../../../components/Button';
@@ -17,7 +16,7 @@ import { CHAT_GAP_SAME, Explanation, InfoRow, KaterCard, Notice, QuestionHint, O
 import { TextField } from '../../../components/Form';
 import { HeroScreen, SubScreen } from '../../../components/Screen';
 import { TextHero, isTextPost } from '../../../components/TextSheets';
-import { beforeAfterDuration, meInProgress, formatBountyShort, formatCents, formatDayMonthShort, formatEuro, formatHoursMinutes, formatRelative, formatRemainingShort } from '../../../data/format';
+import { beforeAfterDuration, meInProgress, formatBountyShort, formatCents, formatDayMonthShort, formatEuro, formatHoursMinutes, formatRelative } from '../../../data/format';
 import { WithMentions, postText } from '../../../components/WithMentions';
 import { isSharedBounty, payoutOf, shareCentsOf, sharedBountyText } from '../../../data/coins';
 import {

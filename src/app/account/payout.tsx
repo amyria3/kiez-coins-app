@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text } from '../../components/T';
-import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
 import { QuestionHint } from '../../components/Content';
@@ -24,7 +23,6 @@ export default function PayoutSettings() {
 }
 
 function PayoutForm() {
-  const router = useRouter();
   const goBack = useGoBack();
   const { dispatch } = useStore();
   const me = useCurrentUser();

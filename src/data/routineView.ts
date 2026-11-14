@@ -59,7 +59,6 @@ export function setCalendarMonth(on: boolean) {
   calendarMonth = on;
   monthListeners.forEach((l) => l());
 }
-export const getCalendarMonth = () => calendarMonth;
 const subscribeMonth = (l: () => void) => {
   monthListeners.add(l);
   return () => {

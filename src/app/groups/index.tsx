@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Text } from '../../components/T';
 import { useRouter } from 'expo-router';
 
@@ -6,9 +6,9 @@ import { Button } from '../../components/Button';
 import { Explanation } from '../../components/Content';
 import { GroupCard } from '../../components/GroupCard';
 import { SubScreen } from '../../components/Screen';
-import { MAX_GROUPS, myEdensteine } from '../../data/groups';
+import { MAX_GROUPS } from '../../data/groups';
 import { useStore } from '../../data/store';
-import { color, radius, size, space, stroke, text } from '../../theme/tokens';
+import { color, radius, space, stroke, text } from '../../theme/tokens';
 import { explain } from '../../components/Nudge';
 import { t } from '../../data/texts';
 import { useGoBack } from '../../lib/goBack';
@@ -17,7 +17,7 @@ import { useGoBack } from '../../lib/goBack';
 export default function Groups() {
   const router = useRouter();
   const goBack = useGoBack();
-  const { groups, challenges, currentUserId } = useStore();
+  const { groups } = useStore();
   const full = groups.length >= MAX_GROUPS;
   const tooMany = () =>
     explain('Gruppen voll', t('Du bist bereits in {MAX_GROUPS} Gruppen. Verlasse eine Gruppe, um einer neuen beizutreten oder eine neue zu gründen.', { MAX_GROUPS }));

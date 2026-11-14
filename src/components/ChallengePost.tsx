@@ -1,6 +1,6 @@
 import { RoutinePill } from './RoutinePill';
 import { memo, useEffect, useRef, useState, type ReactNode } from 'react';
-import { Alert, Animated, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useShareChallenge } from '../data/shareChallenge';
 import { Text } from './T';
 import { LikeCount } from './LikeCount';
@@ -476,10 +476,6 @@ function KiezPost({
 function spotsText(c: Challenge, active: boolean): string {
   if (!active || c.type !== 'individual') return '';
   return participationText(maxParticipants(c), c.joinMode, joinedIds(c).length);
-}
-
-function comingSoon() {
-  Alert.alert('Kommt bald', 'Geschenke folgen nach dem MVP.');
 }
 
 /** Blätter eines Posts nur mit Text im Feed: so breit wie die Karte. Tippen öffnet den Post, Wischen blättert. */

@@ -26,14 +26,35 @@ export function touchEnded() {
 }
 export const isTouching = () => active > 0;
 
-/** Führt `fn` jetzt aus oder sobald kein Finger mehr liegt. Gibt eine Funktion zum Abbrechen zurück. */
+/**
+ * Führt `fn` jetzt aus oder sobald kein Finger mehr liegt. Gibt eine Funktion zum Abbrechen zurück.
+ * Sicherung: Geht ein Loslassen verloren (Seite gewechselt, Maus außerhalb des Fensters losgelassen), läuft `fn`
+ * spätestens nach `MAX_WAIT_MS`, und der Zähler steht wieder auf null.
+ */
+const MAX_WAIT_MS = 10_000;
 export function whenUntouched(fn: () => void): () => void {
   if (active === 0) {
     fn();
     return () => {};
   }
-  waiting.add(fn);
-  return () => waiting.delete(fn);
+  let done = false;
+  const once = () => {
+    if (done) return;
+    done = true;
+    clearTimeout(timer);
+    waiting.delete(once);
+    fn();
+  };
+  const timer = setTimeout(() => {
+    active = 0;
+    once();
+  }, MAX_WAIT_MS);
+  waiting.add(once);
+  return () => {
+    done = true;
+    clearTimeout(timer);
+    waiting.delete(once);
+  };
 }
 
 if (Platform.OS === 'web' && typeof document !== 'undefined') {
@@ -47,6 +68,13 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
   document.addEventListener('touchend', sync, { passive: true, capture: true });
   document.addEventListener('touchcancel', sync, { passive: true, capture: true });
   document.addEventListener('mousedown', () => (active = 1), { capture: true });
+  // Fenster verlassen oder verdeckt: Ein Loslassen kommt dann nicht mehr an
+  const reset = () => {
+    active = 0;
+    setTimeout(release, 0);
+  };
+  window.addEventListener('blur', reset);
+  document.addEventListener('visibilitychange', () => document.hidden && reset());
   document.addEventListener(
     'mouseup',
     () => {

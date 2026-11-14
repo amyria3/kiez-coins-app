@@ -9,15 +9,13 @@ import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area
 
 import { AuthorRow } from '../../../components/AuthorRow';
 import { Notice } from '../../../components/Content';
-import { StatusBadge } from '../../../components/Badges';
 import { Button } from '../../../components/Button';
-import { DeadlineBadge } from '../../../components/Badges';
+import { DeadlineBadge, StatusBadge } from '../../../components/Badges';
 import { markComposeDone } from '../../../components/compose/compose';
 import { celebratePost } from '../../../components/HeartBurst';
 import { CoinsIcon, LivingCrystal } from '../../../components/icons/Brand';
-import { Icon } from '../../../components/icons/Icon';
 import { HeroScreen } from '../../../components/Screen';
-import { formatBountyShort, formatRemainingShort } from '../../../data/format';
+import { formatBountyShort } from '../../../data/format';
 import { useCurrentUser, useStore } from '../../../data/store';
 import { color, motion, radius, size, space, stroke, text } from '../../../theme/tokens';
 import { useAppDimensions } from '../../../theme/layout';

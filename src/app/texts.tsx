@@ -122,6 +122,8 @@ export default function Texte() {
           ? b.updated_at.localeCompare(a.updated_at)
           : (sort === 'kurz' ? 1 : -1) * (shown(a).length - shown(b).length) || shown(a).localeCompare(shown(b), 'de'),
       );
+    // `shown` hängt nur an `lang`, das hier mitzählt
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rows, area, sort, query, lang]);
 
   // Anzahl je Seite für die Chips

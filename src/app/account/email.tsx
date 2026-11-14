@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
-import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
 import { Explanation } from '../../components/Content';
@@ -20,7 +19,6 @@ const MAX_DIGITS = 8;
  * Supabase schickt einen Code an die neue Adresse (Vorlage „Change Email Address“ mit `{{ .Token }}`).
  */
 export default function ChangeEmail() {
-  const router = useRouter();
   const goBack = useGoBack();
   const { session, requestEmailChange, confirmEmailChange } = useAuth();
   const [email, setEmail] = useState('');
