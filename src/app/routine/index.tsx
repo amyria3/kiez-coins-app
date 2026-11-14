@@ -7,6 +7,7 @@ import { NavigationBar } from '../../components/NavigationBar';
 import { RoutineContent } from '../../components/RoutineContent';
 import { useRoutineEnabled } from '../../data/routine';
 import { useGoBack } from '../../lib/goBack';
+import { MeSpaceScreen } from '../../theme/signal';
 import { color, space } from '../../theme/tokens';
 
 /**
@@ -23,11 +24,14 @@ export default function Routine() {
     if (inFeed) router.dismissTo({ pathname: '/feed', params: { reiter: 'routine' } });
   }, [inFeed, router]);
   if (inFeed) return <View style={styles.screen} />;
+  // Theme Happy wie die Routine im Feed (Daria, 2026-11-14), vorher lila Knöpfe
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <NavigationBar title="Routine" variant="back" onLeadingPress={goBack} />
-      <RoutineContent bottomPad={insets.bottom + space[24]} />
-    </View>
+    <MeSpaceScreen>
+      <View style={[styles.screen, { paddingTop: insets.top }]}>
+        <NavigationBar title="Routine" variant="back" onLeadingPress={goBack} />
+        <RoutineContent bottomPad={insets.bottom + space[24]} />
+      </View>
+    </MeSpaceScreen>
   );
 }
 

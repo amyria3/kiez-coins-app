@@ -47,11 +47,12 @@ KiezCoins ist in der Testphase und für Personen ab 18 Jahren.
 
 | Was | Format | Stand |
 |:---|:---|:---|
-| App-Icon | 512 × 512 PNG, 32 Bit | aus `assets/icon.png` exportieren |
-| Vorstellungsgrafik | 1024 × 500 PNG oder JPG | fehlt, Vorschlag: Kater mit Schriftzug auf Lila |
-| Handy-Screenshots | 2–8 Stück, 9:16, mind. 1080 px breit | fehlen |
+| App-Icon | 512 × 512 PNG, 32 Bit | fertig: `KiezCoins-Fotos/store-grafiken/app-icon-512.png` |
+| Vorstellungsgrafik | 1024 × 500 PNG oder JPG | fertig: `vorstellungsgrafik-1024x500.png` (Kater aus der Start-Animation, Schriftzug, Satz der Startseite) |
+| Handy-Screenshots | 2–8 Stück, 9:16, mind. 1080 px breit | fertig: 5 Stück, 1080 × 1920 (Kiez, Me & Myself, Gruppe, Erstellen, Routine) |
 
-Vorschlag für die Screenshots, in dieser Reihenfolge: Feed des Kiezes, We-Challenge erstellen, Gruppe mit Rangliste, Routine mit Kalender, Me-Challenge mit Vorher und Nachher, Schaufenster. Nur Beispieldaten, keine echten Namen oder Adressen.
+Die Screenshots zeigen die echte Web-App mit den Beispieldaten aus `src/data/sample.ts` und Beispiel-Erinnerungen, gebaut am 2026-11-14. Die Fotos stammen aus den Beispieldaten (Unsplash-Lizenz). Schaufenster fehlt noch, da es Daten vom Server braucht.
+
 
 ## Datensicherheit (Formular in der Play Console)
 
