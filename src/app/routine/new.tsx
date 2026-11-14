@@ -38,7 +38,7 @@ function NewReminder() {
   const [mode, setMode] = useState<'once' | 'week' | 'days'>('once');
   const [day, setDay] = useState<'today' | 'tomorrow' | 'other'>('today');
   const [date, setDate] = useState('');
-  const [timeKind, setTimeKind] = useState<'until' | 'at' | 'range' | 'none'>('until');
+  const [timeKind, setTimeKind] = useState<'until' | 'at' | 'range' | 'none'>('none') // Standard: ohne Uhrzeit (Daria, 2026-11-14);
   const [from, setFrom] = useState('');
   // Termin an einem Tag: Pflicht oder optional (Daria, 2026-11-10)
   const [required, setRequired] = useState(true);
@@ -211,11 +211,11 @@ function NewReminder() {
             />
           ) : null}
           <ChipGroup>
+            {/* Ohne Uhrzeit vorn, da Standard (Daria, 2026-11-14) */}
+            <Chip label="ohne Uhrzeit" selected={timeKind === 'none'} onPress={() => setTimeKind('none')} />
             <Chip label="bis" selected={timeKind === 'until'} onPress={() => setTimeKind('until')} />
             <Chip label="um" selected={timeKind === 'at'} onPress={() => setTimeKind('at')} />
             <Chip label="von … bis" selected={timeKind === 'range'} onPress={() => setTimeKind('range')} />
-            {/* Einmal an dem Tag, ohne Uhrzeit (Daria, 2026-11-14) */}
-            <Chip label="ohne Uhrzeit" selected={timeKind === 'none'} onPress={() => setTimeKind('none')} />
           </ChipGroup>
           <View style={styles.times}>
             {timeKind === 'at' || timeKind === 'range' ? (
