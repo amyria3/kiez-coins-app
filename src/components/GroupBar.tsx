@@ -18,6 +18,11 @@ type GroupBarProps = {
   onOpen: (id: string) => void;
   /** Letzter Eintrag im Auswahlmenü */
   onCreate: () => void;
+  /**
+   * Klein im Erstellen-Blatt (Daria, 2026-11-14: „Ich muss sehen, welche Gruppe“): Name in Fließtextgröße mit „Gruppe:“
+   * davor, ohne Zahnrad, ohne eigenen Rand links und rechts.
+   */
+  compact?: boolean;
 };
 
 /**
@@ -25,7 +30,7 @@ type GroupBarProps = {
  * Der Name der gewählten Gruppe öffnet das Auswahlmenü mit allen Gruppen, unmittelbar darunter „Neue Gruppe erstellen“.
  * Das Zahnrad führt zur Gruppenseite. Edensteine und Anzahl der Mitglieder stehen hier nicht.
  */
-export function GroupBar({ groups, selectedId, onSelect, onOpen, onCreate }: GroupBarProps) {
+export function GroupBar({ groups, selectedId, onSelect, onOpen, onCreate, compact = false }: GroupBarProps) {
   const [open, setOpen] = useState(false);
   const selected = groups.find((g) => g.id === selectedId) ?? groups[0];
   if (!selected) return null;
@@ -44,8 +49,8 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onCreate }: Gro
     onCreate();
   };
   return (
-    <View style={styles.wrap}>
-      <View style={styles.here}>
+    <View style={[styles.wrap, compact && styles.compact]}>
+      <View style={[styles.here, compact && styles.compact]}>
         {/* Name bündig links, Zahnrad direkt rechts daneben, Pfeil bündig rechts (Daria, 27.10.2026).
             Name, Freiraum und Pfeil öffnen das Menü. */}
         <Pressable
@@ -55,17 +60,23 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onCreate }: Gro
           onPress={toggle}
           style={({ pressed }) => [styles.name, pressed && styles.pressed]}
         >
-          <Text noTranslate style={styles.hereName} numberOfLines={1} accessibilityRole="header">
-            {selected.name}
-          </Text>
+          {compact ? (
+            <Text style={styles.compactName} numberOfLines={1}>
+              {t('Gruppe: {name}', { name: selected.name })}
+            </Text>
+          ) : (
+            <Text noTranslate style={styles.hereName} numberOfLines={1} accessibilityRole="header">
+              {selected.name}
+            </Text>
+          )}
         </Pressable>
-        <IconButton
+        {compact ? null : <IconButton
           icon="settings"
           iconSize={16}
           iconColor={color.text.secondary}
           accessibilityLabel={t('{name} verwalten', { name: selected.name })}
           onPress={() => onOpen(selected.id)}
-        />
+        />}
         <Pressable
           accessible={false}
           importantForAccessibility="no"
@@ -138,6 +149,8 @@ const styles = StyleSheet.create({
   trigger: { flex: 1, minHeight: size.touchTarget, alignItems: 'flex-end', justifyContent: 'center' },
   caret: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
   hereName: { ...text.titleLarge, color: color.text.primary, flexShrink: 1 },
+  compact: { paddingHorizontal: 0 },
+  compactName: { ...text.bodyStrong, color: color.text.primary, flexShrink: 1 },
   menu: { borderRadius: radius.md, backgroundColor: color.bg.surface, overflow: 'hidden' },
   option: { flexDirection: 'row', alignItems: 'center', gap: space[12], minHeight: 52, paddingVertical: space[8], paddingHorizontal: space[16] },
   optionDivider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },

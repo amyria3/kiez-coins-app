@@ -5,7 +5,8 @@ import { useRouter } from 'expo-router';
 
 import { color, radius, space } from '../../theme/tokens';
 import { ActionBar } from '../ActionBar';
-import { GroupsEmpty } from '../GroupBar';
+import { GroupBar, GroupsEmpty } from '../GroupBar';
+import type { Group } from '../../data/types';
 import { NudgeScrollProvider, useNudgeScroll } from '../Nudge';
 import { useGroupTaskForm } from './GroupTaskForm';
 import { useGroupPhotoForm } from './GroupPhotoForm';
@@ -49,13 +50,16 @@ type Props = {
   onDone: () => void;
   /** Der Ort (Pille darüber) ist bestätigt: Jetzt wird der Typ lila, bis die Person ihn berührt (Daria, 2026-10-31) */
   placeConfirmed?: boolean;
+  /** Gruppen zur Auswahl im Blatt (Daria, 2026-11-14): Unter „Gruppen“ steht, in welche Gruppe der Post geht */
+  groups?: Group[];
+  onSelectGroup?: (id: string) => void;
 };
 
 /**
  * Inhalt des Erstellen-Blatts über dem Feed. Beide Formulare bleiben geladen, damit ein Wechsel der Pille
  * nichts verliert. Die Bewegung (von unten, federnd) macht feed.tsx.
  */
-export function ComposeSheet({ target, onDone, placeConfirmed = true }: Props) {
+export function ComposeSheet({ target, onDone, placeConfirmed = true, groups = [], onSelectGroup }: Props) {
   // Foto, Titel und Text gelten für alle Formulare im Blatt (Daria, 25.10.2026),
   // seit 07.11.2026 auch Blätter, Zusatzfotos, Text auf dem Foto und die gewählte Art
   // Aus einer Erinnerung: Titel und Beschreibung als Me-Challenge vorbelegt (Daria, 2026-11-10)
@@ -76,7 +80,7 @@ export function ComposeSheet({ target, onDone, placeConfirmed = true }: Props) {
       </View>
       <View style={[styles.flex, target === 'public' || target === 'private' ? styles.hidden : null]}>
         {target && target !== 'public' && target !== 'private' ? (
-          <GroupBody key={target} groupId={target} onDone={onDone} shared={shared} turn={placeConfirmed} kind={kind} setKind={setKind} />
+          <GroupBody key={target} groupId={target} onDone={onDone} shared={shared} turn={placeConfirmed} kind={kind} setKind={setKind} groups={groups} onSelectGroup={onSelectGroup} />
         ) : (
           <NoGroup />
         )}
@@ -136,7 +140,16 @@ function PublicBody({ onDone, shared, isPrivate = false, turn, kind, setKind }: 
   );
 }
 
-function GroupBody({ groupId, onDone, shared, turn, kind, setKind }: { groupId: string; onDone: () => void; shared: ComposeContent; turn: boolean } & KindProps) {
+function GroupBody({
+  groupId,
+  onDone,
+  shared,
+  turn,
+  kind,
+  setKind,
+  groups,
+  onSelectGroup,
+}: { groupId: string; onDone: () => void; shared: ComposeContent; turn: boolean; groups: Group[]; onSelectGroup?: (id: string) => void } & KindProps) {
   const router = useRouter();
   const options = GROUP_TYPES;
   const type: (typeof GROUP_TYPES)[number]['key'] = kind === 'we' ? 'task' : kind;
@@ -154,6 +167,17 @@ function GroupBody({ groupId, onDone, shared, turn, kind, setKind }: { groupId: 
   return (
     <SheetScroll actions={form.button}>
       <DraftStrip target={groupId} onClose={onDone} />
+      {/* Welche Gruppe (Daria, 2026-11-14); Titel, Text und Foto bleiben beim Wechsel erhalten */}
+      {onSelectGroup ? (
+        <GroupBar
+          compact
+          groups={groups}
+          selectedId={groupId}
+          onSelect={onSelectGroup}
+          onOpen={(id) => router.push(`/groups/${id}`)}
+          onCreate={() => router.push('/groups/new')}
+        />
+      ) : null}
       {options.length > 1 ? <TypeSwitch options={options} value={type} onChange={setType} turn={turn} /> : null}
       {form.fields}
     </SheetScroll>
