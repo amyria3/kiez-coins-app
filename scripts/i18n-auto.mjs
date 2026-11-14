@@ -32,8 +32,9 @@ const SUPABASE_URL = 'https://aqxzxpxrshizlaqyjplw.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_WqrL7Y7Wm0l9cq4tHQpjAQ_iooAaNe0'; // öffentlicher Schlüssel, nur Lesen
 
 const LANGS = { en: 'EN-GB', fr: 'FR', uk: 'UK', ru: 'RU', ar: 'AR', he: 'HE' };
-// Bleiben in jeder Sprache gleich: KiezCoins, Me-Challenge, We-Challenge
-const FIXED_RE = /KiezCoins|KiezKoinz|[WM]e-Challenges?/g;
+// Bleiben in jeder Sprache gleich: KiezCoins, Me-Challenge, We-Challenge, Me & Myself (2026-11-14, DeepL machte daraus
+// „Moi et moi-même“). Mit XML-Tags steht das & hier schon als &amp; im Text.
+const FIXED_RE = /KiezCoins|KiezKoinz|[WM]e-Challenges?|Me (?:&amp;|&) Myself/g;
 // Keine sichtbaren Texte oder Namen, die gleich bleiben: SVG, CSS, Schriften, Marken, interne Namen
 const SKIP = new Set([
   'X', 'A', 'KiezCoins', 'BlueSky', 'Mastodon', 'Instagram', 'Facebook', 'Maria Arkadieff',
