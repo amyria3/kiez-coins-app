@@ -185,6 +185,7 @@
     <li><b>Ist-Zustand:</b> echte Zahlen aus der Datenbank, ohne Testkonten und Gruppenprofile. Abos gibt es noch keine, die Fixkosten sind die der Testphase.</li>
     <li><b>Aktive:</b> Personen, die KiezCoins im Monat mindestens einmal öffnen. <b>Inaktive</b> haben ein Konto, öffnen die App im Monat aber nicht. Die Zeitleiste rechnet mit anderthalb Inaktiven pro aktiver Person.</li>
     <li><b>Speicher und E-Mails:</b> etwa 0,5&nbsp;Cent pro aktiver Person im Monat.</li>
+    <li><b>Wortmarke:</b> einmalig 290&nbsp;€ für die Anmeldung beim Deutschen Patent- und Markenamt (bis drei Klassen). Sie gilt zehn Jahre, deshalb rechnen wir sie mit 2,42&nbsp;€ im Monat in die Fixkosten ein.</li>
     <li><b>Entwicklerin:</b> 3.000&nbsp;€ Personalkosten ergeben etwa 2.000&nbsp;€ netto.</li>
   </ul>
 </section>
@@ -220,6 +221,8 @@
     { name: 'Vercel Pro', wert: function (v) { return v.gegruendet ? 18 : 0; } },
     { name: 'Brevo', wert: function () { return 15; } },
     { name: 'Domain', wert: function () { return 2; } },
+    // Wortmarke beim DPMA: einmalig 290 €, gilt 10 Jahre, hier auf 120 Monate verteilt (Daria, 14.11.2026)
+    { name: 'Wortmarke (290&nbsp;€ einmalig)', wert: function () { return 290 / 120; } },
     { name: 'Versicherung', wert: function (v) { return v.gegruendet ? 15 : 0; } },
     { name: 'Speicher und E-Mails', wert: function (v) { return v.aktive * A.nutzungProPerson; } },
     { name: 'X-Schnittstelle', wert: function (v) { return v.schwalbe * A.xPostsMonat * A.xPost; } }
