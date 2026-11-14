@@ -1171,6 +1171,8 @@ export default function FeedScreen() {
               target={composeTarget}
               onDone={() => closeCompose(true)}
               placeConfirmed={placeTouched || modes.visible.length < 2}
+              groups={groups}
+              onSelectGroup={setGroupChoice}
             />
           </Animated.View>
         ) : null}
