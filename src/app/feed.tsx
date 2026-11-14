@@ -1,6 +1,6 @@
 import { RoutineNudge } from '../components/RoutineNudge';
 import { RoutineCalendarSlot } from '../components/RoutineList';
-import { getCalendarMonth, setCalendarMonth, setCalendarShown } from '../data/routineView';
+import { setCalendarMonth, setCalendarShown } from '../data/routineView';
 import { RoutineContent } from '../components/RoutineContent';
 import { clearRoutinePost } from '../data/reminders';
 import { clearShowcasePost, peekShowcasePost, SEARCH_MIN, searchShowcases, type ShowcaseHit } from '../data/showcase';
@@ -194,11 +194,8 @@ export default function FeedScreen() {
     if (!calendarOpenRef.current) showCalendar(true);
     else setCalendarMonth(true);
   };
-  /** Ein Schritt zurück: Monat → Woche → zu */
-  const calendarBack = () => {
-    if (getCalendarMonth()) setCalendarMonth(false);
-    else showCalendar(false);
-  };
+  /** Zuklappen in einem Schritt, auch aus dem Monat (Daria, 2026-11-14) */
+  const calendarBack = () => showCalendar(false);
   const showCalendar = (show: boolean) => {
     if (!show) setCalendarMonth(false);
     if (calendarOpenRef.current === show) return;
@@ -234,7 +231,7 @@ export default function FeedScreen() {
     PanResponder.create({
       onMoveShouldSetPanResponderCapture: (_e, g) => routineActiveRef.current && Math.abs(g.dy) > 12 && Math.abs(g.dy) > Math.abs(g.dx) * 1.5,
       onPanResponderRelease: (_e, g) => {
-        // Nach unten: zu → Woche → Monat; nach oben zurück (Daria, 2026-11-14)
+        // Nach unten: zu → Woche → Monat; nach oben ganz zu (Daria, 2026-11-14)
         if (g.dy > 24) calendarStepRef.current.step();
         else if (g.dy < -24) calendarStepRef.current.back();
       },
