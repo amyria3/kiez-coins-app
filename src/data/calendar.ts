@@ -67,11 +67,15 @@ export async function addLinkedCalendar(name: string, url: string): Promise<bool
   return !error;
 }
 
-/** Kalender umbenennen (Daria, 2026-11-14); der Name erscheint in den Einstellungen und an den Terminen */
-export async function renameLinkedCalendar(id: string, name: string): Promise<boolean> {
-  const clean = name.trim().slice(0, 40);
-  if (!clean) return false;
-  const { error } = await supabase.from('routine_calendars').update({ name: clean }).eq('id', id);
+/**
+ * Name und iCal-Adresse eines verbundenen Kalenders ändern (Daria, 2026-11-14), z. B. wenn Google eine neue geheime
+ * Adresse vergibt. Der Name erscheint in den Einstellungen und an den Terminen.
+ */
+export async function updateLinkedCalendar(id: string, name: string, url: string): Promise<boolean> {
+  const cleanName = name.trim().slice(0, 40);
+  const cleanUrl = calendarUrl(url);
+  if (!cleanName || !/^https:\/\/[^\s]+$/i.test(cleanUrl)) return false;
+  const { error } = await supabase.from('routine_calendars').update({ name: cleanName, url: cleanUrl }).eq('id', id);
   return !error;
 }
 

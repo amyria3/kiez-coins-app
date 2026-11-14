@@ -20,10 +20,10 @@ import {
   loadLinkedCalendars,
   rememberShownBeforeGroupOff,
   removeLinkedCalendar,
-  renameLinkedCalendar,
   setFeedExported,
   setLinkedCalendarShown,
   shownBeforeGroupOff,
+  updateLinkedCalendar,
   type DeviceCalendar,
   type LinkedCalendar,
 } from '../data/calendar';
@@ -129,6 +129,9 @@ export function CalendarSettings() {
   const [url, setUrl] = useState('');
   // Name eines verbundenen Kalenders beim Umbenennen
   const [rename, setRename] = useState('');
+  // iCal-Adresse eines verbundenen Kalenders beim Aktualisieren (Daria, 2026-11-14)
+  const [editUrl, setEditUrl] = useState('');
+  const [editFailed, setEditFailed] = useState<'fail' | 'dup' | null>(null);
   const [busy, setBusy] = useState(false);
   const [addFailed, setAddFailed] = useState<'fail' | 'dup' | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -218,6 +221,8 @@ export function CalendarSettings() {
   const openLinked = (c: LinkedCalendar) => {
     setOpenKey((k) => (k === c.id ? null : c.id));
     setRename(c.name);
+    setEditUrl(c.url);
+    setEditFailed(null);
   };
 
   /** Freier Name: der Dienst selbst oder mit Zahl („Google 2“) */
@@ -240,13 +245,16 @@ export function CalendarSettings() {
     loadLinkedCalendars().then(setLinked);
   };
 
-  const saveName = async (c: LinkedCalendar) => {
+  /** Name und Adresse speichern; dieselbe Adresse wie ein anderer verbundener Kalender geht nicht */
+  const saveLinked = async (c: LinkedCalendar) => {
+    if ((linked ?? []).some((x) => x.id !== c.id && calendarUrl(x.url) === calendarUrl(editUrl))) return setEditFailed('dup');
     setBusy(true);
-    setError(null);
-    const ok = await renameLinkedCalendar(c.id, rename);
+    setEditFailed(null);
+    const ok = await updateLinkedCalendar(c.id, rename.trim() || c.name, editUrl);
     setBusy(false);
-    if (!ok) return setError(SAVE_FAILED);
-    setRename(rename.trim());
+    if (!ok) return setEditFailed('fail');
+    setRename((rename.trim() || c.name).slice(0, 40));
+    setEditUrl(calendarUrl(editUrl));
     loadLinkedCalendars().then(setLinked);
   };
 
@@ -299,7 +307,8 @@ export function CalendarSettings() {
   /** Zeile eines verbundenen Kalenders unter seiner Gruppe: Name und Zustand, „Trennen“, Schalter fürs Anzeigen */
   const linkedRow = (c: LinkedCalendar) => {
     const open = openKey === c.id;
-    const changed = !!rename.trim() && rename.trim() !== c.name;
+    const editUrlOk = /^(https|webcal):\/\/\S+$/i.test(editUrl.trim());
+    const changed = (!!rename.trim() && rename.trim() !== c.name) || (editUrlOk && calendarUrl(editUrl) !== c.url);
     return (
       <View key={c.id}>
         <View style={[styles.row, styles.sub]}>
@@ -324,7 +333,21 @@ export function CalendarSettings() {
         {open ? (
           <View style={[styles.setup, styles.sub]}>
             <TextField label="Name" placeholder={c.name} value={rename} onChangeText={setRename} maxLength={40} />
-            {changed ? <Button label="Name speichern" variant="secondary" busy={busy} disabled={busy} onPress={() => saveName(c)} /> : null}
+            {/* Link aktualisieren (Daria, 2026-11-14), z. B. nach einer neuen geheimen Adresse bei Google */}
+            <TextField
+              label="iCal-Adresse"
+              placeholder={c.url}
+              value={editUrl}
+              onChangeText={(v) => (setEditUrl(v), setEditFailed(null))}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
+              error={!editUrl.trim() || editUrlOk ? undefined : 'Die Adresse beginnt mit https:// oder webcal://'}
+            />
+            {changed ? <Button label="Speichern" variant="secondary" busy={busy} disabled={busy} onPress={() => saveLinked(c)} /> : null}
+            {editFailed ? (
+              <Notice variant="warning" message={editFailed === 'dup' ? 'Dieser Kalender ist schon verbunden.' : 'Das hat nicht geklappt. Prüfe bitte die Adresse.'} />
+            ) : null}
           </View>
         ) : null}
       </View>
