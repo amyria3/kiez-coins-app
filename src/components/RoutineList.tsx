@@ -17,6 +17,7 @@ import { useCardMotion } from '../data/features';
 import { useAccentColor } from '../theme/signal';
 import { setCalendarMonth, useCalendarMonth, useCalendarShown, useRoutineData } from '../data/routineView';
 import { addToMyCalendar, eventDate, eventTime, type CalendarEvent } from '../data/calendar';
+import { hideEvent } from '../data/hiddenEvents';
 import { dayName, goalText, katerFocus, katerLine, katerMood, weekdayShort, whenText, type KaterMood } from '../data/katerRoutine';
 import { addDays, capitalize, dueAt, goalOf, isoWeekday, kindOf, loadRoutineDays, localDate, weekStart, type Reminder, type ReminderEnd, type RoutineDays } from '../data/reminders';
 import { asSingleEvent, eventWhen, saveEvent, type ShowcaseEvent } from '../data/showcase';
@@ -860,14 +861,22 @@ function CardHead({ meta, title }: { meta: string; title: string }) {
   );
 }
 
-/** Termin aus einem verbundenen Kalender, nur zum Ansehen */
+/**
+ * Termin aus einem verbundenen Kalender. Ausblenden (Daria, 2026-11-14): Tippen öffnet das Menü mit „Ausblenden“,
+ * nach links ziehen blendet ohne Rückfrage aus. Im eigenen Kalender bleibt der Termin.
+ */
 function CalendarCard({ event: e }: { event: CalendarEvent }) {
   const when = `${dayName(eventDate(e))} ${e.allDay ? t('ganztägig') : t('um {time}', { time: eventTime(e.start) })}`;
+  const menu = useRef<(() => void) | null>(null);
+  const hide = () => hideEvent(e);
   return (
     <Card
       bg={OLIVE}
       tiltKey={e.id}
       mood="chillig"
+      onPress={() => menu.current?.()}
+      onDragLeft={hide}
+      leftLabel="Ausblenden"
       head={
         <>
           <Text style={styles.meta}>{when}</Text>
@@ -877,9 +886,12 @@ function CalendarCard({ event: e }: { event: CalendarEvent }) {
         </>
       }
     >
-      <Text noTranslate style={styles.state}>
-        {e.calendar || t('Aus Deinem Kalender')}
-      </Text>
+      <View style={styles.actions}>
+        <Text noTranslate style={styles.state}>
+          {e.calendar || t('Aus Deinem Kalender')}
+        </Text>
+        <ManageButton dots={INK} style={styles.more} label="Mehr zu diesem Termin" openRef={menu} items={[{ label: 'Ausblenden', onPress: hide }]} />
+      </View>
     </Card>
   );
 }

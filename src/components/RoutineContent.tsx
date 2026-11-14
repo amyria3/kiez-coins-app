@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 
@@ -6,6 +6,7 @@ import { Button } from './Button';
 import { Notice } from './Content';
 import { KaterMessage } from './KaterMessage';
 import { upcomingCalendarEvents, type CalendarEvent } from '../data/calendar';
+import { useHiddenEvents } from '../data/hiddenEvents';
 import { savedEvents, type ShowcaseEvent } from '../data/showcase';
 import { useCalendarEnabled } from '../data/routine';
 import { useStore } from '../data/store';
@@ -37,7 +38,10 @@ export function RoutineContent({
   const router = useRouter();
   const [list, setList] = useState<Reminder[] | null | undefined>(undefined);
   // Termine aus verbundenen Kalendern, als Termine angezeigt (Daria, 2026-11-10)
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [allEvents, setEvents] = useState<CalendarEvent[]>([]);
+  // Einzeln ausgeblendete Termine fehlen in der Liste und im Kalender oben (Daria, 2026-11-14)
+  const hiddenEvents = useHiddenEvents();
+  const events = useMemo(() => allEvents.filter((e) => !hiddenEvents.has(e.id)), [allEvents, hiddenEvents]);
   // Gespeicherte Termine aus Schaufenstern (Daria, 2026-11-10); Änderungen und Absagen kommen hier an
   const [saved, setSaved] = useState<(ShowcaseEvent & { showcase: string })[]>([]);
   // Angehobene Karte: Die Seite scrollt nicht, damit Ziehen nach oben „später“ bedeutet (Daria, 2026-11-13)

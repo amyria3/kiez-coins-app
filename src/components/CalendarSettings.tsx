@@ -27,6 +27,7 @@ import {
   type DeviceCalendar,
   type LinkedCalendar,
 } from '../data/calendar';
+import { showHiddenEvents, useHiddenEvents } from '../data/hiddenEvents';
 import { t } from '../data/texts';
 import { color, radius, space, stroke, text } from '../theme/tokens';
 
@@ -136,6 +137,8 @@ export function CalendarSettings() {
   // Zuletzt gewählter Kalender fürs Abo und ob er sich öffnen ließ
   const [opened, setOpened] = useState<{ provider: Provider; failed: boolean } | null>(null);
   const [copied, setCopied] = useState(false);
+  // Einzeln ausgeblendete Termine aus Routine (Daria, 2026-11-14)
+  const hiddenEvents = useHiddenEvents();
 
   const reload = useCallback(() => {
     feedLinks().then(setFeed, () => setFeed(null));
@@ -461,6 +464,14 @@ export function CalendarSettings() {
             'In den Einstellungen Deines Kalenders, oft unter „Teilen“, „Veröffentlichen“ oder „iCal“.',
           ),
       )}
+
+      {hiddenEvents.size ? (
+        <Button
+          label={hiddenEvents.size === 1 ? 'Ausgeblendeten Termin wieder zeigen' : t('{n} ausgeblendete Termine wieder zeigen', { n: String(hiddenEvents.size) })}
+          variant="ghost"
+          onPress={showHiddenEvents}
+        />
+      ) : null}
     </View>
   );
 }
