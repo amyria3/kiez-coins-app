@@ -53,7 +53,7 @@ import { useFeedViews } from '../data/seen';
 import type { Challenge } from '../data/types';
 import { color, motion, space, text } from '../theme/tokens';
 import { cardSwipe, resetCardSwipe } from '../lib/cardSwipe';
-import { touchEnded, touchStarted, whenUntouched } from '../lib/touching';
+import { isTouching, touchEnded, touchStarted, whenUntouched } from '../lib/touching';
 import { useIntroDone } from '../lib/intro';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
@@ -191,6 +191,7 @@ export default function FeedScreen() {
   const [calendarTop, setCalendarTop] = useState(0);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const calendarOpenRef = useRef(false);
+  const calendarOpenedAt = useRef(0);
   /** Ein Schritt weiter auf: zu → Woche → Monat */
   const calendarStep = () => {
     if (!calendarOpenRef.current) showCalendar(true);
@@ -202,6 +203,7 @@ export default function FeedScreen() {
     if (!show) setCalendarMonth(false);
     if (calendarOpenRef.current === show) return;
     calendarOpenRef.current = show;
+    if (show) calendarOpenedAt.current = Date.now();
     setCalendarOpen(show);
     setCalendarShown(show);
     setCalendarHeight(calendarMeasured.current);
@@ -1115,8 +1117,10 @@ export default function FeedScreen() {
               calendarInList={false}
               onScroll={(e) => {
                 const y = e.nativeEvent.contentOffset.y;
-                // Weiterscrollen schiebt den Kalender wieder hinter die Umschalter
-                if (y > 8 && y > lastY.current) showCalendar(false);
+                // Weiterscrollen schiebt den Kalender wieder hinter die Umschalter. Nur wenn der Finger die Liste schiebt
+                // und der Kalender schon ganz offen ist: Nachlaufen der Liste oder Verschieben durch das Aufklappen
+                // selbst schloss ihn sonst gleich wieder (Daria, 2026-11-14)
+                if (y > 8 && y > lastY.current && isTouching() && Date.now() - calendarOpenedAt.current > CALENDAR_MS) showCalendar(false);
                 lastY.current = y;
               }}
             />
