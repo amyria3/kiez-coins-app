@@ -111,50 +111,61 @@ const hashOf = (s) => {
 };
 
 /**
- * id des DeepL-Glossars für eine Sprache, `undefined` ohne Einträge oder ohne Unterstützung. Der Name enthält eine
- * Prüfsumme der Einträge: Ändert sich glossar.json, entsteht ein neues Glossar und das alte wird gelöscht.
+ * Ein mehrsprachiges DeepL-Glossar (API v3) für alle Sprachen, da DeepL API Free nur wenige Glossare erlaubt. Der Name
+ * enthält eine Prüfsumme der Einträge: Ändert sich glossar.json, entsteht ein neues Glossar, alte „KiezCoins …“
+ * werden gelöscht. Gibt die id zurück und die Sprachen, die es abdeckt.
  */
-let glossaryList = null;
-let glossaryPairs = null;
-async function glossaryFor(lang) {
-  const tsv = glossaryTsv(lang);
-  if (!tsv) return undefined;
+let glossary = null;
+async function loadGlossary() {
+  const none = { id: undefined, langs: new Set() };
   try {
-    if (!glossaryPairs) {
-      const res = await fetch(`${host}/v2/glossary-language-pairs`, { headers: auth });
-      glossaryPairs = res.ok ? (await res.json()).supported_languages ?? [] : [];
+    const pairsRes = await fetch(`${host}/v2/glossary-language-pairs`, { headers: auth });
+    const pairs = pairsRes.ok ? (await pairsRes.json()).supported_languages ?? [] : [];
+    const dictionaries = [];
+    for (const lang of Object.keys(LANGS)) {
+      const tsv = glossaryTsv(lang);
+      if (!tsv) continue;
+      if (!pairs.some((p) => p.source_lang === 'de' && p.target_lang === lang)) {
+        say(`${lang}: DeepL kennt für diese Sprache kein Glossar, übersetzt ohne.`);
+        continue;
+      }
+      dictionaries.push({ source_lang: 'de', target_lang: lang, entries: tsv, entries_format: 'tsv' });
     }
-    if (!glossaryPairs.some((p) => p.source_lang === 'de' && p.target_lang === lang)) {
-      say(`${lang}: DeepL kennt für diese Sprache kein Glossar, übersetzt ohne.`);
-      return undefined;
+    if (!dictionaries.length) return none;
+    const langs = new Set(dictionaries.map((d) => d.target_lang));
+    const name = `KiezCoins ${hashOf(JSON.stringify(dictionaries))}`;
+    const listRes = await fetch(`${host}/v3/glossaries`, { headers: auth });
+    const list = listRes.ok ? (await listRes.json()).glossaries ?? [] : [];
+    for (const old of list.filter((g) => g.name.startsWith('KiezCoins') && g.name !== name)) {
+      await fetch(`${host}/v3/glossaries/${old.glossary_id}`, { method: 'DELETE', headers: auth }).catch(() => {});
     }
-    if (!glossaryList) {
-      const res = await fetch(`${host}/v2/glossaries`, { headers: auth });
-      glossaryList = res.ok ? (await res.json()).glossaries ?? [] : [];
-    }
-    const prefix = `KiezCoins ${lang} `;
-    const name = prefix + hashOf(tsv);
-    const found = glossaryList.find((g) => g.name === name);
-    for (const old of glossaryList.filter((g) => g.name.startsWith(prefix) && g.name !== name)) {
+    // Glossare aus der API v2 (je Sprache eins) ebenfalls weg, sie zählen gegen dasselbe Kontingent
+    const v2Res = await fetch(`${host}/v2/glossaries`, { headers: auth });
+    const v2 = v2Res.ok ? (await v2Res.json()).glossaries ?? [] : [];
+    for (const old of v2.filter((g) => g.name.startsWith('KiezCoins') && g.name !== name && !list.some((x) => x.glossary_id === g.glossary_id))) {
       await fetch(`${host}/v2/glossaries/${old.glossary_id}`, { method: 'DELETE', headers: auth }).catch(() => {});
     }
-    if (found) return found.glossary_id;
-    const res = await fetch(`${host}/v2/glossaries`, {
+    const found = list.find((g) => g.name === name);
+    if (found) return { id: found.glossary_id, langs };
+    const res = await fetch(`${host}/v3/glossaries`, {
       method: 'POST',
       headers: { ...auth, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, source_lang: 'de', target_lang: lang, entries: tsv, entries_format: 'tsv' }),
+      body: JSON.stringify({ name, dictionaries }),
     });
     if (!res.ok) {
-      say(`${lang}: Glossar ließ sich nicht anlegen (${res.status}), übersetzt ohne.`);
-      return undefined;
+      say(`Glossar ließ sich nicht anlegen (${res.status}: ${(await res.text()).slice(0, 200)}), übersetzt ohne.`);
+      return none;
     }
-    const id = (await res.json()).glossary_id;
-    say(`${lang}: Glossar angelegt (${tsv.split('\n').length} Begriffe).`);
-    return id;
+    say(`Glossar angelegt: ${[...langs].join(', ')}.`);
+    return { id: (await res.json()).glossary_id, langs };
   } catch {
-    say(`${lang}: Glossar nicht erreichbar, übersetzt ohne.`);
-    return undefined;
+    say('Glossar nicht erreichbar, übersetzt ohne.');
+    return none;
   }
+}
+async function glossaryFor(lang) {
+  if (!glossary) glossary = await loadGlossary();
+  return glossary.langs.has(lang) ? glossary.id : undefined;
 }
 
 async function deepl(texts, target, glossaryId) {
