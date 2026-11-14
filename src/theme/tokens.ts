@@ -141,6 +141,8 @@ export const color = {
     confirmation: palette.green,
     /** Fokus (Rahmen und Cursor im aktiven Feld) und eingeschaltete Schalter: Gelbgrün, überall gleich (Daria, 2026-11-13) */
     focus: swatch.gelbgruen,
+    /** Theme „Functional“ (Daria, 2026-11-14): Knöpfe, Schalter und Fokus auf den Seiten unter dem Menü, wie das Menü-Icon */
+    functional: swatch.gelbgruen,
     signal: palette.orange,
     /**
      * Fehler und Pflichtfeld-Hinweise: im Kiez-Look Orange wie die Signalfarbe (Daria, 2026-11-12). Das alte Korallrot

@@ -355,7 +355,7 @@ export function CalendarSettings() {
           />
         )}
         {mine.map(linkedRow)}
-        {mine.length ? <Button label={addLabel} variant="ghost" tone="focus" onPress={() => toggleOpen(key, !open)} /> : null}
+        {mine.length ? <Button label={addLabel} variant="ghost" onPress={() => toggleOpen(key, !open)} /> : null}
         {open ? setup() : null}
       </View>
     );
