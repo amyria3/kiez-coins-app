@@ -982,12 +982,63 @@ function HandButton({
 export function RoutineCalendarSlot() {
   const data = useRoutineData();
   if (!data) return null;
-  return <RoutineCalendar list={data.list} events={data.events} saved={data.saved} />;
+  // Im Feed bleibt hier immer die Woche; der Monat legt sich als Blatt darüber (RoutineMonthPanel)
+  return <RoutineCalendar list={data.list} events={data.events} saved={data.saved} variant="week" />;
 }
 
-export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; events: CalendarEvent[]; saved: Saved[] }) {
+/**
+ * Monat als Blatt über der Liste (Daria, 2026-11-14): Die Liste bleibt stehen, nur das Blatt und die Tage bewegen sich.
+ * Vorher schob der Monat beim Aufklappen in jedem Bild die ganze Seite weiter, das ruckelte auf dem iPhone.
+ * Antippen außerhalb des Blatts klappt den Monat zu.
+ */
+export function RoutineMonthPanel() {
+  const data = useRoutineData();
+  const open = useCalendarMonth();
+  const [mounted, setMounted] = useState(open);
+  const fade = useRef(new Animated.Value(open ? 1 : 0)).current;
+  useEffect(() => {
+    if (open) setMounted(true);
+    fade.stopAnimation();
+    Animated.timing(fade, {
+      toValue: open ? 1 : 0,
+      duration: open ? 140 : 160,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: Platform.OS !== 'web',
+    }).start(({ finished }) => {
+      if (finished && !open) setMounted(false);
+    });
+  }, [open, fade]);
+  if (!mounted || !data) return null;
+  return (
+    <>
+      <Pressable
+        style={styles.panelBackdrop}
+        onPress={() => setCalendarMonth(false)}
+        accessibilityRole="button"
+        accessibilityLabel={t('Monat zuklappen')}
+      />
+      <Animated.View style={[styles.panel, { opacity: fade }]}>
+        <RoutineCalendar list={data.list} events={data.events} saved={data.saved} variant="panel" />
+      </Animated.View>
+    </>
+  );
+}
+
+export function RoutineCalendar({
+  list,
+  events,
+  saved,
+  variant = 'inline',
+}: {
+  list: Reminder[];
+  events: CalendarEvent[];
+  saved: Saved[];
+  /** inline: Woche und Monat in der Liste (eigene Routine-Seite); week: nur Woche; panel: nur Monat, als Blatt */
+  variant?: 'inline' | 'week' | 'panel';
+}) {
   // Monat oder Woche, geteilt mit dem Feed: Dieselbe Bewegung wie beim Aufklappen zeigt den ganzen Monat (Daria, 2026-11-14)
   const open = useCalendarMonth();
+  const monthMode = variant === 'panel' || (variant === 'inline' && open);
   const setOpen = setCalendarMonth;
   // Gewählter Tag (Daria, 2026-11-12): darunter steht, was an dem Tag war
   const [picked, setPicked] = useState<string | null>(null);
@@ -997,11 +1048,18 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
   const [shift, setShift] = useState(0);
   // Zeilen des Monats fallen beim Aufklappen eine nach der anderen heraus und klappen beim Zuklappen von unten
   // wieder ein (Daria, 2026-11-14). `rows`: was gerade steht; „closing“ hält den Monat, bis er eingeklappt ist.
-  const [rows, setRows] = useState<'week' | 'month' | 'closing'>(open ? 'month' : 'week');
-  const [entering, setEntering] = useState(false);
+  const [rows, setRows] = useState<'week' | 'month' | 'closing'>(monthMode ? 'month' : 'week');
+  const [entering, setEntering] = useState(variant === 'panel');
   const weekBefore = useRef<string | null>(null);
+  // Blatt: Die Tage fallen beim Öffnen einmal heraus
+  useEffect(() => {
+    if (variant !== 'panel') return;
+    const id = setTimeout(() => setEntering(false), MONTH_IN_MS);
+    return () => clearTimeout(id);
+  }, [variant]);
   useEffect(() => {
     setShift(0);
+    if (variant !== 'inline') return;
     if (open) {
       setRows('month');
       setEntering(true);
@@ -1011,7 +1069,7 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
     setRows((r) => (r === 'month' ? 'closing' : r));
     const id = setTimeout(() => setRows('week'), MONTH_OUT_MS);
     return () => clearTimeout(id);
-  }, [open]);
+  }, [open, variant]);
   const slide = useRef(new Animated.Value(0)).current;
   const go = useCallback(
     (dir: 1 | -1) => {
@@ -1041,8 +1099,8 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
     [slide],
   );
   const now = new Date();
-  const week = addDays(open ? 0 : shift * 7, weekStart(now));
-  const monthStart = open ? new Date(now.getFullYear(), now.getMonth() + shift, 1) : new Date(week.getFullYear(), week.getMonth(), 1);
+  const week = addDays(monthMode ? 0 : shift * 7, weekStart(now));
+  const monthStart = monthMode ? new Date(now.getFullYear(), now.getMonth() + shift, 1) : new Date(week.getFullYear(), week.getMonth(), 1);
   const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
   // Laden ab dem früheren von Monatsanfang und Wochenanfang, bis zum späteren Ende
   const from = week < monthStart ? week : monthStart;
@@ -1066,8 +1124,8 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
   const calledOffCount = countIn(days?.calledOffBy);
   const month = new Intl.DateTimeFormat(localeTag(), monthStart.getFullYear() === now.getFullYear() ? { month: 'long' } : { month: 'long', year: 'numeric' }).format(monthStart);
   // Ohne gewählten Tag: heute, wenn es im gezeigten Zeitraum liegt, sonst der erste Tag
-  const first = open ? monthStart : week;
-  const last = open ? monthEnd : addDays(6, week);
+  const first = monthMode ? monthStart : week;
+  const last = monthMode ? monthEnd : addDays(6, week);
   const shownDay = picked ?? (today >= localDate(first) && today <= localDate(last) ? today : localDate(first));
 
   const monthCells: (Date | null)[] = [
@@ -1106,8 +1164,8 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
         {...pan.panHandlers}
         accessible={false}
         accessibilityActions={[
-          { name: 'increment', label: t(open ? 'Nächster Monat' : 'Nächste Woche') },
-          { name: 'decrement', label: t(open ? 'Voriger Monat' : 'Vorige Woche') },
+          { name: 'increment', label: t(monthMode ? 'Nächster Monat' : 'Nächste Woche') },
+          { name: 'decrement', label: t(monthMode ? 'Voriger Monat' : 'Vorige Woche') },
         ]}
         onAccessibilityAction={(e) => go(e.nativeEvent.actionName === 'increment' ? 1 : -1)}
       >
@@ -1121,9 +1179,26 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
         {weekRows.map((r, i) => {
           const key = rowKey(r);
           const kept = key === weekBefore.current;
-          const mode = rows === 'closing' ? (kept ? 'static' : 'leave') : rows === 'month' && entering && !kept ? 'enter' : 'static';
+          // Im Blatt fallen alle Tage, die Zeilen haben schon ihre Höhe (keine Bewegung des Layouts)
+          const mode =
+            variant === 'panel'
+              ? entering
+                ? 'enter'
+                : 'static'
+              : rows === 'closing'
+                ? kept
+                  ? 'static'
+                  : 'leave'
+                : rows === 'month' && entering && !kept
+                  ? 'enter'
+                  : 'static';
           return (
-            <CalRow key={key} mode={mode} delay={mode === 'enter' ? i * ROW_STAGGER : (weekRows.length - 1 - i) * ROW_STAGGER_OUT}>
+            <CalRow
+              key={key}
+              mode={mode}
+              daysOnly={variant === 'panel'}
+              delay={mode === 'enter' ? i * ROW_STAGGER : (weekRows.length - 1 - i) * ROW_STAGGER_OUT}
+            >
               {r.map((d, j) =>
                 d ? (
                   <CalDay
@@ -1180,30 +1255,41 @@ function jitterOf(d: string, range: number): number {
 }
 
 /** Eine Kalenderzeile, die herausfallen (enter) oder einklappen (leave) kann */
-function CalRow({ mode, delay, children }: { mode: 'static' | 'enter' | 'leave'; delay: number; children: ReactNode }) {
-  const v = useRef(new Animated.Value(mode === 'enter' ? 0 : 1)).current;
+function CalRow({
+  mode,
+  delay,
+  daysOnly = false,
+  children,
+}: {
+  mode: 'static' | 'enter' | 'leave';
+  delay: number;
+  /** Nur die Tage bewegen sich, die Zeile hat sofort ihre Höhe */
+  daysOnly?: boolean;
+  children: ReactNode;
+}) {
+  const v = useRef(new Animated.Value(mode === 'enter' && !daysOnly ? 0 : 1)).current;
   const [height, setHeight] = useState(0);
   useEffect(() => {
-    if (mode === 'static') {
+    if (mode === 'static' || daysOnly) {
       v.setValue(1);
       return;
     }
     const anim = Animated.timing(v, { toValue: mode === 'enter' ? 1 : 0, duration: ROW_MS, delay, easing: Easing.out(Easing.cubic), useNativeDriver: false });
     anim.start();
     return () => anim.stop();
-  }, [mode, delay, v]);
+  }, [mode, delay, daysOnly, v]);
   const style = useMemo(
     () =>
-      mode === 'static'
+      mode === 'static' || daysOnly
         ? null
         : {
             height: v.interpolate({ inputRange: [0, 1], outputRange: [0, height] }),
           },
-    [mode, v, height],
+    [mode, daysOnly, v, height],
   );
   const ctx = useMemo(() => ({ mode, delay }), [mode, delay]);
   return (
-    <Animated.View style={[mode === 'static' ? null : styles.calRowClip, style]}>
+    <Animated.View style={[mode === 'static' || daysOnly ? null : styles.calRowClip, style]}>
       <View style={styles.calRow} onLayout={(e) => setHeight((h) => (h === e.nativeEvent.layout.height ? h : e.nativeEvent.layout.height))}>
         <RowAnim.Provider value={ctx}>{children}</RowAnim.Provider>
       </View>
@@ -1472,6 +1558,26 @@ const styles = StyleSheet.create({
     gap: space[12],
   },
   calGrid: {},
+  // Blatt über der Liste: deckt die Woche darunter ab, unten rund mit Schatten (Daria, 2026-11-14)
+  panel: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: space[20],
+    paddingTop: space[4],
+    paddingBottom: space[16],
+    backgroundColor: color.bg.screen,
+    borderBottomLeftRadius: radius.xl,
+    borderBottomRightRadius: radius.xl,
+    shadowColor: '#000',
+    shadowOpacity: 0.45,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 12,
+  },
+  // Fläche unter dem Blatt bis zum unteren Rand: Antippen klappt den Monat zu
+  panelBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, height: 4000 },
   // Abstand unter jeder Zeile statt Zeilenabstand, damit er beim Einklappen mitgeht
   calRow: { flexDirection: 'row', paddingBottom: space[6] },
   calRowClip: { overflow: 'hidden' },

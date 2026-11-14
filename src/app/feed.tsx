@@ -1,5 +1,5 @@
 import { RoutineNudge } from '../components/RoutineNudge';
-import { RoutineCalendarSlot } from '../components/RoutineList';
+import { RoutineCalendarSlot, RoutineMonthPanel } from '../components/RoutineList';
 import { setCalendarMonth, setCalendarShown } from '../data/routineView';
 import { RoutineContent } from '../components/RoutineContent';
 import { clearRoutinePost } from '../data/reminders';
@@ -187,6 +187,8 @@ export default function FeedScreen() {
   // die Zeilen des Monats sie beim Herausfallen mitziehen (Daria, 2026-11-14).
   const calendarMeasured = useRef(0);
   const [calendarSettled, setCalendarSettled] = useState(false);
+  // Oberkante des Kalenders im Kopf: Dort beginnt das Blatt mit dem Monat
+  const [calendarTop, setCalendarTop] = useState(0);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const calendarOpenRef = useRef(false);
   /** Ein Schritt weiter auf: zu → Woche → Monat */
@@ -992,7 +994,7 @@ export default function FeedScreen() {
         </View>
       </Animated.View>
       {/* Im Browser zieht ein Wischen hier sonst die ganze Seite mit und federt zurück (Daria, 2026-11-14) */}
-      <View style={styles.noBrowserPan} {...switchPan.panHandlers}>
+      <View style={[styles.noBrowserPan, styles.headerLayer]} {...switchPan.panHandlers}>
       {bigSwitchShown && !searching ? (
       <Animated.View style={[styles.tabsRow, { paddingRight: tabsPaddingRight }]}>
         <View style={styles.flex}>
@@ -1059,6 +1061,10 @@ export default function FeedScreen() {
       ) : null}
       {routineActive && !composing ? (
         <Animated.View
+          onLayout={(e) => {
+            const y = e.nativeEvent.layout.y;
+            setCalendarTop((t) => (t === y ? t : y));
+          }}
           style={[
             styles.clip,
             calendarSettled
@@ -1079,6 +1085,12 @@ export default function FeedScreen() {
             <RoutineCalendarSlot />
           </View>
         </Animated.View>
+      ) : null}
+      {/* Der Monat legt sich als Blatt über die Liste, genau über die Woche (Daria, 2026-11-14) */}
+      {routineActive && !composing ? (
+        <View style={[styles.monthLayer, { top: calendarTop }]} pointerEvents="box-none">
+          <RoutineMonthPanel />
+        </View>
       ) : null}
       </View>
       <Animated.View style={[styles.clip, storiesStyle]}>
@@ -1243,6 +1255,9 @@ const styles = StyleSheet.create({
   composeSheet: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
   tabsRowJoined: { paddingTop: 0 },
   noBrowserPan: Platform.OS === 'web' ? ({ touchAction: 'none' } as object) : {},
+  // Kopf liegt über der Liste, damit das Blatt mit dem Monat sie überdecken kann
+  headerLayer: { zIndex: 10, elevation: 10 },
+  monthLayer: { position: 'absolute', left: 0, right: 0, height: 0 },
   // Unten 24 plus 8 Abstand der Liste: 32 bis zur ersten Kartenreihe, wie zwischen den Gruppen (Daria, 2026-11-14)
   calendarSlot: { paddingHorizontal: space[20], paddingTop: space[4], paddingBottom: space[24], backgroundColor: color.bg.screen },
   tabsRow: {
