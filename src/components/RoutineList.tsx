@@ -985,7 +985,23 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
   // Blättern (Daria, 2026-11-14): nach links wischen zeigt den nächsten Monat bzw. die nächste Woche, nach rechts den
   // vorigen. Wechsel zwischen Woche und Monat springt zurück zu heute.
   const [shift, setShift] = useState(0);
-  useEffect(() => setShift(0), [open]);
+  // Zeilen des Monats fallen beim Aufklappen eine nach der anderen heraus und klappen beim Zuklappen von unten
+  // wieder ein (Daria, 2026-11-14). `rows`: was gerade steht; „closing“ hält den Monat, bis er eingeklappt ist.
+  const [rows, setRows] = useState<'week' | 'month' | 'closing'>(open ? 'month' : 'week');
+  const [entering, setEntering] = useState(false);
+  const weekBefore = useRef<string | null>(null);
+  useEffect(() => {
+    setShift(0);
+    if (open) {
+      setRows('month');
+      setEntering(true);
+      const id = setTimeout(() => setEntering(false), ROW_MS + 6 * ROW_STAGGER);
+      return () => clearTimeout(id);
+    }
+    setRows((r) => (r === 'month' ? 'closing' : r));
+    const id = setTimeout(() => setRows('week'), ROW_MS + 6 * ROW_STAGGER_OUT);
+    return () => clearTimeout(id);
+  }, [open]);
   const slide = useRef(new Animated.Value(0)).current;
   const go = useCallback(
     (dir: 1 | -1) => {
@@ -1044,9 +1060,16 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
   const last = open ? monthEnd : addDays(6, week);
   const shownDay = picked ?? (today >= localDate(first) && today <= localDate(last) ? today : localDate(first));
 
-  const cells: (Date | null)[] = open
-    ? [...Array.from({ length: isoWeekday(monthStart) - 1 }, () => null), ...Array.from({ length: monthEnd.getDate() }, (_, i) => addDays(i, monthStart))]
-    : Array.from({ length: 7 }, (_, i) => addDays(i, week));
+  const monthCells: (Date | null)[] = [
+    ...Array.from({ length: isoWeekday(monthStart) - 1 }, () => null),
+    ...Array.from({ length: monthEnd.getDate() }, (_, i) => addDays(i, monthStart)),
+  ];
+  while (monthCells.length % 7) monthCells.push(null);
+  const weekRows: (Date | null)[][] =
+    rows === 'week' ? [Array.from({ length: 7 }, (_, i) => addDays(i, week))] : Array.from({ length: monthCells.length / 7 }, (_, i) => monthCells.slice(i * 7, i * 7 + 7));
+  if (rows === 'week') weekBefore.current = localDate(week);
+  // Die Woche, die schon zu sehen war, bleibt stehen; die anderen Zeilen fallen heraus bzw. klappen ein
+  const rowKey = (r: (Date | null)[]) => localDate(weekStart(r.find(Boolean) as Date));
 
   return (
     <View style={styles.cal}>
@@ -1078,25 +1101,36 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
         ]}
         onAccessibilityAction={(e) => go(e.nativeEvent.actionName === 'increment' ? 1 : -1)}
       >
-        {[1, 2, 3, 4, 5, 6, 7].map((d) => (
-          <Text key={`h${d}`} noTranslate style={styles.calWeekday}>
-            {weekdayShort(d)}
-          </Text>
-        ))}
-        {cells.map((d, i) =>
-          d ? (
-            <CalDay
-              key={localDate(d)}
-              date={d}
-              today={today}
-              days={days}
-              picked={picked === localDate(d)}
-              onPress={() => setPicked(picked === localDate(d) ? null : localDate(d))}
-            />
-          ) : (
-            <View key={`e${i}`} style={styles.calCell} />
-          ),
-        )}
+        <View style={styles.calRow}>
+          {[1, 2, 3, 4, 5, 6, 7].map((d) => (
+            <Text key={`h${d}`} noTranslate style={styles.calWeekday}>
+              {weekdayShort(d)}
+            </Text>
+          ))}
+        </View>
+        {weekRows.map((r, i) => {
+          const key = rowKey(r);
+          const kept = key === weekBefore.current;
+          const mode = rows === 'closing' ? (kept ? 'static' : 'leave') : rows === 'month' && entering && !kept ? 'enter' : 'static';
+          return (
+            <CalRow key={key} mode={mode} delay={mode === 'enter' ? i * ROW_STAGGER : (weekRows.length - 1 - i) * ROW_STAGGER_OUT}>
+              {r.map((d, j) =>
+                d ? (
+                  <CalDay
+                    key={localDate(d)}
+                    date={d}
+                    today={today}
+                    days={days}
+                    picked={picked === localDate(d)}
+                    onPress={() => setPicked(picked === localDate(d) ? null : localDate(d))}
+                  />
+                ) : (
+                  <View key={`e${j}`} style={styles.calCell} />
+                ),
+              )}
+            </CalRow>
+          );
+        })}
       </Animated.View>
       {givenUpCount || cancelledCount || calledOffCount ? (
         <Text style={styles.calEnded}>
@@ -1110,6 +1144,43 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
       ) : null}
       <DayBar day={shownDay} today={today} days={days} list={list} events={events} saved={saved} />
     </View>
+  );
+}
+
+const ROW_MS = 260;
+const ROW_STAGGER = 55;
+const ROW_STAGGER_OUT = 35;
+
+/** Eine Kalenderzeile, die herausfallen (enter) oder einklappen (leave) kann */
+function CalRow({ mode, delay, children }: { mode: 'static' | 'enter' | 'leave'; delay: number; children: ReactNode }) {
+  const v = useRef(new Animated.Value(mode === 'enter' ? 0 : 1)).current;
+  const [height, setHeight] = useState(0);
+  useEffect(() => {
+    if (mode === 'static') {
+      v.setValue(1);
+      return;
+    }
+    const anim = Animated.timing(v, { toValue: mode === 'enter' ? 1 : 0, duration: ROW_MS, delay, easing: Easing.out(Easing.cubic), useNativeDriver: false });
+    anim.start();
+    return () => anim.stop();
+  }, [mode, delay, v]);
+  const style = useMemo(
+    () =>
+      mode === 'static'
+        ? null
+        : {
+            height: v.interpolate({ inputRange: [0, 1], outputRange: [0, height] }),
+            opacity: v,
+            transform: [{ translateY: v.interpolate({ inputRange: [0, 1], outputRange: [-16, 0] }) }],
+          },
+    [mode, v, height],
+  );
+  return (
+    <Animated.View style={[styles.calRowClip, style]}>
+      <View style={styles.calRow} onLayout={(e) => setHeight((h) => (h === e.nativeEvent.layout.height ? h : e.nativeEvent.layout.height))}>
+        {children}
+      </View>
+    </Animated.View>
   );
 }
 
@@ -1326,7 +1397,10 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
     gap: space[12],
   },
-  calGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: space[6] },
+  calGrid: {},
+  // Abstand unter jeder Zeile statt Zeilenabstand, damit er beim Einklappen mitgeht
+  calRow: { flexDirection: 'row', paddingBottom: space[6] },
+  calRowClip: { overflow: 'hidden' },
   calWeekday: {
     ...text.small,
     width: `${100 / 7}%`,

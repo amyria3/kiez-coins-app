@@ -181,6 +181,10 @@ export default function FeedScreen() {
    */
   const calendarAnim = useRef(new Animated.Value(0)).current;
   const [calendarHeight, setCalendarHeight] = useState(0);
+  // Gemessen ohne Neurendern; die Höhe zählt nur beim Auf- und Zuklappen. Offen folgt die Fläche ihrem Inhalt, damit
+  // die Zeilen des Monats sie beim Herausfallen mitziehen (Daria, 2026-11-14).
+  const calendarMeasured = useRef(0);
+  const [calendarSettled, setCalendarSettled] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const calendarOpenRef = useRef(false);
   /** Ein Schritt weiter auf: zu → Woche → Monat */
@@ -199,13 +203,17 @@ export default function FeedScreen() {
     calendarOpenRef.current = show;
     setCalendarOpen(show);
     setCalendarShown(show);
+    setCalendarHeight(calendarMeasured.current);
+    setCalendarSettled(false);
     calendarAnim.stopAnimation();
     Animated.timing(calendarAnim, {
       toValue: show ? 1 : 0,
       duration: SEARCH_FADE_MS,
       easing: Easing.bezier(0.4, 0, 0.2, 1),
       useNativeDriver: false,
-    }).start();
+    }).start(({ finished }) => {
+      if (finished && show) setCalendarSettled(true);
+    });
   };
   // Verlässt man den Feed, gilt der Kalender als zu, damit der Kater auf der eigenen Routine-Seite nicht fehlt
   useEffect(
@@ -1040,18 +1048,19 @@ export default function FeedScreen() {
         <Animated.View
           style={[
             styles.clip,
-            {
-              height: calendarAnim.interpolate({ inputRange: [0, 1], outputRange: [0, calendarHeight] }),
-              opacity: calendarAnim.interpolate({ inputRange: [0, 0.4, 1], outputRange: [0, 0.2, 1] }),
-            },
+            calendarSettled
+              ? null
+              : {
+                  height: calendarAnim.interpolate({ inputRange: [0, 1], outputRange: [0, calendarHeight] }),
+                  opacity: calendarAnim.interpolate({ inputRange: [0, 0.4, 1], outputRange: [0, 0.2, 1] }),
+                },
           ]}
           pointerEvents={calendarOpen ? 'auto' : 'none'}
         >
           <View
             style={styles.calendarSlot}
             onLayout={(e) => {
-              const next = e.nativeEvent.layout.height;
-              setCalendarHeight((h) => (h === next ? h : next));
+              calendarMeasured.current = e.nativeEvent.layout.height;
             }}
           >
             <RoutineCalendarSlot />
