@@ -1469,7 +1469,8 @@ function DayBar({
 
 const styles = StyleSheet.create({
   calEnded: { ...text.bodySm, color: color.text.secondary, textAlign: 'right' },
-  dayCreate: { flexDirection: 'row', alignItems: 'center', gap: space[6], alignSelf: 'flex-start', paddingVertical: space[4] },
+  // Plus bündig mit „Fr. 27.11.“ darüber (das Icon hat innen etwas Rand), Abstand wie zwischen Kalender und Tageszeile
+  dayCreate: { flexDirection: 'row', alignItems: 'center', gap: space[6], alignSelf: 'flex-start', marginLeft: -3, marginTop: -space[2] },
   dayCreateText: { ...text.label },
   dayBar: { ...text.bodySm, marginTop: space[4], color: color.text.secondary },
   group: { gap: space[12] },
@@ -1589,7 +1590,9 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
     gap: space[12],
   },
-  calGrid: {},
+  // Die Tage sind 88 % ihrer Spalte breit; um 3 pt breiter, damit die Kreise links und rechts bündig mit Monat und
+  // Tageszeile stehen (Daria, 2026-11-14: „Padding angleichen“)
+  calGrid: { marginHorizontal: -3 },
   // Blatt über der Liste: deckt die Woche darunter ab, unten rund mit Schatten (Daria, 2026-11-14)
   panel: {
     position: 'absolute',
