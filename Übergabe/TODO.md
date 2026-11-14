@@ -10,6 +10,8 @@ Erledigt Daria selbst, Claude hat alles vorbereitet.
 
 - [ ] **Pflicht:** Migration `supabase/migrations/20261114000100_weiterposten_vault.sql` im Supabase SQL Editor ausführen und **gleich danach** im Terminal im Ordner `repo`: `npx supabase login`, dann `npx supabase functions deploy weiterposten --project-ref aqxzxpxrshizlaqyjplw`. Dazwischen funktioniert Weiterposten nicht. Danach Claude Bescheid geben (Doku: eingespielt).
 - [ ] **Pflicht:** Kalender-Funktion mit dem Sicherheits-Fix hochladen: `npx supabase functions deploy kalender --no-verify-jwt --project-ref aqxzxpxrshizlaqyjplw`.
+- [ ] **Pflicht:** Migration `supabase/migrations/20261114000200_konto_ohne_mail_grenze.sql` im SQL Editor ausführen, danach `npx supabase functions deploy konto-ohne-mail --project-ref aqxzxpxrshizlaqyjplw` (Grenze je Anschluss statt für alle). Die Funktion läuft auch vor der Migration, dann mit der alten Grenze.
+- [ ] Store-Eintrag prüfen und in der Play Console eintragen: `2026-11-14_offen_store-eintrag.md` (Texte, Datensicherheit, Altersfreigabe). Dazu fehlen: Testkonto für die Google-Prüfung, 2–8 Screenshots, Vorstellungsgrafik 1024 × 500.
 - [ ] **Pflicht vor dem Launch:** ladungsfähige Anschrift für Impressum und Datenschutzerklärung beschaffen (c/o bei einem Freund mit Namen am Briefkasten, oder Impressum-Service, der „ladungsfähig“ schriftlich zusagt) und Claude schicken. Claude trägt sie auf Website und in der App ein.
 - [ ] Entscheiden: private Fotos (Me & Myself, Gruppen) liegen im öffentlichen Speicher. Weg A (zwei Speicher, Empfehlung), B (alles privat) oder C (neue Adresse bei Änderungen). Claude setzt danach um.
 - [ ] Google-Play-Konto anlegen (25 $ einmalig) und als „Nicht-Händlerin“ einstufen.
