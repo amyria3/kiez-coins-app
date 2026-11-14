@@ -468,7 +468,7 @@
 
       leg.innerHTML = gruppen.filter(function (g) { return g.n > 0; }).map(function (g) {
         return '<li>' + punkt('var(' + g.farbe + ')') + zahl(g.n) + ' ' + g.name + '</li>';
-      }).join('') + (ziel >= 0 ? '<li>' + (mk0.bild ? '<img class="punkt avatar" src="' + mk0.bild + '" alt="">' : punkt('var(--du-punkt)')) + 'Du</li>' : '') + (N ? '<li>1 Punkt = 1 Person</li>' : '<li>Noch niemand</li>')
+      }).join('') + (ziel >= 0 ? '<li>' + (mk0.bild ? '<img class="punkt avatar" src="' + String(mk0.bild).replace(/[&"<>]/g, '') + '" alt="">' : punkt('var(--du-punkt)')) + 'Du</li>' : '') + (N ? '<li>1 Punkt = 1 Person</li>' : '<li>Noch niemand</li>')
         + (ueber ? '<li class="tipp">Die Community ist größer als der Rahmen. Verschiebe die Ansicht, um alle zu sehen.</li>' : '');
       scroller.setAttribute('aria-label', 'Community: ' + gruppen.map(function (g) { return zahl(g.n) + ' ' + g.name; }).join(', '));
     }
@@ -601,7 +601,9 @@
   var frag = new URLSearchParams(location.hash.slice(1));
   var meinCode = /^[0-9a-f]{16,}$/.test(frag.get('ich') || '') ? frag.get('ich') : null;
   var BILDER = 'https://aqxzxpxrshizlaqyjplw.supabase.co/storage/v1/object/public/photos/';
-  var meinBild = (frag.get('bild') || '').indexOf(BILDER) === 0 ? frag.get('bild') : '';
+  // Sicherheit (2026-11-14): nur Pfade aus Buchstaben, Ziffern, / _ . - nach der Speicher-Adresse. Vorher reichte der
+  // Anfang, ein " im Link brach aus dem src-Attribut aus (Skript auf kiezcoins.de, wo auch die App läuft).
+  var meinBild = /^[A-Za-z0-9/_.-]+$/.test((frag.get('bild') || '').slice(BILDER.length)) && (frag.get('bild') || '').indexOf(BILDER) === 0 ? frag.get('bild') : '';
   var meinKurz = (frag.get('kurz') || '').replace(/[^A-Za-zÄÖÜäöüß0-9]/g, '').slice(0, 2).toUpperCase();
   if (meinCode) history.replaceState(null, '', location.pathname + location.search);
   var meinPunkt = null, meinFehler = false;
