@@ -86,6 +86,22 @@ export async function removeLinkedCalendar(id: string): Promise<boolean> {
   return !error;
 }
 
+/**
+ * Gruppenschalter (Daria, 2026-11-14): Schaltet jemand alle Kalender eines Dienstes aus, merkt sich das Gerät, welche
+ * an waren. Beim Einschalten gehen genau diese wieder an, ohne Merkliste alle.
+ */
+const GROUP_KEY = 'routine-calendar-group-';
+export async function shownBeforeGroupOff(group: string): Promise<string[]> {
+  try {
+    return JSON.parse((await AsyncStorage.getItem(GROUP_KEY + group)) ?? '[]');
+  } catch {
+    return [];
+  }
+}
+export async function rememberShownBeforeGroupOff(group: string, ids: string[]) {
+  await AsyncStorage.setItem(GROUP_KEY + group, JSON.stringify(ids)).catch(() => {});
+}
+
 async function linkedEvents(days: number): Promise<CalendarEvent[]> {
   const { data, error } = await supabase.functions.invoke<{ events?: CalendarEvent[] }>('kalender', {
     body: { action: 'events', days },

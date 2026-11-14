@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Alert, Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
@@ -18,10 +18,12 @@ import {
   feedExported,
   feedLinks,
   loadLinkedCalendars,
+  rememberShownBeforeGroupOff,
   removeLinkedCalendar,
   renameLinkedCalendar,
   setFeedExported,
   setLinkedCalendarShown,
+  shownBeforeGroupOff,
   type DeviceCalendar,
   type LinkedCalendar,
 } from '../data/calendar';
@@ -111,7 +113,9 @@ const SAVE_FAILED = 'Das hat nicht geklappt. Bitte versuch es noch einmal.';
  * Schalter zurück und eine Meldung erscheint.
  * Mehrere Kalender je Dienst, jeder mit eigenem Namen (Daria, 2026-11-14): Die Kalender eines Dienstes stehen
  * untereinander, darunter „Weiteren …-Kalender verbinden“. Beim Verbinden steht ein Name dabei (leer: der Dienst, beim
- * zweiten „Google 2“), in den Einstellungen eines Kalenders lässt er sich ändern. Dieselbe Adresse zweimal geht nicht. Routine als Ganzes schaltet der Schalter „Routine“ oben unter Funktionen.
+ * zweiten „Google 2“), in den Einstellungen eines Kalenders lässt er sich ändern. Dieselbe Adresse zweimal geht nicht.
+ * Gruppen (Daria, 2026-11-14): oben ein Schalter für alle Kalender eines Dienstes, darunter je Kalender eine Zeile mit
+ * Name, Zustand, „Trennen“ und eigenem Schalter fürs Anzeigen. Ein Tipp auf den Namen öffnet das Umbenennen. Routine als Ganzes schaltet der Schalter „Routine“ oben unter Funktionen.
  */
 export function CalendarSettings() {
   const [feed, setFeed] = useState<{ https: string; webcal: string } | null | undefined>(undefined);
@@ -273,32 +277,92 @@ export function CalendarSettings() {
     </View>
   );
 
-  /** Zeile eines verbundenen Kalenders: Schalter fürs Anzeigen, Tipp auf den Namen zeigt Name, „Verbunden“ und „Trennen“ */
+  /** Alle Kalender einer Gruppe an oder aus; beim Einschalten gehen die vorher eingeschalteten wieder an */
+  const showGroup = async (group: string, mine: LinkedCalendar[], on: boolean) => {
+    setError(null);
+    let ids: string[] = [];
+    if (on) {
+      const before = (await shownBeforeGroupOff(group)).filter((id) => mine.some((c) => c.id === id));
+      ids = before.length ? before : mine.map((c) => c.id);
+    } else rememberShownBeforeGroupOff(group, mine.filter((c) => c.shown).map((c) => c.id));
+    const inGroup = new Set(mine.map((c) => c.id));
+    setLinked((l) => l && l.map((x) => (inGroup.has(x.id) ? { ...x, shown: ids.includes(x.id) } : x)));
+    const results = await Promise.all(mine.filter((c) => c.shown !== ids.includes(c.id)).map((c) => setLinkedCalendarShown(c.id, ids.includes(c.id))));
+    if (results.every(Boolean)) return;
+    setError(SAVE_FAILED);
+    loadLinkedCalendars().then(setLinked);
+  };
+
+  /** Zeile eines verbundenen Kalenders unter seiner Gruppe: Name und Zustand, „Trennen“, Schalter fürs Anzeigen */
   const linkedRow = (c: LinkedCalendar) => {
+    const open = openKey === c.id;
     const changed = !!rename.trim() && rename.trim() !== c.name;
     return (
       <View key={c.id}>
-        <SettingRow
-          label={t('Termine aus {name} anzeigen', { name: c.name })}
-          caption={c.shown ? hostOf(c.url) : t('Aus. {name} bleibt verbunden.', { name: c.name })}
-          value={c.shown}
-          open={openKey === c.id}
-          onPressLabel={() => openLinked(c)}
-          onToggle={(v) => showLinked(c, v)}
-        />
-        {openKey === c.id ? (
-          <View style={styles.setup}>
+        <View style={[styles.row, styles.sub]}>
+          <Pressable
+            style={({ pressed }) => [styles.texts, pressed && styles.pressed]}
+            accessibilityRole="button"
+            accessibilityState={{ expanded: open }}
+            accessibilityLabel={t('{label}: Einstellungen', { label: c.name })}
+            onPress={() => openLinked(c)}
+          >
+            <Text style={styles.label}>{c.name}</Text>
+            <View style={styles.connected}>
+              <View style={styles.dot} />
+              <Text style={styles.caption}>{c.shown ? 'Verbunden' : 'Verbunden, ausgeblendet'}</Text>
+            </View>
+          </Pressable>
+          <Pressable accessibilityRole="button" onPress={() => disconnect(c)} style={({ pressed }) => [styles.chip, pressed && styles.pressed]}>
+            <Text style={styles.chipText}>Trennen</Text>
+          </Pressable>
+          <Toggle label={c.name} value={c.shown} onValueChange={(v) => showLinked(c, v)} />
+        </View>
+        {open ? (
+          <View style={[styles.setup, styles.sub]}>
             <TextField label="Name" placeholder={c.name} value={rename} onChangeText={setRename} maxLength={40} />
             {changed ? <Button label="Name speichern" variant="secondary" busy={busy} disabled={busy} onPress={() => saveName(c)} /> : null}
-            <Status label="Verbunden" action="Trennen" onPress={() => disconnect(c)} />
           </View>
         ) : null}
       </View>
     );
   };
 
+  /**
+   * Gruppe eines Dienstes: ohne Verbindung öffnet der Schalter die Einrichtung. Verbunden schaltet er alle Kalender der
+   * Gruppe; darunter stehen die einzelnen Kalender und „Weiteren … verbinden“.
+   */
+  const group = (key: string, label: string, emptyCaption: string, addLabel: string, mine: LinkedCalendar[], setup: () => ReactNode) => {
+    const open = openKey === key;
+    const anyShown = mine.some((c) => c.shown);
+    return (
+      <View key={key}>
+        {mine.length ? (
+          <SettingRow
+            label={label}
+            caption={anyShown ? t('{n} verbunden', { n: String(mine.length) }) : 'Aus. Die Kalender bleiben verbunden.'}
+            value={anyShown}
+            onToggle={(v) => showGroup(key, mine, v)}
+          />
+        ) : (
+          <SettingRow
+            label={label}
+            caption={emptyCaption}
+            value={open}
+            open={open}
+            onPressLabel={() => toggleOpen(key, !open)}
+            onToggle={(v) => toggleOpen(key, v)}
+          />
+        )}
+        {mine.map(linkedRow)}
+        {mine.length ? <Button label={addLabel} variant="ghost" onPress={() => toggleOpen(key, !open)} /> : null}
+        {open ? setup() : null}
+      </View>
+    );
+  };
+
   const list = linked ?? [];
-  // Kalender ohne bekannten Dienst stehen über „Termine aus einem anderen Kalender anzeigen“
+  // Kalender ohne bekannten Dienst stehen unter „Termine aus anderen Kalendern anzeigen“
   const others = list.filter((c) => !sourceOf(c.url));
 
   return (
@@ -350,43 +414,17 @@ export function CalendarSettings() {
 
       {linked === null ? <Notice variant="warning" message="Deine Kalender laden gerade nicht. Versuch es bitte gleich noch einmal." /> : null}
 
-      {/* Je Dienst: ohne Verbindung eine feste Zeile, deren Schalter die Einrichtung öffnet; verbunden alle Kalender
-          des Dienstes mit eigenem Schalter und darunter „Weiteren …-Kalender verbinden“ */}
-      {SOURCES.map((src) => {
-        const mine = list.filter((c) => sourceOf(c.url) === src.key);
-        const open = openKey === src.key;
-        const setup = open
-          ? setupFields(nameFor(src.label), t('Wo finde ich die iCal-Adresse von {name}?', { name: src.label }), src.placeholder, src.howTo)
-          : null;
-        if (!mine.length)
-          return (
-            <View key={src.key}>
-              <SettingRow
-                label={t('Termine aus {name} anzeigen', { name: src.label })}
-                caption="Nicht verbunden"
-                value={open}
-                open={open}
-                onPressLabel={() => toggleOpen(src.key, !open)}
-                onToggle={(v) => toggleOpen(src.key, v)}
-              />
-              {setup}
-            </View>
-          );
-        return (
-          <View key={src.key}>
-            {mine.map(linkedRow)}
-            <Button
-              label={t('Weiteren {name}-Kalender verbinden', { name: src.label })}
-              variant="ghost"
-              onPress={() => toggleOpen(src.key, !open)}
-            />
-            {setup}
-          </View>
-        );
-      })}
-
-      {/* Kalender ohne bekannten Dienst, z. B. von einem Verein, mit eigenem Namen */}
-      {others.map(linkedRow)}
+      {/* Je Dienst eine Gruppe mit Schalter für alle, darunter die einzelnen Kalender */}
+      {SOURCES.map((src) =>
+        group(
+          src.key,
+          t('Termine aus {name} anzeigen', { name: src.label }),
+          'Nicht verbunden',
+          t('Weiteren {name}-Kalender verbinden', { name: src.label }),
+          list.filter((c) => sourceOf(c.url) === src.key),
+          () => setupFields(nameFor(src.label), t('Wo finde ich die iCal-Adresse von {name}?', { name: src.label }), src.placeholder, src.howTo),
+        ),
+      )}
 
       {/* Kalender auf dem Handy (Android-App), je einer mit eigenem Schalter */}
       {deviceCalendarsSupported ? (
@@ -408,18 +446,21 @@ export function CalendarSettings() {
         )
       ) : null}
 
-      {/* Anderer Kalender, z. B. von einem Verein oder einer Schule */}
-      <SettingRow
-        label="Termine aus einem anderen Kalender anzeigen"
-        caption="Mit iCal-Adresse"
-        value={openKey === 'other'}
-        open={openKey === 'other'}
-        onPressLabel={() => toggleOpen('other', openKey !== 'other')}
-        onToggle={(v) => toggleOpen('other', v)}
-      />
-      {openKey === 'other'
-        ? setupFields(nameFor(t('Kalender')), t('Wo finde ich die iCal-Adresse?'), 'https://…/kalender.ics', 'In den Einstellungen Deines Kalenders, oft unter „Teilen“, „Veröffentlichen“ oder „iCal“.')
-        : null}
+      {/* Andere Kalender, z. B. von einem Verein oder einer Schule */}
+      {group(
+        'other',
+        others.length ? 'Termine aus anderen Kalendern anzeigen' : 'Termine aus einem anderen Kalender anzeigen',
+        'Mit iCal-Adresse',
+        'Weiteren Kalender verbinden',
+        others,
+        () =>
+          setupFields(
+            nameFor(t('Kalender')),
+            t('Wo finde ich die iCal-Adresse?'),
+            'https://…/kalender.ics',
+            'In den Einstellungen Deines Kalenders, oft unter „Teilen“, „Veröffentlichen“ oder „iCal“.',
+          ),
+      )}
     </View>
   );
 }
@@ -476,6 +517,8 @@ function Status({ label, action, onPress }: { label: string; action: string; onP
 const styles = StyleSheet.create({
   list: { gap: space[8] },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[4] },
+  // Einzelne Kalender unter dem Schalter ihrer Gruppe, eingerückt
+  sub: { paddingLeft: space[16] },
   texts: { flex: 1, gap: space[2] },
   label: { ...text.body, color: color.text.primary },
   caption: { ...text.caption, color: color.text.secondary },
