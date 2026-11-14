@@ -153,21 +153,54 @@ function safeUrl(value: string): string | null {
     const url = new URL(value.trim().replace(/^webcal:\/\//i, 'https://'));
     if (url.protocol !== 'https:') return null;
     const host = url.hostname.toLowerCase();
-    if (host === 'localhost' || !host.includes('.') || /^[\d.]+$/.test(host) || host.includes(':') || host.endsWith('.local')) return null;
+    if (host === 'localhost' || !host.includes('.') || /^[\d.]+$/.test(host) || host.includes(':') || host.endsWith('.local') || host.endsWith('.internal') || url.port) return null;
     return url.toString();
   } catch {
     return null;
   }
 }
 
-async function fetchIcs(url: string): Promise<string | null> {
+/**
+ * Lädt eine iCal-Datei. Sicherheit (2026-11-14): Weiterleitungen folgt die Funktion selbst und prüft jedes Ziel mit
+ * safeUrl, höchstens 3. Vorher folgte fetch blind, eine öffentliche Adresse konnte so auf interne Adressen umleiten.
+ * Der Inhalt wird beim Lesen gezählt und über MAX_ICS_BYTES abgebrochen, statt erst alles in den Speicher zu laden.
+ */
+async function fetchIcs(start: string): Promise<string | null> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
   try {
-    const res = await fetch(url, { signal: ctrl.signal, redirect: 'follow', headers: { Accept: 'text/calendar' } });
-    if (!res.ok) return null;
-    const text = await res.text();
-    return text.length > MAX_ICS_BYTES || !text.includes('BEGIN:VCALENDAR') ? null : text;
+    let url: string | null = start;
+    let res: Response | null = null;
+    for (let hop = 0; hop <= 3 && url; hop++) {
+      res = await fetch(url, { signal: ctrl.signal, redirect: 'manual', headers: { Accept: 'text/calendar' } });
+      if (res.status < 300 || res.status >= 400) break;
+      const next = res.headers.get('location');
+      await res.body?.cancel();
+      url = next ? safeUrl(new URL(next, url).toString()) : null;
+      res = null;
+    }
+    if (!res || !res.ok || !res.body) return null;
+    const reader = res.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let size = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.length;
+      if (size > MAX_ICS_BYTES) {
+        await reader.cancel();
+        return null;
+      }
+      chunks.push(value);
+    }
+    const bytes = new Uint8Array(size);
+    let at = 0;
+    for (const c of chunks) {
+      bytes.set(c, at);
+      at += c.length;
+    }
+    const text = new TextDecoder().decode(bytes);
+    return text.includes('BEGIN:VCALENDAR') ? text : null;
   } catch {
     return null;
   } finally {
