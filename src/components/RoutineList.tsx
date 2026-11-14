@@ -988,8 +988,17 @@ export function RoutineMonthPanel() {
   const open = useCalendarMonth();
   const [mounted, setMounted] = useState(open);
   const fade = useRef(new Animated.Value(open ? 1 : 0)).current;
+  // Das Blatt erscheint oft genau unter dem Finger, der es gerade aufgezogen hat. Das Loslassen darf es nicht gleich
+  // wieder schließen (Daria, 2026-11-14: „Animation begann und brach dann selbst ab“): Nur ein Tippen, das auf der
+  // Fläche begonnen hat, und frühestens kurz nach dem Öffnen zählt.
+  const openedAt = useRef(0);
+  const armed = useRef(false);
   useEffect(() => {
-    if (open) setMounted(true);
+    if (open) {
+      setMounted(true);
+      openedAt.current = Date.now();
+      armed.current = false;
+    }
     fade.stopAnimation();
     Animated.timing(fade, {
       toValue: open ? 1 : 0,
@@ -1005,7 +1014,13 @@ export function RoutineMonthPanel() {
     <>
       <Pressable
         style={styles.panelBackdrop}
-        onPress={() => setCalendarMonth(false)}
+        onPressIn={() => {
+          armed.current = Date.now() - openedAt.current > 400;
+        }}
+        onPress={() => {
+          if (armed.current) setCalendarMonth(false);
+          armed.current = false;
+        }}
         accessibilityRole="button"
         accessibilityLabel={t('Monat zuklappen')}
       />
@@ -1032,6 +1047,10 @@ export function RoutineCalendar({
   const open = useCalendarMonth();
   const router = useRouter();
   const accent = useAccentColor();
+  // Kurz nach dem Erscheinen zählt kein Tippen: Das Loslassen des Fingers, der das Blatt aufgezogen hat, landet sonst
+  // auf dem Monat und klappt ihn gleich wieder zu (Daria, 2026-11-14)
+  const shownAt = useRef(Date.now());
+  const settled = () => Date.now() - shownAt.current > 400;
   const monthMode = variant === 'panel' || (variant === 'inline' && open);
   const setOpen = setCalendarMonth;
   // Gewählter Tag (Daria, 2026-11-12): darunter steht, was an dem Tag war
@@ -1136,7 +1155,7 @@ export function RoutineCalendar({
   return (
     <View style={styles.cal}>
       <Pressable
-        onPress={() => setOpen(!open)}
+        onPress={() => settled() && setOpen(!open)}
         accessibilityRole="button"
         accessibilityState={{ expanded: open }}
         accessibilityLabel={t(open ? 'Kalender einklappen' : 'Ganzen Monat zeigen')}
@@ -1203,7 +1222,7 @@ export function RoutineCalendar({
                     today={today}
                     days={days}
                     picked={picked === localDate(d)}
-                    onPress={() => setPicked(picked === localDate(d) ? null : localDate(d))}
+                    onPress={() => settled() && setPicked(picked === localDate(d) ? null : localDate(d))}
                   />
                 ) : (
                   <View key={`e${j}`} style={styles.calCell} />
