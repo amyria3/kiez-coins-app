@@ -96,7 +96,9 @@ export const RoutineList = memo(function RoutineList({
   const termine = sorted.filter((r) => kindOf(r) === 'termin');
   const fixed = termine.filter((r) => r.required !== false);
   const optional = termine.filter((r) => r.required === false);
-  const calendar = events.slice(0, 20);
+  // Karten nur für die nächsten 7 Tage, der Kalender oben zeigt alle geladenen Termine (Daria, 2026-11-14)
+  const lastCardDay = localDate(addDays(6, now));
+  const calendar = events.filter((e) => eventDate(e) <= lastCardDay).slice(0, 20);
 
   return (
     <Motion.Provider value={motion}>
