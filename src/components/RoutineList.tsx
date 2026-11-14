@@ -1237,7 +1237,8 @@ const ROW_MS = 260;
 const ROW_STAGGER = 55;
 const ROW_STAGGER_OUT = 35;
 /** Tage fallen einzeln heraus (Daria, 2026-11-14): je Spalte etwas später, dazu ein kleiner Zufall je Tag */
-const DAY_MS = 320;
+/** So lange federt ein Tag ungefähr, bis er ruhig liegt */
+const DAY_MS = 650;
 const DAY_STAGGER = 22;
 const DAY_JITTER = 60;
 /** So lange dauert das Herausfallen des ganzen Monats höchstens */
@@ -1323,13 +1324,22 @@ function CalDay({
       return;
     }
     const enter = row.mode === 'enter';
-    const anim = Animated.timing(fall, {
-      toValue: enter ? 1 : 0,
-      duration: enter ? DAY_MS : 180,
-      delay: enter ? row.delay + col * DAY_STAGGER + jitterOf(d, DAY_JITTER) : row.delay + jitterOf(d, 30),
-      easing: enter ? Easing.out(Easing.back(1.6)) : Easing.in(Easing.cubic),
-      useNativeDriver: Platform.OS !== 'web',
-    });
+    // Herausfallen als Feder: landet und springt leicht nach (Daria, 2026-11-14: „slightly bouncy“)
+    const anim = enter
+      ? Animated.spring(fall, {
+          toValue: 1,
+          delay: row.delay + col * DAY_STAGGER + jitterOf(d, DAY_JITTER),
+          friction: 5,
+          tension: 140,
+          useNativeDriver: Platform.OS !== 'web',
+        })
+      : Animated.timing(fall, {
+          toValue: 0,
+          duration: 180,
+          delay: row.delay + jitterOf(d, 30),
+          easing: Easing.in(Easing.cubic),
+          useNativeDriver: Platform.OS !== 'web',
+        });
     anim.start();
     return () => anim.stop();
   }, [row.mode, row.delay, col, d, fall]);
@@ -1341,8 +1351,8 @@ function CalDay({
         : {
             opacity: fall.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, 1, 1], extrapolate: 'clamp' as const }),
             transform: [
-              { translateY: fall.interpolate({ inputRange: [0, 1], outputRange: [-22, 0] }) },
-              { rotate: fall.interpolate({ inputRange: [0, 1], outputRange: [`${tilt}deg`, '0deg'] }) },
+              { translateY: fall.interpolate({ inputRange: [0, 1], outputRange: [-28, 0] }) },
+              { rotate: fall.interpolate({ inputRange: [0, 1], outputRange: [`${tilt}deg`, '0deg'], extrapolate: 'clamp' as const }) },
             ],
           },
     [row.mode, fall, tilt],
