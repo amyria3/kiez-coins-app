@@ -23,6 +23,8 @@
         height: 100%;
         background-color: #232326;
         color-scheme: dark;
+        /* Kein Mitfedern der ganzen Seite, wenn man an einer Stelle zieht, die nicht scrollt (Daria, 2026-11-14) */
+        overscroll-behavior: none;
       }
       /* Offene Tastatur: Die Seite wird so hoch wie der sichtbare Teil darüber. --keyboard-inset setzt
          src/components/Keyboard.tsx aus window.visualViewport (Daria, 2026-11-11). */

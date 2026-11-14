@@ -2,6 +2,7 @@ import { createContext, memo, useCallback, useContext, useEffect, useMemo, useRe
 import { AccessibilityInfo, Alert, Animated, Easing, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { markCardSwipe } from '../lib/cardSwipe';
+import { whenUntouched } from '../lib/touching';
 import Svg, { Defs, Line, Path, Pattern, Rect } from 'react-native-svg';
 
 import { Button } from './Button';
@@ -177,8 +178,16 @@ function AsideWhenCalendar({ children }: { children: ReactNode }) {
 function useNow(): Date {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 60_000);
-    return () => clearInterval(id);
+    // Neu sortieren erst, wenn kein Finger liegt: sonst wandert eine Karte unter dem Finger weg (Daria, 2026-11-14)
+    let cancel = () => {};
+    const id = setInterval(() => {
+      cancel();
+      cancel = whenUntouched(() => setNow(new Date()));
+    }, 60_000);
+    return () => {
+      clearInterval(id);
+      cancel();
+    };
   }, []);
   return now;
 }
@@ -503,7 +512,8 @@ function Card({
   const native = Platform.OS !== 'web';
   const wobble = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    if (!urgent || reduce || !motion) return;
+    // Angehoben wackelt nichts, die Karte folgt nur dem Finger
+    if (!urgent || reduce || !motion || drag.lifted) return;
     const to = (v: number) => Animated.timing(wobble, { toValue: v, duration: 70, useNativeDriver: native });
     const loop = Animated.loop(Animated.sequence([to(1), to(-1), to(0.7), to(-0.5), to(0), Animated.delay(2800)]));
     loop.start();
@@ -511,7 +521,7 @@ function Card({
       loop.stop();
       wobble.setValue(0);
     };
-  }, [urgent, reduce, motion, native, wobble]);
+  }, [urgent, reduce, motion, native, wobble, drag.lifted]);
   const tilt = motion ? tiltOf(tiltKey) : 0;
   // Schräge, beim Anheben etwas mehr, beim Wackeln ±2,5°, beim Ziehen neigt sie sich mit.
   // Einmal anlegen, nicht bei jedem Rendern: Neue Animationsknoten setzen die Karte für ein Bild zurück, das flackert

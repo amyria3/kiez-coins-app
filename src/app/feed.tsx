@@ -15,6 +15,7 @@ import {
   FlatList,
   Keyboard,
   PanResponder,
+  Platform,
   RefreshControl,
   StyleSheet,
   View,
@@ -52,6 +53,7 @@ import { useFeedViews } from '../data/seen';
 import type { Challenge } from '../data/types';
 import { color, motion, space, text } from '../theme/tokens';
 import { cardSwipe, resetCardSwipe } from '../lib/cardSwipe';
+import { touchEnded, touchStarted, whenUntouched } from '../lib/touching';
 import { useIntroDone } from '../lib/intro';
 
 const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
@@ -266,8 +268,15 @@ export default function FeedScreen() {
   const introDone = useIntroDone();
   useEffect(() => {
     if (collapsed || !introDone) return;
-    autoHide.current = setTimeout(() => collapseRef.current(), HEADER_HIDE_MS);
-    return () => clearTimeout(autoHide.current);
+    // Liegt dann noch ein Finger auf dem Bildschirm, erst danach (Daria, 2026-11-14: sonst springt alles unter dem Finger)
+    let cancel = () => {};
+    autoHide.current = setTimeout(() => {
+      cancel = whenUntouched(() => collapseRef.current());
+    }, HEADER_HIDE_MS);
+    return () => {
+      clearTimeout(autoHide.current);
+      cancel();
+    };
   }, [collapsed, introDone]);
 
   // Ausblenden: nach unten scrollen. Einblenden nur durch echtes Zurückscrollen nach oben
@@ -952,7 +961,13 @@ export default function FeedScreen() {
 
   return (
     <SpaceProvider value={area}>
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
+    <View
+      style={[styles.screen, { paddingTop: insets.top }]}
+      // In der App gibt es keine Zuhörer am Dokument; Berührungen melden für `whenUntouched` (lib/touching.ts)
+      onTouchStart={Platform.OS === 'web' ? undefined : touchStarted}
+      onTouchEnd={Platform.OS === 'web' ? undefined : touchEnded}
+      onTouchCancel={Platform.OS === 'web' ? undefined : touchEnded}
+    >
       {searching ? null : (
       <Animated.View style={[styles.clip, headerStyle]}>
         {/* Höhe folgt dem Inhalt, z. B. wenn nach dem Laden die Zeile mit den Zahlen dazukommt */}
@@ -979,7 +994,8 @@ export default function FeedScreen() {
           </Text>
         </View>
       </Animated.View>
-      <View {...switchPan.panHandlers}>
+      {/* Im Browser zieht ein Wischen hier sonst die ganze Seite mit und federt zurück (Daria, 2026-11-14) */}
+      <View style={styles.noBrowserPan} {...switchPan.panHandlers}>
       {bigSwitchShown && !searching ? (
       <Animated.View style={[styles.tabsRow, { paddingRight: tabsPaddingRight }]}>
         <View style={styles.flex}>
@@ -1229,6 +1245,7 @@ const styles = StyleSheet.create({
   composeLine: { ...text.title, flex: 1, color: color.text.primary },
   composeSheet: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
   tabsRowJoined: { paddingTop: 0 },
+  noBrowserPan: Platform.OS === 'web' ? ({ touchAction: 'none' } as object) : {},
   // Unten 24 plus 8 Abstand der Liste: 32 bis zur ersten Kartenreihe, wie zwischen den Gruppen (Daria, 2026-11-14)
   calendarSlot: { paddingHorizontal: space[20], paddingTop: space[4], paddingBottom: space[24], backgroundColor: color.bg.screen },
   tabsRow: {
