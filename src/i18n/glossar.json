@@ -1,10 +1,83 @@
 {
-  "_hinweis": "Glossar für DeepL (Daria, 2026-11-14). Je deutscher Begriff die Übersetzung pro Sprache. Gilt nur für neue Übersetzungen; vorhandene Texte in src/i18n/auto bleiben. Ein Glossar legt nur Wörter fest, keine Grammatik: Dass der Kater männlich ist, muss weiter von Hand geprüft werden.",
-  "Karte": { "en": "card", "fr": "carte", "ru": "карточка", "uk": "картка", "ar": "بطاقة", "he": "כרטיס" },
-  "Karten": { "en": "cards", "fr": "cartes", "ru": "карточки", "uk": "картки", "ar": "بطاقات", "he": "כרטיסים" },
-  "Bewegte Karten": { "en": "Moving cards", "fr": "Cartes animées", "ru": "Подвижные карточки", "uk": "Рухомі картки", "ar": "بطاقات متحركة", "he": "כרטיסים זזים" },
-  "Kater": { "en": "cat", "fr": "chat", "ru": "кот", "uk": "кіт", "ar": "القط", "he": "החתול" },
-  "Termin": { "en": "event", "fr": "rendez-vous", "ru": "событие", "uk": "подія", "ar": "موعد", "he": "אירוע" },
-  "Termine": { "en": "events", "fr": "rendez-vous", "ru": "события", "uk": "події", "ar": "مواعيد", "he": "אירועים" },
-  "Erinnerung": { "en": "reminder", "fr": "rappel", "ru": "напоминание", "uk": "нагадування", "ar": "تذكير", "he": "תזכורת" }
+  "_hinweis": "Glossar für DeepL (Daria, 2026-11-14). Je deutscher Begriff die Übersetzung pro Sprache. Gilt nur für neue Übersetzungen; vorhandene Texte in src/i18n/auto bleiben. Ein Glossar legt nur Wörter fest, keine Grammatik: Dass der Kater männlich ist, muss weiter von Hand geprüft werden. Achtung: „Karten“ steht für cards. Texte mit der Karten-App (Landkarten) nach jedem Lauf prüfen.",
+  "Karte": {
+    "en": "card",
+    "fr": "carte",
+    "ru": "карточка",
+    "uk": "картка",
+    "ar": "بطاقة",
+    "he": "כרטיס"
+  },
+  "Karten": {
+    "en": "cards",
+    "fr": "cartes",
+    "ru": "карточки",
+    "uk": "картки",
+    "ar": "بطاقات",
+    "he": "כרטיסים"
+  },
+  "Bewegte Karten": {
+    "en": "Moving cards",
+    "fr": "Cartes animées",
+    "ru": "Подвижные карточки",
+    "uk": "Рухомі картки",
+    "ar": "بطاقات متحركة",
+    "he": "כרטיסים זזים"
+  },
+  "Kater": {
+    "en": "cat",
+    "fr": "chat",
+    "ru": "кот",
+    "uk": "кіт",
+    "ar": "القط",
+    "he": "החתול"
+  },
+  "Termin": {
+    "en": "event",
+    "fr": "rendez-vous",
+    "ru": "событие",
+    "uk": "подія",
+    "ar": "موعد",
+    "he": "אירוע"
+  },
+  "Termine": {
+    "en": "events",
+    "fr": "rendez-vous",
+    "ru": "события",
+    "uk": "події",
+    "ar": "مواعيد",
+    "he": "אירועים"
+  },
+  "Erinnerung": {
+    "en": "reminder",
+    "fr": "rappel",
+    "ru": "напоминание",
+    "uk": "нагадування",
+    "ar": "تذكير",
+    "he": "תזכורת"
+  },
+  "Erinnerungen": {
+    "en": "reminders",
+    "fr": "rappels",
+    "ru": "напоминания",
+    "uk": "нагадування",
+    "ar": "التذكيرات",
+    "he": "תזכורות"
+  },
+  "Weiterposten": {
+    "en": "cross-posting",
+    "fr": "publier ailleurs",
+    "ru": "кросспостинг",
+    "uk": "кроспостинг",
+    "ar": "إعادة النشر",
+    "he": "פרסום ברשתות אחרות"
+  },
+  "Katers": {
+    "en": "cat's",
+    "fr": "du chat",
+    "ru": "кота",
+    "uk": "кота",
+    "ar": "القط",
+    "he": "החתול"
+  }
 }
