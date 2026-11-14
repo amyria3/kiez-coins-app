@@ -154,7 +154,7 @@ function AsideWhenCalendar({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (shown) setMounted(true);
     anim.stopAnimation();
-    Animated.timing(anim, { toValue: shown ? 1 : 0, duration: 380, easing: Easing.bezier(0.4, 0, 0.2, 1), useNativeDriver: false }).start(({ finished }) => {
+    Animated.timing(anim, { toValue: shown ? 1 : 0, duration: 520, easing: Easing.bezier(0.4, 0, 0.2, 1), useNativeDriver: false }).start(({ finished }) => {
       if (finished && !shown) setMounted(false);
     });
   }, [shown, anim]);
@@ -1001,7 +1001,7 @@ export function RoutineMonthPanel() {
     fade.stopAnimation();
     Animated.timing(fade, {
       toValue: open ? 1 : 0,
-      duration: open ? 140 : 160,
+      duration: open ? 240 : 220,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: Platform.OS !== 'web',
     }).start(({ finished }) => {
@@ -1234,13 +1234,14 @@ export function RoutineCalendar({
 }
 
 const ROW_MS = 260;
-const ROW_STAGGER = 55;
+// Etwas mehr Zeit für alles (Daria, 2026-11-14: „give everything a little time“)
+const ROW_STAGGER = 85;
 const ROW_STAGGER_OUT = 35;
 /** Tage fallen einzeln heraus (Daria, 2026-11-14): je Spalte etwas später, dazu ein kleiner Zufall je Tag */
 /** So lange federt ein Tag ungefähr, bis er ruhig liegt */
-const DAY_MS = 650;
-const DAY_STAGGER = 22;
-const DAY_JITTER = 60;
+const DAY_MS = 900;
+const DAY_STAGGER = 35;
+const DAY_JITTER = 100;
 /** So lange dauert das Herausfallen des ganzen Monats höchstens */
 const MONTH_IN_MS = 6 * ROW_STAGGER + 6 * DAY_STAGGER + DAY_JITTER + DAY_MS;
 const MONTH_OUT_MS = ROW_MS + 6 * ROW_STAGGER_OUT;
@@ -1329,8 +1330,8 @@ function CalDay({
       ? Animated.spring(fall, {
           toValue: 1,
           delay: row.delay + col * DAY_STAGGER + jitterOf(d, DAY_JITTER),
-          friction: 5,
-          tension: 140,
+          friction: 5.5,
+          tension: 80,
           useNativeDriver: Platform.OS !== 'web',
         })
       : Animated.timing(fall, {
