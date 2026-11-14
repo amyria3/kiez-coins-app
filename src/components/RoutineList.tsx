@@ -1,6 +1,7 @@
 import { createContext, memo, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { AccessibilityInfo, Alert, Animated, Easing, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 import { markCardSwipe } from '../lib/cardSwipe';
 import { whenUntouched } from '../lib/touching';
 import Svg, { Defs, Line, Path, Pattern, Rect } from 'react-native-svg';
@@ -13,6 +14,7 @@ import { ReminderExtrasRow } from './ReminderExtras';
 import { ManageButton } from './ShowcaseManage';
 import { Text } from './T';
 import { useCardMotion } from '../data/features';
+import { useAccentColor } from '../theme/signal';
 import { setCalendarMonth, useCalendarMonth, useCalendarShown, useRoutineData } from '../data/routineView';
 import { addToMyCalendar, eventDate, eventTime, type CalendarEvent } from '../data/calendar';
 import { dayName, goalText, katerFocus, katerLine, katerMood, weekdayShort, whenText, type KaterMood } from '../data/katerRoutine';
@@ -1028,6 +1030,8 @@ export function RoutineCalendar({
 }) {
   // Monat oder Woche, geteilt mit dem Feed: Dieselbe Bewegung wie beim Aufklappen zeigt den ganzen Monat (Daria, 2026-11-14)
   const open = useCalendarMonth();
+  const router = useRouter();
+  const accent = useAccentColor();
   const monthMode = variant === 'panel' || (variant === 'inline' && open);
   const setOpen = setCalendarMonth;
   // Gewählter Tag (Daria, 2026-11-12): darunter steht, was an dem Tag war
@@ -1220,8 +1224,32 @@ export function RoutineCalendar({
         </Text>
       ) : null}
       <DayBar day={shownDay} today={today} days={days} list={list} events={events} saved={saved} />
+      {/* Für den gewählten Tag gleich etwas planen (Daria, 2026-11-14: „Da fehlt der Button zum Erstellen“); nicht für
+          vergangene Tage */}
+      {shownDay >= today ? (
+        <Pressable
+          onPress={() => {
+            setCalendarMonth(false);
+            router.push({ pathname: '/routine/new', params: { tag: shownDay } });
+          }}
+          accessibilityRole="button"
+          hitSlop={8}
+          style={({ pressed }) => [styles.dayCreate, pressed && styles.pressed]}
+        >
+          <Icon name="plus" size={16} color={accent} />
+          <Text style={[styles.dayCreateText, { color: accent }]}>
+            {shownDay === today ? t('Erinnerung für heute') : t('Erinnerung am {day}', { day: dayLabel(shownDay) })}
+          </Text>
+        </Pressable>
+      ) : null}
     </View>
   );
+}
+
+/** „Fr. 27.11.“ für den Knopf unter dem Kalender */
+function dayLabel(day: string): string {
+  const [y, m, d] = day.split('-').map(Number);
+  return new Intl.DateTimeFormat(localeTag(), { weekday: 'short', day: 'numeric', month: 'numeric' }).format(new Date(y, m - 1, d));
 }
 
 const ROW_MS = 260;
@@ -1441,6 +1469,8 @@ function DayBar({
 
 const styles = StyleSheet.create({
   calEnded: { ...text.bodySm, color: color.text.secondary, textAlign: 'right' },
+  dayCreate: { flexDirection: 'row', alignItems: 'center', gap: space[6], alignSelf: 'flex-start', paddingVertical: space[4] },
+  dayCreateText: { ...text.label },
   dayBar: { ...text.bodySm, marginTop: space[4], color: color.text.secondary },
   group: { gap: space[12] },
   groupHead: {
