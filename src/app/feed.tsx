@@ -27,7 +27,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ChallengePost } from '../components/ChallengePost';
-import { ComposeSheet } from '../components/compose/ComposeSheet';
+import { COMPOSE_TITLE, ComposeSheet, type ComposeKind } from '../components/compose/ComposeSheet';
 import { PrivateSignalProvider, pushFrontSpace, SpaceProvider, type Space } from '../theme/signal';
 import { takeComposeDone } from '../components/compose/compose';
 import { IconButton } from '../components/IconButton';
@@ -111,6 +111,8 @@ export default function FeedScreen() {
   const meActiveRef = useRef(false);
   tabOrderRef.current = tabOrder;
   const [groupChoice, setGroupChoice] = useState<string | undefined>(gruppe);
+  // Gewählte Art im Erstellen-Blatt, für die Überschrift (Daria, 2026-11-14)
+  const [composeKind, setComposeKind] = useState<ComposeKind>('photo');
   const groupId = groups.find((g) => g.id === groupChoice)?.id ?? groups[0]?.id;
   // Mit Ziel geöffnet (Gruppe, Reiter, Erstellen, neuer Post): Die Routine weicht, sonst landet man in
   // „My Structure“ statt im Ziel. Wird unten gesetzt, wo der Zustand der Routine steht.
@@ -948,11 +950,8 @@ export default function FeedScreen() {
   // Kurz und gleich für jede Gruppe (Daria, 24.10.2026)
   // Post für ein Schaufenster: Der Kopf nennt es (Daria, 2026-11-10)
   const showcasePost = composing ? peekShowcasePost() : null;
-  const composeLine = showcasePost
-    ? t('Post für {name}', { name: showcasePost.name })
-    : tab === 'groups'
-      ? t('We-Challenge erstellen')
-      : t('Challenge erstellen');
+  // Überschrift folgt der gewählten Art (Daria, 2026-11-14), vorher „We-Challenge erstellen“ bzw. „Challenge erstellen“
+  const composeLine = showcasePost ? t('Post für {name}', { name: showcasePost.name }) : t(COMPOSE_TITLE[composeKind]);
   const storiesStyle = {
     height: showStories && !composing
       ? progress.interpolate({ inputRange: [0, 1], outputRange: [0, storiesHeight], extrapolateLeft: 'clamp' })
@@ -1173,6 +1172,7 @@ export default function FeedScreen() {
               placeConfirmed={placeTouched || modes.visible.length < 2}
               groups={groups}
               onSelectGroup={setGroupChoice}
+              onKindChange={setComposeKind}
             />
           </Animated.View>
         ) : null}

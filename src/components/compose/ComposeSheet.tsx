@@ -1,5 +1,5 @@
 import { peekRoutinePost } from '../../data/reminders';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -41,7 +41,16 @@ export const GROUP_TYPES = [
 ] as const;
 
 /** Gewählte Art, gleich für Privat, Kiez und Gruppen: Die We-Challenge heißt im Kiez `individual`, in Gruppen `task`. */
-type Kind = 'photo' | 'text' | 'before_after' | 'we';
+export type ComposeKind = 'photo' | 'text' | 'before_after' | 'we';
+type Kind = ComposeKind;
+
+/** Überschrift des Blatts je Art (Daria, 2026-11-14: Titel passt nicht zur Auswahl) */
+export const COMPOSE_TITLE: Record<ComposeKind, string> = {
+  text: 'Text posten',
+  photo: 'Bild posten',
+  before_after: 'Me-Challenge erstellen',
+  we: 'We-Challenge erstellen',
+};
 type KindProps = { kind: Kind; setKind: (kind: Kind) => void };
 
 type Props = {
@@ -53,13 +62,15 @@ type Props = {
   /** Gruppen zur Auswahl im Blatt (Daria, 2026-11-14): Unter „Gruppen“ steht, in welche Gruppe der Post geht */
   groups?: Group[];
   onSelectGroup?: (id: string) => void;
+  /** Gewählte Art, für die Überschrift im Feed */
+  onKindChange?: (kind: ComposeKind) => void;
 };
 
 /**
  * Inhalt des Erstellen-Blatts über dem Feed. Beide Formulare bleiben geladen, damit ein Wechsel der Pille
  * nichts verliert. Die Bewegung (von unten, federnd) macht feed.tsx.
  */
-export function ComposeSheet({ target, onDone, placeConfirmed = true, groups = [], onSelectGroup }: Props) {
+export function ComposeSheet({ target, onDone, placeConfirmed = true, groups = [], onSelectGroup, onKindChange }: Props) {
   // Foto, Titel und Text gelten für alle Formulare im Blatt (Daria, 25.10.2026),
   // seit 07.11.2026 auch Blätter, Zusatzfotos, Text auf dem Foto und die gewählte Art
   // Aus einer Erinnerung: Titel und Beschreibung als Me-Challenge vorbelegt (Daria, 2026-11-10)
@@ -67,6 +78,9 @@ export function ComposeSheet({ target, onDone, placeConfirmed = true, groups = [
   const shared = useComposeSheetContent(routine ? { title: routine.title, text: routine.text } : {});
   // Vorausgewählt ist überall der Post (Bild), privat wie im Kiez (Daria, 2026-11-05)
   const [kind, setKind] = useState<Kind>(routine ? 'before_after' : 'photo');
+  // Privat gibt es keine We-Challenge, dort zeigt das Blatt das Bild (siehe PublicBody)
+  const shownKind: Kind = kind === 'we' && target === 'private' ? 'photo' : kind;
+  useEffect(() => onKindChange?.(shownKind), [shownKind, onKindChange]);
   return (
     <View style={styles.sheet}>
       <View style={[styles.flex, target === 'private' ? null : styles.hidden]}>
