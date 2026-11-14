@@ -43,7 +43,7 @@ function EditReminder() {
   const [description, setDescription] = useState('');
   const [extras, setExtras] = useState<Extras>({ place: '', phone: '', link: '' });
   const [date, setDate] = useState('');
-  const [timeKind, setTimeKind] = useState<TimeKind>('until');
+  const [timeKind, setTimeKind] = useState<TimeKind>('none');
   const [from, setFrom] = useState('');
   const [until, setUntil] = useState('');
   const [time, setTime] = useState('');
@@ -142,11 +142,11 @@ function EditReminder() {
                 error={!date.trim() || parseDate(date) ? undefined : 'Bitte so: 01.01. oder 01.01.2001'}
               />
               <ChipGroup>
+            {/* Ohne Uhrzeit vorn, da Standard (Daria, 2026-11-14) */}
+            <Chip label="ohne Uhrzeit" selected={timeKind === 'none'} onPress={() => setTimeKind('none')} />
                 <Chip label="bis" selected={timeKind === 'until'} onPress={() => setTimeKind('until')} />
                 <Chip label="um" selected={timeKind === 'at'} onPress={() => setTimeKind('at')} />
                 <Chip label="von … bis" selected={timeKind === 'range'} onPress={() => setTimeKind('range')} />
-            {/* Einmal an dem Tag, ohne Uhrzeit (Daria, 2026-11-14) */}
-            <Chip label="ohne Uhrzeit" selected={timeKind === 'none'} onPress={() => setTimeKind('none')} />
               </ChipGroup>
               <View style={styles.times}>
                 {timeKind === 'at' || timeKind === 'range' ? (
