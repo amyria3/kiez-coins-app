@@ -58,7 +58,19 @@ function NewReminder() {
 
   // Kopie einer Karte (Daria, 2026-11-13): `von` ist die id; das Formular übernimmt Titel, Beschreibung, Zeit,
   // Ort, Telefon und Link. Liegt der Tag in der Vergangenheit, steht „Heute“ da.
-  const { von } = useLocalSearchParams<{ von?: string }>();
+  const { von, tag } = useLocalSearchParams<{ von?: string; tag?: string }>();
+  // Aus dem Kalender: einmal an diesem Tag (Daria, 2026-11-14)
+  useEffect(() => {
+    if (!tag || !/^\d{4}-\d{2}-\d{2}$/.test(tag)) return;
+    setMode('once');
+    if (tag <= localDate()) setDay('today');
+    else if (tag === localDate(addDays(1))) setDay('tomorrow');
+    else {
+      const [y, m, d] = tag.split('-');
+      setDay('other');
+      setDate(`${d}.${m}.${y}`);
+    }
+  }, [tag]);
   useEffect(() => {
     if (!von) return;
     let live = true;
