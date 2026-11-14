@@ -833,7 +833,7 @@
   "{n} Menschen haben den Termin gespeichert.": "{n} Des personnes ont enregistré ce rendez-vous.",
   "{n} Personen mögen das": "{n}, personnes aiment ça",
   "{n} abgesagt": "{n} annulé(s)",
-  "{n} ausgeblendete Termine wieder zeigen": "{n} Afficher à nouveau les rendez-vous masqués",
+  "{n} ausgeblendete Termine wieder zeigen": "Afficher à nouveau les {n} rendez-vous masqués",
   "{n} verbunden": "{n} connecté(s)",
   "{n} von {max} Zeichen. Sichtbar sind meist die ersten 155.": "{n} sur {max} caractères. En général, les 155 premiers sont visibles.",
   "{n} von {max} Zeichen. Sichtbar sind meist die ersten 60.": "{n} sur {max} caractères. En général, les 60 premiers sont visibles.",

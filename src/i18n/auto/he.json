@@ -833,7 +833,7 @@
   "{n} Menschen haben den Termin gespeichert.": "{n} אנשים שמרו את התאריך.",
   "{n} Personen mögen das": "{n} אנשים אוהבים את זה",
   "{n} abgesagt": "{n} בוטל",
-  "{n} ausgeblendete Termine wieder zeigen": "{n} הצג שוב את האירועים שהוסתרו",
+  "{n} ausgeblendete Termine wieder zeigen": "להציג שוב {n} אירועים מוסתרים",
   "{n} verbunden": "מחוברים: {n}",
   "{n} von {max} Zeichen. Sichtbar sind meist die ersten 155.": "{n} מתוך {max} תווים. לרוב מוצגים 155 התווים הראשונים.",
   "{n} von {max} Zeichen. Sichtbar sind meist die ersten 60.": "{n} מתוך {max} תווים. לרוב מוצגים 60 התווים הראשונים.",
