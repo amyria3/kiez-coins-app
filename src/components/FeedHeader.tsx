@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { whenUntouched } from '../lib/touching';
 import { Animated, Easing, FlatList, I18nManager, Platform, Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Defs, G, Mask, Path, Rect } from 'react-native-svg';
 import { Text } from './T';
@@ -79,8 +80,14 @@ function useGreetingShown(): boolean {
   const [shown, setShown] = useState(() => Date.now() - APP_START < GREETING_MS);
   useEffect(() => {
     if (!shown) return;
-    const id = setTimeout(() => setShown(false), Math.max(0, GREETING_MS - (Date.now() - APP_START)));
-    return () => clearTimeout(id);
+    let cancel = () => {};
+    const id = setTimeout(() => {
+      cancel = whenUntouched(() => setShown(false));
+    }, Math.max(0, GREETING_MS - (Date.now() - APP_START)));
+    return () => {
+      clearTimeout(id);
+      cancel();
+    };
   }, [shown]);
   return shown;
 }
