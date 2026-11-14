@@ -16,6 +16,18 @@ create function storage.foldername(name text) returns text[] language sql immuta
 create table cron.job (jobid serial primary key, jobname text, schedule text, command text);
 create function cron.schedule(n text, s text, c text) returns bigint language sql as $$ insert into cron.job(jobname, schedule, command) values (n, s, c) returning jobid $$;
 create function cron.unschedule(n text) returns boolean language sql as $$ delete from cron.job where jobname = n returning true $$;
+-- Supabase Vault (2026-11-14): Ersatz ohne Verschlüsselung, nur damit die Migrationen und Tests lokal laufen.
+-- Wie bei Supabase kommen anon und authenticated nicht an das Schema vault heran.
+create schema vault;
+create table vault.secrets (id uuid primary key default gen_random_uuid(), name text unique, description text not null default '',
+  secret text not null, created_at timestamptz not null default now());
+create view vault.decrypted_secrets as select id, name, description, secret, secret as decrypted_secret, created_at from vault.secrets;
+create function vault.create_secret(new_secret text, new_name text default null, new_description text default '', new_key_id uuid default null)
+returns uuid language sql as $$ insert into vault.secrets (secret, name, description) values (new_secret, new_name, new_description) returning id $$;
+create function vault.update_secret(secret_id uuid, new_secret text default null, new_name text default null, new_description text default null, new_key_id uuid default null)
+returns void language sql as $$ update vault.secrets set secret = coalesce(new_secret, secret), name = coalesce(new_name, name),
+  description = coalesce(new_description, description) where id = secret_id $$;
+revoke all on schema vault from public;
 create publication supabase_realtime;
 grant usage on schema public, auth, storage to anon, authenticated;
 -- Supabase gibt neuen Tabellen in public Leserechte für angemeldete Personen
