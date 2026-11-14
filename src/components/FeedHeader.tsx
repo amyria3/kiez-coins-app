@@ -70,22 +70,42 @@ function countLine(counts: FeedCounts): string {
 }
 
 /**
+ * Begrüßung nur nach dem Öffnen der App (Daria, 2026-11-14): Drei Minuten nach dem Start verschwindet sie und nimmt
+ * keinen Platz mehr ein. Was danach dort steht, ist noch offen; bis dahin bleibt es leer.
+ */
+const APP_START = Date.now();
+const GREETING_MS = 3 * 60 * 1000;
+function useGreetingShown(): boolean {
+  const [shown, setShown] = useState(() => Date.now() - APP_START < GREETING_MS);
+  useEffect(() => {
+    if (!shown) return;
+    const id = setTimeout(() => setShown(false), Math.max(0, GREETING_MS - (Date.now() - APP_START)));
+    return () => clearTimeout(id);
+  }, [shown]);
+  return shown;
+}
+
+/**
  * Begrüßung über dem Feed: Tageszeit, Ansprache, Kiez und was es in der Nähe gibt, getrennt nach Art.
  * `counts` leer, solange der Feed lädt: Dann steht nur der Kiez da, nicht „Noch nichts“.
+ * In „Me & Myself“ ohne Zahlen (`counts` weglassen, Daria, 2026-11-14).
  */
 export function FeedGreeting({ name, kiez, counts }: { name: string; kiez?: string; counts?: FeedCounts }) {
-
+  const greetingShown = useGreetingShown();
   const hour = new Date().getHours();
   const greeting = hour < 11 ? 'Guten Morgen' : hour < 18 ? 'Hallo' : 'Guten Abend';
   const sub = [kiez, counts ? countLine(counts) : ''].filter(Boolean).join(' · ');
+  if (!greetingShown && !sub) return null;
   return (
     <View style={styles.greeting}>
-      <Text style={styles.greetingTitle} accessibilityRole="header">
-        {greeting},{' '}
-        <Text noTranslate style={styles.greetingName}>
-          {name}
+      {greetingShown ? (
+        <Text style={styles.greetingTitle} accessibilityRole="header">
+          {greeting},{' '}
+          <Text noTranslate style={styles.greetingName}>
+            {name}
+          </Text>
         </Text>
-      </Text>
+      ) : null}
       {sub ? <Text style={styles.greetingSub}>{sub}</Text> : null}
     </View>
   );
