@@ -67,6 +67,8 @@ export default function AcceptFriendInvite() {
     if (!session || !linkCode || started.current) return;
     started.current = true;
     accept(linkCode);
+    // Nur einmal beim Öffnen mit Code (started); `accept` ändert sich bei jedem Rendern
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, linkCode]);
 
   if (!session) return <Redirect href="/onboarding/welcome" />;

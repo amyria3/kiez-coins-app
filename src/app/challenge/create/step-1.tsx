@@ -14,7 +14,6 @@ import { color, text } from '../../../theme/tokens';
 import { SubScreen } from '../../../components/Screen';
 import { hasContent, useDraft, useSaveDraft } from './_layout';
 import { explain } from '../../../components/Nudge';
-import { t } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 
 /** Entwürfe aus „Deine Challenges“: Challenge oder Bild. Vorher-Nachher hat einen eigenen Ablauf. */

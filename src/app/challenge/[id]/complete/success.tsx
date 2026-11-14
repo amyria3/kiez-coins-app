@@ -4,7 +4,7 @@ import { StatusBadge } from '../../../../components/Badges';
 import { ResultScreen } from '../../../../components/Screen';
 import { formatEuro } from '../../../../data/format';
 import { useChallenge } from '../../../../data/store';
-import { t, tAbout } from '../../../../data/texts';
+import { tAbout } from '../../../../data/texts';
 
 /** Route `challenge/[id]/complete/success`. Figma: `challenge/report/success`. */
 export default function ReportSuccess() {

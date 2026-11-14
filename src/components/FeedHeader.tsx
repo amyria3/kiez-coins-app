@@ -729,13 +729,6 @@ const styles = StyleSheet.create({
     padding: space[4],
   },
   segmentsBeside: { width: undefined, flex: 1 },
-  pill: {
-    position: 'absolute',
-    top: space[4],
-    bottom: space[4],
-    borderRadius: radius.full,
-    backgroundColor: color.icon.large,
-  },
   // Breite nach Inhalt, damit vier Reiter neben die Kamera passen
   segment: { flexGrow: 1, flexShrink: 1, minWidth: 0, minHeight: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
   segmentSelected: { backgroundColor: color.icon.large },
@@ -748,30 +741,4 @@ const styles = StyleSheet.create({
   measure: { position: 'absolute', left: 0, top: 0, opacity: 0, flexDirection: 'row' },
   planned: { opacity: 0.6 },
   hint: { paddingHorizontal: space[16] },
-  brand: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
-  headIcons: { flexDirection: 'row', alignItems: 'center', gap: 18 },
-  headDot: {
-    position: 'absolute',
-    top: -2,
-    right: -4,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: color.accent.affection,
-  },
-  under: {
-    flexDirection: 'row',
-    width: '100%',
-    borderBottomWidth: stroke.ultraThin,
-    borderBottomColor: color.line.hairline,
-  },
-  // Mockup: Großbuchstaben halbfett 12, 0,5 Laufweite, 12 oben und 11 unten, Strich 1,5
-  underTab: { flex: 1, paddingTop: 12, paddingBottom: 11, alignItems: 'center', justifyContent: 'center' },
-  underPressed: { opacity: 0.5 },
-  underText: { ...text.tag, letterSpacing: 0.5, textTransform: 'uppercase', color: color.text.secondary },
-  underTextSelected: { color: color.text.primary },
-  // Lila Auswahl beim Erstellen, bis die Person umschaltet (Daria, 2026-10-31)
-  accentFill: { backgroundColor: color.accent.primary },
-  accentText: { color: color.accent.primary },
-  underBar: { position: 'absolute', left: 0, bottom: -stroke.ultraThin, height: 1.5, backgroundColor: color.text.primary },
 });

@@ -11,7 +11,7 @@ import { formatCents, formatDayMonth, formatEuro } from '../../../../data/format
 import { payoutOf } from '../../../../data/coins';
 import { useChallenge, useStore } from '../../../../data/store';
 import { color, space, text } from '../../../../theme/tokens';
-import { t, tAbout } from '../../../../data/texts';
+import { tAbout } from '../../../../data/texts';
 import { useGoBack } from '../../../../lib/goBack';
 
 /** Route `challenge/[id]/received` (Push). Figma: `challenge/payment`, Empfang der Coins bestätigen. */

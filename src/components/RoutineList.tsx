@@ -354,11 +354,6 @@ function Group({ title, count, children }: { title: string; count: number; child
 type Mood = KaterMood;
 const moodOf = (r: Reminder) => katerMood(r);
 
-/**
- * Ab dieser Kartenbreite steht der Kater neben Titel und Wochentagen (Daria, 2026-11-12).
- * Seit 2026-11-13 immer daneben, damit die Karten deutlich flacher sind (Daria).
- */
-const SIDE_BY_SIDE = 0;
 
 type DragActions = { right?: () => void; left?: () => void; up?: () => void };
 
@@ -505,7 +500,6 @@ function Card({
   leftLabel?: string;
   leftTone?: 'end' | 'delete';
 }) {
-  const [wide, setWide] = useState(false);
   const motion = useContext(Motion);
   const drag = useLiftDrag(motion ? { right: onDragRight, left: onDragLeft, up: onDragUp } : {});
   const reduce = useReduceMotion();
@@ -562,7 +556,6 @@ function Card({
       onPress={drag.press(onPress)}
       onPressIn={drag.pressIn}
       onPressOut={drag.pressOut}
-      onLayout={(e) => setWide(e.nativeEvent.layout.width >= SIDE_BY_SIDE)}
       accessibilityHint={[
         onPress ? t(pressHint ?? 'Tippen öffnet das Menü') : '',
         drag.on
@@ -575,18 +568,15 @@ function Card({
       ]
         .filter(Boolean)
         .join('. ')}
-      style={[styles.card, !wide && styles.cardTall, drag.lifted && styles.cardLifted, { backgroundColor: bg }]}
+      style={[styles.card, drag.lifted && styles.cardLifted, { backgroundColor: bg }]}
     >
-      {wide ? null : <View style={styles.cardTop}>{kater}</View>}
+      {/* Kater immer neben Titel und Zeit (Daria, 2026-11-13). Vorher wurde das erst nach dem Messen der Breite
+          entschieden: Jede Karte erschien kurz hoch und sprang dann auf die flache Form (Check, 2026-11-14). */}
       <View style={styles.cardBody}>
-        {wide ? (
-          <View style={styles.headRow}>
-            <View style={styles.head}>{head}</View>
-            {kater}
-          </View>
-        ) : (
-          head
-        )}
+        <View style={styles.headRow}>
+          <View style={styles.head}>{head}</View>
+          {kater}
+        </View>
         {children}
       </View>
       {/* Beim Ziehen zeigt die Karte selbst, was das Loslassen auslöst (Daria, 2026-11-13: keine Rückfrage, die Karte
@@ -1478,14 +1468,7 @@ const styles = StyleSheet.create({
     padding: 14,
     gap: 6,
   },
-  cardTop: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'flex-start',
-  },
   cardBody: { flex: 1, justifyContent: 'flex-end', gap: 6 },
-  // Neben dem Kater braucht die Karte oben keinen Platz mehr
-  cardTall: { minHeight: 260 },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   head: { flex: 1, gap: 2 },
   // Platz für den Sticker, der links unter dem Kater herausragt

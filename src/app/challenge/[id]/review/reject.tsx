@@ -9,7 +9,7 @@ import { SubScreen } from '../../../../components/Screen';
 import { useChallenge, useStore } from '../../../../data/store';
 import { color, text } from '../../../../theme/tokens';
 import { useGoBack } from '../../../../lib/goBack';
-import { t, tAbout } from '../../../../data/texts';
+import { tAbout } from '../../../../data/texts';
 
 /** Route `challenge/[id]/review/reject` (Modal). Figma: `challenge/review/reject`. */
 export default function RejectScreen() {

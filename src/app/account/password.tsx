@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
-import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
 import { Explanation } from '../../components/Content';
@@ -17,7 +16,6 @@ import { useGoBack } from '../../lib/goBack';
  * Auch der Weg bei vergessenem Passwort: per Code anmelden, dann hier ein neues festlegen.
  */
 export default function Password() {
-  const router = useRouter();
   const goBack = useGoBack();
   const { setPassword, hasPassword } = useAuth();
   const [password, setValue] = useState('');

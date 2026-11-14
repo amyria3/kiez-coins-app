@@ -54,6 +54,8 @@ export default function JoinGroup() {
     const group = memberOf(linkCode);
     if (group) showMember(group);
     else if (mode === 'live') myGroupByCode(linkCode).then((g) => g && showMember(g));
+    // Nur einmal beim Öffnen mit Code (checked); die Hilfsfunktionen ändern sich bei jedem Rendern
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, linkCode]);
 
   if (!session) return <Redirect href="/onboarding/welcome" />;
