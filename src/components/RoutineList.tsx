@@ -12,6 +12,7 @@ import { ReminderExtrasRow } from './ReminderExtras';
 import { ManageButton } from './ShowcaseManage';
 import { Text } from './T';
 import { useCardMotion } from '../data/features';
+import { useRoutineData } from '../data/routineView';
 import { addToMyCalendar, eventDate, eventTime, type CalendarEvent } from '../data/calendar';
 import { dayName, goalText, katerFocus, katerLine, katerMood, weekdayShort, whenText, type KaterMood } from '../data/katerRoutine';
 import { addDays, capitalize, dueAt, goalOf, isoWeekday, kindOf, loadRoutineDays, localDate, weekStart, type Reminder, type ReminderEnd, type RoutineDays } from '../data/reminders';
@@ -59,6 +60,7 @@ export const RoutineList = memo(function RoutineList({
   onCopy,
   onChanged,
   onDragLock,
+  showCalendar = true,
 }: {
   list: Reminder[];
   events: CalendarEvent[];
@@ -75,6 +77,8 @@ export const RoutineList = memo(function RoutineList({
   onChanged: () => void;
   /** Karte angehoben: Seite nicht scrollen (Daria, 2026-11-13) */
   onDragLock?: (on: boolean) => void;
+  /** Kalender in der Liste; im Feed liegt er hinter den Umschaltern (Daria, 2026-11-14) */
+  showCalendar?: boolean;
 }) {
   const focus = list.length ? katerFocus(list) : undefined;
   const motion = useCardMotion();
@@ -95,7 +99,7 @@ export const RoutineList = memo(function RoutineList({
     <PageLock.Provider value={onDragLock ?? noLock}>
       {/* Kater spricht wie im Feed als Sprechblase (Daria, 2026-11-11) */}
       {focus ? <KaterCard>{katerLine(focus)}</KaterCard> : null}
-      <RoutineCalendar list={list} events={events} saved={saved} />
+      {showCalendar ? <RoutineCalendar list={list} events={events} saved={saved} /> : null}
       {tasks.length ? (
         <Group title="Aufgaben" count={tasks.length}>
           {tasks.map((r) => (
@@ -904,7 +908,14 @@ function HandButton({
  * Kalender (Daria, 2026-11-12, nach Vorlage): runde Tage, erledigte in Senf, ausgefallene schraffiert, heute mit Ring.
  * Standardmäßig eingeklappt auf die laufende Woche; ein Tipp auf den Monat klappt ihn auf.
  */
-function RoutineCalendar({ list, events, saved }: { list: Reminder[]; events: CalendarEvent[]; saved: Saved[] }) {
+/** Kalender im Feed-Kopf, mit den Daten, die die Routine gerade zeigt (Daria, 2026-11-14) */
+export function RoutineCalendarSlot() {
+  const data = useRoutineData();
+  if (!data) return null;
+  return <RoutineCalendar list={data.list} events={data.events} saved={data.saved} />;
+}
+
+export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; events: CalendarEvent[]; saved: Saved[] }) {
   const [open, setOpen] = useState(false);
   // Gewählter Tag (Daria, 2026-11-12): darunter steht, was an dem Tag war
   const [picked, setPicked] = useState<string | null>(null);

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 
@@ -10,6 +10,7 @@ import { savedEvents, type ShowcaseEvent } from '../data/showcase';
 import { useCalendarEnabled } from '../data/routine';
 import { useStore } from '../data/store';
 import { RoutineList } from './RoutineList';
+import { publishRoutineData } from '../data/routineView';
 import { archiveReminder, capitalize, kindOf, loadReminders, type Reminder, type ReminderEnd } from '../data/reminders';
 import { t } from '../data/texts';
 import { color, space } from '../theme/tokens';
@@ -24,9 +25,12 @@ export function RoutineContent({
   topPad = space[16],
   bottomPad,
   onScroll,
+  calendarInList = true,
 }: {
   topPad?: number;
   bottomPad: number;
+  /** Im Feed `false`: Dort liegt der Kalender hinter den Umschaltern (Daria, 2026-11-14) */
+  calendarInList?: boolean;
   /** Lage der Liste, z. B. damit der Feed erkennt, ob man ganz oben weiter nach oben zieht */
   onScroll?: (e: NativeSyntheticEvent<NativeScrollEvent>) => void;
 }) {
@@ -48,6 +52,11 @@ export function RoutineContent({
   const { currentUserId } = useStore();
   // Kalender aus (Einstellungen › Kalender, Daria, 2026-11-10): keine Termine aus Deinen Kalendern
   const calendarOn = useCalendarEnabled();
+
+  // Für den Kalender im Feed-Kopf melden, was die Routine zeigt
+  useEffect(() => {
+    publishRoutineData(list ? { list, events, saved } : null);
+  }, [list, events, saved]);
 
   const reload = useCallback(() => {
     loadReminders().then(setList, () => setList(null));
@@ -135,6 +144,7 @@ export function RoutineContent({
             onCopy={onCopy}
             onChanged={reload}
             onDragLock={lockPage}
+            showCalendar={calendarInList}
           />
           {/* Platz unter „Neue Erinnerung“ als eigenes Element statt Polsterung: Safari ließ die Polsterung unten in
               der scrollbaren Fläche weg, der Button lag hinter der Leiste (Daria, 2026-11-13) */}

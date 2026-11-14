@@ -1,4 +1,5 @@
 import { RoutineNudge } from '../components/RoutineNudge';
+import { RoutineCalendarSlot } from '../components/RoutineList';
 import { RoutineContent } from '../components/RoutineContent';
 import { clearRoutinePost } from '../data/reminders';
 import { clearShowcasePost, peekShowcasePost, SEARCH_MIN, searchShowcases, type ShowcaseHit } from '../data/showcase';
@@ -173,6 +174,39 @@ export default function FeedScreen() {
     }).start();
   };
 
+  /**
+   * Kalender der Routine hinter den Umschaltern (Daria, 2026-11-14): Er kommt hervor, wenn man oben aufzieht oder über
+   * den Umschaltern nach unten wischt, und geht beim Weiterscrollen oder Wischen nach oben wieder weg.
+   */
+  const calendarAnim = useRef(new Animated.Value(0)).current;
+  const [calendarHeight, setCalendarHeight] = useState(0);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const calendarOpenRef = useRef(false);
+  const showCalendar = (show: boolean) => {
+    if (calendarOpenRef.current === show) return;
+    calendarOpenRef.current = show;
+    setCalendarOpen(show);
+    calendarAnim.stopAnimation();
+    Animated.timing(calendarAnim, {
+      toValue: show ? 1 : 0,
+      duration: SEARCH_FADE_MS,
+      easing: Easing.bezier(0.4, 0, 0.2, 1),
+      useNativeDriver: false,
+    }).start();
+  };
+  const showCalendarRef = useRef(showCalendar);
+  showCalendarRef.current = showCalendar;
+  // Senkrecht über den Umschaltern wischen: nach unten Kalender auf, nach oben zu. Tippen bleibt bei den Umschaltern.
+  const switchPan = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponderCapture: (_e, g) => routineActiveRef.current && Math.abs(g.dy) > 12 && Math.abs(g.dy) > Math.abs(g.dx) * 1.5,
+      onPanResponderRelease: (_e, g) => {
+        if (g.dy > 24) showCalendarRef.current(true);
+        else if (g.dy < -24) showCalendarRef.current(false);
+      },
+    }),
+  ).current;
+
   const collapse = () => {
     clearTimeout(autoHide.current);
     if (collapsed) return;
@@ -249,6 +283,8 @@ export default function FeedScreen() {
     reveal();
   };
   const revealSearch = () => {
+    // In der Routine kommt beim Aufziehen der Kalender hinter den Umschaltern hervor (Daria, 2026-11-14)
+    if (routineActiveRef.current) showCalendar(true);
     if (searchHiddenRef.current) animateSearch(true);
   };
   // Ganz oben weiter nach oben ziehen: Kopf zurück, in „My Structure“ auch der große Umschalter (2026-11-12)
@@ -537,7 +573,11 @@ export default function FeedScreen() {
   }, [routineActive]);
   const routineActiveRef = useRef(routineActive);
   routineActiveRef.current = routineActive;
-  revealRef.current = () => routineActiveRef.current && setMeSwitchOpen(true);
+  revealRef.current = () => {
+    if (!routineActiveRef.current) return;
+    setMeSwitchOpen(true);
+    showCalendar(true);
+  };
   // Nur in „My Structure“ (Routine) verschwindet der große Umschalter. In „My Feed“ und allen anderen Feeds
   // (Gruppe, Kiez, Überall) bleibt er sichtbar (Entscheidung 12.11.2026, ersetzt die frühere Regel „nur in My Feed“).
   // Ohne kleinen Umschalter (nur Routine, kein Privat) bleibt er, sonst gäbe es keinen sichtbaren Weg zurück.
@@ -892,6 +932,7 @@ export default function FeedScreen() {
           </Text>
         </View>
       </Animated.View>
+      <View {...switchPan.panHandlers}>
       {bigSwitchShown && !searching ? (
       <Animated.View style={[styles.tabsRow, { paddingRight: tabsPaddingRight }]}>
         <View style={styles.flex}>
@@ -938,7 +979,8 @@ export default function FeedScreen() {
         </Animated.View>
       ) : null}
       {meActive && meBoth ? (
-        <View style={[styles.tabsRow, { paddingRight: tabsPaddingRight }]}>
+        // Kein zusätzlicher Abstand zwischen den beiden Umschaltern (Daria, 2026-11-14)
+        <View style={[styles.tabsRow, { paddingRight: tabsPaddingRight }, bigSwitchShown && !searching && styles.tabsRowJoined]}>
           <View style={styles.flex}>
             <PrivateSignalProvider value>
             <Segments
@@ -955,6 +997,29 @@ export default function FeedScreen() {
           </View>
         </View>
       ) : null}
+      {routineActive && !composing ? (
+        <Animated.View
+          style={[
+            styles.clip,
+            {
+              height: calendarAnim.interpolate({ inputRange: [0, 1], outputRange: [0, calendarHeight] }),
+              opacity: calendarAnim.interpolate({ inputRange: [0, 0.4, 1], outputRange: [0, 0.2, 1] }),
+            },
+          ]}
+          pointerEvents={calendarOpen ? 'auto' : 'none'}
+        >
+          <View
+            style={styles.calendarSlot}
+            onLayout={(e) => {
+              const next = e.nativeEvent.layout.height;
+              setCalendarHeight((h) => (h === next ? h : next));
+            }}
+          >
+            <RoutineCalendarSlot />
+          </View>
+        </Animated.View>
+      ) : null}
+      </View>
       <Animated.View style={[styles.clip, storiesStyle]}>
         <View onLayout={(e) => setStoriesHeight(e.nativeEvent.layout.height)}>
           <TopChallengeBar items={topChallenges} onItemPress={openChallenge} />
@@ -974,7 +1039,13 @@ export default function FeedScreen() {
             <RoutineContent
               topPad={space[8]}
               bottomPad={insets.bottom + TAB_BAR_SPACE}
-              onScroll={(e) => (lastY.current = e.nativeEvent.contentOffset.y)}
+              calendarInList={false}
+              onScroll={(e) => {
+                const y = e.nativeEvent.contentOffset.y;
+                // Weiterscrollen schiebt den Kalender wieder hinter die Umschalter
+                if (y > 8 && y > lastY.current) showCalendar(false);
+                lastY.current = y;
+              }}
             />
           </View>
         ) : (
@@ -1109,6 +1180,8 @@ const styles = StyleSheet.create({
   composeHeader: { height: COMPOSE_HEADER, flexDirection: 'row', alignItems: 'center', gap: space[4], paddingHorizontal: space[8] },
   composeLine: { ...text.title, flex: 1, color: color.text.primary },
   composeSheet: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
+  tabsRowJoined: { paddingTop: 0 },
+  calendarSlot: { paddingHorizontal: space[20], paddingTop: space[4], paddingBottom: space[12], backgroundColor: color.bg.screen },
   tabsRow: {
     flexDirection: 'row',
     alignItems: 'center',
