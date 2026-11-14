@@ -122,6 +122,10 @@ export function CalendarSettings() {
   const [feed, setFeed] = useState<{ https: string; webcal: string } | null | undefined>(undefined);
   const [exported, setExported] = useState(true);
   const [exportOpen, setExportOpen] = useState(false);
+  // Aufgeklappte Gruppen (Daria, 2026-11-14): Ein Tipp auf „Termine aus Google anzeigen“ klappt die einzelnen
+  // Kalender auf und zu, wie ein Tipp auf einen Namen dessen Einstellungen. Zu Beginn zugeklappt.
+  const [expanded, setExpanded] = useState<string[]>([]);
+  const toggleGroup = (key: string) => setExpanded((e) => (e.includes(key) ? e.filter((k) => k !== key) : [...e, key]));
   const [linked, setLinked] = useState<LinkedCalendar[] | null>([]);
   // Offene Zeile: id eines verbundenen Kalenders, ein Dienst ohne Verbindung oder „other“ für einen anderen Kalender
   const [openKey, setOpenKey] = useState<string | null>(null);
@@ -356,11 +360,12 @@ export function CalendarSettings() {
 
   /**
    * Gruppe eines Dienstes: ohne Verbindung öffnet der Schalter die Einrichtung. Verbunden schaltet er alle Kalender der
-   * Gruppe; darunter stehen die einzelnen Kalender und „Weiteren … verbinden“.
+   * Gruppe; ein Tipp auf den Namen klappt die einzelnen Kalender und „Weiteren … verbinden“ auf und zu.
    */
   const group = (key: string, label: string, emptyCaption: string, addLabel: string, mine: LinkedCalendar[], setup: () => ReactNode) => {
     const open = openKey === key;
     const anyShown = mine.some((c) => c.shown);
+    const unfolded = expanded.includes(key);
     return (
       <View key={key}>
         {mine.length ? (
@@ -368,6 +373,8 @@ export function CalendarSettings() {
             label={label}
             caption={anyShown ? t('{n} verbunden', { n: String(mine.length) }) : 'Aus. Die Kalender bleiben verbunden.'}
             value={anyShown}
+            open={unfolded}
+            onPressLabel={() => toggleGroup(key)}
             onToggle={(v) => showGroup(key, mine, v)}
           />
         ) : (
@@ -380,9 +387,9 @@ export function CalendarSettings() {
             onToggle={(v) => toggleOpen(key, v)}
           />
         )}
-        {mine.map(linkedRow)}
+        {unfolded ? mine.map(linkedRow) : null}
         {/* Zeitraum der importierten Termine (Daria, 2026-11-14), unter Google, da dort die meisten Kalender hängen */}
-        {key === 'google' && mine.length ? (
+        {key === 'google' && mine.length && unfolded ? (
           <View style={styles.sub}>
             <QuestionHint
               question="Welche Termine werden eingeblendet?"
@@ -390,7 +397,7 @@ export function CalendarSettings() {
             />
           </View>
         ) : null}
-        {mine.length ? <Button label={addLabel} variant="ghost" onPress={() => toggleOpen(key, !open)} /> : null}
+        {mine.length && unfolded ? <Button label={addLabel} variant="ghost" onPress={() => toggleOpen(key, !open)} /> : null}
         {open ? setup() : null}
       </View>
     );
