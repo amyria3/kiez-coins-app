@@ -64,7 +64,9 @@ export function RoutineContent({
 
   const reload = useCallback(() => {
     loadReminders().then(setList, () => setList(null));
-    if (calendarOn) upcomingCalendarEvents(7).then(setEvents, () => setEvents([]));
+    // 60 Tage (Daria, 2026-11-14: Termin am 5. Dezember fehlte), so viel liefert die Edge Function höchstens.
+    // Der Kalender zeigt alle, die Liste nur die nächsten 7 Tage.
+    if (calendarOn) upcomingCalendarEvents(60).then(setEvents, () => setEvents([]));
     else setEvents([]);
     savedEvents(currentUserId).then(setSaved, () => setSaved([]));
   }, [currentUserId, calendarOn]);
