@@ -12,7 +12,7 @@ import { ReminderExtrasRow } from './ReminderExtras';
 import { ManageButton } from './ShowcaseManage';
 import { Text } from './T';
 import { useCardMotion } from '../data/features';
-import { useCalendarShown, useRoutineData } from '../data/routineView';
+import { setCalendarMonth, useCalendarMonth, useCalendarShown, useRoutineData } from '../data/routineView';
 import { addToMyCalendar, eventDate, eventTime, type CalendarEvent } from '../data/calendar';
 import { dayName, goalText, katerFocus, katerLine, katerMood, weekdayShort, whenText, type KaterMood } from '../data/katerRoutine';
 import { addDays, capitalize, dueAt, goalOf, isoWeekday, kindOf, loadRoutineDays, localDate, weekStart, type Reminder, type ReminderEnd, type RoutineDays } from '../data/reminders';
@@ -952,7 +952,9 @@ export function RoutineCalendarSlot() {
 }
 
 export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; events: CalendarEvent[]; saved: Saved[] }) {
-  const [open, setOpen] = useState(false);
+  // Monat oder Woche, geteilt mit dem Feed: Dieselbe Bewegung wie beim Aufklappen zeigt den ganzen Monat (Daria, 2026-11-14)
+  const open = useCalendarMonth();
+  const setOpen = setCalendarMonth;
   // Gewählter Tag (Daria, 2026-11-12): darunter steht, was an dem Tag war
   const [picked, setPicked] = useState<string | null>(null);
   const [days, setDays] = useState<RoutineDays | null>(null);
