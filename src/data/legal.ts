@@ -110,7 +110,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         ],
       },
       {
-        heading: 'Erinnerungen und Routine sind privat',
+        heading: 'Deine Erinnerungen sind privat',
         paragraphs: [
           'Für Erinnerungen und Termine in Routine speichern wir Titel, Beschreibung, Tag, Uhrzeit, Ort, Telefon und Link, soweit Du sie einträgst, und wann Du etwas erledigt, abgesagt oder gelöscht hast. Nur Du siehst sie.',
           'Was Du auf „später“ schiebst und welche importierten Termine Du ausblendest, merkt sich nur Dein Gerät.',
@@ -127,11 +127,11 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         ],
       },
       {
-        heading: 'Weiterposten auf Deinen Auftrag',
+        heading: 'Weiterposten nur auf Deinen Wunsch',
         paragraphs: [
           'Verbindest Du ein Konto bei BlueSky, Mastodon, Instagram oder Facebook, speichern wir Deinen Namen dort, die Adresse des Dienstes und den Zugang. Den Zugang speichern wir verschlüsselt.',
-          'Postest Du weiter, schicken wir Titel, Text, Foto und den Link zu Deinem Post an diesen Dienst. Dort gelten dessen Datenschutzregeln. Meta (Instagram, Facebook) verarbeitet Daten auch in den USA. „Trennen“ löscht den Zugang bei uns.',
-          'Rechtsgrundlage ist Dein Auftrag im Rahmen des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
+          'Teilst Du einen Post über „Weiterposten“, schicken wir Titel, Text, Foto und den Link zu Deinem Post an diesen Dienst. Dort gelten dessen Datenschutzregeln. Meta (Instagram, Facebook) verarbeitet Daten auch in den USA. „Trennen“ löscht den Zugang bei uns.',
+          'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
         ],
       },
       // Schaufenster für Läden, Vereine und Clubs (Rechtsprüfung 11.11.2026, Übergabe/2026-11-11_offen_schaufenster-recht.md)
