@@ -381,6 +381,15 @@ export function CalendarSettings() {
           />
         )}
         {mine.map(linkedRow)}
+        {/* Zeitraum der importierten Termine (Daria, 2026-11-14), unter Google, da dort die meisten Kalender hängen */}
+        {key === 'google' && mine.length ? (
+          <View style={styles.sub}>
+            <QuestionHint
+              question="Welche Termine werden eingeblendet?"
+              answer="Die Termine der nächsten 60 Tage aus allen eingeschalteten Kalendern, mehr lädt KiezCoins nicht ab. Im Kalender in Routine siehst Du alle, als Karten die der nächsten 7 Tage."
+            />
+          </View>
+        ) : null}
         {mine.length ? <Button label={addLabel} variant="ghost" onPress={() => toggleOpen(key, !open)} /> : null}
         {open ? setup() : null}
       </View>
