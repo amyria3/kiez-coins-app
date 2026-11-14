@@ -1,8 +1,22 @@
 # To-dos
 
-Stand: 2026-11-12. Diese Liste ist die einzige To-do-Liste für KiezCoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
+Stand: 2026-11-14. Diese Liste ist die einzige To-do-Liste für KiezCoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
 
 Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coins/screenshots/`. Sie stehen absichtlich nicht im Repo, weil das Repo öffentlich ist und einige Bilder Adressen und Namen zeigen.
+
+## Launch und Sicherheit (Daria, 14.11.2026)
+
+Erledigt Daria selbst, Claude hat alles vorbereitet.
+
+- [ ] **Pflicht:** Migration `supabase/migrations/20261114000100_weiterposten_vault.sql` im Supabase SQL Editor ausführen und **gleich danach** im Terminal im Ordner `repo`: `npx supabase login`, dann `npx supabase functions deploy weiterposten --project-ref aqxzxpxrshizlaqyjplw`. Dazwischen funktioniert Weiterposten nicht. Danach Claude Bescheid geben (Doku: eingespielt).
+- [ ] **Pflicht:** Kalender-Funktion mit dem Sicherheits-Fix hochladen: `npx supabase functions deploy kalender --no-verify-jwt --project-ref aqxzxpxrshizlaqyjplw`.
+- [ ] **Pflicht vor dem Launch:** ladungsfähige Anschrift für Impressum und Datenschutzerklärung beschaffen (c/o bei einem Freund mit Namen am Briefkasten, oder Impressum-Service, der „ladungsfähig“ schriftlich zusagt) und Claude schicken. Claude trägt sie auf Website und in der App ein.
+- [ ] Entscheiden: private Fotos (Me & Myself, Gruppen) liegen im öffentlichen Speicher. Weg A (zwei Speicher, Empfehlung), B (alles privat) oder C (neue Adresse bei Änderungen). Claude setzt danach um.
+- [ ] Google-Play-Konto anlegen (25 $ einmalig) und als „Nicht-Händlerin“ einstufen.
+- [ ] 12 Tester:innen sammeln, die die App 14 Tage im geschlossenen Test haben (Google-Pflicht für neue Konten).
+- [ ] Optional: Wortmarke „KiezCoins“ beim DPMA anmelden (290 €, bis 3 Klassen, z. B. 9, 42, 45), Bildmarke für den Kater später (290 €).
+- [ ] Vor dem ersten Geld: klären, wo Gewerbe und Steuer hingehören (Wohnsitz Frankreich oder Deutschland). Davon hängt ab, welche Kleinunternehmerregel gilt; die Finanzierungsseite rechnet mit der deutschen.
+- [ ] Optional: Supabase-Projekt „Kiez Coins Data“ und die Figma-Datei „Kiez Coins“ in „KiezCoins“ umbenennen.
 
 ## Pflicht (Daria, 08.11.2026)
 
