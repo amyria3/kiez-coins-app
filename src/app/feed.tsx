@@ -209,7 +209,7 @@ export default function FeedScreen() {
     calendarAnim.stopAnimation();
     Animated.timing(calendarAnim, {
       toValue: show ? 1 : 0,
-      duration: SEARCH_FADE_MS,
+      duration: CALENDAR_MS,
       easing: Easing.bezier(0.4, 0, 0.2, 1),
       useNativeDriver: false,
     }).start(({ finished }) => {
@@ -1205,6 +1205,8 @@ const HEADER_HIDE_MS = 3500;
 const SEARCH_FADE_MS = 380;
 /** Zug nach unten ganz oben: ab hier kommt das Suchfeld, ab `PULL_HEADER` der Kopf (Daria, 2026-11-13) */
 const PULL_SEARCH = 24;
+/** Auf- und Zuklappen des Kalenders, etwas ruhiger als das Suchfeld (Daria, 2026-11-14) */
+const CALENDAR_MS = 520;
 const PULL_HEADER = 96;
 /** Höhe des schmalen Kopfs beim Erstellen */
 const COMPOSE_HEADER = 52;
