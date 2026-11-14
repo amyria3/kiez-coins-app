@@ -13,7 +13,8 @@ import { useGoBack } from '../../lib/goBack';
 import { color, space } from '../../theme/tokens';
 import { MeSpaceScreen } from '../../theme/signal';
 
-type TimeKind = 'until' | 'at' | 'range';
+/** `none`: einmal an dem Tag, ohne Uhrzeit (Daria, 2026-11-14) */
+type TimeKind = 'until' | 'at' | 'range' | 'none';
 
 /** „2026-11-13“ → „13.11.2026“, so wie das Datumsfeld es erwartet */
 const dotted = (iso: string) => iso.split('-').reverse().join('.');
@@ -65,7 +66,7 @@ function EditReminder() {
         setExtras({ place: r.place ?? '', phone: r.phone ?? '', link: r.link ?? '' });
         if (r.onDate) {
           setDate(dotted(r.onDate));
-          setTimeKind(r.atTime && r.untilTime ? 'range' : r.atTime ? 'at' : 'until');
+          setTimeKind(r.atTime && r.untilTime ? 'range' : r.atTime ? 'at' : r.untilTime ? 'until' : 'none');
           setFrom(r.atTime ?? '');
           setUntil(r.untilTime ?? '');
         } else setTime(r.atTime ?? '');
@@ -82,7 +83,7 @@ function EditReminder() {
   const timeOk = !time.trim() || TIME.test(time.trim());
   const onceReady =
     !!onDate &&
-    (timeKind === 'until' ? TIME.test(until.trim()) : timeKind === 'at' ? TIME.test(from.trim()) : TIME.test(from.trim()) && TIME.test(until.trim()));
+    (timeKind === 'none' ? true : timeKind === 'until' ? TIME.test(until.trim()) : timeKind === 'at' ? TIME.test(from.trim()) : TIME.test(from.trim()) && TIME.test(until.trim()));
   const ready = !!reminder && want.trim().length > 0 && (once ? onceReady : timeOk);
 
   const save = async () => {
@@ -94,8 +95,8 @@ function EditReminder() {
       description,
       ...extras,
       onDate: onDate ?? undefined,
-      atTime: once ? (timeKind !== 'until' ? hhmm(from) : undefined) : fixedDays && time.trim() ? hhmm(time) : undefined,
-      untilTime: once && timeKind !== 'at' ? hhmm(until) : undefined,
+      atTime: once ? (timeKind === 'at' || timeKind === 'range' ? hhmm(from) : undefined) : fixedDays && time.trim() ? hhmm(time) : undefined,
+      untilTime: once && (timeKind === 'until' || timeKind === 'range') ? hhmm(until) : undefined,
     });
     setBusy(false);
     if (ok) router.back();
@@ -107,8 +108,8 @@ function EditReminder() {
     if (!want.trim()) return wantField.nudge('Schreib, was Du vorhast.');
     if (once) {
       if (!onDate) return dateField.nudge('Gib ein Datum ein, z. B. 24.12.');
-      if (timeKind !== 'until' && !TIME.test(from.trim())) return fromField.nudge('Gib eine Uhrzeit ein, z. B. 9:00.');
-      if (timeKind !== 'at' && !TIME.test(until.trim())) return untilField.nudge('Gib eine Uhrzeit ein, z. B. 18:00.');
+      if ((timeKind === 'at' || timeKind === 'range') && !TIME.test(from.trim())) return fromField.nudge('Gib eine Uhrzeit ein, z. B. 9:00.');
+      if ((timeKind === 'until' || timeKind === 'range') && !TIME.test(until.trim())) return untilField.nudge('Gib eine Uhrzeit ein, z. B. 18:00.');
     } else if (!timeOk) return timeField.nudge('Bitte so: 18:00');
   };
 
@@ -144,9 +145,11 @@ function EditReminder() {
                 <Chip label="bis" selected={timeKind === 'until'} onPress={() => setTimeKind('until')} />
                 <Chip label="um" selected={timeKind === 'at'} onPress={() => setTimeKind('at')} />
                 <Chip label="von … bis" selected={timeKind === 'range'} onPress={() => setTimeKind('range')} />
+            {/* Einmal an dem Tag, ohne Uhrzeit (Daria, 2026-11-14) */}
+            <Chip label="ohne Uhrzeit" selected={timeKind === 'none'} onPress={() => setTimeKind('none')} />
               </ChipGroup>
               <View style={styles.times}>
-                {timeKind !== 'until' ? (
+                {timeKind === 'at' || timeKind === 'range' ? (
                   <View style={styles.time}>
                     <TextField
                       label={timeKind === 'at' ? 'Um' : 'Von'}
@@ -160,7 +163,7 @@ function EditReminder() {
                     />
                   </View>
                 ) : null}
-                {timeKind !== 'at' ? (
+                {timeKind === 'until' || timeKind === 'range' ? (
                   <View style={styles.time}>
                     <TextField
                       label="Bis"

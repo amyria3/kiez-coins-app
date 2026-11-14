@@ -38,7 +38,7 @@ function NewReminder() {
   const [mode, setMode] = useState<'once' | 'week' | 'days'>('once');
   const [day, setDay] = useState<'today' | 'tomorrow' | 'other'>('today');
   const [date, setDate] = useState('');
-  const [timeKind, setTimeKind] = useState<'until' | 'at' | 'range'>('until');
+  const [timeKind, setTimeKind] = useState<'until' | 'at' | 'range' | 'none'>('until');
   const [from, setFrom] = useState('');
   // Termin an einem Tag: Pflicht oder optional (Daria, 2026-11-10)
   const [required, setRequired] = useState(true);
@@ -91,7 +91,7 @@ function NewReminder() {
           setDay('other');
           setDate(`${d}.${m}.${y}`);
         }
-        setTimeKind(r.atTime && r.untilTime ? 'range' : r.atTime ? 'at' : 'until');
+        setTimeKind(r.atTime && r.untilTime ? 'range' : r.atTime ? 'at' : r.untilTime ? 'until' : 'none');
         setFrom(r.atTime ?? '');
         setUntil(r.untilTime ?? '');
         setRequired(r.required !== false);
@@ -115,7 +115,7 @@ function NewReminder() {
   const onDate = day === 'today' ? localDate() : day === 'tomorrow' ? localDate(addDays(1)) : parseDate(date);
   const onceReady =
     !!onDate &&
-    (timeKind === 'until' ? TIME.test(until.trim()) : timeKind === 'at' ? TIME.test(from.trim()) : TIME.test(from.trim()) && TIME.test(until.trim()));
+    (timeKind === 'none' ? true : timeKind === 'until' ? TIME.test(until.trim()) : timeKind === 'at' ? TIME.test(from.trim()) : TIME.test(from.trim()) && TIME.test(until.trim()));
   const ready =
     want.trim().length > 0 && (mode === 'once' ? onceReady : mode === 'week' || (days.length > 0 && timeOk));
   const hhmm = (v: string) => v.trim().padStart(5, '0');
@@ -128,8 +128,8 @@ function NewReminder() {
       description,
       ...extras,
       onDate: mode === 'once' ? onDate ?? undefined : undefined,
-      atTime: mode === 'once' ? (timeKind !== 'until' ? hhmm(from) : undefined) : mode === 'days' && time.trim() ? hhmm(time) : undefined,
-      untilTime: mode === 'once' && timeKind !== 'at' ? hhmm(until) : undefined,
+      atTime: mode === 'once' ? (timeKind === 'at' || timeKind === 'range' ? hhmm(from) : undefined) : mode === 'days' && time.trim() ? hhmm(time) : undefined,
+      untilTime: mode === 'once' && (timeKind === 'until' || timeKind === 'range') ? hhmm(until) : undefined,
       required: mode === 'once' ? required : undefined,
       perWeek: mode === 'week' ? perWeek : undefined,
       weekdays: mode === 'days' ? days : undefined,
@@ -144,8 +144,8 @@ function NewReminder() {
     if (!want.trim()) return wantField.nudge('Schreib, was Du vorhast.');
     if (mode === 'once') {
       if (!onDate) return dateField.nudge('Gib ein Datum ein, z. B. 24.12.');
-      if (timeKind !== 'until' && !TIME.test(from.trim())) return fromField.nudge('Gib eine Uhrzeit ein, z. B. 9:00.');
-      if (timeKind !== 'at' && !TIME.test(until.trim())) return untilField.nudge('Gib eine Uhrzeit ein, z. B. 18:00.');
+      if ((timeKind === 'at' || timeKind === 'range') && !TIME.test(from.trim())) return fromField.nudge('Gib eine Uhrzeit ein, z. B. 9:00.');
+      if ((timeKind === 'until' || timeKind === 'range') && !TIME.test(until.trim())) return untilField.nudge('Gib eine Uhrzeit ein, z. B. 18:00.');
     }
     if (mode === 'days') {
       if (!days.length) return daysField.nudge('Wähl mindestens einen Tag.');
@@ -214,9 +214,11 @@ function NewReminder() {
             <Chip label="bis" selected={timeKind === 'until'} onPress={() => setTimeKind('until')} />
             <Chip label="um" selected={timeKind === 'at'} onPress={() => setTimeKind('at')} />
             <Chip label="von … bis" selected={timeKind === 'range'} onPress={() => setTimeKind('range')} />
+            {/* Einmal an dem Tag, ohne Uhrzeit (Daria, 2026-11-14) */}
+            <Chip label="ohne Uhrzeit" selected={timeKind === 'none'} onPress={() => setTimeKind('none')} />
           </ChipGroup>
           <View style={styles.times}>
-            {timeKind !== 'until' ? (
+            {timeKind === 'at' || timeKind === 'range' ? (
               <View style={styles.time}>
                 <TextField
                   label={timeKind === 'at' ? 'Um' : 'Von'}
@@ -230,7 +232,7 @@ function NewReminder() {
                 />
               </View>
             ) : null}
-            {timeKind !== 'at' ? (
+            {timeKind === 'until' || timeKind === 'range' ? (
               <View style={styles.time}>
                 <TextField
                   label="Bis"
