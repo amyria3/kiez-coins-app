@@ -1196,6 +1196,7 @@ export function RoutineCalendar({
             <CalRow
               key={key}
               mode={mode}
+              index={i}
               daysOnly={variant === 'panel'}
               delay={mode === 'enter' ? i * ROW_STAGGER : (weekRows.length - 1 - i) * ROW_STAGGER_OUT}
             >
@@ -1247,7 +1248,10 @@ const MONTH_IN_MS = 6 * ROW_STAGGER + 6 * DAY_STAGGER + DAY_JITTER + DAY_MS;
 const MONTH_OUT_MS = ROW_MS + 6 * ROW_STAGGER_OUT;
 
 /** Was die Zeile ihren Tagen sagt: herausfallen, einklappen oder stehen, und ab wann */
-const RowAnim = createContext<{ mode: 'static' | 'enter' | 'leave'; delay: number }>({ mode: 'static', delay: 0 });
+const RowAnim = createContext<{ mode: 'static' | 'enter' | 'leave'; delay: number; index: number }>({ mode: 'static', delay: 0, index: 0 });
+/** Fallhöhe: von oberhalb des Kalenders, je tiefer die Zeile, desto weiter (Daria, 2026-11-14: „von oben fallen“) */
+const FALL_FROM = 70;
+const FALL_PER_ROW = 52;
 
 /** Fester kleiner Zufall je Tag, damit die Tage unregelmäßig fallen, aber bei jedem Mal gleich */
 function jitterOf(d: string, range: number): number {
@@ -1260,11 +1264,14 @@ function jitterOf(d: string, range: number): number {
 function CalRow({
   mode,
   delay,
+  index = 0,
   daysOnly = false,
   children,
 }: {
   mode: 'static' | 'enter' | 'leave';
   delay: number;
+  /** Nummer der Zeile, für die Fallhöhe */
+  index?: number;
   /** Nur die Tage bewegen sich, die Zeile hat sofort ihre Höhe */
   daysOnly?: boolean;
   children: ReactNode;
@@ -1289,7 +1296,7 @@ function CalRow({
           },
     [mode, daysOnly, v, height],
   );
-  const ctx = useMemo(() => ({ mode, delay }), [mode, delay]);
+  const ctx = useMemo(() => ({ mode, delay, index }), [mode, delay, index]);
   return (
     <Animated.View style={[mode === 'static' || daysOnly ? null : styles.calRowClip, style]}>
       <View style={styles.calRow} onLayout={(e) => setHeight((h) => (h === e.nativeEvent.layout.height ? h : e.nativeEvent.layout.height))}>
@@ -1350,13 +1357,14 @@ function CalDay({
       row.mode === 'static'
         ? null
         : {
-            opacity: fall.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, 1, 1], extrapolate: 'clamp' as const }),
+            // Früh sichtbar, damit man sie von oben fallen sieht
+            opacity: fall.interpolate({ inputRange: [0, 0.2, 1], outputRange: [0, 1, 1], extrapolate: 'clamp' as const }),
             transform: [
-              { translateY: fall.interpolate({ inputRange: [0, 1], outputRange: [-28, 0] }) },
+              { translateY: fall.interpolate({ inputRange: [0, 1], outputRange: [-(FALL_FROM + row.index * FALL_PER_ROW), 0] }) },
               { rotate: fall.interpolate({ inputRange: [0, 1], outputRange: [`${tilt}deg`, '0deg'], extrapolate: 'clamp' as const }) },
             ],
           },
-    [row.mode, fall, tilt],
+    [row.mode, row.index, fall, tilt],
   );
   const done = days?.done.has(d);
   const missed = !done && days?.missed.has(d);
