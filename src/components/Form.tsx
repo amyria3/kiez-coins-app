@@ -26,6 +26,11 @@ type TextFieldProps = Omit<TextInputProps, 'style'> & {
   nudge?: Nudge;
   /** Pflichtfeld: Stern in der Signalfarbe hinter der Bezeichnung */
   required?: boolean;
+  /**
+   * Ohne Fokus das Ende des Werts zeigen statt den Anfang (Daria, 2026-11-14). Standard bei Adressen
+   * (`keyboardType="url"`): Bei langen Links unterscheidet sich meist nur das Ende.
+   */
+  showEnd?: boolean;
 };
 
 /** Figma „TextField“ (Default, Focused, Error) */
@@ -40,6 +45,7 @@ export function TextField({
   onChangeText,
   onSubmitEditing,
   required,
+  showEnd: showEndProp,
   ...inputProps
 }: TextFieldProps) {
   const [focused, setFocused] = useState(false);
@@ -55,6 +61,14 @@ export function TextField({
   const accent = useFocusColor();
   const borderColor = error || hinted ? color.accent.error : focused ? accent : color.text.secondary;
   const helper = error ?? nudge?.hint ?? helperText;
+  const showEnd = !multiline && (showEndProp ?? inputProps.keyboardType === 'url');
+  const value = inputProps.value ?? '';
+  // Web: ans Ende scrollen, solange das Feld keinen Fokus hat. Native: Cursor ohne Fokus ans Ende (s. selection unten).
+  useEffect(() => {
+    if (!showEnd || focused || Platform.OS !== 'web') return;
+    const node = inputRef.current as unknown as HTMLInputElement | null;
+    if (node && typeof node.scrollLeft === 'number') node.scrollLeft = node.scrollWidth;
+  }, [showEnd, focused, value]);
   return (
     <View style={styles.field} ref={viewRef}>
       <Text style={styles.fieldLabel}>
@@ -66,6 +80,7 @@ export function TextField({
         returnKeyType={advances ? 'next' : undefined}
         submitBehavior={advances ? 'submit' : undefined}
         {...inputProps}
+        selection={showEnd && !focused && Platform.OS !== 'web' ? { start: value.length, end: value.length } : inputProps.selection}
         placeholder={inputProps.placeholder ? t(inputProps.placeholder) : inputProps.placeholder}
         onSubmitEditing={(e) => {
           if (onSubmitEditing) onSubmitEditing(e);
