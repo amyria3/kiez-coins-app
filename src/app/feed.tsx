@@ -1189,7 +1189,8 @@ const styles = StyleSheet.create({
   composeLine: { ...text.title, flex: 1, color: color.text.primary },
   composeSheet: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
   tabsRowJoined: { paddingTop: 0 },
-  calendarSlot: { paddingHorizontal: space[20], paddingTop: space[4], paddingBottom: space[12], backgroundColor: color.bg.screen },
+  // Unten 24 plus 8 Abstand der Liste: 32 bis zur ersten Kartenreihe, wie zwischen den Gruppen (Daria, 2026-11-14)
+  calendarSlot: { paddingHorizontal: space[20], paddingTop: space[4], paddingBottom: space[24], backgroundColor: color.bg.screen },
   tabsRow: {
     flexDirection: 'row',
     alignItems: 'center',
