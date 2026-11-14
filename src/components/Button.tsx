@@ -10,7 +10,7 @@ import { handShapePath } from './handShape';
 import { GearsLoader, SMALL_GEARS } from './GearsLoader';
 import { Icon } from './icons/Icon';
 import { useSubmitTarget } from './Nudge';
-import { useAccentColor } from '../theme/signal';
+import { useAccentColor, useFocusColor } from '../theme/signal';
 import type { IconName } from './icons/svgs';
 
 // Figma „Button“ (Primary, Secondary). Die übrigen Varianten sind Überschreibungen in Screens:
@@ -37,15 +37,22 @@ type ButtonProps = {
   style?: StyleProp<ViewStyle>;
   /** Fokus beim Erscheinen auf diesen Button (Tastatur und Screenreader), z. B. „Weiter“ in der Tour */
   autoFocus?: boolean;
+  /**
+   * `focus`: Farbe der eingeschalteten Schalter statt Lila, für einen Knopf, der zu Schaltern gehört, z. B.
+   * „Weiteren Google-Kalender verbinden“ (Daria, 2026-11-14). In „Me & Myself“ Gelb wie dort alles.
+   */
+  tone?: 'focus';
 };
 
-export function Button({ label: original, onPress: press, variant = 'primary', disabled: off, whyDisabled, busy, icon, iconFlip, style, autoFocus }: ButtonProps) {
+export function Button({ label: original, onPress: press, variant = 'primary', disabled: off, whyDisabled, busy, icon, iconFlip, style, autoFocus, tone }: ButtonProps) {
   // Mit Erklärung bleibt der Button tippbar, sieht aber deaktiviert aus
   const explains = !!off && !!whyDisabled;
   const disabled = (off && !explains) || !!busy;
   const onPress = explains ? whyDisabled : press;
   // Unter „Privat“ / „Me & Myself“ gelb statt lila (Daria, 2026-11-12)
-  const accent = useAccentColor();
+  const areaAccent = useAccentColor();
+  const focus = useFocusColor();
+  const accent = tone === 'focus' ? focus : areaAccent;
   const v = recolor(variants[variant], accent);
   // Größe für die handgezeichnete Form, siehe HandShape
   const [box, setBox] = useState<{ w: number; h: number } | null>(null);
