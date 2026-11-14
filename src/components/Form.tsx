@@ -8,7 +8,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 import type { ImageSource } from '../data/types';
 import { color, radius, scheme, space, stroke, text } from '../theme/tokens';
-import { useAccentColor, useFocusColor } from '../theme/signal';
+import { useAccentColor, useFocusColor, useToggleOffColor } from '../theme/signal';
 import { BlurView } from 'expo-blur';
 import { Glass, glassControls } from './Glass';
 import { fitShape, SWITCH_KNOB, SWITCH_TRACK } from './handSwitch';
@@ -212,11 +212,12 @@ const HAND_KW = Math.round(HAND_KH * ((SWITCH_KNOB.x1 - SWITCH_KNOB.x0) / (SWITC
 const HAND_INSET = Math.round(HAND_H * 0.13);
 const HAND_TRACK = fitShape(SWITCH_TRACK, HAND_W, HAND_H);
 const HAND_KNOB = fitShape(SWITCH_KNOB, HAND_KW, HAND_KH);
-const HAND_OFF = color.toggle.off;
 
 function HandSwitch({ label, value, onValueChange }: { label: string; value: boolean; onValueChange: (v: boolean) => void }) {
   // An: Gelbgrün statt Lila (Daria, 2026-11-13)
   const on = useFocusColor();
+  // Aus im Farbton des Themes (Daria, 2026-11-14)
+  const off = useToggleOffColor();
   const x = useRef(new Animated.Value(value ? 1 : 0)).current;
   useEffect(() => {
     Animated.spring(x, { toValue: value ? 1 : 0, useNativeDriver: true, friction: 7, tension: 90 }).start();
@@ -231,7 +232,7 @@ function HandSwitch({ label, value, onValueChange }: { label: string; value: boo
       style={styles.handTrack}
     >
       <Svg width={HAND_W} height={HAND_H} style={StyleSheet.absoluteFill}>
-        <Path d={HAND_TRACK} fill={HAND_OFF} />
+        <Path d={HAND_TRACK} fill={off} />
       </Svg>
       <Animated.View style={[StyleSheet.absoluteFill, { opacity: x }]} pointerEvents="none">
         <Svg width={HAND_W} height={HAND_H}>

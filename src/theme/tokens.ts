@@ -41,8 +41,11 @@ export const palette = Object.freeze(kiezPalette);
 const swatch = {
   /** Senf: Me & Myself, Kalender, Aufgaben-Karten, „Du bist dran“ */
   senf: '#ECCF55',
-  /** Gelbgrün: Fokus, eingeschaltete Schalter, Menü-Icon. Runtergeregelt (Daria, 2026-11-14), vorher #E4FF5F, das der Kater-Avatar behält */
-  gelbgruen: '#D6EB70',
+  /**
+   * Gelbgrün: Fokus, eingeschaltete Schalter, Menü-Icon, Theme Functional. Hell wie der Kater in der Start-Animation
+   * (Daria, 2026-11-14), vorher #D6EB70, davor #E4FF5F, das der Kater-Avatar behält
+   */
+  gelbgruen: '#F0FFA6',
   /** Beige: große Icons, Leisten-Icons, papierweißer Knopf im Umschalter */
   beige: '#EEE0C9',
   /** Schneeweiß: aktives Nachrichten-Icon */
@@ -53,8 +56,10 @@ const swatch = {
   puder: '#E6D6C0',
   /** Tinte auf hellen Karten */
   tinte: '#1A1A1A',
-  /** Aus-Zustand der An/Aus-Schalter */
+  /** Aus-Zustand der An/Aus-Schalter, je Theme im Farbton seines Akzents, gleich dunkel (Daria, 2026-11-14) */
   schalterAus: '#45466F',
+  schalterAusOlive: '#525837',
+  schalterAusSenf: '#585137',
 } as const;
 
 /** Farbe „#RRGGBB“ mit Deckkraft `a` (0 … 1) als rgba */
@@ -164,7 +169,12 @@ export const color = {
   },
   /** An/Aus-Schalter im Kiez-Look */
   toggle: {
+    /** Friendship: dunkles Lila */
     off: swatch.schalterAus,
+    /** Functional: dunkles Gelbgrün */
+    offFunctional: swatch.schalterAusOlive,
+    /** Happy: dunkles Senf */
+    offPrivate: swatch.schalterAusSenf,
   },
   /** Abdunklung über Fotos, damit helle Schrift darauf lesbar bleibt (Grundfarbe des Kiez-Looks, verschieden stark) */
   overlay: {

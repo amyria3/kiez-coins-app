@@ -28,10 +28,10 @@ export function useSpace(): Space {
 }
 
 /** Farben eines Bereichs: Akzent (gewählte Knöpfe, Hauptbuttons) und Fokus (Rahmen, Cursor, eingeschaltete Schalter) */
-export function spaceColors(space: Space): { accent: string; focus: string } {
-  if (space === 'me') return { accent: color.accent.private, focus: color.accent.private };
-  if (space === 'functional') return { accent: color.accent.functional, focus: color.accent.functional };
-  return { accent: color.accent.primary, focus: color.accent.focus };
+export function spaceColors(space: Space): { accent: string; focus: string; off: string } {
+  if (space === 'me') return { accent: color.accent.private, focus: color.accent.private, off: color.toggle.offPrivate };
+  if (space === 'functional') return { accent: color.accent.functional, focus: color.accent.functional, off: color.toggle.offFunctional };
+  return { accent: color.accent.primary, focus: color.accent.focus, off: color.toggle.off };
 }
 
 /** Kurzform für Stellen, die nur „privat oder nicht“ kennen, z. B. das Erstellen-Blatt unter „Privat“ */
@@ -43,6 +43,11 @@ export function PrivateSignalProvider({ value, children }: { value: boolean; chi
 /** Akzentfarbe an dieser Stelle: Gelb in „Me & Myself“, sonst color/accent/primary */
 export function useAccentColor(): string {
   return spaceColors(useSpace()).accent;
+}
+
+/** Ausgeschaltete Schalter im Farbton des Themes (Daria, 2026-11-14) */
+export function useToggleOffColor(): string {
+  return spaceColors(useSpace()).off;
 }
 
 /** Fokus und eingeschaltete Schalter: Gelbgrün, in „Me & Myself“ Gelb (Daria, 2026-11-13) */
