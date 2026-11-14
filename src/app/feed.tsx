@@ -919,8 +919,12 @@ export default function FeedScreen() {
             onLogoLongPress={() => router.push('/demo')}
             hasTasks={hasTasks}
           />
-          {/* Zahlen der Posts nicht in „Me & Myself“ (Daria, 2026-11-14) */}
-          <FeedGreeting name={anrede(profile)} kiez={kiezName} counts={feedState === 'loading' || area === 'me' ? undefined : openCounts} />
+          {/* In „Me & Myself“ weder Kiez noch Zahlen der Posts (Daria, 2026-11-14) */}
+          <FeedGreeting
+            name={anrede(profile)}
+            kiez={area === 'me' ? undefined : kiezName}
+            counts={feedState === 'loading' || area === 'me' ? undefined : openCounts}
+          />
         </View>
       </Animated.View>
       )}
