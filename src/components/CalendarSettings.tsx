@@ -386,7 +386,7 @@ export function CalendarSettings() {
           <View style={styles.sub}>
             <QuestionHint
               question="Welche Termine werden eingeblendet?"
-              answer="Die Termine der nächsten 60 Tage aus allen eingeschalteten Kalendern. Weiter in die Zukunft lädt KiezCoins nicht. Der Kalender in Routine zeigt alle, die Karten nur die der nächsten 7 Tage."
+              answer="Die Termine der nächsten 60 Tage aus allen eingeschalteten Kalendern. Die Karten zeigen nur die der nächsten 7 Tage."
             />
           </View>
         ) : null}
