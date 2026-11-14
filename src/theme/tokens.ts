@@ -41,8 +41,8 @@ export const palette = Object.freeze(kiezPalette);
 const swatch = {
   /** Senf: Me & Myself, Kalender, Aufgaben-Karten, „Du bist dran“ */
   senf: '#ECCF55',
-  /** Gelbgrün: Fokus, eingeschaltete Schalter, Menü-Icon */
-  gelbgruen: '#E4FF5F',
+  /** Gelbgrün: Fokus, eingeschaltete Schalter, Menü-Icon. Runtergeregelt (Daria, 2026-11-14), vorher #E4FF5F, das der Kater-Avatar behält */
+  gelbgruen: '#D6EB70',
   /** Beige: große Icons, Leisten-Icons, papierweißer Knopf im Umschalter */
   beige: '#EEE0C9',
   /** Schneeweiß: aktives Nachrichten-Icon */
