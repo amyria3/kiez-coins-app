@@ -32,3 +32,21 @@ const subscribe = (l: () => void) => {
 export function useRoutineData(): RoutineData | null {
   return useSyncExternalStore(subscribe, () => current, () => current);
 }
+
+/** Kalender im Feed-Kopf offen: Dann tritt der Kater in der Liste zur Seite (Daria, 2026-11-14) */
+let calendarShown = false;
+const calendarListeners = new Set<() => void>();
+export function setCalendarShown(on: boolean) {
+  if (calendarShown === on) return;
+  calendarShown = on;
+  calendarListeners.forEach((l) => l());
+}
+const subscribeCalendar = (l: () => void) => {
+  calendarListeners.add(l);
+  return () => {
+    calendarListeners.delete(l);
+  };
+};
+export function useCalendarShown(): boolean {
+  return useSyncExternalStore(subscribeCalendar, () => calendarShown, () => calendarShown);
+}

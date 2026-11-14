@@ -1,5 +1,6 @@
 import { RoutineNudge } from '../components/RoutineNudge';
 import { RoutineCalendarSlot } from '../components/RoutineList';
+import { setCalendarShown } from '../data/routineView';
 import { RoutineContent } from '../components/RoutineContent';
 import { clearRoutinePost } from '../data/reminders';
 import { clearShowcasePost, peekShowcasePost, SEARCH_MIN, searchShowcases, type ShowcaseHit } from '../data/showcase';
@@ -186,6 +187,7 @@ export default function FeedScreen() {
     if (calendarOpenRef.current === show) return;
     calendarOpenRef.current = show;
     setCalendarOpen(show);
+    setCalendarShown(show);
     calendarAnim.stopAnimation();
     Animated.timing(calendarAnim, {
       toValue: show ? 1 : 0,
@@ -194,6 +196,8 @@ export default function FeedScreen() {
       useNativeDriver: false,
     }).start();
   };
+  // Verlässt man den Feed, gilt der Kalender als zu, damit der Kater auf der eigenen Routine-Seite nicht fehlt
+  useEffect(() => () => setCalendarShown(false), []);
   const showCalendarRef = useRef(showCalendar);
   showCalendarRef.current = showCalendar;
   // Senkrecht über den Umschaltern wischen: nach unten Kalender auf, nach oben zu. Tippen bleibt bei den Umschaltern.
