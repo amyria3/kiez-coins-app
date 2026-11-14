@@ -995,11 +995,11 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
     if (open) {
       setRows('month');
       setEntering(true);
-      const id = setTimeout(() => setEntering(false), ROW_MS + 6 * ROW_STAGGER);
+      const id = setTimeout(() => setEntering(false), MONTH_IN_MS);
       return () => clearTimeout(id);
     }
     setRows((r) => (r === 'month' ? 'closing' : r));
-    const id = setTimeout(() => setRows('week'), ROW_MS + 6 * ROW_STAGGER_OUT);
+    const id = setTimeout(() => setRows('week'), MONTH_OUT_MS);
     return () => clearTimeout(id);
   }, [open]);
   const slide = useRef(new Animated.Value(0)).current;
@@ -1119,6 +1119,7 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
                   <CalDay
                     key={localDate(d)}
                     date={d}
+                    col={j}
                     today={today}
                     days={days}
                     picked={picked === localDate(d)}
@@ -1150,6 +1151,23 @@ export function RoutineCalendar({ list, events, saved }: { list: Reminder[]; eve
 const ROW_MS = 260;
 const ROW_STAGGER = 55;
 const ROW_STAGGER_OUT = 35;
+/** Tage fallen einzeln heraus (Daria, 2026-11-14): je Spalte etwas später, dazu ein kleiner Zufall je Tag */
+const DAY_MS = 320;
+const DAY_STAGGER = 22;
+const DAY_JITTER = 60;
+/** So lange dauert das Herausfallen des ganzen Monats höchstens */
+const MONTH_IN_MS = 6 * ROW_STAGGER + 6 * DAY_STAGGER + DAY_JITTER + DAY_MS;
+const MONTH_OUT_MS = ROW_MS + 6 * ROW_STAGGER_OUT;
+
+/** Was die Zeile ihren Tagen sagt: herausfallen, einklappen oder stehen, und ab wann */
+const RowAnim = createContext<{ mode: 'static' | 'enter' | 'leave'; delay: number }>({ mode: 'static', delay: 0 });
+
+/** Fester kleiner Zufall je Tag, damit die Tage unregelmäßig fallen, aber bei jedem Mal gleich */
+function jitterOf(d: string, range: number): number {
+  let h = 3;
+  for (const c of d) h = (h * 31 + c.charCodeAt(0)) | 0;
+  return Math.abs(h) % range;
+}
 
 /** Eine Kalenderzeile, die herausfallen (enter) oder einklappen (leave) kann */
 function CalRow({ mode, delay, children }: { mode: 'static' | 'enter' | 'leave'; delay: number; children: ReactNode }) {
@@ -1170,32 +1188,78 @@ function CalRow({ mode, delay, children }: { mode: 'static' | 'enter' | 'leave';
         ? null
         : {
             height: v.interpolate({ inputRange: [0, 1], outputRange: [0, height] }),
-            opacity: v,
-            transform: [{ translateY: v.interpolate({ inputRange: [0, 1], outputRange: [-16, 0] }) }],
           },
     [mode, v, height],
   );
+  const ctx = useMemo(() => ({ mode, delay }), [mode, delay]);
   return (
-    <Animated.View style={[styles.calRowClip, style]}>
+    <Animated.View style={[mode === 'static' ? null : styles.calRowClip, style]}>
       <View style={styles.calRow} onLayout={(e) => setHeight((h) => (h === e.nativeEvent.layout.height ? h : e.nativeEvent.layout.height))}>
-        {children}
+        <RowAnim.Provider value={ctx}>{children}</RowAnim.Provider>
       </View>
     </Animated.View>
   );
 }
 
-function CalDay({ date, today, days, picked, onPress }: { date: Date; today: string; days: RoutineDays | null; picked: boolean; onPress: () => void }) {
+function CalDay({
+  date,
+  col = 0,
+  today,
+  days,
+  picked,
+  onPress,
+}: {
+  date: Date;
+  col?: number;
+  today: string;
+  days: RoutineDays | null;
+  picked: boolean;
+  onPress: () => void;
+}) {
   const [size, setSize] = useState(0);
   const d = localDate(date);
+  // Herausfallen: von leicht oben und schräg, mit kleinem Nachfedern; Einklappen: nach oben weg (Daria, 2026-11-14)
+  const row = useContext(RowAnim);
+  const fall = useRef(new Animated.Value(row.mode === 'enter' ? 0 : 1)).current;
+  useEffect(() => {
+    if (row.mode === 'static') {
+      fall.setValue(1);
+      return;
+    }
+    const enter = row.mode === 'enter';
+    const anim = Animated.timing(fall, {
+      toValue: enter ? 1 : 0,
+      duration: enter ? DAY_MS : 180,
+      delay: enter ? row.delay + col * DAY_STAGGER + jitterOf(d, DAY_JITTER) : row.delay + jitterOf(d, 30),
+      easing: enter ? Easing.out(Easing.back(1.6)) : Easing.in(Easing.cubic),
+      useNativeDriver: Platform.OS !== 'web',
+    });
+    anim.start();
+    return () => anim.stop();
+  }, [row.mode, row.delay, col, d, fall]);
+  const tilt = (jitterOf(d, 13) - 6) * 1.5;
+  const fallStyle = useMemo(
+    () =>
+      row.mode === 'static'
+        ? null
+        : {
+            opacity: fall.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, 1, 1], extrapolate: 'clamp' as const }),
+            transform: [
+              { translateY: fall.interpolate({ inputRange: [0, 1], outputRange: [-22, 0] }) },
+              { rotate: fall.interpolate({ inputRange: [0, 1], outputRange: [`${tilt}deg`, '0deg'] }) },
+            ],
+          },
+    [row.mode, fall, tilt],
+  );
   const done = days?.done.has(d);
   const missed = !done && days?.missed.has(d);
   const isToday = d === today;
   const label = `${date.getDate()}${done ? `, ${t('geschafft')}` : missed ? `, ${t('ausgefallen')}` : ''}${isToday ? `, ${t('heute')}` : ''}`;
   return (
     <Pressable style={styles.calCell} onPress={onPress} accessibilityRole="button" accessibilityState={{ selected: picked }} accessibilityLabel={label}>
-      <View
+      <Animated.View
         onLayout={(e) => setSize(e.nativeEvent.layout.width)}
-        style={[styles.calDay, done && styles.calDayDone, isToday && !done && styles.calDayToday, picked && styles.calDayPicked]}
+        style={[styles.calDay, done && styles.calDayDone, isToday && !done && styles.calDayToday, picked && styles.calDayPicked, fallStyle]}
       >
         {missed && size ? (
           <Svg width={size} height={size} style={StyleSheet.absoluteFill} pointerEvents="none">
@@ -1210,7 +1274,7 @@ function CalDay({ date, today, days, picked, onPress }: { date: Date; today: str
         <Text noTranslate style={[styles.calNum, done && styles.calNumDone, missed && styles.calNumMissed]}>
           {date.getDate()}
         </Text>
-      </View>
+      </Animated.View>
     </Pressable>
   );
 }
