@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Konto löschen – KiezCoins</title>
+<link rel="icon" href="favicon.png">
+<style>
+:root { --bg:#FAFBEF; --surface:#FFFFFF; --text:#26233A; --muted:#4A465E; --accent:#5260E0; --error:#D6334A; --line:rgba(38,35,58,.10); }
+* { box-sizing:border-box; }
+html { background:var(--bg); color:var(--text); }
+body { margin:0; font:300 16px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width:560px; margin:0 auto; padding:48px 16px 32px; }
+h1 { font-size:40px; line-height:1.1; letter-spacing:-.02em; margin:24px 0 12px; font-weight:600; }
+h2 { font-size:20px; margin:32px 0 8px; font-weight:500; }
+p { color:var(--muted); margin:0 0 12px; }
+a { color:var(--text); }
+.logo { width:96px; height:96px; border-radius:28px; background:var(--surface); border:1px solid var(--line); display:grid; place-items:center; }
+.logo img { width:48px; height:56px; }
+.card { background:var(--surface); border-radius:20px; padding:20px; margin:24px 0; }
+label { display:block; font-size:14px; color:var(--muted); margin-bottom:6px; }
+input { width:100%; font:inherit; color:var(--text); background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:12px 14px; }
+button, .button { display:block; text-align:center; text-decoration:none; box-sizing:border-box; width:100%; margin-top:12px; font:500 16px/1 Inter, system-ui, sans-serif; color:#FFFFFF; background:var(--accent); border:0; border-radius:999px; padding:16px; cursor:pointer; }
+.error { color:var(--error); font-size:14px; margin:8px 0 0; }
+.steps { padding-left:20px; color:var(--muted); margin:0; }
+.steps li { margin-bottom:6px; }
+footer { display:flex; flex-wrap:wrap; gap:16px; font-size:13px; margin-top:40px; padding-top:16px; border-top:1px solid var(--line); }
+footer a { color:var(--muted); }
+.updated { font-size:13px; }
+.zurueck { margin:0 0 24px; font-size:14px; }
+.zurueck a { color:var(--muted); text-decoration:none; }
+.zurueck a:hover { color:var(--text); text-decoration:underline; }
+h3 { font-size:16px; margin:20px 0 6px; font-weight:500; }
+.stelle-ul { padding-left:20px; color:var(--muted); margin:0 0 12px; }
+.stelle-ul li { margin-bottom:6px; }
+.stelle-dl { margin:0; color:var(--muted); }
+.stelle-dl dt { font-weight:500; color:var(--text); margin-top:12px; }
+.stelle-dl dd { margin:2px 0 0; }
+</style>
+</head>
+<body>
+<!-- Seite für die Löschanfrage, die Google Play verlangt (Daria, 2026-11-14). Von Hand gepflegt, nicht vom Build erzeugt. -->
+<main>
+<nav class="zurueck"><a href="/">← Zurück zur Startseite</a></nav>
+<h1>Konto löschen</h1>
+<p class="updated">Stand 14.11.2026</p>
+<p>So löschst Du Dein Konto bei KiezCoins und alle Daten dazu.</p>
+
+<h2>In der App</h2>
+<ol class="steps">
+  <li>Öffne KiezCoins und tippe unten auf das Menü.</li>
+  <li>Wähle „Dein Konto“ › „Konto löschen“.</li>
+  <li>Bestätige die Löschung.</li>
+</ol>
+<p>Dein Konto und Deine Daten sind danach sofort gelöscht.</p>
+
+<h2>Ohne App</h2>
+<p>Schreib eine E-Mail an <a href="mailto:kiezkoins@protonmail.com?subject=Konto%20l%C3%B6schen">kiezkoins@protonmail.com</a> mit dem Betreff „Konto löschen“, und zwar von der E-Mail-Adresse, mit der Du angemeldet bist. Wir löschen Dein Konto innerhalb von 30 Tagen und bestätigen es Dir per E-Mail.</p>
+
+<h2>Was gelöscht wird</h2>
+<p>Konto, Profil, Fotos, Challenges, Kommentare, Erinnerungen und verbundene Kalender, Zahlungsdaten, Meldungen, Blockierungen, Lob und Support-Anfragen. Reste in Sicherungskopien verschwinden, wenn Supabase diese turnusmäßig überschreibt.</p>
+
+<h2>Nur einzelne Daten löschen</h2>
+<p>Vieles löschst Du direkt in der App, ohne Dein Konto zu löschen: Challenges, Kommentare und Erinnerungen an der jeweiligen Stelle, verbundene Kalender unter „Dein Konto“ › „Meine Features“. Für alles andere schreib uns an kiezkoins@protonmail.com.</p>
+
+<footer>
+  <a href="/">Start</a>
+  <a href="/impressum">Impressum</a>
+  <a href="/datenschutz">Datenschutz</a>
+  <a href="/nutzungsbedingungen">Nutzungsbedingungen</a>
+  <a href="/community-regeln">Community-Regeln</a>
+</footer>
+</main>
+</body>
+</html>
