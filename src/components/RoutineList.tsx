@@ -251,6 +251,25 @@ function tiltOf(key: string): number {
   return TILTS[Math.abs(h) % TILTS.length];
 }
 
+/**
+ * Wo der Stimmungs-Sticker am Kater klebt (Daria, 2026-11-14): nie über dem Gesicht, sondern darunter oder über den
+ * Ohren, mal links, mittig oder rechts, mal schräg in die eine, mal in die andere Richtung. Wechselt jeden Tag und
+ * bleibt innerhalb eines Tages gleich, damit nichts springt.
+ */
+const STICKERS: { above: boolean; avatar: 'flex-start' | 'center' | 'flex-end'; rotate: number }[] = [
+  { above: false, avatar: 'flex-end', rotate: -7 },
+  { above: false, avatar: 'flex-start', rotate: 6 },
+  { above: false, avatar: 'center', rotate: -3 },
+  { above: true, avatar: 'flex-end', rotate: 8 },
+  { above: true, avatar: 'flex-start', rotate: -9 },
+  { above: false, avatar: 'center', rotate: 9 },
+];
+function stickerOf(key: string) {
+  let h = 7;
+  for (const c of `${key}${localDate()}`) h = (h * 33 + c.charCodeAt(0)) | 0;
+  return STICKERS[Math.abs(h) % STICKERS.length];
+}
+
 /** Wer in den Systemeinstellungen weniger Bewegung wählt, bekommt kein Wackeln */
 function useReduceMotion(): boolean {
   const [reduce, setReduce] = useState(false);
@@ -509,18 +528,23 @@ function Card({
   }, [tilt, drag.lift, drag.pos, wobble]);
   const transform = useMemo(() => [{ translateX: drag.pos.x }, { translateY: drag.pos.y }, { rotate }, { scale }], [drag.pos, rotate, scale]);
 
+  const sticker = stickerOf(tiltKey);
+  const chip = (
+    // Stimmung klebt schräg am Kater wie ein Sticker (Daria, 2026-11-12), nie über seinem Gesicht (2026-11-14)
+    <View style={[styles.chip, sticker.above ? styles.chipAbove : styles.chipBelow, { transform: [{ rotate: `${sticker.rotate}deg` }] }]} pointerEvents="none">
+      <Text style={styles.chipText} numberOfLines={1}>
+        {mood}
+      </Text>
+    </View>
+  );
   const kater = (
     // Ring in der Farbe des Grunds (Daria, 2026-11-12)
-    <View style={wide && styles.katerSide}>
+    <View style={[styles.katerSide, { alignItems: sticker.avatar }]}>
+      {sticker.above ? chip : null}
       <View style={styles.katerRing}>
         <KaterRund size={40} bg={bg} />
       </View>
-      {/* Stimmung klebt schräg am Kater wie ein Sticker (Daria, 2026-11-12) */}
-      <View style={styles.chip} pointerEvents="none">
-        <Text style={styles.chipText} numberOfLines={1}>
-          {mood}
-        </Text>
-      </View>
+      {sticker.above ? null : chip}
     </View>
   );
   const card = (
@@ -1215,17 +1239,17 @@ const styles = StyleSheet.create({
   headRow: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   head: { flex: 1, gap: 2 },
   // Platz für den Sticker, der links unter dem Kater herausragt
-  katerSide: { marginLeft: 28, marginBottom: 8, alignSelf: 'flex-start' },
+  // Kater und Sticker als Spalte: Der Sticker hat eigenen Platz und liegt höchstens auf dem Ring
+  katerSide: { alignSelf: 'flex-start' },
   chip: {
-    position: 'absolute',
-    right: 4,
-    bottom: -10,
     backgroundColor: color.bg.screen,
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    transform: [{ rotate: '-8deg' }],
+    zIndex: 1,
   },
+  chipBelow: { marginTop: -5 },
+  chipAbove: { marginBottom: -5 },
   chipText: {
     ...text.captionStrong,
     color: color.text.primary,
