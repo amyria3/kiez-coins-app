@@ -237,26 +237,29 @@ export default function ShowcaseScreen() {
         )
       ) : null}
 
-      {/* AGB eingeklappt, sie sind meist lang (Daria, 2026-11-11) */}
+      {/* AGB eingeklappt, sie sind meist lang (Daria, 2026-11-11). Nicht öffentliche Schaufenster brauchen weder AGB
+          noch Impressum: Dort stehen sie nur, wenn sie ausgefüllt sind (Daria, 2026-11-14). */}
       {s.terms ? (
         <CollapsibleSection label="AGB" collapsible>
           <RichText value={s.terms} />
         </CollapsibleSection>
-      ) : (
+      ) : s.visibility === 'public' ? (
         <SectionBlock label="AGB">
           <PlaceholderText>AGB noch nicht hinterlegt</PlaceholderText>
         </SectionBlock>
-      )}
+      ) : null}
 
-      <SectionBlock label="Impressum">
-        {s.imprint ? (
-          <Text noTranslate style={styles.meta}>
-            {s.imprint}
-          </Text>
-        ) : (
-          <PlaceholderText>Impressum noch nicht hinterlegt</PlaceholderText>
-        )}
-      </SectionBlock>
+      {s.imprint || s.visibility === 'public' ? (
+        <SectionBlock label="Impressum">
+          {s.imprint ? (
+            <Text noTranslate style={styles.meta}>
+              {s.imprint}
+            </Text>
+          ) : (
+            <PlaceholderText>Impressum noch nicht hinterlegt</PlaceholderText>
+          )}
+        </SectionBlock>
+      ) : null}
 
       {manage.length ? <ManageButton items={manage} style={styles.manageBottom} /> : null}
       </View>
