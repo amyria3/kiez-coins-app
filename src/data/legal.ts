@@ -7,7 +7,7 @@
  */
 
 /** Stand aller Texte (TT.MM.JJJJ). */
-export const LEGAL_STAND = '11.11.2026';
+export const LEGAL_STAND = '14.11.2026';
 
 /** Angaben zur Anbieterin. Leere Felder erscheinen in der App als „[offen: …]“. */
 export const OPERATOR = {
@@ -100,6 +100,40 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
           'Die Freigabe ist freiwillig und lässt sich jederzeit in den Einstellungen Deines Handys oder Browsers zurücknehmen. Ohne Freigabe trägst Du Deinen Kiez von Hand ein.',
         ],
       },
+      // Nachrichten, Routine, Kalender und Weiterposten (Daria, 2026-11-14: fehlten bisher)
+      {
+        heading: 'Nachrichten an Freund:innen',
+        paragraphs: [
+          'Nachrichten kannst Du nur Personen schicken, mit denen Du befreundet bist. Wir speichern Absender:in, Empfänger:in, Text und Zeitpunkte. Lesen können sie in der App nur Ihr beide. Nach einem Monat löschen wir Nachrichten automatisch.',
+          'Das Team öffnet einen Chat nur bei einer Meldung oder einem Hinweis auf Missbrauch. Jedes Öffnen wird dauerhaft mit Zeitpunkt, Person und Grund protokolliert.',
+          'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO), für das Öffnen bei Meldungen unser berechtigtes Interesse an einem sicheren Betrieb (Art. 6 Abs. 1 lit. f DSGVO).',
+        ],
+      },
+      {
+        heading: 'Erinnerungen und Routine sind privat',
+        paragraphs: [
+          'Für Erinnerungen und Termine in Routine speichern wir Titel, Beschreibung, Tag, Uhrzeit, Ort, Telefon und Link, soweit Du sie einträgst, und wann Du etwas erledigt, abgesagt oder gelöscht hast. Nur Du siehst sie.',
+          'Was Du auf „später“ schiebst und welche importierten Termine Du ausblendest, merkt sich nur Dein Gerät.',
+          'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
+        ],
+      },
+      {
+        heading: 'Kalender verbindest Du selbst',
+        paragraphs: [
+          'Termine exportieren: Du bekommst einen persönlichen, geheimen Abo-Link. Dein Kalenderdienst, zum Beispiel Apple, Google oder Microsoft, ruft darüber regelmäßig Deine Termine aus KiezCoins ab und speichert sie nach seinen eigenen Regeln. Wer den Link kennt, sieht Deine Termine. „Neuen Link erstellen“ macht den alten ungültig, ausgeschaltet liefert der Link keine Termine mehr.',
+          'Termine anzeigen über einen Link: Wir speichern die iCal-Adresse und den Namen, den Du dem Kalender gibst. Öffnest Du Routine, ruft unser Server bei Supabase die Adresse ab und schickt die Termine der nächsten 60 Tage an Deine App. Die Termine selbst speichern wir nicht. Der Kalenderdienst sieht dabei die Anfrage unseres Servers, nicht Deine IP-Adresse.',
+          'Kalender auf dem Handy (Android): Gibst Du den Zugriff frei, liest die App die gewählten Kalender direkt auf dem Gerät. Die Termine verlassen Dein Handy nicht. Den Zugriff nimmst Du in den Einstellungen des Handys zurück.',
+          'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
+        ],
+      },
+      {
+        heading: 'Weiterposten auf Deinen Auftrag',
+        paragraphs: [
+          'Verbindest Du ein Konto bei BlueSky, Mastodon, Instagram oder Facebook, speichern wir Deinen Namen dort, die Adresse des Dienstes und den Zugang. Den Zugang speichern wir verschlüsselt.',
+          'Postest Du weiter, schicken wir Titel, Text, Foto und den Link zu Deinem Post an diesen Dienst. Dort gelten dessen Datenschutzregeln. Meta (Instagram, Facebook) verarbeitet Daten auch in den USA. „Trennen“ löscht den Zugang bei uns.',
+          'Rechtsgrundlage ist Dein Auftrag im Rahmen des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
+        ],
+      },
       // Schaufenster für Läden, Vereine und Clubs (Rechtsprüfung 11.11.2026, Übergabe/2026-11-11_offen_schaufenster-recht.md)
       {
         heading: 'Schaufenster sind öffentlich',
@@ -120,7 +154,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'Meldungen, Support und Sicherheit',
         paragraphs: [
-          'Meldest Du eine Person oder Challenge oder schreibst Du dem Support, speichern wir Deine Nachricht, um sie zu bearbeiten. Die gemeldete Person erfährt nicht, wer gemeldet hat. Blockierst Du eine Person, speichern wir, wen Du blockiert hast. Zollst Du Lob, speichern wir, wen Du gelobt hast. Andere sehen nur die Anzahl, nicht wer gelobt hat. Zum Schutz vor Missbrauch speichert unser Hosting-Dienst technische Protokolle mit IP-Adresse und Zeitpunkt für kurze Zeit.',
+          'Meldest Du eine Person oder Challenge oder schreibst Du dem Support, speichern wir Deine Nachricht, um sie zu bearbeiten. Die gemeldete Person erfährt nicht, wer gemeldet hat. Blockierst Du eine Person, speichern wir, wen Du blockiert hast. Zollst Du Lob, speichern wir, wen Du gelobt hast. Andere sehen nur die Anzahl, nicht wer gelobt hat. Zum Schutz vor Missbrauch speichert unser Hosting-Dienst technische Protokolle mit IP-Adresse und Zeitpunkt für kurze Zeit. Legst Du ein Konto ohne E-Mail an, speichern wir einen Tag lang einen nicht umkehrbaren Fingerabdruck Deiner IP-Adresse, um Massenanmeldungen zu verhindern.',
           'Rechtsgrundlage ist unser berechtigtes Interesse an einem sicheren, fairen Betrieb (Art. 6 Abs. 1 lit. f DSGVO) und die Bearbeitung von Meldungen nach dem Digital Services Act (Art. 6 Abs. 1 lit. c DSGVO).',
         ],
       },
@@ -137,13 +171,13 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'Erheben von Nutzungsdaten',
         paragraphs: [
-          'Heute erheben wir keine Nutzungsdaten. Führen wir eine anonyme Zählung ein, zum Beispiel welcher Knopf häufiger gedrückt wird, nennen wir hier vorher Zweck, Daten und Rechtsgrundlage.',
+          'Wir zählen anonym, wie oft einzelne Knöpfe gedrückt werden, zum Beispiel welcher Kamera-Knopf häufiger genutzt wird. Gespeichert werden nur Knopf, gewählter Look und Zeitpunkt, ohne Konto, ohne Gerät und ohne IP-Adresse. Daraus lässt sich niemand erkennen. Weitere Nutzungsdaten erheben wir nicht.',
         ],
       },
       {
         heading: 'So lange bleiben Deine Daten',
         paragraphs: [
-          'Deine Daten bleiben, bis Du Dein Konto löschst. „Konto löschen“ entfernt Konto, Profil, Fotos, Challenges, Kommentare, Zahlungsdaten, Meldungen, Blockierungen, Lob und Support-Anfragen sofort. Reste in Sicherungskopien verschwinden, wenn Supabase diese turnusmäßig überschreibt.',
+          'Deine Daten bleiben, bis Du Dein Konto löschst. „Konto löschen“ entfernt Konto, Profil, Fotos, Challenges, Kommentare, Nachrichten, Erinnerungen, verbundene Kalender und Konten fürs Weiterposten, Zahlungsdaten, Meldungen, Blockierungen, Lob und Support-Anfragen sofort. Reste in Sicherungskopien verschwinden, wenn Supabase diese turnusmäßig überschreibt.',
           'Am Ende der Testphase können wir alle Daten löschen. Darüber informieren wir Dich vorher per E-Mail.',
         ],
       },
