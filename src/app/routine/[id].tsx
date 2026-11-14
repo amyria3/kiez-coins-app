@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '../../components/Button';
-import { KATER_MESSAGE_GAP, KaterMessage } from '../../components/KaterMessage';
+import { KaterMessage } from '../../components/KaterMessage';
 import { NavigationBar } from '../../components/NavigationBar';
 import { Notice } from '../../components/Content';
 import { capitalize, goalOf, loadReminders, markReminderDone, routineLabel, setRoutinePost, type Reminder } from '../../data/reminders';
@@ -72,12 +72,14 @@ function ReminderDone() {
             title={t('{want}: {after} von {goal}!', { want: capitalize(reminder.want), after, goal })}
             body={
               after >= goal
-                ? t('Wochenziel geschafft. Ich bin so stolz, ich muss mich kurz putzen. Zeigst Du es den anderen?')
-                : t('Du wolltest {want}, und Du hast es getan. Zeigst Du es den anderen?', { want: reminder.want })
+                ? // Ohne „Zeigst Du es den anderen?“: Der Kater drängt nicht zum Posten (Daria, 2026-11-14)
+                  t('Wochenziel geschafft. Ich bin so stolz, ich muss mich kurz putzen.')
+                : t('Du wolltest {want}, und Du hast es getan.', { want: reminder.want })
             }
-            action={<Button label="Als Me-Challenge posten" icon="camera" busy={busy === 'post'} disabled={!!busy} onPress={() => finish(true)} />}
-            more={
-              <View style={styles.more}>
+            // Beide Knöpfe als eine Gruppe dicht beieinander (Daria, 2026-11-14)
+            action={
+              <View style={styles.buttons}>
+                <Button label="Als Me-Challenge posten" icon="camera" busy={busy === 'post'} disabled={!!busy} onPress={() => finish(true)} />
                 <Button label="Nur abhaken" variant="secondary" busy={busy === 'check'} disabled={!!busy} onPress={() => finish(false)} />
                 {failed ? <Notice variant="warning" message="Abhaken hat nicht geklappt. Versuch es bitte noch einmal." /> : null}
               </View>
@@ -93,5 +95,5 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   center: { flex: 1, justifyContent: 'center' },
   content: { paddingHorizontal: space[20], paddingTop: space[16] },
-  more: { alignSelf: 'stretch', gap: KATER_MESSAGE_GAP },
+  buttons: { alignSelf: 'stretch', gap: space[8] },
 });
