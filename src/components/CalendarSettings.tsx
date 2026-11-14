@@ -10,6 +10,7 @@ import { SetupSteps } from './SetupSteps';
 import { Text } from './T';
 import {
   addLinkedCalendar,
+  calendarUrl,
   chooseDeviceCalendars,
   chosenDeviceCalendars,
   deviceCalendars,
@@ -18,6 +19,7 @@ import {
   feedLinks,
   loadLinkedCalendars,
   removeLinkedCalendar,
+  renameLinkedCalendar,
   setFeedExported,
   setLinkedCalendarShown,
   type DeviceCalendar,
@@ -106,7 +108,10 @@ const SAVE_FAILED = 'Das hat nicht geklappt. Bitte versuch es noch einmal.';
  * weitere verbundene Kalender und auf Android die Kalender des Handys. Ohne Verbindung öffnet der Schalter darunter die
  * Einrichtung; verbunden schaltet er nur an und aus. Ein Tipp auf den Namen öffnet die Einstellungen; dort steht das
  * Zurücksetzen (Link kopieren und neuer Link, Trennen) als eigener Knopf. Scheitert das Speichern, springt der
- * Schalter zurück und eine Meldung erscheint. Routine als Ganzes schaltet der Schalter „Routine“ oben unter Funktionen.
+ * Schalter zurück und eine Meldung erscheint.
+ * Mehrere Kalender je Dienst, jeder mit eigenem Namen (Daria, 2026-11-14): Die Kalender eines Dienstes stehen
+ * untereinander, darunter „Weiteren …-Kalender verbinden“. Beim Verbinden steht ein Name dabei (leer: der Dienst, beim
+ * zweiten „Google 2“), in den Einstellungen eines Kalenders lässt er sich ändern. Dieselbe Adresse zweimal geht nicht. Routine als Ganzes schaltet der Schalter „Routine“ oben unter Funktionen.
  */
 export function CalendarSettings() {
   const [feed, setFeed] = useState<{ https: string; webcal: string } | null | undefined>(undefined);
@@ -117,8 +122,10 @@ export function CalendarSettings() {
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
+  // Name eines verbundenen Kalenders beim Umbenennen
+  const [rename, setRename] = useState('');
   const [busy, setBusy] = useState(false);
-  const [addFailed, setAddFailed] = useState(false);
+  const [addFailed, setAddFailed] = useState<'fail' | 'dup' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [device, setDevice] = useState<DeviceCalendar[] | null>(null);
   const [chosen, setChosen] = useState<string[]>([]);
@@ -197,16 +204,42 @@ export function CalendarSettings() {
     setOpenKey(open ? key : null);
     setUrl('');
     setName('');
-    setAddFailed(false);
+    setAddFailed(null);
   };
 
-  const add = async (label: string) => {
+  // Einstellungen eines verbundenen Kalenders; das Namensfeld beginnt mit seinem Namen
+  const openLinked = (c: LinkedCalendar) => {
+    setOpenKey((k) => (k === c.id ? null : c.id));
+    setRename(c.name);
+  };
+
+  /** Freier Name: der Dienst selbst oder mit Zahl („Google 2“) */
+  const nameFor = (label: string) => {
+    const taken = new Set((linked ?? []).map((c) => c.name));
+    if (!taken.has(label)) return label;
+    let n = 2;
+    while (taken.has(`${label} ${n}`)) n++;
+    return `${label} ${n}`;
+  };
+
+  const add = async (fallbackName: string) => {
+    if ((linked ?? []).some((c) => calendarUrl(c.url) === calendarUrl(url))) return setAddFailed('dup');
     setBusy(true);
-    setAddFailed(false);
-    const ok = await addLinkedCalendar(name.trim() || label, url);
+    setAddFailed(null);
+    const ok = await addLinkedCalendar(name.trim() || fallbackName, url);
     setBusy(false);
-    if (!ok) return setAddFailed(true);
+    if (!ok) return setAddFailed('fail');
     toggleOpen('', false);
+    loadLinkedCalendars().then(setLinked);
+  };
+
+  const saveName = async (c: LinkedCalendar) => {
+    setBusy(true);
+    setError(null);
+    const ok = await renameLinkedCalendar(c.id, rename);
+    setBusy(false);
+    if (!ok) return setError(SAVE_FAILED);
+    setRename(rename.trim());
     loadLinkedCalendars().then(setLinked);
   };
 
@@ -218,8 +251,8 @@ export function CalendarSettings() {
 
   const urlOk = !url.trim() || /^(https|webcal):\/\/\S+$/i.test(url.trim());
 
-  /** Einrichtung wie bei BlueSky: Adresse, Hinweis, wo sie steht, und „Verbinden“ */
-  const setupFields = (label: string, question: string, placeholder: string, howTo: string, withName: boolean) => (
+  /** Einrichtung wie bei BlueSky: Adresse, Hinweis, wo sie steht, Name und „Verbinden“. Ohne Namen gilt `fallbackName`. */
+  const setupFields = (fallbackName: string, question: string, placeholder: string, howTo: string) => (
     <View style={styles.setup}>
       <QuestionHint question={question} answer={howTo} />
       <TextField
@@ -232,39 +265,41 @@ export function CalendarSettings() {
         keyboardType="url"
         error={urlOk ? undefined : 'Die Adresse beginnt mit https:// oder webcal://'}
       />
-      {withName ? <TextField label="Name" placeholder="Privat" value={name} onChangeText={setName} maxLength={40} /> : null}
-      <Button label="Verbinden" busy={busy} disabled={busy || !url.trim() || !urlOk} onPress={() => add(withName ? 'Kalender' : label)} />
-      {addFailed ? <Notice variant="warning" message="Das hat nicht geklappt. Prüfe bitte die Adresse." /> : null}
-    </View>
-  );
-
-  /** Zeile eines verbundenen Kalenders: Schalter fürs Anzeigen, Tipp auf den Namen zeigt „Verbunden“ und „Trennen“ */
-  const linkedRow = (c: LinkedCalendar, label: string) => (
-    <View key={c.id}>
-      <SettingRow
-        label={t('Termine aus {name} anzeigen', { name: label })}
-        caption={c.shown ? hostOf(c.url) : t('Aus. {name} bleibt verbunden.', { name: label })}
-        value={c.shown}
-        open={openKey === c.id}
-        onPressLabel={() => setOpenKey((k) => (k === c.id ? null : c.id))}
-        onToggle={(v) => showLinked(c, v)}
-      />
-      {openKey === c.id ? (
-        <View style={styles.setup}>
-          <Status label="Verbunden" action="Trennen" onPress={() => disconnect(c)} />
-        </View>
+      <TextField label="Name" placeholder={fallbackName} value={name} onChangeText={setName} maxLength={40} />
+      <Button label="Verbinden" busy={busy} disabled={busy || !url.trim() || !urlOk} onPress={() => add(fallbackName)} />
+      {addFailed ? (
+        <Notice variant="warning" message={addFailed === 'dup' ? 'Dieser Kalender ist schon verbunden.' : 'Das hat nicht geklappt. Prüfe bitte die Adresse.'} />
       ) : null}
     </View>
   );
 
+  /** Zeile eines verbundenen Kalenders: Schalter fürs Anzeigen, Tipp auf den Namen zeigt Name, „Verbunden“ und „Trennen“ */
+  const linkedRow = (c: LinkedCalendar) => {
+    const changed = !!rename.trim() && rename.trim() !== c.name;
+    return (
+      <View key={c.id}>
+        <SettingRow
+          label={t('Termine aus {name} anzeigen', { name: c.name })}
+          caption={c.shown ? hostOf(c.url) : t('Aus. {name} bleibt verbunden.', { name: c.name })}
+          value={c.shown}
+          open={openKey === c.id}
+          onPressLabel={() => openLinked(c)}
+          onToggle={(v) => showLinked(c, v)}
+        />
+        {openKey === c.id ? (
+          <View style={styles.setup}>
+            <TextField label="Name" placeholder={c.name} value={rename} onChangeText={setRename} maxLength={40} />
+            {changed ? <Button label="Name speichern" variant="secondary" busy={busy} disabled={busy} onPress={() => saveName(c)} /> : null}
+            <Status label="Verbunden" action="Trennen" onPress={() => disconnect(c)} />
+          </View>
+        ) : null}
+      </View>
+    );
+  };
+
   const list = linked ?? [];
-  // Erster Kalender je Dienst gehört in dessen feste Zeile, alle übrigen stehen darunter mit eigenem Namen
-  const firstOf = new Map<Source, LinkedCalendar>();
-  for (const c of list) {
-    const src = sourceOf(c.url);
-    if (src && !firstOf.has(src)) firstOf.set(src, c);
-  }
-  const others = list.filter((c) => !Array.from(firstOf.values()).includes(c));
+  // Kalender ohne bekannten Dienst stehen über „Termine aus einem anderen Kalender anzeigen“
+  const others = list.filter((c) => !sourceOf(c.url));
 
   return (
     <View style={styles.list}>
@@ -315,28 +350,43 @@ export function CalendarSettings() {
 
       {linked === null ? <Notice variant="warning" message="Deine Kalender laden gerade nicht. Versuch es bitte gleich noch einmal." /> : null}
 
-      {/* Feste Zeilen je Dienst: verbunden mit Schalter fürs Anzeigen, sonst öffnet der Schalter die Einrichtung */}
+      {/* Je Dienst: ohne Verbindung eine feste Zeile, deren Schalter die Einrichtung öffnet; verbunden alle Kalender
+          des Dienstes mit eigenem Schalter und darunter „Weiteren …-Kalender verbinden“ */}
       {SOURCES.map((src) => {
-        const c = firstOf.get(src.key);
-        if (c) return linkedRow(c, src.label);
+        const mine = list.filter((c) => sourceOf(c.url) === src.key);
         const open = openKey === src.key;
+        const setup = open
+          ? setupFields(nameFor(src.label), t('Wo finde ich die iCal-Adresse von {name}?', { name: src.label }), src.placeholder, src.howTo)
+          : null;
+        if (!mine.length)
+          return (
+            <View key={src.key}>
+              <SettingRow
+                label={t('Termine aus {name} anzeigen', { name: src.label })}
+                caption="Nicht verbunden"
+                value={open}
+                open={open}
+                onPressLabel={() => toggleOpen(src.key, !open)}
+                onToggle={(v) => toggleOpen(src.key, v)}
+              />
+              {setup}
+            </View>
+          );
         return (
           <View key={src.key}>
-            <SettingRow
-              label={t('Termine aus {name} anzeigen', { name: src.label })}
-              caption="Nicht verbunden"
-              value={open}
-              open={open}
-              onPressLabel={() => toggleOpen(src.key, !open)}
-              onToggle={(v) => toggleOpen(src.key, v)}
+            {mine.map(linkedRow)}
+            <Button
+              label={t('Weiteren {name}-Kalender verbinden', { name: src.label })}
+              variant="ghost"
+              onPress={() => toggleOpen(src.key, !open)}
             />
-            {open ? setupFields(src.label, t('Wo finde ich die iCal-Adresse von {name}?', { name: src.label }), src.placeholder, src.howTo, false) : null}
+            {setup}
           </View>
         );
       })}
 
-      {/* Weitere verbundene Kalender mit eigenem Namen */}
-      {others.map((c) => linkedRow(c, c.name))}
+      {/* Kalender ohne bekannten Dienst, z. B. von einem Verein, mit eigenem Namen */}
+      {others.map(linkedRow)}
 
       {/* Kalender auf dem Handy (Android-App), je einer mit eigenem Schalter */}
       {deviceCalendarsSupported ? (
@@ -368,7 +418,7 @@ export function CalendarSettings() {
         onToggle={(v) => toggleOpen('other', v)}
       />
       {openKey === 'other'
-        ? setupFields('Kalender', t('Wo finde ich die iCal-Adresse?'), 'https://…/kalender.ics', 'In den Einstellungen Deines Kalenders, oft unter „Teilen“, „Veröffentlichen“ oder „iCal“.', true)
+        ? setupFields(nameFor(t('Kalender')), t('Wo finde ich die iCal-Adresse?'), 'https://…/kalender.ics', 'In den Einstellungen Deines Kalenders, oft unter „Teilen“, „Veröffentlichen“ oder „iCal“.')
         : null}
     </View>
   );

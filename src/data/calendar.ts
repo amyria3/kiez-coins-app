@@ -56,11 +56,22 @@ export async function loadLinkedCalendars(): Promise<LinkedCalendar[] | null> {
   return error || !data ? null : (data as LinkedCalendar[]);
 }
 
-/** Speichert eine iCal-Adresse. `webcal://` wird zu `https://`. */
+/** iCal-Adresse so, wie sie gespeichert wird: `webcal://` wird zu `https://` */
+export const calendarUrl = (url: string) => url.trim().replace(/^webcal:\/\//i, 'https://');
+
+/** Speichert eine iCal-Adresse mit Namen (höchstens 40 Zeichen) */
 export async function addLinkedCalendar(name: string, url: string): Promise<boolean> {
-  const clean = url.trim().replace(/^webcal:\/\//i, 'https://');
+  const clean = calendarUrl(url);
   if (!/^https:\/\/[^\s]+$/i.test(clean)) return false;
-  const { error } = await supabase.from('routine_calendars').insert({ name: name.trim() || 'Kalender', url: clean });
+  const { error } = await supabase.from('routine_calendars').insert({ name: name.trim().slice(0, 40) || 'Kalender', url: clean });
+  return !error;
+}
+
+/** Kalender umbenennen (Daria, 2026-11-14); der Name erscheint in den Einstellungen und an den Terminen */
+export async function renameLinkedCalendar(id: string, name: string): Promise<boolean> {
+  const clean = name.trim().slice(0, 40);
+  if (!clean) return false;
+  const { error } = await supabase.from('routine_calendars').update({ name: clean }).eq('id', id);
   return !error;
 }
 
