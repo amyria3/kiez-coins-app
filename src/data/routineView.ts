@@ -50,3 +50,22 @@ const subscribeCalendar = (l: () => void) => {
 export function useCalendarShown(): boolean {
   return useSyncExternalStore(subscribeCalendar, () => calendarShown, () => calendarShown);
 }
+
+/** Ganzer Monat statt einer Woche (Daria, 2026-11-14): auch über dieselbe Bewegung wie das Aufklappen */
+let calendarMonth = false;
+const monthListeners = new Set<() => void>();
+export function setCalendarMonth(on: boolean) {
+  if (calendarMonth === on) return;
+  calendarMonth = on;
+  monthListeners.forEach((l) => l());
+}
+export const getCalendarMonth = () => calendarMonth;
+const subscribeMonth = (l: () => void) => {
+  monthListeners.add(l);
+  return () => {
+    monthListeners.delete(l);
+  };
+};
+export function useCalendarMonth(): boolean {
+  return useSyncExternalStore(subscribeMonth, () => calendarMonth, () => calendarMonth);
+}

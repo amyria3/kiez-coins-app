@@ -1,6 +1,6 @@
 import { RoutineNudge } from '../components/RoutineNudge';
 import { RoutineCalendarSlot } from '../components/RoutineList';
-import { setCalendarShown } from '../data/routineView';
+import { getCalendarMonth, setCalendarMonth, setCalendarShown } from '../data/routineView';
 import { RoutineContent } from '../components/RoutineContent';
 import { clearRoutinePost } from '../data/reminders';
 import { clearShowcasePost, peekShowcasePost, SEARCH_MIN, searchShowcases, type ShowcaseHit } from '../data/showcase';
@@ -183,7 +183,18 @@ export default function FeedScreen() {
   const [calendarHeight, setCalendarHeight] = useState(0);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const calendarOpenRef = useRef(false);
+  /** Ein Schritt weiter auf: zu → Woche → Monat */
+  const calendarStep = () => {
+    if (!calendarOpenRef.current) showCalendar(true);
+    else setCalendarMonth(true);
+  };
+  /** Ein Schritt zurück: Monat → Woche → zu */
+  const calendarBack = () => {
+    if (getCalendarMonth()) setCalendarMonth(false);
+    else showCalendar(false);
+  };
   const showCalendar = (show: boolean) => {
+    if (!show) setCalendarMonth(false);
     if (calendarOpenRef.current === show) return;
     calendarOpenRef.current = show;
     setCalendarOpen(show);
@@ -197,16 +208,25 @@ export default function FeedScreen() {
     }).start();
   };
   // Verlässt man den Feed, gilt der Kalender als zu, damit der Kater auf der eigenen Routine-Seite nicht fehlt
-  useEffect(() => () => setCalendarShown(false), []);
+  useEffect(
+    () => () => {
+      setCalendarShown(false);
+      setCalendarMonth(false);
+    },
+    [],
+  );
   const showCalendarRef = useRef(showCalendar);
   showCalendarRef.current = showCalendar;
+  const calendarStepRef = useRef({ step: calendarStep, back: calendarBack });
+  calendarStepRef.current = { step: calendarStep, back: calendarBack };
   // Senkrecht über den Umschaltern wischen: nach unten Kalender auf, nach oben zu. Tippen bleibt bei den Umschaltern.
   const switchPan = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponderCapture: (_e, g) => routineActiveRef.current && Math.abs(g.dy) > 12 && Math.abs(g.dy) > Math.abs(g.dx) * 1.5,
       onPanResponderRelease: (_e, g) => {
-        if (g.dy > 24) showCalendarRef.current(true);
-        else if (g.dy < -24) showCalendarRef.current(false);
+        // Nach unten: zu → Woche → Monat; nach oben zurück (Daria, 2026-11-14)
+        if (g.dy > 24) calendarStepRef.current.step();
+        else if (g.dy < -24) calendarStepRef.current.back();
       },
     }),
   ).current;
@@ -277,6 +297,18 @@ export default function FeedScreen() {
     const dy = now.y - start.y;
     const dx = now.x - start.x;
     if (!(dy >= PULL_SEARCH && dy > Math.abs(dx) * 1.5)) return;
+    // Routine: Ein kurzer Zug klappt den Kalender einen Schritt weiter auf (Woche, dann Monat), ein langer holt
+    // zusätzlich den Kopf und zeigt den ganzen Monat (Daria, 2026-11-14)
+    if (routineActiveRef.current) {
+      if (!start.search) {
+        start.search = true;
+        calendarStep();
+      }
+      if (dy < PULL_HEADER) return;
+      pullStart.current = null;
+      reveal();
+      return;
+    }
     if (searchHiddenRef.current && !start.search) {
       start.search = true;
       revealSearch();
@@ -287,8 +319,6 @@ export default function FeedScreen() {
     reveal();
   };
   const revealSearch = () => {
-    // In der Routine kommt beim Aufziehen der Kalender hinter den Umschaltern hervor (Daria, 2026-11-14)
-    if (routineActiveRef.current) showCalendar(true);
     if (searchHiddenRef.current) animateSearch(true);
   };
   // Ganz oben weiter nach oben ziehen: Kopf zurück, in „My Structure“ auch der große Umschalter (2026-11-12)
@@ -581,6 +611,7 @@ export default function FeedScreen() {
     if (!routineActiveRef.current) return;
     setMeSwitchOpen(true);
     showCalendar(true);
+    setCalendarMonth(true);
   };
   // Nur in „My Structure“ (Routine) verschwindet der große Umschalter. In „My Feed“ und allen anderen Feeds
   // (Gruppe, Kiez, Überall) bleibt er sichtbar (Entscheidung 12.11.2026, ersetzt die frühere Regel „nur in My Feed“).
