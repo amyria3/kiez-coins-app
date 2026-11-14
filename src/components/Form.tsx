@@ -140,10 +140,12 @@ export function ChipGroup({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Kennzeichnung für Pflichtangaben: Stern in color/accent/primary */
+/** Kennzeichnung für Pflichtangaben: Stern in der Akzentfarbe des Themes */
 export function RequiredMark() {
+  // Farbe des Themes (Daria, 2026-11-14): Lila, in Happy Gelb, in Functional Gelbgrün
+  const accent = useAccentColor();
   return (
-    <Text style={styles.required} accessibilityLabel={t('Pflichtfeld')}>
+    <Text style={{ color: accent }} accessibilityLabel={t('Pflichtfeld')}>
       {' *'}
     </Text>
   );
@@ -261,6 +263,7 @@ const KNOB = 26;
  * der Knopf ist ein heller Glastropfen und gleitet federnd hinüber.
  */
 function GlassSwitch({ label, value, onValueChange }: { label: string; value: boolean; onValueChange: (v: boolean) => void }) {
+  const on = useFocusColor();
   const x = useRef(new Animated.Value(value ? 1 : 0)).current;
   useEffect(() => {
     Animated.spring(x, { toValue: value ? 1 : 0, useNativeDriver: true, friction: 6, tension: 80 }).start();
@@ -276,7 +279,7 @@ function GlassSwitch({ label, value, onValueChange }: { label: string; value: bo
     >
       <Glass
         variant="regular"
-        tint={value ? color.accent.primary : undefined}
+        tint={value ? on : undefined}
         interactive
         style={styles.glassTrack}
       >
@@ -290,14 +293,15 @@ function GlassSwitch({ label, value, onValueChange }: { label: string; value: bo
 
 /** Figma „RadioOption“ (Selected?) */
 export function RadioOption({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  const accent = useAccentColor();
   return (
     <Pressable
       accessibilityRole="radio"
       accessibilityState={{ selected }}
       onPress={onPress}
-      style={[styles.radioOption, selected && styles.radioOptionSelected]}
+      style={[styles.radioOption, selected && { borderColor: accent }]}
     >
-      <View style={[styles.radio, selected && styles.radioSelected]}>{selected ? <View style={styles.dot} /> : null}</View>
+      <View style={[styles.radio, selected && { borderColor: accent }]}>{selected ? <View style={[styles.dot, { backgroundColor: accent }]} /> : null}</View>
       <Text style={[text.body, styles.flex, { color: color.text.primary }]}>{label}</Text>
     </Pressable>
   );
@@ -305,14 +309,15 @@ export function RadioOption({ label, selected, onPress }: { label: string; selec
 
 /** Wie `RadioOption`, für Mehrfachauswahl: eckiges Kästchen mit Haken. */
 export function CheckOption({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  const accent = useAccentColor();
   return (
     <Pressable
       accessibilityRole="checkbox"
       accessibilityState={{ checked: selected }}
       onPress={onPress}
-      style={[styles.radioOption, selected && styles.radioOptionSelected]}
+      style={[styles.radioOption, selected && { borderColor: accent }]}
     >
-      <View style={[styles.checkbox, selected && styles.checkboxSelected]}>
+      <View style={[styles.checkbox, selected && { borderColor: accent, backgroundColor: accent }]}>
         {selected ? <Icon name="check" size={14} color={color.bg.screen} /> : null}
       </View>
       <Text style={[text.body, styles.flex, { color: color.text.primary }]}>{label}</Text>
@@ -615,7 +620,6 @@ const styles = StyleSheet.create({
   link: { textDecorationLine: 'underline', color: color.text.primary },
   field: { gap: space[6] },
   fieldLabel: { ...text.caption, color: color.text.secondary },
-  required: { color: color.accent.primary },
   input: {
     ...text.body,
     color: color.text.primary,
@@ -681,7 +685,6 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     backgroundColor: color.bg.surface,
   },
-  radioOptionSelected: { borderColor: color.accent.primary },
   radio: {
     width: 20,
     height: 20,
@@ -691,8 +694,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  radioSelected: { borderColor: color.accent.primary },
-  dot: { width: 10, height: 10, borderRadius: radius.full, backgroundColor: color.accent.primary },
+  dot: { width: 10, height: 10, borderRadius: radius.full },
   checkbox: {
     width: 20,
     height: 20,
@@ -702,7 +704,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  checkboxSelected: { borderColor: color.accent.primary, backgroundColor: color.accent.primary },
   copyField: {
     flexDirection: 'row',
     alignItems: 'center',

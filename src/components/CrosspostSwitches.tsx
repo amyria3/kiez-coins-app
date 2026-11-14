@@ -23,6 +23,7 @@ import { useFeature } from '../data/freischaltung';
 import { errorText } from '../data/remote';
 import { t } from '../data/texts';
 import { color, radius, space, stroke, text } from '../theme/tokens';
+import { useAccentColor } from '../theme/signal';
 
 const HOW_TO: Record<LivePlatform, string> = {
   bluesky:
@@ -165,6 +166,8 @@ function PlatformSwitch({
   const [open, setOpen] = useState(false);
   // Verbundenes Konto neu verbinden: dieselbe Einrichtung, das neue Konto ersetzt das alte
   const [reconnect, setReconnect] = useState(false);
+  // Akzent des Themes (Daria, 2026-11-14)
+  const accent = useAccentColor();
   // Wie viele Schritte schon zu sehen sind; 0: noch nicht losgelegt
   const [shown, setShown] = useState(0);
   const [first, setFirst] = useState('');
@@ -266,7 +269,7 @@ function PlatformSwitch({
           <Pressable
             accessibilityRole="button"
             onPress={() => (reconnect ? (setReconnect(false), setShown(0)) : manage())}
-            style={({ pressed }) => [styles.chip, reconnect && styles.chipOn, pressed && styles.pressed]}
+            style={({ pressed }) => [styles.chip, reconnect && { backgroundColor: accent, borderColor: accent }, pressed && styles.pressed]}
           >
             <Text style={[styles.chipText, reconnect && styles.chipTextOn]}>Trennen oder neu verbinden</Text>
           </Pressable>
@@ -380,7 +383,6 @@ const styles = StyleSheet.create({
     borderWidth: stroke.thin,
     borderColor: color.text.secondary,
   },
-  chipOn: { backgroundColor: color.accent.primary, borderColor: color.accent.primary },
   chipText: { ...text.caption, color: color.text.primary },
   chipTextOn: { color: color.text.onAccent },
   pressed: { opacity: 0.7 },

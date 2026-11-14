@@ -39,6 +39,7 @@ import type { ImageSource } from '../../../data/types';
 import { useGoBack } from '../../../lib/goBack';
 import { shareText } from '../../../lib/share';
 import { color, font, radius, space, text } from '../../../theme/tokens';
+import { useAccentColor } from '../../../theme/signal';
 
 /**
  * Route `schaufenster/[id]/bearbeiten` (Daria, 2026-11-10): nur die Gründer:in. Angaben, Bilder, Sichtbarkeit,
@@ -59,6 +60,8 @@ export default function EditShowcase() {
   const [servicesCollapsed, setServicesCollapsed] = useState(false);
   // Hintergrund der öffentlichen Seite (Daria, 2026-11-10); leer = Standard
   const [bgColor, setBgColor] = useState('');
+  // Akzent des Themes (Daria, 2026-11-14)
+  const accent = useAccentColor();
   const [visibility, setVisibility] = useState<Visibility>('public');
   // Eigene Adresse und Angaben für Suchmaschinen (Daria, 2026-11-11, Migration 20261111000200)
   const [slug, setSlug] = useState('');
@@ -268,7 +271,7 @@ export default function EditShowcase() {
             accessibilityState={{ selected: !bgColor }}
             accessibilityLabel={t('Standard')}
             onPress={() => setBgColor('')}
-            style={[styles.swatch, styles.swatchDefault, !bgColor && styles.swatchOn]}
+            style={[styles.swatch, styles.swatchDefault, !bgColor && [styles.swatchOn, { borderColor: accent }]]}
           >
             <Text style={styles.swatchText}>Standard</Text>
           </Pressable>
@@ -279,7 +282,7 @@ export default function EditShowcase() {
               accessibilityState={{ selected: bgColor.toUpperCase() === c.hex }}
               accessibilityLabel={t(c.name)}
               onPress={() => setBgColor(c.hex)}
-              style={[styles.swatch, { backgroundColor: c.hex }, bgColor.toUpperCase() === c.hex && styles.swatchOn]}
+              style={[styles.swatch, { backgroundColor: c.hex }, bgColor.toUpperCase() === c.hex && [styles.swatchOn, { borderColor: accent }]]}
             />
           ))}
         </View>
@@ -534,7 +537,7 @@ const styles = StyleSheet.create({
   swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
   swatch: { width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: color.text.secondary },
   swatchDefault: { width: 'auto', paddingHorizontal: space[12], justifyContent: 'center', backgroundColor: color.bg.surface },
-  swatchOn: { borderWidth: 3, borderColor: color.accent.primary },
+  swatchOn: { borderWidth: 3 },
   swatchText: { ...text.caption, color: color.text.primary },
   address: { ...text.body, color: color.text.primary },
   search: { gap: space[2], padding: space[12], borderRadius: radius.md, backgroundColor: color.bg.surface },

@@ -9,6 +9,7 @@ import { SubScreen } from '../components/Screen';
 import { errorText, loadAppTexts, saveAppText, type AppTextLang, type AppTextRow } from '../data/remote';
 import { bundledTranslation, languages, loadTexts, normalizeText, t, type Lang } from '../data/texts';
 import { color, radius, space, stroke, text } from '../theme/tokens';
+import { useAccentColor } from '../theme/signal';
 
 // Seiten der App (Daria, 22.10.2026). Zuordnung: src/data/textSeiten.json, erzeugt von scripts/text-pages.mjs.
 // Texte, die auf mehreren Seiten stehen, haben eine eigene Gruppe: Eine Änderung gilt dann überall.
@@ -87,6 +88,8 @@ export default function Texte() {
   const [sort, setSort] = useState<Sort>('kurz');
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState<string>();
+  // Akzent des Themes (Daria, 2026-11-14)
+  const accent = useAccentColor();
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
   // Sprache, die der Editor zeigt und ändert
@@ -224,7 +227,7 @@ export default function Texte() {
           {section.rows.map((row) => {
             const isOpen = open === row.original;
             return (
-              <View key={row.original} style={[styles.card, isOpen && styles.cardOpen]}>
+              <View key={row.original} style={[styles.card, isOpen && { borderColor: accent }]}>
                 <Pressable onPress={() => edit(row)} accessibilityRole="button" accessibilityState={{ expanded: isOpen }}>
                   {/* RawText: Inhalte nicht in die Sprache der App übersetzen */}
                   <RawText style={styles.value} numberOfLines={isOpen ? undefined : 3}>
@@ -268,7 +271,6 @@ const styles = StyleSheet.create({
     borderWidth: stroke.thin,
     borderColor: 'transparent',
   },
-  cardOpen: { borderColor: color.accent.primary },
   value: { ...text.body, color: color.text.primary },
   meta: { ...text.caption, color: color.text.secondary, marginTop: space[4] },
   editor: { gap: space[12], paddingTop: space[8] },

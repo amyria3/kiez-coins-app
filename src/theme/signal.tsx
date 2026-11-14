@@ -5,6 +5,11 @@ import { color } from './tokens';
 
 /**
  * Bereich, in dem man gerade ist (Daria, 2026-11-13): eine Quelle für die Signalfarben statt mehrerer Schalter.
+ * Drei Themes (Daria, 2026-11-14), der Bereich wählt sie, nicht die Person:
+ * - Friendship (Standard, `public` und `group`): Knöpfe Lila, Schalter und Fokus Gelbgrün.
+ * - Happy (`me`): Knöpfe, Schalter und Fokus Gelb.
+ * - Functional (`functional`): Seiten unter dem Menü (Konto, Funktionen, Schaufenster verwalten, Moderation, Texte).
+ *   Knöpfe, Schalter und Fokus Gelbgrün wie das Menü-Icon.
  * - `me`: „Me & Myself“ (My Structure, My Feed) und Erstellen unter „Privat“. Signalfarbe Gelb.
  * - `public`: Kiez und Überall. Signalfarbe Lila.
  * - `group`: Gruppen. Signalfarbe Lila.
@@ -12,7 +17,7 @@ import { color } from './tokens';
  * Hauptbuttons, Fokusrahmen, Suchfeld, Erstellen. So wechseln alle Farben im selben Moment.
  * Nur im Look „Kiez“; „Fashionable“ bleibt bei Lila.
  */
-export type Space = 'me' | 'public' | 'group';
+export type Space = 'me' | 'public' | 'group' | 'functional';
 
 const SpaceContext = createContext<Space>('public');
 
@@ -24,8 +29,9 @@ export function useSpace(): Space {
 
 /** Farben eines Bereichs: Akzent (gewählte Knöpfe, Hauptbuttons) und Fokus (Rahmen, Cursor, eingeschaltete Schalter) */
 export function spaceColors(space: Space): { accent: string; focus: string } {
-  const me = space === 'me' && true;
-  return { accent: me ? color.accent.private : color.accent.primary, focus: me ? color.accent.private : color.accent.focus };
+  if (space === 'me') return { accent: color.accent.private, focus: color.accent.private };
+  if (space === 'functional') return { accent: color.accent.functional, focus: color.accent.functional };
+  return { accent: color.accent.primary, focus: color.accent.focus };
 }
 
 /** Kurzform für Stellen, die nur „privat oder nicht“ kennen, z. B. das Erstellen-Blatt unter „Privat“ */
@@ -80,6 +86,27 @@ export function MeSpaceScreen({ children }: { children: ReactNode }) {
   useFocusEffect(useCallback(() => pushFrontSpace('me'), []));
   return <SpaceContext.Provider value="me">{children}</SpaceContext.Provider>;
 }
+/**
+ * Routen mit Theme „Functional“ (Daria, 2026-11-14): alles unter Dein Konto außer Freundschaften (bleibt Friendship),
+ * Schaufenster verwalten und bearbeiten, Moderation, Texte. Die öffentliche Schaufenster-Seite bleibt Friendship.
+ */
+export function isFunctionalRoute(name: string): boolean {
+  if (name === 'account/friends') return false;
+  return (
+    name.startsWith('account/') ||
+    name === 'schaufenster/index' ||
+    name === 'schaufenster/[id]/bearbeiten' ||
+    name === 'moderation' ||
+    name === 'texts'
+  );
+}
+
+/** Seite mit Theme „Functional“, auch für Dialoge über der Seite. Das Root-Layout setzt sie je Route (isFunctionalRoute). */
+export function FunctionalSpaceScreen({ children }: { children: ReactNode }) {
+  useFocusEffect(useCallback(() => pushFrontSpace('functional'), []));
+  return <SpaceContext.Provider value="functional">{children}</SpaceContext.Provider>;
+}
+
 export function useFrontSpace(): Space {
   return useSyncExternalStore(
     (l) => {

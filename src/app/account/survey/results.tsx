@@ -10,6 +10,7 @@ import { surveyQuestions, type SurveyResults } from '../../../data/survey';
 import { formatRelative } from '../../../data/format';
 import { t } from '../../../data/texts';
 import { color, radius, space, text } from '../../../theme/tokens';
+import { useAccentColor } from '../../../theme/signal';
 import { useGoBack } from '../../../lib/goBack';
 
 /**
@@ -20,6 +21,8 @@ import { useGoBack } from '../../../lib/goBack';
 export default function SurveyResultsScreen() {
   const goBack = useGoBack();
   const [data, setData] = useState<SurveyResults>();
+  // Akzent des Themes (Daria, 2026-11-14)
+  const accent = useAccentColor();
   // Rückmeldung zur Tour (Migration 20261029000300). Ohne Migration bleibt die Karte weg.
   const [tour, setTour] = useState<TourFeedbackResults | null>(null);
   // Welcher Kamera-Knopf häufiger gedrückt wird (Migration 20261031000100). Ohne Migration bleibt die Karte weg.
@@ -64,7 +67,7 @@ export default function SurveyResultsScreen() {
                   <Text style={styles.caption}>{`${n} · ${share} %`}</Text>
                 </View>
                 <View style={styles.track}>
-                  <View style={[styles.bar, { width: `${share}%` }]} />
+                  <View style={[styles.bar, { width: `${share}%`, backgroundColor: accent }]} />
                 </View>
               </View>
             );
@@ -95,7 +98,7 @@ export default function SurveyResultsScreen() {
                   <Text style={styles.caption}>{`${n} · ${share} %`}</Text>
                 </View>
                 <View style={styles.track}>
-                  <View style={[styles.bar, { width: `${share}%` }]} />
+                  <View style={[styles.bar, { width: `${share}%`, backgroundColor: accent }]} />
                 </View>
               </View>
             );
@@ -122,7 +125,7 @@ export default function SurveyResultsScreen() {
                   <Text style={styles.caption}>{`${n} · ${share} %`}</Text>
                 </View>
                 <View style={styles.track}>
-                  <View style={[styles.bar, { width: `${share}%` }]} />
+                  <View style={[styles.bar, { width: `${share}%`, backgroundColor: accent }]} />
                 </View>
               </View>
             );
@@ -165,5 +168,5 @@ const styles = StyleSheet.create({
   comment: { gap: space[4], paddingTop: space[12], borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.line.hairline },
   rowText: { flexDirection: 'row', gap: space[8], alignItems: 'baseline' },
   track: { height: 6, borderRadius: radius.full, backgroundColor: color.bg.screen, overflow: 'hidden' },
-  bar: { height: 6, borderRadius: radius.full, backgroundColor: color.accent.primary },
+  bar: { height: 6, borderRadius: radius.full },
 });
