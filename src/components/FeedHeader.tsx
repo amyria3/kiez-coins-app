@@ -33,6 +33,9 @@ export function AppHeader(props: AppHeaderProps) {
   return <KiezHeader {...props} />;
 }
 
+/** Tippfläche ums Logo auf mindestens 44 pt Höhe (Logo 28 hoch) */
+const LOGO_SLOP = { top: 8, bottom: 8, left: 8, right: 8 };
+
 function KiezHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) {
   return (
     <View style={styles.header}>
@@ -42,6 +45,7 @@ function KiezHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) 
         accessibilityRole="button"
         accessibilityLabel={hasTasks ? t('Was Du so machst, Du bist dran') : t('Was Du so machst')}
         style={styles.logo}
+        hitSlop={LOGO_SLOP}
       >
         {/* Logo mit Kater links (Daria, 2026-11-12: neues Logo); der Punkt sitzt am Kater */}
         <View>
@@ -49,7 +53,6 @@ function KiezHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) 
           {hasTasks ? <View style={[styles.taskDot, styles.taskDotLogo]} /> : null}
         </View>
       </Pressable>
-      <View style={styles.spacer} />
     </View>
   );
 }
@@ -686,9 +689,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: space[16],
-    paddingVertical: space[8],
+    // Logo dicht über der Begrüßung, Begrüßung mit mehr Luft zu den Umschaltern (Daria, 2026-11-15).
+    // Die Zeile ist nur so hoch wie das Logo; die Tippfläche vergrößert hitSlop.
+    paddingTop: space[8],
+    paddingBottom: space[8],
   },
-  spacer: { width: size.touchTarget, height: size.touchTarget },
   logo: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
   taskDot: {
     position: 'absolute',
@@ -701,7 +706,7 @@ const styles = StyleSheet.create({
     borderWidth: stroke.thin,
     borderColor: color.bg.screen,
   },
-  greeting: { paddingHorizontal: space[16], paddingTop: space[12], paddingBottom: space[8], gap: space[4] },
+  greeting: { paddingHorizontal: space[16], paddingTop: space[4], paddingBottom: space[16], gap: space[4] },
   greetingTitle: { ...text.display, color: color.text.primary },
   // Ansprache in der Unbounded wie Namen und Hashtags über dem Foto (Daria, 09.11.2026)
   greetingName: { fontFamily: font.onPhoto, letterSpacing: 0 },
