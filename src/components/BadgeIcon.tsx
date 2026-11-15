@@ -11,7 +11,7 @@ import { KIEZ_BADGE_SVGS } from './icons/badgeSvgs';
  * Icons (Daria, 2026-11-02), der Fashionable Look noch die Platzhalter.
  * Jedes Symbol hat in der App nur diese eine Bedeutung.
  */
-const INK = '#1F2123';
+const INK = color.badgeInk;
 const svg = (inner: string) =>
   `<svg viewBox="0 0 24 24" fill="none" stroke="${INK}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
 

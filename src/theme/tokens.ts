@@ -60,6 +60,25 @@ const swatch = {
   schalterAus: '#45466F',
   schalterAusOlive: '#525837',
   schalterAusSenf: '#585137',
+  /** Reines Weiß: Rand der Herzen, Schrift auf Fotos beim Beschriften, Blatt der Textposts */
+  weiss: '#FFFFFF',
+  /** Fast Schwarz mit kühlem Ton: Schrift auf hellen Flächen (Systemmeldung, Abzeichen-Icon) */
+  nacht: '#1F2123',
+  /** Kräftiges Gelbgrün der Krabbe, gleicher Farbton wie gelbgruen (Daria, 2026-11-11) */
+  limette: '#DDFF33',
+  /** Dunkles Lila, deckend: Sprechblase des Katers über anderem Inhalt */
+  lilaNacht: '#3B3B55',
+  /** Helles Flieder: Kreuz in der Kater-Blase, Uhr und Text der Routine-Pille */
+  flieder: '#C9C9FF',
+  /** Dunkles Grün: inaktive Punkte in der Finanzübersicht */
+  waldgruen: '#547E49',
+  /** Textposts (Blätter): Schrift, gedämpfte Schrift und Links */
+  blattTinte: '#232326',
+  blattTinteMatt: '#AB7C8A',
+  blattLink: '#E8590C',
+  /** Platzhalter-Schaufenster: Kater-Maske und schwarzer Kreis dahinter */
+  maske: '#F0F0F0',
+  schwarz: '#000000',
 } as const;
 
 /** Farbe „#RRGGBB“ mit Deckkraft `a` (0 … 1) als rgba */
@@ -166,6 +185,43 @@ export const color = {
     /** Kalendertage ohne Eintrag und die Schraffur ausgefallener Tage */
     day: withAlpha(kiezPalette.white, 0.08),
     hatch: withAlpha(kiezPalette.white, 0.16),
+    /** Uhr und Text der Routine-Pille */
+    pill: swatch.flieder,
+  },
+  /** Systemmeldungen und Antworten (Frage und Krabbe): gelbgrüne Fläche mit dunkler Schrift */
+  system: {
+    bg: swatch.gelbgruen,
+    text: swatch.nacht,
+    crab: swatch.limette,
+  },
+  /** Sprechblase des Katers */
+  kater: {
+    bubbleSolid: swatch.lilaNacht,
+    close: swatch.flieder,
+  },
+  /** Herzen (Likes, Herzen in der Brille): Grün mit weißem Rand */
+  heart: {
+    fill: palette.green,
+    outline: swatch.weiss,
+  },
+  /** Textposts als Blätter (TextSheets, Teilen-Bilder) */
+  sheet: {
+    paper: swatch.weiss,
+    ink: swatch.blattTinte,
+    inkMuted: swatch.blattTinteMatt,
+    link: swatch.blattLink,
+  },
+  /** Schrift, die man direkt auf ein Foto schreibt */
+  photoText: swatch.weiss,
+  /** Schwarze Linien in Abzeichen-Icons */
+  badgeInk: swatch.nacht,
+  /** Inaktive Punkte in der Finanzübersicht */
+  financeDotInactive: swatch.waldgruen,
+  /** Platzhalter für ein leeres Schaufenster */
+  showcasePlaceholder: {
+    cover: [palette.purple, palette.pink, palette.orange] as const,
+    mask: swatch.maske,
+    circle: swatch.schwarz,
   },
   /** An/Aus-Schalter im Kiez-Look */
   toggle: {

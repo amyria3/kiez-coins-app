@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 
 import { Text } from './T';
 import { t } from '../data/texts';
+import { size, space } from '../theme/tokens';
 
 /**
  * Zahl neben dem Herz als eigener Knopf: öffnet, wer den Post geliked hat (Daria, 2026-11-05).
@@ -18,7 +19,7 @@ export function LikeCount({ challengeId, count, style }: { challengeId: string; 
       onPress={() => router.push({ pathname: '/challenge/[id]/likes', params: { id: challengeId } })}
       hitSlop={{ top: 12, bottom: 12, left: 4, right: 12 }}
       // Rechts so viel Luft wie früher im gemeinsamen Knopf
-      style={({ pressed }) => [{ minHeight: 44, justifyContent: 'center', paddingRight: 6 }, pressed ? { opacity: 0.6 } : null]}
+      style={({ pressed }) => [{ minHeight: size.touchTarget, justifyContent: 'center', paddingRight: space[6] }, pressed ? { opacity: 0.6 } : null]}
     >
       <Text style={style}>{count}</Text>
     </Pressable>

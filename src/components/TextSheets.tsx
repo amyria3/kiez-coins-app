@@ -36,12 +36,12 @@ export const MAX_PAGES = 10;
 /** Höhe zu Breite */
 export const SHEET_RATIO = 5 / 4;
 /** Blatt: reines Weiß (Daria, 07.11.2026, vorher #FFF8ED) */
-export const PAPER = '#FFFFFF';
-export const INK = '#232326';
+export const PAPER = color.sheet.paper;
+export const INK = color.sheet.ink;
 /** Gedämpfte Schrift auf dem Blatt (Seitenzahl, Platzhalter): dunkles Puder, Farbton 342° wie die Schrift der App, kein Grau (Daria, 2026-11-11). Vorher #8E8E93 */
-export const INK_MUTED = '#AB7C8A';
+export const INK_MUTED = color.sheet.inkMuted;
 /** Links und @Namen: kräftiges Orange ohne Braunstich (Daria, 07.11.2026, vorher Lila #5B5CD6) */
-export const INK_LINK = '#E8590C';
+export const INK_LINK = color.sheet.link;
 
 export function sheetMetrics(width: number, fontKey?: string) {
   // fontKey: Schrift, dazu wahlweise Größe und Ausrichtung (data/sheetFonts.ts)

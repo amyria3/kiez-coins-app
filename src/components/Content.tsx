@@ -13,9 +13,9 @@ import { KATER_AVATAR_GELB, katerAvatarSvg, katerHerzenSvg } from './icons/kater
 import { IconButton } from './IconButton';
 
 // Systemmeldungen als hellblaue Chatblase der App, wie die Antworten auf die Fragen; Icon dunkel wie der Text, nur bei Warnungen (Daria, 2026-11-09)
-const SKY_TEXT = '#1F2123';
+const SKY_TEXT = color.system.text;
 /** Fläche der Systemmeldungen im Kiez-Look: probeweise das Gelbgrün aus dem Kreis hinter dem Kater (Cat.svg, Startbild) statt Himmelblau #A9DBFF (Daria, 2026-11-09) */
-const SKY_BG = '#F0FFA6';
+const SKY_BG = color.system.bg;
 /**
  * Nur Hinweise im Feed: grau in der Kartenfarbe, ohne Rand, helle Schrift (Daria, 2026-11-12). Das Gelbgrün mit 80 %
  * wurde dort neben dem hellen Switch zu Olive. Alle übrigen Systemblasen bleiben gelbgrün.
@@ -317,7 +317,7 @@ const KRABBE_BREITE = 28;
  * Grüner Körper statt Lila (Daria, 2026-11-11): Lila tragen die eigenen Nachrichten, die Krabbe hebt sich davon ab.
  * Derselbe Farbton wie die Systemblase (SKY_BG, Gelbgrün 70°), nur kräftiger (Daria, 2026-11-11: „gleiche Farbe, nur andere Intensität“).
  */
-const KRABBE_GRUEN = '#DDFF33';
+const KRABBE_GRUEN = color.system.crab;
 const KRABBE_FARBE: Record<number, string> = {
   1: color.text.primary,
   2: color.bg.screen,
@@ -534,8 +534,8 @@ export function InfoRow({ icon, value, placeholder }: { icon: IconName; value: s
 /** Lila hell in der Farbe des Katers, nicht grün wie die Systemblasen der Krabbe (Daria, 2026-11-11) */
 const KATER_BLASE = withAlpha(color.accent.primary, 0.22);
 /** Derselbe Ton deckend, für Blasen, die über anderem Inhalt schweben (lila hell auf dem Grund #232326) */
-const KATER_BLASE_DECKEND = '#3B3B55';
-const KATER_KREUZ = '#C9C9FF';
+const KATER_BLASE_DECKEND = color.kater.bubbleSolid;
+const KATER_KREUZ = color.kater.close;
 /** Etwas größer als ein Profilbild in der Liste (Daria, 2026-11-11) */
 const KATER_AVATAR = 44;
 
@@ -748,7 +748,7 @@ const styles = StyleSheet.create({
   sectionLabel: { ...text.displaySm, color: color.text.primary, marginTop: space[16] },
   sectionBlock: { gap: space[12] },
   collapseHead: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: space[12] },
-  collapseIcon: { paddingBottom: 2 },
+  collapseIcon: { paddingBottom: space[2] },
   collapseIconOpen: { transform: [{ rotate: '90deg' }] },
   qaOpen: { paddingBottom: CHAT_GAP_CHANGE - CHAT_GAP_SAME },
   afterSame: { marginTop: CHAT_GAP_SAME },
@@ -808,7 +808,7 @@ const styles = StyleSheet.create({
   link: { textDecorationLine: 'underline' },
   noticeClose: { marginVertical: -10, marginRight: -10, marginLeft: -4 },
   noticeTextSky: { ...text.body, color: SKY_TEXT, flexGrow: 0, flexShrink: 1, flexBasis: 'auto' },
-  answerTextSky: { color: '#1F2123' },
+  answerTextSky: { color: SKY_TEXT },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 24 },
   iconBox: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
   infoText: { ...text.body, color: color.text.primary, flex: 1 },

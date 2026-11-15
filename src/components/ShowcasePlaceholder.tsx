@@ -12,7 +12,7 @@ import { Text } from './T';
  */
 
 /** Verlauf aus den Markenfarben Lila, Rosa, Pfirsich, wie auf kiezcoins.de/s/<kurzname> */
-export const COVER_GRADIENT = ['#8F90FA', '#FFB2E5', '#FFAD7E'] as const;
+export const COVER_GRADIENT = color.showcasePlaceholder.cover;
 
 /** Darias Kater-Maske (Cat-Avatar-Mask.svg), 35 × 31 */
 export const KATER_MASKE =
@@ -51,7 +51,7 @@ export function ShowcaseLogo({ image, size, style }: { image?: ImageSource; size
   return (
     <View style={[round, style, styles.katerKreis]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       <Svg width={w} height={(w * 31) / 35} viewBox="0 0 35 31">
-        <Path d={KATER_MASKE} fill="#F0F0F0" />
+        <Path d={KATER_MASKE} fill={color.showcasePlaceholder.mask} />
       </Svg>
     </View>
   );
@@ -81,7 +81,7 @@ export function PlaceholderText({ children }: { children: string }) {
 const styles = StyleSheet.create({
   clip: { overflow: 'hidden' },
   // Schwarz in beiden Looks (Daria, 2026-11-11)
-  katerKreis: { backgroundColor: '#000000', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  katerKreis: { backgroundColor: color.showcasePlaceholder.circle, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   post: {
     borderRadius: radius.post,
     borderWidth: 1,

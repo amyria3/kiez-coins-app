@@ -19,7 +19,7 @@ export function RoutinePill({ label }: { label: string }) {
   );
 }
 
-const TINT = '#C9CAFF';
+const TINT = color.routine.pill;
 
 const styles = StyleSheet.create({
   pill: {

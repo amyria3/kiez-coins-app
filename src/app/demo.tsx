@@ -9,7 +9,7 @@ import { SubScreen } from '../components/Screen';
 import { useAuth } from '../data/auth';
 import { useStore } from '../data/store';
 import type { FeedState } from '../data/types';
-import { color, text } from '../theme/tokens';
+import { color, space, text } from '../theme/tokens';
 import { useGoBack } from '../lib/goBack';
 
 // prototyp-only: Nicht Teil des Figma-Designs. Ersetzt Push-Benachrichtigungen und zeigt auf Wunsch
@@ -126,6 +126,6 @@ export default function DemoMenu() {
 }
 
 const styles = StyleSheet.create({
-  list: { gap: 8 },
+  list: { gap: space[8] },
   empty: { ...text.body, color: color.text.secondary },
 });

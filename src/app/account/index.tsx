@@ -207,5 +207,5 @@ const styles = StyleSheet.create({
   list: { gap: space[8] },
   // Kater ragt 2 pt über den Kreisrand hinaus, damit der Kreis seine Unterkante rund abschneidet
   catBleed: { marginBottom: -2 },
-  villageBleed: { marginBottom: 6, transform: [{ translateX: 4 }] },
+  villageBleed: { marginBottom: space[6], transform: [{ translateX: 4 }] },
 });

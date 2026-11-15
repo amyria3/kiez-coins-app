@@ -3,7 +3,7 @@ import { PanResponder, Platform, StyleSheet, TextInput, View } from 'react-nativ
 
 import type { PhotoText as PhotoTextValue } from '../data/types';
 import { t } from '../data/texts';
-import { radius, space, text } from '../theme/tokens';
+import { color, radius, space, text } from '../theme/tokens';
 import { Text } from './T';
 
 /**
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   },
   text: {
     ...text.photoText,
-    color: '#FFFFFF',
+    color: color.photoText,
     textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.5)',
     textShadowOffset: { width: 0, height: 1 },
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   // Ebene auf dem Foto beim Erstellen: im Browser ohne Markieren und ohne Scrollen beim Ziehen
   layer: Platform.OS === 'web' ? ({ cursor: 'text', userSelect: 'none', touchAction: 'pan-y' } as object) : {},
   labelGrab: Platform.OS === 'web' ? ({ cursor: 'grab', touchAction: 'none' } as object) : {},
-  input: { padding: 0, minWidth: 40, outlineStyle: 'none', caretColor: '#FFFFFF' } as never,
+  input: { padding: 0, minWidth: 40, outlineStyle: 'none', caretColor: color.photoText } as never,
 });
 
 /**
@@ -155,7 +155,7 @@ export function PhotoTextOnPhoto({
               maxLength={PHOTO_TEXT_MAX}
               placeholder={t('Text')}
               placeholderTextColor="rgba(255,255,255,0.7)"
-              selectionColor="#FFFFFF"
+              selectionColor={color.photoText}
               accessibilityLabel={t('Text auf dem Foto')}
               style={[styles.text, styles.input]}
             />

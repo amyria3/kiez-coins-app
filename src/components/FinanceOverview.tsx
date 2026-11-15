@@ -23,7 +23,7 @@ const KNOPF =
 // Farben wie auf kiezcoins…/finanzierung, kein Grau (Daria, 08.11.2026): Aktive blasses Lila, nur Angemeldete gedecktes Grün
 // Aktive im normalen Lila wie auf der Finanzierungsseite (Daria, 2026-11-13)
 const PUNKT_AKTIV = color.accent.primary;
-const PUNKT_INAKTIV = '#547E49';
+const PUNKT_INAKTIV = color.financeDotInactive;
 
 /** Höchstens so viele Punkte; darüber steht ein Punkt für mehrere Personen */
 const MAX_PUNKTE = 600;
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   // Ohne Karte: Die Überschrift „Modell KiezCoins“ steht wie bei den anderen Abschnitten darüber (Daria, 2026-11-10)
   box: { gap: space[12] },
   body: { ...text.body, color: color.text.secondary },
-  bar: { flexDirection: 'row', height: 10, borderRadius: radius.full, overflow: 'hidden', gap: 2 },
+  bar: { flexDirection: 'row', height: 10, borderRadius: radius.full, overflow: 'hidden', gap: space[2] },
   barPart: { height: '100%' },
   barDev: { flex: 3, backgroundColor: color.text.primary },
   // Community in Lila (Daria, 08.11.2026)
@@ -177,5 +177,5 @@ const styles = StyleSheet.create({
   legendText: { ...text.caption, color: color.text.secondary },
   caption: { ...text.caption, color: color.text.secondary },
   link: { ...text.label, color: color.text.primary, textDecorationLine: 'underline' },
-  du: { position: 'absolute', padding: 2, backgroundColor: color.bg.screen },
+  du: { position: 'absolute', padding: space[2], backgroundColor: color.bg.screen },
 });

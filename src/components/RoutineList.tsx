@@ -1530,11 +1530,11 @@ const styles = StyleSheet.create({
     // Weniger rund (Daria, 2026-11-12): vorher 30, dann 16, jetzt Maß aller Karten (2026-11-13)
     borderRadius: radius.md,
     padding: 14,
-    gap: 6,
+    gap: space[6],
   },
-  cardBody: { flex: 1, justifyContent: 'flex-end', gap: 6 },
+  cardBody: { flex: 1, justifyContent: 'flex-end', gap: space[6] },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
-  head: { flex: 1, gap: 2 },
+  head: { flex: 1, gap: space[2] },
   // Platz für den Sticker, der links unter dem Kater herausragt
   // Kater und Sticker als Spalte: Der Sticker hat eigenen Platz und liegt höchstens auf dem Ring
   katerSide: { alignSelf: 'flex-start' },
@@ -1542,7 +1542,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.screen,
     borderRadius: 20,
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: space[4],
     zIndex: 1,
   },
   chipBelow: { marginTop: -5 },
@@ -1575,7 +1575,7 @@ const styles = StyleSheet.create({
     color: INK_SOFT,
     paddingVertical: 11,
   },
-  bar: { flexDirection: 'row', gap: space[4], marginVertical: 2 },
+  bar: { flexDirection: 'row', gap: space[4], marginVertical: space[2] },
   segment: { flex: 1, height: 5, borderRadius: 3, backgroundColor: INK_TRACK },
   segmentDone: { backgroundColor: INK },
   // Buttons mit festem Abstand beieinander; nur „•••“ rückt nach rechts (Daria, 2026-11-13)

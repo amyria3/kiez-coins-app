@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
   intro: { gap: space[2], marginBottom: space[12] },
   thread: { gap: space[8] },
   comment: { flexDirection: 'row', gap: space[12], alignItems: 'flex-start' },
-  reply: { marginLeft: 48, gap: space[8] },
+  reply: { marginLeft: space[48], gap: space[8] },
   footer: { flexDirection: 'row', alignItems: 'center', gap: space[16], paddingTop: space[4] },
   like: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   pressed: { opacity: 0.6 },
