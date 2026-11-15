@@ -1,9 +1,9 @@
 # Aufgaben: Erledigt, Aufgeben, Abbrechen. Schaufenster weiterposten. Tutorial
 
-Pflichtaufgabe: Migration `supabase/migrations/20261113000400_erinnerung_ausgang.sql` im Supabase SQL Editor einspielen (nach `20261110000100_erinnerungen`). Ohne sie enden Erinnerungen weiter, aber „aufgegeben“ und „abgebrochen“ werden nicht gezählt.
+Migration `supabase/migrations/20261113000400_erinnerung_ausgang.sql` ist eingespielt (in der Datenbank geprüft am 2026-11-15: Spalte `reminders.ended_as` vorhanden, erlaubt `given_up`, `cancelled`, `deleted`).
 
 - Datum: 2026-11-13
-- Status: offen, bis die Migration eingespielt ist. Code im PR „Aufgaben-Knöpfe, Schaufenster weiterposten, Tutorial“.
+- Status: umgesetzt und in main (PR #375 und #378), Notiz für die Doku. Offen ist nur noch die Übernahme nach Documentation.
 - Ziel in Documentation: `kiez-coins/ENTSCHEIDUNGEN.md` (Abschnitte „Routine“, „Teilen“, „Tutorial“) und die Datenbank-Doku (Tabelle `reminders`, neue Spalte `ended_as`).
 
 ## Entscheidungen (Daria, 2026-11-13)
