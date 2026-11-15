@@ -17,7 +17,6 @@ import {
   PanResponder,
   Platform,
   RefreshControl,
-  StyleSheet,
   View,
   type GestureResponderEvent,
   type NativeScrollEvent,
@@ -51,32 +50,12 @@ import { runningBeforeAfter, topChallenges as pickTopChallenges, useStore } from
 import { RunningBeforeAfter } from '../components/BeforeAfterTimer';
 import { useFeedViews } from '../data/seen';
 import type { Challenge } from '../data/types';
-import { color, motion, space, text } from '../theme/tokens';
+import { color, motion, space } from '../theme/tokens';
 import { cardSwipe, resetCardSwipe } from '../lib/cardSwipe';
 import { isTouching, touchEnded, touchStarted, whenUntouched } from '../lib/touching';
 import { useIntroDone } from '../lib/intro';
-
-const COMPLETED = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
-
-// Abgeschaltete Typen bleiben sichtbar, wenn es sie in der Datenbank gibt.
-/** Reiter aus dem Parameter `reiter` */
-const TAB_OF_PARAM: Record<string, FeedTab> = { privat: 'private', kiez: 'nearby', ueberall: 'everywhere', gruppen: 'groups' };
-
-function matchesTab(challenge: Challenge, tab: FeedTab, groupId: string | undefined, me: string) {
-  // Entwürfe und gelöschte stehen nur in „Deine Challenges“. Geschlossene bleiben in der Timeline.
-  if (challenge.status === 'draft' || challenge.status === 'deleted') return false;
-  // Privat: nur eigene private Beiträge, und die nur hier (Daria, 27.10.2026)
-  if (tab === 'private') return !!challenge.private && challenge.authorId === me;
-  if (challenge.private) return false;
-  // Gruppenaufgaben nur im Reiter „Gruppen“, dort nur die der gewählten Gruppe
-  if (tab === 'groups') return !!groupId && challenge.groupId === groupId;
-  if (challenge.groupId) return false;
-  if (tab === 'wave') return challenge.type === 'wave';
-  if (tab === 'completed') return COMPLETED.has(challenge.status);
-  // Überall: alles Öffentliche außer „nur im Umkreis“, eigene Beiträge immer (Daria, 29.10.2026)
-  if (tab === 'everywhere') return !challenge.localOnly || challenge.authorId === me;
-  return true;
-}
+import { TAB_OF_PARAM, matchesTab, touchPoint, STORIES, HEADER_HIDE_MS, SEARCH_FADE_MS, PULL_SEARCH, CALENDAR_MS, PULL_HEADER, COMPOSE_HEADER, TAB_ORDER, ME_TABS, SWIPE_DISTANCE, EMPTY_KINDS, FeedItem } from '../components/feed/feedConstants';
+import { styles } from '../components/feed/feedStyles';
 
 /** Beim Start schon entschieden, ob die Routine aufgeht; gilt einmal pro App-Start */
 let startChecked = false;
@@ -1196,85 +1175,3 @@ export default function FeedScreen() {
     </SpaceProvider>
   );
 }
-
-/** Fingerposition; im Browser steht sie nur in `touches`, nicht direkt im Ereignis */
-function touchPoint(e: GestureResponderEvent) {
-  const t = e.nativeEvent.touches?.[0] ?? e.nativeEvent;
-  return { x: t.pageX, y: t.pageY };
-}
-
-/** Stories-Leiste oben im Feed (Top-Challenges, später Videos) */
-const STORIES = false;
-/** Nach so vielen Millisekunden ohne Interaktion gleiten Logo und Begrüßung weg */
-const HEADER_HIDE_MS = 3500;
-/** Suchfeld ein- und ausblenden */
-const SEARCH_FADE_MS = 380;
-/** Zug nach unten ganz oben: ab hier kommt das Suchfeld, ab `PULL_HEADER` der Kopf (Daria, 2026-11-13) */
-const PULL_SEARCH = 24;
-/** Auf- und Zuklappen des Kalenders, etwas ruhiger als das Suchfeld (Daria, 2026-11-14) */
-const CALENDAR_MS = 520;
-const PULL_HEADER = 96;
-/** Höhe des schmalen Kopfs beim Erstellen */
-const COMPOSE_HEADER = 52;
-
-/** Reihenfolge der Reiter, auch für das Wischen: Privat, Gruppe, Kiez, Überall (Daria, 27./29.10.2026) */
-const TAB_ORDER: FeedTab[] = ['private', 'groups', 'nearby', 'everywhere'];
-/** Umschalter in „Me & Myself“: links „My Structure“ (Routine), rechts „My Feed“ (Privat), Daria, 2026-11-12 */
-const ME_TABS: { key: 'structure' | 'private'; label: string }[] = [
-  { key: 'structure', label: 'Meine Struktur' },
-  { key: 'private', label: 'Mein Feed' },
-];
-/** Mindestweg in Punkten, ab dem ein Wischen den Reiter wechselt */
-const SWIPE_DISTANCE = 64;
-
-/** Leere Zustände: stehen als Fuß der Liste, mittig im freien Platz */
-const EMPTY_KINDS = new Set<FeedItem['kind']>(['groupsEmpty', 'groupNoTasks', 'privateEmpty', 'state']);
-
-type FeedItem =
-  | { kind: 'planned' }
-  | { kind: 'audience' }
-  | { kind: 'groupsEmpty' }
-  | { kind: 'groupBar' }
-  | { kind: 'groupNoTasks' }
-  | { kind: 'privateEmpty' }
-  | { kind: 'loading' }
-  | { kind: 'state' }
-  | { kind: 'running'; challenge: Challenge }
-  | { kind: 'post'; challenge: Challenge }
-  | { kind: 'showcase'; hit: ShowcaseHit }
-  | { kind: 'searchEmpty' }
-  | { kind: 'searchError' };
-
-const styles = StyleSheet.create({
-  loading: { alignItems: 'center', paddingVertical: space[48] },
-  screen: { flex: 1, backgroundColor: color.bg.screen },
-  flex: { flex: 1 },
-  clip: { overflow: 'hidden' },
-  // Etwas mehr Abstand zwischen den Posts (Daria, 2026-11-09)
-  list: { gap: space[32] },
-  listTop: { paddingTop: space[8] },
-  listGrow: { flexGrow: 1 },
-  // Unten etwas Luft über der Leiste, oben trennt schon der Abstand der Liste
-  emptyFooter: { flex: 1, justifyContent: 'center', paddingBottom: space[12] },
-  emptyState: { paddingTop: 0 },
-  searchNote: { ...text.body, color: color.text.secondary, paddingHorizontal: space[16], paddingTop: space[8] },
-  composeHeader: { height: COMPOSE_HEADER, flexDirection: 'row', alignItems: 'center', gap: space[4], paddingHorizontal: space[8] },
-  composeLine: { ...text.title, flex: 1, color: color.text.primary },
-  composeSheet: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
-  tabsRowJoined: { paddingTop: 0 },
-  noBrowserPan: Platform.OS === 'web' ? ({ touchAction: 'none' } as object) : {},
-  // Kopf liegt über der Liste, damit das Blatt mit dem Monat sie überdecken kann
-  headerLayer: { zIndex: 10, elevation: 10 },
-  monthLayer: { position: 'absolute', left: 0, right: 0, height: 0 },
-  // Unten 24 plus 8 Abstand der Liste: 32 bis zur ersten Kartenreihe, wie zwischen den Gruppen (Daria, 2026-11-14)
-  calendarSlot: { paddingHorizontal: space[20], paddingTop: space[4], paddingBottom: space[24], backgroundColor: color.bg.screen },
-  tabsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space[8],
-    backgroundColor: color.bg.screen,
-    paddingTop: space[8],
-    paddingBottom: space[8],
-    paddingLeft: space[16],
-  },
-});

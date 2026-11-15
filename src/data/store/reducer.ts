@@ -1,0 +1,500 @@
+
+import { splitCents } from '../coins';
+import * as remote from '../remote';
+import { sampleChallenges, sampleGroups, sampleProfile, sampleUsers } from '../sample';
+import { type Challenge, type ChallengeReport, type Comment, type FeedState, type Group, type ImageSource, type Participant, type ParticipantStatus, type Payout, type PayoutLine, type PayoutShare, type Profile, type User } from '../types';
+import { joinedIds } from '../weChallenge';
+
+
+// Zustand der App. Zwei Betriebsarten:
+// * live: Daten aus Supabase. Jede Aktion ändert sofort den lokalen Stand (damit die App flüssig bleibt)
+//   und wird dann in einer Warteschlange an Supabase geschickt. Danach wird die Challenge neu geladen.
+//   Schlägt etwas fehl, zeigt die App eine Meldung und lädt alles neu.
+// * demo: Beispieldaten aus sample.ts, nur auf dem Gerät. Im Demo-Menü einschaltbar.
+
+export type DataMode = 'live' | 'demo';
+
+export type State = {
+  mode: DataMode;
+  users: User[];
+  challenges: Challenge[];
+  /** Wer gerade die App benutzt. Live: die Supabase-Konto-ID. Demo: im Demo-Menü umschaltbar. */
+  currentUserId: string;
+  feedState: FeedState;
+  /** Grund, wenn der Feed nicht laden konnte (feedState 'error') */
+  feedError?: string;
+  profile: Profile;
+  /** false nach einer bestätigten Meldung „Coins nicht gezahlt“ */
+  canOfferBounties: boolean;
+  /** Eigene Gruppen samt Mitgliedern */
+  groups: Group[];
+  /** Von Dir blockierte Personen: ihre Challenges und Kommentare sind ausgeblendet */
+  blockedIds: string[];
+  /** true, sobald die Daten frisch vom Server kommen (nicht nur aus dem Startspeicher). Formulare warten darauf. */
+  fresh: boolean;
+};
+
+export type Action =
+  | { type: 'accept'; id: string }
+  | { type: 'giveBack'; id: string }
+  /** We-Challenge mit mehreren Personen (Migration 20261028000300) */
+  /** `coords`: eigener Standort, `far`: weiter als 5 km oder ohne Standort, dann nur Anfrage (Daria, 29.10.2026) */
+  | { type: 'join'; id: string; coords?: { latitude: number; longitude: number }; far?: boolean }
+  | { type: 'leave'; id: string }
+  /** Umkreis-Begrenzung an oder aus (Daria, 29.10.2026) */
+  | { type: 'setLocalOnly'; id: string; localOnly: boolean }
+  /** Privat, Kiez oder Überall (Daria, 07.11.2026) */
+  | { type: 'setAudience'; id: string; private: boolean; localOnly: boolean }
+  | { type: 'answerRequest'; id: string; userId: string; accept: boolean }
+  | { type: 'removeParticipant'; id: string; userId: string }
+  | { type: 'report'; id: string; report: ChallengeReport }
+  | { type: 'nameOperation'; id: string; name?: string }
+  | { type: 'addComment'; id: string; body: string; replyToId?: string; photo?: ImageSource }
+  | { type: 'deleteComment'; id: string; commentId: string }
+  | { type: 'sharePayout'; id: string; share: PayoutShare }
+  | { type: 'revokeShare'; id: string }
+  /** `userIds`: Ausgewählte beim Bestätigen; Abgewählte werden 'unconfirmed' */
+  | { type: 'confirm'; id: string; userIds?: string[] }
+  | { type: 'undoConfirm'; id: string }
+  | { type: 'unmarkPaid'; id: string }
+  | { type: 'updateProfile'; patch: Partial<Profile> }
+  /** Profilbild der angemeldeten Person (gespeichert hat es schon account/profile) */
+  | { type: 'setAvatar'; avatar?: ImageSource }
+  | { type: 'signOut' }
+  | { type: 'deleteAccount' }
+  | { type: 'reject'; id: string; reason: string }
+  | { type: 'markPaid'; id: string }
+  /** Eine Person als bezahlt bzw. unbezahlt markieren (Migration 20261028000400) */
+  | { type: 'markParticipantPaid'; id: string; userId: string; paid: boolean }
+  | { type: 'confirmReceived'; id: string }
+  | { type: 'create'; challenge: Challenge }
+  | { type: 'toggleLike'; id: string }
+  /** Kommentar liken (Daria, 2026-11-09) */
+  | { type: 'toggleCommentLike'; id: string; commentId: string }
+  | { type: 'savePayout'; payout: Payout }
+  | { type: 'setCurrentUser'; userId: string }
+  | { type: 'setFeedState'; feedState: FeedState; error?: string }
+  /** `fromCache`: Stand aus dem Startspeicher (data/startCache.ts), kann veraltet sein */
+  | { type: 'loaded'; userId: string; data: remote.LiveData; fromCache?: boolean }
+  | { type: 'challengeLoaded'; id: string; challenge: Challenge | null; users: User[] }
+  | { type: 'useSampleData' }
+  | { type: 'edit'; id: string; edit: remote.ChallengeEdit }
+  | { type: 'editDeleted'; id: string; edit: remote.ChallengeEdit }
+  | { type: 'close'; id: string }
+  | { type: 'deleteDraft'; id: string }
+  | { type: 'purge'; id: string }
+  /** crosspost: Plattformen, auf denen der Weiterpost mitgelöscht (delete) oder neu gepostet (restore) wird */
+  | { type: 'delete'; id: string; crosspost?: string[] }
+  | { type: 'restore'; id: string; deadline?: string; crosspost?: string[] }
+  | { type: 'setGroups'; groups: Group[] }
+  | { type: 'block'; userId: string };
+
+/** Status einer Person in der Teilnehmenden-Liste setzen, dann die erste Person neu bestimmen (wie challenge_sync_first). */
+function setParticipant(c: Challenge, userId: string, status: ParticipantStatus): Partial<Challenge> {
+  const now = new Date().toISOString();
+  const list: Participant[] = [...(c.participants ?? [])];
+  // Alte Daten ohne Liste: die annehmende Person aufnehmen
+  if (c.assigneeId && !list.some((p) => p.userId === c.assigneeId)) {
+    list.push({ userId: c.assigneeId, status: 'joined', requestedAt: c.acceptedAt ?? now, joinedAt: c.acceptedAt ?? now });
+  }
+  const i = list.findIndex((p) => p.userId === userId);
+  const next: Participant = { userId, status, requestedAt: i >= 0 ? list[i].requestedAt : now, joinedAt: status === 'joined' ? now : undefined };
+  if (i >= 0) list[i] = next;
+  else list.push(next);
+  // Die erste Person bleibt, solange sie dabei ist
+  const stays = c.assigneeId && list.find((p) => p.userId === c.assigneeId)?.status === 'joined';
+  const updated = { ...c, participants: list, assigneeId: stays ? c.assigneeId : undefined };
+  const [first] = joinedIds(updated);
+  return {
+    participants: list,
+    assigneeId: first,
+    status: first ? 'accepted' : 'open',
+    acceptedAt: first ? (first === c.assigneeId ? c.acceptedAt : now) : undefined,
+  };
+}
+
+/**
+ * Status aus den Auszahlungen, wie challenge_sync_payment: alle markiert → paid_marked, alle erhalten → paid.
+ * Ohne Auszahlungen (alte Daten, Demo) bleibt `fallback`.
+ */
+function withPayouts(c: Challenge, payouts: PayoutLine[] | undefined, fallback: Partial<Challenge>): Partial<Challenge> {
+  if (!payouts?.length) return fallback;
+  const now = new Date().toISOString();
+  const allMarked = payouts.every((p) => p.paidMarkedAt);
+  const allPaid = payouts.every((p) => p.paidAt);
+  return {
+    payouts,
+    status: allPaid ? 'paid' : allMarked ? 'paid_marked' : 'payment_open',
+    paidMarkedAt: allMarked ? (c.paidMarkedAt ?? now) : undefined,
+  };
+}
+
+function updateChallenge(state: State, id: string, patch: (c: Challenge) => Partial<Challenge>): State {
+  return {
+    ...state,
+    challenges: state.challenges.map((c) => (c.id === id ? { ...c, ...patch(c) } : c)),
+  };
+}
+
+export const emptyLive = (profile: Profile): State => ({
+  mode: 'live',
+  users: [],
+  challenges: [],
+  currentUserId: '',
+  feedState: 'loading',
+  profile,
+  canOfferBounties: true,
+  groups: [],
+  blockedIds: [],
+  fresh: false,
+});
+
+export function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'edit':
+    case 'editDeleted': {
+      const { photo, participation, ...rest } = action.edit;
+      return updateChallenge(state, action.id, () => ({
+        ...rest,
+        ...(photo ? { image: photo } : {}),
+        ...(participation ? { maxParticipants: participation.max, joinMode: participation.mode } : {}),
+      }));
+    }
+    case 'join':
+      return updateChallenge(state, action.id, (c) =>
+        setParticipant(c, state.currentUserId, c.joinMode === 'approval' || action.far ? 'requested' : 'joined'),
+      );
+    case 'leave':
+      return updateChallenge(state, action.id, (c) => ({
+        ...setParticipant(c, state.currentUserId, 'left'),
+        operationName: undefined,
+      }));
+    case 'answerRequest':
+      return updateChallenge(state, action.id, (c) => setParticipant(c, action.userId, action.accept ? 'joined' : 'declined'));
+    case 'removeParticipant':
+      return updateChallenge(state, action.id, (c) => setParticipant(c, action.userId, 'removed'));
+    case 'close':
+      return updateChallenge(state, action.id, () => ({ status: 'closed', closedAt: new Date().toISOString() }));
+    case 'setLocalOnly':
+      return updateChallenge(state, action.id, () => ({ localOnly: action.localOnly || undefined }));
+    case 'setAudience':
+      return updateChallenge(state, action.id, () => ({
+        private: action.private || undefined,
+        localOnly: (!action.private && action.localOnly) || undefined,
+      }));
+    case 'deleteDraft':
+    case 'purge':
+      return { ...state, challenges: state.challenges.filter((c) => c.id !== action.id) };
+    case 'delete':
+      return updateChallenge(state, action.id, () => ({ status: 'deleted', deletedAt: new Date().toISOString() }));
+    case 'restore':
+      return updateChallenge(state, action.id, (c) => ({
+        status: 'open',
+        deletedAt: undefined,
+        deadline: action.deadline ?? c.deadline,
+      }));
+    case 'accept':
+      return updateChallenge(state, action.id, () => ({
+        status: 'accepted',
+        assigneeId: state.currentUserId,
+        acceptedAt: new Date().toISOString(),
+      }));
+    case 'giveBack':
+      return updateChallenge(state, action.id, () => ({
+        status: 'open',
+        assigneeId: undefined,
+        acceptedAt: undefined,
+        operationName: undefined,
+        report: undefined,
+        payoutShare: undefined,
+      }));
+    case 'nameOperation':
+      return updateChallenge(state, action.id, () => ({ operationName: action.name?.trim() ?? '' }));
+    case 'addComment': {
+      const comment: Comment = {
+        id: `comment-${Date.now()}`,
+        authorId: state.currentUserId,
+        body: action.body,
+        createdAt: new Date().toISOString(),
+        replyToId: action.replyToId,
+        image: action.photo,
+        // Live: Herz erst, wenn der Kommentar mit echter ID neu geladen ist
+        ...(state.mode === 'live' ? {} : { likeCount: 0, likedByMe: false }),
+      };
+      return updateChallenge(state, action.id, (c) => ({ comments: [...c.comments, comment] }));
+    }
+    case 'deleteComment':
+      return updateChallenge(state, action.id, (c) => ({ comments: c.comments.filter((m) => m.id !== action.commentId) }));
+    case 'sharePayout':
+      return updateChallenge(state, action.id, (c) => ({
+        payoutShare: action.share,
+        payoutShares: { ...c.payoutShares, [state.currentUserId]: action.share },
+      }));
+    case 'revokeShare':
+      return updateChallenge(state, action.id, (c) => {
+        const { [state.currentUserId]: _, ...rest } = c.payoutShares ?? {};
+        return { payoutShare: undefined, payoutShares: rest };
+      });
+    case 'undoConfirm':
+      return updateChallenge(state, action.id, (c) => ({
+        status: 'reported',
+        payouts: undefined,
+        participants: c.participants?.map((p) => (p.status === 'unconfirmed' ? { ...p, status: 'joined' as const } : p)),
+      }));
+    case 'unmarkPaid':
+      return updateChallenge(state, action.id, (c) =>
+        withPayouts(c, c.payouts?.map((p) => (p.paidAt ? p : { ...p, paidMarkedAt: undefined })), {
+          status: 'payment_open',
+          paidMarkedAt: undefined,
+        }),
+      );
+    case 'updateProfile':
+      return { ...state, profile: { ...state.profile, ...action.patch } };
+    case 'signOut':
+    case 'deleteAccount':
+      return emptyLive(sampleProfile);
+    case 'report':
+      return updateChallenge(state, action.id, () => ({
+        status: 'reported',
+        report: action.report,
+        rejectionReason: undefined,
+      }));
+    case 'confirm':
+      return updateChallenge(state, action.id, (c) => {
+        // Bestätigen je Person (Daria, 28.10.2026): Abgewählte bekommen nichts
+        const selected = action.userIds ? new Set(action.userIds) : undefined;
+        const participants = selected
+          ? c.participants?.map((p) => (p.status === 'joined' && !selected.has(p.userId) ? { ...p, status: 'unconfirmed' as const } : p))
+          : c.participants;
+        if (!c.bountyAmount) return { status: 'confirmed', participants };
+        // Coins geteilt unter den Ausgewählten
+        const ids = joinedIds({ ...c, participants });
+        const cents = splitCents(c.bountyAmount, ids.length || 1);
+        return { status: 'payment_open', participants, payouts: ids.map((userId, i) => ({ userId, amountCents: cents[i] })) };
+      });
+    case 'reject':
+      return updateChallenge(state, action.id, () => ({ status: 'accepted', rejectionReason: action.reason }));
+    case 'markPaid': {
+      const now = new Date().toISOString();
+      return updateChallenge(state, action.id, (c) =>
+        withPayouts(c, c.payouts?.map((p) => ({ ...p, paidMarkedAt: p.paidMarkedAt ?? now })), {
+          status: 'paid_marked',
+          paidMarkedAt: now,
+        }),
+      );
+    }
+    case 'markParticipantPaid': {
+      const now = new Date().toISOString();
+      return updateChallenge(state, action.id, (c) =>
+        withPayouts(
+          c,
+          c.payouts?.map((p) =>
+            p.userId === action.userId && !p.paidAt ? { ...p, paidMarkedAt: action.paid ? (p.paidMarkedAt ?? now) : undefined } : p,
+          ),
+          {},
+        ),
+      );
+    }
+    case 'confirmReceived': {
+      const now = new Date().toISOString();
+      return updateChallenge(state, action.id, (c) =>
+        withPayouts(
+          c,
+          c.payouts?.map((p) => (p.userId === state.currentUserId && p.paidMarkedAt ? { ...p, paidAt: p.paidAt ?? now } : p)),
+          { status: 'paid' },
+        ),
+      );
+    }
+    case 'create':
+      return { ...state, challenges: [action.challenge, ...state.challenges.filter((c) => c.id !== action.challenge.id)] };
+    case 'toggleLike':
+      return updateChallenge(state, action.id, (c) => ({
+        likedByMe: !c.likedByMe,
+        likeCount: c.likeCount === undefined ? undefined : Math.max(0, c.likeCount + (c.likedByMe ? -1 : 1)),
+      }));
+    case 'toggleCommentLike':
+      return updateChallenge(state, action.id, (c) => ({
+        comments: c.comments.map((m) =>
+          m.id === action.commentId
+            ? { ...m, likedByMe: !m.likedByMe, likeCount: Math.max(0, (m.likeCount ?? 0) + (m.likedByMe ? -1 : 1)) }
+            : m,
+        ),
+      }));
+    case 'savePayout':
+      return {
+        ...state,
+        users: state.users.map((u) => (u.id === state.currentUserId ? { ...u, payout: action.payout } : u)),
+      };
+    case 'setCurrentUser':
+      return { ...state, currentUserId: action.userId };
+    case 'setAvatar':
+      return {
+        ...state,
+        users: state.users.map((u) => (u.id === state.currentUserId ? { ...u, avatar: action.avatar } : u)),
+      };
+    case 'setFeedState':
+      return { ...state, feedState: action.feedState, feedError: action.error };
+    case 'setGroups':
+      return { ...state, groups: action.groups };
+    case 'block':
+      return {
+        ...state,
+        blockedIds: [...state.blockedIds.filter((id) => id !== action.userId), action.userId],
+        challenges: state.challenges
+          .filter((c) => c.authorId !== action.userId)
+          .map((c) => ({ ...c, comments: c.comments.filter((m) => m.authorId !== action.userId) })),
+      };
+    case 'loaded':
+      return {
+        ...state,
+        mode: 'live',
+        users: action.data.users,
+        challenges: action.data.challenges,
+        currentUserId: action.userId,
+        canOfferBounties: action.data.canOfferBounties,
+        groups: action.data.groups,
+        blockedIds: action.data.blockedIds,
+        feedState: 'filled',
+        fresh: !action.fromCache,
+      };
+    case 'challengeLoaded': {
+      const known = new Set(action.users.map((u) => u.id));
+      const users = [...state.users.filter((u) => !known.has(u.id)), ...action.users];
+      if (!action.challenge) {
+        return { ...state, users, challenges: state.challenges.filter((c) => c.id !== action.id) };
+      }
+      return { ...updateChallenge(state, action.id, () => action.challenge!), users };
+    }
+    case 'useSampleData':
+      return {
+        ...state,
+        mode: 'demo',
+        users: sampleUsers,
+        challenges: sampleChallenges,
+        currentUserId: 'gardeners',
+        feedState: 'filled',
+        canOfferBounties: true,
+        groups: sampleGroups,
+        blockedIds: [],
+        fresh: true,
+      };
+  }
+}
+
+/** Aktionen, die in Supabase gespeichert werden (live). Profiländerungen speichert auth.tsx. */
+export async function persist(action: Action, before: State): Promise<string | null> {
+  const userId = before.currentUserId;
+  switch (action.type) {
+    case 'edit':
+      await remote.editChallenge(action.id, action.edit, userId);
+      return action.id;
+    case 'editDeleted':
+      await remote.editDeletedChallenge(action.id, action.edit, userId);
+      return action.id;
+    case 'close':
+      await remote.closeChallenge(action.id);
+      return action.id;
+    case 'setLocalOnly':
+      await remote.challengeActions.setLocalOnly(action.id, action.localOnly);
+      return action.id;
+    case 'setAudience':
+      await remote.challengeActions.setAudience(action.id, action.private, action.localOnly);
+      return action.id;
+    case 'purge':
+      await remote.purgeChallenge(action.id);
+      return null;
+    case 'deleteDraft':
+      await remote.deleteDraft(action.id);
+      return null;
+    case 'delete':
+      await remote.deleteChallenge(action.id);
+      remote.deleteCrossposts(action.id, action.crosspost).catch(() => undefined);
+      return action.id;
+    case 'restore':
+      await remote.restoreChallenge(action.id, action.deadline);
+      remote.restoreCrossposts(action.id, action.crosspost).catch(() => undefined);
+      return action.id;
+    case 'accept':
+      await remote.challengeActions.accept(action.id);
+      return action.id;
+    case 'giveBack':
+      await remote.challengeActions.giveBack(action.id);
+      return action.id;
+    case 'join':
+      await remote.challengeActions.join(action.id, action.coords);
+      return action.id;
+    case 'leave':
+      await remote.challengeActions.leave(action.id);
+      return action.id;
+    case 'answerRequest':
+      await remote.challengeActions.answerRequest(action.id, action.userId, action.accept);
+      return action.id;
+    case 'removeParticipant':
+      await remote.challengeActions.removeParticipant(action.id, action.userId);
+      return action.id;
+    case 'report': {
+      const path = await remote.uploadPhoto(userId, action.report.photo);
+      await remote.challengeActions.report(action.id, path, action.report.note);
+      return action.id;
+    }
+    case 'nameOperation':
+      await remote.nameOperation(userId, action.id, action.name?.trim() ?? '');
+      return action.id;
+    case 'addComment': {
+      const imagePath = action.photo ? await remote.uploadPhoto(userId, action.photo) : undefined;
+      await remote.addComment(action.id, action.body, action.replyToId, imagePath);
+      return action.id;
+    }
+    case 'deleteComment': {
+      const comment = before.challenges.find((c) => c.id === action.id)?.comments.find((m) => m.id === action.commentId);
+      await remote.deleteComment(action.commentId, comment?.imagePath);
+      return action.id;
+    }
+    case 'sharePayout':
+      await remote.sharePayout(action.id, action.share, userId);
+      return action.id;
+    case 'revokeShare':
+      await remote.revokeShare(action.id, userId);
+      return action.id;
+    case 'confirm':
+      await remote.challengeActions.confirm(action.id, action.userIds);
+      return action.id;
+    case 'undoConfirm':
+      await remote.challengeActions.undoConfirm(action.id);
+      return action.id;
+    case 'reject':
+      await remote.challengeActions.reject(action.id, action.reason);
+      return action.id;
+    case 'markPaid':
+      await remote.challengeActions.markPaid(action.id);
+      return action.id;
+    case 'markParticipantPaid':
+      await remote.challengeActions.markParticipantPaid(action.id, action.userId, action.paid);
+      return action.id;
+    case 'unmarkPaid':
+      await remote.challengeActions.unmarkPaid(action.id);
+      return action.id;
+    case 'confirmReceived':
+      await remote.challengeActions.confirmReceived(action.id);
+      return action.id;
+    case 'toggleLike': {
+      const liked = before.challenges.find((c) => c.id === action.id)?.likedByMe;
+      await remote.setLike(action.id, userId, !liked);
+      return null;
+    }
+    case 'toggleCommentLike': {
+      const liked = before.challenges.find((c) => c.id === action.id)?.comments.find((m) => m.id === action.commentId)?.likedByMe;
+      await remote.setCommentLike(action.commentId, userId, !liked);
+      return null;
+    }
+    case 'savePayout':
+      await remote.savePayout(userId, action.payout);
+      return null;
+    case 'block':
+      await remote.blockUser(action.userId);
+      return null;
+    default:
+      return null;
+  }
+}
+
