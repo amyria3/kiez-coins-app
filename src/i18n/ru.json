@@ -1360,5 +1360,8 @@
   "Weißer Rand mit Deinem Namen. Gilt auch, wenn Du ein Bild teilst.": "Белая рамка с твоим именем. Действует и тогда, когда ты делишься изображением.",
   "Du hast alles erledigt, was Du Dir vorgenommen hast.": "Всё запланированное сделано.",
   "Bild bearbeiten": "Редактировать изображение",
-  "Me-Challenge bearbeiten": "Редактировать Me-челлендж"
+  "Me-Challenge bearbeiten": "Редактировать Me-челлендж",
+  "Weiterposten: aus": "Переопубликация: выкл.",
+  "Keine Plattform ist eingeschaltet. Unter Dein Konto › Funktionen schaltest Du sie ein.": "Ни одна платформа не включена. Включи их в «Твой аккаунт › Функции».",
+  "Unter Dein Konto › Funktionen verbindest Du BlueSky, Mastodon, Instagram oder Facebook.": "Подключи BlueSky, Mastodon, Instagram или Facebook в «Твой аккаунт › Функции»."
 }

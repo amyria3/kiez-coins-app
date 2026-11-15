@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
 
 import {
   CROSSPOST_PLATFORMS,
@@ -16,10 +17,12 @@ import { Text } from '../T';
 /**
  * Weiterposten im Erstellen-Blatt öffentlicher Posts (Daria, 13.11.2026): Ist Weiterposten unter Dein Konto ›
  * Funktionen für eine Plattform an, steht sie hier mit Schalter, wie unter Funktionen. Ausschalten gilt nur für
- * diesen Post, die Einstellung bleibt. Ist Weiterposten nirgends an, steht hier nichts.
+ * diesen Post, die Einstellung bleibt. Ist Weiterposten nirgends an, steht das hier mit Link zu den Funktionen
+ * (Daria, 2026-11-15: „Ich sehe hier nicht, ob ich weiterposte“).
  * `off`: die Plattformen, die für diesen Post abgewählt sind.
  */
 export function CrosspostRow({ off, onChange }: { off: LivePlatform[]; onChange: (off: LivePlatform[]) => void }) {
+  const router = useRouter();
   const enabled = useCrosspostEnabled();
   const [accounts, setAccounts] = useState<CrosspostAccount[]>([]);
   const [selected, setSelected] = useState<LivePlatform[]>([]);
@@ -33,7 +36,23 @@ export function CrosspostRow({ off, onChange }: { off: LivePlatform[]; onChange:
   const active = CROSSPOST_PLATFORMS.filter(
     (p) => selected.includes(p.key as LivePlatform) && accounts.some((a) => a.platform === p.key),
   );
-  if (!enabled || !active.length) return null;
+  if (!enabled) return null;
+  if (!active.length) {
+    return (
+      <Pressable
+        accessibilityRole="link"
+        onPress={() => router.push('/account/features')}
+        style={({ pressed }) => [styles.card, styles.offCard, pressed && styles.pressed]}
+      >
+        <Text style={styles.title}>Weiterposten: aus</Text>
+        <Text style={styles.caption}>
+          {accounts.length
+            ? 'Keine Plattform ist eingeschaltet. Unter Dein Konto › Funktionen schaltest Du sie ein.'
+            : 'Unter Dein Konto › Funktionen verbindest Du BlueSky, Mastodon, Instagram oder Facebook.'}
+        </Text>
+      </Pressable>
+    );
+  }
 
   const toggle = (p: LivePlatform, on: boolean) => onChange(on ? off.filter((x) => x !== p) : [...off.filter((x) => x !== p), p]);
 
@@ -71,6 +90,8 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
   },
   head: { gap: space[2], paddingBottom: space[8] },
+  offCard: { gap: space[2], paddingBottom: space[12] },
+  pressed: { opacity: 0.7 },
   title: { ...text.body, color: color.text.primary },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[8] },
   divider: { borderTopWidth: stroke.thin, borderTopColor: color.line.hairline },

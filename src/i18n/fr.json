@@ -1374,5 +1374,8 @@
   "Weißer Rand mit Deinem Namen. Gilt auch, wenn Du ein Bild teilst.": "Bordure blanche avec ton nom. S’applique aussi quand tu partages une image.",
   "Du hast alles erledigt, was Du Dir vorgenommen hast.": "Tu as fait tout ce que tu avais prévu.",
   "Bild bearbeiten": "Modifier l’image",
-  "Me-Challenge bearbeiten": "Modifier le Me-Challenge"
+  "Me-Challenge bearbeiten": "Modifier le Me-Challenge",
+  "Weiterposten: aus": "Republication : désactivée",
+  "Keine Plattform ist eingeschaltet. Unter Dein Konto › Funktionen schaltest Du sie ein.": "Aucune plateforme n’est activée. Active-les dans Ton compte › Fonctions.",
+  "Unter Dein Konto › Funktionen verbindest Du BlueSky, Mastodon, Instagram oder Facebook.": "Connecte BlueSky, Mastodon, Instagram ou Facebook dans Ton compte › Fonctions."
 }

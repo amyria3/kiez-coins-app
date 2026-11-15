@@ -174,10 +174,16 @@ export async function crosspostTargets(challengeId: string, kind: 'delete' | 're
 
 const SELECTION_KEY = 'crosspost_selection_v1';
 
-/** Gewählte Plattformen. Die Wahl gilt auch für die nächsten Posts (auf dem Gerät gespeichert). */
+/**
+ * Gewählte Plattformen. Die Wahl gilt auch für die nächsten Posts (auf dem Gerät gespeichert). Hat dieses Gerät
+ * noch keine Wahl, gelten alle verbundenen Konten (Daria, 2026-11-15: In der Web-App auf dem iPhone war Weiterposten
+ * sonst stumm aus, obwohl die Konten verbunden sind).
+ */
 export async function loadCrosspostSelection(): Promise<LivePlatform[]> {
   try {
-    const saved = JSON.parse((await AsyncStorage.getItem(SELECTION_KEY)) ?? '[]');
+    const raw = await AsyncStorage.getItem(SELECTION_KEY);
+    if (raw === null) return (await loadCrosspostAccounts()).map((a) => a.platform);
+    const saved = JSON.parse(raw);
     return Array.isArray(saved) ? saved.filter((p): p is LivePlatform => LIVE_PLATFORMS.includes(p)) : [];
   } catch {
     return [];

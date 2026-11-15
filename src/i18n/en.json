@@ -1767,5 +1767,8 @@
   "Weißer Rand mit Deinem Namen. Gilt auch, wenn Du ein Bild teilst.": "White border with your name. Also applies when you share a picture.",
   "Du hast alles erledigt, was Du Dir vorgenommen hast.": "You’ve done everything you set out to do.",
   "Bild bearbeiten": "Edit picture",
-  "Me-Challenge bearbeiten": "Edit Me-Challenge"
+  "Me-Challenge bearbeiten": "Edit Me-Challenge",
+  "Weiterposten: aus": "Reposting: off",
+  "Keine Plattform ist eingeschaltet. Unter Dein Konto › Funktionen schaltest Du sie ein.": "No platform is turned on. Turn them on under Your account › Features.",
+  "Unter Dein Konto › Funktionen verbindest Du BlueSky, Mastodon, Instagram oder Facebook.": "Connect BlueSky, Mastodon, Instagram or Facebook under Your account › Features."
 }
