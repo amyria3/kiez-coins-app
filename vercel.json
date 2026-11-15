@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run build:website",
+  "buildCommand": "node scripts/build-download-site.mjs",
   "outputDirectory": "website",
   "cleanUrls": true,
   "headers": [

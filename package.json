@@ -60,8 +60,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "build:website": "node scripts/build-download-site.mjs",
-    "build:web-app": "node scripts/build-web-app.mjs",
+    "build:website": "EXPO_WEB_BASE_URL=/app expo export -p web --output-dir website/app && node scripts/build-download-site.mjs",
     "lint": "expo lint"
   },
   "private": true

@@ -1,5 +1,6 @@
 // Baut die Web-App für app.kiezcoins.de (Vercel-Projekt mit Root Directory `web-app`, siehe web-app/vercel.json).
-// Aufruf vom Repo-Ordner aus: `npm run build:web-app`. Ergebnis: web-app/dist/.
+// Aufruf vom Repo-Ordner aus: `node scripts/build-web-app.mjs`. Ergebnis: web-app/dist/.
+// Kein npm-Skript dafür: Die Skripte in package.json zählen zum Fingerprint von expo-updates.
 // Die App liegt an der Wurzel der Domain. Deshalb läuft der Export ohne EXPO_WEB_BASE_URL.
 import { execSync } from 'node:child_process';
 import { readFileSync, rmSync } from 'node:fs';

@@ -1,7 +1,9 @@
 // Baut die Download-Seite in den Ordner `website/`: Startseite mit Formular für den Einladungscode plus
 // Impressum, Datenschutz, Nutzungsbedingungen und Community-Regeln aus `src/data/legal.ts` (dieselben Texte wie in der App).
-// Aufruf: `npm run build:website` oder `node scripts/build-download-site.mjs`. Die Web-App baut ein eigenes
-// Vercel-Projekt für app.kiezcoins.de (scripts/build-web-app.mjs).
+// Aufruf: `node scripts/build-download-site.mjs` (so auch in vercel.json). Die Web-App baut ein eigenes
+// Vercel-Projekt für app.kiezcoins.de (scripts/build-web-app.mjs). `npm run build:website` in package.json ist
+// veraltet und baut noch die alte Web-App unter website/app. Es bleibt bis zum nächsten nativen Build stehen, weil
+// die Skripte in package.json zum Fingerprint von expo-updates zählen.
 // Die Startseite zeigt einen klickbaren Prototyp der App (scripts/site/prototyp.js) und Illustrationen
 // (scripts/site/kunst.mjs). Icons, Kater und Coins kommen aus denselben SVGs wie die App.
 // Vercel baut und veröffentlicht `website/` bei jedem Push (vercel.json). Ablauf: Documentation,
