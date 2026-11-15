@@ -12,15 +12,14 @@ export const LEGAL_STAND = '15.11.2026';
 /** Angaben zur Anbieterin. Leere Felder erscheinen in der App als „[offen: …]“. */
 export const OPERATOR = {
   name: 'Maria Arkadieff',
-  /** Ladungsfähige Anschrift: Straße, Hausnummer, PLZ, Ort. Kein Postfach. */
-  /** Geschäftsadresse bei Online-Impressum, ladungsfähig (Daria, 2026-11-15) */
+  /** Ladungsfähige Geschäftsadresse bei Online-Impressum, kein Postfach (Daria, 15.11.2026). */
   street: 'c/o Online-Impressum 13086\nEuroparing 90',
   city: '53757 Sankt Augustin',
   /** Postfach für Impressum, Datenschutz und Meldungen, zum Beispiel kontakt@kiezcoins.de */
   email: 'kiezkoins@protonmail.com',
   /** Zweiter schneller Kontaktweg nach § 5 DDG: Telefon oder Kontaktformular. */
   phone: '',
-  /** Zuständige Datenschutz-Aufsichtsbehörde im Bundesland der Anbieterin. */
+  /** Zuständige Datenschutz-Aufsichtsbehörde am Wohnort der Anbieterin in Sachsen (Daria, 15.11.2026). Nicht am Ort der c/o-Adresse. */
   authority: 'Die Sächsische Datenschutz- und Transparenzbeauftragte, Devrientstraße 5, 01067 Dresden',
 };
 
@@ -32,7 +31,7 @@ const hasAddress = Boolean(OPERATOR.street.trim() && OPERATOR.city.trim());
 const onRequest = 'Die ladungsfähige Anschrift teilen wir bei berechtigtem Interesse auf Anfrage per E-Mail mit.';
 const email = open(OPERATOR.email, 'E-Mail-Adresse');
 const phone = open(OPERATOR.phone, 'Telefonnummer');
-const authority = open(OPERATOR.authority, 'Aufsichtsbehörde, in Berlin: Berliner Beauftragte für Datenschutz und Informationsfreiheit');
+const authority = open(OPERATOR.authority, 'Datenschutz-Aufsichtsbehörde');
 
 export type LegalSection = { heading?: string; paragraphs: string[] };
 export type LegalDoc = { title: string; intro?: string; sections: LegalSection[] };
