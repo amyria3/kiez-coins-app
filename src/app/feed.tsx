@@ -46,6 +46,7 @@ import { challengeTypes, isTypeActive, useModes, usePostsShown } from '../data/f
 import { salutation } from '../data/format';
 import { coordsIfAllowed, distanceMeters, formatDistance, KIEZ_RADIUS_METERS, sameKiez, type Coords } from '../data/location';
 import { journeyEntries } from '../data/journey';
+import { isModerator } from '../data/remote';
 import { runningBeforeAfter, topChallenges as pickTopChallenges, useStore } from '../data/store';
 import { RunningBeforeAfter } from '../components/BeforeAfterTimer';
 import { useFeedViews } from '../data/seen';
@@ -96,6 +97,11 @@ export default function FeedScreen() {
   // Mit Ziel geöffnet (Gruppe, Reiter, Erstellen, neuer Post): Die Routine weicht, sonst landet man in
   // „My Structure“ statt im Ziel. Wird unten gesetzt, wo der Zustand der Routine steht.
   const leaveRoutineRef = useRef(() => {});
+  // Demo-Menü (langes Drücken aufs Logo) nur für Moderatorinnen oder schon im Demo-Modus, nicht für alle (Launch, 15.11.2026)
+  const [moderator, setModerator] = useState(false);
+  useEffect(() => {
+    if (mode === 'live') isModerator().then(setModerator).catch(() => undefined);
+  }, [mode]);
   // Beim ersten Öffnen mit Ziel startet die Routine nicht von selbst, auch wenn die Parameter schon geleert sind
   const openedWithTarget = useRef(!!(groupParam || tabParam || create || isNew)).current;
   useEffect(() => {
@@ -953,7 +959,7 @@ export default function FeedScreen() {
         <View onLayout={(e) => { const next = e.nativeEvent.layout.height; setHeaderHeight((h) => (h === next ? h : next)); }}>
           <AppHeader
             onLogoPress={() => router.push('/me')}
-            onLogoLongPress={() => router.push('/demo')}
+            onLogoLongPress={mode !== 'live' || moderator ? () => router.push('/demo') : undefined}
             hasTasks={hasTasks}
           />
           {/* In „Me & Myself“ weder Kiez noch Zahlen der Posts (Daria, 2026-11-14) */}
