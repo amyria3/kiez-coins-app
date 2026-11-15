@@ -1,6 +1,6 @@
 # Prüfung von Code-Qualität und Sicherheit
 
-Datum: 2026-11-15 · Status: offen, Vorschläge warten auf Darias Entscheidung · Ergebnis gehört nach Documentation: `kiez-coins/app/Arbeitsstand_Code.md` (Qualität) und `kiez-coins/cra/Technische_Dokumentation.md`, Punkt 3 und 5 (Sicherheit).
+Datum: 2026-11-15 · Status: offen, Aufräumen und Content-Security-Policy erledigt, Rest wartet auf Darias Entscheidung · Ergebnis gehört nach Documentation: `kiez-coins/app/Arbeitsstand_Code.md` (Qualität) und `kiez-coins/cra/Technische_Dokumentation.md`, Punkt 3 und 5 (Sicherheit).
 
 ## So wurde geprüft
 
@@ -28,3 +28,9 @@ Datum: 2026-11-15 · Status: offen, Vorschläge warten auf Darias Entscheidung �
 - Web: Website und Web-App teilen sich die Domain kiezcoins.de. Die Anmeldung der Web-App liegt im Browser-Speicher dieser Domain. Jede Lücke auf einer Website-Seite trifft damit auch die Anmeldung (so beim Fund vom 14.11. auf der Finanzierungsseite). Vorschläge: (a) Content-Security-Policy für `/app`, (b) mittelfristig Web-App auf `app.kiezcoins.de`.
 - Weiter offen aus der Prüfung vom 14.11.: private Fotos im öffentlichen Speicher (Weg A, B oder C).
 - Die Gmail-Adresse steht nach dem Umschreiben der Historie nur noch in den alten PR-Verweisen (`refs/pull/*`), die nur der GitHub-Support entfernen kann.
+
+## Erledigt am 15.11.
+
+- Aufräumen (Commit 9e46df3a): die toten Funktionen oben, das Paket `@fortawesome/free-regular-svg-icons` und die zwei ESLint-Warnungen entfernt. ESLint 0 Warnungen, `tsc` ohne Fehler. `expo-system-ui` und `npm audit fix` bleiben für den nächsten nativen Build.
+- Content-Security-Policy für `/app` (Commits a083167c und 34414b7c): Startskript aus `public/index.html` nach `public/start.js` verschoben, damit keine Inline-Skripte nötig sind. Erlaubt sind nur die eigene Domain, Supabase (https und wss) und nominatim.openstreetmap.org. Zuerst im Beobachtungsmodus live: keine Verstöße (abgemeldet geprüft: Start, Anmeldung, Schaufenster). Danach scharf geschaltet, gilt jetzt auch für `/app/` mit Schrägstrich. Die Policy schützt die Web-App selbst. Eine Lücke auf einer Website-Seite kann die Anmeldung weiter erreichen, dafür bleibt Vorschlag (b) `app.kiezcoins.de`.
+- Falls angemeldet etwas nicht lädt: in der Browser-Konsole nach „Content Security Policy“ suchen, die blockierte Adresse in `vercel.json` ergänzen.
