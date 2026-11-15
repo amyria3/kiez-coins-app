@@ -974,7 +974,7 @@
   "{mode} zeigen": "Show {mode}",
   "Posten": "Post",
   "Archiv": "Archive",
-  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Meine Posts“ unter „Archiv“.": "The challenge disappears from the feed. Your latest changes are saved. You’ll find the challenge in “My posts” under “Archive”.",
+  "Der Post verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest ihn in „Meine Posts“ unter „Archiv“.": "The post disappears from the feed. Your latest changes are saved. You’ll find it in “My posts” under “Archive”.",
   "Belohnung (optional)": "Reward (optional)",
   "Hier gibt es etwas zu tun! Dokumentiere die Ausgangslage und poste es im Kiez!": "There’s work to do here! Document how things are now and post it in your neighborhood!",
   "Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.": "Record how you repair, rebuild or brighten up something, or practise a new, useful habit. First take a photo of how things look “before”.",
@@ -1765,5 +1765,7 @@
   "läuft": "running",
   "fehlgeschlagen": "failed",
   "Weißer Rand mit Deinem Namen. Gilt auch, wenn Du ein Bild teilst.": "White border with your name. Also applies when you share a picture.",
-  "Du hast alles erledigt, was Du Dir vorgenommen hast.": "You’ve done everything you set out to do."
+  "Du hast alles erledigt, was Du Dir vorgenommen hast.": "You’ve done everything you set out to do.",
+  "Bild bearbeiten": "Edit picture",
+  "Me-Challenge bearbeiten": "Edit Me-Challenge"
 }

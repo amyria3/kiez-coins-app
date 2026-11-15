@@ -979,7 +979,7 @@
   "{mode} zeigen": "إظهار {mode}",
   "Posten": "نشر",
   "Archiv": "الأرشيف",
-  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Meine Posts“ unter „Archiv“.": "يختفي التحدي من الصفحة الرئيسية. تُحفظ آخر تعديلاتك. تجد التحدي في «منشوراتي» ضمن «الأرشيف».",
+  "Der Post verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest ihn in „Meine Posts“ unter „Archiv“.": "سيختفي المنشور من الصفحة الرئيسية. تُحفظ آخر تعديلاتك. ستجده في «منشوراتي» ضمن «الأرشيف».",
   "Belohnung (optional)": "المكافأة (اختيارية)",
   "Hier gibt es etwas zu tun! Dokumentiere die Ausgangslage und poste es im Kiez!": "هنا عمل ينتظر! وثّق الوضع الحالي وانشره في الحي!",
   "Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.": "وثّق كيف تصلح شيئًا أو تعيد بناءه أو تجمّله، أو تتدرّب على عادة جديدة مفيدة. التقط أولًا صورة للحال «قبل».",
@@ -1396,5 +1396,7 @@
   "läuft": "جارٍ",
   "fehlgeschlagen": "فشل",
   "Weißer Rand mit Deinem Namen. Gilt auch, wenn Du ein Bild teilst.": "إطار أبيض باسمك. ينطبق أيضًا عندما تشارك صورة.",
-  "Du hast alles erledigt, was Du Dir vorgenommen hast.": "أنجزت كل ما خططت له."
+  "Du hast alles erledigt, was Du Dir vorgenommen hast.": "أنجزت كل ما خططت له.",
+  "Bild bearbeiten": "تعديل الصورة",
+  "Me-Challenge bearbeiten": "تعديل تحدي Me"
 }

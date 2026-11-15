@@ -963,7 +963,7 @@
   "{mode} zeigen": "Показать {mode}",
   "Posten": "Опубликовать",
   "Archiv": "Архив",
-  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Meine Posts“ unter „Archiv“.": "Челлендж исчезнет из ленты. Твои последние изменения сохранятся. Челлендж будет в «Мои посты» в разделе «Архив».",
+  "Der Post verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest ihn in „Meine Posts“ unter „Archiv“.": "Пост исчезнет из ленты. Твои последние изменения сохранятся. Ты найдёшь его в «Мои посты» в разделе «Архив».",
   "Belohnung (optional)": "Вознаграждение (необязательно)",
   "Hier gibt es etwas zu tun! Dokumentiere die Ausgangslage und poste es im Kiez!": "Тут есть работа! Задокументируй, как всё выглядит сейчас, и опубликуй это в районе!",
   "Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.": "Покажи, как ты что-то чинишь, переделываешь, украшаешь или осваиваешь новую полезную привычку. Сначала сфотографируй, как всё выглядит «до».",
@@ -1358,5 +1358,7 @@
   "läuft": "идёт",
   "fehlgeschlagen": "не удалось",
   "Weißer Rand mit Deinem Namen. Gilt auch, wenn Du ein Bild teilst.": "Белая рамка с твоим именем. Действует и тогда, когда ты делишься изображением.",
-  "Du hast alles erledigt, was Du Dir vorgenommen hast.": "Всё запланированное сделано."
+  "Du hast alles erledigt, was Du Dir vorgenommen hast.": "Всё запланированное сделано.",
+  "Bild bearbeiten": "Редактировать изображение",
+  "Me-Challenge bearbeiten": "Редактировать Me-челлендж"
 }

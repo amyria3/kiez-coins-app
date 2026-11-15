@@ -222,7 +222,7 @@ function EditChallengeForm() {
   const toDraft = () =>
     Alert.alert(
       'Doch nicht veröffentlichen?',
-      'Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Meine Posts“ unter „Archiv“.',
+      'Der Post verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest ihn in „Meine Posts“ unter „Archiv“.',
       [
         { text: 'Abbrechen', style: 'cancel' },
         {
@@ -252,7 +252,18 @@ function EditChallengeForm() {
 
   return (
     <SubScreen
-      title={isText ? 'Text bearbeiten' : isGroup ? 'We-Challenge bearbeiten' : 'Challenge bearbeiten'}
+      // Titel nach Art des Posts (Daria, 2026-11-15: „Challenge bearbeiten“ passte bei Bildern nicht)
+      title={
+        isText
+          ? 'Text bearbeiten'
+          : challenge.type === 'photo'
+            ? 'Bild bearbeiten'
+            : challenge.type === 'before_after'
+              ? 'Me-Challenge bearbeiten'
+              : isGroup
+                ? 'We-Challenge bearbeiten'
+                : 'Challenge bearbeiten'
+      }
       navigation="close"
       onLeadingPress={goBack}
       actions={

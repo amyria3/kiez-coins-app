@@ -979,7 +979,7 @@
   "{mode} zeigen": "Показати {mode}",
   "Posten": "Опублікувати",
   "Archiv": "Архів",
-  "Die Challenge verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest die Challenge in „Meine Posts“ unter „Archiv“.": "Челендж зникне зі стрічки. Твої останні зміни збережуться. Челендж буде в «Мої дописи» у розділі «Архів».",
+  "Der Post verschwindet aus dem Feed. Deine letzten Änderungen werden gespeichert. Du findest ihn in „Meine Posts“ unter „Archiv“.": "Пост зникне зі стрічки. Твої останні зміни буде збережено. Ти знайдеш його в «Мої пости» в розділі «Архів».",
   "Belohnung (optional)": "Винагорода (необов’язково)",
   "Hier gibt es etwas zu tun! Dokumentiere die Ausgangslage und poste es im Kiez!": "Тут є робота! Задокументуй, як усе виглядає зараз, і опублікуй це в районі!",
   "Halte fest, wie Du etwas reparierst, umbaust, verschönerst oder eine neue, nützliche Gewohnheit übst. Dokumentiere zuerst mit einem Foto den Stand „vorher“.": "Покажи, як ти щось лагодиш, переробляєш, прикрашаєш або вправляєшся в новій корисній звичці. Спершу сфотографуй, як усе виглядає «до».",
@@ -1374,5 +1374,7 @@
   "läuft": "триває",
   "fehlgeschlagen": "не вдалося",
   "Weißer Rand mit Deinem Namen. Gilt auch, wenn Du ein Bild teilst.": "Біла рамка з твоїм іменем. Діє й тоді, коли ти ділишся зображенням.",
-  "Du hast alles erledigt, was Du Dir vorgenommen hast.": "Усе заплановане виконано."
+  "Du hast alles erledigt, was Du Dir vorgenommen hast.": "Усе заплановане виконано.",
+  "Bild bearbeiten": "Редагувати зображення",
+  "Me-Challenge bearbeiten": "Редагувати Me-челендж"
 }
