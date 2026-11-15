@@ -5,9 +5,9 @@ import * as Clipboard from 'expo-clipboard';
 import { useFeature } from '../data/unlock';
 import { t } from '../data/texts';
 import { FULL_LOOK, framePhotoFiles, shareImageFiles, type PhotoLook, type SheetAuthor } from '../lib/sheetImages';
+import { loadCrosspostLook } from '../data/crosspostLook';
 import { color, radius, space, text } from '../theme/tokens';
 import { Button } from './Button';
-import { SwitchRow } from './Form';
 import { Frost } from './Glass';
 import { Text } from './T';
 
@@ -19,8 +19,8 @@ import { Text } from './T';
  * kopiert man stattdessen mit „Link kopieren“ und fügt ihn in die Nachricht ein.
  */
 /**
- * `slides`: Blätter eines Text-Posts, sonst Fotos. `photos`: die Fotos ohne Rahmen, damit der Dialog sie für
- * „Rahmen“ und „Wasserzeichen“ neu zeichnen kann.
+ * `slides`: Blätter eines Text-Posts, sonst Fotos. `photos`: die Fotos ohne Rahmen, damit der Dialog sie im
+ * eingestellten Look neu zeichnen kann.
  */
 export type SharePrepared = {
   files: File[];
@@ -30,12 +30,11 @@ export type SharePrepared = {
 };
 
 /**
- * Zuletzt gewählter Look für geteilte Fotos, solange die App offen ist. Rahmen und Wasserzeichen lassen sich nur
- * abschalten, wenn die Funktion `ohne_wasserzeichen` freigeschaltet ist. Wer das Wasserzeichen abschalten darf, darf
- * auch den ganzen Rahmen abschalten (Daria, 2026-11-10).
+ * Look geteilter Fotos (Daria, 2026-11-15): immer so, wie unter Dein Konto › Funktionen › Weiterposten eingestellt
+ * (Rahmen und Logo, `crosspostLook.ts`). Der Dialog hat dafür keine eigenen Schalter mehr. Abschalten wirkt nur,
+ * wenn die Funktion `ohne_wasserzeichen` freigeschaltet ist (Daria, 2026-11-10).
  */
-let lastLook: PhotoLook = FULL_LOOK;
-/** Gezeichnete Fotos des offenen Dialogs je Look, damit Hin- und Herschalten sofort geht */
+/** Gezeichnete Fotos des offenen Dialogs je Look */
 const looks = new Map<string, File[]>();
 const lookKey = (look: PhotoLook) => `${look.frame ? 1 : 0}${look.watermark ? 1 : 0}`;
 
@@ -69,7 +68,6 @@ export function ShareDialogHost() {
   /** Fotos im gewünschten Look zeichnen; der Teilen-Knopf wartet so lange */
   const applyLook = (prepared: SharePrepared, wanted: PhotoLook) => {
     const look = allowed(wanted);
-    lastLook = look;
     const photos = prepared.photos;
     const key = lookKey(look);
     const known = looks.get(key);
@@ -104,7 +102,9 @@ export function ShareDialogHost() {
           } else {
             looks.clear();
             if (prepared.photos) looks.set(lookKey(FULL_LOOK), prepared.files);
-            applyLookRef.current(prepared, lastLook);
+            loadCrosspostLook()
+              .catch(() => FULL_LOOK)
+              .then((look) => id === current && applyLookRef.current(prepared, look));
           }
         })
         .catch(() => id === current && setState({ phase: 'failed' }));
@@ -143,31 +143,9 @@ export function ShareDialogHost() {
       : prepared.files.length > 1
         ? t('Teile die {count} Bilder. Den Link kopierst Du danach für Deine Nachricht.', { count: prepared.files.length })
         : t('Teile das Bild. Den Link kopierst Du danach für Deine Nachricht.');
-    const { look, busy } = state;
-    const photos = !prepared.slides && prepared.photos?.raw.length ? prepared.photos : undefined;
+    const { busy } = state;
     body = (
       <>
-        {/* Rahmen und Wasserzeichen im Bildpost abschalten, je nach Freischaltung (Daria, 2026-11-10) */}
-        {photos && canRemoveWatermark ? (
-          <View style={styles.looks}>
-            {canRemoveFrame ? (
-              <SwitchRow
-                label={t('Rahmen')}
-                description={t('Weißer Rand mit Deinem Namen')}
-                value={look.frame}
-                onValueChange={(frame) => applyLook(prepared, { ...look, frame })}
-              />
-            ) : null}
-            {canRemoveWatermark && look.frame ? (
-              <SwitchRow
-                label={t('Wasserzeichen')}
-                description={t('Kater und KiezCoins unten im Rahmen')}
-                value={look.watermark}
-                onValueChange={(watermark) => applyLook(prepared, { ...look, watermark })}
-              />
-            ) : null}
-          </View>
-        ) : null}
         <Button
           // „Als Slide teilen“ (Daria, 07.11.2026); bei Fotos passt „Slide“ nicht
           label={prepared.slides ? t('Als Slide teilen') : prepared.files.length > 1 ? t('Bilder teilen') : t('Bild teilen')}
@@ -221,6 +199,5 @@ const styles = StyleSheet.create({
   title: { color: color.text.primary },
   message: { color: color.text.secondary },
   buttons: { marginTop: space[16], gap: space[8] },
-  looks: { gap: space[12], marginBottom: space[8] },
   spinner: { alignSelf: 'flex-start' },
 });

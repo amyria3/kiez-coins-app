@@ -77,7 +77,7 @@ export function CrosspostSwitches() {
   // Plattformen, auf die weitergepostet wird; dieselbe Wahl wie beim Erstellen eines Posts
   const [selected, setSelected] = useState<LivePlatform[]>([]);
 
-  // Mit oder ohne Rahmen, mit oder ohne Logo (Daria, 13.11.2026). Zwei Funktionen (`weiterposten_rahmen`,
+  // Mit oder ohne Rahmen, mit oder ohne Logo (Daria, 13.11.2026). Gilt seit 15.11.2026 auch fürs Teilen (ShareDialog). Zwei Funktionen (`weiterposten_rahmen`,
   // `weiterposten_ohne_logo`), im Moment für alle an. Die Edge Function prüft beides noch einmal.
   const canFrame = useFeature('weiterposten_rahmen');
   const canRemoveLogo = useFeature('weiterposten_ohne_logo');
@@ -117,7 +117,7 @@ export function CrosspostSwitches() {
         <View style={styles.look}>
           <SwitchRow
             label="Mit Rahmen und Namen"
-            description="Weißer Rand mit Deinem Namen, wie beim Teilen"
+            description="Weißer Rand mit Deinem Namen. Gilt auch, wenn Du ein Bild teilst."
             value={look.frame}
             onValueChange={(frame) => changeLook({ ...look, frame })}
           />

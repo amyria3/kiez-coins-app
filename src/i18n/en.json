@@ -1763,5 +1763,6 @@
   "Link an": "Link on",
   "Weitergepostet: {list}": "Reposted: {list}",
   "läuft": "running",
-  "fehlgeschlagen": "failed"
+  "fehlgeschlagen": "failed",
+  "Weißer Rand mit Deinem Namen. Gilt auch, wenn Du ein Bild teilst.": "White border with your name. Also applies when you share a picture."
 }
