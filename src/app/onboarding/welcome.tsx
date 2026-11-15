@@ -12,9 +12,6 @@ import { useAuth } from '../../data/auth';
 import { color, radius, space, stroke, text } from '../../theme/tokens';
 import { useAppDimensions } from '../../theme/layout';
 
-/** So lange sind die Herzen zu sehen, bevor es weitergeht */
-const HERZ_MS = 900;
-
 /** Route `onboarding/welcome`. Figma: `onboarding/welcome`, Upgrade „Nachtschicht“. */
 export default function Welcome() {
   const router = useRouter();
@@ -25,18 +22,15 @@ export default function Welcome() {
   const kater = useKater('hallo', 10000);
   const { startTest } = useAuth();
   const [busy, setBusy] = useState(false);
-  // Ein Knopf lässt Herzen in der Brille aufgehen (Daria, 02.11.2026). Kurz warten, damit man sie sieht.
+  // Ein Knopf lässt Herzen in der Brille aufgehen (Daria, 02.11.2026). Sie starten, sobald der Finger aufliegt;
+  // weiter geht es beim Loslassen ohne Wartezeit (Daria, 2026-11-15: Animation früher, Anmeldung nicht verzögern).
   const [herzen, setHerzen] = useState(0);
-  const verliebt = (weiter: () => void) => {
-    setHerzen((n) => n + 1);
-    setTimeout(weiter, HERZ_MS);
-  };
+  const verliebt = () => setHerzen((n) => n + 1);
 
   // Einmal testen ohne Anmeldung (Daria, 27.10.2026): Testkonto, danach normal weiter mit dem Decknamen.
   const test = async () => {
     setBusy(true);
-    setHerzen((n) => n + 1);
-    const [failure] = await Promise.all([startTest(), new Promise((r) => setTimeout(r, HERZ_MS))]);
+    const failure = await startTest();
     setBusy(false);
     if (failure) {
       Alert.alert('Klappt gerade nicht', failure);
@@ -72,8 +66,8 @@ export default function Welcome() {
       </ScrollView>
       <ActionBar>
         {/* Ein Weg für neue und bekannte Konten (Daria, 24.10.2026) */}
-        <Button label="Anheuern oder Einloggen" icon="this-way" onPress={() => verliebt(() => router.push('/onboarding/email'))} disabled={busy} />
-        <Button busy={busy} label="Ohne Anmeldung testen" variant="ghost" onPress={test} disabled={busy} />
+        <Button label="Anheuern oder Einloggen" icon="this-way" onPressIn={verliebt} onPress={() => router.push('/onboarding/email')} disabled={busy} />
+        <Button busy={busy} label="Ohne Anmeldung testen" variant="ghost" onPressIn={verliebt} onPress={test} disabled={busy} />
         {/* Wann die Testdaten verschwinden, steht direkt unter dem Button (Daria, 28.10.2026) */}
         <Text style={styles.testHint}>
           Dein Testkonto und alles, was Du postest, verschwinden nach 7 Tagen oder sobald Du Dich abmeldest. Trägst Du vorher eine E-Mail ein, bleibt alles.

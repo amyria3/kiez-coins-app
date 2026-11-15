@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { isTouchWeb } from '../lib/touchWeb';
+import { useKeyboardHeight } from './Keyboard';
 import { Alert, Animated, Platform, Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Text } from './T';
@@ -50,6 +51,7 @@ export function TextField({
   ...inputProps
 }: TextFieldProps) {
   const [focused, setFocused] = useState(false);
+  const keyboardHeight = useKeyboardHeight();
   const [contentHeight, setContentHeight] = useState(0);
   const inputRef = useRef<TextInput>(null);
   const ownViewRef = useRef<View>(null);
@@ -83,6 +85,15 @@ export function TextField({
         {...inputProps}
         // Kein Fokus beim Laden im Browser auf Telefon und Tablet: sonst bleibt die Tastatur zu (src/lib/touchWeb.ts)
         autoFocus={inputProps.autoFocus && !isTouchWeb}
+        // Ein sichtbares Feld ist immer bedienbar (Daria, 2026-11-15): Hat es den Fokus, aber keine Tastatur,
+        // löst das Antippen den Fokus kurz. Das Tippen setzt ihn dann neu, und die Tastatur geht auf.
+        onTouchStart={(e) => {
+          if (isTouchWeb && keyboardHeight === 0) {
+            const node = inputRef.current as unknown as HTMLElement | null;
+            if (node && typeof document !== 'undefined' && document.activeElement === node) node.blur();
+          }
+          inputProps.onTouchStart?.(e);
+        }}
         selection={showEnd && !focused && Platform.OS !== 'web' ? { start: value.length, end: value.length } : inputProps.selection}
         placeholder={inputProps.placeholder ? t(inputProps.placeholder) : inputProps.placeholder}
         onSubmitEditing={(e) => {

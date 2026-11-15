@@ -352,7 +352,7 @@ export const KaterStage = memo(function KaterStage({ width, spruch, take = 0, on
           <Animated.View style={[layer, rutschen]} pointerEvents="none">
             {[GLAS_L, GLAS_R].map((m) => (
               <Animated.View key={m.x} style={herzStil(m)}>
-                <Herz size={herzGroesse} />
+                <Herz size={herzGroesse} rand={false} />
               </Animated.View>
             ))}
           </Animated.View>

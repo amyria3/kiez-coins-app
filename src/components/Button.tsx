@@ -21,6 +21,8 @@ export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'signal' | 'sign
 type ButtonProps = {
   label: string;
   onPress?: () => void;
+  /** Sobald der Finger aufliegt, vor dem Loslassen: z. B. eine Animation früher starten (Herzen im Willkommen) */
+  onPressIn?: () => void;
   variant?: ButtonVariant;
   disabled?: boolean;
   /**
@@ -39,7 +41,7 @@ type ButtonProps = {
   autoFocus?: boolean;
 };
 
-export function Button({ label: original, onPress: press, variant = 'primary', disabled: off, whyDisabled, busy, icon, iconFlip, style, autoFocus }: ButtonProps) {
+export function Button({ label: original, onPress: press, onPressIn, variant = 'primary', disabled: off, whyDisabled, busy, icon, iconFlip, style, autoFocus }: ButtonProps) {
   // Mit Erklärung bleibt der Button tippbar, sieht aber deaktiviert aus
   const explains = !!off && !!whyDisabled;
   const disabled = (off && !explains) || !!busy;
@@ -80,6 +82,7 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
           accessibilityState={{ disabled: off }}
           disabled={disabled}
           onPress={onPress}
+          onPressIn={onPressIn}
           style={styles.glassInner}
         >
           <Text style={[g.tint ? text.buttonDarkOnLight : text.buttonLightOnDark, { color: g.label }]}>{label}</Text>
@@ -94,6 +97,7 @@ export function Button({ label: original, onPress: press, variant = 'primary', d
       accessibilityState={{ disabled: off, busy }}
       disabled={disabled}
       onPress={onPress}
+      onPressIn={onPressIn}
       onLayout={onLayout}
       style={({ pressed }) => [styles.base, pressed && styles.pressed, off && !busy && styles.disabled, style]}
     >
