@@ -41,3 +41,13 @@ Datum: 2026-11-15 · Status: offen, Aufräumen und Content-Security-Policy erled
 - Sicherheits-Header auf kiezcoins.de und app.kiezcoins.de vollständig, HSTS aktiv. `kiezcoins.de/app-uebergabe` nur in app.kiezcoins.de einbettbar, ohne fremde Quellen. In den Commits des Tages nur der öffentliche Supabase-Schlüssel. `security.txt` jetzt auch auf app.kiezcoins.de (vorher lieferte die Web-App dort ihre Startseite aus).
 - Entfernt: `assets/Vector.svg`, `assets/splash-icon.png`, `scripts/site/fatcat.svg`, `Übergabe/Frame 10.svg`, `Übergabe/KiezKatz Portrait Logo.svg`. Arbeitsdateien außerhalb des Repos liegen in `KiezCoins-Fotos/_zum_loeschen`.
 - Offen bleibt: private Fotos im öffentlichen Speicher (Entscheidung Daria), Migrationen und Funktionen vom 14.11. einspielen (Daria), Tastatur in der Web-App auf dem Home-Bildschirm (Test nach dem Deploy).
+
+## Aufgeräumt am 15.11. (Daria: „Korrigiere alles davon“)
+
+- Farben und Abstände: neue Rollen in `tokens.ts`, Komponenten ohne feste UI-Farben. Ausnahmen: Inhalte (Abzeichen, Schaufenster-Designs, Plattform-Marken, QR-Code, Visitenkarte, Farbrad).
+- Namen: Englisch mit deutschen Fachbegriffen (Daria), 280 Bezeichner und 8 Dateien mit dem TypeScript-Sprachdienst umbenannt. URL-Parameter und gespeicherte Schlüssel unverändert.
+- Aufgeteilt: `remote.ts`, `store.tsx`, `RoutineList.tsx`, Teile von `feed.tsx`. Offen: `FeedScreen` selbst (rund 1 100 Zeilen), nur mit Test auf dem Gerät.
+- Tests: 26 Tests für Datum, Dringlichkeit, Text und @-Namen (`node scripts/test.mjs`).
+- Kommentare: 37 Verlaufsangaben entfernt.
+- Gefunden und behoben: Ein neues Skript in `package.json` (Umzug, ed2ee1c5) hatte den Fingerprint geändert. Die Android-Updates seit 14:07 Uhr kamen deshalb nicht bei den vorhandenen APKs an. Seit 9972254e wieder `67b211e8…`, das nächste Update erreicht sie wieder.
+- Geprüft: TypeScript, ESLint, Tests, Web-Export mit Rauchtest im Browser (Start, Anheuern mit Fokus, Feed, Routine, Me, Erstellen, Rechtstexte, Demo; keine Fehler), Android-Bundle.

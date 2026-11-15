@@ -17,11 +17,12 @@ npx expo install <package>  # ALWAYS use instead of npm/yarn/pnpm/bun add — re
 npx expo start              # start the dev server
 npx expo lint               # lint
 npx tsc --noEmit            # typecheck
+node scripts/test.mjs       # tests for pure app logic (tests/*.test.ts)
 npx expo-doctor             # diagnose dependency and config issues
 npx expo install --fix      # fix incompatible package versions
 ```
 
-Run lint and typecheck before declaring any task done.
+Run lint, typecheck and tests before declaring any task done.
 
 ## Navigation & Routing
 
@@ -39,9 +40,16 @@ Docs: https://docs.expo.dev/eas/index.md
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - No feature is off by default (Daria, 2026-11-08). New features, modes and settings start switched on for everyone, and stay on after an update. A feature is off only when Daria or the person themselves switched it off on purpose. A gate that hides a finished feature needs Daria's explicit decision, noted with date next to the switch.
-- Feature-Freischaltung (Daria, 2026-11-10): every feature outside the core gets a key in `src/data/freischaltung.ts` and a row in `public.features`, and the app asks `useFeature('key')`. Never gate a feature with a direct `isModerator()` check. Details: `Übergabe/2026-11-10_feature-freischaltung.md`.
+- Feature-Freischaltung (Daria, 2026-11-10): every feature outside the core gets a key in `src/data/unlock.ts` and a row in `public.features`, and the app asks `useFeature('key')`. Never gate a feature with a direct `isModerator()` check. Details: `Übergabe/2026-11-10_feature-freischaltung.md`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
 - Private chats (`public.messages`): never read them with a direct query. If Daria asks you to look into a chat, use `select * from public.chat_einsehen('<id a>', '<id b>', 'Claude', '<reason>');` so the read is logged in `chat_access_log`. Counting or checking structure without `body` is fine (Daria, 2026-10-27).
+
+- Names in code (Daria, 2026-11-15): identifiers are English. Domain terms stay German as proper names: Kater, Kiez, Edenstein, Schaufenster, Coins, Krabbe, Routine (e.g. `KaterBubble`, `useKiezName`). Routes, URL parameters (`?reiter=`, `?modus=`), stored keys and data values stay as they are. Comments and docs are German.
+- Colors and spacing come from `src/theme/tokens.ts` (`color.*` roles, `space[…]`). Fixed values in components only for content palettes: badges, showcase designs, other platforms' brand colors, QR code, business card, color wheel. Odd pixel offsets (e.g. -3, 13) may stay as numbers.
+- Comments describe the current state with date and reason. History („vorher #…“) belongs in the docs (Designsystem, ENTSCHEIDUNGEN), not in code.
+- Fingerprint (expo-updates `runtimeVersion: fingerprint`): native packages, `app.json`, the app icons **and the `scripts` in `package.json`** are part of it. Changing any of them means existing APKs get no more updates until a new APK is built. Do not touch them outside a planned native build; check with `npx expo-updates fingerprint:generate --platform android` (2026-11-15: a new npm script had changed it).
+- Large files: split by topic into a folder and keep the old file as a re-export, so imports stay the same (e.g. `src/data/remote/`, `src/data/store/`, `src/components/routine/`). Non-route code never goes into `src/app/`.
+- Tests: pure logic without React Native lives in its own modules (`src/data/reminderDates.ts`, `src/data/urgency.ts`, `src/data/richText.ts`, `src/lib/mentions.ts`) and is tested in `tests/*.test.ts` with Node's test runner (`node scripts/test.mjs`). No Jest, no new dependency.
 
 ## Committing
 
