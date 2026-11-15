@@ -47,7 +47,7 @@ function KiezHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) 
         style={styles.logo}
         hitSlop={LOGO_SLOP}
       >
-        {/* Logo mit Kater links (Daria, 2026-11-12: neues Logo). Ohne gelben Punkt am Kater (Daria, 2026-11-15) */}
+        {/* Logo mit Kater rechts (Daria, 2026-11-12: neues Logo; 2026-11-15: nach rechts). Ohne gelben Punkt am Kater */}
         <Logo height={28} />
       </Pressable>
     </View>
@@ -678,16 +678,16 @@ export function PlannedHint({ title, message }: { title: string; message: string
 const styles = StyleSheet.create({
   row: { flexDirection: 'row' },
   noGrow: { flexGrow: 0, flexShrink: 0 },
-  // Logo links; rechts sitzt die schwebende Kamera
+  // Logo rechts (Daria, 2026-11-15, vorher links)
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
     paddingHorizontal: space[16],
-    // Logo dicht über der Begrüßung, Begrüßung mit mehr Luft zu den Umschaltern (Daria, 2026-11-15).
+    // Etwas Luft zwischen Logo und Begrüßung, Begrüßung mit mehr Luft zu den Umschaltern (Daria, 2026-11-15).
     // Die Zeile ist nur so hoch wie das Logo; die Tippfläche vergrößert hitSlop.
     paddingTop: space[8],
-    paddingBottom: space[8],
+    paddingBottom: space[16],
   },
   logo: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
   greeting: { paddingHorizontal: space[16], paddingTop: space[4], paddingBottom: space[16], gap: space[4] },
