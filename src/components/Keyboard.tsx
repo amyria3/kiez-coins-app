@@ -122,14 +122,13 @@ function useWebKeyboard(setHeight: (height: number) => void) {
         setHeight(next);
         if (next) {
           cancelAnimationFrame(frame);
-          frame = requestAnimationFrame(() => {
-            revealFocusedElement();
-            window.scrollTo(0, 0);
-          });
+          frame = requestAnimationFrame(revealFocusedElement);
         }
       }
-      // Safari schiebt beim Fokus die ganze Seite hoch. Sie gehört oben hin, auch nach dem Schließen.
-      if (window.scrollY !== 0 || viewport.offsetTop !== 0) window.scrollTo(0, 0);
+      // Safari schiebt beim Fokus die ganze Seite hoch. Sie gehört oben hin, aber erst wenn die Tastatur zu ist.
+      // Während sie aufgeht, scrollt hier nichts: In der Web-App auf dem Home-Bildschirm schloss iOS die Tastatur
+      // sonst sofort wieder, das Feld hatte Fokus ohne Tastatur (Daria, 2026-11-15).
+      if (!current && (window.scrollY !== 0 || viewport.offsetTop !== 0)) window.scrollTo(0, 0);
     };
     viewport.addEventListener('resize', update);
     viewport.addEventListener('scroll', update);
