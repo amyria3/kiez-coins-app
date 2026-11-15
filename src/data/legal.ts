@@ -7,14 +7,15 @@
  */
 
 /** Stand aller Texte (TT.MM.JJJJ). */
-export const LEGAL_STAND = '14.11.2026';
+export const LEGAL_STAND = '15.11.2026';
 
 /** Angaben zur Anbieterin. Leere Felder erscheinen in der App als „[offen: …]“. */
 export const OPERATOR = {
   name: 'Maria Arkadieff',
   /** Ladungsfähige Anschrift: Straße, Hausnummer, PLZ, Ort. Kein Postfach. */
-  street: '',
-  city: '',
+  /** Geschäftsadresse bei Online-Impressum, ladungsfähig (Daria, 2026-11-15) */
+  street: 'c/o Online-Impressum 13086\nEuroparing 90',
+  city: '53757 Sankt Augustin',
   /** Postfach für Impressum, Datenschutz und Meldungen, zum Beispiel kontakt@kiezcoins.de */
   email: 'kiezkoins@protonmail.com',
   /** Zweiter schneller Kontaktweg nach § 5 DDG: Telefon oder Kontaktformular. */
@@ -74,7 +75,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
     sections: [
       {
         heading: 'Verantwortlich ist die Anbieterin',
-        paragraphs: [hasAddress ? `${name}, ${OPERATOR.street.trim()}, ${OPERATOR.city.trim()}, E-Mail: ${email}` : `${name}, E-Mail: ${email}`],
+        paragraphs: [hasAddress ? `${name}, ${OPERATOR.street.trim().replace(/\n/g, ', ')}, ${OPERATOR.city.trim()}, E-Mail: ${email}` : `${name}, E-Mail: ${email}`],
       },
       {
         heading: 'Dein Konto',
