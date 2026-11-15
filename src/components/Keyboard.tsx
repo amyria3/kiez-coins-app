@@ -125,28 +125,58 @@ function useWebKeyboard(setHeight: (height: number) => void) {
           frame = requestAnimationFrame(revealFocusedElement);
         }
       }
-      // Safari schiebt beim Fokus die ganze Seite hoch. Sie gehört oben hin, aber erst wenn die Tastatur zu ist.
-      // Während sie aufgeht, scrollt hier nichts: In der Web-App auf dem Home-Bildschirm schloss iOS die Tastatur
-      // sonst sofort wieder, das Feld hatte Fokus ohne Tastatur (Daria, 2026-11-15).
-      if (!current && (window.scrollY !== 0 || viewport.offsetTop !== 0)) window.scrollTo(0, 0);
+      // Safari schiebt beim Fokus die ganze Seite hoch, damit das Feld über der Tastatur steht. Sie gehört oben hin,
+      // aber erst wenn kein Feld mehr aktiv ist. Solange eins aktiv ist, scrollt hier nichts: In der Web-App auf dem
+      // Home-Bildschirm meldet iOS die Tastatur nicht immer über `visualViewport`. Das Zurückscrollen schob das
+      // Feld dann unter die Tastatur oder schloss sie sofort wieder (Daria, 2026-11-15). Das aktive und das nächste
+      // Feld müssen immer zu sehen sein.
+      if (!current && !isEditable(document.activeElement) && (window.scrollY !== 0 || viewport.offsetTop !== 0)) {
+        window.scrollTo(0, 0);
+      }
+    };
+    // Beim Verlassen eines Felds steht der neue Fokus erst nach dem Ereignis fest (z. B. Pfeil zum nächsten Feld)
+    let later: ReturnType<typeof setTimeout> | undefined;
+    const afterFocusChange = () => {
+      clearTimeout(later);
+      later = setTimeout(update, 0);
+    };
+    // Zum nächsten Feld bei offener Tastatur: Die Höhe ändert sich nicht, das Feld muss trotzdem ins Bild
+    const onFocusIn = () => {
+      if (!current) return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(revealFocusedElement);
     };
     viewport.addEventListener('resize', update);
     viewport.addEventListener('scroll', update);
-    window.addEventListener('focusout', update);
+    window.addEventListener('focusout', afterFocusChange);
+    window.addEventListener('focusin', onFocusIn);
     update();
     return () => {
       cancelAnimationFrame(frame);
+      clearTimeout(later);
       viewport.removeEventListener('resize', update);
       viewport.removeEventListener('scroll', update);
-      window.removeEventListener('focusout', update);
+      window.removeEventListener('focusout', afterFocusChange);
+      window.removeEventListener('focusin', onFocusIn);
       root.style.removeProperty('--keyboard-inset');
     };
   }, [setHeight]);
 }
 
+/** Eingabe-Arten ohne Tastatur */
+const NO_KEYBOARD = new Set(['button', 'checkbox', 'color', 'file', 'hidden', 'image', 'radio', 'range', 'reset', 'submit']);
+
+/** Eingabefeld, das die Tastatur öffnet */
+function isEditable(el: Element | null): el is HTMLElement {
+  const node = el as HTMLElement | null;
+  if (!node) return false;
+  if (node.tagName === 'INPUT') return !NO_KEYBOARD.has((node as HTMLInputElement).type);
+  return node.tagName === 'TEXTAREA' || node.isContentEditable;
+}
+
 function revealFocusedElement() {
-  const el = document.activeElement as HTMLElement | null;
-  if (!el || !(el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
+  const el = document.activeElement;
+  if (!isEditable(el)) return;
   // Abstand zum Rand über scroll-margin in public/index.html
   el.scrollIntoView({ block: 'nearest' });
 }
