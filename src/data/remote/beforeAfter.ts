@@ -26,6 +26,8 @@ export type NewBeforeAfter = {
   private?: boolean;
   /** Nur im Umkreis von 5 km, nicht in „Überall“ (Migration 20261029000100) */
   localOnly?: boolean;
+  /** „Sehr privat“ (Migration 20261116000200) */
+  veryPrivate?: boolean;
   title: string;
   beforeText: string;
   photo: ImageSource;
@@ -56,6 +58,9 @@ export async function startBeforeAfter(userId: string, input: NewBeforeAfter): P
     check(await supabase.from('challenges').update({ visibility: 'private' }).eq('id', data as string).eq('status', 'draft'));
   } else if (input.localOnly && !input.groupId) {
     check(await supabase.from('challenges').update({ local_only: true }).eq('id', data as string).eq('status', 'draft'));
+  }
+  if (input.veryPrivate) {
+    check(await supabase.from('challenges').update({ very_private: true }).eq('id', data as string).eq('status', 'draft'));
   }
   // Gleich offen im Feed statt Entwurf (Daria, 2026-11-09). Ohne Migration 20261109000200 bleibt es ein Entwurf.
   await supabase.rpc('open_before_after', { p_challenge_id: data as string });

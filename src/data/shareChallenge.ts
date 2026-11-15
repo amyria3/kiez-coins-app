@@ -21,11 +21,28 @@ export function canSharePublicly(challenge: Challenge, userId: string | undefine
     !!userId &&
     challenge.authorId === userId &&
     !challenge.private &&
+    !challenge.veryPrivate &&
     !challenge.groupId &&
     !challenge.localOnly &&
     challenge.status !== 'draft' &&
     challenge.status !== 'deleted'
   );
+}
+
+/**
+ * Gibt es den Teilen-Knopf an diesem Post? (Daria, 15.11.2026) „Sehr privat“: für niemanden. Privat und Gruppen:
+ * nur für die Ersteller:in. Kiez und Überall: für alle.
+ */
+export function canShare(challenge: Challenge, userId: string | undefined): boolean {
+  if (challenge.veryPrivate) return false;
+  if (challenge.private || challenge.groupId) return !!userId && challenge.authorId === userId;
+  return true;
+}
+
+/** `canShare` mit der angemeldeten Person */
+export function useCanShare(): (challenge: Challenge) => boolean {
+  const { currentUserId } = useStore();
+  return (challenge) => canShare(challenge, currentUserId);
 }
 
 /** Adresse eines Bildes, wenn es eine hat (Fotos aus dem Storage, Demo-Bilder im Browser) */

@@ -12,6 +12,7 @@ import { Text } from '../T';
 import { SheetEditor, pagesText } from '../TextSheets';
 import { PHOTO_TAG } from '../WithMentions';
 import { TagTextField } from './BeforeAfterForm';
+import { VeryPrivateSwitch } from './VeryPrivateSwitch';
 import { CrosspostRow } from './CrosspostRow';
 import { explain } from '../Nudge';
 import { useComposeContent, type ComposeContent } from './compose';
@@ -56,6 +57,9 @@ export function usePublicComposeForm(
   const setSheetFont = shared?.setSheetFont ?? setOwnFont;
   // Weiterposten: für diesen Post abgewählte Plattformen (Daria, 13.11.2026)
   const [crosspostOff, setCrosspostOff] = useState<LivePlatform[]>([]);
+  // „Sehr privat“ (Daria, 15.11.2026): kein Teilen, kein Weiterposten
+  const [veryPrivate, setVeryPrivate] = useState(false);
+  const veryPrivateParam = veryPrivate ? { sehrprivat: '1' } : {};
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState(false);
   const isChallenge = type !== 'photo';
@@ -73,7 +77,7 @@ export function usePublicComposeForm(
       }
       router.push({
         pathname: isPrivate ? '/challenge/create/preview' : '/challenge/create/step-2',
-        params: { from: 'feed', type: 'photo', title, seiten: JSON.stringify(pages), schrift: sheetFont, ...(isPrivate ? { privat: '1' } : {}) },
+        params: { from: 'feed', type: 'photo', title, seiten: JSON.stringify(pages), schrift: sheetFont, ...(isPrivate ? { privat: '1' } : {}), ...veryPrivateParam },
       });
       return;
     }
@@ -92,9 +96,10 @@ export function usePublicComposeForm(
         text,
         photo: uriOf(photo) ?? '',
         ...(isPrivate ? { privat: '1' } : {}),
+        ...veryPrivateParam,
         ...(extraUris.length ? { extras: JSON.stringify(extraUris) } : {}),
         ...(withPhotoText ? { bildtext: JSON.stringify(withPhotoText) } : {}),
-        ...(crosspostOff.length && !isPrivate ? { ohne: JSON.stringify(crosspostOff) } : {}),
+        ...(crosspostOff.length && !isPrivate && !veryPrivate ? { ohne: JSON.stringify(crosspostOff) } : {}),
       },
     });
   };
@@ -105,8 +110,8 @@ export function usePublicComposeForm(
       await saveDraft(
         undefined,
         textOnly
-          ? { type: 'photo', title, text: '', location: '', pages, sheetFont, private: isPrivate }
-          : { type, title, text, location: '', photo, extras: extraPhotos.map((e) => ({ photo: e.photo })), private: isPrivate, photoText: withPhotoText },
+          ? { type: 'photo', title, text: '', location: '', pages, sheetFont, private: isPrivate, ...(veryPrivate ? { veryPrivate } : {}) }
+          : { type, title, text, location: '', photo, extras: extraPhotos.map((e) => ({ photo: e.photo })), private: isPrivate, photoText: withPhotoText, ...(veryPrivate ? { veryPrivate } : {}) },
       );
       onSaved();
     } catch (error) {
@@ -121,6 +126,7 @@ export function usePublicComposeForm(
       <Text style={styles.hint}>Hier ist nichts zu tun, nur Dein Text. Ist ein Blatt voll, geht es auf dem nächsten weiter.</Text>
       <SheetEditor title={title} onTitleChange={setTitle} pages={pages} onPagesChange={setPages} fontKey={sheetFont} onFontChange={setSheetFont} />
       {showErrors && missingText ? <Text style={styles.error}>Schreib etwas auf das Blatt.</Text> : null}
+      <VeryPrivateSwitch value={veryPrivate} onChange={setVeryPrivate} />
     </>
   ) : (
     <>
@@ -154,7 +160,8 @@ export function usePublicComposeForm(
         <TagTextField label="Dein Text" tag={PHOTO_TAG} value={text} onChangeText={setText} maxLength={500} />
       )}
       {/* Weiterposten auf andere Plattformen, nur öffentliche Posts (Daria, 05.11.2026), je Plattform abwählbar (13.11.2026) */}
-      {isPrivate ? null : <CrosspostRow off={crosspostOff} onChange={setCrosspostOff} />}
+      <VeryPrivateSwitch value={veryPrivate} onChange={setVeryPrivate} />
+      {isPrivate || veryPrivate ? null : <CrosspostRow off={crosspostOff} onChange={setCrosspostOff} />}
     </>
   );
 

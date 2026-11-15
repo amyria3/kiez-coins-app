@@ -1,7 +1,7 @@
 import { RoutinePill } from './RoutinePill';
 import { memo, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Animated, Platform, Pressable, StyleSheet, View } from 'react-native';
-import { useShareChallenge } from '../data/shareChallenge';
+import { useCanShare, useShareChallenge } from '../data/shareChallenge';
 import { Text } from './T';
 import { LikeCount } from './LikeCount';
 import { Image } from 'expo-image';
@@ -64,6 +64,7 @@ function KiezPost({
   wrapLike = (heart) => heart,
 }: ChallengePostProps) {
   const share = useShareChallenge();
+  const canShare = useCanShare();
   const isWave = challenge.type === 'wave';
   const completed = COMPLETED.has(challenge.status);
   const closed = challenge.status === 'closed';
@@ -225,12 +226,14 @@ function KiezPost({
           <Icon name="comment-filled" size={size.icon} color={color.text.primary} />
           {commentCount > 0 ? <Text style={styles.count}>{commentCount}</Text> : null}
         </Pressable>
-        <IconButton
-          icon="send"
-          iconSize={size.icon}
-          accessibilityLabel={t('Teilen')}
-          onPress={() => share(challenge)}
-        />
+        {canShare(challenge) ? (
+          <IconButton
+            icon="send"
+            iconSize={size.icon}
+            accessibilityLabel={t('Teilen')}
+            onPress={() => share(challenge)}
+          />
+        ) : null}
       </View>
     </View>
   );

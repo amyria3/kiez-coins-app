@@ -118,6 +118,7 @@ export function toChallenge(
     groupId: row.group_id ?? undefined,
     private: row.visibility === 'private' || undefined,
     localOnly: row.local_only || undefined,
+    veryPrivate: row.very_private || undefined,
     photoText: row.photo_text?.trim()
       ? { text: row.photo_text, x: row.photo_text_x ?? 0.5, y: row.photo_text_y ?? 0.5 }
       : undefined,

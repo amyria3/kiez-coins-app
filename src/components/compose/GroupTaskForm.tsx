@@ -17,6 +17,7 @@ import { MAX_MEMBERS } from '../../data/groups';
 import type { Participation } from '../../data/remote';
 import { celebratePost } from '../HeartBurst';
 import { useGroupPlace } from './GroupPlaceField';
+import { VeryPrivateSwitch } from './VeryPrivateSwitch';
 
 const durations = [
   { days: 1, label: '1 Tag' },
@@ -57,6 +58,9 @@ export function useGroupTaskForm(
   const [busy, setBusy] = useState<'publish' | 'save' | undefined>();
   const titleField = useNudge();
   const place = useGroupPlace(groupId, draft);
+  // „Sehr privat“ (Daria, 15.11.2026). Nur mitschicken, wenn an oder beim Entwurf geändert (ohne Migration 20261116000200)
+  const [veryPrivate, setVeryPrivate] = useState(!!draft?.veryPrivate);
+  const veryPrivateField = veryPrivate || draft?.veryPrivate ? { veryPrivate } : {};
   const hasContent = !!photo || !!title.trim() || !!body.trim();
 
   const input = () => ({
@@ -69,6 +73,7 @@ export function useGroupTaskForm(
     edensteine,
     participation,
     ...draftPhoto(photo, draft),
+    ...veryPrivateField,
   });
 
   const publish = async () => {
@@ -78,7 +83,7 @@ export function useGroupTaskForm(
       const deadline = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
       const taskId = draft
         ? await publishDraft(draft.id, input(), deadline)
-        : await groupApi.createTask({ groupId: group.id, title, text: body, edensteine, participation, deadline, photo, location: place.location, coords: place.coords });
+        : await groupApi.createTask({ groupId: group.id, title, text: body, edensteine, participation, deadline, photo, location: place.location, coords: place.coords, veryPrivate });
       celebratePost();
       onCreated(taskId);
     } catch (error) {
@@ -111,6 +116,7 @@ export function useGroupTaskForm(
         title={{ value: title, onChange: setTitle, nudge: titleField }}
       />
       <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={body} onChangeText={setBody} maxLength={500} />
+      <VeryPrivateSwitch value={veryPrivate} onChange={setVeryPrivate} />
       {place.field}
       <FieldGroup label="Edensteine">
         <EdensteinStepper value={edensteine} onChange={setEdensteine} seed="neue-aufgabe" />

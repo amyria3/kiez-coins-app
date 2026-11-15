@@ -165,6 +165,11 @@ export type Challenge = {
   private?: boolean;
   /** Nur im Umkreis von 5 km zeigen, nicht in „Überall“. Über einen Link bleibt der Beitrag erreichbar (Daria, 29.10.2026). */
   localOnly?: boolean;
+  /**
+   * „Sehr privat“ (Daria, 15.11.2026, Migration 20261116000200): kein Teilen, keine öffentliche Seite, Fotos nur im
+   * privaten Speicher. Beim Einschalten bekommen die Fotos neue Adressen, alte Links funktionieren nicht mehr.
+   */
+  veryPrivate?: boolean;
   /** Bis zu 2 weitere Fotos (Migration 20261020000700) */
   extraImages?: ExtraPhoto[];
   /** Nur „Nur ein Bild“: Text auf dem ersten Foto (Migration 20261029000200) */

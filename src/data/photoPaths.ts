@@ -11,8 +11,9 @@ export const isPrivatePath = (path: string) => (path.split('/')[1] ?? '').starts
 
 export const bucketOf = (path: string) => (isPrivatePath(path) ? PRIVATE_BUCKET : PHOTO_BUCKET);
 
-/** Fotos eines privaten Posts oder einer Gruppe kommen in den privaten Speicher */
-export const isPrivateAudience = (a: { private?: boolean; groupId?: string | null }) => !!a.private || !!a.groupId;
+/** Fotos eines privaten, sehr privaten oder Gruppen-Posts kommen in den privaten Speicher */
+export const isPrivateAudience = (a: { private?: boolean; groupId?: string | null; veryPrivate?: boolean }) =>
+  !!a.private || !!a.groupId || !!a.veryPrivate;
 
 /** Neuer Dateiname im eigenen Ordner, mit `p_` für den privaten Speicher */
 export const newPhotoPath = (userId: string, isPrivate: boolean, now = Date.now()) =>

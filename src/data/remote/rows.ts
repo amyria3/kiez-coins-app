@@ -110,6 +110,8 @@ export type ChallengeRow = {
   visibility?: 'public' | 'private' | null;
   /** Migration 20261029000100 */
   local_only?: boolean | null;
+  /** Migration 20261116000200 */
+  very_private?: boolean | null;
   /** Text auf dem Foto (Migration 20261029000200) */
   photo_text?: string | null;
   photo_text_x?: number | null;

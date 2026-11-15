@@ -153,6 +153,8 @@ export type NewChallenge = {
   private?: boolean;
   /** Nur im Umkreis von 5 km, nicht in „Überall“ (Migration 20261029000100) */
   localOnly?: boolean;
+  /** „Sehr privat“: kein Teilen, Fotos nur im privaten Speicher (Migration 20261116000200) */
+  veryPrivate?: boolean;
   /** Nur „Nur ein Bild“: Text auf dem Foto (Migration 20261029000200). `null` löscht ihn im Entwurf. */
   photoText?: PhotoText | null;
   participation?: Participation;
@@ -265,7 +267,7 @@ const edenField = (edensteine?: number) => (edensteine ? { edensteine } : {});
 
 /** Neue Challenge anlegen. Gibt die gespeicherte Challenge zurück. */
 export async function createChallenge(userId: string, draft: NewChallenge): Promise<Challenge> {
-  const isPrivate = !!draft.private;
+  const isPrivate = isPrivateAudience(draft);
   const imagePath = draft.photo ? await uploadPhoto(userId, draft.photo, isPrivate) : null;
   const extraPaths = draft.photo ? await uploadExtras(userId, draft.extras, isPrivate) : undefined;
   const { data } = await retryWithoutCoords(async (withCoords) =>
@@ -285,6 +287,8 @@ export async function createChallenge(userId: string, draft: NewChallenge): Prom
           image_path: imagePath,
           ...pagesField(draft.pages, draft.sheetFont),
           ...(draft.private ? { visibility: 'private' } : {}),
+          // Nur mitschicken, wenn an: So legt die App auch ohne Migration 20261116000200 an
+          ...(draft.veryPrivate ? { very_private: true } : {}),
           // Nur mitschicken, wenn gesetzt: So legt die App auch ohne Migration 20261029000100 an
           ...(draft.localOnly && !draft.private ? { local_only: true } : {}),
           ...photoTextFields(draft.type, draft.photoText),
@@ -334,6 +338,8 @@ export type NewGroupTask = {
   participation?: Participation;
   /** Nur in öffentlichen Gruppen (GroupPlaceField), freiwillig */
   location?: string;
+  /** „Sehr privat“ (Migration 20261116000200) */
+  veryPrivate?: boolean;
   coords?: { latitude: number; longitude: number };
 };
 
@@ -358,6 +364,7 @@ export async function createGroupTask(userId: string, task: NewGroupTask): Promi
         ...(task.coords ? { lat: task.coords.latitude, lng: task.coords.longitude } : {}),
         deadline: task.deadline,
         image_path: imagePath,
+        ...(task.veryPrivate ? { very_private: true } : {}),
         ...(isPhoto ? pagesField(task.pages, task.sheetFont) : {}),
       })
       .select(CHALLENGE_COLUMNS)
@@ -393,6 +400,8 @@ export const challengeActions = {
   /** Umkreis-Begrenzung nachträglich ändern (Migration 20261029000100) */
   setLocalOnly: (id: string, localOnly: boolean) =>
     rpc('set_challenge_local_only', { p_challenge_id: id, p_local_only: localOnly }),
+  /** „Sehr privat“ an oder aus (Migration 20261116000200) */
+  setVeryPrivate: (id: string, on: boolean) => rpc('set_challenge_very_private', { p_challenge_id: id, p_on: on }),
   /** Privat, Kiez oder Überall nachträglich ändern (Migration 20261107000300) */
   setAudience: (id: string, isPrivate: boolean, localOnly: boolean) =>
     rpc('set_challenge_audience', { p_challenge_id: id, p_private: isPrivate, p_local_only: localOnly }),
@@ -484,6 +493,8 @@ export type DraftInput = {
   private?: boolean;
   /** Nur im Umkreis von 5 km, nicht in „Überall“ (Migration 20261029000100) */
   localOnly?: boolean;
+  /** „Sehr privat“: kein Teilen, Fotos nur im privaten Speicher (Migration 20261116000200) */
+  veryPrivate?: boolean;
   /** Nur „Nur ein Bild“: Text auf dem Foto (Migration 20261029000200). `null` löscht ihn im Entwurf. */
   photoText?: PhotoText | null;
   /** Post nur mit Text (Migration 20261107000100) */
@@ -494,7 +505,7 @@ export type DraftInput = {
 
 /** Entwurf anlegen (ohne id) oder aktualisieren. Lädt ein neues Foto hoch. Gibt den gespeicherten Entwurf zurück. */
 export async function saveDraft(userId: string, id: string | undefined, draft: DraftInput): Promise<Challenge> {
-  const isPrivate = id ? await isPrivateChallenge(id) : isPrivateAudience(draft);
+  const isPrivate = (id ? await isPrivateChallenge(id) : isPrivateAudience(draft)) || !!draft.veryPrivate;
   const imagePath = draft.imagePath ?? (draft.photo ? await uploadPhoto(userId, draft.photo, isPrivate) : null);
   const extraPaths = await uploadExtras(userId, draft.extras, isPrivate);
   const fields = {
@@ -515,6 +526,8 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
         ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}),
         // Nur mitschicken, wenn gewählt: So speichert die App auch ohne Migration 20261029000100
         ...(draft.localOnly !== undefined && !draft.private ? { local_only: draft.localOnly } : {}),
+        // Nur mitschicken, wenn gewählt: So speichert die App auch ohne Migration 20261116000200
+        ...(draft.veryPrivate !== undefined ? { very_private: draft.veryPrivate } : {}),
         ...photoTextFields(draft.type, draft.photoText),
         ...(draft.type === 'photo' ? pagesField(draft.pages, draft.sheetFont) : {}),
       };

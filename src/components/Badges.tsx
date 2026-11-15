@@ -158,6 +158,17 @@ export function TestAccountBadge() {
   );
 }
 
+/** Marke „Sehr privat“ (Daria, 15.11.2026), in der Vorschau beim Erstellen. Getönt wie ein Status, nicht tippbar. */
+export function VeryPrivateBadge() {
+  return (
+    <View style={[styles.status, styles.test, badgeLook(color.text.secondary).box]} accessible>
+      <Text style={[text.caption, { color: color.text.secondary }]} numberOfLines={1}>
+        Sehr privat
+      </Text>
+    </View>
+  );
+}
+
 /** Deckname mit Marke „Testaccount“ dahinter, wenn die Person ein Testkonto nutzt. */
 export function NameWithTestMark({ test, children }: { test?: boolean; children: ReactNode }) {
   if (!test) return <>{children}</>;

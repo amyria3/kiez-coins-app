@@ -39,6 +39,8 @@ export type Draft = {
   participation?: Participation;
   /** „Auf einen Umkreis von 5 km begrenzen“: nicht in „Überall“ (Daria, 29.10.2026) */
   localOnly?: boolean;
+  /** „Sehr privat“: kein Teilen, alte Links zu den Fotos gesperrt (Daria, 15.11.2026) */
+  veryPrivate?: boolean;
   /** Nur Bild: Text auf dem Foto, mit dem Finger verschoben (Daria, 29.10.2026) */
   photoText?: PhotoText;
   /** Der gespeicherte Entwurf hatte schon Text auf dem Foto: Leeren löscht ihn dann auch in der Datenbank. */
@@ -77,6 +79,7 @@ function fromChallenge(c: Challenge): Draft {
     coords: c.coords,
     private: c.private,
     localOnly: c.localOnly,
+    veryPrivate: c.veryPrivate,
     photoText: c.photoText,
     hadPhotoText: !!c.photoText,
     pages: c.pages,
@@ -122,6 +125,7 @@ export function useSaveDraft() {
         extras: draft.extras,
         private: draft.private,
         localOnly: draft.localOnly,
+        veryPrivate: draft.veryPrivate,
         photoText: photoTextInput(draft),
         pages: draft.pages,
         sheetFont: draft.sheetFont,
@@ -160,7 +164,7 @@ export default function CreateLayout() {
 }
 
 function CreateFlow() {
-  const { draftId, copyOf: copyId, title, text, photo, type, extras, privat: isPrivate, bildtext: imageText, seiten: pageList, schrift: sheetFont, ohne: without } = useGlobalSearchParams<{
+  const { draftId, copyOf: copyId, title, text, photo, type, extras, privat: isPrivate, sehrprivat: veryPrivate, bildtext: imageText, seiten: pageList, schrift: sheetFont, ohne: without } = useGlobalSearchParams<{
     draftId?: string;
     copyOf?: string;
     /** Aus dem Erstellen-Blatt über dem Feed mitgebracht (components/compose) */
@@ -172,6 +176,8 @@ function CreateFlow() {
     extras?: string;
     /** `1`: Modus „Privat“ */
     privat?: string;
+    /** `1`: „Sehr privat“ */
+    sehrprivat?: string;
     /** JSON: Text auf dem Foto ({ text, x, y }) */
     bildtext?: string;
     /** JSON-Liste: Blätter eines Posts nur mit Text */
@@ -218,6 +224,7 @@ function CreateFlow() {
       // Privat gibt es nur als Bild
       type: type === 'photo' || isPrivate === '1' ? 'photo' : 'individual',
       private: isPrivate === '1' || undefined,
+      veryPrivate: veryPrivate === '1' || undefined,
       title: title ?? '',
       text: text ?? '',
       ...(photo ? { photo: { uri: photo } } : {}),

@@ -1,7 +1,7 @@
 import { supabase } from '../../lib/supabase';
 
 import type { ImageSource } from '../types';
-import { bucketOf, isPrivatePath, otherPhotoName, PHOTO_BUCKET, PRIVATE_BUCKET } from '../photoPaths';
+import { bucketOf, isPrivatePath, newPhotoPath, otherPhotoName, PHOTO_BUCKET, PRIVATE_BUCKET } from '../photoPaths';
 import type { ChallengeRow } from './rows';
 
 export { bucketOf, isPrivateAudience, isPrivatePath, newPhotoPath, PRIVATE_BUCKET } from '../photoPaths';
@@ -73,18 +73,22 @@ export async function removePhotos(paths: string[]): Promise<void> {
   }
 }
 
-/** Ist der Post privat oder in einer Gruppe? Für Uploads zu einem Post, der schon existiert. */
+/** Gehören die Fotos dieses Posts in den privaten Speicher? Privat, Gruppe oder sehr privat. */
+const wantsPrivate = (row: { visibility?: string | null; group_id?: string | null; very_private?: boolean | null }) =>
+  row.visibility === 'private' || !!row.group_id || !!row.very_private;
+
+/** Ist der Post privat, sehr privat oder in einer Gruppe? Für Uploads zu einem Post, der schon existiert. */
 export async function isPrivateChallenge(id: string): Promise<boolean> {
-  const { data } = await supabase.from('challenges').select('visibility, group_id').eq('id', id).maybeSingle();
-  const row = data as { visibility?: string; group_id?: string | null } | null;
-  return row?.visibility === 'private' || !!row?.group_id;
+  // `*`: So klappt es auch, solange die Spalte very_private fehlt (Migration 20261116000200)
+  const { data } = await supabase.from('challenges').select('*').eq('id', id).maybeSingle();
+  return data ? wantsPrivate(data as ChallengeRow) : false;
 }
 
-/** Kopiert ein eigenes Foto in den anderen Speicher. Eine schon vorhandene Kopie zählt als erledigt. */
 const uriOf = (source: ImageSource | undefined) =>
   source && typeof source === 'object' && 'uri' in source ? source.uri : undefined;
 
-async function copyToOtherBucket(path: string): Promise<void> {
+/** Kopiert ein eigenes Foto an eine neue Stelle (anderer Speicher oder neuer Name). Eine vorhandene Kopie zählt als erledigt. */
+async function copyPhoto(path: string, target: string): Promise<void> {
   let url = uriOf(photoUrl(path));
   if (!url) {
     await signPhotos([path]);
@@ -94,7 +98,6 @@ async function copyToOtherBucket(path: string): Promise<void> {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Foto nicht lesbar: ${response.status}`);
   const body = await response.arrayBuffer();
-  const target = otherPhotoName(path);
   const { error } = await supabase.storage
     .from(bucketOf(target))
     .upload(target, body, { contentType: response.headers.get('content-type') ?? 'image/jpeg', upsert: false });
@@ -102,26 +105,31 @@ async function copyToOtherBucket(path: string): Promise<void> {
 }
 
 /**
- * Nach einem Wechsel zwischen Privat und Kiez/Überall: eigene Fotos in den passenden Speicher bringen.
- * Erst kopieren, dann die Pfade in der Datenbank umstellen, zuletzt die alten Dateien löschen. Bricht etwas ab,
- * zeigen die Pfade weiter auf die alten Dateien, und die Fotos bleiben sichtbar.
+ * Eigene Fotos eines Posts in den passenden Speicher bringen, nach einem Wechsel zwischen Privat und Kiez/Überall
+ * oder nach „Sehr privat“. Erst kopieren, dann die Pfade in der Datenbank umstellen, zuletzt die alten Dateien löschen.
+ * Bricht etwas ab, zeigen die Pfade weiter auf die alten Dateien, und die Fotos bleiben sichtbar.
+ * `fresh` (beim Einschalten von „Sehr privat“): Alle eigenen Fotos bekommen neue Namen. So funktionieren schon
+ * verschickte Links sofort nicht mehr, auch die Links mit 24 Stunden Gültigkeit.
  */
-export async function syncChallengePhotos(id: string, userId: string): Promise<void> {
-  const { data, error } = await supabase
-    .from('challenges')
-    .select('visibility, group_id, image_path, image_before_path, image_after_path, extra_image_paths')
-    .eq('id', id)
-    .maybeSingle();
+export async function syncChallengePhotos(id: string, userId: string, fresh = false): Promise<void> {
+  const { data, error } = await supabase.from('challenges').select('*').eq('id', id).maybeSingle();
   if (error || !data) return;
-  const row = data as Partial<ChallengeRow> & { visibility?: string; group_id?: string | null };
-  const wantPrivate = row.visibility === 'private' || !!row.group_id;
+  const row = data as ChallengeRow;
+  const wantPrivate = wantsPrivate(row);
   const own = [row.image_path, row.image_before_path, row.image_after_path, ...(row.extra_image_paths ?? [])].filter(
-    (p): p is string => !!p && p.startsWith(`${userId}/`) && isPrivatePath(p) !== wantPrivate,
+    (p): p is string => !!p && p.startsWith(`${userId}/`) && (fresh || isPrivatePath(p) !== wantPrivate),
   );
   const moving = [...new Set(own)];
   if (!moving.length) return;
-  for (const path of moving) await copyToOtherBucket(path);
-  const { error: rpcError } = await supabase.rpc('sync_challenge_photo_names', { p_challenge_id: id });
-  if (rpcError) throw rpcError;
+  if (fresh) {
+    const targets = moving.map(() => newPhotoPath(userId, wantPrivate));
+    for (let i = 0; i < moving.length; i++) await copyPhoto(moving[i], targets[i]);
+    const { error: rpcError } = await supabase.rpc('rename_challenge_photos', { p_challenge_id: id, p_old: moving, p_new: targets });
+    if (rpcError) throw rpcError;
+  } else {
+    for (const path of moving) await copyPhoto(path, otherPhotoName(path));
+    const { error: rpcError } = await supabase.rpc('sync_challenge_photo_names', { p_challenge_id: id });
+    if (rpcError) throw rpcError;
+  }
   await removePhotos(moving).catch((e) => console.warn('Alte Fotos nicht gelöscht', e));
 }

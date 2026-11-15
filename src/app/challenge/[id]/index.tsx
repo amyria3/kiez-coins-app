@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View, type GestureResponderEvent } from 'react-native';
-import { useShareChallenge } from '../../../data/shareChallenge';
+import { canShare, useShareChallenge } from '../../../data/shareChallenge';
 import { Text } from '../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -686,7 +686,7 @@ export default function ChallengeDetail() {
       imageLabel={challenge.title.trim() || t('Foto')}
       photoText={challenge.type === 'photo' && image === challenge.image ? challenge.photoText : undefined}
       onBackPress={() => goBack()}
-      onSharePress={() => share(challenge)}
+      onSharePress={canShare(challenge, currentUserId) ? () => share(challenge) : undefined}
       imageOverlay={SHOW_OPERATION_NAME && acceptedByMe && challenge.operationName ? <OperationTag name={challenge.operationName} /> : undefined}
       actions={actions}
       summary={summary}

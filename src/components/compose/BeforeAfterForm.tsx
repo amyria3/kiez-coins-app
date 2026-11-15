@@ -8,6 +8,7 @@ import { color, radius, space, stroke, text } from '../../theme/tokens';
 import { useFocusColor } from '../../theme/signal';
 import { Button } from '../Button';
 import { PhotoPicker, SwitchRow } from '../Form';
+import { VeryPrivateSwitch } from './VeryPrivateSwitch';
 import { useNudge } from '../Nudge';
 import { useComposeContent, type ComposeContent } from './compose';
 import { Text } from '../T';
@@ -117,6 +118,8 @@ export function useBeforeAfterStartForm(
   const [busy, setBusy] = useState(false);
   // Nur im Kiez, nicht in „Überall“ (Daria, 29.10.2026)
   const [localOnly, setLocalOnly] = useState(false);
+  // „Sehr privat“ (Daria, 15.11.2026)
+  const [veryPrivate, setVeryPrivate] = useState(false);
   const titleField = useNudge();
   const missingPhoto = !photo;
   const missingTitle = !title.trim();
@@ -130,7 +133,7 @@ export function useBeforeAfterStartForm(
     }
     setBusy(true);
     try {
-      const id = await beforeAfter.start({ groupId, title, beforeText, photo, private: isPrivate, localOnly: !groupId && !isPrivate && localOnly });
+      const id = await beforeAfter.start({ groupId, title, beforeText, photo, private: isPrivate, localOnly: !groupId && !isPrivate && localOnly, veryPrivate });
       onStarted(id);
     } catch (error) {
       Alert.alert('Vorher nicht gespeichert', (error as Error).message);
@@ -173,6 +176,7 @@ export function useBeforeAfterStartForm(
           onValueChange={setLocalOnly}
         />
       ) : null}
+      <VeryPrivateSwitch value={veryPrivate} onChange={setVeryPrivate} />
     </>
   );
 

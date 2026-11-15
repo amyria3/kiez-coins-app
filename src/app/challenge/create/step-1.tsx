@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { Button } from '../../../components/Button';
 import { ExtraPhotos, PhotoPicker } from '../../../components/Form';
 import { TagTextField } from '../../../components/compose/BeforeAfterForm';
+import { VeryPrivateSwitch } from '../../../components/compose/VeryPrivateSwitch';
 import { PHOTO_TAG } from '../../../components/WithMentions';
 import { TypeSwitch } from '../../../components/compose/TypeSwitch';
 import { PhotoTextOnPhoto } from '../../../components/PhotoText';
@@ -85,6 +86,7 @@ export default function CreateStep1() {
           onFontChange={(sheetFont) => setDraft((d) => ({ ...d, sheetFont }))}
         />
         {showErrors && missingPhoto ? <Text style={styles.error}>Schreib etwas auf das Blatt.</Text> : null}
+        <VeryPrivateSwitch value={!!draft.veryPrivate} onChange={(veryPrivate) => setDraft((d) => ({ ...d, veryPrivate }))} />
       </SubScreen>
     );
   }
@@ -151,6 +153,7 @@ export default function CreateStep1() {
         onChangeText={(text) => setDraft((d) => ({ ...d, text }))}
         maxLength={500}
       />
+      <VeryPrivateSwitch value={!!draft.veryPrivate} onChange={(veryPrivate) => setDraft((d) => ({ ...d, veryPrivate }))} />
     </SubScreen>
   );
 }

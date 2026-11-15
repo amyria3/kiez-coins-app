@@ -10,7 +10,7 @@ import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area
 import { AuthorRow } from '../../../components/AuthorRow';
 import { Notice } from '../../../components/Content';
 import { Button } from '../../../components/Button';
-import { DeadlineBadge, StatusBadge } from '../../../components/Badges';
+import { DeadlineBadge, StatusBadge, VeryPrivateBadge } from '../../../components/Badges';
 import { markComposeDone } from '../../../components/compose/compose';
 import { celebratePost } from '../../../components/HeartBurst';
 import { CoinsIcon, LivingCrystal } from '../../../components/icons/Brand';
@@ -142,6 +142,7 @@ export default function CreatePreview() {
               coords: draft.coords,
               extras: draft.extras,
               localOnly: draft.localOnly,
+              veryPrivate: draft.veryPrivate,
               photoText: photoTextInput(draft),
               pages: draft.pages,
               sheetFont: draft.sheetFont,
@@ -164,12 +165,13 @@ export default function CreatePreview() {
             extras: draft.extras,
             private: draft.private,
             localOnly: draft.localOnly,
+            veryPrivate: draft.veryPrivate,
             photoText: photoTextInput(draft) ?? undefined,
           });
       // Weiterposten (Daria, 05.11.2026): nur öffentliche Posts ohne 5-km-Grenze, im Hintergrund.
       // Fehler stehen in crosspost_posts und stören das Veröffentlichen nicht.
       // Text-Posts gehen noch nicht weiter (Export kommt in Teil 2)
-      if (crosspost && !draft.private && !draft.localOnly && !isText) {
+      if (crosspost && !draft.private && !draft.veryPrivate && !draft.localOnly && !isText) {
         loadCrosspostSelection()
           // Im Erstellen-Blatt abgewählte Plattformen bleiben bei diesem Post aus (Daria, 13.11.2026)
           .then((platforms) => crosspostChallenge(id, platforms.filter((p) => !draft.crosspostOff?.includes(p))))
@@ -191,6 +193,7 @@ export default function CreatePreview() {
     <>
       <View style={styles.statusRow}>
         <StatusBadge status="open" showOpen photo={isPhoto} textOnly={isText} />
+        {draft.veryPrivate ? <VeryPrivateBadge /> : null}
         <Text style={styles.caption}>gerade eben</Text>
       </View>
       {/* Ohne Titel keine Zeile (Daria, 06.11.2026). Beim Text-Post steht er auf dem ersten Blatt. */}

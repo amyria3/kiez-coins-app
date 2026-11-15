@@ -16,6 +16,7 @@ import { TagTextField } from './BeforeAfterForm';
 import { useComposeContent, type ComposeContent } from './compose';
 import { draftPhoto, GroupDraftButton } from './GroupTaskForm';
 import { useGroupPlace } from './GroupPlaceField';
+import { VeryPrivateSwitch } from './VeryPrivateSwitch';
 
 const durations = [
   { days: 1, label: '1 Tag' },
@@ -49,6 +50,8 @@ export function useGroupPhotoForm(
   const extras = (!draft && shared?.extras) || ownExtras;
   const setExtras = (!draft && shared?.setExtras) || setOwnExtras;
   const [days, setDays] = useState(7);
+  // „Sehr privat“ (Daria, 15.11.2026)
+  const [veryPrivate, setVeryPrivate] = useState(!!draft?.veryPrivate);
   const place = useGroupPlace(groupId, draft);
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState<'publish' | 'save' | undefined>();
@@ -61,10 +64,12 @@ export function useGroupPhotoForm(
   const missingPhoto = textOnly ? !pagesText(pages) : !photo;
   const hasContent = textOnly ? !!title.trim() || !!pagesText(pages) : !!photo || extras.length > 0 || !!title.trim() || !!body.trim();
 
+  // Nur mitschicken, wenn an oder beim Entwurf geändert: So speichert die App auch ohne Migration 20261116000200
+  const veryPrivateField = veryPrivate || draft?.veryPrivate ? { veryPrivate } : {};
   const input = () =>
     textOnly
-      ? { groupId, type: 'photo' as const, title, text: '', location: place.location, coords: place.coords, pages, sheetFont }
-      : { groupId, type: 'photo' as const, title, text: body, location: place.location, coords: place.coords, extras, ...draftPhoto(photo, draft) };
+      ? { groupId, type: 'photo' as const, title, text: '', location: place.location, coords: place.coords, pages, sheetFont, ...veryPrivateField }
+      : { groupId, type: 'photo' as const, title, text: body, location: place.location, coords: place.coords, extras, ...draftPhoto(photo, draft), ...veryPrivateField };
 
   const publish = async () => {
     if (!group) return;
@@ -79,8 +84,8 @@ export function useGroupPhotoForm(
       const id = draft
         ? await publishDraft(draft.id, input(), deadline)
         : textOnly
-          ? await groupApi.createTask({ groupId: group.id, type: 'photo', title, text: '', deadline, pages, sheetFont, location: place.location, coords: place.coords })
-          : await groupApi.createTask({ groupId: group.id, type: 'photo', title, text: body, deadline, photo, extras, location: place.location, coords: place.coords });
+          ? await groupApi.createTask({ groupId: group.id, type: 'photo', title, text: '', deadline, pages, sheetFont, location: place.location, coords: place.coords, veryPrivate })
+          : await groupApi.createTask({ groupId: group.id, type: 'photo', title, text: body, deadline, photo, extras, location: place.location, coords: place.coords, veryPrivate });
       celebratePost();
       onCreated(id);
     } catch (error) {
@@ -108,6 +113,7 @@ export function useGroupPhotoForm(
       <Text style={styles.hint}>Hier ist nichts zu tun, nur Dein Text für Eure Gruppe.</Text>
       <SheetEditor title={title} onTitleChange={setTitle} pages={pages} onPagesChange={setPages} fontKey={sheetFont} onFontChange={setSheetFont} />
       {showErrors && missingPhoto ? <Text style={styles.error}>Schreib etwas auf das Blatt.</Text> : null}
+      <VeryPrivateSwitch value={veryPrivate} onChange={setVeryPrivate} />
       {place.field}
       <FieldGroup label="Zeitraum">
         <ChipGroup>
@@ -136,6 +142,7 @@ export function useGroupPhotoForm(
       ) : null}
       {/* Wie beim Bild im Kiez: #InDiesemMoment fest vorn (Daria, 07.11.2026) */}
       <TagTextField label="Dein Text" tag={PHOTO_TAG} value={body} onChangeText={setBody} maxLength={500} />
+      <VeryPrivateSwitch value={veryPrivate} onChange={setVeryPrivate} />
       {place.field}
       <FieldGroup label="Zeitraum">
         <ChipGroup>

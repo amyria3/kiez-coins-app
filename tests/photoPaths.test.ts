@@ -28,9 +28,10 @@ describe('Fotos in zwei Speichern', () => {
     assert.equal(otherPhotoName(otherPhotoName(open)), open);
   });
 
-  it('Privat und Gruppen sind privat, Kiez und Überall öffentlich', () => {
+  it('Privat, Gruppen und sehr privat sind privat, Kiez und Überall öffentlich', () => {
     assert.equal(isPrivateAudience({ private: true }), true);
     assert.equal(isPrivateAudience({ groupId: 'g1' }), true);
+    assert.equal(isPrivateAudience({ veryPrivate: true }), true);
     assert.equal(isPrivateAudience({}), false);
   });
 });

@@ -45,6 +45,7 @@ export type Action =
   | { type: 'setLocalOnly'; id: string; localOnly: boolean }
   /** Privat, Kiez oder Überall (Daria, 07.11.2026) */
   | { type: 'setAudience'; id: string; private: boolean; localOnly: boolean }
+  | { type: 'setVeryPrivate'; id: string; on: boolean }
   | { type: 'answerRequest'; id: string; userId: string; accept: boolean }
   | { type: 'removeParticipant'; id: string; userId: string }
   | { type: 'report'; id: string; report: ChallengeReport }
@@ -177,6 +178,8 @@ export function reducer(state: State, action: Action): State {
       return updateChallenge(state, action.id, () => ({ status: 'closed', closedAt: new Date().toISOString() }));
     case 'setLocalOnly':
       return updateChallenge(state, action.id, () => ({ localOnly: action.localOnly || undefined }));
+    case 'setVeryPrivate':
+      return updateChallenge(state, action.id, () => ({ veryPrivate: action.on || undefined }));
     case 'setAudience':
       return updateChallenge(state, action.id, () => ({
         private: action.private || undefined,
@@ -396,6 +399,12 @@ export async function persist(action: Action, before: State): Promise<string | n
       return action.id;
     case 'setLocalOnly':
       await remote.challengeActions.setLocalOnly(action.id, action.localOnly);
+      return action.id;
+    case 'setVeryPrivate':
+      await remote.challengeActions.setVeryPrivate(action.id, action.on);
+      // Einschalten: Fotos bekommen neue Namen im privaten Speicher, alte Links funktionieren nicht mehr.
+      // Ausschalten: Fotos öffentlicher Posts kommen zurück in den öffentlichen Speicher.
+      await remote.syncChallengePhotos(action.id, userId, action.on).catch((e) => console.warn('Fotos nicht verschoben', e));
       return action.id;
     case 'setAudience':
       await remote.challengeActions.setAudience(action.id, action.private, action.localOnly);

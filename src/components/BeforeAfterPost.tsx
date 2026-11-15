@@ -6,7 +6,7 @@ import { Image } from 'expo-image';
 import { beforeAfterDuration, formatHoursMinutes, formatRelative } from '../data/format';
 import { t } from '../data/texts';
 import type { ImageSource } from '../data/types';
-import { useShareChallenge } from '../data/shareChallenge';
+import { useCanShare, useShareChallenge } from '../data/shareChallenge';
 
 import { color, font, motion, radius, size, space, stroke, text } from '../theme/tokens';
 import { hiddenText, useHideName } from './AuthorRow';
@@ -144,6 +144,7 @@ function useParts({ challenge }: ChallengePostProps) {
 
 function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: ChallengePostProps & { end?: ReactNode }) {
   const share = useShareChallenge();
+  const canShare = useCanShare();
   const commentCount = challenge.comments.length;
   const countStyle = styles.count;
   const manage = onManage && true ? (
@@ -178,12 +179,14 @@ function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: 
         <Icon name="comment-filled" size={size.icon} color={color.text.primary} />
         {commentCount > 0 ? <Text style={countStyle}>{commentCount}</Text> : null}
       </Pressable>
-      <IconButton
-        icon="send"
-        iconSize={size.icon}
-        accessibilityLabel={t('Teilen')}
-        onPress={() => share(challenge)}
-      />
+      {canShare(challenge) ? (
+        <IconButton
+          icon="send"
+          iconSize={size.icon}
+          accessibilityLabel={t('Teilen')}
+          onPress={() => share(challenge)}
+        />
+      ) : null}
 
     </View>
   );

@@ -25,6 +25,7 @@ import type { Participation } from '../../../data/remote';
 import { cleanPages } from '../../../data/remote';
 import { SheetEditor, pagesText } from '../../../components/TextSheets';
 import { TypeSwitch } from '../../../components/compose/TypeSwitch';
+import { VeryPrivateSwitch } from '../../../components/compose/VeryPrivateSwitch';
 import { WaitForData } from '../../../components/WaitForData';
 
 /** Wer den Beitrag sieht, wie die Reiter im Feed (Daria, 07.11.2026) */
@@ -92,6 +93,8 @@ function EditChallengeForm() {
   const [sheetFont, setSheetFont] = useState<string>(challenge?.sheetFont ?? 'inter');
   // Privat, Kiez oder Überall lässt sich auch hier ändern (Daria, 07.11.2026)
   const [audience, setAudience] = useState<Audience>(() => audienceOf(challenge));
+  // „Sehr privat“ an oder aus (Daria, 15.11.2026)
+  const [veryPrivate, setVeryPrivate] = useState(!!challenge?.veryPrivate);
   const titleField = useNudge();
   const locationField = useNudge();
 
@@ -131,6 +134,7 @@ function EditChallengeForm() {
     (titleOptional || title.trim().length > 0) && title.trim().length <= 60 && (!needsLocation || location.trim().length > 0) && !textMissing;
   const saveAudience = () => {
     if (audienceChanged) dispatch({ type: 'setAudience', id: challenge.id, private: isPrivate, localOnly: audience === 'nearby' });
+    if (veryPrivate !== !!challenge.veryPrivate) dispatch({ type: 'setVeryPrivate', id: challenge.id, on: veryPrivate });
   };
 
   // Abgelaufene Frist einer gelöschten Challenge: läuft beim Veröffentlichen neu, so lang wie ursprünglich.
@@ -167,6 +171,7 @@ function EditChallengeForm() {
   });
   const changed =
     audienceChanged ||
+    veryPrivate !== !!challenge.veryPrivate ||
     pagesChanged ||
     title.trim() !== challenge.title ||
     body.trim() !== challenge.text ||
@@ -284,6 +289,7 @@ function EditChallengeForm() {
       ) : (
         <TextField label="Beschreibung" value={body} onChangeText={setBody} maxLength={500} multiline />
       )}
+      <VeryPrivateSwitch value={veryPrivate} onChange={setVeryPrivate} />
       {isGroup ? null : (
         <>
           {isPrivate ? null : <TextField label="Ort" required nudge={locationField} value={location} onChangeText={setLocation} maxLength={120} />}
