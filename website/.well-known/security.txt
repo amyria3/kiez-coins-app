@@ -1,6 +1,6 @@
 # Sicherheitslücken in KiezCoins melden (RFC 9116). Ablauf: SECURITY.md im Repo.
 # Vor dem Ablaufdatum unten das Datum um ein Jahr verlängern.
-Contact: mailto:kiezkoins@protonmail.com
+Contact: mailto:kontakt@kiezcoins.de
 Expires: 2027-11-01T00:00:00.000Z
 Preferred-Languages: de, en
 Canonical: https://kiezcoins.de/.well-known/security.txt

@@ -4,7 +4,7 @@ Stand: 12.11.2026. Diese Datei beschreibt, wie Du eine Sicherheitslücke in Kiez
 
 ## So meldest Du eine Lücke
 
-- Per E-Mail an kiezkoins@protonmail.com, Betreff „Sicherheit“.
+- Per E-Mail an kontakt@kiezcoins.de, Betreff „Sicherheit“.
 - Oder vertraulich über GitHub: Reiter „Security“ dieses Repos, „Report a vulnerability“.
 
 Bitte melde Lücken vertraulich und lege kein öffentliches Issue dazu an. Schreib dazu, was Du gefunden hast, wie es sich nachstellen lässt und welche Version oder Adresse betroffen ist. Lies oder verändere dabei keine Daten anderer Menschen.
@@ -23,4 +23,4 @@ Sicherheitsupdates bekommt die jeweils aktuelle Version: die Web-App sofort, die
 
 # Reporting security vulnerabilities
 
-Please report vulnerabilities in KiezCoins privately: by email to kiezkoins@protonmail.com (subject “Security”) or via “Report a vulnerability” on the Security tab of this repository. Do not open a public issue. You will get a reply within 5 working days. Security updates go to the current version of the web app and the Android app.
+Please report vulnerabilities in KiezCoins privately: by email to kontakt@kiezcoins.de (subject “Security”) or via “Report a vulnerability” on the Security tab of this repository. Do not open a public issue. You will get a reply within 5 working days. Security updates go to the current version of the web app and the Android app.

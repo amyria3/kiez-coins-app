@@ -15,8 +15,8 @@ export const OPERATOR = {
   /** Ladungsfähige Geschäftsadresse bei Online-Impressum, kein Postfach (Daria, 15.11.2026). */
   street: 'c/o Online-Impressum 13086\nEuroparing 90',
   city: '53757 Sankt Augustin',
-  /** Postfach für Impressum, Datenschutz und Meldungen, zum Beispiel kontakt@kiezcoins.de */
-  email: 'kiezkoins@protonmail.com',
+  /** Postfach bei Proton für Impressum, Datenschutz und Meldungen (Daria, 15.11.2026). */
+  email: 'kontakt@kiezcoins.de',
   /** Zweiter schneller Kontaktweg nach § 5 DDG: Telefon oder Kontaktformular. */
   phone: '',
   /** Zuständige Datenschutz-Aufsichtsbehörde am Wohnort der Anbieterin in Sachsen (Daria, 15.11.2026). Nicht am Ort der c/o-Adresse. */

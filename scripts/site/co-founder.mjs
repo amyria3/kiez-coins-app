@@ -118,7 +118,7 @@ export const coFounder = {
     mail: 'Email us at',
     thanks: 'We are looking forward to receiving your application!',
   },
-  email: 'kiezkoins@protonmail.com',
+  email: 'kontakt@kiezcoins.de',
   // Nur noch der angezeigte Text. Der Link führt auf die Startseite derselben Adresse ("/"), damit er auch
   // unter kiezcoins.vercel.app funktioniert (Daria, 2026-11-05).
   productUrl: 'https://kiezcoins.de/',

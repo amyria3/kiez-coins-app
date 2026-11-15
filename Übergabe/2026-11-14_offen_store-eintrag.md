@@ -10,7 +10,7 @@ Stand: 2026-11-14. Vorbereitet von Claude, Daria prüft und trägt in der Play C
 | Kurzbeschreibung (max. 80) | Kleine Challenges für mehr echte Gemeinschaft – im Kiez, in Gruppen, für Dich |
 | Kategorie | Soziale Netzwerke |
 | Tags | Gemeinschaft, Nachbarschaft, Aufgaben |
-| E-Mail für Nutzer:innen | kiezkoins@protonmail.com |
+| E-Mail für Nutzer:innen | kontakt@kiezcoins.de |
 | Website | https://kiezcoins.de |
 | Datenschutzerklärung | https://kiezcoins.de/datenschutz |
 | Konto löschen (Web) | https://kiezcoins.de/konto-loeschen |

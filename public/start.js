@@ -51,7 +51,7 @@ if (!window.requestIdleCallback) {
       }).catch(function () {
         send.remove();
         var body = encodeURIComponent(report.stack.slice(0, 1500) + '\n\nStart: ' + report.start_info + '\n' + report.platform);
-        status.innerHTML = 'Der Bericht ist nicht angekommen. <a style="color:#8f90fa" href="mailto:kiezkoins@protonmail.com?subject=' + encodeURIComponent('Fehlerbericht KiezCoins') + '&body=' + body + '">Per E-Mail senden</a>';
+        status.innerHTML = 'Der Bericht ist nicht angekommen. <a style="color:#8f90fa" href="mailto:kontakt@kiezcoins.de?subject=' + encodeURIComponent('Fehlerbericht KiezCoins') + '&body=' + body + '">Per E-Mail senden</a>';
       });
     });
     document.body.appendChild(box);
