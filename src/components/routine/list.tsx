@@ -10,7 +10,8 @@ import { KaterCard } from '../Content';
 import { RoutineCalendar } from './calendar';
 import { CalendarCard, EventCard, Group, SavedCard, TaskCard } from './cards';
 import { OLIVE, POWDER } from './constants';
-import { AsideWhenCalendar, Motion, PageLock, Saved, isUrgent, noLock, sortByUrgency, useLater, useNow } from './shared';
+import { AsideWhenCalendar, Motion, PageLock, Saved, noLock, useLater, useNow } from './shared';
+import { isUrgent, sortByUrgency } from '../../data/urgency';
 import { styles } from './styles';
 
 /**

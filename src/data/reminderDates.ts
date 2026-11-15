@@ -1,0 +1,105 @@
+// Reine Datums- und Zähl-Logik der Erinnerungen, ohne Speicher und Netz (aus reminders.ts, 2026-11-15).
+// So lässt sie sich ohne App testen (tests/reminderDates.test.ts).
+import type { Reminder } from './reminders';
+
+/** Montag 0:00 dieser Woche, Ortszeit */
+export function weekStart(now = new Date()): Date {
+  const d = new Date(now);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return d;
+}
+export const dayStart = (now = new Date()) => {
+  const d = new Date(now);
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+/** 1 = Montag … 7 = Sonntag */
+export const isoWeekday = (d = new Date()) => ((d.getDay() + 6) % 7) + 1;
+
+/**
+ * Art einer einmaligen Erinnerung (Daria, 2026-11-10): „um“ ist ein Termin, „bis“ und „von … bis“ sind eine Aufgabe.
+ * Wiederkehrende haben keine Art.
+ */
+export type ReminderKind = 'termin' | 'aufgabe';
+export const kindOf = (r: Pick<Reminder, 'onDate' | 'atTime' | 'untilTime'>): ReminderKind | undefined =>
+  !r.onDate ? undefined : r.atTime && !r.untilTime ? 'termin' : 'aufgabe';
+
+export const goalOf = (r: Pick<Reminder, 'perWeek' | 'weekdays' | 'onDate'>) => (r.onDate ? 1 : r.perWeek ?? r.weekdays?.length ?? 1);
+
+/** Ortsdatum als „JJJJ-MM-TT“ */
+export const localDate = (d = new Date()) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+export const addDays = (n: number, from = new Date()) => {
+  const d = new Date(from);
+  d.setDate(d.getDate() + n);
+  return d;
+};
+
+/** Fällig heute: feste Tage, wenn heute einer ist; x-mal pro Woche, solange das Ziel nicht erreicht ist */
+export function dueToday(r: Reminder, now = new Date()): boolean {
+  if (r.doneToday) return false;
+  if (r.onDate) return r.onDate === localDate(now) && r.doneThisWeek === 0;
+  if (r.weekdays) return r.weekdays.includes(isoWeekday(now));
+  return r.doneThisWeek < goalOf(r);
+}
+
+/**
+ * Wann eine Erinnerung fällig ist (Daria, 2026-11-13): einmalige zum „bis“ oder „um“, feste Tage zur Uhrzeit am
+ * nächsten dieser Tage (heute nur, wenn noch nicht erledigt). Ohne Uhrzeit und bei x-mal pro Woche `null`.
+ */
+export function dueAt(r: Reminder, now = new Date()): Date | null {
+  const at = (day: Date, hhmm: string) => {
+    const [h, m] = hhmm.split(':').map(Number);
+    const d = new Date(day);
+    d.setHours(h, m, 0, 0);
+    return d;
+  };
+  if (r.onDate) {
+    const time = r.untilTime ?? r.atTime;
+    if (!time) return null;
+    const [y, mo, d] = r.onDate.split('-').map(Number);
+    return at(new Date(y, mo - 1, d), time);
+  }
+  if (r.weekdays?.length && r.atTime) {
+    for (let i = 0; i < 8; i++) {
+      if (i === 0 && r.doneToday) continue;
+      const day = addDays(i, now);
+      if (r.weekdays.includes(isoWeekday(day))) return at(day, r.atTime);
+    }
+  }
+  return null;
+}
+
+/** Markierung im Post: „Joggen gehen 2/4“ */
+export const routineLabel = (r: Reminder, doneAfter = r.doneThisWeek + 1) =>
+  `${capitalize(r.want)} ${Math.min(doneAfter, goalOf(r))}/${goalOf(r)}`;
+
+/** „joggen gehen“ → „Joggen gehen“, für Titel und Markierung */
+export const capitalize = (s: string) => (s ? s[0].toLocaleUpperCase() + s.slice(1) : s);
+
+/** „9:00“ oder „18:30“ */
+export const TIME = /^([01]?\d|2[0-3]):[0-5]\d$/;
+
+/** „24.12“, „24.12.“, „24.12.26“ oder „24.12.2026“ → „2026-12-24“; ohne Jahr der nächste solche Tag ab heute */
+export function parseDate(value: string, now = new Date()): string | null {
+  const m = value.trim().match(/^(\d{1,2})\.(\d{1,2})(?:\.(\d{2}|\d{4})?)?$/);
+  if (!m) return null;
+  const [d, mo] = [Number(m[1]), Number(m[2])];
+  const today = localDate(now);
+  const valid = (year: number) => {
+    const c = new Date(year, mo - 1, d);
+    return c.getMonth() === mo - 1 && c.getDate() === d ? localDate(c) : null;
+  };
+  if (m[3]) {
+    const year = m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3]);
+    const date = valid(year);
+    return date && date >= today ? date : null;
+  }
+  // Ohne Jahr: dieses Jahr, sonst nächstes, sonst bis zum nächsten Schaltjahr (29.02.)
+  for (let year = now.getFullYear(); year <= now.getFullYear() + 4; year++) {
+    const date = valid(year);
+    if (date && date >= today) return date;
+  }
+  return null;
+}
