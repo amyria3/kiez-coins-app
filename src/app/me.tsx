@@ -62,7 +62,7 @@ function Journey() {
   const [chosenTab, setTab] = useState<Mode>();
   const tab: Mode = chosenTab && modes.isVisible(chosenTab) ? chosenTab : modes.standard;
   const journeyTabs = JOURNEY_TABS.filter((r) => modes.isVisible(r.key));
-  // Kein Hinweis unter dem Umschalter (Daria, 2026-11-01; vorher wie im Feed)
+  // Kein Hinweis unter dem Umschalter (Daria, 2026-11-01)
   const [groupChoice, setGroupChoice] = useState<string>();
   const group = groups.find((g) => g.id === groupChoice) ?? groups[0];
   const privateEntries = entries.filter((e) => !!e.challenge.private);

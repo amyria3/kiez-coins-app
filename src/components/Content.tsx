@@ -274,7 +274,7 @@ export function LinkedText({ value, style }: { value: string; style?: StyleProp<
 
 /**
  * Rolle „System“ (Daria, 2026-11-09): Absender der gelbgrünen Systemnachrichten, links neben jeder Blase wie ein Absender im Chat.
- * Avatar als eigene Pixel-Krabbe im Sticker-Stil statt Emoji 👾 im schwarzen Kreis (Daria, 2026-11-10): Grüner Körper (seit 2026-11-11, vorher Lila),
+ * Avatar als eigene Pixel-Krabbe im Sticker-Stil statt Emoji 👾 im schwarzen Kreis (Daria, 2026-11-10): Grüner Körper (seit 2026-11-11),
  * dunkle Kontur und helle Sticker-Kante, damit sie sich auf dem dunklen Grund abhebt. Ohne Kreis dahinter.
  */
 // P = Körper, E = Auge. Die dunkle Kontur und die helle Kante entstehen darum herum (je ein Pixel, auch über Eck).
@@ -420,7 +420,7 @@ export function Notice({
  * und App etwas größer. Wechsel von 12 auf 6 verringert (Daria, 2026-11-11: „reduce spacing between bubbles“).
  */
 export const CHAT_GAP_SAME = space[4];
-/** Rundung der Chatblasen (Frage, Antwort, Systemmeldung): so rund wie Dialoge (Daria, 2026-11-13, vorher 26) */
+/** Rundung der Chatblasen (Frage, Antwort, Systemmeldung): so rund wie Dialoge (Daria, 2026-11-13) */
 const CHAT_RADIUS = radius.xl;
 export const CHAT_GAP_CHANGE = space[6];
 

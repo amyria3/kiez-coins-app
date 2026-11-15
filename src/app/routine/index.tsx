@@ -24,7 +24,7 @@ export default function Routine() {
     if (inFeed) router.dismissTo({ pathname: '/feed', params: { reiter: 'routine' } });
   }, [inFeed, router]);
   if (inFeed) return <View style={styles.screen} />;
-  // Theme Happy wie die Routine im Feed (Daria, 2026-11-14), vorher lila Knöpfe
+  // Theme Happy wie die Routine im Feed (Daria, 2026-11-14)
   return (
     <MeSpaceScreen>
       <View style={[styles.screen, { paddingTop: insets.top }]}>

@@ -247,7 +247,7 @@ function veventLines(e: SingleEvent): string[] {
 }
 
 /**
- * „In meine anderen Kalender“ (vorher „In meinen Kalender“, Daria, 2026-11-13: klang nach dem Kalender in KiezCoins): Im Browser lädt das eine Kalenderdatei herunter, die Kalender-Apps öffnen.
+ * „In meine anderen Kalender“ (Daria, 2026-11-13): Im Browser lädt das eine Kalenderdatei herunter, die Kalender-Apps öffnen.
  * In der Android-App öffnet sich der Kalender des Handys mit dem fertigen Termin. `false`, wenn es nicht ging.
  */
 export async function addToMyCalendar(e: SingleEvent): Promise<boolean> {

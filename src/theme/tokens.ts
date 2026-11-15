@@ -9,22 +9,22 @@ export const scheme: 'dark' | 'light' = 'dark';
 
 // Primitives
 // Kiez-Look „Warm und tief“ (Daria, 2026-11-01): fast schwarzer Grund und Flächen mit warmem Unterton,
-// helle Schrift leicht warm, Nebenschrift mit mehr Kontrast. Vorher #1F2123, #F0F0F0, #A0A0A0, #2B2D31.
+// helle Schrift leicht warm, Nebenschrift mit mehr Kontrast.
 // Dark-UI-Überarbeitung (Daria, 2026-11-05): Lila #8F90FA statt #7E94FF (weniger gesättigt, wärmer, gleiche Helligkeit),
-// Grund #232326 (Daria, 2026-11-05, neutral statt warm, vorher #191716), Karten #303034 eine Stufe heller, damit sie sich ohne Rand abheben.
+// Grund #232326 (Daria, 2026-11-05, neutral statt warm), Karten #303034 eine Stufe heller, damit sie sich ohne Rand abheben.
 // Zweite Akzentfarbe Grün #89F269 statt #93F4A7.
 const kiezPalette = {
-  /** Grund: Grau mit leichtem Aubergine-Ton, passend zur Routine-Karte (Daria, 2026-11-12), vorher neutral #232326 */
+  /** Grund: Grau mit leichtem Aubergine-Ton, passend zur Routine-Karte (Daria, 2026-11-12) */
   black: '#252025',
   // Schrift in einem Ton (Daria, 2026-11-11): Puder, Farbton 342°. Haupt- und Nebenschrift unterscheiden sich nur
   // in Helligkeit und Sättigung, nicht im Farbton.
-  /** Hauptschrift: helles Puder, H 342° S 60 % L 96 % (Daria, 2026-11-11). Vorher Creme #FFF8ED, davor #F3EEE8 */
+  /** Hauptschrift: helles Puder, H 342° S 60 % L 96 % (Daria, 2026-11-11). */
   white: '#FBEFF2',
-  /** Nebenschrift: Puder, runtergeregelt, H 342° S 27 % L 83 % (Daria, 2026-11-11), auch für den gedämpften Teil großer Überschriften. Vorher #A7A39D, davor #B9B1A9 */
+  /** Nebenschrift: Puder, runtergeregelt, H 342° S 27 % L 83 % (Daria, 2026-11-11), auch für den gedämpften Teil großer Überschriften. */
   grey: '#E0C9D0',
   purple: '#8F90FA',
   orange: '#FFAD7E',
-  /** Zweite Akzentfarbe (Daria, 2026-11-05), vorher #93F4A7. Auch die Herzen in den Augen des Katers. */
+  /** Zweite Akzentfarbe (Daria, 2026-11-05). Auch die Herzen in den Augen des Katers. */
   green: '#89F269',
   red: '#FF7E8B',
   pink: '#FFB2E5',
@@ -43,7 +43,7 @@ const swatch = {
   senf: '#ECCF55',
   /**
    * Gelbgrün: Fokus, eingeschaltete Schalter, Menü-Icon, Theme Functional. Hell wie der Kater in der Start-Animation
-   * (Daria, 2026-11-14), vorher #D6EB70, davor #E4FF5F. Seit 2026-11-15 auch der Kreis der Bildmarke
+   * (Daria, 2026-11-14). Seit 2026-11-15 auch der Kreis der Bildmarke
    */
   gelbgruen: '#F0FFA6',
   /** Beige: große Icons, Leisten-Icons, papierweißer Knopf im Umschalter */
@@ -120,7 +120,7 @@ export const color = {
     placeholder: 'rgba(224, 201, 208, 0.45)',
     /** Schrift auf der Akzentfläche (Primary-Button, eigene Chatblase) */
     onAccent: palette.black,
-    /** Schrift auf Fotos, in beiden Looks hell. Im Kiez-Look helles Puder wie die Hauptschrift, kein Grau (Daria, 2026-11-11), vorher #F0F0F0 */
+    /** Schrift auf Fotos, in beiden Looks hell. Im Kiez-Look helles Puder wie die Hauptschrift, kein Grau (Daria, 2026-11-11) */
     onPhoto: kiezPalette.white,
     /** @-Namen in Beiträgen und Kommentaren: im Kiez-Look Grün (Daria, 2026-11-09), im Fashionable Look Pink wie bisher */
     mention: palette.green,
@@ -259,7 +259,7 @@ export const space = {
 
 export const radius = {
   // Flacher (Daria, 2026-11-13): Post 6, Eingabe 8, Karten wie die To-dos 10, große Flächen höchstens 16.
-  // Pillen und Kreise bleiben rund (`full`). Vorher sm 5, md 12, lg 18, xl 20, card 28, sheet 32.
+  // Pillen und Kreise bleiben rund (`full`).
   /** Eingabefelder, Suchfeld, kleine Flächen wie Vorschaubilder */
   sm: 8,
   /** Karten, Kacheln, Zeilen, Menüs, Fotos in Listen; Maß sind die To-dos */

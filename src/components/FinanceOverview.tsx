@@ -11,7 +11,7 @@ import type { User } from '../data/types';
 import { color, radius, space, text } from '../theme/tokens';
 
 /**
- * „Modell KiezCoins“ unten auf „Me“ (Daria, 08.11.2026; Überschrift seit 2026-11-09, vorher „So finanziert sich KiezCoins“): knapper Text, Balken 30/70 und die Community
+ * „Modell KiezCoins“ unten auf „Me“ (Daria, 08.11.2026; Überschrift seit 2026-11-09): knapper Text, Balken 30/70 und die Community
  * als Punkte, der eigene als Avatar. Bleibt in der App; nur „Details auf der Website“ öffnet kiezcoins…/finanzierung.
  * Ersetzt die Karte „Finanzierung“ unter „Dein Konto“.
  */

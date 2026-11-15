@@ -269,8 +269,7 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
   const placed = useRef(false);
   /**
    * Berührung (Daria, 2026-11-13): Der gewählte Knopf ist papierweiß. Beim Tippen wird er sofort lila und geht nach
-   * dem Loslassen in gut einer halben Sekunde sichtbar zurück zu Papier. Vorher lief der Übergang über Sekunden und
-   * war erst am Ende zu sehen.
+   * dem Loslassen in gut einer halben Sekunde sichtbar zurück zu Papier.
    */
   const glow = useRef(new Animated.Value(0)).current;
   const pressIn = () => {

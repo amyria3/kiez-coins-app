@@ -299,8 +299,7 @@ function Card({
         .join('. ')}
       style={[styles.card, drag.lifted && styles.cardLifted, { backgroundColor: bg }]}
     >
-      {/* Kater immer neben Titel und Zeit (Daria, 2026-11-13). Vorher wurde das erst nach dem Messen der Breite
-          entschieden: Jede Karte erschien kurz hoch und sprang dann auf die flache Form (Check, 2026-11-14). */}
+      {/* Kater immer neben Titel und Zeit (Daria, 2026-11-13) */}
       <View style={styles.cardBody}>
         <View style={styles.headRow}>
           <View style={styles.head}>{head}</View>
@@ -654,7 +653,7 @@ export function SavedCard({ event: e, onChanged }: { event: Saved; onChanged: ()
       </Text>
       <View style={styles.actions}>
         <HandButton label="Entfernen" onPress={remove} disabled={busy} />
-        {/* Genau sagen, was passiert (Daria, 2026-11-13, vorher „Kalender“): im Browser eine Kalenderdatei, in der
+        {/* Genau sagen, was passiert (Daria, 2026-11-13): im Browser eine Kalenderdatei, in der
             Android-App der Kalender des Handys */}
         {e.cancelled ? null : <HandButton label={Platform.OS === 'web' ? 'ICS exportieren' : 'In Handykalender'} onPress={toCalendar} filled bg={POWDER} />}
       </View>

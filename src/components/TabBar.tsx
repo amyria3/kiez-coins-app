@@ -37,7 +37,7 @@ type TabBarProps = {
 /**
  * Schwebende Tab-Leiste (Upgrade „Nachtschicht“): Doppelherz = Feed (Daria, 26.10.2026), Sprechblase = Chats,
  * Burger = Menü (Konto). Die Krone für „Was Du so machst“ ist raus, das Logo oben im Feed führt dorthin (UX-Audit, 27.10.2026). Die aktive Seite liegt auf einer dezenten, halbtransparenten Pille.
- * Challenge erstellen sitzt als CameraButton oben rechts und in der Leiste zwischen Feed und Chats (vorher zwischen Chats und Menü)
+ * Challenge erstellen sitzt als CameraButton oben rechts und in der Leiste zwischen Feed und Chats
  * (Daria, 30.10.2026). Beide Knöpfe zählen mit (`button_presses`), damit sich zeigt, welcher häufiger genutzt wird.
  */
 export function TabBar(props: TabBarProps) {
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     gap: space[6],
     padding: space[6],
     borderRadius: radius.full,
-    // Aubergine statt Grau (Daria, 2026-11-12), vorher color.bg.glass
+    // Aubergine statt Grau (Daria, 2026-11-12)
     backgroundColor: color.nav.bar,
     borderWidth: stroke.ultraThin,
     borderColor: color.line.hairline,
@@ -194,10 +194,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // Im Feed etwas größer als die Nachbarn (vorher 64 breit, Icon 20)
+  // Im Feed etwas größer als die Nachbarn
   // Lila wie üblich (Daria, 2026-11-12, kurz Olive)
   itemCamera: { width: 72, backgroundColor: color.nav.create },
-  // Aktive Seite: graue Blase #303034 (Daria, 2026-11-12), vorher transparentes Lila
+  // Aktive Seite: graue Blase #303034 (Daria, 2026-11-12)
   itemActive: { backgroundColor: color.nav.bubble },
   camera: {
     position: 'absolute',

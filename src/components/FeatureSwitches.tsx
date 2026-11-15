@@ -28,7 +28,7 @@ import { Text } from './T';
 /**
  * Modi Privat, Gruppe, Kiez (Onboarding und Dein Konto › Funktionen, Daria, 27.10.2026): Der Schalter (vorher ein Auge,
  * Daria, 08.11.2026) blendet einen Modus aus; der letzte sichtbare bleibt an. Darüber der Standard (ganz oben, Daria, 09.11.2026), der im Umschalter oben vorausgewählt ist,
- * als derselbe waagerechte Umschalter wie im Feed (vorher Radio-Liste, Daria, 08.11.2026).
+ * als derselbe waagerechte Umschalter wie im Feed.
  * Ganz unten Bilder und Textposts je für Kiez und Überall (Daria, 09.11.2026). Ein Schalter lässt sich nur bedienen,
  * wenn sein Modus sichtbar ist, sonst ist er ausgegraut.
  * Routine (Erinnerungen) steht als erster Punkt unter „Feeds & Modi“ und lässt sich als Standard wählen; dann öffnet
@@ -95,7 +95,7 @@ export function FeatureSwitches({ children }: { children?: ReactNode } = {}) {
         {routineAvailable ? (
           <View style={styles.row}>
             <View style={[styles.texts, !routineShown && styles.dim]}>
-              {/* Routine als Ganzes, darin Erinnerungen und Kalender (Daria, 2026-11-13; vorher „Erinnerungen“) */}
+              {/* Routine als Ganzes, darin Erinnerungen und Kalender (Daria, 2026-11-13) */}
               <Text style={[text.body, { color: color.text.primary }]}>Routine</Text>
               <Text style={[text.caption, { color: color.text.secondary }]}>Erinnerungen, Termine und der Kater, der Dich erinnert.</Text>
             </View>

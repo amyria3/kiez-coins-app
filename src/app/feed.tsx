@@ -128,7 +128,7 @@ export default function FeedScreen() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [storiesHeight, setStoriesHeight] = useState(0);
 
-  // Weich ohne Nachschwingen (Daria, 2026-11-13: „needs to be smoother“), vorher die Kurve „Schranke“
+  // Weich ohne Nachschwingen (Daria, 2026-11-13: „needs to be smoother“)
   const animateHeader = (toValue: 0 | 1) =>
     Animated.timing(progress, {
       toValue,
@@ -929,7 +929,7 @@ export default function FeedScreen() {
   // Kurz und gleich für jede Gruppe (Daria, 24.10.2026)
   // Post für ein Schaufenster: Der Kopf nennt es (Daria, 2026-11-10)
   const showcasePost = composing ? peekShowcasePost() : null;
-  // Überschrift folgt der gewählten Art (Daria, 2026-11-14), vorher „We-Challenge erstellen“ bzw. „Challenge erstellen“
+  // Überschrift folgt der gewählten Art (Daria, 2026-11-14)
   const composeLine = showcasePost ? t('Post für {name}', { name: showcasePost.name }) : t(COMPOSE_TITLE[composeKind]);
   const storiesStyle = {
     height: showStories && !composing

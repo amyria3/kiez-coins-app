@@ -11,7 +11,7 @@ import { useGoBack } from '../../lib/goBack';
 /**
  * Route `account/features` (Dein Konto › Funktionen): Modi Privat, Gruppe und Kiez verbergen und einen
  * als Standard festlegen (Daria, 27.10.2026). Darunter die verbundenen Konten fürs Weiterposten (Daria, 09.11.2026)
- * und der Kalender (Daria, 2026-11-10, vorher unter Einstellungen).
+ * und der Kalender (Daria, 2026-11-10).
  * Sprungziele `?abschnitt=weiterposten` und `?abschnitt=kalender` (Section.tsx).
  */
 export default function FeaturesScreen() {

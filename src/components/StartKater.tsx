@@ -12,7 +12,7 @@ import { PEEK_DURATION, SWEEP_DURATION, KaterStage } from './KaterStage';
 
 /**
  * Erst fegen, dann einmal über die Brille schauen und lächeln (Daria, 2026-11-09). Danach noch kurz stehen bleiben,
- * damit man die Sprechblase lesen kann. Zusammen rund 4,8 Sekunden (vorher 3,2).
+ * damit man die Sprechblase lesen kann. Zusammen rund 4,8 Sekunden.
  */
 const SWEEP_MS = SWEEP_DURATION + PEEK_DURATION + 300;
 

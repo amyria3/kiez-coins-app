@@ -5,7 +5,7 @@ import { SHOW_OPERATION_NAME, type Challenge } from './types';
 import { t } from './texts';
 import { isParticipant } from './weChallenge';
 
-// „Was Du so machst“ (früher „Was Du so machst“, „Deine Reise“ und „Deine Spur im Kiez“): alle Challenges, die Du erstellt oder angenommen hast,
+// „Was Du so machst“: alle Challenges, die Du erstellt oder angenommen hast,
 // als Karten. Regeln aus kiez-coins/konto/MVP_Konto.md.
 
 export type JourneyEntry = {
