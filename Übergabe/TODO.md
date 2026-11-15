@@ -41,7 +41,7 @@ Sofort:
 - [ ] Postfach für Sicherheitsmeldungen bestätigen (`SECURITY.md` nennt die Adresse aus dem Impressum) und täglich lesen.
 - [ ] GitHub: Settings › Code security › „Private vulnerability reporting“ einschalten.
 - [ ] Zwei-Faktor-Anmeldung einschalten bei GitHub, Expo, Supabase, Vercel, Brevo und INWX.
-- [ ] Supabase: Authentication › Schutz vor geleakten Passwörtern einschalten.
+- [ ] Supabase: Authentication › Schutz vor geleakten Passwörtern einschalten. Geht erst mit dem Pro-Plan (Daria, 15.11.2026: im Free-Plan gesperrt). „Secure email change“, „Secure password change“ und „Require current password“ bleiben aus: Die App schickt weder das alte Passwort noch eine erneute Anmeldung mit, und Konten ohne E-Mail könnten die alte (erfundene) Adresse nie bestätigen.
 - [ ] GitHub: Settings › Code security › CodeQL „Default setup“ und Dependabot alerts einschalten.
 - [x] (12.11.2026, Daria hat PR #352 gemergt) PR mit Dependabot und `security.txt` freigeben. Noch im Browser prüfen: `https://kiezcoins.de/.well-known/security.txt` lädt.
 - [ ] Maßnahmen aus der Risikobewertung entscheiden (Claude-Projektordner `cra/2026-11-12_risikobewertung-und-befunde.md`). Claude setzt sie danach um.
