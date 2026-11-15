@@ -21,7 +21,7 @@ type AppHeaderProps = {
   onLogoPress?: () => void;
   /** Langes Drücken aufs Logo öffnet das Demo-Menü (nur für Tests mit Beispieldaten). */
   onLogoLongPress?: () => void;
-  /** Punkt am Kater: Bei einer Deiner Challenges bist Du dran. */
+  /** Bei einer Deiner Challenges bist Du dran: steht nur noch in der Beschriftung für Screenreader. */
   hasTasks?: boolean;
 };
 
@@ -47,11 +47,8 @@ function KiezHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) 
         style={styles.logo}
         hitSlop={LOGO_SLOP}
       >
-        {/* Logo mit Kater links (Daria, 2026-11-12: neues Logo); der Punkt sitzt am Kater */}
-        <View>
-          <Logo height={28} />
-          {hasTasks ? <View style={[styles.taskDot, styles.taskDotLogo]} /> : null}
-        </View>
+        {/* Logo mit Kater links (Daria, 2026-11-12: neues Logo). Ohne gelben Punkt am Kater (Daria, 2026-11-15) */}
+        <Logo height={28} />
       </Pressable>
     </View>
   );
@@ -680,7 +677,6 @@ export function PlannedHint({ title, message }: { title: string; message: string
 }
 
 const styles = StyleSheet.create({
-  taskDotLogo: { left: 28, right: undefined, top: -4 },
   row: { flexDirection: 'row' },
   noGrow: { flexGrow: 0, flexShrink: 0 },
   // Logo links; rechts sitzt die schwebende Kamera
@@ -695,17 +691,6 @@ const styles = StyleSheet.create({
     paddingBottom: space[8],
   },
   logo: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
-  taskDot: {
-    position: 'absolute',
-    top: 0,
-    right: -2,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: color.accent.turn,
-    borderWidth: stroke.thin,
-    borderColor: color.bg.screen,
-  },
   greeting: { paddingHorizontal: space[16], paddingTop: space[4], paddingBottom: space[16], gap: space[4] },
   greetingTitle: { ...text.display, color: color.text.primary },
   // Ansprache in der Unbounded wie Namen und Hashtags über dem Foto (Daria, 09.11.2026)
