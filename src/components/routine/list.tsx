@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 import { eventDate, type CalendarEvent } from '../../data/calendar';
 import { useCardMotion } from '../../data/features';
-import { katerFocus, katerLine } from '../../data/katerRoutine';
+import { allDoneLine, katerFocus, katerLine } from '../../data/katerRoutine';
 import { addDays, kindOf, localDate, type Reminder, type ReminderEnd } from '../../data/reminders';
 import { Button } from '../Button';
 import { KaterCard } from '../Content';
@@ -50,7 +50,8 @@ export const RoutineList = memo(function RoutineList({
   showCalendar?: boolean;
 }) {
   const focus = list.length ? katerFocus(list) : undefined;
-  const katerText = focus ? katerLine(focus) : '';
+  // Nur Routinen, die heute frei haben: alles erledigt (Daria, 2026-11-15)
+  const katerText = focus ? katerLine(focus) : list.length ? allDoneLine() : '';
   const motion = useCardMotion();
   const now = useNow();
   const { later, snooze } = useLater();
