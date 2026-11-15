@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useFrontSpace } from '../theme/signal';
 import { color, radius, size, space, stroke } from '../theme/tokens';
 
 import { Icon } from './icons/Icon';
@@ -52,6 +53,8 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
   const feedOn = active === 'feed' && !routineActive;
   // Lila Pille im Feed wie üblich; in der Routine klein und ohne Fläche (Daria, 2026-11-12)
   const cameraPill = feedOn;
+  // In „Me & Myself“ erstellt die Kamera einen privaten Post: Pille gelb statt lila (Daria, 2026-11-15)
+  const cameraFill = useFrontSpace() === 'me' ? color.accent.private : color.nav.create;
   const unread = useUnreadMessages();
   const requests = useFriendRequests();
   useEffect(() => {
@@ -88,7 +91,7 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
             countButton('kamera-leiste', look);
             (onCreatePress ?? (() => router.dismissTo({ pathname: '/feed', params: { erstellen: '1' } })))();
           }}
-          style={({ pressed }) => [styles.item, cameraPill && styles.itemCamera, pressed && styles.pressed]}
+          style={({ pressed }) => [styles.item, cameraPill && [styles.itemCamera, { backgroundColor: cameraFill }], pressed && styles.pressed]}
         >
           <Icon
             name="camera"
