@@ -3,10 +3,10 @@ import { Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 're
 import { Text } from './T';
 import { t } from '../data/texts';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import * as Updates from 'expo-updates';
 
+import { webBase } from '../lib/webBase';
 import { buildErrorReport, mailErrorReport, sendErrorReport } from '../lib/errorReport';
 import { color, radius, space, text } from '../theme/tokens';
 
@@ -14,11 +14,8 @@ type Props = { error: unknown; retry: () => void | Promise<void> };
 
 type SendState = 'idle' | 'sending' | 'sent' | 'failed';
 
-/** Startadresse der Web-App, z. B. „/app/“ (baseUrl aus app.config.js) */
-function webStart() {
-  const base = String(Constants.expoConfig?.experiments?.baseUrl ?? '').replace(/\/$/, '');
-  return `${base}/`;
-}
+/** Startadresse der Web-App, z. B. „/app/“ oder „/“ */
+const webStart = () => `${webBase()}/`;
 
 /**
  * Zurück zum Start (Daria, 27.10.2026): baut die App neu auf und öffnet den Start-Screen.

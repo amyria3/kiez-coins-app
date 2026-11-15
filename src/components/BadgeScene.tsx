@@ -6,10 +6,11 @@ import Svg, { Path } from 'react-native-svg';
 import { useVideoPlayer, VideoView } from 'expo-video';
 
 import type { BadgeKind } from '../data/badges';
+import { webBase } from '../lib/webBase';
 
 // Szenen „Badge Received“ nach Darias Vorlagen (design/abzeichen/szenen, 02.11.2026), Fläche 870 × 819.
 // Native: zwei Videos (Einstieg einmal, dann nahtlose Schleife von 25,6 s), ausgeschnitten auf die Scheibe.
-// Web: die SVG selbst aus public/animations (online unter /app/animations), sie läuft im Browser und ist außerhalb der Scheibe durchsichtig.
+// Web: die SVG selbst aus public/animations (online unter /app/animations bzw. /animations), sie läuft im Browser und ist außerhalb der Scheibe durchsichtig.
 const W = 870;
 const H = 819;
 
@@ -60,7 +61,7 @@ export function BadgeScene({ kind, width, variant = 'received' }: { kind: BadgeK
   if (Platform.OS === 'web') {
     return (
       <Image
-        source={{ uri: `/app/animations/${kind}${variant === 'received' ? '' : `-${variant}`}.svg` }}
+        source={{ uri: `${webBase()}/animations/${kind}${variant === 'received' ? '' : `-${variant}`}.svg` }}
         style={{ width, height }}
         contentFit="contain"
         accessibilityIgnoresInvertColors
