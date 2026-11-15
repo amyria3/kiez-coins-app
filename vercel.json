@@ -5,6 +5,12 @@
   "cleanUrls": true,
   "headers": [
     {
+      "source": "/app/:path*",
+      "headers": [
+        { "key": "Content-Security-Policy-Report-Only", "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://aqxzxpxrshizlaqyjplw.supabase.co; media-src 'self' data: blob: https://aqxzxpxrshizlaqyjplw.supabase.co; font-src 'self' data:; connect-src 'self' https://aqxzxpxrshizlaqyjplw.supabase.co wss://aqxzxpxrshizlaqyjplw.supabase.co https://nominatim.openstreetmap.org; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'" }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
