@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { isTouchWeb } from '../lib/touchWeb';
 import { Alert, Animated, Platform, Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Text } from './T';
@@ -80,6 +81,8 @@ export function TextField({
         returnKeyType={advances ? 'next' : undefined}
         submitBehavior={advances ? 'submit' : undefined}
         {...inputProps}
+        // Kein Fokus beim Laden im Browser auf Telefon und Tablet: sonst bleibt die Tastatur zu (src/lib/touchWeb.ts)
+        autoFocus={inputProps.autoFocus && !isTouchWeb}
         selection={showEnd && !focused && Platform.OS !== 'web' ? { start: value.length, end: value.length } : inputProps.selection}
         placeholder={inputProps.placeholder ? t(inputProps.placeholder) : inputProps.placeholder}
         onSubmitEditing={(e) => {
