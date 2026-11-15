@@ -21,6 +21,7 @@ import { useGoBack } from '../../lib/goBack';
 import { color, radius, space, text } from '../../theme/tokens';
 import { celebratePost } from '../../components/HeartBurst';
 import { WaitForData } from '../../components/WaitForData';
+import { PrivateSpace } from '../../theme/signal';
 
 const clock = (iso: string) =>
   new Date(iso).toLocaleTimeString(localeTag(), { hour: '2-digit', minute: '2-digit' });
@@ -32,10 +33,15 @@ const dayClock = (ms: number) =>
  * Der Timer läuft auf dem Server. Spätestens 48 h nach dem Start postet der Server den Beitrag, auch ohne Nachher-Foto.
  */
 export default function BeforeAfterScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { challenge } = useChallenge(id);
   return (
-    <WaitForData title="Me-Challenge">
-      <BeforeAfterForm />
-    </WaitForData>
+    // Me-Challenge unter „Privat“: gelb wie „Me & Myself“ (Daria, 2026-11-15)
+    <PrivateSpace on={!!challenge?.private}>
+      <WaitForData title="Me-Challenge">
+        <BeforeAfterForm />
+      </WaitForData>
+    </PrivateSpace>
   );
 }
 

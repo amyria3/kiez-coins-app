@@ -7,7 +7,7 @@ import { Text } from './T';
 
 import { formatRelative } from '../data/format';
 import type { Comment as CommentData, ImageSource, User } from '../data/types';
-import { useFocusColor } from '../theme/signal';
+import { useAccentColor, useFocusColor } from '../theme/signal';
 import { color, radius, scheme, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
 import { IconButton } from './IconButton';
@@ -291,6 +291,8 @@ export function CommentComposer({ placeholder, onSend, allowImage, replyTo, onCa
   if (sendRef) sendRef.current = send;
   // Beim Tippen ins Feld: sobald die Tastatur steht, das Feld ins Bild scrollen (Daria, 22.10.2026)
   const boxRef = useRef<View>(null);
+  // Akzent des Bereichs, unter „Privat“ gelb (Daria, 2026-11-15)
+  const accent = useAccentColor();
   const reveal = () => {
     const go = () => setTimeout(() => scrollIntoView(boxRef.current), 50);
     if (Platform.OS === 'web') return go();
@@ -304,7 +306,7 @@ export function CommentComposer({ placeholder, onSend, allowImage, replyTo, onCa
     <View style={styles.composerBlock} ref={boxRef}>
       {replyTo ? (
         <View style={styles.replyBar}>
-          <Text style={styles.replyBarText} numberOfLines={1}>{t('Antwort an {replyTo}', { replyTo })}</Text>
+          <Text style={[styles.replyBarText, { color: accent }]} numberOfLines={1}>{t('Antwort an {replyTo}', { replyTo })}</Text>
           <IconButton icon="close" iconSize={14} accessibilityLabel={t('Antwort aufheben')} onPress={onCancelReply} />
         </View>
       ) : null}

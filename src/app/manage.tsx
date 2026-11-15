@@ -332,6 +332,8 @@ export default function ManageChallenges() {
           ]}
           selectedKey={archive ? 'archive' : 'active'}
           onChange={showTab}
+          // Papierweiß nur im Feed, hier in der Akzentfarbe (Daria, 2026-11-15)
+          accent
           progress={progress}
         />
       </View>

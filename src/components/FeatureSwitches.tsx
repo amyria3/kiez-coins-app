@@ -84,9 +84,10 @@ export function FeatureSwitches({ children }: { children?: ReactNode } = {}) {
               selectedKey={modes.standard}
               onChange={choose}
               lead={{ label: t('Routine'), active: routineStandard, onPress: () => choose('routine') }}
+              accent
             />
           ) : (
-            <Segments tabs={standardTabs} selectedKey={routineStandard ? 'routine' : modes.standard} onChange={choose} />
+            <Segments tabs={standardTabs} selectedKey={routineStandard ? 'routine' : modes.standard} onChange={choose} accent />
           )}
         </FieldGroup>
       ) : null}

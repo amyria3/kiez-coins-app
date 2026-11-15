@@ -5,7 +5,7 @@ import { BEFORE_AFTER_TEXT_MAX } from '../../data/remote';
 import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
 import { color, radius, space, stroke, text } from '../../theme/tokens';
-import { useFocusColor } from '../../theme/signal';
+import { useAccentColor, useFocusColor } from '../../theme/signal';
 import { Button } from '../Button';
 import { PhotoPicker, SwitchRow } from '../Form';
 import { VeryPrivateSwitch } from './VeryPrivateSwitch';
@@ -16,6 +16,8 @@ import { useTagColor } from '../WithMentions';
 
 /** Fortschritt „1 Vorher, 2 Einstellungen, 3 Nachher“ (Schritt 2 hieß bis 2026-11-02 „Timer“) */
 export function BeforeAfterSteps({ at }: { at: 0 | 1 | 2 }) {
+  // Aktueller Schritt in der Akzentfarbe des Bereichs, unter „Privat“ gelb (Daria, 2026-11-15)
+  const accent = useAccentColor();
   const names = ['Vorher', 'Einstellungen', 'Nachher'];
   return (
     <View
@@ -26,7 +28,7 @@ export function BeforeAfterSteps({ at }: { at: 0 | 1 | 2 }) {
       {names.map((name, i) => (
         <View key={name} style={[styles.stepWrap, i < names.length - 1 && styles.flex]}>
           <View style={styles.step}>
-            <View style={[styles.stepDot, i === at && styles.stepDotOn, i < at && styles.stepDotDone]}>
+            <View style={[styles.stepDot, i === at && [styles.stepDotOn, { backgroundColor: accent, borderColor: accent }], i < at && styles.stepDotDone]}>
               <Text style={[styles.stepNumber, i === at && styles.stepNumberOn]}>{i + 1}</Text>
             </View>
             <Text style={[styles.stepName, i <= at && styles.stepNameOn]}>{t(name)}</Text>

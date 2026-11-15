@@ -93,6 +93,15 @@ export function MeSpaceScreen({ children }: { children: ReactNode }) {
   return <SpaceContext.Provider value="me">{children}</SpaceContext.Provider>;
 }
 /**
+ * Seite zu einem Post, der unter „Privat“ steht, z. B. Detail und Me-Challenge (Daria, 2026-11-15): gelb wie
+ * „Me & Myself“, auch in Dialogen über der Seite. Ohne `on` bleibt der Bereich, wie er ist.
+ */
+export function PrivateSpace({ on, children }: { on: boolean; children: ReactNode }) {
+  useFocusEffect(useCallback(() => (on ? pushFrontSpace('me') : undefined), [on]));
+  return <PrivateSignalProvider value={on}>{children}</PrivateSignalProvider>;
+}
+
+/**
  * Routen mit Theme „Functional“ (Daria, 2026-11-14): alles unter Dein Konto außer Freundschaften (bleibt Friendship),
  * Schaufenster verwalten und bearbeiten, Moderation, Texte. Die öffentliche Schaufenster-Seite bleibt Friendship.
  */

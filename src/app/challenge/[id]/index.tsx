@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View, type GestureResponderEvent } from 'react-native';
 import { canShare, useShareChallenge } from '../../../data/shareChallenge';
+import { PrivateSpace } from '../../../theme/signal';
 import { Text } from '../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -55,7 +56,18 @@ const suggestName = (id: string) => operationNames[[...id].reduce((sum, ch) => s
 /** Status, in denen die Challenge noch läuft */
 const RUNNING = new Set<ChallengeStatus>(['open', 'accepted', 'reported', 'rejected']);
 
+/** Detail eines Posts unter „Privat“: gelb wie „Me & Myself“ (Daria, 2026-11-15) */
 export default function ChallengeDetail() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { challenge } = useChallenge(id);
+  return (
+    <PrivateSpace on={!!challenge?.private}>
+      <ChallengeDetailContent />
+    </PrivateSpace>
+  );
+}
+
+function ChallengeDetailContent() {
   // `kommentare`: aus Feed oder „Deine Challenges“ direkt zu den Kommentaren
   const { id, kommentare: commentsParam } = useLocalSearchParams<{ id: string; kommentare?: string }>();
   const router = useRouter();

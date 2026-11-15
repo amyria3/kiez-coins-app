@@ -8,7 +8,7 @@ import { Image } from 'expo-image';
 
 import type { Challenge } from '../data/types';
 import { color, font, motion, radius, size, space, stroke, text } from '../theme/tokens';
-import { usePrivateSignal } from '../theme/signal';
+import { useAccentColor, usePrivateSignal } from '../theme/signal';
 import { Notice } from './Content';
 import { Logo } from './icons/Brand';
 
@@ -254,6 +254,7 @@ const sameBox = (a: Box | null, b: Box) => !!a && a.x === b.x && a.width === b.w
 
 function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress, accent = false, lead }: SegmentsProps<K>) {
   const signal = usePrivateSignal();
+  const spaceAccent = useAccentColor();
   // Helle Pille gleitet zum gewählten Reiter (Bewegung „Schranke“, etwas langsamer).
   // Der gewählte Reiter bekommt seitlich mehr Polsterung; die Nachbarn rutschen mit (Daria, 31.10.2026).
   // Eine Lage `pos` (Index, auch Zwischenwerte) steuert Polsterung, Pille und Schriftfarbe gemeinsam.
@@ -350,8 +351,12 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
   // In „Me & Myself“ und beim Erstellen unter „Privat“ ist jeder gewählte Knopf gelb (Daria, 2026-11-12)
   const privateOn = (lead?.active ? !!lead.private : selectedKey === 'private') || (signal && accent);
   const on = accent && !privateOn ? color.text.onAccent : color.bg.screen;
-  /** Heller Knopf in der Farbe der großen Icons statt Puder-Weiß (Daria, 2026-11-12: Puder biss sich mit dem Feed) */
-  const fill = privateOn ? color.accent.private : accent ? color.accent.primary : color.icon.large;
+  /**
+   * Knopf im Ruhezustand: papierweiß in der Farbe der großen Icons nur im Umschalter des Feeds (Daria, 2026-11-12:
+   * Puder biss sich mit dem Feed). Sonst (`accent`) in der Akzentfarbe des Bereichs: lila, gelb oder gelbgrün
+   * (Daria, 2026-11-15).
+   */
+  const fill = privateOn ? color.accent.private : accent ? spaceAccent : color.icon.large;
 
   return (
     <View

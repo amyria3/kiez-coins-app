@@ -165,7 +165,7 @@ function Journey() {
         <View style={styles.journeyHead}>
           {/* Nicht „Geschafft“: So heißt schon die Fotoreihe darunter */}
           <SectionLabel>Deine Bilanz</SectionLabel>
-          {journeyTabs.length > 1 ? <Segments tabs={journeyTabs} selectedKey={tab} onChange={setTab} /> : null}
+          {journeyTabs.length > 1 ? <Segments tabs={journeyTabs} selectedKey={tab} onChange={setTab} accent /> : null}
         </View>
 
         {/* Kein Verlauf mehr: Hier steht nur, was geschafft ist (Daria, 29.10.2026) */}
