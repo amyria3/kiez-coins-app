@@ -143,8 +143,14 @@ const kcSvg = {
   cameraDark: icon('camera', C.dark),
 };
 // Logo für den Seitenkopf: die Wortbildmarke wie in der App (assets/marke/wortbildmarke.svg, Daria 2026-11-15), 48 hoch.
-// seite.css färbt Kater und Schrift ins dunklere Lila der Website (--purple), die Brille bleibt dunkel.
-const logoSeite = kcSvg.logo;
+// Nur der Schriftzug kommt ins dunklere Lila der Website (--purple in seite.css), damit er auf Flieder lesbar ist.
+// Der Kater bleibt hell mit dunkler Brille im gelbgrünen Kreis (Daria, 2026-11-15: sonst zu wenig Kontrast).
+const SEITEN_LILA = '#5260E0';
+const nurSchrift = (svg) => {
+  const i = svg.toUpperCase().lastIndexOf('#7E94FF');
+  return i < 0 ? svg : svg.slice(0, i) + SEITEN_LILA + svg.slice(i + 7);
+};
+const logoSeite = { ...kcSvg.logo, svg: nurSchrift(kcSvg.logo.svg) };
 const sized = (d, h) => d.svg.replace(/width="[^"]*" height="[^"]*"/, `width="${Math.round((d.w / d.h) * h)}" height="${h}" aria-hidden="true"`);
 // Dateien mit Prüfsumme im Namen-Parameter, damit Browser nach einem Update die neue Fassung laden
 const version = (text) => createHash('sha1').update(text).digest('hex').slice(0, 8);
