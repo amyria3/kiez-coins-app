@@ -21,7 +21,7 @@ if (!window.requestIdleCallback) {
       '<p style="margin:0 0 16px;color:#a7a39d">Schick uns den Fehlerbericht. So finden wir den Fehler schneller.</p>' +
       '<button type="button" data-send style="display:block;margin:0 0 12px;padding:12px 20px;border:0;border-radius:12px;background:#8f90fa;color:#232326;font:600 16px -apple-system,system-ui,sans-serif">Fehlerbericht senden</button>' +
       '<p data-status style="margin:0 0 12px"></p>' +
-      '<a href="/app/?look=kiez" style="display:inline-block;margin:0 0 24px;padding:12px 20px;border-radius:12px;border:1px solid #555;color:#fff8ed;text-decoration:none">Neu laden</a>' +
+      '<a href="/?look=kiez" style="display:inline-block;margin:0 0 24px;padding:12px 20px;border-radius:12px;border:1px solid #555;color:#fff8ed;text-decoration:none">Neu laden</a>' +
       '<pre style="white-space:pre-wrap;word-break:break-all;font-size:12px;color:#ff7e8b;margin:0"></pre>';
     var start = window.__kiezStart || 'Skript nicht gestartet';
     box.querySelector('pre').textContent = String(text).slice(0, 1200) + '\n\nStart: ' + start + '\n' + navigator.userAgent;
@@ -72,4 +72,51 @@ if (!window.requestIdleCallback) {
   });
   // Nach 12 Sekunden immer noch leer: Hinweis ohne Fehlertext
   setTimeout(function () { show('Nach 8 Sekunden ist noch nichts zu sehen.'); }, 8000);
+})();
+// Umzug von kiezcoins.de/app nach app.kiezcoins.de (Daria, 15.11.2026): Anmeldung und Einstellungen einmalig übernehmen.
+// kiezcoins.de/app-uebergabe (website/app-uebergabe.js) schickt den alten Browser-Speicher. Schlüssel, die es hier
+// schon gibt, bleiben. Danach löscht die alte Seite ihre Kopie. Kam eine Anmeldung dazu, lädt die App einmal neu.
+(function () {
+  var ALT = 'https://kiezcoins.de';
+  var MERKER = 'kc-umzug';
+  if (location.hostname !== 'app.kiezcoins.de') return;
+  try {
+    if (localStorage.getItem(MERKER)) return;
+  } catch (e) {
+    return;
+  }
+  var frame = document.createElement('iframe');
+  var anmeldung = false;
+  var ende;
+  function fertig() {
+    clearTimeout(ende);
+    window.removeEventListener('message', empfang);
+    frame.remove();
+    if (anmeldung) location.reload();
+  }
+  function empfang(e) {
+    if (e.origin !== ALT || e.source !== frame.contentWindow || !e.data) return;
+    if (e.data.typ === 'kiezcoins-uebergabe-geloescht') return fertig();
+    if (e.data.typ !== 'kiezcoins-uebergabe') return;
+    var daten = e.data.daten || {};
+    try {
+      Object.keys(daten).forEach(function (k) {
+        if (typeof daten[k] !== 'string' || localStorage.getItem(k) !== null) return;
+        localStorage.setItem(k, daten[k]);
+        if (/^sb-.+-auth-token$/.test(k)) anmeldung = true;
+      });
+      localStorage.setItem(MERKER, new Date().toISOString());
+    } catch (err) {
+      return fertig();
+    }
+    frame.contentWindow.postMessage({ typ: 'kiezcoins-uebergabe-fertig' }, ALT);
+    ende = setTimeout(fertig, 2000);
+  }
+  window.addEventListener('message', empfang);
+  frame.hidden = true;
+  frame.setAttribute('aria-hidden', 'true');
+  frame.src = ALT + '/app-uebergabe';
+  document.documentElement.appendChild(frame);
+  // Antwortet die alte Seite nicht (offline, gesperrt), startet die App ohne Übernahme und versucht es beim nächsten Mal.
+  ende = setTimeout(fertig, 5000);
 })();

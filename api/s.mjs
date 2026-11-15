@@ -200,7 +200,7 @@ function eintrag(x) {
       <p class="sf-art sf-post">${art}</p>
       ${x.title?.trim() ? `<h2>${esc(x.title)}</h2>` : ''}
       ${x.body ? `<p class="sf-text">${esc(x.body)}</p>` : ''}
-      <a class="sf-link" href="/app/challenge/${esc(x.id)}?von=schaufenster">In KiezCoins öffnen</a>
+      <a class="sf-link" href="https://app.kiezcoins.de/challenge/${esc(x.id)}?von=schaufenster">In KiezCoins öffnen</a>
     </div></article>`;
   }
   const n = Number(x.likes) || 0;

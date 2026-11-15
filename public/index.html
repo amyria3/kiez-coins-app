@@ -7,9 +7,9 @@
     <meta name="robots" content="noindex" />
     <title>KiezCoins</title>
     <!-- Web-App fürs iPhone: „Zum Home-Bildschirm“ in Safari startet KiezCoins ohne Browserleiste. -->
-    <!-- Die Pfade beginnen mit /app/, passend zu experiments.baseUrl in app.json. -->
-    <link rel="manifest" href="/app/manifest.json" />
-    <link rel="apple-touch-icon" href="/app/apple-touch-icon.png" />
+    <!-- Die Web-App liegt an der Wurzel von app.kiezcoins.de, die Pfade beginnen deshalb mit /. -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="KiezCoins" />
@@ -159,9 +159,9 @@
 
   <body>
     <noscript>KiezCoins braucht JavaScript.</noscript>
-    <div id="boot" aria-hidden="true"><img src="/app/gears.svg" alt="" /></div>
+    <div id="boot" aria-hidden="true"><img src="/gears.svg" alt="" /></div>
     <div id="boot-moment" aria-hidden="true">Moment<i>.</i><i>.</i><i>.</i></div>
     <div id="root"></div>
-    <script src="/app/start.js"></script>
+    <script src="/start.js"></script>
   </body>
 </html>

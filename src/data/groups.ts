@@ -32,10 +32,10 @@ export const myEdensteine = (group: Group, challenges: Challenge[], userId: stri
   leaderboard(group, challenges).find((e) => e.userId === userId)?.edensteine ?? 0;
 
 /** Adresse der Web-App. Universal Links fehlen noch, deshalb öffnet der Link die Web-App. */
-export const WEB_APP_URL = 'https://kiezcoins.de/app';
+export const WEB_APP_URL = 'https://app.kiezcoins.de';
 
 /** Link, der „Gruppe beitreten“ mit vorausgefülltem Code öffnet */
-export const inviteLink = (code: string) => `${WEB_APP_URL}/gruppen/beitreten?code=${encodeURIComponent(code)}`;
+export const inviteLink = (code: string) => `${WEB_APP_URL}/groups/join?code=${encodeURIComponent(code)}`;
 
 /**
  * Text zum Teilen. Link und Code stehen je auf eigener Zeile, damit Messenger den Link antippbar machen

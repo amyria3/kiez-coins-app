@@ -1,7 +1,7 @@
 // Baut die Download-Seite in den Ordner `website/`: Startseite mit Formular für den Einladungscode plus
 // Impressum, Datenschutz, Nutzungsbedingungen und Community-Regeln aus `src/data/legal.ts` (dieselben Texte wie in der App).
-// Aufruf: `npm run build:website` baut zuerst die Web-App nach `website/app/` und danach diese Seiten.
-// Nur die Seiten ohne Web-App: node scripts/build-download-site.mjs
+// Aufruf: `npm run build:website` oder `node scripts/build-download-site.mjs`. Die Web-App baut ein eigenes
+// Vercel-Projekt für app.kiezcoins.de (scripts/build-web-app.mjs).
 // Die Startseite zeigt einen klickbaren Prototyp der App (scripts/site/prototyp.js) und Illustrationen
 // (scripts/site/kunst.mjs). Icons, Kater und Coins kommen aus denselben SVGs wie die App.
 // Vercel baut und veröffentlicht `website/` bei jedem Push (vercel.json). Ablauf: Documentation,
@@ -201,10 +201,11 @@ const uebersetzer = (L) => (de, en) => {
 const pfad = (L) => (L === 'de' ? '/' : `/${L}/`);
 // Links zur Web-App tragen die Sprache der Seite, Deutsch nicht: Die deutsche Seite ist die Vorgabe, keine Wahl (Daria, 08.11.2026)
 const spracheParam = (L) => (L === 'de' ? '' : `?sprache=${L}`);
+// Die Web-App liegt auf einer eigenen Subdomain (Daria, 15.11.2026). So kommt eine Lücke auf der Website nicht an die Anmeldung.
+const APP_URL = 'https://app.kiezcoins.de';
 
 const ios = (L) => {
   const t = uebersetzer(L);
-  const P = L === 'de' ? '' : '/';
   return config.testflightUrl
   ? `<div class="card" id="iphone">
   <h3>iPhone</h3>
@@ -214,7 +215,7 @@ const ios = (L) => {
   : `<div class="card" id="iphone">
   <h3>iPhone</h3>
   <p>${t('Auf dem iPhone läuft KiezCoins als Web-App in Safari. Auf dem Home-Bildschirm startet sie wie eine App.', 'On the iPhone, KiezCoins runs as a web app in Safari. From the home screen it starts like an app.')}</p>
-  <a class="button" href="${P}app/${spracheParam(L)}">${t('KiezCoins öffnen', 'Open KiezCoins')}</a>
+  <a class="button" href="${APP_URL}/${spracheParam(L)}">${t('KiezCoins öffnen', 'Open KiezCoins')}</a>
   <ol class="steps">
     <li>${t('Diese Seite in <strong>Safari</strong> öffnen und „KiezCoins öffnen“ tippen.', 'Open this page in <strong>Safari</strong> and tap “Open KiezCoins”.')}</li>
     <li>${t('Unten in der Leiste auf das Teilen-Symbol tippen (Quadrat mit Pfeil nach oben).', 'Tap the share icon in the bottom bar (square with an arrow pointing up).')}</li>
@@ -429,7 +430,7 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
       <div class="card" id="browser">
         <h3>${t('Im Browser', 'In the browser')}</h3>
         <p>${t('Ohne Installation und direkt im Browser. Teste die App ohne ein Konto oder lege ein Konto an - wie es Dir besser gefällt.', 'No installation, right in the browser. Try the app without an account or create one – whichever you prefer.')}</p>
-        <a class="button" href="${P}app/${spracheParam(L)}">${t('Direkt im Browser ausprobieren', 'Try it right in the browser')}</a>
+        <a class="button" href="${APP_URL}/${spracheParam(L)}">${t('Direkt im Browser ausprobieren', 'Try it right in the browser')}</a>
       </div>
     </div>
     <!-- Schaufenster für Läden, Vereine und Clubs: Knopf zu kiezcoins.de/schaufenster mit kleiner Vorschau (Daria, 11.11.2026) -->
@@ -437,7 +438,7 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
       <div class="lw-text">
         <h3>${t('Du hast einen Laden, ein Café oder einen Verein?', 'Do you run a shop, a café or a club?')}</h3>
         <p>${t('Mit einem Schaufenster zeigst Du Deinem Kiez, was bei Dir los ist: neue Posts, Termine und Öffnungszeiten. Nachbar:innen speichern Deine Termine mit einem Tipp.', 'With a shop window you show your neighborhood what’s going on at your place: new posts, events and opening hours. Neighbors save your events with one tap.')}</p>
-        <a class="button" href="/schaufenster${spracheParam(L)}">${t('Registriere Deinen Laden', 'Register your shop')}</a>
+        <a class="button" href="${APP_URL}/schaufenster${spracheParam(L)}">${t('Registriere Deinen Laden', 'Register your shop')}</a>
       </div>
       <figure class="lw-vorschau" aria-label="${t('Vorschau: So sieht ein Schaufenster aus', 'Preview: this is what a shop window looks like')}">
         <div class="lw-fenster" aria-hidden="true">
@@ -836,7 +837,7 @@ const teilenVorlage = `<!doctype html>
     <h3>Mach mit in Deinem Kiez.</h3>
     <p>In KiezCoins stellen Menschen aus der Nachbarschaft kleine Aufgaben, und andere erledigen sie.</p>
     <a class="button" href="/?von=teilen">KiezCoins kennenlernen</a>
-    <a class="button button-zweit" href="/app/?von=teilen">Direkt im Browser ausprobieren</a>
+    <a class="button button-zweit" href="${APP_URL}/?von=teilen">Direkt im Browser ausprobieren</a>
   </div>
   <footer>
     <a href="/impressum">Impressum</a>
@@ -883,14 +884,14 @@ const einladung = `<!doctype html>
         <p class="error" id="fehler" hidden></p>
         <button type="submit">App herunterladen</button>
       </form>
-      <a class="button button-zweit" href="/app/">Direkt im Browser anmelden und ausprobieren</a>
+      <a class="button button-zweit" href="${APP_URL}/">Direkt im Browser anmelden und ausprobieren</a>
       <ol class="steps">
         <li>„App herunterladen“ tippen.</li>
         <li>Die Datei <em>kiez-coins.apk</em> öffnen, wenn der Download fertig ist.</li>
         <li>Android fragt, ob Dein Browser Apps installieren darf. Erlauben und „Installieren“ tippen.</li>
       </ol>
     </div>
-    ${ios('de').replace(/href="app\/"/g, 'href="/app/"')}
+    ${ios('de')}
   </div>
   <footer>
     <a href="/impressum">Impressum</a>
@@ -978,7 +979,7 @@ const ladenSeite = `<!doctype html>
       <li>Android fragt, ob Dein Browser Apps installieren darf. Erlauben und „Installieren“ tippen.</li>
       <li>KiezCoins über das neue Symbol starten. Updates kommen von selbst.</li>
     </ol>
-    <a class="button button-zweit" href="/app/">Lieber direkt im Browser ausprobieren</a>
+    <a class="button button-zweit" href="${APP_URL}/">Lieber direkt im Browser ausprobieren</a>
   </div>
 
   <div class="card" data-geraet="app-browser">
@@ -993,7 +994,7 @@ const ladenSeite = `<!doctype html>
   <div class="card" data-geraet="iphone">
     <h3>iPhone</h3>
     <p>Auf dem iPhone läuft KiezCoins als Web-App. Auf dem Home-Bildschirm startet sie wie jede andere App.</p>
-    <a class="button" href="/app/">KiezCoins öffnen</a>
+    <a class="button" href="${APP_URL}/">KiezCoins öffnen</a>
     <ol class="steps">
       <li><strong>„KiezCoins öffnen“</strong> tippen.</li>
       <li>Unten in der Leiste auf das Teilen-Symbol ${teilenSymbol} tippen. Siehst Du die Leiste nicht, tippe einmal unten auf den Bildschirm.</li>
@@ -1008,7 +1009,7 @@ const ladenSeite = `<!doctype html>
     <p>Öffne die Kamera Deines Telefons und richte sie auf den Code. Das Telefon zeigt dann den passenden Weg.</p>
     <div class="qr" role="img" aria-label="Instant-Download: ${ladenUrl}">${ladenQr}</div>
     <p class="klein">Oder schick Dir diesen Link: <a href="/laden">${ladenUrl.replace('https://', '')}</a></p>
-    <a class="button button-zweit" href="/app/">Hier am Computer im Browser ausprobieren</a>
+    <a class="button button-zweit" href="${APP_URL}/">Hier am Computer im Browser ausprobieren</a>
   </div>
 
   <footer>
@@ -1035,7 +1036,7 @@ const ladenSeite = `<!doctype html>
     var appBrowser = /Instagram|FBAN|FBAV|FB_IAB|Line\\/|musical_ly|TikTok|LinkedInApp|Snapchat|Pinterest/i.test(ua);
     seite.classList.remove('ohne-js');
     // Schon als Web-App vom Home-Bildschirm gestartet: gleich in die App
-    if (iphone && (navigator.standalone || matchMedia('(display-mode: standalone)').matches)) { location.replace('/app/'); return; }
+    if (iphone && (navigator.standalone || matchMedia('(display-mode: standalone)').matches)) { location.replace('${APP_URL}/'); return; }
     if (android) {
       seite.classList.add('ist-android');
       // Download nur einmal von selbst, nicht bei jedem Zurück
@@ -1412,11 +1413,6 @@ writeFileSync(
   join(out, '404.html'),
   page('Nicht gefunden – KiezCoins', `<h1>Seite nicht gefunden</h1>\n<p><a href="/">Zur Startseite</a></p>`),
 );
-// Web-App: Vercel leitet unbekannte Adressen unter /app/ auf die App-Startseite um (vercel.json unten).
-// Eine Kopie der App-Startseite sorgt dafür, dass Neuladen auf einer Unterseite (/app/challenge/…) die App öffnet.
-const app = join(out, 'app');
-if (existsSync(join(app, 'index.html'))) copyFileSync(join(app, 'index.html'), join(app, '404.html'));
-else console.warn('Achtung: website/app/ fehlt. Die Web-App fürs iPhone baut `npm run build:website`.');
 for (const id of legalDocIds) writeFileSync(join(out, `${fileOf[id]}.html`), legal(id));
 writeFileSync(join(out, 'co-founder.html'), coFounderSeite);
 copyFileSync(join(root, 'assets/favicon.png'), join(out, 'favicon.png'));
@@ -1460,7 +1456,7 @@ await (await import('esbuild')).build({
   outfile: join(out, 'visitenkarte.js'),
   logLevel: 'warning',
 });
-// Hosting bei Vercel: Unterseiten der Web-App öffnen die App, Rechtstexte auch ohne .html.
+// Hosting bei Vercel: Rechtstexte auch ohne .html, alte Adressen der Web-App leiten auf app.kiezcoins.de.
 // Mit cleanUrls bekommt Vercel keine Ziele mit .html, sonst endet jede Umleitung auf der 404-Seite.
 writeFileSync(
   join(out, 'vercel.json'),
@@ -1470,7 +1466,6 @@ writeFileSync(
       // Alte deutsche Pfade der Web-App auf die englischen (Daria, 30.10.2026). Geteilte Einladungslinks bleiben gültig.
       redirects: JSON.parse(readFileSync(join(root, 'vercel.json'), 'utf8')).redirects ?? [],
       rewrites: [
-        { source: '/app/:path*', destination: '/app/index' },
         { source: '/einladung/:code', destination: '/einladung' },
         { source: '/c/:id', destination: '/api/c?id=:id' },
         { source: '/s/:slug', destination: '/api/s?slug=:slug' },

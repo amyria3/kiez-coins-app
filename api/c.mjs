@@ -74,7 +74,7 @@ function inhalt(post) {
   ${wer ? `<p class="wer">${wer}</p>` : ''}
   ${post.title?.trim() ? `<h1>${esc(post.title)}</h1>` : ''}
   ${post.body ? `<p class="text">${esc(post.body)}</p>` : ''}
-  <p><a class="button" href="/app/challenge/${esc(post.id)}?von=teilen">Post in KiezCoins öffnen</a></p>`;
+  <p><a class="button" href="https://app.kiezcoins.de/challenge/${esc(post.id)}?von=teilen">Post in KiezCoins öffnen</a></p>`;
 }
 
 export async function GET(request) {

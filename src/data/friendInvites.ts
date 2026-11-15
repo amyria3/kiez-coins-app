@@ -7,7 +7,7 @@ import { t } from './texts';
 export const FRIEND_CODE_LENGTH = 7;
 
 /** Link, der die Einladung öffnet. Der QR-Code enthält denselben Link. */
-export const friendInviteLink = (code: string) => `${WEB_APP_URL}/freunde/einladen?code=${encodeURIComponent(code)}`;
+export const friendInviteLink = (code: string) => `${WEB_APP_URL}/friends/invite?code=${encodeURIComponent(code)}`;
 
 /** Text zum Teilen. Link und Code stehen je auf eigener Zeile wie bei den Gruppen. */
 export const friendInviteMessage = (code: string) =>
