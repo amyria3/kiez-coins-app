@@ -53,17 +53,7 @@
   ],
   "redirects": [
     {
-      "source": "/app",
-      "destination": "https://app.kiezcoins.de/",
-      "permanent": false
-    },
-    {
-      "source": "/app/",
-      "destination": "https://app.kiezcoins.de/",
-      "permanent": false
-    },
-    {
-      "source": "/app/:path*",
+      "source": "/app/:path+",
       "destination": "https://app.kiezcoins.de/:path*",
       "permanent": false
     },
@@ -74,6 +64,14 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/app",
+      "destination": "/app-umzug"
+    },
+    {
+      "source": "/app/",
+      "destination": "/app-umzug"
+    },
     {
       "source": "/einladung/:code",
       "destination": "/einladung"

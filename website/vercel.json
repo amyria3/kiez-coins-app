@@ -2,17 +2,7 @@
   "cleanUrls": true,
   "redirects": [
     {
-      "source": "/app",
-      "destination": "https://app.kiezcoins.de/",
-      "permanent": false
-    },
-    {
-      "source": "/app/",
-      "destination": "https://app.kiezcoins.de/",
-      "permanent": false
-    },
-    {
-      "source": "/app/:path*",
+      "source": "/app/:path+",
       "destination": "https://app.kiezcoins.de/:path*",
       "permanent": false
     },

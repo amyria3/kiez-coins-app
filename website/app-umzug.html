@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>KiezCoins ist umgezogen</title>
+<link rel="icon" href="/favicon.png">
+<!-- kiezcoins.de/app und /app/ (vercel.json). Im Browser geht es sofort weiter nach app.kiezcoins.de.
+     Vom alten Icon auf dem Home-Bildschirm gestartet, erklärt die Seite, wie man KiezCoins neu hinzufügt:
+     Die alte Web-App darf app.kiezcoins.de nicht selbst öffnen, dort geht die Tastatur nicht auf (Daria, 2026-11-15). -->
+<script src="/app-umzug.js"></script>
+<style>
+:root { --bg:#232326; --surface:#2B2D31; --text:#FFF8ED; --muted:#A7A39D; --accent:#8F90FA; --line:rgba(240,240,240,.12); }
+* { box-sizing:border-box; }
+html { background:var(--bg); color:var(--text); }
+body { margin:0; font:300 17px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width:520px; margin:0 auto; padding:calc(env(safe-area-inset-top) + 48px) 20px 32px; }
+.bild { width:96px; height:96px; }
+h1 { font-size:32px; line-height:1.15; margin:20px 0 12px; font-weight:600; }
+p { color:var(--muted); margin:0 0 16px; }
+ol { padding-left:22px; margin:0 0 24px; }
+li { margin-bottom:10px; }
+strong { color:var(--text); font-weight:500; }
+.button { display:block; text-align:center; text-decoration:none; padding:16px; border-radius:16px; background:var(--accent); color:#232326; font-weight:500; }
+.umzug { display:none; }
+.standalone .umzug { display:block; }
+</style>
+</head>
+<body>
+<main class="umzug">
+  <img class="bild" src="/app-icon-umzug.png" alt="">
+  <h1>KiezCoins ist umgezogen</h1>
+  <p>Die App wohnt jetzt unter <strong>app.kiezcoins.de</strong>. Dieses Symbol auf Deinem Home-Bildschirm führt noch zur alten Adresse.</p>
+  <ol>
+    <li>Öffne <strong>app.kiezcoins.de</strong> in Safari.</li>
+    <li>Tippe auf Teilen und dann auf <strong>„Zum Home-Bildschirm“</strong>.</li>
+    <li>Lösche dieses alte Symbol.</li>
+  </ol>
+  <p>In der neuen App meldest Du Dich einmal neu an. Deine Posts, Gruppen und Coins sind alle noch da.</p>
+  <a class="button" href="https://app.kiezcoins.de/" target="_blank" rel="noopener">app.kiezcoins.de öffnen</a>
+</main>
+</body>
+</html>
