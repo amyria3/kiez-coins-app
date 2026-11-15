@@ -5,8 +5,9 @@ import { color } from './tokens';
 
 /**
  * Bereich, in dem man gerade ist (Daria, 2026-11-13): eine Quelle für die Signalfarben statt mehrerer Schalter.
- * Drei Themes (Daria, 2026-11-14), der Bereich wählt sie, nicht die Person:
- * - Friendship (Standard, `public` und `group`): Knöpfe Lila, Schalter und Fokus Gelbgrün.
+ * Drei Themes (Daria, 2026-11-14), der Bereich wählt sie, nicht die Person. Schalter (an) und Fokus haben die
+ * Akzentfarbe des Bereichs, ausgeschaltete Schalter eine dunkle Tönung (Daria, 2026-11-15):
+ * - Friendship (Standard, `public` und `group`): Knöpfe, Schalter und Fokus Lila; aus dunkles Grau-Violett.
  * - Happy (`me`): Knöpfe, Schalter und Fokus Gelb.
  * - Functional (`functional`): Seiten unter dem Menü (Konto, Funktionen, Schaufenster verwalten, Moderation, Texte).
  *   Knöpfe, Schalter und Fokus Gelbgrün wie das Menü-Icon.
@@ -50,7 +51,7 @@ export function useToggleOffColor(): string {
   return spaceColors(useSpace()).off;
 }
 
-/** Fokus und eingeschaltete Schalter: Gelbgrün, in „Me & Myself“ Gelb (Daria, 2026-11-13) */
+/** Fokus und eingeschaltete Schalter: Akzent des Bereichs, in Feeds Lila, in „Me & Myself“ Gelb (Daria, 2026-11-15) */
 export function useFocusColor(): string {
   return spaceColors(useSpace()).focus;
 }

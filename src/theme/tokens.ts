@@ -56,8 +56,11 @@ const swatch = {
   puder: '#E6D6C0',
   /** Tinte auf hellen Karten */
   tinte: '#1A1A1A',
-  /** Aus-Zustand der An/Aus-Schalter, je Theme im Farbton seines Akzents, gleich dunkel (Daria, 2026-11-14) */
-  schalterAus: '#45466F',
+  /**
+   * Aus-Zustand der An/Aus-Schalter, je Theme dunkel getönt, gleich dunkel (Daria, 2026-11-14). Friendship seit
+   * 2026-11-15 ein dunkles Grau mit wenig Violett statt Lila: Aus soll nicht nach Akzent aussehen.
+   */
+  schalterAus: '#4A4852',
   schalterAusOlive: '#525837',
   schalterAusSenf: '#585137',
   /** Reines Weiß: Rand der Herzen, Schrift auf Fotos beim Beschriften, Blatt der Textposts */
@@ -143,7 +146,7 @@ export const color = {
     /** Feed = Herz, dieselbe Grundfarbe wie accent.affection (Daria, 2026-11-13: zwei Rollen, ein Ziel) */
     feed: palette.pink,
     chat: swatch.schnee,
-    /** Menü = Einstellungen. Dieselbe Grundfarbe wie accent.focus, eigene Rolle (Daria, 2026-11-13) */
+    /** Menü = Einstellungen. Dieselbe Grundfarbe wie accent.functional, eigene Rolle (Daria, 2026-11-13) */
     menu: swatch.gelbgruen,
     create: palette.purple,
     onCreate: palette.black,
@@ -163,8 +166,11 @@ export const color = {
      */
     turn: swatch.senf,
     confirmation: palette.green,
-    /** Fokus (Rahmen und Cursor im aktiven Feld) und eingeschaltete Schalter: Gelbgrün, überall gleich (Daria, 2026-11-13) */
-    focus: swatch.gelbgruen,
+    /**
+     * Fokus (Rahmen und Cursor im aktiven Feld) und eingeschaltete Schalter im Theme Friendship (Feeds): Lila wie
+     * der Akzent (Daria, 2026-11-15, vorher Gelbgrün). Happy und Functional haben eigene Farben (theme/signal.tsx).
+     */
+    focus: palette.purple,
     /** Theme „Functional“ (Daria, 2026-11-14): Knöpfe, Schalter und Fokus auf den Seiten unter dem Menü, wie das Menü-Icon */
     functional: swatch.gelbgruen,
     signal: palette.orange,
