@@ -143,7 +143,7 @@ const kcSvg = {
   cameraDark: icon('camera', C.dark),
 };
 // Logo für den Seitenkopf: die Wortbildmarke wie in der App (assets/marke/wortbildmarke.svg, Daria 2026-11-15), 48 hoch.
-// seite.css färbt Kater und Schrift in die Textfarbe, wie seit 2026-11-05. Die helle Seite braucht dunkle Schrift.
+// seite.css färbt Kater und Schrift ins dunklere Lila der Website (--purple), die Brille bleibt dunkel.
 const logoSeite = kcSvg.logo;
 const sized = (d, h) => d.svg.replace(/width="[^"]*" height="[^"]*"/, `width="${Math.round((d.w / d.h) * h)}" height="${h}" aria-hidden="true"`);
 // Dateien mit Prüfsumme im Namen-Parameter, damit Browser nach einem Update die neue Fassung laden

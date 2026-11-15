@@ -40,17 +40,21 @@ export const Cat = memo(function Cat({ mood = 'default', height = 39, tint }: Ca
 const signature = (svg: string) => svg;
 
 /**
- * Logo: Wortbildmarke, Kater im gelbgrünen Kreis und Schriftzug „KiezCoins“ (`assets/marke/wortbildmarke.svg`,
- * Daria 2026-11-15), in allen Looks. Kiez-Look: Lila #7E94FF mit dunkler Brille, auf dem dunklen Grund gut lesbar.
- * Fashionable Look (heller Grund): Lila zu wenig Kontrast, daher Kater und Schrift in Textfarbe, die Brille im Grund.
- * `tint`: eigene Farbe für Kater und Schrift; `glasses`: Farbe der Brille dazu.
+ * Schriftzug der Wortbildmarke umfärben: Nur der letzte lila Pfad (die Buchstaben) bekommt die Farbe.
+ * Kater, dunkle Brille und gelbgrüner Kreis bleiben wie in der Marke (Daria, 2026-11-15: keine weiße Brille).
  */
-export const Logo = memo(function Logo({ height = 24, tint, glasses }: { height?: number; tint?: string; glasses?: string }) {
+export function tintWordmark(svg: string, ink: string): string {
+  const i = svg.toUpperCase().lastIndexOf('#7E94FF');
+  return i < 0 ? svg : svg.slice(0, i) + ink + svg.slice(i + 7);
+}
+
+/**
+ * Logo: Wortbildmarke, Kater im gelbgrünen Kreis und Schriftzug „KiezCoins“ (`assets/marke/wortbildmarke.svg`,
+ * Daria 2026-11-15), in allen Looks. `tint`: eigene Farbe nur für den Schriftzug, z. B. auf hellem Grund.
+ */
+export const Logo = memo(function Logo({ height = 24, tint }: { height?: number; tint?: string }) {
   const art = brandArt.wortbildmarke;
-  const ink = tint;
-  const xml = ink
-    ? art.svg.replace(/#7E94FF/gi, ink).replace(/#0A0A09/gi, glasses ?? color.bg.screen)
-    : art.svg;
+  const xml = tint ? tintWordmark(art.svg, tint) : art.svg;
   return <SvgXml xml={xml} width={(art.width / art.height) * height} height={height} />;
 });
 

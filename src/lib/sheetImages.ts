@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 
 import { INK, INK_LINK, PAPER, RICH, SHEET_RATIO, sheetMetrics } from '../components/TextSheets';
 import { brandArt } from '../components/icons/brandArt';
+import { tintWordmark } from '../components/icons/Brand';
 import { font } from '../theme/tokens';
 
 /**
@@ -24,13 +25,10 @@ function svgImage(xml: string): HTMLImageElement | null {
   return img;
 }
 
-/** Wortbildmarke (Daria, 2026-11-15), Kater und Schrift in der Farbe des Namens, die Brille im Papierweiß */
+/** Wortbildmarke (Daria, 2026-11-15): Schriftzug in der Farbe des Namens, Kater mit dunkler Brille wie in der Marke */
 const LOGO = brandArt.wortbildmarke;
 const logoImage = svgImage(
-  LOGO.svg
-    .replace(/#7E94FF/gi, INK)
-    .replace(/#0A0A09/gi, PAPER)
-    .replace(/width="[^"]*" height="[^"]*"/, `width="${LOGO.width * 8}" height="${LOGO.height * 8}"`),
+  tintWordmark(LOGO.svg, INK).replace(/width="[^"]*" height="[^"]*"/, `width="${LOGO.width * 8}" height="${LOGO.height * 8}"`),
 );
 
 /** Wer den Post geschrieben hat: oben über dem Titel, Profilbild und Name (Daria, 07.11.2026) */
