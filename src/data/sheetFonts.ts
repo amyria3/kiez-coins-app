@@ -24,7 +24,6 @@ export const SHEET_FONTS = [
 ] as const;
 
 export type SheetFont = (typeof SHEET_FONTS)[number]['key'];
-export const DEFAULT_SHEET_FONT: SheetFont = 'inter';
 
 /** Schrift zu einem Schlüssel. Steht dahinter noch Größe und Ausrichtung (`rubik|1.15|center`), zählt nur die Schrift. */
 export const sheetFont = (key?: string) => {

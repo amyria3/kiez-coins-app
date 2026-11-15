@@ -85,11 +85,6 @@ function loadFeatures(userId: string, groupId?: string): Promise<FeatureMap> {
   return running;
 }
 
-/** Neu laden, z. B. nachdem Daria jemanden freigeschaltet hat und die App nicht neu starten soll */
-export function forgetFeatures() {
-  cache.clear();
-}
-
 /**
  * Ist die Funktion für die angemeldete Person an? Mit `groupId` zählt die Freischaltung genau dieser Gruppe
  * (z. B. Schaufenster auf der Gruppenseite). Nur mit echten Daten; in der Demo gilt der Standard.

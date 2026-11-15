@@ -44,7 +44,10 @@ export async function collectKeys() {
         // Erstes Argument: Text oder Fallunterscheidung aus Texten
         const collect = (e) => {
           if (ts.isStringLiteral(e) || ts.isNoSubstitutionTemplateLiteral(e)) add(e.text, where);
-          else if (ts.isConditionalExpression(e)) (collect(e.whenTrue), collect(e.whenFalse));
+          else if (ts.isConditionalExpression(e)) {
+            collect(e.whenTrue);
+            collect(e.whenFalse);
+          }
           else if (ts.isParenthesizedExpression(e)) collect(e.expression);
         };
         collect(n.arguments[0]);

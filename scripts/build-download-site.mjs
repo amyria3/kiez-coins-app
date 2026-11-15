@@ -109,7 +109,7 @@ const { crownSvg } = await loadTs('src/components/icons/crownSvg.ts');
 const { diamondSvgs } = await loadTs('src/components/icons/diamondSvgs.ts');
 const { brandArt } = await loadTs('src/components/icons/brandArt.ts');
 const art = (name) => ({ w: brandArt[name].width, h: brandArt[name].height, svg: brandArt[name].svg });
-const { figuren, kartenbilder, filterDefs } = await import('./site/kunst.mjs');
+const { kartenbilder, filterDefs } = await import('./site/kunst.mjs');
 const C = { text: '#F0F0F0', muted: '#A0A0A0', purple: '#7E94FF', pink: '#FFB2E5', green: '#93F4A7', dark: '#1F2123' };
 const icon = (name, c) => ({ w: iconSvgs[name].width, h: iconSvgs[name].height, svg: iconSvgs[name].svg(c) });
 const kcSvg = {

@@ -301,6 +301,3 @@ function applyLinkMode(userId: string, mode: Mode) {
     : { ...hiddenOf(saved), [mode]: false };
   store(userId, { ...saved, standard: mode, routineStandard: false, hidden });
 }
-
-/** Link, der die App in diesem Modus öffnet */
-export const modeLink = (mode: Mode, base: string) => `${base}/?modus=${MODE_SLUG[mode]}`;

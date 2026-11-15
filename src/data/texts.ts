@@ -122,7 +122,6 @@ export const getLanguage = () => lang;
  */
 let languageChanges = 0;
 export const getLanguageChanges = () => languageChanges;
-export const getGender = () => gender;
 
 /** Geschlecht für Texte an Dich. Kommt aus dem Profil und liegt zusätzlich auf dem Gerät. */
 export async function setGender(next: Gender) {

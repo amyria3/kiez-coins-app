@@ -343,6 +343,3 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
     ],
   },
 };
-
-/** Alle offenen Angaben, zum Prüfen vor der Veröffentlichung. */
-export const openLegalFields = (Object.keys(OPERATOR) as (keyof typeof OPERATOR)[]).filter((key) => !OPERATOR[key].trim());

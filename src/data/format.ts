@@ -26,20 +26,6 @@ export function formatDayMonth(iso: string): string {
   return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.`;
 }
 
-/** „Noch 5 Tage und 12 Stunden“ */
-export function formatRemaining(deadlineIso: string, now = Date.now()): string {
-  const ms = new Date(deadlineIso).getTime() - now;
-  if (ms <= 0) return t('Abgelaufen');
-  const totalHours = Math.floor(ms / (60 * 60 * 1000));
-  const days = Math.floor(totalHours / 24);
-  const hours = totalHours % 24;
-  const dayText = days === 1 ? t('1 Tag') : t('{n} Tage', { n: days });
-  const hourText = hours === 1 ? t('1 Stunde') : t('{n} Stunden', { n: hours });
-  if (days === 0) return t('Noch {dauer}', { dauer: hourText });
-  if (hours === 0) return t('Noch {dauer}', { dauer: dayText });
-  return t('Noch {tage} und {stunden}', { tage: dayText, stunden: hourText });
-}
-
 /** Prüft eine IBAN mit der Prüfziffer (Modulo 97). */
 export function isValidIban(input: string): boolean {
   const iban = input.replace(/\s+/g, '').toUpperCase();
@@ -51,12 +37,6 @@ export function isValidIban(input: string): boolean {
     for (const digit of value) remainder = (remainder * 10 + Number(digit)) % 97;
   }
   return remainder === 1;
-}
-
-/** „DE12 •••• •••• •••• 4821“ */
-export function maskIban(input: string): string {
-  const iban = input.replace(/\s+/g, '');
-  return `${iban.slice(0, 4)} •••• •••• •••• ${iban.slice(-4)}`;
 }
 
 /** Name im Satz: „die Nachbarschaftsgärtner:innen“ bzw. „Peter“. */
