@@ -1365,5 +1365,9 @@
   "Um": "בשעה",
   "Von": "משעה",
   "Sehr privat": "פרטי מאוד",
-  "Niemand kann diesen Post teilen. Schon verschickte Links zu den Fotos funktionieren nicht mehr.": "אף אחד לא יכול לשתף את הפוסט הזה. קישורים לתמונות שכבר נשלחו מפסיקים לעבוד."
+  "Niemand kann diesen Post teilen. Schon verschickte Links zu den Fotos funktionieren nicht mehr.": "אף אחד לא יכול לשתף את הפוסט הזה. קישורים לתמונות שכבר נשלחו מפסיקים לעבוד.",
+  "Link an": "קישור פעיל",
+  "Weitergepostet: {list}": "פורסם גם ב: {list}",
+  "läuft": "בתהליך",
+  "fehlgeschlagen": "נכשל"
 }

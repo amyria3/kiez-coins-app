@@ -1352,5 +1352,9 @@
   "Um": "В",
   "Von": "С",
   "Sehr privat": "Очень приватно",
-  "Niemand kann diesen Post teilen. Schon verschickte Links zu den Fotos funktionieren nicht mehr.": "Никто не может поделиться этим постом. Уже отправленные ссылки на фото больше не работают."
+  "Niemand kann diesen Post teilen. Schon verschickte Links zu den Fotos funktionieren nicht mehr.": "Никто не может поделиться этим постом. Уже отправленные ссылки на фото больше не работают.",
+  "Link an": "Ссылка включена",
+  "Weitergepostet: {list}": "Переопубликовано: {list}",
+  "läuft": "идёт",
+  "fehlgeschlagen": "не удалось"
 }

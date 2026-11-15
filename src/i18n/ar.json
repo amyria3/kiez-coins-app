@@ -1390,5 +1390,9 @@
   "Um": "في الساعة",
   "Von": "من",
   "Sehr privat": "خاص جدًا",
-  "Niemand kann diesen Post teilen. Schon verschickte Links zu den Fotos funktionieren nicht mehr.": "لا يمكن لأحد مشاركة هذا المنشور. الروابط المرسلة سابقًا إلى الصور لم تعد تعمل."
+  "Niemand kann diesen Post teilen. Schon verschickte Links zu den Fotos funktionieren nicht mehr.": "لا يمكن لأحد مشاركة هذا المنشور. الروابط المرسلة سابقًا إلى الصور لم تعد تعمل.",
+  "Link an": "الرابط مفعّل",
+  "Weitergepostet: {list}": "أُعيد نشره: {list}",
+  "läuft": "جارٍ",
+  "fehlgeschlagen": "فشل"
 }

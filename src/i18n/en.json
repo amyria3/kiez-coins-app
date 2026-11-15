@@ -1759,5 +1759,9 @@
   "In Karten öffnen oder teilen": "Open in Maps or share",
   "Das ließ sich gerade nicht öffnen.": "That couldn't be opened right now.",
   "Sehr privat": "Very private",
-  "Niemand kann diesen Post teilen. Schon verschickte Links zu den Fotos funktionieren nicht mehr.": "Nobody can share this post. Links to the photos that were already sent stop working."
+  "Niemand kann diesen Post teilen. Schon verschickte Links zu den Fotos funktionieren nicht mehr.": "Nobody can share this post. Links to the photos that were already sent stop working.",
+  "Link an": "Link on",
+  "Weitergepostet: {list}": "Reposted: {list}",
+  "läuft": "running",
+  "fehlgeschlagen": "failed"
 }

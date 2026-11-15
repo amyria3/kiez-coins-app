@@ -1366,5 +1366,9 @@
   "Um": "À",
   "Von": "De",
   "Sehr privat": "Très privé",
-  "Niemand kann diesen Post teilen. Schon verschickte Links zu den Fotos funktionieren nicht mehr.": "Personne ne peut partager ce post. Les liens vers les photos déjà envoyés ne fonctionnent plus."
+  "Niemand kann diesen Post teilen. Schon verschickte Links zu den Fotos funktionieren nicht mehr.": "Personne ne peut partager ce post. Les liens vers les photos déjà envoyés ne fonctionnent plus.",
+  "Link an": "Lien activé",
+  "Weitergepostet: {list}": "Republié : {list}",
+  "läuft": "en cours",
+  "fehlgeschlagen": "échoué"
 }

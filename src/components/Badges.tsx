@@ -158,12 +158,21 @@ export function TestAccountBadge() {
   );
 }
 
-/** Marke „Sehr privat“ (Daria, 15.11.2026), in der Vorschau beim Erstellen. Getönt wie ein Status, nicht tippbar. */
+/** Marke „Sehr privat“ (Daria, 15.11.2026), in der Vorschau beim Erstellen und in „Meine Posts“. Getönt wie ein Status. */
 export function VeryPrivateBadge() {
+  return <SettingBadge label="Sehr privat" />;
+}
+
+/** Marke „Link an“ (Daria, 15.11.2026): Der Post lässt sich teilen, Gegenstück zu „Sehr privat“ in „Meine Posts“ */
+export function LinkOnBadge() {
+  return <SettingBadge label="Link an" />;
+}
+
+function SettingBadge({ label }: { label: string }) {
   return (
     <View style={[styles.status, styles.test, badgeLook(color.text.secondary).box]} accessible>
       <Text style={[text.caption, { color: color.text.secondary }]} numberOfLines={1}>
-        Sehr privat
+        {label}
       </Text>
     </View>
   );

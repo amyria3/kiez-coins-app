@@ -1368,5 +1368,9 @@
   "Um": "О",
   "Von": "З",
   "Sehr privat": "Дуже приватно",
-  "Niemand kann diesen Post teilen. Schon verschickte Links zu den Fotos funktionieren nicht mehr.": "Ніхто не може поділитися цим постом. Уже надіслані посилання на фото більше не працюють."
+  "Niemand kann diesen Post teilen. Schon verschickte Links zu den Fotos funktionieren nicht mehr.": "Ніхто не може поділитися цим постом. Уже надіслані посилання на фото більше не працюють.",
+  "Link an": "Посилання ввімкнено",
+  "Weitergepostet: {list}": "Переслано: {list}",
+  "läuft": "триває",
+  "fehlgeschlagen": "не вдалося"
 }

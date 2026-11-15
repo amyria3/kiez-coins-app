@@ -138,6 +138,28 @@ export async function crosspostChallenge(challengeId: string, platforms: LivePla
   return data?.results ?? {};
 }
 
+/** Ein Weiterpost eines eigenen Posts: Plattform, Stand und Adresse dort */
+export type CrosspostState = { platform: LivePlatform; status: 'running' | 'ok' | 'error'; url?: string };
+
+/**
+ * Eigene Weiterposts je Post, für die Karten in „Meine Posts“ (Daria, 15.11.2026). Wieder gelöschte (beim Löschen
+ * des Posts mitgelöscht) fehlen. Leer bei einem Fehler.
+ */
+export async function loadOwnCrossposts(): Promise<Map<string, CrosspostState[]>> {
+  const result = new Map<string, CrosspostState[]>();
+  const { data, error } = await supabase.from('crosspost_posts').select('challenge_id, platform, status, url, error');
+  if (error || !data) return result;
+  for (const row of data as { challenge_id: string; platform: string; status: CrosspostState['status']; url: string | null; error: string | null }[]) {
+    if (row.error === 'deleted' || !(LIVE_PLATFORMS as string[]).includes(row.platform)) continue;
+    const item: CrosspostState = { platform: row.platform as LivePlatform, status: row.status, url: row.url ?? undefined };
+    result.set(row.challenge_id, [...(result.get(row.challenge_id) ?? []), item]);
+  }
+  return result;
+}
+
+/** Name der Plattform für Texte */
+export const platformLabel = (p: CrosspostPlatform) => CROSSPOST_PLATFORMS.find((x) => x.key === p)?.label ?? p;
+
 /**
  * Plattformen für die Rückfrage beim Löschen (dort weitergepostet) oder Wiederherstellen (beim Löschen mitgelöscht).
  * Leer, wenn es keine gibt: Dann reicht die normale Rückfrage.

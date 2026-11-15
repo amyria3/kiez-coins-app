@@ -6,7 +6,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ActionBar } from '../components/ActionBar';
-import { BountyBadge, StatusBadge } from '../components/Badges';
+import { BountyBadge, LinkOnBadge, StatusBadge, VeryPrivateBadge } from '../components/Badges';
 import { Button } from '../components/Button';
 import { Explanation } from '../components/Content';
 import { Segments } from '../components/FeedHeader';
@@ -20,7 +20,7 @@ import { SHOW_OPERATION_NAME, type Challenge, type User } from '../data/types';
 import { useAppDimensions } from '../theme/layout';
 import { color, radius, size, space, stroke, text, withAlpha } from '../theme/tokens';
 import { askCrosspost, restoreWithChoice } from '../components/CrosspostDialog';
-import { crosspostTargets } from '../data/crosspost';
+import { crosspostTargets, loadOwnCrossposts, platformLabel, type CrosspostState } from '../data/crosspost';
 import { t } from '../data/texts';
 import { useGoBack } from '../lib/goBack';
 import { isParticipant } from '../data/weChallenge';
@@ -59,7 +59,12 @@ export default function ManageChallenges() {
   const goBack = useGoBack();
   const insets = useSafeAreaInsets();
   const requireKiez = useRequireKiez();
-  const { challenges, users, groups, currentUserId, dispatch } = useStore();
+  const { challenges, users, groups, currentUserId, dispatch, mode } = useStore();
+  // Weiterposts je Post für die Karten (Daria, 15.11.2026)
+  const [crossposts, setCrossposts] = useState<Map<string, CrosspostState[]>>(new Map());
+  useEffect(() => {
+    if (mode === 'live') loadOwnCrossposts().then(setCrossposts);
+  }, [mode, challenges.length]);
   // `archiv=1`: gleich im Reiter „Archiv“ öffnen (von „Was Du so machst“, In Gruppen)
   const { archiv: archiveParam } = useLocalSearchParams<{ archiv?: string }>();
   const [pageHeight, setPageHeight] = useState(0);
@@ -297,6 +302,7 @@ export default function ManageChallenges() {
                     onDelete={() => remove(item)}
                     onComments={() => router.push({ pathname: '/challenge/[id]', params: { id: item.id, kommentare: '1' } })}
                     hasNext={hasNext}
+                    crossposts={crossposts.get(item.id)}
                   />
                 </View>
               );
@@ -356,6 +362,14 @@ export default function ManageChallenges() {
   );
 }
 
+/** „Mastodon“, bei laufendem oder gescheitertem Weiterpost mit Stand in Klammern */
+function crosspostText(x: CrosspostState): string {
+  const name = platformLabel(x.platform);
+  if (x.status === 'running') return `${name} (${t('läuft')})`;
+  if (x.status === 'error') return `${name} (${t('fehlgeschlagen')})`;
+  return name;
+}
+
 type CardProps = {
   challenge: Challenge;
   assignee?: User;
@@ -368,9 +382,11 @@ type CardProps = {
   /** Kachel „Kommentare“: Challenge mit den Kommentaren öffnen */
   onComments: () => void;
   hasNext: boolean;
+  /** Weiterposts dieses Posts (Daria, 15.11.2026) */
+  crossposts?: CrosspostState[];
 };
 
-function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy, onDelete, onComments, hasNext }: CardProps) {
+function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy, onDelete, onComments, hasNext, crossposts }: CardProps) {
   const router = useRouter();
   const isDraft = c.status === 'draft';
   // Vorher-Nachher hat nach dem Posten nichts zu bearbeiten oder zu schließen
@@ -421,10 +437,17 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
           <View style={styles.badges}>
             <StatusBadge status={c.status} challenge={c} />
             {c.bountyAmount ? <BountyBadge amount={c.bountyAmount} /> : null}
+            {/* Einstellung des Links (Daria, 15.11.2026) */}
+            {c.veryPrivate ? <VeryPrivateBadge /> : <LinkOnBadge />}
           </View>
           {state.hint ? (
             <Text style={styles.caption} numberOfLines={1}>
               {state.hint}
+            </Text>
+          ) : null}
+          {crossposts?.length ? (
+            <Text style={styles.caption} numberOfLines={2}>
+              {t('Weitergepostet: {list}', { list: crossposts.map(crosspostText).join(', ') })}
             </Text>
           ) : null}
         </View>
