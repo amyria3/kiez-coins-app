@@ -83,10 +83,9 @@ export function TextField({
         returnKeyType={advances ? 'next' : undefined}
         submitBehavior={advances ? 'submit' : undefined}
         {...inputProps}
-        // Kein Fokus beim Laden im Browser auf Telefon und Tablet: sonst bleibt die Tastatur zu (src/lib/touchWeb.ts)
-        autoFocus={inputProps.autoFocus && !isTouchWeb}
-        // Ein sichtbares Feld ist immer bedienbar (Daria, 2026-11-15): Hat es den Fokus, aber keine Tastatur,
-        // löst das Antippen den Fokus kurz. Das Tippen setzt ihn dann neu, und die Tastatur geht auf.
+        // Automatischer Fokus ist gewollt (UX_UI_Regeln, Daria 2026-11-15). Ein sichtbares Feld ist immer bedienbar:
+        // Hat es den Fokus, aber keine Tastatur (iOS öffnet sie nur bei einem Fokus aus einem Tippen), löst das
+        // Antippen den Fokus kurz. Das Tippen setzt ihn dann neu, und die Tastatur geht auf.
         onTouchStart={(e) => {
           if (isTouchWeb && keyboardHeight === 0) {
             const node = inputRef.current as unknown as HTMLElement | null;
