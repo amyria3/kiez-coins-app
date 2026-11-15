@@ -8,6 +8,7 @@ import type {
   Profile,
   User,
 } from '../types';
+import { signChallengePhotos } from './photos';
 import { check, FALLBACK_NAME, loadPayoutLines, PAYMENT_STATUSES, toChallenge, toPayout, toUser } from './mapping';
 import { ChallengeRow, hasGenderColumn, noGenderColumn, isMissingColumn, ParticipantRow, PayoutRow, ProfileRow, selectProfiles, SettingsRow, ShareRow } from './rows';
 
@@ -185,6 +186,7 @@ export async function loadLiveData(userId: string): Promise<LiveData> {
     loadPayoutLines(rows.filter((r) => r.bounty_amount && PAYMENT_STATUSES.has(r.status)).map((r) => r.id)),
     loadLikeCounts(rows.map((r) => r.id)),
     loadCommentLikes(rows.flatMap((r) => (r.comments ?? []).map((c) => c.id)), userId, blocked),
+    signChallengePhotos(rows),
   ]);
 
   const ids = new Set<string>([userId]);
@@ -262,6 +264,7 @@ export async function loadChallenge(
   const [likeCounts, commentLikes] = await Promise.all([
     loadLikeCounts([row.id]),
     loadCommentLikes(row.comments.map((c) => c.id), userId, blocked),
+    signChallengePhotos([row]),
   ]);
   return {
     challenge: {

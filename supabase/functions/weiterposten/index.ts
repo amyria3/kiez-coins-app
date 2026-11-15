@@ -345,9 +345,12 @@ async function loadPost(admin: SupabaseClient, challengeId: string, look: Look):
   if (error || !c) throw new Error('challenge');
   const path = c.image_after_path ?? c.image_path ?? c.image_before_path;
   let image: Post['image'];
-  let imageUrl = path ? `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/photos/${path}` : undefined;
+  // Private Fotos (`<ordner>/p_<datei>`, Migration 20261116000100) liegen nicht öffentlich. Normal zieht die App sie
+  // beim Wechsel auf Kiez/Überall um; klappte das nicht, lädt die Funktion sie aus dem privaten Speicher.
+  const isPrivate = !!path && (path.split('/')[1] ?? '').startsWith('p_');
+  let imageUrl = path && !isPrivate ? `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/photos/${path}` : undefined;
   if (path) {
-    const { data } = await admin.storage.from('photos').download(path);
+    const { data } = await admin.storage.from(isPrivate ? 'photos-private' : 'photos').download(path);
     if (data) image = { bytes: new Uint8Array(await data.arrayBuffer()), type: data.type || 'image/jpeg' };
   }
   if (image && look.frame) {

@@ -10,5 +10,6 @@ export type { AppTextLang, AppTextRow, FinanceStand } from './remote/interaction
 export { loadCommentLikers, loadLikers, loadLiveData, loadChallenge, loadOwnProfile } from './remote/load';
 export type { LiveData } from './remote/load';
 export { photoUrl, ShownError, errorDetail, errorText } from './remote/mapping';
+export { isPrivateChallenge, syncChallengePhotos } from './remote/photos';
 export { ensureOwnProfile, saveOwnProfile, takenHandles, saveHandle, uploadPhoto, saveAvatar, isDefaultParticipation, setParticipation, cleanPages, createChallenge, groupActions, createGroupTask, setChallengePages, challengeActions, editChallenge, editDeletedChallenge, closeChallenge, saveDraft } from './remote/write';
 export type { NewChallenge, Participation, NewGroupTask, ChallengeEdit, DraftInput } from './remote/write';

@@ -13,6 +13,8 @@ create table storage.objects (id uuid primary key default gen_random_uuid(), buc
 alter table storage.objects enable row level security;
 create function storage.foldername(name text) returns text[] language sql immutable as $$
   select (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1] $$;
+create function storage.filename(name text) returns text language sql immutable as $$
+  select (string_to_array(name, '/'))[array_length(string_to_array(name, '/'), 1)] $$;
 create table cron.job (jobid serial primary key, jobname text, schedule text, command text);
 create function cron.schedule(n text, s text, c text) returns bigint language sql as $$ insert into cron.job(jobname, schedule, command) values (n, s, c) returning jobid $$;
 create function cron.unschedule(n text) returns boolean language sql as $$ delete from cron.job where jobname = n returning true $$;

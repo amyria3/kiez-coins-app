@@ -14,8 +14,11 @@ const VORSCHAU =
 const esc = (s) =>
   String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+// Private Fotos (`<ordner>/p_<datei>`, Migration 20261116000100) haben keine öffentliche Adresse: dann ohne Bild
 const foto = (path) =>
-  path ? `${SUPABASE_URL}/storage/v1/object/public/photos/${path.split('/').map(encodeURIComponent).join('/')}` : null;
+  path && !(path.split('/')[1] ?? '').startsWith('p_')
+    ? `${SUPABASE_URL}/storage/v1/object/public/photos/${path.split('/').map(encodeURIComponent).join('/')}`
+    : null;
 
 const kurz = (text, max) => {
   const t = String(text ?? '').replace(/\s+/g, ' ').trim();

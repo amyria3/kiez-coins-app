@@ -14,7 +14,8 @@ import type {
 } from '../types';
 import { CHALLENGE_COLUMNS } from './load';
 import { check, errorText, photoUrl, toChallenge } from './mapping';
-import { ChallengeRow, hasGenderColumn, noGenderColumn, isMissingColumn, PHOTO_BUCKET } from './rows';
+import { bucketOf, isPrivateAudience, isPrivateChallenge, newPhotoPath, removePhotos, signChallengePhotos } from './photos';
+import { ChallengeRow, hasGenderColumn, noGenderColumn, isMissingColumn } from './rows';
 
 // ---------------------------------------------------------------------------
 // Schreiben
@@ -84,16 +85,26 @@ const MAX_EDGE = 2048;
  * Lädt ein Foto vom Gerät in den eigenen Ordner hoch und gibt den Pfad zurück.
  * Jedes Foto wird vorher zu JPEG umgewandelt und auf höchstens 2048 px verkleinert. So klappen auch
  * Formate, die der Speicher nicht annimmt (z. B. Apple ProRAW als image/x-adobe-dng), und Uploads bleiben klein.
+ * `isPrivate`: Foto für einen privaten Post oder eine Gruppe, es kommt in den privaten Speicher (photos.ts).
  */
-export async function uploadPhoto(userId: string, photo: ImageSource): Promise<string> {
+export async function uploadPhoto(userId: string, photo: ImageSource, isPrivate = false): Promise<string> {
   const original = typeof photo === 'object' && photo && 'uri' in photo ? photo.uri : undefined;
   if (!original) throw new Error(t('Foto ohne Datei'));
   const uri = await toJpeg(original);
   // fetch + arrayBuffer funktioniert in React Native für lokale Dateien (file://) und im Browser (blob:, data:).
   const response = await fetch(uri);
-  const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
   const body = await response.arrayBuffer();
-  check(await supabase.storage.from(PHOTO_BUCKET).upload(path, body, { contentType: 'image/jpeg', upsert: false }));
+  const path = newPhotoPath(userId, isPrivate);
+  const result = await supabase.storage.from(bucketOf(path)).upload(path, body, { contentType: 'image/jpeg', upsert: false });
+  // Ohne Migration 20261116000100 gibt es den privaten Speicher noch nicht: dann wie bisher öffentlich
+  if (isPrivate && result.error && /bucket not found/i.test(result.error.message)) return uploadPhotoBody(userId, body);
+  check(result);
+  return path;
+}
+
+async function uploadPhotoBody(userId: string, body: ArrayBuffer): Promise<string> {
+  const path = newPhotoPath(userId, false);
+  check(await supabase.storage.from(bucketOf(path)).upload(path, body, { contentType: 'image/jpeg', upsert: false }));
   return path;
 }
 
@@ -116,7 +127,7 @@ export async function saveAvatar(userId: string, photo: ImageSource | null): Pro
   check(await supabase.from('profiles').update({ avatar_path: path }).eq('id', userId));
   const old = before?.avatar_path;
   // Altes Bild weg, Fehler dabei sind egal
-  if (old && old !== path) await supabase.storage.from(PHOTO_BUCKET).remove([old]).catch(() => undefined);
+  if (old && old !== path) await removePhotos([old]).catch(() => undefined);
   return photoUrl(path);
 }
 
@@ -202,10 +213,10 @@ const coordFields = (coords?: { latitude: number; longitude: number }) =>
   coords ? { lat: coords.latitude, lng: coords.longitude } : {};
 
 /** Weitere Fotos hochladen, soweit sie noch keinen Pfad haben. Gibt alle Pfade zurück. */
-async function uploadExtras(userId: string, extras?: ExtraPhoto[]): Promise<string[] | undefined> {
+async function uploadExtras(userId: string, extras: ExtraPhoto[] | undefined, isPrivate: boolean): Promise<string[] | undefined> {
   if (!extras) return undefined;
   const paths: string[] = [];
-  for (const extra of extras.slice(0, 2)) paths.push(extra.path ?? (await uploadPhoto(userId, extra.photo)));
+  for (const extra of extras.slice(0, 2)) paths.push(extra.path ?? (await uploadPhoto(userId, extra.photo, isPrivate)));
   return paths;
 }
 
@@ -254,8 +265,9 @@ const edenField = (edensteine?: number) => (edensteine ? { edensteine } : {});
 
 /** Neue Challenge anlegen. Gibt die gespeicherte Challenge zurück. */
 export async function createChallenge(userId: string, draft: NewChallenge): Promise<Challenge> {
-  const imagePath = draft.photo ? await uploadPhoto(userId, draft.photo) : null;
-  const extraPaths = draft.photo ? await uploadExtras(userId, draft.extras) : undefined;
+  const isPrivate = !!draft.private;
+  const imagePath = draft.photo ? await uploadPhoto(userId, draft.photo, isPrivate) : null;
+  const extraPaths = draft.photo ? await uploadExtras(userId, draft.extras, isPrivate) : undefined;
   const { data } = await retryWithoutCoords(async (withCoords) =>
     check(
       await supabase
@@ -282,6 +294,7 @@ export async function createChallenge(userId: string, draft: NewChallenge): Prom
         .single(),
     ),
   );
+  await signChallengePhotos([data as unknown as ChallengeRow]);
   return toChallenge(data as unknown as ChallengeRow, { liked: false });
 }
 
@@ -327,8 +340,8 @@ export type NewGroupTask = {
 /** Gruppenaufgabe oder Gruppenbild direkt veröffentlichen (ohne Entwurf). Ort nur in öffentlichen Gruppen. */
 export async function createGroupTask(userId: string, task: NewGroupTask): Promise<Challenge> {
   const isPhoto = task.type === 'photo';
-  const imagePath = task.photo ? await uploadPhoto(userId, task.photo) : null;
-  const extraPaths = isPhoto ? await uploadExtras(userId, task.extras) : undefined;
+  const imagePath = task.photo ? await uploadPhoto(userId, task.photo, true) : null;
+  const extraPaths = isPhoto ? await uploadExtras(userId, task.extras, true) : undefined;
   const { data } = check(
     await supabase
       .from('challenges')
@@ -350,6 +363,7 @@ export async function createGroupTask(userId: string, task: NewGroupTask): Promi
       .select(CHALLENGE_COLUMNS)
       .single(),
   );
+  await signChallengePhotos([data as unknown as ChallengeRow]);
   return toChallenge(data as unknown as ChallengeRow, { liked: false });
 }
 
@@ -423,7 +437,7 @@ export async function editChallenge(id: string, edit: ChallengeEdit, userId?: st
     p_edensteine: edit.edensteine ?? null,
   }));
   if (edit.photo && userId) {
-    const path = await uploadPhoto(userId, edit.photo);
+    const path = await uploadPhoto(userId, edit.photo, await isPrivateChallenge(id));
     await rpc('set_challenge_image', { p_challenge_id: id, p_image_path: path });
   }
   if (edit.pages) await setChallengePages(id, edit.pages, edit.sheetFont);
@@ -434,7 +448,7 @@ export async function editChallenge(id: string, edit: ChallengeEdit, userId?: st
  * Ein neues Foto wird vorher hochgeladen; die Datenbank trägt alles in einem Schritt ein.
  */
 export async function editDeletedChallenge(id: string, edit: ChallengeEdit, userId?: string) {
-  const imagePath = edit.photo && userId ? await uploadPhoto(userId, edit.photo) : null;
+  const imagePath = edit.photo && userId ? await uploadPhoto(userId, edit.photo, await isPrivateChallenge(id)) : null;
   await inRewardOrder(id, edit.bountyAmount, edit.participation, (withoutBounty) => rpc('edit_deleted_challenge', {
     p_challenge_id: id,
     p_title: edit.title,
@@ -480,8 +494,9 @@ export type DraftInput = {
 
 /** Entwurf anlegen (ohne id) oder aktualisieren. Lädt ein neues Foto hoch. Gibt den gespeicherten Entwurf zurück. */
 export async function saveDraft(userId: string, id: string | undefined, draft: DraftInput): Promise<Challenge> {
-  const imagePath = draft.imagePath ?? (draft.photo ? await uploadPhoto(userId, draft.photo) : null);
-  const extraPaths = await uploadExtras(userId, draft.extras);
+  const isPrivate = id ? await isPrivateChallenge(id) : isPrivateAudience(draft);
+  const imagePath = draft.imagePath ?? (draft.photo ? await uploadPhoto(userId, draft.photo, isPrivate) : null);
+  const extraPaths = await uploadExtras(userId, draft.extras, isPrivate);
   const fields = {
     type: draft.type ?? 'individual',
     title: draft.title.trim(),
@@ -515,6 +530,7 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
           });
       return check(await query.select(CHALLENGE_COLUMNS).single());
     });
+    await signChallengePhotos([data as unknown as ChallengeRow]);
     return toChallenge(data as unknown as ChallengeRow, { liked: false });
   };
   // Neuer Entwurf: Teilnahme steckt schon im Anlegen

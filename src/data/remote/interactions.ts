@@ -12,6 +12,7 @@ import type {
 } from '../types';
 import { loadBlockedIds } from './load';
 import { check, ShownError, toUser } from './mapping';
+import { PRIVATE_BUCKET, removePhotos } from './photos';
 import { PHOTO_BUCKET, ProfileRow, selectProfiles } from './rows';
 import { rpc } from './write';
 
@@ -100,9 +101,8 @@ export async function addComment(challengeId: string, body: string, replyToId?: 
  */
 export async function deleteComment(commentId: string, imagePath?: string) {
   if (imagePath) {
-    const { error } = await supabase.storage.from(PHOTO_BUCKET).remove([imagePath]);
     // Bild weg oder nicht löschbar: Der Kommentar verschwindet trotzdem, ohne Kommentar ist das Bild nirgends zu sehen
-    if (error) console.warn('Kommentarbild nicht gelöscht', error.message);
+    await removePhotos([imagePath]).catch((error) => console.warn('Kommentarbild nicht gelöscht', error?.message));
   }
   const { data, error } = await supabase.from('comments').delete().eq('id', commentId).select('id');
   if (error) throw error;
@@ -381,16 +381,22 @@ export async function sendSupportRequest(body: string) {
 }
 
 /**
- * Löscht alle Fotos im eigenen Ordner. Storage-Dateien hängen nicht an den Fremdschlüsseln,
+ * Löscht alle Fotos im eigenen Ordner, in beiden Speichern. Storage-Dateien hängen nicht an den Fremdschlüsseln,
  * deshalb räumt die App sie vor `delete_my_account` selbst ab (braucht Migration `own_photos_select`).
  */
 async function deleteOwnPhotos() {
   const { data } = await supabase.auth.getUser();
   const userId = data.user?.id;
   if (!userId) return;
-  const bucket = supabase.storage.from(PHOTO_BUCKET);
+  for (const name of [PHOTO_BUCKET, PRIVATE_BUCKET]) await deleteFolder(name, userId);
+}
+
+async function deleteFolder(bucketName: string, userId: string) {
+  const bucket = supabase.storage.from(bucketName);
   for (;;) {
     const { data: files, error } = await bucket.list(userId, { limit: 100 });
+    // Privater Speicher fehlt (Migration 20261116000100 noch nicht eingespielt): nichts zu löschen
+    if (error && /bucket not found/i.test(error.message)) return;
     if (error) throw error;
     if (!files?.length) return;
     const { data: removed, error: removeError } = await bucket.remove(files.map((file) => `${userId}/${file.name}`));

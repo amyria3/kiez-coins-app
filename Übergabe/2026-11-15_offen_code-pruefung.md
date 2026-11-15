@@ -26,7 +26,7 @@ Datum: 2026-11-15 · Status: offen, Aufräumen und Content-Security-Policy erled
 - Filter an die Datenbank: Die Schaufenster-Suche maskiert Sonderzeichen, die übrigen `.or(…)` nutzen nur Kennungen. Unkritisch.
 - `npm audit`: 3 hohe Lücken (`node-forge`, `zod`, `@expo/cli`), alle in Werkzeugen für Build und Entwicklung, nicht im Code der App. `npm audit fix` behebt sie, aktualisiert aber 91 Pakete, darunter native Expo-Module. Wegen `runtimeVersion: fingerprint` bekämen vorhandene APKs danach keine Updates mehr. Vorschlag: zusammen mit dem nächsten nativen Build (Store-Build) ausführen.
 - Web: Website und Web-App teilen sich die Domain kiezcoins.de. Die Anmeldung der Web-App liegt im Browser-Speicher dieser Domain. Jede Lücke auf einer Website-Seite trifft damit auch die Anmeldung (so beim Fund vom 14.11. auf der Finanzierungsseite). Vorschläge: (a) Content-Security-Policy für `/app`, (b) mittelfristig Web-App auf `app.kiezcoins.de`.
-- Weiter offen aus der Prüfung vom 14.11.: private Fotos im öffentlichen Speicher (Weg A, B oder C).
+- Aus der Prüfung vom 14.11.: private Fotos im öffentlichen Speicher. Weg A gebaut (15.11. abends), Migration und Umzug bei Daria.
 - Die Gmail-Adresse steht nach dem Umschreiben der Historie nur noch in den alten PR-Verweisen (`refs/pull/*`), die nur der GitHub-Support entfernen kann.
 
 ## Erledigt am 15.11.
@@ -40,7 +40,7 @@ Datum: 2026-11-15 · Status: offen, Aufräumen und Content-Security-Policy erled
 - TypeScript und ESLint ohne Fehler und Warnungen. knip: keine toten Funktionen; 43 Exporte werden nur in ihrer Datei genutzt (harmlos). `expo-system-ui` und `npm audit fix` warten auf den nächsten nativen Build.
 - Sicherheits-Header auf kiezcoins.de und app.kiezcoins.de vollständig, HSTS aktiv. `kiezcoins.de/app-uebergabe` nur in app.kiezcoins.de einbettbar, ohne fremde Quellen. In den Commits des Tages nur der öffentliche Supabase-Schlüssel. `security.txt` jetzt auch auf app.kiezcoins.de (vorher lieferte die Web-App dort ihre Startseite aus).
 - Entfernt: `assets/Vector.svg`, `assets/splash-icon.png`, `scripts/site/fatcat.svg`, `Übergabe/Frame 10.svg`, `Übergabe/KiezKatz Portrait Logo.svg`. Arbeitsdateien außerhalb des Repos liegen in `KiezCoins-Fotos/_zum_loeschen`.
-- Offen bleibt: private Fotos im öffentlichen Speicher (Entscheidung Daria), Migrationen und Funktionen vom 14.11. einspielen (Daria), Tastatur in der Web-App auf dem Home-Bildschirm (Test nach dem Deploy).
+- Offen bleibt: privater Fotospeicher einspielen (Daria), Migrationen und Funktionen vom 14.11. einspielen (Daria), Tastatur in der Web-App auf dem Home-Bildschirm (Test nach dem Deploy).
 
 ## Aufgeräumt am 15.11. (Daria: „Korrigiere alles davon“)
 

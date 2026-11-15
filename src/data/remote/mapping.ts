@@ -4,23 +4,20 @@ import { t } from '../texts';
 import type {
   Challenge,
   ChallengeStatus,
-  ImageSource,
   Participant,
   Payout,
   PayoutLine,
   PayoutShare,
   User,
 } from '../types';
-import { ChallengeRow, PayoutLineRow, PayoutRow, PHOTO_BUCKET, ProfileRow, ShareRow } from './rows';
+import { photoUrl } from './photos';
+import { ChallengeRow, PayoutLineRow, PayoutRow, ProfileRow, ShareRow } from './rows';
+
+export { photoUrl };
 
 // ---------------------------------------------------------------------------
 // Umwandlung in die Typen der App
 // ---------------------------------------------------------------------------
-
-export function photoUrl(path: string | null | undefined): ImageSource | undefined {
-  if (!path) return undefined;
-  return { uri: supabase.storage.from(PHOTO_BUCKET).getPublicUrl(path).data.publicUrl };
-}
 
 export const FALLBACK_NAME = 'Neue Crew';
 

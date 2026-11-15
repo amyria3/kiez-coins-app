@@ -399,6 +399,8 @@ export async function persist(action: Action, before: State): Promise<string | n
       return action.id;
     case 'setAudience':
       await remote.challengeActions.setAudience(action.id, action.private, action.localOnly);
+      // Fotos in den passenden Speicher (privat oder öffentlich). Klappt das nicht, bleiben sie, wo sie sind.
+      await remote.syncChallengePhotos(action.id, userId).catch((e) => console.warn('Fotos nicht verschoben', e));
       return action.id;
     case 'purge':
       await remote.purgeChallenge(action.id);
@@ -433,7 +435,7 @@ export async function persist(action: Action, before: State): Promise<string | n
       await remote.challengeActions.removeParticipant(action.id, action.userId);
       return action.id;
     case 'report': {
-      const path = await remote.uploadPhoto(userId, action.report.photo);
+      const path = await remote.uploadPhoto(userId, action.report.photo, await remote.isPrivateChallenge(action.id));
       await remote.challengeActions.report(action.id, path, action.report.note);
       return action.id;
     }
@@ -441,7 +443,9 @@ export async function persist(action: Action, before: State): Promise<string | n
       await remote.nameOperation(userId, action.id, action.name?.trim() ?? '');
       return action.id;
     case 'addComment': {
-      const imagePath = action.photo ? await remote.uploadPhoto(userId, action.photo) : undefined;
+      const imagePath = action.photo
+        ? await remote.uploadPhoto(userId, action.photo, await remote.isPrivateChallenge(action.id))
+        : undefined;
       await remote.addComment(action.id, action.body, action.replyToId, imagePath);
       return action.id;
     }

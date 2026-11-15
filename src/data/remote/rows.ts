@@ -14,7 +14,7 @@ import type {
 // Zugriff auf die Supabase-Tabellen (Schema: supabase/migrations).
 // Statuswechsel laufen über Datenbankfunktionen, die Rolle und Status prüfen.
 
-export const PHOTO_BUCKET = 'photos';
+export { PHOTO_BUCKET } from '../photoPaths';
 
 // ---------------------------------------------------------------------------
 // Zeilen aus der Datenbank

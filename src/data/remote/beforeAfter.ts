@@ -7,6 +7,7 @@ import type {
 } from '../types';
 import { loadChallenge } from './load';
 import { check } from './mapping';
+import { isPrivateAudience, isPrivateChallenge } from './photos';
 import { rpc, uploadPhoto } from './write';
 
 // ---------------------------------------------------------------------------
@@ -41,7 +42,7 @@ export type BeforeAfterEdit = {
 
 /** 1. Entwurf mit Vorher-Foto anlegen. Gibt den Entwurf zurück. */
 export async function startBeforeAfter(userId: string, input: NewBeforeAfter): Promise<Challenge> {
-  const path = await uploadPhoto(userId, input.photo);
+  const path = await uploadPhoto(userId, input.photo, isPrivateAudience(input));
   const { data } = check(
     await supabase.rpc('start_before_after', {
       p_group_id: input.groupId ?? null,
@@ -74,8 +75,9 @@ export const stopBeforeAfterTimer = (id: string) => rpc('stop_before_after_timer
 
 /** 3. Entwurf ändern: neue Fotos hochladen, Texte setzen. Nicht übergebene Werte bleiben. */
 export async function updateBeforeAfter(userId: string, id: string, edit: BeforeAfterEdit): Promise<void> {
-  const before = edit.beforePhoto ? await uploadPhoto(userId, edit.beforePhoto) : null;
-  const after = edit.afterPhoto ? await uploadPhoto(userId, edit.afterPhoto) : null;
+  const isPrivate = edit.beforePhoto || edit.afterPhoto ? await isPrivateChallenge(id) : false;
+  const before = edit.beforePhoto ? await uploadPhoto(userId, edit.beforePhoto, isPrivate) : null;
+  const after = edit.afterPhoto ? await uploadPhoto(userId, edit.afterPhoto, isPrivate) : null;
   await rpc('update_before_after', {
     p_challenge_id: id,
     p_title: edit.title ?? null,
