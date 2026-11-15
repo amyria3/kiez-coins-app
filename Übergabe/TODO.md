@@ -1,6 +1,6 @@
 # To-dos
 
-Stand: 2026-11-14. Diese Liste ist die einzige To-do-Liste für KiezCoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
+Stand: 2026-11-15. Diese Liste ist die einzige To-do-Liste für KiezCoins. Beide Accounts tragen hier ein und haken hier ab. Abgehakt ist, was auf `main` liegt.
 
 Screenshots zu einzelnen Punkten liegen im Claude-Projektordner unter `kiez-coins/screenshots/`. Sie stehen absichtlich nicht im Repo, weil das Repo öffentlich ist und einige Bilder Adressen und Namen zeigen.
 
@@ -13,6 +13,9 @@ Erledigt Daria selbst, Claude hat alles vorbereitet.
 - [ ] **Pflicht:** Kalender-Funktion mit dem Sicherheits-Fix hochladen: `npx supabase functions deploy kalender --no-verify-jwt --project-ref aqxzxpxrshizlaqyjplw`.
 - [ ] **Pflicht:** Migration `supabase/migrations/20261114000200_konto_ohne_mail_grenze.sql` im SQL Editor ausführen, danach `npx supabase functions deploy konto-ohne-mail --project-ref aqxzxpxrshizlaqyjplw` (Grenze je Anschluss statt für alle). Die Funktion läuft auch vor der Migration, dann mit der alten Grenze.
 - [ ] **Beim nächsten nativen Build (Store-Build):** `python3 scripts/app-icon.py --nativ` ausführen, damit das Android-Icon die neue Bildmarke zeigt (Web-Icons und Favicon sind schon neu, Claude 2026-11-15). Im selben Build: `npm audit fix` und `expo-system-ui` (siehe `2026-11-15_offen_code-pruefung.md`). Vorher nicht, weil vorhandene APKs danach keine Updates mehr bekommen.
+- [ ] **Nach dem Deploy am 16.11. (Daria):** Auf dem iPhone app.kiezcoins.de aus Safari neu „Zum Home-Bildschirm“ und in dieser App „Anheuern“ › E-Mail-Feld antippen. Geht die Tastatur auf? Die Korrekturen dafür (Fokus-Sicherung, kein Scrollen beim Öffnen der Tastatur) liegen auf `main`, Vercel hatte die Deploys am 15.11. wegen des Tageslimits abgelehnt.
+- [ ] Ordner `KiezCoins-Fotos/_zum_loeschen` ansehen und löschen (Daria): Arbeitsdateien aus Claudes Sitzungen (Bundles, Patches, PR-Texte, Kopien von Migrationen), 15.11.2026.
+- [ ] Optional: GitHub-Support bitten, die alten Pull-Request-Verweise mit der Gmail-Adresse zu entfernen (Text von Claude im Chat vom 15.11.2026).
 - [ ] Store-Eintrag prüfen und in der Play Console eintragen: `2026-11-14_offen_store-eintrag.md` (Texte, Datensicherheit, Altersfreigabe). Grafiken liegen in `KiezCoins-Fotos/store-grafiken/` (Claude, 2026-11-14). Dazu fehlt: Testkonto für die Google-Prüfung.
 - [ ] (15.11.2026: Geschäftsadresse bestellt, Adresse folgt) **Pflicht vor dem Launch:** ladungsfähige Anschrift für Impressum und Datenschutzerklärung beschaffen (c/o bei einem Freund mit Namen am Briefkasten, oder Impressum-Service, der „ladungsfähig“ schriftlich zusagt) und Claude schicken. Claude trägt sie auf Website und in der App ein.
 - [ ] Entscheiden: private Fotos (Me & Myself, Gruppen) liegen im öffentlichen Speicher. Weg A (zwei Speicher, Empfehlung), B (alles privat) oder C (neue Adresse bei Änderungen). Claude setzt danach um.
@@ -21,6 +24,11 @@ Erledigt Daria selbst, Claude hat alles vorbereitet.
 - [ ] Optional: Wortmarke „KiezCoins“ beim DPMA anmelden (290 €, bis 3 Klassen, z. B. 9, 42, 45), Bildmarke für den Kater später (290 €).
 - [ ] Vor dem ersten Geld: klären, wo Gewerbe und Steuer hingehören (Wohnsitz Frankreich oder Deutschland). Davon hängt ab, welche Kleinunternehmerregel gilt; die Finanzierungsseite rechnet mit der deutschen.
 - [ ] Optional: Supabase-Projekt „Kiez Coins Data“ und die Figma-Datei „Kiez Coins“ in „KiezCoins“ umbenennen.
+
+## Für Claude (15.11.2026)
+
+- [ ] Regeln aus `Documentation/kiez-coins/Entscheidungen_im_Code.md` (258 Einträge) in die Themendateien übertragen, zuerst UX-Regeln, und die Liste dabei kürzen.
+- [ ] Abzeichen-Quellen in `design/abzeichen/` von Figma-Exportnamen auf `<abzeichen>-<zustand>` umbenennen (Namensregel im Designsystem), wenn Daria zustimmt.
 
 ## Pflicht (Daria, 08.11.2026)
 

@@ -34,3 +34,10 @@ Datum: 2026-11-15 · Status: offen, Aufräumen und Content-Security-Policy erled
 - Aufräumen (Commit 9e46df3a): die toten Funktionen oben, das Paket `@fortawesome/free-regular-svg-icons` und die zwei ESLint-Warnungen entfernt. ESLint 0 Warnungen, `tsc` ohne Fehler. `expo-system-ui` und `npm audit fix` bleiben für den nächsten nativen Build.
 - Content-Security-Policy für `/app` (Commits a083167c und 34414b7c): Startskript aus `public/index.html` nach `public/start.js` verschoben, damit keine Inline-Skripte nötig sind. Erlaubt sind nur die eigene Domain, Supabase (https und wss) und nominatim.openstreetmap.org. Zuerst im Beobachtungsmodus live: keine Verstöße (abgemeldet geprüft: Start, Anmeldung, Schaufenster). Danach scharf geschaltet, gilt jetzt auch für `/app/` mit Schrägstrich. Die Policy schützt die Web-App selbst. Eine Lücke auf einer Website-Seite kann die Anmeldung weiter erreichen, dafür bleibt Vorschlag (b) `app.kiezcoins.de`.
 - Falls angemeldet etwas nicht lädt: in der Browser-Konsole nach „Content Security Policy“ suchen, die blockierte Adresse in `vercel.json` ergänzen.
+
+## Zweite Prüfung am 15.11. (abends)
+
+- TypeScript und ESLint ohne Fehler und Warnungen. knip: keine toten Funktionen; 43 Exporte werden nur in ihrer Datei genutzt (harmlos). `expo-system-ui` und `npm audit fix` warten auf den nächsten nativen Build.
+- Sicherheits-Header auf kiezcoins.de und app.kiezcoins.de vollständig, HSTS aktiv. `kiezcoins.de/app-uebergabe` nur in app.kiezcoins.de einbettbar, ohne fremde Quellen. In den Commits des Tages nur der öffentliche Supabase-Schlüssel. `security.txt` jetzt auch auf app.kiezcoins.de (vorher lieferte die Web-App dort ihre Startseite aus).
+- Entfernt: `assets/Vector.svg`, `assets/splash-icon.png`, `scripts/site/fatcat.svg`, `Übergabe/Frame 10.svg`, `Übergabe/KiezKatz Portrait Logo.svg`. Arbeitsdateien außerhalb des Repos liegen in `KiezCoins-Fotos/_zum_loeschen`.
+- Offen bleibt: private Fotos im öffentlichen Speicher (Entscheidung Daria), Migrationen und Funktionen vom 14.11. einspielen (Daria), Tastatur in der Web-App auf dem Home-Bildschirm (Test nach dem Deploy).
