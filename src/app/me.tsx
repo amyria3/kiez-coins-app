@@ -15,22 +15,22 @@ import { GroupBar, GroupsEmpty } from '../components/GroupBar';
 import { GroupRanking } from '../components/GroupRanking';
 import { useModes, type Mode } from '../data/features';
 import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
-import { anrede } from '../data/format';
-import { groupProgress, quests } from '../data/erfolge';
-import { Geschafft, usePraise } from '../components/Geschafft';
+import { salutation } from '../data/format';
+import { groupProgress, quests } from '../data/achievements';
+import { Done, usePraise } from '../components/Done';
 import { Quests } from '../components/Quests';
 import { BadgeOverview } from '../components/BadgeOverview';
 import { useFriends } from '../data/friends';
-import { catVariant, reiseEntries, reiseMood, reiseMoodText, type ReiseEntry } from '../data/reise';
+import { catVariant, journeyEntries, journeyMood, journeyMoodText, type JourneyEntry } from '../data/journey';
 import { useStore } from '../data/store';
 import { color, radius, size, space, text } from '../theme/tokens';
-import { SchiffWellen } from '../components/SchiffWellen';
+import { ShipWaves } from '../components/ShipWaves';
 import { getLanguage, t } from '../data/texts';
 import { useGoBack } from '../lib/goBack';
 import { FinanceOverview } from '../components/FinanceOverview';
 
 /** Was in der Karte „Du bist dran“ als Aufgabe steht. */
-function taskLabel({ challenge, role }: ReiseEntry): string {
+function taskLabel({ challenge, role }: JourneyEntry): string {
   if (role === 'author' && challenge.status === 'reported') return 'Erledigung prüfen';
   if (role === 'author' && challenge.status === 'payment_open') return 'Coins bezahlen';
   if (role === 'assignee' && challenge.status === 'paid_marked') return 'Coins bestätigen';
@@ -43,17 +43,17 @@ function taskLabel({ challenge, role }: ReiseEntry): string {
  * wie im Feed (UX-Audit, Daria, 27.10.2026): Im Kiez stehen Bilanz und Verlauf, in Gruppen die Gruppenauswahl,
  * Dein Platz in der Rangliste und der Verlauf der gewählten Gruppe.
  */
-export default function ReiseRoute() {
-  return <Reise />;
+export default function JourneyRoute() {
+  return <Journey />;
 }
 
-function Reise() {
+function Journey() {
   const router = useRouter();
   const goBack = useGoBack();
   const insets = useSafeAreaInsets();
   const { challenges, currentUserId, profile, groups } = useStore();
-  const entries = useMemo(() => reiseEntries(challenges, currentUserId), [challenges, currentUserId]);
-  const mood = reiseMood(entries);
+  const entries = useMemo(() => journeyEntries(challenges, currentUserId), [challenges, currentUserId]);
+  const mood = journeyMood(entries);
   const tasks = entries.filter((e) => e.needsAction);
   // Kiez nur bis 5 km, Überall alles Öffentliche (Daria, 29.10.2026)
   const here = useHere();
@@ -61,7 +61,7 @@ function Reise() {
   const modes = useModes();
   const [chosenTab, setTab] = useState<Mode>();
   const tab: Mode = chosenTab && modes.isVisible(chosenTab) ? chosenTab : modes.standard;
-  const reiseTabs = REISE_TABS.filter((r) => modes.isVisible(r.key));
+  const journeyTabs = JOURNEY_TABS.filter((r) => modes.isVisible(r.key));
   // Kein Hinweis unter dem Umschalter (Daria, 2026-11-01; vorher wie im Feed)
   const [groupChoice, setGroupChoice] = useState<string>();
   const group = groups.find((g) => g.id === groupChoice) ?? groups[0];
@@ -98,7 +98,7 @@ function Reise() {
 
         {/* Tipp auf den Kater: zu seiner Seite mit Sprüchen */}
         <Pressable accessibilityRole="button" accessibilityLabel={t('Cat The Käptn Hallo sagen')} onPress={() => router.push('/cat')}>
-          <KaterCard mood={catVariant(mood)}>{reiseMoodText(mood, anrede(profile))}</KaterCard>
+          <KaterCard mood={catVariant(mood)}>{journeyMoodText(mood, salutation(profile))}</KaterCard>
         </Pressable>
 
         {/* Überschriften für die Abschnitte (Daria, 2026-11-10) */}
@@ -143,7 +143,7 @@ function Reise() {
             <Text noTranslate style={styles.communityText}>Community</Text>
             <Icon name="thumbs-up" size={18} color={COMMUNITY} />
             <Text noTranslate style={styles.communityText}>braucht</Text>
-            <SchiffWellen farbe={COMMUNITY} />
+            <ShipWaves tint={COMMUNITY} />
             <Text noTranslate style={styles.communityText}>Dich</Text>
             <CrownIcon height={21} />
           </View>
@@ -152,7 +152,7 @@ function Reise() {
             <View style={styles.communityIcons}>
               <Icon name="heart" size={18} color={COMMUNITY} />
               <Icon name="thumbs-up" size={18} color={COMMUNITY} />
-              <SchiffWellen farbe={COMMUNITY} />
+              <ShipWaves tint={COMMUNITY} />
               <CrownIcon height={21} />
             </View>
             <Text style={styles.communityText}>Diese Community braucht Dich</Text>
@@ -162,17 +162,17 @@ function Reise() {
         {/* Erhaltene und offene Abzeichen (Daria, 2026-11-01) */}
         <BadgeOverview />
 
-        <View style={styles.reiseHead}>
+        <View style={styles.journeyHead}>
           {/* Nicht „Geschafft“: So heißt schon die Fotoreihe darunter */}
           <SectionLabel>Deine Bilanz</SectionLabel>
-          {reiseTabs.length > 1 ? <Segments tabs={reiseTabs} selectedKey={tab} onChange={setTab} /> : null}
+          {journeyTabs.length > 1 ? <Segments tabs={journeyTabs} selectedKey={tab} onChange={setTab} /> : null}
         </View>
 
         {/* Kein Verlauf mehr: Hier steht nur, was geschafft ist (Daria, 29.10.2026) */}
         {tab === 'private' ? (
-          <Geschafft entries={privateEntries} me={currentUserId} praise={null} onOpen={(entry) => router.push(entry.href)} />
+          <Done entries={privateEntries} me={currentUserId} praise={null} onOpen={(entry) => router.push(entry.href)} />
         ) : tab === 'kiez' || tab === 'everywhere' ? (
-          <Geschafft entries={publicEntries} me={currentUserId} praise={praise} onOpen={(entry) => router.push(entry.href)} />
+          <Done entries={publicEntries} me={currentUserId} praise={praise} onOpen={(entry) => router.push(entry.href)} />
         ) : group ? (
           <>
             <View style={styles.bleed}>
@@ -185,7 +185,7 @@ function Reise() {
               />
             </View>
             <GroupRanking group={group} />
-            <Geschafft entries={groupEntries} me={currentUserId} praise={null} onOpen={(entry) => router.push(entry.href)} />
+            <Done entries={groupEntries} me={currentUserId} praise={null} onOpen={(entry) => router.push(entry.href)} />
             <Button
               label="Feed ansehen"
               variant="secondary"
@@ -213,14 +213,14 @@ function Reise() {
 }
 
 /** Reihenfolge Privat, Gruppe, Kiez wie im Feed (Daria, 27.10.2026) */
-const REISE_TABS: { key: Mode; label: string }[] = [
+const JOURNEY_TABS: { key: Mode; label: string }[] = [
   { key: 'private', label: 'Privat' },
   { key: 'groups', label: 'Gruppe' },
   { key: 'kiez', label: 'Kiez' },
   { key: 'everywhere', label: 'Überall' },
 ];
 
-function Thumb({ entry, size: side }: { entry: ReiseEntry; size: number }) {
+function Thumb({ entry, size: side }: { entry: JourneyEntry; size: number }) {
   const { challenge } = entry;
   const image = challenge.image ?? challenge.imageAfter ?? challenge.report?.photo;
   const box = { width: side, height: side, borderRadius: side >= 60 ? radius.lg : radius.md };
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   // Mehr Luft zwischen den Abschnitten (Daria, 29.10.2026)
   content: { paddingTop: space[24], paddingHorizontal: space[20], gap: space[24] },
   tasks: { gap: space[8] },
-  reiseHead: { gap: space[8] },
+  journeyHead: { gap: space[8] },
   flex: { flex: 1, gap: space[2] },
   pressed: { opacity: 0.8 },
   title: { ...text.display, color: color.text.primary },

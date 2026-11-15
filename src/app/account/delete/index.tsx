@@ -6,7 +6,7 @@ import { Button } from '../../../components/Button';
 import { KaterCard, Notice, QuestionHint } from '../../../components/Content';
 import { TextField } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
-import { anrede } from '../../../data/format';
+import { salutation } from '../../../data/format';
 import { hasOpenWork } from '../../../data/openWork';
 import { deleteMyAccount, errorText } from '../../../data/remote';
 import { useStore } from '../../../data/store';
@@ -59,7 +59,7 @@ export default function DeleteAccount() {
         </>
       }
     >
-      <KaterCard>{t('Du willst von Bord? Schade, {anrede}. Bevor Du gehst:', { anrede: anrede(profile) })}</KaterCard>
+      <KaterCard>{t('Du willst von Bord? Schade, {anrede}. Bevor Du gehst:', { anrede: salutation(profile) })}</KaterCard>
       <Notice
         variant="warning"
         message="Dein Profil, Deine Fotos, Challenges, Kommentare und Zahlungsdaten werden gelöscht. Das lässt sich nicht rückgängig machen."

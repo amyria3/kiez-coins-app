@@ -3,7 +3,7 @@ import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from './T';
 
 import { color, space, text } from '../theme/tokens';
-import { KaterRund } from './Content';
+import { KaterCircle } from './Content';
 import { type CatMood } from './icons/Brand';
 
 /**
@@ -40,7 +40,7 @@ export function KaterMessage({
   return (
     <View style={[styles.container, style]}>
       {/* Kiez-Look: Kater im Kreis wie in den Nachrichten, fährt von unten herein (Daria, 2026-11-09) */}
-      {<KaterRund size={120} />}
+      {<KaterCircle size={120} />}
       {badge ? <View style={styles.afterCat}>{badge}</View> : null}
       <Text style={[styles.title, styles.afterCat]} accessibilityRole="header">
         {title}

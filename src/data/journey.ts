@@ -1,14 +1,14 @@
 import type { Href } from 'expo-router';
 
 import type { CatMood } from '../components/icons/Brand';
-import { OPERATIONSNAME_ZEIGEN, type Challenge } from './types';
+import { SHOW_OPERATION_NAME, type Challenge } from './types';
 import { t } from './texts';
 import { isParticipant } from './weChallenge';
 
 // „Was Du so machst“ (früher „Was Du so machst“, „Deine Reise“ und „Deine Spur im Kiez“): alle Challenges, die Du erstellt oder angenommen hast,
 // als Karten. Regeln aus kiez-coins/konto/MVP_Konto.md.
 
-export type ReiseEntry = {
+export type JourneyEntry = {
   challenge: Challenge;
   role: 'author' | 'assignee';
   /** Punkt auf der Karte: Du bist dran */
@@ -31,7 +31,7 @@ function lastActivity(c: Challenge): string {
 }
 
 /** Wohin ein Tipp auf die Karte führt: zum aktuellen Schritt, sonst ins Detail. */
-function target(c: Challenge, role: ReiseEntry['role'], userId: string): { href: Href; needsAction: boolean } {
+function target(c: Challenge, role: JourneyEntry['role'], userId: string): { href: Href; needsAction: boolean } {
   if (role === 'author' && c.status === 'reported') return { href: `/challenge/${c.id}/review`, needsAction: true };
   if (role === 'author' && c.status === 'payment_open') return { href: `/challenge/${c.id}/pay`, needsAction: true };
   // Coins je Person (Migration 20261028000400): Dein Anteil ist als bezahlt markiert
@@ -43,8 +43,8 @@ function target(c: Challenge, role: ReiseEntry['role'], userId: string): { href:
 }
 
 /** Karten mit offener Aufgabe zuerst, dann nach letzter Bewegung (neueste oben). */
-export function reiseEntries(challenges: Challenge[], userId: string): ReiseEntry[] {
-  const entries: ReiseEntry[] = [];
+export function journeyEntries(challenges: Challenge[], userId: string): JourneyEntry[] {
+  const entries: JourneyEntry[] = [];
   for (const c of challenges) {
     if (c.status === 'draft' || c.status === 'deleted') continue; // stehen in „Deine Challenges“
     // Mehrere Personen: Alle Teilnehmenden sehen die Challenge auf ihrer Reise
@@ -52,7 +52,7 @@ export function reiseEntries(challenges: Challenge[], userId: string): ReiseEntr
       c.authorId === userId ? 'author' : isParticipant(c, userId) || c.payouts?.some((p) => p.userId === userId) ? 'assignee' : null;
     if (!role) continue;
     const { href, needsAction } = target(c, role, userId);
-    const label = OPERATIONSNAME_ZEIGEN && role === 'assignee' && c.operationName ? c.operationName : c.title;
+    const label = SHOW_OPERATION_NAME && role === 'assignee' && c.operationName ? c.operationName : c.title;
     entries.push({ challenge: c, role, needsAction, label, href, lastActivity: lastActivity(c) });
   }
   return entries.sort(
@@ -61,7 +61,7 @@ export function reiseEntries(challenges: Challenge[], userId: string): ReiseEntr
 }
 
 /** Stimmung der Status-Katze, Werte wie in MVP_Konto.md vorgeschlagen. */
-export type ReiseMood = 'Greedy' | 'Worried' | 'Proud' | 'InLove' | 'Curious' | 'Welcome' | 'Lazy';
+export type JourneyMood = 'Greedy' | 'Worried' | 'Proud' | 'InLove' | 'Curious' | 'Welcome' | 'Lazy';
 
 const DAY = 24 * 60 * 60 * 1000;
 const RECENT = 7 * DAY;
@@ -77,11 +77,11 @@ const LAZY_AFTER = 14 * DAY;
  * - Welcome: noch keine Reise
  * - Lazy: seit 14 Tagen nichts passiert
  */
-export function reiseMood(entries: ReiseEntry[], now = Date.now()): ReiseMood {
+export function journeyMood(entries: JourneyEntry[], now = Date.now()): JourneyMood {
   if (entries.length === 0) return 'Welcome';
   const recent = (iso?: string) => !!iso && now - Date.parse(iso) < RECENT;
   const done = new Set(['confirmed', 'payment_open', 'paid_marked', 'paid']);
-  const has = (test: (e: ReiseEntry) => boolean) => entries.some(test);
+  const has = (test: (e: JourneyEntry) => boolean) => entries.some(test);
 
   if (has((e) => e.role === 'author' && (e.challenge.status === 'reported' || e.challenge.status === 'payment_open')))
     return 'Greedy';
@@ -97,27 +97,27 @@ export function reiseMood(entries: ReiseEntry[], now = Date.now()): ReiseMood {
 }
 
 /** Was der Kater zur Stimmung sagt. `anrede` z. B. „Pirat:in“. */
-export function reiseMoodText(mood: ReiseMood, anrede: string): string {
+export function journeyMoodText(mood: JourneyMood, salutation: string): string {
   switch (mood) {
     case 'Greedy':
-      return t('Goldalarm, {anrede}! Bei einer Deiner Challenges bist Du dran.', { anrede });
+      return t('Goldalarm, {anrede}! Bei einer Deiner Challenges bist Du dran.', { anrede: salutation });
     case 'Worried':
       return t('Oha. Eine Erledigung kam zurück. Schaue mal, was noch fehlt.');
     case 'Proud':
       return t('Eine Deiner Challenges ist geschafft. Ich bin stolz auf diesen Kiez!');
     case 'InLove':
-      return t('Du hast angepackt, {anrede}. Ich schnurre.', { anrede });
+      return t('Du hast angepackt, {anrede}. Ich schnurre.', { anrede: salutation });
     case 'Curious':
       return t('Ich bin gespannt, was als Nächstes kommt.');
     case 'Welcome':
-      return t('Willkommen, {anrede}! Hier siehst Du, was Du so machst. Erstelle eine Challenge oder nimm eine an.', { anrede });
+      return t('Willkommen, {anrede}! Hier siehst Du, was Du so machst. Erstelle eine Challenge oder nimm eine an.', { anrede: salutation });
     case 'Lazy':
       return t('Ganz schön ruhig hier. Ich leg mich so lange in die Sonne.');
   }
 }
 
 /** Kater-Stimmungen von Daria: gierig mit Dollar in der Brille, stolz und verliebt aufgeregt, sonst normal. */
-export function catVariant(mood: ReiseMood): CatMood {
+export function catVariant(mood: JourneyMood): CatMood {
   if (mood === 'Greedy') return 'money';
   return mood === 'Proud' || mood === 'InLove' ? 'high' : 'default';
 }

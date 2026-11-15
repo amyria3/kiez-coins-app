@@ -35,7 +35,7 @@ function candidates(count: number): string[] {
  * Route `onboarding/handle`. Figma: `onboarding/deckname`. Deckname ist öffentlich und einmalig.
  * Seit 28.10.2026 (Daria) auch das grammatische Geschlecht auf dieser Seite; der Schritt „Ansprache“ entfällt.
  */
-export default function Deckname() {
+export default function Handle() {
   const router = useRouter();
   const goBack = useGoBack();
   const { profile, mode, dispatch } = useStore();

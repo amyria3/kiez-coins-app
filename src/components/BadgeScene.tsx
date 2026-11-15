@@ -15,7 +15,7 @@ const W = 870;
 const H = 819;
 
 // Detail eines Abzeichens (Daria, 2026-11-02): erhalten schwimmt die Illustration auf den Wellen, offen ist nur das Meer
-const SCHLEIFEN: Record<BadgeKind, { besitz: number; meer: number }> = {
+const LOOPS: Record<BadgeKind, { besitz: number; meer: number }> = {
   pionier: { besitz: require('../../assets/abzeichen/pionier-besitz.mp4'), meer: require('../../assets/abzeichen/pionier-meer.mp4') },
   lotse: { besitz: require('../../assets/abzeichen/lotse-besitz.mp4'), meer: require('../../assets/abzeichen/lotse-meer.mp4') },
   anfuehrer: { besitz: require('../../assets/abzeichen/anfuehrer-besitz.mp4'), meer: require('../../assets/abzeichen/anfuehrer-meer.mp4') },
@@ -43,7 +43,7 @@ const VIDEOS: Record<BadgeKind, { einstieg: number; schleife: number }> = {
 };
 
 // Umriss der Scheibe je Szene, aus der Durchsichtigkeit von Darias Himmelsbild
-const SCHEIBE: Record<BadgeKind, string> = {
+const DISC: Record<BadgeKind, string> = {
   pionier:
     'M455 799 395 799 313 780 237 759 203 745 183 735 168 723 131 688 80 622 68 603 56 575 46 537 34 465 32 402 32 381 37 343 38 295 40 281 45 265 64 222 75 192 79 184 86 176 165 111 196 82 230 59 265 40 307 22 335 14 347 11 385 8 434 0 446 -0 476 0 500 2 541 9 579 20 626 40 645 50 666 66 718 110 741 132 757 152 784 192 798 218 808 246 818 281 832 405 831 447 828 468 820 503 809 540 799 562 777 605 757 636 737 660 703 689 677 715 662 728 625 753 607 762 582 774 555 784 536 788Z',
   lotse:
@@ -68,17 +68,17 @@ export function BadgeScene({ kind, width, variant = 'received' }: { kind: BadgeK
       />
     );
   }
-  if (variant !== 'received') return <LoopVideo kind={kind} width={width} height={height} source={SCHLEIFEN[kind][variant]} />;
+  if (variant !== 'received') return <LoopVideo kind={kind} width={width} height={height} source={LOOPS[kind][variant]} />;
   return <SceneVideo kind={kind} width={width} height={height} />;
 }
 
-function Scheibe({ kind, width, height, children }: { kind: BadgeKind; width: number; height: number; children: ReactNode }) {
+function Disc({ kind, width, height, children }: { kind: BadgeKind; width: number; height: number; children: ReactNode }) {
   return (
     <MaskedView
       style={{ width, height }}
       maskElement={
         <Svg width={width} height={height} viewBox={`0 0 ${W} ${H}`}>
-          <Path d={SCHEIBE[kind]} fill="#000" />
+          <Path d={DISC[kind]} fill="#000" />
         </Svg>
       }
     >
@@ -101,20 +101,20 @@ function LoopVideo({ kind, width, height, source }: { kind: BadgeKind; width: nu
     else player.play();
   }, [still, player]);
   return (
-    <Scheibe kind={kind} width={width} height={height}>
+    <Disc kind={kind} width={width} height={height}>
       <VideoView player={player} style={{ width, height }} contentFit="fill" nativeControls={false} playsInline surfaceType="textureView" useExoShutter={false} allowsPictureInPicture={false} />
-    </Scheibe>
+    </Disc>
   );
 }
 
 function SceneVideo({ kind, width, height }: { kind: BadgeKind; width: number; height: number }) {
   const [still, setStill] = useState(false);
-  const [schleife, setSchleife] = useState(false);
-  const einstieg = useVideoPlayer(VIDEOS[kind].einstieg, (p) => {
+  const [loop, setLoop] = useState(false);
+  const introPlayer = useVideoPlayer(VIDEOS[kind].einstieg, (p) => {
     p.loop = false;
     p.muted = true;
   });
-  const dauer = useVideoPlayer(VIDEOS[kind].schleife, (p) => {
+  const loopPlayer = useVideoPlayer(VIDEOS[kind].schleife, (p) => {
     p.loop = true;
     p.muted = true;
   });
@@ -126,31 +126,31 @@ function SceneVideo({ kind, width, height }: { kind: BadgeKind; width: number; h
   useEffect(() => {
     // Bei „Bewegung reduzieren“ steht das erste Bild der Schleife: Abzeichen mit Lichtrand und Strahlen
     if (still) {
-      setSchleife(true);
+      setLoop(true);
       return;
     }
-    const sub = einstieg.addListener('playToEnd', () => {
-      dauer.play();
-      setSchleife(true);
+    const sub = introPlayer.addListener('playToEnd', () => {
+      loopPlayer.play();
+      setLoop(true);
     });
-    einstieg.play();
+    introPlayer.play();
     return () => sub.remove();
-  }, [still, einstieg, dauer]);
+  }, [still, introPlayer, loopPlayer]);
 
-  const flaeche = { position: 'absolute' as const, left: 0, top: 0, width, height };
+  const area = { position: 'absolute' as const, left: 0, top: 0, width, height };
   return (
     <MaskedView
       style={{ width, height }}
       maskElement={
         <Svg width={width} height={height} viewBox={`0 0 ${W} ${H}`}>
-          <Path d={SCHEIBE[kind]} fill="#000" />
+          <Path d={DISC[kind]} fill="#000" />
         </Svg>
       }
     >
       {/* Die Schleife liegt unten bereit; ihr erstes Bild ist das letzte des Einstiegs */}
-      <VideoView player={dauer} style={flaeche} contentFit="fill" nativeControls={false} playsInline surfaceType="textureView" useExoShutter={false} allowsPictureInPicture={false} />
-      {schleife ? null : (
-        <VideoView player={einstieg} style={flaeche} contentFit="fill" nativeControls={false} playsInline surfaceType="textureView" useExoShutter={false} allowsPictureInPicture={false} />
+      <VideoView player={loopPlayer} style={area} contentFit="fill" nativeControls={false} playsInline surfaceType="textureView" useExoShutter={false} allowsPictureInPicture={false} />
+      {loop ? null : (
+        <VideoView player={introPlayer} style={area} contentFit="fill" nativeControls={false} playsInline surfaceType="textureView" useExoShutter={false} allowsPictureInPicture={false} />
       )}
     </MaskedView>
   );

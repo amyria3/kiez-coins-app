@@ -3,9 +3,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 
-import { donePhoto, erfolge } from '../data/erfolge';
+import { donePhoto, achievements } from '../data/achievements';
 import { formatBountyShort, formatHoursMinutes } from '../data/format';
-import { type ReiseEntry } from '../data/reise';
+import { type JourneyEntry } from '../data/journey';
 import { loadPraise } from '../data/remote';
 import { useStore } from '../data/store';
 import { t } from '../data/texts';
@@ -36,7 +36,7 @@ export function usePraise(): number | null {
  * `wall = false`: ohne Fotowand, z. B. im Fashionable Look, der die Fotos im eigenen Raster zeigt.
  * `gutter`: Seitenrand der Seite, für die Breite der Fotos.
  */
-export function Geschafft({
+export function Done({
   entries,
   me,
   praise,
@@ -44,16 +44,16 @@ export function Geschafft({
   wall = true,
   gutter = space[20],
 }: {
-  entries: ReiseEntry[];
+  entries: JourneyEntry[];
   me: string;
   praise: number | null;
-  onOpen: (entry: ReiseEntry) => void;
+  onOpen: (entry: JourneyEntry) => void;
   wall?: boolean;
   gutter?: number;
 }) {
   const { users } = useStore();
   const { width } = useAppDimensions();
-  const e = useMemo(() => erfolge(entries, me), [entries, me]);
+  const e = useMemo(() => achievements(entries, me), [entries, me]);
   const stats: { value: string; label: string; signal?: boolean }[] = [];
   if (e.helped) stats.push({ value: String(e.helped), label: t('Mal geholfen') });
   if (e.meDone) stats.push({ value: String(e.meDone), label: t('Me-Challenges') });

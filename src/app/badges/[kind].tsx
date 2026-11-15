@@ -25,7 +25,7 @@ export default function BadgeDetailScreen() {
   const own = mine?.badges.find((b) => b.badge === kind);
   const meta = badgeMeta(kind);
   const steps = mine && !own ? badgeSteps(kind, mine.progress) : null;
-  const [breite, setBreite] = useState(0);
+  const [screenWidth, setWidth] = useState(0);
 
   const choose = async () => {
     await update(kind, { selected: true, visible: true }).catch(() => undefined);
@@ -46,8 +46,8 @@ export default function BadgeDetailScreen() {
       }
     >
       {(
-        <View style={[styles.szene, { backgroundColor: SCENE_FRAME[kind] }]} onLayout={(e) => setBreite(e.nativeEvent.layout.width)}>
-          {breite ? <BadgeScene kind={kind} width={Math.round(breite * 0.87)} variant={own ? 'besitz' : 'meer'} /> : null}
+        <View style={[styles.scene, { backgroundColor: SCENE_FRAME[kind] }]} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
+          {screenWidth ? <BadgeScene kind={kind} width={Math.round(screenWidth * 0.87)} variant={own ? 'besitz' : 'meer'} /> : null}
         </View>
       )}
 
@@ -75,7 +75,7 @@ export default function BadgeDetailScreen() {
 
 const styles = StyleSheet.create({
   icon: { alignItems: 'center', paddingVertical: space[24] },
-  szene: { width: '100%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center' },
+  scene: { width: '100%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center' },
   block: { gap: space[8] },
   status: { ...text.title, color: color.text.primary },
   hint: { ...text.captionStrong, color: color.text.secondary },

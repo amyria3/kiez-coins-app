@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
 import { ResultScreen } from '../../../components/Screen';
-import { anrede } from '../../../data/format';
+import { salutation } from '../../../data/format';
 import { useAuth } from '../../../data/auth';
 import { useStore } from '../../../data/store';
 import { t } from '../../../data/texts';
@@ -15,7 +15,7 @@ export default function DeleteSuccess() {
   return (
     <ResultScreen
       title="Konto gelöscht"
-      message={t('Mach’s gut, {anrede}. Wenn Du zurückkommst, heuerst Du einfach neu an.', { anrede: anrede(profile) })}
+      message={t('Mach’s gut, {anrede}. Wenn Du zurückkommst, heuerst Du einfach neu an.', { anrede: salutation(profile) })}
       actions={
         <Button
           label="Zum Start"

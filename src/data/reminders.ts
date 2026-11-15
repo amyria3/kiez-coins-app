@@ -262,8 +262,8 @@ export async function loadRoutineDays(from: Date, to: Date, now = new Date()): P
     if (!r.archived_at || !r.ended_as || r.ended_as === 'deleted') continue;
     const day = localDate(new Date(r.archived_at));
     if (day < first || day > last) continue;
-    const termin = kindOf({ onDate: r.on_date ?? undefined, atTime: r.at_time ?? undefined, untilTime: r.until_time ?? undefined }) === 'termin';
-    byDay(r.ended_as === 'given_up' ? givenUpBy : termin ? calledOffBy : cancelledBy, day, r.want);
+    const event = kindOf({ onDate: r.on_date ?? undefined, atTime: r.at_time ?? undefined, untilTime: r.until_time ?? undefined }) === 'termin';
+    byDay(r.ended_as === 'given_up' ? givenUpBy : event ? calledOffBy : cancelledBy, day, r.want);
   }
   return { done, missed, doneBy: doneNames, missedBy: missedNames, givenUpBy, cancelledBy, calledOffBy };
 }

@@ -9,7 +9,7 @@ import { openLink } from '../lib/places';
 import { type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
 import Svg, { Rect, SvgXml } from 'react-native-svg';
-import { KATER_AVATAR_GELB, katerAvatarSvg, katerHerzenSvg } from './icons/katerAvatarSvg';
+import { KATER_AVATAR_YELLOW, katerAvatarSvg, katerHeartsSvg } from './icons/katerAvatarSvg';
 import { IconButton } from './IconButton';
 
 // Systemmeldungen als hellblaue Chatblase der App, wie die Antworten auf die Fragen; Icon dunkel wie der Text, nur bei Warnungen (Daria, 2026-11-09)
@@ -312,13 +312,13 @@ const KRABBE_PIXEL = (() => {
   return { w, h, pixels };
 })();
 /** Etwas kleiner als ein Profilbild (Daria, 2026-11-10) */
-const KRABBE_BREITE = 28;
+const KRABBE_WIDTH = 28;
 /**
  * Grüner Körper statt Lila (Daria, 2026-11-11): Lila tragen die eigenen Nachrichten, die Krabbe hebt sich davon ab.
  * Derselbe Farbton wie die Systemblase (SKY_BG, Gelbgrün 70°), nur kräftiger (Daria, 2026-11-11: „gleiche Farbe, nur andere Intensität“).
  */
 const KRABBE_GRUEN = color.system.crab;
-const KRABBE_FARBE: Record<number, string> = {
+const KRABBE_COLOR: Record<number, string> = {
   1: color.text.primary,
   2: color.bg.screen,
   3: KRABBE_GRUEN,
@@ -328,10 +328,10 @@ export function SystemAvatar() {
   const { w, h, pixels } = KRABBE_PIXEL;
   return (
     <View style={styles.systemAvatar} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-      <Svg width={KRABBE_BREITE} height={(KRABBE_BREITE * h) / w} viewBox={`0 0 ${w} ${h}`}>
+      <Svg width={KRABBE_WIDTH} height={(KRABBE_WIDTH * h) / w} viewBox={`0 0 ${w} ${h}`}>
         {pixels.map(({ x, y, v }) => (
           // etwas überlappend, damit beim Skalieren keine Haarlinien zwischen den Pixeln entstehen
-          <Rect key={`${x}-${y}`} x={x} y={y} width={1.04} height={1.04} fill={KRABBE_FARBE[v]} />
+          <Rect key={`${x}-${y}`} x={x} y={y} width={1.04} height={1.04} fill={KRABBE_COLOR[v]} />
         ))}
       </Svg>
     </View>
@@ -532,10 +532,10 @@ export function InfoRow({ icon, value, placeholder }: { icon: IconName; value: s
 }
 
 /** Lila hell in der Farbe des Katers, nicht grün wie die Systemblasen der Krabbe (Daria, 2026-11-11) */
-const KATER_BLASE = withAlpha(color.accent.primary, 0.22);
+const KATER_BUBBLE = withAlpha(color.accent.primary, 0.22);
 /** Derselbe Ton deckend, für Blasen, die über anderem Inhalt schweben (lila hell auf dem Grund #232326) */
-const KATER_BLASE_DECKEND = color.kater.bubbleSolid;
-const KATER_KREUZ = color.kater.close;
+const KATER_BUBBLE_SOLID = color.kater.bubbleSolid;
+const KATER_CLOSE = color.kater.close;
 /** Etwas größer als ein Profilbild in der Liste (Daria, 2026-11-11) */
 const KATER_AVATAR = 44;
 
@@ -574,8 +574,8 @@ export function KaterCard({
 
   return (
     <View style={styles.katerRow}>
-      <KaterRund size={KATER_AVATAR} />
-      <Pressable accessibilityRole={role} accessibilityHint={accessibilityHint} onPress={onPress} disabled={!onPress} style={[styles.katerBlase, floating && styles.katerBlaseDeckend]}>
+      <KaterCircle size={KATER_AVATAR} />
+      <Pressable accessibilityRole={role} accessibilityHint={accessibilityHint} onPress={onPress} disabled={!onPress} style={[styles.katerBubble, floating && styles.katerBubbleSolid]}>
         <View style={styles.speechTexts}>
           {title ? <Text style={styles.speechTitle}>{title}</Text> : null}
           <Text style={styles.katerText}>{children}</Text>
@@ -584,10 +584,10 @@ export function KaterCard({
           <IconButton
             icon="close"
             iconSize={14}
-            iconColor={KATER_KREUZ}
+            iconColor={KATER_CLOSE}
             accessibilityLabel={tx('Hinweis schließen')}
             onPress={onClose}
-            style={styles.katerKreuz}
+            style={styles.katerClose}
           />
         ) : null}
       </Pressable>
@@ -603,16 +603,16 @@ export function KaterCard({
  * Mit „Bewegung reduzieren“ sitzt der Kater still, der Kreis bleibt voll und die Herzen bleiben sichtbar.
  */
 /** Farbverlauf unter dem Gelb: scheint durch, wenn der Kreis beim Atmen durchsichtiger wird (Daria, 2026-11-11) */
-const RUND_GRUND = require('../../assets/kater/kater-avatar-grund.png');
-const RUND = 64;
+const CIRCLE_BACKDROP = require('../../assets/kater/kater-avatar-grund.png');
+const CIRCLE_SIZE = 64;
 /** Zufallszahl zwischen a und b */
-const zwischen = (a: number, b: number) => a + Math.random() * (b - a);
+const randomBetween = (a: number, b: number) => a + Math.random() * (b - a);
 /** `bg`: feste Farbe statt Verlauf und Gelb, z. B. die Kartenfarbe in Routine (Daria, 2026-11-12) */
-export function KaterRund({ size = RUND, bg }: { size?: number; bg?: string } = {}) {
+export function KaterCircle({ size = CIRCLE_SIZE, bg }: { size?: number; bg?: string } = {}) {
   const [still, setStill] = useState<boolean | null>(null);
-  const rein = useRef(new Animated.Value(0)).current;
-  const puls = useRef(new Animated.Value(1)).current;
-  const herzen = useRef(new Animated.Value(0)).current;
+  const slideIn = useRef(new Animated.Value(0)).current;
+  const pulse = useRef(new Animated.Value(1)).current;
+  const hearts = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled()
       .catch(() => false)
@@ -622,62 +622,62 @@ export function KaterRund({ size = RUND, bg }: { size?: number; bg?: string } = 
   useEffect(() => {
     if (still === null) return;
     if (still) {
-      rein.setValue(1);
+      slideIn.setValue(1);
       return;
     }
-    const a = Animated.timing(rein, { toValue: 1, duration: 750, delay: 120, easing: Easing.out(Easing.cubic), useNativeDriver: true });
+    const a = Animated.timing(slideIn, { toValue: 1, duration: 750, delay: 120, easing: Easing.out(Easing.cubic), useNativeDriver: true });
     a.start();
     return () => a.stop();
-  }, [still, rein]);
+  }, [still, slideIn]);
   // Gelber Kreis atmet: jeder Atemzug anders lang und anders tief, dazwischen kurze Ruhe
   useEffect(() => {
     if (still !== false) return;
     let aus = false;
     let a: Animated.CompositeAnimation | null = null;
-    const atem = () => {
+    const breathe = () => {
       if (aus) return;
       a = Animated.sequence([
-        Animated.timing(puls, { toValue: zwischen(0.35, 0.65), duration: zwischen(2400, 4200), easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        Animated.timing(puls, { toValue: 1, duration: zwischen(2400, 4200), easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        Animated.delay(zwischen(400, 2600)),
+        Animated.timing(pulse, { toValue: randomBetween(0.35, 0.65), duration: randomBetween(2400, 4200), easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 1, duration: randomBetween(2400, 4200), easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.delay(randomBetween(400, 2600)),
       ]);
-      a.start(({ finished }) => finished && atem());
+      a.start(({ finished }) => finished && breathe());
     };
-    atem();
+    breathe();
     return () => {
       aus = true;
       a?.stop();
-      puls.setValue(1);
+      pulse.setValue(1);
     };
-  }, [still, puls]);
+  }, [still, pulse]);
   // Herzen: nach einer Weile sanft einblenden, kurz stehen lassen, wieder ausblenden, dann länger Pause
   useEffect(() => {
     if (still === null) return;
     if (still) {
-      herzen.setValue(1);
+      hearts.setValue(1);
       return;
     }
     let aus = false;
     let a: Animated.CompositeAnimation | null = null;
-    const blinken = () => {
+    const blink = () => {
       if (aus) return;
       a = Animated.sequence([
-        Animated.delay(zwischen(2500, 7000)),
-        Animated.timing(herzen, { toValue: 1, duration: 700, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-        Animated.delay(zwischen(1200, 2400)),
-        Animated.timing(herzen, { toValue: 0, duration: 900, easing: Easing.in(Easing.cubic), useNativeDriver: true }),
+        Animated.delay(randomBetween(2500, 7000)),
+        Animated.timing(hearts, { toValue: 1, duration: 700, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.delay(randomBetween(1200, 2400)),
+        Animated.timing(hearts, { toValue: 0, duration: 900, easing: Easing.in(Easing.cubic), useNativeDriver: true }),
       ]);
-      a.start(({ finished }) => finished && blinken());
+      a.start(({ finished }) => finished && blink());
     };
-    blinken();
+    blink();
     return () => {
       aus = true;
       a?.stop();
     };
-  }, [still, herzen]);
+  }, [still, hearts]);
   return (
     <View
-      style={[styles.rund, { width: size, height: size, borderRadius: size / 2 }]}
+      style={[styles.circle, { width: size, height: size, borderRadius: size / 2 }]}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
@@ -685,19 +685,19 @@ export function KaterRund({ size = RUND, bg }: { size?: number; bg?: string } = 
         <View style={[StyleSheet.absoluteFill, { backgroundColor: bg }]} />
       ) : (
         <>
-          <Image source={RUND_GRUND} style={StyleSheet.absoluteFill} contentFit="cover" />
-          <Animated.View style={[StyleSheet.absoluteFill, styles.rundGrund, { opacity: puls }]} />
+          <Image source={CIRCLE_BACKDROP} style={StyleSheet.absoluteFill} contentFit="cover" />
+          <Animated.View style={[StyleSheet.absoluteFill, styles.circleBackdrop, { opacity: pulse }]} />
         </>
       )}
       <Animated.View
         style={{
           opacity: still === null ? 0 : 1,
-          transform: [{ translateY: rein.interpolate({ inputRange: [0, 1], outputRange: [size, 0] }) }],
+          transform: [{ translateY: slideIn.interpolate({ inputRange: [0, 1], outputRange: [size, 0] }) }],
         }}
       >
-        <SvgXml xml={katerAvatarSvg({ herzen: false })} width={size} height={size} />
-        <Animated.View style={[StyleSheet.absoluteFill, { opacity: herzen }]}>
-          <SvgXml xml={katerHerzenSvg()} width={size} height={size} />
+        <SvgXml xml={katerAvatarSvg({ hearts: false })} width={size} height={size} />
+        <Animated.View style={[StyleSheet.absoluteFill, { opacity: hearts }]}>
+          <SvgXml xml={katerHeartsSvg()} width={size} height={size} />
         </Animated.View>
       </Animated.View>
     </View>
@@ -839,7 +839,7 @@ const styles = StyleSheet.create({
   },
   speechTexts: { flex: 1, gap: space[4] },
   katerRow: { flexDirection: 'row', alignItems: 'flex-end', gap: space[8] },
-  katerBlase: {
+  katerBubble: {
     flexDirection: 'row',
     alignItems: 'center',
     flexShrink: 1,
@@ -848,13 +848,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: CHAT_RADIUS,
     borderBottomLeftRadius: space[4],
-    backgroundColor: KATER_BLASE,
+    backgroundColor: KATER_BUBBLE,
   },
   // Größer als der Fließtext, der Kater spricht laut (Daria, 2026-11-11)
-  katerBlaseDeckend: { backgroundColor: KATER_BLASE_DECKEND },
+  katerBubbleSolid: { backgroundColor: KATER_BUBBLE_SOLID },
   katerText: { ...text.readingLarge, color: color.text.primary, flexShrink: 1 },
   // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
-  katerKreuz: { marginVertical: -10, marginRight: -10, marginLeft: space[4] },
+  katerClose: { marginVertical: -10, marginRight: -10, marginLeft: space[4] },
   speech: { flexDirection: 'row', alignItems: 'center', gap: space[16] },
   speechTail: {
     position: 'absolute',
@@ -869,8 +869,8 @@ const styles = StyleSheet.create({
   },
   speechTitle: { ...text.cardTitleCompact, color: color.text.primary },
   speechText: { ...text.reading, color: color.text.primary },
-  rund: { overflow: 'hidden' },
-  rundGrund: { backgroundColor: KATER_AVATAR_GELB },
+  circle: { overflow: 'hidden' },
+  circleBackdrop: { backgroundColor: KATER_AVATAR_YELLOW },
   group: { gap: space[8] },
   groupLabel: { ...text.caption, color: color.text.secondary },
   groupLabelLarge: { ...text.label, marginBottom: space[4] },

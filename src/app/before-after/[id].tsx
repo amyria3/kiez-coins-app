@@ -40,13 +40,13 @@ export default function BeforeAfterScreen() {
 }
 
 function BeforeAfterForm() {
-  const { id, schritt } = useLocalSearchParams<{ id: string; schritt?: string }>();
+  const { id, schritt: step } = useLocalSearchParams<{ id: string; schritt?: string }>();
   const router = useRouter();
   const goBack = useGoBack();
   const { challenge } = useChallenge(id);
   const { beforeAfter, dispatch } = useStore();
   const running = !!challenge?.timerStartedAt;
-  const [stage, setStage] = useState<'timer' | 'after'>(schritt === 'nachher' ? 'after' : 'timer');
+  const [stage, setStage] = useState<'timer' | 'after'>(step === 'nachher' ? 'after' : 'timer');
   const [busy, setBusy] = useState<'start' | 'stop' | 'post' | 'save' | null>(null);
   // „Timer starten“ liegt an der Stelle von „Vorher speichern“. Ein zweiter Tipp darauf startete den Timer
   // aus Versehen (Daria, 26.10.2026). Daher nimmt der Knopf erst nach einer Sekunde Tipps an.

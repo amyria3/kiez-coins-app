@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 
 import { ResultScreen } from '../../../components/Screen';
-import { anrede } from '../../../data/format';
+import { salutation } from '../../../data/format';
 import { useStore } from '../../../data/store';
 import { t } from '../../../data/texts';
 
@@ -12,7 +12,7 @@ export default function SupportSuccess() {
   return (
     <ResultScreen
       title="Anfrage ist raus!"
-      message={t('Danke, {anrede}. Wir melden uns per E-Mail bei Dir.', { anrede: anrede(profile) })}
+      message={t('Danke, {anrede}. Wir melden uns per E-Mail bei Dir.', { anrede: salutation(profile) })}
       onFeedPress={() => router.dismissTo('/feed')}
     />
   );

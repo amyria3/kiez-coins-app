@@ -59,7 +59,7 @@ export function WithMentions({ value }: { value: string }) {
 }
 
 /** Höchstens so viele Zeilen Text unter einer Me- oder We-Challenge im Feed, #vorher und #nachher zusammen (Daria, 2026-11-09) */
-const VORHER_NACHHER_ZEILEN = 3;
+const BEFORE_AFTER_LINES = 3;
 
 /**
  * Text unter einer Me- oder We-Challenge im Feed: #vorher mit Text und, sobald es ihn gibt, #nachher mit Text, zusammen
@@ -67,30 +67,30 @@ const VORHER_NACHHER_ZEILEN = 3;
  * eine oder zwei Zeilen, je nachdem wie lang er ist, der Nachher-Text den Rest.
  */
 export function BeforeAfterText({ value, style }: { value: string; style: StyleProp<TextStyle> }) {
-  const [breite, setBreite] = useState(0);
+  const [textWidth, setWidth] = useState(0);
   const match = /(^|\s)#nachher\b/.exec(value);
-  const vorher = (match ? value.slice(0, match.index) : value).trim();
-  const nachher = match ? value.slice(match.index).trim() : '';
-  if (!nachher) {
+  const before = (match ? value.slice(0, match.index) : value).trim();
+  const after = match ? value.slice(match.index).trim() : '';
+  if (!after) {
     return (
-      <Text style={style} numberOfLines={VORHER_NACHHER_ZEILEN}>
-        <WithMentions value={vorher} />
+      <Text style={style} numberOfLines={BEFORE_AFTER_LINES}>
+        <WithMentions value={before} />
       </Text>
     );
   }
   // Grobe Schätzung der Zeilen für den Vorher-Text: Zeichen pro Zeile aus Breite und Schriftgröße
-  const schrift = StyleSheet.flatten(style)?.fontSize ?? 14;
-  const proZeile = breite ? Math.max(10, Math.floor(breite / (schrift * 0.52))) : 40;
-  const vorherZeilen = vorher ? Math.min(VORHER_NACHHER_ZEILEN - 1, Math.max(1, Math.ceil(vorher.length / proZeile))) : 0;
+  const fontSize = StyleSheet.flatten(style)?.fontSize ?? 14;
+  const perLine = textWidth ? Math.max(10, Math.floor(textWidth / (fontSize * 0.52))) : 40;
+  const beforeLines = before ? Math.min(BEFORE_AFTER_LINES - 1, Math.max(1, Math.ceil(before.length / perLine))) : 0;
   return (
-    <View onLayout={(e) => setBreite(e.nativeEvent.layout.width)}>
-      {vorher ? (
-        <Text style={style} numberOfLines={vorherZeilen}>
-          <WithMentions value={vorher} />
+    <View onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
+      {before ? (
+        <Text style={style} numberOfLines={beforeLines}>
+          <WithMentions value={before} />
         </Text>
       ) : null}
-      <Text style={style} numberOfLines={VORHER_NACHHER_ZEILEN - vorherZeilen}>
-        <WithMentions value={nachher} />
+      <Text style={style} numberOfLines={BEFORE_AFTER_LINES - beforeLines}>
+        <WithMentions value={after} />
       </Text>
     </View>
   );

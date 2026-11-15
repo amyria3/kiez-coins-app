@@ -82,22 +82,22 @@ export function RoutineContent({
       return;
     }
     // Termine sagt man ab (Daria, 2026-11-13); der rote Knopf heißt nie nur „Abbrechen“, das klänge nach „Dialog schließen“
-    const termin = kindOf(r) === 'termin' && how === 'cancelled';
+    const event = kindOf(r) === 'termin' && how === 'cancelled';
     Alert.alert(
-      how === 'given_up' ? t('Aufgeben?') : how === 'deleted' ? t('Löschen?') : termin ? t('Termin absagen?') : t('Das hier abbrechen?'),
+      how === 'given_up' ? t('Aufgeben?') : how === 'deleted' ? t('Löschen?') : event ? t('Termin absagen?') : t('Das hier abbrechen?'),
       how === 'given_up'
         ? t('„Ich will {want}“ verschwindet aus der Liste und zählt als aufgegeben. Was Du geschafft hast, bleibt.', { want: r.want })
         : how === 'deleted'
           ? kindOf(r) === 'termin'
             ? t('„{want}“ verschwindet aus der Liste. Im Kalender bleibt er als erledigt stehen.', { want: capitalize(r.want) })
             : t('„Ich will {want}“ verschwindet aus der Liste. Was Du erledigt hast, bleibt im Kalender.', { want: r.want })
-          : termin
+          : event
             ? t('„{want}“ verschwindet aus der Liste und zählt als abgesagt.', { want: capitalize(r.want) })
             : t('„Ich will {want}“ verschwindet aus der Liste und zählt als abgebrochen. Was Du geschafft hast, bleibt.', { want: r.want }),
       [
         { text: t('Zurück'), style: 'cancel' },
         {
-          text: how === 'given_up' ? t('Aufgeben') : how === 'deleted' ? t('Löschen') : termin ? t('Absagen') : t('Ja, abbrechen'),
+          text: how === 'given_up' ? t('Aufgeben') : how === 'deleted' ? t('Löschen') : event ? t('Absagen') : t('Ja, abbrechen'),
           style: 'destructive',
           onPress: () => archiveReminder(r.id, how).then(reload),
         },

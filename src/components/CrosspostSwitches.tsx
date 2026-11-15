@@ -19,7 +19,7 @@ import {
   type LivePlatform,
 } from '../data/crosspost';
 import { FULL_CROSSPOST_LOOK, loadCrosspostLook, saveCrosspostLook, type CrosspostLook } from '../data/crosspostLook';
-import { useFeature } from '../data/freischaltung';
+import { useFeature } from '../data/unlock';
 import { errorText } from '../data/remote';
 import { t } from '../data/texts';
 import { color, radius, space, stroke, text } from '../theme/tokens';

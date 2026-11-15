@@ -19,7 +19,7 @@ export type TourStep = {
    * `features`: Seite davor mit Schaltern für Bilder und Textposts und die Routine (Daria, 2026-11-13).
    */
   kind?: 'feedback' | 'features';
-  /** Seite erscheint nur, wenn dieses Feature freigeschaltet ist (freischaltung.ts) */
+  /** Seite erscheint nur, wenn dieses Feature freigeschaltet ist (unlock.ts) */
   feature?: 'routine' | 'schaufenster';
   /** Seite erscheint nur, wenn dieser Modus sichtbar ist (Dein Konto › Funktionen) */
   mode?: Mode;

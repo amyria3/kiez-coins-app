@@ -39,7 +39,7 @@ const ICONS: Record<BadgeKind, string> = {
 };
 
 /** Farbe als Grau gleicher Helligkeit */
-function grau(hex: string) {
+function grey(hex: string) {
   const h = hex.length === 4 ? hex.replace(/^#(.)(.)(.)$/, '#$1$1$2$2$3$3') : hex;
   const [r, g, b] = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
   const v = Math.round(0.299 * r + 0.587 * g + 0.114 * b)
@@ -49,25 +49,25 @@ function grau(hex: string) {
 }
 
 /** Glanzlichter, die im hellen Kreis ausgespart sind und hell bleiben: Linse und Rohr des Fernrohrs (Daria, 2026-11-02) */
-const GLANZ: Partial<Record<BadgeKind, string>> = {
+const SHINE: Partial<Record<BadgeKind, string>> = {
   pionier: 'M110.80 61.15 109.90 61.15 108.30 60.25 106.80 59.05 105.35 57.50 102.45 53.30 101.25 51.30 99.75 48.60 97.15 43.20 95.45 39.00 93.85 34.30 93.45 32.00 93.65 30.70 94.35 28.90 94.85 28.10 95.80 27.35 96.40 27.35 97.60 27.85 99.75 29.50 100.55 30.60 103.05 33.30 103.55 34.30 105.75 37.30 107.15 39.50 108.35 43.30 109.55 45.80 110.15 48.40 110.55 51.70 110.85 52.90 110.85 54.20 111.25 57.00 111.25 60.30 111.05 60.90Z M72.60 47.15 72.35 47.10 72.35 46.80 72.85 45.40 73.15 43.80 73.75 42.20 75.85 38.10 77.75 35.60 78.20 35.25 78.45 35.90 78.35 37.50 77.75 41.50 77.35 42.30 76.45 43.50 73.60 46.35Z',
 };
 
 /** Fassung Default mit den Linien, der helle Kreis in der Farbe des Abzeichens (Daria, 2026-11-02) */
-const farbig = new Map<string, string>();
-function mitFarbe(kind: BadgeKind, xml: string, fill: string) {
-  let out = farbig.get(kind);
+const colored = new Map<string, string>();
+function withColor(kind: BadgeKind, xml: string, fill: string) {
+  let out = colored.get(kind);
   if (!out) {
     out = xml.replaceAll('#F0F0F0', fill);
-    const glanz = GLANZ[kind];
-    if (glanz) out = out.replace('</svg>', `<path d="${glanz}" fill="#F0F0F0"/></svg>`);
-    farbig.set(kind, out);
+    const shine = SHINE[kind];
+    if (shine) out = out.replace('</svg>', `<path d="${shine}" fill="#F0F0F0"/></svg>`);
+    colored.set(kind, out);
   }
   return out;
 }
 
 /** Runde Farbfläche im Small-Icon: Rahmen (w × h) sowie Mitte und Radius des Kreises, aus badgeSvgs gemessen */
-const FLAECHE_SMALL: Record<BadgeKind, { w: number; h: number; cx: number; cy: number; r: number }> = {
+const AREA_SMALL: Record<BadgeKind, { w: number; h: number; cx: number; cy: number; r: number }> = {
   pionier: { w: 128, h: 120, cx: 68, cy: 60, r: 60 },
   lotse: { w: 120, h: 120, cx: 55, cy: 55, r: 55 },
   anfuehrer: { w: 120, h: 120, cx: 60, cy: 60, r: 60 },
@@ -112,7 +112,7 @@ export function BadgeIcon({
           accessible
           accessibilityRole="image"
           accessibilityLabel={badgeTitle(kind, number)}
-          style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: muted ? grau(own.color) : own.color }}
+          style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: muted ? grey(own.color) : own.color }}
         />
       );
     }
@@ -126,7 +126,7 @@ export function BadgeIcon({
         {ring && size < 80
           ? (() => {
               // Farbfläche in Small, je Abzeichen aus Darias Icon gemessen (Daria, 2026-11-05: Ring saß bei Pionier:in daneben)
-              const f = FLAECHE_SMALL[kind];
+              const f = AREA_SMALL[kind];
               const scale = size / Math.max(f.w, f.h);
               const offX = (size - f.w * scale) / 2;
               const offY = (size - f.h * scale) / 2;
@@ -149,7 +149,7 @@ export function BadgeIcon({
         {/* Eigene Ebene über dem Ring: Im Web malt der Browser absolut gesetzte Elemente über die übrigen */}
         <View style={{ position: 'absolute', left: 0, top: 0 }}>
           {/* Offen oder ausgeblendet: Default mit Linien, hell. Erhalten in Listen: Default auf der Farbe des Abzeichens (Daria, 2026-11-02) */}
-          <SvgXml xml={muted ? own.default : lines ? mitFarbe(kind, own.default, own.color) : size >= 80 ? own.default : own.small} width={size} height={size} />
+          <SvgXml xml={muted ? own.default : lines ? withColor(kind, own.default, own.color) : size >= 80 ? own.default : own.small} width={size} height={size} />
         </View>
       </View>
     );

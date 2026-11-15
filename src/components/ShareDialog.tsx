@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, StyleSheet, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 
-import { useFeature } from '../data/freischaltung';
+import { useFeature } from '../data/unlock';
 import { t } from '../data/texts';
 import { FULL_LOOK, framePhotoFiles, shareImageFiles, type PhotoLook, type SheetAuthor } from '../lib/sheetImages';
 import { color, radius, space, text } from '../theme/tokens';

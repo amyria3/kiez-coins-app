@@ -9,14 +9,14 @@ import { scrollIntoView } from './Nudge';
  * Seite mit `?abschnitt=kalender`, und die Seite scrollt gleich zu diesem Abschnitt statt oben zu bleiben.
  *
  * Verwendung: `router.push({ pathname: '/account/features', params: { abschnitt: 'kalender' } })`
- * und auf der Zielseite `<Abschnitt id="kalender">…</Abschnitt>`.
+ * und auf der Zielseite `<Section id="kalender">…</Section>`.
  */
-export function Abschnitt({ id, children }: { id: string; children: ReactNode }) {
-  const { abschnitt } = useLocalSearchParams<{ abschnitt?: string }>();
+export function Section({ id, children }: { id: string; children: ReactNode }) {
+  const { abschnitt: section } = useLocalSearchParams<{ abschnitt?: string }>();
   const ref = useRef<View>(null);
   const opened = useRef(Date.now());
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const active = abschnitt === id;
+  const active = section === id;
 
   useEffect(() => () => clearTimeout(timer.current), []);
 

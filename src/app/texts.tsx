@@ -48,7 +48,7 @@ const pages: { key: Page; label: string }[] = [
   { key: 'recht', label: 'Rechtstexte' },
   { key: 'allgemein', label: 'Allgemein' },
 ];
-const seiten = seitenJson as Record<string, Page>;
+const pageList = seitenJson as Record<string, Page>;
 type Sort = 'kurz' | 'lang' | 'neu';
 const sorts: { key: Sort; label: string }[] = [
   { key: 'kurz', label: 'Kurz zuerst' },
@@ -57,7 +57,7 @@ const sorts: { key: Sort; label: string }[] = [
 ];
 
 const pageOf = (row: AppTextRow): Page =>
-  seiten[normalizeText(row.original)] ?? (row.ort?.includes('Rechtstexte') ? 'recht' : 'allgemein');
+  pageList[normalizeText(row.original)] ?? (row.ort?.includes('Rechtstexte') ? 'recht' : 'allgemein');
 /** Fassung, die die App in Sprache `l` zeigt: eigene Fassung aus dem CMS, sonst mitgelieferte Übersetzung, sonst Deutsch */
 const shownIn = (row: AppTextRow, l: Lang) =>
   l === 'de'
@@ -70,8 +70,8 @@ const changedIn = (row: AppTextRow, l: Lang) =>
 const baseIn = (row: AppTextRow, l: Lang) => (l === 'de' ? row.original : bundledTranslation(row.original, l) || row.original);
 const placeholders = (s: string) => [...new Set([...s.matchAll(/\{(\w+)(?:\}|, plural)/g)].map((m) => `{${m[1]}}`))].sort().join(' ');
 /** Ort ohne Dateipfad: „Rechtstexte, Datenschutz“, „account/index (Button)“ */
-const shortOrt = (ort: string | null) =>
-  (ort ?? '')
+const shortPlace = (place: string | null) =>
+  (place ?? '')
     .split(', src/')
     .map((o) => o.replace(/^src\/(app\/|data\/|components\/)?/, '').replace(/\.tsx? \(/, ' ('))
     .join(' · ');
@@ -81,7 +81,7 @@ const shortOrt = (ort: string | null) =>
  * alle Texte nach Seiten gruppiert (Texte auf mehreren Seiten eigens), innerhalb nach Länge, mit Suche.
  * Tippen öffnet den Text zum Bearbeiten.
  */
-export default function Texte() {
+export default function Texts() {
   const goBack = useGoBack();
   const [rows, setRows] = useState<AppTextRow[]>();
   const [area, setArea] = useState<Area>('alle');
@@ -103,7 +103,7 @@ export default function Texte() {
       // fand neue Texte nicht). Beim ersten Speichern legt saveAppText die Zeile an.
       const db = await loadAppTexts();
       const known = new Set(db.map((r) => normalizeText(r.original)));
-      const missing = Object.keys(seiten)
+      const missing = Object.keys(pageList)
         .filter((original) => !known.has(original))
         .map((original): AppTextRow => ({ original, text: '', ort: null, updated_at: '' }));
       setRows([...db, ...missing]);
@@ -238,7 +238,7 @@ export default function Texte() {
                       {row.text.trim() || row.original}
                     </RawText>
                   ) : null}
-                  <Text style={styles.meta} numberOfLines={1}>{[t('{anzahl} Zeichen', { anzahl: shown(row).length }), shortOrt(row.ort), changed(row) ? t('geändert') : null].filter(Boolean).join(' · ')}</Text>
+                  <Text style={styles.meta} numberOfLines={1}>{[t('{anzahl} Zeichen', { anzahl: shown(row).length }), shortPlace(row.ort), changed(row) ? t('geändert') : null].filter(Boolean).join(' · ')}</Text>
                 </Pressable>
                 {isOpen ? (
                   <View style={styles.editor}>

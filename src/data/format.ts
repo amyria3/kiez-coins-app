@@ -152,7 +152,7 @@ export const addressForms = [
  * Die Ansprache steht nicht mehr im Onboarding, nur noch im Konto; die eigene, nicht öffentliche Bezeichnung
  * ist entfernt (Daria, 28.10.2026). Ältere Profile mit eigener Bezeichnung bekommen „Pirat:in“.
  */
-export function anrede(profile: { addressForm?: string }): string {
+export function salutation(profile: { addressForm?: string }): string {
   return t(addressForms.find((f) => f.key === profile.addressForm)?.label ?? 'Pirat:in');
 }
 

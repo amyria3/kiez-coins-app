@@ -4,7 +4,7 @@ import { setCalendarMonth, setCalendarShown } from '../data/routineView';
 import { RoutineContent } from '../components/RoutineContent';
 import { clearRoutinePost } from '../data/reminders';
 import { clearShowcasePost, peekShowcasePost, SEARCH_MIN, searchShowcases, type ShowcaseHit } from '../data/showcase';
-import { useFeature } from '../data/freischaltung';
+import { useFeature } from '../data/unlock';
 import { ShowcaseHitRow, ShowcaseSearchField } from '../components/ShowcaseSearch';
 import { nudgeCrystals } from '../components/icons/Brand';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -44,9 +44,9 @@ import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
 import { useRoutineEnabled, useRoutineIsStandard } from '../data/routine';
 import { useRequireKiez } from '../data/kiez';
 import { challengeTypes, isTypeActive, useModes, usePostsShown } from '../data/features';
-import { anrede } from '../data/format';
+import { salutation } from '../data/format';
 import { coordsIfAllowed, distanceMeters, formatDistance, KIEZ_RADIUS_METERS, sameKiez, type Coords } from '../data/location';
-import { reiseEntries } from '../data/reise';
+import { journeyEntries } from '../data/journey';
 import { runningBeforeAfter, topChallenges as pickTopChallenges, useStore } from '../data/store';
 import { RunningBeforeAfter } from '../components/BeforeAfterTimer';
 import { useFeedViews } from '../data/seen';
@@ -92,13 +92,13 @@ export default function FeedScreen() {
   const [surveyVisible, closeSurvey] = useSurveyPrompt();
   // `gruppe`: aus der Gruppenseite („Aufgaben ansehen“) direkt in den Reiter „Gruppen“
   // `reiter` und `neu`: nach dem Posten in den passenden Reiter (`neu` ist die Id des Posts, damit es jedes Mal greift)
-  const { gruppe, reiter, erstellen, neu } = useLocalSearchParams<{
+  const { gruppe: groupParam, reiter: tabParam, erstellen: create, neu: isNew } = useLocalSearchParams<{
     gruppe?: string;
     reiter?: string;
     erstellen?: string;
     neu?: string;
   }>();
-  const [chosenTab, setTab] = useState<FeedTab | undefined>(gruppe || reiter === 'gruppen' ? 'groups' : undefined);
+  const [chosenTab, setTab] = useState<FeedTab | undefined>(groupParam || tabParam === 'gruppen' ? 'groups' : undefined);
   // Modi Privat, Gruppe, Kiez (Dein Konto › Funktionen, Daria, 27.10.2026): verborgene haben keinen Reiter,
   // ohne eigene Wahl gilt der Standard
   const modes = useModes();
@@ -110,7 +110,7 @@ export default function FeedScreen() {
   // „Me & Myself“ aktiv, für die Kamera (createChallenge)
   const meActiveRef = useRef(false);
   tabOrderRef.current = tabOrder;
-  const [groupChoice, setGroupChoice] = useState<string | undefined>(gruppe);
+  const [groupChoice, setGroupChoice] = useState<string | undefined>(groupParam);
   // Gewählte Art im Erstellen-Blatt, für die Überschrift (Daria, 2026-11-14)
   const [composeKind, setComposeKind] = useState<ComposeKind>('photo');
   const groupId = groups.find((g) => g.id === groupChoice)?.id ?? groups[0]?.id;
@@ -118,25 +118,25 @@ export default function FeedScreen() {
   // „My Structure“ statt im Ziel. Wird unten gesetzt, wo der Zustand der Routine steht.
   const leaveRoutineRef = useRef(() => {});
   // Beim ersten Öffnen mit Ziel startet die Routine nicht von selbst, auch wenn die Parameter schon geleert sind
-  const openedWithTarget = useRef(!!(gruppe || reiter || erstellen || neu)).current;
+  const openedWithTarget = useRef(!!(groupParam || tabParam || create || isNew)).current;
   useEffect(() => {
-    if (!gruppe) return;
+    if (!groupParam) return;
     leaveRoutineRef.current();
     setTab('groups');
-    setGroupChoice(gruppe);
+    setGroupChoice(groupParam);
     // Parameter leeren, damit „Aufgaben ansehen“ derselben Gruppe auch beim nächsten Mal greift
     router.setParams({ gruppe: undefined });
-  }, [gruppe, router]);
+  }, [groupParam, router]);
   // Nach dem Posten (Daria, 07.11.2026): in den Reiter, in dem der neue Post steht, und nach oben
   useEffect(() => {
-    const target = reiter ? TAB_OF_PARAM[reiter] : undefined;
+    const target = tabParam ? TAB_OF_PARAM[tabParam] : undefined;
     if (!target) return;
     leaveRoutineRef.current();
     setTab(target);
     // Parameter leeren, damit derselbe Reiter beim nächsten Mal wieder greift (z. B. „Post erstellen“ im Schaufenster)
     router.setParams({ reiter: undefined, neu: undefined });
     requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: 0, animated: false }));
-  }, [reiter, neu, router]);
+  }, [tabParam, isNew, router]);
   const [refreshing, setRefreshing] = useState(false);
   const listRef = useRef<FlatList<FeedItem>>(null);
   const feedViews = useFeedViews(mode === 'live', currentUserId);
@@ -394,7 +394,7 @@ export default function FeedScreen() {
   );
 
   const hasTasks = useMemo(
-    () => reiseEntries(challenges, currentUserId).some((e) => e.needsAction),
+    () => journeyEntries(challenges, currentUserId).some((e) => e.needsAction),
     [challenges, currentUserId],
   );
 
@@ -520,18 +520,18 @@ export default function FeedScreen() {
   const createRef = useRef(startCompose);
   createRef.current = startCompose;
   useEffect(() => {
-    if (reiter === 'gruppen') {
+    if (tabParam === 'gruppen') {
       setTab('groups');
       router.setParams({ reiter: undefined });
     }
-  }, [reiter, router]);
+  }, [tabParam, router]);
   useEffect(() => {
-    if (erstellen !== '1') return;
+    if (create !== '1') return;
     router.setParams({ erstellen: undefined });
     leaveRoutineRef.current();
-    createRef.current((reiter && TAB_OF_PARAM[reiter]) || tab);
+    createRef.current((tabParam && TAB_OF_PARAM[tabParam]) || tab);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [erstellen, router]);
+  }, [create, router]);
   // Nach dem Veröffentlichen zurück im Feed: Blatt zu und leer
   useFocusEffect(
     useCallback(() => {
@@ -661,8 +661,8 @@ export default function FeedScreen() {
   useEffect(() => {
     if (startChecked || !modes.ready) return;
     startChecked = true;
-    if (routineStandard && !openedWithTarget && !gruppe && !reiter && !erstellen && !neu) openRoutine();
-  }, [modes.ready, routineStandard, openedWithTarget, gruppe, reiter, erstellen, neu, openRoutine]);
+    if (routineStandard && !openedWithTarget && !groupParam && !tabParam && !create && !isNew) openRoutine();
+  }, [modes.ready, routineStandard, openedWithTarget, groupParam, tabParam, create, isNew, openRoutine]);
   // Android: Zurück aus der Routine führt zum ersten Reiter, wie sonst zurück in den Feed.
   // Nur solange der Feed vorn ist: Sonst schluckte der Feed das Zurück einer darüber geöffneten Seite.
   useFocusEffect(
@@ -677,7 +677,7 @@ export default function FeedScreen() {
   );
   // `reiter=routine`: Die Seite `routine` leitet hierher, die Routine steht dann gleich da, ohne Bewegung
   useEffect(() => {
-    if (reiter !== 'routine') return;
+    if (tabParam !== 'routine') return;
     router.setParams({ reiter: undefined });
     if (!routineOn) return;
     swipeX.setValue(0);
@@ -685,7 +685,7 @@ export default function FeedScreen() {
     lastY.current = 0;
     setRoutineActive(true);
     setRoutineShown(true);
-  }, [reiter, router, routineOn, swipeX]);
+  }, [tabParam, router, routineOn, swipeX]);
   const routineLeftRef = useRef(false);
   routineLeftRef.current = routineOn && !composing && true;
 
@@ -979,7 +979,7 @@ export default function FeedScreen() {
           />
           {/* In „Me & Myself“ weder Kiez noch Zahlen der Posts (Daria, 2026-11-14) */}
           <FeedGreeting
-            name={anrede(profile)}
+            name={salutation(profile)}
             kiez={area === 'me' ? undefined : kiezName}
             counts={feedState === 'loading' || area === 'me' ? undefined : openCounts}
           />

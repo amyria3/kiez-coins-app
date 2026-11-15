@@ -11,7 +11,7 @@ import { apkDownloadUrl, fetchRelease, installedVersionCode } from '../data/appR
 import { useAuth } from '../data/auth';
 import { useStore } from '../data/store';
 import { color, radius, space, text } from '../theme/tokens';
-import { KaterRund } from './Content';
+import { KaterCircle } from './Content';
 
 /**
  * Hinweis „Neue Version da“ in der Android-App (Daria, 2026-10-25).
@@ -91,7 +91,7 @@ export function UpdateHint() {
       pointerEvents={hint.required ? 'auto' : 'box-none'}
     >
       <View style={[styles.card, hint.required && { marginTop: insets.top + space[8] }]}>
-        {<KaterRund size={36} />}
+        {<KaterCircle size={36} />}
         <View style={styles.body}>
           <Text style={styles.title}>{hint.required ? 'Diese Version ist zu alt.' : 'Jo, meine Friends haben eine neue Version für Dich!'}</Text>
           <Text style={styles.steps}>Lade sie herunter und installiere sie über die alte. Deine Daten bleiben.</Text>

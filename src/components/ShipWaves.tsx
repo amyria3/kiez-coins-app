@@ -6,32 +6,32 @@ import { iconSvgs } from './icons/svgs';
 import { color } from '../theme/tokens';
 
 const B = 42; // Breite der Fläche
-const HOEHE = 40;
-const SCHIFF_B = 31;
-const SCHIFF_H = (SCHIFF_B * iconSvgs.ship.height) / iconSvgs.ship.width;
-const PERIODE = 14; // Länge einer Welle
+const HEIGHT = 40;
+const SHIP_W = 31;
+const SHIP_H = (SHIP_W * iconSvgs.ship.height) / iconSvgs.ship.width;
+const PERIOD = 14; // Länge einer Welle
 
 /** Welle über die doppelte Breite, damit sie um eine Periode wandern kann und nahtlos weiterläuft */
-function welle(y: number, a: number) {
+function wave(y: number, a: number) {
   let d = `M0 ${y}`;
-  for (let x = 0; x < B * 2 + PERIODE; x += PERIODE) {
-    d += ` q${PERIODE / 4} ${-a} ${PERIODE / 2} 0 t${PERIODE / 2} 0`;
+  for (let x = 0; x < B * 2 + PERIOD; x += PERIOD) {
+    d += ` q${PERIOD / 4} ${-a} ${PERIOD / 2} 0 t${PERIOD / 2} 0`;
   }
   return d;
 }
 
-function Welle({ y, a, ms, deckkraft, still, farbe }: { y: number; a: number; ms: number; deckkraft: number; still: boolean; farbe: string }) {
+function Wave({ y, a, ms, strokeOpacity, still, tint }: { y: number; a: number; ms: number; strokeOpacity: number; still: boolean; tint: string }) {
   const x = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     if (still) return;
-    const loop = Animated.loop(Animated.timing(x, { toValue: -PERIODE, duration: ms, easing: Easing.linear, useNativeDriver: true }));
+    const loop = Animated.loop(Animated.timing(x, { toValue: -PERIOD, duration: ms, easing: Easing.linear, useNativeDriver: true }));
     loop.start();
     return () => loop.stop();
   }, [x, ms, still]);
   return (
     <Animated.View style={{ position: 'absolute', left: 0, top: 0, transform: [{ translateX: x }] }}>
-      <Svg width={B * 2 + PERIODE} height={HOEHE}>
-        <Path d={welle(y, a)} stroke={farbe} strokeWidth={2} strokeLinecap="round" fill="none" opacity={deckkraft} />
+      <Svg width={B * 2 + PERIOD} height={HEIGHT}>
+        <Path d={wave(y, a)} stroke={tint} strokeWidth={2} strokeLinecap="round" fill="none" opacity={strokeOpacity} />
       </Svg>
     </Animated.View>
   );
@@ -41,7 +41,7 @@ function Welle({ y, a, ms, deckkraft, still, farbe }: { y: number; a: number; ms
  * Darias Schiffchen schaukelt auf ruhigen Wellen, schwarz-weiß (Daria, 2026-11-02). Steht links vor „Was Du so machst“.
  * Mit „Bewegung reduzieren“ steht alles still.
  */
-export function SchiffWellen({ farbe = color.text.primary }: { farbe?: string }) {
+export function ShipWaves({ tint = color.text.primary }: { tint?: string }) {
   const [still, setStill] = useState(false);
   const t = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -58,25 +58,25 @@ export function SchiffWellen({ farbe = color.text.primary }: { farbe?: string })
     loop.start();
     return () => loop.stop();
   }, [t, still]);
-  const wasser = HOEHE - 7;
+  const water = HEIGHT - 7;
   return (
-    <View style={{ width: B, height: HOEHE, overflow: 'hidden' }} accessible={false} importantForAccessibility="no-hide-descendants">
+    <View style={{ width: B, height: HEIGHT, overflow: 'hidden' }} accessible={false} importantForAccessibility="no-hide-descendants">
       {/* Hintere Welle in derselben Farbe, voll deckend: eine Farbe für die ganze Zeile (Daria, 08.11.2026) */}
-      <Welle y={wasser + 4} a={1.6} ms={5200} deckkraft={1} still={still} farbe={farbe} />
+      <Wave y={water + 4} a={1.6} ms={5200} strokeOpacity={1} still={still} tint={tint} />
       <Animated.View
         style={{
           position: 'absolute',
-          left: (B - SCHIFF_B) / 2,
-          top: wasser + 1.5 - SCHIFF_H,
+          left: (B - SHIP_W) / 2,
+          top: water + 1.5 - SHIP_H,
           transform: [
             { translateY: t.interpolate({ inputRange: [0, 1], outputRange: [-1, 1.5] }) },
             { rotate: t.interpolate({ inputRange: [0, 1], outputRange: ['-4deg', '3deg'] }) },
           ],
         }}
       >
-        <SvgXml xml={iconSvgs.ship.svg(farbe)} width={SCHIFF_B} height={SCHIFF_H} />
+        <SvgXml xml={iconSvgs.ship.svg(tint)} width={SHIP_W} height={SHIP_H} />
       </Animated.View>
-      <Welle y={wasser} a={2} ms={3600} deckkraft={1} still={still} farbe={farbe} />
+      <Wave y={water} a={2} ms={3600} strokeOpacity={1} still={still} tint={tint} />
     </View>
   );
 }

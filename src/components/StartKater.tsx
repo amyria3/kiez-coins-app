@@ -3,32 +3,32 @@ import { AccessibilityInfo, Animated, Pressable, StyleSheet, useWindowDimensions
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import sprueche from '../data/kater-sprueche.json';
-import type { KaterSpruch } from '../data/kater';
+import type { KaterSaying } from '../data/kater';
 import { color, space, text } from '../theme/tokens';
 import { Text } from './T';
 import { t } from '../data/texts';
 import { GearsLoader } from './GearsLoader';
-import { DRUEBER_DAUER, FEGEN_DAUER, KaterStage } from './KaterStage';
+import { PEEK_DURATION, SWEEP_DURATION, KaterStage } from './KaterStage';
 
 /**
  * Erst fegen, dann einmal über die Brille schauen und lächeln (Daria, 2026-11-09). Danach noch kurz stehen bleiben,
  * damit man die Sprechblase lesen kann. Zusammen rund 4,8 Sekunden (vorher 3,2).
  */
-const FEGEN_MS = FEGEN_DAUER + DRUEBER_DAUER + 300;
+const SWEEP_MS = SWEEP_DURATION + PEEK_DURATION + 300;
 
 /** Ein Spruch zum Fegen aus src/data/kater-sprueche.json. Ohne passenden Spruch fegt er still. */
-function fegeSpruch(): KaterSpruch {
-  const liste = (sprueche.sprueche as (string | KaterSpruch)[]).map((e) => (typeof e === 'string' ? { text: e } : e));
-  const fegen = liste.filter((e) => e.aktion === 'fegen');
-  const e = fegen[Math.floor(Math.random() * fegen.length)];
+function sweepSaying(): KaterSaying {
+  const list = (sprueche.sprueche as (string | KaterSaying)[]).map((e) => (typeof e === 'string' ? { text: e } : e));
+  const sweep = list.filter((e) => e.aktion === 'fegen');
+  const e = sweep[Math.floor(Math.random() * sweep.length)];
   return { text: e?.text ?? '', aktion: 'fegen' };
 }
-const AUSBLENDEN_MS = 320;
+const FADE_OUT_MS = 320;
 /** Erst drehen sich die Zahnräder, dann taucht der Kater auf. */
-const KATER_NACH_MS = 600;
-const EINBLENDEN_MS = 280;
+const KATER_AFTER_MS = 600;
+const FADE_IN_MS = 280;
 /** Kater und Zahnräder stehen mindestens so lange zusammen auf dem Bild (Daria, 2026-10-24) */
-const ZUSAMMEN_MS = 1000;
+const TOGETHER_MS = 1000;
 
 /**
  * Startbildschirm (Daria, 2026-10-24): Zuerst drehen sich die Zahnräder unten. Danach taucht der Kater in der Mitte auf,
@@ -40,18 +40,18 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
   // Kater mit Kreis ist höher als breit (1300 × 1696): auf kleinen Handys schmaler, damit er die Zahnräder nicht berührt (2026-11-02)
-  const katerBreite = Math.round(Math.min(240, height * 0.28));
+  const katerWidth = Math.round(Math.min(240, height * 0.28));
   // Zahnräder groß wie beim Start vorher (200), auf kleinen Handys etwas kleiner, damit sie den Kater nicht berühren
-  const raederSize = Math.round(Math.min(200, height * 0.22));
-  const [spruch] = useState(fegeSpruch);
+  const gearsSize = Math.round(Math.min(200, height * 0.22));
+  const [saying] = useState(sweepSaying);
   const [kater, setKater] = useState(false);
-  const [zusammen, setZusammen] = useState(false);
-  const [raederWeg, setRaederWeg] = useState(false);
-  const [gefegt, setGefegt] = useState(false);
-  const sichtbar = useRef(new Animated.Value(1)).current;
-  const katerSichtbar = useRef(new Animated.Value(0)).current;
-  const raeder = useRef(new Animated.Value(1)).current;
-  const fertig = useRef(false);
+  const [together, setTogether] = useState(false);
+  const [gearsGone, setGearsGone] = useState(false);
+  const [swept, setSwept] = useState(false);
+  const visible = useRef(new Animated.Value(1)).current;
+  const katerVisible = useRef(new Animated.Value(0)).current;
+  const gears = useRef(new Animated.Value(1)).current;
+  const done = useRef(false);
 
   // Die Zahnräder aus public/index.html übernehmen: Ab hier drehen die eigenen an derselben Stelle
   useEffect(() => {
@@ -62,66 +62,66 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
 
   // Kater nach den Zahnrädern einblenden, dann fegen lassen
   useEffect(() => {
-    let fegen: ReturnType<typeof setTimeout>;
-    let gemeinsam: ReturnType<typeof setTimeout>;
-    const auftritt = setTimeout(() => {
+    let sweep: ReturnType<typeof setTimeout>;
+    let together: ReturnType<typeof setTimeout>;
+    const entrance = setTimeout(() => {
       setKater(true);
-      gemeinsam = setTimeout(() => setZusammen(true), EINBLENDEN_MS + ZUSAMMEN_MS);
-      Animated.timing(katerSichtbar, {
+      together = setTimeout(() => setTogether(true), FADE_IN_MS + TOGETHER_MS);
+      Animated.timing(katerVisible, {
         toValue: 1,
-        duration: EINBLENDEN_MS,
+        duration: FADE_IN_MS,
         useNativeDriver: true,
       }).start();
       AccessibilityInfo.isReduceMotionEnabled()
         .catch(() => false)
         .then((still) => {
-          fegen = setTimeout(() => setGefegt(true), still ? 800 : FEGEN_MS);
+          sweep = setTimeout(() => setSwept(true), still ? 800 : SWEEP_MS);
         });
-    }, KATER_NACH_MS);
+    }, KATER_AFTER_MS);
     return () => {
-      clearTimeout(auftritt);
-      clearTimeout(gemeinsam);
-      clearTimeout(fegen);
+      clearTimeout(entrance);
+      clearTimeout(together);
+      clearTimeout(sweep);
     };
-  }, [katerSichtbar]);
+  }, [katerVisible]);
 
   // Zahnräder ausblenden, sobald alles geladen ist und sie eine Sekunde mit dem Kater zu sehen waren
   useEffect(() => {
-    if (loaded && zusammen)
-      Animated.timing(raeder, {
+    if (loaded && together)
+      Animated.timing(gears, {
         toValue: 0,
-        duration: AUSBLENDEN_MS,
+        duration: FADE_OUT_MS,
         useNativeDriver: true,
-      }).start(() => setRaederWeg(true));
-  }, [loaded, zusammen, raeder]);
+      }).start(() => setGearsGone(true));
+  }, [loaded, together, gears]);
 
-  const weg = () => {
-    if (fertig.current) return;
-    fertig.current = true;
-    Animated.timing(sichtbar, {
+  const leave = () => {
+    if (done.current) return;
+    done.current = true;
+    Animated.timing(visible, {
       toValue: 0,
-      duration: AUSBLENDEN_MS,
+      duration: FADE_OUT_MS,
       useNativeDriver: true,
     }).start(() => onDone());
   };
 
   useEffect(() => {
-    if (raederWeg && gefegt) weg();
+    if (gearsGone && swept) leave();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [raederWeg, gefegt]);
+  }, [gearsGone, swept]);
 
   return (
-    <Animated.View style={[StyleSheet.absoluteFill, styles.screen, { opacity: sichtbar }]}>
+    <Animated.View style={[StyleSheet.absoluteFill, styles.screen, { opacity: visible }]}>
       <Pressable
-        onPress={weg}
+        onPress={leave}
         // Kater mittig im Platz über den Zahnrädern, mit Luft dazwischen (Daria, 2026-11-05)
-        style={[styles.flaeche, { paddingBottom: insets.bottom + space[32] + raederSize + space[24] }]}
+        style={[styles.area, { paddingBottom: insets.bottom + space[32] + gearsSize + space[24] }]}
         accessibilityRole="button"
         accessibilityLabel={t('Weiter')}
       >
         {kater ? (
-          <Animated.View style={{ opacity: katerSichtbar }}>
-            <KaterStage width={katerBreite} spruch={spruch} take={1} ohneBlase={!spruch.text} danachDrueber />
+          <Animated.View style={{ opacity: katerVisible }}>
+            <KaterStage width={katerWidth} saying={saying} take={1} withoutBubble={!saying.text} peekAfter />
           </Animated.View>
         ) : (
           <Moment />
@@ -129,9 +129,9 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
       </Pressable>
       <Animated.View
         pointerEvents="none"
-        style={[styles.raeder, { bottom: insets.bottom + space[32], opacity: raeder }]}
+        style={[styles.gears, { bottom: insets.bottom + space[32], opacity: gears }]}
       >
-        <GearsLoader size={raederSize} />
+        <GearsLoader size={gearsSize} />
       </Animated.View>
     </Animated.View>
   );
@@ -162,6 +162,6 @@ const styles = StyleSheet.create({
   moment: { ...text.title, color: color.text.primary },
   hidden: { color: 'transparent' },
   screen: { backgroundColor: color.bg.screen, zIndex: 10 },
-  flaeche: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  raeder: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
+  area: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  gears: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
 });

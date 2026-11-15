@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { supabase } from '../lib/supabase';
 import { look } from '../theme/look';
-import { useFeature } from './freischaltung';
+import { useFeature } from './unlock';
 import { loadCrosspostLook } from './crosspostLook';
 import { countButton } from './remote';
 import { useStore } from './store';
@@ -12,7 +12,7 @@ import { useStore } from './store';
  * Weiterposten (Daria, 05.11.2026): Öffentliche Posts lassen sich zusätzlich auf anderen Plattformen veröffentlichen.
  * BlueSky, Mastodon, Instagram und Facebook laufen über die Edge Function `weiterposten` (kostenlos). X kommt später.
  * Freigegeben für alle (Daria, 09.11.2026, „alles außer X“). Wer die echten Schalter sieht, entscheidet das Feature
- * `weiterposten` (freischaltung.ts). Für X zählt ein Knopf das Interesse. Plan und Preismodell: `Übergabe/TODO.md`, Abschnitt „Teilen“.
+ * `weiterposten` (unlock.ts). Für X zählt ein Knopf das Interesse. Plan und Preismodell: `Übergabe/TODO.md`, Abschnitt „Teilen“.
  */
 export type CrosspostPlatform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook' | 'x';
 
@@ -64,7 +64,7 @@ export const isLivePlatform = (p: CrosspostPlatform): p is LivePlatform => (LIVE
 /** Instagram und Facebook brauchen nur einen Zugangs-Token, kein zweites Feld */
 export const tokenOnly = (p: LivePlatform) => p === 'instagram' || p === 'facebook';
 
-/** Echte Schalter sichtbar? Feature `weiterposten` (freischaltung.ts), nur mit echten Daten. */
+/** Echte Schalter sichtbar? Feature `weiterposten` (unlock.ts), nur mit echten Daten. */
 export function useCrosspostEnabled(): boolean {
   const { mode } = useStore();
   const on = useFeature('weiterposten');

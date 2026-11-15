@@ -142,7 +142,7 @@ async function readSaved(userId: string) {
     if (loadedFor !== userId) return;
     saved = raw ? JSON.parse(raw) : {};
     readyFor = userId;
-    if (ausLinkVerborgen(saved)) {
+    if (hiddenByLink(saved)) {
       saved = { ...saved, hidden: {}, linkOffen: true };
       AsyncStorage.setItem(KEY(userId), JSON.stringify(saved)).catch(() => {});
     }
@@ -161,7 +161,7 @@ async function readSaved(userId: string) {
 }
 
 /** Stand aus einem alten Zielgruppen-Link: genau ein Modus sichtbar, und das ist der Standard */
-function ausLinkVerborgen(s: Saved): boolean {
+function hiddenByLink(s: Saved): boolean {
   if (s.linkOffen || !s.hidden || !s.standard) return false;
   const shown = MODES.map((m) => m.key).filter((m) => !s.hidden?.[m]);
   return shown.length === 1 && shown[0] === s.standard;

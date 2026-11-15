@@ -7,9 +7,9 @@ import { Button } from '../../components/Button';
 import { InfoRow, KaterCard, QuestionHint } from '../../components/Content';
 import { TextField } from '../../components/Form';
 import { SubScreen } from '../../components/Screen';
-import { anrede } from '../../data/format';
+import { salutation } from '../../data/format';
 import { findPlace, LocationDenied, postalCodeOf } from '../../data/location';
-import { POSTAL_CODE_REQUIRED } from '../../data/testphase';
+import { POSTAL_CODE_REQUIRED } from '../../data/testPhase';
 import { useStore } from '../../data/store';
 import { color, text } from '../../theme/tokens';
 import { t } from '../../data/texts';
@@ -104,9 +104,9 @@ export default function Kiez() {
     >
       <KaterCard>
         {step === 'found'
-          ? t('Ahoi, {anrede}! Ist das Dein Heimathafen?', { anrede: anrede(profile) })
+          ? t('Ahoi, {anrede}! Ist das Dein Heimathafen?', { anrede: salutation(profile) })
           : t('Ahoi, {anrede}! Wo liegt Dein Heimathafen? Melde Dich, wenn Du zuhause bist.', {
-              anrede: anrede(profile),
+              anrede: salutation(profile),
             })}
       </KaterCard>
       {from && profile.kiez ? <InfoRow icon="map-pin" value={t('Bisher: {kiez}', { kiez: profile.kiez })} /> : null}

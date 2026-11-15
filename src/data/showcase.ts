@@ -5,7 +5,7 @@ import { eventTime, type SingleEvent } from './calendar';
 import { WEB_APP_URL } from './groups';
 import { dayName } from './katerRoutine';
 import { localDate } from './reminders';
-import { useFeature } from './freischaltung';
+import { useFeature } from './unlock';
 import { photoUrl, uploadPhoto } from './remote';
 import { useStore } from './store';
 import { t } from './texts';
@@ -186,7 +186,7 @@ export async function groupShowcaseOn(groupId: string): Promise<boolean | undefi
 }
 
 /**
- * Feature `schaufenster` (freischaltung.ts), mit Gruppe für genau diese Gruppe oder diesen Verein.
+ * Feature `schaufenster` (unlock.ts), mit Gruppe für genau diese Gruppe oder diesen Verein.
  * Für alle an (Daria, 2026-11-10).
  */
 export function useShowcaseEnabled(groupId?: string): boolean {

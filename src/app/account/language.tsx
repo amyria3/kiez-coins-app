@@ -21,7 +21,7 @@ import { useGoBack } from '../../lib/goBack';
  * Route `account/language` (Dein Konto › Sprache). Standard ist die Sprache des Handys.
  * Arabisch und Hebräisch laufen von rechts nach links. Auf iOS und Android gilt die neue Richtung nach einem Neustart.
  */
-export default function Sprache() {
+export default function Language() {
   const goBack = useGoBack();
   const [choice, setChoice] = useState<Lang | 'auto'>(getLanguageChoice());
   const device = languages.find((l) => l.code === deviceLanguage())?.name ?? 'Deutsch';

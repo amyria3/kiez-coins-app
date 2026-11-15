@@ -159,7 +159,7 @@ export default function CreateLayout() {
 }
 
 function CreateFlow() {
-  const { draftId, copyOf: copyId, title, text, photo, type, extras, privat, bildtext, seiten, schrift, ohne } = useGlobalSearchParams<{
+  const { draftId, copyOf: copyId, title, text, photo, type, extras, privat: isPrivate, bildtext: imageText, seiten: pageList, schrift: sheetFont, ohne: without } = useGlobalSearchParams<{
     draftId?: string;
     copyOf?: string;
     /** Aus dem Erstellen-Blatt über dem Feed mitgebracht (components/compose) */
@@ -188,20 +188,20 @@ function CreateFlow() {
     if (original) return copyOf(original);
     let photoText: PhotoText | undefined;
     try {
-      photoText = bildtext ? (JSON.parse(bildtext) as PhotoText) : undefined;
+      photoText = imageText ? (JSON.parse(imageText) as PhotoText) : undefined;
     } catch {
       photoText = undefined;
     }
     let pages: string[] | undefined;
     try {
-      const parsed = seiten ? (JSON.parse(seiten) as unknown) : undefined;
+      const parsed = pageList ? (JSON.parse(pageList) as unknown) : undefined;
       pages = Array.isArray(parsed) ? parsed.map(String) : undefined;
     } catch {
       pages = undefined;
     }
     let crosspostOff: LivePlatform[] | undefined;
     try {
-      const parsed = ohne ? (JSON.parse(ohne) as unknown) : undefined;
+      const parsed = without ? (JSON.parse(without) as unknown) : undefined;
       crosspostOff = Array.isArray(parsed) ? parsed.filter((p): p is LivePlatform => LIVE_PLATFORMS.includes(p)) : undefined;
     } catch {
       crosspostOff = undefined;
@@ -215,14 +215,14 @@ function CreateFlow() {
     return {
       ...emptyDraft(profile.kiez),
       // Privat gibt es nur als Bild
-      type: type === 'photo' || privat === '1' ? 'photo' : 'individual',
-      private: privat === '1' || undefined,
+      type: type === 'photo' || isPrivate === '1' ? 'photo' : 'individual',
+      private: isPrivate === '1' || undefined,
       title: title ?? '',
       text: text ?? '',
       ...(photo ? { photo: { uri: photo } } : {}),
       extras: extraUris.map((uri) => ({ photo: { uri } })),
       ...(photoText?.text ? { photoText } : {}),
-      ...(pages?.length ? { pages, type: 'photo' as const, sheetFont: schrift } : {}),
+      ...(pages?.length ? { pages, type: 'photo' as const, sheetFont } : {}),
       ...(crosspostOff?.length ? { crosspostOff } : {}),
     };
   });

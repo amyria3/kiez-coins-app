@@ -24,8 +24,8 @@ export default function Welcome() {
   const [busy, setBusy] = useState(false);
   // Ein Knopf lässt Herzen in der Brille aufgehen (Daria, 02.11.2026). Sie starten, sobald der Finger aufliegt;
   // weiter geht es beim Loslassen ohne Wartezeit (Daria, 2026-11-15: Animation früher, Anmeldung nicht verzögern).
-  const [herzen, setHerzen] = useState(0);
-  const verliebt = () => setHerzen((n) => n + 1);
+  const [hearts, setHearts] = useState(0);
+  const inLove = () => setHearts((n) => n + 1);
 
   // Einmal testen ohne Anmeldung (Daria, 27.10.2026): Testkonto, danach normal weiter mit dem Decknamen.
   const test = async () => {
@@ -41,7 +41,7 @@ export default function Welcome() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={[styles.content, compact && styles.contentCompact]}>
-        <KaterStage width={compact ? 130 : 190} spruch={kater.spruch} take={kater.take} onPress={kater.noch} herzen={herzen} />
+        <KaterStage width={compact ? 130 : 190} saying={kater.spruch} take={kater.take} onPress={kater.noch} hearts={hearts} />
         <Text style={[styles.headline, compact && styles.headlineCompact]} accessibilityRole="header">
           Ahoi.{'\n'}
           <Text style={styles.headlineMuted}>Cat The Käptn sucht eine neue Crew für seinen Kiez.</Text>
@@ -66,8 +66,8 @@ export default function Welcome() {
       </ScrollView>
       <ActionBar>
         {/* Ein Weg für neue und bekannte Konten (Daria, 24.10.2026) */}
-        <Button label="Anheuern oder Einloggen" icon="this-way" onPressIn={verliebt} onPress={() => router.push('/onboarding/email')} disabled={busy} />
-        <Button busy={busy} label="Ohne Anmeldung testen" variant="ghost" onPressIn={verliebt} onPress={test} disabled={busy} />
+        <Button label="Anheuern oder Einloggen" icon="this-way" onPressIn={inLove} onPress={() => router.push('/onboarding/email')} disabled={busy} />
+        <Button busy={busy} label="Ohne Anmeldung testen" variant="ghost" onPressIn={inLove} onPress={test} disabled={busy} />
         {/* Wann die Testdaten verschwinden, steht direkt unter dem Button (Daria, 28.10.2026) */}
         <Text style={styles.testHint}>
           Dein Testkonto und alles, was Du postest, verschwinden nach 7 Tagen oder sobald Du Dich abmeldest. Trägst Du vorher eine E-Mail ein, bleibt alles.

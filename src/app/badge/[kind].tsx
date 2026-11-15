@@ -15,7 +15,7 @@ import { color, radius, space, text } from '../../theme/tokens';
 // Darias Entwürfe (design/abzeichen/hinweis, 01.11.2026): Lots:in und Anführer:in zeigen die Karte,
 // in die die Szene hineinragt; die übrigen zeigen die Szene mit der Kater-Sprechblase.
 // Verlauf der Karte: oben die Farbe hinter der Szene, unten die Tiefe des Meeres.
-const KARTE: Partial<Record<BadgeKind, string[]>> = {
+const CARD: Partial<Record<BadgeKind, string[]>> = {
   lotse: ['#4B4A1F', '#3A4422', '#0C3236', '#0A1F4A', '#081457'],
   anfuehrer: ['#6A5418', '#4E4A22', '#17414A', '#123056', '#1A1F52'],
 };
@@ -31,7 +31,7 @@ export default function NewBadgeScreen() {
   const { mine, update } = useMyBadges();
   const own = mine?.badges.find((b) => b.badge === kind);
   const meta = badgeMeta(kind);
-  const [breite, setBreite] = useState(0);
+  const [screenWidth, setWidth] = useState(0);
 
   // Nur einmal versuchen: Scheitert das Speichern, lädt `update` den Stand neu (wieder ungesehen, neues Objekt),
   // und ohne diese Sperre ginge es endlos hin und her (Prüfung 12.11.2026)
@@ -47,41 +47,41 @@ export default function NewBadgeScreen() {
     goBack();
   };
 
-  const titel = badgeTitle(kind, own?.number);
-  const karte = KARTE[kind];
+  const badgeTitleText = badgeTitle(kind, own?.number);
+  const card = CARD[kind];
 
-  let inhalt;
-  if (karte) {
-    const szene = Math.round(breite * 0.86);
-    inhalt = (
-      <View style={[styles.karte, { marginTop: Math.round(szene * 0.5) }]} onLayout={(e) => setBreite(e.nativeEvent.layout.width)}>
+  let content;
+  if (card) {
+    const scene = Math.round(screenWidth * 0.86);
+    content = (
+      <View style={[styles.card, { marginTop: Math.round(scene * 0.5) }]} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
         <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" preserveAspectRatio="none">
           <Defs>
             <LinearGradient id="karte" x1="0" y1="0" x2="0" y2="1">
-              {karte.map((c, i) => (
+              {card.map((c, i) => (
                 <Stop key={c} offset={[0, 0.3, 0.55, 0.78, 1][i]} stopColor={c} />
               ))}
             </LinearGradient>
           </Defs>
           <Rect x="0" y="0" width="100%" height="100%" rx={radius.xl} fill="url(#karte)" />
         </Svg>
-        {breite ? (
-          <View style={{ marginTop: -Math.round(szene * 0.5) }}>
-            <BadgeScene kind={kind} width={szene} />
+        {screenWidth ? (
+          <View style={{ marginTop: -Math.round(scene * 0.5) }}>
+            <BadgeScene kind={kind} width={scene} />
           </View>
         ) : null}
-        <Text style={styles.ueber}>Neues Abzeichen</Text>
-        <Text noTranslate style={styles.kartenName}>
-          {titel}
+        <Text style={styles.about}>Neues Abzeichen</Text>
+        <Text noTranslate style={styles.cardName}>
+          {badgeTitleText}
         </Text>
-        <Text style={styles.kartenText}>{meta.kater}</Text>
+        <Text style={styles.cardText}>{meta.kater}</Text>
       </View>
     );
   } else {
-    inhalt = (
+    content = (
       <>
-        <View style={[styles.szene, { backgroundColor: SCENE_FRAME[kind] }]} onLayout={(e) => setBreite(e.nativeEvent.layout.width)}>
-          {breite ? <BadgeScene kind={kind} width={Math.round(breite * 0.87)} /> : null}
+        <View style={[styles.scene, { backgroundColor: SCENE_FRAME[kind] }]} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
+          {screenWidth ? <BadgeScene kind={kind} width={Math.round(screenWidth * 0.87)} /> : null}
         </View>
         <KaterCard>{meta.kater}</KaterCard>
       </>
@@ -100,7 +100,7 @@ export default function NewBadgeScreen() {
         </>
       }
     >
-      {inhalt}
+      {content}
     </SubScreen>
   );
 }
@@ -108,15 +108,15 @@ export default function NewBadgeScreen() {
 const styles = StyleSheet.create({
   hero: { alignItems: 'center', gap: space[16], paddingTop: space[24], paddingBottom: space[8] },
   name: { ...text.display, color: color.text.primary, textAlign: 'center' },
-  szene: { width: '100%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center' },
-  karte: {
+  scene: { width: '100%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center' },
+  card: {
     alignItems: 'center',
     gap: space[8],
     paddingHorizontal: space[24],
     paddingBottom: space[32],
     borderRadius: radius.xl,
   },
-  ueber: { ...text.body, color: color.text.secondary, textAlign: 'center', marginTop: space[8] },
-  kartenName: { ...text.headlineLarge, color: color.text.primary, textAlign: 'center' },
-  kartenText: { ...text.reading, color: color.text.primary, textAlign: 'center', opacity: 0.85 },
+  about: { ...text.body, color: color.text.secondary, textAlign: 'center', marginTop: space[8] },
+  cardName: { ...text.headlineLarge, color: color.text.primary, textAlign: 'center' },
+  cardText: { ...text.reading, color: color.text.primary, textAlign: 'center', opacity: 0.85 },
 });

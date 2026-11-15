@@ -10,7 +10,7 @@ import { NavCard, NavRow, ProfileCard } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { TabBar } from '../../components/TabBar';
 import { SurveyOverlay } from '../../components/SurveyOverlay';
-import { anrede } from '../../data/format';
+import { salutation } from '../../data/format';
 import { useAuth } from '../../data/auth';
 import { isModerator, loadFriends } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
@@ -68,7 +68,7 @@ export default function Account() {
       <ProfileCard
         user={me}
         name={profile.handle || me.name}
-        details={[anrede(profile), profile.kiez ?? 'Kiez noch nicht festgelegt']}
+        details={[salutation(profile), profile.kiez ?? 'Kiez noch nicht festgelegt']}
         onPress={() => router.push('/account/profile')}
       />
       {/* Reihenfolge und Namen (Daria, 30.10.2026): Me, Meine Gruppen, Meine Posts (2026-11-02), Meine Features,

@@ -8,7 +8,7 @@ import Svg, { Defs, Line, Path, Pattern, Rect } from 'react-native-svg';
 
 import { Button } from './Button';
 import { Icon } from './icons/Icon';
-import { KaterCard, KaterRund } from './Content';
+import { KaterCard, KaterCircle } from './Content';
 import { handShapePath } from './handShape';
 import { ReminderExtrasRow } from './ReminderExtras';
 import { ManageButton } from './ShowcaseManage';
@@ -33,9 +33,9 @@ import { color, font, radius, space, text } from '../theme/tokens';
  */
 
 /** Kartenfarben (Daria, 2026-11-12): Senf, Olive hell, Puder, als Rollen in tokens.ts (color.routine) */
-const SENF = color.routine.task;
+const MUSTARD = color.routine.task;
 const OLIVE = color.routine.fixed;
-const PUDER = color.routine.saved;
+const POWDER = color.routine.saved;
 /** Schrift und Buttons auf den Karten */
 const INK = color.routine.ink;
 const INK_SOFT = color.routine.inkSoft;
@@ -93,9 +93,9 @@ export const RoutineList = memo(function RoutineList({
   const urgentOf = (r: Reminder) => isUrgent(r, now, later);
   // Aufgaben: wiederkehrende und einmalige „bis“; Termine: einmalige „um“ (Daria, 2026-11-10)
   const tasks = sorted.filter((r) => kindOf(r) !== 'termin');
-  const termine = sorted.filter((r) => kindOf(r) === 'termin');
-  const fixed = termine.filter((r) => r.required !== false);
-  const optional = termine.filter((r) => r.required === false);
+  const calendarEvents = sorted.filter((r) => kindOf(r) === 'termin');
+  const fixed = calendarEvents.filter((r) => r.required !== false);
+  const optional = calendarEvents.filter((r) => r.required === false);
   // Karten nur für die nächsten 7 Tage, der Kalender oben zeigt alle geladenen Termine (Daria, 2026-11-14)
   const lastCardDay = localDate(addDays(6, now));
   const calendar = events.filter((e) => eventDate(e) <= lastCardDay).slice(0, 20);
@@ -120,7 +120,7 @@ export const RoutineList = memo(function RoutineList({
       {fixed.length || calendar.length ? (
         <Group title="Feste Termine" count={fixed.length + calendar.length}>
           {fixed.map((r) => (
-            <TerminCard key={r.id} reminder={r} bg={OLIVE} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} />
+            <EventCard key={r.id} reminder={r} bg={OLIVE} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} />
           ))}
           {calendar.map((e) => (
             <CalendarCard key={e.id} event={e} />
@@ -130,7 +130,7 @@ export const RoutineList = memo(function RoutineList({
       {optional.length || saved.length ? (
         <Group title="Das hast Du Dir vorgemerkt" count={optional.length + saved.length}>
           {optional.map((r) => (
-            <TerminCard key={r.id} reminder={r} bg={PUDER} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} />
+            <EventCard key={r.id} reminder={r} bg={POWDER} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} />
           ))}
           {saved.map((e) => (
             <SavedCard key={e.id} event={e} onChanged={onChanged} />
@@ -551,7 +551,7 @@ function Card({
     <View style={[styles.katerSide, { alignItems: sticker.avatar }]}>
       {sticker.above ? chip : null}
       <View style={styles.katerRing}>
-        <KaterRund size={40} bg={bg} />
+        <KaterCircle size={40} bg={bg} />
       </View>
       {sticker.above ? null : chip}
     </View>
@@ -711,7 +711,7 @@ function TaskCard({
   });
   return (
     <Card
-      bg={SENF}
+      bg={MUSTARD}
       mood={moodOf(r)}
       onPress={() => menu.current?.()}
       tiltKey={r.id}
@@ -749,7 +749,7 @@ function TaskCard({
       ) : (
         <View style={styles.actions}>
           <HandButton label="Aufgeben" onPress={onGiveUp} />
-          <HandButton label="Erledigt" onPress={onDone} filled bg={SENF} />
+          <HandButton label="Erledigt" onPress={onDone} filled bg={MUSTARD} />
           <ManageButton dots={INK} style={styles.more} label="Mehr zu dieser Aufgabe" openRef={menu} items={items} />
         </View>
       )}
@@ -757,7 +757,7 @@ function TaskCard({
   );
 }
 
-function TerminCard({
+function EventCard({
   reminder: r,
   bg,
   onDone,
@@ -913,7 +913,7 @@ function SavedCard({ event: e, onChanged }: { event: Saved; onChanged: () => voi
   };
   return (
     <Card
-      bg={PUDER}
+      bg={POWDER}
       tiltKey={`s${e.id}`}
       mood={e.cancelled ? 'enttäuscht' : 'neugierig'}
       head={
@@ -932,7 +932,7 @@ function SavedCard({ event: e, onChanged }: { event: Saved; onChanged: () => voi
         <HandButton label="Entfernen" onPress={remove} disabled={busy} />
         {/* Genau sagen, was passiert (Daria, 2026-11-13, vorher „Kalender“): im Browser eine Kalenderdatei, in der
             Android-App der Kalender des Handys */}
-        {e.cancelled ? null : <HandButton label={Platform.OS === 'web' ? 'ICS exportieren' : 'In Handykalender'} onPress={toCalendar} filled bg={PUDER} />}
+        {e.cancelled ? null : <HandButton label={Platform.OS === 'web' ? 'ICS exportieren' : 'In Handykalender'} onPress={toCalendar} filled bg={POWDER} />}
       </View>
     </Card>
   );
@@ -1664,7 +1664,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  calDayDone: { backgroundColor: SENF },
+  calDayDone: { backgroundColor: MUSTARD },
   calDayPicked: { borderWidth: 2, borderColor: color.accent.primary },
   calDayToday: { borderWidth: 1.5, borderColor: color.text.primary },
   calNum: {

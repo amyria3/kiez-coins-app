@@ -14,7 +14,7 @@ import { useGoBack } from '../../lib/goBack';
  * Route `onboarding/code-of-conduct`. Figma: `onboarding/kodex`. Speichert die drei Zeitstempel der Zustimmung.
  * Die Texte stehen unter `rechtliches/bedingungen`, `rechtliches/regeln` und `rechtliches/datenschutz` (Stand in `data/legal.ts`).
  */
-export default function Kodex() {
+export default function CodeOfConduct() {
   const router = useRouter();
   const goBack = useGoBack();
   const { dispatch } = useStore();

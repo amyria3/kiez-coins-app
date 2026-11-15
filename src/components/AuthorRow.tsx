@@ -16,11 +16,11 @@ import { Icon } from './icons/Icon';
  * Ohne Hinweistext (Daria, 29.10.2026): Der verdeckte Name ist für Screenreader ausgeblendet. Zum Ausschalten der
  * Regel `NAMEN_OHNE_KIEZ_VERDECKEN` auf false setzen.
  */
-const NAMEN_OHNE_KIEZ_VERDECKEN = true;
+const HIDE_NAMES_WITHOUT_KIEZ = true;
 
 export function useHideName(user: Pick<User, 'id'>): boolean {
   const { mode, profile, currentUserId, groups } = useStore();
-  if (!NAMEN_OHNE_KIEZ_VERDECKEN) return false;
+  if (!HIDE_NAMES_WITHOUT_KIEZ) return false;
   if (mode !== 'live' || profile.kiez || user.id === currentUserId) return false;
   // Mitglieder gemeinsamer Gruppen kennt man, auch ohne Kiez
   return !groups.some((g) => g.members.some((m) => m.userId === user.id));

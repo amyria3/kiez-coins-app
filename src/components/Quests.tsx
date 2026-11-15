@@ -8,7 +8,7 @@ import { color, radius, space, text } from '../theme/tokens';
 import { iconSvgs } from './icons/svgs';
 import { Text } from './T';
 import { t } from '../data/texts';
-import type { Quest } from '../data/erfolge';
+import type { Quest } from '../data/achievements';
 
 /**
  * Ziele mit Fortschrittsbalken und Geschenk (Daria, 29.10.2026), ähnlich „Start a streak“ in Lern-Apps:

@@ -4,7 +4,7 @@ import type { ImageSourcePropType } from 'react-native';
  * Operationsname: in der App ausgeblendet, weil das Taufen verwirrt (Daria, 2026-11-11). Feld und Daten bleiben in
  * der Datenbank. Wieder zeigen: auf true setzen.
  */
-export const OPERATIONSNAME_ZEIGEN = false;
+export const SHOW_OPERATION_NAME = false;
 
 // Datenmodell laut Figma-Komponentenbeschreibungen (ChallengePost, StatusBadge, Flow „Bounty auf Vertrauen“).
 // Gespeichert in Supabase (supabase/migrations), Umwandlung in src/data/remote.ts.

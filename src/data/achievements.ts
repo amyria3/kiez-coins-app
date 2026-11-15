@@ -1,6 +1,6 @@
 import type { Challenge, Comment, Group, ImageSource } from './types';
 import { beforeAfterDuration } from './format';
-import type { ReiseEntry } from './reise';
+import type { JourneyEntry } from './journey';
 
 // „Was Du so machst“ als Feed für positive Bestärkung (Daria, 29.10.2026): kein Verlauf mehr, nur was geschafft ist.
 // Offenes und Wartendes steht unter „Du bist dran“ und in „Deine Challenges“.
@@ -19,9 +19,9 @@ export function donePhoto(c: Challenge): ImageSource | undefined {
   return c.report?.photo ?? c.image;
 }
 
-export type Erfolge = {
+export type Achievements = {
   /** Erledigtes, neueste zuerst */
-  done: ReiseEntry[];
+  done: JourneyEntry[];
   /** We-Challenges, die Du für andere erledigt hast */
   helped: number;
   /** Eigene Challenges, die andere für Dich erledigt haben */
@@ -41,7 +41,7 @@ export type Erfolge = {
 
 const THANKS = /dank|thank|merci|super|toll|klasse|genial|großartig|wow|❤|♥|😍|🙏|💪/i;
 
-export function erfolge(entries: ReiseEntry[], me: string): Erfolge {
+export function achievements(entries: JourneyEntry[], me: string): Achievements {
   const done = entries
     .filter((e) => isDone(e.challenge))
     .sort((a, b) => (b.challenge.confirmedAt ?? b.challenge.finishedAt ?? b.lastActivity).localeCompare(a.challenge.confirmedAt ?? a.challenge.finishedAt ?? a.lastActivity));
@@ -97,13 +97,13 @@ export function groupProgress(groups: Group[], me: string): GroupProgress {
 }
 
 /** `groups` leer lassen, wenn Gruppen ausgeschaltet sind: Dann fehlen die Gruppen-Ziele. */
-export function quests(entries: ReiseEntry[], friends: number, groups?: GroupProgress, now = new Date()): Quest[] {
+export function quests(entries: JourneyEntry[], friends: number, groups?: GroupProgress, now = new Date()): Quest[] {
   const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const inMonth = (iso?: string) => !!iso && iso.slice(0, 7) === month;
   const own = entries.filter((e) => e.role === 'author');
   const meDone = own.filter((e) => e.challenge.type === 'before_after' && !!e.challenge.finishedAt);
   const we = entries.filter((e) => e.challenge.type === 'individual');
-  const weSince = (e: ReiseEntry) => (e.role === 'author' ? e.challenge.createdAt : e.challenge.acceptedAt ?? e.lastActivity);
+  const weSince = (e: JourneyEntry) => (e.role === 'author' ? e.challenge.createdAt : e.challenge.acceptedAt ?? e.lastActivity);
   const q = (key: string, title: string, value: number, monthly = false, goal = 1): Quest => ({
     key,
     title,

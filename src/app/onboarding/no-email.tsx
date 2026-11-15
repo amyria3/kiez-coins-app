@@ -26,7 +26,7 @@ const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim(
  * Danach: bekanntes Konto mit fertigem Onboarding in den Feed, sonst weiter zu Deckname und Geschlecht
  * (der Deckname steht ja schon).
  */
-export default function OhneMail() {
+export default function NoEmail() {
   const router = useRouter();
   const goBack = useGoBack();
   const { dispatch } = useStore();

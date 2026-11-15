@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 
 import { StatusBadge } from '../../../../components/Badges';
 import { ResultScreen } from '../../../../components/Screen';
-import { anrede } from '../../../../data/format';
+import { salutation } from '../../../../data/format';
 import { useStore } from '../../../../data/store';
 import { t } from '../../../../data/texts';
 
@@ -14,7 +14,7 @@ export default function PaymentSuccess() {
     <ResultScreen
       badge={<StatusBadge status="paid" />}
       title="Super, alles erledigt!"
-      message={t('Die Coins sind angekommen. Danke, {anrede}!', { anrede: anrede(profile) })}
+      message={t('Die Coins sind angekommen. Danke, {anrede}!', { anrede: salutation(profile) })}
       onFeedPress={() => router.dismissTo('/feed')}
     />
   );

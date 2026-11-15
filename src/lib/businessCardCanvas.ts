@@ -1,6 +1,6 @@
 import QRCode from 'qrcode';
 
-import { katerAvatarSvg, KATER_AVATAR_GELB } from '../components/icons/katerAvatarSvg';
+import { katerAvatarSvg, KATER_AVATAR_YELLOW } from '../components/icons/katerAvatarSvg';
 import { parseRich } from '../data/richText';
 
 /** Wie shortLink in data/showcase.ts; hier ohne Abhängigkeiten, damit die öffentliche Seite (api/s.mjs) sie mitnutzt */
@@ -27,7 +27,7 @@ export const CARD_H = CARD_MM.h * PX_PER_MM;
 
 /** Linienfarbe des Katers */
 const INK = '#000027';
-const GELB = KATER_AVATAR_GELB;
+const YELLOW = KATER_AVATAR_YELLOW;
 const WHITE = '#FFFFFF';
 /** Rückseite: weicher als die reine Linienfarbe (Daria, 2026-11-12: „Hintergrund etwas runterregeln“) */
 const BACK = '#2B2B57';
@@ -140,7 +140,7 @@ function drawKater(ctx: Ctx, kater: HTMLImageElement | null, x: number, y: numbe
   ctx.save();
   ctx.beginPath();
   ctx.arc(x + d / 2, y + d / 2, d / 2, 0, Math.PI * 2);
-  ctx.fillStyle = GELB;
+  ctx.fillStyle = YELLOW;
   ctx.fill();
   ctx.clip();
   if (kater) ctx.drawImage(kater, x, y, d, d);
@@ -200,7 +200,7 @@ function drawFront(d: CardData, a: Assets): HTMLCanvasElement {
   canvas.width = CARD_W;
   canvas.height = CARD_H;
   const ctx = canvas.getContext('2d')!;
-  ctx.fillStyle = GELB;
+  ctx.fillStyle = YELLOW;
   ctx.fillRect(0, 0, CARD_W, CARD_H);
   ctx.textBaseline = 'alphabetic';
 
@@ -296,7 +296,7 @@ function drawBack(d: CardData, a: Assets): HTMLCanvasElement {
       if (!it.value?.trim()) continue;
       if (y > maxY - bodyLine) break;
       ctx.font = `28px "${LABEL_FONT}"`;
-      ctx.fillStyle = GELB;
+      ctx.fillStyle = YELLOW;
       ctx.fillText(it.label.toUpperCase(), x, y);
       y += 26 + bodyLine;
       let size = bodySize;
@@ -324,7 +324,7 @@ function drawBack(d: CardData, a: Assets): HTMLCanvasElement {
     ctx.fillText(t('Noch keine Angaben im Schaufenster'), PAD, PAD + 40);
   }
 
-  drawKater(ctx, a.kater, CARD_W - PAD - kd, CARD_H - PAD - kd, kd, GELB);
+  drawKater(ctx, a.kater, CARD_W - PAD - kd, CARD_H - PAD - kd, kd, YELLOW);
   return canvas;
 }
 

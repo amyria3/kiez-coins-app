@@ -1,9 +1,9 @@
 import { useRoutineShown, useRoutineStandardSaved } from './features';
-import { useFeature } from './freischaltung';
+import { useFeature } from './unlock';
 import { useStore } from './store';
 
 /**
- * Darf diese Person Routine (Erinnerungen) überhaupt haben? Feature `routine` (freischaltung.ts), nur mit echten Daten.
+ * Darf diese Person Routine (Erinnerungen) überhaupt haben? Feature `routine` (unlock.ts), nur mit echten Daten.
  * Für alle an (Daria, 2026-11-10).
  */
 export function useRoutineAvailable(): boolean {

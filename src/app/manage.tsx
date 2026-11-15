@@ -14,9 +14,9 @@ import { Icon } from '../components/icons/Icon';
 import { NavigationBar } from '../components/NavigationBar';
 import { formatDayMonthShort, formatDurationSince, formatRelative, formatRemainingShort, nameInText, meInProgress } from '../data/format';
 import { useRequireKiez } from '../data/kiez';
-import { isGroupDone } from '../data/reise';
+import { isGroupDone } from '../data/journey';
 import { useStore } from '../data/store';
-import { OPERATIONSNAME_ZEIGEN, type Challenge, type User } from '../data/types';
+import { SHOW_OPERATION_NAME, type Challenge, type User } from '../data/types';
 import { useAppDimensions } from '../theme/layout';
 import { color, radius, size, space, stroke, text, withAlpha } from '../theme/tokens';
 import { askCrosspost, restoreWithChoice } from '../components/CrosspostDialog';
@@ -61,7 +61,7 @@ export default function ManageChallenges() {
   const requireKiez = useRequireKiez();
   const { challenges, users, groups, currentUserId, dispatch } = useStore();
   // `archiv=1`: gleich im Reiter „Archiv“ öffnen (von „Was Du so machst“, In Gruppen)
-  const { archiv } = useLocalSearchParams<{ archiv?: string }>();
+  const { archiv: archiveParam } = useLocalSearchParams<{ archiv?: string }>();
   const [pageHeight, setPageHeight] = useState(0);
   // Aktuelle Seite je Reiter, für „2 von 5“
   const [index, setIndex] = useState({ active: 0, archive: 0 });
@@ -95,12 +95,12 @@ export default function ManageChallenges() {
     pager.current?.scrollTo({ x: key === 'archive' ? width : 0, animated: true });
   const openedArchive = useRef(false);
   useEffect(() => {
-    if (archiv !== '1' || openedArchive.current || !pageHeight || !width) return;
+    if (archiveParam !== '1' || openedArchive.current || !pageHeight || !width) return;
     openedArchive.current = true;
     pager.current?.scrollTo({ x: width, animated: false });
     archiveRef.current = true;
     setArchive(true);
-  }, [archiv, pageHeight, width]);
+  }, [archiveParam, pageHeight, width]);
 
   const { activePages, archivePages } = useMemo(() => {
     // „Meine Posts“ zeigt alle eigenen Beiträge: Challenges und Bilder (Daria, 2026-11-02)
@@ -533,7 +533,7 @@ function GroupDoneCard({
         {challenges.map((c) => {
           const photo = c.image ?? c.imageAfter ?? c.report?.photo ?? c.imageBefore;
           const mine = c.authorId === userId;
-          const title = OPERATIONSNAME_ZEIGEN && !mine && c.operationName ? c.operationName : c.title || t('Ohne Titel');
+          const title = SHOW_OPERATION_NAME && !mine && c.operationName ? c.operationName : c.title || t('Ohne Titel');
           return (
             <Pressable
               key={c.id}

@@ -12,10 +12,10 @@ import { useStore } from '../data/store';
 export default function Index() {
   const { session } = useAuth();
   const { profile } = useStore();
-  const { modus } = useLocalSearchParams<{ modus?: string }>();
+  const { modus: mode } = useLocalSearchParams<{ modus?: string }>();
   useEffect(() => {
-    if (modus) rememberLinkMode(modus);
-  }, [modus]);
+    if (mode) rememberLinkMode(mode);
+  }, [mode]);
   if (!session) return <Redirect href="/onboarding/welcome" />;
   return <Redirect href={profile.onboarded ? '/feed' : '/onboarding/handle'} />;
 }

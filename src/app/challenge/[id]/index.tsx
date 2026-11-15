@@ -32,10 +32,10 @@ import {
 import { ParticipantsSection } from '../../../components/Participants';
 import { useRequireKiez } from '../../../data/kiez';
 import { isModerator, recordView } from '../../../data/remote';
-import { useFeature } from '../../../data/freischaltung';
+import { useFeature } from '../../../data/unlock';
 import { coordsIfAllowed, distanceMeters, KIEZ_RADIUS_METERS, type Coords } from '../../../data/location';
 import { useChallenge, useStore } from '../../../data/store';
-import { isPostOnly, OPERATIONSNAME_ZEIGEN, type ChallengeStatus } from '../../../data/types';
+import { isPostOnly, SHOW_OPERATION_NAME, type ChallengeStatus } from '../../../data/types';
 import { color, radius, scheme, size, space, stroke, text } from '../../../theme/tokens';
 import { askCrosspost, restoreWithChoice } from '../../../components/CrosspostDialog';
 import { crosspostTargets } from '../../../data/crosspost';
@@ -57,7 +57,7 @@ const RUNNING = new Set<ChallengeStatus>(['open', 'accepted', 'reported', 'rejec
 
 export default function ChallengeDetail() {
   // `kommentare`: aus Feed oder „Deine Challenges“ direkt zu den Kommentaren
-  const { id, kommentare } = useLocalSearchParams<{ id: string; kommentare?: string }>();
+  const { id, kommentare: commentsParam } = useLocalSearchParams<{ id: string; kommentare?: string }>();
   const router = useRouter();
   const goBack = useGoBack();
   const share = useShareChallenge();
@@ -132,7 +132,7 @@ export default function ChallengeDetail() {
   // Erledigt melden: jede teilnehmende Person, für alle (Daria, 28.10.2026)
   const reportsForAll = acceptedByMe;
   // Ohne Operationsnamen gilt jede angenommene Challenge als getauft (OPERATIONSNAME_ZEIGEN)
-  const named = !OPERATIONSNAME_ZEIGEN || challenge.operationName !== undefined;
+  const named = !SHOW_OPERATION_NAME || challenge.operationName !== undefined;
   const isBeforeAfter = challenge.type === 'before_after';
   // Vorher-Nachher: erst das Vorher-, dann das Nachher-Foto in der Galerie
   const image = isBeforeAfter ? (challenge.imageBefore ?? challenge.image) : (challenge.image ?? challenge.imageAfter);
@@ -678,7 +678,7 @@ export default function ChallengeDetail() {
   return (
     <View style={styles.flex} onStartShouldSetResponderCapture={closeMenuOnTouch}>
     <HeroScreen
-      scrollToEndOnOpen={!!kommentare}
+      scrollToEndOnOpen={!!commentsParam}
       slideIn
       image={image}
       hero={textPages ? <TextHero pages={textPages} title={challenge.title} fontKey={challenge.sheetFont} /> : undefined}
@@ -687,7 +687,7 @@ export default function ChallengeDetail() {
       photoText={challenge.type === 'photo' && image === challenge.image ? challenge.photoText : undefined}
       onBackPress={() => goBack()}
       onSharePress={() => share(challenge)}
-      imageOverlay={OPERATIONSNAME_ZEIGEN && acceptedByMe && challenge.operationName ? <OperationTag name={challenge.operationName} /> : undefined}
+      imageOverlay={SHOW_OPERATION_NAME && acceptedByMe && challenge.operationName ? <OperationTag name={challenge.operationName} /> : undefined}
       actions={actions}
       summary={summary}
     >

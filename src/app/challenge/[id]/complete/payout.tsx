@@ -25,10 +25,10 @@ import { useNudge } from '../../../../components/Nudge';
  * Danach geht es zurück statt zur Erfolgsseite.
  */
 export default function PayoutShareScreen() {
-  const { id, nur } = useLocalSearchParams<{ id: string; nur?: string }>();
+  const { id, nur: only } = useLocalSearchParams<{ id: string; nur?: string }>();
   const router = useRouter();
   const goBack = useGoBack();
-  const onlyShare = nur === '1';
+  const onlyShare = only === '1';
   const { dispatch } = useStore();
   const me = useCurrentUser();
   const { challenge, author } = useChallenge(id);

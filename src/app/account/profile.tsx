@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 
 import { Avatar } from '../../components/AuthorRow';
 import { AvatarCropper } from '../../components/AvatarCropper';
-import { Abschnitt } from '../../components/Abschnitt';
+import { Section } from '../../components/Section';
 import { BadgeSettings } from '../../components/BadgeSettings';
 import { choosePhoto } from '../../components/Form';
 import { GearsLoader, SMALL_GEARS } from '../../components/GearsLoader';
@@ -83,7 +83,7 @@ export default function PersonalDetails() {
       extra: uriOf(me.avatar) ? { text: 'Ausschnitt ändern', onPress: () => setCropUri(uriOf(me.avatar)) } : undefined,
     });
 
-  const saveDeckname = async (handle: string) => {
+  const saveHandleName = async (handle: string) => {
     if (live) {
       const failure = await saveHandle(session.user.id, handle);
       if (failure) {
@@ -120,7 +120,7 @@ export default function PersonalDetails() {
         </View>
       </Pressable>
       <FieldGroup heading label="Profil">
-        <EditableRow label="Deckname (Nickname)" value={profile.handle || me.name} maxLength={30} onSave={saveDeckname} />
+        <EditableRow label="Deckname (Nickname)" value={profile.handle || me.name} maxLength={30} onSave={saveHandleName} />
         {/* Ansprache ausgeblendet (Daria, 29.10.2026). Gespeicherte Werte bleiben und gelten weiter, sonst „Pirat:in“. */}
         <NavRow
           label="Grammatisches Geschlecht"
@@ -156,9 +156,9 @@ export default function PersonalDetails() {
         </FieldGroup>
       ) : null}
       {/* Abzeichen (Daria, 2026-11-01) */}
-      <Abschnitt id="abzeichen">
+      <Section id="abzeichen">
         <BadgeSettings />
-      </Abschnitt>
+      </Section>
       {profile.email ? (
         <FieldGroup heading label="Anmeldung">
           <Text style={styles.secondary}>{profile.email}</Text>
