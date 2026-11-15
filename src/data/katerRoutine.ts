@@ -6,6 +6,10 @@ import { addDays, dueToday, goalOf, isoWeekday, localDate, weekStart, type Remin
  * Der Titel steht nach „Ich will …“, daher passt er in „Du wolltest {want}“ in jeder Form.
  * Vorschläge von Claude, Daria ersetzt sie gern durch eigene.
  */
+/**
+ * Leer, wenn der Kater nichts sagt: An Wochentagen ohne diese Routine schweigt er („Heute hast Du frei von …“
+ * fliegt raus, Daria, 2026-11-15).
+ */
 export function katerLine(r: Reminder, now = new Date()): string {
   const want = r.want;
   const goal = goalOf(r);
@@ -25,7 +29,7 @@ export function katerLine(r: Reminder, now = new Date()): string {
   }
   if (r.weekdays) {
     if (r.doneToday) return t('Heute schon erledigt: {want}. Leg die Pfoten hoch.', { want });
-    if (!r.weekdays.includes(isoWeekday(now))) return t('Heute hast Du frei von {want}. Ich halte trotzdem Wache.', { want });
+    if (!r.weekdays.includes(isoWeekday(now))) return '';
     if (r.atTime) return t('Miau! Vergiss nicht: Heute um {time} wolltest Du {want}.', { want, time: r.atTime });
     return t('Miau! Vergiss nicht: Heute wolltest Du {want}.', { want });
   }
@@ -40,7 +44,9 @@ export function katerFocus(list: Reminder[], now = new Date()): Reminder | undef
   const due = list.filter((r) => dueToday(r, now));
   // Pflichttermine vor optionalen
   const must = due.filter((r) => r.onDate && r.required !== false);
-  const pool = must.length ? must : due.length ? due : list;
+  // Ohne Fälliges: keine Routine, die heute frei hat (dazu sagt der Kater nichts, siehe katerLine)
+  const rest = list.filter((r) => !r.weekdays || r.doneToday || r.weekdays.includes(isoWeekday(now)));
+  const pool = must.length ? must : due.length ? due : rest;
   return [...pool].sort((a, b) => goalOf(b) - b.doneThisWeek - (goalOf(a) - a.doneThisWeek))[0];
 }
 

@@ -50,6 +50,7 @@ export const RoutineList = memo(function RoutineList({
   showCalendar?: boolean;
 }) {
   const focus = list.length ? katerFocus(list) : undefined;
+  const katerText = focus ? katerLine(focus) : '';
   const motion = useCardMotion();
   const now = useNow();
   const { later, snooze } = useLater();
@@ -69,9 +70,9 @@ export const RoutineList = memo(function RoutineList({
     <Motion.Provider value={motion}>
     <PageLock.Provider value={onDragLock ?? noLock}>
       {/* Kater spricht wie im Feed als Sprechblase (Daria, 2026-11-11) */}
-      {focus ? (
+      {katerText ? (
         <AsideWhenCalendar>
-          <KaterCard>{katerLine(focus)}</KaterCard>
+          <KaterCard>{katerText}</KaterCard>
         </AsideWhenCalendar>
       ) : null}
       {showCalendar ? <RoutineCalendar list={list} events={events} saved={saved} /> : null}
