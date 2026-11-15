@@ -43,7 +43,7 @@ const swatch = {
   senf: '#ECCF55',
   /**
    * Gelbgrün: Fokus, eingeschaltete Schalter, Menü-Icon, Theme Functional. Hell wie der Kater in der Start-Animation
-   * (Daria, 2026-11-14), vorher #D6EB70, davor #E4FF5F, das der Kater-Avatar behält
+   * (Daria, 2026-11-14), vorher #D6EB70, davor #E4FF5F. Seit 2026-11-15 auch der Kreis der Bildmarke
    */
   gelbgruen: '#F0FFA6',
   /** Beige: große Icons, Leisten-Icons, papierweißer Knopf im Umschalter */

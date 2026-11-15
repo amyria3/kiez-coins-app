@@ -15,7 +15,7 @@ export function setCardTranslator(fn: (s: string) => string): void {
 /**
  * Visitenkarte des Schaufensters (Daria, 2026-11-12): Der Laden exportiert sie aus „Verwalten“, als Bild zum Teilen
  * und als PDF zum Drucken. Vorne Name, Kiez, Instant-Code und Webadresse, hinten Adresse, Öffnungszeiten, Services
- * und Links. Optik wie der Kater-Avatar: Gelbgrün #E4FF5F, Linienfarbe #000027, Titel in der Unbounded.
+ * und Links. Optik wie der Kater-Avatar (Bildmarke): Gelbgrün #F0FFA6, Linienfarbe #000027, Titel in der Unbounded.
  *
  * Nur im Browser (App im Web und öffentliche Seite kiezcoins.de/s/…, gebaut nach website/visitenkarte.js): Beide Seiten werden auf ein Canvas gezeichnet, im Format 85 × 55 mm (Scheckkarte) mit 15 Pixeln pro
  * Millimeter, also etwa 380 dpi. Das PDF hat zwei Seiten in genau dieser Größe, so nimmt es jede Druckerei.

@@ -24,12 +24,12 @@ function svgImage(xml: string): HTMLImageElement | null {
   return img;
 }
 
-/** Logo mit Kater und Schriftzug (Daria, 2026-11-12), in der Farbe des Namens, die Brille im Papierweiß */
-const LOGO = brandArt.logo;
+/** Wortbildmarke (Daria, 2026-11-15), Kater und Schrift in der Farbe des Namens, die Brille im Papierweiß */
+const LOGO = brandArt.wortbildmarke;
 const logoImage = svgImage(
   LOGO.svg
     .replace(/#7E94FF/gi, INK)
-    .replace(/#0F100E/gi, PAPER)
+    .replace(/#0A0A09/gi, PAPER)
     .replace(/width="[^"]*" height="[^"]*"/, `width="${LOGO.width * 8}" height="${LOGO.height * 8}"`),
 );
 

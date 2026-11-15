@@ -40,16 +40,16 @@ export const Cat = memo(function Cat({ mood = 'default', height = 39, tint }: Ca
 const signature = (svg: string) => svg;
 
 /**
- * Logo: Kater und Schriftzug „KiezCoins“ (`assets/brand/logo.svg`, Daria 2026-11-12), in allen Looks.
- * Kiez-Look: Lila #7E94FF mit dunkler Brille, auf dem dunklen Grund gut lesbar.
+ * Logo: Wortbildmarke, Kater im gelbgrünen Kreis und Schriftzug „KiezCoins“ (`assets/marke/wortbildmarke.svg`,
+ * Daria 2026-11-15), in allen Looks. Kiez-Look: Lila #7E94FF mit dunkler Brille, auf dem dunklen Grund gut lesbar.
  * Fashionable Look (heller Grund): Lila zu wenig Kontrast, daher Kater und Schrift in Textfarbe, die Brille im Grund.
  * `tint`: eigene Farbe für Kater und Schrift; `glasses`: Farbe der Brille dazu.
  */
 export const Logo = memo(function Logo({ height = 24, tint, glasses }: { height?: number; tint?: string; glasses?: string }) {
-  const art = brandArt.logo;
+  const art = brandArt.wortbildmarke;
   const ink = tint;
   const xml = ink
-    ? art.svg.replace(/#7E94FF/gi, ink).replace(/#0F100E/gi, glasses ?? color.bg.screen)
+    ? art.svg.replace(/#7E94FF/gi, ink).replace(/#0A0A09/gi, glasses ?? color.bg.screen)
     : art.svg;
   return <SvgXml xml={xml} width={(art.width / art.height) * height} height={height} />;
 });
