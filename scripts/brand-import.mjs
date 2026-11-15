@@ -21,7 +21,7 @@ const clean = (name, svg) => {
 };
 const size = (svg) => ({ w: Number(svg.match(/width="([\d.]+)"/)[1]), h: Number(svg.match(/height="([\d.]+)"/)[1]) });
 // Nur die Wortbildmarken, die App oder Website zeigen. So bleiben die übrigen Varianten aus dem Bundle.
-const MARKEN = ['wortbildmarke', 'wortbildmarke-weiss'];
+const MARKEN = ['wortbildmarke'];
 const files = [
   ...MARKEN.map((name) => join(root, 'assets/marke', `${name}.svg`)),
   ...readdirSync(join(root, 'assets/kater'))

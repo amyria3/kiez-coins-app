@@ -135,7 +135,6 @@ const kcSvg = {
   catHigh: art('kater-high'),
   catMoney: art('kater-money'),
   logo: art('wortbildmarke'),
-  logoWeiss: art('wortbildmarke-weiss'),
   coins: { w: 30, h: 35, svg: brand.coinsSvg },
   crown: { w: crownSvg.width, h: crownSvg.height, svg: crownSvg.svg(C.text) },
   diamond: { w: diamondSvgs[1].width, h: diamondSvgs[1].height, svg: diamondSvgs[1].svg(C.text) },
@@ -143,9 +142,9 @@ const kcSvg = {
   diamond3: { w: diamondSvgs[3].width, h: diamondSvgs[3].height, svg: diamondSvgs[3].svg(C.text) },
   cameraDark: icon('camera', C.dark),
 };
-// Logo für den Seitenkopf: die einfarbige Wortbildmarke in Weiß (assets/marke/wortbildmarke-weiss.svg, Daria 2026-11-15).
-// Die Website zeigt das Logo ganz in einer Farbe (Daria, 2026-11-05), die App in Lila mit gelbgrünem Kreis. 48 hoch.
-const logoSeite = kcSvg.logoWeiss;
+// Logo für den Seitenkopf: die Wortbildmarke wie in der App (assets/marke/wortbildmarke.svg, Daria 2026-11-15), 48 hoch.
+// seite.css färbt Kater und Schrift in die Textfarbe, wie seit 2026-11-05. Die helle Seite braucht dunkle Schrift.
+const logoSeite = kcSvg.logo;
 const sized = (d, h) => d.svg.replace(/width="[^"]*" height="[^"]*"/, `width="${Math.round((d.w / d.h) * h)}" height="${h}" aria-hidden="true"`);
 // Dateien mit Prüfsumme im Namen-Parameter, damit Browser nach einem Update die neue Fassung laden
 const version = (text) => createHash('sha1').update(text).digest('hex').slice(0, 8);

@@ -40,7 +40,9 @@ button { font: inherit; color: inherit; }
 @media (max-width: 420px) { .marke { font-size: 12px; letter-spacing: 0; } }
 .brand svg { display: block; }
 /* Logo deutlich größer (Daria, 2026-11-07): 52 statt 34 pt hoch, auf dem Handy 34 statt 27 */
-/* Logo im Seitenkopf ganz in einer Farbe (Daria, 2026-11-05): die weiße Wortbildmarke, die Brille im Grund (2026-11-15) */
+/* Logo im Seitenkopf: Kater und Schrift in Textfarbe statt Lila, die Brille im Grund, der Kreis bleibt Gelbgrün
+   (Daria, 2026-11-05; Wortbildmarke seit 2026-11-15, nicht weiß auf Flieder) */
+.brand svg [fill="#7E94FF"] { fill: var(--text); }
 .brand svg [fill="#0A0A09"] { fill: var(--bg); }
 .top-link { font-size: 15px; font-weight: 400; text-decoration: none; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
 .top-link:hover { border-color: var(--muted); }
