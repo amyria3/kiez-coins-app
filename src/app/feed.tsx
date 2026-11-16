@@ -39,7 +39,7 @@ import { GroupBar } from '../components/GroupBar';
 import { AudienceHint, useAudienceHint } from '../components/AudienceHint';
 import { GearsLoader } from '../components/GearsLoader';
 import { SurveyOverlay, useSurveyPrompt } from '../components/SurveyOverlay';
-import { TAB_BAR_SPACE, TabBar } from '../components/TabBar';
+import { TAB_BAR_HEIGHT, TAB_BAR_SPACE, TabBar, tabBarBottom } from '../components/TabBar';
 import { useRoutineEnabled, useRoutineIsStandard } from '../data/routine';
 import { useRequireKiez } from '../data/kiez';
 import { challengeTypes, isTypeActive, useModes, usePostsShown } from '../data/features';
@@ -1128,6 +1128,7 @@ export default function FeedScreen() {
             <RoutineContent
               topPad={space[8]}
               bottomPad={insets.bottom + TAB_BAR_SPACE}
+              floatBottom={tabBarBottom(insets.bottom) + TAB_BAR_HEIGHT + space[8]}
               calendarInList={false}
               onScroll={(e) => {
                 const y = e.nativeEvent.contentOffset.y;

@@ -119,7 +119,6 @@ export const styles = StyleSheet.create({
   handLabel: { ...text.label },
   pressed: { opacity: 0.7 },
   // Derselbe Abstand wie zwischen den Gruppen (32, Daria, 2026-11-14)
-  create: {},
   cal: { gap: space[8] },
   calHead: {
     flexDirection: 'row',

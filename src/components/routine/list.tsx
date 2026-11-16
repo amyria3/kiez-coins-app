@@ -1,18 +1,15 @@
 import { memo } from 'react';
-import { View } from 'react-native';
 
 import { eventDate, type CalendarEvent } from '../../data/calendar';
 import { useCardMotion } from '../../data/features';
 import { allDoneLine, katerFocus, katerLine } from '../../data/katerRoutine';
 import { addDays, kindOf, localDate, type Reminder, type ReminderEnd } from '../../data/reminders';
-import { Button } from '../Button';
 import { KaterCard } from '../Content';
 import { RoutineCalendar } from './calendar';
 import { CalendarCard, EventCard, Group, SavedCard, TaskCard } from './cards';
 import { OLIVE, POWDER } from './constants';
 import { AsideWhenCalendar, Motion, PageLock, Saved, noLock, useLater, useNow } from './shared';
 import { isUrgent, sortByUrgency } from '../../data/urgency';
-import { styles } from './styles';
 
 /**
  * `memo`: Die Seite rendert neu, wenn eine Karte angehoben wird (Scrollen sperren). Die Karten sollen dabei nicht
@@ -24,7 +21,6 @@ export const RoutineList = memo(function RoutineList({
   saved,
   onDone,
   onEnd,
-  onNew,
   onEdit,
   onCopy,
   onChanged,
@@ -38,7 +34,6 @@ export const RoutineList = memo(function RoutineList({
   /** Aufgeben oder abbrechen, mit Rückfrage (Daria, 2026-11-13) */
   /** `confirm` false beim Ziehen: Die Karte hat die Bedeutung schon gezeigt (Daria, 2026-11-13) */
   onEnd: (r: Reminder, how: ReminderEnd, confirm?: boolean) => void;
-  onNew: () => void;
   /** Bearbeiten über das Menü: „•••“ oder Tippen auf die Karte (Daria, 2026-11-13) */
   onEdit: (r: Reminder) => void;
   /** Kopie über „Neue Erinnerung“, vorausgefüllt (Daria, 2026-11-13) */
@@ -104,9 +99,6 @@ export const RoutineList = memo(function RoutineList({
           ))}
         </Group>
       ) : null}
-      <View style={styles.create}>
-        <Button label="Neue Erinnerung" icon="plus" onPress={onNew} />
-      </View>
     </PageLock.Provider>
     </Motion.Provider>
   );

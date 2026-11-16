@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { ActivityIndicator, Alert, Animated, Platform, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Button } from './Button';
@@ -25,11 +25,14 @@ import { color, space } from '../theme/tokens';
 export function RoutineContent({
   topPad = space[16],
   bottomPad,
+  floatBottom,
   onScroll,
   calendarInList = true,
 }: {
   topPad?: number;
   bottomPad: number;
+  /** Abstand des schwebenden „Neue Erinnerung“ vom unteren Rand: direkt über der Leiste (Daria, 2026-11-16) */
+  floatBottom: number;
   /** Im Feed `false`: Dort liegt der Kalender hinter den Umschaltern (Daria, 2026-11-14) */
   calendarInList?: boolean;
   /** Lage der Liste, z. B. damit der Feed erkennt, ob man ganz oben weiter nach oben zieht */
@@ -110,6 +113,33 @@ export function RoutineContent({
   const onEdit = useCallback((r: Reminder) => router.push({ pathname: '/routine/bearbeiten', params: { id: r.id } }), [router]);
   const onCopy = useCallback((r: Reminder) => router.push({ pathname: '/routine/new', params: { von: r.id } }), [router]);
 
+  // „Neue Erinnerung“ (Daria, 2026-11-16): Passt alles auf den Bildschirm, steht der Knopf fest über der Leiste.
+  // Sonst steht er am Ende der Liste; beim Scrollen nach oben fährt er hinter der Leiste hervor und bleibt direkt
+  // darüber, beim Scrollen nach unten fährt er wieder dahinter. Ist der Knopf am Ende der Liste zu sehen, reicht der.
+  const box = useRef({ view: 0, content: 0, inlineY: 0, y: 0 });
+  const [fits, setFits] = useState(true);
+  const [floatShown, setFloatShown] = useState(false);
+  const slide = useRef(new Animated.Value(1)).current;
+  const showFloat = fits || floatShown;
+  useEffect(() => {
+    Animated.timing(slide, { toValue: showFloat ? 0 : 1, duration: 220, useNativeDriver: Platform.OS !== 'web' }).start();
+  }, [showFloat, slide]);
+  const measure = () => {
+    const b = box.current;
+    setFits(b.content <= b.view + 1);
+  };
+  const inlineInView = () => box.current.y + box.current.view - bottomPad > box.current.inlineY;
+  const scrolled = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const y = e.nativeEvent.contentOffset.y;
+    const dy = y - box.current.y;
+    box.current.y = y;
+    if (inlineInView()) setFloatShown(false);
+    else if (dy < -4) setFloatShown(true);
+    else if (dy > 4) setFloatShown(false);
+    onScroll?.(e);
+  };
+  const newButton = <Button label="Neue Erinnerung" icon="plus" onPress={onNew} />;
+
   return (
     <View style={styles.screen}>
       {list === undefined ? (
@@ -136,8 +166,16 @@ export function RoutineContent({
           // Sicherung: Mit dem Finger endet die Sperre immer, damit die Seite nie stehen bleibt (Daria, 2026-11-13)
           onTouchEnd={() => lockPage(false)}
           onTouchCancel={() => lockPage(false)}
-          onScroll={onScroll}
+          onScroll={scrolled}
           scrollEventThrottle={16}
+          onLayout={(e) => {
+            box.current.view = e.nativeEvent.layout.height;
+            measure();
+          }}
+          onContentSizeChange={(_, h) => {
+            box.current.content = h;
+            measure();
+          }}
           contentContainerStyle={[styles.content, styles.contentFlat, { paddingTop: topPad, paddingBottom: 0 }]}>
           <RoutineList
             list={list}
@@ -145,18 +183,37 @@ export function RoutineContent({
             saved={saved}
             onDone={onDone}
             onEnd={end}
-            onNew={onNew}
             onEdit={onEdit}
             onCopy={onCopy}
             onChanged={reload}
             onDragLock={lockPage}
             showCalendar={calendarInList}
           />
+          {/* Passt alles auf den Bildschirm oder schwebt der Knopf gerade, ist dieser hier unsichtbar (Platz bleibt,
+              damit nichts springt). Sonst lugte er neben der Leiste hervor. */}
+          <View
+            style={showFloat ? styles.hidden : undefined}
+            pointerEvents={showFloat ? 'none' : 'auto'}
+            onLayout={(e) => {
+              box.current.inlineY = e.nativeEvent.layout.y;
+            }}>
+            {newButton}
+          </View>
           {/* Platz unter „Neue Erinnerung“ als eigenes Element statt Polsterung: Safari ließ die Polsterung unten in
               der scrollbaren Fläche weg, der Button lag hinter der Leiste (Daria, 2026-11-13) */}
           <View style={{ height: Math.max(0, bottomPad - space[32]) }} />
         </ScrollView>
       )}
+      {list && (list.length || events.length || saved.length) ? (
+        <Animated.View
+          pointerEvents={showFloat ? 'box-none' : 'none'}
+          style={[
+            styles.float,
+            { bottom: floatBottom, transform: [{ translateY: slide.interpolate({ inputRange: [0, 1], outputRange: [0, floatBottom + 72] }) }] },
+          ]}>
+          {newButton}
+        </Animated.View>
+      ) : null}
     </View>
   );
 }
@@ -168,4 +225,6 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: space[20], paddingTop: space[16], gap: space[24] },
   /** Mehr Luft zwischen Kalender und Gruppen */
   contentFlat: { gap: space[32] },
+  hidden: { opacity: 0 },
+  float: { position: 'absolute', left: space[20], right: space[20] },
 });

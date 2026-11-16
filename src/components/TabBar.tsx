@@ -62,7 +62,7 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
   }, [currentUserId, mode]);
   return (
     <View
-      style={[styles.wrap, { bottom: Math.max(insets.bottom, space[16]) }]}
+      style={[styles.wrap, { bottom: tabBarBottom(insets.bottom) }]}
       pointerEvents="box-none"
     >
       <View style={styles.bar} accessibilityRole="tablist">
@@ -174,6 +174,10 @@ const navSize = (full: number, selected: boolean) => (selected ? full : Math.rou
 
 /** Platz unter Listen, damit die schwebende Leiste nichts verdeckt. */
 export const TAB_BAR_SPACE = 96;
+
+/** Abstand der Leiste vom unteren Rand und ihre Höhe (Knopf 48 + Innenabstand), für Knöpfe direkt darüber */
+export const tabBarBottom = (insetBottom: number) => Math.max(insetBottom, space[16]);
+export const TAB_BAR_HEIGHT = 48 + 2 * space[6] + 2;
 
 /** Breite der Kamera oben rechts; feed.tsx rückt die Pille um so viel ein */
 export const CAMERA_W = 76;

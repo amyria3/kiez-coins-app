@@ -27,7 +27,7 @@ export default function Routine() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <NavigationBar title="Routine" variant="back" onLeadingPress={goBack} />
-      <RoutineContent bottomPad={insets.bottom + space[24]} />
+      <RoutineContent bottomPad={insets.bottom + space[24]} floatBottom={insets.bottom + space[16]} />
     </View>
   );
 }
