@@ -27,6 +27,8 @@ import { scrollIntoView } from './Nudge';
 const MIN_KEYBOARD_HEIGHT = 120;
 
 const KeyboardHeightContext = createContext(0);
+/** Browser: Teil der Tastatur, um den die Seite selbst noch nicht kleiner geworden ist (siehe useWebKeyboard) */
+const KeyboardInsetContext = createContext(0);
 
 /** Höhe der offenen Tastatur in Punkten, 0 wenn sie zu ist */
 export function useKeyboardHeight() {
@@ -35,14 +37,17 @@ export function useKeyboardHeight() {
 
 export function KeyboardProvider({ children }: { children: ReactNode }) {
   const [height, setHeight] = useState(0);
+  const [webInset, setWebInset] = useState(0);
   useNativeKeyboard(setHeight);
-  useWebKeyboard(setHeight);
+  useWebKeyboard(setHeight, setWebInset);
   const insets = useSafeAreaInsets();
   // Die Tastatur liegt über dem Home-Balken: Ohne diese Korrektur bliebe über ihr ein leerer Streifen
   const value = height > 0 && insets.bottom > 0 ? { ...insets, bottom: 0 } : insets;
   return (
     <KeyboardHeightContext.Provider value={height}>
-      <SafeAreaInsetsContext.Provider value={value}>{children}</SafeAreaInsetsContext.Provider>
+      <KeyboardInsetContext.Provider value={webInset}>
+        <SafeAreaInsetsContext.Provider value={value}>{children}</SafeAreaInsetsContext.Provider>
+      </KeyboardInsetContext.Provider>
     </KeyboardHeightContext.Provider>
   );
 }
@@ -59,9 +64,9 @@ type KeyboardAreaProps = {
 
 /** Bereich, der über der Tastatur bleibt. Siehe Kommentar oben. */
 export function KeyboardArea({ style, children, overlay }: KeyboardAreaProps) {
-  const height = useKeyboardHeight();
+  const inset = useContext(KeyboardInsetContext);
   if (Platform.OS === 'web') {
-    return <View style={[style, overlay && height ? { paddingBottom: height } : null]}>{children}</View>;
+    return <View style={[style, overlay && inset ? { paddingBottom: inset } : null]}>{children}</View>;
   }
   return (
     <KeyboardAvoidingView style={style} behavior="padding">
@@ -101,24 +106,36 @@ function revealFocusedInput() {
 }
 
 /** Browser: Höhe aus dem sichtbaren Ausschnitt, Seite darauf verkleinern und oben halten */
-function useWebKeyboard(setHeight: (height: number) => void) {
+function useWebKeyboard(setHeight: (height: number) => void, setInset: (inset: number) => void) {
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof window === 'undefined' || !window.visualViewport) return;
     const viewport = window.visualViewport;
     const root = document.documentElement;
     // Höchster sichtbarer Ausschnitt bei geschlossener Tastatur, je Fensterbreite (Drehen setzt ihn neu)
-    let full = { width: window.innerWidth, height: viewport.height };
+    let full = { width: window.innerWidth, height: viewport.height, page: root.clientHeight };
     let current = 0;
+    let currentInset = 0;
     let frame = 0;
     const update = () => {
-      if (window.innerWidth !== full.width) full = { width: window.innerWidth, height: viewport.height };
+      if (window.innerWidth !== full.width) full = { width: window.innerWidth, height: viewport.height, page: root.clientHeight };
       // Manche Browser verkleinern innerHeight mit, andere nicht. Der größere Wert ist die Tastatur.
       const covered = Math.round(Math.max(window.innerHeight - viewport.height, full.height - viewport.height));
       const next = covered > MIN_KEYBOARD_HEIGHT ? covered : 0;
-      if (!next) full.height = Math.max(full.height, viewport.height);
+      if (!next) {
+        full.height = Math.max(full.height, viewport.height);
+        full.page = Math.max(full.page, root.clientHeight);
+      }
+      // Die Web-App auf dem iPhone-Home-Bildschirm verkleinert bei offener Tastatur manchmal schon die Seite selbst
+      // (100 % von html). Zog die App die Tastatur dann noch einmal ab, blieb für den Inhalt fast nichts übrig, und
+      // das Formular war leer (Daria, 2026-11-16). Abgezogen wird nur, was die Seite nicht schon selbst abgibt.
+      const inset = next ? Math.max(0, next - Math.max(0, full.page - root.clientHeight)) : 0;
+      if (inset !== currentInset) {
+        currentInset = inset;
+        root.style.setProperty('--keyboard-inset', `${inset}px`);
+        setInset(inset);
+      }
       if (next !== current) {
         current = next;
-        root.style.setProperty('--keyboard-inset', `${next}px`);
         setHeight(next);
         if (next) {
           cancelAnimationFrame(frame);
@@ -160,7 +177,7 @@ function useWebKeyboard(setHeight: (height: number) => void) {
       window.removeEventListener('focusin', onFocusIn);
       root.style.removeProperty('--keyboard-inset');
     };
-  }, [setHeight]);
+  }, [setHeight, setInset]);
 }
 
 /** Eingabe-Arten ohne Tastatur */
