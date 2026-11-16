@@ -41,7 +41,6 @@ const STATE_HINT: Record<PushState, string | null> = {
   denied: 'Dein Browser blockiert Mitteilungen für KiezCoins. Erlaube sie in den Einstellungen des Browsers oder des Handys.',
   install:
     'Auf dem iPhone kommen Push-Nachrichten nur in der Web-App auf dem Home-Bildschirm an. Öffne KiezCoins in Safari, tippe auf „Teilen“ › „Zum Home-Bildschirm“ und schalte sie dort ein.',
-  'app-update': 'In der Android-App kommen Push-Nachrichten mit dem nächsten Update. Bis dahin klappt es in der Web-App.',
   unsupported: 'Dieser Browser kann keine Push-Nachrichten empfangen.',
 };
 

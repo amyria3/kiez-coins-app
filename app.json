@@ -70,7 +70,14 @@
           }
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/android-icon-monochrome.png",
+          "color": "#8F90FA"
+        }
+      ]
     ],
     "scheme": "kiezcoins",
     "backgroundColor": "#1F2123",

@@ -1,11 +1,12 @@
 import { Platform } from 'react-native';
 
 import { SUPABASE_URL, supabase } from '../lib/supabase';
+import { disableNativePush, enableNativePush, nativePushDenied, nativePushOn } from './pushNative';
 
 /**
  * Push-Nachrichten (Daria, 2026-11-16, Migration 20261116000300_push, Edge Function `push`).
  * Web-App: Web-Push über den Service Worker `public/sw.js`. Auf dem iPhone geht das nur in der Web-App auf dem
- * Home-Bildschirm (ab iOS 16.4). Android-App: Expo-Push (`src/data/pushNative.ts`, kommt mit dem nächsten Build).
+ * Home-Bildschirm (ab iOS 16.4). Android-App: Expo-Push (`src/data/pushNative.native.ts`).
  * Die Datenbank entscheidet, wer wann etwas bekommt (`queue_push`), die App meldet nur Geräte an und ab.
  */
 
@@ -18,10 +19,9 @@ export type PushSettings = Record<PushCategory, boolean>;
  * - `off`: möglich, aber nicht angemeldet
  * - `denied`: im Browser oder System verboten
  * - `install`: iPhone im Browser, geht erst in der Web-App auf dem Home-Bildschirm
- * - `app-update`: Android-App, Push kommt mit dem nächsten Update
  * - `unsupported`: Browser kann kein Web-Push
  */
-export type PushState = 'on' | 'off' | 'denied' | 'install' | 'app-update' | 'unsupported';
+export type PushState = 'on' | 'off' | 'denied' | 'install' | 'unsupported';
 
 const isIos = () => typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
 const isStandalone = () => {
@@ -37,7 +37,7 @@ async function registration(): Promise<ServiceWorkerRegistration> {
 }
 
 export async function pushState(): Promise<PushState> {
-  if (Platform.OS !== 'web') return 'app-update';
+  if (Platform.OS !== 'web') return (await nativePushOn()) ? 'on' : (await nativePushDenied()) ? 'denied' : 'off';
   if (!webPushSupported()) return isIos() && !isStandalone() ? 'install' : 'unsupported';
   if (Notification.permission === 'denied') return 'denied';
   const reg = await navigator.serviceWorker.getRegistration('/');
@@ -55,7 +55,7 @@ const toKey = (base64url: string) => {
  * Gibt den neuen Stand zurück.
  */
 export async function enablePush(): Promise<PushState> {
-  if (Platform.OS !== 'web') return 'app-update';
+  if (Platform.OS !== 'web') return (await enableNativePush()) ? 'on' : pushState();
   if (!webPushSupported()) return pushState();
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') return permission === 'denied' ? 'denied' : 'off';
@@ -80,7 +80,11 @@ export async function enablePush(): Promise<PushState> {
 
 /** Dieses Gerät abmelden */
 export async function disablePush(): Promise<PushState> {
-  if (Platform.OS !== 'web' || !webPushSupported()) return pushState();
+  if (Platform.OS !== 'web') {
+    await disableNativePush();
+    return pushState();
+  }
+  if (!webPushSupported()) return pushState();
   const reg = await navigator.serviceWorker.getRegistration('/');
   const sub = await reg?.pushManager.getSubscription();
   if (sub) {
