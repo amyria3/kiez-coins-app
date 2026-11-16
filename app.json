@@ -35,6 +35,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "de.kiezcoins.app",
+      "googleServicesFile": "./google-services.json",
       "versionCode": 1
     },
     "web": {
