@@ -9,6 +9,7 @@ import { Text } from './T';
 import { t } from '../data/texts';
 import { GearsLoader } from './GearsLoader';
 import { PEEK_DURATION, SWEEP_DURATION, KaterStage } from './KaterStage';
+import { START_LOGO_MS, StartLogo } from './StartLogo';
 
 /**
  * Erst fegen, dann einmal über die Brille schauen und lächeln (Daria, 2026-11-09). Danach noch kurz stehen bleiben,
@@ -24,8 +25,11 @@ function sweepSaying(): KaterSaying {
   return { text: e?.text ?? '', aktion: 'fegen' };
 }
 const FADE_OUT_MS = 320;
-/** Erst drehen sich die Zahnräder, dann taucht der Kater auf. */
-const KATER_AFTER_MS = 600;
+/**
+ * Erst drehen sich die Zahnräder, und die Buchstaben des Logos fallen ins Bild (Daria, 2026-11-16, statt „Moment“).
+ * Steht der Schriftzug, bleibt er kurz stehen, dann taucht der Kater auf.
+ */
+const KATER_AFTER_MS = START_LOGO_MS + 350;
 const FADE_IN_MS = 280;
 /** Kater und Zahnräder stehen mindestens so lange zusammen auf dem Bild (Daria, 2026-10-24) */
 const TOGETHER_MS = 1000;
@@ -124,7 +128,7 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
             <KaterStage width={katerWidth} saying={saying} take={1} withoutBubble={!saying.text} peekAfter />
           </Animated.View>
         ) : (
-          <Moment />
+          <StartLogo width={Math.round(Math.min(240, katerWidth))} />
         )}
       </Pressable>
       <Animated.View
