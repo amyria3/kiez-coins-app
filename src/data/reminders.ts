@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { normalizeLink } from '../lib/places';
 import { supabase } from '../lib/supabase';
-import { weekStart, dayStart, isoWeekday, kindOf, localDate, addDays } from './reminderDates';
+import { weekStart, dayStart, isoWeekday, kindOf, localDate, addDays, routineLabel } from './reminderDates';
 export { weekStart, isoWeekday, kindOf, goalOf, localDate, addDays, dueToday, dueAt, routineLabel, capitalize, TIME, parseDate } from './reminderDates';
 export type { ReminderKind } from './reminderDates';
 
@@ -35,6 +35,8 @@ export type Reminder = {
   place?: string;
   phone?: string;
   link?: string;
+  /** Mit „Starten (mit Post)“ begonnene Me-Challenge, solange sie offen ist (Daria, 2026-11-16) */
+  startedChallengeId?: string;
   /** Erledigt in dieser Woche (ab Montag) */
   doneThisWeek: number;
   doneToday: boolean;
@@ -68,6 +70,7 @@ type Row = {
   place?: string | null;
   phone?: string | null;
   link?: string | null;
+  started_challenge_id?: string | null;
 };
 
 /** Lädt die eigenen Erinnerungen. `null`, wenn die Migration fehlt oder etwas schiefgeht. */
@@ -91,6 +94,12 @@ export async function loadReminders(): Promise<Reminder[] | null> {
         .gte('done_at', since.toISOString())
     : { data: [] as { reminder_id: string; done_at: string }[] };
   const doneRows = (done ?? []) as { reminder_id: string; done_at: string }[];
+  // Begonnene Me-Challenges zählen nur, solange sie offen und nicht fertig sind
+  const startedIds = rows.map((r) => r.started_challenge_id).filter((x): x is string => !!x);
+  const { data: started } = startedIds.length
+    ? await supabase.from('challenges').select('id').in('id', startedIds).eq('type', 'before_after').in('status', ['draft', 'open']).is('finished_at', null)
+    : { data: [] as { id: string }[] };
+  const openStarted = new Set(((started ?? []) as { id: string }[]).map((c) => c.id));
   return rows.map((r) => {
     const mine = doneRows.filter((d) => d.reminder_id === r.id);
     return {
@@ -107,6 +116,7 @@ export async function loadReminders(): Promise<Reminder[] | null> {
       place: r.place || undefined,
       phone: r.phone || undefined,
       link: r.link || undefined,
+      startedChallengeId: r.started_challenge_id && openStarted.has(r.started_challenge_id) ? r.started_challenge_id : undefined,
       doneThisWeek: mine.length,
       doneToday: mine.some((d) => new Date(d.done_at) >= today),
     };
@@ -297,7 +307,11 @@ export async function markReminderDone(id: string): Promise<string | null> {
  * Me-Challenge. Der nächste Post, der daraus entsteht, bekommt die Markierung und hängt an der Erledigung.
  * Schließt das Blatt ohne Post, verfällt der Auftrag (`clearRoutinePost`).
  */
-export type RoutinePost = { doneId: string; label: string; title: string; text: string };
+/**
+ * `doneId`: nach dem Erledigen, der Post hängt an der Erledigung. `startReminderId`: „Starten (mit Post)“
+ * (Daria, 2026-11-16), die Erinnerung merkt sich die Me-Challenge für „Fertig – mit Post“.
+ */
+export type RoutinePost = { doneId?: string; startReminderId?: string; label: string; title: string; text: string };
 let pendingPost: RoutinePost | null = null;
 export const setRoutinePost = (post: RoutinePost) => {
   pendingPost = post;
@@ -311,8 +325,32 @@ export async function attachRoutinePost(challengeId: string): Promise<void> {
   const post = pendingPost;
   pendingPost = null;
   if (!post) return;
+  if (post.startReminderId) {
+    await supabase
+      .from('reminders')
+      .update({ started_challenge_id: challengeId })
+      .eq('id', post.startReminderId)
+      .then(() => undefined, () => undefined);
+    return;
+  }
+  if (!post.doneId) return;
+  await linkRoutinePost(post.doneId, challengeId, post.label);
+}
+
+/** Erledigung mit dem Post verknüpfen und die Markierung setzen. Fehler bleiben still, der Post steht ja. */
+export const linkRoutinePost = (doneId: string, challengeId: string, label: string) =>
+  supabase
+    .rpc('link_routine_post', { p_done_id: doneId, p_challenge_id: challengeId, p_label: label })
+    .then(() => undefined, () => undefined);
+
+/** „Fertig – mit Post“: Erledigung an die begonnene Me-Challenge hängen und die Erinnerung davon lösen */
+export async function finishStartedPost(r: Reminder, doneId: string): Promise<void> {
+  if (!r.startedChallengeId) return;
+  await linkRoutinePost(doneId, r.startedChallengeId, routineLabel(r));
   await supabase
-    .rpc('link_routine_post', { p_done_id: post.doneId, p_challenge_id: challengeId, p_label: post.label })
+    .from('reminders')
+    .update({ started_challenge_id: null })
+    .eq('id', r.id)
     .then(() => undefined, () => undefined);
 }
 

@@ -7,14 +7,16 @@ import { Button } from '../../components/Button';
 import { KaterMessage } from '../../components/KaterMessage';
 import { NavigationBar } from '../../components/NavigationBar';
 import { Notice } from '../../components/Content';
-import { capitalize, goalOf, loadReminders, markReminderDone, routineLabel, setRoutinePost, type Reminder } from '../../data/reminders';
+import { capitalize, finishStartedPost, goalOf, loadReminders, markReminderDone, setRoutinePost, type Reminder } from '../../data/reminders';
 import { t } from '../../data/texts';
 import { useGoBack } from '../../lib/goBack';
 import { color, space } from '../../theme/tokens';
 
 /**
- * Route `routine/[id]` (Daria, 2026-11-10): Erledigt melden. Standard ist das Posten als Me-Challenge mit Titel
- * und Beschreibung als Vorher-Text, die Markierung kommt als Pille dazu. Abhaken ohne Post geht auch.
+ * Route `routine/[id]` (Daria, 2026-11-10): Erledigt melden.
+ * Seit 2026-11-16 (Daria): „Starten (mit Post)“ postet das Vorher einer Me-Challenge mit Titel und Beschreibung,
+ * ohne abzuhaken. Danach steht hier „Fertig – mit Post“: Es hakt ab, hängt die Erledigung an die Me-Challenge und
+ * öffnet das Nachher. „Nur abhaken“ geht immer. Den Strich für die Woche gibt es erst mit Fertig oder Abhaken.
  */
 /** Gehört zu „Me & Myself“: gelb wie die Routine (Daria, 2026-11-13) */
 export default function ReminderDoneScreen() {
@@ -28,23 +30,37 @@ function ReminderDone() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [reminder, setReminder] = useState<Reminder | null | undefined>(undefined);
-  const [busy, setBusy] = useState<'post' | 'check' | null>(null);
+  const [busy, setBusy] = useState<'start' | 'post' | 'check' | null>(null);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     loadReminders().then((all) => setReminder(all?.find((r) => r.id === id) ?? null), () => setReminder(null));
   }, [id]);
 
+  // Starten: Vorher posten, noch nicht abhaken. Das Erstellen-Blatt öffnet sich als Me-Challenge.
+  const start = () => {
+    if (!reminder) return;
+    setBusy('start');
+    setRoutinePost({ startReminderId: reminder.id, label: '', title: capitalize(reminder.want), text: reminder.description ?? '' });
+    router.dismissTo({ pathname: '/feed', params: { erstellen: '1' } });
+  };
+
   const finish = async (post: boolean) => {
     if (!reminder) return;
     setBusy(post ? 'post' : 'check');
     setFailed(false);
     const doneId = await markReminderDone(reminder.id);
+    if (!doneId) {
+      setBusy(null);
+      return setFailed(true);
+    }
+    if (!post || !reminder.startedChallengeId) {
+      setBusy(null);
+      return router.back();
+    }
+    await finishStartedPost(reminder, doneId);
     setBusy(null);
-    if (!doneId) return setFailed(true);
-    if (!post) return router.back();
-    setRoutinePost({ doneId, label: routineLabel(reminder), title: capitalize(reminder.want), text: reminder.description ?? '' });
-    router.dismissTo({ pathname: '/feed', params: { erstellen: '1' } });
+    router.replace({ pathname: '/before-after/[id]', params: { id: reminder.startedChallengeId, schritt: 'nachher' } });
   };
 
   const goal = reminder ? goalOf(reminder) : 0;
@@ -75,7 +91,12 @@ function ReminderDone() {
             // Beide Knöpfe als eine Gruppe dicht beieinander (Daria, 2026-11-14)
             action={
               <View style={styles.buttons}>
-                <Button label="Als Me-Challenge posten" icon="camera" busy={busy === 'post'} disabled={!!busy} onPress={() => finish(true)} />
+                {/* „Fertig – mit Post“ nur, wenn mit „Starten“ schon ein Vorher steht (Daria, 2026-11-16) */}
+                {reminder.startedChallengeId ? (
+                  <Button label="Fertig – mit Post" icon="camera" busy={busy === 'post'} disabled={!!busy} onPress={() => finish(true)} />
+                ) : (
+                  <Button label="Starten (mit Post)" icon="camera" busy={busy === 'start'} disabled={!!busy} onPress={start} />
+                )}
                 <Button label="Nur abhaken" variant="secondary" busy={busy === 'check'} disabled={!!busy} onPress={() => finish(false)} />
                 {failed ? <Notice variant="warning" message="Abhaken hat nicht geklappt. Versuch es bitte noch einmal." /> : null}
               </View>
