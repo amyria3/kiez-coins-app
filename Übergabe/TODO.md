@@ -65,7 +65,7 @@ Sofort:
 - [x] (16.11.2026) GitHub: Settings › Code security › CodeQL „Default setup“ und Dependabot alerts einschalten.
 - [x] (12.11.2026, Daria hat PR #352 gemergt) PR mit Dependabot und `security.txt` freigeben. Noch im Browser prüfen: `https://kiezcoins.de/.well-known/security.txt` lädt.
 - [x] (16.11.2026, Daria: „Erledige was du erledigen kannst“) Maßnahmen aus der Risikobewertung entscheiden. Umgesetzt: Workflows gehärtet, Weiterposten ohne Weiterleitungen, Rechte ohne Anmeldung (Migration `20261116000400_anon_rechte`), auf `push-android` signierte Updates, Anmeldung im geschützten Speicher und `npm audit fix`.
-- [ ] Supabase: Migration `20261116000400_anon_rechte.sql` ausführen und die Funktion `weiterposten` neu hochladen (`npx supabase functions deploy weiterposten`).
+- [x] (16.11.2026, Daria) Supabase: Migration `20261116000400_anon_rechte.sql` ausführen und die Funktion `weiterposten` neu hochladen (`npx supabase functions deploy weiterposten`).
 - [ ] Vor dem Mergen von `push-android`: GitHub › Settings › Secrets and variables › Actions › neues Secret `UPDATES_PRIVATE_KEY` mit dem Inhalt von `KiezCoins-Fotos/geheim-codesigning/private-key.pem`. Den Schlüssel zusätzlich im Passwort-Manager sichern; geht er verloren, nehmen installierte APKs keine Updates mehr an.
 - [ ] Captcha für Konten ohne E-Mail (Daria: „wäre gut“): Supabase prüft das Captcha bei jeder Anmeldung und Registrierung, nicht nur bei Testkonten. Entscheiden, ob das für alle gelten soll; dann Cloudflare Turnstile anlegen (Site Key und Secret Key), Claude baut das Widget in Web und App.
 
