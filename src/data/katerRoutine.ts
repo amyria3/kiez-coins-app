@@ -34,6 +34,10 @@ export function katerLine(r: Reminder, now = new Date()): string {
     return t('Miau! Vergiss nicht: Heute wolltest Du {want}.', { want });
   }
   if (done >= goal) return t('{goal} von {goal}! Du wolltest {want}, und Du hast es durchgezogen. Ich schnurre.', { want, goal });
+  // Noch kein Strich: Mit viel Zeit bleibt der Kater locker, erst wenn es knapp wird, drängelt er (Daria, 2026-11-16).
+  const daysLeft = 8 - isoWeekday(now);
+  if (done === 0 && daysLeft - goal >= 2)
+    return t('Du willst diese Woche {goal}× {want}. Noch {days} Tage, ich lehne mich entspannt zurück.', { want, goal, days: daysLeft });
   if (done === 0) return t('Shshshsh, Du wolltest diese Woche {goal}× {want}. Ich sehe noch keinen einzigen Strich.', { want, goal });
   if (goal - done === 1) return t('Nur noch einmal {want}, dann gehört die Woche Dir. Ich hab schon die Brille geputzt.', { want });
   return t('{done} von {goal}! Du wolltest {want}, und es läuft. Noch {rest}×.', { want, goal, done, rest: goal - done });
