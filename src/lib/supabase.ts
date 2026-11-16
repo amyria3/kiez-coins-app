@@ -1,6 +1,6 @@
 import { AppState, Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
+import { authStorage } from './authStorage';
 
 // Supabase-Projekt „KiezCoins Data“. URL und Publishable Key sind öffentlich und dürfen in die App;
 // geschützt werden die Daten über Row Level Security. Für ein anderes Projekt in `.env.local` setzen:
@@ -14,7 +14,8 @@ export const SUPABASE_URL = supabaseUrl;
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     // Sitzung bleibt auf dem Gerät gespeichert, man bleibt also nach dem Neustart angemeldet.
-    storage: AsyncStorage,
+    // In der App im geschützten Speicher des Geräts, im Web im Browser (src/lib/authStorage*.ts).
+    storage: authStorage,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,
