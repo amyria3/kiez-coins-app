@@ -29,6 +29,7 @@ export function katerLine(r: Reminder, now = new Date()): string {
   if (r.weekdays) {
     if (r.doneToday) return t('Heute schon erledigt: {want}. Leg die Pfoten hoch.', { want });
     if (!r.weekdays.includes(isoWeekday(now))) return allDoneLine();
+    if (r.untilTime) return t('Miau! Vergiss nicht: {when} wolltest Du {want}.', { want, when: whenText({ ...r, onDate: localDate(now) }, now) });
     if (r.atTime) return t('Miau! Vergiss nicht: Heute um {time} wolltest Du {want}.', { want, time: r.atTime });
     return t('Miau! Vergiss nicht: Heute wolltest Du {want}.', { want });
   }
@@ -67,11 +68,13 @@ export function dayName(date: string, now = new Date()): string {
   return `${weekdayShort(wd)}, ${String(d).padStart(2, '0')}.${String(m).padStart(2, '0')}.`;
 }
 
-/** „4× pro Woche“, „Mo, Mi, Fr · 18:00“ oder „Morgen um 9:00“ */
+/** „4× pro Woche“, „Mo, Mi, Fr · 18:00“, „Mo, Mi bis 10:00“ oder „Morgen um 9:00“ */
 export function goalText(r: Reminder): string {
   if (r.onDate) return `${whenText(r)} · ${r.required === false ? t('Optional') : t('Pflicht')}`;
   if (r.perWeek) return t('{n}× pro Woche', { n: r.perWeek });
   const days = (r.weekdays ?? []).map(weekdayShort).join(', ');
+  if (r.atTime && r.untilTime) return t('{day} von {from} bis {until}', { day: days, from: r.atTime, until: r.untilTime });
+  if (r.untilTime) return t('{day} bis {until}', { day: days, until: r.untilTime });
   return r.atTime ? `${days} · ${r.atTime}` : days;
 }
 
@@ -154,6 +157,14 @@ export function katerMood(r: Reminder, now = new Date()): KaterMood {
     if (missed === 2) return dueToday ? 'sauer' : 'enttäuscht';
     if (missed === 1) return 'etwas besorgt';
     if (!dueToday) return doneBefore > 0 ? 'optimistisch' : 'chillig';
+    // Mit „bis“ zählt die Zeit bis dahin, wie bei einmaligen (Daria, 2026-11-16)
+    if (r.untilTime) {
+      const left = minutesOf(r.untilTime) - nowMin;
+      if (left < 0) return 'enttäuscht';
+      if (left <= 60) return 'unruhig';
+      if (left <= 180) return 'ungeduldig';
+      return doneBefore > 0 ? 'optimistisch' : 'entspannt';
+    }
     if (nowMin >= 20 * 60) return 'unruhig';
     if (nowMin >= 15 * 60) return 'ungeduldig';
     return doneBefore > 0 ? 'optimistisch' : 'entspannt';

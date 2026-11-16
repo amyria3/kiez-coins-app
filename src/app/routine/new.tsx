@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
@@ -7,11 +6,11 @@ import { FieldGroup, Notice, QuestionHint } from '../../components/Content';
 import { Chip, ChipGroup, TextField } from '../../components/Form';
 import { NudgeArea, useNudge } from '../../components/Nudge';
 import { ReminderExtrasFields, type Extras } from '../../components/ReminderExtras';
+import { kindOfTimes, TimeChoice, timesOf, timesReady, type TimeKind } from '../../components/routine/TimeChoice';
 import { SubScreen } from '../../components/Screen';
 import { WEEKDAYS, weekdayShort } from '../../data/katerRoutine';
 import { addDays, createReminder, loadReminders, localDate, parseDate, TIME } from '../../data/reminders';
 import { useGoBack } from '../../lib/goBack';
-import { space } from '../../theme/tokens';
 
 /**
  * Route `routine/new` (Daria, 2026-11-10): Erinnerung anlegen. Titel nach „Ich will …“, damit der Kater ihn in
@@ -34,14 +33,14 @@ function NewReminder() {
   const [mode, setMode] = useState<'once' | 'week' | 'days'>('once');
   const [day, setDay] = useState<'today' | 'tomorrow' | 'other'>('today');
   const [date, setDate] = useState('');
-  const [timeKind, setTimeKind] = useState<'until' | 'at' | 'range' | 'none'>('none') // Standard: ohne Uhrzeit (Daria, 2026-11-14);
+  // Standard: ohne Uhrzeit (Daria, 2026-11-14). Gilt für einmalige und feste Tage (Daria, 2026-11-16).
+  const [timeKind, setTimeKind] = useState<TimeKind>('none');
   const [from, setFrom] = useState('');
   // Termin an einem Tag: Pflicht oder optional (Daria, 2026-11-10)
   const [required, setRequired] = useState(true);
   const [until, setUntil] = useState('');
   const [perWeek, setPerWeek] = useState(3);
   const [days, setDays] = useState<number[]>([]);
-  const [time, setTime] = useState('');
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   // Grauer Speichern-Button zeigt aufs erste Feld, das noch fehlt (Daria, 2026-11-13: sonst passiert beim Tippen nichts)
@@ -50,7 +49,6 @@ function NewReminder() {
   const fromField = useNudge();
   const untilField = useNudge();
   const daysField = useNudge();
-  const timeField = useNudge();
 
   // Kopie einer Karte (Daria, 2026-11-13): `von` ist die id; das Formular übernimmt Titel, Beschreibung, Zeit,
   // Ort, Telefon und Link. Liegt der Tag in der Vergangenheit, steht „Heute“ da.
@@ -76,6 +74,9 @@ function NewReminder() {
       setWant(r.want);
       setDescription(r.description ?? '');
       setExtras({ place: r.place ?? '', phone: r.phone ?? '', link: r.link ?? '' });
+      setTimeKind(kindOfTimes(r.atTime, r.untilTime));
+      setFrom(r.atTime ?? '');
+      setUntil(r.untilTime ?? '');
       if (r.onDate) {
         setMode('once');
         const today = localDate();
@@ -87,14 +88,10 @@ function NewReminder() {
           setDay('other');
           setDate(`${d}.${m}.${y}`);
         }
-        setTimeKind(r.atTime && r.untilTime ? 'range' : r.atTime ? 'at' : r.untilTime ? 'until' : 'none');
-        setFrom(r.atTime ?? '');
-        setUntil(r.untilTime ?? '');
         setRequired(r.required !== false);
       } else if (r.weekdays?.length) {
         setMode('days');
         setDays(r.weekdays);
-        setTime(r.atTime ?? '');
       } else {
         setMode('week');
         setPerWeek(r.perWeek ?? 1);
@@ -105,16 +102,10 @@ function NewReminder() {
     };
   }, [von]);
 
-  const timeOk = !time.trim() || TIME.test(time.trim());
-  const fromOk = !from.trim() || TIME.test(from.trim());
-  const untilOk = !until.trim() || TIME.test(until.trim());
   const onDate = day === 'today' ? localDate() : day === 'tomorrow' ? localDate(addDays(1)) : parseDate(date);
-  const onceReady =
-    !!onDate &&
-    (timeKind === 'none' ? true : timeKind === 'until' ? TIME.test(until.trim()) : timeKind === 'at' ? TIME.test(from.trim()) : TIME.test(from.trim()) && TIME.test(until.trim()));
+  const timeReady = timesReady(timeKind, from, until);
   const ready =
-    want.trim().length > 0 && (mode === 'once' ? onceReady : mode === 'week' || (days.length > 0 && timeOk));
-  const hhmm = (v: string) => v.trim().padStart(5, '0');
+    want.trim().length > 0 && (mode === 'once' ? !!onDate && timeReady : mode === 'week' || (days.length > 0 && timeReady));
 
   const save = async () => {
     setBusy(true);
@@ -124,8 +115,7 @@ function NewReminder() {
       description,
       ...extras,
       onDate: mode === 'once' ? onDate ?? undefined : undefined,
-      atTime: mode === 'once' ? (timeKind === 'at' || timeKind === 'range' ? hhmm(from) : undefined) : mode === 'days' && time.trim() ? hhmm(time) : undefined,
-      untilTime: mode === 'once' && (timeKind === 'until' || timeKind === 'range') ? hhmm(until) : undefined,
+      ...(mode === 'week' ? {} : timesOf(timeKind, from, until)),
       required: mode === 'once' ? required : undefined,
       perWeek: mode === 'week' ? perWeek : undefined,
       weekdays: mode === 'days' ? days : undefined,
@@ -138,14 +128,11 @@ function NewReminder() {
   const whyDisabled = () => {
     if (busy) return;
     if (!want.trim()) return wantField.nudge('Schreib, was Du vorhast.');
-    if (mode === 'once') {
-      if (!onDate) return dateField.nudge('Gib ein Datum ein, z. B. 24.12.');
+    if (mode === 'once' && !onDate) return dateField.nudge('Gib ein Datum ein, z. B. 24.12.');
+    if (mode === 'days' && !days.length) return daysField.nudge('Wähl mindestens einen Tag.');
+    if (mode !== 'week') {
       if ((timeKind === 'at' || timeKind === 'range') && !TIME.test(from.trim())) return fromField.nudge('Gib eine Uhrzeit ein, z. B. 9:00.');
       if ((timeKind === 'until' || timeKind === 'range') && !TIME.test(until.trim())) return untilField.nudge('Gib eine Uhrzeit ein, z. B. 18:00.');
-    }
-    if (mode === 'days') {
-      if (!days.length) return daysField.nudge('Wähl mindestens einen Tag.');
-      if (!timeOk) return timeField.nudge('Bitte so: 18:00');
     }
   };
 
@@ -206,43 +193,16 @@ function NewReminder() {
               error={!date.trim() || parseDate(date) ? undefined : 'Bitte so: 01.01. oder 01.01.2001'}
             />
           ) : null}
-          <ChipGroup>
-            {/* Ohne Uhrzeit vorn, da Standard (Daria, 2026-11-14) */}
-            <Chip label="ohne Uhrzeit" selected={timeKind === 'none'} onPress={() => setTimeKind('none')} />
-            <Chip label="bis" selected={timeKind === 'until'} onPress={() => setTimeKind('until')} />
-            <Chip label="um" selected={timeKind === 'at'} onPress={() => setTimeKind('at')} />
-            <Chip label="von … bis" selected={timeKind === 'range'} onPress={() => setTimeKind('range')} />
-          </ChipGroup>
-          <View style={styles.times}>
-            {timeKind === 'at' || timeKind === 'range' ? (
-              <View style={styles.time}>
-                <TextField
-                  label={timeKind === 'at' ? 'Um' : 'Von'}
-                  placeholder="Format 9:00"
-                  value={from}
-                  onChangeText={setFrom}
-                  keyboardType="numbers-and-punctuation"
-                  maxLength={5}
-                  nudge={fromField}
-                  error={fromOk ? undefined : 'Bitte so: 9:00'}
-                />
-              </View>
-            ) : null}
-            {timeKind === 'until' || timeKind === 'range' ? (
-              <View style={styles.time}>
-                <TextField
-                  label="Bis"
-                  placeholder="Format 18:00"
-                  value={until}
-                  onChangeText={setUntil}
-                  keyboardType="numbers-and-punctuation"
-                  maxLength={5}
-                  nudge={untilField}
-                  error={untilOk ? undefined : 'Bitte so: 18:00'}
-                />
-              </View>
-            ) : null}
-          </View>
+          <TimeChoice
+            kind={timeKind}
+            onKind={setTimeKind}
+            from={from}
+            onFrom={setFrom}
+            until={until}
+            onUntil={setUntil}
+            fromNudge={fromField}
+            untilNudge={untilField}
+          />
           <FieldGroup label="Wie verbindlich?">
             <ChipGroup>
               <Chip label="Pflicht" selected={required} onPress={() => setRequired(true)} />
@@ -269,16 +229,18 @@ function NewReminder() {
               </ChipGroup>
             </FieldGroup>
           </NudgeArea>
-          <TextField
-            label="Uhrzeit"
-            placeholder="Uhrzeit im Format 18:00 (optional)"
-            value={time}
-            onChangeText={setTime}
-            keyboardType="numbers-and-punctuation"
-            maxLength={5}
-            nudge={timeField}
-            error={timeOk ? undefined : 'Bitte so: 18:00'}
-          />
+          <FieldGroup label="Uhrzeit">
+            <TimeChoice
+              kind={timeKind}
+              onKind={setTimeKind}
+              from={from}
+              onFrom={setFrom}
+              until={until}
+              onUntil={setUntil}
+              fromNudge={fromField}
+              untilNudge={untilField}
+            />
+          </FieldGroup>
         </>
       )}
       {/* Sichtbarkeit: vorerst nur für Dich (Annahme zu Frage 5, Daria, 2026-11-10: „lustig wie bei Duolingo“) */}
@@ -288,7 +250,3 @@ function NewReminder() {
   );
 }
 
-const styles = StyleSheet.create({
-  times: { flexDirection: 'row', gap: space[12] },
-  time: { flex: 1 },
-});

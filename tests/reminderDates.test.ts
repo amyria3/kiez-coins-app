@@ -57,6 +57,10 @@ describe('Fälligkeit', () => {
     assert.equal(dueAt(reminder({ weekdays: [3], atTime: '18:00', doneToday: true }), NOW)?.getTime(), new Date(2026, 10, 25, 18, 0).getTime());
     assert.equal(dueAt(reminder({ perWeek: 3 }), NOW), null);
   });
+  it('dueAt: feste Tage mit „bis“ zum „bis“ (2026-11-16)', () => {
+    assert.equal(dueAt(reminder({ weekdays: [3, 5], untilTime: '10:30' }), NOW)?.getTime(), new Date(2026, 10, 18, 10, 30).getTime());
+    assert.equal(dueAt(reminder({ weekdays: [3], atTime: '9:00', untilTime: '11:00' }), NOW)?.getTime(), new Date(2026, 10, 18, 11, 0).getTime());
+  });
 });
 
 describe('Datum eingeben', () => {

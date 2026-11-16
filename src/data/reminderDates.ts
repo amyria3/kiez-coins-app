@@ -61,11 +61,12 @@ export function dueAt(r: Reminder, now = new Date()): Date | null {
     const [y, mo, d] = r.onDate.split('-').map(Number);
     return at(new Date(y, mo - 1, d), time);
   }
-  if (r.weekdays?.length && r.atTime) {
+  const dayTime = r.untilTime ?? r.atTime;
+  if (r.weekdays?.length && dayTime) {
     for (let i = 0; i < 8; i++) {
       if (i === 0 && r.doneToday) continue;
       const day = addDays(i, now);
-      if (r.weekdays.includes(isoWeekday(day))) return at(day, r.atTime);
+      if (r.weekdays.includes(isoWeekday(day))) return at(day, dayTime);
     }
   }
   return null;

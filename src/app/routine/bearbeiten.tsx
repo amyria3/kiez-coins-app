@@ -1,28 +1,25 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
-import { Notice } from '../../components/Content';
-import { Chip, ChipGroup, TextField } from '../../components/Form';
+import { FieldGroup, Notice } from '../../components/Content';
+import { TextField } from '../../components/Form';
 import { useNudge } from '../../components/Nudge';
 import { ReminderExtrasFields, type Extras } from '../../components/ReminderExtras';
+import { kindOfTimes, TimeChoice, timesOf, timesReady, type TimeKind } from '../../components/routine/TimeChoice';
 import { SubScreen } from '../../components/Screen';
 import { loadReminders, parseDate, TIME, updateReminder, type Reminder } from '../../data/reminders';
 import { useGoBack } from '../../lib/goBack';
-import { color, space } from '../../theme/tokens';
-
-/** `none`: einmal an dem Tag, ohne Uhrzeit (Daria, 2026-11-14) */
-type TimeKind = 'until' | 'at' | 'range' | 'none';
+import { color } from '../../theme/tokens';
 
 /** „2026-11-13“ → „13.11.2026“, so wie das Datumsfeld es erwartet */
 const dotted = (iso: string) => iso.split('-').reverse().join('.');
-const hhmm = (v: string) => v.trim().padStart(5, '0');
 
 /**
  * Route `routine/bearbeiten?id=…` (Daria, 2026-11-13): Erinnerung bearbeiten. Öffnet über das Menü der Karte („•••“
  * oder Tippen auf die Karte) › „Bearbeiten“. Titel, Beschreibung, Ort, Telefon, Link, Tag und Zeit mit „bis“ (to), „um“ (around)
- * oder „von … bis“. Feste Tage ändern nur die Uhrzeit, x-mal pro Woche hat keine.
+ * oder „von … bis“. Feste Tage ändern nur die Uhrzeit, auch mit „bis“ (Daria, 2026-11-16); x-mal pro Woche hat keine.
  */
 /** Gehört zu „Me & Myself“: gelb wie die Routine (Daria, 2026-11-13) */
 export default function EditReminderScreen() {
@@ -42,14 +39,12 @@ function EditReminder() {
   const [timeKind, setTimeKind] = useState<TimeKind>('none');
   const [from, setFrom] = useState('');
   const [until, setUntil] = useState('');
-  const [time, setTime] = useState('');
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const wantField = useNudge();
   const dateField = useNudge();
   const fromField = useNudge();
   const untilField = useNudge();
-  const timeField = useNudge();
 
   useEffect(() => {
     loadReminders().then(
@@ -60,12 +55,10 @@ function EditReminder() {
         setWant(r.want);
         setDescription(r.description ?? '');
         setExtras({ place: r.place ?? '', phone: r.phone ?? '', link: r.link ?? '' });
-        if (r.onDate) {
-          setDate(dotted(r.onDate));
-          setTimeKind(r.atTime && r.untilTime ? 'range' : r.atTime ? 'at' : r.untilTime ? 'until' : 'none');
-          setFrom(r.atTime ?? '');
-          setUntil(r.untilTime ?? '');
-        } else setTime(r.atTime ?? '');
+        if (r.onDate) setDate(dotted(r.onDate));
+        setTimeKind(kindOfTimes(r.atTime, r.untilTime));
+        setFrom(r.atTime ?? '');
+        setUntil(r.untilTime ?? '');
       },
       () => setReminder(null),
     );
@@ -74,13 +67,8 @@ function EditReminder() {
   const once = !!reminder?.onDate;
   const fixedDays = !once && !!reminder?.weekdays?.length;
   const onDate = once ? parseDate(date) : null;
-  const fromOk = !from.trim() || TIME.test(from.trim());
-  const untilOk = !until.trim() || TIME.test(until.trim());
-  const timeOk = !time.trim() || TIME.test(time.trim());
-  const onceReady =
-    !!onDate &&
-    (timeKind === 'none' ? true : timeKind === 'until' ? TIME.test(until.trim()) : timeKind === 'at' ? TIME.test(from.trim()) : TIME.test(from.trim()) && TIME.test(until.trim()));
-  const ready = !!reminder && want.trim().length > 0 && (once ? onceReady : timeOk);
+  const timed = once || fixedDays;
+  const ready = !!reminder && want.trim().length > 0 && (!once || !!onDate) && (!timed || timesReady(timeKind, from, until));
 
   const save = async () => {
     if (!reminder) return;
@@ -91,8 +79,7 @@ function EditReminder() {
       description,
       ...extras,
       onDate: onDate ?? undefined,
-      atTime: once ? (timeKind === 'at' || timeKind === 'range' ? hhmm(from) : undefined) : fixedDays && time.trim() ? hhmm(time) : undefined,
-      untilTime: once && (timeKind === 'until' || timeKind === 'range') ? hhmm(until) : undefined,
+      ...(timed ? timesOf(timeKind, from, until) : {}),
     });
     setBusy(false);
     if (ok) router.back();
@@ -102,11 +89,10 @@ function EditReminder() {
   const whyDisabled = () => {
     if (busy || !reminder) return;
     if (!want.trim()) return wantField.nudge('Schreib, was Du vorhast.');
-    if (once) {
-      if (!onDate) return dateField.nudge('Gib ein Datum ein, z. B. 24.12.');
-      if ((timeKind === 'at' || timeKind === 'range') && !TIME.test(from.trim())) return fromField.nudge('Gib eine Uhrzeit ein, z. B. 9:00.');
-      if ((timeKind === 'until' || timeKind === 'range') && !TIME.test(until.trim())) return untilField.nudge('Gib eine Uhrzeit ein, z. B. 18:00.');
-    } else if (!timeOk) return timeField.nudge('Bitte so: 18:00');
+    if (once && !onDate) return dateField.nudge('Gib ein Datum ein, z. B. 24.12.');
+    if (!timed) return;
+    if ((timeKind === 'at' || timeKind === 'range') && !TIME.test(from.trim())) return fromField.nudge('Gib eine Uhrzeit ein, z. B. 9:00.');
+    if ((timeKind === 'until' || timeKind === 'range') && !TIME.test(until.trim())) return untilField.nudge('Gib eine Uhrzeit ein, z. B. 18:00.');
   };
 
   return (
@@ -137,55 +123,30 @@ function EditReminder() {
                 nudge={dateField}
                 error={!date.trim() || parseDate(date) ? undefined : 'Bitte so: 01.01. oder 01.01.2001'}
               />
-              <ChipGroup>
-            {/* Ohne Uhrzeit vorn, da Standard (Daria, 2026-11-14) */}
-            <Chip label="ohne Uhrzeit" selected={timeKind === 'none'} onPress={() => setTimeKind('none')} />
-                <Chip label="bis" selected={timeKind === 'until'} onPress={() => setTimeKind('until')} />
-                <Chip label="um" selected={timeKind === 'at'} onPress={() => setTimeKind('at')} />
-                <Chip label="von … bis" selected={timeKind === 'range'} onPress={() => setTimeKind('range')} />
-              </ChipGroup>
-              <View style={styles.times}>
-                {timeKind === 'at' || timeKind === 'range' ? (
-                  <View style={styles.time}>
-                    <TextField
-                      label={timeKind === 'at' ? 'Um' : 'Von'}
-                      placeholder="Format 9:00"
-                      value={from}
-                      onChangeText={setFrom}
-                      keyboardType="numbers-and-punctuation"
-                      maxLength={5}
-                      nudge={fromField}
-                      error={fromOk ? undefined : 'Bitte so: 9:00'}
-                    />
-                  </View>
-                ) : null}
-                {timeKind === 'until' || timeKind === 'range' ? (
-                  <View style={styles.time}>
-                    <TextField
-                      label="Bis"
-                      placeholder="Format 18:00"
-                      value={until}
-                      onChangeText={setUntil}
-                      keyboardType="numbers-and-punctuation"
-                      maxLength={5}
-                      nudge={untilField}
-                      error={untilOk ? undefined : 'Bitte so: 18:00'}
-                    />
-                  </View>
-                ) : null}
-              </View>
+              <TimeChoice
+                kind={timeKind}
+                onKind={setTimeKind}
+                from={from}
+                onFrom={setFrom}
+                until={until}
+                onUntil={setUntil}
+                fromNudge={fromField}
+                untilNudge={untilField}
+              />
             </>
           ) : fixedDays ? (
-            <TextField
-              label="Uhrzeit"
-              placeholder="Uhrzeit im Format 18:00 (optional)"
-              value={time}
-              onChangeText={setTime}
-              keyboardType="numbers-and-punctuation"
-              maxLength={5}
-              nudge={timeField}
-              error={timeOk ? undefined : 'Bitte so: 18:00'}
-            />
+            <FieldGroup label="Uhrzeit">
+              <TimeChoice
+                kind={timeKind}
+                onKind={setTimeKind}
+                from={from}
+                onFrom={setFrom}
+                until={until}
+                onUntil={setUntil}
+                fromNudge={fromField}
+                untilNudge={untilField}
+              />
+            </FieldGroup>
           ) : null}
           {failed ? <Notice variant="warning" message="Speichern hat nicht geklappt. Versuch es bitte noch einmal." /> : null}
         </>
@@ -194,7 +155,3 @@ function EditReminder() {
   );
 }
 
-const styles = StyleSheet.create({
-  times: { flexDirection: 'row', gap: space[12] },
-  time: { flex: 1 },
-});

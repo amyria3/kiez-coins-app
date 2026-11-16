@@ -25,7 +25,7 @@ export type Reminder = {
   atTime?: string;
   /** Einmalig: Tag als „JJJJ-MM-TT“ */
   onDate?: string;
-  /** Einmalig: „bis HH:MM“ */
+  /** „bis HH:MM“, einmalig und bei festen Tagen (Daria, 2026-11-16) */
   untilTime?: string;
   /** Einmalig: Pflicht oder optional (Daria, 2026-11-10) */
   required?: boolean;
@@ -244,6 +244,7 @@ function rowOf(input: ReminderInput, base: { want: string; description: string |
           per_week: input.weekdays?.length ? null : input.perWeek ?? 1,
           weekdays: input.weekdays?.length ? [...input.weekdays].sort() : null,
           at_time: input.weekdays?.length && input.atTime ? input.atTime : null,
+          until_time: input.weekdays?.length && input.untilTime ? input.untilTime : null,
         }
   );
 }
@@ -261,7 +262,7 @@ export async function updateReminder(
   const row = r.onDate
     ? { ...base, on_date: input.onDate ?? r.onDate, at_time: input.atTime ?? null, until_time: input.untilTime ?? null }
     : r.weekdays?.length
-      ? { ...base, at_time: input.atTime ?? null }
+      ? { ...base, at_time: input.atTime ?? null, until_time: input.untilTime ?? null }
       : base;
   return withExtras((extras) => supabase.from('reminders').update({ ...row, ...extras }).eq('id', r.id), extrasOf(input));
 }

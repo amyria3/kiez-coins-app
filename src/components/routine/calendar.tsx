@@ -508,7 +508,7 @@ function DayBar({
   // Mit Uhrzeit zuerst, nach Zeit sortiert
   const timed: [string, string][] = [
     ...list.filter((r) => r.onDate === day && (r.atTime || r.untilTime)).map((r): [string, string] => [r.atTime ?? r.untilTime ?? '', capitalize(r.want)]),
-    ...list.filter((r) => !r.onDate && r.atTime && r.weekdays?.includes(isoWeekday(date))).map((r): [string, string] => [r.atTime ?? '', capitalize(r.want)]),
+    ...list.filter((r) => !r.onDate && (r.atTime || r.untilTime) && r.weekdays?.includes(isoWeekday(date))).map((r): [string, string] => [r.atTime ?? r.untilTime ?? '', capitalize(r.want)]),
     ...events.filter((e) => eventDate(e) === day && !e.allDay).map((e): [string, string] => [eventTime(e.start), e.title]),
     ...saved.filter((e) => localDate(new Date(e.startsAt)) === day).map((e): [string, string] => [eventTime(e.startsAt), e.title]),
   ].sort((a, b) => a[0].localeCompare(b[0]));

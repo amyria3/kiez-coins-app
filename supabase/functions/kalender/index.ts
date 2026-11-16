@@ -99,9 +99,15 @@ function toEvent(r: Reminder, stamp: string): string[] | null {
   } else if (r.weekdays?.length) {
     const start = firstWeekday(r.created_at.slice(0, 10), r.weekdays);
     const rule = `RRULE:FREQ=WEEKLY;BYDAY=${r.weekdays.map((d) => WEEKDAY[d - 1]).join(',')}`;
-    when = r.at_time
-      ? [`DTSTART:${ymd(start)}T${hms(r.at_time)}`, `DTEND:${ymd(start)}T${hms(plusMinutes(r.at_time, 30))}`, rule]
-      : [`DTSTART;VALUE=DATE:${ymd(start)}`, `DTEND;VALUE=DATE:${ymd(addDay(start))}`, rule];
+    // Feste Tage mit „bis“ oder „von … bis“ wie einmalige (Daria, 2026-11-16)
+    if (r.at_time && r.until_time) {
+      when = [`DTSTART:${ymd(start)}T${hms(r.at_time)}`, `DTEND:${ymd(start)}T${hms(r.until_time)}`, rule];
+    } else if (r.at_time) {
+      when = [`DTSTART:${ymd(start)}T${hms(r.at_time)}`, `DTEND:${ymd(start)}T${hms(plusMinutes(r.at_time, 30))}`, rule];
+    } else {
+      if (r.until_time) summary = `${title} (bis ${r.until_time.slice(0, 5)})`;
+      when = [`DTSTART;VALUE=DATE:${ymd(start)}`, `DTEND;VALUE=DATE:${ymd(addDay(start))}`, rule];
+    }
   } else {
     return null;
   }
