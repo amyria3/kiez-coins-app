@@ -122,6 +122,7 @@ Bis 11.12.2027:
 ## Erinnerungen (Daria, 07.11.2026)
 
 - [ ] Erinnerungen mit Kater-Nachrichten: eigener Reiter, verknüpft mit Post, Textpost oder Me-Challenge, Ziel nach Zeit oder x-mal pro Woche, erledigt in Gruppe, privat, Kiez oder überall posten. Noch nicht bauen, erst Rückfragen klären. Details: `2026-11-07_offen_erinnerungen.md`.
+- [ ] Besserer Ablauf Erinnerung → Me-Challenge, mit UI (Daria, 16.11.2026): „Erledigt“ als Knopf mit Auswahl, damit man ggf. den Stand davor festhalten kann. Heute öffnet sich bei „Spazieren“ gleich „Me-Challenge erstellen“ mit dem Vorher-Schritt, auch wenn man schon fertig ist. Ideen zum Klären: Auswahl „Nur abhaken“, „Vorher festhalten“ (vor dem Start), „Nachher posten“; bei Erinnerungen ohne Vorher-Foto direkt Bild- oder Textpost. Erst Entwurf zeigen, dann bauen.
 - [ ] Später: einfache Animationen für die Erinnerungen.
 - [ ] Später: allgemein Animationen, ggf. mit dem Kater, der erklärt, was man machen kann oder soll. Ob es das braucht und in welcher Form, klärt der qualitative Test am 07.11.2026.
 
