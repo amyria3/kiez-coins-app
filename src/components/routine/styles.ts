@@ -35,8 +35,9 @@ export const styles = StyleSheet.create({
     padding: 14,
     gap: space[6],
   },
-  cardBody: { flex: 1, justifyContent: 'flex-end', gap: space[6] },
-  headRow: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
+  cardBody: { flex: 1, gap: space[6] },
+  cardRest: { flex: 1, justifyContent: 'flex-end', gap: space[6] },
+  headRow: { flexDirection: 'row', alignItems: 'flex-start', gap: space[12] },
   head: { flex: 1, gap: space[2] },
   // Platz für den Sticker, der links unter dem Kater herausragt
   // Kater und Sticker als Spalte: Der Sticker hat eigenen Platz und liegt höchstens auf dem Ring
