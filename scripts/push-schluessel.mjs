@@ -17,7 +17,8 @@ const raw = Buffer.concat([Buffer.from([4]), Buffer.from(pub.x, 'base64url'), Bu
 const publicB64 = b64(raw);
 const privateB64 = priv.d;
 
-execFileSync('npx', ['supabase', 'secrets', 'set', `VAPID_PUBLIC_KEY=${publicB64}`, `VAPID_PRIVATE_KEY=${privateB64}`, '--project-ref', PROJECT], {
+// --yes: Neuere Supabase-CLI fragt sonst nach und bricht ohne Terminal ab (2026-11-16)
+execFileSync('npx', ['supabase', 'secrets', 'set', `VAPID_PUBLIC_KEY=${publicB64}`, `VAPID_PRIVATE_KEY=${privateB64}`, '--project-ref', PROJECT, '--yes'], {
   stdio: ['ignore', 'ignore', 'inherit'],
 });
 console.log('VAPID-Schlüssel bei Supabase hinterlegt. Öffentlicher Schlüssel:', publicB64);
