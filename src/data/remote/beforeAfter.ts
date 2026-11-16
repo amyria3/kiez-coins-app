@@ -30,7 +30,8 @@ export type NewBeforeAfter = {
   veryPrivate?: boolean;
   title: string;
   beforeText: string;
-  photo: ImageSource;
+  /** Freiwillig, wenn eine Überschrift da ist (Daria, 2026-11-16; Migration 20261116000500) */
+  photo?: ImageSource;
 };
 
 export type BeforeAfterEdit = {
@@ -42,9 +43,9 @@ export type BeforeAfterEdit = {
   afterPhoto?: ImageSource;
 };
 
-/** 1. Entwurf mit Vorher-Foto anlegen. Gibt den Entwurf zurück. */
+/** 1. Entwurf mit Vorher-Foto oder nur Überschrift anlegen. Gibt den Entwurf zurück. */
 export async function startBeforeAfter(userId: string, input: NewBeforeAfter): Promise<Challenge> {
-  const path = await uploadPhoto(userId, input.photo, isPrivateAudience(input));
+  const path = input.photo ? await uploadPhoto(userId, input.photo, isPrivateAudience(input)) : null;
   const { data } = check(
     await supabase.rpc('start_before_after', {
       p_group_id: input.groupId ?? null,

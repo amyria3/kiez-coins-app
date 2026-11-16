@@ -1398,5 +1398,7 @@
   "Push ist auf dem Server noch nicht eingerichtet.": "Les notifications ne sont pas encore configurées sur le serveur.",
   "Tippst Du bei einer Erinnerung einen Ort ein, schlägt die App passende Orte vor. Dafür schickt sie den getippten Text an Photon, einen Suchdienst der komoot GmbH (Deutschland) mit Daten von OpenStreetMap. Damit nahe Orte oben stehen, schickt sie einen auf etwa 10 Kilometer gerundeten Punkt mit: Deinen Standort, wenn Du ihn freigegeben hast, sonst Deinen Kiez. Technisch bedingt erhält der Dienst auch Deine IP-Adresse. Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).": "Quand tu saisis un lieu dans un rappel, l’app propose des lieux correspondants. Pour cela, elle envoie le texte saisi à Photon, un service de recherche de komoot GmbH (Allemagne) qui utilise les données d’OpenStreetMap. Pour que les lieux proches apparaissent en premier, elle envoie aussi un point arrondi à environ 10 kilomètres : ta position si tu l’as partagée, sinon ton quartier. Pour des raisons techniques, le service reçoit aussi ton adresse IP. La base juridique est l’exécution du contrat d’utilisation (art. 6, par. 1, point b du RGPD).",
   "Vorschläge für den Ort": "Suggestions pour le lieu",
-  "Vorschläge: OpenStreetMap": "Suggestions : OpenStreetMap"
+  "Vorschläge: OpenStreetMap": "Suggestions : OpenStreetMap",
+  "Bitte ein Vorher-Foto oder eine Überschrift hinzufügen.": "Ajoute une photo « avant » ou un titre.",
+  "Bitte ein Nachher-Foto oder eine Überschrift hinzufügen.": "Ajoute une photo « après » ou un titre."
 }

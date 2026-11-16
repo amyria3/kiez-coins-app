@@ -123,13 +123,13 @@ export function useBeforeAfterStartForm(
   // „Sehr privat“ (Daria, 15.11.2026)
   const [veryPrivate, setVeryPrivate] = useState(false);
   const titleField = useNudge();
-  const missingPhoto = !photo;
-  const missingTitle = !title.trim();
+  // Foto oder Überschrift, mindestens eins (Daria, 2026-11-16)
+  const missingBoth = !photo && !title.trim();
   // Text aus einem anderen Formular kann länger sein als die Me-Challenge erlaubt
   const textTooLong = beforeText.length > BEFORE_AFTER_TEXT_MAX;
 
   const save = async () => {
-    if (!photo || missingTitle || textTooLong) {
+    if (missingBoth || textTooLong) {
       setShowErrors(true);
       return;
     }
@@ -152,14 +152,13 @@ export function useBeforeAfterStartForm(
       <BeforeAfterSteps at={0} />
       <PhotoPicker
         photo={photo}
-        error={showErrors && missingPhoto}
-        hint={showErrors && missingPhoto ? 'Bitte ein Vorher-Foto hinzufügen.' : 'So sieht es jetzt aus.'}
+        error={showErrors && missingBoth}
+        hint={showErrors && missingBoth ? 'Bitte ein Vorher-Foto oder eine Überschrift hinzufügen.' : 'So sieht es jetzt aus.'}
         onChange={setPhoto}
         title={{
           value: title,
           onChange: setTitle,
           nudge: titleField,
-          error: showErrors && missingTitle ? 'Bitte gib eine Überschrift ein.' : undefined,
         }}
       />
       <TagTextField

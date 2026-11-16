@@ -146,7 +146,8 @@ function BeforeAfterForm() {
   });
 
   const post = async () => {
-    if (!after || !title.trim()) {
+    // Nachher: Foto oder Überschrift, mindestens eins (Daria, 2026-11-16)
+    if (!after && !title.trim()) {
       setShowErrors(true);
       return;
     }
@@ -216,12 +217,11 @@ function BeforeAfterForm() {
           value={title}
           onChangeText={setTitle}
           maxLength={60}
-          error={showErrors && !title.trim() ? 'Bitte gib eine Überschrift ein.' : undefined}
         />
         <PhotoPicker
           photo={after}
-          error={showErrors && !after}
-          hint={showErrors && !after ? 'Bitte ein Nachher-Foto hinzufügen.' : 'So sieht es jetzt aus.'}
+          error={showErrors && !after && !title.trim()}
+          hint={showErrors && !after && !title.trim() ? 'Bitte ein Nachher-Foto oder eine Überschrift hinzufügen.' : 'So sieht es jetzt aus.'}
           onChange={setAfterPhoto}
         />
         <TagTextField

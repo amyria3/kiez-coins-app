@@ -34,6 +34,18 @@ begin
   exception when others then insert into t_log(msg) values ('ok fremder Pfad abgelehnt');
   end;
 
+  -- Ohne Foto nur mit Überschrift (2026-11-16), ohne beides abgelehnt
+  declare v_txt uuid; begin
+    v_txt := public.start_before_after(null, 'Spazieren', null, null);
+    select * into r from public.challenges where id = v_txt;
+    insert into t_log(msg) values (case when r.image_before_path is null and r.image_path is null and r.title = 'Spazieren' then 'ok Vorher ohne Foto' else 'FAIL Vorher ohne Foto' end);
+  end;
+  begin
+    perform public.start_before_after(null, '  ', 'Nur Text', null);
+    insert into t_log(msg) values ('FAIL ohne Foto und Überschrift angenommen');
+  exception when others then insert into t_log(msg) values ('ok ohne Foto und Überschrift abgelehnt');
+  end;
+
   -- Gruppe, Timer gestartet, kein Nachher
   v_grp := public.start_before_after('00000000-0000-4000-a000-0000000000b9', '', 'Fahrrad kaputt', '00000000-0000-4000-a000-0000000000ba/f.jpg');
   perform public.start_before_after_timer(v_grp);

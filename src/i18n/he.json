@@ -1397,5 +1397,7 @@
   "Push ist auf dem Server noch nicht eingerichtet.": "התראות עדיין לא הוגדרו בשרת.",
   "Tippst Du bei einer Erinnerung einen Ort ein, schlägt die App passende Orte vor. Dafür schickt sie den getippten Text an Photon, einen Suchdienst der komoot GmbH (Deutschland) mit Daten von OpenStreetMap. Damit nahe Orte oben stehen, schickt sie einen auf etwa 10 Kilometer gerundeten Punkt mit: Deinen Standort, wenn Du ihn freigegeben hast, sonst Deinen Kiez. Technisch bedingt erhält der Dienst auch Deine IP-Adresse. Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).": "כשאתה מקליד מקום בתזכורת, האפליקציה מציעה מקומות מתאימים. לשם כך היא שולחת את הטקסט שהקלדת ל-Photon, שירות חיפוש של komoot GmbH (גרמניה) המשתמש בנתוני OpenStreetMap. כדי שמקומות קרובים יופיעו ראשונים, היא שולחת גם נקודה מעוגלת לכ-10 קילומטרים: המיקום שלך אם שיתפת אותו, אחרת השכונה שלך. מסיבות טכניות השירות מקבל גם את כתובת ה-IP שלך. הבסיס החוקי הוא ביצוע הסכם השימוש (סעיף 6(1)(ב) ל-GDPR).",
   "Vorschläge für den Ort": "הצעות למקום",
-  "Vorschläge: OpenStreetMap": "הצעות: OpenStreetMap"
+  "Vorschläge: OpenStreetMap": "הצעות: OpenStreetMap",
+  "Bitte ein Vorher-Foto oder eine Überschrift hinzufügen.": "נא להוסיף תמונת „לפני“ או כותרת.",
+  "Bitte ein Nachher-Foto oder eine Überschrift hinzufügen.": "נא להוסיף תמונת „אחרי“ או כותרת."
 }

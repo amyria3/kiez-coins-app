@@ -14,6 +14,7 @@ import type { ChallengePostProps } from './ChallengePost';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 import { Text } from './T';
+import { useAccentColor } from '../theme/signal';
 import { LikeCount } from './LikeCount';
 import { BeforeAfterText } from './WithMentions';
 
@@ -27,6 +28,9 @@ type Focus = keyof typeof SPLIT;
 type PairProps = {
   before?: ImageSource;
   after?: ImageSource;
+  /** Ohne Vorher- bzw. Nachher-Foto: Text auf einer Fläche in der Akzentfarbe (Daria, 2026-11-16) */
+  beforeText?: string;
+  afterText?: string;
   /** Höhe im Ruhezustand */
   height: number;
   /** Dauer an der Naht, z. B. „2 h 14 min“ */
@@ -44,7 +48,7 @@ type PairProps = {
  * Vorher oben, Nachher unten. Ein Tipp auf eine Hälfte vergrößert sie auf 5/6 der Höhe, die Karte wächst um 25 %.
  * Ein zweiter Tipp stellt zurück. Bewegung „Schranke“.
  */
-export function BeforeAfterPair({ before, after, height, duration, overlay, onLongPress, rounded, onPress }: PairProps) {
+export function BeforeAfterPair({ before, after, beforeText, afterText, height, duration, overlay, onLongPress, rounded, onPress }: PairProps) {
   const [focus, setFocus] = useState<Focus>('none');
   const split = useRef(new Animated.Value(SPLIT.none)).current;
   const grow = useRef(new Animated.Value(1)).current;
@@ -56,7 +60,8 @@ export function BeforeAfterPair({ before, after, height, duration, overlay, onLo
     ]).start();
   }, [focus, split, grow]);
 
-  const single = !after;
+  const hasAfter = !!after || !!afterText;
+  const single = !hasAfter;
   const cardHeight = Animated.multiply(grow, height);
   const beforeHeight = single ? cardHeight : Animated.multiply(cardHeight, split);
   const tap = (half: Exclude<Focus, 'none'>) => setFocus((f) => (f === 'none' ? half : 'none'));
@@ -75,12 +80,12 @@ export function BeforeAfterPair({ before, after, height, duration, overlay, onLo
           accessibilityLabel={t('Vorher-Foto')}
           accessibilityHint={single ? t('Öffnet den Beitrag') : t('Tippen vergrößert das Vorher-Foto, noch mal tippen stellt zurück.')}
         >
-          {before ? <Image source={before} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
+          {before ? <Image source={before} style={StyleSheet.absoluteFill} contentFit="cover" /> : <TextFace value={beforeText} />}
           {dimBefore ? <View style={styles.dim} /> : null}
           <Tag label="Vorher" />
         </Pressable>
       </Animated.View>
-      {after ? (
+      {hasAfter ? (
         <Animated.View style={[styles.half, { top: beforeHeight, bottom: 0 }]}>
           <Pressable
             style={StyleSheet.absoluteFill}
@@ -88,16 +93,16 @@ export function BeforeAfterPair({ before, after, height, duration, overlay, onLo
             onLongPress={onLongPress}
             delayLongPress={350}
             accessibilityRole="button"
-            accessibilityLabel={t('Nachher-Foto')}
+            accessibilityLabel={after ? t('Nachher-Foto') : t('Nachher')}
             accessibilityHint={t('Tippen vergrößert das Nachher-Foto, noch mal tippen stellt zurück.')}
           >
-            <Image source={after} style={StyleSheet.absoluteFill} contentFit="cover" />
+            {after ? <Image source={after} style={StyleSheet.absoluteFill} contentFit="cover" /> : <TextFace value={afterText} />}
             {dimAfter ? <View style={styles.dim} /> : null}
             <Tag label="Nachher" />
           </Pressable>
         </Animated.View>
       ) : null}
-      {after ? <Animated.View pointerEvents="none" style={[styles.seam, { top: beforeHeight }]} /> : null}
+      {hasAfter ? <Animated.View pointerEvents="none" style={[styles.seam, { top: beforeHeight }]} /> : null}
       {duration ? (
         <Animated.View
           pointerEvents="none"
@@ -118,6 +123,20 @@ export function BeforeAfterPair({ before, after, height, duration, overlay, onLo
   );
 }
 
+/** Hälfte ohne Foto: Text auf der Akzentfarbe des Bereichs, wie ein Textpost (Daria, 2026-11-16) */
+function TextFace({ value }: { value?: string }) {
+  const bg = useAccentColor();
+  return (
+    <View style={[styles.face, { backgroundColor: bg }]}>
+      {value ? (
+        <Text noTranslate style={styles.faceText} numberOfLines={4}>
+          {value}
+        </Text>
+      ) : null}
+    </View>
+  );
+}
+
 function Tag({ label }: { label: string }) {
   return (
     <View style={styles.tag}>
@@ -135,8 +154,12 @@ export function BeforeAfterPost(props: ChallengePostProps) {
 function useParts({ challenge }: ChallengePostProps) {
   const ms = beforeAfterDuration(challenge);
   return {
-    before: challenge.imageBefore ?? challenge.image,
+    before: challenge.imageBefore ?? (challenge.imageAfter ? undefined : challenge.image),
     after: challenge.imageAfter,
+    // Ohne #vorher-Text bleibt die Fläche leer; die Überschrift steht ohnehin in der Leiste unten
+    beforeText: challenge.beforeText?.trim() || undefined,
+    // Nachher ohne Foto: nur nach dem Abschließen und mit Text
+    afterText: challenge.finishedAt ? challenge.afterText?.trim() || undefined : undefined,
     duration: ms === undefined ? undefined : formatHoursMinutes(ms),
     commentCount: challenge.comments.length,
   };
@@ -195,7 +218,7 @@ function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: 
 /** Look „Kiez“: Karte 360 hoch mit runden Ecken, Glasleiste mit Titel unten, Text unter den Aktionen */
 function KiezBeforeAfter(props: ChallengePostProps) {
   const { challenge, author, distance, onPress } = props;
-  const { before, after, duration } = useParts(props);
+  const { before, after, beforeText, afterText, duration } = useParts(props);
   const hideName = useHideName(author);
   const meta = [distance, formatRelative(challenge.createdAt)].filter(Boolean).join(' · ');
   const overlay = (
@@ -222,6 +245,8 @@ function KiezBeforeAfter(props: ChallengePostProps) {
       <BeforeAfterPair
         before={before}
         after={after}
+        beforeText={beforeText}
+        afterText={afterText}
         height={KIEZ_HEIGHT}
         duration={duration}
         overlay={overlay}
@@ -250,6 +275,8 @@ const styles = StyleSheet.create({
   pair: { overflow: 'hidden', backgroundColor: color.bg.surface },
   rounded: { borderRadius: radius.post },
   half: { position: 'absolute', left: 0, right: 0, overflow: 'hidden' },
+  face: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, justifyContent: 'center', paddingHorizontal: space[24], paddingTop: space[48], paddingBottom: space[24] },
+  faceText: { ...text.cardTitle, color: color.text.onAccent },
   dim: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(0, 0, 0, 0.25)' },
   seam: { position: 'absolute', left: 0, right: 0, height: 2, marginTop: -1, backgroundColor: color.bg.screen },
   tag: {

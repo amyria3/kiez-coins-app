@@ -1421,5 +1421,7 @@
   "Push ist auf dem Server noch nicht eingerichtet.": "لم يُجهَّز الإشعار على الخادم بعد.",
   "Tippst Du bei einer Erinnerung einen Ort ein, schlägt die App passende Orte vor. Dafür schickt sie den getippten Text an Photon, einen Suchdienst der komoot GmbH (Deutschland) mit Daten von OpenStreetMap. Damit nahe Orte oben stehen, schickt sie einen auf etwa 10 Kilometer gerundeten Punkt mit: Deinen Standort, wenn Du ihn freigegeben hast, sonst Deinen Kiez. Technisch bedingt erhält der Dienst auch Deine IP-Adresse. Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).": "عندما تكتب مكانًا في تذكير، يقترح التطبيق أماكن مطابقة. ولهذا يرسل النص الذي تكتبه إلى Photon، وهي خدمة بحث تابعة لشركة komoot GmbH (ألمانيا) تستخدم بيانات OpenStreetMap. ولكي تظهر الأماكن القريبة أولًا، يرسل أيضًا نقطة مقرّبة إلى نحو 10 كيلومترات: موقعك إذا سمحت بمشاركته، وإلا حيّك. ولأسباب تقنية تتلقى الخدمة أيضًا عنوان IP الخاص بك. الأساس القانوني هو تنفيذ اتفاقية الاستخدام (المادة 6 الفقرة 1 البند ب من اللائحة العامة لحماية البيانات).",
   "Vorschläge für den Ort": "اقتراحات للمكان",
-  "Vorschläge: OpenStreetMap": "الاقتراحات: OpenStreetMap"
+  "Vorschläge: OpenStreetMap": "الاقتراحات: OpenStreetMap",
+  "Bitte ein Vorher-Foto oder eine Überschrift hinzufügen.": "يرجى إضافة صورة «قبل» أو عنوان.",
+  "Bitte ein Nachher-Foto oder eine Überschrift hinzufügen.": "يرجى إضافة صورة «بعد» أو عنوان."
 }
