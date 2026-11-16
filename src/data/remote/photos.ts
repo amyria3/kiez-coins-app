@@ -79,8 +79,7 @@ const wantsPrivate = (row: { visibility?: string | null; group_id?: string | nul
 
 /** Ist der Post privat, sehr privat oder in einer Gruppe? Für Uploads zu einem Post, der schon existiert. */
 export async function isPrivateChallenge(id: string): Promise<boolean> {
-  // `*`: So klappt es auch, solange die Spalte very_private fehlt (Migration 20261116000200)
-  const { data } = await supabase.from('challenges').select('*').eq('id', id).maybeSingle();
+  const { data } = await supabase.from('challenges').select('visibility, group_id, very_private').eq('id', id).maybeSingle();
   return data ? wantsPrivate(data as ChallengeRow) : false;
 }
 

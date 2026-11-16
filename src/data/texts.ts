@@ -243,7 +243,6 @@ export async function loadTexts() {
     // ohne Speicher geht es mit den Originalen weiter
   }
   try {
-    // Alle Spalten: Fehlt eine Sprachspalte noch (Migration nicht gelaufen), gelten die übrigen trotzdem.
     const res = await supabase.from('app_texts').select('*');
     if (res.error || !res.data) return;
     const rows = (res.data as unknown as Row[])
@@ -252,7 +251,7 @@ export async function loadTexts() {
     apply(rows);
     await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(rows));
   } catch {
-    // Tabelle fehlt oder kein Netz: Originale
+    // Kein Netz: Originale
   }
 }
 

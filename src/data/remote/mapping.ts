@@ -66,7 +66,7 @@ const toPayoutLine = (r: PayoutLineRow): PayoutLine => ({
   paidAt: r.paid_at ?? undefined,
 });
 
-/** Auszahlungen je Challenge (Migration 20261028000400). Ohne Migration leer. */
+/** Auszahlungen je Challenge (Migration 20261028000400). Bei einem Fehler leer. */
 export async function loadPayoutLines(challengeIds: string[]): Promise<Map<string, PayoutLine[]>> {
   const byChallenge = new Map<string, PayoutLine[]>();
   if (!challengeIds.length) return byChallenge;

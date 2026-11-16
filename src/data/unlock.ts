@@ -28,7 +28,7 @@ export type FeatureKey =
   | 'weiterposten_ohne_logo';
 
 /**
- * Standard, solange die Datenbank nichts liefert (Migration fehlt, offline). Muss zu `public.features.default_on`
+ * Standard, solange die Datenbank nichts liefert (offline). Muss zu `public.features.default_on`
  * passen. Moderatorinnen haben immer alles an.
  */
 export const FEATURE_DEFAULTS: Record<FeatureKey, { name: string; defaultOn: boolean }> = {
@@ -61,7 +61,7 @@ const cacheKey = (userId: string, groupId?: string) => `${userId}:${groupId ?? '
 async function fetchFeatures(groupId?: string): Promise<FeatureMap> {
   const { data, error } = await supabase.rpc('meine_features', groupId ? { p_group_id: groupId } : {});
   if (!error && data && typeof data === 'object') return data as FeatureMap;
-  // Migration fehlt oder offline: wie vorher, Moderatorinnen alles, sonst der Standard
+  // Offline: wie vorher, Moderatorinnen alles, sonst der Standard
   const moderator = await isModerator().catch(() => false);
   const fallback: FeatureMap = {};
   (Object.keys(FEATURE_DEFAULTS) as FeatureKey[]).forEach((k) => (fallback[k] = moderator || FEATURE_DEFAULTS[k].defaultOn));

@@ -28,7 +28,7 @@ export type LinkedCalendar = { id: string; name: string; url: string; shown: boo
 
 // ---------- Export ----------
 
-/** Abo-Link als https und als webcal (öffnet direkt die Kalender-App). `null`, wenn die Migration fehlt. */
+/** Abo-Link als https und als webcal (öffnet direkt die Kalender-App). `null` bei einem Fehler. */
 export async function feedLinks(renew = false): Promise<{ https: string; webcal: string } | null> {
   const { data, error } = await supabase.rpc('routine_feed_token', { p_renew: renew });
   if (error || !data) return null;

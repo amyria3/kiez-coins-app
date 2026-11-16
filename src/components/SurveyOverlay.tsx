@@ -228,7 +228,7 @@ export function useSurveyPrompt(): [boolean, () => void] {
       if ((await countUsageDay()) < SURVEY_AFTER_DAYS) return;
       if (await isSurveySnoozed(currentUserId)) return;
       const answer = await loadMySurveyAnswer().catch(() => undefined);
-      // Ohne Verbindung oder ohne Tabelle (Migration fehlt) lieber nicht fragen.
+      // Ohne Verbindung lieber nicht fragen.
       // Antworten von vor dem 26.10.2026 fehlt die Frage zur Nutzung: dann noch einmal fragen.
       if (answer === undefined || (answer && answer.frequency)) return;
       if (!cancelled) setVisible(true);

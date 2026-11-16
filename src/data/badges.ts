@@ -151,7 +151,7 @@ function flush() {
     .select('user_id, badge, number')
     .in('user_id', ids)
     .then(({ data, error }) => {
-      // Ohne Migration gibt es die Sicht noch nicht: dann keine Abzeichen, kein Fehler
+      // Fehler: dann keine Abzeichen
       if (error) {
         ids.forEach((id) => cache.set(id, null));
       } else {

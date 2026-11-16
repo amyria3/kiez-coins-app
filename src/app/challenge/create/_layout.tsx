@@ -54,8 +54,7 @@ export type Draft = {
 };
 
 /**
- * Text auf dem Foto zum Speichern: nur bei Bildern. `null` löscht gespeicherten Text, `undefined` schickt nichts
- * (so speichert die App auch ohne Migration 20261029000200).
+ * Text auf dem Foto zum Speichern: nur bei Bildern. `null` löscht gespeicherten Text, `undefined` schickt nichts.
  */
 export const photoTextInput = (d: Draft): PhotoText | null | undefined =>
   d.type === 'photo' && d.photoText?.text.trim() ? d.photoText : d.hadPhotoText ? null : undefined;

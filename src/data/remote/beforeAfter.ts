@@ -63,7 +63,7 @@ export async function startBeforeAfter(userId: string, input: NewBeforeAfter): P
   if (input.veryPrivate) {
     check(await supabase.from('challenges').update({ very_private: true }).eq('id', data as string).eq('status', 'draft'));
   }
-  // Gleich offen im Feed statt Entwurf (Daria, 2026-11-09). Ohne Migration 20261109000200 bleibt es ein Entwurf.
+  // Gleich offen im Feed statt Entwurf (Daria, 2026-11-09)
   await supabase.rpc('open_before_after', { p_challenge_id: data as string });
   const { challenge } = await loadChallenge(data as string, userId);
   if (!challenge) throw new Error(t('Der Entwurf ist nicht angekommen. Versuche es bitte noch mal.'));

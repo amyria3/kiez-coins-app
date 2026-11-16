@@ -163,9 +163,8 @@ export default function EditShowcase() {
     try {
       await updateShowcase(showcase.id, currentUserId, {
         ...form,
-        // AGB nur speichern, wenn die Migration 20261111000100 gelaufen ist
+        // AGB, Adresse, Titel und Beschreibung nur speichern, wenn sie geladen sind
         terms: showcase.termsReady ? form.terms : undefined,
-        // Adresse, Titel und Beschreibung nur mit Migration 20261111000200
         slug: slugChanged ? slug : undefined,
         seoTitle: showcase.seoReady ? seoTitle : undefined,
         seoDescription: showcase.seoReady ? seoDescription : undefined,

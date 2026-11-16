@@ -118,7 +118,7 @@ export function RoutineContent({
         </View>
       ) : list === null ? (
         <View style={[styles.content, { paddingTop: topPad }]}>
-          <Notice variant="warning" message="Erinnerungen laden gerade nicht. Fehlt noch die Migration 20261110000100_erinnerungen?" />
+          <Notice variant="warning" message="Erinnerungen laden gerade nicht. Versuche es gleich noch mal." />
         </View>
       ) : list.length === 0 && events.length === 0 && saved.length === 0 ? (
         // Scrollbar, damit „Neue Erinnerung“ auf kleinen Bildschirmen nicht hinter der Leiste liegt (Daria, 2026-11-13)

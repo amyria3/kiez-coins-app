@@ -58,7 +58,7 @@ export function useGroupTaskForm(
   const [busy, setBusy] = useState<'publish' | 'save' | undefined>();
   const titleField = useNudge();
   const place = useGroupPlace(groupId, draft);
-  // „Sehr privat“ (Daria, 15.11.2026). Nur mitschicken, wenn an oder beim Entwurf geändert (ohne Migration 20261116000200)
+  // „Sehr privat“ (Daria, 15.11.2026). Nur mitschicken, wenn an oder beim Entwurf geändert
   const [veryPrivate, setVeryPrivate] = useState(!!draft?.veryPrivate);
   const veryPrivateField = veryPrivate || draft?.veryPrivate ? { veryPrivate } : {};
   const hasContent = !!photo || !!title.trim() || !!body.trim();

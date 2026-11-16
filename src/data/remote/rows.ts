@@ -32,37 +32,9 @@ export type ProfileRow = {
 };
 
 const PROFILE_COLUMNS = 'id, handle, avatar_path, kiez, is_group, can_offer_bounties';
-/** false, sobald die Datenbank die Spalte `gender` nicht kennt (Migration 20261024000100 fehlt) */
-export let hasGenderColumn = true;
-/** Spalte `gender` fehlt in der Datenbank: ab jetzt ohne sie lesen und schreiben */
-export function noGenderColumn() {
-  hasGenderColumn = false;
-}
-/** false, sobald die Datenbank die Spalte `is_test` nicht kennt (Migration 20261027000400 fehlt) */
-let hasTestColumn = true;
-
-/**
- * Fehler „Spalte gibt es nicht“ (Migration fehlt). Nur dann schaltet die App eine Spalte ab; ein Netzfehler oder
- * eine kurze Störung darf das nicht, sonst bleibt z. B. das Geschlecht bis zum Neustart aus (Prüfung 12.11.2026).
- */
-export function isMissingColumn(error: { code?: string; message?: string } | null): boolean {
-  if (!error) return false;
-  return error.code === '42703' || error.code === 'PGRST204' || /column .* does not exist|could not find .* column/i.test(error.message ?? '');
-}
-
-/** Öffentliche Profile mit Geschlecht. Ohne die Migration geht es ohne Geschlecht weiter. */
-export async function selectProfiles(ids: string[]) {
-  if (hasGenderColumn && hasTestColumn) {
-    const res = await supabase.from('profiles').select(`${PROFILE_COLUMNS}, gender, is_test`).in('id', ids);
-    if (!res.error || !isMissingColumn(res.error)) return res;
-    hasTestColumn = false;
-  }
-  if (hasGenderColumn) {
-    const res = await supabase.from('profiles').select(`${PROFILE_COLUMNS}, gender`).in('id', ids);
-    if (!res.error || !isMissingColumn(res.error)) return res;
-    hasGenderColumn = false;
-  }
-  return supabase.from('profiles').select(PROFILE_COLUMNS).in('id', ids);
+/** Öffentliche Profile mit Geschlecht und Test-Markierung */
+export function selectProfiles(ids: string[]) {
+  return supabase.from('profiles').select(`${PROFILE_COLUMNS}, gender, is_test`).in('id', ids);
 }
 
 export type SettingsRow = {

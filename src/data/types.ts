@@ -104,7 +104,7 @@ export type Comment = {
   createdAt: string;
   /** Antwort auf diesen Kommentar (eine Ebene) */
   replyToId?: string;
-  /** Likes (Migration 20261109000100); ohne Migration fehlt die Zahl und der Kommentar zeigt kein Herz */
+  /** Likes (Migration 20261109000100); bei einem Fehler fehlt die Zahl und der Kommentar zeigt kein Herz */
   likeCount?: number;
   likedByMe?: boolean;
   /** Bild am Kommentar (Migration 20261110001400); body darf dann leer sein */
@@ -140,10 +140,10 @@ export type Challenge = {
   authorId: string;
   /** Erste teilnehmende Person. Erledigt melden kann jede teilnehmende Person, für alle (Daria, 28.10.2026). */
   assigneeId?: string;
-  /** Höchstzahl an Teilnehmenden, 1 = eine Person (Daria, 27.10.2026). Ohne Migration 20261028000300 leer. */
+  /** Höchstzahl an Teilnehmenden, 1 = eine Person (Daria, 27.10.2026). */
   maxParticipants?: number;
   joinMode?: JoinMode;
-  /** Alle Teilnehmenden und Anfragen, die Du sehen darfst. Ohne Migration leer. */
+  /** Alle Teilnehmenden und Anfragen, die Du sehen darfst. Bei einem Fehler leer. */
   participants?: Participant[];
   /** Straße bzw. Ort, PLZ */
   location: string;
@@ -192,7 +192,7 @@ export type Challenge = {
   timerStartedAt?: string;
   finishedAt?: string;
   likedByMe: boolean;
-  /** Wie viele Leute das mögen (Migration like_counts). Ohne Migration unbekannt. */
+  /** Wie viele Leute das mögen (Migration like_counts). Bei einem Fehler unbekannt. */
   likeCount?: number;
   /** Bei Entwürfen leer: Die Frist entsteht erst beim Veröffentlichen. */
   deadline: string;

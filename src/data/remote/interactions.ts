@@ -51,7 +51,7 @@ export const restoreChallenge = (id: string, deadline?: string) =>
 /** Eigenen Post zum Teilen freigeben: Er bekommt die öffentliche Seite kiezcoins.de/c/<id> (Migration 20261103000200). */
 export const shareChallengePublicly = (id: string) => rpc('share_challenge', { p_challenge_id: id });
 
-/** Aufruf zählen. Fehler (doppelt, eigene Challenge, Migration fehlt) ignoriert die App. */
+/** Aufruf zählen. Fehler (doppelt, eigene Challenge) ignoriert die App. */
 export async function recordView(challengeId: string) {
   await supabase.from('challenge_views').upsert({ challenge_id: challengeId }, { ignoreDuplicates: true });
 }
@@ -204,7 +204,7 @@ export async function loadBlockedUsers(): Promise<User[]> {
   return ((res.data ?? []) as ProfileRow[]).map((p) => toUser(p));
 }
 
-/** Lob: Anzahl und ob Du schon gelobt hast. null, solange die Migration fehlt. */
+/** Lob: Anzahl und ob Du schon gelobt hast. null bei einem Fehler. */
 export async function loadPraise(userId: string, meId: string): Promise<{ count: number; mine: boolean } | null> {
   const [countRes, mineRes] = await Promise.all([
     supabase.rpc('praise_count', { p_user: userId }),
@@ -224,9 +224,8 @@ export type AppTextRow = { original: string; text: string; ort: string | null; u
   Record<AppTextLang, string | null>
 >;
 
-/** Alle Texte des CMS für den Editor (Route `texts`), mit Übersetzungen, sofern die Migration 1400 gelaufen ist. */
+/** Alle Texte des CMS für den Editor (Route `texts`), mit Übersetzungen */
 export async function loadAppTexts(): Promise<AppTextRow[]> {
-  // Alle Spalten: Fehlt eine Sprachspalte noch (Migration nicht gelaufen), bleibt sie einfach leer.
   const { data } = check(await supabase.from('app_texts').select('*'));
   return (data ?? []) as AppTextRow[];
 }
@@ -241,7 +240,7 @@ export async function saveAppText(original: string, value: string, lang: 'de' | 
     await supabase.from('app_texts').update({ [column]: value }).eq('original', original).select('original'),
   );
   if (data?.length) return;
-  // Text aus dem Code, der noch nicht in der Tabelle steht: Zeile anlegen (Migration 20261029000500)
+  // Text aus dem Code, der noch nicht in der Tabelle steht: Zeile anlegen
   const { error } = await supabase.from('app_texts').insert({ original, [column]: value });
   // Echten Grund weitergeben (errorText zeigt ihn), statt ihn zu verschlucken (Daria, 30.10.2026)
   if (error) throw error;
@@ -249,7 +248,7 @@ export async function saveAppText(original: string, value: string, lang: 'de' | 
 
 /**
  * Knopf zählen (Migration 20261031000100): nur Knopf, Look und Zeitpunkt, ohne Person. Fehler stören niemanden
- * (z. B. ohne Migration oder ohne Netz), deshalb still.
+ * (z. B. ohne Netz), deshalb still.
  */
 export function countButton(button: string, look: string) {
   supabase
@@ -261,7 +260,7 @@ export function countButton(button: string, look: string) {
     );
 }
 
-/** Wie oft jeder Knopf gedrückt wurde (nur Moderatorinnen). `null`, solange die Migration fehlt. */
+/** Wie oft jeder Knopf gedrückt wurde (nur Moderatorinnen). `null` bei einem Fehler. */
 export async function loadButtonCounts(buttons: string[]): Promise<Record<string, number> | null> {
   const counts: Record<string, number> = {};
   for (const button of buttons) {
@@ -395,8 +394,6 @@ async function deleteFolder(bucketName: string, userId: string) {
   const bucket = supabase.storage.from(bucketName);
   for (;;) {
     const { data: files, error } = await bucket.list(userId, { limit: 100 });
-    // Privater Speicher fehlt (Migration 20261116000100 noch nicht eingespielt): nichts zu löschen
-    if (error && /bucket not found/i.test(error.message)) return;
     if (error) throw error;
     if (!files?.length) return;
     const { data: removed, error: removeError } = await bucket.remove(files.map((file) => `${userId}/${file.name}`));

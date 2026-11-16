@@ -12,7 +12,7 @@ import { ProfileRow, selectProfiles } from './rows';
 
 export type ProfileExtras = { bio: string; website: string };
 
-/** Bio und Webseite einer Person. null, solange die Migration fehlt. */
+/** Bio und Webseite einer Person. null bei einem Fehler. */
 export async function loadProfileExtras(userId: string): Promise<ProfileExtras | null> {
   const { data, error } = await supabase.from('profiles').select('bio, website').eq('id', userId).maybeSingle();
   if (error) return null;
@@ -44,7 +44,7 @@ function friendStateOf(row: FriendshipRow | undefined, meId: string): FriendStat
   return row.requester_id === meId ? 'sent' : 'received';
 }
 
-/** Stand zwischen mir und einer Person. null, solange die Migration fehlt. */
+/** Stand zwischen mir und einer Person. null bei einem Fehler. */
 export async function loadFriendState(meId: string, otherId: string): Promise<FriendState | null> {
   const { data, error } = await supabase
     .from('friendships')
@@ -80,7 +80,7 @@ export async function removeFriend(meId: string, otherId: string) {
 
 export type FriendLists = { friends: User[]; incoming: User[]; outgoing: User[] };
 
-/** Freund:innen und offene Anfragen. null, solange die Migration fehlt. */
+/** Freund:innen und offene Anfragen. null bei einem Fehler. */
 export async function loadFriends(meId: string): Promise<FriendLists | null> {
   const { data, error } = await supabase.from('friendships').select('requester_id, addressee_id, status');
   if (error) return null;
@@ -118,7 +118,7 @@ export async function acceptFriendInvite(code: string): Promise<User | null> {
   return row ? toUser(row) : null;
 }
 
-/** Wer seit dem letzten Aufruf eine eigene Einladung angenommen hat. Leer, solange die Migration fehlt. */
+/** Wer seit dem letzten Aufruf eine eigene Einladung angenommen hat. Leer bei einem Fehler. */
 export async function takeNewInviteFriends(): Promise<User[]> {
   const { data, error } = await supabase.rpc('take_new_invite_friends');
   if (error || !data?.length) return [];

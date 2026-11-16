@@ -40,17 +40,17 @@ export type Showcase = {
   imprint?: string;
   /** AGB, formatierbarer Text (Migration 20261111000100); nur über loadShowcase geladen */
   terms?: string;
-  /** Spalte terms gibt es schon (Migration 20261111000100 gelaufen) */
+  /** AGB sind geladen: Nur dann speichert das Formular sie */
   termsReady: boolean;
   /** Titel und Beschreibung für Suchmaschinen (Migration 20261111000200); leer erzeugt api/s.mjs beides selbst */
   seoTitle?: string;
   seoDescription?: string;
-  /** Spalten seo_title und seo_description gibt es schon (Migration 20261111000200 gelaufen) */
+  /** Titel, Beschreibung und Adresse sind geladen: Nur dann zeigt und speichert das Formular sie */
   seoReady: boolean;
   visibility: Visibility;
   /** Bezahlt: Die Grenze von 50 löscht nichts (plan_until in der Zukunft) */
   paid: boolean;
-  /** Schalter der Gruppe (Migration 20261110001600), aus `showcase_schalter`; ohne Migration alles an */
+  /** Schalter der Gruppe (Migration 20261110001600), aus `showcase_schalter`; ohne Antwort alles an */
   switches: ShowcaseSwitches;
   /** Nur für das Team (showcase_private); sonst leer */
   inviteCode: string;
@@ -151,7 +151,7 @@ const toShowcase = (r: Row): Showcase => ({
   seoReady: false,
 });
 
-/** AGB getrennt laden: Fehlt die Migration 20261111000100, bleibt das Schaufenster wie vorher, nur ohne AGB */
+/** AGB laden; klappt das nicht, bleibt das Schaufenster ohne AGB */
 async function loadTerms(showcase: Showcase): Promise<void> {
   const { data, error } = await supabase.from('showcases').select('terms').eq('id', showcase.id).maybeSingle();
   if (error) return;
@@ -159,7 +159,7 @@ async function loadTerms(showcase: Showcase): Promise<void> {
   showcase.terms = (data as { terms: string | null } | null)?.terms ?? undefined;
 }
 
-/** Titel und Beschreibung für Suchmaschinen getrennt laden: Fehlt die Migration 20261111000200, bleibt alles wie vorher */
+/** Titel und Beschreibung für Suchmaschinen laden; klappt das nicht, bleiben sie unverändert */
 async function loadSeo(showcase: Showcase): Promise<void> {
   const { data, error } = await supabase.from('showcases').select('seo_title, seo_description').eq('id', showcase.id).maybeSingle();
   if (error) return;
@@ -169,17 +169,14 @@ async function loadSeo(showcase: Showcase): Promise<void> {
   showcase.seoDescription = row?.seo_description ?? undefined;
 }
 
-/** Schalter der Gruppe; fehlt die Migration 20261110001600, ist alles an wie vorher */
+/** Schalter der Gruppe; ohne Antwort ist alles an */
 export async function showcaseSwitches(id: string): Promise<ShowcaseSwitches> {
   const { data, error } = await supabase.rpc('showcase_schalter', { p_showcase: id });
   if (error || !data) return ALL_ON;
   return { ...ALL_ON, ...(data as Partial<ShowcaseSwitches>) };
 }
 
-/**
- * Darf diese Gruppe ein Schaufenster haben (Feature `schaufenster` der Gruppe, nicht der Person, die schaut)?
- * Fehlt die Migration 20261110001600, gilt die Feature-Freischaltung wie vorher.
- */
+/** Darf diese Gruppe ein Schaufenster haben (Feature `schaufenster` der Gruppe, nicht der Person, die schaut)? */
 export async function groupShowcaseOn(groupId: string): Promise<boolean | undefined> {
   const { data, error } = await supabase.rpc('gruppen_feature', { p_key: 'schaufenster', p_group_id: groupId });
   return error ? undefined : data === true;
@@ -211,7 +208,7 @@ export function slugify(name: string): string {
   return base.length >= 3 ? base : `${base}-kiez`.replace(/^-/, '');
 }
 
-/** `undefined`: keins, `null`: Fehler (z. B. Migration fehlt) */
+/** `undefined`: keins, `null`: Fehler */
 export async function showcaseOfGroup(groupId: string): Promise<Showcase | undefined | null> {
   const { data, error } = await supabase.from('showcases').select(COLUMNS).eq('group_id', groupId).maybeSingle();
   if (error) return null;
@@ -279,11 +276,11 @@ export type ShowcaseInput = {
   links: string[];
   openingHours?: string;
   imprint?: string;
-  /** Nur mitschicken, wenn die Spalte terms existiert (Showcase.termsReady) */
+  /** Nur mitschicken, wenn geladen (Showcase.termsReady) */
   terms?: string;
   /** Eigener Kurzname für kiezcoins.de/s/<kurzname>; nur mitschicken, wenn er sich ändert */
   slug?: string;
-  /** Nur mitschicken, wenn die Spalten existieren (Showcase.seoReady) */
+  /** Nur mitschicken, wenn geladen (Showcase.seoReady) */
   seoTitle?: string;
   seoDescription?: string;
   visibility: Visibility;
@@ -369,7 +366,7 @@ export const SEO_DESCRIPTION_MAX = 200;
 
 export type SlugStatus = 'frei' | 'eigen' | 'vergeben' | 'reserviert' | 'ungueltig';
 
-/** Beim Tippen: Ist der Name frei? `undefined`, wenn die Migration fehlt oder keine Verbindung besteht */
+/** Beim Tippen: Ist der Name frei? `undefined` ohne Verbindung oder bei einem Fehler */
 export async function slugStatus(slug: string, showcaseId: string): Promise<SlugStatus | undefined> {
   if (!SLUG_PATTERN.test(slug.trim().toLowerCase())) return 'ungueltig';
   const { data, error } = await supabase.rpc('showcase_slug_status', { p_slug: slug, p_showcase: showcaseId });
@@ -695,24 +692,11 @@ const toHit = (r: HitRow): ShowcaseHit => ({
 /** Ab so vielen Zeichen sucht der Feed */
 export const SEARCH_MIN = 2;
 
-/**
- * Öffentliche Schaufenster finden (Daria, 2026-11-13): Name, Kiez und „Über uns“, nur `public` und online.
- * Über `schaufenster_suche` (Migration 20261113000500). Fehlt sie, liest die App die Kopfdaten direkt; dann fehlt der
- * Ort, und ein offline geschaltetes Schaufenster der eigenen Gruppe könnte mit auftauchen.
- */
+/** Öffentliche Schaufenster finden (Daria, 2026-11-13): Name, Kiez und „Über uns“, nur `public` und online */
 export async function searchShowcases(query: string): Promise<ShowcaseHit[]> {
   const q = query.trim();
   if (q.length < SEARCH_MIN) return [];
   const { data, error } = await supabase.rpc('schaufenster_suche', { p_query: q, p_limit: 50 });
-  if (!error) return ((data ?? []) as HitRow[]).map(toHit);
-  const pattern = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`).replace(/[,()]/g, ' ')}%`;
-  const { data: rows, error: fallbackError } = await supabase
-    .from('showcases')
-    .select('id, name, slug, logo_path, kiez, about')
-    .eq('visibility', 'public')
-    .or(`name.ilike.${pattern},kiez.ilike.${pattern},about.ilike.${pattern}`)
-    .order('name')
-    .limit(50);
-  if (fallbackError) throw fallbackError;
-  return ((rows ?? []) as HitRow[]).map(toHit);
+  if (error) throw error;
+  return ((data ?? []) as HitRow[]).map(toHit);
 }

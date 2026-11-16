@@ -35,7 +35,7 @@ export function BadgeNotice() {
           router.push({ pathname: '/badge/[kind]', params: { kind: next.badge } });
         }
       } catch {
-        // ohne Netz oder ohne Migration: beim nächsten Mal
+        // ohne Netz: beim nächsten Mal
       } finally {
         busy = false;
       }

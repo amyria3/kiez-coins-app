@@ -10,13 +10,13 @@ import type {
 } from '../types';
 import { signChallengePhotos } from './photos';
 import { check, FALLBACK_NAME, loadPayoutLines, PAYMENT_STATUSES, toChallenge, toPayout, toUser } from './mapping';
-import { ChallengeRow, hasGenderColumn, noGenderColumn, isMissingColumn, ParticipantRow, PayoutRow, ProfileRow, selectProfiles, SettingsRow, ShareRow } from './rows';
+import { ChallengeRow, ParticipantRow, PayoutRow, ProfileRow, selectProfiles, SettingsRow, ShareRow } from './rows';
 
 // ---------------------------------------------------------------------------
 // Laden
 // ---------------------------------------------------------------------------
 
-// comments(*): reply_to_id kommt mit, sobald die Migration eingespielt ist
+// comments(*): alle Spalten, auch reply_to_id
 export const CHALLENGE_COLUMNS = '*, comments(*)';
 
 export type LiveData = {
@@ -28,7 +28,7 @@ export type LiveData = {
   blockedIds: string[];
 };
 
-/** Eigene Blockierungen. Leer, solange die Migration `moderation` fehlt. */
+/** Eigene Blockierungen. Leer bei einem Fehler. */
 export async function loadBlockedIds(): Promise<Set<string>> {
   const { data, error } = await supabase.from('blocks').select('blocked_id');
   if (error) return new Set();
@@ -53,7 +53,7 @@ type GroupRow = {
   group_members: { user_id: string; role: 'founder' | 'member'; joined_at: string }[];
 };
 
-/** Eigene Gruppen samt Mitgliedern. Leer, solange die Migration `groups` fehlt. */
+/** Eigene Gruppen samt Mitgliedern. Leer bei einem Fehler. */
 async function loadGroups(): Promise<Group[]> {
   const { data, error } = await supabase.from('groups').select('*, group_members(*)').order('created_at');
   if (error) return [];
@@ -70,7 +70,7 @@ async function loadGroups(): Promise<Group[]> {
   }));
 }
 
-/** Teilnehmende und Anfragen je Challenge (Migration 20261028000300). Ohne Migration leer. */
+/** Teilnehmende und Anfragen je Challenge (Migration 20261028000300). Bei einem Fehler leer. */
 async function loadParticipants(challengeIds: string[]): Promise<Map<string, Participant[]>> {
   const byChallenge = new Map<string, Participant[]>();
   if (!challengeIds.length) return byChallenge;
@@ -87,7 +87,7 @@ async function loadParticipants(challengeIds: string[]): Promise<Map<string, Par
   return byChallenge;
 }
 
-/** Anzahl Likes je Challenge (Funktion like_counts). Ohne Migration leer. */
+/** Anzahl Likes je Challenge (Funktion like_counts). Bei einem Fehler leer. */
 async function loadLikeCounts(ids: string[]): Promise<Map<string, number>> {
   if (!ids.length) return new Map();
   const { data, error } = await supabase.rpc('like_counts', { p_ids: ids });
@@ -99,7 +99,7 @@ type CommentLikes = Map<string, { n: number; mine: boolean }>;
 
 /**
  * Likes je Kommentar (Tabelle comment_likes, Migration 20261109000100, Daria 2026-11-09).
- * Ohne Migration `null`: Die Kommentare zeigen dann kein Herz. Likes blockierter Personen zählen nicht.
+ * Bei einem Fehler `null`: Die Kommentare zeigen dann kein Herz. Likes blockierter Personen zählen nicht.
  */
 async function loadCommentLikes(commentIds: string[], userId: string, blocked: Set<string>): Promise<CommentLikes | null> {
   const likes: CommentLikes = new Map();
@@ -118,7 +118,7 @@ async function loadCommentLikes(commentIds: string[], userId: string, blocked: S
   return likes;
 }
 
-/** Hängt Anzahl und eigenes Like an die Kommentare. Ohne Migration bleiben sie ohne. */
+/** Hängt Anzahl und eigenes Like an die Kommentare. Bei einem Fehler bleiben sie ohne. */
 function withCommentLikes(challenge: Challenge, likes: CommentLikes | null): Challenge {
   if (!likes) return challenge;
   return {
@@ -129,7 +129,7 @@ function withCommentLikes(challenge: Challenge, likes: CommentLikes | null): Cha
 
 /**
  * Wer einen Kommentar geliked hat, neueste zuerst, ohne blockierte Personen (Tabelle comment_likes,
- * Migration 20261109000100). Ohne Migration `null`.
+ * Migration 20261109000100). Bei einem Fehler `null`.
  */
 export async function loadCommentLikers(commentId: string): Promise<User[] | null> {
   const [{ data, error }, blocked] = await Promise.all([
@@ -147,7 +147,7 @@ export async function loadCommentLikers(commentId: string): Promise<User[] | nul
 
 /**
  * Wer einen Post geliked hat, neueste zuerst (Funktion challenge_likers, Migration 20261105000300).
- * Ohne Migration `null`, damit die App sagen kann, dass die Liste noch nicht geht.
+ * Bei einem Fehler `null`.
  */
 export async function loadLikers(challengeId: string): Promise<User[] | null> {
   const { data, error } = await supabase.rpc('challenge_likers', { p_challenge_id: challengeId });
@@ -284,15 +284,9 @@ export async function loadChallenge(
 
 type OwnPublicRow = { handle: string | null; kiez: string | null; gender?: Gender | null };
 
-/** Öffentlicher Teil des eigenen Profils, ohne die Migration 20261024000100 ohne Geschlecht */
+/** Öffentlicher Teil des eigenen Profils */
 async function selectOwnPublic(userId: string) {
-  if (hasGenderColumn) {
-    const res = await supabase.from('profiles').select('handle, kiez, gender').eq('id', userId).maybeSingle();
-    if (!res.error) return { data: res.data as OwnPublicRow | null, error: null };
-    if (!isMissingColumn(res.error)) return { data: null, error: res.error };
-    noGenderColumn();
-  }
-  const res = await supabase.from('profiles').select('handle, kiez').eq('id', userId).maybeSingle();
+  const res = await supabase.from('profiles').select('handle, kiez, gender').eq('id', userId).maybeSingle();
   return { data: res.data as OwnPublicRow | null, error: res.error };
 }
 
@@ -330,7 +324,7 @@ export async function loadOwnProfile(userId: string): Promise<Partial<Profile> |
 /**
  * Aufrufe eigener Challenges. Die RLS liefert die Aufrufe der eigenen Challenges und die eigenen
  * Aufrufe fremder Posts (Migration 20261108000300). Die eigenen fallen hier raus.
- * `null`, solange die Migration `challenge_views` fehlt. Die App blendet die Zahl dann aus.
+ * `null` bei einem Fehler. Die App blendet die Zahl dann aus.
  */
 export async function loadViewCounts(userId: string): Promise<Map<string, number> | null> {
   const { data, error } = await supabase.from('challenge_views').select('challenge_id').neq('user_id', userId).limit(10000);

@@ -64,7 +64,7 @@ export function useGroupPhotoForm(
   const missingPhoto = textOnly ? !pagesText(pages) : !photo;
   const hasContent = textOnly ? !!title.trim() || !!pagesText(pages) : !!photo || extras.length > 0 || !!title.trim() || !!body.trim();
 
-  // Nur mitschicken, wenn an oder beim Entwurf geändert: So speichert die App auch ohne Migration 20261116000200
+  // „Sehr privat“ nur mitschicken, wenn an oder beim Entwurf geändert
   const veryPrivateField = veryPrivate || draft?.veryPrivate ? { veryPrivate } : {};
   const input = () =>
     textOnly

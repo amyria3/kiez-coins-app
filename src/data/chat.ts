@@ -104,7 +104,7 @@ function seedDemo(me: string, friends: User[]) {
 
 /**
  * Freund:innen mit letzter Nachricht, neueste Unterhaltung zuerst. Dazu die offenen Anfragen.
- * null, solange die Migrationen fehlen.
+ * null bei einem Fehler.
  */
 export async function loadConversations(
   meId: string,

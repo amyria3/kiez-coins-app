@@ -21,10 +21,10 @@ import { color, radius, space, text } from '../theme/tokens';
 export function ShowcaseLink({ group, isFounder }: { group: Group; isFounder: boolean }) {
   const enabled = useShowcaseEnabled(group.id);
   const router = useRouter();
-  // undefined: lädt oder keins, null: Fehler (Migration fehlt)
+  // undefined: lädt oder keins, null: Fehler
   const [showcase, setShowcase] = useState<Showcase | undefined | null>(undefined);
   const [loaded, setLoaded] = useState(false);
-  // Schalter der Gruppe (Migration 20261110001600); undefined: Migration fehlt, dann gilt `enabled`
+  // Schalter der Gruppe; undefined: keine Antwort, dann gilt `enabled`
   const [groupOn, setGroupOn] = useState<boolean | undefined>(undefined);
   const [name, setName] = useState(group.name);
   const [busy, setBusy] = useState(false);
@@ -45,7 +45,7 @@ export function ShowcaseLink({ group, isFounder }: { group: Group; isFounder: bo
   if (showcase === null) {
     return (
       <FieldGroup label="Schaufenster">
-        <Notice variant="warning" message="Das Schaufenster lädt gerade nicht. Fehlt noch die Migration 20261110000400_schaufenster?" />
+        <Notice variant="warning" message="Das Schaufenster lädt gerade nicht. Versuche es gleich noch mal." />
       </FieldGroup>
     );
   }

@@ -73,7 +73,7 @@ export function useCrosspostEnabled(): boolean {
 
 export type CrosspostAccount = { platform: LivePlatform; handle: string; instance: string };
 
-/** Verbundene Konten der angemeldeten Person, ohne Zugang. Leer, solange die Migration fehlt. */
+/** Verbundene Konten der angemeldeten Person, ohne Zugang. Leer bei einem Fehler. */
 export async function loadCrosspostAccounts(): Promise<CrosspostAccount[]> {
   const { data, error } = await supabase.from('crosspost_accounts').select('platform, handle, instance');
   if (error) return [];

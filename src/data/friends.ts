@@ -7,7 +7,7 @@ import { useStore } from './store';
 
 /**
  * Freund:innen und offene Anfragen für Leisten und Zähler (Reiter „Gruppen“, Profil).
- * `undefined`: lädt, `null`: Migration fehlt. Mit Beispieldaten dieselbe Auswahl wie in account/freunde.
+ * `undefined`: lädt, `null`: Fehler. Mit Beispieldaten dieselbe Auswahl wie in account/freunde.
  */
 export function useFriends(): FriendLists | null | undefined {
   const { mode, users, currentUserId } = useStore();

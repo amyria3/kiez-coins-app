@@ -33,7 +33,7 @@ export default function PersonalDetails() {
   const { session } = useAuth();
   const live = mode === 'live' && !!session;
   const [uploading, setUploading] = useState(false);
-  // Bio und Webseite: null, solange sie laden oder die Migration fehlt (dann ausgeblendet)
+  // Bio und Webseite: null, solange sie laden oder bei einem Fehler (dann ausgeblendet)
   const [extras, setExtras] = useState<ProfileExtras | null>(live ? null : { bio: '', website: '' });
   useEffect(() => {
     if (!live) return;

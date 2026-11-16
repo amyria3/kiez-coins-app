@@ -106,7 +106,7 @@ export function useShareChallenge(): (challenge: Challenge) => Promise<void> {
           await shareChallengePublicly(challenge.id);
           return `${title}\n${sharePageUrl(challenge.id)}`;
         } catch {
-          // Ohne Migration oder bei einem Fehler: Link in die Web-App
+          // Bei einem Fehler: Link in die Web-App
         }
       }
       return mode === 'live' ? `${title}\n${WEB_APP_URL}/challenge/${challenge.id}` : title;

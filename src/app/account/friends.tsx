@@ -31,9 +31,9 @@ export default function Friends() {
   const router = useRouter();
   const goBack = useGoBack();
   const { mode, users, currentUserId } = useStore();
-  // undefined: lädt, null: Migration fehlt
+  // undefined: lädt, null: Fehler
   const [lists, setLists] = useState<FriendLists | null | undefined>(undefined);
-  // undefined: lädt, null: Migration fehlt
+  // undefined: lädt, null: Fehler
   const [inviteCode, setInviteCode] = useState<string | null | undefined>(undefined);
   const [inviteError, setInviteError] = useState<string | null>(null);
 

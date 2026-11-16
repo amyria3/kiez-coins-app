@@ -23,9 +23,9 @@ export default function SurveyResultsScreen() {
   const [data, setData] = useState<SurveyResults>();
   // Akzent des Themes (Daria, 2026-11-14)
   const accent = useAccentColor();
-  // Rückmeldung zur Tour (Migration 20261029000300). Ohne Migration bleibt die Karte weg.
+  // Rückmeldung zur Tour. Ohne Daten bleibt die Karte weg.
   const [tour, setTour] = useState<TourFeedbackResults | null>(null);
-  // Welcher Kamera-Knopf häufiger gedrückt wird (Migration 20261031000100). Ohne Migration bleibt die Karte weg.
+  // Welcher Kamera-Knopf häufiger gedrückt wird. Ohne Daten bleibt die Karte weg.
   const [buttons, setButtons] = useState<Record<string, number> | null>(null);
   // Interesse am Weiterposten auf Meta und X, einmal pro Gerät gezählt (Daria, 05.11.2026)
   const [crosspost, setCrosspost] = useState<number | null>(null);

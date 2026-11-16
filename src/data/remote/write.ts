@@ -15,7 +15,7 @@ import type {
 import { CHALLENGE_COLUMNS } from './load';
 import { check, errorText, photoUrl, toChallenge } from './mapping';
 import { bucketOf, isPrivateAudience, isPrivateChallenge, newPhotoPath, removePhotos, signChallengePhotos } from './photos';
-import { ChallengeRow, hasGenderColumn, noGenderColumn, isMissingColumn } from './rows';
+import { ChallengeRow } from './rows';
 
 // ---------------------------------------------------------------------------
 // Schreiben
@@ -31,15 +31,9 @@ export async function saveOwnProfile(userId: string, profile: Profile): Promise<
   check(
     await supabase
       .from('profiles')
-      .update({ handle: profile.handle.trim() || null, kiez: profile.kiez ?? null })
+      .update({ handle: profile.handle.trim() || null, kiez: profile.kiez ?? null, ...(profile.gender ? { gender: profile.gender } : {}) })
       .eq('id', userId),
   );
-  // Geschlecht getrennt, damit das Speichern ohne die Migration 20261024000100 nicht scheitert
-  if (hasGenderColumn && profile.gender) {
-    const { error } = await supabase.from('profiles').update({ gender: profile.gender }).eq('id', userId);
-    if (error && isMissingColumn(error)) noGenderColumn();
-    else if (error) throw error;
-  }
   check(
     await supabase
       .from('profile_settings')
@@ -95,15 +89,6 @@ export async function uploadPhoto(userId: string, photo: ImageSource, isPrivate 
   const response = await fetch(uri);
   const body = await response.arrayBuffer();
   const path = newPhotoPath(userId, isPrivate);
-  const result = await supabase.storage.from(bucketOf(path)).upload(path, body, { contentType: 'image/jpeg', upsert: false });
-  // Ohne Migration 20261116000100 gibt es den privaten Speicher noch nicht: dann wie bisher öffentlich
-  if (isPrivate && result.error && /bucket not found/i.test(result.error.message)) return uploadPhotoBody(userId, body);
-  check(result);
-  return path;
-}
-
-async function uploadPhotoBody(userId: string, body: ArrayBuffer): Promise<string> {
-  const path = newPhotoPath(userId, false);
   check(await supabase.storage.from(bucketOf(path)).upload(path, body, { contentType: 'image/jpeg', upsert: false }));
   return path;
 }
@@ -162,7 +147,7 @@ export type NewChallenge = {
 
 /**
  * Mehrere Personen in einer We-Challenge (Daria, 27.10.2026, Migration 20261028000300): Höchstzahl und
- * Art des Beitretens. Ohne Angabe bleibt es bei einer Person und „Offen“, wie vor der Migration.
+ * Art des Beitretens. Ohne Angabe bleibt es bei einer Person und „Offen“.
  */
 export type Participation = { max: number; mode: JoinMode };
 
@@ -210,7 +195,7 @@ async function inRewardOrder(
   }
 }
 
-/** Spalten lat/lng (Migration 20261020000400). Ohne Punkt bleiben sie weg, damit es auch ohne Migration läuft. */
+/** Spalten lat/lng, nur mit Punkt */
 const coordFields = (coords?: { latitude: number; longitude: number }) =>
   coords ? { lat: coords.latitude, lng: coords.longitude } : {};
 
@@ -222,27 +207,13 @@ async function uploadExtras(userId: string, extras: ExtraPhoto[] | undefined, is
   return paths;
 }
 
-/** Neue, optionale Spalten: Punkt (Migration 20261020000400) und weitere Fotos (20261020000700). */
+/** Punkt und weitere Fotos, soweit vorhanden */
 const optionalFields = (coords?: { latitude: number; longitude: number }, extraPaths?: string[]) => ({
   ...coordFields(coords),
   ...(extraPaths ? { extra_image_paths: extraPaths } : {}),
 });
 
-/** Fehlen neue Spalten noch (Migration nicht eingespielt), noch einmal ohne sie speichern. */
-async function retryWithoutCoords<T>(run: (withCoords: boolean) => Promise<T>): Promise<T> {
-  try {
-    return await run(true);
-  } catch (error) {
-    const e = error as { code?: string; message?: string };
-    if (e?.code === 'PGRST204' || /\b(lat|lng|extra_image_paths)\b/.test(e?.message ?? '')) return run(false);
-    throw error;
-  }
-}
-
-/**
- * Text auf dem Foto nur mitschicken, wenn gesetzt oder ausdrücklich gelöscht (`null`). So speichert die App auch
- * ohne Migration 20261029000200 wie bisher. Nur bei „Nur ein Bild“.
- */
+/** Text auf dem Foto nur mitschicken, wenn gesetzt oder ausdrücklich gelöscht (`null`). Nur bei „Nur ein Bild“. */
 function photoTextFields(type: ChallengeType | undefined, value: PhotoText | null | undefined) {
   if (value === undefined) return {};
   const text = type === 'photo' ? value?.text.trim() : undefined;
@@ -251,7 +222,7 @@ function photoTextFields(type: ChallengeType | undefined, value: PhotoText | nul
   return { photo_text: text.slice(0, 80), photo_text_x: round(value!.x), photo_text_y: round(value!.y) };
 }
 
-/** Blätter nur mitschicken, wenn es welche gibt. So speichert die App ohne Migration 20261107000100 wie bisher. */
+/** Blätter nur mitschicken, wenn es welche gibt */
 const pagesField = (pages?: string[], font?: string) =>
   pages?.length ? { pages: cleanPages(pages), ...(font && font !== 'inter' ? { sheet_font: font } : { sheet_font: null }) } : {};
 
@@ -270,8 +241,7 @@ export async function createChallenge(userId: string, draft: NewChallenge): Prom
   const isPrivate = isPrivateAudience(draft);
   const imagePath = draft.photo ? await uploadPhoto(userId, draft.photo, isPrivate) : null;
   const extraPaths = draft.photo ? await uploadExtras(userId, draft.extras, isPrivate) : undefined;
-  const { data } = await retryWithoutCoords(async (withCoords) =>
-    check(
+  const { data } = check(
       await supabase
         .from('challenges')
         .insert({
@@ -282,21 +252,18 @@ export async function createChallenge(userId: string, draft: NewChallenge): Prom
           location: draft.location,
           bounty_amount: draft.bountyAmount ?? null,
           ...edenField(draft.edensteine),
-          ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}),
+          ...optionalFields(draft.coords, extraPaths),
           deadline: draft.deadline,
           image_path: imagePath,
           ...pagesField(draft.pages, draft.sheetFont),
           ...(draft.private ? { visibility: 'private' } : {}),
-          // Nur mitschicken, wenn an: So legt die App auch ohne Migration 20261116000200 an
           ...(draft.veryPrivate ? { very_private: true } : {}),
-          // Nur mitschicken, wenn gesetzt: So legt die App auch ohne Migration 20261029000100 an
           ...(draft.localOnly && !draft.private ? { local_only: true } : {}),
           ...photoTextFields(draft.type, draft.photoText),
           ...(draft.type === 'photo' ? {} : participationFields(draft.participation)),
         })
         .select(CHALLENGE_COLUMNS)
         .single(),
-    ),
   );
   await signChallengePhotos([data as unknown as ChallengeRow]);
   return toChallenge(data as unknown as ChallengeRow, { liked: false });
@@ -519,30 +486,27 @@ export async function saveDraft(userId: string, id: string | undefined, draft: D
   };
   const isTask = draft.type !== 'photo';
   const write = async (withoutBounty: boolean) => {
-    const { data } = await retryWithoutCoords(async (withCoords) => {
-      const all = {
-        ...fields,
-        ...(withoutBounty ? { bounty_amount: null } : {}),
-        ...(withCoords ? optionalFields(draft.coords, extraPaths) : {}),
-        // Nur mitschicken, wenn gewählt: So speichert die App auch ohne Migration 20261029000100
-        ...(draft.localOnly !== undefined && !draft.private ? { local_only: draft.localOnly } : {}),
-        // Nur mitschicken, wenn gewählt: So speichert die App auch ohne Migration 20261116000200
-        ...(draft.veryPrivate !== undefined ? { very_private: draft.veryPrivate } : {}),
-        ...photoTextFields(draft.type, draft.photoText),
-        ...(draft.type === 'photo' ? pagesField(draft.pages, draft.sheetFont) : {}),
-      };
-      const query = id
-        ? supabase.from('challenges').update(all).eq('id', id).eq('status', 'draft')
-        : supabase.from('challenges').insert({
-            ...all,
-            author_id: userId,
-            status: 'draft',
-            ...(draft.groupId ? { group_id: draft.groupId } : {}),
-            ...(draft.private ? { visibility: 'private' } : {}),
-            ...(isTask ? participationFields(draft.participation) : {}),
-          });
-      return check(await query.select(CHALLENGE_COLUMNS).single());
-    });
+    const all = {
+      ...fields,
+      ...(withoutBounty ? { bounty_amount: null } : {}),
+      ...optionalFields(draft.coords, extraPaths),
+      // Nur mitschicken, wenn gewählt: Sonst bleibt der gespeicherte Stand des Entwurfs
+      ...(draft.localOnly !== undefined && !draft.private ? { local_only: draft.localOnly } : {}),
+      ...(draft.veryPrivate !== undefined ? { very_private: draft.veryPrivate } : {}),
+      ...photoTextFields(draft.type, draft.photoText),
+      ...(draft.type === 'photo' ? pagesField(draft.pages, draft.sheetFont) : {}),
+    };
+    const query = id
+      ? supabase.from('challenges').update(all).eq('id', id).eq('status', 'draft')
+      : supabase.from('challenges').insert({
+          ...all,
+          author_id: userId,
+          status: 'draft',
+          ...(draft.groupId ? { group_id: draft.groupId } : {}),
+          ...(draft.private ? { visibility: 'private' } : {}),
+          ...(isTask ? participationFields(draft.participation) : {}),
+        });
+    const { data } = check(await query.select(CHALLENGE_COLUMNS).single());
     await signChallengePhotos([data as unknown as ChallengeRow]);
     return toChallenge(data as unknown as ChallengeRow, { liked: false });
   };

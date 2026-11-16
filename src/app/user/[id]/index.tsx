@@ -42,12 +42,12 @@ export default function UserProfile() {
   const user = users.find((u) => u.id === params.id);
   const hidden = useHideName(user ?? { id: params.id });
   const isMe = params.id === currentUserId;
-  // null: Lob gibt es noch nicht (Migration fehlt) oder lädt noch
+  // null: Lob lädt noch oder nicht verfügbar
   const [praise, setPraiseState] = useState<{ count: number; mine: boolean } | null>(
     mode === 'demo' ? { count: 3, mine: false } : null,
   );
   const [busy, setBusy] = useState(false);
-  // Bio und Webseite; Freundschaft (null: Migration fehlt oder lädt)
+  // Bio und Webseite; Freundschaft (null: lädt oder Fehler)
   const [extras, setExtras] = useState<ProfileExtras | null>(
     mode === 'demo' ? { bio: 'Kompost, Kaffee und kaputte Fahrräder. Frage mich, wenn was klemmt.', website: 'https://kiezcoins.de' } : null,
   );

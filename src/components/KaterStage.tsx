@@ -62,12 +62,6 @@ const HERZAUGEN_FLACKER_MS = 110;
 const HEART_EYES_HOLD = 250;
 const HERZAUGEN_AUS = 260;
 const HEART_EYES_AFTER = 150;
-const HERZAUGEN_MS =
-  HEART_EYES_WAIT + HEART_EYES_IN + HEART_EYES_FLICKER * 2 * HERZAUGEN_FLACKER_MS + HEART_EYES_HOLD + HERZAUGEN_AUS + HEART_EYES_AFTER;
-/** So lange dauert das Fegen; der Start der App wartet darauf (StartKater) */
-export const SWEEP_DURATION = 380 + 5 * 260 + 150 + 380;
-/** So lange dauert der Blick über die Brille nach einer Aktion */
-export const PEEK_DURATION = PEEK_AFTER_PAUSE + 420 + HERZAUGEN_MS + 380;
 
 type Props = {
   /** Breite der Figur in pt; die Höhe folgt dem Bild */

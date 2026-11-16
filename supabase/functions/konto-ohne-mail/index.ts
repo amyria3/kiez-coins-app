@@ -18,12 +18,6 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 const DOMAIN = 'ohne-mail.kiezcoins.de';
 const MIN_PASSWORD = 8;
 const MAX_HANDLE = 30;
-/**
- * Ausweichweg, solange Migration 20261114000200 fehlt: höchstens so viele neue Konten ohne Mail pro Stunde, für alle
- * zusammen. Mit der Migration gilt: 3 Versuche pro Stunde je Anschluss, 100 insgesamt (no_mail_signup_check).
- */
-const MAX_PER_HOUR = 30;
-
 /** Fingerabdruck der IP-Adresse: SHA-256 mit geheimem Zusatz, die Adresse selbst wird nie gespeichert */
 async function ipHash(req: Request): Promise<string> {
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || req.headers.get('x-real-ip') || 'unbekannt';
@@ -94,12 +88,11 @@ Deno.serve(async (req) => {
   const { data: taken } = await admin.rpc('handle_taken', { p_handle: handle });
   if (taken) return reply({ error: 'handle_taken' }, 409);
 
-  // Grenze je Anschluss (Sicherheitsprüfung 2026-11-14); ohne Migration die alte Grenze für alle
+  // Grenze (Sicherheitsprüfung 2026-11-14): 3 Versuche pro Stunde je Anschluss, 100 insgesamt. Klappt die Prüfung
+  // nicht, entsteht kein Konto.
   const { data: check, error: checkError } = await admin.rpc('no_mail_signup_check', { p_ip_hash: await ipHash(req) });
-  if (checkError) {
-    const { data: recent } = await admin.rpc('recent_no_mail_signups');
-    if (typeof recent === 'number' && recent >= MAX_PER_HOUR) return reply({ error: 'rate_limit' }, 429);
-  } else if (check !== 'ok') return reply({ error: 'rate_limit' }, 429);
+  if (checkError) return reply({ error: 'create' }, 500);
+  if (check !== 'ok') return reply({ error: 'rate_limit' }, 429);
 
   const email = `${crypto.randomUUID()}@${DOMAIN}`;
   const created = await admin.auth.admin.createUser({

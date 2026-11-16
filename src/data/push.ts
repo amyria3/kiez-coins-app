@@ -102,7 +102,7 @@ const COLUMNS: Record<PushCategory, string> = {
 };
 export const ALL_ON: PushSettings = { messages: true, challenges: true, friends: true, showcase: true };
 
-/** Schalter je Art. `null`, solange die Migration fehlt. */
+/** Schalter je Art. `null` bei einem Fehler. */
 export async function loadPushSettings(userId: string): Promise<PushSettings | null> {
   const { data, error } = await supabase
     .from('profile_settings')
