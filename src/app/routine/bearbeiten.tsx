@@ -11,7 +11,6 @@ import { SubScreen } from '../../components/Screen';
 import { loadReminders, parseDate, TIME, updateReminder, type Reminder } from '../../data/reminders';
 import { useGoBack } from '../../lib/goBack';
 import { color, space } from '../../theme/tokens';
-import { MeSpaceScreen } from '../../theme/signal';
 
 /** `none`: einmal an dem Tag, ohne Uhrzeit (Daria, 2026-11-14) */
 type TimeKind = 'until' | 'at' | 'range' | 'none';
@@ -27,11 +26,8 @@ const hhmm = (v: string) => v.trim().padStart(5, '0');
  */
 /** Gehört zu „Me & Myself“: gelb wie die Routine (Daria, 2026-11-13) */
 export default function EditReminderScreen() {
-  return (
-    <MeSpaceScreen>
-      <EditReminder />
-    </MeSpaceScreen>
-  );
+  // Theme Happy kommt zentral über die Route (RouteSpace)
+  return <EditReminder />;
 }
 
 function EditReminder() {

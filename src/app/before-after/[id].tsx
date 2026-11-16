@@ -21,7 +21,6 @@ import { useGoBack } from '../../lib/goBack';
 import { color, radius, space, text } from '../../theme/tokens';
 import { celebratePost } from '../../components/HeartBurst';
 import { WaitForData } from '../../components/WaitForData';
-import { PrivateSpace } from '../../theme/signal';
 
 const clock = (iso: string) =>
   new Date(iso).toLocaleTimeString(localeTag(), { hour: '2-digit', minute: '2-digit' });
@@ -32,16 +31,12 @@ const dayClock = (ms: number) =>
  * Route `before-after/[id]`: Schritt 2 (Timer) und 3 (Nachher) eines Vorher-Nachher-Entwurfs (Daria, 23.10.2026).
  * Der Timer läuft auf dem Server. Spätestens 48 h nach dem Start postet der Server den Beitrag, auch ohne Nachher-Foto.
  */
+// Me-Challenge unter „Privat“: gelb wie „Me & Myself“, gesetzt zentral über den Post (RouteSpace)
 export default function BeforeAfterScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const { challenge } = useChallenge(id);
   return (
-    // Me-Challenge unter „Privat“: gelb wie „Me & Myself“ (Daria, 2026-11-15)
-    <PrivateSpace on={!!challenge?.private}>
-      <WaitForData title="Me-Challenge">
-        <BeforeAfterForm />
-      </WaitForData>
-    </PrivateSpace>
+    <WaitForData title="Me-Challenge">
+      <BeforeAfterForm />
+    </WaitForData>
   );
 }
 

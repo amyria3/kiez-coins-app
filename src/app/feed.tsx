@@ -27,7 +27,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ChallengePost } from '../components/ChallengePost';
 import { COMPOSE_TITLE, ComposeSheet, type ComposeKind } from '../components/compose/ComposeSheet';
-import { PrivateSignalProvider, pushFrontSpace, SpaceProvider, type Space } from '../theme/signal';
+import { PrivateSignalProvider, useSpaceOverride, type Space } from '../theme/signal';
 import { takeComposeDone } from '../components/compose/compose';
 import { IconButton } from '../components/IconButton';
 import { Text } from '../components/T';
@@ -928,10 +928,8 @@ export default function FeedScreen() {
       : tab === 'groups'
         ? 'group'
         : 'public';
-  // Dialoge über der App (z. B. „Foto hinzufügen“) bekommen dieselbe Farbe, solange der Feed vorn ist
-  useFocusEffect(
-    useCallback(() => pushFrontSpace(area), [area]),
-  );
+  // Der Feed bestimmt den Bereich selbst (Reiter, Ziel beim Erstellen). Seite und Dialoge darüber folgen ihm (RouteSpace).
+  useSpaceOverride(area);
   // Kurz und gleich für jede Gruppe (Daria, 24.10.2026)
   // Post für ein Schaufenster: Der Kopf nennt es (Daria, 2026-11-10)
   const showcasePost = composing ? peekShowcasePost() : null;
@@ -945,7 +943,6 @@ export default function FeedScreen() {
   };
 
   return (
-    <SpaceProvider value={area}>
     <View
       style={[styles.screen, { paddingTop: insets.top }]}
       // In der App gibt es keine Zuhörer am Dokument; Berührungen melden für `whenUntouched` (lib/touching.ts)
@@ -1178,6 +1175,5 @@ export default function FeedScreen() {
       />}
       <SurveyOverlay visible={surveyVisible} onClose={closeSurvey} />
     </View>
-    </SpaceProvider>
   );
 }

@@ -1,8 +1,8 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { Alert, StyleSheet } from 'react-native';
 import { Text } from '../../../components/T';
 import { restoreWithChoice } from '../../../components/CrosspostDialog';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
 import { FieldGroup } from '../../../components/Content';
@@ -13,7 +13,7 @@ import type { ImageSource } from '../../../data/types';
 import { SubScreen } from '../../../components/Screen';
 import { formatDayMonthShort, formatRemainingShort } from '../../../data/format';
 import { useChallenge, useStore } from '../../../data/store';
-import { PrivateSignalProvider, pushFrontSpace } from '../../../theme/signal';
+import { useSpaceOverride } from '../../../theme/signal';
 import { color, text } from '../../../theme/tokens';
 import { useNudge } from '../../../components/Nudge';
 import { t, tAbout } from '../../../data/texts';
@@ -97,8 +97,8 @@ function EditChallengeForm() {
   // „Sehr privat“ an oder aus (Daria, 15.11.2026)
   const [veryPrivate, setVeryPrivate] = useState(!!challenge?.veryPrivate);
   // Unter „Privat“ gelb wie beim Erstellen, auch in Dialogen über der Seite (Daria, 2026-11-15)
-  const privateSpace = audience === 'private' && !challenge?.groupId;
-  useFocusEffect(useCallback(() => (privateSpace ? pushFrontSpace('me') : undefined), [privateSpace]));
+  // Die Wahl auf der Seite bestimmt den Bereich, nicht der gespeicherte Post (RouteSpace)
+  useSpaceOverride(challenge?.groupId ? undefined : audience === 'private' ? 'me' : 'public');
   const titleField = useNudge();
   const locationField = useNudge();
 
@@ -255,90 +255,88 @@ function EditChallengeForm() {
   };
 
   return (
-    <PrivateSignalProvider value={privateSpace}>
-      <SubScreen
-        // Titel nach Art des Posts (Daria, 2026-11-15: „Challenge bearbeiten“ passte bei Bildern nicht)
-        title={
-          isText
-            ? 'Text bearbeiten'
-            : challenge.type === 'photo'
-              ? 'Bild bearbeiten'
-              : challenge.type === 'before_after'
-                ? 'Me-Challenge bearbeiten'
-                : isGroup
-                  ? 'We-Challenge bearbeiten'
-                  : 'Challenge bearbeiten'
-        }
-        navigation="close"
-        onLeadingPress={goBack}
-        actions={
-          deleted ? (
-            <>
-              <Button label="Veröffentlichen" onPress={publish} disabled={!canSave} whyDisabled={() => whyNot()} />
-              <Button label="Nicht veröffentlichen, Entwurf" variant="ghost" onPress={keepUnpublished} />
-            </>
-          ) : (
-            <>
-              <Button label="Speichern" onPress={save} disabled={!canSave} whyDisabled={() => whyNot()} />
-              <Button label="Nicht veröffentlichen, Entwurf" variant="ghost" onPress={toDraft} />
-            </>
-          )
-        }
-      >
-        {isGroup ? null : <TypeSwitch options={audiences} value={audience} onChange={setAudience} turn={false} />}
-        {isText ? (
-          <SheetEditor title={title} onTitleChange={setTitle} pages={pages ?? ['']} onPagesChange={setPages} fontKey={sheetFont} onFontChange={setSheetFont} />
-        ) : null}
-        {/* Foto ändern oder hinzufügen, Titel direkt auf dem Foto wie beim Erstellen */}
-        {isText ? null : (
-        <PhotoPicker
-          photo={photo ?? challenge.image}
-          hint={isGroup ? 'Optional. Zeige, worum es geht.' : 'Zeige, wo geholfen werden soll.'}
-          onChange={setPhoto}
-          title={{ value: title, onChange: setTitle, nudge: titleField, optional: titleOptional }}
-        />
-        )}
-        {isText ? null : challenge.type === 'individual' ? (
-          <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={body} onChangeText={setBody} maxLength={500} />
-        ) : challenge.type === 'photo' ? (
-          <TagTextField label="Dein Text" tag={PHOTO_TAG} value={body} onChangeText={setBody} maxLength={500} />
-        ) : (
-          <TextField label="Beschreibung" value={body} onChangeText={setBody} maxLength={500} multiline />
-        )}
-        <VeryPrivateSwitch value={veryPrivate} onChange={setVeryPrivate} />
-        {isGroup ? null : (
+    <SubScreen
+      // Titel nach Art des Posts (Daria, 2026-11-15: „Challenge bearbeiten“ passte bei Bildern nicht)
+      title={
+        isText
+          ? 'Text bearbeiten'
+          : challenge.type === 'photo'
+            ? 'Bild bearbeiten'
+            : challenge.type === 'before_after'
+              ? 'Me-Challenge bearbeiten'
+              : isGroup
+                ? 'We-Challenge bearbeiten'
+                : 'Challenge bearbeiten'
+      }
+      navigation="close"
+      onLeadingPress={goBack}
+      actions={
+        deleted ? (
           <>
-            {isPrivate ? null : <TextField label="Ort" required nudge={locationField} value={location} onChangeText={setLocation} maxLength={120} />}
-            {challenge.type === 'photo' ? null : (
-              <RewardField value={rewardValue} onChange={setRewardValue} places={participation.max} seed={challenge.id} />
-            )}
+            <Button label="Veröffentlichen" onPress={publish} disabled={!canSave} whyDisabled={() => whyNot()} />
+            <Button label="Nicht veröffentlichen, Entwurf" variant="ghost" onPress={keepUnpublished} />
           </>
-        )}
-        {isTask ? (
-          <ParticipantsField
-            value={participation}
-            onChange={changeParticipation}
-            limit={isGroup ? MAX_MEMBERS - 1 : undefined}
-            coins={reward === 'euro'}
-          />
-        ) : null}
-        <FieldGroup label="Zeitraum">
-          <ChipGroup>
-            <Chip label="Unverändert" selected={durationDays === null} onPress={() => setDurationDays(null)} />
-            {durations.map(({ days, label }) => (
-              <Chip key={days} label={label} selected={durationDays === days} onPress={() => setDurationDays(days)} />
-            ))}
-          </ChipGroup>
-          <Text style={styles.secondary}>
-            {durationDays
-              ? t('Neu ab jetzt: {label}.', { label: durations.find((d) => d.days === durationDays)?.label })
-              : expired
-                ? t('Abgelaufen. Läuft beim Veröffentlichen neu bis {datum}.', { datum: formatDayMonthShort(renewed()) })
-                : formatRemainingShort(challenge.deadline)}
-          </Text>
-        </FieldGroup>
-      </SubScreen>
-    </PrivateSignalProvider>
+        ) : (
+          <>
+            <Button label="Speichern" onPress={save} disabled={!canSave} whyDisabled={() => whyNot()} />
+            <Button label="Nicht veröffentlichen, Entwurf" variant="ghost" onPress={toDraft} />
+          </>
+        )
+      }
+    >
+      {isGroup ? null : <TypeSwitch options={audiences} value={audience} onChange={setAudience} turn={false} />}
+      {isText ? (
+        <SheetEditor title={title} onTitleChange={setTitle} pages={pages ?? ['']} onPagesChange={setPages} fontKey={sheetFont} onFontChange={setSheetFont} />
+      ) : null}
+      {/* Foto ändern oder hinzufügen, Titel direkt auf dem Foto wie beim Erstellen */}
+      {isText ? null : (
+      <PhotoPicker
+        photo={photo ?? challenge.image}
+        hint={isGroup ? 'Optional. Zeige, worum es geht.' : 'Zeige, wo geholfen werden soll.'}
+        onChange={setPhoto}
+        title={{ value: title, onChange: setTitle, nudge: titleField, optional: titleOptional }}
+      />
+      )}
+      {isText ? null : challenge.type === 'individual' ? (
+        <TagTextField label="Beschreibung" tag="#vorher" placeholder="Was ist hier zu tun?" value={body} onChangeText={setBody} maxLength={500} />
+      ) : challenge.type === 'photo' ? (
+        <TagTextField label="Dein Text" tag={PHOTO_TAG} value={body} onChangeText={setBody} maxLength={500} />
+      ) : (
+        <TextField label="Beschreibung" value={body} onChangeText={setBody} maxLength={500} multiline />
+      )}
+      <VeryPrivateSwitch value={veryPrivate} onChange={setVeryPrivate} />
+      {isGroup ? null : (
+        <>
+          {isPrivate ? null : <TextField label="Ort" required nudge={locationField} value={location} onChangeText={setLocation} maxLength={120} />}
+          {challenge.type === 'photo' ? null : (
+            <RewardField value={rewardValue} onChange={setRewardValue} places={participation.max} seed={challenge.id} />
+          )}
+        </>
+      )}
+      {isTask ? (
+        <ParticipantsField
+          value={participation}
+          onChange={changeParticipation}
+          limit={isGroup ? MAX_MEMBERS - 1 : undefined}
+          coins={reward === 'euro'}
+        />
+      ) : null}
+      <FieldGroup label="Zeitraum">
+        <ChipGroup>
+          <Chip label="Unverändert" selected={durationDays === null} onPress={() => setDurationDays(null)} />
+          {durations.map(({ days, label }) => (
+            <Chip key={days} label={label} selected={durationDays === days} onPress={() => setDurationDays(days)} />
+          ))}
+        </ChipGroup>
+        <Text style={styles.secondary}>
+          {durationDays
+            ? t('Neu ab jetzt: {label}.', { label: durations.find((d) => d.days === durationDays)?.label })
+            : expired
+              ? t('Abgelaufen. Läuft beim Veröffentlichen neu bis {datum}.', { datum: formatDayMonthShort(renewed()) })
+              : formatRemainingShort(challenge.deadline)}
+        </Text>
+      </FieldGroup>
+    </SubScreen>
   );
 }
 

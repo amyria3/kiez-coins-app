@@ -1,6 +1,7 @@
-import { createContext, useCallback, useContext, useSyncExternalStore, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useLayoutEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { useFocusEffect } from 'expo-router';
 
+import type { Space } from './spaces';
 import { color } from './tokens';
 
 /**
@@ -14,15 +15,14 @@ import { color } from './tokens';
  * - `me`: „Me & Myself“ (My Structure, My Feed) und Erstellen unter „Privat“. Signalfarbe Gelb.
  * - `public`: Kiez und Überall. Signalfarbe Lila.
  * - `group`: Gruppen. Signalfarbe Lila.
- * Der Feed berechnet den Bereich einmal und gibt ihn mit `SpaceProvider` an alles darunter weiter: Umschalter,
- * Hauptbuttons, Fokusrahmen, Suchfeld, Erstellen. So wechseln alle Farben im selben Moment.
+ * Den Bereich jeder Seite bestimmt eine Stelle: `RouteSpace` im Root-Layout (siehe `spaceOfRoute`). Alles darunter
+ * liest ihn: Umschalter, Hauptbuttons, Fokusrahmen, Suchfeld, Erstellen. So wechseln alle Farben im selben Moment.
  * Nur im Look „Kiez“; „Fashionable“ bleibt bei Lila.
  */
-export type Space = 'me' | 'public' | 'group' | 'functional';
+export type { Space } from './spaces';
+export { isFunctionalRoute, spaceOfRoute } from './spaces';
 
 const SpaceContext = createContext<Space>('public');
-
-export const SpaceProvider = SpaceContext.Provider;
 
 export function useSpace(): Space {
   return useContext(SpaceContext);
@@ -84,42 +84,31 @@ export function pushFrontSpace(space: Space): () => void {
   };
 }
 
-/**
- * Seite, die zu „Me & Myself“ gehört, z. B. Neue Erinnerung, Bearbeiten, Erledigt (Daria, 2026-11-13): gelb wie die
- * Routine, auch in Dialogen über der Seite.
- */
-export function MeSpaceScreen({ children }: { children: ReactNode }) {
-  useFocusEffect(useCallback(() => pushFrontSpace('me'), []));
-  return <SpaceContext.Provider value="me">{children}</SpaceContext.Provider>;
-}
-/**
- * Seite zu einem Post, der unter „Privat“ steht, z. B. Detail und Me-Challenge (Daria, 2026-11-15): gelb wie
- * „Me & Myself“, auch in Dialogen über der Seite. Ohne `on` bleibt der Bereich, wie er ist.
- */
-export function PrivateSpace({ on, children }: { on: boolean; children: ReactNode }) {
-  useFocusEffect(useCallback(() => (on ? pushFrontSpace('me') : undefined), [on]));
-  return <PrivateSignalProvider value={on}>{children}</PrivateSignalProvider>;
-}
+const SpaceOverrideContext = createContext<((space: Space | undefined) => void) | undefined>(undefined);
 
-/**
- * Routen mit Theme „Functional“ (Daria, 2026-11-14): alles unter Dein Konto außer Freundschaften (bleibt Friendship),
- * Schaufenster verwalten und bearbeiten, Moderation, Texte. Die öffentliche Schaufenster-Seite bleibt Friendship.
- */
-export function isFunctionalRoute(name: string): boolean {
-  if (name === 'account/friends') return false;
+/** Bereich einer Seite samt Dialogen darüber. Nur für `RouteSpace`. */
+export function SpaceScreen({ space, children }: { space: Space; children: ReactNode }) {
+  const [override, setOverride] = useState<Space | undefined>();
+  const value = override ?? space;
+  useFocusEffect(useCallback(() => pushFrontSpace(value), [value]));
   return (
-    name.startsWith('account/') ||
-    name === 'schaufenster/index' ||
-    name === 'schaufenster/[id]/bearbeiten' ||
-    name === 'moderation' ||
-    name === 'texts'
+    <SpaceOverrideContext.Provider value={setOverride}>
+      <SpaceContext.Provider value={value}>{children}</SpaceContext.Provider>
+    </SpaceOverrideContext.Provider>
   );
 }
 
-/** Seite mit Theme „Functional“, auch für Dialoge über der Seite. Das Root-Layout setzt sie je Route (isFunctionalRoute). */
-export function FunctionalSpaceScreen({ children }: { children: ReactNode }) {
-  useFocusEffect(useCallback(() => pushFrontSpace('functional'), []));
-  return <SpaceContext.Provider value="functional">{children}</SpaceContext.Provider>;
+/**
+ * Die Seite bestimmt den Bereich selbst, weil eine Wahl auf ihr ihn ändert (z. B. Reiter im Feed, Ziel beim
+ * Erstellen). `undefined`: wieder der Bereich aus der Route.
+ */
+export function useSpaceOverride(space: Space | undefined) {
+  const set = useContext(SpaceOverrideContext);
+  // Vor dem Zeichnen, damit die Seite nicht kurz in der falschen Farbe erscheint
+  useLayoutEffect(() => {
+    set?.(space);
+  }, [set, space]);
+  useLayoutEffect(() => () => set?.(undefined), [set]);
 }
 
 export function useFrontSpace(): Space {

@@ -12,7 +12,6 @@ import { WEEKDAYS, weekdayShort } from '../../data/katerRoutine';
 import { addDays, createReminder, loadReminders, localDate, parseDate, TIME } from '../../data/reminders';
 import { useGoBack } from '../../lib/goBack';
 import { space } from '../../theme/tokens';
-import { MeSpaceScreen } from '../../theme/signal';
 
 /**
  * Route `routine/new` (Daria, 2026-11-10): Erinnerung anlegen. Titel nach „Ich will …“, damit der Kater ihn in
@@ -21,11 +20,8 @@ import { MeSpaceScreen } from '../../theme/signal';
  */
 /** Gehört zu „Me & Myself“: gelb wie die Routine (Daria, 2026-11-13) */
 export default function NewReminderScreen() {
-  return (
-    <MeSpaceScreen>
-      <NewReminder />
-    </MeSpaceScreen>
-  );
+  // Theme Happy kommt zentral über die Route (RouteSpace)
+  return <NewReminder />;
 }
 
 function NewReminder() {

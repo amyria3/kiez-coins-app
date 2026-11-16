@@ -11,7 +11,6 @@ import { capitalize, goalOf, loadReminders, markReminderDone, routineLabel, setR
 import { t } from '../../data/texts';
 import { useGoBack } from '../../lib/goBack';
 import { color, space } from '../../theme/tokens';
-import { MeSpaceScreen } from '../../theme/signal';
 
 /**
  * Route `routine/[id]` (Daria, 2026-11-10): Erledigt melden. Standard ist das Posten als Me-Challenge mit Titel
@@ -19,11 +18,8 @@ import { MeSpaceScreen } from '../../theme/signal';
  */
 /** Gehört zu „Me & Myself“: gelb wie die Routine (Daria, 2026-11-13) */
 export default function ReminderDoneScreen() {
-  return (
-    <MeSpaceScreen>
-      <ReminderDone />
-    </MeSpaceScreen>
-  );
+  // Theme Happy kommt zentral über die Route (RouteSpace)
+  return <ReminderDone />;
 }
 
 function ReminderDone() {

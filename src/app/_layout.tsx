@@ -28,7 +28,8 @@ import { LoadingScreen } from '../components/GearsLoader';
 import { StartKater } from '../components/StartKater';
 import { InstallHint } from '../components/InstallHint';
 import { WebSafeArea } from '../components/WebSafeArea';
-import { FrontSpaceProvider, FunctionalSpaceScreen, isFunctionalRoute } from '../theme/signal';
+import { FrontSpaceProvider } from '../theme/signal';
+import { RouteSpace } from '../components/RouteSpace';
 import { KeyboardProvider } from '../components/Keyboard';
 import { FriendInviteNotice } from '../components/FriendInviteNotice';
 import { BadgeNotice } from '../components/BadgeNotice';
@@ -138,8 +139,8 @@ function RootStack() {
         <Stack
           key={languageChanges}
           screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}
-          // Theme „Functional“ für die Seiten unter dem Menü (Daria, 2026-11-14)
-          screenLayout={({ route, children }) => (isFunctionalRoute(route.name) ? <FunctionalSpaceScreen>{children}</FunctionalSpaceScreen> : children)}
+          // Bereich (Theme) jeder Seite an einer Stelle: aus Route und Post (Daria, 2026-11-15, components/RouteSpace.tsx)
+          screenLayout={({ route, children }) => <RouteSpace route={route}>{children}</RouteSpace>}
         >
           {/* Vollbild ohne Wegwischen: Schließen nur über das X, damit die Frage nach dem Entwurf kommt
               und die Vorschau nicht wie ein Overlay wirkt, dessen Wischen mit den Gesten der Vorschau konkurriert */}

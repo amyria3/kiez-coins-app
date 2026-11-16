@@ -1,13 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { Alert } from 'react-native';
-import { Stack, useFocusEffect, useGlobalSearchParams, useRouter } from 'expo-router';
+import { Stack, useGlobalSearchParams, useRouter } from 'expo-router';
 
 import { findPlace, roundCoords, type Coords } from '../../../data/location';
 import { useStore } from '../../../data/store';
 import type { Challenge, ExtraPhoto, ImageSource, PhotoText } from '../../../data/types';
 import type { Participation } from '../../../data/remote';
 import { LIVE_PLATFORMS, type LivePlatform } from '../../../data/crosspost';
-import { PrivateSignalProvider, pushFrontSpace } from '../../../theme/signal';
+import { useSpaceOverride } from '../../../theme/signal';
 import { color } from '../../../theme/tokens';
 import { WaitForData } from '../../../components/WaitForData';
 
@@ -256,17 +256,14 @@ function CreateFlow() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   // Unter „Privat“ gelb wie „Me & Myself“, auch in Dialogen über der Seite (Daria, 2026-11-15: Meldung war lila)
-  const privateDraft = !!draft[0].private;
-  useFocusEffect(useCallback(() => (privateDraft ? pushFrontSpace('me') : undefined), [privateDraft]));
+  useSpaceOverride(draft[0].private ? 'me' : undefined);
   return (
     <DraftContext.Provider value={draft}>
-      <PrivateSignalProvider value={privateDraft}>
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
-          <Stack.Screen name="success" options={{ gestureEnabled: false }} />
-          {/* Kein Zurückwischen: seitlich ziehen gehört in der Vorschau den Fotos. Zurück über „Bearbeiten“. */}
-          <Stack.Screen name="preview" options={{ gestureEnabled: false }} />
-        </Stack>
-      </PrivateSignalProvider>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}>
+        <Stack.Screen name="success" options={{ gestureEnabled: false }} />
+        {/* Kein Zurückwischen: seitlich ziehen gehört in der Vorschau den Fotos. Zurück über „Bearbeiten“. */}
+        <Stack.Screen name="preview" options={{ gestureEnabled: false }} />
+      </Stack>
     </DraftContext.Provider>
   );
 }
