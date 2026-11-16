@@ -1400,5 +1400,11 @@
   "Vorschläge für den Ort": "Suggestions pour le lieu",
   "Vorschläge: OpenStreetMap": "Suggestions : OpenStreetMap",
   "Bitte ein Vorher-Foto oder eine Überschrift hinzufügen.": "Ajoute une photo « avant » ou un titre.",
-  "Bitte ein Nachher-Foto oder eine Überschrift hinzufügen.": "Ajoute une photo « après » ou un titre."
+  "Bitte ein Nachher-Foto oder eine Überschrift hinzufügen.": "Ajoute une photo « après » ou un titre.",
+  "Verschieben …": "Déplacer …",
+  "Wohin verschieben?": "Déplacer où ?",
+  "Nach Privat": "Vers Privé",
+  "In den Kiez (5 km)": "Vers le quartier (5 km)",
+  "Nach „Überall“": "Vers « Partout »",
+  "Im Kiez und in „Überall“ sehen den Post auch andere.": "Dans le quartier et dans « Partout », d’autres voient aussi le post."
 }

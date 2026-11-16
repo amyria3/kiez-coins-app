@@ -227,6 +227,25 @@ export default function ChallengeDetail() {
   // Eigene Challenge, die noch niemand angenommen hat: bearbeiten oder schließen
   // Vorher-Nachher lässt sich nach dem Posten nur löschen
   const canManage = isAuthor && challenge.status === 'open' && !challenge.assigneeId && !isBeforeAfter;
+  // Verschieben nach Privat, Kiez oder Überall, auch bei Me-Challenges nach dem Posten (Daria, 2026-11-16:
+  // „Ich habe eine Me-Challenge bei mir gepostet und möchte sie jetzt verschieben“). Privat geht nur für Bild und
+  // Me-Challenge ohne Coins, wie im Bearbeiten-Screen.
+  const canMove = isAuthor && !challenge.groupId && !challenge.assigneeId && (challenge.status === 'open' || challenge.status === 'closed');
+  const canBePrivate = (challenge.type === 'photo' || isBeforeAfter) && !challenge.bountyAmount;
+  const moveTo = (to: 'private' | 'nearby' | 'everywhere') =>
+    dispatch({ type: 'setAudience', id: challenge.id, private: to === 'private', localOnly: to === 'nearby' });
+  const askMove = () => {
+    const here = challenge.private ? 'private' : challenge.localOnly ? 'nearby' : 'everywhere';
+    const options = [
+      { key: 'private' as const, text: t('Nach Privat'), show: canBePrivate },
+      { key: 'nearby' as const, text: t('In den Kiez (5 km)'), show: true },
+      { key: 'everywhere' as const, text: t('Nach „Überall“'), show: true },
+    ].filter((o) => o.show && o.key !== here);
+    Alert.alert(t('Wohin verschieben?'), here === 'private' ? t('Im Kiez und in „Überall“ sehen den Post auch andere.') : undefined, [
+      ...options.map((o) => ({ text: o.text, onPress: () => moveTo(o.key) })),
+      { text: t('Abbrechen'), style: 'cancel' as const },
+    ]);
+  };
   // Löschen bis jemand annimmt, auch geschlossene (Migration 20261021000300)
   const canDelete = isAuthor && (challenge.status === 'open' || challenge.status === 'closed') && !challenge.assigneeId;
   const description = challenge.type === 'wave' ? challenge.challengeText?.trim() : postText(challenge);
@@ -389,6 +408,15 @@ export default function ChallengeDetail() {
                   }}
                 />
               </>
+            ) : null}
+            {canMove ? (
+              <MenuItem
+                label="Verschieben …"
+                onPress={() => {
+                  setMenuOpen(false);
+                  askMove();
+                }}
+              />
             ) : null}
             {/* Umkreis-Begrenzung nachträglich ändern (Daria, 29.10.2026) */}
             {!challenge.groupId && !challenge.private && challenge.status !== 'deleted' ? (

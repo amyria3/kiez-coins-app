@@ -1386,5 +1386,11 @@
   "Vorschläge für den Ort": "Предложения места",
   "Vorschläge: OpenStreetMap": "Предложения: OpenStreetMap",
   "Bitte ein Vorher-Foto oder eine Überschrift hinzufügen.": "Добавь фото «до» или заголовок.",
-  "Bitte ein Nachher-Foto oder eine Überschrift hinzufügen.": "Добавь фото «после» или заголовок."
+  "Bitte ein Nachher-Foto oder eine Überschrift hinzufügen.": "Добавь фото «после» или заголовок.",
+  "Verschieben …": "Переместить …",
+  "Wohin verschieben?": "Куда переместить?",
+  "Nach Privat": "В «Личное»",
+  "In den Kiez (5 km)": "В район (5 км)",
+  "Nach „Überall“": "Во «Везде»",
+  "Im Kiez und in „Überall“ sehen den Post auch andere.": "В районе и во «Везде» пост видят и другие."
 }

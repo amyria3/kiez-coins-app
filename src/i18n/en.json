@@ -1792,5 +1792,11 @@
   "Vorschläge für den Ort": "Suggestions for the place",
   "Vorschläge: OpenStreetMap": "Suggestions: OpenStreetMap",
   "Bitte ein Vorher-Foto oder eine Überschrift hinzufügen.": "Please add a before photo or a headline.",
-  "Bitte ein Nachher-Foto oder eine Überschrift hinzufügen.": "Please add an after photo or a headline."
+  "Bitte ein Nachher-Foto oder eine Überschrift hinzufügen.": "Please add an after photo or a headline.",
+  "Verschieben …": "Move …",
+  "Wohin verschieben?": "Move where?",
+  "Nach Privat": "To Private",
+  "In den Kiez (5 km)": "To the neighborhood (5 km)",
+  "Nach „Überall“": "To “Everywhere”",
+  "Im Kiez und in „Überall“ sehen den Post auch andere.": "In the neighborhood and in “Everywhere”, others can see the post too."
 }
