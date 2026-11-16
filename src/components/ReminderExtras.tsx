@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { TextField } from './Form';
 import { Icon } from './icons/Icon';
+import { PlaceField } from './PlaceField';
 import { Text } from './T';
 import { t } from '../data/texts';
 import { callPhone, openInMaps, openLink, shortLinkText } from '../lib/places';
@@ -16,15 +17,7 @@ export type Extras = { place: string; phone: string; link: string };
 export function ReminderExtrasFields({ value, onChange }: { value: Extras; onChange: (next: Extras) => void }) {
   return (
     <>
-      <TextField
-        label="Ort"
-        placeholder="Adresse oder Name des Orts"
-        value={value.place}
-        onChangeText={(place) => onChange({ ...value, place })}
-        maxLength={200}
-        textContentType="fullStreetAddress"
-        autoComplete="street-address"
-      />
+      <PlaceField value={value.place} onChange={(place) => onChange({ ...value, place })} />
       <TextField
         label="Telefon"
         placeholder="+49 …"

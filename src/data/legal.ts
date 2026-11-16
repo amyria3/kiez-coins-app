@@ -7,7 +7,7 @@
  */
 
 /** Stand aller Texte (TT.MM.JJJJ). */
-export const LEGAL_STAND = '15.11.2026';
+export const LEGAL_STAND = '16.11.2026';
 
 /** Angaben zur Anbieterin. Leere Felder erscheinen in der App als „[offen: …]“. */
 export const OPERATOR = {
@@ -100,6 +100,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
           'Gibst Du den Standort frei, ermittelt Dein Handy daraus Ortsteil, Postleitzahl und Straße. Dafür nutzt es den Ortsdienst des Betriebssystems (Apple bei iPhone, Google bei Android). KiezCoins speichert Deinen genauen Standort nicht. Gespeichert wird nur der Kiez als Text und bei Challenges der gerundete Punkt. Entfernungen im Feed berechnet Dein Handy selbst.',
           'In der Web-App fragt Dein Browser Kiez und Straße bei OpenStreetMap ab (Dienst Nominatim der OpenStreetMap Foundation, Vereinigtes Königreich). Er schickt dafür nur den auf etwa 100 Meter gerundeten Punkt, technisch bedingt auch Deine IP-Adresse. Grundlage ist Deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO) und der Angemessenheitsbeschluss der EU für das Vereinigte Königreich.',
           'Die Freigabe ist freiwillig und lässt sich jederzeit in den Einstellungen Deines Handys oder Browsers zurücknehmen. Ohne Freigabe trägst Du Deinen Kiez von Hand ein.',
+          'Tippst Du bei einer Erinnerung einen Ort ein, schlägt die App passende Orte vor. Dafür schickt sie den getippten Text an Photon, einen Suchdienst der komoot GmbH (Deutschland) mit Daten von OpenStreetMap. Damit nahe Orte oben stehen, schickt sie einen auf etwa 10 Kilometer gerundeten Punkt mit: Deinen Standort, wenn Du ihn freigegeben hast, sonst Deinen Kiez. Technisch bedingt erhält der Dienst auch Deine IP-Adresse. Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
         ],
       },
       // Nachrichten, Routine, Kalender und Weiterposten (Daria, 2026-11-14: fehlten bisher)

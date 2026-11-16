@@ -1395,5 +1395,8 @@
   "Wofür?": "Pour quoi ?",
   "Auf welchen Geräten kommen sie an?": "Sur quels appareils arrivent-elles ?",
   "Auf jedem Gerät, auf dem Du Push-Nachrichten hier eingeschaltet hast. Die Schalter darunter gelten für alle Deine Geräte.": "Sur chaque appareil où tu as activé les notifications ici. Les interrupteurs en dessous valent pour tous tes appareils.",
-  "Push ist auf dem Server noch nicht eingerichtet.": "Les notifications ne sont pas encore configurées sur le serveur."
+  "Push ist auf dem Server noch nicht eingerichtet.": "Les notifications ne sont pas encore configurées sur le serveur.",
+  "Tippst Du bei einer Erinnerung einen Ort ein, schlägt die App passende Orte vor. Dafür schickt sie den getippten Text an Photon, einen Suchdienst der komoot GmbH (Deutschland) mit Daten von OpenStreetMap. Damit nahe Orte oben stehen, schickt sie einen auf etwa 10 Kilometer gerundeten Punkt mit: Deinen Standort, wenn Du ihn freigegeben hast, sonst Deinen Kiez. Technisch bedingt erhält der Dienst auch Deine IP-Adresse. Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).": "Quand tu saisis un lieu dans un rappel, l’app propose des lieux correspondants. Pour cela, elle envoie le texte saisi à Photon, un service de recherche de komoot GmbH (Allemagne) qui utilise les données d’OpenStreetMap. Pour que les lieux proches apparaissent en premier, elle envoie aussi un point arrondi à environ 10 kilomètres : ta position si tu l’as partagée, sinon ton quartier. Pour des raisons techniques, le service reçoit aussi ton adresse IP. La base juridique est l’exécution du contrat d’utilisation (art. 6, par. 1, point b du RGPD).",
+  "Vorschläge für den Ort": "Suggestions pour le lieu",
+  "Vorschläge: OpenStreetMap": "Suggestions : OpenStreetMap"
 }

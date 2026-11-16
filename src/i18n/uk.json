@@ -1397,5 +1397,8 @@
   "Wofür?": "Для чого?",
   "Auf welchen Geräten kommen sie an?": "На які пристрої вони приходять?",
   "Auf jedem Gerät, auf dem Du Push-Nachrichten hier eingeschaltet hast. Die Schalter darunter gelten für alle Deine Geräte.": "На кожен пристрій, де ти ввімкнув(-ла) тут push-сповіщення. Перемикачі нижче діють для всіх твоїх пристроїв.",
-  "Push ist auf dem Server noch nicht eingerichtet.": "Push ще не налаштовано на сервері."
+  "Push ist auf dem Server noch nicht eingerichtet.": "Push ще не налаштовано на сервері.",
+  "Tippst Du bei einer Erinnerung einen Ort ein, schlägt die App passende Orte vor. Dafür schickt sie den getippten Text an Photon, einen Suchdienst der komoot GmbH (Deutschland) mit Daten von OpenStreetMap. Damit nahe Orte oben stehen, schickt sie einen auf etwa 10 Kilometer gerundeten Punkt mit: Deinen Standort, wenn Du ihn freigegeben hast, sonst Deinen Kiez. Technisch bedingt erhält der Dienst auch Deine IP-Adresse. Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).": "Коли Ти вводиш місце в нагадуванні, застосунок пропонує відповідні місця. Для цього він надсилає введений текст до Photon — пошукового сервісу komoot GmbH (Німеччина) з даними OpenStreetMap. Щоб близькі місця були першими, він також надсилає точку, округлену приблизно до 10 кілометрів: Твоє місцезнаходження, якщо Ти його дозволив(-ла), інакше Твій район. З технічних причин сервіс отримує також Твою IP-адресу. Правова підстава — виконання договору користування (ст. 6 ч. 1 п. b GDPR).",
+  "Vorschläge für den Ort": "Пропозиції місця",
+  "Vorschläge: OpenStreetMap": "Пропозиції: OpenStreetMap"
 }
