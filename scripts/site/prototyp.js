@@ -1000,7 +1000,7 @@
       author: 'du', before: meData().before, after: meData().after, took: d.took, comments: 0, likes: 0,
     });
     finishCreate(id);
-    // Coin-Animation kommt später (Übergabe: Coin-Animation bei der Me-Challenge)
+    // Coin-Animation kommt später (offene Aufgabe in Documentation: Coin-Animation bei der Me-Challenge)
     say(meData().done, 'high');
   }
 

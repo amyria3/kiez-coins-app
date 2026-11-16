@@ -40,7 +40,7 @@ Docs: https://docs.expo.dev/eas/index.md
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - No feature is off by default (Daria, 2026-11-08). New features, modes and settings start switched on for everyone, and stay on after an update. A feature is off only when Daria or the person themselves switched it off on purpose. A gate that hides a finished feature needs Daria's explicit decision, noted with date next to the switch.
-- Feature-Freischaltung (Daria, 2026-11-10): every feature outside the core gets a key in `src/data/unlock.ts` and a row in `public.features`, and the app asks `useFeature('key')`. Never gate a feature with a direct `isModerator()` check. Details: `Übergabe/2026-11-10_feature-freischaltung.md`.
+- Feature-Freischaltung (Daria, 2026-11-10): every feature outside the core gets a key in `src/data/unlock.ts` and a row in `public.features`, and the app asks `useFeature('key')`. Never gate a feature with a direct `isModerator()` check. Details: Documentation, `kiez-coins/DATENBANK.md`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
 - Private chats (`public.messages`): never read them with a direct query. If Daria asks you to look into a chat, use `select * from public.chat_einsehen('<id a>', '<id b>', 'Claude', '<reason>');` so the read is logged in `chat_access_log`. Counting or checking structure without `body` is fine (Daria, 2026-10-27).
 
@@ -71,9 +71,8 @@ Follow `kiez-coins/design/UX_UI_Regeln.md`, `kiez-coins/design/Icon_Regelwerk.md
 
 ## Documentation
 
-- All docs (concept, decisions, app status, structure, database) live only in the private repo [amyria3/Documentation](https://github.com/amyria3/Documentation). Do not add docs to this repo, except to `Übergabe/`.
-- Finished tasks and decisions go into Documentation. Unclear points, aborted processes and open tasks go into `Übergabe/` (`YYYY-MM-DD_offen_topic.md`) with everything another account needs to take over: status, next step, open questions for Daria, affected files, SQL script or migration path, code suggestions (Daria, 2026-10-24). Rules in `Übergabe/README.md`.
-- No access to Documentation? Put finished results and decisions into `Übergabe/` as well, as described in `Übergabe/README.md`.
-- Before you change anything in Documentation, check `Übergabe/` here for new files, move their content into Documentation and delete them here in the same piece of work.
-- Whenever Daria has to run SQL (a migration, a check query, a script from `Übergabe/`), give her the GitHub link to the file or the full SQL text in the chat, every time (Daria, 2026-10-31).
-- When you add a migration or a database function in `supabase/migrations`, update the database doc in Documentation (or leave a note in `Übergabe/`). Its daily check fails otherwise.
+- All docs (concept, decisions, app status, structure, database) live only in the private repo [amyria3/Documentation](https://github.com/amyria3/Documentation). Do not add docs to this repo.
+- The to-do list is `kiez-coins/app/TODO.md` in Documentation. Unclear points, aborted processes and open tasks go into `kiez-coins/offen/` there (`YYYY-MM-DD_offen_topic.md`), with everything another account needs to take over. Rules in `kiez-coins/offen/README.md`. The folder `Übergabe/` in this repo is gone (Daria, 2026-11-16).
+- Daria's source files (badges, cat) live in `design/`.
+- Whenever Daria has to run SQL (a migration, a check query, a script), give her the GitHub link to the file or the full SQL text in the chat, every time (Daria, 2026-10-31).
+- When you add a migration or a database function in `supabase/migrations`, update the database doc in Documentation. Its daily check fails otherwise.

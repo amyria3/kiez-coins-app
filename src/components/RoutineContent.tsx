@@ -19,7 +19,7 @@ import { color, space } from '../theme/tokens';
 /**
  * Inhalt der Routine (Daria, 2026-11-09/10): Deine Erinnerungen mit Fortschritt der Woche, oben der Kater.
  * Steht im Feed als Reiter „Routine“ links neben den anderen und als eigene Seite `routine`.
- * Antworten auf die Fragen: Übergabe/2026-11-07_offen_erinnerungen.md.
+ * Antworten auf die Fragen: Documentation, kiez-coins/offen/2026-11-07_offen_erinnerungen.md.
  */
 /** `topPad`: Abstand oben, im Feed derselbe wie bei den anderen Reitern unter dem Umschalter */
 export function RoutineContent({

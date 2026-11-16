@@ -400,7 +400,7 @@ export default function FeedScreen() {
   // statt der Posts. Ein Treffer öffnet das Schaufenster; „Zurück“ führt wieder zu den Treffern, das Feed-Icon unten
   // oder das Kreuz im Feld zurück in den Feed. Nur öffentliche, online geschaltete Schaufenster (Migration
   // 20261113000500). Kiez: im Umkreis von 5 km oder im selben Kiez wie die Posts. Überall: alle, nach Name.
-  // Später (Übergabe/TODO.md): Überall nach Entfernung sortieren, in anderen Gegenden suchen.
+  // Später (TODO.md in Documentation): Überall nach Entfernung sortieren, in anderen Gegenden suchen.
   const searchOn = useFeature('schaufenster_suche') && mode === 'live';
   const searchTab = tab === 'nearby' || tab === 'everywhere';
   const [query, setQuery] = useState('');

@@ -12,7 +12,7 @@ import { useStore } from './store';
  * Weiterposten (Daria, 05.11.2026): Öffentliche Posts lassen sich zusätzlich auf anderen Plattformen veröffentlichen.
  * BlueSky, Mastodon, Instagram und Facebook laufen über die Edge Function `weiterposten` (kostenlos). X kommt später.
  * Freigegeben für alle (Daria, 09.11.2026, „alles außer X“). Wer die echten Schalter sieht, entscheidet das Feature
- * `weiterposten` (unlock.ts). Für X zählt ein Knopf das Interesse. Plan und Preismodell: `Übergabe/TODO.md`, Abschnitt „Teilen“.
+ * `weiterposten` (unlock.ts). Für X zählt ein Knopf das Interesse. Plan und Preismodell: Documentation `kiez-coins/app/TODO.md`, Abschnitt „Teilen“.
  */
 export type CrosspostPlatform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook' | 'x';
 

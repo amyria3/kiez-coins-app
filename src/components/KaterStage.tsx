@@ -9,14 +9,14 @@ import type { KaterAction, KaterSaying } from '../data/kater';
 import { t } from '../data/texts';
 import { color, motion, radius, space, text } from '../theme/tokens';
 
-// Ebenen aus Darias Figma-Kater, alle auf derselben Fläche 1300 × 1696 (Ausschnitt wie Übergabe/KiezCoins Cat2.svg). Gebaut mit scripts/kater-ebenen.py (02.11.2026).
+// Ebenen aus Darias Figma-Kater, alle auf derselben Fläche 1300 × 1696 (Ausschnitt wie design/kater/KiezCoins Cat2.svg). Gebaut mit scripts/kater-ebenen.py (02.11.2026).
 // `oben` (Schürze, Kopf) hat an den Gläsern eine Aussparung: Darunter läuft das Video der schimmernden Gläser.
 const BOTTOM = require('../../assets/kater/unten.png');
 const BROOM = require('../../assets/kater/besen.png');
 const BOOTS = require('../../assets/kater/stiefel.png');
 const TOP = require('../../assets/kater/oben.png');
 const TOP_FULL = require('../../assets/kater/oben-ganz.png');
-// Über die Brille schauen (Übergabe/KiezCoins Cat2.svg): weißes und schwarzes Auge, Brille tiefer und gekippt, mit Bügeln
+// Über die Brille schauen (design/kater/KiezCoins Cat2.svg): weißes und schwarzes Auge, Brille tiefer und gekippt, mit Bügeln
 const PEEK = require('../../assets/kater/drueber.png');
 /** So weit sitzt die gekippte Brille tiefer als die normale */
 const GLASSES_LOWER = 66;

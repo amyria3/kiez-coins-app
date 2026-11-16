@@ -4,7 +4,7 @@ const { defineConfig, globalIgnores } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
 
 module.exports = defineConfig([
-  globalIgnores(['dist/*', 'website/*', 'public/*', 'scripts/site/*', 'scripts/prototyp-vorher-nachher/*', 'supabase/functions/*', 'Übergabe/*']),
+  globalIgnores(['dist/*', 'website/*', 'public/*', 'scripts/site/*', 'supabase/functions/*', 'design/*']),
   expoConfig,
   {
     // Diese Regeln gelten für den React Compiler, den die App nicht nutzt. Sie melden vor allem

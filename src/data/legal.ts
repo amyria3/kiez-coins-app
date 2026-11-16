@@ -137,7 +137,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
           'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
         ],
       },
-      // Schaufenster für Läden, Vereine und Clubs (Rechtsprüfung 11.11.2026, Übergabe/2026-11-11_offen_schaufenster-recht.md)
+      // Schaufenster für Läden, Vereine und Clubs (Rechtsprüfung 11.11.2026, Documentation, kiez-coins/offen/2026-11-11_offen_schaufenster-recht.md)
       {
         heading: 'Schaufenster sind öffentlich',
         paragraphs: [

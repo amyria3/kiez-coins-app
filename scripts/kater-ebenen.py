@@ -2,7 +2,7 @@
 """
 Baut die Ebenen von Cat The Käptn aus Darias Figma-Exporten (Daria, 02.11.2026).
 
-Quellen in Übergabe/:
+Quellen in design/kater/:
   KiezCoins Cat.svg       Kater mit Brille, Fläche 1300 × 1885 (Kreis, Körper, Besen, Stiefel, Kopf, Lächeln, Gläser)
   KiezCoins Cat2.svg      Kater schaut über die Brille: neue Schürze, Augen, gekippte Brille mit Bügeln, Default-Mund
                           (Fläche 1300 × 1696, Kater 294 nach oben verschoben)
@@ -33,7 +33,7 @@ FLECK = 1.7  # > 1 schiebt den grünen Lichtfleck in den Gläsern nach unten
 FUELL = '#7E94FF'
 
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-src = os.path.join(root, 'Übergabe')
+src = os.path.join(root, 'design', 'kater')
 assets = os.path.join(root, 'assets', 'kater')
 tmp = tempfile.mkdtemp()
 

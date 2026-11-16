@@ -7,7 +7,7 @@ export { weekStart, isoWeekday, kindOf, goalOf, localDate, addDays, dueToday, du
 export type { ReminderKind } from './reminderDates';
 
 /**
- * Erinnerungen (Routine, Daria, 2026-11-10). Antworten auf die Fragen: Übergabe/2026-11-07_offen_erinnerungen.md.
+ * Erinnerungen (Routine, Daria, 2026-11-10). Antworten auf die Fragen: Documentation, kiez-coins/offen/2026-11-07_offen_erinnerungen.md.
  * - „Ich will …“ plus Ergänzung (`want`), optional eine Beschreibung.
  * - Ziel x-mal pro Woche, feste Wochentage mit Uhrzeit oder einmal an einem Tag („heute bis 18:00“, „morgen um 9:00“,
  *   „morgen von 9:00 bis 11:00“, Migration 20261110000200).

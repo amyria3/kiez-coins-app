@@ -37,6 +37,6 @@ Ohne Handy geht es auch im Browser: `npx expo start --web`.
 
 Die Download-Seite mit Passwort liegt in `website/` und entsteht mit `node scripts/build-download-site.mjs`. Ablauf und Einrichtung stehen im privaten Repo Documentation unter `kiez-coins/app/Stand_App.md`, Abschnitt „Website kiezcoins.de“.
 
-## Übergabe
+## Doku und To-dos
 
-Neue Doku aus Arbeiten am Code kommt in den Ordner [`Übergabe/`](Übergabe/README.md), nicht in dieses README. Von dort wird sie ins Repo Documentation übernommen.
+Doku, To-do-Liste und offene Aufgaben liegen im privaten Repo Documentation (`kiez-coins/app/TODO.md`, `kiez-coins/offen/`), nicht in diesem Repo. Darias Quelldateien (Abzeichen, Kater) liegen in `design/`.

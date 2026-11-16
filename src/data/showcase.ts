@@ -12,7 +12,7 @@ import { t } from './texts';
 import type { ImageSource } from './types';
 
 /**
- * Schaufenster, Bau ohne Geld, erster Teil (Daria, 2026-11-10; Plan: Übergabe/2026-11-10_offen_schaufenster.md).
+ * Schaufenster, Bau ohne Geld, erster Teil (Daria, 2026-11-10; Plan: Documentation, kiez-coins/offen/2026-11-10_offen_schaufenster.md).
  * Migration 20261110000400_schaufenster. Erstmal nur für Moderatorinnen sichtbar (useShowcaseEnabled).
  */
 export type Visibility = 'public' | 'invite';
