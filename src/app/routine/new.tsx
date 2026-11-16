@@ -9,7 +9,7 @@ import { ReminderExtrasFields, type Extras } from '../../components/ReminderExtr
 import { kindOfTimes, TimeChoice, timesOf, timesReady, type TimeKind } from '../../components/routine/TimeChoice';
 import { SubScreen } from '../../components/Screen';
 import { WEEKDAYS, weekdayShort } from '../../data/katerRoutine';
-import { addDays, createReminder, loadReminders, localDate, parseDate, TIME } from '../../data/reminders';
+import { addDays, createReminder, loadReminders, localDate, parseDate, replaceReminder, TIME } from '../../data/reminders';
 import { useGoBack } from '../../lib/goBack';
 
 /**
@@ -23,8 +23,13 @@ export default function NewReminderScreen() {
   return <NewReminder />;
 }
 
-function NewReminder() {
+/**
+ * Formular für neue und bestehende Erinnerungen. Mit `editId` lädt es die Erinnerung und speichert sie über
+ * `replaceReminder`; alle Felder wie beim Anlegen, auch die Art (Daria, 2026-11-16).
+ */
+export function NewReminder({ editId }: { editId?: string } = {}) {
   const goBack = useGoBack();
+  const [missing, setMissing] = useState(false);
   const router = useRouter();
   const [want, setWant] = useState('');
   const [description, setDescription] = useState('');
@@ -65,11 +70,13 @@ function NewReminder() {
       setDate(`${d}.${m}.${y}`);
     }
   }, [tag]);
+  const source = editId ?? von;
   useEffect(() => {
-    if (!von) return;
+    if (!source) return;
     let live = true;
     loadReminders().then((list) => {
-      const r = list?.find((x) => x.id === von);
+      const r = list?.find((x) => x.id === source);
+      if (live && !r && editId) setMissing(true);
       if (!live || !r) return;
       setWant(r.want);
       setDescription(r.description ?? '');
@@ -81,7 +88,8 @@ function NewReminder() {
         setMode('once');
         const today = localDate();
         const tomorrow = localDate(addDays(1));
-        if (r.onDate <= today) setDay('today');
+        // Kopie: vergangener Tag wird „Heute“. Bearbeiten: der Tag bleibt, wie er ist.
+        if (r.onDate === today || (!editId && r.onDate < today)) setDay('today');
         else if (r.onDate === tomorrow) setDay('tomorrow');
         else {
           const [y, m, d] = r.onDate.split('-');
@@ -100,7 +108,7 @@ function NewReminder() {
     return () => {
       live = false;
     };
-  }, [von]);
+  }, [source, editId]);
 
   const onDate = day === 'today' ? localDate() : day === 'tomorrow' ? localDate(addDays(1)) : parseDate(date);
   const timeReady = timesReady(timeKind, from, until);
@@ -110,7 +118,7 @@ function NewReminder() {
   const save = async () => {
     setBusy(true);
     setFailed(false);
-    const ok = await createReminder({
+    const input = {
       want: want.trim().replace(/^ich will\s+/i, ''),
       description,
       ...extras,
@@ -119,7 +127,8 @@ function NewReminder() {
       required: mode === 'once' ? required : undefined,
       perWeek: mode === 'week' ? perWeek : undefined,
       weekdays: mode === 'days' ? days : undefined,
-    });
+    };
+    const ok = editId ? await replaceReminder(editId, input) : await createReminder(input);
     setBusy(false);
     if (ok) router.back();
     else setFailed(true);
@@ -143,7 +152,7 @@ function NewReminder() {
 
   return (
     <SubScreen
-      title="Neue Erinnerung"
+      title={editId ? 'Erinnerung bearbeiten' : 'Neue Erinnerung'}
       navigation="close"
       onLeadingPress={goBack}
       actions={
@@ -156,7 +165,7 @@ function NewReminder() {
         />
       }
     >
-      <TextField label="Ich will …" placeholder="joggen gehen" value={want} onChangeText={setWant} maxLength={60} required autoFocus nudge={wantField} />
+      <TextField label="Ich will …" placeholder="joggen gehen" value={want} onChangeText={setWant} maxLength={60} required autoFocus={!editId} nudge={wantField} />
       <TextField label="Beschreibung" value={description} onChangeText={setDescription} maxLength={500} multiline />
       <ReminderExtrasFields value={extras} onChange={setExtras} />
       {/* Erklärungen als Dialog mit Blasen statt als Hilfetext (Daria, 2026-11-10) */}
@@ -243,6 +252,7 @@ function NewReminder() {
           </FieldGroup>
         </>
       )}
+      {missing ? <Notice variant="warning" message="Diese Erinnerung gibt es nicht mehr." /> : null}
       {/* Sichtbarkeit: vorerst nur für Dich (Annahme zu Frage 5, Daria, 2026-11-10: „lustig wie bei Duolingo“) */}
       <QuestionHint question="Wer sieht meine Erinnerungen?" answer="Nur Du und der Kater. Er kann schweigen. Meistens." />
       {failed ? <Notice variant="warning" message="Speichern hat nicht geklappt. Versuch es bitte noch einmal." /> : null}

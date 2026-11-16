@@ -260,21 +260,17 @@ function rowOf(input: ReminderInput, base: { want: string; description: string |
 }
 
 /**
- * Erinnerung bearbeiten (Daria, 2026-11-13): Titel, Beschreibung, Tag und Uhrzeit mit „bis“, „um“ oder
- * „von … bis“. Die Art bleibt: Einmalige bleiben einmalig, feste Tage bleiben feste Tage (nur die Uhrzeit ändert
- * sich), x-mal pro Woche hat keine Uhrzeit.
+ * Erinnerung ganz neu einstellen (Daria, 2026-11-16: „Hier fehlen noch Felder“): Bearbeiten nutzt das Formular von
+ * „Neue Erinnerung“, die Art darf wechseln (einmal, x-mal pro Woche, feste Tage). Felder der anderen Arten werden
+ * geleert, damit genau eine Art gesetzt ist (Constraint `reminders_art`).
  */
-export async function updateReminder(
-  r: Reminder,
-  input: Pick<ReminderInput, 'want' | 'description' | 'onDate' | 'atTime' | 'untilTime' | 'place' | 'phone' | 'link'>,
-): Promise<boolean> {
+export async function replaceReminder(id: string, input: ReminderInput): Promise<boolean> {
   const base = { want: input.want.trim(), description: input.description?.trim() || null };
-  const row = r.onDate
-    ? { ...base, on_date: input.onDate ?? r.onDate, at_time: input.atTime ?? null, until_time: input.untilTime ?? null }
-    : r.weekdays?.length
-      ? { ...base, at_time: input.atTime ?? null, until_time: input.untilTime ?? null }
-      : base;
-  return withExtras((extras) => supabase.from('reminders').update({ ...row, ...extras }).eq('id', r.id), extrasOf(input));
+  const empty = { per_week: null, weekdays: null, on_date: null, at_time: null, until_time: null };
+  return withExtras(
+    (extras) => supabase.from('reminders').update({ ...empty, ...rowOf(input, base), ...extras }).eq('id', id),
+    extrasOf(input),
+  );
 }
 
 /**
