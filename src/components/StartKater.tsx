@@ -1,61 +1,40 @@
 import { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import sprueche from '../data/kater-sprueche.json';
-import type { KaterSaying } from '../data/kater';
-import { color, space, text } from '../theme/tokens';
-import { Text } from './T';
+import { color, space } from '../theme/tokens';
 import { t } from '../data/texts';
+import { getLogoTarget } from '../lib/logoTarget';
 import { GearsLoader } from './GearsLoader';
-import { PEEK_DURATION, SWEEP_DURATION, KaterStage } from './KaterStage';
-import { START_LOGO_MS, StartLogo } from './StartLogo';
+import { Logo } from './icons/Brand';
+
+/** Seitenverhältnis der Wortbildmarke (assets/marke/wortbildmarke.svg, 105 × 24) */
+const LOGO_RATIO = 105 / 24;
+/** So lange stehen Logo und Zahnräder mindestens, auch wenn alles schon geladen ist */
+const MIN_SHOW_MS = 1200;
+/** Logo gleitet an seinen Platz, die Zahnräder rollen weg */
+const LEAVE_MS = 650;
 
 /**
- * Erst fegen, dann einmal über die Brille schauen und lächeln (Daria, 2026-11-09). Danach noch kurz stehen bleiben,
- * damit man die Sprechblase lesen kann. Zusammen rund 4,8 Sekunden.
- */
-const SWEEP_MS = SWEEP_DURATION + PEEK_DURATION + 300;
-
-/** Ein Spruch zum Fegen aus src/data/kater-sprueche.json. Ohne passenden Spruch fegt er still. */
-function sweepSaying(): KaterSaying {
-  const list = (sprueche.sprueche as (string | KaterSaying)[]).map((e) => (typeof e === 'string' ? { text: e } : e));
-  const sweep = list.filter((e) => e.aktion === 'fegen');
-  const e = sweep[Math.floor(Math.random() * sweep.length)];
-  return { text: e?.text ?? '', aktion: 'fegen' };
-}
-const FADE_OUT_MS = 320;
-/**
- * Erst drehen sich die Zahnräder, und die Buchstaben des Logos fallen ins Bild (Daria, 2026-11-16, statt „Moment“).
- * Steht der Schriftzug, bleibt er kurz stehen, dann taucht der Kater auf.
- */
-const KATER_AFTER_MS = START_LOGO_MS + 350;
-const FADE_IN_MS = 280;
-/** Kater und Zahnräder stehen mindestens so lange zusammen auf dem Bild (Daria, 2026-10-24) */
-const TOGETHER_MS = 1000;
-
-/**
- * Startbildschirm (Daria, 2026-10-24): Zuerst drehen sich die Zahnräder unten. Danach taucht der Kater in der Mitte auf,
- * fegt einmal und sagt einen Spruch. Die Zahnräder verschwinden, sobald alles geladen ist (`loaded`) und Kater und
- * Zahnräder mindestens eine Sekunde zusammen zu sehen waren. Der Bildschirm blendet aus, wenn die Zahnräder weg sind
- * und der Kater fertig gefegt hat. Ein Tipp überspringt den Kater jederzeit (Daria, 2026-11-05); lädt die App noch, drehen danach nur die Zahnräder weiter. Mit „Bewegung reduzieren“ steht der Kater nur kurz da.
+ * Startbildschirm (Daria, 2026-11-16): In der Mitte die Wortbildmarke (Kater im Kreis und „KiezCoins“), unten drehen
+ * die Zahnräder. Ist die App geladen, gleitet das Logo an seinen Platz oben im Feed und wird dabei so klein wie dort.
+ * Die Zahnräder rollen nach rechts aus dem Bild, der dunkle Grund blendet aus, und darunter steht die App.
+ * Ohne Feed-Kopf (Start z. B. in der Routine) gleitet das Logo nach oben raus. Ein Tipp überspringt die Wartezeit.
+ * Mit „Bewegung reduzieren“ blendet alles nur aus.
+ * Vorher (bis 2026-11-16): Kater mit Besen und Spruch; der fällt weg (Daria: „Kater fällt weg“).
  */
 export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => void }) {
   const insets = useSafeAreaInsets();
-  const { height } = useWindowDimensions();
-  // Kater mit Kreis ist höher als breit (1300 × 1696): auf kleinen Handys schmaler, damit er die Zahnräder nicht berührt (2026-11-02)
-  const katerWidth = Math.round(Math.min(240, height * 0.28));
-  // Zahnräder groß wie beim Start vorher (200), auf kleinen Handys etwas kleiner, damit sie den Kater nicht berühren
+  const { width: screenWidth, height } = useWindowDimensions();
+  const logoWidth = Math.round(Math.min(300, screenWidth * 0.72));
+  const logoHeight = logoWidth / LOGO_RATIO;
   const gearsSize = Math.round(Math.min(200, height * 0.22));
-  const [saying] = useState(sweepSaying);
-  const [kater, setKater] = useState(false);
-  const [together, setTogether] = useState(false);
-  const [gearsGone, setGearsGone] = useState(false);
-  const [swept, setSwept] = useState(false);
-  const visible = useRef(new Animated.Value(1)).current;
-  const katerVisible = useRef(new Animated.Value(0)).current;
-  const gears = useRef(new Animated.Value(1)).current;
-  const done = useRef(false);
+  const [shownLongEnough, setShownLongEnough] = useState(false);
+  const [skip, setSkip] = useState(false);
+  const progress = useRef(new Animated.Value(0)).current;
+  const [path, setPath] = useState({ dx: 0, dy: -height / 2, scale: 1, fadeLogo: true });
+  const logoRef = useRef<View>(null);
+  const leaving = useRef(false);
 
   // Die Zahnräder aus public/index.html übernehmen: Ab hier drehen die eigenen an derselben Stelle
   useEffect(() => {
@@ -64,108 +43,96 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
     document.getElementById('boot-moment')?.remove();
   }, []);
 
-  // Kater nach den Zahnrädern einblenden, dann fegen lassen
   useEffect(() => {
-    let sweep: ReturnType<typeof setTimeout>;
-    let together: ReturnType<typeof setTimeout>;
-    const entrance = setTimeout(() => {
-      setKater(true);
-      together = setTimeout(() => setTogether(true), FADE_IN_MS + TOGETHER_MS);
-      Animated.timing(katerVisible, {
-        toValue: 1,
-        duration: FADE_IN_MS,
-        useNativeDriver: true,
-      }).start();
-      AccessibilityInfo.isReduceMotionEnabled()
-        .catch(() => false)
-        .then((still) => {
-          sweep = setTimeout(() => setSwept(true), still ? 800 : SWEEP_MS);
-        });
-    }, KATER_AFTER_MS);
-    return () => {
-      clearTimeout(entrance);
-      clearTimeout(together);
-      clearTimeout(sweep);
-    };
-  }, [katerVisible]);
-
-  // Zahnräder ausblenden, sobald alles geladen ist und sie eine Sekunde mit dem Kater zu sehen waren
-  useEffect(() => {
-    if (loaded && together)
-      Animated.timing(gears, {
-        toValue: 0,
-        duration: FADE_OUT_MS,
-        useNativeDriver: true,
-      }).start(() => setGearsGone(true));
-  }, [loaded, together, gears]);
+    const timer = setTimeout(() => setShownLongEnough(true), MIN_SHOW_MS);
+    return () => clearTimeout(timer);
+  }, []);
 
   const leave = () => {
-    if (done.current) return;
-    done.current = true;
-    Animated.timing(visible, {
-      toValue: 0,
-      duration: FADE_OUT_MS,
-      useNativeDriver: true,
-    }).start(() => onDone());
+    if (leaving.current) return;
+    leaving.current = true;
+    const target = getLogoTarget();
+    const run = (still: boolean) => {
+      logoRef.current?.measureInWindow((x, y, w, h) => {
+        if (target && w > 0) {
+          setPath({
+            dx: target.x + target.width / 2 - (x + w / 2),
+            dy: target.y + target.height / 2 - (y + h / 2),
+            scale: target.width / w,
+            fadeLogo: false,
+          });
+        }
+        Animated.timing(progress, {
+          toValue: 1,
+          duration: still ? 250 : LEAVE_MS,
+          easing: Easing.bezier(0.4, 0, 0.2, 1),
+          useNativeDriver: true,
+        }).start(() => onDone());
+      });
+    };
+    AccessibilityInfo.isReduceMotionEnabled()
+      .catch(() => false)
+      .then(run);
   };
 
   useEffect(() => {
-    if (gearsGone && swept) leave();
+    if (loaded && (shownLongEnough || skip)) leave();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gearsGone, swept]);
+  }, [loaded, shownLongEnough, skip]);
+
+  // Abrollen: So weit, wie die Räder rollen, drehen sie sich (Umfang = π × Breite)
+  const rollDistance = screenWidth + gearsSize;
+  const rollTurns = rollDistance / (Math.PI * gearsSize);
 
   return (
-    <Animated.View style={[StyleSheet.absoluteFill, styles.screen, { opacity: visible }]}>
+    <View style={[StyleSheet.absoluteFill, styles.top]} pointerEvents="box-none">
+      {/* Der Grund blendet erst am Ende aus: Sonst stünde das echte Logo im Feed schon da, bevor das große ankommt */}
+      <Animated.View
+        style={[StyleSheet.absoluteFill, styles.screen, { opacity: progress.interpolate({ inputRange: [0, 0.8, 1], outputRange: [1, 1, 0] }) }]}
+      />
       <Pressable
-        onPress={leave}
-        // Kater mittig im Platz über den Zahnrädern, mit Luft dazwischen (Daria, 2026-11-05)
+        onPress={() => setSkip(true)}
         style={[styles.area, { paddingBottom: insets.bottom + space[32] + gearsSize + space[24] }]}
         accessibilityRole="button"
         accessibilityLabel={t('Weiter')}
       >
-        {kater ? (
-          <Animated.View style={{ opacity: katerVisible }}>
-            <KaterStage width={katerWidth} saying={saying} take={1} withoutBubble={!saying.text} peekAfter />
-          </Animated.View>
-        ) : (
-          <StartLogo width={Math.round(Math.min(240, katerWidth))} />
-        )}
+        <Animated.View
+          ref={logoRef}
+          collapsable={false}
+          style={{
+            opacity: path.fadeLogo ? progress.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) : 1,
+            transform: [
+              { translateX: progress.interpolate({ inputRange: [0, 1], outputRange: [0, path.dx] }) },
+              { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [0, path.dy] }) },
+              { scale: progress.interpolate({ inputRange: [0, 1], outputRange: [1, path.scale] }) },
+            ],
+          }}
+        >
+          <Logo height={logoHeight} />
+        </Animated.View>
       </Pressable>
       <Animated.View
         pointerEvents="none"
-        style={[styles.gears, { bottom: insets.bottom + space[32], opacity: gears }]}
+        style={[
+          styles.gears,
+          {
+            bottom: insets.bottom + space[32],
+            transform: [
+              { translateX: progress.interpolate({ inputRange: [0, 1], outputRange: [0, rollDistance] }) },
+              { rotate: progress.interpolate({ inputRange: [0, 1], outputRange: ['0deg', `${rollTurns * 360}deg`] }) },
+            ],
+          },
+        ]}
       >
         <GearsLoader size={gearsSize} />
       </Animated.View>
-    </Animated.View>
-  );
-}
-
-/**
- * „Moment“ mit wandernden Punkten, bis der Kater auftaucht (Daria, 07.11.2026): . .. ... und wieder von vorn.
- * Die fehlenden Punkte bleiben unsichtbar stehen, damit das Wort nicht hin und her rutscht.
- */
-export function Moment() {
-  const [dots, setDots] = useState(1);
-  useEffect(() => {
-    const timer = setInterval(() => setDots((d) => (d % 3) + 1), 400);
-    return () => clearInterval(timer);
-  }, []);
-  return (
-    <View accessibilityRole="progressbar" accessibilityLabel={t('Moment')}>
-      <Text style={styles.moment}>
-        Moment
-        <Text>{'.'.repeat(dots)}</Text>
-        <Text style={styles.hidden}>{'.'.repeat(3 - dots)}</Text>
-      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  moment: { ...text.title, color: color.text.primary },
-  hidden: { color: 'transparent' },
-  screen: { backgroundColor: color.bg.screen, zIndex: 10 },
-  area: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  top: { zIndex: 10 },
+  screen: { backgroundColor: color.bg.screen },
+  area: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center' },
   gears: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
 });

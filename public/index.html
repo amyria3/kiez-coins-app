@@ -121,7 +121,7 @@
         width: 100%;
         height: auto;
       }
-      /* „Moment“ mit wandernden Punkten in der Mitte, bis der Kater kommt (Daria, 07.11.2026), wie in StartKater.tsx */
+      /* Logo in der Mitte über den Zahnrädern, bis die App lädt (Daria, 2026-11-16), wie in StartKater.tsx */
       #boot-moment {
         position: fixed;
         left: 0;
@@ -135,6 +135,10 @@
         pointer-events: none;
         color: #fff8ed;
         font: 18px/24px -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      }
+      #boot-moment img {
+        width: min(300px, 72vw);
+        height: auto;
       }
       #boot-moment i {
         font-style: normal;
@@ -160,8 +164,8 @@
   <body>
     <noscript>KiezCoins braucht JavaScript.</noscript>
     <div id="boot" aria-hidden="true"><img src="/gears.svg" alt="" /></div>
-    <!-- Kein „Moment“ mehr: Nach dem Laden fallen die Buchstaben des Logos ins Bild (StartLogo.tsx, Daria, 2026-11-16) -->
-    <div id="boot-moment" aria-hidden="true"></div>
+    <!-- Logo mittig über den Zahnrädern wie im Startbildschirm (StartKater.tsx, Daria, 2026-11-16) -->
+    <div id="boot-moment" aria-hidden="true"><img src="/wortbildmarke.svg" alt="" /></div>
     <div id="root"></div>
     <script src="/start.js"></script>
   </body>

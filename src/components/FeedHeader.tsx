@@ -11,6 +11,7 @@ import { color, font, motion, radius, size, space, stroke, text } from '../theme
 import { useAccentColor, usePrivateSignal } from '../theme/signal';
 import { Notice } from './Content';
 import { Logo } from './icons/Brand';
+import { setLogoTarget } from '../lib/logoTarget';
 
 import { SkeletonTopItem } from './Skeleton';
 import { isRtl, t } from '../data/texts';
@@ -37,6 +38,11 @@ export function AppHeader(props: AppHeaderProps) {
 const LOGO_SLOP = { top: 8, bottom: 8, left: 8, right: 8 };
 
 function KiezHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) {
+  // Stelle des Logos für den Startbildschirm, der sein Logo hierhin gleiten lässt (Daria, 2026-11-16)
+  const logoRef = useRef<View>(null);
+  useEffect(() => () => setLogoTarget(null), []);
+  const measureLogo = () =>
+    logoRef.current?.measureInWindow((x, y, width, height) => width > 0 && setLogoTarget({ x, y, width, height }));
   return (
     <View style={styles.header}>
       <Pressable
@@ -48,7 +54,9 @@ function KiezHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) 
         hitSlop={LOGO_SLOP}
       >
         {/* Logo mit Kater rechts (Daria, 2026-11-12: neues Logo; 2026-11-15: nach rechts). Ohne gelben Punkt am Kater */}
-        <Logo height={28} />
+        <View ref={logoRef} onLayout={measureLogo} collapsable={false}>
+          <Logo height={28} />
+        </View>
       </Pressable>
     </View>
   );
