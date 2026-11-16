@@ -4,6 +4,8 @@ import { color, space, text } from '../../theme/tokens';
 import { COMPOSE_HEADER } from './feedConstants';
 
 export const styles = StyleSheet.create({
+  // Hinweis „Dein Post wurde verschoben.“ an der Stelle des Posts (Daria, 2026-11-16)
+  movedNotice: { paddingHorizontal: space[16], paddingVertical: space[8] },
   loading: { alignItems: 'center', paddingVertical: space[48] },
   screen: { flex: 1, backgroundColor: color.bg.screen },
   flex: { flex: 1 },

@@ -51,6 +51,8 @@ import { runningBeforeAfter, topChallenges as pickTopChallenges, useStore } from
 import { RunningBeforeAfter } from '../components/BeforeAfterTimer';
 import { useFeedViews } from '../data/seen';
 import type { Challenge } from '../data/types';
+import { forgetMove, MOVE_LINK, useMovedPosts } from '../data/movedPosts';
+import { Notice } from '../components/Content';
 import { color, motion, space } from '../theme/tokens';
 import { cardSwipe, resetCardSwipe } from '../lib/cardSwipe';
 import { isTouching, touchEnded, touchStarted, whenUntouched } from '../lib/touching';
@@ -352,6 +354,7 @@ export default function FeedScreen() {
   // Eigene Beiträge stehen immer drin.
   const myKiez = profile.kiez;
   const postsShown = usePostsShown();
+  const movedPosts = useMovedPosts();
   const posts = useMemo(() => {
     // Bilder und Textposts (Typ „photo“, mit oder ohne Foto) im Kiez- oder Überall-Feed ausblenden,
     // wenn unter Dein Konto › Funktionen abgeschaltet (Daria, 09.11.2026). Eigene bleiben sichtbar.
@@ -359,7 +362,12 @@ export default function FeedScreen() {
       ((tab === 'nearby' && !postsShown.kiez) || (tab === 'everywhere' && !postsShown.everywhere)) &&
       c.authorId !== currentUserId &&
       c.type === 'photo';
-    const list = challenges.filter((c) => matchesTab(c, tab, groupId, currentUserId) && !hidden(c));
+    // Gerade verschoben (Daria, 2026-11-16): bleibt an seiner Stelle, dort steht dann der Hinweis statt des Posts
+    const wasHere = (c: Challenge) => {
+      const m = movedPosts.get(c.id);
+      return !!m && matchesTab({ ...c, private: m.before.private, localOnly: m.before.localOnly }, tab, groupId, currentUserId);
+    };
+    const list = challenges.filter((c) => (matchesTab(c, tab, groupId, currentUserId) && !hidden(c)) || wasHere(c));
     if (tab !== 'nearby') return list;
     if (!here) {
       return list.filter(
@@ -371,7 +379,7 @@ export default function FeedScreen() {
       .filter((x) => x.c.authorId === currentUserId || x.d === undefined || x.d <= KIEZ_RADIUS_METERS)
       .sort((a, b) => (a.d ?? Infinity) - (b.d ?? Infinity) || a.i - b.i)
       .map((x) => x.c);
-  }, [challenges, tab, here, distanceTo, groupId, currentUserId, myKiez, postsShown.kiez, postsShown.everywhere]);
+  }, [challenges, tab, here, distanceTo, groupId, currentUserId, myKiez, postsShown.kiez, postsShown.everywhere, movedPosts]);
 
   const topChallenges = useMemo(
     () => pickTopChallenges({ mode, challenges, currentUserId }),
@@ -756,6 +764,9 @@ export default function FeedScreen() {
   const showAudience =
     audienceHint && !composing && !loading && (tab === 'nearby' || tab === 'everywhere' || tab === 'private' || tab === 'groups');
 
+  // Verschobener Post: Hinweis statt Post, solange er in diesen Reiter nicht mehr gehört
+  const postItem = (challenge: Challenge): FeedItem =>
+    movedPosts.has(challenge.id) && !matchesTab(challenge, tab, groupId, currentUserId) ? { kind: 'moved', challenge } : { kind: 'post', challenge };
   const items: FeedItem[] = [];
   if (showAudience) items.push({ kind: 'audience' });
   if (planned) items.push({ kind: 'planned' });
@@ -765,12 +776,12 @@ export default function FeedScreen() {
     else {
       items.push({ kind: 'groupBar' });
       if (posts.length === 0) items.push({ kind: 'groupNoTasks' });
-      else posts.forEach((challenge) => items.push({ kind: 'post', challenge }));
+      else posts.forEach((challenge) => items.push(postItem(challenge)));
     }
   } else if (tab === 'private' && !loading && posts.length === 0) items.push({ kind: 'privateEmpty' });
   else if (loading) items.push({ kind: 'loading' });
   else if (showState && !(planned && showState === 'empty')) items.push({ kind: 'state' });
-  else posts.forEach((challenge) => items.push({ kind: 'post', challenge }));
+  else posts.forEach((challenge) => items.push(postItem(challenge)));
   if (searching && !composing) {
     items.length = 0;
     if (shownHits === undefined) items.push({ kind: 'loading' });
@@ -873,6 +884,27 @@ export default function FeedScreen() {
                 : t('Kein öffentliches Schaufenster passt dazu.')}
           </Text>
         );
+      case 'moved': {
+        const moved = movedPosts.get(item.challenge.id);
+        if (!moved) return null;
+        const target = moved.to;
+        return (
+          <View style={styles.movedNotice}>
+            <Notice
+              feed
+              message={t('Dein Post wurde verschoben.')}
+              action={{
+                label: MOVE_LINK[target],
+                onPress: () => {
+                  forgetMove(item.challenge.id);
+                  selectTab(target);
+                },
+              }}
+              onClose={() => forgetMove(item.challenge.id)}
+            />
+          </View>
+        );
+      }
       case 'post': {
         const author = users.find((u) => u.id === item.challenge.authorId);
         if (!author) return null;

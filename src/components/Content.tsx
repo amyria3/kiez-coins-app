@@ -368,12 +368,15 @@ export function Notice({
   variant = 'info',
   onClose,
   feed = false,
+  action,
 }: {
   message: string;
   variant?: 'info' | 'warning';
   onClose?: () => void;
   tail?: boolean;
   feed?: boolean;
+  /** Link unter dem Text, z. B. „Im Kiez ansehen“ (Daria, 2026-11-16) */
+  action?: { label: string; onPress: () => void };
 }) {
   const t = useTexts();
   const sky = useMessageIn(feed);
@@ -399,7 +402,16 @@ export function Notice({
           />
         </View>
       ) : null}
-      <LinkedText style={[styles.noticeText, styles.noticeTextSky, feed && { color: ink }]} value={message} />
+      {action ? (
+        <View style={styles.noticeWithAction}>
+          <LinkedText style={[styles.noticeText, styles.noticeTextSky, feed && { color: ink }]} value={message} />
+          <Text accessibilityRole="link" onPress={action.onPress} style={[styles.noticeText, styles.noticeTextSky, styles.noticeAction, { color: ink }]}>
+            {t(action.label)}
+          </Text>
+        </View>
+      ) : (
+        <LinkedText style={[styles.noticeText, styles.noticeTextSky, feed && { color: ink }]} value={message} />
+      )}
       {onClose ? (
         <IconButton
           icon="close"
@@ -807,6 +819,8 @@ const styles = StyleSheet.create({
   noticeIcon: { flexShrink: 0 },
   link: { textDecorationLine: 'underline' },
   noticeClose: { marginVertical: -10, marginRight: -10, marginLeft: -4 },
+  noticeWithAction: { flexShrink: 1, gap: space[2] },
+  noticeAction: { textDecorationLine: 'underline' },
   noticeTextSky: { ...text.body, color: SKY_TEXT, flexGrow: 0, flexShrink: 1, flexBasis: 'auto' },
   answerTextSky: { color: SKY_TEXT },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 24 },
