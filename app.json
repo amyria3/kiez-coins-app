@@ -9,12 +9,7 @@
     "updates": {
       "url": "https://u.expo.dev/e35cf809-b06f-4797-9ef0-d906e655123e",
       "checkAutomatically": "ON_LOAD",
-      "fallbackToCacheTimeout": 0,
-      "codeSigningCertificate": "./certs/certificate.pem",
-      "codeSigningMetadata": {
-        "keyid": "main",
-        "alg": "rsa-v1_5-sha256"
-      }
+      "fallbackToCacheTimeout": 0
     },
     "orientation": "portrait",
     "icon": "./assets/icon.png",

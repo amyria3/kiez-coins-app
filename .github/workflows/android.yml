@@ -13,9 +13,7 @@
 # Braucht zwei Secrets im GitHub-Repo (Settings › Secrets and variables › Actions):
 #   EXPO_TOKEN           Zugriffstoken von expo.dev (Konto kiezcoins › Settings › Access tokens)
 #   SUPABASE_SECRET_KEY  Secret Key aus Supabase › Project Settings › API Keys
-#   UPDATES_PRIVATE_KEY  Privater Schlüssel, mit dem jedes Update signiert wird (Inhalt von private-key.pem).
-#                        Die App prüft die Signatur mit certs/certificate.pem und lädt nur signierte Updates
-#                        (CRA-Risikobewertung, Befund 1, 2026-11-16).
+# Updates sind nicht signiert: Expo signiert nur im bezahlten Production-Plan (Daria, 2026-11-16: Signierung entfernen).
 # Von Hand starten: Reiter „Actions“ › „Android-Updates“ › „Run workflow“.
 
 name: Android-Updates
@@ -79,20 +77,10 @@ jobs:
 
       - name: Update veröffentlichen
         if: steps.check.outputs.mode == 'update'
-        env:
-          UPDATES_PRIVATE_KEY: ${{ secrets.UPDATES_PRIVATE_KEY }}
         run: |
           set -eu
-          if [ -z "${UPDATES_PRIVATE_KEY:-}" ]; then
-            echo "::error::Secret UPDATES_PRIVATE_KEY fehlt. Ohne Signatur lädt die App das Update nicht."
-            exit 1
-          fi
-          KEY="$RUNNER_TEMP/updates-private-key.pem"
-          umask 077
-          printf '%s\n' "$UPDATES_PRIVATE_KEY" > "$KEY"
           npx eas-cli@$EAS_CLI update --channel preview --platform android --environment preview \
-            --private-key-path "$KEY" --message "$(git log -1 --format=%s)" --non-interactive
-          rm -f "$KEY"
+            --message "$(git log -1 --format=%s)" --non-interactive
 
       - name: Build läuft schon
         if: steps.check.outputs.mode == 'wait'

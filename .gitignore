@@ -29,8 +29,6 @@ yarn-error.*
 # macOS
 .DS_Store
 *.pem
-# Öffentliches Zertifikat für signierte App-Updates (der private Schlüssel bleibt außerhalb des Repos)
-!certs/certificate.pem
 
 # local env files
 .env*.local
