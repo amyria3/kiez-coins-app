@@ -22,6 +22,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Sicherheit (CRA-Risikobewertung, Befund 2, 2026-11-16): nur Lesezugriff aufs Repo, Actions auf Commit-SHA
+# festgenagelt, eas-cli in fester Version. Der Supabase-Schlüssel steht nur im Schritt, der ihn braucht.
+# Neue Versionen bewusst eintragen: SHA eines Tags mit `gh api repos/actions/checkout/git/ref/tags/v4`.
+permissions:
+  contents: read
+
 # Pushes kurz hintereinander: der neuere Lauf wartet, bis der ältere fertig ist.
 concurrency:
   group: android-updates
@@ -33,12 +39,12 @@ jobs:
     timeout-minutes: 90
     env:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      EAS_CLI: 27.10.0
       SUPABASE_URL: https://aqxzxpxrshizlaqyjplw.supabase.co
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -55,12 +61,12 @@ jobs:
           fi
           HASH=$(npx expo-updates fingerprint:generate --platform android | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).hash))')
           echo "Fingerabdruck: $HASH"
-          COUNT=$(npx eas-cli@latest build:list --platform android --build-profile preview --status finished \
+          COUNT=$(npx eas-cli@$EAS_CLI build:list --platform android --build-profile preview --status finished \
             --runtime-version "$HASH" --limit 1 --json --non-interactive | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).length))')
           # Läuft gerade schon ein Build mit diesem Fingerabdruck, zählt er mit (kein zweiter Build).
           RUNNING=0
           for STATUS in new in-queue in-progress; do
-            N=$(npx eas-cli@latest build:list --platform android --build-profile preview --status "$STATUS" \
+            N=$(npx eas-cli@$EAS_CLI build:list --platform android --build-profile preview --status "$STATUS" \
               --runtime-version "$HASH" --limit 1 --json --non-interactive | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).length))')
             RUNNING=$((RUNNING + N))
           done
@@ -71,7 +77,7 @@ jobs:
       - name: Update veröffentlichen
         if: steps.check.outputs.mode == 'update'
         run: |
-          npx eas-cli@latest update --channel preview --platform android --environment preview \
+          npx eas-cli@$EAS_CLI update --channel preview --platform android --environment preview \
             --message "$(git log -1 --format=%s)" --non-interactive
 
       - name: Build läuft schon
@@ -83,11 +89,13 @@ jobs:
         if: steps.check.outputs.mode == 'build'
         run: |
           set -eu
-          npx eas-cli@latest build --platform android --profile preview --non-interactive --wait --json > build.json
+          npx eas-cli@$EAS_CLI build --platform android --profile preview --non-interactive --wait --json > build.json
           node -e 'const b=JSON.parse(require("fs").readFileSync("build.json","utf8"))[0];console.log("url="+b.artifacts.buildUrl);console.log("version="+b.appBuildVersion)' >> "$GITHUB_OUTPUT"
 
       - name: APK in Supabase hochladen und Versionsnummer setzen
         if: steps.check.outputs.mode == 'build'
+        env:
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: |
           set -eu
           if [ -z "${SUPABASE_SECRET_KEY:-}" ]; then

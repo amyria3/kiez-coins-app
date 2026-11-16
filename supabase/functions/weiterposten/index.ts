@@ -61,6 +61,16 @@ const reply = (body: Record<string, unknown>, status = 200) =>
 
 const clip = (value: string, max: number) => value.slice(0, max);
 
+/**
+ * Abruf bei der Instanz der Person (BlueSky, Mastodon). Folgt keiner Weiterleitung: Eine Weiterleitung könnte auf
+ * eine interne Adresse zeigen, die die Prüfung des Hostnamens umgeht (CRA-Risikobewertung, Befund 9, 2026-11-16).
+ */
+async function instanceFetch(url: string, init?: RequestInit): Promise<Response> {
+  const res = await fetch(url, { ...init, redirect: 'manual' });
+  if (res.status >= 300 && res.status < 400) throw new Error(`redirect ${res.status}`);
+  return res;
+}
+
 /** Nur echte öffentliche Adressen, keine IPs und kein localhost (die Funktion ruft die Adresse selbst auf). */
 function normalizeInstance(value: string): string | null {
   try {
@@ -79,7 +89,7 @@ function normalizeInstance(value: string): string | null {
 // ---------------------------------------------------------------------------
 
 async function blueskySession(instance: string, identifier: string, password: string) {
-  const res = await fetch(`${instance}/xrpc/com.atproto.server.createSession`, {
+  const res = await instanceFetch(`${instance}/xrpc/com.atproto.server.createSession`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ identifier, password }),
@@ -140,7 +150,7 @@ async function postBluesky(account: Account, post: Post): Promise<string> {
   // Fotos aus der App haben oft 1 bis 2,5 MB, BlueSky nimmt nur bis 1 MB: dann erst verkleinern (Daria, 13.11.2026)
   const photo = post.image ? await blueskyPhoto(post.image).catch(() => undefined) : undefined;
   if (photo) {
-    const upload = await fetch(`${account.instance}/xrpc/com.atproto.repo.uploadBlob`, {
+    const upload = await instanceFetch(`${account.instance}/xrpc/com.atproto.repo.uploadBlob`, {
       method: 'POST',
       headers: { ...auth, 'Content-Type': photo.type },
       body: photo.bytes,
@@ -156,7 +166,7 @@ async function postBluesky(account: Account, post: Post): Promise<string> {
   // Verkleinern oder Upload gescheitert: Linkkarte ohne Bild
   embed ??= { $type: 'app.bsky.embed.external', external: { uri: post.link, title: post.title, description: clip(post.body, 300) } };
 
-  const res = await fetch(`${account.instance}/xrpc/com.atproto.repo.createRecord`, {
+  const res = await instanceFetch(`${account.instance}/xrpc/com.atproto.repo.createRecord`, {
     method: 'POST',
     headers: { ...auth, 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -175,7 +185,7 @@ async function postBluesky(account: Account, post: Post): Promise<string> {
 // ---------------------------------------------------------------------------
 
 async function mastodonAccount(instance: string, token: string) {
-  const res = await fetch(`${instance}/api/v1/accounts/verify_credentials`, { headers: { Authorization: `Bearer ${token}` } });
+  const res = await instanceFetch(`${instance}/api/v1/accounts/verify_credentials`, { headers: { Authorization: `Bearer ${token}` } });
   if (!res.ok) throw new Error('login');
   return (await res.json()) as { acct: string };
 }
@@ -189,7 +199,7 @@ async function postMastodon(account: Account, post: Post): Promise<string> {
     const form = new FormData();
     form.append('file', new Blob([post.image.bytes], { type: post.image.type }), 'foto');
     form.append('description', post.title);
-    const media = await fetch(`${account.instance}/api/v2/media`, { method: 'POST', headers: auth, body: form });
+    const media = await instanceFetch(`${account.instance}/api/v2/media`, { method: 'POST', headers: auth, body: form });
     if (media.ok) mediaIds.push(((await media.json()) as { id: string }).id);
   }
   const tail = `\n\n${post.link}`;
@@ -200,7 +210,7 @@ async function postMastodon(account: Account, post: Post): Promise<string> {
   const idempotencyKey = `${post.id}-${crypto.randomUUID()}`;
   // Ein frisch hochgeladenes Foto ist manchmal noch in Arbeit (422). Dann kurz warten und noch einmal.
   for (let attempt = 0; attempt < 5; attempt++) {
-    const res = await fetch(`${account.instance}/api/v1/statuses`, {
+    const res = await instanceFetch(`${account.instance}/api/v1/statuses`, {
       method: 'POST',
       headers: { ...auth, 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey },
       body,
@@ -315,7 +325,7 @@ async function deleteFacebook(account: Account, link: string) {
 
 async function deleteBluesky(account: Account, link: string) {
   const session = await blueskySession(account.instance, account.handle, account.secret);
-  const res = await fetch(`${account.instance}/xrpc/com.atproto.repo.deleteRecord`, {
+  const res = await instanceFetch(`${account.instance}/xrpc/com.atproto.repo.deleteRecord`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${session.accessJwt}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ repo: session.did, collection: 'app.bsky.feed.post', rkey: link.split('/').pop() }),
@@ -325,7 +335,7 @@ async function deleteBluesky(account: Account, link: string) {
 
 async function deleteMastodon(account: Account, link: string) {
   const id = new URL(link).pathname.split('/').pop();
-  const res = await fetch(`${account.instance}/api/v1/statuses/${id}`, {
+  const res = await instanceFetch(`${account.instance}/api/v1/statuses/${id}`, {
     method: 'DELETE',
     headers: { Authorization: `Bearer ${account.secret}` },
   });
