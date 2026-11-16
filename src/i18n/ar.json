@@ -1401,5 +1401,22 @@
   "Me-Challenge bearbeiten": "تعديل تحدي Me",
   "Weiterposten: aus": "إعادة النشر: متوقفة",
   "Keine Plattform ist eingeschaltet. Unter Dein Konto › Funktionen schaltest Du sie ein.": "لا توجد منصة مفعّلة. فعّلها من «حسابك › الميزات».",
-  "Unter Dein Konto › Funktionen verbindest Du BlueSky, Mastodon, Instagram oder Facebook.": "اربط BlueSky أو Mastodon أو Instagram أو Facebook من «حسابك › الميزات»."
+  "Unter Dein Konto › Funktionen verbindest Du BlueSky, Mastodon, Instagram oder Facebook.": "اربط BlueSky أو Mastodon أو Instagram أو Facebook من «حسابك › الميزات».",
+  "Neue Nachrichten von Freund:innen": "رسائل جديدة من الأصدقاء",
+  "Challenges": "التحديات",
+  "Angenommen, Mitmachen, Erledigt gemeldet, Bestätigt, Bezahlt": "قُبل، مشاركة، أُبلغ بالإنجاز، تأكيد، دفع",
+  "Freundschaften und Einladungen": "الصداقات والدعوات",
+  "Freundschaftsanfragen, angenommene Einladungen": "طلبات الصداقة، الدعوات المقبولة",
+  "Neue Follower:innen, neue Fragen zu Deinen Posts": "متابعون جدد، أسئلة جديدة عن منشوراتك",
+  "Dein Browser blockiert Mitteilungen für KiezCoins. Erlaube sie in den Einstellungen des Browsers oder des Handys.": "متصفحك يحظر إشعارات KiezCoins. اسمح بها من إعدادات المتصفح أو الهاتف.",
+  "Auf dem iPhone kommen Push-Nachrichten nur in der Web-App auf dem Home-Bildschirm an. Öffne KiezCoins in Safari, tippe auf „Teilen“ › „Zum Home-Bildschirm“ und schalte sie dort ein.": "على iPhone تصل الإشعارات فقط في تطبيق الويب على الشاشة الرئيسية. افتح KiezCoins في Safari، واضغط «مشاركة» › «إضافة إلى الشاشة الرئيسية» وفعّلها هناك.",
+  "In der Android-App kommen Push-Nachrichten mit dem nächsten Update. Bis dahin klappt es in der Web-App.": "ستصل الإشعارات إلى تطبيق Android مع التحديث القادم. حتى ذلك الحين تعمل في تطبيق الويب.",
+  "Dieser Browser kann keine Push-Nachrichten empfangen.": "هذا المتصفح لا يستقبل الإشعارات.",
+  "Auf diesem Gerät eingeschaltet": "مفعّلة على هذا الجهاز",
+  "Auf diesem Gerät ausgeschaltet": "متوقفة على هذا الجهاز",
+  "Auf diesem Gerät einschalten": "تفعيل على هذا الجهاز",
+  "Wofür?": "لماذا؟",
+  "Auf welchen Geräten kommen sie an?": "على أي أجهزة تصل؟",
+  "Auf jedem Gerät, auf dem Du Push-Nachrichten hier eingeschaltet hast. Die Schalter darunter gelten für alle Deine Geräte.": "على كل جهاز فعّلت فيه الإشعارات هنا. المفاتيح أدناه تسري على جميع أجهزتك.",
+  "Push ist auf dem Server noch nicht eingerichtet.": "لم يُجهَّز الإشعار على الخادم بعد."
 }

@@ -34,3 +34,9 @@ create publication supabase_realtime;
 grant usage on schema public, auth, storage to anon, authenticated;
 -- Supabase gibt neuen Tabellen in public Leserechte für angemeldete Personen
 alter default privileges in schema public grant select, insert, delete on tables to authenticated;
+
+-- pg_net (2026-11-16, Push): Ersatz, der nichts verschickt
+create schema if not exists extensions;
+create schema if not exists net;
+create function net.http_post(url text, body jsonb default '{}'::jsonb, params jsonb default '{}'::jsonb, headers jsonb default '{}'::jsonb, timeout_milliseconds integer default 5000)
+returns bigint language sql as $$ select 1::bigint $$;

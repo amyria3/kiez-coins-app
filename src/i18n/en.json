@@ -1770,5 +1770,22 @@
   "Me-Challenge bearbeiten": "Edit Me-Challenge",
   "Weiterposten: aus": "Reposting: off",
   "Keine Plattform ist eingeschaltet. Unter Dein Konto › Funktionen schaltest Du sie ein.": "No platform is turned on. Turn them on under Your account › Features.",
-  "Unter Dein Konto › Funktionen verbindest Du BlueSky, Mastodon, Instagram oder Facebook.": "Connect BlueSky, Mastodon, Instagram or Facebook under Your account › Features."
+  "Unter Dein Konto › Funktionen verbindest Du BlueSky, Mastodon, Instagram oder Facebook.": "Connect BlueSky, Mastodon, Instagram or Facebook under Your account › Features.",
+  "Neue Nachrichten von Freund:innen": "New messages from friends",
+  "Angenommen, Mitmachen, Erledigt gemeldet, Bestätigt, Bezahlt": "Accepted, joining, reported done, confirmed, paid",
+  "Freundschaften und Einladungen": "Friendships and invitations",
+  "Freundschaftsanfragen, angenommene Einladungen": "Friend requests, accepted invitations",
+  "Schaufenster": "Showcase",
+  "Neue Follower:innen, neue Fragen zu Deinen Posts": "New followers, new questions about your posts",
+  "Dein Browser blockiert Mitteilungen für KiezCoins. Erlaube sie in den Einstellungen des Browsers oder des Handys.": "Your browser blocks notifications for KiezCoins. Allow them in your browser or phone settings.",
+  "Auf dem iPhone kommen Push-Nachrichten nur in der Web-App auf dem Home-Bildschirm an. Öffne KiezCoins in Safari, tippe auf „Teilen“ › „Zum Home-Bildschirm“ und schalte sie dort ein.": "On iPhone, push notifications only arrive in the web app on your home screen. Open KiezCoins in Safari, tap “Share” › “Add to Home Screen” and turn them on there.",
+  "In der Android-App kommen Push-Nachrichten mit dem nächsten Update. Bis dahin klappt es in der Web-App.": "Push notifications come to the Android app with the next update. Until then, they work in the web app.",
+  "Dieser Browser kann keine Push-Nachrichten empfangen.": "This browser can’t receive push notifications.",
+  "Auf diesem Gerät eingeschaltet": "On for this device",
+  "Auf diesem Gerät ausgeschaltet": "Off for this device",
+  "Auf diesem Gerät einschalten": "Turn on for this device",
+  "Wofür?": "For what?",
+  "Auf welchen Geräten kommen sie an?": "Which devices do they arrive on?",
+  "Auf jedem Gerät, auf dem Du Push-Nachrichten hier eingeschaltet hast. Die Schalter darunter gelten für alle Deine Geräte.": "On every device where you turned on push notifications here. The switches below apply to all your devices.",
+  "Push ist auf dem Server noch nicht eingerichtet.": "Push isn’t set up on the server yet."
 }
