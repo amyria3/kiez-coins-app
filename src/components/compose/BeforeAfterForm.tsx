@@ -9,6 +9,8 @@ import { useAccentColor, useFocusColor } from '../../theme/signal';
 import { Button } from '../Button';
 import { PhotoPicker, SwitchRow } from '../Form';
 import { VeryPrivateSwitch } from './VeryPrivateSwitch';
+import { CrosspostRow } from './CrosspostRow';
+import { rememberMeCrosspostOff, type LivePlatform } from '../../data/crosspost';
 import { useNudge } from '../Nudge';
 import { useComposeContent, type ComposeContent } from './compose';
 import { Text } from '../T';
@@ -122,6 +124,9 @@ export function useBeforeAfterStartForm(
   const [localOnly, setLocalOnly] = useState(false);
   // „Sehr privat“ (Daria, 15.11.2026)
   const [veryPrivate, setVeryPrivate] = useState(false);
+  // Weiterposten nach dem Nachher (Daria, 2026-11-16); nur öffentlich, ohne 5-km-Grenze, nicht „Sehr privat“
+  const [crosspostOff, setCrosspostOff] = useState<LivePlatform[]>([]);
+  const canCrosspost = !groupId && !isPrivate && !localOnly && !veryPrivate;
   const titleField = useNudge();
   // Foto oder Überschrift, mindestens eins (Daria, 2026-11-16)
   const missingBoth = !photo && !title.trim();
@@ -136,6 +141,7 @@ export function useBeforeAfterStartForm(
     setBusy(true);
     try {
       const id = await beforeAfter.start({ groupId, title, beforeText, photo, private: isPrivate, localOnly: !groupId && !isPrivate && localOnly, veryPrivate });
+      if (canCrosspost) await rememberMeCrosspostOff(id, crosspostOff);
       onStarted(id);
     } catch (error) {
       Alert.alert('Vorher nicht gespeichert', (error as Error).message);
@@ -178,6 +184,13 @@ export function useBeforeAfterStartForm(
         />
       ) : null}
       <VeryPrivateSwitch value={veryPrivate} onChange={setVeryPrivate} />
+      {canCrosspost ? (
+        <CrosspostRow
+          off={crosspostOff}
+          onChange={setCrosspostOff}
+          caption="Geht mit dem Nachher weiter, nicht schon jetzt. Abwählen gilt nur für diesen Post."
+        />
+      ) : null}
     </>
   );
 

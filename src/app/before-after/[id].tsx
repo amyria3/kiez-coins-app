@@ -21,6 +21,8 @@ import { useGoBack } from '../../lib/goBack';
 import { color, radius, space, text } from '../../theme/tokens';
 import { celebratePost } from '../../components/HeartBurst';
 import { WaitForData } from '../../components/WaitForData';
+import { CrosspostRow } from '../../components/compose/CrosspostRow';
+import { crosspostMeChallenge, loadMeCrosspostOff, type LivePlatform } from '../../data/crosspost';
 
 const clock = (iso: string) =>
   new Date(iso).toLocaleTimeString(localeTag(), { hour: '2-digit', minute: '2-digit' });
@@ -63,6 +65,12 @@ function BeforeAfterForm() {
   const [title, setTitle] = useState(challenge?.title ?? '');
   const [afterText, setAfterText] = useState(challenge?.afterText ?? '');
   const [showErrors, setShowErrors] = useState(false);
+  // Weiterposten nach dem Nachher (Daria, 2026-11-16): Auswahl vom Vorher, hier noch änderbar
+  const canCrosspost = !!challenge && !challenge.groupId && !challenge.private && !challenge.localOnly && !challenge.veryPrivate;
+  const [crosspostOff, setCrosspostOff] = useState<LivePlatform[]>([]);
+  useEffect(() => {
+    if (id) loadMeCrosspostOff(id).then(setCrosspostOff);
+  }, [id]);
   // Direkt geöffnet, bevor der Entwurf geladen war: Überschrift nachtragen
   const loadedTitle = challenge?.title;
   useEffect(() => {
@@ -154,6 +162,7 @@ function BeforeAfterForm() {
     setBusy('post');
     try {
       await beforeAfter.finish(challenge.id, edit());
+      if (canCrosspost) crosspostMeChallenge(challenge.id, crosspostOff);
       celebratePost();
       router.replace(`/challenge/${challenge.id}`);
     } catch (error) {
@@ -231,6 +240,9 @@ function BeforeAfterForm() {
           onChangeText={setAfterText}
           placeholder="Was hast Du gemacht?"
         />
+        {canCrosspost ? (
+          <CrosspostRow off={crosspostOff} onChange={setCrosspostOff} caption="Geht mit „Abschließen und posten“ weiter. Abwählen gilt nur für diesen Post." />
+        ) : null}
         <View style={styles.previewWrap}>
           <Text style={styles.small}>So steht der Text im Beitrag</Text>
           <View style={styles.preview}>

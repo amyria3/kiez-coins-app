@@ -21,7 +21,16 @@ import { Text } from '../T';
  * (Daria, 2026-11-15: „Ich sehe hier nicht, ob ich weiterposte“).
  * `off`: die Plattformen, die für diesen Post abgewählt sind.
  */
-export function CrosspostRow({ off, onChange }: { off: LivePlatform[]; onChange: (off: LivePlatform[]) => void }) {
+export function CrosspostRow({
+  off,
+  onChange,
+  caption = 'Dein Post erscheint auch hier. Abwählen gilt nur für diesen Post.',
+}: {
+  off: LivePlatform[];
+  onChange: (off: LivePlatform[]) => void;
+  /** Me-Challenge: „Geht mit dem Nachher weiter …“ (Daria, 2026-11-16) */
+  caption?: string;
+}) {
   const router = useRouter();
   const enabled = useCrosspostEnabled();
   const [accounts, setAccounts] = useState<CrosspostAccount[]>([]);
@@ -60,7 +69,7 @@ export function CrosspostRow({ off, onChange }: { off: LivePlatform[]; onChange:
     <View style={styles.card}>
       <View style={styles.head}>
         <Text style={styles.title}>Weiterposten</Text>
-        <Text style={styles.caption}>Dein Post erscheint auch hier. Abwählen gilt nur für diesen Post.</Text>
+        <Text style={styles.caption}>{caption}</Text>
       </View>
       {active.map((p) => {
         const key = p.key as LivePlatform;

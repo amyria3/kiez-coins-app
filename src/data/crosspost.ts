@@ -138,6 +138,31 @@ export async function crosspostChallenge(challengeId: string, platforms: LivePla
   return data?.results ?? {};
 }
 
+/**
+ * Weiterposten für Me-Challenges (Daria, 2026-11-16: „nach dem Nachher“): Die Auswahl beim Vorher merkt sich das
+ * Gerät je Me-Challenge. Beim Nachher steht sie wieder da und lässt sich ändern; mit „Abschließen und posten“ geht
+ * der Post weiter. Schließt der Server eine Me-Challenge selbst ab (nach 48 h oder 7 Tagen), geht nichts weiter.
+ */
+const meKey = (challengeId: string) => `weiterposten-me:${challengeId}`;
+export async function rememberMeCrosspostOff(challengeId: string, off: LivePlatform[]) {
+  await AsyncStorage.setItem(meKey(challengeId), JSON.stringify(off)).catch(() => undefined);
+}
+export async function loadMeCrosspostOff(challengeId: string): Promise<LivePlatform[]> {
+  try {
+    const raw = await AsyncStorage.getItem(meKey(challengeId));
+    return raw ? (JSON.parse(raw) as LivePlatform[]) : [];
+  } catch {
+    return [];
+  }
+}
+/** Nach dem Nachher: weiterposten (im Hintergrund, Fehler stehen in crosspost_posts) und die Auswahl vergessen */
+export function crosspostMeChallenge(challengeId: string, off: LivePlatform[]) {
+  AsyncStorage.removeItem(meKey(challengeId)).catch(() => undefined);
+  loadCrosspostSelection()
+    .then((platforms) => crosspostChallenge(challengeId, platforms.filter((p) => !off.includes(p))))
+    .catch(() => undefined);
+}
+
 /** Ein Weiterpost eines eigenen Posts: Plattform, Stand und Adresse dort */
 export type CrosspostState = { platform: LivePlatform; status: 'running' | 'ok' | 'error'; url?: string };
 
