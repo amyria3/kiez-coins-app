@@ -27,6 +27,23 @@ export const kindOf = (r: Pick<Reminder, 'onDate' | 'atTime' | 'untilTime'>): Re
 
 export const goalOf = (r: Pick<Reminder, 'perWeek' | 'weekdays' | 'onDate'>) => (r.onDate ? 1 : r.perWeek ?? r.weekdays?.length ?? 1);
 
+/** Ab so vielen Tagen Puffer bleibt eine Aufgabe „x-mal pro Woche“ hinten und der Kater locker (Daria, 2026-11-16) */
+export const RELAXED_SLACK = 2;
+
+/** x-mal pro Woche: Tage, die in dieser Woche übrig bleiben (heute mitgezählt), minus wie oft sie noch dran ist */
+export const slackOf = (r: Pick<Reminder, 'perWeek' | 'weekdays' | 'onDate' | 'doneThisWeek'>, now = new Date()) =>
+  8 - isoWeekday(now) - (goalOf(r) - r.doneThisWeek);
+
+/**
+ * Hat diese Aufgabe noch Zeit (Daria, 2026-11-16: „sollte nicht schon am Anfang der Woche vorn stehen“)?
+ * Nur „x-mal pro Woche“, noch nicht geschafft, mindestens zwei Tage Puffer und der Lieblingstag noch nicht erreicht.
+ */
+export function isRelaxed(r: Reminder, now = new Date()): boolean {
+  if (!r.perWeek || r.onDate || r.weekdays?.length || r.doneThisWeek >= goalOf(r)) return false;
+  if (r.preferredDay && isoWeekday(now) >= r.preferredDay) return false;
+  return slackOf(r, now) >= RELAXED_SLACK;
+}
+
 /** Ortsdatum als „JJJJ-MM-TT“ */
 export const localDate = (d = new Date()) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;

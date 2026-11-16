@@ -45,6 +45,8 @@ export function NewReminder({ editId }: { editId?: string } = {}) {
   const [required, setRequired] = useState(true);
   const [until, setUntil] = useState('');
   const [perWeek, setPerWeek] = useState(3);
+  // Lieblingstag, freiwillig (Daria, 2026-11-16)
+  const [preferredDay, setPreferredDay] = useState<number | undefined>();
   const [days, setDays] = useState<number[]>([]);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -110,6 +112,7 @@ export function NewReminder({ editId }: { editId?: string } = {}) {
       } else {
         setMode('week');
         setPerWeek(r.perWeek ?? 1);
+        setPreferredDay(r.preferredDay);
       }
     });
     return () => {
@@ -140,6 +143,7 @@ export function NewReminder({ editId }: { editId?: string } = {}) {
           : timesOf(timeKind, from, until)),
       required: mode === 'once' ? required : undefined,
       perWeek: mode === 'week' ? perWeek : undefined,
+      preferredDay: mode === 'week' ? preferredDay : undefined,
       weekdays: mode === 'days' ? days : undefined,
     };
     const ok = editId ? await replaceReminder(editId, input) : await createReminder(input);
@@ -237,13 +241,28 @@ export function NewReminder({ editId }: { editId?: string } = {}) {
           </FieldGroup>
         </>
       ) : mode === 'week' ? (
-        <FieldGroup label="Mal pro Woche">
-          <ChipGroup>
-            {[1, 2, 3, 4, 5, 6, 7].map((n) => (
-              <Chip key={n} label={`${n}×`} selected={perWeek === n} onPress={() => setPerWeek(n)} />
-            ))}
-          </ChipGroup>
-        </FieldGroup>
+        <>
+          <FieldGroup label="Mal pro Woche">
+            <ChipGroup>
+              {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+                <Chip key={n} label={`${n}×`} selected={perWeek === n} onPress={() => setPerWeek(n)} />
+              ))}
+            </ChipGroup>
+          </FieldGroup>
+          {/* Bis zum Lieblingstag steht die Aufgabe hinten; nochmal tippen nimmt ihn weg (Daria, 2026-11-16) */}
+          <FieldGroup label="Am liebsten am (freiwillig)">
+            <ChipGroup>
+              {WEEKDAYS.map((d, i) => (
+                <Chip
+                  key={d}
+                  label={weekdayShort(i + 1)}
+                  selected={preferredDay === i + 1}
+                  onPress={() => setPreferredDay((p) => (p === i + 1 ? undefined : i + 1))}
+                />
+              ))}
+            </ChipGroup>
+          </FieldGroup>
+        </>
       ) : (
         <>
           <NudgeArea nudge={daysField}>

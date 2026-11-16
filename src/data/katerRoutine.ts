@@ -1,5 +1,5 @@
 import { getLanguage, localeTag, t } from './texts';
-import { addDays, capitalize, dueToday, END_OF_DAY, goalOf, isoWeekday, localDate, weekStart, type Reminder } from './reminders';
+import { addDays, capitalize, dueToday, END_OF_DAY, goalOf, isoWeekday, isRelaxed, localDate, weekStart, type Reminder } from './reminders';
 
 /**
  * Was der Kater zu einer Erinnerung sagt (Daria, 2026-11-10): lustig wie bei Duolingo, nicht zu sachlich.
@@ -36,9 +36,13 @@ export function katerLine(r: Reminder, now = new Date()): string {
   }
   if (done >= goal) return t('{goal} von {goal}! Du wolltest {want}, und Du hast es durchgezogen. Ich schnurre.', { want, goal });
   // Noch kein Strich: Mit viel Zeit bleibt der Kater locker, erst wenn es knapp wird, drängelt er (Daria, 2026-11-16).
-  const daysLeft = 8 - isoWeekday(now);
-  if (done === 0 && daysLeft - goal >= 2)
-    return t('Du willst diese Woche {goal}× {want}. Noch {days} Tage, ich lehne mich entspannt zurück.', { want, goal, days: daysLeft });
+  // Gleiche Grenze wie die Reihenfolge der Karten (isRelaxed).
+  if (done === 0 && r.preferredDay === isoWeekday(now))
+    return t('Heute ist Dein Lieblingstag für {want}. Ich schau Dir dabei zu.', { want });
+  if (done === 0 && isRelaxed(r, now))
+    return r.preferredDay
+      ? t('Du willst diese Woche {goal}× {want}, am liebsten am {day}. Bis dahin lehne ich mich zurück.', { want, goal, day: weekdayLong(r.preferredDay) })
+      : t('Du willst diese Woche {goal}× {want}. Noch {days} Tage, ich lehne mich entspannt zurück.', { want, goal, days: 8 - isoWeekday(now) });
   if (done === 0) return t('Shshshsh, Du wolltest diese Woche {goal}× {want}. Ich sehe noch keinen einzigen Strich.', { want, goal });
   if (goal - done === 1) return t('Nur noch einmal {want}, dann gehört die Woche Dir. Ich hab schon die Brille geputzt.', { want });
   return t('{done} von {goal}! Du wolltest {want}, und es läuft. Noch {rest}×.', { want, goal, done, rest: goal - done });
@@ -52,7 +56,9 @@ export function katerFocus(list: Reminder[], now = new Date()): Reminder | undef
   // Ohne Fälliges: lieber eine Routine mit Rückstand als eine, die heute frei hat
   const rest = list.filter((r) => !r.weekdays || r.doneToday || r.weekdays.includes(isoWeekday(now)));
   const pool = must.length ? must : due.length ? due : rest;
-  return [...pool].sort((a, b) => goalOf(b) - b.doneThisWeek - (goalOf(a) - a.doneThisWeek))[0];
+  // Aufgaben mit viel Puffer zuletzt (Daria, 2026-11-16), sonst die mit dem meisten Rückstand
+  const relaxed = (r: Reminder) => (isRelaxed(r, now) ? 1 : 0);
+  return [...pool].sort((a, b) => relaxed(a) - relaxed(b) || goalOf(b) - b.doneThisWeek - (goalOf(a) - a.doneThisWeek))[0];
 }
 
 /** Einmalig: „Heute bis 18:00“, „Morgen um 9:00“, „Do, 12.11. von 9:00 bis 11:00“, „bis Sa, 22.11.“ */
@@ -82,7 +88,10 @@ export function dayName(date: string, now = new Date()): string {
 /** „4× pro Woche“, „Mo, Mi, Fr · 18:00“, „Mo, Mi bis 10:00“ oder „Morgen um 9:00“ */
 export function goalText(r: Reminder): string {
   if (r.onDate) return `${whenText(r)} · ${r.required === false ? t('Optional') : t('Pflicht')}`;
-  if (r.perWeek) return t('{n}× pro Woche', { n: r.perWeek });
+  if (r.perWeek)
+    return r.preferredDay
+      ? t('{n}× pro Woche · am liebsten {day}', { n: r.perWeek, day: weekdayShort(r.preferredDay) })
+      : t('{n}× pro Woche', { n: r.perWeek });
   const days = (r.weekdays ?? []).map(weekdayShort).join(', ');
   if (r.atTime && r.untilTime) return t('{day} von {from} bis {until}', { day: days, from: r.atTime, until: r.untilTime });
   if (r.untilTime) return t('{day} bis {until}', { day: days, until: r.untilTime });
@@ -103,6 +112,18 @@ export function weekdayShort(day: number): string {
     return new Intl.DateTimeFormat(localeTag(), { weekday: 'short' }).format(new Date(2024, 0, day));
   } catch {
     return WEEKDAYS[day - 1];
+  }
+}
+
+const WEEKDAYS_LONG = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+
+/** Langer Tagesname, 1 = Montag … 7 = Sonntag; andere Sprachen vom System (Intl) */
+export function weekdayLong(day: number): string {
+  if (getLanguage() === 'de') return WEEKDAYS_LONG[day - 1];
+  try {
+    return new Intl.DateTimeFormat(localeTag(), { weekday: 'long' }).format(new Date(2024, 0, day));
+  } catch {
+    return WEEKDAYS_LONG[day - 1];
   }
 }
 

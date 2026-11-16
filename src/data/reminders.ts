@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { normalizeLink } from '../lib/places';
 import { supabase } from '../lib/supabase';
 import { weekStart, dayStart, isoWeekday, kindOf, localDate, addDays, routineLabel } from './reminderDates';
-export { weekStart, isoWeekday, kindOf, goalOf, localDate, addDays, dueToday, dueAt, routineLabel, capitalize, TIME, parseDate, parseUntil, END_OF_DAY } from './reminderDates';
+export { weekStart, isoWeekday, kindOf, goalOf, localDate, addDays, dueToday, dueAt, routineLabel, capitalize, TIME, parseDate, parseUntil, END_OF_DAY, isRelaxed, slackOf } from './reminderDates';
 export type { ReminderKind } from './reminderDates';
 
 /**
@@ -19,6 +19,8 @@ export type Reminder = {
   want: string;
   description?: string;
   perWeek?: number;
+  /** x-mal pro Woche: Lieblingstag, 1 = Montag … 7 = Sonntag (Daria, 2026-11-16) */
+  preferredDay?: number;
   /** 1 = Montag … 7 = Sonntag */
   weekdays?: number[];
   /** „HH:MM“: Uhrzeit bei festen Tagen, bei einmaligen „um“ bzw. „von“ */
@@ -46,6 +48,7 @@ export type ReminderInput = {
   want: string;
   description?: string;
   perWeek?: number;
+  preferredDay?: number;
   weekdays?: number[];
   atTime?: string;
   onDate?: string;
@@ -61,6 +64,7 @@ type Row = {
   want: string;
   description: string | null;
   per_week: number | null;
+  preferred_day?: number | null;
   weekdays: number[] | null;
   at_time: string | null;
   on_date?: string | null;
@@ -107,6 +111,7 @@ export async function loadReminders(): Promise<Reminder[] | null> {
       want: r.want,
       description: r.description ?? undefined,
       perWeek: r.per_week ?? undefined,
+      preferredDay: r.per_week ? (r.preferred_day ?? undefined) : undefined,
       weekdays: r.weekdays ?? undefined,
       atTime: r.at_time ? r.at_time.slice(0, 5) : undefined,
       onDate: r.on_date ?? undefined,
@@ -237,6 +242,7 @@ function rowOf(input: ReminderInput, base: { want: string; description: string |
       : {
           ...base,
           per_week: input.weekdays?.length ? null : input.perWeek ?? 1,
+          preferred_day: input.weekdays?.length ? null : input.preferredDay ?? null,
           weekdays: input.weekdays?.length ? [...input.weekdays].sort() : null,
           at_time: input.weekdays?.length && input.atTime ? input.atTime : null,
           until_time: input.weekdays?.length && input.untilTime ? input.untilTime : null,
@@ -251,7 +257,7 @@ function rowOf(input: ReminderInput, base: { want: string; description: string |
  */
 export async function replaceReminder(id: string, input: ReminderInput): Promise<boolean> {
   const base = { want: input.want.trim(), description: input.description?.trim() || null };
-  const empty = { per_week: null, weekdays: null, on_date: null, at_time: null, until_time: null };
+  const empty = { per_week: null, preferred_day: null, weekdays: null, on_date: null, at_time: null, until_time: null };
   const { error } = await supabase.from('reminders').update({ ...empty, ...rowOf(input, base), ...extrasOf(input) }).eq('id', id);
   return !error;
 }
