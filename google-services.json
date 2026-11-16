@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "486999135794",
+    "project_id": "kiezcoins",
+    "storage_bucket": "kiezcoins.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:486999135794:android:ca7eac288044ecd92b4e2b",
+        "android_client_info": {
+          "package_name": "de.kiezcoins.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzxCqpzbUNRXk09u60gKmBAg9B5pnsh4Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
