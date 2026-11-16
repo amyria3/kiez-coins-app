@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { AppState, Platform } from 'react-native';
 import { useFonts } from 'expo-font';
-import { SplashScreen, Stack, usePathname } from 'expo-router';
+import { SplashScreen, Stack, usePathname, useRouter, type Href } from 'expo-router';
+import { onPushOpen } from '../data/pushNative';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Inter_300Light } from '@expo-google-fonts/inter/300Light';
@@ -124,6 +125,9 @@ function RootStack() {
   // Aktueller Screen für den Fehlerbericht
   const pathname = usePathname();
   useEffect(() => setLastScreen(pathname), [pathname]);
+  // Android-App: Tippen auf eine Push-Nachricht öffnet ihre Seite (Daria, 2026-11-16; Web macht das der Service Worker)
+  const router = useRouter();
+  useEffect(() => onPushOpen((url) => router.push(url as Href)), [router]);
   // Erst rendern, wenn die gespeicherte Sitzung gelesen ist, sonst springt der Start kurz ins Onboarding.
   setStartInfo(loading ? 'Anmeldung lädt' : 'App gerendert');
   if (loading && !intro) return <LoadingScreen />;
