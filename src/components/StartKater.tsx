@@ -34,7 +34,8 @@ const FADE_MS = 250;
  * - Der Kater im Kreis rollt von links ins Bild, die Buchstaben von „KiezCoins“ fallen nacheinander dazu.
  *   Unten drehen die Zahnräder.
  * - Ist die App geladen, gehen die Buchstaben einzeln nacheinander wieder raus (kurz hoch, dann nach unten weg),
- *   der Kater rollt nach rechts aus dem Bild, und die Zahnräder rollen einzeln weg. Dann blendet der Grund aus.
+ *   der Kater rollt nach rechts aus dem Bild, und die Zahnräder rollen einzeln in verschiedene Richtungen weg.
+ *   Dann blendet der Grund aus.
  * - Ein Tipp überspringt die Wartezeit, sobald geladen ist. Mit „Bewegung reduzieren“ steht alles still da und
  *   blendet nur aus.
  * Vorher: Kater mit Besen und Spruch (bis 2026-11-16).

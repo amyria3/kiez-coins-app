@@ -28,8 +28,9 @@ export function GearsLoader({
   /** Nur diese Räder (Indizes in gearsSvgs), zugeschnitten auf ihren Umriss */
   only?: number[];
   /**
-   * Start (Daria, 2026-11-16): Läuft von 0 auf 1, rollen die Räder einzeln nach rechts aus dem Bild, das rechte
-   * zuerst. Jedes dreht sich dabei so weit, wie es rollt.
+   * Start (Daria, 2026-11-16): Läuft von 0 auf 1, rollen die Räder einzeln aus dem Bild, in verschiedene Richtungen
+   * („die Zahnräder müssen in verschiedene Richtungen davonrollen“): die rechte Hälfte nach rechts, die linke nach
+   * links, die äußeren zuerst. Jedes dreht sich dabei so weit, wie es rollt.
    */
   exit?: Animated.Value;
   /** Wie weit sie rollen, in pt */
@@ -74,11 +75,13 @@ export function GearsLoader({
         );
         const place = { position: 'absolute' as const, left: (g.x - box.x) * scale, top: (g.y - box.y) * scale };
         if (!exit) return <View key={i} style={place}>{spin}</View>;
-        // Reihenfolge von rechts nach links, je Rad ein eigener Abschnitt des Fortschritts
-        const order = [...shown].sort((a, b) => b.x - a.x).indexOf(g);
+        // Richtung nach der Lage des Rads; die äußeren zuerst, je Rad ein eigener Abschnitt des Fortschritts
+        const centerX = (g.x + g.w / 2 - box.x) / box.width;
+        const dir = centerX >= 0.5 ? 1 : -1;
+        const order = [...shown].sort((a, b) => Math.abs(b.x + b.w / 2 - box.x - box.width / 2) - Math.abs(a.x + a.w / 2 - box.x - box.width / 2)).indexOf(g);
         const start = Math.min(order * 0.1, 0.5);
         const range = [start, start + 0.5];
-        const turns = exitDistance / (Math.PI * g.w * scale);
+        const turns = (dir * exitDistance) / (Math.PI * g.w * scale);
         return (
           <Animated.View
             key={i}
@@ -86,7 +89,7 @@ export function GearsLoader({
               place,
               {
                 transform: [
-                  { translateX: exit.interpolate({ inputRange: range, outputRange: [0, exitDistance], extrapolate: 'clamp' }) },
+                  { translateX: exit.interpolate({ inputRange: range, outputRange: [0, dir * exitDistance], extrapolate: 'clamp' }) },
                   { rotate: exit.interpolate({ inputRange: range, outputRange: ['0deg', `${turns * 360}deg`], extrapolate: 'clamp' }) },
                 ],
               },
