@@ -41,6 +41,8 @@ export const palette = Object.freeze(kiezPalette);
 const swatch = {
   /** Senf: Me & Myself, Kalender, Aufgaben-Karten, „Du bist dran“ */
   senf: '#ECCF55',
+  /** Senf, etwas ruhiger: Aufgaben-Karten in Routine (Daria, 2026-11-16: „ein wenig absetzen in der Intensität“) */
+  senfRuhig: '#E0C96C',
   /**
    * Gelbgrün: Fokus, eingeschaltete Schalter, Menü-Icon, Theme Functional. Hell wie der Kater in der Start-Animation
    * (Daria, 2026-11-14). Seit 2026-11-15 auch der Kreis der Bildmarke
@@ -182,7 +184,7 @@ export const color = {
   },
   /** Routine-Karten (Daria, 2026-11-12): eigene Kartenfarben, Lila und Gelbgrün bleiben der Bedienung vorbehalten */
   routine: {
-    task: swatch.senf,
+    task: swatch.senfRuhig,
     fixed: swatch.olive,
     saved: swatch.puder,
     ink: swatch.tinte,
