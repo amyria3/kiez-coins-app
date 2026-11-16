@@ -250,7 +250,7 @@ export function NewReminder({ editId }: { editId?: string } = {}) {
             </ChipGroup>
           </FieldGroup>
           {/* Bis zum Lieblingstag steht die Aufgabe hinten; nochmal tippen nimmt ihn weg (Daria, 2026-11-16) */}
-          <FieldGroup label="Am liebsten am (freiwillig)">
+          <FieldGroup label="Am liebsten am (optional)">
             <ChipGroup>
               {WEEKDAYS.map((d, i) => (
                 <Chip
