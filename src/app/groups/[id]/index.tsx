@@ -51,10 +51,15 @@ export default function GroupDetail() {
     }
   };
 
+  // Tippen auf ein Mitglied führt zum Profil, dort geht die Freundschaftsanfrage (Daria, 2026-11-16).
+  // Initiator:innen bekommen das Profil als ersten Punkt im Menü.
+  const openProfile = (userId: string) => router.push({ pathname: '/user/[id]', params: { id: userId } });
   const memberMenu = (userId: string) => {
-    if (!isFounder || userId === currentUserId) return;
+    if (userId === currentUserId) return;
+    if (!isFounder) return openProfile(userId);
     const name = userOf(userId).name;
     Alert.alert(name, undefined, [
+      { text: 'Profil ansehen', onPress: () => openProfile(userId) },
       {
         text: 'Rolle übertragen',
         onPress: () =>
@@ -131,10 +136,11 @@ export default function GroupDetail() {
             return (
               <Pressable
                 key={member.userId}
-                accessibilityRole={isFounder && !me ? 'button' : undefined}
+                accessibilityRole={me ? undefined : 'button'}
                 accessibilityLabel={me ? t('Du') : user.name}
+                accessibilityHint={me ? undefined : isFounder ? t('Öffnet das Menü mit Profil, Rolle und Entfernen') : t('Öffnet das Profil')}
                 onPress={() => memberMenu(member.userId)}
-                disabled={!isFounder || me}
+                disabled={me}
                 style={({ pressed }) => [styles.row, me && styles.rowMe, pressed && styles.pressed]}
               >
                 <Avatar user={user} diameter={32} />
@@ -152,7 +158,11 @@ export default function GroupDetail() {
           })}
         </View>
       </FieldGroup>
-      {isFounder ? <Text style={styles.meta}>Tippe ein Mitglied an, um es zu entfernen oder ihm Deine Rolle zu geben.</Text> : null}
+      <Text style={styles.meta}>
+        {isFounder
+          ? 'Tippe ein Mitglied an, um sein Profil zu sehen, es zu entfernen oder ihm Deine Rolle zu geben.'
+          : 'Tippe ein Mitglied an, um sein Profil zu sehen und es als Freund:in anzufragen.'}
+      </Text>
 
       {isFounder ? (
         <FieldGroup label="Gruppeneinstellungen">
