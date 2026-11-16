@@ -27,16 +27,16 @@ export const styles = StyleSheet.create({
   // Platz für Schräge, Anheben und Hochziehen: Die Reihe reicht oben unter die Überschrift und unten etwas weiter,
   // ohne dass sich die Abstände ändern. Eine scrollbare Reihe schneidet sonst ab (Daria, 2026-11-13: „overflow sichtbar“).
   rowScroll: { marginHorizontal: -GUTTER, marginTop: -UP_ROOM, marginBottom: -space[12], overflow: 'visible' },
-  row: { paddingHorizontal: GUTTER, paddingTop: UP_ROOM, paddingBottom: space[12], gap: space[12] },
+  // Jede Karte so hoch wie ihr Inhalt, nicht so hoch wie die höchste in der Reihe (Daria, 2026-11-16)
+  row: { paddingHorizontal: GUTTER, paddingTop: UP_ROOM, paddingBottom: space[12], gap: space[12], alignItems: 'flex-start' },
   card: {
-    flex: 1,
     // Weniger rund (Daria, 2026-11-12): vorher 30, dann 16, jetzt Maß aller Karten (2026-11-13)
     borderRadius: radius.md,
     padding: 14,
     gap: space[6],
   },
-  cardBody: { flex: 1, gap: space[6] },
-  cardRest: { flex: 1, justifyContent: 'flex-end', gap: space[6] },
+  cardBody: { gap: space[6] },
+  cardRest: { gap: space[6] },
   headRow: { flexDirection: 'row', alignItems: 'flex-start', gap: space[12] },
   head: { flex: 1, gap: space[2] },
   // Platz für den Sticker, der links unter dem Kater herausragt

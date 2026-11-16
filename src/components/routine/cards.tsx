@@ -299,8 +299,7 @@ function Card({
         .join('. ')}
       style={[styles.card, drag.lifted && styles.cardLifted, { backgroundColor: bg }]}
     >
-      {/* Kater immer neben Titel und Zeit (Daria, 2026-11-13), oben rechts in der Ecke, auch wenn die Karte höher ist
-          als ihr Inhalt (Daria, 2026-11-16). Der Rest rutscht nach unten. */}
+      {/* Kater immer neben Titel und Zeit (Daria, 2026-11-13), oben rechts in der Ecke (Daria, 2026-11-16) */}
       <View style={styles.cardBody}>
         <View style={styles.headRow}>
           <View style={styles.head}>{head}</View>
