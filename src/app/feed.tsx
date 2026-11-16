@@ -392,7 +392,8 @@ export default function FeedScreen() {
   );
 
   const openChallenge = useCallback((id: string) => router.push(`/challenge/${id}`), [router]);
-  const openManage = useCallback(() => router.push('/manage'), [router]);
+  // Zahnrad am eigenen Post: „Meine Posts“ mit dieser Karte im Fokus (Daria, 2026-11-16)
+  const openManage = useCallback((id: string) => router.push({ pathname: '/manage', params: { fokus: id } }), [router]);
 
   // Schaufenster-Suche (Daria, 2026-11-13): Im Kiez- und Überall-Feed steht unter dem Umschalter ein Suchfeld, solange
   // der Kopf aufgeklappt ist. Mit einer Suche gehen Kopf und Umschalter weg, das Feld bleibt, darunter die Treffer
@@ -917,7 +918,7 @@ export default function FeedScreen() {
             onPress={() => openChallenge(item.challenge.id)}
             onCommentPress={() => router.push({ pathname: '/challenge/[id]', params: { id: item.challenge.id, kommentare: '1' } })}
             onLike={() => dispatch({ type: 'toggleLike', id: item.challenge.id })}
-            onManage={item.challenge.authorId === currentUserId ? openManage : undefined}
+            onManage={item.challenge.authorId === currentUserId ? () => openManage(item.challenge.id) : undefined}
           />
         );
       }

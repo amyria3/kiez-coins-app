@@ -456,7 +456,7 @@ export default function ChallengeDetail() {
               last
               onPress={() => {
                 setMenuOpen(false);
-                router.push('/manage');
+                router.push({ pathname: '/manage', params: { fokus: challenge.id } });
               }}
             />
           </View>

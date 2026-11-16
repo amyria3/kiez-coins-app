@@ -23,6 +23,7 @@ import { askCrosspost, restoreWithChoice } from '../components/CrosspostDialog';
 import { crosspostTargets, loadOwnCrossposts, platformLabel, type CrosspostState } from '../data/crosspost';
 import { t } from '../data/texts';
 import { useGoBack } from '../lib/goBack';
+import { useFocusColor } from '../theme/signal';
 import { isParticipant } from '../data/weChallenge';
 
 /** Reihenfolge: zuerst, was noch änderbar ist, dann was läuft, dann Entwürfe, dann Erledigtes */
@@ -66,7 +67,11 @@ export default function ManageChallenges() {
     if (mode === 'live') loadOwnCrossposts().then(setCrossposts);
   }, [mode, challenges.length]);
   // `archiv=1`: gleich im Reiter „Archiv“ öffnen (von „Was Du so machst“, In Gruppen)
-  const { archiv: archiveParam } = useLocalSearchParams<{ archiv?: string }>();
+  // `fokus=<id>`: vom Zahnrad am Post, zu dieser Karte scrollen und sie hervorheben (Daria, 2026-11-16)
+  const { archiv: archiveParam, fokus } = useLocalSearchParams<{ archiv?: string; fokus?: string }>();
+  const [focused, setFocused] = useState<string | undefined>(fokus);
+  const focusColor = useFocusColor();
+  const lists = useRef<{ active: FlatList<Page> | null; archive: FlatList<Page> | null }>({ active: null, archive: null });
   const [pageHeight, setPageHeight] = useState(0);
   // Aktuelle Seite je Reiter, für „2 von 5“
   const [index, setIndex] = useState({ active: 0, archive: 0 });
@@ -131,6 +136,32 @@ export default function ManageChallenges() {
     if (deleted.length) list.push({ kind: 'deleted', challenges: deleted });
     return { activePages, archivePages: list };
   }, [challenges, currentUserId]);
+
+  // Fokus: Reiter wählen, zur Karte scrollen (noch einmal, wenn die Höhen gemessen sind), Rahmen nach 2,5 s weg
+  const focusDone = useRef(false);
+  useEffect(() => {
+    if (!fokus || focusDone.current || !pageHeight || !width) return;
+    const inActive = activePages.findIndex((p) => p.kind === 'challenge' && p.challenge.id === fokus);
+    const inArchive = archivePages.findIndex((p) => p.kind === 'challenge' && p.challenge.id === fokus);
+    const tab = inActive >= 0 ? 'active' : inArchive >= 0 ? 'archive' : null;
+    if (!tab) return;
+    focusDone.current = true;
+    const i = tab === 'active' ? inActive : inArchive;
+    if (tab === 'archive') {
+      pager.current?.scrollTo({ x: width, animated: false });
+      archiveRef.current = true;
+      setArchive(true);
+    }
+    const go = (animated: boolean) => lists.current[tab]?.scrollToIndex({ index: i, animated, viewPosition: 0 });
+    const first = setTimeout(() => go(false), 50);
+    const again = setTimeout(() => go(true), 400);
+    const off = setTimeout(() => setFocused(undefined), 2500);
+    return () => {
+      clearTimeout(first);
+      clearTimeout(again);
+      clearTimeout(off);
+    };
+  }, [fokus, pageHeight, width, activePages, archivePages]);
 
   // Neu erstellen: dasselbe Blatt wie über dem Feed, mit allen Arten und Post vorausgewählt (Daria, 07.11.2026)
   const create = () => router.dismissTo({ pathname: '/feed', params: { erstellen: '1' } });
@@ -253,6 +284,10 @@ export default function ManageChallenges() {
           </View>
         ) : (
           <FlatList
+            ref={(r) => {
+              lists.current[tab] = r;
+            }}
+            onScrollToIndexFailed={() => undefined}
             data={pages}
             keyExtractor={keyOf}
             snapToOffsets={offsets}
@@ -292,6 +327,7 @@ export default function ManageChallenges() {
               const item = page.challenge;
               return (
                 <View style={[styles.page, { maxHeight: itemHeight }]} onLayout={measure(item.id)}>
+                  {focused === item.id ? <View pointerEvents="none" style={[styles.focusRing, { borderColor: focusColor }]} /> : null}
                   <ChallengeCard
                     challenge={item}
                     assignee={users.find((u) => u.id === item.assigneeId)}
@@ -728,6 +764,17 @@ const styles = StyleSheet.create({
   empty: { padding: space[16] },
   switch: { paddingHorizontal: space[16], paddingBottom: space[8] },
   page: { paddingHorizontal: space[16], paddingTop: space[8], paddingBottom: space[12] },
+  // Rahmen um die Karte, zu der das Zahnrad am Post geführt hat (Daria, 2026-11-16)
+  focusRing: {
+    position: 'absolute',
+    top: space[8] - stroke.focus * 2,
+    bottom: space[12] - stroke.focus * 2,
+    left: space[16] - stroke.focus * 2,
+    right: space[16] - stroke.focus * 2,
+    borderWidth: stroke.focus,
+    borderRadius: radius.md + stroke.focus * 2,
+    zIndex: 1,
+  },
   // Weniger Rundung, kein Rand (Daria, 2026-11-09): Die Karte hebt sich nur durch ihre Fläche ab
   card: {
     gap: space[16],
