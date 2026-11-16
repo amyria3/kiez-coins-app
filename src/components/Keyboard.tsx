@@ -120,7 +120,9 @@ function useWebKeyboard(setHeight: (height: number) => void, setInset: (inset: n
       if (window.innerWidth !== full.width) full = { width: window.innerWidth, height: viewport.height, page: root.clientHeight };
       // Manche Browser verkleinern innerHeight mit, andere nicht. Der größere Wert ist die Tastatur.
       const covered = Math.round(Math.max(window.innerHeight - viewport.height, full.height - viewport.height));
-      const next = covered > MIN_KEYBOARD_HEIGHT ? covered : 0;
+      // Ohne aktives Feld ist keine Tastatur offen. Die Web-App auf dem iPhone-Home-Bildschirm meldet das Schließen
+      // nicht immer; die Seite blieb dann halb so hoch, und Dialoge saßen oben fest (Daria, 2026-11-16).
+      const next = covered > MIN_KEYBOARD_HEIGHT && isEditable(document.activeElement) ? covered : 0;
       if (!next) {
         full.height = Math.max(full.height, viewport.height);
         full.page = Math.max(full.page, root.clientHeight);

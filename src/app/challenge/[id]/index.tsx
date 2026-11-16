@@ -71,6 +71,8 @@ export default function ChallengeDetail() {
   const needKiez = () => !!challenge?.groupId || requireKiezRaw();
   const requireKiezRaw = useRequireKiez();
   const [menuOpen, setMenuOpen] = useState(false);
+  // Nach „Verschieben …“ steht statt des Posts ein Hinweis mit Link zum neuen Ort (Daria, 2026-11-16)
+  const [movedTo, setMovedTo] = useState<'private' | 'nearby' | 'everywhere' | undefined>(undefined);
   // Steht Text im Kommentarfeld, schickt der Hauptknopf ihn ab statt z. B. „Erledigt melden“ (Daria, 2026-11-09)
   const [writing, setWriting] = useState(false);
   const sendComment = useRef<(() => void) | null>(null);
@@ -116,6 +118,20 @@ export default function ChallengeDetail() {
     return (
       <SubScreen title="Challenge" navigation="back" onLeadingPress={goBack}>
         <Text style={styles.secondary}>Diese Challenge gibt es nicht mehr.</Text>
+      </SubScreen>
+    );
+  }
+
+  if (movedTo) {
+    const place = MOVED_PLACE[movedTo];
+    return (
+      <SubScreen
+        title="Verschoben"
+        navigation="back"
+        onLeadingPress={goBack}
+        actions={<Button label={t(place.label)} onPress={() => router.dismissTo({ pathname: '/feed', params: { reiter: place.param } })} />}
+      >
+        <Notice message={t('Dein Post wurde verschoben.')} />
       </SubScreen>
     );
   }
@@ -232,8 +248,10 @@ export default function ChallengeDetail() {
   // Me-Challenge ohne Coins, wie im Bearbeiten-Screen.
   const canMove = isAuthor && !challenge.groupId && !challenge.assigneeId && (challenge.status === 'open' || challenge.status === 'closed');
   const canBePrivate = (challenge.type === 'photo' || isBeforeAfter) && !challenge.bountyAmount;
-  const moveTo = (to: 'private' | 'nearby' | 'everywhere') =>
+  const moveTo = (to: 'private' | 'nearby' | 'everywhere') => {
     dispatch({ type: 'setAudience', id: challenge.id, private: to === 'private', localOnly: to === 'nearby' });
+    setMovedTo(to);
+  };
   const askMove = () => {
     const here = challenge.private ? 'private' : challenge.localOnly ? 'nearby' : 'everywhere';
     const options = [
@@ -725,6 +743,13 @@ export default function ChallengeDetail() {
     </View>
   );
 }
+
+/** Ziel nach „Verschieben …“: Knopf zum Reiter im Feed und sein Wert in der Adresse (`reiter`) */
+const MOVED_PLACE = {
+  private: { label: 'In Me & Myself ansehen', param: 'privat' },
+  nearby: { label: 'Im Kiez ansehen', param: 'kiez' },
+  everywhere: { label: 'In „Überall“ ansehen', param: 'ueberall' },
+} as const;
 
 /** Grund des Zahnrad-Menüs: Blur und halbdurchsichtige Kartenfarbe (Daria, 2026-11-06) */
 function MenuBackdrop() {
