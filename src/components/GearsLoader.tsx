@@ -19,12 +19,21 @@ export function GearsLoader({
   // Große Räder wie die Icons in #EEE0C9 (Daria, 2026-11-05: „falsches Weiß“)
   tint = color.icon.large,
   only,
+  exit,
+  exitDistance = 600,
 }: {
   /** Breite in pt */
   size?: number;
   tint?: string;
   /** Nur diese Räder (Indizes in gearsSvgs), zugeschnitten auf ihren Umriss */
   only?: number[];
+  /**
+   * Start (Daria, 2026-11-16): Läuft von 0 auf 1, rollen die Räder einzeln nach rechts aus dem Bild, das rechte
+   * zuerst. Jedes dreht sich dabei so weit, wie es rollt.
+   */
+  exit?: Animated.Value;
+  /** Wie weit sie rollen, in pt */
+  exitDistance?: number;
 }) {
   const progress = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -51,23 +60,42 @@ export function GearsLoader({
       accessibilityRole="progressbar"
       accessibilityLabel={t('Lädt')}
     >
-      {shown.map((g, i) => (
-        <Animated.View
-          key={i}
-          style={{
-            position: 'absolute',
-            left: (g.x - box.x) * scale,
-            top: (g.y - box.y) * scale,
-            width: g.w * scale,
-            height: g.h * scale,
-            transform: [
-              { rotate: progress.interpolate({ inputRange: [0, 1], outputRange: ['0deg', `${g.turnDeg}deg`] }) },
-            ],
-          }}
-        >
-          <SvgXml xml={g.svg(tint)} width={g.w * scale} height={g.h * scale} />
-        </Animated.View>
-      ))}
+      {shown.map((g, i) => {
+        const spin = (
+          <Animated.View
+            style={{
+              width: g.w * scale,
+              height: g.h * scale,
+              transform: [{ rotate: progress.interpolate({ inputRange: [0, 1], outputRange: ['0deg', `${g.turnDeg}deg`] }) }],
+            }}
+          >
+            <SvgXml xml={g.svg(tint)} width={g.w * scale} height={g.h * scale} />
+          </Animated.View>
+        );
+        const place = { position: 'absolute' as const, left: (g.x - box.x) * scale, top: (g.y - box.y) * scale };
+        if (!exit) return <View key={i} style={place}>{spin}</View>;
+        // Reihenfolge von rechts nach links, je Rad ein eigener Abschnitt des Fortschritts
+        const order = [...shown].sort((a, b) => b.x - a.x).indexOf(g);
+        const start = Math.min(order * 0.1, 0.5);
+        const range = [start, start + 0.5];
+        const turns = exitDistance / (Math.PI * g.w * scale);
+        return (
+          <Animated.View
+            key={i}
+            style={[
+              place,
+              {
+                transform: [
+                  { translateX: exit.interpolate({ inputRange: range, outputRange: [0, exitDistance], extrapolate: 'clamp' }) },
+                  { rotate: exit.interpolate({ inputRange: range, outputRange: ['0deg', `${turns * 360}deg`], extrapolate: 'clamp' }) },
+                ],
+              },
+            ]}
+          >
+            {spin}
+          </Animated.View>
+        );
+      })}
     </View>
   );
 }
