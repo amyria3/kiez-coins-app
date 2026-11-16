@@ -21,6 +21,7 @@ export function GearsLoader({
   only,
   exit,
   exitDistance = 600,
+  exitFloor = 0,
 }: {
   /** Breite in pt */
   size?: number;
@@ -28,13 +29,15 @@ export function GearsLoader({
   /** Nur diese Räder (Indizes in gearsSvgs), zugeschnitten auf ihren Umriss */
   only?: number[];
   /**
-   * Start (Daria, 2026-11-16): Läuft von 0 auf 1, rollen die Räder einzeln aus dem Bild, in verschiedene Richtungen
-   * („die Zahnräder müssen in verschiedene Richtungen davonrollen“): die rechte Hälfte nach rechts, die linke nach
-   * links, die äußeren zuerst. Jedes dreht sich dabei so weit, wie es rollt.
+   * Start (Daria, 2026-11-16): Läuft von 0 auf 1, fällt jedes Rad erst auf den Boden („runter auf den Boden und dann
+   * erst zur Seite“) und rollt dann aus dem Bild, in verschiedene Richtungen: die rechte Hälfte nach rechts, die linke
+   * nach links, die äußeren zuerst. Beim Rollen dreht sich jedes so weit, wie es rollt.
    */
   exit?: Animated.Value;
   /** Wie weit sie rollen, in pt */
   exitDistance?: number;
+  /** Abstand vom unteren Rand der Räder bis zum Boden (unterer Bildschirmrand), in pt */
+  exitFloor?: number;
 }) {
   const progress = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -79,8 +82,11 @@ export function GearsLoader({
         const centerX = (g.x + g.w / 2 - box.x) / box.width;
         const dir = centerX >= 0.5 ? 1 : -1;
         const order = [...shown].sort((a, b) => Math.abs(b.x + b.w / 2 - box.x - box.width / 2) - Math.abs(a.x + a.w / 2 - box.x - box.width / 2)).indexOf(g);
-        const start = Math.min(order * 0.1, 0.5);
-        const range = [start, start + 0.5];
+        const start = Math.min(order * 0.08, 0.4);
+        // Fallen mit Schwerkraft (langsam, dann schneller), kurz aufsetzen, dann rollen
+        const fall = (box.height - (g.y + g.h - box.y)) * scale + exitFloor;
+        const fallRange = [start, start + 0.12, start + 0.22];
+        const range = [start + 0.27, start + 0.6];
         const turns = (dir * exitDistance) / (Math.PI * g.w * scale);
         return (
           <Animated.View
@@ -89,6 +95,7 @@ export function GearsLoader({
               place,
               {
                 transform: [
+                  { translateY: exit.interpolate({ inputRange: fallRange, outputRange: [0, fall * 0.3, fall], extrapolate: 'clamp' }) },
                   { translateX: exit.interpolate({ inputRange: range, outputRange: [0, dir * exitDistance], extrapolate: 'clamp' }) },
                   { rotate: exit.interpolate({ inputRange: range, outputRange: ['0deg', `${turns * 360}deg`], extrapolate: 'clamp' }) },
                 ],

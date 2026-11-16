@@ -26,7 +26,7 @@ const HOLD_MS = 600;
 const LETTER_OUT_STAGGER_MS = 55;
 const LETTER_OUT_MS = 380;
 const CAT_OUT_MS = 650;
-const GEARS_OUT_MS = 1100;
+const GEARS_OUT_MS = 1800;
 const FADE_MS = 250;
 
 /**
@@ -34,7 +34,7 @@ const FADE_MS = 250;
  * - Der Kater im Kreis rollt von links ins Bild, die Buchstaben von „KiezCoins“ fallen nacheinander dazu.
  *   Unten drehen die Zahnräder.
  * - Ist die App geladen, gehen die Buchstaben einzeln nacheinander wieder raus (kurz hoch, dann nach unten weg),
- *   der Kater rollt nach rechts aus dem Bild, und die Zahnräder rollen einzeln in verschiedene Richtungen weg.
+ *   der Kater rollt nach rechts aus dem Bild, und die Zahnräder fallen einzeln auf den Boden und rollen in verschiedene Richtungen weg.
  *   Dann blendet der Grund aus.
  * - Ein Tipp überspringt die Wartezeit, sobald geladen ist. Mit „Bewegung reduzieren“ steht alles still da und
  *   blendet nur aus.
@@ -116,7 +116,8 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
           Animated.delay(250),
           Animated.timing(catOut, { toValue: 1, duration: CAT_OUT_MS, easing: Easing.in(Easing.cubic), useNativeDriver: true }),
         ]),
-        Animated.timing(gearsOut, { toValue: 1, duration: GEARS_OUT_MS, easing: Easing.in(Easing.quad), useNativeDriver: true }),
+        // Linear: Fallen und Rollen formt GearsLoader je Rad selbst
+        Animated.timing(gearsOut, { toValue: 1, duration: GEARS_OUT_MS, easing: Easing.linear, useNativeDriver: true }),
       ]),
       fade,
     ]).start(() => onDone());
@@ -193,7 +194,7 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
         </View>
       </Pressable>
       <View pointerEvents="none" style={[styles.gears, { bottom: insets.bottom + space[32] }]}>
-        <GearsLoader size={gearsSize} exit={gearsOut} exitDistance={screenWidth} />
+        <GearsLoader size={gearsSize} exit={gearsOut} exitDistance={screenWidth} exitFloor={insets.bottom + space[32]} />
       </View>
     </Animated.View>
   );
