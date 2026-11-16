@@ -82,6 +82,24 @@ export const capitalize = (s: string) => (s ? s[0].toLocaleUpperCase() + s.slice
 /** „9:00“ oder „18:30“ */
 export const TIME = /^([01]?\d|2[0-3]):[0-5]\d$/;
 
+/** Ohne Uhrzeit im Feld „Bis“: Die Frist endet mit dem Tag (Daria, 2026-11-16) */
+export const END_OF_DAY = '23:59';
+
+/**
+ * Feld „Bis“ bei einmaligen Erinnerungen (Daria, 2026-11-16: „ich hätte hier gern den Tag eingegeben“):
+ * „18:00“, „22.11.“ oder „22.11. 18:00“. `date` nur mit Tag, `time` nur mit Uhrzeit. `null`, wenn nichts davon passt.
+ */
+export function parseUntil(value: string, now = new Date()): { date?: string; time?: string } | null {
+  const v = value.trim();
+  if (TIME.test(v)) return { time: v };
+  const m = v.match(/^(\S+?)(?:,?\s+(?:um\s+)?(\S+))?$/);
+  if (!m) return null;
+  const date = parseDate(m[1], now);
+  if (!date) return null;
+  if (!m[2]) return { date };
+  return TIME.test(m[2]) ? { date, time: m[2] } : null;
+}
+
 /** „24.12“, „24.12.“, „24.12.26“ oder „24.12.2026“ → „2026-12-24“; ohne Jahr der nächste solche Tag ab heute */
 export function parseDate(value: string, now = new Date()): string | null {
   const m = value.trim().match(/^(\d{1,2})\.(\d{1,2})(?:\.(\d{2}|\d{4})?)?$/);

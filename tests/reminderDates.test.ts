@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { addDays, capitalize, dueAt, dueToday, goalOf, isoWeekday, kindOf, localDate, parseDate, routineLabel, weekStart } from '../src/data/reminderDates';
+import { addDays, capitalize, dueAt, dueToday, goalOf, isoWeekday, kindOf, localDate, parseDate, parseUntil, routineLabel, weekStart } from '../src/data/reminderDates';
 import type { Reminder } from '../src/data/reminders';
 
 // Mittwoch, 2026-11-18, 10:00 Ortszeit
@@ -86,5 +86,18 @@ describe('Markierung im Post', () => {
     assert.equal(capitalize('joggen gehen'), 'Joggen gehen');
     assert.equal(routineLabel(reminder({ perWeek: 4, doneThisWeek: 1 })), 'Joggen gehen 2/4');
     assert.equal(routineLabel(reminder({ perWeek: 2, doneThisWeek: 5 })), 'Joggen gehen 2/2');
+  });
+});
+
+describe('Feld „Bis“ mit Tag', () => {
+  it('nur Uhrzeit', () => assert.deepEqual(parseUntil('18:00', NOW), { time: '18:00' }));
+  it('nur Tag', () => assert.deepEqual(parseUntil('22.11.', NOW), { date: '2026-11-22' }));
+  it('Tag ohne Punkt am Ende', () => assert.deepEqual(parseUntil('22.11', NOW), { date: '2026-11-22' }));
+  it('Tag und Uhrzeit', () => assert.deepEqual(parseUntil('22.11. 18:00', NOW), { date: '2026-11-22', time: '18:00' }));
+  it('Tag, um Uhrzeit', () => assert.deepEqual(parseUntil('22.11., um 9:30', NOW), { date: '2026-11-22', time: '9:30' }));
+  it('Unsinn', () => {
+    assert.equal(parseUntil('22.11. abends', NOW), null);
+    assert.equal(parseUntil('31.02.', NOW), null);
+    assert.equal(parseUntil('', NOW), null);
   });
 });

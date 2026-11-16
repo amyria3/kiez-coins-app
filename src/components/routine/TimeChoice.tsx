@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { TIME } from '../../data/reminders';
+import { parseUntil, TIME } from '../../data/reminders';
 import { space } from '../../theme/tokens';
 import { Chip, ChipGroup, TextField } from '../Form';
 import { type Nudge } from '../Nudge';
@@ -11,12 +11,14 @@ export type TimeKind = 'until' | 'at' | 'range' | 'none';
 export const kindOfTimes = (atTime?: string, untilTime?: string): TimeKind =>
   atTime && untilTime ? 'range' : atTime ? 'at' : untilTime ? 'until' : 'none';
 
-/** Ist die Zeit vollständig? Ohne Uhrzeit immer. */
-export const timesReady = (kind: TimeKind, from: string, until: string) =>
+/** Ist die Zeit vollständig? Ohne Uhrzeit immer. `withDate`: „Bis“ nimmt auch einen Tag. */
+export const timesReady = (kind: TimeKind, from: string, until: string, withDate = false) =>
   kind === 'none'
     ? true
     : kind === 'until'
-      ? TIME.test(until.trim())
+      ? withDate
+        ? !!parseUntil(until)
+        : TIME.test(until.trim())
       : kind === 'at'
         ? TIME.test(from.trim())
         : TIME.test(from.trim()) && TIME.test(until.trim());
@@ -42,6 +44,7 @@ export function TimeChoice({
   onUntil,
   fromNudge,
   untilNudge,
+  withDate = false,
 }: {
   kind: TimeKind;
   onKind: (k: TimeKind) => void;
@@ -51,9 +54,12 @@ export function TimeChoice({
   onUntil: (v: string) => void;
   fromNudge: Nudge;
   untilNudge: Nudge;
+  /** Einmalig: „Bis“ nimmt auch einen Tag, „22.11.“ oder „22.11. 18:00“ (Daria, 2026-11-16) */
+  withDate?: boolean;
 }) {
   const fromOk = !from.trim() || TIME.test(from.trim());
-  const untilOk = !until.trim() || TIME.test(until.trim());
+  const dateAllowed = withDate && kind === 'until';
+  const untilOk = !until.trim() || (dateAllowed ? !!parseUntil(until) : TIME.test(until.trim()));
   return (
     <>
       <ChipGroup>
@@ -82,13 +88,13 @@ export function TimeChoice({
           <View style={styles.time}>
             <TextField
               label="Bis"
-              placeholder="Format 18:00"
+              placeholder={dateAllowed ? 'z. B. 18:00 oder 22.11.' : 'Format 18:00'}
               value={until}
               onChangeText={onUntil}
               keyboardType="numbers-and-punctuation"
-              maxLength={5}
+              maxLength={dateAllowed ? 17 : 5}
               nudge={untilNudge}
-              error={untilOk ? undefined : 'Bitte so: 18:00'}
+              error={untilOk ? undefined : dateAllowed ? 'Bitte so: 18:00, 22.11. oder 22.11. 18:00' : 'Bitte so: 18:00'}
             />
           </View>
         ) : null}

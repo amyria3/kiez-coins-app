@@ -1,5 +1,5 @@
 import { getLanguage, localeTag, t } from './texts';
-import { addDays, dueToday, goalOf, isoWeekday, localDate, weekStart, type Reminder } from './reminders';
+import { addDays, capitalize, dueToday, END_OF_DAY, goalOf, isoWeekday, localDate, weekStart, type Reminder } from './reminders';
 
 /**
  * Was der Kater zu einer Erinnerung sagt (Daria, 2026-11-10): lustig wie bei Duolingo, nicht zu sachlich.
@@ -15,7 +15,8 @@ export function katerLine(r: Reminder, now = new Date()): string {
   const done = r.doneThisWeek;
   if (r.onDate) {
     if (done) return t('Erledigt: {want}. Ich hab es mir aufgeschrieben, mit Sternchen.', { want });
-    const when = whenText(r, now);
+    // Am Satzanfang groß: „Bis Sa, 22.11. willst Du …“
+    const when = capitalize(whenText(r, now));
     const today = r.onDate === localDate(now);
     // Pflicht: Der Kater bleibt dran. Optional: Er stupst nur an (Daria, 2026-11-10).
     if (r.required === false)
@@ -54,9 +55,15 @@ export function katerFocus(list: Reminder[], now = new Date()): Reminder | undef
   return [...pool].sort((a, b) => goalOf(b) - b.doneThisWeek - (goalOf(a) - a.doneThisWeek))[0];
 }
 
-/** Einmalig: „Heute bis 18:00“, „Morgen um 9:00“, „Do, 12.11. von 9:00 bis 11:00“ */
+/** Einmalig: „Heute bis 18:00“, „Morgen um 9:00“, „Do, 12.11. von 9:00 bis 11:00“, „bis Sa, 22.11.“ */
 export function whenText(r: Pick<Reminder, 'onDate' | 'atTime' | 'untilTime'>, now = new Date()): string {
   const day = dayName(r.onDate ?? '', now);
+  // Frist bis zu einem Tag (Daria, 2026-11-16)
+  if (!r.atTime && r.untilTime === END_OF_DAY) {
+    if (r.onDate === localDate(now)) return t('bis heute');
+    if (r.onDate === localDate(addDays(1, now))) return t('bis morgen');
+    return t('bis {day}', { day });
+  }
   if (r.atTime && r.untilTime) return t('{day} von {from} bis {until}', { day, from: r.atTime, until: r.untilTime });
   if (r.untilTime) return t('{day} bis {until}', { day, until: r.untilTime });
   if (r.atTime) return t('{day} um {at}', { day, at: r.atTime });

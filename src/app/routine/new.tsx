@@ -9,7 +9,7 @@ import { ReminderExtrasFields, type Extras } from '../../components/ReminderExtr
 import { kindOfTimes, TimeChoice, timesOf, timesReady, type TimeKind } from '../../components/routine/TimeChoice';
 import { SubScreen } from '../../components/Screen';
 import { WEEKDAYS, weekdayShort } from '../../data/katerRoutine';
-import { addDays, createReminder, loadReminders, localDate, parseDate, replaceReminder, TIME } from '../../data/reminders';
+import { addDays, createReminder, END_OF_DAY, loadReminders, localDate, parseDate, parseUntil, replaceReminder, TIME } from '../../data/reminders';
 import { useGoBack } from '../../lib/goBack';
 
 /**
@@ -84,7 +84,14 @@ export function NewReminder({ editId }: { editId?: string } = {}) {
       setTimeKind(kindOfTimes(r.atTime, r.untilTime));
       setFrom(r.atTime ?? '');
       setUntil(r.untilTime ?? '');
-      if (r.onDate) {
+      // Frist bis zu einem Tag: steht als Tag im Feld „Bis“
+      if (r.onDate && !r.atTime && r.untilTime === END_OF_DAY) {
+        const [, m, d] = r.onDate.split('-');
+        setMode('once');
+        setDay('today');
+        setUntil(`${d}.${m}.`);
+        setRequired(r.required !== false);
+      } else if (r.onDate) {
         setMode('once');
         const today = localDate();
         const tomorrow = localDate(addDays(1));
@@ -110,8 +117,11 @@ export function NewReminder({ editId }: { editId?: string } = {}) {
     };
   }, [source, editId]);
 
-  const onDate = day === 'today' ? localDate() : day === 'tomorrow' ? localDate(addDays(1)) : parseDate(date);
-  const timeReady = timesReady(timeKind, from, until);
+  // „Bis“ mit Tag (Daria, 2026-11-16): Der Tag dort ist die Frist, „Wann?“ zählt dann nicht.
+  const untilParts = mode === 'once' && timeKind === 'until' ? parseUntil(until) : null;
+  const onDate =
+    untilParts?.date ?? (day === 'today' ? localDate() : day === 'tomorrow' ? localDate(addDays(1)) : parseDate(date));
+  const timeReady = timesReady(timeKind, from, until, mode === 'once');
   const ready =
     want.trim().length > 0 && (mode === 'once' ? !!onDate && timeReady : mode === 'week' || (days.length > 0 && timeReady));
 
@@ -123,7 +133,11 @@ export function NewReminder({ editId }: { editId?: string } = {}) {
       description,
       ...extras,
       onDate: mode === 'once' ? onDate ?? undefined : undefined,
-      ...(mode === 'week' ? {} : timesOf(timeKind, from, until)),
+      ...(mode === 'week'
+        ? {}
+        : untilParts
+          ? { atTime: undefined, untilTime: (untilParts.time ?? END_OF_DAY).padStart(5, '0') }
+          : timesOf(timeKind, from, until)),
       required: mode === 'once' ? required : undefined,
       perWeek: mode === 'week' ? perWeek : undefined,
       weekdays: mode === 'days' ? days : undefined,
@@ -141,7 +155,9 @@ export function NewReminder({ editId }: { editId?: string } = {}) {
     if (mode === 'days' && !days.length) return daysField.nudge('Wähl mindestens einen Tag.');
     if (mode !== 'week') {
       if ((timeKind === 'at' || timeKind === 'range') && !TIME.test(from.trim())) return fromField.nudge('Gib eine Uhrzeit ein, z. B. 9:00.');
-      if ((timeKind === 'until' || timeKind === 'range') && !TIME.test(until.trim())) return untilField.nudge('Gib eine Uhrzeit ein, z. B. 18:00.');
+      if (mode === 'once' && timeKind === 'until' && !untilParts) return untilField.nudge('Gib eine Uhrzeit oder einen Tag ein, z. B. 18:00 oder 22.11.');
+      if ((timeKind === 'until' || timeKind === 'range') && mode !== 'once' && !TIME.test(until.trim())) return untilField.nudge('Gib eine Uhrzeit ein, z. B. 18:00.');
+      if (timeKind === 'range' && !TIME.test(until.trim())) return untilField.nudge('Gib eine Uhrzeit ein, z. B. 18:00.');
     }
   };
 
@@ -211,6 +227,7 @@ export function NewReminder({ editId }: { editId?: string } = {}) {
             onUntil={setUntil}
             fromNudge={fromField}
             untilNudge={untilField}
+            withDate
           />
           <FieldGroup label="Wie verbindlich?">
             <ChipGroup>
