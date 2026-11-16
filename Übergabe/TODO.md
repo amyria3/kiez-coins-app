@@ -59,12 +59,15 @@ Sofort:
 
 - [ ] Einordnung rechtlich prüfen lassen: Fällt KiezCoins unter den CRA, ab welchem Zeitpunkt, und zählen Web-App und Backend mit.
 - [ ] Postfach für Sicherheitsmeldungen bestätigen (`SECURITY.md` nennt die Adresse aus dem Impressum) und täglich lesen.
-- [ ] GitHub: Settings › Code security › „Private vulnerability reporting“ einschalten.
-- [ ] Zwei-Faktor-Anmeldung einschalten bei GitHub, Expo, Supabase, Vercel, Brevo und INWX.
+- [x] (16.11.2026) GitHub: Settings › Code security › „Private vulnerability reporting“ einschalten.
+- [x] (16.11.2026) Zwei-Faktor-Anmeldung einschalten bei GitHub, Expo, Supabase, Vercel, Brevo und INWX.
 - [ ] Supabase: Authentication › Schutz vor geleakten Passwörtern einschalten. Geht erst mit dem Pro-Plan (Daria, 15.11.2026: im Free-Plan gesperrt). „Secure email change“, „Secure password change“ und „Require current password“ bleiben aus: Die App schickt weder das alte Passwort noch eine erneute Anmeldung mit, und Konten ohne E-Mail könnten die alte (erfundene) Adresse nie bestätigen.
-- [ ] GitHub: Settings › Code security › CodeQL „Default setup“ und Dependabot alerts einschalten.
+- [x] (16.11.2026) GitHub: Settings › Code security › CodeQL „Default setup“ und Dependabot alerts einschalten.
 - [x] (12.11.2026, Daria hat PR #352 gemergt) PR mit Dependabot und `security.txt` freigeben. Noch im Browser prüfen: `https://kiezcoins.de/.well-known/security.txt` lädt.
-- [ ] Maßnahmen aus der Risikobewertung entscheiden (Claude-Projektordner `cra/2026-11-12_risikobewertung-und-befunde.md`). Claude setzt sie danach um.
+- [x] (16.11.2026, Daria: „Erledige was du erledigen kannst“) Maßnahmen aus der Risikobewertung entscheiden. Umgesetzt: Workflows gehärtet, Weiterposten ohne Weiterleitungen, Rechte ohne Anmeldung (Migration `20261116000400_anon_rechte`), auf `push-android` signierte Updates, Anmeldung im geschützten Speicher und `npm audit fix`.
+- [ ] Supabase: Migration `20261116000400_anon_rechte.sql` ausführen und die Funktion `weiterposten` neu hochladen (`npx supabase functions deploy weiterposten`).
+- [ ] Vor dem Mergen von `push-android`: GitHub › Settings › Secrets and variables › Actions › neues Secret `UPDATES_PRIVATE_KEY` mit dem Inhalt von `KiezCoins-Fotos/geheim-codesigning/private-key.pem`. Den Schlüssel zusätzlich im Passwort-Manager sichern; geht er verloren, nehmen installierte APKs keine Updates mehr an.
+- [ ] Captcha für Konten ohne E-Mail (Daria: „wäre gut“): Supabase prüft das Captcha bei jeder Anmeldung und Registrierung, nicht nur bei Testkonten. Entscheiden, ob das für alle gelten soll; dann Cloudflare Turnstile anlegen (Site Key und Secret Key), Claude baut das Widget in Web und App.
 
 Vor dem ersten bezahlten Angebot:
 
