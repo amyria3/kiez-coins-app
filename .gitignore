@@ -47,3 +47,10 @@ website/app/
 website/.vercel
 website/.env*
 scripts/.i18n-missing.json
+_zum_loeschen/
+
+# Nur npm: eine zweite Lock-Datei lässt EAS den falschen Paketmanager nehmen.
+bun.lock
+bun.lockb
+yarn.lock
+pnpm-lock.yaml
