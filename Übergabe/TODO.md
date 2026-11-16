@@ -37,6 +37,7 @@ Erledigt Daria selbst, Claude hat alles vorbereitet.
 
 ## Für Claude (15.11.2026)
 
+- Dauerregel (Daria, 16.11.2026: Vercel-Tageslimit): Änderungen an `Übergabe/TODO.md` mit dem nächsten Code-Commit pushen, nicht einzeln; kleine Änderungen bündeln. Jeder Push auf main erzeugt bei Vercel zwei Deployments (Website und Web-App), auch wenn der Ignored Build Step (`scripts/website-bauen.sh`, `scripts/web-app-bauen.sh`) den Build überspringt. Ob übersprungene beim Limit mitzählen, sagt Vercel nicht eindeutig.
 - [ ] Regeln aus `Documentation/kiez-coins/Entscheidungen_im_Code.md` (258 Einträge) in die Themendateien übertragen, zuerst UX-Regeln, und die Liste dabei kürzen.
 - [ ] Abzeichen-Quellen in `design/abzeichen/` von Figma-Exportnamen auf `<abzeichen>-<zustand>` umbenennen (Namensregel im Designsystem), wenn Daria zustimmt.
 
