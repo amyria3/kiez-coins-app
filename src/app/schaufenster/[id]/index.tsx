@@ -81,7 +81,8 @@ export default function ShowcaseScreen() {
     });
   }, [folgen, data, router, reload]);
 
-  if (!session) return <Redirect href="/onboarding/welcome" />;
+  // Nur der Weg von der Webseite braucht die Anmeldung; die Beispieldaten (/demo) laufen ohne Sitzung
+  if (!session && folgen === '1') return <Redirect href="/onboarding/welcome" />;
 
   if (data === undefined) {
     return (
@@ -498,7 +499,7 @@ const styles = StyleSheet.create({
   // Mehr Luft zwischen den Abschnitten (Daria, 2026-11-11)
   page: { gap: space[32] },
   // Kopf ohne Kasten wie auf der Webseite (Daria, 2026-11-17)
-  head: { gap: space[12] },
+  head: { gap: space[16] },
   manageBottom: { alignSelf: 'center' },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.md },
   // Logo rechtsbündig im Ausschnitt des Titelbilds wie im Web (Daria, 2026-11-17)
@@ -513,8 +514,9 @@ const styles = StyleSheet.create({
   nameBlock: { gap: space[2], paddingRight: LOGO + space[12] },
   name: { ...text.display, color: color.text.primary },
   kiez: { ...text.bodySm, color: color.text.secondary },
-  about: { ...text.body, color: color.text.primary },
-  aboutEmpty: { ...text.body, color: color.text.secondary, fontStyle: 'italic' },
+  // Etwas größere Schrift und mehr Luft (Daria, 2026-11-17)
+  about: { ...text.bodyLarge, color: color.text.primary },
+  aboutEmpty: { ...text.bodyLarge, color: color.text.secondary, fontStyle: 'italic' },
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8], marginTop: space[4] },
   pill: {
     flexDirection: 'row',
@@ -533,7 +535,7 @@ const styles = StyleSheet.create({
   rowScroll: { marginHorizontal: -space[16] },
   row: { paddingHorizontal: space[16], paddingVertical: space[6], gap: space[12], alignItems: 'stretch' },
   slot: { flexDirection: 'column' },
-  card: { gap: space[8], padding: space[16], borderRadius: radius.md },
+  card: { gap: space[12], padding: space[20], borderRadius: radius.md },
   infoCard: { flex: 1 },
   cardHead: { flexDirection: 'row', gap: space[12], alignItems: 'flex-start' },
   flex: { flex: 1, gap: space[4] },
@@ -545,9 +547,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.55)',
   },
-  cardKicker: { ...text.captionStrong, color: color.showcaseCards.inkSoft },
+  cardKicker: { ...text.labelSm, color: color.showcaseCards.inkSoft },
   cardTitle: { ...text.cardTitle, color: ink },
-  cardInk: { ...text.body, color: ink },
+  cardInk: { ...text.bodyLarge, color: ink },
   cardSoft: { color: color.showcaseCards.inkSoft, fontStyle: 'italic' },
   cardLink: { textDecorationLine: 'underline' },
   cardActions: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8], marginTop: 'auto', paddingTop: space[8] },
@@ -567,8 +569,8 @@ const styles = StyleSheet.create({
   list: { gap: space[32] },
   meta: { ...text.caption, color: color.text.secondary },
   footRow: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.text.secondary },
-  footHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 48 },
-  footLabel: { ...text.body, color: color.text.primary },
+  footHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 56 },
+  footLabel: { ...text.bodyLarge, color: color.text.primary },
   footBody: { paddingBottom: space[16] },
   linkField: { marginTop: space[16] },
   // Wenig Rundung wie die Posts im Feed (Daria, 2026-11-10)

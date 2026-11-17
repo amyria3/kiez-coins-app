@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { AccessibilityInfo, Animated, Easing, Pressable, StyleSheet, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Platform, Pressable, StyleSheet, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
 import { Image } from 'expo-image';
 import { Text } from './T';
 
@@ -824,8 +824,15 @@ const styles = StyleSheet.create({
   noticeTextSky: { ...text.body, color: SKY_TEXT, flexGrow: 0, flexShrink: 1, flexBasis: 'auto' },
   answerTextSky: { color: SKY_TEXT },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 24 },
-  iconBox: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
-  infoText: { ...text.body, color: color.text.primary, flex: 1 },
+  iconBox: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  // Lange Links ohne Leerzeichen brechen um, statt das Icon aus der Spalte zu schieben (Daria, 2026-11-17)
+  infoText: {
+    ...text.body,
+    color: color.text.primary,
+    flex: 1,
+    minWidth: 0,
+    ...(Platform.OS === 'web' ? ({ overflowWrap: 'anywhere' } as object) : null),
+  },
   infoPlaceholder: { color: color.text.secondary, fontStyle: 'italic' },
   flex: { flex: 1 },
   tag: {
