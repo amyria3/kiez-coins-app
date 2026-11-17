@@ -11,7 +11,7 @@ import { useNudge } from '../../components/Nudge';
 import { InviteQr } from '../../components/InviteQr';
 import { SubScreen } from '../../components/Screen';
 import { FRIEND_CODE_LENGTH, friendInviteLink, friendInviteMessage, parseFriendCode } from '../../data/friendInvites';
-import { acceptFriend, acceptFriendInvite, errorDetail, errorText, loadFriends, myFriendInvite, removeFriend, type FriendLists } from '../../data/remote';
+import { acceptFriend, acceptFriendInvite, errorDetail, errorText, loadFriends, myFriendInvite, removeFriend, requestFriend, type FriendLists } from '../../data/remote';
 import { useStore } from '../../data/store';
 import type { User } from '../../data/types';
 import { color, space, text } from '../../theme/tokens';
@@ -21,13 +21,14 @@ import { shareText } from '../../lib/share';
 import { BlockedList } from '../../components/BlockedList';
 import { Segments } from '../../components/FeedHeader';
 
-type ContactTab = 'invite' | 'friends' | 'blocked';
+type ContactTab = 'invite' | 'friends' | 'groups' | 'blocked';
 
 /** Code in den Beispieldaten, ohne Datenbank */
 const DEMO_INVITE_CODE = 'K7M2QXA';
 
 /**
- * Route `account/friends`, Seite „Kontakte“ (Daria, 2026-11-17): Umschalter Einladen | Freund:innen | Gesperrt.
+ * Route `account/friends`, Seite „Kontakte“ (Daria, 2026-11-17): Umschalter Einladen | Freund:innen | Menschen in
+ * Gruppen | Gesperrt.
  * Freundschaftsanfragen annehmen oder ablehnen,
  * gesendete Anfragen und Freund:innen. Anfragen stellt man im Profil einer Person.
  * Einladen per Link, QR-Code oder Code (Daria, 24.10.2026): Wer die Einladung annimmt, ist sofort befreundet.
@@ -37,11 +38,11 @@ export default function Friends() {
   // z. B. `einladen` aus den Nachrichten, `gesperrt` aus „Blockierte Personen“. `einladen=1` gilt weiter.
   const { einladen, reiter } = useLocalSearchParams<{ einladen?: string; reiter?: string }>();
   const [section, setSection] = useState<ContactTab>(
-    einladen === '1' || reiter === 'einladen' ? 'invite' : reiter === 'gesperrt' ? 'blocked' : 'friends',
+    einladen === '1' || reiter === 'einladen' ? 'invite' : reiter === 'gesperrt' ? 'blocked' : reiter === 'gruppen' ? 'groups' : 'friends',
   );
   const router = useRouter();
   const goBack = useGoBack();
-  const { mode, users, currentUserId } = useStore();
+  const { mode, users, currentUserId, groups, blockedIds } = useStore();
   // undefined: lädt, null: Fehler
   const [lists, setLists] = useState<FriendLists | null | undefined>(undefined);
   // undefined: lädt, null: Fehler
@@ -189,6 +190,51 @@ export default function Friends() {
     </>
   );
 
+  // Menschen in Gruppen (Daria, 2026-11-17): alle aus Deinen Gruppen, damit Du Einzelnen eine Freundschaftsanfrage
+  // senden kannst. Gruppen sind nie öffentlich, nur Mitglieder sehen einander. Ohne Dich und ohne Blockierte.
+  const groupPeople = (() => {
+    const byId = new Map<string, { user: User; groups: string[] }>();
+    for (const g of groups) {
+      for (const m of g.members) {
+        if (m.userId === currentUserId || blockedIds.includes(m.userId)) continue;
+        const user = users.find((u) => u.id === m.userId);
+        if (!user) continue;
+        const entry = byId.get(m.userId) ?? { user, groups: [] };
+        entry.groups.push(g.name);
+        byId.set(m.userId, entry);
+      }
+    }
+    return [...byId.values()].sort((a, b) => a.user.name.localeCompare(b.user.name, 'de'));
+  })();
+  const isIn = (list: User[] | undefined, user: User) => !!list?.some((u) => u.id === user.id);
+  const request = (user: User) =>
+    run((l) => ({ ...l, outgoing: [...l.outgoing, user] }), () => requestFriend(user.id));
+  const groupsPage = (
+    <>
+      <Text style={styles.secondary}>Menschen aus Deinen Gruppen. Schick Einzelnen eine Freundschaftsanfrage.</Text>
+      {groupPeople.length === 0 ? (
+        <Text style={styles.secondary}>In Deinen Gruppen ist noch niemand außer Dir.</Text>
+      ) : null}
+      {groupPeople.map(({ user, groups: names }) => (
+        <View key={user.id} style={styles.item}>
+          <AuthorRow user={user} onPress={() => open(user)} />
+          <Text noTranslate style={styles.secondary}>
+            {names.join(', ')}
+          </Text>
+          {isIn(lists?.friends, user) ? (
+            <Text style={styles.secondary}>Befreundet</Text>
+          ) : isIn(lists?.outgoing, user) ? (
+            <Button label="Anfrage zurückziehen" variant="secondary" onPress={() => withdraw(user)} />
+          ) : isIn(lists?.incoming, user) ? (
+            <Button label="Anfrage annehmen" onPress={() => accept(user)} />
+          ) : lists ? (
+            <Button label="Als Freund:in anfragen" variant="secondary" onPress={() => request(user)} />
+          ) : null}
+        </View>
+      ))}
+    </>
+  );
+
   // Freund:innen: Anfragen, Freund:innen, gesendete Anfragen
   const friendsPage = (
     <>
@@ -239,13 +285,15 @@ export default function Friends() {
         tabs={[
           { key: 'invite', label: 'Einladen' },
           { key: 'friends', label: 'Freund:innen' },
+          // Kurz, damit vier Reiter in den Umschalter passen; „Menschen in Gruppen“ steht als Satz darunter
+          { key: 'groups', label: 'Gruppen' },
           { key: 'blocked', label: 'Gesperrt' },
         ]}
         selectedKey={section}
         onChange={setSection}
         accent
       />
-      {section === 'invite' ? invitePage : section === 'blocked' ? <BlockedList /> : friendsPage}
+      {section === 'invite' ? invitePage : section === 'blocked' ? <BlockedList /> : section === 'groups' ? groupsPage : friendsPage}
     </SubScreen>
   );
 }
