@@ -72,7 +72,7 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onCreate, compa
   };
   return (
     <View style={[styles.wrap, compact && styles.compact]}>
-      <View style={[styles.here, compact && styles.compact]}>
+      <View style={[styles.here, (compact || summary) && styles.compact]}>
         {/* Name bündig links, Zahnrad direkt rechts daneben, Pfeil bündig rechts (Daria, 27.10.2026).
             Name, Freiraum und Pfeil öffnen das Menü. */}
         {/* Name mit Pfeil direkt dahinter öffnet das Menü, Zahnrad bündig rechts (Daria, 2026-11-16, Mockup: wie der
@@ -105,6 +105,7 @@ export function GroupBar({ groups, selectedId, onSelect, onOpen, onCreate, compa
             iconColor={color.text.primary}
             accessibilityLabel={t('{name} verwalten', { name: selected.name })}
             onPress={() => onOpen(selected.id)}
+            style={summary ? styles.gearFlush : undefined}
           />
         )}
       </View>
@@ -226,7 +227,11 @@ const styles = StyleSheet.create({
   name: { flexShrink: 1, minHeight: size.touchTarget, flexDirection: 'row', alignItems: 'center', gap: space[4] },
   caret: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
   hereName: { ...text.displaySm, color: color.text.primary, flexShrink: 1 },
-  summary: { gap: space[12], paddingHorizontal: space[16], paddingBottom: space[8] },
+  // Im Feed bündig mit den Karten darunter (Daria, 2026-11-17: „Padding seltsam“): kein eigener Rand, Zahnrad-Symbol
+  // rechts auf der Kante der Karten statt mitten in seiner Tippfläche
+  // Das Zahnrad zeichnet größer als iconSize (rund 31 statt 18 pt, nachgemessen)
+  gearFlush: { marginRight: -(size.touchTarget - 31) / 2 },
+  summary: { gap: space[12], paddingBottom: space[8] },
   summaryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space[12] },
   avatars: { flexDirection: 'row', alignItems: 'center' },
   avatar: { borderRadius: 999, borderWidth: 2, borderColor: color.bg.screen },
