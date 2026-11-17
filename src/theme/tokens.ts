@@ -139,9 +139,9 @@ export const color = {
     large: swatch.beige,
     /**
      * Start-Animation (Daria, 2026-11-17: „färbe 2-3 kleine Zahnräder“): die drei kleinen Räder in den Akzentfarben,
-     * die großen bleiben Beige. Reihenfolge wie in gearsSvgs: oben rechts, unten Mitte, unten rechts.
+     * die großen bleiben Beige. Kein Lila, das steckt schon im Schriftzug (Daria, 2026-11-17). Reihenfolge wie in gearsSvgs: oben rechts, unten Mitte, unten rechts.
      */
-    startGears: { 3: palette.purple, 4: swatch.senf, 5: palette.green } as Record<number, string>,
+    startGears: { 3: palette.pink, 4: swatch.senf, 5: palette.green } as Record<number, string>,
   },
   /**
    * Untere Leiste im Kiez-Look (Daria, 2026-11-12): Aubergine statt Grau, Icons in Beige statt Puder. Die aktive Seite
