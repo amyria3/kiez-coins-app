@@ -19,9 +19,11 @@ import {
 import { useRoutineAvailable, useRoutineIsStandard } from '../data/routine';
 import { useStore } from '../data/store';
 import { t } from '../data/texts';
+import { PrivateSignalProvider } from '../theme/signal';
 import { color, space, text } from '../theme/tokens';
 import { FieldGroup } from './Content';
-import { Segments } from './FeedHeader';
+import { MODE_OF_TAB, Segments, TAB_OF_MODE, TabsNavigation } from './FeedHeader';
+import { ME_TABS } from './feed/feedConstants';
 import { Toggle } from './Form';
 import { Text } from './T';
 
@@ -35,8 +37,6 @@ import { Text } from './T';
  * die App beim Start die Routine (Daria, 2026-11-10). Überschriften im Stil `heading` (Daria, 2026-11-10).
  */
 
-// Kurze Namen wie im Umschalter oben im Feed, damit alle nebeneinander passen
-const SHORT: Record<Mode, string> = { private: 'Privat', groups: 'Gruppe', kiez: 'Kiez', everywhere: 'Überall' };
 type StandardKey = Mode | 'routine';
 
 const POST_SWITCHES: { feed: PostFeed; label: string; off: string }[] = [
@@ -53,13 +53,16 @@ export function FeatureSwitches({ children }: { children?: ReactNode } = {}) {
   const routineShown = useRoutineShown();
   const cardMotion = useCardMotion();
   const routineStandard = useRoutineIsStandard();
-  // Routine links wie im Feed, dann die sichtbaren Modi
+  // Derselbe Umschalter wie oben im Feed (Daria, 2026-11-17): „Me & Myself“ links als eigene Spur, darin Privat und
+  // Routine; daneben Gruppen, Kiez, Überall mit denselben Namen. Hat „Me & Myself“ beides, wählt darunter derselbe
+  // zweite Umschalter wie im Feed „Meine Struktur“ (Routine) oder „Mein Feed“ (Privat).
   const routineLead = routineAvailable && routineShown;
-  const modeTabs = MODES.filter((m) => modes.isVisible(m.key)).map((m) => ({ key: m.key, label: SHORT[m.key] }));
-  const standardTabs: { key: StandardKey; label: string }[] = [
-    ...(routineLead ? [{ key: 'routine' as const, label: 'Routine' }] : []),
-    ...modeTabs,
-  ];
+  const privateOn = modes.isVisible('private');
+  const meOn = routineLead || privateOn;
+  const meBoth = routineLead && privateOn;
+  const meActive = meOn && (routineStandard || modes.standard === 'private');
+  const others = modes.visible.filter((m) => m !== 'private');
+  const shown = (meOn ? 1 : 0) + others.length;
 
   const toggle = (mode: Mode) => {
     if (currentUserId) setModeHidden(currentUserId, mode, modes.isVisible(mode));
@@ -69,26 +72,38 @@ export function FeatureSwitches({ children }: { children?: ReactNode } = {}) {
     if (key === 'routine') setRoutineStandard(currentUserId);
     else setStandardMode(currentUserId, key);
   };
+  // Wie im Feed: „Me & Myself“ öffnet zuerst den privaten Feed, ohne ihn die Routine
+  const chooseMe = () => {
+    if (!meActive) choose(privateOn ? 'private' : 'routine');
+  };
 
   return (
     <View style={styles.wrap}>
-      {standardTabs.length > 1 ? (
+      {shown > 1 ? (
         <FieldGroup heading label="Standard">
           <Text style={[text.caption, { color: color.text.secondary }]}>
             {routineStandard ? 'Die App öffnet mit Deiner Routine.' : 'Dieser Modus ist oben im Umschalter vorausgewählt.'}
           </Text>
-          {/* Routine als eigene Pille links, wie im Feed (Daria, 2026-11-11); im Look „Fashionable“ ohne eigene Spur */}
-          {routineLead && true ? (
-            <Segments
-              tabs={modeTabs}
-              selectedKey={modes.standard}
-              onChange={choose}
-              lead={{ label: t('Routine'), active: routineStandard, onPress: () => choose('routine') }}
-              accent
-            />
-          ) : (
-            <Segments tabs={standardTabs} selectedKey={routineStandard ? 'routine' : modes.standard} onChange={choose} accent />
-          )}
+          <TabsNavigation
+            selectedKey={TAB_OF_MODE[modes.standard]}
+            onChange={(tab) => {
+              const mode = MODE_OF_TAB[tab];
+              if (mode) choose(mode);
+            }}
+            visible={meOn ? others : modes.visible}
+            accent
+            lead={meOn ? { label: t('Me & Myself'), active: meActive, private: true, onPress: chooseMe } : undefined}
+          />
+          {meActive && meBoth ? (
+            <PrivateSignalProvider value>
+              <Segments
+                accent
+                tabs={ME_TABS}
+                selectedKey={routineStandard ? 'structure' : 'private'}
+                onChange={(key) => choose(key === 'structure' ? 'routine' : 'private')}
+              />
+            </PrivateSignalProvider>
+          ) : null}
         </FieldGroup>
       ) : null}
       <FieldGroup heading label="Feeds & Modi anzeigen oder ausblenden">
