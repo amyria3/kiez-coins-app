@@ -247,7 +247,10 @@ export const color = {
     hours: swatch.schnee,
     links: swatch.schnee,
     services: swatch.schnee,
+    /** Signal: Folgen, Merken, Datum (Daria, 2026-11-17) */
     event: swatch.tuerkis,
+    /** Termin-Karten weiß wie die Infokarten; Türkis nur für Datum und „Merken“ (Daria, 2026-11-17) */
+    eventCard: swatch.schnee,
     ink: swatch.tinte,
     inkSoft: withAlpha(swatch.tinte, 0.68),
     /** Grauer Grund unter „Neu im Schaufenster“, wie die Kartenfarbe der Feeds; Posts darauf etwas heller */

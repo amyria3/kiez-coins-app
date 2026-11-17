@@ -668,15 +668,19 @@ export function HandButton({
   onPress,
   filled,
   bg,
+  fill,
   disabled,
 }: {
   label: string;
   onPress: () => void;
   filled?: boolean;
   bg?: string;
+  /** Fläche in dieser Farbe, Schrift in Tinte, z. B. Türkis für „Merken“ im Schaufenster (Daria, 2026-11-17) */
+  fill?: string;
   disabled?: boolean;
 }) {
   const label = useTexts()(original);
+  const solid = filled || !!fill;
   const [box, setBox] = useState<{ w: number; h: number } | null>(null);
   const onLayout = (e: LayoutChangeEvent) => {
     const { width: w, height: h } = e.nativeEvent.layout;
@@ -690,14 +694,19 @@ export function HandButton({
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled }}
-      style={({ pressed }) => [styles.hand, filled && styles.handFilled, (pressed || disabled) && styles.pressed]}
+      style={({ pressed }) => [styles.hand, solid && styles.handFilled, (pressed || disabled) && styles.pressed]}
     >
       {box ? (
         <Svg width={box.w} height={box.h} style={StyleSheet.absoluteFill} pointerEvents="none">
-          <Path d={handShapePath(box.w, box.h, filled ? 0 : 1)} fill={filled ? INK : 'none'} stroke={filled ? undefined : INK} strokeWidth={filled ? 0 : 1.4} />
+          <Path
+            d={handShapePath(box.w, box.h, solid ? 0 : 1)}
+            fill={fill ?? (filled ? INK : 'none')}
+            stroke={solid ? undefined : INK}
+            strokeWidth={solid ? 0 : 1.4}
+          />
         </Svg>
       ) : null}
-      <Text noTranslate style={[styles.handLabel, { color: filled ? bg : INK }]}>
+      <Text noTranslate style={[styles.handLabel, { color: filled && !fill ? bg : INK }]}>
         {label}
       </Text>
     </Pressable>

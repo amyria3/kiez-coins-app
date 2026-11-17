@@ -125,7 +125,8 @@ export function ShowcaseEventCard({
           ) : null}
           <View style={styles.compactActions}>
             {!e.cancelled && !past ? (
-              <HandButton label={saved ? 'Gemerkt' : 'Merken'} filled bg={color.showcaseCards.event} disabled={busy} onPress={toggle} />
+              // Türkis, solange man merken kann; gemerkt nur mit Rand (Daria, 2026-11-17: Best Practice, Akzent sparsam)
+              <HandButton label={saved ? 'Gemerkt' : 'Merken'} fill={saved ? undefined : color.showcaseCards.event} disabled={busy} onPress={toggle} />
             ) : null}
             <Pressable
               accessibilityRole="button"
@@ -227,13 +228,13 @@ const styles = StyleSheet.create({
   actions: { gap: space[8], paddingHorizontal: space[16], paddingBottom: space[16] },
   cancel: { alignSelf: 'center', paddingVertical: space[4] },
   cancelText: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },
-  compact: { flex: 1, borderRadius: radius.md, backgroundColor: color.showcaseCards.event, overflow: 'hidden' },
+  compact: { flex: 1, borderRadius: radius.md, backgroundColor: color.showcaseCards.eventCard, overflow: 'hidden' },
   compactCancelled: { opacity: 0.7 },
   compactImage: { width: '100%', aspectRatio: 16 / 9 },
   // Mehr Luft und etwas größere Schrift (Daria, 2026-11-17)
   compactBody: { gap: space[8], padding: space[20] },
-  datePill: { alignSelf: 'flex-start', borderRadius: radius.full, backgroundColor: color.showcaseCards.ink, paddingVertical: space[4], paddingHorizontal: space[12] },
-  dateText: { ...text.labelSm, color: color.showcaseCards.event },
+  datePill: { alignSelf: 'flex-start', borderRadius: radius.full, backgroundColor: color.showcaseCards.event, paddingVertical: space[4], paddingHorizontal: space[12] },
+  dateText: { ...text.labelSm, color: color.showcaseCards.ink },
   compactTitle: { ...text.cardTitle, color: color.showcaseCards.ink },
   compactSub: { ...text.body, color: color.showcaseCards.inkSoft },
   compactText: { ...text.bodyLarge, color: color.showcaseCards.ink },
