@@ -352,20 +352,24 @@ function inhalt(s) {
   const logo = foto(s.logo_path);
   // Angaben mit kleinen Überschriften, Zeilenumbrüche bleiben (Daria, 2026-11-12)
   const fakt = (label, html) => `<div class="sf-fakt"><dt>${label}</dt><dd>${html}</dd></div>`;
+  // Leere Angaben fallen ganz weg statt „Noch keine …“, wie schon die E-Mail. Eine Einzelperson hat oft dauerhaft
+  // keine Adresse und keine Öffnungszeiten (Daria, 2026-11-17: „Ort und Öffnungszeiten verbergen wenn leer“).
   const infos = [
     // Adresse an die Karten-App oder ans Teilen-Menü (Daria, 2026-11-17: „in jedem Fall offen teilbar“)
-    fakt('Adresse', s.address ? `${esc(s.address)}${ortKnoepfe(s)}` : '<span class="sf-leer">Noch keine Adresse</span>'),
-    fakt('Öffnungszeiten', s.opening_hours ? esc(s.opening_hours) : '<span class="sf-leer">Noch keine Öffnungszeiten</span>'),
+    s.address?.trim() ? fakt('Adresse', `${esc(s.address)}${ortKnoepfe(s)}`) : '',
+    s.opening_hours?.trim() ? fakt('Öffnungszeiten', esc(s.opening_hours)) : '',
   ].join('');
   // Mehrere Links (Migration 20261110000600); vorher nur die Webseite
   const links = Array.isArray(s.links) && s.links.length ? s.links : s.website ? [s.website] : [];
-  const web = fakt(
-    links.length > 1 ? 'Links' : 'Link',
-    links
-      .filter((l) => /^https:\/\//i.test(l))
-      .map((l) => `<a href="${esc(l)}" rel="noopener nofollow">${esc(l.replace(/^https:\/\/(www\.)?/i, '').replace(/\/$/, ''))}</a>`)
-      .join('<br>') || '<span class="sf-leer">Noch keine Links</span>',
-  );
+  const sichereLinks = links.filter((l) => /^https:\/\//i.test(l));
+  const web = sichereLinks.length
+    ? fakt(
+        sichereLinks.length > 1 ? 'Links' : 'Link',
+        sichereLinks
+          .map((l) => `<a href="${esc(l)}" rel="noopener nofollow">${esc(l.replace(/^https:\/\/(www\.)?/i, '').replace(/\/$/, ''))}</a>`)
+          .join('<br>'),
+      )
+    : '';
   // Kontakt-Mail zum Antippen (Daria, 2026-11-17: „Dann bitte Mail einbinden“); ohne Mail keine Zeile
   const mail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s.email ?? '')
     ? fakt('E-Mail', `<a href="mailto:${esc(s.email)}">${esc(s.email)}</a>`)
@@ -423,7 +427,11 @@ ${
 /* Name und Abschnitte in der App-Schrift für große Überschriften (Daria, 2026-11-10) */
 @font-face { font-family: Unbounded; font-weight: 500; font-display: swap; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
 .geteilt .sf-wer h1 { margin: 0; padding-bottom: 0; font: 500 32px/1.05 Unbounded, var(--display); letter-spacing: 0; min-width: 0;
-  overflow-wrap: break-word; hyphens: auto; }
+  overflow-wrap: normal; hyphens: manual; -webkit-hyphens: manual; }
+/* Namen werden nicht getrennt (Daria, 2026-11-17: „Namen nicht umbrechen“, Safari machte „Arka-dieff“). Umbruch nur
+   zwischen den Wörtern; passt ein Wort nicht, macht das Skript unten die Schrift kleiner. Erst wenn es auch mit
+   16 px nicht passt, darf das Wort als Notlösung nach Silben brechen. */
+.geteilt .sf-wer h1.sf-zu-lang { overflow-wrap: break-word; hyphens: auto; -webkit-hyphens: auto; }
 /* Abschnitte klein in Versalien mit feiner Linie darüber, wie bei Studios (Daria, 2026-11-12) */
 .geteilt h2.sf-abschnitt { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; color: var(--text);
   margin: 48px 0 12px; padding-top: 24px; border-top: 1px solid var(--line); }
@@ -481,8 +489,8 @@ ${
   ${cover ? `<img class="sf-cover sf-mit-logo" src="${esc(cover)}" alt="Titelbild von ${esc(s.name)}">` : '<div class="sf-cover sf-mit-logo sf-verlauf" aria-hidden="true"></div>'}
   <div class="sf-wer">${logo ? `<img class="sf-logo" src="${esc(logo)}" alt="Logo von ${esc(s.name)}">` : `<span class="sf-logo sf-kater">${KATER}</span>`}<h1 style="${titelGroesse(s.name)}">${esc(s.name)}</h1></div>
   ${s.kiez ? `<p class="wer">${esc(s.kiez)}</p>` : ''}
-  ${s.about ? `<p class="text">${esc(s.about)}</p>` : leer('Noch keine Beschreibung')}
-  <dl class="sf-fakten">${infos}${mail}${web}</dl>
+  ${/* Ohne Beschreibung keine Zeile, wie bei Adresse und Öffnungszeiten (Daria, 2026-11-17) */ s.about?.trim() ? `<p class="text">${esc(s.about)}</p>` : ''}
+  ${infos || mail || web ? `<dl class="sf-fakten">${infos}${mail}${web}</dl>` : ''}
   ${s.imprint ? '<p class="sf-klein"><a href="#impressum">Impressum</a></p>' : ''}
   ${
     !s.services
@@ -502,6 +510,22 @@ ${
   ${/* Visitenkarte am Schluss der Seite (Daria, 2026-11-12) */ visitenkarte(s, links)}
 <script>
 (() => {
+  // Name: die Schrift so weit verkleinern, dass das längste Wort in die Zeile passt (höchstens bis 16 px)
+  const titel = document.querySelector('.sf-wer h1');
+  if (titel) {
+    const start = titel.style.fontSize;
+    const passen = () => {
+      titel.style.fontSize = start;
+      titel.classList.remove('sf-zu-lang');
+      let px = parseFloat(getComputedStyle(titel).fontSize);
+      while (titel.scrollWidth > titel.clientWidth + 0.5 && px > 16) titel.style.fontSize = (px = Math.max(16, px - 1)) + 'px';
+      if (titel.scrollWidth > titel.clientWidth + 0.5) titel.classList.add('sf-zu-lang');
+    };
+    passen();
+    if (document.fonts) document.fonts.ready.then(passen);
+    let warten;
+    addEventListener('resize', () => { clearTimeout(warten); warten = setTimeout(passen, 100); });
+  }
   // Ort: auf Apple-Geräten Apple Karten, sonst Google Maps; Teilen über das Menü des Geräts, sonst kopieren
   const apple = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   if (apple) for (const a of document.querySelectorAll('a[data-ort]')) a.href = 'https://maps.apple.com/?q=' + encodeURIComponent(a.dataset.ort);
