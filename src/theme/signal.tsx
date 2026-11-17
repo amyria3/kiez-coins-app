@@ -10,12 +10,12 @@ import { color } from './tokens';
  * Akzentfarbe des Bereichs, ausgeschaltete Schalter eine dunkle Tönung (Daria, 2026-11-15):
  * - Friendship (Standard, `public` und `group`): Knöpfe, Schalter und Fokus Lila; aus dunkles Grau-Violett.
  * - Happy (`me`): Knöpfe, Schalter und Fokus Gelb.
- * - Functional (`functional`): Seiten unter dem Menü (Konto, Funktionen, Schaufenster verwalten, Moderation, Texte).
+ * - Functional (`functional`): Seiten unter dem Menü (Konto, Funktionen, Moderation, Texte).
  *   Knöpfe, Schalter und Fokus Grün wie das Menü-Icon und die Herzen in der Brille des Katers (seit 2026-11-17).
  * - `me`: „Me & Myself“ (My Structure, My Feed) und Erstellen unter „Privat“. Signalfarbe Gelb.
  * - `public`: Kiez und Überall. Signalfarbe Lila.
  * - `group`: Gruppen. Signalfarbe Lila.
- * - Schaufenster (`showcase`, seit 2026-11-17): öffentliches Schaufenster mit Post, Termin, Visitenkarte, Beitreten.
+ * - Schaufenster (`showcase`, seit 2026-11-17): alle Seiten des Schaufensters, auch Verwalten und Bearbeiten.
  *   Knöpfe, Schalter und Fokus Gelbgrün wie „Folgen“ und die Termine.
  * Den Bereich jeder Seite bestimmt eine Stelle: `RouteSpace` im Root-Layout (siehe `spaceOfRoute`). Alles darunter
  * liest ihn: Umschalter, Hauptbuttons, Fokusrahmen, Suchfeld, Erstellen. So wechseln alle Farben im selben Moment.
