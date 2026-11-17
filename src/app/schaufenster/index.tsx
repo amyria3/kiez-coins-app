@@ -9,6 +9,7 @@ import { CopyField, SwitchRow, TextField } from '../../components/Form';
 import { NavigationBar } from '../../components/NavigationBar';
 import { NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
+import { ShowcaseShare } from '../../components/ShowcaseShare';
 import { Text } from '../../components/T';
 import { useAuth } from '../../data/auth';
 import { loadOwnProfile } from '../../data/remote';
@@ -353,6 +354,8 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               />
             </View>
             {s.visibility === 'public' ? <CopyField label="Link zu Deiner Seite" value={showcasePublicLink(s.slug)} /> : null}
+            {/* Instant-Code und Einladung per Mail wie auf der öffentlichen Seite (Daria, 2026-11-17) */}
+            {s.visibility === 'public' && s.switches.online ? <ShowcaseShare showcase={s} /> : null}
             {webHint === s.id ? (
               <Notice
                 message={
