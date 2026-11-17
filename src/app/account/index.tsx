@@ -85,14 +85,16 @@ export default function Account() {
       <NavCard
         title="Me"
         description="Geschafft, Ziele und Gruppen"
-        leading={<CrownIcon height={30} />}
+        leading={<CrownIcon height={30} fill={color.accountCards.ink} />}
+        accent={color.accountCards.me}
         onPress={() => router.push('/me')}
       />
       {modes.isVisible('groups') ? (
       <NavCard
         title="Meine Gruppen"
         description={groups.length === 0 ? 'Gründen oder beitreten' : groups.length === 1 ? '1 Gruppe' : t('{groups} Gruppen', { groups: groups.length })}
-        leading={<Icon name="behausung" size={size.icon} color={color.text.primary} />}
+        leading={<Icon name="behausung" size={size.icon} color={color.accountCards.ink} />}
+        accent={color.accountCards.groups}
         onPress={() => router.push('/groups')}
       />
       ) : null}
@@ -105,25 +107,28 @@ export default function Account() {
           leading={
             (
               <View style={styles.villageBleed}>
-                <Icon name="village" size={38 / ICON_SCALE} color={color.text.primary} />
+                <Icon name="village" size={38 / ICON_SCALE} color={color.accountCards.ink} />
               </View>
             )
           }
           leadingFill={true}
+          accent={color.accountCards.showcase}
           onPress={() => router.push('/schaufenster')}
         />
       ) : null}
       <NavCard
         title="Meine Posts"
         description="Entwürfe, offen, geschlossen"
-        leading={<Icon name="ship" size={size.icon} color={color.text.primary} />}
+        leading={<Icon name="ship" size={size.icon} color={color.accountCards.ink} />}
+        accent={color.accountCards.posts}
         onPress={() => router.push('/manage')}
       />
       {/* Funktionen an- und abschalten (Daria, 24.10.2026) */}
       <NavCard
         title="Meine Features"
         description={modesShown}
-        leading={<Icon name="switch" size={size.icon} color={color.text.primary} />}
+        leading={<Icon name="switch" size={size.icon} color={color.accountCards.ink} />}
+        accent={color.accountCards.features}
         onPress={() => router.push('/account/features')}
       />
       {/* Freundschaften, Funktionen und Look mit Darias Icons (25.10.2026), Sprache mit Phosphor.
@@ -137,20 +142,23 @@ export default function Account() {
               })
             : 'Einladen, Freund:innen, Gesperrt'
         }
-        leading={<Icon name="friends" size={size.icon} color={color.text.primary} />}
+        leading={<Icon name="friends" size={size.icon} color={color.accountCards.ink} />}
+        accent={color.accountCards.contacts}
         onPress={() => router.push('/account/friends')}
       />
       <NavCard
         title="Sprache"
         description={languageName}
-        leading={<Icon name="language" size={size.icon} color={color.text.primary} />}
+        leading={<Icon name="language" size={size.icon} color={color.accountCards.ink} />}
+        accent={color.accountCards.language}
         onPress={() => router.push('/account/language')}
       />
       {/* Tour als große Karte mit Fragezeichen, Beispiele zum Ausprobieren (Daria, 31.10.2026) */}
       <NavCard
         title="Wie geht KiezCoins"
         description="Beispiele zum Ausprobieren"
-        leading={<Icon name="questionmark" size={size.icon} color={color.text.primary} />}
+        leading={<Icon name="questionmark" size={size.icon} color={color.accountCards.ink} />}
+        accent={color.accountCards.tour}
         onPress={() => router.push('/tour')}
       />
       {/* Kater-Seite als große Karte unter Look (Daria, 25.10.2026); Kiez-Look: Darias Kater-Icon, Fashionable: Logo-Kater */}
@@ -160,11 +168,12 @@ export default function Account() {
         leading={
           (
             <View style={styles.catBleed}>
-              <Icon name="cat" size={26} color={color.text.primary} />
+              <Icon name="cat" size={26} color={color.accountCards.ink} />
             </View>
           )
         }
         leadingFill={true}
+        accent={color.accountCards.cat}
         onPress={() => router.push('/cat')}
       />
       <FieldGroup heading label="Einstellungen">
