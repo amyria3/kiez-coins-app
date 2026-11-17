@@ -44,14 +44,29 @@ export function ShowcaseCover({ image, style }: { image?: ImageSource; style: St
 }
 
 /** Logo oder, ohne Logo, der schwarze Kreis mit dem Kater */
-export function ShowcaseLogo({ image, size, style }: { image?: ImageSource; size: number; style?: StyleProp<ViewStyle> }) {
+/** `tone`: Kreis und Kater in eigenen Farben, z. B. lila mit Leuchtgelb im Kopf des Schaufensters */
+export function ShowcaseLogo({
+  image,
+  size,
+  style,
+  tone,
+}: {
+  image?: ImageSource;
+  size: number;
+  style?: StyleProp<ViewStyle>;
+  tone?: { circle: string; mask: string };
+}) {
   const round = { width: size, height: size, borderRadius: size / 2 };
   if (image) return <Image source={image} style={[round, style] as never} contentFit="cover" />;
   const w = size * 0.5;
   return (
-    <View style={[round, style, styles.katerCircle]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+    <View
+      style={[round, style, styles.katerCircle, tone && { backgroundColor: tone.circle }]}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
       <Svg width={w} height={(w * 31) / 35} viewBox="0 0 35 31">
-        <Path d={KATER_MASK} fill={color.showcasePlaceholder.mask} />
+        <Path d={KATER_MASK} fill={tone?.mask ?? color.showcasePlaceholder.mask} />
       </Svg>
     </View>
   );

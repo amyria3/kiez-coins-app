@@ -48,6 +48,8 @@ const swatch = {
    * (Daria, 2026-11-14). Seit 2026-11-15 auch der Kreis der Bildmarke
    */
   gelbgruen: '#F0FFA6',
+  /** Leuchtgelb der Schaufenster-Webseite (Sticker „Komplett kostenlos“), seit 2026-11-17 auch Kopf des Schaufensters in der App */
+  leuchtgelb: '#E4FF5F',
   /** Beige: große Icons, Leisten-Icons, papierweißer Knopf im Umschalter */
   beige: '#EEE0C9',
   /** Schneeweiß: aktives Nachrichten-Icon */
@@ -230,6 +232,13 @@ export const color = {
     cover: [palette.purple, palette.pink, palette.orange] as const,
     mask: swatch.maske,
     circle: swatch.schwarz,
+  },
+  /** Kopf des Schaufensters (Daria, 2026-11-17): große Farbfläche, Schrift darauf in Tinte */
+  showcaseHead: {
+    bg: swatch.leuchtgelb,
+    ink: swatch.tinte,
+    inkSoft: withAlpha(swatch.tinte, 0.7),
+    logo: palette.purple,
   },
   /** An/Aus-Schalter im Kiez-Look */
   toggle: {

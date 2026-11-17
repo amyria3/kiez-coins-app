@@ -13,6 +13,7 @@ import { ManageButton, type ManageItem } from '../../../components/ShowcaseManag
 import { ShowcaseEventCard } from '../../../components/ShowcaseEventCard';
 import { PlaceholderPost, PlaceholderText, ShowcaseCover, ShowcaseLogo } from '../../../components/ShowcasePlaceholder';
 import { Text } from '../../../components/T';
+import { Icon } from '../../../components/icons/Icon';
 import {
   follow,
   loadEntries,
@@ -121,58 +122,75 @@ export default function ShowcaseScreen() {
       }
     >
       <View style={styles.page}>
-      {/* Leere Angaben zeigen Platzhalter: Verlauf, Kater-Logo, graue Zeilen (Daria, 2026-11-11) */}
+      {/* Kopf als große Farbfläche in Leuchtgelb (Daria, 2026-11-17: „Unser schwarzer Hintergrund klappt nur mit großen
+          Farbflecken“), darunter eine dunkle Karte für die Angaben. Leere Angaben sieht nur das Team als Platzhalter. */}
       <View style={styles.head}>
         <ShowcaseCover image={s.cover} style={styles.cover} />
-        <View style={[styles.identity, styles.identityOnCover]}>
-          <ShowcaseLogo image={s.logo} size={64} style={styles.logo} />
-          <View style={styles.nameBlock}>
-            <Text noTranslate style={styles.name}>
-              {s.name}
+        <ShowcaseLogo image={s.logo} size={64} style={styles.logo} tone={{ circle: color.showcaseHead.logo, mask: color.showcaseHead.bg }} />
+        <View style={styles.nameBlock}>
+          <Text noTranslate style={styles.name}>
+            {s.name}
+          </Text>
+          {s.kiez ? (
+            <Text noTranslate style={styles.kiez}>
+              {s.kiez}
             </Text>
-            {s.kiez ? (
-              <Text noTranslate style={styles.meta}>
-                {s.kiez}
-              </Text>
-            ) : null}
-          </View>
+          ) : null}
         </View>
         {s.about ? (
           // Markieren und kopieren (Daria, 2026-11-17)
           <Text noTranslate selectable style={styles.about}>
             {s.about}
           </Text>
-        ) : (
-          <PlaceholderText>Noch keine Beschreibung</PlaceholderText>
-        )}
-        <View style={styles.info}>
-          {/* Die Adresse steht nur bei Menschen mit Zugang (showcase_private); ohne Zugang kein Platzhalter */}
-          {s.address ? (
-            // Antippen: in der Karten-App öffnen oder den Ort teilen (Daria, 2026-11-13)
-            <Pressable onPress={() => placeActions(s.address!, s.name)} accessibilityRole="button" accessibilityHint={t('In Karten öffnen oder teilen')}>
-              <InfoRow icon="map-pin" value={s.address} />
+        ) : access.team ? (
+          <Text style={styles.aboutEmpty}>Noch keine Beschreibung</Text>
+        ) : null}
+        {/* „Du folgst“ als dunkle Pille im Kopf statt lila Text mitten auf der Seite (Daria, 2026-11-17) */}
+        {!access.team && access.canSee ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ busy, selected: access.following }}
+            disabled={busy}
+            onPress={toggleFollow}
+            style={({ pressed }) => [styles.follow, pressed && styles.pressed]}
+          >
+            {access.following ? <Icon name="check" size={16} color={color.showcaseHead.bg} /> : null}
+            <Text style={styles.followText}>{access.following ? t('Du folgst') : t('{name} folgen', { name: s.name })}</Text>
+          </Pressable>
+        ) : null}
+      </View>
+
+      <View style={styles.infoGroup}>
+      {access.team || s.address || s.openingHours || s.links.length ? (
+      <View style={styles.info}>
+        {/* Die Adresse steht nur bei Menschen mit Zugang (showcase_private); ohne Zugang kein Platzhalter */}
+        {s.address ? (
+          // Antippen: in der Karten-App öffnen oder den Ort teilen (Daria, 2026-11-13)
+          <Pressable onPress={() => placeActions(s.address!, s.name)} accessibilityRole="button" accessibilityHint={t('In Karten öffnen oder teilen')}>
+            <InfoRow icon="map-pin" value={s.address} />
+          </Pressable>
+        ) : access.team ? (
+          <InfoRow icon="map-pin" value="Noch keine Adresse" placeholder />
+        ) : null}
+        {s.openingHours ? (
+          <InfoRow icon="clock-filled" value={s.openingHours} />
+        ) : access.team ? (
+          <InfoRow icon="clock-filled" value="Noch keine Öffnungszeiten" placeholder />
+        ) : null}
+        {/* Mehrere Links (Daria, 2026-11-10) */}
+        {s.links.length ? (
+          s.links.map((l) => (
+            <Pressable key={l} onPress={() => openLink(l)} accessibilityRole="link">
+              <InfoRow icon="link" value={shortLink(l)} />
             </Pressable>
-          ) : access.canSee ? (
-            <InfoRow icon="map-pin" value="Noch keine Adresse" placeholder />
-          ) : null}
-          {s.openingHours ? (
-            <InfoRow icon="clock-filled" value={s.openingHours} />
-          ) : (
-            <InfoRow icon="clock-filled" value="Noch keine Öffnungszeiten" placeholder />
-          )}
-          {/* Mehrere Links (Daria, 2026-11-10) */}
-          {s.links.length ? (
-            s.links.map((l) => (
-              <Pressable key={l} onPress={() => openLink(l)} accessibilityRole="link">
-                <InfoRow icon="link" value={shortLink(l)} />
-              </Pressable>
-            ))
-          ) : (
-            <InfoRow icon="link" value="Noch keine Links" placeholder />
-          )}
-        </View>
-        {/* Link zum Weitergeben (Daria, 2026-11-17: „Möglichkeit zum Kopieren“); nur öffentlich und online */}
-        {s.visibility === 'public' && s.switches.online ? <CopyField label="Link zum Schaufenster" value={showcasePublicLink(s.slug)} /> : null}
+          ))
+        ) : access.team ? (
+          <InfoRow icon="link" value="Noch keine Links" placeholder />
+        ) : null}
+      </View>
+      ) : null}
+      {/* Link zum Weitergeben (Daria, 2026-11-17: „Möglichkeit zum Kopieren“); nur öffentlich und online */}
+      {s.visibility === 'public' && s.switches.online ? <CopyField label="Link zum Schaufenster" value={showcasePublicLink(s.slug)} /> : null}
       </View>
 
       {/* Schaufenster abgeschaltet (Feature `schaufenster`): Nur die Gruppe sieht es noch (Daria, 2026-11-10) */}
@@ -180,16 +198,7 @@ export default function ShowcaseScreen() {
         <Notice variant="warning" message="Dieses Schaufenster ist offline. Nur Eure Gruppe sieht es, im Feed und unter dem Link erscheint es nicht." />
       ) : null}
 
-      {access.team ? null : access.canSee ? (
-        // „{name} folgen“ statt „Folgen“ (Daria, 2026-11-13). Kein Kalender-Button: Das Schaufenster ist kein Termin,
-        // „In meine anderen Kalender“ steht an jedem einzelnen Termin.
-        <Button
-          label={access.following ? t('Du folgst {name}', { name: s.name }) : t('{name} folgen', { name: s.name })}
-          variant={access.following ? 'ghost' : 'secondary'}
-          busy={busy}
-          onPress={toggleFollow}
-        />
-      ) : (
+      {access.team || access.canSee ? null : (
         <View style={styles.buttons}>
           <Notice message="Dieses Schaufenster ist nur für eingeladene Personen. Du möchtest up to date bleiben? Frag einen Zugang für Dich an." />
           {access.request === 'requested' ? (
@@ -202,14 +211,18 @@ export default function ShowcaseScreen() {
       )}
 
       {s.services ? (
-        <CollapsibleSection label="Services" collapsible={s.servicesCollapsed}>
-          <RichText value={s.services} />
-        </CollapsibleSection>
-      ) : (
-        <SectionBlock label="Services">
-          <PlaceholderText>Noch keine Services</PlaceholderText>
-        </SectionBlock>
-      )}
+        <View style={styles.box}>
+          <CollapsibleSection label="Services" collapsible={s.servicesCollapsed}>
+            <RichText value={s.services} />
+          </CollapsibleSection>
+        </View>
+      ) : access.team ? (
+        <View style={styles.box}>
+          <SectionBlock label="Services">
+            <PlaceholderText>Noch keine Services</PlaceholderText>
+          </SectionBlock>
+        </View>
+      ) : null}
 
       {/* Nur fürs Team: direkt vor dem Feed (Daria, 2026-11-11) */}
       {access.team && s.switches.posten ? <Button label="Post erstellen" icon="plus" onPress={post} /> : null}
@@ -300,18 +313,40 @@ const COVER_OVERLAP = space[32] + space[8];
 const styles = StyleSheet.create({
   // Mehr Luft zwischen den Abschnitten (Daria, 2026-11-11)
   page: { gap: space[32] },
-  head: { gap: space[20] },
+  head: {
+    gap: space[12],
+    padding: space[12],
+    paddingBottom: space[20],
+    borderRadius: radius.md,
+    backgroundColor: color.showcaseHead.bg,
+  },
   manageBottom: { alignSelf: 'center' },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.md },
-  identity: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   // Nur das Logo ragt ins Titelbild, der Name steht darunter und läuft nie übers Foto (Daria, 2026-11-13)
-  identityOnCover: { marginTop: -COVER_OVERLAP, paddingHorizontal: space[12], alignItems: 'flex-start' },
-  logo: { borderWidth: 3, borderColor: color.bg.screen, backgroundColor: color.bg.surface },
+  logo: { marginTop: -COVER_OVERLAP - space[12], marginLeft: space[12], borderWidth: 4, borderColor: color.showcaseHead.bg },
   // Name in der App-Schrift für große Überschriften (Kiez: Unbounded), nicht in Inter (Daria, 2026-11-10)
-  nameBlock: { flex: 1, paddingTop: COVER_OVERLAP + space[8] },
-  name: { ...text.display, color: color.text.primary },
-  about: { ...text.body, color: color.text.primary },
-  info: { gap: space[8] },
+  nameBlock: { gap: space[2], paddingHorizontal: space[8] },
+  name: { ...text.display, color: color.showcaseHead.ink },
+  kiez: { ...text.bodySm, color: color.showcaseHead.inkSoft },
+  about: { ...text.body, color: color.showcaseHead.ink, paddingHorizontal: space[8] },
+  aboutEmpty: { ...text.body, color: color.showcaseHead.inkSoft, fontStyle: 'italic', paddingHorizontal: space[8] },
+  follow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: space[6],
+    marginHorizontal: space[8],
+    marginTop: space[4],
+    paddingVertical: space[8],
+    paddingHorizontal: space[16],
+    borderRadius: radius.full,
+    backgroundColor: color.showcaseHead.ink,
+  },
+  followText: { ...text.label, color: color.showcaseHead.bg },
+  // Angaben und Services auf einer dunklen Karte, ohne weitere Kartenfarben (Daria, 2026-11-17)
+  info: { gap: space[8], padding: space[16], borderRadius: radius.md, backgroundColor: color.bg.surface },
+  box: { padding: space[16], borderRadius: radius.md, backgroundColor: color.bg.surface },
+  infoGroup: { gap: space[8] },
   buttons: { gap: space[8] },
   // Deutlich Abstand zwischen den Karten (Daria, 2026-11-10)
   list: { gap: space[32] },
