@@ -11,7 +11,7 @@ vorher="${VERCEL_GIT_PREVIOUS_SHA:-}"
 [ -n "$vorher" ] || exit 1
 git cat-file -e "$vorher^{commit}" 2>/dev/null || git fetch -q --depth=50 origin "$vorher" 2>/dev/null || exit 1
 git cat-file -e "$vorher^{commit}" 2>/dev/null || exit 1
-git diff --quiet "$vorher" HEAD -- website scripts/site scripts/build-download-site.mjs scripts/download-site.config.json \
+git diff --quiet "$vorher" HEAD -- website api scripts/site scripts/build-download-site.mjs scripts/download-site.config.json \
   scripts/website-bauen.sh vercel.json package.json package-lock.json assets/favicon.png assets/illustrations/kater.svg \
   src/components/icons src/data/legal.ts src/data/kater-sprueche.json src/lib/businessCardWeb.ts && exit 0
 exit 1

@@ -11,6 +11,13 @@ const SLUG = /^[a-z0-9][a-z0-9-]{2,39}$/;
 // Feste Adresse für Suchmaschinen (canonical, JSON-LD), auch wenn die Seite über kiezcoins.vercel.app aufgerufen wird
 const SITE = 'https://kiezcoins.de';
 
+// Lange Wörter im Namen („Sachsenbrücke“) passten neben dem Logo nicht in die Zeile und liefen links aus dem Bild
+// (Daria, 2026-11-17). Die Schrift wird nach dem längsten Wort kleiner, höchstens 32 px, mindestens 20 px.
+const titelGroesse = (name) => {
+  const laengstes = Math.max(1, ...String(name ?? '').split(/\s+/).map((w) => w.length));
+  return `font-size: clamp(20px, ${Math.min(8.5, 78 / laengstes).toFixed(2)}vw, 32px)`;
+};
+
 const esc = (s) =>
   String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -384,7 +391,8 @@ ${
 .geteilt .sf-logo { width: 72px; height: 72px; aspect-ratio: 1; border-radius: 50%; object-fit: cover; flex: none; }
 /* Name und Abschnitte in der App-Schrift für große Überschriften (Daria, 2026-11-10) */
 @font-face { font-family: Unbounded; font-weight: 500; font-display: swap; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
-.geteilt .sf-wer h1 { margin: 0; padding-bottom: 0; font: 500 32px/33px Unbounded, var(--display); letter-spacing: 0; }
+.geteilt .sf-wer h1 { margin: 0; padding-bottom: 0; font: 500 32px/1.05 Unbounded, var(--display); letter-spacing: 0; min-width: 0;
+  overflow-wrap: break-word; hyphens: auto; }
 /* Abschnitte klein in Versalien mit feiner Linie darüber, wie bei Studios (Daria, 2026-11-12) */
 .geteilt h2.sf-abschnitt { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; color: var(--text);
   margin: 48px 0 12px; padding-top: 24px; border-top: 1px solid var(--line); }
@@ -434,7 +442,7 @@ ${
 .geteilt .sf-platzhalter .sf-bild { opacity: .5; }
 </style>
   ${cover ? `<img class="sf-cover sf-mit-logo" src="${esc(cover)}" alt="Titelbild von ${esc(s.name)}">` : '<div class="sf-cover sf-mit-logo sf-verlauf" aria-hidden="true"></div>'}
-  <div class="sf-wer">${logo ? `<img class="sf-logo" src="${esc(logo)}" alt="Logo von ${esc(s.name)}">` : `<span class="sf-logo sf-kater">${KATER}</span>`}<h1>${esc(s.name)}</h1></div>
+  <div class="sf-wer">${logo ? `<img class="sf-logo" src="${esc(logo)}" alt="Logo von ${esc(s.name)}">` : `<span class="sf-logo sf-kater">${KATER}</span>`}<h1 style="${titelGroesse(s.name)}">${esc(s.name)}</h1></div>
   ${s.kiez ? `<p class="wer">${esc(s.kiez)}</p>` : ''}
   ${s.about ? `<p class="text">${esc(s.about)}</p>` : leer('Noch keine Beschreibung')}
   <dl class="sf-fakten">${infos}${web}</dl>
