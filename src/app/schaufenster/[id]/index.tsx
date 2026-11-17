@@ -5,6 +5,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
 import { CollapsibleSection, InfoRow, Notice, SectionBlock } from '../../../components/Content';
+import { CopyField } from '../../../components/Form';
 import { NavigationBar } from '../../../components/NavigationBar';
 import { RichText } from '../../../components/RichText';
 import { SubScreen } from '../../../components/Screen';
@@ -19,6 +20,7 @@ import {
   requestAccess,
   setShowcasePost,
   shortLink,
+  showcasePublicLink,
   VISIBLE_ENTRIES,
   type Showcase,
   type ShowcaseAccess,
@@ -136,7 +138,8 @@ export default function ShowcaseScreen() {
           </View>
         </View>
         {s.about ? (
-          <Text noTranslate style={styles.about}>
+          // Markieren und kopieren (Daria, 2026-11-17)
+          <Text noTranslate selectable style={styles.about}>
             {s.about}
           </Text>
         ) : (
@@ -168,6 +171,8 @@ export default function ShowcaseScreen() {
             <InfoRow icon="link" value="Noch keine Links" placeholder />
           )}
         </View>
+        {/* Link zum Weitergeben (Daria, 2026-11-17: „Möglichkeit zum Kopieren“); nur öffentlich und online */}
+        {s.visibility === 'public' && s.switches.online ? <CopyField label="Link zum Schaufenster" value={showcasePublicLink(s.slug)} /> : null}
       </View>
 
       {/* Schaufenster abgeschaltet (Feature `schaufenster`): Nur die Gruppe sieht es noch (Daria, 2026-11-10) */}
