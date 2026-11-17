@@ -247,7 +247,8 @@ export default function ShowcaseScreen() {
               <Text style={styles.meta}>{t('Hier stehen die {n} neuesten Posts und Termine.', { n: VISIBLE_ENTRIES })}</Text>
             )}
           </SectionBlock>
-        ) : (
+        ) : access.team ? (
+          // Leere Abschnitte nur fürs Team (Daria, 2026-11-17: „Für Außenstehende ausblenden wenn leer“)
           <>
             <SectionBlock label="Termine">
               <PlaceholderText>Noch keine Termine</PlaceholderText>
@@ -256,7 +257,7 @@ export default function ShowcaseScreen() {
               <PlaceholderPost />
             </SectionBlock>
           </>
-        )
+        ) : null
       ) : null}
 
       {/* AGB eingeklappt, sie sind meist lang (Daria, 2026-11-11). Nicht öffentliche Schaufenster brauchen weder AGB
@@ -265,13 +266,13 @@ export default function ShowcaseScreen() {
         <CollapsibleSection label="AGB" collapsible>
           <RichText value={s.terms} />
         </CollapsibleSection>
-      ) : s.visibility === 'public' ? (
+      ) : s.visibility === 'public' && access.team ? (
         <SectionBlock label="AGB">
           <PlaceholderText>AGB noch nicht hinterlegt</PlaceholderText>
         </SectionBlock>
       ) : null}
 
-      {s.imprint || s.visibility === 'public' ? (
+      {s.imprint || (s.visibility === 'public' && access.team) ? (
         <SectionBlock label="Impressum">
           {s.imprint ? (
             <Text noTranslate style={styles.meta}>
