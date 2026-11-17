@@ -313,14 +313,15 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
             {s.name}
           </Text>
           {/* Luft unter dem Namen und ein Satz der Krabbe, was hier passiert. Je nach Status, denn bei „Nur Eingeladene“
-              oder offline erscheint im Web nichts (Daria, 2026-11-12). */}
+              oder offline erscheint im Web nichts (Daria, 2026-11-12). Der Satz nennt die Einstellung, damit klar ist, dass
+              „alle sehen es“ an ihr hängt und nicht immer gilt (Daria, 2026-11-17). */}
           <Notice
             message={
               !s.switches.online
                 ? 'Hier pflegst Du Deine Seite. Sie ist gerade offline, deshalb sieht nur Deine Gruppe, was Du postest.'
                 : s.visibility === 'public'
-                  ? 'Hier pflegst Du Deine Seite. Was Du postest, sehen alle im Web und in der KiezCoins App.'
-                  : 'Hier pflegst Du Deine Seite. Name und Angaben sehen alle. Was Du postest, sehen nur Dein Team und Eingeladene in der KiezCoins App.'
+                  ? 'Hier pflegst Du Deine Seite. Sie ist auf „Alle“ gestellt, deshalb sehen alle im Web und in der KiezCoins App, was Du postest.'
+                  : 'Hier pflegst Du Deine Seite. Sie ist auf „Nur Eingeladene“ gestellt, deshalb sehen nur Dein Team und Eingeladene, was Du postest. Name und Angaben sehen alle.'
             }
           />
           {s.cover ? <Image source={s.cover} style={styles.cover} contentFit="cover" /> : null}
