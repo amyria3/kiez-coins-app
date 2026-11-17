@@ -117,6 +117,7 @@ export const styles = StyleSheet.create({
   // Schmaler als vorher (124), damit die drei Punkte daneben passen
   handFilled: { minWidth: 108 },
   handLabel: { ...text.label },
+  handRow: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
   pressed: { opacity: 0.7 },
   // Derselbe Abstand wie zwischen den Gruppen (32, Daria, 2026-11-14)
   cal: { gap: space[8] },

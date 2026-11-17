@@ -125,12 +125,11 @@ export function ShowcaseEventCard({
           ) : null}
           <View style={styles.compactActions}>
             {!e.cancelled && !past ? (
-              // Tinte mit Schrift in der Signalfarbe, solange man merken kann; gemerkt nur mit Rand. Gelbgrün als Fläche
-              // hätte auf den hellen Karten kaum Kontrast (1,1 : 1, Daria, 2026-11-17)
+              // Zweitrangiger Knopf mit Rand und Schrift in Tinte, gemerkt mit Haken (Daria, 2026-11-17: keine schwarzen
+              // Knöpfe auf den Karten)
               <HandButton
                 label={saved ? 'Gemerkt' : 'Merken'}
-                filled={!saved}
-                bg={color.showcaseCards.event}
+                icon={saved ? 'check' : undefined}
                 tone={color.showcaseCards.secondaryOnCard}
                 disabled={busy}
                 onPress={toggle}
@@ -241,8 +240,9 @@ const styles = StyleSheet.create({
   compactImage: { width: '100%', aspectRatio: 16 / 9 },
   // Mehr Luft und etwas größere Schrift (Daria, 2026-11-17)
   compactBody: { gap: space[8], padding: space[20] },
-  datePill: { alignSelf: 'flex-start', borderRadius: radius.full, backgroundColor: color.showcaseCards.ink, paddingVertical: space[4], paddingHorizontal: space[12] },
-  dateText: { ...text.labelSm, color: color.showcaseCards.event },
+  // Datum wie mit Textmarker hervorgehoben, nicht als Knopf (Daria, 2026-11-17)
+  datePill: { alignSelf: 'flex-start', borderRadius: 2, backgroundColor: color.showcaseCards.highlight, paddingHorizontal: space[4] },
+  dateText: { ...text.body, color: color.showcaseCards.ink },
   compactTitle: { ...text.cardTitle, color: color.showcaseCards.ink },
   compactSub: { ...text.body, color: color.showcaseCards.inkSoft },
   compactText: { ...text.bodyLarge, color: color.showcaseCards.ink },

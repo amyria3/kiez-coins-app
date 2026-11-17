@@ -12,7 +12,7 @@ import { t, useTexts } from '../../data/texts';
 import { color, space } from '../../theme/tokens';
 import { KaterCircle } from '../Content';
 import { handShapePath } from '../handShape';
-import { Icon } from '../icons/Icon';
+import { Icon, type IconName } from '../icons/Icon';
 import { ReminderExtrasRow } from '../ReminderExtras';
 import { ManageButton } from '../ShowcaseManage';
 import { Text } from '../T';
@@ -670,6 +670,7 @@ export function HandButton({
   bg,
   fill,
   tone,
+  icon,
   disabled,
 }: {
   label: string;
@@ -680,6 +681,8 @@ export function HandButton({
   fill?: string;
   /** Rand und Schrift ohne Füllung in dieser Farbe statt Tinte (zweitrangige Knöpfe im Schaufenster) */
   tone?: string;
+  /** Icon vor dem Text, z. B. Haken bei „Gemerkt“ (Daria, 2026-11-17) */
+  icon?: IconName;
   disabled?: boolean;
 }) {
   const label = useTexts()(original);
@@ -709,9 +712,12 @@ export function HandButton({
           />
         </Svg>
       ) : null}
-      <Text noTranslate style={[styles.handLabel, { color: filled && !fill ? bg : solid ? INK : (tone ?? INK) }]}>
-        {label}
-      </Text>
+      <View style={styles.handRow}>
+        {icon ? <Icon name={icon} size={14} color={filled && !fill ? bg : solid ? INK : (tone ?? INK)} /> : null}
+        <Text noTranslate style={[styles.handLabel, { color: filled && !fill ? bg : solid ? INK : (tone ?? INK) }]}>
+          {label}
+        </Text>
+      </View>
     </Pressable>
   );
 }

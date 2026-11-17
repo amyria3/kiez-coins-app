@@ -254,11 +254,16 @@ export const color = {
     event: swatch.gelbgruen,
     eventCard: swatch.papier,
     /**
-     * Zweitrangige Knöpfe: Rand und Schrift in der Signalfarbe (Daria, 2026-11-17). Auf dem dunklen Grund Gelbgrün,
-     * auf den hellen Karten Oliv dunkel, damit Schrift lesbar bleibt (WCAG AA).
+     * Zweitrangige Knöpfe: Rand und Schrift auf dem dunklen Grund in der Signalfarbe, auf den hellen Karten in Tinte.
+     * Keine schwarz gefüllten Knöpfe auf den Karten (Daria, 2026-11-17).
      */
     secondaryOnDark: swatch.gelbgruen,
-    secondaryOnCard: swatch.olivDunkel,
+    secondaryOnCard: swatch.tinte,
+    /**
+     * Hervorgehobener Text auf den Karten (Datum): wie mit Textmarker, Signalfarbe abgeblasst, ohne Knopfform, Schrift
+     * in Tinte (Daria, 2026-11-17). Leuchtgelb zu 60 % auf Papier; das helle Gelbgrün allein wäre auf Papier unsichtbar.
+     */
+    highlight: '#E8F897',
     /** Unterstreichung in der Signalfarbe zu 70 % (Daria, 2026-11-17), auf Karten in Oliv dunkel */
     underlineOnDark: withAlpha(swatch.gelbgruen, 0.7),
     underlineOnCard: withAlpha(swatch.olivDunkel, 0.7),

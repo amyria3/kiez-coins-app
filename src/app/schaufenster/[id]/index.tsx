@@ -431,7 +431,8 @@ function InfoCard({ bg, kicker, title, body, icon, placeholder, address, links, 
       {/* Adresse direkt an die Karten-App oder ans Teilen-Menü (Daria, 2026-11-17: „in jedem Fall offen teilbar“) */}
       {address ? (
         <View style={styles.cardActions}>
-          <HandButton label="In Karten öffnen" filled bg={bg} onPress={() => openInMaps(address)} />
+          {/* Beide zweitrangig mit Rand, keine schwarz gefüllten Knöpfe auf den Karten (Daria, 2026-11-17) */}
+          <HandButton label="In Karten öffnen" tone={color.showcaseCards.secondaryOnCard} onPress={() => openInMaps(address)} />
           <HandButton label="Ort teilen" tone={color.showcaseCards.secondaryOnCard} onPress={() => sharePlace(address, name)} />
         </View>
       ) : null}
