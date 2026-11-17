@@ -36,7 +36,7 @@ import { t } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 import { openInMaps, openLink, sharePlace } from '../../../lib/places';
 import { shareText } from '../../../lib/share';
-import { color, radius, space, text } from '../../../theme/tokens';
+import { color, radius, space, text, withAlpha } from '../../../theme/tokens';
 
 /**
  * Route `schaufenster/[id]` (Daria, 2026-11-10): Kopf mit Titelbild, Logo und Angaben, darunter die 10 neuesten Posts
@@ -382,7 +382,7 @@ function CardRow({ title, count, children }: { title: string; count: number; chi
 
 function InfoCard({ bg, kicker, title, body, icon, placeholder, address, links, name }: InfoCardData & { name: string }) {
   return (
-    <View style={[styles.card, styles.infoCard, { backgroundColor: bg }]}>
+    <View style={[styles.card, { backgroundColor: bg }]}>
       <View style={styles.cardHead}>
         <View style={styles.flex}>
           <Text style={styles.cardKicker}>{kicker}</Text>
@@ -401,13 +401,31 @@ function InfoCard({ bg, kicker, title, body, icon, placeholder, address, links, 
           {body}
         </Text>
       ) : null}
-      {links?.map((l) => (
-        <Pressable key={l} onPress={() => openLink(l)} accessibilityRole="link" hitSlop={4}>
-          <Text noTranslate style={[styles.cardInk, styles.cardLink]} numberOfLines={1}>
-            {shortLink(l)}
-          </Text>
-        </Pressable>
-      ))}
+      {/* Je Link eine Zeile mit Namen des Dienstes und der Adresse darunter (Daria, 2026-11-17: „Layout nicht gut“) */}
+      {links?.length ? (
+        <View style={styles.linkList}>
+          {links.map((l, i) => {
+            const { label, sub } = linkParts(l);
+            return (
+              <Pressable
+                key={l}
+                onPress={() => openLink(l)}
+                accessibilityRole="link"
+                accessibilityLabel={`${label}, ${sub}`}
+                style={({ pressed }) => [styles.linkRow, i > 0 ? styles.linkRowLine : styles.linkRowFirst, pressed && styles.pressed]}
+              >
+                <View style={styles.flex}>
+                  <Text style={styles.linkLabel}>{label}</Text>
+                  <Text noTranslate style={styles.linkSub} numberOfLines={1}>
+                    {sub}
+                  </Text>
+                </View>
+                <Icon name="chevron-right" size={18} color={ink} />
+              </Pressable>
+            );
+          })}
+        </View>
+      ) : null}
       {/* Adresse direkt an die Karten-App oder ans Teilen-Menü (Daria, 2026-11-17: „in jedem Fall offen teilbar“) */}
       {address ? (
         <View style={styles.cardActions}>
@@ -417,6 +435,27 @@ function InfoCard({ bg, kicker, title, body, icon, placeholder, address, links, 
       ) : null}
     </View>
   );
+}
+
+/** Bekannte Dienste mit Namen und @Name, sonst „Webseite“ und die kurze Adresse */
+const SERVICES: [RegExp, string][] = [
+  [/(^|\.)instagram\.com$/, 'Instagram'],
+  [/(^|\.)facebook\.com$/, 'Facebook'],
+  [/(^|\.)tiktok\.com$/, 'TikTok'],
+  [/(^|\.)(youtube\.com|youtu\.be)$/, 'YouTube'],
+  [/(^|\.)linkedin\.com$/, 'LinkedIn'],
+  [/(^|\.)(x\.com|twitter\.com)$/, 'X'],
+  [/(^|\.)bsky\.app$/, 'Bluesky'],
+  [/(^|\.)threads\.net$/, 'Threads'],
+];
+
+function linkParts(link: string): { label: string; sub: string } {
+  const short = shortLink(link);
+  const [host, ...path] = short.split('/');
+  const service = SERVICES.find(([re]) => re.test(host.toLowerCase()))?.[1];
+  if (!service) return { label: t('Webseite'), sub: short };
+  const handle = path.filter(Boolean)[0];
+  return { label: service, sub: handle && service !== 'YouTube' ? `@${handle.replace(/^@/, '')}` : short };
 }
 
 /**
@@ -566,10 +605,10 @@ const styles = StyleSheet.create({
   buttons: { gap: space[8] },
   // Kartenreihen wie im Kalender: über die Seitenränder hinaus wischbar
   rowScroll: { marginHorizontal: -space[16] },
-  row: { paddingHorizontal: space[16], paddingVertical: space[6], gap: space[12], alignItems: 'stretch' },
+  // Höhe nach Inhalt wie die Karten in Routine (Daria, 2026-11-17)
+  row: { paddingHorizontal: space[16], paddingVertical: space[6], gap: space[12], alignItems: 'flex-start' },
   slot: { flexDirection: 'column' },
   card: { gap: space[12], padding: space[20], borderRadius: radius.md },
-  infoCard: { flex: 1 },
   cardHead: { flexDirection: 'row', gap: space[12], alignItems: 'flex-start' },
   flex: { flex: 1, gap: space[4] },
   cardIcon: {
@@ -584,8 +623,13 @@ const styles = StyleSheet.create({
   cardTitle: { ...text.cardTitle, color: ink },
   cardInk: { ...text.bodyLarge, color: ink },
   cardSoft: { color: color.showcaseCards.inkSoft, fontStyle: 'italic' },
-  cardLink: { textDecorationLine: 'underline' },
-  cardActions: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8], marginTop: 'auto', paddingTop: space[8] },
+  linkList: { marginTop: space[4] },
+  linkRowFirst: { paddingTop: 0 },
+  linkRow: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12] },
+  linkRowLine: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: withAlpha(color.showcaseCards.ink, 0.25) },
+  linkLabel: { ...text.label, color: ink },
+  linkSub: { ...text.body, color: color.showcaseCards.inkSoft },
+  cardActions: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8], paddingTop: space[8] },
   // Feed auf Grau bis an den Rand, wie die anderen Feeds (Daria, 2026-11-17)
   band: {
     gap: space[24],
