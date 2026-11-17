@@ -738,3 +738,25 @@ export async function searchShowcases(query: string): Promise<ShowcaseHit[]> {
   if (error) throw error;
   return ((data ?? []) as HitRow[]).map(toHit);
 }
+
+export type CardMailResult = 'ok' | 'email' | 'name' | 'limit' | 'not_found' | 'error';
+
+/**
+ * Visitenkarte per Mail aus der App (Daria, 2026-11-17: „auch hier schon … per Mail zeigen“). Dieselbe Edge Function
+ * wie auf der öffentlichen Seite (`visitenkarte-mail`, #408): Mail von KiezKoins mit Karte, Instant-Code und Link
+ * zur Seite, dort geht das Anfreunden. Nur für Schaufenster, die öffentlich und online sind.
+ */
+export async function sendCardMail(slug: string, to: string, from?: string): Promise<CardMailResult> {
+  try {
+    const { data, error } = await supabase.functions.invoke<{ ok?: boolean; error?: string }>('visitenkarte-mail', {
+      body: { slug, to: to.trim(), from: from?.trim() || undefined },
+    });
+    if (data?.ok) return 'ok';
+    // Bei 4xx steckt die Antwort im Fehler (FunctionsHttpError.context)
+    const body = data ?? (await (error as { context?: Response } | null)?.context?.json?.().catch(() => null));
+    const code = body?.error;
+    return code === 'email' || code === 'name' || code === 'limit' || code === 'not_found' ? code : 'error';
+  } catch {
+    return 'error';
+  }
+}
