@@ -619,13 +619,14 @@ const styles = StyleSheet.create({
   card: { gap: space[12], padding: space[20], borderRadius: radius.md },
   cardHead: { flexDirection: 'row', gap: space[12], alignItems: 'flex-start' },
   flex: { flex: 1, gap: space[4] },
+  // Größerer Kreis in der Farbe des Textmarkers, das Icon (gezeichnet etwa 30 pt) hat Luft (Daria, 2026-11-17)
   cardIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: withAlpha(color.showcaseCards.ink, 0.07),
+    backgroundColor: color.showcaseCards.highlight,
   },
   cardKicker: { ...text.labelSm, color: color.showcaseCards.inkSoft },
   cardTitle: { ...text.cardTitle, color: ink },
