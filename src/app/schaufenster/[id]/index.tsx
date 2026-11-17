@@ -1,7 +1,7 @@
-import { Children, useCallback, useState, type ReactNode } from 'react';
+import { Children, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Image } from 'expo-image';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { Redirect, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
 import { Notice } from '../../../components/Content';
@@ -30,6 +30,8 @@ import {
   type ShowcaseEntry,
   type ShowcasePost,
 } from '../../../data/showcase';
+import { useAuth } from '../../../data/auth';
+import { rememberInvite } from '../../../data/pendingInvite';
 import { useStore } from '../../../data/store';
 import { t } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
@@ -43,8 +45,9 @@ import { color, radius, space, text } from '../../../theme/tokens';
  * andere nur den Kopf und können anfragen oder einen Code eingeben.
  */
 export default function ShowcaseScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, folgen } = useLocalSearchParams<{ id: string; folgen?: string }>();
   const router = useRouter();
+  const { session } = useAuth();
   const goBack = useGoBack();
   const { currentUserId, groups } = useStore();
   const [data, setData] = useState<{ showcase: Showcase; access: ShowcaseAccess } | null | undefined>(undefined);
@@ -58,6 +61,27 @@ export default function ShowcaseScreen() {
     });
   }, [id, currentUserId]);
   useFocusEffect(reload);
+
+  // Von der Webseite „<Name> in KiezCoins folgen“ (Daria, 2026-11-17): Ohne Anmeldung merkt sich die App das
+  // Schaufenster fürs Onboarding und kommt danach hierher zurück. Angemeldet folgt sie einmal, ohne weiteren Tipp.
+  const followed = useRef(false);
+  const [justFollowed, setJustFollowed] = useState(false);
+  useEffect(() => {
+    if (!session && folgen === '1' && id) rememberInvite(id, 'showcase');
+  }, [session, folgen, id]);
+  useEffect(() => {
+    if (folgen !== '1' || followed.current || !data) return;
+    followed.current = true;
+    router.setParams({ folgen: undefined });
+    const { access } = data;
+    if (access.team || !access.canSee || access.following) return;
+    follow(data.showcase.id, true).then((ok) => {
+      setJustFollowed(ok);
+      reload();
+    });
+  }, [folgen, data, router, reload]);
+
+  if (!session) return <Redirect href="/onboarding/welcome" />;
 
   if (data === undefined) {
     return (
@@ -168,6 +192,8 @@ export default function ShowcaseScreen() {
             {link ? <Pill label="Teilen" onPress={() => shareText(`${s.name}\n${link}`)} /> : null}
           </View>
         </View>
+
+        {justFollowed ? <Notice message={t('Du folgst jetzt {name}.', { name: s.name })} /> : null}
 
         {/* Schaufenster abgeschaltet (Feature `schaufenster`): Nur die Gruppe sieht es noch (Daria, 2026-11-10) */}
         {!s.switches.online ? (
