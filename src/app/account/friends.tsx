@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 import { Text } from '../../components/T';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AuthorRow } from '../../components/AuthorRow';
 import { Button } from '../../components/Button';
@@ -28,6 +28,9 @@ const DEMO_INVITE_CODE = 'K7M2QXA';
  * Einladen per Link, QR-Code oder Code (Daria, 24.10.2026): Wer die Einladung annimmt, ist sofort befreundet.
  */
 export default function Friends() {
+  // `einladen=1` (aus den Nachrichten, Daria, 2026-11-17): Einladen steht oben, die Listen darunter
+  const { einladen } = useLocalSearchParams<{ einladen?: string }>();
+  const inviteFirst = einladen === '1';
   const router = useRouter();
   const goBack = useGoBack();
   const { mode, users, currentUserId } = useStore();
@@ -134,8 +137,25 @@ export default function Friends() {
     }
   };
 
+  const inviteBlock = (
+    <>
+      {inviteError ? <Notice message={`${t('Deine Einladung nicht geladen.')} (${inviteError})`} /> : null}
+      {inviteCode ? (
+        <FieldGroup heading label="Einladen">
+          <Text style={styles.secondary}>Wer Deine Einladung annimmt, ist sofort mit Dir befreundet.</Text>
+          <InviteQr value={friendInviteLink(inviteCode)} label={t('Instant-Verbindung zum Scannen')} />
+          <CopyField label="Einladungslink" value={friendInviteLink(inviteCode)} />
+          <CopyField label="Passcode" value={inviteCode} />
+          <Button label="Einladung teilen" icon="friends" onPress={() => shareText(friendInviteMessage(inviteCode))} />
+          <Button label="Neuen Passcode erzeugen" variant="secondary" onPress={renewCode} />
+        </FieldGroup>
+      ) : null}
+    </>
+  );
+
   return (
-    <SubScreen title="Freundschaften" navigation="back" onLeadingPress={goBack}>
+    <SubScreen title={inviteFirst ? 'Freund:innen einladen' : 'Freundschaften'} navigation="back" onLeadingPress={goBack}>
+      {inviteFirst ? inviteBlock : null}
       {lists === null ? (
         <Notice message="Freundschaften sind noch nicht freigeschaltet. Die Datenbank braucht dafür ein Update." />
       ) : null}
@@ -161,17 +181,7 @@ export default function Friends() {
           )}
         </FieldGroup>
       ) : null}
-      {inviteError ? <Notice message={`${t('Deine Einladung nicht geladen.')} (${inviteError})`} /> : null}
-      {inviteCode ? (
-        <FieldGroup heading label="Einladen">
-          <Text style={styles.secondary}>Wer Deine Einladung annimmt, ist sofort mit Dir befreundet.</Text>
-          <InviteQr value={friendInviteLink(inviteCode)} label={t('Instant-Verbindung zum Scannen')} />
-          <CopyField label="Einladungslink" value={friendInviteLink(inviteCode)} />
-          <CopyField label="Passcode" value={inviteCode} />
-          <Button label="Einladung teilen" icon="friends" onPress={() => shareText(friendInviteMessage(inviteCode))} />
-          <Button label="Neuen Passcode erzeugen" variant="secondary" onPress={renewCode} />
-        </FieldGroup>
-      ) : null}
+      {inviteFirst ? null : inviteBlock}
       <FieldGroup heading label="Einladung annehmen">
         <TextField
           label="Passcode"
