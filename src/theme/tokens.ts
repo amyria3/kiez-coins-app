@@ -257,6 +257,26 @@ export const color = {
    * Karten im Schaufenster (Daria, 2026-11-17): Gefühl wie im Kalender. Eine neutrale Kartenfarbe, die Signalfarbe (Gelbgrün) als einziger
    * Akzent, sparsam (Folgen, Merken, Datum). Schrift in Tinte.
    */
+  /**
+   * Karten auf „Dein Konto“ (Daria, 2026-11-17): Papier mit Schrift und Icon in Tinte, der Kreis hinter dem Icon trägt die
+   * Farbe der Karte. Jede Farbe zeigt auf dieselbe Grundfarbe wie ihre Rolle: Me Senf, Schaufenster Gelbgrün (Theme
+   * Schaufenster), Meine Features und Sprache Grün (Theme Functional), Gruppen, Kontakte und Tour Lila, Meine Posts Rosa,
+   * Kater Weiß.
+   */
+  accountCards: {
+    card: swatch.papier,
+    ink: swatch.tinte,
+    inkSoft: withAlpha(swatch.tinte, 0.68),
+    me: swatch.senf,
+    groups: palette.purple,
+    showcase: swatch.gelbgruen,
+    posts: palette.pink,
+    features: palette.green,
+    contacts: palette.purple,
+    language: palette.green,
+    tour: palette.purple,
+    cat: swatch.weiss,
+  },
   showcaseCards: {
     /** Infokarten, Services und Termine: eine Kartenfarbe (Daria, 2026-11-17) */
     card: swatch.papier,
@@ -431,8 +451,6 @@ export const text = {
   displaySm: { fontFamily: font.onPhoto, fontSize: 18, lineHeight: 24 },
   /** Sehr große Überschrift, z. B. Willkommen */
   displayLarge: { fontFamily: font.onPhoto, fontSize: 32, lineHeight: 40, letterSpacing: -0.4 },
-  /** Sehr großer Titel in Inter Tight, z. B. Abzeichen-Karte */
-  headlineLarge: { fontFamily: font.display, fontSize: 32, lineHeight: 38, letterSpacing: -0.5 },
   /** Sehr große Zahl, z. B. Vorher-Nachher-Zähler */
   metricHero: { fontFamily: font.display, fontSize: 44, lineHeight: 48, letterSpacing: -1 },
   /** Kleinste Kennzahl, z. B. erledigt, kleine Bounty */
@@ -461,6 +479,6 @@ export const motion = {
   /** Feder für Dinge, die man mit dem Finger zieht und loslässt */
   barrierSpring: { friction: 5, tension: 70 },
   /** Reiterwechsel: etwas langsamer und schwerer, damit er sich greifbar anfühlt.
-   *  exit: so lange gleitet der alte Reiter ganz hinaus, bevor der neue von der Seite hereinkommt. */
+    *  exit: so lange gleitet der alte Reiter ganz hinaus, bevor der neue von der Seite hereinkommt. */
   tabSwitch: { duration: 620, offset: 72, exit: 180, spring: { friction: 6, tension: 38 } },
 } as const;

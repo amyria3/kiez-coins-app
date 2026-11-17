@@ -65,7 +65,7 @@ export function EditableRow({ label, value, onSave, renderEditor, maxLength, all
   }
 
   return (
-    <View style={[styles.row, styles.editing, { borderColor: focusColor }]}>
+    <View style={[styles.row, styles.editing, { borderColor: focusColor }]}> 
       <View style={styles.texts}>
         <Text style={styles.label}>{label}</Text>
         {renderEditor ? (
@@ -167,36 +167,41 @@ export function NavCard({
   description,
   leading,
   leadingFill,
+  accent,
   onPress,
 }: {
   title: string;
   description?: string;
   /** Ohne Icon steht der Text bündig links */
   leading?: ReactNode;
+  /** Farbe des Kreises hinter dem Icon (`color.accountCards.*`), das Icon selbst steht in Tinte */
+  accent?: string;
   /** Zeichnung sitzt unten im Kreis, der Kreis schneidet ihre Unterkante rund ab (Kater, Daria 25.10.2026) */
   leadingFill?: boolean;
   onPress: () => void;
 }) {
   return (
     <Pressable
-      style={({ pressed }) => [styles.row, styles.profileCard, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.row, styles.navCard, pressed && styles.pressed]}
       accessibilityRole="button"
       accessibilityLabel={description ? `${title}, ${description}` : title}
       onPress={onPress}
     >
-      {leading ? <View style={[styles.cardLeading, leadingFill && styles.cardLeadingFill]}>{leading}</View> : null}
+      {leading ? (
+        <View style={[styles.cardLeading, accent ? { backgroundColor: accent } : null, leadingFill && styles.cardLeadingFill]}>{leading}</View>
+      ) : null}
       <View style={styles.texts}>
         {/* Zwei Zeilen statt abgeschnitten, z. B. „Deine Freundschaften“ auf 360 pt breiten Android-Handys (29.10.2026) */}
-        <Text style={styles.profileName} numberOfLines={2}>
+        <Text style={styles.navTitle} numberOfLines={2}>
           {title}
         </Text>
         {description ? (
-          <Text style={styles.label} numberOfLines={2}>
+          <Text style={styles.navDescription} numberOfLines={2}>
             {description}
           </Text>
         ) : null}
       </View>
-      <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
+      <Icon name="chevron-right" size={size.icon} color={color.accountCards.inkSoft} />
     </Pressable>
   );
 }
@@ -223,6 +228,10 @@ const styles = StyleSheet.create({
   },
   navRow: { minHeight: 48 },
   profileCard: { padding: space[16], gap: space[16], borderRadius: radius.lg },
+  // Papierkarte mit kleiner Rundung wie die Posts im Feed (Daria, 2026-11-17)
+  navCard: { padding: space[16], gap: space[16], borderRadius: radius.post, backgroundColor: color.accountCards.card },
+  navTitle: { ...text.photoTitle, color: color.accountCards.ink },
+  navDescription: { ...text.caption, color: color.accountCards.inkSoft },
   /** Titel der Karten in der Farbe der großen Icons, auch der eigene Name (Daria, 2026-11-05) */
   // Unbounded statt Inter Tight wie „Pirat:in“ (Daria, 09.11.2026). 17 statt 19, die Unbounded läuft breiter.
   profileName: { ...text.photoTitle, color: color.icon.large },
