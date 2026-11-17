@@ -21,11 +21,14 @@ export function spaceOfRoute(name: string, post?: { private?: boolean; groupId?:
 }
 
 /**
- * Routen mit Theme „Schaufenster“ (Daria, 2026-11-17): das öffentliche Schaufenster und was man von dort aus tut
- * (Post, Termin, Visitenkarte, mit Code beitreten). Verwalten und Bearbeiten bleiben Functional.
+ * Routen mit Theme „Schaufenster“ (Daria, 2026-11-17): alle Seiten des Schaufensters, auch Verwalten und Bearbeiten
+ * (Daria, 2026-11-17: „Falscher Farbmodus“ auf Verwalten in Grün). Dazu das öffentliche Schaufenster und was man von
+ * dort aus tut (Post, Termin, Visitenkarte, mit Code beitreten).
  */
 export function isShowcaseRoute(name: string): boolean {
   return (
+    name === 'schaufenster/index' ||
+    name === 'schaufenster/[id]/bearbeiten' ||
     name === 'schaufenster/beitreten' ||
     name === 'schaufenster/[id]/index' ||
     name === 'schaufenster/[id]/post' ||
@@ -36,15 +39,12 @@ export function isShowcaseRoute(name: string): boolean {
 
 /**
  * Routen mit Theme „Functional“ (Daria, 2026-11-14): alles unter Dein Konto außer Freundschaften (bleibt Friendship),
- * Schaufenster verwalten und bearbeiten, Moderation, Texte. Die öffentliche Schaufenster-Seite hat seit 2026-11-17
- * ein eigenes Theme (`isShowcaseRoute`).
+ * Moderation, Texte. Alle Schaufenster-Seiten haben seit 2026-11-17 ein eigenes Theme (`isShowcaseRoute`).
  */
 export function isFunctionalRoute(name: string): boolean {
   if (name === 'account/friends') return false;
   return (
     name.startsWith('account/') ||
-    name === 'schaufenster/index' ||
-    name === 'schaufenster/[id]/bearbeiten' ||
     name === 'moderation' ||
     name === 'texts'
   );

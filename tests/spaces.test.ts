@@ -4,15 +4,15 @@ import { describe, it } from 'node:test';
 import { spaceOfRoute } from '../src/theme/spaces';
 
 describe('Bereich jeder Seite (RouteSpace)', () => {
-  it('Konto, Funktionen, Schaufenster verwalten, Moderation, Texte: Functional', () => {
-    for (const name of ['account/index', 'account/features', 'schaufenster/index', 'schaufenster/[id]/bearbeiten', 'moderation', 'texts']) {
+  it('Konto, Funktionen, Moderation, Texte: Functional', () => {
+    for (const name of ['account/index', 'account/features', 'moderation', 'texts']) {
       assert.equal(spaceOfRoute(name), 'functional', name);
     }
     assert.equal(spaceOfRoute('account/friends'), 'public');
   });
 
-  it('Öffentliches Schaufenster und seine Unterseiten: Schaufenster', () => {
-    for (const name of ['schaufenster/[id]/index', 'schaufenster/[id]/post', 'schaufenster/[id]/termin', 'schaufenster/[id]/visitenkarte', 'schaufenster/beitreten']) {
+  it('Alle Schaufenster-Seiten, auch Verwalten und Bearbeiten: Schaufenster', () => {
+    for (const name of ['schaufenster/index', 'schaufenster/[id]/bearbeiten', 'schaufenster/[id]/index', 'schaufenster/[id]/post', 'schaufenster/[id]/termin', 'schaufenster/[id]/visitenkarte', 'schaufenster/beitreten']) {
       assert.equal(spaceOfRoute(name), 'showcase', name);
     }
   });
