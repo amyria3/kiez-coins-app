@@ -617,7 +617,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    backgroundColor: withAlpha(color.showcaseCards.ink, 0.07),
   },
   cardKicker: { ...text.labelSm, color: color.showcaseCards.inkSoft },
   cardTitle: { ...text.cardTitle, color: ink },
