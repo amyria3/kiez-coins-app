@@ -325,6 +325,13 @@ function mitmachen() {
   </section>`;
 }
 
+// Wie shareableMapsUrl in src/lib/places.ts. Auf iPhone und iPad tauscht das Skript unten auf Apple Karten.
+const kartenLink = (ort) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ort.trim())}`;
+
+function ortKnoepfe(s) {
+  return `<span class="sf-ort"><a class="sf-ort-haupt" href="${esc(kartenLink(s.address))}" data-ort="${esc(s.address)}" target="_blank" rel="noopener">In Karten öffnen</a><button type="button" class="sf-ort-neben" data-ort-teilen="${esc(s.address)}" data-name="${esc(s.name)}">Ort teilen</button><span class="sf-ort-hinweis" role="status"></span></span>`;
+}
+
 function inhalt(s) {
   if (!s) {
     return `  <h1>Dieses Schaufenster gibt es nicht, oder es ist nicht öffentlich.</h1>
@@ -335,7 +342,8 @@ function inhalt(s) {
   // Angaben mit kleinen Überschriften, Zeilenumbrüche bleiben (Daria, 2026-11-12)
   const fakt = (label, html) => `<div class="sf-fakt"><dt>${label}</dt><dd>${html}</dd></div>`;
   const infos = [
-    fakt('Adresse', s.address ? esc(s.address) : '<span class="sf-leer">Noch keine Adresse</span>'),
+    // Adresse an die Karten-App oder ans Teilen-Menü (Daria, 2026-11-17: „in jedem Fall offen teilbar“)
+    fakt('Adresse', s.address ? `${esc(s.address)}${ortKnoepfe(s)}` : '<span class="sf-leer">Noch keine Adresse</span>'),
     fakt('Öffnungszeiten', s.opening_hours ? esc(s.opening_hours) : '<span class="sf-leer">Noch keine Öffnungszeiten</span>'),
   ].join('');
   // Mehrere Links (Migration 20261110000600); vorher nur die Webseite
@@ -415,6 +423,12 @@ ${
 .geteilt .sf-fakt dt { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; color: var(--text); margin: 0 0 6px; }
 .geteilt .sf-fakt dd { margin: 0; font-size: 16px; line-height: 1.4; white-space: pre-line; }
 .geteilt .sf-fakt dd a { text-underline-offset: 3px; }
+.geteilt .sf-ort { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; white-space: normal; }
+.geteilt .sf-ort .sf-ort-haupt, .geteilt .sf-ort .sf-ort-neben { display: inline-block; border-radius: 999px; padding: 10px 18px;
+  font: 500 15px/1 Inter, sans-serif; letter-spacing: .01em; text-decoration: none; cursor: pointer; }
+.geteilt .sf-ort .sf-ort-haupt { background: var(--text); color: var(--bg); }
+.geteilt .sf-ort .sf-ort-neben { border: 0; background: none; color: var(--text); box-shadow: inset 0 0 0 1.5px var(--text); }
+.geteilt .sf-ort-hinweis { font-size: 13px; color: var(--text); }
 .geteilt .sf-services p, .geteilt .sf-services ul { margin: 0 0 12px; }
 .geteilt .sf-services ul { padding-left: 20px; }
 .geteilt .sf-services li { margin: 0 0 4px; }
@@ -473,6 +487,22 @@ ${
   ${/* Visitenkarte am Schluss der Seite (Daria, 2026-11-12) */ visitenkarte(s, links)}
 <script>
 (() => {
+  // Ort: auf Apple-Geräten Apple Karten, sonst Google Maps; Teilen über das Menü des Geräts, sonst kopieren
+  const apple = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (apple) for (const a of document.querySelectorAll('a[data-ort]')) a.href = 'https://maps.apple.com/?q=' + encodeURIComponent(a.dataset.ort);
+  for (const b of document.querySelectorAll('[data-ort-teilen]')) {
+    b.addEventListener('click', async () => {
+      const ort = b.dataset.ortTeilen, link = ${JSON.stringify('https://www.google.com/maps/search/?api=1&query=')} + encodeURIComponent(ort);
+      const text = b.dataset.name + '\\n' + ort;
+      const hinweis = b.parentElement.querySelector('.sf-ort-hinweis');
+      try {
+        if (navigator.share) { await navigator.share({ title: b.dataset.name, text, url: link }); return; }
+        await navigator.clipboard.writeText(text + '\\n' + link);
+        hinweis.textContent = 'Adresse kopiert';
+        setTimeout(() => (hinweis.textContent = ''), 2500);
+      } catch {}
+    });
+  }
   const URL_ = ${JSON.stringify(SUPABASE_URL)}, KEY = ${JSON.stringify(SUPABASE_KEY)}, MERK = 'kc-termin-herzen';
   let gemerkt = [];
   try { gemerkt = JSON.parse(localStorage.getItem(MERK) || '[]'); } catch {}
