@@ -163,6 +163,10 @@ export default function ShowcaseScreen() {
       <View style={styles.infoGroup}>
       {access.team || s.address || s.openingHours || s.links.length ? (
       <View style={styles.info}>
+        {/* Überschrift in der Schrift der Fototitel (Daria, 2026-11-17) */}
+        <Text style={styles.infoTitle} accessibilityRole="header">
+          Über dieses Schaufenster
+        </Text>
         {/* Die Adresse steht nur bei Menschen mit Zugang (showcase_private); ohne Zugang kein Platzhalter */}
         {s.address ? (
           // Antippen: in der Karten-App öffnen oder den Ort teilen (Daria, 2026-11-13)
@@ -190,7 +194,7 @@ export default function ShowcaseScreen() {
       </View>
       ) : null}
       {/* Link zum Weitergeben (Daria, 2026-11-17: „Möglichkeit zum Kopieren“); nur öffentlich und online */}
-      {s.visibility === 'public' && s.switches.online ? <CopyField label="Link zum Schaufenster" value={showcasePublicLink(s.slug)} /> : null}
+      {s.visibility === 'public' && s.switches.online ? <CopyField label="Link zum Schaufenster" value={showcasePublicLink(s.slug)} hideLabel style={styles.linkField} /> : null}
       </View>
 
       {/* Schaufenster abgeschaltet (Feature `schaufenster`): Nur die Gruppe sieht es noch (Daria, 2026-11-10) */}
@@ -347,6 +351,9 @@ const styles = StyleSheet.create({
   info: { gap: space[8], padding: space[16], borderRadius: radius.md, backgroundColor: color.bg.surface },
   box: { padding: space[16], borderRadius: radius.md, backgroundColor: color.bg.surface },
   infoGroup: { gap: space[8] },
+  // Text bündig mit der Karte darüber
+  linkField: { paddingLeft: space[16] },
+  infoTitle: { ...text.displaySm, color: color.text.primary, marginBottom: space[4] },
   buttons: { gap: space[8] },
   // Deutlich Abstand zwischen den Karten (Daria, 2026-11-10)
   list: { gap: space[32] },

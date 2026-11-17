@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { isTouchWeb } from '../lib/touchWeb';
 import { useKeyboardHeight } from './Keyboard';
-import { Alert, Animated, Platform, Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
+import { Alert, Animated, Platform, Pressable, StyleSheet, TextInput, View, type StyleProp, type TextInputProps, type ViewStyle } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Text } from './T';
 import * as Clipboard from 'expo-clipboard';
@@ -354,13 +354,23 @@ export function CheckOption({ label, selected, onPress }: { label: string; selec
   );
 }
 
-/** Figma „CopyField“: Wert mit Kopieren-Button. */
-export function CopyField({ label, value }: { label: string; value: string }) {
+/** Figma „CopyField“: Wert mit Kopieren-Button. `hideLabel`: Bezeichnung nur für Screenreader, z. B. wenn die Überschrift darüber reicht. */
+export function CopyField({
+  label,
+  value,
+  hideLabel = false,
+  style,
+}: {
+  label: string;
+  value: string;
+  hideLabel?: boolean;
+  style?: StyleProp<ViewStyle>;
+}) {
   const [copied, setCopied] = useState(false);
   return (
-    <View style={styles.copyField}>
+    <View style={[styles.copyField, style]}>
       <View style={styles.texts}>
-        <Text style={[text.caption, { color: color.text.secondary }]}>{label}</Text>
+        {hideLabel ? null : <Text style={[text.caption, { color: color.text.secondary }]}>{label}</Text>}
         <Text style={[text.body, { color: color.text.primary }]} selectable>
           {value}
         </Text>
