@@ -20,6 +20,8 @@ import {
   showcasePublicLink,
   BG_PALETTE,
   readableOn,
+  EMAIL_MAX,
+  EMAIL_PATTERN,
   HEX,
   MAX_LINKS,
   notifySearchEngines,
@@ -54,7 +56,7 @@ export default function EditShowcase() {
   const { currentUserId, groups, users } = useStore();
   const [showcase, setShowcase] = useState<Showcase | null | undefined>(undefined);
   const [founder, setFounder] = useState(false);
-  const [form, setForm] = useState({ name: '', about: '', services: '', kiez: '', address: '', openingHours: '', imprint: '', terms: '' });
+  const [form, setForm] = useState({ name: '', about: '', services: '', kiez: '', address: '', email: '', openingHours: '', imprint: '', terms: '' });
   // Mehrere Links (Daria, 2026-11-10); immer mindestens ein Feld
   const [links, setLinks] = useState<string[]>(['']);
   const [servicesCollapsed, setServicesCollapsed] = useState(false);
@@ -87,6 +89,7 @@ export default function EditShowcase() {
         services: s.services ?? '',
         kiez: s.kiez ?? '',
         address: s.address ?? '',
+        email: s.email ?? '',
         openingHours: s.openingHours ?? '',
         imprint: s.imprint ?? '',
         terms: s.terms ?? '',
@@ -144,6 +147,7 @@ export default function EditShowcase() {
   const set = (key: keyof typeof form) => (value: string) => setForm((f) => ({ ...f, [key]: value }));
   const linkOk = (l: string) => !l.trim() || /^https:\/\/\S+\.\S+$/i.test(l.trim());
   const linksOk = links.every(linkOk);
+  const emailOk = !form.email.trim() || EMAIL_PATTERN.test(form.email.trim());
   const bgOk = !bgColor.trim() || HEX.test(bgColor.trim());
   const setLink = (i: number) => (value: string) => setLinks((all) => all.map((l, j) => (j === i ? value : l)));
   const slugChanged = showcase.seoReady && slug !== showcase.slug;
@@ -209,7 +213,7 @@ export default function EditShowcase() {
       title="Schaufenster bearbeiten"
       navigation="back"
       onLeadingPress={goBack}
-      actions={<Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !bgOk || !slugOk} onPress={save} />}
+      actions={<Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !emailOk || !bgOk || !slugOk} onPress={save} />}
     >
       <FieldGroup label="Bilder">
         <View style={styles.pictures}>
@@ -235,6 +239,18 @@ export default function EditShowcase() {
         />
         <TextField label="Kiez" value={form.kiez} onChangeText={set('kiez')} maxLength={80} placeholder="Connewitz" />
         <TextField label="Adresse" value={form.address} onChangeText={set('address')} maxLength={160} />
+        {/* Kontakt-Mail (Daria, 2026-11-17): auf der Seite und der Visitenkarte zum Antippen */}
+        <TextField
+          label="E-Mail"
+          value={form.email}
+          onChangeText={set('email')}
+          maxLength={EMAIL_MAX}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="email-address"
+          placeholder="hallo@kiezblick.de"
+          error={emailOk ? undefined : 'Bitte eine E-Mail-Adresse wie hallo@kiezblick.de eintragen'}
+        />
         {links.map((l, i) => (
           <TextField
             key={i}
