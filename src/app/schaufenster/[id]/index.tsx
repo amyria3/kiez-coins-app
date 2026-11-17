@@ -158,7 +158,7 @@ export default function ShowcaseScreen() {
         <View style={styles.head}>
           <View>
             <ShowcaseCover image={s.cover} style={styles.cover} />
-            <ShowcaseLogo image={s.logo} size={LOGO} style={styles.logo} tone={{ circle: color.showcaseHead.logo, mask: color.showcaseHead.bg }} />
+            <ShowcaseLogo image={s.logo} size={LOGO} style={styles.logo} tone={{ circle: color.showcaseHead.logo, mask: color.showcaseHead.ink }} />
           </View>
           <View style={styles.nameBlock}>
             <Text noTranslate style={styles.name}>

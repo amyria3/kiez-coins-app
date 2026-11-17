@@ -53,6 +53,8 @@ const swatch = {
    * und an der Limette der Krabbe lag (Daria, 2026-11-17). Kein anderer Ton der App liegt in diesem Bereich.
    */
   tuerkis: '#6FEEDD',
+  /** Türkis hell: Infokarten im Schaufenster, dieselbe Farbe wie die Termine, nur leiser */
+  tuerkisHell: '#D2F7F1',
   /** Beige: große Icons, Leisten-Icons, papierweißer Knopf im Umschalter */
   beige: '#EEE0C9',
   /** Schneeweiß: aktives Nachrichten-Icon */
@@ -241,11 +243,11 @@ export const color = {
    * Schaufenster-Webseite (Lila hell, Pfirsich, Gelbgrün hell, Mint), Termine in Leuchtgelb. Schrift in Tinte.
    */
   showcaseCards: {
-    place: '#DCE1FF',
-    hours: '#FFE6D6',
-    /** Zartes Flieder statt Hellgelbgrün, damit nichts mehr ans Menü erinnert (Daria, 2026-11-17) */
-    links: '#F3E1F7',
-    services: '#DDF8E3',
+    // Eine Farbe statt fünf (Daria, 2026-11-17: „zu viele Farben“): Infokarten Türkis hell, Termine Türkis
+    place: swatch.tuerkisHell,
+    hours: swatch.tuerkisHell,
+    links: swatch.tuerkisHell,
+    services: swatch.tuerkisHell,
     event: swatch.tuerkis,
     ink: swatch.tinte,
     inkSoft: withAlpha(swatch.tinte, 0.68),
@@ -258,7 +260,8 @@ export const color = {
     bg: swatch.tuerkis,
     ink: swatch.tinte,
     inkSoft: withAlpha(swatch.tinte, 0.7),
-    logo: palette.purple,
+    /** Platzhalter-Logo: Kreis in Türkis, Kater in Tinte, kein Lila daneben (Daria, 2026-11-17) */
+    logo: swatch.tuerkis,
   },
   /** An/Aus-Schalter im Kiez-Look */
   toggle: {
