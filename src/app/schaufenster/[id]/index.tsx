@@ -5,7 +5,6 @@ import { Redirect, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-
 
 import { Button } from '../../../components/Button';
 import { Notice } from '../../../components/Content';
-import { CopyField } from '../../../components/Form';
 import { NavigationBar } from '../../../components/NavigationBar';
 import { RichText } from '../../../components/RichText';
 import { SubScreen } from '../../../components/Screen';
@@ -294,8 +293,7 @@ export default function ShowcaseScreen() {
                 )}
               </FootRow>
             ) : null}
-            {/* Link zum Weitergeben (Daria, 2026-11-17: „Möglichkeit zum Kopieren“); nur öffentlich und online */}
-            {link ? <CopyField label="Link zum Schaufenster" value={link} hideLabel style={styles.linkField} /> : null}
+            {/* Kein Link-Feld mehr unten, „Teilen“ im Kopf gibt den Link weiter (Daria, 2026-11-17: „Raus“) */}
           </View>
           {manage.length ? <ManageButton items={manage} style={styles.manageBottom} /> : null}
         </View>
@@ -607,7 +605,6 @@ const styles = StyleSheet.create({
   footHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 56 },
   footLabel: { ...text.bodyLarge, color: color.text.primary },
   footBody: { paddingBottom: space[16] },
-  linkField: { marginTop: space[16] },
   // Wenig Rundung wie die Posts im Feed (Daria, 2026-11-10)
   post: { borderRadius: radius.post, backgroundColor: color.showcaseCards.post, overflow: 'hidden' },
   pressed: { opacity: 0.7 },
