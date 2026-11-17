@@ -109,7 +109,24 @@ async function ladeSchaufenster(slug) {
     body: JSON.stringify({ p_slug: slug }),
   });
   if (!res.ok) return null;
-  return res.json();
+  const s = await res.json();
+  if (s?.id) s.freunde = await nimmtFreunde(s.id);
+  return s;
+}
+
+// Knopf „Mit … anfreunden“ (Daria, 2026-11-17: „mit der Person gleich nach dem Scannen anfreunden“): nur bei
+// eingeschaltetem Schalter im Schaufenster (Migration 20261117000500)
+async function nimmtFreunde(id) {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/showcase_accepts_friends`, {
+      method: 'POST',
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_showcase: id }),
+    });
+    return res.ok && (await res.json()) === true;
+  } catch {
+    return false;
+  }
 }
 
 // Zeiten in deutscher Ortszeit, da die Seite auf dem Server entsteht
@@ -254,6 +271,13 @@ function visitenkarte(s, links) {
 .geteilt .sf-vk .sf-vk-haupt { border: 0; border-radius: 999px; padding: 12px 22px; background: var(--text); color: var(--bg); font: 500 15px/1 Inter, sans-serif; letter-spacing: .01em; }
 .geteilt .sf-vk .sf-vk-neben { border: 0; background: none; padding: 8px 0; font: inherit; font-size: 15px; color: var(--text); text-decoration: underline; }
 .geteilt .sf-vk button:disabled { opacity: .5; cursor: default; }
+.geteilt .sf-vk-mail { display: flex; flex-direction: column; gap: 14px; max-width: 420px; margin-top: 20px; }
+.geteilt .sf-vk-mail[hidden] { display: none; }
+.geteilt .sf-vk-mail label { display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
+.geteilt .sf-vk-mail input { font: inherit; font-size: 16px; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); }
+.geteilt .sf-vk-mail .sf-vk-haupt { align-self: center; }
+.geteilt .sf-vk-mail p { margin: 0; }
+.geteilt .sf-vk-falle { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 </style>
   <h2 class="sf-abschnitt">Visitenkarte</h2>
   <section class="sf-vk" aria-label="Visitenkarte">
@@ -261,18 +285,31 @@ function visitenkarte(s, links) {
     <div class="sf-vk-knoepfe">
       <button type="button" class="sf-vk-haupt" data-vk="teilen" disabled>Visitenkarte teilen</button>
       <button type="button" class="sf-vk-neben" data-vk="drucken" disabled>Drucken oder als PDF</button>
+      <button type="button" class="sf-vk-neben" data-vk="mail" aria-expanded="false" aria-controls="sf-vk-mail">Per Mail schicken</button>
     </div>
     <p class="sf-klein sf-vk-hinweis" hidden></p>
+    ${/* Visitenkarte per Mail (Daria, 2026-11-17): Edge Function visitenkarte-mail, Mail von KiezKoins mit Link und Karte als HTML.
+       Kein Freitext, nur ein optionaler Vorname; die Funktion begrenzt die Zahl der Mails. */ ''}<form class="sf-vk-mail" id="sf-vk-mail" hidden novalidate>
+      <label>An welche Adresse?<input type="email" name="to" autocomplete="email" required maxlength="254" placeholder="name@beispiel.de"></label>
+      <label><span>Dein Vorname <span class="sf-klein">(optional, steht in der Mail)</span></span><input type="text" name="from" autocomplete="given-name" maxlength="30"></label>
+      <input class="sf-vk-falle" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit" class="sf-vk-haupt">Visitenkarte schicken</button>
+      <p class="sf-klein sf-vk-mail-hinweis" role="status"></p>
+      <p class="sf-klein">KiezKoins nutzt die Adresse nur für diese eine Mail und speichert sie nicht.</p>
+    </form>
   </section>
 <script src="/visitenkarte.js" defer></script>
 <script>
 addEventListener('DOMContentLoaded', async () => {
   const VK = window.KiezVisitenkarte;
   const box = document.querySelector('.sf-vk');
-  if (!VK || !box) { box && (box.hidden = true); return; }
+  // Ohne Zeichnung fallen Bild, Teilen und Drucken weg; „Per Mail schicken“ bleibt, die Mail baut die Karte selbst
+  const ohneBild = () => box.querySelectorAll('[data-vk="teilen"], [data-vk="drucken"]').forEach((k) => (k.hidden = true));
+  if (!box) return;
+  if (!VK) return ohneBild();
   const d = ${JSON.stringify(daten).replace(/</g, '\\u003c')};
   const seiten = await VK.drawBusinessCard(d);
-  if (!seiten) { box.hidden = true; return; }
+  if (!seiten) return ohneBild();
   const bild = box.querySelector('.sf-vk-bild');
   bild.src = seiten.front.toDataURL('image/png');
   bild.hidden = false;
@@ -285,6 +322,50 @@ addEventListener('DOMContentLoaded', async () => {
     hinweis.textContent = 'Beide Seiten liegen jetzt in Deinen Downloads.';
   });
   box.querySelector('[data-vk="drucken"]').addEventListener('click', () => VK.printCard(seiten, d.name));
+});
+// Per Mail: unabhängig vom Zeichnen der Karte, die Mail baut die Karte selbst
+addEventListener('DOMContentLoaded', () => {
+  const knopf = document.querySelector('[data-vk="mail"]');
+  const form = document.getElementById('sf-vk-mail');
+  if (!knopf || !form) return;
+  knopf.disabled = false;
+  knopf.addEventListener('click', () => {
+    form.hidden = !form.hidden;
+    knopf.setAttribute('aria-expanded', String(!form.hidden));
+    if (!form.hidden) form.elements.to.focus();
+  });
+  const hinweis = form.querySelector('.sf-vk-mail-hinweis');
+  const texte = {
+    email: 'Bitte prüfe die Mail-Adresse.',
+    name: 'Beim Vornamen gehen nur Buchstaben, höchstens 30.',
+    limit: 'Für heute sind genug Mails verschickt. Probier es morgen wieder.',
+  };
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const to = form.elements.to.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) { hinweis.textContent = texte.email; return; }
+    const senden = form.querySelector('button[type="submit"]');
+    senden.disabled = true;
+    hinweis.textContent = 'Wird verschickt …';
+    try {
+      const res = await fetch(${JSON.stringify(`${SUPABASE_URL}/functions/v1/visitenkarte-mail`)}, {
+        method: 'POST',
+        headers: { apikey: ${JSON.stringify(SUPABASE_KEY)}, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: ${JSON.stringify(s.slug)}, to, from: form.elements.from.value, website: form.elements.website.value }),
+      });
+      const r = await res.json().catch(() => ({}));
+      if (r.ok) {
+        hinweis.textContent = 'Die Visitenkarte ist unterwegs an ' + to + '.';
+        form.elements.to.value = '';
+      } else {
+        hinweis.textContent = texte[r.error] ?? 'Das hat nicht geklappt. Probier es gleich nochmal.';
+      }
+    } catch {
+      hinweis.textContent = 'Keine Verbindung. Probier es gleich nochmal.';
+    } finally {
+      senden.disabled = false;
+    }
+  });
 });
 </script>`;
 }
@@ -329,6 +410,7 @@ function mitmachen(s) {
       <h3>Mach mit in Deinem Kiez.</h3>
       <div class="sf-mit-knoepfe">
         ${/* Folgen in der App (Daria, 2026-11-17); ohne Konto geht es übers Onboarding und danach zurück */ ''}<a class="sf-mit-knopf" href="https://app.kiezcoins.de/schaufenster/${esc(s.id)}?folgen=1" aria-label="${esc(s.name)} in KiezCoins folgen"><span class="sf-mit-name">${esc(s.name)}</span><span>&nbsp;in KiezCoins folgen</span></a>
+        ${/* Anfreunden nach dem Scan (Daria, 2026-11-17); ohne Konto über das Onboarding und danach zurück */ s.freunde ? `<a class="sf-mit-knopf" href="https://app.kiezcoins.de/schaufenster/${esc(s.id)}?anfreunden=1" aria-label="Mit ${esc(s.name)} in KiezCoins anfreunden"><span>Mit&nbsp;</span><span class="sf-mit-name">${esc(s.name)}</span><span>&nbsp;anfreunden</span></a>` : ''}
         <a class="sf-mit-knopf sf-mit-zweit" href="/laden?von=schaufenster">KiezCoins runterladen</a>
       </div>
     </div>

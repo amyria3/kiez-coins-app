@@ -3,10 +3,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Einladungscode aus einem Link, der vor der Anmeldung geöffnet wurde. Nach dem Onboarding geht es damit
 // direkt zu „Gruppe beitreten“ oder zur Freundschaftseinladung, die sich dort selbst annimmt. Beim Schaufenster
 // („<Name> in KiezCoins folgen“ auf der Webseite, Daria, 2026-11-17) ist der Code die ID, die App folgt dann dort.
+// Bei „Mit … anfreunden“ (showcase_friend) schickt sie dort die Freundschaftsanfrage.
 
 const KEY = 'pending_invite_code';
 
-export type InviteKind = 'group' | 'friend' | 'showcase';
+export type InviteKind = 'group' | 'friend' | 'showcase' | 'showcase_friend';
 type PendingInvite = { kind: InviteKind; code: string };
 
 export async function rememberInvite(code: string, kind: InviteKind = 'group') {
@@ -22,7 +23,8 @@ export async function takeInvite(): Promise<PendingInvite | null> {
   try {
     const parsed = JSON.parse(raw) as Partial<PendingInvite>;
     if (parsed && typeof parsed.code === 'string') {
-      const kind: InviteKind = parsed.kind === 'friend' || parsed.kind === 'showcase' ? parsed.kind : 'group';
+      const kind: InviteKind =
+        parsed.kind === 'friend' || parsed.kind === 'showcase' || parsed.kind === 'showcase_friend' ? parsed.kind : 'group';
       return { kind, code: parsed.code };
     }
   } catch {
@@ -37,5 +39,7 @@ export async function homeAfterOnboarding(): Promise<string> {
   if (!invite) return '/feed';
   const code = encodeURIComponent(invite.code);
   if (invite.kind === 'showcase') return `/schaufenster/${code}?folgen=1`;
+  // „Mit … anfreunden“ auf der Webseite (Daria, 2026-11-17)
+  if (invite.kind === 'showcase_friend') return `/schaufenster/${code}?anfreunden=1`;
   return invite.kind === 'friend' ? `/friends/invite?code=${code}` : `/groups/join?code=${code}`;
 }
