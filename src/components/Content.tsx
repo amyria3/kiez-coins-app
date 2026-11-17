@@ -28,11 +28,15 @@ const FEED_BG = color.bg.surface;
  * im Abstand von MESSAGE_STAGGER. Systemblasen kommen mit 70 % Deckkraft, leuchten kurz auf 100 % auf und bleiben
  * bei 80 %, die grauen im Feed bleiben bei 100 %. Dabei wachsen sie aus der Ecke beim Avatar. Bei „Bewegung reduzieren“ steht alles sofort im Endzustand.
  */
-const SKY_RGB = '240, 255, 166';
-const FEED_RGB = (() => {
-  const hex = FEED_BG.replace('#', '');
+/** „r, g, b“ aus einer Hex-Farbe, für die Deckkraft-Animation */
+const rgbOf = (hexColor: string) => {
+  const hex = hexColor.replace('#', '');
   return [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(', ');
-})();
+};
+// Aus dem Token statt fest eingetragen: Vorher stand hier das Gelbgrün, die Blasen blieben nach dem Wechsel aufs
+// Grün des Systems gelbgrün bzw. oliv (Daria, 2026-11-17: „Theming funktioniert offenbar immer noch nicht“)
+const SKY_RGB = rgbOf(SKY_BG);
+const FEED_RGB = rgbOf(FEED_BG);
 const MESSAGE_STAGGER = 320;
 let nextMessageAt = 0;
 /** Reserviert den nächsten freien Zeitpunkt und gibt die Wartezeit bis dahin zurück */
@@ -96,10 +100,7 @@ function useMessageIn(feed = false) {
 }
 
 /** Eigene Nachricht wird lila (gefragt, „Ja, los!“): leuchtet wie die Systemblasen auf, 70 → 100 → 80 % (Daria, 2026-11-09) */
-const ACCENT_RGB = (() => {
-  const hex = color.accent.primary.replace('#', '');
-  return [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(', ');
-})();
+const ACCENT_RGB = rgbOf(color.accent.primary);
 function useSentGlow(on: boolean) {
   const t = useRef(new Animated.Value(on ? 2 : 0)).current;
   const was = useRef(on);
