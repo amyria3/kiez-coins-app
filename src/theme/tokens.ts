@@ -233,6 +233,22 @@ export const color = {
     mask: swatch.maske,
     circle: swatch.schwarz,
   },
+  /**
+   * Karten im Schaufenster (Daria, 2026-11-17): Gefühl wie im Kalender, aber eigene Farben aus der Auswahl für die
+   * Schaufenster-Webseite (Lila hell, Pfirsich, Gelbgrün hell, Mint), Termine in Leuchtgelb. Schrift in Tinte.
+   */
+  showcaseCards: {
+    place: '#DCE1FF',
+    hours: '#FFE6D6',
+    links: '#F4F7E2',
+    services: '#DDF8E3',
+    event: swatch.leuchtgelb,
+    ink: swatch.tinte,
+    inkSoft: withAlpha(swatch.tinte, 0.68),
+    /** Grauer Grund unter „Neu im Schaufenster“, wie die Kartenfarbe der Feeds; Posts darauf etwas heller */
+    band: palette.graphite,
+    post: 'rgba(255, 240, 225, 0.06)',
+  },
   /** Kopf des Schaufensters (Daria, 2026-11-17): große Farbfläche, Schrift darauf in Tinte */
   showcaseHead: {
     bg: swatch.leuchtgelb,

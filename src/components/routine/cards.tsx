@@ -662,7 +662,8 @@ export function SavedCard({ event: e, onChanged }: { event: Saved; onChanged: ()
 }
 
 /** Button in der Handform: gefüllt in Tinte oder nur mit Kontur */
-function HandButton({
+/** Knopf mit handgezeichnetem Rand (Routine-Karten, seit 2026-11-17 auch Schaufenster-Karten) */
+export function HandButton({
   label: original,
   onPress,
   filled,

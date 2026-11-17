@@ -1,10 +1,10 @@
-import { useCallback, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { Children, useCallback, useState, type ReactNode } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
-import { CollapsibleSection, InfoRow, Notice, SectionBlock } from '../../../components/Content';
+import { Notice } from '../../../components/Content';
 import { CopyField } from '../../../components/Form';
 import { NavigationBar } from '../../../components/NavigationBar';
 import { RichText } from '../../../components/RichText';
@@ -14,6 +14,8 @@ import { ShowcaseEventCard } from '../../../components/ShowcaseEventCard';
 import { PlaceholderPost, PlaceholderText, ShowcaseCover, ShowcaseLogo } from '../../../components/ShowcasePlaceholder';
 import { Text } from '../../../components/T';
 import { Icon } from '../../../components/icons/Icon';
+import { HandButton } from '../../../components/routine/cards';
+import { styles as routine } from '../../../components/routine/styles';
 import {
   follow,
   loadEntries,
@@ -31,7 +33,8 @@ import {
 import { useStore } from '../../../data/store';
 import { t } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
-import { openLink, placeActions } from '../../../lib/places';
+import { openInMaps, openLink, sharePlace } from '../../../lib/places';
+import { shareText } from '../../../lib/share';
 import { color, radius, space, text } from '../../../theme/tokens';
 
 /**
@@ -110,9 +113,13 @@ export default function ShowcaseScreen() {
   const groupName = groups.find((g) => g.id === s.groupId)?.name;
   const title = access.team && groupName ? t('{group} Schaufenster', { group: groupName }) : 'Schaufenster';
 
+  // Termine als eigene Reihe, Posts unten im grauen Feed (Daria, 2026-11-17)
+  const events = entries.flatMap((e) => (e.kind === 'event' ? [e.event] : []));
+  const posts = entries.flatMap((e) => (e.kind === 'post' ? [e.post] : []));
+  const link = s.visibility === 'public' && s.switches.online ? showcasePublicLink(s.slug) : undefined;
+  const cards = infoCards(s, access.team);
+
   return (
-    // Kopfzeile wie in „Dein Konto › Schaufenster“: der Titel neben dem Pfeil, der Name groß darunter. Vorher
-    // stand der Name doppelt, oben in Inter und unter dem Titelbild (Daria, 2026-11-11). Der Kiez steht unter dem Namen.
     <SubScreen
       title={title}
       navigation="back"
@@ -122,189 +129,324 @@ export default function ShowcaseScreen() {
       }
     >
       <View style={styles.page}>
-      {/* Kopf als große Farbfläche in Leuchtgelb (Daria, 2026-11-17: „Unser schwarzer Hintergrund klappt nur mit großen
-          Farbflecken“), darunter eine dunkle Karte für die Angaben. Leere Angaben sieht nur das Team als Platzhalter. */}
-      <View style={styles.head}>
-        <ShowcaseCover image={s.cover} style={styles.cover} />
-        <ShowcaseLogo image={s.logo} size={64} style={styles.logo} tone={{ circle: color.showcaseHead.logo, mask: color.showcaseHead.bg }} />
-        <View style={styles.nameBlock}>
-          <Text noTranslate style={styles.name}>
-            {s.name}
-          </Text>
-          {s.kiez ? (
-            <Text noTranslate style={styles.kiez}>
-              {s.kiez}
+        {/* Kopf wie auf der Webseite (Daria, 2026-11-17): Logo rechts im Ausschnitt des Titelbilds, Name in Unbounded,
+            ohne eigenen Kasten. Die Farbe kommt aus den Karten darunter. */}
+        <View style={styles.head}>
+          <View>
+            <ShowcaseCover image={s.cover} style={styles.cover} />
+            <ShowcaseLogo image={s.logo} size={LOGO} style={styles.logo} tone={{ circle: color.showcaseHead.logo, mask: color.showcaseHead.bg }} />
+          </View>
+          <View style={styles.nameBlock}>
+            <Text noTranslate style={styles.name}>
+              {s.name}
+            </Text>
+            {s.kiez ? (
+              <Text noTranslate style={styles.kiez}>
+                {s.kiez}
+              </Text>
+            ) : null}
+          </View>
+          {s.about ? (
+            // Markieren und kopieren (Daria, 2026-11-17)
+            <Text noTranslate selectable style={styles.about}>
+              {s.about}
+            </Text>
+          ) : access.team ? (
+            <Text style={styles.aboutEmpty}>Noch keine Beschreibung</Text>
+          ) : null}
+          <View style={styles.pills}>
+            {/* Wechsel zur Gruppe, nur fürs Team (Daria, 2026-11-17: „von Schaufenster zur Gruppe wechseln“) */}
+            {access.team ? (
+              <Pill
+                filled
+                label={groupName ? t('Zur Gruppe {group}', { group: groupName }) : t('Zur Gruppe')}
+                onPress={() => router.dismissTo({ pathname: '/feed', params: { gruppe: s.groupId } })}
+              />
+            ) : access.canSee ? (
+              <Pill filled check={access.following} disabled={busy} label={access.following ? t('Du folgst') : t('Folgen')} onPress={toggleFollow} />
+            ) : null}
+            {link ? <Pill label="Teilen" onPress={() => shareText(`${s.name}\n${link}`)} /> : null}
+          </View>
+        </View>
+
+        {/* Schaufenster abgeschaltet (Feature `schaufenster`): Nur die Gruppe sieht es noch (Daria, 2026-11-10) */}
+        {!s.switches.online ? (
+          <Notice variant="warning" message="Dieses Schaufenster ist offline. Nur Eure Gruppe sieht es, im Feed und unter dem Link erscheint es nicht." />
+        ) : null}
+
+        {access.team || access.canSee ? null : (
+          <View style={styles.buttons}>
+            <Notice message="Dieses Schaufenster ist nur für eingeladene Personen. Du möchtest up to date bleiben? Frag einen Zugang für Dich an." />
+            {access.request === 'requested' ? (
+              <Text style={styles.meta}>Deine Anfrage ist unterwegs. Das Team meldet sich.</Text>
+            ) : (
+              <Button label="Zugang anfragen" variant="secondary" busy={busy} onPress={ask} />
+            )}
+            <Button label="Ich habe einen Code" variant="ghost" onPress={() => router.push('/schaufenster/beitreten')} />
+          </View>
+        )}
+
+        {/* Angaben als Kartenreihe wie im Kalender (Daria, 2026-11-17): Ort mit „In Karten öffnen“ und „Ort teilen“ */}
+        {cards.length ? (
+          <CardRow title="Gut zu wissen" count={cards.length}>
+            {cards.map((c) => (
+              <InfoCard key={c.id} {...c} name={s.name} />
+            ))}
+          </CardRow>
+        ) : null}
+
+        {access.canSee && events.length ? (
+          <CardRow title="Termine" count={events.length}>
+            {events.map((e) => (
+              <ShowcaseEventCard key={e.id} event={e} team={access.team} onChanged={reload} compact />
+            ))}
+          </CardRow>
+        ) : access.canSee && access.team ? (
+          <View style={routine.group}>
+            <SectionHead title="Termine" />
+            <PlaceholderText>Noch keine Termine</PlaceholderText>
+          </View>
+        ) : null}
+
+        {s.services || access.team ? (
+          <View style={routine.group}>
+            <SectionHead title="Services" />
+            <ServicesCard services={s.services} collapsed={s.servicesCollapsed} />
+          </View>
+        ) : null}
+
+        {/* Feed auf Grau wie die anderen Feeds (Daria, 2026-11-17), darunter Rechtliches und der Link */}
+        <View style={styles.band}>
+          {access.team && s.switches.posten ? <Button label="Post erstellen" icon="plus" onPress={post} /> : null}
+          {access.canSee && posts.length ? (
+            <View style={routine.group}>
+              <SectionHead title="Neu im Schaufenster" />
+              <View style={styles.list}>
+                {posts.map((p) => (
+                  <PostCard key={p.id} post={p} onPress={() => router.push({ pathname: '/challenge/[id]', params: { id: p.id } })} />
+                ))}
+              </View>
+              {s.switches.mehr || entries.length < VISIBLE_ENTRIES ? null : (
+                <Text style={styles.meta}>{t('Hier stehen die {n} neuesten Posts und Termine.', { n: VISIBLE_ENTRIES })}</Text>
+              )}
+            </View>
+          ) : access.canSee && access.team ? (
+            <View style={routine.group}>
+              <SectionHead title="Posts" />
+              <PlaceholderPost />
+            </View>
+          ) : null}
+
+          <View>
+            {/* AGB eingeklappt, sie sind meist lang (Daria, 2026-11-11). Leer nur fürs Team (Daria, 2026-11-17) */}
+            {s.terms ? (
+              <FootRow label="AGB">
+                <RichText value={s.terms} />
+              </FootRow>
+            ) : s.visibility === 'public' && access.team ? (
+              <FootRow label="AGB">
+                <PlaceholderText>AGB noch nicht hinterlegt</PlaceholderText>
+              </FootRow>
+            ) : null}
+            {s.imprint || (s.visibility === 'public' && access.team) ? (
+              <FootRow label="Impressum">
+                {s.imprint ? (
+                  <Text noTranslate selectable style={styles.meta}>
+                    {s.imprint}
+                  </Text>
+                ) : (
+                  <PlaceholderText>Impressum noch nicht hinterlegt</PlaceholderText>
+                )}
+              </FootRow>
+            ) : null}
+            {/* Link zum Weitergeben (Daria, 2026-11-17: „Möglichkeit zum Kopieren“); nur öffentlich und online */}
+            {link ? <CopyField label="Link zum Schaufenster" value={link} hideLabel style={styles.linkField} /> : null}
+          </View>
+          {manage.length ? <ManageButton items={manage} style={styles.manageBottom} /> : null}
+        </View>
+      </View>
+    </SubScreen>
+  );
+}
+
+const LOGO = 80;
+
+type InfoCardData = {
+  id: string;
+  bg: string;
+  kicker: string;
+  title: string;
+  body?: string;
+  icon: 'map-pin' | 'clock-filled' | 'link';
+  placeholder?: boolean;
+  address?: string;
+  links?: string[];
+};
+
+/** Karten für „Gut zu wissen“: Ort, Öffnungszeiten, Links. Leere sieht nur das Team als Platzhalter. */
+function infoCards(s: Showcase, team: boolean): InfoCardData[] {
+  const cards: InfoCardData[] = [];
+  const pc = color.showcaseCards;
+  if (s.address) {
+    const [first, ...rest] = s.address.split(',');
+    cards.push({ id: 'ort', bg: pc.place, kicker: 'Ort', title: first.trim(), body: rest.join(',').trim() || undefined, icon: 'map-pin', address: s.address });
+  } else if (team) cards.push({ id: 'ort', bg: pc.place, kicker: 'Ort', title: 'Noch keine Adresse', icon: 'map-pin', placeholder: true });
+  if (s.openingHours) cards.push({ id: 'zeit', bg: pc.hours, kicker: 'Öffnungszeiten', title: s.openingHours, icon: 'clock-filled' });
+  else if (team) cards.push({ id: 'zeit', bg: pc.hours, kicker: 'Öffnungszeiten', title: 'Noch keine Öffnungszeiten', icon: 'clock-filled', placeholder: true });
+  if (s.links.length) cards.push({ id: 'links', bg: pc.links, kicker: s.links.length === 1 ? 'Link' : 'Links', title: '', icon: 'link', links: s.links });
+  else if (team) cards.push({ id: 'links', bg: pc.links, kicker: 'Links', title: 'Noch keine Links', icon: 'link', placeholder: true });
+  return cards;
+}
+
+/** Überschrift wie die Gruppen im Kalender, optional mit Anzahl */
+function SectionHead({ title, count }: { title: string; count?: number }) {
+  return (
+    <View style={routine.groupHead}>
+      <Text style={routine.groupTitle} accessibilityRole="header">
+        {title}
+      </Text>
+      {count === undefined ? null : (
+        <Text noTranslate style={routine.groupCount}>
+          {count}
+        </Text>
+      )}
+    </View>
+  );
+}
+
+/** Reihe mit Überschrift und Anzahl, seitlich wischbar, wie die Gruppen im Kalender (routine/cards) */
+function CardRow({ title, count, children }: { title: string; count: number; children: ReactNode }) {
+  const { width } = useWindowDimensions();
+  const cardWidth = Math.min(320, Math.max(240, Math.min(width, 480) - 96));
+  const items = Children.toArray(children);
+  return (
+    <View style={routine.group}>
+      <SectionHead title={title} count={count} />
+      {items.length === 1 ? (
+        <View style={[styles.rowScroll, styles.row]}>
+          <View style={[styles.slot, { width: cardWidth }]}>{items[0]}</View>
+        </View>
+      ) : (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={cardWidth + space[12]}
+          decelerationRate="fast"
+          style={styles.rowScroll}
+          contentContainerStyle={styles.row}
+        >
+          {items.map((c, i) => (
+            // Leicht schräg wie die Karten in Routine, abwechselnd
+            <View key={i} style={[styles.slot, { width: cardWidth, transform: [{ rotate: i % 2 ? '0.7deg' : '-0.7deg' }] }]}>
+              {c}
+            </View>
+          ))}
+        </ScrollView>
+      )}
+    </View>
+  );
+}
+
+function InfoCard({ bg, kicker, title, body, icon, placeholder, address, links, name }: InfoCardData & { name: string }) {
+  return (
+    <View style={[styles.card, styles.infoCard, { backgroundColor: bg }]}>
+      <View style={styles.cardHead}>
+        <View style={styles.flex}>
+          <Text style={styles.cardKicker}>{kicker}</Text>
+          {title ? (
+            <Text noTranslate={!placeholder} selectable={!placeholder} style={[styles.cardTitle, placeholder && styles.cardSoft]}>
+              {title}
             </Text>
           ) : null}
         </View>
-        {s.about ? (
-          // Markieren und kopieren (Daria, 2026-11-17)
-          <Text noTranslate selectable style={styles.about}>
-            {s.about}
-          </Text>
-        ) : access.team ? (
-          <Text style={styles.aboutEmpty}>Noch keine Beschreibung</Text>
-        ) : null}
-        {/* Wechsel zur Gruppe, nur fürs Team (Daria, 2026-11-17: „von Schaufenster zur Gruppe wechseln“) */}
-        {access.team ? (
-          <Pressable
-            accessibilityRole="link"
-            onPress={() => router.dismissTo({ pathname: '/feed', params: { gruppe: s.groupId } })}
-            style={({ pressed }) => [styles.follow, pressed && styles.pressed]}
-          >
-            <Text style={styles.followText}>{groupName ? t('Zur Gruppe {group}', { group: groupName }) : t('Zur Gruppe')}</Text>
-            <Icon name="chevron-right" size={14} color={color.showcaseHead.bg} />
-          </Pressable>
-        ) : null}
-        {/* „Du folgst“ als dunkle Pille im Kopf statt lila Text mitten auf der Seite (Daria, 2026-11-17) */}
-        {!access.team && access.canSee ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityState={{ busy, selected: access.following }}
-            disabled={busy}
-            onPress={toggleFollow}
-            style={({ pressed }) => [styles.follow, pressed && styles.pressed]}
-          >
-            {access.following ? <Icon name="check" size={16} color={color.showcaseHead.bg} /> : null}
-            <Text style={styles.followText}>{access.following ? t('Du folgst') : t('{name} folgen', { name: s.name })}</Text>
-          </Pressable>
-        ) : null}
+        <View style={styles.cardIcon}>
+          <Icon name={icon} size={20} color={ink} />
+        </View>
       </View>
-
-      <View style={styles.infoGroup}>
-      {access.team || s.address || s.openingHours || s.links.length ? (
-      <View style={styles.info}>
-        {/* Überschrift in der Schrift der Fototitel (Daria, 2026-11-17) */}
-        <Text style={styles.infoTitle} accessibilityRole="header">
-          Über dieses Schaufenster
+      {body ? (
+        <Text noTranslate selectable style={styles.cardInk}>
+          {body}
         </Text>
-        {/* Die Adresse steht nur bei Menschen mit Zugang (showcase_private); ohne Zugang kein Platzhalter */}
-        {s.address ? (
-          // Antippen: in der Karten-App öffnen oder den Ort teilen (Daria, 2026-11-13)
-          <Pressable onPress={() => placeActions(s.address!, s.name)} accessibilityRole="button" accessibilityHint={t('In Karten öffnen oder teilen')}>
-            <InfoRow icon="map-pin" value={s.address} />
-          </Pressable>
-        ) : access.team ? (
-          <InfoRow icon="map-pin" value="Noch keine Adresse" placeholder />
-        ) : null}
-        {s.openingHours ? (
-          <InfoRow icon="clock-filled" value={s.openingHours} />
-        ) : access.team ? (
-          <InfoRow icon="clock-filled" value="Noch keine Öffnungszeiten" placeholder />
-        ) : null}
-        {/* Mehrere Links (Daria, 2026-11-10) */}
-        {s.links.length ? (
-          s.links.map((l) => (
-            <Pressable key={l} onPress={() => openLink(l)} accessibilityRole="link">
-              <InfoRow icon="link" value={shortLink(l)} />
-            </Pressable>
-          ))
-        ) : access.team ? (
-          <InfoRow icon="link" value="Noch keine Links" placeholder />
-        ) : null}
-      </View>
       ) : null}
-      {/* Link zum Weitergeben (Daria, 2026-11-17: „Möglichkeit zum Kopieren“); nur öffentlich und online */}
-      {s.visibility === 'public' && s.switches.online ? <CopyField label="Link zum Schaufenster" value={showcasePublicLink(s.slug)} hideLabel style={styles.linkField} /> : null}
-      </View>
-
-      {/* Schaufenster abgeschaltet (Feature `schaufenster`): Nur die Gruppe sieht es noch (Daria, 2026-11-10) */}
-      {!s.switches.online ? (
-        <Notice variant="warning" message="Dieses Schaufenster ist offline. Nur Eure Gruppe sieht es, im Feed und unter dem Link erscheint es nicht." />
-      ) : null}
-
-      {access.team || access.canSee ? null : (
-        <View style={styles.buttons}>
-          <Notice message="Dieses Schaufenster ist nur für eingeladene Personen. Du möchtest up to date bleiben? Frag einen Zugang für Dich an." />
-          {access.request === 'requested' ? (
-            <Text style={styles.meta}>Deine Anfrage ist unterwegs. Das Team meldet sich.</Text>
-          ) : (
-            <Button label="Zugang anfragen" variant="secondary" busy={busy} onPress={ask} />
-          )}
-          <Button label="Ich habe einen Code" variant="ghost" onPress={() => router.push('/schaufenster/beitreten')} />
-        </View>
-      )}
-
-      {s.services ? (
-        <View style={styles.box}>
-          <CollapsibleSection label="Services" collapsible={s.servicesCollapsed}>
-            <RichText value={s.services} />
-          </CollapsibleSection>
-        </View>
-      ) : access.team ? (
-        <View style={styles.box}>
-          <SectionBlock label="Services">
-            <PlaceholderText>Noch keine Services</PlaceholderText>
-          </SectionBlock>
+      {links?.map((l) => (
+        <Pressable key={l} onPress={() => openLink(l)} accessibilityRole="link" hitSlop={4}>
+          <Text noTranslate style={[styles.cardInk, styles.cardLink]} numberOfLines={1}>
+            {shortLink(l)}
+          </Text>
+        </Pressable>
+      ))}
+      {/* Adresse direkt an die Karten-App oder ans Teilen-Menü (Daria, 2026-11-17: „in jedem Fall offen teilbar“) */}
+      {address ? (
+        <View style={styles.cardActions}>
+          <HandButton label="In Karten öffnen" filled bg={bg} onPress={() => openInMaps(address)} />
+          <HandButton label="Ort teilen" onPress={() => sharePlace(address, name)} />
         </View>
       ) : null}
+    </View>
+  );
+}
 
-      {/* Nur fürs Team: direkt vor dem Feed (Daria, 2026-11-11) */}
-      {access.team && s.switches.posten ? <Button label="Post erstellen" icon="plus" onPress={post} /> : null}
+/** Runde Knöpfe im Kopf: gefüllt in Leuchtgelb oder mit hellem Rand */
+function Pill({ label, onPress, filled, check, disabled }: { label: string; onPress: () => void; filled?: boolean; check?: boolean; disabled?: boolean }) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ disabled, selected: check }}
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed }) => [styles.pill, filled ? styles.pillFilled : styles.pillOutline, pressed && styles.pressed]}
+    >
+      {check ? <Icon name="check" size={16} color={color.showcaseCards.ink} /> : null}
+      <Text style={[styles.pillText, filled && styles.pillTextFilled]}>{label}</Text>
+    </Pressable>
+  );
+}
 
-      {access.canSee ? (
-        entries.length ? (
-          <SectionBlock label="Neu im Schaufenster">
-            <View style={styles.list}>
-              {entries.map((e) =>
-                e.kind === 'event' ? (
-                  <ShowcaseEventCard key={`e${e.event.id}`} event={e.event} team={access.team} onChanged={reload} />
-                ) : (
-                  <PostCard key={`p${e.post.id}`} post={e.post} onPress={() => router.push({ pathname: '/challenge/[id]', params: { id: e.post.id } })} />
-                ),
-              )}
-            </View>
-            {s.switches.mehr || entries.length < VISIBLE_ENTRIES ? null : (
-              <Text style={styles.meta}>{t('Hier stehen die {n} neuesten Posts und Termine.', { n: VISIBLE_ENTRIES })}</Text>
-            )}
-          </SectionBlock>
-        ) : access.team ? (
-          // Leere Abschnitte nur fürs Team (Daria, 2026-11-17: „Für Außenstehende ausblenden wenn leer“)
-          <>
-            <SectionBlock label="Termine">
-              <PlaceholderText>Noch keine Termine</PlaceholderText>
-            </SectionBlock>
-            <SectionBlock label="Posts">
-              <PlaceholderPost />
-            </SectionBlock>
-          </>
-        ) : null
+/** AGB und Impressum als schlichte Zeilen, ein Tipp klappt sie auf */
+function FootRow({ label, children }: { label: string; children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <View style={styles.footRow}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ expanded: open }}
+        onPress={() => setOpen((o) => !o)}
+        style={({ pressed }) => [styles.footHead, pressed && styles.pressed]}
+      >
+        <Text style={styles.footLabel}>{label}</Text>
+        <View style={{ transform: [{ rotate: open ? '90deg' : '0deg' }] }}>
+          <Icon name="chevron-right" size={18} color={color.text.primary} />
+        </View>
+      </Pressable>
+      {open ? <View style={styles.footBody}>{children}</View> : null}
+    </View>
+  );
+}
+
+/** Services auf einer eigenen Karte; eingeklappt, wenn die Gründer:in das so eingestellt hat */
+function ServicesCard({ services, collapsed }: { services?: string; collapsed: boolean }) {
+  const [open, setOpen] = useState(!collapsed);
+  const bg = color.showcaseCards.services;
+  return (
+    <View style={[styles.card, { backgroundColor: bg }]}>
+      {!services ? (
+        <Text style={[styles.cardInk, styles.cardSoft]}>Noch keine Services</Text>
+      ) : open ? (
+        <RichText value={services} style={styles.cardInk} />
       ) : null}
-
-      {/* AGB eingeklappt, sie sind meist lang (Daria, 2026-11-11). Nicht öffentliche Schaufenster brauchen weder AGB
-          noch Impressum: Dort stehen sie nur, wenn sie ausgefüllt sind (Daria, 2026-11-14). */}
-      {s.terms ? (
-        <CollapsibleSection label="AGB" collapsible>
-          <RichText value={s.terms} />
-        </CollapsibleSection>
-      ) : s.visibility === 'public' && access.team ? (
-        <SectionBlock label="AGB">
-          <PlaceholderText>AGB noch nicht hinterlegt</PlaceholderText>
-        </SectionBlock>
+      {services && collapsed ? (
+        <View style={styles.cardActions}>
+          <HandButton label={open ? 'Weniger anzeigen' : 'Services anzeigen'} onPress={() => setOpen((o) => !o)} />
+        </View>
       ) : null}
-
-      {s.imprint || (s.visibility === 'public' && access.team) ? (
-        <SectionBlock label="Impressum">
-          {s.imprint ? (
-            <Text noTranslate style={styles.meta}>
-              {s.imprint}
-            </Text>
-          ) : (
-            <PlaceholderText>Impressum noch nicht hinterlegt</PlaceholderText>
-          )}
-        </SectionBlock>
-      ) : null}
-
-      {manage.length ? <ManageButton items={manage} style={styles.manageBottom} /> : null}
-      </View>
-    </SubScreen>
+    </View>
   );
 }
 
 function PostCard({ post: p, onPress }: { post: ShowcasePost; onPress: () => void }) {
   const kind = p.type === 'before_after' ? t('Us-Challenge') : p.type === 'individual' ? t('We-Challenge') : t('Post');
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
+    <Pressable onPress={onPress} accessibilityRole="button" style={({ pressed }) => [styles.post, pressed && styles.pressed]}>
       {p.image ? <Image source={p.image} style={styles.image} contentFit="cover" /> : null}
       <View style={styles.cardBody}>
         <Text style={styles.kicker}>{kind}</Text>
@@ -323,55 +465,88 @@ function PostCard({ post: p, onPress }: { post: ShowcasePost; onPress: () => voi
   );
 }
 
-/** So weit ragt das Logo ins Titelbild */
-const COVER_OVERLAP = space[32] + space[8];
+
+const ink = color.showcaseCards.ink;
 
 const styles = StyleSheet.create({
   // Mehr Luft zwischen den Abschnitten (Daria, 2026-11-11)
   page: { gap: space[32] },
-  head: {
-    gap: space[12],
-    padding: space[12],
-    paddingBottom: space[20],
-    borderRadius: radius.md,
-    backgroundColor: color.showcaseHead.bg,
-  },
+  // Kopf ohne Kasten wie auf der Webseite (Daria, 2026-11-17)
+  head: { gap: space[12] },
   manageBottom: { alignSelf: 'center' },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.md },
-  // Nur das Logo ragt ins Titelbild, der Name steht darunter und läuft nie übers Foto (Daria, 2026-11-13)
-  logo: { marginTop: -COVER_OVERLAP - space[12], marginLeft: space[12], borderWidth: 4, borderColor: color.showcaseHead.bg },
-  // Name in der App-Schrift für große Überschriften (Kiez: Unbounded), nicht in Inter (Daria, 2026-11-10)
-  nameBlock: { gap: space[2], paddingHorizontal: space[8] },
-  name: { ...text.display, color: color.showcaseHead.ink },
-  kiez: { ...text.bodySm, color: color.showcaseHead.inkSoft },
-  about: { ...text.body, color: color.showcaseHead.ink, paddingHorizontal: space[8] },
-  aboutEmpty: { ...text.body, color: color.showcaseHead.inkSoft, fontStyle: 'italic', paddingHorizontal: space[8] },
-  follow: {
+  // Logo rechtsbündig im Ausschnitt des Titelbilds wie im Web (Daria, 2026-11-17)
+  logo: {
+    position: 'absolute',
+    right: space[12],
+    bottom: -LOGO / 2,
+    borderWidth: 6,
+    borderColor: color.bg.screen,
+  },
+  // Rechts Platz fürs Logo, der Name läuft nie darunter
+  nameBlock: { gap: space[2], paddingRight: LOGO + space[12] },
+  name: { ...text.display, color: color.text.primary },
+  kiez: { ...text.bodySm, color: color.text.secondary },
+  about: { ...text.body, color: color.text.primary },
+  aboutEmpty: { ...text.body, color: color.text.secondary, fontStyle: 'italic' },
+  pills: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8], marginTop: space[4] },
+  pill: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-start',
     gap: space[6],
-    marginHorizontal: space[8],
-    marginTop: space[4],
-    paddingVertical: space[8],
+    minHeight: 40,
     paddingHorizontal: space[16],
     borderRadius: radius.full,
-    backgroundColor: color.showcaseHead.ink,
   },
-  followText: { ...text.label, color: color.showcaseHead.bg },
-  // Angaben und Services auf einer dunklen Karte, ohne weitere Kartenfarben (Daria, 2026-11-17)
-  info: { gap: space[8], padding: space[16], borderRadius: radius.md, backgroundColor: color.bg.surface },
-  box: { padding: space[16], borderRadius: radius.md, backgroundColor: color.bg.surface },
-  infoGroup: { gap: space[8] },
-  // Text bündig mit der Karte darüber
-  linkField: { paddingLeft: space[16] },
-  infoTitle: { ...text.displaySm, color: color.text.primary, marginBottom: space[4] },
+  pillFilled: { backgroundColor: color.showcaseCards.event },
+  pillOutline: { borderWidth: 1.5, borderColor: color.text.secondary },
+  pillText: { ...text.label, color: color.text.primary },
+  pillTextFilled: { color: ink },
   buttons: { gap: space[8] },
+  // Kartenreihen wie im Kalender: über die Seitenränder hinaus wischbar
+  rowScroll: { marginHorizontal: -space[16] },
+  row: { paddingHorizontal: space[16], paddingVertical: space[6], gap: space[12], alignItems: 'stretch' },
+  slot: { flexDirection: 'column' },
+  card: { gap: space[8], padding: space[16], borderRadius: radius.md },
+  infoCard: { flex: 1 },
+  cardHead: { flexDirection: 'row', gap: space[12], alignItems: 'flex-start' },
+  flex: { flex: 1, gap: space[4] },
+  cardIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+  },
+  cardKicker: { ...text.captionStrong, color: color.showcaseCards.inkSoft },
+  cardTitle: { ...text.cardTitle, color: ink },
+  cardInk: { ...text.body, color: ink },
+  cardSoft: { color: color.showcaseCards.inkSoft, fontStyle: 'italic' },
+  cardLink: { textDecorationLine: 'underline' },
+  cardActions: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8], marginTop: 'auto', paddingTop: space[8] },
+  // Feed auf Grau bis an den Rand, wie die anderen Feeds (Daria, 2026-11-17)
+  band: {
+    gap: space[24],
+    marginHorizontal: -space[16],
+    marginBottom: -space[24],
+    paddingHorizontal: space[16],
+    paddingTop: space[24],
+    paddingBottom: space[48],
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    backgroundColor: color.showcaseCards.band,
+  },
   // Deutlich Abstand zwischen den Karten (Daria, 2026-11-10)
   list: { gap: space[32] },
   meta: { ...text.caption, color: color.text.secondary },
+  footRow: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.text.secondary },
+  footHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 48 },
+  footLabel: { ...text.body, color: color.text.primary },
+  footBody: { paddingBottom: space[16] },
+  linkField: { marginTop: space[16] },
   // Wenig Rundung wie die Posts im Feed (Daria, 2026-11-10)
-  card: { borderRadius: radius.post, backgroundColor: color.bg.surface, overflow: 'hidden' },
+  post: { borderRadius: radius.post, backgroundColor: color.showcaseCards.post, overflow: 'hidden' },
   pressed: { opacity: 0.7 },
   image: { width: '100%', aspectRatio: 4 / 3 },
   cardBody: { gap: space[4], padding: space[16] },

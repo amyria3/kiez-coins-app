@@ -5,6 +5,7 @@ import { Image } from 'expo-image';
 import { Button } from './Button';
 import { Icon } from './icons/Icon';
 import { Text } from './T';
+import { HandButton } from './routine/cards';
 import { addToMyCalendar } from '../data/calendar';
 import {
   asSingleEvent,
@@ -29,8 +30,14 @@ export function ShowcaseEventCard({
   showcase,
   team = false,
   onChanged,
+  compact = false,
 }: {
   event: ShowcaseEvent;
+  /**
+   * Karte in der Reihe „Termine“ im Schaufenster (Daria, 2026-11-17): Leuchtgelb mit Schrift in Tinte, Datum als Pille,
+   * Knöpfe mit handgezeichnetem Rand wie in Routine.
+   */
+  compact?: boolean;
   /** Name des Schaufensters, z. B. in Routine */
   showcase?: string;
   team?: boolean;
@@ -88,6 +95,67 @@ export function ShowcaseEventCard({
       { text: t('Abbrechen'), style: 'cancel' },
       { text: t('Absagen'), style: 'destructive', onPress: () => cancelEvent(e.id).then((ok) => ok && onChanged?.()) },
     ]);
+
+  if (compact) {
+    const ink = color.showcaseCards.ink;
+    return (
+      <View style={[styles.compact, e.cancelled && styles.compactCancelled]}>
+        {e.image ? <Image source={e.image} style={styles.compactImage} contentFit="cover" /> : null}
+        <View style={styles.compactBody}>
+          <View style={styles.datePill}>
+            <Text style={styles.dateText}>{e.cancelled ? t('Abgesagt') : when}</Text>
+          </View>
+          <Text noTranslate style={[styles.compactTitle, e.cancelled && styles.struck]} numberOfLines={3}>
+            {e.title}
+          </Text>
+          {e.location ? (
+            <Text noTranslate selectable style={styles.compactSub}>
+              {e.location}
+            </Text>
+          ) : null}
+          {e.body ? (
+            <Text noTranslate style={styles.compactText} numberOfLines={4}>
+              {e.body}
+            </Text>
+          ) : null}
+          {team && count !== null ? (
+            <Text style={styles.compactSub}>
+              {count === 1 ? t('1 Mensch hat den Termin gespeichert.') : t('{n} Menschen haben den Termin gespeichert.', { n: count })}
+            </Text>
+          ) : null}
+          <View style={styles.compactActions}>
+            {!e.cancelled && !past ? (
+              <HandButton label={saved ? 'Gemerkt' : 'Merken'} filled bg={color.showcaseCards.event} disabled={busy} onPress={toggle} />
+            ) : null}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ selected: liked, disabled: e.cancelled }}
+              accessibilityLabel={likes ? t('Gefällt mir, {likeCount} Likes', { likeCount: likes }) : t('Gefällt mir')}
+              disabled={e.cancelled}
+              onPress={like}
+              hitSlop={8}
+              style={({ pressed }) => [styles.like, pressed && styles.pressed]}
+            >
+              <Icon name="heart" size={size.icon} color={liked ? color.accent.affection : ink} />
+              {likes > 0 ? <Text style={[styles.likeCount, { color: ink }]}>{likes}</Text> : null}
+            </Pressable>
+          </View>
+          {!e.cancelled && !past ? (
+            <View style={styles.compactLinks}>
+              <Pressable onPress={toCalendar} hitSlop={6} accessibilityRole="button">
+                <Text style={styles.compactLink}>In meine anderen Kalender</Text>
+              </Pressable>
+              {team ? (
+                <Pressable onPress={cancel} hitSlop={6} accessibilityRole="button">
+                  <Text style={styles.compactLink}>Termin absagen</Text>
+                </Pressable>
+              ) : null}
+            </View>
+          ) : null}
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.card}>
@@ -159,4 +227,16 @@ const styles = StyleSheet.create({
   actions: { gap: space[8], paddingHorizontal: space[16], paddingBottom: space[16] },
   cancel: { alignSelf: 'center', paddingVertical: space[4] },
   cancelText: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },
+  compact: { flex: 1, borderRadius: radius.md, backgroundColor: color.showcaseCards.event, overflow: 'hidden' },
+  compactCancelled: { opacity: 0.7 },
+  compactImage: { width: '100%', aspectRatio: 16 / 9 },
+  compactBody: { gap: space[6], padding: space[16] },
+  datePill: { alignSelf: 'flex-start', borderRadius: radius.full, backgroundColor: color.showcaseCards.ink, paddingVertical: 3, paddingHorizontal: space[8] + 2 },
+  dateText: { ...text.captionStrong, color: color.showcaseCards.event },
+  compactTitle: { ...text.cardTitle, color: color.showcaseCards.ink },
+  compactSub: { ...text.bodySm, color: color.showcaseCards.inkSoft },
+  compactText: { ...text.bodySm, color: color.showcaseCards.ink },
+  compactActions: { flexDirection: 'row', alignItems: 'center', gap: space[16], marginTop: space[6] },
+  compactLinks: { flexDirection: 'row', gap: space[16], marginTop: space[2] },
+  compactLink: { ...text.caption, color: color.showcaseCards.inkSoft, textDecorationLine: 'underline' },
 });
