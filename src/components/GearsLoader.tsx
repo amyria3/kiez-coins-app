@@ -18,6 +18,7 @@ export function GearsLoader({
   size = 96,
   // Große Räder wie die Icons in #EEE0C9 (Daria, 2026-11-05: „falsches Weiß“)
   tint = color.icon.large,
+  tints,
   only,
   exit,
   exitDistance = 600,
@@ -26,6 +27,8 @@ export function GearsLoader({
   /** Breite in pt */
   size?: number;
   tint?: string;
+  /** Eigene Farbe für einzelne Räder (Index in gearsSvgs → Farbe), die übrigen in `tint` */
+  tints?: Record<number, string>;
   /** Nur diese Räder (Indizes in gearsSvgs), zugeschnitten auf ihren Umriss */
   only?: number[];
   /**
@@ -48,7 +51,8 @@ export function GearsLoader({
     return () => loop.stop();
   }, [progress]);
 
-  const shown = only ? gears.filter((_, i) => only.includes(i)) : gears;
+  const indices = only ?? gears.map((_, i) => i);
+  const shown = indices.map((i) => gears[i]);
   const box = only
     ? {
         x: Math.min(...shown.map((g) => g.x)),
@@ -73,7 +77,7 @@ export function GearsLoader({
               transform: [{ rotate: progress.interpolate({ inputRange: [0, 1], outputRange: ['0deg', `${g.turnDeg}deg`] }) }],
             }}
           >
-            <SvgXml xml={g.svg(tint)} width={g.w * scale} height={g.h * scale} />
+            <SvgXml xml={g.svg(tints?.[indices[i]] ?? tint)} width={g.w * scale} height={g.h * scale} />
           </Animated.View>
         );
         const place = { position: 'absolute' as const, left: (g.x - box.x) * scale, top: (g.y - box.y) * scale };
@@ -115,7 +119,7 @@ export function LoadingScreen({ label }: { label?: string }) {
   return (
     <View style={styles.screen}>
       {/* Beim Start deutlich größer (Daria, 22.10.2026) */}
-      <GearsLoader size={200} />
+      <GearsLoader size={200} tints={color.icon.startGears} />
       {label ? <Text style={styles.label}>{label}</Text> : null}
     </View>
   );
