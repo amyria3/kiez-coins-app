@@ -37,6 +37,10 @@ Ohne Handy geht es auch im Browser: `npx expo start --web`.
 
 Die Download-Seite mit Passwort liegt in `website/` und entsteht mit `node scripts/build-download-site.mjs`. Ablauf und Einrichtung stehen im privaten Repo Documentation unter `kiez-coins/app/Stand_App.md`, Abschnitt „Website kiezcoins.de“.
 
+## Web-App app.kiezcoins.de
+
+Vercel baut die Web-App (`web-app/vercel.json`) nur bei Pushes auf `main` und nur, wenn sich die App seit dem letzten erfolgreichen Deploy geändert hat (`scripts/web-app-bauen.sh`). Scheitert ein Deploy am Tageslimit des kostenlosen Plans, holt der nächste Push auf `main` ihn nach, auch ein reiner Doku-Commit.
+
 ## Doku und To-dos
 
 Doku, To-do-Liste und offene Aufgaben liegen im privaten Repo Documentation (`kiez-coins/app/TODO.md`, `kiez-coins/offen/`), nicht in diesem Repo. Darias Quelldateien (Abzeichen, Kater) liegen in `design/`.
