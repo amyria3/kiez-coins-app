@@ -1,13 +1,9 @@
-import { BlockedList } from '../../components/BlockedList';
-import { SubScreen } from '../../components/Screen';
-import { useGoBack } from '../../lib/goBack';
+import { Redirect } from 'expo-router';
 
-/** Route `account/blocked` (Push aus „Dein Konto“): blockierte Personen, Blockierung aufheben. Auch als Reiter „Gesperrt“ in den Kontakten. */
+/**
+ * Route `account/blocked`: Blockierte Personen stehen seit 2026-11-17 im Reiter „Gesperrt“ der Kontakte
+ * (components/BlockedList). Die Route bleibt für alte Links und leitet dorthin.
+ */
 export default function BlockedUsers() {
-  const goBack = useGoBack();
-  return (
-    <SubScreen title="Blockierte Personen" navigation="back" onLeadingPress={goBack}>
-      <BlockedList />
-    </SubScreen>
-  );
+  return <Redirect href={{ pathname: '/account/friends', params: { reiter: 'gesperrt' } }} />;
 }

@@ -34,8 +34,8 @@ export function ShowcaseEventCard({
 }: {
   event: ShowcaseEvent;
   /**
-   * Karte in der Reihe „Termine“ im Schaufenster (Daria, 2026-11-17): Leuchtgelb mit Schrift in Tinte, Datum als Pille,
-   * Knöpfe mit handgezeichnetem Rand wie in Routine.
+   * Karte in der Reihe „Termine“ im Schaufenster (Daria, 2026-11-17): Papier mit Schrift in Tinte, Datum wie mit
+   * Textmarker hervorgehoben, Knöpfe mit handgezeichnetem Rand wie in Routine.
    */
   compact?: boolean;
   /** Name des Schaufensters, z. B. in Routine */
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   actions: { gap: space[8], paddingHorizontal: space[16], paddingBottom: space[16] },
   cancel: { alignSelf: 'center', paddingVertical: space[4] },
   cancelText: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },
-  compact: { flex: 1, borderRadius: radius.md, backgroundColor: color.showcaseCards.eventCard, overflow: 'hidden' },
+  compact: { flex: 1, borderRadius: radius.md, backgroundColor: color.showcaseCards.card, overflow: 'hidden' },
   compactCancelled: { opacity: 0.7 },
   compactImage: { width: '100%', aspectRatio: 16 / 9 },
   // Mehr Luft und etwas größere Schrift (Daria, 2026-11-17)

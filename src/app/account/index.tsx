@@ -81,7 +81,7 @@ export default function Account() {
         onPress={() => router.push('/account/profile')}
       />
       {/* Reihenfolge und Namen (Daria, 30.10.2026): Me, Meine Gruppen, Meine Posts (2026-11-02), Meine Features,
-          Meine Freundschaften, Sprache, Look, danach der Rest */}
+          Meine Kontakte (vorher Meine Freundschaften, 2026-11-17), Sprache, Look, danach der Rest */}
       <NavCard
         title="Me"
         description="Geschafft, Ziele und Gruppen"

@@ -44,7 +44,7 @@ export function ShowcaseCover({ image, style }: { image?: ImageSource; style: St
 }
 
 /** Logo oder, ohne Logo, der schwarze Kreis mit dem Kater */
-/** `tone`: Kreis und Kater in eigenen Farben, z. B. lila mit Leuchtgelb im Kopf des Schaufensters */
+/** `tone`: Kreis und Kater in eigenen Farben, z. B. Signalfarbe mit Kater in Tinte im Kopf des Schaufensters */
 export function ShowcaseLogo({
   image,
   size,

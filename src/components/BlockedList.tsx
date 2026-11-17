@@ -13,8 +13,7 @@ import { QuestionHint } from './Content';
 import { Text } from './T';
 
 /**
- * Blockierte Personen mit „Blockierung aufheben“. Auf der Seite `account/blocked` und im Reiter „Gesperrt“ der
- * Kontakte (Daria, 2026-11-17).
+ * Blockierte Personen mit „Blockierung aufheben“, im Reiter „Gesperrt“ der Kontakte (Daria, 2026-11-17).
  */
 export function BlockedList() {
   const { mode, blockedIds, users, unblock } = useStore();

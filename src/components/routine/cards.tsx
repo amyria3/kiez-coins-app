@@ -668,7 +668,6 @@ export function HandButton({
   onPress,
   filled,
   bg,
-  fill,
   tone,
   icon,
   disabled,
@@ -677,8 +676,6 @@ export function HandButton({
   onPress: () => void;
   filled?: boolean;
   bg?: string;
-  /** Fläche in dieser Farbe, Schrift in Tinte, z. B. Türkis für „Merken“ im Schaufenster (Daria, 2026-11-17) */
-  fill?: string;
   /** Rand und Schrift ohne Füllung in dieser Farbe statt Tinte (zweitrangige Knöpfe im Schaufenster) */
   tone?: string;
   /** Icon vor dem Text, z. B. Haken bei „Gemerkt“ (Daria, 2026-11-17) */
@@ -686,7 +683,6 @@ export function HandButton({
   disabled?: boolean;
 }) {
   const label = useTexts()(original);
-  const solid = filled || !!fill;
   const [box, setBox] = useState<{ w: number; h: number } | null>(null);
   const onLayout = (e: LayoutChangeEvent) => {
     const { width: w, height: h } = e.nativeEvent.layout;
@@ -700,21 +696,21 @@ export function HandButton({
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled }}
-      style={({ pressed }) => [styles.hand, solid && styles.handFilled, (pressed || disabled) && styles.pressed]}
+      style={({ pressed }) => [styles.hand, filled && styles.handFilled, (pressed || disabled) && styles.pressed]}
     >
       {box ? (
         <Svg width={box.w} height={box.h} style={StyleSheet.absoluteFill} pointerEvents="none">
           <Path
-            d={handShapePath(box.w, box.h, solid ? 0 : 1)}
-            fill={fill ?? (filled ? INK : 'none')}
-            stroke={solid ? undefined : (tone ?? INK)}
-            strokeWidth={solid ? 0 : 1.4}
+            d={handShapePath(box.w, box.h, filled ? 0 : 1)}
+            fill={filled ? INK : 'none'}
+            stroke={filled ? undefined : (tone ?? INK)}
+            strokeWidth={filled ? 0 : 1.4}
           />
         </Svg>
       ) : null}
       <View style={styles.handRow}>
-        {icon ? <Icon name={icon} size={14} color={filled && !fill ? bg : solid ? INK : (tone ?? INK)} /> : null}
-        <Text noTranslate style={[styles.handLabel, { color: filled && !fill ? bg : solid ? INK : (tone ?? INK) }]}>
+        {icon ? <Icon name={icon} size={14} color={filled ? bg : (tone ?? INK)} /> : null}
+        <Text noTranslate style={[styles.handLabel, { color: filled ? bg : (tone ?? INK) }]}>
           {label}
         </Text>
       </View>

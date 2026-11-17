@@ -158,7 +158,7 @@ export default function ShowcaseScreen() {
         <View style={styles.head}>
           <View>
             <ShowcaseCover image={s.cover} style={styles.cover} />
-            <ShowcaseLogo image={s.logo} size={LOGO} style={styles.logo} tone={{ circle: color.showcaseHead.logo, mask: color.showcaseHead.ink }} />
+            <ShowcaseLogo image={s.logo} size={LOGO} style={styles.logo} tone={{ circle: color.showcaseCards.event, mask: color.showcaseCards.ink }} />
           </View>
           <View style={styles.nameBlock}>
             <Text noTranslate style={styles.name}>
@@ -306,7 +306,6 @@ const LOGO = 80;
 
 type InfoCardData = {
   id: string;
-  bg: string;
   kicker: string;
   title: string;
   body?: string;
@@ -319,15 +318,14 @@ type InfoCardData = {
 /** Karten für „Gut zu wissen“: Ort, Öffnungszeiten, Links. Leere sieht nur das Team als Platzhalter. */
 function infoCards(s: Showcase, team: boolean): InfoCardData[] {
   const cards: InfoCardData[] = [];
-  const pc = color.showcaseCards;
   if (s.address) {
     const [first, ...rest] = s.address.split(',');
-    cards.push({ id: 'ort', bg: pc.place, kicker: 'Ort', title: first.trim(), body: rest.join(',').trim() || undefined, icon: 'map-pin', address: s.address });
-  } else if (team) cards.push({ id: 'ort', bg: pc.place, kicker: 'Ort', title: 'Noch keine Adresse', icon: 'map-pin', placeholder: true });
-  if (s.openingHours) cards.push({ id: 'zeit', bg: pc.hours, kicker: 'Öffnungszeiten', title: s.openingHours, icon: 'clock-filled' });
-  else if (team) cards.push({ id: 'zeit', bg: pc.hours, kicker: 'Öffnungszeiten', title: 'Noch keine Öffnungszeiten', icon: 'clock-filled', placeholder: true });
-  if (s.links.length) cards.push({ id: 'links', bg: pc.links, kicker: s.links.length === 1 ? 'Link' : 'Links', title: '', icon: 'link', links: s.links });
-  else if (team) cards.push({ id: 'links', bg: pc.links, kicker: 'Links', title: 'Noch keine Links', icon: 'link', placeholder: true });
+    cards.push({ id: 'ort', kicker: 'Ort', title: first.trim(), body: rest.join(',').trim() || undefined, icon: 'map-pin', address: s.address });
+  } else if (team) cards.push({ id: 'ort', kicker: 'Ort', title: 'Noch keine Adresse', icon: 'map-pin', placeholder: true });
+  if (s.openingHours) cards.push({ id: 'zeit', kicker: 'Öffnungszeiten', title: s.openingHours, icon: 'clock-filled' });
+  else if (team) cards.push({ id: 'zeit', kicker: 'Öffnungszeiten', title: 'Noch keine Öffnungszeiten', icon: 'clock-filled', placeholder: true });
+  if (s.links.length) cards.push({ id: 'links', kicker: s.links.length === 1 ? 'Link' : 'Links', title: '', icon: 'link', links: s.links });
+  else if (team) cards.push({ id: 'links', kicker: 'Links', title: 'Noch keine Links', icon: 'link', placeholder: true });
   return cards;
 }
 
@@ -380,9 +378,9 @@ function CardRow({ title, count, children }: { title: string; count: number; chi
   );
 }
 
-function InfoCard({ bg, kicker, title, body, icon, placeholder, address, links, name }: InfoCardData & { name: string }) {
+function InfoCard({ kicker, title, body, icon, placeholder, address, links, name }: InfoCardData & { name: string }) {
   return (
-    <View style={[styles.card, { backgroundColor: bg }]}>
+    <View style={styles.card}>
       <View style={styles.cardHead}>
         <View style={styles.flex}>
           <Text style={styles.cardKicker}>{kicker}</Text>
@@ -462,7 +460,7 @@ function linkParts(link: string): { label: string; sub: string } {
 }
 
 /**
- * Runde Knöpfe im Kopf: gefüllt in Türkis oder mit hellem Rand. Mit `name` steht im Text `{name}`; nur der Name wird
+ * Runde Knöpfe im Kopf: gefüllt in der Signalfarbe oder mit Rand in der Signalfarbe. Mit `name` steht im Text `{name}`; nur der Name wird
  * gekürzt, der Rest des Satzes bleibt in jeder Sprache stehen.
  */
 function Pill({
@@ -527,9 +525,8 @@ function FootRow({ label, children }: { label: string; children: ReactNode }) {
 /** Services auf einer eigenen Karte; eingeklappt, wenn die Gründer:in das so eingestellt hat */
 function ServicesCard({ services, collapsed }: { services?: string; collapsed: boolean }) {
   const [open, setOpen] = useState(!collapsed);
-  const bg = color.showcaseCards.services;
   return (
-    <View style={[styles.card, { backgroundColor: bg }]}>
+    <View style={styles.card}>
       {!services ? (
         <Text style={[styles.cardInk, styles.cardSoft]}>Noch keine Services</Text>
       ) : open ? (
@@ -606,7 +603,7 @@ const styles = StyleSheet.create({
   },
   pillFilled: { backgroundColor: color.showcaseCards.event, maxWidth: '100%' },
   pillName: { flexShrink: 1 },
-  // Zweitrangig: Rand und Schrift in Türkis (Daria, 2026-11-17)
+  // Zweitrangig: Rand und Schrift in der Signalfarbe (Daria, 2026-11-17)
   pillOutline: { borderWidth: 1.5, borderColor: color.showcaseCards.secondaryOnDark },
   pillText: { ...text.label, color: color.showcaseCards.secondaryOnDark },
   pillTextFilled: { color: ink },
@@ -616,7 +613,7 @@ const styles = StyleSheet.create({
   // Höhe nach Inhalt wie die Karten in Routine (Daria, 2026-11-17)
   row: { paddingHorizontal: space[16], paddingVertical: space[6], gap: space[12], alignItems: 'flex-start' },
   slot: { flexDirection: 'column' },
-  card: { gap: space[12], padding: space[20], borderRadius: radius.md },
+  card: { gap: space[12], padding: space[20], borderRadius: radius.md, backgroundColor: color.showcaseCards.card },
   cardHead: { flexDirection: 'row', gap: space[12], alignItems: 'flex-start' },
   flex: { flex: 1, gap: space[4] },
   // Icon ohne Kreis: Ein farbiger Kreis wirkte wie ein Knopf (Daria, 2026-11-17)

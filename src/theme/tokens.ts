@@ -242,17 +242,14 @@ export const color = {
     circle: swatch.schwarz,
   },
   /**
-   * Karten im Schaufenster (Daria, 2026-11-17): Gefühl wie im Kalender. Eine neutrale Kartenfarbe, Türkis als einziger
+   * Karten im Schaufenster (Daria, 2026-11-17): Gefühl wie im Kalender. Eine neutrale Kartenfarbe, die Signalfarbe (Gelbgrün) als einziger
    * Akzent, sparsam (Folgen, Merken, Datum). Schrift in Tinte.
    */
   showcaseCards: {
-    place: swatch.papier,
-    hours: swatch.papier,
-    links: swatch.papier,
-    services: swatch.papier,
+    /** Infokarten, Services und Termine: eine Kartenfarbe (Daria, 2026-11-17) */
+    card: swatch.papier,
     /** Signal: Folgen, Merken, Datum. Gelbgrün seit dem Tausch mit dem System (Daria, 2026-11-17) */
     event: swatch.gelbgruen,
-    eventCard: swatch.papier,
     /**
      * Zweitrangige Knöpfe: Rand und Schrift auf dem dunklen Grund in der Signalfarbe, auf den hellen Karten in Tinte.
      * Keine schwarz gefüllten Knöpfe auf den Karten (Daria, 2026-11-17).
@@ -264,22 +261,13 @@ export const color = {
      * in Tinte (Daria, 2026-11-17). Leuchtgelb zu 60 % auf Papier; das helle Gelbgrün allein wäre auf Papier unsichtbar.
      */
     highlight: '#E8F897',
-    /** Unterstreichung in der Signalfarbe zu 70 % (Daria, 2026-11-17), auf Karten in Oliv dunkel */
-    underlineOnDark: withAlpha(swatch.gelbgruen, 0.7),
+    /** Unterstreichung auf den Karten: Oliv dunkel zu 70 %, im Ton der Signalfarbe (Daria, 2026-11-17) */
     underlineOnCard: withAlpha(swatch.olivDunkel, 0.7),
     ink: swatch.tinte,
     inkSoft: withAlpha(swatch.tinte, 0.68),
     /** Grauer Grund unter „Neu im Schaufenster“, wie die Kartenfarbe der Feeds; Posts darauf etwas heller */
     band: palette.graphite,
     post: 'rgba(255, 240, 225, 0.06)',
-  },
-  /** Kopf des Schaufensters (Daria, 2026-11-17): große Farbfläche, Schrift darauf in Tinte */
-  showcaseHead: {
-    bg: swatch.gelbgruen,
-    ink: swatch.tinte,
-    inkSoft: withAlpha(swatch.tinte, 0.7),
-    /** Platzhalter-Logo: Kreis in der Signalfarbe, Kater in Tinte (Daria, 2026-11-17) */
-    logo: swatch.gelbgruen,
   },
   /** An/Aus-Schalter im Kiez-Look */
   toggle: {
