@@ -432,7 +432,7 @@ function InfoCard({ bg, kicker, title, body, icon, placeholder, address, links, 
       {address ? (
         <View style={styles.cardActions}>
           <HandButton label="In Karten öffnen" filled bg={bg} onPress={() => openInMaps(address)} />
-          <HandButton label="Ort teilen" onPress={() => sharePlace(address, name)} />
+          <HandButton label="Ort teilen" tone={color.showcaseCards.secondaryOnCard} onPress={() => sharePlace(address, name)} />
         </View>
       ) : null}
     </View>
@@ -536,7 +536,11 @@ function ServicesCard({ services, collapsed }: { services?: string; collapsed: b
       ) : null}
       {services && collapsed ? (
         <View style={styles.cardActions}>
-          <HandButton label={open ? 'Weniger anzeigen' : 'Services anzeigen'} onPress={() => setOpen((o) => !o)} />
+          <HandButton
+            label={open ? 'Weniger anzeigen' : 'Services anzeigen'}
+            tone={color.showcaseCards.secondaryOnCard}
+            onPress={() => setOpen((o) => !o)}
+          />
         </View>
       ) : null}
     </View>
@@ -601,8 +605,9 @@ const styles = StyleSheet.create({
   },
   pillFilled: { backgroundColor: color.showcaseCards.event, maxWidth: '100%' },
   pillName: { flexShrink: 1 },
-  pillOutline: { borderWidth: 1.5, borderColor: color.text.secondary },
-  pillText: { ...text.label, color: color.text.primary },
+  // Zweitrangig: Rand und Schrift in Türkis (Daria, 2026-11-17)
+  pillOutline: { borderWidth: 1.5, borderColor: color.showcaseCards.secondaryOnDark },
+  pillText: { ...text.label, color: color.showcaseCards.secondaryOnDark },
   pillTextFilled: { color: ink },
   buttons: { gap: space[8] },
   // Kartenreihen wie im Kalender: über die Seitenränder hinaus wischbar

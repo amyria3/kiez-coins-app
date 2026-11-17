@@ -126,7 +126,7 @@ export function ShowcaseEventCard({
           <View style={styles.compactActions}>
             {!e.cancelled && !past ? (
               // Türkis, solange man merken kann; gemerkt nur mit Rand (Daria, 2026-11-17: Best Practice, Akzent sparsam)
-              <HandButton label={saved ? 'Gemerkt' : 'Merken'} fill={saved ? undefined : color.showcaseCards.event} disabled={busy} onPress={toggle} />
+              <HandButton label={saved ? 'Gemerkt' : 'Merken'} fill={saved ? undefined : color.showcaseCards.event} tone={color.showcaseCards.secondaryOnCard} disabled={busy} onPress={toggle} />
             ) : null}
             <Pressable
               accessibilityRole="button"
@@ -240,5 +240,5 @@ const styles = StyleSheet.create({
   compactText: { ...text.bodyLarge, color: color.showcaseCards.ink },
   compactActions: { flexDirection: 'row', alignItems: 'center', gap: space[16], marginTop: space[6] },
   compactLinks: { flexDirection: 'row', gap: space[16], marginTop: space[2] },
-  compactLink: { ...text.caption, color: color.showcaseCards.inkSoft, textDecorationLine: 'underline' },
+  compactLink: { ...text.caption, color: color.showcaseCards.inkSoft, textDecorationLine: 'underline', textDecorationColor: color.showcaseCards.underlineOnCard },
 });

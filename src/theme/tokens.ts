@@ -51,8 +51,13 @@ const swatch = {
   /**
    * Türkis: Signalfarbe des Schaufensters (Folgen, Termine). Statt Leuchtgelb, das zu nah am Gelbgrün des Menüs
    * und an der Limette der Krabbe lag (Daria, 2026-11-17). Kein anderer Ton der App liegt in diesem Bereich.
+   * Etwas ruhiger als das erste Türkis #6FEEDD, weniger Neon auf dem dunklen Grund („ggf. im Ton anpassen“).
    */
-  tuerkis: '#6FEEDD',
+  tuerkis: '#56DCCB',
+  /** Türkis dunkel: Schrift und Rand auf hellen Karten, dort hätte Türkis nur 1,5 : 1 Kontrast (dieses 5,4 : 1) */
+  tuerkisDunkel: '#0B6E63',
+  /** Papier: neutrales Hellgrau-Beige für Karten auf dunklem Grund, wirkt weiß, blendet weniger als Weiß (Daria, 2026-11-17) */
+  papier: '#EFEEEA',
   /** Beige: große Icons, Leisten-Icons, papierweißer Knopf im Umschalter */
   beige: '#EEE0C9',
   /** Schneeweiß: aktives Nachrichten-Icon */
@@ -237,20 +242,26 @@ export const color = {
     circle: swatch.schwarz,
   },
   /**
-   * Karten im Schaufenster (Daria, 2026-11-17): Gefühl wie im Kalender, aber eigene Farben aus der Auswahl für die
-   * Schaufenster-Webseite (Lila hell, Pfirsich, Gelbgrün hell, Mint), Termine in Leuchtgelb. Schrift in Tinte.
+   * Karten im Schaufenster (Daria, 2026-11-17): Gefühl wie im Kalender. Eine neutrale Kartenfarbe, Türkis als einziger
+   * Akzent, sparsam (Folgen, Merken, Datum). Schrift in Tinte.
    */
   showcaseCards: {
-    // Eine Farbe statt fünf (Daria, 2026-11-17: „zu viele Farben“, „vielleicht einfach weiße Karten“):
-    // Infokarten weiß, Türkis nur für Folgen und Termine
-    place: swatch.schnee,
-    hours: swatch.schnee,
-    links: swatch.schnee,
-    services: swatch.schnee,
+    place: swatch.papier,
+    hours: swatch.papier,
+    links: swatch.papier,
+    services: swatch.papier,
     /** Signal: Folgen, Merken, Datum (Daria, 2026-11-17) */
     event: swatch.tuerkis,
-    /** Termin-Karten weiß wie die Infokarten; Türkis nur für Datum und „Merken“ (Daria, 2026-11-17) */
-    eventCard: swatch.schnee,
+    eventCard: swatch.papier,
+    /**
+     * Zweitrangige Knöpfe: Rand und Schrift in Türkis (Daria, 2026-11-17). Auf dem dunklen Grund Türkis, auf den
+     * hellen Karten Türkis dunkel, damit Schrift lesbar bleibt (WCAG AA).
+     */
+    secondaryOnDark: swatch.tuerkis,
+    secondaryOnCard: swatch.tuerkisDunkel,
+    /** Unterstreichung in Türkis zu 70 % (Daria, 2026-11-17), auf Karten in Türkis dunkel */
+    underlineOnDark: withAlpha(swatch.tuerkis, 0.7),
+    underlineOnCard: withAlpha(swatch.tuerkisDunkel, 0.7),
     ink: swatch.tinte,
     inkSoft: withAlpha(swatch.tinte, 0.68),
     /** Grauer Grund unter „Neu im Schaufenster“, wie die Kartenfarbe der Feeds; Posts darauf etwas heller */

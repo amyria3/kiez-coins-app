@@ -669,6 +669,7 @@ export function HandButton({
   filled,
   bg,
   fill,
+  tone,
   disabled,
 }: {
   label: string;
@@ -677,6 +678,8 @@ export function HandButton({
   bg?: string;
   /** Fläche in dieser Farbe, Schrift in Tinte, z. B. Türkis für „Merken“ im Schaufenster (Daria, 2026-11-17) */
   fill?: string;
+  /** Rand und Schrift ohne Füllung in dieser Farbe statt Tinte (zweitrangige Knöpfe im Schaufenster) */
+  tone?: string;
   disabled?: boolean;
 }) {
   const label = useTexts()(original);
@@ -701,12 +704,12 @@ export function HandButton({
           <Path
             d={handShapePath(box.w, box.h, solid ? 0 : 1)}
             fill={fill ?? (filled ? INK : 'none')}
-            stroke={solid ? undefined : INK}
+            stroke={solid ? undefined : (tone ?? INK)}
             strokeWidth={solid ? 0 : 1.4}
           />
         </Svg>
       ) : null}
-      <Text noTranslate style={[styles.handLabel, { color: filled && !fill ? bg : INK }]}>
+      <Text noTranslate style={[styles.handLabel, { color: filled && !fill ? bg : solid ? INK : (tone ?? INK) }]}>
         {label}
       </Text>
     </Pressable>
