@@ -15,6 +15,7 @@ import { useStore } from '../data/store';
 import { countButton } from '../data/remote';
 import { look } from '../theme/look';
 import { useRoutineEnabled } from '../data/routine';
+import { usePageLeave } from '../lib/pageSlide';
 
 /** `menu`: Dein Konto, dort ist der Burger markiert (Daria, 2026-11-11) */
 export type TabKey = 'feed' | 'reise' | 'chat' | 'menu';
@@ -52,6 +53,9 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
   const { mode, currentUserId } = useStore();
   const routineOn = useRoutineEnabled();
   const feedOn = active === 'feed' && !routineActive;
+  // Wechsel wie zwischen den Reitern im Feed: Seite gleitet hinaus, die neue kommt von ihrer Seite der Leiste (lib/pageSlide)
+  const leave = usePageLeave();
+  const awayFromFeed = active === 'chat' || active === 'menu';
   // Lila Pille im Feed wie üblich; in der Routine klein und ohne Fläche (Daria, 2026-11-12)
   const cameraPill = feedOn;
   // In „Me & Myself“ erstellt die Kamera einen privaten Post: Pille gelb statt lila (Daria, 2026-11-15)
@@ -78,7 +82,8 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
             accessibilityState={{ selected: routineActive }}
             onPress={() => {
               if (routineActive) return;
-              (onRoutinePress ?? (() => router.dismissTo({ pathname: '/feed', params: { reiter: 'routine' } })))();
+              if (onRoutinePress) onRoutinePress();
+              else leave(-1, () => router.dismissTo({ pathname: '/feed', params: { reiter: 'routine' } }));
             }}
             style={({ pressed }) => [styles.item, routineActive && styles.itemActive, pressed && styles.pressed]}
           >
@@ -107,7 +112,7 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
           accessibilityRole="tab"
           accessibilityLabel={t('Feed')}
           accessibilityState={{ selected: feedOn }}
-          onPress={onFeedPress}
+          onPress={() => (awayFromFeed ? leave(-1, onFeedPress) : onFeedPress())}
           style={({ pressed }) => [styles.item, feedOn && styles.itemActive, pressed && styles.pressed]}
         >
           <Icon name="feed" size={navSize(size.icon, feedOn)} color={feedOn ? color.nav.feed : color.nav.icon} />
@@ -117,7 +122,12 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
           accessibilityRole="tab"
           accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : requests ? t('Chats, neue Freundschaftsanfrage') : t('Chats')}
           accessibilityState={{ selected: active === 'chat' }}
-          onPress={() => active !== 'chat' && router.push('/chat')}
+          // Vom Konto aus liegt der Chat links, sonst rechts (Daria, 2026-11-17)
+          onPress={() => {
+            if (active === 'chat') return;
+            if (active === 'menu') leave(-1, () => router.dismissTo('/chat'));
+            else leave(1, () => router.push('/chat'));
+          }}
           style={({ pressed }) => [styles.item, active === 'chat' && styles.itemActive, pressed && styles.pressed]}
         >
           <View>
@@ -129,7 +139,7 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
           accessibilityRole="tab"
           accessibilityLabel={t('Menü')}
           accessibilityState={{ selected: active === 'menu' }}
-          onPress={() => active !== 'menu' && onMenuPress()}
+          onPress={() => active !== 'menu' && leave(1, onMenuPress)}
           style={({ pressed }) => [styles.item, active === 'menu' && styles.itemActive, pressed && styles.pressed]}
         >
           <Icon name="burger" size={navSize(NAV_ICON.burger, active === 'menu')} color={active === 'menu' ? color.nav.menu : color.nav.icon} />

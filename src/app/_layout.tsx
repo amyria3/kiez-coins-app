@@ -150,6 +150,9 @@ function RootStack() {
               und die Vorschau nicht wie ein Overlay wirkt, dessen Wischen mit den Gesten der Vorschau konkurriert */}
           {/* Routine liegt links neben den Reitern und kommt von links herein (Daria, 2026-11-10) */}
           <Stack.Screen name="routine/index" options={{ animation: 'slide_from_left' }} />
+          {/* Nachrichten und Konto bewegen sich selbst wie die Reiter im Feed (lib/pageSlide, Daria, 2026-11-17) */}
+          <Stack.Screen name="chat/index" options={{ animation: 'none' }} />
+          <Stack.Screen name="account/index" options={{ animation: 'none' }} />
           <Stack.Screen name="challenge/create" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
           {/* Browser: Der Feed bleibt unter der Detailseite sichtbar, damit Wischen nach rechts ihn zeigt (HeroScreen) */}
           <Stack.Screen

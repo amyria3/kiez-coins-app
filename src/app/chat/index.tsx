@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../../components/T';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,6 +15,7 @@ import { useStore } from '../../data/store';
 import type { User } from '../../data/types';
 import { color, font, radius, space, text } from '../../theme/tokens';
 import { t } from '../../data/texts';
+import { PageSlideProvider, usePageSlide } from '../../lib/pageSlide';
 
 /**
  * Route `chat` (Tab „Chats“, Sprechblase in der Tab-Leiste): Freundschaftsanfragen oben, darunter alle
@@ -76,11 +77,19 @@ export default function Chats() {
     }
   };
 
-  const toFeed = () => router.dismissTo('/feed');
+  // Feed in der Leiste: zum Standard-Reiter, nicht in die Routine, in der man vorher war (Daria, 2026-11-17: Bug
+  // „Nachrichten, dann Feed öffnet Kalender“)
+  const toFeed = () => router.dismissTo({ pathname: '/feed', params: { reiter: 'standard' } });
+  // Wischen wie zwischen den Reitern: rechts zum letzten Reiter im Feed, links zum Konto (lib/pageSlide)
+  const slide = usePageSlide({
+    prev: () => router.dismissTo({ pathname: '/feed', params: { reiter: 'letzter' } }),
+    next: () => router.push('/account'),
+  });
   const open = (friend: User) => router.push({ pathname: '/chat/[id]', params: { id: friend.id, name: friend.name } });
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
+      <Animated.View style={[styles.slide, slide.style]} {...slide.panHandlers}>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}>
         <Text style={styles.title} accessibilityRole="header">
           Chats
@@ -161,13 +170,17 @@ export default function Chats() {
         ) : null}
         <Button label="Freundschaften verwalten" variant="ghost" onPress={() => router.push('/account/friends')} />
       </ScrollView>
-      <TabBar active="chat" onFeedPress={toFeed} onMenuPress={() => router.push('/account')} />
+      </Animated.View>
+      <PageSlideProvider value={slide.leave}>
+        <TabBar active="chat" onFeedPress={toFeed} onMenuPress={() => router.push('/account')} />
+      </PageSlideProvider>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
+  slide: { flex: 1 },
   content: { paddingTop: space[24], paddingHorizontal: space[20], gap: space[16] },
   title: { ...text.display, color: color.text.primary },
   section: { gap: space[12] },

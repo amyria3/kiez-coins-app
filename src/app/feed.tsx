@@ -57,6 +57,7 @@ import { color, motion, space } from '../theme/tokens';
 import { cardSwipe, resetCardSwipe } from '../lib/cardSwipe';
 import { isTouching, touchEnded, touchStarted, whenUntouched } from '../lib/touching';
 import { useIntroDone } from '../lib/intro';
+import { PageSlideProvider, slideNext, takeSlide, type SlideDir } from '../lib/pageSlide';
 import { TAB_OF_PARAM, matchesTab, touchPoint, STORIES, HEADER_HIDE_MS, SEARCH_FADE_MS, PULL_SEARCH, CALENDAR_MS, PULL_HEADER, COMPOSE_HEADER, TAB_ORDER, ME_TABS, SWIPE_DISTANCE, EMPTY_KINDS, FeedItem } from '../components/feed/feedConstants';
 import { styles } from '../components/feed/feedStyles';
 
@@ -116,14 +117,23 @@ export default function FeedScreen() {
   }, [groupParam, router]);
   // Nach dem Posten (Daria, 07.11.2026): in den Reiter, in dem der neue Post steht, und nach oben
   useEffect(() => {
-    const target = tabParam ? TAB_OF_PARAM[tabParam] : undefined;
+    // `standard`: Feed in der Leiste einer anderen Seite (nicht in die Routine, Daria, 2026-11-17). `letzter`: von den
+    // Nachrichten nach rechts gewischt, dort liegt der letzte Reiter (lib/pageSlide)
+    const target =
+      tabParam === 'standard'
+        ? standardTab
+        : tabParam === 'letzter'
+          ? tabOrderRef.current[tabOrderRef.current.length - 1]
+          : tabParam
+            ? TAB_OF_PARAM[tabParam]
+            : undefined;
     if (!target) return;
     leaveRoutineRef.current();
     setTab(target);
     // Parameter leeren, damit derselbe Reiter beim nächsten Mal wieder greift (z. B. „Post erstellen“ im Schaufenster)
     router.setParams({ reiter: undefined, neu: undefined });
     requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: 0, animated: false }));
-  }, [tabParam, isNew, router]);
+  }, [tabParam, isNew, router, standardTab]);
   const [refreshing, setRefreshing] = useState(false);
   const listRef = useRef<FlatList<FeedItem>>(null);
   const feedViews = useFeedViews(mode === 'live', currentUserId);
@@ -641,6 +651,24 @@ export default function FeedScreen() {
       slideIn(dir);
     });
   }).current;
+  // Zu Nachrichten und Konto (Daria, 2026-11-17): Der Feed gleitet hinaus wie beim Reiterwechsel, die neue Seite
+  // federt selbst ein (lib/pageSlide). Zurück kommt der Feed von der Seite herein, auf der er liegt.
+  const awayRef = useRef(false);
+  const leavePage = useRef((dir: SlideDir, go: () => void) => {
+    awayRef.current = true;
+    slideNext(dir);
+    slideOut(dir, go);
+  }).current;
+  useFocusEffect(
+    useCallback(() => {
+      const dir = takeSlide();
+      if (dir) slideIn(dir);
+      else if (awayRef.current) swipeX.setValue(0);
+      awayRef.current = false;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
+  const toChatRef = useRef(() => leavePage(1, () => router.push('/chat')));
   // Routine: Der Knopf gleitet hinüber, der Feed gleitet nach rechts hinaus, die Routine kommt von links und federt ein.
   const openRoutine = useRef(() => {
     setRoutineActive(true);
@@ -696,11 +724,8 @@ export default function FeedScreen() {
           const order = tabOrderRef.current;
           const index = order.indexOf(tabRef.current);
           // In der Routine liegt rechts der erste Reiter, links nichts
-          const hasNext = routineShownRef.current
-            ? g.dx < 0
-            : g.dx < 0
-              ? index < order.length - 1
-              : index > 0 || routineLeftRef.current;
+          // Rechts vom letzten Reiter liegen die Nachrichten (Daria, 2026-11-17)
+          const hasNext = routineShownRef.current ? g.dx < 0 : g.dx < 0 ? true : index > 0 || routineLeftRef.current;
           swipeX.setValue(hasNext ? g.dx : g.dx * 0.25);
         },
         onPanResponderRelease: (_, g) => {
@@ -716,6 +741,11 @@ export default function FeedScreen() {
           if (next !== index && next >= 0 && next < order.length) {
             // Nach links gewischt: der rechte Nachbar kommt von rechts herein, und umgekehrt
             slideToTab(order[next], next > index ? 1 : -1);
+            return;
+          }
+          // Ganz rechts nach links gewischt: Nachrichten
+          if (next === order.length) {
+            toChatRef.current();
             return;
           }
           // Ganz links nach rechts gewischt: Routine öffnet sich
@@ -1212,7 +1242,7 @@ export default function FeedScreen() {
         ) : null}
       </View>
       </>
-      {composing ? null : <TabBar
+      {composing ? null : <PageSlideProvider value={leavePage}><TabBar
         active="feed"
         onFeedPress={() => {
           clearSearch();
@@ -1224,7 +1254,7 @@ export default function FeedScreen() {
         groupsActive={tab === 'groups'}
         routineActive={routineActive}
         onRoutinePress={openRoutine}
-      />}
+      /></PageSlideProvider>}
       <SurveyOverlay visible={surveyVisible} onClose={closeSurvey} />
     </View>
   );

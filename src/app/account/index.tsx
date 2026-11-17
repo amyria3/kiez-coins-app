@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { FieldGroup } from '../../components/Content';
@@ -20,6 +20,7 @@ import { MODES, useModes } from '../../data/features';
 import { useGoBack } from '../../lib/goBack';
 import { useShowcaseEnabled } from '../../data/showcase';
 import { installedVersionLabel } from '../../data/appRelease';
+import { PageSlideProvider, usePageSlide } from '../../lib/pageSlide';
 
 /** Route `account` (Push, aus dem Burger-Menü im Feed). Figma: `account`, `account--edit-*`. */
 export default function Account() {
@@ -51,6 +52,9 @@ export default function Account() {
 
   const payoutValue = me.payout?.iban ? 'IBAN hinterlegt' : me.payout?.paypal ? 'PayPal hinterlegt' : 'Nicht hinterlegt';
 
+  // Wischen nach rechts zu den Nachrichten, wie zwischen den Reitern im Feed (lib/pageSlide, Daria, 2026-11-17)
+  const slide = usePageSlide({ prev: () => router.dismissTo('/chat') });
+
   const toStart = async () => {
     await signOut();
     router.dismissAll();
@@ -63,8 +67,13 @@ export default function Account() {
       navigation="back"
       onLeadingPress={goBack}
       // Untere Leiste bleibt sichtbar, das Menü ist markiert (Daria, 2026-11-11)
-      tabBar={<TabBar active="menu" onFeedPress={() => router.dismissTo('/feed')} onMenuPress={() => {}} />}
+      tabBar={
+        <PageSlideProvider value={slide.leave}>
+          <TabBar active="menu" onFeedPress={() => router.dismissTo({ pathname: '/feed', params: { reiter: 'standard' } })} onMenuPress={() => {}} />
+        </PageSlideProvider>
+      }
     >
+      <Animated.View style={[styles.slide, slide.style]} {...slide.panHandlers}>
       <ProfileCard
         user={me}
         name={profile.handle || me.name}
@@ -198,12 +207,15 @@ export default function Account() {
           <NavRow label="Nutzungsbedingungen" value="Testphase" onPress={() => router.push('/legal/bedingungen')} />
         </View>
       </FieldGroup>
+      </Animated.View>
       <SurveyOverlay visible={survey} onClose={() => setSurvey(false)} />
     </SubScreen>
   );
 }
 
 const styles = StyleSheet.create({
+  // Derselbe Abstand wie im Inhalt von SubScreen, die Hülle für das Wischen nimmt ihn sonst weg
+  slide: { gap: space[16] },
   list: { gap: space[8] },
   // Kater ragt 2 pt über den Kreisrand hinaus, damit der Kreis seine Unterkante rund abschneidet
   catBleed: { marginBottom: -2 },
