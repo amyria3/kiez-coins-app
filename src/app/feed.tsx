@@ -795,6 +795,11 @@ export default function FeedScreen() {
   // oben und unten gleich (Daria, 2026-11-09).
   const emptyItem = items.find((i) => EMPTY_KINDS.has(i.kind));
   const listItems = emptyItem ? items.filter((i) => i !== emptyItem) : items;
+  // Gruppen-Kopf, „Aufgabe wartet“ (Daria, 2026-11-16): zu dieser Karte scrollen
+  const showPost = (id: string) => {
+    const index = listItems.findIndex((i) => i.kind === 'post' && i.challenge.id === id);
+    if (index >= 0) listRef.current?.scrollToIndex({ index, viewPosition: 0.15, animated: true });
+  };
 
   const renderItem = ({ item }: { item: FeedItem }) => {
     switch (item.kind) {
@@ -822,6 +827,13 @@ export default function FeedScreen() {
             onSelect={setGroupChoice}
             onOpen={(id) => router.push(`/groups/${id}`)}
             onCreate={() => router.push('/groups/new')}
+            summary={{
+              users,
+              challenges,
+              currentUserId,
+              onMembers: () => groupId && router.push(`/groups/${groupId}`),
+              onWaiting: showPost,
+            }}
           />
         );
       case 'groupNoTasks': {
@@ -1144,6 +1156,11 @@ export default function FeedScreen() {
         <FlatList
           ref={listRef}
           data={listItems}
+          // „Aufgabe wartet“ springt zu einer Karte, die vielleicht noch nicht gemessen ist: erst ungefähr, dann genau
+          onScrollToIndexFailed={(info) => {
+            listRef.current?.scrollToOffset({ offset: info.averageItemLength * info.index, animated: true });
+            setTimeout(() => listRef.current?.scrollToIndex({ index: info.index, viewPosition: 0.15, animated: true }), 300);
+          }}
           keyExtractor={(item) =>
             item.kind === 'post'
               ? item.challenge.id
