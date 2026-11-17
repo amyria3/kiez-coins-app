@@ -420,7 +420,9 @@ function InfoCard({ bg, kicker, title, body, icon, placeholder, address, links, 
                     {sub}
                   </Text>
                 </View>
-                <Icon name="chevron-right" size={18} color={ink} />
+                {/* Pfeil schräg nach oben: Der Link verlässt die App. Ein Pfeil nach rechts sähe aus, als öffne er ein
+                    Fenster in der App (Daria, 2026-11-17) */}
+                <Icon name="external" size={14} color={ink} />
               </Pressable>
             );
           })}

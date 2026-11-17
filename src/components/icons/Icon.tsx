@@ -21,13 +21,13 @@ export const ICON_SCALE = 1.5;
 const CAMERA_SCALE = 1.2;
 /** Optische Angleichung (Daria): Zahnrad größer (22.10.2026), Freundschaften 15 % größer und Schalter 20 % kleiner (25.10.2026) */
 const OPTICAL: Partial<Record<IconName, number>> = { settings: 1.18, friends: 1.15, switch: 0.8 };
-const MIRRORED = new Set<IconName>(['chevron-left', 'chevron-right', 'send', 'this-way']);
+const MIRRORED = new Set<IconName>(['chevron-left', 'chevron-right', 'external', 'send', 'this-way']);
 /**
  * Große Icons im Kiez-Look (Daria, 2026-11-05): Darias Symbole ab 18 pt in #EEE0C9 (color.icon.large) statt in Textfarbe.
  * Pfeile, Plus, Minus und Schließen bleiben in Textfarbe, ebenso alle Icons mit eigener Farbe.
  */
 const LARGE_MIN = 18;
-const GLYPHS = new Set<IconName>(['chevron-left', 'chevron-right', 'plus', 'minus', 'close']);
+const GLYPHS = new Set<IconName>(['chevron-left', 'chevron-right', 'external', 'plus', 'minus', 'close']);
 
 export const Icon = memo(function Icon({ name, color = themeColor.text.primary, size, flip }: IconProps) {
   const mirror = (MIRRORED.has(name) && isRtl()) !== !!flip;
