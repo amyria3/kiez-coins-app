@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { SvgXml } from 'react-native-svg';
 
 import { FieldGroup } from '../../components/Content';
 import { CrownIcon } from '../../components/icons/Brand';
-import { Icon, ICON_SCALE } from '../../components/icons/Icon';
+import { Icon } from '../../components/icons/Icon';
 
-import { NavCard, NavRow, ProfileCard } from '../../components/Rows';
+import { NavGroup, NavGroupRow, NavRow, ProfileHeader } from '../../components/Rows';
+import { KATER_AVATAR_YELLOW, katerAvatarSvg } from '../../components/icons/katerAvatarSvg';
 import { SubScreen } from '../../components/Screen';
 import { TabBar } from '../../components/TabBar';
 import { SurveyOverlay } from '../../components/SurveyOverlay';
@@ -14,7 +16,7 @@ import { salutation } from '../../data/format';
 import { useAuth } from '../../data/auth';
 import { isModerator, loadFriends } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
-import { color, size, space } from '../../theme/tokens';
+import { color, space } from '../../theme/tokens';
 import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
 import { MODES, useModes } from '../../data/features';
 import { useGoBack } from '../../lib/goBack';
@@ -32,7 +34,7 @@ export default function Account() {
   const modes = useModes();
   // „Schaufenster“ unter Meine Gruppen (nicht „Mein“, es gehört zur Gruppe, Daria, 2026-11-12), wenn Schaufenster für die Person freigeschaltet ist (Daria, 2026-11-10)
   const showcase = useShowcaseEnabled();
-  const modesShown = MODES.filter((m) => modes.isVisible(m.key)).map((m) => t(m.label)).join(', ');
+  const modesOn = MODES.filter((m) => modes.isVisible(m.key)).length;
   // „Moderation“ nur für Personen in der Tabelle `moderators`
   const [moderator, setModerator] = useState(false);
   const [survey, setSurvey] = useState(false);
@@ -74,108 +76,120 @@ export default function Account() {
       }
     >
       <Animated.View style={[styles.slide, slide.style]} {...slide.panHandlers}>
-      <ProfileCard
+      {/* Kopfbereich ohne Karte (Daria, 2026-11-17) */}
+      <ProfileHeader
         user={me}
         name={profile.handle || me.name}
         details={[salutation(profile), profile.kiez ?? 'Kiez noch nicht festgelegt']}
         onPress={() => router.push('/account/profile')}
       />
-      {/* Reihenfolge und Namen (Daria, 30.10.2026): Me, Meine Gruppen, Meine Posts (2026-11-02), Meine Features,
-          Meine Kontakte (vorher Meine Freundschaften, 2026-11-17), Sprache, Look, danach der Rest */}
-      <NavCard
-        title="Me"
-        description="Geschafft, Ziele und Gruppen"
-        leading={<CrownIcon height={30} fill={color.accountCards.ink} />}
-        accent={color.accountCards.me}
-        onPress={() => router.push('/me')}
-      />
-      {modes.isVisible('groups') ? (
-      <NavCard
-        title="Meine Gruppen"
-        description={groups.length === 0 ? 'Gründen oder beitreten' : groups.length === 1 ? '1 Gruppe' : t('{groups} Gruppen', { groups: groups.length })}
-        leading={<Icon name="behausung" size={size.icon} color={color.accountCards.ink} />}
-        accent={color.accountCards.groups}
-        onPress={() => router.push('/groups')}
-      />
-      ) : null}
-      {showcase ? (
-        <NavCard
-          title="Schaufenster"
-          description="Für Laden, Verein oder Club"
-          // Dorf groß und leicht nach rechts, der Kreis schneidet das rechte Haus und die Unterkante rund ab,
-          // der gerade Rand der Zeichnung liegt außerhalb (Daria, 2026-11-11)
-          leading={
-            (
-              <View style={styles.villageBleed}>
-                <Icon name="village" size={38 / ICON_SCALE} color={color.accountCards.ink} />
+      {/* Gruppen nach dem Farbcode der App (Daria, 2026-11-17). Zeilen einer Gruppe in Stufen heller. */}
+      <FieldGroup heading label="Du on KiezCoins">
+        <NavGroup>
+          <NavGroupRow
+            title="Meine Aktivität"
+            description="Geschafft, Ziele und Gruppen"
+            leading={<CrownIcon height={24} fill={color.accountCards.ink} />}
+            background={color.accountCards.activity}
+            onPress={() => router.push('/me')}
+          />
+        </NavGroup>
+        <NavGroup>
+          <NavGroupRow
+            title="Meine Posts"
+            description="Entwürfe, offen, geschlossen"
+            leading={<Icon name="ship" size={ROW_ICON} color={color.accountCards.ink} />}
+            background={color.accountCards.posts}
+            onPress={() => router.push('/manage')}
+          />
+        </NavGroup>
+      </FieldGroup>
+      <FieldGroup heading label="Gemeinsam">
+        <NavGroup>
+          {/* Kontakte zuerst (Daria, 2026-11-17) */}
+          <NavGroupRow
+            title="Meine Kontakte"
+            description={
+              friendRequests
+                ? t('{n, plural, one {# Anfrage} other {# Anfragen}}', {
+                    n: friendRequests,
+                  })
+                : 'Einladen, Freund:innen, Gesperrt'
+            }
+            leading={<Icon name="friends" size={ROW_ICON} color={color.accountCards.ink} />}
+            background={color.accountCards.friendship[0]}
+            onPress={() => router.push('/account/friends')}
+          />
+          {modes.isVisible('groups') ? (
+            <NavGroupRow
+              title="Meine Gruppen"
+              description={groups.length === 0 ? 'Gründen oder beitreten' : groups.length === 1 ? '1 Gruppe' : t('{groups} Gruppen', { groups: groups.length })}
+              leading={<Icon name="behausung" size={ROW_ICON} color={color.accountCards.ink} />}
+              background={color.accountCards.friendship[1]}
+              onPress={() => router.push('/groups')}
+            />
+          ) : null}
+        </NavGroup>
+        {/* „Schaufenster“, wenn Schaufenster für die Person freigeschaltet ist (Daria, 2026-11-10) */}
+        {showcase ? (
+          <NavGroup>
+            <NavGroupRow
+              title="Schaufenster"
+              description="Für Laden, Verein oder Club"
+              leading={<Icon name="village" size={ROW_ICON} color={color.accountCards.ink} />}
+              background={color.accountCards.showcase}
+              onPress={() => router.push('/schaufenster')}
+            />
+          </NavGroup>
+        ) : null}
+      </FieldGroup>
+      <FieldGroup heading label="App">
+        <NavGroup>
+          {/* Funktionen an- und abschalten (Daria, 24.10.2026), einzeilig als Zahl (Daria, 2026-11-17) */}
+          <NavGroupRow
+            title="Meine Features"
+            description={t('{on} von {all} an', { on: modesOn, all: MODES.length })}
+            leading={<Icon name="switch" size={ROW_ICON} color={color.accountCards.ink} />}
+            background={color.accountCards.functional[0]}
+            onPress={() => router.push('/account/features')}
+          />
+          <NavGroupRow
+            title="Sprache"
+            description={languageName}
+            leading={<Icon name="language" size={ROW_ICON} color={color.accountCards.ink} />}
+            background={color.accountCards.functional[1]}
+            onPress={() => router.push('/account/language')}
+          />
+          {/* Tour mit Fragezeichen, Beispiele zum Ausprobieren (Daria, 31.10.2026) */}
+          <NavGroupRow
+            title="Wie geht KiezCoins"
+            description="Beispiele zum Ausprobieren"
+            leading={<Icon name="questionmark" size={ROW_ICON} color={color.accountCards.ink} />}
+            background={color.accountCards.functional[2]}
+            onPress={() => router.push('/tour')}
+          />
+        </NavGroup>
+      </FieldGroup>
+      {/* Der Kater steht allein, in der Farbe seiner Sprechblase; im Kreis die Bildmarke (Daria, 2026-11-17) */}
+      <View style={styles.catGap}>
+        <NavGroup>
+          <NavGroupRow
+            title="Auf eine Frotzerei"
+            description="Sprüche"
+            leading={
+              <View style={styles.catCircle}>
+                <View style={styles.catBleed}>
+                  <SvgXml xml={katerAvatarSvg()} width={58} height={58} />
+                </View>
               </View>
-            )
-          }
-          leadingFill={true}
-          accent={color.accountCards.showcase}
-          onPress={() => router.push('/schaufenster')}
-        />
-      ) : null}
-      <NavCard
-        title="Meine Posts"
-        description="Entwürfe, offen, geschlossen"
-        leading={<Icon name="ship" size={size.icon} color={color.accountCards.ink} />}
-        accent={color.accountCards.posts}
-        onPress={() => router.push('/manage')}
-      />
-      {/* Funktionen an- und abschalten (Daria, 24.10.2026) */}
-      <NavCard
-        title="Meine Features"
-        description={modesShown}
-        leading={<Icon name="switch" size={size.icon} color={color.accountCards.ink} />}
-        accent={color.accountCards.features}
-        onPress={() => router.push('/account/features')}
-      />
-      {/* Freundschaften, Funktionen und Look mit Darias Icons (25.10.2026), Sprache mit Phosphor.
-          Grammatisches Geschlecht steht nur noch unter Persönliche Angaben (Daria, 27.10.2026). */}
-      <NavCard
-        title="Meine Kontakte"
-        description={
-          friendRequests
-            ? t('{n, plural, one {# Anfrage} other {# Anfragen}}', {
-                n: friendRequests,
-              })
-            : 'Einladen, Freund:innen, Gesperrt'
-        }
-        leading={<Icon name="friends" size={size.icon} color={color.accountCards.ink} />}
-        accent={color.accountCards.contacts}
-        onPress={() => router.push('/account/friends')}
-      />
-      <NavCard
-        title="Sprache"
-        description={languageName}
-        leading={<Icon name="language" size={size.icon} color={color.accountCards.ink} />}
-        accent={color.accountCards.language}
-        onPress={() => router.push('/account/language')}
-      />
-      {/* Tour als große Karte mit Fragezeichen, Beispiele zum Ausprobieren (Daria, 31.10.2026) */}
-      <NavCard
-        title="Wie geht KiezCoins"
-        description="Beispiele zum Ausprobieren"
-        leading={<Icon name="questionmark" size={size.icon} color={color.accountCards.ink} />}
-        accent={color.accountCards.tour}
-        onPress={() => router.push('/tour')}
-      />
-      {/* Kater-Seite als große Karte unter Look (Daria, 25.10.2026); Kiez-Look: Darias Kater-Icon, Fashionable: Logo-Kater */}
-      <NavCard
-        title="Auf eine Frotzerei"
-        description="Sprüche"
-        leading={
-          (
-            <View style={styles.catBleed}>
-              <Icon name="cat" size={26} color={color.accountCards.ink} />
-            </View>
-          )
-        }
-        leadingFill={true}
-        accent={color.accountCards.cat}
-        onPress={() => router.push('/cat')}
-      />
+            }
+            background={color.accountCards.cat}
+            ink={color.accountCards.catInk}
+            inkSoft={color.accountCards.catInkSoft}
+            onPress={() => router.push('/cat')}
+          />
+        </NavGroup>
+      </View>
       <FieldGroup heading label="Einstellungen">
         <View style={styles.list}>
           <NavRow label="Benachrichtigungen" value={profile.push ? 'Push an' : 'Push aus'} onPress={() => router.push('/account/notifications')} />
@@ -222,11 +236,16 @@ export default function Account() {
   );
 }
 
+/** Icons in den Zeilen der Kontoseite, 24 pt hoch */
+const ROW_ICON = 16;
+
 const styles = StyleSheet.create({
   // Derselbe Abstand wie im Inhalt von SubScreen, die Hülle für das Wischen nimmt ihn sonst weg
   slide: { gap: space[16] },
   list: { gap: space[8] },
-  // Kater ragt 2 pt über den Kreisrand hinaus, damit der Kreis seine Unterkante rund abschneidet
-  catBleed: { marginBottom: -2 },
-  villageBleed: { marginBottom: space[6], transform: [{ translateX: 4 }] },
+  // Kater der Bildmarke größer als sein gelbgrüner Kreis, der Kreis schneidet Ohren und Unterkante ab
+  catCircle: { width: 40, height: 40, alignItems: 'center', justifyContent: 'flex-end', backgroundColor: KATER_AVATAR_YELLOW },
+  catBleed: { marginBottom: -10 },
+  // Etwas Abstand nach oben, der Kater steht allein
+  catGap: { marginTop: space[8] },
 });

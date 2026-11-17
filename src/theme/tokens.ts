@@ -73,6 +73,17 @@ const swatch = {
   schalterAusSenf: '#585137',
   /** Schaufenster: dunkles Oliv, passend zum Gelbgrün */
   schalterAusOliv: '#4A4E34',
+  /**
+   * Startfarben der Kontoseite (Daria, 2026-11-17: „alle Startfarben ähnlich hell und intensiv“). Abgeglichen über die
+   * Helligkeit in OKLCH: Senf, Rosa und Grün liegen bei L 0,85. Lila startet heller als der Akzent (L 0,79 statt 0,70),
+   * Gelbgrün dunkler als die Signalfarbe (L 0,92 statt 0,97). Blau und Gelb wirken bei gleicher Zahl unterschiedlich hell.
+   */
+  lilaKonto: '#ADB1FF',
+  gelbgruenKonto: '#E0F088',
+  /** Farbstufen der Kontoseite: Startfarbe 20 und 40 % Richtung Weiß */
+  lilaKontoStufe1: '#BDC1FF',
+  gruenStufe1: '#98ECAD',
+  gruenStufe2: '#B2F1C1',
   /** Reines Weiß: Rand der Herzen, Schrift auf Fotos beim Beschriften, Blatt der Textposts */
   weiss: '#FFFFFF',
   /** Fast Schwarz mit kühlem Ton: Schrift auf hellen Flächen (Systemmeldung, Abzeichen-Icon) */
@@ -263,19 +274,23 @@ export const color = {
    * Schaufenster), Meine Features und Sprache Grün (Theme Functional), Gruppen, Kontakte und Tour Lila, Meine Posts Rosa,
    * Kater Weiß.
    */
+  /**
+   * Kontoseite (Daria, 2026-11-17): jede Zeile in der Farbe ihres Bereichs, die Zeilen einer Gruppe in Stufen heller.
+   * Senf Me & Myself, Rosa Feed und Posts, Lila Friendship, Gelbgrün Schaufenster, Grün Functional. Der Kater steht
+   * allein in der Farbe seiner Sprechblase.
+   */
   accountCards: {
-    card: swatch.papier,
     ink: swatch.tinte,
-    inkSoft: withAlpha(swatch.tinte, 0.68),
-    me: swatch.senf,
-    groups: palette.purple,
-    showcase: swatch.gelbgruen,
+    /** Unterzeile und Pfeil auf den Farbflächen, über 6 : 1 auf allen Stufen */
+    inkSoft: withAlpha(swatch.tinte, 0.82),
+    activity: swatch.senf,
     posts: palette.pink,
-    features: palette.green,
-    contacts: palette.purple,
-    language: palette.green,
-    tour: palette.purple,
-    cat: swatch.weiss,
+    friendship: [swatch.lilaKonto, swatch.lilaKontoStufe1],
+    showcase: swatch.gelbgruenKonto,
+    functional: [palette.green, swatch.gruenStufe1, swatch.gruenStufe2],
+    cat: swatch.lilaNacht,
+    catInk: palette.white,
+    catInkSoft: swatch.flieder,
   },
   showcaseCards: {
     /** Infokarten, Services und Termine: eine Kartenfarbe (Daria, 2026-11-17) */
@@ -457,6 +472,10 @@ export const text = {
   metricXs: { fontFamily: font.display, fontSize: 15, lineHeight: 19 },
   /** Auf dem Foto: Titel */
   photoTitle: { fontFamily: font.onPhoto, fontSize: 16, lineHeight: 21 },
+  /** Titel der Zeilen auf der Kontoseite (Daria, 2026-11-17) */
+  listItemTitle: { fontFamily: font.onPhoto, fontSize: 15, lineHeight: 20 },
+  /** Eigener Name im Kopfbereich der Kontoseite (Daria, 2026-11-17) */
+  profileName: { fontFamily: font.onPhoto, fontSize: 22, lineHeight: 28 },
   /** Auf dem Foto: Name, Tag, Überzeile */
   photoLabel: { fontFamily: font.onPhoto, fontSize: 15, lineHeight: 20 },
   /** Auf dem Foto: Ort */

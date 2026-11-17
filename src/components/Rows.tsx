@@ -126,32 +126,34 @@ export function NavRow({ label, value, tone = 'default', onPress }: NavRowProps)
   );
 }
 
-type ProfileCardProps = {
+type ProfileHeaderProps = {
   user: User;
   name: string;
   details: string[];
   onPress: () => void;
 };
 
-/** Große Karte im Stil der NavRow: Profilbild, Deckname und persönliche Angaben, führt zum Bearbeiten. */
-export function ProfileCard({ user, name, details, onPress }: ProfileCardProps) {
+/**
+ * Kopfbereich der Kontoseite ohne Karte (Daria, 2026-11-17, Entwurf A, „etwas größer“): großes Profilbild, Deckname,
+ * persönliche Angaben in einer Zeile und „Profil bearbeiten“. Führt zum Bearbeiten.
+ */
+export function ProfileHeader({ user, name, details, onPress }: ProfileHeaderProps) {
   return (
     <Pressable
-      style={({ pressed }) => [styles.row, styles.profileCard, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.profileHeader, pressed && styles.pressed]}
       accessibilityRole="button"
       accessibilityLabel={t('Persönliche Angaben: {name}, {details}. Ändern', { name, details: details.join(', ') })}
       onPress={onPress}
     >
-      <Avatar user={{ ...user, name }} diameter={56} ringColor={color.bg.surface} />
-      <View style={styles.texts}>
-        <Text style={styles.profileName} numberOfLines={1}>
+      <Avatar user={{ ...user, name }} diameter={80} ringColor={color.bg.screen} />
+      <View style={styles.headerTexts}>
+        <Text style={styles.headerName} numberOfLines={1}>
           {name}
         </Text>
-        {details.map((line) => (
-          <Text key={line} style={styles.label} numberOfLines={1}>
-            {line}
-          </Text>
-        ))}
+        <Text style={styles.headerDetails} numberOfLines={1}>
+          {details.join(' · ')}
+        </Text>
+        <Text style={styles.headerEdit}>{t('Profil bearbeiten')}</Text>
       </View>
       <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
     </Pressable>
@@ -159,64 +161,59 @@ export function ProfileCard({ user, name, details, onPress }: ProfileCardProps) 
 }
 
 /**
- * Große Karte in der Größe der ProfileCard, z. B. für Was Du so machst, Deine Challenges und Deine Gruppen.
- * Links ein runder Kreis mit Icon oder Zeichnung, daneben Titel und eine Zeile Beschreibung.
+ * Karte für eine Gruppe von Zeilen auf der Kontoseite (Daria, 2026-11-17): eine Rundung außen, jede `NavGroupRow`
+ * bringt ihre eigene Farbstufe mit.
  */
-export function NavCard({
+export function NavGroup({ children }: { children: ReactNode }) {
+  return <View style={styles.navGroup}>{children}</View>;
+}
+
+/**
+ * Zeile der Kontoseite auf der Farbe ihres Bereichs (`color.accountCards.*`, Daria, 2026-11-17): Icon ohne Kreis,
+ * Titel und eine Zeile Beschreibung, Pfeil. `ink` und `inkSoft` nur für dunkle Flächen wie die Kater-Zeile.
+ */
+export function NavGroupRow({
   title,
   description,
   leading,
-  leadingFill,
-  accent,
+  background,
+  ink = color.accountCards.ink,
+  inkSoft = color.accountCards.inkSoft,
   onPress,
 }: {
   title: string;
   description?: string;
-  /** Ohne Icon steht der Text bündig links */
-  leading?: ReactNode;
-  /** Farbe des Kreises hinter dem Icon (`color.accountCards.*`), das Icon selbst steht in Tinte */
-  accent?: string;
-  /** Zeichnung sitzt unten im Kreis, der Kreis schneidet ihre Unterkante rund ab (Kater, Daria 25.10.2026) */
-  leadingFill?: boolean;
+  leading: ReactNode;
+  background: string;
+  ink?: string;
+  inkSoft?: string;
   onPress: () => void;
 }) {
   return (
     <Pressable
-      style={({ pressed }) => [styles.row, styles.navCard, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.groupRow, { backgroundColor: background }, pressed && styles.pressed]}
       accessibilityRole="button"
       accessibilityLabel={description ? `${title}, ${description}` : title}
       onPress={onPress}
     >
-      {leading ? (
-        <View style={[styles.cardLeading, accent ? { backgroundColor: accent } : null, leadingFill && styles.cardLeadingFill]}>{leading}</View>
-      ) : null}
+      <View style={styles.groupLeading}>{leading}</View>
       <View style={styles.texts}>
-        {/* Zwei Zeilen statt abgeschnitten, z. B. „Deine Freundschaften“ auf 360 pt breiten Android-Handys (29.10.2026) */}
-        <Text style={styles.navTitle} numberOfLines={2}>
+        <Text style={[styles.navTitle, { color: ink }]} numberOfLines={1}>
           {title}
         </Text>
         {description ? (
-          <Text style={styles.navDescription} numberOfLines={2}>
+          <Text style={[styles.navDescription, { color: inkSoft }]} numberOfLines={1}>
             {description}
           </Text>
         ) : null}
       </View>
-      <Icon name="chevron-right" size={size.icon} color={color.accountCards.inkSoft} />
+      <Icon name="chevron-right" size={size.icon} color={inkSoft} />
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   saveText: { ...text.bodyStrong, color: color.accent.primary },
-  cardLeading: {
-    width: 56,
-    height: 56,
-    borderRadius: radius.full,
-    backgroundColor: color.bg.screen,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cardLeadingFill: { overflow: 'hidden', justifyContent: 'flex-end' },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -227,14 +224,12 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
   },
   navRow: { minHeight: 48 },
-  profileCard: { padding: space[16], gap: space[16], borderRadius: radius.lg },
-  // Papierkarte mit kleiner Rundung wie die Posts im Feed (Daria, 2026-11-17)
-  navCard: { padding: space[16], gap: space[16], borderRadius: radius.post, backgroundColor: color.accountCards.card },
-  navTitle: { ...text.photoTitle, color: color.accountCards.ink },
-  navDescription: { ...text.caption, color: color.accountCards.inkSoft },
-  /** Titel der Karten in der Farbe der großen Icons, auch der eigene Name (Daria, 2026-11-05) */
-  // Unbounded statt Inter Tight wie „Pirat:in“ (Daria, 09.11.2026). 17 statt 19, die Unbounded läuft breiter.
-  profileName: { ...text.photoTitle, color: color.icon.large },
+  navGroup: { borderRadius: radius.md, overflow: 'hidden' },
+  groupRow: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingHorizontal: space[12], paddingVertical: space[12], minHeight: 60 },
+  groupLeading: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  navTitle: { ...text.listItemTitle },
+  // 14 pt statt 12, einzeilig (Daria, 2026-11-17)
+  navDescription: { ...text.bodySm },
   // Aktives Feld mit kräftigerem lila Rand wie alle Eingabefelder (stroke.focus, Daria, 2026-11-09); Abstände um die Differenz kleiner
   editing: {
     borderWidth: stroke.focus,
@@ -242,6 +237,12 @@ const styles = StyleSheet.create({
     paddingRight: space[4] - (stroke.focus - stroke.thin),
     paddingLeft: space[12] - (stroke.focus - stroke.thin),
   },
+  // Kopfbereich direkt auf dem Grund, ohne Karte (Daria, 2026-11-17)
+  profileHeader: { flexDirection: 'row', alignItems: 'center', gap: space[16], paddingHorizontal: space[4], paddingVertical: space[8] },
+  headerTexts: { flex: 1, gap: space[4] },
+  headerName: { ...text.profileName, color: color.icon.large },
+  headerDetails: { ...text.bodySm, color: color.text.secondary },
+  headerEdit: { ...text.labelSm, color: color.accent.functional, marginTop: space[2] },
   pressed: { opacity: 0.8 },
   texts: { flex: 1, gap: space[2] },
   flex: { flex: 1 },
