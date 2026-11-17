@@ -39,7 +39,7 @@ Die Download-Seite mit Passwort liegt in `website/` und entsteht mit `node scrip
 
 ## Web-App app.kiezcoins.de
 
-Vercel baut die Web-App (`web-app/vercel.json`) nur bei Pushes auf `main` und nur, wenn sich die App seit dem letzten erfolgreichen Deploy geändert hat (`scripts/web-app-bauen.sh`). Scheitert ein Deploy am Tageslimit des kostenlosen Plans, holt der nächste Push auf `main` ihn nach, auch ein reiner Doku-Commit.
+Vercel baut die Web-App (`web-app/vercel.json`) nur bei Pushes auf `main` und nur, wenn sich die App seit dem letzten erfolgreichen Deploy geändert hat (`scripts/web-app-bauen.sh`). Scheitert ein Deploy am Tageslimit des kostenlosen Plans, holt der nächste Push auf `main` ihn nach, auch ein reiner Doku-Commit. Das Limit (100 Deploys) gilt für die letzten 24 Stunden und wird laufend wieder frei; meist reicht es, ein paar Minuten später erneut zu pushen.
 
 ## Doku und To-dos
 
