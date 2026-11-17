@@ -152,7 +152,19 @@ function useWebKeyboard(setHeight: (height: number) => void, setInset: (inset: n
       if (!current && !isEditable(document.activeElement) && (window.scrollY !== 0 || viewport.offsetTop !== 0)) {
         window.scrollTo(0, 0);
       }
+      // Feld ganz oben (Suche im Feed): Safari schob die Seite trotzdem hoch. Das Feld lag halb unter der Statusleiste
+      // und die Tab-Leiste mitten im Bild (Daria, 2026-11-17: „Rollt weg“). Steht das Feld auch bei Seite ganz oben
+      // frei über der Tastatur, kommt die Seite zurück. Höchstens zweimal je Fokus, damit nichts gegen Safari anläuft.
+      const active = document.activeElement;
+      if (current && isEditable(active) && pulls < 2 && (window.scrollY !== 0 || viewport.offsetTop !== 0)) {
+        const rect = active.getBoundingClientRect();
+        if (rect.bottom + window.scrollY + viewport.offsetTop <= viewport.height - 24) {
+          pulls += 1;
+          window.scrollTo(0, 0);
+        }
+      }
     };
+    let pulls = 0;
     // Beim Verlassen eines Felds steht der neue Fokus erst nach dem Ereignis fest (z. B. Pfeil zum nächsten Feld)
     let later: ReturnType<typeof setTimeout> | undefined;
     const afterFocusChange = () => {
@@ -160,7 +172,12 @@ function useWebKeyboard(setHeight: (height: number) => void, setInset: (inset: n
       later = setTimeout(update, 0);
     };
     // Zum nächsten Feld bei offener Tastatur: Die Höhe ändert sich nicht, das Feld muss trotzdem ins Bild
+    let settle: ReturnType<typeof setTimeout> | undefined;
     const onFocusIn = () => {
+      pulls = 0;
+      // Safari scrollt erst nach der Tastatur-Animation; danach noch einmal prüfen
+      clearTimeout(settle);
+      settle = setTimeout(update, 400);
       if (!current) return;
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(revealFocusedElement);
@@ -173,6 +190,7 @@ function useWebKeyboard(setHeight: (height: number) => void, setInset: (inset: n
     return () => {
       cancelAnimationFrame(frame);
       clearTimeout(later);
+      clearTimeout(settle);
       viewport.removeEventListener('resize', update);
       viewport.removeEventListener('scroll', update);
       window.removeEventListener('focusout', afterFocusChange);

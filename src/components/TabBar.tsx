@@ -7,6 +7,7 @@ import { useFrontSpace } from '../theme/signal';
 import { color, radius, size, space, stroke } from '../theme/tokens';
 
 import { Icon } from './icons/Icon';
+import { useKeyboardHeight } from './Keyboard';
 import { t } from '../data/texts';
 import { refreshUnread, useFriendRequests, useUnreadMessages } from '../data/chat';
 import { useStore } from '../data/store';
@@ -60,6 +61,9 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
   useEffect(() => {
     if (currentUserId) refreshUnread(currentUserId, mode === 'live').catch(() => {});
   }, [currentUserId, mode]);
+  // Bei offener Tastatur weg (Daria, 2026-11-17: Suche im Feed, die Leiste schwebte mitten im Bild)
+  const keyboard = useKeyboardHeight();
+  if (keyboard > 0) return null;
   return (
     <View
       style={[styles.wrap, { bottom: tabBarBottom(insets.bottom) }]}
