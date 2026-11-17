@@ -46,7 +46,7 @@ if (!window.requestIdleCallback) {
       }).then(function (res) {
         if (!res.ok) throw new Error(res.status);
         send.remove();
-        status.style.color = '#72F377';
+        status.style.color = '#7EE798';
         status.textContent = 'Danke! Der Fehlerbericht ist bei uns angekommen.';
       }).catch(function () {
         send.remove();

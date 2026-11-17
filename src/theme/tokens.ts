@@ -13,7 +13,7 @@ export const scheme: 'dark' | 'light' = 'dark';
 // Dark-UI-Überarbeitung (Daria, 2026-11-05): Lila #8F90FA statt #7E94FF (weniger gesättigt, wärmer, gleiche Helligkeit),
 // Grund #232326 (Daria, 2026-11-05, neutral statt warm), Karten #303034 eine Stufe heller, damit sie sich ohne Rand abheben.
 // Zweite Akzentfarbe Grün #89F269 statt #93F4A7. Seit 2026-11-17 #72F377: etwas Richtung Blau (Daria), Farbe des
-// Systems und der Herzen in der Brille des Katers.
+// Systems und der Herzen in der Brille des Katers. Danach #7EE798: noch etwas blauer, weniger kräftig (Daria).
 const kiezPalette = {
   /** Grund: Grau mit leichtem Aubergine-Ton, passend zur Routine-Karte (Daria, 2026-11-12) */
   black: '#252025',
@@ -26,7 +26,7 @@ const kiezPalette = {
   purple: '#8F90FA',
   orange: '#FFAD7E',
   /** Zweite Akzentfarbe (Daria, 2026-11-05). Auch die Herzen in den Augen des Katers. */
-  green: '#72F377',
+  green: '#7EE798',
   red: '#FF7E8B',
   pink: '#FFB2E5',
   graphite: '#303034',
@@ -69,7 +69,7 @@ const swatch = {
    */
   schalterAus: '#4A4852',
   /** Functional: dunkles Grün, passend zum Grün des Systems */
-  schalterAusGruen: '#2F4731',
+  schalterAusGruen: '#304535',
   schalterAusSenf: '#585137',
   /** Reines Weiß: Rand der Herzen, Schrift auf Fotos beim Beschriften, Blatt der Textposts */
   weiss: '#FFFFFF',
@@ -120,7 +120,7 @@ export const color = {
     /** Feiner warmer Rand um Karten und Sprechblase im Kiez-Look, damit sie sich vom Grund abheben (2026-11-01) */
     raised: 'rgba(255, 240, 225, 0.08)',
     /** Feine Linie in der zweiten Akzentfarbe (palette.green), z. B. auf der Karte in „Meine Posts“ (Daria, 2026-11-05) */
-    confirmation: 'rgba(114, 243, 119, 0.22)',
+    confirmation: 'rgba(126, 231, 152, 0.22)',
   },
   text: {
     primary: palette.white,
@@ -195,6 +195,8 @@ export const color = {
     task: swatch.senfRuhig,
     fixed: swatch.olive,
     saved: swatch.puder,
+    /** Gemerkte Termine aus einem Schaufenster: Signalfarbe des Schaufensters, so sieht man die Herkunft (Daria, 2026-11-17) */
+    showcase: swatch.gelbgruen,
     ink: swatch.tinte,
     inkSoft: withAlpha(swatch.tinte, 0.68),
     inkTrack: withAlpha(swatch.tinte, 0.16),

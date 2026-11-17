@@ -5,6 +5,7 @@ import { color, space } from '../../theme/tokens';
 export const MUSTARD = color.routine.task;
 export const OLIVE = color.routine.fixed;
 export const POWDER = color.routine.saved;
+export const SHOWCASE = color.routine.showcase;
 /** Schrift und Buttons auf den Karten */
 export const INK = color.routine.ink;
 export const INK_SOFT = color.routine.inkSoft;

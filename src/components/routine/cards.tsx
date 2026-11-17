@@ -16,7 +16,7 @@ import { Icon } from '../icons/Icon';
 import { ReminderExtrasRow } from '../ReminderExtras';
 import { ManageButton } from '../ShowcaseManage';
 import { Text } from '../T';
-import { CARD_MAX, CARD_MIN, DRAG_AT, GUTTER, INK, INK_SOFT, LIFT_MS, MUSTARD, OLIVE, POWDER, UP_FACTOR, UP_ROOM } from './constants';
+import { CARD_MAX, CARD_MIN, DRAG_AT, GUTTER, INK, INK_SOFT, LIFT_MS, MUSTARD, OLIVE, SHOWCASE, UP_FACTOR, UP_ROOM } from './constants';
 import { DragLock, Motion, PageLock, Saved, stickerOf, tiltOf, useReduceMotion } from './shared';
 import { styles } from './styles';
 
@@ -636,7 +636,7 @@ export function SavedCard({ event: e, onChanged }: { event: Saved; onChanged: ()
   };
   return (
     <Card
-      bg={POWDER}
+      bg={SHOWCASE}
       tiltKey={`s${e.id}`}
       mood={e.cancelled ? 'enttäuscht' : 'neugierig'}
       head={
@@ -655,7 +655,7 @@ export function SavedCard({ event: e, onChanged }: { event: Saved; onChanged: ()
         <HandButton label="Entfernen" onPress={remove} disabled={busy} />
         {/* Genau sagen, was passiert (Daria, 2026-11-13): im Browser eine Kalenderdatei, in der
             Android-App der Kalender des Handys */}
-        {e.cancelled ? null : <HandButton label={Platform.OS === 'web' ? 'ICS exportieren' : 'In Handykalender'} onPress={toCalendar} filled bg={POWDER} />}
+        {e.cancelled ? null : <HandButton label={Platform.OS === 'web' ? 'ICS exportieren' : 'In Handykalender'} onPress={toCalendar} filled bg={SHOWCASE} />}
       </View>
     </Card>
   );
