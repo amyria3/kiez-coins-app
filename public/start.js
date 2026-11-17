@@ -2,6 +2,7 @@
 // Vorher inline in index.html; als eigene Datei, damit die Content-Security-Policy keine Inline-Skripte braucht
 // (Sicherheitsprüfung, 2026-11-15).
 // Safari kennt requestIdleCallback nicht. Expo Router ruft es an einer Stelle ohne Prüfung auf.
+// Trigger Deployment
 if (!window.requestIdleCallback) {
   window.requestIdleCallback = function (cb) {
     return setTimeout(function () { cb({ didTimeout: false, timeRemaining: function () { return 0; } }); }, 1);
