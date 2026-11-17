@@ -188,7 +188,15 @@ export default function ShowcaseScreen() {
                 onPress={() => router.dismissTo({ pathname: '/feed', params: { gruppe: s.groupId } })}
               />
             ) : access.canSee ? (
-              <Pill filled check={access.following} disabled={busy} label={access.following ? t('Du folgst') : t('Folgen')} onPress={toggleFollow} />
+              // „<Name> folgen“, ein langer Name wird gekürzt (Daria, 2026-11-17)
+              <Pill
+                filled
+                check={access.following}
+                disabled={busy}
+                label={access.following ? t('Du folgst') : t('{name} folgen')}
+                name={access.following ? undefined : s.name}
+                onPress={toggleFollow}
+              />
             ) : null}
             {link ? <Pill label="Teilen" onPress={() => shareText(`${s.name}\n${link}`)} /> : null}
           </View>
@@ -413,8 +421,28 @@ function InfoCard({ bg, kicker, title, body, icon, placeholder, address, links, 
   );
 }
 
-/** Runde Knöpfe im Kopf: gefüllt in Leuchtgelb oder mit hellem Rand */
-function Pill({ label, onPress, filled, check, disabled }: { label: string; onPress: () => void; filled?: boolean; check?: boolean; disabled?: boolean }) {
+/**
+ * Runde Knöpfe im Kopf: gefüllt in Türkis oder mit hellem Rand. Mit `name` steht im Text `{name}`; nur der Name wird
+ * gekürzt, der Rest des Satzes bleibt in jeder Sprache stehen.
+ */
+function Pill({
+  label,
+  name,
+  onPress,
+  filled,
+  check,
+  disabled,
+}: {
+  label: string;
+  name?: string;
+  onPress: () => void;
+  filled?: boolean;
+  check?: boolean;
+  disabled?: boolean;
+}) {
+  // Abstand kommt aus `gap`, daher ohne Leerzeichen an den Rändern
+  const [before, after = ''] = (name ? label.split('{name}') : [label]).map((p) => p.trim());
+  const textStyle = [styles.pillText, filled && styles.pillTextFilled];
   return (
     <Pressable
       accessibilityRole="button"
@@ -424,7 +452,13 @@ function Pill({ label, onPress, filled, check, disabled }: { label: string; onPr
       style={({ pressed }) => [styles.pill, filled ? styles.pillFilled : styles.pillOutline, pressed && styles.pressed]}
     >
       {check ? <Icon name="check" size={16} color={color.showcaseCards.ink} /> : null}
-      <Text style={[styles.pillText, filled && styles.pillTextFilled]}>{label}</Text>
+      {before ? <Text style={textStyle}>{before}</Text> : null}
+      {name ? (
+        <Text noTranslate numberOfLines={1} style={[textStyle, styles.pillName]}>
+          {name}
+        </Text>
+      ) : null}
+      {after ? <Text style={textStyle}>{after}</Text> : null}
     </Pressable>
   );
 }
@@ -526,7 +560,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: space[16],
     borderRadius: radius.full,
   },
-  pillFilled: { backgroundColor: color.showcaseCards.event },
+  pillFilled: { backgroundColor: color.showcaseCards.event, maxWidth: '100%' },
+  pillName: { flexShrink: 1 },
   pillOutline: { borderWidth: 1.5, borderColor: color.text.secondary },
   pillText: { ...text.label, color: color.text.primary },
   pillTextFilled: { color: ink },

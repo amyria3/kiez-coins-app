@@ -48,8 +48,11 @@ const swatch = {
    * (Daria, 2026-11-14). Seit 2026-11-15 auch der Kreis der Bildmarke
    */
   gelbgruen: '#F0FFA6',
-  /** Leuchtgelb der Schaufenster-Webseite (Sticker „Komplett kostenlos“), seit 2026-11-17 auch Kopf des Schaufensters in der App */
-  leuchtgelb: '#E4FF5F',
+  /**
+   * Türkis: Signalfarbe des Schaufensters (Folgen, Termine). Statt Leuchtgelb, das zu nah am Gelbgrün des Menüs
+   * und an der Limette der Krabbe lag (Daria, 2026-11-17). Kein anderer Ton der App liegt in diesem Bereich.
+   */
+  tuerkis: '#6FEEDD',
   /** Beige: große Icons, Leisten-Icons, papierweißer Knopf im Umschalter */
   beige: '#EEE0C9',
   /** Schneeweiß: aktives Nachrichten-Icon */
@@ -240,9 +243,10 @@ export const color = {
   showcaseCards: {
     place: '#DCE1FF',
     hours: '#FFE6D6',
-    links: '#F4F7E2',
+    /** Zartes Flieder statt Hellgelbgrün, damit nichts mehr ans Menü erinnert (Daria, 2026-11-17) */
+    links: '#F3E1F7',
     services: '#DDF8E3',
-    event: swatch.leuchtgelb,
+    event: swatch.tuerkis,
     ink: swatch.tinte,
     inkSoft: withAlpha(swatch.tinte, 0.68),
     /** Grauer Grund unter „Neu im Schaufenster“, wie die Kartenfarbe der Feeds; Posts darauf etwas heller */
@@ -251,7 +255,7 @@ export const color = {
   },
   /** Kopf des Schaufensters (Daria, 2026-11-17): große Farbfläche, Schrift darauf in Tinte */
   showcaseHead: {
-    bg: swatch.leuchtgelb,
+    bg: swatch.tuerkis,
     ink: swatch.tinte,
     inkSoft: withAlpha(swatch.tinte, 0.7),
     logo: palette.purple,

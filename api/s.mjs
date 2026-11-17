@@ -296,7 +296,9 @@ function mitmachen(s) {
 .geteilt .sf-mit a.sf-mit-knopf { display: inline-block; border-radius: 999px; padding: 12px 22px; background: var(--text); color: var(--bg);
   font: 500 15px/1 Inter, sans-serif; letter-spacing: .01em; text-decoration: none; }
 .geteilt .sf-mit-knoepfe { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
-.geteilt .sf-mit-knoepfe a.sf-mit-knopf { line-height: 1.25; }
+/* Langer Name wird gekürzt, „in KiezCoins folgen“ bleibt stehen (Daria, 2026-11-17) */
+.geteilt .sf-mit-knoepfe a.sf-mit-knopf { display: inline-flex; max-width: 100%; box-sizing: border-box; white-space: nowrap; line-height: 1.25; padding-block: 10px; }
+.geteilt .sf-mit-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .geteilt .sf-mit a.sf-mit-zweit { background: none; color: var(--text); box-shadow: inset 0 0 0 1px var(--text); }
 .geteilt .sf-mit h2 { position: relative; display: inline-block; padding-top: 22px; }
 /* Sticker schräg wie aufgeklebt (Daria, 2026-11-12): „Komplett kostenlos“ über dem Ende der Frage, „Super schnell“ links unter dem Knopf */
@@ -322,7 +324,7 @@ function mitmachen(s) {
     <div class="sf-mit-block">
       <h3>Mach mit in Deinem Kiez.</h3>
       <div class="sf-mit-knoepfe">
-        ${/* Folgen in der App (Daria, 2026-11-17); ohne Konto geht es übers Onboarding und danach zurück */ ''}<a class="sf-mit-knopf" href="https://app.kiezcoins.de/schaufenster/${esc(s.id)}?folgen=1">${esc(s.name)} in KiezCoins folgen</a>
+        ${/* Folgen in der App (Daria, 2026-11-17); ohne Konto geht es übers Onboarding und danach zurück */ ''}<a class="sf-mit-knopf" href="https://app.kiezcoins.de/schaufenster/${esc(s.id)}?folgen=1" aria-label="${esc(s.name)} in KiezCoins folgen"><span class="sf-mit-name">${esc(s.name)}</span><span>&nbsp;in KiezCoins folgen</span></a>
         <a class="sf-mit-knopf sf-mit-zweit" href="/laden?von=schaufenster">KiezCoins runterladen</a>
       </div>
     </div>
