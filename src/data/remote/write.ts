@@ -284,6 +284,7 @@ export const groupActions = {
     rpc('transfer_group_founder', { p_group_id: groupId, p_user_id: userId }),
   setLeaderboard: (groupId: string, show: boolean) =>
     rpc('set_group_leaderboard', { p_group_id: groupId, p_show: show }),
+  setMotto: (groupId: string, motto: string) => rpc('set_group_motto', { p_group_id: groupId, p_motto: motto }),
 };
 
 export type NewGroupTask = {

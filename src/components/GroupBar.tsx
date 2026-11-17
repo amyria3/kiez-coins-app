@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from './T';
 
 import { leaderboard, MAX_GROUPS } from '../data/groups';
 import type { Challenge, Group, User } from '../data/types';
 import { joinedIds } from '../data/weChallenge';
+import { showcaseOfGroup, useShowcaseEnabled } from '../data/showcase';
 import { Avatar } from './AuthorRow';
 import { color, font, radius, size, space, stroke, text } from '../theme/tokens';
 import { FeedStateMessage } from './FeedStateMessage';
@@ -37,6 +38,8 @@ type GroupBarProps = {
     onMembers: () => void;
     /** „Aufgabe wartet“ antippen: zur ersten solchen Karte */
     onWaiting: (challengeId: string) => void;
+    /** Zum Schaufenster der Gruppe, wenn sie eins hat (Daria, 2026-11-17) */
+    onShowcase: (showcaseId: string) => void;
   };
 };
 
@@ -155,7 +158,19 @@ function GroupSummary({
   currentUserId,
   onMembers,
   onWaiting,
+  onShowcase,
 }: { group: Group } & NonNullable<GroupBarProps['summary']>) {
+  // Schaufenster der Gruppe, für den Wechsel dorthin (Daria, 2026-11-17)
+  const showcaseOn = useShowcaseEnabled(group.id);
+  const [showcaseId, setShowcaseId] = useState<string>();
+  useEffect(() => {
+    let live = true;
+    setShowcaseId(undefined);
+    if (showcaseOn) showcaseOfGroup(group.id).then((s) => live && setShowcaseId(s?.id ?? undefined));
+    return () => {
+      live = false;
+    };
+  }, [group.id, showcaseOn]);
   const userOf = (id: string): User => users.find((u) => u.id === id) ?? { id, name: '?', firstName: '?' };
   // Du zuletzt, damit die anderen vorn stehen
   const members = [...group.members].sort((a, b) => Number(a.userId === currentUserId) - Number(b.userId === currentUserId));
@@ -170,6 +185,11 @@ function GroupSummary({
   const meta = place ? t('{done} geschafft · Platz {place}', { done, place }) : t('{done} geschafft', { done });
   return (
     <View style={styles.summary}>
+      {group.motto ? (
+        <Text noTranslate style={styles.motto}>
+          {group.motto}
+        </Text>
+      ) : null}
       <View style={styles.summaryRow}>
         <Pressable
           accessibilityRole="button"
@@ -189,16 +209,30 @@ function GroupSummary({
           {meta}
         </Text>
       </View>
-      {waiting.length ? (
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => onWaiting(waiting[0].id)}
-          style={({ pressed }) => [styles.waiting, pressed && styles.pressed]}
-        >
-          <Text style={styles.waitingText}>
-            {waiting.length === 1 ? t('1 Aufgabe wartet') : t('{n} Aufgaben warten', { n: waiting.length })}
-          </Text>
-        </Pressable>
+      {waiting.length || showcaseId ? (
+        <View style={styles.chips}>
+          {waiting.length ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => onWaiting(waiting[0].id)}
+              style={({ pressed }) => [styles.waiting, pressed && styles.pressed]}
+            >
+              <Text style={styles.waitingText}>
+                {waiting.length === 1 ? t('1 Aufgabe wartet') : t('{n} Aufgaben warten', { n: waiting.length })}
+              </Text>
+            </Pressable>
+          ) : null}
+          {showcaseId ? (
+            <Pressable
+              accessibilityRole="link"
+              onPress={() => onShowcase(showcaseId)}
+              style={({ pressed }) => [styles.chip, pressed && styles.pressed]}
+            >
+              <Text style={styles.chipText}>Schaufenster</Text>
+              <Icon name="chevron-right" size={14} color={color.text.primary} />
+            </Pressable>
+          ) : null}
+        </View>
       ) : null}
     </View>
   );
@@ -240,6 +274,20 @@ const styles = StyleSheet.create({
   meta: { ...text.bodyLarge, color: color.text.secondary, flexShrink: 1 },
   waiting: { alignSelf: 'flex-start', borderRadius: radius.full, backgroundColor: color.routine.task, paddingVertical: space[6], paddingHorizontal: space[12] },
   waitingText: { ...text.bodySm, color: color.routine.ink },
+  motto: { ...text.bodyLarge, color: color.text.primary, marginTop: -space[8] },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[4],
+    borderRadius: radius.full,
+    borderWidth: stroke.thin,
+    borderColor: color.text.secondary,
+    paddingVertical: space[6] - 1,
+    paddingLeft: space[12],
+    paddingRight: space[8],
+  },
+  chipText: { ...text.bodySm, color: color.text.primary },
   compact: { paddingHorizontal: 0 },
   compactName: { ...text.bodyStrong, color: color.text.primary, flexShrink: 1 },
   menu: { borderRadius: radius.md, backgroundColor: color.bg.surface, overflow: 'hidden' },

@@ -833,6 +833,7 @@ export default function FeedScreen() {
               currentUserId,
               onMembers: () => groupId && router.push(`/groups/${groupId}`),
               onWaiting: showPost,
+              onShowcase: (id) => router.push({ pathname: '/schaufenster/[id]', params: { id } }),
             }}
           />
         );

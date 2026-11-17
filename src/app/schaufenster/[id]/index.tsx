@@ -145,6 +145,17 @@ export default function ShowcaseScreen() {
         ) : access.team ? (
           <Text style={styles.aboutEmpty}>Noch keine Beschreibung</Text>
         ) : null}
+        {/* Wechsel zur Gruppe, nur fürs Team (Daria, 2026-11-17: „von Schaufenster zur Gruppe wechseln“) */}
+        {access.team ? (
+          <Pressable
+            accessibilityRole="link"
+            onPress={() => router.dismissTo({ pathname: '/feed', params: { gruppe: s.groupId } })}
+            style={({ pressed }) => [styles.follow, pressed && styles.pressed]}
+          >
+            <Text style={styles.followText}>{groupName ? t('Zur Gruppe {group}', { group: groupName }) : t('Zur Gruppe')}</Text>
+            <Icon name="chevron-right" size={14} color={color.showcaseHead.bg} />
+          </Pressable>
+        ) : null}
         {/* „Du folgst“ als dunkle Pille im Kopf statt lila Text mitten auf der Seite (Daria, 2026-11-17) */}
         {!access.team && access.canSee ? (
           <Pressable

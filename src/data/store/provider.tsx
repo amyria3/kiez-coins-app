@@ -55,6 +55,7 @@ type GroupApi = {
   transferFounder: (groupId: string, userId: string) => Promise<void>;
   /** Rangliste ein- oder ausschalten (nur Gründerin) */
   setLeaderboard: (groupId: string, show: boolean) => Promise<void>;
+  setMotto: (groupId: string, motto: string) => Promise<void>;
   createTask: (task: remote.NewGroupTask) => Promise<string>;
 };
 
@@ -338,6 +339,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setLeaderboard: async (groupId, show) => {
         if (!isDemo()) return live(() => remote.groupActions.setLeaderboard(groupId, show));
         setGroups((groups) => groups.map((g) => (g.id === groupId ? { ...g, showLeaderboard: show } : g)));
+      },
+      setMotto: async (groupId, motto) => {
+        if (!isDemo()) return live(() => remote.groupActions.setMotto(groupId, motto));
+        setGroups((groups) => groups.map((g) => (g.id === groupId ? { ...g, motto: motto.trim() || undefined } : g)));
       },
       createTask: async (task) => {
         const s = stateRef.current;

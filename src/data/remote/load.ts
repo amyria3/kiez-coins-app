@@ -49,6 +49,7 @@ type GroupRow = {
   invite_code: string;
   /** fehlt, solange Migration 20261022000500_group_leaderboard_toggle aussteht */
   show_leaderboard?: boolean;
+  motto?: string | null;
   created_at: string;
   group_members: { user_id: string; role: 'founder' | 'member'; joined_at: string }[];
 };
@@ -63,6 +64,7 @@ async function loadGroups(): Promise<Group[]> {
     founderId: g.founder_id,
     inviteCode: g.invite_code,
     showLeaderboard: g.show_leaderboard ?? true,
+    motto: g.motto || undefined,
     createdAt: g.created_at,
     members: g.group_members
       .map((m) => ({ userId: m.user_id, role: m.role, joinedAt: m.joined_at }))

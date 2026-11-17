@@ -5,7 +5,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Avatar } from '../../../components/AuthorRow';
 import { Button } from '../../../components/Button';
 import { FieldGroup, Notice } from '../../../components/Content';
-import { SwitchRow } from '../../../components/Form';
+import { SwitchRow, TextField } from '../../../components/Form';
+import { useState } from 'react';
 import { GroupInvite } from '../../../components/GroupInvite';
 import { SubScreen } from '../../../components/Screen';
 import { ShowcaseLink } from '../../../components/ShowcaseLink';
@@ -166,6 +167,7 @@ export default function GroupDetail() {
 
       {isFounder ? (
         <FieldGroup label="Gruppeneinstellungen">
+          <MottoField value={group.motto ?? ''} onSave={(motto) => run(() => groupApi.setMotto(group.id, motto), 'Nicht gespeichert')} />
           <SwitchRow
             label="Rangliste anzeigen"
             description={
@@ -190,6 +192,25 @@ export default function GroupDetail() {
         onPress={leave}
       />
     </SubScreen>
+  );
+}
+
+/** Motto unter dem Namen im Gruppen-Kopf (Daria, 2026-11-17); speichert beim Verlassen des Felds */
+function MottoField({ value, onSave }: { value: string; onSave: (motto: string) => void }) {
+  const [motto, setMotto] = useState(value);
+  return (
+    <TextField
+      label="Motto"
+      helperText="Eine Zeile unter dem Namen der Gruppe, für alle sichtbar."
+      placeholder="z. B. Gemeinsam wird der Keller leer"
+      value={motto}
+      onChangeText={setMotto}
+      maxLength={80}
+      returnKeyType="done"
+      onBlur={() => {
+        if (motto.trim() !== value) onSave(motto);
+      }}
+    />
   );
 }
 

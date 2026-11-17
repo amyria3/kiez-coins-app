@@ -229,6 +229,8 @@ export type Group = {
   inviteCode: string;
   /** Rangliste nach Edensteinen sichtbar. Aus: nur Mitgliederliste (Migration 20261022000500_group_leaderboard_toggle) */
   showLeaderboard: boolean;
+  /** Eine Zeile unter dem Namen, höchstens 80 Zeichen (Daria, 2026-11-17, Migration 20261117000100) */
+  motto?: string;
   members: GroupMember[];
   createdAt: string;
 };
