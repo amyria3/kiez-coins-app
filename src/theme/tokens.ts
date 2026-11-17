@@ -378,6 +378,12 @@ export const text = {
   /** Abschnittsüberschrift auf Einstellungsseiten aus mehreren Abschnitten, z. B. Funktionen (Daria, 2026-11-10) */
   settingsHeading: { fontFamily: font.semiBold, fontSize: 20, lineHeight: 26 },
   body: { fontFamily: font.text, fontSize: 15, lineHeight: 19 },
+  /**
+   * `text/body/dark-on-color`: Fließtext dunkel auf farbiger Fläche, z. B. grüne Antworten und lila Fragen in den
+   * Erklär-Blasen. Karla Regular statt Light, minimal kräftiger (Daria, 2026-11-17). Helle Schrift auf dunklem Grund
+   * bleibt bei `body`.
+   */
+  bodyDarkOnColor: { fontFamily: font.regular, fontSize: 15, lineHeight: 19 },
   /** Fließtext halbfett, z. B. Name im Post, Text auf kleinen Buttons */
   bodyStrong: { fontFamily: font.semiBold, fontSize: 15, lineHeight: 19 },
   /** Größerer Fließtext, z. B. Menüeinträge, Zähler unter Posts */

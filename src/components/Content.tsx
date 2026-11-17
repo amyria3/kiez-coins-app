@@ -405,13 +405,13 @@ export function Notice({
       ) : null}
       {action ? (
         <View style={styles.noticeWithAction}>
-          <LinkedText style={[styles.noticeText, styles.noticeTextSky, feed && { color: ink }]} value={message} />
-          <Text accessibilityRole="link" onPress={action.onPress} style={[styles.noticeText, styles.noticeTextSky, styles.noticeAction, { color: ink }]}>
+          <LinkedText style={[styles.noticeText, styles.noticeTextSky, feed && styles.noticeTextFeed]} value={message} />
+          <Text accessibilityRole="link" onPress={action.onPress} style={[styles.noticeText, styles.noticeTextSky, feed && styles.noticeTextFeed, styles.noticeAction, { color: ink }]}>
             {t(action.label)}
           </Text>
         </View>
       ) : (
-        <LinkedText style={[styles.noticeText, styles.noticeTextSky, feed && { color: ink }]} value={message} />
+        <LinkedText style={[styles.noticeText, styles.noticeTextSky, feed && styles.noticeTextFeed]} value={message} />
       )}
       {onClose ? (
         <IconButton
@@ -799,7 +799,7 @@ const styles = StyleSheet.create({
   noticeText: { ...text.caption, color: color.text.primary, flex: 1 },
   // Gestellte Frage lila wie eine eigene Nachricht, die Antwort der App helles Himmelblau (Daria, 2026-11-09)
   questionOpen: { backgroundColor: color.accent.primary, borderColor: color.accent.primary },
-  questionTextOpen: { color: color.text.onAccent },
+  questionTextOpen: { ...text.bodyDarkOnColor, color: color.text.onAccent },
   answerSky: { backgroundColor: SKY_BG, flexShrink: 1, transformOrigin: 'left bottom' },
   noticeSky: {
     alignSelf: 'flex-start',
@@ -822,8 +822,10 @@ const styles = StyleSheet.create({
   noticeClose: { marginVertical: -10, marginRight: -10, marginLeft: -4 },
   noticeWithAction: { flexShrink: 1, gap: space[2] },
   noticeAction: { textDecorationLine: 'underline' },
-  noticeTextSky: { ...text.body, color: SKY_TEXT, flexGrow: 0, flexShrink: 1, flexBasis: 'auto' },
-  answerTextSky: { color: SKY_TEXT },
+  noticeTextSky: { ...text.bodyDarkOnColor, color: SKY_TEXT, flexGrow: 0, flexShrink: 1, flexBasis: 'auto' },
+  /** Hinweise im Feed: helle Schrift auf Grau, daher wieder der leichte Fließtext */
+  noticeTextFeed: { fontFamily: text.body.fontFamily, color: FEED_TEXT },
+  answerTextSky: { ...text.bodyDarkOnColor, color: SKY_TEXT },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 24 },
   iconBox: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   // Lange Links ohne Leerzeichen brechen um, statt das Icon aus der Spalte zu schieben (Daria, 2026-11-17)
