@@ -170,7 +170,7 @@ export function ChipGroup({ children }: { children: React.ReactNode }) {
 
 /** Kennzeichnung für Pflichtangaben: Stern in der Akzentfarbe des Themes */
 export function RequiredMark() {
-  // Farbe des Themes (Daria, 2026-11-14): Lila, in Happy Gelb, in Functional Gelbgrün
+  // Farbe des Themes (Daria, 2026-11-14): Lila, in Happy Gelb, in Functional Grün
   const accent = useAccentColor();
   return (
     <Text style={{ color: accent }} accessibilityLabel={t('Pflichtfeld')}>
@@ -242,7 +242,7 @@ const HAND_TRACK = fitShape(SWITCH_TRACK, HAND_W, HAND_H);
 const HAND_KNOB = fitShape(SWITCH_KNOB, HAND_KW, HAND_KH);
 
 function HandSwitch({ label, value, onValueChange }: { label: string; value: boolean; onValueChange: (v: boolean) => void }) {
-  // An: Gelbgrün statt Lila (Daria, 2026-11-13)
+  // An: Akzent des Themes (Daria, 2026-11-13)
   const on = useFocusColor();
   // Aus im Farbton des Themes (Daria, 2026-11-14)
   const off = useToggleOffColor();

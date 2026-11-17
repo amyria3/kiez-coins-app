@@ -11,7 +11,7 @@ import { styles } from './styles';
 /**
  * Routine im Kiez-Look (Daria, 2026-11-12), nach der Vorlage „ListEasy“: oben der Kalender, darunter drei Gruppen
  * mit farbigen Karten, jede Gruppe waagerecht scrollbar, die Seite senkrecht.
- * Lila und Gelbgrün bleiben der Bedienung vorbehalten, die Karten haben eigene Farben.
+ * Lila und das Grün des Systems bleiben der Bedienung vorbehalten, die Karten haben eigene Farben.
  * Der Kater rechts oben zeigt den Stand; später als kurzes Video (wartet, freut sich, sauer …).
  * Entwürfe: Projektordner routine-karte/2026-11-12_*.png
  */

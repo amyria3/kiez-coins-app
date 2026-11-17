@@ -44,18 +44,12 @@ const swatch = {
   /** Senf, etwas ruhiger: Aufgaben-Karten in Routine (Daria, 2026-11-16: „ein wenig absetzen in der Intensität“) */
   senfRuhig: '#E0C96C',
   /**
-   * Gelbgrün: Fokus, eingeschaltete Schalter, Menü-Icon, Theme Functional. Hell wie der Kater in der Start-Animation
-   * (Daria, 2026-11-14). Seit 2026-11-15 auch der Kreis der Bildmarke
+   * Gelbgrün: Signalfarbe des Schaufensters (Folgen, Merken, Datum), Kreis der Bildmarke. Bis 2026-11-17 Farbe des
+   * Systems (Menü, Theme Functional, Krabbe); Daria hat System und Schaufenster getauscht, das System ist jetzt Grün.
    */
   gelbgruen: '#F0FFA6',
-  /**
-   * Türkis: Signalfarbe des Schaufensters (Folgen, Termine). Statt Leuchtgelb, das zu nah am Gelbgrün des Menüs
-   * und an der Limette der Krabbe lag (Daria, 2026-11-17). Kein anderer Ton der App liegt in diesem Bereich.
-   * Etwas ruhiger als das erste Türkis #6FEEDD, weniger Neon auf dem dunklen Grund („ggf. im Ton anpassen“).
-   */
-  tuerkis: '#56DCCB',
-  /** Türkis dunkel: Schrift und Rand auf hellen Karten, dort hätte Türkis nur 1,5 : 1 Kontrast (dieses 5,4 : 1) */
-  tuerkisDunkel: '#0B6E63',
+  /** Oliv dunkel: Schrift und Rand in Gelbgrün-Ton auf den hellen Schaufenster-Karten (6,5 : 1 auf Papier) */
+  olivDunkel: '#4D5A08',
   /** Papier: neutrales Hellgrau-Beige für Karten auf dunklem Grund, wirkt weiß, blendet weniger als Weiß (Daria, 2026-11-17) */
   papier: '#EFEEEA',
   /** Beige: große Icons, Leisten-Icons, papierweißer Knopf im Umschalter */
@@ -73,14 +67,13 @@ const swatch = {
    * 2026-11-15 ein dunkles Grau mit wenig Violett statt Lila: Aus soll nicht nach Akzent aussehen.
    */
   schalterAus: '#4A4852',
-  schalterAusOlive: '#525837',
+  /** Functional: dunkles Grün, passend zum Grün des Systems */
+  schalterAusGruen: '#34472F',
   schalterAusSenf: '#585137',
   /** Reines Weiß: Rand der Herzen, Schrift auf Fotos beim Beschriften, Blatt der Textposts */
   weiss: '#FFFFFF',
   /** Fast Schwarz mit kühlem Ton: Schrift auf hellen Flächen (Systemmeldung, Abzeichen-Icon) */
   nacht: '#1F2123',
-  /** Kräftiges Gelbgrün der Krabbe, gleicher Farbton wie gelbgruen (Daria, 2026-11-11) */
-  limette: '#DDFF33',
   /** Dunkles Lila, deckend: Sprechblase des Katers über anderem Inhalt */
   lilaNacht: '#3B3B55',
   /** Helles Flieder: Kreuz in der Kater-Blase, Uhr und Text der Routine-Pille */
@@ -159,7 +152,7 @@ export const color = {
     feed: palette.pink,
     chat: swatch.schnee,
     /** Menü = Einstellungen. Dieselbe Grundfarbe wie accent.functional, eigene Rolle (Daria, 2026-11-13) */
-    menu: swatch.gelbgruen,
+    menu: palette.green,
     create: palette.purple,
     onCreate: palette.black,
   },
@@ -183,8 +176,12 @@ export const color = {
      * der Akzent (Daria, 2026-11-15, vorher Gelbgrün). Happy und Functional haben eigene Farben (theme/signal.tsx).
      */
     focus: palette.purple,
-    /** Theme „Functional“ (Daria, 2026-11-14): Knöpfe, Schalter und Fokus auf den Seiten unter dem Menü, wie das Menü-Icon */
-    functional: swatch.gelbgruen,
+    /**
+     * Theme „Functional“ (Daria, 2026-11-14): Knöpfe, Schalter und Fokus auf den Seiten unter dem Menü, wie das Menü-Icon.
+     * Seit 2026-11-17 Grün wie die Herzen in der Brille des Katers, dasselbe Ziel wie `confirmation` (Daria: „zwei
+     * semantische Variablen, aber mit demselben Ziel“).
+     */
+    functional: palette.green,
     signal: palette.orange,
     /**
      * Fehler und Pflichtfeld-Hinweise: im Kiez-Look Orange wie die Signalfarbe (Daria, 2026-11-12). Das alte Korallrot
@@ -206,11 +203,11 @@ export const color = {
     /** Uhr und Text der Routine-Pille */
     pill: swatch.flieder,
   },
-  /** Systemmeldungen und Antworten (Frage und Krabbe): gelbgrüne Fläche mit dunkler Schrift */
+  /** Systemmeldungen und Antworten (Frage und Krabbe): grüne Fläche mit dunkler Schrift, Grün des Systems (Daria, 2026-11-17) */
   system: {
-    bg: swatch.gelbgruen,
+    bg: palette.green,
     text: swatch.nacht,
-    crab: swatch.limette,
+    crab: palette.green,
   },
   /** Sprechblase des Katers */
   kater: {
@@ -250,18 +247,18 @@ export const color = {
     hours: swatch.papier,
     links: swatch.papier,
     services: swatch.papier,
-    /** Signal: Folgen, Merken, Datum (Daria, 2026-11-17) */
-    event: swatch.tuerkis,
+    /** Signal: Folgen, Merken, Datum. Gelbgrün seit dem Tausch mit dem System (Daria, 2026-11-17) */
+    event: swatch.gelbgruen,
     eventCard: swatch.papier,
     /**
-     * Zweitrangige Knöpfe: Rand und Schrift in Türkis (Daria, 2026-11-17). Auf dem dunklen Grund Türkis, auf den
-     * hellen Karten Türkis dunkel, damit Schrift lesbar bleibt (WCAG AA).
+     * Zweitrangige Knöpfe: Rand und Schrift in der Signalfarbe (Daria, 2026-11-17). Auf dem dunklen Grund Gelbgrün,
+     * auf den hellen Karten Oliv dunkel, damit Schrift lesbar bleibt (WCAG AA).
      */
-    secondaryOnDark: swatch.tuerkis,
-    secondaryOnCard: swatch.tuerkisDunkel,
-    /** Unterstreichung in Türkis zu 70 % (Daria, 2026-11-17), auf Karten in Türkis dunkel */
-    underlineOnDark: withAlpha(swatch.tuerkis, 0.7),
-    underlineOnCard: withAlpha(swatch.tuerkisDunkel, 0.7),
+    secondaryOnDark: swatch.gelbgruen,
+    secondaryOnCard: swatch.olivDunkel,
+    /** Unterstreichung in der Signalfarbe zu 70 % (Daria, 2026-11-17), auf Karten in Oliv dunkel */
+    underlineOnDark: withAlpha(swatch.gelbgruen, 0.7),
+    underlineOnCard: withAlpha(swatch.olivDunkel, 0.7),
     ink: swatch.tinte,
     inkSoft: withAlpha(swatch.tinte, 0.68),
     /** Grauer Grund unter „Neu im Schaufenster“, wie die Kartenfarbe der Feeds; Posts darauf etwas heller */
@@ -270,18 +267,18 @@ export const color = {
   },
   /** Kopf des Schaufensters (Daria, 2026-11-17): große Farbfläche, Schrift darauf in Tinte */
   showcaseHead: {
-    bg: swatch.tuerkis,
+    bg: swatch.gelbgruen,
     ink: swatch.tinte,
     inkSoft: withAlpha(swatch.tinte, 0.7),
-    /** Platzhalter-Logo: Kreis in Türkis, Kater in Tinte, kein Lila daneben (Daria, 2026-11-17) */
-    logo: swatch.tuerkis,
+    /** Platzhalter-Logo: Kreis in der Signalfarbe, Kater in Tinte (Daria, 2026-11-17) */
+    logo: swatch.gelbgruen,
   },
   /** An/Aus-Schalter im Kiez-Look */
   toggle: {
     /** Friendship: dunkles Lila */
     off: swatch.schalterAus,
-    /** Functional: dunkles Gelbgrün */
-    offFunctional: swatch.schalterAusOlive,
+    /** Functional: dunkles Grün */
+    offFunctional: swatch.schalterAusGruen,
     /** Happy: dunkles Senf */
     offPrivate: swatch.schalterAusSenf,
   },

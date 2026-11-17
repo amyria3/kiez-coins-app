@@ -14,11 +14,11 @@ import { IconButton } from './IconButton';
 
 // Systemmeldungen als hellblaue Chatblase der App, wie die Antworten auf die Fragen; Icon dunkel wie der Text, nur bei Warnungen (Daria, 2026-11-09)
 const SKY_TEXT = color.system.text;
-/** Fläche der Systemmeldungen im Kiez-Look: probeweise das Gelbgrün aus dem Kreis hinter dem Kater (Cat.svg, Startbild) statt Himmelblau #A9DBFF (Daria, 2026-11-09) */
+/** Fläche der Systemmeldungen im Kiez-Look: Grün des Systems wie die Herzen in der Brille des Katers (Daria, 2026-11-17; vorher Gelbgrün, davor Himmelblau) */
 const SKY_BG = color.system.bg;
 /**
  * Nur Hinweise im Feed: grau in der Kartenfarbe, ohne Rand, helle Schrift (Daria, 2026-11-12). Das Gelbgrün mit 80 %
- * wurde dort neben dem hellen Switch zu Olive. Alle übrigen Systemblasen bleiben gelbgrün.
+ * wurde dort neben dem hellen Switch zu Olive. Alle übrigen Systemblasen haben die Farbe des Systems.
  */
 const FEED_TEXT = color.text.primary;
 const FEED_BG = color.bg.surface;
@@ -315,7 +315,7 @@ const KRABBE_PIXEL = (() => {
 const KRABBE_WIDTH = 28;
 /**
  * Grüner Körper statt Lila (Daria, 2026-11-11): Lila tragen die eigenen Nachrichten, die Krabbe hebt sich davon ab.
- * Derselbe Farbton wie die Systemblase (SKY_BG, Gelbgrün 70°), nur kräftiger (Daria, 2026-11-11: „gleiche Farbe, nur andere Intensität“).
+ * Seit 2026-11-17 dasselbe Grün wie die Systemblase: eine Farbe fürs ganze System (Daria).
  */
 const KRABBE_GRUEN = color.system.crab;
 const KRABBE_COLOR: Record<number, string> = {

@@ -125,8 +125,16 @@ export function ShowcaseEventCard({
           ) : null}
           <View style={styles.compactActions}>
             {!e.cancelled && !past ? (
-              // Türkis, solange man merken kann; gemerkt nur mit Rand (Daria, 2026-11-17: Best Practice, Akzent sparsam)
-              <HandButton label={saved ? 'Gemerkt' : 'Merken'} fill={saved ? undefined : color.showcaseCards.event} tone={color.showcaseCards.secondaryOnCard} disabled={busy} onPress={toggle} />
+              // Tinte mit Schrift in der Signalfarbe, solange man merken kann; gemerkt nur mit Rand. Gelbgrün als Fläche
+              // hätte auf den hellen Karten kaum Kontrast (1,1 : 1, Daria, 2026-11-17)
+              <HandButton
+                label={saved ? 'Gemerkt' : 'Merken'}
+                filled={!saved}
+                bg={color.showcaseCards.event}
+                tone={color.showcaseCards.secondaryOnCard}
+                disabled={busy}
+                onPress={toggle}
+              />
             ) : null}
             <Pressable
               accessibilityRole="button"
@@ -233,8 +241,8 @@ const styles = StyleSheet.create({
   compactImage: { width: '100%', aspectRatio: 16 / 9 },
   // Mehr Luft und etwas größere Schrift (Daria, 2026-11-17)
   compactBody: { gap: space[8], padding: space[20] },
-  datePill: { alignSelf: 'flex-start', borderRadius: radius.full, backgroundColor: color.showcaseCards.event, paddingVertical: space[4], paddingHorizontal: space[12] },
-  dateText: { ...text.labelSm, color: color.showcaseCards.ink },
+  datePill: { alignSelf: 'flex-start', borderRadius: radius.full, backgroundColor: color.showcaseCards.ink, paddingVertical: space[4], paddingHorizontal: space[12] },
+  dateText: { ...text.labelSm, color: color.showcaseCards.event },
   compactTitle: { ...text.cardTitle, color: color.showcaseCards.ink },
   compactSub: { ...text.body, color: color.showcaseCards.inkSoft },
   compactText: { ...text.bodyLarge, color: color.showcaseCards.ink },
