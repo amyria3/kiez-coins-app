@@ -245,7 +245,8 @@ function visitenkarte(s, links) {
 @font-face { font-family: Karla_500Medium; font-display: block; src: url(/fonts/Karla_500Medium.ttf) format('truetype'); }
 .geteilt .sf-vk { margin: 0 0 56px; }
 .geteilt .sf-vk-bild { display: block; width: 100%; max-width: 420px; aspect-ratio: 85 / 55; border-radius: 10px; margin: 0 0 12px; }
-.geteilt .sf-vk-knoepfe { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+/* Knöpfe untereinander, mehr Abstand zur Karte (Daria, 2026-11-17) */
+.geteilt .sf-vk-knoepfe { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; margin-top: 28px; }
 .geteilt .sf-vk button { cursor: pointer; }
 .geteilt .sf-vk .sf-vk-haupt { border: 0; border-radius: 999px; padding: 12px 22px; background: var(--text); color: var(--bg); font: 500 15px/1 Inter, sans-serif; letter-spacing: .01em; }
 .geteilt .sf-vk .sf-vk-neben { border: 0; background: none; padding: 8px 0; font: inherit; font-size: 15px; color: var(--text); text-decoration: underline; }
