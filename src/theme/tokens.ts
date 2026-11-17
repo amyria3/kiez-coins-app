@@ -71,6 +71,8 @@ const swatch = {
   /** Functional: dunkles Grün, passend zum Grün des Systems */
   schalterAusGruen: '#304535',
   schalterAusSenf: '#585137',
+  /** Schaufenster: dunkles Oliv, passend zum Gelbgrün */
+  schalterAusOliv: '#4A4E34',
   /** Reines Weiß: Rand der Herzen, Schrift auf Fotos beim Beschriften, Blatt der Textposts */
   weiss: '#FFFFFF',
   /** Fast Schwarz mit kühlem Ton: Schrift auf hellen Flächen (Systemmeldung, Abzeichen-Icon) */
@@ -183,6 +185,11 @@ export const color = {
      * semantische Variablen, aber mit demselben Ziel“).
      */
     functional: palette.green,
+    /**
+     * Theme „Schaufenster“ (Daria, 2026-11-17): Knöpfe, Schalter und Fokus auf dem öffentlichen Schaufenster und seinen
+     * Unterseiten in Gelbgrün, wie „Folgen“ und die Termine.
+     */
+    showcase: swatch.gelbgruen,
     signal: palette.orange,
     /**
      * Fehler und Pflichtfeld-Hinweise: im Kiez-Look Orange wie die Signalfarbe (Daria, 2026-11-12). Das alte Korallrot
@@ -277,6 +284,8 @@ export const color = {
     offFunctional: swatch.schalterAusGruen,
     /** Happy: dunkles Senf */
     offPrivate: swatch.schalterAusSenf,
+    /** Schaufenster: dunkles Oliv */
+    offShowcase: swatch.schalterAusOliv,
   },
   /** Abdunklung über Fotos, damit helle Schrift darauf lesbar bleibt (Grundfarbe des Kiez-Looks, verschieden stark) */
   overlay: {

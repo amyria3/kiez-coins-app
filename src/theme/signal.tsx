@@ -15,6 +15,8 @@ import { color } from './tokens';
  * - `me`: „Me & Myself“ (My Structure, My Feed) und Erstellen unter „Privat“. Signalfarbe Gelb.
  * - `public`: Kiez und Überall. Signalfarbe Lila.
  * - `group`: Gruppen. Signalfarbe Lila.
+ * - Schaufenster (`showcase`, seit 2026-11-17): öffentliches Schaufenster mit Post, Termin, Visitenkarte, Beitreten.
+ *   Knöpfe, Schalter und Fokus Gelbgrün wie „Folgen“ und die Termine.
  * Den Bereich jeder Seite bestimmt eine Stelle: `RouteSpace` im Root-Layout (siehe `spaceOfRoute`). Alles darunter
  * liest ihn: Umschalter, Hauptbuttons, Fokusrahmen, Suchfeld, Erstellen. So wechseln alle Farben im selben Moment.
  * Nur im Look „Kiez“; „Fashionable“ bleibt bei Lila.
@@ -32,6 +34,7 @@ export function useSpace(): Space {
 export function spaceColors(space: Space): { accent: string; focus: string; off: string } {
   if (space === 'me') return { accent: color.accent.private, focus: color.accent.private, off: color.toggle.offPrivate };
   if (space === 'functional') return { accent: color.accent.functional, focus: color.accent.functional, off: color.toggle.offFunctional };
+  if (space === 'showcase') return { accent: color.accent.showcase, focus: color.accent.showcase, off: color.toggle.offShowcase };
   return { accent: color.accent.primary, focus: color.accent.focus, off: color.toggle.off };
 }
 

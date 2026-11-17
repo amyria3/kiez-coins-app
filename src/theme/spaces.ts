@@ -2,7 +2,7 @@
  * Bereiche (Themes) der App ohne React, damit sie sich testen lassen (tests/spaces.test.ts). Die Farben und den
  * Kontext dazu liefert `signal.tsx`.
  */
-export type Space = 'me' | 'public' | 'group' | 'functional';
+export type Space = 'me' | 'public' | 'group' | 'functional' | 'showcase';
 
 /**
  * Eine Stelle für den Bereich jeder Seite (Daria, 2026-11-15): Das Root-Layout legt um jede Route `RouteSpace`
@@ -12,6 +12,7 @@ export type Space = 'me' | 'public' | 'group' | 'functional';
  */
 export function spaceOfRoute(name: string, post?: { private?: boolean; groupId?: string }): Space {
   if (isFunctionalRoute(name)) return 'functional';
+  if (isShowcaseRoute(name)) return 'showcase';
   if (name.startsWith('routine/')) return 'me';
   // Seiten zu einem Post: Detail, Bearbeiten, Kommentare, Likes, Me-Challenge usw.
   if (post) return post.private ? 'me' : post.groupId ? 'group' : 'public';
@@ -20,8 +21,23 @@ export function spaceOfRoute(name: string, post?: { private?: boolean; groupId?:
 }
 
 /**
+ * Routen mit Theme „Schaufenster“ (Daria, 2026-11-17): das öffentliche Schaufenster und was man von dort aus tut
+ * (Post, Termin, Visitenkarte, mit Code beitreten). Verwalten und Bearbeiten bleiben Functional.
+ */
+export function isShowcaseRoute(name: string): boolean {
+  return (
+    name === 'schaufenster/beitreten' ||
+    name === 'schaufenster/[id]/index' ||
+    name === 'schaufenster/[id]/post' ||
+    name === 'schaufenster/[id]/termin' ||
+    name === 'schaufenster/[id]/visitenkarte'
+  );
+}
+
+/**
  * Routen mit Theme „Functional“ (Daria, 2026-11-14): alles unter Dein Konto außer Freundschaften (bleibt Friendship),
- * Schaufenster verwalten und bearbeiten, Moderation, Texte. Die öffentliche Schaufenster-Seite bleibt Friendship.
+ * Schaufenster verwalten und bearbeiten, Moderation, Texte. Die öffentliche Schaufenster-Seite hat seit 2026-11-17
+ * ein eigenes Theme (`isShowcaseRoute`).
  */
 export function isFunctionalRoute(name: string): boolean {
   if (name === 'account/friends') return false;
