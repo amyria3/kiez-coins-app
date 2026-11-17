@@ -368,7 +368,9 @@ ${
 /* Klein, ohne Slogan, rechts, mit Abstand darunter (Daria, 2026-11-10) */
 .top { justify-content: flex-end; padding: 28px 0 0; margin-bottom: 40px; }
 .top .brand { align-items: flex-end; }
-.top .brand svg { height: 10px; width: auto; }
+/* Daria (2026-11-17): „Zu klein, viel zu klein“. So groß wie auf kiezcoins.de: 31 px, auf schmalen Bildschirmen 26 px */
+.top .brand svg { height: 31px; width: auto; }
+@media (max-width: 360px) { .top .brand svg { height: 26px; } }
 .top .marke { display: none; }
 /* Ecken rechteckig, der Übergang zum Ausschnitt ganz leicht abgerundet (Daria, 2026-11-10). Die Maske besteht aus drei
    Teilen: oben alles, unten links ein Streifen, unten rechts eine Kachel mit dem Ausschnitt und 6 px Rundung an den
