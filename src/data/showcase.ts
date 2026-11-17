@@ -34,6 +34,8 @@ export type Showcase = {
   kiez?: string;
   /** Nur für Menschen mit Zugang (showcase_private); sonst leer */
   address?: string;
+  /** Kontakt-Mail (Daria, 2026-11-17, Migration 20261117000200); wie die Adresse nur über showcase_private */
+  email?: string;
   /** Bis zu 10 Links (Daria, 2026-11-10: „mehr Links“) */
   links: string[];
   openingHours?: string;
@@ -126,7 +128,7 @@ type Row = {
  * damit Menschen ohne Zugang sie nicht sehen.
  */
 const COLUMNS = 'id, group_id, name, slug, logo_path, cover_path, about, services, services_collapsed, bg_color, kiez, website, links, opening_hours, imprint, visibility, plan_until';
-type Private = { address: string | null; invite_code: string | null } | null;
+type Private = { address: string | null; email: string | null; invite_code: string | null } | null;
 
 const toShowcase = (r: Row): Showcase => ({
   id: r.id,
@@ -224,6 +226,7 @@ export async function loadShowcase(id: string, userId: string): Promise<{ showca
   const showcase = toShowcase(data as Row);
   const { data: priv } = await supabase.rpc('showcase_private', { p_showcase: id });
   showcase.address = (priv as Private)?.address ?? undefined;
+  showcase.email = (priv as Private)?.email ?? undefined;
   showcase.inviteCode = (priv as Private)?.invite_code ?? '';
   showcase.switches = await showcaseSwitches(id);
   await Promise.all([loadTerms(showcase), loadSeo(showcase)]);
@@ -273,6 +276,7 @@ export type ShowcaseInput = {
   bgColor?: string;
   kiez?: string;
   address?: string;
+  email?: string;
   links: string[];
   openingHours?: string;
   imprint?: string;
@@ -325,6 +329,9 @@ export const BG_PALETTE: { hex: string; name: string }[] = [
   { hex: '#26233A', name: 'Nacht' },
   { hex: '#1F2123', name: 'Kiez dunkel' },
 ];
+/** Wie die Datenbank (showcases_email_check): name@domain.tld, höchstens 254 Zeichen */
+export const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+export const EMAIL_MAX = 254;
 /** „https://www.kiezblick.de/“ → „kiezblick.de“, „https://instagram.com/kiezblick“ → „instagram.com/kiezblick“ */
 export const shortLink = (url: string) => url.replace(/^https:\/\/(www\.)?/i, '').replace(/\/$/, '');
 
@@ -338,6 +345,7 @@ export async function updateShowcase(id: string, userId: string, input: Showcase
     bg_color: input.bgColor && HEX.test(input.bgColor) ? input.bgColor.toUpperCase() : null,
     kiez: nullIfEmpty(input.kiez),
     address: nullIfEmpty(input.address),
+    email: nullIfEmpty(input.email),
     links: input.links.map((l) => l.trim()).filter(Boolean).slice(0, MAX_LINKS),
     // Die alte Spalte bleibt der erste Link
     website: input.links.map((l) => l.trim()).find(Boolean) ?? null,

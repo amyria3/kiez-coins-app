@@ -46,6 +46,8 @@ export type CardData = {
   name: string;
   kiez?: string;
   address?: string;
+  /** Kontakt-Mail (Daria, 2026-11-17) */
+  email?: string;
   openingHours?: string;
   services?: string;
   links: string[];
@@ -285,7 +287,9 @@ function drawBack(d: CardData, a: Assets): HTMLCanvasElement {
     { label: t('Öffnungszeiten'), value: d.openingHours, max: 5 },
   ];
   const right: Item[] = [
-    { label: t('Services'), value: services.join('\n'), max: d.links.length ? 4 : 8 },
+    { label: t('Services'), value: services.join('\n'), max: d.links.length || d.email ? 4 : 8 },
+    // Mail über den Links, eine Zeile, notfalls kleiner (Daria, 2026-11-17: „Dann bitte Mail einbinden“)
+    { label: t('E-Mail'), value: d.email, max: 1, fit: true },
     // Links nicht umbrechen: lieber etwas kleiner, damit sie lesbar bleiben
     { label: d.links.length > 1 ? t('Links') : t('Link'), value: d.links.map(shortLink).join('\n'), max: 3, fit: true },
   ];
@@ -388,11 +392,11 @@ function download(file: File) {
 }
 
 /**
- * Text, der mit dem Bild mitgeht: Name, Adresse und Link zum Schaufenster (Daria, 2026-11-12: „Wenn ich das Bild
+ * Text, der mit dem Bild mitgeht: Name, Adresse, Mail und Link zum Schaufenster (Daria, 2026-11-12: „Wenn ich das Bild
  * verschicke, Adresse mitsenden“). So lässt sich die Adresse in Messengern antippen und kopieren.
  */
 export function cardMessage(d: CardData): string {
-  return [d.name, d.address?.trim(), d.url].filter(Boolean).join('\n');
+  return [d.name, d.address?.trim(), d.email?.trim(), d.url].filter(Boolean).join('\n');
 }
 
 /**

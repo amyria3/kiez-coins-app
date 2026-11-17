@@ -313,9 +313,10 @@ type InfoCardData = {
   placeholder?: boolean;
   address?: string;
   links?: string[];
+  email?: string;
 };
 
-/** Karten für „Gut zu wissen“: Ort, Öffnungszeiten, Links. Leere sieht nur das Team als Platzhalter. */
+/** Karten für „Gut zu wissen“: Ort, Öffnungszeiten, Links mit Mail. Leere sieht nur das Team als Platzhalter. */
 function infoCards(s: Showcase, team: boolean): InfoCardData[] {
   const cards: InfoCardData[] = [];
   if (s.address) {
@@ -324,7 +325,11 @@ function infoCards(s: Showcase, team: boolean): InfoCardData[] {
   } else if (team) cards.push({ id: 'ort', kicker: 'Ort', title: 'Noch keine Adresse', icon: 'map-pin', placeholder: true });
   if (s.openingHours) cards.push({ id: 'zeit', kicker: 'Öffnungszeiten', title: s.openingHours, icon: 'clock-filled' });
   else if (team) cards.push({ id: 'zeit', kicker: 'Öffnungszeiten', title: 'Noch keine Öffnungszeiten', icon: 'clock-filled', placeholder: true });
-  if (s.links.length) cards.push({ id: 'links', kicker: s.links.length === 1 ? 'Link' : 'Links', title: '', icon: 'link', links: s.links });
+  // Mail als erste Zeile der Link-Karte (Daria, 2026-11-17: „Dann bitte Mail einbinden“)
+  if (s.links.length || s.email) {
+    const kicker = s.email ? (s.links.length ? 'Kontakt' : 'E-Mail') : s.links.length === 1 ? 'Link' : 'Links';
+    cards.push({ id: 'links', kicker, title: '', icon: 'link', links: s.links, email: s.email });
+  }
   else if (team) cards.push({ id: 'links', kicker: 'Links', title: 'Noch keine Links', icon: 'link', placeholder: true });
   return cards;
 }
@@ -378,7 +383,7 @@ function CardRow({ title, count, children }: { title: string; count: number; chi
   );
 }
 
-function InfoCard({ kicker, title, body, icon, placeholder, address, links, name }: InfoCardData & { name: string }) {
+function InfoCard({ kicker, title, body, icon, placeholder, address, links, email, name }: InfoCardData & { name: string }) {
   return (
     <View style={styles.card}>
       <View style={styles.cardHead}>
@@ -400,9 +405,9 @@ function InfoCard({ kicker, title, body, icon, placeholder, address, links, name
         </Text>
       ) : null}
       {/* Je Link eine Zeile mit Namen des Dienstes und der Adresse darunter (Daria, 2026-11-17: „Layout nicht gut“) */}
-      {links?.length ? (
+      {links?.length || email ? (
         <View style={styles.linkList}>
-          {links.map((l, i) => {
+          {[...(email ? [`mailto:${email}`] : []), ...(links ?? [])].map((l, i) => {
             const { label, sub } = linkParts(l);
             return (
               <Pressable
@@ -451,6 +456,7 @@ const SERVICES: [RegExp, string][] = [
 ];
 
 function linkParts(link: string): { label: string; sub: string } {
+  if (/^mailto:/i.test(link)) return { label: t('E-Mail'), sub: link.slice(7) };
   const short = shortLink(link);
   const [host, ...path] = short.split('/');
   const service = SERVICES.find(([re]) => re.test(host.toLowerCase()))?.[1];

@@ -17,6 +17,7 @@ export function cardData(s: Showcase): CardData {
     name: s.name,
     kiez: s.kiez,
     address: s.address,
+    email: s.email,
     openingHours: s.openingHours,
     services: s.services,
     links: s.links,

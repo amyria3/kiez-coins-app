@@ -151,6 +151,7 @@ function jsonLd(s, url) {
     ...(bild ? { image: bild } : {}),
     ...(foto(s.logo_path) ? { logo: foto(s.logo_path) } : {}),
     ...(s.address ? { address: s.address } : {}),
+    ...(s.email ? { email: s.email } : {}),
     ...(s.kiez ? { areaServed: s.kiez } : {}),
     ...(links.length ? { sameAs: links } : {}),
   };
@@ -227,12 +228,13 @@ function eintrag(x) {
 
 // Visitenkarte zum Teilen und Drucken (Daria, 2026-11-12: „kann die Visitenkarte nicht teilen“). Dieselbe Karte wie in
 // der App unter Verwalten › Visitenkarte exportieren: website/visitenkarte.js aus src/lib/businessCardCanvas.ts.
-// Beim Teilen gehen Name, Adresse und Link als Text mit. Schriften unter den Namen, die die Zeichnung erwartet.
+// Beim Teilen gehen Name, Adresse, Mail und Link als Text mit. Schriften unter den Namen, die die Zeichnung erwartet.
 function visitenkarte(s, links) {
   const daten = {
     name: s.name,
     kiez: s.kiez || undefined,
     address: s.address || undefined,
+    email: s.email || undefined,
     openingHours: s.opening_hours || undefined,
     services: s.services || undefined,
     links: links.filter((l) => /^https:\/\//i.test(l)),
@@ -364,6 +366,10 @@ function inhalt(s) {
       .map((l) => `<a href="${esc(l)}" rel="noopener nofollow">${esc(l.replace(/^https:\/\/(www\.)?/i, '').replace(/\/$/, ''))}</a>`)
       .join('<br>') || '<span class="sf-leer">Noch keine Links</span>',
   );
+  // Kontakt-Mail zum Antippen (Daria, 2026-11-17: „Dann bitte Mail einbinden“); ohne Mail keine Zeile
+  const mail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s.email ?? '')
+    ? fakt('E-Mail', `<a href="mailto:${esc(s.email)}">${esc(s.email)}</a>`)
+    : '';
   const eintraege = (s.entries ?? []).map(eintrag).join('\n');
   // Noch nichts gepostet: Abschnitte für Termine und Posts mit einem ersten Post als Platzhalter
   const ohneEintraege = `<h2 class="sf-abschnitt">Termine</h2>${leer('Noch keine Termine')}
@@ -476,7 +482,7 @@ ${
   <div class="sf-wer">${logo ? `<img class="sf-logo" src="${esc(logo)}" alt="Logo von ${esc(s.name)}">` : `<span class="sf-logo sf-kater">${KATER}</span>`}<h1 style="${titelGroesse(s.name)}">${esc(s.name)}</h1></div>
   ${s.kiez ? `<p class="wer">${esc(s.kiez)}</p>` : ''}
   ${s.about ? `<p class="text">${esc(s.about)}</p>` : leer('Noch keine Beschreibung')}
-  <dl class="sf-fakten">${infos}${web}</dl>
+  <dl class="sf-fakten">${infos}${mail}${web}</dl>
   ${s.imprint ? '<p class="sf-klein"><a href="#impressum">Impressum</a></p>' : ''}
   ${
     !s.services
