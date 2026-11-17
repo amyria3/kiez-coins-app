@@ -6,7 +6,7 @@ import { FieldGroup } from '../../components/Content';
 import { CrownIcon } from '../../components/icons/Brand';
 import { Icon, ICON_SCALE } from '../../components/icons/Icon';
 
-import { NavCard, NavRow, ProfileCard } from '../../components/Rows';
+import { NavCard, NavRow, ProfileHeader } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { TabBar } from '../../components/TabBar';
 import { SurveyOverlay } from '../../components/SurveyOverlay';
@@ -74,7 +74,8 @@ export default function Account() {
       }
     >
       <Animated.View style={[styles.slide, slide.style]} {...slide.panHandlers}>
-      <ProfileCard
+      {/* Kopfbereich ohne Karte (Daria, 2026-11-17) */}
+      <ProfileHeader
         user={me}
         name={profile.handle || me.name}
         details={[salutation(profile), profile.kiez ?? 'Kiez noch nicht festgelegt']}

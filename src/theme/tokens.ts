@@ -457,6 +457,8 @@ export const text = {
   metricXs: { fontFamily: font.display, fontSize: 15, lineHeight: 19 },
   /** Auf dem Foto: Titel */
   photoTitle: { fontFamily: font.onPhoto, fontSize: 16, lineHeight: 21 },
+  /** Eigener Name im Kopfbereich der Kontoseite (Daria, 2026-11-17) */
+  profileName: { fontFamily: font.onPhoto, fontSize: 22, lineHeight: 28 },
   /** Auf dem Foto: Name, Tag, Überzeile */
   photoLabel: { fontFamily: font.onPhoto, fontSize: 15, lineHeight: 20 },
   /** Auf dem Foto: Ort */

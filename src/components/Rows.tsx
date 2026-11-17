@@ -126,32 +126,34 @@ export function NavRow({ label, value, tone = 'default', onPress }: NavRowProps)
   );
 }
 
-type ProfileCardProps = {
+type ProfileHeaderProps = {
   user: User;
   name: string;
   details: string[];
   onPress: () => void;
 };
 
-/** Große Karte im Stil der NavRow: Profilbild, Deckname und persönliche Angaben, führt zum Bearbeiten. */
-export function ProfileCard({ user, name, details, onPress }: ProfileCardProps) {
+/**
+ * Kopfbereich der Kontoseite ohne Karte (Daria, 2026-11-17, Entwurf A, „etwas größer“): großes Profilbild, Deckname,
+ * persönliche Angaben in einer Zeile und „Profil bearbeiten“. Führt zum Bearbeiten.
+ */
+export function ProfileHeader({ user, name, details, onPress }: ProfileHeaderProps) {
   return (
     <Pressable
-      style={({ pressed }) => [styles.row, styles.profileCard, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.profileHeader, pressed && styles.pressed]}
       accessibilityRole="button"
       accessibilityLabel={t('Persönliche Angaben: {name}, {details}. Ändern', { name, details: details.join(', ') })}
       onPress={onPress}
     >
-      <Avatar user={{ ...user, name }} diameter={56} ringColor={color.bg.surface} />
-      <View style={styles.texts}>
-        <Text style={styles.profileName} numberOfLines={1}>
+      <Avatar user={{ ...user, name }} diameter={80} ringColor={color.bg.screen} />
+      <View style={styles.headerTexts}>
+        <Text style={styles.headerName} numberOfLines={1}>
           {name}
         </Text>
-        {details.map((line) => (
-          <Text key={line} style={styles.label} numberOfLines={1}>
-            {line}
-          </Text>
-        ))}
+        <Text style={styles.headerDetails} numberOfLines={1}>
+          {details.join(' · ')}
+        </Text>
+        <Text style={styles.headerEdit}>{t('Profil bearbeiten')}</Text>
       </View>
       <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
     </Pressable>
@@ -159,7 +161,7 @@ export function ProfileCard({ user, name, details, onPress }: ProfileCardProps) 
 }
 
 /**
- * Große Karte in der Größe der ProfileCard, z. B. für Was Du so machst, Deine Challenges und Deine Gruppen.
+ * Große Karte, z. B. für Was Du so machst, Deine Challenges und Deine Gruppen.
  * Links ein runder Kreis mit Icon oder Zeichnung, daneben Titel und eine Zeile Beschreibung.
  */
 export function NavCard({
@@ -227,14 +229,10 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
   },
   navRow: { minHeight: 48 },
-  profileCard: { padding: space[16], gap: space[16], borderRadius: radius.lg },
   // Papierkarte mit kleiner Rundung wie die Posts im Feed (Daria, 2026-11-17)
   navCard: { padding: space[16], gap: space[16], borderRadius: radius.post, backgroundColor: color.accountCards.card },
   navTitle: { ...text.photoTitle, color: color.accountCards.ink },
   navDescription: { ...text.caption, color: color.accountCards.inkSoft },
-  /** Titel der Karten in der Farbe der großen Icons, auch der eigene Name (Daria, 2026-11-05) */
-  // Unbounded statt Inter Tight wie „Pirat:in“ (Daria, 09.11.2026). 17 statt 19, die Unbounded läuft breiter.
-  profileName: { ...text.photoTitle, color: color.icon.large },
   // Aktives Feld mit kräftigerem lila Rand wie alle Eingabefelder (stroke.focus, Daria, 2026-11-09); Abstände um die Differenz kleiner
   editing: {
     borderWidth: stroke.focus,
@@ -242,6 +240,12 @@ const styles = StyleSheet.create({
     paddingRight: space[4] - (stroke.focus - stroke.thin),
     paddingLeft: space[12] - (stroke.focus - stroke.thin),
   },
+  // Kopfbereich direkt auf dem Grund, ohne Karte (Daria, 2026-11-17)
+  profileHeader: { flexDirection: 'row', alignItems: 'center', gap: space[16], paddingHorizontal: space[4], paddingVertical: space[8] },
+  headerTexts: { flex: 1, gap: space[4] },
+  headerName: { ...text.profileName, color: color.icon.large },
+  headerDetails: { ...text.bodySm, color: color.text.secondary },
+  headerEdit: { ...text.labelSm, color: color.accent.functional, marginTop: space[2] },
   pressed: { opacity: 0.8 },
   texts: { flex: 1, gap: space[2] },
   flex: { flex: 1 },
