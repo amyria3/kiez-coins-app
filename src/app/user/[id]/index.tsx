@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
   about: { alignItems: 'center', gap: space[8] },
   bio: { ...text.body, color: color.text.primary, textAlign: 'center', maxWidth: 320 },
   link: { ...text.body, color: color.accent.primary },
-  actions: { gap: space[24] },
+  actions: { gap: space[20] },
   buttons: { flexDirection: 'row', gap: space[8] },
   flex: { flex: 1 },
   // Deutlich abgesetzt von den Knöpfen darüber (Daria, 22.10.2026)
