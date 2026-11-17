@@ -18,19 +18,27 @@ import { color, space, text } from '../../theme/tokens';
 import { t } from '../../data/texts';
 import { useGoBack } from '../../lib/goBack';
 import { shareText } from '../../lib/share';
+import { BlockedList } from '../../components/BlockedList';
+import { Segments } from '../../components/FeedHeader';
+
+type ContactTab = 'invite' | 'friends' | 'blocked';
 
 /** Code in den Beispieldaten, ohne Datenbank */
 const DEMO_INVITE_CODE = 'K7M2QXA';
 
 /**
- * Route `account/friends` (Push aus „Dein Konto“): Freundschaftsanfragen annehmen oder ablehnen,
+ * Route `account/friends`, Seite „Kontakte“ (Daria, 2026-11-17): Umschalter Einladen | Freund:innen | Gesperrt.
+ * Freundschaftsanfragen annehmen oder ablehnen,
  * gesendete Anfragen und Freund:innen. Anfragen stellt man im Profil einer Person.
  * Einladen per Link, QR-Code oder Code (Daria, 24.10.2026): Wer die Einladung annimmt, ist sofort befreundet.
  */
 export default function Friends() {
-  // `einladen=1` (aus den Nachrichten, Daria, 2026-11-17): Einladen steht oben, die Listen darunter
-  const { einladen } = useLocalSearchParams<{ einladen?: string }>();
-  const inviteFirst = einladen === '1';
+  // Kontakte mit Umschalter Einladen | Freund:innen | Gesperrt (Daria, 2026-11-17). `reiter` wählt ihn beim Öffnen,
+  // z. B. `einladen` aus den Nachrichten, `gesperrt` aus „Blockierte Personen“. `einladen=1` gilt weiter.
+  const { einladen, reiter } = useLocalSearchParams<{ einladen?: string; reiter?: string }>();
+  const [section, setSection] = useState<ContactTab>(
+    einladen === '1' || reiter === 'einladen' ? 'invite' : reiter === 'gesperrt' ? 'blocked' : 'friends',
+  );
   const router = useRouter();
   const goBack = useGoBack();
   const { mode, users, currentUserId } = useStore();
@@ -141,7 +149,7 @@ export default function Friends() {
     <>
       {inviteError ? <Notice message={`${t('Deine Einladung nicht geladen.')} (${inviteError})`} /> : null}
       {inviteCode ? (
-        <FieldGroup heading label="Einladen">
+        <FieldGroup heading label="Deine Einladung">
           <Text style={styles.secondary}>Wer Deine Einladung annimmt, ist sofort mit Dir befreundet.</Text>
           <InviteQr value={friendInviteLink(inviteCode)} label={t('Instant-Verbindung zum Scannen')} />
           <CopyField label="Einladungslink" value={friendInviteLink(inviteCode)} />
@@ -153,35 +161,10 @@ export default function Friends() {
     </>
   );
 
-  return (
-    <SubScreen title={inviteFirst ? 'Freund:innen einladen' : 'Freundschaften'} navigation="back" onLeadingPress={goBack}>
-      {inviteFirst ? inviteBlock : null}
-      {lists === null ? (
-        <Notice message="Freundschaften sind noch nicht freigeschaltet. Die Datenbank braucht dafür ein Update." />
-      ) : null}
-      {lists && lists.incoming.length ? (
-        <FieldGroup heading label="Anfragen">
-          {lists.incoming.map((user) => (
-            <View key={user.id} style={styles.item}>
-              <AuthorRow user={user} location={user.location} onPress={() => open(user)} />
-              <View style={styles.buttons}>
-                <Button label="Annehmen" onPress={() => accept(user)} style={styles.flex} />
-                <Button label="Ablehnen" variant="secondary" onPress={() => decline(user)} />
-              </View>
-            </View>
-          ))}
-        </FieldGroup>
-      ) : null}
-      {lists ? (
-        <FieldGroup heading label="Freund:innen">
-          {lists.friends.length ? (
-            lists.friends.map((user) => <AuthorRow key={user.id} user={user} location={user.location} onPress={() => open(user)} />)
-          ) : (
-            <Text style={styles.secondary}>Noch niemand. Lade Leute per Instant-Verbindung, Link oder Passcode ein.</Text>
-          )}
-        </FieldGroup>
-      ) : null}
-      {inviteFirst ? null : inviteBlock}
+  // Einladen: eigene Einladung und eine fremde annehmen
+  const invitePage = (
+    <>
+      {inviteBlock}
       <FieldGroup heading label="Einladung annehmen">
         <TextField
           label="Passcode"
@@ -203,6 +186,39 @@ export default function Friends() {
           whyDisabled={() => !joining && codeField.nudge('Der Passcode hat 7 Zeichen.')}
         />
       </FieldGroup>
+    </>
+  );
+
+  // Freund:innen: Anfragen, Freund:innen, gesendete Anfragen
+  const friendsPage = (
+    <>
+      {lists === null ? (
+        <Notice message="Freundschaften sind noch nicht freigeschaltet. Die Datenbank braucht dafür ein Update." />
+      ) : null}
+      {lists && lists.incoming.length ? (
+        <FieldGroup heading label="Anfragen">
+          {lists.incoming.map((user) => (
+            <View key={user.id} style={styles.item}>
+              <AuthorRow user={user} location={user.location} onPress={() => open(user)} />
+              <View style={styles.buttons}>
+                <Button label="Annehmen" onPress={() => accept(user)} style={styles.flex} />
+                <Button label="Ablehnen" variant="secondary" onPress={() => decline(user)} />
+              </View>
+            </View>
+          ))}
+        </FieldGroup>
+      ) : null}
+      {lists ? (
+        lists.friends.length ? (
+          <View style={styles.list}>
+            {lists.friends.map((user) => (
+              <AuthorRow key={user.id} user={user} location={user.location} onPress={() => open(user)} />
+            ))}
+          </View>
+        ) : (
+          <Text style={styles.secondary}>Noch niemand. Lade Leute unter „Einladen“ per Instant-Verbindung, Link oder Passcode ein.</Text>
+        )
+      ) : null}
       {lists && lists.outgoing.length ? (
         <FieldGroup heading label="Gesendet">
           {lists.outgoing.map((user) => (
@@ -213,12 +229,30 @@ export default function Friends() {
           ))}
         </FieldGroup>
       ) : null}
+    </>
+  );
+
+  return (
+    <SubScreen title="Kontakte" navigation="back" onLeadingPress={goBack}>
+      {/* Kontakte mit Umschalter, Einladen ganz links (Daria, 2026-11-17) */}
+      <Segments
+        tabs={[
+          { key: 'invite', label: 'Einladen' },
+          { key: 'friends', label: 'Freund:innen' },
+          { key: 'blocked', label: 'Gesperrt' },
+        ]}
+        selectedKey={section}
+        onChange={setSection}
+        accent
+      />
+      {section === 'invite' ? invitePage : section === 'blocked' ? <BlockedList /> : friendsPage}
     </SubScreen>
   );
 }
 
 const styles = StyleSheet.create({
   item: { gap: space[8] },
+  list: { gap: space[16] },
   buttons: { flexDirection: 'row', gap: space[8] },
   flex: { flex: 1 },
   secondary: { ...text.body, color: color.text.secondary },

@@ -129,13 +129,13 @@ export default function Account() {
       {/* Freundschaften, Funktionen und Look mit Darias Icons (25.10.2026), Sprache mit Phosphor.
           Grammatisches Geschlecht steht nur noch unter Persönliche Angaben (Daria, 27.10.2026). */}
       <NavCard
-        title="Meine Freundschaften"
+        title="Meine Kontakte"
         description={
           friendRequests
             ? t('{n, plural, one {# Anfrage} other {# Anfragen}}', {
                 n: friendRequests,
               })
-            : 'Freund:innen und Anfragen'
+            : 'Einladen, Freund:innen, Gesperrt'
         }
         leading={<Icon name="friends" size={size.icon} color={color.text.primary} />}
         onPress={() => router.push('/account/friends')}
@@ -178,7 +178,7 @@ export default function Account() {
           <NavRow
             label="Blockierte Personen"
             value={blockedIds.length === 0 ? 'Niemand' : t('{blockedIds} blockiert', { blockedIds: blockedIds.length })}
-            onPress={() => router.push('/account/blocked')}
+            onPress={() => router.push({ pathname: '/account/friends', params: { reiter: 'gesperrt' } })}
           />
           {/* Ob jemand aus dem Team Deine Daten abgerufen hat (Daria, 27.10.2026) */}
           <NavRow label="Abrufe Deiner Daten" value="Durchs Team" onPress={() => router.push('/account/data-access')} />

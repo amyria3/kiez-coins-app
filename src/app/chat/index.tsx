@@ -169,7 +169,7 @@ export default function Chats() {
           <Text style={styles.hint}>Nachrichten verschwinden nach einem Monat.</Text>
         ) : null}
         {/* Einladen statt Verwalten (Daria, 2026-11-17); Freundschaften verwalten liegt unter „Dein Konto“, beenden im Profil */}
-        <Button label="Freund:innen einladen" variant="ghost" onPress={() => router.push({ pathname: '/account/friends', params: { einladen: '1' } })} />
+        <Button label="Freund:innen einladen" variant="ghost" onPress={() => router.push({ pathname: '/account/friends', params: { reiter: 'einladen' } })} />
       </ScrollView>
       </Animated.View>
       <PageSlideProvider value={slide.leave}>
