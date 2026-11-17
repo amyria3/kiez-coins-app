@@ -161,64 +161,59 @@ export function ProfileHeader({ user, name, details, onPress }: ProfileHeaderPro
 }
 
 /**
- * Große Karte, z. B. für Was Du so machst, Deine Challenges und Deine Gruppen.
- * Links ein runder Kreis mit Icon oder Zeichnung, daneben Titel und eine Zeile Beschreibung.
+ * Karte für eine Gruppe von Zeilen auf der Kontoseite (Daria, 2026-11-17): eine Rundung außen, jede `NavGroupRow`
+ * bringt ihre eigene Farbstufe mit.
  */
-export function NavCard({
+export function NavGroup({ children }: { children: ReactNode }) {
+  return <View style={styles.navGroup}>{children}</View>;
+}
+
+/**
+ * Zeile der Kontoseite auf der Farbe ihres Bereichs (`color.accountCards.*`, Daria, 2026-11-17): Icon ohne Kreis,
+ * Titel und eine Zeile Beschreibung, Pfeil. `ink` und `inkSoft` nur für dunkle Flächen wie die Kater-Zeile.
+ */
+export function NavGroupRow({
   title,
   description,
   leading,
-  leadingFill,
-  accent,
+  background,
+  ink = color.accountCards.ink,
+  inkSoft = color.accountCards.inkSoft,
   onPress,
 }: {
   title: string;
   description?: string;
-  /** Ohne Icon steht der Text bündig links */
-  leading?: ReactNode;
-  /** Farbe des Kreises hinter dem Icon (`color.accountCards.*`), das Icon selbst steht in Tinte */
-  accent?: string;
-  /** Zeichnung sitzt unten im Kreis, der Kreis schneidet ihre Unterkante rund ab (Kater, Daria 25.10.2026) */
-  leadingFill?: boolean;
+  leading: ReactNode;
+  background: string;
+  ink?: string;
+  inkSoft?: string;
   onPress: () => void;
 }) {
   return (
     <Pressable
-      style={({ pressed }) => [styles.row, styles.navCard, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.groupRow, { backgroundColor: background }, pressed && styles.pressed]}
       accessibilityRole="button"
       accessibilityLabel={description ? `${title}, ${description}` : title}
       onPress={onPress}
     >
-      {leading ? (
-        <View style={[styles.cardLeading, accent ? { backgroundColor: accent } : null, leadingFill && styles.cardLeadingFill]}>{leading}</View>
-      ) : null}
+      <View style={styles.groupLeading}>{leading}</View>
       <View style={styles.texts}>
-        {/* Zwei Zeilen statt abgeschnitten, z. B. „Deine Freundschaften“ auf 360 pt breiten Android-Handys (29.10.2026) */}
-        <Text style={styles.navTitle} numberOfLines={2}>
+        <Text style={[styles.navTitle, { color: ink }]} numberOfLines={1}>
           {title}
         </Text>
         {description ? (
-          <Text style={styles.navDescription} numberOfLines={2}>
+          <Text style={[styles.navDescription, { color: inkSoft }]} numberOfLines={1}>
             {description}
           </Text>
         ) : null}
       </View>
-      <Icon name="chevron-right" size={size.icon} color={color.accountCards.inkSoft} />
+      <Icon name="chevron-right" size={size.icon} color={inkSoft} />
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   saveText: { ...text.bodyStrong, color: color.accent.primary },
-  cardLeading: {
-    width: 56,
-    height: 56,
-    borderRadius: radius.full,
-    backgroundColor: color.bg.screen,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cardLeadingFill: { overflow: 'hidden', justifyContent: 'flex-end' },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -229,10 +224,12 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
   },
   navRow: { minHeight: 48 },
-  // Papierkarte mit kleiner Rundung wie die Posts im Feed (Daria, 2026-11-17)
-  navCard: { padding: space[16], gap: space[16], borderRadius: radius.post, backgroundColor: color.accountCards.card },
-  navTitle: { ...text.photoTitle, color: color.accountCards.ink },
-  navDescription: { ...text.caption, color: color.accountCards.inkSoft },
+  navGroup: { borderRadius: radius.md, overflow: 'hidden' },
+  groupRow: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingHorizontal: space[12], paddingVertical: space[12], minHeight: 60 },
+  groupLeading: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  navTitle: { ...text.listItemTitle },
+  // 14 pt statt 12, einzeilig (Daria, 2026-11-17)
+  navDescription: { ...text.bodySm },
   // Aktives Feld mit kräftigerem lila Rand wie alle Eingabefelder (stroke.focus, Daria, 2026-11-09); Abstände um die Differenz kleiner
   editing: {
     borderWidth: stroke.focus,
