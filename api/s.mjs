@@ -370,9 +370,12 @@ ${
 .top .brand { align-items: flex-end; }
 /* Daria (2026-11-17): „Zu klein, viel zu klein“. So groß wie auf kiezcoins.de: 31 px, auf schmalen Bildschirmen 26 px */
 .top .brand svg { height: 31px; width: auto; }
-/* Logo-Fassung C (Daria, 2026-11-17: „B oder C“): Kreis und Schrift in der Schriftfarbe der Seite, der Kater bleibt
-   farbig. So passt es zu jeder Schaufensterfarbe, hell wie dunkel. */
-.top .brand svg rect, .top .brand svg path[fill="#5260E0"] { fill: var(--text); }
+/* Logo-Fassung B (Daria, 2026-11-17: „Nimm B“): nur der Schriftzug, in der Schriftfarbe der Seite. Der Kater (die
+   Gruppe mit dem Kreis) fällt weg, das SVG rückt um seine Breite nach links (22 von 105 Einheiten bei 24 Höhe). */
+.top .brand svg g { display: none; }
+.top .brand svg path[fill="#5260E0"] { fill: var(--text); }
+.top .brand svg { margin-left: calc(31px * -22 / 24); }
+@media (max-width: 360px) { .top .brand svg { margin-left: calc(26px * -22 / 24); } }
 @media (max-width: 360px) { .top .brand svg { height: 26px; } }
 .top .marke { display: none; }
 /* Ecken rechteckig, der Übergang zum Ausschnitt ganz leicht abgerundet (Daria, 2026-11-10). Die Maske besteht aus drei
