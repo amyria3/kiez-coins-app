@@ -13,8 +13,10 @@ import { Text } from '../../../components/T';
 import {
   answerRequest,
   deleteShowcase,
+  loadFriendRequestsSwitch,
   loadShowcase,
   openRequests,
+  setFriendRequestsSwitch,
   setShowcasePoster,
   showcaseInviteLink,
   showcasePublicLink,
@@ -76,6 +78,8 @@ export default function EditShowcase() {
   const [requests, setRequests] = useState<{ userId: string; handle: string }[]>([]);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
+  // Anfreunden über das Schaufenster (Daria, 2026-11-17); undefined, solange der Schalter nicht geladen ist
+  const [friendRequests, setFriendRequests] = useState<boolean | undefined>();
 
   useEffect(() => {
     loadShowcase(id, currentUserId).then((d) => {
@@ -104,6 +108,7 @@ export default function EditShowcase() {
       setLogo(s.logo);
       setCover(s.cover);
       showcasePosters(s.groupId).then(setPosters);
+      loadFriendRequestsSwitch(s.id).then(setFriendRequests);
     });
   }, [id, currentUserId]);
 
@@ -180,6 +185,12 @@ export default function EditShowcase() {
     } finally {
       setBusy(false);
     }
+  };
+
+  // Sofort speichern wie „Wer darf posten?“
+  const toggleFriendRequests = async (on: boolean) => {
+    setFriendRequests(on);
+    if (!(await setFriendRequestsSwitch(showcase.id, on))) setFriendRequests(!on);
   };
 
   const togglePoster = async (userId: string, allow: boolean) => {
@@ -352,6 +363,21 @@ export default function EditShowcase() {
           <Text style={styles.meta}>Link und Code zum Einladen erscheinen nach dem Speichern.</Text>
         ) : null}
       </FieldGroup>
+
+      {friendRequests !== undefined ? (
+        <FieldGroup label="Anfreunden">
+          <SwitchRow
+            label="Freundschaftsanfragen über das Schaufenster"
+            description={
+              friendRequests
+                ? 'Wer Deine Seite oder Visitenkarte öffnet, kann Dir mit einem Tipp eine Freundschaftsanfrage schicken.'
+                : 'Auf Deiner Seite erscheint kein Knopf zum Anfreunden.'
+            }
+            value={friendRequests}
+            onValueChange={toggleFriendRequests}
+          />
+        </FieldGroup>
+      ) : null}
 
       {showcase.seoReady && visibility === 'public' ? (
         <FieldGroup label="Adresse">

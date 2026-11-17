@@ -16,10 +16,12 @@ import { Icon } from '../../../components/icons/Icon';
 import { HandButton } from '../../../components/routine/cards';
 import { styles as routine } from '../../../components/routine/styles';
 import {
+  acceptsFriends,
   follow,
   loadEntries,
   loadShowcase,
   requestAccess,
+  requestShowcaseFriend,
   setShowcasePost,
   shortLink,
   showcasePublicLink,
@@ -27,6 +29,7 @@ import {
   type Showcase,
   type ShowcaseAccess,
   type ShowcaseEntry,
+  type ShowcaseFriendResult,
   type ShowcasePost,
 } from '../../../data/showcase';
 import { useAuth } from '../../../data/auth';
@@ -44,7 +47,7 @@ import { color, radius, space, text, withAlpha } from '../../../theme/tokens';
  * andere nur den Kopf und können anfragen oder einen Code eingeben.
  */
 export default function ShowcaseScreen() {
-  const { id, folgen } = useLocalSearchParams<{ id: string; folgen?: string }>();
+  const { id, folgen, anfreunden } = useLocalSearchParams<{ id: string; folgen?: string; anfreunden?: string }>();
   const router = useRouter();
   const { session } = useAuth();
   const goBack = useGoBack();
@@ -80,8 +83,40 @@ export default function ShowcaseScreen() {
     });
   }, [folgen, data, router, reload]);
 
+  // Anfreunden nach dem Scan (Daria, 2026-11-17: „mit der Person gleich nach dem Scannen anfreunden“): Der Knopf
+  // erscheint, wenn die Gründer:in den Schalter in „Bearbeiten“ anlässt. Von der Webseite (?anfreunden=1) schickt die
+  // App die Anfrage nach der Anmeldung einmal von selbst, wie beim Folgen.
+  const [friendable, setFriendable] = useState(false);
+  const [friendResult, setFriendResult] = useState<ShowcaseFriendResult | null>(null);
+  const [friendError, setFriendError] = useState<string | null>(null);
+  const befriended = useRef(false);
+  useEffect(() => {
+    if (!session || !id) return;
+    acceptsFriends(id).then(setFriendable, () => setFriendable(false));
+  }, [session, id]);
+  const befriend = useCallback(async () => {
+    setFriendError(null);
+    setBusy(true);
+    try {
+      setFriendResult(await requestShowcaseFriend(id));
+    } catch (error) {
+      setFriendError((error as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }, [id]);
+  useEffect(() => {
+    if (!session && anfreunden === '1' && id) rememberInvite(id, 'showcase_friend');
+  }, [session, anfreunden, id]);
+  useEffect(() => {
+    if (!session || anfreunden !== '1' || befriended.current || !data) return;
+    befriended.current = true;
+    router.setParams({ anfreunden: undefined });
+    if (!data.access.founder) befriend();
+  }, [session, anfreunden, data, router, befriend]);
+
   // Nur der Weg von der Webseite braucht die Anmeldung; die Beispieldaten (/demo) laufen ohne Sitzung
-  if (!session && folgen === '1') return <Redirect href="/onboarding/welcome" />;
+  if (!session && (folgen === '1' || anfreunden === '1')) return <Redirect href="/onboarding/welcome" />;
 
   if (data === undefined) {
     return (
@@ -197,11 +232,23 @@ export default function ShowcaseScreen() {
                 onPress={toggleFollow}
               />
             ) : null}
+            {friendable && !access.founder && friendResult !== 'friends' ? (
+              <Pill
+                check={friendResult === 'sent'}
+                disabled={busy || friendResult === 'sent'}
+                label={friendResult === 'sent' ? t('Anfrage verschickt') : t('Mit {name} anfreunden')}
+                name={friendResult === 'sent' ? undefined : s.name}
+                onPress={befriend}
+              />
+            ) : null}
             {link ? <Pill label="Teilen" onPress={() => shareText(`${s.name}\n${link}`)} /> : null}
           </View>
         </View>
 
         {justFollowed ? <Notice message={t('Du folgst jetzt {name}.', { name: s.name })} /> : null}
+        {friendResult === 'sent' ? <Notice message={t('Deine Freundschaftsanfrage an {name} ist unterwegs.', { name: s.name })} /> : null}
+        {friendResult === 'friends' ? <Notice message={t('Du bist jetzt mit {name} befreundet.', { name: s.name })} /> : null}
+        {friendError ? <Notice variant="warning" message={friendError} /> : null}
 
         {/* Schaufenster abgeschaltet (Feature `schaufenster`): Nur die Gruppe sieht es noch (Daria, 2026-11-10) */}
         {!s.switches.online ? (

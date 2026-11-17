@@ -1822,5 +1822,13 @@
   "Meine Aktivität": "My activity",
   "Gemeinsam": "Together",
   "App": "App",
-  "{on} von {all} an": "{on} of {all} on"
+  "{on} von {all} an": "{on} of {all} on",
+  "Mit {name} anfreunden": "Add {name} as a friend",
+  "Anfrage verschickt": "Request sent",
+  "Deine Freundschaftsanfrage an {name} ist unterwegs.": "Your friend request to {name} is on its way.",
+  "Du bist jetzt mit {name} befreundet.": "You and {name} are now friends.",
+  "Anfreunden": "Friends",
+  "Freundschaftsanfragen über das Schaufenster": "Friend requests through the showcase",
+  "Wer Deine Seite oder Visitenkarte öffnet, kann Dir mit einem Tipp eine Freundschaftsanfrage schicken.": "Anyone who opens your page or business card can send you a friend request with one tap.",
+  "Auf Deiner Seite erscheint kein Knopf zum Anfreunden.": "Your page shows no button for friend requests."
 }

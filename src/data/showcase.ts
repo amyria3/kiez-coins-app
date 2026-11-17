@@ -171,6 +171,36 @@ async function loadSeo(showcase: Showcase): Promise<void> {
   showcase.seoDescription = row?.seo_description ?? undefined;
 }
 
+// ---------- Anfreunden über das Schaufenster (Daria, 2026-11-17, Migration 20261117000500) ----------
+
+/** Schalter „Freundschaftsanfragen über das Schaufenster“ der Gründer:in; undefined ohne Antwort */
+export async function loadFriendRequestsSwitch(id: string): Promise<boolean | undefined> {
+  const { data, error } = await supabase.from('showcases').select('friend_requests').eq('id', id).maybeSingle();
+  if (error || !data) return undefined;
+  return (data as { friend_requests: boolean }).friend_requests;
+}
+
+/** Schalter sofort speichern; false bei einem Fehler */
+export async function setFriendRequestsSwitch(id: string, on: boolean): Promise<boolean> {
+  const { error } = await supabase.from('showcases').update({ friend_requests: on }).eq('id', id);
+  return !error;
+}
+
+/** Zeigt das Schaufenster den Knopf „Mit … anfreunden“? Ohne Antwort nicht. */
+export async function acceptsFriends(id: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc('showcase_accepts_friends', { p_showcase: id });
+  return !error && data === true;
+}
+
+export type ShowcaseFriendResult = 'sent' | 'friends' | 'own';
+
+/** Freundschaftsanfrage an die Person, die das Schaufenster angelegt hat. Wirft mit lesbarer Meldung. */
+export async function requestShowcaseFriend(id: string): Promise<ShowcaseFriendResult> {
+  const { data, error } = await supabase.rpc('request_showcase_friend', { p_showcase: id });
+  if (error) throw new Error(error.message);
+  return data as ShowcaseFriendResult;
+}
+
 /** Schalter der Gruppe; ohne Antwort ist alles an */
 export async function showcaseSwitches(id: string): Promise<ShowcaseSwitches> {
   const { data, error } = await supabase.rpc('showcase_schalter', { p_showcase: id });
