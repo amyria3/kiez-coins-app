@@ -24,7 +24,7 @@ import {
   type ProfileExtras,
 } from '../../../data/remote';
 import { useStore } from '../../../data/store';
-import { color, radius, space, text } from '../../../theme/tokens';
+import { color, space, text } from '../../../theme/tokens';
 import { t, tAbout } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 import { openLink } from '../../../lib/places';
@@ -132,91 +132,107 @@ export default function UserProfile() {
 
   return (
     <SubScreen title="Profil" navigation="back" onLeadingPress={goBack}>
+      {/* Kopf in drei ruhigen Gruppen (Daria, 2026-11-17): wer (Foto, Name, Kiez und Lob in einer Zeile),
+          was die Person sagt (Bio, Webseite), Abzeichen. Das Abzeichen am Foto entfällt hier,
+          weil der Streifen darunter es schon groß mit Namen zeigt. */}
       <View style={styles.head}>
-        <Avatar user={user} diameter={120} />
-        <Text noTranslate
-          style={[styles.name, hidden && hiddenText]}
-          accessibilityRole="header"
-          accessibilityElementsHidden={hidden}
-          importantForAccessibility={hidden ? 'no-hide-descendants' : 'auto'}
-        >
-          {user.name}
-        </Text>
-        {hidden ? null : <BadgeStrip userId={user.id} />}
-        {user.location ? (
-          <View style={styles.row}>
-            <Icon name="map-pin" size={14} color={color.text.secondary} />
-            <Text style={styles.secondary}>{user.location}</Text>
-          </View>
-        ) : null}
-        {extras?.bio ? <Text style={styles.bio} selectable>{extras.bio}</Text> : null}
-        {website ? (
-          <Pressable
-            accessibilityRole="link"
-            accessibilityLabel={t('Webseite öffnen: {website}', { website })}
-            onPress={() => openLink(website)}
-            style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}
+        <View style={styles.identity}>
+          <Avatar user={user} diameter={120} badge={false} />
+          <Text noTranslate
+            style={[styles.name, hidden && hiddenText]}
+            accessibilityRole="header"
+            accessibilityElementsHidden={hidden}
+            importantForAccessibility={hidden ? 'no-hide-descendants' : 'auto'}
           >
-            <Icon name="link" size={13} color={color.accent.primary} />
-            <Text style={styles.link} numberOfLines={1}>
-              {website.replace(/^https?:\/\//i, '').replace(/\/$/, '')}
-            </Text>
-          </Pressable>
-        ) : null}
-        {praise ? (
-          <View style={styles.praise} accessibilityLabel={t('{count} Mal gelobt', { count: praise.count })}>
-            <Icon name="thumbs-up" size={18} color={color.accent.confirmation} />
-            <Text style={styles.praiseText}>{praise.count === 1 ? '1 Lob' : `${praise.count} Lob`}</Text>
+            {user.name}
+          </Text>
+          {user.location || praise ? (
+            <View style={styles.meta}>
+              {user.location ? (
+                <View style={styles.row}>
+                  <Icon name="map-pin" size={14} color={color.text.secondary} />
+                  <Text style={styles.secondary}>{user.location}</Text>
+                </View>
+              ) : null}
+              {praise ? (
+                <View style={styles.row} accessibilityLabel={t('{count} Mal gelobt', { count: praise.count })}>
+                  <Icon name="thumbs-up" size={16} color={color.accent.confirmation} />
+                  <Text style={styles.secondary}>{praise.count === 1 ? '1 Lob' : `${praise.count} Lob`}</Text>
+                </View>
+              ) : null}
+            </View>
+          ) : null}
+        </View>
+        {extras?.bio || website ? (
+          <View style={styles.about}>
+            {extras?.bio ? <Text style={styles.bio} selectable>{extras.bio}</Text> : null}
+            {website ? (
+              <Pressable
+                accessibilityRole="link"
+                accessibilityLabel={t('Webseite öffnen: {website}', { website })}
+                onPress={() => openLink(website)}
+                style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}
+              >
+                <Icon name="link" size={13} color={color.accent.primary} />
+                <Text style={styles.link} numberOfLines={1}>
+                  {website.replace(/^https?:\/\//i, '').replace(/\/$/, '')}
+                </Text>
+              </Pressable>
+            ) : null}
           </View>
         ) : null}
+        {hidden ? null : <BadgeStrip userId={user.id} />}
       </View>
 
       {isMe ? (
         <QuestionHint question="Wie ändere ich mein Profil?" answer="Foto, Deckname und Kiez änderst Du unter „Dein Konto“. Hier siehst Du Dein Profil so, wie die anderen es sehen." />
       ) : (
         <>
-          {friend === 'none' ? (
-            <Button label="Als Freund:in anfragen" disabled={friendBusy} onPress={() => changeFriend('sent', () => requestFriend(user.id))} />
-          ) : friend === 'sent' ? (
-            <Button
-              label="Anfrage gesendet"
-              variant="secondary"
-              disabled={friendBusy}
-              onPress={() => changeFriend('none', () => removeFriend(currentUserId, user.id))}
-            />
-          ) : friend === 'received' ? (
-            <View style={styles.buttons}>
+          {/* Knöpfe mit mehr Luft untereinander (Daria, 2026-11-17) */}
+          <View style={styles.actions}>
+            {friend === 'none' ? (
+              <Button label="Als Freund:in anfragen" disabled={friendBusy} onPress={() => changeFriend('sent', () => requestFriend(user.id))} />
+            ) : friend === 'sent' ? (
               <Button
-                label="Anfrage annehmen"
-                disabled={friendBusy}
-                onPress={() => changeFriend('friends', () => acceptFriend(currentUserId, user.id))}
-                style={styles.flex}
-              />
-              <Button
-                label="Ablehnen"
+                label="Anfrage gesendet"
                 variant="secondary"
                 disabled={friendBusy}
                 onPress={() => changeFriend('none', () => removeFriend(currentUserId, user.id))}
               />
-            </View>
-          ) : friend === 'friends' ? (
-            <>
+            ) : friend === 'received' ? (
+              <View style={styles.buttons}>
+                <Button
+                  label="Anfrage annehmen"
+                  disabled={friendBusy}
+                  onPress={() => changeFriend('friends', () => acceptFriend(currentUserId, user.id))}
+                  style={styles.flex}
+                />
+                <Button
+                  label="Ablehnen"
+                  variant="secondary"
+                  disabled={friendBusy}
+                  onPress={() => changeFriend('none', () => removeFriend(currentUserId, user.id))}
+                />
+              </View>
+            ) : friend === 'friends' ? (
+              <>
+                <Button
+                  label="Nachricht schreiben"
+                  icon="message"
+                  onPress={() => router.push({ pathname: '/chat/[id]', params: { id: user.id, name: user.name } })}
+                />
+                <Button label="Befreundet" variant="secondary" disabled={friendBusy} onPress={confirmEnd} />
+              </>
+            ) : null}
+            {praise ? (
               <Button
-                label="Nachricht schreiben"
-                icon="message"
-                onPress={() => router.push({ pathname: '/chat/[id]', params: { id: user.id, name: user.name } })}
+                label={praise.mine ? 'Lob gezollt' : 'Lob zollen'}
+                variant={praise.mine ? 'secondary' : 'primary'}
+                disabled={busy}
+                onPress={togglePraise}
               />
-              <Button label="Befreundet" variant="secondary" disabled={friendBusy} onPress={confirmEnd} />
-            </>
-          ) : null}
-          {praise ? (
-            <Button
-              label={praise.mine ? 'Lob gezollt' : 'Lob zollen'}
-              variant={praise.mine ? 'secondary' : 'primary'}
-              disabled={busy}
-              onPress={togglePraise}
-            />
-          ) : null}
+            ) : null}
+          </View>
           <View style={styles.list}>
             <NavRow label="Community-Regeln" onPress={() => router.push('/legal/regeln')} />
             <NavRow
@@ -237,25 +253,18 @@ export default function UserProfile() {
 }
 
 const styles = StyleSheet.create({
-  head: { alignItems: 'center', gap: space[8], paddingVertical: space[16] },
-  name: { ...text.headline, color: color.text.primary, textAlign: 'center' },
+  head: { alignItems: 'center', gap: space[20], paddingTop: space[8], paddingBottom: space[16] },
+  identity: { alignItems: 'center', gap: space[8] },
+  name: { ...text.headline, color: color.text.primary, textAlign: 'center', marginTop: space[4] },
+  meta: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', columnGap: space[16], rowGap: space[4] },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   secondary: { ...text.body, color: color.text.secondary },
+  about: { alignItems: 'center', gap: space[8] },
   bio: { ...text.body, color: color.text.primary, textAlign: 'center', maxWidth: 320 },
   link: { ...text.body, color: color.accent.primary },
+  actions: { gap: space[24] },
   buttons: { flexDirection: 'row', gap: space[8] },
   flex: { flex: 1 },
-  praise: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space[8],
-    marginTop: space[8],
-    paddingHorizontal: space[12],
-    paddingVertical: space[6],
-    borderRadius: radius.full,
-    backgroundColor: color.bg.surface,
-  },
-  praiseText: { ...text.body, color: color.text.primary },
   // Deutlich abgesetzt von den Knöpfen darüber (Daria, 22.10.2026)
   list: { gap: space[8], marginTop: space[32] },
 });
