@@ -194,7 +194,7 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
         </View>
       </Pressable>
       <View pointerEvents="none" style={[styles.gears, { bottom: insets.bottom + space[32] }]}>
-        <GearsLoader size={gearsSize} exit={gearsOut} exitDistance={screenWidth} exitFloor={insets.bottom + space[32]} />
+        <GearsLoader size={gearsSize} tints={color.icon.startGears} exit={gearsOut} exitDistance={screenWidth} exitFloor={insets.bottom + space[32]} />
       </View>
     </Animated.View>
   );
