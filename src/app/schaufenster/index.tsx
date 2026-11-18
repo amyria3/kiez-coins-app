@@ -439,16 +439,19 @@ function ShowcaseHints({ showcase: s, connectRef }: { showcase: Showcase; connec
 }
 
 /**
- * Link zur Webseite als Secondary-Button (Daria, 2026-11-18). Die Adresse steht klein darüber und lässt sich markieren;
- * der Button kopiert sie und sagt kurz „Kopiert“.
+ * Link zur Webseite als Secondary-Button (Daria, 2026-11-18). Darüber klein „Link zum Web-Schaufenster“ und die Adresse,
+ * die sich markieren lässt; der Button kopiert sie und sagt kurz „Kopiert“.
  */
 function CopyLinkButton({ link }: { link: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <View style={styles.copyLink}>
-      <Text style={styles.linkText} selectable noTranslate>
-        {link}
-      </Text>
+      <View>
+        <Text style={styles.linkLabel}>Link zum Web-Schaufenster</Text>
+        <Text style={styles.linkText} selectable noTranslate>
+          {link}
+        </Text>
+      </View>
       <Button
         label={copied ? 'Kopiert' : 'Link kopieren'}
         variant="secondary"
@@ -477,6 +480,7 @@ const styles = StyleSheet.create({
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.md },
   list: { gap: space[8] },
   copyLink: { gap: space[8], marginTop: space[8] },
+  linkLabel: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
   linkText: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
   footer: { gap: space[8], marginTop: space[16] },
 });
