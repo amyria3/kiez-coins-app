@@ -11,6 +11,7 @@ import { Icon, type IconName } from './icons/Icon';
 import Svg, { Rect, SvgXml } from 'react-native-svg';
 import { KATER_AVATAR_YELLOW, katerAvatarSvg, katerHeartsSvg } from './icons/katerAvatarSvg';
 import { IconButton } from './IconButton';
+import { useSectionHeading } from './SectionIndex';
 
 // Systemmeldungen als hellblaue Chatblase der App, wie die Antworten auf die Fragen; Icon dunkel wie der Text, nur bei Warnungen (Daria, 2026-11-09)
 const SKY_TEXT = color.system.text;
@@ -744,9 +745,12 @@ export function FieldGroup({
   large?: boolean;
   heading?: boolean;
 }) {
+  // Abschnittsüberschriften melden sich beim Schnellsprung im Kopf an (SectionIndex.tsx, 2026-11-18)
+  const sectionRef = useSectionHeading(label, !!heading);
   return (
     <View style={styles.group}>
       <Text
+        ref={heading ? sectionRef : undefined}
         style={[styles.groupLabel, large && styles.groupLabelLarge, heading && styles.groupHeading]}
         accessibilityRole={large || heading ? 'header' : undefined}
       >

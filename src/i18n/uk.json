@@ -1429,5 +1429,8 @@
   "Schaufenster in der App": "Вітрина в застосунку",
   "Schaufenster im Web": "Вітрина в інтернеті",
   "Womit genau verlinkt dieser Instant-Code?": "Куди саме веде цей миттєвий код?",
-  "Der Link im Instant-Code führt zu Deinem Schaufenster im Web. Jede:r kann Dein Profil per E-Mail verschicken. Angemeldete Nutzer:innen können Dir folgen und eine Freundschaftsanfrage senden.": "Посилання в миттєвому коді веде до твоєї вітрини в інтернеті. Будь-хто може надіслати твій профіль електронною поштою. Користувачі, що увійшли, можуть стежити за тобою й надіслати запит у друзі."
+  "Der Link im Instant-Code führt zu Deinem Schaufenster im Web. Jede:r kann Dein Profil per E-Mail verschicken. Angemeldete Nutzer:innen können Dir folgen und eine Freundschaftsanfrage senden.": "Посилання в миттєвому коді веде до твоєї вітрини в інтернеті. Будь-хто може надіслати твій профіль електронною поштою. Користувачі, що увійшли, можуть стежити за тобою й надіслати запит у друзі.",
+  "Abschnitte dieser Seite": "Розділи цієї сторінки",
+  "Auf dieser Seite": "На цій сторінці",
+  "Zeigt die Abschnitte dieser Seite": "Показує розділи цієї сторінки"
 }
