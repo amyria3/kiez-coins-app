@@ -1748,7 +1748,6 @@
   "{name} folgen": "Follow {name}",
   "Du folgst {name}": "You follow {name}",
   "Folgen": "Follow",
-  "{name} folgen": "Follow {name}",
   "Erinnerung bearbeiten": "Edit reminder",
   "Öffnet das Bearbeiten": "Opens editing",
   "Mehr zu diesem Termin": "More about this appointment",
@@ -1840,5 +1839,8 @@
   "Schaufenster in der App": "Showcase in the app",
   "Schaufenster im Web": "Showcase on the web",
   "Womit genau verlinkt dieser Instant-Code?": "Where exactly does this Instant Code link to?",
-  "Der Link im Instant-Code führt zu Deinem Schaufenster im Web. Jede:r kann Dein Profil per E-Mail verschicken. Angemeldete Nutzer:innen können Dir folgen und eine Freundschaftsanfrage senden.": "The link in the Instant Code leads to your showcase on the web. Anyone can send your profile by email. Signed-in users can follow you and send a friend request."
+  "Der Link im Instant-Code führt zu Deinem Schaufenster im Web. Jede:r kann Dein Profil per E-Mail verschicken. Angemeldete Nutzer:innen können Dir folgen und eine Freundschaftsanfrage senden.": "The link in the Instant Code leads to your showcase on the web. Anyone can send your profile by email. Signed-in users can follow you and send a friend request.",
+  "Abschnitte dieser Seite": "Sections on this page",
+  "Auf dieser Seite": "On this page",
+  "Zeigt die Abschnitte dieser Seite": "Shows the sections on this page"
 }

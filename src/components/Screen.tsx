@@ -15,6 +15,7 @@ import { KeyboardArea } from './Keyboard';
 import { GlassIconButton } from './Glass';
 import { NavigationBar } from './NavigationBar';
 import { NudgeScrollProvider, useNudgeScroll } from './Nudge';
+import { SectionIndexProvider } from './SectionIndex';
 import { t } from '../data/texts';
 import type { PhotoText as PhotoTextValue } from '../data/types';
 import { PhotoTextOverlay } from './PhotoText';
@@ -43,6 +44,8 @@ export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions
   const scrollRef = useRef<ScrollView>(null);
   const nudgeScroll = useNudgeScroll(scrollRef);
   return (
+    // Abschnittsüberschriften im Inhalt melden sich für den Schnellsprung im Kopf an (SectionIndex.tsx)
+    <SectionIndexProvider>
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       {header ?? <NavigationBar title={title} subtitle={subtitle} variant={navigation} onLeadingPress={onLeadingPress} />}
       <KeyboardArea style={styles.flex}>
@@ -64,6 +67,7 @@ export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions
       </KeyboardArea>
       {tabBar}
     </View>
+    </SectionIndexProvider>
   );
 }
 
