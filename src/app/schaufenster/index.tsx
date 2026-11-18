@@ -444,7 +444,7 @@ function ShowcaseHints({ showcase: s, connectRef }: { showcase: Showcase; connec
 /**
  * Link zur Webseite als Secondary-Button (Daria, 2026-11-18). Darüber klein „Link zum Web-Schaufenster“ und die Adresse,
  * die sich markieren lässt; der Button kopiert sie und sagt kurz „Kopiert“. Steht unter „Connect“; „Per Mail senden“
- * ist weggefallen, weil die Einladung zum App-Schaufenster dasselbe tut (Daria, 2026-11-18).
+ * ist weggefallen, weil die Mail unter „Connect“ dasselbe tut (Daria, 2026-11-18).
  */
 function CopyLinkButton({ showcase }: { showcase: Showcase }) {
   const link = showcasePublicLink(showcase.slug);

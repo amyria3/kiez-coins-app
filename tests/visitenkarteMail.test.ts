@@ -15,6 +15,7 @@ const data = {
   email: 'hallo@kiezblick.de',
   links: ['https://kiezblick.de/', 'javascript:alert(1)'],
   url: 'https://kiezcoins.de/s/kiezblick',
+  appUrl: 'https://app.kiezcoins.de/schaufenster/abc?folgen=1',
 };
 
 describe('Visitenkarte per Mail', () => {
@@ -44,19 +45,24 @@ describe('Visitenkarte per Mail', () => {
 
   it('Name wird maskiert, unsichere Links fallen weg', () => {
     const mail = cardMail(data, qr, 'Lena');
-    assert.equal(mail.subject, 'Visitenkarte von Café <Kiezblick>');
+    assert.equal(mail.subject, 'Schaufenster und Visitenkarte von Café <Kiezblick>');
     assert.ok(mail.html.includes('Café &lt;Kiezblick&gt;'));
     assert.ok(!mail.html.includes('<Kiezblick>'));
     assert.ok(!mail.html.includes('javascript:'));
     assert.ok(mail.html.includes('href="https://kiezcoins.de/s/kiezblick"'));
-    assert.ok(mail.html.includes('Lena schickt Dir die Visitenkarte'));
+    assert.ok(mail.html.includes('Lena schickt Dir die Links zum Schaufenster'));
+    assert.ok(mail.html.includes('Tritt der Community bei und abonniere das Schaufenster von'));
+    assert.ok(mail.html.includes('href="https://app.kiezcoins.de/schaufenster/abc?folgen=1"'));
+    assert.ok(mail.html.includes('Hier sind das'));
+    assert.ok(mail.text.includes('https://app.kiezcoins.de/schaufenster/abc?folgen=1'));
     assert.ok(mail.html.includes('· UX/UI-Design'));
     assert.ok(mail.text.includes('Schaufenster ansehen: https://kiezcoins.de/s/kiezblick'));
   });
 
   it('ohne Vornamen und ohne Rückseite', () => {
     const mail = cardMail({ name: 'Paul', links: [], url: 'https://kiezcoins.de/s/paul' }, qr, '');
-    assert.ok(mail.html.includes('Hier ist die Visitenkarte von'));
+    assert.ok(mail.html.includes('Hier sind das'));
+    assert.ok(!mail.html.includes('Tritt der Community bei'));
     assert.ok(!mail.html.includes(`bgcolor="#2B2B57"`));
   });
 

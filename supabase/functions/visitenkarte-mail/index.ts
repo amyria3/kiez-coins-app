@@ -126,6 +126,8 @@ Deno.serve(async (req) => {
     links: links.filter((l) => /^https:\/\//i.test(l)),
     url: `${SITE}/s/${s.slug}`,
     logoUrl: foto(url, s.logo_path),
+    // Folgen in der App wie auf der öffentlichen Seite (api/s.mjs); ohne Konto über das Onboarding und zurück
+    appUrl: `https://app.kiezcoins.de/schaufenster/${encodeURIComponent(s.id)}?folgen=1`,
   };
   const mail = cardMail(data, qrMatrix(data.url), sender);
   const res = await fetch('https://api.brevo.com/v3/smtp/email', {
