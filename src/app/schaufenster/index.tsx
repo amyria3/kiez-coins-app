@@ -12,7 +12,7 @@ import { NavigationBar } from '../../components/NavigationBar';
 import { scrollIntoView } from '../../components/Nudge';
 import { NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
-import { ShowcaseShare } from '../../components/ShowcaseShare';
+import { CardMailButton, ShowcaseShare } from '../../components/ShowcaseShare';
 import { Text } from '../../components/T';
 import { useAuth } from '../../data/auth';
 import { loadOwnProfile } from '../../data/remote';
