@@ -144,7 +144,12 @@ Deno.serve(async (req) => {
       tags: ['visitenkarte'],
     }),
   });
-  if (!res.ok) return reply({ error: 'mail' }, 502);
+  if (!res.ok) {
+    // Brevo lehnt ab (z. B. Schlüssel, Absender oder IP nicht freigegeben): Grund im Log der Funktion (Daria, 2026-11-18:
+    // „Ich habe keine Mail bekommen“, die Funktion meldete nur 502).
+    console.error(`visitenkarte-mail: Brevo ${res.status} ${(await res.text().catch(() => '')).slice(0, 300)}`);
+    return reply({ error: 'mail' }, 502);
+  }
 
   await db.from('showcase_card_mails').insert({ showcase_id: s.id, device_hash: device, recipient_hash: recipient });
   // Aufräumen: Für die Grenzen reicht ein Tag, 30 Tage bleiben für Rückfragen zu Missbrauch
