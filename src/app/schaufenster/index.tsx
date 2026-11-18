@@ -443,32 +443,24 @@ function ShowcaseHints({ showcase: s, connectRef }: { showcase: Showcase; connec
 }
 
 /**
- * Link zur Webseite als Secondary-Button (Daria, 2026-11-18). Darüber klein „Link zum Web-Schaufenster“ und die Adresse,
- * die sich markieren lässt; der Button kopiert sie und sagt kurz „Kopiert“. Steht unter „Connect“; „Per Mail senden“
- * ist weggefallen, weil die Mail unter „Connect“ dasselbe tut (Daria, 2026-11-18).
+ * Link zur Webseite als Secondary-Button (Daria, 2026-11-18). Der Button kopiert die Adresse und sagt kurz „Kopiert“.
+ * Titel „Link zum Web-Schaufenster“ und Adresse darüber sind weggefallen (Daria, 2026-11-18: „Delete this“). Steht unter
+ * „Connect“; „Per Mail senden“ ist weggefallen, weil die Mail unter „Connect“ dasselbe tut (Daria, 2026-11-18).
  */
 function CopyLinkButton({ showcase }: { showcase: Showcase }) {
   const link = showcasePublicLink(showcase.slug);
   const [copied, setCopied] = useState(false);
   return (
-    <View style={styles.copyLink}>
-      <View>
-        <Text style={styles.linkLabel}>Link zum Web-Schaufenster</Text>
-        <Text style={styles.linkText} selectable noTranslate>
-          {link}
-        </Text>
-      </View>
-      <Button
-        label={copied ? 'Kopiert' : 'Link kopieren'}
-        variant="secondary"
-        icon={copied ? 'check' : 'copy'}
-        onPress={async () => {
-          await Clipboard.setStringAsync(link);
-          setCopied(true);
-          setTimeout(() => setCopied(false), 1500);
-        }}
-      />
-    </View>
+    <Button
+      label={copied ? 'Kopiert' : 'Link kopieren'}
+      variant="secondary"
+      icon={copied ? 'check' : 'copy'}
+      onPress={async () => {
+        await Clipboard.setStringAsync(link);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      }}
+    />
   );
 }
 
@@ -485,8 +477,5 @@ const styles = StyleSheet.create({
   link: { ...text.caption, color: color.text.primary, textDecorationLine: 'underline' },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.md },
   list: { gap: space[8] },
-  copyLink: { gap: space[8] },
-  linkLabel: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
-  linkText: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
   footer: { gap: space[8], marginTop: space[16] },
 });
