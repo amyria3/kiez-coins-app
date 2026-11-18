@@ -88,8 +88,6 @@ const NEUTRAL = `:root:root { --bg: #F7F7F4; --text: #161616; --muted: #6F6F6A; 
   --purple: #161616; background: #F7F7F4 !important; background-image: none !important; color: var(--text); }
 .geteilt .sf-verlauf { background: linear-gradient(135deg, #ECECE6 0%, #E1E1DA 100%) !important; }`;
 
-const leer = (text) => `<p class="sf-klein sf-leer">${text}</p>`;
-
 // Alter Kurzname: aktueller Kurzname des Schaufensters (Migration 20261111000200), sonst null
 async function neuerKurzname(slug) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/public_showcase_redirect`, {
@@ -457,9 +455,9 @@ function inhalt(s) {
     ? fakt('E-Mail', `<a href="mailto:${esc(s.email)}">${esc(s.email)}</a>`)
     : '';
   const eintraege = (s.entries ?? []).map(eintrag).join('\n');
-  // Noch nichts gepostet: Abschnitte für Termine und Posts mit einem ersten Post als Platzhalter
-  const ohneEintraege = `<h2 class="sf-abschnitt">Termine</h2>${leer('Noch keine Termine')}
-  <h2 class="sf-abschnitt">Posts</h2>
+  // Noch nichts gepostet: ein erster Post als Platzhalter. Den leeren Abschnitt „Termine“ gibt es nicht mehr
+  // (Daria, 2026-11-18: „Same ausblenden wenn nicht befüllt“)
+  const ohneEintraege = `<h2 class="sf-abschnitt">Posts</h2>
   <div class="sf-liste"><article class="sf-karte sf-platzhalter" aria-label="Platzhalter">
     <div class="sf-bild sf-verlauf" aria-hidden="true"></div><div class="sf-inhalt">
       <p class="sf-art sf-post">Post</p>
@@ -564,7 +562,6 @@ ${
 .geteilt .sf-verlauf { background: linear-gradient(135deg, #8F90FA 0%, #FFB2E5 55%, #FFAD7E 100%); }
 .geteilt .sf-kater { display: flex; align-items: center; justify-content: center; background: #000; }
 .geteilt .sf-ende { margin-bottom: 40px; }
-.geteilt .sf-leer { font-style: italic; opacity: .8; }
 .geteilt .sf-platzhalter { background: none; border: 1px dashed var(--muted); opacity: .75; }
 .geteilt .sf-platzhalter .sf-bild { opacity: .5; }
 </style>
@@ -573,22 +570,27 @@ ${
   ${s.kiez ? `<p class="wer">${esc(s.kiez)}</p>` : ''}
   ${/* Ohne Beschreibung keine Zeile, wie bei Adresse und Öffnungszeiten (Daria, 2026-11-17) */ s.about?.trim() ? `<p class="text">${esc(s.about)}</p>` : ''}
   ${infos || mail || web ? `<dl class="sf-fakten">${infos}${mail}${web}</dl>` : ''}
-  ${s.imprint ? '<p class="sf-klein"><a href="#impressum">Impressum</a></p>' : ''}
+  ${s.imprint?.trim() ? '<p class="sf-klein"><a href="#impressum">Impressum</a></p>' : ''}
   ${
-    !s.services
-      ? `<h2 class="sf-abschnitt">Services</h2>${leer('Noch keine Services')}`
+    // Leere Abschnitte (Services, AGB, Impressum) fallen ganz weg statt „Noch keine …“ (Daria, 2026-11-18)
+    !s.services?.trim()
+      ? ''
       : s.services_collapsed
         ? `<details class="sf-klappe"><summary><h2 class="sf-abschnitt">Services</h2></summary><div class="sf-services">${richHtml(s.services)}</div></details>`
         : `<h2 class="sf-abschnitt">Services</h2><div class="sf-services">${richHtml(s.services)}</div>`
   }
   ${eintraege ? `<h2 class="sf-abschnitt">Neu im Schaufenster</h2><div class="sf-liste">${eintraege}</div>` : ohneEintraege}
   ${
-    s.terms
+    s.terms?.trim()
       ? `<details class="sf-klappe"><summary><h2 class="sf-abschnitt">AGB</h2></summary><div class="sf-services">${richHtml(s.terms)}</div></details>`
-      : `<h2 class="sf-abschnitt">AGB</h2>${leer('AGB noch nicht hinterlegt')}`
+      : ''
   }
-  <h2 class="sf-abschnitt" id="impressum">Impressum</h2>
-  <div class="sf-ende">${s.imprint ? `<p class="sf-klein" style="white-space: pre-line">${esc(s.imprint)}</p>` : leer('Impressum noch nicht hinterlegt')}</div>
+  ${
+    s.imprint?.trim()
+      ? `<h2 class="sf-abschnitt" id="impressum">Impressum</h2>
+  <div class="sf-ende"><p class="sf-klein" style="white-space: pre-line">${esc(s.imprint)}</p></div>`
+      : ''
+  }
   ${/* Visitenkarte am Schluss der Seite (Daria, 2026-11-12) */ visitenkarte(s, links)}
 <script>
 (() => {
