@@ -525,9 +525,10 @@ export async function loadEntries(showcaseId: string, userId: string, all = fals
 
 export type EventInput = { title: string; body?: string; image?: ImageSource; startsAt: Date; endsAt?: Date; location?: string };
 
-export async function createEvent(showcaseId: string, userId: string, input: EventInput): Promise<void> {
+/** Legt den Termin an und gibt seine Kennung zurück (fürs Weiterposten, 2026-11-18) */
+export async function createEvent(showcaseId: string, userId: string, input: EventInput): Promise<string> {
   const image_path = isLocal(input.image) ? await uploadPhoto(userId, input.image!) : null;
-  const { error } = await supabase.from('showcase_events').insert({
+  const { data, error } = await supabase.from('showcase_events').insert({
     showcase_id: showcaseId,
     title: input.title.trim(),
     body: input.body?.trim() || null,
@@ -535,8 +536,9 @@ export async function createEvent(showcaseId: string, userId: string, input: Eve
     starts_at: input.startsAt.toISOString(),
     ends_at: input.endsAt ? input.endsAt.toISOString() : null,
     location: input.location?.trim() || null,
-  });
-  if (error) throw new Error(error.message);
+  }).select('id').single();
+  if (error || !data) throw new Error(error?.message ?? 'Termin nicht gespeichert');
+  return (data as { id: string }).id;
 }
 
 export async function cancelEvent(id: string): Promise<boolean> {

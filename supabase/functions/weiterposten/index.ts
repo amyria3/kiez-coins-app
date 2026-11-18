@@ -8,6 +8,7 @@
 //   { action: 'connect', platform: 'facebook', token }                Seiten-Zugangs-Token einer Facebook-Seite (pages_manage_posts)
 //   { action: 'post', challengeId, platforms: ['bluesky', 'mastodon', 'instagram', 'facebook'], look?: { frame, watermark } }
 //                                                                    look: Foto im Rahmen, mit Logo; ohne Angabe beides an
+//   { action: 'post_event', eventId, platforms, look? }               Termin aus dem Schaufenster (Daria, 2026-11-18)
 //   { action: 'delete', challengeId, platforms? }                    Weiterposts dort wieder löschen (ohne platforms: alle)
 // Antworten: { handle } bei connect, { results: { bluesky: { url } | { error } } } bei post, sonst { error }.
 //
@@ -354,6 +355,14 @@ async function loadPost(admin: SupabaseClient, challengeId: string, look: Look):
     .single();
   if (error || !c) throw new Error('challenge');
   const path = c.image_after_path ?? c.image_path ?? c.image_before_path;
+  return { id: c.id, title: (c.title ?? '').trim(), body: (c.body ?? '').trim(), ...(await loadImage(admin, path, c.id, c.author_id, look)) };
+}
+
+/**
+ * Foto eines Posts oder Termins laden und, wenn gewünscht, rahmen. Gibt die Bytes (BlueSky, Mastodon) und eine
+ * öffentliche Adresse (Instagram, Facebook) zurück.
+ */
+async function loadImage(admin: SupabaseClient, path: string | null, id: string, authorId: string | null, look: Look) {
   let image: Post['image'];
   // Private Fotos (`<ordner>/p_<datei>`, Migration 20261116000100) liegen nicht öffentlich. Normal zieht die App sie
   // beim Wechsel auf Kiez/Überall um; klappte das nicht, lädt die Funktion sie aus dem privaten Speicher.
@@ -365,10 +374,10 @@ async function loadPost(admin: SupabaseClient, challengeId: string, look: Look):
   }
   if (image && look.frame) {
     try {
-      const framed = await framePhoto(image.bytes, await loadAuthor(admin, c.author_id), look);
+      const framed = await framePhoto(image.bytes, await loadAuthor(admin, authorId), look);
       image = { bytes: framed.bytes, type: 'image/jpeg', width: framed.width, height: framed.height };
       // Instagram und Facebook holen das Foto über eine öffentliche Adresse
-      const framedPath = `weiterposten/${c.id}.jpg`;
+      const framedPath = `weiterposten/${id}.jpg`;
       const { error: uploadError } = await admin.storage
         .from('photos')
         .upload(framedPath, framed.bytes, { contentType: 'image/jpeg', upsert: true });
@@ -378,7 +387,45 @@ async function loadPost(admin: SupabaseClient, challengeId: string, look: Look):
       console.error('rahmen', (e as Error).message);
     }
   }
-  return { id: c.id, title: (c.title ?? '').trim(), body: (c.body ?? '').trim(), image, imageUrl };
+  return { image, imageUrl };
+}
+
+// ---------- Termine aus dem Schaufenster (Daria, 2026-11-18) ----------
+
+const ZONE = 'Europe/Berlin';
+const dayOf = (iso: string) =>
+  new Intl.DateTimeFormat('de-DE', { timeZone: ZONE, weekday: 'short', day: '2-digit', month: '2-digit' }).format(new Date(iso)).replace('.,', ',');
+const timeOf = (iso: string) => new Intl.DateTimeFormat('de-DE', { timeZone: ZONE, hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
+/** „Fr, 20.11. um 19:00“, „Fr, 20.11. von 19:00 bis 22:00“ wie auf der öffentlichen Seite (api/s.mjs) */
+function whenOf(startsAt: string, endsAt: string | null): string {
+  if (!endsAt) return `${dayOf(startsAt)} um ${timeOf(startsAt)}`;
+  if (dayOf(endsAt) === dayOf(startsAt)) return `${dayOf(startsAt)} von ${timeOf(startsAt)} bis ${timeOf(endsAt)}`;
+  return `${dayOf(startsAt)} ${timeOf(startsAt)} bis ${dayOf(endsAt)} ${timeOf(endsAt)}`;
+}
+
+type EventRow = {
+  id: string;
+  showcase_id: string;
+  author_id: string;
+  title: string;
+  body: string | null;
+  image_path: string | null;
+  starts_at: string;
+  ends_at: string | null;
+  location: string | null;
+  cancelled_at: string | null;
+};
+
+/**
+ * Termin als Post: Titel, darunter Zeit und Ort, dann der Text. Der Link führt zur öffentlichen Seite des Schaufensters
+ * mit dem Kalender-Abo. Ohne eigenes Bild nimmt die Funktion das Titelbild des Schaufensters (Instagram braucht ein Foto).
+ */
+async function loadEvent(admin: SupabaseClient, e: EventRow, cover: string | null, address: string | null, look: Look) {
+  const place = e.location?.trim() || address?.trim() || '';
+  const body = [`${whenOf(e.starts_at, e.ends_at)}${place ? `\n${place.replace(/\s*\n\s*/g, ', ')}` : ''}`, (e.body ?? '').trim()]
+    .filter(Boolean)
+    .join('\n\n');
+  return { id: e.id, title: e.title.trim(), body, ...(await loadImage(admin, e.image_path ?? cover, e.id, e.author_id, look)) };
 }
 
 /** Name und Profilbild für den Rahmen */
@@ -393,6 +440,15 @@ async function loadAuthor(admin: SupabaseClient, authorId: string | null) {
   }
   return { name: String(p.handle), avatar };
 }
+
+const sendTo = (platform: Platform, account: Account, post: Post) =>
+  platform === 'bluesky'
+    ? postBluesky(account, post)
+    : platform === 'mastodon'
+      ? postMastodon(account, post)
+      : platform === 'instagram'
+        ? postInstagram(account, post)
+        : postFacebook(account, post);
 
 const parseLook = (value: unknown): Look => {
   const v = (value ?? {}) as Partial<Look>;
@@ -513,19 +569,77 @@ Deno.serve(async (req) => {
       try {
         base ??= loadPost(admin, challengeId, look);
         const post: Post = { ...(await base), link: `https://kiezcoins.de/c/${challengeId}?von=${platform}` };
-        const link =
-          platform === 'bluesky'
-            ? await postBluesky(account, post)
-            : platform === 'mastodon'
-              ? await postMastodon(account, post)
-              : platform === 'instagram'
-                ? await postInstagram(account, post)
-                : await postFacebook(account, post);
+        const link = await sendTo(platform, account, post);
         await admin.from('crosspost_posts').update({ status: 'ok', url: link }).eq('challenge_id', challengeId).eq('platform', platform);
         results[platform] = { url: link };
       } catch (e) {
         const message = clip((e as Error).message || 'error', 500);
         await admin.from('crosspost_posts').update({ status: 'error', error: message }).eq('challenge_id', challengeId).eq('platform', platform);
+        results[platform] = { error: message };
+      }
+    }
+    return reply({ results });
+  }
+
+  if (input.action === 'post_event') {
+    // Termin aus einem Schaufenster weiterposten (Daria, 2026-11-18, Migration 20261118000400). Darf, wer im
+    // Schaufenster posten darf; der Termin braucht eine öffentliche Seite, auf die der Link zeigt.
+    const eventId = str('eventId');
+    const platforms = (Array.isArray(input.platforms) ? input.platforms : []).filter(isPlatform);
+    if (!eventId || !platforms.length) return reply({ error: 'input' }, 400);
+    const { data: event } = await admin
+      .from('showcase_events')
+      .select('id, showcase_id, author_id, title, body, image_path, starts_at, ends_at, location, cancelled_at')
+      .eq('id', eventId)
+      .maybeSingle();
+    if (!event || (event as EventRow).cancelled_at) return reply({ error: 'not_shareable' }, 403);
+    const e = event as EventRow;
+    const { data: allowed } = await asUser.rpc('can_post_showcase', { p_showcase: e.showcase_id });
+    const { data: showcase } = await admin
+      .from('showcases')
+      .select('slug, visibility, cover_path, address')
+      .eq('id', e.showcase_id)
+      .maybeSingle();
+    const { data: online } = await admin.rpc('showcase_online', { p_showcase: e.showcase_id });
+    if (allowed !== true || !showcase || showcase.visibility !== 'public' || online !== true) return reply({ error: 'not_shareable' }, 403);
+
+    const { data: all } = await admin.rpc('crosspost_accounts_of', { p_user: user.id });
+    const accounts = ((all ?? []) as Account[]).filter((a) => platforms.includes(a.platform));
+    const { data: done } = await admin.from('crosspost_event_posts').select('platform, status, url').eq('event_id', eventId);
+    const wanted = input.look === undefined ? FULL_LOOK : parseLook(input.look);
+    const featureOn = async (key: string, fallback: boolean) => {
+      const { data, error } = await asUser.rpc('feature_an', { p_key: key });
+      return error || typeof data !== 'boolean' ? fallback : data;
+    };
+    const look: Look = {
+      frame: wanted.frame && (await featureOn('weiterposten_rahmen', true)),
+      watermark: wanted.watermark || !(await featureOn('weiterposten_ohne_logo', true)),
+    };
+    const results: Record<string, { url?: string; error?: string }> = {};
+    let base: Promise<Omit<Post, 'link'>> | undefined;
+    for (const platform of platforms) {
+      const account = accounts.find((a) => a.platform === platform);
+      if (!account) {
+        results[platform] = { error: 'not_connected' };
+        continue;
+      }
+      const previous = (done ?? []).find((d) => d.platform === platform);
+      if (previous && previous.status !== 'error') {
+        results[platform] = previous.url ? { url: previous.url } : { error: 'running' };
+        continue;
+      }
+      await admin
+        .from('crosspost_event_posts')
+        .upsert({ event_id: eventId, platform, user_id: user.id, status: 'running', url: null, error: null });
+      try {
+        base ??= loadEvent(admin, e, showcase.cover_path, showcase.address, look);
+        const post: Post = { ...(await base), link: `https://kiezcoins.de/s/${showcase.slug}?von=${platform}` };
+        const link = await sendTo(platform, account, post);
+        await admin.from('crosspost_event_posts').update({ status: 'ok', url: link }).eq('event_id', eventId).eq('platform', platform);
+        results[platform] = { url: link };
+      } catch (err) {
+        const message = clip((err as Error).message || 'error', 500);
+        await admin.from('crosspost_event_posts').update({ status: 'error', error: message }).eq('event_id', eventId).eq('platform', platform);
         results[platform] = { error: message };
       }
     }
