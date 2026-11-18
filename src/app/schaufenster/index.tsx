@@ -238,7 +238,7 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
   const [kiez, setKiez] = useState('');
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
-  // Schaufenster, bei dem jemand auf das ausgegraute „Im Web ansehen“ getippt hat
+  // Schaufenster, bei dem jemand auf das ausgegraute „Schaufenster im Web“ getippt hat
   const [webHint, setWebHint] = useState<string | null>(null);
   // Abschnitt „Connect“ je Schaufenster, Ziel des Hinweises „Runterscrollen“
   const connectRefs = useRef<Record<string, View | null>>({});
@@ -335,17 +335,12 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
           <FieldGroup heading label="Deine Seite">
             {/* Zwei Ansichten (Daria, 2026-11-12): in der App wie ein KiezCoins-Mitglied, im Web wie jede Besucher:in
                 unter kiezcoins.de/s/…. Die Webseite gibt es nur öffentlich und online; sonst erklärt ein Hinweis, warum.
-                „Seite bearbeiten“ ist eine Einstellung und bleibt graue Zeile; Ansehen und Link kopieren sind Handlungen
-                und stehen als Secondary-Buttons in der Farbe des Bereichs (Daria, 2026-11-18). */}
-            <NavRow
-              label="Seite bearbeiten"
-              value="Bilder, Angaben, Sichtbarkeit"
-              onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id, von: 'schaufenster' } })}
-            />
+                Ansehen und Link kopieren sind Handlungen und stehen als Secondary-Buttons in der Farbe des Bereichs
+                (Daria, 2026-11-18). */}
             <View style={styles.list}>
-              <Button label="In der App ansehen" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
+              <Button label="Schaufenster in der App" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
               <Button
-                label="Im Web ansehen"
+                label="Schaufenster im Web"
                 variant="secondary"
                 disabled={!(s.visibility === 'public' && s.switches.online)}
                 whyDisabled={() => setWebHint(s.id)}
@@ -377,6 +372,14 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               </FieldGroup>
             </View>
           ) : null}
+          {/* „Seite bearbeiten“ ist eine Einstellung: graue Zeile im eigenen Abschnitt am Schluss (Daria, 2026-11-18) */}
+          <FieldGroup heading label="Einstellungen">
+            <NavRow
+              label="Seite bearbeiten"
+              value="Bilder, Angaben, Sichtbarkeit"
+              onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id, von: 'schaufenster' } })}
+            />
+          </FieldGroup>
         </View>
       ))}
       {footer}
@@ -439,16 +442,19 @@ function ShowcaseHints({ showcase: s, connectRef }: { showcase: Showcase; connec
 }
 
 /**
- * Link zur Webseite als Secondary-Button (Daria, 2026-11-18). Die Adresse steht klein darüber und lässt sich markieren;
- * der Button kopiert sie und sagt kurz „Kopiert“.
+ * Link zur Webseite als Secondary-Button (Daria, 2026-11-18). Darüber klein „Link zum Web-Schaufenster“ und die Adresse,
+ * die sich markieren lässt; der Button kopiert sie und sagt kurz „Kopiert“.
  */
 function CopyLinkButton({ link }: { link: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <View style={styles.copyLink}>
-      <Text style={styles.linkText} selectable noTranslate>
-        {link}
-      </Text>
+      <View>
+        <Text style={styles.linkLabel}>Link zum Web-Schaufenster</Text>
+        <Text style={styles.linkText} selectable noTranslate>
+          {link}
+        </Text>
+      </View>
       <Button
         label={copied ? 'Kopiert' : 'Link kopieren'}
         variant="secondary"
@@ -477,6 +483,7 @@ const styles = StyleSheet.create({
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.md },
   list: { gap: space[8] },
   copyLink: { gap: space[8], marginTop: space[8] },
+  linkLabel: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
   linkText: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
   footer: { gap: space[8], marginTop: space[16] },
 });

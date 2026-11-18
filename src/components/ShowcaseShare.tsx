@@ -67,8 +67,8 @@ export function ShowcaseShare({ showcase }: { showcase: Showcase }) {
           <Text style={styles.meta}>KiezKoins nutzt die Adresse nur für diese eine Mail und speichert sie nicht.</Text>
         </View>
       ) : (
-        // Sagt, was passiert: Die Visitenkarte geht per Mail raus. Ohne Icon (Daria, 2026-11-18)
-        <Button label="Visitenkarte per Mail senden" variant="secondary" onPress={() => setOpen(true)} />
+        // Die Mail lädt zum Schaufenster in der App ein. Ohne Icon (Daria, 2026-11-18)
+        <Button label="Einladung zum App-Schaufenster" variant="secondary" onPress={() => setOpen(true)} />
       )}
       {result ? <Notice variant={result.ok ? undefined : 'warning'} message={result.message} onClose={() => setResult(null)} /> : null}
     </View>
