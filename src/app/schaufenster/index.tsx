@@ -12,7 +12,7 @@ import { NavigationBar } from '../../components/NavigationBar';
 import { scrollIntoView } from '../../components/Nudge';
 import { NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
-import { CardMailButton, ShowcaseShare } from '../../components/ShowcaseShare';
+import { ShowcaseShare } from '../../components/ShowcaseShare';
 import { Text } from '../../components/T';
 import { useAuth } from '../../data/auth';
 import { loadOwnProfile } from '../../data/remote';
@@ -335,8 +335,8 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
           <FieldGroup heading label="Deine Seite">
             {/* Zwei Ansichten (Daria, 2026-11-12): in der App wie ein KiezCoins-Mitglied, im Web wie jede Besucher:in
                 unter kiezcoins.de/s/…. Die Webseite gibt es nur öffentlich und online; sonst erklärt ein Hinweis, warum.
-                Ansehen und Link kopieren sind Handlungen und stehen als Secondary-Buttons in der Farbe des Bereichs
-                (Daria, 2026-11-18). */}
+                Ansehen ist eine Handlung und steht als Secondary-Button in der Farbe des Bereichs (Daria, 2026-11-18).
+                Link kopieren steht unter „Connect“ (Daria, 2026-11-18). */}
             <View style={styles.list}>
               <Button label="Schaufenster in der App" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
               <Button
@@ -346,7 +346,6 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
                 whyDisabled={() => setWebHint(s.id)}
                 onPress={() => Linking.openURL(showcasePublicLink(s.slug))}
               />
-              {s.visibility === 'public' ? <CopyLinkButton showcase={s} /> : null}
             </View>
             {webHint === s.id ? (
               <Notice
@@ -360,7 +359,7 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
             ) : null}
           </FieldGroup>
           {/* Teilen als eigener Abschnitt (Daria, 2026-11-18): Instant-Code und Einladung per Mail wie auf der
-              öffentlichen Seite (Daria, 2026-11-17). Nur bei „Alle“ und online, sonst gibt es die Seite im Web nicht. */}
+              öffentlichen Seite (Daria, 2026-11-17), darunter der Link zum Kopieren. Nur bei „Alle“ und online, sonst gibt es die Seite im Web nicht. */}
           {canShare(s) ? (
             <View
               ref={(v) => {
@@ -369,6 +368,7 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
             >
               <FieldGroup heading label="Connect">
                 <ShowcaseShare showcase={s} />
+                <CopyLinkButton showcase={s} />
               </FieldGroup>
             </View>
           ) : null}
@@ -443,8 +443,8 @@ function ShowcaseHints({ showcase: s, connectRef }: { showcase: Showcase; connec
 
 /**
  * Link zur Webseite als Secondary-Button (Daria, 2026-11-18). Darüber klein „Link zum Web-Schaufenster“ und die Adresse,
- * die sich markieren lässt; der Button kopiert sie und sagt kurz „Kopiert“. Darunter „Per Mail senden“: Adresse
- * eintippen, KiezCoins verschickt die Visitenkarte mit dem Link (CardMailButton, Daria, 2026-11-18).
+ * die sich markieren lässt; der Button kopiert sie und sagt kurz „Kopiert“. Steht unter „Connect“; „Per Mail senden“
+ * ist weggefallen, weil die Einladung zum App-Schaufenster dasselbe tut (Daria, 2026-11-18).
  */
 function CopyLinkButton({ showcase }: { showcase: Showcase }) {
   const link = showcasePublicLink(showcase.slug);
@@ -467,7 +467,6 @@ function CopyLinkButton({ showcase }: { showcase: Showcase }) {
           setTimeout(() => setCopied(false), 1500);
         }}
       />
-      {canShare(showcase) ? <CardMailButton showcase={showcase} label="Per Mail senden" icon="send" /> : null}
     </View>
   );
 }

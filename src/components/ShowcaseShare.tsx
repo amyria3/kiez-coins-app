@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { sendCardMail, showcasePublicLink, type CardMailResult, type Showcase } from '../data/showcase';
@@ -8,6 +8,8 @@ import { Button } from './Button';
 import { Notice } from './Content';
 import { TextField } from './Form';
 import { InviteQr } from './InviteQr';
+import { useKeyboardHeight } from './Keyboard';
+import { scrollIntoView } from './Nudge';
 import { Text } from './T';
 import type { IconName } from './icons/svgs';
 
@@ -40,8 +42,13 @@ export function ShowcaseShare({ showcase }: { showcase: Showcase }) {
 
 /**
  * Secondary-Button, der sich zum Formular öffnet: Adresse eintippen, KiezCoins verschickt die Visitenkarte mit dem
- * Link zur Seite über die Edge Function `visitenkarte-mail` (#408). Auch unter „Link kopieren“ als „Per Mail senden“
- * (Daria, 2026-11-18: „Der Knopf sollte aber ne Mail eintragen die wir schicken“).
+ * Link zur Seite über die Edge Function `visitenkarte-mail` (#408) (Daria, 2026-11-18: „Der Knopf sollte aber ne Mail
+ * eintragen die wir schicken“).
+ *
+ * Tastatur (Daria, 2026-11-18, Bildschirmfoto): Keyboard.tsx scrollt nur das aktive Feld ins Bild, Vorname und
+ * „Visitenkarte schicken“ lagen dann unter der Tastatur. Ist ein Feld des Formulars aktiv und die Tastatur offen,
+ * scrollt die Seite zusätzlich so weit, dass das Formular bis zum Button zu sehen ist. Nur die Scrollfläche des
+ * Screens bewegt sich, nie die Browserseite selbst, damit iOS die Tastatur nicht wieder schließt (#413).
  */
 export function CardMailButton({ showcase, label, icon }: { showcase: Showcase; label: string; icon?: IconName }) {
   const [open, setOpen] = useState(false);
@@ -49,6 +56,17 @@ export function CardMailButton({ showcase, label, icon }: { showcase: Showcase; 
   const [from, setFrom] = useState('');
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [focused, setFocused] = useState(false);
+  const keyboard = useKeyboardHeight();
+  const end = useRef<View>(null);
+
+  useEffect(() => {
+    if (!focused || !keyboard) return;
+    // Nach dem Scrollen von Keyboard.tsx zum aktiven Feld, sonst überschreibt es dieses
+    const timer = setTimeout(() => scrollIntoView(end.current, 'end'), 250);
+    return () => clearTimeout(timer);
+  }, [focused, keyboard]);
+  const focusProps = { onFocus: () => setFocused(true), onBlur: () => setFocused(false) };
 
   const send = async () => {
     setBusy(true);
@@ -76,9 +94,19 @@ export function CardMailButton({ showcase, label, icon }: { showcase: Showcase; 
             autoCorrect={false}
             maxLength={254}
             placeholder="name@beispiel.de"
+            {...focusProps}
           />
-          <TextField label="Dein Vorname" value={from} onChangeText={setFrom} maxLength={30} helperText="Optional, steht in der Mail." />
-          <Button label="Visitenkarte schicken" busy={busy} disabled={!isEmail(to)} onPress={send} />
+          <TextField
+            label="Dein Vorname"
+            value={from}
+            onChangeText={setFrom}
+            maxLength={30}
+            helperText="Optional, steht in der Mail."
+            {...focusProps}
+          />
+          <View ref={end}>
+            <Button label="Visitenkarte schicken" busy={busy} disabled={!isEmail(to)} onPress={send} />
+          </View>
           <Text style={styles.meta}>KiezKoins nutzt die Adresse nur für diese eine Mail und speichert sie nicht.</Text>
         </View>
       ) : (
