@@ -12,7 +12,7 @@ import { useCalendarEnabled } from '../data/routine';
 import { useStore } from '../data/store';
 import { RoutineList } from './RoutineList';
 import { publishRoutineData } from '../data/routineView';
-import { archiveReminder, capitalize, kindOf, loadReminders, type Reminder, type ReminderEnd } from '../data/reminders';
+import { archiveReminder, capitalize, kindOf, loadReminders, undoReminderDone, type Reminder, type ReminderEnd } from '../data/reminders';
 import { t } from '../data/texts';
 import { color, space } from '../theme/tokens';
 
@@ -112,6 +112,12 @@ export function RoutineContent({
   const onNew = useCallback(() => router.push('/routine/new'), [router]);
   const onEdit = useCallback((r: Reminder) => router.push({ pathname: '/routine/bearbeiten', params: { id: r.id } }), [router]);
   const onCopy = useCallback((r: Reminder) => router.push({ pathname: '/routine/new', params: { von: r.id } }), [router]);
+  // Haken zurücknehmen (Daria, 2026-11-18, „Untick“): ohne Rückfrage, neu abhaken geht jederzeit
+  // Die Karte springt sofort zurück, das Neuladen holt danach den echten Stand.
+  const onUndo = useCallback((r: Reminder) => {
+    setList((l) => l?.map((x) => (x.id === r.id ? { ...x, doneToday: false, doneThisWeek: Math.max(0, x.doneThisWeek - 1) } : x)));
+    undoReminderDone(r.id).then(reload, reload);
+  }, [reload]);
 
   // „Neue Erinnerung“ (Daria, 2026-11-16): Passt alles auf den Bildschirm, steht der Knopf fest über der Leiste.
   // Sonst steht er am Ende der Liste; beim Scrollen nach oben fährt er hinter der Leiste hervor und bleibt direkt
@@ -185,6 +191,7 @@ export function RoutineContent({
             onEnd={end}
             onEdit={onEdit}
             onCopy={onCopy}
+            onUndo={onUndo}
             onChanged={reload}
             onDragLock={lockPage}
             showCalendar={calendarInList}

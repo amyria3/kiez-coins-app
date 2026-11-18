@@ -404,6 +404,7 @@ export function TaskCard({
   urgent,
   onDragCancel,
   onDragDelete,
+  onUndo,
 }: {
   reminder: Reminder;
   onDone: () => void;
@@ -417,6 +418,8 @@ export function TaskCard({
   /** Beim Ziehen: ohne Rückfrage */
   onDragCancel?: () => void;
   onDragDelete?: () => void;
+  /** Haken von heute zurücknehmen (Daria, 2026-11-18) */
+  onUndo?: () => void;
 }) {
   const goal = goalOf(r);
   const done = Math.min(r.doneThisWeek, goal);
@@ -427,6 +430,7 @@ export function TaskCard({
   const items = menuItems({
     edit: onEdit,
     copy: onCopy,
+    undo: r.doneToday ? onUndo : undefined,
     later: resting ? undefined : onLater,
     giveUp: resting && !finished ? onGiveUp : undefined,
     end: finished ? undefined : { label: 'Das hier abbrechen', run: onCancel },
@@ -466,7 +470,7 @@ export function TaskCard({
           Buttons mit festem Abstand beieinander, nur „•••“ rechts (Daria, 2026-11-13) */}
       {resting ? (
         <View style={styles.actions}>
-          <Text style={styles.state}>{r.doneToday ? 'Heute erledigt' : 'Ziel erreicht'}</Text>
+          {r.doneToday ? <DoneState label="Heute erledigt" onUndo={onUndo} /> : <Text style={styles.state}>Ziel erreicht</Text>}
           <ManageButton dots={INK} style={styles.more} label="Mehr zu dieser Aufgabe" openRef={menu} items={items} />
         </View>
       ) : (
@@ -492,6 +496,7 @@ export function EventCard({
   urgent,
   onDragCancel,
   onDragDelete,
+  onUndo,
 }: {
   reminder: Reminder;
   bg: string;
@@ -505,12 +510,15 @@ export function EventCard({
   /** Beim Ziehen: ohne Rückfrage */
   onDragCancel?: () => void;
   onDragDelete?: () => void;
+  /** Haken von heute zurücknehmen (Daria, 2026-11-18) */
+  onUndo?: () => void;
 }) {
   // Jede Karte mit „•••“ (Daria, 2026-11-13); dasselbe Menü öffnet ein Tippen auf die Karte
   const menu = useRef<(() => void) | null>(null);
   const items = menuItems({
     edit: onEdit,
     copy: onCopy,
+    undo: r.doneToday ? onUndo : undefined,
     later: r.doneToday ? undefined : onLater,
     end: r.doneToday ? undefined : { label: 'Absagen', run: onEnd },
     remove: r.doneToday ? onDelete : undefined,
@@ -533,7 +541,7 @@ export function EventCard({
       <ReminderExtrasRow place={r.place} phone={r.phone} link={r.link} ink={INK} />
       {r.doneToday ? (
         <View style={styles.actions}>
-          <Text style={styles.state}>Erledigt</Text>
+          <DoneState label="Erledigt" onUndo={onUndo} />
           {more}
         </View>
       ) : (
@@ -550,12 +558,13 @@ export function EventCard({
 
 /**
  * Menü jeder eigenen Karte in fester Reihenfolge (Daria, 2026-11-13, „Check consistency“): Bearbeiten, Kopie
- * erstellen, Später, Aufgeben, Abbrechen bzw. Absagen, Löschen. Es steht nur, was zum Zustand passt: Später nur
- * offen, Löschen nur erledigt, Aufgeben nur bei wiederkehrenden.
+ * erstellen, Haken zurücknehmen bzw. Später, Aufgeben, Abbrechen bzw. Absagen, Löschen. Es steht nur, was zum Zustand
+ * passt: Später nur offen, Haken zurücknehmen und Löschen nur erledigt (seit 2026-11-18), Aufgeben nur bei wiederkehrenden.
  */
 function menuItems(a: {
   edit?: () => void;
   copy?: () => void;
+  undo?: () => void;
   later?: () => void;
   giveUp?: () => void;
   end?: { label: string; run: () => void };
@@ -564,11 +573,26 @@ function menuItems(a: {
   return [
     a.edit && { label: 'Bearbeiten', onPress: a.edit },
     a.copy && { label: 'Kopie erstellen', onPress: a.copy },
+    a.undo && { label: 'Haken zurücknehmen', onPress: a.undo },
     a.later && { label: 'Später', onPress: a.later },
     a.giveUp && { label: 'Aufgeben', onPress: a.giveUp },
     a.end && { label: a.end.label, onPress: a.end.run },
     a.remove && { label: 'Löschen', onPress: a.remove },
   ].filter((x): x is { label: string; onPress: () => void } => !!x);
+}
+
+/**
+ * „Heute erledigt“ bzw. „Erledigt“ (Daria, 2026-11-18, „Untick“): Sieht aus wie bisher, ein Tippen nimmt den Haken von
+ * heute zurück. Für Vertipper; dasselbe steht im Menü als „Haken zurücknehmen“.
+ */
+function DoneState({ label, onUndo }: { label: string; onUndo?: () => void }) {
+  const hint = useTexts()('Tippen nimmt den Haken zurück');
+  if (!onUndo) return <Text style={styles.state}>{label}</Text>;
+  return (
+    <Pressable onPress={onUndo} accessibilityRole="button" accessibilityHint={hint} hitSlop={8} style={({ pressed }) => pressed && styles.pressed}>
+      <Text style={styles.state}>{label}</Text>
+    </Pressable>
+  );
 }
 
 /**

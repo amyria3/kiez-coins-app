@@ -282,6 +282,24 @@ export async function markReminderDone(id: string): Promise<string | null> {
 }
 
 /**
+ * Haken von heute zurücknehmen (Daria, 2026-11-18, „Untick“): löscht die jüngste Erledigung von heute. Die Woche zählt
+ * dann einen weniger, im Kalender verschwindet der Haken. Ein Post, der dabei entstanden ist, bleibt stehen.
+ */
+export async function undoReminderDone(id: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('reminder_done')
+    .select('id')
+    .eq('reminder_id', id)
+    .gte('done_at', dayStart().toISOString())
+    .order('done_at', { ascending: false })
+    .limit(1);
+  const row = (data as { id: string }[] | null)?.[0];
+  if (error || !row) return false;
+  const { error: gone } = await supabase.from('reminder_done').delete().eq('id', row.id);
+  return !gone;
+}
+
+/**
  * Posten nach dem Erledigen (Daria, 2026-11-10): Das Erstellen-Blatt öffnet sich mit Titel und Beschreibung als
  * Me-Challenge. Der nächste Post, der daraus entsteht, bekommt die Markierung und hängt an der Erledigung.
  * Schließt das Blatt ohne Post, verfällt der Auftrag (`clearRoutinePost`).
