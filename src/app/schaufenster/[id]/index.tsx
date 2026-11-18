@@ -176,7 +176,7 @@ export default function ShowcaseScreen() {
   const events = entries.flatMap((e) => (e.kind === 'event' ? [e.event] : []));
   const posts = entries.flatMap((e) => (e.kind === 'post' ? [e.post] : []));
   const link = s.visibility === 'public' && s.switches.online ? showcasePublicLink(s.slug) : undefined;
-  const cards = infoCards(s, access.team);
+  const cards = infoCards(s);
 
   return (
     <SubScreen
@@ -357,27 +357,27 @@ type InfoCardData = {
   title: string;
   body?: string;
   icon: 'map-pin' | 'clock-filled' | 'link';
-  placeholder?: boolean;
   address?: string;
   links?: string[];
   email?: string;
 };
 
-/** Karten für „Gut zu wissen“: Ort, Öffnungszeiten, Links mit Mail. Leere sieht nur das Team als Platzhalter. */
-function infoCards(s: Showcase, team: boolean): InfoCardData[] {
+/** Karten für „Gut zu wissen“: Ort, Öffnungszeiten, Links mit Mail. Leere Angaben fallen weg, auch fürs Team
+ *  (Daria, 2026-11-18: „Leere Karten noch sichtbar“). Eine Einzelperson hat oft dauerhaft keine Adresse und keine
+ *  Öffnungszeiten; ausfüllen lassen sie sich unter Verwalten. Ohne Karten entfällt der Abschnitt. */
+function infoCards(s: Showcase): InfoCardData[] {
   const cards: InfoCardData[] = [];
-  if (s.address) {
-    const [first, ...rest] = s.address.split(',');
-    cards.push({ id: 'ort', kicker: 'Ort', title: first.trim(), body: rest.join(',').trim() || undefined, icon: 'map-pin', address: s.address });
-  } else if (team) cards.push({ id: 'ort', kicker: 'Ort', title: 'Noch keine Adresse', icon: 'map-pin', placeholder: true });
-  if (s.openingHours) cards.push({ id: 'zeit', kicker: 'Öffnungszeiten', title: s.openingHours, icon: 'clock-filled' });
-  else if (team) cards.push({ id: 'zeit', kicker: 'Öffnungszeiten', title: 'Noch keine Öffnungszeiten', icon: 'clock-filled', placeholder: true });
+  const address = s.address?.trim();
+  if (address) {
+    const [first, ...rest] = address.split(',');
+    cards.push({ id: 'ort', kicker: 'Ort', title: first.trim(), body: rest.join(',').trim() || undefined, icon: 'map-pin', address });
+  }
+  if (s.openingHours?.trim()) cards.push({ id: 'zeit', kicker: 'Öffnungszeiten', title: s.openingHours.trim(), icon: 'clock-filled' });
   // Mail als erste Zeile der Link-Karte (Daria, 2026-11-17: „Dann bitte Mail einbinden“)
   if (s.links.length || s.email) {
     const kicker = s.email ? (s.links.length ? 'Kontakt' : 'E-Mail') : s.links.length === 1 ? 'Link' : 'Links';
     cards.push({ id: 'links', kicker, title: '', icon: 'link', links: s.links, email: s.email });
   }
-  else if (team) cards.push({ id: 'links', kicker: 'Links', title: 'Noch keine Links', icon: 'link', placeholder: true });
   return cards;
 }
 
@@ -406,8 +406,10 @@ function CardRow({ title, count, children }: { title: string; count: number; chi
     <View style={routine.group}>
       <SectionHead title={title} count={count} />
       {items.length === 1 ? (
+        // Eine einzelne Karte nimmt die ganze Breite ein, statt mit leerem Rand rechts zu stehen (Daria, 2026-11-18:
+        // „wie die Karussell-Reihe aussieht, wenn nur noch eine Karte übrig ist“)
         <View style={[styles.rowScroll, styles.row]}>
-          <View style={[styles.slot, { width: cardWidth }]}>{items[0]}</View>
+          <View style={[styles.slot, styles.slotAlone]}>{items[0]}</View>
         </View>
       ) : (
         <ScrollView
@@ -430,14 +432,14 @@ function CardRow({ title, count, children }: { title: string; count: number; chi
   );
 }
 
-function InfoCard({ kicker, title, body, icon, placeholder, address, links, email, name }: InfoCardData & { name: string }) {
+function InfoCard({ kicker, title, body, icon, address, links, email, name }: InfoCardData & { name: string }) {
   return (
     <View style={styles.card}>
       <View style={styles.cardHead}>
         <View style={styles.flex}>
           <Text style={styles.cardKicker}>{kicker}</Text>
           {title ? (
-            <Text noTranslate={!placeholder} selectable={!placeholder} style={[styles.cardTitle, placeholder && styles.cardSoft]}>
+            <Text noTranslate selectable style={styles.cardTitle}>
               {title}
             </Text>
           ) : null}
@@ -508,7 +510,9 @@ function linkParts(link: string): { label: string; sub: string } {
   const [host, ...path] = short.split('/');
   const service = SERVICES.find(([re]) => re.test(host.toLowerCase()))?.[1];
   if (!service) return { label: t('Webseite'), sub: short };
-  const handle = path.filter(Boolean)[0];
+  // Bei LinkedIn und Bluesky steht vor dem Namen ein Pfadteil („linkedin.com/in/<name>“, „bsky.app/profile/<name>“);
+  // vorher zeigte die Karte deshalb „@in“ (Daria, 2026-11-18)
+  const handle = path.filter(Boolean).find((p) => !/^(in|company|school|showcase|profile|user|pages)$/i.test(p));
   return { label: service, sub: handle && service !== 'YouTube' ? `@${handle.replace(/^@/, '')}` : short };
 }
 
@@ -666,6 +670,7 @@ const styles = StyleSheet.create({
   // Höhe nach Inhalt wie die Karten in Routine (Daria, 2026-11-17)
   row: { paddingHorizontal: space[16], paddingVertical: space[6], gap: space[12], alignItems: 'flex-start' },
   slot: { flexDirection: 'column' },
+  slotAlone: { alignSelf: 'stretch', maxWidth: 560 },
   card: { gap: space[12], padding: space[20], borderRadius: radius.md, backgroundColor: color.showcaseCards.card },
   cardHead: { flexDirection: 'row', gap: space[12], alignItems: 'flex-start' },
   flex: { flex: 1, gap: space[4] },
