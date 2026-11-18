@@ -23,6 +23,7 @@ export const RoutineList = memo(function RoutineList({
   onEnd,
   onEdit,
   onCopy,
+  onUndo,
   onChanged,
   onDragLock,
   showCalendar = true,
@@ -38,6 +39,8 @@ export const RoutineList = memo(function RoutineList({
   onEdit: (r: Reminder) => void;
   /** Kopie über „Neue Erinnerung“, vorausgefüllt (Daria, 2026-11-13) */
   onCopy: (r: Reminder) => void;
+  /** Haken von heute zurücknehmen (Daria, 2026-11-18) */
+  onUndo: (r: Reminder) => void;
   onChanged: () => void;
   /** Karte angehoben: Seite nicht scrollen (Daria, 2026-11-13) */
   onDragLock?: (on: boolean) => void;
@@ -75,14 +78,14 @@ export const RoutineList = memo(function RoutineList({
       {tasks.length ? (
         <Group title="Aufgaben" count={tasks.length}>
           {tasks.map((r) => (
-            <TaskCard key={r.id} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} />
+            <TaskCard key={r.id} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} onUndo={() => onUndo(r)} />
           ))}
         </Group>
       ) : null}
       {fixed.length || calendar.length ? (
         <Group title="Feste Termine" count={fixed.length + calendar.length}>
           {fixed.map((r) => (
-            <EventCard key={r.id} reminder={r} bg={OLIVE} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} />
+            <EventCard key={r.id} reminder={r} bg={OLIVE} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} onUndo={() => onUndo(r)} />
           ))}
           {calendar.map((e) => (
             <CalendarCard key={e.id} event={e} />
@@ -92,7 +95,7 @@ export const RoutineList = memo(function RoutineList({
       {optional.length || saved.length ? (
         <Group title="Das hast Du Dir vorgemerkt" count={optional.length + saved.length}>
           {optional.map((r) => (
-            <EventCard key={r.id} reminder={r} bg={POWDER} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} />
+            <EventCard key={r.id} reminder={r} bg={POWDER} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} onUndo={() => onUndo(r)} />
           ))}
           {saved.map((e) => (
             <SavedCard key={e.id} event={e} onChanged={onChanged} />
