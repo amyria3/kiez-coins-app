@@ -238,7 +238,7 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
   const [kiez, setKiez] = useState('');
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
-  // Schaufenster, bei dem jemand auf das ausgegraute „Im Web ansehen“ getippt hat
+  // Schaufenster, bei dem jemand auf das ausgegraute „Schaufenster im Web“ getippt hat
   const [webHint, setWebHint] = useState<string | null>(null);
   // Abschnitt „Connect“ je Schaufenster, Ziel des Hinweises „Runterscrollen“
   const connectRefs = useRef<Record<string, View | null>>({});
@@ -338,9 +338,9 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
                 Ansehen und Link kopieren sind Handlungen und stehen als Secondary-Buttons in der Farbe des Bereichs
                 (Daria, 2026-11-18). */}
             <View style={styles.list}>
-              <Button label="In der App ansehen" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
+              <Button label="Schaufenster in der App" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
               <Button
-                label="Im Web ansehen"
+                label="Schaufenster im Web"
                 variant="secondary"
                 disabled={!(s.visibility === 'public' && s.switches.online)}
                 whyDisabled={() => setWebHint(s.id)}
