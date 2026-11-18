@@ -335,13 +335,8 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
           <FieldGroup heading label="Deine Seite">
             {/* Zwei Ansichten (Daria, 2026-11-12): in der App wie ein KiezCoins-Mitglied, im Web wie jede Besucher:in
                 unter kiezcoins.de/s/…. Die Webseite gibt es nur öffentlich und online; sonst erklärt ein Hinweis, warum.
-                „Seite bearbeiten“ ist eine Einstellung und bleibt graue Zeile; Ansehen und Link kopieren sind Handlungen
-                und stehen als Secondary-Buttons in der Farbe des Bereichs (Daria, 2026-11-18). */}
-            <NavRow
-              label="Seite bearbeiten"
-              value="Bilder, Angaben, Sichtbarkeit"
-              onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id, von: 'schaufenster' } })}
-            />
+                Ansehen und Link kopieren sind Handlungen und stehen als Secondary-Buttons in der Farbe des Bereichs
+                (Daria, 2026-11-18). */}
             <View style={styles.list}>
               <Button label="In der App ansehen" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
               <Button
@@ -377,6 +372,14 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               </FieldGroup>
             </View>
           ) : null}
+          {/* „Seite bearbeiten“ ist eine Einstellung: graue Zeile im eigenen Abschnitt am Schluss (Daria, 2026-11-18) */}
+          <FieldGroup heading label="Einstellungen">
+            <NavRow
+              label="Seite bearbeiten"
+              value="Bilder, Angaben, Sichtbarkeit"
+              onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id, von: 'schaufenster' } })}
+            />
+          </FieldGroup>
         </View>
       ))}
       {footer}
