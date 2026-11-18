@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Keyboard } from 'react-native';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
 
 import { Button } from '../../../components/Button';
@@ -90,6 +90,8 @@ export default function CreateStep2() {
   const preview = () => {
     if (!canPublish || (!draft.photo && !draft.pages?.length)) return;
     setDraft((d) => ({ ...d, bountyAmount, edensteine }));
+    // Tastatur zu, bevor die Vorschau aufgeht: Sie braucht den ganzen Bildschirm (Daria, 2026-11-18)
+    Keyboard.dismiss();
     router.push('/challenge/create/preview');
   };
 

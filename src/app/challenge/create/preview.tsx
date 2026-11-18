@@ -69,7 +69,13 @@ export default function CreatePreview() {
   const edensteine = isPhoto || bountyAmount ? undefined : draft.edensteine;
   const bottom = Math.max(insets.bottom, space[16]);
   const top = insets.top + space[8];
-  const { width: screenW, height: screenH } = useAppDimensions();
+  // Größe aus dem eigenen Layout, nicht aus der Fenstergröße (Daria, 2026-11-18, Bildschirmfoto „Big Bug“): Im
+  // Browser meldet die Fenstergröße den sichtbaren Ausschnitt. Kam man mit offener Tastatur aus Schritt 2, war die
+  // Vorschau nur so hoch wie der Platz über der Tastatur, darunter blieb eine leere Fläche bis zu den Knöpfen.
+  const appSize = useAppDimensions();
+  const [layout, setLayout] = useState<{ width: number; height: number } | null>(null);
+  const screenW = layout?.width ?? appSize.width;
+  const screenH = layout?.height ?? appSize.height;
   const windowBottom = BAR + bottom + space[8];
   // Fenster für die Vorschau: Der Post wird so verkleinert, dass er genau hineinpasst
   const iw = screenW - 2 * EDGE;
@@ -232,7 +238,13 @@ export default function CreatePreview() {
   );
 
   return (
-    <View style={styles.screen}>
+    <View
+      style={styles.screen}
+      onLayout={(e) => {
+        const { width, height } = e.nativeEvent.layout;
+        setLayout((old) => (old && old.width === width && old.height === height ? old : { width, height }));
+      }}
+    >
       <Animated.View
         style={[styles.window, { left: EDGE, top, width: iw, height: ih, transform: [{ translateX: shiftX }] }]}
         {...pan.panHandlers}
