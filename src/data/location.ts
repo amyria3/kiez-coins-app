@@ -86,6 +86,28 @@ export async function findPlace(): Promise<FoundPlace> {
   return { kiez, street, coords };
 }
 
+/**
+ * Adresse → Punkt über Nominatim von OpenStreetMap, ohne Schlüssel (Daria, 2026-11-18: Karte und Anfahrt im
+ * Schaufenster). Eine Anfrage je Speichern, wie es die Nutzungsregeln von Nominatim erlauben. Ohne Treffer oder
+ * ohne Netz: null.
+ */
+export async function geocodeAddress(address: string): Promise<Coords | null> {
+  const q = address.replace(/\s*\n\s*/g, ', ').trim();
+  if (!q) return null;
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=de&q=${encodeURIComponent(q)}`;
+    // Im Browser setzt der Browser die Kennung selbst; in der App nennt sie KiezCoins, wie Nominatim es verlangt
+    const response = await fetch(url, Platform.OS === 'web' ? undefined : { headers: { 'User-Agent': 'KiezCoins-App (kiezcoins.de)' } });
+    if (!response.ok) return null;
+    const [hit] = (await response.json()) as { lat?: string; lon?: string }[];
+    const latitude = Number(hit?.lat);
+    const longitude = Number(hit?.lon);
+    return Number.isFinite(latitude) && Number.isFinite(longitude) && hit?.lat && hit?.lon ? { latitude, longitude } : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Entfernung in Metern (Haversine) */
 /** Umkreis des Kiezes: Kiez zeigt Beiträge bis hier, weiter weg geht Mitmachen nur auf Anfrage (Daria, 29.10.2026) */
 export const KIEZ_RADIUS_METERS = 5000;

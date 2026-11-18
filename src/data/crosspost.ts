@@ -139,6 +139,20 @@ export async function crosspostChallenge(challengeId: string, platforms: LivePla
 }
 
 /**
+ * Termin aus dem Schaufenster weiterposten (Daria, 2026-11-18). Wie crosspostChallenge; Fehler landen in
+ * `crosspost_event_posts` (Migration 20261118000400). Der Link führt zur öffentlichen Seite des Schaufensters.
+ */
+export async function crosspostEvent(eventId: string, platforms: LivePlatform[]) {
+  if (!platforms.length) return {};
+  const look = await loadCrosspostLook();
+  const { data } = await supabase.functions.invoke<{ results?: Record<string, { url?: string; error?: string }> }>(
+    'weiterposten',
+    { body: { action: 'post_event', eventId, platforms, look } },
+  );
+  return data?.results ?? {};
+}
+
+/**
  * Weiterposten für Me-Challenges (Daria, 2026-11-16: „nach dem Nachher“): Die Auswahl beim Vorher merkt sich das
  * Gerät je Me-Challenge. Beim Nachher steht sie wieder da und lässt sich ändern; mit „Abschließen und posten“ geht
  * der Post weiter. Schließt der Server eine Me-Challenge selbst ab (nach 48 h oder 7 Tagen), geht nichts weiter.

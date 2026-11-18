@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { eventTime, type SingleEvent } from './calendar';
 import { WEB_APP_URL } from './groups';
 import { dayName } from './katerRoutine';
+import type { Coords } from './location';
 import { localDate } from './reminders';
 import { useFeature } from './unlock';
 import { photoUrl, uploadPhoto } from './remote';
@@ -36,6 +37,8 @@ export type Showcase = {
   address?: string;
   /** Kontakt-Mail (Daria, 2026-11-17, Migration 20261117000200); wie die Adresse nur über showcase_private */
   email?: string;
+  /** Punkt der Adresse für die Karte auf der öffentlichen Seite (Daria, 2026-11-18); wie die Adresse nur über showcase_private */
+  coords?: Coords;
   /** Bis zu 10 Links (Daria, 2026-11-10: „mehr Links“) */
   links: string[];
   openingHours?: string;
@@ -128,7 +131,7 @@ type Row = {
  * damit Menschen ohne Zugang sie nicht sehen.
  */
 const COLUMNS = 'id, group_id, name, slug, logo_path, cover_path, about, services, services_collapsed, bg_color, kiez, website, links, opening_hours, imprint, visibility, plan_until';
-type Private = { address: string | null; email: string | null; invite_code: string | null } | null;
+type Private = { address: string | null; lat: number | null; lng: number | null; email: string | null; invite_code: string | null } | null;
 
 const toShowcase = (r: Row): Showcase => ({
   id: r.id,
@@ -257,6 +260,8 @@ export async function loadShowcase(id: string, userId: string): Promise<{ showca
   const { data: priv } = await supabase.rpc('showcase_private', { p_showcase: id });
   showcase.address = (priv as Private)?.address ?? undefined;
   showcase.email = (priv as Private)?.email ?? undefined;
+  const { lat, lng } = (priv as Private) ?? {};
+  showcase.coords = typeof lat === 'number' && typeof lng === 'number' ? { latitude: lat, longitude: lng } : undefined;
   showcase.inviteCode = (priv as Private)?.invite_code ?? '';
   showcase.switches = await showcaseSwitches(id);
   await Promise.all([loadTerms(showcase), loadSeo(showcase)]);
@@ -306,6 +311,8 @@ export type ShowcaseInput = {
   bgColor?: string;
   kiez?: string;
   address?: string;
+  /** Punkt der Adresse; null löscht ihn, ohne Angabe bleibt er (Karte auf der öffentlichen Seite, 2026-11-18) */
+  coords?: Coords | null;
   email?: string;
   links: string[];
   openingHours?: string;
@@ -384,6 +391,10 @@ export async function updateShowcase(id: string, userId: string, input: Showcase
     visibility: input.visibility,
   };
   if (input.terms !== undefined) fields.terms = nullIfEmpty(input.terms);
+  if (input.coords !== undefined) {
+    fields.lat = input.coords?.latitude ?? null;
+    fields.lng = input.coords?.longitude ?? null;
+  }
   if (input.slug !== undefined) fields.slug = input.slug.trim().toLowerCase();
   if (input.seoTitle !== undefined) fields.seo_title = nullIfEmpty(input.seoTitle);
   if (input.seoDescription !== undefined) fields.seo_description = nullIfEmpty(input.seoDescription);
@@ -514,9 +525,10 @@ export async function loadEntries(showcaseId: string, userId: string, all = fals
 
 export type EventInput = { title: string; body?: string; image?: ImageSource; startsAt: Date; endsAt?: Date; location?: string };
 
-export async function createEvent(showcaseId: string, userId: string, input: EventInput): Promise<void> {
+/** Legt den Termin an und gibt seine Kennung zurück (fürs Weiterposten, 2026-11-18) */
+export async function createEvent(showcaseId: string, userId: string, input: EventInput): Promise<string> {
   const image_path = isLocal(input.image) ? await uploadPhoto(userId, input.image!) : null;
-  const { error } = await supabase.from('showcase_events').insert({
+  const { data, error } = await supabase.from('showcase_events').insert({
     showcase_id: showcaseId,
     title: input.title.trim(),
     body: input.body?.trim() || null,
@@ -524,8 +536,9 @@ export async function createEvent(showcaseId: string, userId: string, input: Eve
     starts_at: input.startsAt.toISOString(),
     ends_at: input.endsAt ? input.endsAt.toISOString() : null,
     location: input.location?.trim() || null,
-  });
-  if (error) throw new Error(error.message);
+  }).select('id').single();
+  if (error || !data) throw new Error(error?.message ?? 'Termin nicht gespeichert');
+  return (data as { id: string }).id;
 }
 
 export async function cancelEvent(id: string): Promise<boolean> {

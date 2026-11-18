@@ -6,6 +6,8 @@
 // Zähler (Daria: „Einfacher Zähler“), das Gerät merkt sich im Browser, welche Termine es geliked hat.
 
 import { hatTermine, schaufensterKalender } from './_kalender.mjs';
+import { anfahrtLink, hatPunkt, karteEinbetten, karteGross } from './_karte.mjs';
+import { oeffnungszeiten } from './_oeffnungszeiten.mjs';
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://aqxzxpxrshizlaqyjplw.supabase.co';
 const SUPABASE_KEY = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? 'sb_publishable_WqrL7Y7Wm0l9cq4tHQpjAQ_iooAaNe0';
@@ -153,7 +155,9 @@ const beschreibungVon = (s) =>
   `${s.name}${s.kiez ? ` in ${s.kiez}` : ''}: Termine, Neuigkeiten und Infos bei KiezCoins.`;
 
 // Strukturierte Daten (schema.org) für Google: das Geschäft als LocalBusiness, Termine als Event.
-// Öffnungszeiten stehen als freier Text in der App und passen nicht ins Format von schema.org, deshalb fehlen sie hier.
+// Öffnungszeiten stehen als freier Text in der App; api/_oeffnungszeiten.mjs übersetzt die üblichen Schreibweisen ins
+// Format von schema.org, bei unklarem Text fehlen sie. Dazu der Kartenpunkt (Daria, 2026-11-18: Google Business Profile,
+// Stufe 1). Google gleicht diese Angaben mit dem Unternehmensprofil ab, wenn dort die Seite als Website steht.
 function jsonLd(s, url) {
   const bild = foto(s.cover_path) ?? foto(s.logo_path);
   const links = (Array.isArray(s.links) && s.links.length ? s.links : s.website ? [s.website] : []).filter((l) =>
@@ -168,6 +172,8 @@ function jsonLd(s, url) {
     ...(bild ? { image: bild } : {}),
     ...(foto(s.logo_path) ? { logo: foto(s.logo_path) } : {}),
     ...(s.address ? { address: s.address } : {}),
+    ...(hatPunkt(s) ? { geo: { '@type': 'GeoCoordinates', latitude: s.lat, longitude: s.lng }, hasMap: karteGross(s) } : {}),
+    ...(oeffnungszeiten(s.opening_hours) ? { openingHoursSpecification: oeffnungszeiten(s.opening_hours) } : {}),
     ...(s.email ? { email: s.email } : {}),
     ...(s.kiez ? { areaServed: s.kiez } : {}),
     ...(links.length ? { sameAs: links } : {}),
@@ -421,8 +427,19 @@ function mitmachen(s) {
 // Wie shareableMapsUrl in src/lib/places.ts. Auf iPhone und iPad tauscht das Skript unten auf Apple Karten.
 const kartenLink = (ort) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ort.trim())}`;
 
+// Anfahrt und Karte über OpenStreetMap (Daria, 2026-11-18). Die Karte lädt erst nach einem Tipp, denn sie holt
+// Kartenbilder von openstreetmap.org; vorher geht keine Anfrage dorthin.
+function osmKarte(s) {
+  if (!hatPunkt(s)) return '';
+  return `<div class="sf-osm" data-osm="${esc(karteEinbetten(s))}" data-titel="${esc(`Karte: ${s.name}`)}">
+    <button type="button" class="sf-osm-laden">Karte anzeigen</button>
+    <p class="sf-osm-hinweis">Lädt die Karte von OpenStreetMap.</p>
+  </div>
+  <p class="sf-osm-quelle">Karte © <a href="https://www.openstreetmap.org/copyright" rel="noopener" target="_blank">OpenStreetMap-Mitwirkende</a> · <a href="${esc(karteGross(s))}" rel="noopener" target="_blank">Größere Karte</a></p>`;
+}
+
 function ortKnoepfe(s) {
-  return `<span class="sf-ort"><a class="sf-ort-haupt" href="${esc(kartenLink(s.address))}" data-ort="${esc(s.address)}" target="_blank" rel="noopener">In Karten öffnen</a><button type="button" class="sf-ort-neben" data-ort-teilen="${esc(s.address)}" data-name="${esc(s.name)}">Ort teilen</button><span class="sf-ort-hinweis" role="status"></span></span>`;
+  return `<span class="sf-ort"><a class="sf-ort-haupt" href="${esc(kartenLink(s.address))}" data-ort="${esc(s.address)}" target="_blank" rel="noopener">In Karten öffnen</a><a class="sf-ort-neben" href="${esc(anfahrtLink(s))}" target="_blank" rel="noopener">Anfahrt</a><button type="button" class="sf-ort-neben" data-ort-teilen="${esc(s.address)}" data-name="${esc(s.name)}">Ort teilen</button><span class="sf-ort-hinweis" role="status"></span></span>`;
 }
 
 // Kalender-Abo der Termine (Daria, 2026-11-18). Auf Apple-Geräten öffnet webcal:// die Kalender-App direkt, sonst
@@ -446,7 +463,7 @@ function inhalt(s) {
   // keine Adresse und keine Öffnungszeiten (Daria, 2026-11-17: „Ort und Öffnungszeiten verbergen wenn leer“).
   const infos = [
     // Adresse an die Karten-App oder ans Teilen-Menü (Daria, 2026-11-17: „in jedem Fall offen teilbar“)
-    s.address?.trim() ? fakt('Adresse', `${esc(s.address)}${ortKnoepfe(s)}`) : '',
+    s.address?.trim() ? fakt('Adresse', `${esc(s.address)}${ortKnoepfe(s)}${osmKarte(s)}`) : '',
     s.opening_hours?.trim() ? fakt('Öffnungszeiten', esc(s.opening_hours)) : '',
     // Abo nur, wenn es Termine gibt (Daria, 2026-11-18: leere Angaben fallen weg)
     s.slug && hatTermine(s) ? fakt('Termine', aboKnoepfe(s)) : '',
@@ -544,6 +561,16 @@ ${
 .geteilt .sf-ort .sf-ort-haupt { background: var(--text); color: var(--bg); }
 .geteilt .sf-ort .sf-ort-neben { border: 0; background: none; color: var(--text); box-shadow: inset 0 0 0 1.5px var(--text); }
 .geteilt .sf-ort-hinweis { font-size: 13px; color: var(--text); }
+/* Karte von OpenStreetMap: erst ein ruhiger Kasten mit Knopf, nach dem Tipp die Karte (Daria, 2026-11-18) */
+.geteilt .sf-osm { position: relative; margin-top: 16px; aspect-ratio: 4 / 3; border-radius: 16px; overflow: hidden;
+  background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); display: grid; place-content: center; justify-items: center;
+  gap: 8px; padding: 16px; text-align: center; white-space: normal; }
+.geteilt .sf-osm iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.geteilt .sf-osm-laden { border: 0; border-radius: 999px; padding: 10px 18px; background: none; color: var(--text);
+  box-shadow: inset 0 0 0 1.5px var(--text); font: 500 15px/1 Inter, sans-serif; cursor: pointer; }
+.geteilt .sf-osm-hinweis { margin: 0; font-size: 13px; color: var(--muted); }
+.geteilt .sf-osm-quelle { margin: 6px 0 0; font-size: 12px; color: var(--muted); white-space: normal; }
+.geteilt .sf-osm-quelle a { color: inherit; }
 .geteilt .sf-services p, .geteilt .sf-services ul { margin: 0 0 12px; }
 .geteilt .sf-services ul { padding-left: 20px; }
 .geteilt .sf-services li { margin: 0 0 4px; }
@@ -636,6 +663,17 @@ ${
         hinweis.textContent = 'Adresse kopiert';
         setTimeout(() => (hinweis.textContent = ''), 2500);
       } catch {}
+    });
+  }
+  // Karte erst auf Tipp laden (keine Anfrage an OpenStreetMap ohne Zutun)
+  for (const k of document.querySelectorAll('[data-osm]')) {
+    k.querySelector('button').addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = k.dataset.osm;
+      f.title = k.dataset.titel;
+      f.loading = 'lazy';
+      f.referrerPolicy = 'no-referrer-when-downgrade';
+      k.replaceChildren(f);
     });
   }
   // Kalender-Abo: Apple-Geräte (auch der Mac) öffnen webcal:// in der Kalender-App
