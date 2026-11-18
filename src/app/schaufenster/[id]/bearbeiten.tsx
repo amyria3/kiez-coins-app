@@ -473,7 +473,8 @@ export default function EditShowcase() {
 
       {group ? (
         <FieldGroup label="Wer darf posten?">
-          <Text style={styles.meta}>Wer posten darf, erstellt auch Termine.</Text>
+          {/* Fragen und Erklärungen stehen in der passenden Komponente, nie als grauer Text (Daria, 2026-11-18) */}
+          <QuestionHint question="Wer darf Termine erstellen?" answer="Wer posten darf, erstellt auch Termine." />
           {group.members.map((m) => {
             const me = m.userId === currentUserId;
             const user = users.find((u) => u.id === m.userId);
@@ -486,7 +487,7 @@ export default function EditShowcase() {
               />
             );
           })}
-          {group.members.length <= 1 ? <Text style={styles.meta}>Noch bist Du allein in der Gruppe.</Text> : null}
+          {group.members.length <= 1 ? <Notice message="Noch bist Du allein in der Gruppe." /> : null}
         </FieldGroup>
       ) : null}
 
