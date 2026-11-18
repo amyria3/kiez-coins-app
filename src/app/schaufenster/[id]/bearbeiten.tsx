@@ -37,6 +37,7 @@ import {
   type SlugStatus,
   type Visibility,
 } from '../../../data/showcase';
+import { geocodeAddress } from '../../../data/location';
 import { useStore } from '../../../data/store';
 import { t } from '../../../data/texts';
 import type { ImageSource } from '../../../data/types';
@@ -170,8 +171,14 @@ export default function EditShowcase() {
     setBusy(true);
     setFailed(null);
     try {
+      // Punkt für die Karte auf der öffentlichen Seite (OpenStreetMap, Daria, 2026-11-18): neu suchen, wenn sich die
+      // Adresse geändert hat oder noch kein Punkt da ist. Leere Adresse löscht den Punkt.
+      const address = form.address.trim();
+      const coords =
+        address === (showcase.address ?? '').trim() && showcase.coords ? undefined : address ? await geocodeAddress(address) : null;
       await updateShowcase(showcase.id, currentUserId, {
         ...form,
+        coords,
         // AGB, Adresse, Titel und Beschreibung nur speichern, wenn sie geladen sind
         terms: showcase.termsReady ? form.terms : undefined,
         slug: slugChanged ? slug : undefined,
