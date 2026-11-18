@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Pressable, StyleSheet, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Clipboard from 'expo-clipboard';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Button } from '../../components/Button';
 import { Explanation, FieldGroup, Notice, QuestionHint } from '../../components/Content';
-import { CopyField, SwitchRow, TextField } from '../../components/Form';
+import { SwitchRow, TextField } from '../../components/Form';
 import { NavigationBar } from '../../components/NavigationBar';
+import { scrollIntoView } from '../../components/Nudge';
 import { NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { ShowcaseShare } from '../../components/ShowcaseShare';
@@ -237,6 +240,8 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
   const [failed, setFailed] = useState<string | null>(null);
   // Schaufenster, bei dem jemand auf das ausgegraute „Im Web ansehen“ getippt hat
   const [webHint, setWebHint] = useState<string | null>(null);
+  // Abschnitt „Connect“ je Schaufenster, Ziel des Hinweises „Runterscrollen“
+  const connectRefs = useRef<Record<string, View | null>>({});
   // Gruppe aus einem gescheiterten Versuch; ein zweiter Versuch legt keine weitere Gruppe an
   const groupRef = useRef<string | null>(null);
 
@@ -313,18 +318,8 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
           <Text style={[styles.showcaseName, !router.canGoBack() && styles.showcaseNameUnderKicker]} accessibilityRole="header" noTranslate>
             {s.name}
           </Text>
-          {/* Luft unter dem Namen und ein Satz der Krabbe, was hier passiert. Je nach Status, denn bei „Nur Eingeladene“
-              oder offline erscheint im Web nichts (Daria, 2026-11-12). Der Satz nennt die Einstellung, damit klar ist, dass
-              „alle sehen es“ an ihr hängt und nicht immer gilt (Daria, 2026-11-17). */}
-          <Notice
-            message={
-              !s.switches.online
-                ? 'Hier pflegst Du Deine Seite. Sie ist gerade offline, deshalb sieht nur Deine Gruppe, was Du postest.'
-                : s.visibility === 'public'
-                  ? 'Hier pflegst Du Deine Seite. Sie ist auf „Alle“ gestellt, deshalb sehen alle im Web und in der KiezCoins App, was Du postest.'
-                  : 'Hier pflegst Du Deine Seite. Sie ist auf „Nur Eingeladene“ gestellt, deshalb sehen nur Dein Team und Eingeladene, was Du postest. Name und Angaben sehen alle.'
-            }
-          />
+          {/* Hinweise der Krabbe unter dem Namen, siehe ShowcaseHints */}
+          <ShowcaseHints showcase={s} connectRef={connectRefs.current} />
           {s.cover ? <Image source={s.cover} style={styles.cover} contentFit="cover" /> : null}
           {!s.switches.online ? <Notice variant="warning" message="Dieses Schaufenster ist offline." /> : null}
           {/* Zwei Abschnitte wie in „Dein Konto“, damit klar ist, was wozu gehört (Daria, 2026-11-13: „zerfällt“):
@@ -339,23 +334,25 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
           ) : null}
           <FieldGroup heading label="Deine Seite">
             {/* Zwei Ansichten (Daria, 2026-11-12): in der App wie ein KiezCoins-Mitglied, im Web wie jede Besucher:in
-                unter kiezcoins.de/s/…. Die Webseite gibt es nur öffentlich und online; sonst erklärt ein Hinweis, warum. */}
+                unter kiezcoins.de/s/…. Die Webseite gibt es nur öffentlich und online; sonst erklärt ein Hinweis, warum.
+                „Seite bearbeiten“ ist eine Einstellung und bleibt graue Zeile; Ansehen und Link kopieren sind Handlungen
+                und stehen als Secondary-Buttons in der Farbe des Bereichs (Daria, 2026-11-18). */}
+            <NavRow
+              label="Seite bearbeiten"
+              value="Bilder, Angaben, Sichtbarkeit"
+              onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id, von: 'schaufenster' } })}
+            />
             <View style={styles.list}>
-              <NavRow
-                label="Seite bearbeiten"
-                value="Bilder, Angaben, Sichtbarkeit"
-                onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id, von: 'schaufenster' } })}
-              />
-              <NavRow label="In der App ansehen" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
-              <NavRow
+              <Button label="In der App ansehen" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
+              <Button
                 label="Im Web ansehen"
-                value={s.visibility === 'public' && s.switches.online ? undefined : s.switches.online ? 'Nicht öffentlich' : 'Offline'}
-                onPress={() => (s.visibility === 'public' && s.switches.online ? Linking.openURL(showcasePublicLink(s.slug)) : setWebHint(s.id))}
+                variant="secondary"
+                disabled={!(s.visibility === 'public' && s.switches.online)}
+                whyDisabled={() => setWebHint(s.id)}
+                onPress={() => Linking.openURL(showcasePublicLink(s.slug))}
               />
+              {s.visibility === 'public' ? <CopyLinkButton link={showcasePublicLink(s.slug)} /> : null}
             </View>
-            {s.visibility === 'public' ? <CopyField label="Link zu Deiner Seite" value={showcasePublicLink(s.slug)} /> : null}
-            {/* Instant-Code und Einladung per Mail wie auf der öffentlichen Seite (Daria, 2026-11-17) */}
-            {s.visibility === 'public' && s.switches.online ? <ShowcaseShare showcase={s} /> : null}
             {webHint === s.id ? (
               <Notice
                 message={
@@ -367,10 +364,102 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               />
             ) : null}
           </FieldGroup>
+          {/* Teilen als eigener Abschnitt (Daria, 2026-11-18): Instant-Code und Einladung per Mail wie auf der
+              öffentlichen Seite (Daria, 2026-11-17). Nur bei „Alle“ und online, sonst gibt es die Seite im Web nicht. */}
+          {canShare(s) ? (
+            <View
+              ref={(v) => {
+                connectRefs.current[s.id] = v;
+              }}
+            >
+              <FieldGroup heading label="Connect">
+                <ShowcaseShare showcase={s} />
+              </FieldGroup>
+            </View>
+          ) : null}
         </View>
       ))}
       {footer}
     </SubScreen>
+  );
+}
+
+const canShare = (s: Showcase) => s.visibility === 'public' && s.switches.online;
+
+/** Geschlossene Hinweise bleiben zu, auf diesem Gerät (AsyncStorage) */
+function useClosedHint(key: string): [boolean | undefined, () => void] {
+  const [closed, setClosed] = useState<boolean | undefined>(undefined);
+  useEffect(() => {
+    AsyncStorage.getItem(key).then(
+      (v) => setClosed(v === '1'),
+      () => setClosed(false),
+    );
+  }, [key]);
+  const close = useCallback(() => {
+    setClosed(true);
+    AsyncStorage.setItem(key, '1').catch(() => {});
+  }, [key]);
+  return [closed, close];
+}
+
+/**
+ * Hinweise der Krabbe oben (Daria, 2026-11-18): beide lassen sich schließen und bleiben zu.
+ * 1. Was hier passiert, je nach Status, denn bei „Nur Eingeladene“ oder offline erscheint im Web nichts (Daria, 2026-11-12).
+ *    Der Satz nennt die Einstellung, damit klar ist, dass „alle sehen es“ an ihr hängt (Daria, 2026-11-17). Geschlossen
+ *    gilt je Status: Ändert sich die Sichtbarkeit, erklärt die Krabbe die neue Lage wieder.
+ * 2. Teilen steht weit unten; „Runterscrollen“ springt zum Abschnitt „Connect“. Nur, wenn es den Abschnitt gibt.
+ */
+function ShowcaseHints({ showcase: s, connectRef }: { showcase: Showcase; connectRef: Record<string, View | null> }) {
+  const status = !s.switches.online ? 'offline' : s.visibility === 'public' ? 'public' : 'invited';
+  const [statusClosed, closeStatus] = useClosedHint(`schaufenster-hinweis-${s.id}-${status}`);
+  const [shareClosed, closeShare] = useClosedHint(`schaufenster-hinweis-${s.id}-teilen`);
+  return (
+    <>
+      {statusClosed === false ? (
+        <Notice
+          message={
+            status === 'offline'
+              ? 'Hier pflegst Du Deine Seite. Sie ist gerade offline, deshalb sieht nur Deine Gruppe, was Du postest.'
+              : status === 'public'
+                ? 'Hier pflegst Du Deine Seite. Sie ist auf „Alle“ gestellt, deshalb sehen alle im Web und in der KiezCoins App, was Du postest.'
+                : 'Hier pflegst Du Deine Seite. Sie ist auf „Nur Eingeladene“ gestellt, deshalb sehen nur Dein Team und Eingeladene, was Du postest. Name und Angaben sehen alle.'
+          }
+          onClose={closeStatus}
+        />
+      ) : null}
+      {canShare(s) && shareClosed === false ? (
+        <Notice
+          message="Weiter unten teilst Du Dein Schaufenster oder Deine Visitenkarte sofort: per Instant-Code oder per Mail."
+          action={{ label: 'Runterscrollen', onPress: () => scrollIntoView(connectRef[s.id] ?? null) }}
+          onClose={closeShare}
+        />
+      ) : null}
+    </>
+  );
+}
+
+/**
+ * Link zur Webseite als Secondary-Button (Daria, 2026-11-18). Die Adresse steht klein darüber und lässt sich markieren;
+ * der Button kopiert sie und sagt kurz „Kopiert“.
+ */
+function CopyLinkButton({ link }: { link: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <View style={styles.copyLink}>
+      <Text style={styles.linkText} selectable noTranslate>
+        {link}
+      </Text>
+      <Button
+        label={copied ? 'Kopiert' : 'Link kopieren'}
+        variant="secondary"
+        icon={copied ? 'check' : 'copy'}
+        onPress={async () => {
+          await Clipboard.setStringAsync(link);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        }}
+      />
+    </View>
   );
 }
 
@@ -387,5 +476,7 @@ const styles = StyleSheet.create({
   link: { ...text.caption, color: color.text.primary, textDecorationLine: 'underline' },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.md },
   list: { gap: space[8] },
+  copyLink: { gap: space[8], marginTop: space[8] },
+  linkText: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
   footer: { gap: space[8], marginTop: space[16] },
 });
