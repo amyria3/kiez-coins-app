@@ -130,7 +130,11 @@ function useWebKeyboard(setHeight: (height: number) => void, setInset: (inset: n
       // Die Web-App auf dem iPhone-Home-Bildschirm verkleinert bei offener Tastatur manchmal schon die Seite selbst
       // (100 % von html). Zog die App die Tastatur dann noch einmal ab, blieb für den Inhalt fast nichts übrig, und
       // das Formular war leer (Daria, 2026-11-16). Abgezogen wird nur, was die Seite nicht schon selbst abgibt.
-      const inset = next ? Math.max(0, next - Math.max(0, full.page - root.clientHeight)) : 0;
+      // Safari schiebt die Seite beim Fokus um `pageTop` nach oben, und zurückgescrollt wird nicht mehr (#413). Die
+      // Seite endete dann um diesen Betrag über der Tastatur, dazwischen blieb ein leerer schwarzer Streifen
+      // (Daria, 2026-11-18, Mail-Formular im Schaufenster). Die Seite reicht deshalb bis an die Tastatur heran.
+      const shifted = next ? Math.max(0, Math.round(viewport.pageTop)) : 0;
+      const inset = next ? Math.max(0, next - Math.max(0, full.page - root.clientHeight) - shifted) : 0;
       if (inset !== currentInset) {
         currentInset = inset;
         root.style.setProperty('--keyboard-inset', `${inset}px`);
