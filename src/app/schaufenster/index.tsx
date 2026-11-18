@@ -373,6 +373,20 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               </FieldGroup>
             </View>
           ) : null}
+          {/* Bei Google gefunden werden (Daria, 2026-11-18: Google Business Profile, Stufe 1). Die öffentliche Seite liefert
+              Google Name, Adresse, Kartenpunkt, Öffnungszeiten und Termine (api/s.mjs). Für Google Maps legt der Betrieb
+              selbst ein kostenloses Unternehmensprofil an und trägt die Seite als Website ein. Nur mit Seite im Web. */}
+          {canShare(s) ? (
+            <FieldGroup heading label="Google">
+              <View style={styles.list}>
+                <Explanation
+                  question="Wie finden mich Leute bei Google Maps?"
+                  answer="Google liest Deine Seite im Web: Name, Adresse, Karte, Öffnungszeiten und Termine. Für Google Maps legst Du kostenlos ein Unternehmensprofil an und trägst dort den Link zu Deiner Seite als Website ein. Google prüft den Eintrag, das dauert einige Tage."
+                />
+                <Button label="Google-Unternehmensprofil anlegen" variant="secondary" onPress={() => Linking.openURL(GOOGLE_PROFILE_URL)} />
+              </View>
+            </FieldGroup>
+          ) : null}
           {/* „Seite bearbeiten“ ist eine Einstellung: graue Zeile im eigenen Abschnitt am Schluss (Daria, 2026-11-18) */}
           <FieldGroup heading label="Einstellungen">
             <NavRow
@@ -387,6 +401,9 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
     </SubScreen>
   );
 }
+
+/** Kostenloses Unternehmensprofil bei Google anlegen (Google Business Profile) */
+const GOOGLE_PROFILE_URL = 'https://business.google.com/create';
 
 const canShare = (s: Showcase) => s.visibility === 'public' && s.switches.online;
 
