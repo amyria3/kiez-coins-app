@@ -282,14 +282,10 @@ export default function ShowcaseScreen() {
               <ShowcaseEventCard key={e.id} event={e} team={access.team} onChanged={reload} compact />
             ))}
           </CardRow>
-        ) : access.canSee && access.team ? (
-          <View style={routine.group}>
-            <SectionHead title="Termine" />
-            <PlaceholderText>Noch keine Termine</PlaceholderText>
-          </View>
         ) : null}
 
-        {s.services || access.team ? (
+        {/* Ohne Termine oder Services fehlt der Abschnitt, auch fürs Team (Daria, 2026-11-18: „Leere Karten noch sichtbar“) */}
+        {s.services ? (
           <View style={routine.group}>
             <SectionHead title="Services" />
             <ServicesCard services={s.services} collapsed={s.servicesCollapsed} />
@@ -362,9 +358,10 @@ type InfoCardData = {
   email?: string;
 };
 
-/** Karten für „Gut zu wissen“: Ort, Öffnungszeiten, Links mit Mail. Leere Angaben fallen weg, auch fürs Team
- *  (Daria, 2026-11-18: „Leere Karten noch sichtbar“). Eine Einzelperson hat oft dauerhaft keine Adresse und keine
- *  Öffnungszeiten; ausfüllen lassen sie sich unter Verwalten. Ohne Karten entfällt der Abschnitt. */
+/**
+ * Karten für „Gut zu wissen“: Ort, Öffnungszeiten, Links mit Mail. Leere Angaben fehlen ganz, auch fürs Team
+ * (Daria, 2026-11-18: „Leere Karten noch sichtbar“). Ausfüllen geht über „Verwalten“. Nur Leerzeichen zählt als leer.
+ */
 function infoCards(s: Showcase): InfoCardData[] {
   const cards: InfoCardData[] = [];
   const address = s.address?.trim();
@@ -580,13 +577,11 @@ function FootRow({ label, children }: { label: string; children: ReactNode }) {
 }
 
 /** Services auf einer eigenen Karte; eingeklappt, wenn die Gründer:in das so eingestellt hat */
-function ServicesCard({ services, collapsed }: { services?: string; collapsed: boolean }) {
+function ServicesCard({ services, collapsed }: { services: string; collapsed: boolean }) {
   const [open, setOpen] = useState(!collapsed);
   return (
     <View style={styles.card}>
-      {!services ? (
-        <Text style={[styles.cardInk, styles.cardSoft]}>Noch keine Services</Text>
-      ) : open ? (
+      {open ? (
         <RichText value={services} style={styles.cardInk} />
       ) : null}
       {services && collapsed ? (
@@ -679,7 +674,6 @@ const styles = StyleSheet.create({
   cardKicker: { ...text.labelSm, color: color.showcaseCards.inkSoft },
   cardTitle: { ...text.cardTitle, color: ink },
   cardInk: { ...text.bodyLarge, color: ink },
-  cardSoft: { color: color.showcaseCards.inkSoft, fontStyle: 'italic' },
   linkList: { marginTop: space[4] },
   linkRowFirst: { paddingTop: 0 },
   linkRow: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12] },
