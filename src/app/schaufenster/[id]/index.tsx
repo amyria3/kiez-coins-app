@@ -176,7 +176,7 @@ export default function ShowcaseScreen() {
   const events = entries.flatMap((e) => (e.kind === 'event' ? [e.event] : []));
   const posts = entries.flatMap((e) => (e.kind === 'post' ? [e.post] : []));
   const link = s.visibility === 'public' && s.switches.online ? showcasePublicLink(s.slug) : undefined;
-  const cards = infoCards(s, access.team);
+  const cards = infoCards(s);
 
   return (
     <SubScreen
@@ -282,14 +282,10 @@ export default function ShowcaseScreen() {
               <ShowcaseEventCard key={e.id} event={e} team={access.team} onChanged={reload} compact />
             ))}
           </CardRow>
-        ) : access.canSee && access.team ? (
-          <View style={routine.group}>
-            <SectionHead title="Termine" />
-            <PlaceholderText>Noch keine Termine</PlaceholderText>
-          </View>
         ) : null}
 
-        {s.services || access.team ? (
+        {/* Ohne Termine oder Services fehlt der Abschnitt, auch fürs Team (Daria, 2026-11-18: „Leere Karten noch sichtbar“) */}
+        {s.services ? (
           <View style={routine.group}>
             <SectionHead title="Services" />
             <ServicesCard services={s.services} collapsed={s.servicesCollapsed} />
@@ -357,27 +353,27 @@ type InfoCardData = {
   title: string;
   body?: string;
   icon: 'map-pin' | 'clock-filled' | 'link';
-  placeholder?: boolean;
   address?: string;
   links?: string[];
   email?: string;
 };
 
-/** Karten für „Gut zu wissen“: Ort, Öffnungszeiten, Links mit Mail. Leere sieht nur das Team als Platzhalter. */
-function infoCards(s: Showcase, team: boolean): InfoCardData[] {
+/**
+ * Karten für „Gut zu wissen“: Ort, Öffnungszeiten, Links mit Mail. Leere Angaben fehlen ganz, auch fürs Team
+ * (Daria, 2026-11-18: „Leere Karten noch sichtbar“). Ausfüllen geht über „Verwalten“.
+ */
+function infoCards(s: Showcase): InfoCardData[] {
   const cards: InfoCardData[] = [];
   if (s.address) {
     const [first, ...rest] = s.address.split(',');
     cards.push({ id: 'ort', kicker: 'Ort', title: first.trim(), body: rest.join(',').trim() || undefined, icon: 'map-pin', address: s.address });
-  } else if (team) cards.push({ id: 'ort', kicker: 'Ort', title: 'Noch keine Adresse', icon: 'map-pin', placeholder: true });
+  }
   if (s.openingHours) cards.push({ id: 'zeit', kicker: 'Öffnungszeiten', title: s.openingHours, icon: 'clock-filled' });
-  else if (team) cards.push({ id: 'zeit', kicker: 'Öffnungszeiten', title: 'Noch keine Öffnungszeiten', icon: 'clock-filled', placeholder: true });
   // Mail als erste Zeile der Link-Karte (Daria, 2026-11-17: „Dann bitte Mail einbinden“)
   if (s.links.length || s.email) {
     const kicker = s.email ? (s.links.length ? 'Kontakt' : 'E-Mail') : s.links.length === 1 ? 'Link' : 'Links';
     cards.push({ id: 'links', kicker, title: '', icon: 'link', links: s.links, email: s.email });
   }
-  else if (team) cards.push({ id: 'links', kicker: 'Links', title: 'Noch keine Links', icon: 'link', placeholder: true });
   return cards;
 }
 
@@ -430,14 +426,14 @@ function CardRow({ title, count, children }: { title: string; count: number; chi
   );
 }
 
-function InfoCard({ kicker, title, body, icon, placeholder, address, links, email, name }: InfoCardData & { name: string }) {
+function InfoCard({ kicker, title, body, icon, address, links, email, name }: InfoCardData & { name: string }) {
   return (
     <View style={styles.card}>
       <View style={styles.cardHead}>
         <View style={styles.flex}>
           <Text style={styles.cardKicker}>{kicker}</Text>
           {title ? (
-            <Text noTranslate={!placeholder} selectable={!placeholder} style={[styles.cardTitle, placeholder && styles.cardSoft]}>
+            <Text noTranslate selectable style={styles.cardTitle}>
               {title}
             </Text>
           ) : null}
@@ -576,13 +572,11 @@ function FootRow({ label, children }: { label: string; children: ReactNode }) {
 }
 
 /** Services auf einer eigenen Karte; eingeklappt, wenn die Gründer:in das so eingestellt hat */
-function ServicesCard({ services, collapsed }: { services?: string; collapsed: boolean }) {
+function ServicesCard({ services, collapsed }: { services: string; collapsed: boolean }) {
   const [open, setOpen] = useState(!collapsed);
   return (
     <View style={styles.card}>
-      {!services ? (
-        <Text style={[styles.cardInk, styles.cardSoft]}>Noch keine Services</Text>
-      ) : open ? (
+      {open ? (
         <RichText value={services} style={styles.cardInk} />
       ) : null}
       {services && collapsed ? (
@@ -674,7 +668,6 @@ const styles = StyleSheet.create({
   cardKicker: { ...text.labelSm, color: color.showcaseCards.inkSoft },
   cardTitle: { ...text.cardTitle, color: ink },
   cardInk: { ...text.bodyLarge, color: ink },
-  cardSoft: { color: color.showcaseCards.inkSoft, fontStyle: 'italic' },
   linkList: { marginTop: space[4] },
   linkRowFirst: { paddingTop: 0 },
   linkRow: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12] },
