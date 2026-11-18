@@ -30,23 +30,23 @@ export function betriebeFunktionen(t, esc, ic) {
   const fensterKopf = `<div class="b-cover"><span class="b-markise"></span></div>
 <div class="b-wer"><span class="b-logo">K</span><div><b>${esc(laden)}</b><small>${esc(ort)}</small></div></div>`;
 
-  const terminKarte = (mitKnoepfen) => `<div class="b-karte">
+  // Öffentliche Seite kiezcoins.de/s/<kurzname> im Browser, mit Kalender-Abo (api/s.mjs, PR #431 vom 18.11.2026)
+  const browser = (inhalt) => `<div class="b-adresse">kiezcoins.de/s/cafe-kiezliebe</div>${inhalt}`;
+  const terminKarte = `<div class="b-karte">
   <span class="b-art">${esc(t('Termin', 'Event'))}</span>
   <b>${esc(termin)}</b>
   <span class="b-datum">${esc(wann)}</span>
-  ${mitKnoepfen ? `<span class="b-knopf b-knopf-zweit">${esc(t('Speichern', 'Save'))}</span>
-  <span class="b-link" data-tap="kalender">${esc(t('In meine anderen Kalender', 'Add to my other calendars'))}</span>` : ''}
 </div>`;
 
   return [
     {
       id: 'kalender',
-      titel: t('Termine im Kalender Deiner Kundschaft', 'Events in your customers’ calendars'),
+      titel: t('Kalender-Abo für Deine Termine', 'Calendar subscription for your events'),
       text: t(
-        'Du legst einen Termin im Schaufenster an. Deine Kundschaft speichert ihn mit einem Tipp in ihrem Kalender, als Kalender-Abo über ICS.',
-        'You create an event in your shop window. Your customers save it to their calendar with one tap, as an ICS calendar subscription.',
+        'Deine Kundschaft abonniert Deine Termine mit einem Tipp. Jeder neue Termin aus Deinem Schaufenster erscheint danach von selbst in ihrem Kalender.',
+        'Your customers subscribe to your events with one tap. Every new event from your shop window then appears in their calendar by itself.',
       ),
-      zeit: t('2 Minuten', '2 minutes'),
+      zeit: t('Keine, das Abo startet mit Deinem ersten Termin', 'None, the subscription starts with your first event'),
       kosten: t('Kostenlos', 'Free'),
       stand: 'app',
       schritte: [
@@ -83,18 +83,21 @@ ${fensterKopf}
         },
         {
           hinweis: t(
-            'So sieht Deine Kundschaft den Termin. Ein Tipp auf „In meine anderen Kalender“ speichert ihn im eigenen Kalender.',
-            'This is how your customers see the event. A tap on “Add to my other calendars” saves it to their own calendar.',
+            'Deine Kundschaft öffnet Dein Schaufenster im Browser und tippt auf „Kalender abonnieren“.',
+            'Your customers open your shop window in the browser and tap “Subscribe to calendar”.',
           ),
-          ziel: 'kalender',
-          bild: screen(`${kopf(t('Schaufenster', 'Shop window'))}
-${fensterKopf}
-<span class="b-folgen">${esc(t('Folgen', 'Follow'))}</span>
+          ziel: 'abo',
+          bild: screen(browser(`${fensterKopf}
 <h4>${esc(t('Termine', 'Events'))}</h4>
-${terminKarte(true)}`),
+<p class="b-leer">${esc(t('Neue Termine erscheinen automatisch in Deinem Kalender.', 'New events appear in your calendar automatically.'))}</p>
+<span class="b-reihe"><span class="b-knopf b-knopf-hell" data-tap="abo">${esc(t('Kalender abonnieren', 'Subscribe to calendar'))}</span><span class="b-link">${esc(t('Link kopieren', 'Copy link'))}</span></span>
+${terminKarte}`)),
         },
         {
-          hinweis: t('Fertig. Der Termin steht im Kalender Deiner Kundin.', 'Done. The event is in your customer’s calendar.'),
+          hinweis: t(
+            'Fertig. Dein Termin steht im Kalender Deiner Kundin. Neue Termine kommen von selbst dazu.',
+            'Done. Your event is in your customer’s calendar. New events are added by themselves.',
+          ),
           bild: screen(`<div class="b-kal">
   <div class="b-kal-kopf"><span class="b-icon">${ic.kalender}</span><b>${esc(t('Samstag, 22. November', 'Saturday, November 22'))}</b></div>
   ${['12', '13', '14', '15', '16', '17', '18', '19'].map((h) => `<div class="b-kal-stunde"><small>${h}:00</small></div>`).join('')}
@@ -110,7 +113,7 @@ ${terminKarte(true)}`),
         'Deine Adresse im Schaufenster zeigt eine Karte von OpenStreetMap. Ein Tipp öffnet die Anfahrt in der Karten-App.',
         'Your address in the shop window shows a map from OpenStreetMap. One tap opens directions in the maps app.',
       ),
-      zeit: t('5 Minuten', '5 minutes'),
+      zeit: t('1 Minute', '1 minute'),
       kosten: t('Kostenlos', 'Free'),
       stand: 'vorbereitung',
     },
