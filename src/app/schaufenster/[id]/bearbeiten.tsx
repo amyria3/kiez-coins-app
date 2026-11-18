@@ -286,7 +286,17 @@ export default function EditShowcase() {
         {links.length < MAX_LINKS ? (
           <Button label="Weiteren Link hinzufügen" icon="plus" variant="ghost" onPress={() => setLinks((all) => [...all, ''])} />
         ) : null}
-        <TextField label="Öffnungszeiten" multiline value={form.openingHours} onChangeText={set('openingHours')} maxLength={400} placeholder="Mo–Fr 9–18 Uhr" />
+        {/* Hinweis zur Schreibweise (Daria, 2026-11-18: Google Business Profile): so übernimmt Google die Zeiten von der
+            öffentlichen Seite (api/_oeffnungszeiten.mjs) */}
+        <TextField
+          label="Öffnungszeiten"
+          multiline
+          value={form.openingHours}
+          onChangeText={set('openingHours')}
+          maxLength={400}
+          placeholder="Mo–Fr 9–18 Uhr"
+          helperText="Je Zeile Tage und Uhrzeit, zum Beispiel „Sa 10–14 Uhr“. So übernimmt Google die Zeiten."
+        />
         <TextField label="Impressum" multiline value={form.imprint} onChangeText={set('imprint')} maxLength={1000} />
         <QuestionHint
           question="Brauche ich ein Impressum?"

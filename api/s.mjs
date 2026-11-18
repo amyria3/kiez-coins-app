@@ -7,6 +7,7 @@
 
 import { hatTermine, schaufensterKalender } from './_kalender.mjs';
 import { anfahrtLink, hatPunkt, karteEinbetten, karteGross } from './_karte.mjs';
+import { oeffnungszeiten } from './_oeffnungszeiten.mjs';
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://aqxzxpxrshizlaqyjplw.supabase.co';
 const SUPABASE_KEY = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? 'sb_publishable_WqrL7Y7Wm0l9cq4tHQpjAQ_iooAaNe0';
@@ -154,7 +155,9 @@ const beschreibungVon = (s) =>
   `${s.name}${s.kiez ? ` in ${s.kiez}` : ''}: Termine, Neuigkeiten und Infos bei KiezCoins.`;
 
 // Strukturierte Daten (schema.org) für Google: das Geschäft als LocalBusiness, Termine als Event.
-// Öffnungszeiten stehen als freier Text in der App und passen nicht ins Format von schema.org, deshalb fehlen sie hier.
+// Öffnungszeiten stehen als freier Text in der App; api/_oeffnungszeiten.mjs übersetzt die üblichen Schreibweisen ins
+// Format von schema.org, bei unklarem Text fehlen sie. Dazu der Kartenpunkt (Daria, 2026-11-18: Google Business Profile,
+// Stufe 1). Google gleicht diese Angaben mit dem Unternehmensprofil ab, wenn dort die Seite als Website steht.
 function jsonLd(s, url) {
   const bild = foto(s.cover_path) ?? foto(s.logo_path);
   const links = (Array.isArray(s.links) && s.links.length ? s.links : s.website ? [s.website] : []).filter((l) =>
@@ -169,6 +172,8 @@ function jsonLd(s, url) {
     ...(bild ? { image: bild } : {}),
     ...(foto(s.logo_path) ? { logo: foto(s.logo_path) } : {}),
     ...(s.address ? { address: s.address } : {}),
+    ...(hatPunkt(s) ? { geo: { '@type': 'GeoCoordinates', latitude: s.lat, longitude: s.lng }, hasMap: karteGross(s) } : {}),
+    ...(oeffnungszeiten(s.opening_hours) ? { openingHoursSpecification: oeffnungszeiten(s.opening_hours) } : {}),
     ...(s.email ? { email: s.email } : {}),
     ...(s.kiez ? { areaServed: s.kiez } : {}),
     ...(links.length ? { sameAs: links } : {}),
