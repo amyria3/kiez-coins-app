@@ -9,6 +9,7 @@ import { Notice } from './Content';
 import { TextField } from './Form';
 import { InviteQr } from './InviteQr';
 import { Text } from './T';
+import type { IconName } from './icons/svgs';
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
@@ -27,6 +28,22 @@ const MESSAGES: Record<Exclude<CardMailResult, 'ok'>, string> = {
  * der Schalter in „Bearbeiten“ an ist. Nur bei „Alle“ und online, sonst gibt es die Seite im Web nicht.
  */
 export function ShowcaseShare({ showcase }: { showcase: Showcase }) {
+  return (
+    <View style={styles.wrap}>
+      <InviteQr value={showcasePublicLink(showcase.slug)} label={t('Instant-Code zu Deiner Seite')} />
+      <Text style={styles.meta}>Wer den Instant-Code scannt, landet auf Deiner Seite und kann Dir folgen oder sich mit Dir anfreunden.</Text>
+      {/* Die Mail lädt zum Schaufenster in der App ein. Ohne Icon (Daria, 2026-11-18) */}
+      <CardMailButton showcase={showcase} label="Einladung zum App-Schaufenster" />
+    </View>
+  );
+}
+
+/**
+ * Secondary-Button, der sich zum Formular öffnet: Adresse eintippen, KiezCoins verschickt die Visitenkarte mit dem
+ * Link zur Seite über die Edge Function `visitenkarte-mail` (#408). Auch unter „Link kopieren“ als „Per Mail senden“
+ * (Daria, 2026-11-18: „Der Knopf sollte aber ne Mail eintragen die wir schicken“).
+ */
+export function CardMailButton({ showcase, label, icon }: { showcase: Showcase; label: string; icon?: IconName }) {
   const [open, setOpen] = useState(false);
   const [to, setTo] = useState('');
   const [from, setFrom] = useState('');
@@ -48,8 +65,6 @@ export function ShowcaseShare({ showcase }: { showcase: Showcase }) {
 
   return (
     <View style={styles.wrap}>
-      <InviteQr value={showcasePublicLink(showcase.slug)} label={t('Instant-Code zu Deiner Seite')} />
-      <Text style={styles.meta}>Wer den Instant-Code scannt, landet auf Deiner Seite und kann Dir folgen oder sich mit Dir anfreunden.</Text>
       {open ? (
         <View style={styles.form}>
           <TextField
@@ -67,8 +82,7 @@ export function ShowcaseShare({ showcase }: { showcase: Showcase }) {
           <Text style={styles.meta}>KiezKoins nutzt die Adresse nur für diese eine Mail und speichert sie nicht.</Text>
         </View>
       ) : (
-        // Die Mail lädt zum Schaufenster in der App ein. Ohne Icon (Daria, 2026-11-18)
-        <Button label="Einladung zum App-Schaufenster" variant="secondary" onPress={() => setOpen(true)} />
+        <Button label={label} variant="secondary" icon={icon} onPress={() => setOpen(true)} />
       )}
       {result ? <Notice variant={result.ok ? undefined : 'warning'} message={result.message} onClose={() => setResult(null)} /> : null}
     </View>

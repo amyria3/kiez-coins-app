@@ -8,6 +8,9 @@
 // Schutz vor Missbrauch: kein Freitext, nur ein optionaler Vorname. Höchstens 5 Mails je Gerät und Stunde,
 // 20 je Gerät und Tag, 2 je Empfängeradresse und Tag, 50 je Schaufenster und Tag. Gerät und Empfängeradresse stehen
 // nur als Prüfsumme in showcase_card_mails (Migration 20261117000500); Zeilen älter als 30 Tage löscht die Funktion.
+// Gegen Massenversand über viele Geräte (Daria, 2026-11-18): höchstens 30 Mails je Stunde und 120 je Tag über alle
+// Schaufenster zusammen. Brevo erlaubt im Gratis-Tarif 300 Mails am Tag, und die Anmelde-Codes (konto-ohne-mail)
+// laufen über dasselbe Konto; sie sollen nie wegen Visitenkarten ausfallen.
 // Ein verstecktes Feld „website“ fängt einfache Bots ab.
 //
 // Anfrage: POST { slug, to, from?, website? }  Antwort: { ok: true } oder { error }
@@ -23,7 +26,7 @@ import { cardMail, cleanSenderName, isEmail, type CardMailData, type QrMatrix } 
 const SITE = 'https://kiezcoins.de';
 // Dieselbe bei Brevo bestätigte Absenderadresse wie bei konto-ohne-mail
 const SENDER = { name: 'KiezKoins', email: 'registration.noreply@kiezcoins.de' };
-const LIMITS = { deviceHour: 5, deviceDay: 20, recipientDay: 2, showcaseDay: 50 };
+const LIMITS = { deviceHour: 5, deviceDay: 20, recipientDay: 2, showcaseDay: 50, allHour: 30, allDay: 120 };
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -81,20 +84,26 @@ Deno.serve(async (req) => {
   const recipient = await hash('empfaenger', to.toLowerCase());
   const hourAgo = new Date(Date.now() - 3600e3).toISOString();
   const dayAgo = new Date(Date.now() - 86400e3).toISOString();
-  const count = async (column: string, value: string, since: string) => {
-    const { count: n } = await db
-      .from('showcase_card_mails')
-      .select('id', { count: 'exact', head: true })
-      .eq(column, value)
-      .gte('created_at', since);
+  // Ohne Spalte zählt die Abfrage alle Mails (Grenze über alle Schaufenster)
+  const count = async (column: string | null, value: string, since: string) => {
+    let q = db.from('showcase_card_mails').select('id', { count: 'exact', head: true }).gte('created_at', since);
+    if (column) q = q.eq(column, value);
+    const { count: n } = await q;
     return n ?? 0;
   };
-  const [deviceHour, deviceDay, recipientDay, showcaseDay] = await Promise.all([
+  const [deviceHour, deviceDay, recipientDay, showcaseDay, allHour, allDay] = await Promise.all([
     count('device_hash', device, hourAgo),
     count('device_hash', device, dayAgo),
     count('recipient_hash', recipient, dayAgo),
     count('showcase_id', s.id, dayAgo),
+    count(null, '', hourAgo),
+    count(null, '', dayAgo),
   ]);
+  if (allHour >= LIMITS.allHour || allDay >= LIMITS.allDay) {
+    // Auffällig viele Mails insgesamt: im Log der Funktion sichtbar (Supabase › Edge Functions › Logs)
+    console.warn(`visitenkarte-mail: Grenze für alle erreicht (Stunde ${allHour}, Tag ${allDay})`);
+    return reply({ error: 'limit' }, 429);
+  }
   if (
     deviceHour >= LIMITS.deviceHour ||
     deviceDay >= LIMITS.deviceDay ||
