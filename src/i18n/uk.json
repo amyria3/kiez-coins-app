@@ -1425,5 +1425,8 @@
   "Link zum Web-Schaufenster": "Посилання на вебвітрину",
   "Einladung zum App-Schaufenster": "Запросити до вітрини в застосунку",
   "Schaufenster in der App": "Вітрина в застосунку",
-  "Schaufenster im Web": "Вітрина в інтернеті"
+  "Schaufenster im Web": "Вітрина в інтернеті",
+  "Per Mail senden": "Надіслати електронною поштою",
+  "{name} bei KiezCoins": "{name} у KiezCoins",
+  "Schau Dir {name} an: {link}": "Поглянь на {name}: {link}"
 }

@@ -1838,5 +1838,8 @@
   "Link zum Web-Schaufenster": "Link to your web showcase",
   "Einladung zum App-Schaufenster": "Invite to your app showcase",
   "Schaufenster in der App": "Showcase in the app",
-  "Schaufenster im Web": "Showcase on the web"
+  "Schaufenster im Web": "Showcase on the web",
+  "Per Mail senden": "Send by email",
+  "{name} bei KiezCoins": "{name} on KiezCoins",
+  "Schau Dir {name} an: {link}": "Take a look at {name}: {link}"
 }

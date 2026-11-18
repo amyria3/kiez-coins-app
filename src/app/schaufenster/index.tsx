@@ -346,7 +346,7 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
                 whyDisabled={() => setWebHint(s.id)}
                 onPress={() => Linking.openURL(showcasePublicLink(s.slug))}
               />
-              {s.visibility === 'public' ? <CopyLinkButton link={showcasePublicLink(s.slug)} /> : null}
+              {s.visibility === 'public' ? <CopyLinkButton link={showcasePublicLink(s.slug)} name={s.name} /> : null}
             </View>
             {webHint === s.id ? (
               <Notice
@@ -443,9 +443,10 @@ function ShowcaseHints({ showcase: s, connectRef }: { showcase: Showcase; connec
 
 /**
  * Link zur Webseite als Secondary-Button (Daria, 2026-11-18). Darüber klein „Link zum Web-Schaufenster“ und die Adresse,
- * die sich markieren lässt; der Button kopiert sie und sagt kurz „Kopiert“.
+ * die sich markieren lässt; der Button kopiert sie und sagt kurz „Kopiert“. Darunter „Per Mail senden“: öffnet das
+ * Mailprogramm mit dem Link im Text (Daria, 2026-11-18).
  */
-function CopyLinkButton({ link }: { link: string }) {
+function CopyLinkButton({ link, name }: { link: string; name: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <View style={styles.copyLink}>
@@ -463,6 +464,16 @@ function CopyLinkButton({ link }: { link: string }) {
           await Clipboard.setStringAsync(link);
           setCopied(true);
           setTimeout(() => setCopied(false), 1500);
+        }}
+      />
+      <Button
+        label="Per Mail senden"
+        variant="secondary"
+        icon="send"
+        onPress={() => {
+          const subject = encodeURIComponent(t('{name} bei KiezCoins', { name }));
+          const body = encodeURIComponent(t('Schau Dir {name} an: {link}', { name, link }));
+          Linking.openURL(`mailto:?subject=${subject}&body=${body}`).catch(() => {});
         }}
       />
     </View>
