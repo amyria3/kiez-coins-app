@@ -1409,5 +1409,7 @@
   "Link zum Web-Schaufenster": "Ссылка на веб-витрину",
   "E-Mail mit Links zu meinem Schaufenster": "Письмо со ссылками на мою витрину",
   "Schaufenster in der App": "Витрина в приложении",
-  "Schaufenster im Web": "Витрина в интернете"
+  "Schaufenster im Web": "Витрина в интернете",
+  "Womit genau verlinkt dieser Instant-Code?": "Куда именно ведёт этот мгновенный код?",
+  "Der Link im Instant-Code führt zu Deinem Schaufenster im Web. Jede:r kann Dein Profil per E-Mail verschicken. Angemeldete Nutzer:innen können Dir folgen und eine Freundschaftsanfrage senden.": "Ссылка в мгновенном коде ведёт на твою витрину в интернете. Любой может отправить твой профиль по электронной почте. Вошедшие пользователи могут подписаться на тебя и отправить запрос в друзья."
 }
