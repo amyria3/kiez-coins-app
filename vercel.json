@@ -82,6 +82,10 @@
       "destination": "/api/c?id=:id"
     },
     {
+      "source": "/s/:slug/termine.ics",
+      "destination": "/api/s?slug=:slug&format=ics"
+    },
+    {
       "source": "/s/:slug",
       "destination": "/api/s?slug=:slug"
     },

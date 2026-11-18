@@ -5,6 +5,8 @@
 // Nur Schaufenster mit Sichtbarkeit „Alle“ haben eine Seite. Termine lassen sich hier ohne Konto liken: einfacher
 // Zähler (Daria: „Einfacher Zähler“), das Gerät merkt sich im Browser, welche Termine es geliked hat.
 
+import { hatTermine, schaufensterKalender } from './_kalender.mjs';
+
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://aqxzxpxrshizlaqyjplw.supabase.co';
 const SUPABASE_KEY = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? 'sb_publishable_WqrL7Y7Wm0l9cq4tHQpjAQ_iooAaNe0';
 const SLUG = /^[a-z0-9][a-z0-9-]{2,39}$/;
@@ -423,6 +425,14 @@ function ortKnoepfe(s) {
   return `<span class="sf-ort"><a class="sf-ort-haupt" href="${esc(kartenLink(s.address))}" data-ort="${esc(s.address)}" target="_blank" rel="noopener">In Karten öffnen</a><button type="button" class="sf-ort-neben" data-ort-teilen="${esc(s.address)}" data-name="${esc(s.name)}">Ort teilen</button><span class="sf-ort-hinweis" role="status"></span></span>`;
 }
 
+// Kalender-Abo der Termine (Daria, 2026-11-18). Auf Apple-Geräten öffnet webcal:// die Kalender-App direkt, sonst
+// führt der Knopf zum Google Kalender. „Link kopieren“ für Outlook und alle übrigen Kalender.
+const aboLink = (slug) => `${SITE}/s/${slug}/termine.ics`;
+const googleAbo = (slug) => `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(aboLink(slug).replace(/^https:/, 'webcal:'))}`;
+function aboKnoepfe(s) {
+  return `Neue Termine erscheinen automatisch in Deinem Kalender.<span class="sf-ort"><a class="sf-ort-haupt" href="${esc(googleAbo(s.slug))}" data-abo="${esc(aboLink(s.slug).replace(/^https:/, 'webcal:'))}" target="_blank" rel="noopener">Kalender abonnieren</a><button type="button" class="sf-ort-neben" data-abo-kopieren="${esc(aboLink(s.slug))}">Link kopieren</button><span class="sf-ort-hinweis" role="status"></span></span>`;
+}
+
 function inhalt(s) {
   if (!s) {
     return `  <h1>Dieses Schaufenster gibt es nicht, oder es ist nicht öffentlich.</h1>
@@ -438,6 +448,8 @@ function inhalt(s) {
     // Adresse an die Karten-App oder ans Teilen-Menü (Daria, 2026-11-17: „in jedem Fall offen teilbar“)
     s.address?.trim() ? fakt('Adresse', `${esc(s.address)}${ortKnoepfe(s)}`) : '',
     s.opening_hours?.trim() ? fakt('Öffnungszeiten', esc(s.opening_hours)) : '',
+    // Abo nur, wenn es Termine gibt (Daria, 2026-11-18: leere Angaben fallen weg)
+    s.slug && hatTermine(s) ? fakt('Termine', aboKnoepfe(s)) : '',
   ].join('');
   // Mehrere Links (Migration 20261110000600); vorher nur die Webseite
   const links = Array.isArray(s.links) && s.links.length ? s.links : s.website ? [s.website] : [];
@@ -626,6 +638,18 @@ ${
       } catch {}
     });
   }
+  // Kalender-Abo: Apple-Geräte (auch der Mac) öffnen webcal:// in der Kalender-App
+  if (apple || /Macintosh/.test(navigator.userAgent)) for (const a of document.querySelectorAll('a[data-abo]')) { a.href = a.dataset.abo; a.removeAttribute('target'); }
+  for (const b of document.querySelectorAll('[data-abo-kopieren]')) {
+    b.addEventListener('click', async () => {
+      const hinweis = b.parentElement.querySelector('.sf-ort-hinweis');
+      try {
+        await navigator.clipboard.writeText(b.dataset.aboKopieren);
+        hinweis.textContent = 'Link kopiert';
+        setTimeout(() => (hinweis.textContent = ''), 2500);
+      } catch {}
+    });
+  }
   const URL_ = ${JSON.stringify(SUPABASE_URL)}, KEY = ${JSON.stringify(SUPABASE_KEY)}, MERK = 'kc-termin-herzen';
   let gemerkt = [];
   try { gemerkt = JSON.parse(localStorage.getItem(MERK) || '[]'); } catch {}
@@ -674,7 +698,20 @@ export async function GET(request) {
   // funktionieren und Suchmaschinen die neue Adresse übernehmen
   if (!s && SLUG.test(slug)) {
     const neu = await neuerKurzname(slug);
-    if (neu) return Response.redirect(new URL(`/s/${neu}`, url.origin), 301);
+    if (neu) return Response.redirect(new URL(`/s/${neu}${url.searchParams.get('format') === 'ics' ? '/termine.ics' : ''}`, url.origin), 301);
+  }
+
+  // Kalender-Abo der Termine: /s/<kurzname>/termine.ics (vercel.json)
+  if (url.searchParams.get('format') === 'ics') {
+    if (!s) return new Response('Nicht gefunden', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+    return new Response(schaufensterKalender(s, `${SITE}/s/${slug}`), {
+      headers: {
+        'Content-Type': 'text/calendar; charset=utf-8',
+        'Content-Disposition': `inline; filename="${slug}.ics"`,
+        // Fünf Minuten zwischenspeichern: Kalender-Apps fragen oft, neue Termine kommen trotzdem rasch an
+        'Cache-Control': 'public, max-age=0, s-maxage=300',
+      },
+    });
   }
 
   const vorlage = await fetch(new URL('/teilen-vorlage', url.origin));
