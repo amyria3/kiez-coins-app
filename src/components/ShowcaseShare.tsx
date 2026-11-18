@@ -35,7 +35,7 @@ export function ShowcaseShare({ showcase }: { showcase: Showcase }) {
       <InviteQr value={showcasePublicLink(showcase.slug)} label={t('Instant-Code zu Deiner Seite')} />
       <Text style={styles.meta}>Wer den Instant-Code scannt, landet auf Deiner Seite und kann Dir folgen oder sich mit Dir anfreunden.</Text>
       {/* Die Mail lädt zum Schaufenster in der App ein. Ohne Icon (Daria, 2026-11-18) */}
-      <CardMailButton showcase={showcase} label="Einladung zum App-Schaufenster" />
+      <CardMailButton showcase={showcase} label="Einladung zum App-Schaufenster per Mail" />
     </View>
   );
 }
