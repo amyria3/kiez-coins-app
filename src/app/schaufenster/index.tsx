@@ -12,7 +12,7 @@ import { NavigationBar } from '../../components/NavigationBar';
 import { scrollIntoView } from '../../components/Nudge';
 import { NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
-import { ShowcaseShare } from '../../components/ShowcaseShare';
+import { CardMailButton, ShowcaseShare } from '../../components/ShowcaseShare';
 import { Text } from '../../components/T';
 import { useAuth } from '../../data/auth';
 import { loadOwnProfile } from '../../data/remote';
@@ -346,7 +346,7 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
                 whyDisabled={() => setWebHint(s.id)}
                 onPress={() => Linking.openURL(showcasePublicLink(s.slug))}
               />
-              {s.visibility === 'public' ? <CopyLinkButton link={showcasePublicLink(s.slug)} name={s.name} /> : null}
+              {s.visibility === 'public' ? <CopyLinkButton showcase={s} /> : null}
             </View>
             {webHint === s.id ? (
               <Notice
@@ -443,10 +443,11 @@ function ShowcaseHints({ showcase: s, connectRef }: { showcase: Showcase; connec
 
 /**
  * Link zur Webseite als Secondary-Button (Daria, 2026-11-18). Darüber klein „Link zum Web-Schaufenster“ und die Adresse,
- * die sich markieren lässt; der Button kopiert sie und sagt kurz „Kopiert“. Darunter „Per Mail senden“: öffnet das
- * Mailprogramm mit dem Link im Text (Daria, 2026-11-18).
+ * die sich markieren lässt; der Button kopiert sie und sagt kurz „Kopiert“. Darunter „Per Mail senden“: Adresse
+ * eintippen, KiezCoins verschickt die Visitenkarte mit dem Link (CardMailButton, Daria, 2026-11-18).
  */
-function CopyLinkButton({ link, name }: { link: string; name: string }) {
+function CopyLinkButton({ showcase }: { showcase: Showcase }) {
+  const link = showcasePublicLink(showcase.slug);
   const [copied, setCopied] = useState(false);
   return (
     <View style={styles.copyLink}>
@@ -466,16 +467,7 @@ function CopyLinkButton({ link, name }: { link: string; name: string }) {
           setTimeout(() => setCopied(false), 1500);
         }}
       />
-      <Button
-        label="Per Mail senden"
-        variant="secondary"
-        icon="send"
-        onPress={() => {
-          const subject = encodeURIComponent(t('{name} bei KiezCoins', { name }));
-          const body = encodeURIComponent(t('Schau Dir {name} an: {link}', { name, link }));
-          Linking.openURL(`mailto:?subject=${subject}&body=${body}`).catch(() => {});
-        }}
-      />
+      {canShare(showcase) ? <CardMailButton showcase={showcase} label="Per Mail senden" icon="send" /> : null}
     </View>
   );
 }
