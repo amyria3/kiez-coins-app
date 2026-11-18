@@ -12,7 +12,7 @@ import { NavigationBar } from '../../components/NavigationBar';
 import { scrollIntoView } from '../../components/Nudge';
 import { NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
-import { CardMailButton, ShowcaseShare } from '../../components/ShowcaseShare';
+import { ShowcaseShare } from '../../components/ShowcaseShare';
 import { Text } from '../../components/T';
 import { useAuth } from '../../data/auth';
 import { loadOwnProfile } from '../../data/remote';
@@ -358,8 +358,8 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               />
             ) : null}
           </FieldGroup>
-          {/* Teilen als eigener Abschnitt (Daria, 2026-11-18): Instant-Code und Einladung per Mail wie auf der
-              öffentlichen Seite (Daria, 2026-11-17), darunter der Link zum Kopieren. Nur bei „Alle“ und online, sonst gibt es die Seite im Web nicht. */}
+          {/* Teilen als eigener Abschnitt (Daria, 2026-11-18): Frage der Krabbe, Instant-Code, Link zum Kopieren, zuletzt die
+              Einladung per Mail wie auf der öffentlichen Seite (Daria, 2026-11-17). Nur bei „Alle“ und online, sonst gibt es die Seite im Web nicht. */}
           {canShare(s) ? (
             <View
               ref={(v) => {
@@ -367,8 +367,9 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               }}
             >
               <FieldGroup heading label="Connect">
-                <ShowcaseShare showcase={s} />
-                <CopyLinkButton showcase={s} />
+                <ShowcaseShare showcase={s}>
+                  <CopyLinkButton showcase={s} />
+                </ShowcaseShare>
               </FieldGroup>
             </View>
           ) : null}
@@ -484,7 +485,7 @@ const styles = StyleSheet.create({
   link: { ...text.caption, color: color.text.primary, textDecorationLine: 'underline' },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.md },
   list: { gap: space[8] },
-  copyLink: { gap: space[8], marginTop: space[8] },
+  copyLink: { gap: space[8] },
   linkLabel: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
   linkText: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
   footer: { gap: space[8], marginTop: space[16] },

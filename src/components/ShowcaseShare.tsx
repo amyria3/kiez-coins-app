@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { sendCardMail, showcasePublicLink, type CardMailResult, type Showcase } from '../data/showcase';
 import { t } from '../data/texts';
 import { color, space, text } from '../theme/tokens';
 import { Button } from './Button';
-import { Notice } from './Content';
+import { Explanation, Notice } from './Content';
 import { TextField } from './Form';
 import { InviteQr } from './InviteQr';
 import { useKeyboardHeight } from './Keyboard';
@@ -29,13 +29,21 @@ const MESSAGES: Record<Exclude<CardMailResult, 'ok'>, string> = {
  * per Mail über die Edge Function `visitenkarte-mail`. Auf der Seite kann man sich mit einem Tipp anfreunden, wenn
  * der Schalter in „Bearbeiten“ an ist. Nur bei „Alle“ und online, sonst gibt es die Seite im Web nicht.
  */
-export function ShowcaseShare({ showcase }: { showcase: Showcase }) {
+export function ShowcaseShare({ showcase, children }: { showcase: Showcase; children?: ReactNode }) {
   return (
     <View style={styles.wrap}>
+      {/* Reihenfolge (Daria, 2026-11-18): erst die Frage der Krabbe, dann der Instant-Code, danach `children` (der Link
+          zum Kopieren), zuletzt die Mail mit mehr Abstand. Die Antwort sagt, wohin der Instant-Code führt und was Angemeldete tun können. */}
+      <Explanation
+        question="Womit genau verlinkt dieser Instant-Code?"
+        answer="Der Link im Instant-Code führt zu Deinem Schaufenster im Web. Jede:r kann Dein Profil per E-Mail verschicken. Angemeldete Nutzer:innen können Dir folgen und eine Freundschaftsanfrage senden."
+      />
       <InviteQr value={showcasePublicLink(showcase.slug)} label={t('Instant-Code zu Deiner Seite')} />
-      <Text style={styles.meta}>Wer den Instant-Code scannt, landet auf Deiner Seite und kann Dir folgen oder sich mit Dir anfreunden.</Text>
+      {children}
       {/* Eine Mail mit beiden Links: abonnieren in der App, Schaufenster und Visitenkarte im Web. Ohne Icon (Daria, 2026-11-18) */}
-      <CardMailButton showcase={showcase} label="E-Mail mit Links zu meinem Schaufenster" />
+      <View style={styles.mail}>
+        <CardMailButton showcase={showcase} label="E-Mail mit Links zu meinem Schaufenster" />
+      </View>
     </View>
   );
 }
@@ -121,4 +129,6 @@ const styles = StyleSheet.create({
   wrap: { gap: space[16] },
   form: { gap: space[16] },
   meta: { ...text.caption, color: color.text.secondary },
+  // Mehr Luft vor der Mail als zwischen den übrigen Bausteinen (Daria, 2026-11-18)
+  mail: { marginTop: space[8] },
 });
