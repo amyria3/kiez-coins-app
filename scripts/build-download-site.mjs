@@ -229,10 +229,11 @@ const ios = (L) => {
 };
 // Sprachauswahl oben rechts: kleines Menü mit Kürzel, darin die Sprachen in ihrer eigenen Schrift.
 // <details> klappt auch ohne JavaScript auf.
-const sprachwahl = (L) => {
+// `seite`: Unterseite ohne Sprache, z. B. 'betriebe'; leer für die Startseite
+const sprachwahl = (L, seite = '') => {
   const t = uebersetzer(L);
   return `<details class="sprachwahl"><summary aria-label="${t('Sprache', 'Language')}: ${sprachen.find((l) => l.code === L).name}">${L.toUpperCase()}</summary><ul>${sprachen
-    .map((l) => `<li><a href="${pfad(l.code)}" hreflang="${l.code}" lang="${l.code}"${l.rtl ? ' dir="rtl"' : ''}${l.code === L ? ' aria-current="true"' : ''}>${l.name}</a></li>`)
+    .map((l) => `<li><a href="${pfad(l.code)}${seite}" hreflang="${l.code}" lang="${l.code}"${l.rtl ? ' dir="rtl"' : ''}${l.code === L ? ' aria-current="true"' : ''}>${l.name}</a></li>`)
     .join('')}</ul></details>`;
 };
 
@@ -441,6 +442,8 @@ ${leute.map((l) => `      <div class="person" tabindex="0"><svg class="ruf" view
         <h3>${t('Du hast einen Laden, ein Café oder einen Verein?', 'Do you run a shop, a café or a club?')}</h3>
         <p>${t('Mit einem Schaufenster zeigst Du Deinem Kiez, was bei Dir los ist: neue Posts, Termine und Öffnungszeiten. Nachbar:innen speichern Deine Termine mit einem Tipp.', 'With a shop window you show your neighborhood what’s going on at your place: new posts, events and opening hours. Neighbors save your events with one tap.')}</p>
         <a class="button" href="${APP_URL}/schaufenster${spracheParam(L)}">${t('Registriere Deinen Laden', 'Register your shop')}</a>
+        <!-- Seite mit allen Funktionen für Betriebe (Daria, 18.11.2026) -->
+        <p class="lw-mehr"><a href="${pfad(L)}betriebe">${t('Alle Funktionen für Betriebe ansehen', 'See all features for businesses')}</a></p>
       </div>
       <figure class="lw-vorschau" aria-label="${t('Vorschau: So sieht ein Schaufenster aus', 'Preview: this is what a shop window looks like')}">
         <div class="lw-fenster" aria-hidden="true">
@@ -1395,6 +1398,105 @@ ${coFounderTeil('de')}
 ${coFounderTeil('en')}`,
 );
 
+// ---------- Unterseite /betriebe: Funktionen für kleine Betriebe (Daria, 18.11.2026) ----------
+// Liste der Funktionen mit Zeit zum Einrichten, daneben das Telefon mit dem Ablauf der gewählten Funktion.
+// Daten und Abläufe: scripts/site/betriebe.mjs, Verhalten: scripts/site/betriebe.js, Optik: scripts/site/betriebe.css.
+const { betriebeFunktionen } = await import('./site/betriebe.mjs');
+const betriebeCss = readFileSync(join(siteDir, 'betriebe.css'), 'utf8');
+const betriebeJs = readFileSync(join(siteDir, 'betriebe.js'), 'utf8');
+const betriebeIcons = {
+  zurueck: iconSvgs['chevron-left'].svg(C.text),
+  zahnrad: iconSvgs.settings.svg(C.text),
+  kalender: iconSvgs.calendar.svg('#1A1A1A'),
+};
+const betriebeSeite = (L) => {
+  const t = uebersetzer(L);
+  const rtl = sprachen.find((l) => l.code === L).rtl;
+  const funktionen = betriebeFunktionen(t, esc, betriebeIcons);
+  const titel = t('KiezCoins für kleine Betriebe', 'KiezCoins for small businesses');
+  const texte = {
+    schritt: t('Schritt {n} von {m}', 'Step {n} of {m}'),
+    bald: esc(t('Den Ablauf dieser Funktion zeigen wir hier, sobald sie in der App ist.', 'We’ll show how this feature works here once it’s in the app.')),
+    baldHinweis: t('Diese Funktion ist in Vorbereitung.', 'This feature is in preparation.'),
+  };
+  return `<!doctype html>
+<html lang="${L}"${rtl ? ' dir="rtl"' : ''}>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#DCE1FF">
+<title>${esc(titel)}</title>
+<meta name="description" content="${esc(t('Funktionen für Läden, Cafés und Vereine: was sie tun, wie lange das Einrichten dauert und wo Du dafür tippst.', 'Features for shops, cafés and clubs: what they do, how long setup takes and where you tap.'))}">
+<link rel="icon" href="/favicon.png">
+${sprachen.map((l) => `<link rel="alternate" hreflang="${l.code}" href="${pfad(l.code)}betriebe">`).join('\n')}
+<link rel="preload" href="/fonts/InterTight_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="/seite.css?v=${version(seiteCss)}">
+<link rel="stylesheet" href="/betriebe.css?v=${version(betriebeCss)}">
+</head>
+<body>
+<div class="wrap">
+<header class="top b-zurueck-kopf" style="max-width:924px;margin-inline:auto">
+  <a class="brand" href="${pfad(L)}" aria-label="${t('KiezCoins, Startseite', 'KiezCoins, home')}">${sized(logoSeite, 48)}<span class="marke" lang="en">The Truly Prosocial App</span></a>
+  <nav class="top-links"><a class="top-link" href="${APP_URL}/schaufenster${spracheParam(L)}"><span class="lang">${t('Schaufenster anlegen', 'Create a shop window')}</span><span class="kurz">${t('Anlegen', 'Create')}</span></a>${sprachwahl(L, 'betriebe')}</nav>
+</header>
+<nav class="b-zurueck"><a href="${pfad(L)}">← ${t('Zurück zur Startseite', 'Back to the home page')}</a></nav>
+<main>
+<section class="b-hero">
+  <h1>${esc(titel)}</h1>
+  <p class="lede">${t('Dein Laden, Dein Café oder Dein Verein bekommt in KiezCoins ein Schaufenster. Diese Funktionen kommen dazu. Wähle eine Funktion aus, und das Telefon zeigt Dir, wo Du tippst.', 'Your shop, café or club gets a shop window in KiezCoins. These features come with it. Choose a feature, and the phone shows you where to tap.')}</p>
+</section>
+<section class="b-bereich" aria-label="${t('Funktionen', 'Features')}">
+  <ul class="b-liste" id="b-liste">
+${funktionen
+  .map(
+    (f) => `    <li><button type="button" class="b-funktion" data-funktion="${f.id}" aria-pressed="false" aria-controls="b-telefon">
+      <b>${esc(f.titel)}</b>
+      <span>${esc(f.text)}</span>
+      <dl class="b-angaben">
+        <dt>${t('Einrichten', 'Setup')}</dt><dd class="b-zeit">${esc(t('Einrichten', 'Setup'))}: ${esc(f.zeit)}</dd>
+        <dt>${t('Kosten', 'Cost')}</dt><dd class="b-kosten">${esc(f.kosten)}</dd>
+        <dt>${t('Stand', 'Status')}</dt><dd class="b-stand${f.stand === 'app' ? ' is-app' : ''}">${f.stand === 'app' ? t('In der App', 'In the app') : t('In Vorbereitung', 'In preparation')}</dd>
+      </dl>
+    </button></li>`,
+  )
+  .join('\n')}
+  </ul>
+  <div class="b-spalte" id="b-telefon">
+    <div class="b-anleitung" aria-live="polite">
+      <div class="b-zeile-oben"><span class="b-zaehler" id="b-zaehler"></span><button type="button" class="b-nochmal" id="b-nochmal" hidden>${t('Noch einmal ansehen', 'Watch again')}</button></div>
+      <p class="b-hinweis" id="b-hinweis"></p>
+    </div>
+    <div class="phone" role="region" aria-label="${t('Klickbares Beispiel', 'Clickable example')}">
+      <div class="p-screen"><div class="b-bild" id="b-bild"></div></div>
+    </div>
+    <p class="hinweis">${t('Alle Daten im Telefon sind Beispiele.', 'All data in the phone are examples.')}</p>
+  </div>
+</section>
+<section class="b-weiter">
+  <h2>${t('Lust bekommen?', 'Feeling inspired?')}</h2>
+  <p>${t('Das Schaufenster ist kostenlos. Du legst es in der App an, in wenigen Minuten.', 'The shop window is free. You create it in the app in a few minutes.')}</p>
+  <a class="button" href="${APP_URL}/schaufenster${spracheParam(L)}">${t('Registriere Deinen Laden', 'Register your shop')}</a>
+</section>
+</main>
+<div class="b-fuss"><footer>
+  <a href="${pfad(L)}">${t('Startseite', 'Home')}</a>
+  <a href="/impressum">${t('Impressum', 'Legal notice')}</a>
+  <a href="/datenschutz">${t('Datenschutz', 'Privacy')}</a>
+  <a href="/nutzungsbedingungen">${t('Nutzungsbedingungen', 'Terms of use')}</a>
+</footer></div>
+</div>
+${funktionen
+  .filter((f) => f.schritte)
+  .map((f) => `<template id="ablauf-${f.id}">${f.schritte.map((s) => `<div data-hinweis="${esc(s.hinweis)}"${s.ziel ? ` data-ziel="${s.ziel}"` : ''}>${s.bild}</div>`).join('')}</template>`)
+  .join('\n')}
+<script type="application/json" id="b-texte">${JSON.stringify(texte).replace(/</g, '\\u003c')}</script>
+<script src="/betriebe.js?v=${version(betriebeJs)}"></script>
+</body>
+</html>
+`;
+};
+
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, 'index.html'), startseite('de'));
 for (const { code } of sprachen.filter((l) => l.code !== 'de')) {
@@ -1417,6 +1519,9 @@ writeFileSync(
 );
 for (const id of legalDocIds) writeFileSync(join(out, `${fileOf[id]}.html`), legal(id));
 writeFileSync(join(out, 'co-founder.html'), coFounderSeite);
+for (const { code } of sprachen) writeFileSync(join(out, code === 'de' ? '' : code, 'betriebe.html'), betriebeSeite(code));
+writeFileSync(join(out, 'betriebe.css'), betriebeCss);
+writeFileSync(join(out, 'betriebe.js'), betriebeJs);
 copyFileSync(join(root, 'assets/favicon.png'), join(out, 'favicon.png'));
 // Startseite: Stil, Prototyp, Beispielfoto und Schriften (lokal, ohne Google-Server)
 writeFileSync(join(out, 'seite.css'), seiteCss);
