@@ -69,6 +69,8 @@ Docs: https://docs.expo.dev/eas/index.md
 
 Follow `kiez-coins/design/UX_UI_Regeln.md`, `kiez-coins/design/Icon_Regelwerk.md` and `kiez-coins/design/Designsystem.md` in Documentation. Every icon has exactly one meaning per look, and every meaning has exactly one icon.
 
+- Questions, answers and explanations always use their component (Daria, 2026-11-18): a question with its answer is a `QuestionHint` or `Explanation` from `src/components/Content.tsx`, a status or hint is a `Notice`. Never plain grey `Text` for them.
+
 ## Documentation
 
 - All docs (concept, decisions, app status, structure, database) live only in the private repo [amyria3/Documentation](https://github.com/amyria3/Documentation). Do not add docs to this repo.
