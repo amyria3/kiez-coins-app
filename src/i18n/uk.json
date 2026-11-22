@@ -1436,5 +1436,11 @@
   "Google liest Deine Seite im Web: Name, Adresse, Karte, Öffnungszeiten und Termine. Für Google Maps legst Du kostenlos ein Unternehmensprofil an und trägst dort den Link zu Deiner Seite als Website ein. Google prüft den Eintrag, das dauert einige Tage.": "Google читає твою вебсторінку: назву, адресу, мапу, години роботи та події. Для Google Maps безкоштовно створи профіль компанії й вкажи посилання на свою сторінку як вебсайт. Google перевіряє запис, це триває кілька днів.",
   "Google-Unternehmensprofil anlegen": "Створити профіль компанії в Google",
   "Je Zeile Tage und Uhrzeit, zum Beispiel „Sa 10–14 Uhr“. So übernimmt Google die Zeiten.": "Один рядок на дні та години, наприклад «Sa 10–14». Так Google перейме твій розклад.",
-  "Wer darf Termine erstellen?": "Хто може створювати події?"
+  "Wer darf Termine erstellen?": "Хто може створювати події?",
+  "Termin buchen": "Записатися",
+  "Buchungslink": "Посилання для запису",
+  "Wie bekomme ich einen Buchungslink?": "Як отримати посилання для запису?",
+  "Mit einem kostenlosen Konto bei Cal.com legst Du fest, wann man bei Dir Termine buchen kann. Den Link zu Deiner Buchungsseite trägst Du hier ein. Im Schaufenster steht dann „Termin buchen“. Andere Buchungsdienste gehen auch.": "З безкоштовним акаунтом на Cal.com ти визначаєш, коли до тебе можна записатися. Посилання на свою сторінку запису вкажи тут. Тоді у вітрині з’явиться «Записатися». Інші сервіси запису теж підходять.",
+  "Cal.com-Konto anlegen": "Створити акаунт Cal.com",
+  "Freie Zeiten sehen und online buchen.": "Переглянути вільний час і записатися онлайн."
 }

@@ -52,6 +52,10 @@ export type Showcase = {
   seoDescription?: string;
   /** Titel, Beschreibung und Adresse sind geladen: Nur dann zeigt und speichert das Formular sie */
   seoReady: boolean;
+  /** Link zur Buchungsseite, z. B. bei Cal.com (Daria, 2026-11-18, Migration 20261118000600); nur über loadShowcase geladen */
+  bookingUrl?: string;
+  /** Buchungslink ist geladen: Nur dann zeigt und speichert das Formular ihn */
+  bookingReady: boolean;
   visibility: Visibility;
   /** Bezahlt: Die Grenze von 50 löscht nichts (plan_until in der Zukunft) */
   paid: boolean;
@@ -154,6 +158,7 @@ const toShowcase = (r: Row): Showcase => ({
   inviteCode: '',
   termsReady: false,
   seoReady: false,
+  bookingReady: false,
 });
 
 /** AGB laden; klappt das nicht, bleibt das Schaufenster ohne AGB */
@@ -172,6 +177,17 @@ async function loadSeo(showcase: Showcase): Promise<void> {
   showcase.seoReady = true;
   showcase.seoTitle = row?.seo_title ?? undefined;
   showcase.seoDescription = row?.seo_description ?? undefined;
+}
+
+/**
+ * Buchungslink laden (Migration 20261118000600). Eigene Abfrage wie die AGB: Fehlt die Spalte noch, lädt das
+ * Schaufenster trotzdem, nur ohne Buchungslink.
+ */
+async function loadBooking(showcase: Showcase): Promise<void> {
+  const { data, error } = await supabase.from('showcases').select('booking_url').eq('id', showcase.id).maybeSingle();
+  if (error) return;
+  showcase.bookingReady = true;
+  showcase.bookingUrl = (data as { booking_url: string | null } | null)?.booking_url ?? undefined;
 }
 
 // ---------- Anfreunden über das Schaufenster (Daria, 2026-11-17, Migration 20261117000500) ----------
@@ -264,7 +280,7 @@ export async function loadShowcase(id: string, userId: string): Promise<{ showca
   showcase.coords = typeof lat === 'number' && typeof lng === 'number' ? { latitude: lat, longitude: lng } : undefined;
   showcase.inviteCode = (priv as Private)?.invite_code ?? '';
   showcase.switches = await showcaseSwitches(id);
-  await Promise.all([loadTerms(showcase), loadSeo(showcase)]);
+  await Promise.all([loadTerms(showcase), loadSeo(showcase), loadBooking(showcase)]);
   const [member, group, guest, follow, see] = await Promise.all([
     supabase.from('group_members').select('role, can_post_showcase').eq('group_id', showcase.groupId).eq('user_id', userId).maybeSingle(),
     supabase.from('groups').select('founder_id').eq('id', showcase.groupId).maybeSingle(),
@@ -321,6 +337,8 @@ export type ShowcaseInput = {
   terms?: string;
   /** Eigener Kurzname für kiezcoins.de/s/<kurzname>; nur mitschicken, wenn er sich ändert */
   slug?: string;
+  /** Nur mitschicken, wenn geladen (Showcase.bookingReady) */
+  bookingUrl?: string;
   /** Nur mitschicken, wenn geladen (Showcase.seoReady) */
   seoTitle?: string;
   seoDescription?: string;
@@ -366,6 +384,10 @@ export const BG_PALETTE: { hex: string; name: string }[] = [
   { hex: '#26233A', name: 'Nacht' },
   { hex: '#1F2123', name: 'Kiez dunkel' },
 ];
+/** Wie die Datenbank (showcases_booking_url_check): https://, höchstens 300 Zeichen */
+export const BOOKING_PATTERN = /^https:\/\/\S+\.\S+$/i;
+/** Kostenloses Konto bei Cal.com anlegen; der Betrieb trägt danach den Link zu seiner Buchungsseite ein */
+export const CAL_SIGNUP_URL = 'https://cal.com/signup';
 /** Wie die Datenbank (showcases_email_check): name@domain.tld, höchstens 254 Zeichen */
 export const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 export const EMAIL_MAX = 254;
@@ -391,6 +413,7 @@ export async function updateShowcase(id: string, userId: string, input: Showcase
     visibility: input.visibility,
   };
   if (input.terms !== undefined) fields.terms = nullIfEmpty(input.terms);
+  if (input.bookingUrl !== undefined) fields.booking_url = nullIfEmpty(input.bookingUrl);
   if (input.coords !== undefined) {
     fields.lat = input.coords?.latitude ?? null;
     fields.lng = input.coords?.longitude ?? null;
