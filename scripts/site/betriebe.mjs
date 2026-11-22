@@ -313,12 +313,12 @@ ${knopf(t('Eintragen', 'Sign up'), 'eintragen', 'hell')}`)}`)),
         'Your customers book appointments right from your page, via Cal.com.',
       ),
       zeit: t('30 Minuten', '30 minutes'),
-      kosten: t('Kostenlos selbst gehostet, sonst ab 15 € im Monat', 'Free when self-hosted, otherwise from €15 a month'),
-      stand: 'vorbereitung',
+      kosten: t('Kostenlos im Gratis-Tarif von Cal.com', 'Free on Cal.com’s free plan'),
+      stand: 'app',
       schritte: [
         ...zahnradMenue('bearbeiten'),
         {
-          hinweis: t('Trage den Link zu Deinem Kalender bei Cal.com ein und tippe auf „Speichern“.', 'Enter the link to your Cal.com calendar and tap “Save”.'),
+          hinweis: t('Trage unter „Termin buchen“ den Link zu Deiner Buchungsseite bei Cal.com ein und tippe auf „Speichern“.', 'Under “Book an appointment”, enter the link to your Cal.com booking page and tap “Save”.'),
           ziel: 'speichern',
           bild: screen(`${kopf(t('Schaufenster bearbeiten', 'Edit shop window'))}
 ${feld(t('Adresse', 'Address'), adresse)}
