@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -21,6 +21,8 @@ import {
   showcaseInviteLink,
   showcasePublicLink,
   BG_PALETTE,
+  BOOKING_PATTERN,
+  CAL_SIGNUP_URL,
   readableOn,
   EMAIL_MAX,
   EMAIL_PATTERN,
@@ -59,7 +61,7 @@ export default function EditShowcase() {
   const { currentUserId, groups, users } = useStore();
   const [showcase, setShowcase] = useState<Showcase | null | undefined>(undefined);
   const [founder, setFounder] = useState(false);
-  const [form, setForm] = useState({ name: '', about: '', services: '', kiez: '', address: '', email: '', openingHours: '', imprint: '', terms: '' });
+  const [form, setForm] = useState({ name: '', about: '', services: '', kiez: '', address: '', email: '', openingHours: '', imprint: '', terms: '', bookingUrl: '' });
   // Mehrere Links (Daria, 2026-11-10); immer mindestens ein Feld
   const [links, setLinks] = useState<string[]>(['']);
   const [servicesCollapsed, setServicesCollapsed] = useState(false);
@@ -98,6 +100,7 @@ export default function EditShowcase() {
         openingHours: s.openingHours ?? '',
         imprint: s.imprint ?? '',
         terms: s.terms ?? '',
+        bookingUrl: s.bookingUrl ?? '',
       });
       setLinks(s.links.length ? s.links : ['']);
       setServicesCollapsed(s.servicesCollapsed);
@@ -153,6 +156,7 @@ export default function EditShowcase() {
   const set = (key: keyof typeof form) => (value: string) => setForm((f) => ({ ...f, [key]: value }));
   const linkOk = (l: string) => !l.trim() || /^https:\/\/\S+\.\S+$/i.test(l.trim());
   const linksOk = links.every(linkOk);
+  const bookingOk = !form.bookingUrl.trim() || BOOKING_PATTERN.test(form.bookingUrl.trim());
   const emailOk = !form.email.trim() || EMAIL_PATTERN.test(form.email.trim());
   const bgOk = !bgColor.trim() || HEX.test(bgColor.trim());
   const setLink = (i: number) => (value: string) => setLinks((all) => all.map((l, j) => (j === i ? value : l)));
@@ -181,6 +185,7 @@ export default function EditShowcase() {
         coords,
         // AGB, Adresse, Titel und Beschreibung nur speichern, wenn sie geladen sind
         terms: showcase.termsReady ? form.terms : undefined,
+        bookingUrl: showcase.bookingReady ? form.bookingUrl : undefined,
         slug: slugChanged ? slug : undefined,
         seoTitle: showcase.seoReady ? seoTitle : undefined,
         seoDescription: showcase.seoReady ? seoDescription : undefined,
@@ -231,7 +236,7 @@ export default function EditShowcase() {
       title="Schaufenster bearbeiten"
       navigation="back"
       onLeadingPress={goBack}
-      actions={<Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !emailOk || !bgOk || !slugOk} onPress={save} />}
+      actions={<Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !bookingOk || !emailOk || !bgOk || !slugOk} onPress={save} />}
     >
       <FieldGroup label="Bilder">
         <View style={styles.pictures}>
@@ -305,6 +310,30 @@ export default function EditShowcase() {
         {/* AGB (Daria, 2026-11-11), freiwillig; Besucher sehen sie eingeklappt */}
         {showcase.termsReady ? <RichTextField label="AGB" value={form.terms} onChange={set('terms')} maxLength={20000} /> : null}
       </FieldGroup>
+
+      {/* Termin buchen über Cal.com (Daria, 2026-11-18: kostenlose Integrationen für kleine Betriebe). Der Betrieb legt
+          sein Konto bei Cal.com selbst an; hier steht nur der Link zur Buchungsseite. Er erscheint im Schaufenster in der
+          App und im Web als „Termin buchen“. Nur, wenn der Link geladen ist (Migration 20261118000600). */}
+      {showcase.bookingReady ? (
+        <FieldGroup label="Termin buchen">
+          <TextField
+            label="Buchungslink"
+            value={form.bookingUrl}
+            onChangeText={set('bookingUrl')}
+            maxLength={300}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
+            placeholder="https://cal.com/kiezblick"
+            error={bookingOk ? undefined : 'Der Link beginnt mit https://'}
+          />
+          <QuestionHint
+            question="Wie bekomme ich einen Buchungslink?"
+            answer="Mit einem kostenlosen Konto bei Cal.com legst Du fest, wann man bei Dir Termine buchen kann. Den Link zu Deiner Buchungsseite trägst Du hier ein. Im Schaufenster steht dann „Termin buchen“. Andere Buchungsdienste gehen auch."
+            then={<Button label="Cal.com-Konto anlegen" variant="secondary" onPress={() => Linking.openURL(CAL_SIGNUP_URL)} />}
+          />
+        </FieldGroup>
+      ) : null}
 
       <FieldGroup label="Farbe der öffentlichen Seite">
         <Text style={styles.meta}>Hintergrund von kiezcoins.de/s/{showcase.slug}. Die Schrift wird automatisch hell oder dunkel. In der App bleibt das Schaufenster im App-Look.</Text>

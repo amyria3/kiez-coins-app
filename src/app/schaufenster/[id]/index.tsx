@@ -17,6 +17,7 @@ import { HandButton } from '../../../components/routine/cards';
 import { styles as routine } from '../../../components/routine/styles';
 import {
   acceptsFriends,
+  BOOKING_PATTERN,
   follow,
   loadEntries,
   loadShowcase,
@@ -352,8 +353,10 @@ type InfoCardData = {
   kicker: string;
   title: string;
   body?: string;
-  icon: 'map-pin' | 'clock-filled' | 'link';
+  icon: 'map-pin' | 'clock-filled' | 'link' | 'calendar';
   address?: string;
+  /** Buchungslink, öffnet „Termin buchen“ (Cal.com o. ä., Daria, 2026-11-18) */
+  booking?: string;
   links?: string[];
   email?: string;
 };
@@ -370,6 +373,10 @@ function infoCards(s: Showcase): InfoCardData[] {
     cards.push({ id: 'ort', kicker: 'Ort', title: first.trim(), body: rest.join(',').trim() || undefined, icon: 'map-pin', address });
   }
   if (s.openingHours?.trim()) cards.push({ id: 'zeit', kicker: 'Öffnungszeiten', title: s.openingHours.trim(), icon: 'clock-filled' });
+  // Termin buchen über Cal.com oder einen anderen Dienst (Daria, 2026-11-18); nur mit gültigem Link
+  if (s.bookingUrl && BOOKING_PATTERN.test(s.bookingUrl)) {
+    cards.push({ id: 'buchen', kicker: 'Termin buchen', title: '', body: t('Freie Zeiten sehen und online buchen.'), icon: 'calendar', booking: s.bookingUrl });
+  }
   // Mail als erste Zeile der Link-Karte (Daria, 2026-11-17: „Dann bitte Mail einbinden“)
   if (s.links.length || s.email) {
     const kicker = s.email ? (s.links.length ? 'Kontakt' : 'E-Mail') : s.links.length === 1 ? 'Link' : 'Links';
@@ -429,7 +436,7 @@ function CardRow({ title, count, children }: { title: string; count: number; chi
   );
 }
 
-function InfoCard({ kicker, title, body, icon, address, links, email, name }: InfoCardData & { name: string }) {
+function InfoCard({ kicker, title, body, icon, address, links, email, booking, name }: InfoCardData & { name: string }) {
   return (
     <View style={styles.card}>
       <View style={styles.cardHead}>
@@ -475,6 +482,11 @@ function InfoCard({ kicker, title, body, icon, address, links, email, name }: In
               </Pressable>
             );
           })}
+        </View>
+      ) : null}
+      {booking ? (
+        <View style={styles.cardActions}>
+          <HandButton label="Termin buchen" tone={color.showcaseCards.secondaryOnCard} onPress={() => openLink(booking)} />
         </View>
       ) : null}
       {/* Adresse direkt an die Karten-App oder ans Teilen-Menü (Daria, 2026-11-17: „in jedem Fall offen teilbar“) */}

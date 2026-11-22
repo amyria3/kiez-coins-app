@@ -6,6 +6,7 @@
 // Zähler (Daria: „Einfacher Zähler“), das Gerät merkt sich im Browser, welche Termine es geliked hat.
 
 import { hatTermine, schaufensterKalender } from './_kalender.mjs';
+import { buchungsLink } from './_buchung.mjs';
 import { anfahrtLink, hatPunkt, karteEinbetten, karteGross } from './_karte.mjs';
 import { oeffnungszeiten } from './_oeffnungszeiten.mjs';
 
@@ -450,6 +451,11 @@ function aboKnoepfe(s) {
   return `Neue Termine erscheinen automatisch in Deinem Kalender.<span class="sf-ort"><a class="sf-ort-haupt" href="${esc(googleAbo(s.slug))}" data-abo="${esc(aboLink(s.slug).replace(/^https:/, 'webcal:'))}" target="_blank" rel="noopener">Kalender abonnieren</a><button type="button" class="sf-ort-neben" data-abo-kopieren="${esc(aboLink(s.slug))}">Link kopieren</button><span class="sf-ort-hinweis" role="status"></span></span>`;
 }
 
+// Buchungslink des Betriebs (api/_buchung.mjs), z. B. https://cal.com/kiezblick
+function buchungKnopf(s) {
+  return `Freie Zeiten sehen und online buchen.<span class="sf-ort"><a class="sf-ort-haupt" href="${esc(buchungsLink(s))}" target="_blank" rel="noopener nofollow">Termin buchen</a></span>`;
+}
+
 function inhalt(s) {
   if (!s) {
     return `  <h1>Dieses Schaufenster gibt es nicht, oder es ist nicht öffentlich.</h1>
@@ -465,6 +471,8 @@ function inhalt(s) {
     // Adresse an die Karten-App oder ans Teilen-Menü (Daria, 2026-11-17: „in jedem Fall offen teilbar“)
     s.address?.trim() ? fakt('Adresse', `${esc(s.address)}${ortKnoepfe(s)}${osmKarte(s)}`) : '',
     s.opening_hours?.trim() ? fakt('Öffnungszeiten', esc(s.opening_hours)) : '',
+    // Termin buchen über Cal.com oder einen anderen Dienst (Daria, 2026-11-18); ohne Link keine Zeile
+    buchungsLink(s) ? fakt('Termin buchen', buchungKnopf(s)) : '',
     // Abo nur, wenn es Termine gibt (Daria, 2026-11-18: leere Angaben fallen weg)
     s.slug && hatTermine(s) ? fakt('Termine', aboKnoepfe(s)) : '',
   ].join('');
