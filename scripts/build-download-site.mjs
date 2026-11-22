@@ -1408,6 +1408,8 @@ const betriebeIcons = {
   zurueck: iconSvgs['chevron-left'].svg(C.text),
   zahnrad: iconSvgs.settings.svg(C.text),
   kalender: iconSvgs.calendar.svg('#1A1A1A'),
+  pin: iconSvgs['map-pin'].svg('#D6334A'),
+  haken: iconSvgs.check.svg('#1A1A1A'),
 };
 const betriebeSeite = (L) => {
   const t = uebersetzer(L);
@@ -1519,7 +1521,10 @@ writeFileSync(
 );
 for (const id of legalDocIds) writeFileSync(join(out, `${fileOf[id]}.html`), legal(id));
 writeFileSync(join(out, 'co-founder.html'), coFounderSeite);
+fehlend.clear();
 for (const { code } of sprachen) writeFileSync(join(out, code === 'de' ? '' : code, 'betriebe.html'), betriebeSeite(code));
+for (const [L, texte] of fehlend) console.warn(`Betriebe ${L}: ${texte.size} Texte ohne Übersetzung, dort steht Englisch (scripts/site/sprachen/${L}.json)`);
+if (process.env.FEHLEND_JSON) writeFileSync(process.env.FEHLEND_JSON, JSON.stringify(Object.fromEntries([...fehlend].map(([L, v]) => [L, [...v]])), null, 1));
 writeFileSync(join(out, 'betriebe.css'), betriebeCss);
 writeFileSync(join(out, 'betriebe.js'), betriebeJs);
 copyFileSync(join(root, 'assets/favicon.png'), join(out, 'favicon.png'));

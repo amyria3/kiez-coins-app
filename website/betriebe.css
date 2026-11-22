@@ -91,7 +91,11 @@
 /* Datum wie mit Textmarker: Signalfarbe abgeblasst, eckig, ohne Rand (UX/UI-Regeln, Karten auf dunklem Grund) */
 .b-datum { justify-self: start; padding: 1px 4px; background: rgba(236,255,90,.6); font-size: 12px; }
 .b-karte .b-knopf { margin-top: 4px; }
-.b-knopf-zweit { background: none; border: 1px solid #1A1A1A; color: #1A1A1A; }
+.b-knopf-zweit { margin-top: 0; background: none; border: 1px solid var(--text); color: var(--text); }
+.b-knopf-hell { margin-top: 0; }
+.b-knopf-karte { margin-top: 6px; background: none; border: 1px solid #1A1A1A; color: #1A1A1A; }
+.b-knopf-google { margin-top: 8px; background: #1A73E8; color: #FFFFFF; }
+.b-knopf-stripe { margin-top: 8px; background: #635BFF; color: #FFFFFF; }
 .b-adresse { margin: -4px -2px 2px; padding: 8px 12px; border-radius: 12px; background: var(--surface); color: var(--muted); font-size: 11.5px; text-align: center; }
 .b-reihe { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
 .b-knopf-hell { margin: 0; padding: 0 16px; background: #F0FFA6; color: #1A1A1A; }
@@ -112,6 +116,57 @@
 .b-bild .p-ring { cursor: pointer; }
 .b-bild .p-ring.b-wink { animation: b-wink 500ms ease-in-out 2; }
 @keyframes b-wink { 50% { outline-width: 5px; outline-offset: 6px; } }
+/* Angabe auf der öffentlichen Seite */
+.b-fakt { display: grid; gap: 6px; padding: 12px; border-radius: 16px; background: var(--surface); }
+.b-fakt > small { color: var(--muted); font-size: 11px; }
+.b-fakt > div { display: grid; gap: 8px; }
+.b-kasten { display: grid; place-items: center; min-height: 64px; border-radius: 12px; border: 1px dashed var(--line); background: var(--bg); font-weight: 500; }
+/* Karte von OpenStreetMap, gezeichnet: Straßen, Park, Nadel */
+.b-osm { position: relative; height: 200px; border-radius: 14px; overflow: hidden; background: #F2EFE9; animation: b-auf 300ms ease-out; }
+.b-osm-klein { height: 150px; }
+.b-strasse { position: absolute; background: #FFFFFF; box-shadow: 0 0 0 1px #DDD8CF; }
+.b-s1 { left: -10%; right: -10%; top: 46%; height: 12px; transform: rotate(-8deg); }
+.b-s2 { top: -10%; bottom: -10%; left: 38%; width: 10px; transform: rotate(12deg); }
+.b-s3 { left: -10%; right: -10%; top: 18%; height: 7px; transform: rotate(4deg); }
+.b-park { position: absolute; right: 8%; bottom: 10%; width: 34%; height: 28%; border-radius: 10px; background: #C8E6B0; }
+.b-pin { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -100%); animation: b-landen 600ms var(--barrier) both 150ms; }
+.b-pin svg { width: 30px; height: 30px; }
+.b-quelle { color: var(--muted); font-size: 10px; }
+/* Fremde Seiten: hell, mit eigener Adresszeile */
+.b-fremd { position: absolute; inset: 44px 0 0; display: flex; flex-direction: column; gap: 10px; padding: 8px 14px; background: #FFFFFF; color: #1A1A1A; }
+.b-fremd .b-adresse { background: #F1F1F1; color: #5F5F5F; margin: 0 -4px; }
+.b-fremd small { color: #5F5F5F; font-size: 12px; }
+.b-fremd-titel { font: 600 18px/1.2 var(--display); }
+.b-feld-hell { background: #F4F4F4; color: #1A1A1A; }
+.b-feld-hell small { color: #5F5F5F; }
+.b-gruen { color: #188038 !important; }
+.b-pille { padding: 8px 14px; border-radius: 999px; border: 1px solid #DADCE0; color: #1A73E8; font-weight: 500; font-size: 12px; }
+/* Erklärung im Chat-Stil: Frage rechts in Lila, Antwort links */
+.b-chat { display: grid; gap: 6px; }
+.b-frage { justify-self: end; max-width: 85%; padding: 8px 12px; border-radius: 14px 14px 4px 14px; background: var(--purple); color: var(--on-accent); font-size: 12px; }
+.b-antwort { justify-self: start; max-width: 90%; padding: 8px 12px; border-radius: 14px 14px 14px 4px; background: var(--surface); font-size: 12px; }
+.b-schalter-zeile { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--surface); }
+.b-schalter-zeile small { color: var(--muted); margin-inline-start: auto; }
+.b-schalter { position: relative; width: 40px; height: 24px; margin-inline-start: auto; border-radius: 999px; background: #4A4852; flex: none; }
+.b-schalter-zeile small + .b-schalter { margin-inline-start: 0; }
+.b-schalter::after { content: ''; position: absolute; top: 3px; inset-inline-start: 3px; width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF; }
+.b-schalter.an { background: var(--purple); }
+.b-schalter.an::after { inset-inline-start: 19px; }
+.b-post { display: flex; align-items: center; gap: 10px; }
+.b-post div { display: grid; }
+.b-logo-klein { width: 36px; height: 36px; font-size: 15px; border: 0; }
+.b-post-text { margin: 0; font-size: 13px; }
+.b-karte-rand { border: 1px solid #E3E3E3; background: #FAFAFA; }
+.b-mail { display: grid; gap: 2px; padding: 12px; border-bottom: 1px solid #EEEEEE; animation: b-landen 600ms var(--barrier) both 150ms; }
+.b-mail b { font-size: 14px; }
+.b-mail-alt { animation: none; opacity: .6; }
+.b-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.b-slots span { display: grid; place-items: center; min-height: 40px; border-radius: 10px; border: 1px solid #DADCE0; font-weight: 500; }
+.b-fertig { display: grid; justify-items: center; gap: 6px; margin-top: 80px; text-align: center; }
+.b-fertig b { font: 600 20px/1.2 var(--display); }
+.b-haken { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: #C8F2D0; animation: b-landen 600ms var(--barrier) both; }
+.b-haken svg { width: 26px; height: 26px; }
 @media (prefers-reduced-motion: reduce) {
+  .b-osm, .b-pin, .b-mail, .b-haken,
   .b-screen, .b-menue, .b-tippt, .b-kal, .b-kal-termin, .b-bild .p-ring.b-wink { animation: none; }
 }
