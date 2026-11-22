@@ -170,3 +170,5 @@
   .b-osm, .b-pin, .b-mail, .b-haken,
   .b-screen, .b-menue, .b-tippt, .b-kal, .b-kal-termin, .b-bild .p-ring.b-wink { animation: none; }
 }
+/* Rechts-nach-links: Der Zurück-Pfeil zeigt nach rechts */
+[dir="rtl"] .b-kopf > .b-icon:first-child svg { transform: scaleX(-1); }
