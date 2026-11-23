@@ -22,6 +22,8 @@ export function cardData(s: Showcase): CardData {
     services: s.services,
     links: s.links,
     url: showcasePublicLink(s.slug),
+    // Instant-Code führt zur Visitenkarten-Ansicht mit Kennung der Begegnung (api/_visitenkarte.mjs, Daria, 2026-11-23)
+    qrUrl: `${showcasePublicLink(s.slug)}/visitenkarte?via=karte`,
     logoUri: typeof s.logo === 'object' && s.logo && 'uri' in s.logo ? (s.logo as { uri?: string }).uri : undefined,
   };
 }

@@ -58,8 +58,24 @@ export function ShowcaseShare({ showcase, children }: { showcase: Showcase; chil
  * scrollt die Seite zusätzlich so weit, dass das Formular bis zum Button zu sehen ist. Nur die Scrollfläche des
  * Screens bewegt sich, nie die Browserseite selbst, damit iOS die Tastatur nicht wieder schließt (#413).
  */
-export function CardMailButton({ showcase, label, icon }: { showcase: Showcase; label: string; icon?: IconName }) {
-  const [open, setOpen] = useState(false);
+export function CardMailButton({
+  showcase,
+  label,
+  icon,
+  open: openProp,
+  onOpenChange,
+}: {
+  showcase: Showcase;
+  label: string;
+  icon?: IconName;
+  /** Von außen gesteuert, z. B. in der Visitenkarte: der Knopf klappt das Formular auf und wieder zu */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
+  const [openState, setOpenState] = useState(false);
+  const controlled = openProp !== undefined;
+  const open = controlled ? openProp : openState;
+  const setOpen = (v: boolean) => (controlled ? onOpenChange?.(v) : setOpenState(v));
   const [to, setTo] = useState('');
   const [from, setFrom] = useState('');
   const [busy, setBusy] = useState(false);
@@ -91,6 +107,7 @@ export function CardMailButton({ showcase, label, icon }: { showcase: Showcase; 
 
   return (
     <View style={styles.wrap}>
+      {controlled ? <Button label={label} variant="secondary" icon={icon} onPress={() => setOpen(!open)} /> : null}
       {open ? (
         <View style={styles.form}>
           <TextField
@@ -117,7 +134,7 @@ export function CardMailButton({ showcase, label, icon }: { showcase: Showcase; 
           </View>
           <Text style={styles.meta}>KiezKoins nutzt die Adresse nur für diese eine Mail und speichert sie nicht.</Text>
         </View>
-      ) : (
+      ) : controlled ? null : (
         <Button label={label} variant="secondary" icon={icon} onPress={() => setOpen(true)} />
       )}
       {result ? <Notice variant={result.ok ? undefined : 'warning'} message={result.message} onClose={() => setResult(null)} /> : null}

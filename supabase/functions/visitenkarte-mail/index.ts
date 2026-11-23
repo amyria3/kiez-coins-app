@@ -16,17 +16,23 @@
 // Anfrage: POST { slug, to, from?, website? }  Antwort: { ok: true } oder { error }
 // Fehler: input, email, name, not_found, limit, mail
 //
+// Kontakt schicken und Kontakte tauschen (Daria, 2026-11-23): POST { slug, art: 'kontakt', name, email, phone?, ort?,
+// nachricht?, karte, einwilligung: true, website? }. Die Funktion schickt die Angaben an die Kontakt-Mail des
+// Schaufensters („Antworten“ geht an die Person) und, wenn `karte` gesetzt ist, der Person die Visitenkarte. Sie
+// speichert die Angaben nicht; in showcase_card_mails steht je Mail nur eine Zeile mit Prüfsummen, wie oben.
+// Höchstens 20 Kontakte je Schaufenster und Tag. Zusätzliche Fehler: consent, no_contact (Schaufenster ohne Mail).
+//
 // Secrets (Supabase › Edge Functions › Secrets): BREVO_API_KEY wie bei konto-ohne-mail.
 // SUPABASE_URL und SUPABASE_SERVICE_ROLE_KEY stellt Supabase selbst bereit.
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import QRCode from 'npm:qrcode@1.5.4';
 
-import { cardMail, cleanSenderName, isEmail, type CardMailData, type QrMatrix } from './mail.ts';
+import { cardMail, cleanSenderName, contactMail, isEmail, type CardMailData, type QrMatrix } from './mail.ts';
 
 const SITE = 'https://kiezcoins.de';
 // Dieselbe bei Brevo bestätigte Absenderadresse wie bei konto-ohne-mail
 const SENDER = { name: 'KiezKoins', email: 'registration.noreply@kiezcoins.de' };
-const LIMITS = { deviceHour: 5, deviceDay: 20, recipientDay: 2, showcaseDay: 50, allHour: 30, allDay: 120 };
+const LIMITS = { deviceHour: 5, deviceDay: 20, recipientDay: 2, showcaseDay: 50, allHour: 30, allDay: 120, contactDay: 20 };
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -48,6 +54,16 @@ const foto = (url: string, path?: string | null) =>
     ? `${url}/storage/v1/object/public/photos/${path.split('/').map(encodeURIComponent).join('/')}`
     : undefined;
 
+/** Freitext aus dem Formular: ohne Steuerzeichen, gekürzt; Zeilenumbrüche nur, wenn erlaubt */
+function plain(value: unknown, max: number, multiline = false): string {
+  if (typeof value !== 'string') return '';
+  const v = value.replace(/\r\n?/g, '\n').replace(/[\u0000-\u0009\u000B-\u001F\u007F]/g, ' ');
+  return (multiline ? v : v.replace(/\n/g, ' ')).replace(/[ \t]+/g, ' ').trim().slice(0, max);
+}
+
+const today = () =>
+  new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date());
+
 function qrMatrix(value: string): QrMatrix {
   const qr = QRCode.create(value, { errorCorrectionLevel: 'M' });
   const n = qr.modules.size;
@@ -59,7 +75,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') return reply({ error: 'method' }, 405);
 
-  let input: { slug?: unknown; to?: unknown; from?: unknown; website?: unknown };
+  let input: Record<string, unknown>;
   try {
     input = await req.json();
   } catch {
@@ -68,20 +84,38 @@ Deno.serve(async (req) => {
   // Verstecktes Feld ausgefüllt: so tun, als wäre die Mail raus
   if (typeof input.website === 'string' && input.website) return reply({ ok: true });
   const slug = typeof input.slug === 'string' ? input.slug.trim().toLowerCase() : '';
-  const to = typeof input.to === 'string' ? input.to.trim() : '';
-  const sender = cleanSenderName(input.from);
   if (!/^[a-z0-9][a-z0-9-]{2,39}$/.test(slug)) return reply({ error: 'input' }, 400);
+  const contact = input.art === 'kontakt';
+  // Visitenkarte: Empfänger:in `to`. Kontakt: die Person selbst, die Karte geht nur mit `karte` an sie.
+  const to = (typeof (contact ? input.email : input.to) === 'string' ? String(contact ? input.email : input.to) : '').trim();
   if (!isEmail(to)) return reply({ error: 'email' }, 400);
+  const sender = contact ? '' : cleanSenderName(input.from);
   if (sender === null) return reply({ error: 'name' }, 400);
+  const person = {
+    name: plain(input.name, 80),
+    phone: plain(input.phone, 30),
+    place: plain(input.ort, 120),
+    message: plain(input.nachricht, 1000, true),
+  };
+  const sendCard = !contact || input.karte === true;
+  if (contact) {
+    if (!person.name) return reply({ error: 'name' }, 400);
+    if (person.phone && !/^\+?[0-9 ()/-]{5,30}$/.test(person.phone)) return reply({ error: 'phone' }, 400);
+    if (input.einwilligung !== true) return reply({ error: 'consent' }, 400);
+  }
 
   const url = Deno.env.get('SUPABASE_URL')!;
   const db = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
   const { data: s } = await db.rpc('public_showcase', { p_slug: slug });
   if (!s) return reply({ error: 'not_found' }, 404);
+  const teamMail = typeof s.email === 'string' ? s.email.trim() : '';
+  if (contact && !isEmail(teamMail)) return reply({ error: 'no_contact' }, 404);
 
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || req.headers.get('x-real-ip') || 'unbekannt';
   const device = await hash('geraet', ip);
   const recipient = await hash('empfaenger', to.toLowerCase());
+  // Kontakte zählen je Schaufenster, getrennt von Visitenkarten an die Adresse des Teams
+  const team = await hash('kontakt', `${s.id}`);
   const hourAgo = new Date(Date.now() - 3600e3).toISOString();
   const dayAgo = new Date(Date.now() - 86400e3).toISOString();
   // Ohne Spalte zählt die Abfrage alle Mails (Grenze über alle Schaufenster)
@@ -91,13 +125,14 @@ Deno.serve(async (req) => {
     const { count: n } = await q;
     return n ?? 0;
   };
-  const [deviceHour, deviceDay, recipientDay, showcaseDay, allHour, allDay] = await Promise.all([
+  const [deviceHour, deviceDay, recipientDay, showcaseDay, allHour, allDay, contactDay] = await Promise.all([
     count('device_hash', device, hourAgo),
     count('device_hash', device, dayAgo),
     count('recipient_hash', recipient, dayAgo),
     count('showcase_id', s.id, dayAgo),
     count(null, '', hourAgo),
     count(null, '', dayAgo),
+    count('recipient_hash', team, dayAgo),
   ]);
   if (allHour >= LIMITS.allHour || allDay >= LIMITS.allDay) {
     // Auffällig viele Mails insgesamt: im Log der Funktion sichtbar (Supabase › Edge Functions › Logs)
@@ -107,8 +142,9 @@ Deno.serve(async (req) => {
   if (
     deviceHour >= LIMITS.deviceHour ||
     deviceDay >= LIMITS.deviceDay ||
-    recipientDay >= LIMITS.recipientDay ||
-    showcaseDay >= LIMITS.showcaseDay
+    (sendCard && recipientDay >= LIMITS.recipientDay) ||
+    showcaseDay >= LIMITS.showcaseDay ||
+    (contact && contactDay >= LIMITS.contactDay)
   ) {
     return reply({ error: 'limit' }, 429);
   }
@@ -129,29 +165,43 @@ Deno.serve(async (req) => {
     // Folgen in der App wie auf der öffentlichen Seite (api/s.mjs); ohne Konto über das Onboarding und zurück
     appUrl: `https://app.kiezcoins.de/schaufenster/${encodeURIComponent(s.id)}?folgen=1`,
   };
-  const mail = cardMail(data, qrMatrix(data.url), sender);
-  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
-    method: 'POST',
-    headers: { 'api-key': key, 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({
-      sender: SENDER,
-      // Antworten gehen an die Kontakt-Mail des Schaufensters, wenn es eine gibt
-      ...(data.email ? { replyTo: { email: data.email, name: data.name } } : {}),
-      to: [{ email: to }],
-      subject: mail.subject,
-      htmlContent: mail.html,
-      textContent: mail.text,
-      tags: ['visitenkarte'],
-    }),
-  });
-  if (!res.ok) {
-    // Brevo lehnt ab (z. B. Schlüssel, Absender oder IP nicht freigegeben): Grund im Log der Funktion (Daria, 2026-11-18:
-    // „Ich habe keine Mail bekommen“, die Funktion meldete nur 502).
-    console.error(`visitenkarte-mail: Brevo ${res.status} ${(await res.text().catch(() => '')).slice(0, 300)}`);
-    return reply({ error: 'mail' }, 502);
-  }
+  // Eine Mail über Brevo; false, wenn Brevo ablehnt (Grund im Log der Funktion)
+  const send = async (address: string, mail: { subject: string; html: string; text: string }, replyTo: { email: string; name: string } | null, tag: string) => {
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: { 'api-key': key, 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        sender: SENDER,
+        ...(replyTo ? { replyTo } : {}),
+        to: [{ email: address }],
+        subject: mail.subject,
+        htmlContent: mail.html,
+        textContent: mail.text,
+        tags: [tag],
+      }),
+    });
+    if (!res.ok) {
+      // Brevo lehnt ab (z. B. Schlüssel, Absender oder IP nicht freigegeben): Grund im Log der Funktion (Daria, 2026-11-18:
+      // „Ich habe keine Mail bekommen“, die Funktion meldete nur 502).
+      console.error(`visitenkarte-mail: Brevo ${res.status} ${(await res.text().catch(() => '')).slice(0, 300)}`);
+    }
+    return res.ok;
+  };
 
-  await db.from('showcase_card_mails').insert({ showcase_id: s.id, device_hash: device, recipient_hash: recipient });
+  if (contact) {
+    // Zuerst an das Team: Ohne diese Mail ist der Kontakt nicht angekommen
+    const mail = contactMail(s.name, data.url, { name: person.name, email: to, phone: person.phone || undefined, place: person.place || undefined, message: person.message || undefined, cardSent: sendCard }, today());
+    if (!(await send(teamMail, mail, { email: to, name: person.name }, 'visitenkarte-kontakt'))) return reply({ error: 'mail' }, 502);
+    await db.from('showcase_card_mails').insert({ showcase_id: s.id, device_hash: device, recipient_hash: team });
+  }
+  if (sendCard) {
+    // Antworten gehen an die Kontakt-Mail des Schaufensters, wenn es eine gibt
+    const mail = cardMail(data, qrMatrix(data.url), sender);
+    const ok = await send(to, mail, data.email ? { email: data.email, name: data.name } : null, 'visitenkarte');
+    // Beim Tausch ist der Kontakt schon beim Team: Die Seite sagt dann, dass nur die Karte fehlt
+    if (!ok) return reply(contact ? { ok: true, karte: false } : { error: 'mail' }, contact ? 200 : 502);
+    await db.from('showcase_card_mails').insert({ showcase_id: s.id, device_hash: device, recipient_hash: recipient });
+  }
   // Aufräumen: Für die Grenzen reicht ein Tag, 30 Tage bleiben für Rückfragen zu Missbrauch
   await db.from('showcase_card_mails').delete().lt('created_at', new Date(Date.now() - 30 * 86400e3).toISOString());
   return reply({ ok: true });

@@ -51,8 +51,13 @@ export type CardData = {
   openingHours?: string;
   services?: string;
   links: string[];
-  /** kiezcoins.de/s/<kurzname>, Ziel des Instant-Codes */
+  /** kiezcoins.de/s/<kurzname>, steht als Text unter dem Instant-Code */
   url: string;
+  /**
+   * Ziel des Instant-Codes, wenn es von `url` abweicht: die Visitenkarten-Ansicht mit ?via=karte (Daria, 2026-11-23).
+   * Wer die gedruckte Karte scannt, hat die Person getroffen und bekommt dort „Wo habt Ihr Euch getroffen?“.
+   */
+  qrUrl?: string;
   logoUri?: string;
 };
 
@@ -210,7 +215,7 @@ function drawFront(d: CardData, a: Assets): HTMLCanvasElement {
   const qrSize = 400;
   const qrX = CARD_W - PAD - qrSize;
   const qrY = PAD + 20;
-  drawQr(ctx, d.url, qrX, qrY, qrSize);
+  drawQr(ctx, d.qrUrl ?? d.url, qrX, qrY, qrSize);
   ctx.fillStyle = INK;
   ctx.font = `30px "${BODY_MEDIUM}"`;
   ctx.textAlign = 'center';

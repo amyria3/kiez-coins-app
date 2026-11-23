@@ -86,6 +86,14 @@
       "destination": "/api/s?slug=:slug&format=ics"
     },
     {
+      "source": "/s/:slug/visitenkarte",
+      "destination": "/api/s?slug=:slug&ansicht=visitenkarte"
+    },
+    {
+      "source": "/s/:slug/kontakt.vcf",
+      "destination": "/api/s?slug=:slug&format=vcf"
+    },
+    {
       "source": "/s/:slug",
       "destination": "/api/s?slug=:slug"
     },
