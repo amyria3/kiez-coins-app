@@ -7,7 +7,7 @@ import { Chip, ChipGroup, TextField } from '../components/Form';
 import { GearsLoader } from '../components/GearsLoader';
 import { SubScreen } from '../components/Screen';
 import { errorText, loadAppTexts, saveAppText, type AppTextLang, type AppTextRow } from '../data/remote';
-import { bundledTranslation, languages, loadTexts, normalizeText, t, type Lang } from '../data/texts';
+import { bundledTranslation, languages, loadAllLanguagePacks, loadTexts, normalizeText, t, type Lang } from '../data/texts';
 import { color, radius, space, stroke, text } from '../theme/tokens';
 import { useAccentColor } from '../theme/signal';
 
@@ -99,6 +99,8 @@ export default function Texts() {
 
   const refresh = useCallback(async () => {
     try {
+      // Mitgelieferte Übersetzungen aller Sprachen (lädt die App sonst nur für die gewählte Sprache)
+      await loadAllLanguagePacks();
       // Texte aus dem Code, die noch nicht in app_texts stehen, gehören auch dazu (Daria, 29.10.2026: die Suche
       // fand neue Texte nicht). Beim ersten Speichern legt saveAppText die Zeile an.
       const db = await loadAppTexts();

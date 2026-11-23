@@ -9,7 +9,7 @@ import { DigitalCard } from '../../../components/showcase/DigitalCard';
 import { Text } from '../../../components/T';
 import { useAuth } from '../../../data/auth';
 import { cardOrigin } from '../../../data/cardActions.mjs';
-import { loadPublicShowcase, showcasePublicLink, type Showcase } from '../../../data/showcase';
+import { acceptsFriends, loadPublicShowcase, showcasePublicLink, type Showcase } from '../../../data/showcase';
 import { countShowcaseVisit } from '../../../data/showcaseCard';
 import { t } from '../../../data/texts';
 import { color, space, text } from '../../../theme/tokens';
@@ -27,25 +27,31 @@ export default function PublicBusinessCard() {
   const { slug, von, via, als } = useLocalSearchParams<{ slug: string; von?: string; via?: string; als?: string }>();
   const router = useRouter();
   const { session } = useAuth();
-  const [data, setData] = useState<{ showcase: Showcase; acceptsFriends: boolean } | null | undefined>(undefined);
+  const [showcase, setShowcase] = useState<Showcase | null | undefined>(undefined);
+  const [friendable, setFriendable] = useState(false);
   const team = als === 'team';
   const origin = cardOrigin({ via, von });
 
   useEffect(() => {
     if (!slug) return;
-    loadPublicShowcase(String(slug).toLowerCase()).then(setData, () => setData(null));
+    loadPublicShowcase(String(slug).toLowerCase()).then(setShowcase, () => setShowcase(null));
   }, [slug]);
+  // „Anfreunden“ kommt nach, damit die Karte nicht darauf wartet
+  useEffect(() => {
+    if (!showcase || session) return;
+    acceptsFriends(showcase.id).then(setFriendable, () => setFriendable(false));
+  }, [showcase, session]);
 
   // Aufruf zählt einmal pro Öffnen, das Team nicht (Angemeldete zählt die Ansicht, zu der sie weitergeleitet werden)
   const counted = useRef(false);
   useEffect(() => {
-    if (!data || session || team || counted.current) return;
+    if (!showcase || session || team || counted.current) return;
     counted.current = true;
-    countShowcaseVisit(data.showcase.slug, 'card');
-  }, [data, session, team]);
+    countShowcaseVisit(showcase.slug, 'card');
+  }, [showcase, session, team]);
 
   // Zurück: im Verlauf zurück, sonst zum Schaufenster im Web
-  const publicPage = data ? showcasePublicLink(data.showcase.slug) : 'https://kiezcoins.de';
+  const publicPage = showcase ? showcasePublicLink(showcase.slug) : 'https://kiezcoins.de';
   const openPublic = (path = '') => {
     const url = `${publicPage}${path}`;
     if (Platform.OS === 'web') window.location.assign(url);
@@ -53,21 +59,21 @@ export default function PublicBusinessCard() {
   };
   const back = () => (router.canGoBack() ? router.back() : openPublic());
 
-  if (data === undefined) {
+  if (showcase === undefined) {
     return (
       <SubScreen title="Digitale Visitenkarte" navigation="back" onLeadingPress={back}>
         <ActivityIndicator color={color.text.secondary} />
       </SubScreen>
     );
   }
-  if (!data) {
+  if (!showcase) {
     return (
       <SubScreen title="Digitale Visitenkarte" navigation="back" onLeadingPress={back}>
         <Notice message="Zu diesem Schaufenster gibt es gerade keine Digitale Visitenkarte." />
       </SubScreen>
     );
   }
-  const s = data.showcase;
+  const s = showcase;
   if (session) {
     return (
       <Redirect
@@ -93,7 +99,7 @@ export default function PublicBusinessCard() {
           showcase={s}
           viewer={team ? 'team' : 'guest'}
           origin={team ? 'manage' : origin}
-          canBefriend={data.acceptsFriends}
+          canBefriend={friendable}
           onFollow={() => app('folgen')}
           onBefriend={() => app('anfreunden')}
           onShowcase={() => openPublic()}
