@@ -375,6 +375,8 @@ type InfoCardData = {
   address?: string;
   /** Buchungslink, öffnet „Termin buchen“ (Cal.com o. ä., Daria, 2026-11-18) */
   booking?: string;
+  /** Zahlungslink, öffnet „Bezahlen“ beim Anbieter (Stripe, SumUp, PayPal; Daria, 2026-11-23) */
+  payment?: string;
   links?: string[];
   email?: string;
 };
@@ -396,6 +398,10 @@ function infoCards(s: Showcase): InfoCardData[] {
   if (s.bookingUrl && BOOKING_PATTERN.test(s.bookingUrl)) {
     cards.push({ id: 'buchen', kicker: 'Termin buchen', title: '', body: t('Freie Zeiten sehen und online buchen.'), icon: 'calendar', booking: s.bookingUrl });
   }
+  // Zahlungslinks (Daria, 2026-11-23): je Link eine Karte mit Titel, Betrag und „Bezahlen“; bezahlt wird beim Anbieter
+  s.paymentLinks.forEach((p, i) =>
+    cards.push({ id: `zahlung-${i}`, kicker: 'Bezahlen', title: p.title, body: p.amount, icon: 'link', payment: p.url }),
+  );
   // Mail als erste Zeile der Link-Karte (Daria, 2026-11-17: „Dann bitte Mail einbinden“)
   if (s.links.length || s.email) {
     const kicker = s.email ? (s.links.length ? 'Kontakt' : 'E-Mail') : s.links.length === 1 ? 'Link' : 'Links';
@@ -455,7 +461,7 @@ function CardRow({ title, count, children }: { title: string; count: number; chi
   );
 }
 
-function InfoCard({ kicker, title, body, icon, address, links, email, booking, name }: InfoCardData & { name: string }) {
+function InfoCard({ kicker, title, body, icon, address, links, email, booking, payment, name }: InfoCardData & { name: string }) {
   return (
     <View style={styles.card}>
       <View style={styles.cardHead}>
@@ -506,6 +512,11 @@ function InfoCard({ kicker, title, body, icon, address, links, email, booking, n
       {booking ? (
         <View style={styles.cardActions}>
           <HandButton label="Termin buchen" tone={color.showcaseCards.secondaryOnCard} onPress={() => openLink(booking)} />
+        </View>
+      ) : null}
+      {payment ? (
+        <View style={styles.cardActions}>
+          <HandButton label="Bezahlen" tone={color.showcaseCards.secondaryOnCard} onPress={() => openLink(payment)} />
         </View>
       ) : null}
       {/* Adresse direkt an die Karten-App oder ans Teilen-Menü (Daria, 2026-11-17: „in jedem Fall offen teilbar“) */}

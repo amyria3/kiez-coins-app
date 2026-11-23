@@ -49,7 +49,8 @@ export function betriebeFunktionen(t, esc, ic) {
   const fakt = (label, inhalt) => `<div class="b-fakt"><small>${esc(label)}</small><div>${inhalt}</div></div>`;
   // Fremde Seite (Google, Stripe, Bluesky …): hell, oben die Adresse
   const fremd = (domain, inhalt) => `<div class="b-fremd"><div class="b-adresse">${esc(domain)}</div>${inhalt}</div>`;
-  // Zahnrad im Schaufenster, danach ein Eintrag im Menü (ziel: 'erstellen' oder 'bearbeiten')
+  // Zahnrad im Schaufenster, danach ein Eintrag im Menü (ziel: 'erstellen', 'bearbeiten' für „Inhalte bearbeiten“ oder
+  // 'einstellungen'); Menü wie in der App seit 2026-11-23 (Inhalte und Einstellungen getrennt)
   const zahnradMenue = (ziel) => [
     {
       hinweis: t('Öffne Dein Schaufenster und tippe oben rechts auf das Zahnrad.', 'Open your shop window and tap the gear at the top right.'),
@@ -60,7 +61,12 @@ ${fensterKopf}
 <p class="b-leer">${esc(t('Noch keine Termine', 'No events yet'))}</p>`),
     },
     {
-      hinweis: ziel === 'erstellen' ? t('Wähle „Termin erstellen“.', 'Choose “Create event”.') : t('Wähle „Schaufenster bearbeiten“.', 'Choose “Edit shop window”.'),
+      hinweis:
+        ziel === 'erstellen'
+          ? t('Wähle „Termin erstellen“.', 'Choose “Create event”.')
+          : ziel === 'einstellungen'
+            ? t('Wähle „Einstellungen“.', 'Choose “Settings”.')
+            : t('Wähle „Inhalte bearbeiten“.', 'Choose “Edit content”.'),
       ziel,
       bild: screen(`${kopf(t('Schaufenster', 'Shop window'), `<span class="b-icon">${ic.zahnrad}</span>`)}
 ${fensterKopf}
@@ -69,7 +75,8 @@ ${fensterKopf}
 <div class="b-menue">
   <span>${esc(t('Post erstellen', 'Create post'))}</span>
   <span${ziel === 'erstellen' ? ' data-tap="erstellen"' : ''}>${esc(t('Termin erstellen', 'Create event'))}</span>
-  <span${ziel === 'bearbeiten' ? ' data-tap="bearbeiten"' : ''}>${esc(t('Schaufenster bearbeiten', 'Edit shop window'))}</span>
+  <span${ziel === 'bearbeiten' ? ' data-tap="bearbeiten"' : ''}>${esc(t('Inhalte bearbeiten', 'Edit content'))}</span>
+  <span${ziel === 'einstellungen' ? ' data-tap="einstellungen"' : ''}>${esc(t('Einstellungen', 'Settings'))}</span>
 </div>`),
     },
   ];
@@ -126,8 +133,8 @@ ${terminKarte}`)),
       id: 'karte',
       titel: t('Karte und Anfahrt', 'Map and directions'),
       text: t(
-        'Deine Adresse im Schaufenster zeigt eine Karte von OpenStreetMap. Ein Tipp auf „Anfahrt“ öffnet den Routenplaner.',
-        'Your address in the shop window shows a map from OpenStreetMap. A tap on “Directions” opens the route planner.',
+        'Findet die Kartensuche Deine Adresse, zeigt Dein Schaufenster eine Karte von OpenStreetMap. Ein Tipp auf „Anfahrt“ öffnet den Routenplaner.',
+        'If the map search finds your address, your shop window shows a map from OpenStreetMap. A tap on “Directions” opens the route planner.',
       ),
       zeit: t('1 Minute', '1 minute'),
       kosten: t('Kostenlos', 'Free'),
@@ -316,12 +323,22 @@ ${knopf(t('Eintragen', 'Sign up'), 'eintragen', 'hell')}`)}`)),
       kosten: t('Kostenlos im Gratis-Tarif von Cal.com', 'Free on Cal.com’s free plan'),
       stand: 'app',
       schritte: [
-        ...zahnradMenue('bearbeiten'),
+        ...zahnradMenue('einstellungen'),
         {
-          hinweis: t('Trage unter „Termin buchen“ den Link zu Deiner Buchungsseite bei Cal.com ein und tippe auf „Speichern“.', 'Under “Book an appointment”, enter the link to your Cal.com booking page and tap “Save”.'),
+          hinweis: t('Tippe unter „Einstellungen“ auf „Online-Buchung“.', 'Under “Settings”, tap “Online booking”.'),
+          ziel: 'buchung',
+          bild: screen(`${kopf(t('Schaufenster', 'Shop window'))}
+<h4>${esc(t('Einstellungen', 'Settings'))}</h4>
+<div class="b-menue">
+  <span>${esc(t('Wer sieht das Schaufenster?', 'Who can see the shop window?'))}</span>
+  <span>${esc(t('Wer darf posten?', 'Who can post?'))}</span>
+  <span data-tap="buchung">${esc(t('Online-Buchung', 'Online booking'))}</span>
+</div>`),
+        },
+        {
+          hinweis: t('Trage den Link zu Deiner Buchungsseite bei Cal.com ein und tippe auf „Speichern“.', 'Enter the link to your Cal.com booking page and tap “Save”.'),
           ziel: 'speichern',
-          bild: screen(`${kopf(t('Schaufenster bearbeiten', 'Edit shop window'))}
-${feld(t('Adresse', 'Address'), adresse)}
+          bild: screen(`${kopf(t('Online-Buchung', 'Online booking'))}
 ${feld(t('Buchungslink', 'Booking link'), 'cal.com/cafe-kiezliebe', true)}
 ${knopf(t('Speichern', 'Save'), 'speichern')}`),
         },
@@ -350,41 +367,38 @@ ${fakt(t('Adresse', 'Address'), esc(adresse))}`)),
       id: 'bezahlen',
       titel: t('Bezahlen', 'Payments'),
       text: t(
-        'Deine Kundschaft bezahlt direkt auf Deiner Seite, über Stripe oder PayPal. Das Geld geht direkt an Dich.',
-        'Your customers pay right on your page, via Stripe or PayPal. The money goes straight to you.',
+        'Deine Kundschaft bezahlt über einen Zahlungslink auf Deiner Seite, zum Beispiel von Stripe, SumUp oder PayPal. Das Geld geht direkt an Dich.',
+        'Your customers pay via a payment link on your page, for example from Stripe, SumUp or PayPal. The money goes straight to you.',
       ),
-      zeit: t('30 Minuten, dazu die Kontoprüfung des Anbieters', '30 minutes, plus the provider’s account review'),
+      zeit: t('15 Minuten, dazu die Kontoprüfung des Anbieters', '15 minutes, plus the provider’s account review'),
       kosten: t('Gebühren je Zahlung beim Anbieter', 'Fees per payment with the provider'),
-      stand: 'vorbereitung',
+      stand: 'app',
       schritte: [
+        ...zahnradMenue('bearbeiten'),
         {
-          hinweis: t('Öffne „Dein Schaufenster“. Im Abschnitt „Bezahlen“ tippe auf „Mit Stripe verbinden“.', 'Open “Your shop window”. In the “Payments” section, tap “Connect with Stripe”.'),
-          ziel: 'stripe',
-          bild: screen(`${kopf(t('Schaufenster', 'Shop window'))}
+          hinweis: t(
+            'Lege bei Stripe, SumUp oder PayPal einen Zahlungslink an. Trage ihn unter „Bezahlen“ mit Titel und Betrag ein und tippe auf „Speichern“.',
+            'Create a payment link with Stripe, SumUp or PayPal. Enter it under “Payments” with a title and amount, then tap “Save”.',
+          ),
+          ziel: 'speichern',
+          bild: screen(`${kopf(t('Inhalte bearbeiten', 'Edit content'))}
 <h4>${esc(t('Bezahlen', 'Payments'))}</h4>
-<p class="b-leer">${esc(t('Zahlungen gehen direkt an Dein Konto beim Anbieter.', 'Payments go straight to your account with the provider.'))}</p>
-${knopf(t('Mit Stripe verbinden', 'Connect with Stripe'), 'stripe', 'zweit')}
-${knopf(t('Mit PayPal verbinden', 'Connect with PayPal'), '', 'zweit')}`),
+${feld(t('Titel', 'Title'), t('Gutschein: Frühstück für zwei', 'Voucher: breakfast for two'))}
+${feld(t('Betrag', 'Amount'), '24,00 €')}
+${feld(t('Link zum Bezahlen', 'Payment link'), 'buy.stripe.com/…', true)}
+${knopf(t('Speichern', 'Save'), 'speichern')}`),
         },
         {
-          hinweis: t('Stripe fragt nach Deinen Geschäftsdaten und Deinem Bankkonto. Danach tippe auf „Bestätigen“.', 'Stripe asks for your business details and bank account. Then tap “Confirm”.'),
-          ziel: 'bestaetigen',
-          bild: screen(fremd('connect.stripe.com', `<b class="b-fremd-titel">${esc(t('Konto einrichten', 'Set up your account'))}</b>
-${feld(t('Unternehmen', 'Business'), laden, false, 'hell')}
-${feld(t('IBAN', 'IBAN'), 'DE•• •••• •••• •••• 42', false, 'hell')}
-${knopf(t('Bestätigen', 'Confirm'), 'bestaetigen', 'stripe')}`)),
-        },
-        {
-          hinweis: t('Deine Kundschaft wählt auf Deiner Seite einen Gutschein und tippt auf „Bezahlen“.', 'Your customers choose a voucher on your page and tap “Pay”.'),
+          hinweis: t('Deine Kundschaft tippt auf Deiner Seite auf „Bezahlen“.', 'Your customers tap “Pay” on your page.'),
           ziel: 'bezahlen',
           bild: screen(browser(`${fensterKopf}
-<div class="b-karte"><span class="b-art">${esc(t('Gutschein', 'Voucher'))}</span><b>${esc(t('Frühstück für zwei', 'Breakfast for two'))}</b><span class="b-datum">24,00 €</span>
+<div class="b-karte"><span class="b-art">${esc(t('Bezahlen', 'Payments'))}</span><b>${esc(t('Gutschein: Frühstück für zwei', 'Voucher: breakfast for two'))}</b><span class="b-datum">24,00 €</span>
 ${knopf(t('Bezahlen', 'Pay'), 'bezahlen', 'karte')}</div>`)),
         },
         {
-          hinweis: t('Fertig. Das Geld geht über Stripe direkt an Dich.', 'Done. The money goes straight to you via Stripe.'),
+          hinweis: t('Fertig. Das Geld geht direkt an Dich. Wer bezahlt hat, siehst Du in Deinem Konto beim Anbieter.', 'Done. The money goes straight to you. You can see who paid in your account with the provider.'),
           bild: screen(fremd('checkout.stripe.com', `<div class="b-fertig"><span class="b-haken">${ic.haken}</span><b>${esc(t('Bezahlt', 'Paid'))}</b>
-<small>${esc(t('Frühstück für zwei', 'Breakfast for two'))} · 24,00 €</small><small>${esc(laden)}</small></div>`)),
+<small>${esc(t('Gutschein: Frühstück für zwei', 'Voucher: breakfast for two'))} · 24,00 €</small><small>${esc(laden)}</small></div>`)),
         },
       ],
     },
