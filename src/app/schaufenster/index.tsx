@@ -361,7 +361,9 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
                 iconEnd="external"
                 disabled={!canShare(s)}
                 whyDisabled={() => setWebHint(s.id)}
-                onPress={() => Linking.openURL(showcasePublicLink(s.slug))}
+                // Mit ?als=team: Die Seite zeigt dem Team einen Hinweis und blendet auf der Digitalen Visitenkarte aus, was nur
+                // für andere gedacht ist (Daria, 2026-11-23). Die Seite nimmt die Kennung gleich wieder aus der Adresse.
+                onPress={() => Linking.openURL(`${showcasePublicLink(s.slug)}?als=team`)}
               />
             </View>
             {webHint === s.id ? (

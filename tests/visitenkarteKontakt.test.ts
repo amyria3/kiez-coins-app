@@ -119,3 +119,23 @@ describe('Ort und Linkvorschau der Visitenkarte', () => {
     assert.equal(bildText({ name: 'Maria' }), 'Digitale Visitenkarte von Maria auf KiezCoins');
   });
 });
+
+describe('Vorschau fürs Team (?als=team)', () => {
+  it('zeigt den Hinweis, blendet Besucher-Knöpfe und den Vornamen aus und zählt nicht', () => {
+    const html = visitenkarteAnsicht(schaufenster, { von: 'schaufenster', team: true });
+    assert.ok(html.includes('class="sf-team"'));
+    assert.ok(!html.includes('name="from"'));
+    assert.ok(!/id="vk-p-(schicken|tauschen|speichern)"/.test(html));
+    assert.ok(!html.includes('?folgen=1'));
+    assert.ok(html.includes('href="/s/lindenhof-werkstatt?als=team"'));
+    assert.ok(html.includes('if (false) zaehlen'));
+  });
+
+  it('Besucher:innen sehen alles wie bisher', () => {
+    const html = visitenkarteAnsicht(schaufenster, { via: 'karte' });
+    assert.ok(!html.includes('class="sf-team"'));
+    assert.ok(html.includes('name="from"'));
+    assert.ok(html.includes('vk-p-schicken'));
+    assert.ok(html.includes('if (true) zaehlen'));
+  });
+});
