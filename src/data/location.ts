@@ -87,24 +87,31 @@ export async function findPlace(): Promise<FoundPlace> {
 }
 
 /**
- * Adresse → Punkt über Nominatim von OpenStreetMap, ohne Schlüssel (Daria, 2026-11-18: Karte und Anfahrt im
- * Schaufenster). Eine Anfrage je Speichern, wie es die Nutzungsregeln von Nominatim erlauben. Ohne Treffer oder
- * ohne Netz: null.
+ * Ergebnis der Adresssuche: gefunden (mit dem Ort, wie die Karte ihn kennt, zum Nachprüfen), nicht gefunden oder
+ * Suchdienst nicht erreichbar. Die Unterscheidung braucht „Schaufenster bearbeiten“ (2026-11-23: „Wagnerhein Leipzig“
+ * fand nichts, die Seite zeigte trotzdem Karten-Links ins Leere; „Marktstr. 8“ landete in den Niederlanden).
  */
-export async function geocodeAddress(address: string): Promise<Coords | null> {
+export type AddressLookup = { status: 'found'; coords: Coords; label: string } | { status: 'notFound' } | { status: 'error' };
+
+/**
+ * Adresse → Punkt über Nominatim von OpenStreetMap, ohne Schlüssel (Karte und Anfahrt im Schaufenster, 2026-11-18).
+ * Eine Anfrage je Speichern, wie es die Nutzungsregeln von Nominatim erlauben.
+ */
+export async function lookupAddress(address: string): Promise<AddressLookup> {
   const q = address.replace(/\s*\n\s*/g, ', ').trim();
-  if (!q) return null;
+  if (!q) return { status: 'notFound' };
   try {
     const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=de&q=${encodeURIComponent(q)}`;
     // Im Browser setzt der Browser die Kennung selbst; in der App nennt sie KiezCoins, wie Nominatim es verlangt
     const response = await fetch(url, Platform.OS === 'web' ? undefined : { headers: { 'User-Agent': 'KiezCoins-App (kiezcoins.de)' } });
-    if (!response.ok) return null;
-    const [hit] = (await response.json()) as { lat?: string; lon?: string }[];
+    if (!response.ok) return { status: 'error' };
+    const [hit] = (await response.json()) as { lat?: string; lon?: string; display_name?: string }[];
     const latitude = Number(hit?.lat);
     const longitude = Number(hit?.lon);
-    return Number.isFinite(latitude) && Number.isFinite(longitude) && hit?.lat && hit?.lon ? { latitude, longitude } : null;
+    if (!hit?.lat || !hit?.lon || !Number.isFinite(latitude) || !Number.isFinite(longitude)) return { status: 'notFound' };
+    return { status: 'found', coords: { latitude, longitude }, label: hit.display_name?.trim() || q };
   } catch {
-    return null;
+    return { status: 'error' };
   }
 }
 
