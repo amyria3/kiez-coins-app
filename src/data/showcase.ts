@@ -249,11 +249,31 @@ export async function setShowcaseFunction(id: string, key: keyof ShowcaseFunctio
   return !error;
 }
 
-/** Buchungslink für die Zeile „Online-Buchung“; undefined ohne Link oder solange die Spalte fehlt */
-export async function loadBookingUrl(id: string): Promise<string | undefined> {
+/**
+ * Buchungslink für den Schalter „Online-Buchung“ (2026-11-23): der Link, `null` ohne Link, `undefined` solange die
+ * Spalte fehlt (Migration 20261118000600) oder nichts zurückkommt; dann blendet die App den Schalter aus.
+ */
+export async function loadBookingUrl(id: string): Promise<string | null | undefined> {
   const { data, error } = await supabase.from('showcases').select('booking_url').eq('id', id).maybeSingle();
-  if (error) return undefined;
-  return (data as { booking_url: string | null } | null)?.booking_url ?? undefined;
+  if (error || !data) return undefined;
+  return (data as { booking_url: string | null }).booking_url ?? null;
+}
+
+/** Buchungslink sofort speichern, `null` entfernt ihn; false bei einem Fehler */
+export async function setBookingUrl(id: string, url: string | null): Promise<boolean> {
+  const { error } = await supabase.from('showcases').update({ booking_url: url?.trim() || null }).eq('id', id);
+  return !error;
+}
+
+/**
+ * „Für alle sichtbar, auch im Web“ (2026-11-23): Sichtbarkeit sofort speichern. Öffentlich meldet die Seite an die
+ * Suchmaschinen wie beim Speichern unter „Inhalte bearbeiten“. false bei einem Fehler.
+ */
+export async function setShowcaseVisibility(s: Showcase, visibility: Visibility): Promise<boolean> {
+  const { error } = await supabase.from('showcases').update({ visibility }).eq('id', s.id);
+  if (error) return false;
+  if (visibility === 'public') notifySearchEngines(s.slug);
+  return true;
 }
 
 /** Zeigt das Schaufenster den Knopf „Mit … anfreunden“? Ohne Antwort nicht. */
@@ -395,7 +415,8 @@ export type ShowcaseInput = {
   /** Nur mitschicken, wenn geladen (Showcase.seoReady) */
   seoTitle?: string;
   seoDescription?: string;
-  visibility: Visibility;
+  /** Ohne Angabe bleibt die Sichtbarkeit, wie sie ist */
+  visibility?: Visibility;
   /** Neues Bild (lokal) oder unverändert */
   logo?: ImageSource;
   cover?: ImageSource;
@@ -463,8 +484,9 @@ export async function updateShowcase(id: string, userId: string, input: Showcase
     website: input.links.map((l) => l.trim()).find(Boolean) ?? null,
     opening_hours: nullIfEmpty(input.openingHours),
     imprint: nullIfEmpty(input.imprint),
-    visibility: input.visibility,
   };
+  // Sichtbarkeit nur, wenn mitgeschickt; der Schalter auf der Seite „Schaufenster“ speichert sie selbst (2026-11-23)
+  if (input.visibility !== undefined) fields.visibility = input.visibility;
   if (input.terms !== undefined) fields.terms = nullIfEmpty(input.terms);
   if (input.bookingUrl !== undefined) fields.booking_url = nullIfEmpty(input.bookingUrl);
   if (input.paymentLinks !== undefined) fields.payment_links = cleanPaymentLinks(input.paymentLinks);

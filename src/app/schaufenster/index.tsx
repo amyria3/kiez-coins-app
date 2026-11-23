@@ -368,7 +368,7 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               <Notice
                 message={
                   s.switches.online
-                    ? 'Im Web erscheint Dein Schaufenster erst, wenn es öffentlich ist. Das stellst Du unten unter „Wer sieht das Schaufenster?“ ein.'
+                    ? 'Im Web erscheint Dein Schaufenster erst, wenn unten unter „Funktionen“ der Schalter „Für alle sichtbar, auch im Web“ an ist.'
                     : 'Solange Dein Schaufenster offline ist, gibt es keine Webseite dazu.'
                 }
                 onClose={() => setWebHint(null)}
@@ -406,7 +406,7 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
           ) : null}
           {s.founder ? (
             <>
-              <ShowcaseFunctions showcase={s} onOpenVisibility={() => openSettings(s, 'sichtbarkeit')} />
+              <ShowcaseFunctions showcase={s} onOpenInvite={() => openSettings(s, 'sichtbarkeit')} onChanged={reload} />
               <ShowcaseSettingsRows showcase={s} onOpen={(area) => openSettings(s, area)} onDeleted={reload} />
             </>
           ) : null}
@@ -437,7 +437,7 @@ function useClosedHint(key: string): [boolean | undefined, () => void] {
 
 /**
  * Hinweis der Krabbe oben (Daria, 2026-11-18): lässt sich schließen und bleibt zu. Erklärt, was hier passiert, je nach
- * Status, denn bei „Nur Eingeladene“ oder offline erscheint im Web nichts. Der Satz nennt die Einstellung, damit klar
+ * Status, denn ohne „Für alle sichtbar“ oder offline erscheint im Web nichts. Der Satz nennt die Einstellung, damit klar
  * ist, dass „alle sehen es“ an ihr hängt (Daria, 2026-11-17). Geschlossen gilt je Status: Ändert sich die
  * Sichtbarkeit, erklärt die Krabbe die neue Lage wieder.
  */
@@ -451,8 +451,8 @@ function ShowcaseHints({ showcase: s }: { showcase: Showcase }) {
         status === 'offline'
           ? 'Hier pflegst Du Deine Seite. Sie ist gerade offline, deshalb sieht nur Deine Gruppe, was Du postest.'
           : status === 'public'
-            ? 'Hier pflegst Du Deine Seite. Sie ist auf „Alle“ gestellt, deshalb sehen alle im Web und in der KiezCoins App, was Du postest.'
-            : 'Hier pflegst Du Deine Seite. Sie ist auf „Nur Eingeladene“ gestellt, deshalb sehen nur Dein Team und Eingeladene, was Du postest. Name und Angaben sehen alle.'
+            ? 'Hier pflegst Du Deine Seite. „Für alle sichtbar, auch im Web“ ist an, deshalb sehen alle im Web und in der KiezCoins App, was Du postest.'
+            : 'Hier pflegst Du Deine Seite. „Für alle sichtbar, auch im Web“ ist aus, deshalb sehen nur Dein Team und Eingeladene, was Du postest. Name und Angaben sehen alle.'
       }
       onClose={closeStatus}
     />

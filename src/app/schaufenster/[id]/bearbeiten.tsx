@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 
 import { Button } from '../../../components/Button';
 import { FieldGroup, Notice, QuestionHint } from '../../../components/Content';
-import { Chip, ChipGroup, choosePhoto, CopyField, SwitchRow, TextField } from '../../../components/Form';
+import { choosePhoto, CopyField, SwitchRow, TextField } from '../../../components/Form';
 import { ColorWheel } from '../../../components/ColorWheel';
 import { scrollIntoView } from '../../../components/Nudge';
 import { PostersAlone } from '../../../components/showcase/PostersAlone';
@@ -19,10 +19,7 @@ import {
   openRequests,
   setShowcasePoster,
   showcaseInviteLink,
-  showcasePublicLink,
   BG_PALETTE,
-  BOOKING_PATTERN,
-  CAL_SIGNUP_URL,
   readableOn,
   EMAIL_MAX,
   EMAIL_PATTERN,
@@ -37,7 +34,6 @@ import {
   updateShowcase,
   type Showcase,
   type SlugStatus,
-  type Visibility,
 } from '../../../data/showcase';
 import { lookupAddress, type AddressLookup, type Coords } from '../../../data/location';
 import { useStore } from '../../../data/store';
@@ -52,9 +48,8 @@ import { useAccentColor } from '../../../theme/signal';
 
 /** Titel je Bereich; ohne Bereich die Inhalte */
 const TITLES: Record<SettingsArea, string> = {
-  sichtbarkeit: 'Wer sieht das Schaufenster?',
+  sichtbarkeit: 'Leute einladen',
   posten: 'Wer darf posten?',
-  buchung: 'Online-Buchung',
   aussehen: 'Aussehen',
   adresse: 'Adresse und Suchmaschinen',
 };
@@ -63,9 +58,11 @@ const TITLES: Record<SettingsArea, string> = {
  * Routen `schaufenster/[id]/bearbeiten` und `schaufenster/[id]/einstellungen?bereich=…`, nur die Gründer:in
  * (2026-11-23: Inhalte getrennt von Einstellungen). Ohne Bereich „Inhalte bearbeiten“: nur Texte und Bilder (Logo,
  * Titelbild, Name, Kurztext, Services, Kiez, Adresse, E-Mail, Links, Öffnungszeiten, Impressum, AGB). Mit Bereich genau
- * eine Einstellung von der Seite „Schaufenster“: Sichtbarkeit mit Einladung und Anfragen, wer posten darf, Online-Buchung,
- * Aussehen, Adresse und Suchmaschinen. Schalter (Kalender-Abo, Google, Freundschaftsanfragen) und Löschen stehen auf
- * der Seite „Schaufenster“ selbst. Speichern schickt alle Angaben, die übrigen unverändert, wie sie geladen wurden.
+ * eine Einstellung von der Seite „Schaufenster“: Einladung und Anfragen (ohne „Für alle sichtbar“), wer posten darf,
+ * Aussehen, Adresse und Suchmaschinen. Schalter (Sichtbarkeit, Kalender-Abo, Google, Online-Buchung,
+ * Freundschaftsanfragen) und Löschen stehen auf der Seite „Schaufenster“ selbst und speichern sofort (2026-11-23).
+ * Speichern schickt die Angaben dieses Bildschirms; Sichtbarkeit und Buchungslink schickt es nicht mit, damit ein
+ * älterer Stand die Schalter nicht zurückdreht.
  */
 export default function EditShowcase() {
   const { id, bereich } = useLocalSearchParams<{ id: string; bereich?: string }>();
@@ -75,7 +72,7 @@ export default function EditShowcase() {
   const { currentUserId, groups, users } = useStore();
   const [showcase, setShowcase] = useState<Showcase | null | undefined>(undefined);
   const [founder, setFounder] = useState(false);
-  const [form, setForm] = useState({ name: '', about: '', services: '', kiez: '', address: '', email: '', openingHours: '', imprint: '', terms: '', bookingUrl: '' });
+  const [form, setForm] = useState({ name: '', about: '', services: '', kiez: '', address: '', email: '', openingHours: '', imprint: '', terms: '' });
   // Kartensuche zur geänderten Adresse (2026-11-23): Das Ergebnis steht unter dem Feld, bis die Person entscheidet.
   // Gefunden: bestätigen oder als Text speichern. Nicht gefunden oder Suche gestört: als Text speichern.
   const [addressCheck, setAddressCheck] = useState<(AddressLookup & { address: string }) | null>(null);
@@ -90,7 +87,6 @@ export default function EditShowcase() {
   const [bgColor, setBgColor] = useState('');
   // Akzent des Themes (Daria, 2026-11-14)
   const accent = useAccentColor();
-  const [visibility, setVisibility] = useState<Visibility>('public');
   // Eigene Adresse und Angaben für Suchmaschinen (Daria, 2026-11-11, Migration 20261111000200)
   const [slug, setSlug] = useState('');
   const [slugState, setSlugState] = useState<SlugStatus | undefined>();
@@ -119,13 +115,11 @@ export default function EditShowcase() {
         openingHours: s.openingHours ?? '',
         imprint: s.imprint ?? '',
         terms: s.terms ?? '',
-        bookingUrl: s.bookingUrl ?? '',
       });
       setLinks(s.links.length ? s.links : ['']);
       setPayments(s.paymentLinks.map((p) => ({ title: p.title, amount: p.amount ?? '', url: p.url })));
       setServicesCollapsed(s.servicesCollapsed);
       setBgColor(s.bgColor ?? '');
-      setVisibility(s.visibility);
       setSlug(s.slug);
       setSeoTitle(s.seoTitle ?? '');
       setSeoDescription(s.seoDescription ?? '');
@@ -182,7 +176,6 @@ export default function EditShowcase() {
   const paymentsOk = payments.every((p) => paymentLinkProblem(p) === null);
   const setPayment = (i: number, key: 'title' | 'amount' | 'url') => (value: string) =>
     setPayments((all) => all.map((p, j) => (j === i ? { ...p, [key]: value } : p)));
-  const bookingOk = !form.bookingUrl.trim() || BOOKING_PATTERN.test(form.bookingUrl.trim());
   const emailOk = !form.email.trim() || EMAIL_PATTERN.test(form.email.trim());
   const bgOk = !bgColor.trim() || HEX.test(bgColor.trim());
   const setLink = (i: number) => (value: string) => setLinks((all) => all.map((l, j) => (j === i ? value : l)));
@@ -233,13 +226,12 @@ export default function EditShowcase() {
         coords,
         // AGB, Adresse, Titel und Beschreibung nur speichern, wenn sie geladen sind
         terms: showcase.termsReady ? form.terms : undefined,
-        bookingUrl: showcase.bookingReady ? form.bookingUrl : undefined,
         slug: slugChanged ? slug : undefined,
         seoTitle: showcase.seoReady ? seoTitle : undefined,
         seoDescription: showcase.seoReady ? seoDescription : undefined,
         paymentLinks: showcase.paymentReady ? payments : undefined,
-        links, servicesCollapsed, bgColor, visibility, logo, cover });
-      if (visibility === 'public') notifySearchEngines(showcase.seoReady ? slug : showcase.slug);
+        links, servicesCollapsed, bgColor, logo, cover });
+      if (showcase.visibility === 'public') notifySearchEngines(showcase.seoReady ? slug : showcase.slug);
       goBack();
     } catch (error) {
       setFailed((error as Error).message);
@@ -266,9 +258,9 @@ export default function EditShowcase() {
       navigation="back"
       onLeadingPress={goBack}
       actions={
-        // „Wer darf posten?“ speichert jeden Schalter sofort
-        area === 'posten' ? undefined : (
-          <Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !paymentsOk || !bookingOk || !emailOk || !bgOk || !slugOk} onPress={() => save()} />
+        // „Wer darf posten?“ speichert jeden Schalter sofort, „Leute einladen“ hat nichts zu speichern
+        area === 'posten' || area === 'sichtbarkeit' ? undefined : (
+          <Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !paymentsOk || !emailOk || !bgOk || !slugOk} onPress={() => save()} />
         )
       }
     >
@@ -426,31 +418,6 @@ export default function EditShowcase() {
       </>
       )}
 
-      {/* Termin buchen über Cal.com (Daria, 2026-11-18: kostenlose Integrationen für kleine Betriebe). Der Betrieb legt
-          sein Konto bei Cal.com selbst an; hier steht nur der Link zur Buchungsseite. Er erscheint im Schaufenster in der
-          App und im Web als „Termin buchen“. Nur, wenn der Link geladen ist (Migration 20261118000600). */}
-      {area === 'buchung' && !showcase.bookingReady ? <Notice message="Die Online-Buchung ist gerade nicht verfügbar. Probier es später noch mal." /> : null}
-      {area === 'buchung' && showcase.bookingReady ? (
-        <FieldGroup label="Termin buchen">
-          <TextField
-            label="Buchungslink"
-            value={form.bookingUrl}
-            onChangeText={set('bookingUrl')}
-            maxLength={300}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="url"
-            placeholder="https://cal.com/kiezblick"
-            error={bookingOk ? undefined : 'Der Link beginnt mit https://'}
-          />
-          <QuestionHint
-            question="Wie bekomme ich einen Buchungslink?"
-            answer="Mit einem kostenlosen Konto bei Cal.com legst Du fest, wann man bei Dir Termine buchen kann. Den Link zu Deiner Buchungsseite trägst Du hier ein. Im Schaufenster steht dann „Termin buchen“. Andere Buchungsdienste gehen auch."
-            then={<Button label="Cal.com-Konto anlegen" variant="secondary" onPress={() => Linking.openURL(CAL_SIGNUP_URL)} />}
-          />
-        </FieldGroup>
-      ) : null}
-
       {area === 'aussehen' ? (
       <>
       <FieldGroup label="Services">
@@ -506,49 +473,34 @@ export default function EditShowcase() {
       </>
       ) : null}
 
-      {area === 'sichtbarkeit' ? (
-      <FieldGroup label="Wer sieht das Schaufenster?">
-        <ChipGroup>
-          <Chip label="Alle" selected={visibility === 'public'} onPress={() => setVisibility('public')} />
-          <Chip label="Nur Eingeladene" selected={visibility === 'invite'} onPress={() => setVisibility('invite')} />
-        </ChipGroup>
-        <Text style={styles.meta}>
-          {visibility === 'public'
-            ? 'Alle in der App sehen Deine Posts und Termine, dazu alle im Internet auf der öffentlichen Seite.'
-            : 'Name, Logo und Angaben sehen alle. Posts und Termine sehen nur Dein Team und Eingeladene.'}
-        </Text>
-        {/* Öffentliche Seite ohne Anmeldung, dort lassen sich Termine auch ohne Konto liken (Daria, 2026-11-10) */}
-        {visibility === 'public' && showcase.visibility === 'public' ? (
-          <CopyField label="Öffentliche Seite" value={showcasePublicLink(showcase.slug)} />
-        ) : null}
-        {visibility === 'invite' && showcase.visibility === 'invite' ? (
-          <>
-            <CopyField label="Einladungslink" value={link} />
-            <CopyField label="Code" value={showcase.inviteCode} />
-            <Button
-              label="Einladung teilen"
-              variant="secondary"
-              icon="friends"
-              onPress={() =>
-                shareText(
-                  [t('Komm in unser Schaufenster „{name}“ bei KiezCoins. Mit diesem Link bist Du dabei:', { name: showcase.name }), link, t('Oder mit dem Code:'), showcase.inviteCode].join(
-                    '\n',
-                  ),
-                )
-              }
-            />
-          </>
-        ) : visibility === 'invite' ? (
-          <Text style={styles.meta}>Link und Code zum Einladen erscheinen nach dem Speichern.</Text>
-        ) : null}
-      </FieldGroup>
-
+      {/* Leute einladen (2026-11-23): erreichbar über den ausgeschalteten Schalter „Für alle sichtbar, auch im Web“ */}
+      {area === 'sichtbarkeit' && showcase.visibility === 'public' ? (
+        <Notice message="Dein Schaufenster ist für alle sichtbar. Eine Einladung brauchst Du erst, wenn Du „Für alle sichtbar, auch im Web“ ausschaltest." />
+      ) : null}
+      {area === 'sichtbarkeit' && showcase.visibility === 'invite' ? (
+        <FieldGroup label="Einladung">
+          <Notice message="Posts und Termine sehen nur Dein Team und Leute, die Du einlädst. Name, Logo und Angaben sehen alle." />
+          <CopyField label="Einladungslink" value={link} />
+          <CopyField label="Code" value={showcase.inviteCode} />
+          <Button
+            label="Einladung teilen"
+            variant="secondary"
+            icon="friends"
+            onPress={() =>
+              shareText(
+                [t('Komm in unser Schaufenster „{name}“ bei KiezCoins. Mit diesem Link bist Du dabei:', { name: showcase.name }), link, t('Oder mit dem Code:'), showcase.inviteCode].join(
+                  '\n',
+                ),
+              )
+            }
+          />
+        </FieldGroup>
       ) : null}
 
-      {area === 'adresse' && !(showcase.seoReady && visibility === 'public') ? (
-        <Notice message="Eine eigene Adresse und Angaben für Suchmaschinen gibt es, wenn Dein Schaufenster auf „Alle“ steht." />
+      {area === 'adresse' && !(showcase.seoReady && showcase.visibility === 'public') ? (
+        <Notice message="Eine eigene Adresse und Angaben für Suchmaschinen gibt es, wenn auf der Seite „Schaufenster“ der Schalter „Für alle sichtbar, auch im Web“ an ist." />
       ) : null}
-      {area === 'adresse' && showcase.seoReady && visibility === 'public' ? (
+      {area === 'adresse' && showcase.seoReady && showcase.visibility === 'public' ? (
         <FieldGroup label="Adresse">
           <TextField
             label="Adresse der öffentlichen Seite"
@@ -575,7 +527,7 @@ export default function EditShowcase() {
         </FieldGroup>
       ) : null}
 
-      {area === 'adresse' && showcase.seoReady && visibility === 'public' ? (
+      {area === 'adresse' && showcase.seoReady && showcase.visibility === 'public' ? (
         <FieldGroup label="In Suchmaschinen">
           <TextField
             label="Seitentitel"
