@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { CARD_MAILS_PER_ADDRESS, cardMailsSent } from '../data/cardMailLog';
+import { localDate } from '../data/reminders';
 import { sendCardMail, type CardMailResult, type Showcase } from '../data/showcase';
 import { t } from '../data/texts';
 import { color, space, text } from '../theme/tokens';
@@ -21,6 +23,58 @@ const MESSAGES: Record<Exclude<CardMailResult, 'ok'>, string> = {
   not_found: 'Die Mail geht nur, wenn Dein Schaufenster öffentlich und online ist.',
   error: 'Das hat nicht geklappt. Probier es gleich nochmal.',
 };
+
+const two = (n: number) => String(n).padStart(2, '0');
+
+/** „heute um 14:32“ oder „morgen um 9:05“ für kommende Zeitpunkte */
+function untilAt(at: number): string {
+  const d = new Date(at);
+  const time = `${two(d.getHours())}:${two(d.getMinutes())}`;
+  return localDate(d) === localDate() ? t('heute um {zeit}', { zeit: time }) : t('morgen um {zeit}', { zeit: time });
+}
+
+/** „heute um 14:32“ oder „gestern um 23:10“ für vergangene Zeitpunkte */
+function sentAt(at: number): string {
+  const d = new Date(at);
+  const time = `${two(d.getHours())}:${two(d.getMinutes())}`;
+  return localDate(d) === localDate() ? t('heute um {zeit}', { zeit: time }) : t('gestern um {zeit}', { zeit: time });
+}
+
+/** Hinweis, wenn die Karte in den letzten 24 Stunden schon an diese Adresse ging (data/cardMailLog.ts) */
+export function repeatMessage(times: number[]): string {
+  const last = times[times.length - 1];
+  if (times.length < CARD_MAILS_PER_ADDRESS) {
+    return t('Du hast die Digitale Visitenkarte {wann} schon an diese Adresse geschickt.', { wann: sentAt(last) });
+  }
+  return t(
+    'Du hast die Digitale Visitenkarte schon zweimal an diese Adresse geschickt, zuletzt {wann}. Mehr als zwei Mails in 24 Stunden gehen nicht an dieselbe Adresse. Ab {ab} geht es wieder.',
+    { wann: sentAt(last), ab: untilAt(times[0] + 86400e3) },
+  );
+}
+
+/**
+ * Erst Bescheid geben, dann ein zweites Mal schicken (Daria, 2026-11-23). check() liefert beim ersten Tippen false,
+ * wenn die Karte schon an diese Adresse ging, und zeigt den Hinweis. Beim zweiten Tippen auf dieselbe Adresse geht die
+ * Mail raus, solange die Grenze von zwei Mails nicht erreicht ist.
+ */
+export function useRepeatCheck(slug: string) {
+  const [repeat, setRepeat] = useState<{ to: string; times: number[] } | null>(null);
+  const key = (to: string) => to.trim().toLowerCase();
+  const current = (to: string) => (repeat && repeat.to === key(to) ? repeat : null);
+  const check = async (to: string): Promise<boolean> => {
+    const known = current(to);
+    if (known) return known.times.length < CARD_MAILS_PER_ADDRESS;
+    const times = await cardMailsSent(slug, to);
+    if (!times.length) return true;
+    setRepeat({ to: key(to), times });
+    return false;
+  };
+  const shown = (to: string) => {
+    const r = current(to);
+    return r ? { message: repeatMessage(r.times), full: r.times.length >= CARD_MAILS_PER_ADDRESS } : null;
+  };
+  return { check, shown, clear: () => setRepeat(null) };
+}
 
 /**
  * Secondary-Button, der sich zum Formular öffnet: Adresse eintippen, KiezCoins verschickt die Digitale Visitenkarte mit dem
@@ -59,12 +113,14 @@ export function CardMailButton({
   const controlled = openProp !== undefined;
   const open = controlled ? openProp : openState;
   const setOpen = (v: boolean) => (controlled ? onOpenChange?.(v) : setOpenState(v));
+  const repeat = useRepeatCheck(showcase.slug);
   // Abbrechen schließt das Formular und verwirft die Eingaben (UX-Regeln, 2026-11-23)
   const cancel = () => {
     setOpen(false);
     setTo('');
     setFrom('');
     setResult(null);
+    repeat.clear();
   };
   const [to, setTo] = useState('');
   const [from, setFrom] = useState('');
@@ -82,15 +138,19 @@ export function CardMailButton({
   }, [focused, keyboard]);
   const focusProps = { onFocus: () => setFocused(true), onBlur: () => setFocused(false) };
 
+  const again = repeat.shown(to);
+
   const send = async () => {
-    setBusy(true);
     setResult(null);
+    if (!(await repeat.check(to))) return;
+    setBusy(true);
     const r = await sendCardMail(showcase.slug, to, from);
     setBusy(false);
     if (r === 'ok') {
       // Erfolg (Daria, 2026-11-23: „Where is success message?“): Das Formular klappt zu, die Meldung steht direkt unter
       // dem Knopf, wo der Blick gerade ist. Vorher lag sie unter dem Formular und oft außerhalb des Bildschirms.
       setResult({ ok: true, message: t('Die Digitale Visitenkarte ist unterwegs an {to}.', { to: to.trim() }) });
+      repeat.clear();
       setTo('');
       setFrom('');
       setOpen(false);
@@ -140,7 +200,13 @@ export function CardMailButton({
             />
           ) : null}
           <View ref={end} style={styles.form}>
-            <Button label="Digitale Visitenkarte schicken" busy={busy} disabled={!isEmail(to)} onPress={send} />
+            <Button
+              label={again && !again.full ? 'Trotzdem noch mal schicken' : 'Digitale Visitenkarte schicken'}
+              busy={busy}
+              disabled={!isEmail(to) || !!again?.full}
+              onPress={send}
+            />
+            {again ? <Notice message={again.message} onClose={repeat.clear} /> : null}
             {/* Fehler direkt unter dem Knopf, das Formular bleibt offen */}
             {result && !result.ok ? <Notice variant="warning" message={result.message} onClose={() => setResult(null)} /> : null}
           </View>

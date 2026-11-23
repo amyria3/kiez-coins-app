@@ -5,6 +5,7 @@ import { eventTime, type SingleEvent } from './calendar';
 import { WEB_APP_URL } from './groups';
 import { dayName } from './katerRoutine';
 import type { Coords } from './location';
+import { noteCardMail } from './cardMailLog';
 import { cleanPaymentLinks } from './paymentLinks.mjs';
 import { localDate } from './reminders';
 import { useFeature } from './unlock';
@@ -900,7 +901,10 @@ export async function sendCardMail(slug: string, to: string, from?: string): Pro
     const { data, error } = await supabase.functions.invoke<{ ok?: boolean; error?: string }>('visitenkarte-mail', {
       body: { slug, to: to.trim(), from: from?.trim() || undefined },
     });
-    if (data?.ok) return 'ok';
+    if (data?.ok) {
+      await noteCardMail(slug, to);
+      return 'ok';
+    }
     // Bei 4xx steckt die Antwort im Fehler (FunctionsHttpError.context)
     const body = data ?? (await (error as { context?: Response } | null)?.context?.json?.().catch(() => null));
     const code = body?.error;
