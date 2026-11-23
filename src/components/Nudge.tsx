@@ -1,8 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
-import { AccessibilityInfo, Alert, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { AccessibilityInfo, Alert, Dimensions, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from './T';
 
+import { revealDelta, visibleSpan, type Span } from '../lib/reveal';
 import { color, radius, space, stroke, text } from '../theme/tokens';
+import { keyboardMetrics } from './keyboardMetrics';
 
 /**
  * Hinweis an der richtigen Stelle, wenn ein Button deaktiviert ist (Daria, 21.10.2026):
@@ -20,13 +22,28 @@ type ScrollTarget = {
   scrollToView: (view: View | null, align?: ScrollAlign) => void;
   /** Führt `change` aus und hält die Ansicht dabei an ihrer Stelle auf dem Bildschirm. */
   holdView: (view: View | null, change: () => void) => void;
+  /** iPhone und Android: aktives Feld und nächstes Feld nach der Regel in lib/reveal.ts ins Bild holen */
+  revealField: (field: View, next: View | null) => void;
 };
 
 /**
- * Scrollflächen der offenen Screens, die jüngste oben. Die Screen-Komponente ruft useNudge() außerhalb
- * ihres SubScreen auf, deshalb läuft das über diese Liste und nicht über einen React-Kontext.
+ * Scrollflächen der offenen Screens mit ihren Formularfeldern, die jüngste oben. Die Screen-Komponente ruft useNudge()
+ * außerhalb ihres SubScreen auf, deshalb läuft das über diese Liste und nicht über einen React-Kontext.
  */
-const scrollTargets: ScrollTarget[] = [];
+const scrollTargets: { scroll: ScrollTarget; fields: FieldRegistry }[] = [];
+const topTarget = () => scrollTargets[scrollTargets.length - 1];
+
+const measureSpan = (view: View) =>
+  new Promise<Span>((resolve) => view.measureInWindow((_x, y, _w, h) => resolve({ top: y, bottom: y + h })));
+
+/** Browser: Feld mit Fokus, das die Tastatur öffnet */
+function focusedEditable(): HTMLElement | null {
+  if (typeof document === 'undefined') return null;
+  const el = document.activeElement as HTMLElement | null;
+  if (!el) return null;
+  if (el.tagName === 'INPUT') return /^(button|checkbox|color|file|hidden|image|radio|range|reset|submit)$/.test((el as HTMLInputElement).type) ? null : el;
+  return el.tagName === 'TEXTAREA' || el.isContentEditable ? el : null;
+}
 
 /** Für Screens mit ScrollView: stellt bereit, dass Felder sich ins Bild scrollen lassen. */
 export function useNudgeScroll(scrollRef: RefObject<ScrollView | null>) {
@@ -35,6 +52,13 @@ export function useNudgeScroll(scrollRef: RefObject<ScrollView | null>) {
     (view: View | null, align: ScrollAlign = 'start') => {
       const scroll = scrollRef.current;
       if (!view || !scroll) return;
+      // Steht in der Ansicht ein Feld mit offener Tastatur (aufgeklapptes Formular mit autoFocus), gilt die eine Regel
+      // für Felder. Zwei Scrolls nacheinander liefen sonst gegeneinander (Daria, 2026-11-23, Visitenkarte).
+      const active = Platform.OS === 'web' ? focusedEditable() : null;
+      if (active && (view as unknown as HTMLElement).contains?.(active)) {
+        revealFocused();
+        return;
+      }
       // Lage der Ansicht relativ zur ScrollView berechnen, dann animiert hinscrollen
       const scrollNode = scroll as unknown as View;
       view.measureInWindow((_x, viewY, _w, viewH) => {
@@ -72,10 +96,26 @@ export function useNudgeScroll(scrollRef: RefObject<ScrollView | null>) {
     },
     [scrollRef],
   );
+  const revealField = useCallback(
+    (field: View, next: View | null) => {
+      const scroll = scrollRef.current;
+      if (!scroll) return;
+      Promise.all([measureSpan(field), next ? measureSpan(next) : null, measureSpan(scroll as unknown as View)]).then(
+        ([f, n, s]) => {
+          // Die Tastatur verdeckt alles unterhalb von Bildschirmhöhe minus Tastaturhöhe
+          const screen = Dimensions.get('window').height;
+          const delta = revealDelta(f, visibleSpan(s, { top: 0, bottom: screen - keyboardMetrics.height }), n);
+          if (Math.abs(delta) < 1) return;
+          scroll.scrollTo({ y: Math.max(0, offset.current + delta), animated: true });
+        },
+      );
+    },
+    [scrollRef],
+  );
   const onScroll = useCallback((y: number) => {
     offset.current = y;
   }, []);
-  return useMemo(() => ({ scrollToView, holdView, onScroll }), [scrollToView, holdView, onScroll]);
+  return useMemo(() => ({ scrollToView, holdView, revealField, onScroll }), [scrollToView, holdView, revealField, onScroll]);
 }
 
 /**
@@ -90,6 +130,8 @@ type FieldRegistry = {
   add: (f: FieldEntry) => () => void;
   addButton: (b: ButtonEntry) => () => void;
   next: (from: FieldEntry) => boolean;
+  /** Angemeldetes Feld zu einem Eingabeelement und das Feld direkt darunter */
+  locate: (input: unknown) => Promise<{ field: FieldEntry; below: FieldEntry | null } | null>;
 };
 const FieldContext = createContext<FieldRegistry | null>(null);
 
@@ -143,7 +185,8 @@ function useFieldRegistry(scroll: ScrollTarget): FieldRegistry {
               .sort((a, b) => a.y - b.y)[0];
             if (below) {
               below.f.input.current?.focus();
-              scroll.scrollToView(below.f.view.current);
+              // Die Tastatur bleibt offen, also meldet sie sich nicht neu: hier selbst ins Bild holen
+              revealFocused();
               return;
             }
             // Erst ein Button im Formular unterhalb, sonst der Haupt-Button der ActionBar (der oberste)
@@ -158,6 +201,18 @@ function useFieldRegistry(scroll: ScrollTarget): FieldRegistry {
           },
         );
         return true;
+      },
+      locate: async (input) => {
+        const list = fields.current.filter((f) => f.view.current && f.input.current);
+        const field = list.find((f) => f.input.current === input);
+        if (!field) return null;
+        const ys = await Promise.all(list.map((f) => measureY(f.view)));
+        const own = ys[list.indexOf(field)];
+        const below = list
+          .map((f, i) => ({ f, y: ys[i] }))
+          .filter((e) => e.f !== field && e.y > own + 1)
+          .sort((a, b) => a.y - b.y)[0];
+        return { field, below: below?.f ?? null };
       },
     }),
     [scroll],
@@ -186,7 +241,52 @@ export function useSubmitTarget(view: RefObject<View | null>, enabled: boolean) 
  * `end`: nur so weit, dass sie unten ganz zu sehen ist (Keyboard.tsx, aktives Feld über der Tastatur).
  */
 export function scrollIntoView(view: View | null, align?: ScrollAlign) {
-  scrollTargets[scrollTargets.length - 1]?.scrollToView(view, align);
+  topTarget()?.scroll.scrollToView(view, align);
+}
+
+/**
+ * Das aktive Feld ins Bild holen, nach der einen Regel in lib/reveal.ts (Daria, 2026-11-23): Beschriftung, Feld und
+ * das nächste Feld darunter stehen mit Luft über der Tastatur. Aufgerufen, sobald die Tastatur steht (Keyboard.tsx),
+ * beim Sprung ins nächste Feld und beim Aufklappen eines Formulars. Felder außerhalb von TextField (Kommentare, Chat,
+ * Suche) kommen ohne nächstes Feld ins Bild.
+ */
+export function revealFocused() {
+  const input = Platform.OS === 'web' ? focusedEditable() : TextInput.State.currentlyFocusedInput();
+  if (!input) return;
+  const target = topTarget();
+  (target?.fields.locate(input) ?? Promise.resolve(null)).then((found) => {
+    const field = (found?.field.view.current ?? input) as unknown as View;
+    const next = found?.below?.view.current ?? null;
+    if (Platform.OS === 'web') revealOnWeb(field as unknown as HTMLElement, next as unknown as HTMLElement | null);
+    else target?.scroll.revealField(field, next);
+  });
+}
+
+/**
+ * Browser: gerechnet wird mit dem sichtbaren Ausschnitt (`visualViewport`), nicht mit der Seite. Safari verschiebt die
+ * Seite beim Antippen selbst und legt die Tastatur nur über den Ausschnitt. Gescrollt wird die nächste Scrollfläche um
+ * das Feld, nie das Fenster: Das schloss in der Web-App auf dem Home-Bildschirm die Tastatur (2026-11-15, 2026-11-18).
+ */
+function revealOnWeb(field: HTMLElement, next: HTMLElement | null) {
+  let scroller = field.parentElement;
+  while (scroller && !(/(auto|scroll)/.test(getComputedStyle(scroller).overflowY) && scroller.scrollHeight > scroller.clientHeight + 1)) {
+    scroller = scroller.parentElement;
+  }
+  if (!scroller) return;
+  const span = (el: Element): Span => {
+    const r = el.getBoundingClientRect();
+    return { top: r.top, bottom: r.bottom };
+  };
+  const vv = window.visualViewport;
+  const screen = vv
+    ? { top: vv.offsetTop + keyboardMetrics.safeTop, bottom: vv.offsetTop + vv.height }
+    : { top: keyboardMetrics.safeTop, bottom: window.innerHeight };
+  const delta = revealDelta(span(field), visibleSpan(span(scroller), screen), next ? span(next) : null);
+  if (Math.abs(delta) < 1) return;
+  const calm = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  // Die ScrollView von React Native legt ihr eigenes scrollTo({ x, y }) aufs Element; hier das des Browsers
+  const browserScrollTo = Element.prototype.scrollTo as (this: Element, options: ScrollToOptions) => void;
+  browserScrollTo.call(scroller, { top: scroller.scrollTop + delta, behavior: calm ? 'auto' : 'smooth' });
 }
 
 /**
@@ -194,8 +294,8 @@ export function scrollIntoView(view: View | null, align?: ScrollAlign) {
  * nach dem Abschicken (Daria, 2026-11-09). `change` führt die Änderung aus.
  */
 export function holdInView(view: View | null, change: () => void) {
-  const target = scrollTargets[scrollTargets.length - 1];
-  if (target) target.holdView(view, change);
+  const target = topTarget();
+  if (target) target.scroll.holdView(view, change);
   else change();
 }
 
@@ -203,12 +303,13 @@ export function holdInView(view: View | null, change: () => void) {
 export function NudgeScrollProvider({ value, children }: { value: ScrollTarget; children: ReactNode }) {
   const registry = useFieldRegistry(value);
   useEffect(() => {
-    scrollTargets.push(value);
+    const entry = { scroll: value, fields: registry };
+    scrollTargets.push(entry);
     return () => {
-      const i = scrollTargets.indexOf(value);
+      const i = scrollTargets.indexOf(entry);
       if (i >= 0) scrollTargets.splice(i, 1);
     };
-  }, [value]);
+  }, [value, registry]);
   return <FieldContext.Provider value={registry}>{children}</FieldContext.Provider>;
 }
 
@@ -225,7 +326,7 @@ export function useNudge(): Nudge {
   const [hint, setHint] = useState<string>();
   const nudge = useCallback((h: string) => {
     setHint(h);
-    scrollTargets[scrollTargets.length - 1]?.scrollToView(ref.current);
+    topTarget()?.scroll.scrollToView(ref.current);
   }, []);
   const clear = useCallback(() => setHint(undefined), []);
   return { ref, hint, nudge, clear };
