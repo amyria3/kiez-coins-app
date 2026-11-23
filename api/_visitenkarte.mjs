@@ -101,6 +101,22 @@ function qrSvg(url) {
   return `<svg viewBox="0 0 ${g} ${g}" width="220" height="220" role="img" aria-label="QR-Code zu dieser Digitalen Visitenkarte" shape-rendering="crispEdges"><rect width="${g}" height="${g}" fill="#fff"/><path d="${pfad}" fill="#000027"/></svg>`;
 }
 
+/**
+ * Hinweis für das Team, wenn die App die Seite mit ?als=team öffnet (Daria, 2026-11-23: „Das kann man eben über URL
+ * routing lösen“). Das Skript nimmt die Kennung sofort aus der Adresse, damit ein weitergegebener Link die normale
+ * Ansicht zeigt. Die Links der Seite selbst tragen sie weiter.
+ */
+export function teamHinweis(text) {
+  return `<p class="sf-team" role="note">${esc(text)}</p>
+<style>.geteilt .sf-team { max-width: 420px; margin: 0 0 20px; padding: 12px 16px; border-radius: 12px; background: var(--surface); font-size: 15px; line-height: 1.45; }</style>
+<script>
+try {
+  const u = new URL(location.href);
+  if (u.searchParams.has('als')) { u.searchParams.delete('als'); history.replaceState(history.state, '', u.pathname + u.search + u.hash); }
+} catch {}
+</script>`;
+}
+
 function karte(s, logo, kater) {
   const services = serviceListe(s.services);
   // Alle Links des Schaufensters (Daria, 2026-11-23: „Auf der Digitalen Visitenkarte selbst fehlen die ganzen Links“)
@@ -124,18 +140,27 @@ function karte(s, logo, kater) {
 /**
  * Inhalt der Ansicht. `via` ist „karte“, wenn die Person über den QR-Code der Karte gekommen ist, `von`
  * „schaufenster“, wenn sie von der Schaufenster-Seite kam. `mailFunktion` und `schluessel` für die Mails (Edge
- * Function visitenkarte-mail), `zaehlFunktion` für die Zahlen des Teams (count_showcase_visit).
+ * Function visitenkarte-mail), `zaehlFunktion` für die Zahlen des Teams (count_showcase_visit). `team` zeigt die
+ * Vorschau fürs Team (?als=team).
+ * @param {any} s
+ * @param {{ via?: string, von?: string, team?: boolean, logo?: string | null, kater?: string, mailFunktion?: string, schluessel?: string, zaehlFunktion?: string }} [optionen]
  */
-export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, schluessel, zaehlFunktion } = {}) {
+export function visitenkarteAnsicht(s, { via, von, team = false, logo, kater, mailFunktion, schluessel, zaehlFunktion } = {}) {
   const origin = cardOrigin({ via, von });
-  const begegnung = origin === 'card';
-  const knoepfe = cardActions({
-    viewer: 'guest',
-    origin,
-    hasContactMail: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.email?.trim() ?? ''),
-    canBefriend: !!s.freunde,
-  });
-  const beschriftung = (id) => esc(cardActionLabel(id, { name: s.name, viewer: 'guest', origin }));
+  const begegnung = origin === 'card' && !team;
+  const viewer = team ? 'team' : 'guest';
+  // Team (?als=team aus der App, Daria, 2026-11-23): eine Vorschau der eigenen Karte. Was nur für andere Sinn ergibt
+  // (Kontakt speichern, schicken, tauschen, folgen), fällt weg; Kopieren und Eintragen gibt es nur in der App.
+  // Die Kennung ist kein Schutz: Wer sie von Hand anhängt, sieht nur weniger Knöpfe.
+  const knoepfe = team
+    ? [...cardActions({ viewer, origin }).filter((x) => ['share', 'qr', 'mail'].includes(x.id)), { id: 'showcase', primary: false }]
+    : cardActions({
+        viewer,
+        origin,
+        hasContactMail: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.email?.trim() ?? ''),
+        canBefriend: !!s.freunde,
+      });
+  const beschriftung = (id) => esc(cardActionLabel(id, { name: s.name, viewer, origin }));
   const einwilligung = `<label class="vk-c"><input type="checkbox" name="einwilligung" required><span>Ich willige ein, dass ${esc(s.name)} meine Angaben erhält. <a href="/datenschutz#visitenkarte">Datenschutz</a></span></label>`;
   const app = `https://app.kiezcoins.de/schaufenster/${encodeURIComponent(s.id)}`;
   const knopfHtml = (id, haupt) => {
@@ -199,7 +224,7 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
         return `<button type="button" class="${k}"${h} aria-expanded="false" aria-controls="vk-p-mail">${beschriftung(id)}</button>
     <form class="vk-panel" id="vk-p-mail" novalidate hidden>
       <label class="vk-f"><span>An welche Adresse?</span><input type="email" name="to" autocomplete="email" required maxlength="254" placeholder="name@beispiel.de"></label>
-      <label class="vk-f"><span>Dein Vorname <small>optional, steht in der Mail</small></span><input type="text" name="from" autocomplete="given-name" maxlength="30"></label>
+      ${team ? '' : '<label class="vk-f"><span>Dein Vorname <small>optional, steht in der Mail</small></span><input type="text" name="from" autocomplete="given-name" maxlength="30"></label>'}
       <input class="vk-falle" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <button type="submit" class="vk-k haupt">Digitale Visitenkarte schicken</button>
       <button type="button" class="vk-abbrechen" data-zu>Abbrechen</button>
@@ -212,7 +237,7 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
       case 'befriend':
         return `<a class="${k}"${h} href="${esc(app)}?anfreunden=1">${beschriftung(id)}</a>`;
       case 'showcase':
-        return `<a class="${k}"${h} href="/s/${esc(s.slug)}">${beschriftung(id)}</a>`;
+        return `<a class="${k}"${h} href="/s/${esc(s.slug)}${team ? '?als=team' : ''}">${beschriftung(id)}</a>`;
       default:
         return '';
     }
@@ -270,6 +295,7 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
 .geteilt .vk-falle { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 </style>
   <h2 class="sf-abschnitt vk-titel">Digitale Visitenkarte</h2>
+  ${team ? `${teamHinweis('So sieht Deine Digitale Visitenkarte aus. Knöpfe, die nur für andere gedacht sind, wie Folgen oder Kontakt schicken, sind hier ausgeblendet.')}` : ''}
   ${karte(s, logo, kater)}
   <div class="vk-knoepfe">
     ${knoepfe.map((x) => knopfHtml(x.id, x.primary)).join('\n\n    ')}
@@ -290,7 +316,8 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
       body: JSON.stringify({ p_slug: ${JSON.stringify(s.slug)}, p_kind: art }),
     }).catch(() => {});
   };
-  zaehlen('card');
+  // Das Team zählt nicht mit
+  if (${JSON.stringify(!team)}) zaehlen('card');
   // Eine Option aufgeklappt: Der Hauptknopf tritt als Secondary-Knopf zurück (Daria, 2026-11-23)
   // Aufklappen (UX-Regeln, 2026-11-23): Das Panel scrollt ganz ins Bild, ein Formular bekommt den Fokus im ersten
   // Feld. „Abbrechen“ schließt es und verwirft die Eingaben, „Schließen“ klappt den QR-Code zu.
@@ -353,7 +380,7 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
       const res = await fetch(${JSON.stringify(mailFunktion)}, {
         method: 'POST',
         headers: { apikey: ${JSON.stringify(schluessel)}, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug: ${JSON.stringify(s.slug)}, to, from: form.elements.from.value, website: form.elements.website.value }),
+        body: JSON.stringify({ slug: ${JSON.stringify(s.slug)}, to, from: form.elements.from ? form.elements.from.value : '', website: form.elements.website.value }),
       });
       const r = await res.json().catch(() => ({}));
       if (r.ok) { status.textContent = 'Die Digitale Visitenkarte ist unterwegs an ' + to + '.'; form.elements.to.value = ''; }

@@ -10,7 +10,7 @@ import { buchungsLink } from './_buchung.mjs';
 import { cleanPaymentLinks } from '../src/data/paymentLinks.mjs';
 import { anfahrtLink, hatPunkt, karteEinbetten, karteGross } from './_karte.mjs';
 import { oeffnungszeiten } from './_oeffnungszeiten.mjs';
-import { vcard, visitenkarteAnsicht } from './_visitenkarte.mjs';
+import { teamHinweis, vcard, visitenkarteAnsicht } from './_visitenkarte.mjs';
 import { BILD_B, BILD_H, bildBaum, bildText } from './_visitenkarte-bild.mjs';
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://aqxzxpxrshizlaqyjplw.supabase.co';
@@ -259,8 +259,8 @@ function eintrag(x) {
 // Teilen, Speichern, QR-Code und Mail stehen in der eigenen Ansicht /s/<kurzname>/visitenkarte (api/_visitenkarte.mjs);
 // `von=schaufenster` sagt ihr, dass die Person von hier kommt. Kam sie über den QR-Code der Karte (?via=karte), geht
 // die Kennung mit.
-function visitenkarte(s, via) {
-  const ziel = `/s/${s.slug}/visitenkarte?von=schaufenster${via === 'karte' ? '&via=karte' : ''}`;
+function visitenkarte(s, via, team) {
+  const ziel = `/s/${s.slug}/visitenkarte?von=schaufenster${via === 'karte' ? '&via=karte' : ''}${team ? '&als=team' : ''}`;
   return `<style>
 .geteilt .sf-vk { margin: 0 0 56px; max-width: 420px; }
 .geteilt .sf-vk-bild { display: block; width: 100%; aspect-ratio: ${BILD_B} / ${BILD_H}; border-radius: 10px; margin: 0 0 24px; background: #F0FFA6; }
@@ -511,7 +511,7 @@ ${
 </style>`;
 }
 
-function inhalt(s, via) {
+function inhalt(s, via, team = false) {
   if (!s) {
     return `  <h1>Dieses Schaufenster gibt es nicht, oder es ist nicht öffentlich.</h1>
   <p class="text">Vielleicht ist es nur für Eingeladene. Dann öffnest Du es in der App.</p>`;
@@ -561,6 +561,7 @@ function inhalt(s, via) {
       <p class="sf-text">Neuigkeiten, Angebote und Fotos aus dem Schaufenster.</p>
     </div></article></div>`;
   return `${seitenStil(s)}
+  ${team ? teamHinweis('So sehen andere Dein Schaufenster im Web. Bearbeiten kannst Du es in der App.') : ''}
   ${cover ? `<img class="sf-cover sf-mit-logo" src="${esc(cover)}" alt="Titelbild von ${esc(s.name)}">` : '<div class="sf-cover sf-mit-logo sf-verlauf" aria-hidden="true"></div>'}
   <div class="sf-wer">${logo ? `<img class="sf-logo" src="${esc(logo)}" alt="Logo von ${esc(s.name)}">` : `<span class="sf-logo sf-kater">${KATER}</span>`}<h1 style="${titelGroesse(s.name)}">${esc(s.name)}</h1></div>
   ${s.kiez ? `<p class="wer">${esc(s.kiez)}</p>` : ''}
@@ -587,7 +588,7 @@ function inhalt(s, via) {
   <div class="sf-ende"><p class="sf-klein" style="white-space: pre-line">${esc(s.imprint)}</p></div>`
       : ''
   }
-  ${/* Digitale Visitenkarte am Schluss der Seite (Daria, 2026-11-12) */ visitenkarte(s, via)}
+  ${/* Digitale Visitenkarte am Schluss der Seite (Daria, 2026-11-12) */ visitenkarte(s, via, team)}
 <script>
 (() => {
   // Name: die Schrift so weit verkleinern, dass das längste Wort in die Zeile passt (höchstens bis 16 px)
@@ -810,6 +811,8 @@ export async function GET(request) {
   const via = url.searchParams.get('via') === 'karte' ? 'karte' : undefined;
   const von = url.searchParams.get('von') === 'schaufenster' ? 'schaufenster' : undefined;
   const ansicht = url.searchParams.get('ansicht') === 'visitenkarte';
+  // Die App öffnet die Seite fürs Team mit ?als=team (Daria, 2026-11-23): Vorschau mit Hinweis, ohne Zählung
+  const team = url.searchParams.get('als') === 'team';
   const vorlage = await fetch(new URL('/teilen-vorlage', url.origin));
   if (!vorlage.ok) return new Response('Vorlage fehlt', { status: 500 });
   const seite = (await vorlage.text())
@@ -825,13 +828,14 @@ export async function GET(request) {
           visitenkarteAnsicht(s, {
             via,
             von,
+            team,
             zaehlFunktion: `${SUPABASE_URL}/rest/v1/rpc/count_showcase_visit`,
             logo: foto(s.logo_path),
             kater: KATER,
             mailFunktion: `${SUPABASE_URL}/functions/v1/visitenkarte-mail`,
             schluessel: SUPABASE_KEY,
           })
-        : inhalt(s, via) + (s ? zaehlSkript(s.slug, 'page') : ''),
+        : inhalt(s, via, team) + (s && !team ? zaehlSkript(s.slug, 'page') : ''),
     )
     // Die Visitenkarten-Ansicht hat „Folgen“ in der Knopfliste und braucht den Fuß der Schaufenster-Seite nicht
     .replace(/<div class="card">\s*<h3>Mach mit in Deinem Kiez\.<\/h3>[\s\S]*?<\/div>/, (karte) => (s ? (ansicht ? '' : mitmachen(s)) : karte))
