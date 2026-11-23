@@ -21,6 +21,7 @@ export type FeatureKey =
   | 'schaufenster_posten'
   | 'schaufenster_mehr'
   | 'schaufenster_suche'
+  | 'schaufenster_bezahlen'
   | 'weiterposten'
   | 'bildkommentare'
   | 'ohne_wasserzeichen'
@@ -40,6 +41,8 @@ export const FEATURE_DEFAULTS: Record<FeatureKey, { name: string; defaultOn: boo
   schaufenster_mehr: { name: 'Mehr Posts im Schaufenster', defaultOn: true },
   // Suchfeld im Kiez- und Überall-Feed, findet öffentliche Schaufenster; für alle an (Daria, 2026-11-13)
   schaufenster_suche: { name: 'Schaufenster suchen', defaultOn: true },
+  // Zahlungslinks von Stripe, SumUp oder PayPal im Schaufenster; für alle an (Daria, 2026-11-23)
+  schaufenster_bezahlen: { name: 'Zahlungslinks im Schaufenster', defaultOn: true },
   weiterposten: { name: 'Weiterposten', defaultOn: true }, // für alle (Daria, 2026-11-09)
   bildkommentare: { name: 'Bildkommentare', defaultOn: true }, // für alle (Daria, 2026-11-10)
   // Bildpost teilen ohne Wasserzeichen und, wer das darf, auch ganz ohne Rahmen; im Moment für alle (Daria, 2026-11-10)

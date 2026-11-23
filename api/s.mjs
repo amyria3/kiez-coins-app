@@ -7,6 +7,7 @@
 
 import { hatTermine, schaufensterKalender } from './_kalender.mjs';
 import { buchungsLink } from './_buchung.mjs';
+import { cleanPaymentLinks } from '../src/data/paymentLinks.mjs';
 import { anfahrtLink, hatPunkt, karteEinbetten, karteGross } from './_karte.mjs';
 import { oeffnungszeiten } from './_oeffnungszeiten.mjs';
 import { vcard, visitenkarteAnsicht } from './_visitenkarte.mjs';
@@ -376,6 +377,17 @@ function aboKnoepfe(s) {
   return `Neue Termine erscheinen automatisch in Deinem Kalender.<span class="sf-ort"><a class="sf-ort-haupt" href="${esc(googleAbo(s.slug))}" data-abo="${esc(aboLink(s.slug).replace(/^https:/, 'webcal:'))}" target="_blank" rel="noopener">Kalender abonnieren</a><button type="button" class="sf-ort-neben" data-abo-kopieren="${esc(aboLink(s.slug))}">Link kopieren</button><span class="sf-ort-hinweis" role="status"></span></span>`;
 }
 
+// Zahlungslinks des Betriebs (Daria, 2026-11-23, src/data/paymentLinks.mjs): je Link Titel, Betrag und „Bezahlen“.
+// Bezahlt wird beim Anbieter (Stripe, SumUp, PayPal), das Geld geht direkt an den Betrieb.
+function zahlungen(s) {
+  return cleanPaymentLinks(s.payment_links)
+    .map(
+      (p) =>
+        `<span class="sf-zahlung"><b>${esc(p.title)}</b>${p.amount ? ` · ${esc(p.amount)}` : ''}<span class="sf-ort"><a class="sf-ort-haupt" href="${esc(p.url)}" target="_blank" rel="noopener nofollow">Bezahlen</a></span></span>`,
+    )
+    .join('');
+}
+
 // Buchungslink des Betriebs (api/_buchung.mjs), z. B. https://cal.com/kiezblick
 function buchungKnopf(s) {
   return `Freie Zeiten sehen und online buchen.<span class="sf-ort"><a class="sf-ort-haupt" href="${esc(buchungsLink(s))}" target="_blank" rel="noopener nofollow">Termin buchen</a></span>`;
@@ -450,6 +462,9 @@ ${
   font: 500 15px/1 Inter, sans-serif; letter-spacing: .01em; text-decoration: none; cursor: pointer; }
 .geteilt .sf-ort .sf-ort-haupt { background: var(--text); color: var(--bg); }
 .geteilt .sf-ort .sf-ort-neben { border: 0; background: none; color: var(--text); box-shadow: inset 0 0 0 1.5px var(--text); }
+/* Zahlungslinks: je Eintrag Titel und Betrag, darunter „Bezahlen“ (2026-11-23) */
+.geteilt .sf-zahlung { display: block; }
+.geteilt .sf-zahlung + .sf-zahlung { margin-top: 18px; }
 .geteilt .sf-ort-hinweis { font-size: 13px; color: var(--text); }
 /* Karte von OpenStreetMap: erst ein ruhiger Kasten mit Knopf, nach dem Tipp die Karte (Daria, 2026-11-18) */
 .geteilt .sf-osm { position: relative; margin-top: 16px; aspect-ratio: 4 / 3; border-radius: 16px; overflow: hidden;
@@ -515,6 +530,7 @@ function inhalt(s, via) {
     s.opening_hours?.trim() ? fakt('Öffnungszeiten', esc(s.opening_hours)) : '',
     // Termin buchen über Cal.com oder einen anderen Dienst (Daria, 2026-11-18); ohne Link keine Zeile
     buchungsLink(s) ? fakt('Termin buchen', buchungKnopf(s)) : '',
+    cleanPaymentLinks(s.payment_links).length ? fakt('Bezahlen', zahlungen(s)) : '',
     // Abo nur, wenn es Termine gibt (Daria, 2026-11-18: leere Angaben fallen weg)
     // Kalender-Abo nur, wenn der Schalter an ist (calendar_feed, Migration 20261123000200; ohne Spalte an)
     s.slug && hatTermine(s) && s.calendar_feed !== false ? fakt('Termine', aboKnoepfe(s)) : '',

@@ -5,12 +5,16 @@ import { eventTime, type SingleEvent } from './calendar';
 import { WEB_APP_URL } from './groups';
 import { dayName } from './katerRoutine';
 import type { Coords } from './location';
+import { cleanPaymentLinks } from './paymentLinks.mjs';
 import { localDate } from './reminders';
 import { useFeature } from './unlock';
 import { photoUrl, uploadPhoto } from './remote';
 import { useStore } from './store';
 import { t } from './texts';
 import type { ImageSource } from './types';
+
+/** Zahlungslink im Schaufenster: Titel, Betrag (frei, z. B. „24 €“) und Link zum Anbieter */
+export type PaymentLink = { title: string; amount?: string; url: string };
 
 /**
  * Schaufenster, Bau ohne Geld, erster Teil (Daria, 2026-11-10; Plan: Documentation, kiez-coins/offen/2026-11-10_offen_schaufenster.md).
@@ -56,6 +60,10 @@ export type Showcase = {
   bookingUrl?: string;
   /** Buchungslink ist geladen: Nur dann zeigt und speichert das Formular ihn */
   bookingReady: boolean;
+  /** Zahlungslinks (Daria, 2026-11-23, Migration 20261123000300); nur über loadShowcase geladen */
+  paymentLinks: PaymentLink[];
+  /** Zahlungslinks sind geladen: Nur dann zeigt und speichert das Formular sie */
+  paymentReady: boolean;
   visibility: Visibility;
   /** Bezahlt: Die Grenze von 50 löscht nichts (plan_until in der Zukunft) */
   paid: boolean;
@@ -161,6 +169,8 @@ const toShowcase = (r: Row): Showcase => ({
   termsReady: false,
   seoReady: false,
   bookingReady: false,
+  paymentLinks: [],
+  paymentReady: false,
 });
 
 /** AGB laden; klappt das nicht, bleibt das Schaufenster ohne AGB */
@@ -190,6 +200,17 @@ async function loadBooking(showcase: Showcase): Promise<void> {
   if (error) return;
   showcase.bookingReady = true;
   showcase.bookingUrl = (data as { booking_url: string | null } | null)?.booking_url ?? undefined;
+}
+
+/**
+ * Zahlungslinks laden (Migration 20261123000300). Eigene Abfrage wie der Buchungslink: Fehlt die Spalte noch, lädt das
+ * Schaufenster trotzdem, nur ohne Zahlungslinks.
+ */
+async function loadPayments(showcase: Showcase): Promise<void> {
+  const { data, error } = await supabase.from('showcases').select('payment_links').eq('id', showcase.id).maybeSingle();
+  if (error) return;
+  showcase.paymentReady = true;
+  showcase.paymentLinks = cleanPaymentLinks((data as { payment_links: unknown } | null)?.payment_links);
 }
 
 // ---------- Anfreunden über das Schaufenster (Daria, 2026-11-17, Migration 20261117000500) ----------
@@ -310,7 +331,7 @@ export async function loadShowcase(id: string, userId: string): Promise<{ showca
   showcase.coords = typeof lat === 'number' && typeof lng === 'number' ? { latitude: lat, longitude: lng } : undefined;
   showcase.inviteCode = (priv as Private)?.invite_code ?? '';
   showcase.switches = await showcaseSwitches(id);
-  await Promise.all([loadTerms(showcase), loadSeo(showcase), loadBooking(showcase)]);
+  await Promise.all([loadTerms(showcase), loadSeo(showcase), loadBooking(showcase), loadPayments(showcase)]);
   const [member, group, guest, follow, see] = await Promise.all([
     supabase.from('group_members').select('role, can_post_showcase').eq('group_id', showcase.groupId).eq('user_id', userId).maybeSingle(),
     supabase.from('groups').select('founder_id').eq('id', showcase.groupId).maybeSingle(),
@@ -369,6 +390,8 @@ export type ShowcaseInput = {
   slug?: string;
   /** Nur mitschicken, wenn geladen (Showcase.bookingReady) */
   bookingUrl?: string;
+  /** Nur mitschicken, wenn geladen (Showcase.paymentReady); leere Zeilen fallen weg */
+  paymentLinks?: PaymentLink[];
   /** Nur mitschicken, wenn geladen (Showcase.seoReady) */
   seoTitle?: string;
   seoDescription?: string;
@@ -444,6 +467,7 @@ export async function updateShowcase(id: string, userId: string, input: Showcase
   };
   if (input.terms !== undefined) fields.terms = nullIfEmpty(input.terms);
   if (input.bookingUrl !== undefined) fields.booking_url = nullIfEmpty(input.bookingUrl);
+  if (input.paymentLinks !== undefined) fields.payment_links = cleanPaymentLinks(input.paymentLinks);
   if (input.coords !== undefined) {
     fields.lat = input.coords?.latitude ?? null;
     fields.lng = input.coords?.longitude ?? null;
