@@ -3,10 +3,9 @@
 // Gescrollt wird nur so weit wie nötig. Passt beides nicht hinein, reicht das aktive Feld; ist es höher als der Platz
 // (lange Beschreibung), steht sein Anfang oben.
 //
-// Ein Code für App und Webseite (Daria, 2026-11-23: Wiederverwendbarkeit): Die App nutzt die Funktionen über
-// components/Nudge.tsx (`revealFocused`), die öffentliche Visitenkarte (api/_visitenkarte.mjs) bettet sie mit
-// `toString()` in ihr Skript ein. Deshalb reines JavaScript ohne Importe, und jede Funktion ruft nur Funktionen aus
-// dieser Datei. Getestet in tests/reveal.test.ts.
+// Ein Code für iPhone, Android und Web (Daria, 2026-11-23: Wiederverwendbarkeit): genutzt über components/Nudge.tsx
+// (`revealFocused`). Die öffentliche Visitenkarte ist seit #459 dieselbe Komponente in der Web-App und folgt damit
+// derselben Regel. Reines JavaScript ohne Abhängigkeiten, getestet in tests/reveal.test.ts.
 
 /** @typedef {{ top: number, bottom: number }} Span Senkrechte Lage auf dem Bildschirm, in Punkten von oben */
 
