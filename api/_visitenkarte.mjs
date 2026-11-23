@@ -104,17 +104,20 @@ function qrSvg(url) {
 
 function karte(s, logo, kater) {
   const services = serviceListe(s.services);
-  const website = (s.links ?? []).find((l) => /^https:\/\//i.test(l));
+  // Alle Links des Schaufensters (Daria, 2026-11-23: „Auf der Visitenkarte selbst fehlen die ganzen Links“)
+  const links = [...new Set([...(s.links ?? []), ...(s.website ? [s.website] : [])])].filter((l) => /^https:\/\//i.test(l));
   const zeile = (titel, wert) => `<div><p class="vk-lb">${titel}</p>${wert}</div>`;
+  const kontakt = [
+    s.email?.trim() ? `<a href="mailto:${esc(s.email.trim())}">${esc(s.email.trim())}</a>` : '',
+    ...links.map((l) => `<a href="${esc(l)}" rel="noopener nofollow">${esc(kurzLink(l))}</a>`),
+  ].filter(Boolean);
   return `<div class="vk-karte">
-    <div class="vk-marke">${logo ? `<img src="${esc(logo)}" alt="">` : `<span class="vk-kater">${kater}</span>`}SCHAUFENSTER</div>
-    <div class="vk-name">${esc(s.name)}</div>
-    ${s.kiez ? `<div class="vk-kiez">${esc(s.kiez)}</div>` : ''}
+    <div class="vk-marke">${logo ? `<img src="${esc(logo)}" alt="">` : `<span class="vk-kater">${kater}</span>`}<div><div class="vk-name">${esc(s.name)}</div>${s.kiez ? `<div class="vk-kiez">${esc(s.kiez)}</div>` : ''}</div></div>
     <div class="vk-zeilen">
-      ${services.length ? zeile('Kompetenzen &amp; Services', `<div class="vk-chips">${services.map((x) => `<span>${esc(x)}</span>`).join('')}</div>`) : ''}
+      ${services.length ? `<div class="vk-chips" aria-label="Kompetenzen &amp; Services">${services.map((x) => `<span>${esc(x)}</span>`).join('')}</div>` : ''}
       ${s.address?.trim() ? zeile('Adresse', `<div class="vk-v">${esc(s.address.trim())}</div>`) : ''}
       ${s.opening_hours?.trim() ? zeile('Öffnungszeiten', `<div class="vk-v">${esc(s.opening_hours.trim())}</div>`) : ''}
-      ${s.email?.trim() || website ? zeile('Kontakt', `<div class="vk-v">${[s.email?.trim() ? `<a href="mailto:${esc(s.email.trim())}">${esc(s.email.trim())}</a>` : '', website ? `<a href="${esc(website)}" rel="noopener nofollow">${esc(kurzLink(website))}</a>` : ''].filter(Boolean).join('<br>')}</div>`) : ''}
+      ${kontakt.length ? zeile('Kontakt', `<div class="vk-v vk-links">${kontakt.join('')}</div>`) : ''}
     </div>
   </div>`;
 }
@@ -133,22 +136,25 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
 @font-face { font-family: Unbounded_500Medium; font-display: swap; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
 @font-face { font-family: Karla_400Regular; font-display: swap; src: url(/fonts/Karla_400Regular.ttf) format('truetype'); }
 @font-face { font-family: Karla_500Medium; font-display: swap; src: url(/fonts/Karla_500Medium.ttf) format('truetype'); }
-.geteilt .vk-zurueck { display: inline-block; font-size: 16px; color: var(--text); text-decoration: none; margin: 4px 0 20px; }
+/* Kopf nur mit KiezCoins und wenig Platz; der Name steht auf der Karte neben dem Avatar (Daria, 2026-11-23) */
+.top { justify-content: flex-start; padding-top: 16px; margin-bottom: 12px; }
+.geteilt h2.sf-abschnitt.vk-titel { margin-top: 8px; }
 .geteilt .vk-karte { max-width: 420px; background: #F0FFA6; border-radius: 12px; padding: 22px 22px 24px; box-sizing: border-box; color: #000027;
   font-family: Karla_400Regular, sans-serif; }
 .geteilt .vk-karte a { color: #000027; }
-.geteilt .vk-marke { display: flex; align-items: center; gap: 8px; font: 500 9px/1 Unbounded_500Medium, sans-serif; letter-spacing: .06em; }
-.geteilt .vk-marke img, .geteilt .vk-kater { width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid #000027; object-fit: cover; box-sizing: border-box; }
+.geteilt .vk-marke { display: flex; align-items: center; gap: 12px; }
+.geteilt .vk-marke img, .geteilt .vk-kater { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid #000027; object-fit: cover; box-sizing: border-box; }
 .geteilt .vk-kater { display: inline-flex; align-items: center; justify-content: center; background: #000; }
 .geteilt .vk-kater svg { width: 20px; height: 18px; }
-.geteilt .vk-name { font: 500 24px/1.1 Unbounded_500Medium, sans-serif; margin-top: 18px; overflow-wrap: anywhere; }
-.geteilt .vk-kiez { font-size: 12px; margin-top: 4px; }
+.geteilt .vk-name { font: 500 22px/1.15 Unbounded_500Medium, sans-serif; overflow-wrap: anywhere; }
+.geteilt .vk-kiez { font-size: 13px; margin-top: 4px; }
 .geteilt .vk-zeilen { display: grid; gap: 14px; margin-top: 20px; }
 .geteilt .vk-zeilen:empty { display: none; }
 .geteilt .vk-lb { margin: 0 0 6px; font: 500 8px/1 Unbounded_500Medium, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
 .geteilt .vk-v { font-size: 14px; line-height: 1.45; white-space: pre-line; overflow-wrap: anywhere; }
-.geteilt .vk-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.geteilt .vk-chips span { border: 1.5px solid #000027; border-radius: 999px; padding: 5px 10px; font: 500 12px/1.1 Karla_500Medium, sans-serif; }
+.geteilt .vk-chips { display: flex; flex-flow: row wrap; gap: 6px; }
+.geteilt .vk-chips span { border: 1.5px solid #000027; border-radius: 999px; padding: 4px 9px; font: 500 12px/1.1 Karla_500Medium, sans-serif; }
+.geteilt .vk-links { display: flex; flex-direction: column; gap: 2px; }
 /* Knöpfe untereinander, gleich breit und hoch (Daria, 2026-11-23) */
 .geteilt .vk-knoepfe { display: flex; flex-direction: column; gap: 12px; max-width: 420px; margin: 24px 0 40px; }
 .geteilt .vk-k { display: flex; align-items: center; justify-content: center; width: 100%; box-sizing: border-box; min-height: 50px; padding: 13px 20px;
@@ -171,10 +177,12 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
 .geteilt .vk-c { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; line-height: 1.4; }
 .geteilt .vk-c input { width: 20px; height: 20px; margin: 1px 0 0; flex: none; accent-color: var(--text); }
 .geteilt .vk-c a { color: inherit; }
+.geteilt .vk-ort { align-self: flex-start; margin-top: -8px; padding: 0; border: 0; background: none; color: var(--text); font: 500 15px/1.3 Inter, sans-serif; text-decoration: underline; cursor: pointer; }
+.geteilt .vk-ort:disabled { opacity: .5; }
+.geteilt .vk-klein:empty { display: none; }
 .geteilt .vk-falle { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 </style>
-  <a class="vk-zurueck" href="/s/${esc(s.slug)}">‹ ${esc(s.name)}</a>
-  <h2 class="sf-abschnitt">Visitenkarte</h2>
+  <h2 class="sf-abschnitt vk-titel">Visitenkarte</h2>
   ${karte(s, logo, kater)}
   <div class="vk-knoepfe">
     <button type="button" class="vk-k haupt" id="vk-teilen">Visitenkarte teilen</button>
@@ -184,7 +192,7 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
     <button type="button" class="vk-k" aria-expanded="false" aria-controls="vk-p-speichern">In Kontakte speichern</button>
     <form class="vk-panel" id="vk-p-speichern" method="post" action="/s/${esc(s.slug)}/kontakt.vcf" hidden>
       <p>${begegnung ? 'Ort und Notiz werden im Kontakt gespeichert.' : 'Die Notiz wird im Kontakt gespeichert.'}</p>
-      ${begegnung ? '<label class="vk-f"><span>Wo habt Ihr Euch getroffen? <small>optional</small></span><input name="ort" maxlength="120" placeholder="z. B. Flohmarkt am Kanal"></label>' : ''}
+      ${begegnung ? '<label class="vk-f"><span>Wo habt Ihr Euch getroffen? <small>optional</small></span><input name="ort" maxlength="120" placeholder="z. B. Flohmarkt am Kanal"></label><button type="button" class="vk-ort" data-ort>Aktuellen Ort einsetzen</button><p class="vk-klein" role="status" data-ort-hinweis></p>' : ''}
       <label class="vk-f"><span>Notiz für Dich <small>optional</small></span><textarea name="notiz" maxlength="500" placeholder="Notiz"></textarea></label>
       <button type="submit" class="vk-k haupt">Kontakt sichern</button>
       <p class="vk-klein">Das Datum wird automatisch ergänzt. ${begegnung ? 'Ort und Notiz stehen' : 'Die Notiz steht'} nur in Deinem Adressbuch.</p>
@@ -237,6 +245,7 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
     </form>
 
     <a class="vk-k" href="${esc(app)}">${esc(s.name)} in KiezCoins folgen</a>
+    <a class="vk-k" href="/s/${esc(s.slug)}">Zurück zum Schaufenster</a>
   </div>
 <script>
 (() => {
@@ -299,6 +308,38 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
       senden.disabled = false;
     }
   });
+  // Ort der Begegnung automatisch (Daria, 2026-11-23): nur nach Tippen auf den Knopf. Der Browser fragt nach dem
+  // Standort; den auf etwa 100 m gerundeten Punkt übersetzt Nominatim von OpenStreetMap in einen Ort wie in der
+  // Web-App (src/data/location.ts). Das Feld bleibt änderbar, gespeichert wird nur, was darin steht.
+  const ortKnopf = document.querySelector('[data-ort]');
+  if (ortKnopf) {
+    const ortHinweis = document.querySelector('[data-ort-hinweis]');
+    const ortFeld = document.querySelector('#vk-p-speichern input[name="ort"]');
+    ortKnopf.addEventListener('click', () => {
+      if (!navigator.geolocation) { ortHinweis.textContent = 'Dein Browser kann den Standort nicht ermitteln.'; return; }
+      ortKnopf.disabled = true;
+      ortHinweis.textContent = 'Ort wird ermittelt …';
+      navigator.geolocation.getCurrentPosition(async (p) => {
+        try {
+          const lat = p.coords.latitude.toFixed(3), lon = p.coords.longitude.toFixed(3);
+          const res = await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&addressdetails=1&accept-language=de&lat=' + lat + '&lon=' + lon);
+          const r = await res.json();
+          const a = r.address || {};
+          const gegend = a.suburb || a.city_district || a.quarter || a.city || a.town || a.village || '';
+          const ort = [r.name || a.road || '', gegend].filter(Boolean).filter((x, i, l) => l.indexOf(x) === i).join(', ');
+          if (ort) { ortFeld.value = ort.slice(0, 120); ortHinweis.textContent = ''; }
+          else ortHinweis.textContent = 'Kein Ort gefunden. Bitte von Hand eintragen.';
+        } catch {
+          ortHinweis.textContent = 'Kein Ort gefunden. Bitte von Hand eintragen.';
+        } finally {
+          ortKnopf.disabled = false;
+        }
+      }, () => {
+        ortKnopf.disabled = false;
+        ortHinweis.textContent = 'Ohne Standortfreigabe bitte von Hand eintragen.';
+      }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
+    });
+  }
   // Kontakt schicken und Kontakte tauschen (Daria, 2026-11-23): dieselbe Edge Function mit art 'kontakt'
   const kontaktTexte = {
     email: 'Bitte prüfe die Mail-Adresse.',
