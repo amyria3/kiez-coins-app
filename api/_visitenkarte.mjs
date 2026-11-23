@@ -112,9 +112,7 @@ function karte(s, logo, kater) {
     ...links.map((l) => `<a href="${esc(l)}" rel="noopener nofollow">${esc(kurzLink(l))}</a>`),
   ].filter(Boolean);
   return `<div class="vk-karte">
-    <div class="vk-marke">${logo ? `<img src="${esc(logo)}" alt="">` : `<span class="vk-kater">${kater}</span>`}SCHAUFENSTER</div>
-    <div class="vk-name">${esc(s.name)}</div>
-    ${s.kiez ? `<div class="vk-kiez">${esc(s.kiez)}</div>` : ''}
+    <div class="vk-marke">${logo ? `<img src="${esc(logo)}" alt="">` : `<span class="vk-kater">${kater}</span>`}<div><div class="vk-name">${esc(s.name)}</div>${s.kiez ? `<div class="vk-kiez">${esc(s.kiez)}</div>` : ''}</div></div>
     <div class="vk-zeilen">
       ${services.length ? `<div class="vk-chips" aria-label="Kompetenzen &amp; Services">${services.map((x) => `<span>${esc(x)}</span>`).join('')}</div>` : ''}
       ${s.address?.trim() ? zeile('Adresse', `<div class="vk-v">${esc(s.address.trim())}</div>`) : ''}
@@ -138,20 +136,18 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
 @font-face { font-family: Unbounded_500Medium; font-display: swap; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
 @font-face { font-family: Karla_400Regular; font-display: swap; src: url(/fonts/Karla_400Regular.ttf) format('truetype'); }
 @font-face { font-family: Karla_500Medium; font-display: swap; src: url(/fonts/Karla_500Medium.ttf) format('truetype'); }
-/* Kopf in einer Zeile: „Name @ KiezCoins“, wenig Platz nach oben (Daria, 2026-11-23) */
-.top { justify-content: flex-start; align-items: flex-end; flex-wrap: wrap; gap: 6px 10px; padding-top: 16px; margin-bottom: 12px; }
-.top .vk-wer { font: 600 22px/1.1 'Inter Tight', Inter, sans-serif; color: var(--text); overflow-wrap: anywhere; }
-.top .vk-at { font: 500 22px/1.1 'Inter Tight', Inter, sans-serif; color: var(--text); opacity: .6; }
+/* Kopf nur mit KiezCoins und wenig Platz; der Name steht auf der Karte neben dem Avatar (Daria, 2026-11-23) */
+.top { justify-content: flex-start; padding-top: 16px; margin-bottom: 12px; }
 .geteilt h2.sf-abschnitt.vk-titel { margin-top: 8px; }
 .geteilt .vk-karte { max-width: 420px; background: #F0FFA6; border-radius: 12px; padding: 22px 22px 24px; box-sizing: border-box; color: #000027;
   font-family: Karla_400Regular, sans-serif; }
 .geteilt .vk-karte a { color: #000027; }
-.geteilt .vk-marke { display: flex; align-items: center; gap: 8px; font: 500 9px/1 Unbounded_500Medium, sans-serif; letter-spacing: .06em; }
-.geteilt .vk-marke img, .geteilt .vk-kater { width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid #000027; object-fit: cover; box-sizing: border-box; }
+.geteilt .vk-marke { display: flex; align-items: center; gap: 12px; }
+.geteilt .vk-marke img, .geteilt .vk-kater { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid #000027; object-fit: cover; box-sizing: border-box; }
 .geteilt .vk-kater { display: inline-flex; align-items: center; justify-content: center; background: #000; }
 .geteilt .vk-kater svg { width: 20px; height: 18px; }
-.geteilt .vk-name { font: 500 24px/1.1 Unbounded_500Medium, sans-serif; margin-top: 18px; overflow-wrap: anywhere; }
-.geteilt .vk-kiez { font-size: 12px; margin-top: 4px; }
+.geteilt .vk-name { font: 500 22px/1.15 Unbounded_500Medium, sans-serif; overflow-wrap: anywhere; }
+.geteilt .vk-kiez { font-size: 13px; margin-top: 4px; }
 .geteilt .vk-zeilen { display: grid; gap: 14px; margin-top: 20px; }
 .geteilt .vk-zeilen:empty { display: none; }
 .geteilt .vk-lb { margin: 0 0 6px; font: 500 8px/1 Unbounded_500Medium, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
