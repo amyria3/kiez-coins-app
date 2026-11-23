@@ -6,7 +6,7 @@ import { t } from '../data/texts';
 import { color, space, text } from '../theme/tokens';
 import { Button } from './Button';
 import { Notice } from './Content';
-import { TextField } from './Form';
+import { EMAIL_FIELD, GIVEN_NAME_FIELD, TextField } from './Form';
 import { useKeyboardHeight } from './Keyboard';
 import { scrollIntoView } from './Nudge';
 import { Text } from './T';
@@ -50,6 +50,13 @@ export function CardMailButton({
   const controlled = openProp !== undefined;
   const open = controlled ? openProp : openState;
   const setOpen = (v: boolean) => (controlled ? onOpenChange?.(v) : setOpenState(v));
+  // Abbrechen schließt das Formular und verwirft die Eingaben (UX-Regeln, 2026-11-23)
+  const cancel = () => {
+    setOpen(false);
+    setTo('');
+    setFrom('');
+    setResult(null);
+  };
   const [to, setTo] = useState('');
   const [from, setFrom] = useState('');
   const [busy, setBusy] = useState(false);
@@ -88,11 +95,10 @@ export function CardMailButton({
             label="An welche Adresse?"
             value={to}
             onChangeText={setTo}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
             maxLength={254}
             placeholder="name@beispiel.de"
+            autoFocus
+            {...EMAIL_FIELD}
             {...focusProps}
           />
           <TextField
@@ -101,11 +107,13 @@ export function CardMailButton({
             onChangeText={setFrom}
             maxLength={30}
             helperText="Optional, steht in der Mail."
+            {...GIVEN_NAME_FIELD}
             {...focusProps}
           />
           <View ref={end}>
             <Button label="Visitenkarte schicken" busy={busy} disabled={!isEmail(to)} onPress={send} />
           </View>
+          <Button label="Abbrechen" variant="ghost" onPress={cancel} />
           <Text style={styles.meta}>KiezCoins nutzt die Adresse nur für diese eine Mail und speichert sie nicht.</Text>
         </View>
       ) : controlled ? null : (

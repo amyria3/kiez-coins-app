@@ -35,6 +35,21 @@ type TextFieldProps = Omit<TextInputProps, 'style'> & {
   showEnd?: boolean;
 };
 
+/**
+ * Felder, die Handy und Browser als E-Mail bzw. Name erkennen: passende Tastatur und Vorschläge zum Ausfüllen,
+ * z. B. die eigene Adresse, wenn man sich etwas selbst schickt (2026-11-23). Als Props an `TextField` geben.
+ */
+export const EMAIL_FIELD = {
+  keyboardType: 'email-address',
+  inputMode: 'email',
+  autoComplete: 'email',
+  textContentType: 'emailAddress',
+  autoCapitalize: 'none',
+  autoCorrect: false,
+} as const;
+export const NAME_FIELD = { autoComplete: 'name', textContentType: 'name' } as const;
+export const GIVEN_NAME_FIELD = { autoComplete: 'given-name', textContentType: 'givenName' } as const;
+
 /** Figma „TextField“ (Default, Focused, Error) */
 export function TextField({
   label,
@@ -657,7 +672,8 @@ const styles = StyleSheet.create({
   handKnob: { position: 'absolute', left: 0, top: (HAND_H - HAND_KH) / 2 },
   flex: { flex: 1 },
   link: { textDecorationLine: 'underline', color: color.text.primary },
-  field: { gap: space[6] },
+  // Label nah am Feld (Daria, 2026-11-23: Abstand zentral leicht verringern)
+  field: { gap: space[2] },
   fieldLabel: { ...text.caption, color: color.text.secondary },
   input: {
     ...text.body,

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
@@ -10,12 +10,13 @@ import { sendContactToShowcase, type ContactResult } from '../../data/showcaseCa
 import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
 import { contactFileName, contactVcard } from '../../lib/contactCard';
-import { shareText } from '../../lib/share';
+import { shareLink } from '../../lib/share';
 import { color, radius, space, text } from '../../theme/tokens';
 import { Button } from '../Button';
 import { Notice } from '../Content';
-import { CheckOption, TextField } from '../Form';
+import { CheckOption, EMAIL_FIELD, NAME_FIELD, TextField } from '../Form';
 import { InviteQr } from '../InviteQr';
+import { scrollIntoView } from '../Nudge';
 import { CardMailButton } from '../ShowcaseShare';
 import { Text } from '../T';
 
@@ -51,6 +52,14 @@ export function CardActions({ showcase: s, viewer, origin, canBefriend, followin
   const codeLink = `${link}?via=karte`;
   const label = (id: (typeof actions)[number]['id']) => t(cardActionTemplate(id, { viewer, origin }), { name: s.name });
   const toggle = (p: Panel) => setPanel((cur) => (cur === p ? null : p));
+  const close = () => setPanel(null);
+  // Aufgeklapptes ganz ins Bild holen (UX-Regeln, 2026-11-23): den QR-Code bis zum unteren Rand, Formulare ab ihrem Anfang
+  const panelRef = useRef<View>(null);
+  useEffect(() => {
+    if (!panel) return;
+    const timer = setTimeout(() => scrollIntoView(panelRef.current, panel === 'qr' ? 'end' : 'start'), 80);
+    return () => clearTimeout(timer);
+  }, [panel]);
 
   const copy = async () => {
     await Clipboard.setStringAsync(link);
@@ -64,7 +73,14 @@ export function CardActions({ showcase: s, viewer, origin, canBefriend, followin
         const variant = primary && !panel ? 'primary' : 'secondary';
         switch (id) {
           case 'share':
-            return <Button key={id} label={label(id)} variant={variant} onPress={() => shareText(link)} />;
+            return (
+              <Button
+                key={id}
+                label={label(id)}
+                variant={variant}
+                onPress={() => shareLink({ title: t('Visitenkarte von {name}', { name: s.name }), text: t('Visitenkarte von {name}', { name: s.name }), url: link })}
+              />
+            );
           case 'copyLink':
             return <Button key={id} label={copied ? 'Link kopiert' : label(id)} variant={variant} icon={copied ? 'check' : undefined} onPress={copy} />;
           case 'saveContact':
@@ -82,14 +98,22 @@ export function CardActions({ showcase: s, viewer, origin, canBefriend, followin
             return (
               <View key={id} style={styles.item}>
                 <Button label={label(id)} variant={variant} onPress={() => toggle(id)} />
-                {panel === id ? <ContactForm showcase={s} exchange={id === 'exchange'} /> : null}
+                {panel === id ? (
+                  <View ref={panelRef} collapsable={false}>
+                    <ContactForm showcase={s} exchange={id === 'exchange'} onCancel={close} />
+                  </View>
+                ) : null}
               </View>
             );
           case 'addContact':
             return (
               <View key={id} style={styles.item}>
                 <Button label={label(id)} variant={variant} onPress={() => toggle(id)} />
-                {panel === id ? <ManualContact showcase={s} /> : null}
+                {panel === id ? (
+                  <View ref={panelRef} collapsable={false}>
+                    <ManualContact showcase={s} onCancel={close} />
+                  </View>
+                ) : null}
               </View>
             );
           case 'qr':
@@ -97,19 +121,24 @@ export function CardActions({ showcase: s, viewer, origin, canBefriend, followin
               <View key={id} style={styles.item}>
                 <Button label={label(id)} variant={variant} onPress={() => toggle(id)} />
                 {panel === id ? (
-                  <View style={styles.panel}>
+                  <View ref={panelRef} collapsable={false} style={styles.panel}>
                     <Text style={styles.body}>
                       {viewer === 'team' && hasContactMail
                         ? t('Die andere Person scannt den QR-Code mit der Kamera. Sie speichert Eure Visitenkarte und kann Euch ihren Kontakt schicken.')
                         : t('Mit der Kamera scannen, um die Visitenkarte zu öffnen.')}
                     </Text>
                     <InviteQr value={codeLink} label={t('QR-Code zur Visitenkarte')} />
+                    <Button label="Schließen" variant="ghost" onPress={close} />
                   </View>
                 ) : null}
               </View>
             );
           case 'mail':
-            return <CardMailButton key={id} showcase={s} label={label(id)} open={panel === 'mail'} onOpenChange={(o) => setPanel(o ? 'mail' : null)} />;
+            return (
+              <View key={id} ref={panel === 'mail' ? panelRef : undefined} collapsable={false}>
+                <CardMailButton showcase={s} label={label(id)} open={panel === 'mail'} onOpenChange={(o) => setPanel(o ? 'mail' : null)} />
+              </View>
+            );
           case 'follow':
             return <Button key={id} label={label(id)} variant={variant} busy={busy} onPress={onFollow} />;
           case 'befriend':
@@ -137,7 +166,7 @@ const CONTACT_MESSAGES: Record<Exclude<ContactResult, 'ok' | 'card_failed'>, str
  * „Deinen Kontakt schicken“ und „Kontakte tauschen“ für Mitglieder (2026-11-23): Name und Mail kommen aus dem Profil
  * und lassen sich ändern. Beim Tausch kommt die Visitenkarte immer per Mail zurück, beim Schicken nur auf Wunsch.
  */
-function ContactForm({ showcase: s, exchange }: { showcase: Showcase; exchange: boolean }) {
+function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; exchange: boolean; onCancel: () => void }) {
   const router = useRouter();
   const { profile } = useStore();
   const [name, setName] = useState(profile.handle ?? '');
@@ -181,8 +210,8 @@ function ContactForm({ showcase: s, exchange }: { showcase: Showcase; exchange: 
           ? t('Du erhältst den Kontakt von {name}, {name} erhält Deinen Kontakt.', { name: s.name })
           : t('{name} erhält Deine Kontaktdaten per Mail.', { name: s.name })}
       </Text>
-      <TextField label="Name" value={name} onChangeText={setName} maxLength={80} autoComplete="name" />
-      <TextField label="Mail-Adresse" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} maxLength={254} />
+      <TextField label="Name" value={name} onChangeText={setName} maxLength={80} autoFocus {...NAME_FIELD} />
+      <TextField label="Mail-Adresse" value={email} onChangeText={setEmail} maxLength={254} {...EMAIL_FIELD} />
       <TextField label="Wo habt Ihr Euch getroffen?" value={place} onChangeText={setPlace} maxLength={120} helperText="Optional" />
       {exchange ? null : <TextField label="Nachricht" value={message} onChangeText={setMessage} multiline maxLength={1000} helperText="Optional" />}
       {exchange ? null : (
@@ -198,6 +227,7 @@ function ContactForm({ showcase: s, exchange }: { showcase: Showcase; exchange: 
         disabled={!name.trim() || !isEmail(email) || !consent}
         onPress={send}
       />
+      <Button label="Abbrechen" variant="ghost" onPress={onCancel} />
       <Text style={styles.meta}>{t('KiezCoins leitet die Angaben weiter und speichert sie nicht.')}</Text>
       {result ? <Notice variant={result.ok ? undefined : 'warning'} message={result.message} onClose={() => setResult(null)} /> : null}
     </View>
@@ -209,7 +239,7 @@ function ContactForm({ showcase: s, exchange }: { showcase: Showcase; exchange: 
  * Es entsteht eine vCard auf dem Gerät, auf Wunsch geht die Visitenkarte per Mail an die Person. KiezCoins speichert
  * den Kontakt nicht. Die vCard entsteht im Browser; in der Android-App öffnet der Knopf dieselbe Seite im Browser.
  */
-function ManualContact({ showcase }: { showcase: Showcase }) {
+function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: () => void }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [place, setPlace] = useState('');
@@ -228,6 +258,7 @@ function ManualContact({ showcase }: { showcase: Showcase }) {
           iconEnd="external"
           onPress={() => Linking.openURL(`${WEB_APP_URL}/schaufenster/${showcase.id}/visitenkarte`).catch(() => {})}
         />
+        <Button label="Abbrechen" variant="ghost" onPress={onCancel} />
       </View>
     );
   }
@@ -265,8 +296,8 @@ function ManualContact({ showcase }: { showcase: Showcase }) {
 
   return (
     <View style={styles.panel}>
-      <TextField label="Name" value={name} onChangeText={setName} maxLength={80} />
-      <TextField label="Mail-Adresse" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} maxLength={254} />
+      <TextField label="Name" value={name} onChangeText={setName} maxLength={80} autoFocus {...NAME_FIELD} />
+      <TextField label="Mail-Adresse" value={email} onChangeText={setEmail} maxLength={254} {...EMAIL_FIELD} />
       <TextField label="Wo habt Ihr Euch getroffen?" value={place} onChangeText={setPlace} maxLength={120} helperText="Optional" />
       <TextField label="Notiz für Dich" value={note} onChangeText={setNote} multiline maxLength={500} helperText="Optional" />
       {isEmail(email) ? (
@@ -282,6 +313,7 @@ function ManualContact({ showcase }: { showcase: Showcase }) {
         disabled={!name.trim() || (!!email.trim() && !isEmail(email))}
         onPress={save}
       />
+      <Button label="Abbrechen" variant="ghost" onPress={onCancel} />
       <Text style={styles.meta}>{t('Der Kontakt wird in Deinem Adressbuch gespeichert. KiezCoins speichert ihn nicht.')}</Text>
       {result ? <Notice variant={result.ok ? undefined : 'warning'} message={result.message} onClose={() => setResult(null)} /> : null}
     </View>

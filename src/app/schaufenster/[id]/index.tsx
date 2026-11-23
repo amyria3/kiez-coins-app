@@ -40,7 +40,7 @@ import { useStore } from '../../../data/store';
 import { t } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 import { openInMaps, openLink, sharePlace } from '../../../lib/places';
-import { shareText } from '../../../lib/share';
+import { shareLink } from '../../../lib/share';
 import { color, radius, space, text, withAlpha } from '../../../theme/tokens';
 
 /**
@@ -252,7 +252,7 @@ export default function ShowcaseScreen() {
                 onPress={befriend}
               />
             ) : null}
-            {link ? <Pill label="Teilen" onPress={() => shareText(`${s.name}\n${link}`)} /> : null}
+            {link ? <Pill label="Teilen" onPress={() => shareLink({ title: s.name, text: s.name, url: link })} /> : null}
             {/* Digitale Visitenkarte für alle außerhalb des Teams (2026-11-23): Kontakt speichern, Kontakt schicken */}
             {link && !access.team ? (
               <Pill label="Visitenkarte" onPress={() => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id: s.id, von: 'schaufenster' } })} />
