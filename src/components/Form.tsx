@@ -202,6 +202,8 @@ export function SwitchRow({
   onValueChange,
   onDescriptionPress,
   required,
+  disabled,
+  whyDisabled,
 }: {
   label: string;
   description?: string;
@@ -211,7 +213,29 @@ export function SwitchRow({
   onDescriptionPress?: () => void;
   /** Pflichtangabe: Stern hinter der Bezeichnung */
   required?: boolean;
+  /** Ausgegraut: Der Schalter wirkt gerade nicht; ein Tipp auf die Zeile ruft `whyDisabled` (2026-11-23) */
+  disabled?: boolean;
+  whyDisabled?: () => void;
 }) {
+  if (disabled) {
+    return (
+      <Pressable
+        style={[styles.switchRow, styles.switchDisabled]}
+        onPress={whyDisabled}
+        accessibilityRole="switch"
+        accessibilityLabel={label}
+        accessibilityState={{ checked: value, disabled: true }}
+      >
+        <View style={styles.texts}>
+          <Text style={[text.body, { color: color.text.primary }]}>{label}</Text>
+          {description ? <Text style={[text.caption, { color: color.text.secondary }]}>{description}</Text> : null}
+        </View>
+        <View pointerEvents="none">
+          <Toggle label={label} value={value} onValueChange={() => {}} />
+        </View>
+      </Pressable>
+    );
+  }
   return (
     <View style={styles.switchRow}>
       <View style={styles.texts}>
@@ -668,6 +692,7 @@ export function PhotoPicker({
 }
 
 const styles = StyleSheet.create({
+  switchDisabled: { opacity: 0.45 },
   handTrack: { width: HAND_W, height: HAND_H },
   handKnob: { position: 'absolute', left: 0, top: (HAND_H - HAND_KH) / 2 },
   flex: { flex: 1 },

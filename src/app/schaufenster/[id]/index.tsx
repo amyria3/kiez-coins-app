@@ -172,7 +172,11 @@ export default function ShowcaseScreen() {
             ]
           : []),
         ...(access.founder
-          ? [{ label: 'Schaufenster bearbeiten', onPress: () => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id } }) }]
+          ? [
+              // Inhalte und Einstellungen getrennt (2026-11-23): Einstellungen stehen auf der Seite „Schaufenster“
+              { label: 'Inhalte bearbeiten', onPress: () => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id } }) },
+              { label: 'Einstellungen', onPress: () => router.push('/schaufenster') },
+            ]
           : []),
         // Digitale und druckbare Visitenkarte getrennt, damit Weitergeben und Drucken nicht verwechselt werden (2026-11-23)
         { label: 'Visitenkarte teilen', onPress: () => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id: s.id, von: 'verwaltung' } }) },
