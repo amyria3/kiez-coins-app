@@ -1,26 +1,29 @@
 // Eigene Ansicht der Visitenkarte: kiezcoins.de/s/<kurzname>/visitenkarte (Daria, 2026-11-23).
 //
-// Die Schaufenster-Seite zeigt nur noch die Karte und „Visitenkarte öffnen“. Diese Ansicht zeigt die Karte ohne
-// Instant-Code, dafür mit Kompetenzen & Services, Adresse, Öffnungszeiten und Kontakt (Entwurf C + D), darunter die
-// Knöpfe untereinander. Ist eine Option aufgeklappt, wird „Visitenkarte teilen“ zum Secondary-Knopf (Daria, 2026-11-23).
+// Die Schaufenster-Seite zeigt nur die Vorschau und „Visitenkarte öffnen“. Diese Ansicht zeigt die Karte ohne
+// QR-Code, dafür mit Kompetenzen & Services, Adresse, Öffnungszeiten und Kontakt (Entwurf C + D), darunter die
+// Knöpfe untereinander. Ist eine Option aufgeklappt, wird der Hauptknopf zum Secondary-Knopf (Daria, 2026-11-23).
 //
-// Wer über den Instant-Code der gedruckten Karte kommt (?via=karte), hat die Person getroffen. Nur dann fragt
-// „In Kontakte speichern“ nach dem Ort der Begegnung (Daria, 2026-11-23). „In Kontakte speichern“ liefert eine vCard
-// (POST /s/<kurzname>/kontakt.vcf). Ort und Notiz gehen im Formular mit, nicht in der Adresse, damit sie in keinem
-// Protokoll landen. KiezCoins speichert sie nicht.
+// Welche Knöpfe in welcher Reihenfolge erscheinen, entscheidet src/data/cardActions.mjs, dieselbe Regel wie in der
+// App (2026-11-23). Hier schaut immer ein Gast: kiezcoins.de kennt die Anmeldung der App nicht (app.kiezcoins.de).
+// Die Herkunft steht in der Adresse: ?via=karte nach dem QR-Code der Karte (die Person hat das Team getroffen),
+// ?von=schaufenster von der Schaufenster-Seite, sonst ein geteilter Link.
 //
-// Drucken und Herunterladen gibt es hier nicht: Das Team findet beides in der App unter „Schaufenster › Visitenkarte“
-// (Daria, 2026-11-23: „Herunterladen und PDF nur auf Desktop und für mich selbst“).
-// „Deinen Kontakt schicken“ und „Kontakte tauschen“ (Daria, 2026-11-23) gibt es nur nach dem Instant-Code der Karte und
-// nur, wenn das Schaufenster eine Kontakt-Mail hat. Die Edge Function visitenkarte-mail leitet die Angaben an diese
-// Mail weiter und schickt beim Tausch der Person die Visitenkarte; gespeichert wird nichts. Die Ansicht des Teams mit
-// „Link kopieren“ und eigenem Tausch liegt in der App (Schaufenster › Visitenkarte), weil kiezcoins.de die Anmeldung
-// der App nicht kennt.
+// Nach dem QR-Code der Karte fragt „In Kontakte speichern“ nach dem Ort der Begegnung, und „Deinen Kontakt schicken“
+// und „Kontakte tauschen“ erscheinen, wenn das Schaufenster eine Kontakt-Mail hat. „In Kontakte speichern“ liefert
+// eine vCard (POST /s/<kurzname>/kontakt.vcf). Ort und Notiz gehen im Formular mit, nicht in der Adresse, damit sie in
+// keinem Protokoll landen. Die Edge Function visitenkarte-mail leitet Kontakte an die Kontakt-Mail weiter und schickt
+// beim Tausch der Person die Visitenkarte; KiezCoins speichert nichts davon.
+//
+// Drucken gibt es hier nicht: Die druckbare Visitenkarte findet das Team in der Schaufenster-Verwaltung der App.
+// Die Ansicht zählt ihre Aufrufe und erhaltene Kontakte als Zahl pro Tag (count_showcase_visit, Migration
+// 20261123000100), per Skript im Browser: ohne Kennung, Cookie oder Speicher auf dem Gerät.
 
 // Nur der Kern von qrcode (ohne PNG-Ausgabe und fs), so läuft das Modul auch gebündelt in den Tests
 import QRCode from 'qrcode/lib/core/qrcode.js';
 
 import { icsFold, icsText } from './_kalender.mjs';
+import { cardActionLabel, cardActions, cardOrigin } from '../src/data/cardActions.mjs';
 
 const SITE = 'https://kiezcoins.de';
 
@@ -29,7 +32,7 @@ const esc = (s) =>
 
 const kurzLink = (url) => String(url).replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, '');
 
-/** Ziel des Instant-Codes: die Ansicht mit Kennung der persönlichen Begegnung */
+/** Ziel des QR-Codes: die Ansicht mit Kennung der persönlichen Begegnung */
 export const visitenkarteLink = (slug) => `${SITE}/s/${slug}/visitenkarte`;
 export const karteQrLink = (slug) => `${visitenkarteLink(slug)}?via=karte`;
 
@@ -102,7 +105,7 @@ export function vcard(s, { ort = '', notiz = '' } = {}, jetzt = new Date()) {
   return zeilen.filter(Boolean).map(icsFold).join('\r\n') + '\r\n';
 }
 
-/** Instant-Code als SVG, für „QR-Code zeigen“ */
+/** QR-Code als SVG, für „QR-Code zeigen“ */
 function qrSvg(url) {
   const qr = QRCode.create(url, { errorCorrectionLevel: 'M' });
   const n = qr.modules.size;
@@ -135,15 +138,96 @@ function karte(s, logo, kater) {
 }
 
 /**
- * Inhalt der Ansicht. `via` ist „karte“, wenn die Person über den Instant-Code gekommen ist.
- * `mailFunktion` und `schluessel` für „Per Mail schicken“ (Edge Function visitenkarte-mail).
+ * Inhalt der Ansicht. `via` ist „karte“, wenn die Person über den QR-Code der Karte gekommen ist, `von`
+ * „schaufenster“, wenn sie von der Schaufenster-Seite kam. `mailFunktion` und `schluessel` für die Mails (Edge
+ * Function visitenkarte-mail), `zaehlFunktion` für die Zahlen des Teams (count_showcase_visit).
  */
-export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schluessel }) {
-  const begegnung = via === 'karte';
-  // Kontakt schicken und tauschen: nur nach dem Instant-Code der Karte und mit Kontakt-Mail des Schaufensters
-  const tauschen = begegnung && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.email?.trim() ?? '');
+export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, schluessel, zaehlFunktion } = {}) {
+  const origin = cardOrigin({ via, von });
+  const begegnung = origin === 'card';
+  const knoepfe = cardActions({
+    viewer: 'guest',
+    origin,
+    hasContactMail: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.email?.trim() ?? ''),
+    canBefriend: !!s.freunde,
+  });
+  const beschriftung = (id) => esc(cardActionLabel(id, { name: s.name, viewer: 'guest', origin }));
   const einwilligung = `<label class="vk-c"><input type="checkbox" name="einwilligung" required><span>Ich willige ein, dass ${esc(s.name)} meine Angaben erhält. <a href="/datenschutz#visitenkarte">Datenschutz</a></span></label>`;
-  const app = `https://app.kiezcoins.de/schaufenster/${encodeURIComponent(s.id)}?folgen=1`;
+  const app = `https://app.kiezcoins.de/schaufenster/${encodeURIComponent(s.id)}`;
+  const knopfHtml = (id, haupt) => {
+    const k = `vk-k${haupt ? ' haupt' : ''}`;
+    const h = haupt ? ' data-haupt' : '';
+    switch (id) {
+      case 'share':
+        return `<button type="button" class="${k}" id="vk-teilen"${h}>${beschriftung(id)}</button>
+    <p class="vk-unter">AirDrop, Quick Share, Messenger</p>
+    <p class="vk-hinweis" id="vk-teilen-hinweis" role="status"></p>`;
+      case 'saveContact':
+        return `<button type="button" class="${k}"${h} aria-expanded="false" aria-controls="vk-p-speichern">${beschriftung(id)}</button>
+    <form class="vk-panel" id="vk-p-speichern" method="post" action="/s/${esc(s.slug)}/kontakt.vcf" hidden>
+      <p>${begegnung ? 'Ort und Notiz werden im Kontakt gespeichert.' : 'Die Notiz wird im Kontakt gespeichert.'}</p>
+      ${begegnung ? '<label class="vk-f"><span>Wo habt Ihr Euch getroffen? <small>optional</small></span><input name="ort" maxlength="120" placeholder="z. B. Flohmarkt am Kanal"></label><button type="button" class="vk-ort" data-ort>Aktuellen Ort einsetzen</button><p class="vk-klein" role="status" data-ort-hinweis></p>' : ''}
+      <label class="vk-f"><span>Notiz für Dich <small>optional</small></span><textarea name="notiz" maxlength="500" placeholder="Notiz"></textarea></label>
+      <button type="submit" class="vk-k haupt">Kontakt sichern</button>
+      <p class="vk-klein">Das Datum wird automatisch ergänzt. ${begegnung ? 'Ort und Notiz stehen' : 'Die Notiz steht'} nur in Deinem Adressbuch.</p>
+    </form>`;
+      case 'sendContact':
+        return `<button type="button" class="${k}"${h} aria-expanded="false" aria-controls="vk-p-schicken">${beschriftung(id)}</button>
+    <form class="vk-panel vk-kontakt" id="vk-p-schicken" novalidate hidden>
+      <p>${esc(s.name)} erhält Deine Kontaktdaten per Mail.</p>
+      <label class="vk-f"><span>Name</span><input name="name" autocomplete="name" required maxlength="80"></label>
+      <label class="vk-f"><span>Mail-Adresse</span><input type="email" name="email" autocomplete="email" required maxlength="254" placeholder="name@beispiel.de"></label>
+      <label class="vk-f"><span>Telefon <small>optional</small></span><input type="tel" name="phone" autocomplete="tel" maxlength="30"></label>
+      <label class="vk-f"><span>Wo habt Ihr Euch getroffen? <small>optional</small></span><input name="ort" maxlength="120" placeholder="z. B. Flohmarkt am Kanal"></label>
+      <label class="vk-f"><span>Nachricht <small>optional</small></span><textarea name="nachricht" maxlength="1000"></textarea></label>
+      <label class="vk-c"><input type="checkbox" name="karte" checked><span>Visitenkarte von ${esc(s.name)} per Mail erhalten</span></label>
+      ${einwilligung}
+      <input class="vk-falle" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit" class="vk-k haupt">Kontakt schicken</button>
+      <p class="vk-klein" role="status" data-hinweis></p>
+      <p class="vk-klein">KiezCoins leitet die Angaben weiter und speichert sie nicht.</p>
+    </form>`;
+      case 'exchange':
+        return `<button type="button" class="${k}"${h} aria-expanded="false" aria-controls="vk-p-tauschen">${beschriftung(id)}</button>
+    <form class="vk-panel vk-kontakt" id="vk-p-tauschen" novalidate hidden>
+      <p>Du erhältst den Kontakt von ${esc(s.name)}, ${esc(s.name)} erhält Deinen Kontakt.</p>
+      <label class="vk-f"><span>Name</span><input name="name" autocomplete="name" required maxlength="80"></label>
+      <label class="vk-f"><span>Mail-Adresse</span><input type="email" name="email" autocomplete="email" required maxlength="254" placeholder="name@beispiel.de"></label>
+      <label class="vk-f"><span>Wo habt Ihr Euch getroffen? <small>optional</small></span><input name="ort" maxlength="120" placeholder="z. B. Flohmarkt am Kanal"></label>
+      <input type="hidden" name="karte" value="1">
+      ${einwilligung}
+      <input class="vk-falle" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit" class="vk-k haupt">Kontakte tauschen</button>
+      <p class="vk-klein" role="status" data-hinweis></p>
+      <p class="vk-klein">KiezCoins leitet die Angaben weiter und speichert sie nicht.</p>
+    </form>`;
+      case 'qr':
+        return `<button type="button" class="${k}"${h} aria-expanded="false" aria-controls="vk-p-qr">${beschriftung(id)}</button>
+    <div class="vk-panel" id="vk-p-qr" hidden>
+      <p>Mit der Kamera scannen, um diese Visitenkarte zu öffnen.</p>
+      <div class="vk-qr">${qrSvg(karteQrLink(s.slug))}</div>
+    </div>`;
+      case 'mail':
+        return `<button type="button" class="${k}"${h} aria-expanded="false" aria-controls="vk-p-mail">${beschriftung(id)}</button>
+    <form class="vk-panel" id="vk-p-mail" novalidate hidden>
+      <label class="vk-f"><span>An welche Adresse?</span><input type="email" name="to" autocomplete="email" required maxlength="254" placeholder="name@beispiel.de"></label>
+      <label class="vk-f"><span>Dein Vorname <small>optional, steht in der Mail</small></span><input type="text" name="from" autocomplete="given-name" maxlength="30"></label>
+      <input class="vk-falle" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit" class="vk-k haupt">Visitenkarte schicken</button>
+      <p class="vk-klein" role="status" data-hinweis></p>
+      <p class="vk-klein">KiezCoins nutzt die Adresse nur für diese eine Mail und speichert sie nicht.</p>
+    </form>`;
+      // Folgen und Anfreunden in der App; ohne Konto geht es übers Onboarding und danach zurück (Daria, 2026-11-17)
+      case 'follow':
+        return `<a class="${k}"${h} href="${esc(app)}?folgen=1">${beschriftung(id)}</a>`;
+      case 'befriend':
+        return `<a class="${k}"${h} href="${esc(app)}?anfreunden=1">${beschriftung(id)}</a>`;
+      case 'showcase':
+        return `<a class="${k}"${h} href="/s/${esc(s.slug)}">${beschriftung(id)}</a>`;
+      default:
+        return '';
+    }
+  };
   return `<style>
 @font-face { font-family: Unbounded_500Medium; font-display: swap; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
 @font-face { font-family: Karla_400Regular; font-display: swap; src: url(/fonts/Karla_400Regular.ttf) format('truetype'); }
@@ -198,73 +282,26 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
   <h2 class="sf-abschnitt vk-titel">Visitenkarte</h2>
   ${karte(s, logo, kater)}
   <div class="vk-knoepfe">
-    <button type="button" class="vk-k haupt" id="vk-teilen">Visitenkarte teilen</button>
-    <p class="vk-unter">AirDrop, Quick Share, Messenger</p>
-    <p class="vk-hinweis" id="vk-teilen-hinweis" role="status"></p>
-
-    <button type="button" class="vk-k" aria-expanded="false" aria-controls="vk-p-speichern">In Kontakte speichern</button>
-    <form class="vk-panel" id="vk-p-speichern" method="post" action="/s/${esc(s.slug)}/kontakt.vcf" hidden>
-      <p>${begegnung ? 'Ort und Notiz werden im Kontakt gespeichert.' : 'Die Notiz wird im Kontakt gespeichert.'}</p>
-      ${begegnung ? '<label class="vk-f"><span>Wo habt Ihr Euch getroffen? <small>optional</small></span><input name="ort" maxlength="120" placeholder="z. B. Flohmarkt am Kanal"></label><button type="button" class="vk-ort" data-ort>Aktuellen Ort einsetzen</button><p class="vk-klein" role="status" data-ort-hinweis></p>' : ''}
-      <label class="vk-f"><span>Notiz für Dich <small>optional</small></span><textarea name="notiz" maxlength="500" placeholder="Notiz"></textarea></label>
-      <button type="submit" class="vk-k haupt">Kontakt sichern</button>
-      <p class="vk-klein">Das Datum wird automatisch ergänzt. ${begegnung ? 'Ort und Notiz stehen' : 'Die Notiz steht'} nur in Deinem Adressbuch.</p>
-    </form>
-
-    ${tauschen ? `<button type="button" class="vk-k" aria-expanded="false" aria-controls="vk-p-schicken">Deinen Kontakt schicken</button>
-    <form class="vk-panel vk-kontakt" id="vk-p-schicken" novalidate hidden>
-      <p>${esc(s.name)} erhält Deine Kontaktdaten per Mail.</p>
-      <label class="vk-f"><span>Name</span><input name="name" autocomplete="name" required maxlength="80"></label>
-      <label class="vk-f"><span>Mail-Adresse</span><input type="email" name="email" autocomplete="email" required maxlength="254" placeholder="name@beispiel.de"></label>
-      <label class="vk-f"><span>Telefon <small>optional</small></span><input type="tel" name="phone" autocomplete="tel" maxlength="30"></label>
-      <label class="vk-f"><span>Wo habt Ihr Euch getroffen? <small>optional</small></span><input name="ort" maxlength="120" placeholder="z. B. Flohmarkt am Kanal"></label>
-      <label class="vk-f"><span>Nachricht <small>optional</small></span><textarea name="nachricht" maxlength="1000"></textarea></label>
-      <label class="vk-c"><input type="checkbox" name="karte" checked><span>Visitenkarte von ${esc(s.name)} per Mail erhalten</span></label>
-      ${einwilligung}
-      <input class="vk-falle" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <button type="submit" class="vk-k haupt">Kontakt schicken</button>
-      <p class="vk-klein" role="status" data-hinweis></p>
-      <p class="vk-klein">KiezCoins leitet die Angaben weiter und speichert sie nicht.</p>
-    </form>
-
-    <button type="button" class="vk-k" aria-expanded="false" aria-controls="vk-p-tauschen">Kontakte tauschen</button>
-    <form class="vk-panel vk-kontakt" id="vk-p-tauschen" novalidate hidden>
-      <p>Du erhältst den Kontakt von ${esc(s.name)}, ${esc(s.name)} erhält Deinen Kontakt.</p>
-      <label class="vk-f"><span>Name</span><input name="name" autocomplete="name" required maxlength="80"></label>
-      <label class="vk-f"><span>Mail-Adresse</span><input type="email" name="email" autocomplete="email" required maxlength="254" placeholder="name@beispiel.de"></label>
-      <label class="vk-f"><span>Wo habt Ihr Euch getroffen? <small>optional</small></span><input name="ort" maxlength="120" placeholder="z. B. Flohmarkt am Kanal"></label>
-      <input type="hidden" name="karte" value="1">
-      ${einwilligung}
-      <input class="vk-falle" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <button type="submit" class="vk-k haupt">Kontakte tauschen</button>
-      <p class="vk-klein" role="status" data-hinweis></p>
-      <p class="vk-klein">KiezCoins leitet die Angaben weiter und speichert sie nicht.</p>
-    </form>
-` : ''}
-    <button type="button" class="vk-k" aria-expanded="false" aria-controls="vk-p-qr">QR-Code zeigen</button>
-    <div class="vk-panel" id="vk-p-qr" hidden>
-      <p>Mit der Kamera scannen, um diese Visitenkarte zu öffnen.</p>
-      <div class="vk-qr">${qrSvg(karteQrLink(s.slug))}</div>
-    </div>
-
-    <button type="button" class="vk-k" aria-expanded="false" aria-controls="vk-p-mail">Per Mail schicken</button>
-    <form class="vk-panel" id="vk-p-mail" novalidate hidden>
-      <label class="vk-f"><span>An welche Adresse?</span><input type="email" name="to" autocomplete="email" required maxlength="254" placeholder="name@beispiel.de"></label>
-      <label class="vk-f"><span>Dein Vorname <small>optional, steht in der Mail</small></span><input type="text" name="from" autocomplete="given-name" maxlength="30"></label>
-      <input class="vk-falle" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <button type="submit" class="vk-k haupt">Visitenkarte schicken</button>
-      <p class="vk-klein" role="status" data-hinweis></p>
-      <p class="vk-klein">KiezCoins nutzt die Adresse nur für diese eine Mail und speichert sie nicht.</p>
-    </form>
-
-    <a class="vk-k" href="${esc(app)}">${esc(s.name)} in KiezCoins folgen</a>
-    <a class="vk-k" href="/s/${esc(s.slug)}">Zurück zum Schaufenster</a>
+    ${knoepfe.map((x) => knopfHtml(x.id, x.primary)).join('\n\n    ')}
   </div>
 <script>
 (() => {
   const teilen = document.getElementById('vk-teilen');
+  const haupt = document.querySelector('[data-haupt]');
   const knoepfe = [...document.querySelectorAll('.vk-k[aria-controls]')];
-  // Eine Option aufgeklappt: „Teilen“ tritt als Secondary-Knopf zurück (Daria, 2026-11-23)
+  // Zahlen fürs Team (count_showcase_visit): Aufruf der Visitenkarte und erhaltene Kontakte, ohne Kennung
+  const zaehlen = (art) => {
+    const ziel = ${JSON.stringify(zaehlFunktion ?? '')};
+    if (!ziel) return;
+    fetch(ziel, {
+      method: 'POST',
+      keepalive: true,
+      headers: { apikey: ${JSON.stringify(schluessel ?? '')}, Authorization: 'Bearer ' + ${JSON.stringify(schluessel ?? '')}, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_slug: ${JSON.stringify(s.slug)}, p_kind: art }),
+    }).catch(() => {});
+  };
+  zaehlen('card');
+  // Eine Option aufgeklappt: Der Hauptknopf tritt als Secondary-Knopf zurück (Daria, 2026-11-23)
   for (const k of knoepfe) {
     k.addEventListener('click', () => {
       const auf = k.getAttribute('aria-expanded') !== 'true';
@@ -276,7 +313,7 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
         k.setAttribute('aria-expanded', 'true');
         document.getElementById(k.getAttribute('aria-controls')).hidden = false;
       }
-      teilen.classList.toggle('haupt', !auf);
+      if (haupt) haupt.classList.toggle('haupt', !auf);
     });
   }
   // Teilen über das Menü des Geräts (AirDrop, Quick Share, Messenger); ohne Menü den Link kopieren
@@ -387,6 +424,7 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
         });
         const r = await res.json().catch(() => ({}));
         if (r.ok) {
+          zaehlen('contact');
           hinweis.textContent = r.karte === false
             ? ${JSON.stringify(`${s.name} hat Deinen Kontakt erhalten. Die Visitenkarte konnte nicht verschickt werden.`)}
             : karte

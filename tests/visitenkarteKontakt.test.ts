@@ -60,7 +60,7 @@ describe('Visitenkarten-Ansicht', () => {
     assert.ok(!visitenkarteAnsicht(schaufenster, { ...opts, via: undefined }).includes('Wo habt Ihr Euch getroffen?'));
   });
 
-  it('Kontakt schicken und tauschen nur nach dem Instant-Code und mit Kontakt-Mail', () => {
+  it('Kontakt schicken und tauschen nur nach dem QR-Code der Karte und mit Kontakt-Mail', () => {
     const opts = { logo: null, kater: '', mailFunktion: 'https://x', schluessel: 'k' };
     const karte = visitenkarteAnsicht(schaufenster, { ...opts, via: 'karte' });
     assert.ok(karte.includes('Deinen Kontakt schicken'));
@@ -70,8 +70,34 @@ describe('Visitenkarten-Ansicht', () => {
     assert.ok(!visitenkarteAnsicht({ ...schaufenster, email: '' }, { ...opts, via: 'karte' }).includes('vk-p-tauschen'));
   });
 
-  it('der Instant-Code führt zur Ansicht mit Kennung der Karte', () => {
+  it('der QR-Code führt zur Ansicht mit Kennung der Karte', () => {
     assert.equal(karteQrLink('lindenhof-werkstatt'), 'https://kiezcoins.de/s/lindenhof-werkstatt/visitenkarte?via=karte');
+  });
+
+  it('Knöpfe nach derselben Regel wie in der App (src/data/cardActions.mjs)', () => {
+    const opts = { logo: null, kater: '', mailFunktion: 'https://x', schluessel: 'k' };
+    const knoepfe = (html: string) => [...html.matchAll(/class="vk-k(?: haupt)?"[^>]*>([^<]+)</g)].map((m) => m[1]);
+    // Nach dem QR-Code: speichern zuerst und als Hauptknopf, kein QR-Code
+    const karte = visitenkarteAnsicht(schaufenster, { ...opts, via: 'karte' });
+    assert.equal(knoepfe(karte)[0], 'In Kontakte speichern');
+    assert.ok(karte.includes('class="vk-k haupt" data-haupt aria-expanded="false" aria-controls="vk-p-speichern"'));
+    assert.ok(!karte.includes('vk-p-qr'));
+    // Über einen Link: Teilen zuerst, QR-Code ja, Kontakt schicken nein
+    const link = visitenkarteAnsicht(schaufenster, opts);
+    assert.equal(knoepfe(link)[0], 'Visitenkarte teilen');
+    assert.ok(link.includes('vk-p-qr') && !link.includes('vk-p-schicken'));
+    assert.ok(link.includes('>Zum Schaufenster<'));
+    // Von der Schaufenster-Seite: Rückweg heißt „Zurück zum Schaufenster“
+    assert.ok(visitenkarteAnsicht(schaufenster, { ...opts, von: 'schaufenster' }).includes('>Zurück zum Schaufenster<'));
+    // Folgen in der App, Anfreunden nur, wenn das Schaufenster es erlaubt
+    assert.ok(link.includes('?folgen=1') && !link.includes('?anfreunden=1'));
+    assert.ok(visitenkarteAnsicht({ ...schaufenster, freunde: true }, opts).includes('?anfreunden=1'));
+  });
+
+  it('zählt den Aufruf nur mit Zählfunktion', () => {
+    const opts = { logo: null, kater: '', mailFunktion: 'https://x', schluessel: 'k' };
+    assert.ok(visitenkarteAnsicht(schaufenster, { ...opts, zaehlFunktion: 'https://z/rpc' }).includes('"https://z/rpc"'));
+    assert.ok(visitenkarteAnsicht(schaufenster, opts).includes('const ziel = "";'));
   });
 });
 

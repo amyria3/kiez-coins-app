@@ -779,7 +779,7 @@ export type CardMailResult = 'ok' | 'email' | 'name' | 'limit' | 'not_found' | '
 
 /**
  * Visitenkarte per Mail aus der App (Daria, 2026-11-17: „auch hier schon … per Mail zeigen“). Dieselbe Edge Function
- * wie auf der öffentlichen Seite (`visitenkarte-mail`, #408): Mail von KiezKoins mit Karte, Instant-Code und Link
+ * wie auf der öffentlichen Seite (`visitenkarte-mail`, #408): Mail mit Karte, QR-Code und Link
  * zur Seite, dort geht das Anfreunden. Nur für Schaufenster, die öffentlich und online sind.
  */
 export async function sendCardMail(slug: string, to: string, from?: string): Promise<CardMailResult> {

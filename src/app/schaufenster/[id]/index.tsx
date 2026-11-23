@@ -33,6 +33,7 @@ import {
   type ShowcaseFriendResult,
   type ShowcasePost,
 } from '../../../data/showcase';
+import { countShowcaseVisit } from '../../../data/showcaseCard';
 import { useAuth } from '../../../data/auth';
 import { rememberInvite } from '../../../data/pendingInvite';
 import { useStore } from '../../../data/store';
@@ -64,6 +65,14 @@ export default function ShowcaseScreen() {
     });
   }, [id, currentUserId]);
   useFocusEffect(reload);
+
+  // Aufruf zählt für die Zusammenfassung des Teams (2026-11-23), einmal pro Öffnen; das Team selbst zählt nicht mit
+  const counted = useRef(false);
+  useEffect(() => {
+    if (!data || counted.current || data.access.team) return;
+    counted.current = true;
+    countShowcaseVisit(data.showcase.slug, 'page');
+  }, [data]);
 
   // Von der Webseite „<Name> in KiezCoins folgen“ (Daria, 2026-11-17): Ohne Anmeldung merkt sich die App das
   // Schaufenster fürs Onboarding und kommt danach hierher zurück. Angemeldet folgt sie einmal, ohne weiteren Tipp.
@@ -165,8 +174,9 @@ export default function ShowcaseScreen() {
         ...(access.founder
           ? [{ label: 'Schaufenster bearbeiten', onPress: () => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id } }) }]
           : []),
-        // Visitenkarte zum Teilen und Drucken (Daria, 2026-11-12)
-        { label: 'Visitenkarte', onPress: () => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id: s.id } }) },
+        // Digitale und druckbare Visitenkarte getrennt, damit Weitergeben und Drucken nicht verwechselt werden (2026-11-23)
+        { label: 'Visitenkarte teilen', onPress: () => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id: s.id, von: 'verwaltung' } }) },
+        { label: 'Druckbare Visitenkarte (PDF)', onPress: () => router.push({ pathname: '/schaufenster/[id]/druck', params: { id: s.id } }) },
       ]
     : [];
   // Fürs Team „<Gruppenname> Schaufenster“ statt „Dein Schaufenster“: Es gehört zur Gruppe, nicht zur Person (Daria, 2026-11-12)
@@ -243,6 +253,10 @@ export default function ShowcaseScreen() {
               />
             ) : null}
             {link ? <Pill label="Teilen" onPress={() => shareText(`${s.name}\n${link}`)} /> : null}
+            {/* Digitale Visitenkarte für alle außerhalb des Teams (2026-11-23): Kontakt speichern, Kontakt schicken */}
+            {link && !access.team ? (
+              <Pill label="Visitenkarte" onPress={() => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id: s.id, von: 'schaufenster' } })} />
+            ) : null}
           </View>
         </View>
 

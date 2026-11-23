@@ -36,12 +36,17 @@ type ButtonProps = {
   icon?: IconName;
   /** Icon waagerecht spiegeln (Hand nach links für „Zurück zum Feed“) */
   iconFlip?: boolean;
+  /**
+   * Icon hinter der Beschriftung (2026-11-23): zeigt, dass der Knopf weiterführt. `chevron-right` bleibt in der App,
+   * `external` öffnet den Browser.
+   */
+  iconEnd?: IconName;
   style?: StyleProp<ViewStyle>;
   /** Fokus beim Erscheinen auf diesen Button (Tastatur und Screenreader), z. B. „Weiter“ in der Tour */
   autoFocus?: boolean;
 };
 
-export function Button({ label: original, onPress: press, onPressIn, variant = 'primary', disabled: off, whyDisabled, busy, icon, iconFlip, style, autoFocus }: ButtonProps) {
+export function Button({ label: original, onPress: press, onPressIn, variant = 'primary', disabled: off, whyDisabled, busy, icon, iconFlip, iconEnd, style, autoFocus }: ButtonProps) {
   // Mit Erklärung bleibt der Button tippbar, sieht aber deaktiviert aus
   const explains = !!off && !!whyDisabled;
   const disabled = (off && !explains) || !!busy;
@@ -85,7 +90,10 @@ export function Button({ label: original, onPress: press, onPressIn, variant = '
           onPressIn={onPressIn}
           style={styles.glassInner}
         >
-          <Text style={[g.tint ? text.buttonDarkOnLight : text.buttonLightOnDark, { color: g.label }]}>{label}</Text>
+          <View style={styles.row}>
+            <Text style={[g.tint ? text.buttonDarkOnLight : text.buttonLightOnDark, { color: g.label }]}>{label}</Text>
+            {iconEnd ? <Icon name={iconEnd} size={20} color={g.label} /> : null}
+          </View>
         </Pressable>
       </Glass>
     );
@@ -105,6 +113,7 @@ export function Button({ label: original, onPress: press, onPressIn, variant = '
       <View style={styles.row}>
         {busy ? <GearsLoader size={22} tint={v.label} only={SMALL_GEARS} /> : icon ? <Icon name={icon} size={22} color={v.label} flip={iconFlip} /> : null}
         <Text style={[v.filled ? text.buttonDarkOnLight : text.buttonLightOnDark, { color: v.label }]}>{label}</Text>
+        {iconEnd ? <Icon name={iconEnd} size={20} color={v.label} /> : null}
       </View>
     </Pressable>
   );
