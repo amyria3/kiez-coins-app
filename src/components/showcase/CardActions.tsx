@@ -13,7 +13,7 @@ import { contactFileName, contactVcard } from '../../lib/contactCard';
 import { shareLink } from '../../lib/share';
 import { color, radius, space, text } from '../../theme/tokens';
 import { Button } from '../Button';
-import { Notice } from '../Content';
+import { Notice, QuestionHint } from '../Content';
 import { CheckOption, EMAIL_FIELD, NAME_FIELD, TextField } from '../Form';
 import { InviteQr } from '../InviteQr';
 import { scrollIntoView } from '../Nudge';
@@ -228,7 +228,10 @@ function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; 
         onPress={send}
       />
       <Button label="Abbrechen" variant="ghost" onPress={onCancel} />
-      <Text style={styles.meta}>{t('KiezCoins leitet die Angaben weiter und speichert sie nicht.')}</Text>
+      <QuestionHint
+        question={t('Was passiert mit meinen Angaben?')}
+        answer={t('KiezCoins schickt sie per Mail an {name} und speichert sie nicht.', { name: s.name })}
+      />
       {result ? <Notice variant={result.ok ? undefined : 'warning'} message={result.message} onClose={() => setResult(null)} /> : null}
     </View>
   );
@@ -238,6 +241,7 @@ function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; 
  * „Kontakt von Hand eintragen“ fürs Team (2026-11-23): Die Person steht vor einem, hat aber kein Handy zur Hand.
  * Es entsteht eine vCard auf dem Gerät, auf Wunsch geht die Digitale Visitenkarte per Mail an die Person. KiezCoins speichert
  * den Kontakt nicht. Die vCard entsteht im Browser; in der Android-App öffnet der Knopf dieselbe Seite im Browser.
+ * Wessen Kontakt gemeint ist, sagt ein Satz oben und die Frage unten (Daria, 2026-11-23: „wessen Kontakt?“).
  */
 function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: () => void }) {
   const [name, setName] = useState('');
@@ -296,6 +300,7 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
 
   return (
     <View style={styles.panel}>
+      <Text style={styles.body}>{t('Steht jemand ohne Handy vor Dir, trag die Person hier ein. Ihr Kontakt kommt in Dein Adressbuch.')}</Text>
       <TextField label="Name" value={name} onChangeText={setName} maxLength={80} autoFocus {...NAME_FIELD} />
       <TextField label="Mail-Adresse" value={email} onChangeText={setEmail} maxLength={254} {...EMAIL_FIELD} />
       <TextField label="Wo habt Ihr Euch getroffen?" value={place} onChangeText={setPlace} maxLength={120} helperText="Optional" />
@@ -314,7 +319,12 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
         onPress={save}
       />
       <Button label="Abbrechen" variant="ghost" onPress={onCancel} />
-      <Text style={styles.meta}>{t('Der Kontakt wird in Deinem Adressbuch gespeichert. KiezCoins speichert ihn nicht.')}</Text>
+      <QuestionHint
+        question={t('Wo landet der Kontakt, den ich hier eintrage?')}
+        answer={t(
+          'In Deinem Adressbuch: Dein Handy bietet an, die Person mit Name, Mail-Adresse, Treffpunkt und Notiz als neuen Kontakt anzulegen. KiezCoins speichert davon nichts. Die Mail-Adresse braucht KiezCoins nur, um ihr die Digitale Visitenkarte zu schicken.',
+        )}
+      />
       {result ? <Notice variant={result.ok ? undefined : 'warning'} message={result.message} onClose={() => setResult(null)} /> : null}
     </View>
   );
@@ -325,6 +335,5 @@ const styles = StyleSheet.create({
   item: { gap: space[12] },
   panel: { gap: space[16], padding: space[16], borderRadius: radius.md, backgroundColor: color.bg.surface },
   body: { ...text.body, color: color.text.primary },
-  meta: { ...text.caption, color: color.text.secondary },
   link: { ...text.caption, color: color.text.primary, textDecorationLine: 'underline' },
 });
