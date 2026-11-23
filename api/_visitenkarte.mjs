@@ -104,6 +104,7 @@ function qrSvg(url) {
 
 function karte(s, logo, kater) {
   const services = serviceListe(s.services);
+<<<<<<< HEAD
   // Alle Links des Schaufensters (Daria, 2026-11-23: „Auf der Visitenkarte selbst fehlen die ganzen Links“)
   const links = [...new Set([...(s.links ?? []), ...(s.website ? [s.website] : [])])].filter((l) => /^https:\/\//i.test(l));
   const zeile = (titel, wert) => `<div><p class="vk-lb">${titel}</p>${wert}</div>`;
@@ -111,15 +112,26 @@ function karte(s, logo, kater) {
     s.email?.trim() ? `<a href="mailto:${esc(s.email.trim())}">${esc(s.email.trim())}</a>` : '',
     ...links.map((l) => `<a href="${esc(l)}" rel="noopener nofollow">${esc(kurzLink(l))}</a>`),
   ].filter(Boolean);
+=======
+  const website = (s.links ?? []).find((l) => /^https:\/\//i.test(l));
+  const zeile = (titel, wert) => `<div><p class="vk-lb">${titel}</p>${wert}</div>`;
+>>>>>>> 5d295ba3873c8c5524a34dfa80cec47c91215ea3
   return `<div class="vk-karte">
     <div class="vk-marke">${logo ? `<img src="${esc(logo)}" alt="">` : `<span class="vk-kater">${kater}</span>`}SCHAUFENSTER</div>
     <div class="vk-name">${esc(s.name)}</div>
     ${s.kiez ? `<div class="vk-kiez">${esc(s.kiez)}</div>` : ''}
     <div class="vk-zeilen">
+<<<<<<< HEAD
       ${services.length ? `<div class="vk-chips" aria-label="Kompetenzen &amp; Services">${services.map((x) => `<span>${esc(x)}</span>`).join('')}</div>` : ''}
       ${s.address?.trim() ? zeile('Adresse', `<div class="vk-v">${esc(s.address.trim())}</div>`) : ''}
       ${s.opening_hours?.trim() ? zeile('Öffnungszeiten', `<div class="vk-v">${esc(s.opening_hours.trim())}</div>`) : ''}
       ${kontakt.length ? zeile('Kontakt', `<div class="vk-v vk-links">${kontakt.join('')}</div>`) : ''}
+=======
+      ${services.length ? zeile('Kompetenzen &amp; Services', `<div class="vk-chips">${services.map((x) => `<span>${esc(x)}</span>`).join('')}</div>`) : ''}
+      ${s.address?.trim() ? zeile('Adresse', `<div class="vk-v">${esc(s.address.trim())}</div>`) : ''}
+      ${s.opening_hours?.trim() ? zeile('Öffnungszeiten', `<div class="vk-v">${esc(s.opening_hours.trim())}</div>`) : ''}
+      ${s.email?.trim() || website ? zeile('Kontakt', `<div class="vk-v">${[s.email?.trim() ? `<a href="mailto:${esc(s.email.trim())}">${esc(s.email.trim())}</a>` : '', website ? `<a href="${esc(website)}" rel="noopener nofollow">${esc(kurzLink(website))}</a>` : ''].filter(Boolean).join('<br>')}</div>`) : ''}
+>>>>>>> 5d295ba3873c8c5524a34dfa80cec47c91215ea3
     </div>
   </div>`;
 }
@@ -138,11 +150,15 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
 @font-face { font-family: Unbounded_500Medium; font-display: swap; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
 @font-face { font-family: Karla_400Regular; font-display: swap; src: url(/fonts/Karla_400Regular.ttf) format('truetype'); }
 @font-face { font-family: Karla_500Medium; font-display: swap; src: url(/fonts/Karla_500Medium.ttf) format('truetype'); }
+<<<<<<< HEAD
 /* Kopf in einer Zeile: „Name @ KiezCoins“, wenig Platz nach oben (Daria, 2026-11-23) */
 .top { justify-content: flex-start; align-items: flex-end; flex-wrap: wrap; gap: 6px 10px; padding-top: 16px; margin-bottom: 12px; }
 .top .vk-wer { font: 600 22px/1.1 'Inter Tight', Inter, sans-serif; color: var(--text); overflow-wrap: anywhere; }
 .top .vk-at { font: 500 22px/1.1 'Inter Tight', Inter, sans-serif; color: var(--text); opacity: .6; }
 .geteilt h2.sf-abschnitt.vk-titel { margin-top: 8px; }
+=======
+.geteilt .vk-zurueck { display: inline-block; font-size: 16px; color: var(--text); text-decoration: none; margin: 4px 0 20px; }
+>>>>>>> 5d295ba3873c8c5524a34dfa80cec47c91215ea3
 .geteilt .vk-karte { max-width: 420px; background: #F0FFA6; border-radius: 12px; padding: 22px 22px 24px; box-sizing: border-box; color: #000027;
   font-family: Karla_400Regular, sans-serif; }
 .geteilt .vk-karte a { color: #000027; }
@@ -156,9 +172,14 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
 .geteilt .vk-zeilen:empty { display: none; }
 .geteilt .vk-lb { margin: 0 0 6px; font: 500 8px/1 Unbounded_500Medium, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
 .geteilt .vk-v { font-size: 14px; line-height: 1.45; white-space: pre-line; overflow-wrap: anywhere; }
+<<<<<<< HEAD
 .geteilt .vk-chips { display: flex; flex-flow: row wrap; gap: 6px; }
 .geteilt .vk-chips span { border: 1.5px solid #000027; border-radius: 999px; padding: 4px 9px; font: 500 12px/1.1 Karla_500Medium, sans-serif; }
 .geteilt .vk-links { display: flex; flex-direction: column; gap: 2px; }
+=======
+.geteilt .vk-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.geteilt .vk-chips span { border: 1.5px solid #000027; border-radius: 999px; padding: 5px 10px; font: 500 12px/1.1 Karla_500Medium, sans-serif; }
+>>>>>>> 5d295ba3873c8c5524a34dfa80cec47c91215ea3
 /* Knöpfe untereinander, gleich breit und hoch (Daria, 2026-11-23) */
 .geteilt .vk-knoepfe { display: flex; flex-direction: column; gap: 12px; max-width: 420px; margin: 24px 0 40px; }
 .geteilt .vk-k { display: flex; align-items: center; justify-content: center; width: 100%; box-sizing: border-box; min-height: 50px; padding: 13px 20px;
@@ -183,7 +204,12 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
 .geteilt .vk-c a { color: inherit; }
 .geteilt .vk-falle { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 </style>
+<<<<<<< HEAD
   <h2 class="sf-abschnitt vk-titel">Visitenkarte</h2>
+=======
+  <a class="vk-zurueck" href="/s/${esc(s.slug)}">‹ ${esc(s.name)}</a>
+  <h2 class="sf-abschnitt">Visitenkarte</h2>
+>>>>>>> 5d295ba3873c8c5524a34dfa80cec47c91215ea3
   ${karte(s, logo, kater)}
   <div class="vk-knoepfe">
     <button type="button" class="vk-k haupt" id="vk-teilen">Visitenkarte teilen</button>
@@ -246,7 +272,10 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
     </form>
 
     <a class="vk-k" href="${esc(app)}">${esc(s.name)} in KiezCoins folgen</a>
+<<<<<<< HEAD
     <a class="vk-k" href="/s/${esc(s.slug)}">Zurück zum Schaufenster</a>
+=======
+>>>>>>> 5d295ba3873c8c5524a34dfa80cec47c91215ea3
   </div>
 <script>
 (() => {
