@@ -13,6 +13,7 @@
 // Adressen für den QR-Code.
 
 import { showcaseVcard } from '../src/data/vcard.mjs';
+import { placeLine as ortZeile, serviceItems as serviceListe } from '../src/data/digitalCard.mjs';
 
 const SITE = 'https://kiezcoins.de';
 const APP = 'https://app.kiezcoins.de';
@@ -25,8 +26,6 @@ export const visitenkarteLink = (slug) => `${SITE}/s/${slug}/visitenkarte`;
 export const karteQrLink = (slug) => `${visitenkarteLink(slug)}?via=karte`;
 
 // Ortszeile und Services teilt die Digitale Visitenkarte der App (src/components/showcase/DigitalCard.tsx)
-import { placeLine as ortZeile, serviceItems as serviceListe } from '../src/data/digitalCard.mjs';
-
 export { ortZeile, serviceListe };
 
 /**
