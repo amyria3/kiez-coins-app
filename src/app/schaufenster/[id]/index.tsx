@@ -384,7 +384,8 @@ function infoCards(s: Showcase): InfoCardData[] {
   const address = s.address?.trim();
   if (address) {
     const [first, ...rest] = address.split(',');
-    cards.push({ id: 'ort', kicker: 'Ort', title: first.trim(), body: rest.join(',').trim() || undefined, icon: 'map-pin', address });
+    // „In Karten öffnen“ und „Ort teilen“ nur mit Punkt; ohne Punkt ist der Ort als Text gespeichert (2026-11-23)
+    cards.push({ id: 'ort', kicker: 'Ort', title: first.trim(), body: rest.join(',').trim() || undefined, icon: 'map-pin', address: s.coords ? address : undefined });
   }
   if (s.openingHours?.trim()) cards.push({ id: 'zeit', kicker: 'Öffnungszeiten', title: s.openingHours.trim(), icon: 'clock-filled' });
   // Termin buchen über Cal.com oder einen anderen Dienst (Daria, 2026-11-18); nur mit gültigem Link
