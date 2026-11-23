@@ -75,7 +75,7 @@ export default function ShowcaseBusinessCard() {
         <Notice
           message={
             data?.access.team
-              ? 'Die Digitale Visitenkarte gibt es, sobald Dein Schaufenster öffentlich und online ist. Das stellst Du auf der Seite „Schaufenster“ unter „Wer sieht das Schaufenster?“ ein.'
+              ? 'Die Digitale Visitenkarte gibt es, sobald Dein Schaufenster öffentlich und online ist. Öffentlich wird es auf der Seite „Schaufenster“ mit dem Schalter „Für alle sichtbar, auch im Web“.'
               : 'Zu diesem Schaufenster gibt es gerade keine Digitale Visitenkarte.'
           }
         />

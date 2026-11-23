@@ -194,7 +194,14 @@ export function RequiredMark() {
   );
 }
 
-/** Figma „SwitchRow“ mit dem System-Switch (Figma „Switch“ entspricht dem Plattformmuster). */
+/**
+ * Figma „SwitchRow“ mit dem System-Switch (Figma „Switch“ entspricht dem Plattformmuster).
+ *
+ * Regel für Schalter (Daria, 2026-11-23, UX/UI-Regeln › Schalter): Die Beschreibung sagt, was gerade gilt. Was es erst
+ * mit eingeschaltetem Schalter gibt (Fragen zum Ablauf, Felder, Einrichtung, weitere Schalter), steht in `children` und
+ * erscheint nur, solange er an ist und wirkt. So steht keine Frage unter einem Schalter, den sie gerade nicht betrifft.
+ * Ausgegraut (`disabled`) sagt die Beschreibung, warum.
+ */
 export function SwitchRow({
   label,
   description,
@@ -204,6 +211,7 @@ export function SwitchRow({
   required,
   disabled,
   whyDisabled,
+  children,
 }: {
   label: string;
   description?: string;
@@ -216,27 +224,27 @@ export function SwitchRow({
   /** Ausgegraut: Der Schalter wirkt gerade nicht; ein Tipp auf die Zeile ruft `whyDisabled` (2026-11-23) */
   disabled?: boolean;
   whyDisabled?: () => void;
+  /** Nur bei eingeschaltetem, wirksamem Schalter darunter: Fragen, Felder, Unter-Schalter */
+  children?: ReactNode;
 }) {
-  if (disabled) {
-    return (
-      <Pressable
-        style={[styles.switchRow, styles.switchDisabled]}
-        onPress={whyDisabled}
-        accessibilityRole="switch"
-        accessibilityLabel={label}
-        accessibilityState={{ checked: value, disabled: true }}
-      >
-        <View style={styles.texts}>
-          <Text style={[text.body, { color: color.text.primary }]}>{label}</Text>
-          {description ? <Text style={[text.caption, { color: color.text.secondary }]}>{description}</Text> : null}
-        </View>
-        <View pointerEvents="none">
-          <Toggle label={label} value={value} onValueChange={() => {}} />
-        </View>
-      </Pressable>
-    );
-  }
-  return (
+  const row = disabled ? (
+    <Pressable
+      style={[styles.switchRow, styles.switchDisabled]}
+      onPress={whyDisabled}
+      disabled={!whyDisabled}
+      accessibilityRole="switch"
+      accessibilityLabel={label}
+      accessibilityState={{ checked: value, disabled: true }}
+    >
+      <View style={styles.texts}>
+        <Text style={[text.body, { color: color.text.primary }]}>{label}</Text>
+        {description ? <Text style={[text.caption, { color: color.text.secondary }]}>{description}</Text> : null}
+      </View>
+      <View pointerEvents="none">
+        <Toggle label={label} value={value} onValueChange={() => {}} />
+      </View>
+    </Pressable>
+  ) : (
     <View style={styles.switchRow}>
       <View style={styles.texts}>
         <Text style={[text.body, { color: color.text.primary }]}>
@@ -255,6 +263,13 @@ export function SwitchRow({
         ) : null}
       </View>
       <Toggle label={label} value={value} onValueChange={onValueChange} />
+    </View>
+  );
+  if (!children) return row;
+  return (
+    <View style={styles.switchWithContent}>
+      {row}
+      {value && !disabled ? <View style={styles.switchContent}>{children}</View> : null}
     </View>
   );
 }
@@ -704,6 +719,9 @@ export function PhotoPicker({
 }
 
 const styles = StyleSheet.create({
+  // Inhalt eines eingeschalteten Schalters: gleicher Abstand wie zwischen Zeilen, Unter-Schalter leicht eingerückt
+  switchWithContent: { gap: space[12] },
+  switchContent: { gap: space[12], paddingLeft: space[16] },
   switchDisabled: { opacity: 0.45 },
   handTrack: { width: HAND_W, height: HAND_H },
   handKnob: { position: 'absolute', left: 0, top: (HAND_H - HAND_KH) / 2 },

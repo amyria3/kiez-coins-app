@@ -1875,5 +1875,9 @@
   "Alle Links: QR-Code scannen": "All links: scan the QR code",
   "Vorderseite der Druckbaren Visitenkarte": "Front of the Printable Business Card",
   "Rückseite der Druckbaren Visitenkarte": "Back of the Printable Business Card",
-  "Anfragen der Digitalen Visitenkarte": "Digital Business Card requests"
+  "Anfragen der Digitalen Visitenkarte": "Digital Business Card requests",
+  "Aufruf": "view",
+  "Aufrufe": "views",
+  "Lade sie mit Link, QR-Code oder Code in die Gruppe ein. Wer beitritt, steht danach hier mit einem Schalter.": "Invite them to the group with a link, QR code or code. Anyone who joins then appears here with a switch.",
+  "Für alle sichtbar, auch im Web": "Visible to everyone, also on the web"
 }
