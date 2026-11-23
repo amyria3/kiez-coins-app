@@ -672,7 +672,8 @@ const styles = StyleSheet.create({
   handKnob: { position: 'absolute', left: 0, top: (HAND_H - HAND_KH) / 2 },
   flex: { flex: 1 },
   link: { textDecorationLine: 'underline', color: color.text.primary },
-  field: { gap: space[6] },
+  // Label nah am Feld (Daria, 2026-11-23: Abstand zentral leicht verringern)
+  field: { gap: space[2] },
   fieldLabel: { ...text.caption, color: color.text.secondary },
   input: {
     ...text.body,

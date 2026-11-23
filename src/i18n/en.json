@@ -1854,5 +1854,12 @@
   "Wie bekomme ich einen Buchungslink?": "How do I get a booking link?",
   "Mit einem kostenlosen Konto bei Cal.com legst Du fest, wann man bei Dir Termine buchen kann. Den Link zu Deiner Buchungsseite trägst Du hier ein. Im Schaufenster steht dann „Termin buchen“. Andere Buchungsdienste gehen auch.": "With a free Cal.com account, you decide when people can book appointments with you. Enter the link to your booking page here. Your showcase then shows “Book an appointment”. Other booking services work too.",
   "Cal.com-Konto anlegen": "Create a Cal.com account",
-  "Freie Zeiten sehen und online buchen.": "See available times and book online."
+  "Freie Zeiten sehen und online buchen.": "See available times and book online.",
+  "Ohne Ort auf der Landkarte gespeichert: Deine Seite zeigt die Adresse als Text, ohne Kartenausschnitt, Kartenlink und Anfahrt.": "Saved without a map pin: your page shows the address as text, without a map, map link or directions.",
+  "Auf der Landkarte gefunden: {place}. Stimmt das?": "Found on the map: {place}. Is that right?",
+  "„{address}“ findet die Kartensuche nicht. Prüf die Schreibweise, oder speichere die Adresse als Text. Dann zeigt Deine Seite sie ohne Kartenausschnitt, Kartenlink und Anfahrt.": "The map search can’t find “{address}”. Check the spelling, or save the address as text. Your page will then show it without a map, map link or directions.",
+  "Die Kartensuche antwortet gerade nicht. Versuch es gleich noch mal, oder speichere die Adresse als Text.": "The map search isn’t responding right now. Try again in a moment, or save the address as text.",
+  "Ja, mit Kartenpunkt speichern": "Yes, save with map pin",
+  "Als Text speichern": "Save as text",
+  "Noch mal suchen": "Search again"
 }

@@ -291,7 +291,7 @@ export default function EditShowcase() {
             maxLength={160}
             helperText={
               !addressCheck && form.address.trim() && form.address.trim() === (showcase.address ?? '').trim() && !showcase.coords
-                ? 'Ohne Karte gespeichert: Deine Seite zeigt den Ort als Text, ohne Karte und Anfahrt.'
+                ? 'Ohne Ort auf der Landkarte gespeichert: Deine Seite zeigt die Adresse als Text, ohne Kartenausschnitt, Kartenlink und Anfahrt.'
                 : undefined
             }
           />
@@ -657,21 +657,21 @@ function AddressCheck({
   return (
     <View style={styles.addressCheck}>
       {check.status === 'found' ? (
-        <Notice message={t('Auf der Karte gefunden: {place}. Stimmt das?', { place: check.label })} onClose={onClose} />
+        <Notice message={t('Auf der Landkarte gefunden: {place}. Stimmt das?', { place: check.label })} onClose={onClose} />
       ) : check.status === 'notFound' ? (
         <Notice
           variant="warning"
-          message={t('„{address}“ findet die Karte nicht. Prüf die Schreibweise, oder speichere den Ort als Text. Dann zeigt Deine Seite ihn ohne Karte, Anfahrt und Kartenlink.', { address: check.address })}
+          message={t('„{address}“ findet die Kartensuche nicht. Prüf die Schreibweise, oder speichere die Adresse als Text. Dann zeigt Deine Seite sie ohne Kartenausschnitt, Kartenlink und Anfahrt.', { address: check.address })}
           onClose={onClose}
         />
       ) : (
         <Notice
           variant="warning"
-          message="Die Kartensuche antwortet gerade nicht. Versuch es gleich noch mal, oder speichere den Ort als Text."
+          message="Die Kartensuche antwortet gerade nicht. Versuch es gleich noch mal, oder speichere die Adresse als Text."
           onClose={onClose}
         />
       )}
-      {check.status === 'found' ? <Button label="Ja, mit Karte speichern" busy={busy} onPress={() => onSave(check.coords)} /> : null}
+      {check.status === 'found' ? <Button label="Ja, mit Kartenpunkt speichern" busy={busy} onPress={() => onSave(check.coords)} /> : null}
       {check.status === 'error' ? <Button label="Noch mal suchen" variant="secondary" busy={busy} onPress={onRetry} /> : null}
       <Button label="Als Text speichern" variant="secondary" disabled={busy} onPress={() => onSave(null)} />
     </View>
