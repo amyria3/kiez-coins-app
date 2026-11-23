@@ -158,6 +158,11 @@ export function CardActions({ showcase: s, viewer, origin, canBefriend, followin
                 <CardMailButton
                   showcase={s}
                   label={label(id)}
+                  intro={
+                    viewer === 'team'
+                      ? 'Schickt Eure Digitale Visitenkarte per Mail an die Adresse, die Du einträgst. Auf diesem Handy wird kein Kontakt gespeichert.'
+                      : 'Schickt diese Digitale Visitenkarte per Mail an die Adresse, die Du einträgst.'
+                  }
                   open={panel === 'mail'}
                   onOpenChange={(o) => setPanel(o ? 'mail' : null)}
                   askName={viewer !== 'team'}
@@ -267,7 +272,7 @@ function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; 
 }
 
 /**
- * „Kontakt von Hand eintragen“ fürs Team (2026-11-23): Die Person steht vor einem, hat aber kein Handy zur Hand.
+ * „Kontakt speichern und per Mail schicken“ fürs Team (2026-11-23, bis dahin „Kontakt von Hand eintragen“): Die Person steht vor einem, hat aber kein Handy zur Hand.
  * Es entsteht eine vCard auf dem Gerät, auf Wunsch geht die Digitale Visitenkarte per Mail an die Person. KiezCoins speichert
  * den Kontakt nicht. Die vCard entsteht im Browser; in der Android-App öffnet der Knopf dieselbe Seite im Browser.
  * Wessen Kontakt gemeint ist, sagt ein Satz oben und die Frage unten (Daria, 2026-11-23: „wessen Kontakt?“).
@@ -322,7 +327,7 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
 
   return (
     <View style={styles.panel}>
-      <Text style={styles.body}>{t('Steht jemand ohne Handy vor Dir, trag die Person hier ein. Ihr Kontakt kommt in Dein Adressbuch.')}</Text>
+      <Text style={styles.body}>{t('Speichert den Kontakt der Person auf diesem Handy und schickt ihr Eure Digitale Visitenkarte per Mail. Gut, wenn jemand ohne Handy vor Dir steht.')}</Text>
       <TextField label="Name" value={name} onChangeText={setName} maxLength={80} autoFocus {...NAME_FIELD} />
       <TextField label="Mail-Adresse" value={email} onChangeText={setEmail} maxLength={254} {...EMAIL_FIELD} />
       <PlaceField value={place} onChange={setPlace} />
