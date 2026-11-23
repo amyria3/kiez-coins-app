@@ -177,6 +177,9 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
 .geteilt .vk-c { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; line-height: 1.4; }
 .geteilt .vk-c input { width: 20px; height: 20px; margin: 1px 0 0; flex: none; accent-color: var(--text); }
 .geteilt .vk-c a { color: inherit; }
+.geteilt .vk-ort { align-self: flex-start; margin-top: -8px; padding: 0; border: 0; background: none; color: var(--text); font: 500 15px/1.3 Inter, sans-serif; text-decoration: underline; cursor: pointer; }
+.geteilt .vk-ort:disabled { opacity: .5; }
+.geteilt .vk-klein:empty { display: none; }
 .geteilt .vk-falle { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 </style>
   <h2 class="sf-abschnitt vk-titel">Visitenkarte</h2>
@@ -189,7 +192,7 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
     <button type="button" class="vk-k" aria-expanded="false" aria-controls="vk-p-speichern">In Kontakte speichern</button>
     <form class="vk-panel" id="vk-p-speichern" method="post" action="/s/${esc(s.slug)}/kontakt.vcf" hidden>
       <p>${begegnung ? 'Ort und Notiz werden im Kontakt gespeichert.' : 'Die Notiz wird im Kontakt gespeichert.'}</p>
-      ${begegnung ? '<label class="vk-f"><span>Wo habt Ihr Euch getroffen? <small>optional</small></span><input name="ort" maxlength="120" placeholder="z. B. Flohmarkt am Kanal"></label>' : ''}
+      ${begegnung ? '<label class="vk-f"><span>Wo habt Ihr Euch getroffen? <small>optional</small></span><input name="ort" maxlength="120" placeholder="z. B. Flohmarkt am Kanal"></label><button type="button" class="vk-ort" data-ort>Aktuellen Ort einsetzen</button><p class="vk-klein" role="status" data-ort-hinweis></p>' : ''}
       <label class="vk-f"><span>Notiz für Dich <small>optional</small></span><textarea name="notiz" maxlength="500" placeholder="Notiz"></textarea></label>
       <button type="submit" class="vk-k haupt">Kontakt sichern</button>
       <p class="vk-klein">Das Datum wird automatisch ergänzt. ${begegnung ? 'Ort und Notiz stehen' : 'Die Notiz steht'} nur in Deinem Adressbuch.</p>
@@ -305,6 +308,38 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
       senden.disabled = false;
     }
   });
+  // Ort der Begegnung automatisch (Daria, 2026-11-23): nur nach Tippen auf den Knopf. Der Browser fragt nach dem
+  // Standort; den auf etwa 100 m gerundeten Punkt übersetzt Nominatim von OpenStreetMap in einen Ort wie in der
+  // Web-App (src/data/location.ts). Das Feld bleibt änderbar, gespeichert wird nur, was darin steht.
+  const ortKnopf = document.querySelector('[data-ort]');
+  if (ortKnopf) {
+    const ortHinweis = document.querySelector('[data-ort-hinweis]');
+    const ortFeld = document.querySelector('#vk-p-speichern input[name="ort"]');
+    ortKnopf.addEventListener('click', () => {
+      if (!navigator.geolocation) { ortHinweis.textContent = 'Dein Browser kann den Standort nicht ermitteln.'; return; }
+      ortKnopf.disabled = true;
+      ortHinweis.textContent = 'Ort wird ermittelt …';
+      navigator.geolocation.getCurrentPosition(async (p) => {
+        try {
+          const lat = p.coords.latitude.toFixed(3), lon = p.coords.longitude.toFixed(3);
+          const res = await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&addressdetails=1&accept-language=de&lat=' + lat + '&lon=' + lon);
+          const r = await res.json();
+          const a = r.address || {};
+          const gegend = a.suburb || a.city_district || a.quarter || a.city || a.town || a.village || '';
+          const ort = [r.name || a.road || '', gegend].filter(Boolean).filter((x, i, l) => l.indexOf(x) === i).join(', ');
+          if (ort) { ortFeld.value = ort.slice(0, 120); ortHinweis.textContent = ''; }
+          else ortHinweis.textContent = 'Kein Ort gefunden. Bitte von Hand eintragen.';
+        } catch {
+          ortHinweis.textContent = 'Kein Ort gefunden. Bitte von Hand eintragen.';
+        } finally {
+          ortKnopf.disabled = false;
+        }
+      }, () => {
+        ortKnopf.disabled = false;
+        ortHinweis.textContent = 'Ohne Standortfreigabe bitte von Hand eintragen.';
+      }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
+    });
+  }
   // Kontakt schicken und Kontakte tauschen (Daria, 2026-11-23): dieselbe Edge Function mit art 'kontakt'
   const kontaktTexte = {
     email: 'Bitte prüfe die Mail-Adresse.',
