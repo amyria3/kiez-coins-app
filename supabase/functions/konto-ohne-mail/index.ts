@@ -25,7 +25,7 @@ async function ipHash(req: Request): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${pepper}:${ip}`));
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
-const SENDER = { name: 'KiezKoins', email: 'registration.noreply@kiezcoins.de' };
+const SENDER = { name: 'KiezCoins', email: 'registration.noreply@kiezcoins.de' };
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -45,7 +45,7 @@ async function sendCopy(to: string, handle: string, password: string): Promise<b
   const key = Deno.env.get('BREVO_API_KEY');
   if (!key) return false;
   const text =
-    `Ahoi!\n\nDu hast bei KiezKoins ein Konto ohne E-Mail angelegt. Damit meldest Du Dich an:\n\n` +
+    `Ahoi!\n\nDu hast bei KiezCoins ein Konto ohne E-Mail angelegt. Damit meldest Du Dich an:\n\n` +
     `Deckname: ${handle}\nPasswort: ${password}\n\n` +
     `Wir haben Deine Adresse nur für diese Mail genutzt und nicht gespeichert. ` +
     `Ohne E-Mail können wir Dir kein neues Passwort schicken. Hebe diese Mail also gut auf.\n\nCat The Käptn`;
@@ -55,7 +55,7 @@ async function sendCopy(to: string, handle: string, password: string): Promise<b
     body: JSON.stringify({
       sender: SENDER,
       to: [{ email: to }],
-      subject: 'Deine Zugangsdaten für KiezKoins',
+      subject: 'Deine Zugangsdaten für KiezCoins',
       textContent: text,
       htmlContent: `<pre style="font-family:inherit;white-space:pre-wrap">${escapeHtml(text)}</pre>`,
     }),

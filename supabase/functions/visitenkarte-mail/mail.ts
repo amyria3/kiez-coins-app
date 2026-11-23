@@ -173,7 +173,7 @@ export function cardMail(d: CardMailData, qr: QrMatrix, sender: string): { subje
   const join = d.appUrl
     ? `<tr><td style="font-family:${BODY};font-size:17px;line-height:25px;color:${INK};padding:0 4px 14px">Tritt der Community bei und abonniere das Schaufenster von ${name}.</td></tr>
   <tr><td style="padding:0 4px 28px">
-    <a href="${esc(d.appUrl)}" style="display:inline-block;background:${INK};color:${YELLOW};font-family:${BODY};font-size:16px;line-height:20px;font-weight:bold;text-decoration:none;padding:13px 26px;border-radius:999px">In KiezKoins abonnieren</a>
+    <a href="${esc(d.appUrl)}" style="display:inline-block;background:${INK};color:${YELLOW};font-family:${BODY};font-size:16px;line-height:20px;font-weight:bold;text-decoration:none;padding:13px 26px;border-radius:999px">In KiezCoins abonnieren</a>
   </td></tr>`
     : '';
   const web = `<a href="${esc(d.url)}" style="color:${INK}">Schaufenster</a>`;
@@ -202,7 +202,7 @@ export function cardMail(d: CardMailData, qr: QrMatrix, sender: string): { subje
   <tr><td style="font-family:${BODY};font-size:12px;line-height:18px;color:${MUTED};padding:24px 4px 0;text-align:center">
     Jemand hat diese Mail über <a href="${esc(d.url)}" style="color:${MUTED}">${esc(shortLink(d.url))}</a> an Dich geschickt.
     Deine Adresse haben wir nur für diese Mail genutzt und nicht gespeichert. Weitere Mails bekommst Du nicht.<br>
-    <a href="${SITE}" style="color:${MUTED}">KiezKoins</a> · <a href="${SITE}/impressum" style="color:${MUTED}">Impressum</a>
+    <a href="${SITE}" style="color:${MUTED}">KiezCoins</a> · <a href="${SITE}/impressum" style="color:${MUTED}">Impressum</a>
   </td></tr>
 </table>
 </td></tr></table>

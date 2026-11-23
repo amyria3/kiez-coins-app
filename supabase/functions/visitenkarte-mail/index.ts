@@ -31,7 +31,7 @@ import { cardMail, cleanSenderName, contactMail, isEmail, type CardMailData, typ
 
 const SITE = 'https://kiezcoins.de';
 // Dieselbe bei Brevo bestätigte Absenderadresse wie bei konto-ohne-mail
-const SENDER = { name: 'KiezKoins', email: 'registration.noreply@kiezcoins.de' };
+const SENDER = { name: 'KiezCoins', email: 'registration.noreply@kiezcoins.de' };
 const LIMITS = { deviceHour: 5, deviceDay: 20, recipientDay: 2, showcaseDay: 50, allHour: 30, allDay: 120, contactDay: 20 };
 
 const cors = {
