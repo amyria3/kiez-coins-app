@@ -9,6 +9,7 @@ import { hatTermine, schaufensterKalender } from './_kalender.mjs';
 import { buchungsLink } from './_buchung.mjs';
 import { anfahrtLink, hatPunkt, karteEinbetten, karteGross } from './_karte.mjs';
 import { oeffnungszeiten } from './_oeffnungszeiten.mjs';
+import { karteQrLink, vcard, visitenkarteAnsicht } from './_visitenkarte.mjs';
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://aqxzxpxrshizlaqyjplw.supabase.co';
 const SUPABASE_KEY = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? 'sb_publishable_WqrL7Y7Wm0l9cq4tHQpjAQ_iooAaNe0';
@@ -253,7 +254,10 @@ function eintrag(x) {
 // Visitenkarte zum Teilen und Drucken (Daria, 2026-11-12: „kann die Visitenkarte nicht teilen“). Dieselbe Karte wie in
 // der App unter Verwalten › Visitenkarte exportieren: website/visitenkarte.js aus src/lib/businessCardCanvas.ts.
 // Beim Teilen gehen Name, Adresse, Mail und Link als Text mit. Schriften unter den Namen, die die Zeichnung erwartet.
-function visitenkarte(s, links) {
+// Visitenkarte auf der Schaufenster-Seite: nur das Bild und „Visitenkarte öffnen“ (Daria, 2026-11-23). Teilen, Speichern,
+// QR-Code und Mail stehen in der eigenen Ansicht /s/<kurzname>/visitenkarte (api/_visitenkarte.mjs). Kam die Person
+// über den Instant-Code der Karte (?via=karte), geht die Kennung mit.
+function visitenkarte(s, links, via) {
   const daten = {
     name: s.name,
     kiez: s.kiez || undefined,
@@ -263,116 +267,34 @@ function visitenkarte(s, links) {
     services: s.services || undefined,
     links: links.filter((l) => /^https:\/\//i.test(l)),
     url: `${SITE}/s/${s.slug}`,
+    qrUrl: karteQrLink(s.slug),
     logoUri: foto(s.logo_path) ?? undefined,
   };
+  const ziel = `/s/${s.slug}/visitenkarte${via === 'karte' ? '?via=karte' : ''}`;
   return `<style>
 @font-face { font-family: Unbounded_500Medium; font-display: block; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
 @font-face { font-family: Karla_400Regular; font-display: block; src: url(/fonts/Karla_400Regular.ttf) format('truetype'); }
 @font-face { font-family: Karla_500Medium; font-display: block; src: url(/fonts/Karla_500Medium.ttf) format('truetype'); }
-.geteilt .sf-vk { margin: 0 0 56px; }
-.geteilt .sf-vk-bild { display: block; width: 100%; max-width: 420px; aspect-ratio: 85 / 55; border-radius: 10px; margin: 0 0 12px; }
-/* Knöpfe untereinander und zentriert, mehr Abstand zur Karte (Daria, 2026-11-17) */
-.geteilt .sf-vk-knoepfe { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 28px; max-width: 420px; }
-.geteilt .sf-vk .sf-vk-hinweis { max-width: 420px; text-align: center; }
-.geteilt .sf-vk button { cursor: pointer; }
-.geteilt .sf-vk .sf-vk-haupt { border: 0; border-radius: 999px; padding: 12px 22px; background: var(--text); color: var(--bg); font: 500 15px/1 Inter, sans-serif; letter-spacing: .01em; }
-.geteilt .sf-vk .sf-vk-neben { border: 0; background: none; padding: 8px 0; font: inherit; font-size: 15px; color: var(--text); text-decoration: underline; }
-.geteilt .sf-vk button:disabled { opacity: .5; cursor: default; }
-.geteilt .sf-vk-mail { display: flex; flex-direction: column; gap: 14px; max-width: 420px; margin-top: 20px; }
-.geteilt .sf-vk-mail[hidden] { display: none; }
-.geteilt .sf-vk-mail label { display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
-.geteilt .sf-vk-mail input { font: inherit; font-size: 16px; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); }
-.geteilt .sf-vk-mail .sf-vk-haupt { align-self: center; }
-.geteilt .sf-vk-mail p { margin: 0; }
-.geteilt .sf-vk-falle { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.geteilt .sf-vk { margin: 0 0 56px; max-width: 420px; }
+.geteilt .sf-vk-bild { display: block; width: 100%; aspect-ratio: 85 / 55; border-radius: 10px; margin: 0 0 24px; }
+.geteilt .sf-vk a.sf-vk-haupt { display: flex; align-items: center; justify-content: center; min-height: 50px; padding: 13px 20px; box-sizing: border-box;
+  border-radius: 999px; background: var(--text); color: var(--bg); font: 500 16px/1.25 Inter, sans-serif; letter-spacing: .01em; text-decoration: none; }
 </style>
   <h2 class="sf-abschnitt">Visitenkarte</h2>
   <section class="sf-vk" aria-label="Visitenkarte">
-    <img class="sf-vk-bild" alt="Visitenkarte von ${esc(s.name)}" hidden>
-    <div class="sf-vk-knoepfe">
-      <button type="button" class="sf-vk-haupt" data-vk="teilen" disabled>Visitenkarte teilen</button>
-      <button type="button" class="sf-vk-neben" data-vk="drucken" disabled>Drucken oder als PDF</button>
-      <button type="button" class="sf-vk-neben" data-vk="mail" aria-expanded="false" aria-controls="sf-vk-mail">Per Mail schicken</button>
-    </div>
-    <p class="sf-klein sf-vk-hinweis" hidden></p>
-    ${/* Visitenkarte per Mail (Daria, 2026-11-17): Edge Function visitenkarte-mail, Mail von KiezKoins mit Link und Karte als HTML.
-       Kein Freitext, nur ein optionaler Vorname; die Funktion begrenzt die Zahl der Mails. */ ''}<form class="sf-vk-mail" id="sf-vk-mail" hidden novalidate>
-      <label>An welche Adresse?<input type="email" name="to" autocomplete="email" required maxlength="254" placeholder="name@beispiel.de"></label>
-      <label><span>Dein Vorname <span class="sf-klein">(optional, steht in der Mail)</span></span><input type="text" name="from" autocomplete="given-name" maxlength="30"></label>
-      <input class="sf-vk-falle" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <button type="submit" class="sf-vk-haupt">Visitenkarte schicken</button>
-      <p class="sf-klein sf-vk-mail-hinweis" role="status"></p>
-      <p class="sf-klein">KiezKoins nutzt die Adresse nur für diese eine Mail und speichert sie nicht.</p>
-    </form>
+    <a href="${esc(ziel)}"><img class="sf-vk-bild" alt="Visitenkarte von ${esc(s.name)}" hidden></a>
+    <a class="sf-vk-haupt" href="${esc(ziel)}">Visitenkarte öffnen</a>
   </section>
 <script src="/visitenkarte.js" defer></script>
 <script>
 addEventListener('DOMContentLoaded', async () => {
   const VK = window.KiezVisitenkarte;
-  const box = document.querySelector('.sf-vk');
-  // Ohne Zeichnung fallen Bild, Teilen und Drucken weg; „Per Mail schicken“ bleibt, die Mail baut die Karte selbst
-  const ohneBild = () => box.querySelectorAll('[data-vk="teilen"], [data-vk="drucken"]').forEach((k) => (k.hidden = true));
-  if (!box) return;
-  if (!VK) return ohneBild();
-  const d = ${JSON.stringify(daten).replace(/</g, '\\u003c')};
-  const seiten = await VK.drawBusinessCard(d);
-  if (!seiten) return ohneBild();
-  const bild = box.querySelector('.sf-vk-bild');
+  const bild = document.querySelector('.sf-vk-bild');
+  if (!VK || !bild) return;
+  const seiten = await VK.drawBusinessCard(${JSON.stringify(daten).replace(/</g, '\\u003c')});
+  if (!seiten) return;
   bild.src = seiten.front.toDataURL('image/png');
   bild.hidden = false;
-  const hinweis = box.querySelector('.sf-vk-hinweis');
-  for (const b of box.querySelectorAll('button')) b.disabled = false;
-  if (!VK.canShareImages()) box.querySelector('[data-vk="teilen"]').textContent = 'Visitenkarte herunterladen';
-  box.querySelector('[data-vk="teilen"]').addEventListener('click', async () => {
-    const r = await VK.shareCard(seiten, d);
-    hinweis.hidden = r !== 'downloaded';
-    hinweis.textContent = 'Beide Seiten liegen jetzt in Deinen Downloads.';
-  });
-  box.querySelector('[data-vk="drucken"]').addEventListener('click', () => VK.printCard(seiten, d.name));
-});
-// Per Mail: unabhängig vom Zeichnen der Karte, die Mail baut die Karte selbst
-addEventListener('DOMContentLoaded', () => {
-  const knopf = document.querySelector('[data-vk="mail"]');
-  const form = document.getElementById('sf-vk-mail');
-  if (!knopf || !form) return;
-  knopf.disabled = false;
-  knopf.addEventListener('click', () => {
-    form.hidden = !form.hidden;
-    knopf.setAttribute('aria-expanded', String(!form.hidden));
-    if (!form.hidden) form.elements.to.focus();
-  });
-  const hinweis = form.querySelector('.sf-vk-mail-hinweis');
-  const texte = {
-    email: 'Bitte prüfe die Mail-Adresse.',
-    name: 'Beim Vornamen gehen nur Buchstaben, höchstens 30.',
-    limit: 'Für heute sind genug Mails verschickt. Probier es morgen wieder.',
-  };
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const to = form.elements.to.value.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) { hinweis.textContent = texte.email; return; }
-    const senden = form.querySelector('button[type="submit"]');
-    senden.disabled = true;
-    hinweis.textContent = 'Wird verschickt …';
-    try {
-      const res = await fetch(${JSON.stringify(`${SUPABASE_URL}/functions/v1/visitenkarte-mail`)}, {
-        method: 'POST',
-        headers: { apikey: ${JSON.stringify(SUPABASE_KEY)}, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug: ${JSON.stringify(s.slug)}, to, from: form.elements.from.value, website: form.elements.website.value }),
-      });
-      const r = await res.json().catch(() => ({}));
-      if (r.ok) {
-        hinweis.textContent = 'Die Visitenkarte ist unterwegs an ' + to + '.';
-        form.elements.to.value = '';
-      } else {
-        hinweis.textContent = texte[r.error] ?? 'Das hat nicht geklappt. Probier es gleich nochmal.';
-      }
-    } catch {
-      hinweis.textContent = 'Keine Verbindung. Probier es gleich nochmal.';
-    } finally {
-      senden.disabled = false;
-    }
-  });
 });
 </script>`;
 }
@@ -456,51 +378,8 @@ function buchungKnopf(s) {
   return `Freie Zeiten sehen und online buchen.<span class="sf-ort"><a class="sf-ort-haupt" href="${esc(buchungsLink(s))}" target="_blank" rel="noopener nofollow">Termin buchen</a></span>`;
 }
 
-function inhalt(s) {
-  if (!s) {
-    return `  <h1>Dieses Schaufenster gibt es nicht, oder es ist nicht öffentlich.</h1>
-  <p class="text">Vielleicht ist es nur für Eingeladene. Dann öffnest Du es in der App.</p>`;
-  }
-  const cover = foto(s.cover_path);
-  const logo = foto(s.logo_path);
-  // Angaben mit kleinen Überschriften, Zeilenumbrüche bleiben (Daria, 2026-11-12)
-  const fakt = (label, html) => `<div class="sf-fakt"><dt>${label}</dt><dd>${html}</dd></div>`;
-  // Leere Angaben fallen ganz weg statt „Noch keine …“, wie schon die E-Mail. Eine Einzelperson hat oft dauerhaft
-  // keine Adresse und keine Öffnungszeiten (Daria, 2026-11-17: „Ort und Öffnungszeiten verbergen wenn leer“).
-  const infos = [
-    // Adresse an die Karten-App oder ans Teilen-Menü (Daria, 2026-11-17: „in jedem Fall offen teilbar“)
-    s.address?.trim() ? fakt('Adresse', `${esc(s.address)}${ortKnoepfe(s)}${osmKarte(s)}`) : '',
-    s.opening_hours?.trim() ? fakt('Öffnungszeiten', esc(s.opening_hours)) : '',
-    // Termin buchen über Cal.com oder einen anderen Dienst (Daria, 2026-11-18); ohne Link keine Zeile
-    buchungsLink(s) ? fakt('Termin buchen', buchungKnopf(s)) : '',
-    // Abo nur, wenn es Termine gibt (Daria, 2026-11-18: leere Angaben fallen weg)
-    s.slug && hatTermine(s) ? fakt('Termine', aboKnoepfe(s)) : '',
-  ].join('');
-  // Mehrere Links (Migration 20261110000600); vorher nur die Webseite
-  const links = Array.isArray(s.links) && s.links.length ? s.links : s.website ? [s.website] : [];
-  const sichereLinks = links.filter((l) => /^https:\/\//i.test(l));
-  const web = sichereLinks.length
-    ? fakt(
-        sichereLinks.length > 1 ? 'Links' : 'Link',
-        sichereLinks
-          .map((l) => `<a href="${esc(l)}" rel="noopener nofollow">${esc(l.replace(/^https:\/\/(www\.)?/i, '').replace(/\/$/, ''))}</a>`)
-          .join('<br>'),
-      )
-    : '';
-  // Kontakt-Mail zum Antippen (Daria, 2026-11-17: „Dann bitte Mail einbinden“); ohne Mail keine Zeile
-  const mail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s.email ?? '')
-    ? fakt('E-Mail', `<a href="mailto:${esc(s.email)}">${esc(s.email)}</a>`)
-    : '';
-  const eintraege = (s.entries ?? []).map(eintrag).join('\n');
-  // Noch nichts gepostet: ein erster Post als Platzhalter. Den leeren Abschnitt „Termine“ gibt es nicht mehr
-  // (Daria, 2026-11-18: „Same ausblenden wenn nicht befüllt“)
-  const ohneEintraege = `<h2 class="sf-abschnitt">Posts</h2>
-  <div class="sf-liste"><article class="sf-karte sf-platzhalter" aria-label="Platzhalter">
-    <div class="sf-bild sf-verlauf" aria-hidden="true"></div><div class="sf-inhalt">
-      <p class="sf-art sf-post">Post</p>
-      <h2>Hier erscheint der erste Post</h2>
-      <p class="sf-text">Neuigkeiten, Angebote und Fotos aus dem Schaufenster.</p>
-    </div></article></div>`;
+// Grundstil der Schaufenster-Seite: Farbe des Schaufensters, Logo oben, Abschnitte. Auch für die Visitenkarten-Ansicht.
+function seitenStil(s) {
   return `<style>
 ${
   // Ohne eigene Farbe: neutral, ruhig und etwas elegant statt des blassen Lilas der Website (Daria, 2026-11-12,
@@ -611,7 +490,55 @@ ${
 .geteilt .sf-ende { margin-bottom: 40px; }
 .geteilt .sf-platzhalter { background: none; border: 1px dashed var(--muted); opacity: .75; }
 .geteilt .sf-platzhalter .sf-bild { opacity: .5; }
-</style>
+</style>`;
+}
+
+function inhalt(s, via) {
+  if (!s) {
+    return `  <h1>Dieses Schaufenster gibt es nicht, oder es ist nicht öffentlich.</h1>
+  <p class="text">Vielleicht ist es nur für Eingeladene. Dann öffnest Du es in der App.</p>`;
+  }
+  const cover = foto(s.cover_path);
+  const logo = foto(s.logo_path);
+  // Angaben mit kleinen Überschriften, Zeilenumbrüche bleiben (Daria, 2026-11-12)
+  const fakt = (label, html) => `<div class="sf-fakt"><dt>${label}</dt><dd>${html}</dd></div>`;
+  // Leere Angaben fallen ganz weg statt „Noch keine …“, wie schon die E-Mail. Eine Einzelperson hat oft dauerhaft
+  // keine Adresse und keine Öffnungszeiten (Daria, 2026-11-17: „Ort und Öffnungszeiten verbergen wenn leer“).
+  const infos = [
+    // Adresse an die Karten-App oder ans Teilen-Menü (Daria, 2026-11-17: „in jedem Fall offen teilbar“)
+    s.address?.trim() ? fakt('Adresse', `${esc(s.address)}${ortKnoepfe(s)}${osmKarte(s)}`) : '',
+    s.opening_hours?.trim() ? fakt('Öffnungszeiten', esc(s.opening_hours)) : '',
+    // Termin buchen über Cal.com oder einen anderen Dienst (Daria, 2026-11-18); ohne Link keine Zeile
+    buchungsLink(s) ? fakt('Termin buchen', buchungKnopf(s)) : '',
+    // Abo nur, wenn es Termine gibt (Daria, 2026-11-18: leere Angaben fallen weg)
+    s.slug && hatTermine(s) ? fakt('Termine', aboKnoepfe(s)) : '',
+  ].join('');
+  // Mehrere Links (Migration 20261110000600); vorher nur die Webseite
+  const links = Array.isArray(s.links) && s.links.length ? s.links : s.website ? [s.website] : [];
+  const sichereLinks = links.filter((l) => /^https:\/\//i.test(l));
+  const web = sichereLinks.length
+    ? fakt(
+        sichereLinks.length > 1 ? 'Links' : 'Link',
+        sichereLinks
+          .map((l) => `<a href="${esc(l)}" rel="noopener nofollow">${esc(l.replace(/^https:\/\/(www\.)?/i, '').replace(/\/$/, ''))}</a>`)
+          .join('<br>'),
+      )
+    : '';
+  // Kontakt-Mail zum Antippen (Daria, 2026-11-17: „Dann bitte Mail einbinden“); ohne Mail keine Zeile
+  const mail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s.email ?? '')
+    ? fakt('E-Mail', `<a href="mailto:${esc(s.email)}">${esc(s.email)}</a>`)
+    : '';
+  const eintraege = (s.entries ?? []).map(eintrag).join('\n');
+  // Noch nichts gepostet: ein erster Post als Platzhalter. Den leeren Abschnitt „Termine“ gibt es nicht mehr
+  // (Daria, 2026-11-18: „Same ausblenden wenn nicht befüllt“)
+  const ohneEintraege = `<h2 class="sf-abschnitt">Posts</h2>
+  <div class="sf-liste"><article class="sf-karte sf-platzhalter" aria-label="Platzhalter">
+    <div class="sf-bild sf-verlauf" aria-hidden="true"></div><div class="sf-inhalt">
+      <p class="sf-art sf-post">Post</p>
+      <h2>Hier erscheint der erste Post</h2>
+      <p class="sf-text">Neuigkeiten, Angebote und Fotos aus dem Schaufenster.</p>
+    </div></article></div>`;
+  return `${seitenStil(s)}
   ${cover ? `<img class="sf-cover sf-mit-logo" src="${esc(cover)}" alt="Titelbild von ${esc(s.name)}">` : '<div class="sf-cover sf-mit-logo sf-verlauf" aria-hidden="true"></div>'}
   <div class="sf-wer">${logo ? `<img class="sf-logo" src="${esc(logo)}" alt="Logo von ${esc(s.name)}">` : `<span class="sf-logo sf-kater">${KATER}</span>`}<h1 style="${titelGroesse(s.name)}">${esc(s.name)}</h1></div>
   ${s.kiez ? `<p class="wer">${esc(s.kiez)}</p>` : ''}
@@ -638,7 +565,7 @@ ${
   <div class="sf-ende"><p class="sf-klein" style="white-space: pre-line">${esc(s.imprint)}</p></div>`
       : ''
   }
-  ${/* Visitenkarte am Schluss der Seite (Daria, 2026-11-12) */ visitenkarte(s, links)}
+  ${/* Visitenkarte am Schluss der Seite (Daria, 2026-11-12) */ visitenkarte(s, links, via)}
 <script>
 (() => {
   // Name: die Schrift so weit verkleinern, dass das längste Wort in die Zeile passt (höchstens bis 16 px)
@@ -735,6 +662,41 @@ ${
 </script>`;
 }
 
+// Visitenkarten-Ansicht: eigener Titel, nicht in Suchmaschinen (der Inhalt steht schon auf der Schaufenster-Seite)
+function kopfVisitenkarte(s) {
+  const url = `${SITE}/s/${s.slug}/visitenkarte`;
+  return [
+    `<title>${esc(`Visitenkarte von ${s.name} – KiezCoins`)}</title>`,
+    `<link rel="canonical" href="${esc(url)}">`,
+    '<meta property="og:site_name" content="KiezCoins">',
+    `<meta property="og:title" content="${esc(`Visitenkarte von ${s.name}`)}">`,
+    `<meta property="og:url" content="${esc(url)}">`,
+  ].join('\n');
+}
+
+function kontaktDatei(s, slug, felder) {
+  if (!s) return new Response('Nicht gefunden', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+  return new Response(vcard(s, felder), {
+    headers: {
+      'Content-Type': 'text/vcard; charset=utf-8',
+      'Content-Disposition': `attachment; filename="${slug}.vcf"`,
+      // Enthält die eigene Notiz: nirgends zwischenspeichern
+      'Cache-Control': 'no-store',
+    },
+  });
+}
+
+// Formular „In Kontakte speichern“ (POST /s/<kurzname>/kontakt.vcf). Ort und Notiz kommen im Formular, nicht in der
+// Adresse, damit sie in keinem Protokoll stehen. KiezCoins speichert sie nicht.
+export async function POST(request) {
+  const url = new URL(request.url);
+  const slug = (url.searchParams.get('slug') ?? '').toLowerCase();
+  if (url.searchParams.get('format') !== 'vcf' || !SLUG.test(slug)) return new Response('Nicht gefunden', { status: 404 });
+  const form = await request.formData().catch(() => null);
+  const s = await ladeSchaufenster(slug);
+  return kontaktDatei(s, slug, { ort: form?.get('ort') ?? '', notiz: form?.get('notiz') ?? '' });
+}
+
 export async function GET(request) {
   const url = new URL(request.url);
   const slug = (url.searchParams.get('slug') ?? '').toLowerCase();
@@ -744,7 +706,11 @@ export async function GET(request) {
   // funktionieren und Suchmaschinen die neue Adresse übernehmen
   if (!s && SLUG.test(slug)) {
     const neu = await neuerKurzname(slug);
-    if (neu) return Response.redirect(new URL(`/s/${neu}${url.searchParams.get('format') === 'ics' ? '/termine.ics' : ''}`, url.origin), 301);
+    if (neu) {
+      const rest = { ics: '/termine.ics', vcf: '/kontakt.vcf' }[url.searchParams.get('format')] ?? (url.searchParams.get('ansicht') === 'visitenkarte' ? '/visitenkarte' : '');
+      const via = url.searchParams.get('via') === 'karte' ? '?via=karte' : '';
+      return Response.redirect(new URL(`/s/${neu}${rest}${via}`, url.origin), 301);
+    }
   }
 
   // Kalender-Abo der Termine: /s/<kurzname>/termine.ics (vercel.json)
@@ -760,16 +726,34 @@ export async function GET(request) {
     });
   }
 
+  // Kontakt als vCard: /s/<kurzname>/kontakt.vcf (Daria, 2026-11-23). GET liefert die Karte ohne Notiz, POST aus dem
+  // Formular der Visitenkarten-Ansicht mit Ort und Notiz.
+  if (url.searchParams.get('format') === 'vcf') return kontaktDatei(s, slug, {});
+
+  const via = url.searchParams.get('via') === 'karte' ? 'karte' : undefined;
+  const ansicht = url.searchParams.get('ansicht') === 'visitenkarte';
   const vorlage = await fetch(new URL('/teilen-vorlage', url.origin));
   if (!vorlage.ok) return new Response('Vorlage fehlt', { status: 500 });
   const seite = (await vorlage.text())
     // Öffentliche Schaufenster dürfen in Suchmaschinen erscheinen; die Vorlage sperrt das sonst (geteilte Posts, 404)
     .replace('<meta name="robots" content="noindex">', () =>
-      s ? '<meta name="robots" content="index, follow, max-image-preview:large">' : '<meta name="robots" content="noindex">',
+      s && !ansicht ? '<meta name="robots" content="index, follow, max-image-preview:large">' : '<meta name="robots" content="noindex">',
     )
-    .replace('<!--KOPF-->', () => kopf(s, `${SITE}/s/${slug}`))
-    .replace('<!--POST-->', () => inhalt(s))
-    .replace(/<div class="card">\s*<h3>Mach mit in Deinem Kiez\.<\/h3>[\s\S]*?<\/div>/, (karte) => (s ? mitmachen(s) : karte))
+    .replace('<!--KOPF-->', () => (ansicht && s ? kopfVisitenkarte(s) : kopf(s, `${SITE}/s/${slug}`)))
+    .replace('<!--POST-->', () =>
+      ansicht && s
+        ? seitenStil(s) +
+          visitenkarteAnsicht(s, {
+            via,
+            logo: foto(s.logo_path),
+            kater: KATER,
+            mailFunktion: `${SUPABASE_URL}/functions/v1/visitenkarte-mail`,
+            schluessel: SUPABASE_KEY,
+          })
+        : inhalt(s, via),
+    )
+    // Die Visitenkarten-Ansicht hat „Folgen“ in der Knopfliste und braucht den Fuß der Schaufenster-Seite nicht
+    .replace(/<div class="card">\s*<h3>Mach mit in Deinem Kiez\.<\/h3>[\s\S]*?<\/div>/, (karte) => (s ? (ansicht ? '' : mitmachen(s)) : karte))
     // Das Impressum des Schaufensters steht oben verlinkt; die Fußzeile nennt deshalb ausdrücklich das von KiezCoins
     // (Rechtsprüfung 11.11.2026)
     .replace('<a href="/impressum">Impressum</a>', () => (s?.imprint ? '<a href="/impressum">Impressum KiezCoins</a>' : '<a href="/impressum">Impressum</a>'));
