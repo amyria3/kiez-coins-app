@@ -434,7 +434,14 @@ export function CalendarSettings() {
               <Status label="Abo-Link aktiv" action={copied ? 'Kopiert' : 'Link kopieren'} onPress={copyLink} />
               <Text style={styles.lead}>Wähle Deinen Kalender:</Text>
               {PROVIDER_ORDER.map((p, i) => (
-                <Button key={p} label={PROVIDER_LABEL[p]} variant={i === 0 ? 'primary' : 'secondary'} onPress={() => subscribe(p)} />
+                // Google und Outlook öffnen eine Website, daher der Web-Pfeil; Apple öffnet die Kalender-App (Daria, 2026-11-23)
+                <Button
+                  key={p}
+                  label={PROVIDER_LABEL[p]}
+                  variant={i === 0 ? 'primary' : 'secondary'}
+                  iconEnd={p === 'apple' ? undefined : 'external'}
+                  onPress={() => subscribe(p)}
+                />
               ))}
               {opened ? (
                 <Notice

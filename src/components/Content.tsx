@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { Text } from './T';
 
 import { color, radius, space, stroke, text, withAlpha } from '../theme/tokens';
-import { t as translate, useTexts } from '../data/texts';
+import { isRtl, t as translate, useTexts } from '../data/texts';
 import { openLink } from '../lib/places';
 import { type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
@@ -220,11 +220,24 @@ export function CollapsibleSection({ label, collapsible, children }: { label: st
         style={({ pressed }) => [styles.collapseHead, pressed && { opacity: 0.6 }]}
       >
         <SectionLabel>{label}</SectionLabel>
-        <View style={[styles.collapseIcon, open && styles.collapseIconOpen]}>
-          <Icon name="chevron-right" size={20} color={color.text.primary} />
+        <View style={styles.collapseIcon}>
+          <CollapseArrow open={open} color={color.text.primary} />
         </View>
       </Pressable>
       {open ? children : null}
+    </View>
+  );
+}
+
+/**
+ * Pfeil für aufklappbare Abschnitte: der Pfeil nach rechts, gedreht. Zu zeigt er nach unten, offen nach oben
+ * (Daria, 2026-11-23). Der Pfeil nach rechts allein bleibt Knöpfen, die eine andere Seite öffnen.
+ */
+export function CollapseArrow({ open, color: tint }: { open: boolean; color: string }) {
+  return (
+    <View style={open ? styles.arrowUp : styles.arrowDown}>
+      {/* In Arabisch und Hebräisch nicht spiegeln, sonst zeigt der gedrehte Pfeil in die Gegenrichtung */}
+      <Icon name="chevron-right" size={20} color={tint} flip={isRtl()} />
     </View>
   );
 }
@@ -768,8 +781,8 @@ export function FieldGroup({
           <Text ref={heading ? sectionRef : undefined} style={[styles.groupLabel, large && styles.groupLabelLarge, heading && styles.groupHeading, styles.flex]}>
             {label}
           </Text>
-          <View style={[styles.groupToggleIcon, heading && styles.groupToggleIconHeading, open && styles.collapseIconOpen]}>
-            <Icon name="chevron-right" size={20} color={color.text.secondary} />
+          <View style={[styles.groupToggleIcon, heading && styles.groupToggleIconHeading]}>
+            <CollapseArrow open={!!open} color={color.text.secondary} />
           </View>
         </Pressable>
         {open ? children : closedHint ? <Text style={styles.groupHint}>{closedHint}</Text> : null}
@@ -795,7 +808,8 @@ const styles = StyleSheet.create({
   sectionBlock: { gap: space[12] },
   collapseHead: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: space[12] },
   collapseIcon: { paddingBottom: space[2] },
-  collapseIconOpen: { transform: [{ rotate: '90deg' }] },
+  arrowDown: { transform: [{ rotate: '90deg' }] },
+  arrowUp: { transform: [{ rotate: '-90deg' }] },
   groupToggle: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   groupHint: { ...text.caption, color: color.text.secondary },
   groupToggleIcon: {},
