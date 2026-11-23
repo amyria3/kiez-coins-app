@@ -291,8 +291,8 @@ function drawFront(d: CardData, a: Assets): { canvas: HTMLCanvasElement; service
 
 /**
  * Rückseite (Daria, 2026-11-23): wie erreiche ich sie. Dunkel, rechts oben der QR-Code zur Digitalen Visitenkarte mit
- * der Webadresse darunter, links Adresse, Öffnungszeiten, E-Mail und Links. Unter den Links steht, dass es alle über
- * den QR-Code gibt. Kein Kater: er verdeckte die Links.
+ * der Webadresse und den Öffnungszeiten darunter, links Adresse, E-Mail und Links. Unter den Links steht, dass es alle
+ * über den QR-Code gibt. Kein Kater: er verdeckte die Links.
  */
 function drawBack(d: CardData): { canvas: HTMLCanvasElement; links: number; linkRoom: number } {
   const canvas = document.createElement('canvas');
@@ -304,17 +304,42 @@ function drawBack(d: CardData): { canvas: HTMLCanvasElement; links: number; link
   ctx.textBaseline = 'alphabetic';
   ctx.textAlign = 'left';
 
-  // Rechts: QR-Code, darunter die Webadresse
+  // Rechts: QR-Code, darunter die Webadresse (rechtsbündig, notfalls kleiner, damit sie nicht mitten im Wort umbricht)
   const qrSize = 360;
   const qrX = CARD_W - PAD - qrSize;
+  const right = CARD_W - PAD;
   drawQr(ctx, d.qrUrl ?? d.url, qrX, PAD, qrSize);
   ctx.fillStyle = WHITE;
+  ctx.textAlign = 'right';
+  const web = shortLink(d.url);
+  const webW = qrSize + 60;
   ctx.font = `28px "${BODY_MEDIUM}"`;
-  ctx.textAlign = 'center';
-  let webLines = wrap(ctx, shortLink(d.url), qrSize + 40);
-  if (webLines.length > 2) webLines = clamp(ctx, webLines, 2, qrSize + 40);
-  webLines.forEach((l, i) => ctx.fillText(l, qrX + qrSize / 2, PAD + qrSize + 48 + i * 34));
+  const webSize = Math.max(20, Math.min(28, Math.floor((28 * webW) / ctx.measureText(web).width)));
+  ctx.font = `${webSize}px "${BODY_MEDIUM}"`;
+  const webLines = clamp(ctx, wrap(ctx, web, webW), 2, webW);
+  let ry = PAD + qrSize + 46;
+  for (const l of webLines) {
+    ctx.fillText(l, right, ry);
+    ry += 34;
+  }
   ctx.textAlign = 'left';
+
+  // Unter dem QR-Code die Öffnungszeiten, damit links Platz für die Links bleibt
+  const hours = d.openingHours?.trim();
+  if (hours) {
+    ry += 30;
+    ctx.font = `26px "${LABEL_FONT}"`;
+    ctx.fillStyle = YELLOW;
+    ctx.fillText(t('Öffnungszeiten').toUpperCase(), qrX, ry);
+    ry += 24 + 44;
+    ctx.font = `32px "${BODY_FONT}"`;
+    ctx.fillStyle = WHITE;
+    const hoursRoom = Math.max(1, Math.floor((CARD_H - PAD - ry) / 42) + 1);
+    for (const l of clamp(ctx, wrap(ctx, hours, qrSize), hoursRoom, qrSize)) {
+      ctx.fillText(l, qrX, ry);
+      ry += 42;
+    }
+  }
 
   // Links: eine Spalte neben dem QR-Code
   const x = PAD;
@@ -342,7 +367,6 @@ function drawBack(d: CardData): { canvas: HTMLCanvasElement; links: number; link
 
   const texts: { label: string; value?: string; max: number; fit?: boolean }[] = [
     { label: t('Adresse'), value: d.address, max: 3 },
-    { label: t('Öffnungszeiten'), value: d.openingHours, max: 4 },
     // Mail über den Links, eine Zeile, notfalls kleiner (Daria, 2026-11-17)
     { label: t('E-Mail'), value: d.email, max: 1, fit: true },
   ];
