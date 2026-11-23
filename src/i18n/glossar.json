@@ -79,5 +79,37 @@
     "uk": "кота",
     "ar": "القط",
     "he": "החתול"
+  },
+  "Digitale Visitenkarte": {
+    "en": "Digital Business Card",
+    "fr": "carte de visite numérique",
+    "ru": "цифровая визитка",
+    "uk": "цифрова візитка",
+    "ar": "بطاقة العمل الرقمية",
+    "he": "כרטיס ביקור דיגיטלי"
+  },
+  "Digitalen Visitenkarte": {
+    "en": "Digital Business Card",
+    "fr": "carte de visite numérique",
+    "ru": "цифровой визитки",
+    "uk": "цифрової візитки",
+    "ar": "بطاقة العمل الرقمية",
+    "he": "כרטיס ביקור דיגיטלי"
+  },
+  "Druckbare Visitenkarte": {
+    "en": "Printable Business Card",
+    "fr": "carte de visite imprimable",
+    "ru": "визитка для печати",
+    "uk": "візитка для друку",
+    "ar": "بطاقة العمل القابلة للطباعة",
+    "he": "כרטיס ביקור להדפסה"
+  },
+  "Druckbaren Visitenkarte": {
+    "en": "Printable Business Card",
+    "fr": "carte de visite imprimable",
+    "ru": "визитки для печати",
+    "uk": "візитки для друку",
+    "ar": "بطاقة العمل القابلة للطباعة",
+    "he": "כרטיס ביקור להדפסה"
   }
 }

@@ -739,14 +739,43 @@ export function FieldGroup({
   children,
   large,
   heading,
+  open,
+  onToggle,
+  closedHint,
 }: {
   label: string;
   children: ReactNode;
   large?: boolean;
   heading?: boolean;
+  /** Einklappbar (2026-11-23, Statistik im Schaufenster): mit `onToggle` wird die Überschrift ein Knopf mit Pfeil */
+  open?: boolean;
+  onToggle?: () => void;
+  /** Eingeklappt: eine Zeile unter der Überschrift, z. B. die wichtigsten Zahlen */
+  closedHint?: string;
 }) {
   // Abschnittsüberschriften melden sich beim Schnellsprung im Kopf an (SectionIndex.tsx, 2026-11-18)
   const sectionRef = useSectionHeading(label, !!heading);
+  if (onToggle) {
+    return (
+      <View style={styles.group}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ expanded: !!open }}
+          accessibilityLabel={translate(label)}
+          onPress={onToggle}
+          style={({ pressed }) => [styles.groupToggle, pressed && { opacity: 0.6 }]}
+        >
+          <Text ref={heading ? sectionRef : undefined} style={[styles.groupLabel, large && styles.groupLabelLarge, heading && styles.groupHeading, styles.flex]}>
+            {label}
+          </Text>
+          <View style={[styles.groupToggleIcon, heading && styles.groupToggleIconHeading, open && styles.collapseIconOpen]}>
+            <Icon name="chevron-right" size={20} color={color.text.secondary} />
+          </View>
+        </Pressable>
+        {open ? children : closedHint ? <Text style={styles.groupHint}>{closedHint}</Text> : null}
+      </View>
+    );
+  }
   return (
     <View style={styles.group}>
       <Text
@@ -767,6 +796,10 @@ const styles = StyleSheet.create({
   collapseHead: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: space[12] },
   collapseIcon: { paddingBottom: space[2] },
   collapseIconOpen: { transform: [{ rotate: '90deg' }] },
+  groupToggle: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
+  groupHint: { ...text.caption, color: color.text.secondary },
+  groupToggleIcon: {},
+  groupToggleIconHeading: { marginTop: space[20] - space[4] },
   qaOpen: { paddingBottom: CHAT_GAP_CHANGE - CHAT_GAP_SAME },
   afterSame: { marginTop: CHAT_GAP_SAME },
   afterChange: { marginTop: CHAT_GAP_CHANGE },

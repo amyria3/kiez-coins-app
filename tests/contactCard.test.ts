@@ -33,11 +33,11 @@ describe('Kontakt von Hand eintragen', () => {
 describe('Mail an das Team bei Kontakt über die Visitenkarte', () => {
   it('nennt die Angaben, maskiert HTML und sagt, ob die Karte rausging', () => {
     const m = contactMail('Lindenhof', 'https://kiezcoins.de/s/lindenhof', { name: 'Jana <b>', email: 'jana@example.org', place: 'Markt', cardSent: true }, '23.11.2026');
-    assert.equal(m.subject, 'Neuer Kontakt über Deine Visitenkarte: Jana <b>');
+    assert.equal(m.subject, 'Neuer Kontakt über Deine Digitale Visitenkarte: Jana <b>');
     assert.ok(m.html.includes('Jana &lt;b&gt;'));
     assert.ok(!m.html.includes('<b>'));
     assert.ok(m.text.includes('Kennengelernt: am 23.11.2026 bei Markt'));
-    assert.ok(m.text.includes('im selben Schritt Eure Visitenkarte'));
+    assert.ok(m.text.includes('im selben Schritt Eure Digitale Visitenkarte'));
     assert.ok(!m.text.includes('Telefon'));
   });
 });

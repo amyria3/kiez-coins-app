@@ -376,14 +376,26 @@ export function RadioOption({ label, selected, onPress }: { label: string; selec
 }
 
 /** Wie `RadioOption`, für Mehrfachauswahl: eckiges Kästchen mit Haken. */
-export function CheckOption({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+export function CheckOption({
+  label,
+  selected,
+  onPress,
+  disabled,
+}: {
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+  /** Ausgegraut, z. B. wenn auf der Druckbaren Visitenkarte kein Platz mehr ist (2026-11-23) */
+  disabled?: boolean;
+}) {
   const accent = useAccentColor();
   return (
     <Pressable
       accessibilityRole="checkbox"
-      accessibilityState={{ checked: selected }}
+      accessibilityState={{ checked: selected, disabled: !!disabled }}
       onPress={onPress}
-      style={[styles.radioOption, selected && { borderColor: accent }]}
+      disabled={disabled}
+      style={[styles.radioOption, selected && { borderColor: accent }, disabled && styles.switchDisabled]}
     >
       <View style={[styles.checkbox, selected && { borderColor: accent, backgroundColor: accent }]}>
         {selected ? <Icon name="check" size={14} color={color.bg.screen} /> : null}

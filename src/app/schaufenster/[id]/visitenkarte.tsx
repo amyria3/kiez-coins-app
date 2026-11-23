@@ -5,7 +5,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Notice } from '../../../components/Content';
 import { SubScreen } from '../../../components/Screen';
 import { CardActions } from '../../../components/showcase/CardActions';
-import { CardPreview } from '../../../components/showcase/CardPreview';
+import { DigitalCard } from '../../../components/showcase/DigitalCard';
 import { Text } from '../../../components/T';
 import { cardOrigin } from '../../../data/cardActions.mjs';
 import {
@@ -24,13 +24,13 @@ import { useGoBack } from '../../../lib/goBack';
 import { color, space, text } from '../../../theme/tokens';
 
 /**
- * Route `schaufenster/[id]/visitenkarte`: die digitale Visitenkarte in der App (2026-11-23). Oben dieselbe Vorschau
+ * Route `schaufenster/[id]/visitenkarte`: die Digitale Visitenkarte in der App (2026-11-23). Oben dieselbe Vorschau
  * wie in der Linkvorschau der Messenger, darunter die Weiterleitungsoptionen (components/showcase/CardActions.tsx,
  * Regel in data/cardActions.mjs).
  * - Team: weitergeben (Teilen, Link kopieren, QR-Code, Mail) und Kontakte von Hand eintragen.
  * - Mitglieder: Kontakt speichern, Kontakt schicken oder tauschen (Name und Mail aus dem Profil), folgen, anfreunden.
  * `?von=schaufenster` heißt: aus dem Schaufenster gekommen, dann führt der letzte Knopf dorthin zurück.
- * Die druckbare Visitenkarte hat ihren eigenen Bildschirm (`schaufenster/[id]/druck`).
+ * Die Druckbare Visitenkarte hat ihren eigenen Bildschirm (`schaufenster/[id]/druck`).
  */
 export default function ShowcaseBusinessCard() {
   const { id, von } = useLocalSearchParams<{ id: string; von?: string }>();
@@ -53,7 +53,7 @@ export default function ShowcaseBusinessCard() {
     acceptsFriends(id).then(setFriendable, () => setFriendable(false));
   }, [currentUserId, id]);
 
-  // Aufruf der Visitenkarte zählt einmal pro Öffnen; das Team zählt bei sich nicht mit (prüft die Datenbank)
+  // Aufruf der Digitalen Visitenkarte zählt einmal pro Öffnen; das Team zählt bei sich nicht mit (prüft die Datenbank)
   const counted = useRef(false);
   useEffect(() => {
     if (!data || counted.current || data.access.team) return;
@@ -63,7 +63,7 @@ export default function ShowcaseBusinessCard() {
 
   if (data === undefined) {
     return (
-      <SubScreen title="Visitenkarte" navigation="back" onLeadingPress={goBack}>
+      <SubScreen title="Digitale Visitenkarte" navigation="back" onLeadingPress={goBack}>
         <ActivityIndicator color={color.text.secondary} />
       </SubScreen>
     );
@@ -71,12 +71,12 @@ export default function ShowcaseBusinessCard() {
   const shareable = !!data && data.showcase.visibility === 'public' && data.showcase.switches.online;
   if (!data || !shareable) {
     return (
-      <SubScreen title="Visitenkarte" navigation="back" onLeadingPress={goBack}>
+      <SubScreen title="Digitale Visitenkarte" navigation="back" onLeadingPress={goBack}>
         <Notice
           message={
             data?.access.team
-              ? 'Die Visitenkarte gibt es, sobald Dein Schaufenster öffentlich und online ist. Das stellst Du auf der Seite „Schaufenster“ unter „Wer sieht das Schaufenster?“ ein.'
-              : 'Zu diesem Schaufenster gibt es gerade keine Visitenkarte.'
+              ? 'Die Digitale Visitenkarte gibt es, sobald Dein Schaufenster öffentlich und online ist. Das stellst Du auf der Seite „Schaufenster“ unter „Wer sieht das Schaufenster?“ ein.'
+              : 'Zu diesem Schaufenster gibt es gerade keine Digitale Visitenkarte.'
           }
         />
       </SubScreen>
@@ -114,12 +114,12 @@ export default function ShowcaseBusinessCard() {
   };
 
   return (
-    <SubScreen title="Visitenkarte" navigation="back" onLeadingPress={goBack}>
+    <SubScreen title="Digitale Visitenkarte" navigation="back" onLeadingPress={goBack}>
       <View style={styles.page}>
-        <CardPreview showcase={s} />
+        <DigitalCard showcase={s} />
         {team ? (
           <Text style={styles.body}>
-            {t('So sieht Eure digitale Visitenkarte aus, auch in der Vorschau, wenn Ihr den Link teilt. Ändern kannst Du die Angaben unter „Inhalte bearbeiten“.')}
+            {t('So sieht Eure Digitale Visitenkarte aus. Ändern kannst Du die Angaben unter „Inhalte bearbeiten“.')}
           </Text>
         ) : null}
         {notice ? <Notice variant={notice.ok ? undefined : 'warning'} message={notice.message} onClose={() => setNotice(null)} /> : null}

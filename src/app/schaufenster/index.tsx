@@ -8,11 +8,9 @@ import { Button } from '../../components/Button';
 import { Explanation, FieldGroup, Notice, QuestionHint } from '../../components/Content';
 import { SwitchRow, TextField } from '../../components/Form';
 import { NavigationBar } from '../../components/NavigationBar';
-import { NavGroup, NavGroupRow } from '../../components/Rows';
-import { Icon } from '../../components/icons/Icon';
 import { SubScreen } from '../../components/Screen';
 import { Text } from '../../components/T';
-import { CardPreview } from '../../components/showcase/CardPreview';
+import { DigitalCard } from '../../components/showcase/DigitalCard';
 import { ShowcaseSummary } from '../../components/showcase/ShowcaseSummary';
 import { ShowcaseFunctions } from '../../components/showcase/ShowcaseFunctions';
 import { ShowcaseSettingsRows, type SettingsArea } from '../../components/showcase/ShowcaseSettingsRows';
@@ -326,20 +324,8 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
           <ShowcaseHints showcase={s} />
           {s.cover ? <Image source={s.cover} style={styles.cover} contentFit="cover" /> : null}
           {!s.switches.online ? <Notice variant="warning" message="Dieses Schaufenster ist offline." /> : null}
-          {/* Reihenfolge (2026-11-23): Zusammenfassung, Inhalte bearbeiten (nur Texte und Bilder), Posten, die Seite selbst,
-              die digitale Visitenkarte und getrennt davon die druckbare Karte, dann Funktionen (Schalter) und Einstellungen. */}
-          <ShowcaseSummary showcaseId={s.id} />
-          {s.founder ? (
-            <NavGroup>
-              <NavGroupRow
-                title="Inhalte bearbeiten"
-                description="Texte und Bilder"
-                leading={<Icon name="village" size={16} color={color.accountCards.ink} />}
-                background={color.accountCards.showcase}
-                onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id } })}
-              />
-            </NavGroup>
-          ) : null}
+          {/* Reihenfolge (Daria, 2026-11-23): zuerst Posten, dann die Statistik (eingeklappt), dann die Seite selbst mit
+              „Inhalte bearbeiten“, die digitale und getrennt davon die Druckbare Visitenkarte, Funktionen und Einstellungen. */}
           {s.switches.posten ? (
             <FieldGroup heading label="Posten">
               <View style={styles.list}>
@@ -348,11 +334,21 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               </View>
             </FieldGroup>
           ) : null}
+          <ShowcaseSummary showcaseId={s.id} />
           <FieldGroup heading label="Deine Seite">
             {/* Zwei Ansichten: in der App wie ein KiezCoins-Mitglied, im Web wie jede Besucher:in unter kiezcoins.de/s/….
                 Ansehen ist eine Handlung (Secondary-Button); der Pfeil zeigt, wohin es geht: `chevron-right` bleibt in der
                 App, `external` öffnet den Browser (2026-11-23). Die Webseite gibt es nur öffentlich und online. */}
             <View style={styles.list}>
+              {/* Nur Texte und Bilder; Einstellungen stehen unten (2026-11-23) */}
+              {s.founder ? (
+                <Button
+                  label="Inhalte bearbeiten"
+                  variant="secondary"
+                  iconEnd="chevron-right"
+                  onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id } })}
+                />
+              ) : null}
               <Button
                 label="Schaufenster in der App"
                 variant="secondary"
@@ -379,13 +375,13 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               />
             ) : null}
           </FieldGroup>
-          {/* Digitale Visitenkarte: eine Vorschau (dasselbe Bild wie in der Linkvorschau der Messenger) und der Weg zu
-              ihren Weiterleitungsoptionen. Nur bei „Alle“ und online, sonst gibt es die Seite im Web nicht. */}
+          {/* Digitale Visitenkarte: die ganze Karte mit allen Angaben (Daria, 2026-11-23) und der Weg zu ihren
+              Weiterleitungsoptionen. Nur bei „Alle“ und online, sonst gibt es die Seite im Web nicht. */}
           {canShare(s) ? (
             <FieldGroup heading label="Digitale Visitenkarte">
               <View style={styles.list}>
-                <CardPreview showcase={s} onPress={() => openCard(s.id)} />
-                <Button label="Visitenkarte teilen" iconEnd="chevron-right" onPress={() => openCard(s.id)} />
+                <DigitalCard showcase={s} onPress={() => openCard(s.id)} />
+                <Button label="Digitale Visitenkarte teilen" iconEnd="chevron-right" onPress={() => openCard(s.id)} />
               </View>
             </FieldGroup>
           ) : null}
@@ -396,8 +392,8 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
             <FieldGroup heading label="Druckbare Visitenkarte">
               <View style={styles.list}>
                 <Explanation
-                  question="Wozu die druckbare Visitenkarte?"
-                  answer="Zum Ausdrucken und Verteilen: eine Karte aus Papier im Format 85 × 55 mm. Der QR-Code darauf öffnet Eure digitale Visitenkarte."
+                  question="Wozu die Druckbare Visitenkarte?"
+                  answer="Zum Ausdrucken und Verteilen: eine Karte aus Papier im Format 85 × 55 mm. Der QR-Code darauf öffnet Eure Digitale Visitenkarte."
                 />
                 <Button
                   label="Druckbare Visitenkarte (PDF)"

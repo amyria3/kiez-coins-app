@@ -17,9 +17,9 @@ export function setCardTranslator(fn: (s: string) => string): void {
 }
 
 /**
- * Visitenkarte des Schaufensters (Daria, 2026-11-12): Der Laden exportiert sie aus „Verwalten“, als Bild zum Teilen
- * und als PDF zum Drucken. Vorne Name, Kiez, QR-Code und Webadresse, hinten Adresse, Öffnungszeiten, Services
- * und Links. Optik wie der Kater-Avatar (Bildmarke): Gelbgrün #F0FFA6, Linienfarbe #000027, Titel in der Unbounded.
+ * Druckbare Visitenkarte des Schaufensters (Daria, 2026-11-12): als Bilder zum Teilen und als PDF zum Drucken.
+ * Vorne Name, Kiez, Logo und Services, hinten QR-Code mit Webadresse, Adresse, Öffnungszeiten, E-Mail und Links
+ * (Daria, 2026-11-23). Optik wie der Kater-Avatar (Bildmarke): Gelbgrün #F0FFA6, Linienfarbe #000027, Titel in der Unbounded.
  *
  * Nur im Browser (App im Web und öffentliche Seite kiezcoins.de/s/…, gebaut nach website/visitenkarte.js): Beide Seiten werden auf ein Canvas gezeichnet, im Format 85 × 55 mm (Scheckkarte) mit 15 Pixeln pro
  * Millimeter, also etwa 380 dpi. Das PDF hat zwei Seiten in genau dieser Größe, so nimmt es jede Druckerei.
@@ -190,8 +190,33 @@ function drawQr(ctx: Ctx, value: string, x: number, y: number, size: number) {
 
 type Assets = { logo: HTMLImageElement | null };
 
-/** Vorderseite: Gelbgrün, Logo (falls vorhanden), Name groß, Kiez, rechts der QR-Code mit Webadresse */
-function drawFront(d: CardData, a: Assets): HTMLCanvasElement {
+/**
+ * Wie viele Links und Services ganz auf der Karte stehen, in ihrer Reihenfolge (`links`, `services`), und wie viele
+ * höchstens Platz hätten, wenn jeder Eintrag eine Zeile braucht (`linkRoom`, `serviceRoom`). Der Druck-Bildschirm
+ * sperrt damit weitere Häkchen, sobald die Karte voll ist.
+ */
+export type CardFit = { links: number; services: number; linkRoom: number; serviceRoom: number };
+
+/** Wie viele Einträge ganz stehen: alle ihre Zeilen passen in `limit`, keine ist mit „…“ gekürzt */
+function shownEntries(perEntry: string[][], limit: number): number {
+  const total = perEntry.reduce((n, e) => n + e.length, 0);
+  let used = 0;
+  let shown = 0;
+  for (const e of perEntry) {
+    const end = used + e.length;
+    if (end > limit || (end === limit && total > limit)) break;
+    used = end;
+    shown += 1;
+  }
+  return shown;
+}
+
+/**
+ * Vorderseite (Daria, 2026-11-23: „Services vorn, Links, QR-Code, Mail hinten“): wer und was. Gelbgrün, oben links der
+ * Name groß mit Kiez, oben rechts das Logo (ohne Logo nichts, kein Kater), unten links die Services als Liste.
+ * Ohne Services steht der Name unten links wie bisher.
+ */
+function drawFront(d: CardData, a: Assets): { canvas: HTMLCanvasElement; services: number; serviceRoom: number } {
   const canvas = document.createElement('canvas');
   canvas.width = CARD_W;
   canvas.height = CARD_H;
@@ -199,62 +224,77 @@ function drawFront(d: CardData, a: Assets): HTMLCanvasElement {
   ctx.fillStyle = YELLOW;
   ctx.fillRect(0, 0, CARD_W, CARD_H);
   ctx.textBaseline = 'alphabetic';
-
-  // Rechts: QR-Code, darunter die Webadresse
-  const qrSize = 400;
-  const qrX = CARD_W - PAD - qrSize;
-  const qrY = PAD + 20;
-  drawQr(ctx, d.qrUrl ?? d.url, qrX, qrY, qrSize);
-  ctx.fillStyle = INK;
-  ctx.font = `30px "${BODY_MEDIUM}"`;
-  ctx.textAlign = 'center';
-  const web = shortLink(d.url);
-  let webLines = wrap(ctx, web, qrSize + 40);
-  if (webLines.length > 2) webLines = clamp(ctx, webLines, 2, qrSize + 40);
-  webLines.forEach((l, i) => ctx.fillText(l, qrX + qrSize / 2, qrY + qrSize + 52 + i * 36));
   ctx.textAlign = 'left';
 
-  // Links oben das Logo; ohne Logo nichts, der Kater steht nicht auf der gedruckten Karte (Daria, 2026-11-23)
-  const colW = qrX - PAD - 50;
-  const mark = a.logo ? 130 : 0;
-  if (a.logo) drawLogo(ctx, a.logo, PAD, PAD, mark);
+  const mark = a.logo ? 150 : 0;
+  if (a.logo) drawLogo(ctx, a.logo, CARD_W - PAD - mark, PAD, mark);
+  const nameW = CARD_W - PAD * 2 - (mark ? mark + 40 : 0);
+  const services = d.serviceLines ?? servicesPlain(d.services);
+  const bottom = CARD_H - PAD - 4;
 
-  // Name: so groß wie es passt, höchstens drei Zeilen
-  let size = 84;
+  // Name: so groß wie es passt, mit Services höchstens zwei Zeilen, sonst drei
+  const maxLines = services.length ? 2 : 3;
+  let size = services.length ? 76 : 84;
   let lines: string[] = [];
   for (; size >= 44; size -= 4) {
     ctx.font = `${size}px "${TITLE_FONT}"`;
-    lines = wrap(ctx, d.name, colW);
-    if (lines.length <= 3 && lines.every((l) => ctx.measureText(l).width <= colW)) break;
+    lines = wrap(ctx, d.name, nameW);
+    if (lines.length <= maxLines && lines.every((l) => ctx.measureText(l).width <= nameW)) break;
   }
   ctx.font = `${size}px "${TITLE_FONT}"`;
-  lines = clamp(ctx, lines, 3, colW);
-  const lineH = Math.round(size * 1.18);
-  const kiezH = d.kiez ? 56 : 0;
-  // Name und Kiez stehen unten links, auf einer Linie mit der Webadresse
-  const bottom = CARD_H - PAD - 8;
-  let y = bottom - kiezH - (lines.length - 1) * lineH;
+  lines = clamp(ctx, lines, maxLines, nameW);
+  const lineH = Math.round(size * 1.15);
+  const kiezLine = d.kiez ? clamp(ctx, wrap(ctx, d.kiez, nameW), 1, nameW)[0] ?? '' : '';
   ctx.fillStyle = INK;
+
+  if (!services.length) {
+    // Ohne Services: Name und Kiez unten links
+    let y = bottom - (kiezLine ? 56 : 0) - (lines.length - 1) * lineH;
+    for (const l of lines) {
+      ctx.fillText(l, PAD, y);
+      y += lineH;
+    }
+    if (kiezLine) {
+      ctx.font = `34px "${BODY_MEDIUM}"`;
+      ctx.fillText(kiezLine, PAD, bottom);
+    }
+    return { canvas, services: 0, serviceRoom: 0 };
+  }
+
+  let y = PAD + Math.round(size * 0.8);
   for (const l of lines) {
     ctx.fillText(l, PAD, y);
     y += lineH;
   }
-  if (d.kiez) {
+  y -= lineH;
+  if (kiezLine) {
     ctx.font = `34px "${BODY_MEDIUM}"`;
-    ctx.fillText(clamp(ctx, wrap(ctx, d.kiez, colW), 1, colW)[0] ?? '', PAD, bottom);
+    y += 52;
+    ctx.fillText(kiezLine, PAD, y);
   }
 
-  // Neben dem Logo (ohne Logo oben links): woher die Karte kommt
-  ctx.font = `24px "${LABEL_FONT}"`;
-  ctx.fillText(t('Schaufenster').toUpperCase(), a.logo ? PAD + mark + 24 : PAD, a.logo ? PAD + mark / 2 + 9 : PAD + 24);
-  return canvas;
+  // Services unten links, so viele Zeilen wie unter Name und Kiez Platz haben
+  const bodyLine = 50;
+  ctx.font = `38px "${BODY_FONT}"`;
+  const width = CARD_W - PAD * 2;
+  const first = Math.max(y + 76, PAD + mark + 50);
+  const room = Math.max(1, Math.floor((bottom - first) / bodyLine) + 1);
+  const perEntry = services.map((e) => wrap(ctx, e, width));
+  const shown = clamp(ctx, perEntry.flat(), room, width);
+  let sy = Math.max(first, bottom - (shown.length - 1) * bodyLine);
+  for (const l of shown) {
+    ctx.fillText(l, PAD, sy);
+    sy += bodyLine;
+  }
+  return { canvas, services: shownEntries(perEntry, room), serviceRoom: room };
 }
 
-/** Wie viele Links und Services ganz auf der Rückseite stehen, in ihrer Reihenfolge */
-export type CardFit = { links: number; services: number };
-
-/** Rückseite: dunkel, Überschriften in Gelbgrün, Angaben in Weiß, zwei Spalten */
-function drawBack(d: CardData): { canvas: HTMLCanvasElement; fit: CardFit } {
+/**
+ * Rückseite (Daria, 2026-11-23): wie erreiche ich sie. Dunkel, rechts oben der QR-Code zur Digitalen Visitenkarte mit
+ * der Webadresse darunter, links Adresse, Öffnungszeiten, E-Mail und Links. Unter den Links steht, dass es alle über
+ * den QR-Code gibt. Kein Kater: er verdeckte die Links.
+ */
+function drawBack(d: CardData): { canvas: HTMLCanvasElement; links: number; linkRoom: number } {
   const canvas = document.createElement('canvas');
   canvas.width = CARD_W;
   canvas.height = CARD_H;
@@ -264,90 +304,79 @@ function drawBack(d: CardData): { canvas: HTMLCanvasElement; fit: CardFit } {
   ctx.textBaseline = 'alphabetic';
   ctx.textAlign = 'left';
 
-  // Mehr Luft und größere Schrift (Daria, 2026-11-12). Die Webadresse steht schon vorne. Links die kurzen Angaben,
-  // rechts die längeren in der breiteren Spalte. Kein Kater: er verdeckte die Links (Daria, 2026-11-23).
-  const gap = 80;
-  const inner = CARD_W - PAD * 2 - gap;
-  const leftW = Math.round(inner * 0.4);
-  const rightW = inner - leftW;
-  const bodySize = 41;
-  const bodyLine = 53;
-  const top = PAD + 34;
+  // Rechts: QR-Code, darunter die Webadresse
+  const qrSize = 360;
+  const qrX = CARD_W - PAD - qrSize;
+  drawQr(ctx, d.qrUrl ?? d.url, qrX, PAD, qrSize);
+  ctx.fillStyle = WHITE;
+  ctx.font = `28px "${BODY_MEDIUM}"`;
+  ctx.textAlign = 'center';
+  let webLines = wrap(ctx, shortLink(d.url), qrSize + 40);
+  if (webLines.length > 2) webLines = clamp(ctx, webLines, 2, qrSize + 40);
+  webLines.forEach((l, i) => ctx.fillText(l, qrX + qrSize / 2, PAD + qrSize + 48 + i * 34));
+  ctx.textAlign = 'left';
 
-  const services = d.serviceLines ?? servicesPlain(d.services);
-  // `entries`: Einträge, die einzeln zählen (Links, Services); `key` meldet, wie viele davon ganz auf der Karte stehen
-  type Item = { label: string; value?: string; entries?: string[]; key?: keyof CardFit; max: number; fit?: boolean };
-  const left: Item[] = [
-    { label: t('Adresse'), value: d.address, max: 3 },
-    { label: t('Öffnungszeiten'), value: d.openingHours, max: 5 },
-  ];
-  const right: Item[] = [
-    { label: t('Services'), entries: services, key: 'services', max: d.links.length || d.email ? 4 : 8 },
-    // Mail über den Links, eine Zeile, notfalls kleiner (Daria, 2026-11-17: „Dann bitte Mail einbinden“)
-    { label: t('E-Mail'), value: d.email, max: 1, fit: true },
-    // Links nicht umbrechen: lieber etwas kleiner, damit sie lesbar bleiben
-    { label: d.links.length > 1 ? t('Links') : t('Link'), entries: d.links.map(printLink), key: 'links', max: 5, fit: true },
-  ];
-
-  const fit: CardFit = { links: 0, services: 0 };
-  const column = (items: Item[], x: number, colW: number, maxY: number) => {
-    let y = top;
-    for (const it of items) {
-      const entries = (it.entries ?? (it.value ? [it.value] : [])).filter((e) => e.trim());
-      if (!entries.length) continue;
-      if (y > maxY - bodyLine) break;
-      ctx.font = `28px "${LABEL_FONT}"`;
-      ctx.fillStyle = YELLOW;
-      ctx.fillText(it.label.toUpperCase(), x, y);
-      y += 26 + bodyLine;
-      let size = bodySize;
-      ctx.font = `${size}px "${BODY_FONT}"`;
-      if (it.fit) {
-        const widest = Math.max(...entries.flatMap((e) => e.split('\n')).map((l) => ctx.measureText(l).width));
-        if (widest > colW) size = Math.max(30, Math.floor((bodySize * colW) / widest));
-        ctx.font = `${size}px "${BODY_FONT}"`;
-      }
-      ctx.fillStyle = WHITE;
-      const room = Math.max(1, Math.floor((maxY - y + bodyLine) / bodyLine));
-      const limit = Math.min(it.max, room);
-      const perEntry = entries.map((e) => wrap(ctx, e, colW));
-      const lines = perEntry.flat();
-      for (const l of clamp(ctx, lines, limit, colW)) {
-        ctx.fillText(l, x, y);
-        y += bodyLine;
-      }
-      // Unter den Links steht immer, wo es alle gibt: Der QR-Code vorne öffnet die digitale Visitenkarte (2026-11-23)
-      if (it.key === 'links' && y <= maxY) {
-        ctx.font = `30px "${BODY_FONT}"`;
-        ctx.fillStyle = MUTED;
-        ctx.fillText(clamp(ctx, wrap(ctx, t('Alle Links: QR-Code vorne scannen'), colW), 1, colW)[0] ?? '', x, y);
-        y += bodyLine;
-      }
-      if (it.key) {
-        // Ganz drauf ist ein Eintrag, wenn alle seine Zeilen stehen und keine davon mit „…“ gekürzt ist
-        let used = 0;
-        let shown = 0;
-        for (const e of perEntry) {
-          const end = used + e.length;
-          if (end > limit || (end === limit && lines.length > limit)) break;
-          used = end;
-          shown += 1;
-        }
-        fit[it.key] = shown;
-      }
-      y += 58;
-    }
-    return y;
+  // Links: eine Spalte neben dem QR-Code
+  const x = PAD;
+  const colW = qrX - PAD - 70;
+  const maxY = CARD_H - PAD;
+  const bodySize = 38;
+  const bodyLine = 50;
+  const labelGap = 24 + bodyLine;
+  const sectionGap = 40;
+  let y = PAD + 26;
+  const label = (value: string) => {
+    ctx.font = `26px "${LABEL_FONT}"`;
+    ctx.fillStyle = YELLOW;
+    ctx.fillText(value.toUpperCase(), x, y);
+    y += labelGap;
   };
-  const usedLeft = column(left, PAD, leftW, CARD_H - PAD);
-  const usedRight = column(right, PAD + leftW + gap, rightW, CARD_H - PAD);
-  if (usedLeft === top && usedRight === top) {
+  /** Schrift so klein, dass die breiteste Zeile passt, höchstens bis 28 (Links und Mail nicht umbrechen) */
+  const fitFont = (entries: string[]) => {
     ctx.font = `${bodySize}px "${BODY_FONT}"`;
-    ctx.fillStyle = MUTED;
-    ctx.fillText(t('Noch keine Angaben im Schaufenster'), PAD, PAD + 40);
+    const widest = Math.max(...entries.map((e) => ctx.measureText(e).width));
+    const size = widest > colW ? Math.max(28, Math.floor((bodySize * colW) / widest)) : bodySize;
+    ctx.font = `${size}px "${BODY_FONT}"`;
+  };
+  const roomAt = (first: number) => Math.max(0, Math.floor((maxY - first) / bodyLine) + 1);
+
+  const texts: { label: string; value?: string; max: number; fit?: boolean }[] = [
+    { label: t('Adresse'), value: d.address, max: 3 },
+    { label: t('Öffnungszeiten'), value: d.openingHours, max: 4 },
+    // Mail über den Links, eine Zeile, notfalls kleiner (Daria, 2026-11-17)
+    { label: t('E-Mail'), value: d.email, max: 1, fit: true },
+  ];
+  for (const it of texts) {
+    const value = it.value?.trim();
+    if (!value) continue;
+    if (roomAt(y + labelGap) < 1) break;
+    label(it.label);
+    if (it.fit) fitFont([value]);
+    else ctx.font = `${bodySize}px "${BODY_FONT}"`;
+    ctx.fillStyle = WHITE;
+    for (const l of clamp(ctx, wrap(ctx, value, colW), Math.min(it.max, roomAt(y)), colW)) {
+      ctx.fillText(l, x, y);
+      y += bodyLine;
+    }
+    y += sectionGap;
   }
 
-  return { canvas, fit };
+  // Links: eine Zeile bleibt für den Hinweis auf den QR-Code frei
+  const linkRoom = Math.max(0, roomAt(y + labelGap) - 1);
+  const links = d.links.map(printLink).filter((l) => l.trim());
+  if (!links.length || linkRoom < 1) return { canvas, links: 0, linkRoom };
+  label(links.length > 1 ? t('Links') : t('Link'));
+  fitFont(links);
+  ctx.fillStyle = WHITE;
+  const perEntry = links.map((e) => wrap(ctx, e, colW));
+  for (const l of clamp(ctx, perEntry.flat(), linkRoom, colW)) {
+    ctx.fillText(l, x, y);
+    y += bodyLine;
+  }
+  ctx.font = `28px "${BODY_FONT}"`;
+  ctx.fillStyle = MUTED;
+  ctx.fillText(clamp(ctx, wrap(ctx, t('Alle Links: QR-Code scannen'), colW), 1, colW)[0] ?? '', x, y);
+  return { canvas, links: shownEntries(perEntry, linkRoom), linkRoom };
 }
 
 const isWeb = () => typeof document !== 'undefined';
@@ -361,7 +390,7 @@ async function fontsReady(): Promise<void> {
   );
 }
 
-/** Beide Seiten und was von Links und Services auf die Rückseite passt */
+/** Beide Seiten und was von Links und Services auf die Karte passt */
 export type CardSides = { front: HTMLCanvasElement; back: HTMLCanvasElement; fit: CardFit };
 
 /** Beide Seiten zeichnen. `null` außerhalb des Browsers. */
@@ -371,7 +400,12 @@ export async function drawBusinessCard(d: CardData): Promise<CardSides | null> {
   const logo = d.logoUri ? await loadImage(d.logoUri, !d.logoUri.startsWith('data:') && !d.logoUri.startsWith('blob:')) : null;
   const draw = (l: HTMLImageElement | null): CardSides => {
     const back = drawBack(d);
-    return { front: drawFront(d, { logo: l }), back: back.canvas, fit: back.fit };
+    const front = drawFront(d, { logo: l });
+    return {
+      front: front.canvas,
+      back: back.canvas,
+      fit: { links: back.links, linkRoom: back.linkRoom, services: front.services, serviceRoom: front.serviceRoom },
+    };
   };
   const sides = draw(logo);
   // Logo ohne Freigabe für Canvas: dann ohne Logo

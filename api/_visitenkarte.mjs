@@ -1,6 +1,6 @@
-// Eigene Ansicht der Visitenkarte: kiezcoins.de/s/<kurzname>/visitenkarte (Daria, 2026-11-23).
+// Eigene Ansicht der Digitalen Visitenkarte: kiezcoins.de/s/<kurzname>/visitenkarte (Daria, 2026-11-23).
 //
-// Die Schaufenster-Seite zeigt nur die Vorschau und „Visitenkarte öffnen“. Diese Ansicht zeigt die Karte ohne
+// Die Schaufenster-Seite zeigt nur die Vorschau und „Digitale Visitenkarte öffnen“. Diese Ansicht zeigt die Karte ohne
 // QR-Code, dafür mit Kompetenzen & Services, Adresse, Öffnungszeiten und Kontakt (Entwurf C + D), darunter die
 // Knöpfe untereinander. Ist eine Option aufgeklappt, wird der Hauptknopf zum Secondary-Knopf (Daria, 2026-11-23).
 //
@@ -13,9 +13,9 @@
 // und „Kontakte tauschen“ erscheinen, wenn das Schaufenster eine Kontakt-Mail hat. „In Kontakte speichern“ liefert
 // eine vCard (POST /s/<kurzname>/kontakt.vcf). Ort und Notiz gehen im Formular mit, nicht in der Adresse, damit sie in
 // keinem Protokoll landen. Die Edge Function visitenkarte-mail leitet Kontakte an die Kontakt-Mail weiter und schickt
-// beim Tausch der Person die Visitenkarte; KiezCoins speichert nichts davon.
+// beim Tausch der Person die Digitale Visitenkarte; KiezCoins speichert nichts davon.
 //
-// Drucken gibt es hier nicht: Die druckbare Visitenkarte findet das Team in der Schaufenster-Verwaltung der App.
+// Drucken gibt es hier nicht: Die Druckbare Visitenkarte findet das Team in der Schaufenster-Verwaltung der App.
 // Die Ansicht zählt ihre Aufrufe und erhaltene Kontakte als Zahl pro Tag (count_showcase_visit, Migration
 // 20261123000100), per Skript im Browser: ohne Kennung, Cookie oder Speicher auf dem Gerät.
 
@@ -36,26 +36,10 @@ const kurzLink = (url) => String(url).replace(/^https?:\/\/(www\.)?/i, '').repla
 export const visitenkarteLink = (slug) => `${SITE}/s/${slug}/visitenkarte`;
 export const karteQrLink = (slug) => `${visitenkarteLink(slug)}?via=karte`;
 
-/**
- * Ort unter dem Namen: „Kiez, Stadt“ (Daria, 2026-11-23). Die Stadt steht in der Adresse hinter der Postleitzahl.
- * Ohne Adresse bleibt es beim Kiez, wie das Team ihn eingetragen hat.
- */
-export function ortZeile(s) {
-  const kiez = String(s.kiez ?? '').trim();
-  const stadt = (String(s.address ?? '').match(/\b\d{5}[ \t]+([^\n,]+)/)?.[1] ?? '').trim();
-  if (!stadt) return kiez;
-  if (!kiez || /^\d{5}$/.test(kiez)) return stadt;
-  return kiez.toLowerCase().includes(stadt.toLowerCase()) ? kiez : `${kiez}, ${stadt}`;
-}
+// Ortszeile und Services teilt die Digitale Visitenkarte der App (src/components/showcase/DigitalCard.tsx)
+import { placeLine as ortZeile, serviceItems as serviceListe } from '../src/data/digitalCard.mjs';
 
-/** Services ohne Auszeichnung, eine Zeile je Eintrag (Aufzählungszeichen, **fett** und *kursiv* fallen weg) */
-export function serviceListe(value) {
-  return String(value ?? '')
-    .replace(/\r\n?/g, '\n')
-    .split('\n')
-    .map((l) => l.replace(/^\s*[-•·]\s+/, '').replace(/\*\*(.+?)\*\*/g, '$1').replace(/\*(.+?)\*/g, '$1').trim())
-    .filter(Boolean);
-}
+export { ortZeile, serviceListe };
 
 const tag = (jetzt) =>
   new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', day: '2-digit', month: '2-digit', year: 'numeric' }).format(jetzt);
@@ -114,12 +98,12 @@ function qrSvg(url) {
   for (let r = 0; r < n; r++)
     for (let c = 0; c < n; c++) if (qr.modules.get(r, c)) pfad += `M${c + rand} ${r + rand}h1v1h-1z`;
   const g = n + rand * 2;
-  return `<svg viewBox="0 0 ${g} ${g}" width="220" height="220" role="img" aria-label="QR-Code zu dieser Visitenkarte" shape-rendering="crispEdges"><rect width="${g}" height="${g}" fill="#fff"/><path d="${pfad}" fill="#000027"/></svg>`;
+  return `<svg viewBox="0 0 ${g} ${g}" width="220" height="220" role="img" aria-label="QR-Code zu dieser Digitalen Visitenkarte" shape-rendering="crispEdges"><rect width="${g}" height="${g}" fill="#fff"/><path d="${pfad}" fill="#000027"/></svg>`;
 }
 
 function karte(s, logo, kater) {
   const services = serviceListe(s.services);
-  // Alle Links des Schaufensters (Daria, 2026-11-23: „Auf der Visitenkarte selbst fehlen die ganzen Links“)
+  // Alle Links des Schaufensters (Daria, 2026-11-23: „Auf der Digitalen Visitenkarte selbst fehlen die ganzen Links“)
   const links = [...new Set([...(s.links ?? []), ...(s.website ? [s.website] : [])])].filter((l) => /^https:\/\//i.test(l));
   const zeile = (titel, wert) => `<div><p class="vk-lb">${titel}</p>${wert}</div>`;
   const kontakt = [
@@ -181,7 +165,7 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
       <label class="vk-f"><span>Telefon <small>optional</small></span><input type="tel" name="phone" autocomplete="tel" maxlength="30"></label>
       <label class="vk-f"><span>Wo habt Ihr Euch getroffen? <small>optional</small></span><input name="ort" maxlength="120" placeholder="z. B. Flohmarkt am Kanal"></label>
       <label class="vk-f"><span>Nachricht <small>optional</small></span><textarea name="nachricht" maxlength="1000"></textarea></label>
-      <label class="vk-c"><input type="checkbox" name="karte" checked><span>Visitenkarte von ${esc(s.name)} per Mail erhalten</span></label>
+      <label class="vk-c"><input type="checkbox" name="karte" checked><span>Digitale Visitenkarte von ${esc(s.name)} per Mail erhalten</span></label>
       ${einwilligung}
       <input class="vk-falle" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <button type="submit" class="vk-k haupt">Kontakt schicken</button>
@@ -207,7 +191,7 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
       case 'qr':
         return `<button type="button" class="${k}"${h} aria-expanded="false" aria-controls="vk-p-qr">${beschriftung(id)}</button>
     <div class="vk-panel" id="vk-p-qr" hidden>
-      <p>Mit der Kamera scannen, um diese Visitenkarte zu öffnen.</p>
+      <p>Mit der Kamera scannen, um diese Digitale Visitenkarte zu öffnen.</p>
       <div class="vk-qr">${qrSvg(karteQrLink(s.slug))}</div>
       <button type="button" class="vk-abbrechen" data-zu>Schließen</button>
     </div>`;
@@ -217,7 +201,7 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
       <label class="vk-f"><span>An welche Adresse?</span><input type="email" name="to" autocomplete="email" required maxlength="254" placeholder="name@beispiel.de"></label>
       <label class="vk-f"><span>Dein Vorname <small>optional, steht in der Mail</small></span><input type="text" name="from" autocomplete="given-name" maxlength="30"></label>
       <input class="vk-falle" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <button type="submit" class="vk-k haupt">Visitenkarte schicken</button>
+      <button type="submit" class="vk-k haupt">Digitale Visitenkarte schicken</button>
       <button type="button" class="vk-abbrechen" data-zu>Abbrechen</button>
       <p class="vk-klein" role="status" data-hinweis></p>
       <p class="vk-klein">KiezCoins nutzt die Adresse nur für diese eine Mail und speichert sie nicht.</p>
@@ -285,7 +269,7 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
 .geteilt .vk-klein:empty { display: none; }
 .geteilt .vk-falle { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 </style>
-  <h2 class="sf-abschnitt vk-titel">Visitenkarte</h2>
+  <h2 class="sf-abschnitt vk-titel">Digitale Visitenkarte</h2>
   ${karte(s, logo, kater)}
   <div class="vk-knoepfe">
     ${knoepfe.map((x) => knopfHtml(x.id, x.primary)).join('\n\n    ')}
@@ -295,7 +279,7 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
   const teilen = document.getElementById('vk-teilen');
   const haupt = document.querySelector('[data-haupt]');
   const knoepfe = [...document.querySelectorAll('.vk-k[aria-controls]')];
-  // Zahlen fürs Team (count_showcase_visit): Aufruf der Visitenkarte und erhaltene Kontakte, ohne Kennung
+  // Zahlen fürs Team (count_showcase_visit): Aufruf der Digitalen Visitenkarte und erhaltene Kontakte, ohne Kennung
   const zaehlen = (art) => {
     const ziel = ${JSON.stringify(zaehlFunktion ?? '')};
     if (!ziel) return;
@@ -344,7 +328,7 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
   teilen.addEventListener('click', async () => {
     hinweis.textContent = '';
     if (navigator.share) {
-      try { await navigator.share({ title: ${JSON.stringify(s.name)}, text: ${JSON.stringify(`Visitenkarte von ${s.name}`)}, url: link }); return; }
+      try { await navigator.share({ title: ${JSON.stringify(s.name)}, text: ${JSON.stringify(`Digitale Visitenkarte von ${s.name}`)}, url: link }); return; }
       catch (e) { if (e && e.name === 'AbortError') return; }
     }
     try { await navigator.clipboard.writeText(link); hinweis.textContent = 'Link kopiert.'; }
@@ -372,7 +356,7 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
         body: JSON.stringify({ slug: ${JSON.stringify(s.slug)}, to, from: form.elements.from.value, website: form.elements.website.value }),
       });
       const r = await res.json().catch(() => ({}));
-      if (r.ok) { status.textContent = 'Die Visitenkarte ist unterwegs an ' + to + '.'; form.elements.to.value = ''; }
+      if (r.ok) { status.textContent = 'Die Digitale Visitenkarte ist unterwegs an ' + to + '.'; form.elements.to.value = ''; }
       else status.textContent = texte[r.error] ?? 'Das hat nicht geklappt. Bitte gleich erneut versuchen.';
     } catch {
       status.textContent = 'Keine Verbindung. Bitte gleich erneut versuchen.';
@@ -448,9 +432,9 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
         if (r.ok) {
           zaehlen('contact');
           hinweis.textContent = r.karte === false
-            ? ${JSON.stringify(`${s.name} hat Deinen Kontakt erhalten. Die Visitenkarte konnte nicht verschickt werden.`)}
+            ? ${JSON.stringify(`${s.name} hat Deinen Kontakt erhalten. Die Digitale Visitenkarte konnte nicht verschickt werden.`)}
             : karte
-              ? ${JSON.stringify(`${s.name} hat Deinen Kontakt erhalten. Die Visitenkarte ist unterwegs an `)} + email + '.'
+              ? ${JSON.stringify(`${s.name} hat Deinen Kontakt erhalten. Die Digitale Visitenkarte ist unterwegs an `)} + email + '.'
               : ${JSON.stringify(`${s.name} hat Deinen Kontakt erhalten.`)};
           f.reset();
         } else hinweis.textContent = kontaktTexte[r.error] ?? 'Das hat nicht geklappt. Bitte gleich erneut versuchen.';

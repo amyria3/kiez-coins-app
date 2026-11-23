@@ -8,6 +8,7 @@ import { FieldGroup, Notice, QuestionHint } from '../../../components/Content';
 import { Chip, ChipGroup, choosePhoto, CopyField, SwitchRow, TextField } from '../../../components/Form';
 import { ColorWheel } from '../../../components/ColorWheel';
 import { scrollIntoView } from '../../../components/Nudge';
+import { PostersAlone } from '../../../components/showcase/PostersAlone';
 import type { SettingsArea } from '../../../components/showcase/ShowcaseSettingsRows';
 import { RichTextField } from '../../../components/RichText';
 import { SubScreen } from '../../../components/Screen';
@@ -622,11 +623,11 @@ export default function EditShowcase() {
         </FieldGroup>
       ) : null}
 
-      {area === 'posten' && group ? (
+      {area === 'posten' ? (
         <FieldGroup label="Wer darf posten?">
           {/* Fragen und Erklärungen stehen in der passenden Komponente, nie als grauer Text (Daria, 2026-11-18) */}
           <QuestionHint question="Wer darf Termine erstellen?" answer="Wer posten darf, erstellt auch Termine." />
-          {group.members.map((m) => {
+          {group?.members.map((m) => {
             const me = m.userId === currentUserId;
             const user = users.find((u) => u.id === m.userId);
             return me || m.role === 'founder' ? null : (
@@ -638,7 +639,7 @@ export default function EditShowcase() {
               />
             );
           })}
-          {group.members.length <= 1 ? <Notice message="Noch bist Du allein in der Gruppe." /> : null}
+          {!group || group.members.length <= 1 ? <PostersAlone groupId={group?.id} /> : null}
         </FieldGroup>
       ) : null}
 

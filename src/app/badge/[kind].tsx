@@ -117,6 +117,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
   },
   about: { ...text.body, color: color.text.secondary, textAlign: 'center', marginTop: space[8] },
-  cardName: { ...text.headlineLarge, color: color.text.primary, textAlign: 'center' },
+  cardName: { ...text.headline, color: color.text.primary, textAlign: 'center' },
   cardText: { ...text.reading, color: color.text.primary, textAlign: 'center', opacity: 0.85 },
 });

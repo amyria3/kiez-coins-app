@@ -253,7 +253,7 @@ function eintrag(x) {
     </div></article>`;
 }
 
-// Visitenkarte auf der Schaufenster-Seite: nur die Vorschau und „Visitenkarte öffnen“ (Daria, 2026-11-23). Die Vorschau
+// Digitale Visitenkarte auf der Schaufenster-Seite: nur die Vorschau und „Digitale Visitenkarte öffnen“ (Daria, 2026-11-23). Die Vorschau
 // ist überall dieselbe (2026-11-23): das Bild /s/<kurzname>/visitenkarte.png, das auch Messenger beim geteilten Link
 // zeigen (_visitenkarte-bild.mjs). Die druckbare Karte (vorne und hinten) gibt es nur in der Verwaltung der App.
 // Teilen, Speichern, QR-Code und Mail stehen in der eigenen Ansicht /s/<kurzname>/visitenkarte (api/_visitenkarte.mjs);
@@ -267,10 +267,10 @@ function visitenkarte(s, via) {
 .geteilt .sf-vk a.sf-vk-haupt { display: flex; align-items: center; justify-content: center; min-height: 50px; padding: 13px 20px; box-sizing: border-box;
   border-radius: 999px; background: var(--text); color: var(--bg); font: 500 16px/1.25 Inter, sans-serif; letter-spacing: .01em; text-decoration: none; }
 </style>
-  <h2 class="sf-abschnitt">Visitenkarte</h2>
-  <section class="sf-vk" aria-label="Visitenkarte">
-    <a href="${esc(ziel)}"><img class="sf-vk-bild" src="/s/${esc(s.slug)}/visitenkarte.png" width="${BILD_B}" height="${BILD_H}" loading="lazy" alt="Visitenkarte von ${esc(s.name)}"></a>
-    <a class="sf-vk-haupt" href="${esc(ziel)}">Visitenkarte öffnen</a>
+  <h2 class="sf-abschnitt">Digitale Visitenkarte</h2>
+  <section class="sf-vk" aria-label="Digitale Visitenkarte">
+    <a href="${esc(ziel)}"><img class="sf-vk-bild" src="/s/${esc(s.slug)}/visitenkarte.png" width="${BILD_B}" height="${BILD_H}" loading="lazy" alt="Digitale Visitenkarte von ${esc(s.name)}"></a>
+    <a class="sf-vk-haupt" href="${esc(ziel)}">Digitale Visitenkarte öffnen</a>
   </section>`;
 }
 
@@ -398,7 +398,7 @@ function seitenStil(s) {
   return `<style>
 ${
   // Ohne eigene Farbe: neutral, ruhig und etwas elegant statt des blassen Lilas der Website (Daria, 2026-11-12,
-  // Vorbild tubikstudio.com). Die Farbe kommt aus den Fotos und der Visitenkarte, nicht aus dem Hintergrund.
+  // Vorbild tubikstudio.com). Die Farbe kommt aus den Fotos und der Digitalen Visitenkarte, nicht aus dem Hintergrund.
   s.bg_color ? farbe(s.bg_color) : NEUTRAL
 }'
 }
@@ -587,7 +587,7 @@ function inhalt(s, via) {
   <div class="sf-ende"><p class="sf-klein" style="white-space: pre-line">${esc(s.imprint)}</p></div>`
       : ''
   }
-  ${/* Visitenkarte am Schluss der Seite (Daria, 2026-11-12) */ visitenkarte(s, via)}
+  ${/* Digitale Visitenkarte am Schluss der Seite (Daria, 2026-11-12) */ visitenkarte(s, via)}
 <script>
 (() => {
   // Name: die Schrift so weit verkleinern, dass das längste Wort in die Zeile passt (höchstens bis 16 px)
@@ -688,7 +688,7 @@ function inhalt(s, via) {
 // wirkt ein wenig erbärmlich“). Das Bild zeigt die Karte selbst, siehe _visitenkarte-bild.mjs.
 function kopfVisitenkarte(s) {
   const url = `${SITE}/s/${s.slug}/visitenkarte`;
-  const titel = `${s.name} · Visitenkarte`;
+  const titel = `${s.name} · Digitale Visitenkarte`;
   const text = bildText(s);
   const bild = `${url}.png`;
   return [
@@ -704,7 +704,7 @@ function kopfVisitenkarte(s) {
     `<meta property="og:image" content="${esc(bild)}">`,
     `<meta property="og:image:width" content="${BILD_B}">`,
     `<meta property="og:image:height" content="${BILD_H}">`,
-    `<meta property="og:image:alt" content="${esc(`Visitenkarte von ${s.name}`)}">`,
+    `<meta property="og:image:alt" content="${esc(`Digitale Visitenkarte von ${s.name}`)}">`,
     '<meta name="twitter:card" content="summary_large_image">',
   ].join('\n');
 }

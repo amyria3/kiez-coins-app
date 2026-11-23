@@ -84,7 +84,7 @@ describe('Visitenkarten-Ansicht', () => {
     assert.ok(!karte.includes('vk-p-qr'));
     // Über einen Link: Teilen zuerst, QR-Code ja, Kontakt schicken nein
     const link = visitenkarteAnsicht(schaufenster, opts);
-    assert.equal(knoepfe(link)[0], 'Visitenkarte teilen');
+    assert.equal(knoepfe(link)[0], 'Digitale Visitenkarte teilen');
     assert.ok(link.includes('vk-p-qr') && !link.includes('vk-p-schicken'));
     assert.ok(link.includes('>Zum Schaufenster<'));
     // Von der Schaufenster-Seite: Rückweg heißt „Zurück zum Schaufenster“
@@ -116,6 +116,6 @@ describe('Ort und Linkvorschau der Visitenkarte', () => {
     const { bildText } = await import('../api/_visitenkarte-bild.mjs');
     assert.equal(bildText({ name: 'X', kiez: 'Lindenau', services: '- A\n- **B**' }), 'A, B in Lindenau');
     assert.equal(bildText({ name: 'X', services: '- A\n- B\n- C\n- D' }), 'A, B, C …');
-    assert.equal(bildText({ name: 'Maria' }), 'Visitenkarte von Maria auf KiezCoins');
+    assert.equal(bildText({ name: 'Maria' }), 'Digitale Visitenkarte von Maria auf KiezCoins');
   });
 });
