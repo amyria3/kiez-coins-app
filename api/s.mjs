@@ -507,7 +507,9 @@ function inhalt(s, via) {
   // keine Adresse und keine Öffnungszeiten (Daria, 2026-11-17: „Ort und Öffnungszeiten verbergen wenn leer“).
   const infos = [
     // Adresse an die Karten-App oder ans Teilen-Menü (Daria, 2026-11-17: „in jedem Fall offen teilbar“)
-    s.address?.trim() ? fakt('Adresse', `${esc(s.address)}${ortKnoepfe(s)}${osmKarte(s)}`) : '',
+    // Karten-Links, Anfahrt und Karte nur mit Punkt. Ohne Punkt hat die Gründer:in den Ort als Text gespeichert oder die
+    // Kartensuche fand ihn nicht; dann steht er nur als Text da (2026-11-23).
+    s.address?.trim() ? fakt('Adresse', `${esc(s.address)}${hatPunkt(s) ? ortKnoepfe(s) + osmKarte(s) : ''}`) : '',
     s.opening_hours?.trim() ? fakt('Öffnungszeiten', esc(s.opening_hours)) : '',
     // Termin buchen über Cal.com oder einen anderen Dienst (Daria, 2026-11-18); ohne Link keine Zeile
     buchungsLink(s) ? fakt('Termin buchen', buchungKnopf(s)) : '',

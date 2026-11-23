@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -7,6 +7,7 @@ import { Button } from '../../../components/Button';
 import { FieldGroup, Notice, QuestionHint } from '../../../components/Content';
 import { Chip, ChipGroup, choosePhoto, CopyField, SwitchRow, TextField } from '../../../components/Form';
 import { ColorWheel } from '../../../components/ColorWheel';
+import { scrollIntoView } from '../../../components/Nudge';
 import { RichTextField } from '../../../components/RichText';
 import { SubScreen } from '../../../components/Screen';
 import { Text } from '../../../components/T';
@@ -39,7 +40,7 @@ import {
   type SlugStatus,
   type Visibility,
 } from '../../../data/showcase';
-import { geocodeAddress } from '../../../data/location';
+import { lookupAddress, type AddressLookup, type Coords } from '../../../data/location';
 import { useStore } from '../../../data/store';
 import { t } from '../../../data/texts';
 import type { ImageSource } from '../../../data/types';
@@ -62,6 +63,10 @@ export default function EditShowcase() {
   const [showcase, setShowcase] = useState<Showcase | null | undefined>(undefined);
   const [founder, setFounder] = useState(false);
   const [form, setForm] = useState({ name: '', about: '', services: '', kiez: '', address: '', email: '', openingHours: '', imprint: '', terms: '', bookingUrl: '' });
+  // Kartensuche zur geänderten Adresse (2026-11-23): Das Ergebnis steht unter dem Feld, bis die Person entscheidet.
+  // Gefunden: bestätigen oder als Text speichern. Nicht gefunden oder Suche gestört: als Text speichern.
+  const [addressCheck, setAddressCheck] = useState<(AddressLookup & { address: string }) | null>(null);
+  const addressRef = useRef<View>(null);
   // Mehrere Links (Daria, 2026-11-10); immer mindestens ein Feld
   const [links, setLinks] = useState<string[]>(['']);
   const [servicesCollapsed, setServicesCollapsed] = useState(false);
@@ -154,6 +159,10 @@ export default function EditShowcase() {
 
   const group = groups.find((g) => g.id === showcase.groupId);
   const set = (key: keyof typeof form) => (value: string) => setForm((f) => ({ ...f, [key]: value }));
+  const setAddress = (value: string) => {
+    setAddressCheck(null);
+    set('address')(value);
+  };
   const linkOk = (l: string) => !l.trim() || /^https:\/\/\S+\.\S+$/i.test(l.trim());
   const linksOk = links.every(linkOk);
   const bookingOk = !form.bookingUrl.trim() || BOOKING_PATTERN.test(form.bookingUrl.trim());
@@ -171,15 +180,28 @@ export default function EditShowcase() {
           ? t('Diese Adresse ist reserviert. Bitte wähle eine andere.')
           : undefined;
 
-  const save = async () => {
+  /**
+   * Speichern. Punkt für Karte, Anfahrt und Kartenlinks (OpenStreetMap, 2026-11-18): Ohne Punkt steht der Ort überall
+   * als reiner Text (2026-11-23). `choice` kommt aus der Kartensuche unter der Adresse: bestätigter Punkt oder null
+   * für „als Text speichern“. Ohne `choice` sucht eine geänderte Adresse erst auf der Karte und speichert noch nicht.
+   * Eine unveränderte Adresse behält ihren Punkt oder bleibt Text; eine leere löscht den Punkt.
+   */
+  const save = async (choice?: { coords: Coords | null }) => {
     setBusy(true);
     setFailed(null);
     try {
-      // Punkt für die Karte auf der öffentlichen Seite (OpenStreetMap, Daria, 2026-11-18): neu suchen, wenn sich die
-      // Adresse geändert hat oder noch kein Punkt da ist. Leere Adresse löscht den Punkt.
       const address = form.address.trim();
-      const coords =
-        address === (showcase.address ?? '').trim() && showcase.coords ? undefined : address ? await geocodeAddress(address) : null;
+      let coords: Coords | null | undefined;
+      if (choice) coords = choice.coords;
+      else if (!address) coords = null;
+      else if (address === (showcase.address ?? '').trim()) coords = undefined;
+      else {
+        const found = await lookupAddress(address);
+        setAddressCheck({ ...found, address });
+        setTimeout(() => scrollIntoView(addressRef.current), 50);
+        return;
+      }
+      setAddressCheck(null);
       await updateShowcase(showcase.id, currentUserId, {
         ...form,
         coords,
@@ -236,7 +258,7 @@ export default function EditShowcase() {
       title="Schaufenster bearbeiten"
       navigation="back"
       onLeadingPress={goBack}
-      actions={<Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !bookingOk || !emailOk || !bgOk || !slugOk} onPress={save} />}
+      actions={<Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !bookingOk || !emailOk || !bgOk || !slugOk} onPress={() => save()} />}
     >
       <FieldGroup label="Bilder">
         <View style={styles.pictures}>
@@ -261,7 +283,22 @@ export default function EditShowcase() {
           onValueChange={setServicesCollapsed}
         />
         <TextField label="Kiez" value={form.kiez} onChangeText={set('kiez')} maxLength={80} placeholder="Connewitz" />
-        <TextField label="Adresse" value={form.address} onChangeText={set('address')} maxLength={160} />
+        <View ref={addressRef} collapsable={false} style={styles.addressBlock}>
+          <TextField
+            label="Adresse"
+            value={form.address}
+            onChangeText={setAddress}
+            maxLength={160}
+            helperText={
+              !addressCheck && form.address.trim() && form.address.trim() === (showcase.address ?? '').trim() && !showcase.coords
+                ? 'Ohne Karte gespeichert: Deine Seite zeigt den Ort als Text, ohne Karte und Anfahrt.'
+                : undefined
+            }
+          />
+          {addressCheck ? (
+            <AddressCheck check={addressCheck} busy={busy} onSave={(coords) => save({ coords })} onRetry={() => save()} onClose={() => setAddressCheck(null)} />
+          ) : null}
+        </View>
         {/* Kontakt-Mail (Daria, 2026-11-17): auf der Seite und der Visitenkarte zum Antippen */}
         <TextField
           label="E-Mail"
@@ -599,7 +636,51 @@ function ImageSlot({ label, image, round, onPress }: { label: string; image?: Im
   );
 }
 
+/**
+ * Ergebnis der Kartensuche unter dem Feld „Adresse“ (2026-11-23). Gefunden: Die Person sieht, welchen Ort die Karte
+ * meint, und bestätigt ihn, denn die Suche trifft manchmal daneben. Sonst bleibt „als Text speichern“: Die Seite zeigt
+ * den Ort dann ohne Karte, Anfahrt und Kartenlink.
+ */
+function AddressCheck({
+  check,
+  busy,
+  onSave,
+  onRetry,
+  onClose,
+}: {
+  check: AddressLookup & { address: string };
+  busy: boolean;
+  onSave: (coords: Coords | null) => void;
+  onRetry: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <View style={styles.addressCheck}>
+      {check.status === 'found' ? (
+        <Notice message={t('Auf der Karte gefunden: {place}. Stimmt das?', { place: check.label })} onClose={onClose} />
+      ) : check.status === 'notFound' ? (
+        <Notice
+          variant="warning"
+          message={t('„{address}“ findet die Karte nicht. Prüf die Schreibweise, oder speichere den Ort als Text. Dann zeigt Deine Seite ihn ohne Karte, Anfahrt und Kartenlink.', { address: check.address })}
+          onClose={onClose}
+        />
+      ) : (
+        <Notice
+          variant="warning"
+          message="Die Kartensuche antwortet gerade nicht. Versuch es gleich noch mal, oder speichere den Ort als Text."
+          onClose={onClose}
+        />
+      )}
+      {check.status === 'found' ? <Button label="Ja, mit Karte speichern" busy={busy} onPress={() => onSave(check.coords)} /> : null}
+      {check.status === 'error' ? <Button label="Noch mal suchen" variant="secondary" busy={busy} onPress={onRetry} /> : null}
+      <Button label="Als Text speichern" variant="secondary" disabled={busy} onPress={() => onSave(null)} />
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  addressBlock: { gap: space[12] },
+  addressCheck: { gap: space[8] },
   pictures: { flexDirection: 'row', alignItems: 'flex-start', gap: space[16] },
   slot: { alignItems: 'center', gap: space[4] },
   slotBox: { overflow: 'hidden', backgroundColor: color.bg.surface, alignItems: 'center', justifyContent: 'center' },
