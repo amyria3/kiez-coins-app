@@ -1,7 +1,8 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { karteQrLink, sauber, serviceListe, vcard, visitenkarteAnsicht } from '../api/_visitenkarte.mjs';
+import { appVisitenkarte, karteQrLink, serviceListe, vcard, vorschauSeite } from '../api/_visitenkarte.mjs';
+import { cleanText } from '../src/data/vcard.mjs';
 
 const jetzt = new Date('2026-11-23T10:00:00Z');
 const schaufenster = {
@@ -44,60 +45,36 @@ describe('Kontakt als vCard', () => {
   });
 
   it('kürzt Freitext und entfernt Steuerzeichen', () => {
-    assert.equal(sauber('a\u0000b\tc', 10), 'a b c');
-    assert.equal(sauber('x'.repeat(200), 120).length, 120);
+    assert.equal(cleanText('a\u0000b\tc', 10), 'a b c');
+    assert.equal(cleanText('x'.repeat(200), 120).length, 120);
   });
 });
 
-describe('Visitenkarten-Ansicht', () => {
+describe('Weiterleitung zur Karte in der Web-App', () => {
   it('listet Services ohne Auszeichnung', () => {
     assert.deepEqual(serviceListe(schaufenster.services), ['Reparatur', 'Werkzeugverleih']);
-  });
-
-  it('fragt nur nach dem Ort, wenn die Person über die Karte kam', () => {
-    const opts = { logo: null, kater: '', mailFunktion: 'https://x', schluessel: 'k' };
-    assert.ok(visitenkarteAnsicht(schaufenster, { ...opts, via: 'karte' }).includes('Wo habt Ihr Euch getroffen?'));
-    assert.ok(!visitenkarteAnsicht(schaufenster, { ...opts, via: undefined }).includes('Wo habt Ihr Euch getroffen?'));
-  });
-
-  it('Kontakt schicken und tauschen nur nach dem QR-Code der Karte und mit Kontakt-Mail', () => {
-    const opts = { logo: null, kater: '', mailFunktion: 'https://x', schluessel: 'k' };
-    const karte = visitenkarteAnsicht(schaufenster, { ...opts, via: 'karte' });
-    assert.ok(karte.includes('Deinen Kontakt schicken'));
-    assert.ok(karte.includes('Kontakte tauschen'));
-    assert.ok(karte.includes('name="einwilligung" required'));
-    assert.ok(!visitenkarteAnsicht(schaufenster, { ...opts, via: undefined }).includes('Deinen Kontakt schicken'));
-    assert.ok(!visitenkarteAnsicht({ ...schaufenster, email: '' }, { ...opts, via: 'karte' }).includes('vk-p-tauschen'));
   });
 
   it('der QR-Code führt zur Ansicht mit Kennung der Karte', () => {
     assert.equal(karteQrLink('lindenhof-werkstatt'), 'https://kiezcoins.de/s/lindenhof-werkstatt/visitenkarte?via=karte');
   });
 
-  it('Knöpfe nach derselben Regel wie in der App (src/data/cardActions.mjs)', () => {
-    const opts = { logo: null, kater: '', mailFunktion: 'https://x', schluessel: 'k' };
-    const knoepfe = (html: string) => [...html.matchAll(/class="vk-k(?: haupt)?"[^>]*>([^<]+)</g)].map((m) => m[1]);
-    // Nach dem QR-Code: speichern zuerst und als Hauptknopf, kein QR-Code
-    const karte = visitenkarteAnsicht(schaufenster, { ...opts, via: 'karte' });
-    assert.equal(knoepfe(karte)[0], 'In Kontakte speichern');
-    assert.ok(karte.includes('class="vk-k haupt" data-haupt aria-expanded="false" aria-controls="vk-p-speichern"'));
-    assert.ok(!karte.includes('vk-p-qr'));
-    // Über einen Link: Teilen zuerst, QR-Code ja, Kontakt schicken nein
-    const link = visitenkarteAnsicht(schaufenster, opts);
-    assert.equal(knoepfe(link)[0], 'Digitale Visitenkarte teilen');
-    assert.ok(link.includes('vk-p-qr') && !link.includes('vk-p-schicken'));
-    assert.ok(link.includes('>Zum Schaufenster<'));
-    // Von der Schaufenster-Seite: Rückweg heißt „Zurück zum Schaufenster“
-    assert.ok(visitenkarteAnsicht(schaufenster, { ...opts, von: 'schaufenster' }).includes('>Zurück zum Schaufenster<'));
-    // Folgen in der App, Anfreunden nur, wenn das Schaufenster es erlaubt
-    assert.ok(link.includes('?folgen=1') && !link.includes('?anfreunden=1'));
-    assert.ok(visitenkarteAnsicht({ ...schaufenster, freunde: true }, opts).includes('?anfreunden=1'));
+  it('nimmt Herkunft und Team-Kennung mit, sonst nichts', () => {
+    assert.equal(appVisitenkarte('lindenhof-werkstatt'), 'https://app.kiezcoins.de/s/lindenhof-werkstatt/visitenkarte');
+    assert.equal(
+      appVisitenkarte('lindenhof-werkstatt', { via: 'karte', von: 'schaufenster', team: true }),
+      'https://app.kiezcoins.de/s/lindenhof-werkstatt/visitenkarte?via=karte&von=schaufenster&als=team',
+    );
+    assert.equal(appVisitenkarte('lindenhof-werkstatt', { via: 'x', von: 'y' }), 'https://app.kiezcoins.de/s/lindenhof-werkstatt/visitenkarte');
   });
 
-  it('zählt den Aufruf nur mit Zählfunktion', () => {
-    const opts = { logo: null, kater: '', mailFunktion: 'https://x', schluessel: 'k' };
-    assert.ok(visitenkarteAnsicht(schaufenster, { ...opts, zaehlFunktion: 'https://z/rpc' }).includes('"https://z/rpc"'));
-    assert.ok(visitenkarteAnsicht(schaufenster, opts).includes('const ziel = "";'));
+  it('Linkvorschau: Kopf, Bild und Weiterleitung, nicht in Suchmaschinen', () => {
+    const ziel = appVisitenkarte('lindenhof-werkstatt', { via: 'karte' });
+    const html = vorschauSeite(schaufenster, '<meta property="og:title" content="T">', ziel);
+    assert.ok(html.includes('<meta property="og:title" content="T">'));
+    assert.ok(html.includes(`content="0; url=${ziel}"`));
+    assert.ok(html.includes('src="/s/lindenhof-werkstatt/visitenkarte.png"'));
+    assert.ok(html.includes('<meta name="robots" content="noindex">'));
   });
 });
 
@@ -109,7 +86,6 @@ describe('Ort und Linkvorschau der Visitenkarte', () => {
     assert.equal(ortZeile({ kiez: '', address: 'Hauptstr. 1, 10115 Berlin' }), 'Berlin');
     assert.equal(ortZeile({ kiez: 'Leipzig-Lindenau', address: '04177 Leipzig' }), 'Leipzig-Lindenau');
     assert.equal(ortZeile({ kiez: '04177', address: '04177 Leipzig' }), 'Leipzig');
-    assert.ok(visitenkarteAnsicht(schaufenster, {}).includes('<div class="vk-kiez">Connewitz, Leipzig</div>'));
   });
 
   it('Text der Vorschau nennt Services und Ort', async () => {
@@ -117,25 +93,5 @@ describe('Ort und Linkvorschau der Visitenkarte', () => {
     assert.equal(bildText({ name: 'X', kiez: 'Lindenau', services: '- A\n- **B**' }), 'A, B in Lindenau');
     assert.equal(bildText({ name: 'X', services: '- A\n- B\n- C\n- D' }), 'A, B, C …');
     assert.equal(bildText({ name: 'Maria' }), 'Digitale Visitenkarte von Maria auf KiezCoins');
-  });
-});
-
-describe('Vorschau fürs Team (?als=team)', () => {
-  it('zeigt den Hinweis, blendet Besucher-Knöpfe und den Vornamen aus und zählt nicht', () => {
-    const html = visitenkarteAnsicht(schaufenster, { von: 'schaufenster', team: true });
-    assert.ok(html.includes('class="sf-team"'));
-    assert.ok(!html.includes('name="from"'));
-    assert.ok(!/id="vk-p-(schicken|tauschen|speichern)"/.test(html));
-    assert.ok(!html.includes('?folgen=1'));
-    assert.ok(html.includes('href="/s/lindenhof-werkstatt?als=team"'));
-    assert.ok(html.includes('if (false) zaehlen'));
-  });
-
-  it('Besucher:innen sehen alles wie bisher', () => {
-    const html = visitenkarteAnsicht(schaufenster, { via: 'karte' });
-    assert.ok(!html.includes('class="sf-team"'));
-    assert.ok(html.includes('name="from"'));
-    assert.ok(html.includes('vk-p-schicken'));
-    assert.ok(html.includes('if (true) zaehlen'));
   });
 });

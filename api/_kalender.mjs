@@ -4,22 +4,10 @@
 // Reine Logik ohne Netz, damit tests/schaufensterKalender.test.ts sie prüfen kann. Der Unterstrich im Dateinamen
 // sorgt dafür, dass Vercel daraus keine eigene Funktion macht.
 
-/** Text für iCalendar: Backslash, Semikolon, Komma und Zeilenumbruch maskieren (RFC 5545, 3.3.11) */
-export const icsText = (s) =>
-  String(s ?? '')
-    .replace(/\\/g, '\\\\')
-    .replace(/;/g, '\\;')
-    .replace(/,/g, '\\,')
-    .replace(/\r?\n/g, '\\n');
+// Maskieren und Falten teilen Kalender und vCard (src/data/vcard.mjs)
+import { icsFold, icsText } from '../src/data/vcard.mjs';
 
-/** Zeilen über 75 Byte falten (RFC 5545, 3.1). Gezählt wird in Zeichen bis 70, das reicht auch für Umlaute. */
-export function icsFold(line) {
-  const chars = Array.from(line);
-  if (chars.length <= 70) return line;
-  const parts = [];
-  for (let i = 0; i < chars.length; i += 70) parts.push((i ? ' ' : '') + chars.slice(i, i + 70).join(''));
-  return parts.join('\r\n');
-}
+export { icsFold, icsText };
 
 /** ISO-Zeit → UTC im Format 20261118T130000Z */
 export const icsTime = (iso) => new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');

@@ -25,6 +25,7 @@ import { AuthProvider, useAuth } from '../data/auth';
 import { StoreProvider } from '../data/store';
 import { translateAlerts } from '../components/T';
 import { getLanguageChanges, loadLanguage, loadTexts, useTexts } from '../data/texts';
+import { registerWebFonts } from '../lib/webFonts';
 import { LoadingScreen } from '../components/GearsLoader';
 import { StartKater } from '../components/StartKater';
 import { InstallHint } from '../components/InstallHint';
@@ -50,22 +51,33 @@ function setStartInfo(info: string) {
 // Nach WebAlert: Rückfragen erscheinen in der gewählten Sprache
 translateAlerts();
 
+const FONT_FILES = {
+  Inter_300Light,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Karla_300Light,
+  Karla_400Regular,
+  Karla_500Medium,
+  Karla_600SemiBold,
+  InterTight_600SemiBold,
+  Unbounded_300Light,
+  Unbounded_500Medium,
+};
+// Im Web meldet src/lib/webFonts.ts die Schriften nur an; der Browser lädt, was die Seite braucht, und der Start
+// wartet nicht darauf (Daria, 2026-11-23). Auf dem Handy lädt useFonts alle Schriften vor dem Start.
+const useAppFonts: () => [boolean, Error | null] =
+  Platform.OS === 'web'
+    ? () => {
+        registerWebFonts(FONT_FILES);
+        return [true, null];
+      }
+    : () => useFonts(FONT_FILES);
+
 // Navigation laut Figma-Annotationen: Push = Stack, Modal = von unten.
 // Kopfzeilen kommen aus der Komponente NavigationBar, daher headerShown: false.
 export default function RootLayout() {
-  const [fontsLoaded, fontError] = useFonts({
-    Inter_300Light,
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    Karla_300Light,
-    Karla_400Regular,
-    Karla_500Medium,
-    Karla_600SemiBold,
-    InterTight_600SemiBold,
-    Unbounded_300Light,
-    Unbounded_500Medium,
-  });
+  const [fontsLoaded, fontError] = useAppFonts();
 
   // Sprache (gespeicherte Wahl oder Handy), danach rendern
   const [languageReady, setLanguageReady] = useState(false);
@@ -120,10 +132,20 @@ function RootStack() {
   // Dich, nicht beim Laden der gespeicherten Sprache (getLanguageChanges, Daria, 2026-11-13).
   useTexts();
   const languageChanges = getLanguageChanges();
-  // Startbildschirm: Zahnräder unten, dann der Kater mit dem Besen (Daria, 2026-10-24)
-  const [intro, setIntro] = useState(true);
   // Aktueller Screen für den Fehlerbericht
   const pathname = usePathname();
+  // Startbildschirm: Zahnräder unten, dann der Kater mit dem Besen (Daria, 2026-10-24). Die Digitale Visitenkarte
+  // (/s/<kurzname>/visitenkarte) startet ohne, damit sie nach dem Scannen sofort erscheint (Daria, 2026-11-23).
+  const [intro, setIntro] = useState(() => !pathname.startsWith('/s/'));
+  useEffect(() => {
+    if (intro) return;
+    markIntroDone();
+    // Zahnräder aus public/index.html; sonst räumt sie StartKater weg
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      document.getElementById('boot')?.remove();
+      document.getElementById('boot-moment')?.remove();
+    }
+  }, [intro]);
   useEffect(() => setLastScreen(pathname), [pathname]);
   // Android-App: Tippen auf eine Push-Nachricht öffnet ihre Seite (Daria, 2026-11-16; Web macht das der Service Worker)
   const router = useRouter();

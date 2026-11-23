@@ -4,30 +4,12 @@
  * Reine Logik ohne React Native, damit tests/contactCard.test.ts sie prüfen kann.
  */
 
+import { cleanText, contactDate, icsFold as fold, icsText as vText } from '../data/vcard.mjs';
+
 export type ContactInput = { name: string; email?: string; place?: string; note?: string };
 
-/** Text für vCard: Backslash, Semikolon, Komma und Zeilenumbruch maskieren (RFC 6350, 3.4) */
-const vText = (s: string) => s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
-
-/** Zeilen ab 70 Zeichen falten (RFC 6350, 3.2) */
-function fold(line: string): string {
-  const chars = Array.from(line);
-  if (chars.length <= 70) return line;
-  const parts: string[] = [];
-  for (let i = 0; i < chars.length; i += 70) parts.push((i ? ' ' : '') + chars.slice(i, i + 70).join(''));
-  return parts.join('\r\n');
-}
-
-/** Freitext ohne Steuerzeichen, gekürzt */
-export const cleanText = (value: string | undefined, max: number) =>
-  (value ?? '')
-    .replace(/\r\n?/g, '\n')
-    .replace(/[\u0000-\u0009\u000B-\u001F\u007F]/g, ' ')
-    .trim()
-    .slice(0, max);
-
-export const contactDate = (now: Date) =>
-  new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', day: '2-digit', month: '2-digit', year: 'numeric' }).format(now);
+// Maskieren, Falten, Freitext und Datum teilt sie mit der vCard des Schaufensters (data/vcard.mjs)
+export { cleanText, contactDate };
 
 /** vCard mit Name, Mail und Notiz „Kennengelernt am … bei …“ */
 export function contactVcard(c: ContactInput, now = new Date()): string {

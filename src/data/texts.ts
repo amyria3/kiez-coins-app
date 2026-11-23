@@ -4,19 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocales } from 'expo-localization';
 
 import { supabase } from '../lib/supabase';
-import ar from '../i18n/ar.json';
-import en from '../i18n/en.json';
-import fr from '../i18n/fr.json';
-import he from '../i18n/he.json';
-import ru from '../i18n/ru.json';
-import uk from '../i18n/uk.json';
-import autoAr from '../i18n/auto/ar.json';
-import autoEn from '../i18n/auto/en.json';
-import autoFr from '../i18n/auto/fr.json';
-import autoHe from '../i18n/auto/he.json';
-import autoRu from '../i18n/auto/ru.json';
-import autoUk from '../i18n/auto/uk.json';
-import { genderOverlays } from '../i18n/gender';
+import { germanOverlays, type LanguagePack } from '../i18n/gender';
 import type { Gender } from './types';
 
 /**
@@ -27,6 +15,8 @@ import type { Gender } from './types';
  * - Andere Sprachen: die Spalte der Sprache in `app_texts` (z. B. `en`), sonst die Übersetzung aus
  *   `src/i18n/<sprache>.json`, sonst die DeepL-Übersetzung aus `src/i18n/auto/<sprache>.json`
  *   (`scripts/i18n-auto.mjs`, füllt nur Lücken), sonst das deutsche Original.
+ * - Die Dateien einer Sprache lädt die App erst, wenn jemand sie nutzt (`src/i18n/packs/<sprache>.ts`,
+ *   Daria, 2026-11-23: schnellerer Start der Web-App, z. B. nach dem Scannen einer Digitalen Visitenkarte).
  *
  * Platzhalter in geschweiften Klammern, z. B. „Ahoi, {anrede}!“, setzt die App ein. Übersetzungen können
  * Mehrzahlformen enthalten: „{n, plural, one {# день} few {# дні} many {# днів} other {# дня}}“.
@@ -56,9 +46,34 @@ type OtherLang = (typeof otherLanguages)[number];
 const RTL = new Set<Lang>(['ar', 'he']);
 export const isRtl = (l: Lang = lang) => RTL.has(l);
 
-const bundled: Record<OtherLang, Record<string, string>> = { en, fr, uk, ru, ar, he };
-// DeepL, nur wo es noch keine Übersetzung von Hand gibt
-const deeplTexts: Record<OtherLang, Record<string, string>> = { en: autoEn, fr: autoFr, uk: autoUk, ru: autoRu, ar: autoAr, he: autoHe };
+// Sprachpakete: Übersetzung von Hand, DeepL für die Lücken, Ergänzungen nach Geschlecht. Im Web je eine eigene Datei.
+const packLoaders: Record<OtherLang, () => Promise<{ default: LanguagePack }>> = {
+  en: () => import('../i18n/packs/en'),
+  fr: () => import('../i18n/packs/fr'),
+  uk: () => import('../i18n/packs/uk'),
+  ru: () => import('../i18n/packs/ru'),
+  ar: () => import('../i18n/packs/ar'),
+  he: () => import('../i18n/packs/he'),
+};
+const packs: Partial<Record<OtherLang, LanguagePack>> = {};
+const pending: Partial<Record<OtherLang, Promise<void>>> = {};
+
+/** Sprachpaket laden, falls noch nicht da. Ohne Netz bleibt das deutsche Original. */
+export function loadLanguagePack(l: Lang): Promise<void> {
+  if (l === 'de' || packs[l]) return Promise.resolve();
+  pending[l] ??= packLoaders[l]()
+    .then((m) => {
+      packs[l] = m.default;
+      notify();
+    })
+    .catch(() => {
+      delete pending[l];
+    });
+  return pending[l];
+}
+
+/** Alle Sprachpakete, für den Texte-Editor */
+export const loadAllLanguagePacks = () => Promise.all(otherLanguages.map(loadLanguagePack));
 
 const CACHE_KEY = 'app_texts_v2';
 const LANG_KEY = 'app_language';
@@ -150,6 +165,7 @@ export async function setLanguage(next: Lang | 'auto') {
   languageChanges += 1;
   choice = next;
   lang = next === 'auto' ? deviceLanguage() : next;
+  await loadLanguagePack(lang);
   applyDirection();
   notify();
   try {
@@ -211,6 +227,7 @@ export async function loadLanguage() {
   }
   await loadGender();
   lang = choice === 'auto' ? deviceLanguage() : choice;
+  await loadLanguagePack(lang);
   applyDirection();
   notify();
 }
@@ -309,9 +326,9 @@ export function format(template: string, vars?: Record<string, string | number |
 /** Fassung in der gewählten Sprache, ohne Platzhalter einzusetzen. `g`: Geschlecht, nach dem sich der Text richtet. */
 export function lookup(original: string, l: Lang = lang, g: Gender = gender): string {
   const key = normalizeText(original);
-  const byGender = genderOverlays[l]?.[g]?.[key];
-  if (l === 'de') return overrides.get(key) ?? byGender ?? original;
-  return cms[l]?.get(key) ?? byGender ?? bundled[l][key] ?? deeplTexts[l][key] ?? overrides.get(key) ?? original;
+  if (l === 'de') return overrides.get(key) ?? germanOverlays[g]?.[key] ?? original;
+  const pack = packs[l];
+  return cms[l]?.get(key) ?? pack?.overlays[g]?.[key] ?? pack?.main[key] ?? pack?.auto[key] ?? overrides.get(key) ?? original;
 }
 
 /**
@@ -362,4 +379,4 @@ export function useTexts(): typeof t {
 export const localeTag = () => ({ de: 'de-DE', en: 'en-GB', fr: 'fr-FR', uk: 'uk-UA', ru: 'ru-RU', ar: 'ar', he: 'he-IL' })[lang];
 
 /** Für den Editor: mitgelieferte Übersetzung eines Texts */
-export const bundledTranslation = (original: string, l: OtherLang) => bundled[l][normalizeText(original)];
+export const bundledTranslation = (original: string, l: OtherLang): string | undefined => packs[l]?.main[normalizeText(original)];

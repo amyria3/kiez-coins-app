@@ -282,6 +282,33 @@ export async function acceptsFriends(id: string): Promise<boolean> {
   return !error && data === true;
 }
 
+/**
+ * Öffentliches Schaufenster nach Kurzname, auch ohne Anmeldung (public_showcase, nur Sichtbarkeit „Alle“ und online).
+ * Für die Digitale Visitenkarte unter app.kiezcoins.de/s/<kurzname>/visitenkarte: Gäste sehen dieselbe Karte wie
+ * Mitglieder (Daria, 2026-11-23: eine Komponente für App und Web). Ohne Treffer null.
+ * Im Web hat public/start.js die Daten schon beim Start angefragt; die Antwort gilt einmal.
+ */
+export async function loadPublicShowcase(slug: string): Promise<Showcase | null> {
+  let data: unknown = null;
+  const early = typeof window !== 'undefined' ? (window as { __kiezCard?: { slug: string; data: Promise<unknown> } }).__kiezCard : undefined;
+  if (early?.slug === slug) {
+    (window as { __kiezCard?: unknown }).__kiezCard = undefined;
+    data = await early.data;
+  }
+  if (!data) {
+    const res = await supabase.rpc('public_showcase', { p_slug: slug });
+    if (res.error) return null;
+    data = res.data;
+  }
+  if (!data) return null;
+  const r = data as Omit<Row, 'group_id' | 'visibility' | 'plan_until'> & { address: string | null; email: string | null };
+  return {
+    ...toShowcase({ ...r, group_id: '', visibility: 'public', plan_until: null }),
+    address: r.address ?? undefined,
+    email: r.email ?? undefined,
+  };
+}
+
 export type ShowcaseFriendResult = 'sent' | 'friends' | 'own';
 
 /** Freundschaftsanfrage an die Person, die das Schaufenster angelegt hat. Wirft mit lesbarer Meldung. */

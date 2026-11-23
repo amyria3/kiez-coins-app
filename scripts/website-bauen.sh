@@ -13,5 +13,6 @@ git cat-file -e "$vorher^{commit}" 2>/dev/null || git fetch -q --depth=50 origin
 git cat-file -e "$vorher^{commit}" 2>/dev/null || exit 1
 git diff --quiet "$vorher" HEAD -- website api scripts/site scripts/build-download-site.mjs scripts/download-site.config.json \
   scripts/website-bauen.sh vercel.json package.json package-lock.json assets/favicon.png assets/illustrations/kater.svg \
-  src/components/icons src/data/legal.ts src/data/kater-sprueche.json src/lib/businessCardWeb.ts && exit 0
+  src/components/icons src/data/legal.ts src/data/kater-sprueche.json src/lib/businessCardWeb.ts \
+  src/data/cardActions.mjs src/data/digitalCard.mjs src/data/vcard.mjs src/data/paymentLinks.mjs && exit 0
 exit 1

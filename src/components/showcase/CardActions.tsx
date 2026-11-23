@@ -6,15 +6,18 @@ import { useRouter } from 'expo-router';
 import { cardActions, cardActionTemplate, type CardOrigin, type CardViewer } from '../../data/cardActions.mjs';
 import { WEB_APP_URL } from '../../data/groups';
 import { sendCardMail, showcasePublicLink, type Showcase } from '../../data/showcase';
-import { sendContactToShowcase, type ContactResult } from '../../data/showcaseCard';
+import { countShowcaseVisit, sendContactToShowcase, type ContactResult } from '../../data/showcaseCard';
 import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
+import { findPlace } from '../../data/location';
+import { showcaseVcard } from '../../data/vcard.mjs';
 import { contactFileName, contactVcard } from '../../lib/contactCard';
+import { saveVcard } from '../../lib/saveVcard';
 import { shareLink } from '../../lib/share';
 import { color, radius, space, text } from '../../theme/tokens';
 import { Button } from '../Button';
 import { Notice, QuestionHint } from '../Content';
-import { CheckOption, EMAIL_FIELD, NAME_FIELD, TextField } from '../Form';
+import { CheckOption, EMAIL_FIELD, NAME_FIELD, PHONE_FIELD, TextField } from '../Form';
 import { InviteQr } from '../InviteQr';
 import { scrollIntoView } from '../Nudge';
 import { CardMailButton } from '../ShowcaseShare';
@@ -22,7 +25,7 @@ import { Text } from '../T';
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
-type Panel = 'sendContact' | 'exchange' | 'addContact' | 'qr' | 'mail';
+type Panel = 'saveContact' | 'sendContact' | 'exchange' | 'addContact' | 'qr' | 'mail';
 
 type Props = {
   showcase: Showcase;
@@ -38,9 +41,11 @@ type Props = {
 };
 
 /**
- * Weiterleitungsoptionen der Digitalen Visitenkarte in der App (2026-11-23). Welche Knöpfe in welcher Reihenfolge
- * erscheinen, entscheidet src/data/cardActions.mjs, dieselbe Regel wie auf kiezcoins.de/s/<kurzname>/visitenkarte.
- * Ist eine Option aufgeklappt, tritt der Hauptknopf als Secondary-Knopf zurück, wie auf der Webseite.
+ * Weiterleitungsoptionen der Digitalen Visitenkarte (2026-11-23), für Team, Mitglieder und Gäste. Welche Knöpfe in
+ * welcher Reihenfolge erscheinen, entscheidet src/data/cardActions.mjs. Gäste sehen dieselbe Komponente unter
+ * app.kiezcoins.de/s/<kurzname>/visitenkarte; kiezcoins.de/s/<kurzname>/visitenkarte leitet dorthin (Daria,
+ * 2026-11-23: eine Komponente statt zweier Fassungen). Ist eine Option aufgeklappt, tritt der Hauptknopf als
+ * Secondary-Knopf zurück.
  */
 export function CardActions({ showcase: s, viewer, origin, canBefriend, following, busy, onFollow, onBefriend, onShowcase }: Props) {
   const [panel, setPanel] = useState<Panel | null>(null);
@@ -84,14 +89,28 @@ export function CardActions({ showcase: s, viewer, origin, canBefriend, followin
           case 'copyLink':
             return <Button key={id} label={copied ? 'Link kopiert' : label(id)} variant={variant} icon={copied ? 'check' : undefined} onPress={copy} />;
           case 'saveContact':
-            // vCard von kiezcoins.de: iPhone und Android bieten „Neuer Kontakt“ an; der Abruf zählt beim Team als gespeichert
+            // Im Browser fragt ein Formular nach Notiz und, nach dem QR-Code der Karte, nach dem Ort der Begegnung; die
+            // vCard entsteht auf dem Gerät. In der App auf dem Handy liefert kiezcoins.de die vCard ohne Notiz.
+            // iPhone und Android bieten „Neuer Kontakt“ an; beides zählt beim Team als gespeichert.
+            if (Platform.OS !== 'web') {
+              return (
+                <Button
+                  key={id}
+                  label={label(id)}
+                  variant={variant}
+                  onPress={() => Linking.openURL(`${showcasePublicLink(s.slug)}/kontakt.vcf`).catch(() => {})}
+                />
+              );
+            }
             return (
-              <Button
-                key={id}
-                label={label(id)}
-                variant={variant}
-                onPress={() => Linking.openURL(`${showcasePublicLink(s.slug)}/kontakt.vcf`).catch(() => {})}
-              />
+              <View key={id} style={styles.item}>
+                <Button label={label(id)} variant={variant} onPress={() => toggle(id)} />
+                {panel === id ? (
+                  <View ref={panelRef} collapsable={false}>
+                    <SaveContact showcase={s} met={origin === 'card' && viewer !== 'team'} onCancel={close} />
+                  </View>
+                ) : null}
+              </View>
             );
           case 'sendContact':
           case 'exchange':
@@ -162,6 +181,7 @@ export function CardActions({ showcase: s, viewer, origin, canBefriend, followin
 const CONTACT_MESSAGES: Record<Exclude<ContactResult, 'ok' | 'card_failed'>, string> = {
   email: 'Bitte prüfe die Mail-Adresse.',
   name: 'Bitte trage Deinen Namen ein.',
+  phone: 'Bitte prüfe die Telefonnummer.',
   consent: 'Bitte bestätige die Einwilligung.',
   limit: 'Für heute sind genug Kontakte verschickt. Probier es morgen wieder.',
   no_contact: 'Dieses Schaufenster hat keine Kontakt-Mail.',
@@ -177,6 +197,7 @@ function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; 
   const { profile } = useStore();
   const [name, setName] = useState(profile.handle ?? '');
   const [email, setEmail] = useState(profile.email ?? '');
+  const [phone, setPhone] = useState('');
   const [place, setPlace] = useState('');
   const [message, setMessage] = useState('');
   const [sendCard, setSendCard] = useState(true);
@@ -188,7 +209,7 @@ function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; 
     setBusy(true);
     setResult(null);
     const withCard = exchange || sendCard;
-    const r = await sendContactToShowcase(s.slug, { name, email, place, message: exchange ? '' : message, sendCard: withCard });
+    const r = await sendContactToShowcase(s.slug, { name, email, phone: exchange ? '' : phone, place, message: exchange ? '' : message, sendCard: withCard });
     setBusy(false);
     if (r === 'ok' || r === 'card_failed') {
       const done = t('{name} hat Deinen Kontakt erhalten.', { name: s.name });
@@ -201,6 +222,7 @@ function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; 
               ? `${done} ${t('Die Digitale Visitenkarte ist unterwegs an {to}.', { to: email.trim() })}`
               : done,
       });
+      setPhone('');
       setPlace('');
       setMessage('');
       setConsent(false);
@@ -218,7 +240,8 @@ function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; 
       </Text>
       <TextField label="Name" value={name} onChangeText={setName} maxLength={80} autoFocus {...NAME_FIELD} />
       <TextField label="Mail-Adresse" value={email} onChangeText={setEmail} maxLength={254} {...EMAIL_FIELD} />
-      <TextField label="Wo habt Ihr Euch getroffen?" value={place} onChangeText={setPlace} maxLength={120} helperText="Optional" />
+      {exchange ? null : <TextField label="Telefon" value={phone} onChangeText={setPhone} maxLength={30} helperText="Optional" {...PHONE_FIELD} />}
+      <PlaceField value={place} onChange={setPlace} />
       {exchange ? null : <TextField label="Nachricht" value={message} onChangeText={setMessage} multiline maxLength={1000} helperText="Optional" />}
       {exchange ? null : (
         <CheckOption label={t('Digitale Visitenkarte von {name} per Mail erhalten', { name: s.name })} selected={sendCard} onPress={() => setSendCard(!sendCard)} />
@@ -277,14 +300,7 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
     setBusy(true);
     setResult(null);
     // Kontakt ins eigene Adressbuch: Datei herunterladen, iPhone und Android bieten „Neuer Kontakt“ an
-    const blob = new Blob([contactVcard({ name, email, place, note })], { type: 'text/vcard;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = contactFileName(name);
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 10_000);
+    saveVcard(contactVcard({ name, email, place, note }), contactFileName(name));
     let message = t('Der Kontakt ist gespeichert.');
     let ok = true;
     if (sendCard && isEmail(email)) {
@@ -309,7 +325,7 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
       <Text style={styles.body}>{t('Steht jemand ohne Handy vor Dir, trag die Person hier ein. Ihr Kontakt kommt in Dein Adressbuch.')}</Text>
       <TextField label="Name" value={name} onChangeText={setName} maxLength={80} autoFocus {...NAME_FIELD} />
       <TextField label="Mail-Adresse" value={email} onChangeText={setEmail} maxLength={254} {...EMAIL_FIELD} />
-      <TextField label="Wo habt Ihr Euch getroffen?" value={place} onChangeText={setPlace} maxLength={120} helperText="Optional" />
+      <PlaceField value={place} onChange={setPlace} />
       <TextField label="Notiz für Dich" value={note} onChangeText={setNote} multiline maxLength={500} helperText="Optional" />
       {isEmail(email) ? (
         <CheckOption
@@ -336,10 +352,74 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
   );
 }
 
+/**
+ * „In Kontakte speichern“ im Browser (2026-11-23): Notiz und, nach dem QR-Code der Karte, der Ort der Begegnung kommen
+ * in die vCard des Schaufensters (data/vcard.mjs). Die Datei entsteht auf dem Gerät, KiezCoins speichert nichts davon.
+ */
+function SaveContact({ showcase: s, met, onCancel }: { showcase: Showcase; met: boolean; onCancel: () => void }) {
+  const [place, setPlace] = useState('');
+  const [note, setNote] = useState('');
+  const [done, setDone] = useState(false);
+
+  const save = () => {
+    saveVcard(showcaseVcard(s, { place, note }), `${s.slug}.vcf`);
+    countShowcaseVisit(s.slug, 'save');
+    setDone(true);
+  };
+
+  return (
+    <View style={styles.panel}>
+      <Text style={styles.body}>{t(met ? 'Ort und Notiz werden im Kontakt gespeichert.' : 'Die Notiz wird im Kontakt gespeichert.')}</Text>
+      {met ? <PlaceField value={place} onChange={setPlace} autoFocus /> : null}
+      <TextField label="Notiz für Dich" value={note} onChangeText={setNote} multiline maxLength={500} helperText="Optional" autoFocus={!met} />
+      <Button label="Kontakt sichern" onPress={save} />
+      <Button label="Abbrechen" variant="ghost" onPress={onCancel} />
+      <Text style={styles.meta}>
+        {t(met ? 'Das Datum wird automatisch ergänzt. Ort und Notiz stehen nur in Deinem Adressbuch.' : 'Das Datum wird automatisch ergänzt. Die Notiz steht nur in Deinem Adressbuch.')}
+      </Text>
+      {done ? <Notice message={t('Dein Handy bietet jetzt an, {name} als neuen Kontakt anzulegen.', { name: s.name })} onClose={() => setDone(false)} /> : null}
+    </View>
+  );
+}
+
+/**
+ * „Wo habt Ihr Euch getroffen?“ mit „Aktuellen Ort einsetzen“ (Daria, 2026-11-23): Erst nach dem Tippen fragt das Gerät
+ * nach dem Standort. Den Ort liefert findPlace (data/location.ts). Das Feld bleibt änderbar.
+ */
+function PlaceField({ value, onChange, autoFocus }: { value: string; onChange: (v: string) => void; autoFocus?: boolean }) {
+  const [busy, setBusy] = useState(false);
+  const [hint, setHint] = useState('');
+  const locate = async () => {
+    setBusy(true);
+    setHint(t('Ort wird ermittelt …'));
+    try {
+      const found = await findPlace();
+      onChange((found.street ?? found.kiez).slice(0, 120));
+      setHint('');
+    } catch {
+      setHint(t('Kein Ort gefunden. Bitte von Hand eintragen.'));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <View style={styles.place}>
+      <TextField label="Wo habt Ihr Euch getroffen?" value={value} onChangeText={onChange} maxLength={120} helperText="Optional" placeholder="z. B. Flohmarkt am Kanal" autoFocus={autoFocus} />
+      <Pressable accessibilityRole="button" onPress={locate} disabled={busy} hitSlop={8}>
+        <Text style={[styles.link, busy && styles.dim]}>{t('Aktuellen Ort einsetzen')}</Text>
+      </Pressable>
+      {hint ? <Text style={styles.meta}>{hint}</Text> : null}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   list: { gap: space[12] },
   item: { gap: space[12] },
   panel: { gap: space[16], padding: space[16], borderRadius: radius.md, backgroundColor: color.bg.surface },
   body: { ...text.body, color: color.text.primary },
   link: { ...text.caption, color: color.text.primary, textDecorationLine: 'underline' },
+  meta: { ...text.caption, color: color.text.secondary },
+  place: { gap: space[8] },
+  dim: { opacity: 0.5 },
 });

@@ -3,6 +3,7 @@ import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { Avatar } from './AuthorRow';
+import { Icon } from './icons/Icon';
 import { Text } from './T';
 import { financeLinkCode, loadFinanceStand, type FinanceStand } from '../data/remote';
 import { useStore } from '../data/store';
@@ -96,8 +97,10 @@ export function FinanceOverview() {
         <Text style={styles.caption}>Die Zahlen sind gerade nicht erreichbar.</Text>
       ) : null}
 
-      <Pressable accessibilityRole="link" onPress={openDetails} hitSlop={8}>
+      {/* Web-Pfeil wie bei allen Links ins Web (Daria, 2026-11-23) */}
+      <Pressable accessibilityRole="link" onPress={openDetails} hitSlop={8} style={styles.linkRow}>
         <Text style={styles.link}>Details auf der Website</Text>
+        <Icon name="external" size={14} color={color.text.primary} />
       </Pressable>
     </View>
   );
@@ -176,6 +179,7 @@ const styles = StyleSheet.create({
   legend: { flexDirection: 'row', justifyContent: 'space-between' },
   legendText: { ...text.caption, color: color.text.secondary },
   caption: { ...text.caption, color: color.text.secondary },
+  linkRow: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', gap: space[4] },
   link: { ...text.label, color: color.text.primary, textDecorationLine: 'underline' },
   du: { position: 'absolute', padding: space[2], backgroundColor: color.bg.screen },
 });
