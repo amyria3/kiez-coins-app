@@ -740,6 +740,8 @@ export async function GET(request) {
       s && !ansicht ? '<meta name="robots" content="index, follow, max-image-preview:large">' : '<meta name="robots" content="noindex">',
     )
     .replace('<!--KOPF-->', () => (ansicht && s ? kopfVisitenkarte(s) : kopf(s, `${SITE}/s/${slug}`)))
+    // Visitenkarte: Kopf „Name @ KiezCoins“ in einer Zeile (Daria, 2026-11-23)
+    .replace('<a class="brand"', () => (ansicht && s ? `<span class="vk-wer">${esc(s.name)}</span><span class="vk-at" aria-hidden="true">@</span><a class="brand"` : '<a class="brand"'))
     .replace('<!--POST-->', () =>
       ansicht && s
         ? seitenStil(s) +
