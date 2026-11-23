@@ -76,7 +76,7 @@ export async function loadShowcaseSummary(showcaseId: string): Promise<ShowcaseS
   return { posts: count ?? rows?.length ?? 0, lastPostAt: (rows?.[0] as { created_at?: string } | undefined)?.created_at };
 }
 
-export type ContactResult = 'ok' | 'card_failed' | 'email' | 'name' | 'consent' | 'limit' | 'no_contact' | 'error';
+export type ContactResult = 'ok' | 'card_failed' | 'email' | 'name' | 'phone' | 'consent' | 'limit' | 'no_contact' | 'error';
 
 /**
  * „Deinen Kontakt schicken“ und „Kontakte tauschen“ aus der App (2026-11-23), dieselbe Edge Function wie das Formular
@@ -86,7 +86,7 @@ export type ContactResult = 'ok' | 'card_failed' | 'email' | 'name' | 'consent' 
  */
 export async function sendContactToShowcase(
   slug: string,
-  input: { name: string; email: string; place?: string; message?: string; sendCard: boolean },
+  input: { name: string; email: string; phone?: string; place?: string; message?: string; sendCard: boolean },
 ): Promise<ContactResult> {
   try {
     const { data, error } = await supabase.functions.invoke<{ ok?: boolean; karte?: boolean; error?: string }>('visitenkarte-mail', {
@@ -95,7 +95,7 @@ export async function sendContactToShowcase(
         art: 'kontakt',
         name: input.name.trim(),
         email: input.email.trim(),
-        phone: '',
+        phone: input.phone?.trim() ?? '',
         ort: input.place?.trim() ?? '',
         nachricht: input.message?.trim() ?? '',
         karte: input.sendCard,
@@ -109,7 +109,7 @@ export async function sendContactToShowcase(
       return body.karte === false ? 'card_failed' : 'ok';
     }
     const code = body?.error;
-    return code === 'email' || code === 'name' || code === 'consent' || code === 'limit' || code === 'no_contact' ? code : 'error';
+    return code === 'email' || code === 'name' || code === 'phone' || code === 'consent' || code === 'limit' || code === 'no_contact' ? code : 'error';
   } catch {
     return 'error';
   }
