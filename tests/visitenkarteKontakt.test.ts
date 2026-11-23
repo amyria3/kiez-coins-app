@@ -74,3 +74,22 @@ describe('Visitenkarten-Ansicht', () => {
     assert.equal(karteQrLink('lindenhof-werkstatt'), 'https://kiezcoins.de/s/lindenhof-werkstatt/visitenkarte?via=karte');
   });
 });
+
+describe('Ort und Linkvorschau der Visitenkarte', () => {
+  it('Ort als „Kiez, Stadt“, die Stadt aus der Adresse', async () => {
+    const { ortZeile } = await import('../api/_visitenkarte.mjs');
+    assert.equal(ortZeile(schaufenster), 'Connewitz, Leipzig');
+    assert.equal(ortZeile({ kiez: 'Lindenau' }), 'Lindenau');
+    assert.equal(ortZeile({ kiez: '', address: 'Hauptstr. 1, 10115 Berlin' }), 'Berlin');
+    assert.equal(ortZeile({ kiez: 'Leipzig-Lindenau', address: '04177 Leipzig' }), 'Leipzig-Lindenau');
+    assert.equal(ortZeile({ kiez: '04177', address: '04177 Leipzig' }), 'Leipzig');
+    assert.ok(visitenkarteAnsicht(schaufenster, {}).includes('<div class="vk-kiez">Connewitz, Leipzig</div>'));
+  });
+
+  it('Text der Vorschau nennt Services und Ort', async () => {
+    const { bildText } = await import('../api/_visitenkarte-bild.mjs');
+    assert.equal(bildText({ name: 'X', kiez: 'Lindenau', services: '- A\n- **B**' }), 'A, B in Lindenau');
+    assert.equal(bildText({ name: 'X', services: '- A\n- B\n- C\n- D' }), 'A, B, C …');
+    assert.equal(bildText({ name: 'Maria' }), 'Visitenkarte von Maria auf KiezCoins');
+  });
+});

@@ -10,6 +10,7 @@ import { buchungsLink } from './_buchung.mjs';
 import { anfahrtLink, hatPunkt, karteEinbetten, karteGross } from './_karte.mjs';
 import { oeffnungszeiten } from './_oeffnungszeiten.mjs';
 import { karteQrLink, vcard, visitenkarteAnsicht } from './_visitenkarte.mjs';
+import { BILD_B, BILD_H, bildBaum, bildText } from './_visitenkarte-bild.mjs';
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://aqxzxpxrshizlaqyjplw.supabase.co';
 const SUPABASE_KEY = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? 'sb_publishable_WqrL7Y7Wm0l9cq4tHQpjAQ_iooAaNe0';
@@ -662,16 +663,64 @@ function inhalt(s, via) {
 </script>`;
 }
 
-// Visitenkarten-Ansicht: eigener Titel, nicht in Suchmaschinen (der Inhalt steht schon auf der Schaufenster-Seite)
+// Visitenkarten-Ansicht: eigener Titel und eigenes Vorschaubild für Messenger (Daria, 2026-11-23: „Der geteilte Link
+// wirkt ein wenig erbärmlich“). Das Bild zeigt die Karte selbst, siehe _visitenkarte-bild.mjs.
 function kopfVisitenkarte(s) {
   const url = `${SITE}/s/${s.slug}/visitenkarte`;
+  const titel = `${s.name} · Visitenkarte`;
+  const text = bildText(s);
+  const bild = `${url}.png`;
   return [
-    `<title>${esc(`Visitenkarte von ${s.name} – KiezCoins`)}</title>`,
+    `<title>${esc(`${titel} – KiezCoins`)}</title>`,
+    `<meta name="description" content="${esc(text)}">`,
     `<link rel="canonical" href="${esc(url)}">`,
     '<meta property="og:site_name" content="KiezCoins">',
-    `<meta property="og:title" content="${esc(`Visitenkarte von ${s.name}`)}">`,
+    '<meta property="og:type" content="profile">',
+    '<meta property="og:locale" content="de_DE">',
+    `<meta property="og:title" content="${esc(titel)}">`,
+    `<meta property="og:description" content="${esc(text)}">`,
     `<meta property="og:url" content="${esc(url)}">`,
+    `<meta property="og:image" content="${esc(bild)}">`,
+    `<meta property="og:image:width" content="${BILD_B}">`,
+    `<meta property="og:image:height" content="${BILD_H}">`,
+    `<meta property="og:image:alt" content="${esc(`Visitenkarte von ${s.name}`)}">`,
+    '<meta name="twitter:card" content="summary_large_image">',
   ].join('\n');
+}
+
+// Schriften für das Vorschaubild, einmal je Instanz geladen (dieselben Dateien wie auf der Seite)
+let schriften;
+const ladeSchriften = (origin) =>
+  (schriften ??= Promise.all(
+    ['Unbounded_500Medium', 'Karla_400Regular', 'Karla_500Medium'].map((f) =>
+      fetch(`${origin}/fonts/${f}.ttf`).then((r) => {
+        if (!r.ok) throw new Error(f);
+        return r.arrayBuffer();
+      }),
+    ),
+  ).catch((e) => {
+    schriften = undefined;
+    throw e;
+  }));
+
+// Vorschaubild /s/<kurzname>/visitenkarte.png (vercel.json). @vercel/og erst hier laden, damit die Seite selbst schnell startet.
+async function visitenkarteBild(s, origin) {
+  if (!s) return new Response('Nicht gefunden', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+  const [{ ImageResponse }, [unbounded, karla, karlaMedium]] = await Promise.all([import('@vercel/og'), ladeSchriften(origin)]);
+  const bild = new ImageResponse(bildBaum(s, { logo: foto(s.logo_path), kater: `data:image/svg+xml,${encodeURIComponent(KATER)}` }), {
+    width: BILD_B,
+    height: BILD_H,
+    fonts: [
+      { name: 'Unbounded', data: unbounded, weight: 500, style: 'normal' },
+      { name: 'Karla', data: karla, weight: 400, style: 'normal' },
+      { name: 'KarlaMedium', data: karlaMedium, weight: 500, style: 'normal' },
+    ],
+  });
+  // ImageResponse setzt „immutable“ für ein Jahr. Änderungen am Schaufenster sollen aber nach einer Weile im Bild
+  // ankommen, darum eigene Angabe; Messenger speichern das Bild ohnehin selbst
+  return new Response(bild.body, {
+    headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400' },
+  });
 }
 
 function kontaktDatei(s, slug, felder) {
@@ -707,7 +756,7 @@ export async function GET(request) {
   if (!s && SLUG.test(slug)) {
     const neu = await neuerKurzname(slug);
     if (neu) {
-      const rest = { ics: '/termine.ics', vcf: '/kontakt.vcf' }[url.searchParams.get('format')] ?? (url.searchParams.get('ansicht') === 'visitenkarte' ? '/visitenkarte' : '');
+      const rest = { ics: '/termine.ics', vcf: '/kontakt.vcf', png: '/visitenkarte.png' }[url.searchParams.get('format')] ?? (url.searchParams.get('ansicht') === 'visitenkarte' ? '/visitenkarte' : '');
       const via = url.searchParams.get('via') === 'karte' ? '?via=karte' : '';
       return Response.redirect(new URL(`/s/${neu}${rest}${via}`, url.origin), 301);
     }
@@ -729,6 +778,7 @@ export async function GET(request) {
   // Kontakt als vCard: /s/<kurzname>/kontakt.vcf (Daria, 2026-11-23). GET liefert die Karte ohne Notiz, POST aus dem
   // Formular der Visitenkarten-Ansicht mit Ort und Notiz.
   if (url.searchParams.get('format') === 'vcf') return kontaktDatei(s, slug, {});
+  if (url.searchParams.get('format') === 'png') return visitenkarteBild(s, url.origin);
 
   const via = url.searchParams.get('via') === 'karte' ? 'karte' : undefined;
   const ansicht = url.searchParams.get('ansicht') === 'visitenkarte';

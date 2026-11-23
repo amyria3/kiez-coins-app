@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Pressable, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Clipboard from 'expo-clipboard';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 
@@ -12,7 +11,6 @@ import { NavigationBar } from '../../components/NavigationBar';
 import { scrollIntoView } from '../../components/Nudge';
 import { NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
-import { ShowcaseShare } from '../../components/ShowcaseShare';
 import { Text } from '../../components/T';
 import { useAuth } from '../../data/auth';
 import { loadOwnProfile } from '../../data/remote';
@@ -358,8 +356,9 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               />
             ) : null}
           </FieldGroup>
-          {/* Teilen als eigener Abschnitt (Daria, 2026-11-18): Frage der Krabbe, Instant-Code, Link zum Kopieren, zuletzt die
-              Einladung per Mail wie auf der öffentlichen Seite (Daria, 2026-11-17). Nur bei „Alle“ und online, sonst gibt es die Seite im Web nicht. */}
+          {/* Connect zeigt nur die Visitenkarte als Vorschau und führt zu ihrer Ansicht. Teilen, Link kopieren, Kontakte tauschen,
+              Instant-Code und Mail gibt es nur dort, damit nichts doppelt und anders benannt ist (Daria, 2026-11-23).
+              Nur bei „Alle“ und online, sonst gibt es die Seite im Web nicht. */}
           {canShare(s) ? (
             <View
               ref={(v) => {
@@ -367,9 +366,7 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               }}
             >
               <FieldGroup heading label="Connect">
-                <ShowcaseShare showcase={s}>
-                  <CopyLinkButton showcase={s} />
-                </ShowcaseShare>
+                <CardPreview showcase={s} onPress={() => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id: s.id } })} />
               </FieldGroup>
             </View>
           ) : null}
@@ -450,7 +447,7 @@ function ShowcaseHints({ showcase: s, connectRef }: { showcase: Showcase; connec
       ) : null}
       {canShare(s) && shareClosed === false ? (
         <Notice
-          message="Weiter unten teilst Du Dein Schaufenster oder Deine Visitenkarte sofort: per Instant-Code oder per Mail."
+          message="Weiter unten teilst Du Deine Visitenkarte: als Link, per Instant-Code oder per Mail."
           action={{ label: 'Runterscrollen', onPress: () => scrollIntoView(connectRef[s.id] ?? null) }}
           onClose={closeShare}
         />
@@ -460,24 +457,22 @@ function ShowcaseHints({ showcase: s, connectRef }: { showcase: Showcase; connec
 }
 
 /**
- * Link zur Webseite als Secondary-Button (Daria, 2026-11-18). Der Button kopiert die Adresse und sagt kurz „Kopiert“.
- * Titel „Link zum Web-Schaufenster“ und Adresse darüber sind weggefallen (Daria, 2026-11-18: „Delete this“). Steht unter
- * „Connect“; „Per Mail senden“ ist weggefallen, weil die Mail unter „Connect“ dasselbe tut (Daria, 2026-11-18).
+ * Vorschau der Visitenkarte unter „Connect“ mit Knopf „Visitenkarte teilen“ (Daria, 2026-11-23). Das Bild ist dasselbe,
+ * das Messenger beim geteilten Link zeigen (kiezcoins.de/s/<kurzname>/visitenkarte.png, api/_visitenkarte-bild.mjs).
+ * Der Parameter `v` ändert sich mit den Angaben auf der Karte, damit nach dem Bearbeiten kein altes Bild bleibt.
  */
-function CopyLinkButton({ showcase }: { showcase: Showcase }) {
-  const link = showcasePublicLink(showcase.slug);
-  const [copied, setCopied] = useState(false);
+function CardPreview({ showcase, onPress }: { showcase: Showcase; onPress: () => void }) {
+  const v = [showcase.name, showcase.kiez, showcase.address, showcase.services, JSON.stringify(showcase.logo ?? null)].join('|');
+  let hash = 0;
+  for (let i = 0; i < v.length; i++) hash = (hash * 31 + v.charCodeAt(i)) | 0;
+  const uri = `${showcasePublicLink(showcase.slug)}/visitenkarte.png?v=${(hash >>> 0).toString(36)}`;
   return (
-    <Button
-      label={copied ? 'Kopiert' : 'Link kopieren'}
-      variant="secondary"
-      icon={copied ? 'check' : 'copy'}
-      onPress={async () => {
-        await Clipboard.setStringAsync(link);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1500);
-      }}
-    />
+    <View style={styles.list}>
+      <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={t('Visitenkarte öffnen')}>
+        <Image source={{ uri }} style={styles.cardPreview} contentFit="cover" transition={150} />
+      </Pressable>
+      <Button label="Visitenkarte teilen" onPress={onPress} />
+    </View>
   );
 }
 
@@ -493,6 +488,7 @@ const styles = StyleSheet.create({
   meta: { ...text.caption, color: color.text.secondary },
   link: { ...text.caption, color: color.text.primary, textDecorationLine: 'underline' },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.md },
+  cardPreview: { width: '100%', aspectRatio: 1200 / 630, borderRadius: radius.md, backgroundColor: '#F0FFA6' },
   list: { gap: space[8] },
   footer: { gap: space[8], marginTop: space[16] },
 });
