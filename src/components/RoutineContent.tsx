@@ -3,6 +3,7 @@ import { ActivityIndicator, Alert, Animated, Platform, ScrollView, StyleSheet, V
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Button } from './Button';
+import { NAV_SWAP_SPRING } from './TabBar';
 import { Notice } from './Content';
 import { KaterMessage } from './KaterMessage';
 import { upcomingCalendarEvents, type CalendarEvent } from '../data/calendar';
@@ -147,7 +148,9 @@ export function RoutineContent({
     });
   };
   useEffect(() => {
-    Animated.timing(inlineFade, { toValue: inlineShown ? 1 : 0, duration: 180, useNativeDriver: Platform.OS !== 'web' }).start();
+    // Dieselbe Feder wie das Plus in der Leiste (TabBar), damit der große Knopf genau so ein- und ausblendet, wie das
+    // Plus verschwindet und erscheint (Daria, 2026-11-23: „simultan“)
+    Animated.spring(inlineFade, { toValue: inlineShown ? 1 : 0, ...NAV_SWAP_SPRING, useNativeDriver: Platform.OS !== 'web' }).start();
   }, [inlineShown, inlineFade]);
   const scrolled = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     checkInline();
@@ -215,7 +218,7 @@ export function RoutineContent({
               damit nichts springt) */}
           <Animated.View
             ref={inlineRef}
-            style={{ opacity: fits ? 0 : inlineFade }}
+            style={{ opacity: fits ? 0 : inlineFade.interpolate({ inputRange: [0, 1], outputRange: [0, 1], extrapolate: 'clamp' }) }}
             pointerEvents={!fits && inlineShown ? 'auto' : 'none'}
             onLayout={checkInline}>
             {newButton}

@@ -73,7 +73,7 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
   const plusOn = routineOn && routineActive && !hidePlus;
   const open = useRef(new Animated.Value(plusOn ? 1 : 0)).current;
   useEffect(() => {
-    Animated.spring(open, { toValue: plusOn ? 1 : 0, friction: 7, tension: 70, useNativeDriver: false }).start();
+    Animated.spring(open, { toValue: plusOn ? 1 : 0, ...NAV_SWAP_SPRING, useNativeDriver: false }).start();
   }, [plusOn, open]);
   const itemW = open.interpolate({ inputRange: [0, 1], outputRange: [ITEM_W, ITEM_W_SMALL] });
   const itemH = open.interpolate({ inputRange: [0, 1], outputRange: [ITEM_H, ITEM_H_SMALL] });
@@ -241,6 +241,8 @@ const ITEM_H_SMALL = 42;
 const ICON_SMALL = 0.88;
 /** Kamera im Feed als breitere lila Pille */
 const CAMERA_PILL_W = 72;
+/** Feder für das Plus; „Neue Erinnerung“ in der Routine blendet mit derselben Feder um (Daria, 2026-11-23) */
+export const NAV_SWAP_SPRING = { friction: 7, tension: 70 };
 /** Plus: breiter als die Nachbarn und volle Höhe, das hervorgehobene Element */
 const PLUS_W = 64;
 const PLUS_ICON = 26;
