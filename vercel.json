@@ -90,6 +90,10 @@
       "destination": "/api/s?slug=:slug&ansicht=visitenkarte"
     },
     {
+      "source": "/s/:slug/visitenkarte.png",
+      "destination": "/api/s?slug=:slug&format=png"
+    },
+    {
       "source": "/s/:slug/kontakt.vcf",
       "destination": "/api/s?slug=:slug&format=vcf"
     },

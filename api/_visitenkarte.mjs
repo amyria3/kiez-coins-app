@@ -33,6 +33,18 @@ const kurzLink = (url) => String(url).replace(/^https?:\/\/(www\.)?/i, '').repla
 export const visitenkarteLink = (slug) => `${SITE}/s/${slug}/visitenkarte`;
 export const karteQrLink = (slug) => `${visitenkarteLink(slug)}?via=karte`;
 
+/**
+ * Ort unter dem Namen: „Kiez, Stadt“ (Daria, 2026-11-23). Die Stadt steht in der Adresse hinter der Postleitzahl.
+ * Ohne Adresse bleibt es beim Kiez, wie das Team ihn eingetragen hat.
+ */
+export function ortZeile(s) {
+  const kiez = String(s.kiez ?? '').trim();
+  const stadt = (String(s.address ?? '').match(/\b\d{5}[ \t]+([^\n,]+)/)?.[1] ?? '').trim();
+  if (!stadt) return kiez;
+  if (!kiez || /^\d{5}$/.test(kiez)) return stadt;
+  return kiez.toLowerCase().includes(stadt.toLowerCase()) ? kiez : `${kiez}, ${stadt}`;
+}
+
 /** Services ohne Auszeichnung, eine Zeile je Eintrag (Aufzählungszeichen, **fett** und *kursiv* fallen weg) */
 export function serviceListe(value) {
   return String(value ?? '')
@@ -112,7 +124,7 @@ function karte(s, logo, kater) {
     ...links.map((l) => `<a href="${esc(l)}" rel="noopener nofollow">${esc(kurzLink(l))}</a>`),
   ].filter(Boolean);
   return `<div class="vk-karte">
-    <div class="vk-marke">${logo ? `<img src="${esc(logo)}" alt="">` : `<span class="vk-kater">${kater}</span>`}<div><div class="vk-name">${esc(s.name)}</div>${s.kiez ? `<div class="vk-kiez">${esc(s.kiez)}</div>` : ''}</div></div>
+    <div class="vk-marke">${logo ? `<img src="${esc(logo)}" alt="">` : `<span class="vk-kater">${kater}</span>`}<div><div class="vk-name">${esc(s.name)}</div>${ortZeile(s) ? `<div class="vk-kiez">${esc(ortZeile(s))}</div>` : ''}</div></div>
     <div class="vk-zeilen">
       ${services.length ? `<div class="vk-chips" aria-label="Kompetenzen &amp; Services">${services.map((x) => `<span>${esc(x)}</span>`).join('')}</div>` : ''}
       ${s.address?.trim() ? zeile('Adresse', `<div class="vk-v">${esc(s.address.trim())}</div>`) : ''}
@@ -146,8 +158,9 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
 .geteilt .vk-marke img, .geteilt .vk-kater { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid #000027; object-fit: cover; box-sizing: border-box; }
 .geteilt .vk-kater { display: inline-flex; align-items: center; justify-content: center; background: #000; }
 .geteilt .vk-kater svg { width: 20px; height: 18px; }
-.geteilt .vk-name { font: 500 22px/1.15 Unbounded_500Medium, sans-serif; overflow-wrap: anywhere; }
-.geteilt .vk-kiez { font-size: 13px; margin-top: 4px; }
+.geteilt .vk-name { font: 500 22px/1.1 Unbounded_500Medium, sans-serif; overflow-wrap: anywhere; }
+/* Ort dicht unter dem Namen (Daria, 2026-11-23) */
+.geteilt .vk-kiez { font-size: 13px; line-height: 1.3; margin-top: 1px; }
 .geteilt .vk-zeilen { display: grid; gap: 14px; margin-top: 20px; }
 .geteilt .vk-zeilen:empty { display: none; }
 .geteilt .vk-lb { margin: 0 0 6px; font: 500 8px/1 Unbounded_500Medium, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
