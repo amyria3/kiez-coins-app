@@ -169,6 +169,15 @@ export default function EditShowcase() {
   const emailOk = !form.email.trim() || EMAIL_PATTERN.test(form.email.trim());
   const bgOk = !bgColor.trim() || HEX.test(bgColor.trim());
   const setLink = (i: number) => (value: string) => setLinks((all) => all.map((l, j) => (j === i ? value : l)));
+  // Link eine Stelle nach oben (-1) oder unten (+1) schieben
+  const moveLink = (i: number, by: -1 | 1) =>
+    setLinks((all) => {
+      const j = i + by;
+      if (j < 0 || j >= all.length) return all;
+      const next = [...all];
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
   const slugChanged = showcase.seoReady && slug !== showcase.slug;
   const slugOk = !slugChanged || slugState === 'frei' || slugState === 'eigen';
   const slugMessage =
@@ -311,19 +320,36 @@ export default function EditShowcase() {
           placeholder="hallo@kiezblick.de"
           error={emailOk ? undefined : 'Bitte eine E-Mail-Adresse wie hallo@kiezblick.de eintragen'}
         />
+        {/* Reihenfolge der Links (Daria, 2026-11-23): Sie gilt auf der Seite, der Visitenkarte und für die Auswahl der
+            druckbaren Karte, die die ersten Links vorauswählt */}
         {links.map((l, i) => (
-          <TextField
-            key={i}
-            label={links.length > 1 ? t('Link {n}', { n: i + 1 }) : t('Link')}
-            value={l}
-            onChangeText={setLink(i)}
-            maxLength={300}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="url"
-            placeholder={i === 0 ? 'https://kiezblick.de' : 'https://instagram.com/kiezblick'}
-            error={linkOk(l) ? undefined : 'Der Link beginnt mit https://'}
-          />
+          <View key={i} style={styles.linkItem}>
+            <TextField
+              label={links.length > 1 ? t('Link {n}', { n: i + 1 }) : t('Link')}
+              value={l}
+              onChangeText={setLink(i)}
+              maxLength={300}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
+              placeholder={i === 0 ? 'https://kiezblick.de' : 'https://instagram.com/kiezblick'}
+              error={linkOk(l) ? undefined : 'Der Link beginnt mit https://'}
+            />
+            {links.length > 1 ? (
+              <View style={styles.linkOrder}>
+                {i > 0 ? (
+                  <Pressable accessibilityRole="button" accessibilityLabel={t('Link {n} nach oben', { n: i + 1 })} hitSlop={8} onPress={() => moveLink(i, -1)}>
+                    <Text style={styles.linkOrderText}>Nach oben</Text>
+                  </Pressable>
+                ) : null}
+                {i < links.length - 1 ? (
+                  <Pressable accessibilityRole="button" accessibilityLabel={t('Link {n} nach unten', { n: i + 1 })} hitSlop={8} onPress={() => moveLink(i, 1)}>
+                    <Text style={styles.linkOrderText}>Nach unten</Text>
+                  </Pressable>
+                ) : null}
+              </View>
+            ) : null}
+          </View>
         ))}
         {links.length < MAX_LINKS ? (
           <Button label="Weiteren Link hinzufügen" icon="plus" variant="ghost" onPress={() => setLinks((all) => [...all, ''])} />
@@ -679,6 +705,9 @@ function AddressCheck({
 }
 
 const styles = StyleSheet.create({
+  linkItem: { gap: space[6] },
+  linkOrder: { flexDirection: 'row', justifyContent: 'flex-end', gap: space[16] },
+  linkOrderText: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },
   addressBlock: { gap: space[12] },
   addressCheck: { gap: space[8] },
   pictures: { flexDirection: 'row', alignItems: 'flex-start', gap: space[16] },
