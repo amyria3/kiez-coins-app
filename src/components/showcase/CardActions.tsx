@@ -155,7 +155,13 @@ export function CardActions({ showcase: s, viewer, origin, canBefriend, followin
           case 'mail':
             return (
               <View key={id} ref={panel === 'mail' ? panelRef : undefined} collapsable={false}>
-                <CardMailButton showcase={s} label={label(id)} open={panel === 'mail'} onOpenChange={(o) => setPanel(o ? 'mail' : null)} />
+                <CardMailButton
+                  showcase={s}
+                  label={label(id)}
+                  open={panel === 'mail'}
+                  onOpenChange={(o) => setPanel(o ? 'mail' : null)}
+                  askName={viewer !== 'team'}
+                />
               </View>
             );
           case 'follow':

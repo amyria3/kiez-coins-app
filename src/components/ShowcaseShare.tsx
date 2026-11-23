@@ -38,6 +38,7 @@ export function CardMailButton({
   icon,
   open: openProp,
   onOpenChange,
+  askName = true,
 }: {
   showcase: Showcase;
   label: string;
@@ -45,6 +46,11 @@ export function CardMailButton({
   /** Von außen gesteuert, z. B. in der Digitalen Visitenkarte: der Knopf klappt das Formular auf und wieder zu */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /**
+   * Nach dem Vornamen fragen (steht in der Mail als Absender). Das Team schickt im Namen des Schaufensters, dort fällt
+   * das Feld weg (Daria, 2026-11-23).
+   */
+  askName?: boolean;
 }) {
   const [openState, setOpenState] = useState(false);
   const controlled = openProp !== undefined;
@@ -79,8 +85,12 @@ export function CardMailButton({
     const r = await sendCardMail(showcase.slug, to, from);
     setBusy(false);
     if (r === 'ok') {
+      // Erfolg (Daria, 2026-11-23: „Where is success message?“): Das Formular klappt zu, die Meldung steht direkt unter
+      // dem Knopf, wo der Blick gerade ist. Vorher lag sie unter dem Formular und oft außerhalb des Bildschirms.
       setResult({ ok: true, message: t('Die Digitale Visitenkarte ist unterwegs an {to}.', { to: to.trim() }) });
       setTo('');
+      setFrom('');
+      setOpen(false);
     } else {
       setResult({ ok: false, message: t(MESSAGES[r]) });
     }
@@ -88,7 +98,18 @@ export function CardMailButton({
 
   return (
     <View style={styles.wrap}>
-      {controlled ? <Button label={label} variant="secondary" icon={icon} onPress={() => setOpen(!open)} /> : null}
+      {controlled ? (
+        <Button
+          label={label}
+          variant="secondary"
+          icon={icon}
+          onPress={() => {
+            setResult(null);
+            setOpen(!open);
+          }}
+        />
+      ) : null}
+      {result?.ok && !open ? <Notice message={result.message} onClose={() => setResult(null)} /> : null}
       {open ? (
         <View style={styles.form}>
           <TextField
@@ -101,17 +122,23 @@ export function CardMailButton({
             {...EMAIL_FIELD}
             {...focusProps}
           />
-          <TextField
-            label="Dein Vorname"
-            value={from}
-            onChangeText={setFrom}
-            maxLength={30}
-            helperText="Optional, steht in der Mail."
-            {...GIVEN_NAME_FIELD}
-            {...focusProps}
-          />
-          <View ref={end}>
+          {/* Früher „Optional, steht in der Mail.“: DeepL machte daraus „'Optional' is stated in the email.“ (Daria,
+              2026-11-23). Jetzt sagt der Hinweis, wozu der Name dient. */}
+          {askName ? (
+            <TextField
+              label="Dein Vorname (optional)"
+              value={from}
+              onChangeText={setFrom}
+              maxLength={30}
+              helperText="Damit die Mail sagt, von wem sie kommt."
+              {...GIVEN_NAME_FIELD}
+              {...focusProps}
+            />
+          ) : null}
+          <View ref={end} style={styles.form}>
             <Button label="Digitale Visitenkarte schicken" busy={busy} disabled={!isEmail(to)} onPress={send} />
+            {/* Fehler direkt unter dem Knopf, das Formular bleibt offen */}
+            {result && !result.ok ? <Notice variant="warning" message={result.message} onClose={() => setResult(null)} /> : null}
           </View>
           <Button label="Abbrechen" variant="ghost" onPress={cancel} />
           <Text style={styles.meta}>KiezCoins nutzt die Adresse nur für diese eine Mail und speichert sie nicht.</Text>
@@ -119,7 +146,6 @@ export function CardMailButton({
       ) : controlled ? null : (
         <Button label={label} variant="secondary" icon={icon} onPress={() => setOpen(true)} />
       )}
-      {result ? <Notice variant={result.ok ? undefined : 'warning'} message={result.message} onClose={() => setResult(null)} /> : null}
     </View>
   );
 }
