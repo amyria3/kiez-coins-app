@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Animated, Platform, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Button } from './Button';
@@ -28,6 +28,7 @@ export function RoutineContent({
   floatBottom,
   onScroll,
   calendarInList = true,
+  onNewButtonShown,
 }: {
   topPad?: number;
   bottomPad: number;
@@ -37,6 +38,8 @@ export function RoutineContent({
   calendarInList?: boolean;
   /** Lage der Liste, z. B. damit der Feed erkennt, ob man ganz oben weiter nach oben zieht */
   onScroll?: (e: NativeSyntheticEvent<NativeScrollEvent>) => void;
+  /** Ist „Neue Erinnerung“ ganz zu sehen? Dann blendet der Feed den Plus-Knopf in der Leiste aus (Daria, 2026-11-23) */
+  onNewButtonShown?: (shown: boolean) => void;
 }) {
   const router = useRouter();
   const [list, setList] = useState<Reminder[] | null | undefined>(undefined);
@@ -119,31 +122,33 @@ export function RoutineContent({
     undoReminderDone(r.id).then(reload, reload);
   }, [reload]);
 
-  // „Neue Erinnerung“ (Daria, 2026-11-16): Passt alles auf den Bildschirm, steht der Knopf fest über der Leiste.
-  // Sonst steht er am Ende der Liste; beim Scrollen nach oben fährt er hinter der Leiste hervor und bleibt direkt
-  // darüber, beim Scrollen nach unten fährt er wieder dahinter. Ist der Knopf am Ende der Liste zu sehen, reicht der.
-  const box = useRef({ view: 0, content: 0, inlineY: 0, y: 0 });
+  // „Neue Erinnerung“ (Daria, 2026-11-23): Passt alles auf den Bildschirm, steht der Knopf fest über der Leiste. Sonst
+  // steht er nur am Ende der Liste, nie halb hinter der Leiste (das Hervorfahren beim Scrollen wirkte unruhig). Ist er
+  // ganz zu sehen, fehlt dafür das Plus in der Leiste; sonst übernimmt das Plus.
+  const box = useRef({ view: 0, content: 0, inlineY: 0, inlineH: 0, y: 0 });
   const [fits, setFits] = useState(true);
-  const [floatShown, setFloatShown] = useState(false);
-  const slide = useRef(new Animated.Value(1)).current;
-  const showFloat = fits || floatShown;
-  useEffect(() => {
-    Animated.timing(slide, { toValue: showFloat ? 0 : 1, duration: 220, useNativeDriver: Platform.OS !== 'web' }).start();
-  }, [showFloat, slide]);
+  const [inlineShown, setInlineShown] = useState(false);
   const measure = () => {
     const b = box.current;
     setFits(b.content <= b.view + 1);
+    checkInline();
   };
-  const inlineInView = () => box.current.y + box.current.view - bottomPad > box.current.inlineY;
+  // Ganz zu sehen: Unterkante des Knopfs über der Oberkante der Leiste (floatBottom liegt space[8] darüber)
+  const checkInline = () => {
+    const b = box.current;
+    setInlineShown(b.inlineH > 0 && b.inlineY + b.inlineH <= b.y + b.view - (floatBottom - space[8]));
+  };
   const scrolled = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const y = e.nativeEvent.contentOffset.y;
-    const dy = y - box.current.y;
-    box.current.y = y;
-    if (inlineInView()) setFloatShown(false);
-    else if (dy < -4) setFloatShown(true);
-    else if (dy > 4) setFloatShown(false);
+    box.current.y = e.nativeEvent.contentOffset.y;
+    checkInline();
     onScroll?.(e);
   };
+  const empty = !!list && list.length === 0 && events.length === 0 && saved.length === 0;
+  const newShown = !!list && (empty || fits || inlineShown);
+  useEffect(() => {
+    onNewButtonShown?.(newShown);
+  }, [newShown, onNewButtonShown]);
+  useEffect(() => () => onNewButtonShown?.(false), [onNewButtonShown]);
   const newButton = <Button label="Neue Erinnerung" icon="plus" onPress={onNew} />;
 
   return (
@@ -196,13 +201,14 @@ export function RoutineContent({
             onDragLock={lockPage}
             showCalendar={calendarInList}
           />
-          {/* Passt alles auf den Bildschirm oder schwebt der Knopf gerade, ist dieser hier unsichtbar (Platz bleibt,
-              damit nichts springt). Sonst lugte er neben der Leiste hervor. */}
+          {/* Passt alles auf den Bildschirm, ist dieser hier unsichtbar (Platz bleibt, damit nichts springt) */}
           <View
-            style={showFloat ? styles.hidden : undefined}
-            pointerEvents={showFloat ? 'none' : 'auto'}
+            style={fits ? styles.hidden : undefined}
+            pointerEvents={fits ? 'none' : 'auto'}
             onLayout={(e) => {
               box.current.inlineY = e.nativeEvent.layout.y;
+              box.current.inlineH = e.nativeEvent.layout.height;
+              checkInline();
             }}>
             {newButton}
           </View>
@@ -211,15 +217,10 @@ export function RoutineContent({
           <View style={{ height: Math.max(0, bottomPad - space[32]) }} />
         </ScrollView>
       )}
-      {list && (list.length || events.length || saved.length) ? (
-        <Animated.View
-          pointerEvents={showFloat ? 'box-none' : 'none'}
-          style={[
-            styles.float,
-            { bottom: floatBottom, transform: [{ translateY: slide.interpolate({ inputRange: [0, 1], outputRange: [0, floatBottom + 72] }) }] },
-          ]}>
+      {list && !empty && fits ? (
+        <View pointerEvents="box-none" style={[styles.float, { bottom: floatBottom }]}>
           {newButton}
-        </Animated.View>
+        </View>
       ) : null}
     </View>
   );
