@@ -35,6 +35,21 @@ type TextFieldProps = Omit<TextInputProps, 'style'> & {
   showEnd?: boolean;
 };
 
+/**
+ * Felder, die Handy und Browser als E-Mail bzw. Name erkennen: passende Tastatur und Vorschläge zum Ausfüllen,
+ * z. B. die eigene Adresse, wenn man sich etwas selbst schickt (2026-11-23). Als Props an `TextField` geben.
+ */
+export const EMAIL_FIELD = {
+  keyboardType: 'email-address',
+  inputMode: 'email',
+  autoComplete: 'email',
+  textContentType: 'emailAddress',
+  autoCapitalize: 'none',
+  autoCorrect: false,
+} as const;
+export const NAME_FIELD = { autoComplete: 'name', textContentType: 'name' } as const;
+export const GIVEN_NAME_FIELD = { autoComplete: 'given-name', textContentType: 'givenName' } as const;
+
 /** Figma „TextField“ (Default, Focused, Error) */
 export function TextField({
   label,

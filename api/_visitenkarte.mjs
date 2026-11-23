@@ -169,6 +169,7 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
       ${begegnung ? '<label class="vk-f"><span>Wo habt Ihr Euch getroffen? <small>optional</small></span><input name="ort" maxlength="120" placeholder="z. B. Flohmarkt am Kanal"></label><button type="button" class="vk-ort" data-ort>Aktuellen Ort einsetzen</button><p class="vk-klein" role="status" data-ort-hinweis></p>' : ''}
       <label class="vk-f"><span>Notiz für Dich <small>optional</small></span><textarea name="notiz" maxlength="500" placeholder="Notiz"></textarea></label>
       <button type="submit" class="vk-k haupt">Kontakt sichern</button>
+      <button type="button" class="vk-abbrechen" data-zu>Abbrechen</button>
       <p class="vk-klein">Das Datum wird automatisch ergänzt. ${begegnung ? 'Ort und Notiz stehen' : 'Die Notiz steht'} nur in Deinem Adressbuch.</p>
     </form>`;
       case 'sendContact':
@@ -184,6 +185,7 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
       ${einwilligung}
       <input class="vk-falle" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <button type="submit" class="vk-k haupt">Kontakt schicken</button>
+      <button type="button" class="vk-abbrechen" data-zu>Abbrechen</button>
       <p class="vk-klein" role="status" data-hinweis></p>
       <p class="vk-klein">KiezCoins leitet die Angaben weiter und speichert sie nicht.</p>
     </form>`;
@@ -198,6 +200,7 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
       ${einwilligung}
       <input class="vk-falle" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <button type="submit" class="vk-k haupt">Kontakte tauschen</button>
+      <button type="button" class="vk-abbrechen" data-zu>Abbrechen</button>
       <p class="vk-klein" role="status" data-hinweis></p>
       <p class="vk-klein">KiezCoins leitet die Angaben weiter und speichert sie nicht.</p>
     </form>`;
@@ -206,6 +209,7 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
     <div class="vk-panel" id="vk-p-qr" hidden>
       <p>Mit der Kamera scannen, um diese Visitenkarte zu öffnen.</p>
       <div class="vk-qr">${qrSvg(karteQrLink(s.slug))}</div>
+      <button type="button" class="vk-abbrechen" data-zu>Schließen</button>
     </div>`;
       case 'mail':
         return `<button type="button" class="${k}"${h} aria-expanded="false" aria-controls="vk-p-mail">${beschriftung(id)}</button>
@@ -214,6 +218,7 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
       <label class="vk-f"><span>Dein Vorname <small>optional, steht in der Mail</small></span><input type="text" name="from" autocomplete="given-name" maxlength="30"></label>
       <input class="vk-falle" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <button type="submit" class="vk-k haupt">Visitenkarte schicken</button>
+      <button type="button" class="vk-abbrechen" data-zu>Abbrechen</button>
       <p class="vk-klein" role="status" data-hinweis></p>
       <p class="vk-klein">KiezCoins nutzt die Adresse nur für diese eine Mail und speichert sie nicht.</p>
     </form>`;
@@ -270,6 +275,7 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
   border: 1.5px solid var(--line); background: #fff; color: #161616; }
 .geteilt .vk-f textarea { min-height: 70px; resize: vertical; }
 .geteilt .vk-klein { font-size: 13px; color: var(--muted); text-align: center; }
+.geteilt .vk-abbrechen { background: none; border: 0; padding: 8px; font: 500 15px/1.25 Inter, sans-serif; color: var(--text); text-decoration: underline; cursor: pointer; }
 .geteilt .vk-qr { display: flex; justify-content: center; }
 .geteilt .vk-c { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; line-height: 1.4; }
 .geteilt .vk-c input { width: 20px; height: 20px; margin: 1px 0 0; flex: none; accent-color: var(--text); }
@@ -302,18 +308,34 @@ export function visitenkarteAnsicht(s, { via, von, logo, kater, mailFunktion, sc
   };
   zaehlen('card');
   // Eine Option aufgeklappt: Der Hauptknopf tritt als Secondary-Knopf zurück (Daria, 2026-11-23)
-  for (const k of knoepfe) {
-    k.addEventListener('click', () => {
-      const auf = k.getAttribute('aria-expanded') !== 'true';
-      for (const x of knoepfe) {
-        x.setAttribute('aria-expanded', 'false');
-        document.getElementById(x.getAttribute('aria-controls')).hidden = true;
+  // Aufklappen (UX-Regeln, 2026-11-23): Das Panel scrollt ganz ins Bild, ein Formular bekommt den Fokus im ersten
+  // Feld. „Abbrechen“ schließt es und verwirft die Eingaben, „Schließen“ klappt den QR-Code zu.
+  const zeigen = (k, auf) => {
+    for (const x of knoepfe) {
+      x.setAttribute('aria-expanded', 'false');
+      document.getElementById(x.getAttribute('aria-controls')).hidden = true;
+    }
+    if (auf) {
+      k.setAttribute('aria-expanded', 'true');
+      const p = document.getElementById(k.getAttribute('aria-controls'));
+      p.hidden = false;
+      const feld = p.querySelector('input:not([type=hidden]):not([type=checkbox]):not(.vk-falle), textarea');
+      if (feld) feld.focus({ preventScroll: true });
+      requestAnimationFrame(() => p.scrollIntoView({ behavior: 'smooth', block: feld ? 'start' : 'end' }));
+    }
+    if (haupt) haupt.classList.toggle('haupt', !auf);
+  };
+  for (const k of knoepfe) k.addEventListener('click', () => zeigen(k, k.getAttribute('aria-expanded') !== 'true'));
+  for (const z of document.querySelectorAll('[data-zu]')) {
+    z.addEventListener('click', () => {
+      const p = z.closest('.vk-panel');
+      if (p.tagName === 'FORM') p.reset();
+      for (const h of p.querySelectorAll('[data-hinweis], [data-ort-hinweis]')) h.textContent = '';
+      const k = knoepfe.find((x) => x.getAttribute('aria-controls') === p.id);
+      if (k) {
+        zeigen(k, false);
+        k.focus({ preventScroll: true });
       }
-      if (auf) {
-        k.setAttribute('aria-expanded', 'true');
-        document.getElementById(k.getAttribute('aria-controls')).hidden = false;
-      }
-      if (haupt) haupt.classList.toggle('haupt', !auf);
     });
   }
   // Teilen über das Menü des Geräts (AirDrop, Quick Share, Messenger); ohne Menü den Link kopieren
