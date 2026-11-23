@@ -2,9 +2,13 @@ import QRCode from 'qrcode';
 
 import { KATER_AVATAR_YELLOW } from '../components/icons/katerAvatarSvg';
 import { parseRich } from '../data/richText';
+import { printLink } from './printLink';
+
+export { printLink };
 
 /** Wie shortLink in data/showcase.ts; hier ohne Abhängigkeiten, damit die öffentliche Seite (api/s.mjs) sie mitnutzt */
 export const shortLink = (url: string) => url.replace(/^https:\/\/(www\.)?/i, '').replace(/\/$/, '');
+
 
 /** Übersetzung der Überschriften; die App setzt t() aus data/texts.ts ein, die öffentliche Seite bleibt Deutsch */
 let t: (s: string) => string = (s) => s;
@@ -282,7 +286,7 @@ function drawBack(d: CardData): { canvas: HTMLCanvasElement; fit: CardFit } {
     // Mail über den Links, eine Zeile, notfalls kleiner (Daria, 2026-11-17: „Dann bitte Mail einbinden“)
     { label: t('E-Mail'), value: d.email, max: 1, fit: true },
     // Links nicht umbrechen: lieber etwas kleiner, damit sie lesbar bleiben
-    { label: d.links.length > 1 ? t('Links') : t('Link'), entries: d.links.map(shortLink), key: 'links', max: 5, fit: true },
+    { label: d.links.length > 1 ? t('Links') : t('Link'), entries: d.links.map(printLink), key: 'links', max: 5, fit: true },
   ];
 
   const fit: CardFit = { links: 0, services: 0 };
@@ -310,6 +314,13 @@ function drawBack(d: CardData): { canvas: HTMLCanvasElement; fit: CardFit } {
       const lines = perEntry.flat();
       for (const l of clamp(ctx, lines, limit, colW)) {
         ctx.fillText(l, x, y);
+        y += bodyLine;
+      }
+      // Unter den Links steht immer, wo es alle gibt: Der QR-Code vorne öffnet die digitale Visitenkarte (2026-11-23)
+      if (it.key === 'links' && y <= maxY) {
+        ctx.font = `30px "${BODY_FONT}"`;
+        ctx.fillStyle = MUTED;
+        ctx.fillText(clamp(ctx, wrap(ctx, t('Alle Links: QR-Code vorne scannen'), colW), 1, colW)[0] ?? '', x, y);
         y += bodyLine;
       }
       if (it.key) {

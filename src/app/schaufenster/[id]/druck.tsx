@@ -12,7 +12,7 @@ import { WEB_APP_URL } from '../../../data/groups';
 import { loadShowcase, type Showcase } from '../../../data/showcase';
 import { useStore } from '../../../data/store';
 import { t } from '../../../data/texts';
-import { CARD_H, CARD_W, cardData, downloadCard, drawBusinessCard, printCard, servicesPlain, shortLink, type CardSides } from '../../../lib/businessCard';
+import { CARD_H, CARD_W, cardData, downloadCard, drawBusinessCard, printCard, printLink, servicesPlain, type CardSides } from '../../../lib/businessCard';
 import { useGoBack } from '../../../lib/goBack';
 import { color, radius, space, text } from '../../../theme/tokens';
 
@@ -123,7 +123,7 @@ export default function PrintableBusinessCard() {
               <View style={styles.choices}>
                 <Text style={styles.label}>{t('Links, in der Reihenfolge aus „Seite bearbeiten“')}</Text>
                 {links.map((l, i) => (
-                  <CheckOption key={`l${i}`} label={shortLink(l)} selected={linkOn[i]} onPress={() => toggle(linkOn, setLinkOn, i)} />
+                  <CheckOption key={`l${i}`} label={printLink(l)} selected={linkOn[i]} onPress={() => toggle(linkOn, setLinkOn, i)} />
                 ))}
               </View>
             ) : null}
