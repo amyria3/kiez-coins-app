@@ -1,18 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Linking, Platform, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Linking, Platform } from 'react-native';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Notice } from '../../../components/Content';
 import { SubScreen } from '../../../components/Screen';
-import { CardActions } from '../../../components/showcase/CardActions';
-import { DigitalCard } from '../../../components/showcase/DigitalCard';
-import { Text } from '../../../components/T';
+import { BusinessCard } from '../../../components/showcase/BusinessCard';
 import { useAuth } from '../../../data/auth';
 import { cardOrigin } from '../../../data/cardActions.mjs';
 import { acceptsFriends, loadPublicShowcase, showcasePublicLink, type Showcase } from '../../../data/showcase';
 import { countShowcaseVisit } from '../../../data/showcaseCard';
-import { t } from '../../../data/texts';
-import { color, space, text } from '../../../theme/tokens';
+import { color } from '../../../theme/tokens';
 
 /**
  * Route `s/[slug]/visitenkarte`: die Digitale Visitenkarte für alle, auch ohne Anmeldung (Daria, 2026-11-23: eine
@@ -88,28 +85,16 @@ export default function PublicBusinessCard() {
   const app = (param: 'folgen' | 'anfreunden') => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id, [param]: '1' } });
   return (
     <SubScreen title="Digitale Visitenkarte" navigation="back" onLeadingPress={back}>
-      <View style={styles.page}>
-        {team ? (
-          <Text style={styles.body}>
-            {t('So sieht Deine Digitale Visitenkarte aus. Knöpfe, die nur für andere gedacht sind, wie Folgen oder Kontakt schicken, sind hier ausgeblendet.')}
-          </Text>
-        ) : null}
-        <DigitalCard showcase={s} />
-        <CardActions
-          showcase={s}
-          viewer={team ? 'team' : 'guest'}
-          origin={team ? 'manage' : origin}
-          canBefriend={friendable}
-          onFollow={() => app('folgen')}
-          onBefriend={() => app('anfreunden')}
-          onShowcase={() => openPublic()}
-        />
-      </View>
+      <BusinessCard
+        showcase={s}
+        viewer={team ? 'team' : 'guest'}
+        origin={team ? 'manage' : origin}
+        canBefriend={friendable}
+        onFollow={() => app('folgen')}
+        onBefriend={() => app('anfreunden')}
+        onShowcase={() => openPublic()}
+      />
     </SubScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  page: { gap: space[24] },
-  body: { ...text.body, color: color.text.primary },
-});

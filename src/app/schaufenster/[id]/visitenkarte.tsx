@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Notice } from '../../../components/Content';
 import { SubScreen } from '../../../components/Screen';
-import { CardActions } from '../../../components/showcase/CardActions';
-import { DigitalCard } from '../../../components/showcase/DigitalCard';
-import { Text } from '../../../components/T';
+import { BusinessCard } from '../../../components/showcase/BusinessCard';
 import { cardOrigin } from '../../../data/cardActions.mjs';
 import {
   acceptsFriends,
@@ -21,7 +19,7 @@ import { countShowcaseVisit } from '../../../data/showcaseCard';
 import { useStore } from '../../../data/store';
 import { t } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
-import { color, space, text } from '../../../theme/tokens';
+import { color } from '../../../theme/tokens';
 
 /**
  * Route `schaufenster/[id]/visitenkarte`: die Digitale Visitenkarte in der App (2026-11-23). Oben dieselbe Vorschau
@@ -116,31 +114,19 @@ export default function ShowcaseBusinessCard() {
 
   return (
     <SubScreen title="Digitale Visitenkarte" navigation="back" onLeadingPress={goBack}>
-      <View style={styles.page}>
-        <DigitalCard showcase={s} />
-        {team ? (
-          <Text style={styles.body}>
-            {t('So sieht Eure Digitale Visitenkarte aus. Ändern kannst Du die Angaben unter „Inhalte bearbeiten“.')}
-          </Text>
-        ) : null}
-        {notice ? <Notice variant={notice.ok ? undefined : 'warning'} message={notice.message} onClose={() => setNotice(null)} /> : null}
-        <CardActions
-          showcase={s}
-          viewer={team ? 'team' : 'member'}
-          origin={origin}
-          following={access.following}
-          canBefriend={friendable && !access.founder && friendResult === null}
-          busy={busy}
-          onFollow={toggleFollow}
-          onBefriend={befriend}
-          onShowcase={toShowcase}
-        />
-      </View>
+      <BusinessCard
+        showcase={s}
+        viewer={team ? 'team' : 'member'}
+        origin={origin}
+        following={access.following}
+        canBefriend={friendable && !access.founder && friendResult === null}
+        busy={busy}
+        onFollow={toggleFollow}
+        onBefriend={befriend}
+        onShowcase={toShowcase}
+        notice={notice ? <Notice variant={notice.ok ? undefined : 'warning'} message={notice.message} onClose={() => setNotice(null)} /> : null}
+      />
     </SubScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  page: { gap: space[24] },
-  body: { ...text.body, color: color.text.primary },
-});
