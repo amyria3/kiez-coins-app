@@ -59,6 +59,8 @@ export type Showcase = {
   visibility: Visibility;
   /** Bezahlt: Die Grenze von 50 löscht nichts (plan_until in der Zukunft) */
   paid: boolean;
+  /** Die angemeldete Person hat die Gruppe gegründet; nur von myShowcases gesetzt (Inhalte und Einstellungen ändern) */
+  founder?: boolean;
   /** Schalter der Gruppe (Migration 20261110001600), aus `showcase_schalter`; ohne Antwort alles an */
   switches: ShowcaseSwitches;
   /** Nur für das Team (showcase_private); sonst leer */
@@ -203,6 +205,34 @@ export async function loadFriendRequestsSwitch(id: string): Promise<boolean | un
 export async function setFriendRequestsSwitch(id: string, on: boolean): Promise<boolean> {
   const { error } = await supabase.from('showcases').update({ friend_requests: on }).eq('id', id);
   return !error;
+}
+
+// ---------- Funktionen: Kalender-Abo und Bei Google finden lassen (2026-11-23, Migration 20261123000200) ----------
+
+export type ShowcaseFunctions = { calendarFeed: boolean; searchListing: boolean };
+
+/** Beide Schalter; null, solange die Migration fehlt oder nichts zurückkommt (dann blendet die App sie aus) */
+export async function loadShowcaseFunctions(id: string): Promise<ShowcaseFunctions | null> {
+  const { data, error } = await supabase.from('showcases').select('calendar_feed, search_listing').eq('id', id).maybeSingle();
+  if (error || !data) return null;
+  const row = data as { calendar_feed: boolean | null; search_listing: boolean | null };
+  return { calendarFeed: row.calendar_feed !== false, searchListing: row.search_listing !== false };
+}
+
+/** Einen Schalter sofort speichern; false bei einem Fehler */
+export async function setShowcaseFunction(id: string, key: keyof ShowcaseFunctions, on: boolean): Promise<boolean> {
+  const { error } = await supabase
+    .from('showcases')
+    .update(key === 'calendarFeed' ? { calendar_feed: on } : { search_listing: on })
+    .eq('id', id);
+  return !error;
+}
+
+/** Buchungslink für die Zeile „Online-Buchung“; undefined ohne Link oder solange die Spalte fehlt */
+export async function loadBookingUrl(id: string): Promise<string | undefined> {
+  const { data, error } = await supabase.from('showcases').select('booking_url').eq('id', id).maybeSingle();
+  if (error) return undefined;
+  return (data as { booking_url: string | null } | null)?.booking_url ?? undefined;
 }
 
 /** Zeigt das Schaufenster den Knopf „Mit … anfreunden“? Ohne Antwort nicht. */
@@ -726,7 +756,8 @@ export async function myShowcases(userId: string): Promise<Showcase[]> {
     .map((m) => m.group_id);
   if (!ids.length) return [];
   const { data } = await supabase.from('showcases').select(COLUMNS).in('group_id', ids).order('created_at');
-  const list = ((data ?? []) as unknown as Row[]).map(toShowcase);
+  const founded = new Set(((members ?? []) as { group_id: string; role: string }[]).filter((m) => m.role === 'founder').map((m) => m.group_id));
+  const list = ((data ?? []) as unknown as Row[]).map((r) => ({ ...toShowcase(r), founder: founded.has(r.group_id) }));
   await Promise.all(list.map(async (s) => (s.switches = await showcaseSwitches(s.id))));
   return list;
 }

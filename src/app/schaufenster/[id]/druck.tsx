@@ -25,7 +25,7 @@ const web = Platform.OS === 'web';
  * (lib/businessCardCanvas.ts); in der Android-App öffnet der Knopf dieselbe Seite im Browser. Nur fürs Team.
  *
  * „Auf der Karte zeigen“ (Daria, 2026-11-23): Häkchen bei Links und Services. Vorausgewählt sind die ersten Einträge
- * der Liste, so viele wie ganz auf die Karte passen. Die Reihenfolge der Links legt „Seite bearbeiten“ fest. Passt eine
+ * der Liste, so viele wie ganz auf die Karte passen. Die Reihenfolge der Links legt „Inhalte bearbeiten“ fest. Passt eine
  * Auswahl nicht ganz, sagt der Bildschirm, was fehlt, statt es still wegzulassen.
  */
 export default function PrintableBusinessCard() {
@@ -103,7 +103,7 @@ export default function PrintableBusinessCard() {
       <View style={styles.page}>
         <Explanation
           question="Was ist die druckbare Visitenkarte?"
-          answer="Eine Karte aus Papier im Format 85 × 55 mm wie eine Scheckkarte. Vorne stehen Name, Kiez und ein QR-Code zu Eurer digitalen Visitenkarte, hinten Adresse, Öffnungszeiten, Services und Links. Ändern kannst Du die Angaben unter „Seite bearbeiten“."
+          answer="Eine Karte aus Papier im Format 85 × 55 mm wie eine Scheckkarte. Vorne stehen Name, Kiez und ein QR-Code zu Eurer digitalen Visitenkarte, hinten Adresse, Öffnungszeiten, Services und Links. Ändern kannst Du die Angaben unter „Inhalte bearbeiten“."
         />
         {web ? (
           preview ? (
@@ -121,7 +121,7 @@ export default function PrintableBusinessCard() {
           <FieldGroup label="Auf der Karte zeigen">
             {links.length ? (
               <View style={styles.choices}>
-                <Text style={styles.label}>{t('Links, in der Reihenfolge aus „Seite bearbeiten“')}</Text>
+                <Text style={styles.label}>{t('Links, in der Reihenfolge aus „Inhalte bearbeiten“')}</Text>
                 {links.map((l, i) => (
                   <CheckOption key={`l${i}`} label={shortLink(l)} selected={linkOn[i]} onPress={() => toggle(linkOn, setLinkOn, i)} />
                 ))}

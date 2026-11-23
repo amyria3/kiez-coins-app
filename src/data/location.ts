@@ -88,7 +88,7 @@ export async function findPlace(): Promise<FoundPlace> {
 
 /**
  * Ergebnis der Adresssuche: gefunden (mit dem Ort, wie die Karte ihn kennt, zum Nachprüfen), nicht gefunden oder
- * Suchdienst nicht erreichbar. Die Unterscheidung braucht „Schaufenster bearbeiten“ (2026-11-23: „Wagnerhein Leipzig“
+ * Suchdienst nicht erreichbar. Die Unterscheidung braucht „Inhalte bearbeiten“ (2026-11-23: „Wagnerhein Leipzig“
  * fand nichts, die Seite zeigte trotzdem Karten-Links ins Leere; „Marktstr. 8“ landete in den Niederlanden).
  */
 export type AddressLookup = { status: 'found'; coords: Coords; label: string } | { status: 'notFound' } | { status: 'error' };

@@ -516,7 +516,8 @@ function inhalt(s, via) {
     // Termin buchen über Cal.com oder einen anderen Dienst (Daria, 2026-11-18); ohne Link keine Zeile
     buchungsLink(s) ? fakt('Termin buchen', buchungKnopf(s)) : '',
     // Abo nur, wenn es Termine gibt (Daria, 2026-11-18: leere Angaben fallen weg)
-    s.slug && hatTermine(s) ? fakt('Termine', aboKnoepfe(s)) : '',
+    // Kalender-Abo nur, wenn der Schalter an ist (calendar_feed, Migration 20261123000200; ohne Spalte an)
+    s.slug && hatTermine(s) && s.calendar_feed !== false ? fakt('Termine', aboKnoepfe(s)) : '',
   ].join('');
   // Mehrere Links (Migration 20261110000600); vorher nur die Webseite
   const links = Array.isArray(s.links) && s.links.length ? s.links : s.website ? [s.website] : [];
@@ -773,7 +774,8 @@ export async function GET(request) {
 
   // Kalender-Abo der Termine: /s/<kurzname>/termine.ics (vercel.json)
   if (url.searchParams.get('format') === 'ics') {
-    if (!s) return new Response('Nicht gefunden', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+    // Abo ausgeschaltet: keine neuen Termine mehr für bestehende Abos (2026-11-23)
+    if (!s || s.calendar_feed === false) return new Response('Nicht gefunden', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
     return new Response(schaufensterKalender(s, `${SITE}/s/${slug}`), {
       headers: {
         'Content-Type': 'text/calendar; charset=utf-8',
@@ -797,7 +799,8 @@ export async function GET(request) {
   const seite = (await vorlage.text())
     // Öffentliche Schaufenster dürfen in Suchmaschinen erscheinen; die Vorlage sperrt das sonst (geteilte Posts, 404)
     .replace('<meta name="robots" content="noindex">', () =>
-      s && !ansicht ? '<meta name="robots" content="index, follow, max-image-preview:large">' : '<meta name="robots" content="noindex">',
+      // „Bei Google finden lassen“ aus (search_listing, Migration 20261123000200): auch die Seite selbst „noindex“
+      s && !ansicht && s.search_listing !== false ? '<meta name="robots" content="index, follow, max-image-preview:large">' : '<meta name="robots" content="noindex">',
     )
     .replace('<!--KOPF-->', () => (ansicht && s ? kopfVisitenkarte(s) : kopf(s, `${SITE}/s/${slug}`)))
     .replace('<!--POST-->', () =>

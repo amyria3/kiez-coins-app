@@ -1,23 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 
 import { Button } from '../../../components/Button';
 import { FieldGroup, Notice, QuestionHint } from '../../../components/Content';
 import { Chip, ChipGroup, choosePhoto, CopyField, SwitchRow, TextField } from '../../../components/Form';
 import { ColorWheel } from '../../../components/ColorWheel';
 import { scrollIntoView } from '../../../components/Nudge';
+import type { SettingsArea } from '../../../components/showcase/ShowcaseSettingsRows';
 import { RichTextField } from '../../../components/RichText';
 import { SubScreen } from '../../../components/Screen';
 import { Text } from '../../../components/T';
 import {
   answerRequest,
-  deleteShowcase,
-  loadFriendRequestsSwitch,
   loadShowcase,
   openRequests,
-  setFriendRequestsSwitch,
   setShowcasePoster,
   showcaseInviteLink,
   showcasePublicLink,
@@ -49,15 +47,27 @@ import { shareText } from '../../../lib/share';
 import { color, font, radius, space, text } from '../../../theme/tokens';
 import { useAccentColor } from '../../../theme/signal';
 
+/** Titel je Bereich; ohne Bereich die Inhalte */
+const TITLES: Record<SettingsArea, string> = {
+  sichtbarkeit: 'Wer sieht das Schaufenster?',
+  posten: 'Wer darf posten?',
+  buchung: 'Online-Buchung',
+  aussehen: 'Aussehen',
+  adresse: 'Adresse und Suchmaschinen',
+};
+
 /**
- * Route `schaufenster/[id]/bearbeiten` (Daria, 2026-11-10): nur die Gründer:in. Angaben, Bilder, Sichtbarkeit,
- * Einladung und Anfragen bei „nur für Eingeladene“, wer posten darf, Schaufenster löschen.
+ * Routen `schaufenster/[id]/bearbeiten` und `schaufenster/[id]/einstellungen?bereich=…`, nur die Gründer:in
+ * (2026-11-23: Inhalte getrennt von Einstellungen). Ohne Bereich „Inhalte bearbeiten“: nur Texte und Bilder (Logo,
+ * Titelbild, Name, Kurztext, Services, Kiez, Adresse, E-Mail, Links, Öffnungszeiten, Impressum, AGB). Mit Bereich genau
+ * eine Einstellung von der Seite „Schaufenster“: Sichtbarkeit mit Einladung und Anfragen, wer posten darf, Online-Buchung,
+ * Aussehen, Adresse und Suchmaschinen. Schalter (Kalender-Abo, Google, Freundschaftsanfragen) und Löschen stehen auf
+ * der Seite „Schaufenster“ selbst. Speichern schickt alle Angaben, die übrigen unverändert, wie sie geladen wurden.
  */
 export default function EditShowcase() {
-  // von=schaufenster: geöffnet über kiezcoins.de/schaufenster. Nach dem Löschen geht es dorthin zurück statt auf die
-  // interne Gruppe, die Läden ohne die Social App gar nicht kennen.
-  const { id, von } = useLocalSearchParams<{ id: string; von?: string }>();
-  const router = useRouter();
+  const { id, bereich } = useLocalSearchParams<{ id: string; bereich?: string }>();
+  const area = bereich && bereich in TITLES ? (bereich as SettingsArea) : undefined;
+  const title = area ? TITLES[area] : 'Inhalte bearbeiten';
   const goBack = useGoBack();
   const { currentUserId, groups, users } = useStore();
   const [showcase, setShowcase] = useState<Showcase | null | undefined>(undefined);
@@ -86,8 +96,6 @@ export default function EditShowcase() {
   const [requests, setRequests] = useState<{ userId: string; handle: string }[]>([]);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
-  // Anfreunden über das Schaufenster (Daria, 2026-11-17); undefined, solange der Schalter nicht geladen ist
-  const [friendRequests, setFriendRequests] = useState<boolean | undefined>();
 
   useEffect(() => {
     loadShowcase(id, currentUserId).then((d) => {
@@ -117,7 +125,6 @@ export default function EditShowcase() {
       setLogo(s.logo);
       setCover(s.cover);
       showcasePosters(s.groupId).then(setPosters);
-      loadFriendRequestsSwitch(s.id).then(setFriendRequests);
     });
   }, [id, currentUserId]);
 
@@ -144,14 +151,14 @@ export default function EditShowcase() {
 
   if (showcase === undefined) {
     return (
-      <SubScreen title="Schaufenster bearbeiten" navigation="back" onLeadingPress={goBack}>
+      <SubScreen title={title} navigation="back" onLeadingPress={goBack}>
         <ActivityIndicator color={color.text.secondary} />
       </SubScreen>
     );
   }
   if (!showcase || !founder) {
     return (
-      <SubScreen title="Schaufenster bearbeiten" navigation="back" onLeadingPress={goBack}>
+      <SubScreen title={title} navigation="back" onLeadingPress={goBack}>
         <Notice message="Nur die Gründer:in der Gruppe bearbeitet das Schaufenster." />
       </SubScreen>
     );
@@ -230,12 +237,6 @@ export default function EditShowcase() {
     }
   };
 
-  // Sofort speichern wie „Wer darf posten?“
-  const toggleFriendRequests = async (on: boolean) => {
-    setFriendRequests(on);
-    if (!(await setFriendRequestsSwitch(showcase.id, on))) setFriendRequests(!on);
-  };
-
   const togglePoster = async (userId: string, allow: boolean) => {
     setPosters((p) => ({ ...p, [userId]: allow }));
     if (!(await setShowcasePoster(showcase.groupId, userId, allow))) setPosters((p) => ({ ...p, [userId]: !allow }));
@@ -246,29 +247,22 @@ export default function EditShowcase() {
     loadRequests();
   };
 
-  const remove = () =>
-    Alert.alert(t('Schaufenster löschen?'), t('Alle Posts und Termine im Schaufenster verschwinden. Das lässt sich nicht rückgängig machen.'), [
-      { text: t('Abbrechen'), style: 'cancel' },
-      {
-        text: t('Löschen'),
-        style: 'destructive',
-        onPress: async () => {
-          if (!(await deleteShowcase(showcase.id))) return;
-          if (von === 'schaufenster') router.dismissTo('/schaufenster');
-          else router.dismissTo({ pathname: '/groups/[id]', params: { id: showcase.groupId } });
-        },
-      },
-    ]);
-
   const link = showcaseInviteLink(showcase.inviteCode);
 
   return (
     <SubScreen
-      title="Schaufenster bearbeiten"
+      title={title}
       navigation="back"
       onLeadingPress={goBack}
-      actions={<Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !bookingOk || !emailOk || !bgOk || !slugOk} onPress={() => save()} />}
+      actions={
+        // „Wer darf posten?“ speichert jeden Schalter sofort
+        area === 'posten' ? undefined : (
+          <Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !bookingOk || !emailOk || !bgOk || !slugOk} onPress={() => save()} />
+        )
+      }
     >
+      {area ? null : (
+      <>
       <FieldGroup label="Bilder">
         <View style={styles.pictures}>
           <ImageSlot label="Logo" round image={logo} onPress={() => choosePhoto(setLogo, { square: true, title: 'Logo' })} />
@@ -281,16 +275,6 @@ export default function EditShowcase() {
         <TextField label="Kurztext" multiline value={form.about} onChangeText={set('about')} maxLength={1000} placeholder="Wer seid Ihr, was gibt es bei Euch?" />
         {/* Services als formatierbarer Text (Daria, 2026-11-10) */}
         <RichTextField label="Services" value={form.services} onChange={set('services')} maxLength={4000} />
-        <SwitchRow
-          label="Services einklappen"
-          description={
-            servicesCollapsed
-              ? 'Besucher sehen nur die Überschrift und klappen die Services mit einem Tipp auf.'
-              : 'Die Services stehen offen auf der Seite.'
-          }
-          value={servicesCollapsed}
-          onValueChange={setServicesCollapsed}
-        />
         <TextField label="Kiez" value={form.kiez} onChangeText={set('kiez')} maxLength={80} placeholder="Connewitz" />
         <View ref={addressRef} collapsable={false} style={styles.addressBlock}>
           <TextField
@@ -373,11 +357,14 @@ export default function EditShowcase() {
         {/* AGB (Daria, 2026-11-11), freiwillig; Besucher sehen sie eingeklappt */}
         {showcase.termsReady ? <RichTextField label="AGB" value={form.terms} onChange={set('terms')} maxLength={20000} /> : null}
       </FieldGroup>
+      </>
+      )}
 
       {/* Termin buchen über Cal.com (Daria, 2026-11-18: kostenlose Integrationen für kleine Betriebe). Der Betrieb legt
           sein Konto bei Cal.com selbst an; hier steht nur der Link zur Buchungsseite. Er erscheint im Schaufenster in der
           App und im Web als „Termin buchen“. Nur, wenn der Link geladen ist (Migration 20261118000600). */}
-      {showcase.bookingReady ? (
+      {area === 'buchung' && !showcase.bookingReady ? <Notice message="Die Online-Buchung ist gerade nicht verfügbar. Probier es später noch mal." /> : null}
+      {area === 'buchung' && showcase.bookingReady ? (
         <FieldGroup label="Termin buchen">
           <TextField
             label="Buchungslink"
@@ -398,6 +385,20 @@ export default function EditShowcase() {
         </FieldGroup>
       ) : null}
 
+      {area === 'aussehen' ? (
+      <>
+      <FieldGroup label="Services">
+        <SwitchRow
+          label="Services einklappen"
+          description={
+            servicesCollapsed
+              ? 'Besucher sehen nur die Überschrift und klappen die Services mit einem Tipp auf.'
+              : 'Die Services stehen offen auf der Seite.'
+          }
+          value={servicesCollapsed}
+          onValueChange={setServicesCollapsed}
+        />
+      </FieldGroup>
       <FieldGroup label="Farbe der öffentlichen Seite">
         <Text style={styles.meta}>Hintergrund von kiezcoins.de/s/{showcase.slug}. Die Schrift wird automatisch hell oder dunkel. In der App bleibt das Schaufenster im App-Look.</Text>
         <View style={styles.swatches}>
@@ -436,7 +437,10 @@ export default function EditShowcase() {
         <Text style={styles.meta}>Vorschau</Text>
         <PagePreview bg={bgOk && bgColor ? bgColor : PAGE_DEFAULT} name={form.name} about={form.about} kiez={form.kiez} cover={cover} logo={logo} />
       </FieldGroup>
+      </>
+      ) : null}
 
+      {area === 'sichtbarkeit' ? (
       <FieldGroup label="Wer sieht das Schaufenster?">
         <ChipGroup>
           <Chip label="Alle" selected={visibility === 'public'} onPress={() => setVisibility('public')} />
@@ -473,22 +477,12 @@ export default function EditShowcase() {
         ) : null}
       </FieldGroup>
 
-      {friendRequests !== undefined ? (
-        <FieldGroup label="Anfreunden">
-          <SwitchRow
-            label="Freundschaftsanfragen über das Schaufenster"
-            description={
-              friendRequests
-                ? 'Wer Deine Seite oder Visitenkarte öffnet, kann Dir mit einem Tipp eine Freundschaftsanfrage schicken.'
-                : 'Auf Deiner Seite erscheint kein Knopf zum Anfreunden.'
-            }
-            value={friendRequests}
-            onValueChange={toggleFriendRequests}
-          />
-        </FieldGroup>
       ) : null}
 
-      {showcase.seoReady && visibility === 'public' ? (
+      {area === 'adresse' && !(showcase.seoReady && visibility === 'public') ? (
+        <Notice message="Eine eigene Adresse und Angaben für Suchmaschinen gibt es, wenn Dein Schaufenster auf „Alle“ steht." />
+      ) : null}
+      {area === 'adresse' && showcase.seoReady && visibility === 'public' ? (
         <FieldGroup label="Adresse">
           <TextField
             label="Adresse der öffentlichen Seite"
@@ -515,7 +509,7 @@ export default function EditShowcase() {
         </FieldGroup>
       ) : null}
 
-      {showcase.seoReady && visibility === 'public' ? (
+      {area === 'adresse' && showcase.seoReady && visibility === 'public' ? (
         <FieldGroup label="In Suchmaschinen">
           <TextField
             label="Seitentitel"
@@ -547,7 +541,7 @@ export default function EditShowcase() {
         </FieldGroup>
       ) : null}
 
-      {requests.length ? (
+      {area === 'sichtbarkeit' && requests.length ? (
         <FieldGroup label="Anfragen">
           {requests.map((r) => (
             <View key={r.userId} style={styles.row}>
@@ -563,7 +557,7 @@ export default function EditShowcase() {
         </FieldGroup>
       ) : null}
 
-      {group ? (
+      {area === 'posten' && group ? (
         <FieldGroup label="Wer darf posten?">
           {/* Fragen und Erklärungen stehen in der passenden Komponente, nie als grauer Text (Daria, 2026-11-18) */}
           <QuestionHint question="Wer darf Termine erstellen?" answer="Wer posten darf, erstellt auch Termine." />
@@ -584,7 +578,6 @@ export default function EditShowcase() {
       ) : null}
 
       {failed ? <Notice variant="warning" message={failed} /> : null}
-      <Button label="Schaufenster löschen" variant="danger" onPress={remove} />
     </SubScreen>
   );
 }

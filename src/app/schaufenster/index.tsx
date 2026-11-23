@@ -8,11 +8,14 @@ import { Button } from '../../components/Button';
 import { Explanation, FieldGroup, Notice, QuestionHint } from '../../components/Content';
 import { SwitchRow, TextField } from '../../components/Form';
 import { NavigationBar } from '../../components/NavigationBar';
-import { NavRow } from '../../components/Rows';
+import { NavGroup, NavGroupRow } from '../../components/Rows';
+import { Icon } from '../../components/icons/Icon';
 import { SubScreen } from '../../components/Screen';
 import { Text } from '../../components/T';
 import { CardPreview } from '../../components/showcase/CardPreview';
 import { ShowcaseSummary } from '../../components/showcase/ShowcaseSummary';
+import { ShowcaseFunctions } from '../../components/showcase/ShowcaseFunctions';
+import { ShowcaseSettingsRows, type SettingsArea } from '../../components/showcase/ShowcaseSettingsRows';
 import { useAuth } from '../../data/auth';
 import { loadOwnProfile } from '../../data/remote';
 import { createShowcase, handleFromShowcase, myShowcases, showcasePublicLink, type Showcase } from '../../data/showcase';
@@ -246,6 +249,8 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
     if (currentUserId) myShowcases(currentUserId).then(setList, () => setList([]));
   }, [currentUserId]);
   useFocusEffect(reload);
+  const openSettings = (s: Showcase, area: SettingsArea) =>
+    router.push({ pathname: '/schaufenster/[id]/einstellungen', params: { id: s.id, bereich: area } });
 
   const create = async () => {
     setBusy(true);
@@ -321,9 +326,20 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
           <ShowcaseHints showcase={s} />
           {s.cover ? <Image source={s.cover} style={styles.cover} contentFit="cover" /> : null}
           {!s.switches.online ? <Notice variant="warning" message="Dieses Schaufenster ist offline." /> : null}
-          {/* Reihenfolge (2026-11-23): zuerst die Zusammenfassung, dann was man tut (Posten), dann die Seite selbst,
-              die digitale Visitenkarte mit ihren Weiterleitungsoptionen und getrennt davon die druckbare Karte. */}
+          {/* Reihenfolge (2026-11-23): Zusammenfassung, Inhalte bearbeiten (nur Texte und Bilder), Posten, die Seite selbst,
+              die digitale Visitenkarte und getrennt davon die druckbare Karte, dann Funktionen (Schalter) und Einstellungen. */}
           <ShowcaseSummary showcaseId={s.id} />
+          {s.founder ? (
+            <NavGroup>
+              <NavGroupRow
+                title="Inhalte bearbeiten"
+                description="Texte und Bilder"
+                leading={<Icon name="village" size={16} color={color.accountCards.ink} />}
+                background={color.accountCards.showcase}
+                onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id } })}
+              />
+            </NavGroup>
+          ) : null}
           {s.switches.posten ? (
             <FieldGroup heading label="Posten">
               <View style={styles.list}>
@@ -356,7 +372,7 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               <Notice
                 message={
                   s.switches.online
-                    ? 'Im Web erscheint Dein Schaufenster erst, wenn es öffentlich ist. Das stellst Du unter „Seite bearbeiten“ ein.'
+                    ? 'Im Web erscheint Dein Schaufenster erst, wenn es öffentlich ist. Das stellst Du unten unter „Wer sieht das Schaufenster?“ ein.'
                     : 'Solange Dein Schaufenster offline ist, gibt es keine Webseite dazu.'
                 }
                 onClose={() => setWebHint(null)}
@@ -392,37 +408,18 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               </View>
             </FieldGroup>
           ) : null}
-          {/* Bei Google gefunden werden (Daria, 2026-11-18: Google Business Profile, Stufe 1). Die öffentliche Seite liefert
-              Google Name, Adresse, Kartenpunkt, Öffnungszeiten und Termine (api/s.mjs). Für Google Maps legt der Betrieb
-              selbst ein kostenloses Unternehmensprofil an und trägt die Seite als Website ein. Nur mit Seite im Web. */}
-          {canShare(s) ? (
-            <FieldGroup heading label="Google">
-              <View style={styles.list}>
-                <Explanation
-                  question="Wie finden mich Leute bei Google Maps?"
-                  answer="Google liest Deine Seite im Web: Name, Adresse, Karte, Öffnungszeiten und Termine. Für Google Maps legst Du kostenlos ein Unternehmensprofil an und trägst dort den Link zu Deiner Seite als Website ein. Google prüft den Eintrag, das dauert einige Tage."
-                />
-                <Button label="Google-Unternehmensprofil anlegen" variant="secondary" onPress={() => Linking.openURL(GOOGLE_PROFILE_URL)} />
-              </View>
-            </FieldGroup>
+          {s.founder ? (
+            <>
+              <ShowcaseFunctions showcase={s} onOpenVisibility={() => openSettings(s, 'sichtbarkeit')} />
+              <ShowcaseSettingsRows showcase={s} onOpen={(area) => openSettings(s, area)} onDeleted={reload} />
+            </>
           ) : null}
-          {/* „Seite bearbeiten“ ist eine Einstellung: graue Zeile im eigenen Abschnitt am Schluss (Daria, 2026-11-18) */}
-          <FieldGroup heading label="Einstellungen">
-            <NavRow
-              label="Seite bearbeiten"
-              value="Bilder, Angaben, Sichtbarkeit"
-              onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id, von: 'schaufenster' } })}
-            />
-          </FieldGroup>
         </View>
       ))}
       {footer}
     </SubScreen>
   );
 }
-
-/** Kostenloses Unternehmensprofil bei Google anlegen (Google Business Profile) */
-const GOOGLE_PROFILE_URL = 'https://business.google.com/create';
 
 const canShare = (s: Showcase) => s.visibility === 'public' && s.switches.online;
 

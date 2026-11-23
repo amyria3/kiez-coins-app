@@ -75,7 +75,7 @@ export default function ShowcaseBusinessCard() {
         <Notice
           message={
             data?.access.team
-              ? 'Die Visitenkarte gibt es, sobald Dein Schaufenster öffentlich und online ist. Das stellst Du unter „Seite bearbeiten“ ein.'
+              ? 'Die Visitenkarte gibt es, sobald Dein Schaufenster öffentlich und online ist. Das stellst Du auf der Seite „Schaufenster“ unter „Wer sieht das Schaufenster?“ ein.'
               : 'Zu diesem Schaufenster gibt es gerade keine Visitenkarte.'
           }
         />
@@ -119,7 +119,7 @@ export default function ShowcaseBusinessCard() {
         <CardPreview showcase={s} />
         {team ? (
           <Text style={styles.body}>
-            {t('So sieht Eure digitale Visitenkarte aus, auch in der Vorschau, wenn Ihr den Link teilt. Ändern kannst Du die Angaben unter „Seite bearbeiten“.')}
+            {t('So sieht Eure digitale Visitenkarte aus, auch in der Vorschau, wenn Ihr den Link teilt. Ändern kannst Du die Angaben unter „Inhalte bearbeiten“.')}
           </Text>
         ) : null}
         {notice ? <Notice variant={notice.ok ? undefined : 'warning'} message={notice.message} onClose={() => setNotice(null)} /> : null}
