@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { ActivityIndicator, Alert, Animated, Platform, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Button } from './Button';
@@ -125,7 +125,11 @@ export function RoutineContent({
   // „Neue Erinnerung“ (Daria, 2026-11-23): Passt alles auf den Bildschirm, steht der Knopf fest über der Leiste. Sonst
   // steht er nur am Ende der Liste, nie halb hinter der Leiste (das Hervorfahren beim Scrollen wirkte unruhig). Ist er
   // ganz zu sehen, fehlt dafür das Plus in der Leiste; sonst übernimmt das Plus.
-  const box = useRef({ view: 0, content: 0, inlineY: 0, inlineH: 0, y: 0 });
+  // Halb zu sehen bleibt er unsichtbar und blendet erst ein, wenn er ganz über der Leiste steht (Daria, 2026-11-23).
+  const box = useRef({ view: 0, content: 0 });
+  const rootRef = useRef<View>(null);
+  const inlineRef = useRef<View>(null);
+  const inlineFade = useRef(new Animated.Value(0)).current;
   const [fits, setFits] = useState(true);
   const [inlineShown, setInlineShown] = useState(false);
   const measure = () => {
@@ -133,13 +137,19 @@ export function RoutineContent({
     setFits(b.content <= b.view + 1);
     checkInline();
   };
-  // Ganz zu sehen: Unterkante des Knopfs über der Oberkante der Leiste (floatBottom liegt space[8] darüber)
+  // Ganz zu sehen: Unterkante des Knopfs über der Oberkante der Leiste (floatBottom liegt space[8] darüber). Gemessen
+  // auf dem Bildschirm, nicht gerechnet: So stimmt es auch, wenn die Seite höher ist als der sichtbare Teil (Safari).
   const checkInline = () => {
-    const b = box.current;
-    setInlineShown(b.inlineH > 0 && b.inlineY + b.inlineH <= b.y + b.view - (floatBottom - space[8]));
+    inlineRef.current?.measureInWindow((_x, y, _w, h) => {
+      rootRef.current?.measureInWindow((_rx, ry, _rw, rh) => {
+        setInlineShown(h > 0 && y + h <= ry + rh - (floatBottom - space[8]) + 1);
+      });
+    });
   };
+  useEffect(() => {
+    Animated.timing(inlineFade, { toValue: inlineShown ? 1 : 0, duration: 180, useNativeDriver: Platform.OS !== 'web' }).start();
+  }, [inlineShown, inlineFade]);
   const scrolled = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    box.current.y = e.nativeEvent.contentOffset.y;
     checkInline();
     onScroll?.(e);
   };
@@ -152,7 +162,7 @@ export function RoutineContent({
   const newButton = <Button label="Neue Erinnerung" icon="plus" onPress={onNew} />;
 
   return (
-    <View style={styles.screen}>
+    <View ref={rootRef} style={styles.screen}>
       {list === undefined ? (
         <View style={styles.center}>
           <ActivityIndicator color={color.text.secondary} />
@@ -201,17 +211,15 @@ export function RoutineContent({
             onDragLock={lockPage}
             showCalendar={calendarInList}
           />
-          {/* Passt alles auf den Bildschirm, ist dieser hier unsichtbar (Platz bleibt, damit nichts springt) */}
-          <View
-            style={fits ? styles.hidden : undefined}
-            pointerEvents={fits ? 'none' : 'auto'}
-            onLayout={(e) => {
-              box.current.inlineY = e.nativeEvent.layout.y;
-              box.current.inlineH = e.nativeEvent.layout.height;
-              checkInline();
-            }}>
+          {/* Passt alles auf den Bildschirm oder ist er nicht ganz zu sehen, ist dieser hier unsichtbar (Platz bleibt,
+              damit nichts springt) */}
+          <Animated.View
+            ref={inlineRef}
+            style={{ opacity: fits ? 0 : inlineFade }}
+            pointerEvents={!fits && inlineShown ? 'auto' : 'none'}
+            onLayout={checkInline}>
             {newButton}
-          </View>
+          </Animated.View>
           {/* Platz unter „Neue Erinnerung“ als eigenes Element statt Polsterung: Safari ließ die Polsterung unten in
               der scrollbaren Fläche weg, der Button lag hinter der Leiste (Daria, 2026-11-13) */}
           <View style={{ height: Math.max(0, bottomPad - space[32]) }} />
@@ -233,6 +241,5 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: space[20], paddingTop: space[16], gap: space[24] },
   /** Mehr Luft zwischen Kalender und Gruppen */
   contentFlat: { gap: space[32] },
-  hidden: { opacity: 0 },
   float: { position: 'absolute', left: space[20], right: space[20] },
 });
