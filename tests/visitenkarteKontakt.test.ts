@@ -60,6 +60,16 @@ describe('Visitenkarten-Ansicht', () => {
     assert.ok(!visitenkarteAnsicht(schaufenster, { ...opts, via: undefined }).includes('Wo habt Ihr Euch getroffen?'));
   });
 
+  it('Kontakt schicken und tauschen nur nach dem Instant-Code und mit Kontakt-Mail', () => {
+    const opts = { logo: null, kater: '', mailFunktion: 'https://x', schluessel: 'k' };
+    const karte = visitenkarteAnsicht(schaufenster, { ...opts, via: 'karte' });
+    assert.ok(karte.includes('Deinen Kontakt schicken'));
+    assert.ok(karte.includes('Kontakte tauschen'));
+    assert.ok(karte.includes('name="einwilligung" required'));
+    assert.ok(!visitenkarteAnsicht(schaufenster, { ...opts, via: undefined }).includes('Deinen Kontakt schicken'));
+    assert.ok(!visitenkarteAnsicht({ ...schaufenster, email: '' }, { ...opts, via: 'karte' }).includes('vk-p-tauschen'));
+  });
+
   it('der Instant-Code führt zur Ansicht mit Kennung der Karte', () => {
     assert.equal(karteQrLink('lindenhof-werkstatt'), 'https://kiezcoins.de/s/lindenhof-werkstatt/visitenkarte?via=karte');
   });

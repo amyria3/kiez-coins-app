@@ -235,3 +235,67 @@ export function cardMail(d: CardMailData, qr: QrMatrix, sender: string): { subje
   ].join('\n');
   return { subject, html, text };
 }
+
+export type ContactData = {
+  name: string;
+  email: string;
+  phone?: string;
+  place?: string;
+  message?: string;
+  /** Hat die Person die Visitenkarte im selben Schritt per Mail bekommen? (Kontakte tauschen) */
+  cardSent: boolean;
+};
+
+/**
+ * Mail an das Team, wenn jemand über die Visitenkarte den eigenen Kontakt schickt (Daria, 2026-11-23). Geht an die
+ * Kontakt-Mail des Schaufensters; „Antworten“ geht an die Person. Die Angaben stehen nur in dieser Mail, KiezCoins
+ * speichert sie nicht.
+ */
+export function contactMail(showcase: string, url: string, c: ContactData, date: string): { subject: string; html: string; text: string } {
+  const subject = `Neuer Kontakt über Deine Visitenkarte: ${c.name}`;
+  const rows: [string, string][] = [
+    ['Name', c.name],
+    ['Mail', c.email],
+    ...(c.phone ? [['Telefon', c.phone] as [string, string]] : []),
+    ['Kennengelernt', c.place ? `am ${date} bei ${c.place}` : `am ${date}`],
+    ...(c.message ? [['Nachricht', c.message] as [string, string]] : []),
+  ];
+  const note = c.cardSent
+    ? `${c.name} hat im selben Schritt Eure Visitenkarte per Mail bekommen.`
+    : `${c.name} hat Euch die Kontaktdaten geschickt, ohne Eure Visitenkarte per Mail.`;
+  const row = ([k, v]: [string, string]) =>
+    `<tr><td style="font-family:${BODY};font-size:13px;line-height:20px;color:${MUTED};padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap">${esc(k)}</td>
+    <td style="font-family:${BODY};font-size:16px;line-height:22px;color:${INK};padding:6px 0;vertical-align:top">${br(v)}</td></tr>`;
+  const html = `<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light">
+<title>${esc(subject)}</title></head>
+<body style="margin:0;padding:0;background:${PAGE}">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${PAGE}" style="background:${PAGE}">
+<tr><td align="center" style="padding:28px 12px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px">
+  <tr><td style="font-family:${BODY};font-size:17px;line-height:25px;color:${INK};padding:0 4px 18px">
+    Über die Visitenkarte von <strong>${esc(showcase)}</strong> hat Dir jemand den eigenen Kontakt geschickt.
+  </td></tr>
+  <tr><td style="background:${WHITE};border-radius:14px;padding:16px 20px">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0">${rows.map(row).join('')}</table>
+  </td></tr>
+  <tr><td style="font-family:${BODY};font-size:15px;line-height:22px;color:${INK};padding:18px 4px 0">${esc(note)} Mit „Antworten“ schreibst Du direkt an ${esc(c.email)}.</td></tr>
+  <tr><td style="font-family:${BODY};font-size:12px;line-height:18px;color:${MUTED};padding:24px 4px 0;text-align:center">
+    Die Person hat eingewilligt, dass ${esc(showcase)} diese Angaben erhält. KiezCoins hat sie nur weitergeleitet und nicht gespeichert.<br>
+    <a href="${esc(url)}" style="color:${MUTED}">${esc(shortLink(url))}</a> · <a href="${SITE}/datenschutz" style="color:${MUTED}">Datenschutz</a>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`;
+  const text = [
+    `Über die Visitenkarte von ${showcase} hat Dir jemand den eigenen Kontakt geschickt.`,
+    '',
+    ...rows.map(([k, v]) => `${k}: ${v}`),
+    '',
+    `${note} Mit „Antworten“ schreibst Du direkt an ${c.email}.`,
+    '',
+    `Die Person hat eingewilligt, dass ${showcase} diese Angaben erhält. KiezCoins hat sie nur weitergeleitet und nicht gespeichert.`,
+  ].join('\n');
+  return { subject, html, text };
+}

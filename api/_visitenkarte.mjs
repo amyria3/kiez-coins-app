@@ -11,7 +11,11 @@
 //
 // Drucken und Herunterladen gibt es hier nicht: Das Team findet beides in der App unter „Schaufenster › Visitenkarte“
 // (Daria, 2026-11-23: „Herunterladen und PDF nur auf Desktop und für mich selbst“).
-// Noch offen (Teil 2): „Deinen Kontakt schicken“, „Kontakte tauschen“ und die Ansicht der Eigentümerin.
+// „Deinen Kontakt schicken“ und „Kontakte tauschen“ (Daria, 2026-11-23) gibt es nur nach dem Instant-Code der Karte und
+// nur, wenn das Schaufenster eine Kontakt-Mail hat. Die Edge Function visitenkarte-mail leitet die Angaben an diese
+// Mail weiter und schickt beim Tausch der Person die Visitenkarte; gespeichert wird nichts. Die Ansicht des Teams mit
+// „Link kopieren“ und eigenem Tausch liegt in der App (Schaufenster › Visitenkarte), weil kiezcoins.de die Anmeldung
+// der App nicht kennt.
 
 // Nur der Kern von qrcode (ohne PNG-Ausgabe und fs), so läuft das Modul auch gebündelt in den Tests
 import QRCode from 'qrcode/lib/core/qrcode.js';
@@ -121,6 +125,9 @@ function karte(s, logo, kater) {
  */
 export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schluessel }) {
   const begegnung = via === 'karte';
+  // Kontakt schicken und tauschen: nur nach dem Instant-Code der Karte und mit Kontakt-Mail des Schaufensters
+  const tauschen = begegnung && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.email?.trim() ?? '');
+  const einwilligung = `<label class="vk-c"><input type="checkbox" name="einwilligung" required><span>Ich willige ein, dass ${esc(s.name)} meine Angaben erhält. <a href="/datenschutz#visitenkarte">Datenschutz</a></span></label>`;
   const app = `https://app.kiezcoins.de/schaufenster/${encodeURIComponent(s.id)}?folgen=1`;
   return `<style>
 @font-face { font-family: Unbounded_500Medium; font-display: swap; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
@@ -161,6 +168,9 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
 .geteilt .vk-f textarea { min-height: 70px; resize: vertical; }
 .geteilt .vk-klein { font-size: 13px; color: var(--muted); text-align: center; }
 .geteilt .vk-qr { display: flex; justify-content: center; }
+.geteilt .vk-c { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; line-height: 1.4; }
+.geteilt .vk-c input { width: 20px; height: 20px; margin: 1px 0 0; flex: none; accent-color: var(--text); }
+.geteilt .vk-c a { color: inherit; }
 .geteilt .vk-falle { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 </style>
   <a class="vk-zurueck" href="/s/${esc(s.slug)}">‹ ${esc(s.name)}</a>
@@ -180,6 +190,36 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
       <p class="vk-klein">Das Datum wird automatisch ergänzt. ${begegnung ? 'Ort und Notiz stehen' : 'Die Notiz steht'} nur in Deinem Adressbuch.</p>
     </form>
 
+    ${tauschen ? `<button type="button" class="vk-k" aria-expanded="false" aria-controls="vk-p-schicken">Deinen Kontakt schicken</button>
+    <form class="vk-panel vk-kontakt" id="vk-p-schicken" novalidate hidden>
+      <p>${esc(s.name)} erhält Deine Kontaktdaten per Mail.</p>
+      <label class="vk-f"><span>Name</span><input name="name" autocomplete="name" required maxlength="80"></label>
+      <label class="vk-f"><span>Mail-Adresse</span><input type="email" name="email" autocomplete="email" required maxlength="254" placeholder="name@beispiel.de"></label>
+      <label class="vk-f"><span>Telefon <small>optional</small></span><input type="tel" name="phone" autocomplete="tel" maxlength="30"></label>
+      <label class="vk-f"><span>Wo habt Ihr Euch getroffen? <small>optional</small></span><input name="ort" maxlength="120" placeholder="z. B. Flohmarkt am Kanal"></label>
+      <label class="vk-f"><span>Nachricht <small>optional</small></span><textarea name="nachricht" maxlength="1000"></textarea></label>
+      <label class="vk-c"><input type="checkbox" name="karte" checked><span>Visitenkarte von ${esc(s.name)} per Mail erhalten</span></label>
+      ${einwilligung}
+      <input class="vk-falle" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit" class="vk-k haupt">Kontakt schicken</button>
+      <p class="vk-klein" role="status" data-hinweis></p>
+      <p class="vk-klein">KiezCoins leitet die Angaben weiter und speichert sie nicht.</p>
+    </form>
+
+    <button type="button" class="vk-k" aria-expanded="false" aria-controls="vk-p-tauschen">Kontakte tauschen</button>
+    <form class="vk-panel vk-kontakt" id="vk-p-tauschen" novalidate hidden>
+      <p>Du erhältst den Kontakt von ${esc(s.name)}, ${esc(s.name)} erhält Deinen Kontakt.</p>
+      <label class="vk-f"><span>Name</span><input name="name" autocomplete="name" required maxlength="80"></label>
+      <label class="vk-f"><span>Mail-Adresse</span><input type="email" name="email" autocomplete="email" required maxlength="254" placeholder="name@beispiel.de"></label>
+      <label class="vk-f"><span>Wo habt Ihr Euch getroffen? <small>optional</small></span><input name="ort" maxlength="120" placeholder="z. B. Flohmarkt am Kanal"></label>
+      <input type="hidden" name="karte" value="1">
+      ${einwilligung}
+      <input class="vk-falle" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit" class="vk-k haupt">Kontakte tauschen</button>
+      <p class="vk-klein" role="status" data-hinweis></p>
+      <p class="vk-klein">KiezCoins leitet die Angaben weiter und speichert sie nicht.</p>
+    </form>
+` : ''}
     <button type="button" class="vk-k" aria-expanded="false" aria-controls="vk-p-qr">QR-Code zeigen</button>
     <div class="vk-panel" id="vk-p-qr" hidden>
       <p>Mit der Kamera scannen, um diese Visitenkarte zu öffnen.</p>
@@ -259,6 +299,54 @@ export function visitenkarteAnsicht(s, { via, logo, kater, mailFunktion, schlues
       senden.disabled = false;
     }
   });
+  // Kontakt schicken und Kontakte tauschen (Daria, 2026-11-23): dieselbe Edge Function mit art 'kontakt'
+  const kontaktTexte = {
+    email: 'Bitte prüfe die Mail-Adresse.',
+    name: 'Bitte trage Deinen Namen ein.',
+    phone: 'Bitte prüfe die Telefonnummer.',
+    consent: 'Bitte bestätige die Einwilligung.',
+    limit: 'Für heute sind genug Kontakte verschickt. Bitte morgen erneut versuchen.',
+    no_contact: 'Dieses Schaufenster hat keine Kontakt-Mail.',
+  };
+  for (const f of document.querySelectorAll('.vk-kontakt')) {
+    const hinweis = f.querySelector('[data-hinweis]');
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const el = f.elements;
+      const email = el.email.value.trim();
+      if (!el.name.value.trim()) { hinweis.textContent = kontaktTexte.name; return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { hinweis.textContent = kontaktTexte.email; return; }
+      if (!el.einwilligung.checked) { hinweis.textContent = kontaktTexte.consent; return; }
+      const karte = el.karte.type === 'checkbox' ? el.karte.checked : true;
+      const senden = f.querySelector('button[type="submit"]');
+      senden.disabled = true;
+      hinweis.textContent = 'Wird verschickt …';
+      try {
+        const res = await fetch(${JSON.stringify(mailFunktion)}, {
+          method: 'POST',
+          headers: { apikey: ${JSON.stringify(schluessel)}, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            slug: ${JSON.stringify(s.slug)}, art: 'kontakt', name: el.name.value, email,
+            phone: el.phone ? el.phone.value : '', ort: el.ort.value, nachricht: el.nachricht ? el.nachricht.value : '',
+            karte, einwilligung: true, website: el.website.value,
+          }),
+        });
+        const r = await res.json().catch(() => ({}));
+        if (r.ok) {
+          hinweis.textContent = r.karte === false
+            ? ${JSON.stringify(`${s.name} hat Deinen Kontakt erhalten. Die Visitenkarte konnte nicht verschickt werden.`)}
+            : karte
+              ? ${JSON.stringify(`${s.name} hat Deinen Kontakt erhalten. Die Visitenkarte ist unterwegs an `)} + email + '.'
+              : ${JSON.stringify(`${s.name} hat Deinen Kontakt erhalten.`)};
+          f.reset();
+        } else hinweis.textContent = kontaktTexte[r.error] ?? 'Das hat nicht geklappt. Bitte gleich erneut versuchen.';
+      } catch {
+        hinweis.textContent = 'Keine Verbindung. Bitte gleich erneut versuchen.';
+      } finally {
+        senden.disabled = false;
+      }
+    });
+  }
 })();
 </script>`;
 }
