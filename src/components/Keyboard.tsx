@@ -1,14 +1,16 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { Keyboard, KeyboardAvoidingView, Platform, TextInput, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, View, type StyleProp, type ViewStyle } from 'react-native';
 import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { scrollIntoView } from './Nudge';
+import { keyboardMetrics } from './keyboardMetrics';
+import { revealFocused } from './Nudge';
 
 /**
  * Eine Lösung für die Tastatur auf allen Plattformen (Daria, 2026-11-11): Geht die Tastatur auf, rückt die Seite
  * nach oben. Das aktive Feld und die ActionBar stehen über der Tastatur, nichts verschiebt sich unter dem Finger.
  *
- * - `KeyboardProvider` (einmal in `_layout.tsx`): kennt die Tastaturhöhe, scrollt das aktive Feld ins Bild und
+ * - `KeyboardProvider` (einmal in `_layout.tsx`): kennt die Tastaturhöhe, holt das aktive Feld ins Bild (eine Regel für
+ *   alle Plattformen: `revealFocused` in Nudge.tsx, Rechnung in lib/reveal.ts, Daria 2026-11-23) und
  *   nimmt den Abstand zum Home-Balken weg, solange die Tastatur ihn verdeckt.
  * - `KeyboardArea` (in SubScreen, HeroScreen, ComposeSheet, Chat, Tour, Umfrage): der Bereich, der über der
  *   Tastatur bleibt. Auf iPhone und Android als KeyboardAvoidingView. Android zeichnet seit Android 16 immer
@@ -22,6 +24,9 @@ import { scrollIntoView } from './Nudge';
  * Neue Screens mit Eingabefeldern nutzen SubScreen oder HeroScreen, eigene Aufbauten `KeyboardArea`.
  * Nie direkt `KeyboardAvoidingView` verwenden.
  */
+
+/** So lange müssen Tastatur und Ausschnitt still stehen, bevor das Feld ins Bild rückt (iOS-Animation ≈ 250 ms) */
+const SETTLE_MS = 120;
 
 /** Unterschiede bis zu dieser Höhe kommen im Browser von der Adressleiste, nicht von der Tastatur */
 const MIN_KEYBOARD_HEIGHT = 120;
@@ -41,6 +46,9 @@ export function KeyboardProvider({ children }: { children: ReactNode }) {
   useNativeKeyboard(setHeight);
   useWebKeyboard(setHeight, setWebInset);
   const insets = useSafeAreaInsets();
+  useEffect(() => {
+    Object.assign(keyboardMetrics, { height, safeTop: insets.top });
+  }, [height, insets.top]);
   // Die Tastatur liegt über dem Home-Balken: Ohne diese Korrektur bliebe über ihr ein leerer Streifen
   const value = height > 0 && insets.bottom > 0 ? { ...insets, bottom: 0 } : insets;
   return (
@@ -89,7 +97,7 @@ function useNativeKeyboard(setHeight: (height: number) => void) {
       // Erst wenn die Tastatur steht und der Bereich nach oben gerückt ist, liegt das Feld an seiner neuen Stelle
       Keyboard.addListener('keyboardDidShow', () => {
         clearTimeout(timer);
-        timer = setTimeout(revealFocusedInput, 80);
+        timer = setTimeout(revealFocused, 80);
       }),
     ];
     return () => {
@@ -97,12 +105,6 @@ function useNativeKeyboard(setHeight: (height: number) => void) {
       subs.forEach((s) => s.remove());
     };
   }, [setHeight]);
-}
-
-function revealFocusedInput() {
-  const input = TextInput.State.currentlyFocusedInput();
-  // Nur so weit scrollen, dass das Feld unten ganz zu sehen ist. Steht es schon frei, bleibt alles stehen.
-  if (input) scrollIntoView(input as unknown as View, 'end');
 }
 
 /** Browser: Höhe aus dem sichtbaren Ausschnitt, Seite darauf verkleinern und oben halten */
@@ -115,7 +117,15 @@ function useWebKeyboard(setHeight: (height: number) => void, setInset: (inset: n
     let full = { width: window.innerWidth, height: viewport.height, page: root.clientHeight };
     let current = 0;
     let currentInset = 0;
-    let frame = 0;
+    // Ins Bild geholt wird erst, wenn Tastatur und Ausschnitt eine Weile still stehen. Safari meldet beim Aufgehen
+    // mehrere Größen nacheinander; jedes Scrollen dazwischen landete an einer falschen Stelle (Daria, 2026-11-23).
+    let settle: ReturnType<typeof setTimeout> | undefined;
+    const revealLater = () => {
+      clearTimeout(settle);
+      settle = setTimeout(() => {
+        if (isEditable(document.activeElement)) revealFocused();
+      }, SETTLE_MS);
+    };
     const update = () => {
       if (window.innerWidth !== full.width) full = { width: window.innerWidth, height: viewport.height, page: root.clientHeight };
       // Manche Browser verkleinern innerHeight mit, andere nicht. Der größere Wert ist die Tastatur.
@@ -139,14 +149,12 @@ function useWebKeyboard(setHeight: (height: number) => void, setInset: (inset: n
         currentInset = inset;
         root.style.setProperty('--keyboard-inset', `${inset}px`);
         setInset(inset);
+        if (inset) revealLater();
       }
       if (next !== current) {
         current = next;
         setHeight(next);
-        if (next) {
-          cancelAnimationFrame(frame);
-          frame = requestAnimationFrame(revealFocusedElement);
-        }
+        if (next) revealLater();
       }
       // Safari schiebt beim Fokus die ganze Seite hoch, damit das Feld über der Tastatur steht. Sie gehört oben hin,
       // aber erst wenn kein Feld mehr aktiv ist. Solange eins aktiv ist, scrollt hier nichts: In der Web-App auf dem
@@ -166,21 +174,24 @@ function useWebKeyboard(setHeight: (height: number) => void, setInset: (inset: n
       clearTimeout(later);
       later = setTimeout(update, 0);
     };
-    // Zum nächsten Feld bei offener Tastatur: Die Höhe ändert sich nicht, das Feld muss trotzdem ins Bild
+    // Anderes Feld angetippt: Die Höhe ändert sich nicht, das Feld muss trotzdem ins Bild. Ohne Tastatur (Rechner,
+    // Hardware-Tastatur) gilt dieselbe Regel.
     const onFocusIn = () => {
-      if (!current) return;
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(revealFocusedElement);
+      if (isEditable(document.activeElement)) revealLater();
     };
-    viewport.addEventListener('resize', update);
+    const onResize = () => {
+      update();
+      if (current) revealLater();
+    };
+    viewport.addEventListener('resize', onResize);
     viewport.addEventListener('scroll', update);
     window.addEventListener('focusout', afterFocusChange);
     window.addEventListener('focusin', onFocusIn);
     update();
     return () => {
-      cancelAnimationFrame(frame);
+      clearTimeout(settle);
       clearTimeout(later);
-      viewport.removeEventListener('resize', update);
+      viewport.removeEventListener('resize', onResize);
       viewport.removeEventListener('scroll', update);
       window.removeEventListener('focusout', afterFocusChange);
       window.removeEventListener('focusin', onFocusIn);
@@ -200,9 +211,4 @@ function isEditable(el: Element | null): el is HTMLElement {
   return node.tagName === 'TEXTAREA' || node.isContentEditable;
 }
 
-function revealFocusedElement() {
-  const el = document.activeElement;
-  if (!isEditable(el)) return;
-  // Abstand zum Rand über scroll-margin in public/index.html
-  el.scrollIntoView({ block: 'nearest' });
-}
+
