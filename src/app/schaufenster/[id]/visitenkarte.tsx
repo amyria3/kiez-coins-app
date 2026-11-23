@@ -29,11 +29,12 @@ import { color, space, text } from '../../../theme/tokens';
  * Regel in data/cardActions.mjs).
  * - Team: weitergeben (Teilen, Link kopieren, QR-Code, Mail) und Kontakte von Hand eintragen.
  * - Mitglieder: Kontakt speichern, Kontakt schicken oder tauschen (Name und Mail aus dem Profil), folgen, anfreunden.
- * `?von=schaufenster` heißt: aus dem Schaufenster gekommen, dann führt der letzte Knopf dorthin zurück.
+ * `?von=schaufenster` heißt: aus dem Schaufenster gekommen, dann führt der letzte Knopf dorthin zurück. `?via=karte`
+ * heißt: über den QR-Code der Karte gekommen. Gäste ohne Anmeldung sehen dieselbe Karte unter `s/[slug]/visitenkarte`.
  * Die Druckbare Visitenkarte hat ihren eigenen Bildschirm (`schaufenster/[id]/druck`).
  */
 export default function ShowcaseBusinessCard() {
-  const { id, von } = useLocalSearchParams<{ id: string; von?: string }>();
+  const { id, von, via } = useLocalSearchParams<{ id: string; von?: string; via?: string }>();
   const router = useRouter();
   const goBack = useGoBack();
   const { currentUserId } = useStore();
@@ -85,7 +86,7 @@ export default function ShowcaseBusinessCard() {
 
   const { showcase: s, access } = data;
   const team = access.team;
-  const origin = team ? 'manage' : cardOrigin({ von });
+  const origin = team ? 'manage' : cardOrigin({ via, von });
 
   const toggleFollow = async () => {
     setBusy(true);

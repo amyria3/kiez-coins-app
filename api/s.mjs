@@ -10,7 +10,7 @@ import { buchungsLink } from './_buchung.mjs';
 import { cleanPaymentLinks } from '../src/data/paymentLinks.mjs';
 import { anfahrtLink, hatPunkt, karteEinbetten, karteGross } from './_karte.mjs';
 import { oeffnungszeiten } from './_oeffnungszeiten.mjs';
-import { teamHinweis, vcard, visitenkarteAnsicht } from './_visitenkarte.mjs';
+import { appVisitenkarte, teamHinweis, vcard, vorschauSeite } from './_visitenkarte.mjs';
 import { BILD_B, BILD_H, bildBaum, bildText } from './_visitenkarte-bild.mjs';
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://aqxzxpxrshizlaqyjplw.supabase.co';
@@ -256,8 +256,8 @@ function eintrag(x) {
 // Digitale Visitenkarte auf der Schaufenster-Seite: nur die Vorschau und „Digitale Visitenkarte öffnen“ (Daria, 2026-11-23). Die Vorschau
 // ist überall dieselbe (2026-11-23): das Bild /s/<kurzname>/visitenkarte.png, das auch Messenger beim geteilten Link
 // zeigen (_visitenkarte-bild.mjs). Die druckbare Karte (vorne und hinten) gibt es nur in der Verwaltung der App.
-// Teilen, Speichern, QR-Code und Mail stehen in der eigenen Ansicht /s/<kurzname>/visitenkarte (api/_visitenkarte.mjs);
-// `von=schaufenster` sagt ihr, dass die Person von hier kommt. Kam sie über den QR-Code der Karte (?via=karte), geht
+// Teilen, Speichern, QR-Code und Mail stehen auf der Karte in der Web-App; /s/<kurzname>/visitenkarte leitet dorthin
+// (api/_visitenkarte.mjs). `von=schaufenster` sagt ihr, dass die Person von hier kommt. Kam sie über den QR-Code der Karte (?via=karte), geht
 // die Kennung mit.
 function visitenkarte(s, via, team) {
   const ziel = `/s/${s.slug}/visitenkarte?von=schaufenster${via === 'karte' ? '&via=karte' : ''}${team ? '&als=team' : ''}`;
@@ -759,17 +759,6 @@ async function kontaktDatei(s, slug, felder, request) {
   });
 }
 
-// Formular „In Kontakte speichern“ (POST /s/<kurzname>/kontakt.vcf). Ort und Notiz kommen im Formular, nicht in der
-// Adresse, damit sie in keinem Protokoll stehen. KiezCoins speichert sie nicht.
-export async function POST(request) {
-  const url = new URL(request.url);
-  const slug = (url.searchParams.get('slug') ?? '').toLowerCase();
-  if (url.searchParams.get('format') !== 'vcf' || !SLUG.test(slug)) return new Response('Nicht gefunden', { status: 404 });
-  const form = await request.formData().catch(() => null);
-  const s = await ladeSchaufenster(slug);
-  return kontaktDatei(s, slug, { ort: form?.get('ort') ?? '', notiz: form?.get('notiz') ?? '' }, request);
-}
-
 export async function GET(request) {
   const url = new URL(request.url);
   const slug = (url.searchParams.get('slug') ?? '').toLowerCase();
@@ -803,8 +792,8 @@ export async function GET(request) {
     });
   }
 
-  // Kontakt als vCard: /s/<kurzname>/kontakt.vcf (Daria, 2026-11-23). GET liefert die Karte ohne Notiz, POST aus dem
-  // Formular der Visitenkarten-Ansicht mit Ort und Notiz.
+  // Kontakt als vCard: /s/<kurzname>/kontakt.vcf (Daria, 2026-11-23), ohne Notiz. Die App auf dem Handy öffnet sie; im
+  // Browser entsteht die vCard mit Ort und Notiz auf dem Gerät (src/data/vcard.mjs, dieselbe Vorlage).
   if (url.searchParams.get('format') === 'vcf') return kontaktDatei(s, slug, {}, request);
   if (url.searchParams.get('format') === 'png') return visitenkarteBild(s, url.origin);
 
@@ -813,32 +802,31 @@ export async function GET(request) {
   const ansicht = url.searchParams.get('ansicht') === 'visitenkarte';
   // Die App öffnet die Seite fürs Team mit ?als=team (Daria, 2026-11-23): Vorschau mit Hinweis, ohne Zählung
   const team = url.searchParams.get('als') === 'team';
+
+  // Digitale Visitenkarte: eine Komponente in der App, auch für Gäste (Daria, 2026-11-23). Menschen gehen direkt zur
+  // Karte in der Web-App, Linkvorschauen bekommen Titel und Vorschaubild. Gezählt wird in der App.
+  if (ansicht && s) {
+    const ziel = appVisitenkarte(s.slug, { via, von, team });
+    if (!BOT.test(request.headers.get('user-agent') ?? '')) {
+      return new Response(null, { status: 302, headers: { Location: ziel, 'Cache-Control': 'no-store' } });
+    }
+    return new Response(vorschauSeite(s, kopfVisitenkarte(s), ziel), {
+      headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=0, s-maxage=60' },
+    });
+  }
   const vorlage = await fetch(new URL('/teilen-vorlage', url.origin));
   if (!vorlage.ok) return new Response('Vorlage fehlt', { status: 500 });
   const seite = (await vorlage.text())
     // Öffentliche Schaufenster dürfen in Suchmaschinen erscheinen; die Vorlage sperrt das sonst (geteilte Posts, 404)
     .replace('<meta name="robots" content="noindex">', () =>
       // „Bei Google finden lassen“ aus (search_listing, Migration 20261123000200): auch die Seite selbst „noindex“
-      s && !ansicht && s.search_listing !== false ? '<meta name="robots" content="index, follow, max-image-preview:large">' : '<meta name="robots" content="noindex">',
+      s && s.search_listing !== false ? '<meta name="robots" content="index, follow, max-image-preview:large">' : '<meta name="robots" content="noindex">',
     )
-    .replace('<!--KOPF-->', () => (ansicht && s ? kopfVisitenkarte(s) : kopf(s, `${SITE}/s/${slug}`)))
+    .replace('<!--KOPF-->', () => kopf(s, `${SITE}/s/${slug}`))
     .replace('<!--POST-->', () =>
-      ansicht && s
-        ? seitenStil(s) +
-          visitenkarteAnsicht(s, {
-            via,
-            von,
-            team,
-            zaehlFunktion: `${SUPABASE_URL}/rest/v1/rpc/count_showcase_visit`,
-            logo: foto(s.logo_path),
-            kater: KATER,
-            mailFunktion: `${SUPABASE_URL}/functions/v1/visitenkarte-mail`,
-            schluessel: SUPABASE_KEY,
-          })
-        : inhalt(s, via, team) + (s && !team ? zaehlSkript(s.slug, 'page') : ''),
+      inhalt(s, via, team) + (s && !team ? zaehlSkript(s.slug, 'page') : ''),
     )
-    // Die Visitenkarten-Ansicht hat „Folgen“ in der Knopfliste und braucht den Fuß der Schaufenster-Seite nicht
-    .replace(/<div class="card">\s*<h3>Mach mit in Deinem Kiez\.<\/h3>[\s\S]*?<\/div>/, (karte) => (s ? (ansicht ? '' : mitmachen(s)) : karte))
+    .replace(/<div class="card">\s*<h3>Mach mit in Deinem Kiez\.<\/h3>[\s\S]*?<\/div>/, (karte) => (s ? mitmachen(s) : karte))
     // Das Impressum des Schaufensters steht oben verlinkt; die Fußzeile nennt deshalb ausdrücklich das von KiezCoins
     // (Rechtsprüfung 11.11.2026)
     .replace('<a href="/impressum">Impressum</a>', () => (s?.imprint ? '<a href="/impressum">Impressum KiezCoins</a>' : '<a href="/impressum">Impressum</a>'));

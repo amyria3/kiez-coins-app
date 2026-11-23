@@ -121,3 +121,21 @@ if (!window.requestIdleCallback) {
   // Antwortet die alte Seite nicht (offline, gesperrt), startet die App ohne Übernahme und versucht es beim nächsten Mal.
   ende = setTimeout(fertig, 5000);
 })();
+
+// Digitale Visitenkarte (app.kiezcoins.de/s/<kurzname>/visitenkarte, Daria, 2026-11-23): Die Daten kommen schon,
+// während die App startet. src/data/showcase.ts (loadPublicShowcase) nimmt sie, statt erneut zu fragen.
+(function () {
+  var m = location.pathname.match(/^\/s\/([a-z0-9][a-z0-9-]{2,39})\/visitenkarte\/?$/);
+  if (!m || !window.fetch) return;
+  var key = 'sb_publishable_WqrL7Y7Wm0l9cq4tHQpjAQ_iooAaNe0';
+  window.__kiezCard = {
+    slug: m[1],
+    data: fetch('https://aqxzxpxrshizlaqyjplw.supabase.co/rest/v1/rpc/public_showcase', {
+      method: 'POST',
+      headers: { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_slug: m[1] }),
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; }),
+  };
+})();
