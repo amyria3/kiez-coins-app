@@ -1,26 +1,10 @@
 import { supabase } from '../lib/supabase';
-import { showcasePublicLink, type Showcase } from './showcase';
 
 /**
- * Visitenkarte und Zahlen des Schaufensters in der App (2026-11-23): Vorschaubild, Zählen, Zusammenfassung fürs Team
+ * Digitale Visitenkarte und Zahlen des Schaufensters in der App (2026-11-23): Zählen, Zusammenfassung fürs Team
  * und „Kontakt schicken“ für Mitglieder. Die Tabelle und die Funktionen stehen in der Migration
  * 20261123000100_schaufenster_zahlen.
  */
-
-/**
- * Vorschaubild der digitalen Visitenkarte: dasselbe Bild, das Messenger beim geteilten Link zeigen
- * (kiezcoins.de/s/<kurzname>/visitenkarte.png, api/_visitenkarte-bild.mjs). Es ist die einzige Vorschau der Karte in
- * App und Web. `v` ändert sich mit den Angaben auf der Karte, damit nach dem Bearbeiten kein altes Bild bleibt.
- */
-export function cardPreviewUri(s: Showcase): string {
-  const v = [s.name, s.kiez, s.address, s.services, s.openingHours, s.email, s.links.join(' '), JSON.stringify(s.logo ?? null)].join('|');
-  let hash = 0;
-  for (let i = 0; i < v.length; i++) hash = (hash * 31 + v.charCodeAt(i)) | 0;
-  return `${showcasePublicLink(s.slug)}/visitenkarte.png?v=${(hash >>> 0).toString(36)}`;
-}
-
-/** Breite zu Höhe des Vorschaubilds (BILD_B × BILD_H in api/_visitenkarte-bild.mjs) */
-export const CARD_PREVIEW_RATIO = 1200 / 630;
 
 export type VisitKind = 'page' | 'card' | 'save' | 'contact';
 

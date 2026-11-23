@@ -45,7 +45,7 @@ describe('Visitenkarte per Mail', () => {
 
   it('Name wird maskiert, unsichere Links fallen weg', () => {
     const mail = cardMail(data, qr, 'Lena');
-    assert.equal(mail.subject, 'Schaufenster und Visitenkarte von Café <Kiezblick>');
+    assert.equal(mail.subject, 'Schaufenster und Digitale Visitenkarte von Café <Kiezblick>');
     assert.ok(mail.html.includes('Café &lt;Kiezblick&gt;'));
     assert.ok(!mail.html.includes('<Kiezblick>'));
     assert.ok(!mail.html.includes('javascript:'));

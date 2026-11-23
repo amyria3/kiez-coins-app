@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 
 import { Button } from '../../../components/Button';
-import { Explanation, FieldGroup, Notice } from '../../../components/Content';
+import { Explanation, FieldGroup, Notice, QuestionHint } from '../../../components/Content';
 import { CheckOption } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
 import { Text } from '../../../components/T';
@@ -19,14 +19,15 @@ import { color, radius, space, text } from '../../../theme/tokens';
 const web = Platform.OS === 'web';
 
 /**
- * Route `schaufenster/[id]/druck`: die druckbare Visitenkarte als PDF (2026-11-23), abgesetzt von der digitalen
+ * Route `schaufenster/[id]/druck`: die Druckbare Visitenkarte als PDF (2026-11-23), abgesetzt von der Digitalen
  * Visitenkarte mit ihren Weiterleitungsoptionen. Vorder- und Rückseite im Format 85 × 55 mm, Herunterladen als Bilder
  * und Drucken oder als PDF sichern, am Rechner und am Handy. Die Karte wird im Browser gezeichnet
  * (lib/businessCardCanvas.ts); in der Android-App öffnet der Knopf dieselbe Seite im Browser. Nur fürs Team.
  *
- * „Auf der Karte zeigen“ (Daria, 2026-11-23): Häkchen bei Links und Services. Vorausgewählt sind die ersten Einträge
- * der Liste, so viele wie ganz auf die Karte passen. Die Reihenfolge der Links legt „Inhalte bearbeiten“ fest. Passt eine
- * Auswahl nicht ganz, sagt der Bildschirm, was fehlt, statt es still wegzulassen.
+ * „Auf der Druckbaren Visitenkarte zeigen“ (Daria, 2026-11-23): Häkchen bei Services (vorne) und Links (hinten).
+ * Vorausgewählt sind die ersten Einträge der Liste, so viele wie ganz auf die Karte passen. Die Reihenfolge der Links legt
+ * „Inhalte bearbeiten“ fest. Ist eine Seite voll, sind weitere Häkchen gesperrt, und eine Frage erklärt warum. Passt eine
+ * Auswahl trotzdem nicht ganz (lange Einträge brauchen zwei Zeilen), sagt der Bildschirm, was fehlt.
  */
 export default function PrintableBusinessCard() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -80,6 +81,9 @@ export default function PrintableBusinessCard() {
   // Gewählt, aber nicht (ganz) auf der Karte
   const missingLinks = sides && linkOn ? linkOn.filter(Boolean).length - sides.fit.links : 0;
   const missingServices = sides && serviceOn ? serviceOn.filter(Boolean).length - sides.fit.services : 0;
+  // Voll: so viele Häkchen wie Zeilen frei sind; dann lassen sich nur noch Häkchen wegnehmen
+  const linksFull = !!sides && !!linkOn && linkOn.filter(Boolean).length >= sides.fit.linkRoom;
+  const servicesFull = !!sides && !!serviceOn && serviceOn.filter(Boolean).length >= sides.fit.serviceRoom;
   const toggle = (list: boolean[] | null, set: (v: boolean[]) => void, i: number) => list && set(list.map((v, j) => (j === i ? !v : v)));
 
   const title = 'Druckbare Visitenkarte';
@@ -93,7 +97,7 @@ export default function PrintableBusinessCard() {
   if (showcase === null || !team) {
     return (
       <SubScreen title={title} navigation="back" onLeadingPress={goBack}>
-        <Notice message="Die druckbare Visitenkarte gibt es nur für das Team des Schaufensters." />
+        <Notice message="Die Druckbare Visitenkarte gibt es nur für das Team des Schaufensters." />
       </SubScreen>
     );
   }
@@ -102,37 +106,61 @@ export default function PrintableBusinessCard() {
     <SubScreen title={title} navigation="back" onLeadingPress={goBack}>
       <View style={styles.page}>
         <Explanation
-          question="Was ist die druckbare Visitenkarte?"
-          answer="Eine Karte aus Papier im Format 85 × 55 mm wie eine Scheckkarte. Vorne stehen Name, Kiez und ein QR-Code zu Eurer digitalen Visitenkarte, hinten Adresse, Öffnungszeiten, Services und Links. Ändern kannst Du die Angaben unter „Inhalte bearbeiten“."
+          question="Was ist die Druckbare Visitenkarte?"
+          answer="Eine Karte aus Papier im Format 85 × 55 mm wie eine Scheckkarte. Vorne stehen Name, Kiez und Deine Services. Hinten stehen der QR-Code zu Deiner Digitalen Visitenkarte, Adresse, Öffnungszeiten, E-Mail und Links. Ändern kannst Du die Angaben unter „Inhalte bearbeiten“."
         />
         {web ? (
           preview ? (
             <View style={styles.sides}>
               <Text style={styles.label}>Vorne</Text>
-              <Image source={{ uri: preview.front }} style={styles.card} contentFit="contain" accessibilityLabel={t('Vorderseite der Visitenkarte')} />
+              <Image source={{ uri: preview.front }} style={styles.card} contentFit="contain" accessibilityLabel={t('Vorderseite der Druckbaren Visitenkarte')} />
               <Text style={styles.label}>Hinten</Text>
-              <Image source={{ uri: preview.back }} style={styles.card} contentFit="contain" accessibilityLabel={t('Rückseite der Visitenkarte')} />
+              <Image source={{ uri: preview.back }} style={styles.card} contentFit="contain" accessibilityLabel={t('Rückseite der Druckbaren Visitenkarte')} />
             </View>
           ) : (
             <ActivityIndicator color={color.text.secondary} />
           )
         ) : null}
         {web && linkOn && serviceOn && (links.length || services.length) ? (
-          <FieldGroup label="Auf der Karte zeigen">
-            {links.length ? (
-              <View style={styles.choices}>
-                <Text style={styles.label}>{t('Links, in der Reihenfolge aus „Inhalte bearbeiten“')}</Text>
-                {links.map((l, i) => (
-                  <CheckOption key={`l${i}`} label={printLink(l)} selected={linkOn[i]} onPress={() => toggle(linkOn, setLinkOn, i)} />
-                ))}
-              </View>
-            ) : null}
+          <FieldGroup label="Auf der Druckbaren Visitenkarte zeigen">
             {services.length ? (
               <View style={styles.choices}>
-                <Text style={styles.label}>Services</Text>
+                <Text style={styles.label}>{t('Services, vorne')}</Text>
                 {services.map((v, i) => (
-                  <CheckOption key={`s${i}`} label={v.replace(/^· /, '')} selected={serviceOn[i]} onPress={() => toggle(serviceOn, setServiceOn, i)} />
+                  <CheckOption
+                    key={`s${i}`}
+                    label={v.replace(/^· /, '')}
+                    selected={serviceOn[i]}
+                    disabled={servicesFull && !serviceOn[i]}
+                    onPress={() => toggle(serviceOn, setServiceOn, i)}
+                  />
                 ))}
+                {servicesFull && serviceOn.some((on) => !on) ? (
+                  <QuestionHint
+                    question="Warum kann ich nicht mehr Services auswählen?"
+                    answer="Die Druckbare Visitenkarte ist nur 85 × 55 mm groß. Vorne unter Deinem Namen ist kein Platz mehr. Nimm einen Haken weg, dann kannst Du einen anderen Service wählen. Alle Services stehen auf Deiner Digitalen Visitenkarte."
+                  />
+                ) : null}
+              </View>
+            ) : null}
+            {links.length ? (
+              <View style={styles.choices}>
+                <Text style={styles.label}>{t('Links, hinten, in der Reihenfolge aus „Inhalte bearbeiten“')}</Text>
+                {links.map((l, i) => (
+                  <CheckOption
+                    key={`l${i}`}
+                    label={printLink(l)}
+                    selected={linkOn[i]}
+                    disabled={linksFull && !linkOn[i]}
+                    onPress={() => toggle(linkOn, setLinkOn, i)}
+                  />
+                ))}
+                {linksFull && linkOn.some((on) => !on) ? (
+                  <QuestionHint
+                    question="Warum kann ich nicht mehr Links auswählen?"
+                    answer="Die Druckbare Visitenkarte ist nur 85 × 55 mm groß. Hinten neben dem QR-Code ist kein Platz mehr. Nimm einen Haken weg, dann kannst Du einen anderen Link wählen. Alle Links stehen auf Deiner Digitalen Visitenkarte, und die öffnet der QR-Code."
+                  />
+                ) : null}
               </View>
             ) : null}
             {missingLinks > 0 || missingServices > 0 ? (

@@ -1,11 +1,11 @@
-// Weiterleitungsoptionen der digitalen Visitenkarte (2026-11-23): welche Knöpfe in welcher Reihenfolge erscheinen.
+// Weiterleitungsoptionen der Digitalen Visitenkarte (2026-11-23): welche Knöpfe in welcher Reihenfolge erscheinen.
 // Eine Regel für App (src/components/showcase/CardActions.tsx) und Webseite (api/_visitenkarte.mjs), damit beide
 // dieselben Knöpfe mit denselben Namen zeigen. Reines JavaScript ohne Abhängigkeiten: Metro lädt .mjs, die
 // Vercel-Funktion importiert die Datei relativ, die Tests bündeln sie mit esbuild.
 //
 // Zwei Fragen entscheiden: Wer schaut (Team, angemeldetes Mitglied, Gast) und woher die Person kommt (QR-Code der
 // Karte, geteilter Link, Schaufenster-Seite, Verwaltung). Die Webseite kennt die Anmeldung der App nicht
-// (app.kiezcoins.de), dort gilt jede Person als Gast. Drucken gehört nicht dazu: Die druckbare Visitenkarte hat einen
+// (app.kiezcoins.de), dort gilt jede Person als Gast. Drucken gehört nicht dazu: Die Druckbare Visitenkarte hat einen
 // eigenen Knopf in der Verwaltung, damit sie nicht mit dem Weitergeben verwechselt wird (2026-11-23).
 
 /** @typedef {'team' | 'member' | 'guest'} CardViewer */
@@ -20,7 +20,7 @@
  * Schaufensters. „Zum Schaufenster“ heißt „Zurück zum Schaufenster“, wenn die Person von dort kam.
  */
 export const CARD_ACTION_LABELS = {
-  share: 'Visitenkarte teilen',
+  share: 'Digitale Visitenkarte teilen',
   copyLink: 'Link kopieren',
   saveContact: 'In Kontakte speichern',
   sendContact: 'Deinen Kontakt schicken',
@@ -64,7 +64,7 @@ export function cardOrigin({ via, von }) {
 }
 
 /**
- * Knöpfe der Visitenkarte, der Hauptknopf zuerst.
+ * Knöpfe der Digitalen Visitenkarte, der Hauptknopf zuerst.
  * - Team: weitergeben (Teilen, Link kopieren, QR-Code, Mail) und Kontakte von Hand eintragen.
  * - Mitglied: Kontakt speichern zuerst; Kontakt schicken mit Name und Mail aus dem Profil; folgen und anfreunden.
  * - Gast nach dem QR-Code der Karte: Kontakt speichern (mit Ort der Begegnung), Kontakt schicken und tauschen.

@@ -38,7 +38,7 @@ type Props = {
 };
 
 /**
- * Weiterleitungsoptionen der digitalen Visitenkarte in der App (2026-11-23). Welche Knöpfe in welcher Reihenfolge
+ * Weiterleitungsoptionen der Digitalen Visitenkarte in der App (2026-11-23). Welche Knöpfe in welcher Reihenfolge
  * erscheinen, entscheidet src/data/cardActions.mjs, dieselbe Regel wie auf kiezcoins.de/s/<kurzname>/visitenkarte.
  * Ist eine Option aufgeklappt, tritt der Hauptknopf als Secondary-Knopf zurück, wie auf der Webseite.
  */
@@ -78,7 +78,7 @@ export function CardActions({ showcase: s, viewer, origin, canBefriend, followin
                 key={id}
                 label={label(id)}
                 variant={variant}
-                onPress={() => shareLink({ title: t('Visitenkarte von {name}', { name: s.name }), text: t('Visitenkarte von {name}', { name: s.name }), url: link })}
+                onPress={() => shareLink({ title: t('Digitale Visitenkarte von {name}', { name: s.name }), text: t('Digitale Visitenkarte von {name}', { name: s.name }), url: link })}
               />
             );
           case 'copyLink':
@@ -124,10 +124,10 @@ export function CardActions({ showcase: s, viewer, origin, canBefriend, followin
                   <View ref={panelRef} collapsable={false} style={styles.panel}>
                     <Text style={styles.body}>
                       {viewer === 'team' && hasContactMail
-                        ? t('Die andere Person scannt den QR-Code mit der Kamera. Sie speichert Eure Visitenkarte und kann Euch ihren Kontakt schicken.')
-                        : t('Mit der Kamera scannen, um die Visitenkarte zu öffnen.')}
+                        ? t('Die andere Person scannt den QR-Code mit der Kamera. Sie speichert Eure Digitale Visitenkarte und kann Euch ihren Kontakt schicken.')
+                        : t('Mit der Kamera scannen, um die Digitale Visitenkarte zu öffnen.')}
                     </Text>
-                    <InviteQr value={codeLink} label={t('QR-Code zur Visitenkarte')} />
+                    <InviteQr value={codeLink} label={t('QR-Code zur Digitalen Visitenkarte')} />
                     <Button label="Schließen" variant="ghost" onPress={close} />
                   </View>
                 ) : null}
@@ -164,7 +164,7 @@ const CONTACT_MESSAGES: Record<Exclude<ContactResult, 'ok' | 'card_failed'>, str
 
 /**
  * „Deinen Kontakt schicken“ und „Kontakte tauschen“ für Mitglieder (2026-11-23): Name und Mail kommen aus dem Profil
- * und lassen sich ändern. Beim Tausch kommt die Visitenkarte immer per Mail zurück, beim Schicken nur auf Wunsch.
+ * und lassen sich ändern. Beim Tausch kommt die Digitale Visitenkarte immer per Mail zurück, beim Schicken nur auf Wunsch.
  */
 function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; exchange: boolean; onCancel: () => void }) {
   const router = useRouter();
@@ -190,9 +190,9 @@ function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; 
         ok: true,
         message:
           r === 'card_failed'
-            ? `${done} ${t('Die Visitenkarte konnte nicht verschickt werden.')}`
+            ? `${done} ${t('Die Digitale Visitenkarte konnte nicht verschickt werden.')}`
             : withCard
-              ? `${done} ${t('Die Visitenkarte ist unterwegs an {to}.', { to: email.trim() })}`
+              ? `${done} ${t('Die Digitale Visitenkarte ist unterwegs an {to}.', { to: email.trim() })}`
               : done,
       });
       setPlace('');
@@ -215,7 +215,7 @@ function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; 
       <TextField label="Wo habt Ihr Euch getroffen?" value={place} onChangeText={setPlace} maxLength={120} helperText="Optional" />
       {exchange ? null : <TextField label="Nachricht" value={message} onChangeText={setMessage} multiline maxLength={1000} helperText="Optional" />}
       {exchange ? null : (
-        <CheckOption label={t('Visitenkarte von {name} per Mail erhalten', { name: s.name })} selected={sendCard} onPress={() => setSendCard(!sendCard)} />
+        <CheckOption label={t('Digitale Visitenkarte von {name} per Mail erhalten', { name: s.name })} selected={sendCard} onPress={() => setSendCard(!sendCard)} />
       )}
       <CheckOption label={t('Ich willige ein, dass {name} meine Angaben erhält.', { name: s.name })} selected={consent} onPress={() => setConsent(!consent)} />
       <Pressable accessibilityRole="link" onPress={() => router.push('/legal/datenschutz')} hitSlop={8}>
@@ -236,7 +236,7 @@ function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; 
 
 /**
  * „Kontakt von Hand eintragen“ fürs Team (2026-11-23): Die Person steht vor einem, hat aber kein Handy zur Hand.
- * Es entsteht eine vCard auf dem Gerät, auf Wunsch geht die Visitenkarte per Mail an die Person. KiezCoins speichert
+ * Es entsteht eine vCard auf dem Gerät, auf Wunsch geht die Digitale Visitenkarte per Mail an die Person. KiezCoins speichert
  * den Kontakt nicht. Die vCard entsteht im Browser; in der Android-App öffnet der Knopf dieselbe Seite im Browser.
  */
 function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: () => void }) {
@@ -281,8 +281,8 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
       const r = await sendCardMail(showcase.slug, email);
       ok = r === 'ok';
       message = ok
-        ? t('Der Kontakt ist gespeichert. Die Visitenkarte ist unterwegs an {to}.', { to: email.trim() })
-        : t('Der Kontakt ist gespeichert. Die Visitenkarte konnte nicht verschickt werden.');
+        ? t('Der Kontakt ist gespeichert. Die Digitale Visitenkarte ist unterwegs an {to}.', { to: email.trim() })
+        : t('Der Kontakt ist gespeichert. Die Digitale Visitenkarte konnte nicht verschickt werden.');
     }
     setBusy(false);
     setResult({ ok, message });
@@ -302,13 +302,13 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
       <TextField label="Notiz für Dich" value={note} onChangeText={setNote} multiline maxLength={500} helperText="Optional" />
       {isEmail(email) ? (
         <CheckOption
-          label={first ? t('Visitenkarte per Mail an {name} senden', { name: first }) : t('Visitenkarte per Mail senden')}
+          label={first ? t('Digitale Visitenkarte per Mail an {name} senden', { name: first }) : t('Digitale Visitenkarte per Mail senden')}
           selected={sendCard}
           onPress={() => setSendCard(!sendCard)}
         />
       ) : null}
       <Button
-        label={sendCard && isEmail(email) ? 'Speichern und Visitenkarte senden' : 'Kontakt speichern'}
+        label={sendCard && isEmail(email) ? 'Speichern und Digitale Visitenkarte senden' : 'Kontakt speichern'}
         busy={busy}
         disabled={!name.trim() || (!!email.trim() && !isEmail(email))}
         onPress={save}

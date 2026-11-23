@@ -178,8 +178,8 @@ export default function ShowcaseScreen() {
               { label: 'Einstellungen', onPress: () => router.push('/schaufenster') },
             ]
           : []),
-        // Digitale und druckbare Visitenkarte getrennt, damit Weitergeben und Drucken nicht verwechselt werden (2026-11-23)
-        { label: 'Visitenkarte teilen', onPress: () => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id: s.id, von: 'verwaltung' } }) },
+        // Digitale und Druckbare Visitenkarte getrennt, damit Weitergeben und Drucken nicht verwechselt werden (2026-11-23)
+        { label: 'Digitale Visitenkarte teilen', onPress: () => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id: s.id, von: 'verwaltung' } }) },
         { label: 'Druckbare Visitenkarte (PDF)', onPress: () => router.push({ pathname: '/schaufenster/[id]/druck', params: { id: s.id } }) },
       ]
     : [];
@@ -259,7 +259,7 @@ export default function ShowcaseScreen() {
             {link ? <Pill label="Teilen" onPress={() => shareLink({ title: s.name, text: s.name, url: link })} /> : null}
             {/* Digitale Visitenkarte für alle außerhalb des Teams (2026-11-23): Kontakt speichern, Kontakt schicken */}
             {link && !access.team ? (
-              <Pill label="Visitenkarte" onPress={() => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id: s.id, von: 'schaufenster' } })} />
+              <Pill label="Digitale Visitenkarte" onPress={() => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id: s.id, von: 'schaufenster' } })} />
             ) : null}
           </View>
         </View>

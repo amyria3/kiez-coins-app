@@ -1,4 +1,4 @@
-// Vorschaubild der Visitenkarte, 1200 × 630 (Daria, 2026-11-23: „Der geteilte Link wirkt ein wenig erbärmlich“).
+// Vorschaubild der Digitalen Visitenkarte, 1200 × 630 (Daria, 2026-11-23: „Der geteilte Link wirkt ein wenig erbärmlich“).
 // Messenger wie Telegram oder WhatsApp zeigen es unter kiezcoins.de/s/<kurzname>/visitenkarte, die App zeigt es als
 // Vorschau unter „Connect“. Gleicher Aufbau wie die Karte auf der Seite (_visitenkarte.mjs): Avatar, Name, Ort,
 // Services als Pillen auf Gelbgrün. Gezeichnet mit @vercel/og (Satori), Elemente als einfache Objekte statt JSX.
@@ -110,7 +110,7 @@ export function bildBaum(s, { logo, kater }) {
       "div",
       { justifyContent: "space-between", alignItems: "flex-end", fontSize: 26 },
       el("div", { fontFamily: "Unbounded", fontSize: 26 }, "KiezCoins"),
-      el("div", {}, "Visitenkarte"),
+      el("div", {}, "Digitale Visitenkarte"),
     ),
   );
 }
@@ -124,5 +124,5 @@ export function bildText(s) {
   const satz = [teil, ort ? `${teil ? "in " : ""}${ort}` : ""]
     .filter(Boolean)
     .join(" ");
-  return satz || `Visitenkarte von ${s.name} auf KiezCoins`;
+  return satz || `Digitale Visitenkarte von ${s.name} auf KiezCoins`;
 }

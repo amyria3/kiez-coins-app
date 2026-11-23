@@ -120,7 +120,7 @@ export function ShowcaseFunctions({ showcase: s, onOpenVisibility }: { showcase:
               label="Freundschaftsanfragen über das Schaufenster"
               description={
                 friends
-                  ? 'Wer Deine Seite oder Visitenkarte öffnet, kann Dir mit einem Tipp eine Freundschaftsanfrage schicken.'
+                  ? 'Wer Deine Seite oder Digitale Visitenkarte öffnet, kann Dir mit einem Tipp eine Freundschaftsanfrage schicken.'
                   : 'Auf Deiner Seite erscheint kein Knopf zum Anfreunden.'
               }
               value={friends}

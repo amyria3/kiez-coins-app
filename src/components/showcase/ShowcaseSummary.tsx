@@ -1,5 +1,6 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
 
 import { loadShowcaseSummary, type ShowcaseSummary as Summary } from '../../data/showcaseCard';
@@ -8,14 +9,30 @@ import { color, radius, space, text } from '../../theme/tokens';
 import { FieldGroup } from '../Content';
 import { Text } from '../T';
 
+/** Auf diesem Gerät gemerkt: Statistik offen oder zu (anfangs zu) */
+const OPEN_KEY = 'schaufenster-statistik-offen';
+
 /**
- * Zusammenfassung oben in der Schaufenster-Verwaltung (2026-11-23): Posts, neue Abonnent:innen, Aufrufe und wie oft
- * die Visitenkarte angefragt wurde (geöffnet, in Kontakte gespeichert, Kontakt erhalten; getrennt gezählt, in einer
- * Zeile zusammengefasst). Alle Zahlen für die letzten 30 Tage, gleich auf jedem Gerät und für das ganze Team.
- * Ohne die Migration 20261123000100 steht nur die Zeile zu den Posts da.
+ * „Statistik“ der Schaufenster-Verwaltung (Daria, 2026-11-23: unter „Posten“, eingeklappt, schöner als Sätze in einem
+ * grauen Kasten). Vier Kacheln mit großer Zahl, Bezeichnung und einer Zeile Detail: Posts, neue Abonnent:innen, Aufrufe,
+ * Anfragen der Digitalen Visitenkarte (geöffnet, gespeichert, Kontakt erhalten). Posts zählen gesamt, die übrigen die letzten
+ * 30 Tage, gleich auf jedem Gerät und für das ganze Team. Eingeklappt steht eine Zeile mit den wichtigsten Zahlen unter
+ * der Überschrift. Ohne Migration 20261123000100 gibt es nur die Kachel zu den Posts.
  */
 export function ShowcaseSummary({ showcaseId }: { showcaseId: string }) {
   const [summary, setSummary] = useState<Summary | null | undefined>(undefined);
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    AsyncStorage.getItem(OPEN_KEY).then(
+      (v) => setOpen(v === '1'),
+      () => {},
+    );
+  }, []);
+  const toggle = () =>
+    setOpen((o) => {
+      AsyncStorage.setItem(OPEN_KEY, o ? '0' : '1').catch(() => {});
+      return !o;
+    });
   useFocusEffect(
     useCallback(() => {
       let active = true;
@@ -29,62 +46,89 @@ export function ShowcaseSummary({ showcaseId }: { showcaseId: string }) {
     }, [showcaseId]),
   );
   if (!summary) return null;
-  const lines = summaryLines(summary);
+  const x = summary.stats;
+  const requests = x ? x.cardViews + x.contactSaves + x.contactsReceived : 0;
+
   return (
-    <FieldGroup heading label="Zusammenfassung">
-      <View style={styles.box}>
-        {lines.map((line) => (
-          <Text key={line} style={styles.line}>
-            {line}
-          </Text>
-        ))}
-        {summary.stats ? <Text style={styles.meta}>{t('Zahlen der letzten 30 Tage')}</Text> : null}
+    <FieldGroup
+      heading
+      label="Statistik"
+      open={open}
+      onToggle={toggle}
+      closedHint={
+        x
+          ? t('{views} Aufrufe · {followers} neue Abonnent:innen · {requests} Anfragen der Digitalen Visitenkarte', {
+              views: String(x.pageViews),
+              followers: String(x.newFollowers),
+              requests: String(requests),
+            })
+          : summary.posts === 1
+            ? t('1 Post')
+            : t('{count} Posts', { count: String(summary.posts) })
+      }
+    >
+      <View style={styles.grid}>
+        <Tile
+          value={summary.posts}
+          label={summary.posts === 1 ? t('Post') : t('Posts')}
+          detail={summary.lastPostAt ? t('Der letzte ist vom {date}.', { date: day(summary.lastPostAt) }) : t('Noch keiner.')}
+        />
+        {x ? (
+          <>
+            <Tile
+              value={x.newFollowers}
+              label={x.newFollowers === 1 ? t('neue:r Abonnent:in') : t('neue Abonnent:innen')}
+              detail={t('{count} insgesamt', { count: String(x.followers) })}
+            />
+            <Tile value={x.pageViews} label={x.pageViews === 1 ? t('Aufruf') : t('Aufrufe')} detail={t('Deine Seite in der App und im Web')} />
+            <Tile
+              value={requests}
+              label={t('Anfragen der Digitalen Visitenkarte')}
+              detail={t('{opened} geöffnet · {saved} gespeichert · {received} Kontakte', {
+                opened: String(x.cardViews),
+                saved: String(x.contactSaves),
+                received: String(x.contactsReceived),
+              })}
+            />
+          </>
+        ) : null}
       </View>
+      {x ? <Text style={styles.meta}>{t('Posts gesamt, alle anderen Zahlen der letzten 30 Tage')}</Text> : null}
     </FieldGroup>
   );
 }
 
 const day = (iso: string) => new Date(iso).toLocaleDateString(localeTag(), { day: 'numeric', month: 'numeric', year: 'numeric' });
 
-/** Zeilen auf Deutsch, durch t() übersetzt; die Zahl steht im Text, damit Einzahl und Mehrzahl stimmen */
-function summaryLines(s: Summary): string[] {
-  const lines: string[] = [];
-  if (!s.posts) lines.push(t('Du hast noch keine Posts.'));
-  else if (s.posts === 1) lines.push(s.lastPostAt ? t('Du hast 1 Post, vom {date}.', { date: day(s.lastPostAt) }) : t('Du hast 1 Post.'));
-  else
-    lines.push(
-      s.lastPostAt
-        ? t('Du hast {count} Posts, der letzte ist vom {date}.', { count: String(s.posts), date: day(s.lastPostAt) })
-        : t('Du hast {count} Posts.', { count: String(s.posts) }),
-    );
-  const x = s.stats;
-  if (!x) return lines;
-  lines.push(
-    x.newFollowers === 0
-      ? t('Du hast keine neuen Abonnent:innen.')
-      : x.newFollowers === 1
-        ? t('Du hast 1 neue:n Abonnent:in.')
-        : t('Du hast {count} neue Abonnent:innen.', { count: String(x.newFollowers) }),
+/** Kachel: große Zahl, darunter die Bezeichnung und eine Zeile Detail (Schrift in Texttönen, keine Signalfarbe) */
+function Tile({ value, label, detail }: { value: number; label: string; detail: string }) {
+  return (
+    <View style={styles.tile} accessible accessibilityLabel={`${value} ${label}. ${detail}`}>
+      <Text noTranslate style={styles.value}>
+        {value.toLocaleString(localeTag())}
+      </Text>
+      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.detail}>{detail}</Text>
+    </View>
   );
-  lines.push(
-    x.pageViews === 1 ? t('Dein Schaufenster wurde 1-mal aufgerufen.') : t('Dein Schaufenster wurde {count}-mal aufgerufen.', { count: String(x.pageViews) }),
-  );
-  const requests = x.cardViews + x.contactSaves + x.contactsReceived;
-  lines.push(
-    requests === 0
-      ? t('Deine Visitenkarte wurde noch nicht angefragt.')
-      : t('Deine Visitenkarte wurde {count}-mal angefragt: {opened}-mal geöffnet, {saved}-mal gespeichert, {received} Kontakte erhalten.', {
-          count: String(requests),
-          opened: String(x.cardViews),
-          saved: String(x.contactSaves),
-          received: String(x.contactsReceived),
-        }),
-  );
-  return lines;
 }
 
 const styles = StyleSheet.create({
-  box: { gap: space[8], padding: space[16], borderRadius: radius.md, backgroundColor: color.bg.surface },
-  line: { ...text.body, color: color.text.primary },
-  meta: { ...text.caption, color: color.text.secondary, marginTop: space[4] },
+  // Zwei Kacheln nebeneinander, auf schmalen Geräten untereinander
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
+  tile: {
+    flexGrow: 1,
+    flexBasis: '45%',
+    minWidth: 140,
+    gap: space[2],
+    paddingVertical: space[12],
+    paddingHorizontal: space[16],
+    borderRadius: radius.md,
+    backgroundColor: color.bg.surface,
+  },
+  // Zahl in der Überschriften-Schrift der App (sans, halbfett), keine eigene Größe
+  value: { ...text.headline, color: color.text.primary },
+  label: { ...text.bodyStrong, color: color.text.primary },
+  detail: { ...text.caption, color: color.text.secondary },
+  meta: { ...text.caption, color: color.text.secondary },
 });

@@ -1861,5 +1861,19 @@
   "Die Kartensuche antwortet gerade nicht. Versuch es gleich noch mal, oder speichere die Adresse als Text.": "The map search isn’t responding right now. Try again in a moment, or save the address as text.",
   "Ja, mit Kartenpunkt speichern": "Yes, save with map pin",
   "Als Text speichern": "Save as text",
-  "Noch mal suchen": "Search again"
+  "Noch mal suchen": "Search again",
+  "Digitale Visitenkarte": "Digital Business Card",
+  "Druckbare Visitenkarte": "Printable Business Card",
+  "Digitale Visitenkarte teilen": "Share Digital Business Card",
+  "Digitale Visitenkarte öffnen": "Open Digital Business Card",
+  "Druckbare Visitenkarte (PDF)": "Printable Business Card (PDF)",
+  "Vorne": "Front",
+  "Hinten": "Back",
+  "Auf der Druckbaren Visitenkarte zeigen": "Show on the Printable Business Card",
+  "Services, vorne": "Services, on the front",
+  "Links, hinten, in der Reihenfolge aus „Inhalte bearbeiten“": "Links, on the back, in the order set in “Edit content”",
+  "Alle Links: QR-Code scannen": "All links: scan the QR code",
+  "Vorderseite der Druckbaren Visitenkarte": "Front of the Printable Business Card",
+  "Rückseite der Druckbaren Visitenkarte": "Back of the Printable Business Card",
+  "Anfragen der Digitalen Visitenkarte": "Digital Business Card requests"
 }

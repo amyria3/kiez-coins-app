@@ -23,12 +23,12 @@ const MESSAGES: Record<Exclude<CardMailResult, 'ok'>, string> = {
 };
 
 /**
- * Secondary-Button, der sich zum Formular öffnet: Adresse eintippen, KiezCoins verschickt die Visitenkarte mit dem
+ * Secondary-Button, der sich zum Formular öffnet: Adresse eintippen, KiezCoins verschickt die Digitale Visitenkarte mit dem
  * Link zur Seite über die Edge Function `visitenkarte-mail` (#408) (Daria, 2026-11-18: „Der Knopf sollte aber ne Mail
  * eintragen die wir schicken“).
  *
  * Tastatur (Daria, 2026-11-18, Bildschirmfoto): Keyboard.tsx scrollt nur das aktive Feld ins Bild, Vorname und
- * „Visitenkarte schicken“ lagen dann unter der Tastatur. Ist ein Feld des Formulars aktiv und die Tastatur offen,
+ * „Digitale Visitenkarte schicken“ lagen dann unter der Tastatur. Ist ein Feld des Formulars aktiv und die Tastatur offen,
  * scrollt die Seite zusätzlich so weit, dass das Formular bis zum Button zu sehen ist. Nur die Scrollfläche des
  * Screens bewegt sich, nie die Browserseite selbst, damit iOS die Tastatur nicht wieder schließt (#413).
  */
@@ -42,7 +42,7 @@ export function CardMailButton({
   showcase: Showcase;
   label: string;
   icon?: IconName;
-  /** Von außen gesteuert, z. B. in der Visitenkarte: der Knopf klappt das Formular auf und wieder zu */
+  /** Von außen gesteuert, z. B. in der Digitalen Visitenkarte: der Knopf klappt das Formular auf und wieder zu */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
@@ -79,7 +79,7 @@ export function CardMailButton({
     const r = await sendCardMail(showcase.slug, to, from);
     setBusy(false);
     if (r === 'ok') {
-      setResult({ ok: true, message: t('Die Visitenkarte ist unterwegs an {to}.', { to: to.trim() }) });
+      setResult({ ok: true, message: t('Die Digitale Visitenkarte ist unterwegs an {to}.', { to: to.trim() }) });
       setTo('');
     } else {
       setResult({ ok: false, message: t(MESSAGES[r]) });
@@ -111,7 +111,7 @@ export function CardMailButton({
             {...focusProps}
           />
           <View ref={end}>
-            <Button label="Visitenkarte schicken" busy={busy} disabled={!isEmail(to)} onPress={send} />
+            <Button label="Digitale Visitenkarte schicken" busy={busy} disabled={!isEmail(to)} onPress={send} />
           </View>
           <Button label="Abbrechen" variant="ghost" onPress={cancel} />
           <Text style={styles.meta}>KiezCoins nutzt die Adresse nur für diese eine Mail und speichert sie nicht.</Text>
