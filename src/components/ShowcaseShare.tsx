@@ -106,7 +106,7 @@ export function CardMailButton({
           <View ref={end}>
             <Button label="Visitenkarte schicken" busy={busy} disabled={!isEmail(to)} onPress={send} />
           </View>
-          <Text style={styles.meta}>KiezKoins nutzt die Adresse nur für diese eine Mail und speichert sie nicht.</Text>
+          <Text style={styles.meta}>KiezCoins nutzt die Adresse nur für diese eine Mail und speichert sie nicht.</Text>
         </View>
       ) : controlled ? null : (
         <Button label={label} variant="secondary" icon={icon} onPress={() => setOpen(true)} />

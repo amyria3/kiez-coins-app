@@ -9,7 +9,7 @@ import { hatTermine, schaufensterKalender } from './_kalender.mjs';
 import { buchungsLink } from './_buchung.mjs';
 import { anfahrtLink, hatPunkt, karteEinbetten, karteGross } from './_karte.mjs';
 import { oeffnungszeiten } from './_oeffnungszeiten.mjs';
-import { karteQrLink, vcard, visitenkarteAnsicht } from './_visitenkarte.mjs';
+import { vcard, visitenkarteAnsicht } from './_visitenkarte.mjs';
 import { BILD_B, BILD_H, bildBaum, bildText } from './_visitenkarte-bild.mjs';
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://aqxzxpxrshizlaqyjplw.supabase.co';
@@ -252,52 +252,54 @@ function eintrag(x) {
     </div></article>`;
 }
 
-// Visitenkarte zum Teilen und Drucken (Daria, 2026-11-12: „kann die Visitenkarte nicht teilen“). Dieselbe Karte wie in
-// der App unter Verwalten › Visitenkarte exportieren: website/visitenkarte.js aus src/lib/businessCardCanvas.ts.
-// Beim Teilen gehen Name, Adresse, Mail und Link als Text mit. Schriften unter den Namen, die die Zeichnung erwartet.
-// Visitenkarte auf der Schaufenster-Seite: nur das Bild und „Visitenkarte öffnen“ (Daria, 2026-11-23). Teilen, Speichern,
-// QR-Code und Mail stehen in der eigenen Ansicht /s/<kurzname>/visitenkarte (api/_visitenkarte.mjs). Kam die Person
-// über den Instant-Code der Karte (?via=karte), geht die Kennung mit.
-function visitenkarte(s, links, via) {
-  const daten = {
-    name: s.name,
-    kiez: s.kiez || undefined,
-    address: s.address || undefined,
-    email: s.email || undefined,
-    openingHours: s.opening_hours || undefined,
-    services: s.services || undefined,
-    links: links.filter((l) => /^https:\/\//i.test(l)),
-    url: `${SITE}/s/${s.slug}`,
-    qrUrl: karteQrLink(s.slug),
-    logoUri: foto(s.logo_path) ?? undefined,
-  };
-  const ziel = `/s/${s.slug}/visitenkarte${via === 'karte' ? '?via=karte' : ''}`;
+// Visitenkarte auf der Schaufenster-Seite: nur die Vorschau und „Visitenkarte öffnen“ (Daria, 2026-11-23). Die Vorschau
+// ist überall dieselbe (2026-11-23): das Bild /s/<kurzname>/visitenkarte.png, das auch Messenger beim geteilten Link
+// zeigen (_visitenkarte-bild.mjs). Die druckbare Karte (vorne und hinten) gibt es nur in der Verwaltung der App.
+// Teilen, Speichern, QR-Code und Mail stehen in der eigenen Ansicht /s/<kurzname>/visitenkarte (api/_visitenkarte.mjs);
+// `von=schaufenster` sagt ihr, dass die Person von hier kommt. Kam sie über den QR-Code der Karte (?via=karte), geht
+// die Kennung mit.
+function visitenkarte(s, via) {
+  const ziel = `/s/${s.slug}/visitenkarte?von=schaufenster${via === 'karte' ? '&via=karte' : ''}`;
   return `<style>
-@font-face { font-family: Unbounded_500Medium; font-display: block; src: url(/fonts/Unbounded_500Medium.ttf) format('truetype'); }
-@font-face { font-family: Karla_400Regular; font-display: block; src: url(/fonts/Karla_400Regular.ttf) format('truetype'); }
-@font-face { font-family: Karla_500Medium; font-display: block; src: url(/fonts/Karla_500Medium.ttf) format('truetype'); }
 .geteilt .sf-vk { margin: 0 0 56px; max-width: 420px; }
-.geteilt .sf-vk-bild { display: block; width: 100%; aspect-ratio: 85 / 55; border-radius: 10px; margin: 0 0 24px; }
+.geteilt .sf-vk-bild { display: block; width: 100%; aspect-ratio: ${BILD_B} / ${BILD_H}; border-radius: 10px; margin: 0 0 24px; background: #F0FFA6; }
 .geteilt .sf-vk a.sf-vk-haupt { display: flex; align-items: center; justify-content: center; min-height: 50px; padding: 13px 20px; box-sizing: border-box;
   border-radius: 999px; background: var(--text); color: var(--bg); font: 500 16px/1.25 Inter, sans-serif; letter-spacing: .01em; text-decoration: none; }
 </style>
   <h2 class="sf-abschnitt">Visitenkarte</h2>
   <section class="sf-vk" aria-label="Visitenkarte">
-    <a href="${esc(ziel)}"><img class="sf-vk-bild" alt="Visitenkarte von ${esc(s.name)}" hidden></a>
+    <a href="${esc(ziel)}"><img class="sf-vk-bild" src="/s/${esc(s.slug)}/visitenkarte.png" width="${BILD_B}" height="${BILD_H}" loading="lazy" alt="Visitenkarte von ${esc(s.name)}"></a>
     <a class="sf-vk-haupt" href="${esc(ziel)}">Visitenkarte öffnen</a>
-  </section>
-<script src="/visitenkarte.js" defer></script>
-<script>
-addEventListener('DOMContentLoaded', async () => {
-  const VK = window.KiezVisitenkarte;
-  const bild = document.querySelector('.sf-vk-bild');
-  if (!VK || !bild) return;
-  const seiten = await VK.drawBusinessCard(${JSON.stringify(daten).replace(/</g, '\\u003c')});
-  if (!seiten) return;
-  bild.src = seiten.front.toDataURL('image/png');
-  bild.hidden = false;
-});
+  </section>`;
+}
+
+/**
+ * Zählt einen Aufruf fürs Team (count_showcase_visit, Migration 20261123000100, 2026-11-23): ein Skript im Browser,
+ * damit Bots und Linkvorschauen ohne JavaScript nicht mitzählen und der Zwischenspeicher der Seite nicht stört.
+ * Ohne Kennung, Cookie oder Speicher auf dem Gerät.
+ */
+function zaehlSkript(slug, art) {
+  return `<script>
+fetch(${JSON.stringify(`${SUPABASE_URL}/rest/v1/rpc/count_showcase_visit`)}, {
+  method: 'POST', keepalive: true,
+  headers: { apikey: ${JSON.stringify(SUPABASE_KEY)}, Authorization: ${JSON.stringify(`Bearer ${SUPABASE_KEY}`)}, 'Content-Type': 'application/json' },
+  body: ${JSON.stringify(JSON.stringify({ p_slug: slug, p_kind: art }))},
+}).catch(() => {});
 </script>`;
+}
+
+/** Bots, Linkvorschauen und Skripte zählen beim Abruf der vCard nicht mit */
+const BOT = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|slack|discord|twitter|linkedin|skype|curl|wget|python|node-fetch|axios|headless/i;
+
+/** Zählt serverseitig (für die vCard, die ohne Seite abgerufen wird); höchstens 1,5 Sekunden warten */
+async function zaehlen(slug, art, request) {
+  if (BOT.test(request.headers.get('user-agent') ?? '')) return;
+  await fetch(`${SUPABASE_URL}/rest/v1/rpc/count_showcase_visit`, {
+    method: 'POST',
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ p_slug: slug, p_kind: art }),
+    signal: AbortSignal.timeout(1500),
+  }).catch(() => {});
 }
 
 // Fuß der Schaufenster-Seite (Daria, 2026-11-12): Wer die Seite sieht, kann selbst eine anlegen oder die App laden.
@@ -566,7 +568,7 @@ function inhalt(s, via) {
   <div class="sf-ende"><p class="sf-klein" style="white-space: pre-line">${esc(s.imprint)}</p></div>`
       : ''
   }
-  ${/* Visitenkarte am Schluss der Seite (Daria, 2026-11-12) */ visitenkarte(s, links, via)}
+  ${/* Visitenkarte am Schluss der Seite (Daria, 2026-11-12) */ visitenkarte(s, via)}
 <script>
 (() => {
   // Name: die Schrift so weit verkleinern, dass das längste Wort in die Zeile passt (höchstens bis 16 px)
@@ -723,8 +725,10 @@ async function visitenkarteBild(s, origin) {
   });
 }
 
-function kontaktDatei(s, slug, felder) {
+async function kontaktDatei(s, slug, felder, request) {
   if (!s) return new Response('Nicht gefunden', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+  // „In Kontakte speichern“ zählt fürs Team (2026-11-23)
+  await zaehlen(slug, 'save', request);
   return new Response(vcard(s, felder), {
     headers: {
       'Content-Type': 'text/vcard; charset=utf-8',
@@ -743,7 +747,7 @@ export async function POST(request) {
   if (url.searchParams.get('format') !== 'vcf' || !SLUG.test(slug)) return new Response('Nicht gefunden', { status: 404 });
   const form = await request.formData().catch(() => null);
   const s = await ladeSchaufenster(slug);
-  return kontaktDatei(s, slug, { ort: form?.get('ort') ?? '', notiz: form?.get('notiz') ?? '' });
+  return kontaktDatei(s, slug, { ort: form?.get('ort') ?? '', notiz: form?.get('notiz') ?? '' }, request);
 }
 
 export async function GET(request) {
@@ -757,8 +761,11 @@ export async function GET(request) {
     const neu = await neuerKurzname(slug);
     if (neu) {
       const rest = { ics: '/termine.ics', vcf: '/kontakt.vcf', png: '/visitenkarte.png' }[url.searchParams.get('format')] ?? (url.searchParams.get('ansicht') === 'visitenkarte' ? '/visitenkarte' : '');
-      const via = url.searchParams.get('via') === 'karte' ? '?via=karte' : '';
-      return Response.redirect(new URL(`/s/${neu}${rest}${via}`, url.origin), 301);
+      const weiter = new URLSearchParams();
+      if (url.searchParams.get('via') === 'karte') weiter.set('via', 'karte');
+      if (url.searchParams.get('von') === 'schaufenster') weiter.set('von', 'schaufenster');
+      const query = weiter.toString() ? `?${weiter}` : '';
+      return Response.redirect(new URL(`/s/${neu}${rest}${query}`, url.origin), 301);
     }
   }
 
@@ -777,10 +784,11 @@ export async function GET(request) {
 
   // Kontakt als vCard: /s/<kurzname>/kontakt.vcf (Daria, 2026-11-23). GET liefert die Karte ohne Notiz, POST aus dem
   // Formular der Visitenkarten-Ansicht mit Ort und Notiz.
-  if (url.searchParams.get('format') === 'vcf') return kontaktDatei(s, slug, {});
+  if (url.searchParams.get('format') === 'vcf') return kontaktDatei(s, slug, {}, request);
   if (url.searchParams.get('format') === 'png') return visitenkarteBild(s, url.origin);
 
   const via = url.searchParams.get('via') === 'karte' ? 'karte' : undefined;
+  const von = url.searchParams.get('von') === 'schaufenster' ? 'schaufenster' : undefined;
   const ansicht = url.searchParams.get('ansicht') === 'visitenkarte';
   const vorlage = await fetch(new URL('/teilen-vorlage', url.origin));
   if (!vorlage.ok) return new Response('Vorlage fehlt', { status: 500 });
@@ -795,12 +803,14 @@ export async function GET(request) {
         ? seitenStil(s) +
           visitenkarteAnsicht(s, {
             via,
+            von,
+            zaehlFunktion: `${SUPABASE_URL}/rest/v1/rpc/count_showcase_visit`,
             logo: foto(s.logo_path),
             kater: KATER,
             mailFunktion: `${SUPABASE_URL}/functions/v1/visitenkarte-mail`,
             schluessel: SUPABASE_KEY,
           })
-        : inhalt(s, via),
+        : inhalt(s, via) + (s ? zaehlSkript(s.slug, 'page') : ''),
     )
     // Die Visitenkarten-Ansicht hat „Folgen“ in der Knopfliste und braucht den Fuß der Schaufenster-Seite nicht
     .replace(/<div class="card">\s*<h3>Mach mit in Deinem Kiez\.<\/h3>[\s\S]*?<\/div>/, (karte) => (s ? (ansicht ? '' : mitmachen(s)) : karte))

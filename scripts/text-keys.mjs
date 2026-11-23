@@ -11,7 +11,8 @@ export async function collectKeys() {
   const walk = (d) =>
     readdirSync(d).flatMap((n) => {
       const p = join(d, n);
-      return statSync(p).isDirectory() ? walk(p) : /\.tsx?$/.test(n) ? [p] : [];
+      // .mjs: reine Regeln, die auch die Webseite nutzt (z. B. data/cardActions.mjs mit den Knopfnamen der Visitenkarte)
+      return statSync(p).isDirectory() ? walk(p) : /\.(tsx?|mjs)$/.test(n) ? [p] : [];
     });
   const skipFile = (f) => /data\/(sample|texts)\.ts$|icons\/|i18n\//.test(f);
 

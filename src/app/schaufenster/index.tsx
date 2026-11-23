@@ -8,10 +8,11 @@ import { Button } from '../../components/Button';
 import { Explanation, FieldGroup, Notice, QuestionHint } from '../../components/Content';
 import { SwitchRow, TextField } from '../../components/Form';
 import { NavigationBar } from '../../components/NavigationBar';
-import { scrollIntoView } from '../../components/Nudge';
 import { NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { Text } from '../../components/T';
+import { CardPreview } from '../../components/showcase/CardPreview';
+import { ShowcaseSummary } from '../../components/showcase/ShowcaseSummary';
 import { useAuth } from '../../data/auth';
 import { loadOwnProfile } from '../../data/remote';
 import { createShowcase, handleFromShowcase, myShowcases, showcasePublicLink, type Showcase } from '../../data/showcase';
@@ -238,8 +239,6 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
   const [failed, setFailed] = useState<string | null>(null);
   // Schaufenster, bei dem jemand auf das ausgegraute „Schaufenster im Web“ getippt hat
   const [webHint, setWebHint] = useState<string | null>(null);
-  // Abschnitt „Connect“ je Schaufenster, Ziel des Hinweises „Runterscrollen“
-  const connectRefs = useRef<Record<string, View | null>>({});
   // Gruppe aus einem gescheiterten Versuch; ein zweiter Versuch legt keine weitere Gruppe an
   const groupRef = useRef<string | null>(null);
 
@@ -270,6 +269,8 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
       setBusy(false);
     }
   };
+
+  const openCard = (id: string) => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id, von: 'verwaltung' } });
 
   // Nur wer die Seite direkt über kiezcoins.de/schaufenster öffnet (ohne Verlauf), braucht den Weg in die App und
   // das Abmelden, z. B. am Rechner im Laden. Aus der App heraus hätte „Abmelden“ die ganze App abgemeldet
@@ -316,12 +317,13 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
           <Text style={[styles.showcaseName, !router.canGoBack() && styles.showcaseNameUnderKicker]} accessibilityRole="header" noTranslate>
             {s.name}
           </Text>
-          {/* Hinweise der Krabbe unter dem Namen, siehe ShowcaseHints */}
-          <ShowcaseHints showcase={s} connectRef={connectRefs.current} />
+          {/* Hinweis der Krabbe unter dem Namen, siehe ShowcaseHints */}
+          <ShowcaseHints showcase={s} />
           {s.cover ? <Image source={s.cover} style={styles.cover} contentFit="cover" /> : null}
           {!s.switches.online ? <Notice variant="warning" message="Dieses Schaufenster ist offline." /> : null}
-          {/* Zwei Abschnitte wie in „Dein Konto“, damit klar ist, was wozu gehört (Daria, 2026-11-13: „zerfällt“):
-              oben, was man postet, darunter alles zur Seite selbst. */}
+          {/* Reihenfolge (2026-11-23): zuerst die Zusammenfassung, dann was man tut (Posten), dann die Seite selbst,
+              die digitale Visitenkarte mit ihren Weiterleitungsoptionen und getrennt davon die druckbare Karte. */}
+          <ShowcaseSummary showcaseId={s.id} />
           {s.switches.posten ? (
             <FieldGroup heading label="Posten">
               <View style={styles.list}>
@@ -331,16 +333,21 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
             </FieldGroup>
           ) : null}
           <FieldGroup heading label="Deine Seite">
-            {/* Zwei Ansichten (Daria, 2026-11-12): in der App wie ein KiezCoins-Mitglied, im Web wie jede Besucher:in
-                unter kiezcoins.de/s/…. Die Webseite gibt es nur öffentlich und online; sonst erklärt ein Hinweis, warum.
-                Ansehen ist eine Handlung und steht als Secondary-Button in der Farbe des Bereichs (Daria, 2026-11-18).
-                Link kopieren steht unter „Connect“ (Daria, 2026-11-18). */}
+            {/* Zwei Ansichten: in der App wie ein KiezCoins-Mitglied, im Web wie jede Besucher:in unter kiezcoins.de/s/….
+                Ansehen ist eine Handlung (Secondary-Button); der Pfeil zeigt, wohin es geht: `chevron-right` bleibt in der
+                App, `external` öffnet den Browser (2026-11-23). Die Webseite gibt es nur öffentlich und online. */}
             <View style={styles.list}>
-              <Button label="Schaufenster in der App" variant="secondary" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
+              <Button
+                label="Schaufenster in der App"
+                variant="secondary"
+                iconEnd="chevron-right"
+                onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })}
+              />
               <Button
                 label="Schaufenster im Web"
                 variant="secondary"
-                disabled={!(s.visibility === 'public' && s.switches.online)}
+                iconEnd="external"
+                disabled={!canShare(s)}
                 whyDisabled={() => setWebHint(s.id)}
                 onPress={() => Linking.openURL(showcasePublicLink(s.slug))}
               />
@@ -356,19 +363,34 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               />
             ) : null}
           </FieldGroup>
-          {/* Connect zeigt nur die Visitenkarte als Vorschau und führt zu ihrer Ansicht. Teilen, Link kopieren, Kontakte tauschen,
-              Instant-Code und Mail gibt es nur dort, damit nichts doppelt und anders benannt ist (Daria, 2026-11-23).
-              Nur bei „Alle“ und online, sonst gibt es die Seite im Web nicht. */}
+          {/* Digitale Visitenkarte: eine Vorschau (dasselbe Bild wie in der Linkvorschau der Messenger) und der Weg zu
+              ihren Weiterleitungsoptionen. Nur bei „Alle“ und online, sonst gibt es die Seite im Web nicht. */}
           {canShare(s) ? (
-            <View
-              ref={(v) => {
-                connectRefs.current[s.id] = v;
-              }}
-            >
-              <FieldGroup heading label="Connect">
-                <CardPreview showcase={s} onPress={() => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id: s.id } })} />
-              </FieldGroup>
-            </View>
+            <FieldGroup heading label="Digitale Visitenkarte">
+              <View style={styles.list}>
+                <CardPreview showcase={s} onPress={() => openCard(s.id)} />
+                <Button label="Visitenkarte teilen" iconEnd="chevron-right" onPress={() => openCard(s.id)} />
+              </View>
+            </FieldGroup>
+          ) : null}
+          {/* Druckbare Visitenkarte (2026-11-23): eigener Abschnitt und eigener Bildschirm, damit sie nicht mit dem
+              Weitergeben der digitalen Karte verwechselt wird. Auch am Handy. Der QR-Code darauf führt zur digitalen
+              Karte, deshalb wie sie nur bei „Alle“ und online. */}
+          {canShare(s) ? (
+            <FieldGroup heading label="Druckbare Visitenkarte">
+              <View style={styles.list}>
+                <Explanation
+                  question="Wozu die druckbare Visitenkarte?"
+                  answer="Zum Ausdrucken und Verteilen: eine Karte aus Papier im Format 85 × 55 mm. Der QR-Code darauf öffnet Eure digitale Visitenkarte."
+                />
+                <Button
+                  label="Druckbare Visitenkarte (PDF)"
+                  variant="secondary"
+                  iconEnd="chevron-right"
+                  onPress={() => router.push({ pathname: '/schaufenster/[id]/druck', params: { id: s.id } })}
+                />
+              </View>
+            </FieldGroup>
           ) : null}
           {/* Bei Google gefunden werden (Daria, 2026-11-18: Google Business Profile, Stufe 1). Die öffentliche Seite liefert
               Google Name, Adresse, Kartenpunkt, Öffnungszeiten und Termine (api/s.mjs). Für Google Maps legt der Betrieb
@@ -421,58 +443,26 @@ function useClosedHint(key: string): [boolean | undefined, () => void] {
 }
 
 /**
- * Hinweise der Krabbe oben (Daria, 2026-11-18): beide lassen sich schließen und bleiben zu.
- * 1. Was hier passiert, je nach Status, denn bei „Nur Eingeladene“ oder offline erscheint im Web nichts (Daria, 2026-11-12).
- *    Der Satz nennt die Einstellung, damit klar ist, dass „alle sehen es“ an ihr hängt (Daria, 2026-11-17). Geschlossen
- *    gilt je Status: Ändert sich die Sichtbarkeit, erklärt die Krabbe die neue Lage wieder.
- * 2. Teilen steht weit unten; „Runterscrollen“ springt zum Abschnitt „Connect“. Nur, wenn es den Abschnitt gibt.
+ * Hinweis der Krabbe oben (Daria, 2026-11-18): lässt sich schließen und bleibt zu. Erklärt, was hier passiert, je nach
+ * Status, denn bei „Nur Eingeladene“ oder offline erscheint im Web nichts. Der Satz nennt die Einstellung, damit klar
+ * ist, dass „alle sehen es“ an ihr hängt (Daria, 2026-11-17). Geschlossen gilt je Status: Ändert sich die
+ * Sichtbarkeit, erklärt die Krabbe die neue Lage wieder.
  */
-function ShowcaseHints({ showcase: s, connectRef }: { showcase: Showcase; connectRef: Record<string, View | null> }) {
+function ShowcaseHints({ showcase: s }: { showcase: Showcase }) {
   const status = !s.switches.online ? 'offline' : s.visibility === 'public' ? 'public' : 'invited';
   const [statusClosed, closeStatus] = useClosedHint(`schaufenster-hinweis-${s.id}-${status}`);
-  const [shareClosed, closeShare] = useClosedHint(`schaufenster-hinweis-${s.id}-teilen`);
+  if (statusClosed !== false) return null;
   return (
-    <>
-      {statusClosed === false ? (
-        <Notice
-          message={
-            status === 'offline'
-              ? 'Hier pflegst Du Deine Seite. Sie ist gerade offline, deshalb sieht nur Deine Gruppe, was Du postest.'
-              : status === 'public'
-                ? 'Hier pflegst Du Deine Seite. Sie ist auf „Alle“ gestellt, deshalb sehen alle im Web und in der KiezCoins App, was Du postest.'
-                : 'Hier pflegst Du Deine Seite. Sie ist auf „Nur Eingeladene“ gestellt, deshalb sehen nur Dein Team und Eingeladene, was Du postest. Name und Angaben sehen alle.'
-          }
-          onClose={closeStatus}
-        />
-      ) : null}
-      {canShare(s) && shareClosed === false ? (
-        <Notice
-          message="Weiter unten teilst Du Deine Visitenkarte: als Link, per Instant-Code oder per Mail."
-          action={{ label: 'Runterscrollen', onPress: () => scrollIntoView(connectRef[s.id] ?? null) }}
-          onClose={closeShare}
-        />
-      ) : null}
-    </>
-  );
-}
-
-/**
- * Vorschau der Visitenkarte unter „Connect“ mit Knopf „Visitenkarte teilen“ (Daria, 2026-11-23). Das Bild ist dasselbe,
- * das Messenger beim geteilten Link zeigen (kiezcoins.de/s/<kurzname>/visitenkarte.png, api/_visitenkarte-bild.mjs).
- * Der Parameter `v` ändert sich mit den Angaben auf der Karte, damit nach dem Bearbeiten kein altes Bild bleibt.
- */
-function CardPreview({ showcase, onPress }: { showcase: Showcase; onPress: () => void }) {
-  const v = [showcase.name, showcase.kiez, showcase.address, showcase.services, JSON.stringify(showcase.logo ?? null)].join('|');
-  let hash = 0;
-  for (let i = 0; i < v.length; i++) hash = (hash * 31 + v.charCodeAt(i)) | 0;
-  const uri = `${showcasePublicLink(showcase.slug)}/visitenkarte.png?v=${(hash >>> 0).toString(36)}`;
-  return (
-    <View style={styles.list}>
-      <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={t('Visitenkarte öffnen')}>
-        <Image source={{ uri }} style={styles.cardPreview} contentFit="cover" transition={150} />
-      </Pressable>
-      <Button label="Visitenkarte teilen" onPress={onPress} />
-    </View>
+    <Notice
+      message={
+        status === 'offline'
+          ? 'Hier pflegst Du Deine Seite. Sie ist gerade offline, deshalb sieht nur Deine Gruppe, was Du postest.'
+          : status === 'public'
+            ? 'Hier pflegst Du Deine Seite. Sie ist auf „Alle“ gestellt, deshalb sehen alle im Web und in der KiezCoins App, was Du postest.'
+            : 'Hier pflegst Du Deine Seite. Sie ist auf „Nur Eingeladene“ gestellt, deshalb sehen nur Dein Team und Eingeladene, was Du postest. Name und Angaben sehen alle.'
+      }
+      onClose={closeStatus}
+    />
   );
 }
 
@@ -488,7 +478,6 @@ const styles = StyleSheet.create({
   meta: { ...text.caption, color: color.text.secondary },
   link: { ...text.caption, color: color.text.primary, textDecorationLine: 'underline' },
   cover: { width: '100%', aspectRatio: 16 / 9, borderRadius: radius.md },
-  cardPreview: { width: '100%', aspectRatio: 1200 / 630, borderRadius: radius.md, backgroundColor: '#F0FFA6' },
   list: { gap: space[8] },
   footer: { gap: space[8], marginTop: space[16] },
 });

@@ -14,7 +14,7 @@ export function setCardTranslator(fn: (s: string) => string): void {
 
 /**
  * Visitenkarte des Schaufensters (Daria, 2026-11-12): Der Laden exportiert sie aus „Verwalten“, als Bild zum Teilen
- * und als PDF zum Drucken. Vorne Name, Kiez, Instant-Code und Webadresse, hinten Adresse, Öffnungszeiten, Services
+ * und als PDF zum Drucken. Vorne Name, Kiez, QR-Code und Webadresse, hinten Adresse, Öffnungszeiten, Services
  * und Links. Optik wie der Kater-Avatar (Bildmarke): Gelbgrün #F0FFA6, Linienfarbe #000027, Titel in der Unbounded.
  *
  * Nur im Browser (App im Web und öffentliche Seite kiezcoins.de/s/…, gebaut nach website/visitenkarte.js): Beide Seiten werden auf ein Canvas gezeichnet, im Format 85 × 55 mm (Scheckkarte) mit 15 Pixeln pro
@@ -51,10 +51,10 @@ export type CardData = {
   openingHours?: string;
   services?: string;
   links: string[];
-  /** kiezcoins.de/s/<kurzname>, steht als Text unter dem Instant-Code */
+  /** kiezcoins.de/s/<kurzname>, steht als Text unter dem QR-Code */
   url: string;
   /**
-   * Ziel des Instant-Codes, wenn es von `url` abweicht: die Visitenkarten-Ansicht mit ?via=karte (Daria, 2026-11-23).
+   * Ziel des QR-Codes, wenn es von `url` abweicht: die Visitenkarten-Ansicht mit ?via=karte (Daria, 2026-11-23).
    * Wer die gedruckte Karte scannt, hat die Person getroffen und bekommt dort „Wo habt Ihr Euch getroffen?“.
    */
   qrUrl?: string;
@@ -177,7 +177,7 @@ function drawLogo(ctx: Ctx, img: HTMLImageElement, x: number, y: number, d: numb
   ctx.stroke();
 }
 
-/** Instant-Code: dunkle Module auf Weiß, damit jeder Scanner ihn liest */
+/** QR-Code: dunkle Module auf Weiß, damit jeder Scanner ihn liest */
 function drawQr(ctx: Ctx, value: string, x: number, y: number, size: number) {
   const qr = QRCode.create(value, { errorCorrectionLevel: 'M' });
   const n = qr.modules.size;
@@ -201,7 +201,7 @@ function drawQr(ctx: Ctx, value: string, x: number, y: number, size: number) {
 
 type Assets = { kater: HTMLImageElement | null; logo: HTMLImageElement | null };
 
-/** Vorderseite: Gelbgrün, Logo oder Kater, Name groß, Kiez, rechts der Instant-Code mit Webadresse */
+/** Vorderseite: Gelbgrün, Logo oder Kater, Name groß, Kiez, rechts der QR-Code mit Webadresse */
 function drawFront(d: CardData, a: Assets): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
   canvas.width = CARD_W;
@@ -211,7 +211,7 @@ function drawFront(d: CardData, a: Assets): HTMLCanvasElement {
   ctx.fillRect(0, 0, CARD_W, CARD_H);
   ctx.textBaseline = 'alphabetic';
 
-  // Rechts: Instant-Code, darunter die Webadresse
+  // Rechts: QR-Code, darunter die Webadresse
   const qrSize = 400;
   const qrX = CARD_W - PAD - qrSize;
   const qrY = PAD + 20;

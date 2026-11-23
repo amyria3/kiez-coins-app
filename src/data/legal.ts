@@ -7,7 +7,7 @@
  */
 
 /** Stand aller Texte (TT.MM.JJJJ). */
-export const LEGAL_STAND = '16.11.2026';
+export const LEGAL_STAND = '23.11.2026';
 
 /** Angaben zur Anbieterin. Leere Felder erscheinen in der App als „[offen: …]“. */
 export const OPERATOR = {
@@ -144,6 +144,8 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
           'Für ein Schaufenster speichern wir Name, Kurzname, Logo, Titelbild, Kurztext, Services, Kiez, Adresse, Links, Öffnungszeiten, Impressum, Hintergrundfarbe, Sichtbarkeit, Posts und Termine. Dazu kommen, wer dem Schaufenster folgt, wer Zugang anfragt oder eingeladen ist und wer einen Termin gespeichert hat. Das Team sieht nur die Zahl der Speichernden, keine Namen.',
           'Ein öffentliches Schaufenster sieht jede Person im Internet unter kiezcoins.de/s/, auch ohne Konto. Suchmaschinen wie Google dürfen die Seite aufnehmen. Das gilt auch für Namen und Anschrift im Impressum. Die Adresse des Schaufensters sehen in der App nur Personen mit Zugang. Ein Schaufenster „nur für Eingeladene“ zeigt Posts und Termine nur dem Team und den Eingeladenen.',
           'Herzen an Terminen zählen wir ohne Kennung. Dein Browser merkt sich auf Deinem Gerät, welche Termine Du geliked hast. Das ist technisch nötig, damit das Herz gefüllt bleibt (§ 25 Abs. 2 Nr. 2 TDDDG).',
+          // Zahlen fürs Team (2026-11-23, Migration 20261123000100_schaufenster_zahlen)
+          'Für das Team zählen wir, wie oft ein öffentliches Schaufenster und seine Visitenkarte aufgerufen werden, wie oft jemand die Visitenkarte in die eigenen Kontakte speichert und wie oft jemand dem Schaufenster den eigenen Kontakt schickt. Gespeichert wird nur eine Zahl pro Tag, ohne Kennung, ohne IP-Adresse und ohne etwas auf Deinem Gerät. Das Team sieht die Summen der letzten 30 Tage. Rechtsgrundlage ist unser berechtigtes Interesse, Teams zu zeigen, wie ihr Schaufenster ankommt (Art. 6 Abs. 1 lit. f DSGVO).',
           'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
         ],
       },
