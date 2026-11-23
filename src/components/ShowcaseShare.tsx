@@ -39,10 +39,13 @@ export function CardMailButton({
   open: openProp,
   onOpenChange,
   askName = true,
+  intro,
 }: {
   showcase: Showcase;
   label: string;
   icon?: IconName;
+  /** Satz über dem Formular: was passiert (Daria, 2026-11-23) */
+  intro?: string;
   /** Von außen gesteuert, z. B. in der Digitalen Visitenkarte: der Knopf klappt das Formular auf und wieder zu */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -112,6 +115,7 @@ export function CardMailButton({
       {result?.ok && !open ? <Notice message={result.message} onClose={() => setResult(null)} /> : null}
       {open ? (
         <View style={styles.form}>
+          {intro ? <Text style={styles.body}>{t(intro)}</Text> : null}
           <TextField
             label="An welche Adresse?"
             value={to}
@@ -154,4 +158,5 @@ const styles = StyleSheet.create({
   wrap: { gap: space[16] },
   form: { gap: space[16] },
   meta: { ...text.caption, color: color.text.secondary },
+  body: { ...text.body, color: color.text.primary },
 });

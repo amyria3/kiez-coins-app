@@ -25,9 +25,11 @@ export const CARD_ACTION_LABELS = {
   saveContact: 'In Kontakte speichern',
   sendContact: 'Deinen Kontakt schicken',
   exchange: 'Kontakte tauschen',
-  addContact: 'Kontakt von Hand eintragen',
+  // Kontakt speichern und Mail schicken sind fast dasselbe, die Namen zeigen es (Daria, 2026-11-23)
+  addContact: 'Kontakt speichern und per Mail schicken',
   qr: 'QR-Code zeigen',
   mail: 'Per Mail schicken',
+  mailOnly: 'Nur per Mail schicken',
   follow: '{name} folgen',
   followGuest: '{name} in KiezCoins folgen',
   befriend: 'Mit {name} anfreunden',
@@ -35,19 +37,22 @@ export const CARD_ACTION_LABELS = {
   showcaseBack: 'Zurück zum Schaufenster',
 };
 
-/** Feste Reihenfolge; der Hauptknopf rückt nach vorn */
+/**
+ * Feste Reihenfolge; der Hauptknopf rückt nach vorn (Daria, 2026-11-23): „Kontakt speichern und per Mail schicken“ und
+ * „Nur per Mail schicken“ stehen direkt hintereinander, „Link kopieren“ steht am Ende.
+ */
 const ORDER = /** @type {CardActionId[]} */ ([
   'share',
-  'copyLink',
   'saveContact',
   'sendContact',
   'exchange',
-  'addContact',
   'qr',
+  'addContact',
   'mail',
   'follow',
   'befriend',
   'showcase',
+  'copyLink',
 ]);
 
 /**
@@ -65,7 +70,7 @@ export function cardOrigin({ via, von }) {
 
 /**
  * Knöpfe der Digitalen Visitenkarte, der Hauptknopf zuerst.
- * - Team: weitergeben (Teilen, Link kopieren, QR-Code, Mail) und Kontakte von Hand eintragen.
+ * - Team: Teilen, QR-Code, Kontakt speichern und per Mail schicken, nur per Mail schicken, zuletzt Link kopieren.
  * - Mitglied: Kontakt speichern zuerst; Kontakt schicken mit Name und Mail aus dem Profil; folgen und anfreunden.
  * - Gast nach dem QR-Code der Karte: Kontakt speichern (mit Ort der Begegnung), Kontakt schicken und tauschen.
  *   Den QR-Code zeigt die Ansicht hier nicht, die Person hat ihn gerade gescannt.
@@ -108,6 +113,8 @@ export function cardActions({ viewer, origin, hasContactMail = false, canBefrien
 export function cardActionTemplate(id, { viewer, origin }) {
   if (id === 'follow') return viewer === 'guest' ? CARD_ACTION_LABELS.followGuest : CARD_ACTION_LABELS.follow;
   if (id === 'showcase') return origin === 'showcase' ? CARD_ACTION_LABELS.showcaseBack : CARD_ACTION_LABELS.showcase;
+  // Beim Team steht „Kontakt speichern und per Mail schicken“ davor, deshalb „Nur“
+  if (id === 'mail') return viewer === 'team' ? CARD_ACTION_LABELS.mailOnly : CARD_ACTION_LABELS.mail;
   return CARD_ACTION_LABELS[id];
 }
 

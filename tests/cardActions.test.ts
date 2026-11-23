@@ -21,10 +21,10 @@ describe('Knöpfe der Visitenkarte', () => {
   it('Team: weitergeben und Kontakte von Hand, nichts zum Folgen oder Speichern', () => {
     assert.deepEqual(ids({ viewer: 'team', origin: 'manage', hasContactMail: true, canBefriend: true }), [
       'share',
-      'copyLink',
-      'addContact',
       'qr',
+      'addContact',
       'mail',
+      'copyLink',
     ]);
     assert.equal(primary({ viewer: 'team', origin: 'manage' }), 'share');
   });
@@ -71,6 +71,16 @@ describe('Knöpfe der Visitenkarte', () => {
         assert.equal(list.filter((a) => a.primary).length, 1, `${viewer}/${origin}`);
         assert.equal(new Set(list.map((a) => a.id)).size, list.length, `${viewer}/${origin}`);
       }
+  });
+
+  it('Kontakt speichern und Mail stehen beim Team hintereinander, Link kopieren zuletzt', () => {
+    for (const origin of ['card', 'link', 'showcase', 'manage'] as const) {
+      const list = ids({ viewer: 'team', origin, hasContactMail: true });
+      assert.equal(list.indexOf('mail'), list.indexOf('addContact') + 1, origin);
+      assert.equal(list.at(-1), 'copyLink', origin);
+    }
+    assert.equal(cardActionLabel('mail', { name: 'X', viewer: 'team', origin: 'manage' }), 'Nur per Mail schicken');
+    assert.equal(cardActionLabel('mail', { name: 'X', viewer: 'guest', origin: 'link' }), 'Per Mail schicken');
   });
 
   it('setzt den Namen ein und nennt den Rückweg zum Schaufenster', () => {
