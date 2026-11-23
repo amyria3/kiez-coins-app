@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useRef, type ReactNode } from 'react';
+import { Animated, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -35,6 +35,8 @@ type TabBarProps = {
   routineActive?: boolean;
   /** Kiez-Look: Kalender im Feed öffnet die Routine dort. Ohne: Der Feed öffnet mit der Routine. */
   onRoutinePress?: () => void;
+  /** Routine: „Neue Erinnerung“ ist auf der Seite ganz zu sehen, dann fehlt das Plus (Daria, 2026-11-23) */
+  hidePlus?: boolean;
 };
 
 /**
@@ -47,7 +49,7 @@ export function TabBar(props: TabBarProps) {
   return <KiezTabBar {...props} />;
 }
 
-function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineActive = false, onRoutinePress }: TabBarProps) {
+function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineActive = false, onRoutinePress, hidePlus = false }: TabBarProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { mode, currentUserId } = useStore();
@@ -66,6 +68,25 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
     if (currentUserId) refreshUnread(currentUserId, mode === 'live').catch(() => {});
   }, [currentUserId, mode]);
   // Bei offener Tastatur weg (Daria, 2026-11-17: Suche im Feed, die Leiste schwebte mitten im Bild)
+  // Quick Button (Daria, 2026-11-23): In der Routine kommt ein Plus neben den Kalender ins selbe Oval. Die anderen
+  // Knöpfe werden etwas kleiner und rutschen dabei zur Seite, das Plus ist das hervorgehobene Element.
+  const plusOn = routineOn && routineActive && !hidePlus;
+  const open = useRef(new Animated.Value(plusOn ? 1 : 0)).current;
+  useEffect(() => {
+    Animated.spring(open, { toValue: plusOn ? 1 : 0, friction: 7, tension: 70, useNativeDriver: false }).start();
+  }, [plusOn, open]);
+  const itemW = open.interpolate({ inputRange: [0, 1], outputRange: [ITEM_W, ITEM_W_SMALL] });
+  const itemH = open.interpolate({ inputRange: [0, 1], outputRange: [ITEM_H, ITEM_H_SMALL] });
+  const iconScale = open.interpolate({ inputRange: [0, 1], outputRange: [1, ICON_SMALL] });
+  const plusW = open.interpolate({ inputRange: [0, 1], outputRange: [0, PLUS_W] });
+  // Ohne Plus fällt auch sein Abstand weg, sonst springt die Leiste beim Auftauchen um diesen Abstand
+  const plusGap = open.interpolate({ inputRange: [0, 1], outputRange: [-space[6], 0] });
+  const plusScale = open.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] });
+  const slot = (child: ReactNode, width: Animated.AnimatedInterpolation<number> | number = itemW) => (
+    <Animated.View style={{ width, height: itemH }}>
+      <Animated.View style={[styles.fill, { transform: [{ scale: iconScale }] }]}>{child}</Animated.View>
+    </Animated.View>
+  );
   const keyboard = useKeyboardHeight();
   if (keyboard > 0) return null;
   return (
@@ -75,7 +96,7 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
     >
       <View style={styles.bar} accessibilityRole="tablist">
         {/* Kalender ganz links öffnet die Routine (Daria, 2026-11-12). Nur, wenn die Routine eingeschaltet ist. */}
-        {routineOn ? (
+        {routineOn ? slot(
           <Pressable
             accessibilityRole="tab"
             accessibilityLabel={t('Routine')}
@@ -88,11 +109,33 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
             style={({ pressed }) => [styles.item, routineActive && styles.itemActive, pressed && styles.pressed]}
           >
             <Icon name="calendar" size={navSize(size.icon, routineActive)} color={routineActive ? color.nav.calendar : color.nav.icon} />
-          </Pressable>
+          </Pressable>,
+        ) : null}
+        {/* Quick Button: neue Erinnerung für heute (Daria, 2026-11-23). Senf wie der Kalender, als volle Pille. */}
+        {routineOn ? (
+          <Animated.View
+            style={{ width: plusW, height: ITEM_H, marginLeft: plusGap, opacity: open, transform: [{ scale: plusScale }] }}
+            pointerEvents={plusOn ? 'auto' : 'none'}
+          >
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('Neue Erinnerung')}
+              accessibilityElementsHidden={!plusOn}
+              importantForAccessibility={plusOn ? 'auto' : 'no-hide-descendants'}
+              onPress={() => {
+                countButton('plus-leiste', look);
+                router.push('/routine/new');
+              }}
+              style={({ pressed }) => [styles.item, styles.plus, pressed && styles.pressed]}
+            >
+              <Icon name="plus" size={PLUS_ICON} color={color.nav.onCreate} />
+            </Pressable>
+          </Animated.View>
         ) : null}
         {/* Kamera auch in der Leiste (Daria, 30.10.2026). Im Feed als lila Pille, dort etwas größer; in der Routine klein und schlicht (Daria, 2026-11-12). In Nachrichten und „Was Du so machst“ schlicht wie Feed und Menü daneben:
             ohne Fläche, gleich breit, gedämpfte Farbe (Daria, 10.11.2026).
             Sitzt rechts neben dem Kalender, das Herz (Feed) kommt danach (Daria, 2026-11-12) */}
+        {slot(
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('Challenge erstellen')}
@@ -100,14 +143,17 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
             countButton('kamera-leiste', look);
             (onCreatePress ?? (() => router.dismissTo({ pathname: '/feed', params: { erstellen: '1' } })))();
           }}
-          style={({ pressed }) => [styles.item, cameraPill && [styles.itemCamera, { backgroundColor: cameraFill }], pressed && styles.pressed]}
+          style={({ pressed }) => [styles.item, cameraPill && { backgroundColor: cameraFill }, pressed && styles.pressed]}
         >
           <Icon
             name="camera"
             size={cameraPill ? CAMERA_ICON_FEED : navSize(CAMERA_ICON_PLAIN, false)}
             color={cameraPill ? color.nav.onCreate : color.nav.icon}
           />
-        </Pressable>
+        </Pressable>,
+          cameraPill ? CAMERA_PILL_W : itemW,
+        )}
+        {slot(
         <Pressable
           accessibilityRole="tab"
           accessibilityLabel={t('Feed')}
@@ -116,8 +162,10 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
           style={({ pressed }) => [styles.item, feedOn && styles.itemActive, pressed && styles.pressed]}
         >
           <Icon name="feed" size={navSize(size.icon, feedOn)} color={feedOn ? color.nav.feed : color.nav.icon} />
-        </Pressable>
+        </Pressable>,
+        )}
         {/* Chat und Freund:innen (Daria, 22.10.2026) */}
+        {slot(
         <Pressable
           accessibilityRole="tab"
           accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : requests ? t('Chats, neue Freundschaftsanfrage') : t('Chats')}
@@ -134,7 +182,9 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
             <Icon name="message" size={navSize(NAV_ICON.message, active === 'chat')} color={active === 'chat' ? color.nav.chat : color.nav.icon} />
             {unread || requests ? <View style={styles.dot} /> : null}
           </View>
-        </Pressable>
+        </Pressable>,
+        )}
+        {slot(
         <Pressable
           accessibilityRole="tab"
           accessibilityLabel={t('Menü')}
@@ -143,7 +193,8 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
           style={({ pressed }) => [styles.item, active === 'menu' && styles.itemActive, pressed && styles.pressed]}
         >
           <Icon name="burger" size={navSize(NAV_ICON.burger, active === 'menu')} color={active === 'menu' ? color.nav.menu : color.nav.icon} />
-        </Pressable>
+        </Pressable>,
+        )}
       </View>
     </View>
   );
@@ -182,6 +233,17 @@ const NAV_ICON = {
 const CAMERA_ICON_PLAIN = 25;
 /** Nur im Feed größer, in der lila Pille (Daria, 2026-11-13) */
 const CAMERA_ICON_FEED = 30;
+/** Knöpfe der Leiste; mit Plus (Routine) etwas kleiner, damit alles in ein Oval passt (Daria, 2026-11-23) */
+const ITEM_W = 56;
+const ITEM_H = 48;
+const ITEM_W_SMALL = 46;
+const ITEM_H_SMALL = 42;
+const ICON_SMALL = 0.88;
+/** Kamera im Feed als breitere lila Pille */
+const CAMERA_PILL_W = 72;
+/** Plus: breiter als die Nachbarn und volle Höhe, das hervorgehobene Element */
+const PLUS_W = 64;
+const PLUS_ICON = 26;
 /** Nicht gewählte Icons kleiner, das gewählte behält die volle Höhe (Daria, 2026-11-13) */
 const NAV_IDLE = 0.8;
 const navSize = (full: number, selected: boolean) => (selected ? full : Math.round(full * NAV_IDLE * 10) / 10);
@@ -200,6 +262,7 @@ const styles = StyleSheet.create({
   wrap: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
   bar: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: space[6],
     padding: space[6],
     borderRadius: radius.full,
@@ -209,15 +272,14 @@ const styles = StyleSheet.create({
     borderColor: color.line.hairline,
   },
   item: {
-    width: 56,
-    height: 48,
+    flex: 1,
     borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // Im Feed etwas größer als die Nachbarn
-  // Lila wie üblich (Daria, 2026-11-12, kurz Olive)
-  itemCamera: { width: 72, backgroundColor: color.nav.create },
+  fill: { flex: 1 },
+  // Quick Button in der Routine: Senf wie Kalender und Me & Myself (Daria, 2026-11-23)
+  plus: { backgroundColor: color.nav.calendar },
   // Aktive Seite: graue Blase #303034 (Daria, 2026-11-12)
   itemActive: { backgroundColor: color.nav.bubble },
   camera: {

@@ -135,6 +135,8 @@ export default function FeedScreen() {
     requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: 0, animated: false }));
   }, [tabParam, isNew, router, standardTab]);
   const [refreshing, setRefreshing] = useState(false);
+  // Routine: „Neue Erinnerung“ ganz zu sehen, dann fehlt das Plus in der Leiste (Daria, 2026-11-23)
+  const [routineNewShown, setRoutineNewShown] = useState(false);
   const listRef = useRef<FlatList<FeedItem>>(null);
   const feedViews = useFeedViews(mode === 'live', currentUserId);
 
@@ -1173,6 +1175,7 @@ export default function FeedScreen() {
               bottomPad={insets.bottom + TAB_BAR_SPACE}
               floatBottom={tabBarBottom(insets.bottom) + TAB_BAR_HEIGHT + space[8]}
               calendarInList={false}
+              onNewButtonShown={setRoutineNewShown}
               onScroll={(e) => {
                 const y = e.nativeEvent.contentOffset.y;
                 // Weiterscrollen schiebt den Kalender wieder hinter die Umschalter. Nur wenn der Finger die Liste schiebt
@@ -1254,6 +1257,7 @@ export default function FeedScreen() {
         groupsActive={tab === 'groups'}
         routineActive={routineActive}
         onRoutinePress={openRoutine}
+        hidePlus={routineNewShown}
       /></PageSlideProvider>}
       <SurveyOverlay visible={surveyVisible} onClose={closeSurvey} />
     </View>
