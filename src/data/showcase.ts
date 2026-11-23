@@ -367,16 +367,25 @@ export async function showcaseOfGroup(groupId: string): Promise<Showcase | undef
   return showcase;
 }
 
-export async function loadShowcase(id: string, userId: string): Promise<{ showcase: Showcase; access: ShowcaseAccess } | null> {
-  const { data, error } = await supabase.from('showcases').select(COLUMNS).eq('id', id).maybeSingle();
-  if (error || !data) return null;
-  const showcase = toShowcase(data as Row);
-  const { data: priv } = await supabase.rpc('showcase_private', { p_showcase: id });
+/**
+ * Adresse, Kontakt-Mail, Punkt auf der Karte und Einladungscode aus showcase_private (nur Team und Mitglieder). Eine
+ * Stelle für loadShowcase und myShowcases, damit die Digitale Visitenkarte überall dieselben Angaben zeigt (Daria,
+ * 2026-11-23: in der Schaufenster-Übersicht fehlten Adresse und Mail).
+ */
+async function loadPrivate(showcase: Showcase): Promise<void> {
+  const { data: priv } = await supabase.rpc('showcase_private', { p_showcase: showcase.id });
   showcase.address = (priv as Private)?.address ?? undefined;
   showcase.email = (priv as Private)?.email ?? undefined;
   const { lat, lng } = (priv as Private) ?? {};
   showcase.coords = typeof lat === 'number' && typeof lng === 'number' ? { latitude: lat, longitude: lng } : undefined;
   showcase.inviteCode = (priv as Private)?.invite_code ?? '';
+}
+
+export async function loadShowcase(id: string, userId: string): Promise<{ showcase: Showcase; access: ShowcaseAccess } | null> {
+  const { data, error } = await supabase.from('showcases').select(COLUMNS).eq('id', id).maybeSingle();
+  if (error || !data) return null;
+  const showcase = toShowcase(data as Row);
+  await loadPrivate(showcase);
   showcase.switches = await showcaseSwitches(id);
   await Promise.all([loadTerms(showcase), loadSeo(showcase), loadBooking(showcase), loadPayments(showcase)]);
   const [member, group, guest, follow, see] = await Promise.all([
@@ -831,7 +840,7 @@ export async function myShowcases(userId: string): Promise<Showcase[]> {
   const { data } = await supabase.from('showcases').select(COLUMNS).in('group_id', ids).order('created_at');
   const founded = new Set(((members ?? []) as { group_id: string; role: string }[]).filter((m) => m.role === 'founder').map((m) => m.group_id));
   const list = ((data ?? []) as unknown as Row[]).map((r) => ({ ...toShowcase(r), founder: founded.has(r.group_id) }));
-  await Promise.all(list.map(async (s) => (s.switches = await showcaseSwitches(s.id))));
+  await Promise.all(list.flatMap((s) => [loadPrivate(s), showcaseSwitches(s.id).then((sw) => (s.switches = sw))]));
   return list;
 }
 

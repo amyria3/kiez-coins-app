@@ -10,7 +10,7 @@ import { SwitchRow, TextField } from '../../components/Form';
 import { NavigationBar } from '../../components/NavigationBar';
 import { SubScreen } from '../../components/Screen';
 import { Text } from '../../components/T';
-import { DigitalCard } from '../../components/showcase/DigitalCard';
+import { BusinessCard } from '../../components/showcase/BusinessCard';
 import { ShowcaseSummary } from '../../components/showcase/ShowcaseSummary';
 import { ShowcaseFunctions } from '../../components/showcase/ShowcaseFunctions';
 import { ShowcaseSettingsRows, type SettingsArea } from '../../components/showcase/ShowcaseSettingsRows';
@@ -273,7 +273,6 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
     }
   };
 
-  const openCard = (id: string) => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id, von: 'verwaltung' } });
 
   // Nur wer die Seite direkt über kiezcoins.de/schaufenster öffnet (ohne Verlauf), braucht den Weg in die App und
   // das Abmelden, z. B. am Rechner im Laden. Aus der App heraus hätte „Abmelden“ die ganze App abgemeldet
@@ -377,14 +376,12 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               />
             ) : null}
           </FieldGroup>
-          {/* Digitale Visitenkarte: die ganze Karte mit allen Angaben (Daria, 2026-11-23) und der Weg zu ihren
-              Weiterleitungsoptionen. Nur bei „Alle“ und online, sonst gibt es die Seite im Web nicht. */}
+          {/* Digitale Visitenkarte: dieselbe Komponente wie unter schaufenster/[id]/visitenkarte, mit Adresse, Mail und
+              allen Knöpfen fürs Team (Daria, 2026-11-23: „Still not the same component“). Nur bei „Alle“ und online,
+              sonst gibt es die Seite im Web nicht. */}
           {canShare(s) ? (
             <FieldGroup heading label="Digitale Visitenkarte">
-              <View style={styles.list}>
-                <DigitalCard showcase={s} onPress={() => openCard(s.id)} />
-                <Button label="Digitale Visitenkarte teilen" iconEnd="chevron-right" onPress={() => openCard(s.id)} />
-              </View>
+              <BusinessCard showcase={s} viewer="team" origin="manage" />
             </FieldGroup>
           ) : null}
           {/* Druckbare Visitenkarte (2026-11-23): eigener Abschnitt und eigener Bildschirm, damit sie nicht mit dem
