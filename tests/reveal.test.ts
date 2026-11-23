@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { revealDelta, visibleSpan } from '../src/lib/reveal';
+import { revealDelta, visibleSpan } from '../src/data/reveal.mjs';
 
 // Sichtbarer Bereich wie im Screenshot vom 2026-11-23: Kopfzeile bis 100, Tastatur ab 500
 const visible = { top: 100, bottom: 500 };

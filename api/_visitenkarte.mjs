@@ -38,6 +38,7 @@ export const karteQrLink = (slug) => `${visitenkarteLink(slug)}?via=karte`;
 
 // Ortszeile und Services teilt die Digitale Visitenkarte der App (src/components/showcase/DigitalCard.tsx)
 import { placeLine as ortZeile, serviceItems as serviceListe } from '../src/data/digitalCard.mjs';
+import { revealDelta, revealInBrowser, visibleSpan } from '../src/data/reveal.mjs';
 
 export { ortZeile, serviceListe };
 
@@ -331,12 +332,48 @@ export function visitenkarteAnsicht(s, { via, von, team = false, logo, kater, ma
       const p = document.getElementById(k.getAttribute('aria-controls'));
       p.hidden = false;
       const feld = p.querySelector('input:not([type=hidden]):not([type=checkbox]):not(.vk-falle), textarea');
+      // Formular: Der Fokus holt Feld und nächstes Feld ins Bild (nachruecken unten), ohne zweites Scrollen dagegen
       if (feld) feld.focus({ preventScroll: true });
-      requestAnimationFrame(() => p.scrollIntoView({ behavior: 'smooth', block: feld ? 'start' : 'end' }));
+      else requestAnimationFrame(() => p.scrollIntoView({ behavior: 'smooth', block: 'end' }));
     }
     if (haupt) haupt.classList.toggle('haupt', !auf);
   };
   for (const k of knoepfe) k.addEventListener('click', () => zeigen(k, k.getAttribute('aria-expanded') !== 'true'));
+  // Felder wie in der App (Daria, 2026-11-23): Dieselbe Regel aus src/data/reveal.mjs, hier eingebettet. Beschriftung,
+  // aktives Feld und das nächste stehen mit Luft über der Tastatur. Gerückt wird erst, wenn Safari fertig geschoben hat
+  // und die Tastatur still steht, dann nur noch die Differenz. „Weiter“ oder Enter springt ins nächste Feld, nach dem
+  // letzten zum Absende-Knopf; ein zweites Enter schickt ab. In der Nachricht bleibt Enter der Zeilenumbruch.
+  ${visibleSpan.toString()}
+  ${revealDelta.toString()}
+  ${revealInBrowser.toString()}
+  const felder = (f) => [...f.querySelectorAll('input, textarea')].filter((x) => !['hidden', 'checkbox'].includes(x.type) && !x.classList.contains('vk-falle'));
+  const umFeld = (x) => x.closest('.vk-f') || x;
+  let ruhe;
+  const nachruecken = () => {
+    clearTimeout(ruhe);
+    ruhe = setTimeout(() => {
+      const el = document.activeElement;
+      const liste = el && el.form ? felder(el.form) : [];
+      if (!liste.includes(el)) return;
+      const naechstes = liste[liste.indexOf(el) + 1];
+      revealInBrowser(umFeld(el), naechstes ? umFeld(naechstes) : null);
+    }, 120);
+  };
+  addEventListener('focusin', nachruecken);
+  if (window.visualViewport) visualViewport.addEventListener('resize', nachruecken);
+  for (const f of document.querySelectorAll('form.vk-panel')) {
+    const liste = felder(f);
+    for (const x of liste) if (x.tagName === 'INPUT') x.enterKeyHint = 'next';
+    f.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' || e.isComposing || e.target.tagName !== 'INPUT' || !liste.includes(e.target)) return;
+      e.preventDefault();
+      const n = liste[liste.indexOf(e.target) + 1];
+      if (n) { n.focus({ preventScroll: true }); return; }
+      const senden = f.querySelector('button[type="submit"]');
+      e.target.blur();
+      if (senden) { senden.focus({ preventScroll: true }); senden.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+    });
+  }
   for (const z of document.querySelectorAll('[data-zu]')) {
     z.addEventListener('click', () => {
       const p = z.closest('.vk-panel');

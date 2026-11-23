@@ -10,7 +10,7 @@ import { revealFocused } from './Nudge';
  * nach oben. Das aktive Feld und die ActionBar stehen über der Tastatur, nichts verschiebt sich unter dem Finger.
  *
  * - `KeyboardProvider` (einmal in `_layout.tsx`): kennt die Tastaturhöhe, holt das aktive Feld ins Bild (eine Regel für
- *   alle Plattformen: `revealFocused` in Nudge.tsx, Rechnung in lib/reveal.ts, Daria 2026-11-23) und
+ *   alle Plattformen: `revealFocused` in Nudge.tsx, Rechnung in data/reveal.mjs, Daria 2026-11-23) und
  *   nimmt den Abstand zum Home-Balken weg, solange die Tastatur ihn verdeckt.
  * - `KeyboardArea` (in SubScreen, HeroScreen, ComposeSheet, Chat, Tour, Umfrage): der Bereich, der über der
  *   Tastatur bleibt. Auf iPhone und Android als KeyboardAvoidingView. Android zeichnet seit Android 16 immer

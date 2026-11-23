@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { AccessibilityInfo, Alert, Dimensions, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from './T';
 
-import { revealDelta, visibleSpan, type Span } from '../lib/reveal';
+import { revealDelta, revealInBrowser, visibleSpan } from '../data/reveal.mjs';
 import { color, radius, space, stroke, text } from '../theme/tokens';
 import { keyboardMetrics } from './keyboardMetrics';
 
@@ -22,7 +22,7 @@ type ScrollTarget = {
   scrollToView: (view: View | null, align?: ScrollAlign) => void;
   /** Führt `change` aus und hält die Ansicht dabei an ihrer Stelle auf dem Bildschirm. */
   holdView: (view: View | null, change: () => void) => void;
-  /** iPhone und Android: aktives Feld und nächstes Feld nach der Regel in lib/reveal.ts ins Bild holen */
+  /** iPhone und Android: aktives Feld und nächstes Feld nach der Regel in data/reveal.mjs ins Bild holen */
   revealField: (field: View, next: View | null) => void;
 };
 
@@ -34,7 +34,7 @@ const scrollTargets: { scroll: ScrollTarget; fields: FieldRegistry }[] = [];
 const topTarget = () => scrollTargets[scrollTargets.length - 1];
 
 const measureSpan = (view: View) =>
-  new Promise<Span>((resolve) => view.measureInWindow((_x, y, _w, h) => resolve({ top: y, bottom: y + h })));
+  new Promise<{ top: number; bottom: number }>((resolve) => view.measureInWindow((_x, y, _w, h) => resolve({ top: y, bottom: y + h })));
 
 /** Browser: Feld mit Fokus, das die Tastatur öffnet */
 function focusedEditable(): HTMLElement | null {
@@ -245,7 +245,7 @@ export function scrollIntoView(view: View | null, align?: ScrollAlign) {
 }
 
 /**
- * Das aktive Feld ins Bild holen, nach der einen Regel in lib/reveal.ts (Daria, 2026-11-23): Beschriftung, Feld und
+ * Das aktive Feld ins Bild holen, nach der einen Regel in data/reveal.mjs (Daria, 2026-11-23): Beschriftung, Feld und
  * das nächste Feld darunter stehen mit Luft über der Tastatur. Aufgerufen, sobald die Tastatur steht (Keyboard.tsx),
  * beim Sprung ins nächste Feld und beim Aufklappen eines Formulars. Felder außerhalb von TextField (Kommentare, Chat,
  * Suche) kommen ohne nächstes Feld ins Bild.
@@ -257,37 +257,11 @@ export function revealFocused() {
   (target?.fields.locate(input) ?? Promise.resolve(null)).then((found) => {
     const field = (found?.field.view.current ?? input) as unknown as View;
     const next = found?.below?.view.current ?? null;
-    if (Platform.OS === 'web') revealOnWeb(field as unknown as HTMLElement, next as unknown as HTMLElement | null);
+    if (Platform.OS === 'web') revealInBrowser(field as unknown as HTMLElement, next as unknown as HTMLElement | null, keyboardMetrics.safeTop);
     else target?.scroll.revealField(field, next);
   });
 }
 
-/**
- * Browser: gerechnet wird mit dem sichtbaren Ausschnitt (`visualViewport`), nicht mit der Seite. Safari verschiebt die
- * Seite beim Antippen selbst und legt die Tastatur nur über den Ausschnitt. Gescrollt wird die nächste Scrollfläche um
- * das Feld, nie das Fenster: Das schloss in der Web-App auf dem Home-Bildschirm die Tastatur (2026-11-15, 2026-11-18).
- */
-function revealOnWeb(field: HTMLElement, next: HTMLElement | null) {
-  let scroller = field.parentElement;
-  while (scroller && !(/(auto|scroll)/.test(getComputedStyle(scroller).overflowY) && scroller.scrollHeight > scroller.clientHeight + 1)) {
-    scroller = scroller.parentElement;
-  }
-  if (!scroller) return;
-  const span = (el: Element): Span => {
-    const r = el.getBoundingClientRect();
-    return { top: r.top, bottom: r.bottom };
-  };
-  const vv = window.visualViewport;
-  const screen = vv
-    ? { top: vv.offsetTop + keyboardMetrics.safeTop, bottom: vv.offsetTop + vv.height }
-    : { top: keyboardMetrics.safeTop, bottom: window.innerHeight };
-  const delta = revealDelta(span(field), visibleSpan(span(scroller), screen), next ? span(next) : null);
-  if (Math.abs(delta) < 1) return;
-  const calm = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  // Die ScrollView von React Native legt ihr eigenes scrollTo({ x, y }) aufs Element; hier das des Browsers
-  const browserScrollTo = Element.prototype.scrollTo as (this: Element, options: ScrollToOptions) => void;
-  browserScrollTo.call(scroller, { top: scroller.scrollTop + delta, behavior: calm ? 'auto' : 'smooth' });
-}
 
 /**
  * Ansicht an ihrer Stelle auf dem Bildschirm halten, während sich darüber etwas ändert, z. B. das Kommentarfeld
