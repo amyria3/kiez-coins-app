@@ -163,13 +163,36 @@ export function backHtml(d: CardMailData): string {
 </table>`;
 }
 
+/**
+ * Begegnung, die das Team einträgt (Daria, 2026-11-24): Name der Person für die Anrede, Ort und Datum für einen Satz
+ * unter der Anrede. Nur vom Team, das prüft index.ts.
+ */
+export type Meeting = { name?: string; place?: string; date: string };
+
+/** Name der Person für die Anrede: nur Buchstaben, Leerzeichen, Punkt, Bindestrich, Apostroph; sonst leer */
+export function cleanRecipientName(input: unknown): string {
+  if (typeof input !== 'string') return '';
+  const name = input.replace(/\s+/g, ' ').trim();
+  return name.length <= 80 && /^[\p{L}][\p{L} .'’-]*$/u.test(name) ? name : '';
+}
+
+/** Ort der Begegnung: eine Zeile, höchstens 120 Zeichen, ohne Links und Adressen (kein Spam über das Feld) */
+export function cleanMeetingPlace(input: unknown): string {
+  if (typeof input !== 'string') return '';
+  const place = input.replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/\s+/g, ' ').trim();
+  return place.length <= 120 && !/https?:|www\.|@|\.(de|com|net|org|io)\b/i.test(place) ? place : '';
+}
+
 /** Betreff, HTML und Textfassung der Mail */
-export function cardMail(d: CardMailData, qr: QrMatrix, sender: string): { subject: string; html: string; text: string } {
+export function cardMail(d: CardMailData, qr: QrMatrix, sender: string, meeting?: Meeting): { subject: string; html: string; text: string } {
   // Eine Mail mit beiden Links (Daria, 2026-11-18): „Tritt der Community bei und abonniere das Schaufenster von …“
   // (App) und „Hier sind das Schaufenster und die Digitale Visitenkarte von …“ (Web, darunter die Karte)
   const subject = `Schaufenster und Digitale Visitenkarte von ${d.name}`;
   const name = `<strong>${esc(d.name)}</strong>`;
   const intro = sender ? `<br>${esc(sender)} schickt Dir die Links zum Schaufenster von ${name}.` : '';
+  const first = meeting?.name?.split(' ')[0] ?? '';
+  const hello = first ? `Ahoi ${first}!` : 'Ahoi!';
+  const met = meeting?.place ? `Ihr habt Euch am ${meeting.date} getroffen: ${meeting.place}.` : '';
   const join = d.appUrl
     ? `<tr><td style="font-family:${BODY};font-size:17px;line-height:25px;color:${INK};padding:0 4px 14px">Tritt der Community bei und abonniere das Schaufenster von ${name}.</td></tr>
   <tr><td style="padding:0 4px 28px">
@@ -191,7 +214,7 @@ export function cardMail(d: CardMailData, qr: QrMatrix, sender: string): { subje
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${PAGE}" style="background:${PAGE}">
 <tr><td align="center" style="padding:28px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px">
-  <tr><td style="font-family:${BODY};font-size:17px;line-height:25px;color:${INK};padding:0 4px 20px">Ahoi!${intro}</td></tr>
+  <tr><td style="font-family:${BODY};font-size:17px;line-height:25px;color:${INK};padding:0 4px 20px">${esc(hello)}${intro}${met ? `<br>${esc(met)}` : ''}</td></tr>
   ${join}
   <tr><td style="font-family:${BODY};font-size:17px;line-height:25px;color:${INK};padding:0 4px 14px">Hier sind das ${web} und die Digitale Visitenkarte von ${name}.</td></tr>
   <tr><td>${frontHtml(d, qr)}</td></tr>
@@ -218,8 +241,9 @@ export function cardMail(d: CardMailData, qr: QrMatrix, sender: string): { subje
     .filter(([, v]) => v)
     .map(([k, v]) => `${k}:\n${v}`);
   const text = [
-    'Ahoi!',
+    hello,
     ...(sender ? [`${sender} schickt Dir die Links zum Schaufenster von ${d.name}.`] : []),
+    ...(met ? [met] : []),
     '',
     ...(d.appUrl ? [`Tritt der Community bei und abonniere das Schaufenster von ${d.name}:`, d.appUrl, ''] : []),
     `Hier sind das Schaufenster und die Digitale Visitenkarte von ${d.name}:`,
