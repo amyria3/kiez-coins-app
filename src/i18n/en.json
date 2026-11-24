@@ -1892,5 +1892,7 @@
   "Du hast die Digitale Visitenkarte {wann} schon an diese Adresse geschickt.": "You already sent the digital business card to this address {wann}.",
   "Du hast die Digitale Visitenkarte schon zweimal an diese Adresse geschickt, zuletzt {wann}. Mehr als zwei Mails in 24 Stunden gehen nicht an dieselbe Adresse. Ab {ab} geht es wieder.": "You already sent the digital business card to this address twice, most recently {wann}. No more than two emails per 24 hours can go to the same address. You can send it again from {ab}.",
   "Trotzdem noch mal schicken": "Send again anyway",
-  "Speichern und trotzdem noch mal senden": "Save and send again anyway"
+  "Speichern und trotzdem noch mal senden": "Save and send again anyway",
+  "Webseiten": "Websites",
+  "Soziale Netzwerke": "Social networks"
 }

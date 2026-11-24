@@ -95,3 +95,22 @@ describe('Ort und Linkvorschau der Visitenkarte', () => {
     assert.equal(bildText({ name: 'Maria' }), 'Digitale Visitenkarte von Maria auf KiezCoins');
   });
 });
+
+describe('Kontakt, Webseiten und soziale Netzwerke', () => {
+  it('teilt Mail, Webseiten und Netzwerke auf und lässt http weg', async () => {
+    const { contactGroups } = await import('../src/data/digitalCard.mjs');
+    const g = contactGroups({
+      email: ' hallo@lindenhof.example ',
+      links: ['https://lindenhof.example', 'https://www.linkedin.com/in/maria-arkadieff', 'http://unsicher.example', 'https://instagram.com/lindenhof'],
+    });
+    assert.equal(g.email, 'hallo@lindenhof.example');
+    assert.deepEqual(g.websites, ['https://lindenhof.example']);
+    assert.deepEqual(g.social, ['https://www.linkedin.com/in/maria-arkadieff', 'https://instagram.com/lindenhof']);
+  });
+  it('nennt Netzwerk und @Name ohne Pfadteile wie /in/', async () => {
+    const { socialLink } = await import('../src/data/digitalCard.mjs');
+    assert.deepEqual(socialLink('https://www.linkedin.com/in/maria-arkadieff-4994033b0/'), { network: 'LinkedIn', handle: '@maria-arkadieff-4994033b0' });
+    assert.deepEqual(socialLink('https://bsky.app/profile/kiez.bsky.social'), { network: 'Bluesky', handle: '@kiez.bsky.social' });
+    assert.equal(socialLink('https://arkadieff.art'), null);
+  });
+});

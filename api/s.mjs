@@ -7,6 +7,7 @@
 
 import { hatTermine, schaufensterKalender } from './_kalender.mjs';
 import { buchungsLink } from './_buchung.mjs';
+import { contactGroups, shortUrl, socialLink } from '../src/data/digitalCard.mjs';
 import { cleanPaymentLinks } from '../src/data/paymentLinks.mjs';
 import { anfahrtLink, hatPunkt, karteEinbetten, karteGross } from './_karte.mjs';
 import { oeffnungszeiten } from './_oeffnungszeiten.mjs';
@@ -537,18 +538,24 @@ function inhalt(s, via, team = false) {
   ].join('');
   // Mehrere Links (Migration 20261110000600); vorher nur die Webseite
   const links = Array.isArray(s.links) && s.links.length ? s.links : s.website ? [s.website] : [];
-  const sichereLinks = links.filter((l) => /^https:\/\//i.test(l));
-  const web = sichereLinks.length
+  // Kontakt, Webseiten und soziale Netzwerke getrennt wie in der App (Daria, 2026-11-23, data/digitalCard.mjs).
+  // Ohne Angaben keine Zeile (Daria, 2026-11-17: „Dann bitte Mail einbinden“)
+  const kontakt = contactGroups({ email: s.email, links });
+  const verweis = (l, text) => `<a href="${esc(l)}" rel="noopener nofollow">${esc(text)}</a>`;
+  const mail = kontakt.email ? fakt('Kontakt', `<a href="mailto:${esc(kontakt.email)}">${esc(kontakt.email)}</a>`) : '';
+  const web = kontakt.websites.length
+    ? fakt(kontakt.websites.length > 1 ? 'Webseiten' : 'Webseite', kontakt.websites.map((l) => verweis(l, shortUrl(l))).join('<br>'))
+    : '';
+  const netze = kontakt.social.length
     ? fakt(
-        sichereLinks.length > 1 ? 'Links' : 'Link',
-        sichereLinks
-          .map((l) => `<a href="${esc(l)}" rel="noopener nofollow">${esc(l.replace(/^https:\/\/(www\.)?/i, '').replace(/\/$/, ''))}</a>`)
+        'Soziale Netzwerke',
+        kontakt.social
+          .map((l) => {
+            const n = socialLink(l);
+            return verweis(l, n ? `${n.network} ${n.handle}` : shortUrl(l));
+          })
           .join('<br>'),
       )
-    : '';
-  // Kontakt-Mail zum Antippen (Daria, 2026-11-17: „Dann bitte Mail einbinden“); ohne Mail keine Zeile
-  const mail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s.email ?? '')
-    ? fakt('E-Mail', `<a href="mailto:${esc(s.email)}">${esc(s.email)}</a>`)
     : '';
   const eintraege = (s.entries ?? []).map(eintrag).join('\n');
   // Noch nichts gepostet: ein erster Post als Platzhalter. Den leeren Abschnitt „Termine“ gibt es nicht mehr
@@ -566,7 +573,7 @@ function inhalt(s, via, team = false) {
   <div class="sf-wer">${logo ? `<img class="sf-logo" src="${esc(logo)}" alt="Logo von ${esc(s.name)}">` : `<span class="sf-logo sf-kater">${KATER}</span>`}<h1 style="${titelGroesse(s.name)}">${esc(s.name)}</h1></div>
   ${s.kiez ? `<p class="wer">${esc(s.kiez)}</p>` : ''}
   ${/* Ohne Beschreibung keine Zeile, wie bei Adresse und Öffnungszeiten (Daria, 2026-11-17) */ s.about?.trim() ? `<p class="text">${esc(s.about)}</p>` : ''}
-  ${infos || mail || web ? `<dl class="sf-fakten">${infos}${mail}${web}</dl>` : ''}
+  ${infos || mail || web || netze ? `<dl class="sf-fakten">${infos}${mail}${web}${netze}</dl>` : ''}
   ${s.imprint?.trim() ? '<p class="sf-klein"><a href="#impressum">Impressum</a></p>' : ''}
   ${
     // Leere Abschnitte (Services, AGB, Impressum) fallen ganz weg statt „Noch keine …“ (Daria, 2026-11-18)
