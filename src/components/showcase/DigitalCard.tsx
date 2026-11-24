@@ -7,7 +7,7 @@ import { t } from '../../data/texts';
 import { openLink } from '../../lib/places';
 import { font, radius, space, text } from '../../theme/tokens';
 import { ShowcaseLogo } from '../ShowcasePlaceholder';
-import { katerAvatarSvg } from '../icons/katerAvatarSvg';
+import { katerRingSvg } from '../icons/katerAvatarSvg';
 import { Text } from '../T';
 
 // Inhaltspalette der Visitenkarte (wie die Druckbare Visitenkarte und kiezcoins.de/s/…/visitenkarte): Gelbgrün, Tinte
@@ -79,10 +79,11 @@ export function DigitalCard({ showcase: s, onPress }: { showcase: Showcase; onPr
           return { href: l, text: n ? `${n.network} ${n.handle}` : shortLink(l) };
         }),
       )}
-      {/* Fußzeile rechtsbündig: KiezCoins, Bildmarke, Digitale Visitenkarte (Daria, 2026-11-24) */}
+      {/* Fußzeile rechtsbündig: KiezCoins, Bildmarke mit dickem Ring, Digitale Visitenkarte (Daria, 2026-11-24). Der
+          gelbgrüne Kreis der Bildmarke verschwände auf der gelbgrünen Karte, der Ring passt zum Rand der Pillen. */}
       <View style={styles.foot}>
         <Text style={styles.brand}>KiezCoins</Text>
-        <SvgXml xml={katerAvatarSvg()} width={24} height={24} />
+        <SvgXml xml={katerRingSvg()} width={26} height={26} />
         <Text style={styles.kind}>{t('Digitale Visitenkarte')}</Text>
       </View>
     </View>
