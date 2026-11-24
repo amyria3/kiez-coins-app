@@ -211,7 +211,7 @@ export default function Friends() {
     run((l) => ({ ...l, outgoing: [...l.outgoing, user] }), () => requestFriend(user.id));
   const groupsPage = (
     <>
-      <Text style={styles.secondary}>Menschen aus Deinen Gruppen. Schick Einzelnen eine Freundschaftsanfrage.</Text>
+      <Text style={styles.secondary}>Menschen aus Deinen Gruppen. Sende Einzelnen eine Freundschaftsanfrage.</Text>
       {groupPeople.length === 0 ? (
         <Text style={styles.secondary}>In Deinen Gruppen ist noch niemand außer Dir.</Text>
       ) : null}

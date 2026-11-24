@@ -219,7 +219,7 @@ export default function ChallengeDetail() {
     actions = <Button icon="camera" label="Nachher aufnehmen" onPress={() => router.push({ pathname: '/before-after/[id]', params: { id: challenge.id } })} />;
   }
   // Beim Schreiben ersetzt „Nachricht abschicken“ alle Knöpfe, damit niemand versehentlich erledigt meldet oder aussteigt
-  if (writing && actions) actions = <Button label="Nachricht abschicken" onPress={() => sendComment.current?.()} />;
+  if (writing && actions) actions = <Button label="Nachricht senden" onPress={() => sendComment.current?.()} />;
 
   const openProfile = (userId: string) =>
     router.push({ pathname: '/user/[id]', params: { id: userId, challengeId: challenge.id } });

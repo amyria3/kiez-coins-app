@@ -30,6 +30,17 @@ export function useSpace(): Space {
   return useContext(SpaceContext);
 }
 
+/** Haupt- und Nebenschrift eines Bereichs: Puder in Friendship, sonst im Farbton des Akzents (Daria, 2026-11-24) */
+export function spaceText(space: Space): { primary: string; secondary: string } {
+  if (space === 'showcase' || space === 'me' || space === 'functional') return color.textTone[space];
+  return { primary: color.text.primary, secondary: color.text.secondary };
+}
+
+/** Schrift und Rahmen in Haupt- oder Nebenschrift: dieselbe Farbe im Ton des Bereichs */
+export function useSpaceText(): { primary: string; secondary: string } {
+  return spaceText(useSpace());
+}
+
 /** Farben eines Bereichs: Akzent (gewählte Knöpfe, Hauptbuttons) und Fokus (Rahmen, Cursor, eingeschaltete Schalter) */
 export function spaceColors(space: Space): { accent: string; focus: string; off: string } {
   if (space === 'me') return { accent: color.accent.private, focus: color.accent.private, off: color.toggle.offPrivate };

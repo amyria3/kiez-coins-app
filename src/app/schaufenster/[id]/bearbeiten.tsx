@@ -5,7 +5,8 @@ import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 
 import { Button } from '../../../components/Button';
 import { FieldGroup, Notice, QuestionHint } from '../../../components/Content';
-import { choosePhoto, CopyField, SwitchRow, TextField } from '../../../components/Form';
+import { choosePhoto, CopyField, PHONE_FIELD, SwitchRow, TextField } from '../../../components/Form';
+import { PHONE_PATTERN } from '../../../data/digitalCard.mjs';
 import { ColorWheel } from '../../../components/ColorWheel';
 import { scrollIntoView } from '../../../components/Nudge';
 import { PostersAlone } from '../../../components/showcase/PostersAlone';
@@ -57,7 +58,7 @@ const TITLES: Record<SettingsArea, string> = {
 /**
  * Routen `schaufenster/[id]/bearbeiten` und `schaufenster/[id]/einstellungen?bereich=…`, nur die Gründer:in
  * (2026-11-23: Inhalte getrennt von Einstellungen). Ohne Bereich „Inhalte bearbeiten“: nur Texte und Bilder (Logo,
- * Titelbild, Name, Kurztext, Services, Kiez, Adresse, E-Mail, Links, Öffnungszeiten, Impressum, AGB). Mit Bereich genau
+ * Titelbild, Name, Kurztext, Services, Kiez, Adresse, E-Mail, Telefon, Links, Öffnungszeiten, Impressum, AGB). Mit Bereich genau
  * eine Einstellung von der Seite „Schaufenster“: Einladung und Anfragen (ohne „Für alle sichtbar“), wer posten darf,
  * Aussehen, Adresse und Suchmaschinen. Schalter (Sichtbarkeit, Kalender-Abo, Google, Online-Buchung,
  * Freundschaftsanfragen) und Löschen stehen auf der Seite „Schaufenster“ selbst und speichern sofort (2026-11-23).
@@ -72,7 +73,7 @@ export default function EditShowcase() {
   const { currentUserId, groups, users } = useStore();
   const [showcase, setShowcase] = useState<Showcase | null | undefined>(undefined);
   const [founder, setFounder] = useState(false);
-  const [form, setForm] = useState({ name: '', about: '', services: '', kiez: '', address: '', email: '', openingHours: '', imprint: '', terms: '' });
+  const [form, setForm] = useState({ name: '', about: '', services: '', kiez: '', address: '', email: '', phone: '', openingHours: '', imprint: '', terms: '' });
   // Kartensuche zur geänderten Adresse (2026-11-23): Das Ergebnis steht unter dem Feld, bis die Person entscheidet.
   // Gefunden: bestätigen oder als Text speichern. Nicht gefunden oder Suche gestört: als Text speichern.
   const [addressCheck, setAddressCheck] = useState<(AddressLookup & { address: string }) | null>(null);
@@ -112,6 +113,7 @@ export default function EditShowcase() {
         kiez: s.kiez ?? '',
         address: s.address ?? '',
         email: s.email ?? '',
+        phone: s.phone ?? '',
         openingHours: s.openingHours ?? '',
         imprint: s.imprint ?? '',
         terms: s.terms ?? '',
@@ -177,6 +179,7 @@ export default function EditShowcase() {
   const setPayment = (i: number, key: 'title' | 'amount' | 'url') => (value: string) =>
     setPayments((all) => all.map((p, j) => (j === i ? { ...p, [key]: value } : p)));
   const emailOk = !form.email.trim() || EMAIL_PATTERN.test(form.email.trim());
+  const phoneOk = !form.phone.trim() || PHONE_PATTERN.test(form.phone.trim());
   const bgOk = !bgColor.trim() || HEX.test(bgColor.trim());
   const setLink = (i: number) => (value: string) => setLinks((all) => all.map((l, j) => (j === i ? value : l)));
   // Link eine Stelle nach oben (-1) oder unten (+1) schieben
@@ -260,7 +263,7 @@ export default function EditShowcase() {
       actions={
         // „Wer darf posten?“ speichert jeden Schalter sofort, „Leute einladen“ hat nichts zu speichern
         area === 'posten' || area === 'sichtbarkeit' ? undefined : (
-          <Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !paymentsOk || !emailOk || !bgOk || !slugOk} onPress={() => save()} />
+          <Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !paymentsOk || !emailOk || !phoneOk || !bgOk || !slugOk} onPress={() => save()} />
         )
       }
     >
@@ -306,6 +309,17 @@ export default function EditShowcase() {
           keyboardType="email-address"
           placeholder="hallo@kiezblick.de"
           error={emailOk ? undefined : 'Bitte eine E-Mail-Adresse wie hallo@kiezblick.de eintragen'}
+        />
+        {/* Telefon (Daria, 2026-11-24): steht mit der Mail in der Karte „Kontakt“, zum Antippen */}
+        <TextField
+          label="Telefon"
+          value={form.phone}
+          onChangeText={set('phone')}
+          maxLength={30}
+          helperText="Optional"
+          placeholder="0341 123456"
+          {...PHONE_FIELD}
+          error={phoneOk ? undefined : 'Bitte nur Ziffern, Leerzeichen und + ( ) / - eintragen'}
         />
         {/* Reihenfolge der Links (Daria, 2026-11-23): Sie gilt auf der Seite, der Visitenkarte und für die Auswahl der
             druckbaren Karte, die die ersten Links vorauswählt */}

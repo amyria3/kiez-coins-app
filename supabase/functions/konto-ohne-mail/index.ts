@@ -48,7 +48,7 @@ async function sendCopy(to: string, handle: string, password: string): Promise<b
     `Ahoi!\n\nDu hast bei KiezCoins ein Konto ohne E-Mail angelegt. Damit meldest Du Dich an:\n\n` +
     `Deckname: ${handle}\nPasswort: ${password}\n\n` +
     `Wir haben Deine Adresse nur für diese Mail genutzt und nicht gespeichert. ` +
-    `Ohne E-Mail können wir Dir kein neues Passwort schicken. Hebe diese Mail also gut auf.\n\nCat The Käptn`;
+    `Ohne E-Mail können wir Dir kein neues Passwort senden. Hebe diese Mail also gut auf.\n\nCat The Käptn`;
   const res = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: { 'api-key': key, 'Content-Type': 'application/json', Accept: 'application/json' },

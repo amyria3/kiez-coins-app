@@ -222,7 +222,7 @@ export function ShowcaseFunctions({ showcase: s, onOpenInvite, onChanged }: { sh
             label="Freundschaftsanfragen über das Schaufenster"
             description={
               friends
-                ? 'Wer Deine Seite oder Digitale Visitenkarte öffnet, kann Dir mit einem Tipp eine Freundschaftsanfrage schicken.'
+                ? 'Wer Deine Seite oder Digitale Visitenkarte öffnet, kann Dir mit einem Tipp eine Freundschaftsanfrage senden.'
                 : 'Auf Deiner Seite erscheint kein Knopf zum Anfreunden.'
             }
             value={friends}

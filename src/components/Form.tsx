@@ -9,8 +9,8 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 
 import type { ImageSource } from '../data/types';
-import { color, radius, scheme, space, stroke, text } from '../theme/tokens';
-import { useAccentColor, useFocusColor, useToggleOffColor } from '../theme/signal';
+import { color, radius, scheme, space, stroke, text, withAlpha } from '../theme/tokens';
+import { useAccentColor, useFocusColor, useSpaceText, useToggleOffColor } from '../theme/signal';
 import { BlurView } from 'expo-blur';
 import { Glass, glassControls } from './Glass';
 import { fitShape, SWITCH_KNOB, SWITCH_TRACK } from './handSwitch';
@@ -78,7 +78,9 @@ export function TextField({
   const advances = !multiline && !onSubmitEditing && !!goNext;
   const hinted = !error && !!nudge?.hint;
   const accent = useFocusColor();
-  const borderColor = error || hinted ? color.accent.error : focused ? accent : color.text.secondary;
+  // Schrift, Rand und Platzhalter im Ton des Themes (Daria, 2026-11-24), in Friendship Puder
+  const tone = useSpaceText();
+  const borderColor = error || hinted ? color.accent.error : focused ? accent : tone.secondary;
   const helper = error ?? nudge?.hint ?? helperText;
   const showEnd = !multiline && (showEndProp ?? inputProps.keyboardType === 'url');
   const value = inputProps.value ?? '';
@@ -129,7 +131,7 @@ export function TextField({
               }
             : undefined
         }
-        placeholderTextColor={color.text.placeholder}
+        placeholderTextColor={tone.secondary === color.text.secondary ? color.text.placeholder : withAlpha(tone.secondary, 0.45)}
         selectionColor={accent}
         onChangeText={(v) => {
           nudge?.clear();
@@ -150,7 +152,7 @@ export function TextField({
           error ? styles.inputError : null,
           // Aktives Feld mit kräftigerem Rand; das Innere rückt um die Differenz ein, damit nichts springt
           focused || hinted ? styles.inputFocused : null,
-          { borderColor },
+          { borderColor, color: tone.primary },
         ]}
       />
       {helper ? (
@@ -164,12 +166,13 @@ export function TextField({
 export function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
   // Gewählt in der Akzentfarbe des Bereichs: lila, in „Me & Myself“ gelb (Daria, 2026-11-13)
   const accent = useAccentColor();
+  const line = useSpaceText().secondary;
   return (
     <Pressable
       accessibilityRole="radio"
       accessibilityState={{ selected }}
       onPress={onPress}
-      style={[styles.chip, selected && { backgroundColor: accent, borderColor: accent }]}
+      style={[styles.chip, { borderColor: line }, selected && { backgroundColor: accent, borderColor: accent }]}
     >
       <Text style={[text.body, { color: selected ? color.bg.screen : color.text.primary }]}>{label}</Text>
     </Pressable>
@@ -392,6 +395,8 @@ function GlassSwitch({ label, value, onValueChange }: { label: string; value: bo
 /** Figma „RadioOption“ (Selected?) */
 export function RadioOption({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
   const accent = useAccentColor();
+  // Rand im Ton des Themes wie die Eingabefelder (Daria, 2026-11-24)
+  const line = { borderColor: useSpaceText().secondary };
   return (
     <Pressable
       accessibilityRole="radio"
@@ -399,7 +404,7 @@ export function RadioOption({ label, selected, onPress }: { label: string; selec
       onPress={onPress}
       style={[styles.radioOption, selected && { borderColor: accent }]}
     >
-      <View style={[styles.radio, selected && { borderColor: accent }]}>{selected ? <View style={[styles.dot, { backgroundColor: accent }]} /> : null}</View>
+      <View style={[styles.radio, line, selected && { borderColor: accent }]}>{selected ? <View style={[styles.dot, { backgroundColor: accent }]} /> : null}</View>
       <Text style={[text.body, styles.flex, { color: color.text.primary }]}>{label}</Text>
     </Pressable>
   );
@@ -419,6 +424,7 @@ export function CheckOption({
   disabled?: boolean;
 }) {
   const accent = useAccentColor();
+  const line = { borderColor: useSpaceText().secondary };
   return (
     <Pressable
       accessibilityRole="checkbox"
@@ -427,7 +433,7 @@ export function CheckOption({
       disabled={disabled}
       style={[styles.radioOption, selected && { borderColor: accent }, disabled && styles.switchDisabled]}
     >
-      <View style={[styles.checkbox, selected && { borderColor: accent, backgroundColor: accent }]}>
+      <View style={[styles.checkbox, line, selected && { borderColor: accent, backgroundColor: accent }]}>
         {selected ? <Icon name="check" size={14} color={color.bg.screen} /> : null}
       </View>
       <Text style={[text.body, styles.flex, { color: color.text.primary }]}>{label}</Text>
@@ -544,6 +550,7 @@ export function ExtraPhotos({
   onAdd: (photo: ImageSource) => void;
   onRemove: (index: number) => void;
 }) {
+  const tone = useSpaceText();
   return (
     <View style={styles.field}>
       <Text style={styles.fieldLabel}>{t('Weitere Fotos (optional, bis zu {max})', { max })}</Text>
@@ -567,9 +574,9 @@ export function ExtraPhotos({
             accessibilityRole="button"
             accessibilityLabel={t('Weiteres Foto hinzufügen')}
             onPress={() => choosePhoto(onAdd)}
-            style={[styles.extraTile, styles.extraAdd]}
+            style={[styles.extraTile, styles.extraAdd, { borderColor: tone.secondary }]}
           >
-            <Icon name="plus" size={18} color={color.text.secondary} />
+            <Icon name="plus" size={18} color={tone.secondary} />
           </Pressable>
         ) : null}
       </View>
@@ -609,6 +616,7 @@ export function PhotoPicker({
   /** Ebene über dem Foto, z. B. Text direkt auf dem Foto (`PhotoTextOnPhoto`). Fängt Tippen aufs Foto ab. */
   overlay?: ReactNode;
 }) {
+  const tone = useSpaceText();
   const choose = () => choosePhoto(onChange);
   const [focused, setFocused] = useState(false);
   // Höhe des Titels folgt dem Text (Daria, 30.10.2026); im Browser wäre das Feld sonst zwei Zeilen hoch
@@ -641,6 +649,7 @@ export function PhotoPicker({
         style={[
           styles.photoPicker,
           !photo && styles.photoPickerEmpty,
+          !photo ? { borderColor: tone.secondary } : null,
           !photo && error ? styles.photoPickerError : null,
           title ? styles.photoPickerTitled : null,
           title && !photo ? styles.photoPickerTitledEmpty : null,

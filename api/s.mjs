@@ -7,7 +7,7 @@
 
 import { hatTermine, schaufensterKalender } from './_kalender.mjs';
 import { buchungsLink } from './_buchung.mjs';
-import { contactGroups, shortUrl, socialLink } from '../src/data/digitalCard.mjs';
+import { contactGroups, shortUrl, socialLink, telLink } from '../src/data/digitalCard.mjs';
 import { cleanPaymentLinks } from '../src/data/paymentLinks.mjs';
 import { anfahrtLink, hatPunkt, karteEinbetten, karteGross } from './_karte.mjs';
 import { oeffnungszeiten } from './_oeffnungszeiten.mjs';
@@ -180,6 +180,7 @@ function jsonLd(s, url) {
     ...(hatPunkt(s) ? { geo: { '@type': 'GeoCoordinates', latitude: s.lat, longitude: s.lng }, hasMap: karteGross(s) } : {}),
     ...(oeffnungszeiten(s.opening_hours) ? { openingHoursSpecification: oeffnungszeiten(s.opening_hours) } : {}),
     ...(s.email ? { email: s.email } : {}),
+    ...(s.phone ? { telephone: s.phone } : {}),
     ...(s.kiez ? { areaServed: s.kiez } : {}),
     ...(links.length ? { sameAs: links } : {}),
   };
@@ -261,10 +262,13 @@ function eintrag(x) {
 // (api/_visitenkarte.mjs). `von=schaufenster` sagt ihr, dass die Person von hier kommt. Kam sie über den QR-Code der Karte (?via=karte), geht
 // die Kennung mit.
 function visitenkarte(s, via, team) {
+  // height: auto und object-fit: contain (2026-11-24, Bildschirmfoto von Daria): Das Bild hat width und height als
+  // Attribute. Ohne height: auto galten die 630 px Höhe bei voller Breite, und `.geteilt img` (Fotos der Posts, cover)
+  // schnitt die Karte riesig vergrößert zu.
   const ziel = `/s/${s.slug}/visitenkarte?von=schaufenster${via === 'karte' ? '&via=karte' : ''}${team ? '&als=team' : ''}`;
   return `<style>
 .geteilt .sf-vk { margin: 0 0 56px; max-width: 420px; }
-.geteilt .sf-vk-bild { display: block; width: 100%; aspect-ratio: ${BILD_B} / ${BILD_H}; border-radius: 10px; margin: 0 0 24px; background: #F0FFA6; }
+.geteilt .sf-vk-bild { display: block; width: 100%; height: auto; object-fit: contain; aspect-ratio: ${BILD_B} / ${BILD_H}; border-radius: 10px; margin: 0 0 24px; background: #F0FFA6; }
 .geteilt .sf-vk a.sf-vk-haupt { display: flex; align-items: center; justify-content: center; min-height: 50px; padding: 13px 20px; box-sizing: border-box;
   border-radius: 999px; background: var(--text); color: var(--bg); font: 500 16px/1.25 Inter, sans-serif; letter-spacing: .01em; text-decoration: none; }
 </style>
@@ -540,9 +544,20 @@ function inhalt(s, via, team = false) {
   const links = Array.isArray(s.links) && s.links.length ? s.links : s.website ? [s.website] : [];
   // Kontakt, Webseiten und soziale Netzwerke getrennt wie in der App (Daria, 2026-11-23, data/digitalCard.mjs).
   // Ohne Angaben keine Zeile (Daria, 2026-11-17: „Dann bitte Mail einbinden“)
-  const kontakt = contactGroups({ email: s.email, links });
+  const kontakt = contactGroups({ email: s.email, phone: s.phone, links });
   const verweis = (l, text) => `<a href="${esc(l)}" rel="noopener nofollow">${esc(text)}</a>`;
-  const mail = kontakt.email ? fakt('Kontakt', `<a href="mailto:${esc(kontakt.email)}">${esc(kontakt.email)}</a>`) : '';
+  const mail =
+    kontakt.email || kontakt.phone
+      ? fakt(
+          'Kontakt',
+          [
+            kontakt.email ? `<a href="mailto:${esc(kontakt.email)}">${esc(kontakt.email)}</a>` : '',
+            kontakt.phone ? `<a href="${esc(telLink(kontakt.phone))}">${esc(kontakt.phone)}</a>` : '',
+          ]
+            .filter(Boolean)
+            .join('<br>'),
+        )
+      : '';
   const web = kontakt.websites.length
     ? fakt(kontakt.websites.length > 1 ? 'Webseiten' : 'Webseite', kontakt.websites.map((l) => verweis(l, shortUrl(l))).join('<br>'))
     : '';

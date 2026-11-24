@@ -77,11 +77,11 @@ const AuthContext = createContext<Auth | null>(null);
 export function authErrorText(error: AuthError): string {
   switch (error.code) {
     case 'otp_expired':
-      return 'Der Code ist abgelaufen oder stimmt nicht. Lasse Dir einen neuen schicken.';
+      return 'Der Code ist abgelaufen oder stimmt nicht. Lasse Dir einen neuen senden.';
     case 'otp_disabled':
     case 'signup_disabled':
     case 'user_not_found':
-      return 'Zu dieser Adresse gibt es noch kein Konto. Lasse Dir einen Code schicken.';
+      return 'Zu dieser Adresse gibt es noch kein Konto. Lasse Dir einen Code senden.';
     case 'over_email_send_rate_limit':
     case 'over_request_rate_limit':
       return 'Zu viele Codes auf einmal. Warte kurz und versuche es dann noch mal.';
